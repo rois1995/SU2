@@ -819,6 +819,7 @@ class CGeometry {
    * \param[in] action - Allocate or not the new elements.
    */
   inline virtual void SetBoundControlVolume(const CConfig* config, unsigned short action) {}
+  inline virtual void SetBoundCVCoeffs(const CConfig* config, unsigned short action) {}
 
   /*!
    * \brief Computes modified normals at intersecting symmetry planes.
