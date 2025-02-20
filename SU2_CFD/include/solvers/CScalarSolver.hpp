@@ -362,6 +362,12 @@ class CScalarSolver : public CSolver {
   void BC_Far_Field(CGeometry *geometry, CSolver **solver_container, CNumerics *conv_numerics,
                     CNumerics *visc_numerics, CConfig *config, unsigned short val_marker) final;
 
+  void BC_Far_Field_Residual(CGeometry* geometry, CSolver** solver_container, CNumerics* conv_numerics,
+                             CNumerics* visc_numerics, CConfig* config, unsigned short val_marker,
+                             unsigned long val_element, unsigned short iNode,
+                             su2double* residualBuffer) final;
+
+
   /*!
    * \brief Impose the Symmetry Plane boundary condition.
    * \param[in] geometry - Geometrical definition of the problem.
@@ -374,6 +380,14 @@ class CScalarSolver : public CSolver {
   inline void BC_Sym_Plane(CGeometry* geometry, CSolver** solver_container, CNumerics* conv_numerics,
                            CNumerics* visc_numerics, CConfig* config, unsigned short val_marker) override {
     /*--- Convective and viscous fluxes across symmetry plane are equal to zero. ---*/
+  }
+
+
+  inline void BC_Sym_Plane_Residual(CGeometry* geometry, CSolver** solver_container, CNumerics* conv_numerics,
+                                    CNumerics* visc_numerics, CConfig* config, unsigned short val_marker,
+                                    unsigned long val_element, unsigned short iNode,
+                                    su2double* residualBuffer) override {
+  /*--- Convective and viscous fluxes across symmetry plane are equal to zero. ---*/
   }
 
   /*!

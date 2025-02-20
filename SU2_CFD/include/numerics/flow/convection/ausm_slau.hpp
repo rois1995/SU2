@@ -88,9 +88,9 @@ public:
    * \param[in] val_nVar - Number of variables of the problem.
    * \param[in] config - Definition of the particular problem.
    */
-  CUpwAUSMPLUS_SLAU_Base_Flow(unsigned short val_nDim, unsigned short val_nVar, const CConfig* config);
-
-  /*!
+  CUpwAUSMPLUS_SLAU_Base_Flow(unsigned short val_nDim, unsigned short val_nVar, unsigned short val_nPrimVar,
+                              unsigned short val_nPrimVarGrad, const CConfig* config);
+/*!
    * \brief Destructor of the class.
    */
   ~CUpwAUSMPLUS_SLAU_Base_Flow(void) override;
@@ -130,7 +130,8 @@ public:
    * \param[in] val_nVar - Number of variables of the problem.
    * \param[in] config - Definition of the particular problem.
    */
-  CUpwAUSMPLUSUP_Flow(unsigned short val_nDim, unsigned short val_nVar, const CConfig* config);
+  CUpwAUSMPLUSUP_Flow(unsigned short val_nDim, unsigned short val_nVar, unsigned short val_nPrimVar,
+                      unsigned short val_nPrimVarGrad, const CConfig* config);
 
 };
 
@@ -160,7 +161,8 @@ public:
    * \param[in] val_nVar - Number of variables of the problem.
    * \param[in] config - Definition of the particular problem.
    */
-  CUpwAUSMPLUSUP2_Flow(unsigned short val_nDim, unsigned short val_nVar, const CConfig* config);
+  CUpwAUSMPLUSUP2_Flow(unsigned short val_nDim, unsigned short val_nVar, unsigned short val_nPrimVar,
+                       unsigned short val_nPrimVarGrad, const CConfig* config);
 
 };
 
@@ -191,7 +193,8 @@ public:
    * \param[in] val_nVar - Number of variables of the problem.
    * \param[in] config - Definition of the particular problem.
    */
-  CUpwSLAU_Flow(unsigned short val_nDim, unsigned short val_nVar, const CConfig* config, bool val_low_dissipation);
+  CUpwSLAU_Flow(unsigned short val_nDim, unsigned short val_nVar, unsigned short val_nPrimVar,
+                unsigned short val_nPrimVarGrad, const CConfig* config, bool val_low_dissipation);
 
 };
 
@@ -209,7 +212,8 @@ public:
    * \param[in] val_nVar - Number of variables of the problem.
    * \param[in] config - Definition of the particular problem.
    */
-  CUpwSLAU2_Flow(unsigned short val_nDim, unsigned short val_nVar, const CConfig* config, bool val_low_dissipation);
+  CUpwSLAU2_Flow(unsigned short val_nDim, unsigned short val_nVar, unsigned short val_nPrimVar,
+                 unsigned short val_nPrimVarGrad, const CConfig* config, bool val_low_dissipation);
 
 };
 
@@ -245,7 +249,8 @@ public:
    * \param[in] val_nVar - Number of variables of the problem.
    * \param[in] config - Definition of the particular problem.
    */
-  CUpwAUSM_Flow(unsigned short val_nDim, unsigned short val_nVar, const CConfig* config);
+  CUpwAUSM_Flow(unsigned short val_nDim, unsigned short val_nVar, unsigned short val_nPrimVar,
+                unsigned short val_nPrimVarGrad, const CConfig* config);
 
   /*!
    * \brief Destructor of the class.

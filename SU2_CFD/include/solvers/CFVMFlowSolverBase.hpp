@@ -1004,7 +1004,7 @@ class CFVMFlowSolverBase : public CSolver {
     CompleteComms(geometry, config, MPI_QUANTITIES::SOLUTION);
 
     /*--- For verification cases, compute the global error metrics. ---*/
-    ComputeVerificationError(geometry, config);
+    // ComputeVerificationError(geometry, config);
   }
 
   /*!
@@ -1144,6 +1144,10 @@ class CFVMFlowSolverBase : public CSolver {
   void BC_Sym_Plane(CGeometry* geometry, CSolver** solver_container, CNumerics* conv_numerics, CNumerics* visc_numerics,
                     CConfig* config, unsigned short val_marker) override;
 
+  void BC_Sym_Plane_Residual(CGeometry* geometry, CSolver** solver_container, CNumerics* conv_numerics,
+                             CNumerics* visc_numerics, CConfig* config, unsigned short val_marker,
+                             unsigned long val_element, unsigned short iNode, su2double* residualBuffer) override;
+
   /*!
    * \brief Impose a periodic boundary condition by summing contributions from the complete control volume.
    * \param[in] geometry - Geometrical definition of the problem.
@@ -1175,6 +1179,14 @@ class CFVMFlowSolverBase : public CSolver {
    */
   void BC_Custom(CGeometry* geometry, CSolver** solver_container, CNumerics* conv_numerics, CNumerics* visc_numerics,
                  CConfig* config, unsigned short val_marker) final;
+  void BC_Custom_Weak(CGeometry* geometry, CSolver** solver_container, CNumerics* conv_numerics, CNumerics* visc_numerics,
+                 CConfig* config, unsigned short val_marker) final;
+
+  void BC_Custom_Weak_Residual(CGeometry* geometry, CSolver** solver_container, CNumerics* conv_numerics,
+                                              CNumerics* visc_numerics, CConfig* config, unsigned short val_marker,
+                                              unsigned long val_element, unsigned short iNode,
+                                              su2double* residualBuffer) final;
+
 
   /*!
    * \brief Compute the density at the infinity.
