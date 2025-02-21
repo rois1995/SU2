@@ -1140,6 +1140,7 @@ void CFVMFlowSolverBase<V, FlowRegime>::BC_Sym_Plane(CGeometry* geometry, CSolve
   const bool implicit = (config->GetKind_TimeIntScheme() == EULER_IMPLICIT);
   const auto iVel = prim_idx.Velocity();
 
+
   /*--- Blazek chapter 8.:
    * The components of the momentum residual normal to the symmetry plane are zeroed out.
    * The gradients have already been corrected acording to Eq. (8.40).
@@ -1242,7 +1243,98 @@ void CFVMFlowSolverBase<V, FlowRegime>::BC_Sym_Plane(CGeometry* geometry, CSolve
 
     /*--- Jacobian contribution for implicit integration. ---*/
     if (implicit) {
-      Jacobian.AddBlock2Diag(iPoint, residual.jacobian_i);
+      
+      // Non ne sono sicuro, va controllato visto che hanno cambiato questa funzione!
+      const su2double Density = V_domain[nDim+2];
+      const su2double* Velocity = &V_domain[1];
+      const su2double* VelocityRef = &V_reflected[1];
+
+      su2double Velocity2 = GeometryToolbox::SquaredNorm(nDim,Velocity);
+
+      su2double Velocity2Ref = GeometryToolbox::SquaredNorm(nDim,VelocityRef);
+
+      su2double dUedVe[5][5];
+      dUedVe[0][0] = 1;
+      for (auto iVar = 1; iVar < nVar; ++iVar) dUedVe[0][iVar] = 0;
+
+      for (auto iDim = 0; iDim < nDim; ++iDim){
+        dUedVe[iDim+1][0] = VelocityRef[iDim];
+        for (int jDim = 0; jDim < nDim; ++jDim){
+          dUedVe[iDim+1][jDim+1] = 0;
+        }
+        dUedVe[iDim+1][iDim+1] = Density;
+        dUedVe[iDim+1][nDim+1] = 0;
+      }
+      dUedVe[nDim+1][0] = 0.5*Velocity2Ref;
+      dUedVe[nDim+1][nDim+1] = 1/Gamma_Minus_One;
+      for (auto iDim = 0; iDim < nDim; ++iDim)
+        dUedVe[nDim+1][iDim+1] = Density*VelocityRef[iDim];
+
+
+      su2double dVdU[5][5];
+
+      dVdU[0][0] = 1;
+      for (auto iVar = 1; iVar < nVar; ++iVar) dVdU[0][iVar] = 0;
+
+      for (auto iDim = 0; iDim < nDim; ++iDim){
+        dVdU[iDim+1][0] = -Velocity[iDim] / Density;
+        for (int jDim = 0; jDim < nDim; ++jDim){
+          dVdU[iDim+1][jDim+1] = 0;
+        }
+        dVdU[iDim+1][iDim+1] = 1.0 / Density;
+        dVdU[iDim+1][nDim+1] = 0;
+      }
+      dVdU[nDim+1][0] = 0.5*Gamma_Minus_One*Velocity2;
+      dVdU[nDim+1][nDim+1] = Gamma_Minus_One;
+      for (auto iDim = 0; iDim < nDim; ++iDim)
+        dVdU[nDim+1][iDim+1] = -Gamma_Minus_One*Velocity[iDim];
+
+
+      su2double dVedV[5][5];
+
+      dVedV[0][0] = 1;
+      for (auto iVar = 1; iVar < nVar; ++iVar) dVedV[0][iVar] = 0;
+
+      for (auto iDim = 0; iDim < nDim; ++iDim){
+        dVedV[iDim+1][0] = 0;
+        for (int jDim = 0; jDim < nDim; ++jDim){
+          dVedV[iDim+1][jDim+1] = -2*UnitNormal[iDim]*UnitNormal[jDim];
+        }
+        dVedV[iDim+1][iDim+1] += 1.0;
+        dVedV[iDim+1][nDim+1] = 0;
+      }
+
+      dVedV[nDim+1][0] = 0;
+      dVedV[nDim+1][nDim+1] = 1;
+      for (auto iDim = 0; iDim < nDim; ++iDim)
+        dVedV[nDim+1][iDim+1] = 0;
+
+
+      su2double tmp1[5][5], totJac[5][5], dUedU[5][5];
+
+
+      for (auto iVar = 0; iVar < nVar; ++iVar)
+        for (int jVar = 0; jVar < nVar; ++jVar) {
+          tmp1[iVar][jVar] = 0;
+          for (int kVar = 0; kVar < nVar; ++kVar)
+            tmp1[iVar][jVar] += dUedVe[iVar][kVar] * dVedV[kVar][jVar];
+        }
+
+      for (auto iVar = 0; iVar < nVar; ++iVar)
+        for (int jVar = 0; jVar < nVar; ++jVar) {
+          dUedU[iVar][jVar] = 0;
+          for (int kVar = 0; kVar < nVar; ++kVar)
+            dUedU[iVar][jVar] += tmp1[iVar][kVar] * dVdU[kVar][jVar];
+        }
+
+      for (auto iVar = 0; iVar < nVar; ++iVar)
+        for (int jVar = 0; jVar < nVar; ++jVar) {
+          totJac[iVar][jVar] = residual.jacobian_i[iVar][jVar];
+          for (int kVar = 0; kVar < nVar; ++kVar)
+            totJac[iVar][jVar] += residual.jacobian_j[iVar][kVar] * dUedU[kVar][jVar];
+        }
+
+      Jacobian.AddBlock2Diag(iPoint, totJac);
     }
 
     /*--- Correction for multigrid. ---*/
@@ -1365,7 +1457,7 @@ void CFVMFlowSolverBase<V, R>::BC_Sym_Plane_Residual(CGeometry* geometry, CSolve
       /*--- Set the reflected state based on the boundary node. Scalars are copied and
             the velocity is mirrored along the symmetry boundary, i.e. the velocity in
             normal direction is substracted twice. ---*/
-      for (iVar = 0; iVar < nPrimVar; iVar++) V_reflected[iVar] = nodes->GetPrimitive(iPoint, iVar);
+      for (auto iVar = 0; iVar < nPrimVar; iVar++) V_reflected[iVar] = nodes->GetPrimitive(iPoint, iVar);
 
       /*--- Compute velocity in normal direction (ProjVelcity_i=(v*n)) und substract twice from
             velocity in normal direction: v_r = v - 2 (v*n)n ---*/
@@ -1403,11 +1495,7 @@ void CFVMFlowSolverBase<V, R>::BC_Sym_Plane_Residual(CGeometry* geometry, CSolve
 //
 //      /*--- Jacobian contribution for implicit integration. ---*/
 //      if (implicit) {
-//        for (iVar = 0; iVar < nVar; ++iVar){
-//          for (int jVar = 0; jVar < nVar; ++jVar) {
-//            residualBuffer[MAXNVAR + iVar*nVar + jVar] = residual.jacobian_i[iVar][jVar];
-//          }
-//        }
+
 //      }
 
 
@@ -1460,7 +1548,7 @@ void CFVMFlowSolverBase<V, R>::BC_Sym_Plane_Residual(CGeometry* geometry, CSolve
           residualBuffer[index] += VB;
         }
 
-        for (iVar = 0; iVar < nVar; ++iVar){
+        for (auto iVar = 0; iVar < nVar; ++iVar){
           for (int jVar = 0; jVar < nVar; ++jVar) {
               residualBuffer[MAXNVAR + iVar*nVar + jVar] *= Area;
           }
@@ -1493,14 +1581,14 @@ void CFVMFlowSolverBase<V, R>::BC_Sym_Plane_Residual(CGeometry* geometry, CSolve
                  normal direction is mirrored. ---*/
 
         /*--- Get gradients of primitives of boundary cell ---*/
-        for (iVar = 0; iVar < nPrimVarGrad; iVar++)
+        for (auto iVar = 0; iVar < nPrimVarGrad; iVar++)
           for (iDim = 0; iDim < nDim; iDim++)
             Grad_Reflected[iVar][iDim] = nodes->GetGradient_Primitive(iPoint, iVar, iDim);
 
         /*--- Reflect the gradients for all scalars including the velocity components.
               The gradients of the velocity components are set later with the
               correct values: grad(V)_r = grad(V) - 2 [grad(V)*n]n, V beeing any primitive ---*/
-        for (iVar = 0; iVar < nPrimVarGrad; iVar++) {
+        for (auto iVar = 0; iVar < nPrimVarGrad; iVar++) {
           if (iVar == 0 || iVar > nDim) {  // Exclude velocity component gradients
 
             /*--- Compute projected part of the gradient in a dot product ---*/
@@ -1515,7 +1603,7 @@ void CFVMFlowSolverBase<V, R>::BC_Sym_Plane_Residual(CGeometry* geometry, CSolve
         /*--- Compute gradients of normal and tangential velocity:
               grad(v*n) = grad(v_x) n_x + grad(v_y) n_y (+ grad(v_z) n_z)
               grad(v*t) = grad(v_x) t_x + grad(v_y) t_y (+ grad(v_z) t_z) ---*/
-        for (iVar = 0; iVar < nDim; iVar++) {  // counts gradient components
+        for (auto iVar = 0; iVar < nDim; iVar++) {  // counts gradient components
           GradNormVel[iVar] = 0.0;
           GradTangVel[iVar] = 0.0;
           for (iDim = 0; iDim < nDim; iDim++) {  // counts sum with unit normal/tangential
@@ -1544,7 +1632,7 @@ void CFVMFlowSolverBase<V, R>::BC_Sym_Plane_Residual(CGeometry* geometry, CSolve
               grad(v_x)_r = grad(v*n)_r n_x + grad(v*t)_r t_x
               grad(v_y)_r = grad(v*n)_r n_y + grad(v*t)_r t_y
               ( grad(v_z)_r = grad(v*n)_r n_z + grad(v*t)_r t_z ) ---*/
-        for (iVar = 0; iVar < nDim; iVar++)    // loops over the velocity component gradients
+        for (auto iVar = 0; iVar < nDim; iVar++)    // loops over the velocity component gradients
           for (iDim = 0; iDim < nDim; iDim++)  // loops over the entries of the above
             Grad_Reflected[iVar + 1][iDim] =
                 GradNormVel[iDim] * UnitNormal[iVar] + GradTangVel[iDim] * Tangential[iVar];
@@ -1561,11 +1649,11 @@ void CFVMFlowSolverBase<V, R>::BC_Sym_Plane_Residual(CGeometry* geometry, CSolve
               following routine based upon the velocity-component gradients. ---*/
         auto residual = visc_numerics->ComputeResidual(config);
 
-        for (iVar = 0; iVar < nVar; ++iVar) residualBuffer[iVar] -= residual[iVar];
+        for (auto iVar = 0; iVar < nVar; ++iVar) residualBuffer[iVar] -= residual[iVar];
 
         /*--- Jacobian contribution for implicit integration. ---*/
         if (implicit) {
-          for (iVar = 0; iVar < nVar; ++iVar){
+          for (auto iVar = 0; iVar < nVar; ++iVar){
             for (int jVar = 0; jVar < nVar; ++jVar) {
               residualBuffer[MAXNVAR + iVar*nVar + jVar] -= residual.jacobian_i[iVar][jVar];
             }
@@ -1821,6 +1909,73 @@ void CFVMFlowSolverBase<V, R>::BC_Custom(CGeometry* geometry, CSolver** solver_c
 
 
 template <class V, ENUM_REGIME R>
+void CFVMFlowSolverBase<V, R>::BC_Custom_Strong(const CGeometry* geometry, CSolver** solver_container,
+                      const CConfig* config, unsigned short val_marker) {
+
+
+  /* Check for a verification solution. */
+
+  if (VerificationSolution) {
+    unsigned short iVar;
+    unsigned long iVertex, iPoint, total_index;
+
+    bool implicit = (config->GetKind_TimeIntScheme() == EULER_IMPLICIT);
+
+    /*--- Get the physical time. ---*/
+
+    su2double time = 0.0;
+    if (config->GetTime_Marching() != TIME_MARCHING::STEADY) time = config->GetPhysicalTime();
+
+    /*--- Loop over all the vertices on this boundary marker ---*/
+
+    SU2_OMP_FOR_STAT(OMP_MIN_SIZE)
+    for (iVertex = 0; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+      /*--- Get the point index for the current node. ---*/
+
+      iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+
+      /*--- Check if the node belongs to the domain (i.e, not a halo node) ---*/
+
+      if (geometry->nodes->GetDomain(iPoint)) {
+        /*--- Get the coordinates for the current node. ---*/
+
+        const su2double* coor = geometry->nodes->GetCoord(iPoint);
+
+        /*--- Get the conservative state from the verification solution. ---*/
+
+        su2double Solution[MAXNVAR] = {0.0};
+        VerificationSolution->GetBCState(coor, time, Solution);
+
+        /*--- For verification cases, we will apply a strong Dirichlet
+         condition by setting the solution values at the boundary nodes
+         directly and setting the residual to zero at those nodes. ---*/
+
+        nodes->SetSolution_Old(iPoint, Solution);
+        nodes->SetSolution(iPoint, Solution);
+        nodes->SetRes_TruncErrorZero(iPoint);
+        LinSysRes.SetBlock_Zero(iPoint);
+
+        /*--- Adjust rows of the Jacobian (includes 1 in the diagonal) ---*/
+
+        if (implicit) {
+          for (iVar = 0; iVar < nVar; iVar++) {
+            total_index = iPoint * nVar + iVar;
+            Jacobian.DeleteValsRowi(total_index);
+          }
+        }
+      }
+    }
+    END_SU2_OMP_FOR
+
+  } else {
+    /* The user must specify the custom BC's here. */
+    SU2_MPI::Error("Implement customized boundary conditions here.", CURRENT_FUNCTION);
+  }
+
+}
+
+
+template <class V, ENUM_REGIME R>
 void CFVMFlowSolverBase<V, R>::BC_Custom_Weak(CGeometry* geometry, CSolver** solver_container, CNumerics* conv_numerics,
                                          CNumerics* visc_numerics, CConfig* config, unsigned short val_marker) {
   /* Check for a verification solution. */
@@ -1902,6 +2057,44 @@ void CFVMFlowSolverBase<V, R>::BC_Custom_Weak(CGeometry* geometry, CSolver** sol
         LinSysRes.AddBlock(iPoint, residual);
         if (implicit)
           Jacobian.AddBlock2Diag(iPoint, residual.jacobian_i);
+
+          if (viscous) {
+
+            V_outlet[nDim+5] = nodes->GetLaminarViscosity(iPoint);
+            V_outlet[nDim+6] = nodes->GetEddyViscosity(iPoint);
+  
+            /*--- Set the normal vector and the coordinates ---*/
+  
+            visc_numerics->SetNormal(Normal);
+            su2double Coord_Reflected[MAXNDIM];
+            auto Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+            GeometryToolbox::PointPointReflect(nDim, geometry->nodes->GetCoord(Point_Normal),
+                                               geometry->nodes->GetCoord(iPoint), Coord_Reflected);
+            visc_numerics->SetCoord(geometry->nodes->GetCoord(iPoint), Coord_Reflected);
+  
+            /*--- Primitive variables, and gradient ---*/
+  
+            visc_numerics->SetPrimitive(V_domain, V_outlet);
+            visc_numerics->SetPrimVarGradient(nodes->GetGradient_Primitive(iPoint),
+                                              nodes->GetGradient_Primitive(iPoint));
+  
+            /*--- Turbulent kinetic energy ---*/
+  
+            if (config->GetKind_Turb_Model() == TURB_MODEL::SST)
+              visc_numerics->SetTurbKineticEnergy(solver_container[TURB_SOL]->GetNodes()->GetSolution(iPoint,0),
+                                                  solver_container[TURB_SOL]->GetNodes()->GetSolution(iPoint,0));
+  
+            /*--- Compute and update viscous residual ---*/
+  
+            auto residualVisc = visc_numerics->ComputeResidual(config);
+            LinSysRes.SubtractBlock(iPoint, residualVisc);
+  
+            /*--- Viscous Jacobian contribution for implicit integration ---*/
+  
+            if (implicit)
+              Jacobian.SubtractBlock2Diag(iPoint, residualVisc.jacobian_i);
+  
+          }  
 
       }
     }
@@ -1993,6 +2186,44 @@ void CFVMFlowSolverBase<V, R>::BC_Custom_Weak_Residual(CGeometry* geometry, CSol
           residualBuffer[MAXNVAR + iVar*nVar + jVar] = residual.jacobian_i[iVar][jVar];
         }
           }
+        }
+
+        if (viscous) {
+
+          V_outlet[nDim+5] = nodes->GetLaminarViscosity(iPoint);
+          V_outlet[nDim+6] = nodes->GetEddyViscosity(iPoint);
+
+          /*--- Set the normal vector and the coordinates ---*/
+
+          visc_numerics->SetNormal(Normal);
+          su2double Coord_Reflected[MAXNDIM];
+          auto Point_Normal = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+          GeometryToolbox::PointPointReflect(nDim, geometry->nodes->GetCoord(Point_Normal),
+                                             geometry->nodes->GetCoord(iPoint), Coord_Reflected);
+          visc_numerics->SetCoord(geometry->nodes->GetCoord(iPoint), Coord_Reflected);
+
+          /*--- Primitive variables, and gradient ---*/
+
+          visc_numerics->SetPrimitive(V_domain, V_outlet);
+          visc_numerics->SetPrimVarGradient(nodes->GetGradient_Primitive(iPoint),
+                                            nodes->GetGradient_Primitive(iPoint));
+
+          /*--- Turbulent kinetic energy ---*/
+
+          if (config->GetKind_Turb_Model() == TURB_MODEL::SST)
+            visc_numerics->SetTurbKineticEnergy(solver_container[TURB_SOL]->GetNodes()->GetSolution(iPoint,0),
+                                                solver_container[TURB_SOL]->GetNodes()->GetSolution(iPoint,0));
+
+          /*--- Compute and update viscous residual ---*/
+
+          auto residualVisc = visc_numerics->ComputeResidual(config);
+          LinSysRes.SubtractBlock(iPoint, residualVisc);
+
+          /*--- Viscous Jacobian contribution for implicit integration ---*/
+
+          if (implicit)
+            Jacobian.SubtractBlock2Diag(iPoint, residualVisc.jacobian_i);
+
         }
 
 
