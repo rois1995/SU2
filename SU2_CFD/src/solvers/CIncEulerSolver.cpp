@@ -3112,7 +3112,7 @@ void CIncEulerSolver::GetOutlet_Properties(CGeometry *geometry, CConfig *config,
 
 }
 
-void CIncEulerSolver::PrintVerificationError(const CConfig *config) const {
+void CIncEulerSolver::PrintVerificationError(const CConfig *config, const su2double &hEff) const {
 
   if ((rank != MASTER_NODE) || (MGLevel != MESH_0)) return;
 
