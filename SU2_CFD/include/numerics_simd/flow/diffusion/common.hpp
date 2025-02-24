@@ -381,12 +381,12 @@ FORCEINLINE void viscousFluxJacobian(const PrimitiveType& V,
 
   MatrixDbl<nDim,nDim> sTens;
   for (iDim = 0; iDim < nDim; ++iDim) sTens(iDim,iDim) = sDiag(iDim);
-  for (iDim = 1; iDim < nDim; ++iDim) sTens(0,iDim) = sSymm(iDim-1);
-  for (iDim = 2; iDim < nDim; ++iDim) sTens(1,iDim) = sSymm(iDim);
+  for (iDim = 1; iDim < nDim; ++iDim) { sTens(0,iDim) = sSymm(iDim-1); sTens(iDim,0) = sSymm(iDim-1); }
+  for (iDim = 2; iDim < nDim; ++iDim) { sTens(1,iDim) = sSymm(iDim); sTens(iDim, 1) = sSymm(iDim); }
 
-  for (iDim = 0; iDim < nDim; ++iDim)
-    for (jDim = 0; jDim < iDim; ++jDim)
-      sTens(iDim,jDim) = sTens(jDim,iDim);
+  // for (iDim = 0; iDim < nDim; ++iDim)
+  //   for (jDim = 0; jDim < iDim; ++jDim)
+  //     sTens(iDim,jDim) = sTens(jDim,iDim);
 
   //
   //! Normal components
@@ -399,9 +399,11 @@ FORCEINLINE void viscousFluxJacobian(const PrimitiveType& V,
   //       snz = sxz*njk(ix) + syz*njk(iy) + szz*njk(iz);
 
   VectorDbl<nDim> sn;
-  for (iDim = 0; iDim < nDim; ++iDim)
+  for (iDim = 0; iDim < nDim; ++iDim) {
+    sn(iDim) = 0.0;
     for (jDim = 0; jDim < nDim; ++jDim)
-      sn(iDim) = sTens(iDim,jDim) * njk(jDim);
+      sn(iDim) += sTens(iDim,jDim) * njk(jDim);
+  }
   //
   //! Viscous work
   //!    taunv = mu*snv = mu* ( snx*u + sny*v + snz*w )
@@ -439,7 +441,7 @@ FORCEINLINE void viscousFluxJacobian(const PrimitiveType& V,
 //    dmu_dTL = half*mu/(T+C/T_inf)*(one + three*(C/T_inf)/T) * ( half );
   const Double& dmul_dT = secondary.dmudT_rho();
 
-  const Double dmu_dTL = 0.5 * dmul_dT;
+  const Double dmu_dTL = half * dmul_dT;
 
   //! Note: dmu/dW = [dmu/drho, dmu/du, dmu/dv, dmu/dw, dmu/dp ] = [dmu/drho, 0, 0, 0, dmu/dp ]
   //!       So, we only need dmu/drho and dmu/dp.

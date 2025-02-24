@@ -202,33 +202,33 @@ protected:
     if (!implicit) return;
 
         /*--- Flux Jacobians. ---*/
-//
-//    Double dist_ij = sqrt(dist2_ij);
-//    auto dtau = stressTensorJacobian<nVar>(avgV, unitNormal, dist_ij);
-//
-//    /*--- Energy flux Jacobian. ---*/
-//    auto dEdU = derived->energyJacobian(avgV, dtau, cond, area, dist_ij, iPoint, jPoint, solution);
-//
-//    /*--- Update momentum and energy terms ("symmetric" part). ---*/
-//    for (size_t iDim = 0; iDim < nDim; ++iDim) {
-//      for (size_t iVar = 0; iVar < nVar; ++iVar) {
-//        jac_i(iDim+1,iVar) -= area * dtau(iDim,iVar);
-//        jac_j(iDim+1,iVar) += area * dtau(iDim,iVar);
-//      }
-//    }
-//    for (size_t iVar = 0; iVar < nVar; ++iVar) {
-//      jac_i(nDim+1,iVar) += dEdU(iVar);
-//      jac_j(nDim+1,iVar) -= dEdU(iVar);
-//    }
-//    /*--- "Non-symmetric" energy terms. ---*/
-//    Double proj = dot<nDim>(&viscFlux(1), avgV.velocity());
-//    Double halfOnRho = 0.5/avgV.density();
-//    jac_i(nDim+1,0) += halfOnRho * proj;
-//    jac_j(nDim+1,0) += halfOnRho * proj;
-//    for (size_t iDim = 0; iDim < nDim; ++iDim) {
-//      jac_i(nDim+1,iDim+1) -= halfOnRho * viscFlux(iDim+1);
-//      jac_j(nDim+1,iDim+1) -= halfOnRho * viscFlux(iDim+1);
-//    }
+
+  //  Double dist_ij = sqrt(dist2_ij);
+  //  auto dtau = stressTensorJacobian<nVar>(avgV, unitNormal, dist_ij);
+
+  //  /*--- Energy flux Jacobian. ---*/
+  //  auto dEdU = derived->energyJacobian(avgV, dtau, cond, area, dist_ij, iPoint, jPoint, solution);
+
+  //  /*--- Update momentum and energy terms ("symmetric" part). ---*/
+  //  for (size_t iDim = 0; iDim < nDim; ++iDim) {
+  //    for (size_t iVar = 0; iVar < nVar; ++iVar) {
+  //      jac_i(iDim+1,iVar) -= area * dtau(iDim,iVar);
+  //      jac_j(iDim+1,iVar) += area * dtau(iDim,iVar);
+  //    }
+  //  }
+  //  for (size_t iVar = 0; iVar < nVar; ++iVar) {
+  //    jac_i(nDim+1,iVar) += dEdU(iVar);
+  //    jac_j(nDim+1,iVar) -= dEdU(iVar);
+  //  }
+  //  /*--- "Non-symmetric" energy terms. ---*/
+  //  Double proj = dot<nDim>(&viscFlux(1), avgV.velocity());
+  //  Double halfOnRho = 0.5/avgV.density();
+  //  jac_i(nDim+1,0) += halfOnRho * proj;
+  //  jac_j(nDim+1,0) += halfOnRho * proj;
+  //  for (size_t iDim = 0; iDim < nDim; ++iDim) {
+  //    jac_i(nDim+1,iDim+1) -= halfOnRho * viscFlux(iDim+1);
+  //    jac_j(nDim+1,iDim+1) -= halfOnRho * viscFlux(iDim+1);
+  //  }
 
     MatrixDbl<nVar> dFdUL,dFdUR;
     viscousFluxJacobian(avgV,V.i,V.j,unitNormal,diss,avgGrad,
