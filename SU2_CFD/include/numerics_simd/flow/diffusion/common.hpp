@@ -71,7 +71,7 @@ FORCEINLINE void correctGradient(const PrimitiveType& V,
                                  const VectorDbl<nDim>& diss,
                                  MatrixDbl<nVar,nDim>& avgGrad) {
   for (size_t iVar = 0; iVar < nVar; ++iVar) {
-//    Double corr = ( V.j.all(iVar) - V.i.all(iVar));
+  //  Double corr = ( V.j.all(iVar) - V.i.all(iVar));
     Double corr = ( V.j.all(iVar) - V.i.all(iVar) - dot(avgGrad[iVar],vector_ij));
     for (size_t iDim = 0; iDim < nDim; ++iDim) {
       avgGrad(iVar,iDim) += corr * diss(iDim);
@@ -382,7 +382,7 @@ FORCEINLINE void viscousFluxJacobian(const PrimitiveType& V,
   MatrixDbl<nDim,nDim> sTens;
   for (iDim = 0; iDim < nDim; ++iDim) sTens(iDim,iDim) = sDiag(iDim);
   for (iDim = 1; iDim < nDim; ++iDim) { sTens(0,iDim) = sSymm(iDim-1); sTens(iDim,0) = sSymm(iDim-1); }
-  for (iDim = 2; iDim < nDim; ++iDim) { sTens(1,iDim) = sSymm(iDim); sTens(iDim, 1) = sSymm(iDim); }
+  for (iDim = 2; iDim < nDim; ++iDim) { sTens(1,iDim) = sSymm(iDim); sTens(iDim,1) = sSymm(iDim); }
 
   // for (iDim = 0; iDim < nDim; ++iDim)
   //   for (jDim = 0; jDim < iDim; ++jDim)
@@ -400,7 +400,7 @@ FORCEINLINE void viscousFluxJacobian(const PrimitiveType& V,
 
   VectorDbl<nDim> sn;
   for (iDim = 0; iDim < nDim; ++iDim) {
-    sn(iDim) = 0.0;
+    sn(iDim) = zero;
     for (jDim = 0; jDim < nDim; ++jDim)
       sn(iDim) += sTens(iDim,jDim) * njk(jDim);
   }
