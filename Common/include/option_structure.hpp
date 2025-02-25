@@ -883,6 +883,7 @@ static const MapType<std::string, UPWIND> Upwind_Map = {
  * \brief Types of viscous gradient correction spatial discretizations
  */
 enum class VISCOUS_GRAD_CORR {
+  NONE,            /*!< \brief Jameson-Smith-Turkel centered numerical method. */
   EDGE_NORMAL,            /*!< \brief Jameson-Smith-Turkel centered numerical method. */
   FACE_TANGENT,            /*!< \brief Lax-Friedrich centered numerical method. */
   ALPHA_DAMPING
