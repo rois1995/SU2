@@ -3170,6 +3170,12 @@ public:
    */
   inline virtual su2double GetReThetaT_Inf() const { return 0; }
 
+/*! Add to initialize value of A_r in LMROUGH Langtry-Menter Roughness model.
+ * \brief Get value of the roughness amplification factor in the freestream.
+ * \return Value of the roughness amplification factor (A_r) in the freestream.
+ */
+  inline virtual su2double GetA_r_Inf() const { return 0; }
+
   /*!
    * \brief A virtual member.
    * \return Value of the sensitivity coefficient for the Young Modulus E
@@ -4347,6 +4353,7 @@ protected:
    *  \param[in,out] resMax - increases to max(resMax, Residual)
    *  \param[in,out] idxMax - changes when resMax increases
    */
+  
   static inline void ResidualReductions_PerThread(unsigned long iPoint, unsigned short iVar, su2double res, su2double* resRMS, su2double* resMax,
                                                   unsigned long* idxMax) {
     res = fabs(res);
@@ -4356,6 +4363,7 @@ protected:
       idxMax[iVar] = iPoint;
     }
   }
+
 
   /*!
    * \brief "Add" local residual variables of all threads to compute global residual variables.

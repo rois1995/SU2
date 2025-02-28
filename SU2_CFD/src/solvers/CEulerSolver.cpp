@@ -1363,6 +1363,10 @@ void CEulerSolver::SetNondimensionalization(CConfig *config, unsigned short iMes
           Unit.str("");
           NonDimTable << "Moment. Thick. Re"  << "-" << "-" << "-" << config->GetReThetaT_FreeStream();
           Unit.str("");
+          if ((config->GetLMParsedOptions()).LMROUGH) {
+            NonDimTable << "Amplification Factor"  << "-" << "-" << "-" << config->GetA_r_FreeStream();
+          Unit.str("");
+          }
         }
       }
       if (config->GetKind_Species_Model() != SPECIES_MODEL::NONE) {
@@ -4991,6 +4995,7 @@ void CEulerSolver::BC_Far_Field(CGeometry *geometry, CSolver **solver_container,
 
         if (implicit)
           Jacobian.SubtractBlock2Diag(iPoint, residual.jacobian_i);
+
 
       }
 

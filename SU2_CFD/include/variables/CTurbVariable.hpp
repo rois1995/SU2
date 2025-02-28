@@ -38,11 +38,13 @@
 class CTurbVariable : public CScalarVariable {
 protected:
   VectorType muT; /*!< \brief Eddy viscosity. */
+  //VectorType sst_limiter; /*!< \brief Eddy viscosity limiter. */
 
 public:
   static constexpr size_t MAXNVAR = 2;
   VectorType turb_index;
   VectorType intermittency;         /*!< \brief Value of the intermittency for the trans. model. */
+  //VectorType a_r;
 
   /*!
    * \brief Constructor of the class.
@@ -100,5 +102,20 @@ public:
    */
   inline void SetIntermittency(unsigned long iPoint, su2double val_intermittency) final { intermittency(iPoint) = val_intermittency; }
 
+  /*!
+   * \brief Get the intermittency of the transition model.
+   * \param[in] iPoint - Point index.
+   * \return Value of the intermittency of the transition model.
+   
+  inline su2double GetA_r(unsigned long iPoint) const final { return a_r(iPoint); }
+  */
+
+  /*!
+   * \brief Set the intermittency of the transition model.
+   * \param[in] iPoint - Point index.
+   * \param[in] val_intermittency - New value of the intermittency.
+   
+  inline void SetA_r(unsigned long iPoint, su2double val_a_r) final { a_r(iPoint) = val_a_r; }
+  */
 };
 

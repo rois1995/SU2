@@ -47,15 +47,24 @@ CTransLMSolver::CTransLMSolver(CGeometry *geometry, CConfig *config, unsigned sh
   bool multizone = config->GetMultizone_Problem();
 
   /*--- Dimension of the problem --> 2 Transport equations (intermittency, Reth) ---*/
+  /*--- Default case for standard Langtry-Menter model ---*/
   nVar = 2;
   nPrimVar = 2;
-
-  /*--- Check if Simplified version is used ---*/
+  /*--- Check if a specific transition model version is used ---*/
   options = config->GetLMParsedOptions();
-  if (options.SLM) {
+  if (options.LMROUGH) {
+    /*--- Langtry-Menter model with roughness ---*/
+    nVar = 3;
+    nPrimVar = 3;
+  } else if (options.SLM) {
+    /*--- Simplified Langtry-Menter model ---*/
     nVar = 1;
     nPrimVar = 1;
-  }
+  }/* else {
+    --- Default case for standard Langtry-Menter model ---
+    nVar = 2;
+    nPrimVar = 2;
+  }*/
 
   nPoint = geometry->GetnPoint();
   nPointDomain = geometry->GetnPointDomain();
@@ -114,16 +123,36 @@ CTransLMSolver::CTransLMSolver(CGeometry *geometry, CConfig *config, unsigned sh
   lowerlimit[0] = 1.0e-4;
   upperlimit[0] = 5.0;
 
-  if (!options.SLM) {
+  //lowerlimit[1] = 1.0e-4;
+  //upperlimit[1] = 1.0e15;
+
+  
+  if (options.LMROUGH) {
+    // Set limits for LMROUGH model
+    // E forse qui metterei il minimo a 20.0. Vorrei capire da dove hanno preso quel minimo loro
+    // Più che altro dice "initialized minimum of the flowfield)"
+    //Perchè qui già da prima l'inizializzazione è con il valore di freestream, non so a cosa altro si possa riferire.
+    // forse allora lì nei termini di produzione va messo questo lower limit qui. Non ne ho idea
+    // Posso mettere lo stesso limite, ma mettendo il limite nel termine di produzione Re_theta non va sotto quel valore ne a parete ne nel flowfield.
+    lowerlimit[1] = 20.0;
+    upperlimit[1] = 1.0e15;
+
+    lowerlimit[2] = 1.0e-4;      // Lower limit for roughness amplification factor A_r
+    upperlimit[2] = 1.0e4;    // Suggested upper limit for A_r
+  } else if (options.SLM) {
+    // No need to set limits for unused variables
+  } else {
+    // Default case for the standard Langtry-Menter model
     lowerlimit[1] = 1.0e-4;
     upperlimit[1] = 1.0e15;
   }
-
+  
   /*--- Far-field flow state quantities and initialization. ---*/
   const su2double Intensity = config->GetTurbulenceIntensity_FreeStream()*100.0;
 
   const su2double Intermittency_Inf  = 1.0;
   su2double ReThetaT_Inf = 100.0;
+  const su2double A_r_Inf = 1.0e-4;
 
   /*--- Momentum thickness Reynolds number, initialized from freestream turbulent intensity*/
   if (Intensity <= 1.3) {
@@ -131,20 +160,29 @@ CTransLMSolver::CTransLMSolver(CGeometry *geometry, CConfig *config, unsigned sh
       ReThetaT_Inf = (1173.51-589.428*Intensity+0.2196/(Intensity*Intensity));
     }
     else {
-      ReThetaT_Inf = (1173.51-589.428*Intensity+0.2196/(0.27*0.27));
+      ReThetaT_Inf = (1173.51-589.428*Intensity+0.2196/(0.027*0.027));
     }
   }
   else if(Intensity>1.3) {
     ReThetaT_Inf = 331.5*pow(Intensity-0.5658,-0.671);
   }
 
-  Solution_Inf[0] = Intermittency_Inf;
-  if (!options.SLM) {
-    Solution_Inf[1] = ReThetaT_Inf;
+  Solution_Inf[0] = Intermittency_Inf;  // Initialize intermittency for all models
+
+  if (options.LMROUGH) {
+    Solution_Inf[1] = ReThetaT_Inf;  // Initialize ReThetaT for LMROUGH
+    Solution_Inf[2] = A_r_Inf;        // Initialize Ar for LMROUGH
+  } else if (options.SLM) {
+    // For SLM, only intermittency is initialized
+    // No initialization of ReThetaT or Ar needed
+  } else {
+    Solution_Inf[1] = ReThetaT_Inf;  // Initialize ReThetaT for standard LM
+    // No Solution_Inf[2] needed for standard LM
   }
 
   /*--- Initialize the solution to the far-field state everywhere. ---*/
-  nodes = new CTransLMVariable(Intermittency_Inf, ReThetaT_Inf, 1.0, 1.0, nPoint, nDim, nVar, config);
+  //Modifications for the LMROUGH Langtry-Menter roughness model
+  nodes = new CTransLMVariable(Intermittency_Inf, ReThetaT_Inf, 1.0, 1.0, A_r_Inf, nPoint, nDim, nVar, config);
   SetBaseClassPointerToNodes();
 
   /*--- MPI solution ---*/
@@ -171,8 +209,21 @@ CTransLMSolver::CTransLMSolver(CGeometry *geometry, CConfig *config, unsigned sh
   for (unsigned long iMarker = 0; iMarker < nMarker; iMarker++) {
     Inlet_TurbVars[iMarker].resize(nVertex[iMarker],nVar);
     for (unsigned long iVertex = 0; iVertex < nVertex[iMarker]; ++iVertex) {
-      Inlet_TurbVars[iMarker](iVertex,0) = Intermittency_Inf;
-       if (!options.SLM) Inlet_TurbVars[iMarker](iVertex,1) = ReThetaT_Inf;
+      if (options.LMROUGH) {
+        // Initialize for LMROUGH
+        Inlet_TurbVars[iMarker](iVertex, 0) = Intermittency_Inf;
+        Inlet_TurbVars[iMarker](iVertex, 1) = ReThetaT_Inf;
+        Inlet_TurbVars[iMarker](iVertex, 2) = A_r_Inf; // For roughness amplification factor
+      } 
+      else if (options.SLM) {
+        // SLM case
+        Inlet_TurbVars[iMarker](iVertex, 0) = Intermittency_Inf;
+      } 
+      else {
+        // LM case
+        Inlet_TurbVars[iMarker](iVertex, 0) = Intermittency_Inf;
+        Inlet_TurbVars[iMarker](iVertex, 1) = ReThetaT_Inf;
+      }
     }
   }
 
@@ -186,7 +237,6 @@ CTransLMSolver::CTransLMSolver(CGeometry *geometry, CConfig *config, unsigned sh
 
   /*--- Add the solver name. ---*/
   SolverName = "LM model";
-
 }
 
 void CTransLMSolver::Preprocessing(CGeometry *geometry, CSolver **solver_container, CConfig *config,
@@ -260,6 +310,7 @@ void CTransLMSolver::Postprocessing(CGeometry *geometry, CSolver **solver_contai
       const su2double dist = geometry->nodes->GetWall_Distance(iPoint);
       su2double VorticityMag = GeometryToolbox::Norm(3, flowNodes->GetVorticity(iPoint));
       su2double StrainMag =flowNodes->GetStrainMag(iPoint);
+      //cout << "StraingMag_LM: " << StrainMag << endl;
       VorticityMag = max(VorticityMag, 1e-12);
       StrainMag = max(StrainMag, 1e-12); // safety against division by zero
       const su2double Intermittency = nodes->GetSolution(iPoint,0);
@@ -290,7 +341,6 @@ void CTransLMSolver::Postprocessing(CGeometry *geometry, CSolver **solver_contai
       }
 
 
-      // cout << Re_t << " " << Corr_Rec << endl; 
       // if (geometry->nodes->GetDomain(iPoint)) cout << "Point is on boundary" << endl;
 
       su2double R_t = 1.0;
@@ -394,7 +444,7 @@ void CTransLMSolver::Source_Residual(CGeometry *geometry, CSolver **solver_conta
 
     numerics->SetTransVar(nodes->GetSolution(iPoint), nullptr);
     numerics->SetTransVarGradient(nodes->GetGradient(iPoint), nullptr);
-
+    //auto grad = nodes->GetGradient(iPoint);
     /*--- Set volume ---*/
 
     numerics->SetVolume(geometry->nodes->GetVolume(iPoint));
@@ -441,6 +491,12 @@ void CTransLMSolver::Source_Residual(CGeometry *geometry, CSolver **solver_conta
     nodes->SetF_onset(iPoint, numerics->GetF_onset());
     nodes->SetLambda_theta(iPoint, numerics->GetLambda_theta());
     nodes->Setduds(iPoint, numerics->Getduds());
+    if (options.LMROUGH){
+      nodes->SetF_Ar(iPoint, numerics->GetF_Ar());
+    }
+
+
+
 
     /*--- Subtract residual and the Jacobian ---*/
 
@@ -462,6 +518,12 @@ void CTransLMSolver::BC_HeatFlux_Wall(CGeometry *geometry, CSolver **solver_cont
                                       CNumerics *visc_numerics, CConfig *config, unsigned short val_marker) {
 
   const bool implicit = (config->GetKind_TimeIntScheme() == EULER_IMPLICIT);
+  
+  bool rough_wall = false;
+  string Marker_Tag = config->GetMarker_All_TagBound(val_marker);
+  WALL_TYPE WallType; su2double Roughness_Height;
+  tie(WallType, Roughness_Height) = config->GetWallRoughnessProperties(Marker_Tag);
+  if (WallType == WALL_TYPE::ROUGH) rough_wall = true;
 
   SU2_OMP_FOR_STAT(OMP_MIN_SIZE)
   for (auto iVertex = 0u; iVertex < geometry->nVertex[val_marker]; iVertex++) {
@@ -471,7 +533,7 @@ void CTransLMSolver::BC_HeatFlux_Wall(CGeometry *geometry, CSolver **solver_cont
     /*--- Check if the node belongs to the domain (i.e, not a halo node) ---*/
 
     if (geometry->nodes->GetDomain(iPoint)) {
-
+      
       /*--- Allocate the value at the infinity ---*/
 
       auto V_infty = solver_container[FLOW_SOL]->GetCharacPrimVar(val_marker, iVertex);
@@ -507,7 +569,66 @@ void CTransLMSolver::BC_HeatFlux_Wall(CGeometry *geometry, CSolver **solver_cont
       /*--- Add residuals and Jacobians ---*/
 
       LinSysRes.AddBlock(iPoint, residual);
-      if (implicit) Jacobian.AddBlock2Diag(iPoint, residual.jacobian_i);
+      //if (implicit) Jacobian.AddBlock2Diag(iPoint, residual.jacobian_i);
+
+
+      options = config->GetLMParsedOptions();
+      if (rough_wall) {
+        
+
+        //--- Set wall values ---
+        su2double density = solver_container[FLOW_SOL]->GetNodes()->GetDensity(iPoint);
+        su2double laminar_viscosity = solver_container[FLOW_SOL]->GetNodes()->GetLaminarViscosity(iPoint);
+        su2double WallShearStress = solver_container[FLOW_SOL]->GetWallShearStress(val_marker, iVertex);
+        //su2double Y_Plus = solver_container[FLOW_SOL]->GetYPlus(val_marker, iVertex);
+
+        //--- Compute non-dimensional velocity ---
+        su2double FrictionVel = sqrt(fabs(WallShearStress)/density);
+
+        //--- Compute roughness in wall units. ---
+        su2double kPlus = FrictionVel*Roughness_Height*density/laminar_viscosity;
+        su2double Solution[3];
+        // Set wall boundary conditions for A_r, keeping zero flux for other variables
+        
+        Solution[0] = nodes->GetSolution(iPoint, 0); // Intermittency remains unchanged
+        Solution[1] = nodes->GetSolution(iPoint, 1); // ReThetaT remains unchanged
+        Solution[2] = 8.0*kPlus;               // Set A_r explicitly
+        /*std::cout << "BC_HeatFlux_Wall: iPoint = " << iPoint 
+         << ", gamma = " << Solution[0] 
+          << ", Re_t = " << Solution[1] 
+          << ", kPlus = " << kPlus 
+          << ", A_r = " << Solution[2] << std::endl;*/
+
+
+
+        // Apply the solution values at the wall
+        
+        nodes->SetSolution_Old(iPoint, Solution);
+        nodes->SetSolution(iPoint, Solution);
+        //LinSysRes.SetBlock_Zero(iPoint);
+
+        LinSysRes.AddBlock(iPoint, residual); 
+
+        
+
+      
+        if (implicit) {
+          Jacobian.AddBlock2Diag(iPoint, residual.jacobian_i);
+          //Adjust Jacobian to respect zero flux
+          //Jacobian.DeleteValsRowi(iPoint * nVar);     // For intermittency
+          //Jacobian.DeleteValsRowi(iPoint * nVar + 1); // For Re_theta_t
+          //Jacobian.DeleteValsRowi(iPoint * nVar + 2); // For A_r
+        }
+       
+      }  else {
+        /*--- Compute residuals and Jacobians ---*/
+        auto residual = conv_numerics->ComputeResidual(config);
+        /*--- Add residuals and Jacobians ---*/
+
+        LinSysRes.AddBlock(iPoint, residual);
+
+        if (implicit) Jacobian.AddBlock2Diag(iPoint, residual.jacobian_i);
+      }
     }
   }
   END_SU2_OMP_FOR
@@ -559,9 +680,13 @@ void CTransLMSolver::BC_Inlet(CGeometry *geometry, CSolver **solver_container, C
       su2double Inlet_Vars[MAXNVAR];
       Inlet_Vars[0] = Inlet_TurbVars[val_marker][iVertex][0];
       Inlet_Vars[1] = Inlet_TurbVars[val_marker][iVertex][1];
+      if (options.LMROUGH) {
+        Inlet_Vars[2] = Inlet_TurbVars[val_marker][iVertex][2];
+      }
       if (config->GetInlet_Profile_From_File()) {
         Inlet_Vars[0] /= pow(config->GetVelocity_Ref(), 2);
         Inlet_Vars[1] *= config->GetViscosity_Ref() / (config->GetDensity_Ref() * pow(config->GetVelocity_Ref(), 2));
+        //Inlet_Vars[2] /= pow(config->GetVelocity_Ref(), 2);
       }
 
       /*--- Set the LM variable states. ---*/

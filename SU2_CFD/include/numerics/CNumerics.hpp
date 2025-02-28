@@ -82,6 +82,8 @@ protected:
   su2double
   intermittency_eff_i, /*!< \brief effective intermittency at point i. */
   intermittency_i; /*!< \brief intermittency at point i. */
+ // su2double
+ // a_r_i; /*!< \brief roughness amplification factor at point i. */
   su2double
   Pressure_i,  /*!< \brief Pressure at point i. */
   Pressure_j;  /*!< \brief Pressure at point j. */
@@ -722,7 +724,17 @@ public:
   void SetIntermittency(su2double val_intermittency_i) {
     intermittency_i = val_intermittency_i;
   }
-
+   
+   
+  /*!
+   * \brief Set the value of the roughness amplification for the LM model.
+   * \param[in] a_r_i - Value of the roughness amplification at point i.
+  
+  void SetA_r(su2double val_a_r_i) {
+    a_r_i = val_a_r_i;
+  }
+  */
+ 
   /*!
    * \brief Get the value of the effective intermittency for the transition model.
    * \param[in] intermittency_eff_i - Value of the effective intermittency at point i.
@@ -750,6 +762,7 @@ public:
   inline virtual su2double GetF_onset2() {return 0.0;}
   inline virtual su2double GetF_onset3() {return 0.0;}
   inline virtual su2double GetF_onset() {return 0.0;}
+  inline virtual su2double GetF_Ar() {return 0.0;} //add entry for LMROUGH model for the function in the PRethetat term.
 
    /*!
    * \brief Set the value of the F2 blending function into SLM transition model.

@@ -27,30 +27,45 @@
 
 
 #include "../../include/variables/CTransLMVariable.hpp"
-
-CTransLMVariable::CTransLMVariable(su2double Intermittency, su2double ReThetaT, su2double gammaSep, su2double gammaEff, unsigned long npoint, unsigned long ndim, unsigned long nvar, CConfig *config)
+CTransLMVariable::CTransLMVariable(su2double Intermittency, su2double ReThetaT, su2double gammaSep, su2double gammaEff, su2double A_r, unsigned long npoint, unsigned long ndim, unsigned long nvar, CConfig *config)
   : CTurbVariable(npoint, ndim, nvar, config) {
 
   LM_ParsedOptions options = config->GetLMParsedOptions();
 
-  if (!options.SLM) {
+  //cout << "1_1" << endl;
+
+  if (options.SLM) {
+    // If SLM is selected, initialize only the Intermittency variable
+    for(unsigned long iPoint=0; iPoint<nPoint; ++iPoint)
+    {
+      Solution(iPoint,0) = Intermittency;
+    }
+  } else if (options.LMROUGH) {
+    // If LMROUGH is selected, initialize three variables: Intermittency, ReThetaT, and A_r
+    for (unsigned long iPoint = 0; iPoint < nPoint; ++iPoint) 
+    {
+      Solution(iPoint, 0) = Intermittency;
+      Solution(iPoint, 1) = ReThetaT;
+      Solution(iPoint, 2) = A_r; // Roughness amplification factor for LMROUGH
+    }
+  
+  } else {
     for(unsigned long iPoint=0; iPoint<nPoint; ++iPoint)
     {
       Solution(iPoint,0) = Intermittency;
       Solution(iPoint,1) = ReThetaT;
     }
-  } else {
-    for(unsigned long iPoint=0; iPoint<nPoint; ++iPoint)
-    {
-      Solution(iPoint,0) = Intermittency;
-    }
   }
+
+  //cout << "A_r = " << A_r << "intermittenct= " << Intermittency << endl;
 
   Solution_Old = Solution;
 
   /*--- Setting CTransLMVariable of intermittency_Eff---*/
   Intermittency_Eff.resize(nPoint) = gammaEff;
   Intermittency_Sep.resize(nPoint) = gammaSep;
+
+  //cout << "1_3" << endl;
 
   if (options.SLM) {
     Re_t.resize(nPoint) = ReThetaT;
@@ -65,6 +80,8 @@ CTransLMVariable::CTransLMVariable(su2double Intermittency, su2double ReThetaT, 
     normal_z.resize(nPoint) = 0.0;
   }
 
+  //cout << "1_4" << endl;
+
 
   Re_v.resize(nPoint) = 0.0;
   Corr_Rec.resize(nPoint) = 1.0;
@@ -76,6 +93,13 @@ CTransLMVariable::CTransLMVariable(su2double Intermittency, su2double ReThetaT, 
   F_onset.resize(nPoint) = 0.0;
   Lambda_theta.resize(nPoint) = 0.0;
   duds.resize(nPoint) = 0.0;
+  if (options.LMROUGH) {
+    //A_r.resize(nPoint) = 0.0;    Set to an initial roughness amplification factor value
+    F_Ar.resize(nPoint) = 0.0;
+    //P_Ar.resize(nPoint) = 0.0;   Initialize the production term for A_r to zero
+  }
+
+  //cout << "1_5" << endl;
 
 }
 
@@ -131,4 +155,7 @@ void CTransLMVariable::SetNormal(unsigned long iPoint, su2double val_normal_x, s
   normal_x(iPoint) = val_normal_x;
   normal_y(iPoint) = val_normal_y;
   normal_z(iPoint) = val_normal_z;
+}
+void CTransLMVariable::SetF_Ar(unsigned long iPoint, su2double val_F_Ar) {
+  F_Ar(iPoint) = val_F_Ar;
 }

@@ -51,6 +51,7 @@ CVariable::CVariable(unsigned long npoint, unsigned long ndim, unsigned long nva
   nPoint = npoint;
   nDim = ndim;
   nVar = nvar;
+  //cout << "Nvar = " << nVar << endl;
 
   /*--- Allocate fields common to all problems. Do not allocate fields
    that are specific to one solver, i.e. not common, in this class. ---*/

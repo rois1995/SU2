@@ -53,6 +53,7 @@ protected:
   VectorType F_onset2;
   VectorType F_onset3;
   VectorType F_onset;
+  VectorType F_Ar; //modifications for the LMROUGH transition model
 
   VectorType normal_x;
   VectorType normal_y;
@@ -70,7 +71,12 @@ public:
    * \param[in] nvar - Number of variables of the problem.
    * \param[in] config - Definition of the particular problem.
    */
-  CTransLMVariable(su2double Intermittency, su2double ReThetaT, su2double gammaSep, su2double gammaEff, unsigned long npoint, unsigned long ndim, unsigned long nvar, CConfig *config);
+  
+  /*!
+  * \brief Add initialization for the roughness amplification factor A_r for the LMROUGH model 
+  */
+
+CTransLMVariable(su2double Intermittency, su2double ReThetaT, su2double gammaSep, su2double gammaEff, su2double A_r, unsigned long npoint, unsigned long ndim, unsigned long nvar, CConfig *config);
 
   /*!
    * \brief Destructor of the class.
@@ -107,6 +113,11 @@ public:
   void SetF_onset3(unsigned long iPoint, su2double val_F_onset3) override;
   void SetF_onset(unsigned long iPoint, su2double val_F_onset) override;
   void SetNormal(unsigned long iPoint, su2double val_normal_x, su2double val_normal_y, su2double val_normal_z) override;
+   /*!
+  * \brief Add modification for the roughness amplification factor function F_Ar for the LMROUGH model 
+  */
+  void SetF_Ar(unsigned long iPoint, su2double val_F_Ar) override;
+
 
 
   /*!
@@ -141,4 +152,9 @@ public:
   inline su2double GetNormal_x(unsigned long iPoint) const override {return normal_x(iPoint);};
   inline su2double GetNormal_y(unsigned long iPoint) const override {return normal_y(iPoint);};
   inline su2double GetNormal_z(unsigned long iPoint) const override {return normal_z(iPoint);};
+  /*!
+  * \brief Add modification for the roughness amplification factor  function F_Ar for the LMROUGH model 
+  */ 
+  inline su2double GetF_Ar(unsigned long iPoint) const override { return F_Ar(iPoint); }
+
 };

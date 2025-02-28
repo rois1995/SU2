@@ -45,3 +45,11 @@ using CUpwSca_TransLM  = CUpwSca_TurbSST<FlowIndices>;
  */
 template <class FlowIndices>
 using CUpwSca_TransSLM  = CUpwSca_TurbSA<FlowIndices>;
+
+/*!
+ * \class CUpwSca_TransLMROUGH
+ * \brief Use modified convective fluxes for the scalar upwind discretization of LMROUGH transition model equations to handle 3 variables.
+ * \ingroup ConvDiscr
+ */
+template <class FlowIndices>
+using CUpwSca_TransLMROUGH  = CUpwSca_TurbLMROUGH<FlowIndices>;

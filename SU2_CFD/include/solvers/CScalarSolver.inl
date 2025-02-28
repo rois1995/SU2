@@ -383,7 +383,6 @@ void CScalarSolver<VariableType>::BC_Far_Field(CGeometry* geometry, CSolver** so
     const auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
 
     /*--- Check if the node belongs to the domain (i.e, not a halo node) ---*/
-
     if (geometry->nodes->GetDomain(iPoint)) {
 
       /*--- Allocate the value at the infinity ---*/
@@ -404,6 +403,7 @@ void CScalarSolver<VariableType>::BC_Far_Field(CGeometry* geometry, CSolver** so
       /*--- Set turbulent variable at the wall, and at infinity ---*/
 
       conv_numerics->SetScalarVar(nodes->GetSolution(iPoint), Solution_Inf);
+
 
       /*--- Set Normal (it is necessary to change the sign) ---*/
 
@@ -479,6 +479,7 @@ void CScalarSolver<VariableType>::PrepareImplicitIteration(CGeometry* geometry, 
 
       /*--- "Add" residual at (iPoint,iVar) to local residual variables. ---*/
       ResidualReductions_PerThread(iPoint, iVar, LinSysRes[total_index], resRMS, resMax, idxMax);
+      if ( idxMax[iVar] > nPointDomain ) idxMax[iVar] = nPointDomain-1;
     }
   }
   END_SU2_OMP_FOR
@@ -571,7 +572,6 @@ void CScalarSolver<VariableType>::ExplicitEuler_Iteration(CGeometry* geometry, C
   for (unsigned long iPoint = 0; iPoint < nPointDomain; iPoint++) {
     const su2double dt = nodes->GetDelta_Time(iPoint);
     const su2double Vol = geometry->nodes->GetVolume(iPoint) + geometry->nodes->GetPeriodicVolume(iPoint);
-
     for (auto iVar = 0u; iVar < nVar; iVar++) {
       /*--- "Add" residual at (iPoint,iVar) to local residual variables. ---*/
       ResidualReductions_PerThread(iPoint, iVar, LinSysRes(iPoint, iVar), resRMS, resMax, idxMax);

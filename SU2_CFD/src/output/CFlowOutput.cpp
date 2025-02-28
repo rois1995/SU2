@@ -981,7 +981,13 @@ void CFlowOutput::AddHistoryOutputFields_ScalarRMS_RES(const CConfig* config) {
       /// DESCRIPTION: Root-mean square residual of the intermittency (LM model).
       AddHistoryOutput("RMS_INTERMITTENCY", "rms[LM_1]",  ScreenOutputFormat::FIXED, "RMS_RES", "Root-mean square residual of intermittency (LM model).", HistoryFieldType::RESIDUAL);
       /// DESCRIPTION: Root-mean square residual of the momentum thickness Reynolds number (LM model).
-      if (!(config->GetLMParsedOptions()).SLM) {
+      if ((config->GetLMParsedOptions()).LMROUGH) {
+        /// DESCRIPTION: Root-mean square residual of the momentum thickness Reynolds number (LM model).
+        AddHistoryOutput("RMS_RE_THETA_T", "rms[LM_2]",  ScreenOutputFormat::FIXED, "RMS_RES", "Root-mean square residual of momentum thickness Reynolds number (LM model).", HistoryFieldType::RESIDUAL);
+        /// DESCRIPTION: Root-mean square residual of the roughness amplification factor(LMROUGH model).
+        AddHistoryOutput("RMS_A_R", "rms[LM_3]",  ScreenOutputFormat::FIXED, "RMS_RES", "Root-mean square residual of momentum thickness Reynolds number (LM model).", HistoryFieldType::RESIDUAL);
+      } else if ((config->GetLMParsedOptions()).SLM){
+      } else {
         /// DESCRIPTION: Root-mean square residual of the momentum thickness Reynolds number (LM model).
         AddHistoryOutput("RMS_RE_THETA_T", "rms[LM_2]",  ScreenOutputFormat::FIXED, "RMS_RES", "Root-mean square residual of momentum thickness Reynolds number (LM model).", HistoryFieldType::RESIDUAL);
       }
@@ -1039,8 +1045,14 @@ void CFlowOutput::AddHistoryOutputFields_ScalarMAX_RES(const CConfig* config) {
     case TURB_TRANS_MODEL::LM:
       /// DESCRIPTION: Maximum residual of the intermittency (LM model).
       AddHistoryOutput("MAX_INTERMITTENCY", "max[LM_1]",  ScreenOutputFormat::FIXED, "MAX_RES", "Maximum residual of the intermittency (LM model).", HistoryFieldType::RESIDUAL);
-      /// DESCRIPTION: Maximum residual of the momentum thickness Reynolds number (LM model).
-      if (!(config->GetLMParsedOptions()).SLM) {
+      if ((config->GetLMParsedOptions()).LMROUGH) {
+        /// DESCRIPTION: Maximum residual of the momentum thickness Reynolds number (LM model).
+        AddHistoryOutput("MAX_RE_THETA_T", "max[LM_2]",  ScreenOutputFormat::FIXED, "MAX_RES", "Maximum residual of the momentum thickness Reynolds number (LM model).", HistoryFieldType::RESIDUAL);
+        /// DESCRIPTION: Maximum residual of the momentum thickness Reynolds number (LM model).
+        AddHistoryOutput("MAX_A_R", "max[LM_3]",  ScreenOutputFormat::FIXED, "MAX_RES", "Maximum residual of the roughness amplification factor (LMROUGH model).", HistoryFieldType::RESIDUAL);
+      } else if ((config->GetLMParsedOptions()).SLM){
+
+      } else {
         /// DESCRIPTION: Maximum residual of the momentum thickness Reynolds number (LM model).
         AddHistoryOutput("MAX_RE_THETA_T", "max[LM_2]",  ScreenOutputFormat::FIXED, "MAX_RES", "Maximum residual of the momentum thickness Reynolds number (LM model).", HistoryFieldType::RESIDUAL);
       }
@@ -1099,7 +1111,14 @@ void CFlowOutput::AddHistoryOutputFields_ScalarBGS_RES(const CConfig* config) {
       /// DESCRIPTION: Maximum residual of the intermittency (LM model).
       AddHistoryOutput("BGS_INTERMITTENCY", "bgs[LM_1]", ScreenOutputFormat::FIXED, "BGS_RES", "BGS residual of the intermittency (LM model).", HistoryFieldType::RESIDUAL);
       /// DESCRIPTION: Maximum residual of the momentum thickness Reynolds number (LM model).
-      if (!(config->GetLMParsedOptions()).SLM) {
+      if ((config->GetLMParsedOptions()).LMROUGH) {
+        /// DESCRIPTION: Maximum residual of the momentum thickness Reynolds number (LM model).
+        AddHistoryOutput("BGS_RE_THETA_T", "bgs[LM_2]",  ScreenOutputFormat::FIXED, "BGS_RES", "BGS residual of the momentum thickness Reynolds number (LM model).", HistoryFieldType::RESIDUAL);
+        /// DESCRIPTION: Maximum residual of the momentum thickness Reynolds number (LM model).
+        AddHistoryOutput("BGS_A_R", "bgs[LM_3]",  ScreenOutputFormat::FIXED, "BGS_RES", "BGS residual of the roughness amplification factor (LMROUGH model).", HistoryFieldType::RESIDUAL);
+      } else if ((config->GetLMParsedOptions()).SLM){
+
+      } else {
         /// DESCRIPTION: Maximum residual of the momentum thickness Reynolds number (LM model).
         AddHistoryOutput("BGS_RE_THETA_T", "bgs[LM_2]",  ScreenOutputFormat::FIXED, "BGS_RES", "BGS residual of the momentum thickness Reynolds number (LM model).", HistoryFieldType::RESIDUAL);
       }
@@ -1194,13 +1213,25 @@ void CFlowOutput::LoadHistoryDataScalar(const CConfig* config, const CSolver* co
     case TURB_TRANS_MODEL::LM:
       SetHistoryOutputValue("RMS_INTERMITTENCY", log10(solver[TRANS_SOL]->GetRes_RMS(0)));
       SetHistoryOutputValue("MAX_INTERMITTENCY", log10(solver[TRANS_SOL]->GetRes_Max(0)));
-      if (!(config->GetLMParsedOptions()).SLM) {
+      if ((config->GetLMParsedOptions()).LMROUGH) {
+        SetHistoryOutputValue("RMS_RE_THETA_T", log10(solver[TRANS_SOL]->GetRes_RMS(1)));
+        SetHistoryOutputValue("MAX_RE_THETA_T", log10(solver[TRANS_SOL]->GetRes_Max(1)));
+        SetHistoryOutputValue("RMS_A_R", log10(solver[TRANS_SOL]->GetRes_RMS(2)));
+        SetHistoryOutputValue("MAX_A_R", log10(solver[TRANS_SOL]->GetRes_Max(2)));
+      } else if ((config->GetLMParsedOptions()).SLM){
+
+      } else {
         SetHistoryOutputValue("RMS_RE_THETA_T",log10(solver[TRANS_SOL]->GetRes_RMS(1)));
         SetHistoryOutputValue("MAX_RE_THETA_T", log10(solver[TRANS_SOL]->GetRes_Max(1)));
       }
       if (multiZone) {
         SetHistoryOutputValue("BGS_INTERMITTENCY", log10(solver[TRANS_SOL]->GetRes_BGS(0)));
-        if (!(config->GetLMParsedOptions()).SLM) {
+        if ((config->GetLMParsedOptions()).LMROUGH) {
+          SetHistoryOutputValue("BGS_RE_THETA_T", log10(solver[TRANS_SOL]->GetRes_BGS(1)));
+          SetHistoryOutputValue("BGS_A_R", log10(solver[TRANS_SOL]->GetRes_BGS(2)));
+        } else if ((config->GetLMParsedOptions()).SLM) {
+
+        } else {
           SetHistoryOutputValue("BGS_RE_THETA_T", log10(solver[TRANS_SOL]->GetRes_BGS(1)));
         }
       }
@@ -1296,6 +1327,9 @@ void CFlowOutput::SetVolumeOutputFieldsScalarSolution(const CConfig* config){
           AddVolumeOutput("INTERMITTENCY_EFF", "LM_gamma_eff", "PRIMITIVE", "LM RE_THETA_T");
         }
       }
+      if ((config->GetLMParsedOptions()).LMROUGH){
+        AddVolumeOutput("A_R", "A_r", "SOLUTION", "LM A_r");
+      }
       
       if (!(config->GetLMParsedOptions()).SLM) {
         AddVolumeOutput("INTERMITTENCY_SEP", "LM_gamma_sep", "PRIMITIVE", "LM intermittency");
@@ -1374,7 +1408,12 @@ void CFlowOutput::SetVolumeOutputFieldsScalarResidual(const CConfig* config) {
   switch (config->GetKind_Trans_Model()) {
     case TURB_TRANS_MODEL::LM:
       AddVolumeOutput("RES_INTERMITTENCY", "Residual_LM_intermittency", "RESIDUAL", "Residual of LM intermittency");
-      if (!(config->GetLMParsedOptions()).SLM) {
+      if ((config->GetLMParsedOptions()).LMROUGH) {
+        AddVolumeOutput("RES_RE_THETA_T", "Residual_LM_RE_THETA_T", "RESIDUAL", "Residual of LM RE_THETA_T");
+        AddVolumeOutput("RES_A_R", "Residual_LM_A_R", "RESIDUAL", "Residual of LM A_r");
+      } else if ((config->GetLMParsedOptions()).SLM){
+
+      } else {
         AddVolumeOutput("RES_RE_THETA_T", "Residual_LM_RE_THETA_T", "RESIDUAL", "Residual of LM RE_THETA_T");
       }
       break;
@@ -1541,6 +1580,7 @@ void CFlowOutput::LoadVolumeDataScalar(const CConfig* config, const CSolver* con
   const auto* Node_Turb = (config->GetKind_Turb_Model() != TURB_MODEL::NONE) ? turb_solver->GetNodes() : nullptr;
   const auto* Node_Trans = (config->GetKind_Trans_Model() != TURB_TRANS_MODEL::NONE) ? trans_solver->GetNodes() : nullptr;
   const auto* Node_Geo = geometry->nodes;
+  //cout <<  "TransVar[0]" << Node_Trans->GetSolution(iPoint, 0) << "TransVar[2]" << Node_Trans->GetSolution(iPoint, 2) << endl;
 
   SetVolumeOutputValue("DELTA_TIME", iPoint, Node_Flow->GetDelta_Time(iPoint));
   SetVolumeOutputValue("CFL", iPoint, Node_Flow->GetLocalCFL(iPoint));
@@ -1606,9 +1646,10 @@ void CFlowOutput::LoadVolumeDataScalar(const CConfig* config, const CSolver* con
       SetVolumeOutputValue("STRAINMAG", iPoint, Node_Flow->GetStrainMag(iPoint));
       SetVolumeOutputValue("LAMBDA_THETA", iPoint, Node_Trans->GetLambda_theta(iPoint));
       SetVolumeOutputValue("DU_DS", iPoint, Node_Trans->Getduds(iPoint));
-      if (!(config->GetLMParsedOptions()).SLM) {
+      if ((config->GetLMParsedOptions()).LMROUGH) {
         SetVolumeOutputValue("RE_THETA_T", iPoint, Node_Trans->GetSolution(iPoint, 1));
-      } else {
+        SetVolumeOutputValue("A_R", iPoint, Node_Trans->GetSolution(iPoint, 2));
+      } else if ((config->GetLMParsedOptions()).SLM) {
         SetVolumeOutputValue("RE_THETA_T", iPoint, Node_Trans->GetRe_t(iPoint));
         SetVolumeOutputValue("TU", iPoint, Node_Trans->GetTu(iPoint));
         SetVolumeOutputValue("NORMAL_X", iPoint, Node_Trans->GetNormal_x(iPoint));
@@ -1618,6 +1659,8 @@ void CFlowOutput::LoadVolumeDataScalar(const CConfig* config, const CSolver* con
           SetVolumeOutputValue("INTERMITTENCY_SEP", iPoint, Node_Trans->GetIntermittencySep(iPoint));
           SetVolumeOutputValue("INTERMITTENCY_EFF", iPoint, Node_Trans->GetIntermittencyEff(iPoint));
         }
+      } else {
+        SetVolumeOutputValue("RE_THETA_T", iPoint, Node_Trans->GetSolution(iPoint, 1));
       }
       if (!(config->GetLMParsedOptions()).SLM) {
         SetVolumeOutputValue("INTERMITTENCY_SEP", iPoint, Node_Trans->GetIntermittencySep(iPoint));
@@ -1625,7 +1668,12 @@ void CFlowOutput::LoadVolumeDataScalar(const CConfig* config, const CSolver* con
       }
       SetVolumeOutputValue("TURB_INDEX", iPoint, Node_Turb->GetTurbIndex(iPoint));
       SetVolumeOutputValue("RES_INTERMITTENCY", iPoint, trans_solver->LinSysRes(iPoint, 0));
-      if (!(config->GetLMParsedOptions()).SLM) {
+      if ((config->GetLMParsedOptions()).LMROUGH) {
+        SetVolumeOutputValue("RES_RE_THETA_T", iPoint, trans_solver->LinSysRes(iPoint, 1));
+        SetVolumeOutputValue("RES_A_R", iPoint, trans_solver->LinSysRes(iPoint, 2));
+      } else if ((config->GetLMParsedOptions()).SLM) {
+
+      } else {
         SetVolumeOutputValue("RES_RE_THETA_T", iPoint, trans_solver->LinSysRes(iPoint, 1));
       }
       break;

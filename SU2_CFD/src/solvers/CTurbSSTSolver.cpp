@@ -230,7 +230,8 @@ void CTurbSSTSolver::Postprocessing(CGeometry *geometry, CSolver **solver_contai
     const su2double dist = geometry->nodes->GetWall_Distance(iPoint);
 
     const su2double VorticityMag = max(GeometryToolbox::Norm(3, flowNodes->GetVorticity(iPoint)), 1e-12);
-    const su2double StrainMag = max(nodes->GetStrainMag(iPoint), 1e-12);
+    const su2double StrainMag = max(nodes->GetStrainMag(iPoint), 1e-12); //CHANGED BEFORE IT WAS nodes->GetStrainMag(iPoint)
+    //cout << "StrainMag :" << nodes->GetStrainMag(iPoint) << endl;
     nodes->SetBlendingFunc(iPoint, mu, dist, rho, config->GetKind_Trans_Model());
 
     const su2double F2 = nodes->GetF2blending(iPoint);
@@ -242,7 +243,6 @@ void CTurbSSTSolver::Postprocessing(CGeometry *geometry, CSolver **solver_contai
 
     const auto& eddy_visc_var = sstParsedOptions.version == SST_OPTIONS::V1994 ? VorticityMag : StrainMag;
     const su2double muT = max(0.0, rho * a1 * kine / max(a1 * omega, eddy_visc_var * F2));
-
     nodes->SetmuT(iPoint, muT);
 
   }
@@ -403,6 +403,7 @@ void CTurbSSTSolver::BC_HeatFlux_Wall(CGeometry *geometry, CSolver **solver_cont
   WALL_TYPE WallType; su2double Roughness_Height;
   tie(WallType, Roughness_Height) = config->GetWallRoughnessProperties(Marker_Tag);
   if (WallType == WALL_TYPE::ROUGH) rough_wall = true;
+  kwbcParsedOptions = config->GetKWBCParsedOptions();
 
   /*--- Evaluate nu tilde at the closest point to the surface using the wall functions. ---*/
 
@@ -418,53 +419,159 @@ void CTurbSSTSolver::BC_HeatFlux_Wall(CGeometry *geometry, CSolver **solver_cont
 
     /*--- Check if the node belongs to the domain (i.e, not a halo node) ---*/
     if (geometry->nodes->GetDomain(iPoint)) {
-
+      
+      const auto options = config->GetLMParsedOptions();
+      
       if (rough_wall) {
 
-        /*--- Set wall values ---*/
+        //--- Set wall values ---
         su2double density = solver_container[FLOW_SOL]->GetNodes()->GetDensity(iPoint);
         su2double laminar_viscosity = solver_container[FLOW_SOL]->GetNodes()->GetLaminarViscosity(iPoint);
         su2double WallShearStress = solver_container[FLOW_SOL]->GetWallShearStress(val_marker, iVertex);
 
-        /*--- Compute non-dimensional velocity ---*/
+        //--- Compute non-dimensional velocity ---
         su2double FrictionVel = sqrt(fabs(WallShearStress)/density);
 
-        /*--- Compute roughness in wall units. ---*/
-        //su2double Roughness_Height = config->GetWall_RoughnessHeight(Marker_Tag);
+        //--- Compute roughness in wall units. ---
+        
         su2double kPlus = FrictionVel*Roughness_Height*density/laminar_viscosity;
+        su2double S_R= 0.0;
+        //--- Reference 1 original Wilcox (1998) ---
+        if (kwbcParsedOptions.wilcox1998) {
+          if (kPlus <= 25)
+              S_R = (50/(kPlus+EPS))*(50/(kPlus+EPS));
+            else
+              S_R = 100/(kPlus+EPS); 
+              
+          su2double solution[2];
+          solution[0] = 0.0;
+          solution[1] = FrictionVel*FrictionVel*S_R/(laminar_viscosity/density);
+          nodes->SetSolution_Old(iPoint,solution);
+          nodes->SetSolution(iPoint,solution);
+          LinSysRes.SetBlock_Zero(iPoint);
+          
+        }
+        //Reference 2 from D.C. Wilcox Turbulence Modeling for CFD (2006) ---
+          else if (kwbcParsedOptions.wilcox2006) {
+          if (kPlus <= 5)
+            S_R = (200/(kPlus+EPS))*(200/(kPlus+EPS));
+          else
+            S_R = 100/(kPlus+EPS) + ((200/(kPlus+EPS))*(200/(kPlus+EPS)) - 100/(kPlus+EPS))*exp(5-kPlus);
+        
+          //--- Modify the omega to account for a rough wall. ---
+          su2double solution[2];
+          solution[0] = 0.0;
+          solution[1] = FrictionVel*FrictionVel*S_R/(laminar_viscosity/density);
+          nodes->SetSolution_Old(iPoint,solution);
+          nodes->SetSolution(iPoint,solution);
+          LinSysRes.SetBlock_Zero(iPoint);
+        
+
+        } else if (kwbcParsedOptions.limiter_knopp) {
+            // LIMITER1
+            su2double d0 = 0.03*Roughness_Height*min(1.0, pow((kPlus + EPS )/30.0, 2.0/3.0))*min(1.0, pow((kPlus + EPS)/45.0, 0.25))*min(1.0, pow((kPlus + EPS) /60, 0.25));
+            su2double solution[2];
+            solution[0] = (FrictionVel*FrictionVel / sqrt(constants[6]))*min(1.0, kPlus / 90.0);
+            const auto jPoint = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+
+            su2double distance2 = GeometryToolbox::SquaredDistance(nDim,
+                                                             geometry->nodes->GetCoord(iPoint),
+                                                             geometry->nodes->GetCoord(jPoint));
+            const su2double kappa = config->GetwallModel_Kappa();
+            //su2double beta_1 = constants[4];
+            su2double beta_1 = constants[4];
+            //solution[1] = 60.0*laminar_viscosity/(density*beta_1*distance2);
+            solution[1] = min( FrictionVel/(sqrt(constants[6])*d0*kappa), 60.0*laminar_viscosity/(density*beta_1*distance2)); 
+        
+            //cout <<"density: "<< density <<"FrcictionVel: "<< FrictionVel << "kPlus: " << kPlus << " kwallPlus: " << solution[0] << " omegawallPlus: " << solution[1] << endl;
+            nodes->SetSolution_Old(iPoint,solution);
+            nodes->SetSolution(iPoint,solution);
+            LinSysRes.SetBlock_Zero(iPoint);
+            
+
+          } else if (kwbcParsedOptions.limiter_grigson) {
+            //LIMITER 2
+            su2double kwall = ( 1.0 / constants[6]) * tanh(((log((kPlus +EPS ) / 30.0) / log(10.0)) + 0.5 - 0.5*tanh( (kPlus + EPS) / 125.0))*tanh((kPlus + EPS) / 125.0));
+            su2double kwallPlus = max(0.0, kwall*FrictionVel*FrictionVel);
+        
+            su2double omegawallPlus = (300.0 / pow(kPlus + EPS, 2.0)) * pow(tanh(15.0 / (4.0*kPlus + EPS)), -1.0) + (191.0 / (kPlus + EPS))*(1.0 - exp(-kPlus / 250.0));
+            su2double solution[2];
+
+            solution[0] = kwallPlus;
+        
+            const auto jPoint = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+
+            su2double distance2 = GeometryToolbox::SquaredDistance(nDim,
+                                                             geometry->nodes->GetCoord(iPoint),
+                                                             geometry->nodes->GetCoord(jPoint));
+            const su2double kappa = config->GetwallModel_Kappa();
+            su2double beta_1 = constants[4];
+            if (kPlus < 5.0)
+              solution[1] = 60.0*laminar_viscosity/(density*beta_1*distance2);
+            else
+              solution[1] = omegawallPlus*FrictionVel*FrictionVel*density/laminar_viscosity;
+            
+            nodes->SetSolution_Old(iPoint,solution);
+            nodes->SetSolution(iPoint,solution);
+            LinSysRes.SetBlock_Zero(iPoint);
+            
+          }
+          //--- Set the solution values and zero the residual ---
+
+        
+      }  /* else if (options.LMROUGH) {
+        su2double eqRoughness;
+        eqRoughness = config->GeteqRoughness();
+
+        //--- Set wall values ---/
+        su2double density = solver_container[FLOW_SOL]->GetNodes()->GetDensity(iPoint);
+        su2double laminar_viscosity = solver_container[FLOW_SOL]->GetNodes()->GetLaminarViscosity(iPoint);
+        su2double WallShearStress = solver_container[FLOW_SOL]->GetWallShearStress(val_marker, iVertex);
+
+        //--- Compute non-dimensional velocity ---/
+        su2double FrictionVel = sqrt(fabs(WallShearStress)/density);
+
+        //--- Compute roughness in wall units. ---/
+        //su2double Roughness_Height = config->GetWall_RoughnessHeight(Marker_Tag);
+        su2double kPlus = FrictionVel*eqRoughness*density/laminar_viscosity;
 
         su2double S_R= 0.0;
-        /*--- Reference 1 original Wilcox (1998) ---*/
-        /*if (kPlus <= 25)
-            S_R = (50/(kPlus+EPS))*(50/(kPlus+EPS));
-          else
-            S_R = 100/(kPlus+EPS);*/
-
-        /*--- Reference 2 from D.C. Wilcox Turbulence Modeling for CFD (2006) ---*/
+        --- Reference 1 original Wilcox (1998) ---
+        //su2double kPlus_corr = max(1.0, kPlus); 
+        //if (kPlus <= 25)
+         // S_R = (50/(kPlus +EPS))*(50/(kPlus +EPS));
+        //else
+         // S_R = 100/(kPlus +EPS);
+ 
+        --- Reference 2 from D.C. Wilcox Turbulence Modeling for CFD (2006) ---
         if (kPlus <= 5)
           S_R = (200/(kPlus+EPS))*(200/(kPlus+EPS));
         else
-          S_R = 100/(kPlus+EPS) + ((200/(kPlus+EPS))*(200/(kPlus+EPS)) - 100/(kPlus+EPS))*exp(5-kPlus);
-
-        /*--- Modify the omega to account for a rough wall. ---*/
+         S_R = 100/(kPlus+EPS) + ((200/(kPlus+EPS))*(200/(kPlus+EPS)) - 100/(kPlus+EPS))*exp(5-kPlus); 
+        
+        
+        //--- Modify the omega to account for a rough wall. ---/
         su2double solution[2];
         solution[0] = 0.0;
         solution[1] = FrictionVel*FrictionVel*S_R/(laminar_viscosity/density);
 
-        /*--- Set the solution values and zero the residual ---*/
+        //--- Set the solution values and zero the residual ---/
         nodes->SetSolution_Old(iPoint,solution);
         nodes->SetSolution(iPoint,solution);
         LinSysRes.SetBlock_Zero(iPoint);
+        
+      
+       } */ 
+      else { // smooth wall
+      
 
-      } else { // smooth wall
-
-        /*--- distance to closest neighbor ---*/
+        //--- distance to closest neighbor ---/
         const auto jPoint = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
 
         su2double distance2 = GeometryToolbox::SquaredDistance(nDim,
                                                              geometry->nodes->GetCoord(iPoint),
                                                              geometry->nodes->GetCoord(jPoint));
-        /*--- Set wall values ---*/
+        //--- Set wall values ---/
 
         su2double density = solver_container[FLOW_SOL]->GetNodes()->GetDensity(jPoint);
         su2double laminar_viscosity = solver_container[FLOW_SOL]->GetNodes()->GetLaminarViscosity(jPoint);
@@ -474,18 +581,18 @@ void CTurbSSTSolver::BC_HeatFlux_Wall(CGeometry *geometry, CSolver **solver_cont
         solution[0] = 0.0;
         solution[1] = 60.0*laminar_viscosity/(density*beta_1*distance2);
 
-        /*--- Set the solution values and zero the residual ---*/
+        //--- Set the solution values and zero the residual ---/
         nodes->SetSolution_Old(iPoint,solution);
         nodes->SetSolution(iPoint,solution);
         LinSysRes.SetBlock_Zero(iPoint);
       }
-
+      
       if (implicit) {
-        /*--- Change rows of the Jacobian (includes 1 in the diagonal) ---*/
+        //--- Change rows of the Jacobian (includes 1 in the diagonal) ---
         Jacobian.DeleteValsRowi(iPoint*nVar);
         Jacobian.DeleteValsRowi(iPoint*nVar+1);
       }
-    }
+    } 
   }
   END_SU2_OMP_FOR
 }

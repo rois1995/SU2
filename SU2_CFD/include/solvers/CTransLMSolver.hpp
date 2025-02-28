@@ -206,6 +206,12 @@ public:
    */
   inline su2double GetReThetaT_Inf(void) const override { return Solution_Inf[1]; }
 
+  /*!Modification for the LMROUGH Langtry-Menter Roughness model.
+ * \brief Get the value of the roughness amplification factor in the freestream.
+ * \return Value of the roughness amplification factor.
+ */
+inline su2double GetA_r_Inf(void) const override { return Solution_Inf[2]; }
+
   /*!
    * \brief Load a solution from a restart file.
    * \param[in] geometry - Geometrical definition of the problem.

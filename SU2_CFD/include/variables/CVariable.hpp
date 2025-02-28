@@ -1663,6 +1663,18 @@ public:
    */
   inline virtual su2double GetmuT(unsigned long iPoint) const { return 0.0; }
 
+ /*!
+   * \brief Get the value of the A_r modification for LMROUGH.
+   * \return the value of the A_r.
+   */
+  inline virtual su2double GetA_r(unsigned long iPoint) const { return 0.0; }
+
+  /*!
+   * \brief Set the A_r, modification for LMROUGH.
+   * \param[in] val_dist - Value of the  A_r.
+   */
+  inline virtual void SetA_r(unsigned long iPoint, su2double val_A_r) {}
+
   /*!
    * \brief Get the value of the intermittency.
    * \return the value of the intermittency.
@@ -1715,6 +1727,7 @@ public:
   inline virtual void SetF_onset3(unsigned long iPoint, su2double val_F_onset3) {};
   inline virtual void SetF_onset(unsigned long iPoint, su2double val_F_onset1) {};
   inline virtual void SetNormal(unsigned long iPoint, su2double val_normal_x, su2double val_normal_y, su2double val_normal_z) {};
+  inline virtual void SetF_Ar(unsigned long iPoint, su2double val_F_Ar) {}; //modification for LMROUGH
 
   /*!
    * \brief Get Value of Transition Momentum Thickness Reynolds number from correlations.
@@ -1733,6 +1746,7 @@ public:
   inline virtual su2double GetNormal_x(unsigned long iPoint) const { return 0.0; }
   inline virtual su2double GetNormal_y(unsigned long iPoint) const { return 0.0; }
   inline virtual su2double GetNormal_z(unsigned long iPoint) const { return 0.0; }
+  inline virtual su2double GetF_Ar(unsigned long iPoint) const { return 0.0; }
 
   /*!
    * \brief Set Value of Momentum Thickness Reynolds number from correlations (substitute to the second equation of original LM model).

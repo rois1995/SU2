@@ -1200,6 +1200,58 @@ inline SA_ParsedOptions ParseSAOptions(const SA_OPTIONS *SA_Options, unsigned sh
 }
 
 /*!
+ * \brief KWBC Options
+ */
+enum class KWBC_OPTIONS {
+  NONE,                 /*!< \brief No option / default. */
+  WILCOX1998,           /*!< \brief Wilcox 1998 boundary condition for rough walls  / default. */
+  WILCOX2006,           /*!< \brief Wilcox 2006 boundary condition for rough walls. */
+  LIMITER_KNOPP,        /*!< \brief Knopp eddy viscosity limiter. */
+  LIMITER_GRIGSON,      /*!< \brief Grigson eddy viscosity limiter. */
+};
+static const MapType<std::string, KWBC_OPTIONS> KWBC_Options_Map = {
+  MakePair("NONE", KWBC_OPTIONS::NONE)
+  MakePair("WILCOX1998", KWBC_OPTIONS::WILCOX1998)
+  MakePair("WILCOX2006", KWBC_OPTIONS::WILCOX2006)
+  MakePair("LIMITER_KNOPP", KWBC_OPTIONS::LIMITER_KNOPP)
+  MakePair("LIMITER_GRIGSON", KWBC_OPTIONS::LIMITER_GRIGSON)
+};
+
+/*!
+ * \brief Structure containing parsed SA options.
+ */
+struct KWBC_ParsedOptions {
+  KWBC_OPTIONS version = KWBC_OPTIONS::NONE;         /*!< \brief KWBC base model. */
+  bool wilcox1998 = false;                           /*!< \brief Use wilcox1998. */
+  bool wilcox2006 = false;                          /*!< \brief Use wilcox2006. */
+  bool limiter_knopp = false;                        /*!< \brief Use eddy viscosity limiter knopp. */
+  bool limiter_grigson = false;                      /*!< \brief Use eddy viscosity limiter grigson. */
+};
+
+/*!
+ * \brief Function to parse SA options.
+ * \param[in] KWBC_Options - Selected SA option from config.
+ * \param[in] nKWBC_Options - Number of options selected.
+ * \param[in] rank - MPI rank.
+ * \return Struct with SA options.
+ */
+inline KWBC_ParsedOptions ParseKWBCOptions(const KWBC_OPTIONS *KWBC_Options, unsigned short nKWBC_Options, int rank) {
+  KWBC_ParsedOptions KWBCParsedOptions;
+
+  auto IsPresent = [&](KWBC_OPTIONS option) {
+    const auto kwbc_options_end = KWBC_Options + nKWBC_Options;
+    return std::find(KWBC_Options, kwbc_options_end, option) != kwbc_options_end;
+  };
+
+  KWBCParsedOptions.wilcox2006 = IsPresent(KWBC_OPTIONS::WILCOX2006);
+  KWBCParsedOptions.limiter_knopp = IsPresent(KWBC_OPTIONS::LIMITER_KNOPP);
+  KWBCParsedOptions.limiter_grigson = IsPresent(KWBC_OPTIONS::LIMITER_GRIGSON);
+  
+
+  return KWBCParsedOptions;
+}
+
+/*!
  * \brief Types of transition models
  */
 enum class TURB_TRANS_MODEL {
@@ -1229,6 +1281,7 @@ enum class LM_OPTIONS {
   MENTER_SLM,     /*!< \brief Kind of transition correlation model (Menter Simplified LM model). */
   CODER_SLM,      /*!< \brief Kind of transition correlation model (Coder Simplified LM model). */
   MOD_EPPLER_SLM, /*!< \brief Kind of transition correlation model (Modified Eppler Simplified LM model). */
+  LMROUGH,        /*!< \brief Kind of roughness induced transition model. */
   DEFAULT         /*!< \brief Kind of transition correlation model (Menter-Langtry if SST, MALAN if SA). */
 };
 
@@ -1246,6 +1299,7 @@ static const MapType<std::string, LM_OPTIONS> LM_Options_Map = {
   MakePair("MENTER_SLM", LM_OPTIONS::MENTER_SLM)
   MakePair("CODER_SLM", LM_OPTIONS::CODER_SLM)
   MakePair("MOD_EPPLER_SLM", LM_OPTIONS::MOD_EPPLER_SLM)
+  MakePair("LMROUGH", LM_OPTIONS::LMROUGH)
   MakePair("DEFAULT", LM_OPTIONS::DEFAULT)
 };
 
@@ -1279,8 +1333,9 @@ enum class TURB_TRANS_CORRELATION_SLM {
 struct LM_ParsedOptions {
   LM_OPTIONS version = LM_OPTIONS::NONE;  /*!< \brief LM base model. */
   bool SLM = false;                       /*!< \brief Use simplified version. */
+  bool LMROUGH = false;                   /*!< \brief Use roughness induced transition version. */
   bool ProdLim = false;                   /*!< \brief Add production term to Pk. */
-  bool CrossFlow = false;                    /*!< \brief Use cross-flow corrections. */
+  bool CrossFlow = false;                 /*!< \brief Use cross-flow corrections. */
   TURB_TRANS_CORRELATION Correlation = TURB_TRANS_CORRELATION::DEFAULT;
   TURB_TRANS_CORRELATION_SLM Correlation_SLM = TURB_TRANS_CORRELATION_SLM::DEFAULT;
 };
@@ -1301,9 +1356,10 @@ inline LM_ParsedOptions ParseLMOptions(const LM_OPTIONS *LM_Options, unsigned sh
   };
 
   LMParsedOptions.SLM = IsPresent(LM_OPTIONS::SLM);
+  LMParsedOptions.LMROUGH = IsPresent(LM_OPTIONS::LMROUGH);
   LMParsedOptions.ProdLim = IsPresent(LM_OPTIONS::PRODLIM);
-
   LMParsedOptions.CrossFlow = IsPresent(LM_OPTIONS::CROSSFLOW);
+
 
   int NFoundCorrelations = 0;
   if (IsPresent(LM_OPTIONS::MALAN)) {

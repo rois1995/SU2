@@ -47,7 +47,7 @@
 template <class FlowIndices>
 class CUpwScalar : public CNumerics {
  protected:
-  enum : unsigned short {MAXNVAR = 8};
+  enum : unsigned short {MAXNVAR = 16};
 
   const FlowIndices idx;            /*!< \brief Object to manage the access to the flow primitives. */
   su2double a0 = 0.0;               /*!< \brief The maximum of the face-normal velocity and 0. */
@@ -108,6 +108,8 @@ class CUpwScalar : public CNumerics {
     AD::SetPreaccIn(Normal, nDim);
     AD::SetPreaccIn(ScalarVar_i, nVar);
     AD::SetPreaccIn(ScalarVar_j, nVar);
+    AD::SetPreaccIn(TransVar_i, nVar);
+    AD::SetPreaccIn(TransVar_j, nVar);
     if (dynamic_grid) {
       AD::SetPreaccIn(GridVel_i, nDim);
       AD::SetPreaccIn(GridVel_j, nDim);

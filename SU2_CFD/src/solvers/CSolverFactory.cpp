@@ -379,9 +379,11 @@ CSolver* CSolverFactory::CreateTransSolver(TURB_TRANS_MODEL kindTransModel, CSol
     switch (kindTransModel) {
       case TURB_TRANS_MODEL::LM :
         transSolver = new CTransLMSolver(geometry, config, iMGLevel);
+         // cout << "8" << endl;
         solver[FLOW_SOL]->Preprocessing(geometry, solver, config, iMGLevel, NO_RK_ITER, RUNTIME_FLOW_SYS, false);
         transSolver->Postprocessing(geometry, solver, config, iMGLevel);
         solver[FLOW_SOL]->Preprocessing(geometry, solver, config, iMGLevel, NO_RK_ITER, RUNTIME_FLOW_SYS, false);
+        //  cout << "9" << endl;
         break;
       case TURB_TRANS_MODEL::NONE:
         break;

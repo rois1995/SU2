@@ -1117,13 +1117,17 @@ void CConfig::SetConfig_Options() {
   addEnumListOption("SST_OPTIONS", nSST_Options, SST_Options, SST_Options_Map);
   /*!\brief SST_OPTIONS \n DESCRIPTION: Specify SA turbulence model options/corrections. \n Options: see \link SA_Options_Map \endlink \n DEFAULT: NONE \ingroup Config*/
   addEnumListOption("SA_OPTIONS", nSA_Options, SA_Options, SA_Options_Map);
-
+  /*!\brief KW_SST_ROUGHNESS_BC \n DESCRIPTION: Specify type of boundary condition for k and w and if nut limiter is enabled. \n Options: see \link KWSST_bc_Options_Map \endlink \n DEFAULT: NONE \ingroup Config*/
+  addEnumListOption("KWBC_OPTIONS", nKWBC_Options, KWBC_Options, KWBC_Options_Map);
   /*!\brief KIND_TRANS_MODEL \n DESCRIPTION: Specify transition model OPTIONS: see \link Trans_Model_Map \endlink \n DEFAULT: NONE \ingroup Config*/
   addEnumOption("KIND_TRANS_MODEL", Kind_Trans_Model, Trans_Model_Map, TURB_TRANS_MODEL::NONE);
   /*!\brief SST_OPTIONS \n DESCRIPTION: Specify LM transition model options/correlations. \n Options: see \link LM_Options_Map \endlink \n DEFAULT: NONE \ingroup Config*/
   addEnumListOption("LM_OPTIONS", nLM_Options, LM_Options, LM_Options_Map);
   /*!\brief HROUGHNESS \n DESCRIPTION: Value of RMS roughness for transition model \n DEFAULT: 1E-6 \ingroup Config*/
   addDoubleOption("HROUGHNESS", hRoughness, 1e-6);
+
+  /*!\brief eqRoughness \n DESCRIPTION: Value of equivalent roughness for transition model LMROUGH \n DEFAULT: 0 \ingroup Config*/
+  addDoubleOption("EQROUGHNESS", eqRoughness, 0.0);
 
   /*!\brief KIND_SCALAR_MODEL \n DESCRIPTION: Specify scalar transport model \n Options: see \link Scalar_Model_Map \endlink \n DEFAULT: NONE \ingroup Config*/
   addEnumOption("KIND_SCALAR_MODEL", Kind_Species_Model, Species_Model_Map, SPECIES_MODEL::NONE);
@@ -1415,6 +1419,8 @@ void CConfig::SetConfig_Options() {
   addDoubleOption("FREESTREAM_VISCOSITY", Viscosity_FreeStream, -1.0);
   /* DESCRIPTION:  */
   addDoubleOption("FREESTREAM_INTERMITTENCY", Intermittency_FreeStream, 1.0);
+  /* DESCRIPTION:  */
+  addDoubleOption("FREESTREAM_A_R", A_r_FreeStream, 0.0);
   /* DESCRIPTION:  */
   addDoubleOption("FREESTREAM_TURBULENCEINTENSITY", TurbIntensityAndViscRatioFreeStream[0], 0.05);
   /* DESCRIPTION:  */
@@ -3479,6 +3485,7 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
   /*--- Postprocess SST_OPTIONS into structure. ---*/
   if (Kind_Turb_Model == TURB_MODEL::SST) {
     sstParsedOptions = ParseSSTOptions(SST_Options, nSST_Options, rank);
+    kwbcParsedOptions = ParseKWBCOptions(KWBC_Options, nKWBC_Options, rank);
   } else if (Kind_Turb_Model == TURB_MODEL::SA) {
     saParsedOptions = ParseSAOptions(SA_Options, nSA_Options, rank);
   }
@@ -6236,12 +6243,15 @@ void CConfig::SetOutput(SU2_COMPONENT val_software, unsigned short val_izone) {
               case TURB_MODEL::SST: NTurbEqs = 2;  break;
               case TURB_MODEL::NONE: SU2_MPI::Error("No turbulence model has been selected but LM transition model is active.", CURRENT_FUNCTION); break;
             }
-            if (!lmParsedOptions.SLM) {
+            if (lmParsedOptions.LMROUGH) {
+              int NEquations = 3;
+              cout << "Transition model: Langtry and Menter's with roughness "<< NEquations+NTurbEqs <<" equation model, including roughness induced transition";
+            } else if (lmParsedOptions.SLM) {
+              int NEquations = 1;
+              cout << "Simplified Transition model: Langtry and Menter's "<< NEquations+NTurbEqs <<" equation model";
+            } else {
               int NEquations = 2;
               cout << "Transition model: Langtry and Menter's "<< NEquations+NTurbEqs <<" equation model";
-            } else {
-              int NEquations = 1;
-              cout << "Transition model: Simplified Langtry and Menter's "<< NEquations+NTurbEqs <<" equation model";
             }
             if (lmParsedOptions.CrossFlow) {
               cout << " w/ cross-flow corrections" << endl;

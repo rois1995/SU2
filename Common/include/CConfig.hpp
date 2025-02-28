@@ -609,6 +609,7 @@ private:
   TURB_TRANS_MODEL Kind_Trans_Model;  /*!< \brief Transition model definition. */
   TURB_TRANS_CORRELATION Kind_Trans_Correlation;  /*!< \brief Transition correlation model definition. */
   su2double hRoughness;             /*!< \brief RMS roughness for Transition model. */
+  su2double eqRoughness;            /*!< \brief equivalent sand roughness for LMROUGH Transition model. */
   unsigned short Kind_ActDisk, Kind_Engine_Inflow,
   *Kind_Data_Riemann,
   *Kind_Data_Giles;                /*!< \brief Kind of inlet boundary treatment. */
@@ -732,9 +733,11 @@ private:
   SST_OPTIONS *SST_Options;           /*!< \brief List of modifications/corrections/versions of SST turbulence model.*/
   SA_OPTIONS *SA_Options;             /*!< \brief List of modifications/corrections/versions of SA turbulence model.*/
   LM_OPTIONS *LM_Options;             /*!< \brief List of modifications/corrections/versions of SA turbulence model.*/
+  KWBC_OPTIONS *KWBC_Options;         /*!< \brief List of modifications/corrections/versions of KWBC turbulence model.*/
   unsigned short nSST_Options;        /*!< \brief Number of SST options specified. */
   unsigned short nSA_Options;         /*!< \brief Number of SA options specified. */
   unsigned short nLM_Options;         /*!< \brief Number of SA options specified. */
+  unsigned short nKWBC_Options;       /*!< \brief Number of KWBC options specified. */ 
   WALL_FUNCTIONS  *Kind_WallFunctions;        /*!< \brief The kind of wall function to use for the corresponding markers. */
   unsigned short  **IntInfo_WallFunctions;    /*!< \brief Additional integer information for the wall function markers. */
   su2double       **DoubleInfo_WallFunctions; /*!< \brief Additional double information for the wall function markers. */
@@ -880,6 +883,7 @@ private:
   Tke_FreeStream,                  /*!< \brief Total turbulent kinetic energy of the fluid.  */
   Intermittency_FreeStream,        /*!< \brief Freestream intermittency (for sagt transition model) of the fluid.  */
   ReThetaT_FreeStream,             /*!< \brief Freestream Transition Momentum Thickness Reynolds Number (for LM transition model) of the fluid.  */
+  A_r_FreeStream,                  /*!< \brief Freestream Transition Roughness amplification factor (for LMROUGH transition model) of the fluid.  */
   NuFactor_FreeStream,             /*!< \brief Ratio of turbulent to laminar viscosity. */
   NuFactor_Engine,                 /*!< \brief Ratio of turbulent to laminar viscosity at the engine. */
   KFactor_LowerLimit,               /*!< \Non dimensional coefficient for lower limit of K in SST model. */
@@ -1173,6 +1177,7 @@ private:
   SST_ParsedOptions sstParsedOptions; /*!< \brief Additional parameters for the SST turbulence model. */
   SA_ParsedOptions saParsedOptions;   /*!< \brief Additional parameters for the SA turbulence model. */
   LM_ParsedOptions lmParsedOptions;   /*!< \brief Additional parameters for the LM transition model. */
+  KWBC_ParsedOptions kwbcParsedOptions; /*!< \brief Additional parameters for the KWBC turbulence model. */
   su2double uq_delta_b;         /*!< \brief Parameter used to perturb eigenvalues of Reynolds Stress Matrix */
   unsigned short eig_val_comp;  /*!< \brief Parameter used to determine type of eigenvalue perturbation */
   su2double uq_urlx;            /*!< \brief Under-relaxation factor */
@@ -1995,6 +2000,12 @@ public:
    * \return Non-dimensionalized freestream intermittency.
    */
   su2double GetIntermittency_FreeStream(void) const { return Intermittency_FreeStream; }
+
+  /*!
+   * \brief Get the value of the non-dimensionalized freestream A_r LMROUGH.
+   * \return Non-dimensionalized freestream A_r.
+   */
+  su2double GetA_r_FreeStream(void) const { return A_r_FreeStream; }
 
   /*!
    * \brief Get the value of the freestream momentum thickness Reynolds number.
@@ -4497,6 +4508,12 @@ public:
    * \return Value of roughness.
    */
   su2double GethRoughness(void) const { return hRoughness; }
+
+  /*!
+   * \brief Get equivalent roughness for LMROUGH Transtion model from config
+   * \return Value of roughness.
+   */
+  su2double GeteqRoughness(void) const { return eqRoughness; }
 
   /*!
    * \brief Get the kind of the species model.
@@ -9889,4 +9906,9 @@ public:
    */
   LM_ParsedOptions GetLMParsedOptions() const { return lmParsedOptions; }
 
+  /*!
+   * \brief Get parsed KWBC option data structure.
+   * \return KWBC option data structure.
+   */
+  KWBC_ParsedOptions GetKWBCParsedOptions() const { return kwbcParsedOptions; }
 };
