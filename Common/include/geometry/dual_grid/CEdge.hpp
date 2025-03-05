@@ -201,6 +201,8 @@ class CEdge {
   inline const su2activematrix& GetCorrection_Z() const { return c; }
 
   inline void NormalizeCorrection(unsigned long iEdge, const su2double& Area) {
+    // PERCHè non lo fa più??
+    
 //    for (int iDim = 0; iDim < 3; ++iDim) {
 //      a(iEdge,iDim) /= Area;
 //      b(iEdge,iDim) /= Area;

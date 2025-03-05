@@ -498,9 +498,9 @@ void CScalarSolver<VariableType>::BC_Far_Field_Residual(CGeometry* geometry, CSo
       /*--- Jacobian contribution for implicit integration. ---*/
       if (implicit) {
         for (iVar = 0; iVar < nVar; ++iVar){
-        for (short jVar = 0; jVar < nVar; ++jVar) {
-          residualBuffer[MAXNVAR + iVar*nVar + jVar] = residual.jacobian_i[iVar][jVar];
-        }
+          for (short jVar = 0; jVar < nVar; ++jVar) {
+            residualBuffer[MAXNVAR + iVar*nVar + jVar] = residual.jacobian_i[iVar][jVar];
+          }
         }
       }
     }

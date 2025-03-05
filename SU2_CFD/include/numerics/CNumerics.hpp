@@ -668,10 +668,10 @@ public:
     nDim = (nDim > 2)? 3 : 2;
     su2double edgeVec[MAXNDIM], dist_ij_2 = 0.0, proj_vector_ij = 0.0;
     su2double diss = 0.0;
-    su2double Area2 = 0.0;
-    for (int iDim = 0; iDim < nDim; ++iDim) {
-      Area2 += pow(normal[iDim],2);
-    }
+    su2double Area2 = GeometryToolbox::SquaredNorm(nDim, normal);
+    // for (int iDim = 0; iDim < nDim; ++iDim) {
+    //   Area2 += pow(normal[iDim],2);
+    // }
     const su2double alpha = 4.0 / 3.0;
 
     for (int iDim = 0; iDim < nDim; iDim++) {
@@ -692,7 +692,7 @@ public:
         break;
     }
 
-    proj_vector_ij /= max(dist_ij_2,EPS);
+    proj_vector_ij /= max(dist_ij_2,EPS*EPS);
 
     /*--- Mean gradient approximation. ---*/
     for (int iVar = 0; iVar < nVar; iVar++) {
