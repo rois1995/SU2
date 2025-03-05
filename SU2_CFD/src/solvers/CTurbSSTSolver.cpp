@@ -486,8 +486,77 @@ void CTurbSSTSolver::BC_HeatFlux_Wall(CGeometry *geometry, CSolver **solver_cont
   END_SU2_OMP_FOR
 }
 
+void CTurbSSTSolver::BC_HeatFlux_Wall_Residual(CGeometry* geometry, CSolver** solver_container, CNumerics* conv_numerics,
+                               CNumerics* visc_numerics, CConfig* config, unsigned short val_marker,
+                               unsigned long val_element, unsigned short iNode,
+                               su2double* residualBuffer) {
+  /*--- Evaluate nu tilde at the closest point to the surface using the wall functions. ---*/
 
-void CTurbSSTSolver::SetTurbVars_WF(CGeometry *geometry, CSolver **solver_container,
+  const bool implicit = (config->GetKind_TimeIntScheme() == EULER_IMPLICIT);
+
+  bool rough_wall = false;
+  string Marker_Tag = config->GetMarker_All_TagBound(val_marker);
+  WALL_TYPE WallType; su2double Roughness_Height;
+  tie(WallType, Roughness_Height) = config->GetWallRoughnessProperties(Marker_Tag);
+  if (WallType == WALL_TYPE::ROUGH) rough_wall = true;
+
+  /*--- Evaluate nu tilde at the closest point to the surface using the wall functions. ---*/
+
+  if (config->GetWall_Functions()) {
+    SU2_OMP_SAFE_GLOBAL_ACCESS(SetTurbVars_WF(geometry, solver_container, config, val_marker);)
+    return;
+  }
+
+  const auto iPoint = geometry->bound[val_marker][val_element]->GetNode(iNode);
+  const auto iVertex = geometry->nodes->GetVertex(iPoint,val_marker);
+
+  /*--- Check if the node belongs to the domain (i.e, not a halo node) ---*/
+  if (true) {
+
+    if (rough_wall) {
+
+      /*--- Set wall values ---*/
+      su2double density = solver_container[FLOW_SOL]->GetNodes()->GetDensity(iPoint);
+      su2double laminar_viscosity = solver_container[FLOW_SOL]->GetNodes()->GetLaminarViscosity(iPoint);
+      su2double WallShearStress = solver_container[FLOW_SOL]->GetWallShearStress(val_marker, iVertex);
+
+      /*--- Compute non-dimensional velocity ---*/
+      su2double FrictionVel = sqrt(fabs(WallShearStress)/density);
+
+      /*--- Compute roughness in wall units. ---*/
+      //su2double Roughness_Height = config->GetWall_RoughnessHeight(Marker_Tag);
+      su2double kPlus = FrictionVel*Roughness_Height*density/laminar_viscosity;
+
+      su2double S_R= 0.0;
+      /*--- Reference 1 original Wilcox (1998) ---*/
+      /*if (kPlus <= 25)
+          S_R = (50/(kPlus+EPS))*(50/(kPlus+EPS));
+        else
+          S_R = 100/(kPlus+EPS);*/
+
+      /*--- Reference 2 from D.C. Wilcox Turbulence Modeling for CFD (2006) ---*/
+      if (kPlus <= 5)
+        S_R = (200/(kPlus+EPS))*(200/(kPlus+EPS));
+      else
+        S_R = 100/(kPlus+EPS) + ((200/(kPlus+EPS))*(200/(kPlus+EPS)) - 100/(kPlus+EPS))*exp(5-kPlus);
+
+      /*--- Modify the omega to account for a rough wall. ---*/
+      su2double solution[2];
+      solution[0] = 0.0;
+      solution[1] = FrictionVel*FrictionVel*S_R/(laminar_viscosity/density);
+
+      // Jacobian and residual??
+
+      residualBuffer[0] = 0;
+      residualBuffer[1] = 0;
+
+    } 
+  }
+
+}
+
+
+void CTurbSSTSolver::SetTurbVars_WF(const CGeometry *geometry, CSolver **solver_container,
                                     const CConfig *config, unsigned short val_marker) {
 
   const bool implicit = (config->GetKind_TimeIntScheme() == EULER_IMPLICIT);
@@ -1017,5 +1086,64 @@ void CTurbSSTSolver::SetUniformInlet(const CConfig* config, unsigned short iMark
       Inlet_TurbVars[iMarker][iVertex][1] = GetOmega_Inf();
     }
   }
+
+}
+
+
+void CTurbSSTSolver::BC_Viscous_Wall_Strong(const CGeometry* geometry,
+                                           CSolver** solver_container,
+                                           const CConfig* config, unsigned short val_marker) {
+
+  const bool implicit = (config->GetKind_TimeIntScheme() == EULER_IMPLICIT);
+
+  bool rough_wall = false;
+  string Marker_Tag = config->GetMarker_All_TagBound(val_marker);
+  WALL_TYPE WallType; su2double Roughness_Height;
+  tie(WallType, Roughness_Height) = config->GetWallRoughnessProperties(Marker_Tag);
+  if (WallType == WALL_TYPE::ROUGH) rough_wall = true;
+
+  /*--- Evaluate nu tilde at the closest point to the surface using the wall functions. ---*/
+
+  if (config->GetWall_Functions()) {
+    SU2_OMP_SAFE_GLOBAL_ACCESS(SetTurbVars_WF(geometry, solver_container, config, val_marker);)
+    return;
+  }
+
+  SU2_OMP_FOR_STAT(OMP_MIN_SIZE)
+  for (auto iVertex = 0u; iVertex < geometry->nVertex[val_marker]; iVertex++) {
+
+    const auto iPoint = geometry->vertex[val_marker][iVertex]->GetNode();
+
+    /*--- Check if the node belongs to the domain (i.e, not a halo node) ---*/
+    if (geometry->nodes->GetDomain(iPoint)) {
+
+      if (!rough_wall) { // smooth wall
+
+        /*--- distance to closest neighbor ---*/
+        su2double wall_dist = geometry->vertex[val_marker][iVertex]->GetNearestNeighborDistance();
+
+        /*--- Set wall values ---*/
+        su2double density = solver_container[FLOW_SOL]->GetNodes()->GetDensity(iPoint);
+        su2double laminar_viscosity = solver_container[FLOW_SOL]->GetNodes()->GetLaminarViscosity(iPoint);
+
+        su2double beta_1 = constants[4];
+        su2double solution[MAXNVAR];
+        solution[0] = 0.0;
+        solution[1] = 60.0*laminar_viscosity/(density*beta_1*pow(wall_dist,2));
+
+        /*--- Set the solution values and zero the residual ---*/
+        nodes->SetSolution_Old(iPoint,solution);
+        nodes->SetSolution(iPoint,solution);
+        LinSysRes.SetBlock_Zero(iPoint);
+      }
+
+      if (implicit) {
+        /*--- Change rows of the Jacobian (includes 1 in the diagonal) ---*/
+        Jacobian.DeleteValsRowi(iPoint*nVar);
+        Jacobian.DeleteValsRowi(iPoint*nVar+1);
+      }
+    }
+  }
+  END_SU2_OMP_FOR
 
 }

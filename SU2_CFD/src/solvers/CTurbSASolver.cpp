@@ -580,11 +580,11 @@ void CTurbSASolver::BC_HeatFlux_Wall_Residual(CGeometry* geometry, CSolver** sol
 
          /*--- Jacobian contribution for implicit integration. ---*/
          if (implicit) {
-         for (short iVar = 0; iVar < nVar; ++iVar){
-           for (short jVar = 0; jVar < nVar; ++jVar) {
-            residualBuffer[MAXNVAR + iVar*nVar + jVar] = -Jacobian_i;
-           }
-         }
+          for (short iVar = 0; iVar < nVar; ++iVar){
+            for (short jVar = 0; jVar < nVar; ++jVar) {
+              residualBuffer[MAXNVAR + iVar*nVar + jVar] = -Jacobian_i;
+            }
+          }
          }
 
       }
