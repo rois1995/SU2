@@ -2992,6 +2992,60 @@ void CConfig::SetConfig_Options() {
   /*!\brief ROM_SAVE_FREQ \n DESCRIPTION: How often to save snapshots for unsteady problems.*/
   addUnsignedShortOption("ROM_SAVE_FREQ", rom_save_freq, 1);
 
+  
+  /*--- Options used for mesh adaptation ---*/
+  /* DESCRIPTION: Compute an error estimate */
+  addBoolOption("COMPUTE_METRIC", Compute_Metric, false);
+
+  /*!\brief NUM_METHOD_HESS
+   *  \n DESCRIPTION: Numerical method for Hessian computation \n OPTIONS: See \link Gradient_Map \endlink. \n DEFAULT: GREEN_GAUSS. \ingroup Config*/
+  addEnumOption("NUM_METHOD_HESS", Kind_Hessian_Method, Gradient_Map, GREEN_GAUSS);
+
+  /* DESCRIPTION: Sensors for mesh adaptation */
+  addStringListOption("ADAP_SENSOR", nAdap_Sensor, Adap_Sensor);
+
+  /* DESCRIPTION: Lp-norm for mesh adaptation */
+  addDoubleOption("ADAP_NORM", Adap_Norm, 1.0);
+
+  /* DESCRIPTION: Constraint maximum cell size */
+  addDoubleOption("ADAP_HMAX", Adap_Hmax, 10.0);
+
+  /* DESCRIPTION: Constraint minimum cell size */
+  addDoubleOption("ADAP_HMIN", Adap_Hmin, 1.0E-8);
+
+  /* DESCRIPTION: Constraint maximum cell aspect ratio */
+  addDoubleOption("ADAP_ARMAX", Adap_ARmax, 1.0E6);
+
+  /* DESCRIPTION: Constraint mesh complexity */
+  addUnsignedLongOption("ADAP_COMPLEXITY", Adap_Complexity, 10000);
+
+  /* DESCRIPTION: A mesh adaptation option */
+  addPythonOption("ADAP_SIZES");
+
+  /* DESCRIPTION: A mesh adaptation option */
+  addPythonOption("ADAP_SUBITER");
+
+  /* DESCRIPTION: A mesh adaptation option */
+  addPythonOption("ADAP_FLOW_ITER");
+
+  /* DESCRIPTION: A mesh adaptation option */
+  addPythonOption("ADAP_ADJ_ITER");
+
+  /* DESCRIPTION: A mesh adaptation option */
+  addPythonOption("ADAP_FLOW_CFL");
+
+  /* DESCRIPTION: A mesh adaptation option */
+  addPythonOption("ADAP_ADJ_CFL");
+
+  /* DESCRIPTION: A mesh adaptation option */
+  addPythonOption("ADAP_RESIDUAL_REDUCTION");
+
+  /* DESCRIPTION: A mesh adaptation option */
+  addPythonOption("ADAP_HGRAD");
+
+  /* DESCRIPTION: A mesh adaptation option */
+  addPythonOption("ADAP_HAUSD");
+
   /* END_CONFIG_OPTIONS */
 
 }

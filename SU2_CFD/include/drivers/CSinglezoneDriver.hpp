@@ -109,5 +109,10 @@ public:
    * \param ExtIter
    */
   bool Monitor(unsigned long TimeIter) override;
+  
+  /*!
+   * \brief Perform all steps to compute the metric.
+   */
+  virtual void ComputeMetric(void);
 
 };

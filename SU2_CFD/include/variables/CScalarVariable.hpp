@@ -42,6 +42,9 @@ class CScalarVariable : public CVariable {
   CVectorOfMatrix
       Gradient_Aux; /*!< \brief Auxiliary structure to store a second gradient for reconstruction, if required. */
 
+  // MatrixType &Primitive;     /*!< \brief Primitive variables, equivalent to Solution for non-SST. */
+  // MatrixType Primitive_Aux;  /*!< \brief Primitive variables, equivalent to Solution for non-SST. */
+
  public:
   /*!
    * \brief Constructor of the class.

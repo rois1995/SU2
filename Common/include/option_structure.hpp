@@ -103,6 +103,7 @@ const su2double ONE2 = 0.5;         /*!< \brief One divided by two. */
 const su2double ONE3 = 1.0 / 3.0;   /*!< \brief One divided by three. */
 const su2double TWO3 = 2.0 / 3.0;   /*!< \brief Two divided by three. */
 const su2double FOUR3 = 4.0 / 3.0;  /*!< \brief Four divided by three. */
+const su2double FIVE3 = 5.0 / 3.0;  /*!< \brief Five divided by three. */
 
 const su2double PI_NUMBER = 4.0 * atan(1.0);  /*!< \brief Pi number. */
 
@@ -1577,13 +1578,15 @@ enum ENUM_FLOW_GRADIENT {
   NO_GRADIENT            = 0,   /*!< \brief No gradient method. Only possible for reconstruction gradient, in which case, the option chosen for NUM_METHOD_GRAD is used. */
   GREEN_GAUSS            = 1,   /*!< \brief Gradient computation using Green-Gauss theorem. */
   LEAST_SQUARES          = 2,   /*!< \brief Gradient computation using unweighted least squares. */
-  WEIGHTED_LEAST_SQUARES = 3    /*!< \brief Gradients computation using inverse-distance weighted least squares. */
+  WEIGHTED_LEAST_SQUARES = 3,   /*!< \brief Gradients computation using inverse-distance weighted least squares. */
+  L2_PROJECTION          = 4,    /*!< \brief Gradients computation using L2 projection. */
 };
 static const MapType<std::string, ENUM_FLOW_GRADIENT> Gradient_Map = {
   MakePair("NONE", NO_GRADIENT)
   MakePair("GREEN_GAUSS", GREEN_GAUSS)
   MakePair("LEAST_SQUARES", LEAST_SQUARES)
   MakePair("WEIGHTED_LEAST_SQUARES", WEIGHTED_LEAST_SQUARES)
+  MakePair("L2_PROJECTION", L2_PROJECTION)
 };
 
 /*!
@@ -2510,6 +2513,7 @@ enum class RECORDING {
   MESH_COORDS,
   MESH_DEFORM,
   SOLUTION_AND_MESH,
+  OBJECTIVE,
 };
 
 /*!
@@ -2583,6 +2587,17 @@ enum class MPI_QUANTITIES {
   MESH_DISPLACEMENTS   ,  /*!< \brief Mesh displacements at the interface. */
   SOLUTION_TIME_N      ,  /*!< \brief Solution at time n. */
   SOLUTION_TIME_N1     ,  /*!< \brief Solution at time n-1. */
+  WALL_FUNCTION        ,  /*!< \brief Wall function variables. */
+  GRADIENT_ADAPT       ,  /*!< \brief Gradient vectors for anisotropic mesh adaptation. */
+  AUXVAR_ADAPT         ,  /*!< \brief Auxiliary vectors for anisotropic mesh adaptation. */
+  AUXVAR_GRADIENT_ADAPT ,  /*!< \brief Auxiliary gradient vectors for anisotropic mesh adaptation. */
+  HESSIAN              ,  /*!< \brief Hessian vectors for anisotropic mesh adaptation. */
+  PRIMITIVE            ,  /*!< \brief Primitive variables. */
+  METRIC               ,  /*!< \brief Metric vectors for anisotropic mesh adaptation. */
+  NON_PHYSICAL         ,  /*!< \brief Whether node is non-physical. */
+  SMATRIX              ,  /*!< \brief Conservative solution gradient basis communication. */
+  SMATRIX_RECON        ,  /*!< \brief Conservative solution gradient basis communication. */
+  VOLUME               ,   /*!< \brief Dual cell volume communication. */
 };
 
 /*!
