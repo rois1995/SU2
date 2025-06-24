@@ -9881,20 +9881,6 @@ public:
    */
   unsigned long GetAdap_Complexity(void) const { return Adap_Complexity; }
 
-
-  /*!
-   * \brief Get parsed option data structure for data-driven fluid model.
-   * \return option data structure for data-driven fluid model.
-   */
-  const DataDrivenFluid_ParsedOptions& GetDataDrivenParsedOptions() const { return datadriven_ParsedOptions; }
-
-  /*!
-   * \brief Get parsed option data structure for the flamelet fluid model.
-   * \return option data structure for the flamelet fluid model.
-   */
-  const FluidFlamelet_ParsedOptions& GetFlameletParsedOptions() const { return flamelet_ParsedOptions; }
-
-
   /*!
    * \brief Get parsed option data structure for data-driven fluid model.
    * \return option data structure for data-driven fluid model.

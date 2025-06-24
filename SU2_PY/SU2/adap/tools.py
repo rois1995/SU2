@@ -32,7 +32,6 @@
 import numpy as np
 from itertools import islice
 import os
-import su2gmf
 
 def get_mesh_sizes(config):
     """Get prescribed mesh complexities, i.e. desired mesh sizes"""
@@ -59,9 +58,21 @@ def get_mmg_config(config_su2, dim):
     config_mmg['dim']         = int(dim)
     config_mmg['hmax']        = float(config_su2['ADAP_HMAX'])
     config_mmg['hmin']        = float(config_su2['ADAP_HMIN'])
-    config_mmg['hausd']       = float(config_su2['ADAP_HAUSD'])
     config_mmg['Lp']          = float(config_su2['ADAP_NORM'])
     config_mmg['mmg_log']     = 'mmg.out'
+    config_mmg['mmg_err']     = 'mmg.err'
+
+    if '(' in config_su2['ADAP_HAUSD']:
+        config_mmg['hausd'] = {}
+        parameters = config_su2['ADAP_HAUSD'].lstrip('(').rstrip(')').split(',')
+
+        if len(parameters) % 2:
+            raise KeyError('Missing values in ADAP_HAUSD!')
+        else:
+            for i_par in range(0, len(parameters), 2):
+                config_mmg['hausd'][parameters[i_par].strip(' ')] = float(parameters[i_par+1])
+    else:
+        config_mmg['hausd'] = float(config_su2['ADAP_HAUSD'])
     
     return config_mmg
 
@@ -145,10 +156,11 @@ def get_adap_sensors(config):
 
 def set_flow_config_ini(config, cur_solfil, sensor_tags, mesh_size):
     """Set primal config for initial solution"""
-    config.CONV_FILENAME    = 'history'
-    config.RESTART_FILENAME = cur_solfil
-    config.HISTORY_OUTPUT   = ['ITER', 'RMS_RES', 'AERO_COEFF', 'FLOW_COEFF', 'CFL_NUMBER']
-    config.MATH_PROBLEM     = 'DIRECT'
+    config.CONV_FILENAME       = 'history'
+    config.RESTART_FILENAME    = cur_solfil
+    config.HISTORY_OUTPUT      = ['ITER', 'RMS_RES', 'AERO_COEFF', 'FLOW_COEFF', 'CFL_NUMBER']
+    config.MATH_PROBLEM        = 'DIRECT'
+    config.WRT_RESTART_COMPACT = 'NO'
     if 'GOAL' in sensor_tags:
         config.VOLUME_OUTPUT  = 'COORDINATES, SOLUTION, PRIMITIVE, CFL_NUMBER, AUXILIARY, RESIDUAL'
         config.COMPUTE_METRIC = 'NO'
@@ -163,12 +175,12 @@ def set_adj_config_ini(config, cur_solfil, cur_solfil_adj, mesh_size):
     config.RESTART_ADJ_FILENAME = cur_solfil_adj
     config.SOLUTION_FILENAME    = cur_solfil
     config.RESTART_FILENAME     = cur_solfil
+    config.WRT_RESTART_COMPACT  = 'NO'
     config.MATH_PROBLEM         = 'DISCRETE_ADJOINT'
     config.VOLUME_OUTPUT        = 'COORDINATES, SOLUTION, PRIMITIVE, CFL_NUMBER, RESIDUAL, METRIC'
     config.HISTORY_OUTPUT       = ['ITER', 'RMS_RES', 'SENSITIVITY']
     config.COMPUTE_METRIC       = 'YES'
     config.ADAP_COMPLEXITY      = int(mesh_size)
-    #config.RESTART_CFL          = 'YES'
 
 def update_flow_config(config, cur_meshfil, cur_solfil, cur_solfil_ini, flow_iter, flow_cfl, sensor_tags, mesh_size):
     """Set primal config for current solution"""

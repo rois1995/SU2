@@ -1396,6 +1396,9 @@ void CFVMFlowSolverBase<V, FlowRegime>::BC_Sym_Plane(CGeometry* geometry, CSolve
 
     /*--- Jacobian contribution for implicit integration. ---*/
     if (implicit) {
+
+      const su2double* V_domain = nodes->GetPrimitive(iPoint);
+      const su2double* V_reflected = GetCharacPrimVar(val_marker, iVertex);
       
       // Non ne sono sicuro, va controllato visto che hanno cambiato questa funzione!
       const su2double Density = V_domain[nDim+2];
@@ -1479,6 +1482,8 @@ void CFVMFlowSolverBase<V, FlowRegime>::BC_Sym_Plane(CGeometry* geometry, CSolve
           for (int kVar = 0; kVar < nVar; ++kVar)
             dUedU[iVar][jVar] += tmp1[iVar][kVar] * dVdU[kVar][jVar];
         }
+
+      auto residual = conv_numerics->ComputeResidual(config);
 
       for (auto iVar = 0; iVar < nVar; ++iVar)
         for (int jVar = 0; jVar < nVar; ++jVar) {
