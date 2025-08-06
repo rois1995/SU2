@@ -427,6 +427,10 @@ void CTurbSSTSolver::BC_HeatFlux_Wall(CGeometry *geometry, CSolver **solver_cont
     if (geometry->nodes->GetDomain(iPoint)) {
       
       const auto options = config->GetLMParsedOptions();
+
+        //--- Set wall distance value. ---
+        const auto jPoint = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
+        su2double wall_dist = geometry->vertex[val_marker][iVertex]->GetNearestNeighborDistance();
       
       if (rough_wall) {
 
@@ -442,6 +446,7 @@ void CTurbSSTSolver::BC_HeatFlux_Wall(CGeometry *geometry, CSolver **solver_cont
         
         su2double kPlus = FrictionVel*Roughness_Height*density/laminar_viscosity;
         su2double S_R= 0.0;
+
         //--- Reference 1 original Wilcox (1998) ---
         if (kwbcParsedOptions.wilcox1998) {
           if (kPlus <= 25)
@@ -478,16 +483,12 @@ void CTurbSSTSolver::BC_HeatFlux_Wall(CGeometry *geometry, CSolver **solver_cont
             su2double d0 = 0.03*Roughness_Height*min(1.0, pow((kPlus + EPS )/30.0, 2.0/3.0))*min(1.0, pow((kPlus + EPS)/45.0, 0.25))*min(1.0, pow((kPlus + EPS) /60, 0.25));
             su2double solution[2];
             solution[0] = (FrictionVel*FrictionVel / sqrt(constants[6]))*min(1.0, kPlus / 90.0);
-            const auto jPoint = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
 
-            su2double distance2 = GeometryToolbox::SquaredDistance(nDim,
-                                                             geometry->nodes->GetCoord(iPoint),
-                                                             geometry->nodes->GetCoord(jPoint));
             const su2double kappa = config->GetwallModel_Kappa();
             //su2double beta_1 = constants[4];
             su2double beta_1 = constants[4];
             //solution[1] = 60.0*laminar_viscosity/(density*beta_1*distance2);
-            solution[1] = min( FrictionVel/(sqrt(constants[6])*d0*kappa), 60.0*laminar_viscosity/(density*beta_1*distance2)); 
+            solution[1] = min( FrictionVel/(sqrt(constants[6])*d0*kappa), 60.0*laminar_viscosity/(density*beta_1*wall_dist)); 
         
             //cout <<"density: "<< density <<"FrcictionVel: "<< FrictionVel << "kPlus: " << kPlus << " kwallPlus: " << solution[0] << " omegawallPlus: " << solution[1] << endl;
             nodes->SetSolution_Old(iPoint,solution);
@@ -504,14 +505,21 @@ void CTurbSSTSolver::BC_HeatFlux_Wall(CGeometry *geometry, CSolver **solver_cont
             su2double solution[2];
 
             solution[0] = kwallPlus;
+            const su2double kappa = config->GetwallModel_Kappa();
+            su2double beta_1 = constants[4];
+            if (kPlus < 2.0)
+              solution[1] = 60.0*laminar_viscosity/(density*beta_1*wall_dist);
+            else
+              solution[1] = omegawallPlus*FrictionVel*FrictionVel*density/laminar_viscosity;
+            
+            nodes->SetSolution_Old(iPoint,solution);
+            nodes->SetSolution(iPoint,solution);
+            LinSysRes.SetBlock_Zero(iPoint);
+          }
+      } else {
+
         
-            const auto jPoint = geometry->vertex[val_marker][iVertex]->GetNormal_Neighbor();
 
-            su2double wall_dist = geometry->vertex[val_marker][iVertex]->GetNearestNeighborDistance();
-
-        su2double distance2 = GeometryToolbox::SquaredDistance(nDim,
-                                                             geometry->nodes->GetCoord(iPoint),
-                                                             geometry->nodes->GetCoord(jPoint));
         /*--- Set wall values ---*/
 
         su2double density = solver_container[FLOW_SOL]->GetNodes()->GetDensity(jPoint);
