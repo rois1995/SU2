@@ -2,14 +2,14 @@
  * \file CSolver.cpp
  * \brief Main subroutines for CSolver class.
  * \author F. Palacios, T. Economon
- * \version 8.0.1 "Harrier"
+ * \version 8.2.0 "Harrier"
  *
  * SU2 Project Website: https://su2code.github.io
  *
  * The SU2 Project is maintained by the SU2 Foundation
  * (http://su2foundation.org)
  *
- * Copyright 2012-2024, SU2 Contributors (cf. AUTHORS.md)
+ * Copyright 2012-2025, SU2 Contributors (cf. AUTHORS.md)
  *
  * SU2 is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -1717,6 +1717,7 @@ void CSolver::AdaptCFLNumber(CGeometry **geometry,
   const su2double CFLMin            = config->GetCFL_AdaptParam(2);
   const su2double CFLMax            = config->GetCFL_AdaptParam(3);
   const su2double acceptableLinTol  = config->GetCFL_AdaptParam(4);
+  const su2double startingIter      = config->GetCFL_AdaptParam(5);
   const bool fullComms              = (config->GetComm_Level() == COMM_FULL);
 
   /* Number of iterations considered to check for stagnation. */
@@ -1730,6 +1731,7 @@ void CSolver::AdaptCFLNumber(CGeometry **geometry,
 
     CSolver *solverFlow = solver_container[iMesh][FLOW_SOL];
     CSolver *solverTurb = solver_container[iMesh][TURB_SOL];
+    CSolver *solverSpecies = solver_container[iMesh][SPECIES_SOL];
 
     /* Compute the reduction factor for CFLs on the coarse levels. */
 
@@ -1744,10 +1746,12 @@ void CSolver::AdaptCFLNumber(CGeometry **geometry,
      solver residual within the specified number of linear iterations. */
 
     su2double linResTurb = 0.0;
+    su2double linResSpecies = 0.0;
     if ((iMesh == MESH_0) && solverTurb) linResTurb = solverTurb->GetResLinSolver();
+    if ((iMesh == MESH_0) && solverSpecies) linResSpecies = solverSpecies->GetResLinSolver();
 
-    /* Max linear residual between flow and turbulence. */
-    const su2double linRes = max(solverFlow->GetResLinSolver(), linResTurb);
+    /* Max linear residual between flow and turbulence/species transport. */
+    const su2double linRes = max(solverFlow->GetResLinSolver(), max(linResTurb, linResSpecies));
 
     /* Tolerance limited to an acceptable value. */
     const su2double linTol = max(acceptableLinTol, config->GetLinear_Solver_Error());
@@ -1761,8 +1765,12 @@ void CSolver::AdaptCFLNumber(CGeometry **geometry,
 
     /* Check if we should decrease or if we can increase, the 20% is to avoid flip-flopping. */
     resetCFL = linRes > 0.99;
-    reduceCFL = linRes > 1.2*linTol;
-    canIncrease = linRes < linTol;
+    unsigned long iter = config->GetMultizone_Problem() ? config->GetOuterIter() : config->GetInnerIter();
+
+    /* only change CFL number when larger than starting iteration */
+    reduceCFL = (linRes > 1.2*linTol) && (iter >= startingIter);
+
+    canIncrease = (linRes < linTol) && (iter >= startingIter);
 
     if ((iMesh == MESH_0) && (Res_Count > 0)) {
       Old_Func = New_Func;
@@ -1777,6 +1785,11 @@ void CSolver::AdaptCFLNumber(CGeometry **geometry,
       if ((iMesh == MESH_0) && solverTurb) {
         for (unsigned short iVar = 0; iVar < solverTurb->GetnVar(); iVar++) {
           New_Func += log10(solverTurb->GetRes_RMS(iVar));
+        }
+      }
+      if ((iMesh == MESH_0) && solverSpecies) {
+        for (unsigned short iVar = 0; iVar < solverSpecies->GetnVar(); iVar++) {
+          New_Func += log10(solverSpecies->GetRes_RMS(iVar));
         }
       }
 
@@ -1822,6 +1835,7 @@ void CSolver::AdaptCFLNumber(CGeometry **geometry,
 
     su2double myCFLMin = 1e30, myCFLMax = 0.0, myCFLSum = 0.0;
     const su2double CFLTurbReduction = config->GetCFLRedCoeff_Turb();
+    const su2double CFLSpeciesReduction = config->GetCFLRedCoeff_Species();
 
     SU2_OMP_MASTER
     if ((iMesh == MESH_0) && fullComms) {
@@ -1887,6 +1901,9 @@ void CSolver::AdaptCFLNumber(CGeometry **geometry,
       solverFlow->GetNodes()->SetLocalCFL(iPoint, CFL);
       if ((iMesh == MESH_0) && solverTurb) {
         solverTurb->GetNodes()->SetLocalCFL(iPoint, CFL * CFLTurbReduction);
+      }
+      if ((iMesh == MESH_0) && solverSpecies) {
+        solverSpecies->GetNodes()->SetLocalCFL(iPoint, CFL * CFLSpeciesReduction);
       }
 
       /* Store min and max CFL for reporting on the fine grid. */
@@ -3146,7 +3163,8 @@ void CSolver::InterpolateRestartData(const CGeometry *geometry, const CConfig *c
   const unsigned long nFields = Restart_Vars[1];
   const unsigned long nPointFile = Restart_Vars[2];
   const auto t0 = SU2_MPI::Wtime();
-  auto nRecurse = 0;
+  int nRecurse = 0;
+  const int maxNRecurse = 128;
 
   if (rank == MASTER_NODE) {
     cout << "\nThe number of points in the restart file (" << nPointFile << ") does not match "
@@ -3245,7 +3263,7 @@ void CSolver::InterpolateRestartData(const CGeometry *geometry, const CConfig *c
   bool done = false;
 
   SU2_OMP_PARALLEL
-  while (!done) {
+  while (!done && nRecurse < maxNRecurse) {
     SU2_OMP_FOR_DYN(roundUpDiv(nPointDomain,2*omp_get_num_threads()))
     for (auto iPoint = 0ul; iPoint < nPointDomain; ++iPoint) {
       /*--- Do not change points that are already interpolated. ---*/
@@ -3256,7 +3274,8 @@ void CSolver::InterpolateRestartData(const CGeometry *geometry, const CConfig *c
 
       for (const auto jPoint : geometry->nodes->GetPoints(iPoint)) {
         if (!isMapped[jPoint]) continue;
-        if (boundary_i != geometry->nodes->GetSolidBoundary(jPoint)) continue;
+        /*--- Take data from anywhere if we are looping too many times. ---*/
+        if (boundary_i != geometry->nodes->GetSolidBoundary(jPoint) && nRecurse < 8) continue;
 
         nDonor[iPoint]++;
 
@@ -3298,6 +3317,10 @@ void CSolver::InterpolateRestartData(const CGeometry *geometry, const CConfig *c
 
   } // everything goes out of scope except "localVars"
 
+  if (nRecurse == maxNRecurse) {
+    SU2_MPI::Error("Limit number of recursions reached, the meshes may be too different.", CURRENT_FUNCTION);
+  }
+
   /*--- Move to Restart_Data in ascending order of global index, which is how a matching restart would have been read. ---*/
 
   Restart_Data.resize(nPointDomain*nFields);
@@ -3312,9 +3335,11 @@ void CSolver::InterpolateRestartData(const CGeometry *geometry, const CConfig *c
       counter++;
     }
   }
+  int nRecurseMax = 0;
+  SU2_MPI::Reduce(&nRecurse, &nRecurseMax, 1, MPI_INT, MPI_MAX, MASTER_NODE, SU2_MPI::GetComm());
 
   if (rank == MASTER_NODE) {
-    cout << "Number of recursions: " << nRecurse << ".\n"
+    cout << "Number of recursions: " << nRecurseMax << ".\n"
             "Elapsed time: " << SU2_MPI::Wtime()-t0 << "s.\n" << endl;
   }
 }
@@ -3594,38 +3619,42 @@ void CSolver::LoadInletProfile(CGeometry **geometry,
     columnValue << setprecision(15);
     columnValue << std::scientific;
 
-    su2double p_total, t_total;
-    const su2double* flow_dir = nullptr;
+    // Set the variables to store the flow variables. For a subsonic inlet the total conditions
+    // are stored in p_value and t_value and the flow direction in flow_dir_or_vel, while for a
+    // supersonic inlet the static conditions are stored in p_value and t_value and the flow
+    // velocity in flow_dir_or_vel.
+    su2double p_value, t_value;
+    const su2double* flow_dir_or_vel = nullptr;
 
     if (KIND_MARKER == INLET_FLOW) {
-      p_total = config->GetInletPtotal(Marker_Tag);
-      t_total = config->GetInletTtotal(Marker_Tag);
-      flow_dir = config->GetInletFlowDir(Marker_Tag);
+      p_value = config->GetInletPtotal(Marker_Tag);
+      t_value = config->GetInletTtotal(Marker_Tag);
+      flow_dir_or_vel = config->GetInletFlowDir(Marker_Tag);
     } else if (KIND_MARKER == SUPERSONIC_INLET) {
-      p_total = config->GetInlet_Pressure(Marker_Tag);
-      t_total = config->GetInlet_Temperature(Marker_Tag);
-      flow_dir = config->GetInlet_Velocity(Marker_Tag);
+      p_value = config->GetInlet_Pressure(Marker_Tag);
+      t_value = config->GetInlet_Temperature(Marker_Tag);
+      flow_dir_or_vel = config->GetInlet_Velocity(Marker_Tag);
     } else {
       SU2_MPI::Error("Unsupported type of inlet.", CURRENT_FUNCTION);
     }
-    columnValue << t_total << "\t" << p_total <<"\t";
+    columnValue << t_value << "\t" << p_value << "\t";
     for (unsigned short iDim = 0; iDim < nDim; iDim++) {
-      columnValue << flow_dir[iDim] <<"\t";
+      columnValue << flow_dir_or_vel[iDim] << "\t";
     }
 
-    columnName << "# COORD-X  " << setw(24) << "COORD-Y    " << setw(24);
-    if(nDim==3) columnName << "COORD-Z    " << setw(24);
+    columnName << left << setw(24) << "# COORD-X" << left << setw(24) << "COORD-Y";
+    if (nDim == 3) columnName << left << setw(24) << "COORD-Z";
 
     if (KIND_MARKER == SUPERSONIC_INLET) {
-      columnName << "TEMPERATURE" << setw(24) << "PRESSURE   " << setw(24);
+      columnName << left << setw(24) << "TEMPERATURE" << left << setw(24) << "PRESSURE";
     } else if (config->GetKind_Regime() == ENUM_REGIME::COMPRESSIBLE) {
       switch (config->GetKind_Inlet()) {
         /*--- compressible conditions ---*/
         case INLET_TYPE::TOTAL_CONDITIONS:
-          columnName << "TEMPERATURE" << setw(24) << "PRESSURE   " << setw(24);
+          columnName << left << setw(24) << "TOTAL_TEMPERATURE" << left << setw(24) << "TOTAL_PRESSURE";
           break;
         case INLET_TYPE::MASS_FLOW:
-          columnName << "DENSITY    " << setw(24) << "VELOCITY   " << setw(24);
+          columnName << left << setw(24) << "DENSITY" << left << setw(24) << "VELOCITY";
           break;
         default:
           SU2_MPI::Error("Unsupported INLET_TYPE.", CURRENT_FUNCTION);
@@ -3635,10 +3664,10 @@ void CSolver::LoadInletProfile(CGeometry **geometry,
       switch (config->GetKind_Inc_Inlet(Marker_Tag)) {
         /*--- incompressible conditions ---*/
         case INLET_TYPE::VELOCITY_INLET:
-          columnName << "TEMPERATURE" << setw(24) << "VELOCITY   " << setw(24);
+          columnName << left << setw(24) << "TEMPERATURE " << left << setw(24) << "VELOCITY";
           break;
         case INLET_TYPE::PRESSURE_INLET:
-          columnName << "TEMPERATURE" << setw(24) << "PRESSURE   " << setw(24);
+          columnName << left << setw(24) << "TEMPERATURE" << left << setw(24) << "PRESSURE";
           break;
         default:
           SU2_MPI::Error("Unsupported INC_INLET_TYPE.", CURRENT_FUNCTION);
@@ -3646,19 +3675,25 @@ void CSolver::LoadInletProfile(CGeometry **geometry,
       }
     }
 
-    columnName << "NORMAL-X   " << setw(24) << "NORMAL-Y   " << setw(24);
-    if(nDim==3)  columnName << "NORMAL-Z   " << setw(24);
+    if (KIND_MARKER == SUPERSONIC_INLET) {
+      columnName << left << setw(24) << "VELOCITY-X" << left << setw(24) << "VELOCITY-Y";
+      if (nDim == 3) columnName << left << setw(24) << "VELOCITY-Z";
+    } else {
+      columnName << left << setw(24) << "NORMAL-X" << left << setw(24) << "NORMAL-Y";
+      if (nDim == 3) columnName << left << setw(24) << "NORMAL-Z";
+    }
 
     switch (TurbModelFamily(config->GetKind_Turb_Model())) {
-      case TURB_FAMILY::NONE: break;
+      case TURB_FAMILY::NONE:
+        break;
       case TURB_FAMILY::SA:
         /*--- 1-equation turbulence model: SA ---*/
-        columnName << "NU_TILDE   " << setw(24);
+        columnName << left << setw(24) << "NU_TILDE";
         columnValue << config->GetNuFactor_FreeStream() * config->GetViscosity_FreeStream() / config->GetDensity_FreeStream() <<"\t";
         break;
       case TURB_FAMILY::KW:
         /*--- 2-equation turbulence model (SST) ---*/
-        columnName << "TKE        " << setw(24) << "DISSIPATION" << setw(24);
+        columnName << left << setw(24) << "TKE" << left << setw(24) << "DISSIPATION";
         columnValue << config->GetTke_FreeStream() << "\t" << config->GetOmega_FreeStream() <<"\t";
         break;
     }
@@ -3667,20 +3702,22 @@ void CSolver::LoadInletProfile(CGeometry **geometry,
       case SPECIES_MODEL::NONE: break;
       case SPECIES_MODEL::SPECIES_TRANSPORT:
         for (unsigned short iVar = 0; iVar < nVar_Species; iVar++) {
-          columnName << "SPECIES_" + std::to_string(iVar) + "  " << setw(24);
+          columnName << left << setw(24) << "SPECIES_" + std::to_string(iVar);
           columnValue << config->GetInlet_SpeciesVal(Marker_Tag)[iVar] << "\t";
         }
         break;
-      case SPECIES_MODEL::FLAMELET:
+      case SPECIES_MODEL::FLAMELET: {
+        const auto& flamelet_config_options = config->GetFlameletParsedOptions();
         /*--- 2-equation flamelet model ---*/
-        columnName << "PROGRESSVAR" << setw(24) << "ENTHALPYTOT" << setw(24);
-        columnValue << config->GetInlet_SpeciesVal(Marker_Tag)[0] << "\t" <<  config->GetInlet_SpeciesVal(Marker_Tag)[1]<<"\t";
+        columnName << left << setw(24) << "PROGRESSVAR" << left << setw(24) << "ENTHALPYTOT";
+        columnValue << config->GetInlet_SpeciesVal(Marker_Tag)[0] << "\t" << config->GetInlet_SpeciesVal(Marker_Tag)[1] <<"\t";
         /*--- auxiliary species transport equations ---*/
-        for (unsigned short iReactant = 0; iReactant < config->GetNUserScalars(); iReactant++) {
-          columnName << config->GetUserScalarName(iReactant) << setw(24);
-          columnValue << config->GetInlet_SpeciesVal(Marker_Tag)[config->GetNControlVars() + iReactant] << "\t";
+        for (unsigned short iReactant = 0; iReactant < flamelet_config_options.n_user_scalars; iReactant++) {
+          columnName << left << setw(24) << flamelet_config_options.user_scalar_names[iReactant];
+          columnValue << config->GetInlet_SpeciesVal(Marker_Tag)[flamelet_config_options.n_control_vars + iReactant] << "\t";
         }
         break;
+      }
     }
 
     columnNames.push_back(columnName.str());
@@ -4071,7 +4108,7 @@ void CSolver::SetVertexTractionsAdjoint(CGeometry *geometry, const CConfig *conf
 
   unsigned short iMarker, iDim;
   unsigned long iVertex, iPoint;
-  int index;
+  AD::Identifier index;
 
   /*--- Loop over all the markers ---*/
   for (iMarker = 0; iMarker < config->GetnMarker_All(); iMarker++) {
