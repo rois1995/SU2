@@ -491,10 +491,10 @@ void CTurbSSTSolver::BC_HeatFlux_Wall(CGeometry *geometry, CSolver **solver_cont
 
           } else if (kwbcParsedOptions.limiter_grigson) {
             //LIMITER 2
-            su2double kwall = ( 1.0 / constants[6]) * tanh(((log((kPlus +EPS ) / 30.0) / log(10.0)) + 0.5 - 0.5*tanh( (kPlus + EPS) / 125.0))*tanh((kPlus + EPS) / 125.0));
+            su2double kwall = ( 1.0 /sqrt( constants[6])) * tanh(((log((kPlus +EPS ) / 30.0) / log(10.0)) + 1.0 - 1.0*tanh( (kPlus + EPS) / 125.0))*tanh((kPlus + EPS) / 125.0));
             su2double kwallPlus = max(0.0, kwall*FrictionVel*FrictionVel);
         
-            su2double omegawallPlus = (300.0 / pow(kPlus + EPS, 2.0)) * pow(tanh(15.0 / (4.0*kPlus + EPS)), -1.0) + (191.0 / (kPlus + EPS))*(1.0 - exp(-kPlus / 250.0));
+            su2double omegawallPlus = (300.0 / pow(kPlus + EPS, 2.0)) * pow(tanh(15.0 / (4.0*kPlus)), -1.0) + (191.0 / (kPlus + EPS))*(1.0 - exp(-kPlus / 250.0));
             su2double solution[2];
 
             solution[0] = kwallPlus;
@@ -506,7 +506,7 @@ void CTurbSSTSolver::BC_HeatFlux_Wall(CGeometry *geometry, CSolver **solver_cont
                                                              geometry->nodes->GetCoord(jPoint));
             const su2double kappa = config->GetwallModel_Kappa();
             su2double beta_1 = constants[4];
-            if (kPlus < 5.0)
+            if (kPlus < 2.0)
               solution[1] = 60.0*laminar_viscosity/(density*beta_1*distance2);
             else
               solution[1] = omegawallPlus*FrictionVel*FrictionVel*density/laminar_viscosity;
