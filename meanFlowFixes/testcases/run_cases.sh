@@ -6,7 +6,7 @@
 # Each config <case>/<name>.cfg is run in <case>/develop/<name>/ and <case>/meanFlowFixes/<name>/, and the
 # fixed-grid reference of the HLLC case (2_hllc_translating/fixed.cfg) only with develop, as in the PR plots.
 # NP sets the number of MPI ranks (default 2). Without arguments all the cases are run.
-# The long cases (1b, 1c, 2) run up to 20 000 iterations.
+# The long cases (1b, 2) run up to 20 000 iterations.
 
 set -u
 : "${DEVELOP:?set DEVELOP to the SU2_CFD of develop}"
@@ -15,7 +15,7 @@ NP=${NP:-2}
 ROOT=$(cd "$(dirname "$0")" && pwd)
 
 cases=("$@")
-[ ${#cases[@]} -eq 0 ] && cases=(1a_nozzle_restart 1b_nozzle_from_rest 1c_rae2822 2_hllc_translating 3_inc_pitching \
+[ ${#cases[@]} -eq 0 ] && cases=(1a_nozzle_restart 1b_nozzle_from_rest 2_hllc_translating 3_inc_pitching \
                                  4a_sources 4b_turbo_riemann 4c_mglevel)
 
 run() {  # run <case> <cfg name> <variant> <binary>

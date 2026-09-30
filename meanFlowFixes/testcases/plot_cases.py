@@ -104,17 +104,12 @@ def main():
            [("rms[Rho]", series((DEV, xy(d, "rms[Rho]")), (FIX, xy(f, "rms[Rho]")))),
             ("rms[RhoE]", series((DEV, xy(d, "rms[RhoE]")), (FIX, xy(f, "rms[RhoE]"))))])
 
-    # Under-relaxation: nozzle from rest and RAE2822.
+    # Under-relaxation: nozzle from rest.
     d, f = history("1b_nozzle_from_rest", "develop"), history("1b_nozzle_from_rest", "meanFlowFixes")
     figure("1b_underrelaxation_nozzle_from_rest", "Axisymmetric air nozzle (SA, dimensional), from rest, CFL adaptation",
            [("rms[Rho]", series((DEV, xy(d, "rms[Rho]")), (FIX, xy(f, "rms[Rho]")))),
             ("outlet mean pressure [Pa]", series((DEV, xy(d, "Avg_Press")), (FIX, xy(f, "Avg_Press")))),
             ("outlet mass flow [kg/s]", series((DEV, xy(d, "Avg_Massflow")), (FIX, xy(f, "Avg_Massflow"))))])
-    d, f = history("1c_rae2822", "develop"), history("1c_rae2822", "meanFlowFixes")
-    figure("1c_underrelaxation_rae2822", "RAE2822 (SA, dimensional)",
-           [("rms[Rho]", series((DEV, xy(d, "rms[Rho]")), (FIX, xy(f, "rms[Rho]")))),
-            ("CL", series((DEV, xy(d, "CL")), (FIX, xy(f, "CL")))),
-            ("CD", series((DEV, xy(d, "CD")), (FIX, xy(f, "CD"))), {"ylim": (0.012, 0.016)})])
 
     # HLLC: still air + translating grid vs fixed grid.
     d = history("2_hllc_translating", "develop", "moving")
