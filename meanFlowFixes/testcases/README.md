@@ -17,7 +17,7 @@ Meshes, configuration files and scripts of the test cases posted in the comments
 
 ```bash
 DEVELOP=/path/to/develop/SU2_CFD BRANCH=/path/to/meanFlowFixes/SU2_CFD ./run_cases.sh            # all cases
-python3 plot_cases.py                                                                              # PNGs of 1a-1c, 2, 3
+python3 plot_cases.py                                                                              # PNGs of 1a, 1b, 2, 3
 ```
 
 Each config `<case>/<name>.cfg` runs in `<case>/develop/<name>/` and `<case>/meanFlowFixes/<name>/` (history,
