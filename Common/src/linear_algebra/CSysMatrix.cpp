@@ -825,7 +825,7 @@ void CSysMatrix<ScalarType>::SetValZero() {
     zeroChunk(mat.u, mat.nnz_u * nVar * nEqn);
   } else {
     zeroChunk(q_scale.l, mat.nnz_l * nVar);
-    zeroChunk(q_scale.u, mat.nnz_l * nVar);
+    zeroChunk(q_scale.u, mat.nnz_u * nVar);
     zeroChunk(q_blocks.l, mat.nnz_l * nVar * nEqn);
     zeroChunk(q_blocks.u, mat.nnz_u * nVar * nEqn);
   }
