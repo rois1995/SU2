@@ -3059,7 +3059,8 @@ void CSolver::Read_SU2_Restart_Binary(CGeometry *geometry, const CConfig *config
   /*--- Read the variable names from the file. Note that we are adopting a
    fixed length of 33 for the string length to match with CGNS. This is
    needed for when we read the strings later. We pad the beginning of the
-   variable string vector with the Point_ID tag that wasn't written. ---*/
+   variable string vector with the Point_ID tag that wasn't written.
+   The names are quoted, as in the ASCII and in the parallel binary readers. ---*/
 
   fields.push_back("Point_ID");
   for (auto iVar = 0u; iVar < nFields; iVar++) {
@@ -3067,7 +3068,7 @@ void CSolver::Read_SU2_Restart_Binary(CGeometry *geometry, const CConfig *config
     if (ret != (unsigned long)CGNS_STRING_SIZE) {
       SU2_MPI::Error("Error reading restart file.", CURRENT_FUNCTION);
     }
-    fields.push_back(str_buf);
+    fields.push_back("\"" + string(str_buf) + "\"");
   }
 
   /*--- For now, create a temp 1D buffer to read the data from file. ---*/
