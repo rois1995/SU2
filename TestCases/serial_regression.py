@@ -1342,6 +1342,20 @@ def main():
     pass_list.append(naca0012_geo.run_geo(args.tsan, args.asan))
     test_list.append(naca0012_geo)
 
+    # Brick of tets, SU2_GEO gradients of an FFD control point and an FFD control surface
+    brick_tets_geo = TestCase('brick_tets_geo')
+    brick_tets_geo.cfg_dir = "deformation/brick_tets"
+    brick_tets_geo.cfg_file = "geo_brick_tets.cfg"
+    brick_tets_geo.test_iter = 1
+    brick_tets_geo.command = TestCase.Command(exec = "SU2_GEO")
+    brick_tets_geo.timeout = 1600
+    brick_tets_geo.reference_file = "of_grad_geo.csv.ref"
+    brick_tets_geo.test_file = "of_grad_geo.csv"
+    brick_tets_geo.comp_threshold = 1e-6
+    brick_tets_geo.tol_file_percent = 0.1
+    pass_list.append(brick_tets_geo.run_filediff(args.tsan, args.asan))
+    test_list.append(brick_tets_geo)
+
     ######################################
     ### RUN SU2_DEF TESTS              ###
     ######################################

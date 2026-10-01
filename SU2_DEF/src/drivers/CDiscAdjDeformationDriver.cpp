@@ -430,6 +430,7 @@ void CDiscAdjDeformationDriver::SetProjection_FD(CGeometry* geometry, CConfig* c
         (config->GetDesign_Variable(iDV) == FFD_GULL) || (config->GetDesign_Variable(iDV) == FFD_TWIST) ||
         (config->GetDesign_Variable(iDV) == FFD_ROTATION) || (config->GetDesign_Variable(iDV) == FFD_CAMBER) ||
         (config->GetDesign_Variable(iDV) == FFD_THICKNESS) ||
+        (config->GetDesign_Variable(iDV) == FFD_CONTROL_SURFACE) ||
         (config->GetDesign_Variable(iDV) == FFD_ANGLE_OF_ATTACK)) {
       /*--- Read the FFD information in the first iteration. ---*/
 

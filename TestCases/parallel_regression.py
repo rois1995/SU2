@@ -2041,6 +2041,20 @@ def main():
     pass_list.append(brick_hex_def.run_def())
     test_list.append(brick_hex_def)
 
+    # Brick of tets, finite difference projection in SU2_DOT of FFD_CONTROL_POINT and FFD_CONTROL_SURFACE
+    brick_tets_dot = TestCase('brick_tets_dot')
+    brick_tets_dot.cfg_dir = "deformation/brick_tets"
+    brick_tets_dot.cfg_file = "dot_brick_tets.cfg"
+    brick_tets_dot.test_iter = 1
+    brick_tets_dot.command = TestCase.Command("mpirun -n 2", "SU2_DOT")
+    brick_tets_dot.timeout = 1600
+    brick_tets_dot.reference_file = "of_grad_brick_tets.dat.ref"
+    brick_tets_dot.test_file = "of_grad_brick_tets.dat"
+    brick_tets_dot.comp_threshold = 1e-6
+    brick_tets_dot.tol_file_percent = 0.1
+    pass_list.append(brick_tets_dot.run_filediff())
+    test_list.append(brick_tets_dot)
+
     # Brick with a pyramid layer (inverse volume)
     brick_pyra_def           = TestCase('brick_pyra_def')
     brick_pyra_def.cfg_dir   = "deformation/brick_pyra"

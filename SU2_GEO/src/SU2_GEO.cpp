@@ -747,7 +747,8 @@ int main(int argc, char* argv[]) {
           (config_container[ZONE_0]->GetDesign_Variable(iDV) == FFD_TWIST) ||
           (config_container[ZONE_0]->GetDesign_Variable(iDV) == FFD_ROTATION) ||
           (config_container[ZONE_0]->GetDesign_Variable(iDV) == FFD_CAMBER) ||
-          (config_container[ZONE_0]->GetDesign_Variable(iDV) == FFD_THICKNESS)) {
+          (config_container[ZONE_0]->GetDesign_Variable(iDV) == FFD_THICKNESS) ||
+          (config_container[ZONE_0]->GetDesign_Variable(iDV) == FFD_CONTROL_SURFACE)) {
         /*--- Read the FFD information in the first iteration ---*/
 
         if (iDV == 0) {
