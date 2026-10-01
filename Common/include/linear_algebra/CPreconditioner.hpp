@@ -142,13 +142,25 @@ template <class ScalarType>
 class CIdentityPreconditioner final : public CPreconditioner<ScalarType> {
  private:
   CSysMatrix<ScalarType>& sparse_matrix;
+  CGeometry* geometry;
+  const CConfig* config;
 
  public:
-  inline explicit CIdentityPreconditioner(CSysMatrix<ScalarType>& matrix_ref) : sparse_matrix(matrix_ref) {}
+  inline CIdentityPreconditioner(CSysMatrix<ScalarType>& matrix_ref, CGeometry* geometry_ref, const CConfig* config_ref)
+      : sparse_matrix(matrix_ref), geometry(geometry_ref), config(config_ref) {}
 
   CIdentityPreconditioner() = delete;
 
-  inline void operator()(const CSysVector<ScalarType>& u, CSysVector<ScalarType>& v) const override { v = u; }
+  /*!
+   * \note Like the other preconditioners, this makes the halo values of the result consistent,
+   *       those of the input (e.g. a right hand side) may not be.
+   */
+  inline void operator()(const CSysVector<ScalarType>& u, CSysVector<ScalarType>& v) const override {
+    v = u;
+    SU2_OMP_BARRIER
+    CSysMatrixComms::Initiate(v, geometry, config);
+    CSysMatrixComms::Complete(v, geometry, config);
+  }
 
   inline bool IsIdentity() const override { return true; }
 
@@ -420,7 +432,7 @@ CPreconditioner<ScalarType>* CPreconditioner<ScalarType>::Create(ENUM_LINEAR_SOL
   switch (kind) {
     case IDENTITY:
     case Q_IDENTITY:
-      prec = new CIdentityPreconditioner<ScalarType>(jacobian);
+      prec = new CIdentityPreconditioner<ScalarType>(jacobian, geometry, config);
       break;
     case JACOBI:
     case Q_JACOBI:

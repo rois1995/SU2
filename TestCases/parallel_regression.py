@@ -241,6 +241,14 @@ def main():
     channel.test_vals = [3.612169, 0.104888, 0.172110, 1.000000]
     test_list.append(channel)
 
+    # Channel, FGMRES without preconditioner (halo values of the Krylov basis)
+    channel_identity           = TestCase('channel_identity')
+    channel_identity.cfg_dir   = "euler/channel"
+    channel_identity.cfg_file  = "inv_channel_identity.cfg"
+    channel_identity.test_iter = 10
+    channel_identity.test_vals = [-2.044864, 3.463105, 10.000000, -0.706639]
+    test_list.append(channel_identity)
+
     # NACA0012, native SU2 binary mesh format (.su2b)
     # First, SU2_DEF converts mesh_NACA0012_inv.su2 into the native SU2 binary
     # mesh format. The regression case below then loads that freshly generated
