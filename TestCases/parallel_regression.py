@@ -2054,6 +2054,19 @@ def main():
     pass_list.append(brick_tets_rotation_def.run_def())
     test_list.append(brick_tets_rotation_def)
 
+    # Brick of tets, FFD with FFD_SYMMETRY_PLANE= YES
+    brick_tets_symmetry_def = TestCase('brick_tets_symmetry_def')
+    brick_tets_symmetry_def.cfg_dir = "deformation/brick_tets"
+    brick_tets_symmetry_def.cfg_file = "def_brick_tets_symmetry.cfg"
+    brick_tets_symmetry_def.test_iter = 10
+    brick_tets_symmetry_def.test_vals = [0.000955394] #residual
+    brick_tets_symmetry_def.command = TestCase.Command("mpirun -n 2", "SU2_DEF")
+    brick_tets_symmetry_def.timeout = 1600
+    brick_tets_symmetry_def.tol = 1e-9
+
+    pass_list.append(brick_tets_symmetry_def.run_def())
+    test_list.append(brick_tets_symmetry_def)
+
     # Brick of isotropic hexas (inverse volume)
     brick_hex_def           = TestCase('brick_hex_def')
     brick_hex_def.cfg_dir   = "deformation/brick_hex"

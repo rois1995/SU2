@@ -1272,27 +1272,16 @@ void CSurfaceMovement::CheckFFDIntersections(CGeometry* geometry, CConfig* confi
                     }
                   }
 
-                  if (cartesian) {
-                    if ((!JPlane_Intersect_B) && (!FFD_Symmetry_Plane)) {
-                      if (geometry->SegmentIntersectsTriangle(Coord_0, Coord_1, JPlane_Coord_0_B, JPlane_Coord_1_B,
-                                                              JPlane_Coord_2_B)) {
-                        JPlane_Intersect_B = true;
-                      }
-                      if (geometry->SegmentIntersectsTriangle(Coord_0, Coord_1, JPlane_Coord_0_B_, JPlane_Coord_1_B_,
-                                                              JPlane_Coord_2_B_)) {
-                        JPlane_Intersect_B = true;
-                      }
+                  /*--- The symmetry plane is j=0, the plane j=mDegree is checked in any case. ---*/
+
+                  if (!JPlane_Intersect_B) {
+                    if (geometry->SegmentIntersectsTriangle(Coord_0, Coord_1, JPlane_Coord_0_B, JPlane_Coord_1_B,
+                                                            JPlane_Coord_2_B)) {
+                      JPlane_Intersect_B = true;
                     }
-                  } else {
-                    if (!JPlane_Intersect_B) {
-                      if (geometry->SegmentIntersectsTriangle(Coord_0, Coord_1, JPlane_Coord_0_B, JPlane_Coord_1_B,
-                                                              JPlane_Coord_2_B)) {
-                        JPlane_Intersect_B = true;
-                      }
-                      if (geometry->SegmentIntersectsTriangle(Coord_0, Coord_1, JPlane_Coord_0_B_, JPlane_Coord_1_B_,
-                                                              JPlane_Coord_2_B_)) {
-                        JPlane_Intersect_B = true;
-                      }
+                    if (geometry->SegmentIntersectsTriangle(Coord_0, Coord_1, JPlane_Coord_0_B_, JPlane_Coord_1_B_,
+                                                            JPlane_Coord_2_B_)) {
+                      JPlane_Intersect_B = true;
                     }
                   }
 
