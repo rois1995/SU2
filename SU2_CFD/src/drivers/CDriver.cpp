@@ -686,7 +686,8 @@ void CDriver::InitializeGeometryFVM(CConfig *config, CGeometry **&geometry) {
   BuildGeometryFVM(config, geometry_aux, geometry);
 }
 
-void CDriver::BuildGeometryFVM(CConfig *config, CGeometry *geometry_aux, CGeometry **&geometry) {
+void CDriver::BuildGeometryFVM(CConfig *config, CGeometry *geometry_aux, CGeometry **&geometry,
+                               bool checkOrientation) {
   SU2_ZONE_SCOPED
 
   const int rank = SU2_MPI::GetRank(), size = SU2_MPI::GetSize();
@@ -740,7 +741,7 @@ void CDriver::BuildGeometryFVM(CConfig *config, CGeometry *geometry_aux, CGeomet
   /*--- Check the orientation before computing geometrical quantities ---*/
 
   geometry[MESH_0]->SetBoundVolume();
-  if (config->GetReorientElements()) {
+  if (config->GetReorientElements() || checkOrientation) {
     if (rank == MASTER_NODE) cout << "Checking the numerical grid orientation." << endl;
     geometry[MESH_0]->Check_IntElem_Orientation(config);
     geometry[MESH_0]->Check_BoundElem_Orientation(config);

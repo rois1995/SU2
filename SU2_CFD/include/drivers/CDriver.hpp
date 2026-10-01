@@ -352,8 +352,11 @@ class CDriver : public CDriverBase {
    * \param[in] config - Definition of the particular problem.
    * \param[in] geometry_aux - Linearly partitioned grid (CPhysicalGeometry from a mesh reader), deleted here.
    * \param[out] geometry - Geometry of each multigrid level, allocated here.
+   * \param[in] checkOrientation - Check (and fix) the orientation of the elements even with REORIENT_ELEMENTS= NO,
+   *                               e.g. for a remeshed grid whose boundary elements have no prescribed orientation.
    */
-  static void BuildGeometryFVM(CConfig* config, CGeometry* geometry_aux, CGeometry**& geometry);
+  static void BuildGeometryFVM(CConfig* config, CGeometry* geometry_aux, CGeometry**& geometry,
+                               bool checkOrientation = false);
 
   /*!
    * \brief Set the solution of all solvers (adjoint or primal) in a zone.
