@@ -2291,6 +2291,12 @@ void CSolver::SetHessian_Adapt(CGeometry *geometry, const CConfig *config) {
       computeGradientsGreenGauss(this, MPI_QUANTITIES::GRADIENT_ADAPT, PERIODIC_NONE, *geometry, *config,
                                  sensor, 0, nSensor, -1, gradient);
       break;
+    case WEIGHTED_LEAST_SQUARES: {
+      C3DDoubleMatrix Rmatrix(nPoint, nDim, nDim);
+      computeGradientsLeastSquares(this, MPI_QUANTITIES::GRADIENT_ADAPT, PERIODIC_NONE, *geometry, *config,
+                                   true, sensor, 0, nSensor, -1, gradient, Rmatrix);
+      break;
+    }
     default:
       SU2_MPI::Error("Unsupported NUM_METHOD_HESS.", CURRENT_FUNCTION);
       break;

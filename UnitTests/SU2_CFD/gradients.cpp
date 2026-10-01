@@ -31,6 +31,7 @@
 #include "../../SU2_CFD/include/solvers/CSolver.hpp"
 #include "../../SU2_CFD/include/gradients/computeGradientsGreenGauss.hpp"
 #include "../../SU2_CFD/include/gradients/computeGradientsLeastSquares.hpp"
+#include "../../SU2_CFD/include/gradients/computeHessians.hpp"
 
 /*!
  * \brief Base class for gradient tests using a unit cube geometry.
@@ -154,3 +155,68 @@ TEST_CASE("GG", "[Gradients]") { testGreenGauss<LinearFunction>(); }
 TEST_CASE("LS", "[Gradients]") { testLeastSquares<LinearFunction>(false); }
 
 TEST_CASE("WLS", "[Gradients]") { testLeastSquares<LinearFunction>(true); }
+
+struct QuadraticFunction : public GradientTestBase {
+  const unsigned long nVar = 1;
+  const su2double slope[3] = {1.0, -2.0, 3.0};
+  const su2double hess[3][3] = {{2.0, 0.5, -0.3}, {0.5, 4.0, 0.2}, {-0.3, 0.2, 6.0}};
+
+  /*!
+   * \brief Return manufactured value, 0.5 x^T H x + b^T x.
+   */
+  su2double operator()(unsigned long iPoint, unsigned long) const {
+    const auto coord = geometry->nodes->GetCoord(iPoint);
+    su2double val = 0.0;
+    for (auto iDim = 0u; iDim < 3; ++iDim) {
+      val += slope[iDim] * coord[iDim];
+      for (auto jDim = 0u; jDim < 3; ++jDim) val += 0.5 * coord[iDim] * hess[iDim][jDim] * coord[jDim];
+    }
+    return val;
+  }
+
+  /*!
+   * \brief Whether the point is at least two layers away from the boundaries, where both passes are exact.
+   */
+  bool interior(unsigned long iPoint) const {
+    const auto coord = geometry->nodes->GetCoord(iPoint);
+    for (auto iDim = 0u; iDim < 3; ++iDim)
+      if (coord[iDim] < 0.2 - 1e-6 || coord[iDim] > 0.8 + 1e-6) return false;
+    return true;
+  }
+};
+
+template <class TestField>
+void testHessian(ENUM_FLOW_GRADIENT method) {
+  TestField field;
+  const auto nDim = field.geometry->GetnDim();
+  const auto nPoint = field.geometry->GetnPoint();
+  C3DDoubleMatrix R(nPoint, nDim, nDim);
+  C3DDoubleMatrix gradient(nPoint, field.nVar, nDim);
+  C3DDoubleMatrix hessian(nPoint, field.nVar, 3 * (nDim - 1));
+
+  if (method == GREEN_GAUSS) {
+    computeGradientsGreenGauss(nullptr, MPI_QUANTITIES::SOLUTION, PERIODIC_NONE, *field.geometry.get(),
+                               *field.config.get(), field, 0, field.nVar, -1, gradient);
+  } else {
+    computeGradientsLeastSquares(nullptr, MPI_QUANTITIES::SOLUTION, PERIODIC_NONE, *field.geometry.get(),
+                                 *field.config.get(), true, field, 0, field.nVar, -1, gradient, R);
+  }
+  computeHessians(method, *field.geometry.get(), *field.config.get(), gradient, 0, field.nVar, hessian);
+
+  su2double err = 0.0;
+  unsigned long nChecked = 0;
+  for (auto iPoint = 0ul; iPoint < field.geometry->GetnPointDomain(); ++iPoint) {
+    if (!field.interior(iPoint)) continue;
+    ++nChecked;
+    unsigned long iMet = 0;
+    for (auto iDim = 0u; iDim < nDim; ++iDim)
+      for (auto jDim = iDim; jDim < nDim; ++jDim, ++iMet)
+        err = max(err, abs(hessian(iPoint, 0, iMet) - field.hess[iDim][jDim]));
+  }
+  CHECK(nChecked > 0);
+  CHECK(err < 1e-9);
+}
+
+TEST_CASE("Hessian GG", "[Gradients]") { testHessian<QuadraticFunction>(GREEN_GAUSS); }
+
+TEST_CASE("Hessian WLS", "[Gradients]") { testHessian<QuadraticFunction>(WEIGHTED_LEAST_SQUARES); }

@@ -27,6 +27,7 @@
 #pragma once
 
 #include "computeGradientsGreenGauss.hpp"
+#include "computeGradientsLeastSquares.hpp"
 
 namespace detail {
 /*!
@@ -49,7 +50,7 @@ struct GradientComponents {
  * \note On symmetry planes and Euler walls, the gradient of each variable is corrected
  *       like a velocity, i.e. the normal-tangential components of the Hessian are removed.
  * \note Not thread-safe, call outside of OpenMP parallel regions.
- * \param[in] method - GREEN_GAUSS.
+ * \param[in] method - GREEN_GAUSS, LEAST_SQUARES or WEIGHTED_LEAST_SQUARES.
  * \param[in] geometry - Geometric grid properties.
  * \param[in] config - Configuration of the problem, used to identify types of boundaries.
  * \param[in] gradient - Generic object implementing operator (iPoint, iVar, iDim).
@@ -67,6 +68,8 @@ void computeHessians(ENUM_FLOW_GRADIENT method, CGeometry& geometry, const CConf
 
   /*--- Gradient of the gradient of one variable. ---*/
   C3DDoubleMatrix gradGrad(geometry.GetnPoint(), nDim, nDim);
+  C3DDoubleMatrix Rmatrix;
+  if (method != GREEN_GAUSS) Rmatrix.resize(geometry.GetnPoint(), nDim, nDim);
 
   for (size_t iVar = varBegin; iVar < varEnd; ++iVar) {
     const detail::GradientComponents<GradientType> field{gradient, iVar};
@@ -77,6 +80,11 @@ void computeHessians(ENUM_FLOW_GRADIENT method, CGeometry& geometry, const CConf
       case GREEN_GAUSS:
         computeGradientsGreenGauss(nullptr, MPI_QUANTITIES::HESSIAN, PERIODIC_NONE, geometry, config, field, 0, nDim,
                                    0, gradGrad);
+        break;
+      case LEAST_SQUARES:
+      case WEIGHTED_LEAST_SQUARES:
+        computeGradientsLeastSquares(nullptr, MPI_QUANTITIES::HESSIAN, PERIODIC_NONE, geometry, config,
+                                     method == WEIGHTED_LEAST_SQUARES, field, 0, nDim, 0, gradGrad, Rmatrix);
         break;
       default:
         SU2_MPI::Error("Unsupported method for Hessian computation.", CURRENT_FUNCTION);
