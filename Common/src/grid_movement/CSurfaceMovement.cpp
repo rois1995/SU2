@@ -3697,7 +3697,7 @@ void CSurfaceMovement::SetExternal_Deformation(CGeometry* geometry, CConfig* con
   }
 }
 
-void CSurfaceMovement::SetHicksHenneCamber(CGeometry* boundary, CConfig* config) {
+void CSurfaceMovement::SetHicksHenneCamber(CGeometry* boundary, CConfig* config, int iDV_Only) {
   unsigned long iVertex;
   unsigned short iMarker, nDV_Camber = 0;
   su2double VarCoord[3] = {0.0, 0.0, 0.0}, VarCoordTrans[3] = {0.0, 0.0, 0.0}, *CoordTrans, *NormalTrans, ek, fk,
@@ -3720,8 +3720,9 @@ void CSurfaceMovement::SetHicksHenneCamber(CGeometry* boundary, CConfig* config)
   for (unsigned short iDV = 0, counter = 0; iDV < config->GetnDV(); iDV++) {
     if (config->GetDesign_Variable(iDV) == HICKS_HENNE_CAMBER) {
       positions[counter] =
-          config->GetParamDV(iDV, 0);             /*--- Position of the camber point as a fraction of the chord ---*/
-      values[counter] = config->GetDV_Value(iDV); /*--- Value of the deformation ---*/
+          config->GetParamDV(iDV, 0); /*--- Position of the camber point as a fraction of the chord ---*/
+      /*--- Value of the deformation (zero for the other design variables if only one is applied) ---*/
+      values[counter] = ((iDV_Only < 0) || (iDV == iDV_Only)) ? config->GetDV_Value(iDV) : su2double(0.0);
       counter++;
     }
   }

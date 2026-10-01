@@ -939,7 +939,7 @@ int main(int argc, char* argv[]) {
           cout << "Perform 2D deformation of the surface." << endl;
         }
         MoveSurface = true;
-        surface_movement->SetHicksHenneCamber(geometry_container[ZONE_0], config_container[ZONE_0]);
+        surface_movement->SetHicksHenneCamber(geometry_container[ZONE_0], config_container[ZONE_0], iDV);
       }
 
       /*--- NACA_4Digits design variable ---*/

@@ -577,7 +577,7 @@ void CDiscAdjDeformationDriver::SetProjection_FD(CGeometry* geometry, CConfig* c
     }
 
     else if (config->GetDesign_Variable(iDV) == HICKS_HENNE_CAMBER) {
-      surface_movement->SetHicksHenneCamber(geometry, config);
+      surface_movement->SetHicksHenneCamber(geometry, config, iDV);
     }
 
     /*--- NACA_4Digits design variable. ---*/

@@ -97,10 +97,12 @@ class CSurfaceMovement : public CGridMovement {
 
   /*!
    * \brief Set a Hicks-Henne deformation bump function on the camberline of an airfoil.
+   * \note All the HICKS_HENNE_CAMBER design variables are applied together, unless iDV_Only is given.
    * \param[in] boundary - Geometry of the boundary.
    * \param[in] config - Definition of the particular problem.
+   * \param[in] iDV_Only - Apply only this design variable, the others count as zero (finite differences).
    */
-  void SetHicksHenneCamber(CGeometry* boundary, CConfig* config);
+  void SetHicksHenneCamber(CGeometry* boundary, CConfig* config, int iDV_Only = -1);
 
   /*!
    * \brief Set a NACA 4 digits airfoil family for airfoil deformation.

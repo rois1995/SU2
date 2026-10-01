@@ -1386,6 +1386,34 @@ def main():
     pass_list.append(naca0012_def.run_def(args.tsan, args.asan))
     test_list.append(naca0012_def)
 
+    # Inviscid NACA0012, SU2_DOT finite differences of each HICKS_HENNE_CAMBER design variable
+    naca0012_camber_dot = TestCase('naca0012_camber_dot')
+    naca0012_camber_dot.cfg_dir = "deformation/naca0012"
+    naca0012_camber_dot.cfg_file = "dot_NACA0012_camber.cfg"
+    naca0012_camber_dot.test_iter = 1
+    naca0012_camber_dot.command = TestCase.Command(exec = "SU2_DOT")
+    naca0012_camber_dot.timeout = 1600
+    naca0012_camber_dot.reference_file = "of_grad_camber.dat.ref"
+    naca0012_camber_dot.test_file = "of_grad_camber.dat"
+    naca0012_camber_dot.comp_threshold = 1e-6
+    naca0012_camber_dot.tol_file_percent = 0.1
+    pass_list.append(naca0012_camber_dot.run_filediff(args.tsan, args.asan))
+    test_list.append(naca0012_camber_dot)
+
+    # Inviscid NACA0012, SU2_GEO finite differences of each HICKS_HENNE_CAMBER design variable
+    naca0012_camber_geo = TestCase('naca0012_camber_geo')
+    naca0012_camber_geo.cfg_dir = "deformation/naca0012"
+    naca0012_camber_geo.cfg_file = "geo_NACA0012_camber.cfg"
+    naca0012_camber_geo.test_iter = 1
+    naca0012_camber_geo.command = TestCase.Command(exec = "SU2_GEO")
+    naca0012_camber_geo.timeout = 1600
+    naca0012_camber_geo.reference_file = "of_grad_geo_camber.csv.ref"
+    naca0012_camber_geo.test_file = "of_grad_geo_camber.csv"
+    naca0012_camber_geo.comp_threshold = 1e-6
+    naca0012_camber_geo.tol_file_percent = 0.1
+    pass_list.append(naca0012_camber_geo.run_filediff(args.tsan, args.asan))
+    test_list.append(naca0012_camber_geo)
+
     # Inviscid NACA0012 based on SURFACE_FILE input (surface_bump.dat)
     naca0012_def_file            = TestCase('naca0012_def_file')
     naca0012_def_file.cfg_dir   = "deformation/naca0012"
