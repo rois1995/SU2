@@ -97,6 +97,17 @@ CFlowVariable::CFlowVariable(unsigned long npoint, unsigned long ndim, unsigned 
   if (config->GetTime_Marching() == TIME_MARCHING::HARMONIC_BALANCE) {
     HB_Source.resize(nPoint, nVar) = su2double(0.0);
   }
+
+  /*--- Sensors, gradients, Hessians and metric for mesh adaptation. ---*/
+
+  if (config->GetCompute_Metric()) {
+    const unsigned long nSensor = config->GetnAdap_Sensor();
+    const unsigned long nMet = 3 * (nDim - 1);
+    AuxVar_Adapt.resize(nPoint, nSensor) = su2double(0.0);
+    Gradient_Adapt.resize(nPoint, nSensor, nDim, 0.0);
+    Hessian.resize(nPoint, nSensor, nMet, 0.0);
+    Metric.resize(nPoint, nMet) = su2double(0.0);
+  }
 }
 
 void CFlowVariable::SetSolution_New() {

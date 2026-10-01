@@ -2889,6 +2889,10 @@ enum class MPI_QUANTITIES {
   MOM_COEFF            ,  /*!< \brief Momentum coefficient for the Rhie-Chow scheme. */
   MOM_CORRECTION       ,  /*!< \brief Momentum correction for the pressure-based poisson solver (used when computing HbyA). */
   HBYA_CORRECTION      ,  /*!< \brief HbyA correction for the pressure-based poisson solver. */
+  AUXVAR_ADAPT         ,  /*!< \brief Mesh adaptation sensor communication. */
+  GRADIENT_ADAPT       ,  /*!< \brief Mesh adaptation sensor gradient communication. */
+  HESSIAN              ,  /*!< \brief Mesh adaptation sensor Hessian communication. */
+  METRIC               ,  /*!< \brief Mesh adaptation metric communication. */
 };
 
 /*!

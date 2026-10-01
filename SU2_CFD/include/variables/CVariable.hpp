@@ -94,7 +94,12 @@ protected:
 
   MatrixType Solution_BGS_k;     /*!< \brief Old solution container for BGS iterations. */
 
-  su2matrix<AD::Identifier> AD_InputIndex;    /*!< \brief Indices of Solution variables in the adjoint vector before solver iteration. */
+  MatrixType AuxVar_Adapt;        /*!< \brief Sensors used for mesh adaptation (one column per sensor). */
+  CVectorOfMatrix Gradient_Adapt; /*!< \brief Gradient of the mesh adaptation sensors. */
+  CVectorOfMatrix Hessian;        /*!< \brief Hessian of the sensors, upper triangle (xx,xy,yy) or (xx,xy,xz,yy,yz,zz). */
+  MatrixType Metric;              /*!< \brief Mesh adaptation metric tensor, same layout as the Hessian. */
+
+  su2matrix<AD::Identifier> AD_InputIndex;   /*!< \brief Indices of Solution variables in the adjoint vector before solver iteration. */
   su2matrix<AD::Identifier> AD_OutputIndex;   /*!< \brief Indices of Solution variables in the adjoint vector after solver iteration. */
 
   VectorType SolutionExtra; /*!< \brief Stores adjoint solution for extra solution variables.
@@ -2441,4 +2446,105 @@ public:
   inline virtual su2double GetHbyACorrection(unsigned long iPoint, unsigned short iDim) { return 0.0; }
 
   inline virtual void SetHbyACorrection(unsigned long iPoint, unsigned short iDim, su2double val_HbyAcorrection) { }
+
+  /*!
+   * \brief Get the mesh adaptation sensors.
+   */
+  inline MatrixType& GetAuxVar_Adapt() { return AuxVar_Adapt; }
+  inline const MatrixType& GetAuxVar_Adapt() const { return AuxVar_Adapt; }
+
+  /*!
+   * \brief Get the value of a mesh adaptation sensor.
+   * \param[in] iPoint - Point index.
+   * \param[in] iSensor - Sensor index.
+   */
+  inline su2double GetAuxVar_Adapt(unsigned long iPoint, unsigned long iSensor) const { return AuxVar_Adapt(iPoint, iSensor); }
+
+  /*!
+   * \brief Set the value of a mesh adaptation sensor.
+   * \param[in] iPoint - Point index.
+   * \param[in] iSensor - Sensor index.
+   * \param[in] val - Sensor value.
+   */
+  inline void SetAuxVar_Adapt(unsigned long iPoint, unsigned long iSensor, su2double val) { AuxVar_Adapt(iPoint, iSensor) = val; }
+
+  /*!
+   * \brief Get the gradients of the mesh adaptation sensors.
+   */
+  inline CVectorOfMatrix& GetGradient_Adapt() { return Gradient_Adapt; }
+  inline const CVectorOfMatrix& GetGradient_Adapt() const { return Gradient_Adapt; }
+
+  /*!
+   * \brief Get the Hessians of the mesh adaptation sensors.
+   */
+  inline CVectorOfMatrix& GetHessian() { return Hessian; }
+  inline const CVectorOfMatrix& GetHessian() const { return Hessian; }
+
+  /*!
+   * \brief Get one component of the Hessian of a sensor.
+   * \param[in] iPoint - Point index.
+   * \param[in] iSensor - Sensor index.
+   * \param[in] iMet - Component index in the upper triangle.
+   */
+  inline su2double GetHessian(unsigned long iPoint, unsigned long iSensor, unsigned long iMet) const {
+    return Hessian(iPoint, iSensor, iMet);
+  }
+
+  /*!
+   * \brief Get the full symmetric Hessian matrix of a sensor.
+   * \param[in] iPoint - Point index.
+   * \param[in] iSensor - Sensor index.
+   * \param[out] mat - nDim x nDim matrix.
+   */
+  template <class Mat>
+  inline void GetHessianMat(unsigned long iPoint, unsigned long iSensor, Mat& mat) const {
+    for (unsigned long iDim = 0, iMet = 0; iDim < nDim; ++iDim)
+      for (unsigned long jDim = iDim; jDim < nDim; ++jDim, ++iMet)
+        mat[iDim][jDim] = mat[jDim][iDim] = Hessian(iPoint, iSensor, iMet);
+  }
+
+  /*!
+   * \brief Get the mesh adaptation metric.
+   */
+  inline MatrixType& GetMetric() { return Metric; }
+  inline const MatrixType& GetMetric() const { return Metric; }
+
+  /*!
+   * \brief Get one component of the metric.
+   * \param[in] iPoint - Point index.
+   * \param[in] iMet - Component index in the upper triangle.
+   */
+  inline su2double GetMetric(unsigned long iPoint, unsigned long iMet) const { return Metric(iPoint, iMet); }
+
+  /*!
+   * \brief Set one component of the metric.
+   * \param[in] iPoint - Point index.
+   * \param[in] iMet - Component index in the upper triangle.
+   * \param[in] val - Value.
+   */
+  inline void SetMetric(unsigned long iPoint, unsigned long iMet, su2double val) { Metric(iPoint, iMet) = val; }
+
+  /*!
+   * \brief Get the full symmetric metric matrix.
+   * \param[in] iPoint - Point index.
+   * \param[out] mat - nDim x nDim matrix.
+   */
+  template <class Mat>
+  inline void GetMetricMat(unsigned long iPoint, Mat& mat) const {
+    for (unsigned long iDim = 0, iMet = 0; iDim < nDim; ++iDim)
+      for (unsigned long jDim = iDim; jDim < nDim; ++jDim, ++iMet)
+        mat[iDim][jDim] = mat[jDim][iDim] = Metric(iPoint, iMet);
+  }
+
+  /*!
+   * \brief Store the upper triangle of a symmetric metric matrix.
+   * \param[in] iPoint - Point index.
+   * \param[in] mat - nDim x nDim matrix.
+   */
+  template <class Mat>
+  inline void SetMetricMat(unsigned long iPoint, const Mat& mat) {
+    for (unsigned long iDim = 0, iMet = 0; iDim < nDim; ++iDim)
+      for (unsigned long jDim = iDim; jDim < nDim; ++jDim, ++iMet)
+        Metric(iPoint, iMet) = mat[iDim][jDim];
+  }
 };

@@ -1411,6 +1411,22 @@ void CSolver::GetCommCountAndType(const CConfig* config,
       COUNT_PER_POINT  = nDim;
       MPI_TYPE         = COMM_TYPE::DOUBLE;
       break;
+    case MPI_QUANTITIES::AUXVAR_ADAPT:
+      COUNT_PER_POINT  = config->GetnAdap_Sensor();
+      MPI_TYPE         = COMM_TYPE::DOUBLE;
+      break;
+    case MPI_QUANTITIES::GRADIENT_ADAPT:
+      COUNT_PER_POINT  = config->GetnAdap_Sensor()*nDim;
+      MPI_TYPE         = COMM_TYPE::DOUBLE;
+      break;
+    case MPI_QUANTITIES::HESSIAN:
+      COUNT_PER_POINT  = config->GetnAdap_Sensor()*3*(nDim-1);
+      MPI_TYPE         = COMM_TYPE::DOUBLE;
+      break;
+    case MPI_QUANTITIES::METRIC:
+      COUNT_PER_POINT  = 3*(nDim-1);
+      MPI_TYPE         = COMM_TYPE::DOUBLE;
+      break;
     default:
       SU2_MPI::Error("Unrecognized quantity for point-to-point MPI comms.",
                      CURRENT_FUNCTION);
@@ -1425,6 +1441,7 @@ namespace CommHelpers {
       case MPI_QUANTITIES::PRIMITIVE_GRADIENT: return nodes->GetGradient_Primitive();
       case MPI_QUANTITIES::PRIMITIVE_GRAD_REC: return nodes->GetGradient_Reconstruction();
       case MPI_QUANTITIES::AUXVAR_GRADIENT: return nodes->GetAuxVarGradient();
+      case MPI_QUANTITIES::GRADIENT_ADAPT: return nodes->GetGradient_Adapt();
       default: return nodes->GetGradient();
     }
   }
@@ -1543,9 +1560,26 @@ void CSolver::InitiateComms(CGeometry *geometry,
           case MPI_QUANTITIES::SOLUTION_GRAD_REC:
           case MPI_QUANTITIES::PRIMITIVE_GRAD_REC:
           case MPI_QUANTITIES::AUXVAR_GRADIENT:
+          case MPI_QUANTITIES::GRADIENT_ADAPT:
             for (iVar = 0; iVar < nVarGrad; iVar++)
               for (iDim = 0; iDim < nDim; iDim++)
                 bufDSend[buf_offset+iVar*nDim+iDim] = gradient(iPoint, iVar, iDim);
+            break;
+          case MPI_QUANTITIES::AUXVAR_ADAPT:
+            for (iVar = 0; iVar < COUNT_PER_POINT; iVar++)
+              bufDSend[buf_offset+iVar] = base_nodes->GetAuxVar_Adapt(iPoint, iVar);
+            break;
+          case MPI_QUANTITIES::HESSIAN: {
+            const auto& hessian = base_nodes->GetHessian();
+            const auto nMet = hessian.cols();
+            for (iVar = 0; iVar < hessian.rows(); iVar++)
+              for (iDim = 0; iDim < nMet; iDim++)
+                bufDSend[buf_offset+iVar*nMet+iDim] = hessian(iPoint, iVar, iDim);
+            break;
+          }
+          case MPI_QUANTITIES::METRIC:
+            for (iVar = 0; iVar < COUNT_PER_POINT; iVar++)
+              bufDSend[buf_offset+iVar] = base_nodes->GetMetric(iPoint, iVar);
             break;
           case MPI_QUANTITIES::SOLUTION_FEA:
             for (iVar = 0; iVar < nVar; iVar++) {
@@ -1710,9 +1744,26 @@ void CSolver::CompleteComms(CGeometry *geometry,
           case MPI_QUANTITIES::SOLUTION_GRAD_REC:
           case MPI_QUANTITIES::PRIMITIVE_GRAD_REC:
           case MPI_QUANTITIES::AUXVAR_GRADIENT:
+          case MPI_QUANTITIES::GRADIENT_ADAPT:
             for (iVar = 0; iVar < nVarGrad; iVar++)
               for (iDim = 0; iDim < nDim; iDim++)
                 gradient(iPoint,iVar,iDim) = bufDRecv[buf_offset+iVar*nDim+iDim];
+            break;
+          case MPI_QUANTITIES::AUXVAR_ADAPT:
+            for (iVar = 0; iVar < COUNT_PER_POINT; iVar++)
+              base_nodes->SetAuxVar_Adapt(iPoint, iVar, bufDRecv[buf_offset+iVar]);
+            break;
+          case MPI_QUANTITIES::HESSIAN: {
+            auto& hessian = base_nodes->GetHessian();
+            const auto nMet = hessian.cols();
+            for (iVar = 0; iVar < hessian.rows(); iVar++)
+              for (iDim = 0; iDim < nMet; iDim++)
+                hessian(iPoint, iVar, iDim) = bufDRecv[buf_offset+iVar*nMet+iDim];
+            break;
+          }
+          case MPI_QUANTITIES::METRIC:
+            for (iVar = 0; iVar < COUNT_PER_POINT; iVar++)
+              base_nodes->SetMetric(iPoint, iVar, bufDRecv[buf_offset+iVar]);
             break;
           case MPI_QUANTITIES::SOLUTION_FEA:
             for (iVar = 0; iVar < nVar; iVar++) {
