@@ -396,7 +396,7 @@ void CNSSolver::AddDynamicGridResidualContribution(unsigned long iPoint, unsigne
       su2double pix = GridVel[0]*thetax + GridVel[1]*etaz;
       su2double piy = GridVel[0]*etaz   + GridVel[1]*thetay;
 
-      Jacobian_i[nDim+1][0] += factor*(-pix*GridVel[0]+piy*GridVel[1]);
+      Jacobian_i[nDim+1][0] -= factor*(pix*GridVel[0]+piy*GridVel[1]);
       Jacobian_i[nDim+1][1] += factor*pix;
       Jacobian_i[nDim+1][2] += factor*piy;
     }
@@ -413,7 +413,7 @@ void CNSSolver::AddDynamicGridResidualContribution(unsigned long iPoint, unsigne
       su2double piy = GridVel[0]*etaz   + GridVel[1]*thetay + GridVel[2]*etax;
       su2double piz = GridVel[0]*etay   + GridVel[1]*etax   + GridVel[2]*thetaz;
 
-      Jacobian_i[nDim+1][0] += factor*(-pix*GridVel[0]+piy*GridVel[1]+piz*GridVel[2]);
+      Jacobian_i[nDim+1][0] -= factor*(pix*GridVel[0]+piy*GridVel[1]+piz*GridVel[2]);
       Jacobian_i[nDim+1][1] += factor*pix;
       Jacobian_i[nDim+1][2] += factor*piy;
       Jacobian_i[nDim+1][3] += factor*piz;
