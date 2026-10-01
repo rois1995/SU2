@@ -5,6 +5,7 @@
 
 # Direct-mode tests:
 su2_cfd_tests = files(['Common/CConfig_tests.cpp',
+                       'Common/COptionDVParam_tests.cpp',
                        'Common/geometry/primal_grid/CPrimalGrid_tests.cpp',
                        'Common/geometry/dual_grid/CDualGrid_tests.cpp',
                        'Common/geometry/CGeometry_test.cpp',

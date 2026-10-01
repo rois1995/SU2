@@ -519,24 +519,31 @@ class COptionDVParam : public COptionBase {
 
     // use the ";" token to determine the number of design variables
     // This works because semicolon is not one of the delimiters in tokenize string
-    this->nDV = 0;
-    // unsigned int num_semi = 0;
+    unsigned short nDV_Param = 0;
     for (unsigned int i = 0; i < static_cast<unsigned int>(option_value.size()); i++) {
       if (option_value[i].compare(";") == 0) {
-        this->nDV++;
-        //        num_semi++;
+        nDV_Param++;
       }
     }
 
     // One more design variable than semicolon
-    this->nDV++;
+    nDV_Param++;
 
-    if ((this->nDV > 0) && (this->design_variable == nullptr)) {
+    if (this->design_variable == nullptr) {
       string newstring;
       newstring.append(this->name);
       newstring.append(
           ": Design_Variable array has not been allocated. Check that DV_KIND appears before DV_PARAM in configuration "
           "file.");
+      return newstring;
+    }
+
+    // nDV was set by DV_KIND, the design_variable array has that size
+    if (nDV_Param != this->nDV) {
+      string newstring;
+      newstring.append(this->name);
+      newstring.append(": the number of design variables (" + to_string(nDV_Param) +
+                       ") does not match the number of entries in DV_KIND (" + to_string(this->nDV) + ").");
       return newstring;
     }
 
@@ -548,7 +555,6 @@ class COptionDVParam : public COptionBase {
     this->FFDTag = new string[this->nDV];
 
     vector<unsigned short> nParamDV(nDV, 0);
-    unsigned short totalnParamDV = 0;
     stringstream ss;
     unsigned int i = 0;
 
@@ -663,15 +669,17 @@ class COptionDVParam : public COptionBase {
           return newstring;
         }
       }
-      totalnParamDV += nParamDV[iDV];
-    }
-
-    if (totalnParamDV > option_value.size()) {
-      SU2_MPI::Error("Wrong number of arguments for DV_PARAM!", CURRENT_FUNCTION);
     }
 
     for (unsigned short iDV = 0; iDV < this->nDV; iDV++) {
       for (unsigned short iParamDV = 0; iParamDV < nParamDV[iDV]; iParamDV++) {
+        if ((i >= option_value.size()) || (option_value[i].compare(";") == 0)) {
+          string newstring;
+          newstring.append(this->name);
+          newstring.append(": design variable " + to_string(iDV + 1) + " has fewer than the " +
+                           to_string(nParamDV[iDV]) + " parameters it needs.");
+          return newstring;
+        }
         ss << option_value[i] << " ";
 
         if ((iParamDV == 0) &&
