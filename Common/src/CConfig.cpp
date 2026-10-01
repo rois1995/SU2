@@ -6058,8 +6058,8 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
       SU2_MPI::Error("COMPUTE_METRIC is only supported for SOLVER = EULER, NAVIER_STOKES or RANS.", CURRENT_FUNCTION);
     }
     if (nAdap_Sensor == 0) SU2_MPI::Error("COMPUTE_METRIC = YES requires ADAP_SENSOR.", CURRENT_FUNCTION);
-    if (Kind_Hessian_Method != GREEN_GAUSS) {
-      SU2_MPI::Error("NUM_METHOD_HESS = GREEN_GAUSS is the only Hessian method supported for now.", CURRENT_FUNCTION);
+    if (Kind_Hessian_Method != GREEN_GAUSS && Kind_Hessian_Method != WEIGHTED_LEAST_SQUARES) {
+      SU2_MPI::Error("NUM_METHOD_HESS must be GREEN_GAUSS or WEIGHTED_LEAST_SQUARES.", CURRENT_FUNCTION);
     }
     const vector<string> Sensor_Avail{"MACH", "PRESSURE", "TEMPERATURE", "ENERGY", "DENSITY", "TOTALPRESSURE"};
     for (unsigned short iSensor = 0; iSensor < nAdap_Sensor; iSensor++) {
