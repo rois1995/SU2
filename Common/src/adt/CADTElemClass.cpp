@@ -863,10 +863,11 @@ bool CADTElemClass::CoorInTetrahedron(const unsigned long elemID, const su2doubl
   parCoor[2] = detInv * (x1 * y2 * zc - x1 * yc * z2 - x2 * y1 * zc + x2 * yc * z1 + xc * y1 * z2 - xc * y2 * z1) - 1.0;
 
   /* Check if the point resides within the tetrahedron and compute the
-     interpolation weights if it is. */
+     interpolation weights if it is. The face opposite to vertex 0 is
+     r+s+t = -1, the tolerance makes it slightly larger, as the others. */
   bool coorIsInside = false;
   if ((parCoor[0] >= paramLowerBound) && (parCoor[1] >= paramLowerBound) && (parCoor[2] >= paramLowerBound) &&
-      ((parCoor[0] + parCoor[1] + parCoor[2]) <= paramLowerBound)) {
+      ((parCoor[0] + parCoor[1] + parCoor[2]) <= -1.0 + tolInsideElem)) {
     coorIsInside = true;
 
     weightsInterpol[0] = -0.5 * (parCoor[0] + parCoor[1] + parCoor[2] + 1.0);
