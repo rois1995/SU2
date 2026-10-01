@@ -1159,6 +1159,15 @@ def main():
     ddes_flatplate.unsteady  = True
     test_list.append(ddes_flatplate)
 
+    # Rigid translation, non-dimensional solver
+    translating_naca0012           = TestCase('translating_naca0012')
+    translating_naca0012.cfg_dir   = "euler/naca0012"
+    translating_naca0012.cfg_file  = "inv_NACA0012_translating.cfg"
+    translating_naca0012.test_iter = 2
+    translating_naca0012.test_vals = [-4.334042, -3.787601, -0.003664, 0.256477]
+    translating_naca0012.unsteady  = True
+    test_list.append(translating_naca0012)
+
     # Stochastic BackScatter (SBS) model
     sbs_backward_step            = TestCase('sbs_backward_step')
     sbs_backward_step.cfg_dir    = "backscatter/backward_step"

@@ -532,8 +532,9 @@ void CVolumetricMovement::Rigid_Rotation(CGeometry* geometry, CConfig* config, u
   dpsi = Omega[2] * dt;
 
   if (rank == MASTER_NODE && iter == 0) {
-    cout << " Angular velocity: (" << Omega[0] << ", " << Omega[1];
-    cout << ", " << Omega[2] << ") rad/s." << endl;
+    const su2double Omega_Ref = config->GetOmega_Ref();
+    cout << " Angular velocity: (" << Omega[0] * Omega_Ref << ", " << Omega[1] * Omega_Ref;
+    cout << ", " << Omega[2] * Omega_Ref << ") rad/s." << endl;
   }
 
   /*--- Store angles separately for clarity. Compute sines/cosines. ---*/
@@ -697,8 +698,9 @@ void CVolumetricMovement::Rigid_Pitching(CGeometry* geometry, CConfig* config, u
   alphaDot[2] = -Omega[2] * Ampl[2] * cos(Omega[2] * time_new + Phase[2]);
 
   if (rank == MASTER_NODE && iter == 0) {
-    cout << " Pitching frequency: (" << Omega[0] << ", " << Omega[1];
-    cout << ", " << Omega[2] << ") rad/s." << endl;
+    const su2double Omega_Ref = config->GetOmega_Ref();
+    cout << " Pitching frequency: (" << Omega[0] * Omega_Ref << ", " << Omega[1] * Omega_Ref;
+    cout << ", " << Omega[2] * Omega_Ref << ") rad/s." << endl;
     cout << " Pitching amplitude: (" << Ampl[0] / DEG2RAD << ", ";
     cout << Ampl[1] / DEG2RAD << ", " << Ampl[2] / DEG2RAD;
     cout << ") degrees." << endl;
@@ -834,10 +836,11 @@ void CVolumetricMovement::Rigid_Plunging(CGeometry* geometry, CConfig* config, u
   xDot[2] = -Ampl[2] * Omega[2] * (cos(Omega[2] * time_new));
 
   if (rank == MASTER_NODE && iter == 0) {
-    cout << " Plunging frequency: (" << Omega[0] << ", " << Omega[1];
-    cout << ", " << Omega[2] << ") rad/s." << endl;
-    cout << " Plunging amplitude: (" << Ampl[0] << ", ";
-    cout << Ampl[1] << ", " << Ampl[2] << ") m." << endl;
+    const su2double Omega_Ref = config->GetOmega_Ref();
+    cout << " Plunging frequency: (" << Omega[0] * Omega_Ref << ", " << Omega[1] * Omega_Ref;
+    cout << ", " << Omega[2] * Omega_Ref << ") rad/s." << endl;
+    cout << " Plunging amplitude: (" << Ampl[0] * Lref << ", ";
+    cout << Ampl[1] * Lref << ", " << Ampl[2] * Lref << ") m." << endl;
   }
 
   /*--- Loop over and move each node in the volume mesh ---*/
@@ -918,7 +921,7 @@ void CVolumetricMovement::Rigid_Translation(CGeometry* geometry, CConfig* config
 
   for (iDim = 0; iDim < 3; iDim++) {
     Center[iDim] = config->GetMotion_Origin(iDim);
-    xDot[iDim] = config->GetTranslation_Rate(iDim);
+    xDot[iDim] = config->GetTranslation_Rate(iDim) / config->GetVelocity_Ref();
   }
 
   if (harmonic_balance) {
@@ -955,7 +958,7 @@ void CVolumetricMovement::Rigid_Translation(CGeometry* geometry, CConfig* config
   deltaX[2] = xDot[2] * (time_new - time_old);
 
   if (rank == MASTER_NODE) {
-    cout << " New physical time: " << time_new << " seconds." << endl;
+    cout << " New physical time: " << time_new * config->GetTime_Ref() << " seconds." << endl;
     if (iter == 0) {
       cout << " Translational velocity: (" << xDot[0] * config->GetVelocity_Ref() << ", "
            << xDot[1] * config->GetVelocity_Ref();
