@@ -679,9 +679,7 @@ void CDriver::InitializeGeometry(CConfig* config, CGeometry **&geometry, bool du
 void CDriver::InitializeGeometryFVM(CConfig *config, CGeometry **&geometry) {
   SU2_ZONE_SCOPED
 
-  unsigned short iZone = config->GetiZone(), iMGlevel;
-  unsigned short requestedMGlevels = config->GetnMGLevels();
-  const bool fea = config->GetStructuralProblem();
+  unsigned short iZone = config->GetiZone();
 
   /*--- Definition of the geometry class to store the primal grid in the partitioning process.
    *    All ranks process the grid and call ParMETIS for partitioning ---*/
@@ -691,6 +689,17 @@ void CDriver::InitializeGeometryFVM(CConfig *config, CGeometry **&geometry) {
   /*--- Set the dimension --- */
 
   nDim = geometry_aux->GetnDim();
+
+  BuildGeometryFVM(config, geometry_aux, geometry);
+}
+
+void CDriver::BuildGeometryFVM(CConfig *config, CGeometry *geometry_aux, CGeometry **&geometry) {
+  SU2_ZONE_SCOPED
+
+  const int rank = SU2_MPI::GetRank(), size = SU2_MPI::GetSize();
+  unsigned short iMGlevel;
+  unsigned short requestedMGlevels = config->GetnMGLevels();
+  const bool fea = config->GetStructuralProblem();
 
   /*--- Color the initial grid and set the send-receive domains (ParMETIS) ---*/
 

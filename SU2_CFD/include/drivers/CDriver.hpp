@@ -352,6 +352,18 @@ class CDriver : public CDriverBase {
 
  public:
   /*!
+   * \brief Geometrical preprocessing of the FVM solvers after the grid was loaded: partitioning, send/receive
+   *        boundaries, connectivity and renumbering, orientation checks, edges, dual control volumes, normal
+   *        neighbors, curvature, multigrid levels (MGLEVEL is reduced if the grid does not support all of them)
+   *        and the MPI communication patterns.
+   * \note Used for the mesh file (InitializeGeometryFVM) and for a mesh built in memory (mesh adaptation).
+   * \param[in] config - Definition of the particular problem.
+   * \param[in] geometry_aux - Linearly partitioned grid (CPhysicalGeometry from a mesh reader), deleted here.
+   * \param[out] geometry - Geometry of each multigrid level, allocated here.
+   */
+  static void BuildGeometryFVM(CConfig* config, CGeometry* geometry_aux, CGeometry**& geometry);
+
+  /*!
    * \brief Set the solution of all solvers (adjoint or primal) in a zone.
    * \param[in] iZone - Index of the zone.
    * \param[in] adjoint - True to consider adjoint solvers instead of primal.
