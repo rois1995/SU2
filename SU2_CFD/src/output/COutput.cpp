@@ -359,6 +359,26 @@ void COutput::AllocateDataSorters(CConfig *config, CGeometry *geometry){
 
 }
 
+void COutput::ResetMeshDependentData() {
+
+  delete volumeDataSorter;
+  delete volumeDataSorterCompact;
+  delete surfaceDataSorter;
+  volumeDataSorter = nullptr;
+  volumeDataSorterCompact = nullptr;
+  surfaceDataSorter = nullptr;
+
+  /*--- An empty index list makes the custom outputs resolve their symbols, markers and probes again. ---*/
+
+  for (auto& output : customOutputs) {
+    output.varIndices.clear();
+    output.otherOutputs.clear();
+    output.markerIndices.clear();
+    output.iPoint = CustomOutput::PROBE_NOT_SETUP;
+  }
+
+}
+
 void COutput::LoadData(CGeometry *geometry, CConfig *config, CSolver** solver_container){
 
   /*--- Check if the data sorters are allocated, if not, allocate them. --- */

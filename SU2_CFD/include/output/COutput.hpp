@@ -504,6 +504,13 @@ public:
   void ResetConvergenceMonitoring(unsigned long Iteration) { convergenceStartIter = Iteration; }
 
   /*!
+   * \brief Forget everything that was set up for the current geometry, before the output is used with a new one
+   *        (mesh adaptation): the data sorters (allocated again on the next file output) and the marker indices and
+   *        probe points of the custom outputs (set up again on the next history output).
+   */
+  void ResetMeshDependentData();
+
+  /*!
    * \brief Names and values of the fields convergence is monitored on that are residuals.
    * \return Name and current value of every monitored residual field, in CONV_FIELD order.
    */
