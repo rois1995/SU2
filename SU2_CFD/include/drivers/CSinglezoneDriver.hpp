@@ -28,6 +28,9 @@
 
 #pragma once
 #include "CDriver.hpp"
+#include "../../../Common/include/adaptation/CSimplexMesh.hpp"
+
+class CSolutionTransfer;
 
 /*!
  * \class CSinglezoneDriver
@@ -46,6 +49,12 @@ protected:
      * \return Boolean indicating whether the problem is converged.
      */
   virtual bool GetTimeConvergence() const;
+
+  /*!
+   * \brief Stop with an error if the mesh of this problem cannot be adapted or replaced: compressible EULER,
+   *        NAVIER_STOKES or RANS, steady, and the cases of CMMGInterface::CheckSupport (one rank, one zone, ...).
+   */
+  void CheckMeshAdaptation() const;
 
 public:
 
@@ -115,5 +124,35 @@ public:
    * \note Called at the end of Postprocess, outside of OpenMP parallel regions.
    */
   void ComputeMetric();
+
+  /*!
+   * \brief Remesh with MMG from the metric of the current flow solution (COMPUTE_METRIC= YES).
+   * \note The metric is computed again from the current solution. The driver is not changed. Stops with an error
+   *       if SU2 was built without MMG.
+   * \return The adapted mesh, validated.
+   */
+  CSimplexMesh RemeshFromMetric();
+
+  /*!
+   * \brief Replace the mesh of the problem: geometry, solvers, numerics, integration and iteration are built for
+   *        the new mesh, the solution is set by the transfer, then the driver switches to them and the previous ones
+   *        are deleted. The config gets back its state from the start of the driver (CConfigRunState) and the
+   *        output its convergence monitoring, so the next solve runs like a fresh run on the new mesh (from the
+   *        transferred solution). The history file continues.
+   * \note Everything is built while the driver still uses the previous mesh; any error stops the run before the
+   *       switch. The restart files are not read (they belong to the first mesh). The element orientation is
+   *       always checked (also with REORIENT_ELEMENTS= NO).
+   * \param[in] mesh - New mesh, same markers as the current one (e.g. from RemeshFromMetric).
+   * \param[in] transfer - Sets the solution on the new mesh from the previous one.
+   */
+  void ReplaceMesh(const CSimplexMesh& mesh, CSolutionTransfer& transfer);
+
+  /*!
+   * \brief One mesh adaptation cycle: RemeshFromMetric, then ReplaceMesh. Call it after a converged solve
+   *        (e.g. StartSolver), then solve again.
+   * \note Developer entry point, not used by the normal run.
+   * \param[in] transfer - Sets the solution on the new mesh from the previous one.
+   */
+  void AdaptMesh(CSolutionTransfer& transfer);
 
 };

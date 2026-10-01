@@ -174,8 +174,10 @@ class CDriver : public CDriverBase {
    * \param[in] config - Definition of the particular problem.
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] solver - Container vector with all the solutions.
+   * \param[in] restart - Load the restart files (RESTART_SOL); false keeps the initial (free-stream) state, e.g. on a
+   *                      new mesh that the restart files do not belong to.
    */
-  void InitializeSolver(CConfig* config, CGeometry** geometry, CSolver***& solver);
+  void InitializeSolver(CConfig* config, CGeometry** geometry, CSolver***& solver, bool restart = true);
 
   /*!
    * \brief Preprocess the inlets via file input for all solvers.

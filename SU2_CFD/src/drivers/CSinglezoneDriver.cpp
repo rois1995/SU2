@@ -29,6 +29,10 @@
 #include "../../include/definition_structure.hpp"
 #include "../../include/output/COutput.hpp"
 #include "../../include/iteration/CIteration.hpp"
+#include "../../include/adaptation/CSolutionTransfer.hpp"
+#include "../../../Common/include/adaptation/CMMGInterface.hpp"
+#include "../../../Common/include/geometry/CPhysicalGeometry.hpp"
+#include "../../../Common/include/geometry/meshreader/CMemoryMeshReaderFVM.hpp"
 
 CSinglezoneDriver::CSinglezoneDriver(char* confFile,
                        unsigned short val_nZone,
@@ -208,6 +212,174 @@ void CSinglezoneDriver::ComputeMetric() {
   solver_flow->SetAuxVar_Adapt(geometry, config);
   solver_flow->SetHessian_Adapt(geometry, config);
   solver_flow->ComputeMetric(geometry, config);
+}
+
+void CSinglezoneDriver::CheckMeshAdaptation() const {
+
+  const auto* config = config_container[ZONE_0];
+
+  const auto kindSolver = config->GetKind_Solver();
+  if (kindSolver != MAIN_SOLVER::EULER && kindSolver != MAIN_SOLVER::NAVIER_STOKES &&
+      kindSolver != MAIN_SOLVER::RANS) {
+    SU2_MPI::Error("Mesh adaptation is only available for compressible EULER, NAVIER_STOKES or RANS.",
+                   CURRENT_FUNCTION);
+  }
+  if (driver_config->GetTime_Domain() || config->GetTime_Domain()) {
+    SU2_MPI::Error("Mesh adaptation is only available for steady problems for now.", CURRENT_FUNCTION);
+  }
+  CMMGInterface::CheckSupport(*config, *geometry_container[ZONE_0][INST_0][MESH_0]);
+}
+
+CSimplexMesh CSinglezoneDriver::RemeshFromMetric() {
+  SU2_ZONE_SCOPED
+
+  CheckMeshAdaptation();
+
+  auto* config = config_container[ZONE_0];
+  if (!config->GetCompute_Metric()) {
+    SU2_MPI::Error("Mesh adaptation needs the metric, set COMPUTE_METRIC= YES.", CURRENT_FUNCTION);
+  }
+
+  ComputeMetric();
+
+  const auto* geometry = geometry_container[ZONE_0][INST_0][MESH_0];
+  const auto* solver_flow = solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL];
+  const auto mesh = CMMGInterface::ExtractMesh(*config, *geometry, solver_flow->GetNodes()->GetMetric());
+
+  if (rank == MASTER_NODE)
+    cout << endl << "------------------------------ Remesh (MMG) -----------------------------" << endl;
+
+  CMMGInterface mmg(*config);
+  auto adapted = mmg.Adapt(mesh);
+
+  if (rank == MASTER_NODE) {
+    cout << "Remeshed " << mesh.GetnPoint() << " points, " << mesh.GetnElem() << " elements into "
+         << adapted.GetnPoint() << " points, " << adapted.GetnElem() << " elements." << endl;
+  }
+  return adapted;
+}
+
+void CSinglezoneDriver::ReplaceMesh(const CSimplexMesh& mesh, CSolutionTransfer& transfer) {
+  SU2_ZONE_SCOPED
+
+  const su2double startTime = SU2_MPI::Wtime();
+
+  CheckMeshAdaptation();
+
+  if (rank == MASTER_NODE)
+    cout << endl << "---------------------------- Replace the Mesh ---------------------------" << endl;
+
+  auto* config = config_container[ZONE_0];
+
+  if (mesh.nDim != nDim) {
+    SU2_MPI::Error("The new mesh has " + to_string(mesh.nDim) + " dimensions, the problem has " + to_string(nDim) +
+                   ".", CURRENT_FUNCTION);
+  }
+
+  /*--- The objects of the current mesh (the donor) stay in use until the new ones are complete. The config
+   *    describes the current mesh only until the new geometry is built, keep what the donor needs from it. ---*/
+
+  CMeshDonor donor;
+  donor.geometry = geometry_container[ZONE_0][INST_0];
+  donor.solver = solver_container[ZONE_0][INST_0];
+  donor.nMGLevels = config->GetnMGLevels();
+  for (unsigned short iMarker = 0; iMarker < donor.geometry[MESH_0]->GetnMarker(); iMarker++)
+    donor.markerTags.push_back(config->GetMarker_All_TagBound(iMarker));
+
+  /*--- Start from the config state of a fresh run (requested multigrid levels, their CFL, damping, ...). ---*/
+
+  initialRunState.Restore(*config);
+
+  /*--- Geometry, as in InitializeGeometry. The orientation of the remeshed elements is always checked. ---*/
+
+  CGeometry** geometry = nullptr;
+  {
+    CMemoryMeshReaderFVM reader(config, mesh, ZONE_0, nZone);
+    BuildGeometryFVM(config, new CPhysicalGeometry(config, reader, nZone), geometry, true);
+  }
+  const auto nMGLevels = config->GetnMGLevels();
+
+  geometry[MESH_0]->SetPositive_ZArea(config);
+  for (unsigned short iMesh = 0; iMesh <= nMGLevels; iMesh++) geometry[iMesh]->MatchActuator_Disk(config);
+
+  {
+    if (rank == MASTER_NODE) cout << "Computing wall distances." << endl;
+    CGeometry** instances[] = {geometry};
+    CGeometry*** zones[] = {instances};
+    CGeometry::ComputeWallDistance(config_container, zones);
+  }
+
+  /*--- Solvers in the free-stream state (the restart files belong to the first mesh), then the solution from
+   *    the donor, then the objects that depend on the solvers. ---*/
+
+  CSolver*** solver = nullptr;
+  InitializeSolver(config, geometry, solver, false);
+
+  transfer.Transfer(config, donor, geometry, solver);
+
+  CNumerics**** numerics = nullptr;
+  InitializeNumerics(config, geometry, solver, numerics);
+
+  CIntegration** integration = nullptr;
+  InitializeIntegration(config, solver[MESH_0], integration);
+
+  CIteration* iteration = nullptr;
+  PreprocessIteration(config, iteration);
+
+  PreprocessStaticMesh(config, geometry);
+
+  /*--- Switch the driver to the new mesh. ---*/
+
+  auto* donorNumerics = numerics_container[ZONE_0][INST_0];
+  auto* donorIntegration = integration_container[ZONE_0][INST_0];
+  auto* donorIteration = iteration_container[ZONE_0][INST_0];
+
+  geometry_container[ZONE_0][INST_0] = geometry;
+  solver_container[ZONE_0][INST_0] = solver;
+  numerics_container[ZONE_0][INST_0] = numerics;
+  integration_container[ZONE_0][INST_0] = integration;
+  iteration_container[ZONE_0][INST_0] = iteration;
+  main_geometry = geometry[MESH_0];
+
+  PreprocessPythonInterface(config_container, geometry_container, solver_container);
+
+  /*--- Release the donor, with its own number of levels. ---*/
+
+  FinalizeNumerics(donorNumerics, donor.nMGLevels);
+  FinalizeIntegration(donorIntegration);
+  FinalizeSolver(donor.solver, donor.nMGLevels);
+  delete donorIteration;
+  for (unsigned short iMesh = 0; iMesh <= donor.nMGLevels; iMesh++) delete donor.geometry[iMesh];
+  delete [] donor.geometry;
+
+  /*--- The output continues the history file, its geometry data and convergence monitoring start again. ---*/
+
+  auto* output = output_container[ZONE_0];
+  output->ResetMeshDependentData();
+  output->ResetConvergenceMonitoring(0);
+  output->SetConvergence(false);
+  StopCalc = false;
+
+  /*--- Size of the problem for the performance summary. ---*/
+
+  Mpoints = geometry[MESH_0]->GetGlobal_nPoint() / 1.0e6;
+  MpointsDomain = geometry[MESH_0]->GetGlobal_nPointDomain() / 1.0e6;
+  MDOFs = DOFsPerPoint * Mpoints;
+  MDOFsDomain = DOFsPerPoint * MpointsDomain;
+
+  UsedTimePreproc += SU2_MPI::Wtime() - startTime;
+
+  if (rank == MASTER_NODE) {
+    cout << "The problem uses the new mesh: " << geometry[MESH_0]->GetGlobal_nPointDomain() << " points, "
+         << nMGLevels << " multigrid levels." << endl;
+  }
+}
+
+void CSinglezoneDriver::AdaptMesh(CSolutionTransfer& transfer) {
+  SU2_ZONE_SCOPED
+
+  const auto mesh = RemeshFromMetric();
+  ReplaceMesh(mesh, transfer);
 }
 
 void CSinglezoneDriver::Update() {

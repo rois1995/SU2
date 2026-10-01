@@ -38,7 +38,7 @@ struct CSimplexMesh;
  *       the rank, all markers (by name) on the master rank. The mesh must be the complete (global) mesh and be
  *       available on every rank, as a mesh file would be. Coordinates are used as they are (no unit conversion,
  *       they are already in the units of the solver). Elements are taken with any orientation, the geometry
- *       preprocessing reorients them (REORIENT_ELEMENTS). Markers listed in MARKER_CREATE_COPY are copied as in the
+ *       preprocessing reorients them (REORIENT_ELEMENTS, always when the driver replaces its mesh). Markers listed in MARKER_CREATE_COPY are copied as in the
  *       file readers, so the mesh must not contain the copies.
  */
 class CMemoryMeshReaderFVM : public CMeshReaderBase {

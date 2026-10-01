@@ -1078,7 +1078,7 @@ void CDriver::InitializeGeometryDGFEM(CConfig* config, CGeometry **&geometry) {
 
 }
 
-void CDriver::InitializeSolver(CConfig* config, CGeometry** geometry, CSolver ***&solver) {
+void CDriver::InitializeSolver(CConfig* config, CGeometry** geometry, CSolver ***&solver, bool restart) {
   SU2_ZONE_SCOPED
 
   MAIN_SOLVER kindSolver = config->GetKind_Solver();
@@ -1102,7 +1102,7 @@ void CDriver::InitializeSolver(CConfig* config, CGeometry** geometry, CSolver **
   /*--- Restart solvers, for FSI the geometry cannot be updated because the interpolation classes
    * should always use the undeformed mesh (otherwise the results would not be repeatable). ---*/
 
-  if (!fsi) RestartSolver(solver, geometry, config, true);
+  if (!fsi && restart) RestartSolver(solver, geometry, config, true);
 
   /*--- Set up any necessary inlet profiles ---*/
 
