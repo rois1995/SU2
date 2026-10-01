@@ -5066,7 +5066,8 @@ void CSurfaceMovement::WriteFFDInfo(CSurfaceMovement** surface_movement, CGeomet
       else
         output_file << "FFD_DEGREE_J= " << FFDBox[iFFDBox]->GetmOrder() - 1 << endl;
       if (nDim == 3) output_file << "FFD_DEGREE_K= " << FFDBox[iFFDBox]->GetnOrder() - 1 << endl;
-      if (config[ZONE_0]->GetFFD_Blending() == BSPLINE_UNIFORM) {
+      /*--- The blending of the box, read from the mesh file, can differ from FFD_BLENDING of the config. ---*/
+      if (FFDBox[iFFDBox]->GetKindBlending() == BSPLINE_UNIFORM) {
         output_file << "FFD_BLENDING= BSPLINE_UNIFORM" << endl;
         output_file << "BSPLINE_ORDER_I= " << FFDBox[iFFDBox]->BlendingFunction[0]->GetOrder() << endl;
         if (polar)
@@ -5075,7 +5076,7 @@ void CSurfaceMovement::WriteFFDInfo(CSurfaceMovement** surface_movement, CGeomet
           output_file << "BSPLINE_ORDER_J= " << FFDBox[iFFDBox]->BlendingFunction[1]->GetOrder() << endl;
         if (nDim == 3) output_file << "BSPLINE_ORDER_K= " << FFDBox[iFFDBox]->BlendingFunction[2]->GetOrder() << endl;
       }
-      if (config[ZONE_0]->GetFFD_Blending() == BEZIER) {
+      if (FFDBox[iFFDBox]->GetKindBlending() == BEZIER) {
         output_file << "FFD_BLENDING= BEZIER" << endl;
       }
 

@@ -2132,6 +2132,32 @@ def main():
     pass_list.append(sphere_ffd_def.run_def())
     test_list.append(sphere_ffd_def)
 
+    # Spherical B-spline FFD without FFD_BLENDING in the config, writes the mesh read by the next test
+    sphere_ffd_bspline_noblend_def = TestCase('sphere_ffd_bspline_noblend_def')
+    sphere_ffd_bspline_noblend_def.cfg_dir = "deformation/spherical_ffd"
+    sphere_ffd_bspline_noblend_def.cfg_file = "def_spherical_bspline_noblend.cfg"
+    sphere_ffd_bspline_noblend_def.test_iter = 10
+    sphere_ffd_bspline_noblend_def.test_vals = [0.00208393] #residual
+    sphere_ffd_bspline_noblend_def.command = TestCase.Command("mpirun -n 2", "SU2_DEF")
+    sphere_ffd_bspline_noblend_def.timeout = 1600
+    sphere_ffd_bspline_noblend_def.tol = 1e-8
+
+    pass_list.append(sphere_ffd_bspline_noblend_def.run_def())
+    test_list.append(sphere_ffd_bspline_noblend_def)
+
+    # Deforms the output of sphere_ffd_bspline_noblend_def (only passes if that test passes)
+    sphere_ffd_bspline_redef_def = TestCase('sphere_ffd_bspline_redef_def')
+    sphere_ffd_bspline_redef_def.cfg_dir = "deformation/spherical_ffd"
+    sphere_ffd_bspline_redef_def.cfg_file = "def_spherical_bspline_redef.cfg"
+    sphere_ffd_bspline_redef_def.test_iter = 10
+    sphere_ffd_bspline_redef_def.test_vals = [0.00205861] #residual
+    sphere_ffd_bspline_redef_def.command = TestCase.Command("mpirun -n 2", "SU2_DEF")
+    sphere_ffd_bspline_redef_def.timeout = 1600
+    sphere_ffd_bspline_redef_def.tol = 1e-8
+
+    pass_list.append(sphere_ffd_bspline_redef_def.run_def())
+    test_list.append(sphere_ffd_bspline_redef_def)
+
     # Spherical FFD test using BSplines
     sphere_ffd_def_bspline           = TestCase('sphere_ffd_def_bspline')
     sphere_ffd_def_bspline.cfg_dir   = "deformation/spherical_ffd"

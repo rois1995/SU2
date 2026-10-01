@@ -95,6 +95,7 @@ CFreeFormDefBox::CFreeFormDefBox(const unsigned short Degree[], unsigned short B
   }
 
   BlendingFunction = new CFreeFormBlending*[nDim];
+  KindBlending = kind_blending;
 
   if (kind_blending == BEZIER) {
     BlendingFunction[0] = new CBezierBlending(lOrder, lOrder);
@@ -990,7 +991,7 @@ su2double* CFreeFormDefBox::GetParametricCoord_Iterative(unsigned long iPoint, s
     /* --- Splines are not defined outside of [0,1]. So if the parametric coords are outside of
      *  [0,1] the step was too big and we have to use a smaller relaxation factor. ---*/
 
-    if ((config->GetFFD_Blending() == BSPLINE_UNIFORM) &&
+    if ((KindBlending == BSPLINE_UNIFORM) &&
         (((ParamCoord[0] < 0.0) || (ParamCoord[0] > 1.0)) || ((ParamCoord[1] < 0.0) || (ParamCoord[1] > 1.0)) ||
          ((ParamCoord[2] < 0.0) || (ParamCoord[2] > 1.0)))) {
       for (iDim = 0; iDim < nDim; iDim++) {

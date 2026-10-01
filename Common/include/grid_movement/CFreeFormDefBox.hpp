@@ -74,6 +74,7 @@ class CFreeFormDefBox : public CGridMovement {
   vector<unsigned short> Fix_KPlane;    /*!< \brief Fix FFD K plane. */
 
   CFreeFormBlending** BlendingFunction;
+  unsigned short KindBlending{0}; /*!< \brief Kind of blending functions of the box (BEZIER, BSPLINE_UNIFORM). */
 
  public:
   /*!
@@ -613,6 +614,13 @@ class CFreeFormDefBox : public CGridMovement {
    * \return Order in the n direction of the FFD FFDBox.
    */
   inline unsigned short GetnOrder(void) const { return nOrder; }
+
+  /*!
+   * \brief Get the kind of blending functions of the box (the one read from the mesh file, which may differ from
+   *        FFD_BLENDING of the config).
+   * \return BEZIER or BSPLINE_UNIFORM.
+   */
+  inline unsigned short GetKindBlending() const { return KindBlending; }
 
   /*!
    * \brief Get the order in the l direction of the FFD FFDBox.
