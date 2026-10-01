@@ -2041,6 +2041,19 @@ def main():
     pass_list.append(brick_tets_def.run_def())
     test_list.append(brick_tets_def)
 
+    # Brick of tets, two ROTATION design variables about different axes
+    brick_tets_rotation_def = TestCase('brick_tets_rotation_def')
+    brick_tets_rotation_def.cfg_dir = "deformation/brick_tets"
+    brick_tets_rotation_def.cfg_file = "def_brick_tets_rotation.cfg"
+    brick_tets_rotation_def.test_iter = 10
+    brick_tets_rotation_def.test_vals = [0.000388161] #residual
+    brick_tets_rotation_def.command = TestCase.Command("mpirun -n 2", "SU2_DEF")
+    brick_tets_rotation_def.timeout = 1600
+    brick_tets_rotation_def.tol = 1e-9
+
+    pass_list.append(brick_tets_rotation_def.run_def())
+    test_list.append(brick_tets_rotation_def)
+
     # Brick of isotropic hexas (inverse volume)
     brick_hex_def           = TestCase('brick_hex_def')
     brick_hex_def.cfg_dir   = "deformation/brick_hex"

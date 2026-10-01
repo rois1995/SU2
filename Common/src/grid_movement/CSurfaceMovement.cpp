@@ -3207,7 +3207,7 @@ void CSurfaceMovement::SetRotation(CGeometry* boundary, CConfig* config, unsigne
   su2double a = config->GetParamDV(iDV, 0);
   su2double b = config->GetParamDV(iDV, 1);
   su2double c = 0.0;
-  if (boundary->GetnDim() == 3) c = config->GetParamDV(0, 2);
+  if (boundary->GetnDim() == 3) c = config->GetParamDV(iDV, 2);
 
   /*--- xyz-coordinate of the line's direction vector. ---*/
 
