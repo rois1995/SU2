@@ -300,7 +300,6 @@ void CRadialBasisFunctionInterpolation::SetDeformation(CGeometry* geometry, CCon
   }
 
   /*--- In case of a parallel computation, the deformation of all control nodes is send to the master process ---*/
-#ifdef HAVE_MPI
 
   /*--- Local size ---*/
   unsigned long localSize = localDeformation.size();
@@ -334,7 +333,6 @@ void CRadialBasisFunctionInterpolation::SetDeformation(CGeometry* geometry, CCon
     SU2_MPI::Send(localDeformation.data(), localDeformation.size(), MPI_DOUBLE, MASTER_NODE, 0, SU2_MPI::GetComm());
     CtrlNodeDeformation = std::move(localDeformation);
   }
-#endif
 }
 
 void CRadialBasisFunctionInterpolation::SetInternalNodes(CGeometry* geometry, CConfig* config,
@@ -386,12 +384,13 @@ void CRadialBasisFunctionInterpolation::SetInternalNodes(CGeometry* geometry, CC
     }
   }
 
-  /*--- sorting of the local indices ---*/
+#endif
+
+  /*--- Sorting of the local indices, a node can be on several markers. ---*/
   sort(internalNodes.begin(), internalNodes.end());
 
   /*--- Obtaining unique set of internal nodes ---*/
   internalNodes.resize(std::distance(internalNodes.begin(), unique(internalNodes.begin(), internalNodes.end())));
-#endif
 }
 
 void CRadialBasisFunctionInterpolation::ComputeInterpCoeffs(su2passivematrix& invInterpMat) {

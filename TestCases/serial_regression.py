@@ -860,6 +860,15 @@ def main():
     aeroelastic.unsteady  = True
     test_list.append(aeroelastic)
 
+    # Aeroelastic with RBF mesh deformation (repeated deformations)
+    aeroelastic_rbf           = TestCase('aeroelastic_rbf')
+    aeroelastic_rbf.cfg_dir   = "aeroelastic"
+    aeroelastic_rbf.cfg_file  = "aeroelastic_NACA64A010_rbf.cfg"
+    aeroelastic_rbf.test_iter = 2
+    aeroelastic_rbf.test_vals = [-1.876601, 4.021100, 0.080251, 0.027935, -0.001641, -0.000127, -1.133923]
+    aeroelastic_rbf.unsteady  = True
+    test_list.append(aeroelastic_rbf)
+
     # Delayed Detached Eddy Simulation
     ddes_flatplate        = TestCase('ddes_flatplate')
     ddes_flatplate.cfg_dir   = "ddes/flatplate"
