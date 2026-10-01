@@ -1963,6 +1963,19 @@ def main():
     pass_list.append(naca0012_def_file_camber.run_def())
     test_list.append(naca0012_def_file_camber)
 
+    # Inviscid NACA0012, FFD_DEFINITION without FFD_DEGREE
+    naca0012_ffd_no_degree_def = TestCase('naca0012_ffd_no_degree_def')
+    naca0012_ffd_no_degree_def.cfg_dir = "deformation/naca0012"
+    naca0012_ffd_no_degree_def.cfg_file = "def_NACA0012_ffd_no_degree.cfg"
+    naca0012_ffd_no_degree_def.test_iter = 10
+    naca0012_ffd_no_degree_def.test_vals = [0.00352488] #residual
+    naca0012_ffd_no_degree_def.command = TestCase.Command("mpirun -n 2", "SU2_DEF")
+    naca0012_ffd_no_degree_def.timeout = 1600
+    naca0012_ffd_no_degree_def.tol = 1e-8
+
+    pass_list.append(naca0012_ffd_no_degree_def.run_def())
+    test_list.append(naca0012_ffd_no_degree_def)
+
     # Inviscid NACA0012 (triangles) RBF
     naca0012_rbf_def            = TestCase('naca0012_def')
     naca0012_rbf_def.cfg_dir   = "deformation/naca0012"

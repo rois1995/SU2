@@ -5371,6 +5371,12 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     Design_Variable[0] = NO_DEFORMATION;
   }
 
+  /*--- The point inversion of the FFD boxes needs at least one iteration. ---*/
+
+  if (nFFD_Iter == 0) {
+    SU2_MPI::Error("FFD_ITERATIONS must be at least 1.", CURRENT_FUNCTION);
+  }
+
   /*--- Checks for incompressible flow problems. ---*/
 
   if (Kind_Solver == MAIN_SOLVER::INC_EULER) {

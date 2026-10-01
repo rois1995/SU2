@@ -843,8 +843,11 @@ class COptionFFDDef : public COptionBase {
   }
 
   ~COptionFFDDef() {
-    for (unsigned short i = 0; i < nFFD; ++i) {
-      delete[] CoordFFD[i];
+    /*--- nFFD is shared with FFD_DEGREE, this option may not have been set. ---*/
+    if (CoordFFD != nullptr) {
+      for (unsigned short i = 0; i < nFFD; ++i) {
+        delete[] CoordFFD[i];
+      }
     }
     delete[] CoordFFD;
     CoordFFD = nullptr;
@@ -867,15 +870,24 @@ class COptionFFDDef : public COptionBase {
 
     // use the ";" token to determine the number of design variables
     // This works because semicolon is not one of the delimiters in tokenize string
-    this->nFFD = 0;
+    unsigned short nBox = 0;
     for (unsigned int i = 0; i < static_cast<unsigned int>(option_value.size()); i++) {
       if (option_value[i].compare(";") == 0) {
-        this->nFFD++;
+        nBox++;
       }
     }
 
     // One more design variable than semicolon
-    this->nFFD++;
+    nBox++;
+
+    if (nBox > MAX_NUMBER_FFD) {
+      return name + ": at most " + to_string(MAX_NUMBER_FFD) + " FFD boxes can be defined";
+    }
+    // nFFD is shared with FFD_DEGREE, it is not zero if that option was read before
+    if ((this->nFFD != 0) && (nBox != this->nFFD)) {
+      return name + ": the number of FFD boxes differs from the number of entries in FFD_DEGREE";
+    }
+    this->nFFD = nBox;
 
     this->CoordFFD = new su2double*[this->nFFD];
     for (unsigned short iFFD = 0; iFFD < this->nFFD; iFFD++) {
@@ -892,6 +904,9 @@ class COptionFFDDef : public COptionBase {
       nCoordFFD = 25;
 
       for (unsigned short iCoordFFD = 0; iCoordFFD < nCoordFFD; iCoordFFD++) {
+        if ((i >= option_value.size()) || (option_value[i].compare(";") == 0)) {
+          return name + ": a FFD box needs a tag and 24 coordinates";
+        }
         ss << option_value[i] << " ";
 
         if (iCoordFFD == 0)
@@ -933,8 +948,11 @@ class COptionFFDDegree : public COptionBase {
   }
 
   ~COptionFFDDegree() {
-    for (unsigned short i = 0; i < nFFD; ++i) {
-      delete[] DegreeFFD[i];
+    /*--- nFFD is shared with FFD_DEFINITION, this option may not have been set. ---*/
+    if (DegreeFFD != nullptr) {
+      for (unsigned short i = 0; i < nFFD; ++i) {
+        delete[] DegreeFFD[i];
+      }
     }
     delete[] DegreeFFD;
     DegreeFFD = nullptr;
@@ -955,15 +973,21 @@ class COptionFFDDegree : public COptionBase {
 
     // use the ";" token to determine the number of design variables
     // This works because semicolon is not one of the delimiters in tokenize string
-    this->nFFD = 0;
+    unsigned short nBox = 0;
     for (unsigned int i = 0; i < static_cast<unsigned int>(option_value.size()); i++) {
       if (option_value[i].compare(";") == 0) {
-        this->nFFD++;
+        nBox++;
       }
     }
 
     // One more design variable than semicolon
-    this->nFFD++;
+    nBox++;
+
+    // nFFD is shared with FFD_DEFINITION, it is not zero if that option was read before
+    if ((this->nFFD != 0) && (nBox != this->nFFD)) {
+      return name + ": the number of entries differs from the number of FFD boxes in FFD_DEFINITION";
+    }
+    this->nFFD = nBox;
 
     this->DegreeFFD = new unsigned short*[this->nFFD];
     for (unsigned short iFFD = 0; iFFD < this->nFFD; iFFD++) {
@@ -978,6 +1002,9 @@ class COptionFFDDegree : public COptionBase {
       nDegreeFFD = 3;
 
       for (unsigned short iDegreeFFD = 0; iDegreeFFD < nDegreeFFD; iDegreeFFD++) {
+        if ((i >= option_value.size()) || (option_value[i].compare(";") == 0)) {
+          return name + ": a FFD degree needs 3 values";
+        }
         ss << option_value[i] << " ";
         ss >> this->DegreeFFD[iFFD][iDegreeFFD];
         i++;

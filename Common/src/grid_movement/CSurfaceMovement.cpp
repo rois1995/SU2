@@ -4234,6 +4234,10 @@ void CSurfaceMovement::ReadFFDInfo(CGeometry* geometry, CConfig* config, CFreeFo
 
       if (rank == MASTER_NODE) cout << nFFDBox << " Free Form Deformation boxes." << endl;
 
+      if (nFFDBox > MAX_NUMBER_FFD) {
+        SU2_MPI::Error("The mesh file has more FFD boxes than " + to_string(MAX_NUMBER_FFD) + ".", CURRENT_FUNCTION);
+      }
+
       nCornerPoints = new unsigned short[nFFDBox];
       nControlPoints = new unsigned short[nFFDBox];
       nSurfacePoints = new unsigned long[nFFDBox];
