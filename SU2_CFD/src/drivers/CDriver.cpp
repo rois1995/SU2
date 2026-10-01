@@ -2594,10 +2594,9 @@ void CDriver::PreprocessStaticMesh(const CConfig *config, CGeometry** geometry){
 
     /*--- Initialize the static mesh movement, if necessary. ---*/
     const unsigned short Kind_Grid_Movement = config->GetKind_GridMovement();
-    const bool initStaticMovement = (config->GetGrid_Movement() &&
-                                     (Kind_Grid_Movement == MOVING_WALL    ||
-                                      Kind_Grid_Movement == ROTATING_FRAME ||
-                                      Kind_Grid_Movement == STEADY_TRANSLATION));
+    const bool initStaticMovement = (config->GetSurface_Movement(MOVING_WALL) ||
+                                     Kind_Grid_Movement == ROTATING_FRAME ||
+                                     Kind_Grid_Movement == STEADY_TRANSLATION);
 
     if(initStaticMovement){
       if (rank == MASTER_NODE) cout << "Initialize Static Mesh Movement" << endl;

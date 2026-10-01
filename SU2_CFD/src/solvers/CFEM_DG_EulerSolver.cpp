@@ -3321,6 +3321,7 @@ void CFEM_DG_EulerSolver::Preprocessing(CGeometry *geometry, CSolver **solver_co
     /*--- Determine the type of grid motion. ---*/
     switch( config->GetKind_GridMovement() ) {
 
+      case NO_MOVEMENT:  /* Only moving walls. */
       case ROTATING_FRAME:
       case STEADY_TRANSLATION: {
 

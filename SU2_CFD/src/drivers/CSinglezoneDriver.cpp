@@ -230,6 +230,9 @@ void CSinglezoneDriver::Output(unsigned long TimeIter) {
 void CSinglezoneDriver::DynamicMeshUpdate(unsigned long TimeIter) {
   SU2_ZONE_SCOPED
 
+  /*--- The DG-FEM solver sets its (static) grid velocities in CDriver::PreprocessStaticMesh. ---*/
+  if (fem_solver) return;
+
   auto iteration = iteration_container[ZONE_0][INST_0];
 
   /*--- Legacy dynamic mesh update - Only if GRID_MOVEMENT = YES ---*/

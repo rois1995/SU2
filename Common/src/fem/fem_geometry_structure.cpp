@@ -6357,14 +6357,17 @@ void CMeshFEM_DG::InitStaticMeshMovement(const CConfig* config, const unsigned s
         /* Check if for this boundary a motion has been specified. */
         if (config->GetMarker_All_Moving(i) == YES) {
           /* Determine the prescribed translation velocity, rotation rate
-               and rotation center. */
-          const su2double Center[] = {config->GetMotion_Origin(0), config->GetMotion_Origin(1),
-                                      config->GetMotion_Origin(2)};
-          const su2double Omega[] = {config->GetRotation_Rate(0) / Omega_Ref, config->GetRotation_Rate(1) / Omega_Ref,
-                                     config->GetRotation_Rate(2) / Omega_Ref};
-          const su2double vTrans[] = {config->GetTranslation_Rate(0) / Vel_Ref,
-                                      config->GetTranslation_Rate(1) / Vel_Ref,
-                                      config->GetTranslation_Rate(2) / Vel_Ref};
+               and rotation center of this marker. */
+          const auto jMarker = config->GetMarker_Moving(config->GetMarker_All_TagBound(i));
+          const su2double Center[] = {config->GetMarkerMotion_Origin(jMarker, 0),
+                                      config->GetMarkerMotion_Origin(jMarker, 1),
+                                      config->GetMarkerMotion_Origin(jMarker, 2)};
+          const su2double Omega[] = {config->GetMarkerRotationRate(jMarker, 0) / Omega_Ref,
+                                     config->GetMarkerRotationRate(jMarker, 1) / Omega_Ref,
+                                     config->GetMarkerRotationRate(jMarker, 2) / Omega_Ref};
+          const su2double vTrans[] = {config->GetMarkerTranslationRate(jMarker, 0) / Vel_Ref,
+                                      config->GetMarkerTranslationRate(jMarker, 1) / Vel_Ref,
+                                      config->GetMarkerTranslationRate(jMarker, 2) / Vel_Ref};
 
           /* Easier storage of the surface elements and loop over them. */
           vector<CSurfaceElementFEM>& surfElem = boundaries[i].surfElem;

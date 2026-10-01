@@ -4580,6 +4580,19 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
         }
       }
     }
+
+    /*--- The DG-FEM solver sets constant grid velocities once (CMeshFEM_DG::InitStaticMeshMovement), it has no
+     * rotating frame source terms and no mesh motion. ---*/
+    if (GetFEMSolver()) {
+      if (Kind_GridMovement != NO_MOVEMENT && Kind_GridMovement != STEADY_TRANSLATION) {
+        SU2_MPI::Error("The DG-FEM solver only supports GRID_MOVEMENT= STEADY_TRANSLATION.", CURRENT_FUNCTION);
+      }
+      for (iMarker = 0; iMarker < nMarker_Moving; iMarker++){
+        if (Kind_SurfaceMovement[iMarker] != MOVING_WALL){
+          SU2_MPI::Error("The DG-FEM solver only supports SURFACE_MOVEMENT= MOVING_WALL.", CURRENT_FUNCTION);
+        }
+      }
+    }
   }
 
   /*--- The Line Search should be applied only in the deformation stage. ---*/

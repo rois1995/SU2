@@ -840,6 +840,14 @@ def main():
     fem_ns_cylinder.test_vals = [0.454960, 0.979123, -0.000028, 79.984799]
     test_list.append(fem_ns_cylinder)
 
+    # Spinning cylinder (moving wall)
+    fem_ns_cylinder_moving_wall           = TestCase('fem_ns_cylinder_moving_wall')
+    fem_ns_cylinder_moving_wall.cfg_dir   = "hom_navierstokes/CylinderViscous/nPoly3"
+    fem_ns_cylinder_moving_wall.cfg_file  = "fem_Cylinder_moving_wall.cfg"
+    fem_ns_cylinder_moving_wall.test_iter = 10
+    fem_ns_cylinder_moving_wall.test_vals = [0.454938, 1.014010, -0.319410, 80.337012]
+    test_list.append(fem_ns_cylinder_moving_wall)
+
     # Steady sphere
     fem_ns_sphere           = TestCase('fem_ns_sphere')
     fem_ns_sphere.cfg_dir   = "hom_navierstokes/SphereViscous/nPoly3_QuadDominant"
