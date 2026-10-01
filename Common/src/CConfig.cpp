@@ -6052,28 +6052,29 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
 
   /*--- Checks for mesh adaptation ---*/
   if (Compute_Metric) {
+    /*--- Initial support: compressible Euler, Navier-Stokes and RANS with a single sensor list. ---*/
+    if (Kind_Solver != MAIN_SOLVER::EULER && Kind_Solver != MAIN_SOLVER::NAVIER_STOKES &&
+        Kind_Solver != MAIN_SOLVER::RANS) {
+      SU2_MPI::Error("COMPUTE_METRIC is only supported for SOLVER = EULER, NAVIER_STOKES or RANS.", CURRENT_FUNCTION);
+    }
     if (nAdap_Sensor == 0) SU2_MPI::Error("COMPUTE_METRIC = YES requires ADAP_SENSOR.", CURRENT_FUNCTION);
-    if (Kind_Hessian_Method == NO_GRADIENT) SU2_MPI::Error("NUM_METHOD_HESS cannot be NONE.", CURRENT_FUNCTION);
-    const vector<string> Sensor_Avail{"GOAL", "MACH", "PRESSURE", "TEMPERATURE", "TEMPERATURE_VE", "ENERGY", "ENERGY_VE", "DENSITY", "TOTALPRESSURE"};
-    const bool nemo = (Kind_Solver == MAIN_SOLVER::NEMO_EULER || Kind_Solver == MAIN_SOLVER::NEMO_NAVIER_STOKES);
-    const bool inc = (Kind_Solver == MAIN_SOLVER::INC_EULER || Kind_Solver == MAIN_SOLVER::INC_NAVIER_STOKES ||
-                      Kind_Solver == MAIN_SOLVER::INC_RANS);
+    if (Kind_Hessian_Method != GREEN_GAUSS) {
+      SU2_MPI::Error("NUM_METHOD_HESS = GREEN_GAUSS is the only Hessian method supported for now.", CURRENT_FUNCTION);
+    }
+    const vector<string> Sensor_Avail{"MACH", "PRESSURE", "TEMPERATURE", "ENERGY", "DENSITY", "TOTALPRESSURE"};
     for (unsigned short iSensor = 0; iSensor < nAdap_Sensor; iSensor++) {
       const string& sensor = Adap_Sensor[iSensor];
       if (find(begin(Sensor_Avail), end(Sensor_Avail), sensor) == end(Sensor_Avail)) {
-        SU2_MPI::Error("Invalid adaptation sensor: " + sensor + "; must be GOAL, MACH, PRESSURE, ENERGY, ENERGY_VE, DENSITY, TEMPERATURE, TEMPERATURE_VE, TOTALPRESSURE", CURRENT_FUNCTION);
+        SU2_MPI::Error("Invalid or unsupported adaptation sensor: " + sensor +
+                       "; must be MACH, PRESSURE, TEMPERATURE, ENERGY, DENSITY or TOTALPRESSURE.", CURRENT_FUNCTION);
       }
-      if (sensor == "GOAL") {
-        if (nAdap_Sensor != 1) SU2_MPI::Error("Adaptation sensor GOAL cannot be used with other sensors.", CURRENT_FUNCTION);
-        if (!DiscreteAdjoint) SU2_MPI::Error("Adaptation sensor GOAL can only be computed for MATH_PROBLEM = DISCRETE_ADJOINT.", CURRENT_FUNCTION);
-      }
-      if (nemo && (sensor == "GOAL" || sensor == "DENSITY"))
-        SU2_MPI::Error("Adaptation sensor " + sensor + " not available for NEMO problems.", CURRENT_FUNCTION);
-      if (!nemo && (sensor == "TEMPERATURE_VE" || sensor == "ENERGY_VE"))
-        SU2_MPI::Error("Adaptation sensor " + sensor + " not available for non-NEMO problems.", CURRENT_FUNCTION);
-      if (inc && (sensor == "GOAL" || sensor == "ENERGY"))
-        SU2_MPI::Error("Adaptation sensor " + sensor + " not available for INC problems.", CURRENT_FUNCTION);
     }
+    if (!(Adap_Norm >= 1.0)) SU2_MPI::Error("ADAP_NORM must be >= 1.", CURRENT_FUNCTION);
+    if (!(Adap_Hmin > 0.0) || !(Adap_Hmax > Adap_Hmin)) {
+      SU2_MPI::Error("Adaptation sizes must satisfy 0 < ADAP_HMIN < ADAP_HMAX.", CURRENT_FUNCTION);
+    }
+    if (!(Adap_ARmax >= 1.0)) SU2_MPI::Error("ADAP_ARMAX must be >= 1.", CURRENT_FUNCTION);
+    if (Adap_Complexity == 0) SU2_MPI::Error("ADAP_COMPLEXITY must be positive.", CURRENT_FUNCTION);
   }
 
 }
