@@ -1316,7 +1316,10 @@ private:
   su2double Adap_Norm,                      /*!< \brief Lp-norm for mesh adaptation. */
             Adap_Hmax,                      /*!< \brief Maximum cell size. */
             Adap_Hmin,                      /*!< \brief Minimum cell size. */
-            Adap_ARmax;                     /*!< \brief Maximum cell aspect ratio. */
+            Adap_ARmax,                     /*!< \brief Maximum cell aspect ratio. */
+            Adap_Hgrad,                     /*!< \brief Size gradation of the remesher. */
+            Adap_Hausd,                     /*!< \brief Hausdorff distance of the remeshed boundaries. */
+            Adap_Angle;                     /*!< \brief Sharp angle detection threshold of the remesher (degrees). */
   unsigned long Adap_Complexity;            /*!< \brief Constraint mesh complexity. */
 
   unsigned short nSpecies = 0;              /*!< \brief Number of transported species equations (for NEMO and species transport)*/
@@ -10346,6 +10349,21 @@ public:
    * \brief Get the constraint mesh complexity.
    */
   unsigned long GetAdap_Complexity(void) const { return Adap_Complexity; }
+
+  /*!
+   * \brief Get the size gradation of the remesher.
+   */
+  su2double GetAdap_Hgrad(void) const { return Adap_Hgrad; }
+
+  /*!
+   * \brief Get the Hausdorff distance that controls the approximation of the boundaries by the remesher.
+   */
+  su2double GetAdap_Hausd(void) const { return Adap_Hausd; }
+
+  /*!
+   * \brief Get the sharp angle detection threshold of the remesher (degrees).
+   */
+  su2double GetAdap_Angle(void) const { return Adap_Angle; }
 
   /*!
    * \brief Check if the gradient smoothing is active

@@ -3274,6 +3274,12 @@ void CConfig::SetConfig_Options() {
   addDoubleOption("ADAP_ARMAX", Adap_ARmax, 1.0E6);
   /*!\brief ADAP_COMPLEXITY \n DESCRIPTION: Constraint mesh complexity \ingroup Config */
   addUnsignedLongOption("ADAP_COMPLEXITY", Adap_Complexity, 10000);
+  /*!\brief ADAP_HGRAD \n DESCRIPTION: Size gradation of the remesher (ratio of neighbouring edge lengths, > 1) \ingroup Config */
+  addDoubleOption("ADAP_HGRAD", Adap_Hgrad, 1.3);
+  /*!\brief ADAP_HAUSD \n DESCRIPTION: Hausdorff distance between the remeshed and the original boundaries \ingroup Config */
+  addDoubleOption("ADAP_HAUSD", Adap_Hausd, 0.01);
+  /*!\brief ADAP_ANGLE \n DESCRIPTION: Sharp angle detection threshold of the remesher, in degrees \ingroup Config */
+  addDoubleOption("ADAP_ANGLE", Adap_Angle, 45.0);
 
   /*--- Adaptation loop options, not used by the C++ code yet (kept so existing config files parse) ---*/
   addPythonOption("ADAP_SIZES");
@@ -3287,9 +3293,6 @@ void CConfig::SetConfig_Options() {
   addPythonOption("ADAP_FLOW_CFL");
   addPythonOption("ADAP_ADJ_CFL");
   addPythonOption("ADAP_RESIDUAL_REDUCTION");
-  addPythonOption("ADAP_HGRAD");
-  addPythonOption("ADAP_HAUSD");
-  addPythonOption("ADAP_ANGLE");
 
   /* END_CONFIG_OPTIONS */
 
@@ -6082,6 +6085,17 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     }
     if (!(Adap_ARmax >= 1.0)) SU2_MPI::Error("ADAP_ARMAX must be >= 1.", CURRENT_FUNCTION);
     if (Adap_Complexity == 0) SU2_MPI::Error("ADAP_COMPLEXITY must be positive.", CURRENT_FUNCTION);
+  }
+
+  /*--- Remesher parameters (also checked without COMPUTE_METRIC, they are plain values). ---*/
+  if (!(Adap_Hgrad > 1.0) || !std::isfinite(SU2_TYPE::GetValue(Adap_Hgrad))) {
+    SU2_MPI::Error("ADAP_HGRAD must be a finite value > 1.", CURRENT_FUNCTION);
+  }
+  if (!(Adap_Hausd > 0.0) || !std::isfinite(SU2_TYPE::GetValue(Adap_Hausd))) {
+    SU2_MPI::Error("ADAP_HAUSD must be a finite value > 0.", CURRENT_FUNCTION);
+  }
+  if (!(Adap_Angle > 0.0) || !(Adap_Angle < 180.0)) {
+    SU2_MPI::Error("ADAP_ANGLE must be between 0 and 180 degrees (exclusive).", CURRENT_FUNCTION);
   }
 
 }
