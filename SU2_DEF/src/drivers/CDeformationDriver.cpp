@@ -244,7 +244,7 @@ void CDeformationDriver::InitializeNumerics() {
     unsigned short nInst_Zone = nInst[iZone];
     unsigned short nMesh = 1;
     unsigned short nSols = MAX_SOLS;
-    unsigned int nTerm = omp_get_num_threads() * MAX_TERMS;
+    unsigned int nTerm = omp_get_max_threads() * MAX_TERMS;
 
     numerics_container[iZone] = new CNumerics****[nInst_Zone]();
     numerics_container[iZone][INST_0] = new CNumerics***[nMesh]();
