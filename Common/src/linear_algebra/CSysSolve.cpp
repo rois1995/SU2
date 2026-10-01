@@ -631,20 +631,30 @@ unsigned long CSysSolve<ScalarType>::RFGMRES_LinSolver(const CSysVector<ScalarTy
                                                        const CConfig* config) const {
   const auto restartIter = config->GetLinear_Solver_Restart_Frequency();
 
-  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
-    xIsZero = false;
-    tol_type = LinearToleranceType::ABSOLUTE;
-  }
-  END_SU2_OMP_SAFE_GLOBAL_ACCESS
+  /*--- The restarts start from the current solution. With an absolute tolerance they all normalize the
+   * residual by |b|. With a relative tolerance, each one normalizes by its initial residual, therefore
+   * the tolerance is scaled by the residual reduction achieved by the previous restarts. ---*/
+  const bool relative = (tol_type == LinearToleranceType::RELATIVE);
+  const bool initialXIsZero = xIsZero;
+  ScalarType reduction = 1.0;
 
   auto totalIter = 0ul;
   while (totalIter < MaxIter) {
     /*--- Enforce a hard limit on total number of iterations ---*/
     auto iterLimit = min(restartIter, MaxIter - totalIter);
-    auto iter = FGMRES_LinSolver(b, x, mat_vec, precond, tol, iterLimit, residual, monitoring, config);
+    auto iter = FGMRES_LinSolver(b, x, mat_vec, precond, tol / reduction, iterLimit, residual, monitoring, config);
     totalIter += iter;
+    if (relative) {
+      reduction *= residual;
+      residual = reduction;
+    }
+    SU2_OMP_SAFE_GLOBAL_ACCESS(xIsZero = false;)
     if (residual <= tol || iter < iterLimit) break;
   }
+
+  /*--- Restore the setting of the caller. ---*/
+  SU2_OMP_SAFE_GLOBAL_ACCESS(xIsZero = initialXIsZero;)
+
   return totalIter;
 }
 
