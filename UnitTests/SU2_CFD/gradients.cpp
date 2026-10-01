@@ -448,6 +448,39 @@ void setQuadraticSensor(AdaptBoxTest& test, const su2double (&H)[3][3], const su
   test.solver[FLOW_SOL]->SetHessian_Adapt(test.geometry.get(), test.config.get());
 }
 
+void testSymmetryHessian(const string& method) {
+  AdaptBoxTest test("MARKER_SYM= (z_minus)\nMARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus)\n", method);
+  auto* nodes = test.solver[FLOW_SOL]->GetNodes();
+  const auto h = AdaptBoxTest::h;
+
+  /*--- Field symmetric about the plane z = 0, its Hessian is exact on the plane too. ---*/
+  const su2double H[3][3] = {{2.0, 0.5, 0.0}, {0.5, 4.0, 0.0}, {0.0, 0.0, 6.0}};
+  const su2double b[3] = {1.0, -2.0, 0.0};
+  setQuadraticSensor(test, H, b);
+
+  const su2double tol = 1e-6;
+  su2double err = 0.0;
+  unsigned long nChecked = 0, nPlaneChecked = 0;
+  for (auto iPoint = 0ul; iPoint < test.geometry->GetnPointDomain(); ++iPoint) {
+    const auto x = test.geometry->nodes->GetCoord(iPoint);
+    if (x[0] < 2 * h - tol || x[0] > 1 - 2 * h + tol || x[1] < 2 * h - tol || x[1] > 1 - 2 * h + tol) continue;
+    if (x[2] > 1 - 2 * h + tol) continue;
+    ++nChecked;
+    if (x[2] < tol) ++nPlaneChecked;
+    su2double Hc[3][3];
+    nodes->GetHessianMat(iPoint, 0, Hc);
+    for (auto i = 0u; i < 3; ++i)
+      for (auto j = 0u; j < 3; ++j) err = max(err, abs(Hc[i][j] - H[i][j]));
+  }
+  CHECK(nPlaneChecked > 0);
+  CHECK(nChecked > nPlaneChecked);
+  CHECK(err < 1e-9);
+}
+
+TEST_CASE("Symmetry plane Hessian GG", "[Adaptation]") { testSymmetryHessian("GREEN_GAUSS"); }
+
+TEST_CASE("Symmetry plane Hessian WLS", "[Adaptation]") { testSymmetryHessian("WEIGHTED_LEAST_SQUARES"); }
+
 void testEulerWallHessian(const string& method) {
   AdaptBoxTest wall("MARKER_EULER= (z_minus)\nMARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus)\n", method);
   AdaptBoxTest far("MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_minus, z_plus)\n", method);
