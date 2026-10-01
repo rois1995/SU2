@@ -1168,6 +1168,15 @@ def main():
     translating_naca0012.unsteady  = True
     test_list.append(translating_naca0012)
 
+    # Gust, non-dimensional solver (same coefficients as sine_gust)
+    sine_gust_nondim           = TestCase('sine_gust_nondim')
+    sine_gust_nondim.cfg_dir   = "gust"
+    sine_gust_nondim.cfg_file  = "inv_gust_NACA0012_nondim.cfg"
+    sine_gust_nondim.test_iter = 5
+    sine_gust_nondim.test_vals = [-4.524421, -3.982693, -0.011370, -0.005251]
+    sine_gust_nondim.unsteady  = True
+    test_list.append(sine_gust_nondim)
+
     # Stochastic BackScatter (SBS) model
     sbs_backward_step            = TestCase('sbs_backward_step')
     sbs_backward_step.cfg_dir    = "backscatter/backward_step"

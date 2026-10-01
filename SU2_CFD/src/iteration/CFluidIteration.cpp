@@ -471,14 +471,17 @@ void CFluidIteration::SetWind_GustField(CConfig* config, CGeometry** geometry, C
 
   unsigned short iDim, nDim = geometry[MESH_0]->GetnDim();
 
-  /*--- Gust Parameters from config ---*/
+  /*--- Gust Parameters from config, made non-dimensional as the grid velocities ---*/
+  const su2double Length_Ref = config->GetLength_Ref();
+  const su2double Velocity_Ref = config->GetVelocity_Ref();
+  const su2double Time_Ref = config->GetTime_Ref();
   unsigned short Gust_Type = config->GetGust_Type();
-  su2double xbegin = config->GetGust_Begin_Loc();   // Location at which the gust begins.
-  su2double L = config->GetGust_WaveLength();       // Gust size
-  su2double tbegin = config->GetGust_Begin_Time();  // Physical time at which the gust begins.
-  su2double gust_amp = config->GetGust_Ampl();      // Gust amplitude
-  su2double n = config->GetGust_Periods();          // Number of gust periods
-  unsigned short GustDir = config->GetGust_Dir();   // Gust direction
+  su2double xbegin = config->GetGust_Begin_Loc() / Length_Ref;  // Location at which the gust begins.
+  su2double L = config->GetGust_WaveLength() / Length_Ref;      // Gust size
+  su2double tbegin = config->GetGust_Begin_Time() / Time_Ref;   // Physical time at which the gust begins.
+  su2double gust_amp = config->GetGust_Ampl() / Velocity_Ref;   // Gust amplitude
+  su2double n = config->GetGust_Periods();                      // Number of gust periods
+  unsigned short GustDir = config->GetGust_Dir();               // Gust direction
 
   /*--- Variables needed to compute the gust ---*/
   unsigned short Kind_Grid_Movement = config->GetKind_GridMovement();
@@ -488,7 +491,7 @@ void CFluidIteration::SetWind_GustField(CConfig* config, CGeometry** geometry, C
   su2double x, y, x_gust, Gust[3] = {0.0}, NewGridVel[3] = {0.0};
   const su2double* GridVel = nullptr;
 
-  su2double Physical_dt = config->GetDelta_UnstTime();
+  su2double Physical_dt = config->GetDelta_UnstTimeND();
   unsigned long TimeIter = config->GetTimeIter();
   if (config->GetDiscrete_Adjoint()) TimeIter = config->GetUnst_AdjointIter() - TimeIter - 1;
 
@@ -496,13 +499,15 @@ void CFluidIteration::SetWind_GustField(CConfig* config, CGeometry** geometry, C
 
   su2double Uinf = solver[MESH_0][FLOW_SOL]->GetVelocity_Inf(0);  // Assumption gust moves at infinity velocity
 
-  // Print some information to check that we are doing the right thing. Not sure how to convert the index back to a string...
+  // Print some information to check that we are doing the right thing (dimensional values).
+  // Not sure how to convert the index back to a string...
   if (rank == MASTER_NODE) {
-	  cout << endl << "Setting up a wind gust type " << Gust_Type << " with amplitude of " << gust_amp << " in direction " << GustDir << endl;
-	  cout << " U_inf      = " << Uinf << endl;
-	  cout << " Physical_t = " << Physical_t << endl;
+	  cout << endl << "Setting up a wind gust type " << Gust_Type << " with amplitude of " << gust_amp * Velocity_Ref
+	       << " in direction " << GustDir << endl;
+	  cout << " U_inf      = " << Uinf * Velocity_Ref << endl;
+	  cout << " Physical_t = " << Physical_t * Time_Ref << endl;
 	  su2double loc_x = (xbegin + L + Uinf * (Physical_t - tbegin));
-	  cout << " Location_x = " << loc_x << endl;
+	  cout << " Location_x = " << loc_x * Length_Ref << endl;
   }
 
   // Vortex variables
@@ -510,6 +515,12 @@ void CFluidIteration::SetWind_GustField(CConfig* config, CGeometry** geometry, C
   vector<su2double> x0, y0, vort_strenth, r_core;  // vortex is positive in clockwise direction.
   if (Gust_Type == VORTEX) {
     InitializeVortexDistribution(nVortex, x0, y0, vort_strenth, r_core);
+    for (unsigned long i = 0; i < nVortex; i++) {
+      x0[i] /= Length_Ref;
+      y0[i] /= Length_Ref;
+      vort_strenth[i] /= Velocity_Ref * Length_Ref;
+      r_core[i] /= Length_Ref;
+    }
   }
 
   /*--- Check to make sure gust lenght is not zero or negative (vortex gust doesn't use this). ---*/
