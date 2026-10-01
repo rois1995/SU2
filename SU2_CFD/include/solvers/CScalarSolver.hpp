@@ -435,6 +435,18 @@ class CScalarSolver : public CSolver {
                 bool bounded_scalar, LINEAR_SOLVER_MODE linear_solver_mode = LINEAR_SOLVER_MODE::STANDARD);
 
   /*!
+   * \brief Lower limit of a solution variable (the solution is clipped to it after each update).
+   * \param[in] iVar - Index of the variable.
+   */
+  inline su2double GetLowerLimit(unsigned short iVar) const { return lowerlimit[iVar]; }
+
+  /*!
+   * \brief Upper limit of a solution variable (the solution is clipped to it after each update).
+   * \param[in] iVar - Index of the variable.
+   */
+  inline su2double GetUpperLimit(unsigned short iVar) const { return upperlimit[iVar]; }
+
+  /*!
    * \brief Impose the Far Field boundary condition.
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] solver_container - Container vector with all the solutions.
