@@ -26,6 +26,7 @@ su2_cfd_tests = files(['Common/CConfig_tests.cpp',
                        'SU2_CFD/adaptation/CornerMetric_tests.cpp',
                        'Common/toolboxes/random_toolbox_tests.cpp',
                        'Common/adaptation/CMMGInterface_tests.cpp',
+                       'Common/adaptation/AdaptationLoopOptions_tests.cpp',
                        'Common/linear_algebra/quantization_tests.cpp',
                        'Common/linear_algebra/edge_residual_blocks_tests.cpp'])
 

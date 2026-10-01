@@ -34,6 +34,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <sstream>
+#include <iomanip>
 #include <string>
 #include <cstring>
 #include <vector>
@@ -1322,6 +1323,21 @@ private:
             Adap_Hausd,                     /*!< \brief Hausdorff distance of the remeshed boundaries. */
             Adap_Angle;                     /*!< \brief Sharp angle detection threshold of the remesher (degrees). */
   unsigned long Adap_Complexity;            /*!< \brief Target complexity of the final metric. */
+  bool Adap_Loop = false;                   /*!< \brief Run the mesh adaptation loop. */
+  ADAP_TRANSFER Kind_Adap_Transfer;         /*!< \brief Solution transfer to the adapted meshes. */
+  unsigned short nAdap_Sizes = 0, nAdap_SubIter = 0, nAdap_Hmaxs = 0, nAdap_Hmins = 0, nAdap_Norms = 0,
+                 nAdap_ARmaxs = 0, nAdap_FlowIter = 0, nAdap_FlowCFL = 0, nAdap_ResRed = 0; /*!< \brief List lengths. */
+  unsigned long *Adap_Sizes = nullptr,      /*!< \brief Target complexity of each adaptation level. */
+                *Adap_SubIter = nullptr,    /*!< \brief Number of adaptations of each level. */
+                *Adap_FlowIter = nullptr;   /*!< \brief Flow iterations of each level. */
+  su2double *Adap_Hmaxs = nullptr,          /*!< \brief Maximum cell size of each level. */
+            *Adap_Hmins = nullptr,          /*!< \brief Minimum cell size of each level. */
+            *Adap_Norms = nullptr,          /*!< \brief Lp-norm of each level. */
+            *Adap_ARmaxs = nullptr,         /*!< \brief Maximum cell aspect ratio of each level. */
+            *Adap_FlowCFL = nullptr,        /*!< \brief Initial flow CFL of each level. */
+            *Adap_ResRed = nullptr;         /*!< \brief Residual reduction of each level. */
+  vector<CAdapLevel> Adap_Levels;           /*!< \brief Options of each adaptation level, lists expanded. */
+  MG_CYCLE Kind_MGCycle_File = MG_CYCLE::V; /*!< \brief MGCYCLE as given in the config file (a restart changes it). */
 
   unsigned short nSpecies = 0;              /*!< \brief Number of transported species equations (for NEMO and species transport)*/
 
@@ -10370,6 +10386,98 @@ public:
    * \brief Check if the adaptation metric is made isotropic at sharp wall corners (2D).
    */
   bool GetAdap_Iso_Corner(void) const { return Adap_Iso_Corner; }
+
+  /*!
+   * \brief Check if the mesh adaptation loop is run (ADAP_LOOP).
+   */
+  bool GetAdap_Loop(void) const { return Adap_Loop; }
+
+  /*!
+   * \brief Get the solution transfer of the mesh adaptation loop.
+   */
+  ADAP_TRANSFER GetKind_Adap_Transfer(void) const { return Kind_Adap_Transfer; }
+
+  /*!
+   * \brief Get the number of adaptation levels (entries of ADAP_SIZES), 0 without ADAP_LOOP.
+   */
+  unsigned short GetnAdap_Levels(void) const { return Adap_Levels.size(); }
+
+  /*!
+   * \brief Get the options of an adaptation level, with the per-level lists expanded and the scalar options as
+   *        defaults (ADAP_HMAXS or ADAP_HMAX, ADAP_FLOW_ITER or ITER, ...).
+   * \param[in] iLevel - Level index (position in ADAP_SIZES).
+   */
+  const CAdapLevel& GetAdap_Level(unsigned short iLevel) const { return Adap_Levels[iLevel]; }
+
+  /*!
+   * \brief Get the number of mesh adaptations of the loop (sum of ADAP_SUBITER).
+   */
+  unsigned long GetnAdap_Cycles(void) const {
+    unsigned long nCycles = 0;
+    for (const auto& level : Adap_Levels) nCycles += level.subIter;
+    return nCycles;
+  }
+
+  /*!
+   * \brief Get the level of the mesh of a cycle of the adaptation loop.
+   * \param[in] iCycle - Cycle, 1 to GetnAdap_Cycles() (cycle 0 is the input mesh, it has no level).
+   * \return Level index, ADAP_SUBITER[0] cycles of level 0, then ADAP_SUBITER[1] of level 1, ...
+   */
+  unsigned short GetAdap_CycleLevel(unsigned long iCycle) const {
+    unsigned long nCycles = 0;
+    for (unsigned short iLevel = 0; iLevel < Adap_Levels.size(); iLevel++) {
+      nCycles += Adap_Levels[iLevel].subIter;
+      if (iCycle <= nCycles) return iLevel;
+    }
+    return Adap_Levels.size() - 1;
+  }
+
+  /*!
+   * \brief Use the metric options of an adaptation level from now on: ADAP_COMPLEXITY, ADAP_HMAX, ADAP_HMIN,
+   *        ADAP_NORM and ADAP_ARMAX get the values of the level.
+   * \param[in] iLevel - Level index.
+   */
+  void SetAdap_MetricLevel(unsigned short iLevel) {
+    const auto& level = Adap_Levels[iLevel];
+    Adap_Complexity = level.complexity;
+    Adap_Hmax = level.hmax;
+    Adap_Hmin = level.hmin;
+    Adap_Norm = level.norm;
+    Adap_ARmax = level.armax;
+  }
+
+  /*!
+   * \brief Use the flow iterations of an adaptation level from now on (plus the iterations of the CL derivative
+   *        in fixed-CL mode, as for ITER).
+   * \param[in] iLevel - Level index.
+   */
+  void SetAdap_FlowLevel(unsigned short iLevel) {
+    nInnerIter = Adap_Levels[iLevel].flowIter;
+    if (Fixed_CL_Mode && !ContinuousAdjoint && !DiscreteAdjoint) nInnerIter += Iter_dCL_dAlpha;
+  }
+
+  /*!
+   * \brief Name of an output file of a cycle of the mesh adaptation loop.
+   * \param[in] filename - Base name, without extension.
+   * \param[in] iCycle - Cycle (0 is the input mesh).
+   * \return The base name with "_adap_" and the cycle number in 5 digits appended (e.g. flow_adap_00002).
+   */
+  static string GetAdap_FileName(const string& filename, unsigned long iCycle) {
+    std::stringstream ss;
+    ss << filename << "_adap_" << std::setw(5) << std::setfill('0') << iCycle;
+    return ss.str();
+  }
+
+  /*!
+   * \brief Prepare a solve that starts from a solution in memory (the adapted meshes of the adaptation loop): no
+   *        restart file is read (RESTART_SOL= NO), and the multigrid cycle is MGCYCLE of the config file (a restart
+   *        turns W_CYCLE into V_CYCLE), except FULLMG_CYCLE, which becomes V_CYCLE (the solution exists already).
+   */
+  void SetSolutionInMemory(void) {
+    Restart = false;
+    Kind_MGCycle = (Kind_MGCycle_File == MG_CYCLE::FULL) ? MG_CYCLE::V : Kind_MGCycle_File;
+    FinestMesh = MESH_0;
+  }
 
   /*!
    * \brief Check if the gradient smoothing is active

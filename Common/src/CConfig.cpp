@@ -3286,18 +3286,40 @@ void CConfig::SetConfig_Options() {
    * so that the remesher gives similar edges on both sides of the corner \ingroup Config */
   addBoolOption("ADAP_ISO_CORNER", Adap_Iso_Corner, true);
 
-  /*--- Adaptation loop options, not used by the C++ code yet (kept so existing config files parse) ---*/
-  addPythonOption("ADAP_SIZES");
-  addPythonOption("ADAP_HMAXS");
-  addPythonOption("ADAP_HMINS");
-  addPythonOption("ADAP_NORMS");
-  addPythonOption("ADAP_ARMAXS");
-  addPythonOption("ADAP_SUBITER");
-  addPythonOption("ADAP_FLOW_ITER");
+  /*--- Mesh adaptation loop (steady, single zone, single rank, needs MMG). Cycle 0 solves on the input mesh with the
+   *    usual options (ITER, CFL_NUMBER, CONV_*), then each cycle remeshes from the metric of the last solution,
+   *    transfers the solution and solves again. The per-level lists below have one value (used for every level) or
+   *    one value per entry of ADAP_SIZES; without a list the scalar option in brackets applies to every level. ---*/
+  /*!\brief ADAP_LOOP \n DESCRIPTION: Run the mesh adaptation loop (needs COMPUTE_METRIC= YES and ADAP_SIZES) \ingroup Config */
+  addBoolOption("ADAP_LOOP", Adap_Loop, false);
+  /*!\brief ADAP_SIZES \n DESCRIPTION: Target complexity of the adapted meshes of each level of the loop (replaces
+   * ADAP_COMPLEXITY) \ingroup Config */
+  addULongListOption("ADAP_SIZES", nAdap_Sizes, Adap_Sizes);
+  /*!\brief ADAP_SUBITER \n DESCRIPTION: Number of consecutive adaptations of each level (default 1) \ingroup Config */
+  addULongListOption("ADAP_SUBITER", nAdap_SubIter, Adap_SubIter);
+  /*!\brief ADAP_HMAXS \n DESCRIPTION: Maximum cell size of each level (ADAP_HMAX) \ingroup Config */
+  addDoubleListOption("ADAP_HMAXS", nAdap_Hmaxs, Adap_Hmaxs);
+  /*!\brief ADAP_HMINS \n DESCRIPTION: Minimum cell size of each level (ADAP_HMIN) \ingroup Config */
+  addDoubleListOption("ADAP_HMINS", nAdap_Hmins, Adap_Hmins);
+  /*!\brief ADAP_NORMS \n DESCRIPTION: Lp-norm of the metric of each level (ADAP_NORM) \ingroup Config */
+  addDoubleListOption("ADAP_NORMS", nAdap_Norms, Adap_Norms);
+  /*!\brief ADAP_ARMAXS \n DESCRIPTION: Maximum cell aspect ratio of each level (ADAP_ARMAX) \ingroup Config */
+  addDoubleListOption("ADAP_ARMAXS", nAdap_ARmaxs, Adap_ARmaxs);
+  /*!\brief ADAP_FLOW_ITER \n DESCRIPTION: Flow iterations on the adapted meshes of each level (ITER) \ingroup Config */
+  addULongListOption("ADAP_FLOW_ITER", nAdap_FlowIter, Adap_FlowIter);
+  /*!\brief ADAP_FLOW_CFL \n DESCRIPTION: Initial flow CFL on the adapted meshes of each level (CFL_NUMBER) \ingroup Config */
+  addDoubleListOption("ADAP_FLOW_CFL", nAdap_FlowCFL, Adap_FlowCFL);
+  /*!\brief ADAP_RESIDUAL_REDUCTION \n DESCRIPTION: The flow solve on the adapted meshes of each level also stops when
+   * the residuals of CONV_FIELD have dropped by this many orders of magnitude from their largest value in that solve
+   * (default: only CONV_RESIDUAL_MINVAL) \ingroup Config */
+  addDoubleListOption("ADAP_RESIDUAL_REDUCTION", nAdap_ResRed, Adap_ResRed);
+  /*!\brief ADAP_TRANSFER \n DESCRIPTION: Solution transfer to the adapted meshes \n OPTIONS: BARYCENTRIC, FREESTREAM
+   * (no transfer, for debugging) \n DEFAULT: BARYCENTRIC \ingroup Config */
+  addEnumOption("ADAP_TRANSFER", Kind_Adap_Transfer, Adap_Transfer_Map, ADAP_TRANSFER::BARYCENTRIC);
+
+  /*--- Goal-oriented adaptation loop options, not used by the C++ code yet (kept so existing config files parse) ---*/
   addPythonOption("ADAP_ADJ_ITER");
-  addPythonOption("ADAP_FLOW_CFL");
   addPythonOption("ADAP_ADJ_CFL");
-  addPythonOption("ADAP_RESIDUAL_REDUCTION");
 
   /* END_CONFIG_OPTIONS */
 
@@ -4999,6 +5021,7 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
   /*--- Only the direct problem promotes a Full-MG startup. Downgrade before FinestMesh is
    *    derived from the cycle, or it stays on the coarsest level for the entire run. ---*/
 
+  Kind_MGCycle_File = Kind_MGCycle;
   if (Restart || ((Kind_MGCycle == MG_CYCLE::FULL) && ContinuousAdjoint)) Kind_MGCycle = MG_CYCLE::V;
 
   FinestMesh = MESH_0;
@@ -6101,6 +6124,77 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
   }
   if (!(Adap_Angle > 0.0) || !(Adap_Angle < 180.0)) {
     SU2_MPI::Error("ADAP_ANGLE must be between 0 and 180 degrees (exclusive).", CURRENT_FUNCTION);
+  }
+
+  /*--- Mesh adaptation loop: expand the per-level lists (one value for every level, or one per ADAP_SIZES entry,
+   *    or the scalar option when the list is not given) and check every level. ---*/
+  Adap_Levels.clear();
+  if (Adap_Loop) {
+    if (!Compute_Metric) SU2_MPI::Error("ADAP_LOOP= YES needs COMPUTE_METRIC= YES.", CURRENT_FUNCTION);
+    if (Time_Domain) {
+      SU2_MPI::Error("ADAP_LOOP is only available for steady problems for now.", CURRENT_FUNCTION);
+    }
+    if (nAdap_Sizes == 0) SU2_MPI::Error("ADAP_LOOP= YES needs ADAP_SIZES.", CURRENT_FUNCTION);
+
+    auto checkLength = [&](const string& name, unsigned short n) {
+      if (n > 1 && n != nAdap_Sizes) {
+        SU2_MPI::Error(name + " has " + to_string(n) + " values, it needs 1 or one per entry of ADAP_SIZES (" +
+                       to_string(nAdap_Sizes) + ").", CURRENT_FUNCTION);
+      }
+    };
+    checkLength("ADAP_SUBITER", nAdap_SubIter);
+    checkLength("ADAP_HMAXS", nAdap_Hmaxs);
+    checkLength("ADAP_HMINS", nAdap_Hmins);
+    checkLength("ADAP_NORMS", nAdap_Norms);
+    checkLength("ADAP_ARMAXS", nAdap_ARmaxs);
+    checkLength("ADAP_FLOW_ITER", nAdap_FlowIter);
+    checkLength("ADAP_FLOW_CFL", nAdap_FlowCFL);
+    checkLength("ADAP_RESIDUAL_REDUCTION", nAdap_ResRed);
+
+    /*--- Value of a list at a level, or the default without the list. ---*/
+    auto pick = [](unsigned short n, const auto* list, unsigned short iLevel, auto value) {
+      if (n == 0) return value;
+      return decltype(value)(list[min<unsigned short>(iLevel, n - 1)]);
+    };
+
+    /*--- ITER without the iterations that fixed-CL mode adds for the CL derivative (added back per level). ---*/
+    const unsigned long flowIter = nInnerIter - ((Fixed_CL_Mode && !ContinuousAdjoint && !DiscreteAdjoint) ?
+                                                 Iter_dCL_dAlpha : 0);
+
+    for (unsigned short iLevel = 0; iLevel < nAdap_Sizes; iLevel++) {
+      CAdapLevel level;
+      level.complexity = Adap_Sizes[iLevel];
+      level.subIter = pick(nAdap_SubIter, Adap_SubIter, iLevel, 1ul);
+      level.hmax = pick(nAdap_Hmaxs, Adap_Hmaxs, iLevel, Adap_Hmax);
+      level.hmin = pick(nAdap_Hmins, Adap_Hmins, iLevel, Adap_Hmin);
+      level.norm = pick(nAdap_Norms, Adap_Norms, iLevel, Adap_Norm);
+      level.armax = pick(nAdap_ARmaxs, Adap_ARmaxs, iLevel, Adap_ARmax);
+      level.flowIter = pick(nAdap_FlowIter, Adap_FlowIter, iLevel, flowIter);
+      level.flowCFL = pick(nAdap_FlowCFL, Adap_FlowCFL, iLevel, CFLFineGrid);
+      level.residualReduction = pick(nAdap_ResRed, Adap_ResRed, iLevel, su2double(0.0));
+
+      const string where = " (adaptation level " + to_string(iLevel) + ").";
+      auto finite = [](su2double value) { return std::isfinite(SU2_TYPE::GetValue(value)); };
+      if (level.complexity == 0) SU2_MPI::Error("ADAP_SIZES must be positive" + where, CURRENT_FUNCTION);
+      if (level.subIter == 0) SU2_MPI::Error("ADAP_SUBITER must be positive" + where, CURRENT_FUNCTION);
+      if (!(level.hmin > 0.0) || !(level.hmax > level.hmin) || !finite(level.hmax)) {
+        SU2_MPI::Error("Adaptation sizes must satisfy 0 < ADAP_HMIN(S) < ADAP_HMAX(S)" + where, CURRENT_FUNCTION);
+      }
+      if (!(level.norm >= 1.0) || !finite(level.norm)) {
+        SU2_MPI::Error("ADAP_NORM(S) must be a finite value >= 1" + where, CURRENT_FUNCTION);
+      }
+      if (!(level.armax >= 1.0) || !finite(level.armax)) {
+        SU2_MPI::Error("ADAP_ARMAX(S) must be a finite value >= 1" + where, CURRENT_FUNCTION);
+      }
+      if (level.flowIter == 0) SU2_MPI::Error("ADAP_FLOW_ITER must be positive" + where, CURRENT_FUNCTION);
+      if (!(level.flowCFL > 0.0) || !finite(level.flowCFL)) {
+        SU2_MPI::Error("ADAP_FLOW_CFL must be a finite value > 0" + where, CURRENT_FUNCTION);
+      }
+      if (nAdap_ResRed > 0 && (!(level.residualReduction > 0.0) || !finite(level.residualReduction))) {
+        SU2_MPI::Error("ADAP_RESIDUAL_REDUCTION must be a finite value > 0" + where, CURRENT_FUNCTION);
+      }
+      Adap_Levels.push_back(level);
+    }
   }
 
 }

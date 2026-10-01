@@ -1243,6 +1243,34 @@ struct CMGOptions {
 };
 
 /*!
+ * \brief Solution transfer of the mesh adaptation loop (from the previous mesh to the adapted one).
+ */
+enum class ADAP_TRANSFER {
+  BARYCENTRIC,  /*!< \brief Barycentric (P1) interpolation of the previous solution. */
+  FREESTREAM,   /*!< \brief No transfer, the adapted mesh starts from the free stream (for debugging). */
+};
+static const MapType<std::string, ADAP_TRANSFER> Adap_Transfer_Map = {
+  MakePair("BARYCENTRIC", ADAP_TRANSFER::BARYCENTRIC)
+  MakePair("FREESTREAM", ADAP_TRANSFER::FREESTREAM)
+};
+
+/*!
+ * \brief Options of one level (one entry of ADAP_SIZES) of the mesh adaptation loop, lists expanded.
+ */
+struct CAdapLevel {
+  unsigned long complexity{0};    /*!< \brief Target complexity of the adapted meshes (ADAP_SIZES). */
+  unsigned long subIter{1};       /*!< \brief Number of consecutive adaptations with this complexity (ADAP_SUBITER). */
+  su2double hmax{0.0};            /*!< \brief Maximum cell size (ADAP_HMAXS, else ADAP_HMAX). */
+  su2double hmin{0.0};            /*!< \brief Minimum cell size (ADAP_HMINS, else ADAP_HMIN). */
+  su2double norm{0.0};            /*!< \brief Lp-norm of the metric (ADAP_NORMS, else ADAP_NORM). */
+  su2double armax{0.0};           /*!< \brief Maximum cell aspect ratio (ADAP_ARMAXS, else ADAP_ARMAX). */
+  unsigned long flowIter{0};      /*!< \brief Iterations of the flow solve on these meshes (ADAP_FLOW_ITER, else ITER). */
+  su2double flowCFL{0.0};         /*!< \brief Initial CFL of the flow solve (ADAP_FLOW_CFL, else CFL_NUMBER). */
+  su2double residualReduction{0.0}; /*!< \brief Orders of magnitude of residual drop that also stop the flow solve
+                                         (ADAP_RESIDUAL_REDUCTION), 0 for none. */
+};
+
+/*!
  * \brief SST rough-wall boundary conditions Options
  */
 enum class ROUGHSST_MODEL {
