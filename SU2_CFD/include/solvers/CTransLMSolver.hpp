@@ -253,4 +253,11 @@ public:
    */
   void LoadRestart(CGeometry** geometry, CSolver*** solver, CConfig* config, int val_iter, bool val_update_geo) final;
 
+  /*!
+   * \brief Not available, the restart of the transition model does not use it (the turbulence version does not apply).
+   */
+  void UpdateLoadedSolution(CGeometry**, CSolver***, CConfig*) final {
+    SU2_MPI::Error("Not available for the transition model.", CURRENT_FUNCTION);
+  }
+
 };

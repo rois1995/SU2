@@ -1054,6 +1054,15 @@ class CFVMFlowSolverBase : public CSolver {
   void LoadRestart(CGeometry **geometry, CSolver ***solver, CConfig *config, int iter, bool update_geo) override;
 
   /*!
+   * \brief Complete a solution that was set on the finest grid only: communicate it, update the primitive variables
+   *        (unless a turbulence or species solver does it) and restrict it to the coarse multigrid levels.
+   * \param[in] geometry - Geometrical definition of the problem (all multigrid levels).
+   * \param[in] solver - Container vector with all of the solvers.
+   * \param[in] config - Definition of the particular problem.
+   */
+  void UpdateLoadedSolution(CGeometry **geometry, CSolver ***solver, CConfig *config) override;
+
+  /*!
    * \brief Set the initial condition for the Euler Equations.
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] solver_container - Container with all the solutions.

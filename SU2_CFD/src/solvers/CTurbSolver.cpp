@@ -163,6 +163,23 @@ void CTurbSolver::LoadRestart(CGeometry** geometry, CSolver*** solver, CConfig* 
   }  // end safe global access, pre and postprocessing are thread-safe.
   END_SU2_OMP_SAFE_GLOBAL_ACCESS
 
+  /*--- Communicate, compute the eddy viscosity and restrict the loaded solution. ---*/
+
+  UpdateLoadedSolution(geometry, solver, config);
+
+  /*--- Go back to single threaded execution. ---*/
+  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+    /*--- Delete the class memory that is used to load the restart. ---*/
+
+    Restart_Vars = decltype(Restart_Vars){};
+    Restart_Data = decltype(Restart_Data){};
+  }
+  END_SU2_OMP_SAFE_GLOBAL_ACCESS
+}
+
+void CTurbSolver::UpdateLoadedSolution(CGeometry** geometry, CSolver*** solver, CConfig* config) {
+  SU2_ZONE_SCOPED
+
   /*--- MPI solution and compute the eddy viscosity ---*/
 
   solver[MESH_0][TURB_SOL]->InitiateComms(geometry[MESH_0], config, MPI_QUANTITIES::SOLUTION);
@@ -220,15 +237,6 @@ void CTurbSolver::LoadRestart(CGeometry** geometry, CSolver*** solver, CConfig* 
     solver[iMesh][TURB_SOL]->InitiateComms(geometry[iMesh], config, MPI_QUANTITIES::SOLUTION_EDDY);
     solver[iMesh][TURB_SOL]->CompleteComms(geometry[iMesh], config, MPI_QUANTITIES::SOLUTION_EDDY);
   }
-
-  /*--- Go back to single threaded execution. ---*/
-  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
-    /*--- Delete the class memory that is used to load the restart. ---*/
-
-    Restart_Vars = decltype(Restart_Vars){};
-    Restart_Data = decltype(Restart_Data){};
-  }
-  END_SU2_OMP_SAFE_GLOBAL_ACCESS
 }
 
 void CTurbSolver::Impose_Fixed_Values(const CGeometry *geometry, const CConfig *config){

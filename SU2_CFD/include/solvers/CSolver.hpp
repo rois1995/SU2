@@ -3509,6 +3509,18 @@ public:
                                   bool val_update_geo) { }
 
   /*!
+   * \brief Complete a solution that was set on the finest grid only (restart file, solution transfer to a new mesh):
+   *        communicate it, update the variables that depend on it and restrict it to the coarse multigrid levels.
+   * \note Only for the solvers that implement LoadRestart this way (compressible/incompressible flow, turbulence).
+   * \param[in] geometry - Geometrical definition of the problem (all multigrid levels).
+   * \param[in] solver - Container vector with all of the solvers.
+   * \param[in] config - Definition of the particular problem.
+   */
+  inline virtual void UpdateLoadedSolution(CGeometry **geometry, CSolver ***solver, CConfig *config) {
+    SU2_MPI::Error("Not available for this solver.", CURRENT_FUNCTION);
+  }
+
+  /*!
    * \brief Read a native SU2 restart file in ASCII format.
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] config - Definition of the particular problem.

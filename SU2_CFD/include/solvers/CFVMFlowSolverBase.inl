@@ -989,6 +989,33 @@ void CFVMFlowSolverBase<V, R>::LoadRestart_impl(CGeometry **geometry, CSolver **
     }
   }
 
+  /*--- Communicate, preprocess and restrict the loaded solution. ---*/
+
+  UpdateLoadedSolution(geometry, solver, config);
+
+  /*--- Update the old geometry (coordinates n and n-1) in dual time-stepping strategy. ---*/
+  const bool dual_time = ((config->GetTime_Marching() == TIME_MARCHING::DT_STEPPING_1ST) ||
+                          (config->GetTime_Marching() == TIME_MARCHING::DT_STEPPING_2ND));
+  if (dual_time && config->GetGrid_Movement() && !config->GetDeform_Mesh() &&
+      (config->GetKind_GridMovement() != RIGID_MOTION)) {
+    Restart_OldGeometry(geometry[MESH_0], config);
+  }
+
+  /*--- Go back to single threaded execution. ---*/
+  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS
+  {
+  /*--- Delete the class memory that is used to load the restart. ---*/
+
+    Restart_Vars = decltype(Restart_Vars){};
+    Restart_Data = decltype(Restart_Data){};
+  }
+  END_SU2_OMP_SAFE_GLOBAL_ACCESS
+}
+
+template <class V, ENUM_REGIME R>
+void CFVMFlowSolverBase<V, R>::UpdateLoadedSolution(CGeometry **geometry, CSolver ***solver, CConfig *config) {
+  SU2_ZONE_SCOPED
+
   /*--- Communicate the loaded solution on the fine grid before we transfer
    it down to the coarse levels. We also call the preprocessing routine
    on the fine level in order to have all necessary quantities updated,
@@ -1018,24 +1045,6 @@ void CFVMFlowSolverBase<V, R>::LoadRestart_impl(CGeometry **geometry, CSolver **
       solver[iMesh][FLOW_SOL]->Preprocessing(geometry[iMesh], solver[iMesh], config, iMesh, NO_RK_ITER, RUNTIME_FLOW_SYS, true);
     }
   }
-
-  /*--- Update the old geometry (coordinates n and n-1) in dual time-stepping strategy. ---*/
-  const bool dual_time = ((config->GetTime_Marching() == TIME_MARCHING::DT_STEPPING_1ST) ||
-                          (config->GetTime_Marching() == TIME_MARCHING::DT_STEPPING_2ND));
-  if (dual_time && config->GetGrid_Movement() && !config->GetDeform_Mesh() &&
-      (config->GetKind_GridMovement() != RIGID_MOTION)) {
-    Restart_OldGeometry(geometry[MESH_0], config);
-  }
-
-  /*--- Go back to single threaded execution. ---*/
-  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS
-  {
-  /*--- Delete the class memory that is used to load the restart. ---*/
-
-    Restart_Vars = decltype(Restart_Vars){};
-    Restart_Data = decltype(Restart_Data){};
-  }
-  END_SU2_OMP_SAFE_GLOBAL_ACCESS
 }
 
 template <class V, ENUM_REGIME R>

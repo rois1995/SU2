@@ -98,6 +98,15 @@ public:
   void LoadRestart(CGeometry** geometry, CSolver*** solver, CConfig* config, int val_iter, bool val_update_geo) override;
 
   /*!
+   * \brief Complete a solution that was set on the finest grid only: communicate it, update the flow primitives and
+   *        the eddy viscosity (unless a species or transition solver does it) and restrict it to the coarse levels.
+   * \param[in] geometry - Geometrical definition of the problem (all multigrid levels).
+   * \param[in] solver - Container vector with all of the solvers.
+   * \param[in] config - Definition of the particular problem.
+   */
+  void UpdateLoadedSolution(CGeometry** geometry, CSolver*** solver, CConfig* config) override;
+
+  /*!
    * \brief Impose fixed values to turbulence quantities.
    * \details Turbulence quantities are set to far-field values in an upstream half-plane
    * in order to keep them from decaying.
