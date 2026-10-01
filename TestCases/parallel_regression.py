@@ -1281,6 +1281,14 @@ def main():
     axial_stage2D.test_vals = [1.167491, 1.598507, -2.928578, 2.573644, -2.527392, 3.016170, 106370.000000, 106370.000000, 5.726800, 64.383000]
     test_list.append(axial_stage2D)
 
+    # 2D axial stage (inviscid) with multigrid and a ramped rotor speed
+    axial_stage2D_ramp_mg           = TestCase('axial_stage2D_ramp_mg')
+    axial_stage2D_ramp_mg.cfg_dir   = "turbomachinery/axial_stage_2D"
+    axial_stage2D_ramp_mg.cfg_file  = "Axial_stage2D_ramp_MG.cfg"
+    axial_stage2D_ramp_mg.test_iter = 5
+    axial_stage2D_ramp_mg.test_vals = [0.458537, 1.214104, -2.835665, 2.669013, -2.514514, 2.807126, 106410.000000, 106410.000000, 5.778600, 64.171000]
+    test_list.append(axial_stage2D_ramp_mg)
+
     # 2D transonic stator restart
     transonic_stator_restart           = TestCase('transonic_stator_restart')
     transonic_stator_restart.cfg_dir   = "turbomachinery/transonic_stator_2D"

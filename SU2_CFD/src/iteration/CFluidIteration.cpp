@@ -301,7 +301,7 @@ void CFluidIteration::UpdateRamps(CGeometry**** geometry_container, CConfig** co
   /*--- Generic function for handling ramps ---*/
   // Grid updates (i.e. rotation/translation) handled seperately to boundary (i.e. pressure/mass flow) updates
   auto* config = config_container[iZone];
-  auto* geometry = geometry_container[iZone][INST_0][ZONE_0];
+  auto* geometry = geometry_container[iZone][INST_0][MESH_0];
 
   std::string msg = "\nUpdated rotating frame grid velocities for zone ";
   if (ramp_flag == RAMP_TYPE::GRID && config->GetKind_GridMovement() == ENUM_GRIDMOVEMENT::STEADY_TRANSLATION)
@@ -323,8 +323,11 @@ void CFluidIteration::UpdateRamps(CGeometry**** geometry_container, CConfig** co
         const auto vel = ini_vel + iter * (final_vel - ini_vel)/finalRamp_Iter;
         config->SetRate(vel);
         if (rank == MASTER_NODE && iter > 0) cout << msg << iZone << ".\n";
-        geometry->SetVelocity(config, true);
-        geometry->SetShroudVelocity(config);
+        for (auto iMGlevel = 0u; iMGlevel <= config->GetnMGLevels(); iMGlevel++) {
+          auto* geometry_lvl = geometry_container[iZone][INST_0][iMGlevel];
+          geometry_lvl->SetVelocity(config, iMGlevel == MESH_0);
+          geometry_lvl->SetShroudVelocity(config);
+        }
       }
       // Update average turbo values
       geometry->SetAvgTurboValue(config, iZone, INFLOW, false);
