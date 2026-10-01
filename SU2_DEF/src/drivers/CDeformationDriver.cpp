@@ -394,9 +394,18 @@ void CDeformationDriver::DeformLegacy() {
               cout << "Recursively lowering deformation magnitude." << endl;
             }
 
-            /*--- Load initial deformation values. ---*/
+            /*--- Load initial deformation values. Only the FFD design variables return them,
+             * for the other design variables they are the values in the config. ---*/
 
             auto InitialDeformation = TotalDeformation;
+            if (InitialDeformation.empty()) {
+              InitialDeformation.resize(config_container[iZone]->GetnDV());
+              for (auto iDV = 0u; iDV < config_container[iZone]->GetnDV(); iDV++) {
+                for (auto iDV_Value = 0u; iDV_Value < config_container[iZone]->GetnDV_Value(iDV); iDV_Value++) {
+                  InitialDeformation[iDV].push_back(config_container[iZone]->GetDV_Value(iDV, iDV_Value));
+                }
+              }
+            }
 
             unsigned short ConvexityCheckIter, RecursionDepth = 0;
             su2double DeformationFactor = 1.0, DeformationDifference = 1.0;
@@ -434,8 +443,8 @@ void CDeformationDriver::DeformLegacy() {
 
               /*--- Set deformation magnitude as percentage of initial deformation. ---*/
 
-              for (auto iDV = 0u; iDV < driver_config->GetnDV(); iDV++) {
-                for (auto iDV_Value = 0u; iDV_Value < driver_config->GetnDV_Value(iDV); iDV_Value++) {
+              for (auto iDV = 0u; iDV < config_container[iZone]->GetnDV(); iDV++) {
+                for (auto iDV_Value = 0u; iDV_Value < config_container[iZone]->GetnDV_Value(iDV); iDV_Value++) {
                   config_container[iZone]->SetDV_Value(iDV, iDV_Value,
                                                        InitialDeformation[iDV][iDV_Value] * DeformationFactor);
                 }

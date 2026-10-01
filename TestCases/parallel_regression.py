@@ -2145,6 +2145,19 @@ def main():
     pass_list.append(naca0012_cst.run_def())
     test_list.append(naca0012_cst)
 
+    # Convexity check with a design variable that is not FFD (TRANSLATION)
+    convexity_translation_def = TestCase('convexity_translation_def')
+    convexity_translation_def.cfg_dir = "deformation/intersection_prevention"
+    convexity_translation_def.cfg_file = "def_convexity_translation.cfg"
+    convexity_translation_def.test_iter = 10
+    convexity_translation_def.test_vals = [0.000113997] #residual
+    convexity_translation_def.command = TestCase.Command("mpirun -n 2", "SU2_DEF")
+    convexity_translation_def.timeout = 1600
+    convexity_translation_def.tol = 1e-8
+
+    pass_list.append(convexity_translation_def.run_def())
+    test_list.append(convexity_translation_def)
+
     # 2D FD streamwise periodic cht, avg temp obj func
     fd_sp_pinArray_cht_2d_dp_hf = TestCase('fd_sp_pinArray_cht_2d_dp_hf')
     fd_sp_pinArray_cht_2d_dp_hf.cfg_dir = "incomp_navierstokes/streamwise_periodic/chtPinArray_2d"
