@@ -31,6 +31,7 @@
 #include "../../../Common/include/adaptation/CSimplexMesh.hpp"
 
 class CSolutionTransfer;
+class CRemesher;
 
 /*!
  * \class CSinglezoneDriver
@@ -121,9 +122,11 @@ public:
 
   /*!
    * \brief Compute the mesh adaptation metric (COMPUTE_METRIC) from the flow solution.
-   * \note Called at the end of Postprocess, outside of OpenMP parallel regions.
+   * \note Called at the end of Postprocess, outside of OpenMP parallel regions. The metric source of mesh adaptation:
+   *       feature-based (Hessians of the ADAP_SENSOR fields); a driver with an adjoint overrides it for a goal-based
+   *       metric. The metric is left in the flow variables (CVariable::GetMetric()).
    */
-  void ComputeMetric();
+  virtual void ComputeMetric();
 
   /*!
    * \brief Remesh with MMG from the metric of the current flow solution (COMPUTE_METRIC= YES).
@@ -132,6 +135,14 @@ public:
    * \return The adapted mesh, validated.
    */
   CSimplexMesh RemeshFromMetric();
+
+  /*!
+   * \brief Remesh with the given remesher from the metric of the current flow solution (COMPUTE_METRIC= YES).
+   * \note As RemeshFromMetric(), with any remesher.
+   * \param[in] remesher - Makes the new mesh from the geometry and the metric.
+   * \return The adapted mesh, validated.
+   */
+  CSimplexMesh RemeshFromMetric(CRemesher& remesher);
 
   /*!
    * \brief Replace the mesh of the problem: geometry, solvers, numerics, integration and iteration are built for

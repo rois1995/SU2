@@ -661,3 +661,27 @@ CSimplexMesh CMMGInterface::Adapt(const CSimplexMesh&) {
 void CMMGInterface::SaveMesh(const string&) const { SU2_MPI::Error("SU2 was built without MMG.", CURRENT_FUNCTION); }
 
 #endif
+
+CMMGRemesher::CMMGRemesher() {
+#ifndef HAVE_MMG
+  SU2_MPI::Error("Mesh adaptation needs MMG: SU2 was built without it, reconfigure with -Denable-mmg=true.",
+                 CURRENT_FUNCTION);
+#endif
+}
+
+CSimplexMesh CMMGRemesher::Remesh(const CConfig& config, const CGeometry& geometry, const su2activematrix& metric) {
+  const auto mesh = CMMGInterface::ExtractMesh(config, geometry, metric);
+
+  if (SU2_MPI::GetRank() == MASTER_NODE)
+    cout << endl << "------------------------------ Remesh (MMG) -----------------------------" << endl;
+
+  CMMGInterface mmg(config);
+  auto adapted = mmg.Adapt(mesh);
+
+  if (SU2_MPI::GetRank() == MASTER_NODE) {
+    cout << "Remeshed " << mesh.GetnPoint() << " points, " << mesh.GetnElem() << " elements into "
+         << adapted.GetnPoint() << " points, " << adapted.GetnElem() << " elements." << endl;
+  }
+  return adapted;
+}
+

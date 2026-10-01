@@ -32,6 +32,7 @@
 
 #include "../containers/C2DContainer.hpp"
 #include "CSimplexMesh.hpp"
+#include "CRemesher.hpp"
 
 class CConfig;
 class CGeometry;
@@ -182,4 +183,19 @@ class CMMGInterface {
   Parameters params;                  /*!< \brief Remeshing parameters. */
   std::vector<CSimplexMesh::Marker> markerInfo; /*!< \brief Names and references of the loaded markers. */
   unsigned short nDim = 0;            /*!< \brief Dimension of the loaded mesh. */
+};
+
+/*!
+ * \class CMMGRemesher
+ * \brief Remesher of the adaptation loop with serial MMG: CMMGInterface::ExtractMesh, then CMMGInterface::Adapt with
+ *        the remeshing parameters of the config at the time of the call.
+ */
+class CMMGRemesher final : public CRemesher {
+ public:
+  /*!
+   * \brief Constructor, stops with an error if SU2 was built without MMG.
+   */
+  CMMGRemesher();
+
+  CSimplexMesh Remesh(const CConfig& config, const CGeometry& geometry, const su2activematrix& metric) override;
 };

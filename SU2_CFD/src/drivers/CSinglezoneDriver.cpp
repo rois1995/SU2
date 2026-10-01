@@ -231,6 +231,11 @@ void CSinglezoneDriver::CheckMeshAdaptation() const {
 }
 
 CSimplexMesh CSinglezoneDriver::RemeshFromMetric() {
+  CMMGRemesher remesher;
+  return RemeshFromMetric(remesher);
+}
+
+CSimplexMesh CSinglezoneDriver::RemeshFromMetric(CRemesher& remesher) {
   SU2_ZONE_SCOPED
 
   CheckMeshAdaptation();
@@ -244,19 +249,7 @@ CSimplexMesh CSinglezoneDriver::RemeshFromMetric() {
 
   const auto* geometry = geometry_container[ZONE_0][INST_0][MESH_0];
   const auto* solver_flow = solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL];
-  const auto mesh = CMMGInterface::ExtractMesh(*config, *geometry, solver_flow->GetNodes()->GetMetric());
-
-  if (rank == MASTER_NODE)
-    cout << endl << "------------------------------ Remesh (MMG) -----------------------------" << endl;
-
-  CMMGInterface mmg(*config);
-  auto adapted = mmg.Adapt(mesh);
-
-  if (rank == MASTER_NODE) {
-    cout << "Remeshed " << mesh.GetnPoint() << " points, " << mesh.GetnElem() << " elements into "
-         << adapted.GetnPoint() << " points, " << adapted.GetnElem() << " elements." << endl;
-  }
-  return adapted;
+  return remesher.Remesh(*config, *geometry, solver_flow->GetNodes()->GetMetric());
 }
 
 void CSinglezoneDriver::ReplaceMesh(const CSimplexMesh& mesh, CSolutionTransfer& transfer) {
