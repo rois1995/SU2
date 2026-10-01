@@ -106,6 +106,18 @@ class CVolumetricMovement : public CGridMovement {
   su2double GetQuadrilateral_Area(su2double CoordCorners[8][3]) const;
 
   /*!
+   * \brief Compute the smallest Jacobian determinant at the corners of an element (cross product of the two edges in
+   *        2D, triple product of the three edges in 3D). It is negative if the element is inverted with respect to the
+   *        orientation set by CPhysicalGeometry::Check_IntElem_Orientation.
+   * \note The volumes above sum absolute values, so they are positive for inverted elements, and without the absolute
+   *       values the tetrahedral decomposition of a warped (valid) hexahedron can have a negative sum.
+   * \param[in] nNodes - Number of nodes of the element (with nDim it identifies the type of element).
+   * \param[in] CoordCorners - Coordinates of the corners of the element.
+   * \return Smallest corner Jacobian determinant.
+   */
+  su2double GetMinCornerJacobian(unsigned short nNodes, const su2double CoordCorners[8][3]) const;
+
+  /*!
    * \brief Check for negative volumes (all elements) after performing grid deformation.
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] Screen_Output - determines if text is written to screen

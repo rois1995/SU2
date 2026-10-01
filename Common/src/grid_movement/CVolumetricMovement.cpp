@@ -107,14 +107,16 @@ void CVolumetricMovement::ComputeDeforming_Element_Volume(CGeometry* geometry, s
       if (nNodes == 8) Volume = GetHexa_Volume(CoordCorners);
     }
 
-    RightVol = true;
-    if (Volume < 0.0) RightVol = false;
+    /*--- The volume is positive also for inverted elements, these are found from the corner Jacobians.
+     Each element is counted only on the rank that owns its first node. ---*/
+
+    RightVol = (GetMinCornerJacobian(nNodes, CoordCorners) >= 0.0);
 
     MaxVolume = max(MaxVolume, Volume);
     MinVolume = min(MinVolume, Volume);
     geometry->elem[iElem]->SetVolume(Volume);
 
-    if (!RightVol) ElemCounter++;
+    if (!RightVol && geometry->nodes->GetDomain(PointCorners[0])) ElemCounter++;
   }
 
 #ifdef HAVE_MPI
@@ -136,8 +138,8 @@ void CVolumetricMovement::ComputeDeforming_Element_Volume(CGeometry* geometry, s
     geometry->elem[iElem]->SetVolume(Volume);
   }
 
-  if ((ElemCounter != 0) && (rank == MASTER_NODE) && (Screen_Output))
-    cout << "There are " << ElemCounter << " elements with negative volume.\n" << endl;
+  if ((ElemCounter != 0) && (rank == MASTER_NODE))
+    cout << "WARNING: There are " << ElemCounter << " inverted elements (negative Jacobian at a corner).\n" << endl;
 }
 
 void CVolumetricMovement::ComputenNonconvexElements(CGeometry* geometry, bool Screen_Output) {
@@ -476,6 +478,63 @@ su2double CVolumetricMovement::GetHexa_Volume(su2double CoordCorners[8][3]) cons
   Volume += fabs(CrossProduct[0] + CrossProduct[1] + CrossProduct[2]) / 6.0;
 
   return Volume;
+}
+
+su2double CVolumetricMovement::GetMinCornerJacobian(unsigned short nNodes, const su2double CoordCorners[8][3]) const {
+  su2double MinJacobian = 0.0;
+
+  if (nDim == 2) {
+    /*--- Cross product of the edges to the next and to the previous corner (counterclockwise elements). ---*/
+
+    for (unsigned short iNode = 0; iNode < nNodes; iNode++) {
+      const su2double* Coord = CoordCorners[iNode];
+      const su2double* Next = CoordCorners[(iNode + 1) % nNodes];
+      const su2double* Prev = CoordCorners[(iNode + nNodes - 1) % nNodes];
+
+      const su2double Jacobian =
+          (Next[0] - Coord[0]) * (Prev[1] - Coord[1]) - (Next[1] - Coord[1]) * (Prev[0] - Coord[0]);
+      MinJacobian = (iNode == 0) ? Jacobian : min(MinJacobian, Jacobian);
+    }
+    return MinJacobian;
+  }
+
+  /*--- For each corner, the three neighbors that form a right-handed set of edges in a valid element
+   (VTK numbering, orientation of CPhysicalGeometry::Check_IntElem_Orientation). For the pyramid the apex
+   is skipped, for the tetrahedron one corner is enough. ---*/
+
+  static constexpr unsigned short Tetra[1][4] = {{0, 1, 2, 3}};
+  static constexpr unsigned short Pyram[4][4] = {{0, 1, 3, 4}, {1, 2, 0, 4}, {2, 3, 1, 4}, {3, 0, 2, 4}};
+  static constexpr unsigned short Prism[6][4] = {{0, 2, 1, 3}, {1, 0, 2, 4}, {2, 1, 0, 5},
+                                                 {3, 4, 5, 0}, {4, 5, 3, 1}, {5, 3, 4, 2}};
+  static constexpr unsigned short Hexa[8][4] = {{0, 1, 3, 4}, {1, 2, 0, 5}, {2, 3, 1, 6}, {3, 0, 2, 7},
+                                                {4, 7, 5, 0}, {5, 4, 6, 1}, {6, 5, 7, 2}, {7, 6, 4, 3}};
+
+  const unsigned short(*Corners)[4] = Tetra;
+  unsigned short nCorners = 1;
+  if (nNodes == 5) {
+    Corners = Pyram;
+    nCorners = 4;
+  } else if (nNodes == 6) {
+    Corners = Prism;
+    nCorners = 6;
+  } else if (nNodes == 8) {
+    Corners = Hexa;
+    nCorners = 8;
+  }
+
+  for (unsigned short iCorner = 0; iCorner < nCorners; iCorner++) {
+    const auto* Index = Corners[iCorner];
+    su2double r1[3], r2[3], r3[3];
+    for (unsigned short iDim = 0; iDim < 3; iDim++) {
+      r1[iDim] = CoordCorners[Index[1]][iDim] - CoordCorners[Index[0]][iDim];
+      r2[iDim] = CoordCorners[Index[2]][iDim] - CoordCorners[Index[0]][iDim];
+      r3[iDim] = CoordCorners[Index[3]][iDim] - CoordCorners[Index[0]][iDim];
+    }
+    const su2double Jacobian = (r1[1] * r2[2] - r1[2] * r2[1]) * r3[0] + (r1[2] * r2[0] - r1[0] * r2[2]) * r3[1] +
+                               (r1[0] * r2[1] - r1[1] * r2[0]) * r3[2];
+    MinJacobian = (iCorner == 0) ? Jacobian : min(MinJacobian, Jacobian);
+  }
+  return MinJacobian;
 }
 
 void CVolumetricMovement::Rigid_Rotation(CGeometry* geometry, CConfig* config, unsigned short iZone,
