@@ -80,12 +80,14 @@ class CDriver : public CDriverBase {
   unsigned short** interface_types;  /*!< \brief Type of coupling between the distinct (physical) zones. */
   bool dry_run;                      /*!< \brief Flag if SU2_CFD was started as dry-run via "SU2_CFD -d <config>.cfg" */
 
+ public:
   /*!
    * \brief Part of a config that the geometry preprocessing and the solve change at run time: number of multigrid
    *        levels (reduced by the agglomeration), CFL of each level, multigrid damping factors, finest mesh of the
    *        full multigrid, iteration counters.
    * \note Saved for ZONE_0 before the geometry is built and restored before the mesh is replaced (mesh adaptation),
-   *       so that the solve on a new mesh starts like a fresh run on it.
+   *       so that the solve on a new mesh starts like a fresh run on it. Time-domain runs continue in time: their
+   *       time counters (time iteration, iteration offset) are not restored.
    */
   struct CConfigRunState {
     unsigned short nMGLevels = 0;      /*!< \brief Requested number of coarse levels (MGLEVEL). */
@@ -101,10 +103,12 @@ class CDriver : public CDriverBase {
     void Save(const CConfig& config);
 
     /*!
-     * \brief Restore the saved state into a config.
+     * \brief Restore the saved state into a config (not the time counters of a time-domain config).
      */
     void Restore(CConfig& config) const;
   };
+
+ protected:
   CConfigRunState initialRunState; /*!< \brief Run-time state of the ZONE_0 config at the start of the driver. */
 
  public:

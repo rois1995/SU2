@@ -311,10 +311,14 @@ void CDriver::CConfigRunState::Restore(CConfig& config) const {
   for (unsigned short iMesh = 0; iMesh <= nMGLevels; iMesh++) config.SetCFL(iMesh, CFL[iMesh]);
   config.SetDamp_Res_Restric(dampResRestric);
   config.SetDamp_Correc_Prolong(dampCorrecProlong);
-  config.SetTimeIter(timeIter);
   config.SetOuterIter(outerIter);
   config.SetInnerIter(innerIter);
-  config.SetExtIter_OffSet(extIterOffset);
+
+  /*--- A time-domain run continues in time on the new mesh, it keeps its current time counters. ---*/
+  if (!config.GetTime_Domain()) {
+    config.SetTimeIter(timeIter);
+    config.SetExtIter_OffSet(extIterOffset);
+  }
 }
 
 void CDriver::InitializeContainers(){
