@@ -252,23 +252,20 @@ TEST_CASE("Metric intersection", "[Adaptation]") {
 }
 
 /*!
- * \brief Unit cube with rotational periodicity: y_minus is mapped to x_minus by a rotation of 90 degrees
- *        about the z axis, the other faces are far-field. A compressible flow solver provides the periodic
- *        communications.
+ * \brief Unit cube (8^3 hexahedra) with the given markers and a compressible flow solver, which computes the
+ *        adaptation Hessians (MACH sensor) and provides the periodic communications.
  */
-struct PeriodicBoxTest {
+struct AdaptBoxTest {
   static constexpr su2double h = 0.125;
   std::unique_ptr<CConfig> config;
   std::unique_ptr<CGeometry> geometry;
   CSolver** solver = nullptr;
 
-  explicit PeriodicBoxTest(const string& method) {
+  AdaptBoxTest(const string& markers, const string& method) {
     const string configOptions =
         "SOLVER= EULER\n"
         "MESH_FORMAT= BOX\n"
-        "INIT_OPTION= TD_CONDITIONS\n"
-        "MARKER_PERIODIC= (y_minus, x_minus, 0.0, 0.0, 0.0, 0.0, 0.0, 90.0, 0.0, 0.0, 0.0)\n"
-        "MARKER_FAR= (x_plus, y_plus, z_minus, z_plus)\n"
+        "INIT_OPTION= TD_CONDITIONS\n" + markers +
         "MESH_BOX_SIZE= 8,8,8\n"
         "MESH_BOX_LENGTH= 1,1,1\n"
         "MESH_BOX_OFFSET= 0,0,0\n"
@@ -304,10 +301,21 @@ struct PeriodicBoxTest {
     cout.rdbuf(origBuf);
   }
 
-  ~PeriodicBoxTest() {
+  ~AdaptBoxTest() {
     if (solver != nullptr) delete solver[FLOW_SOL];
     delete[] solver;
   }
+};
+
+/*!
+ * \brief Unit cube with rotational periodicity: y_minus is mapped to x_minus by a rotation of 90 degrees
+ *        about the z axis, the other faces are far-field.
+ */
+struct PeriodicBoxTest : public AdaptBoxTest {
+  explicit PeriodicBoxTest(const string& method)
+      : AdaptBoxTest("MARKER_PERIODIC= (y_minus, x_minus, 0.0, 0.0, 0.0, 0.0, 0.0, 90.0, 0.0, 0.0, 0.0)\n"
+                     "MARKER_FAR= (x_plus, y_plus, z_minus, z_plus)\n",
+                     method) {}
 
   /*!
    * \brief Points where the Hessian of a quadratic field is exact: two layers away from the far-field faces
@@ -422,3 +430,48 @@ TEST_CASE("Periodic Hessian and metric copy", "[Adaptation]") {
   CHECK(errHessian < 1e-12);
   CHECK(errMetric < 1e-12);
 }
+
+/*!
+ * \brief Set the sensor to 0.5 x^T H x + b^T x on all points, compute its gradient and Hessian.
+ */
+void setQuadraticSensor(AdaptBoxTest& test, const su2double (&H)[3][3], const su2double (&b)[3]) {
+  auto* nodes = test.solver[FLOW_SOL]->GetNodes();
+  for (auto iPoint = 0ul; iPoint < test.geometry->GetnPoint(); ++iPoint) {
+    const auto x = test.geometry->nodes->GetCoord(iPoint);
+    su2double val = 0.0;
+    for (auto iDim = 0u; iDim < 3; ++iDim) {
+      val += b[iDim] * x[iDim];
+      for (auto jDim = 0u; jDim < 3; ++jDim) val += 0.5 * x[iDim] * H[iDim][jDim] * x[jDim];
+    }
+    nodes->SetAuxVar_Adapt(iPoint, 0, val);
+  }
+  test.solver[FLOW_SOL]->SetHessian_Adapt(test.geometry.get(), test.config.get());
+}
+
+void testEulerWallHessian(const string& method) {
+  AdaptBoxTest wall("MARKER_EULER= (z_minus)\nMARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus)\n", method);
+  AdaptBoxTest far("MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_minus, z_plus)\n", method);
+
+  /*--- n.grad(phi) = 0 does not hold on an Euler wall, the sensor gradient and Hessian are not corrected
+   *    there, they are the same as with a far-field marker. ---*/
+  const su2double H[3][3] = {{2.0, 0.5, -0.3}, {0.5, 4.0, 0.2}, {-0.3, 0.2, 6.0}};
+  const su2double b[3] = {1.0, -2.0, 3.0};
+  setQuadraticSensor(wall, H, b);
+  setQuadraticSensor(far, H, b);
+
+  const auto* nodesWall = wall.solver[FLOW_SOL]->GetNodes();
+  const auto* nodesFar = far.solver[FLOW_SOL]->GetNodes();
+  su2double diff = 0.0, minNormalGrad = 1e10;
+  for (auto iPoint = 0ul; iPoint < wall.geometry->GetnPointDomain(); ++iPoint) {
+    for (auto iMet = 0u; iMet < 6; ++iMet)
+      diff = max(diff, abs(nodesWall->GetHessian(iPoint, 0, iMet) - nodesFar->GetHessian(iPoint, 0, iMet)));
+    if (wall.geometry->nodes->GetCoord(iPoint, 2) < 1e-6)
+      minNormalGrad = min(minNormalGrad, abs(nodesWall->GetGradient_Adapt()(iPoint, 0, 2)));
+  }
+  CHECK(minNormalGrad > 1.0);
+  CHECK(diff < 1e-12);
+}
+
+TEST_CASE("Euler wall Hessian GG", "[Adaptation]") { testEulerWallHessian("GREEN_GAUSS"); }
+
+TEST_CASE("Euler wall Hessian WLS", "[Adaptation]") { testEulerWallHessian("WEIGHTED_LEAST_SQUARES"); }

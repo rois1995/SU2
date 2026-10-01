@@ -34,8 +34,10 @@
  * \ingroup FvmAlgos
  * \note The gradients must be known on halo points. Hessians are computed on domain points
  *       only, the caller must communicate them.
- * \note On symmetry planes and Euler walls, the gradient of each variable is corrected
- *       like a velocity, i.e. the normal-tangential components of the Hessian are removed.
+ * \note On symmetry planes, the gradient of each variable is corrected like a velocity, i.e. the
+ *       normal-tangential components of the Hessian are removed. This is exact for a field symmetric
+ *       about the plane. Euler walls are not corrected, n.grad(phi) = 0 does not hold on curved walls
+ *       (e.g. dp/dn = rho v^2 / R) and imposing it creates large spurious normal second derivatives.
  * \note With a solver and periodic markers, periodic contributions are included (PERIODIC_HESS_GG or
  *       PERIODIC_HESS_LS), the gradient of each variable is rotated like a vector. The work arrays must
  *       then be those of the solver (CVariable::GetHessian_Field, GetHessian_Grad and GetRmatrix).
@@ -75,17 +77,17 @@ void computeHessians(CSolver* solver, ENUM_FLOW_GRADIENT method, CGeometry& geom
     for (size_t iPoint = 0; iPoint < nPoint; ++iPoint)
       for (size_t iDim = 0; iDim < nDim; ++iDim) field(iPoint, iDim) = gradient(iPoint, iVar, iDim);
 
-    /*--- The gradient is a vector, it is corrected on symmetries like the velocity (idxVel = 0). ---*/
+    /*--- The gradient is a vector, it is corrected on symmetry planes like the velocity (idxVel = 0). ---*/
 
     switch (method) {
       case GREEN_GAUSS:
         computeGradientsGreenGauss(solver, MPI_QUANTITIES::HESSIAN, PERIODIC_HESS_GG, geometry, config, field, 0,
-                                   nDim, 0, gradGrad);
+                                   nDim, 0, gradGrad, false);
         break;
       case LEAST_SQUARES:
       case WEIGHTED_LEAST_SQUARES:
         computeGradientsLeastSquares(solver, MPI_QUANTITIES::HESSIAN, PERIODIC_HESS_LS, geometry, config,
-                                     method == WEIGHTED_LEAST_SQUARES, field, 0, nDim, 0, gradGrad, Rmatrix);
+                                     method == WEIGHTED_LEAST_SQUARES, field, 0, nDim, 0, gradGrad, Rmatrix, false);
         break;
       default:
         SU2_MPI::Error("Unsupported method for Hessian computation.", CURRENT_FUNCTION);

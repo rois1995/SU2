@@ -102,17 +102,21 @@ inline void correctGradient(const size_t varBegin, const size_t varEnd, const in
  * \param[in] varEnd - Index of last variable for which to compute the gradient.
  * \param[in] idxVel - Index to velocity, -1 if no velocity is present in the solver.
  * \param[in,out] gradient - Generic object implementing operator (iPoint, iVar, iDim).
+ * \param[in] eulerWalls - Correct Euler walls too, otherwise only symmetry planes.
  */
 template <size_t nDim, class GradientType>
 void correctGradientsSymmetry(CGeometry& geometry, const CConfig& config, const size_t varBegin,
-                              const size_t varEnd, const int idxVel, GradientType& gradient) {
+                              const size_t varEnd, const int idxVel, GradientType& gradient,
+                              const bool eulerWalls = true) {
 
   /*--- Check how many symmetry planes there are. ---*/
-  std::vector<unsigned short> symMarkers;
+  std::vector<unsigned short> symMarkers, skippedMarkers;
   for (auto iMarker = 0u; iMarker < geometry.GetnMarker(); ++iMarker) {
     if (config.GetMarker_All_KindBC(iMarker) == SYMMETRY_PLANE ||
-        config.GetMarker_All_KindBC(iMarker) == EULER_WALL) {
+        (eulerWalls && config.GetMarker_All_KindBC(iMarker) == EULER_WALL)) {
       symMarkers.push_back(iMarker);
+    } else if (config.GetMarker_All_KindBC(iMarker) == EULER_WALL) {
+      skippedMarkers.push_back(iMarker);
     }
   }
 
@@ -128,7 +132,14 @@ void correctGradientsSymmetry(CGeometry& geometry, const CConfig& config, const 
       su2double unitNormal[nDim] = {};
       const auto it = geometry.symmetryNormals[iMarker].find(iVertex);
 
-      if (it != geometry.symmetryNormals[iMarker].end()) {
+      /*--- On points shared with Euler walls that are not corrected, the modified normal may have been
+       * made orthogonal to the wall normal, the original normal of the symmetry is used instead. ---*/
+      bool modified = it != geometry.symmetryNormals[iMarker].end();
+      for (const auto jMarker : skippedMarkers) {
+        modified = modified && geometry.nodes->GetVertex(iPoint, jMarker) < 0;
+      }
+
+      if (modified) {
         for (auto iDim = 0u; iDim < nDim; iDim++) unitNormal[iDim] = it->second[iDim];
       } else {
         geometry.vertex[iMarker][iVertex]->GetNormal(unitNormal);

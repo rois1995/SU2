@@ -2408,16 +2408,17 @@ void CSolver::SetHessian_Adapt(CGeometry *geometry, const CConfig *config) {
   CompleteComms(geometry, config, MPI_QUANTITIES::AUXVAR_ADAPT);
 
   /*--- Gradients of the sensors (scalars), with periodic contributions. Halo values are
-   *    communicated, they are needed to differentiate the gradients. ---*/
+   *    communicated, they are needed to differentiate the gradients. The normal gradient is removed
+   *    on symmetry planes only, not on Euler walls (see computeHessians). ---*/
 
   switch (method) {
     case GREEN_GAUSS:
       computeGradientsGreenGauss(this, MPI_QUANTITIES::GRADIENT_ADAPT, PERIODIC_ADAPT_GG, *geometry, *config,
-                                 sensor, 0, nSensor, -1, gradient);
+                                 sensor, 0, nSensor, -1, gradient, false);
       break;
     case WEIGHTED_LEAST_SQUARES:
       computeGradientsLeastSquares(this, MPI_QUANTITIES::GRADIENT_ADAPT, PERIODIC_ADAPT_LS, *geometry, *config,
-                                   true, sensor, 0, nSensor, -1, gradient, base_nodes->GetRmatrix());
+                                   true, sensor, 0, nSensor, -1, gradient, base_nodes->GetRmatrix(), false);
       break;
     default:
       SU2_MPI::Error("Unsupported NUM_METHOD_HESS.", CURRENT_FUNCTION);
