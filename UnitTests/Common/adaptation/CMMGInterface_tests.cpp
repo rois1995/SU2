@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <array>
 #include <cstdio>
+#include <limits>
 
 #include "../../../Common/include/CConfig.hpp"
 #include "../../../Common/include/adaptation/CMMGInterface.hpp"
@@ -159,11 +160,84 @@ void CheckExtraction(unsigned short nDim, unsigned long n) {
   CMMGInterface::ValidateMesh(mesh, nullptr, "test");
 }
 
+/*--- Packed metric (upper triangle) R diag(eig) R^T, R a rotation by the angles a, b, c (about z, y, x). ---*/
+std::vector<passivedouble> RotatedMetric(unsigned short nDim, const passivedouble* eig, passivedouble a,
+                                         passivedouble b = 0.0, passivedouble c = 0.0) {
+  const passivedouble Rz[3][3] = {{cos(a), -sin(a), 0.0}, {sin(a), cos(a), 0.0}, {0.0, 0.0, 1.0}};
+  const passivedouble Ry[3][3] = {{cos(b), 0.0, sin(b)}, {0.0, 1.0, 0.0}, {-sin(b), 0.0, cos(b)}};
+  const passivedouble Rx[3][3] = {{1.0, 0.0, 0.0}, {0.0, cos(c), -sin(c)}, {0.0, sin(c), cos(c)}};
+  passivedouble Ryx[3][3] = {{0.0}}, R[3][3] = {{0.0}};
+  for (int i = 0; i < 3; ++i)
+    for (int j = 0; j < 3; ++j)
+      for (int k = 0; k < 3; ++k) Ryx[i][j] += Ry[i][k] * Rx[k][j];
+  for (int i = 0; i < 3; ++i)
+    for (int j = 0; j < 3; ++j)
+      for (int k = 0; k < 3; ++k) R[i][j] += Rz[i][k] * Ryx[k][j];
+
+  std::vector<passivedouble> metric;
+  for (unsigned short i = 0; i < nDim; ++i)
+    for (unsigned short j = i; j < nDim; ++j) {
+      passivedouble value = 0.0;
+      for (unsigned short k = 0; k < nDim; ++k) value += R[i][k] * eig[k] * R[j][k];
+      metric.push_back(value);
+    }
+  return metric;
+}
+
 }  // namespace
 
 TEST_CASE("MMG interface: extraction of a 2D simplex mesh", "[MMG]") { CheckExtraction(2, 4); }
 
 TEST_CASE("MMG interface: extraction of a 3D simplex mesh", "[MMG]") { CheckExtraction(3, 4); }
+
+TEST_CASE("MMG interface: metric validity check", "[MMG]") {
+  /*--- Rotated anisotropic 3D metric with eigenvalues of about (9998, 10000.25, 1e16) (aspect ratio 1e6): its
+   *    expanded determinant is negative in floating point. ---*/
+  const passivedouble anisotropic[] = {876094525110343.2,  -2193580787387677.8, 1783705963237083.0,
+                                       5492325922541279.0, -4466074172598621.5, 3631579552368379.0};
+  CHECK(CMMGInterface::IsFinitePositiveDefinite(3, anisotropic));
+
+  /*--- Aspect ratio 1e6 at many orientations and scales, in 2D and 3D. ---*/
+  bool accepted = true;
+  for (int i = 0; i < 50; ++i) {
+    const passivedouble big = pow(10.0, -4 + i % 21), a = 0.37 * i, b = 0.61 * i + 0.1, c = 1.13 * i + 0.2;
+    const passivedouble eig3[] = {big, big * 1e-12, (i % 2) ? big : big * 1e-6};
+    const passivedouble eig2[] = {big * 1e-12, big};
+    accepted &= CMMGInterface::IsFinitePositiveDefinite(3, RotatedMetric(3, eig3, a, b, c).data());
+    accepted &= CMMGInterface::IsFinitePositiveDefinite(2, RotatedMetric(2, eig2, a).data());
+  }
+  CHECK(accepted);
+
+  /*--- Indefinite, negative definite, singular (rotated, round-off only) and non-finite tensors. ---*/
+  const passivedouble inf = std::numeric_limits<passivedouble>::infinity();
+  const passivedouble nan = std::numeric_limits<passivedouble>::quiet_NaN();
+  const std::vector<std::vector<passivedouble>> invalid3 = {
+      {1e4, 1e-2, -1e-2}, {1e4, 1e4, -1.0}, {-1.0, -2.0, -3.0}, {1e8, 0.0, 0.0}, {1e8, 1e8, 0.0}, {0.0, 0.0, 0.0}};
+  bool rejected = true;
+  for (int i = 0; i < 50; ++i) {
+    const passivedouble a = 0.37 * i, b = 0.61 * i + 0.1, c = 1.13 * i + 0.2;
+    for (const auto& eig : invalid3) {
+      rejected &= !CMMGInterface::IsFinitePositiveDefinite(3, RotatedMetric(3, eig.data(), a, b, c).data());
+      rejected &= !CMMGInterface::IsFinitePositiveDefinite(2, RotatedMetric(2, eig.data() + 1, a).data());
+    }
+  }
+  CHECK(rejected);
+  const passivedouble nonFinite3[][6] = {{nan, 0, 0, 1, 0, 1}, {1, 0, 0, inf, 0, 1}, {1, 0, inf, 1, 0, 1}};
+  const passivedouble nonFinite2[][3] = {{nan, 0, 1}, {1, inf, 1}, {1, 0, -inf}};
+  for (const auto* m : nonFinite3) CHECK_FALSE(CMMGInterface::IsFinitePositiveDefinite(3, m));
+  for (const auto* m : nonFinite2) CHECK_FALSE(CMMGInterface::IsFinitePositiveDefinite(2, m));
+  const passivedouble indefinite2[] = {1.0, 2.0, 1.0}, unit2[] = {1.0, 0.0, 1.0};
+  CHECK_FALSE(CMMGInterface::IsFinitePositiveDefinite(2, indefinite2));
+  CHECK(CMMGInterface::IsFinitePositiveDefinite(2, unit2));
+
+  /*--- The anisotropic metric is extracted with the mesh. ---*/
+  SimplexMeshCase test(3, 2);
+  su2activematrix metric(test.geometry->GetnPoint(), 6);
+  for (auto iPoint = 0ul; iPoint < test.geometry->GetnPoint(); ++iPoint)
+    for (unsigned short iMet = 0; iMet < 6; ++iMet) metric(iPoint, iMet) = anisotropic[iMet];
+  const auto mesh = CMMGInterface::ExtractMesh(*test.config, *test.geometry, metric);
+  CHECK(mesh.metric.size() == 6 * test.geometry->GetnPoint());
+}
 
 #ifdef HAVE_MMG
 

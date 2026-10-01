@@ -111,6 +111,16 @@ class CMMGInterface {
   static int GetMarkerReference(const CConfig& config, const std::string& name);
 
   /*!
+   * \brief Check that a metric tensor is finite and positive definite, and not numerically singular.
+   * \note Eigenvalues of the tensor scaled to a unit diagonal: the smallest must exceed 1e-14 times the largest.
+   *       Metrics with an aspect ratio up to about 1e6 (the ADAP_ARMAX default) are accepted in any orientation.
+   * \param[in] nDim - Number of dimensions.
+   * \param[in] metric - Upper triangle, (xx,xy,yy) in 2D, (xx,xy,xz,yy,yz,zz) in 3D.
+   * \return Whether the metric is valid.
+   */
+  static bool IsFinitePositiveDefinite(unsigned short nDim, const passivedouble* metric);
+
+  /*!
    * \brief Copy the mesh and the metric of the local (single-rank) geometry into plain arrays.
    * \note Elements are reoriented to a positive volume if needed (zero volume is an error), the metric must be
    *       finite and positive definite, all elements must be triangles (2D) or tetrahedra (3D).

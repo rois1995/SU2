@@ -35,6 +35,7 @@
 
 #include "../../include/CConfig.hpp"
 #include "../../include/geometry/CGeometry.hpp"
+#include "../../include/linear_algebra/blas_structure.hpp"
 
 #ifdef HAVE_MMG
 #include "mmg/libmmg.h"
@@ -58,18 +59,6 @@ passivedouble SignedVolume(unsigned short nDim, const std::vector<passivedouble>
          6.0;
 }
 
-/*--- Positive definiteness of a symmetric matrix stored as an upper triangle (Sylvester's criterion). ---*/
-bool IsFinitePositiveDefinite(unsigned short nDim, const passivedouble* m) {
-  for (unsigned short i = 0; i < CSimplexMesh::GetnMetric(nDim); ++i)
-    if (!std::isfinite(m[i])) return false;
-  if (nDim == 2) return m[0] > 0.0 && m[0] * m[2] - m[1] * m[1] > 0.0;
-  /*--- (xx,xy,xz,yy,yz,zz) ---*/
-  const passivedouble det2 = m[0] * m[3] - m[1] * m[1];
-  const passivedouble det3 =
-      m[0] * (m[3] * m[5] - m[4] * m[4]) - m[1] * (m[1] * m[5] - m[4] * m[2]) + m[2] * (m[1] * m[4] - m[3] * m[2]);
-  return m[0] > 0.0 && det2 > 0.0 && det3 > 0.0;
-}
-
 using Face = std::array<unsigned long, 3>;
 
 /*--- Sorted face nodes, the unused entry of 2D faces (edges) is ULONG_MAX. ---*/
@@ -88,6 +77,35 @@ string PointInfo(unsigned short nDim, const std::vector<passivedouble>& coord, u
 }
 
 }  // namespace
+
+bool CMMGInterface::IsFinitePositiveDefinite(unsigned short nDim, const passivedouble* metric) {
+  const unsigned short nMetric = CSimplexMesh::GetnMetric(nDim);
+  for (unsigned short iMet = 0; iMet < nMetric; ++iMet)
+    if (!std::isfinite(metric[iMet])) return false;
+
+  /*--- Full matrix from the upper triangle, (xx,xy,yy) or (xx,xy,xz,yy,yz,zz). ---*/
+  passivedouble M[3][3] = {{0.0}};
+  for (unsigned short iDim = 0, iMet = 0; iDim < nDim; ++iDim)
+    for (unsigned short jDim = iDim; jDim < nDim; ++jDim, ++iMet) M[iDim][jDim] = M[jDim][iDim] = metric[iMet];
+
+  /*--- Scaled to a unit diagonal, D^-1/2 M D^-1/2, whose eigenvalues are computed accurately also for strongly
+   *    anisotropic metrics (determinants and Sylvester's criterion lose them to cancellation). The smallest one,
+   *    relative to the largest, must stand clear of round-off: for a metric of aspect ratio AR it is at least
+   *    about 1 / AR^2, for a singular one it is round-off (about 1e-15). ---*/
+  passivedouble scale[3];
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+    if (!(M[iDim][iDim] > 0.0)) return false;
+    scale[iDim] = 1.0 / sqrt(M[iDim][iDim]);
+  }
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+    for (unsigned short jDim = 0; jDim < nDim; ++jDim) M[iDim][jDim] *= scale[iDim] * scale[jDim];
+
+  passivedouble vec[3][3], val[3], work[3];
+  CBlasStructure::EigenDecomposition(M, vec, val, nDim, work);
+
+  constexpr passivedouble minEigenRatio = 1e-14;
+  return val[0] > minEigenRatio * val[nDim - 1];
+}
 
 void CMMGInterface::CheckSupport(const CConfig& config, const CGeometry& geometry) {
   if (SU2_MPI::GetSize() > 1) {
@@ -184,7 +202,7 @@ CSimplexMesh CMMGInterface::ExtractMesh(const CConfig& config, const CGeometry& 
   }
   for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
     if (!IsFinitePositiveDefinite(nDim, &mesh.metric[iPoint * nMetric])) {
-      SU2_MPI::Error("The adaptation metric is not finite and positive definite at " +
+      SU2_MPI::Error("The adaptation metric is not finite and positive definite (or numerically singular) at " +
                      PointInfo(nDim, mesh.coord, iPoint) + ".", CURRENT_FUNCTION);
     }
   }
