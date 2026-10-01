@@ -108,6 +108,10 @@ CDriverBase(confFile, val_nZone, MPICommunicator), StopCalc(false), fsi(false), 
 
   PreprocessInput(config_container, driver_config);
 
+  /*--- Keep the run-time state of the config before the geometry and the solve change it. ---*/
+
+  initialRunState.Save(*config_container[ZONE_0]);
+
   /*--- Retrieve dimension from mesh file ---*/
 
   nDim = CConfig::GetnDim(config_container[ZONE_0]->GetMesh_FileName(),
@@ -286,6 +290,31 @@ CDriverBase(confFile, val_nZone, MPICommunicator), StopCalc(false), fsi(false), 
 
   StartTime = SU2_MPI::Wtime();
 
+}
+
+void CDriver::CConfigRunState::Save(const CConfig& config) {
+  nMGLevels = config.GetnMGLevels();
+  finestMesh = config.GetFinestMesh();
+  CFL.resize(nMGLevels + 1);
+  for (unsigned short iMesh = 0; iMesh <= nMGLevels; iMesh++) CFL[iMesh] = config.GetCFL(iMesh);
+  dampResRestric = config.GetDamp_Res_Restric();
+  dampCorrecProlong = config.GetDamp_Correc_Prolong();
+  timeIter = config.GetTimeIter();
+  outerIter = config.GetOuterIter();
+  innerIter = config.GetInnerIter();
+  extIterOffset = config.GetExtIter_OffSet();
+}
+
+void CDriver::CConfigRunState::Restore(CConfig& config) const {
+  config.SetMGLevels(nMGLevels);
+  config.SetFinestMesh(finestMesh);
+  for (unsigned short iMesh = 0; iMesh <= nMGLevels; iMesh++) config.SetCFL(iMesh, CFL[iMesh]);
+  config.SetDamp_Res_Restric(dampResRestric);
+  config.SetDamp_Correc_Prolong(dampCorrecProlong);
+  config.SetTimeIter(timeIter);
+  config.SetOuterIter(outerIter);
+  config.SetInnerIter(innerIter);
+  config.SetExtIter_OffSet(extIterOffset);
 }
 
 void CDriver::InitializeContainers(){
