@@ -3898,10 +3898,10 @@ void CSurfaceMovement::SetParabolic(CGeometry* boundary, CConfig* config) {
 
 void CSurfaceMovement::SetAirfoil(CGeometry* boundary, CConfig* config) {
   unsigned long iVertex, n_Airfoil = 0;
-  unsigned short iMarker, nUpper, nLower, iUpper, iLower, iVar, iDim;
-  su2double *VarCoord, *Coord, NewYCoord, NewXCoord, *Coord_i, *Coord_ip1, yp1, ypn,
-      Airfoil_Coord[2] = {0.0, 0.0}, factor, coeff = 10000, Upper, Lower, Arch = 0.0, TotalArch = 0.0, x_i, x_ip1, y_i,
-      y_ip1;
+  unsigned short iMarker, nUpper, nLower, iUpper, iLower, iVar;
+  su2double VarCoord[3] = {0.0, 0.0, 0.0}, *Coord, NewYCoord, NewXCoord, *Coord_i, *Coord_ip1, yp1, ypn,
+            Airfoil_Coord[2] = {0.0, 0.0}, factor, coeff = 10000, Upper, Lower, Arch = 0.0, TotalArch = 0.0, x_i, x_ip1,
+            y_i, y_ip1;
   double AirfoilScale;
   vector<su2double> Svalue, Xcoord, Ycoord, Xcoord2, Ycoord2, Xcoord_Aux, Ycoord_Aux;
   bool AddBegin = true, AddEnd = true;
@@ -3909,11 +3909,6 @@ void CSurfaceMovement::SetAirfoil(CGeometry* boundary, CConfig* config) {
   ifstream airfoil_file;
   string text_line;
   int ierr = 0;
-
-  unsigned short nDim = boundary->GetnDim();
-
-  VarCoord = new su2double[nDim];
-  for (iDim = 0; iDim < nDim; iDim++) VarCoord[iDim] = 0.0;
 
   /*--- Get the SU2 module. SU2_CFD will use this routine for dynamically
    deforming meshes (MARKER_MOVING), while SU2_DEF will use it for deforming
@@ -4167,8 +4162,6 @@ void CSurfaceMovement::SetAirfoil(CGeometry* boundary, CConfig* config) {
       boundary->vertex[iMarker][iVertex]->SetVarCoord(VarCoord);
     }
   }
-
-  delete[] VarCoord;
 }
 
 void CSurfaceMovement::ReadFFDInfo(CGeometry* geometry, CConfig* config, CFreeFormDefBox** FFDBox,
