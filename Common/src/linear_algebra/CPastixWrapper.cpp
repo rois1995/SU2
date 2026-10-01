@@ -265,6 +265,10 @@ void CPastixWrapper<ScalarType>::Factorize(CGeometry* geometry, const CConfig* c
 
   if (isfactorized && !factorize) return;  // No
 
+  /*--- The new factors are of the current matrix, a previous request for transposed
+   * solves (see CSysMatrix::TransposeInPlace) referred to the old factors. ---*/
+  transpose = false;
+
   /*--- Yes: assemble LDU blocks into the flat CSR buffer ---*/
   AssembleValues();
 
