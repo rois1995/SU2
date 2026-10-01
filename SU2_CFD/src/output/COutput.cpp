@@ -379,6 +379,18 @@ void COutput::ResetMeshDependentData() {
 
 }
 
+void COutput::SetAdaptationCycle(unsigned long cycle, unsigned long iterOffset) {
+
+  adapCycle = cycle;
+  adapIterOffset = iterOffset;
+
+  if (adapBaseFilenames.empty()) adapBaseFilenames = {volumeFilename, surfaceFilename, restartFilename};
+
+  volumeFilename = CConfig::GetAdap_FileName(adapBaseFilenames[0], cycle);
+  surfaceFilename = CConfig::GetAdap_FileName(adapBaseFilenames[1], cycle);
+  restartFilename = CConfig::GetAdap_FileName(adapBaseFilenames[2], cycle);
+}
+
 void COutput::LoadData(CGeometry *geometry, CConfig *config, CSolver** solver_container){
 
   /*--- Check if the data sorters are allocated, if not, allocate them. --- */
@@ -949,11 +961,15 @@ void COutput::PrintConvergenceSummary(){
     }
     else if (historyOutput_Map.at(convField).fieldType == HistoryFieldType::RESIDUAL ||
         historyOutput_Map.at(convField).fieldType == HistoryFieldType::AUTO_RESIDUAL)  {
+      const su2double value = historyOutput_Map.at(convField).value;
       string convMark = "No";
-      if (historyOutput_Map.at(convField).value < minLogResidual) convMark = "Yes";
-      ConvSummary << historyOutput_Map.at(convField).fieldName
-          << historyOutput_Map.at(convField).value
-          << " < " + PrintingToolbox::to_string(minLogResidual) << convMark;
+      if (value < minLogResidual) convMark = "Yes";
+      string criterion = " < " + PrintingToolbox::to_string(minLogResidual);
+      if (residualReduction > 0.0 && iField_Conv < convResidualMax.size()) {
+        if (value <= convResidualMax[iField_Conv] - residualReduction) convMark = "Yes";
+        criterion += " or -" + PrintingToolbox::to_string(residualReduction);
+      }
+      ConvSummary << historyOutput_Map.at(convField).fieldName << value << criterion << convMark;
     }
   }
   ConvSummary.PrintFooter();
@@ -967,6 +983,8 @@ bool COutput::ConvergenceMonitoring(CConfig *config, unsigned long Iteration) {
 
   if (Iteration >= convergenceStartIter) Iteration -= convergenceStartIter;
   else Iteration = 0;
+
+  convResidualMax.resize(convFields.size());
 
   for (auto iField_Conv = 0ul; iField_Conv < convFields.size(); iField_Conv++) {
 
@@ -1028,6 +1046,13 @@ bool COutput::ConvergenceMonitoring(CConfig *config, unsigned long Iteration) {
       case HistoryFieldType::AUTO_RESIDUAL:
 
         fieldConverged = (Iteration != 0) && (monitor <= minLogResidual);
+
+        /*--- Or the drop from the largest value since the monitoring started (ADAP_RESIDUAL_REDUCTION). ---*/
+        if (Iteration == 0 || monitor > convResidualMax[iField_Conv]) convResidualMax[iField_Conv] = monitor;
+        if (residualReduction > 0.0) {
+          fieldConverged = fieldConverged ||
+                           ((Iteration != 0) && (monitor <= convResidualMax[iField_Conv] - residualReduction));
+        }
         break;
 
       default:
@@ -1265,6 +1290,14 @@ void COutput::PreprocessHistoryOutput(CConfig *config, bool wrt){
   /*--- Set the common output fields ---*/
 
   SetCommonHistoryFields();
+
+  /*--- Mesh adaptation loop: the cycle, and the iteration counted over all cycles (steady; the time iteration
+   *    of time-domain problems) so that the history does not jump back with each new mesh. ---*/
+
+  if (config->GetAdap_Loop()) {
+    AddHistoryOutput("ADAP_CYCLE", "Adap_Cycle", ScreenOutputFormat::INTEGER, "ITER", "Mesh adaptation cycle (0: input mesh)");
+    AddHistoryOutput("ADAP_ITER", "Adap_Iter", ScreenOutputFormat::INTEGER, "ITER", "Iteration counted over all mesh adaptation cycles");
+  }
 
   /*--- Set the History output fields using a virtual function call to the child implementation ---*/
 
@@ -2381,6 +2414,11 @@ void COutput::LoadCommonHistoryData(const CConfig *config) {
   SetHistoryOutputValue("TIME_ITER",  curTimeIter);
   SetHistoryOutputValue("INNER_ITER", curInnerIter);
   SetHistoryOutputValue("OUTER_ITER", curOuterIter);
+
+  if (config->GetAdap_Loop()) {
+    SetHistoryOutputValue("ADAP_CYCLE", adapCycle);
+    SetHistoryOutputValue("ADAP_ITER", config->GetTime_Domain() ? curTimeIter : adapIterOffset + curInnerIter);
+  }
 
   su2double StopTime, UsedTime, IterTime;
 

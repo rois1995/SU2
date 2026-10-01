@@ -325,6 +325,14 @@ protected:
   su2double initResidual;        /*!< \brief Initial value of the residual to evaluate the convergence level. */
   vector<string> convFields;     /*!< \brief Name of the field to be monitored for convergence. */
   unsigned long convergenceStartIter = 0; /*!< \brief Iteration the convergence history is counted from. */
+  su2double residualReduction = 0.0;     /*!< \brief Orders of magnitude of residual drop that also mean convergence (0: off). */
+  vector<su2double> convResidualMax;     /*!< \brief Largest value of each residual convergence field since the monitoring started. */
+
+  /*----------------------------- Mesh adaptation loop ----------------------------*/
+
+  unsigned long adapCycle = 0,           /*!< \brief Current cycle of the mesh adaptation loop. */
+  adapIterOffset = 0;                    /*!< \brief Iterations of the previous cycles. */
+  vector<string> adapBaseFilenames;      /*!< \brief Volume, surface and restart file names without the cycle. */
 
   /*----------------------------- Adaptive CFL ----------------------------*/
 
@@ -509,6 +517,23 @@ public:
    *        probe points of the custom outputs (set up again on the next history output).
    */
   void ResetMeshDependentData();
+
+  /*!
+   * \brief Set the cycle of the mesh adaptation loop: the volume, surface and restart files get the cycle in their
+   *        name (CConfig::GetAdap_FileName), the history fields ADAP_CYCLE and ADAP_ITER its number and the running
+   *        total of the iterations.
+   * \param[in] cycle - Cycle (0 is the input mesh).
+   * \param[in] iterOffset - Iterations of all previous cycles.
+   */
+  void SetAdaptationCycle(unsigned long cycle, unsigned long iterOffset);
+
+  /*!
+   * \brief Also stop on the drop of the residual convergence fields (ADAP_RESIDUAL_REDUCTION): converged when each
+   *        has dropped by this many orders of magnitude from its largest value since the monitoring started, or when
+   *        it is below CONV_RESIDUAL_MINVAL.
+   * \param[in] reduction - Orders of magnitude, 0 to use CONV_RESIDUAL_MINVAL only.
+   */
+  void SetResidualReduction(su2double reduction) { residualReduction = reduction; }
 
   /*!
    * \brief Names and values of the fields convergence is monitored on that are residuals.
