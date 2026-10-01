@@ -652,6 +652,16 @@ void CMeshSolver::ComputeGridVelocity(CGeometry **geometry, const CConfig *confi
   for (auto iMGlevel = 1u; iMGlevel <= config->GetnMGLevels(); iMGlevel++)
     geometry[iMGlevel]->SetRestricted_GridVelocity(geometry[iMGlevel-1]);
 
+  /*--- The moving walls, which are not deformed, keep their prescribed velocity. ---*/
+
+  if (config->GetSurface_Movement(MOVING_WALL)) {
+    BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
+      for (auto iMGlevel = 0u; iMGlevel <= config->GetnMGLevels(); iMGlevel++)
+        geometry[iMGlevel]->SetWallVelocity(config, false);
+    }
+    END_SU2_OMP_SAFE_GLOBAL_ACCESS
+  }
+
 }
 
 void CMeshSolver::BC_Deforming(CGeometry *geometry, const CConfig *config, unsigned short val_marker, bool velocity){

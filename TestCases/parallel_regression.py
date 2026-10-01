@@ -1128,6 +1128,15 @@ def main():
     spinning_cylinder.test_vals = [-7.471334, -2.007097, 2.183550, 1.847845]
     test_list.append(spinning_cylinder)
 
+    # Unsteady lid-driven cavity with a plunging (deforming) lower wall
+    cavity_deforming           = TestCase('cavity_deforming')
+    cavity_deforming.cfg_dir   = "moving_wall/cavity"
+    cavity_deforming.cfg_file  = "lam_cavity_deforming.cfg"
+    cavity_deforming.test_iter = 2
+    cavity_deforming.test_vals = [-5.300070, 0.166435, 1.021536, 10.726790]
+    cavity_deforming.unsteady  = True
+    test_list.append(cavity_deforming)
+
     ######################################
     ### Unsteady                       ###
     ######################################

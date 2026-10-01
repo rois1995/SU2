@@ -4050,6 +4050,9 @@ void CGeometry::SetWallVelocity(const CConfig* config, bool print) {
     const auto Marker_Tag = config->GetMarker_All_TagBound(iMarker);
     const auto jMarker = config->GetMarker_Moving(Marker_Tag);
 
+    /*--- The velocity of the other moving markers (e.g. deforming, aeroelastic) follows from the mesh motion. ---*/
+    if (config->GetKind_SurfaceMovement(jMarker) != MOVING_WALL) continue;
+
     su2double xDot[MAXNDIM], Center[MAXNDIM], Omega[MAXNDIM];
 
     for (auto iDim = 0u; iDim < MAXNDIM; iDim++) {

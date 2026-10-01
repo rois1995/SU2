@@ -30,6 +30,16 @@
 #include "../../include/output/COutput.hpp"
 #include "../../include/solvers/CFEASolver.hpp"
 
+namespace {
+/*--- Set the prescribed velocity of the moving walls on all multigrid levels. ---*/
+void SetWallVelocities(CGeometry** geometry, const CConfig* config) {
+  if (!config->GetSurface_Movement(MOVING_WALL)) return;
+  for (auto iMGlevel = 0u; iMGlevel <= config->GetnMGLevels(); iMGlevel++) {
+    geometry[iMGlevel]->SetWallVelocity(config, false);
+  }
+}
+}  // namespace
+
 void CIteration::SetGrid_Movement(CGeometry** geometry, CSurfaceMovement* surface_movement,
                                   CVolumetricMovement* grid_movement, CSolver*** solver, CConfig* config,
                                   unsigned long IntIter, unsigned long TimeIter) {
@@ -127,6 +137,10 @@ void CIteration::SetGrid_Movement(CGeometry** geometry, CSurfaceMovement* surfac
        including computing the grid velocities on the coarser levels. ---*/
 
       grid_movement->UpdateMultiGrid(geometry, config);
+
+      /*--- The finite differences overwrote the velocity of the moving walls. ---*/
+
+      SetWallVelocities(geometry, config);
     }
   }
 
@@ -153,6 +167,10 @@ void CIteration::SetGrid_Movement(CGeometry** geometry, CSurfaceMovement* surfac
        including computing the grid velocities on the coarser levels. ---*/
 
     grid_movement->UpdateMultiGrid(geometry, config);
+
+    /*--- The finite differences overwrote the velocity of the moving walls. ---*/
+
+    if (!adjoint) SetWallVelocities(geometry, config);
   }
 }
 
