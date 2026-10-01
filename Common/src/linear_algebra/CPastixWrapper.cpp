@@ -50,6 +50,9 @@ void CPastixWrapper<ScalarType>::Initialize(CGeometry* geometry, const CConfig* 
   colptr.resize(nPointDomain + 1);
   rowidx.clear();
   rowidx.reserve(nNonZero);
+  /*--- Initialize runs again after Clean (e.g. switching between ILU and LU), these are rebuilt below. ---*/
+  sort_rows.clear();
+  sort_order.clear();
   values.resize(nNonZero * nVar * nVar);
   loc2glb.resize(nPointDomain);
   perm.resize(nPointDomain);
