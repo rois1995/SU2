@@ -57,6 +57,21 @@ protected:
    */
   void CheckMeshAdaptation() const;
 
+  /*!
+   * \brief Solve on the current mesh: the time loop (one pass for steady problems), as StartSolver without ADAP_LOOP.
+   */
+  void RunTimeLoop();
+
+  /*!
+   * \brief Mesh adaptation loop (ADAP_LOOP): solve on the input mesh (cycle 0), then for each cycle remesh from the
+   *        metric of the last solution with the options of its level (ADAP_SIZES, ...), transfer the solution
+   *        (ADAP_TRANSFER) and solve again. Steady problems, single rank, MMG.
+   * \note An adaptation cycle has three parts behind small interfaces: the metric (ComputeMetric, feature-based here,
+   *       a goal-based metric overrides it), the remesher (CRemesher: MMG) and the solution transfer
+   *       (CSolutionTransfer: barycentric). The mesh replacement (ReplaceMesh) is the same for all of them.
+   */
+  void RunAdaptationLoop();
+
 public:
 
   /*!
@@ -75,7 +90,7 @@ public:
   ~CSinglezoneDriver(void) override;
 
   /*!
-   * \brief [Overload] Launch the computation for single-zone problems.
+   * \brief [Overload] Launch the computation for single-zone problems (the mesh adaptation loop with ADAP_LOOP= YES).
    */
   void StartSolver() override;
 

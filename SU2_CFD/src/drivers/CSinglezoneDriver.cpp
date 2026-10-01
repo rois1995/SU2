@@ -30,9 +30,12 @@
 #include "../../include/output/COutput.hpp"
 #include "../../include/iteration/CIteration.hpp"
 #include "../../include/adaptation/CSolutionTransfer.hpp"
+#include "../../include/adaptation/CBarycentricTransfer.hpp"
 #include "../../../Common/include/adaptation/CMMGInterface.hpp"
 #include "../../../Common/include/geometry/CPhysicalGeometry.hpp"
 #include "../../../Common/include/geometry/meshreader/CMemoryMeshReaderFVM.hpp"
+
+#include <memory>
 
 CSinglezoneDriver::CSinglezoneDriver(char* confFile,
                        unsigned short val_nZone,
@@ -48,6 +51,13 @@ CSinglezoneDriver::CSinglezoneDriver(char* confFile,
 CSinglezoneDriver::~CSinglezoneDriver() = default;
 
 void CSinglezoneDriver::StartSolver() {
+  SU2_ZONE_SCOPED
+
+  if (config_container[ZONE_0]->GetAdap_Loop()) RunAdaptationLoop();
+  else RunTimeLoop();
+}
+
+void CSinglezoneDriver::RunTimeLoop() {
   SU2_ZONE_SCOPED
 
   StartTime = SU2_MPI::Wtime();
@@ -250,6 +260,103 @@ CSimplexMesh CSinglezoneDriver::RemeshFromMetric(CRemesher& remesher) {
   const auto* geometry = geometry_container[ZONE_0][INST_0][MESH_0];
   const auto* solver_flow = solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL];
   return remesher.Remesh(*config, *geometry, solver_flow->GetNodes()->GetMetric());
+}
+
+void CSinglezoneDriver::RunAdaptationLoop() {
+  SU2_ZONE_SCOPED
+
+  auto* config = config_container[ZONE_0];
+  auto* output = output_container[ZONE_0];
+
+  /*--- Stop before the first solve if the problem or the build cannot be adapted. ---*/
+
+  CheckMeshAdaptation();
+
+  CMMGRemesher remesher;
+
+  std::unique_ptr<CSolutionTransfer> transfer;
+  switch (config->GetKind_Adap_Transfer()) {
+    case ADAP_TRANSFER::BARYCENTRIC: transfer = std::make_unique<CBarycentricTransfer>(); break;
+    case ADAP_TRANSFER::FREESTREAM: transfer = std::make_unique<CFreeStreamTransfer>(); break;
+  }
+
+  const auto nCycles = config->GetnAdap_Cycles();
+
+  struct CycleSummary {
+    unsigned long complexity, nPoint, nIter;
+  };
+  vector<CycleSummary> summary;
+  unsigned long iterOffset = 0;
+
+  for (unsigned long iCycle = 0; iCycle <= nCycles; iCycle++) {
+
+    /*--- The metric of this solve makes the mesh of the next cycle (the last solve keeps the last level). ---*/
+
+    config->SetAdap_MetricLevel(config->GetAdap_CycleLevel(min(iCycle + 1, nCycles)));
+    output->SetAdaptationCycle(iCycle, iterOffset);
+
+    if (rank == MASTER_NODE) {
+      const auto cycle = config->GetMGCycle();
+      cout << endl << "------------------------- Mesh Adaptation Cycle -------------------------" << endl;
+      cout << "Cycle " << iCycle << " of " << nCycles << ": "
+           << geometry_container[ZONE_0][INST_0][MESH_0]->GetGlobal_nPointDomain() << " points, at most "
+           << config->GetnInner_Iter() << " iterations, CFL " << config->GetCFL(MESH_0) << ", "
+           << (cycle == MG_CYCLE::W ? "W" : (cycle == MG_CYCLE::V ? "V" : "full")) << " multigrid cycle, "
+           << (config->GetRestart() ? "restart" : iCycle == 0 ? "initial" :
+               config->GetKind_Adap_Transfer() == ADAP_TRANSFER::FREESTREAM ? "free-stream" : "transferred")
+           << " solution." << endl;
+      if (iCycle < nCycles) {
+        cout << "Its metric makes the next mesh: complexity " << config->GetAdap_Complexity() << ", sizes "
+             << config->GetAdap_Hmin() << " to " << config->GetAdap_Hmax() << ", norm " << config->GetAdap_Norm()
+             << ", aspect ratio up to " << config->GetAdap_ARmax() << "." << endl;
+      }
+    }
+
+    TimeIter = 0;
+    RunTimeLoop();
+
+    const auto nIter = config->GetInnerIter() + 1;
+    iterOffset += nIter;
+    summary.push_back({iCycle == 0 ? 0 : config->GetAdap_Level(config->GetAdap_CycleLevel(iCycle)).complexity,
+                       geometry_container[ZONE_0][INST_0][MESH_0]->GetGlobal_nPointDomain(), nIter});
+
+    if (iCycle == nCycles) break;
+
+    /*--- New mesh from the metric of this solution. ---*/
+
+    const auto mesh = RemeshFromMetric(remesher);
+
+    /*--- The adapted meshes start from the transferred solution, not from restart files, and with the options of
+     *    their level. The first solve may have been a restart (also of the fixed-CL angle of attack). ---*/
+
+    if (iCycle == 0) config->SetSolutionInMemory();
+
+    const auto iLevel = config->GetAdap_CycleLevel(iCycle + 1);
+    const auto& level = config->GetAdap_Level(iLevel);
+    initialRunState.SetCFL(level.flowCFL);
+
+    ReplaceMesh(mesh, *transfer);
+
+    config->SetAdap_FlowLevel(iLevel);
+    output->SetResidualReduction(level.residualReduction);
+
+    /*--- The new mesh is accepted (built, solution transferred): the place to write it (WRT_ADAP_MESH). ---*/
+  }
+
+  if (rank == MASTER_NODE) {
+    cout << endl << "------------------------ Mesh Adaptation Summary ------------------------" << endl;
+    PrintingToolbox::CTablePrinter table(&cout);
+    table.AddColumn("Cycle", 10);
+    table.AddColumn("Complexity", 16);
+    table.AddColumn("Points", 16);
+    table.AddColumn("Iterations", 16);
+    table.PrintHeader();
+    for (unsigned long iCycle = 0; iCycle < summary.size(); iCycle++) {
+      const auto& row = summary[iCycle];
+      table << iCycle << (iCycle == 0 ? string("input mesh") : to_string(row.complexity)) << row.nPoint << row.nIter;
+    }
+    table.PrintFooter();
+  }
 }
 
 void CSinglezoneDriver::ReplaceMesh(const CSimplexMesh& mesh, CSolutionTransfer& transfer) {

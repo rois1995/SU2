@@ -84,14 +84,13 @@ class CDriver : public CDriverBase {
   /*!
    * \brief Part of a config that the geometry preprocessing and the solve change at run time: number of multigrid
    *        levels (reduced by the agglomeration), CFL of each level, multigrid damping factors, finest mesh of the
-   *        full multigrid, iteration counters.
+   *        full multigrid (follows the multigrid cycle), iteration counters.
    * \note Saved for ZONE_0 before the geometry is built and restored before the mesh is replaced (mesh adaptation),
    *       so that the solve on a new mesh starts like a fresh run on it. Time-domain runs continue in time: their
    *       time counters (time iteration, iteration offset) are not restored.
    */
   struct CConfigRunState {
     unsigned short nMGLevels = 0;      /*!< \brief Requested number of coarse levels (MGLEVEL). */
-    unsigned short finestMesh = 0;     /*!< \brief Finest mesh of the full multigrid. */
     vector<su2double> CFL;             /*!< \brief CFL of each multigrid level. */
     su2double dampResRestric = 0.0;    /*!< \brief Damping of the residual restriction. */
     su2double dampCorrecProlong = 0.0; /*!< \brief Damping of the correction prolongation. */
@@ -106,6 +105,12 @@ class CDriver : public CDriverBase {
      * \brief Restore the saved state into a config (not the time counters of a time-domain config).
      */
     void Restore(CConfig& config) const;
+
+    /*!
+     * \brief Set the CFL the next mesh starts with (mesh adaptation loop, ADAP_FLOW_CFL).
+     * \note The same value on all levels, as saved before the agglomeration, which scales the coarse levels.
+     */
+    void SetCFL(su2double cfl) { for (auto& val : CFL) val = cfl; }
   };
 
  protected:

@@ -73,3 +73,30 @@ void CheckRunState(bool unsteady) {
 TEST_CASE("Config run state, steady", "[Adaptation]") { CheckRunState(false); }
 
 TEST_CASE("Config run state, time domain", "[Adaptation]") { CheckRunState(true); }
+
+TEST_CASE("Config run state, full multigrid", "[Adaptation]") {
+  stringstream options("SOLVER= EULER\nMESH_FORMAT= BOX\nINIT_OPTION= TD_CONDITIONS\nMGLEVEL= 2\nCFL_NUMBER= 5\n"
+                       "MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_minus, z_plus)\nITER= 100\n"
+                       "MGCYCLE= FULLMG_CYCLE\n");
+  auto origBuf = cout.rdbuf();
+  cout.rdbuf(nullptr);
+  CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
+  cout.rdbuf(origBuf);
+
+  CDriver::CConfigRunState state;
+  state.Save(config);
+  REQUIRE(config.GetFinestMesh() == 2);
+
+  /*--- The full multigrid finished on the first mesh; the next mesh starts on the coarsest level again. ---*/
+  config.SetFinestMesh(0);
+  state.Restore(config);
+  CHECK(config.GetFinestMesh() == 2);
+
+  /*--- An adapted mesh starts from the transferred solution with V cycles on the finest level, at the new CFL. ---*/
+  config.SetSolutionInMemory();
+  state.SetCFL(3);
+  state.Restore(config);
+  CHECK(config.GetMGCycle() == MG_CYCLE::V);
+  CHECK(config.GetFinestMesh() == 0);
+  for (unsigned short iMesh = 0; iMesh <= 2; iMesh++) CHECK(config.GetCFL(iMesh) == 3.0);
+}

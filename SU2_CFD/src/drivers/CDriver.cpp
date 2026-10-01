@@ -294,7 +294,6 @@ CDriverBase(confFile, val_nZone, MPICommunicator), StopCalc(false), fsi(false), 
 
 void CDriver::CConfigRunState::Save(const CConfig& config) {
   nMGLevels = config.GetnMGLevels();
-  finestMesh = config.GetFinestMesh();
   CFL.resize(nMGLevels + 1);
   for (unsigned short iMesh = 0; iMesh <= nMGLevels; iMesh++) CFL[iMesh] = config.GetCFL(iMesh);
   dampResRestric = config.GetDamp_Res_Restric();
@@ -306,8 +305,9 @@ void CDriver::CConfigRunState::Save(const CConfig& config) {
 }
 
 void CDriver::CConfigRunState::Restore(CConfig& config) const {
+  /*--- The full multigrid starts on the coarsest level, the other cycles on the finest (as in the config). ---*/
+  config.SetFinestMesh(MESH_0);
   config.SetMGLevels(nMGLevels);
-  config.SetFinestMesh(finestMesh);
   for (unsigned short iMesh = 0; iMesh <= nMGLevels; iMesh++) config.SetCFL(iMesh, CFL[iMesh]);
   config.SetDamp_Res_Restric(dampResRestric);
   config.SetDamp_Correc_Prolong(dampCorrecProlong);
