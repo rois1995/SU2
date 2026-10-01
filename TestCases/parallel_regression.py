@@ -2015,6 +2015,19 @@ def main():
     pass_list.append(naca4412_def.run_def())
     test_list.append(naca4412_def)
 
+    # Inviscid NACA0012, two nested FFD boxes written in Paraview format
+    naca0012_nested_ffd_def = TestCase('naca0012_nested_ffd_def')
+    naca0012_nested_ffd_def.cfg_dir = "deformation/naca0012"
+    naca0012_nested_ffd_def.cfg_file = "def_NACA0012_nested_ffd.cfg"
+    naca0012_nested_ffd_def.test_iter = 10
+    naca0012_nested_ffd_def.test_vals = [0.00339432] #residual
+    naca0012_nested_ffd_def.command = TestCase.Command("mpirun -n 2", "SU2_DEF")
+    naca0012_nested_ffd_def.timeout = 1600
+    naca0012_nested_ffd_def.tol = 1e-8
+
+    pass_list.append(naca0012_nested_ffd_def.run_def())
+    test_list.append(naca0012_nested_ffd_def)
+
     # Brick of tets (inverse volume)
     brick_tets_def            = TestCase('brick_tets_def')
     brick_tets_def.cfg_dir   = "deformation/brick_tets"
