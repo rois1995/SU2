@@ -349,9 +349,9 @@ void CSysMatrix<ScalarType>::Initialize(unsigned long npoint, unsigned long npoi
 
     /*--- The GPU triangular solves are level-scheduled (exact, one pass per level), so they need
      * levels_ilu unconditionally; the host/OMP path only needs it when both multi-threaded and
-     * requested via config. ---*/
+     * requested via config. The ILU factors only exist for the domain rows (no halos). ---*/
     if (useCuda || (omp_get_max_threads() > 1 && config->GetIluOptions().LevelScheduling)) {
-      levels_ilu = computeLevels(pat_ilu.l);
+      levels_ilu = computeLevels(pat_ilu.l, nPointDomain);
     }
 
     /*--- Coloring for the GPU iterative factorization, see IluFactorColorKernel. Colors are
