@@ -596,10 +596,6 @@ CSourceIncRotatingFrame_Flow::CSourceIncRotatingFrame_Flow(unsigned short val_nD
 
   implicit = (config->GetKind_TimeIntScheme_Flow() == EULER_IMPLICIT);
 
-  /*--- Retrieve the angular velocity vector from config. ---*/
-  for (unsigned short iDim = 0; iDim < 3; iDim++)
-    Omega[iDim] = config->GetRotation_Rate(iDim)/config->GetOmega_Ref();
-
 }
 
 CNumerics::ResidualType<> CSourceIncRotatingFrame_Flow::ComputeResidual(const CConfig* config) {
@@ -607,6 +603,12 @@ CNumerics::ResidualType<> CSourceIncRotatingFrame_Flow::ComputeResidual(const CC
   unsigned short iDim, iVar, jVar;
   su2double Momentum[MAXNDIM] = {0},
             Velocity_i[MAXNDIM] = {0};
+
+  /*--- Retrieve the angular velocity vector from config, it may change during the simulation
+   * (ramps, python wrapper). ---*/
+
+  for (iDim = 0; iDim < 3; iDim++)
+    Omega[iDim] = config->GetRotation_Rate(iDim)/config->GetOmega_Ref();
 
   /*--- Primitive variables plus momentum at the node (point i) ---*/
 

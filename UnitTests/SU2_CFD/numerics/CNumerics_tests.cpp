@@ -32,6 +32,7 @@
 #include <vector>
 #include "../../../SU2_CFD/include/numerics/CNumerics.hpp"
 #include "../../../SU2_CFD/include/numerics/NEMO/NEMO_diffusion.hpp"
+#include "../../../SU2_CFD/include/numerics/flow/flow_sources.hpp"
 
 TEST_CASE("NTS blending has a minimum of 0.05", "[Upwind/central blending]") {
   std::stringstream config_options;
@@ -92,6 +93,34 @@ TEST_CASE("QCR2000 corrects only the turbulent stress", "[QCR]") {
   for (size_t iDim = 0; iDim < nDim; iDim++)
     for (size_t jDim = 0; jDim < nDim; jDim++)
       REQUIRE(tau_total[iDim][jDim] == Approx(tau_lam[iDim][jDim] + tau_turb[iDim][jDim]).margin(1e-12));
+}
+
+TEST_CASE("Incompressible rotating frame source follows the rotation rate", "[Source terms]") {
+  std::stringstream config_options;
+  config_options << "SOLVER= INC_EULER\n"
+                 << "GRID_MOVEMENT= ROTATING_FRAME\n"
+                 << "ROTATION_RATE= 0.0 0.0 2.0\n";
+  CConfig config(config_options, SU2_COMPONENT::SU2_CFD, false);
+  config.SetOmega_Ref(1.0);
+
+  /*--- 2D incompressible primitives (p, u, v, T, rho). ---*/
+  constexpr unsigned short nDim = 2, nVar = 4;
+  const su2double primitive[] = {0.0, 3.0, 5.0, 300.0, 1.5, 0.0, 0.0, 0.0, 0.0};
+
+  CSourceIncRotatingFrame_Flow numerics(nDim, nVar, &config);
+  numerics.SetPrimitive(primitive, primitive);
+  numerics.SetVolume(0.5);
+
+  /*--- Residual = (Omega x rho*u) * Volume. ---*/
+  const auto residual = numerics.ComputeResidual(&config);
+  CHECK(residual[1] == Approx(-2.0 * 1.5 * 5.0 * 0.5));
+  CHECK(residual[2] == Approx(2.0 * 1.5 * 3.0 * 0.5));
+
+  /*--- The rate can change during the simulation (ramps, python wrapper). ---*/
+  config.SetRotation_Rate(2, -1.0);
+  const auto residual_new = numerics.ComputeResidual(&config);
+  CHECK(residual_new[1] == Approx(1.0 * 1.5 * 5.0 * 0.5));
+  CHECK(residual_new[2] == Approx(-1.0 * 1.5 * 3.0 * 0.5));
 }
 
 namespace {
