@@ -222,6 +222,15 @@ def main():
     discadj_pitchingNACA0012.unsteady  = True
     test_list.append(discadj_pitchingNACA0012)
 
+    # compressible NACA0012 in a rotating frame, dual time stepping
+    discadj_rot_unst_naca0012           = TestCase('rot_unst_NACA0012')
+    discadj_rot_unst_naca0012.cfg_dir   = "rotating/naca0012"
+    discadj_rot_unst_naca0012.cfg_file  = "rot_NACA0012_unst_adj.cfg"
+    discadj_rot_unst_naca0012.test_iter = 1
+    discadj_rot_unst_naca0012.test_vals = [-4.233725, -6.009286, -5.668836, -8.659018]
+    discadj_rot_unst_naca0012.unsteady  = True
+    test_list.append(discadj_rot_unst_naca0012)
+
     #######################################################
     ### Disc. adj. multizone interfaces                 ###
     #######################################################

@@ -141,8 +141,10 @@ void CDiscAdjFluidIteration::Preprocess(COutput* output, CIntegration**** integr
       /*--- Set volumes into correct containers ---*/
       if (config[iZone]->GetDynamic_Grid()) {
         for (auto iMesh = 0; iMesh <= config[iZone]->GetnMGLevels(); iMesh++) {
-          /*--- If negative iteration number, set default. ---*/
-          if (Direct_Iter - 1 - dual_time_2nd < 0) {
+          /*--- If negative iteration number, set default. If the mesh does not deform the volumes do not change
+           * in time, the primal used the current volume. ---*/
+          if (Direct_Iter - 1 - dual_time_2nd < 0 &&
+              (config[iZone]->GetDeform_Mesh() || config[iZone]->GetVolumetric_Movement())) {
             for(auto iPoint = 0ul; iPoint < geometries[iMesh]->GetnPoint(); iPoint++) {
               geometries[iMesh]->nodes->SetVolume(iPoint, 0.0);
             }
@@ -214,10 +216,22 @@ void CDiscAdjFluidIteration::Preprocess(COutput* output, CIntegration**** integr
 
     }  // else if TimeIter > 0
 
-    /*--- Compute & set Grid Velocity via finite differences of the Coordinates. ---*/
+    /*--- Set the grid velocity as in the primal simulation: analytic for the rotating and translating frames
+     * (the mesh does not move), finite differences of the coordinates otherwise, and the prescribed velocity
+     * on the moving walls. ---*/
     if (grid_IsMoving) {
-      for (auto iMesh = 0u; iMesh <= config[iZone]->GetnMGLevels(); iMesh++)
-        geometries[iMesh]->SetGridVelocity(config[iZone]);
+      const auto Kind_Grid_Movement = config[iZone]->GetKind_GridMovement();
+      for (auto iMesh = 0u; iMesh <= config[iZone]->GetnMGLevels(); iMesh++) {
+        if (Kind_Grid_Movement == ROTATING_FRAME) {
+          geometries[iMesh]->SetRotationalVelocity(config[iZone], false);
+          geometries[iMesh]->SetShroudVelocity(config[iZone]);
+        } else if (Kind_Grid_Movement == STEADY_TRANSLATION) {
+          geometries[iMesh]->SetTranslationalVelocity(config[iZone], false);
+        } else {
+          geometries[iMesh]->SetGridVelocity(config[iZone]);
+        }
+        if (config[iZone]->GetSurface_Movement(MOVING_WALL)) geometries[iMesh]->SetWallVelocity(config[iZone], false);
+      }
     }
 
   }  // if unsteady
