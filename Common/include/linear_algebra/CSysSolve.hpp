@@ -514,7 +514,7 @@ class CSysSolve {
   /*!
    * \brief Set the screen output frequency during monitoring.
    */
-  inline void SetMonitoringFrequency(bool frequency) { monitorFreq = frequency; }
+  inline void SetMonitoringFrequency(unsigned long frequency) { monitorFreq = std::max(1ul, frequency); }
 
   /*!
    * \brief Discard FGCRODR's deflation vectors for the next solve.
