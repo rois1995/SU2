@@ -1976,6 +1976,19 @@ def main():
     pass_list.append(naca0012_rbf_def.run_def())
     test_list.append(naca0012_rbf_def)
 
+    # Inviscid NACA0012 (triangles) RBF, deformation in 2 steps with partitions without control nodes
+    naca0012_rbf_def_nonlinear            = TestCase('naca0012_rbf_def_nonlinear')
+    naca0012_rbf_def_nonlinear.cfg_dir   = "deformation/naca0012"
+    naca0012_rbf_def_nonlinear.cfg_file  = "def_NACA0012_rbf_nonlinear.cfg"
+    naca0012_rbf_def_nonlinear.test_iter = 5
+    naca0012_rbf_def_nonlinear.test_vals = [0.000617294] # error
+    naca0012_rbf_def_nonlinear.command   = TestCase.Command("mpirun -n 2", "SU2_DEF")
+    naca0012_rbf_def_nonlinear.timeout   = 1600
+    naca0012_rbf_def_nonlinear.tol       = 1e-8
+
+    pass_list.append(naca0012_rbf_def_nonlinear.run_def())
+    test_list.append(naca0012_rbf_def_nonlinear)
+
     # Inviscid NACA0012 based on SURFACE_FILE input (surface_bump.dat)
     naca0012_def_file            = TestCase('naca0012_def_file')
     naca0012_def_file.cfg_dir   = "deformation/naca0012"

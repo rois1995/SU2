@@ -118,8 +118,10 @@ void CRadialBasisFunctionInterpolation::SolveRBFSystem(CGeometry* geometry, CCon
     unsigned long maxErrorNodeLocal;
     su2double maxErrorLocal{0};
 
-    /*--- Obtaining the initial maximum error nodes, which are found based on the maximum applied deformation. */
-    if (ControlNodes->empty()) {
+    /*--- Obtaining the initial maximum error nodes, which are found based on the maximum applied deformation.
+     * The global number of control nodes is used because the check is followed by a collective operation,
+     * and some ranks may have no control nodes after the first nonlinear iteration. ---*/
+    if (nCtrlNodesGlobal == 0) {
       GetInitMaxErrorNode(geometry, config, maxErrorNodeLocal, maxErrorLocal);
       SU2_MPI::Allreduce(&maxErrorLocal, &MaxErrorGlobal, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
     }
