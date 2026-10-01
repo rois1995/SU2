@@ -128,7 +128,7 @@ void CRadialBasisFunctionInterpolation::SolveRBFSystem(CGeometry* geometry, CCon
     unsigned short greedyIter = 0;
 
     if (rank == MASTER_NODE) {
-      cout << "Greedy iteration, Max error, Global nr. of ctrl nodes.\n";
+      cout << "Greedy iteration, Global nr. of ctrl nodes, Max error.\n";
     }
 
     /*--- While the maximum error is above the tolerance, data reduction algorithm is continued. ---*/
@@ -149,7 +149,7 @@ void CRadialBasisFunctionInterpolation::SolveRBFSystem(CGeometry* geometry, CCon
       SU2_MPI::Allreduce(&maxErrorLocal, &MaxErrorGlobal, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
 
       if (rank == MASTER_NODE) {
-        cout << "  " << greedyIter << "  " << MaxErrorGlobal << "  " << nCtrlNodesGlobal << "\n";
+        cout << "  " << greedyIter << "  " << nCtrlNodesGlobal << "  " << MaxErrorGlobal << "\n";
       }
       greedyIter++;
     }
