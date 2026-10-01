@@ -593,6 +593,18 @@ public:
   void ComputeMetric(CGeometry *geometry, const CConfig *config);
 
   /*!
+   * \brief Find the sharp points of the walls.
+   * \details A point is sharp if the outward normals of two wall faces (boundary elements of solid wall markers:
+   *          Euler, heat flux, isothermal, ...) that contain it differ by more than ADAP_ANGLE, the threshold at
+   *          which the remesher keeps sharp angles. 2D: corners of the walls; 3D: points on ridge lines and corners.
+   *          The faces of all wall markers are used together, faces of other markers are not.
+   * \param[in] geometry - Geometrical definition of the problem (boundary elements with their volume element).
+   * \param[in] config - Definition of the particular problem.
+   * \return Sharp domain points (local indices), sorted.
+   */
+  static vector<unsigned long> FindSharpWallPoints(const CGeometry* geometry, const CConfig* config);
+
+  /*!
    * \brief Intersect two metrics, by simultaneous reduction (the smallest size is kept in each direction).
    * \param[in] nDim - Number of dimensions.
    * \param[in] A - First symmetric positive definite metric.

@@ -2482,6 +2482,79 @@ void CSolver::IntersectMetrics(unsigned short nDim, const su2double (&A)[3][3], 
   matMul(tmp, sqrtA, C);
 }
 
+vector<unsigned long> CSolver::FindSharpWallPoints(const CGeometry* geometry, const CConfig* config) {
+  const auto nDim = geometry->GetnDim();
+  const su2double cosAngle = cos(config->GetAdap_Angle() * PI_NUMBER / 180.0);
+
+  /*--- Outward unit normal of each wall face (pointing away from its volume element, so that the orientation of
+   *    the boundary elements does not matter), for each of its points. ---*/
+
+  using PointNormal = std::pair<unsigned long, std::array<su2double, 3>>;
+  vector<PointNormal> normals;
+
+  for (auto iMarker = 0u; iMarker < geometry->GetnMarker(); ++iMarker) {
+    if (!config->GetSolid_Wall(iMarker)) continue;
+
+    for (auto iElem = 0ul; iElem < geometry->GetnElem_Bound(iMarker); ++iElem) {
+      const auto* face = geometry->bound[iMarker][iElem];
+      const auto* elem = geometry->elem[face->GetDomainElement()];
+      const auto nNode = face->GetnNodes();
+
+      su2double x[4][3] = {{0.0}}, faceCenter[3] = {0.0}, elemCenter[3] = {0.0}, normal[3] = {0.0};
+      for (auto iNode = 0u; iNode < nNode; ++iNode) {
+        for (auto iDim = 0u; iDim < nDim; ++iDim) {
+          x[iNode][iDim] = geometry->nodes->GetCoord(face->GetNode(iNode), iDim);
+          faceCenter[iDim] += x[iNode][iDim] / nNode;
+        }
+      }
+      for (auto iNode = 0u; iNode < elem->GetnNodes(); ++iNode)
+        for (auto iDim = 0u; iDim < nDim; ++iDim)
+          elemCenter[iDim] += geometry->nodes->GetCoord(elem->GetNode(iNode), iDim) / elem->GetnNodes();
+
+      if (nDim == 2) {
+        normal[0] = x[1][1] - x[0][1];
+        normal[1] = x[0][0] - x[1][0];
+      } else {
+        /*--- Triangle: cross product of two sides; quadrilateral: of the diagonals. ---*/
+        su2double a[3], b[3];
+        const auto last = nNode - 1;
+        GeometryToolbox::Distance(3, x[nNode == 3 ? 1 : 2], x[0], a);
+        GeometryToolbox::Distance(3, x[last], x[nNode == 3 ? 0 : 1], b);
+        GeometryToolbox::CrossProduct(a, b, normal);
+      }
+      su2double outward[3] = {0.0};
+      GeometryToolbox::Distance(nDim, faceCenter, elemCenter, outward);
+      const su2double norm = GeometryToolbox::Norm(nDim, normal);
+      if (norm == 0.0) continue;
+      const su2double sign = (GeometryToolbox::DotProduct(nDim, normal, outward) < 0.0) ? -1.0 : 1.0;
+
+      std::array<su2double, 3> unit = {0.0, 0.0, 0.0};
+      for (auto iDim = 0u; iDim < nDim; ++iDim) unit[iDim] = sign * normal[iDim] / norm;
+      for (auto iNode = 0u; iNode < nNode; ++iNode) normals.emplace_back(face->GetNode(iNode), unit);
+    }
+  }
+
+  /*--- A domain point is sharp if the normals of two of its wall faces differ by more than ADAP_ANGLE. ---*/
+
+  std::sort(normals.begin(), normals.end(),
+            [](const PointNormal& a, const PointNormal& b) { return a.first < b.first; });
+
+  vector<unsigned long> sharp;
+  for (auto begin = normals.begin(); begin != normals.end();) {
+    auto end = begin;
+    while (end != normals.end() && end->first == begin->first) ++end;
+
+    bool isSharp = false;
+    for (auto a = begin; a != end && !isSharp; ++a)
+      for (auto b = a + 1; b != end && !isSharp; ++b)
+        isSharp = GeometryToolbox::DotProduct(nDim, a->second.data(), b->second.data()) < cosAngle;
+
+    if (isSharp && geometry->nodes->GetDomain(begin->first)) sharp.push_back(begin->first);
+    begin = end;
+  }
+  return sharp;
+}
+
 void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config) {
   SU2_ZONE_SCOPED
 

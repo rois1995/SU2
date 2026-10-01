@@ -45,8 +45,11 @@ using MarkerFunction = std::function<std::string(const passivedouble*)>;
  *        subdivision, 6 tetrahedra per cell). The boundary faces are given to markers by their centroid with
  *        markerOf; markers are sorted by name, their references are 0. Half of the 2D elements and some of the 3D
  *        ones are negatively oriented, the nodes of the boundary faces are sorted (no orientation). n must be even.
+ *        If keepElem is given, only the elements whose centroid it accepts are kept (holes give inner boundaries),
+ *        and the points are renumbered without the unused ones.
  */
-inline CSimplexMesh MakeSimplexMesh(unsigned short nDim, unsigned long n, const MarkerFunction& markerOf) {
+inline CSimplexMesh MakeSimplexMesh(unsigned short nDim, unsigned long n, const MarkerFunction& markerOf,
+                                    const std::function<bool(const passivedouble*)>& keepElem = nullptr) {
   const unsigned long nx = (nDim == 2) ? 2 * n : n, ny = n, nz = (nDim == 2) ? 0 : n;
   const passivedouble h = 1.0 / n;
   auto index = [&](unsigned long i, unsigned long j, unsigned long k) { return i + (nx + 1) * (j + (ny + 1) * k); };
@@ -82,6 +85,27 @@ inline CSimplexMesh MakeSimplexMesh(unsigned short nDim, unsigned long n, const 
             }
             elems.push_back(tet);
           }
+  }
+  if (keepElem) {
+    std::vector<std::vector<unsigned long>> kept;
+    for (const auto& elem : elems) {
+      passivedouble centroid[3] = {0.0, 0.0, 0.0};
+      for (const auto iPoint : elem)
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) centroid[iDim] += mesh.coord[iPoint * nDim + iDim] / (nDim + 1);
+      if (keepElem(centroid)) kept.push_back(elem);
+    }
+    std::vector<long> newIndex(mesh.coord.size() / nDim, -1);
+    std::vector<passivedouble> coord;
+    for (auto& elem : kept)
+      for (auto& iPoint : elem) {
+        if (newIndex[iPoint] < 0) {
+          newIndex[iPoint] = coord.size() / nDim;
+          coord.insert(coord.end(), &mesh.coord[iPoint * nDim], &mesh.coord[iPoint * nDim] + nDim);
+        }
+        iPoint = newIndex[iPoint];
+      }
+    mesh.coord = std::move(coord);
+    elems = std::move(kept);
   }
   for (const auto& elem : elems) mesh.elem.insert(mesh.elem.end(), elem.begin(), elem.end());
   mesh.elemRef.assign(elems.size(), 0);
