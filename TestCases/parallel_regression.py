@@ -2158,6 +2158,19 @@ def main():
     pass_list.append(sphere_ffd_def_bspline.run_def())
     test_list.append(sphere_ffd_def_bspline)
 
+    # Two FFD boxes, the first one exceeds OPT_LINE_SEARCH_BOUND
+    naca0012_line_search_bound_def = TestCase('naca0012_line_search_bound_def')
+    naca0012_line_search_bound_def.cfg_dir = "multiple_ffd/naca0012"
+    naca0012_line_search_bound_def.cfg_file = "def_line_search_bound.cfg"
+    naca0012_line_search_bound_def.test_iter = 10
+    naca0012_line_search_bound_def.test_vals = [0.00291181] #residual
+    naca0012_line_search_bound_def.command = TestCase.Command("mpirun -n 2", "SU2_DEF")
+    naca0012_line_search_bound_def.timeout = 1600
+    naca0012_line_search_bound_def.tol = 1e-8
+
+    pass_list.append(naca0012_line_search_bound_def.run_def())
+    test_list.append(naca0012_line_search_bound_def)
+
     # Inviscid NACA0012 (triangles)
     naca0012_cst = TestCase('naca0012_cst')
     naca0012_cst.cfg_dir = "deformation/cst"

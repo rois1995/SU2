@@ -330,6 +330,11 @@ vector<vector<su2double> > CSurfaceMovement::SetSurface_Deformation(CGeometry* g
               /*--- Recompute cartesian coordinates using the new control point location ---*/
 
               MaxDiff = SetCartesianCoord(geometry, config, FFDBox[iFFDBox], iFFDBox, false);
+
+              /*--- The negative scale only takes back part of the deformation of this box,
+               restore the scale for the other boxes. ---*/
+
+              config->SetOpt_RelaxFactor(Current_Scale);
             }
 
             /*--- Set total deformation values in config ---*/
@@ -1792,12 +1797,12 @@ bool CSurfaceMovement::SetFFDCPChange_2D(CGeometry* geometry, CConfig* config, C
 
     } else {
       if (polar) {
-        movement[0] = config->GetDV_Value(iDV, 0);
+        movement[0] = config->GetDV_Value(iDV, 0) * Scale;
         movement[1] = 0.0;
-        movement[2] = config->GetDV_Value(iDV, 1);
+        movement[2] = config->GetDV_Value(iDV, 1) * Scale;
       } else {
-        movement[0] = config->GetDV_Value(iDV, 0);
-        movement[1] = config->GetDV_Value(iDV, 1);
+        movement[0] = config->GetDV_Value(iDV, 0) * Scale;
+        movement[1] = config->GetDV_Value(iDV, 1) * Scale;
         movement[2] = 0.0;
       }
     }
@@ -1925,9 +1930,9 @@ bool CSurfaceMovement::SetFFDCPChange(CGeometry* geometry, CConfig* config, CFre
       movement[2] = config->GetParamDV(iDV, 6) * Ampl;
 
     } else {
-      movement[0] = config->GetDV_Value(iDV, 0);
-      movement[1] = config->GetDV_Value(iDV, 1);
-      movement[2] = config->GetDV_Value(iDV, 2);
+      movement[0] = config->GetDV_Value(iDV, 0) * Scale;
+      movement[1] = config->GetDV_Value(iDV, 1) * Scale;
+      movement[2] = config->GetDV_Value(iDV, 2) * Scale;
     }
 
     index[0] = SU2_TYPE::Int(config->GetParamDV(iDV, 1));
