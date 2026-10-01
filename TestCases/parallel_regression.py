@@ -2106,6 +2106,20 @@ def main():
     pass_list.append(cylinder_ffd_def.run_def())
     test_list.append(cylinder_ffd_def)
 
+    # Cylindrical FFD, finite difference projection in SU2_DOT (unit surface sensitivity)
+    cylinder_ffd_dot = TestCase('cylinder_ffd_dot')
+    cylinder_ffd_dot.cfg_dir = "deformation/cylindrical_ffd"
+    cylinder_ffd_dot.cfg_file = "dot_cylindrical.cfg"
+    cylinder_ffd_dot.test_iter = 1
+    cylinder_ffd_dot.command = TestCase.Command("mpirun -n 2", "SU2_DOT")
+    cylinder_ffd_dot.timeout = 1600
+    cylinder_ffd_dot.reference_file = "of_grad_cylindrical.dat.ref"
+    cylinder_ffd_dot.test_file = "of_grad_cylindrical.dat"
+    cylinder_ffd_dot.comp_threshold = 1e-6
+    cylinder_ffd_dot.tol_file_percent = 0.1
+    pass_list.append(cylinder_ffd_dot.run_filediff())
+    test_list.append(cylinder_ffd_dot)
+
     # Spherical FFD test
     sphere_ffd_def           = TestCase('sphere_ffd_def')
     sphere_ffd_def.cfg_dir   = "deformation/spherical_ffd"

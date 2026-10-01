@@ -440,6 +440,18 @@ void CDiscAdjDeformationDriver::SetProjection_FD(CGeometry* geometry, CConfig* c
 
         surface_movement->ReadFFDInfo(geometry, config, FFDBox, config->GetMesh_FileName());
 
+        /*--- Modify the control points for polar based computations (as SU2_DEF and SU2_GEO do). ---*/
+
+        if (config->GetFFD_CoordSystem() == CYLINDRICAL) {
+          for (iFFDBox = 0; iFFDBox < surface_movement->GetnFFDBox(); iFFDBox++) {
+            FFDBox[iFFDBox]->SetCart2Cyl_ControlPoints(config);
+          }
+        } else if ((config->GetFFD_CoordSystem() == SPHERICAL) || (config->GetFFD_CoordSystem() == POLAR)) {
+          for (iFFDBox = 0; iFFDBox < surface_movement->GetnFFDBox(); iFFDBox++) {
+            FFDBox[iFFDBox]->SetCart2Sphe_ControlPoints(config);
+          }
+        }
+
         /*--- If the FFDBox was not defined in the input file. ---*/
 
         if (!surface_movement->GetFFDBoxDefinition()) {
