@@ -29,6 +29,7 @@
 #include "../../include/solvers/CSolver.hpp"
 
 #include <limits>
+#include <queue>
 
 #include "../../include/gradients/computeGradientsGreenGauss.hpp"
 #include "../../include/gradients/computeGradientsLeastSquares.hpp"
@@ -2677,22 +2678,11 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config) {
   /*--- Unbounded eigenvalues of all points, for the complexity as a function of the global factor. ---*/
 
   vector<su2double> eigenvalues(nPointDomain * nDim);
-  su2double localValues[2] = {0.0, 0.0}, globalValues[2] = {0.0, 0.0};  // complexity, largest eigenvalue
-  su2double localSmallest = std::numeric_limits<passivedouble>::max(), smallest = 0.0;
-
   for (unsigned long iPoint = 0; iPoint < nPointDomain; ++iPoint) {
     su2double vec[3][3], val[3];
     unboundedMetric(iPoint, vec, val);
-    for (auto i = 0u; i < nDim; ++i) {
-      eigenvalues[iPoint * nDim + i] = val[i];
-      if (val[i] > 0.0) localSmallest = fmin(localSmallest, val[i]);
-      localValues[1] = fmax(localValues[1], val[i]);
-    }
-    localValues[0] += sqrt(fabs(determinant(val))) * geometry->nodes->GetVolume(iPoint);
+    for (auto i = 0u; i < nDim; ++i) eigenvalues[iPoint * nDim + i] = val[i];
   }
-  SU2_MPI::Allreduce(&localValues[0], &globalValues[0], 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
-  SU2_MPI::Allreduce(&localValues[1], &globalValues[1], 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
-  SU2_MPI::Allreduce(&localSmallest, &smallest, 1, MPI_DOUBLE, MPI_MIN, SU2_MPI::GetComm());
 
   /*--- Logarithm of the final complexity over the target, for the logarithm of the global factor. ---*/
 
@@ -2709,17 +2699,37 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config) {
     return log(global / complexity);
   };
 
-  /*--- Start from the factor without bounds (exactly 1 when the metric already has the target complexity). With
-   *    active bounds, solve with the Illinois method between the factor that gives ADAP_HMAX everywhere and the
-   *    one that gives the smallest sizes allowed everywhere (the complexity does not change beyond them). ---*/
+  /*--- Logarithm of the global factor for the target complexity. Start from the factor without bounds (exactly 1 when
+   *    the metric already has the target complexity). With active bounds, solve with the Illinois method between the
+   *    factor that gives ADAP_HMAX everywhere and the one that gives the smallest sizes allowed everywhere (the
+   *    complexity does not change beyond them). bracketed is false if the target is outside that range. ---*/
 
   const su2double tol = 1e-6;
-  su2double logScale = log(complexity / globalValues[0]) * 2.0 / nDim;
-  if (fabs(logScale) < tol) logScale = 0.0;
-  su2double error = complexityError(logScale);
-  bool bracketed = true;
 
-  if (fabs(error) > tol) {
+  auto solveGlobalFactor = [&](su2double& logScale, su2double& error, bool& bracketed) {
+    su2double localValues[2] = {0.0, 0.0}, globalValues[2] = {0.0, 0.0};  // complexity, largest eigenvalue
+    su2double localSmallest = std::numeric_limits<passivedouble>::max(), smallest = 0.0;
+
+    for (unsigned long iPoint = 0; iPoint < nPointDomain; ++iPoint) {
+      su2double val[3] = {0.0};
+      for (auto i = 0u; i < nDim; ++i) {
+        val[i] = eigenvalues[iPoint * nDim + i];
+        if (val[i] > 0.0) localSmallest = fmin(localSmallest, val[i]);
+        localValues[1] = fmax(localValues[1], val[i]);
+      }
+      localValues[0] += sqrt(fabs(determinant(val))) * geometry->nodes->GetVolume(iPoint);
+    }
+    SU2_MPI::Allreduce(&localValues[0], &globalValues[0], 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+    SU2_MPI::Allreduce(&localValues[1], &globalValues[1], 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+    SU2_MPI::Allreduce(&localSmallest, &smallest, 1, MPI_DOUBLE, MPI_MIN, SU2_MPI::GetComm());
+
+    logScale = log(complexity / globalValues[0]) * 2.0 / nDim;
+    if (fabs(logScale) < tol) logScale = 0.0;
+    error = complexityError(logScale);
+    bracketed = true;
+
+    if (fabs(error) <= tol) return;
+
     su2double xLow = log(eigMin / globalValues[1]), xHigh = log(eigMax / fmin(smallest, globalValues[1]));
     su2double fLow = complexityError(xLow), fHigh = complexityError(xHigh);
 
@@ -2751,6 +2761,103 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config) {
         }
       }
     }
+  };
+
+  su2double logScale = 0.0, error = 0.0;
+  bool bracketed = true;
+  solveGlobalFactor(logScale, error, bracketed);
+
+  /*--- Isotropic metric at sharp wall corners (ADAP_ISO_CORNER, 2D). The remesher keeps such a corner and sizes the
+   *    two walls on its sides independently, with the anisotropic metric along each of them; the solver's wall normal
+   *    at the corner depends on the ratio of the two edge lengths. At the corner, all eigenvalues become the largest
+   *    one (the smallest size, in every direction). Around it, the metric is intersected with the isotropic size
+   *    h_c + log(ADAP_HGRAD) d, h_c the size at the corner (bounds and global factor applied), d the distance along
+   *    mesh edges: the growth that the gradation of the remesher allows (MMG: h2 = h1 + log(hgrad) l), so there is
+   *    no jump. It is propagated from the corners as a shortest path, as long as it is smaller than the largest size
+   *    of the metric (beyond that, the intersection changes nothing). The intersection with an isotropic metric keeps
+   *    the eigenvectors and raises each eigenvalue to at least 1/h^2. The sizes depend on the global factor, and the
+   *    factor on the complexity they add, so both are repeated until the factor no longer changes (the corner
+   *    regions hold a small part of the complexity, two or three passes); the final metric has the target
+   *    complexity. ---*/
+
+  vector<su2double> isoEigenvalue;
+  unsigned long nCorner = 0, nIsoPoint = 0;
+
+  if (config->GetAdap_Iso_Corner()) {
+    const auto corners = FindSharpWallPoints(geometry, config);
+    unsigned long nLocal = corners.size();
+    SU2_MPI::Allreduce(&nLocal, &nCorner, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
+
+    if (nDim == 2 && nCorner > 0) {
+      const su2double growth = log(config->GetAdap_Hgrad());
+      const su2double noSize = std::numeric_limits<passivedouble>::max();
+      const auto anisotropic = eigenvalues;
+      vector<su2double> size(nPointDomain);
+      isoEigenvalue.resize(nPointDomain);
+
+      /*--- Smallest and largest size of the anisotropic metric of a point, with the bounds and a global factor. ---*/
+      auto boundedSizes = [&](unsigned long iPoint, su2double scale, su2double& hSmall, su2double& hLarge) {
+        su2double val[3] = {0.0};
+        for (auto i = 0u; i < nDim; ++i) val[i] = anisotropic[iPoint * nDim + i];
+        boundEigenvalues(scale, val);
+        hSmall = 1.0 / sqrt(*max_element(val, val + nDim));
+        hLarge = 1.0 / sqrt(*min_element(val, val + nDim));
+      };
+
+      for (int iter = 0; iter < 10; ++iter) {
+        const su2double scale = exp(logScale);
+        using QueueEntry = std::pair<su2double, unsigned long>;
+        std::priority_queue<QueueEntry, vector<QueueEntry>, std::greater<QueueEntry>> queue;
+        std::fill(size.begin(), size.end(), noSize);
+
+        for (const auto iPoint : corners) {
+          su2double hSmall, hLarge;
+          boundedSizes(iPoint, scale, hSmall, hLarge);
+          size[iPoint] = hSmall;
+          queue.emplace(hSmall, iPoint);
+        }
+        while (!queue.empty()) {
+          const auto h = queue.top().first;
+          const auto iPoint = queue.top().second;
+          queue.pop();
+          if (h > size[iPoint]) continue;
+          const auto coord_i = geometry->nodes->GetCoord(iPoint);
+          for (const auto jPoint : geometry->nodes->GetPoints(iPoint)) {
+            if (jPoint >= nPointDomain) continue;
+            const auto coord_j = geometry->nodes->GetCoord(jPoint);
+            const su2double hNew = h + growth * GeometryToolbox::Distance(nDim, coord_i, coord_j);
+            if (hNew >= size[jPoint]) continue;
+            su2double hSmall, hLarge;
+            boundedSizes(jPoint, scale, hSmall, hLarge);
+            if (hNew >= hLarge) continue;
+            size[jPoint] = hNew;
+            queue.emplace(hNew, jPoint);
+          }
+        }
+
+        /*--- Eigenvalues before the global factor; exactly isotropic at the corners, whatever the factor and the
+         *    bounds. ---*/
+        nLocal = 0;
+        for (unsigned long iPoint = 0; iPoint < nPointDomain; ++iPoint) {
+          isoEigenvalue[iPoint] = 0.0;
+          if (size[iPoint] < noSize) {
+            isoEigenvalue[iPoint] = 1.0 / (pow(size[iPoint], 2) * scale);
+            ++nLocal;
+          }
+        }
+        for (const auto iPoint : corners)
+          isoEigenvalue[iPoint] = *max_element(&anisotropic[iPoint * nDim], &anisotropic[iPoint * nDim] + nDim);
+
+        for (unsigned long iPoint = 0; iPoint < nPointDomain; ++iPoint)
+          for (auto i = 0u; i < nDim; ++i)
+            eigenvalues[iPoint * nDim + i] = fmax(anisotropic[iPoint * nDim + i], isoEigenvalue[iPoint]);
+
+        const su2double previous = logScale;
+        solveGlobalFactor(logScale, error, bracketed);
+        if (fabs(logScale - previous) < tol) break;
+      }
+      SU2_MPI::Allreduce(&nLocal, &nIsoPoint, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
+    }
   }
 
   /*--- Final metric. ---*/
@@ -2762,6 +2869,9 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config) {
   for (unsigned long iPoint = 0; iPoint < nPointDomain; ++iPoint) {
     su2double vec[3][3], val[3], metric[3][3] = {{0.0}};
     unboundedMetric(iPoint, vec, val);
+    if (!isoEigenvalue.empty()) {
+      for (auto i = 0u; i < nDim; ++i) val[i] = fmax(val[i], isoEigenvalue[iPoint]);
+    }
     boundEigenvalues(scale, val);
     CBlasStructure::EigenRecomposition(metric, vec, val, nDim);
     base_nodes->SetMetricMat(iPoint, metric);
@@ -2785,6 +2895,13 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config) {
     cout << "Maximum density: " << maxDensity << "." << endl;
     cout << "Maximum cell AR: " << maxAR << "." << endl;
     cout << "Mesh complexity: " << totComplexity << " (ADAP_COMPLEXITY= " << complexity << ")." << endl;
+    if (nDim == 2 && nCorner > 0) {
+      cout << "Sharp wall corners: " << nCorner << ", isotropic metric on " << nIsoPoint << " points (ADAP_ISO_CORNER)."
+           << endl;
+    } else if (nCorner > 0) {
+      cout << "Sharp wall points: " << nCorner << ", the isotropic corner metric (ADAP_ISO_CORNER) is applied in 2D "
+           << "only, the metric is not changed." << endl;
+    }
     if (fabs(error) > tol && !bracketed) {
       cout << "WARNING: The mesh complexity " << totComplexity << " differs from ADAP_COMPLEXITY= " << complexity
            << ", which cannot be reached with the bounds ADAP_HMIN, ADAP_HMAX and ADAP_ARMAX. The metric has the "

@@ -585,7 +585,9 @@ public:
    *          complexity (ADAP_COMPLEXITY), then the metrics of the sensors are intersected. A global
    *          factor brings the final metric to ADAP_COMPLEXITY, with the size and aspect ratio bounds
    *          (ADAP_HMIN, ADAP_HMAX, ADAP_ARMAX) applied to the final metric. A warning is printed if the
-   *          bounds do not allow the target complexity.
+   *          bounds do not allow the target complexity. With ADAP_ISO_CORNER (2D), the metric is isotropic at
+   *          sharp wall corners (FindSharpWallPoints), with the smallest size of the metric there, and grows
+   *          from it with ADAP_HGRAD around them; this is included in the target complexity.
    * \note The Hessians must be computed first (SetHessian_Adapt). Call outside of OpenMP parallel regions.
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] config - Definition of the particular problem.
@@ -593,7 +595,7 @@ public:
   void ComputeMetric(CGeometry *geometry, const CConfig *config);
 
   /*!
-   * \brief Find the sharp points of the walls.
+   * \brief Find the sharp points of the walls, where ADAP_ISO_CORNER makes the adaptation metric isotropic.
    * \details A point is sharp if the outward normals of two wall faces (boundary elements of solid wall markers:
    *          Euler, heat flux, isothermal, ...) that contain it differ by more than ADAP_ANGLE, the threshold at
    *          which the remesher keeps sharp angles. 2D: corners of the walls; 3D: points on ridge lines and corners.

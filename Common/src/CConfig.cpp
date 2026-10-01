@@ -3281,6 +3281,10 @@ void CConfig::SetConfig_Options() {
   addDoubleOption("ADAP_HAUSD", Adap_Hausd, 0.01);
   /*!\brief ADAP_ANGLE \n DESCRIPTION: Sharp angle detection threshold of the remesher, in degrees \ingroup Config */
   addDoubleOption("ADAP_ANGLE", Adap_Angle, 45.0);
+  /*!\brief ADAP_ISO_CORNER \n DESCRIPTION: Isotropic metric at sharp corners of walls (2D): where the wall turns by more
+   * than ADAP_ANGLE, the size is the smallest size of the metric in all directions, growing with ADAP_HGRAD around it,
+   * so that the remesher gives similar edges on both sides of the corner \ingroup Config */
+  addBoolOption("ADAP_ISO_CORNER", Adap_Iso_Corner, true);
 
   /*--- Adaptation loop options, not used by the C++ code yet (kept so existing config files parse) ---*/
   addPythonOption("ADAP_SIZES");

@@ -1310,6 +1310,7 @@ private:
 
   /*--- Mesh adaptation options ---*/
   bool Compute_Metric = false;              /*!< \brief Determines if the adaptation metric is computed. */
+  bool Adap_Iso_Corner = true;              /*!< \brief Isotropic adaptation metric at sharp wall corners. */
   unsigned short Kind_Hessian_Method;       /*!< \brief Numerical method for computation of Hessians. */
   unsigned short nAdap_Sensor = 0;          /*!< \brief Number of sensors to use for adaptation. */
   string* Adap_Sensor = nullptr;            /*!< \brief Sensors to use for adaptation. */
@@ -10364,6 +10365,11 @@ public:
    * \brief Get the sharp angle detection threshold of the remesher (degrees).
    */
   su2double GetAdap_Angle(void) const { return Adap_Angle; }
+
+  /*!
+   * \brief Check if the adaptation metric is made isotropic at sharp wall corners (2D).
+   */
+  bool GetAdap_Iso_Corner(void) const { return Adap_Iso_Corner; }
 
   /*!
    * \brief Check if the gradient smoothing is active

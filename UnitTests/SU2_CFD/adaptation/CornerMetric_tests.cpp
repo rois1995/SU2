@@ -1,6 +1,6 @@
 /*!
  * \file CornerMetric_tests.cpp
- * \brief Unit tests for the sharp points of the walls (mesh adaptation).
+ * \brief Unit tests for the isotropic adaptation metric at sharp wall corners (ADAP_ISO_CORNER).
  * \version 8.5.0 "Harrier"
  *
  * SU2 Project Website: https://su2code.github.io
@@ -212,4 +212,100 @@ TEST_CASE("Sharp wall points 3D", "[Adaptation]") {
     onEdges &= nOnFace >= 2;
   }
   CHECK(onEdges);
+
+  /*--- The isotropic corner metric is applied in 2D only. ---*/
+  const auto output = test.ComputeMetric();
+  CHECK(output.find("2D only") != string::npos);
+  CornerTest reference(mesh, walls + "ADAP_COMPLEXITY= 100\nADAP_ISO_CORNER= NO\n", hessian);
+  reference.ComputeMetric();
+  su2double diff = 0.0;
+  for (auto iPoint = 0ul; iPoint < test.Geometry().GetnPoint(); ++iPoint)
+    for (auto iMet = 0u; iMet < 6; ++iMet)
+      diff = max(diff, fabs(test.solver[FLOW_SOL]->GetNodes()->GetMetric(iPoint, iMet) -
+                            reference.solver[FLOW_SOL]->GetNodes()->GetMetric(iPoint, iMet)));
+  CHECK(diff == 0.0);
+}
+
+TEST_CASE("Isotropic metric at sharp wall corners", "[Adaptation]") {
+  const auto mesh = WedgeMesh();
+  const su2double growth = log(1.3);
+
+  /*--- Without the corner treatment the metric is the same everywhere. ---*/
+  CornerTest reference(mesh, wallOptions + "ADAP_ISO_CORNER= NO\n", hessian2D);
+  reference.ComputeMetric();
+  su2double refVal[3];
+  reference.Eigenvalues(0, refVal);
+  CHECK(reference.Complexity() == Approx(2000.0).epsilon(1e-6));
+
+  CornerTest test(mesh, wallOptions, hessian2D);
+  const auto output = test.ComputeMetric();
+  CHECK(output.find("WARNING") == string::npos);
+  CHECK(output.find("Sharp wall corners: 3") != string::npos);
+
+  /*--- The complexity is still the target. ---*/
+  CHECK(test.Complexity() == Approx(2000.0).epsilon(1e-6));
+
+  /*--- Metric away from the corners (the same everywhere there, scaled down by the global factor). ---*/
+  const auto& geometry = test.Geometry();
+  su2double farVal[3] = {0.0, 0.0, 0.0};
+  unsigned long nFar = 0;
+  for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+    if (test.CornerDistance(iPoint) < 0.6) continue;
+    su2double val[3];
+    test.Eigenvalues(iPoint, val);
+    if (nFar++ == 0) {
+      for (auto i = 0u; i < 2; ++i) farVal[i] = val[i];
+    }
+    for (auto i = 0u; i < 2; ++i) CHECK(val[i] == Approx(farVal[i]).epsilon(1e-12));
+  }
+  REQUIRE(nFar > 0);
+  CHECK(farVal[1] / farVal[0] == Approx(refVal[1] / refVal[0]).epsilon(1e-10));
+  CHECK(farVal[1] < refVal[1]);
+
+  /*--- At the corners: isotropic, with the smallest size of the metric (its largest eigenvalue). ---*/
+  unsigned long nCorner = 0, nChanged = 0;
+  for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+    su2double val[3];
+    test.Eigenvalues(iPoint, val);
+    if (test.CornerDistance(iPoint) < 1e-12) {
+      ++nCorner;
+      CHECK(val[0] == Approx(farVal[1]).epsilon(1e-10));
+      CHECK(val[1] == Approx(farVal[1]).epsilon(1e-10));
+    }
+
+    /*--- Everywhere: an intersection with an isotropic metric, i.e. the same eigenvectors as the anisotropic metric
+     *    and eigenvalues that are not smaller. ---*/
+    su2double M[3][3], A[3][3] = {{0.0}};
+    test.Metric(iPoint, M);
+    const su2double scale = farVal[1] / refVal[1];
+    for (auto i = 0u; i < 2; ++i)
+      for (auto j = 0u; j < 2; ++j) A[i][j] = scale * reference.solver[FLOW_SOL]->GetNodes()->GetMetric(0, i + j);
+    su2double commutator = 0.0;
+    for (auto i = 0u; i < 2; ++i)
+      for (auto j = 0u; j < 2; ++j) {
+        su2double c = 0.0;
+        for (auto k = 0u; k < 2; ++k) c += M[i][k] * A[k][j] - A[i][k] * M[k][j];
+        commutator = max(commutator, fabs(c));
+      }
+    CHECK(commutator < 1e-10 * farVal[1] * farVal[1]);
+    CHECK(val[0] >= farVal[0] * (1 - 1e-10));
+    CHECK(val[1] >= farVal[1] * (1 - 1e-10));
+    nChanged += val[0] > farVal[0] * (1 + 1e-10);
+  }
+  CHECK(nCorner == 3);
+  CHECK(nChanged > 10 * nCorner);
+
+  /*--- Smooth blend: the largest size grows at most by log(ADAP_HGRAD) times the length of each edge (the gradation
+   *    of the remesher); the smallest size stays that of the anisotropic metric. ---*/
+  su2double worst = 0.0;
+  for (auto iEdge = 0ul; iEdge < geometry.GetnEdge(); ++iEdge) {
+    const auto iPoint = geometry.edges->GetNode(iEdge, 0), jPoint = geometry.edges->GetNode(iEdge, 1);
+    su2double val_i[3], val_j[3];
+    test.Eigenvalues(iPoint, val_i);
+    test.Eigenvalues(jPoint, val_j);
+    const su2double length = GeometryToolbox::Distance(2, geometry.nodes->GetCoord(iPoint), geometry.nodes->GetCoord(jPoint));
+    worst = max(worst, fabs(1 / sqrt(val_i[0]) - 1 / sqrt(val_j[0])) / (growth * length));
+  }
+  CHECK(worst <= 1 + 1e-6);
+  CHECK(worst > 0.5);
 }
