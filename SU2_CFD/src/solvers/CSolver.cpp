@@ -2310,6 +2310,159 @@ void CSolver::SetHessian_Adapt(CGeometry *geometry, const CConfig *config) {
   CompleteComms(geometry, config, MPI_QUANTITIES::HESSIAN);
 }
 
+void CSolver::IntersectMetrics(unsigned short nDim, const su2double (&A)[3][3], const su2double (&B)[3][3],
+                               su2double (&C)[3][3]) {
+
+  auto matMul = [nDim](const su2double (&X)[3][3], const su2double (&Y)[3][3], su2double (&Z)[3][3]) {
+    for (auto i = 0u; i < nDim; ++i) {
+      for (auto j = 0u; j < nDim; ++j) {
+        Z[i][j] = 0.0;
+        for (auto k = 0u; k < nDim; ++k) Z[i][j] += X[i][k] * Y[k][j];
+      }
+    }
+  };
+
+  su2double vec[3][3], val[3], work[3], sqrtVal[3], invSqrtVal[3];
+  su2double sqrtA[3][3], invSqrtA[3][3], T[3][3], tmp[3][3];
+
+  /*--- Square root of A and its inverse. ---*/
+
+  CBlasStructure::EigenDecomposition(A, vec, val, nDim, work);
+  for (auto i = 0u; i < nDim; ++i) {
+    sqrtVal[i] = sqrt(fmax(val[i], EPS));
+    invSqrtVal[i] = 1.0 / sqrtVal[i];
+  }
+  CBlasStructure::EigenRecomposition(sqrtA, vec, sqrtVal, nDim);
+  CBlasStructure::EigenRecomposition(invSqrtA, vec, invSqrtVal, nDim);
+
+  /*--- In the basis where A is the identity, B is T = A^-1/2 B A^-1/2. The intersection is
+   *    diagonal in the eigenvectors of T, with eigenvalues max(1, eig(T)). ---*/
+
+  matMul(invSqrtA, B, tmp);
+  matMul(tmp, invSqrtA, T);
+  CBlasStructure::EigenDecomposition(T, vec, val, nDim, work);
+  for (auto i = 0u; i < nDim; ++i) val[i] = fmax(val[i], 1.0);
+  CBlasStructure::EigenRecomposition(T, vec, val, nDim);
+
+  /*--- Back to the original basis, C = A^1/2 T A^1/2. ---*/
+
+  matMul(sqrtA, T, tmp);
+  matMul(tmp, sqrtA, C);
+}
+
+void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config) {
+  SU2_ZONE_SCOPED
+
+  const auto nSensor = config->GetnAdap_Sensor();
+  const su2double p = config->GetAdap_Norm();
+  const su2double eigMax = 1.0 / pow(config->GetAdap_Hmin(), 2);
+  const su2double eigMin = 1.0 / pow(config->GetAdap_Hmax(), 2);
+  const su2double arMax2 = pow(config->GetAdap_ARmax(), 2);
+  const su2double complexity = config->GetAdap_Complexity();
+
+  /*--- Eigen decomposition of |H| for a sensor. Non-finite Hessians are replaced by zero,
+   *    small eigenvalues are bounded away from zero. ---*/
+
+  auto absHessian = [&](unsigned long iPoint, unsigned short iSensor, su2double (&vec)[3][3], su2double (&val)[3]) {
+    su2double H[3][3] = {{0.0}}, work[3];
+    base_nodes->GetHessianMat(iPoint, iSensor, H);
+    bool finite = true;
+    for (auto i = 0u; i < nDim; ++i)
+      for (auto j = 0u; j < nDim; ++j) finite = finite && std::isfinite(SU2_TYPE::GetValue(H[i][j]));
+    if (!finite) {
+      for (auto i = 0u; i < nDim; ++i)
+        for (auto j = 0u; j < nDim; ++j) H[i][j] = 0.0;
+    }
+    CBlasStructure::EigenDecomposition(H, vec, val, nDim, work);
+    for (auto i = 0u; i < nDim; ++i) val[i] = fmax(fabs(val[i]), 1e-16);
+  };
+
+  auto determinant = [&](const su2double (&val)[3]) {
+    su2double det = 1.0;
+    for (auto i = 0u; i < nDim; ++i) det *= val[i];
+    return det;
+  };
+
+  /*--- Integral of det(|H|)^(p/(2p+n)) for each sensor, used to reach the target complexity. ---*/
+
+  vector<su2double> localScale(nSensor, 0.0), globalScale(nSensor, 0.0);
+
+  for (unsigned long iPoint = 0; iPoint < nPointDomain; ++iPoint) {
+    const su2double volume = geometry->nodes->GetVolume(iPoint);
+    for (auto iSensor = 0u; iSensor < nSensor; ++iSensor) {
+      su2double vec[3][3], val[3];
+      absHessian(iPoint, iSensor, vec, val);
+      localScale[iSensor] += pow(determinant(val), p / (2 * p + nDim)) * volume;
+    }
+  }
+  SU2_MPI::Allreduce(localScale.data(), globalScale.data(), nSensor, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+
+  /*--- Lp-optimal metric of each sensor, bounded by the size and aspect ratio limits,
+   *    and intersection of the sensor metrics. ---*/
+
+  su2double localMinDensity = std::numeric_limits<passivedouble>::max(), localMaxDensity = 0.0;
+  su2double localMaxAR = 0.0, localComplexity = 0.0;
+
+  for (unsigned long iPoint = 0; iPoint < nPointDomain; ++iPoint) {
+    su2double metric[3][3] = {{0.0}};
+
+    for (auto iSensor = 0u; iSensor < nSensor; ++iSensor) {
+      su2double vec[3][3], val[3], sensorMetric[3][3];
+      absHessian(iPoint, iSensor, vec, val);
+
+      const su2double factor = pow(complexity / globalScale[iSensor], 2.0 / nDim) *
+                               pow(determinant(val), -1.0 / (2 * p + nDim));
+      su2double valMax = 0.0;
+      for (auto i = 0u; i < nDim; ++i) {
+        val[i] = fmin(fmax(factor * val[i], eigMin), eigMax);
+        valMax = fmax(valMax, val[i]);
+      }
+      for (auto i = 0u; i < nDim; ++i) val[i] = fmax(val[i], valMax / arMax2);
+
+      CBlasStructure::EigenRecomposition(sensorMetric, vec, val, nDim);
+
+      if (iSensor == 0) {
+        for (auto i = 0u; i < nDim; ++i)
+          for (auto j = 0u; j < nDim; ++j) metric[i][j] = sensorMetric[i][j];
+      } else {
+        su2double previous[3][3];
+        for (auto i = 0u; i < nDim; ++i)
+          for (auto j = 0u; j < nDim; ++j) previous[i][j] = metric[i][j];
+        IntersectMetrics(nDim, previous, sensorMetric, metric);
+      }
+    }
+
+    base_nodes->SetMetricMat(iPoint, metric);
+
+    /*--- Statistics of the final metric (eigenvalues are sorted in ascending order). ---*/
+
+    su2double vec[3][3], val[3], work[3];
+    CBlasStructure::EigenDecomposition(metric, vec, val, nDim, work);
+    const su2double density = sqrt(fabs(determinant(val)));
+    localMinDensity = fmin(localMinDensity, density);
+    localMaxDensity = fmax(localMaxDensity, density);
+    localMaxAR = fmax(localMaxAR, sqrt(fabs(val[nDim - 1] / val[0])));
+    localComplexity += density * geometry->nodes->GetVolume(iPoint);
+  }
+
+  su2double minDensity = 0.0, maxDensity = 0.0, maxAR = 0.0, totComplexity = 0.0;
+  SU2_MPI::Allreduce(&localMinDensity, &minDensity, 1, MPI_DOUBLE, MPI_MIN, SU2_MPI::GetComm());
+  SU2_MPI::Allreduce(&localMaxDensity, &maxDensity, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+  SU2_MPI::Allreduce(&localMaxAR, &maxAR, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+  SU2_MPI::Allreduce(&localComplexity, &totComplexity, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+
+  if (rank == MASTER_NODE) {
+    cout << "Metric field statistics:" << endl;
+    cout << "Minimum density: " << minDensity << "." << endl;
+    cout << "Maximum density: " << maxDensity << "." << endl;
+    cout << "Maximum cell AR: " << maxAR << "." << endl;
+    cout << "Mesh complexity: " << totComplexity << "." << endl;
+  }
+
+  InitiateComms(geometry, config, MPI_QUANTITIES::METRIC);
+  CompleteComms(geometry, config, MPI_QUANTITIES::METRIC);
+}
+
 void CSolver::SetSolution_Gradient_GG(CGeometry *geometry, const CConfig *config, short idxVel, bool reconstruction) {
   SU2_ZONE_SCOPED
 

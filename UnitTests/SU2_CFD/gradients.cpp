@@ -220,3 +220,29 @@ void testHessian(ENUM_FLOW_GRADIENT method) {
 TEST_CASE("Hessian GG", "[Gradients]") { testHessian<QuadraticFunction>(GREEN_GAUSS); }
 
 TEST_CASE("Hessian WLS", "[Gradients]") { testHessian<QuadraticFunction>(WEIGHTED_LEAST_SQUARES); }
+
+TEST_CASE("Metric intersection", "[Adaptation]") {
+  const su2double c = cos(0.3), s = sin(0.3);
+  const su2double R[3][3] = {{c, -s, 0.0}, {s, c, 0.0}, {0.0, 0.0, 1.0}};
+  const su2double eigA[3] = {1.0, 9.0, 4.0}, eigB[3] = {16.0, 4.0, 1.0}, eigC[3] = {16.0, 9.0, 4.0};
+
+  /*--- Metrics with common eigenvectors R: the intersection takes the largest eigenvalues. ---*/
+  su2double A[3][3], B[3][3], ref[3][3], C[3][3];
+  CBlasStructure::EigenRecomposition(A, R, eigA, 3);
+  CBlasStructure::EigenRecomposition(B, R, eigB, 3);
+  CBlasStructure::EigenRecomposition(ref, R, eigC, 3);
+
+  CSolver::IntersectMetrics(3, A, B, C);
+  su2double err = 0.0;
+  for (auto i = 0u; i < 3; ++i)
+    for (auto j = 0u; j < 3; ++j) err = max(err, abs(C[i][j] - ref[i][j]));
+  CHECK(err < 1e-12);
+
+  /*--- In 2D, intersecting with a smaller metric changes nothing. ---*/
+  su2double small[3][3] = {{0.5, 0.1, 0.0}, {0.1, 0.5, 0.0}, {0.0, 0.0, 0.0}};
+  CSolver::IntersectMetrics(2, A, small, C);
+  err = 0.0;
+  for (auto i = 0u; i < 2; ++i)
+    for (auto j = 0u; j < 2; ++j) err = max(err, abs(C[i][j] - A[i][j]));
+  CHECK(err < 1e-12);
+}

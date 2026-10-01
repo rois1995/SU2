@@ -580,6 +580,27 @@ public:
   void SetHessian_Adapt(CGeometry *geometry, const CConfig *config);
 
   /*!
+   * \brief Compute the mesh adaptation metric from the Hessians of the sensors.
+   * \details For each sensor, the Lp-norm optimal metric (ADAP_NORM) is scaled to the target
+   *          complexity (ADAP_COMPLEXITY) and bounded by ADAP_HMIN, ADAP_HMAX and ADAP_ARMAX.
+   *          The metrics of the sensors are then intersected.
+   * \note The Hessians must be computed first (SetHessian_Adapt). Call outside of OpenMP parallel regions.
+   * \param[in] geometry - Geometrical definition of the problem.
+   * \param[in] config - Definition of the particular problem.
+   */
+  void ComputeMetric(CGeometry *geometry, const CConfig *config);
+
+  /*!
+   * \brief Intersect two metrics, by simultaneous reduction (the smallest size is kept in each direction).
+   * \param[in] nDim - Number of dimensions.
+   * \param[in] A - First symmetric positive definite metric.
+   * \param[in] B - Second symmetric positive definite metric.
+   * \param[out] C - Intersection of A and B.
+   */
+  static void IntersectMetrics(unsigned short nDim, const su2double (&A)[3][3], const su2double (&B)[3][3],
+                               su2double (&C)[3][3]);
+
+  /*!
    * \brief Compute the Least Squares gradient of the grid velocity.
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] config - Definition of the particular problem.
