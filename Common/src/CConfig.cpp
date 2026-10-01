@@ -3255,6 +3255,42 @@ void CConfig::SetConfig_Options() {
   /*!\brief ROM_SAVE_FREQ \n DESCRIPTION: How often to save snapshots for unsteady problems.*/
   addUnsignedShortOption("ROM_SAVE_FREQ", rom_save_freq, 1);
 
+  /*--- Options used for mesh adaptation ---*/
+  /*!\brief COMPUTE_METRIC \n DESCRIPTION: Compute the adaptation metric \ingroup Config */
+  addBoolOption("COMPUTE_METRIC", Compute_Metric, false);
+
+  /*!\brief NUM_METHOD_HESS \n DESCRIPTION: Numerical method for Hessian computation \n OPTIONS: See \link Gradient_Map \endlink. \n DEFAULT: GREEN_GAUSS. \ingroup Config*/
+  addEnumOption("NUM_METHOD_HESS", Kind_Hessian_Method, Gradient_Map, GREEN_GAUSS);
+
+  /*!\brief ADAP_SENSOR \n DESCRIPTION: Sensors for mesh adaptation \ingroup Config */
+  addStringListOption("ADAP_SENSOR", nAdap_Sensor, Adap_Sensor);
+  /*!\brief ADAP_NORM \n DESCRIPTION: Lp-norm for mesh adaptation \ingroup Config */
+  addDoubleOption("ADAP_NORM", Adap_Norm, 1.0);
+  /*!\brief ADAP_HMAX \n DESCRIPTION: Constraint maximum cell size \ingroup Config */
+  addDoubleOption("ADAP_HMAX", Adap_Hmax, 10.0);
+  /*!\brief ADAP_HMIN \n DESCRIPTION: Constraint minimum cell size \ingroup Config */
+  addDoubleOption("ADAP_HMIN", Adap_Hmin, 1.0E-8);
+  /*!\brief ADAP_ARMAX \n DESCRIPTION: Constraint maximum cell aspect ratio \ingroup Config */
+  addDoubleOption("ADAP_ARMAX", Adap_ARmax, 1.0E6);
+  /*!\brief ADAP_COMPLEXITY \n DESCRIPTION: Constraint mesh complexity \ingroup Config */
+  addUnsignedLongOption("ADAP_COMPLEXITY", Adap_Complexity, 10000);
+
+  /*--- Adaptation loop options, not used by the C++ code yet (kept so existing config files parse) ---*/
+  addPythonOption("ADAP_SIZES");
+  addPythonOption("ADAP_HMAXS");
+  addPythonOption("ADAP_HMINS");
+  addPythonOption("ADAP_NORMS");
+  addPythonOption("ADAP_ARMAXS");
+  addPythonOption("ADAP_SUBITER");
+  addPythonOption("ADAP_FLOW_ITER");
+  addPythonOption("ADAP_ADJ_ITER");
+  addPythonOption("ADAP_FLOW_CFL");
+  addPythonOption("ADAP_ADJ_CFL");
+  addPythonOption("ADAP_RESIDUAL_REDUCTION");
+  addPythonOption("ADAP_HGRAD");
+  addPythonOption("ADAP_HAUSD");
+  addPythonOption("ADAP_ANGLE");
+
   /* END_CONFIG_OPTIONS */
 
 }
@@ -6011,6 +6047,32 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     /*--- Check if flame ignition temperature is valid ---*/
     if (flamelet_ParsedOptions.Flame_T_ignition <= Inc_Temperature_Init) {
       SU2_MPI::Error("Flame ignition temperature must be higher than the initial temperature of the flow field.", CURRENT_FUNCTION);
+    }
+  }
+
+  /*--- Checks for mesh adaptation ---*/
+  if (Compute_Metric) {
+    if (nAdap_Sensor == 0) SU2_MPI::Error("COMPUTE_METRIC = YES requires ADAP_SENSOR.", CURRENT_FUNCTION);
+    if (Kind_Hessian_Method == NO_GRADIENT) SU2_MPI::Error("NUM_METHOD_HESS cannot be NONE.", CURRENT_FUNCTION);
+    const vector<string> Sensor_Avail{"GOAL", "MACH", "PRESSURE", "TEMPERATURE", "TEMPERATURE_VE", "ENERGY", "ENERGY_VE", "DENSITY", "TOTALPRESSURE"};
+    const bool nemo = (Kind_Solver == MAIN_SOLVER::NEMO_EULER || Kind_Solver == MAIN_SOLVER::NEMO_NAVIER_STOKES);
+    const bool inc = (Kind_Solver == MAIN_SOLVER::INC_EULER || Kind_Solver == MAIN_SOLVER::INC_NAVIER_STOKES ||
+                      Kind_Solver == MAIN_SOLVER::INC_RANS);
+    for (unsigned short iSensor = 0; iSensor < nAdap_Sensor; iSensor++) {
+      const string& sensor = Adap_Sensor[iSensor];
+      if (find(begin(Sensor_Avail), end(Sensor_Avail), sensor) == end(Sensor_Avail)) {
+        SU2_MPI::Error("Invalid adaptation sensor: " + sensor + "; must be GOAL, MACH, PRESSURE, ENERGY, ENERGY_VE, DENSITY, TEMPERATURE, TEMPERATURE_VE, TOTALPRESSURE", CURRENT_FUNCTION);
+      }
+      if (sensor == "GOAL") {
+        if (nAdap_Sensor != 1) SU2_MPI::Error("Adaptation sensor GOAL cannot be used with other sensors.", CURRENT_FUNCTION);
+        if (!DiscreteAdjoint) SU2_MPI::Error("Adaptation sensor GOAL can only be computed for MATH_PROBLEM = DISCRETE_ADJOINT.", CURRENT_FUNCTION);
+      }
+      if (nemo && (sensor == "GOAL" || sensor == "DENSITY"))
+        SU2_MPI::Error("Adaptation sensor " + sensor + " not available for NEMO problems.", CURRENT_FUNCTION);
+      if (!nemo && (sensor == "TEMPERATURE_VE" || sensor == "ENERGY_VE"))
+        SU2_MPI::Error("Adaptation sensor " + sensor + " not available for non-NEMO problems.", CURRENT_FUNCTION);
+      if (inc && (sensor == "GOAL" || sensor == "ENERGY"))
+        SU2_MPI::Error("Adaptation sensor " + sensor + " not available for INC problems.", CURRENT_FUNCTION);
     }
   }
 

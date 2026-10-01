@@ -1308,6 +1308,17 @@ private:
   unsigned short maxBasisDim,               /*!< \brief Maximum number of POD basis dimensions. */
   rom_save_freq;                            /*!< \brief Frequency of unsteady time steps to save. */
 
+  /*--- Mesh adaptation options ---*/
+  bool Compute_Metric = false;              /*!< \brief Determines if the adaptation metric is computed. */
+  unsigned short Kind_Hessian_Method;       /*!< \brief Numerical method for computation of Hessians. */
+  unsigned short nAdap_Sensor = 0;          /*!< \brief Number of sensors to use for adaptation. */
+  string* Adap_Sensor = nullptr;            /*!< \brief Sensors to use for adaptation. */
+  su2double Adap_Norm,                      /*!< \brief Lp-norm for mesh adaptation. */
+            Adap_Hmax,                      /*!< \brief Maximum cell size. */
+            Adap_Hmin,                      /*!< \brief Minimum cell size. */
+            Adap_ARmax;                     /*!< \brief Maximum cell aspect ratio. */
+  unsigned long Adap_Complexity;            /*!< \brief Constraint mesh complexity. */
+
   unsigned short nSpecies = 0;              /*!< \brief Number of transported species equations (for NEMO and species transport)*/
 
   /* other NEMO configure options*/
@@ -10281,6 +10292,60 @@ public:
    * \return Save frequency for unsteady time steps.
    */
   unsigned short GetRom_SaveFreq(void) const { return rom_save_freq; }
+
+  /*!
+   * \brief Check if the adaptation metric is computed.
+   * \return <code>TRUE</code> if the metric is computed.
+   */
+  bool GetCompute_Metric(void) const { return Compute_Metric; }
+
+  /*!
+   * \brief Check if goal-oriented error estimation is used.
+   * \return <code>TRUE</code> if the first adaptation sensor is GOAL.
+   */
+  bool GetGoal_Oriented_Metric(void) const { return nAdap_Sensor > 0 && Adap_Sensor[0] == "GOAL"; }
+
+  /*!
+   * \brief Get the method used to compute Hessians.
+   * \return Numerical method for Hessians.
+   */
+  unsigned short GetKind_Hessian_Method(void) const { return Kind_Hessian_Method; }
+
+  /*!
+   * \brief Get an adaptation sensor.
+   * \param[in] iSens - Sensor index.
+   */
+  string GetAdap_Sensor(unsigned short iSens) const { return Adap_Sensor[iSens]; }
+
+  /*!
+   * \brief Get the number of adaptation sensors.
+   */
+  unsigned short GetnAdap_Sensor(void) const { return nAdap_Sensor; }
+
+  /*!
+   * \brief Get the adaptation Lp-norm value.
+   */
+  su2double GetAdap_Norm(void) const { return Adap_Norm; }
+
+  /*!
+   * \brief Get the maximum cell size.
+   */
+  su2double GetAdap_Hmax(void) const { return Adap_Hmax; }
+
+  /*!
+   * \brief Get the minimum cell size.
+   */
+  su2double GetAdap_Hmin(void) const { return Adap_Hmin; }
+
+  /*!
+   * \brief Get the maximum cell aspect ratio.
+   */
+  su2double GetAdap_ARmax(void) const { return Adap_ARmax; }
+
+  /*!
+   * \brief Get the constraint mesh complexity.
+   */
+  unsigned long GetAdap_Complexity(void) const { return Adap_Complexity; }
 
   /*!
    * \brief Check if the gradient smoothing is active
