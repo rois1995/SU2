@@ -1120,6 +1120,14 @@ def main():
     cavity.test_vals = [-7.770113, -2.308185, 0.011072, 0.008947]
     test_list.append(cavity)
 
+    # Restart of a turbulent lid-driven cavity with transition (grid velocities after the LM variables)
+    cavity_lm_restart           = TestCase('cavity_lm_restart')
+    cavity_lm_restart.cfg_dir   = "moving_wall/cavity"
+    cavity_lm_restart.cfg_file  = "turb_cavity_lm_restart.cfg"
+    cavity_lm_restart.test_iter = 10
+    cavity_lm_restart.test_vals = [-7.266301, -1.983928, -5.157931, -4.357926, 0.009072]
+    test_list.append(cavity_lm_restart)
+
     # Spinning cylinder
     spinning_cylinder           = TestCase('spinning_cylinder')
     spinning_cylinder.cfg_dir   = "moving_wall/spinning_cylinder"

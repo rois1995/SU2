@@ -879,13 +879,21 @@ void CFVMFlowSolverBase<V, R>::LoadRestart_impl(CGeometry **geometry, CSolver **
       Read_SU2_Restart_ASCII(geometry[MESH_0], config, restart_filename);
     }
 
+    /*--- Find the grid velocities in the restart file. Their position does not follow from the number of flow
+     * and turbulence variables, the variables of other solvers (e.g. transition, species, radiation) come before
+     * them. The first field is the point ID, which is not part of Restart_Data. ---*/
+
     bool steady_restart = config->GetSteadyRestart();
+    unsigned long gridVelIndex = 0;
     if (update_geo && dynamic_grid) {
-      auto notFound = fields.end();
-      if (find(fields.begin(), notFound, string("\"Grid_Velocity_x\"")) == notFound) {
+      const auto notFound = fields.end();
+      const auto gridVelField = find(fields.begin(), notFound, string("\"Grid_Velocity_x\""));
+      if (gridVelField == notFound) {
         if (rank == MASTER_NODE)
           cout << "\nWARNING: The restart file does not contain grid velocities, these will be set to zero.\n" << endl;
         steady_restart = true;
+      } else {
+        gridVelIndex = distance(fields.begin(), gridVelField) - 1;
       }
     }
 
@@ -933,7 +941,7 @@ void CFVMFlowSolverBase<V, R>::LoadRestart_impl(CGeometry **geometry, CSolver **
           su2double GridVel[MAXNDIM] = {0.0};
           if (!steady_restart) {
             /*--- Move the index forward to get the grid velocities. ---*/
-            index += skipVars + nVar_Restart + config->GetnTurbVar();
+            index += gridVelIndex;
             for (auto iDim = 0u; iDim < nDim; iDim++) { GridVel[iDim] = Restart_Data[index+iDim]; }
           }
 
