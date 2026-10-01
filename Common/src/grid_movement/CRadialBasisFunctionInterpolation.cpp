@@ -383,7 +383,6 @@ void CRadialBasisFunctionInterpolation::SetInternalNodes(CGeometry* geometry, CC
       }
     }
   }
-
 #endif
 
   /*--- Sorting of the local indices, a node can be on several markers. ---*/
@@ -426,6 +425,11 @@ void CRadialBasisFunctionInterpolation::UpdateGridCoord(CGeometry* geometry, CCo
 
   /*--- Update of boundary node coordinates ---*/
   UpdateBoundCoords(geometry, config, type, radius);
+
+  /*--- Halo nodes were moved by interpolation, while their owners may be control nodes moved by the
+   * prescribed displacement, make the halos consistent with the owners. ---*/
+  geometry->InitiateComms(geometry, config, MPI_QUANTITIES::COORDINATES);
+  geometry->CompleteComms(geometry, config, MPI_QUANTITIES::COORDINATES);
 }
 
 void CRadialBasisFunctionInterpolation::UpdateInternalCoords(CGeometry* geometry, const RADIAL_BASIS& type,
