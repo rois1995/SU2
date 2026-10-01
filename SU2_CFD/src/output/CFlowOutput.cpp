@@ -1792,6 +1792,50 @@ void CFlowOutput::LoadVolumeDataScalar(const CConfig* config, const CSolver* con
   }
 }
 
+namespace {
+/*--- Names of the components of a symmetric tensor, in the storage order of the Hessian and metric. ---*/
+vector<string> SymTensorComponents(unsigned short nDim) {
+  if (nDim == 2) return {"XX", "XY", "YY"};
+  return {"XX", "XY", "XZ", "YY", "YZ", "ZZ"};
+}
+}  // namespace
+
+void CFlowOutput::SetVolumeOutputFieldsAdapt(const CConfig* config) {
+  if (!config->GetCompute_Metric()) return;
+
+  const auto components = SymTensorComponents(nDim);
+
+  for (auto iSensor = 0u; iSensor < config->GetnAdap_Sensor(); ++iSensor) {
+    const auto sensor = config->GetAdap_Sensor(iSensor);
+    for (const auto& comp : components) {
+      AddVolumeOutput("HESSIAN_" + sensor + "_" + comp, "Hessian_" + sensor + "_" + comp, "HESSIAN",
+                      comp + "-component of the Hessian of the " + sensor + " adaptation sensor");
+    }
+  }
+  for (const auto& comp : components) {
+    AddVolumeOutput("METRIC_" + comp, "Metric_" + comp, "METRIC", comp + "-component of the adaptation metric");
+  }
+}
+
+void CFlowOutput::LoadVolumeDataAdapt(const CConfig* config, const CSolver* const* solver,
+                                      const unsigned long iPoint) {
+  if (!config->GetCompute_Metric()) return;
+
+  const auto* Node_Flow = solver[FLOW_SOL]->GetNodes();
+  const auto components = SymTensorComponents(nDim);
+
+  for (auto iSensor = 0u; iSensor < config->GetnAdap_Sensor(); ++iSensor) {
+    const auto sensor = config->GetAdap_Sensor(iSensor);
+    for (auto iMet = 0u; iMet < components.size(); ++iMet) {
+      SetVolumeOutputValue("HESSIAN_" + sensor + "_" + components[iMet], iPoint,
+                           Node_Flow->GetHessian(iPoint, iSensor, iMet));
+    }
+  }
+  for (auto iMet = 0u; iMet < components.size(); ++iMet) {
+    SetVolumeOutputValue("METRIC_" + components[iMet], iPoint, Node_Flow->GetMetric(iPoint, iMet));
+  }
+}
+
 void CFlowOutput::LoadSurfaceData(CConfig *config, CGeometry *geometry, CSolver **solver, unsigned long iPoint, unsigned short iMarker, unsigned long iVertex){
 
   if (!config->GetViscous_Wall(iMarker)) return;

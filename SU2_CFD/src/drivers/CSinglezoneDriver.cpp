@@ -179,6 +179,35 @@ void CSinglezoneDriver::Postprocess() {
     iteration_container[ZONE_0][INST_0]->Relaxation(output_container[ZONE_0], integration_container, geometry_container, solver_container,
         numerics_container, config_container, surface_movement, grid_movement, FFDBox, ZONE_0, INST_0);
 
+  /*--- Compute the metric for mesh adaptation from the converged (or current time step) solution. ---*/
+
+  if (config_container[ZONE_0]->GetCompute_Metric()) ComputeMetric();
+
+}
+
+void CSinglezoneDriver::ComputeMetric() {
+  SU2_ZONE_SCOPED
+
+  auto* config = config_container[ZONE_0];
+  auto* geometry = geometry_container[ZONE_0][INST_0][MESH_0];
+  auto* solver_flow = solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL];
+
+  const auto kindSolver = config->GetKind_Solver();
+  if (solver_flow == nullptr || (kindSolver != MAIN_SOLVER::EULER && kindSolver != MAIN_SOLVER::NAVIER_STOKES &&
+                                 kindSolver != MAIN_SOLVER::RANS)) {
+    SU2_MPI::Error("The adaptation metric is only available for compressible EULER, NAVIER_STOKES or RANS.",
+                   CURRENT_FUNCTION);
+  }
+
+  if (rank == MASTER_NODE)
+    cout << endl << "----------------------------- Compute Metric ----------------------------" << endl;
+
+  /*--- Sensors, their gradients and Hessians, then the metric. The results are kept in the flow
+   *    variables (also on halo points) until the next call. ---*/
+
+  solver_flow->SetAuxVar_Adapt(geometry, config);
+  solver_flow->SetHessian_Adapt(geometry, config);
+  solver_flow->ComputeMetric(geometry, config);
 }
 
 void CSinglezoneDriver::Update() {

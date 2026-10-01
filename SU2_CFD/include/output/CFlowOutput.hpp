@@ -179,6 +179,20 @@ protected:
                              const unsigned long iPoint);
 
   /*!
+   * \brief Add the mesh adaptation fields (HESSIAN and METRIC groups), only with COMPUTE_METRIC.
+   * \param[in] config - Definition of the particular problem.
+   */
+  void SetVolumeOutputFieldsAdapt(const CConfig* config);
+
+  /*!
+   * \brief Set the mesh adaptation field values for a point.
+   * \param[in] config - Definition of the particular problem.
+   * \param[in] solver - The container holding all solution data.
+   * \param[in] iPoint - Index of the point.
+   */
+  void LoadVolumeDataAdapt(const CConfig* config, const CSolver* const* solver, const unsigned long iPoint);
+
+  /*!
    * \brief Add aerodynamic coefficients as output fields
    * \param[in] config - Definition of the particular problem.
    */

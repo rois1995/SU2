@@ -110,4 +110,10 @@ public:
    */
   bool Monitor(unsigned long TimeIter) override;
 
+  /*!
+   * \brief Compute the mesh adaptation metric (COMPUTE_METRIC) from the flow solution.
+   * \note Called at the end of Postprocess, outside of OpenMP parallel regions.
+   */
+  void ComputeMetric();
+
 };

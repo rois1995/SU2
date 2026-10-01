@@ -6057,6 +6057,10 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
         Kind_Solver != MAIN_SOLVER::RANS) {
       SU2_MPI::Error("COMPUTE_METRIC is only supported for SOLVER = EULER, NAVIER_STOKES or RANS.", CURRENT_FUNCTION);
     }
+    if (Multizone_Problem || TimeMarching == TIME_MARCHING::HARMONIC_BALANCE) {
+      SU2_MPI::Error("COMPUTE_METRIC is only supported by the single-zone driver (no MULTIZONE or HARMONIC_BALANCE).",
+                     CURRENT_FUNCTION);
+    }
     if (nAdap_Sensor == 0) SU2_MPI::Error("COMPUTE_METRIC = YES requires ADAP_SENSOR.", CURRENT_FUNCTION);
     if (Kind_Hessian_Method != GREEN_GAUSS && Kind_Hessian_Method != WEIGHTED_LEAST_SQUARES) {
       SU2_MPI::Error("NUM_METHOD_HESS must be GREEN_GAUSS or WEIGHTED_LEAST_SQUARES.", CURRENT_FUNCTION);
@@ -6067,6 +6071,9 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
       if (find(begin(Sensor_Avail), end(Sensor_Avail), sensor) == end(Sensor_Avail)) {
         SU2_MPI::Error("Invalid or unsupported adaptation sensor: " + sensor +
                        "; must be MACH, PRESSURE, TEMPERATURE, ENERGY, DENSITY or TOTALPRESSURE.", CURRENT_FUNCTION);
+      }
+      if (find(Adap_Sensor, Adap_Sensor + iSensor, sensor) != Adap_Sensor + iSensor) {
+        SU2_MPI::Error("Repeated adaptation sensor: " + sensor, CURRENT_FUNCTION);
       }
     }
     if (!(Adap_Norm >= 1.0)) SU2_MPI::Error("ADAP_NORM must be >= 1.", CURRENT_FUNCTION);
