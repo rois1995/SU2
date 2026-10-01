@@ -5683,6 +5683,24 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
   if (isPastix(Kind_DiscAdj_Linear_Solver)) Kind_DiscAdj_Linear_Prec = LU_SGS;
   if (isPastix(Kind_Deform_Linear_Solver)) Kind_Deform_Linear_Solver_Prec = LU_SGS;
 
+  /*--- The RBF mesh deformation does not implement the derivative modes (projection of the mesh sensitivities),
+   * and it has no polynomial term, which is needed by the radial basis functions that do not decay. ---*/
+
+  if (Deform_Kind == DEFORM_KIND::RBF) {
+    if ((Kind_SU2 == SU2_COMPONENT::SU2_DOT && (DiscreteAdjoint || SmoothGradient)) ||
+        (Kind_SU2 == SU2_COMPONENT::SU2_CFD && DirectDiff == D_DESIGN)) {
+      SU2_MPI::Error("DEFORM_KIND= RBF cannot compute derivatives of the mesh deformation, which are needed by\n"
+                     "SU2_DOT with DISCRETE_ADJOINT or SMOOTH_GRADIENT= YES, and by DIRECT_DIFF= DESIGN_VARIABLES.\n"
+                     "Use DEFORM_KIND= ELASTIC.", CURRENT_FUNCTION);
+    }
+    if (Kind_RadialBasisFunction == RADIAL_BASIS::THIN_PLATE_SPLINE ||
+        Kind_RadialBasisFunction == RADIAL_BASIS::MULTI_QUADRIC) {
+      SU2_MPI::Error("DEFORM_KIND= RBF requires KIND_RADIAL_BASIS_FUNCTION= WENDLAND_C2, GAUSSIAN, or INV_MULTI_QUADRIC.\n"
+                     "THIN_PLATE_SPLINE and MULTI_QUADRIC need a polynomial term, which the RBF mesh deformation does not have.",
+                     CURRENT_FUNCTION);
+    }
+  }
+
 
   if (DiscreteAdjoint) {
 #if !defined CODI_REVERSE_TYPE
