@@ -510,6 +510,12 @@ unsigned long CSysSolve<ScalarType>::FGMRES_LinSolver(const CSysVector<ScalarTyp
 
   V[0] /= -beta;
 
+  /*--- Without preconditioning, V is the basis for the matrix-vector products, the halo values of V[0] must be
+   * made consistent since they come from b. With preconditioning, Z is the basis and this is done by the
+   * preconditioner. The other vectors of V are consistent because they come from matrix-vector products. ---*/
+
+  if (!flexible) precond(V[0], V[0]);
+
   /*--- Initialize the RHS of the reduced system ---*/
 
   g[0] = beta;
@@ -719,6 +725,10 @@ unsigned long CSysSolve<ScalarType>::FGCRODR_LinSolverImpl(const CSysVector<Scal
   } else {
     r = b;
   }
+
+  /*--- Make the halo values of r consistent, see FGMRES. ---*/
+
+  if (!flexible) precond(r, r);
 
   /*--- We don't store the part of W that is equal to V explicitly, W(:, k:m) = V(:, k:m). ---*/
   auto GetW = [&](auto i) -> auto& { return i < k ? W[i] : V[i]; };
