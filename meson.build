@@ -316,6 +316,44 @@ if get_option('enable-librom')
 
 endif
 
+# MMG (in-memory mesh adaptation), static or shared libmmg with its optional SCOTCH dependency
+if get_option('enable-mmg')
+  cpp = meson.get_compiler('cpp')
+  mmg_root = get_option('mmg_root')
+  mmg_deps = [cpp.find_library('mmg', dirs: [mmg_root / 'lib'], required: true)]
+
+  scotch_root = get_option('mmg_scotch_root')
+  scotch_dirs = scotch_root != '' ? [scotch_root / 'lib'] : []
+  scotch_required = scotch_root != ''
+  scotch_lib = cpp.find_library('scotch', dirs: scotch_dirs, required: scotch_required)
+  if scotch_lib.found()
+    mmg_deps += [scotch_lib, cpp.find_library('scotcherrexit', dirs: scotch_dirs, required: scotch_required),
+                 dependency('zlib', required: false)]
+  endif
+  mmg_deps += [dependency('threads'), cpp.find_library('m', required: false), cpp.find_library('rt', required: false)]
+
+  mmg_dep = declare_dependency(include_directories: include_directories(mmg_root / 'include', is_system: true),
+                               dependencies: mmg_deps)
+
+  mmg_test = '''#include "mmg/libmmg.h"
+  int main() {
+    MMG5_pMesh mesh = nullptr;
+    MMG5_pSol met = nullptr;
+    MMG2D_Init_mesh(MMG5_ARG_start, MMG5_ARG_ppMesh, &mesh, MMG5_ARG_ppMet, &met, MMG5_ARG_end);
+    MMG2D_mmg2dlib(mesh, met);
+    MMG2D_Free_all(MMG5_ARG_start, MMG5_ARG_ppMesh, &mesh, MMG5_ARG_ppMet, &met, MMG5_ARG_end);
+    MMG3D_Init_mesh(MMG5_ARG_start, MMG5_ARG_ppMesh, &mesh, MMG5_ARG_ppMet, &met, MMG5_ARG_end);
+    MMG3D_mmg3dlib(mesh, met);
+    MMG3D_Free_all(MMG5_ARG_start, MMG5_ARG_ppMesh, &mesh, MMG5_ARG_ppMet, &met, MMG5_ARG_end);
+    return 0;
+  }'''
+  assert(cpp.links(mmg_test, dependencies: mmg_dep, name: 'MMG library'),
+         'Cannot link MMG from ' + mmg_root + '. Set -Dmmg_root (and -Dmmg_scotch_root if MMG was built with SCOTCH).')
+
+  su2_deps     += mmg_dep
+  su2_cpp_args += '-DHAVE_MMG'
+endif
+
 mel_dep = declare_dependency(include_directories: 'externals/mel')
 su2_deps += mel_dep
 
@@ -431,6 +469,7 @@ message('''---------------------------------------------------------------------
          CoolProp:       @12@
          MLPCpp:         @13@
          Tracy Profiler: @14@
+         MMG:            @16@
 
          Please be sure to add the $SU2_HOME and $SU2_RUN environment variables,
          and update your $PATH (and $PYTHONPATH if applicable) with $SU2_RUN
@@ -446,7 +485,8 @@ message('''---------------------------------------------------------------------
 '''.format(get_option('prefix')+'/bin', meson.project_source_root(), get_option('enable-tecio'), get_option('enable-cgns'),
            get_option('enable-autodiff'), get_option('enable-directdiff'), get_option('enable-pywrapper'), get_option('enable-mkl'),
            get_option('enable-openblas'), get_option('enable-pastix'), get_option('enable-mixedprec'), get_option('enable-librom'), get_option('enable-coolprop'),
-           get_option('enable-mlpcpp'), get_option('tracy_enable'), meson.project_build_root().startswith(meson.project_source_root()) ? meson.project_build_root().split('/')[-1] : meson.project_build_root()))
+           get_option('enable-mlpcpp'), get_option('tracy_enable'), meson.project_build_root().startswith(meson.project_source_root()) ? meson.project_build_root().split('/')[-1] : meson.project_build_root(),
+           get_option('enable-mmg')))
 
 if get_option('enable-mpp')
   if get_option('install-mpp')

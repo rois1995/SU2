@@ -29,5 +29,8 @@ option('codi-tape', type : 'combo', choices : ['JacobianLinear', 'JacobianReuse'
 option('opdi-shared-read-opt', type : 'boolean', value : true, description : 'OpDiLib shared reading optimization')
 option('librom_root', type : 'string', value : '', description: 'libROM base directory')
 option('enable-librom', type : 'boolean', value : false, description: 'enable LLNL libROM support')
+option('enable-mmg', type : 'boolean', value : false, description: 'enable MMG support (in-memory mesh adaptation)')
+option('mmg_root', type : 'string', value : '/usr/local', description: 'MMG installation prefix (with include/mmg and lib/libmmg)')
+option('mmg_scotch_root', type : 'string', value : '', description: 'SCOTCH installation prefix, if MMG was built with SCOTCH outside the default library paths')
 option('static-cgns-deps', type : 'boolean', value : false, description: 'prefer static or dynamic (default) libraries for CGNS dependencies')
 option('tracy_enable', type: 'boolean', value: false, description: 'Enable Tracy profiling support')
