@@ -1755,6 +1755,47 @@ unsigned long CEulerSolver::SetPrimitive_Variables(CSolver **solver_container, c
   return nonPhysicalPoints;
 }
 
+void CEulerSolver::SetAuxVar_Adapt(CGeometry *geometry, const CConfig *config) {
+  SU2_ZONE_SCOPED
+
+  enum class SENSOR {MACH, PRESSURE, TEMPERATURE, ENERGY, DENSITY, TOTALPRESSURE};
+
+  const auto nSensor = config->GetnAdap_Sensor();
+  vector<SENSOR> sensors(nSensor);
+  for (auto iSensor = 0u; iSensor < nSensor; iSensor++) {
+    const auto name = config->GetAdap_Sensor(iSensor);
+    if (name == "MACH") sensors[iSensor] = SENSOR::MACH;
+    else if (name == "PRESSURE") sensors[iSensor] = SENSOR::PRESSURE;
+    else if (name == "TEMPERATURE") sensors[iSensor] = SENSOR::TEMPERATURE;
+    else if (name == "ENERGY") sensors[iSensor] = SENSOR::ENERGY;
+    else if (name == "DENSITY") sensors[iSensor] = SENSOR::DENSITY;
+    else if (name == "TOTALPRESSURE") sensors[iSensor] = SENSOR::TOTALPRESSURE;
+    else SU2_MPI::Error("Unsupported adaptation sensor: " + name, CURRENT_FUNCTION);
+  }
+
+  /*--- Isentropic total pressure of a calorically perfect gas. ---*/
+  const su2double totalPressureExp = Gamma / Gamma_Minus_One;
+
+  for (unsigned long iPoint = 0; iPoint < nPointDomain; iPoint++) {
+    const su2double mach2 = nodes->GetVelocity2(iPoint) / pow(nodes->GetSoundSpeed(iPoint), 2);
+
+    for (auto iSensor = 0u; iSensor < nSensor; iSensor++) {
+      su2double value = 0.0;
+      switch (sensors[iSensor]) {
+        case SENSOR::MACH: value = sqrt(mach2); break;
+        case SENSOR::PRESSURE: value = nodes->GetPressure(iPoint); break;
+        case SENSOR::TEMPERATURE: value = nodes->GetTemperature(iPoint); break;
+        case SENSOR::ENERGY: value = nodes->GetEnergy(iPoint); break;
+        case SENSOR::DENSITY: value = nodes->GetDensity(iPoint); break;
+        case SENSOR::TOTALPRESSURE:
+          value = nodes->GetPressure(iPoint) * pow(1.0 + 0.5 * Gamma_Minus_One * mach2, totalPressureExp);
+          break;
+      }
+      nodes->SetAuxVar_Adapt(iPoint, iSensor, value);
+    }
+  }
+}
+
 void CEulerSolver::SetTime_Step(CGeometry *geometry, CSolver **solver_container, CConfig *config,
                                 unsigned short iMesh, unsigned long Iteration) {
   SU2_ZONE_SCOPED

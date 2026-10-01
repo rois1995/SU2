@@ -1532,6 +1532,13 @@ public:
   void PrintVerificationError(const CConfig* config) const final;
 
   /*!
+   * \brief Store the mesh adaptation sensors (MACH, PRESSURE, TEMPERATURE, ENERGY, DENSITY, TOTALPRESSURE).
+   * \param[in] geometry - Geometrical definition of the problem.
+   * \param[in] config - Definition of the particular problem.
+   */
+  void SetAuxVar_Adapt(CGeometry *geometry, const CConfig *config) final;
+
+  /*!
    * \brief The Euler and NS solvers support MPI+OpenMP.
    */
   inline bool GetHasHybridParallel() const final { return true; }

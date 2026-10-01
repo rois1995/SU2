@@ -565,6 +565,21 @@ public:
   void SetSolution_Gradient_LS(CGeometry *geometry, const CConfig *config, short idxVel, bool reconstruction = false);
 
   /*!
+   * \brief Store the mesh adaptation sensors (ADAP_SENSOR) on the domain points.
+   * \param[in] geometry - Geometrical definition of the problem.
+   * \param[in] config - Definition of the particular problem.
+   */
+  inline virtual void SetAuxVar_Adapt(CGeometry *geometry, const CConfig *config) { }
+
+  /*!
+   * \brief Compute the gradients and Hessians of the mesh adaptation sensors (NUM_METHOD_HESS).
+   * \note The sensors must be set first (SetAuxVar_Adapt). Call outside of OpenMP parallel regions.
+   * \param[in] geometry - Geometrical definition of the problem.
+   * \param[in] config - Definition of the particular problem.
+   */
+  void SetHessian_Adapt(CGeometry *geometry, const CConfig *config);
+
+  /*!
    * \brief Compute the Least Squares gradient of the grid velocity.
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] config - Definition of the particular problem.

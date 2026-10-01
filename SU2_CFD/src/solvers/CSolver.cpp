@@ -32,6 +32,7 @@
 
 #include "../../include/gradients/computeGradientsGreenGauss.hpp"
 #include "../../include/gradients/computeGradientsLeastSquares.hpp"
+#include "../../include/gradients/computeHessians.hpp"
 #include "../../include/limiters/computeLimiters.hpp"
 #include "../../../Common/include/toolboxes/MMS/CIncTGVSolution.hpp"
 #include "../../../Common/include/toolboxes/MMS/CInviscidVortexSolution.hpp"
@@ -2263,6 +2264,44 @@ void CSolver::SetAuxVar_Gradient_LS(CGeometry *geometry, const CConfig *config) 
 
   computeGradientsLeastSquares(this, MPI_QUANTITIES::AUXVAR_GRADIENT, PERIODIC_NONE, *geometry, *config,
                                weighted, solution, 0, base_nodes->GetnAuxVar(), -1, gradient, rmatrix);
+}
+
+void CSolver::SetHessian_Adapt(CGeometry *geometry, const CConfig *config) {
+  SU2_ZONE_SCOPED
+
+  const auto method = static_cast<ENUM_FLOW_GRADIENT>(config->GetKind_Hessian_Method());
+  const auto nSensor = config->GetnAdap_Sensor();
+  const auto& sensor = base_nodes->GetAuxVar_Adapt();
+  auto& gradient = base_nodes->GetGradient_Adapt();
+  auto& hessian = base_nodes->GetHessian();
+
+  /*--- The Green-Gauss implementation uses static arrays of this size. ---*/
+  if (nSensor > 20) SU2_MPI::Error("Too many adaptation sensors.", CURRENT_FUNCTION);
+
+  /*--- Sensor values on halo points. ---*/
+
+  InitiateComms(geometry, config, MPI_QUANTITIES::AUXVAR_ADAPT);
+  CompleteComms(geometry, config, MPI_QUANTITIES::AUXVAR_ADAPT);
+
+  /*--- Gradients of the sensors (scalars). Halo values are communicated, they are needed
+   *    to differentiate the gradients. Periodic contributions are not included. ---*/
+
+  switch (method) {
+    case GREEN_GAUSS:
+      computeGradientsGreenGauss(this, MPI_QUANTITIES::GRADIENT_ADAPT, PERIODIC_NONE, *geometry, *config,
+                                 sensor, 0, nSensor, -1, gradient);
+      break;
+    default:
+      SU2_MPI::Error("Unsupported NUM_METHOD_HESS.", CURRENT_FUNCTION);
+      break;
+  }
+
+  /*--- Hessians, as gradients of the gradients. ---*/
+
+  computeHessians(method, *geometry, *config, gradient, 0, nSensor, hessian);
+
+  InitiateComms(geometry, config, MPI_QUANTITIES::HESSIAN);
+  CompleteComms(geometry, config, MPI_QUANTITIES::HESSIAN);
 }
 
 void CSolver::SetSolution_Gradient_GG(CGeometry *geometry, const CConfig *config, short idxVel, bool reconstruction) {
