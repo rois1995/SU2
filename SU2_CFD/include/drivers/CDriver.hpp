@@ -168,13 +168,12 @@ class CDriver : public CDriverBase {
   void RestartSolver(CSolver*** solver, CGeometry** geometry, CConfig* config, bool update_geo);
 
   /*!
-   * \brief Definition and allocation of all solution classes.
-   * \param[in] solver - Container vector with all the solutions.
-   * \param[in] geometry - Geometrical definition of the problem.
-   * \param[in] config - Definition of the particular problem.
-   * \param[in] val_iInst - Current solver instance.
+   * \brief Deallocation of the solvers of one instance, and of their meta data in CSolverFactory.
+   * \param[in,out] solver - Solvers of all multigrid levels, set to nullptr.
+   * \param[in] nMGLevels - Number of coarse levels of these solvers (not necessarily the one in the config, e.g.
+   *                        for the solvers of a replaced mesh).
    */
-  void FinalizeSolver(CSolver**** solver, CGeometry** geometry, CConfig* config, unsigned short val_iInst);
+  void FinalizeSolver(CSolver***& solver, unsigned short nMGLevels);
 
   /*!
    * \brief Definition and allocation of all integration classes.
@@ -185,14 +184,10 @@ class CDriver : public CDriverBase {
   void InitializeIntegration(CConfig* config, CSolver** solver, CIntegration**& integration) const;
 
   /*!
-   * \brief Definition and allocation of all integration classes.
-   * \param[in] integration - Container vector with all the integration methods.
-   * \param[in] geometry - Geometrical definition of the problem.
-   * \param[in] config - Definition of the particular problem.
-   * \param[in] val_iInst - Current solver instance.
+   * \brief Deallocation of the integration classes of one instance.
+   * \param[in,out] integration - Integration methods of the instance, set to nullptr.
    */
-  void FinalizeIntegration(CIntegration*** integration, CGeometry** geometry, CConfig* config,
-                                  unsigned short val_iInst);
+  void FinalizeIntegration(CIntegration**& integration);
 
   /*!
    * \brief Definition and allocation of all interface classes.
@@ -237,15 +232,12 @@ class CDriver : public CDriverBase {
                                   const CSolver* species_solver, CNumerics****& numerics) const;
 
   /*!
-   * \brief Definition and allocation of all solver classes.
-   * \param[in] numerics - Description of the numerical method (the way in which the equations are solved).
-   * \param[in] solver - Container vector with all the solutions.
-   * \param[in] geometry - Geometrical definition of the problem.
-   * \param[in] config - Definition of the particular problem.
-   * \param[in] val_iInst - Current solver instance.
+   * \brief Deallocation of the numerics of one instance.
+   * \param[in,out] numerics - Numerics of all multigrid levels, set to nullptr.
+   * \param[in] nMGLevels - Number of coarse levels of these numerics (not necessarily the one in the config, e.g.
+   *                        for the numerics of a replaced mesh).
    */
-  void FinalizeNumerics(CNumerics***** numerics, CSolver*** solver, CGeometry** geometry, CConfig* config,
-                               unsigned short val_iInst);
+  void FinalizeNumerics(CNumerics****& numerics, unsigned short nMGLevels);
 
   /*!
    * \brief GridMovement_Preprocessing

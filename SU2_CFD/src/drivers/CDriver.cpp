@@ -357,8 +357,7 @@ void CDriver::Finalize() {
 
   for (iZone = 0; iZone < nZone; iZone++) {
     for (iInst = 0; iInst < nInst[iZone]; iInst++){
-      FinalizeNumerics(numerics_container[iZone], solver_container[iZone][iInst],
-          geometry_container[iZone][iInst], config_container[iZone], iInst);
+      FinalizeNumerics(numerics_container[iZone][iInst], config_container[iZone]->GetnMGLevels());
     }
     delete [] numerics_container[iZone];
   }
@@ -367,10 +366,7 @@ void CDriver::Finalize() {
 
   for (iZone = 0; iZone < nZone; iZone++) {
     for (iInst = 0; iInst < nInst[iZone]; iInst++){
-      FinalizeIntegration(integration_container[iZone],
-          geometry_container[iZone][iInst],
-          config_container[iZone],
-          iInst);
+      FinalizeIntegration(integration_container[iZone][iInst]);
     }
     delete [] integration_container[iZone];
   }
@@ -379,10 +375,7 @@ void CDriver::Finalize() {
 
   for (iZone = 0; iZone < nZone; iZone++) {
     for (iInst = 0; iInst < nInst[iZone]; iInst++){
-      FinalizeSolver(solver_container[iZone],
-          geometry_container[iZone][iInst],
-          config_container[iZone],
-          iInst);
+      FinalizeSolver(solver_container[iZone][iInst], config_container[iZone]->GetnMGLevels());
     }
     delete [] solver_container[iZone];
   }
@@ -1214,18 +1207,17 @@ void CDriver::RestartSolver(CSolver ***solver, CGeometry **geometry,
 
 }
 
-void CDriver::FinalizeSolver(CSolver ****solver, CGeometry **geometry,
-                                    CConfig *config, unsigned short val_iInst) {
+void CDriver::FinalizeSolver(CSolver ***&solver, unsigned short nMGLevels) {
 
-  for (int iMGlevel = 0; iMGlevel <= config->GetnMGLevels(); iMGlevel++) {
+  for (int iMGlevel = 0; iMGlevel <= nMGLevels; iMGlevel++) {
     for (unsigned int iSol = 0; iSol < MAX_SOLS; iSol++){
-      delete solver[val_iInst][iMGlevel][iSol];
+      CSolverFactory::ClearSolverMeta(solver[iMGlevel][iSol]);
+      delete solver[iMGlevel][iSol];
     }
-    delete [] solver[val_iInst][iMGlevel];
+    delete [] solver[iMGlevel];
   }
-  delete [] solver[val_iInst];
-
-  CSolverFactory::ClearSolverMeta();
+  delete [] solver;
+  solver = nullptr;
 
 }
 
@@ -1241,14 +1233,15 @@ void CDriver::InitializeIntegration(CConfig *config, CSolver **solver, CIntegrat
 
 }
 
-void CDriver::FinalizeIntegration(CIntegration ***integration, CGeometry **geometry, CConfig *config, unsigned short val_iInst) {
+void CDriver::FinalizeIntegration(CIntegration **&integration) {
   SU2_ZONE_SCOPED
 
   for (unsigned int iSol = 0; iSol < MAX_SOLS; iSol++){
-    delete integration[val_iInst][iSol];
+    delete integration[iSol];
   }
 
-  delete [] integration[val_iInst];
+  delete [] integration;
+  integration = nullptr;
 
 }
 
@@ -2338,22 +2331,22 @@ void CDriver::InitializeNumerics(CConfig *config, CGeometry **geometry, CSolver 
 
 }
 
-void CDriver::FinalizeNumerics(CNumerics *****numerics, CSolver***, CGeometry**,
-                                      CConfig *config, unsigned short val_iInst) {
+void CDriver::FinalizeNumerics(CNumerics ****&numerics, unsigned short nMGLevels) {
 
-  for (unsigned short iMGlevel = 0; iMGlevel <= config->GetnMGLevels(); iMGlevel++) {
+  for (unsigned short iMGlevel = 0; iMGlevel <= nMGLevels; iMGlevel++) {
 
     for (unsigned int iSol = 0; iSol < MAX_SOLS; iSol++) {
 
       for (unsigned int iTerm = 0; iTerm < MAX_TERMS*omp_get_max_threads(); iTerm++) {
 
-        delete numerics[val_iInst][iMGlevel][iSol][iTerm];
+        delete numerics[iMGlevel][iSol][iTerm];
       }
-      delete [] numerics[val_iInst][iMGlevel][iSol];
+      delete [] numerics[iMGlevel][iSol];
     }
-    delete[] numerics[val_iInst][iMGlevel];
+    delete[] numerics[iMGlevel];
   }
-  delete[] numerics[val_iInst];
+  delete[] numerics;
+  numerics = nullptr;
 
 }
 

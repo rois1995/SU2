@@ -208,8 +208,11 @@ public:
   static SolverMetaData GetSolverMeta(const CSolver* solver) { return allocatedSolvers.at(solver); }
 
   /*!
-   * \brief Clear the solver meta data
+   * \brief Clear the meta data of one solver (call it when the solver is deleted).
+   * \note Only that entry is removed, other solvers that are still alive (e.g. the solvers of a new mesh while
+   *       the solvers of the previous mesh are deleted) keep their meta data.
+   * \param[in] solver - Address of the solver.
    */
-  static void ClearSolverMeta() { allocatedSolvers.clear(); }
+  static void ClearSolverMeta(const CSolver* solver) { allocatedSolvers.erase(solver); }
 
 };
