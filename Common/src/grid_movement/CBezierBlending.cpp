@@ -48,6 +48,13 @@ su2double CBezierBlending::GetBernstein(short val_n, short val_i, su2double val_
     return value;
   }
 
+  /*--- Degree 0, the only basis function is 1. ---*/
+
+  if (val_n == 0) {
+    value = 1.0;
+    return value;
+  }
+
   if (val_i == 0) {
     if (val_t == 0)
       value = 1.0;
@@ -90,7 +97,8 @@ su2double CBezierBlending::GetBernsteinDerivative(short val_n, short val_i, su2d
     return value;
   }
   if (val_n == 0) {
-    value = val_t;
+    /*--- The basis functions of degree 0 are constant. ---*/
+    value = 0.0;
     return value;
   } else {
     value = val_n * (GetBernsteinDerivative(val_n - 1, val_i - 1, val_t, val_order_der - 1) -

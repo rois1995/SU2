@@ -66,9 +66,9 @@ void CBSplineBlending::SetOrder(short val_order, short n_controlpoints) {
 su2double CBSplineBlending::GetBasis(short val_i, su2double val_t) {
   /*--- Evaluation is based on the algorithm from "The NURBS Book (Les Piegl and Wayne Tiller)" ---*/
 
-  /*--- Special cases ---*/
+  /*--- Special cases, the first and the last basis function (index nControl - 1) are 1 at the ends ---*/
 
-  if ((val_i == 0 && val_t == U[0]) || (val_i == (short)U.size() - 1 && val_t == U.back())) {
+  if ((val_i == 0 && val_t == U[0]) || (val_i == nControl - 1 && val_t == U.back())) {
     return 1.0;
   }
 
