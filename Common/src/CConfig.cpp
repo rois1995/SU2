@@ -5673,6 +5673,16 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     SU2_MPI::Error("MESH_BOX_SIZE specified without 3 values.\n", CURRENT_FUNCTION);
   }
 
+  /*--- The Lame constants of the mesh deformation, Lambda = Nu E / ((1 + Nu) (1 - 2 Nu)) and
+   Mu = E / (2 (1 + Nu)), are infinite for Nu = 0.5 and Nu = -1 (larger values, like the default 1E6, are fine). ---*/
+  auto singularPoisson = [](su2double nu) { return (fabs(nu - 0.5) < 1e-10) || (fabs(nu + 1.0) < 1e-10); };
+  if (singularPoisson(Deform_Coeff)) {
+    SU2_MPI::Error("DEFORM_COEFF (Poisson's ratio of the mesh deformation) cannot be 0.5 or -1.", CURRENT_FUNCTION);
+  }
+  if (singularPoisson(Deform_PoissonRatio)) {
+    SU2_MPI::Error("DEFORM_POISSONS_RATIO cannot be 0.5 or -1.", CURRENT_FUNCTION);
+  }
+
   /* Force the lowest memory preconditioner when direct solvers are used. */
 
   auto isPastix = [](unsigned short kindSolver) {
