@@ -2158,6 +2158,19 @@ def main():
     pass_list.append(convexity_translation_def.run_def())
     test_list.append(convexity_translation_def)
 
+    # Convexity check with FFD, the FFD boxes are written in CGNS format at every pass
+    intersect_cgns_def = TestCase('intersect_cgns_def')
+    intersect_cgns_def.cfg_dir = "deformation/intersection_prevention"
+    intersect_cgns_def.cfg_file = "def_intersect_cgns.cfg"
+    intersect_cgns_def.test_iter = 10
+    intersect_cgns_def.test_vals = [0.000178304] #residual
+    intersect_cgns_def.command = TestCase.Command("mpirun -n 2", "SU2_DEF")
+    intersect_cgns_def.timeout = 1600
+    intersect_cgns_def.tol = 1e-8
+
+    pass_list.append(intersect_cgns_def.run_def())
+    test_list.append(intersect_cgns_def)
+
     # 2D FD streamwise periodic cht, avg temp obj func
     fd_sp_pinArray_cht_2d_dp_hf = TestCase('fd_sp_pinArray_cht_2d_dp_hf')
     fd_sp_pinArray_cht_2d_dp_hf.cfg_dir = "incomp_navierstokes/streamwise_periodic/chtPinArray_2d"
