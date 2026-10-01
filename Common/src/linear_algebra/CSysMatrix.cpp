@@ -374,6 +374,11 @@ void CSysMatrix<ScalarType>::Initialize(unsigned long npoint, unsigned long npoi
       adjPtr[nPointDomain] = static_cast<su2uint>(adjIdx.size());
       color_ilu = colorSparsePattern(CCompressedSparsePatternUL(adjPtr, adjIdx), 1, true, false);
 
+      /*--- An empty result means the coloring failed (too many colors or too much memory). ---*/
+      if (color_ilu.empty() && nPointDomain > 0) {
+        SU2_MPI::Error("The coloring of the ILU pattern for the GPU factorization failed.", CURRENT_FUNCTION);
+      }
+
       /*--- Report, across ranks, how many colors/levels the GPU ILU ends up scheduled over and how
        * wide those groups are on average. Few, wide colors/levels use the GPU efficiently; many
        * narrow ones (small average size) serialize into many small kernel launches instead. ---*/
