@@ -585,6 +585,16 @@ vector<vector<su2double> > CSurfaceMovement::SetSurface_Deformation(CGeometry* g
            (config->GetDesign_Variable(0) == SCALE) || (config->GetDesign_Variable(0) == HICKS_HENNE) ||
            (config->GetDesign_Variable(0) == SURFACE_BUMP) || (config->GetDesign_Variable(0) == ANGLE_OF_ATTACK) ||
            (config->GetDesign_Variable(0) == CST) || (config->GetDesign_Variable(0) == HICKS_HENNE_CAMBER)) {
+    /*--- Reset the surface deformation once, the design variables below add their contribution
+     (they are applied grouped by type, not in the order of the list of design variables). ---*/
+
+    const su2double ZeroVarCoord[3] = {0.0, 0.0, 0.0};
+    for (iMarker = 0; iMarker < config->GetnMarker_All(); iMarker++) {
+      for (auto iVertex = 0ul; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+        geometry->vertex[iMarker][iVertex]->SetVarCoord(ZeroVarCoord);
+      }
+    }
+
     /*--- Apply rotation, displacement and stretching design variables (this
      should be done before the bump function design variables) ---*/
 
@@ -2737,9 +2747,10 @@ void CSurfaceMovement::SetHicksHenne(CGeometry* boundary, CConfig* config, unsig
   bool upper = true;
   su2double Scale = config->GetOpt_RelaxFactor();
 
-  /*--- Reset airfoil deformation if first deformation or if it required by the solver ---*/
+  /*--- Reset airfoil deformation if it is required by the caller (SetSurface_Deformation resets it once
+   before applying all the design variables) ---*/
 
-  if ((iDV == 0) || (ResetDef)) {
+  if (ResetDef) {
     for (iMarker = 0; iMarker < config->GetnMarker_All(); iMarker++)
       for (iVertex = 0; iVertex < boundary->nVertex[iMarker]; iVertex++) {
         VarCoord[0] = 0.0;
@@ -2915,9 +2926,10 @@ void CSurfaceMovement::SetSurface_Bump(CGeometry* boundary, CConfig* config, uns
   su2double VarCoord[3] = {0.0, 0.0, 0.0}, ek, fk, *Coord, xCoord;
   su2double Scale = config->GetOpt_RelaxFactor();
 
-  /*--- Reset airfoil deformation if first deformation or if it required by the solver ---*/
+  /*--- Reset airfoil deformation if it is required by the caller (SetSurface_Deformation resets it once
+   before applying all the design variables) ---*/
 
-  if ((iDV == 0) || (ResetDef)) {
+  if (ResetDef) {
     for (iMarker = 0; iMarker < config->GetnMarker_All(); iMarker++)
       for (iVertex = 0; iVertex < boundary->nVertex[iMarker]; iVertex++) {
         VarCoord[0] = 0.0;
@@ -2975,9 +2987,10 @@ void CSurfaceMovement::SetCST(CGeometry* boundary, CConfig* config, unsigned sho
   bool upper = true;
   su2double Scale = config->GetOpt_RelaxFactor();
 
-  /*--- Reset airfoil deformation if first deformation or if it required by the solver ---*/
+  /*--- Reset airfoil deformation if it is required by the caller (SetSurface_Deformation resets it once
+   before applying all the design variables) ---*/
 
-  if ((iDV == 0) || (ResetDef)) {
+  if (ResetDef) {
     for (iMarker = 0; iMarker < config->GetnMarker_All(); iMarker++)
       for (iVertex = 0; iVertex < boundary->nVertex[iMarker]; iVertex++) {
         VarCoord[0] = 0.0;
@@ -3176,9 +3189,10 @@ void CSurfaceMovement::SetRotation(CGeometry* boundary, CConfig* config, unsigne
   su2double movement[3] = {0.0, 0.0, 0.0}, x, y, z;
   su2double Scale = config->GetOpt_RelaxFactor();
 
-  /*--- Reset airfoil deformation if first deformation or if it required by the solver ---*/
+  /*--- Reset airfoil deformation if it is required by the caller (SetSurface_Deformation resets it once
+   before applying all the design variables) ---*/
 
-  if ((iDV == 0) || (ResetDef)) {
+  if (ResetDef) {
     for (iMarker = 0; iMarker < config->GetnMarker_All(); iMarker++)
       for (iVertex = 0; iVertex < boundary->nVertex[iMarker]; iVertex++) {
         VarCoord[0] = 0.0;
@@ -3260,9 +3274,10 @@ void CSurfaceMovement::SetTranslation(CGeometry* boundary, CConfig* config, unsi
   su2double Scale = config->GetOpt_RelaxFactor();
   su2double Ampl = config->GetDV_Value(iDV) * Scale;
 
-  /*--- Reset airfoil deformation if first deformation or if it required by the solver ---*/
+  /*--- Reset airfoil deformation if it is required by the caller (SetSurface_Deformation resets it once
+   before applying all the design variables) ---*/
 
-  if ((iDV == 0) || (ResetDef)) {
+  if (ResetDef) {
     for (iMarker = 0; iMarker < config->GetnMarker_All(); iMarker++)
       for (iVertex = 0; iVertex < boundary->nVertex[iMarker]; iVertex++) {
         VarCoord[0] = 0.0;
@@ -3298,9 +3313,10 @@ void CSurfaceMovement::SetScale(CGeometry* boundary, CConfig* config, unsigned s
   su2double Scale = config->GetOpt_RelaxFactor();
   su2double Ampl = config->GetDV_Value(iDV) * Scale;
 
-  /*--- Reset airfoil deformation if first deformation or if it required by the solver ---*/
+  /*--- Reset airfoil deformation if it is required by the caller (SetSurface_Deformation resets it once
+   before applying all the design variables) ---*/
 
-  if ((iDV == 0) || (ResetDef)) {
+  if (ResetDef) {
     for (iMarker = 0; iMarker < config->GetnMarker_All(); iMarker++)
       for (iVertex = 0; iVertex < boundary->nVertex[iMarker]; iVertex++) {
         VarCoord[0] = 0.0;

@@ -1989,6 +1989,19 @@ def main():
     pass_list.append(naca0012_def_file.run_def())
     test_list.append(naca0012_def_file)
 
+    # Inviscid NACA0012, HICKS_HENNE and TRANSLATION design variables
+    naca0012_hh_translation_def = TestCase('naca0012_hh_translation_def')
+    naca0012_hh_translation_def.cfg_dir = "deformation/naca0012"
+    naca0012_hh_translation_def.cfg_file = "def_NACA0012_hh_translation.cfg"
+    naca0012_hh_translation_def.test_iter = 10
+    naca0012_hh_translation_def.test_vals = [0.00861947] #residual
+    naca0012_hh_translation_def.command = TestCase.Command("mpirun -n 2", "SU2_DEF")
+    naca0012_hh_translation_def.timeout = 1600
+    naca0012_hh_translation_def.tol = 1e-8
+
+    pass_list.append(naca0012_hh_translation_def.run_def())
+    test_list.append(naca0012_hh_translation_def)
+
     # RAE2822 (mixed tris + quads)
     rae2822_def            = TestCase('rae2822_def')
     rae2822_def.cfg_dir   = "deformation/rae2822"
