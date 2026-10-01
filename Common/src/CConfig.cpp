@@ -3266,13 +3266,14 @@ void CConfig::SetConfig_Options() {
   addStringListOption("ADAP_SENSOR", nAdap_Sensor, Adap_Sensor);
   /*!\brief ADAP_NORM \n DESCRIPTION: Lp-norm for mesh adaptation \ingroup Config */
   addDoubleOption("ADAP_NORM", Adap_Norm, 1.0);
-  /*!\brief ADAP_HMAX \n DESCRIPTION: Constraint maximum cell size \ingroup Config */
+  /*!\brief ADAP_HMAX \n DESCRIPTION: Maximum cell size, applied to the final (intersected) metric \ingroup Config */
   addDoubleOption("ADAP_HMAX", Adap_Hmax, 10.0);
-  /*!\brief ADAP_HMIN \n DESCRIPTION: Constraint minimum cell size \ingroup Config */
+  /*!\brief ADAP_HMIN \n DESCRIPTION: Minimum cell size, applied to the final (intersected) metric \ingroup Config */
   addDoubleOption("ADAP_HMIN", Adap_Hmin, 1.0E-8);
-  /*!\brief ADAP_ARMAX \n DESCRIPTION: Constraint maximum cell aspect ratio \ingroup Config */
+  /*!\brief ADAP_ARMAX \n DESCRIPTION: Maximum cell aspect ratio, applied to the final (intersected) metric \ingroup Config */
   addDoubleOption("ADAP_ARMAX", Adap_ARmax, 1.0E6);
-  /*!\brief ADAP_COMPLEXITY \n DESCRIPTION: Constraint mesh complexity \ingroup Config */
+  /*!\brief ADAP_COMPLEXITY \n DESCRIPTION: Target complexity of the final metric (all sensors together), i.e. of the
+   * adapted mesh. If ADAP_HMIN, ADAP_HMAX and ADAP_ARMAX do not allow it, the closest complexity is used with a warning. \ingroup Config */
   addUnsignedLongOption("ADAP_COMPLEXITY", Adap_Complexity, 10000);
   /*!\brief ADAP_HGRAD \n DESCRIPTION: Size gradation of the remesher (ratio of neighbouring edge lengths, > 1) \ingroup Config */
   addDoubleOption("ADAP_HGRAD", Adap_Hgrad, 1.3);

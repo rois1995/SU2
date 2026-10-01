@@ -2515,6 +2515,16 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config) {
     return det;
   };
 
+  /*--- Order of the operations:
+   *    1. Lp-optimal metric of each sensor, scaled to the target complexity (so that sensors of any magnitude
+   *       weigh the same), then intersection of the sensor metrics.
+   *    2. One global factor scales the intersection so that the final metric has the target complexity
+   *       (ADAP_COMPLEXITY is the complexity of the final metric, not of each sensor).
+   *    3. Size and aspect ratio bounds, on the final tensor: the intersection of bounded metrics with different
+   *       eigenvectors can violate them. The bounds change the complexity, so the global factor is solved
+   *       together with them (the complexity is monotone in the factor).
+   *    With one sensor and inactive bounds the factor is 1: the Lp-optimal metric scaled to the complexity. ---*/
+
   /*--- Integral of det(|H|)^(p/(2p+n)) for each sensor, used to reach the target complexity. ---*/
 
   vector<su2double> localScale(nSensor, 0.0), globalScale(nSensor, 0.0);
@@ -2529,51 +2539,164 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config) {
   }
   SU2_MPI::Allreduce(localScale.data(), globalScale.data(), nSensor, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
 
-  /*--- Lp-optimal metric of each sensor, bounded by the size and aspect ratio limits,
-   *    and intersection of the sensor metrics. ---*/
+  /*--- Lp-optimal metric of a sensor, scaled to the complexity, in its eigen decomposition. ---*/
 
+  auto sensorMetric = [&](unsigned long iPoint, unsigned short iSensor, su2double (&vec)[3][3], su2double (&val)[3]) {
+    absHessian(iPoint, iSensor, vec, val);
+    const su2double factor = pow(complexity / globalScale[iSensor], 2.0 / nDim) *
+                             pow(determinant(val), -1.0 / (2 * p + nDim));
+    for (auto i = 0u; i < nDim; ++i) val[i] *= factor;
+  };
+
+  /*--- Intersection of the sensor metrics, stored as the metric of the point until the bounds are applied. Each
+   *    sensor metric is first limited to an eigenvalue ratio of 1e14 (aspect ratio 1e7), for the accuracy of the
+   *    intersection; this is looser than the aspect ratio bound unless a sensor asks for sizes far below ADAP_HMIN. ---*/
+
+  if (nSensor > 1) {
+    for (unsigned long iPoint = 0; iPoint < nPointDomain; ++iPoint) {
+      su2double metric[3][3] = {{0.0}};
+
+      for (auto iSensor = 0u; iSensor < nSensor; ++iSensor) {
+        su2double vec[3][3], val[3], current[3][3];
+        sensorMetric(iPoint, iSensor, vec, val);
+        const su2double valMax = *max_element(val, val + nDim);
+        for (auto i = 0u; i < nDim; ++i) val[i] = fmax(val[i], 1e-14 * valMax);
+        CBlasStructure::EigenRecomposition(current, vec, val, nDim);
+
+        if (iSensor == 0) {
+          for (auto i = 0u; i < nDim; ++i)
+            for (auto j = 0u; j < nDim; ++j) metric[i][j] = current[i][j];
+        } else {
+          su2double previous[3][3];
+          for (auto i = 0u; i < nDim; ++i)
+            for (auto j = 0u; j < nDim; ++j) previous[i][j] = metric[i][j];
+          IntersectMetrics(nDim, previous, current, metric);
+        }
+      }
+      base_nodes->SetMetricMat(iPoint, metric);
+    }
+  }
+
+  /*--- Eigen decomposition of the metric before the global factor and the bounds. ---*/
+
+  auto unboundedMetric = [&](unsigned long iPoint, su2double (&vec)[3][3], su2double (&val)[3]) {
+    if (nSensor == 1) {
+      sensorMetric(iPoint, 0, vec, val);
+    } else {
+      su2double metric[3][3] = {{0.0}}, work[3];
+      base_nodes->GetMetricMat(iPoint, metric);
+      CBlasStructure::EigenDecomposition(metric, vec, val, nDim, work);
+    }
+  };
+
+  /*--- Final eigenvalues for a global factor: sizes between ADAP_HMIN and ADAP_HMAX, then the aspect ratio bound
+   *    (which only raises the small eigenvalues, so the sizes stay within their bounds). ---*/
+
+  auto boundEigenvalues = [&](su2double scale, su2double (&val)[3]) {
+    su2double valMax = 0.0;
+    for (auto i = 0u; i < nDim; ++i) {
+      val[i] = fmin(fmax(scale * val[i], eigMin), eigMax);
+      valMax = fmax(valMax, val[i]);
+    }
+    for (auto i = 0u; i < nDim; ++i) val[i] = fmax(val[i], valMax / arMax2);
+  };
+
+  /*--- Unbounded eigenvalues of all points, for the complexity as a function of the global factor. ---*/
+
+  vector<su2double> eigenvalues(nPointDomain * nDim);
+  su2double localValues[2] = {0.0, 0.0}, globalValues[2] = {0.0, 0.0};  // complexity, largest eigenvalue
+  su2double localSmallest = std::numeric_limits<passivedouble>::max(), smallest = 0.0;
+
+  for (unsigned long iPoint = 0; iPoint < nPointDomain; ++iPoint) {
+    su2double vec[3][3], val[3];
+    unboundedMetric(iPoint, vec, val);
+    for (auto i = 0u; i < nDim; ++i) {
+      eigenvalues[iPoint * nDim + i] = val[i];
+      if (val[i] > 0.0) localSmallest = fmin(localSmallest, val[i]);
+      localValues[1] = fmax(localValues[1], val[i]);
+    }
+    localValues[0] += sqrt(fabs(determinant(val))) * geometry->nodes->GetVolume(iPoint);
+  }
+  SU2_MPI::Allreduce(&localValues[0], &globalValues[0], 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+  SU2_MPI::Allreduce(&localValues[1], &globalValues[1], 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+  SU2_MPI::Allreduce(&localSmallest, &smallest, 1, MPI_DOUBLE, MPI_MIN, SU2_MPI::GetComm());
+
+  /*--- Logarithm of the final complexity over the target, for the logarithm of the global factor. ---*/
+
+  auto complexityError = [&](su2double logScale) {
+    const su2double scale = exp(logScale);
+    su2double local = 0.0, global = 0.0;
+    for (unsigned long iPoint = 0; iPoint < nPointDomain; ++iPoint) {
+      su2double val[3] = {0.0};
+      for (auto i = 0u; i < nDim; ++i) val[i] = eigenvalues[iPoint * nDim + i];
+      boundEigenvalues(scale, val);
+      local += sqrt(determinant(val)) * geometry->nodes->GetVolume(iPoint);
+    }
+    SU2_MPI::Allreduce(&local, &global, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+    return log(global / complexity);
+  };
+
+  /*--- Start from the factor without bounds (exactly 1 when the metric already has the target complexity). With
+   *    active bounds, solve with the Illinois method between the factor that gives ADAP_HMAX everywhere and the
+   *    one that gives the smallest sizes allowed everywhere (the complexity does not change beyond them). ---*/
+
+  const su2double tol = 1e-6;
+  su2double logScale = log(complexity / globalValues[0]) * 2.0 / nDim;
+  if (fabs(logScale) < tol) logScale = 0.0;
+  su2double error = complexityError(logScale);
+  bool bracketed = true;
+
+  if (fabs(error) > tol) {
+    su2double xLow = log(eigMin / globalValues[1]), xHigh = log(eigMax / fmin(smallest, globalValues[1]));
+    su2double fLow = complexityError(xLow), fHigh = complexityError(xHigh);
+
+    if (fLow >= 0.0) {
+      bracketed = false;
+      logScale = xLow;
+      error = fLow;
+    } else if (fHigh <= 0.0) {
+      bracketed = false;
+      logScale = xHigh;
+      error = fHigh;
+    } else {
+      if (logScale > xLow && logScale < xHigh) {
+        if (error < 0.0) { xLow = logScale; fLow = error; }
+        else { xHigh = logScale; fHigh = error; }
+      }
+      int side = 0;
+      for (int iter = 0; iter < 100 && fabs(error) > tol && xHigh - xLow > 1e-14 * fmax(1.0, fabs(xLow)); ++iter) {
+        logScale = (xLow * fHigh - xHigh * fLow) / (fHigh - fLow);
+        error = complexityError(logScale);
+        if (error < 0.0) {
+          xLow = logScale; fLow = error;
+          if (side == -1) fHigh *= 0.5;
+          side = -1;
+        } else {
+          xHigh = logScale; fHigh = error;
+          if (side == 1) fLow *= 0.5;
+          side = 1;
+        }
+      }
+    }
+  }
+
+  /*--- Final metric. ---*/
+
+  const su2double scale = exp(logScale);
   su2double localMinDensity = std::numeric_limits<passivedouble>::max(), localMaxDensity = 0.0;
   su2double localMaxAR = 0.0, localComplexity = 0.0;
 
   for (unsigned long iPoint = 0; iPoint < nPointDomain; ++iPoint) {
-    su2double metric[3][3] = {{0.0}};
-
-    for (auto iSensor = 0u; iSensor < nSensor; ++iSensor) {
-      su2double vec[3][3], val[3], sensorMetric[3][3];
-      absHessian(iPoint, iSensor, vec, val);
-
-      const su2double factor = pow(complexity / globalScale[iSensor], 2.0 / nDim) *
-                               pow(determinant(val), -1.0 / (2 * p + nDim));
-      su2double valMax = 0.0;
-      for (auto i = 0u; i < nDim; ++i) {
-        val[i] = fmin(fmax(factor * val[i], eigMin), eigMax);
-        valMax = fmax(valMax, val[i]);
-      }
-      for (auto i = 0u; i < nDim; ++i) val[i] = fmax(val[i], valMax / arMax2);
-
-      CBlasStructure::EigenRecomposition(sensorMetric, vec, val, nDim);
-
-      if (iSensor == 0) {
-        for (auto i = 0u; i < nDim; ++i)
-          for (auto j = 0u; j < nDim; ++j) metric[i][j] = sensorMetric[i][j];
-      } else {
-        su2double previous[3][3];
-        for (auto i = 0u; i < nDim; ++i)
-          for (auto j = 0u; j < nDim; ++j) previous[i][j] = metric[i][j];
-        IntersectMetrics(nDim, previous, sensorMetric, metric);
-      }
-    }
-
+    su2double vec[3][3], val[3], metric[3][3] = {{0.0}};
+    unboundedMetric(iPoint, vec, val);
+    boundEigenvalues(scale, val);
+    CBlasStructure::EigenRecomposition(metric, vec, val, nDim);
     base_nodes->SetMetricMat(iPoint, metric);
 
-    /*--- Statistics of the final metric (eigenvalues are sorted in ascending order). ---*/
-
-    su2double vec[3][3], val[3], work[3];
-    CBlasStructure::EigenDecomposition(metric, vec, val, nDim, work);
-    const su2double density = sqrt(fabs(determinant(val)));
+    const su2double density = sqrt(determinant(val));
     localMinDensity = fmin(localMinDensity, density);
     localMaxDensity = fmax(localMaxDensity, density);
-    localMaxAR = fmax(localMaxAR, sqrt(fabs(val[nDim - 1] / val[0])));
+    localMaxAR = fmax(localMaxAR, sqrt(*max_element(val, val + nDim) / *min_element(val, val + nDim)));
     localComplexity += density * geometry->nodes->GetVolume(iPoint);
   }
 
@@ -2588,7 +2711,15 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config) {
     cout << "Minimum density: " << minDensity << "." << endl;
     cout << "Maximum density: " << maxDensity << "." << endl;
     cout << "Maximum cell AR: " << maxAR << "." << endl;
-    cout << "Mesh complexity: " << totComplexity << "." << endl;
+    cout << "Mesh complexity: " << totComplexity << " (ADAP_COMPLEXITY= " << complexity << ")." << endl;
+    if (fabs(error) > tol && !bracketed) {
+      cout << "WARNING: The mesh complexity " << totComplexity << " differs from ADAP_COMPLEXITY= " << complexity
+           << ", which cannot be reached with the bounds ADAP_HMIN, ADAP_HMAX and ADAP_ARMAX. The metric has the "
+           << (error > 0.0 ? "largest sizes (ADAP_HMAX)" : "smallest sizes allowed") << " everywhere." << endl;
+    } else if (fabs(error) > tol) {
+      cout << "WARNING: The mesh complexity " << totComplexity << " did not converge to ADAP_COMPLEXITY= "
+           << complexity << "." << endl;
+    }
   }
 
   /*--- Same metric on both sides of periodic boundaries, then on halo points. ---*/

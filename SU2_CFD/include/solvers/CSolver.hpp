@@ -582,8 +582,10 @@ public:
   /*!
    * \brief Compute the mesh adaptation metric from the Hessians of the sensors.
    * \details For each sensor, the Lp-norm optimal metric (ADAP_NORM) is scaled to the target
-   *          complexity (ADAP_COMPLEXITY) and bounded by ADAP_HMIN, ADAP_HMAX and ADAP_ARMAX.
-   *          The metrics of the sensors are then intersected.
+   *          complexity (ADAP_COMPLEXITY), then the metrics of the sensors are intersected. A global
+   *          factor brings the final metric to ADAP_COMPLEXITY, with the size and aspect ratio bounds
+   *          (ADAP_HMIN, ADAP_HMAX, ADAP_ARMAX) applied to the final metric. A warning is printed if the
+   *          bounds do not allow the target complexity.
    * \note The Hessians must be computed first (SetHessian_Adapt). Call outside of OpenMP parallel regions.
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] config - Definition of the particular problem.

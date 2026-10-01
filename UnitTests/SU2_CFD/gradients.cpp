@@ -26,6 +26,7 @@
  */
 
 #include "catch.hpp"
+#include <array>
 #include "../../Common/include/geometry/CPhysicalGeometry.hpp"
 #include "../../Common/include/containers/container_decorators.hpp"
 #include "../../SU2_CFD/include/solvers/CSolver.hpp"
@@ -261,7 +262,7 @@ struct AdaptBoxTest {
   std::unique_ptr<CGeometry> geometry;
   CSolver** solver = nullptr;
 
-  AdaptBoxTest(const string& markers, const string& method) {
+  AdaptBoxTest(const string& markers, const string& method, const string& adaptOptions = "ADAP_SENSOR= (MACH)\n") {
     const string configOptions =
         "SOLVER= EULER\n"
         "MESH_FORMAT= BOX\n"
@@ -269,8 +270,7 @@ struct AdaptBoxTest {
         "MESH_BOX_SIZE= 8,8,8\n"
         "MESH_BOX_LENGTH= 1,1,1\n"
         "MESH_BOX_OFFSET= 0,0,0\n"
-        "COMPUTE_METRIC= YES\n"
-        "ADAP_SENSOR= (MACH)\n"
+        "COMPUTE_METRIC= YES\n" + adaptOptions +
         "NUM_METHOD_HESS= " + method + "\n";
 
     auto origBuf = cout.rdbuf();
@@ -508,3 +508,150 @@ void testEulerWallHessian(const string& method) {
 TEST_CASE("Euler wall Hessian GG", "[Adaptation]") { testEulerWallHessian("GREEN_GAUSS"); }
 
 TEST_CASE("Euler wall Hessian WLS", "[Adaptation]") { testEulerWallHessian("WEIGHTED_LEAST_SQUARES"); }
+
+/*!
+ * \brief Unit cube with constant sensor Hessians (set directly, not computed) and the given adaptation options.
+ */
+struct ConstantHessianBoxTest : public AdaptBoxTest {
+  ConstantHessianBoxTest(const string& adaptOptions, const vector<std::array<su2double, 6>>& hessians)
+      : AdaptBoxTest("MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_minus, z_plus)\n", "GREEN_GAUSS",
+                     adaptOptions) {
+    auto& H = solver[FLOW_SOL]->GetNodes()->GetHessian();
+    for (auto iPoint = 0ul; iPoint < geometry->GetnPoint(); ++iPoint)
+      for (auto iSensor = 0ul; iSensor < hessians.size(); ++iSensor)
+        for (auto iMet = 0u; iMet < 6; ++iMet) H(iPoint, iSensor, iMet) = hessians[iSensor][iMet];
+  }
+
+  /*!
+   * \brief Compute the metric, return the screen output.
+   */
+  string ComputeMetric() {
+    stringstream out;
+    auto origBuf = cout.rdbuf();
+    cout.rdbuf(out.rdbuf());
+    solver[FLOW_SOL]->ComputeMetric(geometry.get(), config.get());
+    cout.rdbuf(origBuf);
+    return out.str();
+  }
+
+  /*!
+   * \brief Sorted eigenvalues of the metric at a point.
+   */
+  void Eigenvalues(unsigned long iPoint, su2double (&val)[3]) const {
+    su2double M[3][3], vec[3][3], work[3];
+    solver[FLOW_SOL]->GetNodes()->GetMetricMat(iPoint, M);
+    CBlasStructure::EigenDecomposition(M, vec, val, 3, work);
+  }
+
+  /*!
+   * \brief Complexity of the metric, integral of sqrt(det(M)).
+   */
+  su2double Complexity() const {
+    su2double complexity = 0.0;
+    for (auto iPoint = 0ul; iPoint < geometry->GetnPointDomain(); ++iPoint) {
+      su2double val[3];
+      Eigenvalues(iPoint, val);
+      complexity += sqrt(val[0] * val[1] * val[2]) * geometry->nodes->GetVolume(iPoint);
+    }
+    return complexity;
+  }
+
+  /*!
+   * \brief Largest relative difference between the metric eigenvalues and the reference, over all points.
+   */
+  su2double EigenvalueError(const su2double (&ref)[3]) const {
+    su2double err = 0.0;
+    for (auto iPoint = 0ul; iPoint < geometry->GetnPoint(); ++iPoint) {
+      su2double val[3];
+      Eigenvalues(iPoint, val);
+      for (auto i = 0u; i < 3; ++i) err = max(err, abs(val[i] - ref[i]) / ref[i]);
+    }
+    return err;
+  }
+};
+
+/*--- Two sensors with eigenvalues (100, 1, 1) and different principal directions (the second rotated by 45 degrees
+ *    about z): each sensor metric has eigenvalues (1, 1, 100) for ADAP_COMPLEXITY= 10, their intersection
+ *    (1, 30.4, 167.7) has a complexity of 71.4, a size of 0.077 and an aspect ratio of 12.95. ---*/
+const std::array<su2double, 6> hessianX = {100.0, 0.0, 0.0, 1.0, 0.0, 1.0};
+const std::array<su2double, 6> hessianXY = {50.5, 49.5, 0.0, 50.5, 0.0, 1.0};
+
+TEST_CASE("Metric bounds after the intersection", "[Adaptation]") {
+  /*--- Reference eigenvalues of the final metric: bounded intersection, scaled to the complexity. ---*/
+  const string sensors = "ADAP_SENSOR= (MACH, PRESSURE)\nADAP_COMPLEXITY= 10\n";
+  const struct {
+    string bounds;
+    su2double hmin, hmax, armax, ref[3];
+  } cases[] = {{"ADAP_HMIN= 0.1\nADAP_HMAX= 10\nADAP_ARMAX= 10\n", 0.1, 10.0, 10.0, {0.3806839, 6.90034786, 38.06838978}},
+               {"ADAP_HMIN= 0.2\nADAP_HMAX= 10\nADAP_ARMAX= 10\n", 0.2, 10.0, 10.0, {0.36273708, 11.02727091, 25.0}}};
+
+  for (const auto& c : cases) {
+    ConstantHessianBoxTest test(sensors + c.bounds, {hessianX, hessianXY});
+    const auto output = test.ComputeMetric();
+    CHECK(output.find("WARNING") == string::npos);
+
+    const su2double tol = 1e-12;
+    bool inBounds = true;
+    for (auto iPoint = 0ul; iPoint < test.geometry->GetnPoint(); ++iPoint) {
+      su2double val[3];
+      test.Eigenvalues(iPoint, val);
+      inBounds &= val[2] <= (1 + tol) / pow(c.hmin, 2) && val[0] >= (1 - tol) / pow(c.hmax, 2);
+      inBounds &= sqrt(val[2] / val[0]) <= (1 + tol) * c.armax;
+    }
+    CHECK(inBounds);
+    CHECK(test.EigenvalueError(c.ref) < 1e-6);
+    CHECK(test.Complexity() == Approx(10.0).epsilon(1e-6));
+  }
+}
+
+TEST_CASE("Metric complexity", "[Adaptation]") {
+  const string loose = "ADAP_HMIN= 0.01\nADAP_HMAX= 10\nADAP_ARMAX= 1000\n";
+
+  /*--- One sensor: the Lp-optimal metric, C^(2/n) det(|H|)^(-1/n) |H| for a constant Hessian on a unit volume. ---*/
+  {
+    ConstantHessianBoxTest test("ADAP_SENSOR= (MACH)\nADAP_COMPLEXITY= 10\n" + loose, {hessianXY});
+    test.ComputeMetric();
+    const su2double factor = pow(10.0, 2.0 / 3.0) * pow(100.0, -1.0 / 3.0);
+    su2double err = 0.0;
+    for (auto iPoint = 0ul; iPoint < test.geometry->GetnPoint(); ++iPoint)
+      for (auto iMet = 0u; iMet < 6; ++iMet)
+        err = max(err, abs(test.solver[FLOW_SOL]->GetNodes()->GetMetric(iPoint, iMet) - factor * hessianXY[iMet]));
+    CHECK(err < 1e-12);
+    CHECK(test.Complexity() == Approx(10.0).epsilon(1e-12));
+  }
+
+  /*--- Two sensors with inactive bounds: the final metric, not each sensor metric, has the target complexity
+   *    (it was 71.4, and 100 for orthogonal principal directions). ---*/
+  const string sensors = "ADAP_SENSOR= (MACH, PRESSURE)\nADAP_COMPLEXITY= 10\n";
+  {
+    ConstantHessianBoxTest test(sensors + loose, {hessianX, hessianXY});
+    const auto output = test.ComputeMetric();
+    CHECK(output.find("WARNING") == string::npos);
+    CHECK(test.Complexity() == Approx(10.0).epsilon(1e-6));
+    const su2double ref[3] = {0.26968167, 8.1983702, 45.22942297};
+    CHECK(test.EigenvalueError(ref) < 1e-6);
+  }
+  {
+    const std::array<su2double, 6> hessianY = {1.0, 0.0, 0.0, 100.0, 0.0, 1.0};
+    ConstantHessianBoxTest test(sensors + loose, {hessianX, hessianY});
+    test.ComputeMetric();
+    CHECK(test.Complexity() == Approx(10.0).epsilon(1e-6));
+  }
+
+  /*--- Bounds that do not allow the target: ADAP_HMAX= 0.2 gives at least 125, ADAP_HMIN= 1 at most 1. The metric
+   *    uses the limiting size everywhere and a warning reports it. ---*/
+  const struct {
+    string bounds;
+    su2double complexity, eigenvalue;
+  } infeasible[] = {{"ADAP_HMIN= 0.01\nADAP_HMAX= 0.2\nADAP_ARMAX= 1000\n", 125.0, 25.0},
+                    {"ADAP_HMIN= 1\nADAP_HMAX= 10\nADAP_ARMAX= 1000\n", 1.0, 1.0}};
+  for (const auto& c : infeasible) {
+    ConstantHessianBoxTest test(sensors + c.bounds, {hessianX, hessianXY});
+    const auto output = test.ComputeMetric();
+    CHECK(output.find("WARNING") != string::npos);
+    CHECK(output.find("cannot be reached") != string::npos);
+    CHECK(test.Complexity() == Approx(c.complexity).epsilon(1e-12));
+    const su2double ref[3] = {c.eigenvalue, c.eigenvalue, c.eigenvalue};
+    CHECK(test.EigenvalueError(ref) < 1e-12);
+  }
+}

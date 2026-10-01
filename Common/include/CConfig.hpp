@@ -1320,7 +1320,7 @@ private:
             Adap_Hgrad,                     /*!< \brief Size gradation of the remesher. */
             Adap_Hausd,                     /*!< \brief Hausdorff distance of the remeshed boundaries. */
             Adap_Angle;                     /*!< \brief Sharp angle detection threshold of the remesher (degrees). */
-  unsigned long Adap_Complexity;            /*!< \brief Constraint mesh complexity. */
+  unsigned long Adap_Complexity;            /*!< \brief Target complexity of the final metric. */
 
   unsigned short nSpecies = 0;              /*!< \brief Number of transported species equations (for NEMO and species transport)*/
 
@@ -10346,7 +10346,7 @@ public:
   su2double GetAdap_ARmax(void) const { return Adap_ARmax; }
 
   /*!
-   * \brief Get the constraint mesh complexity.
+   * \brief Get the target complexity of the final metric (all sensors together).
    */
   unsigned long GetAdap_Complexity(void) const { return Adap_Complexity; }
 
