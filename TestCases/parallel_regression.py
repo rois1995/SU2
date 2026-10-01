@@ -1474,6 +1474,15 @@ def main():
     fsi2d.unsteady = True
     test_list.append(fsi2d)
 
+    # Airfoil with a rotating leading edge (mesh solver), moment independent of the partition
+    rotating_leading_edge           = TestCase('rotating_leading_edge')
+    rotating_leading_edge.cfg_dir   = "fea_fsi/Airfoil_RBF"
+    rotating_leading_edge.cfg_file  = "rotating_leading_edge.cfg"
+    rotating_leading_edge.test_iter = 2
+    rotating_leading_edge.test_vals = [-2.273564, 0.206015, 0.039409, 0.058007]
+    rotating_leading_edge.unsteady  = True
+    test_list.append(rotating_leading_edge)
+
     # FSI, Dynamic, 2D, new mesh solver
     dyn_fsi           = TestCase('dyn_fsi')
     dyn_fsi.cfg_dir   = "fea_fsi/dyn_fsi"

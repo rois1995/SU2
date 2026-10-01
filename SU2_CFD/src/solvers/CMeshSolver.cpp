@@ -1039,8 +1039,9 @@ void CMeshSolver::Surface_Pitching(CGeometry *geometry, CConfig *config, unsigne
         cout << " Storing pitching displacement for marker: ";
         cout << Marker_Tag << "." << endl;
         if (iter == 0) {
-          cout << " Pitching frequency: (" << Omega[0] << ", " << Omega[1];
-          cout << ", " << Omega[2] << ") rad/s about origin: (" << Center[0];
+          const su2double Omega_Ref = config->GetOmega_Ref();
+          cout << " Pitching frequency: (" << Omega[0]*Omega_Ref << ", " << Omega[1]*Omega_Ref;
+          cout << ", " << Omega[2]*Omega_Ref << ") rad/s about origin: (" << Center[0];
           cout << ", " << Center[1] << ", " << Center[2] << ")." << endl;
           cout << " Pitching amplitude about origin: (" << Ampl[0]/DEG2RAD;
           cout << ", " << Ampl[1]/DEG2RAD << ", " << Ampl[2]/DEG2RAD;
@@ -1171,8 +1172,9 @@ void CMeshSolver::Surface_Rotating(CGeometry *geometry, CConfig *config, unsigne
         cout << " Storing rotating displacement for marker: ";
         cout << Marker_Tag << "." << endl;
         if (iter == 0) {
-          cout << " Angular velocity: (" << Omega[0] << ", " << Omega[1];
-          cout << ", " << Omega[2] << ") rad/s about origin: (" << Center[0];
+          const su2double Omega_Ref = config->GetOmega_Ref();
+          cout << " Angular velocity: (" << Omega[0]*Omega_Ref << ", " << Omega[1]*Omega_Ref;
+          cout << ", " << Omega[2]*Omega_Ref << ") rad/s about origin: (" << Center[0];
           cout << ", " << Center[1] << ", " << Center[2] << ")." << endl;
         }
       }
@@ -1230,7 +1232,22 @@ void CMeshSolver::Surface_Rotating(CGeometry *geometry, CConfig *config, unsigne
   }
 
   /*--- When updating the origins it is assumed that all markers have the
-   same rotation movement, because we use the last markers rotation matrix and center ---*/
+   same rotation movement, because we use the last markers rotation matrix and center.
+   They are taken from the config (last deforming marker), as this rank may not have
+   vertices of the moving markers and the origins must be the same on all ranks. ---*/
+
+  for (jMarker = config->GetnMarker_Moving(); jMarker > 0; jMarker--) {
+    if (config->GetKind_SurfaceMovement(jMarker-1) != DEFORMING) continue;
+    for (iDim = 0; iDim < 3; iDim++){
+      Omega[iDim]  = config->GetMarkerRotationRate(jMarker-1, iDim)/config->GetOmega_Ref();
+      Center[iDim] = config->GetMarkerMotion_Origin(jMarker-1, iDim);
+    }
+    dtheta = Omega[0]*(time_new-time_old);
+    dphi   = Omega[1]*(time_new-time_old);
+    dpsi   = Omega[2]*(time_new-time_old);
+    RotationMatrix(dtheta, dphi, dpsi, rotMatrix);
+    break;
+  }
 
   /*--- Set the mesh motion center to the new location after
    incrementing the position with the rotation. This new
@@ -1298,7 +1315,6 @@ void CMeshSolver::Surface_Plunging(CGeometry *geometry, CConfig *config, unsigne
   su2double deltaT, time_new, time_old, Lref;
   su2double Center[3] = {0.0}, VarCoord[3] = {0.0}, Omega[3] = {0.0}, Ampl[3] = {0.0};
   su2double VarCoordAbs[3] = {0.0};
-  const su2double DEG2RAD = PI_NUMBER/180.0;
   unsigned short iMarker, jMarker;
   unsigned long iPoint, iVertex;
   string Marker_Tag, Moving_Tag;
@@ -1353,11 +1369,12 @@ void CMeshSolver::Surface_Plunging(CGeometry *geometry, CConfig *config, unsigne
         cout << " Storing plunging displacement for marker: ";
         cout << Marker_Tag << "." << endl;
         if (iter == 0) {
-          cout << " Plunging frequency: (" << Omega[0] << ", " << Omega[1];
-          cout << ", " << Omega[2] << ") rad/s." << endl;
-          cout << " Plunging amplitude: (" << Ampl[0]/DEG2RAD;
-          cout << ", " << Ampl[1]/DEG2RAD << ", " << Ampl[2]/DEG2RAD;
-          cout << ") degrees."<< endl;
+          const su2double Omega_Ref = config->GetOmega_Ref();
+          cout << " Plunging frequency: (" << Omega[0]*Omega_Ref << ", " << Omega[1]*Omega_Ref;
+          cout << ", " << Omega[2]*Omega_Ref << ") rad/s." << endl;
+          cout << " Plunging amplitude: (" << Ampl[0]*Lref;
+          cout << ", " << Ampl[1]*Lref << ", " << Ampl[2]*Lref;
+          cout << ") m."<< endl;
         }
       }
 
@@ -1389,7 +1406,19 @@ void CMeshSolver::Surface_Plunging(CGeometry *geometry, CConfig *config, unsigne
   }
 
   /*--- When updating the origins it is assumed that all markers have the
-   same plunging movement, because we use the last VarCoord set ---*/
+   same plunging movement, because we use the last VarCoord set. It is taken
+   from the config (last deforming marker), as this rank may not have vertices
+   of the moving markers and the origins must be the same on all ranks. ---*/
+
+  for (jMarker = config->GetnMarker_Moving(); jMarker > 0; jMarker--) {
+    if (config->GetKind_SurfaceMovement(jMarker-1) != DEFORMING) continue;
+    for (iDim = 0; iDim < 3; iDim++){
+      Ampl[iDim]  = config->GetMarkerPlunging_Ampl(jMarker-1, iDim)/Lref;
+      Omega[iDim] = config->GetMarkerPlunging_Omega(jMarker-1, iDim)/config->GetOmega_Ref();
+      VarCoord[iDim] = -Ampl[iDim]*(sin(Omega[iDim]*time_new) - sin(Omega[iDim]*time_old));
+    }
+    break;
+  }
 
   /*--- Set the mesh motion center to the new location after
    incrementing the position with the translation. This new
@@ -1401,7 +1430,7 @@ void CMeshSolver::Surface_Plunging(CGeometry *geometry, CConfig *config, unsigne
 
     if (config->GetMoveMotion_Origin(jMarker) == YES) {
       for (iDim = 0; iDim < 3; iDim++)
-        Center[iDim] += VarCoord[iDim];
+        Center[iDim] = config->GetMarkerMotion_Origin(jMarker, iDim) + VarCoord[iDim];
 
       config->SetMarkerMotion_Origin(Center, jMarker);
     }
@@ -1511,7 +1540,18 @@ void CMeshSolver::Surface_Translating(CGeometry *geometry, CConfig *config, unsi
   }
 
   /*--- When updating the origins it is assumed that all markers have the
-        same translational velocity, because we use the last VarCoord set ---*/
+        same translational velocity, because we use the last VarCoord set. It is
+        taken from the config (last deforming marker), as this rank may not have
+        vertices of the moving markers and the origins must be the same on all ranks. ---*/
+
+  for (jMarker = config->GetnMarker_Moving(); jMarker > 0; jMarker--) {
+    if (config->GetKind_SurfaceMovement(jMarker-1) != DEFORMING) continue;
+    for (iDim = 0; iDim < 3; iDim++) {
+      xDot[iDim] = config->GetMarkerTranslationRate(jMarker-1, iDim)/config->GetVelocity_Ref();
+      VarCoord[iDim] = xDot[iDim]*(time_new-time_old);
+    }
+    break;
+  }
 
   /*--- Set the mesh motion center to the new location after
    incrementing the position with the translation. This new
@@ -1523,7 +1563,7 @@ void CMeshSolver::Surface_Translating(CGeometry *geometry, CConfig *config, unsi
 
     if (config->GetMoveMotion_Origin(jMarker) == YES) {
       for (iDim = 0; iDim < 3; iDim++)
-        Center[iDim] += VarCoord[iDim];
+        Center[iDim] = config->GetMarkerMotion_Origin(jMarker, iDim) + VarCoord[iDim];
 
       config->SetMarkerMotion_Origin(Center, jMarker);
     }
