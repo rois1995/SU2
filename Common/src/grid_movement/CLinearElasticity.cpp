@@ -279,8 +279,16 @@ void CLinearElasticity::ComputeSolid_Wall_Distance(CGeometry* geometry, CConfig*
    for each interior mesh node. ---*/
 
   if (WallADT.IsEmpty()) {
-    /*--- No solid wall boundary nodes in the entire mesh.
-     Set the wall distance to zero for all nodes. ---*/
+    /*--- No solid wall boundary nodes in the entire mesh, the stiffness 1 / distance would be infinite. ---*/
+
+    if (config->GetDeform_Stiffness_Type() == SOLID_WALL_DISTANCE) {
+      SU2_MPI::Error(
+          "DEFORM_STIFFNESS_TYPE= WALL_DISTANCE (the default) needs a solid wall (e.g. MARKER_EULER, "
+          "MARKER_HEATFLUX).\nUse INVERSE_VOLUME or CONSTANT_STIFFNESS for this mesh.",
+          CURRENT_FUNCTION);
+    }
+
+    /*--- Set the wall distance to zero for all nodes. ---*/
 
     for (iPoint = 0; iPoint < geometry->GetnPoint(); ++iPoint) geometry->nodes->SetWall_Distance(iPoint, 0.0);
   } else {
