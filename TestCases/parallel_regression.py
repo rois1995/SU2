@@ -2002,6 +2002,19 @@ def main():
     pass_list.append(rae2822_def.run_def())
     test_list.append(rae2822_def)
 
+    # Inviscid NACA0012, the outer boundary is a near-field plane that is also in DV_MARKER
+    naca0012_nearfield_def = TestCase('naca0012_nearfield_def')
+    naca0012_nearfield_def.cfg_dir = "deformation/naca0012"
+    naca0012_nearfield_def.cfg_file = "def_NACA0012_nearfield.cfg"
+    naca0012_nearfield_def.test_iter = 10
+    naca0012_nearfield_def.test_vals = [0.0169785] #residual
+    naca0012_nearfield_def.command = TestCase.Command("mpirun -n 2", "SU2_DEF")
+    naca0012_nearfield_def.timeout = 1600
+    naca0012_nearfield_def.tol = 1e-8
+
+    pass_list.append(naca0012_nearfield_def.run_def())
+    test_list.append(naca0012_nearfield_def)
+
     # Turb NACA4412 (quads, wall distance)
     naca4412_def            = TestCase('naca4412_def')
     naca4412_def.cfg_dir   = "deformation/naca4412"

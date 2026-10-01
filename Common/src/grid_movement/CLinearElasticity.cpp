@@ -1368,9 +1368,9 @@ void CLinearElasticity::SetBoundaryDisplacements(CGeometry* geometry, CConfig* c
       for (iVertex = 0; iVertex < geometry->nVertex[iMarker]; iVertex++) {
         iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
         for (iDim = 0; iDim < nDim; iDim++) {
-          LinSysRes(iPoint, axis) = 0.0;
-          LinSysSol(iPoint, axis) = 0.0;
-          StiffMatrix.DeleteValsRowi(iPoint, axis);
+          LinSysRes(iPoint, iDim) = 0.0;
+          LinSysSol(iPoint, iDim) = 0.0;
+          StiffMatrix.DeleteValsRowi(iPoint, iDim);
         }
       }
     }
