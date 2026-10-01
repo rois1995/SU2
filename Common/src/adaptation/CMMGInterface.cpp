@@ -136,6 +136,20 @@ void CMMGInterface::CheckSupport(const CConfig& config, const CGeometry& geometr
   }
 }
 
+int CMMGInterface::GetMarkerReference(const CConfig& config, const string& name) {
+  std::vector<string> names;
+  for (unsigned short iMarker = 0; iMarker < config.GetnMarker_CfgFile(); ++iMarker)
+    names.push_back(config.GetMarker_CfgFile_TagBound(iMarker));
+  std::sort(names.begin(), names.end());
+  names.erase(std::unique(names.begin(), names.end()), names.end());
+
+  const auto it = std::lower_bound(names.begin(), names.end(), name);
+  if (it == names.end() || *it != name) {
+    SU2_MPI::Error("The configuration file doesn't have any definition for marker " + name, CURRENT_FUNCTION);
+  }
+  return 1 + static_cast<int>(it - names.begin());
+}
+
 CSimplexMesh CMMGInterface::ExtractMesh(const CConfig& config, const CGeometry& geometry,
                                         const su2activematrix& metric) {
   CSimplexMesh mesh;
@@ -208,7 +222,7 @@ CSimplexMesh CMMGInterface::ExtractMesh(const CConfig& config, const CGeometry& 
     }
     CSimplexMesh::Marker marker;
     marker.name = config.GetMarker_All_TagBound(iMarker);
-    marker.ref = 1 + config.GetMarker_CfgFile_TagBound(marker.name);
+    marker.ref = GetMarkerReference(config, marker.name);
     const auto nElemBound = geometry.GetnElem_Bound(iMarker);
     marker.elem.resize(nElemBound * nDim);
     for (auto iElem = 0ul; iElem < nElemBound; ++iElem) {

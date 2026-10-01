@@ -142,11 +142,21 @@ class CMMGInterface {
   static void CheckSupport(const CConfig& config, const CGeometry& geometry);
 
   /*!
+   * \brief MMG reference of a marker: 1 + the position of its name in the alphabetical list of the marker names
+   *        of the configuration file (MARKER_* tags).
+   * \note Depends on the names only, not on the order of the markers in the config or mesh file, nor on the
+   *       partition (MPI-local marker indices). Stops with an error if the config does not define the marker.
+   * \param[in] config - Definition of the problem.
+   * \param[in] name - Marker name.
+   * \return Reference (> 0).
+   */
+  static int GetMarkerReference(const CConfig& config, const std::string& name);
+
+  /*!
    * \brief Copy the mesh and the metric of the local (single-rank) geometry into plain arrays.
    * \note Elements are reoriented to a positive volume if needed (zero volume is an error), the metric must be
    *       finite and positive definite, all elements must be triangles (2D) or tetrahedra (3D).
-   *       Marker references are 1 + the index of the marker in the configuration file, which does not depend
-   *       on the partition (MARKER_* tags, not the MPI-local marker indices).
+   *       Marker references are given by GetMarkerReference.
    * \param[in] config - Definition of the problem.
    * \param[in] geometry - Geometry of the zone (finest grid).
    * \param[in] metric - Metric at the points, nPoint x nMetric, upper triangle (e.g. CVariable::GetMetric()).

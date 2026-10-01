@@ -26,6 +26,7 @@
 
 #include "catch.hpp"
 
+#include <algorithm>
 #include <array>
 #include <cstdio>
 #include <fstream>
@@ -239,9 +240,15 @@ void CheckExtraction(unsigned short nDim, unsigned long n) {
   CHECK(mesh.metric.size() == nPoint * CSimplexMesh::GetnMetric(nDim));
   CHECK(mesh.markers.size() == (nDim == 2 ? 5u : 7u));
 
-  /*--- References follow the order of the markers in the config file, not the order in the mesh file. ---*/
+  /*--- References follow the alphabetical order of the marker names, not the order in the config or mesh file. ---*/
+  const std::vector<string> names = (nDim == 2) ? std::vector<string>{"left", "lower_a", "lower_b", "right", "upper"}
+                                                : std::vector<string>{"x_minus", "x_plus", "y_minus", "y_plus",
+                                                                      "z_minus_a", "z_minus_b", "z_plus"};
   for (const auto& marker : mesh.markers) {
-    CHECK(marker.ref == 1 + test.config->GetMarker_CfgFile_TagBound(marker.name));
+    const auto it = std::find(names.begin(), names.end(), marker.name);
+    REQUIRE(it != names.end());
+    CHECK(marker.ref == 1 + (it - names.begin()));
+    CHECK(marker.ref == CMMGInterface::GetMarkerReference(*test.config, marker.name));
     CHECK(marker.GetnElem(nDim) > 0);
     for (const auto iPoint : marker.elem) CHECK(OnMarker(nDim, marker.name, &mesh.coord[iPoint * nDim]));
   }
