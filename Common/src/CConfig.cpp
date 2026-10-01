@@ -3702,6 +3702,16 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
                    CURRENT_FUNCTION);
 #endif
 #endif
+    /*--- The direct PaStiX solvers compute the solution on the host, which CSysSolve then
+     * overwrites with the device copy of the vector (still the initial guess). ---*/
+    for (const auto kind : {Kind_Linear_Solver, Kind_Deform_Linear_Solver, Kind_Grad_Linear_Solver,
+                            Kind_Poisson_Linear_Solver}) {
+      if (kind == PASTIX_LU || kind == PASTIX_LDLT) {
+        SU2_MPI::Error("ENABLE_CUDA= YES is not supported with the PASTIX_LU and PASTIX_LDLT linear solvers,\n"
+                       "       use them as preconditioners (PASTIX_LU_P, PASTIX_LDLT_P) instead.",
+                       CURRENT_FUNCTION);
+      }
+    }
   }
 
   /*--- Set the default output files ---*/
