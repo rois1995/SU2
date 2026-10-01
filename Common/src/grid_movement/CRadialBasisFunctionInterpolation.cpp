@@ -34,10 +34,16 @@
 CRadialBasisFunctionInterpolation::CRadialBasisFunctionInterpolation(CGeometry* geometry, CConfig* config)
     : CVolumetricMovement(geometry) {}
 
-CRadialBasisFunctionInterpolation::~CRadialBasisFunctionInterpolation() {
-  for (auto*& ptr : BoundNodes) {
-    delete ptr;
-    ptr = nullptr;
+CRadialBasisFunctionInterpolation::~CRadialBasisFunctionInterpolation() { ClearNodes(); }
+
+void CRadialBasisFunctionInterpolation::ClearNodes() {
+  /*--- The selected control nodes are moved out of BoundNodes, so the two sets do not share nodes. ---*/
+  for (auto* nodes : {&BoundNodes, &ReducedControlNodes}) {
+    for (auto*& ptr : *nodes) {
+      delete ptr;
+      ptr = nullptr;
+    }
+    nodes->clear();
   }
 }
 
@@ -178,21 +184,32 @@ void CRadialBasisFunctionInterpolation::GetInterpCoeffs(CGeometry* geometry, CCo
 }
 
 void CRadialBasisFunctionInterpolation::SetBoundNodes(CGeometry* geometry, CConfig* config) {
-  /*--- Storing of the local node, marker and vertex information of the boundary nodes ---*/
+  /*--- Discard the nodes of a previous call (e.g. unsteady or repeated deformations). ---*/
+  ClearNodes();
 
-  /*--- Looping over the markers ---*/
-  for (auto iMarker = 0u; iMarker < config->GetnMarker_All(); iMarker++) {
-    /*--- Checking if not internal or send/receive marker ---*/
-    if (!config->GetMarker_All_Deform_Mesh_Internal(iMarker) && !config->GetMarker_All_SendRecv(iMarker)) {
-      /*--- Looping over the vertices of marker ---*/
-      for (auto iVertex = 0ul; iVertex < geometry->nVertex[iMarker]; iVertex++) {
-        /*--- Node in consideration ---*/
-        auto iNode = geometry->vertex[iMarker][iVertex]->GetNode();
+  /*--- Storing of the local node, marker and vertex information of the boundary nodes.
+   * Each node is stored once. A node that is on several markers takes its displacement
+   * from a deformation marker, if it is on one, therefore those are visited first. ---*/
+  vector<bool> isStored(geometry->GetnPoint(), false);
 
-        /*--- Check whether node is part of the subdomain and not shared with a receiving marker (for parallel
-         * computation) ---*/
-        if (geometry->nodes->GetDomain(iNode)) {
-          BoundNodes.push_back(new CRadialBasisFunctionNode(iNode, iMarker, iVertex));
+  for (const bool deformationMarkers : {true, false}) {
+    /*--- Looping over the markers ---*/
+    for (auto iMarker = 0u; iMarker < config->GetnMarker_All(); iMarker++) {
+      if (IsDeformationMarker(config, iMarker) != deformationMarkers) continue;
+
+      /*--- Checking if not internal or send/receive marker ---*/
+      if (!config->GetMarker_All_Deform_Mesh_Internal(iMarker) && !config->GetMarker_All_SendRecv(iMarker)) {
+        /*--- Looping over the vertices of marker ---*/
+        for (auto iVertex = 0ul; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+          /*--- Node in consideration ---*/
+          auto iNode = geometry->vertex[iMarker][iVertex]->GetNode();
+
+          /*--- Check whether node is part of the subdomain and not shared with a receiving marker (for parallel
+           * computation) ---*/
+          if (geometry->nodes->GetDomain(iNode) && !isStored[iNode]) {
+            BoundNodes.push_back(new CRadialBasisFunctionNode(iNode, iMarker, iVertex));
+            isStored[iNode] = true;
+          }
         }
       }
     }
@@ -203,12 +220,6 @@ void CRadialBasisFunctionInterpolation::SetBoundNodes(CGeometry* geometry, CConf
     return a->GetIndex() < b->GetIndex();
   };
   sort(BoundNodes.begin(), BoundNodes.end(), smaller_index);
-
-  /*--- Obtaining unique set ---*/
-  const auto equal_index = [](const CRadialBasisFunctionNode* a, const CRadialBasisFunctionNode* b) {
-    return a->GetIndex() == b->GetIndex();
-  };
-  BoundNodes.resize(std::distance(BoundNodes.begin(), unique(BoundNodes.begin(), BoundNodes.end(), equal_index)));
 }
 
 void CRadialBasisFunctionInterpolation::SetCtrlNodes(CConfig* config) {

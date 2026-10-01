@@ -1141,6 +1141,15 @@ def main():
     square_cylinder.unsteady  = True
     test_list.append(square_cylinder)
 
+    # Aeroelastic with RBF mesh deformation (repeated deformations)
+    aeroelastic_rbf           = TestCase('aeroelastic_rbf')
+    aeroelastic_rbf.cfg_dir   = "aeroelastic"
+    aeroelastic_rbf.cfg_file  = "aeroelastic_NACA64A010_rbf.cfg"
+    aeroelastic_rbf.test_iter = 2
+    aeroelastic_rbf.test_vals = [-1.876608, 4.021090, 0.080994, 0.027812, -0.001642, -0.000126, -0.965996]
+    aeroelastic_rbf.unsteady  = True
+    test_list.append(aeroelastic_rbf)
+
     # Gust
     sine_gust           = TestCase('sine_gust')
     sine_gust.cfg_dir   = "gust"

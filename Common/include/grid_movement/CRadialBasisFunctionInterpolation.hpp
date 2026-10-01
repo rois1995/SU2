@@ -72,6 +72,11 @@ class CRadialBasisFunctionInterpolation : public CVolumetricMovement {
 
  private:
   /*!
+   * \brief Delete the boundary and control nodes of a previous deformation.
+   */
+  void ClearNodes();
+
+  /*!
    * \brief Selecting unique set of boundary nodes based on marker information.
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] config - Definition of the particular problem.
