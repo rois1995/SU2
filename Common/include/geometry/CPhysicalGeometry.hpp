@@ -118,6 +118,18 @@ class CPhysicalGeometry final : public CGeometry {
 
   /*!
    * \overload
+   * \brief Takes the grid from a mesh reader object instead of reading the mesh file, e.g. a mesh in memory
+   *        (CMemoryMeshReaderFVM), and adjusts the boundary conditions with the configuration file.
+   * \note The coordinates are used as they are (no conversion of US units). The geometry is the linearly
+   *       partitioned grid, as with the constructor that reads the mesh file.
+   * \param[in] config - Definition of the particular problem.
+   * \param[in] mesh - Mesh reader object holding the grid of the zone.
+   * \param[in] val_nZone - Total number of domains.
+   */
+  CPhysicalGeometry(CConfig* config, CMeshReaderBase& mesh, unsigned short val_nZone);
+
+  /*!
+   * \overload
    * \brief Accepts a geometry container holding a linearly partitioned grid
    *        with coloring performed by ParMETIS, and this routine distributes
    *        the points and cells to all partitions based on the coloring.
@@ -288,6 +300,14 @@ class CPhysicalGeometry final : public CGeometry {
    * \param[in] val_nZone - Total number of domains in the grid file.
    */
   void Read_Mesh(CConfig* config, const string& val_mesh_filename, unsigned short val_iZone, unsigned short val_nZone);
+
+  /*!
+   * \brief Load the grid of a mesh reader object (points, volume and surface elements, linearly partitioned)
+   *        and adjust the boundary conditions with the configuration file.
+   * \param[in] config - Definition of the particular problem.
+   * \param[in] mesh - Mesh reader object containing the current zone data.
+   */
+  void LoadMesh(CConfig* config, CMeshReaderBase* mesh);
 
   /*!
    * \brief Routine to load the CGNS grid points from a single zone into the proper SU2 data structures.

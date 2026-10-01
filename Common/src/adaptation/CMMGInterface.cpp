@@ -105,6 +105,9 @@ void CMMGInterface::CheckSupport(const CConfig& config, const CGeometry& geometr
   if (config.GetFEMSolver()) {
     SU2_MPI::Error("Mesh adaptation does not support the FEM solvers.", CURRENT_FUNCTION);
   }
+  if (!config.GetMarkerCreateCopy().empty()) {
+    SU2_MPI::Error("Mesh adaptation does not support MARKER_CREATE_COPY yet.", CURRENT_FUNCTION);
+  }
   const auto nDim = geometry.GetnDim();
   if (nDim != 2 && nDim != 3) {
     SU2_MPI::Error("Mesh adaptation needs a 2D or 3D mesh.", CURRENT_FUNCTION);

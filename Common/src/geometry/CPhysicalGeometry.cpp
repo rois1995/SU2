@@ -169,6 +169,24 @@ CPhysicalGeometry::CPhysicalGeometry(CConfig* config, unsigned short val_iZone, 
   }
 }
 
+CPhysicalGeometry::CPhysicalGeometry(CConfig* config, CMeshReaderBase& mesh, unsigned short val_nZone)
+    : CGeometry() {
+  edgeColorGroupSize = config->GetEdgeColoringGroupSize();
+  nZone = val_nZone;
+
+  /*--- Same as reading a mesh file, but the coordinates are not converted (they are already in the units of
+   the solver) and SU2_DEF does not write the boundary file. ---*/
+
+  LoadMesh(config, &mesh);
+
+  assert(((nDim == 2) || (nDim == 3)) && "There shall be bugs.");
+
+  /*--- If the gradient smoothing solver is active, allocate space for the sensitivity and initialize. ---*/
+  if (config->GetSmoothGradient()) {
+    Sensitivity.resize(nPoint, nDim) = su2double(0.0);
+  }
+}
+
 CPhysicalGeometry::CPhysicalGeometry(CGeometry* geometry, CConfig* config) : CGeometry() {
   edgeColorGroupSize = config->GetEdgeColoringGroupSize();
 
@@ -3427,27 +3445,6 @@ void CPhysicalGeometry::SetBoundaries(CConfig* config) {
 
 void CPhysicalGeometry::Read_Mesh(CConfig* config, const string& val_mesh_filename, unsigned short val_iZone,
                                   unsigned short val_nZone) {
-  /*--- Initialize counters for local/global points & elements ---*/
-
-  Global_nPoint = 0;
-  Global_nPointDomain = 0;
-  Global_nElem = 0;
-  Global_nElemDomain = 0;
-  nelem_edge = 0;
-  Global_nelem_edge = 0;
-  nelem_triangle = 0;
-  Global_nelem_triangle = 0;
-  nelem_quad = 0;
-  Global_nelem_quad = 0;
-  nelem_tetra = 0;
-  Global_nelem_tetra = 0;
-  nelem_hexa = 0;
-  Global_nelem_hexa = 0;
-  nelem_prism = 0;
-  Global_nelem_prism = 0;
-  nelem_pyramid = 0;
-  Global_nelem_pyramid = 0;
-
   /*--- Set the zone number from the input value. ---*/
 
   nZone = val_nZone;
@@ -3493,6 +3490,38 @@ void CPhysicalGeometry::Read_Mesh(CConfig* config, const string& val_mesh_filena
       SU2_MPI::Error("Unrecognized mesh format specified!", CURRENT_FUNCTION);
       break;
   }
+
+  LoadMesh(config, Mesh);
+
+  /*--- Now that we have loaded all information from the mesh,
+   delete the mesh reader object. ---*/
+
+  delete Mesh;
+}
+
+void CPhysicalGeometry::LoadMesh(CConfig* config, CMeshReaderBase* Mesh) {
+  /*--- Initialize counters for local/global points & elements ---*/
+
+  Global_nPoint = 0;
+  Global_nPointDomain = 0;
+  Global_nElem = 0;
+  Global_nElemDomain = 0;
+  nelem_edge = 0;
+  Global_nelem_edge = 0;
+  nelem_triangle = 0;
+  Global_nelem_triangle = 0;
+  nelem_quad = 0;
+  Global_nelem_quad = 0;
+  nelem_tetra = 0;
+  Global_nelem_tetra = 0;
+  nelem_hexa = 0;
+  Global_nelem_hexa = 0;
+  nelem_prism = 0;
+  Global_nelem_prism = 0;
+  nelem_pyramid = 0;
+  Global_nelem_pyramid = 0;
+
+  const bool fem_solver = config->GetFEMSolver();
 
   /*--- Store the dimension of the problem ---*/
 
@@ -3548,11 +3577,6 @@ void CPhysicalGeometry::Read_Mesh(CConfig* config, const string& val_mesh_filena
 
     PrepareAdjacency(config);
   }
-
-  /*--- Now that we have loaded all information from the mesh,
-   delete the mesh reader object. ---*/
-
-  delete Mesh;
 }
 
 void CPhysicalGeometry::LoadLinearlyPartitionedPoints(CConfig* config, CMeshReaderBase* mesh) {

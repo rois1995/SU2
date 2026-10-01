@@ -92,8 +92,8 @@ class CMMGInterface {
   /*!
    * \brief Stop with an error for cases that the adaptation does not support (yet).
    * \note More than one MPI rank, multizone and sliding meshes, periodic boundaries, moving or deforming meshes,
-   *       FEM solvers, paired boundaries (actuator disk, near field, fluid interface), halo points and
-   *       send/receive markers. Non-simplex elements are rejected by ExtractMesh.
+   *       FEM solvers, MARKER_CREATE_COPY, paired boundaries (actuator disk, near field, fluid interface), halo
+   *       points and send/receive markers. Non-simplex elements are rejected by ExtractMesh.
    * \param[in] config - Definition of the problem.
    * \param[in] geometry - Geometry of the zone (finest grid).
    */
