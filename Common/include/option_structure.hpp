@@ -2853,6 +2853,12 @@ enum PERIODIC_QUANTITIES {
   PERIODIC_LIM_PRIM_1 ,  /*!< \brief Primitive limiter communication phase 1 of 2 (periodic only). */
   PERIODIC_LIM_PRIM_2 ,  /*!< \brief Primitive limiter communication phase 2 of 2 (periodic only). */
   PERIODIC_IMPLICIT   ,  /*!< \brief Implicit update communication to ensure consistency across periodic boundaries. */
+  PERIODIC_ADAPT_GG   ,  /*!< \brief Mesh adaptation sensor gradient communication for Green-Gauss (periodic only). */
+  PERIODIC_ADAPT_LS   ,  /*!< \brief Mesh adaptation sensor gradient communication for weighted Least Squares (periodic only). */
+  PERIODIC_HESS_GG    ,  /*!< \brief Gradient of one sensor gradient communication for Green-Gauss (periodic only). */
+  PERIODIC_HESS_LS    ,  /*!< \brief Gradient of one sensor gradient communication for weighted Least Squares (periodic only). */
+  PERIODIC_HESSIAN    ,  /*!< \brief Sensor Hessians copied (rotated) to the matching periodic points (periodic only). */
+  PERIODIC_METRIC     ,  /*!< \brief Adaptation metric copied (rotated) to the matching periodic points (periodic only). */
 };
 
 /*!

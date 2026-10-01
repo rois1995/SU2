@@ -29,6 +29,7 @@
 #include "../../Common/include/geometry/CPhysicalGeometry.hpp"
 #include "../../Common/include/containers/container_decorators.hpp"
 #include "../../SU2_CFD/include/solvers/CSolver.hpp"
+#include "../../SU2_CFD/include/solvers/CSolverFactory.hpp"
 #include "../../SU2_CFD/include/gradients/computeGradientsGreenGauss.hpp"
 #include "../../SU2_CFD/include/gradients/computeGradientsLeastSquares.hpp"
 #include "../../SU2_CFD/include/gradients/computeHessians.hpp"
@@ -201,7 +202,10 @@ void testHessian(ENUM_FLOW_GRADIENT method) {
     computeGradientsLeastSquares(nullptr, MPI_QUANTITIES::SOLUTION, PERIODIC_NONE, *field.geometry.get(),
                                  *field.config.get(), true, field, 0, field.nVar, -1, gradient, R);
   }
-  computeHessians(method, *field.geometry.get(), *field.config.get(), gradient, 0, field.nVar, hessian);
+  su2activematrix gradientField(nPoint, nDim);
+  C3DDoubleMatrix gradGrad(nPoint, nDim, nDim);
+  computeHessians(nullptr, method, *field.geometry.get(), *field.config.get(), gradient, 0, field.nVar,
+                  gradientField, gradGrad, R, hessian);
 
   su2double err = 0.0;
   unsigned long nChecked = 0;
@@ -245,4 +249,176 @@ TEST_CASE("Metric intersection", "[Adaptation]") {
   for (auto i = 0u; i < 2; ++i)
     for (auto j = 0u; j < 2; ++j) err = max(err, abs(C[i][j] - A[i][j]));
   CHECK(err < 1e-12);
+}
+
+/*!
+ * \brief Unit cube with rotational periodicity: y_minus is mapped to x_minus by a rotation of 90 degrees
+ *        about the z axis, the other faces are far-field. A compressible flow solver provides the periodic
+ *        communications.
+ */
+struct PeriodicBoxTest {
+  static constexpr su2double h = 0.125;
+  std::unique_ptr<CConfig> config;
+  std::unique_ptr<CGeometry> geometry;
+  CSolver** solver = nullptr;
+
+  explicit PeriodicBoxTest(const string& method) {
+    const string configOptions =
+        "SOLVER= EULER\n"
+        "MESH_FORMAT= BOX\n"
+        "INIT_OPTION= TD_CONDITIONS\n"
+        "MARKER_PERIODIC= (y_minus, x_minus, 0.0, 0.0, 0.0, 0.0, 0.0, 90.0, 0.0, 0.0, 0.0)\n"
+        "MARKER_FAR= (x_plus, y_plus, z_minus, z_plus)\n"
+        "MESH_BOX_SIZE= 8,8,8\n"
+        "MESH_BOX_LENGTH= 1,1,1\n"
+        "MESH_BOX_OFFSET= 0,0,0\n"
+        "COMPUTE_METRIC= YES\n"
+        "ADAP_SENSOR= (MACH)\n"
+        "NUM_METHOD_HESS= " + method + "\n";
+
+    auto origBuf = cout.rdbuf();
+    cout.rdbuf(nullptr);
+    stringstream ss(configOptions);
+    config = std::unique_ptr<CConfig>(new CConfig(ss, SU2_COMPONENT::SU2_CFD, false));
+    {
+      auto aux_geometry = std::unique_ptr<CGeometry>(new CPhysicalGeometry(config.get(), 0, 1));
+      geometry = std::unique_ptr<CGeometry>(new CPhysicalGeometry(aux_geometry.get(), config.get()));
+    }
+    geometry->SetSendReceive(config.get());
+    geometry->SetBoundaries(config.get());
+    geometry->SetPoint_Connectivity();
+    geometry->SetElement_Connectivity();
+    geometry->SetBoundVolume();
+    geometry->Check_IntElem_Orientation(config.get());
+    geometry->Check_BoundElem_Orientation(config.get());
+    geometry->SetEdges();
+    geometry->SetVertex(config.get());
+    geometry->SetControlVolume(config.get(), ALLOCATE);
+    geometry->SetBoundControlVolume(config.get(), ALLOCATE);
+    geometry->FindNormal_Neighbor(config.get());
+    geometry->SetGlobal_to_Local_Point();
+    geometry->PreprocessP2PComms(geometry.get(), config.get());
+    geometry->MatchPeriodic(config.get(), 1);
+    geometry->PreprocessPeriodicComms(geometry.get(), config.get());
+    solver = CSolverFactory::CreateSolverContainer(config->GetKind_Solver(), config.get(), geometry.get(), 0);
+    cout.rdbuf(origBuf);
+  }
+
+  ~PeriodicBoxTest() {
+    if (solver != nullptr) delete solver[FLOW_SOL];
+    delete[] solver;
+  }
+
+  /*!
+   * \brief Points where the Hessian of a quadratic field is exact: two layers away from the far-field faces
+   *        and from the rotation axis (where more than two partial control volumes meet).
+   */
+  bool exact(unsigned long iPoint) const {
+    const auto x = geometry->nodes->GetCoord(iPoint);
+    const su2double tol = 1e-6;
+    if (x[0] > 1 - 2 * h + tol || x[1] > 1 - 2 * h + tol) return false;
+    if (x[2] < 2 * h - tol || x[2] > 1 - 2 * h + tol) return false;
+    return x[0] > 2 * h - tol || x[1] > 2 * h - tol;
+  }
+};
+
+void testPeriodicHessian(const string& method) {
+  PeriodicBoxTest test(method);
+  auto* geometry = test.geometry.get();
+  auto* config = test.config.get();
+  auto* flow = test.solver[FLOW_SOL];
+  auto* nodes = flow->GetNodes();
+
+  /*--- Field invariant under the periodic rotation, its gradient is rotated across the periodic faces. ---*/
+  const su2double a = 1.5, b = -0.7, c = 2.0;
+  for (auto iPoint = 0ul; iPoint < geometry->GetnPoint(); ++iPoint) {
+    const auto x = geometry->nodes->GetCoord(iPoint);
+    nodes->SetAuxVar_Adapt(iPoint, 0, a * (x[0] * x[0] + x[1] * x[1]) + b * x[2] * x[2] + c * x[2]);
+  }
+  flow->SetHessian_Adapt(geometry, config);
+
+  const su2double ref[6] = {2 * a, 0.0, 0.0, 2 * a, 0.0, 2 * b};
+  su2double err = 0.0;
+  unsigned long nChecked = 0, nPeriodicChecked = 0;
+  for (auto iPoint = 0ul; iPoint < geometry->GetnPointDomain(); ++iPoint) {
+    if (!test.exact(iPoint)) continue;
+    ++nChecked;
+    if (geometry->nodes->GetPeriodicBoundary(iPoint)) ++nPeriodicChecked;
+    for (auto iMet = 0u; iMet < 6; ++iMet) err = max(err, abs(nodes->GetHessian(iPoint, 0, iMet) - ref[iMet]));
+  }
+  CHECK(nPeriodicChecked > 0);
+  CHECK(nChecked > nPeriodicChecked);
+  CHECK(err < 1e-9);
+
+  /*--- The metric is finite and positive definite. ---*/
+  auto origBuf = cout.rdbuf();
+  cout.rdbuf(nullptr);
+  flow->ComputeMetric(geometry, config);
+  cout.rdbuf(origBuf);
+  bool positive = true;
+  for (auto iPoint = 0ul; iPoint < geometry->GetnPoint(); ++iPoint) {
+    su2double M[3][3], vec[3][3], val[3], work[3];
+    nodes->GetMetricMat(iPoint, M);
+    CBlasStructure::EigenDecomposition(M, vec, val, 3, work);
+    positive = positive && std::isfinite(SU2_TYPE::GetValue(val[0])) && val[0] > 0.0;
+  }
+  CHECK(positive);
+}
+
+TEST_CASE("Periodic Hessian GG", "[Adaptation]") { testPeriodicHessian("GREEN_GAUSS"); }
+
+TEST_CASE("Periodic Hessian WLS", "[Adaptation]") { testPeriodicHessian("WEIGHTED_LEAST_SQUARES"); }
+
+TEST_CASE("Periodic Hessian and metric copy", "[Adaptation]") {
+  PeriodicBoxTest test("GREEN_GAUSS");
+  auto* geometry = test.geometry.get();
+  auto* config = test.config.get();
+  auto* flow = test.solver[FLOW_SOL];
+  auto* nodes = flow->GetNodes();
+
+  /*--- Arbitrary symmetric tensors, different at each point. ---*/
+  for (auto iPoint = 0ul; iPoint < geometry->GetnPoint(); ++iPoint) {
+    su2double T[3][3];
+    for (auto i = 0u; i < 3; ++i)
+      for (auto j = i; j < 3; ++j) T[i][j] = T[j][i] = sin(1.0 + iPoint + 3 * i + 7 * j);
+    nodes->SetMetricMat(iPoint, T);
+    for (auto iMet = 0u; iMet < 6; ++iMet) nodes->GetHessian()(iPoint, 0, iMet) = nodes->GetMetric(iPoint, iMet);
+  }
+  flow->InitiatePeriodicComms(geometry, config, 1, PERIODIC_HESSIAN);
+  flow->CompletePeriodicComms(geometry, config, 1, PERIODIC_HESSIAN);
+  flow->InitiatePeriodicComms(geometry, config, 1, PERIODIC_METRIC);
+  flow->CompletePeriodicComms(geometry, config, 1, PERIODIC_METRIC);
+
+  /*--- On each pair of periodic points, T_x_minus = R T_y_minus R^T (rotation of 90 degrees about z). ---*/
+  const su2double R[3][3] = {{0.0, -1.0, 0.0}, {1.0, 0.0, 0.0}, {0.0, 0.0, 1.0}};
+  auto rotated = [&](const su2double (&T)[3][3], unsigned short i, unsigned short j) {
+    su2double val = 0.0;
+    for (auto k = 0u; k < 3; ++k)
+      for (auto l = 0u; l < 3; ++l) val += R[i][k] * T[k][l] * R[j][l];
+    return val;
+  };
+  const auto iMarker = config->GetMarker_All_TagBound("y_minus");
+  REQUIRE(iMarker >= 0);
+  su2double errHessian = 0.0, errMetric = 0.0;
+  unsigned long nPairs = 0;
+  for (auto iVertex = 0ul; iVertex < geometry->GetnVertex(iMarker); ++iVertex) {
+    const auto iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+    const auto jPoint = geometry->vertex[iMarker][iVertex]->GetDonorPoint();
+    if (jPoint < 0 || static_cast<unsigned long>(jPoint) == iPoint) continue;
+    ++nPairs;
+    su2double Mi[3][3], Mj[3][3], Hi[3][3], Hj[3][3];
+    nodes->GetMetricMat(iPoint, Mi);
+    nodes->GetMetricMat(jPoint, Mj);
+    nodes->GetHessianMat(iPoint, 0, Hi);
+    nodes->GetHessianMat(jPoint, 0, Hj);
+    for (auto i = 0u; i < 3; ++i) {
+      for (auto j = 0u; j < 3; ++j) {
+        errMetric = max(errMetric, abs(Mj[i][j] - rotated(Mi, i, j)));
+        errHessian = max(errHessian, abs(Hj[i][j] - rotated(Hi, i, j)));
+      }
+    }
+  }
+  CHECK(nPairs > 0);
+  CHECK(errHessian < 1e-12);
+  CHECK(errMetric < 1e-12);
 }

@@ -98,6 +98,8 @@ protected:
   CVectorOfMatrix Gradient_Adapt; /*!< \brief Gradient of the mesh adaptation sensors. */
   CVectorOfMatrix Hessian;        /*!< \brief Hessian of the sensors, upper triangle (xx,xy,yy) or (xx,xy,xz,yy,yz,zz). */
   MatrixType Metric;              /*!< \brief Mesh adaptation metric tensor, same layout as the Hessian. */
+  MatrixType Hessian_Field;       /*!< \brief Work array, gradient of one sensor (differentiated to obtain its Hessian). */
+  CVectorOfMatrix Hessian_Grad;   /*!< \brief Work array, gradient of Hessian_Field (non-symmetric Hessian of one sensor). */
 
   su2matrix<AD::Identifier> AD_InputIndex;   /*!< \brief Indices of Solution variables in the adjoint vector before solver iteration. */
   su2matrix<AD::Identifier> AD_OutputIndex;   /*!< \brief Indices of Solution variables in the adjoint vector after solver iteration. */
@@ -2502,6 +2504,12 @@ public:
       for (unsigned long jDim = iDim; jDim < nDim; ++jDim, ++iMet)
         mat[iDim][jDim] = mat[jDim][iDim] = Hessian(iPoint, iSensor, iMet);
   }
+
+  /*!
+   * \brief Get the work arrays used to differentiate the gradient of one sensor (see computeHessians).
+   */
+  inline MatrixType& GetHessian_Field() { return Hessian_Field; }
+  inline CVectorOfMatrix& GetHessian_Grad() { return Hessian_Grad; }
 
   /*!
    * \brief Get the mesh adaptation metric.

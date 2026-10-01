@@ -107,6 +107,9 @@ CFlowVariable::CFlowVariable(unsigned long npoint, unsigned long ndim, unsigned 
     Gradient_Adapt.resize(nPoint, nSensor, nDim, 0.0);
     Hessian.resize(nPoint, nSensor, nMet, 0.0);
     Metric.resize(nPoint, nMet) = su2double(0.0);
+    Hessian_Field.resize(nPoint, nDim) = su2double(0.0);
+    Hessian_Grad.resize(nPoint, nDim, nDim, 0.0);
+    if (config->GetKind_Hessian_Method() == WEIGHTED_LEAST_SQUARES) Rmatrix.resize(nPoint, nDim, nDim, 0.0);
   }
 }
 

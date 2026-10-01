@@ -29,61 +29,62 @@
 #include "computeGradientsGreenGauss.hpp"
 #include "computeGradientsLeastSquares.hpp"
 
-namespace detail {
-/*!
- * \brief Present the gradient of one variable as a field with nDim variables.
- */
-template <class GradientType>
-struct GradientComponents {
-  const GradientType& gradient;
-  const size_t iVar;
-
-  decltype(auto) operator()(size_t iPoint, size_t iDim) const { return gradient(iPoint, iVar, iDim); }
-};
-}  // namespace detail
-
 /*!
  * \brief Compute Hessians by differentiating the gradients, then symmetrizing the result.
  * \ingroup FvmAlgos
  * \note The gradients must be known on halo points. Hessians are computed on domain points
- *       only, no communication is performed.
+ *       only, the caller must communicate them.
  * \note On symmetry planes and Euler walls, the gradient of each variable is corrected
  *       like a velocity, i.e. the normal-tangential components of the Hessian are removed.
+ * \note With a solver and periodic markers, periodic contributions are included (PERIODIC_HESS_GG or
+ *       PERIODIC_HESS_LS), the gradient of each variable is rotated like a vector. The work arrays must
+ *       then be those of the solver (CVariable::GetHessian_Field, GetHessian_Grad and GetRmatrix).
+ *       The kernels also exchange the halo Hessians (MPI_QUANTITIES::HESSIAN) after each variable.
  * \note Not thread-safe, call outside of OpenMP parallel regions.
- * \param[in] method - GREEN_GAUSS, LEAST_SQUARES or WEIGHTED_LEAST_SQUARES.
+ * \param[in] solver - Optional, solver used only for periodic communications.
+ * \param[in] method - GREEN_GAUSS, LEAST_SQUARES (not periodic) or WEIGHTED_LEAST_SQUARES.
  * \param[in] geometry - Geometric grid properties.
  * \param[in] config - Configuration of the problem, used to identify types of boundaries.
  * \param[in] gradient - Generic object implementing operator (iPoint, iVar, iDim).
  * \param[in] varBegin - Index of first variable for which to compute the Hessian.
  * \param[in] varEnd - Index of last variable for which to compute the Hessian.
+ * \param[out] field - Work array (nPoint, nDim), the gradient of one variable.
+ * \param[out] gradGrad - Work array (nPoint, nDim, nDim), the gradient of field.
+ * \param[out] Rmatrix - Work array (nPoint, nDim, nDim) for least squares.
  * \param[out] hessian - Generic object implementing operator (iPoint, iVar, iMet), with the upper
  *             triangle stored row-wise: (xx, xy, yy) in 2D, (xx, xy, xz, yy, yz, zz) in 3D.
  */
-template <class GradientType, class HessianType>
-void computeHessians(ENUM_FLOW_GRADIENT method, CGeometry& geometry, const CConfig& config,
-                     const GradientType& gradient, const size_t varBegin, const size_t varEnd,
-                     HessianType& hessian) {
+template <class GradientType, class FieldType, class HessianType>
+void computeHessians(CSolver* solver, ENUM_FLOW_GRADIENT method, CGeometry& geometry, const CConfig& config,
+                     const GradientType& gradient, const size_t varBegin, const size_t varEnd, FieldType& field,
+                     C3DDoubleMatrix& gradGrad, C3DDoubleMatrix& Rmatrix, HessianType& hessian) {
   const size_t nDim = geometry.GetnDim();
+  const size_t nPoint = geometry.GetnPoint();
   const size_t nPointDomain = geometry.GetnPointDomain();
 
-  /*--- Gradient of the gradient of one variable. ---*/
-  C3DDoubleMatrix gradGrad(geometry.GetnPoint(), nDim, nDim);
-  C3DDoubleMatrix Rmatrix;
-  if (method != GREEN_GAUSS) Rmatrix.resize(geometry.GetnPoint(), nDim, nDim);
+  /*--- The solver is only used for periodic contributions. ---*/
+
+  if (config.GetnMarker_Periodic() == 0) solver = nullptr;
+  if (solver != nullptr && method == LEAST_SQUARES) {
+    SU2_MPI::Error("Periodic Hessians require GREEN_GAUSS or WEIGHTED_LEAST_SQUARES.", CURRENT_FUNCTION);
+  }
 
   for (size_t iVar = varBegin; iVar < varEnd; ++iVar) {
-    const detail::GradientComponents<GradientType> field{gradient, iVar};
+    /*--- Gradient of this variable, including halo points. ---*/
+
+    for (size_t iPoint = 0; iPoint < nPoint; ++iPoint)
+      for (size_t iDim = 0; iDim < nDim; ++iDim) field(iPoint, iDim) = gradient(iPoint, iVar, iDim);
 
     /*--- The gradient is a vector, it is corrected on symmetries like the velocity (idxVel = 0). ---*/
 
     switch (method) {
       case GREEN_GAUSS:
-        computeGradientsGreenGauss(nullptr, MPI_QUANTITIES::HESSIAN, PERIODIC_NONE, geometry, config, field, 0, nDim,
-                                   0, gradGrad);
+        computeGradientsGreenGauss(solver, MPI_QUANTITIES::HESSIAN, PERIODIC_HESS_GG, geometry, config, field, 0,
+                                   nDim, 0, gradGrad);
         break;
       case LEAST_SQUARES:
       case WEIGHTED_LEAST_SQUARES:
-        computeGradientsLeastSquares(nullptr, MPI_QUANTITIES::HESSIAN, PERIODIC_NONE, geometry, config,
+        computeGradientsLeastSquares(solver, MPI_QUANTITIES::HESSIAN, PERIODIC_HESS_LS, geometry, config,
                                      method == WEIGHTED_LEAST_SQUARES, field, 0, nDim, 0, gradGrad, Rmatrix);
         break;
       default:

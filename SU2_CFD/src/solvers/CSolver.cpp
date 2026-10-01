@@ -282,6 +282,38 @@ void CSolver::GetPeriodicCommCountAndType(const CConfig* config,
       MPI_TYPE         = COMM_TYPE::DOUBLE;
       ICOUNT           = nVar;
       break;
+    case PERIODIC_ADAPT_GG:
+      COUNT_PER_POINT  = config->GetnAdap_Sensor()*nDim;
+      MPI_TYPE         = COMM_TYPE::DOUBLE;
+      ICOUNT           = config->GetnAdap_Sensor();
+      JCOUNT           = nDim;
+      break;
+    case PERIODIC_ADAPT_LS:
+      COUNT_PER_POINT  = nDim*nDim + config->GetnAdap_Sensor()*nDim;
+      MPI_TYPE         = COMM_TYPE::DOUBLE;
+      ICOUNT           = config->GetnAdap_Sensor();
+      JCOUNT           = nDim;
+      break;
+    case PERIODIC_HESS_GG:
+      COUNT_PER_POINT  = nDim*nDim;
+      MPI_TYPE         = COMM_TYPE::DOUBLE;
+      ICOUNT           = nDim;
+      JCOUNT           = nDim;
+      break;
+    case PERIODIC_HESS_LS:
+      COUNT_PER_POINT  = 2*nDim*nDim;
+      MPI_TYPE         = COMM_TYPE::DOUBLE;
+      ICOUNT           = nDim;
+      JCOUNT           = nDim;
+      break;
+    case PERIODIC_HESSIAN:
+      COUNT_PER_POINT  = config->GetnAdap_Sensor()*3*(nDim-1);
+      MPI_TYPE         = COMM_TYPE::DOUBLE;
+      break;
+    case PERIODIC_METRIC:
+      COUNT_PER_POINT  = 3*(nDim-1);
+      MPI_TYPE         = COMM_TYPE::DOUBLE;
+      break;
     default:
       SU2_MPI::Error("Unrecognized quantity for periodic communication.",
                      CURRENT_FUNCTION);
@@ -302,6 +334,14 @@ namespace PeriodicCommHelpers {
       case PERIODIC_SOL_ULS:
         return nodes->GetGradient();
         break;
+      case PERIODIC_ADAPT_GG:
+      case PERIODIC_ADAPT_LS:
+        return nodes->GetGradient_Adapt();
+        break;
+      case PERIODIC_HESS_GG:
+      case PERIODIC_HESS_LS:
+        return nodes->GetHessian_Grad();
+        break;
       default:
         return nodes->GetGradient_Reconstruction();
         break;
@@ -319,6 +359,12 @@ namespace PeriodicCommHelpers {
       case PERIODIC_LIM_PRIM_1:
       case PERIODIC_LIM_PRIM_2:
         return nodes->GetPrimitive();
+        break;
+      case PERIODIC_ADAPT_LS:
+        return nodes->GetAuxVar_Adapt();
+        break;
+      case PERIODIC_HESS_LS:
+        return nodes->GetHessian_Field();
         break;
       default:
         return nodes->GetSolution();
@@ -373,8 +419,8 @@ void CSolver::InitiatePeriodicComms(CGeometry *geometry,
   auto *Und_Lapl  = new su2double[nVar];
   auto *Sol_Min   = new su2double[std::max(nVar, nPrimVarGrad)];
   auto *Sol_Max   = new su2double[std::max(nVar, nPrimVarGrad)];
-  auto *rotPrim_i = new su2double[std::max(nVar, nPrimVar)];
-  auto *rotPrim_j = new su2double[std::max(nVar, nPrimVar)];
+  auto *rotPrim_i = new su2double[std::max({nVar, nPrimVar, config->GetnAdap_Sensor()})];
+  auto *rotPrim_j = new su2double[std::max({nVar, nPrimVar, config->GetnAdap_Sensor()})];
 
   su2double Sensor_i = 0.0, Sensor_j = 0.0, Pressure_i, Pressure_j;
   const su2double *Coord_i, *Coord_j;
@@ -390,6 +436,25 @@ void CSolver::InitiatePeriodicComms(CGeometry *geometry,
   auto Rotate = [&](const su2double* origin, const su2double* direction, su2double* rotated) {
     if(nDim==2) GeometryToolbox::Rotate(rotMatrix2D, origin, direction, rotated);
     else GeometryToolbox::Rotate(rotMatrix3D, origin, direction, rotated);
+  };
+
+  /*--- Rotate a symmetric tensor stored as its upper triangle, rotated = R tensor R^T. ---*/
+
+  auto RotateSymTensor = [&](const su2double* tensor, su2double* rotated) {
+    su2double T[3][3] = {{0.0}}, R[3][3] = {{0.0}}, RT[3][3] = {{0.0}};
+    for (unsigned short i = 0, iMet = 0; i < nDim; ++i) {
+      for (unsigned short j = 0; j < nDim; ++j) R[i][j] = (nDim == 2) ? rotMatrix2D[i][j] : rotMatrix3D[i][j];
+      for (unsigned short j = i; j < nDim; ++j, ++iMet) T[i][j] = T[j][i] = tensor[iMet];
+    }
+    for (unsigned short i = 0; i < nDim; ++i)
+      for (unsigned short j = 0; j < nDim; ++j)
+        for (unsigned short k = 0; k < nDim; ++k) RT[i][j] += R[i][k] * T[k][j];
+    for (unsigned short i = 0, iMet = 0; i < nDim; ++i) {
+      for (unsigned short j = i; j < nDim; ++j, ++iMet) {
+        rotated[iMet] = 0.0;
+        for (unsigned short k = 0; k < nDim; ++k) rotated[iMet] += RT[i][k] * R[j][k];
+      }
+    }
   };
 
   string Marker_Tag;
@@ -421,6 +486,13 @@ void CSolver::InitiatePeriodicComms(CGeometry *geometry,
   auto& gradient = PeriodicCommHelpers::selectGradient(base_nodes, commType);
   auto& limiter = PeriodicCommHelpers::selectLimiter(base_nodes, commType);
   auto& field = PeriodicCommHelpers::selectField(base_nodes, commType);
+
+  /*--- Index of the first vector component of the field (and rows of its gradient), rotated with
+   rotational periodicity (momentum for the solution), -1 if the variables are scalars. ---*/
+
+  int idxVec = 1;
+  if (commType == PERIODIC_ADAPT_GG || commType == PERIODIC_ADAPT_LS) idxVec = -1;
+  if (commType == PERIODIC_HESS_GG || commType == PERIODIC_HESS_LS) idxVec = 0;
 
   /*--- Load the specified quantity from the solver into the generic
    communication buffer in the geometry class. ---*/
@@ -726,6 +798,8 @@ void CSolver::InitiatePeriodicComms(CGeometry *geometry,
           case PERIODIC_SOL_GG_R:
           case PERIODIC_PRIM_GG:
           case PERIODIC_PRIM_GG_R:
+          case PERIODIC_ADAPT_GG:
+          case PERIODIC_HESS_GG:
 
             /*--- Access and rotate the partial G-G gradient. These will be
              summed on both sides of the periodic faces before dividing
@@ -745,16 +819,16 @@ void CSolver::InitiatePeriodicComms(CGeometry *geometry,
 
             /*--- Rotate the vector components of the solution. ---*/
 
-            if (rotate_periodic) {
+            if (rotate_periodic && idxVec >= 0) {
               for (iDim = 0; iDim < nDim; iDim++) {
                 su2double d_diDim[3] = {0.0};
-                for (iVar = 1; iVar < 1+nDim; ++iVar) {
-                  d_diDim[iVar-1] = rotBlock(iVar, iDim);
+                for (iVar = idxVec; iVar < idxVec+nDim; ++iVar) {
+                  d_diDim[iVar-idxVec] = rotBlock(iVar, iDim);
                 }
                 su2double rotated[3] = {0.0};
                 Rotate(zeros, d_diDim, rotated);
-                for (iVar = 1; iVar < 1+nDim; ++iVar) {
-                  rotBlock(iVar, iDim) = rotated[iVar-1];
+                for (iVar = idxVec; iVar < idxVec+nDim; ++iVar) {
+                  rotBlock(iVar, iDim) = rotated[iVar-idxVec];
                 }
               }
             }
@@ -773,6 +847,7 @@ void CSolver::InitiatePeriodicComms(CGeometry *geometry,
           case PERIODIC_SOL_LS_R: case PERIODIC_SOL_ULS_R:
           case PERIODIC_PRIM_LS: case PERIODIC_PRIM_ULS:
           case PERIODIC_PRIM_LS_R: case PERIODIC_PRIM_ULS_R:
+          case PERIODIC_ADAPT_LS: case PERIODIC_HESS_LS:
 
             /*--- For L-S gradient calculations with rotational periodicity,
              we will need to rotate the x,y,z components. To make the process
@@ -811,8 +886,8 @@ void CSolver::InitiatePeriodicComms(CGeometry *geometry,
             for (iVar = 0; iVar < ICOUNT; iVar++)
               rotPrim_i[iVar] = field(iPoint, iVar);
 
-            if (rotate_periodic) {
-              Rotate(zeros, &field(iPoint,1), &rotPrim_i[1]);
+            if (rotate_periodic && idxVec >= 0) {
+              Rotate(zeros, &field(iPoint,idxVec), &rotPrim_i[idxVec]);
             }
 
             /*--- Inizialization of variables ---*/
@@ -846,8 +921,8 @@ void CSolver::InitiatePeriodicComms(CGeometry *geometry,
                 for (iVar = 0; iVar < ICOUNT; iVar++)
                   rotPrim_j[iVar] = field(jPoint,iVar);
 
-                if (rotate_periodic) {
-                  Rotate(zeros, &field(jPoint,1), &rotPrim_j[1]);
+                if (rotate_periodic && idxVec >= 0) {
+                  Rotate(zeros, &field(jPoint,idxVec), &rotPrim_j[idxVec]);
                 }
 
                 if (weighted) {
@@ -974,6 +1049,31 @@ void CSolver::InitiatePeriodicComms(CGeometry *geometry,
             }
 
             break;
+
+          case PERIODIC_HESSIAN: {
+
+            /*--- The sensor Hessians are rotated like tensors, they will overwrite those of the
+             matching periodic points on one side of the pair (see CompletePeriodicComms). ---*/
+
+            const auto& hessian = base_nodes->GetHessian();
+            const auto nMet = hessian.cols();
+            su2double tensor[6] = {0.0};
+            for (iVar = 0; iVar < hessian.rows(); iVar++) {
+              for (iDim = 0; iDim < nMet; iDim++) tensor[iDim] = hessian(iPoint, iVar, iDim);
+              RotateSymTensor(tensor, &bufDSend[buf_offset+iVar*nMet]);
+            }
+
+          } break;
+
+          case PERIODIC_METRIC: {
+
+            /*--- Same for the metric tensor. ---*/
+
+            su2double tensor[6] = {0.0};
+            for (iDim = 0; iDim < COUNT_PER_POINT; iDim++) tensor[iDim] = base_nodes->GetMetric(iPoint, iDim);
+            RotateSymTensor(tensor, &bufDSend[buf_offset]);
+
+          } break;
 
           default:
             SU2_MPI::Error("Unrecognized quantity for periodic communication.",
@@ -1234,6 +1334,8 @@ void CSolver::CompletePeriodicComms(CGeometry *geometry,
             case PERIODIC_SOL_GG_R:
             case PERIODIC_PRIM_GG:
             case PERIODIC_PRIM_GG_R:
+            case PERIODIC_ADAPT_GG:
+            case PERIODIC_HESS_GG:
 
               /*--- For G-G, we accumulate partial gradients then compute
                the final value using the entire volume of the periodic cell. ---*/
@@ -1248,6 +1350,7 @@ void CSolver::CompletePeriodicComms(CGeometry *geometry,
             case PERIODIC_SOL_LS_R: case PERIODIC_SOL_ULS_R:
             case PERIODIC_PRIM_LS: case PERIODIC_PRIM_ULS:
             case PERIODIC_PRIM_LS_R: case PERIODIC_PRIM_ULS_R:
+            case PERIODIC_ADAPT_LS: case PERIODIC_HESS_LS:
 
               /*--- For L-S, we build the upper triangular matrix and the
                r.h.s. vector by accumulating from all periodic partial
@@ -1300,6 +1403,27 @@ void CSolver::CompletePeriodicComms(CGeometry *geometry,
 
               for (iVar = 0; iVar < ICOUNT; iVar++)
                 limiter(iPoint, iVar) = min(limiter(iPoint, iVar), bufDRecv[buf_offset+iVar]);
+
+              break;
+
+            case PERIODIC_HESSIAN:
+            case PERIODIC_METRIC:
+
+              /*--- As for PERIODIC_IMPLICIT, the values of one side of the pair are copied
+               to the matching points, so both sides have the same (rotated) tensors. ---*/
+
+              if (iPeriodic == val_periodic_index + nPeriodic/2) {
+                if (commType == PERIODIC_METRIC) {
+                  for (iVar = 0; iVar < COUNT_PER_POINT; iVar++)
+                    base_nodes->SetMetric(iPoint, iVar, bufDRecv[buf_offset+iVar]);
+                } else {
+                  auto& hessian = base_nodes->GetHessian();
+                  const auto nMet = hessian.cols();
+                  for (iVar = 0; iVar < hessian.rows(); iVar++)
+                    for (iDim = 0; iDim < nMet; iDim++)
+                      hessian(iPoint, iVar, iDim) = bufDRecv[buf_offset+iVar*nMet+iDim];
+                }
+              }
 
               break;
 
@@ -2283,28 +2407,35 @@ void CSolver::SetHessian_Adapt(CGeometry *geometry, const CConfig *config) {
   InitiateComms(geometry, config, MPI_QUANTITIES::AUXVAR_ADAPT);
   CompleteComms(geometry, config, MPI_QUANTITIES::AUXVAR_ADAPT);
 
-  /*--- Gradients of the sensors (scalars). Halo values are communicated, they are needed
-   *    to differentiate the gradients. Periodic contributions are not included. ---*/
+  /*--- Gradients of the sensors (scalars), with periodic contributions. Halo values are
+   *    communicated, they are needed to differentiate the gradients. ---*/
 
   switch (method) {
     case GREEN_GAUSS:
-      computeGradientsGreenGauss(this, MPI_QUANTITIES::GRADIENT_ADAPT, PERIODIC_NONE, *geometry, *config,
+      computeGradientsGreenGauss(this, MPI_QUANTITIES::GRADIENT_ADAPT, PERIODIC_ADAPT_GG, *geometry, *config,
                                  sensor, 0, nSensor, -1, gradient);
       break;
-    case WEIGHTED_LEAST_SQUARES: {
-      C3DDoubleMatrix Rmatrix(nPoint, nDim, nDim);
-      computeGradientsLeastSquares(this, MPI_QUANTITIES::GRADIENT_ADAPT, PERIODIC_NONE, *geometry, *config,
-                                   true, sensor, 0, nSensor, -1, gradient, Rmatrix);
+    case WEIGHTED_LEAST_SQUARES:
+      computeGradientsLeastSquares(this, MPI_QUANTITIES::GRADIENT_ADAPT, PERIODIC_ADAPT_LS, *geometry, *config,
+                                   true, sensor, 0, nSensor, -1, gradient, base_nodes->GetRmatrix());
       break;
-    }
     default:
       SU2_MPI::Error("Unsupported NUM_METHOD_HESS.", CURRENT_FUNCTION);
       break;
   }
 
-  /*--- Hessians, as gradients of the gradients. ---*/
+  /*--- Hessians, as gradients of the gradients. The work arrays of the variables are used
+   *    because periodic communications access them. ---*/
 
-  computeHessians(method, *geometry, *config, gradient, 0, nSensor, hessian);
+  computeHessians(this, method, *geometry, *config, gradient, 0, nSensor, base_nodes->GetHessian_Field(),
+                  base_nodes->GetHessian_Grad(), base_nodes->GetRmatrix(), hessian);
+
+  /*--- Same Hessians on both sides of periodic boundaries, then on halo points. ---*/
+
+  for (unsigned short iPeriodic = 1; iPeriodic <= config->GetnMarker_Periodic() / 2; ++iPeriodic) {
+    InitiatePeriodicComms(geometry, config, iPeriodic, PERIODIC_HESSIAN);
+    CompletePeriodicComms(geometry, config, iPeriodic, PERIODIC_HESSIAN);
+  }
 
   InitiateComms(geometry, config, MPI_QUANTITIES::HESSIAN);
   CompleteComms(geometry, config, MPI_QUANTITIES::HESSIAN);
@@ -2457,6 +2588,13 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config) {
     cout << "Maximum density: " << maxDensity << "." << endl;
     cout << "Maximum cell AR: " << maxAR << "." << endl;
     cout << "Mesh complexity: " << totComplexity << "." << endl;
+  }
+
+  /*--- Same metric on both sides of periodic boundaries, then on halo points. ---*/
+
+  for (unsigned short iPeriodic = 1; iPeriodic <= config->GetnMarker_Periodic() / 2; ++iPeriodic) {
+    InitiatePeriodicComms(geometry, config, iPeriodic, PERIODIC_METRIC);
+    CompletePeriodicComms(geometry, config, iPeriodic, PERIODIC_METRIC);
   }
 
   InitiateComms(geometry, config, MPI_QUANTITIES::METRIC);
