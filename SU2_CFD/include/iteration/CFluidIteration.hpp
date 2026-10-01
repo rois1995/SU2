@@ -152,8 +152,9 @@ class CFluidIteration : public CIteration {
    * \param[in] config - Definition of the particular problem.
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] solver - Container vector with all the solutions.
+   * \param[in] newTimeStep - Called at the start of a time step (true) or after the aeroelastic deformation (false).
    */
-  void SetWind_GustField(CConfig* config, CGeometry** geometry, CSolver*** solver);
+  void SetWind_GustField(CConfig* config, CGeometry** geometry, CSolver*** solver, bool newTimeStep);
 
   /*!
    * \brief Reads and initializes the vortex positions, strengths and gradient.

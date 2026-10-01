@@ -1150,6 +1150,15 @@ def main():
     sine_gust.unsteady  = True
     test_list.append(sine_gust)
 
+    # Aeroelastic NACA64A010 hit by a gust
+    aeroelastic_gust           = TestCase('aeroelastic_gust')
+    aeroelastic_gust.cfg_dir   = "aeroelastic"
+    aeroelastic_gust.cfg_file  = "aeroelastic_gust_NACA64A010.cfg"
+    aeroelastic_gust.test_iter = 2
+    aeroelastic_gust.test_vals = [-1.856934, 4.042751, 0.141839, 0.028677, -0.002399, 0.000076, -0.976348]
+    aeroelastic_gust.unsteady  = True
+    test_list.append(aeroelastic_gust)
+
     # Delayed Detached Eddy Simulation
     ddes_flatplate        = TestCase('ddes_flatplate')
     ddes_flatplate.cfg_dir   = "ddes/flatplate"

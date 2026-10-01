@@ -50,7 +50,7 @@ void CFluidIteration::Preprocess(COutput* output, CIntegration**** integration, 
   /*--- Apply a Wind Gust ---*/
 
   if (config[val_iZone]->GetWind_Gust()) {
-    SetWind_GustField(config[val_iZone], geometry[val_iZone][val_iInst], solver[val_iZone][val_iInst]);
+    SetWind_GustField(config[val_iZone], geometry[val_iZone][val_iInst], solver[val_iZone][val_iInst], true);
   }
 }
 
@@ -109,7 +109,7 @@ void CFluidIteration::Iterate(COutput* output, CIntegration**** integration, CGe
 
     if (config[val_iZone]->GetWind_Gust()) {
       if (InnerIter % config[val_iZone]->GetAeroelasticIter() == 0 && InnerIter != 0)
-        SetWind_GustField(config[val_iZone], geometry[val_iZone][val_iInst], solver[val_iZone][val_iInst]);
+        SetWind_GustField(config[val_iZone], geometry[val_iZone][val_iInst], solver[val_iZone][val_iInst], false);
     }
   }
 }
@@ -462,7 +462,8 @@ void CFluidIteration::Solve(COutput* output, CIntegration**** integration, CGeom
   }
 }
 
-void CFluidIteration::SetWind_GustField(CConfig* config, CGeometry** geometry, CSolver*** solver) {
+void CFluidIteration::SetWind_GustField(CConfig* config, CGeometry** geometry, CSolver*** solver,
+                                        bool newTimeStep) {
   SU2_ZONE_SCOPED
 
   // The gust is imposed on the flow field via the grid velocities. This method called the Field Velocity Method is
@@ -485,8 +486,7 @@ void CFluidIteration::SetWind_GustField(CConfig* config, CGeometry** geometry, C
   unsigned long iPoint;
   unsigned short iMGlevel, nMGlevel = config->GetnMGLevels();
 
-  su2double x, y, x_gust, Gust[3] = {0.0}, NewGridVel[3] = {0.0};
-  const su2double* GridVel = nullptr;
+  su2double Gust[3] = {0.0};
 
   su2double Physical_dt = config->GetDelta_UnstTime();
   unsigned long TimeIter = config->GetTimeIter();
@@ -517,95 +517,115 @@ void CFluidIteration::SetWind_GustField(CConfig* config, CGeometry** geometry, C
     SU2_MPI::Error("The gust length needs to be positive", CURRENT_FUNCTION);
   }
 
+  /*--- Gust velocity at a point at a given physical time. ---*/
+
+  auto ComputeGust = [&](const su2double* coord, su2double time) {
+    for (iDim = 0; iDim < nDim; iDim++) Gust[iDim] = 0.0;
+
+    if (time < tbegin) return;
+
+    const su2double x = coord[0];  // x-location of the node.
+    const su2double y = coord[1];  // y-location of the node.
+
+    // Gust coordinate
+    const su2double x_gust = (x - xbegin - Uinf * (time - tbegin)) / L;
+
+    /*--- Calculate the specified gust ---*/
+    switch (Gust_Type) {
+      case TOP_HAT:
+        // Check if we are in the region where the gust is active
+        if (x_gust > 0 && x_gust < n) {
+          Gust[GustDir] = gust_amp;
+          // Still need to put the gust derivatives. Think about this.
+        }
+        break;
+
+      case SINE:
+        // Check if we are in the region where the gust is active
+        if (x_gust > 0 && x_gust < n) {
+          Gust[GustDir] = gust_amp * (sin(2 * PI_NUMBER * x_gust));
+        }
+        break;
+
+      case ONE_M_COSINE:
+        // Check if we are in the region where the gust is active
+        if (x_gust > 0 && x_gust < n) {
+          Gust[GustDir] = gust_amp * 0.5 * (1 - cos(2 * PI_NUMBER * x_gust));
+        }
+        break;
+
+      case EOG:
+        // Check if we are in the region where the gust is active
+        if (x_gust > 0 && x_gust < n) {
+          Gust[GustDir] = -0.37 * gust_amp * sin(3 * PI_NUMBER * x_gust) * (1 - cos(2 * PI_NUMBER * x_gust));
+        }
+        break;
+
+      case VORTEX:
+
+        /*--- Use vortex distribution ---*/
+        // Algebraic vortex equation.
+        for (unsigned long i = 0; i < nVortex; i++) {
+          su2double r2 = pow(x - (x0[i] + Uinf * (time - tbegin)), 2) + pow(y - y0[i], 2);
+          su2double r = sqrt(r2);
+          su2double v_theta = vort_strenth[i] / (2 * PI_NUMBER) * r / (r2 + pow(r_core[i], 2));
+          Gust[0] = Gust[0] + v_theta * (y - y0[i]) / r;
+          Gust[1] = Gust[1] - v_theta * (x - (x0[i] + Uinf * (time - tbegin))) / r;
+        }
+        break;
+
+      case NONE:
+      default:
+
+        /*--- There is no wind gust specified. ---*/
+        if (rank == MASTER_NODE) {
+          cout << "No wind gust specified." << endl;
+        }
+        break;
+    }
+  };
+
+  /*--- The gust is superimposed on the grid velocity of the mesh motion. Most motions recompute the grid velocity
+   * at the start of each time step, before this function is called. Otherwise, at the start of a time step the grid
+   * velocity still contains the gust of the previous time step: on static meshes (with moving walls at most) it is
+   * reset to zero, for aeroelastic meshes (velocity from the last deformation) the previous gust is removed. During
+   * the inner iterations this function is called right after the aeroelastic deformation. ---*/
+
+  const bool motionSetsGridVel =
+      (Kind_Grid_Movement == RIGID_MOTION) || (Kind_Grid_Movement == ROTATING_FRAME) ||
+      (Kind_Grid_Movement == STEADY_TRANSLATION) || config->GetFSI_Simulation() || config->GetDeform_Mesh() ||
+      config->GetSurface_Movement(EXTERNAL);
+  const bool aeroelastic = config->GetSurface_Movement(AEROELASTIC);
+
+  const bool resetGridVel = newTimeStep && !motionSetsGridVel && !aeroelastic;
+  const bool removePreviousGust = newTimeStep && !motionSetsGridVel && aeroelastic && (TimeIter > 0) &&
+                                  !config->GetDiscrete_Adjoint();
+
   /*--- Loop over all multigrid levels ---*/
 
   for (iMGlevel = 0; iMGlevel <= nMGlevel; iMGlevel++) {
-    /*--- Loop over each node in the volume mesh ---*/
+    auto* nodes = geometry[iMGlevel]->nodes;
 
-    for (iPoint = 0; iPoint < geometry[iMGlevel]->GetnPoint(); iPoint++) {
-      /*--- Reset the Grid Velocity to zero if there is no grid movement ---*/
-      if (Kind_Grid_Movement == GUST && !(config->GetFSI_Simulation()) && !(config->GetDeform_Mesh())) {
-        for (iDim = 0; iDim < nDim; iDim++) geometry[iMGlevel]->nodes->SetGridVel(iPoint, iDim, 0.0);
-      }
-
-      /*--- initialize the gust and derivatives to zero everywhere ---*/
-
-      for (iDim = 0; iDim < nDim; iDim++) {
-        Gust[iDim] = 0.0;
-      }
-
-      /*--- Begin applying the gust ---*/
-
-      if (Physical_t >= tbegin) {
-        x = geometry[iMGlevel]->nodes->GetCoord(iPoint)[0];  // x-location of the node.
-        y = geometry[iMGlevel]->nodes->GetCoord(iPoint)[1];  // y-location of the node.
-
-        // Gust coordinate
-        x_gust = (x - xbegin - Uinf * (Physical_t - tbegin)) / L;
-
-        /*--- Calculate the specified gust ---*/
-        switch (Gust_Type) {
-          case TOP_HAT:
-            // Check if we are in the region where the gust is active
-            if (x_gust > 0 && x_gust < n) {
-              Gust[GustDir] = gust_amp;
-              // Still need to put the gust derivatives. Think about this.
-            }
-            break;
-
-          case SINE:
-            // Check if we are in the region where the gust is active
-            if (x_gust > 0 && x_gust < n) {
-              Gust[GustDir] = gust_amp * (sin(2 * PI_NUMBER * x_gust));
-            }
-            break;
-
-          case ONE_M_COSINE:
-            // Check if we are in the region where the gust is active
-            if (x_gust > 0 && x_gust < n) {
-              Gust[GustDir] = gust_amp * 0.5 * (1 - cos(2 * PI_NUMBER * x_gust));
-            }
-            break;
-
-          case EOG:
-            // Check if we are in the region where the gust is active
-            if (x_gust > 0 && x_gust < n) {
-              Gust[GustDir] = -0.37 * gust_amp * sin(3 * PI_NUMBER * x_gust) * (1 - cos(2 * PI_NUMBER * x_gust));
-            }
-            break;
-
-          case VORTEX:
-
-            /*--- Use vortex distribution ---*/
-            // Algebraic vortex equation.
-            for (unsigned long i = 0; i < nVortex; i++) {
-              su2double r2 = pow(x - (x0[i] + Uinf * (Physical_t - tbegin)), 2) + pow(y - y0[i], 2);
-              su2double r = sqrt(r2);
-              su2double v_theta = vort_strenth[i] / (2 * PI_NUMBER) * r / (r2 + pow(r_core[i], 2));
-              Gust[0] = Gust[0] + v_theta * (y - y0[i]) / r;
-              Gust[1] = Gust[1] - v_theta * (x - (x0[i] + Uinf * (Physical_t - tbegin))) / r;
-            }
-            break;
-
-          case NONE:
-          default:
-
-            /*--- There is no wind gust specified. ---*/
-            if (rank == MASTER_NODE) {
-              cout << "No wind gust specified." << endl;
-            }
-            break;
+    if (resetGridVel || removePreviousGust) {
+      for (iPoint = 0; iPoint < geometry[iMGlevel]->GetnPoint(); iPoint++) {
+        if (resetGridVel) {
+          for (iDim = 0; iDim < nDim; iDim++) nodes->SetGridVel(iPoint, iDim, 0.0);
+        } else {
+          ComputeGust(nodes->GetCoord(iPoint), Physical_t - Physical_dt);
+          for (iDim = 0; iDim < nDim; iDim++)
+            nodes->SetGridVel(iPoint, iDim, nodes->GetGridVel(iPoint)[iDim] + Gust[iDim]);
         }
       }
+      /*--- The moving walls keep their prescribed velocity. ---*/
+      if (config->GetSurface_Movement(MOVING_WALL)) geometry[iMGlevel]->SetWallVelocity(config, false);
+    }
 
-      GridVel = geometry[iMGlevel]->nodes->GetGridVel(iPoint);
+    /*--- Store the new grid velocity, the gust is prescribed as the negative of the grid velocity. ---*/
 
-      /*--- Store new grid velocity ---*/
-
-      for (iDim = 0; iDim < nDim; iDim++) {
-        NewGridVel[iDim] = GridVel[iDim] - Gust[iDim];
-        geometry[iMGlevel]->nodes->SetGridVel(iPoint, iDim, NewGridVel[iDim]);
-      }
+    for (iPoint = 0; iPoint < geometry[iMGlevel]->GetnPoint(); iPoint++) {
+      ComputeGust(nodes->GetCoord(iPoint), Physical_t);
+      for (iDim = 0; iDim < nDim; iDim++)
+        nodes->SetGridVel(iPoint, iDim, nodes->GetGridVel(iPoint)[iDim] - Gust[iDim]);
     }
   }
 }
