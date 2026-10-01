@@ -881,14 +881,15 @@ unsigned long CSysSolve<ScalarType>::FGCRODR_LinSolverImpl(const CSysVector<Scal
       }
     }
 
-    /*--- Update the solution and residual. The latter is only required if we restart. ---*/
+    /*--- Update the solution and residual. The latter is only required if we restart.
+     * If the orthogonalization failed before adding any direction (m == k), there is nothing to update. ---*/
 
-    LinearCombination(nestedParallel, m, GetZ, y, x, true);
+    if (m > k) LinearCombination(nestedParallel, m, GetZ, y, x, true);
     if (!converged) LinearCombination(nestedParallel, m + 1, V, rls, r);
 
     /*--- Update deflation vectors. ---*/
 
-    if (deflation == 0) {
+    if (deflation == 0 || m == k) {
       if (converged) break;
       continue;
     }
