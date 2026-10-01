@@ -1112,6 +1112,15 @@ def main():
     rot_naca0012.test_vals = [-0.023432, 0.083323, 2.000000, -1.181593]
     test_list.append(rot_naca0012)
 
+    # Dual-time restart of the rotating NACA 0012 from binary restart files
+    rot_naca0012_unst_restart           = TestCase('rot_naca0012_unst_restart')
+    rot_naca0012_unst_restart.cfg_dir   = "rotating/naca0012"
+    rot_naca0012_unst_restart.cfg_file  = "rot_NACA0012_unst_restart.cfg"
+    rot_naca0012_unst_restart.test_iter = 3
+    rot_naca0012_unst_restart.test_vals = [-1.172613, 4.350023, 0.001315, 0.114871]
+    rot_naca0012_unst_restart.unsteady  = True
+    test_list.append(rot_naca0012_unst_restart)
+
     # Lid-driven cavity
     cavity           = TestCase('cavity')
     cavity.cfg_dir   = "moving_wall/cavity"

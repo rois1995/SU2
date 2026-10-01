@@ -619,13 +619,6 @@ public:
   inline virtual void Set_NewSolution() { }
 
   /*!
-   * \brief Load the geometries at the previous time states n and nM1.
-   * \param[in] geometry - Geometrical definition of the problem.
-   * \param[in] config - Definition of the particular problem.
-   */
-  void Restart_OldGeometry(CGeometry *geometry, CConfig *config) const;
-
-  /*!
    * \brief A virtual member.
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] solver_container - Container vector with all the solutions.

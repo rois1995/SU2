@@ -1027,14 +1027,6 @@ void CFVMFlowSolverBase<V, R>::LoadRestart_impl(CGeometry **geometry, CSolver **
     }
   }
 
-  /*--- Update the old geometry (coordinates n and n-1) in dual time-stepping strategy. ---*/
-  const bool dual_time = ((config->GetTime_Marching() == TIME_MARCHING::DT_STEPPING_1ST) ||
-                          (config->GetTime_Marching() == TIME_MARCHING::DT_STEPPING_2ND));
-  if (dual_time && config->GetGrid_Movement() && !config->GetDeform_Mesh() &&
-      (config->GetKind_GridMovement() != RIGID_MOTION)) {
-    Restart_OldGeometry(geometry[MESH_0], config);
-  }
-
   /*--- Go back to single threaded execution. ---*/
   BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS
   {
