@@ -278,9 +278,8 @@ void CBarycentricTransfer::Transfer(CConfig* config, const CMeshDonor& donor, CG
     SU2_MPI::Error("The barycentric solution transfer is only available for compressible EULER, NAVIER_STOKES or RANS.",
                    CURRENT_FUNCTION);
   }
-  if (config->GetTime_Domain()) {
-    SU2_MPI::Error("The barycentric solution transfer is only available for steady problems for now.",
-                   CURRENT_FUNCTION);
+  if (config->GetTime_Domain() && config->GetGrid_Movement()) {
+    SU2_MPI::Error("The barycentric solution transfer is not available for moving meshes.", CURRENT_FUNCTION);
   }
   const auto turbFamily = TurbModelFamily(config->GetKind_Turb_Model());
   if (config->GetKind_Turb_Model() != TURB_MODEL::NONE && turbFamily != TURB_FAMILY::SA &&
@@ -335,18 +334,48 @@ void CBarycentricTransfer::Transfer(CConfig* config, const CMeshDonor& donor, CG
   }
   summary.nPoint = nPoint;
 
-  /*--- Flow: interpolated conservative variables, a donor state where they are not admissible. ---*/
+  /*--- The arrays to transfer: the solution and, in the time domain, its history at n and n-1 (allocated by the
+   *    variables of time-domain problems). Both meshes have the same config, so the same arrays. ---*/
 
+  using ArrayGetter = su2activematrix& (*)(CVariable*);
+  std::vector<ArrayGetter> timeLevels = {[](CVariable* nodes) -> su2activematrix& { return nodes->GetSolution(); }};
+  std::vector<MPI_QUANTITIES> timeLevelComms = {MPI_QUANTITIES::SOLUTION};
   auto* flowSolver = solver[MESH_0][FLOW_SOL];
   auto* donorFlowSolver = donor.solver[MESH_0][FLOW_SOL];
+  if (config->GetTime_Domain()) {
+    auto* nodes = flowSolver->GetNodes();
+    if (nodes->GetSolution_time_n().size() > 0) {
+      timeLevels.push_back([](CVariable* nodes) -> su2activematrix& { return nodes->GetSolution_time_n(); });
+      timeLevelComms.push_back(MPI_QUANTITIES::SOLUTION_TIME_N);
+    }
+    if (nodes->GetSolution_time_n1().size() > 0) {
+      timeLevels.push_back([](CVariable* nodes) -> su2activematrix& { return nodes->GetSolution_time_n1(); });
+      timeLevelComms.push_back(MPI_QUANTITIES::SOLUTION_TIME_N1);
+    }
+  }
+  summary.nTimeLevels = timeLevels.size() - 1;
+  for (const auto iSol : solverIndices) {
+    for (const auto getter : timeLevels) {
+      auto& newArray = getter(solver[MESH_0][iSol]->GetNodes());
+      auto& donorArray = getter(donor.solver[MESH_0][iSol]->GetNodes());
+      if (newArray.rows() != nPoint || donorArray.rows() != donorGeometry->GetnPoint() ||
+          newArray.cols() != donorArray.cols()) {
+        SU2_MPI::Error("The solution arrays of the donor and of the new mesh differ.", CURRENT_FUNCTION);
+      }
+    }
+  }
+
+  /*--- Flow: interpolated conservative variables, a donor state where they are not admissible. ---*/
+
   const auto nVarFlow = flowSolver->GetnVar();
   auto* fluidModel = flowSolver->GetFluidModel();
   if (fluidModel == nullptr || nVarFlow != nDim + 2) {
     SU2_MPI::Error("The flow solver is not a compressible flow solver.", CURRENT_FUNCTION);
   }
-  {
-    const auto& donorSolution = donorFlowSolver->GetNodes()->GetSolution();
-    auto* nodes = flowSolver->GetNodes();
+  for (unsigned short iLevel = 0; iLevel < timeLevels.size(); ++iLevel) {
+    const auto& donorSolution = timeLevels[iLevel](donorFlowSolver->GetNodes());
+    auto& newSolution = timeLevels[iLevel](flowSolver->GetNodes());
+    auto& nFixed = (iLevel == 0) ? summary.nFlowFixed : summary.nHistoryFixed;
     std::vector<su2double> state(nVarFlow);
 
     for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
@@ -357,7 +386,7 @@ void CBarycentricTransfer::Transfer(CConfig* config, const CMeshDonor& donor, CG
           state[iVar] += stencil.weight[k] * donorSolution(stencil.point[k], iVar);
 
       if (!AdmissibleState(*fluidModel, nDim, state.data())) {
-        summary.nFlowFixed++;
+        nFixed++;
         int best = -1;
         for (unsigned short k = 0; k < stencil.nPoint; ++k) {
           if ((best < 0 || stencil.weight[k] > stencil.weight[best]) &&
@@ -372,7 +401,7 @@ void CBarycentricTransfer::Transfer(CConfig* config, const CMeshDonor& donor, CG
         }
         for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) state[iVar] = donorSolution(stencil.point[best], iVar);
       }
-      for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) nodes->SetSolution(iPoint, iVar, state[iVar]);
+      for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) newSolution(iPoint, iVar) = state[iVar];
     }
   }
 
@@ -383,24 +412,26 @@ void CBarycentricTransfer::Transfer(CConfig* config, const CMeshDonor& donor, CG
     if (turbSolver == nullptr) SU2_MPI::Error("Unexpected turbulence solver.", CURRENT_FUNCTION);
 
     const auto nVarTurb = turbSolver->GetnVar();
-    const auto& donorSolution = donor.solver[MESH_0][TURB_SOL]->GetNodes()->GetSolution();
-    auto* nodes = solver[MESH_0][TURB_SOL]->GetNodes();
+    for (const auto getter : timeLevels) {
+      const auto& donorSolution = getter(donor.solver[MESH_0][TURB_SOL]->GetNodes());
+      auto& newSolution = getter(solver[MESH_0][TURB_SOL]->GetNodes());
 
-    for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
-      const auto& stencil = stencils[iPoint];
-      for (unsigned short iVar = 0; iVar < nVarTurb; ++iVar) {
-        su2double value = 0.0;
-        for (unsigned short k = 0; k < stencil.nPoint; ++k)
-          value += stencil.weight[k] * donorSolution(stencil.point[k], iVar);
+      for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
+        const auto& stencil = stencils[iPoint];
+        for (unsigned short iVar = 0; iVar < nVarTurb; ++iVar) {
+          su2double value = 0.0;
+          for (unsigned short k = 0; k < stencil.nPoint; ++k)
+            value += stencil.weight[k] * donorSolution(stencil.point[k], iVar);
 
-        /*--- Count only the values that are out of bounds by more than round-off. ---*/
-        const su2double lower = turbSolver->GetLowerLimit(iVar), upper = turbSolver->GetUpperLimit(iVar);
-        if (value < lower || value > upper) {
-          const su2double limit = (value < lower) ? lower : upper;
-          if (fabs(value - limit) > 1e-10 * fabs(limit)) summary.nTurbLimited++;
-          value = limit;
+          /*--- Count only the values that are out of bounds by more than round-off. ---*/
+          const su2double lower = turbSolver->GetLowerLimit(iVar), upper = turbSolver->GetUpperLimit(iVar);
+          if (value < lower || value > upper) {
+            const su2double limit = (value < lower) ? lower : upper;
+            if (fabs(value - limit) > 1e-10 * fabs(limit)) summary.nTurbLimited++;
+            value = limit;
+          }
+          newSolution(iPoint, iVar) = value;
         }
-        nodes->SetSolution(iPoint, iVar, value);
       }
     }
   }
@@ -461,6 +492,26 @@ void CBarycentricTransfer::Transfer(CConfig* config, const CMeshDonor& donor, CG
   for (unsigned short iMesh = 1; iMesh <= config->GetnMGLevels(); ++iMesh)
     for (const auto iSol : solverIndices) solver[iMesh][iSol]->Set_OldSolution();
 
+  /*--- The time history on the coarse levels is its restriction, as after a restart (PushSolutionBackInTime sets it
+   *    from the restricted solution). ---*/
+
+  if (summary.nTimeLevels > 0) {
+    for (const auto iSol : solverIndices) {
+      for (unsigned short iLevel = 1; iLevel < timeLevels.size(); ++iLevel) {
+        const auto getter = timeLevels[iLevel];
+        const auto comm = timeLevelComms[iLevel];
+        solver[MESH_0][iSol]->InitiateComms(geometry[MESH_0], config, comm);
+        solver[MESH_0][iSol]->CompleteComms(geometry[MESH_0], config, comm);
+        for (unsigned short iMesh = 1; iMesh <= config->GetnMGLevels(); ++iMesh) {
+          CSolver::MultigridRestriction(*geometry[iMesh - 1], getter(solver[iMesh - 1][iSol]->GetNodes()),
+                                        *geometry[iMesh], getter(solver[iMesh][iSol]->GetNodes()));
+          solver[iMesh][iSol]->InitiateComms(geometry[iMesh], config, comm);
+          solver[iMesh][iSol]->CompleteComms(geometry[iMesh], config, comm);
+        }
+      }
+    }
+  }
+
   /*--- Summary. ---*/
 
   if (rank != MASTER_NODE) return;
@@ -481,6 +532,11 @@ void CBarycentricTransfer::Transfer(CConfig* config, const CMeshDonor& donor, CG
   if (s.nOutside) cout << ", max distance " << s.maxDistance << " (" << s.maxRelDistance << " of the face size)";
   cout << "." << endl;
   cout << "Flow states not admissible after the interpolation (donor state used): " << s.nFlowFixed << "." << endl;
+  if (s.nTimeLevels > 0) {
+    cout << "Time history interpolated with the same stencils: Solution_time_n"
+         << (s.nTimeLevels > 1 ? " and Solution_time_n1" : "") << ", flow states not admissible: " << s.nHistoryFixed
+         << "." << endl;
+  }
   if (solver[MESH_0][TURB_SOL] != nullptr)
     cout << "Turbulence values limited to the bounds of the solver: " << s.nTurbLimited << "." << endl;
   cout << "Domain volume: donor " << s.donorVolume << ", new " << s.newVolume

@@ -98,7 +98,12 @@ class CBarycentricLocator {
  *         Eddy viscosity and wall-distance-dependent quantities are not interpolated, the solver computes them.
  *       - Then, as after loading a restart file: communication, primitive variables and eddy viscosity, restriction
  *         to the coarse multigrid levels (CSolver::UpdateLoadedSolution), and the old solution equals the new one.
- *       Steady problems only (the time history n, n-1 is not transferred).
+ *       - Time domain (dual time stepping): the time history of every transferred solver (Solution_time_n, and
+ *         Solution_time_n1 where it is allocated) is interpolated with the same stencils and the same rules as the
+ *         solution, then restricted to the coarse multigrid levels (as PushSolutionBackInTime after a restart). At the
+ *         adaptation point of the time-domain loop (after the dual-time update of step n) the solution and
+ *         Solution_time_n are both U^n, so they are transferred to the same values; Solution_time_n1 is U^(n-1).
+ *         Static meshes only: there are no grid velocities or volumes at n, n-1 to transfer.
  *       Barycentric interpolation does not conserve the integrals of the conservative variables over the domain
  *       (a conservative P1 projection would). The transfer prints the defects and the round-trip difference
  *       (donor -> new -> donor) as a measure of the interpolation error.
@@ -114,7 +119,9 @@ class CBarycentricTransfer final : public CSolutionTransfer {
     su2double maxDistance = 0.0;        /*!< \brief Largest distance of those points to the donor mesh. */
     su2double maxRelDistance = 0.0;     /*!< \brief Largest distance relative to the size of the donor face. */
     unsigned long nFlowFixed = 0;       /*!< \brief Points where the interpolated flow state was not admissible. */
-    unsigned long nTurbLimited = 0;     /*!< \brief Turbulence values limited to the bounds of the solver. */
+    unsigned long nHistoryFixed = 0;    /*!< \brief Same for the time history (Solution_time_n, Solution_time_n1). */
+    unsigned short nTimeLevels = 0;     /*!< \brief Time history arrays transferred (0 steady, 1 or 2). */
+    unsigned long nTurbLimited = 0;     /*!< \brief Turbulence values limited to the bounds of the solver (all time levels). */
     su2double donorVolume = 0.0;        /*!< \brief Volume of the donor domain (sum of control volumes). */
     su2double newVolume = 0.0;          /*!< \brief Volume of the new domain. */
     std::vector<su2double> donorIntegral;  /*!< \brief Integral of each conservative variable on the donor. */

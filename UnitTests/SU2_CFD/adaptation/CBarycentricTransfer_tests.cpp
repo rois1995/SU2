@@ -524,3 +524,107 @@ TEST_CASE("Barycentric transfer: turbulence variables", "[Adaptation]") {
     }
   }
 }
+
+TEST_CASE("Barycentric transfer: time history (dual time stepping)", "[Adaptation]") {
+  /*--- Three different affine fields for U^(n+1) (solution), U^n and U^(n-1), flow and SA: each array is exact on
+   *    the new mesh, and the coarse levels of the history hold its restriction (as after a restart). ---*/
+  using Getter = su2activematrix& (*)(CVariable*);
+  const Getter getters[] = {[](CVariable* n) -> su2activematrix& { return n->GetSolution(); },
+                            [](CVariable* n) -> su2activematrix& { return n->GetSolution_time_n(); },
+                            [](CVariable* n) -> su2activematrix& { return n->GetSolution_time_n1(); }};
+  const char* names[] = {"solution", "time n", "time n-1"};
+
+  auto flowField = [](unsigned short nDim, int level) {
+    return Field([nDim, level](const su2double* x, su2double* U) {
+      AffineFlow(nDim)(x, U);
+      U[0] *= 1.0 + 0.05 * level;
+      U[1] += 7.0 * level * x[1];
+      U[2] -= 3.0 * level * x[0];
+      U[nDim + 1] += 1e3 * level * x[0];
+    });
+  };
+  auto turbField = [](int level) {
+    return Field([level](const su2double* x, su2double* v) { v[0] = 1e-4 + 2e-5 * x[0] - (1e-5 + 1e-6 * level) * x[1]; });
+  };
+
+  struct TimeCase {
+    unsigned short nDim;
+    string options;
+  };
+  const std::vector<TimeCase> cases = {
+      {2, "SOLVER= EULER\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\n"},
+      {3, "SOLVER= EULER\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\n"},
+      {2, "SOLVER= EULER\nTIME_MARCHING= DUAL_TIME_STEPPING-1ST_ORDER\n"},
+      {2, "SOLVER= RANS\nREYNOLDS_NUMBER= 1e6\nKIND_TURB_MODEL= SA\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\n"},
+  };
+
+  for (const auto& test : cases) {
+    SECTION("nDim " + std::to_string(test.nDim) + ", " + test.options) {
+      const auto nDim = test.nDim;
+      auto config = MakeConfig(nDim, test.options + "TIME_DOMAIN= YES\nTIME_STEP= 1e-3\nTIME_ITER= 10\n");
+      const bool rans = config->GetKind_Solver() == MAIN_SOLVER::RANS;
+      std::vector<unsigned short> solvers = {FLOW_SOL};
+      if (rans) solvers.push_back(TURB_SOL);
+
+      MeshSolution donor(config.get(), BoxMesh(nDim, 4, true), 2);
+      for (int level = 0; level < 3; ++level) {
+        for (const auto iSol : solvers) {
+          auto& array = getters[level](donor.solver[MESH_0][iSol]->GetNodes());
+          REQUIRE(array.rows() == donor.Fine().GetnPoint());
+          const auto field = (iSol == FLOW_SOL) ? flowField(nDim, level) : turbField(level);
+          su2double values[MAXVAR] = {};
+          for (auto iPoint = 0ul; iPoint < donor.Fine().GetnPoint(); ++iPoint) {
+            field(donor.Fine().nodes->GetCoord(iPoint), values);
+            for (unsigned short iVar = 0; iVar < array.cols(); ++iVar) array(iPoint, iVar) = values[iVar];
+          }
+        }
+      }
+
+      MeshSolution target(config.get(), BoxMesh(nDim, 6, true), 2);
+      CBarycentricTransfer transfer;
+      {
+        Mute mute;
+        transfer.Transfer(config.get(), donor.Donor(), target.geometry, target.solver);
+      }
+      const auto& summary = transfer.GetSummary();
+      CHECK(summary.nTimeLevels == 2);
+      CHECK(summary.nOutside == 0);
+      CHECK(summary.nFlowFixed == 0);
+      CHECK(summary.nHistoryFixed == 0);
+      CHECK(summary.nTurbLimited == 0);
+
+      for (int level = 0; level < 3; ++level) {
+        for (const auto iSol : solvers) {
+          INFO(names[level] << ", solver " << iSol);
+          const auto field = (iSol == FLOW_SOL) ? flowField(nDim, level) : turbField(level);
+
+          /*--- Exact at every point of the fine level. ---*/
+          const auto& array = getters[level](target.solver[MESH_0][iSol]->GetNodes());
+          passivedouble maxDiff = 0.0;
+          for (auto iPoint = 0ul; iPoint < target.Fine().GetnPoint(); ++iPoint) {
+            su2double exact[MAXVAR] = {};
+            field(target.Fine().nodes->GetCoord(iPoint), exact);
+            for (unsigned short iVar = 0; iVar < array.cols(); ++iVar)
+              maxDiff = max(maxDiff, RelDiff(array(iPoint, iVar), exact[iVar], 1e-6));
+          }
+          CHECK(maxDiff < 1e-12);
+
+          /*--- History on the coarse levels: restriction of the finer level. ---*/
+          if (level == 0) continue;
+          for (unsigned short iMesh = 1; iMesh <= target.nMGLevels; ++iMesh) {
+            const auto& fine = getters[level](target.solver[iMesh - 1][iSol]->GetNodes());
+            const auto& coarse = getters[level](target.solver[iMesh][iSol]->GetNodes());
+            su2activematrix restricted = coarse;
+            CSolver::MultigridRestriction(*target.geometry[iMesh - 1], fine, *target.geometry[iMesh], restricted);
+            passivedouble maxCoarse = 0.0;
+            for (auto iPoint = 0ul; iPoint < target.geometry[iMesh]->GetnPointDomain(); ++iPoint)
+              for (unsigned short iVar = 0; iVar < coarse.cols(); ++iVar)
+                maxCoarse = max(maxCoarse, RelDiff(coarse(iPoint, iVar), restricted(iPoint, iVar), 1e-6));
+            CHECK(maxCoarse < 1e-14);
+          }
+        }
+      }
+      CheckCoarseLevels(target, FLOW_SOL);
+    }
+  }
+}
