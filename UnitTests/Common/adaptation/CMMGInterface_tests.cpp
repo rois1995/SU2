@@ -30,10 +30,12 @@
 #include <array>
 #include <cstdio>
 #include <limits>
+#include <set>
 
 #include "../../../Common/include/CConfig.hpp"
 #include "../../../Common/include/adaptation/CMMGInterface.hpp"
 #include "../../../Common/include/geometry/CPhysicalGeometry.hpp"
+#include "../../../Common/include/geometry/meshreader/CMemoryMeshReaderFVM.hpp"
 #include "SimplexMeshTestCase.hpp"
 
 namespace {
@@ -90,13 +92,16 @@ struct SimplexMeshCase {
   std::unique_ptr<CConfig> config;
   std::unique_ptr<CGeometry> geometry;
 
-  SimplexMeshCase(unsigned short nDim, unsigned long n) {
-    meshFile = "mmg_interface_test_" + std::to_string(nDim) + "d.su2";
-    simplex_test::WriteSU2Mesh(simplex_test::MakeSimplexMesh(nDim, n, nDim == 2 ? Marker2D : Marker3D), meshFile);
+  SimplexMeshCase(unsigned short nDim, unsigned long n)
+      : SimplexMeshCase(simplex_test::MakeSimplexMesh(nDim, n, nDim == 2 ? Marker2D : Marker3D),
+                        (nDim == 2) ? "MARKER_FAR= (left, right, upper)\nMARKER_EULER= (lower_b, lower_a)\n"
+                                    : "MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus)\n"
+                                      "MARKER_EULER= (z_minus_b, z_minus_a)\n") {}
 
-    const string markers = (nDim == 2) ? "MARKER_FAR= (left, right, upper)\nMARKER_EULER= (lower_b, lower_a)\n"
-                                       : "MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus)\n"
-                                         "MARKER_EULER= (z_minus_b, z_minus_a)\n";
+  /*--- Any simplex mesh, with the marker (and other) options of the config. ---*/
+  SimplexMeshCase(const CSimplexMesh& mesh, const string& markers) {
+    meshFile = "mmg_interface_test_" + std::to_string(mesh.nDim) + "d.su2";
+    simplex_test::WriteSU2Mesh(mesh, meshFile);
     stringstream options("SOLVER= EULER\nMESH_FORMAT= SU2\nMESH_FILENAME= " + meshFile + "\n" + markers +
                          "ADAP_HMIN= 1e-4\nADAP_HMAX= 10\n");
     auto origBuf = cout.rdbuf();
@@ -330,7 +335,78 @@ void CheckUniformRemesh(unsigned short nDim, unsigned long n, passivedouble fact
   }
 }
 
+/*--- Coordinates of the boundary points of a mesh. ---*/
+std::set<std::array<passivedouble, 3>> BoundaryCoordinates(const CSimplexMesh& mesh) {
+  std::set<std::array<passivedouble, 3>> points;
+  for (const auto& marker : mesh.markers)
+    for (const auto iPoint : marker.elem) {
+      std::array<passivedouble, 3> x = {0.0, 0.0, 0.0};
+      for (unsigned short iDim = 0; iDim < mesh.nDim; ++iDim) x[iDim] = mesh.coord[iPoint * mesh.nDim + iDim];
+      points.insert(x);
+    }
+  return points;
+}
+
+/*!
+ * \brief Volume-only adaptation (ADAP_SURFACE= NO, MMG -nosurf) of a disk/ball whose boundary points lie on the
+ *        circle/sphere: refined twice in the volume, the boundary points stay bitwise the same and the boundary faces
+ *        the same, also after the adapted mesh is built as an SU2 geometry from memory and extracted again. With
+ *        the surface adapted (the default) MMG inserts points on its reconstruction of the curved boundary.
+ */
+void CheckFixedSurface(unsigned short nDim, unsigned long n) {
+  SimplexMeshCase test(simplex_test::MakeRoundMesh(nDim, n, 1.0), "MARKER_EULER= (round_a, round_b)\nADAP_SURFACE= NO\n");
+  const passivedouble h = 1.0 / n;  // half of the input size (diameter 2, n cells)
+  const auto mesh = CMMGInterface::ExtractMesh(*test.config, *test.geometry, test.UniformMetric(h));
+  const auto inputBoundary = BoundaryCoordinates(mesh);
+
+  CMMGInterface mmg(*test.config);
+  REQUIRE_FALSE(mmg.GetParameters().surface);
+  const auto adapted = mmg.Adapt(mesh);  // includes CheckSameBoundary
+  CMMGInterface::CheckSameBoundary(adapted, mesh, "fixed surface");
+  CHECK(adapted.GetnPoint() > 2 * mesh.GetnPoint());
+  CHECK(BoundaryCoordinates(adapted) == inputBoundary);
+  for (const auto& marker : mesh.markers) {
+    const auto* adaptedMarker = adapted.FindMarker(marker.name);
+    REQUIRE(adaptedMarker != nullptr);
+    CHECK(adaptedMarker->ref == marker.ref);
+    CHECK(MarkerMeasure(adapted, *adaptedMarker) == Approx(MarkerMeasure(mesh, marker)).epsilon(1e-14));
+  }
+
+  /*--- Geometry built from the adapted mesh in memory (as the driver does), extracted again. ---*/
+  {
+    auto origBuf = cout.rdbuf();
+    cout.rdbuf(nullptr);
+    CMemoryMeshReaderFVM reader(test.config.get(), adapted, 0, 1);
+    CPhysicalGeometry aux(test.config.get(), reader, 1);
+    CPhysicalGeometry geometry(&aux, test.config.get());
+    geometry.SetSendReceive(test.config.get());
+    geometry.SetBoundaries(test.config.get());
+    cout.rdbuf(origBuf);
+    su2activematrix metric(geometry.GetnPoint(), CSimplexMesh::GetnMetric(nDim));
+    for (auto iPoint = 0ul; iPoint < geometry.GetnPoint(); ++iPoint)
+      for (unsigned short iDim = 0, iMet = 0; iDim < nDim; ++iDim)
+        for (unsigned short jDim = iDim; jDim < nDim; ++jDim, ++iMet) metric(iPoint, iMet) = (iDim == jDim) ? 1.0 : 0.0;
+    const auto rebuilt = CMMGInterface::ExtractMesh(*test.config, geometry, metric);
+    CMMGInterface::CheckSameBoundary(rebuilt, mesh, "fixed surface, geometry from memory");
+    CHECK(rebuilt.GetnPoint() == adapted.GetnPoint());
+  }
+
+  /*--- The surface adapted: new boundary points on MMG's curved reconstruction of the boundary. ---*/
+  CMMGInterface mmgSurface(*test.config);
+  mmgSurface.GetParameters().surface = true;
+  const auto withSurface = BoundaryCoordinates(mmgSurface.Adapt(mesh));
+  CHECK(withSurface.size() > inputBoundary.size());
+  unsigned long nNew = 0;
+  for (const auto& x : withSurface) nNew += inputBoundary.count(x) == 0;
+  CHECK(nNew > 0);
+}
+
 }  // namespace
+
+TEST_CASE("MMG interface: volume-only adaptation (fixed surface)", "[MMG]") {
+  CheckFixedSurface(2, 4);
+  CheckFixedSurface(3, 4);
+}
 
 TEST_CASE("MMG interface: 2D round trip", "[MMG]") { CheckRoundTrip(2, 4); }
 

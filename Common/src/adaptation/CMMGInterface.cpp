@@ -380,6 +380,69 @@ void CMMGInterface::ValidateMesh(const CSimplexMesh& mesh, const CSimplexMesh* r
   }
 }
 
+void CMMGInterface::CheckSameBoundary(const CSimplexMesh& mesh, const CSimplexMesh& reference, const string& what) {
+  const auto nDim = mesh.nDim;
+  if (reference.nDim != nDim) SU2_MPI::Error(what + ": the dimension changed.", CURRENT_FUNCTION);
+
+  /*--- Boundary points of a mesh, sorted by their coordinates (exact comparison). ---*/
+  using Coord = std::array<passivedouble, 3>;
+  auto boundaryPoints = [nDim](const CSimplexMesh& m) {
+    std::vector<std::pair<Coord, unsigned long>> points;
+    std::vector<bool> isBoundary(m.GetnPoint(), false);
+    for (const auto& marker : m.markers)
+      for (const auto iPoint : marker.elem) isBoundary[iPoint] = true;
+    for (auto iPoint = 0ul; iPoint < m.GetnPoint(); ++iPoint) {
+      if (!isBoundary[iPoint]) continue;
+      Coord x = {0.0, 0.0, 0.0};
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) x[iDim] = m.coord[iPoint * nDim + iDim];
+      points.emplace_back(x, iPoint);
+    }
+    std::sort(points.begin(), points.end());
+    return points;
+  };
+  const auto points = boundaryPoints(mesh), refPoints = boundaryPoints(reference);
+  if (points.size() != refPoints.size()) {
+    SU2_MPI::Error(what + ": " + std::to_string(points.size()) + " boundary points instead of " +
+                       std::to_string(refPoints.size()) + ".",
+                   CURRENT_FUNCTION);
+  }
+  std::vector<unsigned long> toReference(mesh.GetnPoint(), ULONG_MAX);
+  for (auto i = 0ul; i < points.size(); ++i) {
+    if (points[i].first != refPoints[i].first) {
+      SU2_MPI::Error(what + ": the boundary point " + PointInfo(nDim, reference.coord, refPoints[i].second) +
+                         " was moved or removed.",
+                     CURRENT_FUNCTION);
+    }
+    toReference[points[i].second] = refPoints[i].second;
+  }
+
+  /*--- Faces of each marker, as sorted reference point indices. ---*/
+  for (const auto& refMarker : reference.markers) {
+    const auto* marker = mesh.FindMarker(refMarker.name);
+    std::vector<Face> faces, refFaces;
+    if (marker != nullptr) {
+      for (auto iElem = 0ul; iElem < marker->GetnElem(nDim); ++iElem) {
+        unsigned long nodes[3] = {0, 0, 0};
+        for (unsigned short iNode = 0; iNode < nDim; ++iNode) nodes[iNode] = toReference[marker->elem[iElem * nDim + iNode]];
+        faces.push_back(MakeFace(nDim, nodes));
+      }
+    }
+    for (auto iElem = 0ul; iElem < refMarker.GetnElem(nDim); ++iElem) refFaces.push_back(MakeFace(nDim, &refMarker.elem[iElem * nDim]));
+    std::sort(faces.begin(), faces.end());
+    std::sort(refFaces.begin(), refFaces.end());
+    if (faces != refFaces) {
+      SU2_MPI::Error(what + ": the boundary faces of marker " + refMarker.name + " changed (" +
+                         std::to_string(faces.size()) + " faces, " + std::to_string(refFaces.size()) + " before).",
+                     CURRENT_FUNCTION);
+    }
+  }
+  for (const auto& marker : mesh.markers) {
+    if (!marker.elem.empty() && reference.FindMarker(marker.name) == nullptr) {
+      SU2_MPI::Error(what + ": new marker " + marker.name + ".", CURRENT_FUNCTION);
+    }
+  }
+}
+
 #ifdef HAVE_MMG
 
 struct CMMGInterface::MMGData {
@@ -406,6 +469,7 @@ CMMGInterface::CMMGInterface(const CConfig& config) : mmg(new MMGData) {
   params.hgrad = SU2_TYPE::GetValue(config.GetAdap_Hgrad());
   params.hausd = SU2_TYPE::GetValue(config.GetAdap_Hausd());
   params.angle = SU2_TYPE::GetValue(config.GetAdap_Angle());
+  params.surface = config.GetAdap_Surface();
 }
 
 CMMGInterface::~CMMGInterface() = default;
@@ -469,6 +533,19 @@ void CMMGInterface::SetMesh(const CSimplexMesh& mesh) {
   for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint)
     if (pointMarkers[iPoint].size() >= nDim) corners.push_back(static_cast<int>(iPoint) + 1);
 
+  /*--- Fixed surface: MMG keeps the boundary points but scales the coordinates to a unit box and back, which changes
+   *    them by round-off. Their reference is their index + 1, so GetMesh can restore the exact input coordinates. ---*/
+  fixedBoundary.clear();
+  if (!params.surface) {
+    fixedBoundary.resize(nPoint, false);
+    for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
+      if (pointMarkers[iPoint].empty()) continue;
+      fixedBoundary[iPoint] = true;
+      pointRef[iPoint] = static_cast<int>(iPoint) + 1;
+    }
+    fixedCoord = mesh.coord;
+  }
+
   int ok = 1;
   if (nDim == 2) {
     MMG2D_Init_mesh(MMG5_ARG_start, MMG5_ARG_ppMesh, &mmg->mesh, MMG5_ARG_ppMet, &mmg->met, MMG5_ARG_end);
@@ -514,6 +591,7 @@ CMMGInterface::Status CMMGInterface::Remesh() {
     ok &= MMG2D_Set_dparameter(mmg->mesh, mmg->met, MMG2D_DPARAM_hmax, params.hmax);
     ok &= MMG2D_Set_dparameter(mmg->mesh, mmg->met, MMG2D_DPARAM_hgrad, params.hgrad);
     ok &= MMG2D_Set_dparameter(mmg->mesh, mmg->met, MMG2D_DPARAM_hausd, params.hausd);
+    ok &= MMG2D_Set_iparameter(mmg->mesh, mmg->met, MMG2D_IPARAM_nosurf, params.surface ? 0 : 1);
     if (ok) ier = MMG2D_mmg2dlib(mmg->mesh, mmg->met);
   } else {
     ok &= MMG3D_Set_iparameter(mmg->mesh, mmg->met, MMG3D_IPARAM_verbose, params.verbosity);
@@ -523,6 +601,7 @@ CMMGInterface::Status CMMGInterface::Remesh() {
     ok &= MMG3D_Set_dparameter(mmg->mesh, mmg->met, MMG3D_DPARAM_hmax, params.hmax);
     ok &= MMG3D_Set_dparameter(mmg->mesh, mmg->met, MMG3D_DPARAM_hgrad, params.hgrad);
     ok &= MMG3D_Set_dparameter(mmg->mesh, mmg->met, MMG3D_DPARAM_hausd, params.hausd);
+    ok &= MMG3D_Set_iparameter(mmg->mesh, mmg->met, MMG3D_IPARAM_nosurf, params.surface ? 0 : 1);
     if (ok) ier = MMG3D_mmg3dlib(mmg->mesh, mmg->met);
   }
   if (!ok) SU2_MPI::Error("Could not set the MMG parameters.", CURRENT_FUNCTION);
@@ -582,6 +661,31 @@ CSimplexMesh CMMGInterface::GetMesh() const {
   CSimplexMesh mesh;
   mesh.nDim = nDim;
   mesh.coord.assign(coord.begin(), coord.end());
+
+  /*--- Fixed surface: the exact input coordinates of the kept boundary points (identified by their reference and
+   *    checked to be within round-off of the input point). ---*/
+  if (!fixedBoundary.empty()) {
+    passivedouble size2 = 0.0;
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+      passivedouble xMin = coord[iDim], xMax = coord[iDim];
+      for (int iPoint = 0; iPoint < np; ++iPoint) {
+        xMin = std::min(xMin, coord[iPoint * nDim + iDim]);
+        xMax = std::max(xMax, coord[iPoint * nDim + iDim]);
+      }
+      size2 += pow(xMax - xMin, 2);
+    }
+    const passivedouble tol2 = 1e-20 * size2;  // 1e-10 of the domain size
+    for (int iPoint = 0; iPoint < np; ++iPoint) {
+      const auto ref = pointRef[iPoint];
+      if (ref < 1 || ref > static_cast<int>(fixedBoundary.size()) || !fixedBoundary[ref - 1]) continue;
+      passivedouble dist2 = 0.0;
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+        dist2 += pow(coord[iPoint * nDim + iDim] - fixedCoord[(ref - 1) * nDim + iDim], 2);
+      if (dist2 > tol2) continue;
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+        mesh.coord[iPoint * nDim + iDim] = fixedCoord[(ref - 1) * nDim + iDim];
+    }
+  }
   mesh.metric.assign(metric.begin(), metric.end());
   mesh.elem.resize(elem.size());
   for (auto i = 0ul; i < elem.size(); ++i) {
@@ -624,6 +728,7 @@ CSimplexMesh CMMGInterface::Adapt(const CSimplexMesh& mesh) {
   Remesh();
   auto adapted = GetMesh();
   ValidateMesh(adapted, &mesh, "Mesh returned by MMG");
+  if (!params.surface) CheckSameBoundary(adapted, mesh, "Mesh returned by MMG with ADAP_SURFACE= NO");
   return adapted;
 }
 
@@ -698,6 +803,8 @@ CSimplexMesh CMMGRemesher::Remesh(const CConfig& config, const CGeometry& geomet
     const bool success = mmg.GetStatus() == CMMGInterface::Status::SUCCESS;
     cout << "MMG" << mesh.nDim << "D status " << (success ? "SUCCESS" : "LOWFAILURE") << ", " << endTime - extractTime
          << " s (with the validation of input and output), extraction " << extractTime - startTime << " s." << endl;
+    if (!config.GetAdap_Surface())
+      cout << "Volume only (ADAP_SURFACE= NO): boundary points and faces kept (checked)." << endl;
   }
   return adapted;
 }

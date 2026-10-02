@@ -3285,6 +3285,11 @@ void CConfig::SetConfig_Options() {
    * than ADAP_ANGLE, the size is the smallest size of the metric in all directions, growing with ADAP_HGRAD around it,
    * so that the remesher gives similar edges on both sides of the corner \ingroup Config */
   addBoolOption("ADAP_ISO_CORNER", Adap_Iso_Corner, true);
+  /*!\brief ADAP_SURFACE \n DESCRIPTION: Let the remesher change the boundary (surface) mesh. With NO only the volume is
+   * adapted: the boundary points (bitwise) and boundary faces stay those of the input mesh (MMG -nosurf), ADAP_HAUSD and
+   * the sharp angle ADAP_ANGLE do not apply, the isotropic corner metric (ADAP_ISO_CORNER) is not used, and MMG sizes the
+   * mesh at the boundary points from the boundary edges \ingroup Config */
+  addBoolOption("ADAP_SURFACE", Adap_Surface, true);
 
   /*--- Mesh adaptation loop (steady, single zone, single rank, needs MMG). Cycle 0 solves on the input mesh with the
    *    usual options (ITER, CFL_NUMBER, CONV_*), then each cycle remeshes from the metric of the last solution,

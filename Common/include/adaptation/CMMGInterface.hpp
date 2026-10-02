@@ -62,6 +62,7 @@ class CMMGInterface {
     passivedouble hgrad = 1.3;  /*!< \brief Size gradation (ADAP_HGRAD). */
     passivedouble hausd = 0.01; /*!< \brief Hausdorff distance of the boundaries (ADAP_HAUSD). */
     passivedouble angle = 45.0; /*!< \brief Sharp angle detection threshold in degrees (ADAP_ANGLE). */
+    bool surface = true;        /*!< \brief MMG may change the boundary mesh (ADAP_SURFACE), else -nosurf. */
     int verbosity = -1;         /*!< \brief MMG verbosity, -1 silent, 1 MMG default, up to 10. */
   };
 
@@ -71,7 +72,8 @@ class CMMGInterface {
   enum class Status { SUCCESS = 0, LOWFAILURE = 1, STRONGFAILURE = 2 };
 
   /*!
-   * \brief Constructor, takes the parameters from ADAP_HMIN, ADAP_HMAX, ADAP_HGRAD, ADAP_HAUSD and ADAP_ANGLE.
+   * \brief Constructor, takes the parameters from ADAP_HMIN, ADAP_HMAX, ADAP_HGRAD, ADAP_HAUSD, ADAP_ANGLE and
+   *        ADAP_SURFACE.
    * \note Stops with an error if SU2 was built without MMG.
    */
   explicit CMMGInterface(const CConfig& config);
@@ -143,9 +145,21 @@ class CMMGInterface {
   static void ValidateMesh(const CSimplexMesh& mesh, const CSimplexMesh* reference, const std::string& what);
 
   /*!
+   * \brief Check that a mesh has the boundary of a reference mesh: the same boundary points (bitwise equal
+   *        coordinates) and, for each marker, the same boundary faces, up to the numbering of the points and faces.
+   * \note Used after remeshing with a fixed surface (ADAP_SURFACE= NO); stops with an error otherwise.
+   * \param[in] mesh - Mesh to check.
+   * \param[in] reference - Mesh whose boundary must be kept.
+   * \param[in] what - Description of the mesh used in the error messages.
+   */
+  static void CheckSameBoundary(const CSimplexMesh& mesh, const CSimplexMesh& reference, const std::string& what);
+
+  /*!
    * \brief Load a mesh and its metric into MMG (MMG2D or MMG3D depending on the dimension).
    * \note Indices are converted to MMG's 1-based numbering. Points shared by two or more markers are set as
-   *       required corners so that the extent of each marker is kept.
+   *       required corners so that the extent of each marker is kept. With a fixed surface (Parameters::surface
+   *       false) the boundary points get their index + 1 as MMG reference, and GetMesh restores their exact
+   *       coordinates (MMG scales the mesh to a unit box and back, which changes them by round-off).
    */
   void SetMesh(const CSimplexMesh& mesh);
 
@@ -171,7 +185,8 @@ class CMMGInterface {
   CSimplexMesh GetMesh() const;
 
   /*!
-   * \brief Remesh: SetMesh, Remesh, GetMesh and ValidateMesh against the input.
+   * \brief Remesh: SetMesh, Remesh, GetMesh and ValidateMesh against the input; with a fixed surface
+   *        (Parameters::surface false) also CheckSameBoundary.
    * \param[in] mesh - Input mesh with its metric.
    * \return Adapted mesh with the metric interpolated by MMG.
    */
@@ -189,6 +204,8 @@ class CMMGInterface {
   std::vector<CSimplexMesh::Marker> markerInfo; /*!< \brief Names and references of the loaded markers. */
   unsigned short nDim = 0;            /*!< \brief Dimension of the loaded mesh. */
   Status status = Status::STRONGFAILURE; /*!< \brief Status of the last Remesh. */
+  std::vector<bool> fixedBoundary;     /*!< \brief Fixed surface: boundary points of the loaded mesh. */
+  std::vector<passivedouble> fixedCoord; /*!< \brief Fixed surface: coordinates of the loaded mesh. */
 };
 
 /*!

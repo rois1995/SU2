@@ -2778,12 +2778,13 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config) {
    *    the eigenvectors and raises each eigenvalue to at least 1/h^2. The sizes depend on the global factor, and the
    *    factor on the complexity they add, so both are repeated until the factor no longer changes (the corner
    *    regions hold a small part of the complexity, two or three passes); the final metric has the target
-   *    complexity. ---*/
+   *    complexity. With a fixed surface (ADAP_SURFACE= NO) the remesher keeps the corner edges as they are, so the
+   *    corner metric is not used. ---*/
 
   vector<su2double> isoEigenvalue;
   unsigned long nCorner = 0, nIsoPoint = 0;
 
-  if (config->GetAdap_Iso_Corner()) {
+  if (config->GetAdap_Iso_Corner() && config->GetAdap_Surface()) {
     const auto corners = FindSharpWallPoints(geometry, config);
     unsigned long nLocal = corners.size();
     SU2_MPI::Allreduce(&nLocal, &nCorner, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());

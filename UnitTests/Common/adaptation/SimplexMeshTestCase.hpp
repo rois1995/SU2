@@ -185,4 +185,32 @@ inline std::string Marker3D(const passivedouble* x) {
   return x[1] < 1e-12 ? "y_minus" : "y_plus";
 }
 
+/*!
+ * \brief Disk (2D) or ball (3D) of a given radius centred at the origin: the structured mesh of the square [0,1]^2 /
+ *        cube [0,1]^3 with n cells per side, mapped by the elliptical grid mapping of [-1,1]^d onto the unit disk/ball
+ *        (x' = x sqrt(1 - y^2/2) in 2D, x' = x sqrt(1 - y^2/2 - z^2/2 + y^2 z^2/3) in 3D), which puts the boundary
+ *        points on the circle/sphere (up to round-off): the boundary faces are chords, a polygon/polyhedron inscribed in
+ *        the curved boundary. The boundary is split into the markers "round_a" (x < 0) and "round_b" (x > 0).
+ */
+inline CSimplexMesh MakeRoundMesh(unsigned short nDim, unsigned long n, passivedouble radius) {
+  auto markerOf = [](const passivedouble* x) { return std::string(x[0] < 0.5 ? "round_a" : "round_b"); };
+  auto mesh = (nDim == 2) ? MakeSimplexMesh(2, n, markerOf, [](const passivedouble* x) { return x[0] < 1.0; })
+                          : MakeSimplexMesh(3, n, markerOf);
+  for (auto iPoint = 0ul; iPoint < mesh.GetnPoint(); ++iPoint) {
+    auto* x = &mesh.coord[iPoint * nDim];
+    passivedouble u[3] = {0.0, 0.0, 0.0};
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) u[iDim] = 2.0 * x[iDim] - 1.0;
+    if (nDim == 2) {
+      x[0] = radius * u[0] * sqrt(1.0 - 0.5 * u[1] * u[1]);
+      x[1] = radius * u[1] * sqrt(1.0 - 0.5 * u[0] * u[0]);
+    } else {
+      for (unsigned short iDim = 0; iDim < 3; ++iDim) {
+        const auto a = u[(iDim + 1) % 3], b = u[(iDim + 2) % 3];
+        x[iDim] = radius * u[iDim] * sqrt(1.0 - 0.5 * a * a - 0.5 * b * b + a * a * b * b / 3.0);
+      }
+    }
+  }
+  return mesh;
+}
+
 }  // namespace simplex_test

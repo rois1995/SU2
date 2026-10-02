@@ -1312,6 +1312,7 @@ private:
   /*--- Mesh adaptation options ---*/
   bool Compute_Metric = false;              /*!< \brief Determines if the adaptation metric is computed. */
   bool Adap_Iso_Corner = true;              /*!< \brief Isotropic adaptation metric at sharp wall corners. */
+  bool Adap_Surface = true;                 /*!< \brief The remesher may change the boundary (surface) mesh. */
   unsigned short Kind_Hessian_Method;       /*!< \brief Numerical method for computation of Hessians. */
   unsigned short nAdap_Sensor = 0;          /*!< \brief Number of sensors to use for adaptation. */
   string* Adap_Sensor = nullptr;            /*!< \brief Sensors to use for adaptation. */
@@ -10391,6 +10392,12 @@ public:
    * \brief Check if the adaptation metric is made isotropic at sharp wall corners (2D).
    */
   bool GetAdap_Iso_Corner(void) const { return Adap_Iso_Corner; }
+
+  /*!
+   * \brief Check if the remesher may change the boundary (surface) mesh (ADAP_SURFACE); if not, only the volume is
+   *        adapted and the boundary points and faces stay those of the input mesh.
+   */
+  bool GetAdap_Surface(void) const { return Adap_Surface; }
 
   /*!
    * \brief Check if the mesh adaptation loop is run (ADAP_LOOP).
