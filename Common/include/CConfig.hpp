@@ -1341,6 +1341,13 @@ private:
             *Adap_FlowCFL = nullptr,        /*!< \brief Initial flow CFL of each level. */
             *Adap_ResRed = nullptr;         /*!< \brief Residual reduction of each level. */
   vector<CAdapLevel> Adap_Levels;           /*!< \brief Options of each adaptation level, lists expanded. */
+  unsigned short nAdap_BL_Marker = 0, nAdap_BL_FirstHeight = 0, nAdap_BL_Growth = 0,
+                 nAdap_BL_Thickness = 0;    /*!< \brief Lengths of the boundary-layer metric lists. */
+  string* Adap_BL_Marker = nullptr;         /*!< \brief Wall markers of the boundary-layer metric. */
+  su2double *Adap_BL_FirstHeight = nullptr, /*!< \brief First cell height of each boundary-layer marker. */
+            *Adap_BL_Growth = nullptr,      /*!< \brief Growth ratio of each boundary-layer marker. */
+            *Adap_BL_Thickness = nullptr;   /*!< \brief Thickness of each boundary-layer marker. */
+  vector<CAdapBoundaryLayer> Adap_BL;       /*!< \brief Boundary-layer metric of each marker, lists expanded. */
   MG_CYCLE Kind_MGCycle_File = MG_CYCLE::V; /*!< \brief MGCYCLE as given in the config file (a restart changes it). */
 
   unsigned short nSpecies = 0;              /*!< \brief Number of transported species equations (for NEMO and species transport)*/
@@ -10398,6 +10405,33 @@ public:
    *        adapted and the boundary points and faces stay those of the input mesh.
    */
   bool GetAdap_Surface(void) const { return Adap_Surface; }
+
+  /*!
+   * \brief Get the number of wall markers of the boundary-layer metric (ADAP_BL_MARKER).
+   */
+  unsigned short GetnAdap_BL(void) const { return Adap_BL.size(); }
+
+  /*!
+   * \brief Get the boundary-layer metric of a wall marker (ADAP_BL_*), in the order of ADAP_BL_MARKER.
+   */
+  const CAdapBoundaryLayer& GetAdap_BL(unsigned short iBL) const { return Adap_BL[iBL]; }
+
+  /*!
+   * \brief Expand and check the boundary-layer metric options: one value of ADAP_BL_FIRST_HEIGHT, ADAP_BL_GROWTH and
+   *        ADAP_BL_THICKNESS for all markers or one per marker of ADAP_BL_MARKER; first height > 0, growth >= 1,
+   *        thickness >= first height (all finite), no repeated marker, and every minimum size of the metric
+   *        (ADAP_HMIN, ADAP_HMINS) at most the first height.
+   * \param[in] markers - ADAP_BL_MARKER.
+   * \param[in] firstHeight - ADAP_BL_FIRST_HEIGHT.
+   * \param[in] growth - ADAP_BL_GROWTH.
+   * \param[in] thickness - ADAP_BL_THICKNESS.
+   * \param[in] hmins - Minimum sizes of the metric (ADAP_HMIN and the ADAP_HMINS of every level).
+   * \param[out] layers - One entry per marker.
+   * \return Error message, empty if the options are valid.
+   */
+  static string ExpandAdap_BoundaryLayers(const vector<string>& markers, const vector<su2double>& firstHeight,
+                                          const vector<su2double>& growth, const vector<su2double>& thickness,
+                                          const vector<su2double>& hmins, vector<CAdapBoundaryLayer>& layers);
 
   /*!
    * \brief Check if the mesh adaptation loop is run (ADAP_LOOP).

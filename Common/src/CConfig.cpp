@@ -3292,6 +3292,23 @@ void CConfig::SetConfig_Options() {
    * each boundary edge at its points of at least its length (MMG cannot split it) \ingroup Config */
   addBoolOption("ADAP_SURFACE", Adap_Surface, true);
 
+  /*--- Boundary-layer metric: near each wall marker of ADAP_BL_MARKER, the metric is intersected with a wall metric
+   *    whose wall-normal size grows from ADAP_BL_FIRST_HEIGHT with geometric rows of ratio ADAP_BL_GROWTH, and whose
+   *    tangential sizes are those of the wall faces; full strength up to 90% of ADAP_BL_THICKNESS, fading out over
+   *    the last 10%. Applied after the complexity scaling and the bounds (the complexity can exceed the target, it is
+   *    printed). The value lists have one value (all markers) or one per marker. ---*/
+  /*!\brief ADAP_BL_MARKER \n DESCRIPTION: Wall markers with a boundary-layer metric \ingroup Config */
+  addStringListOption("ADAP_BL_MARKER", nAdap_BL_Marker, Adap_BL_Marker);
+  /*!\brief ADAP_BL_FIRST_HEIGHT \n DESCRIPTION: Wall-normal size at the wall (first cell height, >= ADAP_HMIN) of each
+   * boundary-layer marker \ingroup Config */
+  addDoubleListOption("ADAP_BL_FIRST_HEIGHT", nAdap_BL_FirstHeight, Adap_BL_FirstHeight);
+  /*!\brief ADAP_BL_GROWTH \n DESCRIPTION: Growth ratio of consecutive cell rows (>= 1) of each boundary-layer marker
+   * \ingroup Config */
+  addDoubleListOption("ADAP_BL_GROWTH", nAdap_BL_Growth, Adap_BL_Growth);
+  /*!\brief ADAP_BL_THICKNESS \n DESCRIPTION: Distance from the wall where the boundary-layer metric ends (>= the first
+   * height) of each boundary-layer marker \ingroup Config */
+  addDoubleListOption("ADAP_BL_THICKNESS", nAdap_BL_Thickness, Adap_BL_Thickness);
+
   /*--- Mesh adaptation loop (steady, single zone, single rank, needs MMG). Cycle 0 solves on the input mesh with the
    *    usual options (ITER, CFL_NUMBER, CONV_*), then each cycle remeshes from the metric of the last solution,
    *    transfers the solution and solves again. The per-level lists below have one value (used for every level) or
@@ -6267,6 +6284,25 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     }
   }
 
+  /*--- Boundary-layer metric: lists expanded and checked against the minimum sizes of the metric (the marker names
+   *    are checked in SetMarkers). ---*/
+  Adap_BL.clear();
+  if (nAdap_BL_Marker > 0 || nAdap_BL_FirstHeight > 0 || nAdap_BL_Growth > 0 || nAdap_BL_Thickness > 0) {
+    if (!Compute_Metric) SU2_MPI::Error("ADAP_BL_MARKER needs COMPUTE_METRIC= YES.", CURRENT_FUNCTION);
+    vector<su2double> hmins{Adap_Hmin};
+    for (const auto& level : Adap_Levels) hmins.push_back(level.hmin);
+    const auto error = ExpandAdap_BoundaryLayers(
+        vector<string>(Adap_BL_Marker, Adap_BL_Marker + nAdap_BL_Marker),
+        vector<su2double>(Adap_BL_FirstHeight, Adap_BL_FirstHeight + nAdap_BL_FirstHeight),
+        vector<su2double>(Adap_BL_Growth, Adap_BL_Growth + nAdap_BL_Growth),
+        vector<su2double>(Adap_BL_Thickness, Adap_BL_Thickness + nAdap_BL_Thickness), hmins, Adap_BL);
+    if (!error.empty()) SU2_MPI::Error(error, CURRENT_FUNCTION);
+    if (Adap_Surface && rank == MASTER_NODE) {
+      cout << "WARNING: ADAP_BL_MARKER with ADAP_SURFACE= YES: the remesher may split the wall faces down to the "
+              "first height (near-isotropic wall cells); ADAP_SURFACE= NO keeps the wall faces." << endl;
+    }
+  }
+
   /*--- Check if SU2 was built with CGNS support, as that is required for CGNS mesh output. ---*/
 #ifndef HAVE_CGNS
   if (Mesh_Out_FileFormat == ENUM_GRID::CGNS_GRID) {
@@ -6848,6 +6884,74 @@ void CConfig::SetMarkers(SU2_COMPONENT val_software) {
         Marker_CfgFile_SobolevBC[iMarker_CfgFile] = YES;
   }
 
+  /*--- The boundary-layer metric is for solid walls (no-slip, also Euler walls). ---*/
+  for (const auto& layer : Adap_BL) {
+    unsigned short kind = 0;
+    bool found = false;
+    for (iMarker_CfgFile = 0; iMarker_CfgFile < nMarker_CfgFile && !found; iMarker_CfgFile++) {
+      found = (Marker_CfgFile_TagBound[iMarker_CfgFile] == layer.marker);
+      if (found) kind = Marker_CfgFile_KindBC[iMarker_CfgFile];
+    }
+    if (!found) {
+      SU2_MPI::Error("ADAP_BL_MARKER: " + layer.marker + " is not a marker of the config file.", CURRENT_FUNCTION);
+    }
+    if (kind != HEAT_FLUX && kind != ISOTHERMAL && kind != HEAT_TRANSFER && kind != SMOLUCHOWSKI_MAXWELL &&
+        kind != CHT_WALL_INTERFACE && kind != EULER_WALL) {
+      SU2_MPI::Error("ADAP_BL_MARKER: " + layer.marker + " is not a wall marker.", CURRENT_FUNCTION);
+    }
+  }
+
+}
+
+string CConfig::ExpandAdap_BoundaryLayers(const vector<string>& markers, const vector<su2double>& firstHeight,
+                                          const vector<su2double>& growth, const vector<su2double>& thickness,
+                                          const vector<su2double>& hmins, vector<CAdapBoundaryLayer>& layers) {
+  layers.clear();
+  const auto nMarker = markers.size();
+  if (nMarker == 0) return "ADAP_BL_FIRST_HEIGHT, ADAP_BL_GROWTH and ADAP_BL_THICKNESS need ADAP_BL_MARKER.";
+
+  const std::pair<string, const vector<su2double>*> lists[] = {
+      {"ADAP_BL_FIRST_HEIGHT", &firstHeight}, {"ADAP_BL_GROWTH", &growth}, {"ADAP_BL_THICKNESS", &thickness}};
+  for (const auto& list : lists) {
+    const auto n = list.second->size();
+    if (n == 0) return "ADAP_BL_MARKER needs " + list.first + ".";
+    if (n != 1 && n != nMarker) {
+      return list.first + " has " + to_string(n) + " values, it needs 1 or one per marker of ADAP_BL_MARKER (" +
+             to_string(nMarker) + ").";
+    }
+  }
+
+  su2double hmin = 0.0;
+  for (const auto value : hmins) hmin = max(hmin, value);
+
+  auto finite = [](su2double value) { return std::isfinite(SU2_TYPE::GetValue(value)); };
+  for (size_t iMarker = 0; iMarker < nMarker; iMarker++) {
+    CAdapBoundaryLayer layer;
+    layer.marker = markers[iMarker];
+    layer.firstHeight = firstHeight[min(iMarker, firstHeight.size() - 1)];
+    layer.growth = growth[min(iMarker, growth.size() - 1)];
+    layer.thickness = thickness[min(iMarker, thickness.size() - 1)];
+
+    const string where = " (ADAP_BL_MARKER " + layer.marker + ").";
+    for (size_t jMarker = 0; jMarker < iMarker; jMarker++) {
+      if (markers[jMarker] == layer.marker) return "Repeated marker in ADAP_BL_MARKER" + where;
+    }
+    if (!(layer.firstHeight > 0.0) || !finite(layer.firstHeight)) {
+      return "ADAP_BL_FIRST_HEIGHT must be a finite value > 0" + where;
+    }
+    if (!(layer.growth >= 1.0) || !finite(layer.growth)) return "ADAP_BL_GROWTH must be a finite value >= 1" + where;
+    if (!(layer.thickness >= layer.firstHeight) || !finite(layer.thickness)) {
+      return "ADAP_BL_THICKNESS must be a finite value >= ADAP_BL_FIRST_HEIGHT" + where;
+    }
+    if (hmin > layer.firstHeight) {
+      std::ostringstream text;
+      text << "ADAP_BL_FIRST_HEIGHT= " << layer.firstHeight << " is below the minimum size " << hmin
+           << " of the metric (ADAP_HMIN, ADAP_HMINS), lower it" << where;
+      return text.str();
+    }
+    layers.push_back(layer);
+  }
+  return "";
 }
 
 void CConfig::SetOutput(SU2_COMPONENT val_software, unsigned short val_izone) {

@@ -27,8 +27,10 @@
 
 #include "catch.hpp"
 
+#include <limits>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include "../../../Common/include/CConfig.hpp"
 
@@ -266,5 +268,69 @@ TEST_CASE("Adaptation loop options, time domain", "[Adaptation]") {
     CHECK(config->GetKind_Adap_Transfer() == ADAP_TRANSFER::BARYCENTRIC);
     CHECK(config->GetAdap_Freq() == 0ul);
     CHECK_FALSE(config->GetAdap_TimeWindowEnd(9));
+  }
+}
+
+TEST_CASE("Boundary-layer metric options", "[Adaptation]") {
+  const std::string options =
+      "SOLVER= NAVIER_STOKES\nMESH_FORMAT= BOX\nINIT_OPTION= TD_CONDITIONS\nREYNOLDS_NUMBER= 1e6\n"
+      "MARKER_HEATFLUX= (z_minus, 0.0, z_plus, 0.0)\nMARKER_FAR= (x_minus, x_plus, y_minus, y_plus)\n"
+      "COMPUTE_METRIC= YES\nADAP_SENSOR= (MACH)\nADAP_HMIN= 1e-6\nADAP_HMAX= 1\n";
+
+  SECTION("One value for all markers, one per marker") {
+    std::stringstream ss(options +
+                         "ADAP_BL_MARKER= (z_plus, z_minus)\nADAP_BL_FIRST_HEIGHT= (1e-5, 2e-5)\n"
+                         "ADAP_BL_GROWTH= (1.2)\nADAP_BL_THICKNESS= (0.1)\n");
+    auto* origBuf = std::cout.rdbuf(nullptr);
+    CConfig config(ss, SU2_COMPONENT::SU2_CFD, false);
+    std::cout.rdbuf(origBuf);
+    REQUIRE(config.GetnAdap_BL() == 2);
+    CHECK(config.GetAdap_BL(0).marker == "z_plus");
+    CHECK(config.GetAdap_BL(1).marker == "z_minus");
+    CHECK(config.GetAdap_BL(0).firstHeight == 1e-5);
+    CHECK(config.GetAdap_BL(1).firstHeight == 2e-5);
+    for (unsigned short i = 0; i < 2; i++) {
+      CHECK(config.GetAdap_BL(i).growth == 1.2);
+      CHECK(config.GetAdap_BL(i).thickness == 0.1);
+    }
+  }
+
+  SECTION("No boundary-layer metric") {
+    std::stringstream ss(options);
+    auto* origBuf = std::cout.rdbuf(nullptr);
+    CConfig config(ss, SU2_COMPONENT::SU2_CFD, false);
+    std::cout.rdbuf(origBuf);
+    CHECK(config.GetnAdap_BL() == 0);
+  }
+
+  SECTION("Invalid values") {
+    using V = std::vector<su2double>;
+    const std::vector<std::string> two{"a", "b"};
+    std::vector<CAdapBoundaryLayer> layers;
+    auto error = [&](const std::vector<std::string>& markers, const V& h0, const V& growth, const V& thickness,
+                     const V& hmins) {
+      return CConfig::ExpandAdap_BoundaryLayers(markers, h0, growth, thickness, hmins, layers);
+    };
+    auto contains = [](const std::string& text, const std::string& part) { return text.find(part) != std::string::npos; };
+
+    /*--- Valid: h0 equal to the minimum size, thickness equal to h0, growth 1. ---*/
+    CHECK(error(two, {1e-5}, {1.0}, {1e-5}, {1e-6, 1e-5}).empty());
+    REQUIRE(layers.size() == 2);
+    CHECK(layers[1].marker == "b");
+
+    CHECK(contains(error({}, {1e-5}, {1.2}, {0.1}, {1e-6}), "need ADAP_BL_MARKER"));
+    CHECK(contains(error(two, {}, {1.2}, {0.1}, {1e-6}), "needs ADAP_BL_FIRST_HEIGHT"));
+    CHECK(contains(error(two, {1e-5}, {}, {0.1}, {1e-6}), "needs ADAP_BL_GROWTH"));
+    CHECK(contains(error(two, {1e-5}, {1.2}, {}, {1e-6}), "needs ADAP_BL_THICKNESS"));
+    CHECK(contains(error({"a", "b", "c"}, {1e-5, 2e-5}, {1.2}, {0.1}, {1e-6}), "ADAP_BL_FIRST_HEIGHT has 2 values"));
+    CHECK(contains(error({"a", "a"}, {1e-5}, {1.2}, {0.1}, {1e-6}), "Repeated marker"));
+    CHECK(contains(error(two, {0.0}, {1.2}, {0.1}, {1e-6}), "ADAP_BL_FIRST_HEIGHT must be"));
+    CHECK(contains(error(two, {-1e-5}, {1.2}, {0.1}, {1e-6}), "ADAP_BL_FIRST_HEIGHT must be"));
+    CHECK(contains(error(two, {1e-5}, {0.99}, {0.1}, {1e-6}), "ADAP_BL_GROWTH must be"));
+    CHECK(contains(error(two, {1e-5}, {1.2}, {0.9e-5}, {1e-6}), "ADAP_BL_THICKNESS must be"));
+    CHECK(contains(error(two, {1e-5}, {1.2}, {std::numeric_limits<passivedouble>::infinity()}, {1e-6}),
+                   "ADAP_BL_THICKNESS must be"));
+    CHECK(contains(error(two, {1e-5}, {1.2}, {0.1}, {1e-6, 2e-5}), "is below the minimum size"));
+    CHECK(layers.empty());
   }
 }

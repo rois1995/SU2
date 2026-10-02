@@ -1273,6 +1273,16 @@ struct CAdapLevel {
 };
 
 /*!
+ * \brief Boundary-layer metric of one wall marker (ADAP_BL_*), lists expanded.
+ */
+struct CAdapBoundaryLayer {
+  std::string marker;             /*!< \brief Wall marker (ADAP_BL_MARKER). */
+  su2double firstHeight{0.0};     /*!< \brief Height of the first row of cells at the wall (ADAP_BL_FIRST_HEIGHT). */
+  su2double growth{1.0};          /*!< \brief Growth ratio of consecutive rows (ADAP_BL_GROWTH). */
+  su2double thickness{0.0};       /*!< \brief Distance from the wall where the metric ends (ADAP_BL_THICKNESS). */
+};
+
+/*!
  * \brief SST rough-wall boundary conditions Options
  */
 enum class ROUGHSST_MODEL {
