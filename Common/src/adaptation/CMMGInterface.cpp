@@ -550,6 +550,7 @@ CMMGInterface::CMMGInterface(const CConfig& config) : mmg(new MMGData) {
   params.hausd = SU2_TYPE::GetValue(config.GetAdap_Hausd());
   params.angle = SU2_TYPE::GetValue(config.GetAdap_Angle());
   params.surface = config.GetAdap_Surface();
+  params.boundaryLayer = (config.GetnAdap_BL() > 0);
 }
 
 CMMGInterface::~CMMGInterface() = default;
@@ -674,6 +675,7 @@ CMMGInterface::Status CMMGInterface::Remesh() {
     ok &= MMG2D_Set_iparameter(mmg->mesh, mmg->met, MMG2D_IPARAM_nosurf, params.surface ? 0 : 1);
     ok &= MMG2D_Set_iparameter(mmg->mesh, mmg->met, MMG2D_IPARAM_nosizreq, params.surface ? 0 : 1);
     if (!params.surface) ok &= MMG2D_Set_dparameter(mmg->mesh, mmg->met, MMG2D_DPARAM_hgradreq, -1.0);
+    ok &= MMG2D_Set_iparameter(mmg->mesh, mmg->met, MMG2D_IPARAM_noswap, params.boundaryLayer ? 1 : 0);
     if (ok) ier = MMG2D_mmg2dlib(mmg->mesh, mmg->met);
   } else {
     ok &= MMG3D_Set_iparameter(mmg->mesh, mmg->met, MMG3D_IPARAM_verbose, params.verbosity);

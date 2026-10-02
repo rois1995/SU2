@@ -65,6 +65,9 @@ class CMMGInterface {
     bool surface = true;        /*!< \brief MMG may change the boundary mesh (ADAP_SURFACE), else -nosurf,
                                      -nosizreq (the metric is kept at the fixed boundary points) and -hgradreq -1
                                      (no extra gradation from them, ADAP_HGRAD still applies). */
+    bool boundaryLayer = false; /*!< \brief The metric has a boundary-layer part (ADAP_BL_MARKER): no edge swaps in 2D
+                                     (MMG2D's swaps leave degenerate cells in a re-adapted boundary-layer mesh;
+                                     in 3D the swaps are kept, without them there are more slivers). */
     int verbosity = -1;         /*!< \brief MMG verbosity, -1 silent, 1 MMG default, up to 10. */
   };
 
