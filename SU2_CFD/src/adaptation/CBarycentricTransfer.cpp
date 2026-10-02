@@ -508,33 +508,58 @@ void CBarycentricTransfer::Transfer(CConfig* config, const CMeshDonor& donor, CG
   }
   summary.nPoint = nPoint;
 
-  /*--- The arrays to transfer: the solution and, in the time domain, its history at n and n-1 (allocated by the
-   *    variables of time-domain problems). Both meshes have the same config, so the same arrays. ---*/
+  /*--- The arrays to set: the solution and, in the time domain, its history (Solution_time_n, and Solution_time_n1,
+   *    which the variables allocate for every time marching). The transfer is done at the end of a time step, after
+   *    the dual-time update, where the solution and Solution_time_n hold the same state U^n: it is interpolated once
+   *    into both. U^(n-1) is interpolated only for 2nd-order dual time stepping; otherwise Solution_time_n1 is set to
+   *    U^n (not used, but no stale data). Both meshes have the same config, so the same arrays. ---*/
 
   using ArrayGetter = su2activematrix& (*)(CVariable*);
-  std::vector<ArrayGetter> timeLevels = {[](CVariable* nodes) -> su2activematrix& { return nodes->GetSolution(); }};
-  std::vector<MPI_QUANTITIES> timeLevelComms = {MPI_QUANTITIES::SOLUTION};
+  const ArrayGetter getSolution = [](CVariable* nodes) -> su2activematrix& { return nodes->GetSolution(); };
+  const ArrayGetter getTimeN = [](CVariable* nodes) -> su2activematrix& { return nodes->GetSolution_time_n(); };
+  const ArrayGetter getTimeN1 = [](CVariable* nodes) -> su2activematrix& { return nodes->GetSolution_time_n1(); };
+
   auto* flowSolver = solver[MESH_0][FLOW_SOL];
   auto* donorFlowSolver = donor.solver[MESH_0][FLOW_SOL];
+  bool hasTimeN = false, hasTimeN1 = false;
   if (config->GetTime_Domain()) {
-    auto* nodes = flowSolver->GetNodes();
-    if (nodes->GetSolution_time_n().size() > 0) {
-      timeLevels.push_back([](CVariable* nodes) -> su2activematrix& { return nodes->GetSolution_time_n(); });
-      timeLevelComms.push_back(MPI_QUANTITIES::SOLUTION_TIME_N);
-    }
-    if (nodes->GetSolution_time_n1().size() > 0) {
-      timeLevels.push_back([](CVariable* nodes) -> su2activematrix& { return nodes->GetSolution_time_n1(); });
-      timeLevelComms.push_back(MPI_QUANTITIES::SOLUTION_TIME_N1);
-    }
+    hasTimeN = flowSolver->GetNodes()->GetSolution_time_n().size() > 0;
+    hasTimeN1 = flowSolver->GetNodes()->GetSolution_time_n1().size() > 0;
   }
-  summary.nTimeLevels = timeLevels.size() - 1;
+  summary.interpolateTimeN1 = hasTimeN1 && config->GetTime_Marching() == TIME_MARCHING::DT_STEPPING_2ND;
+  summary.nTimeLevels = hasTimeN + hasTimeN1;
+
+  std::vector<ArrayGetter> arrays = {getSolution};
+  std::vector<MPI_QUANTITIES> historyComms;
+  if (hasTimeN) {
+    arrays.push_back(getTimeN);
+    historyComms.push_back(MPI_QUANTITIES::SOLUTION_TIME_N);
+  }
+  if (hasTimeN1) {
+    arrays.push_back(getTimeN1);
+    historyComms.push_back(MPI_QUANTITIES::SOLUTION_TIME_N1);
+  }
+  std::vector<ArrayGetter> historyArrays(arrays.begin() + 1, arrays.end());
+
   for (const auto iSol : solverIndices) {
-    for (const auto getter : timeLevels) {
+    for (const auto getter : arrays) {
       auto& newArray = getter(solver[MESH_0][iSol]->GetNodes());
       auto& donorArray = getter(donor.solver[MESH_0][iSol]->GetNodes());
       if (newArray.rows() != nPoint || donorArray.rows() != donorGeometry->GetnPoint() ||
           newArray.cols() != donorArray.cols()) {
         SU2_MPI::Error("The solution arrays of the donor and of the new mesh differ.", CURRENT_FUNCTION);
+      }
+    }
+    if (hasTimeN) {
+      auto* nodes = donor.solver[MESH_0][iSol]->GetNodes();
+      const auto& solution = nodes->GetSolution();
+      const auto& timeN = nodes->GetSolution_time_n();
+      for (auto i = 0ul; i < solution.size(); ++i) {
+        if (solution.data()[i] != timeN.data()[i]) {
+          SU2_MPI::Error("In the time domain the solution is transferred at the end of a time step (after the dual-time "
+                         "update), where the solution and Solution_time_n are the same state U^n; they differ here.",
+                         CURRENT_FUNCTION);
+        }
       }
     }
   }
@@ -546,12 +571,9 @@ void CBarycentricTransfer::Transfer(CConfig* config, const CMeshDonor& donor, CG
   if (fluidModel == nullptr || nVarFlow != nDim + 2) {
     SU2_MPI::Error("The flow solver is not a compressible flow solver.", CURRENT_FUNCTION);
   }
-  for (unsigned short iLevel = 0; iLevel < timeLevels.size(); ++iLevel) {
-    const auto& donorSolution = timeLevels[iLevel](donorFlowSolver->GetNodes());
-    auto& newSolution = timeLevels[iLevel](flowSolver->GetNodes());
-    auto& nFixed = (iLevel == 0) ? summary.nFlowFixed : summary.nHistoryFixed;
+  auto InterpolateFlow = [&](const su2activematrix& donorSolution, su2activematrix& newSolution,
+                             unsigned long& nFixed) {
     std::vector<su2double> state(nVarFlow);
-
     for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
       const auto& stencil = stencils[iPoint];
       std::fill(state.begin(), state.end(), 0.0);
@@ -577,36 +599,57 @@ void CBarycentricTransfer::Transfer(CConfig* config, const CMeshDonor& donor, CG
       }
       for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) newSolution(iPoint, iVar) = state[iVar];
     }
-  }
+  };
 
   /*--- Turbulence: interpolated solution variables within the bounds of the solver. ---*/
 
-  if (solver[MESH_0][TURB_SOL] != nullptr) {
-    const auto* turbSolver = dynamic_cast<const CTurbSolver*>(solver[MESH_0][TURB_SOL]);
-    if (turbSolver == nullptr) SU2_MPI::Error("Unexpected turbulence solver.", CURRENT_FUNCTION);
-
+  const auto* turbSolver = dynamic_cast<const CTurbSolver*>(solver[MESH_0][TURB_SOL]);
+  if (solver[MESH_0][TURB_SOL] != nullptr && turbSolver == nullptr) {
+    SU2_MPI::Error("Unexpected turbulence solver.", CURRENT_FUNCTION);
+  }
+  auto InterpolateTurb = [&](const su2activematrix& donorSolution, su2activematrix& newSolution) {
     const auto nVarTurb = turbSolver->GetnVar();
-    for (const auto getter : timeLevels) {
-      const auto& donorSolution = getter(donor.solver[MESH_0][TURB_SOL]->GetNodes());
-      auto& newSolution = getter(solver[MESH_0][TURB_SOL]->GetNodes());
+    for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
+      const auto& stencil = stencils[iPoint];
+      for (unsigned short iVar = 0; iVar < nVarTurb; ++iVar) {
+        su2double value = 0.0;
+        for (unsigned short k = 0; k < stencil.nPoint; ++k)
+          value += stencil.weight[k] * donorSolution(stencil.point[k], iVar);
 
-      for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
-        const auto& stencil = stencils[iPoint];
-        for (unsigned short iVar = 0; iVar < nVarTurb; ++iVar) {
-          su2double value = 0.0;
-          for (unsigned short k = 0; k < stencil.nPoint; ++k)
-            value += stencil.weight[k] * donorSolution(stencil.point[k], iVar);
-
-          /*--- Count only the values that are out of bounds by more than round-off. ---*/
-          const su2double lower = turbSolver->GetLowerLimit(iVar), upper = turbSolver->GetUpperLimit(iVar);
-          if (value < lower || value > upper) {
-            const su2double limit = (value < lower) ? lower : upper;
-            if (fabs(value - limit) > 1e-10 * fabs(limit)) summary.nTurbLimited++;
-            value = limit;
-          }
-          newSolution(iPoint, iVar) = value;
+        /*--- Count only the values that are out of bounds by more than round-off. ---*/
+        const su2double lower = turbSolver->GetLowerLimit(iVar), upper = turbSolver->GetUpperLimit(iVar);
+        if (value < lower || value > upper) {
+          const su2double limit = (value < lower) ? lower : upper;
+          if (fabs(value - limit) > 1e-10 * fabs(limit)) summary.nTurbLimited++;
+          value = limit;
         }
+        newSolution(iPoint, iVar) = value;
       }
+    }
+  };
+
+  for (const auto iSol : solverIndices) {
+    auto* donorNodes = donor.solver[MESH_0][iSol]->GetNodes();
+    auto* nodes = solver[MESH_0][iSol]->GetNodes();
+    const bool flow = (iSol == FLOW_SOL);
+
+    /*--- U^n, once. ---*/
+    if (flow) {
+      InterpolateFlow(donorNodes->GetSolution(), nodes->GetSolution(), summary.nFlowFixed);
+    } else {
+      InterpolateTurb(donorNodes->GetSolution(), nodes->GetSolution());
+    }
+    if (hasTimeN) nodes->GetSolution_time_n() = nodes->GetSolution();
+
+    /*--- U^(n-1): 2nd order only, else U^n. ---*/
+    if (summary.interpolateTimeN1) {
+      if (flow) {
+        InterpolateFlow(donorNodes->GetSolution_time_n1(), nodes->GetSolution_time_n1(), summary.nHistoryFixed);
+      } else {
+        InterpolateTurb(donorNodes->GetSolution_time_n1(), nodes->GetSolution_time_n1());
+      }
+    } else if (hasTimeN1) {
+      nodes->GetSolution_time_n1() = nodes->GetSolution_time_n();
     }
   }
 
@@ -673,9 +716,9 @@ void CBarycentricTransfer::Transfer(CConfig* config, const CMeshDonor& donor, CG
 
   if (summary.nTimeLevels > 0) {
     for (const auto iSol : solverIndices) {
-      for (unsigned short iLevel = 1; iLevel < timeLevels.size(); ++iLevel) {
-        const auto getter = timeLevels[iLevel];
-        const auto comm = timeLevelComms[iLevel];
+      for (unsigned short iLevel = 0; iLevel < historyArrays.size(); ++iLevel) {
+        const auto getter = historyArrays[iLevel];
+        const auto comm = historyComms[iLevel];
         solver[MESH_0][iSol]->InitiateComms(geometry[MESH_0], config, comm);
         solver[MESH_0][iSol]->CompleteComms(geometry[MESH_0], config, comm);
         for (unsigned short iMesh = 1; iMesh <= config->GetnMGLevels(); ++iMesh) {
@@ -722,9 +765,14 @@ void CBarycentricTransfer::Transfer(CConfig* config, const CMeshDonor& donor, CG
        << " (2 ADAP_HAUSD or 1e-3 x the domain size)." << endl;
   cout << "Flow states not admissible after the interpolation (donor state used): " << s.nFlowFixed << "." << endl;
   if (s.nTimeLevels > 0) {
-    cout << "Time history interpolated with the same stencils: Solution_time_n"
-         << (s.nTimeLevels > 1 ? " and Solution_time_n1" : "") << ", flow states not admissible: " << s.nHistoryFixed
-         << "." << endl;
+    cout << "Time history: Solution_time_n = the solution (U^n, interpolated once)";
+    if (s.interpolateTimeN1) {
+      cout << ", Solution_time_n1 = U^(n-1) interpolated with the same stencils (flow states not admissible: "
+           << s.nHistoryFixed << ")";
+    } else if (s.nTimeLevels > 1) {
+      cout << ", Solution_time_n1 = U^n (not used by this time marching)";
+    }
+    cout << "." << endl;
   }
   if (solver[MESH_0][TURB_SOL] != nullptr)
     cout << "Turbulence values limited to the bounds of the solver: " << s.nTurbLimited << "." << endl;

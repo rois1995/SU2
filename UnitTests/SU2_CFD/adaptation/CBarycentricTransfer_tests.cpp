@@ -531,8 +531,10 @@ TEST_CASE("Barycentric transfer: turbulence variables", "[Adaptation]") {
 }
 
 TEST_CASE("Barycentric transfer: time history (dual time stepping)", "[Adaptation]") {
-  /*--- Three different affine fields for U^(n+1) (solution), U^n and U^(n-1), flow and SA: each array is exact on
-   *    the new mesh, and the coarse levels of the history hold its restriction (as after a restart). ---*/
+  /*--- At the end of a time step the solution and Solution_time_n are the same state U^n; U^(n-1) is another one.
+   *    Different affine fields for U^n and U^(n-1), flow and SA: the solution and Solution_time_n get U^n, exact on
+   *    the new mesh; Solution_time_n1 gets U^(n-1) (2nd order) or U^n (1st order); the coarse levels of the history
+   *    hold its restriction (as after a restart). ---*/
   using Getter = su2activematrix& (*)(CVariable*);
   const Getter getters[] = {[](CVariable* n) -> su2activematrix& { return n->GetSolution(); },
                             [](CVariable* n) -> su2activematrix& { return n->GetSolution_time_n(); },
@@ -571,12 +573,18 @@ TEST_CASE("Barycentric transfer: time history (dual time stepping)", "[Adaptatio
       std::vector<unsigned short> solvers = {FLOW_SOL};
       if (rans) solvers.push_back(TURB_SOL);
 
+      const bool secondOrder = config->GetTime_Marching() == TIME_MARCHING::DT_STEPPING_2ND;
+      /*--- Field of each array: U^n (level 1) for the solution and Solution_time_n, U^(n-1) (level 2). ---*/
+      auto donorLevel = [](int level) { return level == 0 ? 1 : level; };
+      auto expectedLevel = [secondOrder](int level) { return (level == 2 && secondOrder) ? 2 : 1; };
+
       MeshSolution donor(config.get(), BoxMesh(nDim, 4, true), 2);
       for (int level = 0; level < 3; ++level) {
         for (const auto iSol : solvers) {
           auto& array = getters[level](donor.solver[MESH_0][iSol]->GetNodes());
           REQUIRE(array.rows() == donor.Fine().GetnPoint());
-          const auto field = (iSol == FLOW_SOL) ? flowField(nDim, level) : turbField(level);
+          const auto field =
+              (iSol == FLOW_SOL) ? flowField(nDim, donorLevel(level)) : turbField(donorLevel(level));
           su2double values[MAXVAR] = {};
           for (auto iPoint = 0ul; iPoint < donor.Fine().GetnPoint(); ++iPoint) {
             field(donor.Fine().nodes->GetCoord(iPoint), values);
@@ -593,6 +601,7 @@ TEST_CASE("Barycentric transfer: time history (dual time stepping)", "[Adaptatio
       }
       const auto& summary = transfer.GetSummary();
       CHECK(summary.nTimeLevels == 2);
+      CHECK(summary.interpolateTimeN1 == secondOrder);
       CHECK(summary.nOutside == 0);
       CHECK(summary.nFlowFixed == 0);
       CHECK(summary.nHistoryFixed == 0);
@@ -601,7 +610,8 @@ TEST_CASE("Barycentric transfer: time history (dual time stepping)", "[Adaptatio
       for (int level = 0; level < 3; ++level) {
         for (const auto iSol : solvers) {
           INFO(names[level] << ", solver " << iSol);
-          const auto field = (iSol == FLOW_SOL) ? flowField(nDim, level) : turbField(level);
+          const auto field =
+              (iSol == FLOW_SOL) ? flowField(nDim, expectedLevel(level)) : turbField(expectedLevel(level));
 
           /*--- Exact at every point of the fine level. ---*/
           const auto& array = getters[level](target.solver[MESH_0][iSol]->GetNodes());
