@@ -520,11 +520,13 @@ CMMGInterface::Status CMMGInterface::Remesh() {
 
   switch (ier) {
     case MMG5_SUCCESS:
-      return Status::SUCCESS;
+      status = Status::SUCCESS;
+      return status;
     case MMG5_LOWFAILURE:
       cout << "WARNING: MMG could not fully adapt the mesh (MMG5_LOWFAILURE). The mesh it returned is "
               "accepted only if it passes validation, it may not follow the metric." << endl;
-      return Status::LOWFAILURE;
+      status = Status::LOWFAILURE;
+      return status;
     default:
       SU2_MPI::Error("MMG failed (MMG5_STRONGFAILURE, status " + std::to_string(ier) + "), no valid mesh.",
                      CURRENT_FUNCTION);
@@ -670,17 +672,23 @@ CMMGRemesher::CMMGRemesher() {
 }
 
 CSimplexMesh CMMGRemesher::Remesh(const CConfig& config, const CGeometry& geometry, const su2activematrix& metric) {
+  const auto startTime = SU2_MPI::Wtime();
   const auto mesh = CMMGInterface::ExtractMesh(config, geometry, metric);
+  const auto extractTime = SU2_MPI::Wtime();
 
   if (SU2_MPI::GetRank() == MASTER_NODE)
     cout << endl << "------------------------------ Remesh (MMG) -----------------------------" << endl;
 
   CMMGInterface mmg(config);
   auto adapted = mmg.Adapt(mesh);
+  const auto endTime = SU2_MPI::Wtime();
 
   if (SU2_MPI::GetRank() == MASTER_NODE) {
     cout << "Remeshed " << mesh.GetnPoint() << " points, " << mesh.GetnElem() << " elements into "
          << adapted.GetnPoint() << " points, " << adapted.GetnElem() << " elements." << endl;
+    const bool success = mmg.GetStatus() == CMMGInterface::Status::SUCCESS;
+    cout << "MMG" << mesh.nDim << "D status " << (success ? "SUCCESS" : "LOWFAILURE") << ", " << endTime - extractTime
+         << " s (with the validation of input and output), extraction " << extractTime - startTime << " s." << endl;
   }
   return adapted;
 }

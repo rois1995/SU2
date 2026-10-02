@@ -159,6 +159,11 @@ class CMMGInterface {
   Status Remesh();
 
   /*!
+   * \brief Status of the last Remesh (STRONGFAILURE before the first one).
+   */
+  Status GetStatus() const { return status; }
+
+  /*!
    * \brief Copy the MMG mesh (and its metric) back into plain arrays, with SU2's 0-based numbering.
    * \note Boundary elements are grouped by marker name. MMG boundary elements whose reference is not one of the
    *       loaded markers are an error (MMG created a boundary that has no SU2 marker).
@@ -183,6 +188,7 @@ class CMMGInterface {
   Parameters params;                  /*!< \brief Remeshing parameters. */
   std::vector<CSimplexMesh::Marker> markerInfo; /*!< \brief Names and references of the loaded markers. */
   unsigned short nDim = 0;            /*!< \brief Dimension of the loaded mesh. */
+  Status status = Status::STRONGFAILURE; /*!< \brief Status of the last Remesh. */
 };
 
 /*!

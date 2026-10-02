@@ -220,9 +220,11 @@ void CSinglezoneDriver::ComputeMetric() {
   /*--- Sensors, their gradients and Hessians, then the metric. The results are kept in the flow
    *    variables (also on halo points) until the next call. ---*/
 
+  const auto startTime = SU2_MPI::Wtime();
   solver_flow->SetAuxVar_Adapt(geometry, config);
   solver_flow->SetHessian_Adapt(geometry, config);
   solver_flow->ComputeMetric(geometry, config);
+  if (rank == MASTER_NODE) cout << "Metric computed in " << SU2_MPI::Wtime() - startTime << " s." << endl;
 }
 
 void CSinglezoneDriver::CheckMeshAdaptation() const {
@@ -286,6 +288,7 @@ void CSinglezoneDriver::RunAdaptationLoop() {
 
   struct CycleSummary {
     unsigned long complexity, nPoint, nIter;
+    passivedouble solveTime, adaptTime;
   };
   vector<CycleSummary> summary;
   unsigned long iterOffset = 0;
@@ -315,12 +318,15 @@ void CSinglezoneDriver::RunAdaptationLoop() {
     }
 
     TimeIter = 0;
+    const auto solveStart = SU2_MPI::Wtime();
     RunTimeLoop();
+    const auto adaptStart = SU2_MPI::Wtime();
 
     const auto nIter = config->GetInnerIter() + 1;
     iterOffset += nIter;
     summary.push_back({iCycle == 0 ? 0 : config->GetAdap_Level(config->GetAdap_CycleLevel(iCycle)).complexity,
-                       geometry_container[ZONE_0][INST_0][MESH_0]->GetGlobal_nPointDomain(), nIter});
+                       geometry_container[ZONE_0][INST_0][MESH_0]->GetGlobal_nPointDomain(), nIter,
+                       adaptStart - solveStart, 0.0});
 
     if (iCycle == nCycles) break;
 
@@ -345,6 +351,8 @@ void CSinglezoneDriver::RunAdaptationLoop() {
     /*--- The new mesh is accepted (built, solution transferred). ---*/
 
     if (config->GetWrt_Adap_Mesh()) WriteAdaptedMesh(iCycle + 1);
+
+    summary.back().adaptTime = SU2_MPI::Wtime() - adaptStart;
   }
 
   if (rank == MASTER_NODE) {
@@ -354,12 +362,19 @@ void CSinglezoneDriver::RunAdaptationLoop() {
     table.AddColumn("Complexity", 16);
     table.AddColumn("Points", 16);
     table.AddColumn("Iterations", 16);
+    table.AddColumn("Solve [s]", 12);
+    table.AddColumn("Adapt [s]", 12);
     table.PrintHeader();
     for (unsigned long iCycle = 0; iCycle < summary.size(); iCycle++) {
       const auto& row = summary[iCycle];
-      table << iCycle << (iCycle == 0 ? string("input mesh") : to_string(row.complexity)) << row.nPoint << row.nIter;
+      table << iCycle << (iCycle == 0 ? string("input mesh") : to_string(row.complexity)) << row.nPoint << row.nIter
+            << row.solveTime;
+      if (iCycle + 1 < summary.size()) table << row.adaptTime;
+      else table << "-";
     }
     table.PrintFooter();
+    cout << "Solve: the flow iterations on the mesh of the cycle, with their output. Adapt: metric, MMG, new "
+            "geometry and solvers, solution transfer and mesh output that make the mesh of the next cycle." << endl;
   }
 }
 
@@ -464,7 +479,9 @@ void CSinglezoneDriver::ReplaceMesh(const CSimplexMesh& mesh, CSolutionTransfer&
   CSolver*** solver = nullptr;
   InitializeSolver(config, geometry, solver, false);
 
+  const auto transferStart = SU2_MPI::Wtime();
   transfer.Transfer(config, donor, geometry, solver);
+  const auto transferTime = SU2_MPI::Wtime() - transferStart;
 
   CNumerics**** numerics = nullptr;
   InitializeNumerics(config, geometry, solver, numerics);
@@ -516,11 +533,13 @@ void CSinglezoneDriver::ReplaceMesh(const CSimplexMesh& mesh, CSolutionTransfer&
   MDOFs = DOFsPerPoint * Mpoints;
   MDOFsDomain = DOFsPerPoint * MpointsDomain;
 
-  UsedTimePreproc += SU2_MPI::Wtime() - startTime;
+  const su2double replaceTime = SU2_MPI::Wtime() - startTime;
+  UsedTimePreproc += replaceTime;
 
   if (rank == MASTER_NODE) {
     cout << "The problem uses the new mesh: " << geometry[MESH_0]->GetGlobal_nPointDomain() << " points, "
          << nMGLevels << " multigrid levels." << endl;
+    cout << "Mesh replaced in " << replaceTime << " s (solution transfer " << transferTime << " s)." << endl;
   }
 }
 
