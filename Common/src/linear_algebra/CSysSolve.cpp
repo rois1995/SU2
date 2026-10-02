@@ -702,6 +702,11 @@ unsigned long CSysSolve<ScalarType>::FGCRODR_LinSolverImpl(const CSysVector<Scal
     END_SU2_OMP_SAFE_GLOBAL_ACCESS
   }
 
+  /*--- The deflation vectors from a previous solve may not leave room for new directions if the subspace is
+   * now smaller (e.g. max_iter decreased), keep the first ones (associated with the smallest Ritz values). ---*/
+
+  SU2_OMP_SAFE_GLOBAL_ACCESS(k = min(k, m - 1);)
+
   /*--- Hessenberg matrix. See FGMRES for parallelization notes. ---*/
 
   su2matrix<ScalarType> H(m + 1, m);
@@ -893,7 +898,7 @@ unsigned long CSysSolve<ScalarType>::FGCRODR_LinSolverImpl(const CSysVector<Scal
     EigenMatrix VW = EigenMatrix::Identity(m + 1, m);
     {
       /*--- Part of VW known from previous cycle. See notes near the end of the outer loop. ---*/
-      if (same_mat && k > 0) VW.topLeftCorner(k, k) = VkWk;
+      if (same_mat && k > 0) VW.topLeftCorner(k, k) = VkWk.topLeftCorner(k, k);
 
       /*--- Rest of VW. Either V[k] * Wk or the entire V * Wk depending on the mode.
        * When the matrix stays constant, V[k+1:m+1] are orthogonal to Wk, but when it changes,
