@@ -62,7 +62,9 @@ class CMMGInterface {
     passivedouble hgrad = 1.3;  /*!< \brief Size gradation (ADAP_HGRAD). */
     passivedouble hausd = 0.01; /*!< \brief Hausdorff distance of the boundaries (ADAP_HAUSD). */
     passivedouble angle = 45.0; /*!< \brief Sharp angle detection threshold in degrees (ADAP_ANGLE). */
-    bool surface = true;        /*!< \brief MMG may change the boundary mesh (ADAP_SURFACE), else -nosurf. */
+    bool surface = true;        /*!< \brief MMG may change the boundary mesh (ADAP_SURFACE), else -nosurf,
+                                     -nosizreq (the metric is kept at the fixed boundary points) and -hgradreq -1
+                                     (no extra gradation from them, ADAP_HGRAD still applies). */
     int verbosity = -1;         /*!< \brief MMG verbosity, -1 silent, 1 MMG default, up to 10. */
   };
 
@@ -122,6 +124,18 @@ class CMMGInterface {
    * \return Whether the metric is valid.
    */
   static bool IsFinitePositiveDefinite(unsigned short nDim, const passivedouble* metric);
+
+  /*!
+   * \brief Make the metric compatible with fixed boundary faces (ADAP_SURFACE= NO): at each boundary point, for each
+   *        boundary edge e at it that is longer than 1 in the metric, the metric becomes the union of the metric and
+   *        the size |e| along e (sizes along e raised to |e|, the sizes across e kept: the size tensors M^-1 and e e^T
+   *        combined by simultaneous reduction). MMG cannot split the fixed edges; with a finer metric along them (kept
+   *        at the boundary points with nosizreq) it places nodes very close to them. On a curved boundary the faces
+   *        are chords inclined to the tangent by half the turn, so a boundary-layer normal size at the points is
+   *        raised to about |e| sin(turn / 2).
+   * \param[in,out] mesh - Mesh with its metric; only the metric of the boundary points changes.
+   */
+  static void FloorFixedBoundaryMetric(CSimplexMesh& mesh);
 
   /*!
    * \brief Copy the mesh and the metric of the local (single-rank) geometry into plain arrays.

@@ -107,6 +107,86 @@ bool CMMGInterface::IsFinitePositiveDefinite(unsigned short nDim, const passived
   return val[0] > minEigenRatio * val[nDim - 1];
 }
 
+void CMMGInterface::FloorFixedBoundaryMetric(CSimplexMesh& mesh) {
+  const auto nDim = mesh.nDim;
+  const auto nMetric = CSimplexMesh::GetnMetric(nDim);
+  using Mat = passivedouble[3][3];
+
+  /*--- f(A) for a symmetric A, eigenvectors kept. ---*/
+  auto spectral = [nDim](const Mat& A, Mat& B, passivedouble (*f)(passivedouble)) {
+    passivedouble vec[3][3], val[3], work[3];
+    CBlasStructure::EigenDecomposition(A, vec, val, nDim, work);
+    for (unsigned short i = 0; i < nDim; ++i) val[i] = f(val[i]);
+    CBlasStructure::EigenRecomposition(B, vec, val, nDim);
+  };
+  auto product = [nDim](const Mat& A, const Mat& B, Mat& C) {
+    for (unsigned short i = 0; i < nDim; ++i)
+      for (unsigned short j = 0; j < nDim; ++j) {
+        C[i][j] = 0.0;
+        for (unsigned short k = 0; k < nDim; ++k) C[i][j] += A[i][k] * B[k][j];
+      }
+  };
+
+  /*--- Edges of the boundary faces at each point. ---*/
+  std::vector<std::vector<std::array<passivedouble, 3>>> edges(mesh.GetnPoint());
+  for (const auto& marker : mesh.markers) {
+    for (unsigned long iFace = 0; iFace < marker.GetnElem(nDim); ++iFace) {
+      const auto* face = &marker.elem[iFace * nDim];
+      for (unsigned short a = 0; a < nDim; ++a) {
+        for (unsigned short b = 0; b < nDim; ++b) {
+          if (a == b) continue;
+          std::array<passivedouble, 3> e = {0.0, 0.0, 0.0};
+          for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+            e[iDim] = mesh.coord[face[b] * nDim + iDim] - mesh.coord[face[a] * nDim + iDim];
+          edges[face[a]].push_back(e);
+        }
+      }
+    }
+  }
+
+  /*--- At each boundary point, for each boundary edge e at it that is longer than 1 in the metric: the union of the
+   *    metric with the size |e| along e. In terms of size tensors S = M^-1 (squared sizes): S' = S^1/2 max(1,
+   *    S^-1/2 e e^T S^-1/2) S^1/2, the smallest size tensor that contains S and the segment e (the intersection of
+   *    metrics by simultaneous reduction, applied to the inverses); the sizes across e are kept. On a curved
+   *    boundary the faces are chords inclined to the tangent of their points by half the turn of the boundary, so a
+   *    much smaller normal size (a boundary layer) is raised to about |e| sin(turn / 2) at the points: the fixed
+   *    faces cannot carry a thinner first cell. ---*/
+  for (unsigned long iPoint = 0; iPoint < mesh.GetnPoint(); ++iPoint) {
+    if (edges[iPoint].empty()) continue;
+    auto* metric = &mesh.metric[iPoint * nMetric];
+    Mat M = {{0.0}};
+    for (unsigned short iDim = 0, iMet = 0; iDim < nDim; ++iDim)
+      for (unsigned short jDim = iDim; jDim < nDim; ++jDim, ++iMet) M[iDim][jDim] = M[jDim][iDim] = metric[iMet];
+
+    bool changed = false;
+    for (const auto& e : edges[iPoint]) {
+      passivedouble Me = 0.0;
+      for (unsigned short i = 0; i < nDim; ++i)
+        for (unsigned short j = 0; j < nDim; ++j) Me += e[i] * M[i][j] * e[j];
+      if (Me <= 1.0) continue;  // not longer than 1 in the metric
+
+      Mat S, half, invHalf, E = {{0.0}}, T, tmp, Snew;
+      spectral(M, S, [](passivedouble v) { return 1.0 / v; });
+      spectral(S, half, [](passivedouble v) { return sqrt(v); });
+      spectral(S, invHalf, [](passivedouble v) { return 1.0 / sqrt(v); });
+      for (unsigned short i = 0; i < nDim; ++i)
+        for (unsigned short j = 0; j < nDim; ++j) E[i][j] = e[i] * e[j];
+      product(invHalf, E, tmp);
+      product(tmp, invHalf, T);
+      spectral(T, T, [](passivedouble v) { return std::max(v, passivedouble(1.0)); });
+      product(half, T, tmp);
+      product(tmp, half, Snew);
+      for (unsigned short i = 0; i < nDim; ++i)
+        for (unsigned short j = 0; j < i; ++j) Snew[i][j] = Snew[j][i] = 0.5 * (Snew[i][j] + Snew[j][i]);
+      spectral(Snew, M, [](passivedouble v) { return 1.0 / v; });
+      changed = true;
+    }
+    if (!changed) continue;
+    for (unsigned short iDim = 0, iMet = 0; iDim < nDim; ++iDim)
+      for (unsigned short jDim = iDim; jDim < nDim; ++jDim, ++iMet) metric[iMet] = 0.5 * (M[iDim][jDim] + M[jDim][iDim]);
+  }
+}
+
 void CMMGInterface::CheckSupport(const CConfig& config, const CGeometry& geometry) {
   if (SU2_MPI::GetSize() > 1) {
     SU2_MPI::Error("Mesh adaptation with MMG runs on one MPI rank only for now.", CURRENT_FUNCTION);
@@ -592,6 +672,8 @@ CMMGInterface::Status CMMGInterface::Remesh() {
     ok &= MMG2D_Set_dparameter(mmg->mesh, mmg->met, MMG2D_DPARAM_hgrad, params.hgrad);
     ok &= MMG2D_Set_dparameter(mmg->mesh, mmg->met, MMG2D_DPARAM_hausd, params.hausd);
     ok &= MMG2D_Set_iparameter(mmg->mesh, mmg->met, MMG2D_IPARAM_nosurf, params.surface ? 0 : 1);
+    ok &= MMG2D_Set_iparameter(mmg->mesh, mmg->met, MMG2D_IPARAM_nosizreq, params.surface ? 0 : 1);
+    if (!params.surface) ok &= MMG2D_Set_dparameter(mmg->mesh, mmg->met, MMG2D_DPARAM_hgradreq, -1.0);
     if (ok) ier = MMG2D_mmg2dlib(mmg->mesh, mmg->met);
   } else {
     ok &= MMG3D_Set_iparameter(mmg->mesh, mmg->met, MMG3D_IPARAM_verbose, params.verbosity);
@@ -602,6 +684,8 @@ CMMGInterface::Status CMMGInterface::Remesh() {
     ok &= MMG3D_Set_dparameter(mmg->mesh, mmg->met, MMG3D_DPARAM_hgrad, params.hgrad);
     ok &= MMG3D_Set_dparameter(mmg->mesh, mmg->met, MMG3D_DPARAM_hausd, params.hausd);
     ok &= MMG3D_Set_iparameter(mmg->mesh, mmg->met, MMG3D_IPARAM_nosurf, params.surface ? 0 : 1);
+    ok &= MMG3D_Set_iparameter(mmg->mesh, mmg->met, MMG3D_IPARAM_nosizreq, params.surface ? 0 : 1);
+    if (!params.surface) ok &= MMG3D_Set_dparameter(mmg->mesh, mmg->met, MMG3D_DPARAM_hgradreq, -1.0);
     if (ok) ier = MMG3D_mmg3dlib(mmg->mesh, mmg->met);
   }
   if (!ok) SU2_MPI::Error("Could not set the MMG parameters.", CURRENT_FUNCTION);
@@ -724,7 +808,15 @@ CSimplexMesh CMMGInterface::GetMesh() const {
 
 CSimplexMesh CMMGInterface::Adapt(const CSimplexMesh& mesh) {
   ValidateMesh(mesh, nullptr, "Mesh given to MMG");
-  SetMesh(mesh);
+  if (params.surface) {
+    SetMesh(mesh);
+  } else {
+    /*--- Fixed boundary faces (MMG keeps the metric at their points, nosizreq): no boundary edge may be longer than
+     *    1 in the metric of its points, else MMG fills the cells on it with nodes very close to it. ---*/
+    auto floored = mesh;
+    FloorFixedBoundaryMetric(floored);
+    SetMesh(floored);
+  }
   Remesh();
   auto adapted = GetMesh();
   ValidateMesh(adapted, &mesh, "Mesh returned by MMG");

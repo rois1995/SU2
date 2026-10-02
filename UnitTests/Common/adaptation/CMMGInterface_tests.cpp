@@ -251,6 +251,132 @@ TEST_CASE("MMG interface: metric validity check", "[MMG]") {
   CHECK(mesh.metric.size() == 6 * test.geometry->GetnPoint());
 }
 
+TEST_CASE("MMG interface: metric floor at fixed boundary faces", "[MMG]") {
+  /*--- Metric of sizes hx along x and hy along y at every point. After the floor, every boundary edge is at most 1 long
+   *    in the metric of its points (edges of length h: sizes along the boundary at least h), interior points and
+   *    points whose boundary edges were already short enough are unchanged, and on a boundary point whose edges
+   *    are all along x (not a corner) the size along y is kept. ---*/
+  for (const unsigned short nDim : {2, 3}) {
+    const unsigned long n = 4;
+    const passivedouble h = 1.0 / n;
+    auto mesh = simplex_test::MakeSimplexMesh(nDim, n, nDim == 2 ? simplex_test::Marker2D : simplex_test::Marker3D);
+    const auto nMetric = CSimplexMesh::GetnMetric(nDim);
+    const passivedouble hx = 0.1 * h, hy = 0.01 * h;  // finer than the edges along x and y
+    mesh.metric.assign(mesh.GetnPoint() * nMetric, 0.0);
+    for (unsigned long iPoint = 0; iPoint < mesh.GetnPoint(); ++iPoint) {
+      auto* m = &mesh.metric[iPoint * nMetric];
+      m[0] = 1.0 / (hx * hx);                              // xx
+      m[nDim] = 1.0 / (hy * hy);                           // yy: index 2 (2D) or 3 (3D)
+      if (nDim == 3) m[5] = 1.0 / (h * h);                 // zz: as long as the edges along z
+    }
+    const auto original = mesh.metric;
+    CMMGInterface::FloorFixedBoundaryMetric(mesh);
+
+    std::vector<bool> onBoundary(mesh.GetnPoint(), false);
+    for (const auto& marker : mesh.markers)
+      for (const auto iPoint : marker.elem) onBoundary[iPoint] = true;
+
+    auto length = [&](unsigned long iPoint, const passivedouble* e) {
+      passivedouble M[3][3] = {{0.0}}, l2 = 0.0;
+      for (unsigned short i = 0, k = 0; i < nDim; ++i)
+        for (unsigned short j = i; j < nDim; ++j, ++k) M[i][j] = M[j][i] = mesh.metric[iPoint * nMetric + k];
+      for (unsigned short i = 0; i < nDim; ++i)
+        for (unsigned short j = 0; j < nDim; ++j) l2 += e[i] * M[i][j] * e[j];
+      return sqrt(l2);
+    };
+    passivedouble maxLength = 0.0;
+    for (const auto& marker : mesh.markers) {
+      for (unsigned long iFace = 0; iFace < marker.GetnElem(nDim); ++iFace) {
+        const auto* face = &marker.elem[iFace * nDim];
+        for (unsigned short a = 0; a < nDim; ++a)
+          for (unsigned short b = 0; b < nDim; ++b) {
+            if (a == b) continue;
+            passivedouble e[3] = {0.0};
+            for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+              e[iDim] = mesh.coord[face[b] * nDim + iDim] - mesh.coord[face[a] * nDim + iDim];
+            maxLength = std::max(maxLength, length(face[a], e));
+          }
+      }
+    }
+    CHECK(maxLength <= 1.0 + 1e-10);
+
+    unsigned long nChecked = 0;
+    for (unsigned long iPoint = 0; iPoint < mesh.GetnPoint(); ++iPoint) {
+      const auto* x = &mesh.coord[iPoint * nDim];
+      const auto* m = &mesh.metric[iPoint * nMetric];
+      if (!onBoundary[iPoint]) {
+        for (unsigned short k = 0; k < nMetric; ++k) CHECK(m[k] == original[iPoint * nMetric + k]);
+        continue;
+      }
+      /*--- 2D: points of y = 0 and y = 1 away from the corners have edges along x only. ---*/
+      if (nDim == 2 && (x[1] < 1e-12 || x[1] > 1.0 - 1e-12) && x[0] > 1e-12 && x[0] < 2.0 - 1e-12) {
+        CHECK(m[0] == Approx(1.0 / (h * h)));
+        CHECK(fabs(m[1]) <= 1e-9 * m[2]);
+        CHECK(m[2] == Approx(1.0 / (hy * hy)));
+        ++nChecked;
+      }
+    }
+    if (nDim == 2) CHECK(nChecked == 2 * (2 * n - 1));
+  }
+}
+
+TEST_CASE("MMG interface: metric floor at a curved fixed boundary", "[MMG]") {
+  /*--- Disk with a boundary-layer-like metric at its boundary points: size 1e-4 along the radius, 1 along the
+   *    circle. The chords are inclined to the circle: after the floor every boundary edge is at most 1 long in the
+   *    metric of its points, the metric is nowhere finer than before (M_old - M_new positive semi-definite), and the
+   *    radial size is raised to the normal extent of the chords (about |e| sin(turn / 2), here between 1e-3 and 1e-1;
+   *    the polygon of 32 chords turns by about 11 degrees per point). ---*/
+  auto mesh = simplex_test::MakeRoundMesh(2, 8, 1.0);
+  const passivedouble hn = 1e-4;
+  mesh.metric.assign(mesh.GetnPoint() * 3, 0.0);
+  for (unsigned long iPoint = 0; iPoint < mesh.GetnPoint(); ++iPoint) {
+    const auto* x = &mesh.coord[2 * iPoint];
+    const passivedouble r = sqrt(x[0] * x[0] + x[1] * x[1]);
+    const passivedouble n[2] = {r > 0 ? x[0] / r : 1.0, r > 0 ? x[1] / r : 0.0};
+    const passivedouble t[2] = {-n[1], n[0]};
+    for (int k = 0, i = 0; i < 2; ++i)
+      for (int j = i; j < 2; ++j, ++k) mesh.metric[3 * iPoint + k] = n[i] * n[j] / (hn * hn) + t[i] * t[j];
+  }
+  const auto original = mesh.metric;
+  CMMGInterface::FloorFixedBoundaryMetric(mesh);
+
+  passivedouble maxLength = 0.0;
+  unsigned long nBoundary = 0;
+  std::vector<bool> onBoundary(mesh.GetnPoint(), false);
+  for (const auto& marker : mesh.markers)
+    for (unsigned long iFace = 0; iFace < marker.GetnElem(2); ++iFace) {
+      const unsigned long ends[2] = {marker.elem[2 * iFace], marker.elem[2 * iFace + 1]};
+      const passivedouble e[2] = {mesh.coord[2 * ends[1]] - mesh.coord[2 * ends[0]],
+                                  mesh.coord[2 * ends[1] + 1] - mesh.coord[2 * ends[0] + 1]};
+      for (const auto p : ends) {
+        onBoundary[p] = true;
+        const auto* m = &mesh.metric[3 * p];
+        maxLength = std::max(maxLength, sqrt(m[0] * e[0] * e[0] + 2 * m[1] * e[0] * e[1] + m[2] * e[1] * e[1]));
+      }
+    }
+  CHECK(maxLength <= 1.0 + 1e-10);
+  for (unsigned long iPoint = 0; iPoint < mesh.GetnPoint(); ++iPoint) {
+    const auto* m = &mesh.metric[3 * iPoint];
+    const auto* m0 = &original[3 * iPoint];
+    if (!onBoundary[iPoint]) {
+      for (int k = 0; k < 3; ++k) CHECK(m[k] == m0[k]);
+      continue;
+    }
+    ++nBoundary;
+    /*--- M_old - M_new >= 0 (2x2: trace and determinant, relative to the scale of M_old). ---*/
+    const passivedouble d[3] = {m0[0] - m[0], m0[1] - m[1], m0[2] - m[2]};
+    const passivedouble scale = m0[0] + m0[2];
+    CHECK(d[0] + d[2] >= -1e-10 * scale);
+    CHECK(d[0] * d[2] - d[1] * d[1] >= -1e-10 * scale * scale);
+    const auto* x = &mesh.coord[2 * iPoint];
+    const passivedouble r = sqrt(x[0] * x[0] + x[1] * x[1]), n[2] = {x[0] / r, x[1] / r};
+    const passivedouble radialSize = 1.0 / sqrt(m[0] * n[0] * n[0] + 2 * m[1] * n[0] * n[1] + m[2] * n[1] * n[1]);
+    CHECK(radialSize > 1e-3);
+    CHECK(radialSize < 1e-1);
+  }
+  CHECK(nBoundary == 32);
+}
+
 #ifdef HAVE_MMG
 
 namespace {
