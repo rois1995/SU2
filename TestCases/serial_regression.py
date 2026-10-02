@@ -276,7 +276,7 @@ def main():
     turb_wallfunction_flatplate_sa.cfg_dir   = "wallfunctions/flatplate/compressible_SA"
     turb_wallfunction_flatplate_sa.cfg_file  = "turb_SA_flatplate.cfg"
     turb_wallfunction_flatplate_sa.test_iter = 10
-    turb_wallfunction_flatplate_sa.test_vals = [-3.585860, -1.859493, -1.508986, 1.892510, -5.259058, 10.000000, -2.551025, -0.296176, 0.002533]
+    turb_wallfunction_flatplate_sa.test_vals = [-3.585860, -1.859493, -1.508986, 1.892510, -5.259058, 10.000000, -2.551025, -0.296269, 0.002533]
     test_list.append(turb_wallfunction_flatplate_sa)
 
     # ONERA M6 Wing

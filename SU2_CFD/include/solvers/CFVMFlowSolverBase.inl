@@ -2611,13 +2611,14 @@ void CFVMFlowSolverBase<V, FlowRegime>::Friction_Forces(const CGeometry* geometr
 
       WallShearStress[iMarker][iVertex] = GeometryToolbox::Norm(int(MAXNDIM), TauTangent);
 
-      /*--- For wall functions, the wall stresses need to be scaled by the wallfunction stress Tau_Wall---*/
+      /*--- For wall functions, the wall stresses need to be scaled by the wallfunction stress Tau_Wall.
+       * The wall model only gives the shear stress, therefore only the tangential traction is integrated. ---*/
       if (wallfunctions && (YPlus[iMarker][iVertex] > minYPlus)){
         const su2double Tau_Wall = nodes->GetTau_Wall(iPoint);
         const su2double scale = Tau_Wall / WallShearStress[iMarker][iVertex];
         for (unsigned short iDim = 0; iDim < nDim; iDim++) {
           TauTangent[iDim] *= scale;
-          TauElem[iDim] *= scale;
+          TauElem[iDim] = TauTangent[iDim];
         }
 
         WallShearStress[iMarker][iVertex] = Tau_Wall;
