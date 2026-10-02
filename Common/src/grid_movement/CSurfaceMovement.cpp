@@ -951,7 +951,7 @@ void CSurfaceMovement::SetParametricCoord(CGeometry* geometry, CConfig* config, 
 void CSurfaceMovement::SetParametricCoordCP(CGeometry* geometry, CConfig* config, CFreeFormDefBox* FFDBoxParent,
                                             CFreeFormDefBox* FFDBoxChild) {
   unsigned short iOrder, jOrder, kOrder;
-  su2double *CartCoord, *ParamCoord, ParamCoordGuess[3];
+  su2double *CartCoord, *ParamCoord, ParamCoordGuess[3] = {0.5, 0.5, 0.5};
 
   for (iOrder = 0; iOrder < FFDBoxChild->GetlOrder(); iOrder++)
     for (jOrder = 0; jOrder < FFDBoxChild->GetmOrder(); jOrder++)
@@ -1544,7 +1544,7 @@ void CSurfaceMovement::UpdateParametricCoord(CGeometry* geometry, CConfig* confi
 
       var_coord = geometry->vertex[iMarker][iVertex]->GetVarCoord();
       CartCoordOld = geometry->nodes->GetCoord(iPoint);
-      for (iDim = 0; iDim < 3; iDim++) CartCoord[iDim] = CartCoordOld[iDim] + var_coord[iDim];
+      for (iDim = 0; iDim < geometry->GetnDim(); iDim++) CartCoord[iDim] = CartCoordOld[iDim] + var_coord[iDim];
       FFDBox->Set_CartesianCoord(CartCoord, iSurfacePoints);
 
       /*--- Find the parametric coordinate using as ParamCoordGuess the previous value ---*/
