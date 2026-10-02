@@ -26,7 +26,9 @@
 
 #pragma once
 
+#include <map>
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "CSolutionTransfer.hpp"
@@ -38,11 +40,19 @@ class CFluidModel;
 /*!
  * \class CBarycentricLocator
  * \brief Locates points in a simplex mesh (triangles or tetrahedra): the element that contains the point and its
- *        barycentric coordinates. Uses local ADTs of the mesh (no communication, each rank searches its own mesh).
- * \note A point outside the mesh (e.g. a new boundary point on a curved boundary) gets the closest point of the mesh
- *       boundary instead: the nearest boundary face and the barycentric coordinates of the closest point in it, which
- *       are in [0,1] (the interpolated value is the one at that closest point). This is an error if the distance is
- *       larger than the longest edge of that face (the point is not near the mesh).
+ *        barycentric coordinates, or the closest point of the mesh boundary. Uses local ADTs of the mesh (no
+ *        communication, each rank searches its own mesh).
+ * \note Points outside the mesh (e.g. new boundary points on a curved boundary, which lie outside the faceted boundary
+ *       of the mesh) get the closest point of the mesh boundary: the nearest boundary face (exact nearest-element search
+ *       of the ADT) and the barycentric coordinates of the closest point in it, which are in [0,1]. Points of a marker
+ *       can instead be projected on the faces of markers with the same name (LocateOnBoundary).
+ *       Distance limit: a point is accepted at any distance up to GetDistanceLimit(faceSize) = max(faceSize,
+ *       absoluteLimit, 1e-3 x the diagonal of the bounding box of the mesh), faceSize the longest edge of the nearest
+ *       face. The face size bounds the gap between two discretizations of the same curved boundary that comes from the
+ *       faceting (the sagitta of a face is at most half its length, L^2/(8R) for a circle); absoluteLimit is the
+ *       tolerance of the remesher's boundary approximation (twice ADAP_HAUSD in the transfer); the domain term covers
+ *       round-off and small faces on strongly curved parts. Farther points are flagged (Stencil::beyondLimit): they
+ *       mean that the two meshes do not describe the same domain (wrong mesh, units, a moved boundary).
  */
 class CBarycentricLocator {
  public:
@@ -53,31 +63,70 @@ class CBarycentricLocator {
     enum : unsigned short { MAXPOINT = 4 }; /*!< \brief Points of a tetrahedron. */
     unsigned short nPoint = 0;              /*!< \brief Number of donor points (nDim+1 inside, nDim on a boundary face). */
     unsigned long point[MAXPOINT] = {};      /*!< \brief Donor points. */
-    su2double weight[MAXPOINT] = {};         /*!< \brief Barycentric weights (sum 1). */
-    bool inside = true;                     /*!< \brief Whether the point is inside an element (else boundary face). */
-    su2double distance = 0.0;               /*!< \brief Distance to the closest mesh point, 0 inside. */
-    su2double faceSize = 0.0;               /*!< \brief Longest edge of the closest boundary face (outside only). */
+    su2double weight[MAXPOINT] = {};         /*!< \brief Barycentric weights, in [0,1], sum 1. */
+    bool inside = true;                     /*!< \brief Whether the point is inside an element of the mesh. */
+    bool onFace = false;                    /*!< \brief The stencil is the closest point of a boundary face. */
+    su2double distance = 0.0;               /*!< \brief Distance to the closest point (0 for an element stencil). */
+    su2double faceSize = 0.0;               /*!< \brief Longest edge of the boundary face (face stencils only). */
+    bool beyondLimit = false;               /*!< \brief The distance exceeds GetDistanceLimit(faceSize). */
   };
 
   /*!
    * \brief Build the search structures of a mesh.
    * \param[in] geometry - Mesh (triangles in 2D, tetrahedra in 3D; all points of the rank, halos included).
+   * \param[in] markerTags - Name of each marker of the geometry (by iMarker); needed for LocateOnBoundary.
+   * \param[in] absoluteLimit - Distance accepted outside the mesh at any face size (see the class note).
    */
-  explicit CBarycentricLocator(const CGeometry& geometry);
+  explicit CBarycentricLocator(const CGeometry& geometry, const std::vector<std::string>& markerTags = {},
+                               su2double absoluteLimit = 0.0);
 
   /*!
-   * \brief Locate a point.
+   * \brief Locate a point: the element that contains it, else the closest point of the nearest boundary face.
    * \param[in] coord - Coordinates of the point.
    * \return Donor points and weights.
    */
   Stencil Locate(const su2double* coord);
 
+  /*!
+   * \brief Closest point of the faces of the markers with the given names (names unknown to this mesh are ignored).
+   * \note Stencil::inside still tells whether the point is inside an element. If no name is known, same as Locate.
+   * \param[in] coord - Coordinates of the point.
+   * \param[in] names - Marker names.
+   * \return Donor points and weights (a face stencil if a name is known).
+   */
+  Stencil LocateOnBoundary(const su2double* coord, const std::vector<std::string>& names);
+
+  /*!
+   * \brief Whether a marker with this name has boundary faces in the mesh.
+   */
+  bool HasMarker(const std::string& name) const { return markerIndex.count(name) > 0; }
+
+  /*!
+   * \brief Diagonal of the bounding box of the mesh.
+   */
+  su2double GetDomainSize() const { return domainSize; }
+
+  /*!
+   * \brief Largest distance accepted for a point whose nearest face has the given size (longest edge).
+   */
+  su2double GetDistanceLimit(su2double faceSize) const;
+
+  static constexpr passivedouble domainFraction = 1e-3; /*!< \brief Fraction of the domain size always accepted. */
+
  private:
+  /*--- Closest point of the face nearest to a point, in one face ADT. ---*/
+  Stencil ClosestFace(const su2double* coord, CADTElemClass& adt, const std::vector<unsigned long>& conn) const;
+
   unsigned short nDim = 0;
+  su2double domainSize = 0.0;            /*!< \brief Diagonal of the bounding box of the mesh. */
+  su2double absoluteLimit = 0.0;         /*!< \brief Distance accepted outside the mesh at any face size. */
   std::vector<su2double> coord;          /*!< \brief Coordinates of the mesh points. */
   std::vector<unsigned long> elemConn;   /*!< \brief Nodes of the elements (nDim+1 per element). */
-  std::vector<unsigned long> faceConn;   /*!< \brief Nodes of the boundary faces (nDim per face). */
+  std::vector<unsigned long> faceConn;   /*!< \brief Nodes of the boundary faces of all markers (nDim per face). */
   std::unique_ptr<CADTElemClass> elemADT, faceADT;
+  std::map<std::string, unsigned short> markerIndex;      /*!< \brief Position of a marker name in the vectors below. */
+  std::vector<std::vector<unsigned long>> markerFaceConn; /*!< \brief Nodes of the faces of each marker name. */
+  std::vector<std::unique_ptr<CADTElemClass>> markerADT;  /*!< \brief ADT of the faces of each marker name. */
 };
 
 /*!
@@ -85,6 +134,16 @@ class CBarycentricLocator {
  * \brief Transfer of the solution of the compressible flow (EULER, NAVIER_STOKES, RANS with SA or SST) by barycentric
  *        (P1) interpolation of the donor solution at each point of the new mesh. Single rank for now.
  * \note Rules:
+ *       - Stencils (CBarycentricLocator): a point on a marker of the new mesh takes the closest point of the donor faces
+ *         of the marker(s) with the same name, whether it lies inside or outside the donor mesh: boundary states come
+ *         from the same boundary (no-slip walls: the zero velocity of the donor wall, slip walls: the tangential
+ *         velocity at the donor wall), and on a curved boundary the new points, which lie off the faceted donor
+ *         boundary on both sides, are treated alike. Other points take the donor element that contains them, or the
+ *         closest point of the nearest donor boundary face if they lie outside the donor mesh (e.g. near a remeshed
+ *         curved boundary). Where a new boundary point coincides with a donor boundary point (fixed surface,
+ *         ADAP_SURFACE= NO) it gets the donor values exactly. All weights are in [0,1]: every transferred value is a
+ *         convex combination of donor values (no extrapolation). Points farther from the donor than the locator's
+ *         distance limit (max(face size, 2 ADAP_HAUSD, 1e-3 x domain size)) stop the transfer with an error.
  *       - Flow: the conservative variables are interpolated; the primitive variables are then computed from them by
  *         the solver with its own fluid model (no separate interpolation or clipping of pressure, temperature).
  *         Admissibility after the interpolation: density, pressure, temperature and squared speed of sound from the
@@ -113,11 +172,29 @@ class CBarycentricTransfer final : public CSolutionTransfer {
   /*!
    * \brief Statistics of the last transfer.
    */
+  /*!
+   * \brief Statistics of the points of one marker of the new mesh (or of the points on no marker).
+   * \note Distances are those to the closest point used (the donor boundary of the same marker for marker points,
+   *       the nearest donor boundary face for other points outside the donor), relative ones to the longest edge of
+   *       that face. Means are over the points at a distance larger than round-off (nOff).
+   */
+  struct MarkerSummary {
+    std::string name;                   /*!< \brief Marker name, "(interior)" for the points on no marker. */
+    unsigned long nPoint = 0;           /*!< \brief Points of the new mesh on the marker. */
+    unsigned long nOutside = 0;         /*!< \brief Of them, points outside the donor mesh. */
+    unsigned long nOff = 0;             /*!< \brief Of them, points off the donor boundary (distance above round-off). */
+    unsigned long nBeyondFace = 0;      /*!< \brief Of them, points farther than the size of their donor face. */
+    su2double maxDistance = 0.0, sumDistance = 0.0;       /*!< \brief Largest and summed distance. */
+    su2double maxRelDistance = 0.0, sumRelDistance = 0.0; /*!< \brief Largest and summed distance / face size. */
+  };
+
   struct Summary {
     unsigned long nPoint = 0;           /*!< \brief Points of the new mesh. */
-    unsigned long nOutside = 0;         /*!< \brief Points outside the donor mesh (closest boundary point used). */
-    su2double maxDistance = 0.0;        /*!< \brief Largest distance of those points to the donor mesh. */
+    unsigned long nOutside = 0;         /*!< \brief Points outside the donor mesh. */
+    su2double maxDistance = 0.0;        /*!< \brief Largest distance of a point to its closest donor point (face stencils). */
     su2double maxRelDistance = 0.0;     /*!< \brief Largest distance relative to the size of the donor face. */
+    su2double distanceLimit = 0.0;      /*!< \brief Distance always accepted (2 ADAP_HAUSD, 1e-3 x domain size). */
+    std::vector<MarkerSummary> markers; /*!< \brief Per marker of the new mesh, then the points on no marker. */
     unsigned long nFlowFixed = 0;       /*!< \brief Points where the interpolated flow state was not admissible. */
     unsigned long nHistoryFixed = 0;    /*!< \brief Same for the time history (Solution_time_n, Solution_time_n1). */
     unsigned short nTimeLevels = 0;     /*!< \brief Time history arrays transferred (0 steady, 1 or 2). */

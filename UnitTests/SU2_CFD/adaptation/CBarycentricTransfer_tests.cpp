@@ -81,6 +81,7 @@ struct MeshSolution {
   CGeometry** geometry = nullptr;
   CSolver*** solver = nullptr;
   unsigned short nMGLevels = 0;
+  std::vector<std::string> markerTags; /*!< \brief Marker names of the geometry (the config changes with each mesh). */
 
   MeshSolution(CConfig* config, const CSimplexMesh& mesh, unsigned short requestedMGLevels) {
     Mute mute;
@@ -92,6 +93,9 @@ struct MeshSolution {
     CGeometry*** zones[] = {instances};
     const CConfig* configs[] = {config};
     CGeometry::ComputeWallDistance(configs, zones);
+
+    for (unsigned short iMarker = 0; iMarker < geometry[MESH_0]->GetnMarker(); ++iMarker)
+      markerTags.push_back(config->GetMarker_All_TagBound(iMarker));
 
     nMGLevels = config->GetnMGLevels();
     solver = new CSolver**[nMGLevels + 1];
@@ -119,6 +123,7 @@ struct MeshSolution {
     donor.geometry = geometry;
     donor.solver = solver;
     donor.nMGLevels = nMGLevels;
+    donor.markerTags = markerTags;
     return donor;
   }
 
@@ -625,6 +630,400 @@ TEST_CASE("Barycentric transfer: time history (dual time stepping)", "[Adaptatio
         }
       }
       CheckCoarseLevels(target, FLOW_SOL);
+    }
+  }
+}
+
+namespace {
+
+/*--- Independent distance of a point to a segment / triangle (brute-force reference for the nearest-face search). ---*/
+passivedouble DistanceSegment(unsigned short nDim, const su2double* a, const su2double* b, const su2double* p) {
+  passivedouble ab2 = 0.0, t = 0.0;
+  for (unsigned short i = 0; i < nDim; ++i) {
+    ab2 += SU2_TYPE::GetValue((b[i] - a[i]) * (b[i] - a[i]));
+    t += SU2_TYPE::GetValue((p[i] - a[i]) * (b[i] - a[i]));
+  }
+  t = std::min(1.0, std::max(0.0, t / ab2));
+  passivedouble d2 = 0.0;
+  for (unsigned short i = 0; i < nDim; ++i) d2 += pow(SU2_TYPE::GetValue(p[i] - a[i] - t * (b[i] - a[i])), 2);
+  return sqrt(d2);
+}
+
+passivedouble DistanceTriangle(const su2double* a, const su2double* b, const su2double* c, const su2double* p) {
+  /*--- Projection on the plane by the normal equations of the two edge vectors; inside: distance to the plane, else
+   *    the nearest edge. ---*/
+  passivedouble u[3], v[3], w[3];
+  for (int i = 0; i < 3; ++i) {
+    u[i] = SU2_TYPE::GetValue(b[i] - a[i]);
+    v[i] = SU2_TYPE::GetValue(c[i] - a[i]);
+    w[i] = SU2_TYPE::GetValue(p[i] - a[i]);
+  }
+  auto dot = [](const passivedouble* x, const passivedouble* y) { return x[0] * y[0] + x[1] * y[1] + x[2] * y[2]; };
+  const passivedouble uu = dot(u, u), uv = dot(u, v), vv = dot(v, v), wu = dot(w, u), wv = dot(w, v);
+  const passivedouble det = uu * vv - uv * uv;
+  const passivedouble s = (wu * vv - wv * uv) / det, t = (wv * uu - wu * uv) / det;
+  if (s >= 0.0 && t >= 0.0 && s + t <= 1.0) {
+    passivedouble d2 = 0.0;
+    for (int i = 0; i < 3; ++i) d2 += pow(w[i] - s * u[i] - t * v[i], 2);
+    return sqrt(d2);
+  }
+  return std::min({DistanceSegment(3, a, b, p), DistanceSegment(3, b, c, p), DistanceSegment(3, c, a, p)});
+}
+
+/*--- Smallest distance of a point to the boundary faces of a geometry (all markers). ---*/
+passivedouble BruteForceDistance(const CGeometry& geometry, const su2double* p) {
+  const auto nDim = geometry.GetnDim();
+  passivedouble best = std::numeric_limits<passivedouble>::max();
+  for (unsigned short iMarker = 0; iMarker < geometry.GetnMarker(); ++iMarker)
+    for (auto iElem = 0ul; iElem < geometry.GetnElem_Bound(iMarker); ++iElem) {
+      const auto* face = geometry.bound[iMarker][iElem];
+      const auto* a = geometry.nodes->GetCoord(face->GetNode(0));
+      const auto* b = geometry.nodes->GetCoord(face->GetNode(1));
+      best = std::min(best, nDim == 2 ? DistanceSegment(2, a, b, p)
+                                      : DistanceTriangle(a, b, geometry.nodes->GetCoord(face->GetNode(2)), p));
+    }
+  return best;
+}
+
+/*--- Config of the disk/ball of SimplexMeshTestCase.hpp, the boundary markers given by markerOptions. ---*/
+std::unique_ptr<CConfig> MakeRoundConfig(const string& solverOptions, const string& markerOptions) {
+  stringstream options(solverOptions + "MACH_NUMBER= 0.5\nMESH_FORMAT= SU2\nMESH_FILENAME= unused.su2\n" +
+                       markerOptions + "MGLEVEL= 0\n");
+  Mute mute;
+  return std::unique_ptr<CConfig>(new CConfig(options, SU2_COMPONENT::SU2_CFD, false));
+}
+
+/*--- A smooth admissible flow field (not affine). ---*/
+void SmoothFlow(unsigned short nDim, const su2double* x, su2double* U) {
+  const su2double z = (nDim == 3) ? x[2] : su2double(0.0);
+  U[0] = 1.2 + 0.1 * sin(3.0 * x[0]) * cos(2.0 * x[1]) + 0.05 * z * z;
+  U[1] = 400.0 + 50.0 * cos(2.0 * x[0] + x[1]) - 20.0 * z;
+  U[2] = -30.0 + 40.0 * sin(x[0] - 2.0 * x[1]);
+  if (nDim == 3) U[3] = 12.0 + 30.0 * cos(3.0 * z) * x[0];
+  U[nDim + 1] = 2.5e5 + 2e4 * x[0] * x[1] - 1e4 * cos(z);
+}
+
+}  // namespace
+
+TEST_CASE("Barycentric locator: nearest boundary face", "[Adaptation]") {
+  /*--- Points placed outside (and inside) convex and concave boundaries at distances from 1e-6 to 10 times the domain
+   *    size: the nearest face of the ADT search is the true nearest face (brute force over all faces). Concave cases:
+   *    a U-shaped rectangle (2D), a cube without one corner octant (3D, reentrant edges and corner). ---*/
+  struct Case {
+    string name;
+    unsigned short nDim;
+    std::function<CSimplexMesh()> mesh;
+  };
+  const std::vector<Case> cases = {
+      {"disk", 2, [] { return simplex_test::MakeRoundMesh(2, 6, 1.0); }},
+      {"U shape", 2,
+       [] {
+         return simplex_test::MakeSimplexMesh(2, 4, [](const passivedouble*) { return string("wall"); },
+                                              [](const passivedouble* x) { return !(x[0] > 0.5 && x[0] < 1.5 && x[1] > 0.5); });
+       }},
+      {"ball", 3, [] { return simplex_test::MakeRoundMesh(3, 4, 1.0); }},
+      {"cube without a corner", 3,
+       [] {
+         return simplex_test::MakeSimplexMesh(3, 4, [](const passivedouble*) { return string("wall"); },
+                                              [](const passivedouble* x) { return !(x[0] > 0.5 && x[1] > 0.5 && x[2] > 0.5); });
+       }},
+  };
+  for (const auto& test : cases) {
+    SECTION(test.name) {
+      const auto nDim = test.nDim;
+      const bool round = test.name == "disk" || test.name == "ball";
+      auto config = MakeRoundConfig("SOLVER= EULER\n", round ? "MARKER_EULER= (round_a, round_b)\n" : "MARKER_EULER= (wall)\n");
+      MeshSolution mesh(config.get(), test.mesh(), 0);
+      CBarycentricLocator locator(mesh.Fine(), mesh.markerTags);
+      const std::vector<string> all = mesh.markerTags;
+
+      unsigned long nOutside = 0;
+      passivedouble maxError = 0.0;
+      for (int i = 0; i < 400; ++i) {
+        /*--- Around a boundary point: random direction, distance from 1e-6 to 10 x the domain size. ---*/
+        const auto iVertex = (37ul * i) % mesh.Fine().GetnVertex(i % mesh.Fine().GetnMarker());
+        const auto* x0 = mesh.Fine().nodes->GetCoord(mesh.Fine().vertex[i % mesh.Fine().GetnMarker()][iVertex]->GetNode());
+        const passivedouble distance = pow(10.0, -6.0 + 7.3 * (0.5 + 0.5 * sin(2.3 * i)));
+        su2double dir[3] = {}, x[3] = {}, norm = 0.0;
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+          dir[iDim] = sin(1.7 * i + 2.9 * iDim + 0.4);
+          norm += dir[iDim] * dir[iDim];
+        }
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) x[iDim] = x0[iDim] + distance * dir[iDim] / sqrt(norm);
+
+        const passivedouble reference = BruteForceDistance(mesh.Fine(), x);
+        const auto onBoundary = locator.LocateOnBoundary(x, all);
+        REQUIRE(onBoundary.onFace);
+        maxError = std::max(maxError, SU2_TYPE::GetValue(fabs(onBoundary.distance - reference)) / std::max(1.0, reference));
+        su2double sum = 0.0;
+        for (unsigned short k = 0; k < onBoundary.nPoint; ++k) {
+          CHECK(onBoundary.weight[k] >= 0.0);
+          sum += onBoundary.weight[k];
+        }
+        CHECK(fabs(sum - 1.0) < 1e-14);
+
+        const auto stencil = locator.Locate(x);
+        if (!stencil.inside) {
+          nOutside++;
+          CHECK(SU2_TYPE::GetValue(fabs(stencil.distance - reference)) < 1e-12 * std::max(1.0, reference));
+        }
+      }
+      CHECK(maxError < 1e-12);
+      CHECK(nOutside > 100);
+    }
+  }
+}
+
+TEST_CASE("Barycentric transfer: curved boundary outside the donor", "[Adaptation]") {
+  /*--- Donor: disk/ball whose boundary is a polygon/polyhedron inscribed in the circle/sphere; new mesh: finer, its
+   *    boundary points on the circle/sphere, so they lie outside the donor (as after remeshing a curved boundary). ---*/
+  for (const unsigned short nDim : {2, 3}) {
+    SECTION("nDim " + std::to_string(nDim)) {
+      auto config = MakeRoundConfig("SOLVER= EULER\n", "MARKER_EULER= (round_a, round_b)\n");
+      MeshSolution donor(config.get(), simplex_test::MakeRoundMesh(nDim, 4, 1.0), 0);
+      MeshSolution target(config.get(), simplex_test::MakeRoundMesh(nDim, 6, 1.0), 0);
+      const auto nPoint = target.Fine().GetnPoint();
+      const auto nVar = nDim + 2;
+
+      /*--- Stencils as the transfer computes them (same rule), for the checks below. ---*/
+      CBarycentricLocator locator(donor.Fine(), donor.markerTags, 2.0 * config->GetAdap_Hausd());
+      std::vector<CBarycentricLocator::Stencil> stencils(nPoint);
+      std::vector<bool> onMarker(nPoint, false);
+      for (unsigned short iMarker = 0; iMarker < target.Fine().GetnMarker(); ++iMarker)
+        for (auto iVertex = 0ul; iVertex < target.Fine().GetnVertex(iMarker); ++iVertex)
+          onMarker[target.Fine().vertex[iMarker][iVertex]->GetNode()] = true;
+      unsigned long nOutside = 0, nOff = 0;
+      for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
+        const auto* x = target.Fine().nodes->GetCoord(iPoint);
+        stencils[iPoint] = onMarker[iPoint] ? locator.LocateOnBoundary(x, target.markerTags) : locator.Locate(x);
+        const auto& stencil = stencils[iPoint];
+        CHECK_FALSE(stencil.beyondLimit);
+        nOutside += !stencil.inside;
+        nOff += stencil.distance > 1e-12;
+        su2double sum = 0.0;
+        for (unsigned short k = 0; k < stencil.nPoint; ++k) {
+          CHECK(stencil.weight[k] >= 0.0);
+          CHECK(stencil.weight[k] <= 1.0);
+          sum += stencil.weight[k];
+        }
+        CHECK(fabs(sum - 1.0) < 1e-14);
+        if (onMarker[iPoint]) CHECK(stencil.onFace);
+      }
+      CHECK(nOutside > 0);
+      CHECK(nOff > 0);
+
+      SECTION("constant field: exact") {
+        donor.SetField(FLOW_SOL, [nDim](const su2double*, su2double* U) {
+          const su2double x0[3] = {0.1, 0.2, 0.3};
+          SmoothFlow(nDim, x0, U);
+        });
+        CBarycentricTransfer transfer;
+        {
+          Mute mute;
+          transfer.Transfer(config.get(), donor.Donor(), target.geometry, target.solver);
+        }
+        CHECK(transfer.GetSummary().nOutside == nOutside);
+        su2double U0[MAXVAR] = {};
+        const su2double x0[3] = {0.1, 0.2, 0.3};
+        SmoothFlow(nDim, x0, U0);
+        passivedouble maxDiff = 0.0;
+        for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint)
+          for (unsigned short iVar = 0; iVar < nVar; ++iVar)
+            maxDiff = std::max(maxDiff, RelDiff(target.solver[MESH_0][FLOW_SOL]->GetNodes()->GetSolution(iPoint, iVar), U0[iVar]));
+        CHECK(maxDiff < 1e-14);
+      }
+
+      SECTION("smooth field: convex combination, error bounded by the distance") {
+        donor.SetField(FLOW_SOL, [nDim](const su2double* x, su2double* U) { SmoothFlow(nDim, x, U); });
+        CBarycentricTransfer transfer;
+        {
+          Mute mute;
+          transfer.Transfer(config.get(), donor.Donor(), target.geometry, target.solver);
+        }
+        const auto& summary = transfer.GetSummary();
+        CHECK(summary.nFlowFixed == 0);
+        CHECK(summary.nOutside == nOutside);
+        REQUIRE(summary.markers.size() == 3);
+        CHECK(summary.markers.back().name == "(interior)");
+        unsigned long nMarkerPoints = 0;
+        for (unsigned short i = 0; i < 2; ++i) {
+          CHECK(summary.markers[i].nOff > 0);
+          CHECK(summary.markers[i].nBeyondFace == 0);
+          CHECK(summary.markers[i].maxRelDistance < 0.25);
+          nMarkerPoints += summary.markers[i].nPoint;
+        }
+        CHECK(nMarkerPoints >= target.Fine().GetnVertex(0));
+
+        const auto* donorNodes = donor.solver[MESH_0][FLOW_SOL]->GetNodes();
+        const auto* nodes = target.solver[MESH_0][FLOW_SOL]->GetNodes();
+        for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
+          const auto& stencil = stencils[iPoint];
+          for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
+            /*--- Value within the values of its donor points (no overshoot), and equal to the stencil value. ---*/
+            su2double low = 1e300, high = -1e300, value = 0.0;
+            for (unsigned short k = 0; k < stencil.nPoint; ++k) {
+              const su2double donorValue = donorNodes->GetSolution(stencil.point[k], iVar);
+              low = min(low, donorValue);
+              high = max(high, donorValue);
+              value += stencil.weight[k] * donorValue;
+            }
+            const su2double transferred = nodes->GetSolution(iPoint, iVar);
+            const su2double tol = 1e-13 * max(fabs(low), fabs(high));
+            CHECK(transferred >= low - tol);
+            CHECK(transferred <= high + tol);
+            CHECK(RelDiff(transferred, value) < 1e-14);
+          }
+        }
+      }
+
+      SECTION("affine field: error at most gradient times distance; continuity along the curved boundary") {
+        donor.SetField(FLOW_SOL, AffineFlow(nDim));
+        CBarycentricTransfer transfer;
+        {
+          Mute mute;
+          transfer.Transfer(config.get(), donor.Donor(), target.geometry, target.solver);
+        }
+        /*--- Gradient norm of each variable of AffineFlow. ---*/
+        const passivedouble grad2D[] = {sqrt(0.01 + 0.0025), sqrt(400.0 + 100.0), sqrt(25.0 + 64.0), sqrt(1e6 + 4e6)};
+        const passivedouble grad3D[] = {sqrt(0.01 + 0.0025 + 0.0004), sqrt(400.0 + 100.0 + 25.0), sqrt(25.0 + 64.0 + 9.0),
+                                        sqrt(16.0 + 4.0 + 36.0), sqrt(1e6 + 4e6 + 2.5e5)};
+        const auto* grad = (nDim == 2) ? grad2D : grad3D;
+        const auto* nodes = target.solver[MESH_0][FLOW_SOL]->GetNodes();
+        for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
+          su2double exact[MAXVAR] = {};
+          AffineFlow(nDim)(target.Fine().nodes->GetCoord(iPoint), exact);
+          for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
+            const su2double error = fabs(nodes->GetSolution(iPoint, iVar) - exact[iVar]);
+            CHECK(error <= grad[iVar] * stencils[iPoint].distance * (1.0 + 1e-9) + 1e-12 * fabs(exact[iVar]));
+          }
+        }
+
+        /*--- Dense samples of the circle / of a spiral on the sphere. 2D: the donor polygon is convex, the closest
+         *    point is a contraction, so the value changes by at most |grad| times the distance between samples
+         *    (Lipschitz, no jumps). 3D: the inscribed polyhedron has reflex edges (the fixed diagonals of the
+         *    structured faces), where the closest point jumps between the two faces; the jump is bounded by |grad|
+         *    times the distances of the two samples to the donor boundary. ---*/
+        const int nSample = 4000;
+        su2double previous[MAXVAR] = {}, xPrevious[3] = {}, previousDistance = 0.0;
+        passivedouble worst = 0.0;
+        for (int i = 0; i <= nSample; ++i) {
+          const passivedouble t = static_cast<passivedouble>(i) / nSample;
+          su2double x[3] = {};
+          if (nDim == 2) {
+            x[0] = cos(2.0 * PI_NUMBER * t);
+            x[1] = sin(2.0 * PI_NUMBER * t);
+          } else {
+            const passivedouble polar = PI_NUMBER * (0.02 + 0.96 * t), azimuth = 12.0 * 2.0 * PI_NUMBER * t;
+            x[0] = sin(polar) * cos(azimuth);
+            x[1] = sin(polar) * sin(azimuth);
+            x[2] = cos(polar);
+          }
+          const auto stencil = locator.LocateOnBoundary(x, donor.markerTags);
+          CHECK_FALSE(stencil.beyondLimit);
+          su2double value[MAXVAR] = {};
+          for (unsigned short k = 0; k < stencil.nPoint; ++k) {
+            const auto* xk = donor.Fine().nodes->GetCoord(stencil.point[k]);
+            su2double Uk[MAXVAR] = {};
+            AffineFlow(nDim)(xk, Uk);
+            for (unsigned short iVar = 0; iVar < nVar; ++iVar) value[iVar] += stencil.weight[k] * Uk[iVar];
+          }
+          if (i > 0) {
+            su2double step = 0.0;
+            for (unsigned short iDim = 0; iDim < nDim; ++iDim) step += pow(x[iDim] - xPrevious[iDim], 2);
+            step = sqrt(step);
+            if (nDim == 3) step += previousDistance + stencil.distance;
+            for (unsigned short iVar = 0; iVar < nVar; ++iVar)
+              worst = std::max(worst, SU2_TYPE::GetValue(fabs(value[iVar] - previous[iVar]) / (grad[iVar] * step)));
+          }
+          for (unsigned short iVar = 0; iVar < nVar; ++iVar) previous[iVar] = value[iVar];
+          for (unsigned short iDim = 0; iDim < nDim; ++iDim) xPrevious[iDim] = x[iDim];
+          previousDistance = stencil.distance;
+        }
+        CHECK(worst <= 1.0 + 1e-6);
+      }
+
+      SECTION("distance limit") {
+        /*--- Limit: the face size, at least 2 ADAP_HAUSD (0.02) or 1e-3 x the domain size. ---*/
+        const su2double domain = locator.GetDomainSize();
+        CHECK(fabs(domain - 2.0 * sqrt(static_cast<passivedouble>(nDim))) < 1e-12);
+        CHECK(locator.GetDistanceLimit(0.0) == Approx(0.02));
+        CHECK(locator.GetDistanceLimit(0.3) == Approx(0.3));
+
+        /*--- Outside along a direction from the centre: accepted while the distance is below the size of the nearest
+         *    face (sagitta-type gaps), flagged far outside (here 0.5 x the domain size: another domain). ---*/
+        const su2double dir[3] = {0.48, 0.6, nDim == 3 ? 0.64 : 0.0};
+        su2double norm = 0.0;
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) norm += dir[iDim] * dir[iDim];
+        for (const passivedouble radius : {1.0 + 1e-3, 1.1, 1.0 + domain * 0.5}) {
+          su2double x[3] = {};
+          for (unsigned short iDim = 0; iDim < nDim; ++iDim) x[iDim] = radius * dir[iDim] / sqrt(norm);
+          const auto stencil = locator.Locate(x);
+          CHECK_FALSE(stencil.inside);
+          CHECK(stencil.beyondLimit == (stencil.distance > max(stencil.faceSize, su2double(0.02))));
+          CHECK(stencil.beyondLimit == (radius > 2.0));
+        }
+      }
+    }
+  }
+}
+
+TEST_CASE("Barycentric transfer: wall points take the donor wall state", "[Adaptation]") {
+  /*--- No-slip walls on a disk/ball (donor boundary inscribed in the circle/sphere); the new mesh is the donor shape
+   *    scaled by 0.97, so its wall points lie inside the donor fluid, where the containing donor element would give
+   *    them the velocity of the first layer. They take the closest point of the donor wall instead: zero momentum
+   *    exactly, density and energy of the donor wall. ---*/
+  for (const unsigned short nDim : {2, 3}) {
+    SECTION("nDim " + std::to_string(nDim)) {
+      auto config = MakeRoundConfig("SOLVER= NAVIER_STOKES\nREYNOLDS_NUMBER= 1e6\n", "MARKER_HEATFLUX= (round_a, 0.0, round_b, 0.0)\n");
+      MeshSolution donor(config.get(), simplex_test::MakeRoundMesh(nDim, 8, 1.0), 0);
+      MeshSolution target(config.get(), simplex_test::MakeRoundMesh(nDim, 6, 0.97), 0);
+
+      /*--- Donor: smooth field, momentum zero on the wall (as the no-slip condition leaves it). ---*/
+      donor.SetField(FLOW_SOL, [nDim](const su2double* x, su2double* U) { SmoothFlow(nDim, x, U); });
+      auto* donorNodes = donor.solver[MESH_0][FLOW_SOL]->GetNodes();
+      for (unsigned short iMarker = 0; iMarker < donor.Fine().GetnMarker(); ++iMarker)
+        for (auto iVertex = 0ul; iVertex < donor.Fine().GetnVertex(iMarker); ++iVertex)
+          for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+            donorNodes->SetSolution(donor.Fine().vertex[iMarker][iVertex]->GetNode(), iDim + 1, 0.0);
+
+      CBarycentricTransfer transfer;
+      {
+        Mute mute;
+        transfer.Transfer(config.get(), donor.Donor(), target.geometry, target.solver);
+      }
+      const auto& summary = transfer.GetSummary();
+      CHECK(summary.nOutside == 0);
+      CHECK(summary.nFlowFixed == 0);
+
+      CBarycentricLocator locator(donor.Fine());
+      const auto* nodes = target.solver[MESH_0][FLOW_SOL]->GetNodes();
+      passivedouble maxElementMomentum = 0.0, maxMomentum = 0.0;
+      unsigned long nWall = 0;
+      for (unsigned short iMarker = 0; iMarker < target.Fine().GetnMarker(); ++iMarker)
+        for (auto iVertex = 0ul; iVertex < target.Fine().GetnVertex(iMarker); ++iVertex) {
+          const auto iPoint = target.Fine().vertex[iMarker][iVertex]->GetNode();
+          nWall++;
+          for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+            maxMomentum = std::max(maxMomentum, SU2_TYPE::GetValue(fabs(nodes->GetSolution(iPoint, iDim + 1))));
+
+          /*--- The containing element (the old rule) gives a non-zero velocity there. ---*/
+          const auto element = locator.Locate(target.Fine().nodes->GetCoord(iPoint));
+          REQUIRE(element.inside);
+          for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+            su2double momentum = 0.0;
+            for (unsigned short k = 0; k < element.nPoint; ++k)
+              momentum += element.weight[k] * donorNodes->GetSolution(element.point[k], iDim + 1);
+            maxElementMomentum = std::max(maxElementMomentum, SU2_TYPE::GetValue(fabs(momentum)));
+          }
+        }
+      CHECK(nWall > 0);
+      CHECK(maxMomentum == 0.0);
+      CHECK(maxElementMomentum > 1.0);
+      for (unsigned short i = 0; i < 2; ++i) {
+        CHECK(summary.markers[i].nOutside == 0);
+        CHECK(summary.markers[i].nOff == summary.markers[i].nPoint);
+        CHECK(summary.markers[i].maxDistance < 0.04);
+      }
     }
   }
 }

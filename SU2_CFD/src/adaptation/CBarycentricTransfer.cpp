@@ -111,9 +111,28 @@ void ClosestPointTriangle(const su2double* a, const su2double* b, const su2doubl
     return set(0.0, 1.0 - w, w);
   }
 
-  const su2double denom = 1.0 / (va + vb + vc);
-  const su2double v = vb * denom, w = vc * denom;
-  set(1.0 - v - w, v, w);
+  /*--- Inside the face region: weights proportional to va, vb, vc (positive up to round-off). A degenerate (zero-area)
+   *    triangle has no such region: closest point of its edges. ---*/
+  const su2double wa = max(su2double(0.0), va), wb = max(su2double(0.0), vb), wc = max(su2double(0.0), vc);
+  const su2double sum = wa + wb + wc;
+  if (!(sum > 0.0)) {
+    const su2double* xNode[] = {a, b, c};
+    su2double best = std::numeric_limits<passivedouble>::max();
+    for (int i = 0; i < 3; ++i) {
+      const int j = (i + 1) % 3;
+      su2double w2[2] = {}, d2 = 0.0;
+      ClosestPointSegment(3, xNode[i], xNode[j], p, w2);
+      for (int k = 0; k < 3; ++k) d2 += pow(p[k] - w2[0] * xNode[i][k] - w2[1] * xNode[j][k], 2);
+      if (d2 < best) {
+        best = d2;
+        weight[0] = weight[1] = weight[2] = 0.0;
+        weight[i] = w2[0];
+        weight[j] = w2[1];
+      }
+    }
+    return;
+  }
+  set(wa / sum, wb / sum, wc / sum);
 }
 
 bool IsFinite(su2double value) { return std::isfinite(SU2_TYPE::GetValue(value)); }
@@ -131,15 +150,50 @@ void Integrals(CGeometry& geometry, CSolver& solver, su2double& volume, std::vec
   }
 }
 
+/*--- Markers of each point of a geometry (indices into the marker names). ---*/
+std::vector<std::vector<unsigned short>> PointMarkers(const CGeometry& geometry, unsigned long nNames) {
+  std::vector<std::vector<unsigned short>> markers(geometry.GetnPoint());
+  for (unsigned short iMarker = 0; iMarker < geometry.GetnMarker() && iMarker < nNames; ++iMarker)
+    for (auto iVertex = 0ul; iVertex < geometry.GetnVertex(iMarker); ++iVertex)
+      markers[geometry.vertex[iMarker][iVertex]->GetNode()].push_back(iMarker);
+  return markers;
+}
+
+/*--- Stencil of a point: the closest point of the donor boundary of its marker(s) if it is on a marker that the donor
+ *    has, else the containing element or the closest point of the nearest donor boundary face. ---*/
+CBarycentricLocator::Stencil LocatePoint(CBarycentricLocator& locator, const su2double* x,
+                                         const std::vector<unsigned short>& markers,
+                                         const std::vector<std::string>& names) {
+  std::vector<std::string> known;
+  for (const auto iMarker : markers)
+    if (locator.HasMarker(names[iMarker])) known.push_back(names[iMarker]);
+  return known.empty() ? locator.Locate(x) : locator.LocateOnBoundary(x, known);
+}
+
 }  // namespace
 
-CBarycentricLocator::CBarycentricLocator(const CGeometry& geometry) : nDim(geometry.GetnDim()) {
+CBarycentricLocator::CBarycentricLocator(const CGeometry& geometry, const std::vector<std::string>& markerTags,
+                                         su2double absoluteLimit)
+    : nDim(geometry.GetnDim()), absoluteLimit(absoluteLimit) {
   const unsigned short elemType = (nDim == 2) ? TRIANGLE : TETRAHEDRON;
   const unsigned short faceType = (nDim == 2) ? LINE : TRIANGLE;
 
   coord.resize(geometry.GetnPoint() * nDim);
-  for (auto iPoint = 0ul; iPoint < geometry.GetnPoint(); ++iPoint)
-    for (unsigned short iDim = 0; iDim < nDim; ++iDim) coord[iPoint * nDim + iDim] = geometry.nodes->GetCoord(iPoint, iDim);
+  su2double xMin[3] = {}, xMax[3] = {};
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+    xMin[iDim] = std::numeric_limits<passivedouble>::max();
+    xMax[iDim] = std::numeric_limits<passivedouble>::lowest();
+  }
+  for (auto iPoint = 0ul; iPoint < geometry.GetnPoint(); ++iPoint) {
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+      const su2double x = geometry.nodes->GetCoord(iPoint, iDim);
+      coord[iPoint * nDim + iDim] = x;
+      xMin[iDim] = min(xMin[iDim], x);
+      xMax[iDim] = max(xMax[iDim], x);
+    }
+  }
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) domainSize += pow(xMax[iDim] - xMin[iDim], 2);
+  domainSize = sqrt(domainSize);
 
   /*--- Elements. The weights of the ADT are in the order of these nodes. ---*/
 
@@ -152,16 +206,26 @@ CBarycentricLocator::CBarycentricLocator(const CGeometry& geometry) : nDim(geome
   }
   if (elemConn.empty()) SU2_MPI::Error("The mesh has no elements.", CURRENT_FUNCTION);
 
-  /*--- Faces of all markers (send/receive markers have vertex elements, they are not boundaries). ---*/
+  /*--- Faces of all markers, and of each marker name (send/receive markers have vertex elements, they are not
+   *    boundaries). ---*/
 
   for (unsigned short iMarker = 0; iMarker < geometry.GetnMarker(); ++iMarker) {
+    std::vector<unsigned long>* named = nullptr;
+    if (iMarker < markerTags.size()) {
+      const auto it = markerIndex.emplace(markerTags[iMarker], markerFaceConn.size()).first;
+      if (it->second == markerFaceConn.size()) markerFaceConn.emplace_back();
+      named = &markerFaceConn[it->second];
+    }
     for (auto iElem = 0ul; iElem < geometry.GetnElem_Bound(iMarker); ++iElem) {
       const auto* face = geometry.bound[iMarker][iElem];
       if (face->GetVTK_Type() == VERTEX) continue;
       if (face->GetVTK_Type() != faceType) {
         SU2_MPI::Error("The solution transfer needs boundary lines (2D) or triangles (3D).", CURRENT_FUNCTION);
       }
-      for (unsigned short iNode = 0; iNode < nDim; ++iNode) faceConn.push_back(face->GetNode(iNode));
+      for (unsigned short iNode = 0; iNode < nDim; ++iNode) {
+        faceConn.push_back(face->GetNode(iNode));
+        if (named) named->push_back(face->GetNode(iNode));
+      }
     }
   }
   if (faceConn.empty()) SU2_MPI::Error("The mesh has no boundary faces.", CURRENT_FUNCTION);
@@ -179,36 +243,39 @@ CBarycentricLocator::CBarycentricLocator(const CGeometry& geometry) : nDim(geome
   };
   elemADT = MakeADT(elemConn, elemType, nDim + 1);
   faceADT = MakeADT(faceConn, faceType, nDim);
+
+  /*--- Marker names without faces (e.g. send/receive) are not boundaries. ---*/
+  for (auto it = markerIndex.begin(); it != markerIndex.end();) {
+    if (markerFaceConn[it->second].empty()) {
+      it = markerIndex.erase(it);
+    } else {
+      ++it;
+    }
+  }
+  markerADT.resize(markerFaceConn.size());
+  for (const auto& entry : markerIndex)
+    markerADT[entry.second] = MakeADT(markerFaceConn[entry.second], faceType, nDim);
 }
 
-CBarycentricLocator::Stencil CBarycentricLocator::Locate(const su2double* x) {
+su2double CBarycentricLocator::GetDistanceLimit(su2double faceSize) const {
+  return max(faceSize, max(absoluteLimit, su2double(domainFraction) * domainSize));
+}
+
+CBarycentricLocator::Stencil CBarycentricLocator::ClosestFace(const su2double* x, CADTElemClass& adt,
+                                                              const std::vector<unsigned long>& conn) const {
   Stencil stencil;
   unsigned short markerID = 0;
   unsigned long id = 0;
   int rankID = 0;
-
-  /*--- Element that contains the point (tolerance of the ADT, weights >= -5e-11). ---*/
-
-  su2double parCoor[3] = {}, weights[8] = {};
-  if (elemADT->DetermineContainingElement(x, markerID, id, rankID, parCoor, weights)) {
-    stencil.nPoint = nDim + 1;
-    for (unsigned short iNode = 0; iNode <= nDim; ++iNode) {
-      stencil.point[iNode] = elemConn[id * (nDim + 1) + iNode];
-      stencil.weight[iNode] = weights[iNode];
-    }
-    return stencil;
-  }
-
-  /*--- Outside the mesh: closest point of the nearest boundary face. ---*/
-
   su2double dist = 0.0;
-  faceADT->DetermineNearestElement(x, dist, markerID, id, rankID);
+  adt.DetermineNearestElement(x, dist, markerID, id, rankID);
 
   stencil.inside = false;
+  stencil.onFace = true;
   stencil.nPoint = nDim;
   const su2double* xFace[3] = {};
   for (unsigned short iNode = 0; iNode < nDim; ++iNode) {
-    stencil.point[iNode] = faceConn[id * nDim + iNode];
+    stencil.point[iNode] = conn[id * nDim + iNode];
     xFace[iNode] = &coord[stencil.point[iNode] * nDim];
   }
   if (nDim == 2) {
@@ -230,14 +297,56 @@ CBarycentricLocator::Stencil CBarycentricLocator::Locate(const su2double* x) {
       stencil.faceSize = max(stencil.faceSize, sqrt(length2));
     }
   }
-
-  if (!(stencil.distance <= stencil.faceSize)) {
-    SU2_MPI::Error("The point " + PointText(nDim, x) + " is not near the donor mesh: distance " +
-                       std::to_string(SU2_TYPE::GetValue(stencil.distance)) + " to its boundary, nearest face size " +
-                       std::to_string(SU2_TYPE::GetValue(stencil.faceSize)) + ".",
-                   CURRENT_FUNCTION);
-  }
+  stencil.beyondLimit = !(stencil.distance <= GetDistanceLimit(stencil.faceSize));
   return stencil;
+}
+
+CBarycentricLocator::Stencil CBarycentricLocator::Locate(const su2double* x) {
+  unsigned short markerID = 0;
+  unsigned long id = 0;
+  int rankID = 0;
+
+  /*--- Element that contains the point (tolerance of the ADT, weights >= -5e-11, set to >= 0 here so that the
+   *    interpolation is a convex combination). ---*/
+
+  su2double parCoor[3] = {}, weights[8] = {};
+  if (elemADT->DetermineContainingElement(x, markerID, id, rankID, parCoor, weights)) {
+    Stencil stencil;
+    stencil.nPoint = nDim + 1;
+    su2double sum = 0.0;
+    for (unsigned short iNode = 0; iNode <= nDim; ++iNode) {
+      stencil.point[iNode] = elemConn[id * (nDim + 1) + iNode];
+      stencil.weight[iNode] = max(su2double(0.0), weights[iNode]);
+      sum += stencil.weight[iNode];
+    }
+    for (unsigned short iNode = 0; iNode <= nDim; ++iNode) stencil.weight[iNode] /= sum;
+    return stencil;
+  }
+
+  /*--- Outside the mesh: closest point of the nearest boundary face. ---*/
+
+  return ClosestFace(x, *faceADT, faceConn);
+}
+
+CBarycentricLocator::Stencil CBarycentricLocator::LocateOnBoundary(const su2double* x,
+                                                                   const std::vector<std::string>& names) {
+  Stencil best;
+  bool found = false;
+  for (const auto& name : names) {
+    const auto it = markerIndex.find(name);
+    if (it == markerIndex.end()) continue;
+    const auto stencil = ClosestFace(x, *markerADT[it->second], markerFaceConn[it->second]);
+    if (!found || stencil.distance < best.distance) best = stencil;
+    found = true;
+  }
+  if (!found) return Locate(x);
+
+  unsigned short markerID = 0;
+  unsigned long id = 0;
+  int rankID = 0;
+  su2double parCoor[3] = {}, weights[8] = {};
+  best.inside = elemADT->DetermineContainingElement(x, markerID, id, rankID, parCoor, weights);
+  return best;
 }
 
 bool CBarycentricTransfer::AdmissibleState(CFluidModel& fluidModel, unsigned short nDim, const su2double* solution) {
@@ -317,19 +426,84 @@ void CBarycentricTransfer::Transfer(CConfig* config, const CMeshDonor& donor, CG
   }
   const auto nPoint = newGeometry->GetnPoint();
 
-  /*--- Donor points and weights of each new point. ---*/
+  /*--- Donor points and weights of each new point. Marker names: the config describes the new mesh, the donor carries
+   *    its own names. Distances are accepted up to the limit of the locator, with 2 ADAP_HAUSD as the tolerance of
+   *    the remesher's boundary approximation. ---*/
+
+  std::vector<std::string> newTags;
+  for (unsigned short iMarker = 0; iMarker < newGeometry->GetnMarker(); ++iMarker)
+    newTags.push_back(config->GetMarker_All_TagBound(iMarker));
+  const auto newPointMarkers = PointMarkers(*newGeometry, newTags.size());
 
   std::vector<CBarycentricLocator::Stencil> stencils(nPoint);
   {
-    CBarycentricLocator locator(*donorGeometry);
+    CBarycentricLocator locator(*donorGeometry, donor.markerTags, 2.0 * config->GetAdap_Hausd());
+    summary.distanceLimit = locator.GetDistanceLimit(0.0);
+
+    /*--- Statistics per marker of the new mesh (send/receive markers excluded), then the points on no marker. ---*/
+    std::vector<int> entry(newTags.size(), -1);
+    for (unsigned short iMarker = 0; iMarker < newTags.size(); ++iMarker) {
+      if (config->GetMarker_All_KindBC(iMarker) == SEND_RECEIVE) continue;
+      entry[iMarker] = summary.markers.size();
+      summary.markers.emplace_back();
+      summary.markers.back().name = newTags[iMarker];
+    }
+    summary.markers.emplace_back();
+    summary.markers.back().name = "(interior)";
+    const auto interior = summary.markers.size() - 1;
+    const su2double offTolerance = 1e-12 * locator.GetDomainSize();
+
+    unsigned long nBeyond = 0;
+    su2double worstRatio = 0.0;
+    CBarycentricLocator::Stencil worst;
+    unsigned long worstPoint = 0;
+
     for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
-      stencils[iPoint] = locator.Locate(newGeometry->nodes->GetCoord(iPoint));
+      stencils[iPoint] = LocatePoint(locator, newGeometry->nodes->GetCoord(iPoint), newPointMarkers[iPoint], newTags);
       const auto& stencil = stencils[iPoint];
-      if (!stencil.inside) {
-        summary.nOutside++;
-        summary.maxDistance = max(summary.maxDistance, stencil.distance);
-        summary.maxRelDistance = max(summary.maxRelDistance, stencil.distance / stencil.faceSize);
+      const su2double relDistance = stencil.onFace ? su2double(stencil.distance / stencil.faceSize) : su2double(0.0);
+      if (!stencil.inside) summary.nOutside++;
+      summary.maxDistance = max(summary.maxDistance, stencil.distance);
+      summary.maxRelDistance = max(summary.maxRelDistance, relDistance);
+      if (stencil.beyondLimit) {
+        nBeyond++;
+        const su2double ratio = stencil.distance / locator.GetDistanceLimit(stencil.faceSize);
+        if (ratio > worstRatio) {
+          worstRatio = ratio;
+          worst = stencil;
+          worstPoint = iPoint;
+        }
       }
+
+      std::vector<unsigned long> entries;
+      for (const auto iMarker : newPointMarkers[iPoint])
+        if (entry[iMarker] >= 0) entries.push_back(entry[iMarker]);
+      if (entries.empty()) entries.push_back(interior);
+      for (const auto iEntry : entries) {
+        auto& stats = summary.markers[iEntry];
+        stats.nPoint++;
+        if (!stencil.inside) stats.nOutside++;
+        if (stencil.onFace && stencil.distance > offTolerance) {
+          stats.nOff++;
+          stats.maxDistance = max(stats.maxDistance, stencil.distance);
+          stats.sumDistance += stencil.distance;
+          stats.maxRelDistance = max(stats.maxRelDistance, relDistance);
+          stats.sumRelDistance += relDistance;
+          if (stencil.distance > stencil.faceSize) stats.nBeyondFace++;
+        }
+      }
+    }
+
+    if (nBeyond > 0) {
+      SU2_MPI::Error(std::to_string(nBeyond) + " points of the new mesh are farther from the donor mesh than accepted " +
+                         "(max(face size, 2 ADAP_HAUSD, 1e-3 x domain size)), the farthest is " +
+                         PointText(nDim, newGeometry->nodes->GetCoord(worstPoint)) + " at " +
+                         std::to_string(SU2_TYPE::GetValue(worst.distance)) + " from the donor boundary (nearest face " +
+                         std::to_string(SU2_TYPE::GetValue(worst.faceSize)) + " long, domain size " +
+                         std::to_string(SU2_TYPE::GetValue(locator.GetDomainSize())) +
+                         "). The two meshes do not describe the same domain (wrong mesh or units, or a boundary that "
+                         "was moved).",
+                     CURRENT_FUNCTION);
     }
   }
   summary.nPoint = nPoint;
@@ -457,9 +631,11 @@ void CBarycentricTransfer::Transfer(CConfig* config, const CMeshDonor& donor, CG
 
     summary.roundTripL2.assign(nVarFlow, 0.0);
     summary.roundTripLinf.assign(nVarFlow, 0.0);
-    CBarycentricLocator locator(*newGeometry);
+    CBarycentricLocator locator(*newGeometry, newTags);
+    const auto donorPointMarkers = PointMarkers(*donorGeometry, donor.markerTags.size());
     for (auto iPoint = 0ul; iPoint < nPointDonor; ++iPoint) {
-      const auto stencil = locator.Locate(donorGeometry->nodes->GetCoord(iPoint));
+      const auto stencil =
+          LocatePoint(locator, donorGeometry->nodes->GetCoord(iPoint), donorPointMarkers[iPoint], donor.markerTags);
       for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) {
         su2double value = 0.0;
         for (unsigned short k = 0; k < stencil.nPoint; ++k) value += stencil.weight[k] * newSolution(stencil.point[k], iVar);
@@ -528,9 +704,22 @@ void CBarycentricTransfer::Transfer(CConfig* config, const CMeshDonor& donor, CG
   cout << endl << "------------------------ Solution Transfer (P1) -------------------------" << endl;
   cout << std::scientific << std::setprecision(3);
   cout << "Barycentric interpolation of the donor solution at " << s.nPoint << " points." << endl;
-  cout << "Points outside the donor mesh (closest donor boundary point used): " << s.nOutside;
-  if (s.nOutside) cout << ", max distance " << s.maxDistance << " (" << s.maxRelDistance << " of the face size)";
-  cout << "." << endl;
+  cout << "Points outside the donor mesh: " << s.nOutside << ". Points on a marker take the closest point of the "
+       << "donor boundary of the same marker, other points outside the donor the closest donor boundary point." << endl;
+  cout << "Distance to the closest donor point (mean over the points off the donor boundary), absolute and relative "
+       << "to the longest edge of the donor face:" << endl;
+  cout << "  " << std::setw(16) << "Marker" << std::setw(9) << "Points" << std::setw(9) << "Outside" << std::setw(9)
+       << "Off" << std::setw(11) << "Max dist" << std::setw(11) << "Mean dist" << std::setw(11) << "Max rel"
+       << std::setw(11) << "Mean rel" << std::setw(9) << "> face" << endl;
+  for (const auto& m : s.markers) {
+    const su2double nOff = max(m.nOff, 1ul);
+    cout << "  " << std::setw(16) << m.name.substr(0, 15) << std::setw(9) << m.nPoint << std::setw(9) << m.nOutside
+         << std::setw(9) << m.nOff << std::setw(11) << m.maxDistance << std::setw(11) << m.sumDistance / nOff
+         << std::setw(11) << m.maxRelDistance << std::setw(11) << m.sumRelDistance / nOff << std::setw(9)
+         << m.nBeyondFace << endl;
+  }
+  cout << "Distance accepted: the face size, at least " << s.distanceLimit
+       << " (2 ADAP_HAUSD or 1e-3 x the domain size)." << endl;
   cout << "Flow states not admissible after the interpolation (donor state used): " << s.nFlowFixed << "." << endl;
   if (s.nTimeLevels > 0) {
     cout << "Time history interpolated with the same stencils: Solution_time_n"
