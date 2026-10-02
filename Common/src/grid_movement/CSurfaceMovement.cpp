@@ -3334,7 +3334,7 @@ void CSurfaceMovement::AeroelasticDeform(CGeometry* geometry, CConfig* config, u
   /* The sign conventions of these are those of the Typical Section Wing Model, below the signs are corrected */
   su2double dh = -displacements[0];      // relative plunge
   su2double dalpha = -displacements[1];  // relative pitch
-  su2double dh_x, dh_y;
+  su2double dh_x = 0.0, dh_y = dh;  // plunge along y
   su2double Center[2];
   unsigned short iDim;
   su2double Lref = config->GetLength_Ref();
@@ -3342,33 +3342,6 @@ void CSurfaceMovement::AeroelasticDeform(CGeometry* geometry, CConfig* config, u
   unsigned long iPoint, iVertex;
   su2double x_new, y_new;
   su2double VarCoord[3];
-  string Monitoring_Tag = config->GetMarker_Monitoring_TagBound(iMarker_Monitoring);
-
-  /*--- Calculate the plunge displacement for the Typical Section Wing Model taking into account rotation ---*/
-  if (config->GetKind_GridMovement() == AEROELASTIC_RIGID_MOTION) {
-    su2double Omega, dt, psi;
-    dt = config->GetDelta_UnstTimeND();
-    Omega = config->GetRotation_Rate(2) / config->GetOmega_Ref();
-    psi = Omega * (dt * TimeIter);
-
-    /*--- Correct for the airfoil starting position (This is hardcoded in here) ---*/
-    if (Monitoring_Tag == "Airfoil1") {
-      psi = psi + 0.0;
-    } else if (Monitoring_Tag == "Airfoil2") {
-      psi = psi + 2.0 / 3.0 * PI_NUMBER;
-    } else if (Monitoring_Tag == "Airfoil3") {
-      psi = psi + 4.0 / 3.0 * PI_NUMBER;
-    } else
-      cout << "WARNING: There is a marker that we are monitoring that doesn't match the values hardcoded above!"
-           << endl;
-
-    dh_x = -dh * sin(psi);
-    dh_y = dh * cos(psi);
-
-  } else {
-    dh_x = 0;
-    dh_y = dh;
-  }
 
   /*--- Pitching origin from config. ---*/
 
@@ -3494,10 +3467,9 @@ void CSurfaceMovement::SetExternal_Deformation(CGeometry* geometry, CConfig* con
   unsigned short iDim, nDim;
   unsigned long iPoint = 0, flowIter = 0;
   unsigned long jPoint, GlobalIndex;
-  su2double VarCoord[3], *Coord_Old = nullptr, *Coord_New = nullptr, Center[3] = {0.0, 0.0, 0.0};
+  su2double VarCoord[3], *Coord_Old = nullptr, *Coord_New = nullptr;
   su2double Lref = config->GetLength_Ref();
-  su2double NewCoord[3] = {0.0, 0.0, 0.0}, rotMatrix[3][3] = {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
-  su2double r[3] = {0.0, 0.0, 0.0}, rotCoord[3] = {0.0, 0.0, 0.0};
+  su2double NewCoord[3] = {0.0, 0.0, 0.0};
   unsigned long iVertex;
   unsigned short iMarker;
   char buffer[50];
@@ -3585,70 +3557,6 @@ void CSurfaceMovement::SetExternal_Deformation(CGeometry* geometry, CConfig* con
 
   surface_positions.close();
 
-  /*--- If rotating as well, prepare the rotation matrix ---*/
-
-  if (config->GetKind_GridMovement() == EXTERNAL_ROTATION) {
-    /*--- Variables needed only for rotation ---*/
-
-    su2double Omega[3], dt;
-    su2double dtheta, dphi, dpsi, cosTheta, sinTheta;
-    su2double cosPhi, sinPhi, cosPsi, sinPsi;
-
-    /*--- Center of rotation & angular velocity vector from config ---*/
-    Center[0] = config->GetMotion_Origin(0);
-    Center[1] = config->GetMotion_Origin(1);
-    Center[2] = config->GetMotion_Origin(2);
-
-    /*--- Angular velocity vector from config ---*/
-
-    dt = static_cast<su2double>(iter) * config->GetDelta_UnstTimeND();
-    Omega[0] = config->GetRotation_Rate(0);
-    Omega[1] = config->GetRotation_Rate(1);
-    Omega[2] = config->GetRotation_Rate(2);
-
-    /*--- For the unsteady adjoint, use reverse time ---*/
-    if (adjoint) {
-      /*--- Set the first adjoint mesh position to the final direct one ---*/
-      if (iter == 0) dt = ((su2double)config->GetnTime_Iter() - 1) * dt;
-      /*--- Reverse the rotation direction for the adjoint ---*/
-      else
-        dt = -1.0 * dt;
-    } else {
-      /*--- No rotation at all for the first direct solution ---*/
-      if (iter == 0) dt = 0;
-    }
-
-    /*--- Compute delta change in the angle about the x, y, & z axes. ---*/
-
-    dtheta = Omega[0] * dt;
-    dphi = Omega[1] * dt;
-    dpsi = Omega[2] * dt;
-
-    /*--- Store angles separately for clarity. Compute sines/cosines. ---*/
-
-    cosTheta = cos(dtheta);
-    cosPhi = cos(dphi);
-    cosPsi = cos(dpsi);
-    sinTheta = sin(dtheta);
-    sinPhi = sin(dphi);
-    sinPsi = sin(dpsi);
-
-    /*--- Compute the rotation matrix. Note that the implicit
-     ordering is rotation about the x-axis, y-axis, then z-axis. ---*/
-
-    rotMatrix[0][0] = cosPhi * cosPsi;
-    rotMatrix[1][0] = cosPhi * sinPsi;
-    rotMatrix[2][0] = -sinPhi;
-
-    rotMatrix[0][1] = sinTheta * sinPhi * cosPsi - cosTheta * sinPsi;
-    rotMatrix[1][1] = sinTheta * sinPhi * sinPsi + cosTheta * cosPsi;
-    rotMatrix[2][1] = sinTheta * cosPhi;
-
-    rotMatrix[0][2] = cosTheta * sinPhi * cosPsi + sinTheta * sinPsi;
-    rotMatrix[1][2] = cosTheta * sinPhi * sinPsi - sinTheta * cosPsi;
-    rotMatrix[2][2] = cosTheta * cosPhi;
-  }
-
   /*--- Loop through to find only moving surface markers ---*/
 
   for (iMarker = 0; iMarker < config->GetnMarker_All(); iMarker++) {
@@ -3663,28 +3571,6 @@ void CSurfaceMovement::SetExternal_Deformation(CGeometry* geometry, CConfig* con
 
         Coord_Old = geometry->nodes->GetCoord(iPoint);
         Coord_New = geometry->vertex[iMarker][iVertex]->GetVarCoord();
-
-        /*--- If we're also rotating, multiply each point by the
-         rotation matrix. It is assumed that the coordinates in
-         Coord_Old have already been rotated using SetRigid_Rotation(). ---*/
-
-        if (config->GetKind_GridMovement() == EXTERNAL_ROTATION) {
-          /*--- Calculate non-dim. position from rotation center ---*/
-
-          for (iDim = 0; iDim < nDim; iDim++) r[iDim] = (Coord_New[iDim] - Center[iDim]) / Lref;
-          if (nDim == 2) r[nDim] = 0.0;
-
-          /*--- Compute transformed point coordinates ---*/
-
-          rotCoord[0] = rotMatrix[0][0] * r[0] + rotMatrix[0][1] * r[1] + rotMatrix[0][2] * r[2] + Center[0];
-
-          rotCoord[1] = rotMatrix[1][0] * r[0] + rotMatrix[1][1] * r[1] + rotMatrix[1][2] * r[2] + Center[1];
-
-          rotCoord[2] = rotMatrix[2][0] * r[0] + rotMatrix[2][1] * r[1] + rotMatrix[2][2] * r[2] + Center[2];
-
-          /*--- Copy rotated coords back to original array for consistency ---*/
-          for (iDim = 0; iDim < nDim; iDim++) Coord_New[iDim] = rotCoord[iDim];
-        }
 
         /*--- Calculate delta change in the x, y, & z directions ---*/
         for (iDim = 0; iDim < nDim; iDim++) VarCoord[iDim] = (Coord_New[iDim] - Coord_Old[iDim]) / Lref;

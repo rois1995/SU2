@@ -92,28 +92,10 @@ void CIteration::SetGrid_Movement(CGeometry** geometry, CSurfaceMovement* surfac
       break;
   }
 
-  if (config->GetSurface_Movement(AEROELASTIC) || config->GetSurface_Movement(AEROELASTIC_RIGID_MOTION) || config->GetSurface_Movement(MOVING_WALL)) {
-    /*--- Apply rigid mesh transformation to entire grid first, if necessary ---*/
+  if (config->GetSurface_Movement(AEROELASTIC) || config->GetSurface_Movement(MOVING_WALL)) {
 
     if (IntIter == 0) {
 
-      if (Kind_Grid_Movement == AEROELASTIC_RIGID_MOTION) {
-        if (rank == MASTER_NODE) cout << endl << " Performing rigid mesh transformation." << endl;
-
-        /*--- Move each node in the volume mesh using the specified type
-         of rigid mesh motion. These routines also compute analytic grid
-         velocities for the fine mesh. ---*/
-
-        grid_movement->Rigid_Translation(geometry[MESH_0], config, val_iZone, TimeIter);
-        grid_movement->Rigid_Plunging(geometry[MESH_0], config, val_iZone, TimeIter);
-        grid_movement->Rigid_Pitching(geometry[MESH_0], config, val_iZone, TimeIter);
-        grid_movement->Rigid_Rotation(geometry[MESH_0], config, val_iZone, TimeIter);
-
-        /*--- Update the multigrid structure after moving the finest grid,
-         including computing the grid velocities on the coarser levels. ---*/
-
-        grid_movement->UpdateMultiGrid(geometry, config);
-      }
       if (config->GetSurface_Movement(MOVING_WALL)) {
         for (auto iMGlevel = 0u; iMGlevel <= config->GetnMGLevels(); iMGlevel++) {
           geometry[iMGlevel]->SetWallVelocity(config, iMGlevel == 0u);
@@ -148,14 +130,7 @@ void CIteration::SetGrid_Movement(CGeometry** geometry, CSurfaceMovement* surfac
     }
   }
 
-  if (config->GetSurface_Movement(EXTERNAL) || config->GetSurface_Movement(EXTERNAL_ROTATION)) {
-    /*--- Apply rigid rotation to entire grid first, if necessary ---*/
-
-    if (Kind_Grid_Movement == EXTERNAL_ROTATION) {
-      if (rank == MASTER_NODE) cout << " Updating node locations by rigid rotation." << endl;
-      grid_movement->Rigid_Rotation(geometry[MESH_0], config, val_iZone, TimeIter);
-    }
-
+  if (config->GetSurface_Movement(EXTERNAL)) {
     /*--- Load new surface node locations from external files ---*/
 
     if (rank == MASTER_NODE) cout << " Updating surface locations from file." << endl;

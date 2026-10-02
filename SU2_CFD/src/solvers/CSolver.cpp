@@ -2407,7 +2407,7 @@ void CSolver::Aeroelastic(CSurfaceMovement *surface_movement, CGeometry *geometr
 
   /*--- Variables used for Aeroelastic case ---*/
 
-  su2double Cl, Cd, Cn, Ct, Cm, Cn_rot;
+  su2double Cl, Cd, Cn, Cm;
   su2double Alpha = config->GetAoA()*PI_NUMBER/180.0;
   vector<su2double> structural_solution(4,0.0); //contains solution(displacements and rates) of typical section wing model.
 
@@ -2432,39 +2432,8 @@ void CSolver::Aeroelastic(CSurfaceMovement *surface_movement, CGeometry *geometr
 
           /*--- For typical section wing model want the force normal to the airfoil (in the direction of the spring) ---*/
           Cn = Cl*cos(Alpha) + Cd*sin(Alpha);
-          Ct = -Cl*sin(Alpha) + Cd*cos(Alpha);
 
           Cm = GetSurface_CMz(iMarker_Monitoring);
-
-          /*--- Calculate forces for the Typical Section Wing Model taking into account rotation ---*/
-
-          /*--- Note that the calculation of the forces and the subsequent displacements ...
-           is only correct for the airfoil that starts at the 0 degree position ---*/
-
-          if (config->GetKind_GridMovement() == AEROELASTIC_RIGID_MOTION) {
-            su2double Omega, dt, psi;
-            dt = config->GetDelta_UnstTimeND();
-            Omega  = (config->GetRotation_Rate(2)/config->GetOmega_Ref());
-            psi = Omega*(dt*TimeIter);
-
-            /*--- Correct for the airfoil starting position (This is hardcoded in here) ---*/
-            if (Monitoring_Tag == "Airfoil1") {
-              psi = psi + 0.0;
-            }
-            else if (Monitoring_Tag == "Airfoil2") {
-              psi = psi + 2.0/3.0*PI_NUMBER;
-            }
-            else if (Monitoring_Tag == "Airfoil3") {
-              psi = psi + 4.0/3.0*PI_NUMBER;
-            }
-            else
-              cout << "WARNING: There is a marker that we are monitoring that doesn't match the values hardcoded above!" << endl;
-
-            cout << Monitoring_Tag << " position " << psi*180.0/PI_NUMBER << " degrees. " << endl;
-
-            Cn_rot = Cn*cos(psi) - Ct*sin(psi); //Note the signs are different for accounting for the AOA.
-            Cn = Cn_rot;
-          }
 
           /*--- Solve the aeroelastic equations for the particular marker(surface) ---*/
 

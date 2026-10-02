@@ -5858,6 +5858,24 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
   /*--- Specifying a deforming surface requires a mesh deformation solver. ---*/
   if (GetSurface_Movement(DEFORMING)) Deform_Mesh = true;
 
+  if (Kind_SU2 == SU2_COMPONENT::SU2_CFD) {
+    /*--- Since GRID_MOVEMENT and SURFACE_MOVEMENT are separate options (v7.0.0), the rigid part of these motions
+     * was never applied, they behaved as AEROELASTIC and EXTERNAL. ---*/
+    if (GetSurface_Movement(AEROELASTIC_RIGID_MOTION) || GetSurface_Movement(EXTERNAL_ROTATION)) {
+      SU2_MPI::Error("SURFACE_MOVEMENT= AEROELASTIC_RIGID_MOTION and EXTERNAL_ROTATION are not supported,\n"
+                     "use AEROELASTIC or EXTERNAL (the rotation was never applied).", CURRENT_FUNCTION);
+    }
+
+    /*--- The grid velocities of deforming meshes come from the backward differences of dual time stepping,
+     * with TIME_STEPPING they would be zero. ---*/
+    if (TimeMarching == TIME_MARCHING::TIME_STEPPING &&
+        (Deform_Mesh || GetSurface_Movement(AEROELASTIC) || GetSurface_Movement(EXTERNAL))) {
+      SU2_MPI::Error("Deforming meshes (DEFORM_MESH= YES, SURFACE_MOVEMENT= DEFORMING, AEROELASTIC or EXTERNAL)\n"
+                     "require TIME_MARCHING= DUAL_TIME_STEPPING-1ST_ORDER or DUAL_TIME_STEPPING-2ND_ORDER.",
+                     CURRENT_FUNCTION);
+    }
+  }
+
   monoatomic = GetGasModel() == "ARGON";
 
   /*--- Set number of Turbulence Variables. ---*/
@@ -6876,7 +6894,8 @@ void CConfig::SetOutput(SU2_COMPONENT val_software, unsigned short val_izone) {
         case NO_MOVEMENT:     cout << "no direct movement." << endl; break;
         case RIGID_MOTION:    cout << "rigid mesh motion." << endl; break;
         case ROTATING_FRAME:  cout << "rotating reference frame." << endl; break;
-        case EXTERNAL:        cout << "externally prescribed motion." << endl; break;
+        case STEADY_TRANSLATION: cout << "steadily translating reference frame." << endl; break;
+        case GUST:            cout << "wind gust." << endl; break;
       }
     }
 
