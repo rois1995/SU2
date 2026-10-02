@@ -368,6 +368,9 @@ void COutput::ResetMeshDependentData() {
   volumeDataSorterCompact = nullptr;
   surfaceDataSorter = nullptr;
 
+  /*--- The volume time averages were in the data sorter, they average the next time steps (the new mesh). ---*/
+  avgVolumeStartIter = curAbsTimeIter + 1;
+
   /*--- An empty index list makes the custom outputs resolve their symbols, markers and probes again. ---*/
 
   for (auto& output : customOutputs) {
@@ -379,10 +382,11 @@ void COutput::ResetMeshDependentData() {
 
 }
 
-void COutput::SetAdaptationCycle(unsigned long cycle, unsigned long iterOffset) {
+void COutput::SetAdaptationCycle(unsigned long cycle, unsigned long iterOffset, bool cycleInFileNames) {
 
   adapCycle = cycle;
   adapIterOffset = iterOffset;
+  if (!cycleInFileNames) return;
 
   if (adapBaseFilenames.empty()) adapBaseFilenames = {volumeFilename, surfaceFilename, restartFilename};
 
@@ -944,6 +948,35 @@ bool COutput::SetResultFiles(CGeometry *geometry, CConfig *config, CSolver** sol
     headerNeeded = true;
   }
 
+  return isFileWrite;
+}
+
+bool COutput::WriteRestartFiles(CGeometry *geometry, CConfig *config, CSolver** solver_container) {
+
+  const auto nVolumeFiles = config->GetnVolumeOutputFiles();
+  const auto* VolumeFiles = config->GetVolumeOutputFiles();
+
+  bool isFileWrite = false;
+  for (unsigned short iFile = 0; iFile < nVolumeFiles; iFile++) {
+    if (VolumeFiles[iFile] != OUTPUT_TYPE::RESTART_ASCII && VolumeFiles[iFile] != OUTPUT_TYPE::RESTART_BINARY)
+      continue;
+
+    if (!isFileWrite) {
+      LoadData(geometry, config, solver_container);
+      if (rank == MASTER_NODE) {
+        fileWritingTable->SetAlign(PrintingToolbox::CTablePrinter::CENTER);
+        fileWritingTable->PrintHeader();
+        fileWritingTable->SetAlign(PrintingToolbox::CTablePrinter::LEFT);
+      }
+    }
+    WriteToFile(config, geometry, VolumeFiles[iFile]);
+    isFileWrite = true;
+  }
+
+  if (rank == MASTER_NODE && isFileWrite) {
+    fileWritingTable->PrintFooter();
+    headerNeeded = true;
+  }
   return isFileWrite;
 }
 
@@ -1897,7 +1930,9 @@ su2double COutput::GetVolumeOutputValue(const string& name, unsigned long iPoint
 
 void COutput::SetAvgVolumeOutputValue(const string& name, unsigned long iPoint, su2double value){
 
-  const su2double scaling = 1.0 / su2double(curAbsTimeIter + 1);
+  /*--- Running average since the first sample (time step 0 of the window, or the last mesh replacement). ---*/
+  const unsigned long nSamples = (curAbsTimeIter >= avgVolumeStartIter) ? curAbsTimeIter - avgVolumeStartIter + 1 : 1;
+  const su2double scaling = 1.0 / su2double(nSamples);
 
   if (buildFieldIndexCache) {
     /*--- Build up the offset cache to speed up subsequent

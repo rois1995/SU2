@@ -333,6 +333,8 @@ protected:
   unsigned long adapCycle = 0,           /*!< \brief Current cycle of the mesh adaptation loop. */
   adapIterOffset = 0;                    /*!< \brief Iterations of the previous cycles. */
   vector<string> adapBaseFilenames;      /*!< \brief Volume, surface and restart file names without the cycle. */
+  unsigned long avgVolumeStartIter = 0;  /*!< \brief Value of curAbsTimeIter of the first sample of the volume time
+                                              averages (after a mesh replacement they average the new mesh only). */
 
   /*----------------------------- Adaptive CFL ----------------------------*/
 
@@ -514,18 +516,20 @@ public:
   /*!
    * \brief Forget everything that was set up for the current geometry, before the output is used with a new one
    *        (mesh adaptation): the data sorters (allocated again on the next file output) and the marker indices and
-   *        probe points of the custom outputs (set up again on the next history output).
+   *        probe points of the custom outputs (set up again on the next history output). The volume time averages
+   *        (kept in the data sorter) start again with the next time step.
    */
   void ResetMeshDependentData();
 
   /*!
-   * \brief Set the cycle of the mesh adaptation loop: the volume, surface and restart files get the cycle in their
-   *        name (CConfig::GetAdap_FileName), the history fields ADAP_CYCLE and ADAP_ITER its number and the running
-   *        total of the iterations.
+   * \brief Set the cycle of the mesh adaptation loop: the history fields ADAP_CYCLE and ADAP_ITER get its number and
+   *        the running total of the iterations; in steady runs the volume, surface and restart files also get the cycle
+   *        in their name (CConfig::GetAdap_FileName). Time-domain runs keep the usual names with the time step only.
    * \param[in] cycle - Cycle (0 is the input mesh).
    * \param[in] iterOffset - Iterations of all previous cycles.
+   * \param[in] cycleInFileNames - Put the cycle in the names of the volume, surface and restart files.
    */
-  void SetAdaptationCycle(unsigned long cycle, unsigned long iterOffset);
+  void SetAdaptationCycle(unsigned long cycle, unsigned long iterOffset, bool cycleInFileNames = true);
 
   /*!
    * \brief Also stop on the drop of the residual convergence fields (ADAP_RESIDUAL_REDUCTION): converged when each
@@ -671,6 +675,16 @@ public:
    */
   bool SetResultFiles(CGeometry *geometry, CConfig *config, CSolver** solver_container,
                        unsigned long iter, bool force_writing = false);
+
+  /*!
+   * \brief Write only the restart files of OUTPUT_FILES (RESTART, RESTART_ASCII) of the current solution, named for
+   *        the time iteration of the config (mesh adaptation of time-domain runs: the transferred time history).
+   * \param[in] geometry - Geometrical definition of the problem.
+   * \param[in] config - Definition of the particular problem.
+   * \param[in] solver_container - Container vector with all the solutions.
+   * \return <TRUE> if a file has been written.
+   */
+  bool WriteRestartFiles(CGeometry *geometry, CConfig *config, CSolver** solver_container);
 
   /*!
    * \brief Get convergence time convergence of the specified windowed-time-averaged ouput of the problem.
