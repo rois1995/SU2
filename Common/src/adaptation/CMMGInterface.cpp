@@ -256,6 +256,15 @@ CSimplexMesh CMMGInterface::ExtractMesh(const CConfig& config, const CGeometry& 
     }
     mesh.markers.push_back(std::move(marker));
   }
+
+  /*--- Markers in the order of the config (as the mesh output writes them), not of the input mesh: the adapted mesh
+   *    keeps this order (GetMesh), so the geometry built from it in memory and the one read from its exported file
+   *    have the same marker order. The order matters where markers share points (e.g. symmetry plane and Euler wall,
+   *    applied one after the other). ---*/
+  std::stable_sort(mesh.markers.begin(), mesh.markers.end(),
+                   [&config](const CSimplexMesh::Marker& a, const CSimplexMesh::Marker& b) {
+                     return config.GetMarker_CfgFile_TagBound(a.name) < config.GetMarker_CfgFile_TagBound(b.name);
+                   });
   return mesh;
 }
 

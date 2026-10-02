@@ -148,6 +148,13 @@ void CheckExtraction(unsigned short nDim, unsigned long n) {
     CHECK(marker.GetnElem(nDim) > 0);
     for (const auto iPoint : marker.elem) CHECK(OnMarker(nDim, marker.name, &mesh.coord[iPoint * nDim]));
   }
+  /*--- Markers in the config order (the order of the mesh output), not the alphabetical order of the mesh file. ---*/
+  for (auto iMarker = 1ul; iMarker < mesh.markers.size(); ++iMarker) {
+    CHECK(test.config->GetMarker_CfgFile_TagBound(mesh.markers[iMarker - 1].name) <
+          test.config->GetMarker_CfgFile_TagBound(mesh.markers[iMarker].name));
+  }
+  CHECK(mesh.markers.front().name != (nDim == 2 ? "left" : "x_minus"));
+
   /*--- The split markers have half of the face each. ---*/
   const auto* a = mesh.FindMarker(nDim == 2 ? "lower_a" : "z_minus_a");
   const auto* b = mesh.FindMarker(nDim == 2 ? "lower_b" : "z_minus_b");
