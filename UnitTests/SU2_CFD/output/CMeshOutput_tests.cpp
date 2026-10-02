@@ -1,0 +1,179 @@
+/*!
+ * \file CMeshOutput_tests.cpp
+ * \brief Unit tests for the mesh output from memory (adapted meshes of the mesh adaptation loop).
+ * \version 8.5.0 "Harrier"
+ *
+ * SU2 Project Website: https://su2code.github.io
+ *
+ * The SU2 Project is maintained by the SU2 Foundation
+ * (http://su2foundation.org)
+ *
+ * Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md)
+ *
+ * SU2 is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * SU2 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with SU2. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "catch.hpp"
+
+#include <algorithm>
+#include <cstdio>
+#include <map>
+#include <set>
+
+#include "../../../Common/include/CConfig.hpp"
+#include "../../../Common/include/geometry/CPhysicalGeometry.hpp"
+#include "../../../SU2_CFD/include/drivers/CDriver.hpp"
+#include "../../../SU2_CFD/include/output/CMeshOutput.hpp"
+#include "../../Common/adaptation/SimplexMeshTestCase.hpp"
+
+namespace {
+
+/*!
+ * \brief A mesh by global point index: coordinates, volume elements and boundary elements of each marker (node
+ *        lists sorted, so that the orientation and the first node do not matter).
+ */
+struct GlobalMesh {
+  std::map<unsigned long, std::vector<passivedouble>> coord;
+  std::multiset<std::vector<unsigned long>> elem;
+  std::map<string, std::multiset<std::vector<unsigned long>>> markers;
+};
+
+/*--- Config of the tests: Euler, all markers far field, no multigrid. ---*/
+std::unique_ptr<CConfig> MakeConfig(unsigned short nDim, const string& meshFile, const string& meshFormat,
+                                    const string& outFormat) {
+  const string markers = (nDim == 2) ? "MARKER_FAR= (left, right, upper, lower_a, lower_b)\n"
+                                     : "MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus, z_minus_a, z_minus_b)\n";
+  std::stringstream options("SOLVER= EULER\nMGLEVEL= 0\nMESH_FORMAT= " + meshFormat + "\nMESH_FILENAME= " + meshFile +
+                            "\n" + (outFormat.empty() ? "" : "MESH_OUT_FORMAT= " + outFormat + "\n") + markers);
+  auto* origBuf = std::cout.rdbuf(nullptr);
+  auto config = std::make_unique<CConfig>(options, SU2_COMPONENT::SU2_CFD, false);
+  std::cout.rdbuf(origBuf);
+  return config;
+}
+
+/*--- Geometry from the mesh file of the config, as in the driver, and its mesh by global index. ---*/
+GlobalMesh ReadMesh(CConfig* config) {
+  auto* origBuf = std::cout.rdbuf(nullptr);
+  CGeometry** geometry = nullptr;
+  CDriver::BuildGeometryFVM(config, new CPhysicalGeometry(config, 0, 1), geometry);
+  std::cout.rdbuf(origBuf);
+
+  const auto* fine = geometry[MESH_0];
+  const auto nDim = fine->GetnDim();
+  GlobalMesh mesh;
+  for (auto iPoint = 0ul; iPoint < fine->GetnPointDomain(); ++iPoint) {
+    auto& x = mesh.coord[fine->nodes->GetGlobalIndex(iPoint)];
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) x.push_back(SU2_TYPE::GetValue(fine->nodes->GetCoord(iPoint, iDim)));
+  }
+  auto globalNodes = [&](const CPrimalGrid* element) {
+    std::vector<unsigned long> nodes;
+    for (unsigned short iNode = 0; iNode < element->GetnNodes(); ++iNode)
+      nodes.push_back(fine->nodes->GetGlobalIndex(element->GetNode(iNode)));
+    std::sort(nodes.begin(), nodes.end());
+    return nodes;
+  };
+  for (auto iElem = 0ul; iElem < fine->GetnElem(); ++iElem) mesh.elem.insert(globalNodes(fine->elem[iElem]));
+  for (unsigned short iMarker = 0; iMarker < fine->GetnMarker(); ++iMarker) {
+    auto& marker = mesh.markers[config->GetMarker_All_TagBound(iMarker)];
+    for (auto iElem = 0ul; iElem < fine->GetnElem_Bound(iMarker); ++iElem)
+      marker.insert(globalNodes(fine->bound[iMarker][iElem]));
+  }
+  for (unsigned short iMesh = 0; iMesh <= config->GetnMGLevels(); ++iMesh) delete geometry[iMesh];
+  delete[] geometry;
+  return mesh;
+}
+
+/*!
+ * \brief Write a simplex mesh in SU2 format, read it as in the driver, write it from memory in the format outFormat
+ *        with CMeshOutput::WriteMesh, read that file, and compare both meshes by global point index (the output keeps
+ *        the numbering of the geometry). The coordinates must be read back exactly in every format.
+ */
+void CheckWriteAndRead(const CSimplexMesh& simplexMesh, const string& outFormat) {
+  const auto nDim = simplexMesh.nDim;
+  const string inputFile = "mesh_output_test_input.su2";
+  const string outputName = "mesh_output_test_output";
+  simplex_test::WriteSU2Mesh(simplexMesh, inputFile);
+
+  /*--- Read the mesh and write it from memory. ---*/
+
+  auto config = MakeConfig(nDim, inputFile, "SU2", outFormat);
+  const auto extension = config->GetMesh_Out_FileExtension();
+  CGeometry** geometry = nullptr;
+  auto* origBuf = std::cout.rdbuf(nullptr);
+  CDriver::BuildGeometryFVM(config.get(), new CPhysicalGeometry(config.get(), 0, 1), geometry);
+  CMeshOutput::WriteMesh(config.get(), geometry[MESH_0], outputName);
+  std::cout.rdbuf(origBuf);
+  delete geometry[MESH_0];
+  delete[] geometry;
+
+  const auto input = ReadMesh(config.get());
+
+  /*--- Read the written mesh in its own format. ---*/
+
+  auto outputConfig = MakeConfig(nDim, outputName + extension, outFormat, "");
+  const auto output = ReadMesh(outputConfig.get());
+
+  REQUIRE(output.coord.size() == simplexMesh.GetnPoint());
+  REQUIRE(output.coord.size() == input.coord.size());
+  passivedouble maxDiff = 0.0;
+  for (const auto& entry : input.coord) {
+    const auto& x = output.coord.at(entry.first);
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) maxDiff = std::max(maxDiff, fabs(x[iDim] - entry.second[iDim]));
+  }
+  CHECK(maxDiff == 0.0);
+
+  CHECK(output.elem.size() == simplexMesh.GetnElem());
+  CHECK(output.elem == input.elem);
+
+  /*--- Every marker of the mesh, with its own elements (coplanar markers of the same type are not merged). ---*/
+  REQUIRE(output.markers.size() == simplexMesh.markers.size());
+  for (const auto& marker : simplexMesh.markers) {
+    REQUIRE(output.markers.count(marker.name) == 1);
+    CHECK(output.markers.at(marker.name).size() == marker.GetnElem(nDim));
+    CHECK(output.markers.at(marker.name) == input.markers.at(marker.name));
+  }
+
+  std::remove(inputFile.c_str());
+  std::remove((outputName + extension).c_str());
+}
+
+/*--- Rectangle [100, 100 + 2e-4] x [0, 1]: cells of 2.5e-5 x 0.25 near x = 100, where single precision has a
+ * resolution of 7.6e-6, so the coordinates must be written in double precision. ---*/
+CSimplexMesh AnisotropicRectangle() {
+  auto mesh = simplex_test::MakeSimplexMesh(2, 4, simplex_test::Marker2D);
+  for (auto iPoint = 0ul; iPoint < mesh.GetnPoint(); ++iPoint) mesh.coord[2 * iPoint] = 100.0 + 1e-4 * mesh.coord[2 * iPoint];
+  return mesh;
+}
+
+}  // namespace
+
+TEST_CASE("Mesh output from memory, SU2", "[Adaptation]") {
+  CheckWriteAndRead(simplex_test::MakeSimplexMesh(2, 4, simplex_test::Marker2D), "SU2");
+  CheckWriteAndRead(simplex_test::MakeSimplexMesh(3, 2, simplex_test::Marker3D), "SU2");
+  CheckWriteAndRead(AnisotropicRectangle(), "SU2");
+}
+
+TEST_CASE("Mesh output from memory, SU2 binary", "[Adaptation]") {
+  CheckWriteAndRead(simplex_test::MakeSimplexMesh(2, 4, simplex_test::Marker2D), "SU2B");
+  CheckWriteAndRead(simplex_test::MakeSimplexMesh(3, 2, simplex_test::Marker3D), "SU2B");
+  CheckWriteAndRead(AnisotropicRectangle(), "SU2B");
+}
+
+#ifdef HAVE_CGNS
+TEST_CASE("Mesh output from memory, CGNS", "[Adaptation]") {
+  CheckWriteAndRead(simplex_test::MakeSimplexMesh(2, 4, simplex_test::Marker2D), "CGNS");
+  CheckWriteAndRead(simplex_test::MakeSimplexMesh(3, 2, simplex_test::Marker3D), "CGNS");
+  CheckWriteAndRead(AnisotropicRectangle(), "CGNS");
+}
+#endif

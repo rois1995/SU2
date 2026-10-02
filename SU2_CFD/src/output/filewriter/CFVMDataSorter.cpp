@@ -504,3 +504,59 @@ void CFVMDataSorter::SortVolumetricConnectivity(CConfig *config,
   delete [] nElem_Flag;
 
 }
+
+vector<CFVMDataSorter::BoundaryMarker> CFVMDataSorter::GatherBoundaryMarkers(CConfig *config, CGeometry *geometry) const {
+
+  vector<BoundaryMarker> markers;
+
+  for (unsigned short iMarkerCfg = 0; iMarkerCfg < config->GetnMarker_CfgFile(); iMarkerCfg++) {
+    const string tag = config->GetMarker_CfgFile_TagBound(iMarkerCfg);
+    if (config->GetMarker_CfgFile_KindBC(tag) == SEND_RECEIVE) continue;
+
+    /*--- Elements of this rank: none of their nodes is a halo of the output, and at least one node is owned, so that
+     an element whose nodes are all owned by lower ranks is not taken again by a rank that holds it as a halo. ---*/
+
+    vector<unsigned long> localConn;
+    unsigned long nLocalElem = 0;
+
+    for (unsigned short iMarker = 0; iMarker < config->GetnMarker_All(); iMarker++) {
+      if (config->GetMarker_All_TagBound(iMarker) != tag) continue;
+
+      for (unsigned long iElem = 0; iElem < geometry->GetnElem_Bound(iMarker); iElem++) {
+        const auto* elem = geometry->bound[iMarker][iElem];
+
+        bool halo = false, owned = false;
+        for (unsigned short iNode = 0; iNode < elem->GetnNodes(); iNode++) {
+          halo |= GetHalo(elem->GetNode(iNode));
+          owned |= geometry->nodes->GetDomain(elem->GetNode(iNode));
+        }
+        if (halo || !owned) continue;
+
+        localConn.push_back(elem->GetVTK_Type());
+        for (unsigned short iNode = 0; iNode < elem->GetnNodes(); iNode++)
+          localConn.push_back(geometry->nodes->GetGlobalIndex(elem->GetNode(iNode)));
+        nLocalElem++;
+      }
+    }
+
+    BoundaryMarker marker;
+    marker.name = tag;
+    SU2_MPI::Allreduce(&nLocalElem, &marker.nElem, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
+    if (marker.nElem == 0) continue;
+
+    /*--- Gather the elements of all ranks, in rank order. ---*/
+
+    const int nLocalConn = localConn.size();
+    vector<int> nConn(size), displ(size + 1, 0);
+    SU2_MPI::Allgather(&nLocalConn, 1, MPI_INT, nConn.data(), 1, MPI_INT, SU2_MPI::GetComm());
+    for (int iRank = 0; iRank < size; iRank++) displ[iRank + 1] = displ[iRank] + nConn[iRank];
+
+    marker.conn.resize(displ[size]);
+    SU2_MPI::Allgatherv(localConn.data(), nLocalConn, MPI_UNSIGNED_LONG, marker.conn.data(), nConn.data(),
+                        displ.data(), MPI_UNSIGNED_LONG, SU2_MPI::GetComm());
+
+    markers.push_back(std::move(marker));
+  }
+
+  return markers;
+}

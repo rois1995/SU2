@@ -28,6 +28,13 @@
 
 #include "../../include/output/CMeshOutput.hpp"
 #include "../../../Common/include/geometry/CGeometry.hpp"
+#include "../../include/output/filewriter/CFVMDataSorter.hpp"
+#include "../../include/output/filewriter/CSU2MeshFileWriter.hpp"
+#include "../../include/output/filewriter/CSU2MeshBinaryFileWriter.hpp"
+#include "../../include/output/filewriter/CCGNSFileWriter.hpp"
+
+#include <fstream>
+#include <memory>
 
 CMeshOutput::CMeshOutput(CConfig *config, unsigned short nDim) : COutput(config, nDim, false) {
 
@@ -79,4 +86,68 @@ void CMeshOutput::LoadVolumeData(CConfig *config, CGeometry *geometry, CSolver *
     SetVolumeOutputValue("VOLUME_RATIO",  iPoint, geometry->Volume_Ratio[iPoint]);
   }
 
+}
+
+void CMeshOutput::WriteMesh(CConfig *config, CGeometry *geometry, const string& fileName) {
+
+  /*--- Sort the coordinates and the volume elements by global index, as for the volume output. ---*/
+
+  const auto nDim = geometry->GetnDim();
+  vector<string> fieldNames = {"x", "y"};
+  if (nDim == 3) fieldNames.emplace_back("z");
+
+  CFVMDataSorter sorter(config, geometry, fieldNames);
+  for (unsigned long iPoint = 0; iPoint < geometry->GetnPointDomain(); iPoint++) {
+    for (unsigned short iDim = 0; iDim < nDim; iDim++) {
+      sorter.SetUnsortedData(iPoint, iDim, geometry->nodes->GetCoord(iPoint, iDim));
+    }
+  }
+  sorter.SortOutputData();
+  sorter.SortConnectivity(config, geometry, true);
+
+  /*--- The boundaries come from the geometry, named as the markers. ---*/
+
+  std::unique_ptr<CFileWriter> fileWriter;
+  string extension;
+
+  switch (config->GetMesh_Out_FileFormat()) {
+    case ENUM_GRID::SU2: {
+      auto* writer = new CSU2MeshFileWriter(&sorter, config->GetiZone(), config->GetnZone());
+      fileWriter.reset(writer);
+      writer->SetBoundaryMarkers(config, geometry, &sorter);
+      extension = CSU2MeshFileWriter::fileExt;
+      break;
+    }
+    case ENUM_GRID::SU2_BIN: {
+      auto* writer = new CSU2MeshBinaryFileWriter(&sorter, config->GetiZone(), config->GetnZone());
+      fileWriter.reset(writer);
+      writer->SetBoundaryMarkers(config, geometry, &sorter);
+      extension = CSU2MeshBinaryFileWriter::fileExt;
+      break;
+    }
+    case ENUM_GRID::CGNS_GRID: {
+#ifndef HAVE_CGNS
+      SU2_MPI::Error("MESH_OUT_FORMAT= CGNS needs CGNS support: SU2 was built without it.", CURRENT_FUNCTION);
+#endif
+      auto* writer = new CCGNSFileWriter(&sorter);
+      fileWriter.reset(writer);
+      writer->SetBoundaryMarkers(config, geometry, &sorter);
+      extension = CCGNSFileWriter::fileExt;
+      break;
+    }
+    default:
+      SU2_MPI::Error("Unrecognized mesh_out format specified!", CURRENT_FUNCTION);
+      break;
+  }
+
+  fileWriter->WriteData(fileName);
+
+  /*--- The writers do not all check their output streams, check that the file is there. ---*/
+
+  if (SU2_MPI::GetRank() == MASTER_NODE) {
+    std::ifstream file(fileName + extension, std::ios::binary | std::ios::ate);
+    if (!file.is_open() || file.tellg() <= 0) {
+      SU2_MPI::Error("The mesh file " + fileName + extension + " could not be written.", CURRENT_FUNCTION);
+    }
+  }
 }

@@ -51,6 +51,7 @@ void CSU2MeshFileWriter::WriteData(string val_filename) {
     } else {
       output_file.open(val_filename, ios::app);
     }
+    if (!output_file.is_open()) SU2_MPI::Error(string("Unable to open file ") + val_filename, CURRENT_FUNCTION);
 
     if (iZone==0 && nZone>1) {
       output_file << "NZONE= " << nZone << endl;
@@ -133,7 +134,9 @@ void CSU2MeshFileWriter::WriteData(string val_filename) {
   for (int iProcessor = 0; iProcessor < size; iProcessor++) {
     if (rank == iProcessor) {
       output_file.open(val_filename, ios::app);
-      output_file.precision(15);
+
+      /*--- 17 significant digits, so that the coordinates are read back exactly. ---*/
+      output_file.precision(16);
 
       for (auto iPoint = 0ul; iPoint < dataSorter->GetnPoints(); iPoint++) {
 
@@ -156,7 +159,28 @@ void CSU2MeshFileWriter::WriteData(string val_filename) {
     SU2_MPI::Allreduce(&myPoint, &offset, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
   }
 
-  if (rank == MASTER_NODE) {
+  if (rank == MASTER_NODE && boundaryFromMemory) {
+
+    /*--- Write the physical boundaries of the geometry. ---*/
+
+    output_file.open(val_filename, ios::app);
+    output_file << "NMARK= " << boundaryMarkers.size() << endl;
+
+    for (const auto& marker : boundaryMarkers) {
+      output_file << "MARKER_TAG= " << marker.name << endl;
+      output_file << "MARKER_ELEMS= " << marker.nElem << endl;
+
+      for (size_t pos = 0; pos < marker.conn.size();) {
+        const auto nNodes = nPointsOfElementType(static_cast<unsigned short>(marker.conn[pos]));
+        output_file << marker.conn[pos];
+        for (auto iNode = 1u; iNode <= nNodes; iNode++) output_file << "\t" << marker.conn[pos + iNode];
+        output_file << "\n";
+        pos += nNodes + 1;
+      }
+    }
+    output_file.close();
+
+  } else if (rank == MASTER_NODE) {
 
     output_file.open(val_filename, ios::app);
 

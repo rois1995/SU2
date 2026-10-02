@@ -69,6 +69,25 @@ public:
    */
   bool GetHalo(unsigned long iPoint) const {return Local_Halo[iPoint];}
 
+  /*!
+   * \brief Boundary elements of one physical marker, see GatherBoundaryMarkers.
+   */
+  struct BoundaryMarker {
+    string name;                /*!< \brief Marker tag. */
+    unsigned long nElem = 0;    /*!< \brief Number of boundary elements. */
+    vector<unsigned long> conn; /*!< \brief VTK type followed by the (0-based) output ids of the nodes, per element. */
+  };
+
+  /*!
+   * \brief Gather the boundary elements of the physical markers (all markers but send/receive) of the current
+   *        geometry on every rank, with the node numbering of the sorted output (the global index). Each element is
+   *        taken once, from the rank that holds it without halo nodes, as the volume elements.
+   * \param[in] config - Definition of the particular problem.
+   * \param[in] geometry - Geometrical definition of the problem.
+   * \return The markers that have elements, in the order of the markers of the config.
+   */
+  vector<BoundaryMarker> GatherBoundaryMarkers(CConfig *config, CGeometry *geometry) const;
+
 private:
 
   /*!

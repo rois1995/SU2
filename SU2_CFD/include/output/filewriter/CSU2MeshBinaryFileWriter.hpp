@@ -26,12 +26,16 @@
  */
 #pragma once
 #include "CFileWriter.hpp"
+#include "CFVMDataSorter.hpp"
 
 class CSU2MeshBinaryFileWriter final: public CFileWriter{
 
 private:
   unsigned short iZone, //!< Index of the current zone
   nZone;                //!< Number of zones
+
+  bool boundaryFromMemory = false;                         //!< Write the markers set with SetBoundaryMarkers
+  vector<CFVMDataSorter::BoundaryMarker> boundaryMarkers;  //!< Physical markers of the geometry
 
 public:
 
@@ -54,6 +58,18 @@ public:
    * \param[in] val_filename - The name of the file
    */
   void WriteData(string val_filename) override ;
+
+  /*!
+   * \brief Write the physical markers of the geometry (from memory) instead of reading them from the
+   *        boundary[_zone].dat file of SU2_DEF.
+   * \param[in] config - Definition of the particular problem.
+   * \param[in] geometry - Geometrical definition of the problem.
+   * \param[in] volumeSorter - The volume data sorter, to find the boundary elements owned by each rank.
+   */
+  void SetBoundaryMarkers(CConfig* config, CGeometry* geometry, const CFVMDataSorter* volumeSorter) {
+    boundaryMarkers = volumeSorter->GatherBoundaryMarkers(config, geometry);
+    boundaryFromMemory = true;
+  }
 
 };
 

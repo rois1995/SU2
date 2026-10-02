@@ -210,7 +210,41 @@ void CSU2MeshBinaryFileWriter::WriteData(string val_filename) {
         SU2_COMPONENT::SU2_DEF) right after reading the original mesh. Only the
         master rank does this work, exactly as for the ASCII format. ---*/
 
-  if (rank == MASTER_NODE) {
+  if (rank == MASTER_NODE && boundaryFromMemory) {
+
+    /*--- Write the physical boundaries of the geometry, in the same layout as below. ---*/
+
+    FILE* f = OpenAppend(val_filename);
+
+    const int32_t nMarker_ = boundaryMarkers.size();
+    fwrite(&nMarker_, sizeof(nMarker_), 1, f);
+
+    for (const auto& marker : boundaryMarkers) {
+      char name_buf[SU2_BINARY_STRING_SIZE] = {};
+      strncpy(name_buf, marker.name.c_str(), SU2_BINARY_STRING_SIZE - 1);
+      fwrite(name_buf, sizeof(char), SU2_BINARY_STRING_SIZE, f);
+
+      auto nElemBoundConn = static_cast<conn_t>(marker.nElem);
+      fwrite(&nElemBoundConn, sizeof(nElemBoundConn), 1, f);
+
+      /*--- Offsets of the elements, then [VTK_Type, nodes] of each element (the layout of marker.conn). ---*/
+      conn_t running = 0;
+      for (size_t pos = 0; pos < marker.conn.size();) {
+        fwrite(&running, sizeof(running), 1, f);
+        const auto nEntries = nPointsOfElementType(static_cast<unsigned short>(marker.conn[pos])) + 1;
+        running += nEntries;
+        pos += nEntries;
+      }
+      fwrite(&running, sizeof(running), 1, f);
+
+      for (const auto value : marker.conn) {
+        conn_t entry = value;
+        fwrite(&entry, sizeof(entry), 1, f);
+      }
+    }
+    fclose(f);
+
+  } else if (rank == MASTER_NODE) {
     FILE* f = OpenAppend(val_filename);
 
     string str = "boundary";

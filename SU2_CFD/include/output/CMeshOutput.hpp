@@ -64,4 +64,13 @@ public:
    */
   void LoadVolumeData(CConfig *config, CGeometry *geometry, CSolver **solver, unsigned long iPoint) override;
 
+  /*!
+   * \brief Write the mesh of a geometry in the format of MESH_OUT_FORMAT: coordinates, volume elements and the
+   *        physical markers with their names (all markers but send/receive), all taken from memory (no boundary file).
+   * \param[in] config - Definition of the particular problem.
+   * \param[in] geometry - Geometrical definition of the problem.
+   * \param[in] fileName - Name of the file, without extension (it is added for the format).
+   */
+  static void WriteMesh(CConfig *config, CGeometry *geometry, const string& fileName);
+
 };
