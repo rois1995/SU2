@@ -4917,6 +4917,15 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
 
   Aeroelastic_Simulation = GetGrid_Movement() && (GetSurface_Movement(AEROELASTIC) || GetSurface_Movement(AEROELASTIC_RIGID_MOTION));
 
+  /*--- The typical section model has no terms for a motion of its support (forces and plunge are taken in the
+   * fixed frame), and the grid motion would be updated in every aeroelastic inner iteration (rigid motions applied
+   * INNER_ITER+1 times per time step, frame velocities overwritten by the aeroelastic grid velocity). ---*/
+  if (Kind_SU2 == SU2_COMPONENT::SU2_CFD && Aeroelastic_Simulation && Kind_GridMovement != NO_MOVEMENT &&
+      Kind_GridMovement != GUST) {
+    SU2_MPI::Error("SURFACE_MOVEMENT= AEROELASTIC can only be combined with GRID_MOVEMENT= NONE or GUST.",
+                   CURRENT_FUNCTION);
+  }
+
   /*--- Initializing the size for the solutions of the Aeroelastic problem. ---*/
 
 
