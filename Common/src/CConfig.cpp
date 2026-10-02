@@ -6088,6 +6088,13 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
 
   /*--- Checks for mesh adaptation ---*/
   if (Compute_Metric) {
+    /*--- Feature-based metric of the primal solution only (the adjoint solvers are not supported yet).
+     *    Checked first: the adjoint problems have already replaced Kind_Solver by the DISC_ADJ_ kinds. ---*/
+    if (DiscreteAdjoint || ContinuousAdjoint) {
+      SU2_MPI::Error("COMPUTE_METRIC needs MATH_PROBLEM= DIRECT (adjoint problems are not supported).\n"
+                     "Note: SU2_CFD_AD uses MATH_PROBLEM= DISCRETE_ADJOINT when the option is not set.",
+                     CURRENT_FUNCTION);
+    }
     /*--- Initial support: compressible Euler, Navier-Stokes and RANS with a single sensor list. ---*/
     if (Kind_Solver != MAIN_SOLVER::EULER && Kind_Solver != MAIN_SOLVER::NAVIER_STOKES &&
         Kind_Solver != MAIN_SOLVER::RANS) {
