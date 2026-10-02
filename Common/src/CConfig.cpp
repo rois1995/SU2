@@ -3316,6 +3316,11 @@ void CConfig::SetConfig_Options() {
   /*!\brief ADAP_TRANSFER \n DESCRIPTION: Solution transfer to the adapted meshes \n OPTIONS: BARYCENTRIC, FREESTREAM
    * (no transfer, for debugging) \n DEFAULT: BARYCENTRIC \ingroup Config */
   addEnumOption("ADAP_TRANSFER", Kind_Adap_Transfer, Adap_Transfer_Map, ADAP_TRANSFER::BARYCENTRIC);
+  /*!\brief WRT_ADAP_MESH \n DESCRIPTION: Write the adapted mesh of each cycle of the loop, after it is built and the
+   * solution is transferred, as MESH_OUT_FILENAME_adap_<cycle> (e.g. mesh_out_adap_00001.su2). The format is
+   * MESH_OUT_FORMAT if it is in the config file, else the format of the input mesh (MESH_FORMAT) \n DEFAULT: NO
+   * \ingroup Config */
+  addBoolOption("WRT_ADAP_MESH", Wrt_Adap_Mesh, false);
 
   /*--- Goal-oriented adaptation loop options, not used by the C++ code yet (kept so existing config files parse) ---*/
   addPythonOption("ADAP_ADJ_ITER");
@@ -6195,13 +6200,19 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
       }
       Adap_Levels.push_back(level);
     }
+
+    /*--- The adapted meshes are written in the format of the input mesh, unless MESH_OUT_FORMAT is given. ---*/
+    if (Wrt_Adap_Mesh && !OptionIsSet("MESH_OUT_FORMAT")) {
+      Mesh_Out_FileFormat = (Mesh_FileFormat == ENUM_GRID::CGNS_GRID || Mesh_FileFormat == ENUM_GRID::SU2_BIN) ?
+                            Mesh_FileFormat : static_cast<unsigned short>(ENUM_GRID::SU2);
+    }
   }
 
   /*--- Check if SU2 was built with CGNS support, as that is required for CGNS mesh output. ---*/
 #ifndef HAVE_CGNS
   if (Mesh_Out_FileFormat == ENUM_GRID::CGNS_GRID) {
-    SU2_MPI::Error("MESH_OUT_FORMAT= CGNS needs CGNS support: SU2 was built without it, reconfigure with "
-                   "-Denable-cgns=true.", CURRENT_FUNCTION);
+    SU2_MPI::Error("MESH_OUT_FORMAT= CGNS (or a CGNS input mesh with WRT_ADAP_MESH= YES) needs CGNS support: SU2 was "
+                   "built without it, reconfigure with -Denable-cgns=true.", CURRENT_FUNCTION);
   }
 #endif
 

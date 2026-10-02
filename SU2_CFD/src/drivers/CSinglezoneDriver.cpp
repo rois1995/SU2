@@ -28,6 +28,7 @@
 #include "../../include/drivers/CSinglezoneDriver.hpp"
 #include "../../include/definition_structure.hpp"
 #include "../../include/output/COutput.hpp"
+#include "../../include/output/CMeshOutput.hpp"
 #include "../../include/iteration/CIteration.hpp"
 #include "../../include/adaptation/CSolutionTransfer.hpp"
 #include "../../include/adaptation/CBarycentricTransfer.hpp"
@@ -271,6 +272,7 @@ void CSinglezoneDriver::RunAdaptationLoop() {
   /*--- Stop before the first solve if the problem or the build cannot be adapted. ---*/
 
   CheckMeshAdaptation();
+  if (config->GetWrt_Adap_Mesh()) CheckAdaptedMeshNames();
 
   CMMGRemesher remesher;
 
@@ -340,7 +342,9 @@ void CSinglezoneDriver::RunAdaptationLoop() {
     config->SetAdap_FlowLevel(iLevel);
     output->SetResidualReduction(level.residualReduction);
 
-    /*--- The new mesh is accepted (built, solution transferred): the place to write it (WRT_ADAP_MESH). ---*/
+    /*--- The new mesh is accepted (built, solution transferred). ---*/
+
+    if (config->GetWrt_Adap_Mesh()) WriteAdaptedMesh(iCycle + 1);
   }
 
   if (rank == MASTER_NODE) {
@@ -357,6 +361,51 @@ void CSinglezoneDriver::RunAdaptationLoop() {
     }
     table.PrintFooter();
   }
+}
+
+void CSinglezoneDriver::CheckAdaptedMeshNames() const {
+
+  const auto* config = config_container[ZONE_0];
+  const auto baseName = config->GetMesh_Out_FileName();
+  const auto extension = config->GetMesh_Out_FileExtension();
+
+  for (unsigned long iCycle = 1; iCycle <= config->GetnAdap_Cycles(); iCycle++) {
+    const auto fileName = CConfig::GetAdap_FileName(baseName, iCycle) + extension;
+    if (fileName == config->GetMesh_FileName()) {
+      SU2_MPI::Error("The adapted mesh of cycle " + to_string(iCycle) + " would overwrite the input mesh " + fileName +
+                     ", change MESH_OUT_FILENAME.", CURRENT_FUNCTION);
+    }
+  }
+
+  /*--- The volume and surface files of the loop have the same cycle numbers. ---*/
+
+  for (unsigned short iFile = 0; iFile < config->GetnVolumeOutputFiles(); iFile++) {
+    string outputName, outputExtension;
+    switch (config->GetVolumeOutputFiles()[iFile]) {
+      case OUTPUT_TYPE::CGNS: outputName = config->GetVolume_FileName(); outputExtension = ".cgns"; break;
+      case OUTPUT_TYPE::SURFACE_CGNS: outputName = config->GetSurfCoeff_FileName(); outputExtension = ".cgns"; break;
+      case OUTPUT_TYPE::MESH: outputName = config->GetVolume_FileName(); outputExtension = ".su2"; break;
+      case OUTPUT_TYPE::MESH_BINARY: outputName = config->GetVolume_FileName(); outputExtension = ".su2b"; break;
+      default: continue;
+    }
+    if (outputName == baseName && outputExtension == extension) {
+      SU2_MPI::Error("The adapted meshes would overwrite the " + outputExtension + " output files of OUTPUT_FILES (" +
+                     outputName + "), change MESH_OUT_FILENAME.", CURRENT_FUNCTION);
+    }
+  }
+}
+
+void CSinglezoneDriver::WriteAdaptedMesh(unsigned long iCycle) const {
+  SU2_ZONE_SCOPED
+
+  auto* config = config_container[ZONE_0];
+  const auto fileName = CConfig::GetAdap_FileName(config->GetMesh_Out_FileName(), iCycle);
+
+  if (rank == MASTER_NODE) {
+    cout << "Writing the adapted mesh of cycle " << iCycle << ": " << fileName + config->GetMesh_Out_FileExtension()
+         << "." << endl;
+  }
+  CMeshOutput::WriteMesh(config, geometry_container[ZONE_0][INST_0][MESH_0], fileName);
 }
 
 void CSinglezoneDriver::ReplaceMesh(const CSimplexMesh& mesh, CSolutionTransfer& transfer) {

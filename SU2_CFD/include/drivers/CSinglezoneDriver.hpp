@@ -72,6 +72,18 @@ protected:
    */
   void RunAdaptationLoop();
 
+  /*!
+   * \brief Stop if an adapted mesh written with WRT_ADAP_MESH= YES would overwrite the input mesh or an output file.
+   */
+  void CheckAdaptedMeshNames() const;
+
+  /*!
+   * \brief Write the current mesh as the adapted mesh of a cycle (WRT_ADAP_MESH): MESH_OUT_FILENAME_adap_<cycle> in
+   *        the format of MESH_OUT_FORMAT, the markers are taken from the geometry.
+   * \param[in] iCycle - Adaptation cycle of the mesh.
+   */
+  void WriteAdaptedMesh(unsigned long iCycle) const;
+
 public:
 
   /*!

@@ -171,3 +171,52 @@ TEST_CASE("Adaptation loop, solution in memory and file names", "[Adaptation]") 
   CHECK(CConfig::GetAdap_FileName("flow", 0) == "flow_adap_00000");
   CHECK(CConfig::GetAdap_FileName("restart_flow", 12) == "restart_flow_adap_00012");
 }
+
+TEST_CASE("Adapted mesh output options", "[Adaptation]") {
+  /*--- Options with another input format than the BOX of the base options. ---*/
+  auto makeConfig = [](const std::string& meshFormat, const std::string& options) {
+    std::string base = baseOptions;
+    base.replace(base.find("MESH_FORMAT= BOX"), 16, "MESH_FORMAT= " + meshFormat);
+    std::stringstream ss(base + "ADAP_LOOP= YES\nADAP_SIZES= (5000)\n" + options);
+    auto* origBuf = std::cout.rdbuf(nullptr);
+    auto config = std::make_unique<CConfig>(ss, SU2_COMPONENT::SU2_CFD, false);
+    std::cout.rdbuf(origBuf);
+    return config;
+  };
+
+  /*--- Off by default, the default output format (SU2) is not changed then. ---*/
+  auto config = makeConfig("SU2B", "");
+  CHECK_FALSE(config->GetWrt_Adap_Mesh());
+  CHECK(config->GetMesh_Out_FileFormat() == ENUM_GRID::SU2);
+
+  /*--- Without MESH_OUT_FORMAT the adapted meshes have the format of the input mesh. ---*/
+  config = makeConfig("SU2B", "WRT_ADAP_MESH= YES\n");
+  CHECK(config->GetWrt_Adap_Mesh());
+  CHECK(config->GetMesh_Out_FileFormat() == ENUM_GRID::SU2_BIN);
+  CHECK(config->GetMesh_Out_FileExtension() == ".su2b");
+
+  config = makeConfig("BOX", "WRT_ADAP_MESH= YES\n");
+  CHECK(config->GetMesh_Out_FileFormat() == ENUM_GRID::SU2);
+  CHECK(config->GetMesh_Out_FileExtension() == ".su2");
+
+  /*--- MESH_OUT_FORMAT in the config file wins, also when it is the default value. ---*/
+  config = makeConfig("SU2B", "WRT_ADAP_MESH= YES\nMESH_OUT_FORMAT= SU2\n");
+  CHECK(config->GetMesh_Out_FileFormat() == ENUM_GRID::SU2);
+
+  /*--- Names of the cycles. ---*/
+  config = makeConfig("SU2", "WRT_ADAP_MESH= YES\nMESH_OUT_FILENAME= adapted.su2\n");
+  CHECK(CConfig::GetAdap_FileName(config->GetMesh_Out_FileName(), 3) + config->GetMesh_Out_FileExtension() ==
+        "adapted_adap_00003.su2");
+
+#ifdef HAVE_CGNS
+  config = makeConfig("CGNS", "WRT_ADAP_MESH= YES\n");
+  CHECK(config->GetMesh_Out_FileFormat() == ENUM_GRID::CGNS_GRID);
+  CHECK(config->GetMesh_Out_FileExtension() == ".cgns");
+
+  config = makeConfig("CGNS", "WRT_ADAP_MESH= YES\nMESH_OUT_FORMAT= SU2\n");
+  CHECK(config->GetMesh_Out_FileFormat() == ENUM_GRID::SU2);
+
+  config = makeConfig("SU2", "WRT_ADAP_MESH= YES\nMESH_OUT_FORMAT= CGNS\n");
+  CHECK(config->GetMesh_Out_FileFormat() == ENUM_GRID::CGNS_GRID);
+#endif
+}

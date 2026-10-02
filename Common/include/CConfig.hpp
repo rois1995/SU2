@@ -1324,6 +1324,7 @@ private:
             Adap_Angle;                     /*!< \brief Sharp angle detection threshold of the remesher (degrees). */
   unsigned long Adap_Complexity;            /*!< \brief Target complexity of the final metric. */
   bool Adap_Loop = false;                   /*!< \brief Run the mesh adaptation loop. */
+  bool Wrt_Adap_Mesh = false;               /*!< \brief Write the adapted mesh of each cycle of the loop. */
   ADAP_TRANSFER Kind_Adap_Transfer;         /*!< \brief Solution transfer to the adapted meshes. */
   unsigned short nAdap_Sizes = 0, nAdap_SubIter = 0, nAdap_Hmaxs = 0, nAdap_Hmins = 0, nAdap_Norms = 0,
                  nAdap_ARmaxs = 0, nAdap_FlowIter = 0, nAdap_FlowCFL = 0, nAdap_ResRed = 0; /*!< \brief List lengths. */
@@ -10393,6 +10394,11 @@ public:
    * \brief Check if the mesh adaptation loop is run (ADAP_LOOP).
    */
   bool GetAdap_Loop(void) const { return Adap_Loop; }
+
+  /*!
+   * \brief Check if the adapted mesh of each cycle of the adaptation loop is written (WRT_ADAP_MESH).
+   */
+  bool GetWrt_Adap_Mesh(void) const { return Wrt_Adap_Mesh; }
 
   /*!
    * \brief Get the solution transfer of the mesh adaptation loop.
