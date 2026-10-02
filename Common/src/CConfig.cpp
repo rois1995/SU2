@@ -4222,6 +4222,19 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
                    CURRENT_FUNCTION);
   }
 
+  /*--- Each cycle of FGCRODR adds restart - deflation new directions, and a complex pair of Ritz vectors can take
+   * one more deflation vector than requested, so at least two directions are needed. ---*/
+
+  if (Linear_Solver_Restart_Deflation + 1 >= Linear_Solver_Restart_Frequency) {
+    for (const auto kind : {Kind_Linear_Solver, Kind_DiscAdj_Linear_Solver, Kind_Deform_Linear_Solver,
+                            Kind_Grad_Linear_Solver, Kind_Poisson_Linear_Solver}) {
+      if (kind == FGCRODR) {
+        SU2_MPI::Error("FGCRODR requires LINEAR_SOLVER_RESTART_DEFLATION < LINEAR_SOLVER_RESTART_FREQUENCY - 1.",
+                       CURRENT_FUNCTION);
+      }
+    }
+  }
+
   Radiation = (Kind_Radiation != RADIATION_MODEL::NONE);
 
   /*--- Check for unsupported features. ---*/
