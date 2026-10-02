@@ -2360,6 +2360,7 @@ static const MapType<std::string, ENUM_GRID> Input_Map = {
 static const MapType<std::string, ENUM_GRID> OutputMesh_Map = {
   MakePair("SU2", ENUM_GRID::SU2)
   MakePair("SU2B", ENUM_GRID::SU2_BIN)
+  MakePair("CGNS", ENUM_GRID::CGNS_GRID)
 };
 
 /*!

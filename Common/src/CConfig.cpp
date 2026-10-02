@@ -6197,6 +6197,14 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     }
   }
 
+  /*--- Check if SU2 was built with CGNS support, as that is required for CGNS mesh output. ---*/
+#ifndef HAVE_CGNS
+  if (Mesh_Out_FileFormat == ENUM_GRID::CGNS_GRID) {
+    SU2_MPI::Error("MESH_OUT_FORMAT= CGNS needs CGNS support: SU2 was built without it, reconfigure with "
+                   "-Denable-cgns=true.", CURRENT_FUNCTION);
+  }
+#endif
+
 }
 
 void CConfig::SetMarkers(SU2_COMPONENT val_software) {

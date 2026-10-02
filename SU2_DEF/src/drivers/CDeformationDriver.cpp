@@ -209,6 +209,12 @@ void CDeformationDriver::InitializeGeometry() {
 }
 
 void CDeformationDriver::PreprocessOutput() {
+  /*--- Stop before the deformation if the mesh cannot be written. ---*/
+  if (driver_config->GetMesh_Out_FileFormat() == ENUM_GRID::CGNS_GRID) {
+    SU2_MPI::Error("SU2_DEF writes the mesh in SU2 or SU2B format only, MESH_OUT_FORMAT= CGNS is not supported.",
+                   CURRENT_FUNCTION);
+  }
+
   for (iZone = 0; iZone < nZone; iZone++) {
     /*--- Allocate the mesh output. ---*/
 
@@ -507,6 +513,11 @@ void CDeformationDriver::OutputFiles() {
         break;
       case ENUM_GRID::SU2_BIN:
         output_type = OUTPUT_TYPE::MESH_BINARY;
+        break;
+      case ENUM_GRID::CGNS_GRID:
+        SU2_MPI::Error("SU2_DEF writes the mesh in SU2 or SU2B format only, MESH_OUT_FORMAT= CGNS is not supported.",
+                       CURRENT_FUNCTION);
+        output_type = OUTPUT_TYPE::MESH;
         break;
       default:
         SU2_MPI::Error("Unrecognized mesh_out format specified!", CURRENT_FUNCTION);

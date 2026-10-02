@@ -5872,6 +5872,8 @@ public:
         return ".su2";
       case ENUM_GRID::SU2_BIN:
         return ".su2b";
+      case ENUM_GRID::CGNS_GRID:
+        return ".cgns";
       default:
         SU2_MPI::Error("Unrecognized mesh_out format specified!", CURRENT_FUNCTION);
         return "";
