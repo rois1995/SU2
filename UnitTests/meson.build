@@ -61,7 +61,8 @@ su2_cfd_tests = files(['SU2_CFD/adaptation/CAdapSensors_tests.cpp',
                        'Common/parallelization/NativeDouble_order3.cpp',
                        'Common/adaptation/DistributedSearch_tests.cpp',
                        'Common/linear_algebra/quantization_tests.cpp',
-                       'Common/linear_algebra/edge_residual_blocks_tests.cpp'])
+                       'Common/linear_algebra/edge_residual_blocks_tests.cpp',
+                       'Common/linear_algebra/krylov_solver_tests.cpp'])
 
 # Reverse-mode (algorithmic differentiation) tests:
 su2_cfd_tests_ad = files(['SU2_CFD/adaptation/CAdapSensors_tests.cpp',
