@@ -29,9 +29,13 @@
 #include <string>
 #include <vector>
 
+#include "../../../Common/include/containers/C2DContainer.hpp"
+#include "../../../Common/include/option_structure.hpp"
+
 class CConfig;
 class CGeometry;
 class CSolver;
+class CVariable;
 
 /*!
  * \brief Geometry and solvers of the mesh that is being replaced (the donor of a solution transfer).
@@ -54,6 +58,17 @@ struct CMeshDonor {
  */
 class CSolutionTransfer {
  public:
+  /*!
+   * \brief Short report of the last transfer for the tables of the adaptation loop.
+   */
+  struct Report {
+    unsigned long nOutside = 0;           /*!< \brief New points (or control volumes) not inside the donor mesh. */
+    passivedouble maxDistance = 0.0;      /*!< \brief Largest distance to the donor used for them. */
+    passivedouble maxRelDistance = 0.0;   /*!< \brief Same, relative to the size of the donor face. */
+    passivedouble conservationDefect = -1.0; /*!< \brief Largest relative change of the integrals of the conservative
+                                                  variables (-1: not measured). */
+  };
+
   virtual ~CSolutionTransfer() = default;
 
   /*!
@@ -64,6 +79,40 @@ class CSolutionTransfer {
    * \param[in,out] solver - Solvers of each multigrid level of the new mesh.
    */
   virtual void Transfer(CConfig* config, const CMeshDonor& donor, CGeometry** geometry, CSolver*** solver) = 0;
+
+  /*!
+   * \brief Report of the last transfer.
+   */
+  virtual Report GetReport() const { return Report(); }
+
+ protected:
+  using ArrayGetter = su2activematrix& (*)(CVariable*);
+
+  /*!
+   * \brief Arrays of the solvers that a transfer sets: the solution and, in the time domain, its history.
+   */
+  struct TransferArrays {
+    std::vector<unsigned short> solverIndices; /*!< \brief Transferred solvers (flow, turbulence). */
+    bool hasTimeN = false, hasTimeN1 = false;  /*!< \brief History arrays allocated (time domain). */
+    bool interpolateTimeN1 = false;            /*!< \brief U^(n-1) is transferred (2nd-order dual time stepping). */
+    std::vector<ArrayGetter> history;          /*!< \brief Getters of the history arrays (Solution_time_n, _n1). */
+    std::vector<MPI_QUANTITIES> historyComms;  /*!< \brief MPI quantities of the history arrays. */
+  };
+
+  /*!
+   * \brief Check that the problem is supported (compressible flow, SA or SST, one rank, static mesh) and that the
+   *        donor and the new mesh have the same solvers and arrays; in the time domain, that the donor solution and
+   *        Solution_time_n are the same state (the transfer is done at the end of a time step).
+   * \param[in] name - Name of the transfer for the messages.
+   */
+  static TransferArrays CheckProblem(const std::string& name, CConfig* config, const CMeshDonor& donor,
+                                     CGeometry** geometry, CSolver*** solver);
+
+  /*!
+   * \brief As after loading a restart file: old solution, communication, primitive variables, eddy viscosity,
+   *        restriction to the coarse levels, and the restriction of the time history.
+   */
+  static void FinishTransfer(CConfig* config, CGeometry** geometry, CSolver*** solver, const TransferArrays& arrays);
 };
 
 /*!

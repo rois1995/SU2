@@ -328,18 +328,33 @@ CBarycentricLocator::Stencil CBarycentricLocator::Locate(const su2double* x) {
   return ClosestFace(x, *faceADT, faceConn);
 }
 
+long CBarycentricLocator::ContainingElement(const su2double* x) {
+  unsigned short markerID = 0;
+  unsigned long id = 0;
+  int rankID = 0;
+  su2double parCoor[3] = {}, weights[8] = {};
+  return elemADT->DetermineContainingElement(x, markerID, id, rankID, parCoor, weights) ? static_cast<long>(id) : -1;
+}
+
 CBarycentricLocator::Stencil CBarycentricLocator::LocateOnBoundary(const su2double* x,
-                                                                   const std::vector<std::string>& names) {
+                                                                   const std::vector<std::string>& names,
+                                                                   std::string* nameFound) {
   Stencil best;
   bool found = false;
   for (const auto& name : names) {
     const auto it = markerIndex.find(name);
     if (it == markerIndex.end()) continue;
     const auto stencil = ClosestFace(x, *markerADT[it->second], markerFaceConn[it->second]);
-    if (!found || stencil.distance < best.distance) best = stencil;
+    if (!found || stencil.distance < best.distance) {
+      best = stencil;
+      if (nameFound != nullptr) *nameFound = name;
+    }
     found = true;
   }
-  if (!found) return Locate(x);
+  if (!found) {
+    if (nameFound != nullptr) nameFound->clear();
+    return Locate(x);
+  }
 
   unsigned short markerID = 0;
   unsigned long id = 0;
@@ -376,54 +391,12 @@ void CBarycentricTransfer::Transfer(CConfig* config, const CMeshDonor& donor, CG
   const int rank = SU2_MPI::GetRank();
   summary = Summary();
 
-  /*--- Supported problems: compressible flow, SA or SST, one rank. ---*/
-
-  if (SU2_MPI::GetSize() > 1) {
-    SU2_MPI::Error("The barycentric solution transfer is only available on one rank for now.", CURRENT_FUNCTION);
-  }
-  const auto kindSolver = config->GetKind_Solver();
-  if (kindSolver != MAIN_SOLVER::EULER && kindSolver != MAIN_SOLVER::NAVIER_STOKES &&
-      kindSolver != MAIN_SOLVER::RANS) {
-    SU2_MPI::Error("The barycentric solution transfer is only available for compressible EULER, NAVIER_STOKES or RANS.",
-                   CURRENT_FUNCTION);
-  }
-  if (config->GetTime_Domain() && config->GetGrid_Movement()) {
-    SU2_MPI::Error("The barycentric solution transfer is not available for moving meshes.", CURRENT_FUNCTION);
-  }
-  const auto turbFamily = TurbModelFamily(config->GetKind_Turb_Model());
-  if (config->GetKind_Turb_Model() != TURB_MODEL::NONE && turbFamily != TURB_FAMILY::SA &&
-      turbFamily != TURB_FAMILY::KW) {
-    SU2_MPI::Error("The barycentric solution transfer is only available for the SA and SST turbulence models.",
-                   CURRENT_FUNCTION);
-  }
-  if (config->GetKind_Trans_Model() != TURB_TRANS_MODEL::NONE ||
-      config->GetKind_Species_Model() != SPECIES_MODEL::NONE) {
-    SU2_MPI::Error("The barycentric solution transfer is not available with transition or species models.",
-                   CURRENT_FUNCTION);
-  }
-
-  std::vector<unsigned short> solverIndices;
-  for (unsigned short iSol = 0; iSol < MAX_SOLS; ++iSol) {
-    const auto* newSolver = solver[MESH_0][iSol];
-    const auto* donorSolver = donor.solver[MESH_0][iSol];
-    if (newSolver == nullptr && donorSolver == nullptr) continue;
-    if (iSol != FLOW_SOL && iSol != TURB_SOL) {
-      SU2_MPI::Error("The barycentric solution transfer is not available for solver " + std::to_string(iSol) + ".",
-                     CURRENT_FUNCTION);
-    }
-    if (newSolver == nullptr || donorSolver == nullptr || newSolver->GetnVar() != donorSolver->GetnVar()) {
-      SU2_MPI::Error("The solvers of the donor and of the new mesh differ.", CURRENT_FUNCTION);
-    }
-    solverIndices.push_back(iSol);
-  }
-  if (solver[MESH_0][FLOW_SOL] == nullptr) SU2_MPI::Error("No flow solver.", CURRENT_FUNCTION);
+  const auto arrays = CheckProblem("barycentric", config, donor, geometry, solver);
+  const auto& solverIndices = arrays.solverIndices;
 
   auto* donorGeometry = donor.geometry[MESH_0];
   auto* newGeometry = geometry[MESH_0];
   const auto nDim = newGeometry->GetnDim();
-  if (donorGeometry->GetnDim() != nDim) {
-    SU2_MPI::Error("The donor and the new mesh have different dimensions.", CURRENT_FUNCTION);
-  }
   const auto nPoint = newGeometry->GetnPoint();
 
   /*--- Donor points and weights of each new point. Marker names: the config describes the new mesh, the donor carries
@@ -508,61 +481,11 @@ void CBarycentricTransfer::Transfer(CConfig* config, const CMeshDonor& donor, CG
   }
   summary.nPoint = nPoint;
 
-  /*--- The arrays to set: the solution and, in the time domain, its history (Solution_time_n, and Solution_time_n1,
-   *    which the variables allocate for every time marching). The transfer is done at the end of a time step, after
-   *    the dual-time update, where the solution and Solution_time_n hold the same state U^n: it is interpolated once
-   *    into both. U^(n-1) is interpolated only for 2nd-order dual time stepping; otherwise Solution_time_n1 is set to
-   *    U^n (not used, but no stale data). Both meshes have the same config, so the same arrays. ---*/
-
-  using ArrayGetter = su2activematrix& (*)(CVariable*);
-  const ArrayGetter getSolution = [](CVariable* nodes) -> su2activematrix& { return nodes->GetSolution(); };
-  const ArrayGetter getTimeN = [](CVariable* nodes) -> su2activematrix& { return nodes->GetSolution_time_n(); };
-  const ArrayGetter getTimeN1 = [](CVariable* nodes) -> su2activematrix& { return nodes->GetSolution_time_n1(); };
-
   auto* flowSolver = solver[MESH_0][FLOW_SOL];
   auto* donorFlowSolver = donor.solver[MESH_0][FLOW_SOL];
-  bool hasTimeN = false, hasTimeN1 = false;
-  if (config->GetTime_Domain()) {
-    hasTimeN = flowSolver->GetNodes()->GetSolution_time_n().size() > 0;
-    hasTimeN1 = flowSolver->GetNodes()->GetSolution_time_n1().size() > 0;
-  }
-  summary.interpolateTimeN1 = hasTimeN1 && config->GetTime_Marching() == TIME_MARCHING::DT_STEPPING_2ND;
+  const bool hasTimeN = arrays.hasTimeN, hasTimeN1 = arrays.hasTimeN1;
+  summary.interpolateTimeN1 = arrays.interpolateTimeN1;
   summary.nTimeLevels = hasTimeN + hasTimeN1;
-
-  std::vector<ArrayGetter> arrays = {getSolution};
-  std::vector<MPI_QUANTITIES> historyComms;
-  if (hasTimeN) {
-    arrays.push_back(getTimeN);
-    historyComms.push_back(MPI_QUANTITIES::SOLUTION_TIME_N);
-  }
-  if (hasTimeN1) {
-    arrays.push_back(getTimeN1);
-    historyComms.push_back(MPI_QUANTITIES::SOLUTION_TIME_N1);
-  }
-  std::vector<ArrayGetter> historyArrays(arrays.begin() + 1, arrays.end());
-
-  for (const auto iSol : solverIndices) {
-    for (const auto getter : arrays) {
-      auto& newArray = getter(solver[MESH_0][iSol]->GetNodes());
-      auto& donorArray = getter(donor.solver[MESH_0][iSol]->GetNodes());
-      if (newArray.rows() != nPoint || donorArray.rows() != donorGeometry->GetnPoint() ||
-          newArray.cols() != donorArray.cols()) {
-        SU2_MPI::Error("The solution arrays of the donor and of the new mesh differ.", CURRENT_FUNCTION);
-      }
-    }
-    if (hasTimeN) {
-      auto* nodes = donor.solver[MESH_0][iSol]->GetNodes();
-      const auto& solution = nodes->GetSolution();
-      const auto& timeN = nodes->GetSolution_time_n();
-      for (auto i = 0ul; i < solution.size(); ++i) {
-        if (solution.data()[i] != timeN.data()[i]) {
-          SU2_MPI::Error("In the time domain the solution is transferred at the end of a time step (after the dual-time "
-                         "update), where the solution and Solution_time_n are the same state U^n; they differ here.",
-                         CURRENT_FUNCTION);
-        }
-      }
-    }
-  }
 
   /*--- Flow: interpolated conservative variables, a donor state where they are not admissible. ---*/
 
@@ -695,41 +618,7 @@ void CBarycentricTransfer::Transfer(CConfig* config, const CMeshDonor& donor, CG
     }
   }
 
-  /*--- As after loading a restart file: communication, primitive variables, eddy viscosity, coarse levels (in the
-   *    order of the restart, the turbulence solver updates the flow primitives). The old solution is the new one, the
-   *    flow preprocessing would otherwise reset non-physical points to the free-stream state of the constructor. ---*/
-
-  for (const auto iSol : solverIndices) solver[MESH_0][iSol]->Set_OldSolution();
-
-  for (const auto iSol : solverIndices) {
-    auto* sol = solver[MESH_0][iSol];
-    SU2_OMP_PARALLEL_(if (sol->GetHasHybridParallel()))
-    sol->UpdateLoadedSolution(geometry, solver, config);
-    END_SU2_OMP_PARALLEL
-  }
-
-  for (unsigned short iMesh = 1; iMesh <= config->GetnMGLevels(); ++iMesh)
-    for (const auto iSol : solverIndices) solver[iMesh][iSol]->Set_OldSolution();
-
-  /*--- The time history on the coarse levels is its restriction, as after a restart (PushSolutionBackInTime sets it
-   *    from the restricted solution). ---*/
-
-  if (summary.nTimeLevels > 0) {
-    for (const auto iSol : solverIndices) {
-      for (unsigned short iLevel = 0; iLevel < historyArrays.size(); ++iLevel) {
-        const auto getter = historyArrays[iLevel];
-        const auto comm = historyComms[iLevel];
-        solver[MESH_0][iSol]->InitiateComms(geometry[MESH_0], config, comm);
-        solver[MESH_0][iSol]->CompleteComms(geometry[MESH_0], config, comm);
-        for (unsigned short iMesh = 1; iMesh <= config->GetnMGLevels(); ++iMesh) {
-          CSolver::MultigridRestriction(*geometry[iMesh - 1], getter(solver[iMesh - 1][iSol]->GetNodes()),
-                                        *geometry[iMesh], getter(solver[iMesh][iSol]->GetNodes()));
-          solver[iMesh][iSol]->InitiateComms(geometry[iMesh], config, comm);
-          solver[iMesh][iSol]->CompleteComms(geometry[iMesh], config, comm);
-        }
-      }
-    }
-  }
+  FinishTransfer(config, geometry, solver, arrays);
 
   /*--- Summary. ---*/
 
@@ -795,4 +684,28 @@ void CBarycentricTransfer::Transfer(CConfig* config, const CMeshDonor& donor, CG
   }
   cout.unsetf(std::ios_base::floatfield);
   cout << std::setprecision(6);
+}
+
+CSolutionTransfer::Report CBarycentricTransfer::GetReport() const {
+  Report report;
+  report.nOutside = summary.nOutside;
+  report.maxDistance = SU2_TYPE::GetValue(summary.maxDistance);
+  report.maxRelDistance = SU2_TYPE::GetValue(summary.maxRelDistance);
+
+  /*--- Change of the integrals, relative as in the log (momentum: to the norm of the donor momentum integral). ---*/
+  const auto nVar = summary.donorIntegral.size();
+  if (nVar < 3 || summary.newIntegral.size() != nVar) return report;
+  const auto nDim = nVar - 2;
+  su2double momentumNorm = 0.0;
+  for (auto iDim = 0ul; iDim < nDim; ++iDim) momentumNorm += pow(summary.donorIntegral[iDim + 1], 2);
+  momentumNorm = sqrt(momentumNorm);
+  report.conservationDefect = 0.0;
+  for (auto iVar = 0ul; iVar < nVar; ++iVar) {
+    const bool momentum = (iVar > 0 && iVar <= nDim);
+    const su2double scale = momentum ? momentumNorm : fabs(summary.donorIntegral[iVar]);
+    if (!(scale > 0.0)) continue;
+    report.conservationDefect = max(report.conservationDefect, SU2_TYPE::GetValue(
+                                        fabs(summary.newIntegral[iVar] - summary.donorIntegral[iVar]) / scale));
+  }
+  return report;
 }

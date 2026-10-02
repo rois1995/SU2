@@ -92,9 +92,25 @@ class CBarycentricLocator {
    * \note Stencil::inside still tells whether the point is inside an element. If no name is known, same as Locate.
    * \param[in] coord - Coordinates of the point.
    * \param[in] names - Marker names.
+   * \param[out] nameFound - If given: the name of the marker of the closest face (empty if no name is known).
    * \return Donor points and weights (a face stencil if a name is known).
    */
-  Stencil LocateOnBoundary(const su2double* coord, const std::vector<std::string>& names);
+  Stencil LocateOnBoundary(const su2double* coord, const std::vector<std::string>& names,
+                           std::string* nameFound = nullptr);
+
+  /*!
+   * \brief Names of the markers with boundary faces in the mesh.
+   */
+  std::vector<std::string> GetMarkerNames() const {
+    std::vector<std::string> names;
+    for (const auto& entry : markerIndex) names.push_back(entry.first);
+    return names;
+  }
+
+  /*!
+   * \brief Element of the mesh (index in the geometry) that contains the point, -1 if none (ADT tolerance).
+   */
+  long ContainingElement(const su2double* coord);
 
   /*!
    * \brief Whether a marker with this name has boundary faces in the mesh.
@@ -221,6 +237,8 @@ class CBarycentricTransfer final : public CSolutionTransfer {
    * \brief Statistics of the last transfer.
    */
   const Summary& GetSummary() const { return summary; }
+
+  Report GetReport() const override;
 
   /*!
    * \brief Whether a conservative flow state is admissible: density, pressure, temperature and squared speed of
