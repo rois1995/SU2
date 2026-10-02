@@ -220,3 +220,48 @@ TEST_CASE("Adapted mesh output options", "[Adaptation]") {
   CHECK(config->GetMesh_Out_FileFormat() == ENUM_GRID::CGNS_GRID);
 #endif
 }
+
+TEST_CASE("Adaptation loop options, time domain", "[Adaptation]") {
+  /*--- Time-domain runs take INNER_ITER, not ITER (removed from the base options). ---*/
+  auto MakeTimeConfig = [](const std::string& options) {
+    std::string base = baseOptions;
+    base.replace(base.find("ITER= 150\n"), 10, "");
+    std::stringstream ss(base + options);
+    auto* origBuf = std::cout.rdbuf(nullptr);
+    auto config = std::make_unique<CConfig>(ss, SU2_COMPONENT::SU2_CFD, false);
+    std::cout.rdbuf(origBuf);
+    return config;
+  };
+  const std::string timeOptions =
+      "TIME_DOMAIN= YES\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\nTIME_STEP= 1e-3\nTIME_ITER= 100\n"
+      "INNER_ITER= 20\nADAP_LOOP= YES\nADAP_SIZES= (4000)\nADAP_FREQ= 10\n";
+
+  SECTION("Defaults") {
+    const auto config = MakeTimeConfig(timeOptions);
+    REQUIRE(config->GetAdap_Loop());
+    CHECK(config->GetAdap_Freq() == 10ul);
+    REQUIRE(config->GetnAdap_Levels() == 1);
+    CHECK(config->GetAdap_Level(0).complexity == 4000ul);
+
+    /*--- Default transfer of a time-domain run: barycentric until the conservative transfer exists. ---*/
+    CHECK(config->GetAdap_Transfer_Default());
+    CHECK(config->GetKind_Adap_Transfer() == ADAP_TRANSFER::BARYCENTRIC);
+
+    /*--- Windows of 10 steps from step 0: adapted after the steps 9, 19, ... ---*/
+    for (unsigned long timeIter = 0; timeIter < 100; timeIter++)
+      CHECK(config->GetAdap_TimeWindowEnd(timeIter) == ((timeIter + 1) % 10 == 0));
+  }
+
+  SECTION("Explicit transfer") {
+    const auto config = MakeTimeConfig(timeOptions + "ADAP_TRANSFER= BARYCENTRIC\n");
+    CHECK_FALSE(config->GetAdap_Transfer_Default());
+    CHECK(config->GetKind_Adap_Transfer() == ADAP_TRANSFER::BARYCENTRIC);
+  }
+
+  SECTION("Steady run, no window") {
+    const auto config = MakeConfig("ADAP_LOOP= YES\nADAP_SIZES= (4000)\n");
+    CHECK(config->GetAdap_Transfer_Default());
+    CHECK(config->GetAdap_Freq() == 0ul);
+    CHECK_FALSE(config->GetAdap_TimeWindowEnd(9));
+  }
+}

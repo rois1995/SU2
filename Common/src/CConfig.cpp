@@ -3289,9 +3289,15 @@ void CConfig::SetConfig_Options() {
   /*--- Mesh adaptation loop (steady, single zone, single rank, needs MMG). Cycle 0 solves on the input mesh with the
    *    usual options (ITER, CFL_NUMBER, CONV_*), then each cycle remeshes from the metric of the last solution,
    *    transfers the solution and solves again. The per-level lists below have one value (used for every level) or
-   *    one value per entry of ADAP_SIZES; without a list the scalar option in brackets applies to every level. ---*/
+   *    one value per entry of ADAP_SIZES; without a list the scalar option in brackets applies to every level.
+   *    Time-domain runs (TIME_DOMAIN= YES, dual time stepping) adapt the mesh every ADAP_FREQ time steps from the
+   *    metric of the last ADAP_FREQ steps, with one complexity (ADAP_SIZES with one value), and continue in time. ---*/
   /*!\brief ADAP_LOOP \n DESCRIPTION: Run the mesh adaptation loop (needs COMPUTE_METRIC= YES and ADAP_SIZES) \ingroup Config */
   addBoolOption("ADAP_LOOP", Adap_Loop, false);
+  /*!\brief ADAP_FREQ \n DESCRIPTION: Time-domain adaptation loop: number of physical time steps between two
+   * adaptations (the time window of the metric). The mesh is adapted after the time steps n with
+   * (n + 1) % ADAP_FREQ == 0, counted from time step 0 \ingroup Config */
+  addUnsignedLongOption("ADAP_FREQ", Adap_Freq, 0);
   /*!\brief ADAP_SIZES \n DESCRIPTION: Target complexity of the adapted meshes of each level of the loop (replaces
    * ADAP_COMPLEXITY) \ingroup Config */
   addULongListOption("ADAP_SIZES", nAdap_Sizes, Adap_Sizes);
@@ -3314,10 +3320,12 @@ void CConfig::SetConfig_Options() {
    * (default: only CONV_RESIDUAL_MINVAL) \ingroup Config */
   addDoubleListOption("ADAP_RESIDUAL_REDUCTION", nAdap_ResRed, Adap_ResRed);
   /*!\brief ADAP_TRANSFER \n DESCRIPTION: Solution transfer to the adapted meshes \n OPTIONS: BARYCENTRIC, FREESTREAM
-   * (no transfer, for debugging) \n DEFAULT: BARYCENTRIC \ingroup Config */
+   * (no transfer, for debugging, steady only) \n DEFAULT: BARYCENTRIC for steady runs; for time-domain runs the
+   * conservative transfer once it exists, BARYCENTRIC until then \ingroup Config */
   addEnumOption("ADAP_TRANSFER", Kind_Adap_Transfer, Adap_Transfer_Map, ADAP_TRANSFER::BARYCENTRIC);
   /*!\brief WRT_ADAP_MESH \n DESCRIPTION: Write the adapted mesh of each cycle of the loop, after it is built and the
-   * solution is transferred, as MESH_OUT_FILENAME_adap_<cycle> (e.g. mesh_out_adap_00001.su2). The format is
+   * solution is transferred, as MESH_OUT_FILENAME_adap_<cycle> (e.g. mesh_out_adap_00001.su2); in time-domain runs as
+   * MESH_OUT_FILENAME_<first time step solved on it> (e.g. mesh_out_00040.su2). The format is
    * MESH_OUT_FORMAT if it is in the config file, else the format of the input mesh (MESH_FORMAT) \n DEFAULT: NO
    * \ingroup Config */
   addBoolOption("WRT_ADAP_MESH", Wrt_Adap_Mesh, false);
@@ -6111,6 +6119,11 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     const vector<string> Sensor_Avail{"MACH", "PRESSURE", "TEMPERATURE", "ENERGY", "DENSITY", "TOTALPRESSURE"};
     for (unsigned short iSensor = 0; iSensor < nAdap_Sensor; iSensor++) {
       const string& sensor = Adap_Sensor[iSensor];
+      /*--- Goal-oriented adaptation (stage G, not ported yet) is for steady problems only. ---*/
+      if (sensor == "GOAL" && Time_Domain) {
+        SU2_MPI::Error("Goal-oriented adaptation (ADAP_SENSOR= GOAL) is only available for steady problems.",
+                       CURRENT_FUNCTION);
+      }
       if (find(begin(Sensor_Avail), end(Sensor_Avail), sensor) == end(Sensor_Avail)) {
         SU2_MPI::Error("Invalid or unsupported adaptation sensor: " + sensor +
                        "; must be MACH, PRESSURE, TEMPERATURE, ENERGY, DENSITY or TOTALPRESSURE.", CURRENT_FUNCTION);
@@ -6141,12 +6154,43 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
   /*--- Mesh adaptation loop: expand the per-level lists (one value for every level, or one per ADAP_SIZES entry,
    *    or the scalar option when the list is not given) and check every level. ---*/
   Adap_Levels.clear();
+  Adap_Transfer_Default = !OptionIsSet("ADAP_TRANSFER");
   if (Adap_Loop) {
     if (!Compute_Metric) SU2_MPI::Error("ADAP_LOOP= YES needs COMPUTE_METRIC= YES.", CURRENT_FUNCTION);
-    if (Time_Domain) {
-      SU2_MPI::Error("ADAP_LOOP is only available for steady problems for now.", CURRENT_FUNCTION);
-    }
     if (nAdap_Sizes == 0) SU2_MPI::Error("ADAP_LOOP= YES needs ADAP_SIZES.", CURRENT_FUNCTION);
+
+    /*--- Time-domain loop: dual time stepping, one complexity for every time window, the time step and the inner
+     *    iterations of the run (no per-level flow options), a transfer that keeps the time history. ---*/
+    if (Time_Domain) {
+      if (TimeMarching != TIME_MARCHING::DT_STEPPING_1ST && TimeMarching != TIME_MARCHING::DT_STEPPING_2ND) {
+        SU2_MPI::Error("ADAP_LOOP in the time domain needs TIME_MARCHING= DUAL_TIME_STEPPING-1ST_ORDER or "
+                       "DUAL_TIME_STEPPING-2ND_ORDER.", CURRENT_FUNCTION);
+      }
+      if (Adap_Freq == 0) {
+        SU2_MPI::Error("ADAP_LOOP in the time domain needs ADAP_FREQ (time steps between adaptations) > 0.",
+                       CURRENT_FUNCTION);
+      }
+      if (nAdap_Sizes != 1) {
+        SU2_MPI::Error("ADAP_LOOP in the time domain needs one value in ADAP_SIZES (the complexity of every time "
+                       "window).", CURRENT_FUNCTION);
+      }
+      if (nAdap_SubIter > 0 || nAdap_FlowIter > 0 || nAdap_FlowCFL > 0 || nAdap_ResRed > 0) {
+        SU2_MPI::Error("ADAP_SUBITER, ADAP_FLOW_ITER, ADAP_FLOW_CFL and ADAP_RESIDUAL_REDUCTION are not used by the "
+                       "time-domain adaptation loop (the time steps use INNER_ITER, CFL_NUMBER and CONV_*), remove "
+                       "them.", CURRENT_FUNCTION);
+      }
+      if (Kind_Adap_Transfer == ADAP_TRANSFER::FREESTREAM) {
+        SU2_MPI::Error("ADAP_TRANSFER= FREESTREAM would lose the time history, it is only available for steady "
+                       "problems.", CURRENT_FUNCTION);
+      }
+    } else if (Adap_Freq > 0) {
+      SU2_MPI::Error("ADAP_FREQ is only used by the time-domain adaptation loop (TIME_DOMAIN= YES).", CURRENT_FUNCTION);
+    }
+
+    /*--- Default transfer of the run type: barycentric for steady runs. Time-domain runs should default to the
+     *    conservative transfer (it keeps the integrals of the time history); it does not exist yet (stage D3), so
+     *    they use the barycentric transfer and the loop says so in its log. ---*/
+    if (Adap_Transfer_Default) Kind_Adap_Transfer = ADAP_TRANSFER::BARYCENTRIC;
 
     auto checkLength = [&](const string& name, unsigned short n) {
       if (n > 1 && n != nAdap_Sizes) {

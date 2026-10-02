@@ -1326,6 +1326,8 @@ private:
   bool Adap_Loop = false;                   /*!< \brief Run the mesh adaptation loop. */
   bool Wrt_Adap_Mesh = false;               /*!< \brief Write the adapted mesh of each cycle of the loop. */
   ADAP_TRANSFER Kind_Adap_Transfer;         /*!< \brief Solution transfer to the adapted meshes. */
+  bool Adap_Transfer_Default = true;        /*!< \brief ADAP_TRANSFER not in the config file (default of the run type). */
+  unsigned long Adap_Freq = 0;              /*!< \brief Time steps between adaptations (time-domain loop). */
   unsigned short nAdap_Sizes = 0, nAdap_SubIter = 0, nAdap_Hmaxs = 0, nAdap_Hmins = 0, nAdap_Norms = 0,
                  nAdap_ARmaxs = 0, nAdap_FlowIter = 0, nAdap_FlowCFL = 0, nAdap_ResRed = 0; /*!< \brief List lengths. */
   unsigned long *Adap_Sizes = nullptr,      /*!< \brief Target complexity of each adaptation level. */
@@ -10404,6 +10406,26 @@ public:
    * \brief Get the solution transfer of the mesh adaptation loop.
    */
   ADAP_TRANSFER GetKind_Adap_Transfer(void) const { return Kind_Adap_Transfer; }
+
+  /*!
+   * \brief Check if the solution transfer is the default of the run type (ADAP_TRANSFER not in the config file).
+   */
+  bool GetAdap_Transfer_Default(void) const { return Adap_Transfer_Default; }
+
+  /*!
+   * \brief Get the number of physical time steps between two adaptations of the time-domain loop (ADAP_FREQ).
+   */
+  unsigned long GetAdap_Freq(void) const { return Adap_Freq; }
+
+  /*!
+   * \brief Check if the time-domain adaptation loop adapts the mesh after a time step: the time windows are
+   *        ADAP_FREQ steps long and counted from time step 0 (also in a restarted run), i.e. the mesh is adapted
+   *        after the time steps n with (n + 1) % ADAP_FREQ == 0.
+   * \param[in] timeIter - Time step (completed).
+   */
+  bool GetAdap_TimeWindowEnd(unsigned long timeIter) const {
+    return Adap_Loop && Time_Domain && Adap_Freq > 0 && (timeIter + 1) % Adap_Freq == 0;
+  }
 
   /*!
    * \brief Get the number of adaptation levels (entries of ADAP_SIZES), 0 without ADAP_LOOP.

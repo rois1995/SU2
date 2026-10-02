@@ -51,11 +51,51 @@ protected:
      */
   virtual bool GetTimeConvergence() const;
 
+  /*--- Time window of the metric of the time-domain adaptation loop. ---*/
+  vector<su2double> windowHessian;  /*!< \brief Sum of |H| of each sensor over the time steps of the window. */
+  unsigned long windowSamples = 0;  /*!< \brief Number of time steps in windowHessian. */
+  su2double windowMetricTime = 0.0; /*!< \brief Time spent on the window metric (sensors, Hessians, metric). */
+  su2double lastReplaceTime = 0.0, lastTransferTime = 0.0; /*!< \brief Times of the last ReplaceMesh. */
+
   /*!
    * \brief Stop with an error if the mesh of this problem cannot be adapted or replaced: compressible EULER,
-   *        NAVIER_STOKES or RANS, steady, and the cases of CMMGInterface::CheckSupport (one rank, one zone, ...).
+   *        NAVIER_STOKES or RANS, steady or dual time stepping, and the cases of CMMGInterface::CheckSupport (one
+   *        rank, one zone, static mesh, ...).
    */
   void CheckMeshAdaptation() const;
+
+  /*!
+   * \brief Time-domain mesh adaptation loop (ADAP_LOOP with TIME_DOMAIN= YES, dual time stepping): the time loop of
+   *        RunTimeLoop, and after every time step that ends a time window (CConfig::GetAdap_TimeWindowEnd, every
+   *        ADAP_FREQ steps) the mesh is remeshed from the metric of that window (SampleTimeWindowMetric), the solution
+   *        and its time history are transferred, and the run continues with the next time step on the new mesh.
+   * \note Adaptation point: after Update (the dual-time history holds U^n in Solution_time_n and U^(n-1) in
+   *       Solution_time_n1), Monitor and Output of time step n, before the preprocessing of step n+1. The time counters
+   *       continue, no restart file is read. The output files keep the usual unsteady names (time step only). The
+   *       restart files of the transferred steps n and n-1 are written right after the transfer and replace those of
+   *       the previous mesh, so that the time steps on the new mesh can be restarted with it. The cycles (history
+   *       column Adap_Cycle) are the time windows counted from time step 0 (cycle = time step / ADAP_FREQ).
+   */
+  void RunTimeAdaptationLoop();
+
+  /*!
+   * \brief Metric of the time window of the time-domain adaptation loop, called by Postprocess after each time step:
+   *        adds the absolute Hessians |H| of the sensors of this time step to the window, and at the end of the
+   *        window (CConfig::GetAdap_TimeWindowEnd) computes the metric from their mean over the window (the Hessians
+   *        of the flow variables are replaced by the mean, so the volume output of that step shows what was used).
+   * \note The mean of |H| over the window is the time integral of |H| over the window (Lp error in space, L1 in time,
+   *       Alauzet & Olivier 2011) up to a constant that the complexity scaling removes. The window is the previous
+   *       ADAP_FREQ time steps ("a posteriori" window): the new mesh covers where the features were, it lags behind
+   *       features that move more than about their own size within one window.
+   */
+  void SampleTimeWindowMetric();
+
+  /*!
+   * \brief Write the restart files of the current solution (RESTART and RESTART_ASCII of OUTPUT_FILES) at the
+   *        current time step and, with 2nd-order dual time stepping, the time history Solution_time_n1 at the step
+   *        before (both transferred to the new mesh). They replace the files of these steps on the previous mesh.
+   */
+  void WriteTimeHistoryRestarts();
 
   /*!
    * \brief Solve on the current mesh: the time loop (one pass for steady problems), as StartSolver without ADAP_LOOP.
@@ -78,11 +118,21 @@ protected:
   void CheckAdaptedMeshNames() const;
 
   /*!
-   * \brief Write the current mesh as the adapted mesh of a cycle (WRT_ADAP_MESH): MESH_OUT_FILENAME_adap_<cycle> in
-   *        the format of MESH_OUT_FORMAT, the markers are taken from the geometry.
-   * \param[in] iCycle - Adaptation cycle of the mesh.
+   * \brief Name of the adapted mesh of a cycle, without extension: MESH_OUT_FILENAME_adap_<cycle> for steady runs;
+   *        MESH_OUT_FILENAME_<first time step solved on it> for time-domain runs (e.g. mesh_out_00160: built after
+   *        step 159, used from step 160), so a restart at step k uses the mesh with the largest step <= k.
+   * \param[in] iCycle - Adaptation cycle of the mesh (steady runs).
+   * \param[in] firstTimeIter - First time step solved on the mesh (time-domain runs).
    */
-  void WriteAdaptedMesh(unsigned long iCycle) const;
+  string AdaptedMeshName(unsigned long iCycle, unsigned long firstTimeIter) const;
+
+  /*!
+   * \brief Write the current mesh as the adapted mesh of a cycle (WRT_ADAP_MESH): AdaptedMeshName in the format of
+   *        MESH_OUT_FORMAT, the markers are taken from the geometry.
+   * \param[in] iCycle - Adaptation cycle of the mesh.
+   * \param[in] firstTimeIter - First time step solved on the mesh (time-domain runs).
+   */
+  void WriteAdaptedMesh(unsigned long iCycle, unsigned long firstTimeIter = 0) const;
 
 public:
 
