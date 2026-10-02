@@ -173,7 +173,8 @@ su2_cfd_src += files(['drivers/CDriver.cpp',
 
 su2_cfd_src += files(['adaptation/CSolutionTransfer.cpp',
                       'adaptation/CBarycentricTransfer.cpp',
-                      'adaptation/CConservativeTransfer.cpp'])
+                      'adaptation/CConservativeTransfer.cpp',
+                      'adaptation/CBoundaryLayerMetric.cpp'])
 
 su2_cfd_src += files(['integration/CIntegration.cpp',
                       'integration/CIntegrationFactory.cpp',

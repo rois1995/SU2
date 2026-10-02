@@ -53,6 +53,7 @@
 #include "../../../Common/include/toolboxes/CLinearPartitioner.hpp"
 #include "../../../Common/include/adt/CADTPointsOnlyClass.hpp"
 #include "../../include/CMarkerProfileReaderFVM.hpp"
+#include "../../include/adaptation/CBoundaryLayerMetric.hpp"
 
 
 CSolver::CSolver(LINEAR_SOLVER_MODE linear_solver_mode) : System(linear_solver_mode) {
@@ -2910,6 +2911,66 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config) {
     } else if (fabs(error) > tol) {
       cout << "WARNING: The mesh complexity " << totComplexity << " did not converge to ADAP_COMPLEXITY= "
            << complexity << "." << endl;
+    }
+  }
+
+  /*--- Boundary-layer metric of the wall markers (ADAP_BL_MARKER), intersected with the final metric: after the
+   *    global factor and the bounds, so the requested wall resolution is kept whatever the complexity (which can
+   *    then exceed ADAP_COMPLEXITY, it is printed). The fade at the outer edge of each layer goes to the isotropic
+   *    metric of the largest size of the metric. ---*/
+
+  if (config->GetnAdap_BL() > 0) {
+    vector<su2double> coord(nPointDomain * nDim);
+    vector<CBoundaryLayerMetric::Tensor> metric(nPointDomain);
+    su2double localSmallest = std::numeric_limits<passivedouble>::max(), smallest = 0.0;
+    for (unsigned long iPoint = 0; iPoint < nPointDomain; ++iPoint) {
+      for (auto iDim = 0u; iDim < nDim; ++iDim) coord[iPoint * nDim + iDim] = geometry->nodes->GetCoord(iPoint, iDim);
+      base_nodes->GetMetricMat(iPoint, metric[iPoint].m);
+      su2double vec[3][3], val[3], work[3];
+      CBlasStructure::EigenDecomposition(metric[iPoint].m, vec, val, nDim, work);
+      localSmallest = fmin(localSmallest, *min_element(val, val + nDim));
+    }
+    SU2_MPI::Allreduce(&localSmallest, &smallest, 1, MPI_DOUBLE, MPI_MIN, SU2_MPI::GetComm());
+
+    CBoundaryLayerMetric layers(*geometry, *config);
+    const auto reports = layers.Apply(coord, metric, smallest);
+
+    su2double localValues[2] = {0.0, 0.0}, globalValues[2] = {0.0, 0.0};  // complexity, largest aspect ratio
+    for (unsigned long iPoint = 0; iPoint < nPointDomain; ++iPoint) {
+      base_nodes->SetMetricMat(iPoint, metric[iPoint].m);
+      su2double vec[3][3], val[3], work[3];
+      CBlasStructure::EigenDecomposition(metric[iPoint].m, vec, val, nDim, work);
+      localValues[0] += sqrt(fabs(determinant(val))) * geometry->nodes->GetVolume(iPoint);
+      localValues[1] = fmax(localValues[1], sqrt(*max_element(val, val + nDim) / *min_element(val, val + nDim)));
+    }
+    SU2_MPI::Allreduce(&localValues[0], &globalValues[0], 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+    SU2_MPI::Allreduce(&localValues[1], &globalValues[1], 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+
+    for (unsigned short iWall = 0; iWall < reports.size(); ++iWall) {
+      const auto& layer = layers.GetLayer(iWall);
+      unsigned long local[3] = {reports[iWall].nPoint, reports[iWall].nChanged, reports[iWall].nFloor};
+      unsigned long global[3] = {0, 0, 0};
+      SU2_MPI::Allreduce(local, global, 3, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
+      su2double localAR = reports[iWall].maxAspectRatio, maxWallAR = 0.0;
+      SU2_MPI::Allreduce(&localAR, &maxWallAR, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+      if (rank == MASTER_NODE) {
+        const su2double full = fmax(layer.firstHeight, 0.9 * layer.thickness);
+        cout << "Boundary-layer metric " << layer.marker << ": first height " << layer.firstHeight << ", growth "
+             << layer.growth << ", thickness " << layer.thickness << " (fade over " << layer.thickness - full
+             << "), on " << global[0] << " points, finer than the metric on " << global[1]
+             << ", tangential floor next to the wall on " << global[2] << ", largest aspect ratio " << maxWallAR
+             << "." << endl;
+        if (maxWallAR > config->GetAdap_ARmax()) {
+          cout << "WARNING: The boundary-layer metric of " << layer.marker << " has aspect ratios up to " << maxWallAR
+               << " (tangential wall size / wall-normal size), above ADAP_ARMAX= " << config->GetAdap_ARmax()
+               << "; it is not limited by ADAP_ARMAX." << endl;
+        }
+      }
+    }
+    if (rank == MASTER_NODE) {
+      cout << "Mesh complexity with the boundary-layer metric: " << globalValues[0] << " (ADAP_COMPLEXITY= "
+           << complexity << ", ratio " << globalValues[0] / complexity << "). Maximum cell AR: " << globalValues[1]
+           << "." << endl;
     }
   }
 
