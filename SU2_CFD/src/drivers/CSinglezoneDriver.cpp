@@ -32,6 +32,7 @@
 #include "../../include/iteration/CIteration.hpp"
 #include "../../include/adaptation/CSolutionTransfer.hpp"
 #include "../../include/adaptation/CBarycentricTransfer.hpp"
+#include "../../include/adaptation/CConservativeTransfer.hpp"
 #include "../../../Common/include/adaptation/CMMGInterface.hpp"
 #include "../../../Common/include/geometry/CPhysicalGeometry.hpp"
 #include "../../../Common/include/geometry/meshreader/CMemoryMeshReaderFVM.hpp"
@@ -295,6 +296,7 @@ void CSinglezoneDriver::RunAdaptationLoop() {
   std::unique_ptr<CSolutionTransfer> transfer;
   switch (config->GetKind_Adap_Transfer()) {
     case ADAP_TRANSFER::BARYCENTRIC: transfer = std::make_unique<CBarycentricTransfer>(); break;
+    case ADAP_TRANSFER::CONSERVATIVE: transfer = std::make_unique<CConservativeTransfer>(); break;
     case ADAP_TRANSFER::FREESTREAM: transfer = std::make_unique<CFreeStreamTransfer>(); break;
   }
 
@@ -501,9 +503,16 @@ void CSinglezoneDriver::RunTimeAdaptationLoop() {
 
   CMMGRemesher remesher;
 
-  /*--- ADAP_TRANSFER: BARYCENTRIC (FREESTREAM is rejected for time-domain runs by the config). The conservative
-   *    transfer would be the default here; it does not exist yet. ---*/
-  CBarycentricTransfer transfer;
+  /*--- ADAP_TRANSFER: CONSERVATIVE (default of time-domain runs) or BARYCENTRIC (FREESTREAM is rejected for
+   *    time-domain runs by the config). ---*/
+  const bool conservative = config->GetKind_Adap_Transfer() == ADAP_TRANSFER::CONSERVATIVE;
+  std::unique_ptr<CSolutionTransfer> transferPtr;
+  if (conservative) {
+    transferPtr = std::make_unique<CConservativeTransfer>();
+  } else {
+    transferPtr = std::make_unique<CBarycentricTransfer>();
+  }
+  auto& transfer = *transferPtr;
 
   /*--- One metric level (one complexity) for every window. ---*/
 
@@ -524,17 +533,20 @@ void CSinglezoneDriver::RunTimeAdaptationLoop() {
          << " == 0), from the mean |Hessian| of the sensors over those steps: complexity " << config->GetAdap_Complexity()
          << ", sizes " << config->GetAdap_Hmin() << " to " << config->GetAdap_Hmax() << ", norm " << config->GetAdap_Norm()
          << ", aspect ratio up to " << config->GetAdap_ARmax() << "." << endl;
-    cout << "Solution transfer: barycentric (P1) interpolation of the solution and of its time history";
-    if (config->GetAdap_Transfer_Default())
-      cout << ". The default for time-domain adaptation is the conservative transfer, which is not available yet: the "
-              "barycentric transfer is used instead, the integrals of the conservative variables are not conserved";
-    cout << "." << endl;
+    if (conservative) {
+      cout << "Solution transfer: conservative P1 projection of the solution and of its time history (the integrals "
+              "of the conservative variables are kept)";
+    } else {
+      cout << "Solution transfer: barycentric (P1) interpolation of the solution and of its time history (the "
+              "integrals of the conservative variables are not conserved)";
+    }
+    cout << (config->GetAdap_Transfer_Default() ? ", the default of time-domain runs." : ".") << endl;
   }
 
   struct CycleSummary {
     unsigned long cycle = 0, firstStep = 0, lastStep = 0, nPoint = 0, nOutside = 0;
     passivedouble solveTime = 0.0, metricTime = 0.0, remeshTime = 0.0, replaceTime = 0.0, transferTime = 0.0,
-                  outputTime = 0.0, maxDistance = 0.0, maxRelDistance = 0.0;
+                  outputTime = 0.0, maxDistance = 0.0, maxRelDistance = 0.0, defect = -1.0;
   };
   /*--- The cycles are counted in time windows from time step 0 (cycle = time step / ADAP_FREQ), so a restarted run
    *    continues the cycle numbers (history column Adap_Cycle). The files keep the usual unsteady names. ---*/
@@ -603,14 +615,15 @@ void CSinglezoneDriver::RunTimeAdaptationLoop() {
       const auto outputTime = SU2_MPI::Wtime() - outputStart;
       UsedTimeOutput += outputTime;
 
-      const auto& transferSummary = transfer.GetSummary();
+      const auto transferReport = transfer.GetReport();
       row.remeshTime = SU2_TYPE::GetValue(remeshTime);
       row.replaceTime = SU2_TYPE::GetValue(lastReplaceTime);
       row.transferTime = SU2_TYPE::GetValue(lastTransferTime);
       row.outputTime = SU2_TYPE::GetValue(outputTime);
-      row.nOutside = transferSummary.nOutside;
-      row.maxDistance = SU2_TYPE::GetValue(transferSummary.maxDistance);
-      row.maxRelDistance = SU2_TYPE::GetValue(transferSummary.maxRelDistance);
+      row.nOutside = transferReport.nOutside;
+      row.maxDistance = transferReport.maxDistance;
+      row.maxRelDistance = transferReport.maxRelDistance;
+      row.defect = transferReport.conservationDefect;
 
       CycleSummary next;
       next.cycle = iCycle;
@@ -648,6 +661,7 @@ void CSinglezoneDriver::RunTimeAdaptationLoop() {
     table.AddColumn("Output [s]", 10);
     table.AddColumn("Outside", 8);
     table.AddColumn("Max dist.", 10);
+    table.AddColumn("Cons. defect", 12);
     table.PrintHeader();
     passivedouble total[6] = {0.0};
     for (unsigned long i = 0; i < summary.size(); i++) {
@@ -656,9 +670,9 @@ void CSinglezoneDriver::RunTimeAdaptationLoop() {
             << row.metricTime;
       if (i + 1 < summary.size()) {
         table << row.remeshTime << row.replaceTime << row.transferTime << row.outputTime << row.nOutside
-              << row.maxDistance;
+              << row.maxDistance << row.defect;
       } else {
-        table << "-" << "-" << "-" << "-" << "-" << "-";
+        table << "-" << "-" << "-" << "-" << "-" << "-" << "-";
       }
       const passivedouble values[] = {row.solveTime, row.metricTime, row.remeshTime, row.replaceTime,
                                       row.transferTime, row.outputTime};
@@ -671,8 +685,9 @@ void CSinglezoneDriver::RunTimeAdaptationLoop() {
     cout << "Solve: the time steps on the mesh of the cycle with their output, without the metric. Metric: sensors, "
             "Hessians and the window metric of every time step. Remesh: extraction, MMG and validation. Replace: new "
             "geometry and solvers with the solution transfer. Output: adapted mesh and restart files of the "
-            "transferred steps. Outside: new points outside the donor mesh (closest donor boundary point used), "
-            "their largest distance." << endl;
+            "transferred steps. Outside: new points outside the donor mesh (closest donor boundary point used; "
+            "conservative transfer: points whose control volume is partly outside), their largest distance. Cons. "
+            "defect: largest relative change of the integrals of the conservative flow variables." << endl;
   }
 }
 

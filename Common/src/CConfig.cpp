@@ -3324,9 +3324,10 @@ void CConfig::SetConfig_Options() {
    * the residuals of CONV_FIELD have dropped by this many orders of magnitude from their largest value in that solve
    * (default: only CONV_RESIDUAL_MINVAL) \ingroup Config */
   addDoubleListOption("ADAP_RESIDUAL_REDUCTION", nAdap_ResRed, Adap_ResRed);
-  /*!\brief ADAP_TRANSFER \n DESCRIPTION: Solution transfer to the adapted meshes \n OPTIONS: BARYCENTRIC, FREESTREAM
-   * (no transfer, for debugging, steady only) \n DEFAULT: BARYCENTRIC for steady runs; for time-domain runs the
-   * conservative transfer once it exists, BARYCENTRIC until then \ingroup Config */
+  /*!\brief ADAP_TRANSFER \n DESCRIPTION: Solution transfer to the adapted meshes \n OPTIONS: BARYCENTRIC (P1
+   * interpolation), CONSERVATIVE (conservative P1 projection, keeps the integrals of the conservative variables),
+   * FREESTREAM (no transfer, for debugging, steady only) \n DEFAULT: BARYCENTRIC for steady runs, CONSERVATIVE for
+   * time-domain runs \ingroup Config */
   addEnumOption("ADAP_TRANSFER", Kind_Adap_Transfer, Adap_Transfer_Map, ADAP_TRANSFER::BARYCENTRIC);
   /*!\brief WRT_ADAP_MESH \n DESCRIPTION: Write the adapted mesh of each cycle of the loop, after it is built and the
    * solution is transferred, as MESH_OUT_FILENAME_adap_<cycle> (e.g. mesh_out_adap_00001.su2); in time-domain runs as
@@ -6192,10 +6193,11 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
       SU2_MPI::Error("ADAP_FREQ is only used by the time-domain adaptation loop (TIME_DOMAIN= YES).", CURRENT_FUNCTION);
     }
 
-    /*--- Default transfer of the run type: barycentric for steady runs. Time-domain runs should default to the
-     *    conservative transfer (it keeps the integrals of the time history); it does not exist yet (stage D3), so
-     *    they use the barycentric transfer and the loop says so in its log. ---*/
-    if (Adap_Transfer_Default) Kind_Adap_Transfer = ADAP_TRANSFER::BARYCENTRIC;
+    /*--- Default transfer of the run type: barycentric for steady runs, conservative for time-domain runs (it keeps the
+     *    integrals of the conservative variables of the solution and of its time history). ---*/
+    if (Adap_Transfer_Default) {
+      Kind_Adap_Transfer = Time_Domain ? ADAP_TRANSFER::CONSERVATIVE : ADAP_TRANSFER::BARYCENTRIC;
+    }
 
     auto checkLength = [&](const string& name, unsigned short n) {
       if (n > 1 && n != nAdap_Sizes) {

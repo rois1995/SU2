@@ -108,7 +108,7 @@ protected:
    *        (ADAP_TRANSFER) and solve again. Steady problems, single rank, MMG.
    * \note An adaptation cycle has three parts behind small interfaces: the metric (ComputeMetric, feature-based here,
    *       a goal-based metric overrides it), the remesher (CRemesher: MMG) and the solution transfer
-   *       (CSolutionTransfer: barycentric). The mesh replacement (ReplaceMesh) is the same for all of them.
+   *       (CSolutionTransfer: barycentric or conservative). The mesh replacement (ReplaceMesh) is the same for all of them.
    */
   void RunAdaptationLoop();
 

@@ -1247,10 +1247,12 @@ struct CMGOptions {
  */
 enum class ADAP_TRANSFER {
   BARYCENTRIC,  /*!< \brief Barycentric (P1) interpolation of the previous solution. */
+  CONSERVATIVE, /*!< \brief Conservative P1 projection (supermesh), keeps the integrals of the conservative variables. */
   FREESTREAM,   /*!< \brief No transfer, the adapted mesh starts from the free stream (for debugging). */
 };
 static const MapType<std::string, ADAP_TRANSFER> Adap_Transfer_Map = {
   MakePair("BARYCENTRIC", ADAP_TRANSFER::BARYCENTRIC)
+  MakePair("CONSERVATIVE", ADAP_TRANSFER::CONSERVATIVE)
   MakePair("FREESTREAM", ADAP_TRANSFER::FREESTREAM)
 };
 

@@ -243,9 +243,9 @@ TEST_CASE("Adaptation loop options, time domain", "[Adaptation]") {
     REQUIRE(config->GetnAdap_Levels() == 1);
     CHECK(config->GetAdap_Level(0).complexity == 4000ul);
 
-    /*--- Default transfer of a time-domain run: barycentric until the conservative transfer exists. ---*/
+    /*--- Default transfer of a time-domain run: conservative. ---*/
     CHECK(config->GetAdap_Transfer_Default());
-    CHECK(config->GetKind_Adap_Transfer() == ADAP_TRANSFER::BARYCENTRIC);
+    CHECK(config->GetKind_Adap_Transfer() == ADAP_TRANSFER::CONSERVATIVE);
 
     /*--- Windows of 10 steps from step 0: adapted after the steps 9, 19, ... ---*/
     for (unsigned long timeIter = 0; timeIter < 100; timeIter++)
@@ -256,11 +256,14 @@ TEST_CASE("Adaptation loop options, time domain", "[Adaptation]") {
     const auto config = MakeTimeConfig(timeOptions + "ADAP_TRANSFER= BARYCENTRIC\n");
     CHECK_FALSE(config->GetAdap_Transfer_Default());
     CHECK(config->GetKind_Adap_Transfer() == ADAP_TRANSFER::BARYCENTRIC);
+    const auto conservative = MakeTimeConfig(timeOptions + "ADAP_TRANSFER= CONSERVATIVE\n");
+    CHECK(conservative->GetKind_Adap_Transfer() == ADAP_TRANSFER::CONSERVATIVE);
   }
 
   SECTION("Steady run, no window") {
     const auto config = MakeConfig("ADAP_LOOP= YES\nADAP_SIZES= (4000)\n");
     CHECK(config->GetAdap_Transfer_Default());
+    CHECK(config->GetKind_Adap_Transfer() == ADAP_TRANSFER::BARYCENTRIC);
     CHECK(config->GetAdap_Freq() == 0ul);
     CHECK_FALSE(config->GetAdap_TimeWindowEnd(9));
   }
