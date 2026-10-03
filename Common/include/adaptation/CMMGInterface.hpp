@@ -40,8 +40,9 @@ class CGeometry;
 /*!
  * \class CMMGInterface
  * \brief Remeshing of a simplex mesh with the MMG library (MMG2D for triangles, MMG3D for tetrahedra), in memory.
- * \note First milestone: one MPI rank only. The extraction works on the local mesh of the rank and is the place
- *       where a gather on rank 0 will be added. Without HAVE_MMG, only the extraction and validation are available.
+ * \note MPI: the extraction gathers the partitioned mesh and metric on the master rank (CMeshGather), MMG runs there
+ *       (serial), and CMMGRemesher broadcasts the adapted mesh to all ranks. Without HAVE_MMG, only the extraction and
+ *       validation are available.
  *
  * Typical use:
  * \code
@@ -141,10 +142,12 @@ class CMMGInterface {
   static void FloorFixedBoundaryMetric(CSimplexMesh& mesh);
 
   /*!
-   * \brief Copy the mesh and the metric of the local (single-rank) geometry into plain arrays.
+   * \brief Collective: the whole mesh and metric of the (partitioned) geometry as plain arrays on the master rank, in
+   *        the global numbering of the mesh (CMeshGather: the same arrays for any number of ranks).
    * \note Elements are reoriented to a positive volume if needed (zero volume is an error), the metric must be
-   *       finite and positive definite, all elements must be triangles (2D) or tetrahedra (3D).
-   *       Marker references are given by GetMarkerReference.
+   *       finite and positive definite (checked by the rank of each point), all elements must be triangles (2D) or
+   *       tetrahedra (3D). Markers in the order of the config file, references given by GetMarkerReference. The other
+   *       ranks get the dimension and the marker names only.
    * \param[in] config - Definition of the problem.
    * \param[in] geometry - Geometry of the zone (finest grid).
    * \param[in] metric - Metric at the points, nPoint x nMetric, upper triangle (e.g. CVariable::GetMetric()).
@@ -227,8 +230,11 @@ class CMMGInterface {
 
 /*!
  * \class CMMGRemesher
- * \brief Remesher of the adaptation loop with serial MMG: CMMGInterface::ExtractMesh, then CMMGInterface::Adapt with
- *        the remeshing parameters of the config at the time of the call.
+ * \brief Remesher of the adaptation loop with serial MMG: CMMGInterface::ExtractMesh (gather on the master rank), then
+ *        CMMGInterface::Adapt on the master rank with the remeshing parameters of the config at the time of the call,
+ *        then the adapted mesh is broadcast to all ranks (each builds its partition from the complete mesh, as from a
+ *        mesh file). Memory: every rank holds the complete adapted mesh until its geometry is built (about 300 bytes
+ *        per point in 3D); the master rank also holds the gathered mesh and MMG's structures.
  */
 class CMMGRemesher final : public CRemesher {
  public:

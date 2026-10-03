@@ -25,6 +25,7 @@
  */
 
 #include "../../include/adaptation/CMMGInterface.hpp"
+#include "../../include/adaptation/CMeshGather.hpp"
 
 #include <algorithm>
 #include <array>
@@ -253,56 +254,58 @@ int CMMGInterface::GetMarkerReference(const CConfig& config, const string& name)
 
 CSimplexMesh CMMGInterface::ExtractMesh(const CConfig& config, const CGeometry& geometry,
                                         const su2activematrix& metric) {
-  CSimplexMesh mesh;
   const auto nDim = geometry.GetnDim();
   if (nDim != 2 && nDim != 3) SU2_MPI::Error("Mesh adaptation needs a 2D or 3D mesh.", CURRENT_FUNCTION);
-  mesh.nDim = nDim;
-
-  const auto nPoint = geometry.GetnPoint();
-  const auto nElem = geometry.GetnElem();
+  const auto nPointDomain = geometry.GetnPointDomain();
   const auto nMetric = CSimplexMesh::GetnMetric(nDim);
-  if (nPoint != geometry.GetnPointDomain()) {
-    SU2_MPI::Error("Mesh adaptation does not support halo points (MPI or periodic).", CURRENT_FUNCTION);
-  }
-  if (nPoint >= static_cast<unsigned long>(INT_MAX) || nElem >= static_cast<unsigned long>(INT_MAX)) {
+  if (geometry.GetGlobal_nPointDomain() >= static_cast<unsigned long>(INT_MAX) ||
+      geometry.GetGlobal_nElemDomain() >= static_cast<unsigned long>(INT_MAX)) {
     SU2_MPI::Error("The mesh is too large for MMG (32-bit indices).", CURRENT_FUNCTION);
   }
-  if (metric.rows() < nPoint || metric.cols() != nMetric) {
+  if (metric.rows() < nPointDomain || metric.cols() != nMetric) {
     SU2_MPI::Error("The adaptation metric is not available (COMPUTE_METRIC = YES is required).", CURRENT_FUNCTION);
   }
 
-  /*--- Points and metric. ---*/
-  mesh.coord.resize(nPoint * nDim);
-  mesh.metric.resize(nPoint * nMetric);
-  for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
-    for (unsigned short iDim = 0; iDim < nDim; ++iDim)
-      mesh.coord[iPoint * nDim + iDim] = SU2_TYPE::GetValue(geometry.nodes->GetCoord(iPoint, iDim));
-    for (unsigned short iMet = 0; iMet < nMetric; ++iMet)
-      mesh.metric[iPoint * nMetric + iMet] = SU2_TYPE::GetValue(metric(iPoint, iMet));
-  }
-  for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
-    if (!IsFinitePositiveDefinite(nDim, &mesh.metric[iPoint * nMetric])) {
-      SU2_MPI::Error("The adaptation metric is not finite and positive definite (or numerically singular) at " +
-                     PointInfo(nDim, mesh.coord, iPoint) + ".", CURRENT_FUNCTION);
+  /*--- The metric of the points of this rank must be finite and positive definite. ---*/
+  std::vector<su2double> localMetric(nPointDomain * nMetric);
+  for (auto iPoint = 0ul; iPoint < nPointDomain; ++iPoint) {
+    passivedouble value[6] = {0.0};
+    for (unsigned short iMet = 0; iMet < nMetric; ++iMet) {
+      localMetric[iPoint * nMetric + iMet] = metric(iPoint, iMet);
+      value[iMet] = SU2_TYPE::GetValue(metric(iPoint, iMet));
+    }
+    if (!IsFinitePositiveDefinite(nDim, value)) {
+      std::vector<passivedouble> x(nDim);
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+        x[iDim] = SU2_TYPE::GetValue(geometry.nodes->GetCoord(iPoint, iDim));
+      const auto point = "point " + std::to_string(geometry.nodes->GetGlobalIndex(iPoint));
+      SU2_MPI::Error("The adaptation metric is not finite and positive definite (or numerically singular) at the " +
+                         PointInfo(nDim, x, 0).replace(0, 7, point) + ".",
+                     CURRENT_FUNCTION);
     }
   }
 
-  /*--- Volume elements, triangles or tetrahedra only, positively oriented. ---*/
+  /*--- The whole mesh on the master rank, in the global numbering of the mesh (the same for any partition, see
+   *    CMeshGather): points, simplices, boundary elements by marker in the order of the config (the order the mesh
+   *    output writes them, so the geometry built from the adapted mesh in memory and the one read from its exported
+   *    file have the same marker order; it matters where markers share points, e.g. a symmetry plane and an Euler
+   *    wall applied one after the other). The config describes this geometry. ---*/
+  std::vector<string> markerTags;
+  for (unsigned short iMarker = 0; iMarker < geometry.GetnMarker(); ++iMarker)
+    markerTags.push_back(config.GetMarker_All_TagBound(iMarker));
+  const CMeshGather gather(geometry);
+  auto mesh = gather.GatherMesh(config, markerTags, false);
+  const auto globalMetric = gather.Gather(localMetric.data(), nMetric);
+  if (!gather.IsRoot()) return mesh;
+
+  mesh.metric.resize(globalMetric.size());
+  for (auto i = 0ul; i < globalMetric.size(); ++i) mesh.metric[i] = SU2_TYPE::GetValue(globalMetric[i]);
+
+  /*--- Volume elements positively oriented. ---*/
   const unsigned short nNode = nDim + 1;
-  const unsigned short simplex = (nDim == 2) ? TRIANGLE : TETRAHEDRON;
-  mesh.elem.resize(nElem * nNode);
-  mesh.elemRef.assign(nElem, 0);
   unsigned long nFlip = 0;
-  for (auto iElem = 0ul; iElem < nElem; ++iElem) {
-    const auto* element = geometry.elem[iElem];
-    if (element->GetVTK_Type() != simplex) {
-      SU2_MPI::Error(string("Mesh adaptation supports only ") + (nDim == 2 ? "triangles" : "tetrahedra") +
-                     " (element " + std::to_string(iElem) + " has VTK type " +
-                     std::to_string(element->GetVTK_Type()) + ").", CURRENT_FUNCTION);
-    }
+  for (auto iElem = 0ul; iElem < mesh.GetnElem(); ++iElem) {
     auto* nodes = &mesh.elem[iElem * nNode];
-    for (unsigned short iNode = 0; iNode < nNode; ++iNode) nodes[iNode] = element->GetNode(iNode);
-
     const auto volume = SignedVolume(nDim, mesh.coord, nodes);
     if (volume < 0.0) {
       std::swap(nodes[nNode - 2], nodes[nNode - 1]);
@@ -314,37 +317,6 @@ CSimplexMesh CMMGInterface::ExtractMesh(const CConfig& config, const CGeometry& 
   if (nFlip > 0) {
     cout << "Mesh adaptation: reoriented " << nFlip << " elements with negative volume." << endl;
   }
-
-  /*--- Boundary elements, grouped by physical marker. The reference does not depend on the partition. ---*/
-  const unsigned short boundType = (nDim == 2) ? LINE : TRIANGLE;
-  for (unsigned short iMarker = 0; iMarker < geometry.GetnMarker(); ++iMarker) {
-    if (config.GetMarker_All_KindBC(iMarker) == SEND_RECEIVE) {
-      SU2_MPI::Error("Mesh adaptation does not support MPI send/receive markers.", CURRENT_FUNCTION);
-    }
-    CSimplexMesh::Marker marker;
-    marker.name = config.GetMarker_All_TagBound(iMarker);
-    marker.ref = GetMarkerReference(config, marker.name);
-    const auto nElemBound = geometry.GetnElem_Bound(iMarker);
-    marker.elem.resize(nElemBound * nDim);
-    for (auto iElem = 0ul; iElem < nElemBound; ++iElem) {
-      const auto* element = geometry.bound[iMarker][iElem];
-      if (element->GetVTK_Type() != boundType) {
-        SU2_MPI::Error(string("Mesh adaptation supports only ") + (nDim == 2 ? "line" : "triangle") +
-                       " boundary elements (marker " + marker.name + ").", CURRENT_FUNCTION);
-      }
-      for (unsigned short iNode = 0; iNode < nDim; ++iNode) marker.elem[iElem * nDim + iNode] = element->GetNode(iNode);
-    }
-    mesh.markers.push_back(std::move(marker));
-  }
-
-  /*--- Markers in the order of the config (as the mesh output writes them), not of the input mesh: the adapted mesh
-   *    keeps this order (GetMesh), so the geometry built from it in memory and the one read from its exported file
-   *    have the same marker order. The order matters where markers share points (e.g. symmetry plane and Euler wall,
-   *    applied one after the other). ---*/
-  std::stable_sort(mesh.markers.begin(), mesh.markers.end(),
-                   [&config](const CSimplexMesh::Marker& a, const CSimplexMesh::Marker& b) {
-                     return config.GetMarker_CfgFile_TagBound(a.name) < config.GetMarker_CfgFile_TagBound(b.name);
-                   });
   return mesh;
 }
 
@@ -880,26 +852,41 @@ CMMGRemesher::CMMGRemesher() {
 }
 
 CSimplexMesh CMMGRemesher::Remesh(const CConfig& config, const CGeometry& geometry, const su2activematrix& metric) {
+  const int rank = SU2_MPI::GetRank(), size = SU2_MPI::GetSize();
   const auto startTime = SU2_MPI::Wtime();
+
+  /*--- The whole mesh and metric on the master rank (all ranks take part in the gather). ---*/
   const auto mesh = CMMGInterface::ExtractMesh(config, geometry, metric);
   const auto extractTime = SU2_MPI::Wtime();
 
-  if (SU2_MPI::GetRank() == MASTER_NODE)
+  if (rank == MASTER_NODE)
     cout << endl << "------------------------------ Remesh (MMG) -----------------------------" << endl;
 
-  CMMGInterface mmg(config);
-  auto adapted = mmg.Adapt(mesh);
+  /*--- Serial MMG on the master rank; the other ranks wait for its mesh. An error on the master rank (MMG failure,
+   *    invalid mesh) stops all ranks (SU2_MPI::Error aborts the communicator). ---*/
+  CSimplexMesh adapted;
+  bool success = true;
+  if (rank == MASTER_NODE) {
+    CMMGInterface mmg(config);
+    adapted = mmg.Adapt(mesh);
+    success = mmg.GetStatus() == CMMGInterface::Status::SUCCESS;
+  }
+  const auto mmgTime = SU2_MPI::Wtime();
+
+  /*--- Every rank builds its part of the new geometry from the complete mesh (CMemoryMeshReaderFVM, as a mesh
+   *    file is read by every rank). ---*/
+  if (size > 1) CMeshGather::Broadcast(adapted, MASTER_NODE);
   const auto endTime = SU2_MPI::Wtime();
 
-  if (SU2_MPI::GetRank() == MASTER_NODE) {
+  if (rank == MASTER_NODE) {
     cout << "Remeshed " << mesh.GetnPoint() << " points, " << mesh.GetnElem() << " elements into "
          << adapted.GetnPoint() << " points, " << adapted.GetnElem() << " elements." << endl;
-    const bool success = mmg.GetStatus() == CMMGInterface::Status::SUCCESS;
-    cout << "MMG" << mesh.nDim << "D status " << (success ? "SUCCESS" : "LOWFAILURE") << ", " << endTime - extractTime
-         << " s (with the validation of input and output), extraction " << extractTime - startTime << " s." << endl;
+    cout << "MMG" << mesh.nDim << "D status " << (success ? "SUCCESS" : "LOWFAILURE") << ", " << mmgTime - extractTime
+         << " s (with the validation of input and output), extraction " << extractTime - startTime << " s";
+    if (size > 1) cout << " (gathered from " << size << " ranks), broadcast " << endTime - mmgTime << " s";
+    cout << "." << endl;
     if (!config.GetAdap_Surface())
       cout << "Volume only (ADAP_SURFACE= NO): boundary points and faces kept (checked)." << endl;
   }
   return adapted;
 }
-
