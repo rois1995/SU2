@@ -176,7 +176,8 @@ su2_cfd_src += files(['adaptation/CSolutionTransfer.cpp',
                       'adaptation/CConservativeTransfer.cpp',
                       'adaptation/CBoundaryLayerMetric.cpp',
                       'adaptation/CMetricPredictor.cpp',
-                      'adaptation/CTransferAdmissibility.cpp'])
+                      'adaptation/CTransferAdmissibility.cpp',
+                      'adaptation/CDistributedLocator.cpp'])
 
 su2_cfd_src += files(['integration/CIntegration.cpp',
                       'integration/CIntegrationFactory.cpp',

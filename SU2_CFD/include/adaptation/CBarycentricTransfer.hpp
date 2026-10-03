@@ -32,21 +32,29 @@
 #include <vector>
 
 #include "CSolutionTransfer.hpp"
+#include "CDistributedLocator.hpp"
 #include "../../../Common/include/adaptation/CSimplexMesh.hpp"
 #include "../../../Common/include/adt/CADTElemClass.hpp"
 #include "../../../Common/include/option_structure.hpp"
 
 class CFluidModel;
+class CTransferAdmissibility;
 
 /*!
  * \class CBarycentricLocator
  * \brief Locates points in a simplex mesh (triangles or tetrahedra): the element that contains the point and its
  *        barycentric coordinates, or the closest point of the mesh boundary. Uses local ADTs of the mesh (no
- *        communication, each rank searches its own mesh).
- * \note Points outside the mesh (e.g. new boundary points on a curved boundary, which lie outside the faceted boundary
- *       of the mesh) get the closest point of the mesh boundary: the nearest boundary face (exact nearest-element search
- *       of the ADT) and the barycentric coordinates of the closest point in it, which are in [0,1]. Points of a marker
- *       can instead be projected on the faces of markers with the same name (LocateOnBoundary).
+ *        communication, each rank searches its own mesh). Serial; the reference (test oracle) of the distributed
+ *        location (CDistributedLocator), with the same canonical rules (MPI_TRANSFER_PLAN.md D-B2, D-B3).
+ * \note Canonical containing element: of every element the ADT accepts (no early exit), the one with the largest
+ *       minimum raw barycentric weight, ties by the smallest element key (sorted point indices; the global indices for
+ *       a gathered mesh).
+ *       Points outside the mesh (e.g. new boundary points on a curved boundary, which lie outside the faceted boundary
+ *       of the mesh) get the closest point of the mesh boundary: the canonical nearest boundary face (CCanonicalBoundary:
+ *       smallest (distance, marker position, face key) of the canonical closest-point kernel over a complete candidate
+ *       set) and the barycentric coordinates of the closest point in it, which are in [0,1]. Points of a marker can
+ *       instead be projected on the faces of markers with the same name (LocateOnBoundary). Marker positions: the
+ *       named markers in the order of the mesh (the config order for a gathered mesh), the unnamed ones after them.
  *       Distance limit: a point is accepted at any distance up to GetDistanceLimit(faceSize) = max(faceSize,
  *       absoluteLimit, 1e-3 x the diagonal of the bounding box of the mesh), faceSize the longest edge of the nearest
  *       face. The face size bounds the gap between two discretizations of the same curved boundary that comes from the
@@ -70,6 +78,8 @@ class CBarycentricLocator {
     su2double distance = 0.0;               /*!< \brief Distance to the closest point (0 for an element stencil). */
     su2double faceSize = 0.0;               /*!< \brief Longest edge of the boundary face (face stencils only). */
     bool beyondLimit = false;               /*!< \brief The distance exceeds GetDistanceLimit(faceSize). */
+    uint32_t marker = 0;                    /*!< \brief Face stencils: position of the face's marker. */
+    CSimplexKey key = {};                   /*!< \brief Key of the element or face (sorted point indices). */
   };
 
   /*!
@@ -117,14 +127,26 @@ class CBarycentricLocator {
   }
 
   /*!
-   * \brief Element of the mesh (index in the geometry) that contains the point, -1 if none (ADT tolerance).
+   * \brief Canonical element of the mesh (index in the geometry) that contains the point, -1 if none (ADT tolerance).
    */
   long ContainingElement(const su2double* coord);
+
+  /*!
+   * \brief Canonical containing element with its raw weights (CElementHit::found false if none).
+   */
+  CElementHit ContainingHit(const su2double* coord, long* element = nullptr);
 
   /*!
    * \brief Whether a marker with this name has boundary faces in the mesh.
    */
   bool HasMarker(const std::string& name) const { return markerIndex.count(name) > 0; }
+
+  /*!
+   * \brief Elements (indices) whose inflated bounding box intersects the box [bbMin, bbMax].
+   */
+  void IntersectingElements(const su2double* bbMin, const su2double* bbMax, std::vector<unsigned long>& elements) {
+    elemADT->DetermineIntersectingElements(bbMin, bbMax, elements);
+  }
 
   /*!
    * \brief Diagonal of the bounding box of the mesh.
@@ -142,31 +164,36 @@ class CBarycentricLocator {
   /*--- Search structures of the mesh. ---*/
   void Build(const CSimplexMesh& mesh);
 
-  /*--- Closest point of the face nearest to a point, in one face ADT. ---*/
-  Stencil ClosestFace(const su2double* coord, CADTElemClass& adt, const std::vector<unsigned long>& conn) const;
+  /*--- Stencil of a canonical face hit. ---*/
+  Stencil FaceStencil(const CFaceHit& hit) const;
 
   unsigned short nDim = 0;
   su2double domainSize = 0.0;            /*!< \brief Diagonal of the bounding box of the mesh. */
   su2double absoluteLimit = 0.0;         /*!< \brief Distance accepted outside the mesh at any face size. */
   std::vector<su2double> coord;          /*!< \brief Coordinates of the mesh points. */
   std::vector<unsigned long> elemConn;   /*!< \brief Nodes of the elements (nDim+1 per element). */
-  std::vector<unsigned long> faceConn;   /*!< \brief Nodes of the boundary faces of all markers (nDim per face). */
-  std::unique_ptr<CADTElemClass> elemADT, faceADT;
-  std::map<std::string, unsigned short> markerIndex;      /*!< \brief Position of a marker name in the vectors below. */
-  std::vector<std::vector<unsigned long>> markerFaceConn; /*!< \brief Nodes of the faces of each marker name. */
-  std::vector<std::unique_ptr<CADTElemClass>> markerADT;  /*!< \brief ADT of the faces of each marker name. */
+  std::vector<CSimplexKey> elemKeys;     /*!< \brief Key of each element. */
+  std::unique_ptr<CADTElemClass> elemADT;
+  std::unique_ptr<CCanonicalBoundary> boundary;     /*!< \brief Faces of all markers. */
+  std::vector<uint32_t> allMarkers;                 /*!< \brief Positions of all markers with faces (named, unnamed). */
+  std::map<std::string, uint32_t> markerIndex;      /*!< \brief Position of each marker name with faces. */
+  std::vector<std::string> markerName;              /*!< \brief Name of each position (empty: unnamed). */
 };
 
 /*!
  * \class CBarycentricTransfer
  * \brief Transfer of the solution of the compressible flow (EULER, NAVIER_STOKES, RANS with SA or SST) by barycentric
  *        (P1) interpolation of the donor solution at each point of the new mesh.
- * \note MPI: both meshes (finest grids) and the donor solution are gathered on the master rank in the global numbering
- *       of the meshes (CMeshGather: points, simplices, boundary elements by marker name, control volumes), the
- *       interpolation below runs there on the complete meshes, and the new values go back to the ranks that own the
- *       points; the halo points and the coarse levels follow as after a restart. The result does not depend on the
- *       number of ranks (up to the round-off of the donor solution itself). Memory: the master rank holds both meshes
- *       and the fields (the donor mesh is gathered for MMG anyway); a distributed point location would avoid it.
+ * \note MPI (MPI_TRANSFER_PLAN.md, M1): distributed. The donor values of the owned donor points go to a rendezvous
+ *       directory (CPointDirectory); the owned points of the new mesh are located in the donor by CDistributedLocator
+ *       (routing to the ranks whose boxes contain them, collect-all location in each rank's owned donor elements,
+ *       canonical merge; canonical nearest face on the replicated donor boundary); the stencil values are fetched from
+ *       the directory and the point kernel below runs on the rank that owns the new point. The stencil decisions are
+ *       the same for every number of ranks and equal to those of the serial locator on the gathered meshes, so the
+ *       values are bitwise those of the gathered transfer (expected, reported by the tests; required within 1e-12 of
+ *       the field scale). Data-dependent errors are elected over the ranks (CollectiveFailure). Statistics are global
+ *       (accurate sums). No rank holds a whole mesh. The gathered transfer (both meshes and the fields on the master
+ *       rank, the serial locator there) is kept as the test reference (constructor flag).
  * \note Rules:
  *       - Stencils (CBarycentricLocator): a point on a marker of the new mesh takes the closest point of the donor faces
  *         of the marker(s) with the same name, whether it lies inside or outside the donor mesh: boundary states come
@@ -246,14 +273,52 @@ class CBarycentricTransfer final : public CSolutionTransfer {
     std::vector<su2double> newIntegral;    /*!< \brief Integral of each conservative variable on the new mesh. */
     std::vector<su2double> roundTripL2;    /*!< \brief RMS of the round-trip difference / donor range, per variable. */
     std::vector<su2double> roundTripLinf;  /*!< \brief Max of the round-trip difference / donor range, per variable. */
+    unsigned long nRoundTripBeyond = 0;    /*!< \brief Donor points beyond the distance limit of the new mesh. */
+    passivedouble roundTripWorstRatio = 0; /*!< \brief Their largest distance / limit (reported, never an error). */
+    passivedouble time = 0.0;              /*!< \brief Wall time of the transfer (seconds). */
+  };
+
+  /*!
+   * \brief Stencil decision of one point of the new mesh (for the tests): element or face, its key and marker.
+   */
+  struct StencilRecord {
+    uint64_t gid = 0;                  /*!< \brief Global index of the point of the new mesh. */
+    bool onFace = false, inside = false, beyondLimit = false;
+    uint32_t marker = 0;               /*!< \brief Face stencils: marker position (gathered: in the gathered mesh). */
+    CSimplexKey key = {};              /*!< \brief Element or face key (global indices). */
+    uint64_t point[4] = {};            /*!< \brief Donor points (global indices) in stencil order. */
+    passivedouble weight[4] = {};
   };
 
   /*!
    * \param[in] roundTripCheck - Measure the round-trip difference (interpolates the new solution back to the donor).
+   * \param[in] gathered - Run the MPI-1 transfer on the meshes gathered on the master rank (test reference).
    */
-  explicit CBarycentricTransfer(bool roundTripCheck = true) : roundTripCheck(roundTripCheck) {}
+  explicit CBarycentricTransfer(bool roundTripCheck = true, bool gathered = false)
+      : roundTripCheck(roundTripCheck), gathered(gathered) {}
 
   void Transfer(CConfig* config, const CMeshDonor& donor, CGeometry** geometry, CSolver*** solver) override;
+
+  /*!
+   * \brief Keep the stencil decisions of the owned points of the new mesh (gathered: all points, on the master rank).
+   */
+  void KeepStencils(bool keep) { keepStencils = keep; }
+  const std::vector<StencilRecord>& GetStencils() const { return stencilRecords; }
+
+  /*!
+   * \brief The interpolation of one point and time level (the same code in the distributed and the gathered
+   *        transfer): conservative flow variables and turbulence (SST: rho k, rho omega interpolated, divided by the
+   *        interpolated density) with the weights, turbulence bounded (finite values clipped, NaN kept), then the
+   *        full admissibility predicate; if it fails, the flow and turbulence states of the donor point of largest
+   *        weight whose complete (bounded) state is admissible.
+   * \param[in] donorLevel - Per stencil point: its fields of the level (flow, then raw turbulence).
+   * \param[out] out - Flow, then turbulence.
+   * \param[out] fixed - The interpolated state was not admissible.
+   * \return False if no donor state of the stencil is admissible.
+   */
+  static bool PointKernel(const CTransferAdmissibility& admissibility, unsigned short nPoint, const passivedouble* weight,
+                          const su2double* const* donorLevel, su2double* out, bool& fixed,
+                          unsigned long& nTurbLimited);
 
   /*!
    * \brief Statistics of the last transfer.
@@ -275,10 +340,19 @@ class CBarycentricTransfer final : public CSolutionTransfer {
                               su2double turbKineticEnergy = 0.0);
 
  private:
+  /*--- The MPI-1 transfer on the gathered meshes (test reference). ---*/
+  void TransferGathered(CConfig* config, const CMeshDonor& donor, CGeometry** geometry, CSolver*** solver);
+
   /*--- The counts, distances, volumes and integrals of the summary from the master rank to all ranks (the per-marker
-   *    statistics and the round trip stay on the master rank). ---*/
+   *    statistics and the round trip stay on the master rank; gathered transfer). ---*/
   void BroadcastSummary();
 
+  /*--- The log of the transfer (master rank). ---*/
+  void PrintSummary(unsigned short nDim, bool turbulence, const std::string& timing) const;
+
   bool roundTripCheck;
+  bool gathered;
+  bool keepStencils = false;
   Summary summary;
+  std::vector<StencilRecord> stencilRecords;
 };
