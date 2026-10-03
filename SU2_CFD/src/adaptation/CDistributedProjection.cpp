@@ -308,11 +308,34 @@ void CDistributedProjection::Supermesh(std::vector<FillEntry>& fills) {
   }
   const auto nLocalBox = regionBoxes.size() / (2 * nDim);
   std::vector<uint64_t> importCount(nLocalBox, 0);
+  uint64_t distinctImport = 0;
   {
+    /*--- Per destination rank: the counts of its boxes, then the number of distinct elements sent to it (an element
+     *    that intersects several boxes of a rank is imported once per group). ---*/
+    std::vector<uint64_t> distinct(size, 0);
+    for (auto e = 0ul; e < nOwnedD; ++e) {
+      int last = -1;
+      for (const auto b : hits[e]) {
+        if (regions.BoxRank(b) != last) distinct[regions.BoxRank(b)]++;
+        last = regions.BoxRank(b);
+      }
+    }
+    std::vector<uint64_t> send;
     std::vector<size_t> sendCount(size), recvCount;
-    for (int t = 0; t < size; ++t) sendCount[t] = regions.FirstBox(t + 1) - regions.FirstBox(t);
-    const auto received = CPassiveComm::Alltoallv(boxCount, sendCount, recvCount);
-    for (size_t i = 0; i < received.size(); ++i) importCount[i % std::max<size_t>(nLocalBox, 1)] += received[i];
+    for (int t = 0; t < size; ++t) {
+      send.insert(send.end(), boxCount.begin() + regions.FirstBox(t), boxCount.begin() + regions.FirstBox(t + 1));
+      send.push_back(distinct[t]);
+      sendCount[t] = regions.FirstBox(t + 1) - regions.FirstBox(t) + 1;
+    }
+    const auto received = CPassiveComm::Alltoallv(send, sendCount, recvCount);
+    for (size_t i = 0; i < received.size(); ++i) {
+      const auto j = i % (nLocalBox + 1);
+      if (j < nLocalBox) {
+        importCount[j] += received[i];
+      } else {
+        distinctImport += received[i];
+      }
+    }
   }
 
   /*--- Memory ceiling (5.17): resident structures and persistent cross-group records admitted first, then the
@@ -320,8 +343,8 @@ void CDistributedProjection::Supermesh(std::vector<FillEntry>& fills) {
   const size_t elemImport = sizeof(uint64_t) * (1 + nNode) + 220 + 16 * nNode;
   const size_t nodeImport = sizeof(uint64_t) + 2 * nDim * sizeof(double) + recordBytes + nField * sizeof(su2double);
   const size_t coverageBytes = sizeof(Coverage) + 48;
-  uint64_t totalImport = 0;
-  for (const auto n : importCount) totalImport += n;
+  /*--- Distinct imported elements (exact upper bound of the coverage records, which are merged over the groups). ---*/
+  const uint64_t totalImport = distinctImport;
   const size_t resident = elems.size() * (sizeof(TargetElem) + nNode * 4 * sizeof(double)) +
                           nRow * nField * 3 * sizeof(su2double) + mass.col.size() * 16 + mass.nRow * 40 +
                           localRecords.size() * 2 + directory.GetMemory() + boundary->GetMemory() +
@@ -342,7 +365,9 @@ void CDistributedProjection::Supermesh(std::vector<FillEntry>& fills) {
   std::vector<uint32_t> localGroup(nLocalBox, 0);
   unsigned long nLocalGroup = nLocalBox > 0 ? 1 : 0;
   size_t used = 0;
-  for (auto b = 0ul; b < nLocalBox && !failure.Failed(); ++b) {
+  /*--- One group if the whole distinct import fits (the per-box counts count an element once per box). ---*/
+  const bool oneGroup = !failure.Failed() && distinctImport * (elemImport + nNode * nodeImport) <= budget;
+  for (auto b = 0ul; b < nLocalBox && !failure.Failed() && !oneGroup; ++b) {
     const size_t need = importCount[b] * (elemImport + nNode * nodeImport);
     if (need > budget) {
       failure.Set(1, rank,
@@ -367,6 +392,7 @@ void CDistributedProjection::Supermesh(std::vector<FillEntry>& fills) {
       planned[1] = std::max<unsigned long>(planned[1], need);
       planned[2] += need;
     }
+    planned[2] = std::min<unsigned long>(planned[2], distinctImport * (elemImport + nNode * nodeImport));
     CPassiveComm::Allreduce(planned, largest, 3, CPassiveComm::Op::MAX);
     summary.memoryResident = largest[0];
     summary.memoryLargestBox = largest[1];

@@ -1078,6 +1078,9 @@ void CConservativeTransfer::Transfer(CConfig* config, const CMeshDonor& donor, C
          << summary.projection.nImportGroups << ", imported donor elements " << summary.projection.nImported
          << " (largest per rank / mean " << (meanImport > 0 ? maxImport[0] / meanImport : 0.0)
          << (meanImport > 0 && maxImport[0] > 4 * meanImport ? ", imbalance warning" : "") << ")"
+         << "; planned memory per rank (largest): resident and coverage " << (summary.projection.memoryResident >> 20)
+         << " MB, import " << (summary.projection.memoryImport >> 20) << " MB (ceiling "
+         << (GetTransferMemoryCeiling() >> 20) << " MB)"
          << (summary.recoveryGathered ? "; recovery on the gathered level (rank 0)" : "") << ".";
   if (rank == MASTER_NODE) PrintSummary(nDim, nField, nVarTurb > 0, timing.str());
 }
