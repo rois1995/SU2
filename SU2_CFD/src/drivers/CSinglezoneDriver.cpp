@@ -1111,9 +1111,10 @@ std::pair<passivedouble, passivedouble> CSinglezoneDriver::MetricChange(const ve
   const unsigned short nMet = nDim * (nDim + 1) / 2;
 
   passivedouble sums[3] = {0.0, 0.0, 0.0};  // |log ratio|, edges changed by more than 2x, edges
-  bool fits = meshMetric.size() == geometry->GetGlobal_nPoint() * nMet;
+  /*--- The global indices are those of the domain points of all ranks (GetGlobal_nPoint counts the halos too). ---*/
+  bool fits = meshMetric.size() == geometry->GetGlobal_nPointDomain() * nMet;
   for (auto iPoint = 0ul; fits && iPoint < geometry->GetnPoint(); iPoint++)
-    fits = geometry->nodes->GetGlobalIndex(iPoint) < geometry->GetGlobal_nPoint();
+    fits = geometry->nodes->GetGlobalIndex(iPoint) < geometry->GetGlobal_nPointDomain();
 
   if (fits) {
     /*--- Length of the edge e in the metric at a point: sqrt(e^T M e), M stored as its upper triangle. ---*/
@@ -1128,7 +1129,10 @@ std::pair<passivedouble, passivedouble> CSinglezoneDriver::MetricChange(const ve
     };
     for (auto iEdge = 0ul; iEdge < geometry->GetnEdge(); iEdge++) {
       const auto iPoint = geometry->edges->GetNode(iEdge, 0), jPoint = geometry->edges->GetNode(iEdge, 1);
-      if (!geometry->nodes->GetDomain(iPoint) && !geometry->nodes->GetDomain(jPoint)) continue;
+      /*--- Each edge once over the ranks: on the rank that owns its point of smaller global index. ---*/
+      const bool iFirst = geometry->nodes->GetGlobalIndex(iPoint) < geometry->nodes->GetGlobalIndex(jPoint);
+      const auto owner = iFirst ? iPoint : jPoint;
+      if (!geometry->nodes->GetDomain(owner)) continue;
       su2double e[3] = {0.0};
       for (unsigned short iDim = 0; iDim < nDim; iDim++)
         e[iDim] = geometry->nodes->GetCoord(jPoint, iDim) - geometry->nodes->GetCoord(iPoint, iDim);
