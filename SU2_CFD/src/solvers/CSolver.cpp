@@ -27,6 +27,7 @@
 
 
 #include "../../include/solvers/CSolver.hpp"
+#include "../../../Common/include/adaptation/CMeshGather.hpp"
 
 #include <limits>
 #include <queue>
@@ -2806,7 +2807,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
       const su2double growth = log(config->GetAdap_Hgrad());
       const su2double noSize = std::numeric_limits<passivedouble>::max();
       const auto anisotropic = eigenvalues;
-      vector<su2double> size(nPointDomain);
+      vector<su2double> size(geometry->GetnPoint());
       isoEigenvalue.resize(nPointDomain);
 
       /*--- Smallest and largest size of the anisotropic metric of a point, with the bounds and a global factor. ---*/
@@ -2830,22 +2831,44 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
           size[iPoint] = hSmall;
           queue.emplace(hSmall, iPoint);
         }
-        while (!queue.empty()) {
-          const auto h = queue.top().first;
-          const auto iPoint = queue.top().second;
-          queue.pop();
-          if (h > size[iPoint]) continue;
-          const auto coord_i = geometry->nodes->GetCoord(iPoint);
-          for (const auto jPoint : geometry->nodes->GetPoints(iPoint)) {
-            if (jPoint >= nPointDomain) continue;
-            const auto coord_j = geometry->nodes->GetCoord(jPoint);
-            const su2double hNew = h + growth * GeometryToolbox::Distance(nDim, coord_i, coord_j);
-            if (hNew >= size[jPoint]) continue;
-            su2double hSmall, hLarge;
-            boundedSizes(jPoint, scale, hSmall, hLarge);
-            if (hNew >= hLarge) continue;
-            size[jPoint] = hNew;
-            queue.emplace(hNew, jPoint);
+
+        /*--- Shortest paths across the partitions: Dijkstra over the points of this rank (the domain points are
+         *    updated, the halo points are sources with the sizes of the ranks that own them), then the sizes of the
+         *    domain points to the halos of the other ranks, until no halo size changes on any rank. The sizes are the
+         *    ones of a single Dijkstra over the whole mesh (the same sums along the same paths). ---*/
+        for (unsigned long pass = 0;; ++pass) {
+          while (!queue.empty()) {
+            const auto h = queue.top().first;
+            const auto iPoint = queue.top().second;
+            queue.pop();
+            if (h > size[iPoint]) continue;
+            const auto coord_i = geometry->nodes->GetCoord(iPoint);
+            for (const auto jPoint : geometry->nodes->GetPoints(iPoint)) {
+              if (jPoint >= nPointDomain) continue;
+              const auto coord_j = geometry->nodes->GetCoord(jPoint);
+              const su2double hNew = h + growth * GeometryToolbox::Distance(nDim, coord_i, coord_j);
+              if (hNew >= size[jPoint]) continue;
+              su2double hSmall, hLarge;
+              boundedSizes(jPoint, scale, hSmall, hLarge);
+              if (hNew >= hLarge) continue;
+              size[jPoint] = hNew;
+              queue.emplace(hNew, jPoint);
+            }
+          }
+          if (SU2_MPI::GetSize() <= 1) break;
+          const vector<su2double> previous(size.begin() + nPointDomain, size.end());
+          CMeshGather::ExchangeHalo(*geometry, size.data(), 1);
+          unsigned long nChanged = 0, nChangedGlobal = 0;
+          for (auto iPoint = nPointDomain; iPoint < geometry->GetnPoint(); ++iPoint) {
+            if (size[iPoint] < previous[iPoint - nPointDomain]) {
+              queue.emplace(size[iPoint], iPoint);
+              ++nChanged;
+            }
+          }
+          SU2_MPI::Allreduce(&nChanged, &nChangedGlobal, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
+          if (nChangedGlobal == 0) break;
+          if (pass > geometry->GetGlobal_nPointDomain()) {
+            SU2_MPI::Error("The corner sizes did not converge across the partitions.", CURRENT_FUNCTION);
           }
         }
 
