@@ -289,7 +289,7 @@ void COutput::OutputScreenAndHistory(CConfig *config) {
 
   if (rank == MASTER_NODE && !noWriting) {
 
-    if (WriteHistoryFileOutput(config)) SetHistoryFileOutput(config);
+    if (historyFileWriting && WriteHistoryFileOutput(config)) SetHistoryFileOutput(config);
 
     if (WriteScreenHeader(config)) SetScreenHeader(config);
 
@@ -393,6 +393,68 @@ void COutput::SetAdaptationCycle(unsigned long cycle, unsigned long iterOffset, 
   volumeFilename = CConfig::GetAdap_FileName(adapBaseFilenames[0], cycle);
   surfaceFilename = CConfig::GetAdap_FileName(adapBaseFilenames[1], cycle);
   restartFilename = CConfig::GetAdap_FileName(adapBaseFilenames[2], cycle);
+}
+
+COutput::TimeState COutput::GetTimeState() const {
+
+  TimeState state;
+  state.curTimeIter = curTimeIter;
+  state.curAbsTimeIter = curAbsTimeIter;
+  state.curOuterIter = curOuterIter;
+  state.curInnerIter = curInnerIter;
+  state.windowedTimeAverages = windowedTimeAverages;
+  state.wndCauchySerie = WndCauchy_Serie;
+  state.wndOldFunc = WndOld_Func;
+  state.wndNewFunc = WndNew_Func;
+  state.timeConvergence = TimeConvergence;
+  state.cauchyTimeConverged = cauchyTimeConverged;
+  state.maxTimeDelayActive = maxTimeDelayActive;
+  state.initialResiduals = initialResiduals;
+  for (const auto& field : historyOutput_Map) state.historyValues.push_back(field.second.value);
+  for (const auto& fields : historyOutputPerSurface_Map) {
+    state.historyPerSurfaceValues.emplace_back();
+    for (const auto& field : fields.second) state.historyPerSurfaceValues.back().push_back(field.value);
+  }
+  return state;
+}
+
+void COutput::SetTimeState(const TimeState& state) {
+
+  curTimeIter = state.curTimeIter;
+  curAbsTimeIter = state.curAbsTimeIter;
+  curOuterIter = state.curOuterIter;
+  curInnerIter = state.curInnerIter;
+  /*--- The averages have a constant member (no assignment): swap with a copy. ---*/
+  auto averages = state.windowedTimeAverages;
+  windowedTimeAverages.swap(averages);
+  WndCauchy_Serie = state.wndCauchySerie;
+  WndOld_Func = state.wndOldFunc;
+  WndNew_Func = state.wndNewFunc;
+  TimeConvergence = state.timeConvergence;
+  cauchyTimeConverged = state.cauchyTimeConverged;
+  maxTimeDelayActive = state.maxTimeDelayActive;
+  initialResiduals = state.initialResiduals;
+
+  /*--- The fields themselves stay (custom outputs point to them), only their values are set. ---*/
+  if (state.historyValues.size() != historyOutput_Map.size() ||
+      state.historyPerSurfaceValues.size() != historyOutputPerSurface_Map.size()) {
+    SU2_MPI::Error("The history fields changed since the output state was saved.", CURRENT_FUNCTION);
+  }
+  auto value = state.historyValues.begin();
+  for (auto& field : historyOutput_Map) field.second.value = *value++;
+  auto values = state.historyPerSurfaceValues.begin();
+  for (auto& fields : historyOutputPerSurface_Map) {
+    if (values->size() != fields.second.size()) {
+      SU2_MPI::Error("The history fields changed since the output state was saved.", CURRENT_FUNCTION);
+    }
+    for (auto i = 0ul; i < fields.second.size(); ++i) fields.second[i].value = (*values)[i];
+    ++values;
+  }
+}
+
+void COutput::SetVolumeAverageStart(unsigned long timeIter, const CConfig* config) {
+  const auto startWindow = config->GetStartWindowIteration();
+  avgVolumeStartIter = max(timeIter, startWindow) - startWindow;
 }
 
 void COutput::LoadData(CGeometry *geometry, CConfig *config, CSolver** solver_container){

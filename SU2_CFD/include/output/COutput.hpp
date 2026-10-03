@@ -335,6 +335,7 @@ protected:
   vector<string> adapBaseFilenames;      /*!< \brief Volume, surface and restart file names without the cycle. */
   unsigned long avgVolumeStartIter = 0;  /*!< \brief Value of curAbsTimeIter of the first sample of the volume time
                                               averages (after a mesh replacement they average the new mesh only). */
+  bool historyFileWriting = true;        /*!< \brief Write the history file (off for discarded solves). */
 
   /*----------------------------- Adaptive CFL ----------------------------*/
 
@@ -530,6 +531,44 @@ public:
    * \param[in] cycleInFileNames - Put the cycle in the names of the volume, surface and restart files.
    */
   void SetAdaptationCycle(unsigned long cycle, unsigned long iterOffset, bool cycleInFileNames = true);
+
+  /*!
+   * \brief Time-dependent state of the output: iteration counters, time-averaged history fields, windowed Cauchy series
+   *        of the time convergence and its flags, reference residuals and the values of the history fields.
+   * \note Saved at the start of a time window and restored after a solve of that window that is discarded (fixed-point
+   *       mesh adaptation), so that the accepted solve of the window continues from the state of its start.
+   */
+  struct TimeState {
+    unsigned long curTimeIter = 0, curAbsTimeIter = 0, curOuterIter = 0, curInnerIter = 0;
+    map<string, CWindowedAverage> windowedTimeAverages;
+    vector<vector<su2double> > wndCauchySerie;
+    vector<su2double> wndOldFunc, wndNewFunc;
+    bool timeConvergence = false, cauchyTimeConverged = false, maxTimeDelayActive = false;
+    map<string, su2double> initialResiduals;
+    vector<su2double> historyValues;
+    vector<vector<su2double> > historyPerSurfaceValues;
+  };
+
+  /*!
+   * \brief Get the time-dependent state of the output (see TimeState).
+   */
+  TimeState GetTimeState() const;
+
+  /*!
+   * \brief Set the time-dependent state of the output (see TimeState), saved by GetTimeState of the same output.
+   */
+  void SetTimeState(const TimeState& state);
+
+  /*!
+   * \brief Write the history file (default) or not: the screen output and the convergence monitoring continue without
+   *        it (solves of the fixed-point mesh adaptation that are discarded).
+   */
+  void SetHistoryFileWriting(bool write) { historyFileWriting = write; }
+
+  /*!
+   * \brief The volume time averages start (again) with the given time step (first time step on a new mesh).
+   */
+  void SetVolumeAverageStart(unsigned long timeIter, const CConfig* config);
 
   /*!
    * \brief Also stop on the drop of the residual convergence fields (ADAP_RESIDUAL_REDUCTION): converged when each
