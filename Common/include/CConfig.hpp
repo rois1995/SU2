@@ -1326,6 +1326,7 @@ private:
   unsigned long Adap_Complexity;            /*!< \brief Target complexity of the final metric. */
   bool Adap_Loop = false;                   /*!< \brief Run the mesh adaptation loop. */
   bool Wrt_Adap_Mesh = false;               /*!< \brief Write the adapted mesh of each cycle of the loop. */
+  bool Adap_Mesh_Output = false;            /*!< \brief The loop writes its adapted meshes (WRT_ADAP_MESH or restarts). */
   ADAP_TRANSFER Kind_Adap_Transfer;         /*!< \brief Solution transfer to the adapted meshes. */
   bool Adap_Transfer_Default = true;        /*!< \brief ADAP_TRANSFER not in the config file (default of the run type). */
   unsigned long Adap_Freq = 0;              /*!< \brief Time steps between adaptations (time-domain loop). */
@@ -10442,6 +10443,13 @@ public:
    * \brief Check if the adapted mesh of each cycle of the adaptation loop is written (WRT_ADAP_MESH).
    */
   bool GetWrt_Adap_Mesh(void) const { return Wrt_Adap_Mesh; }
+
+  /*!
+   * \brief Check if the adaptation loop writes its adapted meshes: WRT_ADAP_MESH= YES, or a time-domain loop that
+   *        writes restart files (it rewrites those of the transferred steps n, n-1 on each new mesh, and a restart from
+   *        them needs that mesh).
+   */
+  bool GetAdap_Mesh_Output(void) const { return Adap_Mesh_Output; }
 
   /*!
    * \brief Get the solution transfer of the mesh adaptation loop.

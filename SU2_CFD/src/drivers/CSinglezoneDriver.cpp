@@ -289,7 +289,7 @@ void CSinglezoneDriver::RunAdaptationLoop() {
   /*--- Stop before the first solve if the problem or the build cannot be adapted. ---*/
 
   CheckMeshAdaptation();
-  if (config->GetWrt_Adap_Mesh()) CheckAdaptedMeshNames();
+  if (config->GetAdap_Mesh_Output()) CheckAdaptedMeshNames();
 
   CMMGRemesher remesher;
 
@@ -366,7 +366,7 @@ void CSinglezoneDriver::RunAdaptationLoop() {
 
     /*--- The new mesh is accepted (built, solution transferred). ---*/
 
-    if (config->GetWrt_Adap_Mesh()) WriteAdaptedMesh(iCycle + 1);
+    if (config->GetAdap_Mesh_Output()) WriteAdaptedMesh(iCycle + 1);
 
     summary.back().adaptTime = SU2_MPI::Wtime() - adaptStart;
   }
@@ -499,7 +499,7 @@ void CSinglezoneDriver::RunTimeAdaptationLoop() {
   /*--- Stop before the first time step if the problem or the build cannot be adapted. ---*/
 
   CheckMeshAdaptation();
-  if (config->GetWrt_Adap_Mesh()) CheckAdaptedMeshNames();
+  if (config->GetAdap_Mesh_Output()) CheckAdaptedMeshNames();
 
   CMMGRemesher remesher;
 
@@ -541,6 +541,10 @@ void CSinglezoneDriver::RunTimeAdaptationLoop() {
               "integrals of the conservative variables are not conserved)";
     }
     cout << (config->GetAdap_Transfer_Default() ? ", the default of time-domain runs." : ".") << endl;
+    if (config->GetAdap_Mesh_Output() && !config->GetWrt_Adap_Mesh()) {
+      cout << "The restart files of the steps n (and n-1) are written again on each new mesh, so each mesh is written "
+              "too (needed to restart from them), although WRT_ADAP_MESH= NO." << endl;
+    }
   }
 
   struct CycleSummary {
@@ -606,11 +610,13 @@ void CSinglezoneDriver::RunTimeAdaptationLoop() {
       iCycle = (TimeIter + 1) / freq;
       output->SetAdaptationCycle(iCycle, 0, false);
 
-      /*--- Files of the new mesh: the mesh (named for its first time step), and the restart files of the transferred
-       *    steps n and n-1 (they replace those of the previous mesh). ---*/
+      /*--- Files of the new mesh: the mesh (named for its first time step), then the restart files of the
+       *    transferred steps n and n-1, which replace those of the previous mesh. The mesh is written first and always
+       *    when restart files are (CConfig::GetAdap_Mesh_Output): the rewritten restart files can only be used with
+       *    it, and the previous checkpoint (the old mesh with its files) is no longer complete once they are. ---*/
 
       const auto outputStart = SU2_MPI::Wtime();
-      if (config->GetWrt_Adap_Mesh()) WriteAdaptedMesh(iCycle, TimeIter + 1);
+      if (config->GetAdap_Mesh_Output()) WriteAdaptedMesh(iCycle, TimeIter + 1);
       WriteTimeHistoryRestarts();
       const auto outputTime = SU2_MPI::Wtime() - outputStart;
       UsedTimeOutput += outputTime;

@@ -3353,6 +3353,8 @@ void CConfig::SetConfig_Options() {
    * MESH_OUT_FORMAT if it is in the config file, else the format of the input mesh (MESH_FORMAT) \n DEFAULT: NO
    * \ingroup Config */
   addBoolOption("WRT_ADAP_MESH", Wrt_Adap_Mesh, false);
+  /*--- Time-domain loops that write restart files also write each mesh (the restart files of the transferred steps
+   *    are rewritten on it and need it), whatever WRT_ADAP_MESH says: CConfig::GetAdap_Mesh_Output. ---*/
 
   /*--- Goal-oriented adaptation loop options, not used by the C++ code yet (kept so existing config files parse) ---*/
   addPythonOption("ADAP_ADJ_ITER");
@@ -6283,8 +6285,18 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
       Adap_Levels.push_back(level);
     }
 
+    /*--- Time-domain loops write the restart files of the transferred steps n (and n-1) again on each new mesh
+     *    (they replace those of the previous mesh): a restart from them needs that mesh, so it is written with them,
+     *    also with WRT_ADAP_MESH= NO. ---*/
+    bool restartOutput = false;
+    for (unsigned short iFile = 0; iFile < nVolumeOutputFiles; iFile++) {
+      restartOutput |= (VolumeOutputFiles[iFile] == OUTPUT_TYPE::RESTART_BINARY ||
+                        VolumeOutputFiles[iFile] == OUTPUT_TYPE::RESTART_ASCII);
+    }
+    Adap_Mesh_Output = Wrt_Adap_Mesh || (Time_Domain && restartOutput);
+
     /*--- The adapted meshes are written in the format of the input mesh, unless MESH_OUT_FORMAT is given. ---*/
-    if (Wrt_Adap_Mesh && !OptionIsSet("MESH_OUT_FORMAT")) {
+    if (Adap_Mesh_Output && !OptionIsSet("MESH_OUT_FORMAT")) {
       Mesh_Out_FileFormat = (Mesh_FileFormat == ENUM_GRID::CGNS_GRID || Mesh_FileFormat == ENUM_GRID::SU2_BIN) ?
                             Mesh_FileFormat : static_cast<unsigned short>(ENUM_GRID::SU2);
     }
@@ -6312,7 +6324,7 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
   /*--- Check if SU2 was built with CGNS support, as that is required for CGNS mesh output. ---*/
 #ifndef HAVE_CGNS
   if (Mesh_Out_FileFormat == ENUM_GRID::CGNS_GRID) {
-    SU2_MPI::Error("MESH_OUT_FORMAT= CGNS (or a CGNS input mesh with WRT_ADAP_MESH= YES) needs CGNS support: SU2 was "
+    SU2_MPI::Error("MESH_OUT_FORMAT= CGNS (or a CGNS input mesh with adapted mesh output) needs CGNS support: SU2 was "
                    "built without it, reconfigure with -Denable-cgns=true.", CURRENT_FUNCTION);
   }
 #endif

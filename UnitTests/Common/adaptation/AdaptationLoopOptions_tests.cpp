@@ -269,6 +269,26 @@ TEST_CASE("Adaptation loop options, time domain", "[Adaptation]") {
     CHECK(config->GetAdap_Freq() == 0ul);
     CHECK_FALSE(config->GetAdap_TimeWindowEnd(9));
   }
+
+  SECTION("Meshes written with the restart files") {
+    /*--- The time-domain loop rewrites the restart files of the steps n, n-1 on each new mesh: with restart output
+     *    (in the default OUTPUT_FILES) every mesh is written too, also with WRT_ADAP_MESH= NO, in the input format. ---*/
+    auto config = MakeTimeConfig(timeOptions);
+    CHECK_FALSE(config->GetWrt_Adap_Mesh());
+    CHECK(config->GetAdap_Mesh_Output());
+    CHECK(config->GetMesh_Out_FileFormat() == ENUM_GRID::SU2);
+    config = MakeTimeConfig(timeOptions + "OUTPUT_FILES= (RESTART_ASCII)\n");
+    CHECK(config->GetAdap_Mesh_Output());
+    config = MakeTimeConfig(timeOptions + "OUTPUT_FILES= (PARAVIEW)\n");
+    CHECK_FALSE(config->GetAdap_Mesh_Output());
+    config = MakeTimeConfig(timeOptions + "OUTPUT_FILES= (PARAVIEW)\nWRT_ADAP_MESH= YES\n");
+    CHECK(config->GetAdap_Mesh_Output());
+    /*--- Steady loops do not overwrite restart files (one per cycle): WRT_ADAP_MESH alone. ---*/
+    config = MakeConfig("ADAP_LOOP= YES\nADAP_SIZES= (4000)\nOUTPUT_FILES= (RESTART)\n");
+    CHECK_FALSE(config->GetAdap_Mesh_Output());
+    config = MakeConfig("ADAP_LOOP= YES\nADAP_SIZES= (4000)\nWRT_ADAP_MESH= YES\n");
+    CHECK(config->GetAdap_Mesh_Output());
+  }
 }
 
 TEST_CASE("Boundary-layer metric options", "[Adaptation]") {
