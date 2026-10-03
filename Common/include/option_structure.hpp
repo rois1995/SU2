@@ -1257,6 +1257,21 @@ static const MapType<std::string, ADAP_TRANSFER> Adap_Transfer_Map = {
 };
 
 /*!
+ * \brief Metric of the next mesh in the time-domain adaptation loop (one method, they are not combined).
+ */
+enum class ADAP_UNSTEADY_METRIC {
+  WINDOW_AVERAGE, /*!< \brief Mean |Hessian| of the sensors over the previous time window ("a posteriori"). */
+  PREDICT,        /*!< \brief Metric of the end of the window transported over the next window by the motion of its
+                       features (optical flow between two snapshots of the window). */
+  FIXED_POINT,    /*!< \brief Re-solve each window on the mesh built from it (not implemented yet). */
+};
+static const MapType<std::string, ADAP_UNSTEADY_METRIC> Adap_Unsteady_Metric_Map = {
+  MakePair("WINDOW_AVERAGE", ADAP_UNSTEADY_METRIC::WINDOW_AVERAGE)
+  MakePair("PREDICT", ADAP_UNSTEADY_METRIC::PREDICT)
+  MakePair("FIXED_POINT", ADAP_UNSTEADY_METRIC::FIXED_POINT)
+};
+
+/*!
  * \brief Options of one level (one entry of ADAP_SIZES) of the mesh adaptation loop, lists expanded.
  */
 struct CAdapLevel {

@@ -270,6 +270,31 @@ TEST_CASE("Adaptation loop options, time domain", "[Adaptation]") {
     CHECK_FALSE(config->GetAdap_TimeWindowEnd(9));
   }
 
+  SECTION("Metric of the next window") {
+    /*--- Default: mean |H| of the window. PREDICT: defaults of the horizon (ADAP_FREQ), its step (horizon / 10 rounded
+     *    up) and the snapshot separation (ADAP_FREQ - 1), explicit values kept. ---*/
+    auto config = MakeTimeConfig(timeOptions);
+    CHECK(config->GetKind_Adap_Unsteady_Metric() == ADAP_UNSTEADY_METRIC::WINDOW_AVERAGE);
+    config = MakeTimeConfig(timeOptions + "ADAP_UNSTEADY_METRIC= PREDICT\n");
+    CHECK(config->GetKind_Adap_Unsteady_Metric() == ADAP_UNSTEADY_METRIC::PREDICT);
+    CHECK(config->GetAdap_Predict_Horizon() == 10ul);
+    CHECK(config->GetAdap_Predict_Step() == 1ul);
+    CHECK(config->GetAdap_Predict_Separation() == 9ul);
+    CHECK(config->GetAdap_Predict_Aniso() == 1.5);
+    CHECK(config->GetAdap_Predict_Regularization() == 0.5);
+    config = MakeTimeConfig(timeOptions + "ADAP_UNSTEADY_METRIC= PREDICT\nADAP_PREDICT_HORIZON= 25\n");
+    CHECK(config->GetAdap_Predict_Horizon() == 25ul);
+    CHECK(config->GetAdap_Predict_Step() == 3ul);
+    config = MakeTimeConfig(timeOptions +
+                            "ADAP_UNSTEADY_METRIC= PREDICT\nADAP_PREDICT_HORIZON= 15\nADAP_PREDICT_STEP= 5\n"
+                            "ADAP_PREDICT_SEPARATION= 4\nADAP_PREDICT_ANISO= 1\nADAP_PREDICT_REGULARIZATION= 2\n");
+    CHECK(config->GetAdap_Predict_Horizon() == 15ul);
+    CHECK(config->GetAdap_Predict_Step() == 5ul);
+    CHECK(config->GetAdap_Predict_Separation() == 4ul);
+    CHECK(config->GetAdap_Predict_Aniso() == 1.0);
+    CHECK(config->GetAdap_Predict_Regularization() == 2.0);
+  }
+
   SECTION("Meshes written with the restart files") {
     /*--- The time-domain loop rewrites the restart files of the steps n, n-1 on each new mesh: with restart output
      *    (in the default OUTPUT_FILES) every mesh is written too, also with WRT_ADAP_MESH= NO, in the input format. ---*/

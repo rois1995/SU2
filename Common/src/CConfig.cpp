@@ -3347,6 +3347,32 @@ void CConfig::SetConfig_Options() {
    * FREESTREAM (no transfer, for debugging, steady only) \n DEFAULT: BARYCENTRIC for steady runs, CONSERVATIVE for
    * time-domain runs \ingroup Config */
   addEnumOption("ADAP_TRANSFER", Kind_Adap_Transfer, Adap_Transfer_Map, ADAP_TRANSFER::BARYCENTRIC);
+  /*!\brief ADAP_UNSTEADY_METRIC \n DESCRIPTION: Time-domain adaptation loop: metric of the mesh of the next time
+   * window \n OPTIONS: WINDOW_AVERAGE (mean |Hessian| of the sensors over the previous window: the mesh lags behind
+   * moving features), PREDICT (the metric at the end of the window is moved over the next window with the motion of
+   * its features, estimated by optical flow between two metric snapshots of the window on the current mesh, reoriented
+   * by the deformation of that motion, and intersected over the next window), FIXED_POINT (not implemented yet) \n
+   * DEFAULT: WINDOW_AVERAGE \ingroup Config */
+  addEnumOption("ADAP_UNSTEADY_METRIC", Kind_Adap_Unsteady_Metric, Adap_Unsteady_Metric_Map,
+                ADAP_UNSTEADY_METRIC::WINDOW_AVERAGE);
+  /*!\brief ADAP_PREDICT_HORIZON \n DESCRIPTION: PREDICT: time steps after the end of the window over which the
+   * metric is predicted (the instants are intersected) \n DEFAULT: ADAP_FREQ (the next window) \ingroup Config */
+  addUnsignedLongOption("ADAP_PREDICT_HORIZON", Adap_Predict_Horizon, 0);
+  /*!\brief ADAP_PREDICT_STEP \n DESCRIPTION: PREDICT: time steps between the instants of the horizon (the last
+   * instant is the horizon) \n DEFAULT: ADAP_PREDICT_HORIZON / 10, rounded up \ingroup Config */
+  addUnsignedLongOption("ADAP_PREDICT_STEP", Adap_Predict_Step, 0);
+  /*!\brief ADAP_PREDICT_SEPARATION \n DESCRIPTION: PREDICT: time steps between the two metric snapshots of a window
+   * (the second one is the last step of the window; both are on the mesh of the window), 1 to ADAP_FREQ - 1 \n
+   * DEFAULT: ADAP_FREQ - 1 (the first and the last step of the window) \ingroup Config */
+  addUnsignedLongOption("ADAP_PREDICT_SEPARATION", Adap_Predict_Separation, 0);
+  /*!\brief ADAP_PREDICT_ANISO \n DESCRIPTION: PREDICT: the metric is reoriented and stretched by the deformation of
+   * the motion (congruence) where its anisotropy ratio sqrt(lambda_max/lambda_min) is above this value, elsewhere it
+   * is only moved (1: everywhere) \n DEFAULT: 1.5 \ingroup Config */
+  addDoubleOption("ADAP_PREDICT_ANISO", Adap_Predict_Aniso, 1.5);
+  /*!\brief ADAP_PREDICT_REGULARIZATION \n DESCRIPTION: PREDICT: smoothness of the motion field of the optical flow,
+   * the length over which it is smoothed in units of the width of the steepest feature of the metric (> 0) \n
+   * DEFAULT: 0.5 \ingroup Config */
+  addDoubleOption("ADAP_PREDICT_REGULARIZATION", Adap_Predict_Regularization, 0.5);
   /*!\brief WRT_ADAP_MESH \n DESCRIPTION: Write the adapted mesh of each cycle of the loop, after it is built and the
    * solution is transferred, as MESH_OUT_FILENAME_adap_<cycle> (e.g. mesh_out_adap_00001.su2); in time-domain runs as
    * MESH_OUT_FILENAME_<first time step solved on it> (e.g. mesh_out_00040.su2). The format is
@@ -6215,8 +6241,51 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
         SU2_MPI::Error("ADAP_TRANSFER= FREESTREAM would lose the time history, it is only available for steady "
                        "problems.", CURRENT_FUNCTION);
       }
+
+      /*--- Metric of the next window. PREDICT needs two time steps per window (two snapshots on the same mesh). ---*/
+      if (Kind_Adap_Unsteady_Metric == ADAP_UNSTEADY_METRIC::FIXED_POINT) {
+        SU2_MPI::Error("ADAP_UNSTEADY_METRIC= FIXED_POINT is not implemented yet, use WINDOW_AVERAGE or PREDICT.",
+                       CURRENT_FUNCTION);
+      }
+      if (Kind_Adap_Unsteady_Metric == ADAP_UNSTEADY_METRIC::PREDICT) {
+        if (Adap_Freq < 2) {
+          SU2_MPI::Error("ADAP_UNSTEADY_METRIC= PREDICT needs ADAP_FREQ >= 2 (two metric snapshots per time window).",
+                         CURRENT_FUNCTION);
+        }
+        if (Adap_Predict_Horizon == 0) Adap_Predict_Horizon = Adap_Freq;
+        if (Adap_Predict_Step == 0) Adap_Predict_Step = (Adap_Predict_Horizon + 9) / 10;
+        if (Adap_Predict_Separation == 0) Adap_Predict_Separation = Adap_Freq - 1;
+        if (Adap_Predict_Step > Adap_Predict_Horizon) {
+          SU2_MPI::Error("ADAP_PREDICT_STEP must not exceed ADAP_PREDICT_HORIZON.", CURRENT_FUNCTION);
+        }
+        if (Adap_Predict_Separation >= Adap_Freq) {
+          SU2_MPI::Error("ADAP_PREDICT_SEPARATION must be between 1 and ADAP_FREQ - 1 (both snapshots in the window).",
+                         CURRENT_FUNCTION);
+        }
+        if (!(Adap_Predict_Aniso >= 1.0) || !std::isfinite(SU2_TYPE::GetValue(Adap_Predict_Aniso))) {
+          SU2_MPI::Error("ADAP_PREDICT_ANISO must be a finite value >= 1.", CURRENT_FUNCTION);
+        }
+        if (!(Adap_Predict_Regularization > 0.0) ||
+            !std::isfinite(SU2_TYPE::GetValue(Adap_Predict_Regularization))) {
+          SU2_MPI::Error("ADAP_PREDICT_REGULARIZATION must be a finite value > 0.", CURRENT_FUNCTION);
+        }
+      }
     } else if (Adap_Freq > 0) {
       SU2_MPI::Error("ADAP_FREQ is only used by the time-domain adaptation loop (TIME_DOMAIN= YES).", CURRENT_FUNCTION);
+    }
+
+    if (!Time_Domain && OptionIsSet("ADAP_UNSTEADY_METRIC")) {
+      SU2_MPI::Error("ADAP_UNSTEADY_METRIC is only used by the time-domain adaptation loop (TIME_DOMAIN= YES).",
+                     CURRENT_FUNCTION);
+    }
+    if (!(Time_Domain && Kind_Adap_Unsteady_Metric == ADAP_UNSTEADY_METRIC::PREDICT)) {
+      for (const auto* name : {"ADAP_PREDICT_HORIZON", "ADAP_PREDICT_STEP", "ADAP_PREDICT_SEPARATION",
+                               "ADAP_PREDICT_ANISO", "ADAP_PREDICT_REGULARIZATION"}) {
+        if (OptionIsSet(name)) {
+          SU2_MPI::Error(string(name) + " is only used with ADAP_UNSTEADY_METRIC= PREDICT (time-domain loop).",
+                         CURRENT_FUNCTION);
+        }
+      }
     }
 
     /*--- Default transfer of the run type: barycentric for steady runs, conservative for time-domain runs (it keeps the

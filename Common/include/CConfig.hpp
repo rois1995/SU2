@@ -1330,6 +1330,12 @@ private:
   ADAP_TRANSFER Kind_Adap_Transfer;         /*!< \brief Solution transfer to the adapted meshes. */
   bool Adap_Transfer_Default = true;        /*!< \brief ADAP_TRANSFER not in the config file (default of the run type). */
   unsigned long Adap_Freq = 0;              /*!< \brief Time steps between adaptations (time-domain loop). */
+  ADAP_UNSTEADY_METRIC Kind_Adap_Unsteady_Metric; /*!< \brief Metric of the next mesh of the time-domain loop. */
+  unsigned long Adap_Predict_Horizon = 0,   /*!< \brief PREDICT: time steps over which the metric is predicted. */
+                Adap_Predict_Step = 0,      /*!< \brief PREDICT: time steps between the instants of the horizon. */
+                Adap_Predict_Separation = 0; /*!< \brief PREDICT: time steps between the two metric snapshots. */
+  su2double Adap_Predict_Aniso = 1.5,       /*!< \brief PREDICT: anisotropy ratio above which the metric is reoriented. */
+            Adap_Predict_Regularization = 0.5; /*!< \brief PREDICT: smoothness weight of the motion field. */
   unsigned short nAdap_Sizes = 0, nAdap_SubIter = 0, nAdap_Hmaxs = 0, nAdap_Hmins = 0, nAdap_Norms = 0,
                  nAdap_ARmaxs = 0, nAdap_FlowIter = 0, nAdap_FlowCFL = 0, nAdap_ResRed = 0; /*!< \brief List lengths. */
   unsigned long *Adap_Sizes = nullptr,      /*!< \brief Target complexity of each adaptation level. */
@@ -10465,6 +10471,41 @@ public:
    * \brief Get the number of physical time steps between two adaptations of the time-domain loop (ADAP_FREQ).
    */
   unsigned long GetAdap_Freq(void) const { return Adap_Freq; }
+
+  /*!
+   * \brief Get the metric of the next mesh of the time-domain adaptation loop (ADAP_UNSTEADY_METRIC).
+   */
+  ADAP_UNSTEADY_METRIC GetKind_Adap_Unsteady_Metric(void) const { return Kind_Adap_Unsteady_Metric; }
+
+  /*!
+   * \brief PREDICT: number of time steps after the end of the window over which the metric is predicted
+   *        (ADAP_PREDICT_HORIZON, default ADAP_FREQ: the next window).
+   */
+  unsigned long GetAdap_Predict_Horizon(void) const { return Adap_Predict_Horizon; }
+
+  /*!
+   * \brief PREDICT: time steps between the instants of the horizon (ADAP_PREDICT_STEP, default the horizon / 10
+   *        rounded up).
+   */
+  unsigned long GetAdap_Predict_Step(void) const { return Adap_Predict_Step; }
+
+  /*!
+   * \brief PREDICT: time steps between the two metric snapshots of a window (ADAP_PREDICT_SEPARATION, default
+   *        ADAP_FREQ - 1: the first and the last time step of the window).
+   */
+  unsigned long GetAdap_Predict_Separation(void) const { return Adap_Predict_Separation; }
+
+  /*!
+   * \brief PREDICT: the metric is reoriented by the deformation of the motion where its anisotropy ratio
+   *        sqrt(lambda_max / lambda_min) exceeds this value, elsewhere it is only moved (ADAP_PREDICT_ANISO).
+   */
+  su2double GetAdap_Predict_Aniso(void) const { return Adap_Predict_Aniso; }
+
+  /*!
+   * \brief PREDICT: smoothness weight of the motion field, the regularization length in units of the width of the
+   *        steepest feature of the metric (ADAP_PREDICT_REGULARIZATION).
+   */
+  su2double GetAdap_Predict_Regularization(void) const { return Adap_Predict_Regularization; }
 
   /*!
    * \brief Check if the time-domain adaptation loop adapts the mesh after a time step: the time windows are
