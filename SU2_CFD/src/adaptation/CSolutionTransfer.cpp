@@ -27,7 +27,9 @@
 #include "../../include/adaptation/CSolutionTransfer.hpp"
 
 #include "../../../Common/include/CConfig.hpp"
+#include "../../../Common/include/adaptation/CDistributedSearch.hpp"
 #include "../../../Common/include/geometry/CGeometry.hpp"
+#include "../../../Common/include/parallelization/CPassiveComm.hpp"
 #include "../../include/solvers/CSolver.hpp"
 
 CSolutionTransfer::TransferArrays CSolutionTransfer::CheckProblem(const std::string& name, CConfig* config,
@@ -89,12 +91,36 @@ CSolutionTransfer::TransferArrays CSolutionTransfer::CheckProblem(const std::str
   const ArrayGetter getTimeN = [](CVariable* nodes) -> su2activematrix& { return nodes->GetSolution_time_n(); };
   const ArrayGetter getTimeN1 = [](CVariable* nodes) -> su2activematrix& { return nodes->GetSolution_time_n1(); };
 
+  /*--- The history arrays the variables allocate (CVariable: Solution_time_n in the time domain, Solution_time_n1 for
+   *    every time marching but STEADY): from the config, not from the local array sizes (a rank may have no points). */
   auto* flowSolver = solver[MESH_0][FLOW_SOL];
   if (config->GetTime_Domain()) {
-    arrays.hasTimeN = flowSolver->GetNodes()->GetSolution_time_n().size() > 0;
-    arrays.hasTimeN1 = flowSolver->GetNodes()->GetSolution_time_n1().size() > 0;
+    arrays.hasTimeN = true;
+    arrays.hasTimeN1 = config->GetTime_Marching() != TIME_MARCHING::STEADY;
   }
   arrays.interpolateTimeN1 = arrays.hasTimeN1 && config->GetTime_Marching() == TIME_MARCHING::DT_STEPPING_2ND;
+
+  /*--- Layout of the fields (R8): from the config and the solver objects; the same on every rank. ---*/
+  arrays.nDim = newGeometry->GetnDim();
+  arrays.nVarFlow = flowSolver->GetnVar();
+  arrays.nVarTurb = solver[MESH_0][TURB_SOL] ? solver[MESH_0][TURB_SOL]->GetnVar() : 0;
+  arrays.nLevel = arrays.interpolateTimeN1 ? 2 : 1;
+  arrays.sst = arrays.nVarTurb > 0 && turbFamily == TURB_FAMILY::KW;
+  {
+    unsigned long layout[] = {arrays.nDim, arrays.nVarFlow, arrays.nVarTurb, arrays.nLevel, arrays.hasTimeN,
+                              arrays.hasTimeN1, arrays.interpolateTimeN1, arrays.sst, arrays.solverIndices.size()};
+    constexpr size_t n = sizeof(layout) / sizeof(layout[0]);
+    unsigned long lo[n], hi[n];
+    CPassiveComm::Allreduce(layout, lo, n, CPassiveComm::Op::MIN);
+    CPassiveComm::Allreduce(layout, hi, n, CPassiveComm::Op::MAX);
+    for (size_t i = 0; i < n; ++i) {
+      if (lo[i] != hi[i]) {
+        SU2_MPI::Error("The " + name + " solution transfer: the layout of the fields (dimensions, variables, time " +
+                           "levels) differs between the ranks.",
+                       CURRENT_FUNCTION);
+      }
+    }
+  }
 
   std::vector<ArrayGetter> all = {getSolution};
   if (arrays.hasTimeN) {
@@ -117,20 +143,28 @@ CSolutionTransfer::TransferArrays CSolutionTransfer::CheckProblem(const std::str
         SU2_MPI::Error("The solution arrays of the donor and of the new mesh differ.", CURRENT_FUNCTION);
       }
     }
-    if (arrays.hasTimeN) {
-      auto* nodes = donor.solver[MESH_0][iSol]->GetNodes();
-      const auto& solution = nodes->GetSolution();
-      const auto& timeN = nodes->GetSolution_time_n();
-      for (auto i = 0ul; i < solution.size(); ++i) {
-        if (solution.data()[i] != timeN.data()[i]) {
-          SU2_MPI::Error(
-              "In the time domain the solution is transferred at the end of a time step (after the dual-time "
-              "update), where the solution and Solution_time_n are the same state U^n; they differ here.",
-              CURRENT_FUNCTION);
-        }
+  }
+
+  /*--- In the time domain U^n is transferred once into the solution and Solution_time_n: they must be the same state
+   *    (bitwise) on the domain points of the donor; a difference on any rank stops all ranks. ---*/
+  CLocalFailure failure;
+  for (const auto iSol : arrays.solverIndices) {
+    if (!arrays.hasTimeN) break;
+    auto* nodes = donor.solver[MESH_0][iSol]->GetNodes();
+    const auto& solution = nodes->GetSolution();
+    const auto& timeN = nodes->GetSolution_time_n();
+    for (auto iPoint = 0ul; iPoint < donorGeometry->GetnPointDomain(); ++iPoint) {
+      bool same = true;
+      for (auto iVar = 0ul; iVar < solution.cols(); ++iVar) same &= solution(iPoint, iVar) == timeN(iPoint, iVar);
+      if (!same) {
+        failure.Set(1, donorGeometry->nodes->GetGlobalIndex(iPoint),
+                    "In the time domain the solution is transferred at the end of a time step (after the dual-time "
+                    "update), where the solution and Solution_time_n are the same state U^n; they differ here.");
+        break;
       }
     }
   }
+  CollectiveFailure(failure, CURRENT_FUNCTION);
   return arrays;
 }
 
@@ -149,6 +183,16 @@ std::vector<std::string> CSolutionTransfer::DonorMarkerTags(const std::string& n
     /*--- One rank: the markers without a name are unnamed donor boundaries (as before the transfers ran on gathered
      *    meshes): their faces only take part in the search of the nearest boundary face. ---*/
     tags.resize(nMarker, "");
+  }
+  if (SU2_MPI::GetSize() > 1) {
+    for (unsigned short iMarker = 0; iMarker < nMarker; ++iMarker) {
+      if (tags[iMarker].empty()) {
+        SU2_MPI::Error("The " + name + " solution transfer: marker " + std::to_string(iMarker) +
+                           " of the donor has no name. With more than one rank every marker of the donor needs its "
+                           "name: the names identify the markers across the ranks.",
+                       CURRENT_FUNCTION);
+      }
+    }
   }
   return tags;
 }

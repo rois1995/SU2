@@ -100,6 +100,15 @@ class CSolutionTransfer {
     bool interpolateTimeN1 = false;            /*!< \brief U^(n-1) is transferred (2nd-order dual time stepping). */
     std::vector<ArrayGetter> history;          /*!< \brief Getters of the history arrays (Solution_time_n, _n1). */
     std::vector<MPI_QUANTITIES> historyComms;  /*!< \brief MPI quantities of the history arrays. */
+    /*--- Layout of the transferred fields (R8 of MPI_TRANSFER_PLAN.md: from the config and the solver objects, which
+     *    exist on every rank also without points, never from local array sizes; the same on every rank, checked). ---*/
+    unsigned short nDim = 0;      /*!< \brief Number of dimensions. */
+    unsigned short nVarFlow = 0;  /*!< \brief Flow variables (nDim + 2). */
+    unsigned short nVarTurb = 0;  /*!< \brief Turbulence variables (0 without a turbulence solver). */
+    unsigned short nLevel = 1;    /*!< \brief Transferred time levels: U^n, and U^(n-1) for 2nd-order dual time. */
+    bool sst = false;             /*!< \brief SST (rho k, rho omega conservative; k in the internal energy). */
+    unsigned short nPerLevel() const { return nVarFlow + nVarTurb; }
+    unsigned short nField() const { return nLevel * nPerLevel(); }
   };
 
   /*!
@@ -107,6 +116,7 @@ class CSolutionTransfer {
    *        donor and the new mesh have the same solvers and arrays; in the time domain, that the donor solution and
    *        Solution_time_n are the same state (the transfer is done at the end of a time step).
    * \param[in] name - Name of the transfer for the messages.
+   * \note Collective (the layout is cross-checked over the ranks, the time-level check fails on all ranks).
    */
   static TransferArrays CheckProblem(const std::string& name, CConfig* config, const CMeshDonor& donor,
                                      CGeometry** geometry, CSolver*** solver);
