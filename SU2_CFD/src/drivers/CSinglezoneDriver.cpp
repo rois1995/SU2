@@ -674,7 +674,10 @@ void CSinglezoneDriver::PrepareTimeAdaptationRestart() {
   }
   unsigned short foundShort = found;
   SU2_MPI::Bcast(&foundShort, 1, MPI_UNSIGNED_SHORT, MASTER_NODE, SU2_MPI::GetComm());
-  SU2_MPI::Bcast(&timeStep, 1, MPI_DOUBLE, MASTER_NODE, SU2_MPI::GetComm());
+  /*--- Sent as su2double: MPI_DOUBLE is the active type of the MeDiPack wrapper in the AD and DD builds. ---*/
+  su2double timeStepSent = timeStep;
+  SU2_MPI::Bcast(&timeStepSent, 1, MPI_DOUBLE, MASTER_NODE, SU2_MPI::GetComm());
+  timeStep = SU2_TYPE::GetValue(timeStepSent);
 
   if (foundShort) {
     config->SetDelta_UnstTimeND(timeStep);
