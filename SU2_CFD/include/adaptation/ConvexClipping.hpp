@@ -102,21 +102,30 @@ struct Polygon {
     return n = k;
   }
 
-  /*! \brief Area and centroid (shoelace). The centroid is 0 for an empty polygon. */
+  /*!
+   * \brief Area and centroid (shoelace). The centroid is 0 for an empty polygon.
+   * \note The moments are computed relative to the first vertex and the centroid translated back: about a distant
+   *       origin the shoelace terms cancel, with a relative error of the area of eps (L/h)^2 for a polygon of size h at
+   *       distance L (a tiny overlap far from the frame origin of a coarse element came out with zero area).
+   */
   void Moments(passivedouble& area, passivedouble* centroid) const {
+    centroid[0] = centroid[1] = 0.0;
+    area = 0.0;
+    if (n <= 0) return;
+    const passivedouble r[2] = {x[0][0], x[0][1]};
     passivedouble a2 = 0.0, gx = 0.0, gy = 0.0;
-    for (int i = 0; i < n; ++i) {
-      const int j = (i + 1) % n;
-      const passivedouble c = x[i][0] * x[j][1] - x[j][0] * x[i][1];
+    for (int i = 1; i + 1 < n; ++i) {
+      const passivedouble xi = x[i][0] - r[0], yi = x[i][1] - r[1];
+      const passivedouble xj = x[i + 1][0] - r[0], yj = x[i + 1][1] - r[1];
+      const passivedouble c = xi * yj - xj * yi;
       a2 += c;
-      gx += (x[i][0] + x[j][0]) * c;
-      gy += (x[i][1] + x[j][1]) * c;
+      gx += (xi + xj) * c;
+      gy += (yi + yj) * c;
     }
     area = 0.5 * a2;
-    centroid[0] = centroid[1] = 0.0;
     if (area != 0.0) {
-      centroid[0] = gx / (3.0 * a2);
-      centroid[1] = gy / (3.0 * a2);
+      centroid[0] = r[0] + gx / (3.0 * a2);
+      centroid[1] = r[1] + gy / (3.0 * a2);
     }
   }
 };
@@ -212,8 +221,18 @@ struct Polyhedron {
     return n = m;
   }
 
-  /*! \brief Volume and centroid (faces fanned from their first vertex, tetrahedra with the origin). */
+  /*!
+   * \brief Volume and centroid (faces fanned from their first vertex, tetrahedra with the first vertex of the
+   *        polyhedron; the centroid is translated back). See the note of Polygon::Moments: about a distant origin the
+   *        relative error of the volume is eps (L/h)^3.
+   */
   void Moments(passivedouble& volume, passivedouble* centroid) const {
+    centroid[0] = centroid[1] = centroid[2] = 0.0;
+    volume = 0.0;
+    if (n <= 0) return;
+    passivedouble y[MAXV][3];
+    for (int v = 0; v < n; ++v)
+      for (int c = 0; c < 3; ++c) y[v][c] = x[v][c] - x[0][c];
     bool mark[MAXV][3] = {};
     passivedouble six = 0.0, mx = 0.0, my = 0.0, mz = 0.0;
     for (int vs = 0; vs < n; ++vs) {
@@ -222,7 +241,7 @@ struct Polyhedron {
         int vcur = vs, pn = ps;
         mark[vcur][pn] = true;
         int vnext = nbr[vcur][pn];
-        const passivedouble* x0 = x[vcur];
+        const passivedouble* x0 = y[vcur];
         int np = 0;
         while (nbr[vnext][np] != vcur) np++;
         vcur = vnext;
@@ -230,8 +249,8 @@ struct Polyhedron {
         mark[vcur][pn] = true;
         vnext = nbr[vcur][pn];
         while (vnext != vs) {
-          const passivedouble* x2 = x[vcur];
-          const passivedouble* x1 = x[vnext];
+          const passivedouble* x2 = y[vcur];
+          const passivedouble* x1 = y[vnext];
           const passivedouble det = x0[0] * (x1[1] * x2[2] - x1[2] * x2[1]) - x0[1] * (x1[0] * x2[2] - x1[2] * x2[0]) +
                                     x0[2] * (x1[0] * x2[1] - x1[1] * x2[0]);
           six += det;
@@ -248,11 +267,10 @@ struct Polyhedron {
       }
     }
     volume = six / 6.0;
-    centroid[0] = centroid[1] = centroid[2] = 0.0;
     if (six != 0.0) {
-      centroid[0] = mx / (4.0 * six);
-      centroid[1] = my / (4.0 * six);
-      centroid[2] = mz / (4.0 * six);
+      centroid[0] = x[0][0] + mx / (4.0 * six);
+      centroid[1] = x[0][1] + my / (4.0 * six);
+      centroid[2] = x[0][2] + mz / (4.0 * six);
     }
   }
 };

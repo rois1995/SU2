@@ -289,6 +289,141 @@ TEST_CASE("Convex clipping: polyhedra", "[Adaptation]") {
   for (int d = 0; d < 3; ++d) CHECK(fabs(moment[d] / sum - 0.25 * (T[0][d] + T[1][d] + T[2][d] + T[3][d])) < 1e-14);
 }
 
+TEST_CASE("Convex clipping: tiny polytopes far from the origin", "[Adaptation]") {
+  /*--- A triangle / tetrahedron of size h at distance L from the origin (h/L down to 1e-11): the measure and the
+   *    centroid are those of its vertices (the differences of the vertex coordinates are exact here), unclipped and
+   *    clipped by the planes of a large simplex that contains it; cut in half by a plane through it. About the origin
+   *    the moments cancel (zero area for the review's triangle (1,1), (1+1e-8,1), (1,1+1e-8)). ---*/
+  for (const passivedouble L : {1.0, 1e3}) {
+    for (const passivedouble h : {1e-8, 1e-6, 1e-4}) {
+      INFO("L " << L << ", h " << h);
+      /*--- The vertices are stored first, the reference measure uses their exact differences (volatile: -ffast-math
+       *    would fold (L + h) - L into h). ---*/
+      volatile passivedouble stored[3] = {L + h, L + 2 * h, L + 3 * h};
+      const passivedouble a[] = {L, L, L};
+      const passivedouble b[] = {stored[0], L, L}, c[] = {L, stored[1], L}, d[] = {L, L, stored[2]};
+      const passivedouble hx = b[0] - a[0], hy = c[1] - a[1], hz = d[2] - a[2];
+
+      /*--- 2D, alone and inside the big triangle (0,0), (4L,0), (0,4L). ---*/
+      const passivedouble big2[3][2] = {{0.0, 0.0}, {4 * L, 0.0}, {0.0, 4 * L}};
+      passivedouble plane2[3][3];
+      TrianglePlanes(big2, plane2);
+      for (const bool clipped : {false, true}) {
+        Polygon poly;
+        poly.InitTriangle(a, b, c);
+        if (clipped)
+          for (int k = 0; k < 3; ++k) poly.Clip(plane2[k][0], plane2[k][1], plane2[k][2]);
+        passivedouble area = 0.0, centroid[2];
+        poly.Moments(area, centroid);
+        CHECK(fabs(area - 0.5 * hx * hy) < 1e-14 * 0.5 * hx * hy);
+        CHECK(fabs(centroid[0] - (L + hx / 3)) < 1e-15 * L + 1e-12 * h);
+        CHECK(fabs(centroid[1] - (L + hy / 3)) < 1e-15 * L + 1e-12 * h);
+      }
+      /*--- Cut by the line x = L + hx/2: the part left of it has 3/4 of the area (the cut itself is as accurate as the
+       *    plane offset, about eps L / h). ---*/
+      const passivedouble cutTol = 1e-14 * L / h;
+      {
+        Polygon poly;
+        poly.InitTriangle(a, b, c);
+        poly.Clip(-1.0, 0.0, L + 0.5 * hx);
+        passivedouble area = 0.0, centroid[2];
+        poly.Moments(area, centroid);
+        CHECK(fabs(area - 0.375 * hx * hy) < cutTol * hx * hy);
+      }
+
+      /*--- 3D, alone and inside the big tetrahedron. ---*/
+      const passivedouble big3[4][3] = {{0, 0, 0}, {6 * L, 0, 0}, {0, 6 * L, 0}, {0, 0, 6 * L}};
+      passivedouble plane3[4][4];
+      TetPlanes(big3, plane3);
+      const passivedouble* p[4] = {a, b, c, d};
+      const passivedouble volume = hx * hy * hz / 6.0;
+      for (const bool clipped : {false, true}) {
+        Polyhedron poly;
+        poly.InitTetrahedron(p);
+        if (clipped)
+          for (int k = 0; k < 4; ++k) REQUIRE(poly.Clip(plane3[k][0], plane3[k][1], plane3[k][2], plane3[k][3]) >= 0);
+        passivedouble v = 0.0, centroid[3];
+        poly.Moments(v, centroid);
+        CHECK(fabs(v - volume) < 1e-14 * volume);
+        CHECK(fabs(centroid[0] - (L + hx / 4)) < 1e-15 * L + 1e-12 * h);
+        CHECK(fabs(centroid[1] - (L + hy / 4)) < 1e-15 * L + 1e-12 * h);
+        CHECK(fabs(centroid[2] - (L + hz / 4)) < 1e-15 * L + 1e-12 * h);
+      }
+      {
+        Polyhedron poly;
+        poly.InitTetrahedron(p);
+        poly.Clip(-1.0, 0.0, 0.0, L + 0.5 * hx);  // x <= L + hx/2: 7/8 of the tetrahedron
+        passivedouble v = 0.0, centroid[3];
+        poly.Moments(v, centroid);
+        CHECK(fabs(v - 0.875 * volume) < cutTol * volume);
+      }
+    }
+  }
+}
+
+TEST_CASE("Conservative projection: tiny donor elements far from the frame origin", "[Adaptation]") {
+  /*--- Large coarsening ratio: the target has 2 (2D) / 1 (3D) cells per unit length, the donor is graded towards the
+   *    centre c of a target cell (x' = c -+ |x - c|^p / |end - c|^(p-1) on each side of c; smallest cells about 1e-6
+   *    in 2D, 8e-5 in 3D), both translated by 1e3. Each overlap is computed in the frame of the first vertex of the
+   *    coarse target element, at a distance of 0.3-0.9 from the tiny donor elements, which the target diagonals also
+   *    cut. Every donor element must be covered exactly (no false S_d / S_n), an affine field reproduced, the totals
+   *    kept (to 1e-12: at the offset 1e3 the SU2 control volumes of the tiny cells carry a round-off of ~1e-13). ---*/
+  for (const unsigned short nDim : {2, 3}) {
+    SECTION("nDim " + std::to_string(nDim)) {
+      auto config = MakeConfig(nDim, "SOLVER= EULER\n");
+      const passivedouble offset = 1e3, exponent = (nDim == 2) ? 6.0 : 8.0;
+      const passivedouble upper[] = {nDim == 2 ? 2.0 : 1.0, 1.0, 1.0};
+      const passivedouble centre2D[] = {1.25, 0.75}, centre3D[] = {0.5, 0.5, 0.5};
+      const auto* centre = (nDim == 2) ? centre2D : centre3D;
+      auto graded = BoxMesh(nDim, nDim == 2 ? 8 : 6, false);
+      for (auto iPoint = 0ul; iPoint < graded.GetnPoint(); ++iPoint)
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+          auto& x = graded.coord[iPoint * nDim + iDim];
+          const passivedouble c = centre[iDim], end = (x < c) ? c : upper[iDim] - c;
+          const passivedouble d = std::pow(fabs(x - c), exponent) / std::pow(end, exponent - 1.0);
+          x = offset + ((x < c) ? c - d : c + d);
+        }
+      auto coarse = BoxMesh(nDim, nDim == 2 ? 2 : 1, false);
+      for (auto& x : coarse.coord) x += offset;
+
+      MeshSolution donor(config.get(), graded, 0);
+      MeshSolution target(config.get(), coarse, 0);
+      CConservativeProjection projection(donor.Fine(), donor.markerTags, target.Fine(), target.markerTags, {});
+      const unsigned short nField = 2;
+      auto field = [nDim, offset](const su2double* x, passivedouble* v) {
+        v[0] = 1.0;
+        v[1] = 3.0;
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) v[1] += (iDim + 1.5) * SU2_TYPE::GetValue(x[iDim] - offset);
+      };
+      const auto values = DonorValues(donor.Fine(), nField, field);
+      std::vector<passivedouble> result;
+      projection.Project(nField, values, result);
+      const auto& s = projection.GetSummary();
+
+      const passivedouble domain = (nDim == 2) ? 2.0 : 1.0;
+      INFO("slivers " << s.nSliverElems << ", fill " << s.nFillPieces << ", max uncovered " << s.maxUncovered
+                       << ", supermesh defects " << s.supermeshDefect[0] << " " << s.supermeshDefect[1]);
+      CHECK(s.nSliverElems == 0);
+      CHECK(s.nFillPieces == 0);
+      CHECK(fabs(s.overlapVolume - domain) < 1e-13 * domain);
+      CHECK(fabs(s.donorVolume - domain) < 1e-13 * domain);
+      for (unsigned short f = 0; f < nField; ++f) {
+        CHECK(fabs(s.supermeshDefect[f]) < 1e-12);
+        CHECK(s.nLimited[f] == 0);
+        const passivedouble scale = Scale(donor.Fine(), values, nField, f);
+        CHECK(fabs(Total(target.Fine(), result, nField, f) - Total(donor.Fine(), values, nField, f)) < 1e-12 * scale);
+      }
+      passivedouble maxError = 0.0;
+      for (auto iPoint = 0ul; iPoint < target.Fine().GetnPoint(); ++iPoint) {
+        passivedouble exact[2];
+        field(target.Fine().nodes->GetCoord(iPoint), exact);
+        for (unsigned short f = 0; f < nField; ++f) maxError = std::max(maxError, fabs(result[iPoint * nField + f] - exact[f]));
+      }
+      CHECK(maxError < 1e-10);
+    }
+  }
+}
+
 TEST_CASE("Conservative projection: supermesh and mass matrix", "[Adaptation]") {
   for (const unsigned short nDim : {2, 3}) {
     SECTION("nDim " + std::to_string(nDim)) {
@@ -793,3 +928,4 @@ TEST_CASE("Conservative transfer: no-slip wall points", "[Adaptation]") {
     }
   }
 }
+
