@@ -26,7 +26,9 @@
 
 #include "catch.hpp"
 
+#include <algorithm>
 #include <cmath>
+#include <map>
 #include <memory>
 
 #include "../../../SU2_CFD/include/adaptation/CBarycentricTransfer.hpp"
@@ -193,6 +195,92 @@ TEST_CASE("Solution transfer: forward-mode derivatives of affine fields between 
         }
         CHECK(maxError < 1e-9);
       }
+    }
+  }
+}
+
+TEST_CASE("Solution transfer: forward-mode derivatives seeded on one rank only", "[Adaptation][AdaptationMPI]") {
+  /*--- MPI_TRANSFER_PLAN.md 5.13: derivatives seeded only at the donor points owned by rank 0 (a derivative right-hand
+   *    side that is zero on the other ranks): the distributed transfers must activate the derivative solve on every
+   *    rank and give the derivatives of the same transfer on one rank (computed in the same run), by global index. ---*/
+  const unsigned short nDim = 2;
+  const int rank = SU2_MPI::GetRank();
+  for (const bool conservative : {false, true}) {
+    SECTION(conservative ? "conservative" : "barycentric") {
+      /*--- Global indices of the donor points owned by rank 0. ---*/
+      std::vector<unsigned long> seeded;
+      {
+        auto config = MakeConfig(nDim, "SOLVER= EULER\nMATH_PROBLEM= DIRECT\n");
+        MeshSolution donor(config.get(), BoxMesh(nDim, 4, true), 0);
+        std::vector<unsigned long> local;
+        if (rank == 0)
+          for (auto iPoint = 0ul; iPoint < donor.Fine().GetnPointDomain(); ++iPoint)
+            local.push_back(donor.Fine().nodes->GetGlobalIndex(iPoint));
+        unsigned long n = local.size();
+        SU2_MPI::Bcast(&n, 1, MPI_UNSIGNED_LONG, 0, SU2_MPI::GetComm());
+        local.resize(n);
+        if (n > 0) SU2_MPI::Bcast(local.data(), static_cast<int>(n), MPI_UNSIGNED_LONG, 0, SU2_MPI::GetComm());
+        seeded = local;
+        std::sort(seeded.begin(), seeded.end());
+      }
+      auto run = [&](std::map<unsigned long, std::vector<passivedouble>>& derivatives) {
+        auto config = MakeConfig(nDim, "SOLVER= EULER\nMATH_PROBLEM= DIRECT\n");
+        MeshSolution donor(config.get(), BoxMesh(nDim, 4, true), 0);
+        MeshSolution target(config.get(), BoxMesh(nDim, 6, true), 0);
+        auto* donorNodes = donor.solver[MESH_0][FLOW_SOL]->GetNodes();
+        for (auto iPoint = 0ul; iPoint < donor.Fine().GetnPoint(); ++iPoint) {
+          const auto* x = donor.Fine().nodes->GetCoord(iPoint);
+          const bool seed = std::binary_search(seeded.begin(), seeded.end(), donor.Fine().nodes->GetGlobalIndex(iPoint));
+          su2double U[MAXVAR];
+          SmoothFlow(nDim, x, U);
+          for (unsigned short iVar = 0; iVar < nDim + 2; ++iVar) {
+            su2double v = SU2_TYPE::GetValue(U[iVar]);
+            SU2_TYPE::SetDerivative(v, seed ? Seed(x, iVar, SU2_TYPE::GetValue(U[iVar]), 0) : 0.0);
+            donorNodes->GetSolution()(iPoint, iVar) = v;
+          }
+        }
+        std::unique_ptr<CSolutionTransfer> transfer;
+        if (conservative) {
+          transfer = std::make_unique<CConservativeTransfer>();
+        } else {
+          transfer = std::make_unique<CBarycentricTransfer>();
+        }
+        {
+          Mute mute;
+          transfer->Transfer(config.get(), donor.Donor(), target.geometry, target.solver);
+        }
+        auto* nodes = target.solver[MESH_0][FLOW_SOL]->GetNodes();
+        for (auto iPoint = 0ul; iPoint < target.Fine().GetnPointDomain(); ++iPoint) {
+          auto& row = derivatives[target.Fine().nodes->GetGlobalIndex(iPoint)];
+          for (unsigned short iVar = 0; iVar < nDim + 2; ++iVar) row.push_back(SU2_TYPE::GetDerivative(nodes->GetSolution(iPoint, iVar)));
+        }
+      };
+      std::map<unsigned long, std::vector<passivedouble>> serial, parallel;
+#ifdef HAVE_MPI
+      const auto world = SU2_MPI::GetComm();
+      SU2_MPI::SetComm(MPI_COMM_SELF);
+      run(serial);
+      SU2_MPI::SetComm(world);
+#else
+      run(serial);
+#endif
+      run(parallel);
+      passivedouble scale = 0.0, diff = 0.0;
+      unsigned long nNonzero = 0;
+      for (const auto& entry : serial)
+        for (const auto d : entry.second) scale = std::max(scale, fabs(d));
+      for (const auto& entry : parallel) {
+        const auto& reference = serial.at(entry.first);
+        for (auto k = 0ul; k < entry.second.size(); ++k) {
+          diff = std::max(diff, fabs(entry.second[k] - reference[k]));
+          nNonzero += entry.second[k] != 0.0;
+        }
+      }
+      su2double local[2] = {diff, static_cast<passivedouble>(nNonzero)}, global[2];
+      SU2_MPI::Allreduce(local, global, 2, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+      CHECK(scale > 0.0);
+      CHECK(SU2_TYPE::GetValue(global[0]) <= 1e-10 * scale);
+      CHECK(SU2_TYPE::GetValue(global[1]) > 0.0);
     }
   }
 }

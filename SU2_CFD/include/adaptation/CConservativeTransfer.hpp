@@ -32,6 +32,7 @@
 
 #include "CBarycentricTransfer.hpp"
 #include "CSolutionTransfer.hpp"
+#include "ConservativeKernels.hpp"
 
 class CFluidModel;
 
@@ -49,13 +50,14 @@ class CFluidModel;
  *       Column k of M sums to |C_k|, so sum_k u^B_k |C_k| = sum_j S_j: the lumped integral that the finite-volume
  * solver conserves is the integral of the donor field. On the same mesh the projection is the identity; an affine field
  *       is reproduced exactly where the two domains coincide (u_h^A = u, and the nodal values of u solve M u = S).
- *       - S (supermesh): for every target element, the donor elements that overlap it are found by an advancing front
- *         through the donor neighbours from a seed (ADT: donor element of the target centroid or of points near its
- *         vertices, else the donor element at the nearest donor boundary face); every overlap is the donor simplex
- *         clipped by the target element (convex polytope clipping, no tolerances, ConvexClipping.hpp), split into the
- *         dual pieces of the target vertices ({lambda_i >= lambda_j} in the barycentric coordinates of the target
- *         element, exactly the median-dual piece) and integrated exactly (measure times the donor field at the
- *         centroid).
+ *       - S (supermesh): for every target element (in the order of the mesh), every donor element whose inflated
+ *         bounding box intersects the target element's box (ADT box query; exhaustive enumeration, no advancing front
+ *         and no prefilter, MPI_TRANSFER_PLAN.md D-C3) is clipped, in the order of the donor element keys; every
+ *         overlap is the donor simplex clipped by the target element (convex polytope clipping, no tolerances,
+ *         ConvexClipping.hpp; ignored below 1e-13 of the smaller element), split into the dual pieces of the target
+ *         vertices ({lambda_i >= lambda_j} in the barycentric coordinates of the target element, exactly the
+ *         median-dual piece) and integrated exactly (measure times the donor field at the centroid). The kernels are
+ *         those of the distributed projection (ConservativeKernels.hpp).
  *       - New domain outside the donor (S_n, e.g. between a new far-field circle and the donor polygon): every dual
  *         piece not fully covered gets its missing measure times the donor field at the centroid of the missing part,
  *         located as in the barycentric transfer (D1b rule: a piece of a node on a marker takes the closest point of
@@ -75,14 +77,17 @@ class CFluidModel;
  *         The part of the shift that is not caused by the slivers (the supermesh defect) is round-off. With the same
  *         boundary on both meshes (ADAP_SURFACE= NO) there are no slivers and all rules are the same.
  *       - Solve: Jacobi-preconditioned conjugate gradients (M is symmetric positive definite), from the control-volume
- *         means S_j/|C_j|.
+ *         means S_j/|C_j|, with the guards of conservative::MassSolver (nonfinite right-hand side, breakdown, true
+ *         residual above 1e-10: error).
  *       - Limiter (maximum principle with conservative redistribution, the rule of the Python reference, enabled by
  *         default): bounds of node j = min/max of the donor nodal values of every donor element that overlaps C_j
  *         (and of the stencils of the S_n fill and of the S_d content added to node j), widened by limiterTolerance
  *         times the range of the field over the donor (2e-3, the GalerkinLimitTol default: smooth extrema pass at
  *         second order). Values are clipped to their bounds, then the integral defect is redistributed over the nodes
  *         with room left, in proportion to the room (iterated), so the total is restored exactly. If the bounds cannot
- *         hold the total (only with slivers), the rest is spread over all nodes by volume and the field is flagged.
+ *         hold the total (only with slivers), the rest is spread over all nodes by volume and the field is flagged
+ *         (precedence: exact totals over bounds; violations recomputed and reported; conservative::BoundedRedistribute).
+ *       Totals and redistribution sums are accurate (compensated) sums.
  */
 class CConservativeProjection {
  public:
@@ -125,7 +130,19 @@ class CConservativeProjection {
     std::vector<passivedouble> residual;   /*!< \brief Final relative residual per field. */
     std::vector<unsigned long> nLimited;   /*!< \brief Values clipped by the limiter per field. */
     std::vector<bool> infeasible;          /*!< \brief Bounds could not hold the total (rest spread by volume). */
+    std::vector<unsigned long> nViolations; /*!< \brief Values outside their bounds after the spread, per field. */
+    std::vector<passivedouble> maxViolation; /*!< \brief Largest violation relative to the field range, per field. */
+    unsigned long nSolveWarnings = 0;      /*!< \brief Fields whose true residual lies between the tolerance and 1e-10. */
     passivedouble timeSetup = 0.0, timeSupermesh = 0.0, timeSlivers = 0.0, timeSolve = 0.0, timeLimiter = 0.0;
+    /*--- Distributed projection only. ---*/
+    unsigned long nImportGroups = 0;       /*!< \brief Import groups (memory ceiling, 5.17). */
+    unsigned long nImported = 0;           /*!< \brief Donor elements imported (summed over the ranks and groups). */
+    unsigned long maxImported = 0;         /*!< \brief Largest import of a rank. */
+    unsigned long maxPairs = 0;            /*!< \brief Largest number of clipped pairs of a rank. */
+    passivedouble timeImport = 0.0, timeCoverage = 0.0; /*!< \brief Largest over the ranks. */
+    size_t memoryResident = 0;   /*!< \brief Largest over the ranks: resident and persistent bytes of the plan. */
+    size_t memoryLargestBox = 0; /*!< \brief Largest over the ranks: planned import bytes of one region box. */
+    size_t memoryImport = 0;     /*!< \brief Largest over the ranks: planned import bytes of all region boxes. */
   };
 
   /*!
@@ -177,28 +194,16 @@ class CConservativeProjection {
    */
   void GetMassMatrix(std::vector<unsigned long>& rowPtr, std::vector<unsigned long>& col,
                      std::vector<passivedouble>& value) const {
-    rowPtr = massRowPtr;
-    col = massCol;
-    value = massValue;
+    rowPtr = mass.rowPtr;
+    col = mass.col;
+    value = mass.value;
   }
 
  private:
-  struct Frame;
-  class Poly;
-
-  /*--- Overlap of target element iElem (frame) with donor element jElem; accumulates its pieces if requested. ---*/
-  bool Overlap(const Frame& frame, unsigned long jElem, bool accumulate);
-  long FindSeed(const Frame& frame, std::vector<unsigned long>& stamp, std::vector<unsigned long>& queue);
-  void SetFrame(unsigned long iElem, Frame& frame) const;
   void UpdateBounds(unsigned long iPoint, const unsigned long* donorPoints, unsigned short nDonor);
-  void SolveMass(const std::vector<passivedouble>& b, std::vector<passivedouble>& x, unsigned long& iterations,
-                 passivedouble& residual) const;
-  void SolveMassActive(const std::vector<su2double>& b, std::vector<su2double>& x, unsigned long& iterations,
-                       passivedouble& residual) const;
   void SetBounds(unsigned short iField, std::vector<su2double>& lo, std::vector<su2double>& hi) const;
-  bool BoundedRedistribute(std::vector<su2double>& v, unsigned short iField, su2double total,
-                           const std::vector<su2double>& lower, const std::vector<su2double>& upper,
-                           const std::vector<bool>* frozen, unsigned long* nClipped) const;
+  static void AccumulatePiece(void* context, unsigned short i, passivedouble volume, const passivedouble* centroid,
+                              const passivedouble* mu);
 
   Options options;
   unsigned short nDim = 0, nNode = 0;
@@ -208,19 +213,20 @@ class CConservativeProjection {
   unsigned long nPointD = 0, nElemD = 0;
   std::vector<passivedouble> coordD, volElemD, cvD;
   std::vector<unsigned long> elemD;
-  std::vector<long> nbrD; /*!< \brief Neighbour across the face opposite vertex k. */
-  std::vector<std::pair<std::vector<unsigned long>, unsigned long>> freeFaces; /*!< \brief Sorted nodes -> element. */
+  std::vector<CSimplexKey> keysD;  /*!< \brief Key of each donor element (sorted point indices). */
   std::unique_ptr<CBarycentricLocator> donorLocator;
   std::vector<std::string> donorNames;
 
   /*--- Target. ---*/
   unsigned long nPointT = 0, nElemT = 0;
-  std::vector<passivedouble> coordT, volElemT, cvT, rowVolume;
+  std::vector<passivedouble> coordT, volElemT, cvT;
   std::vector<unsigned long> elemT;
   std::vector<std::vector<std::string>> pointMarkers; /*!< \brief Marker names of each target point. */
   std::unique_ptr<CBarycentricLocator> targetLocator;
-  std::vector<unsigned long> massRowPtr, massCol;
-  std::vector<passivedouble> massValue, massDiag;
+  conservative::MassMatrix mass;
+
+  /*--- Current pair of the supermesh (AccumulatePiece). ---*/
+  unsigned long pairT = 0, pairD = 0;
 
   /*--- State of a projection. ---*/
   const std::vector<su2double>* donorField = nullptr;
@@ -266,13 +272,18 @@ class CConservativeProjection {
  *         for 2nd-order dual time stepping only (the same supermesh, one pass for all arrays), else
  *         Solution_time_n1 = U^n.
  *       - Then, as after loading a restart: primitive variables, eddy viscosity, coarse multigrid levels.
- *       - MPI: both meshes (finest grids, with SU2's control volumes) and the donor fields are gathered on the master
- *         rank in the global numbering of the meshes (CMeshGather), the projection, wall fix, limiter and recovery run
- *         there on the complete meshes (one supermesh, one solve, exact totals), and the final values go back to the
- *         ranks that own the points. The totals are those of the serial transfer (up to the round-off of the control
- *         volumes and of the donor solution). Memory: the master rank holds both meshes, the fields and the supermesh
- *         work arrays; a distributed supermesh (overlaps of each rank's new elements with the donor elements sent to
- *         it, a parallel CG and global sums in the limiter) is the scalable path.
+ *       - Admissibility recovery in two stages (MPI_TRANSFER_PLAN.md 5.11): stage 1 blends the patches with the convex
+ *         predicate P1 (finite values, rho > 0, flow admissible with rho e = rho E - |rho u|^2/(2 rho) - max(rho k,
+ *         k_lo rho)); stage 2 applies the turbulence bounds pointwise to every point (the only step that changes a
+ *         turbulence integral, reported); then every state satisfies the full predicate (CTransferAdmissibility).
+ *       - MPI (M2): distributed. CDistributedProjection on the partitioned meshes (target-centric import of the donor
+ *         elements, local supermesh of each rank's owned rows, coverage protocol, distributed guarded CG and limiter
+ *         with accurate global sums), the wall fix and the bounds on the owned rows, collective final checks. The
+ *         recovery (rare) runs serially on the master rank on the gathered level until its distributed version (M3):
+ *         only then is the new mesh gathered (stated memory exception). The gathered transfer (MPI-1: both meshes and
+ *         the fields on the master rank, CConservativeProjection there) is kept as the test reference (constructor
+ *         flag) and runs the BOUNDARY sliver rule on one rank (rejected with more ranks). Results agree with one rank
+ *         to a tolerance (control volumes and sums depend on the partition), totals exact at every number of ranks.
  *       - Derivatives: the field values stay active (su2double) through the projection, the limiter, the wall fix and
  *         the recovery; the geometry, the supermesh and the mass matrix are passive, and the linear solve gives
  *         x' = M^-1 b' for the derivatives. So forward-mode derivatives (DIRECT_DIFF) of the solution and of its time
@@ -299,11 +310,20 @@ class CConservativeTransfer final : public CSolutionTransfer {
     std::vector<passivedouble> donorIntegral;  /*!< \brief Per field: integral on the donor. */
     std::vector<passivedouble> newIntegral;    /*!< \brief Per field: integral on the new mesh (final state). */
     std::vector<passivedouble> relativeDefect; /*!< \brief Per field: relative change (momentum: to its norm). */
+    unsigned long nTurbLimitedStage2 = 0; /*!< \brief Turbulence values limited after the recovery (stage 2). */
+    std::vector<passivedouble> turbulenceChange; /*!< \brief Per turbulence field: integral change of the bounds steps,
+                                                      relative to sum |u| V. */
+    bool recoveryGathered = false;       /*!< \brief The recovery ran on the master rank (gathered level, until M3). */
     passivedouble time = 0.0;
   };
 
-  explicit CConservativeTransfer(CConservativeProjection::Options options = CConservativeProjection::Options())
-      : options(options) {}
+  /*!
+   * \param[in] options - Options of the projection.
+   * \param[in] gathered - Run the MPI-1 transfer on the meshes gathered on the master rank (test reference).
+   */
+  explicit CConservativeTransfer(CConservativeProjection::Options options = CConservativeProjection::Options(),
+                                 bool gathered = false)
+      : options(options), gathered(gathered) {}
 
   void Transfer(CConfig* config, const CMeshDonor& donor, CGeometry** geometry, CSolver*** solver) override;
 
@@ -312,10 +332,17 @@ class CConservativeTransfer final : public CSolutionTransfer {
   const Summary& GetSummary() const { return summary; }
 
  private:
+  /*--- The MPI-1 transfer on the gathered meshes (test reference; BOUNDARY rule on one rank). ---*/
+  void TransferGathered(CConfig* config, const CMeshDonor& donor, CGeometry** geometry, CSolver*** solver);
+
   /*--- The counts, distances, integrals and defects of the summary from the master rank to all ranks (the rest of the
-   *    projection summary stays on the master rank). ---*/
+   *    projection summary stays on the master rank; gathered transfer). ---*/
   void BroadcastSummary();
 
+  /*--- The log (master rank). ---*/
+  void PrintSummary(unsigned short nDim, unsigned short nField, bool turbulence, const std::string& timing) const;
+
   CConservativeProjection::Options options;
+  bool gathered;
   Summary summary;
 };

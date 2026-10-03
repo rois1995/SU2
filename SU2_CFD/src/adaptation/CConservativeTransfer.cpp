@@ -38,71 +38,20 @@
 
 #include "../../../Common/include/CConfig.hpp"
 #include "../../../Common/include/geometry/CGeometry.hpp"
+#include "../../../Common/include/adaptation/CDistributedSearch.hpp"
 #include "../../../Common/include/adaptation/CMeshGather.hpp"
-#include "../../include/adaptation/ConvexClipping.hpp"
+#include "../../../Common/include/parallelization/CPassiveComm.hpp"
+#include "../../include/adaptation/CDistributedProjection.hpp"
+#include "../../include/adaptation/CTransferAdmissibility.hpp"
 #include "../../include/fluid/CFluidModel.hpp"
 #include "../../include/solvers/CSolver.hpp"
 #include "../../include/solvers/CTurbSolver.hpp"
 
 namespace {
 
-constexpr passivedouble kOverlapFraction = 1e-13; /*!< \brief Overlaps below this fraction of the smaller element are
-                                                        ignored (round-off contacts at shared faces/edges/points). */
-constexpr passivedouble kGapFraction = 1e-10;     /*!< \brief Uncovered parts above this fraction are filled/moved. */
-constexpr passivedouble kCentroidFraction = 1e-8; /*!< \brief Below it, the centroid of a missing part is not
-                                                        computed from the moments (cancellation), the whole cell's
-                                                        centroid is used. */
-constexpr unsigned long kSeedBudget = 512;        /*!< \brief Donor elements tested in the fallback seed search. */
+using namespace conservative;
+
 constexpr passivedouble kInf = std::numeric_limits<passivedouble>::infinity();
-
-/*--- Barycentric functions of the simplex y[0..nDim] (coordinates of a local frame): lambda_k(x) = a[k] + G[k].x.
- *    Returns the determinant of the edge matrix (nDim! x the signed measure), 0 for a degenerate simplex. ---*/
-passivedouble SimplexPlanes(unsigned short nDim, const passivedouble (*y)[3], passivedouble (*G)[3], passivedouble* a) {
-  passivedouble E[3][3] = {}, inv[3][3] = {}, det = 0.0;
-  for (unsigned short c = 0; c < nDim; ++c)
-    for (unsigned short r = 0; r < nDim; ++r) E[r][c] = y[c + 1][r] - y[0][r];
-  if (nDim == 2) {
-    det = E[0][0] * E[1][1] - E[0][1] * E[1][0];
-    if (det == 0.0) return 0.0;
-    inv[0][0] = E[1][1] / det;
-    inv[0][1] = -E[0][1] / det;
-    inv[1][0] = -E[1][0] / det;
-    inv[1][1] = E[0][0] / det;
-  } else {
-    const passivedouble c00 = E[1][1] * E[2][2] - E[1][2] * E[2][1];
-    const passivedouble c01 = -(E[1][0] * E[2][2] - E[1][2] * E[2][0]);
-    const passivedouble c02 = E[1][0] * E[2][1] - E[1][1] * E[2][0];
-    det = E[0][0] * c00 + E[0][1] * c01 + E[0][2] * c02;
-    if (det == 0.0) return 0.0;
-    const passivedouble c10 = -(E[0][1] * E[2][2] - E[0][2] * E[2][1]);
-    const passivedouble c11 = E[0][0] * E[2][2] - E[0][2] * E[2][0];
-    const passivedouble c12 = -(E[0][0] * E[2][1] - E[0][1] * E[2][0]);
-    const passivedouble c20 = E[0][1] * E[1][2] - E[0][2] * E[1][1];
-    const passivedouble c21 = -(E[0][0] * E[1][2] - E[0][2] * E[1][0]);
-    const passivedouble c22 = E[0][0] * E[1][1] - E[0][1] * E[1][0];
-    /*--- Inverse = adjugate / det, adjugate = transposed cofactors. ---*/
-    const passivedouble cof[3][3] = {{c00, c01, c02}, {c10, c11, c12}, {c20, c21, c22}};
-    for (int i = 0; i < 3; ++i)
-      for (int j = 0; j < 3; ++j) inv[i][j] = cof[j][i] / det;
-  }
-  passivedouble sumA = 0.0;
-  for (unsigned short k = 1; k <= nDim; ++k) {
-    a[k] = 0.0;
-    for (unsigned short r = 0; r < nDim; ++r) {
-      G[k][r] = inv[k - 1][r];
-      a[k] -= G[k][r] * y[0][r];
-    }
-    sumA += a[k];
-  }
-  for (unsigned short r = 0; r < nDim; ++r) {
-    G[0][r] = 0.0;
-    for (unsigned short k = 1; k <= nDim; ++k) G[0][r] -= G[k][r];
-  }
-  a[0] = 1.0 - sumA;
-  return det;
-}
-
-passivedouble Factorial(unsigned short nDim) { return nDim == 2 ? 2.0 : 6.0; }
 
 std::string PointText(unsigned short nDim, const passivedouble* x) {
   std::ostringstream text;
@@ -260,75 +209,7 @@ class CAdmissibilityRecovery {
   unsigned long tag = 0;
 };
 
-}  // namespace
 
-/*!
- * \brief A target element in a frame local to its first vertex: vertices, barycentric functions, bounding box.
- */
-struct CConservativeProjection::Frame {
-  unsigned long iElem = 0;
-  passivedouble origin[3] = {};
-  passivedouble y[4][3] = {};
-  passivedouble G[4][3] = {}, a[4] = {};
-  passivedouble volume = 0.0;
-  passivedouble bbMin[3] = {}, bbMax[3] = {};
-};
-
-/*!
- * \brief Convex polygon (2D) or polyhedron (3D).
- */
-class CConservativeProjection::Poly {
- public:
-  explicit Poly(unsigned short nDim) : nDim(nDim) {}
-
-  void InitSimplex(const passivedouble (*y)[3]) {
-    if (nDim == 2) {
-      p2.InitTriangle(y[0], y[1], y[2]);
-    } else {
-      const passivedouble* p[4] = {y[0], y[1], y[2], y[3]};
-      p3.InitTetrahedron(p);
-    }
-  }
-
-  /*--- Keep g.x + d >= 0. ---*/
-  void Clip(const passivedouble* g, passivedouble d) {
-    const int n = (nDim == 2) ? p2.Clip(g[0], g[1], d) : p3.Clip(g[0], g[1], g[2], d);
-    if (n < 0) SU2_MPI::Error("Vertex capacity of the polytope clipping exceeded.", CURRENT_FUNCTION);
-  }
-
-  /*--- Copy of the vertices in use only (the polytopes have fixed capacities). ---*/
-  void CopyFrom(const Poly& other) {
-    if (nDim == 2) {
-      p2.n = other.p2.n;
-      std::copy(&other.p2.x[0][0], &other.p2.x[0][0] + 2 * std::max(other.p2.n, 0), &p2.x[0][0]);
-    } else {
-      p3.n = other.p3.n;
-      std::copy(&other.p3.x[0][0], &other.p3.x[0][0] + 3 * std::max(other.p3.n, 0), &p3.x[0][0]);
-      std::copy(&other.p3.nbr[0][0], &other.p3.nbr[0][0] + 3 * std::max(other.p3.n, 0), &p3.nbr[0][0]);
-    }
-  }
-
-  int Size() const { return nDim == 2 ? p2.n : p3.n; }
-  bool Empty() const { return Size() < nDim + 1; }
-
-  const passivedouble* Vertex(int v) const { return nDim == 2 ? p2.x[v] : p3.x[v]; }
-
-  void Moments(passivedouble& volume, passivedouble* centroid) const {
-    centroid[2] = 0.0;
-    if (nDim == 2) {
-      p2.Moments(volume, centroid);
-    } else {
-      p3.Moments(volume, centroid);
-    }
-  }
-
- private:
-  unsigned short nDim;
-  convex_clip::Polygon p2;
-  convex_clip::Polyhedron p3;
-};
-
-namespace {
 /*--- The mesh of a geometry without halo points (one rank), with its control volumes. ---*/
 CSimplexMesh SerialMesh(const CGeometry& geometry, const std::vector<std::string>& tags) {
   if (geometry.GetnPoint() != geometry.GetnPointDomain()) {
@@ -339,6 +220,21 @@ CSimplexMesh SerialMesh(const CGeometry& geometry, const std::vector<std::string
   names.resize(std::max<size_t>(names.size(), geometry.GetnMarker()), "");
   return CMeshGather::LocalMesh(geometry, names, true);
 }
+
+/*--- Accurate sum of local terms (one rank, no communication). ---*/
+su2double LocalSum(const std::vector<su2double>& terms) {
+  CAccurateSumBatch batch;
+  batch.AddActive(terms);
+  batch.ReduceLocal();
+  return batch.GetActive(0);
+}
+passivedouble LocalSumPassive(const std::vector<passivedouble>& terms) {
+  CAccurateSumBatch batch;
+  batch.Add(terms);
+  batch.ReduceLocal();
+  return batch.Get(0);
+}
+
 }  // namespace
 
 CConservativeProjection::CConservativeProjection(const CGeometry& donor, const std::vector<std::string>& donorTags,
@@ -362,55 +258,22 @@ CConservativeProjection::CConservativeProjection(const CSimplexMesh& donor, cons
     elem = mesh.elem;
     volElem.resize(mesh.GetnElem());
     for (auto iElem = 0ul; iElem < mesh.GetnElem(); ++iElem) {
-      passivedouble y[4][3] = {}, G[4][3], a[4];
-      for (unsigned short k = 0; k < nNode; ++k)
-        for (unsigned short iDim = 0; iDim < nDim; ++iDim)
-          y[k][iDim] = coord[elem[iElem * nNode + k] * nDim + iDim] - coord[elem[iElem * nNode] * nDim + iDim];
-      volElem[iElem] = fabs(SimplexPlanes(nDim, y, G, a)) / Factorial(nDim);
+      const passivedouble* nodes[4] = {};
+      for (unsigned short k = 0; k < nNode; ++k) nodes[k] = &coord[elem[iElem * nNode + k] * nDim];
+      volElem[iElem] = SimplexMeasure(nDim, nodes);
     }
   };
 
-  /*--- Donor: points, elements, neighbours across faces, boundary faces (faces with one element). ---*/
+  /*--- Donor: points, elements and their keys, the locator (ADT of the elements, canonical boundary). ---*/
 
   readMesh(donor, coordD, elemD, volElemD, cvD);
   nPointD = donor.GetnPoint();
   nElemD = donor.GetnElem();
-
-  {
-    struct Face {
-      std::array<unsigned long, 3> key;
-      unsigned long elem;
-      unsigned short k;
-    };
-    std::vector<Face> faces;
-    faces.reserve(nElemD * nNode);
-    for (auto iElem = 0ul; iElem < nElemD; ++iElem) {
-      for (unsigned short k = 0; k < nNode; ++k) {
-        Face face{{0, 0, 0}, iElem, k};
-        unsigned short m = 0;
-        for (unsigned short l = 0; l < nNode; ++l)
-          if (l != k) face.key[m++] = elemD[iElem * nNode + l];
-        std::sort(face.key.begin(), face.key.begin() + nDim);
-        faces.push_back(face);
-      }
-    }
-    std::sort(faces.begin(), faces.end(), [](const Face& f1, const Face& f2) { return f1.key < f2.key; });
-    nbrD.assign(nElemD * nNode, -1);
-    for (auto i = 0ul; i < faces.size();) {
-      auto j = i + 1;
-      while (j < faces.size() && faces[j].key == faces[i].key) j++;
-      if (j - i == 2) {
-        nbrD[faces[i].elem * nNode + faces[i].k] = faces[i + 1].elem;
-        nbrD[faces[i + 1].elem * nNode + faces[i + 1].k] = faces[i].elem;
-      } else if (j - i == 1) {
-        freeFaces.emplace_back(std::vector<unsigned long>(faces[i].key.begin(), faces[i].key.begin() + nDim),
-                               faces[i].elem);
-      } else {
-        SU2_MPI::Error("The donor mesh has a face shared by more than two elements.", CURRENT_FUNCTION);
-      }
-      i = j;
-    }
-    std::sort(freeFaces.begin(), freeFaces.end());
+  keysD.resize(nElemD);
+  for (auto iElem = 0ul; iElem < nElemD; ++iElem) {
+    uint64_t gids[4] = {};
+    for (unsigned short k = 0; k < nNode; ++k) gids[k] = elemD[iElem * nNode + k];
+    keysD[iElem] = MakeSimplexKey(gids, nNode);
   }
   donorLocator = std::make_unique<CBarycentricLocator>(donor, options.absoluteLimit);
   donorNames = donorLocator->GetMarkerNames();
@@ -430,50 +293,11 @@ CConservativeProjection::CConservativeProjection(const CSimplexMesh& donor, cons
   }
   if (options.sliverRule == SliverRule::BOUNDARY) targetLocator = std::make_unique<CBarycentricLocator>(target);
 
-  /*--- Mass matrix M[j][k] = integral over C_j of the hat function of k (exact for simplices: the median-dual piece of
-   *    vertex i is {lambda_i >= lambda_j}; integral of lambda_i over it = |e| E[max of the barycentric coordinates] /
-   *    (nDim+1), 11/54 |e| in 2D, 25/192 |e| in 3D; the rest of the row of the element is |e|/(nDim+1) - that). ---*/
+  /*--- Mass matrix (exact for simplices). ---*/
 
-  const passivedouble diagCoef = (nDim == 2) ? 11.0 / 54.0 : 25.0 / 192.0;
-  const passivedouble offCoef = (1.0 / nNode - diagCoef) / nDim;
-  {
-    std::vector<std::vector<unsigned long>> adjacency(nPointT);
-    for (auto iElem = 0ul; iElem < nElemT; ++iElem)
-      for (unsigned short k = 0; k < nNode; ++k)
-        for (unsigned short l = 0; l < nNode; ++l)
-          adjacency[elemT[iElem * nNode + k]].push_back(elemT[iElem * nNode + l]);
-    massRowPtr.assign(nPointT + 1, 0);
-    for (auto iPoint = 0ul; iPoint < nPointT; ++iPoint) {
-      auto& row = adjacency[iPoint];
-      row.push_back(iPoint);
-      std::sort(row.begin(), row.end());
-      row.erase(std::unique(row.begin(), row.end()), row.end());
-      massRowPtr[iPoint + 1] = massRowPtr[iPoint] + row.size();
-    }
-    massCol.resize(massRowPtr[nPointT]);
-    for (auto iPoint = 0ul; iPoint < nPointT; ++iPoint)
-      std::copy(adjacency[iPoint].begin(), adjacency[iPoint].end(), massCol.begin() + massRowPtr[iPoint]);
-  }
-  massValue.assign(massCol.size(), 0.0);
-  for (auto iElem = 0ul; iElem < nElemT; ++iElem) {
-    for (unsigned short k = 0; k < nNode; ++k) {
-      const auto row = elemT[iElem * nNode + k];
-      for (unsigned short l = 0; l < nNode; ++l) {
-        const auto col = elemT[iElem * nNode + l];
-        const auto begin = massCol.begin() + massRowPtr[row], end = massCol.begin() + massRowPtr[row + 1];
-        const auto pos = std::lower_bound(begin, end, col) - massCol.begin();
-        massValue[pos] += (k == l ? diagCoef : offCoef) * volElemT[iElem];
-      }
-    }
-  }
-  massDiag.assign(nPointT, 0.0);
-  rowVolume.assign(nPointT, 0.0);
+  mass.Assemble(nDim, nPointT, nPointT, elemT, volElemT);
   for (auto iPoint = 0ul; iPoint < nPointT; ++iPoint) {
-    for (auto p = massRowPtr[iPoint]; p < massRowPtr[iPoint + 1]; ++p) {
-      rowVolume[iPoint] += massValue[p];
-      if (massCol[p] == iPoint) massDiag[iPoint] = massValue[p];
-    }
-    if (!(massDiag[iPoint] > 0.0)) {
+    if (!(mass.diag[iPoint] > 0.0)) {
       SU2_MPI::Error("A point of the new mesh has no control volume (unused point or degenerate elements).",
                      CURRENT_FUNCTION);
     }
@@ -485,24 +309,6 @@ CConservativeProjection::CConservativeProjection(const CSimplexMesh& donor, cons
 }
 
 CConservativeProjection::~CConservativeProjection() = default;
-
-void CConservativeProjection::SetFrame(unsigned long iElem, Frame& frame) const {
-  frame.iElem = iElem;
-  const auto* nodes = &elemT[iElem * nNode];
-  for (unsigned short iDim = 0; iDim < nDim; ++iDim) frame.origin[iDim] = coordT[nodes[0] * nDim + iDim];
-  for (unsigned short k = 0; k < nNode; ++k)
-    for (unsigned short iDim = 0; iDim < 3; ++iDim)
-      frame.y[k][iDim] = (iDim < nDim) ? coordT[nodes[k] * nDim + iDim] - frame.origin[iDim] : 0.0;
-  frame.volume = fabs(SimplexPlanes(nDim, frame.y, frame.G, frame.a)) / Factorial(nDim);
-  for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
-    frame.bbMin[iDim] = kInf;
-    frame.bbMax[iDim] = -kInf;
-    for (unsigned short k = 0; k < nNode; ++k) {
-      frame.bbMin[iDim] = std::min(frame.bbMin[iDim], frame.y[k][iDim]);
-      frame.bbMax[iDim] = std::max(frame.bbMax[iDim], frame.y[k][iDim]);
-    }
-  }
-}
 
 void CConservativeProjection::UpdateBounds(unsigned long iPoint, const unsigned long* donorPoints,
                                            unsigned short nDonor) {
@@ -518,309 +324,28 @@ void CConservativeProjection::UpdateBounds(unsigned long iPoint, const unsigned 
   }
 }
 
-bool CConservativeProjection::Overlap(const Frame& frame, unsigned long jElem, bool accumulate) {
-  const auto* nodesD = &elemD[jElem * nNode];
-
-  /*--- Donor simplex in the frame of the target element; bounding boxes. ---*/
-  passivedouble z[4][3] = {};
-  for (unsigned short k = 0; k < nNode; ++k)
-    for (unsigned short iDim = 0; iDim < nDim; ++iDim)
-      z[k][iDim] = coordD[nodesD[k] * nDim + iDim] - frame.origin[iDim];
+void CConservativeProjection::AccumulatePiece(void* context, unsigned short i, passivedouble volume,
+                                              const passivedouble* centroid, const passivedouble* mu) {
+  auto& self = *static_cast<CConservativeProjection*>(context);
+  const auto nNode = self.nNode, nDim = self.nDim, nField = self.nField;
+  const auto iElem = self.pairT, jElem = self.pairD;
+  const auto* nodesD = &self.elemD[jElem * nNode];
+  const auto iPoint = self.elemT[iElem * nNode + i];
+  const auto& U = *self.donorField;
+  for (unsigned short f = 0; f < nField; ++f) {
+    su2double value = 0.0;
+    for (unsigned short k = 0; k < nNode; ++k) value += mu[k] * U[nodesD[k] * nField + f];
+    self.rhs[iPoint * nField + f] += volume * value;
+  }
+  const auto piece = iElem * nNode + i;
+  self.covT[piece] += volume;
+  self.covD[jElem] += volume;
+  const auto* origin = &self.coordT[self.elemT[iElem * nNode] * nDim];
   for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
-    passivedouble zMin = kInf, zMax = -kInf;
-    for (unsigned short k = 0; k < nNode; ++k) {
-      zMin = std::min(zMin, z[k][iDim]);
-      zMax = std::max(zMax, z[k][iDim]);
-    }
-    if (zMax < frame.bbMin[iDim] || zMin > frame.bbMax[iDim]) return false;
+    self.momT[piece * 3 + iDim] += volume * centroid[iDim];
+    self.momD[jElem * 3 + iDim] += volume * (centroid[iDim] + origin[iDim] - self.coordD[nodesD[0] * nDim + iDim]);
   }
-  summary.nTested++;
-
-  /*--- Overlap: the donor simplex clipped by lambda_k >= 0 of the target element. ---*/
-  Poly overlap(nDim);
-  overlap.InitSimplex(z);
-  for (unsigned short k = 0; k < nNode; ++k) {
-    overlap.Clip(frame.G[k], frame.a[k]);
-    if (overlap.Empty()) return false;
-  }
-  passivedouble volume0 = 0.0, centroid0[3] = {};
-  overlap.Moments(volume0, centroid0);
-  if (!(volume0 > kOverlapFraction * std::min(frame.volume, volElemD[jElem]))) return false;
-  if (!accumulate) return true;
-  summary.nPairs++;
-
-  /*--- Donor field in the frame. ---*/
-  passivedouble GD[4][3] = {}, aD[4] = {};
-  SimplexPlanes(nDim, z, GD, aD);
-
-  auto accumulatePiece = [&](unsigned short i, passivedouble volume, const passivedouble* centroid) {
-    const auto iPoint = elemT[frame.iElem * nNode + i];
-    passivedouble mu[4] = {};
-    for (unsigned short k = 0; k < nNode; ++k) {
-      mu[k] = aD[k];
-      for (unsigned short iDim = 0; iDim < nDim; ++iDim) mu[k] += GD[k][iDim] * centroid[iDim];
-    }
-    const auto& U = *donorField;
-    for (unsigned short f = 0; f < nField; ++f) {
-      su2double value = 0.0;
-      for (unsigned short k = 0; k < nNode; ++k) value += mu[k] * U[nodesD[k] * nField + f];
-      rhs[iPoint * nField + f] += volume * value;
-    }
-    const auto piece = frame.iElem * nNode + i;
-    covT[piece] += volume;
-    covD[jElem] += volume;
-    for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
-      momT[piece * 3 + iDim] += volume * centroid[iDim];
-      momD[jElem * 3 + iDim] += volume * (centroid[iDim] + frame.origin[iDim] - coordD[nodesD[0] * nDim + iDim]);
-    }
-    UpdateBounds(iPoint, nodesD, nNode);
-  };
-
-  /*--- Split among the dual pieces of the target vertices: piece i = {lambda_i >= lambda_j for all j}. If every vertex
-   *    of the overlap is in the same piece, the overlap is that piece's part. ---*/
-  for (unsigned short i = 0; i < nNode; ++i) {
-    bool all = true;
-    for (int v = 0; v < overlap.Size() && all; ++v) {
-      const auto* x = overlap.Vertex(v);
-      passivedouble lambdaI = frame.a[i];
-      for (unsigned short iDim = 0; iDim < nDim; ++iDim) lambdaI += frame.G[i][iDim] * x[iDim];
-      for (unsigned short j = 0; j < nNode && all; ++j) {
-        if (j == i) continue;
-        passivedouble lambdaJ = frame.a[j];
-        for (unsigned short iDim = 0; iDim < nDim; ++iDim) lambdaJ += frame.G[j][iDim] * x[iDim];
-        all = lambdaI >= lambdaJ;
-      }
-    }
-    if (all) {
-      accumulatePiece(i, volume0, centroid0);
-      return true;
-    }
-  }
-  Poly piece(nDim);
-  for (unsigned short i = 0; i < nNode; ++i) {
-    piece.CopyFrom(overlap);
-    for (unsigned short j = 0; j < nNode && !piece.Empty(); ++j) {
-      if (j == i) continue;
-      passivedouble g[3] = {};
-      for (unsigned short iDim = 0; iDim < nDim; ++iDim) g[iDim] = frame.G[i][iDim] - frame.G[j][iDim];
-      piece.Clip(g, frame.a[i] - frame.a[j]);
-    }
-    if (piece.Empty()) continue;
-    passivedouble volume = 0.0, centroid[3] = {};
-    piece.Moments(volume, centroid);
-    if (volume > 0.0) accumulatePiece(i, volume, centroid);
-  }
-  return true;
-}
-
-long CConservativeProjection::FindSeed(const Frame& frame, std::vector<unsigned long>& stamp,
-                                       std::vector<unsigned long>& queue) {
-  /*--- Donor elements that contain the centroid or points near the vertices of the target element. ---*/
-  passivedouble centroid[3] = {};
-  for (unsigned short k = 0; k < nNode; ++k)
-    for (unsigned short iDim = 0; iDim < nDim; ++iDim) centroid[iDim] += frame.y[k][iDim] / nNode;
-
-  long tried[5] = {-1, -1, -1, -1, -1};
-  for (unsigned short k = 0; k <= nNode; ++k) {
-    su2double x[3] = {};
-    for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
-      const passivedouble local =
-          (k == 0) ? centroid[iDim] : frame.y[k - 1][iDim] + 0.05 * (centroid[iDim] - frame.y[k - 1][iDim]);
-      x[iDim] = local + frame.origin[iDim];
-    }
-    const long candidate = donorLocator->ContainingElement(x);
-    tried[k] = candidate;
-    if (candidate < 0 || std::find(tried, tried + k, candidate) != tried + k) continue;
-    if (Overlap(frame, candidate, false)) return candidate;
-  }
-
-  /*--- Else (the element lies near or across the donor boundary): breadth-first search from the donor element at the
-   *    boundary face nearest to the centroid. ---*/
-  summary.nSeedFallback++;
-  su2double x[3] = {};
-  for (unsigned short iDim = 0; iDim < nDim; ++iDim) x[iDim] = centroid[iDim] + frame.origin[iDim];
-  const auto stencil = donorLocator->Locate(x);
-  long start = -1;
-  if (stencil.onFace) {
-    std::vector<unsigned long> key(stencil.point, stencil.point + nDim);
-    std::sort(key.begin(), key.end());
-    const auto it = std::lower_bound(freeFaces.begin(), freeFaces.end(), std::make_pair(key, 0ul));
-    if (it != freeFaces.end() && it->first == key) start = it->second;
-  } else {
-    start = donorLocator->ContainingElement(x);
-  }
-  if (start < 0) return -1;
-
-  const unsigned long tag = frame.iElem + 1;
-  queue.clear();
-  queue.push_back(start);
-  stamp[start] = tag;
-  for (auto head = 0ul; head < queue.size() && head < kSeedBudget; ++head) {
-    const auto jElem = queue[head];
-    if (Overlap(frame, jElem, false)) return jElem;
-    for (unsigned short k = 0; k < nNode; ++k) {
-      const auto next = nbrD[jElem * nNode + k];
-      if (next >= 0 && stamp[next] != tag) {
-        stamp[next] = tag;
-        queue.push_back(next);
-      }
-    }
-  }
-  return -1;
-}
-
-void CConservativeProjection::SolveMass(const std::vector<passivedouble>& b, std::vector<passivedouble>& x,
-                                        unsigned long& iterations, passivedouble& residual) const {
-  /*--- Jacobi-preconditioned conjugate gradients from the control-volume means. ---*/
-  const auto n = nPointT;
-  auto multiply = [&](const std::vector<passivedouble>& v, std::vector<passivedouble>& out) {
-    for (auto i = 0ul; i < n; ++i) {
-      passivedouble sum = 0.0;
-      for (auto p = massRowPtr[i]; p < massRowPtr[i + 1]; ++p) sum += massValue[p] * v[massCol[p]];
-      out[i] = sum;
-    }
-  };
-  auto dot = [n](const std::vector<passivedouble>& u, const std::vector<passivedouble>& v) {
-    passivedouble sum = 0.0;
-    for (auto i = 0ul; i < n; ++i) sum += u[i] * v[i];
-    return sum;
-  };
-
-  x.resize(n);
-  for (auto i = 0ul; i < n; ++i) x[i] = b[i] / rowVolume[i];
-  const passivedouble normB = sqrt(dot(b, b));
-  iterations = 0;
-  residual = 0.0;
-  if (!(normB > 0.0)) return;
-
-  std::vector<passivedouble> r(n), z(n), p(n), q(n);
-  multiply(x, q);
-  for (auto i = 0ul; i < n; ++i) {
-    r[i] = b[i] - q[i];
-    z[i] = r[i] / massDiag[i];
-  }
-  p = z;
-  passivedouble rz = dot(r, z);
-  residual = sqrt(dot(r, r)) / normB;
-  while (residual > options.solverTolerance && iterations < options.maxSolverIter) {
-    multiply(p, q);
-    const passivedouble pq = dot(p, q);
-    if (!(pq > 0.0)) break;
-    const passivedouble alpha = rz / pq;
-    for (auto i = 0ul; i < n; ++i) {
-      x[i] += alpha * p[i];
-      r[i] -= alpha * q[i];
-      z[i] = r[i] / massDiag[i];
-    }
-    iterations++;
-    residual = sqrt(dot(r, r)) / normB;
-    const passivedouble rzNew = dot(r, z);
-    const passivedouble beta = rzNew / rz;
-    rz = rzNew;
-    for (auto i = 0ul; i < n; ++i) p[i] = z[i] + beta * p[i];
-  }
-}
-
-void CConservativeProjection::SolveMassActive(const std::vector<su2double>& b, std::vector<su2double>& x,
-                                              unsigned long& iterations, passivedouble& residual) const {
-  /*--- M is passive (geometry), x = M^-1 b is linear in b: the values are solved as passive numbers, and in forward
-   *    mode (DIRECT_DIFF) the derivatives as well, x' = M^-1 b', to the same tolerance (instead of differentiating the
-   *    iterations of the conjugate gradients). The transfer is never recorded on a reverse-mode tape (the adaptation
-   *    is rejected with adjoint problems), so there the result is a passive value. ---*/
-  const auto n = nPointT;
-  std::vector<passivedouble> bValue(n), xValue;
-  for (auto i = 0ul; i < n; ++i) bValue[i] = SU2_TYPE::GetValue(b[i]);
-  SolveMass(bValue, xValue, iterations, residual);
-  x.resize(n);
-  for (auto i = 0ul; i < n; ++i) x[i] = xValue[i];
-#ifdef CODI_FORWARD_TYPE
-  std::vector<passivedouble> bDerivative(n), xDerivative;
-  bool seeded = false;
-  for (auto i = 0ul; i < n; ++i) {
-    bDerivative[i] = SU2_TYPE::GetDerivative(b[i]);
-    seeded |= (bDerivative[i] != 0.0);
-  }
-  if (seeded) {
-    unsigned long derivativeIterations = 0;
-    passivedouble derivativeResidual = 0.0;
-    SolveMass(bDerivative, xDerivative, derivativeIterations, derivativeResidual);
-    for (auto i = 0ul; i < n; ++i) SU2_TYPE::SetDerivative(x[i], xDerivative[i]);
-  }
-#endif
-}
-
-bool CConservativeProjection::BoundedRedistribute(std::vector<su2double>& v, unsigned short iField, su2double total,
-                                                  const std::vector<su2double>& lo, const std::vector<su2double>& hi,
-                                                  const std::vector<bool>* frozen, unsigned long* nClipped) const {
-  const auto n = nPointT;
-  auto isFree = [&](unsigned long i) { return frozen == nullptr || !(*frozen)[i]; };
-
-  /*--- Clip to the bounds (count beyond round-off). ---*/
-  if (nClipped != nullptr) *nClipped = 0;
-  const passivedouble typical = summary.scale[iField] / std::max(summary.donorCV, passivedouble(1e-300));
-  const passivedouble countTol = 1e-12 * std::max({SU2_TYPE::GetValue(range[iField]), typical, passivedouble(1e-300)});
-  auto infinite = [](const su2double& value) { return std::isinf(SU2_TYPE::GetValue(value)); };
-  for (auto i = 0ul; i < n; ++i) {
-    if (!isFree(i)) continue;
-    if (v[i] < lo[i] || v[i] > hi[i]) {
-      const su2double bound = (v[i] < lo[i]) ? lo[i] : hi[i];
-      if (nClipped != nullptr && fabs(v[i] - bound) > countTol) (*nClipped)++;
-      v[i] = bound;
-    }
-  }
-
-  /*--- Redistribute the defect over the nodes with room, in proportion to the room (iterated). ---*/
-  passivedouble scale = 0.0;
-  for (auto i = 0ul; i < n; ++i) scale += fabs(SU2_TYPE::GetValue(v[i])) * cvT[i];
-  scale = std::max(scale, fabs(SU2_TYPE::GetValue(total)));
-  for (int iter = 0; iter < 100; ++iter) {
-    su2double sum = 0.0;
-    for (auto i = 0ul; i < n; ++i) sum += v[i] * cvT[i];
-    const su2double r = total - sum;
-    if (!(fabs(r) > 1e-15 * scale)) return true;
-
-    su2double capacity = 0.0;
-    passivedouble unboundedVolume = 0.0;
-    for (auto i = 0ul; i < n; ++i) {
-      if (!isFree(i)) continue;
-      const su2double room = (r > 0.0) ? hi[i] - v[i] : v[i] - lo[i];
-      if (infinite(room)) {
-        unboundedVolume += cvT[i];
-      } else if (room > 0.0) {
-        capacity += room * cvT[i];
-      }
-    }
-    if (unboundedVolume > 0.0) {
-      for (auto i = 0ul; i < n; ++i) {
-        if (!isFree(i)) continue;
-        const su2double room = (r > 0.0) ? hi[i] - v[i] : v[i] - lo[i];
-        if (infinite(room)) v[i] += r / unboundedVolume;
-      }
-      continue;
-    }
-    if (!(capacity > 0.0)) break;
-    su2double fraction = fabs(r) / capacity;
-    if (fraction > 1.0) fraction = 1.0;
-    for (auto i = 0ul; i < n; ++i) {
-      if (!isFree(i)) continue;
-      su2double room = (r > 0.0) ? hi[i] - v[i] : v[i] - lo[i];
-      if (!(room > 0.0)) room = 0.0;
-      v[i] += (r > 0.0 ? fraction : su2double(-fraction)) * room;
-    }
-  }
-
-  /*--- The bounds cannot hold the total (or round-off is left): spread the rest over the free nodes by volume. ---*/
-  su2double sum = 0.0;
-  passivedouble freeVolume = 0.0;
-  for (auto i = 0ul; i < n; ++i) {
-    sum += v[i] * cvT[i];
-    if (isFree(i)) freeVolume += cvT[i];
-  }
-  const su2double r = total - sum;
-  if (freeVolume > 0.0)
-    for (auto i = 0ul; i < n; ++i)
-      if (isFree(i)) v[i] += r / freeVolume;
-  return !(fabs(r) > 1e-12 * scale);
+  self.UpdateBounds(iPoint, nodesD, nNode);
 }
 
 void CConservativeProjection::Project(unsigned short nFieldIn, const std::vector<su2double>& donorValues,
@@ -850,39 +375,48 @@ void CConservativeProjection::Project(unsigned short nFieldIn, const std::vector
   covD.assign(nElemD, 0.0);
   momD.assign(nElemD * 3, 0.0);
 
-  /*--- Supermesh: every target element against the donor elements that overlap it (advancing front). ---*/
+  /*--- Supermesh: every target element against every donor element whose inflated box intersects its box (ADT box
+   *    query, exhaustive), in the order of the donor element keys. ---*/
 
   auto start = SU2_MPI::Wtime();
   {
-    std::vector<unsigned long> stamp(nElemD, 0), seedStamp(nElemD, 0), queue, seedQueue;
     Frame frame;
+    std::vector<unsigned long> candidates;
     for (auto iElem = 0ul; iElem < nElemT; ++iElem) {
-      SetFrame(iElem, frame);
+      const passivedouble* nodes[4] = {};
+      for (unsigned short k = 0; k < nNode; ++k) nodes[k] = &coordT[elemT[iElem * nNode + k] * nDim];
+      SetFrame(nDim, nodes, frame);
       summary.targetVolume += frame.volume;
       if (!(frame.volume > 0.0)) {
         summary.nDegenerate++;
         continue;
       }
-      const long seed = FindSeed(frame, seedStamp, seedQueue);
-      if (seed < 0) {
-        summary.nElemOutside++;
-        continue;
-      }
-      const unsigned long tag = iElem + 1;
-      queue.clear();
-      queue.push_back(seed);
-      stamp[seed] = tag;
-      for (auto head = 0ul; head < queue.size(); ++head) {
-        const auto jElem = queue[head];
-        if (!Overlap(frame, jElem, true)) continue;
-        for (unsigned short k = 0; k < nNode; ++k) {
-          const auto next = nbrD[jElem * nNode + k];
-          if (next >= 0 && stamp[next] != tag) {
-            stamp[next] = tag;
-            queue.push_back(next);
-          }
+      su2double bbMin[3] = {}, bbMax[3] = {};
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+        passivedouble lo = nodes[0][iDim], hi = nodes[0][iDim];
+        for (unsigned short k = 1; k < nNode; ++k) {
+          lo = std::min(lo, nodes[k][iDim]);
+          hi = std::max(hi, nodes[k][iDim]);
         }
+        bbMin[iDim] = lo;
+        bbMax[iDim] = hi;
       }
+      donorLocator->IntersectingElements(bbMin, bbMax, candidates);
+      std::sort(candidates.begin(), candidates.end(),
+                [this](unsigned long a, unsigned long b) { return keysD[a] < keysD[b]; });
+      bool any = false;
+      pairT = iElem;
+      for (const auto jElem : candidates) {
+        const passivedouble* donorNodes[4] = {};
+        for (unsigned short k = 0; k < nNode; ++k) donorNodes[k] = &coordD[elemD[jElem * nNode + k] * nDim];
+        pairD = jElem;
+        bool clipped = false;
+        const bool overlapped = Overlap(nDim, frame, donorNodes, volElemD[jElem], AccumulatePiece, this, &clipped);
+        summary.nTested += clipped;
+        summary.nPairs += overlapped;
+        any |= overlapped;
+      }
+      if (!any) summary.nElemOutside++;
     }
   }
   for (auto jElem = 0ul; jElem < nElemD; ++jElem) {
@@ -906,7 +440,9 @@ void CConservativeProjection::Project(unsigned short nFieldIn, const std::vector
     std::vector<bool> filledNode(nPointT, false);
     Frame frame;
     for (auto iElem = 0ul; iElem < nElemT; ++iElem) {
-      SetFrame(iElem, frame);
+      const passivedouble* nodes[4] = {};
+      for (unsigned short k = 0; k < nNode; ++k) nodes[k] = &coordT[elemT[iElem * nNode + k] * nDim];
+      SetFrame(nDim, nodes, frame);
       if (!(frame.volume > 0.0)) continue;
       const passivedouble pieceVolume = frame.volume / nNode;
       for (unsigned short i = 0; i < nNode; ++i) {
@@ -916,16 +452,8 @@ void CConservativeProjection::Project(unsigned short nFieldIn, const std::vector
         if (!(missing > kGapFraction * pieceVolume)) continue;
 
         /*--- Centroid of the piece (the element clipped by the piece planes), then of its missing part. ---*/
-        Poly poly(nDim);
-        poly.InitSimplex(frame.y);
-        for (unsigned short j = 0; j < nNode; ++j) {
-          if (j == i) continue;
-          passivedouble g[3] = {};
-          for (unsigned short iDim = 0; iDim < nDim; ++iDim) g[iDim] = frame.G[i][iDim] - frame.G[j][iDim];
-          poly.Clip(g, frame.a[i] - frame.a[j]);
-        }
         passivedouble volume = 0.0, centroid[3] = {};
-        poly.Moments(volume, centroid);
+        PieceMoments(nDim, frame, i, volume, centroid);
         su2double x[3] = {};
         passivedouble xp[3] = {};
         for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
@@ -995,24 +523,12 @@ void CConservativeProjection::Project(unsigned short nFieldIn, const std::vector
     const passivedouble missing = volume - covD[jElem];
     if (!(volume > 0.0) || !(missing > kGapFraction * volume)) continue;
     const auto* nodesD = &elemD[jElem * nNode];
-    passivedouble y[4][3] = {}, G[4][3] = {}, a[4] = {}, centroid[3] = {};
-    for (unsigned short k = 0; k < nNode; ++k)
-      for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
-        y[k][iDim] = coordD[nodesD[k] * nDim + iDim] - coordD[nodesD[0] * nDim + iDim];
-        centroid[iDim] += y[k][iDim] / nNode;
-      }
-    SimplexPlanes(nDim, y, G, a);
-    passivedouble c[3] = {}, mu[4] = {};
+    const passivedouble* donorNodes[4] = {};
+    for (unsigned short k = 0; k < nNode; ++k) donorNodes[k] = &coordD[nodesD[k] * nDim];
+    passivedouble xp[3] = {}, mu[4] = {};
+    SliverCentroid(nDim, donorNodes, volume, missing, &momD[jElem * 3], xp, mu);
     su2double x[3] = {};
-    for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
-      c[iDim] = (missing > kCentroidFraction * volume) ? (volume * centroid[iDim] - momD[jElem * 3 + iDim]) / missing
-                                                       : centroid[iDim];
-      x[iDim] = c[iDim] + coordD[nodesD[0] * nDim + iDim];
-    }
-    for (unsigned short k = 0; k < nNode; ++k) {
-      mu[k] = a[k];
-      for (unsigned short iDim = 0; iDim < nDim; ++iDim) mu[k] += G[k][iDim] * c[iDim];
-    }
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) x[iDim] = xp[iDim];
     /*--- The boundary this part lies at: the marker of the nearest donor face. ---*/
     std::string name;
     donorLocator->LocateOnBoundary(x, donorNames, &name);
@@ -1045,15 +561,12 @@ void CConservativeProjection::Project(unsigned short nFieldIn, const std::vector
     }
   }
 
-  /*--- Exact totals: the donor total minus the right-hand side (the S_n content, the S_d content left to it, and
-   *    round-off) is spread over the new domain by volume (a uniform shift of the solution, M 1 = |C|). ---*/
+  /*--- Exact totals (accurate sums): the donor total minus the right-hand side (the S_n content, the S_d content left
+   *    to it, and round-off) is spread over the new domain by volume (a uniform shift of the solution, M 1 = |C|). ---*/
 
-  passivedouble sumRowVolume = 0.0;
-  for (auto iPoint = 0ul; iPoint < nPointT; ++iPoint) {
-    sumRowVolume += rowVolume[iPoint];
-    summary.targetCV += cvT[iPoint];
-  }
-  for (auto iPoint = 0ul; iPoint < nPointD; ++iPoint) summary.donorCV += cvD[iPoint];
+  const passivedouble sumRowVolume = LocalSumPassive(mass.rowVolume);
+  summary.targetCV = LocalSumPassive(cvT);
+  summary.donorCV = LocalSumPassive(cvD);
 
   summary.donorTotal.assign(nField, 0.0);
   summary.targetTotal.assign(nField, 0.0);
@@ -1061,21 +574,29 @@ void CConservativeProjection::Project(unsigned short nFieldIn, const std::vector
   summary.correction.assign(nField, 0.0);
   summary.supermeshDefect.assign(nField, 0.0);
   range.assign(nField, 0.0);
+  std::vector<su2double> terms;
+  std::vector<passivedouble> absTerms;
   for (unsigned short f = 0; f < nField; ++f) {
     summary.fill[f] = SU2_TYPE::GetValue(fillA[f]);
     summary.sliver[f] = SU2_TYPE::GetValue(sliverA[f]);
     summary.fillOpen[f] = SU2_TYPE::GetValue(fillOpenA[f]);
     summary.sliverOpen[f] = SU2_TYPE::GetValue(sliverOpenA[f]);
-    su2double minValue = kInf, maxValue = -kInf, rhsTotal = 0.0, donorTotal = 0.0;
+    su2double minValue = kInf, maxValue = -kInf;
+    terms.resize(nPointD);
+    absTerms.resize(nPointD);
     for (auto iPoint = 0ul; iPoint < nPointD; ++iPoint) {
       const su2double& value = U[iPoint * nField + f];
-      donorTotal += value * cvD[iPoint];
-      summary.scale[f] += fabs(SU2_TYPE::GetValue(value)) * cvD[iPoint];
+      terms[iPoint] = value * cvD[iPoint];
+      absTerms[iPoint] = fabs(SU2_TYPE::GetValue(value)) * cvD[iPoint];
       if (value < minValue) minValue = value;
       if (value > maxValue) maxValue = value;
     }
+    const su2double donorTotal = LocalSum(terms);
+    summary.scale[f] = LocalSumPassive(absTerms);
     range[f] = maxValue - minValue;
-    for (auto iPoint = 0ul; iPoint < nPointT; ++iPoint) rhsTotal += rhs[iPoint * nField + f];
+    terms.resize(nPointT);
+    for (auto iPoint = 0ul; iPoint < nPointT; ++iPoint) terms[iPoint] = rhs[iPoint * nField + f];
+    const su2double rhsTotal = LocalSum(terms);
     /*--- Total of the new field: the donor total, or with NONE the content of the common domain plus S_n. ---*/
     targetTotalA[f] = donorTotal;
     if (options.sliverRule == SliverRule::NONE) targetTotalA[f] += fillA[f] - sliverA[f];
@@ -1102,29 +623,52 @@ void CConservativeProjection::Project(unsigned short nFieldIn, const std::vector
     const passivedouble scale = std::max(summary.scale[f], passivedouble(1e-300));
     summary.supermeshDefect[f] = (summary.correction[f] - expected) / scale;
     for (auto iPoint = 0ul; iPoint < nPointT; ++iPoint)
-      rhs[iPoint * nField + f] += correction * rowVolume[iPoint] / sumRowVolume;
+      rhs[iPoint * nField + f] += correction * mass.rowVolume[iPoint] / sumRowVolume;
   }
   summary.timeSlivers = SU2_TYPE::GetValue(SU2_MPI::Wtime() - start);
 
-  /*--- Solve M u = S per field, then limit with the exact total. ---*/
+  /*--- Solve M u = S per field (guarded conjugate gradients), then limit with the exact total. ---*/
 
   newValues.assign(nPointT * nField, 0.0);
   summary.iterations.assign(nField, 0);
   summary.residual.assign(nField, 0.0);
   summary.nLimited.assign(nField, 0);
   summary.infeasible.assign(nField, false);
+  summary.nViolations.assign(nField, 0);
+  summary.maxViolation.assign(nField, 0.0);
   summary.newTotal.assign(nField, 0.0);
+  const MassSolver solver(mass, nullptr, options.solverTolerance, options.maxSolverIter);
   std::vector<su2double> b(nPointT), x(nPointT), lo(nPointT), hi(nPointT);
   passivedouble solveTime = 0.0, limiterTime = 0.0;
   for (unsigned short f = 0; f < nField; ++f) {
     start = SU2_MPI::Wtime();
     for (auto iPoint = 0ul; iPoint < nPointT; ++iPoint) b[iPoint] = rhs[iPoint * nField + f];
-    SolveMassActive(b, x, summary.iterations[f], summary.residual[f]);
+    const auto solve = solver.SolveActive(b, x);
+    summary.iterations[f] = solve.iterations;
+    summary.residual[f] = solve.trueResidual;
+    summary.nSolveWarnings += solve.warning;
+    if (solve.failed) {
+      SU2_MPI::Error("The mass-matrix solve of field " + std::to_string(f) + " failed (" +
+                         (solve.nonfiniteRHS ? std::string("nonfinite right-hand side")
+                                             : solve.breakdown ? std::string("breakdown")
+                                                               : "true residual " + std::to_string(solve.trueResidual)) +
+                         ", " + std::to_string(solve.iterations) + " iterations).",
+                     CURRENT_FUNCTION);
+    }
     solveTime += SU2_TYPE::GetValue(SU2_MPI::Wtime() - start);
     start = SU2_MPI::Wtime();
 
     SetBounds(f, lo, hi);
-    summary.infeasible[f] = !BoundedRedistribute(x, f, targetTotalA[f], lo, hi, nullptr, &summary.nLimited[f]);
+    const passivedouble typical = summary.scale[f] / std::max(summary.donorCV, passivedouble(1e-300));
+    const passivedouble countTol =
+        1e-12 * std::max({SU2_TYPE::GetValue(range[f]), typical, passivedouble(1e-300)});
+    const auto limited =
+        BoundedRedistribute(x, cvT, targetTotalA[f], lo, hi, nullptr, countTol, SU2_TYPE::GetValue(range[f]), false);
+    if (limited.error) SU2_MPI::Error("The limiter of field " + std::to_string(f) + ": " + limited.reason + ".", CURRENT_FUNCTION);
+    summary.nLimited[f] = limited.nClipped;
+    summary.infeasible[f] = limited.relaxed;
+    summary.nViolations[f] = limited.nViolations;
+    summary.maxViolation[f] = limited.maxViolation;
     for (auto iPoint = 0ul; iPoint < nPointT; ++iPoint) newValues[iPoint * nField + f] = x[iPoint];
     summary.newTotal[f] = SU2_TYPE::GetValue(NewTotal(f, newValues));
     limiterTime += SU2_TYPE::GetValue(SU2_MPI::Wtime() - start);
@@ -1151,9 +695,9 @@ void CConservativeProjection::SetBounds(unsigned short iField, std::vector<su2do
 }
 
 su2double CConservativeProjection::NewTotal(unsigned short iField, const std::vector<su2double>& values) const {
-  su2double total = 0.0;
-  for (auto iPoint = 0ul; iPoint < nPointT; ++iPoint) total += values[iPoint * nField + iField] * cvT[iPoint];
-  return total;
+  std::vector<su2double> terms(nPointT);
+  for (auto iPoint = 0ul; iPoint < nPointT; ++iPoint) terms[iPoint] = values[iPoint * nField + iField] * cvT[iPoint];
+  return LocalSum(terms);
 }
 
 bool CConservativeProjection::Redistribute(unsigned short iField, std::vector<su2double>& newValues,
@@ -1166,13 +710,380 @@ bool CConservativeProjection::Redistribute(unsigned short iField, std::vector<su
     if (v[iPoint] < lo[iPoint]) lo[iPoint] = v[iPoint];
     if (v[iPoint] > hi[iPoint]) hi[iPoint] = v[iPoint];
   }
-  const bool ok = BoundedRedistribute(v, iField, targetTotalA[iField], lo, hi, &frozen, nullptr);
+  const passivedouble typical = summary.scale[iField] / std::max(summary.donorCV, passivedouble(1e-300));
+  const passivedouble countTol =
+      1e-12 * std::max({SU2_TYPE::GetValue(range[iField]), typical, passivedouble(1e-300)});
+  const auto result = BoundedRedistribute(v, cvT, targetTotalA[iField], lo, hi, &frozen, countTol,
+                                          SU2_TYPE::GetValue(range[iField]), false);
+  if (result.error) SU2_MPI::Error("The redistribution of field " + std::to_string(iField) + ": " + result.reason + ".", CURRENT_FUNCTION);
   for (auto iPoint = 0ul; iPoint < nPointT; ++iPoint) newValues[iPoint * nField + iField] = v[iPoint];
-  return ok;
+  return !result.relaxed;
 }
+
+namespace {
+
+/*--- Names of the projected fields (per time level: flow, then turbulence). ---*/
+std::vector<std::string> FieldNames(unsigned short nDim, unsigned short nLevel, unsigned short nVarTurb, bool sst) {
+  std::vector<std::string> names;
+  for (unsigned short iLevel = 0; iLevel < nLevel; ++iLevel) {
+    const string suffix = iLevel ? " (n-1)" : "";
+    names.push_back("Density" + suffix);
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) names.push_back(string("Momentum-") + "xyz"[iDim] + suffix);
+    names.push_back("Energy" + suffix);
+    for (unsigned short iVar = 0; iVar < nVarTurb; ++iVar)
+      names.push_back((sst ? (iVar == 0 ? "rho*k" : "rho*omega") : "Nu_Tilde") + suffix);
+  }
+  return names;
+}
+
+/*--- Kinds of the markers by name (the config file defines them for every rank). ---*/
+bool ViscousWall(const CConfig& config, const string& name) {
+  const auto kind = config.GetMarker_CfgFile_KindBC(name);
+  return kind == HEAT_FLUX || kind == ISOTHERMAL || kind == HEAT_TRANSFER || kind == SMOLUCHOWSKI_MAXWELL ||
+         kind == CHT_WALL_INTERFACE;
+}
+bool OpenBoundary(const CConfig& config, const string& name) {
+  const auto kind = config.GetMarker_CfgFile_KindBC(name);
+  return !ViscousWall(config, name) && kind != EULER_WALL && kind != SYMMETRY_PLANE;
+}
+
+/*--- The turbulence values of the points of one level within the bounds of the solver (conservative representation:
+ *    SST k = (rho k) / rho, rho k set back; points with rho <= 0 skipped), counted beyond round-off. ---*/
+unsigned long BoundTurbulence(const CTransferAdmissibility& admissibility, std::vector<su2double>& values,
+                              unsigned long nPoint, unsigned short nField, unsigned short offset) {
+  unsigned long nLimited = 0;
+  const auto nVarFlow = admissibility.GetnVarFlow(), nVarTurb = admissibility.GetnVarTurb();
+  const bool sst = admissibility.IsSST();
+  for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
+    auto* fields = &values[iPoint * nField + offset];
+    const su2double density = fields[0];
+    if (sst && !(density > 0.0)) continue;
+    for (unsigned short iVar = 0; iVar < nVarTurb; ++iVar) {
+      const su2double factor = sst ? density : su2double(1.0);
+      const su2double value = fields[nVarFlow + iVar] / factor;
+      const su2double lower = admissibility.Lower(iVar), upper = admissibility.Upper(iVar);
+      if (value < lower || value > upper) {
+        const su2double limit = (value < lower) ? lower : upper;
+        if (fabs(value - limit) > 1e-10 * fabs(limit)) nLimited++;
+        fields[nVarFlow + iVar] = factor * limit;
+      }
+    }
+  }
+  return nLimited;
+}
+
+}  // namespace
 
 void CConservativeTransfer::Transfer(CConfig* config, const CMeshDonor& donor, CGeometry** geometry,
                                      CSolver*** solver) {
+  const int size = SU2_MPI::GetSize(), rank = SU2_MPI::GetRank();
+  if (gathered || (options.sliverRule == CConservativeProjection::SliverRule::BOUNDARY && size == 1)) {
+    TransferGathered(config, donor, geometry, solver);
+    return;
+  }
+  if (options.sliverRule == CConservativeProjection::SliverRule::BOUNDARY) {
+    SU2_MPI::Error("The BOUNDARY sliver rule of the conservative transfer needs one rank (developer option).",
+                   CURRENT_FUNCTION);
+  }
+  SU2_ZONE_SCOPED
+
+  const auto start = SU2_MPI::Wtime();
+  summary = Summary();
+  CTransferRoundScope rounds;
+
+  const auto arrays = CheckProblem("conservative", config, donor, geometry, solver);
+  auto* donorGeometry = donor.geometry[MESH_0];
+  auto* newGeometry = geometry[MESH_0];
+  const auto nDim = arrays.nDim;
+  summary.nVarFlow = nDim + 2;
+  summary.interpolateTimeN1 = arrays.interpolateTimeN1;
+  summary.nTimeLevels = arrays.hasTimeN + arrays.hasTimeN1;
+
+  auto* flowSolver = solver[MESH_0][FLOW_SOL];
+  const auto nVarFlow = arrays.nVarFlow;
+  auto* fluidModel = flowSolver->GetFluidModel();
+  if (fluidModel == nullptr || nVarFlow != nDim + 2) {
+    SU2_MPI::Error("The flow solver is not a compressible flow solver.", CURRENT_FUNCTION);
+  }
+  const auto* turbSolver = dynamic_cast<const CTurbSolver*>(solver[MESH_0][TURB_SOL]);
+  if (solver[MESH_0][TURB_SOL] != nullptr && turbSolver == nullptr) {
+    SU2_MPI::Error("Unexpected turbulence solver.", CURRENT_FUNCTION);
+  }
+  const unsigned short nVarTurb = arrays.nVarTurb;
+  const bool turbTimesDensity = arrays.sst;
+  const CTransferAdmissibility admissibility(*fluidModel, nDim, turbSolver, arrays.sst);
+  const unsigned short nLevel = arrays.nLevel, nPerLevel = arrays.nPerLevel(), nField = arrays.nField();
+  summary.names = FieldNames(nDim, nLevel, nVarTurb, turbTimesDensity);
+
+  auto levelArray = [](CSolver** solvers, unsigned short iSol, unsigned short iLevel) -> su2activematrix& {
+    auto* nodes = solvers[iSol]->GetNodes();
+    return iLevel == 0 ? nodes->GetSolution() : nodes->GetSolution_time_n1();
+  };
+
+  /*--- Fields of the owned donor points: per time level the flow variables, then the turbulence variables in
+   *    conservation form (SST: rho k, rho omega). ---*/
+  const auto nOwnedD = donorGeometry->GetnPointDomain();
+  std::vector<su2double> donorValues(nOwnedD * nField);
+  for (unsigned short iLevel = 0; iLevel < nLevel; ++iLevel) {
+    const auto& flow = levelArray(donor.solver[MESH_0], FLOW_SOL, iLevel);
+    for (auto iPoint = 0ul; iPoint < nOwnedD; ++iPoint) {
+      auto* values = &donorValues[iPoint * nField + iLevel * nPerLevel];
+      for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) values[iVar] = flow(iPoint, iVar);
+      if (nVarTurb == 0) continue;
+      const auto& turb = levelArray(donor.solver[MESH_0], TURB_SOL, iLevel);
+      for (unsigned short iVar = 0; iVar < nVarTurb; ++iVar)
+        values[nVarFlow + iVar] = (turbTimesDensity ? values[0] : su2double(1.0)) * turb(iPoint, iVar);
+    }
+  }
+
+  /*--- Projection on the owned rows of the new mesh. Open boundaries (not walls or symmetry planes) by name. ---*/
+  std::vector<std::string> newTags;
+  for (unsigned short iMarker = 0; iMarker < newGeometry->GetnMarker(); ++iMarker)
+    newTags.push_back(config->GetMarker_All_TagBound(iMarker));
+  const auto newNames = CMeshGather::GatherMarkerNames(*config, newTags, *newGeometry);
+  auto projectionOptions = options;
+  for (const auto& name : newNames)
+    if (OpenBoundary(*config, name)) projectionOptions.openMarkers.push_back(name);
+  projectionOptions.absoluteLimit =
+      std::max(projectionOptions.absoluteLimit, 2.0 * SU2_TYPE::GetValue(config->GetAdap_Hausd()));
+  CDistributedProjection projection(*donorGeometry, DonorMarkerTags("conservative", donor), *newGeometry, newTags,
+                                    *config, projectionOptions);
+  std::vector<su2double> newValues;
+  projection.Project(nField, donorValues, newValues);
+  const auto nPoint = newGeometry->GetnPointDomain();
+  summary.nPoint = CPassiveComm::AllreduceSum(nPoint);
+
+  /*--- No-slip walls: momentum of the owned wall points set to zero (rho E kept), redistributed over the other points
+   *    within the limiter bounds (totals exact). ---*/
+  std::vector<bool> wallPoint(nPoint, false);
+  {
+    const auto markerIds = PointMarkerIds(*newGeometry, newTags, *config);
+    for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint)
+      for (const auto id : markerIds[iPoint])
+        if (id < config->GetnMarker_CfgFile() && ViscousWall(*config, config->GetMarker_CfgFile_TagBound(id)))
+          wallPoint[iPoint] = true;
+  }
+  summary.nWallPoints = CPassiveComm::AllreduceSum(std::count(wallPoint.begin(), wallPoint.end(), true));
+  if (summary.nWallPoints > 0) {
+    passivedouble maxMomentum = 0.0;
+    for (unsigned short iLevel = 0; iLevel < nLevel; ++iLevel) {
+      const unsigned short offset = iLevel * nPerLevel;
+      for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
+        if (!wallPoint[iPoint]) continue;
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
+          auto& momentum = newValues[iPoint * nField + offset + 1 + iDim];
+          maxMomentum = std::max(maxMomentum, fabs(SU2_TYPE::GetValue(momentum)));
+          momentum = 0.0;
+        }
+      }
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+        if (!projection.Redistribute(offset + 1 + iDim, newValues, wallPoint)) summary.nWallBoundsExceeded++;
+    }
+    summary.maxWallMomentum = CPassiveComm::Allreduce(maxMomentum, CPassiveComm::Op::MAX);
+  }
+
+  /*--- Turbulence integrals before the bounds steps (for the report). ---*/
+  auto turbulenceTotals = [&]() {
+    std::vector<su2double> totals;
+    for (unsigned short iLevel = 0; iLevel < nLevel; ++iLevel)
+      for (unsigned short iVar = 0; iVar < nVarTurb; ++iVar)
+        totals.push_back(projection.NewTotal(iLevel * nPerLevel + nVarFlow + iVar, newValues));
+    return totals;
+  };
+  const auto turbulenceBefore = turbulenceTotals();
+
+  /*--- Turbulence within the bounds of the solver, before the admissibility (points with rho <= 0 skipped). ---*/
+  {
+    unsigned long nLimited = 0;
+    for (unsigned short iLevel = 0; iLevel < nLevel && nVarTurb > 0; ++iLevel)
+      nLimited += BoundTurbulence(admissibility, newValues, nPoint, nField, iLevel * nPerLevel);
+    summary.nTurbLimited = CPassiveComm::AllreduceSum(nLimited);
+  }
+
+  /*--- Stage 1 of the admissibility recovery (convex predicate P1). Rare: until its distributed version (M3) the level
+   *    is gathered on the master rank with the new mesh and the wall flags, the serial recovery runs there (sequential in
+   *    global index order), the values go back. Stage 2: the bounds on every point. ---*/
+  for (unsigned short iLevel = 0; iLevel < nLevel; ++iLevel) {
+    const unsigned short offset = iLevel * nPerLevel;
+    unsigned long nBad = 0;
+    for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) nBad += !admissibility.AdmissibleStage1(&newValues[iPoint * nField + offset]);
+    if (CPassiveComm::AllreduceSum(nBad) == 0) continue;
+    summary.recoveryGathered = true;
+    const CMeshGather newGather(*newGeometry);
+    const auto newMesh = newGather.GatherMesh(*config, newTags, true);
+    std::vector<su2double> local(nPoint * (nPerLevel + 1));
+    for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
+      for (unsigned short iVar = 0; iVar < nPerLevel; ++iVar)
+        local[iPoint * (nPerLevel + 1) + iVar] = newValues[iPoint * nField + offset + iVar];
+      local[iPoint * (nPerLevel + 1) + nPerLevel] = wallPoint[iPoint] ? 1.0 : 0.0;
+    }
+    auto global = newGather.Gather(local.data(), nPerLevel + 1);
+    CLocalFailure failure;
+    unsigned long nFixed = 0, nPatches = 0, maxRing = 0;
+    if (newGather.IsRoot()) {
+      const auto nGlobal = newMesh.GetnPoint();
+      std::vector<bool> wall(nGlobal);
+      for (auto i = 0ul; i < nGlobal; ++i) wall[i] = global[i * (nPerLevel + 1) + nPerLevel] > 0.5;
+      auto predicate = [&](const su2double* fields) { return admissibility.AdmissibleStage1(fields); };
+      CAdmissibilityRecovery<su2double> recovery(newMesh, nPerLevel, wall, predicate);
+      for (auto i = 0ul; i < nGlobal && !failure.Failed(); ++i) {
+        if (predicate(&global[i * (nPerLevel + 1)])) continue;
+        nFixed++;
+        if (!recovery.Recover(i, global, nPerLevel + 1, 0)) {
+          failure.Set(1, i,
+                      "The projected state of the point " + PointText(nDim, &newMesh.coord[i * nDim]) +
+                          (iLevel ? " (U^(n-1))" : "") +
+                          " is not admissible and cannot be recovered conservatively (not even the mean state of "
+                          "the mesh is admissible).");
+        }
+      }
+      nPatches = recovery.nPatches;
+      maxRing = recovery.maxRing;
+    }
+    CollectiveFailure(failure, CURRENT_FUNCTION);
+    newGather.Scatter(global, nPerLevel + 1, local.data());
+    for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint)
+      for (unsigned short iVar = 0; iVar < nPerLevel; ++iVar)
+        newValues[iPoint * nField + offset + iVar] = local[iPoint * (nPerLevel + 1) + iVar];
+    unsigned long counts[2] = {nFixed, nPatches}, sums[2];
+    CPassiveComm::Allreduce(counts, sums, 2, CPassiveComm::Op::SUM);
+    (iLevel ? summary.nHistoryFixed : summary.nFlowFixed) += sums[0];
+    summary.nRecoveryPatches += sums[1];
+    summary.maxRecoveryRing = std::max(summary.maxRecoveryRing, CPassiveComm::AllreduceMax(maxRing));
+  }
+  {
+    unsigned long nLimited = 0;
+    for (unsigned short iLevel = 0; iLevel < nLevel && nVarTurb > 0; ++iLevel)
+      nLimited += BoundTurbulence(admissibility, newValues, nPoint, nField, iLevel * nPerLevel);
+    summary.nTurbLimitedStage2 = CPassiveComm::AllreduceSum(nLimited);
+  }
+  const auto& projectionSummary = projection.GetSummary();
+  {
+    const auto turbulenceAfter = turbulenceTotals();
+    for (auto i = 0ul; i < turbulenceAfter.size(); ++i) {
+      const auto f = (i / nVarTurb) * nPerLevel + nVarFlow + i % nVarTurb;
+      summary.turbulenceChange.push_back(SU2_TYPE::GetValue(turbulenceAfter[i] - turbulenceBefore[i]) /
+                                         std::max(projectionSummary.scale[f], passivedouble(1e-300)));
+    }
+  }
+
+  /*--- Final checks (collective): every state of every level admissible with the full predicate, the wall momentum
+   *    zero, the totals of the flow variables those of the projection. ---*/
+  {
+    CLocalFailure failure;
+    for (unsigned short iLevel = 0; iLevel < nLevel; ++iLevel) {
+      const unsigned short offset = iLevel * nPerLevel;
+      for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
+        const auto* values = &newValues[iPoint * nField + offset];
+        bool ok = admissibility.AdmissibleConservative(values);
+        if (wallPoint[iPoint])
+          for (unsigned short iDim = 0; iDim < nDim; ++iDim) ok = ok && values[1 + iDim] == 0.0;
+        if (!ok) {
+          passivedouble x[3] = {};
+          for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+            x[iDim] = SU2_TYPE::GetValue(newGeometry->nodes->GetCoord(iPoint, iDim));
+          failure.Set(2, newGeometry->nodes->GetGlobalIndex(iPoint),
+                      "The transferred state of the point " + PointText(nDim, x) + " is not admissible after the recovery.");
+        }
+      }
+    }
+    for (unsigned short iLevel = 0; iLevel < nLevel; ++iLevel) {
+      for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) {
+        const auto f = iLevel * nPerLevel + iVar;
+        const passivedouble defect =
+            SU2_TYPE::GetValue(projection.NewTotal(f, newValues)) - projectionSummary.targetTotal[f];
+        if (fabs(defect) > 1e-12 * std::max(projectionSummary.scale[f], passivedouble(1e-300))) {
+          failure.Set(1, UINT64_MAX - f,
+                      "The transfer did not keep the total of " + summary.names[f] + " (relative defect " +
+                          std::to_string(defect / projectionSummary.scale[f]) + ").");
+        }
+      }
+    }
+    CollectiveFailure(failure, CURRENT_FUNCTION);
+  }
+
+  /*--- Values of the new arrays (SST: turbulence divided by the density), integrals of the final state. ---*/
+  auto finalValues = newValues;
+  for (unsigned short iLevel = 0; iLevel < nLevel && nVarTurb > 0 && turbTimesDensity; ++iLevel) {
+    const unsigned short offset = iLevel * nPerLevel;
+    for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
+      const su2double density = newValues[iPoint * nField + offset];
+      for (unsigned short iVar = 0; iVar < nVarTurb; ++iVar)
+        finalValues[iPoint * nField + offset + nVarFlow + iVar] =
+            newValues[iPoint * nField + offset + nVarFlow + iVar] / density;
+    }
+  }
+  {
+    CAccurateSumBatch batch;
+    std::vector<double> terms;
+    for (unsigned short f = 0; f < nField; ++f) {
+      terms.resize(nOwnedD);
+      for (auto iPoint = 0ul; iPoint < nOwnedD; ++iPoint)
+        terms[iPoint] = SU2_TYPE::GetValue(donorValues[iPoint * nField + f]) *
+                        SU2_TYPE::GetValue(donorGeometry->nodes->GetVolume(iPoint));
+      batch.Add(terms);
+      terms.resize(nPoint);
+      for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint)
+        terms[iPoint] = SU2_TYPE::GetValue(newValues[iPoint * nField + f]) *
+                        SU2_TYPE::GetValue(newGeometry->nodes->GetVolume(iPoint));
+      batch.Add(terms);
+    }
+    batch.Reduce();
+    summary.donorIntegral.assign(nField, 0.0);
+    summary.newIntegral.assign(nField, 0.0);
+    summary.relativeDefect.assign(nField, 0.0);
+    for (unsigned short f = 0; f < nField; ++f) {
+      summary.donorIntegral[f] = batch.Get(2 * f);
+      summary.newIntegral[f] = batch.Get(2 * f + 1);
+    }
+    for (unsigned short iLevel = 0; iLevel < nLevel; ++iLevel) {
+      const unsigned short offset = iLevel * nPerLevel;
+      passivedouble momentumNorm = 0.0;
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) momentumNorm += pow(summary.donorIntegral[offset + 1 + iDim], 2);
+      momentumNorm = sqrt(momentumNorm);
+      for (unsigned short f = offset; f < offset + nPerLevel; ++f) {
+        const bool momentum = f > offset && f <= offset + nDim;
+        const passivedouble scale = momentum ? momentumNorm : fabs(summary.donorIntegral[f]);
+        summary.relativeDefect[f] =
+            (scale > 0.0) ? (summary.newIntegral[f] - summary.donorIntegral[f]) / scale : passivedouble(0.0);
+      }
+    }
+  }
+  summary.projection = projection.GetSummary();
+
+  /*--- The owned rows of the new arrays; history; as after a restart. ---*/
+  for (unsigned short iLevel = 0; iLevel < nLevel; ++iLevel) {
+    const unsigned short offset = iLevel * nPerLevel;
+    auto& flow = levelArray(solver[MESH_0], FLOW_SOL, iLevel);
+    for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint)
+      for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) flow(iPoint, iVar) = finalValues[iPoint * nField + offset + iVar];
+    if (nVarTurb == 0) continue;
+    auto& turb = levelArray(solver[MESH_0], TURB_SOL, iLevel);
+    for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint)
+      for (unsigned short iVar = 0; iVar < nVarTurb; ++iVar)
+        turb(iPoint, iVar) = finalValues[iPoint * nField + offset + nVarFlow + iVar];
+  }
+  for (const auto iSol : arrays.solverIndices) {
+    auto* nodes = solver[MESH_0][iSol]->GetNodes();
+    if (arrays.hasTimeN) nodes->GetSolution_time_n() = nodes->GetSolution();
+    if (arrays.hasTimeN1 && !arrays.interpolateTimeN1) nodes->GetSolution_time_n1() = nodes->GetSolution_time_n();
+  }
+  FinishTransfer(config, geometry, solver, arrays);
+  summary.time = SU2_TYPE::GetValue(SU2_MPI::Wtime() - start);
+
+  const unsigned long maxImport[1] = {summary.projection.maxImported};
+  const double meanImport = static_cast<double>(summary.projection.nImported) / size;
+  std::ostringstream timing;
+  timing << std::setprecision(3) << "Distributed conservative transfer on " << size << " rank(s): import groups "
+         << summary.projection.nImportGroups << ", imported donor elements " << summary.projection.nImported
+         << " (largest per rank / mean " << (meanImport > 0 ? maxImport[0] / meanImport : 0.0)
+         << (meanImport > 0 && maxImport[0] > 4 * meanImport ? ", imbalance warning" : "") << ")"
+         << (summary.recoveryGathered ? "; recovery on the gathered level (rank 0)" : "") << ".";
+  if (rank == MASTER_NODE) PrintSummary(nDim, nField, nVarTurb > 0, timing.str());
+}
+
+void CConservativeTransfer::TransferGathered(CConfig* config, const CMeshDonor& donor, CGeometry** geometry,
+                                             CSolver*** solver) {
   SU2_ZONE_SCOPED
 
   const auto start = SU2_MPI::Wtime();
@@ -1199,27 +1110,15 @@ void CConservativeTransfer::Transfer(CConfig* config, const CMeshDonor& donor, C
   }
   const unsigned short nVarTurb = turbSolver ? turbSolver->GetnVar() : 0;
   /*--- SST transports rho k, rho omega in conservation form (CTurbSSTSolver is "Conservative"), SA nu_tilde. ---*/
-  const bool turbTimesDensity = turbSolver && TurbModelFamily(config->GetKind_Turb_Model()) == TURB_FAMILY::KW;
+  const bool turbTimesDensity = arrays.sst;
+  const CTransferAdmissibility admissibility(*fluidModel, nDim, turbSolver, arrays.sst);
 
   /*--- Fields: per time level (U^n, and U^(n-1) for 2nd order) the flow variables and the turbulence variables. ---*/
 
   const unsigned short nLevel = arrays.interpolateTimeN1 ? 2 : 1;
   const unsigned short nPerLevel = nVarFlow + nVarTurb;
   const unsigned short nField = nLevel * nPerLevel;
-  for (unsigned short iLevel = 0; iLevel < nLevel; ++iLevel) {
-    const string suffix = iLevel ? " (n-1)" : "";
-    summary.names.push_back("Density" + suffix);
-    for (unsigned short iDim = 0; iDim < nDim; ++iDim)
-      summary.names.push_back(string("Momentum-") + "xyz"[iDim] + suffix);
-    summary.names.push_back("Energy" + suffix);
-    for (unsigned short iVar = 0; iVar < nVarTurb; ++iVar) {
-      if (!turbTimesDensity) {
-        summary.names.push_back("Nu_Tilde" + suffix);
-      } else {
-        summary.names.push_back((iVar == 0 ? "rho*k" : "rho*omega") + suffix);
-      }
-    }
-  }
+  summary.names = FieldNames(nDim, nLevel, nVarTurb, turbTimesDensity);
 
   auto flowArray = [&](CSolver** solvers, unsigned short iLevel) -> su2activematrix& {
     auto* nodes = solvers[FLOW_SOL]->GetNodes();
@@ -1231,10 +1130,8 @@ void CConservativeTransfer::Transfer(CConfig* config, const CMeshDonor& donor, C
   };
 
   /*--- Both meshes (with their control volumes) and the donor fields on the master rank, in the global numbering of
-   *    the meshes (CMeshGather); the projection runs there on the complete meshes (one supermesh, one solve with
-   *    exact totals) and the new values go back to the ranks that own the points. The fields keep their derivatives
-   *    (forward mode, DIRECT_DIFF): the projection is active in the field values, passive in the geometry and the
-   *    mass matrix. ---*/
+   *    the meshes (CMeshGather); the projection runs there on the complete meshes and the new values go back to the
+   *    ranks that own the points. ---*/
 
   const auto gatherStart = SU2_MPI::Wtime();
   std::vector<std::string> newTags;
@@ -1270,37 +1167,23 @@ void CConservativeTransfer::Transfer(CConfig* config, const CMeshDonor& donor, C
     const auto nPointDonor = donorMesh.GetnPoint();
     summary.nPoint = nPoint;
 
-    /*--- Kinds of the markers by name (the config file defines them for every rank). ---*/
-    auto viscousWall = [&](const string& name) {
-      const auto kind = config->GetMarker_CfgFile_KindBC(name);
-      return kind == HEAT_FLUX || kind == ISOTHERMAL || kind == HEAT_TRANSFER || kind == SMOLUCHOWSKI_MAXWELL ||
-             kind == CHT_WALL_INTERFACE;
-    };
-    auto solidWall = [&](const string& name) {
-      return viscousWall(name) || config->GetMarker_CfgFile_KindBC(name) == EULER_WALL;
-    };
-
     /*--- Projection. Open boundaries (not walls or symmetry planes): far field, inlets, outlets, ... ---*/
 
     auto projectionOptions = options;
-    for (const auto& marker : newMesh.markers) {
-      if (!solidWall(marker.name) && config->GetMarker_CfgFile_KindBC(marker.name) != SYMMETRY_PLANE)
-        projectionOptions.openMarkers.push_back(marker.name);
-    }
+    for (const auto& marker : newMesh.markers)
+      if (OpenBoundary(*config, marker.name)) projectionOptions.openMarkers.push_back(marker.name);
     projectionOptions.absoluteLimit =
         std::max(projectionOptions.absoluteLimit, 2.0 * SU2_TYPE::GetValue(config->GetAdap_Hausd()));
     CConservativeProjection projection(donorMesh, newMesh, projectionOptions);
     std::vector<su2double> newValues;
     projection.Project(nField, donorValues, newValues);
 
-    /*--- No-slip walls: the projected momentum of a wall point is not zero (its control volume reaches into the
-     *    moving fluid); the solver would set it to zero in its first iteration (keeping rho E), which is not
-     *    conservative. Here it is set to zero (rho E kept, as the solver does) and the removed momentum is
-     *    redistributed over the other points within the limiter bounds, so the momentum totals stay exact. ---*/
+    /*--- No-slip walls: the projected momentum of a wall point is set to zero (rho E kept, as the solver does) and the
+     *    removed momentum is redistributed over the other points within the limiter bounds (totals exact). ---*/
 
     std::vector<bool> wallPoint(nPoint, false);
     for (const auto& marker : newMesh.markers) {
-      if (!viscousWall(marker.name)) continue;
+      if (!ViscousWall(*config, marker.name)) continue;
       for (const auto iPoint : marker.elem) wallPoint[iPoint] = true;
     }
     summary.nWallPoints = std::count(wallPoint.begin(), wallPoint.end(), true);
@@ -1315,55 +1198,28 @@ void CConservativeTransfer::Transfer(CConfig* config, const CMeshDonor& donor, C
             momentum = 0.0;
           }
         }
-        /*--- If the limiter bounds cannot hold the removed momentum, the rest is spread over the other points by
-         *    volume (the totals stay exact, the bounds are exceeded): counted and reported. ---*/
         for (unsigned short iDim = 0; iDim < nDim; ++iDim)
           if (!projection.Redistribute(offset + 1 + iDim, newValues, wallPoint)) summary.nWallBoundsExceeded++;
       }
     }
 
-    /*--- Turbulence within the bounds of the solver (the bounds it applies after each update; SST: k = (rho k) / rho,
-     *    rho k set back). This is the only step that can change a turbulence integral (counted). Done before the
-     *    admissibility, which then sees the final k. ---*/
-
-    for (unsigned short iLevel = 0; iLevel < nLevel && nVarTurb > 0; ++iLevel) {
-      const unsigned short offset = iLevel * nPerLevel;
-      for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
-        auto* values = &newValues[iPoint * nField + offset];
-        const su2double density = values[0];
-        if (turbTimesDensity && !(density > 0.0)) continue;  // not admissible, recovered below with rho k
-        for (unsigned short iVar = 0; iVar < nVarTurb; ++iVar) {
-          const su2double factor = turbTimesDensity ? density : su2double(1.0);
-          const su2double value = values[nVarFlow + iVar] / factor;
-          const su2double lower = turbSolver->GetLowerLimit(iVar), upper = turbSolver->GetUpperLimit(iVar);
-          if (value < lower || value > upper) {
-            const su2double limit = (value < lower) ? lower : upper;
-            if (fabs(value - limit) > 1e-10 * fabs(limit)) summary.nTurbLimited++;
-            values[nVarFlow + iVar] = factor * limit;
-          }
-        }
-      }
-    }
-
-    /*--- Admissibility of the complete state of every point (flow and turbulence of a time level; the solver
-     *    subtracts the SST k = (rho k) / rho from the internal energy), recovered by the coupled conservative blending
-     *    of CAdmissibilityRecovery (integrals and wall momentum kept, no new extrema). The transfer stops if a state
-     *    cannot be recovered. ---*/
+    /*--- Turbulence integrals before the bounds steps; bounds (rho <= 0 skipped); stage 1 recovery (P1, sequential
+     *    in global index order); stage 2 bounds on every point. ---*/
+    std::vector<su2double> turbulenceBefore;
+    for (unsigned short iLevel = 0; iLevel < nLevel; ++iLevel)
+      for (unsigned short iVar = 0; iVar < nVarTurb; ++iVar)
+        turbulenceBefore.push_back(projection.NewTotal(iLevel * nPerLevel + nVarFlow + iVar, newValues));
+    for (unsigned short iLevel = 0; iLevel < nLevel && nVarTurb > 0; ++iLevel)
+      summary.nTurbLimited += BoundTurbulence(admissibility, newValues, nPoint, nField, iLevel * nPerLevel);
 
     auto pointText = [&](unsigned long iPoint) { return PointText(nDim, &newMesh.coord[iPoint * nDim]); };
-    su2double state[8] = {};
-    auto admissibleState = [&](const su2double* values) {
-      for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) state[iVar] = values[iVar];
-      const su2double k =
-          (turbTimesDensity && values[0] > 0.0) ? su2double(values[nVarFlow] / values[0]) : su2double(0.0);
-      return CBarycentricTransfer::AdmissibleState(*fluidModel, nDim, state, k);
-    };
-    CAdmissibilityRecovery<su2double> recovery(newMesh, nPerLevel, wallPoint, admissibleState);
+    auto stage1 = [&](const su2double* values) { return admissibility.AdmissibleStage1(values); };
+    CAdmissibilityRecovery<su2double> recovery(newMesh, nPerLevel, wallPoint, stage1);
     for (unsigned short iLevel = 0; iLevel < nLevel; ++iLevel) {
       const unsigned short offset = iLevel * nPerLevel;
       auto& nFixed = iLevel ? summary.nHistoryFixed : summary.nFlowFixed;
       for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
-        if (admissibleState(&newValues[iPoint * nField + offset])) continue;
+        if (stage1(&newValues[iPoint * nField + offset])) continue;
         nFixed++;
         if (!recovery.Recover(iPoint, newValues, nField, offset)) {
           SU2_MPI::Error("The projected state of the point " + pointText(iPoint) + (iLevel ? " (U^(n-1))" : "") +
@@ -1375,16 +1231,24 @@ void CConservativeTransfer::Transfer(CConfig* config, const CMeshDonor& donor, C
     }
     summary.nRecoveryPatches = recovery.nPatches;
     summary.maxRecoveryRing = recovery.maxRing;
-
-    /*--- Final checks before the arrays are set: every state admissible, the wall momentum zero, the totals of the
-     *    flow variables those of the projection. ---*/
-
+    for (unsigned short iLevel = 0; iLevel < nLevel && nVarTurb > 0; ++iLevel)
+      summary.nTurbLimitedStage2 += BoundTurbulence(admissibility, newValues, nPoint, nField, iLevel * nPerLevel);
     const auto& projectionSummary = projection.GetSummary();
+    for (unsigned short iLevel = 0, i = 0; iLevel < nLevel; ++iLevel)
+      for (unsigned short iVar = 0; iVar < nVarTurb; ++iVar, ++i) {
+        const auto f = iLevel * nPerLevel + nVarFlow + iVar;
+        summary.turbulenceChange.push_back(SU2_TYPE::GetValue(projection.NewTotal(f, newValues) - turbulenceBefore[i]) /
+                                           std::max(projectionSummary.scale[f], passivedouble(1e-300)));
+      }
+
+    /*--- Final checks before the arrays are set: every state admissible (full predicate), the wall momentum zero, the
+     *    totals of the flow variables those of the projection. ---*/
+
     for (unsigned short iLevel = 0; iLevel < nLevel; ++iLevel) {
       const unsigned short offset = iLevel * nPerLevel;
       for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
         const auto* values = &newValues[iPoint * nField + offset];
-        bool ok = admissibleState(values);
+        bool ok = admissibility.AdmissibleConservative(values);
         if (wallPoint[iPoint])
           for (unsigned short iDim = 0; iDim < nDim; ++iDim) ok = ok && values[1 + iDim] == 0.0;
         if (!ok) {
@@ -1487,17 +1351,20 @@ void CConservativeTransfer::Transfer(CConfig* config, const CMeshDonor& donor, C
   FinishTransfer(config, geometry, solver, arrays);
   summary.time = SU2_TYPE::GetValue(SU2_MPI::Wtime() - start);
 
-  if (rank == MASTER_NODE && SU2_MPI::GetSize() > 1) {
-    cout << endl << "Conservative transfer: donor and new mesh with the donor solution gathered on rank "
-         << MASTER_NODE << " (" << gatherTime << " s), new values sent to the ranks of their points (" << scatterTime
-         << " s)." << endl;
-  }
-
-  /*--- Log. ---*/
-
   if (rank != MASTER_NODE) return;
+  std::ostringstream timing;
+  timing << "Gathered conservative transfer (MPI-1 reference): donor and new mesh with the donor solution gathered "
+            "on rank "
+         << MASTER_NODE << " (" << gatherTime << " s), new values sent to the ranks of their points (" << scatterTime
+         << " s).";
+  PrintSummary(nDim, nField, nVarTurb > 0, timing.str());
+}
+
+void CConservativeTransfer::PrintSummary(unsigned short nDim, unsigned short nField, bool turbulence,
+                                         const std::string& timing) const {
   const auto& p = summary.projection;
   cout << endl << "------------------- Solution Transfer (conservative P1) -------------------" << endl;
+  cout << timing << endl;
   cout << std::scientific << std::setprecision(3);
   cout << "Supermesh of " << p.nTargetElem << " new and " << p.nDonorElem << " donor elements: " << p.nPairs
        << " overlapping pairs (" << p.nTested << " clipped), measure " << p.overlapVolume << " of " << p.targetVolume
@@ -1515,22 +1382,27 @@ void CConservativeTransfer::Transfer(CConfig* config, const CMeshDonor& donor, C
                        "over the new domain by volume."
                      : options.sliverRule == CConservativeProjection::SliverRule::CLOSED
                            ? ", at walls and symmetry planes content kept (the difference to the S_n content there "
-                             "spread "
-                             "over the new domain by volume), at open boundaries the totals follow the domain."
+                             "spread over the new domain by volume), at open boundaries the totals follow the domain."
                            : ", content dropped: the totals change by the S_n minus the S_d content.")
        << endl;
   cout << "Largest uncovered fraction of a control-volume piece: " << p.maxUncovered << "." << endl;
-  cout
-      << "Per field: S_n content and S_d content (relative to sum |u| V), correction spread over the domain, supermesh "
-         "defect (round-off), CG iterations and residual, values limited:"
-      << endl;
-  for (unsigned short f = 0; f < nField; ++f) {
+  cout << "Per field: S_n content and S_d content (relative to sum |u| V), correction spread over the domain, supermesh "
+          "defect (round-off), CG iterations and true residual, values limited:"
+       << endl;
+  for (unsigned short f = 0; f < nField && f < p.scale.size(); ++f) {
     const passivedouble scale = std::max(p.scale[f], passivedouble(1e-300));
     cout << "  " << std::setw(18) << summary.names[f] << ": " << std::setw(10) << p.fill[f] / scale << std::setw(11)
          << p.sliver[f] / scale << std::setw(11) << p.correction[f] / scale << std::setw(11) << p.supermeshDefect[f]
-         << std::setw(5) << p.iterations[f] << std::setw(11) << p.residual[f] << std::setw(8) << p.nLimited[f]
-         << (p.infeasible[f] ? "  bounds infeasible, rest spread by volume" : "") << endl;
+         << std::setw(5) << p.iterations[f] << std::setw(11) << p.residual[f] << std::setw(8) << p.nLimited[f];
+    if (p.infeasible[f]) {
+      cout << "  bounds relaxed (" << p.nViolations[f] << " values, largest " << p.maxViolation[f]
+           << " of the range), rest spread by volume";
+    }
+    cout << endl;
   }
+  if (p.nSolveWarnings > 0)
+    cout << "Warning: " << p.nSolveWarnings << " field(s) with a true residual above the CG tolerance (below 1e-10)."
+         << endl;
   if (summary.nWallPoints > 0) {
     cout << "No-slip wall points: " << summary.nWallPoints << ", projected momentum set to zero (largest "
          << summary.maxWallMomentum << "), redistributed over the other points." << endl;
@@ -1539,12 +1411,16 @@ void CConservativeTransfer::Transfer(CConfig* config, const CMeshDonor& donor, C
     cout << "The limiter bounds could not hold the removed wall momentum of " << summary.nWallBoundsExceeded
          << " momentum field(s): the rest was spread over the domain by volume (totals exact)." << endl;
   }
-  cout << "States not admissible after the projection (k subtracted with SST): " << summary.nFlowFixed;
+  cout << "States not admissible after the projection (stage 1 predicate, k_lo floor with SST): " << summary.nFlowFixed;
   if (summary.interpolateTimeN1) cout << ", U^(n-1): " << summary.nHistoryFixed;
   cout << "; recovered by blending " << summary.nRecoveryPatches << " patch(es) towards their mean state (up to "
        << summary.maxRecoveryRing << " neighbour rings), integrals kept." << endl;
-  if (nVarTurb > 0)
-    cout << "Turbulence values limited to the bounds of the solver: " << summary.nTurbLimited << "." << endl;
+  if (turbulence) {
+    cout << "Turbulence values limited to the bounds of the solver: " << summary.nTurbLimited << " (after the recovery: "
+         << summary.nTurbLimitedStage2 << "); turbulence integral change of the bounds steps:";
+    for (const auto change : summary.turbulenceChange) cout << " " << change;
+    cout << "." << endl;
+  }
   if (summary.nTimeLevels > 0) {
     cout << "Time history: Solution_time_n = the solution (U^n, projected once)";
     if (summary.interpolateTimeN1) {
@@ -1557,16 +1433,16 @@ void CConservativeTransfer::Transfer(CConfig* config, const CMeshDonor& donor, C
   cout << "Domain volume: donor " << p.donorCV << ", new " << p.targetCV << ", relative change "
        << (p.targetCV - p.donorCV) / p.donorCV << "." << endl;
   cout << "Change of the integrals (sum of value x control volume), relative to the donor integral (momentum: to the "
-          "norm "
-          "of the donor momentum integral):"
+          "norm of the donor momentum integral):"
        << endl;
-  for (unsigned short f = 0; f < nField; ++f)
+  for (unsigned short f = 0; f < nField && f < summary.relativeDefect.size(); ++f)
     cout << "  " << std::setw(18) << summary.names[f] << ": " << summary.relativeDefect[f] << endl;
   cout.unsetf(std::ios_base::floatfield);
-  cout << std::setprecision(4) << "Time: setup " << p.timeSetup << " s, supermesh " << p.timeSupermesh << " s, slivers "
-       << p.timeSlivers << " s, solve " << p.timeSolve << " s, limiter " << p.timeLimiter << " s, total "
-       << summary.time << " s." << endl;
+  cout << std::setprecision(4) << "Time: setup " << p.timeSetup << " s, import " << p.timeImport << " s, supermesh "
+       << p.timeSupermesh << " s, coverage and slivers " << p.timeCoverage + p.timeSlivers << " s, solve "
+       << p.timeSolve << " s, limiter " << p.timeLimiter << " s, total " << summary.time << " s." << endl;
   cout << std::setprecision(6);
+  (void)nDim;
 }
 
 void CConservativeTransfer::BroadcastSummary() {

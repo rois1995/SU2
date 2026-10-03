@@ -41,6 +41,7 @@
 #include "../../../Common/include/parallelization/CPassiveComm.hpp"
 #include "../../../SU2_CFD/include/adaptation/CBarycentricTransfer.hpp"
 #include "../../../SU2_CFD/include/adaptation/CDistributedLocator.hpp"
+#include "../../../SU2_CFD/include/adaptation/CDistributedProjection.hpp"
 #include "../../../SU2_CFD/include/adaptation/CTransferAdmissibility.hpp"
 #include "../../../SU2_CFD/include/solvers/CTurbSolver.hpp"
 
@@ -743,6 +744,581 @@ TEST_CASE("Distributed point location: query chunks under a memory ceiling", "[A
 }
 
 /*------------------------------------------------------------------------------------------------------------------*/
+/*--- M2: distributed conservative projection and transfer                                                          ---*/
+/*------------------------------------------------------------------------------------------------------------------*/
+
+namespace {
+
+using ValueMap = std::map<uint64_t, std::vector<passivedouble>>;
+using FieldFunction = std::function<void(const passivedouble* x, passivedouble* v)>;
+
+/*--- Fields of the projection tests: affine flow, a constant, a smooth field. ---*/
+FieldFunction ProjectionFields(unsigned short nDim) {
+  return [nDim](const passivedouble* x, passivedouble* v) {
+    su2double xs[3] = {x[0], x[1], nDim == 3 ? x[2] : 0.0}, U[MAXVAR];
+    AffineFlow(nDim)(xs, U);
+    for (unsigned short f = 0; f < nDim + 2; ++f) v[f] = SU2_TYPE::GetValue(U[f]);
+    v[nDim + 2] = 2.0;
+    v[nDim + 3] = std::sin(3.0 * x[0]) * std::cos(2.0 * x[1]) + (nDim == 3 ? x[2] * x[2] : 0.0);
+  };
+}
+
+struct ProjectionResult {
+  ValueMap values;
+  CConservativeProjection::Summary summary;
+  std::vector<passivedouble> targetTotal, scale;  /*!< \brief Per field (from the summary). */
+  std::vector<passivedouble> newTotal;            /*!< \brief Per field: sum over the ranks of value x CV. */
+  passivedouble affineError = 0.0;                /*!< \brief Largest relative error of the affine fields. */
+  unsigned long localImports = 0;
+};
+
+/*--- The distributed projection (or the serial one on the gathered meshes, oracle = true, run on every rank). ---*/
+ProjectionResult RunProjection(unsigned short nDim, const CSimplexMesh& donorMesh, const CSimplexMesh& targetMesh,
+                               const std::string& markers, const CConservativeProjection::Options& options,
+                               bool oracle, bool roundMesh) {
+  ProjectionResult result;
+  auto config = roundMesh ? MakeRoundConfig("SOLVER= EULER\n", markers) : MakeConfig(nDim, "SOLVER= EULER\n");
+  MeshSolution donor(config.get(), donorMesh, 0), target(config.get(), targetMesh, 0);
+  const unsigned short nField = nDim + 4;
+  const auto field = ProjectionFields(nDim);
+  if (oracle) {
+    /*--- Serial projection on the complete meshes (each rank alone: run inside Serial()). ---*/
+    CConservativeProjection projection(donor.Fine(), donor.markerTags, target.Fine(), target.markerTags, options);
+    std::vector<su2double> values(donor.Fine().GetnPoint() * nField), out;
+    for (auto iPoint = 0ul; iPoint < donor.Fine().GetnPoint(); ++iPoint) {
+      passivedouble x[3] = {}, v[MAXVAR] = {};
+      for (unsigned short d = 0; d < nDim; ++d) x[d] = SU2_TYPE::GetValue(donor.Fine().nodes->GetCoord(iPoint, d));
+      field(x, v);
+      for (unsigned short f = 0; f < nField; ++f) values[iPoint * nField + f] = v[f];
+    }
+    projection.Project(nField, values, out);
+    for (auto iPoint = 0ul; iPoint < target.Fine().GetnPoint(); ++iPoint) {
+      auto& row = result.values[target.Fine().nodes->GetGlobalIndex(iPoint)];
+      for (unsigned short f = 0; f < nField; ++f) row.push_back(SU2_TYPE::GetValue(out[iPoint * nField + f]));
+    }
+    result.summary = projection.GetSummary();
+  } else {
+    CDistributedProjection projection(donor.Fine(), donor.markerTags, target.Fine(), target.markerTags, *config,
+                                      options);
+    const auto nOwned = donor.Fine().GetnPointDomain();
+    std::vector<su2double> values(nOwned * nField), out;
+    for (auto iPoint = 0ul; iPoint < nOwned; ++iPoint) {
+      passivedouble x[3] = {}, v[MAXVAR] = {};
+      for (unsigned short d = 0; d < nDim; ++d) x[d] = SU2_TYPE::GetValue(donor.Fine().nodes->GetCoord(iPoint, d));
+      field(x, v);
+      for (unsigned short f = 0; f < nField; ++f) values[iPoint * nField + f] = v[f];
+    }
+    projection.Project(nField, values, out);
+    const auto nRow = target.Fine().GetnPointDomain();
+    passivedouble affine = 0.0;
+    std::vector<passivedouble> totals(nField, 0.0);
+    for (auto iPoint = 0ul; iPoint < nRow; ++iPoint) {
+      auto& row = result.values[target.Fine().nodes->GetGlobalIndex(iPoint)];
+      passivedouble x[3] = {}, v[MAXVAR] = {};
+      for (unsigned short d = 0; d < nDim; ++d) x[d] = SU2_TYPE::GetValue(target.Fine().nodes->GetCoord(iPoint, d));
+      field(x, v);
+      for (unsigned short f = 0; f < nField; ++f) {
+        const passivedouble value = SU2_TYPE::GetValue(out[iPoint * nField + f]);
+        row.push_back(value);
+        totals[f] += value * SU2_TYPE::GetValue(target.Fine().nodes->GetVolume(iPoint));
+        if (f < nDim + 2) affine = std::max(affine, std::fabs(value - v[f]) / std::max(std::fabs(v[f]), 1e-8));
+      }
+    }
+    result.newTotal.resize(nField);
+#ifdef HAVE_MPI
+    MPI_Allreduce(totals.data(), result.newTotal.data(), nField, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+#else
+    result.newTotal = totals;
+#endif
+    result.affineError = WorldMax(affine);
+    result.summary = projection.GetSummary();
+    result.localImports = projection.GetLocalImports();
+  }
+  return result;
+}
+
+/*--- Largest |difference| / S_f of this rank's values to a reference (all ranks), S_f from the reference. ---*/
+passivedouble ProjectionDifference(const ValueMap& values, const ValueMap& reference, bool& complete) {
+  std::vector<passivedouble> lo, hi, mag;
+  for (const auto& entry : reference) {
+    if (lo.empty()) {
+      lo.assign(entry.second.size(), 1e300);
+      hi.assign(entry.second.size(), -1e300);
+      mag.assign(entry.second.size(), 0.0);
+    }
+    for (auto f = 0ul; f < entry.second.size(); ++f) {
+      lo[f] = std::min(lo[f], entry.second[f]);
+      hi[f] = std::max(hi[f], entry.second[f]);
+      mag[f] = std::max(mag[f], std::fabs(entry.second[f]));
+    }
+  }
+  passivedouble worst = 0.0;
+  bool ok = true;
+  for (const auto& entry : values) {
+    const auto it = reference.find(entry.first);
+    if (it == reference.end()) {
+      ok = false;
+      continue;
+    }
+    for (auto f = 0ul; f < entry.second.size(); ++f) {
+      const passivedouble s = std::max(mag[f], hi[f] - lo[f]);
+      worst = std::max(worst, std::fabs(entry.second[f] - it->second[f]) / (s > 0.0 ? s : 1.0));
+    }
+  }
+  complete = FailedRanks(ok) == 0;
+  return WorldMax(worst);
+}
+
+}  // namespace
+
+TEST_CASE("Distributed conservative projection: partition equivalence and exact totals",
+          "[AdaptationMPI][DistributedTransfer]") {
+  /*--- Requirements matrix (0.1), conservative column: values within 1e-10 S_f of P = 1 and of the serial projection
+   *    on the gathered meshes, totals exact (1e-12 sum |u| V) at every P, measures consistent; affine fields exact
+   *    where the domains coincide; slivers and fill with the CLOSED, GLOBAL and NONE rules on the disk and ball. ---*/
+  using Rule = CConservativeProjection::SliverRule;
+  struct Case {
+    std::string name;
+    unsigned short nDim;
+    bool round;
+    unsigned long nDonor, nTarget;
+    Rule rule;
+    bool open;
+  };
+  const std::vector<Case> cases = {
+      {"2D box", 2, false, 4, 6, Rule::CLOSED, false},
+      {"2D box, coarse target", 2, false, 8, 3, Rule::CLOSED, false},
+      {"3D box", 3, false, 3, 4, Rule::CLOSED, false},
+      {"disk, closed walls", 2, true, 4, 6, Rule::CLOSED, false},
+      {"disk, closed open markers", 2, true, 4, 6, Rule::CLOSED, true},
+      {"disk, global", 2, true, 6, 4, Rule::GLOBAL, false},
+      {"disk, none", 2, true, 4, 6, Rule::NONE, false},
+      {"ball, closed walls", 3, true, 3, 4, Rule::CLOSED, false},
+      {"ball, none", 3, true, 4, 3, Rule::NONE, false},
+  };
+  for (const auto& test : cases) {
+    SECTION(test.name) {
+      auto makeMesh = [&](unsigned long n) {
+        return test.round ? simplex_test::MakeRoundMesh(test.nDim, n, 1.0) : BoxMesh(test.nDim, n, true);
+      };
+      const std::string markers = "MARKER_EULER= (round_a, round_b)\n";
+      CConservativeProjection::Options options;
+      options.sliverRule = test.rule;
+      options.absoluteLimit = 0.02;
+      if (test.open) options.openMarkers = {"round_a", "round_b"};
+      ProjectionResult serial, oracle;
+      Serial([&]() {
+        serial = RunProjection(test.nDim, makeMesh(test.nDonor), makeMesh(test.nTarget), markers, options, false,
+                               test.round);
+        oracle = RunProjection(test.nDim, makeMesh(test.nDonor), makeMesh(test.nTarget), markers, options, true,
+                               test.round);
+      });
+      const auto parallel =
+          RunProjection(test.nDim, makeMesh(test.nDonor), makeMesh(test.nTarget), markers, options, false, test.round);
+      bool complete = false, completeOracle = false;
+      const auto diff = ProjectionDifference(parallel.values, serial.values, complete);
+      const auto diffOracle = ProjectionDifference(parallel.values, oracle.values, completeOracle);
+      INFO("difference to P = 1: " << diff << ", to the serial oracle: " << diffOracle);
+      CHECK(complete);
+      CHECK(completeOracle);
+      CHECK(diff <= 1e-10);
+      CHECK(diffOracle <= 1e-10);
+
+      const auto& s = parallel.summary;
+      for (auto f = 0ul; f < s.targetTotal.size(); ++f) {
+        CHECK(std::fabs(parallel.newTotal[f] - s.targetTotal[f]) <= 1e-12 * s.scale[f]);
+        CHECK(std::fabs(s.targetTotal[f] - serial.summary.targetTotal[f]) <= 1e-12 * s.scale[f]);
+      }
+      CHECK(s.nPairs == serial.summary.nPairs);
+      CHECK(s.nPairs == oracle.summary.nPairs);
+      CHECK(s.nFillPieces == serial.summary.nFillPieces);
+      CHECK(s.nFillPieces == oracle.summary.nFillPieces);
+      CHECK(s.nSliverElems == oracle.summary.nSliverElems);
+      CHECK(std::fabs(s.overlapVolume + s.fillVolume - s.targetVolume) < 1e-12 * s.targetVolume);
+      CHECK(std::fabs(s.overlapVolume + s.sliverVolume - s.donorVolume) < 1e-12 * s.donorVolume);
+      if (test.round) {
+        CHECK(s.nFillPieces > 0);
+        CHECK(s.nSliverElems > 0);
+      } else {
+        CHECK(s.nFillPieces == 0);
+        CHECK(s.nSliverElems == 0);
+        CHECK(parallel.affineError < 1e-11);
+      }
+    }
+  }
+}
+
+TEST_CASE("Distributed conservative projection: import groups under a memory ceiling",
+          "[AdaptationMPI][DistributedTransfer]") {
+  /*--- A forced small ceiling splits the import into several groups (results within the tolerance of one group:
+   *    only the order of the right-hand side sums changes). ---*/
+  for (const unsigned short nDim : {2, 3}) {
+    CConservativeProjection::Options options;
+    const auto donorMesh = BoxMesh(nDim, nDim == 2 ? 8 : 4, true), targetMesh = BoxMesh(nDim, nDim == 2 ? 10 : 5, true);
+    const auto reference = RunProjection(nDim, donorMesh, targetMesh, "", options, false, false);
+    CHECK(reference.summary.nImportGroups == 1);
+    const auto saved = GetTransferMemoryCeiling();
+    const size_t ceiling = reference.summary.memoryResident +
+                           std::max(reference.summary.memoryLargestBox, reference.summary.memoryImport / 3) + 1;
+    SetTransferMemoryCeiling(ceiling);
+    const auto grouped = RunProjection(nDim, donorMesh, targetMesh, "", options, false, false);
+    SetTransferMemoryCeiling(saved);
+    CHECK(grouped.summary.nImportGroups > 1);
+    bool complete = false;
+    CHECK(ProjectionDifference(grouped.values, reference.values, complete) <= 1e-10);
+    CHECK(complete);
+    CHECK(grouped.summary.nPairs == reference.summary.nPairs);
+    for (auto f = 0ul; f < grouped.newTotal.size(); ++f)
+      CHECK(std::fabs(grouped.newTotal[f] - grouped.summary.targetTotal[f]) <= 1e-12 * grouped.summary.scale[f]);
+  }
+}
+
+TEST_CASE("Conservative kernels: enumeration fixtures", "[AdaptationMPI][DistributedTransfer]") {
+  SECTION("tiny target element inside a donor element (separating-plane counterexample)") {
+    /*--- E = (1, 0.79645933750706 45), (0.5, 0.39822966908697405), (0, 0); T a 1e-17-sized triangle at
+     *    (0.1365068111787508, 0.10872212439662993), inside E (exact barycentric coordinates 2e-7..4e-7, computed
+     *    ones negative): the clip finds the overlap, T fully covered. ---*/
+    const passivedouble e[3][2] = {{1.0, 0.7964593375070645}, {0.5, 0.39822966908697405}, {0.0, 0.0}};
+    const passivedouble c[2] = {0.1365068111787508, 0.10872212439662993};
+    /*--- T: a few ulps (about 1e-16) in size (1e-17 is below the spacing of the doubles there). ---*/
+    passivedouble x1 = c[0], y2 = c[1];
+    for (int k = 0; k < 4; ++k) {
+      x1 = std::nextafter(x1, 1.0);
+      y2 = std::nextafter(y2, 1.0);
+    }
+    const passivedouble t[3][2] = {{c[0], c[1]}, {x1, c[1]}, {c[0], y2}};
+    const passivedouble* tNodes[3] = {t[0], t[1], t[2]};
+    const passivedouble* eNodes[3] = {e[0], e[1], e[2]};
+    conservative::Frame frame;
+    conservative::SetFrame(2, tNodes, frame);
+    struct Sum {
+      passivedouble volume = 0.0;
+    } sum;
+    auto piece = [](void* context, unsigned short, passivedouble volume, const passivedouble*, const passivedouble*) {
+      static_cast<Sum*>(context)->volume += volume;
+    };
+    bool clipped = false;
+    const bool overlapped =
+        conservative::Overlap(2, frame, eNodes, conservative::SimplexMeasure(2, eNodes), piece, &sum, &clipped);
+    INFO("T measure " << frame.volume << ", overlap " << sum.volume);
+    CHECK(frame.volume > 0.0);
+    CHECK(clipped);
+    CHECK(overlapped);
+    /*--- The overlap is T up to the round-off of clipping a unit-sized E by planes of a 1e-16-sized T. ---*/
+    CHECK(sum.volume > 0.5 * frame.volume);
+    CHECK(sum.volume < 1.5 * frame.volume);
+  }
+  SECTION("target element over two disconnected donor components (no advancing front)") {
+    /*--- Donor: two triangles with a gap between them; target: one triangle covering both. The exhaustive
+     *    enumeration clips both (an advancing front from one component would miss the other). ---*/
+    CSimplexMesh donor, target;
+    donor.nDim = target.nDim = 2;
+    donor.coord = {0.1, 0.1, 0.4, 0.1, 0.1, 0.4, 0.6, 0.1, 0.9, 0.1, 0.6, 0.3};
+    donor.elem = {0, 1, 2, 3, 4, 5};
+    donor.volume = {0.03, 0.03, 0.03, 0.02, 0.02, 0.02};
+    donor.markers.resize(1);
+    donor.markers[0].name = "wall";
+    donor.markers[0].elem = {0, 1, 1, 2, 2, 0, 3, 4, 4, 5, 5, 3};
+    target.coord = {0.0, 0.0, 2.0, 0.0, 0.0, 2.0};
+    target.elem = {0, 1, 2};
+    target.volume = {2.0 / 3, 2.0 / 3, 2.0 / 3};
+    target.markers.resize(1);
+    target.markers[0].name = "wall";
+    target.markers[0].elem = {0, 1, 1, 2, 2, 0};
+    CConservativeProjection::Options options;
+    options.sliverRule = CConservativeProjection::SliverRule::NONE;
+    options.absoluteLimit = 10.0;
+    CConservativeProjection projection(donor, target, options);
+    std::vector<su2double> values(6, 1.0), out;
+    projection.Project(1, values, out);
+    const auto& s = projection.GetSummary();
+    CHECK(s.nPairs == 2);
+    CHECK(s.overlapVolume == Approx(0.045 + 0.03).epsilon(1e-12));
+    CHECK(s.nSliverElems == 0);
+  }
+}
+
+TEST_CASE("Distributed conservative kernels: guarded CG and bounded redistribution",
+          "[AdaptationMPI][DistributedTransfer]") {
+  /*--- Mass matrix of the owned rows of a partitioned box. ---*/
+  for (const unsigned short nDim : {2, 3}) {
+    auto config = MakeConfig(nDim, "SOLVER= EULER\n");
+    MeshSolution mesh(config.get(), BoxMesh(nDim, nDim == 2 ? 6 : 3, true), 0);
+    const auto& geometry = mesh.Fine();
+    const unsigned short nNode = nDim + 1;
+    std::vector<unsigned long> nodes;
+    std::vector<passivedouble> volumes;
+    for (auto iElem = 0ul; iElem < geometry.GetnElem(); ++iElem) {
+      passivedouble x[4][3] = {};
+      const passivedouble* p[4] = {};
+      for (unsigned short k = 0; k < nNode; ++k) {
+        const auto iPoint = geometry.elem[iElem]->GetNode(k);
+        nodes.push_back(iPoint);
+        for (unsigned short d = 0; d < nDim; ++d) x[k][d] = SU2_TYPE::GetValue(geometry.nodes->GetCoord(iPoint, d));
+        p[k] = x[k];
+      }
+      volumes.push_back(conservative::SimplexMeasure(nDim, p));
+    }
+    const auto nRow = geometry.GetnPointDomain();
+    conservative::MassMatrix mass;
+    mass.Assemble(nDim, nRow, geometry.GetnPoint(), nodes, volumes);
+    const conservative::MassSolver solver(mass, &geometry, 1e-13, 2000);
+    const int rank = SU2_MPI::GetRank(), size = SU2_MPI::GetSize();
+
+    SECTION("nDim " + std::to_string(nDim) + ": zero, huge and nonfinite right-hand sides, non-convergence") {
+      std::vector<passivedouble> b(nRow, 0.0), x;
+      auto result = solver.Solve(b, x);
+      CHECK_FALSE(result.failed);
+      CHECK(result.iterations == 0);
+      bool zero = true;
+      for (const auto v : x) zero &= v == 0.0;
+      CHECK(FailedRanks(zero) == 0);
+
+      /*--- b = 1e200 x rowVolume (M 1): x = 1e200 everywhere; the unscaled inner products would overflow. ---*/
+      for (auto i = 0ul; i < nRow; ++i) b[i] = 1e200 * mass.rowVolume[i];
+      result = solver.Solve(b, x);
+      CHECK_FALSE(result.failed);
+      passivedouble worst = 0.0;
+      for (const auto v : x) worst = std::max(worst, std::fabs(v / 1e200 - 1.0));
+      CHECK(WorldMax(worst) < 1e-10);
+
+      /*--- A NaN on the last rank (zeros elsewhere): flagged on every rank, never the zero shortcut. ---*/
+      std::fill(b.begin(), b.end(), 0.0);
+      if (rank == size - 1 && nRow > 0) b[0] = std::numeric_limits<passivedouble>::quiet_NaN();
+      result = solver.Solve(b, x);
+      CHECK(result.nonfiniteRHS);
+      CHECK(result.failed);
+
+      /*--- Non-convergence: one iteration only, the true residual is far above 1e-10. ---*/
+      const conservative::MassSolver short1(mass, &geometry, 1e-13, 1);
+      Random random(3 + rank);
+      for (auto i = 0ul; i < nRow; ++i) b[i] = random.Uniform() - 0.5;
+      result = short1.Solve(b, x);
+      CHECK(result.failed);
+      CHECK(result.iterations == 1);
+
+      /*--- Converged solve: true residual within the tolerance. ---*/
+      result = solver.Solve(b, x);
+      CHECK_FALSE(result.failed);
+      CHECK(result.trueResidual <= 1e-13);
+    }
+
+    SECTION("nDim " + std::to_string(nDim) + ": bounded redistribution, precedence of the totals") {
+      std::vector<passivedouble> cv(nRow);
+      for (auto i = 0ul; i < nRow; ++i) cv[i] = SU2_TYPE::GetValue(geometry.nodes->GetVolume(i));
+      passivedouble cvLocal = 0.0;
+      for (const auto v : cv) cvLocal += v;
+      const passivedouble volume = CPassiveComm::Allreduce(cvLocal, CPassiveComm::Op::SUM);
+      auto total = [&](const std::vector<su2double>& v) {
+        passivedouble local = 0.0;
+        for (auto i = 0ul; i < nRow; ++i) local += SU2_TYPE::GetValue(v[i]) * cv[i];
+        return CPassiveComm::Allreduce(local, CPassiveComm::Op::SUM);
+      };
+      /*--- Room enough: the total is restored within the bounds. ---*/
+      std::vector<su2double> v(nRow, 1.0), lo(nRow, 0.0), hi(nRow, 2.0);
+      auto result = conservative::BoundedRedistribute(v, cv, 1.5 * volume, lo, hi, nullptr, 1e-12, 2.0, true);
+      CHECK_FALSE(result.error);
+      CHECK_FALSE(result.relaxed);
+      CHECK(result.totalExact);
+      CHECK(std::fabs(total(v) - 1.5 * volume) < 1e-13 * volume);
+      /*--- Exhausted capacity: bounds relaxed (reported), the total exact. ---*/
+      std::fill(v.begin(), v.end(), 1.0);
+      std::fill(hi.begin(), hi.end(), 1.0);
+      result = conservative::BoundedRedistribute(v, cv, 1.5 * volume, lo, hi, nullptr, 1e-12, 1.0, true);
+      CHECK_FALSE(result.error);
+      CHECK(result.relaxed);
+      CHECK(result.nViolations > 0);
+      CHECK(result.maxViolation == Approx(0.5).epsilon(1e-10));
+      CHECK(std::fabs(total(v) - 1.5 * volume) < 1e-13 * volume);
+      /*--- Everything frozen: a satisfied total is success, a nonzero correction an error (not an abort here). ---*/
+      std::vector<bool> frozen(nRow, true);
+      std::fill(v.begin(), v.end(), 1.0);
+      result = conservative::BoundedRedistribute(v, cv, volume, lo, hi, &frozen, 1e-12, 1.0, true);
+      CHECK_FALSE(result.error);
+      result = conservative::BoundedRedistribute(v, cv, 2.0 * volume, lo, hi, &frozen, 1e-12, 1.0, true);
+      CHECK(result.error);
+    }
+  }
+}
+
+TEST_CASE("Transfer admissibility: two-stage recovery predicate", "[AdaptationMPI][DistributedTransfer]") {
+  /*--- The review's infeasible SST pair (densities -1 and 3, rho omega -1e-3 and 3e-4): the first state fails stage 1;
+   *    their volume mean (rho 1, rho omega -3.5e-4) passes stage 1 (omega only needs to be finite) but not the full
+   *    predicate; after the stage-2 bounds (omega clipped) it passes the full predicate. NaN fails every stage. ---*/
+  auto config = MakeConfig(2, kRans + "KIND_TURB_MODEL= SST\n");
+  MeshSolution mesh(config.get(), BoxMesh(2, 2, false), 0);
+  auto* fluid = mesh.solver[MESH_0][FLOW_SOL]->GetFluidModel();
+  const auto* turb = dynamic_cast<const CTurbSolver*>(mesh.solver[MESH_0][TURB_SOL]);
+  const CTransferAdmissibility admissibility(*fluid, 2, turb, true);
+  const su2double first[6] = {-1.0, 0.0, 0.0, 2.5e5 * -1.0, -1.0 * 1.0, -1e-3};
+  const su2double second[6] = {3.0, 0.0, 0.0, 2.5e5 * 3.0, 3.0 * 1.0, 3e-4};
+  su2double mean[6];
+  for (int i = 0; i < 6; ++i) mean[i] = 0.5 * (first[i] + second[i]);
+  CHECK_FALSE(admissibility.AdmissibleStage1(first));
+  CHECK(admissibility.AdmissibleStage1(mean));
+  CHECK_FALSE(admissibility.AdmissibleConservative(mean));
+  su2double bounded[6];
+  std::copy(mean, mean + 6, bounded);
+  for (unsigned short iVar = 0; iVar < 2; ++iVar)
+    bounded[4 + iVar] = mean[0] * admissibility.Bounded(iVar, mean[4 + iVar] / mean[0]);
+  CHECK(admissibility.AdmissibleConservative(bounded));
+  su2double withNaN[6];
+  std::copy(mean, mean + 6, withNaN);
+  withNaN[5] = std::numeric_limits<passivedouble>::quiet_NaN();
+  CHECK_FALSE(admissibility.AdmissibleStage1(withNaN));
+  CHECK_FALSE(admissibility.AdmissibleConservative(withNaN));
+  /*--- Stage 1 subtracts max(rho k, k_lo rho): a k below its lower bound counts as k_lo. ---*/
+  su2double lowK[6] = {1.0, 0.0, 0.0, 2.5e5, -1.0, 1e3};
+  CHECK(admissibility.AdmissibleStage1(lowK));
+}
+
+TEST_CASE("Distributed conservative transfer: partition equivalence, walls, history, recovery",
+          "[AdaptationMPI][DistributedTransfer]") {
+  /*--- The complete transfer (wall fix, bounds, recovery, final checks, FinishTransfer) against P = 1 and against the
+   *    gathered (MPI-1) reference: values within 1e-10 of the field scale for the fixtures without decisions at a
+   *    margin, totals of the flow variables exact at every P, invariants (admissible states, zero wall momentum). ---*/
+  struct Case {
+    std::string name;
+    unsigned short nDim;
+    std::string options;
+    bool affine;
+    Turb turb;
+    unsigned long nDonor, nTarget;
+    bool marginFree;
+  };
+  const std::vector<Case> cases = {
+      {"2D Euler affine", 2, "SOLVER= EULER\n", true, Turb::NONE, 4, 6, true},
+      {"3D Euler smooth", 3, "SOLVER= EULER\n", false, Turb::NONE, 3, 4, false},
+      {"2D SA walls, 2nd order", 2, kRans + "KIND_TURB_MODEL= SA\n" + kTime2, false, Turb::SA, 4, 6, false},
+      {"2D SST walls", 2, kRans + "KIND_TURB_MODEL= SST\n", false, Turb::SST, 5, 4, false},
+  };
+  for (const auto& test : cases) {
+    SECTION(test.name) {
+      auto run = [&](bool gathered, PointValues& values, CConservativeTransfer::Summary& summary, passivedouble* wall) {
+        auto config = MakeConfig(test.nDim, test.options);
+        MeshSolution donor(config.get(), BoxMesh(test.nDim, test.nDonor, true), 2);
+        SetFields(donor, test.nDim, test.affine, test.turb);
+        MeshSolution target(config.get(), BoxMesh(test.nDim, test.nTarget, true), 2);
+        CConservativeTransfer transfer(CConservativeProjection::Options(), gathered);
+        {
+          Mute mute;
+          transfer.Transfer(config.get(), donor.Donor(), target.geometry, target.solver);
+        }
+        values = OwnedValues(target);
+        summary = transfer.GetSummary();
+        if (wall == nullptr) return;
+        /*--- Largest momentum on the owned no-slip wall points. ---*/
+        passivedouble largest = 0.0;
+        for (unsigned short iMarker = 0; iMarker < target.Fine().GetnMarker(); ++iMarker) {
+          if (config->GetMarker_All_KindBC(iMarker) != HEAT_FLUX) continue;
+          for (auto iElem = 0ul; iElem < target.Fine().GetnElem_Bound(iMarker); ++iElem)
+            for (unsigned short k = 0; k < target.Fine().bound[iMarker][iElem]->GetnNodes(); ++k) {
+              const auto iPoint = target.Fine().bound[iMarker][iElem]->GetNode(k);
+              if (iPoint >= target.Fine().GetnPointDomain()) continue;
+              for (unsigned short d = 0; d < test.nDim; ++d)
+                largest = std::max(largest, std::fabs(SU2_TYPE::GetValue(
+                                                target.solver[MESH_0][FLOW_SOL]->GetNodes()->GetSolution(iPoint, 1 + d))));
+            }
+        }
+        *wall = WorldMax(largest);
+        if (test.affine) CheckCoarseLevels(target, FLOW_SOL);
+      };
+      PointValues serial, parallel, gathered;
+      CConservativeTransfer::Summary serialSummary, summary, gatheredSummary;
+      passivedouble wall = 1.0;
+      Serial([&]() { run(false, serial, serialSummary, nullptr); });
+      run(false, parallel, summary, &wall);
+      run(true, gathered, gatheredSummary, nullptr);
+      passivedouble worst = 0.0, worstGathered = 0.0;
+      unsigned long nNotBitwise = 0, nNotBitwiseGathered = 0;
+      bool complete = false, completeGathered = false;
+      CompareValues(parallel, serial, worst, nNotBitwise, complete);
+      CompareValues(parallel, gathered, worstGathered, nNotBitwiseGathered, completeGathered);
+      INFO("difference to P = 1: " << worst << ", to the gathered transfer: " << worstGathered
+                                   << "; limited " << summary.projection.nLimited[0] << ", recovered "
+                                   << summary.nFlowFixed);
+      CHECK(complete);
+      CHECK(completeGathered);
+      if (test.marginFree) {
+        CHECK(worst <= 1e-10);
+        CHECK(worstGathered <= 1e-10);
+      } else {
+        /*--- Decisions at a margin (limiter clipping) may differ: reported, a loose sanity bound only. ---*/
+        CHECK(worst <= 1e-6);
+        CHECK(worstGathered <= 1e-6);
+      }
+      CHECK(wall == 0.0);
+      for (unsigned short f = 0; f < test.nDim + 2; ++f) CHECK(std::fabs(summary.relativeDefect[f]) < 1e-12);
+      CHECK(summary.nPoint == serialSummary.nPoint);
+      CHECK(summary.nWallPoints == serialSummary.nWallPoints);
+    }
+  }
+}
+
+TEST_CASE("Distributed conservative transfer: recovery on the gathered level", "[AdaptationMPI][DistributedTransfer]") {
+  /*--- High-speed states (momentum jumps, small internal energy): the projection gives inadmissible states, the
+   *    recovery (stage 1 on the master rank until M3) repairs them; every state admissible, totals exact, at every P. ---*/
+  const unsigned short nDim = 2;
+  auto run = [&](CConservativeTransfer::Summary& summary, unsigned long& nBad) {
+    auto config = MakeConfig(nDim, "SOLVER= EULER\n" + kTime2);
+    auto field = [](passivedouble shift) {
+      return Field([shift](const su2double* x, su2double* U) {
+        const su2double rho = 1.0 + 0.3 * x[1];
+        const su2double u = tanh((x[0] - 1.0 - shift) / 0.005) - 0.5 * tanh((x[0] - 0.4 + shift) / 0.005);
+        const su2double v = 0.5 * tanh((x[1] - 0.5 - shift) / 0.005);
+        U[0] = rho;
+        U[1] = rho * u;
+        U[2] = rho * v;
+        U[3] = rho * (0.5 * (u * u + v * v) + 1e-5);
+      });
+    };
+    MeshSolution donor(config.get(), BoxMesh(nDim, 16, true), 0);
+    auto* donorNodes = donor.solver[MESH_0][FLOW_SOL]->GetNodes();
+    for (auto iPoint = 0ul; iPoint < donor.Fine().GetnPoint(); ++iPoint) {
+      su2double Un[MAXVAR], Un1[MAXVAR];
+      field(0.0)(donor.Fine().nodes->GetCoord(iPoint), Un);
+      field(0.03)(donor.Fine().nodes->GetCoord(iPoint), Un1);
+      for (unsigned short iVar = 0; iVar < nDim + 2; ++iVar) {
+        donorNodes->GetSolution()(iPoint, iVar) = Un[iVar];
+        donorNodes->GetSolution_time_n()(iPoint, iVar) = Un[iVar];
+        donorNodes->GetSolution_time_n1()(iPoint, iVar) = Un1[iVar];
+      }
+    }
+    MeshSolution target(config.get(), BoxMesh(nDim, 9, true), 0);
+    CConservativeTransfer transfer;
+    {
+      Mute mute;
+      transfer.Transfer(config.get(), donor.Donor(), target.geometry, target.solver);
+    }
+    summary = transfer.GetSummary();
+    auto* fluidModel = target.solver[MESH_0][FLOW_SOL]->GetFluidModel();
+    auto* nodes = target.solver[MESH_0][FLOW_SOL]->GetNodes();
+    unsigned long bad = 0;
+    for (auto iPoint = 0ul; iPoint < target.Fine().GetnPoint(); ++iPoint) {
+      su2double U[MAXVAR], V[MAXVAR];
+      for (unsigned short iVar = 0; iVar < nDim + 2; ++iVar) {
+        U[iVar] = nodes->GetSolution(iPoint, iVar);
+        V[iVar] = nodes->GetSolution_time_n1()(iPoint, iVar);
+      }
+      bad += !CBarycentricTransfer::AdmissibleState(*fluidModel, nDim, U);
+      bad += !CBarycentricTransfer::AdmissibleState(*fluidModel, nDim, V);
+    }
+    nBad = CPassiveComm::AllreduceSum(bad);
+  };
+  CConservativeTransfer::Summary serial, parallel;
+  unsigned long nBadSerial = 0, nBad = 0;
+  Serial([&]() { run(serial, nBadSerial); });
+  run(parallel, nBad);
+  INFO("fixed " << parallel.nFlowFixed << " / " << parallel.nHistoryFixed << " (P = 1: " << serial.nFlowFixed << " / "
+                << serial.nHistoryFixed << ")");
+  CHECK(parallel.nFlowFixed + parallel.nHistoryFixed > 0);
+  CHECK(parallel.recoveryGathered);
+  CHECK(nBad == 0);
+  CHECK(nBadSerial == 0);
+  for (unsigned short f = 0; f < 2 * (nDim + 2); ++f) CHECK(std::fabs(parallel.relativeDefect[f]) < 1e-12);
+}
+
+/*------------------------------------------------------------------------------------------------------------------*/
 /*--- Collective errors: hidden tests (they stop the run), run by hand to check the message on 1..n ranks, e.g.   ---*/
 /*--- SU2_COLLECTIVE_ERROR_TESTS=1 mpirun -n 3 test_driver "[.CollectiveError][beyond]" (without the variable they do ---*/
 /*--- nothing: test specs made of exclusions only also select hidden tests).                                       ---*/
@@ -771,5 +1347,40 @@ TEST_CASE("Collective error: no admissible donor state", "[.CollectiveError][adm
   for (auto iPoint = 0ul; iPoint < donor.Fine().GetnPoint(); ++iPoint) flow->GetSolution()(iPoint, 3) = -1.0;
   MeshSolution target(config.get(), BoxMesh(2, 6, true), 0);
   CBarycentricTransfer transfer;
+  transfer.Transfer(config.get(), donor.Donor(), target.geometry, target.solver);
+}
+
+TEST_CASE("Collective error: conservative nonfinite donor value", "[.CollectiveError][nonfinite]") {
+  if (!CollectiveErrorTests()) return;
+  auto config = MakeConfig(2, "SOLVER= EULER\n");
+  MeshSolution donor(config.get(), BoxMesh(2, 4, true), 0);
+  SetFields(donor, 2, true, Turb::NONE);
+  if (SU2_MPI::GetRank() == SU2_MPI::GetSize() - 1 && donor.Fine().GetnPointDomain() > 0)
+    donor.solver[MESH_0][FLOW_SOL]->GetNodes()->GetSolution()(0, 0) = std::numeric_limits<passivedouble>::quiet_NaN();
+  MeshSolution target(config.get(), BoxMesh(2, 6, true), 0);
+  CConservativeTransfer transfer;
+  transfer.Transfer(config.get(), donor.Donor(), target.geometry, target.solver);
+}
+
+TEST_CASE("Collective error: conservative memory ceiling", "[.CollectiveError][ceiling]") {
+  if (!CollectiveErrorTests()) return;
+  auto config = MakeConfig(2, "SOLVER= EULER\n");
+  MeshSolution donor(config.get(), BoxMesh(2, 4, true), 0);
+  SetFields(donor, 2, true, Turb::NONE);
+  MeshSolution target(config.get(), BoxMesh(2, 6, true), 0);
+  SetTransferMemoryCeiling(20000);
+  CConservativeTransfer transfer;
+  transfer.Transfer(config.get(), donor.Donor(), target.geometry, target.solver);
+}
+
+TEST_CASE("Collective error: BOUNDARY sliver rule with more than one rank", "[.CollectiveError][boundary]") {
+  if (!CollectiveErrorTests()) return;
+  auto config = MakeConfig(2, "SOLVER= EULER\n");
+  MeshSolution donor(config.get(), BoxMesh(2, 4, true), 0);
+  SetFields(donor, 2, true, Turb::NONE);
+  MeshSolution target(config.get(), BoxMesh(2, 6, true), 0);
+  CConservativeProjection::Options options;
+  options.sliverRule = CConservativeProjection::SliverRule::BOUNDARY;
+  CConservativeTransfer transfer(options);
   transfer.Transfer(config.get(), donor.Donor(), target.geometry, target.solver);
 }
