@@ -1,9 +1,10 @@
 /*!
  * \file AdaptationMPI_tests.cpp
  * \brief Mesh adaptation with MPI: gather of the partitioned mesh and of point values, scatter, broadcast, halo
- *        exchange; the extracted and remeshed mesh, the solution transfers and the corner metric compared with the
- *        serial computation (every rank alone, MPI_COMM_SELF) in the same run. Valid with any number of ranks, e.g.
- *        mpirun -n 2 test_driver "[AdaptationMPI]".
+ *        exchange; the reader slices of a complete mesh (the reader arrays and the geometry bitwise those of the
+ *        complete mesh, the metric of the new points); the extracted and remeshed mesh, the solution transfers and the
+ *        corner metric compared with the serial computation (every rank alone, MPI_COMM_SELF) in the same run. Valid
+ *        with any number of ranks, e.g. mpirun -n 2 test_driver "[AdaptationMPI]".
  * \version 8.5.0 "Harrier"
  *
  * SU2 Project Website: https://su2code.github.io
@@ -35,6 +36,9 @@
 #include "TransferTestCase.hpp"
 #include "../../../Common/include/adaptation/CMMGInterface.hpp"
 #include "../../../Common/include/adaptation/CMeshGather.hpp"
+#include "../../../Common/include/adaptation/CReaderSlices.hpp"
+#include "../../../Common/include/geometry/meshreader/CDistributedMemoryMeshReaderFVM.hpp"
+#include "../../../Common/include/parallelization/CPassiveComm.hpp"
 #include "../../../Common/include/linear_algebra/blas_structure.hpp"
 #include "../../../SU2_CFD/include/adaptation/CBarycentricTransfer.hpp"
 #include "../../../SU2_CFD/include/adaptation/CConservativeTransfer.hpp"
@@ -168,6 +172,77 @@ void SetDonorFields(MeshSolution& donor, unsigned short nDim, bool affine) {
     if (turb->GetSolution_time_n().rows() > 0) turb->GetSolution_time_n()(iPoint, 0) = nu;
     if (turb->GetSolution_time_n1().rows() > 0) turb->GetSolution_time_n1()(iPoint, 0) = 1.1 * nu;
   }
+}
+
+/*--- The arrays of two mesh readers are bitwise equal (points, volume rows, marker names, boundary rows). ---*/
+bool SameReaderArrays(const CMeshReaderBase& a, const CMeshReaderBase& b) {
+  bool same = a.GetDimension() == b.GetDimension() && a.GetNumberOfGlobalPoints() == b.GetNumberOfGlobalPoints() &&
+              a.GetNumberOfLocalPoints() == b.GetNumberOfLocalPoints() &&
+              a.GetLocalPointCoordinates() == b.GetLocalPointCoordinates() &&
+              a.GetNumberOfGlobalElements() == b.GetNumberOfGlobalElements() &&
+              a.GetNumberOfLocalElements() == b.GetNumberOfLocalElements() &&
+              a.GetLocalVolumeElementConnectivity() == b.GetLocalVolumeElementConnectivity() &&
+              a.GetNumberOfMarkers() == b.GetNumberOfMarkers() && a.GetMarkerNames() == b.GetMarkerNames();
+  for (unsigned long iMarker = 0; same && iMarker < a.GetNumberOfMarkers(); ++iMarker) {
+    same = a.GetSurfaceElementConnectivityForMarker(iMarker) == b.GetSurfaceElementConnectivityForMarker(iMarker);
+  }
+  return same;
+}
+
+/*--- The slices of this rank are those a reader of the complete mesh builds, with the metric of the slice's points
+ *    and the markers that have elements. ---*/
+bool SlicesOfComplete(const CConfig& config, const CReaderSlices& slices, const CSimplexMesh& complete) {
+  const CMemoryMeshReaderFVM reference(&config, complete, 0, 1);
+  const CDistributedMemoryMeshReaderFVM reader(&config, slices, 0, 1);
+  bool same = SameReaderArrays(reader, reference);
+  const auto nMet = complete.metric.empty() ? 0 : CSimplexMesh::GetnMetric(complete.nDim);
+  same &= slices.nMetric == nMet;
+  same &= slices.metric == std::vector<passivedouble>(complete.metric.begin() + slices.firstPoint * nMet,
+                                                      complete.metric.begin() +
+                                                          (slices.firstPoint + slices.nPointLocal) * nMet);
+  std::vector<std::string> withElements;
+  for (const auto& marker : complete.markers)
+    if (!marker.elem.empty()) withElements.push_back(marker.name);
+  return same && slices.markersWithElements == withElements;
+}
+
+/*--- Partitioned geometry (finest level only) from a reader. ---*/
+CGeometry** BuildGeometry(CConfig& config, CMeshReaderBase& reader) {
+  Mute mute;
+  config.SetMGLevels(0);
+  CGeometry** geometry = nullptr;
+  CDriver::BuildGeometryFVM(&config, new CPhysicalGeometry(&config, reader, 1), geometry, true);
+  return geometry;
+}
+void DeleteGeometry(const CConfig& config, CGeometry** geometry) {
+  for (unsigned short iMesh = 0; iMesh <= config.GetnMGLevels(); ++iMesh) delete geometry[iMesh];
+  delete[] geometry;
+}
+
+/*--- Two partitioned geometries are bitwise equal on this rank: points (global index, coordinates, domain flag),
+ *    elements (type, global nodes), markers (boundary elements, global nodes). ---*/
+bool SameGeometry(const CGeometry& a, const CGeometry& b) {
+  bool same = a.GetnPoint() == b.GetnPoint() && a.GetnPointDomain() == b.GetnPointDomain() &&
+              a.GetnElem() == b.GetnElem() && a.GetnMarker() == b.GetnMarker() && a.GetnDim() == b.GetnDim();
+  for (auto iPoint = 0ul; same && iPoint < a.GetnPoint(); ++iPoint) {
+    same = a.nodes->GetGlobalIndex(iPoint) == b.nodes->GetGlobalIndex(iPoint) &&
+           a.nodes->GetDomain(iPoint) == b.nodes->GetDomain(iPoint);
+    for (unsigned short iDim = 0; same && iDim < a.GetnDim(); ++iDim)
+      same = a.nodes->GetCoord(iPoint, iDim) == b.nodes->GetCoord(iPoint, iDim);
+  }
+  auto sameElement = [&](const CPrimalGrid* x, const CPrimalGrid* y) {
+    bool ok = x->GetVTK_Type() == y->GetVTK_Type() && x->GetnNodes() == y->GetnNodes();
+    for (unsigned short iNode = 0; ok && iNode < x->GetnNodes(); ++iNode)
+      ok = a.nodes->GetGlobalIndex(x->GetNode(iNode)) == b.nodes->GetGlobalIndex(y->GetNode(iNode));
+    return ok;
+  };
+  for (auto iElem = 0ul; same && iElem < a.GetnElem(); ++iElem) same = sameElement(a.elem[iElem], b.elem[iElem]);
+  for (unsigned short iMarker = 0; same && iMarker < a.GetnMarker(); ++iMarker) {
+    same = a.GetnElem_Bound(iMarker) == b.GetnElem_Bound(iMarker);
+    for (auto iElem = 0ul; same && iElem < a.GetnElem_Bound(iMarker); ++iElem)
+      same = sameElement(a.bound[iMarker][iElem], b.bound[iMarker][iElem]);
+  }
+  return same;
 }
 
 }  // namespace
@@ -527,4 +602,71 @@ TEST_CASE("MPI adaptation: corner metric across the partitions", "[AdaptationMPI
   CHECK(checks[0] < 1e-10);
   CHECK(checks[1] <= 1 + 1e-6);
   CHECK(checks[1] > 0.5);
+}
+
+TEST_CASE("MPI adaptation: reader slices of a complete mesh", "[AdaptationMPI]") {
+  /*--- A complete mesh with a metric given on the master rank only: every rank's slices are the arrays of a reader of
+   *    the complete mesh (bitwise), the partitioned geometry built from them is bitwise the one built from the
+   *    complete mesh, and each rank fetches the metric of its points (domain and halo) by global index. Also with
+   *    rounds of a few hundred bytes (the slices sent in many chunks), and with a marker without elements. ---*/
+  for (const unsigned short nDim : {2, 3}) {
+    for (const size_t roundBytes : {CPassiveComm::DEFAULT_ROUND_BYTES, size_t(300)}) {
+      SECTION("nDim " + std::to_string(nDim) + ", round size " + std::to_string(roundBytes)) {
+        auto complete = BoxMesh(nDim, 4, true);
+        const auto nMet = CSimplexMesh::GetnMetric(nDim);
+        complete.metric.resize(complete.GetnPoint() * nMet);
+        for (auto iPoint = 0ul; iPoint < complete.GetnPoint(); ++iPoint) {
+          su2double x[3] = {0.0, 0.0, 0.0}, metric[6];
+          for (unsigned short iDim = 0; iDim < nDim; ++iDim) x[iDim] = complete.coord[iPoint * nDim + iDim];
+          AnalyticMetric(nDim, x, metric);
+          for (unsigned short iMet = 0; iMet < nMet; ++iMet)
+            complete.metric[iPoint * nMet + iMet] = SU2_TYPE::GetValue(metric[iMet]);
+        }
+        auto config = MakeConfig(nDim, "SOLVER= EULER\n");
+        const auto saved = CPassiveComm::GetRoundBytes();
+        CPassiveComm::SetRoundBytes(roundBytes);
+        const auto slices = CReaderSlices::FromComplete(IsRoot() ? complete : CSimplexMesh(), MASTER_NODE);
+
+        /*--- A named marker without elements: listed, but not with the markers that have elements. ---*/
+        auto withEmpty = complete;
+        withEmpty.markers.insert(withEmpty.markers.begin() + 1, CSimplexMesh::Marker());
+        withEmpty.markers[1].name = "unused_marker";
+        const auto emptySlices = CReaderSlices::FromComplete(IsRoot() ? withEmpty : CSimplexMesh(), MASTER_NODE);
+        CPassiveComm::SetRoundBytes(saved);
+
+        CHECK(GlobalMax(SlicesOfComplete(*config, slices, complete) ? 0.0 : 1.0) == 0.0);
+        CHECK(GlobalMax(SlicesOfComplete(*config, emptySlices, withEmpty) ? 0.0 : 1.0) == 0.0);
+        CHECK(emptySlices.markerNames.size() == withEmpty.markers.size());
+        CHECK(emptySlices.markersWithElements.size() == withEmpty.markers.size() - 1);
+        unsigned long nBoundaryRows = 0;
+        for (const auto& rows : slices.boundaryRows) nBoundaryRows += rows.size();
+        CHECK((IsRoot() || nBoundaryRows == 0));
+
+        /*--- The geometry: bitwise equal; the metric of every local point. ---*/
+        CMemoryMeshReaderFVM reference(config.get(), complete, 0, 1);
+        auto** expected = BuildGeometry(*config, reference);
+        CDistributedMemoryMeshReaderFVM reader(config.get(), slices, 0, 1);
+        auto** geometry = BuildGeometry(*config, reader);
+        CHECK(GlobalMax(SameGeometry(*geometry[MESH_0], *expected[MESH_0]) ? 0.0 : 1.0) == 0.0);
+
+        const auto& fine = *geometry[MESH_0];
+        const auto metric = slices.FetchPointMetric(fine);
+        bool fetched = metric.size() == fine.GetnPoint() * nMet;
+        for (auto iPoint = 0ul; fetched && iPoint < fine.GetnPoint(); ++iPoint)
+          for (unsigned short iMet = 0; iMet < nMet; ++iMet)
+            fetched &= metric[iPoint * nMet + iMet] == complete.metric[fine.nodes->GetGlobalIndex(iPoint) * nMet + iMet];
+        CHECK(GlobalMax(fetched ? 0.0 : 1.0) == 0.0);
+
+        /*--- Without a metric: nothing to fetch (all ranks). ---*/
+        auto noMetric = complete;
+        noMetric.metric.clear();
+        const auto plain = CReaderSlices::FromComplete(IsRoot() ? noMetric : CSimplexMesh(), MASTER_NODE);
+        CHECK(plain.nMetric == 0);
+        CHECK(plain.FetchPointMetric(fine).empty());
+
+        DeleteGeometry(*config, geometry);
+        DeleteGeometry(*config, expected);
+      }
+    }
+  }
 }
