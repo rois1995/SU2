@@ -32,6 +32,7 @@
 #include <vector>
 
 #include "CSolutionTransfer.hpp"
+#include "../../../Common/include/adaptation/CSimplexMesh.hpp"
 #include "../../../Common/include/adt/CADTElemClass.hpp"
 #include "../../../Common/include/option_structure.hpp"
 
@@ -79,6 +80,14 @@ class CBarycentricLocator {
    */
   explicit CBarycentricLocator(const CGeometry& geometry, const std::vector<std::string>& markerTags = {},
                                su2double absoluteLimit = 0.0);
+
+  /*!
+   * \brief Build the search structures of a mesh given as arrays (e.g. the whole mesh gathered on one rank).
+   * \param[in] mesh - Points, triangles (2D) or tetrahedra (3D), boundary elements by marker name (markers with an
+   *            empty name take part in Locate, not in LocateOnBoundary).
+   * \param[in] absoluteLimit - Distance accepted outside the mesh at any face size (see the class note).
+   */
+  explicit CBarycentricLocator(const CSimplexMesh& mesh, su2double absoluteLimit = 0.0);
 
   /*!
    * \brief Locate a point: the element that contains it, else the closest point of the nearest boundary face.
@@ -130,6 +139,9 @@ class CBarycentricLocator {
   static constexpr passivedouble domainFraction = 1e-3; /*!< \brief Fraction of the domain size always accepted. */
 
  private:
+  /*--- Search structures of the mesh. ---*/
+  void Build(const CSimplexMesh& mesh);
+
   /*--- Closest point of the face nearest to a point, in one face ADT. ---*/
   Stencil ClosestFace(const su2double* coord, CADTElemClass& adt, const std::vector<unsigned long>& conn) const;
 
@@ -148,7 +160,13 @@ class CBarycentricLocator {
 /*!
  * \class CBarycentricTransfer
  * \brief Transfer of the solution of the compressible flow (EULER, NAVIER_STOKES, RANS with SA or SST) by barycentric
- *        (P1) interpolation of the donor solution at each point of the new mesh. Single rank for now.
+ *        (P1) interpolation of the donor solution at each point of the new mesh.
+ * \note MPI: both meshes (finest grids) and the donor solution are gathered on the master rank in the global numbering
+ *       of the meshes (CMeshGather: points, simplices, boundary elements by marker name, control volumes), the
+ *       interpolation below runs there on the complete meshes, and the new values go back to the ranks that own the
+ *       points; the halo points and the coarse levels follow as after a restart. The result does not depend on the
+ *       number of ranks (up to the round-off of the donor solution itself). Memory: the master rank holds both meshes
+ *       and the fields (the donor mesh is gathered for MMG anyway); a distributed point location would avoid it.
  * \note Rules:
  *       - Stencils (CBarycentricLocator): a point on a marker of the new mesh takes the closest point of the donor faces
  *         of the marker(s) with the same name, whether it lies inside or outside the donor mesh: boundary states come
@@ -257,6 +275,10 @@ class CBarycentricTransfer final : public CSolutionTransfer {
                               su2double turbKineticEnergy = 0.0);
 
  private:
+  /*--- The counts, distances, volumes and integrals of the summary from the master rank to all ranks (the per-marker
+   *    statistics and the round trip stay on the master rank). ---*/
+  void BroadcastSummary();
+
   bool roundTripCheck;
   Summary summary;
 };

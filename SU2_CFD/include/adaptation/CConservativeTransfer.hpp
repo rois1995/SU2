@@ -39,7 +39,8 @@ class CFluidModel;
  * \class CConservativeProjection
  * \brief Conservative P1 projection of nodal fields from a simplex mesh (donor) to another one (target), with the
  *        median-dual control volumes of SU2 as the conserved cells. Port of the user's Python ConservativeP1_Fun.py
- *        (InterpMethod "Conservative", simplices), adapted to SU2. Single rank, triangles (2D) or tetrahedra (3D).
+ *        (InterpMethod "Conservative", simplices), adapted to SU2. Serial (complete meshes on one rank), triangles
+ *        (2D) or tetrahedra (3D).
  * \note Method. The donor nodal values u^A define the continuous P1 field u_h^A. The target nodal values u^B solve,
  *       for every target control volume C_j (the median-dual cell of node j),
  *         integral over C_j of u_h^B = integral over C_j of u_h^A,   i.e.   M u^B = S,
@@ -137,6 +138,14 @@ class CConservativeProjection {
   CConservativeProjection(const CGeometry& donor, const std::vector<std::string>& donorTags, const CGeometry& target,
                           const std::vector<std::string>& targetTags, const Options& options);
 
+  /*!
+   * \brief Projection between two meshes given as arrays (e.g. the whole meshes gathered on one rank).
+   * \param[in] donor - Donor mesh with its control volumes (CSimplexMesh::volume) and markers by name.
+   * \param[in] target - New mesh with its control volumes and markers by name.
+   * \param[in] options - Options.
+   */
+  CConservativeProjection(const CSimplexMesh& donor, const CSimplexMesh& target, const Options& options);
+
   ~CConservativeProjection();
 
   /*!
@@ -205,7 +214,6 @@ class CConservativeProjection {
   std::vector<std::string> donorNames;
 
   /*--- Target. ---*/
-  const CGeometry& targetGeometry;
   unsigned long nPointT = 0, nElemT = 0;
   std::vector<passivedouble> coordT, volElemT, cvT, rowVolume;
   std::vector<unsigned long> elemT;
@@ -258,6 +266,13 @@ class CConservativeProjection {
  *         for 2nd-order dual time stepping only (the same supermesh, one pass for all arrays), else
  *         Solution_time_n1 = U^n.
  *       - Then, as after loading a restart: primitive variables, eddy viscosity, coarse multigrid levels.
+ *       - MPI: both meshes (finest grids, with SU2's control volumes) and the donor fields are gathered on the master
+ *         rank in the global numbering of the meshes (CMeshGather), the projection, wall fix, limiter and recovery run
+ *         there on the complete meshes (one supermesh, one solve, exact totals), and the final values go back to the
+ *         ranks that own the points. The totals are those of the serial transfer (up to the round-off of the control
+ *         volumes and of the donor solution). Memory: the master rank holds both meshes, the fields and the supermesh
+ *         work arrays; a distributed supermesh (overlaps of each rank's new elements with the donor elements sent to
+ *         it, a parallel CG and global sums in the limiter) is the scalable path.
  *       - Derivatives: the field values stay active (su2double) through the projection, the limiter, the wall fix and
  *         the recovery; the geometry, the supermesh and the mass matrix are passive, and the linear solve gives
  *         x' = M^-1 b' for the derivatives. So forward-mode derivatives (DIRECT_DIFF) of the solution and of its time
@@ -297,6 +312,10 @@ class CConservativeTransfer final : public CSolutionTransfer {
   const Summary& GetSummary() const { return summary; }
 
  private:
+  /*--- The counts, distances, integrals and defects of the summary from the master rank to all ranks (the rest of the
+   *    projection summary stays on the master rank). ---*/
+  void BroadcastSummary();
+
   CConservativeProjection::Options options;
   Summary summary;
 };

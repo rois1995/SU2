@@ -100,7 +100,7 @@ class CSolutionTransfer {
   };
 
   /*!
-   * \brief Check that the problem is supported (compressible flow, SA or SST, one rank, static mesh) and that the
+   * \brief Check that the problem is supported (compressible flow, SA or SST, static mesh) and that the
    *        donor and the new mesh have the same solvers and arrays; in the time domain, that the donor solution and
    *        Solution_time_n are the same state (the transfer is done at the end of a time step).
    * \param[in] name - Name of the transfer for the messages.
@@ -109,8 +109,9 @@ class CSolutionTransfer {
                                      CGeometry** geometry, CSolver*** solver);
 
   /*!
-   * \brief As after loading a restart file: old solution, communication, primitive variables, eddy viscosity,
-   *        restriction to the coarse levels, and the restriction of the time history.
+   * \brief As after loading a restart file: communication (the transfers set the domain points), old solution,
+   *        primitive variables, eddy viscosity, restriction to the coarse levels, and the restriction of the time
+   *        history.
    */
   static void FinishTransfer(CConfig* config, CGeometry** geometry, CSolver*** solver, const TransferArrays& arrays);
 };

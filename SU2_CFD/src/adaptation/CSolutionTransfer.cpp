@@ -35,11 +35,8 @@ CSolutionTransfer::TransferArrays CSolutionTransfer::CheckProblem(const std::str
                                                                   CSolver*** solver) {
   TransferArrays arrays;
 
-  /*--- Supported problems: compressible flow, SA or SST, one rank. ---*/
+  /*--- Supported problems: compressible flow, SA or SST. ---*/
 
-  if (SU2_MPI::GetSize() > 1) {
-    SU2_MPI::Error("The " + name + " solution transfer is only available on one rank for now.", CURRENT_FUNCTION);
-  }
   const auto kindSolver = config->GetKind_Solver();
   if (kindSolver != MAIN_SOLVER::EULER && kindSolver != MAIN_SOLVER::NAVIER_STOKES && kindSolver != MAIN_SOLVER::RANS) {
     SU2_MPI::Error(
@@ -143,7 +140,12 @@ void CSolutionTransfer::FinishTransfer(CConfig* config, CGeometry** geometry, CS
    *    order of the restart, the turbulence solver updates the flow primitives). The old solution is the new one, the
    *    flow preprocessing would otherwise reset non-physical points to the free-stream state of the constructor. ---*/
 
-  for (const auto iSol : arrays.solverIndices) solver[MESH_0][iSol]->Set_OldSolution();
+  /*--- The transfers set the domain points; the halo points get their values before the old solution is set. ---*/
+  for (const auto iSol : arrays.solverIndices) {
+    solver[MESH_0][iSol]->InitiateComms(geometry[MESH_0], config, MPI_QUANTITIES::SOLUTION);
+    solver[MESH_0][iSol]->CompleteComms(geometry[MESH_0], config, MPI_QUANTITIES::SOLUTION);
+    solver[MESH_0][iSol]->Set_OldSolution();
+  }
 
   for (const auto iSol : arrays.solverIndices) {
     auto* sol = solver[MESH_0][iSol];

@@ -35,6 +35,7 @@
 #include <sstream>
 
 #include "../../../Common/include/CConfig.hpp"
+#include "../../../Common/include/adaptation/CMeshGather.hpp"
 #include "../../../Common/include/geometry/CGeometry.hpp"
 #include "../../include/fluid/CFluidModel.hpp"
 #include "../../include/solvers/CSolver.hpp"
@@ -137,36 +138,38 @@ void ClosestPointTriangle(const su2double* a, const su2double* b, const su2doubl
 
 bool IsFinite(su2double value) { return std::isfinite(SU2_TYPE::GetValue(value)); }
 
-/*--- Volume of the domain (control volumes of the domain points) and integral of each solution variable. ---*/
-void Integrals(CGeometry& geometry, CSolver& solver, su2double& volume, std::vector<su2double>& integral) {
-  const auto nVar = solver.GetnVar();
-  const auto& solution = solver.GetNodes()->GetSolution();
+/*--- Volume of a mesh (sum of its control volumes) and integral of the first nVar fields (point-major values with
+ *    nField per point). ---*/
+void Integrals(const CSimplexMesh& mesh, const std::vector<su2double>& values, unsigned short nField,
+               unsigned short nVar, su2double& volume, std::vector<su2double>& integral) {
   volume = 0.0;
   integral.assign(nVar, 0.0);
-  for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint) {
-    const su2double vol = geometry.nodes->GetVolume(iPoint);
+  for (auto iPoint = 0ul; iPoint < mesh.GetnPoint(); ++iPoint) {
+    const su2double vol = mesh.volume[iPoint];
     volume += vol;
-    for (unsigned short iVar = 0; iVar < nVar; ++iVar) integral[iVar] += vol * solution(iPoint, iVar);
+    for (unsigned short iVar = 0; iVar < nVar; ++iVar) integral[iVar] += vol * values[iPoint * nField + iVar];
   }
 }
 
-/*--- Markers of each point of a geometry (indices into the marker names). ---*/
-std::vector<std::vector<unsigned short>> PointMarkers(const CGeometry& geometry, unsigned long nNames) {
-  std::vector<std::vector<unsigned short>> markers(geometry.GetnPoint());
-  for (unsigned short iMarker = 0; iMarker < geometry.GetnMarker() && iMarker < nNames; ++iMarker)
-    for (auto iVertex = 0ul; iVertex < geometry.GetnVertex(iMarker); ++iVertex)
-      markers[geometry.vertex[iMarker][iVertex]->GetNode()].push_back(iMarker);
+/*--- Marker names of each point of a mesh. ---*/
+std::vector<std::vector<std::string>> PointMarkers(const CSimplexMesh& mesh) {
+  std::vector<std::vector<std::string>> markers(mesh.GetnPoint());
+  for (const auto& marker : mesh.markers) {
+    for (const auto iPoint : marker.elem) {
+      auto& names = markers[iPoint];
+      if (std::find(names.begin(), names.end(), marker.name) == names.end()) names.push_back(marker.name);
+    }
+  }
   return markers;
 }
 
 /*--- Stencil of a point: the closest point of the donor boundary of its marker(s) if it is on a marker that the donor
  *    has, else the containing element or the closest point of the nearest donor boundary face. ---*/
 CBarycentricLocator::Stencil LocatePoint(CBarycentricLocator& locator, const su2double* x,
-                                         const std::vector<unsigned short>& markers,
                                          const std::vector<std::string>& names) {
   std::vector<std::string> known;
-  for (const auto iMarker : markers)
-    if (locator.HasMarker(names[iMarker])) known.push_back(names[iMarker]);
+  for (const auto& name : names)
+    if (locator.HasMarker(name)) known.push_back(name);
   return known.empty() ? locator.Locate(x) : locator.LocateOnBoundary(x, known);
 }
 
@@ -175,18 +178,32 @@ CBarycentricLocator::Stencil LocatePoint(CBarycentricLocator& locator, const su2
 CBarycentricLocator::CBarycentricLocator(const CGeometry& geometry, const std::vector<std::string>& markerTags,
                                          su2double absoluteLimit)
     : nDim(geometry.GetnDim()), absoluteLimit(absoluteLimit) {
+  /*--- The mesh of this rank (all its points); markers without a name only take part in Locate. ---*/
+  auto tags = markerTags;
+  tags.resize(std::max<size_t>(tags.size(), geometry.GetnMarker()), "");
+  Build(CMeshGather::LocalMesh(geometry, tags, false));
+}
+
+CBarycentricLocator::CBarycentricLocator(const CSimplexMesh& mesh, su2double absoluteLimit)
+    : nDim(mesh.nDim), absoluteLimit(absoluteLimit) {
+  Build(mesh);
+}
+
+void CBarycentricLocator::Build(const CSimplexMesh& mesh) {
+  if (nDim != 2 && nDim != 3) SU2_MPI::Error("The solution transfer needs a 2D or 3D mesh.", CURRENT_FUNCTION);
   const unsigned short elemType = (nDim == 2) ? TRIANGLE : TETRAHEDRON;
   const unsigned short faceType = (nDim == 2) ? LINE : TRIANGLE;
+  const auto nPoint = mesh.GetnPoint();
 
-  coord.resize(geometry.GetnPoint() * nDim);
+  coord.resize(nPoint * nDim);
   su2double xMin[3] = {}, xMax[3] = {};
   for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
     xMin[iDim] = std::numeric_limits<passivedouble>::max();
     xMax[iDim] = std::numeric_limits<passivedouble>::lowest();
   }
-  for (auto iPoint = 0ul; iPoint < geometry.GetnPoint(); ++iPoint) {
+  for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
     for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
-      const su2double x = geometry.nodes->GetCoord(iPoint, iDim);
+      const su2double x = mesh.coord[iPoint * nDim + iDim];
       coord[iPoint * nDim + iDim] = x;
       xMin[iDim] = min(xMin[iDim], x);
       xMax[iDim] = max(xMax[iDim], x);
@@ -197,36 +214,20 @@ CBarycentricLocator::CBarycentricLocator(const CGeometry& geometry, const std::v
 
   /*--- Elements. The weights of the ADT are in the order of these nodes. ---*/
 
-  for (auto iElem = 0ul; iElem < geometry.GetnElem(); ++iElem) {
-    const auto* elem = geometry.elem[iElem];
-    if (elem->GetVTK_Type() != elemType) {
-      SU2_MPI::Error("The solution transfer needs a mesh of triangles (2D) or tetrahedra (3D).", CURRENT_FUNCTION);
-    }
-    for (unsigned short iNode = 0; iNode <= nDim; ++iNode) elemConn.push_back(elem->GetNode(iNode));
-  }
+  elemConn = mesh.elem;
   if (elemConn.empty()) SU2_MPI::Error("The mesh has no elements.", CURRENT_FUNCTION);
 
-  /*--- Faces of all markers, and of each marker name (send/receive markers have vertex elements, they are not
-   *    boundaries). ---*/
+  /*--- Faces of all markers, and of each marker name. ---*/
 
-  for (unsigned short iMarker = 0; iMarker < geometry.GetnMarker(); ++iMarker) {
+  for (const auto& marker : mesh.markers) {
     std::vector<unsigned long>* named = nullptr;
-    if (iMarker < markerTags.size()) {
-      const auto it = markerIndex.emplace(markerTags[iMarker], markerFaceConn.size()).first;
+    if (!marker.name.empty()) {
+      const auto it = markerIndex.emplace(marker.name, markerFaceConn.size()).first;
       if (it->second == markerFaceConn.size()) markerFaceConn.emplace_back();
       named = &markerFaceConn[it->second];
     }
-    for (auto iElem = 0ul; iElem < geometry.GetnElem_Bound(iMarker); ++iElem) {
-      const auto* face = geometry.bound[iMarker][iElem];
-      if (face->GetVTK_Type() == VERTEX) continue;
-      if (face->GetVTK_Type() != faceType) {
-        SU2_MPI::Error("The solution transfer needs boundary lines (2D) or triangles (3D).", CURRENT_FUNCTION);
-      }
-      for (unsigned short iNode = 0; iNode < nDim; ++iNode) {
-        faceConn.push_back(face->GetNode(iNode));
-        if (named) named->push_back(face->GetNode(iNode));
-      }
-    }
+    faceConn.insert(faceConn.end(), marker.elem.begin(), marker.elem.end());
+    if (named) named->insert(named->end(), marker.elem.begin(), marker.elem.end());
   }
   if (faceConn.empty()) SU2_MPI::Error("The mesh has no boundary faces.", CURRENT_FUNCTION);
 
@@ -244,7 +245,7 @@ CBarycentricLocator::CBarycentricLocator(const CGeometry& geometry, const std::v
   elemADT = MakeADT(elemConn, elemType, nDim + 1);
   faceADT = MakeADT(faceConn, faceType, nDim);
 
-  /*--- Marker names without faces (e.g. send/receive) are not boundaries. ---*/
+  /*--- Marker names without faces are not boundaries. ---*/
   for (auto it = markerIndex.begin(); it != markerIndex.end();) {
     if (markerFaceConn[it->second].empty()) {
       it = markerIndex.erase(it);
@@ -400,100 +401,11 @@ void CBarycentricTransfer::Transfer(CConfig* config, const CMeshDonor& donor, CG
   auto* donorGeometry = donor.geometry[MESH_0];
   auto* newGeometry = geometry[MESH_0];
   const auto nDim = newGeometry->GetnDim();
-  const auto nPoint = newGeometry->GetnPoint();
-
-  /*--- Donor points and weights of each new point. Marker names: the config describes the new mesh, the donor carries
-   *    its own names. Distances are accepted up to the limit of the locator, with 2 ADAP_HAUSD as the tolerance of
-   *    the remesher's boundary approximation. ---*/
-
-  std::vector<std::string> newTags;
-  for (unsigned short iMarker = 0; iMarker < newGeometry->GetnMarker(); ++iMarker)
-    newTags.push_back(config->GetMarker_All_TagBound(iMarker));
-  const auto newPointMarkers = PointMarkers(*newGeometry, newTags.size());
-
-  std::vector<CBarycentricLocator::Stencil> stencils(nPoint);
-  {
-    CBarycentricLocator locator(*donorGeometry, donor.markerTags, 2.0 * config->GetAdap_Hausd());
-    summary.distanceLimit = locator.GetDistanceLimit(0.0);
-
-    /*--- Statistics per marker of the new mesh (send/receive markers excluded), then the points on no marker. ---*/
-    std::vector<int> entry(newTags.size(), -1);
-    for (unsigned short iMarker = 0; iMarker < newTags.size(); ++iMarker) {
-      if (config->GetMarker_All_KindBC(iMarker) == SEND_RECEIVE) continue;
-      entry[iMarker] = summary.markers.size();
-      summary.markers.emplace_back();
-      summary.markers.back().name = newTags[iMarker];
-    }
-    summary.markers.emplace_back();
-    summary.markers.back().name = "(interior)";
-    const auto interior = summary.markers.size() - 1;
-    const su2double offTolerance = 1e-12 * locator.GetDomainSize();
-
-    unsigned long nBeyond = 0;
-    su2double worstRatio = 0.0;
-    CBarycentricLocator::Stencil worst;
-    unsigned long worstPoint = 0;
-
-    for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
-      stencils[iPoint] = LocatePoint(locator, newGeometry->nodes->GetCoord(iPoint), newPointMarkers[iPoint], newTags);
-      const auto& stencil = stencils[iPoint];
-      const su2double relDistance = stencil.onFace ? su2double(stencil.distance / stencil.faceSize) : su2double(0.0);
-      if (!stencil.inside) summary.nOutside++;
-      summary.maxDistance = max(summary.maxDistance, stencil.distance);
-      summary.maxRelDistance = max(summary.maxRelDistance, relDistance);
-      if (stencil.beyondLimit) {
-        nBeyond++;
-        const su2double ratio = stencil.distance / locator.GetDistanceLimit(stencil.faceSize);
-        if (ratio > worstRatio) {
-          worstRatio = ratio;
-          worst = stencil;
-          worstPoint = iPoint;
-        }
-      }
-
-      std::vector<unsigned long> entries;
-      for (const auto iMarker : newPointMarkers[iPoint])
-        if (entry[iMarker] >= 0) entries.push_back(entry[iMarker]);
-      if (entries.empty()) entries.push_back(interior);
-      for (const auto iEntry : entries) {
-        auto& stats = summary.markers[iEntry];
-        stats.nPoint++;
-        if (!stencil.inside) stats.nOutside++;
-        if (stencil.onFace && stencil.distance > offTolerance) {
-          stats.nOff++;
-          stats.maxDistance = max(stats.maxDistance, stencil.distance);
-          stats.sumDistance += stencil.distance;
-          stats.maxRelDistance = max(stats.maxRelDistance, relDistance);
-          stats.sumRelDistance += relDistance;
-          if (stencil.distance > stencil.faceSize) stats.nBeyondFace++;
-        }
-      }
-    }
-
-    if (nBeyond > 0) {
-      SU2_MPI::Error(std::to_string(nBeyond) + " points of the new mesh are farther from the donor mesh than accepted " +
-                         "(max(face size, 2 ADAP_HAUSD, 1e-3 x domain size)), the farthest is " +
-                         PointText(nDim, newGeometry->nodes->GetCoord(worstPoint)) + " at " +
-                         std::to_string(SU2_TYPE::GetValue(worst.distance)) + " from the donor boundary (nearest face " +
-                         std::to_string(SU2_TYPE::GetValue(worst.faceSize)) + " long, domain size " +
-                         std::to_string(SU2_TYPE::GetValue(locator.GetDomainSize())) +
-                         "). The two meshes do not describe the same domain (wrong mesh or units, or a boundary that "
-                         "was moved).",
-                     CURRENT_FUNCTION);
-    }
-  }
-  summary.nPoint = nPoint;
 
   auto* flowSolver = solver[MESH_0][FLOW_SOL];
-  auto* donorFlowSolver = donor.solver[MESH_0][FLOW_SOL];
   const bool hasTimeN = arrays.hasTimeN, hasTimeN1 = arrays.hasTimeN1;
   summary.interpolateTimeN1 = arrays.interpolateTimeN1;
   summary.nTimeLevels = hasTimeN + hasTimeN1;
-
-  /*--- Flow and turbulence of one time level, point by point: interpolated conservative flow variables; turbulence
-   *    variables within the bounds of the solver (SST: rho k and rho omega interpolated, divided by the interpolated
-   *    density). The complete state of the point must be admissible with the internal energy of the solver (SST
-   *    subtracts k); if not, the point takes the flow and turbulence states of one donor point. ---*/
 
   const auto nVarFlow = flowSolver->GetnVar();
   auto* fluidModel = flowSolver->GetFluidModel();
@@ -510,124 +422,266 @@ void CBarycentricTransfer::Transfer(CConfig* config, const CMeshDonor& donor, CG
   /*--- SST: CTurbSSTSolver is "Conservative" (rho k, rho omega) and its k enters the internal energy. ---*/
   const bool sst = turbSolver && TurbModelFamily(config->GetKind_Turb_Model()) == TURB_FAMILY::KW;
 
-  /*--- Turbulence value within the bounds of the solver; counted only beyond round-off. ---*/
-  auto Bounded = [&](unsigned short iVar, su2double value, bool count) {
-    const su2double lower = turbSolver->GetLowerLimit(iVar), upper = turbSolver->GetUpperLimit(iVar);
-    if (value < lower || value > upper) {
-      const su2double limit = (value < lower) ? lower : upper;
-      if (count && fabs(value - limit) > 1e-10 * fabs(limit)) summary.nTurbLimited++;
-      value = limit;
-    }
-    return value;
+  /*--- Fields of each point: per time level (U^n, and U^(n-1) for 2nd order) the flow and turbulence variables. ---*/
+  const unsigned short nLevel = summary.interpolateTimeN1 ? 2 : 1;
+  const unsigned short nPerLevel = nVarFlow + nVarTurb;
+  const unsigned short nField = nLevel * nPerLevel;
+  auto levelArray = [](CVariable* nodes, unsigned short iLevel) -> su2activematrix& {
+    return iLevel == 0 ? nodes->GetSolution() : nodes->GetSolution_time_n1();
   };
 
-  auto InterpolateLevel = [&](const su2activematrix& donorFlow, su2activematrix& newFlow,
-                              const su2activematrix* donorTurb, su2activematrix* newTurb, unsigned long& nFixed) {
-    su2double state[kMaxVar] = {}, turb[kMaxVar] = {};
-    for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
-      const auto& stencil = stencils[iPoint];
+  /*--- Both meshes and the donor solution on the master rank, in the global numbering of the meshes (CMeshGather),
+   *    where the serial interpolation below runs; the new values go back to the ranks that own the points. The
+   *    marker names: the config describes the new mesh, the donor carries its own names. ---*/
+
+  const auto gatherStart = SU2_MPI::Wtime();
+  std::vector<std::string> newTags;
+  for (unsigned short iMarker = 0; iMarker < newGeometry->GetnMarker(); ++iMarker)
+    newTags.push_back(config->GetMarker_All_TagBound(iMarker));
+  const CMeshGather donorGather(*donorGeometry), newGather(*newGeometry);
+  const auto donorMesh = donorGather.GatherMesh(*config, donor.markerTags, true);
+  const auto newMesh = newGather.GatherMesh(*config, newTags, true);
+  std::vector<su2double> donorValues;
+  {
+    const auto nPointDomain = donorGeometry->GetnPointDomain();
+    std::vector<su2double> local(nPointDomain * nField);
+    for (unsigned short iLevel = 0; iLevel < nLevel; ++iLevel) {
+      for (const auto iSol : solverIndices) {
+        const auto& values = levelArray(donor.solver[MESH_0][iSol]->GetNodes(), iLevel);
+        const unsigned short offset = iLevel * nPerLevel + (iSol == FLOW_SOL ? 0 : nVarFlow);
+        for (auto iPoint = 0ul; iPoint < nPointDomain; ++iPoint)
+          for (unsigned long iVar = 0; iVar < values.cols(); ++iVar)
+            local[iPoint * nField + offset + iVar] = values(iPoint, iVar);
+      }
+    }
+    donorValues = donorGather.Gather(local.data(), nField);
+  }
+  const auto gatherTime = SU2_MPI::Wtime() - gatherStart;
+
+  std::vector<su2double> newValues;
+  if (donorGather.IsRoot()) {
+    const auto nPoint = newMesh.GetnPoint();
+    const auto nPointDonor = donorMesh.GetnPoint();
+    newValues.assign(nPoint * nField, 0.0);
+    summary.nPoint = nPoint;
+
+    /*--- Donor points and weights of each new point. Distances are accepted up to the limit of the locator, with
+     *    2 ADAP_HAUSD as the tolerance of the remesher's boundary approximation. ---*/
+
+    const auto newPointMarkers = PointMarkers(newMesh);
+    std::vector<CBarycentricLocator::Stencil> stencils(nPoint);
+    {
+      CBarycentricLocator locator(donorMesh, 2.0 * config->GetAdap_Hausd());
+      summary.distanceLimit = locator.GetDistanceLimit(0.0);
+
+      /*--- Statistics per marker of the new mesh, then the points on no marker. ---*/
+      for (const auto& marker : newMesh.markers) {
+        summary.markers.emplace_back();
+        summary.markers.back().name = marker.name;
+      }
+      summary.markers.emplace_back();
+      summary.markers.back().name = "(interior)";
+      const auto interior = summary.markers.size() - 1;
+      const su2double offTolerance = 1e-12 * locator.GetDomainSize();
+
+      unsigned long nBeyond = 0;
+      su2double worstRatio = 0.0;
+      CBarycentricLocator::Stencil worst;
+      unsigned long worstPoint = 0;
+
+      for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
+        su2double x[3] = {0.0};
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) x[iDim] = newMesh.coord[iPoint * nDim + iDim];
+        stencils[iPoint] = LocatePoint(locator, x, newPointMarkers[iPoint]);
+        const auto& stencil = stencils[iPoint];
+        const su2double relDistance = stencil.onFace ? su2double(stencil.distance / stencil.faceSize) : su2double(0.0);
+        if (!stencil.inside) summary.nOutside++;
+        summary.maxDistance = max(summary.maxDistance, stencil.distance);
+        summary.maxRelDistance = max(summary.maxRelDistance, relDistance);
+        if (stencil.beyondLimit) {
+          nBeyond++;
+          const su2double ratio = stencil.distance / locator.GetDistanceLimit(stencil.faceSize);
+          if (ratio > worstRatio) {
+            worstRatio = ratio;
+            worst = stencil;
+            worstPoint = iPoint;
+          }
+        }
+
+        std::vector<unsigned long> entries;
+        for (const auto& name : newPointMarkers[iPoint]) {
+          for (auto iEntry = 0ul; iEntry < interior; ++iEntry)
+            if (summary.markers[iEntry].name == name) entries.push_back(iEntry);
+        }
+        if (entries.empty()) entries.push_back(interior);
+        for (const auto iEntry : entries) {
+          auto& stats = summary.markers[iEntry];
+          stats.nPoint++;
+          if (!stencil.inside) stats.nOutside++;
+          if (stencil.onFace && stencil.distance > offTolerance) {
+            stats.nOff++;
+            stats.maxDistance = max(stats.maxDistance, stencil.distance);
+            stats.sumDistance += stencil.distance;
+            stats.maxRelDistance = max(stats.maxRelDistance, relDistance);
+            stats.sumRelDistance += relDistance;
+            if (stencil.distance > stencil.faceSize) stats.nBeyondFace++;
+          }
+        }
+      }
+
+      if (nBeyond > 0) {
+        su2double x[3] = {0.0};
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) x[iDim] = newMesh.coord[worstPoint * nDim + iDim];
+        SU2_MPI::Error(std::to_string(nBeyond) +
+                           " points of the new mesh are farther from the donor mesh than accepted (max(face size, "
+                           "2 ADAP_HAUSD, 1e-3 x domain size)), the farthest is " +
+                           PointText(nDim, x) + " at " + std::to_string(SU2_TYPE::GetValue(worst.distance)) +
+                           " from the donor boundary (nearest face " +
+                           std::to_string(SU2_TYPE::GetValue(worst.faceSize)) + " long, domain size " +
+                           std::to_string(SU2_TYPE::GetValue(locator.GetDomainSize())) +
+                           "). The two meshes do not describe the same domain (wrong mesh or units, or a boundary "
+                           "that was moved).",
+                       CURRENT_FUNCTION);
+      }
+    }
+
+    /*--- Turbulence value within the bounds of the solver; counted only beyond round-off. ---*/
+    auto Bounded = [&](unsigned short iVar, su2double value, bool count) {
+      const su2double lower = turbSolver->GetLowerLimit(iVar), upper = turbSolver->GetUpperLimit(iVar);
+      if (value < lower || value > upper) {
+        const su2double limit = (value < lower) ? lower : upper;
+        if (count && fabs(value - limit) > 1e-10 * fabs(limit)) summary.nTurbLimited++;
+        value = limit;
+      }
+      return value;
+    };
+
+    /*--- Flow and turbulence of one time level, point by point: interpolated conservative flow variables; turbulence
+     *    variables within the bounds of the solver (SST: rho k and rho omega interpolated, divided by the
+     *    interpolated density). The complete state of the point must be admissible with the internal energy of the
+     *    solver (SST subtracts k); if not, the point takes the flow and turbulence states of one donor point. ---*/
+
+    auto InterpolateLevel = [&](unsigned short iLevel, unsigned long& nFixed) {
+      const unsigned short offset = iLevel * nPerLevel;
+      auto donorAt = [&](unsigned long jPoint, unsigned short iVar) {
+        return donorValues[jPoint * nField + offset + iVar];
+      };
+      su2double state[kMaxVar] = {}, turb[kMaxVar] = {};
+      for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
+        const auto& stencil = stencils[iPoint];
+        for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) {
+          state[iVar] = 0.0;
+          for (unsigned short k = 0; k < stencil.nPoint; ++k)
+            state[iVar] += stencil.weight[k] * donorAt(stencil.point[k], iVar);
+        }
+        for (unsigned short iVar = 0; iVar < nVarTurb; ++iVar) {
+          su2double value = 0.0;
+          for (unsigned short k = 0; k < stencil.nPoint; ++k) {
+            const auto jPoint = stencil.point[k];
+            value += stencil.weight[k] * (sst ? donorAt(jPoint, 0) : su2double(1.0)) * donorAt(jPoint, nVarFlow + iVar);
+          }
+          if (sst) value = (state[0] > 0.0) ? value / state[0] : su2double(0.0);
+          turb[iVar] = Bounded(iVar, value, true);
+        }
+
+        if (!AdmissibleState(*fluidModel, nDim, state, sst ? turb[0] : su2double(0.0))) {
+          /*--- Paired fallback: flow and turbulence states of the same donor point. ---*/
+          nFixed++;
+          int best = -1;
+          for (unsigned short k = 0; k < stencil.nPoint; ++k) {
+            if (best >= 0 && stencil.weight[k] <= stencil.weight[best]) continue;
+            const auto jPoint = stencil.point[k];
+            const su2double k0 = sst ? Bounded(0, donorAt(jPoint, nVarFlow), false) : su2double(0.0);
+            if (AdmissibleState(*fluidModel, nDim, &donorValues[jPoint * nField + offset], k0)) best = k;
+          }
+          if (best < 0) {
+            su2double x[3] = {0.0};
+            for (unsigned short iDim = 0; iDim < nDim; ++iDim) x[iDim] = newMesh.coord[iPoint * nDim + iDim];
+            SU2_MPI::Error("No admissible donor state (flow and turbulence) near the point " + PointText(nDim, x) + ".",
+                           CURRENT_FUNCTION);
+          }
+          const auto jPoint = stencil.point[best];
+          for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) state[iVar] = donorAt(jPoint, iVar);
+          for (unsigned short iVar = 0; iVar < nVarTurb; ++iVar)
+            turb[iVar] = Bounded(iVar, donorAt(jPoint, nVarFlow + iVar), false);
+        }
+        for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) newValues[iPoint * nField + offset + iVar] = state[iVar];
+        for (unsigned short iVar = 0; iVar < nVarTurb; ++iVar)
+          newValues[iPoint * nField + offset + nVarFlow + iVar] = turb[iVar];
+      }
+    };
+
+    /*--- U^n, once; U^(n-1): 2nd order only (else U^n, below). ---*/
+    InterpolateLevel(0, summary.nFlowFixed);
+    if (summary.interpolateTimeN1) InterpolateLevel(1, summary.nHistoryFixed);
+
+    /*--- Conservation defects and round-trip difference (donor -> new -> donor) of the flow variables. ---*/
+
+    Integrals(donorMesh, donorValues, nField, nVarFlow, summary.donorVolume, summary.donorIntegral);
+    Integrals(newMesh, newValues, nField, nVarFlow, summary.newVolume, summary.newIntegral);
+
+    if (roundTripCheck) {
+      std::vector<su2double> minValue(nVarFlow, std::numeric_limits<passivedouble>::max());
+      std::vector<su2double> maxValue(nVarFlow, std::numeric_limits<passivedouble>::lowest());
+      for (auto iPoint = 0ul; iPoint < nPointDonor; ++iPoint) {
+        for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) {
+          minValue[iVar] = min(minValue[iVar], donorValues[iPoint * nField + iVar]);
+          maxValue[iVar] = max(maxValue[iVar], donorValues[iPoint * nField + iVar]);
+        }
+      }
+
+      summary.roundTripL2.assign(nVarFlow, 0.0);
+      summary.roundTripLinf.assign(nVarFlow, 0.0);
+      CBarycentricLocator locator(newMesh);
+      const auto donorPointMarkers = PointMarkers(donorMesh);
+      for (auto iPoint = 0ul; iPoint < nPointDonor; ++iPoint) {
+        su2double x[3] = {0.0};
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) x[iDim] = donorMesh.coord[iPoint * nDim + iDim];
+        const auto stencil = LocatePoint(locator, x, donorPointMarkers[iPoint]);
+        for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) {
+          su2double value = 0.0;
+          for (unsigned short k = 0; k < stencil.nPoint; ++k)
+            value += stencil.weight[k] * newValues[stencil.point[k] * nField + iVar];
+          const su2double diff = fabs(value - donorValues[iPoint * nField + iVar]);
+          summary.roundTripL2[iVar] += diff * diff;
+          summary.roundTripLinf[iVar] = max(summary.roundTripLinf[iVar], diff);
+        }
+      }
       for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) {
-        state[iVar] = 0.0;
-        for (unsigned short k = 0; k < stencil.nPoint; ++k)
-          state[iVar] += stencil.weight[k] * donorFlow(stencil.point[k], iVar);
+        su2double range = maxValue[iVar] - minValue[iVar];
+        if (!(range > 0.0)) range = max(fabs(maxValue[iVar]), su2double(1.0));
+        summary.roundTripL2[iVar] = sqrt(summary.roundTripL2[iVar] / max(nPointDonor, 1ul)) / range;
+        summary.roundTripLinf[iVar] /= range;
       }
-      for (unsigned short iVar = 0; iVar < nVarTurb; ++iVar) {
-        su2double value = 0.0;
-        for (unsigned short k = 0; k < stencil.nPoint; ++k) {
-          const auto jPoint = stencil.point[k];
-          value += stencil.weight[k] * (sst ? donorFlow(jPoint, 0) : su2double(1.0)) * (*donorTurb)(jPoint, iVar);
-        }
-        if (sst) value = (state[0] > 0.0) ? value / state[0] : su2double(0.0);
-        turb[iVar] = Bounded(iVar, value, true);
-      }
-
-      if (!AdmissibleState(*fluidModel, nDim, state, sst ? turb[0] : su2double(0.0))) {
-        /*--- Paired fallback: flow and turbulence states of the same donor point. ---*/
-        nFixed++;
-        int best = -1;
-        for (unsigned short k = 0; k < stencil.nPoint; ++k) {
-          if (best >= 0 && stencil.weight[k] <= stencil.weight[best]) continue;
-          const auto jPoint = stencil.point[k];
-          const su2double k0 = sst ? Bounded(0, (*donorTurb)(jPoint, 0), false) : su2double(0.0);
-          if (AdmissibleState(*fluidModel, nDim, donorFlow[jPoint], k0)) best = k;
-        }
-        if (best < 0) {
-          SU2_MPI::Error("No admissible donor state (flow and turbulence) near the point " +
-                             PointText(nDim, newGeometry->nodes->GetCoord(iPoint)) + ".",
-                         CURRENT_FUNCTION);
-        }
-        const auto jPoint = stencil.point[best];
-        for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) state[iVar] = donorFlow(jPoint, iVar);
-        for (unsigned short iVar = 0; iVar < nVarTurb; ++iVar) turb[iVar] = Bounded(iVar, (*donorTurb)(jPoint, iVar), false);
-      }
-      for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) newFlow(iPoint, iVar) = state[iVar];
-      for (unsigned short iVar = 0; iVar < nVarTurb; ++iVar) (*newTurb)(iPoint, iVar) = turb[iVar];
     }
-  };
+  }
 
-  auto* flowNodes = flowSolver->GetNodes();
-  auto* donorFlowNodes = donorFlowSolver->GetNodes();
-  auto* turbNodes = turbSolver ? solver[MESH_0][TURB_SOL]->GetNodes() : nullptr;
-  auto* donorTurbNodes = turbSolver ? donor.solver[MESH_0][TURB_SOL]->GetNodes() : nullptr;
+  /*--- The new values to the ranks that own the points: U^n into the solution (and Solution_time_n), U^(n-1) or U^n
+   *    into Solution_time_n1. ---*/
 
-  /*--- U^n, once. ---*/
-  InterpolateLevel(donorFlowNodes->GetSolution(), flowNodes->GetSolution(),
-                   turbSolver ? &donorTurbNodes->GetSolution() : nullptr, turbSolver ? &turbNodes->GetSolution() : nullptr,
-                   summary.nFlowFixed);
-
-  /*--- U^(n-1): 2nd order only, else U^n. ---*/
-  if (summary.interpolateTimeN1) {
-    InterpolateLevel(donorFlowNodes->GetSolution_time_n1(), flowNodes->GetSolution_time_n1(),
-                     turbSolver ? &donorTurbNodes->GetSolution_time_n1() : nullptr,
-                     turbSolver ? &turbNodes->GetSolution_time_n1() : nullptr, summary.nHistoryFixed);
+  const auto scatterStart = SU2_MPI::Wtime();
+  {
+    const auto nPointDomain = newGeometry->GetnPointDomain();
+    std::vector<su2double> local(nPointDomain * nField);
+    newGather.Scatter(newValues, nField, local.data());
+    for (unsigned short iLevel = 0; iLevel < nLevel; ++iLevel) {
+      for (const auto iSol : solverIndices) {
+        auto& values = levelArray(solver[MESH_0][iSol]->GetNodes(), iLevel);
+        const unsigned short offset = iLevel * nPerLevel + (iSol == FLOW_SOL ? 0 : nVarFlow);
+        for (auto iPoint = 0ul; iPoint < nPointDomain; ++iPoint)
+          for (unsigned long iVar = 0; iVar < values.cols(); ++iVar)
+            values(iPoint, iVar) = local[iPoint * nField + offset + iVar];
+      }
+    }
   }
   for (const auto iSol : solverIndices) {
     auto* nodes = solver[MESH_0][iSol]->GetNodes();
     if (hasTimeN) nodes->GetSolution_time_n() = nodes->GetSolution();
     if (hasTimeN1 && !summary.interpolateTimeN1) nodes->GetSolution_time_n1() = nodes->GetSolution_time_n();
   }
+  const auto scatterTime = SU2_MPI::Wtime() - scatterStart;
 
-  /*--- Conservation defects and round-trip difference (donor -> new -> donor) of the flow variables. ---*/
-
-  Integrals(*donorGeometry, *donorFlowSolver, summary.donorVolume, summary.donorIntegral);
-  Integrals(*newGeometry, *flowSolver, summary.newVolume, summary.newIntegral);
-
-  if (roundTripCheck) {
-    const auto& donorSolution = donorFlowSolver->GetNodes()->GetSolution();
-    const auto& newSolution = flowSolver->GetNodes()->GetSolution();
-    const auto nPointDonor = donorGeometry->GetnPointDomain();
-
-    std::vector<su2double> minValue(nVarFlow, std::numeric_limits<passivedouble>::max());
-    std::vector<su2double> maxValue(nVarFlow, std::numeric_limits<passivedouble>::lowest());
-    for (auto iPoint = 0ul; iPoint < nPointDonor; ++iPoint) {
-      for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) {
-        minValue[iVar] = min(minValue[iVar], donorSolution(iPoint, iVar));
-        maxValue[iVar] = max(maxValue[iVar], donorSolution(iPoint, iVar));
-      }
-    }
-
-    summary.roundTripL2.assign(nVarFlow, 0.0);
-    summary.roundTripLinf.assign(nVarFlow, 0.0);
-    CBarycentricLocator locator(*newGeometry, newTags);
-    const auto donorPointMarkers = PointMarkers(*donorGeometry, donor.markerTags.size());
-    for (auto iPoint = 0ul; iPoint < nPointDonor; ++iPoint) {
-      const auto stencil =
-          LocatePoint(locator, donorGeometry->nodes->GetCoord(iPoint), donorPointMarkers[iPoint], donor.markerTags);
-      for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) {
-        su2double value = 0.0;
-        for (unsigned short k = 0; k < stencil.nPoint; ++k) value += stencil.weight[k] * newSolution(stencil.point[k], iVar);
-        const su2double diff = fabs(value - donorSolution(iPoint, iVar));
-        summary.roundTripL2[iVar] += diff * diff;
-        summary.roundTripLinf[iVar] = max(summary.roundTripLinf[iVar], diff);
-      }
-    }
-    for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) {
-      su2double range = maxValue[iVar] - minValue[iVar];
-      if (!(range > 0.0)) range = max(fabs(maxValue[iVar]), su2double(1.0));
-      summary.roundTripL2[iVar] = sqrt(summary.roundTripL2[iVar] / max(nPointDonor, 1ul)) / range;
-      summary.roundTripLinf[iVar] /= range;
-    }
-  }
+  BroadcastSummary();
 
   FinishTransfer(config, geometry, solver, arrays);
 
@@ -645,6 +699,10 @@ void CBarycentricTransfer::Transfer(CConfig* config, const CMeshDonor& donor, CG
   momentumNorm = sqrt(momentumNorm);
 
   cout << endl << "------------------------ Solution Transfer (P1) -------------------------" << endl;
+  if (SU2_MPI::GetSize() > 1) {
+    cout << "Donor and new mesh with the donor solution gathered on rank " << MASTER_NODE << " (" << gatherTime
+         << " s), new values sent to the ranks of their points (" << scatterTime << " s)." << endl;
+  }
   cout << std::scientific << std::setprecision(3);
   cout << "Barycentric interpolation of the donor solution at " << s.nPoint << " points." << endl;
   cout << "Points outside the donor mesh: " << s.nOutside << ". Points on a marker take the closest point of the "
@@ -696,6 +754,33 @@ void CBarycentricTransfer::Transfer(CConfig* config, const CMeshDonor& donor, CG
   }
   cout.unsetf(std::ios_base::floatfield);
   cout << std::setprecision(6);
+}
+
+void CBarycentricTransfer::BroadcastSummary() {
+  if (SU2_MPI::GetSize() == 1) return;
+  auto& s = summary;
+  unsigned long counts[] = {s.nPoint, s.nOutside, s.nFlowFixed, s.nHistoryFixed, s.nTurbLimited,
+                            s.donorIntegral.size()};
+  SU2_MPI::Bcast(counts, 6, MPI_UNSIGNED_LONG, MASTER_NODE, SU2_MPI::GetComm());
+  s.nPoint = counts[0];
+  s.nOutside = counts[1];
+  s.nFlowFixed = counts[2];
+  s.nHistoryFixed = counts[3];
+  s.nTurbLimited = counts[4];
+  su2double values[] = {s.maxDistance, s.maxRelDistance, s.distanceLimit, s.donorVolume, s.newVolume};
+  SU2_MPI::Bcast(values, 5, MPI_DOUBLE, MASTER_NODE, SU2_MPI::GetComm());
+  s.maxDistance = values[0];
+  s.maxRelDistance = values[1];
+  s.distanceLimit = values[2];
+  s.donorVolume = values[3];
+  s.newVolume = values[4];
+  s.donorIntegral.resize(counts[5]);
+  s.newIntegral.resize(counts[5]);
+  if (counts[5] > 0) {
+    const int n = static_cast<int>(counts[5]);
+    SU2_MPI::Bcast(s.donorIntegral.data(), n, MPI_DOUBLE, MASTER_NODE, SU2_MPI::GetComm());
+    SU2_MPI::Bcast(s.newIntegral.data(), n, MPI_DOUBLE, MASTER_NODE, SU2_MPI::GetComm());
+  }
 }
 
 CSolutionTransfer::Report CBarycentricTransfer::GetReport() const {
