@@ -288,14 +288,34 @@ CMetricPredictor::~CMetricPredictor() = default;
 su2double CMetricPredictor::Invariant(unsigned short nDim, const su2double* metric) {
   Mat3 M = {{0.0}};
   Unpack(nDim, metric, M);
-  su2double det = 0.0;
-  if (nDim == 2) {
-    det = M[0][0] * M[1][1] - M[0][1] * M[1][0];
-  } else {
-    det = M[0][0] * (M[1][1] * M[2][2] - M[1][2] * M[2][1]) - M[0][1] * (M[1][0] * M[2][2] - M[1][2] * M[2][0]) +
-          M[0][2] * (M[1][0] * M[2][1] - M[1][1] * M[2][0]);
+
+  /*--- log det M = sum log M_ii + log det S, S = D^-1/2 M D^-1/2 (unit diagonal), det S from its Cholesky factor.
+   *    The expanded determinant cancels for anisotropic metrics that are not aligned with the axes (for
+   *    I + 1e10 ones(3,3) it is negative); the scaled factorization keeps the small eigenvalues (as the
+   *    positive-definiteness check of the remesher, CMMGInterface::IsFinitePositiveDefinite). A metric that is not
+   *    positive definite gets the floor of the invariant. ---*/
+  constexpr passivedouble floorLog10 = -300.0;
+  su2double logDet = 0.0;
+  su2double scale[3];
+  for (unsigned short i = 0; i < nDim; ++i) {
+    if (!(M[i][i] > 0.0)) return 0.5 * floorLog10;
+    scale[i] = 1.0 / sqrt(M[i][i]);
+    logDet += log10(M[i][i]);
   }
-  return 0.5 * log10(fmax(det, 1e-300));
+  Mat3 L = {{0.0}};
+  for (unsigned short j = 0; j < nDim; ++j) {
+    su2double pivot = 1.0;
+    for (unsigned short k = 0; k < j; ++k) pivot -= L[j][k] * L[j][k];
+    if (!(pivot > 0.0)) return 0.5 * floorLog10;
+    L[j][j] = sqrt(pivot);
+    logDet += log10(pivot);
+    for (unsigned short i = j + 1; i < nDim; ++i) {
+      su2double sum = M[i][j] * scale[i] * scale[j];
+      for (unsigned short k = 0; k < j; ++k) sum -= L[i][k] * L[j][k];
+      L[i][j] = sum / L[j][j];
+    }
+  }
+  return 0.5 * fmax(logDet, su2double(floorLog10));
 }
 
 CMetricPredictor::Sample CMetricPredictor::Locate(const su2double* x) {

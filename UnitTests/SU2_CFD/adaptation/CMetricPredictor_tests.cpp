@@ -436,3 +436,108 @@ TEST_CASE("Metric prediction: isotropic background, bounds and intersection", "[
     }
   }
 }
+
+namespace {
+/*--- Rotation by the z-x-z Euler angles (a, b, c). ---*/
+void EulerRotation(su2double a, su2double b, su2double c, su2double (&Q)[3][3]) {
+  const su2double ca = cos(a), sa = sin(a), cb = cos(b), sb = sin(b), cc = cos(c), sc = sin(c);
+  const su2double Rz1[3][3] = {{ca, -sa, 0.0}, {sa, ca, 0.0}, {0.0, 0.0, 1.0}};
+  const su2double Rx[3][3] = {{1.0, 0.0, 0.0}, {0.0, cb, -sb}, {0.0, sb, cb}};
+  const su2double Rz2[3][3] = {{cc, -sc, 0.0}, {sc, cc, 0.0}, {0.0, 0.0, 1.0}};
+  su2double T[3][3] = {{0.0}};
+  for (int i = 0; i < 3; ++i)
+    for (int j = 0; j < 3; ++j)
+      for (int k = 0; k < 3; ++k) T[i][j] += Rz1[i][k] * Rx[k][j];
+  for (int i = 0; i < 3; ++i)
+    for (int j = 0; j < 3; ++j) {
+      Q[i][j] = 0.0;
+      for (int k = 0; k < 3; ++k) Q[i][j] += T[i][k] * Rz2[k][j];
+    }
+}
+
+/*--- Upper triangle of Q diag(val) Q^T (nDim x nDim block of Q). ---*/
+std::vector<su2double> PackedMetric(unsigned short nDim, const su2double (&Q)[3][3], const su2double* val) {
+  std::vector<su2double> m;
+  for (unsigned short a = 0; a < nDim; ++a)
+    for (unsigned short b = a; b < nDim; ++b) {
+      su2double sum = 0.0;
+      for (unsigned short k = 0; k < nDim; ++k) sum += Q[a][k] * val[k] * Q[b][k];
+      m.push_back(sum);
+    }
+  return m;
+}
+}  // namespace
+
+TEST_CASE("Metric prediction: invariant of rotated anisotropic metrics", "[Adaptation]") {
+  /*--- Valid metrics (aspect ratio sqrt(lmax/lmin) up to the default ADAP_ARMAX 1e6) at any orientation: the
+   *    invariant 0.5 log10(det M) to round-off of the stored tensor (the expanded 3x3 determinant cancels). ---*/
+
+  /*--- M = I + 1e10 ones(3,3): eigenvalues (1, 1, 3e10 + 1). ---*/
+  const su2double ones[6] = {1.0 + 1e10, 1e10, 1e10, 1.0 + 1e10, 1e10, 1.0 + 1e10};
+  CHECK(CMetricPredictor::Invariant(3, ones) == Approx(0.5 * log10(3e10 + 1.0)).margin(1e-6));
+
+  const su2double eig3[][3] = {{1.0, 1e4, 1e12}, {1e-4, 1.0, 1e8}, {1e-2, 1e-2, 1e10}, {1.0, 1.0, 1e12}};
+  const su2double eig2[][2] = {{1.0, 1e12}, {1e-6, 1e6}, {1.0, 1e8}};
+  su2double maxError3 = 0.0, maxError2 = 0.0;
+  for (int k = 0; k < 500; ++k) {
+    const su2double a = 0.0123 * k, b = 0.0371 * k + 0.1, c = 0.0577 * k + 0.2;
+    su2double Q[3][3];
+    EulerRotation(a, b, c, Q);
+    for (const auto& val : eig3) {
+      const auto m = PackedMetric(3, Q, val);
+      maxError3 = max(maxError3, fabs(CMetricPredictor::Invariant(3, m.data()) - 0.5 * log10(val[0] * val[1] * val[2])));
+    }
+    const su2double R[3][3] = {{cos(a), -sin(a), 0.0}, {sin(a), cos(a), 0.0}, {0.0, 0.0, 1.0}};
+    for (const auto& val : eig2) {
+      const auto m = PackedMetric(2, R, val);
+      maxError2 = max(maxError2, fabs(CMetricPredictor::Invariant(2, m.data()) - 0.5 * log10(val[0] * val[1])));
+    }
+  }
+  CHECK(maxError3 < 1e-4);
+  CHECK(maxError2 < 1e-4);
+
+  /*--- Motion of a translated feature of strongly anisotropic, rotated 3D metrics (eigenvalue ratios 1 : 1e4 : 1e10,
+   *    aspect ratio 1e5): the invariant is the bump of the isotropic test, so the motion must be found as there. ---*/
+  PredictorTest test(3, 12);
+  CMetricPredictor predictor(test.Geometry());
+  const su2double r = 0.2;
+  const su2double cj[3] = {0.4, 0.45, 0.45}, D[3] = {0.08, 0.04, -0.04};
+  const su2double ck[3] = {cj[0] + D[0], cj[1] + D[1], cj[2] + D[2]};
+  su2double Q[3][3];
+  EulerRotation(0.7, 1.1, -0.4, Q);
+  auto metric = [&](const su2double* c) {
+    return test.Metric([&](const su2double* x, su2double (&M)[3][3]) {
+      /*--- det = 1e14 l^3 = 10^(2 s): l = 10^((2 s - 14) / 3). ---*/
+      const su2double l = pow(10.0, (2.0 * Bump(3, x, c, r) - 14.0) / 3.0);
+      const su2double val[3] = {l, 1e4 * l, 1e10 * l};
+      const auto m = PackedMetric(3, Q, val);
+      M[0][0] = m[0]; M[0][1] = M[1][0] = m[1]; M[0][2] = M[2][0] = m[2];
+      M[1][1] = m[3]; M[1][2] = M[2][1] = m[4]; M[2][2] = m[5];
+    });
+  };
+  const auto Mj = metric(cj), Mk = metric(ck);
+  std::vector<su2double> sj(test.nPoint()), sk(test.nPoint());
+  su2double maxInvariantError = 0.0;
+  for (auto i = 0ul; i < test.nPoint(); ++i) {
+    sj[i] = CMetricPredictor::Invariant(3, &Mj[i * 6]);
+    sk[i] = CMetricPredictor::Invariant(3, &Mk[i * 6]);
+    maxInvariantError = max(maxInvariantError, fabs(sj[i] - Bump(3, test.Coord(i), cj, r)));
+  }
+  CHECK(maxInvariantError < 1e-4);
+
+  CMetricPredictor::MotionReport report;
+  const auto W = predictor.MotionField(sj, sk, 4.0, nullptr, 0.5, report);
+  CHECK(report.mismatchAfter < 0.2 * report.mismatchBefore);
+  su2double normW = 0.0;
+  for (unsigned short i = 0; i < 3; ++i) normW += pow(D[i] / 4.0, 2);
+  normW = sqrt(normW);
+  su2double maxError = 0.0;
+  for (auto iPoint = 0ul; iPoint < test.nPoint(); ++iPoint) {
+    su2double d2 = 0.0, e2 = 0.0;
+    for (unsigned short i = 0; i < 3; ++i) d2 += pow(test.Coord(iPoint)[i] - ck[i], 2);
+    if (d2 > r * r) continue;
+    for (unsigned short i = 0; i < 3; ++i) e2 += pow(W[iPoint * 3 + i] - D[i] / 4.0, 2);
+    maxError = max(maxError, sqrt(e2));
+  }
+  CHECK(maxError < 0.08 * normW);
+}

@@ -112,6 +112,8 @@ class CMetricPredictor {
 
   /*!
    * \brief Invariant 0.5 log10(det M) of a metric stored as its upper triangle (xx, xy, yy) or (xx, xy, xz, yy, yz, zz).
+   * \note Computed from the Cholesky factor of the metric scaled to a unit diagonal (no cancellation for anisotropic,
+   *       rotated metrics); -150 (det 1e-300) if the metric is not positive definite.
    */
   static su2double Invariant(unsigned short nDim, const su2double* metric);
 
