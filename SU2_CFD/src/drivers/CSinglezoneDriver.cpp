@@ -38,7 +38,7 @@
 #include "../../../Common/include/adaptation/CMMGInterface.hpp"
 #include "../../../Common/include/adaptation/CMeshGather.hpp"
 #include "../../../Common/include/geometry/CPhysicalGeometry.hpp"
-#include "../../../Common/include/geometry/meshreader/CMemoryMeshReaderFVM.hpp"
+#include "../../../Common/include/geometry/meshreader/CDistributedMemoryMeshReaderFVM.hpp"
 #include "../../../Common/include/linear_algebra/blas_structure.hpp"
 
 #include <fstream>
@@ -264,12 +264,12 @@ void CSinglezoneDriver::CheckMeshAdaptation() const {
   CMMGInterface::CheckSupport(*config, *geometry_container[ZONE_0][INST_0][MESH_0]);
 }
 
-CSimplexMesh CSinglezoneDriver::RemeshFromMetric() {
+CRemeshResult CSinglezoneDriver::RemeshFromMetric() {
   CMMGRemesher remesher;
   return RemeshFromMetric(remesher);
 }
 
-CSimplexMesh CSinglezoneDriver::RemeshFromMetric(CRemesher& remesher) {
+CRemeshResult CSinglezoneDriver::RemeshFromMetric(CRemesher& remesher) {
   SU2_ZONE_SCOPED
 
   CheckMeshAdaptation();
@@ -1114,10 +1114,8 @@ std::pair<passivedouble, passivedouble> CSinglezoneDriver::MetricChange(const ve
   const unsigned short nMet = nDim * (nDim + 1) / 2;
 
   passivedouble sums[3] = {0.0, 0.0, 0.0};  // |log ratio|, edges changed by more than 2x, edges
-  /*--- The global indices are those of the domain points of all ranks (GetGlobal_nPoint counts the halos too). ---*/
-  bool fits = meshMetric.size() == geometry->GetGlobal_nPointDomain() * nMet;
-  for (auto iPoint = 0ul; fits && iPoint < geometry->GetnPoint(); iPoint++)
-    fits = geometry->nodes->GetGlobalIndex(iPoint) < geometry->GetGlobal_nPointDomain();
+  /*--- The metric of the mesh at the local points of this rank (domain and halo). ---*/
+  const bool fits = meshMetric.size() == geometry->GetnPoint() * nMet;
 
   if (fits) {
     /*--- Length of the edge e in the metric at a point: sqrt(e^T M e), M stored as its upper triangle. ---*/
@@ -1141,7 +1139,7 @@ std::pair<passivedouble, passivedouble> CSinglezoneDriver::MetricChange(const ve
         e[iDim] = geometry->nodes->GetCoord(jPoint, iDim) - geometry->nodes->GetCoord(iPoint, iDim);
       passivedouble lengthNew = 0.0, lengthOld = 0.0;
       for (const auto point : {iPoint, jPoint}) {
-        const auto* old = &meshMetric[geometry->nodes->GetGlobalIndex(point) * nMet];
+        const auto* old = &meshMetric[point * nMet];
         lengthNew += 0.5 * length(e, [&](unsigned short iMet) { return SU2_TYPE::GetValue(nodes->GetMetric(point, iMet)); });
         lengthOld += 0.5 * length(e, [&](unsigned short iMet) { return old[iMet]; });
       }
@@ -1234,8 +1232,8 @@ void CSinglezoneDriver::RunTimeFixedPointLoop() {
   };
   vector<WindowSummary> summary;
 
-  /*--- Metric the current mesh was built from (MMG interpolates it to its points), by global point index; empty for the
-   *    input mesh and a restart mesh. ---*/
+  /*--- Metric the current mesh was built from (MMG interpolates it to its points), at the local points of this rank;
+   *    empty for the input mesh and a restart mesh. ---*/
   vector<passivedouble> meshMetric;
   auto nPointGlobal = [&]() { return geometry_container[ZONE_0][INST_0][MESH_0]->GetGlobal_nPointDomain(); };
   auto changeString = [](passivedouble change) {
@@ -1289,7 +1287,7 @@ void CSinglezoneDriver::RunTimeFixedPointLoop() {
     const auto start = SaveTimeWindowState();
     CMeshDonor kept;
     bool haveKept = false;
-    CSimplexMesh nextMesh;
+    CRemeshResult nextMesh;
     passivedouble previousChange = -1.0;
 
     for (unsigned long iIter = 0;; iIter++) {
@@ -1314,8 +1312,9 @@ void CSinglezoneDriver::RunTimeFixedPointLoop() {
         } else {
           ReplaceMesh(nextMesh, *transferPtr, &kept, nullptr);
         }
-        meshMetric = std::move(nextMesh.metric);
-        nextMesh = CSimplexMesh();
+        /*--- MMG's metric at the points of the new mesh, fetched by each rank for its local points from the slices. ---*/
+        meshMetric = nextMesh.slices.FetchPointMetric(*geometry_container[ZONE_0][INST_0][MESH_0]);
+        nextMesh = CRemeshResult();
         output->SetVolumeAverageStart(first, config);
         row.replaceTime += SU2_TYPE::GetValue(lastReplaceTime);
         row.transferTime += SU2_TYPE::GetValue(lastTransferTime);
@@ -1502,8 +1501,15 @@ void CSinglezoneDriver::WriteAdaptedMesh(unsigned long iCycle, unsigned long fir
   CMeshOutput::WriteMesh(config, geometry_container[ZONE_0][INST_0][MESH_0], fileName);
 }
 
+void CSinglezoneDriver::ReplaceMesh(const CRemeshResult& remeshed, CSolutionTransfer& transfer) {
+  ReplaceMesh(remeshed, transfer, nullptr, nullptr);
+}
+
 void CSinglezoneDriver::ReplaceMesh(const CSimplexMesh& mesh, CSolutionTransfer& transfer) {
-  ReplaceMesh(mesh, transfer, nullptr, nullptr);
+  CRemeshResult remeshed;
+  remeshed.slices = CReaderSlices::FromComplete(mesh, MASTER_NODE);
+  remeshed.markers = remeshed.slices.markersWithElements;
+  ReplaceMesh(remeshed, transfer, nullptr, nullptr);
 }
 
 void CSinglezoneDriver::ReleaseMesh(CMeshDonor& mesh) {
@@ -1515,7 +1521,7 @@ void CSinglezoneDriver::ReleaseMesh(CMeshDonor& mesh) {
   }
 }
 
-void CSinglezoneDriver::ReplaceMesh(const CSimplexMesh& mesh, CSolutionTransfer& transfer,
+void CSinglezoneDriver::ReplaceMesh(const CRemeshResult& remeshed, CSolutionTransfer& transfer,
                                     const CMeshDonor* keptDonor, CMeshDonor* keepCurrent) {
   SU2_ZONE_SCOPED
 
@@ -1528,9 +1534,9 @@ void CSinglezoneDriver::ReplaceMesh(const CSimplexMesh& mesh, CSolutionTransfer&
 
   auto* config = config_container[ZONE_0];
 
-  if (mesh.nDim != nDim) {
-    SU2_MPI::Error("The new mesh has " + to_string(mesh.nDim) + " dimensions, the problem has " + to_string(nDim) +
-                   ".", CURRENT_FUNCTION);
+  if (remeshed.slices.nDim != nDim) {
+    SU2_MPI::Error("The new mesh has " + to_string(remeshed.slices.nDim) + " dimensions, the problem has " +
+                   to_string(nDim) + ".", CURRENT_FUNCTION);
   }
 
   /*--- The objects of the current mesh (the donor, unless another one is given) stay in use until the new ones are
@@ -1553,7 +1559,7 @@ void CSinglezoneDriver::ReplaceMesh(const CSimplexMesh& mesh, CSolutionTransfer&
 
   CGeometry** geometry = nullptr;
   {
-    CMemoryMeshReaderFVM reader(config, mesh, ZONE_0, nZone);
+    CDistributedMemoryMeshReaderFVM reader(config, remeshed.slices, ZONE_0, nZone);
     BuildGeometryFVM(config, new CPhysicalGeometry(config, reader, nZone), geometry, true);
   }
   const auto nMGLevels = config->GetnMGLevels();
@@ -1566,8 +1572,7 @@ void CSinglezoneDriver::ReplaceMesh(const CSimplexMesh& mesh, CSolutionTransfer&
     for (unsigned short iMarker = 0; iMarker < geometry[MESH_0]->GetnMarker(); iMarker++)
       tags.push_back(config->GetMarker_All_TagBound(iMarker));
     auto names = CMeshGather::GatherMarkerNames(*config, tags, *geometry[MESH_0]);
-    for (const auto& marker : mesh.markers)
-      if (!marker.elem.empty()) expected.push_back(marker.name);
+    expected = remeshed.markers;
     std::sort(names.begin(), names.end());
     std::sort(expected.begin(), expected.end());
     if (names != expected) {

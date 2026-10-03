@@ -352,32 +352,47 @@ TEST_CASE("MPI adaptation: gather, scatter, broadcast and halo exchange", "[Adap
 #ifdef HAVE_MMG
 TEST_CASE("MPI adaptation: extracted and remeshed mesh independent of the ranks", "[AdaptationMPI]") {
   /*--- The same mesh and analytic metric, extracted and remeshed by every rank alone (serial) and by all ranks (gather
-   *    on the master rank, MMG there, broadcast): the same arrays bit for bit, including the numbering. ---*/
+   *    on the master rank, MMG there, reader slices to every rank): the same arrays bit for bit, including the
+   *    numbering, and each rank's slices are those a reader of the serial mesh builds on that rank. ---*/
   for (const unsigned short nDim : {2, 3}) {
     SECTION("nDim " + std::to_string(nDim)) {
       const auto input = BoxMesh(nDim, nDim == 2 ? 6 : 3, true);
       const auto nMet = CSimplexMesh::GetnMetric(nDim);
-      auto extract = [&](CSimplexMesh& extracted, CSimplexMesh& adapted) {
-        auto config = MakeConfig(nDim, "SOLVER= EULER\nADAP_HMIN= 1e-3\nADAP_HMAX= 1\n");
+      auto makeConfig = [nDim]() { return MakeConfig(nDim, "SOLVER= EULER\nADAP_HMIN= 1e-3\nADAP_HMAX= 1\n"); };
+      auto extract = [&](CSimplexMesh& extracted, CSimplexMesh* adapted, CRemeshResult* result) {
+        auto config = makeConfig();
         MeshSolution mesh(config.get(), input, 0);
         su2activematrix metric(mesh.Fine().GetnPoint(), nMet);
         for (auto iPoint = 0ul; iPoint < mesh.Fine().GetnPoint(); ++iPoint)
           AnalyticMetric(nDim, mesh.Fine().nodes->GetCoord(iPoint), metric[iPoint]);
         Mute mute;
         extracted = CMMGInterface::ExtractMesh(*config, mesh.Fine(), metric);
-        CMMGRemesher remesher;
-        adapted = remesher.Remesh(*config, mesh.Fine(), metric);
+        if (adapted != nullptr) *adapted = CMMGInterface(*config).Adapt(extracted);
+        if (result != nullptr) {
+          CMMGRemesher remesher;
+          *result = remesher.Remesh(*config, mesh.Fine(), metric);
+        }
       };
-      CSimplexMesh serialMesh, serialAdapted, parallelMesh, parallelAdapted;
-      Serial([&]() { extract(serialMesh, serialAdapted); });
-      extract(parallelMesh, parallelAdapted);
+      CSimplexMesh serialMesh, serialAdapted, parallelMesh, unused;
+      CRemeshResult serialResult, parallelResult;
+      bool serialSlices = false;
+      Serial([&]() {
+        extract(serialMesh, &serialAdapted, &serialResult);
+        /*--- One rank: the slices are the whole adapted mesh. ---*/
+        serialSlices = SlicesOfComplete(*makeConfig(), serialResult.slices, serialAdapted);
+      });
+      extract(parallelMesh, nullptr, &parallelResult);
 
       if (IsRoot()) {
         CHECK(SameMesh(parallelMesh, serialMesh));
         CMMGInterface::ValidateMesh(parallelMesh, nullptr, "gathered mesh");
       }
       CHECK(serialAdapted.GetnPoint() > 0);
-      CHECK(SameMesh(parallelAdapted, serialAdapted));
+      CHECK(serialSlices);
+      CHECK(serialResult.slices.nPointLocal == serialAdapted.GetnPoint());
+      CHECK(GlobalMax(SlicesOfComplete(*makeConfig(), parallelResult.slices, serialAdapted) ? 0.0 : 1.0) == 0.0);
+      CHECK(parallelResult.markers == serialResult.markers);
+      CHECK(parallelResult.status == CRemeshResult::Status::COMPLETE);
     }
   }
 }

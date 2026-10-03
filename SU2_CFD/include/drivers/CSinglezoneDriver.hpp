@@ -29,12 +29,12 @@
 #pragma once
 #include "CDriver.hpp"
 #include "../output/COutput.hpp"
+#include "../../../Common/include/adaptation/CRemesher.hpp"
 #include "../../../Common/include/adaptation/CSimplexMesh.hpp"
 
 #include <memory>
 
 class CSolutionTransfer;
-class CRemesher;
 class CMultiGridIntegration;
 struct CMeshDonor;
 
@@ -122,8 +122,9 @@ protected:
    * \brief Change of the metric between two solves of a time window: the edges of the current mesh measured in the
    *        current flow metric and in the metric the mesh was built from (at its points, as returned by the remesher),
    *        mean of |log(length ratio)| and the fraction of edges whose length changes by more than a factor 2.
-   * \param[in] meshMetric - Metric the current mesh was built from, by global point index (empty: unknown).
-   * \return Mean and fraction; the mean is negative when meshMetric does not fit the mesh.
+   * \param[in] meshMetric - Metric the current mesh was built from, at the local points of this rank (domain and halo,
+   *            nPoint x nMetric, CReaderSlices::FetchPointMetric; empty: unknown).
+   * \return Mean and fraction; the mean is negative when meshMetric does not fit the mesh on some rank.
    */
   std::pair<passivedouble, passivedouble> MetricChange(const vector<passivedouble>& meshMetric) const;
 
@@ -327,17 +328,17 @@ public:
    * \brief Remesh with MMG from the metric of the current flow solution (COMPUTE_METRIC= YES).
    * \note The metric is computed again from the current solution. The driver is not changed. Stops with an error
    *       if SU2 was built without MMG.
-   * \return The adapted mesh, validated.
+   * \return This rank's part of the adapted mesh (validated), for ReplaceMesh.
    */
-  CSimplexMesh RemeshFromMetric();
+  CRemeshResult RemeshFromMetric();
 
   /*!
    * \brief Remesh with the given remesher from the metric of the current flow solution (COMPUTE_METRIC= YES).
    * \note As RemeshFromMetric(), with any remesher.
    * \param[in] remesher - Makes the new mesh from the geometry and the metric.
-   * \return The adapted mesh, validated.
+   * \return This rank's part of the adapted mesh (validated), for ReplaceMesh.
    */
-  CSimplexMesh RemeshFromMetric(CRemesher& remesher);
+  CRemeshResult RemeshFromMetric(CRemesher& remesher);
 
   /*!
    * \brief Replace the mesh of the problem: geometry, solvers, numerics, integration and iteration are built for
@@ -350,23 +351,32 @@ public:
    *       always checked (also with REORIENT_ELEMENTS= NO). Time-domain problems keep their dual-time step (the
    *       new flow solvers would set it from TIME_STEP; with UNST_CFL_NUMBER it was computed at the first time step
    *       and is kept from then on, see KeepTimeStep).
-   *       MPI: the mesh must be complete on every rank (as from RemeshFromMetric, which broadcasts it); each rank
-   *       builds its partition from it, and the markers of the new geometry are checked by name over all ranks.
-   * \param[in] mesh - New mesh, same markers as the current one (e.g. from RemeshFromMetric).
+   *       MPI: each rank builds its partition from its reader slices (CDistributedMemoryMeshReaderFVM), and the
+   *       markers of the new geometry are checked by name over all ranks against the markers of the result.
+   * \param[in] remeshed - This rank's part of the new mesh, same markers as the current one (RemeshFromMetric).
+   * \param[in] transfer - Sets the solution on the new mesh from the previous one.
+   */
+  void ReplaceMesh(const CRemeshResult& remeshed, CSolutionTransfer& transfer);
+
+  /*!
+   * \brief ReplaceMesh with a complete mesh (developer programs).
+   * \note MPI: the mesh is needed on the master rank only (the other ranks may pass an empty mesh); each rank receives
+   *       its reader slices from there (CReaderSlices::FromComplete).
+   * \param[in] mesh - New mesh, same markers as the current one.
    * \param[in] transfer - Sets the solution on the new mesh from the previous one.
    */
   void ReplaceMesh(const CSimplexMesh& mesh, CSolutionTransfer& transfer);
 
   /*!
    * \brief ReplaceMesh with another donor or keeping the current mesh (fixed-point windows).
-   * \param[in] mesh - New mesh.
+   * \param[in] remeshed - This rank's part of the new mesh.
    * \param[in] transfer - Sets the solution on the new mesh from the donor.
    * \param[in] donor - Donor of the transfer instead of the current mesh (kept by an earlier call); the current mesh is
    *            then released. nullptr: the current mesh is the donor.
    * \param[out] keepCurrent - If not nullptr, the geometry and solvers of the current mesh are not deleted but returned
    *            here (with the marker names and levels, as a donor of later transfers); release with ReleaseMesh.
    */
-  void ReplaceMesh(const CSimplexMesh& mesh, CSolutionTransfer& transfer, const CMeshDonor* donor,
+  void ReplaceMesh(const CRemeshResult& remeshed, CSolutionTransfer& transfer, const CMeshDonor* donor,
                    CMeshDonor* keepCurrent);
 
   /*!

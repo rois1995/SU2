@@ -844,7 +844,7 @@ CMMGRemesher::CMMGRemesher() {
 #endif
 }
 
-CSimplexMesh CMMGRemesher::Remesh(const CConfig& config, const CGeometry& geometry, const su2activematrix& metric) {
+CRemeshResult CMMGRemesher::Remesh(const CConfig& config, const CGeometry& geometry, const su2activematrix& metric) {
   const int rank = SU2_MPI::GetRank(), size = SU2_MPI::GetSize();
   const auto startTime = SU2_MPI::Wtime();
 
@@ -855,8 +855,8 @@ CSimplexMesh CMMGRemesher::Remesh(const CConfig& config, const CGeometry& geomet
   if (rank == MASTER_NODE)
     cout << endl << "------------------------------ Remesh (MMG) -----------------------------" << endl;
 
-  /*--- Serial MMG on the master rank; the other ranks wait for its mesh. An error on the master rank (MMG failure,
-   *    invalid mesh) stops all ranks (SU2_MPI::Error aborts the communicator). ---*/
+  /*--- Serial MMG on the master rank; the other ranks wait for their part of its mesh. An error on the master rank
+   *    (MMG failure, invalid mesh) stops all ranks (SU2_MPI::Error aborts the communicator). ---*/
   CSimplexMesh adapted;
   bool success = true;
   if (rank == MASTER_NODE) {
@@ -866,9 +866,13 @@ CSimplexMesh CMMGRemesher::Remesh(const CConfig& config, const CGeometry& geomet
   }
   const auto mmgTime = SU2_MPI::Wtime();
 
-  /*--- Every rank builds its part of the new geometry from the complete mesh (CMemoryMeshReaderFVM, as a mesh
-   *    file is read by every rank). ---*/
-  if (size > 1) CMeshGather::Broadcast(adapted, MASTER_NODE);
+  /*--- Every rank gets the part of the new mesh it reads (CReaderSlices: its linear slice of the points, the elements
+   *    touching it, the boundary elements on the master rank), sent by the master rank, which alone holds the
+   *    complete mesh. ---*/
+  CRemeshResult result;
+  result.slices = CReaderSlices::FromComplete(adapted, MASTER_NODE);
+  result.markers = result.slices.markersWithElements;
+  result.status = CRemeshResult::Status::COMPLETE;
   const auto endTime = SU2_MPI::Wtime();
 
   if (rank == MASTER_NODE) {
@@ -876,10 +880,10 @@ CSimplexMesh CMMGRemesher::Remesh(const CConfig& config, const CGeometry& geomet
          << adapted.GetnPoint() << " points, " << adapted.GetnElem() << " elements." << endl;
     cout << "MMG" << mesh.nDim << "D status " << (success ? "SUCCESS" : "LOWFAILURE") << ", " << mmgTime - extractTime
          << " s (with the validation of input and output), extraction " << extractTime - startTime << " s";
-    if (size > 1) cout << " (gathered from " << size << " ranks), broadcast " << endTime - mmgTime << " s";
+    if (size > 1) cout << " (gathered from " << size << " ranks), slices sent " << endTime - mmgTime << " s";
     cout << "." << endl;
     if (!config.GetAdap_Surface())
       cout << "Volume only (ADAP_SURFACE= NO): boundary points and faces kept (checked)." << endl;
   }
-  return adapted;
+  return result;
 }

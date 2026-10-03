@@ -41,7 +41,7 @@ class CGeometry;
  * \class CMMGInterface
  * \brief Remeshing of a simplex mesh with the MMG library (MMG2D for triangles, MMG3D for tetrahedra), in memory.
  * \note MPI: the extraction gathers the partitioned mesh and metric on the master rank (CMeshGather), MMG runs there
- *       (serial), and CMMGRemesher broadcasts the adapted mesh to all ranks. Without HAVE_MMG, only the extraction and
+ *       (serial), and CMMGRemesher sends each rank its reader slices of the adapted mesh (CReaderSlices). Without HAVE_MMG, only the extraction and
  *       validation are available.
  *
  * Typical use:
@@ -233,9 +233,10 @@ class CMMGInterface {
  * \class CMMGRemesher
  * \brief Remesher of the adaptation loop with serial MMG: CMMGInterface::ExtractMesh (gather on the master rank), then
  *        CMMGInterface::Adapt on the master rank with the remeshing parameters of the config at the time of the call,
- *        then the adapted mesh is broadcast to all ranks (each builds its partition from the complete mesh, as from a
- *        mesh file). Memory: every rank holds the complete adapted mesh until its geometry is built (about 300 bytes
- *        per point in 3D); the master rank also holds the gathered mesh and MMG's structures.
+ *        then each rank receives its reader slices of the adapted mesh (CReaderSlices::FromComplete: the points of its
+ *        linear partition with MMG's metric, the elements touching them, the boundary elements on the master rank),
+ *        exactly the arrays a reader of the complete mesh would hold on that rank. Memory: the master rank holds the
+ *        gathered mesh, MMG's structures and the adapted mesh; the other ranks hold only their slices.
  */
 class CMMGRemesher final : public CRemesher {
  public:
@@ -244,5 +245,5 @@ class CMMGRemesher final : public CRemesher {
    */
   CMMGRemesher();
 
-  CSimplexMesh Remesh(const CConfig& config, const CGeometry& geometry, const su2activematrix& metric) override;
+  CRemeshResult Remesh(const CConfig& config, const CGeometry& geometry, const su2activematrix& metric) override;
 };

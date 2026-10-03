@@ -26,29 +26,47 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include "../containers/C2DContainer.hpp"
+#include "CReaderSlices.hpp"
 #include "CSimplexMesh.hpp"
 
 class CConfig;
 class CGeometry;
 
 /*!
+ * \struct CRemeshResult
+ * \brief What a remesher returns on each rank: the rank's reader slices of the new mesh and the markers of the mesh.
+ */
+struct CRemeshResult {
+  /*! \brief Status of the remesh: a complete remesh, or (distributed remeshers) a valid mesh with regions left
+   *         unadapted. The serial remesher always returns COMPLETE. */
+  enum class Status { COMPLETE, INCOMPLETE_COVERAGE, INCOMPLETE_QUALITY };
+
+  CReaderSlices slices;              /*!< \brief This rank's part of the new mesh (with the metric of its points). */
+  std::vector<std::string> markers;  /*!< \brief Markers of the new mesh with boundary elements (all ranks). */
+  Status status = Status::COMPLETE;  /*!< \brief Status of the remesh. */
+};
+
+/*!
  * \class CRemesher
  * \brief Makes the new mesh of an adaptation cycle from the current geometry and its metric.
  * \note One of the three parts of an adaptation cycle, with the metric (CSinglezoneDriver::ComputeMetric) and the
- *       solution transfer (CSolutionTransfer). Serial MMG now (CMMGRemesher); a parallel remesher (ParMmg) works on
- *       the distributed geometry behind the same call.
+ *       solution transfer (CSolutionTransfer). Serial MMG now (CMMGRemesher); a distributed remesher works on the
+ *       distributed geometry behind the same call. No rank needs the complete new mesh: each gets the part it reads.
  */
 class CRemesher {
  public:
   virtual ~CRemesher() = default;
 
   /*!
-   * \brief Remesh.
+   * \brief Collective: remesh.
    * \param[in] config - Definition of the problem (remeshing parameters, marker names).
    * \param[in] geometry - Current geometry of the zone (finest grid).
    * \param[in] metric - Metric at the points of the geometry, upper triangle (CVariable::GetMetric()).
-   * \return The new mesh, validated, complete (as a mesh file would be).
+   * \return This rank's reader slices of the new mesh (validated), the markers with elements, the status.
    */
-  virtual CSimplexMesh Remesh(const CConfig& config, const CGeometry& geometry, const su2activematrix& metric) = 0;
+  virtual CRemeshResult Remesh(const CConfig& config, const CGeometry& geometry, const su2activematrix& metric) = 0;
 };
