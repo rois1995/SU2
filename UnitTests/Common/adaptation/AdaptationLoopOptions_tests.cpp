@@ -170,6 +170,13 @@ TEST_CASE("Adaptation loop, solution in memory and file names", "[Adaptation]") 
   CHECK(config2->GetMGCycle() == MG_CYCLE::V);
   CHECK(config2->GetFinestMesh() == MESH_0);
 
+  /*--- A restart of a time-domain adaptation run: the cycle of the adapted meshes, the restart files are read. ---*/
+  const auto config3 = MakeConfig("RESTART_SOL= YES\nMGCYCLE= W_CYCLE\n");
+  config3->SetMGCycle_Adapted();
+  CHECK(config3->GetRestart());
+  CHECK(config3->GetMGCycle() == MG_CYCLE::W);
+  CHECK(config3->GetFinestMesh() == MESH_0);
+
   CHECK(CConfig::GetAdap_FileName("flow", 0) == "flow_adap_00000");
   CHECK(CConfig::GetAdap_FileName("restart_flow", 12) == "restart_flow_adap_00012");
 }

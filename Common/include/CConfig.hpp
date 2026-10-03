@@ -10611,6 +10611,15 @@ public:
    */
   void SetSolutionInMemory(void) {
     Restart = false;
+    SetMGCycle_Adapted();
+  }
+
+  /*!
+   * \brief Multigrid cycle of the adapted meshes: MGCYCLE of the config file (a restart turns W_CYCLE into V_CYCLE),
+   *        FULLMG_CYCLE becomes V_CYCLE. Also set when a time-domain adaptation run restarts, so that the restarted
+   *        time steps use the cycle of the run that wrote the files.
+   */
+  void SetMGCycle_Adapted(void) {
     Kind_MGCycle = (Kind_MGCycle_File == MG_CYCLE::FULL) ? MG_CYCLE::V : Kind_MGCycle_File;
     FinestMesh = MESH_0;
   }

@@ -156,6 +156,13 @@ protected:
   void PredictWindowMetric();
 
   /*!
+   * \brief Start of a time-domain adaptation loop (all ADAP_UNSTEADY_METRIC): for a restart, the multigrid cycle of
+   *        the adapted meshes (CConfig::SetMGCycle_Adapted: a restart turned W_CYCLE into V_CYCLE, the run that wrote
+   *        the files used MGCYCLE on its adapted meshes).
+   */
+  void PrepareTimeAdaptationRestart();
+
+  /*!
    * \brief Write the restart files of the current solution (RESTART and RESTART_ASCII of OUTPUT_FILES) at the
    *        current time step and, with 2nd-order dual time stepping, the time history Solution_time_n1 at the step
    *        before (both transferred to the new mesh). They replace the files of these steps on the previous mesh.

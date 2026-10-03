@@ -3315,7 +3315,7 @@ void CConfig::SetConfig_Options() {
    *    one value per entry of ADAP_SIZES; without a list the scalar option in brackets applies to every level.
    *    Time-domain runs (TIME_DOMAIN= YES, dual time stepping) adapt the mesh every ADAP_FREQ time steps from the
    *    metric of the last ADAP_FREQ steps, with one complexity (ADAP_SIZES with one value), and continue in time.
-   *    Not supported: DIRECT_DIFF; with ADAP_UNSTEADY_METRIC= FIXED_POINT also FIXED_CL_MODE. ---*/
+   *    Not supported: DIRECT_DIFF; with ADAP_UNSTEADY_METRIC= FIXED_POINT also FIXED_CL_MODE and CFL_ADAPT. ---*/
   /*!\brief ADAP_LOOP \n DESCRIPTION: Run the mesh adaptation loop (needs COMPUTE_METRIC= YES and ADAP_SIZES) \ingroup Config */
   addBoolOption("ADAP_LOOP", Adap_Loop, false);
   /*!\brief ADAP_FREQ \n DESCRIPTION: Time-domain adaptation loop: number of physical time steps between two
@@ -6256,9 +6256,14 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
       /*--- Metric of the next window. PREDICT needs two time steps per window (two snapshots on the same mesh). ---*/
       if (Kind_Adap_Unsteady_Metric == ADAP_UNSTEADY_METRIC::FIXED_POINT) {
         /*--- The discarded solves of a window must leave no trace: the fixed-CL controller (angle of attack, finite
-         *    differences, derivatives in the config) is not part of the saved state of a window. ---*/
+         *    differences, derivatives in the config) and the adaptive CFL (local CFL and residual history in the
+         *    solvers, which a restart cannot restore either) are not part of the saved state of a window. ---*/
         if (Fixed_CL_Mode) {
           SU2_MPI::Error("FIXED_CL_MODE is not supported with ADAP_UNSTEADY_METRIC= FIXED_POINT.", CURRENT_FUNCTION);
+        }
+        if (CFL_Adapt) {
+          SU2_MPI::Error("CFL_ADAPT= YES is not supported with ADAP_UNSTEADY_METRIC= FIXED_POINT (the local CFL of the "
+                         "solves of a window can be neither restored nor restarted).", CURRENT_FUNCTION);
         }
         if (Adap_FP_Iter < 1) {
           SU2_MPI::Error("ADAP_FP_ITER must be >= 1 (remeshes and re-solves of each time window).", CURRENT_FUNCTION);

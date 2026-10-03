@@ -599,6 +599,14 @@ void CSinglezoneDriver::PredictWindowMetric() {
   predictSnapshotValid = false;
 }
 
+void CSinglezoneDriver::PrepareTimeAdaptationRestart() {
+  auto* config = config_container[ZONE_0];
+  if (!config->GetRestart()) return;
+
+  /*--- The adapted meshes of the run that wrote the files used MGCYCLE (a restart turned W_CYCLE into V_CYCLE). ---*/
+  config->SetMGCycle_Adapted();
+}
+
 void CSinglezoneDriver::WriteTimeHistoryRestarts() {
   SU2_ZONE_SCOPED
 
@@ -664,6 +672,7 @@ void CSinglezoneDriver::RunTimeAdaptationLoop() {
   /*--- One metric level (one complexity) for every window. ---*/
 
   config->SetAdap_MetricLevel(0);
+  PrepareTimeAdaptationRestart();
 
   StartTime = SU2_MPI::Wtime();
   config->Set_StartTime(StartTime);
@@ -1067,6 +1076,7 @@ void CSinglezoneDriver::RunTimeFixedPointLoop() {
   CFreeStreamTransfer initialCondition;
 
   config->SetAdap_MetricLevel(0);
+  PrepareTimeAdaptationRestart();
 
   StartTime = SU2_MPI::Wtime();
   config->Set_StartTime(StartTime);
