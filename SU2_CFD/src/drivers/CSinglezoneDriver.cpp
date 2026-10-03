@@ -40,7 +40,9 @@
 #include "../../../Common/include/geometry/meshreader/CMemoryMeshReaderFVM.hpp"
 #include "../../../Common/include/linear_algebra/blas_structure.hpp"
 
+#include <iomanip>
 #include <memory>
+#include <sstream>
 
 CSinglezoneDriver::CSinglezoneDriver(char* confFile,
                        unsigned short val_nZone,
@@ -425,7 +427,10 @@ void CSinglezoneDriver::SampleTimeWindowMetric() {
   const auto nSensor = config->GetnAdap_Sensor();
   const unsigned short nMet = nDim * (nDim + 1) / 2;
 
-  if (windowSamples == 0) windowHessian.assign(nPoint * nSensor * nMet, 0.0);
+  if (windowSamples == 0) {
+    windowHessian.assign(nPoint * nSensor * nMet, 0.0);
+    windowMetricDone = false;
+  }
 
   for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
     for (auto iSensor = 0u; iSensor < nSensor; ++iSensor) {
@@ -445,9 +450,11 @@ void CSinglezoneDriver::SampleTimeWindowMetric() {
   }
   windowSamples++;
 
-  /*--- End of the window: metric of the mean |H| of its time steps, with the options of the loop. ---*/
+  /*--- End of the window: metric of the mean |H| of its time steps, with the options of the loop. A fixed-point
+   *    window ends at its last step (also the last, possibly shorter, window of the run). ---*/
 
-  if (config->GetAdap_TimeWindowEnd(TimeIter)) {
+  const bool windowEnd = fixedPointWindow ? TimeIter == fixedPointLastStep : config->GetAdap_TimeWindowEnd(TimeIter);
+  if (windowEnd) {
     const su2double factor = 1.0 / windowSamples;
     for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint)
       for (auto iSensor = 0u; iSensor < nSensor; ++iSensor)
@@ -460,6 +467,7 @@ void CSinglezoneDriver::SampleTimeWindowMetric() {
            << " time steps (" << TimeIter + 1 - windowSamples << " to " << TimeIter << ")." << endl;
     }
     solver_flow->ComputeMetric(geometry, config);
+    windowMetricDone = true;
   }
 
   windowMetricTime += SU2_MPI::Wtime() - startTime;
@@ -629,6 +637,11 @@ void CSinglezoneDriver::RunTimeAdaptationLoop() {
 
   auto* config = config_container[ZONE_0];
   auto* output = output_container[ZONE_0];
+
+  if (config->GetKind_Adap_Unsteady_Metric() == ADAP_UNSTEADY_METRIC::FIXED_POINT) {
+    RunTimeFixedPointLoop();
+    return;
+  }
 
   /*--- Stop before the first time step if the problem or the build cannot be adapted. ---*/
 
@@ -947,6 +960,360 @@ void CSinglezoneDriver::RestoreTimeWindowState(const CTimeWindowState& state) {
   output_container[ZONE_0]->SetTimeState(state.output);
 }
 
+unsigned long CSinglezoneDriver::SolveTimeWindow(unsigned long first, unsigned long last, bool accepted) {
+  SU2_ZONE_SCOPED
+
+  auto* output = output_container[ZONE_0];
+
+  /*--- The window metric (mean |H|) is accumulated over these steps and computed at the last one. ---*/
+  windowSamples = 0;
+  windowMetricDone = false;
+  fixedPointWindow = true;
+  fixedPointLastStep = last;
+
+  for (auto timeIter = first; timeIter <= last; timeIter++) {
+    Preprocess(timeIter);
+    Run();
+    Postprocess();
+    Update();
+    if (accepted) {
+      Monitor(timeIter);
+      Output(timeIter);
+      if (StopCalc) return timeIter;
+    } else {
+      output->SetConvergence(false);
+    }
+  }
+  return last;
+}
+
+std::pair<passivedouble, passivedouble> CSinglezoneDriver::MetricChange(const vector<passivedouble>& meshMetric) const {
+  const auto* geometry = geometry_container[ZONE_0][INST_0][MESH_0];
+  const auto* nodes = solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes();
+  const unsigned short nMet = nDim * (nDim + 1) / 2;
+
+  passivedouble sums[3] = {0.0, 0.0, 0.0};  // |log ratio|, edges changed by more than 2x, edges
+  bool fits = meshMetric.size() == geometry->GetGlobal_nPoint() * nMet;
+  for (auto iPoint = 0ul; fits && iPoint < geometry->GetnPoint(); iPoint++)
+    fits = geometry->nodes->GetGlobalIndex(iPoint) < geometry->GetGlobal_nPoint();
+
+  if (fits) {
+    /*--- Length of the edge e in the metric at a point: sqrt(e^T M e), M stored as its upper triangle. ---*/
+    auto length = [&](const su2double* e, auto metric) {
+      passivedouble q = 0.0;
+      for (unsigned short iDim = 0, iMet = 0; iDim < nDim; iDim++) {
+        for (unsigned short jDim = iDim; jDim < nDim; jDim++, iMet++) {
+          q += (iDim == jDim ? 1.0 : 2.0) * metric(iMet) * SU2_TYPE::GetValue(e[iDim] * e[jDim]);
+        }
+      }
+      return sqrt(std::max(q, 0.0));
+    };
+    for (auto iEdge = 0ul; iEdge < geometry->GetnEdge(); iEdge++) {
+      const auto iPoint = geometry->edges->GetNode(iEdge, 0), jPoint = geometry->edges->GetNode(iEdge, 1);
+      if (!geometry->nodes->GetDomain(iPoint) && !geometry->nodes->GetDomain(jPoint)) continue;
+      su2double e[3] = {0.0};
+      for (unsigned short iDim = 0; iDim < nDim; iDim++)
+        e[iDim] = geometry->nodes->GetCoord(jPoint, iDim) - geometry->nodes->GetCoord(iPoint, iDim);
+      passivedouble lengthNew = 0.0, lengthOld = 0.0;
+      for (const auto point : {iPoint, jPoint}) {
+        const auto* old = &meshMetric[geometry->nodes->GetGlobalIndex(point) * nMet];
+        lengthNew += 0.5 * length(e, [&](unsigned short iMet) { return SU2_TYPE::GetValue(nodes->GetMetric(point, iMet)); });
+        lengthOld += 0.5 * length(e, [&](unsigned short iMet) { return old[iMet]; });
+      }
+      if (!(lengthNew > 0.0) || !(lengthOld > 0.0)) continue;
+      const auto change = fabs(log(lengthNew / lengthOld));
+      sums[0] += change;
+      if (change > log(2.0)) sums[1] += 1.0;
+      sums[2] += 1.0;
+    }
+  }
+  passivedouble global[3] = {0.0, 0.0, 0.0};
+  SU2_MPI::Allreduce(sums, global, 3, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+  unsigned short allFit = fits, globalFit = 0;
+  SU2_MPI::Allreduce(&allFit, &globalFit, 1, MPI_UNSIGNED_SHORT, MPI_MIN, SU2_MPI::GetComm());
+  if (!globalFit || global[2] == 0.0) return {-1.0, 0.0};
+  return {global[0] / global[2], global[1] / global[2]};
+}
+
+void CSinglezoneDriver::RunTimeFixedPointLoop() {
+  SU2_ZONE_SCOPED
+
+  auto* config = config_container[ZONE_0];
+  auto* output = output_container[ZONE_0];
+
+  /*--- Stop before the first time step if the problem or the build cannot be adapted. ---*/
+
+  CheckMeshAdaptation();
+  if (config->GetAdap_Mesh_Output()) CheckAdaptedMeshNames();
+
+  CMMGRemesher remesher;
+
+  const bool conservative = config->GetKind_Adap_Transfer() == ADAP_TRANSFER::CONSERVATIVE;
+  std::unique_ptr<CSolutionTransfer> transferPtr;
+  if (conservative) {
+    transferPtr = std::make_unique<CConservativeTransfer>();
+  } else {
+    transferPtr = std::make_unique<CBarycentricTransfer>();
+  }
+  CFreeStreamTransfer initialCondition;
+
+  config->SetAdap_MetricLevel(0);
+
+  StartTime = SU2_MPI::Wtime();
+  config->Set_StartTime(StartTime);
+
+  const bool restart = config->GetRestart();
+  const unsigned long firstTimeIter = restart ? config->GetRestart_Iter() : 0;
+  const auto nTimeIter = config->GetnTime_Iter();
+  const auto freq = config->GetAdap_Freq();
+  const auto nIterFP = config->GetAdap_FP_Iter();
+  const auto tolFP = SU2_TYPE::GetValue(config->GetAdap_FP_Tol());
+
+  if (rank == MASTER_NODE) {
+    cout << endl << "------------------------------ Begin Solver -----------------------------" << endl;
+    cout << endl << "Simulation Run using the Single-zone Driver, time-domain mesh adaptation (fixed point)" << endl;
+    cout << "The simulation will run for " << nTimeIter - firstTimeIter << " time steps." << endl;
+    cout << "Fixed point per time window of " << freq << " time steps (from step 0): the window is solved on the current "
+            "mesh, remeshed from the mean |Hessian| of the sensors over its steps (complexity "
+         << config->GetAdap_Complexity() << ", sizes " << config->GetAdap_Hmin() << " to " << config->GetAdap_Hmax()
+         << ", norm " << config->GetAdap_Norm() << ", aspect ratio up to " << config->GetAdap_ARmax()
+         << ") and solved again from its start state on the new mesh, " << nIterFP << " time(s) (ADAP_FP_ITER), or "
+         << "until the metric of a re-solve differs from the one before by less than " << tolFP << " (ADAP_FP_TOL). "
+         << "Only the last solve of each window writes files and history rows." << endl;
+    if (restart) {
+      cout << "Restart: the first window (from time step " << firstTimeIter << ") is solved once on the restart mesh, "
+              "the accepted mesh of that window." << endl;
+    } else {
+      cout << "The first window starts every mesh from the initial condition of the run." << endl;
+    }
+    if (conservative) {
+      cout << "Solution transfer of the start state of a window: conservative P1 projection of the solution and of its "
+              "time history";
+    } else {
+      cout << "Solution transfer of the start state of a window: barycentric (P1) interpolation of the solution and of "
+              "its time history";
+    }
+    cout << (config->GetAdap_Transfer_Default() ? ", the default of time-domain runs." : ".") << endl;
+  }
+
+  struct WindowSummary {
+    unsigned long cycle = 0, firstStep = 0, lastStep = 0, nSolve = 0, nPoint = 0;
+    vector<unsigned long> points;
+    vector<passivedouble> changes, solveTimes;
+    passivedouble finalChange = -1.0, remeshTime = 0.0, replaceTime = 0.0, transferTime = 0.0, outputTime = 0.0,
+                  metricTime = 0.0, defect = -1.0;
+  };
+  vector<WindowSummary> summary;
+
+  /*--- Metric the current mesh was built from (MMG interpolates it to its points), by global point index; empty for the
+   *    input mesh and a restart mesh. ---*/
+  vector<passivedouble> meshMetric;
+  auto nPointGlobal = [&]() { return geometry_container[ZONE_0][INST_0][MESH_0]->GetGlobal_nPointDomain(); };
+  auto changeString = [](passivedouble change) {
+    if (change < 0.0) return string("-");
+    std::ostringstream out;
+    out << std::setprecision(3) << change;
+    return out.str();
+  };
+
+  bool firstWindow = true;
+  TimeIter = firstTimeIter;
+  while (TimeIter < nTimeIter) {
+
+    const auto first = TimeIter;
+    const auto last = std::min((first / freq + 1) * freq - 1, nTimeIter - 1);
+    const auto iCycle = first / freq;
+    output->SetAdaptationCycle(iCycle, 0, false);
+
+    WindowSummary row;
+    row.cycle = iCycle;
+    row.firstStep = first;
+
+    /*--- First window of a restart: the restart mesh is the accepted mesh of this window. ---*/
+
+    if (firstWindow && restart) {
+      firstWindow = false;
+      if (rank == MASTER_NODE) {
+        cout << endl << "------------------------- Fixed-Point Iteration -------------------------" << endl;
+        cout << "Time steps " << first << " to " << last << " (cycle " << iCycle << ") on the restart mesh ("
+             << nPointGlobal() << " points), solved once: accepted (files and history)." << endl;
+      }
+      const auto solveStart = SU2_MPI::Wtime();
+      windowMetricTime = 0.0;
+      row.lastStep = SolveTimeWindow(first, last, true);
+      row.nSolve = 1;
+      row.nPoint = nPointGlobal();
+      row.points.push_back(row.nPoint);
+      row.solveTimes.push_back(SU2_TYPE::GetValue(SU2_MPI::Wtime() - solveStart - windowMetricTime));
+      row.metricTime = SU2_TYPE::GetValue(windowMetricTime);
+      summary.push_back(row);
+      if (StopCalc) break;
+      TimeIter = last + 1;
+      continue;
+    }
+    firstWindow = false;
+
+    /*--- The first window of a new run starts each mesh from the initial condition (as a run on that mesh would), the
+     *    other windows from their start state, saved here and kept on this mesh as the donor of the transfers. ---*/
+
+    const bool initial = (first == 0 && !restart);
+    const auto start = SaveTimeWindowState();
+    CMeshDonor kept;
+    bool haveKept = false;
+    CSimplexMesh nextMesh;
+    passivedouble previousChange = -1.0;
+
+    for (unsigned long iIter = 0;; iIter++) {
+
+      /*--- This solve is the accepted one after ADAP_FP_ITER remeshes, or when the metric of the previous re-solve
+       *    differed from the one before it by less than ADAP_FP_TOL (its mesh barely changes). ---*/
+      const bool accepted = (iIter == nIterFP) || (iIter >= 2 && previousChange >= 0.0 && previousChange < tolFP);
+
+      if (iIter > 0) {
+        const auto adaptStart = SU2_MPI::Wtime();
+        TimeIter = (first > 0) ? first - 1 : 0;
+        config->SetTimeIter(TimeIter);
+        config->SetSolutionInMemory();
+
+        if (initial) {
+          ReplaceMesh(nextMesh, initialCondition, nullptr, nullptr);
+        } else if (!haveKept) {
+          /*--- The window start state goes back into the solvers of this mesh, which become the donor. ---*/
+          RestoreTimeWindowState(start);
+          ReplaceMesh(nextMesh, *transferPtr, nullptr, &kept);
+          haveKept = true;
+        } else {
+          ReplaceMesh(nextMesh, *transferPtr, &kept, nullptr);
+        }
+        meshMetric = std::move(nextMesh.metric);
+        nextMesh = CSimplexMesh();
+        output->SetVolumeAverageStart(first, config);
+        row.replaceTime += SU2_TYPE::GetValue(lastReplaceTime);
+        row.transferTime += SU2_TYPE::GetValue(lastTransferTime);
+        if (!initial) row.defect = transferPtr->GetReport().conservationDefect;
+
+        /*--- Files of the accepted mesh: the mesh (named for its first time step), then the restart files of the
+         *    transferred steps n and n-1 (they replace those of the previous mesh), as in the WINDOW_AVERAGE loop. ---*/
+        if (accepted) {
+          const auto outputStart = SU2_MPI::Wtime();
+          if (config->GetAdap_Mesh_Output()) WriteAdaptedMesh(iCycle, first);
+          if (first > 0) WriteTimeHistoryRestarts();
+          row.outputTime = SU2_TYPE::GetValue(SU2_MPI::Wtime() - outputStart);
+          UsedTimeOutput += row.outputTime;
+        }
+        UsedTimePreproc += SU2_MPI::Wtime() - adaptStart - row.outputTime;
+      }
+
+      if (rank == MASTER_NODE) {
+        cout << endl << "------------------------- Fixed-Point Iteration -------------------------" << endl;
+        cout << "Time steps " << first << " to " << last << " (cycle " << iCycle << "), solve " << iIter + 1 << " on "
+             << (iIter == 0 ? (meshMetric.empty() ? "the current mesh" : "the mesh of the previous window")
+                            : "the mesh of solve " + to_string(iIter))
+             << " (" << nPointGlobal() << " points): "
+             << (accepted ? "accepted (files and history)." : "discarded (screen output only).") << endl;
+      }
+
+      output->SetHistoryFileWriting(accepted);
+      windowMetricTime = 0.0;
+      StartTime = SU2_MPI::Wtime();
+      config->Set_StartTime(StartTime);
+      const auto solveStart = StartTime;
+      const auto lastSolved = SolveTimeWindow(first, last, accepted);
+      if (!accepted) UsedTimeCompute += SU2_MPI::Wtime() - StartTime;
+      output->SetHistoryFileWriting(true);
+
+      row.nSolve++;
+      row.points.push_back(nPointGlobal());
+      row.solveTimes.push_back(SU2_TYPE::GetValue(SU2_MPI::Wtime() - solveStart - windowMetricTime));
+      row.metricTime += SU2_TYPE::GetValue(windowMetricTime);
+
+      /*--- Change of the metric of this solve from the metric this mesh was built from. ---*/
+      const auto change = windowMetricDone ? MetricChange(meshMetric) : std::make_pair(-1.0, 0.0);
+      if (rank == MASTER_NODE && change.first >= 0.0) {
+        cout << "Metric change from the metric of the mesh: mean |log(edge length ratio)| " << change.first << ", "
+             << 100.0 * change.second << "% of the edges change by more than a factor 2." << endl;
+      }
+
+      if (accepted) {
+        row.lastStep = lastSolved;
+        row.finalChange = change.first;
+        break;
+      }
+      row.changes.push_back(change.first);
+      if (iIter >= 1) previousChange = change.first;
+
+      /*--- Discarded: back to the output state of the window start, new mesh from the metric of this solve. ---*/
+      output->SetTimeState(start.output);
+      const auto remeshStart = SU2_MPI::Wtime();
+      nextMesh = remesher.Remesh(*config, *geometry_container[ZONE_0][INST_0][MESH_0],
+                                 solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->GetMetric());
+      row.remeshTime += SU2_TYPE::GetValue(SU2_MPI::Wtime() - remeshStart);
+      UsedTimePreproc += SU2_MPI::Wtime() - remeshStart;
+    }
+
+    if (haveKept) ReleaseMesh(kept);
+
+    row.nPoint = nPointGlobal();
+    if (rank == MASTER_NODE) {
+      cout << "Fixed point of time steps " << first << " to " << row.lastStep << ": " << row.nSolve << " solves on";
+      for (const auto n : row.points) cout << " " << n;
+      cout << " points; metric change";
+      for (const auto c : row.changes) cout << " " << changeString(c);
+      cout << "; after the accepted solve " << changeString(row.finalChange) << "." << endl;
+    }
+    summary.push_back(row);
+
+    if (StopCalc) break;
+    TimeIter = last + 1;
+  }
+  fixedPointWindow = false;
+
+  if (rank == MASTER_NODE) {
+    cout << endl << "------------------------ Mesh Adaptation Summary ------------------------" << endl;
+    PrintingToolbox::CTablePrinter table(&cout);
+    table.AddColumn("Cycle", 6);
+    table.AddColumn("Time steps", 12);
+    table.AddColumn("Solves", 7);
+    table.AddColumn("Points", 8);
+    table.AddColumn("Change", 14);
+    table.AddColumn("Final", 7);
+    table.AddColumn("Solve [s]", 10);
+    table.AddColumn("Accepted [s]", 12);
+    table.AddColumn("Remesh [s]", 10);
+    table.AddColumn("Replace [s]", 11);
+    table.AddColumn("Output [s]", 10);
+    table.AddColumn("Cons. defect", 12);
+    table.PrintHeader();
+    passivedouble total[6] = {0.0};
+    unsigned long nSolve = 0;
+    for (const auto& row : summary) {
+      string changes;
+      for (const auto c : row.changes) changes += (changes.empty() ? "" : "/") + changeString(c);
+      passivedouble solveTime = 0.0;
+      for (const auto t : row.solveTimes) solveTime += t;
+      table << row.cycle << to_string(row.firstStep) + "-" + to_string(row.lastStep) << row.nSolve << row.nPoint
+            << (changes.empty() ? string("-") : changes) << changeString(row.finalChange) << solveTime
+            << row.solveTimes.back() << row.remeshTime << row.replaceTime << row.outputTime;
+      if (row.defect >= 0.0) table << row.defect;
+      else table << "-";
+      const passivedouble values[] = {solveTime, row.solveTimes.back(), row.metricTime, row.remeshTime,
+                                      row.replaceTime, row.outputTime};
+      for (int k = 0; k < 6; ++k) total[k] += values[k];
+      nSolve += row.nSolve;
+    }
+    table.PrintFooter();
+    cout << "Total: " << nSolve << " window solves over " << summary.size() << " windows, solve " << total[0]
+         << " s (accepted " << total[1] << " s), metric " << total[2] << " s, remesh " << total[3] << " s, replace "
+         << total[4] << " s, adapted mesh and restart output " << total[5] << " s." << endl;
+    cout << "Solves: solves of the window (the last one accepted). Change: metric of each discarded solve against the "
+            "metric its mesh was built from (mean |log| of the edge length ratio; - unknown: input or restart mesh). "
+            "Final: the same after the accepted solve. Solve: all solves of the window with their output, without the "
+            "metric; Accepted: the last one. Remesh: extraction, MMG and validation. Replace: new geometry and solvers "
+            "with the transfer. Output: adapted mesh and restart files of the transferred start. Cons. defect: largest "
+            "relative change of the integrals of the conservative flow variables in the transfer." << endl;
+  }
+}
+
 void CSinglezoneDriver::CheckAdaptedMeshNames() const {
 
   const auto* config = config_container[ZONE_0];
@@ -963,6 +1330,8 @@ void CSinglezoneDriver::CheckAdaptedMeshNames() const {
   if (config->GetTime_Domain()) {
     /*--- One cycle per time window (cycle = time step / ADAP_FREQ), the mesh name has its first time step. ---*/
     const unsigned long firstTimeIter = config->GetRestart() ? config->GetRestart_Iter() : 0;
+    /*--- The fixed-point loop also adapts the mesh of the first window of a new run. ---*/
+    if (!config->GetRestart() && config->GetKind_Adap_Unsteady_Metric() == ADAP_UNSTEADY_METRIC::FIXED_POINT) check(0, 0);
     for (auto timeIter = firstTimeIter; timeIter + 1 < config->GetnTime_Iter(); timeIter++)
       if (config->GetAdap_TimeWindowEnd(timeIter)) check((timeIter + 1) / config->GetAdap_Freq(), timeIter + 1);
   } else {

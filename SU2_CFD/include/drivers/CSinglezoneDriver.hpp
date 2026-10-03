@@ -68,6 +68,10 @@ protected:
   bool predictSnapshotValid = false;       /*!< \brief Snapshot j exists on the current mesh. */
   unsigned long windowFirstStep = 0;       /*!< \brief First time step solved on the current mesh. */
 
+  /*--- ADAP_UNSTEADY_METRIC= FIXED_POINT: the window metric ends at the last step of the window being solved. ---*/
+  bool fixedPointWindow = false;           /*!< \brief The window metric ends at fixedPointLastStep. */
+  unsigned long fixedPointLastStep = 0;    /*!< \brief Last time step of the window being solved. */
+  bool windowMetricDone = false;           /*!< \brief The metric of the window was computed (its last step solved). */
 
   /*!
    * \brief Stop with an error if the mesh of this problem cannot be adapted or replaced: compressible EULER,
@@ -89,6 +93,39 @@ protected:
    *       column Adap_Cycle) are the time windows counted from time step 0 (cycle = time step / ADAP_FREQ).
    */
   void RunTimeAdaptationLoop();
+
+  /*!
+   * \brief Time-domain loop with ADAP_UNSTEADY_METRIC= FIXED_POINT: for each time window (ADAP_FREQ steps from step
+   *        0), the state at its start is saved, the window is solved on the current mesh while its metric is
+   *        accumulated (mean |H| as WINDOW_AVERAGE), the mesh is remeshed from that metric, the saved start state is
+   *        transferred to the new mesh and the window is solved again; ADAP_FP_ITER times, or fewer when the metric
+   *        of a re-solve differs from the one before by less than ADAP_FP_TOL (MetricChange). The last solve is the
+   *        accepted one: only it writes the history rows, the output files of its time steps, its mesh and the
+   *        restart files of the transferred start state (as after an adaptation of the WINDOW_AVERAGE loop).
+   * \note The other solves keep the screen output and the convergence monitoring; the output state of the window
+   *       start (time averages, time convergence) is restored after each of them. The first window of a new run starts
+   *       each mesh from the initial condition of the run (no transfer). The first window of a restarted run is solved
+   *       once on the restart mesh (the accepted mesh of that window of the run that wrote the files), so a restart at
+   *       a step k (mesh of the largest step <= k) continues as the run that wrote it.
+   */
+  void RunTimeFixedPointLoop();
+
+  /*!
+   * \brief Solve the time steps first to last on the current mesh. Accepted solves are the steps of the normal time
+   *        loop (Monitor and Output: files, history, stop criteria); the other ones only Preprocess, Run, Postprocess
+   *        and Update (no files, no history rows; the screen output stays).
+   * \return Last time step solved (before last if the run stopped, accepted solves only).
+   */
+  unsigned long SolveTimeWindow(unsigned long first, unsigned long last, bool accepted);
+
+  /*!
+   * \brief Change of the metric between two solves of a time window: the edges of the current mesh measured in the
+   *        current flow metric and in the metric the mesh was built from (at its points, as returned by the remesher),
+   *        mean of |log(length ratio)| and the fraction of edges whose length changes by more than a factor 2.
+   * \param[in] meshMetric - Metric the current mesh was built from, by global point index (empty: unknown).
+   * \return Mean and fraction; the mean is negative when meshMetric does not fit the mesh.
+   */
+  std::pair<passivedouble, passivedouble> MetricChange(const vector<passivedouble>& meshMetric) const;
 
   /*!
    * \brief Delete the geometry and solvers of a mesh kept by ReplaceMesh (keepCurrent).

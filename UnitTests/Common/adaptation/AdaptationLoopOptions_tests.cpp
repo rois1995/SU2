@@ -293,6 +293,20 @@ TEST_CASE("Adaptation loop options, time domain", "[Adaptation]") {
     CHECK(config->GetAdap_Predict_Separation() == 4ul);
     CHECK(config->GetAdap_Predict_Aniso() == 1.0);
     CHECK(config->GetAdap_Predict_Regularization() == 2.0);
+
+    /*--- FIXED_POINT: two remeshes per window and the tolerance of the metric change by default, explicit values kept,
+     *    also with one time step per window. ---*/
+    config = MakeTimeConfig(timeOptions + "ADAP_UNSTEADY_METRIC= FIXED_POINT\n");
+    CHECK(config->GetKind_Adap_Unsteady_Metric() == ADAP_UNSTEADY_METRIC::FIXED_POINT);
+    CHECK(config->GetAdap_FP_Iter() == 2ul);
+    CHECK(config->GetAdap_FP_Tol() == 0.1);
+    CHECK(config->GetKind_Adap_Transfer() == ADAP_TRANSFER::CONSERVATIVE);
+    std::string oneStep = timeOptions;
+    oneStep.replace(oneStep.find("ADAP_FREQ= 10"), 13, "ADAP_FREQ= 1");
+    config = MakeTimeConfig(oneStep + "ADAP_UNSTEADY_METRIC= FIXED_POINT\nADAP_FP_ITER= 1\nADAP_FP_TOL= 0.2\n");
+    CHECK(config->GetAdap_Freq() == 1ul);
+    CHECK(config->GetAdap_FP_Iter() == 1ul);
+    CHECK(config->GetAdap_FP_Tol() == 0.2);
   }
 
   SECTION("Meshes written with the restart files") {

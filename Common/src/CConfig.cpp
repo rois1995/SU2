@@ -3351,7 +3351,8 @@ void CConfig::SetConfig_Options() {
    * window \n OPTIONS: WINDOW_AVERAGE (mean |Hessian| of the sensors over the previous window: the mesh lags behind
    * moving features), PREDICT (the metric at the end of the window is moved over the next window with the motion of
    * its features, estimated by optical flow between two metric snapshots of the window on the current mesh, reoriented
-   * by the deformation of that motion, and intersected over the next window), FIXED_POINT (not implemented yet) \n
+   * by the deformation of that motion, and intersected over the next window), FIXED_POINT (each window is solved,
+   * remeshed from its own mean |Hessian| and solved again from its saved start state, ADAP_FP_ITER times) \n
    * DEFAULT: WINDOW_AVERAGE \ingroup Config */
   addEnumOption("ADAP_UNSTEADY_METRIC", Kind_Adap_Unsteady_Metric, Adap_Unsteady_Metric_Map,
                 ADAP_UNSTEADY_METRIC::WINDOW_AVERAGE);
@@ -6253,8 +6254,6 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
 
       /*--- Metric of the next window. PREDICT needs two time steps per window (two snapshots on the same mesh). ---*/
       if (Kind_Adap_Unsteady_Metric == ADAP_UNSTEADY_METRIC::FIXED_POINT) {
-        SU2_MPI::Error("ADAP_UNSTEADY_METRIC= FIXED_POINT is not implemented yet, use WINDOW_AVERAGE or PREDICT.",
-                       CURRENT_FUNCTION);
         if (Adap_FP_Iter < 1) {
           SU2_MPI::Error("ADAP_FP_ITER must be >= 1 (remeshes and re-solves of each time window).", CURRENT_FUNCTION);
         }

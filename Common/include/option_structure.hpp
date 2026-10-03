@@ -1263,7 +1263,8 @@ enum class ADAP_UNSTEADY_METRIC {
   WINDOW_AVERAGE, /*!< \brief Mean |Hessian| of the sensors over the previous time window ("a posteriori"). */
   PREDICT,        /*!< \brief Metric of the end of the window transported over the next window by the motion of its
                        features (optical flow between two snapshots of the window). */
-  FIXED_POINT,    /*!< \brief Re-solve each window on the mesh built from it (not implemented yet). */
+  FIXED_POINT,    /*!< \brief Fixed point per window: solve the window, remesh from its metric, solve it again from its
+                       saved start state on the new mesh (ADAP_FP_ITER times or to ADAP_FP_TOL). */
 };
 static const MapType<std::string, ADAP_UNSTEADY_METRIC> Adap_Unsteady_Metric_Map = {
   MakePair("WINDOW_AVERAGE", ADAP_UNSTEADY_METRIC::WINDOW_AVERAGE)
