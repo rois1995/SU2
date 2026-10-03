@@ -929,3 +929,71 @@ TEST_CASE("Conservative transfer: no-slip wall points", "[Adaptation]") {
   }
 }
 
+TEST_CASE("Conservative transfer: SST kinetic energy in the admissibility", "[Adaptation]") {
+  /*--- The review's two states A and B on alternating donor points (U^n, and U^(n-1) the other way round), 2nd-order
+   *    dual time stepping. The solver subtracts k from the internal energy: every final state (solution and history)
+   *    must be admissible with it, with a positive pressure in the solver, and the flow totals kept. ---*/
+  const unsigned short nDim = 2;
+  auto config = MakeConfig(nDim,
+                           "SOLVER= RANS\nREYNOLDS_NUMBER= 1e6\nKIND_TURB_MODEL= SST\nTIME_DOMAIN= YES\n"
+                           "TIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\nTIME_STEP= 1e-3\nTIME_ITER= 10\n");
+  MeshSolution donor(config.get(), BoxMesh(nDim, 4, false), 1);
+  SetTwoStates(donor, nDim, 4);
+  MeshSolution target(config.get(), BoxMesh(nDim, 6, true), 1);
+  CConservativeTransfer transfer;
+  {
+    Mute mute;
+    transfer.Transfer(config.get(), donor.Donor(), target.geometry, target.solver);
+  }
+  const auto& summary = transfer.GetSummary();
+  for (int level = 0; level < 2; ++level) {
+    INFO("level " << level);
+    passivedouble minEnergy, maxDeviation;
+    JointEnergyRange(target, nDim, level, minEnergy, maxDeviation);
+    CHECK(minEnergy > 0.0);
+    for (unsigned short f = 0; f < nDim + 2; ++f) CHECK(fabs(summary.relativeDefect[level * (nDim + 4) + f]) < 1e-12);
+  }
+  const auto* nodes = target.solver[MESH_0][FLOW_SOL]->GetNodes();
+  for (auto iPoint = 0ul; iPoint < target.Fine().GetnPoint(); ++iPoint) CHECK(nodes->GetPressure(iPoint) > 0.0);
+}
+
+TEST_CASE("Conservative transfer: donor state not admissible with k", "[Adaptation]") {
+  /*--- SST, affine flow and turbulence; at the donor point nearest to (1, 0.5) k is twice the internal energy of its
+   *    flow state (admissible without k, not with it). The projected states near it are not admissible with k: they
+   *    must be recovered, every final state admissible with k subtracted, the flow totals kept. ---*/
+  const unsigned short nDim = 2;
+  auto config = MakeConfig(nDim, "SOLVER= RANS\nREYNOLDS_NUMBER= 1e6\nKIND_TURB_MODEL= SST\n");
+  MeshSolution donor(config.get(), BoxMesh(nDim, 4, false), 0);
+  donor.SetField(FLOW_SOL, AffineFlow(nDim));
+  donor.SetField(TURB_SOL, [](const su2double* x, su2double* v) {
+    v[0] = 1.0 + 0.1 * x[0] - 0.2 * x[1];
+    v[1] = 1e3 + 100.0 * x[0] + 50.0 * x[1];
+  });
+  auto* donorFlow = donor.solver[MESH_0][FLOW_SOL]->GetNodes();
+  auto* donorTurb = donor.solver[MESH_0][TURB_SOL]->GetNodes();
+  for (auto iPoint = 0ul; iPoint < donor.Fine().GetnPoint(); ++iPoint) {
+    const auto* x = donor.Fine().nodes->GetCoord(iPoint);
+    if (fabs(x[0] - 1.0) > 1e-12 || fabs(x[1] - 0.5) > 1e-12) continue;
+    su2double U[MAXVAR];
+    for (unsigned short iVar = 0; iVar < nDim + 2; ++iVar) U[iVar] = donorFlow->GetSolution(iPoint, iVar);
+    donorTurb->SetSolution(iPoint, 0, 2.0 * InternalEnergy(nDim, U, 0.0));
+  }
+  MeshSolution target(config.get(), BoxMesh(nDim, 8, false), 0);
+  CConservativeTransfer transfer;
+  {
+    Mute mute;
+    transfer.Transfer(config.get(), donor.Donor(), target.geometry, target.solver);
+  }
+  const auto& summary = transfer.GetSummary();
+  CHECK(summary.nFlowFixed >= 1);
+  const auto* flow = target.solver[MESH_0][FLOW_SOL]->GetNodes();
+  const auto* turb = target.solver[MESH_0][TURB_SOL]->GetNodes();
+  for (auto iPoint = 0ul; iPoint < target.Fine().GetnPoint(); ++iPoint) {
+    su2double V[MAXVAR];
+    for (unsigned short iVar = 0; iVar < nDim + 2; ++iVar) V[iVar] = flow->GetSolution(iPoint, iVar);
+    CHECK(InternalEnergy(nDim, V, turb->GetSolution(iPoint, 0)) > 0.0);
+    CHECK(flow->GetPressure(iPoint) > 0.0);
+  }
+  for (unsigned short f = 0; f < nDim + 2; ++f) CHECK(fabs(summary.relativeDefect[f]) < 1e-12);
+}
+

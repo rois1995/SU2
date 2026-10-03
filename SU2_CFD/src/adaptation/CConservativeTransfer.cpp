@@ -1093,8 +1093,10 @@ void CConservativeTransfer::Transfer(CConfig* config, const CMeshDonor& donor, C
     }
   }
 
-  /*--- Admissibility of the flow states: control-volume mean, else the admissible donor state of largest weight at the
-   *    point; the integral change is redistributed over the other points. ---*/
+  /*--- Admissibility of the complete states (flow and turbulence of a time level; the solver subtracts the SST k from
+   *    the internal energy): control-volume mean of all fields of the level, else the flow and turbulence states of the
+   *    admissible donor point of largest weight at the point; the integral change is redistributed over the other
+   *    points. ---*/
 
   std::unique_ptr<CBarycentricLocator> locator;
   for (unsigned short iLevel = 0; iLevel < nLevel; ++iLevel) {
@@ -1104,39 +1106,48 @@ void CConservativeTransfer::Transfer(CConfig* config, const CMeshDonor& donor, C
     std::vector<bool> fixed(nPoint, false);
     su2double state[8] = {};
     auto admissible = [&](unsigned long iPoint) {
-      for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) state[iVar] = newValues[iPoint * nField + offset + iVar];
-      return CBarycentricTransfer::AdmissibleState(*fluidModel, nDim, state);
+      const auto* values = &newValues[iPoint * nField + offset];
+      for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) state[iVar] = values[iVar];
+      const su2double k = (turbTimesDensity && values[0] > 0.0) ? su2double(values[nVarFlow] / values[0]) : su2double(0.0);
+      return CBarycentricTransfer::AdmissibleState(*fluidModel, nDim, state, k);
     };
     for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
       if (admissible(iPoint)) continue;
       nFixed++;
       fixed[iPoint] = true;
-      for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar)
+      for (unsigned short iVar = 0; iVar < nPerLevel; ++iVar)
         newValues[iPoint * nField + offset + iVar] = projection.GetMean(iPoint, offset + iVar);
       if (admissible(iPoint)) continue;
       if (!locator) locator = std::make_unique<CBarycentricLocator>(*donorGeometry, donor.markerTags, 1e300);
       const auto stencil = locator->Locate(newGeometry->nodes->GetCoord(iPoint));
+      const su2activematrix* donorTurb = nVarTurb ? &turbArray(donor.solver[MESH_0], iLevel) : nullptr;
       int best = -1;
       for (unsigned short k = 0; k < stencil.nPoint; ++k) {
-        if ((best < 0 || stencil.weight[k] > stencil.weight[best]) &&
-            CBarycentricTransfer::AdmissibleState(*fluidModel, nDim, donorFlow[stencil.point[k]])) {
-          best = k;
-        }
+        if (best >= 0 && stencil.weight[k] <= stencil.weight[best]) continue;
+        const auto jPoint = stencil.point[k];
+        const su2double k0 = turbTimesDensity ? (*donorTurb)(jPoint, 0) : su2double(0.0);
+        if (CBarycentricTransfer::AdmissibleState(*fluidModel, nDim, donorFlow[jPoint], k0)) best = k;
       }
       if (best < 0) {
         SU2_MPI::Error("No admissible flow state for the point " + std::to_string(iPoint) + " of the new mesh.",
                        CURRENT_FUNCTION);
       }
+      /*--- Paired: flow and turbulence of the same donor point. ---*/
+      const auto jPoint = stencil.point[best];
       for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar)
-        newValues[iPoint * nField + offset + iVar] = SU2_TYPE::GetValue(donorFlow(stencil.point[best], iVar));
+        newValues[iPoint * nField + offset + iVar] = SU2_TYPE::GetValue(donorFlow(jPoint, iVar));
+      for (unsigned short iVar = 0; iVar < nVarTurb; ++iVar) {
+        const passivedouble factor = turbTimesDensity ? SU2_TYPE::GetValue(donorFlow(jPoint, 0)) : 1.0;
+        newValues[iPoint * nField + offset + nVarFlow + iVar] = factor * SU2_TYPE::GetValue((*donorTurb)(jPoint, iVar));
+      }
     }
     if (std::find(fixed.begin(), fixed.end(), true) != fixed.end()) {
-      for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) projection.Redistribute(offset + iVar, newValues, fixed);
+      for (unsigned short iVar = 0; iVar < nPerLevel; ++iVar) projection.Redistribute(offset + iVar, newValues, fixed);
       for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
         if (fixed[iPoint] || admissible(iPoint)) continue;
         /*--- Made inadmissible by the redistribution (not expected): its mean, the total is then not exact. ---*/
         nFixed++;
-        for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar)
+        for (unsigned short iVar = 0; iVar < nPerLevel; ++iVar)
           newValues[iPoint * nField + offset + iVar] = projection.GetMean(iPoint, offset + iVar);
       }
     }

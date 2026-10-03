@@ -219,4 +219,83 @@ inline void SmoothFlow(unsigned short nDim, const su2double* x, su2double* U) {
   U[nDim + 1] = 2.5e5 + 2e4 * x[0] * x[1] - 1e4 * cos(z);
 }
 
+/*--- Internal energy per unit mass as the solver computes it (CNSVariable::SetPrimVar): total energy minus kinetic
+ *    energy, minus the turbulent kinetic energy k with SST. ---*/
+inline su2double InternalEnergy(unsigned short nDim, const su2double* U, su2double k) {
+  su2double momentum2 = 0.0;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) momentum2 += U[iDim + 1] * U[iDim + 1];
+  return U[nDim + 1] / U[0] - 0.5 * momentum2 / (U[0] * U[0]) - k;
+}
+
+/*!
+ * \brief The two SST states of the review (zero momentum, internal energy 0.1 for both): A = (rho 2, rho E 2.2, k 1),
+ *        B = (rho 1, rho E 2.1, k 2), omega 1e3. A donor point of the box mesh with n cells per unit length gets A
+ *        when the sum of its grid indices plus level is even, so every element mixes them. With k interpolated by
+ *        itself the mixed states have rho E / rho > 0 but e = rho E / rho - k < 0 (-0.067 at equal weights).
+ */
+inline bool TwoStateA(unsigned short nDim, unsigned long n, int level, const su2double* x) {
+  long sum = level;
+  for (unsigned short iDim = 0; iDim < nDim; ++iDim) sum += lround(SU2_TYPE::GetValue(x[iDim]) * n);
+  return sum % 2 == 0;
+}
+inline void TwoStateFlow(unsigned short nDim, bool a, su2double* U) {
+  for (unsigned short iVar = 0; iVar < nDim + 2; ++iVar) U[iVar] = 0.0;
+  U[0] = a ? 2.0 : 1.0;
+  U[nDim + 1] = a ? 2.2 : 2.1;
+}
+inline void TwoStateTurb(bool a, su2double* v) {
+  v[0] = a ? 1.0 : 2.0;
+  v[1] = 1e3;
+}
+
+/*--- Set the solution, Solution_time_n (level 0) and Solution_time_n1 (level 1) of the flow and SST solvers of the
+ *    fine level to the two-state pattern. ---*/
+inline void SetTwoStates(MeshSolution& mesh, unsigned short nDim, unsigned long n) {
+  auto* flow = mesh.solver[MESH_0][FLOW_SOL]->GetNodes();
+  auto* turb = mesh.solver[MESH_0][TURB_SOL]->GetNodes();
+  for (auto iPoint = 0ul; iPoint < mesh.Fine().GetnPoint(); ++iPoint) {
+    for (int level = 0; level < 2; ++level) {
+      const bool a = TwoStateA(nDim, n, level, mesh.Fine().nodes->GetCoord(iPoint));
+      su2double U[MAXVAR], v[MAXVAR];
+      TwoStateFlow(nDim, a, U);
+      TwoStateTurb(a, v);
+      for (unsigned short iVar = 0; iVar < nDim + 2; ++iVar) {
+        if (level == 0) {
+          flow->GetSolution()(iPoint, iVar) = U[iVar];
+          flow->GetSolution_time_n()(iPoint, iVar) = U[iVar];
+        } else {
+          flow->GetSolution_time_n1()(iPoint, iVar) = U[iVar];
+        }
+      }
+      for (unsigned short iVar = 0; iVar < 2; ++iVar) {
+        if (level == 0) {
+          turb->GetSolution()(iPoint, iVar) = v[iVar];
+          turb->GetSolution_time_n()(iPoint, iVar) = v[iVar];
+        } else {
+          turb->GetSolution_time_n1()(iPoint, iVar) = v[iVar];
+        }
+      }
+    }
+  }
+}
+
+/*--- Smallest internal energy (the solver's, k subtracted) over the fine level of the new mesh, for the solution
+ *    (level 0) or Solution_time_n1 (level 1); also the largest deviation from 0.1. ---*/
+inline void JointEnergyRange(const MeshSolution& mesh, unsigned short nDim, int level, passivedouble& minEnergy,
+                             passivedouble& maxDeviation) {
+  auto* flow = mesh.solver[MESH_0][FLOW_SOL]->GetNodes();
+  auto* turb = mesh.solver[MESH_0][TURB_SOL]->GetNodes();
+  minEnergy = 1e300;
+  maxDeviation = 0.0;
+  for (auto iPoint = 0ul; iPoint < mesh.Fine().GetnPoint(); ++iPoint) {
+    su2double U[MAXVAR];
+    for (unsigned short iVar = 0; iVar < nDim + 2; ++iVar)
+      U[iVar] = level == 0 ? flow->GetSolution(iPoint, iVar) : flow->GetSolution_time_n1()(iPoint, iVar);
+    const su2double k = level == 0 ? turb->GetSolution(iPoint, 0) : turb->GetSolution_time_n1()(iPoint, 0);
+    const passivedouble e = SU2_TYPE::GetValue(InternalEnergy(nDim, U, k));
+    minEnergy = std::min(minEnergy, e);
+    maxDeviation = std::max(maxDeviation, fabs(e - 0.1));
+  }
+}
+
 }  // namespace transfer_test

@@ -162,15 +162,19 @@ class CBarycentricLocator {
  *         distance limit (max(face size, 2 ADAP_HAUSD, 1e-3 x domain size)) stop the transfer with an error.
  *       - Flow: the conservative variables are interpolated; the primitive variables are then computed from them by
  *         the solver with its own fluid model (no separate interpolation or clipping of pressure, temperature).
- *         Admissibility after the interpolation: density, pressure, temperature and squared speed of sound from the
- *         fluid model must be positive and finite. With weights in [0,1] (as here, up to the 1e-10 tolerance of
- *         the search) and an ideal gas this holds whenever it holds at the donor points (the internal energy per
- *         volume is concave in the conservative variables). If not, the point takes the conservative state of its donor point of largest weight that is
- *         admissible (a donor state, not a clipped one); error if no donor point of the stencil is admissible.
- *       - Turbulence: the solution variables of the solver are interpolated (nu_tilde for SA, also negative with the
- *         negative SA variant; k and omega for SST), then limited to the bounds the solver applies after each update
- *         (the negative SA variant has no lower bound). With weights in [0,1] the values stay within the donor ones.
- *         Eddy viscosity and wall-distance-dependent quantities are not interpolated, the solver computes them.
+ *       - Turbulence: nu_tilde for SA (also negative with the negative SA variant); for SST the conservative variables
+ *         of the SST solver, rho k and rho omega, are interpolated and divided by the interpolated density (a
+ *         density-weighted interpolation of k and omega). Then the values are limited to the bounds the solver applies
+ *         after each update (the negative SA variant has no lower bound). With weights in [0,1] the values stay within
+ *         the donor ones. Eddy viscosity and wall-distance-dependent quantities are not interpolated, the solver
+ *         computes them.
+ *       - Admissibility of the complete state of a point (flow and turbulence of the same time level): density,
+ *         pressure, temperature and squared speed of sound from the fluid model positive and finite, with the internal
+ *         energy of the solver, from which SST subtracts k (CNSVariable::SetPrimVar). With weights in [0,1] and an
+ *         ideal gas this holds whenever it holds at the donor points: rho e = rho E - |rho u|^2 / (2 rho) - rho k is
+ *         concave in (rho, rho u, rho E, rho k), which is why rho k is interpolated with the density. If not, the point
+ *         takes the flow AND turbulence states of its donor point of largest weight whose complete state is admissible
+ *         (paired, a donor state, not a clipped one); error if no donor point of the stencil is admissible.
  *       - Then, as after loading a restart file: communication, primitive variables and eddy viscosity, restriction
  *         to the coarse multigrid levels (CSolver::UpdateLoadedSolution), and the old solution equals the new one.
  *       - Time domain (dual time stepping): the transfer is done at the end of a time step (after the dual-time
@@ -213,7 +217,7 @@ class CBarycentricTransfer final : public CSolutionTransfer {
     su2double maxRelDistance = 0.0;     /*!< \brief Largest distance relative to the size of the donor face. */
     su2double distanceLimit = 0.0;      /*!< \brief Distance always accepted (2 ADAP_HAUSD, 1e-3 x domain size). */
     std::vector<MarkerSummary> markers; /*!< \brief Per marker of the new mesh, then the points on no marker. */
-    unsigned long nFlowFixed = 0;       /*!< \brief Points where the interpolated flow state was not admissible. */
+    unsigned long nFlowFixed = 0;       /*!< \brief Points where the interpolated state was not admissible (U^n). */
     unsigned long nHistoryFixed = 0;    /*!< \brief Same for U^(n-1) (Solution_time_n1, 2nd-order dual time stepping). */
     unsigned short nTimeLevels = 0;     /*!< \brief History arrays set (0 steady, 1 or 2). */
     bool interpolateTimeN1 = false;     /*!< \brief U^(n-1) interpolated (2nd order), else Solution_time_n1 = U^n. */
@@ -242,12 +246,15 @@ class CBarycentricTransfer final : public CSolutionTransfer {
 
   /*!
    * \brief Whether a conservative flow state is admissible: density, pressure, temperature and squared speed of
-   *        sound positive and finite (the checks of CEulerVariable::SetPrimVar, and finite values).
+   *        sound positive and finite, with the internal energy as the solver computes it (CEulerVariable::SetPrimVar,
+   *        and CNSVariable::SetPrimVar, which subtracts the turbulent kinetic energy k with SST), and finite values.
    * \param[in] fluidModel - Fluid model of the flow solver (its state is changed).
    * \param[in] nDim - Number of dimensions.
    * \param[in] solution - Conservative variables (density, momentum, total energy per volume).
+   * \param[in] turbKineticEnergy - k of the SST model at the point (per unit mass), 0 otherwise.
    */
-  static bool AdmissibleState(CFluidModel& fluidModel, unsigned short nDim, const su2double* solution);
+  static bool AdmissibleState(CFluidModel& fluidModel, unsigned short nDim, const su2double* solution,
+                              su2double turbKineticEnergy = 0.0);
 
  private:
   bool roundTripCheck;

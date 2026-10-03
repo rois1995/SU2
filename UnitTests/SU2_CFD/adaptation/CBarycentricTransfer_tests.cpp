@@ -309,7 +309,8 @@ TEST_CASE("Barycentric transfer: turbulence variables", "[Adaptation]") {
     bool clippedAtEps;
   };
   /*--- SA: positive field; negative SA variant: field that changes sign (kept); standard SA with the same field:
-   *    values below the solver's lower bound are limited to it. SST: positive k and omega. ---*/
+   *    values below the solver's lower bound are limited to it. SST: positive k and omega with rho k and rho omega
+   *    affine (SST interpolates them with the density, exact then). ---*/
   auto changesSign = [](const su2double* x, su2double* v) { v[0] = -5e-5 + 1e-4 * x[0] - 2e-5 * x[1]; };
   const std::vector<TurbCase> cases = {
       {"SA", "KIND_TURB_MODEL= SA\n", [](const su2double* x, su2double* v) { v[0] = 1e-4 + 2e-5 * x[0] - 1e-5 * x[1]; },
@@ -318,8 +319,10 @@ TEST_CASE("Barycentric transfer: turbulence variables", "[Adaptation]") {
       {"SA limited", "KIND_TURB_MODEL= SA\n", changesSign, true},
       {"SST", "KIND_TURB_MODEL= SST\n",
        [](const su2double* x, su2double* v) {
-         v[0] = 1.0 + 0.1 * x[0] - 0.2 * x[1];
-         v[1] = 1e3 + 100.0 * x[0] + 50.0 * x[1];
+         su2double U[MAXVAR];
+         AffineFlow(2)(x, U);
+         v[0] = (1.0 + 0.1 * x[0] - 0.2 * x[1]) / U[0];
+         v[1] = (1e3 + 100.0 * x[0] + 50.0 * x[1]) / U[0];
        },
        false},
   };
@@ -368,6 +371,103 @@ TEST_CASE("Barycentric transfer: turbulence variables", "[Adaptation]") {
       CheckCoarseLevels(target, TURB_SOL);
     }
   }
+}
+
+TEST_CASE("Barycentric transfer: SST kinetic energy in the admissibility", "[Adaptation]") {
+  /*--- The review's two states A and B (TransferTestCase.hpp) on alternating donor points, U^n and U^(n-1) (the other
+   *    way round), 2nd-order dual time stepping. The solver subtracts k from the internal energy; k interpolated by
+   *    itself gives e < 0 between A and B. With rho k interpolated with the density, rho e = rho E - rho k is
+   *    interpolated linearly, so e = 0.1 at every new point, for the solution and the history, and the solver's
+   *    pressure is positive. ---*/
+  const unsigned short nDim = 2;
+  auto config = MakeConfig(nDim,
+                           "SOLVER= RANS\nREYNOLDS_NUMBER= 1e6\nKIND_TURB_MODEL= SST\nTIME_DOMAIN= YES\n"
+                           "TIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\nTIME_STEP= 1e-3\nTIME_ITER= 10\n");
+  MeshSolution donor(config.get(), BoxMesh(nDim, 4, false), 1);
+  SetTwoStates(donor, nDim, 4);
+  MeshSolution target(config.get(), BoxMesh(nDim, 6, true), 1);
+  CBarycentricTransfer transfer;
+  {
+    Mute mute;
+    transfer.Transfer(config.get(), donor.Donor(), target.geometry, target.solver);
+  }
+  CHECK(transfer.GetSummary().nFlowFixed == 0);
+  CHECK(transfer.GetSummary().nHistoryFixed == 0);
+  for (int level = 0; level < 2; ++level) {
+    INFO("level " << level);
+    passivedouble minEnergy, maxDeviation;
+    JointEnergyRange(target, nDim, level, minEnergy, maxDeviation);
+    CHECK(minEnergy > 0.0);
+    CHECK(maxDeviation < 1e-12);
+  }
+  const auto* nodes = target.solver[MESH_0][FLOW_SOL]->GetNodes();
+  for (auto iPoint = 0ul; iPoint < target.Fine().GetnPoint(); ++iPoint) CHECK(nodes->GetPressure(iPoint) > 0.0);
+}
+
+TEST_CASE("Barycentric transfer: flow and turbulence states replaced together", "[Adaptation]") {
+  /*--- SST, affine flow and turbulence fields; at the donor point nearest to (1, 0.5) k is twice the internal energy
+   *    of the flow state there (admissible without k, not with it). The new mesh contains the donor points: the new
+   *    point there takes the flow AND the turbulence state of one other donor point (paired), every state is
+   *    admissible with k subtracted. ---*/
+  const unsigned short nDim = 2;
+  auto config = MakeConfig(nDim, "SOLVER= RANS\nREYNOLDS_NUMBER= 1e6\nKIND_TURB_MODEL= SST\n");
+  MeshSolution donor(config.get(), BoxMesh(nDim, 4, false), 0);
+  donor.SetField(FLOW_SOL, AffineFlow(nDim));
+  donor.SetField(TURB_SOL, [](const su2double* x, su2double* v) {
+    v[0] = 1.0 + 0.1 * x[0] - 0.2 * x[1];
+    v[1] = 1e3 + 100.0 * x[0] + 50.0 * x[1];
+  });
+  auto* donorFlow = donor.solver[MESH_0][FLOW_SOL]->GetNodes();
+  auto* donorTurb = donor.solver[MESH_0][TURB_SOL]->GetNodes();
+  unsigned long bad = 0;
+  passivedouble best = 1e300;
+  for (auto iPoint = 0ul; iPoint < donor.Fine().GetnPoint(); ++iPoint) {
+    const auto* x = donor.Fine().nodes->GetCoord(iPoint);
+    const passivedouble dist = SU2_TYPE::GetValue(pow(x[0] - 1.0, 2) + pow(x[1] - 0.5, 2));
+    if (dist < best) {
+      best = dist;
+      bad = iPoint;
+    }
+  }
+  su2double U[MAXVAR];
+  for (unsigned short iVar = 0; iVar < nDim + 2; ++iVar) U[iVar] = donorFlow->GetSolution(bad, iVar);
+  donorTurb->SetSolution(bad, 0, 2.0 * InternalEnergy(nDim, U, 0.0));
+  REQUIRE(CBarycentricTransfer::AdmissibleState(*donor.solver[MESH_0][FLOW_SOL]->GetFluidModel(), nDim, U));
+  REQUIRE(InternalEnergy(nDim, U, donorTurb->GetSolution(bad, 0)) < 0.0);
+
+  MeshSolution target(config.get(), BoxMesh(nDim, 8, false), 0);
+  CBarycentricTransfer transfer;
+  {
+    Mute mute;
+    transfer.Transfer(config.get(), donor.Donor(), target.geometry, target.solver);
+  }
+  CHECK(transfer.GetSummary().nFlowFixed >= 1);
+
+  const auto* flow = target.solver[MESH_0][FLOW_SOL]->GetNodes();
+  const auto* turb = target.solver[MESH_0][TURB_SOL]->GetNodes();
+  const auto* badCoord = donor.Fine().nodes->GetCoord(bad);
+  unsigned long nAtBad = 0;
+  for (auto iPoint = 0ul; iPoint < target.Fine().GetnPoint(); ++iPoint) {
+    su2double V[MAXVAR];
+    for (unsigned short iVar = 0; iVar < nDim + 2; ++iVar) V[iVar] = flow->GetSolution(iPoint, iVar);
+    CHECK(InternalEnergy(nDim, V, turb->GetSolution(iPoint, 0)) > 0.0);
+    CHECK(flow->GetPressure(iPoint) > 0.0);
+
+    const auto* x = target.Fine().nodes->GetCoord(iPoint);
+    if (SU2_TYPE::GetValue(fabs(x[0] - badCoord[0]) + fabs(x[1] - badCoord[1])) > 1e-12) continue;
+    nAtBad++;
+    bool paired = false;
+    for (auto jPoint = 0ul; jPoint < donor.Fine().GetnPoint() && !paired; ++jPoint) {
+      if (jPoint == bad) continue;
+      bool same = true;
+      for (unsigned short iVar = 0; iVar < nDim + 2; ++iVar) same &= (V[iVar] == donorFlow->GetSolution(jPoint, iVar));
+      for (unsigned short iVar = 0; iVar < 2; ++iVar)
+        same &= (turb->GetSolution(iPoint, iVar) == donorTurb->GetSolution(jPoint, iVar));
+      paired = same;
+    }
+    CHECK(paired);
+  }
+  CHECK(nAtBad == 1);
 }
 
 TEST_CASE("Barycentric transfer: time history (dual time stepping)", "[Adaptation]") {

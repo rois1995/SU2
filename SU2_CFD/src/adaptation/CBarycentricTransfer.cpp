@@ -364,16 +364,19 @@ CBarycentricLocator::Stencil CBarycentricLocator::LocateOnBoundary(const su2doub
   return best;
 }
 
-bool CBarycentricTransfer::AdmissibleState(CFluidModel& fluidModel, unsigned short nDim, const su2double* solution) {
+bool CBarycentricTransfer::AdmissibleState(CFluidModel& fluidModel, unsigned short nDim, const su2double* solution,
+                                           su2double turbKineticEnergy) {
   for (unsigned short iVar = 0; iVar < nDim + 2; ++iVar) {
     if (!IsFinite(solution[iVar])) return false;
   }
+  if (!IsFinite(turbKineticEnergy)) return false;
   const su2double density = solution[0];
   if (!(density > 0.0)) return false;
 
+  /*--- As CNSVariable::SetPrimVar: the turbulent kinetic energy (SST) is not part of the internal energy. ---*/
   su2double velocity2 = 0.0;
   for (unsigned short iDim = 0; iDim < nDim; ++iDim) velocity2 += pow(solution[iDim + 1] / density, 2);
-  const su2double staticEnergy = solution[nDim + 1] / density - 0.5 * velocity2;
+  const su2double staticEnergy = solution[nDim + 1] / density - 0.5 * velocity2 - turbKineticEnergy;
 
   fluidModel.SetTDState_rhoe(density, staticEnergy);
   const su2double pressure = fluidModel.GetPressure();
@@ -487,93 +490,101 @@ void CBarycentricTransfer::Transfer(CConfig* config, const CMeshDonor& donor, CG
   summary.interpolateTimeN1 = arrays.interpolateTimeN1;
   summary.nTimeLevels = hasTimeN + hasTimeN1;
 
-  /*--- Flow: interpolated conservative variables, a donor state where they are not admissible. ---*/
+  /*--- Flow and turbulence of one time level, point by point: interpolated conservative flow variables; turbulence
+   *    variables within the bounds of the solver (SST: rho k and rho omega interpolated, divided by the interpolated
+   *    density). The complete state of the point must be admissible with the internal energy of the solver (SST
+   *    subtracts k); if not, the point takes the flow and turbulence states of one donor point. ---*/
 
   const auto nVarFlow = flowSolver->GetnVar();
   auto* fluidModel = flowSolver->GetFluidModel();
   if (fluidModel == nullptr || nVarFlow != nDim + 2) {
     SU2_MPI::Error("The flow solver is not a compressible flow solver.", CURRENT_FUNCTION);
   }
-  auto InterpolateFlow = [&](const su2activematrix& donorSolution, su2activematrix& newSolution,
-                             unsigned long& nFixed) {
-    std::vector<su2double> state(nVarFlow);
-    for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
-      const auto& stencil = stencils[iPoint];
-      std::fill(state.begin(), state.end(), 0.0);
-      for (unsigned short k = 0; k < stencil.nPoint; ++k)
-        for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar)
-          state[iVar] += stencil.weight[k] * donorSolution(stencil.point[k], iVar);
-
-      if (!AdmissibleState(*fluidModel, nDim, state.data())) {
-        nFixed++;
-        int best = -1;
-        for (unsigned short k = 0; k < stencil.nPoint; ++k) {
-          if ((best < 0 || stencil.weight[k] > stencil.weight[best]) &&
-              AdmissibleState(*fluidModel, nDim, donorSolution[stencil.point[k]])) {
-            best = k;
-          }
-        }
-        if (best < 0) {
-          SU2_MPI::Error("No admissible donor flow state near the point " +
-                             PointText(nDim, newGeometry->nodes->GetCoord(iPoint)) + ".",
-                         CURRENT_FUNCTION);
-        }
-        for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) state[iVar] = donorSolution(stencil.point[best], iVar);
-      }
-      for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) newSolution(iPoint, iVar) = state[iVar];
-    }
-  };
-
-  /*--- Turbulence: interpolated solution variables within the bounds of the solver. ---*/
-
   const auto* turbSolver = dynamic_cast<const CTurbSolver*>(solver[MESH_0][TURB_SOL]);
   if (solver[MESH_0][TURB_SOL] != nullptr && turbSolver == nullptr) {
     SU2_MPI::Error("Unexpected turbulence solver.", CURRENT_FUNCTION);
   }
-  auto InterpolateTurb = [&](const su2activematrix& donorSolution, su2activematrix& newSolution) {
-    const auto nVarTurb = turbSolver->GetnVar();
+  const unsigned short nVarTurb = turbSolver ? turbSolver->GetnVar() : 0;
+  constexpr unsigned short kMaxVar = 8;
+  if (nVarFlow > kMaxVar || nVarTurb > kMaxVar) SU2_MPI::Error("Too many variables.", CURRENT_FUNCTION);
+  /*--- SST: CTurbSSTSolver is "Conservative" (rho k, rho omega) and its k enters the internal energy. ---*/
+  const bool sst = turbSolver && TurbModelFamily(config->GetKind_Turb_Model()) == TURB_FAMILY::KW;
+
+  /*--- Turbulence value within the bounds of the solver; counted only beyond round-off. ---*/
+  auto Bounded = [&](unsigned short iVar, su2double value, bool count) {
+    const su2double lower = turbSolver->GetLowerLimit(iVar), upper = turbSolver->GetUpperLimit(iVar);
+    if (value < lower || value > upper) {
+      const su2double limit = (value < lower) ? lower : upper;
+      if (count && fabs(value - limit) > 1e-10 * fabs(limit)) summary.nTurbLimited++;
+      value = limit;
+    }
+    return value;
+  };
+
+  auto InterpolateLevel = [&](const su2activematrix& donorFlow, su2activematrix& newFlow,
+                              const su2activematrix* donorTurb, su2activematrix* newTurb, unsigned long& nFixed) {
+    su2double state[kMaxVar] = {}, turb[kMaxVar] = {};
     for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
       const auto& stencil = stencils[iPoint];
+      for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) {
+        state[iVar] = 0.0;
+        for (unsigned short k = 0; k < stencil.nPoint; ++k)
+          state[iVar] += stencil.weight[k] * donorFlow(stencil.point[k], iVar);
+      }
       for (unsigned short iVar = 0; iVar < nVarTurb; ++iVar) {
         su2double value = 0.0;
-        for (unsigned short k = 0; k < stencil.nPoint; ++k)
-          value += stencil.weight[k] * donorSolution(stencil.point[k], iVar);
-
-        /*--- Count only the values that are out of bounds by more than round-off. ---*/
-        const su2double lower = turbSolver->GetLowerLimit(iVar), upper = turbSolver->GetUpperLimit(iVar);
-        if (value < lower || value > upper) {
-          const su2double limit = (value < lower) ? lower : upper;
-          if (fabs(value - limit) > 1e-10 * fabs(limit)) summary.nTurbLimited++;
-          value = limit;
+        for (unsigned short k = 0; k < stencil.nPoint; ++k) {
+          const auto jPoint = stencil.point[k];
+          value += stencil.weight[k] * (sst ? donorFlow(jPoint, 0) : su2double(1.0)) * (*donorTurb)(jPoint, iVar);
         }
-        newSolution(iPoint, iVar) = value;
+        if (sst) value = (state[0] > 0.0) ? value / state[0] : su2double(0.0);
+        turb[iVar] = Bounded(iVar, value, true);
       }
+
+      if (!AdmissibleState(*fluidModel, nDim, state, sst ? turb[0] : su2double(0.0))) {
+        /*--- Paired fallback: flow and turbulence states of the same donor point. ---*/
+        nFixed++;
+        int best = -1;
+        for (unsigned short k = 0; k < stencil.nPoint; ++k) {
+          if (best >= 0 && stencil.weight[k] <= stencil.weight[best]) continue;
+          const auto jPoint = stencil.point[k];
+          const su2double k0 = sst ? Bounded(0, (*donorTurb)(jPoint, 0), false) : su2double(0.0);
+          if (AdmissibleState(*fluidModel, nDim, donorFlow[jPoint], k0)) best = k;
+        }
+        if (best < 0) {
+          SU2_MPI::Error("No admissible donor state (flow and turbulence) near the point " +
+                             PointText(nDim, newGeometry->nodes->GetCoord(iPoint)) + ".",
+                         CURRENT_FUNCTION);
+        }
+        const auto jPoint = stencil.point[best];
+        for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) state[iVar] = donorFlow(jPoint, iVar);
+        for (unsigned short iVar = 0; iVar < nVarTurb; ++iVar) turb[iVar] = Bounded(iVar, (*donorTurb)(jPoint, iVar), false);
+      }
+      for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) newFlow(iPoint, iVar) = state[iVar];
+      for (unsigned short iVar = 0; iVar < nVarTurb; ++iVar) (*newTurb)(iPoint, iVar) = turb[iVar];
     }
   };
 
+  auto* flowNodes = flowSolver->GetNodes();
+  auto* donorFlowNodes = donorFlowSolver->GetNodes();
+  auto* turbNodes = turbSolver ? solver[MESH_0][TURB_SOL]->GetNodes() : nullptr;
+  auto* donorTurbNodes = turbSolver ? donor.solver[MESH_0][TURB_SOL]->GetNodes() : nullptr;
+
+  /*--- U^n, once. ---*/
+  InterpolateLevel(donorFlowNodes->GetSolution(), flowNodes->GetSolution(),
+                   turbSolver ? &donorTurbNodes->GetSolution() : nullptr, turbSolver ? &turbNodes->GetSolution() : nullptr,
+                   summary.nFlowFixed);
+
+  /*--- U^(n-1): 2nd order only, else U^n. ---*/
+  if (summary.interpolateTimeN1) {
+    InterpolateLevel(donorFlowNodes->GetSolution_time_n1(), flowNodes->GetSolution_time_n1(),
+                     turbSolver ? &donorTurbNodes->GetSolution_time_n1() : nullptr,
+                     turbSolver ? &turbNodes->GetSolution_time_n1() : nullptr, summary.nHistoryFixed);
+  }
   for (const auto iSol : solverIndices) {
-    auto* donorNodes = donor.solver[MESH_0][iSol]->GetNodes();
     auto* nodes = solver[MESH_0][iSol]->GetNodes();
-    const bool flow = (iSol == FLOW_SOL);
-
-    /*--- U^n, once. ---*/
-    if (flow) {
-      InterpolateFlow(donorNodes->GetSolution(), nodes->GetSolution(), summary.nFlowFixed);
-    } else {
-      InterpolateTurb(donorNodes->GetSolution(), nodes->GetSolution());
-    }
     if (hasTimeN) nodes->GetSolution_time_n() = nodes->GetSolution();
-
-    /*--- U^(n-1): 2nd order only, else U^n. ---*/
-    if (summary.interpolateTimeN1) {
-      if (flow) {
-        InterpolateFlow(donorNodes->GetSolution_time_n1(), nodes->GetSolution_time_n1(), summary.nHistoryFixed);
-      } else {
-        InterpolateTurb(donorNodes->GetSolution_time_n1(), nodes->GetSolution_time_n1());
-      }
-    } else if (hasTimeN1) {
-      nodes->GetSolution_time_n1() = nodes->GetSolution_time_n();
-    }
+    if (hasTimeN1 && !summary.interpolateTimeN1) nodes->GetSolution_time_n1() = nodes->GetSolution_time_n();
   }
 
   /*--- Conservation defects and round-trip difference (donor -> new -> donor) of the flow variables. ---*/
@@ -652,11 +663,12 @@ void CBarycentricTransfer::Transfer(CConfig* config, const CMeshDonor& donor, CG
   }
   cout << "Distance accepted: the face size, at least " << s.distanceLimit
        << " (2 ADAP_HAUSD or 1e-3 x the domain size)." << endl;
-  cout << "Flow states not admissible after the interpolation (donor state used): " << s.nFlowFixed << "." << endl;
+  cout << "States not admissible after the interpolation (flow and turbulence of one donor point used): " << s.nFlowFixed
+       << "." << endl;
   if (s.nTimeLevels > 0) {
     cout << "Time history: Solution_time_n = the solution (U^n, interpolated once)";
     if (s.interpolateTimeN1) {
-      cout << ", Solution_time_n1 = U^(n-1) interpolated with the same stencils (flow states not admissible: "
+      cout << ", Solution_time_n1 = U^(n-1) interpolated with the same stencils (states not admissible: "
            << s.nHistoryFixed << ")";
     } else if (s.nTimeLevels > 1) {
       cout << ", Solution_time_n1 = U^n (not used by this time marching)";

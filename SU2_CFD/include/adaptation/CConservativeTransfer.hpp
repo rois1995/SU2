@@ -241,11 +241,13 @@ class CConservativeProjection {
  *       - No-slip walls: the projected momentum of a wall point is not zero (its control volume reaches into the
  *         moving fluid). It is set to zero, rho E kept, as the solver imposes it in its first iteration, and the
  * removed momentum is redistributed over the other points within the limiter bounds (momentum totals exact).
- *       - Admissibility (as in the barycentric transfer): density, pressure, temperature and squared speed of sound
- *         from the fluid model must be positive and finite. A node that fails takes its control-volume mean of the
- *         donor field (an average of admissible states, admissible for an ideal gas), else the admissible donor state
- *         of largest weight at its position; the integral change is then redistributed over the other nodes within
- *         the limiter bounds. Counted.
+ *       - Admissibility (as in the barycentric transfer) of the complete state of a node, flow and turbulence of the
+ *         same time level: density, pressure, temperature and squared speed of sound from the fluid model must be
+ *         positive and finite, with the internal energy of the solver (SST subtracts k = (rho k) / rho). A node that
+ *         fails takes its control-volume mean of all projected fields (an average of admissible states, admissible
+ *         for an ideal gas: rho e is concave in (rho, rho u, rho E, rho k)), else the flow and turbulence states of
+ *         the admissible donor point of largest weight at its position (paired); the integral change is then
+ *         redistributed over the other nodes within the limiter bounds. Counted.
  *       - Time domain: as the barycentric transfer: U^n once into the solution and Solution_time_n; U^(n-1) projected
  *         for 2nd-order dual time stepping only (the same supermesh, one pass for all arrays), else
  *         Solution_time_n1 = U^n.
