@@ -335,6 +335,24 @@ protected:
   void WriteMetaData(const CConfig *config);
 
   /*!
+   * \brief Whether the meta data file is written with the result files (fixed CL, streamwise periodic mass flow, the
+   *        kept dual-time step of the time-domain mesh adaptation).
+   * \param[in] config - Definition of the particular problem per zone.
+   */
+  static bool MetaDataNeeded(const CConfig *config);
+
+ public:
+  /*!
+   * \brief Write the meta data file of the current time iteration if it is needed (see MetaDataNeeded).
+   * \param[in] config - Definition of the particular problem per zone.
+   */
+  void WriteRestartMetaData(const CConfig *config) override {
+    if (MetaDataNeeded(config)) WriteMetaData(config);
+  }
+
+ protected:
+
+  /*!
    * \brief Write any additional files defined for the current solver.
    * \param[in] config - Definition of the particular problem per zone.
    * \param[in] geometry - Geometrical definition of the problem.

@@ -32,7 +32,10 @@
 #include <map>
 #include <string>
 
+#include "../../../Common/include/adaptation/CMMGInterface.hpp"
+#include "../../../SU2_CFD/include/adaptation/CBarycentricTransfer.hpp"
 #include "../../../SU2_CFD/include/drivers/CSinglezoneDriver.hpp"
+#include "../../Common/adaptation/SimplexMeshTestCase.hpp"
 
 namespace {
 
@@ -43,6 +46,8 @@ class TestDriver : public CSinglezoneDriver {
   using CSinglezoneDriver::SolveTimeWindow;
   CConfig* Config() { return config_container[ZONE_0]; }
   COutput* Output() { return output_container[ZONE_0]; }
+  CGeometry* Geometry() { return geometry_container[ZONE_0][INST_0][MESH_0]; }
+  CSolver* FlowSolver() { return solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]; }
 };
 
 /*--- Number of entries of two containers that differ (bit for bit). ---*/
@@ -133,6 +138,79 @@ TEST_CASE("Time window state, same mesh, Euler with multigrid", "[Adaptation]") 
                                          "MARKER_FAR= (x_minus, x_plus, y_minus, y_plus)\n"
                                          "CONV_NUM_METHOD_FLOW= ROE\nMUSCL_FLOW= YES\n"
                                          "SLOPE_LIMITER_FLOW= VENKATAKRISHNAN\nMGLEVEL= 2\n");
+}
+
+TEST_CASE("Physical time step of UNST_CFL_NUMBER kept by a mesh replacement and the window state", "[Adaptation]") {
+  /*--- Dual time stepping with the time step computed from UNST_CFL_NUMBER (TIME_STEP= 0 is valid then): it is
+   *    computed at the first time step and must stay for the rest of the run, also on a new mesh. ---*/
+  const std::string name = "unst_cfl_dt";
+  simplex_test::WriteSU2Mesh(simplex_test::MakeSimplexMesh(2, 8, simplex_test::Marker2D), name + ".su2");
+  {
+    std::ofstream cfg(name + ".cfg");
+    cfg << "SOLVER= EULER\nMACH_NUMBER= 0.5\nAOA= 5.0\n"
+           "FREESTREAM_DENSITY= 1.0\nFREESTREAM_PRESSURE= 1.0\nFREESTREAM_TEMPERATURE= 1.0\n"
+           "FLUID_MODEL= IDEAL_GAS\nGAMMA_VALUE= 1.4\nGAS_CONSTANT= 1.0\nREF_DIMENSIONALIZATION= DIMENSIONAL\n"
+           "INIT_OPTION= TD_CONDITIONS\nMESH_FORMAT= SU2\nMESH_FILENAME= " << name << ".su2\n"
+           "MARKER_FAR= (left, right, upper)\nMARKER_EULER= (lower_a, lower_b)\n"
+           "TIME_DOMAIN= YES\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\nTIME_STEP= 0.0\nUNST_CFL_NUMBER= 2.0\n"
+           "TIME_ITER= 10\nINNER_ITER= 3\nNUM_METHOD_GRAD= GREEN_GAUSS\nCFL_NUMBER= 10\nMGLEVEL= 0\n"
+           "CONV_NUM_METHOD_FLOW= ROE\nMUSCL_FLOW= NO\n"
+           "LINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ITER= 5\nCONV_RESIDUAL_MINVAL= -14\n"
+           "OUTPUT_FILES= (RESTART)\nSCREEN_WRT_FREQ_INNER= 1000\nCONV_FILENAME= " << name << "_history\n";
+  }
+
+  auto* origBuf = std::cout.rdbuf(nullptr);
+  {
+    TestDriver driver(const_cast<char*>((name + ".cfg").c_str()), 1, SU2_MPI::GetComm());
+    auto* config = driver.Config();
+    auto step = [&](unsigned long timeIter) {
+      driver.Preprocess(timeIter);
+      driver.Run();
+      driver.Postprocess();
+      driver.Update();
+    };
+    for (unsigned long timeIter = 0; timeIter < 2; timeIter++) step(timeIter);
+    const auto dt = config->GetDelta_UnstTimeND();
+
+    /*--- The window state keeps it. ---*/
+    const auto state = driver.SaveTimeWindowState();
+    config->SetDelta_UnstTimeND(0.5 * dt);
+    driver.RestoreTimeWindowState(state);
+    const auto dtRestored = config->GetDelta_UnstTimeND();
+
+    /*--- A new mesh (the same mesh, extracted and rebuilt) keeps it. ---*/
+    const auto nPoint = driver.Geometry()->GetnPoint();
+    su2activematrix metric(nPoint, 3);
+    for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
+      metric(iPoint, 0) = 1.0;
+      metric(iPoint, 1) = 0.0;
+      metric(iPoint, 2) = 1.0;
+    }
+    const auto mesh = CMMGInterface::ExtractMesh(*config, *driver.Geometry(), metric);
+    CBarycentricTransfer transfer;
+    driver.ReplaceMesh(mesh, transfer);
+    const auto dtNewMesh = config->GetDelta_UnstTimeND();
+    std::cout.rdbuf(origBuf);
+
+    CHECK(dt > 0.0);
+    CHECK(dtRestored == dt);
+    CHECK(dtNewMesh == dt);
+    REQUIRE(dtNewMesh > 0.0);
+
+    /*--- The next time steps run with it (finite residuals) and do not recompute it. ---*/
+    origBuf = std::cout.rdbuf(nullptr);
+    for (unsigned long timeIter = 2; timeIter < 4; timeIter++) step(timeIter);
+    const auto dtAfter = config->GetDelta_UnstTimeND();
+    const auto resRho = driver.FlowSolver()->GetRes_RMS(0);
+    std::cout.rdbuf(origBuf);
+    CHECK(dtAfter == dt);
+    CHECK(std::isfinite(SU2_TYPE::GetValue(resRho)));
+
+    origBuf = std::cout.rdbuf(nullptr);
+    driver.Finalize();
+  }
+  std::cout.rdbuf(origBuf);
+  for (const auto& suffix : {".cfg", ".su2", "_history.csv"}) std::remove((name + suffix).c_str());
 }
 
 TEST_CASE("Discarded window solve writes no file (fixed CL entering finite differences)", "[Adaptation]") {

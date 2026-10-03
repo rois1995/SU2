@@ -158,9 +158,17 @@ protected:
   /*!
    * \brief Start of a time-domain adaptation loop (all ADAP_UNSTEADY_METRIC): for a restart, the multigrid cycle of
    *        the adapted meshes (CConfig::SetMGCycle_Adapted: a restart turned W_CYCLE into V_CYCLE, the run that wrote
-   *        the files used MGCYCLE on its adapted meshes).
+   *        the files used MGCYCLE on its adapted meshes) and, with UNST_CFL_NUMBER, the dual-time step of that run
+   *        from the meta data of the restart (flow_<RESTART_ITER - 1>.meta, PHYSICAL_TIME_STEP_ND), kept from then on.
    */
   void PrepareTimeAdaptationRestart();
+
+  /*!
+   * \brief With UNST_CFL_NUMBER, keep the dual-time step after the first time step of a time-domain adaptation run
+   *        (CConfig::SetUnst_TimeStep_Kept): computed once on the input (or restart) mesh, it stays for every mesh,
+   *        every solve of a fixed-point window and the restarts (written to the meta data with the restart files).
+   */
+  void KeepTimeStep();
 
   /*!
    * \brief Write the restart files of the current solution (RESTART and RESTART_ASCII of OUTPUT_FILES) at the
@@ -214,7 +222,7 @@ public:
    *        the local CFL of every solver on every multigrid level, the primitive variables of the flow solvers, the eddy
    *        viscosity of the turbulence solvers, the multigrid integration state (smoothing statistics, damping), the
    *        run-time config values (CFL of each level, multigrid damping, angles of attack and sideslip, finest level,
-   *        time iteration) and the time-dependent state of the output.
+   *        time iteration, the dual-time step if it is kept) and the time-dependent state of the output.
    */
   struct CTimeWindowState {
     struct Arrays {
@@ -227,6 +235,8 @@ public:
     vector<su2double> CFL;
     su2double dampResRestric = 0.0, dampCorrecProlong = 0.0, AoA = 0.0, AoS = 0.0;
     unsigned short finestMesh = 0;
+    su2double timeStepND = 0.0;  /*!< \brief Dual-time step (restored if it was kept, see KeepTimeStep). */
+    bool timeStepKept = false;
     vector<std::shared_ptr<CMultiGridIntegration> > integration;
     COutput::TimeState output;
   };
@@ -335,7 +345,9 @@ public:
    *        transferred solution). The history file continues.
    * \note Everything is built while the driver still uses the previous mesh; any error stops the run before the
    *       switch. The restart files are not read (they belong to the first mesh). The element orientation is
-   *       always checked (also with REORIENT_ELEMENTS= NO).
+   *       always checked (also with REORIENT_ELEMENTS= NO). Time-domain problems keep their dual-time step (the
+   *       new flow solvers would set it from TIME_STEP; with UNST_CFL_NUMBER it was computed at the first time step
+   *       and is kept from then on, see KeepTimeStep).
    * \param[in] mesh - New mesh, same markers as the current one (e.g. from RemeshFromMetric).
    * \param[in] transfer - Sets the solution on the new mesh from the previous one.
    */

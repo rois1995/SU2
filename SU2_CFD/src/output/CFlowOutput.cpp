@@ -2577,10 +2577,14 @@ void CFlowOutput::SetNearfieldInverseDesign(CSolver *solver, const CGeometry *ge
 
 }
 
+bool CFlowOutput::MetaDataNeeded(const CConfig *config) {
+  return config->GetFixed_CL_Mode() || (config->GetKind_Streamwise_Periodic() == ENUM_STREAMWISE_PERIODIC::MASSFLOW) ||
+         config->GetUnst_TimeStep_Kept();
+}
+
 void CFlowOutput::WriteAdditionalFiles(CConfig *config, CGeometry *geometry, CSolver **solver_container){
 
-  if (config->GetFixed_CL_Mode() ||
-      (config->GetKind_Streamwise_Periodic() == ENUM_STREAMWISE_PERIODIC::MASSFLOW)){
+  if (MetaDataNeeded(config)){
     WriteMetaData(config);
   }
 
@@ -2634,6 +2638,13 @@ void CFlowOutput::WriteMetaData(const CConfig *config){
 
     if(config->GetKind_Streamwise_Periodic() == ENUM_STREAMWISE_PERIODIC::MASSFLOW) {
       meta_file << "STREAMWISE_PERIODIC_PRESSURE_DROP=" << GetHistoryFieldValue("STREAMWISE_DP") << endl;
+    }
+
+    /*--- The dual-time step computed from UNST_CFL_NUMBER, kept for the whole run (time-domain mesh adaptation),
+     *    with all digits: a restart continues with it (CSinglezoneDriver::PrepareTimeAdaptationRestart). ---*/
+    if (config->GetUnst_TimeStep_Kept()) {
+      meta_file << "PHYSICAL_TIME_STEP_ND= " << setprecision(17) << SU2_TYPE::GetValue(config->GetDelta_UnstTimeND())
+                << endl;
     }
   }
 

@@ -625,9 +625,11 @@ class CFVMFlowSolverBase : public CSolver {
     }
 
     /*--- Recompute the unsteady time step for the dual time strategy if the unsteady CFL is different from 0.
-     * This is only done once because in dual time the time step cannot be variable. ---*/
+     * This is only done once because in dual time the time step cannot be variable (and not at all when the time step
+     * of the run is kept, see CConfig::SetUnst_TimeStep_Kept). ---*/
 
-    if (dual_time && (Iteration == config->GetRestart_Iter()) && (config->GetUnst_CFL() != 0.0) && (iMesh == MESH_0)) {
+    if (dual_time && (Iteration == config->GetRestart_Iter()) && (config->GetUnst_CFL() != 0.0) && (iMesh == MESH_0) &&
+        !config->GetUnst_TimeStep_Kept()) {
 
       /*--- Thread-local variable for reduction. ---*/
       su2double glbDtND = 1e30;

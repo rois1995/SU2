@@ -733,6 +733,14 @@ public:
   bool WriteRestartFiles(CGeometry *geometry, CConfig *config, CSolver** solver_container);
 
   /*!
+   * \brief Write the meta data file of the current time iteration if the solver uses one (flow solvers: fixed CL,
+   *        streamwise periodic mass flow, the kept dual-time step of the time-domain mesh adaptation), as it is
+   *        written with the result files.
+   * \param[in] config - Definition of the particular problem.
+   */
+  inline virtual void WriteRestartMetaData(const CConfig* config) {}
+
+  /*!
    * \brief Get convergence time convergence of the specified windowed-time-averaged ouput of the problem.
    *        Delays solver stop, if Cauchy time convergence criterion is fullfilled, but 2nd order
    *        time marching is active, to ensure that enough restart files are written.

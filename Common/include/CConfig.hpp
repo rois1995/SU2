@@ -1358,6 +1358,8 @@ private:
             *Adap_BL_Thickness = nullptr;   /*!< \brief Thickness of each boundary-layer marker. */
   vector<CAdapBoundaryLayer> Adap_BL;       /*!< \brief Boundary-layer metric of each marker, lists expanded. */
   MG_CYCLE Kind_MGCycle_File = MG_CYCLE::V; /*!< \brief MGCYCLE as given in the config file (a restart changes it). */
+  bool Unst_TimeStep_Kept = false;          /*!< \brief The dual-time step of UNST_CFL_NUMBER is established (time-domain
+                                                 mesh adaptation): not computed again at RESTART_ITER. */
 
   unsigned short nSpecies = 0;              /*!< \brief Number of transported species equations (for NEMO and species transport)*/
 
@@ -6248,6 +6250,18 @@ public:
    * \param[in] val_delta_unsttimend - Value of the unsteady time step using CFL number.
    */
   void SetDelta_UnstTimeND(su2double val_delta_unsttimend) { Delta_UnstTimeND = val_delta_unsttimend; }
+
+  /*!
+   * \brief Keep the current dual-time step (Delta_UnstTimeND) computed from UNST_CFL_NUMBER: the flow solvers do not
+   *        compute it again at RESTART_ITER (time-domain mesh adaptation: it was established at the first time step of
+   *        the run, or read from the restart meta data, and stays the same on every mesh).
+   */
+  void SetUnst_TimeStep_Kept(bool kept) { Unst_TimeStep_Kept = kept; }
+
+  /*!
+   * \brief Whether the dual-time step is kept (see SetUnst_TimeStep_Kept).
+   */
+  bool GetUnst_TimeStep_Kept(void) const { return Unst_TimeStep_Kept; }
 
   /*!
    * \brief If we are performing an unsteady simulation, this is the

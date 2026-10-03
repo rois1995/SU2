@@ -40,6 +40,7 @@
 #include "../../../Common/include/geometry/meshreader/CMemoryMeshReaderFVM.hpp"
 #include "../../../Common/include/linear_algebra/blas_structure.hpp"
 
+#include <fstream>
 #include <iomanip>
 #include <memory>
 #include <sstream>
@@ -605,6 +606,50 @@ void CSinglezoneDriver::PrepareTimeAdaptationRestart() {
 
   /*--- The adapted meshes of the run that wrote the files used MGCYCLE (a restart turned W_CYCLE into V_CYCLE). ---*/
   config->SetMGCycle_Adapted();
+
+  if (config->GetUnst_CFL() == 0.0) return;
+
+  /*--- The dual-time step of that run, from the meta data written with its restart files. ---*/
+  const auto fileName = config->GetFilename("flow", ".meta", static_cast<int>(config->GetRestart_Iter()) - 1);
+  const string key = "PHYSICAL_TIME_STEP_ND=";
+  passivedouble timeStep = 0.0;
+  bool found = false;
+  if (rank == MASTER_NODE) {
+    std::ifstream file(fileName);
+    string line;
+    while (std::getline(file, line)) {
+      const auto position = line.find(key);
+      if (position == string::npos) continue;
+      timeStep = std::stod(line.substr(position + key.size()));
+      found = timeStep > 0.0;
+    }
+  }
+  unsigned short foundShort = found;
+  SU2_MPI::Bcast(&foundShort, 1, MPI_UNSIGNED_SHORT, MASTER_NODE, SU2_MPI::GetComm());
+  SU2_MPI::Bcast(&timeStep, 1, MPI_DOUBLE, MASTER_NODE, SU2_MPI::GetComm());
+
+  if (foundShort) {
+    config->SetDelta_UnstTimeND(timeStep);
+    config->SetUnst_TimeStep_Kept(true);
+    if (rank == MASTER_NODE) {
+      cout << "Restart: dual-time step of the run " << timeStep * config->GetTime_Ref() << " s (from " << fileName
+           << "), kept for every mesh." << endl;
+    }
+  } else if (rank == MASTER_NODE) {
+    cout << "WARNING: no dual-time step (PHYSICAL_TIME_STEP_ND) in " << fileName << ": it is computed again from "
+            "UNST_CFL_NUMBER on the restart mesh, so the restarted run does not continue with the time step of the run "
+            "that wrote the files." << endl;
+  }
+}
+
+void CSinglezoneDriver::KeepTimeStep() {
+  auto* config = config_container[ZONE_0];
+  if (config->GetUnst_CFL() == 0.0 || config->GetUnst_TimeStep_Kept()) return;
+  config->SetUnst_TimeStep_Kept(true);
+  if (rank == MASTER_NODE) {
+    cout << "Dual-time step from UNST_CFL_NUMBER: " << config->GetDelta_UnstTimeND() * config->GetTime_Ref()
+         << " s, kept for every mesh of the run (and written to the meta data of the restart files)." << endl;
+  }
 }
 
 void CSinglezoneDriver::WriteTimeHistoryRestarts() {
@@ -620,6 +665,7 @@ void CSinglezoneDriver::WriteTimeHistoryRestarts() {
    *    unsteady names, so they replace the files of steps n (and n-1 below) written on the previous mesh. ---*/
 
   if (!output->WriteRestartFiles(geometry, config, solver)) return;
+  output->WriteRestartMetaData(config);
 
   /*--- U^(n-1) for a 2nd-order restart, named for step n-1: Solution_time_n1 written as the solution. ---*/
 
@@ -744,6 +790,7 @@ void CSinglezoneDriver::RunTimeAdaptationLoop() {
 
     Preprocess(TimeIter);
     Run();
+    KeepTimeStep();
     Postprocess();
     Update();
     Monitor(TimeIter);
@@ -915,6 +962,8 @@ CSinglezoneDriver::CTimeWindowState CSinglezoneDriver::SaveTimeWindowState() con
   state.AoA = config->GetAoA();
   state.AoS = config->GetAoS();
   state.finestMesh = config->GetFinestMesh();
+  state.timeStepND = config->GetDelta_UnstTimeND();
+  state.timeStepKept = config->GetUnst_TimeStep_Kept();
   state.output = output_container[ZONE_0]->GetTimeState();
   return state;
 }
@@ -964,6 +1013,8 @@ void CSinglezoneDriver::RestoreTimeWindowState(const CTimeWindowState& state) {
   config->SetAoA(state.AoA);
   config->SetAoS(state.AoS);
   config->SetFinestMesh(state.finestMesh);
+  /*--- The dual-time step of the run (a state saved before it was established keeps the current one). ---*/
+  if (state.timeStepKept || !config->GetUnst_TimeStep_Kept()) config->SetDelta_UnstTimeND(state.timeStepND);
   config->SetTimeIter(state.timeIter);
   TimeIter = state.timeIter;
   output_container[ZONE_0]->SetTimeState(state.output);
@@ -988,6 +1039,7 @@ unsigned long CSinglezoneDriver::SolveTimeWindow(unsigned long first, unsigned l
   for (auto timeIter = first; timeIter <= last; timeIter++) {
     Preprocess(timeIter);
     Run();
+    KeepTimeStep();
     Postprocess();
     Update();
     if (accepted) {
@@ -1461,8 +1513,15 @@ void CSinglezoneDriver::ReplaceMesh(const CSimplexMesh& mesh, CSolutionTransfer&
   /*--- Solvers in the free-stream state (the restart files belong to the first mesh), then the solution from
    *    the donor, then the objects that depend on the solvers. ---*/
 
+  /*--- The new flow solvers set the dual-time step from TIME_STEP: the run keeps its own (computed from
+   *    UNST_CFL_NUMBER at its first time step, then kept). ---*/
+  const auto timeStepND = config->GetDelta_UnstTimeND();
+  const bool timeDomain = config->GetTime_Domain();
+  if (timeDomain && config->GetUnst_CFL() != 0.0) config->SetUnst_TimeStep_Kept(true);
+
   CSolver*** solver = nullptr;
   InitializeSolver(config, geometry, solver, false);
+  if (timeDomain) config->SetDelta_UnstTimeND(timeStepND);
 
   const auto transferStart = SU2_MPI::Wtime();
   transfer.Transfer(config, donor, geometry, solver);
