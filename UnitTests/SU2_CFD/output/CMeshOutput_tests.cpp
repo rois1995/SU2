@@ -51,9 +51,12 @@ struct GlobalMesh {
 
 /*--- Config of the tests: Euler, all markers far field, no multigrid. ---*/
 std::unique_ptr<CConfig> MakeConfig(unsigned short nDim, const string& meshFile, const string& meshFormat,
-                                    const string& outFormat) {
-  const string markers = (nDim == 2) ? "MARKER_FAR= (left, right, upper, lower_a, lower_b)\n"
-                                     : "MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus, z_minus_a, z_minus_b)\n";
+                                    const string& outFormat, const string& markerOptions = "") {
+  const string markers =
+      !markerOptions.empty()
+          ? markerOptions
+          : (nDim == 2) ? "MARKER_FAR= (left, right, upper, lower_a, lower_b)\n"
+                        : "MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus, z_minus_a, z_minus_b)\n";
   std::stringstream options("SOLVER= EULER\nMGLEVEL= 0\nMESH_FORMAT= " + meshFormat + "\nMESH_FILENAME= " + meshFile +
                             "\n" + (outFormat.empty() ? "" : "MESH_OUT_FORMAT= " + outFormat + "\n") + markers);
   auto* origBuf = std::cout.rdbuf(nullptr);
@@ -99,7 +102,7 @@ GlobalMesh ReadMesh(CConfig* config) {
  *        with CMeshOutput::WriteMesh, read that file, and compare both meshes by global point index (the output keeps
  *        the numbering of the geometry). The coordinates must be read back exactly in every format.
  */
-void CheckWriteAndRead(const CSimplexMesh& simplexMesh, const string& outFormat) {
+void CheckWriteAndRead(const CSimplexMesh& simplexMesh, const string& outFormat, const string& markerOptions = "") {
   const auto nDim = simplexMesh.nDim;
   const string inputFile = "mesh_output_test_input.su2";
   const string outputName = "mesh_output_test_output";
@@ -107,7 +110,7 @@ void CheckWriteAndRead(const CSimplexMesh& simplexMesh, const string& outFormat)
 
   /*--- Read the mesh and write it from memory. ---*/
 
-  auto config = MakeConfig(nDim, inputFile, "SU2", outFormat);
+  auto config = MakeConfig(nDim, inputFile, "SU2", outFormat, markerOptions);
   const auto extension = config->GetMesh_Out_FileExtension();
   CGeometry** geometry = nullptr;
   auto* origBuf = std::cout.rdbuf(nullptr);
@@ -121,7 +124,7 @@ void CheckWriteAndRead(const CSimplexMesh& simplexMesh, const string& outFormat)
 
   /*--- Read the written mesh in its own format. ---*/
 
-  auto outputConfig = MakeConfig(nDim, outputName + extension, outFormat, "");
+  auto outputConfig = MakeConfig(nDim, outputName + extension, outFormat, "", markerOptions);
   const auto output = ReadMesh(outputConfig.get());
 
   REQUIRE(output.coord.size() == simplexMesh.GetnPoint());
@@ -175,5 +178,27 @@ TEST_CASE("Mesh output from memory, CGNS", "[Adaptation]") {
   CheckWriteAndRead(simplex_test::MakeSimplexMesh(2, 4, simplex_test::Marker2D), "CGNS");
   CheckWriteAndRead(simplex_test::MakeSimplexMesh(3, 2, simplex_test::Marker3D), "CGNS");
   CheckWriteAndRead(AnisotropicRectangle(), "CGNS");
+}
+
+TEST_CASE("Mesh output from memory, CGNS, marker names of other CGNS nodes", "[Adaptation]") {
+  /*--- Markers named like the volume sections (Triangles, Tetrahedra, ...), the zone and the solution node of the
+   *    writer: they share the parent node with them in a CGNS file (sections and the solution in the zone, families and
+   *    the zone in the base). The file must be written and read back with the same marker names. ---*/
+  auto names2D = [](const passivedouble* x) -> std::string {
+    if (x[1] < 1e-12) return x[0] < 1.0 ? "Triangles" : "Quadrilaterals";
+    if (x[1] > 1.0 - 1e-12) return "Zone";
+    return x[0] < 1e-12 ? "Fields" : "Lines";
+  };
+  CheckWriteAndRead(simplex_test::MakeSimplexMesh(2, 4, names2D), "CGNS",
+                    "MARKER_FAR= (Triangles, Quadrilaterals, Zone, Fields, Lines)\n");
+  auto names3D = [](const passivedouble* x) -> std::string {
+    if (x[2] < 1e-12) return x[0] < 0.5 ? "Tetrahedra" : "Triangles";
+    if (x[2] > 1.0 - 1e-12) return "Zone";
+    if (x[0] < 1e-12) return "Fields";
+    if (x[0] > 1.0 - 1e-12) return "Prisms";
+    return x[1] < 1e-12 ? "Hexahedra" : "Pyramids";
+  };
+  CheckWriteAndRead(simplex_test::MakeSimplexMesh(3, 2, names3D), "CGNS",
+                    "MARKER_FAR= (Tetrahedra, Triangles, Zone, Fields, Prisms, Hexahedra, Pyramids)\n");
 }
 #endif

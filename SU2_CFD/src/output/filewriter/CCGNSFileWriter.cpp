@@ -48,17 +48,20 @@ void CCGNSFileWriter::WriteData(string val_filename) {
   /*--- Set a timer for the file writing. ---*/
   startTime = SU2_MPI::Wtime();
 
+  /*--- Names of all nodes, before the file is opened (a duplicate name would stop the run with the file open). ---*/
+  PrepareNames();
+
   /*--- Open the CGNS file for writing.  ---*/
   InitializeMeshFile(val_filename);
 
   if (surfaceMarkers.empty()) {
-    WriteZone("Zone");
+    WriteZone(zoneName);
   } else {
     /*--- One zone per marker, the surface data is sorted again for each of them. ---*/
-    for (const auto& marker : surfaceMarkers) {
-      dataSorter->SortConnectivity(config, geometry, vector<string>{marker});
+    for (size_t iMarker = 0; iMarker < surfaceMarkers.size(); ++iMarker) {
+      dataSorter->SortConnectivity(config, geometry, vector<string>{surfaceMarkers[iMarker]});
       dataSorter->SortOutputData();
-      WriteZone(marker);
+      WriteZone(surfaceZoneNames[iMarker]);
     }
   }
 
@@ -145,17 +148,17 @@ void CCGNSFileWriter::WriteZone(const string& zoneName) {
 
   /*--- Write mesh connectivity. ---*/
   if (nDim == 2) {
-    WriteConnectivity(LINE, "Lines");
-    WriteConnectivity(TRIANGLE, "Triangles");
-    WriteConnectivity(QUADRILATERAL, "Quadrilaterals");
+    WriteConnectivity(LINE, sectionNames.at(LINE));
+    WriteConnectivity(TRIANGLE, sectionNames.at(TRIANGLE));
+    WriteConnectivity(QUADRILATERAL, sectionNames.at(QUADRILATERAL));
   }
   if (nDim == 3) {
-    WriteConnectivity(TRIANGLE, "Triangles");
-    WriteConnectivity(QUADRILATERAL, "Quadrilaterals");
-    WriteConnectivity(TETRAHEDRON, "Tetrahedra");
-    WriteConnectivity(PYRAMID, "Pyramids");
-    WriteConnectivity(PRISM, "Prisms");
-    WriteConnectivity(HEXAHEDRON, "Hexahedra");
+    WriteConnectivity(TRIANGLE, sectionNames.at(TRIANGLE));
+    WriteConnectivity(QUADRILATERAL, sectionNames.at(QUADRILATERAL));
+    WriteConnectivity(TETRAHEDRON, sectionNames.at(TETRAHEDRON));
+    WriteConnectivity(PYRAMID, sectionNames.at(PYRAMID));
+    WriteConnectivity(PRISM, sectionNames.at(PRISM));
+    WriteConnectivity(HEXAHEDRON, sectionNames.at(HEXAHEDRON));
   }
 
   /*--- Write the boundaries of a volume file. ---*/
@@ -217,23 +220,73 @@ void CCGNSFileWriter::InitializeZone(const string& zoneName) {
       cg_zone_write(cgnsFileID, cgnsBase, zoneName.substr(0, 32).c_str(), zoneData.data(), Unstructured, &cgnsZone));
 }
 
-void CCGNSFileWriter::WriteBoundaries() {
-  /*--- CGNS names have at most 32 characters, longer tags are truncated. If two truncated tags are equal, a number is
-   appended to make the names of the sections, BCs and families unique. ---*/
-
-  vector<string> names;
-  for (const auto& marker : boundaryMarkers) {
-    string name = marker.name.substr(0, 32);
-    for (unsigned long n = 1; std::find(names.begin(), names.end(), name) != names.end(); n++) {
+void CCGNSFileWriter::PrepareNames() {
+  /*--- A name of at most 32 characters that is not taken yet: the tag, truncated; if that is taken, the tag truncated
+   *    to make room for "_<n>". ---*/
+  auto uniqueName = [](const string& tag, const vector<string>& taken) {
+    string name = tag.substr(0, 32);
+    for (unsigned long n = 1; std::find(taken.begin(), taken.end(), name) != taken.end(); n++) {
       const string suffix = "_" + to_string(n);
-      name = marker.name.substr(0, 32 - suffix.size()) + suffix;
+      name = tag.substr(0, 32 - suffix.size()) + suffix;
     }
-    if (rank == MASTER_NODE && name != marker.name.substr(0, 32)) {
-      cout << "CGNS output: the marker " << marker.name << " is written as " << name
-           << " (names have at most 32 characters)." << endl;
+    return name;
+  };
+
+  /*--- Boundary sections, BCs and families: the marker names. In the zone they must also differ from the nodes with
+   *    standard names (SIDS), which cannot be renamed. ---*/
+  boundaryNames.clear();
+  if (!isSurface) {
+    vector<string> taken = {"GridCoordinates", "ZoneBC", "ZoneType"};
+    for (const auto& marker : boundaryMarkers) {
+      const auto name = uniqueName(marker.name, taken);
+      if (rank == MASTER_NODE && name != marker.name) {
+        cout << "CGNS output: the marker " << marker.name << " is written (and read back by SU2) as " << name
+             << " (names have at most 32 characters, are unique and are not GridCoordinates, ZoneBC or ZoneType)."
+             << endl;
+      }
+      taken.push_back(name);
+      boundaryNames.push_back(name);
     }
-    names.push_back(name);
   }
+
+  /*--- Zones of a surface file: the marker names, unique. ---*/
+  surfaceZoneNames.clear();
+  for (const auto& marker : surfaceMarkers) surfaceZoneNames.push_back(uniqueName(marker, surfaceZoneNames));
+
+  /*--- Internal names: "SU2 " in front if a marker has the same name (sections and solution in the zone, the zone
+   *    and the families in the base). ---*/
+  auto isMarkerName = [&](const string& name) {
+    return std::find(boundaryNames.begin(), boundaryNames.end(), name) != boundaryNames.end();
+  };
+  zoneName = isMarkerName("Zone") ? "SU2 Zone" : "Zone";
+  solutionName = isMarkerName("Fields") ? "SU2 Fields" : "Fields";
+
+  const std::map<unsigned short, string> baseNames = {
+      {LINE, "Lines"},        {TRIANGLE, "Triangles"}, {QUADRILATERAL, "Quadrilaterals"}, {TETRAHEDRON, "Tetrahedra"},
+      {PYRAMID, "Pyramids"},  {PRISM, "Prisms"},       {HEXAHEDRON, "Hexahedra"}};
+  sectionNames.clear();
+  for (const auto& entry : baseNames) {
+    /*--- A type with many elements is split into sections "<name>_1", "<name>_2", ... ---*/
+    const auto type = static_cast<GEO_TYPE>(entry.first);
+    const auto nSec = isSurface ? 1 : SectionCount(type);
+    bool collides = false;
+    for (cgsize_t iSec = 0; iSec < nSec; ++iSec)
+      collides |= isMarkerName(nSec == 1 ? entry.second : entry.second + "_" + std::to_string(iSec + 1));
+    sectionNames[entry.first] = (collides ? "SU2 " : "") + entry.second;
+  }
+}
+
+cgsize_t CCGNSFileWriter::SectionCount(GEO_TYPE type) const {
+  const auto nTotElemCG = static_cast<cgsize_t>(dataSorter->GetnElemGlobal(type));
+  if (nTotElemCG == 0) return 0;
+  const auto maxElemSection = static_cast<cgsize_t>(maxSectionEntries / nPointsOfElementType(type));
+  return (nTotElemCG + maxElemSection - 1) / maxElemSection;
+}
+
+void CCGNSFileWriter::WriteBoundaries() {
+  /*--- The names of the sections, BCs and families (the marker names, see PrepareNames). ---*/
+
+  const auto& names = boundaryNames;
 
   for (size_t iMarker = 0; iMarker < boundaryMarkers.size(); ++iMarker) {
     const auto& marker = boundaryMarkers[iMarker];
@@ -430,7 +483,7 @@ void CCGNSFileWriter::WriteConnectivity(GEO_TYPE type, const string& SectionName
   const auto nPointsElem = nPointsOfElementType(type);
   const auto nTotElemCG = static_cast<cgsize_t>(nTotElem);
   const auto maxElemSection = static_cast<cgsize_t>(maxSectionEntries / nPointsElem);
-  const auto nSections = (nTotElemCG + maxElemSection - 1) / maxElemSection;
+  const auto nSections = SectionCount(type);
 
   /*--- First and last element (CGNS numbering starts from 1 and ranges are inclusive) of a section. ---*/
   auto sectionBegin = [&](cgsize_t iSec) { return cumulative + 1 + iSec * maxElemSection; };
@@ -494,6 +547,6 @@ int CCGNSFileWriter::ElementsWriteData(int section, cgsize_t start, cgsize_t end
 
 void CCGNSFileWriter::InitializeFields() {
   /*--- Create "Fields" node to store solution. ---*/
-  CallCGNS(cg_sol_write(cgnsFileID, cgnsBase, cgnsZone, "Fields", Vertex, &cgnsFields));
+  CallCGNS(cg_sol_write(cgnsFileID, cgnsBase, cgnsZone, solutionName.c_str(), Vertex, &cgnsFields));
 }
 #endif  // HAVE_CGNS

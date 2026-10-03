@@ -39,6 +39,7 @@
 
 #include <cstdint>
 #include <limits>
+#include <map>
 
 #include "CFileWriter.hpp"
 
@@ -62,6 +63,13 @@ class CCGNSFileWriter final : public CFileWriter {
   vector<BoundaryMarker> boundaryMarkers; /*!< \brief Markers written as boundaries of a volume file. */
 
   vector<string> surfaceMarkers; /*!< \brief Markers written as one zone each in a surface file. */
+
+  /*--- Names of the CGNS nodes, set (and checked) before the file is opened by PrepareNames. ---*/
+  vector<string> boundaryNames;    /*!< \brief Boundary sections, BCs and families of a volume file, per marker. */
+  vector<string> surfaceZoneNames; /*!< \brief Zones of a surface file, per marker. */
+  string zoneName = "Zone";        /*!< \brief Zone of a volume file. */
+  string solutionName = "Fields";  /*!< \brief Flow solution node of each zone. */
+  std::map<unsigned short, string> sectionNames; /*!< \brief Element sections of the zones, per element type. */
   CConfig* config = nullptr;     /*!< \brief Config, to sort the surface data of each marker. */
   CGeometry* geometry = nullptr; /*!< \brief Geometry, to sort the surface data of each marker. */
 
@@ -138,6 +146,22 @@ class CCGNSFileWriter final : public CFileWriter {
    * \param[in] zoneName - Name of the zone.
    */
   void InitializeZone(const string& zoneName);
+
+  /*!
+   * \brief Names of the CGNS nodes, decided before the file is opened. The children of a node need unique names: in a
+   *        zone the element sections (volume and boundary), GridCoordinates, ZoneBC, ZoneType and the solution; in the
+   *        base the zone(s) and the families. The boundary sections, BCs and families carry the marker names, which
+   *        the SU2 CGNS reader takes as the marker tags: they are kept (at most 32 characters; a number is appended
+   *        to a truncated name that equals another one, or to GridCoordinates, ZoneBC, ZoneType, with a message).
+   *        The volume sections ("Triangles", ...), the solution ("Fields") and the zone ("Zone") are internal: one
+   *        that equals a marker name gets the prefix "SU2 " (with a space, which marker names cannot contain).
+   */
+  void PrepareNames();
+
+  /*!
+   * \brief Number of sections the elements of a type are split into (see WriteConnectivity).
+   */
+  cgsize_t SectionCount(GEO_TYPE type) const;
 
   /*!
    * \brief Write the boundary sections, BCs and families of the markers set with SetBoundaryMarkers.
