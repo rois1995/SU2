@@ -1149,8 +1149,11 @@ std::pair<passivedouble, passivedouble> CSinglezoneDriver::MetricChange(const ve
       sums[2] += 1.0;
     }
   }
-  passivedouble global[3] = {0.0, 0.0, 0.0};
-  SU2_MPI::Allreduce(sums, global, 3, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+  /*--- Reduced as su2double: MPI_DOUBLE is the active type of the MeDiPack wrapper in the AD and DD builds. ---*/
+  su2double local[3] = {sums[0], sums[1], sums[2]}, reduced[3] = {0.0, 0.0, 0.0};
+  SU2_MPI::Allreduce(local, reduced, 3, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+  const passivedouble global[3] = {SU2_TYPE::GetValue(reduced[0]), SU2_TYPE::GetValue(reduced[1]),
+                                   SU2_TYPE::GetValue(reduced[2])};
   unsigned short allFit = fits, globalFit = 0;
   SU2_MPI::Allreduce(&allFit, &globalFit, 1, MPI_UNSIGNED_SHORT, MPI_MIN, SU2_MPI::GetComm());
   if (!globalFit || global[2] == 0.0) return {-1.0, 0.0};
