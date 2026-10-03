@@ -122,6 +122,58 @@ class CADTElemClass : public CADTBaseClass {
                                  markerID, elemID, rankID);
   }
 
+  /*!
+   * \brief Inflate the bounding box of an element as the ADT does it: per axis [min - t, max + t],
+   *        t = max(1e-25, 1e-6 x (max - min)). The ADT tests an element against a point only if the point lies in this
+   *        box (bounds included), so a box that contains the inflated boxes of elements contains every point the ADT
+   *        can accept for them (used by the routing and import boxes of the distributed solution transfer).
+   * \param[in] nDim - Number of dimensions.
+   * \param[in,out] bbMin, bbMax - Box of the element's nodes on input, inflated box on output.
+   */
+  template <class T>
+  static void InflateBox(unsigned short nDim, T* bbMin, T* bbMax) {
+    for (unsigned short k = 0; k < nDim; ++k) {
+      const T lenScale = bbMax[k] - bbMin[k];
+      const T scaled = 1.e-6 * lenScale;
+      const T tol = (T(1.e-25) < scaled) ? scaled : T(1.e-25);
+      bbMin[k] -= tol;
+      bbMax[k] += tol;
+    }
+  }
+
+  /*!
+   * \brief Every element that contains the coordinate (no early exit): the elements accepted by the containment test
+   *        of DetermineContainingElement (same tolerance), with their interpolation weights.
+   * \param[in] coor - Coordinate.
+   * \param[out] elemIDs - Element IDs (as given to the constructor) of the elements that contain the coordinate, in the
+   *             order of the traversal.
+   * \param[out] weights - Interpolation weights of each of them, 8 slots per element (the first nDOFs used).
+   */
+  void DetermineContainingElements(const su2double* coor, vector<unsigned long>& elemIDs, vector<su2double>& weights);
+
+  /*!
+   * \brief Elements whose inflated bounding box intersects the box [bbMin, bbMax] (bounds included).
+   * \param[out] elemIDs - Element IDs (as given to the constructor), in the order of the traversal.
+   */
+  void DetermineIntersectingElements(const su2double* bbMin, const su2double* bbMax, vector<unsigned long>& elemIDs);
+
+  /*!
+   * \brief Elements whose inflated bounding box has a possible distance to the coordinate of at most radius (the
+   *        possible distance of DetermineNearestElement: zero inside the box), compared as squares.
+   * \param[out] elemIDs - Element IDs (as given to the constructor), in the order of the traversal.
+   */
+  void DetermineElementsWithinDistance(const su2double* coor, su2double radius, vector<unsigned long>& elemIDs);
+
+  /*!
+   * \brief Squared distance of a coordinate to an element (index in the ADT's own numbering = the order given to the
+   *        constructor, local tree), as computed by the nearest-element search.
+   */
+  su2double Dist2ToElementID(unsigned long elemIndex, const su2double* coor) const {
+    su2double dist2 = 0.0;
+    Dist2ToElement(elemIndex, coor, dist2);
+    return dist2;
+  }
+
  private:
   /*!
    * \brief Implementation of DetermineContainingElement.

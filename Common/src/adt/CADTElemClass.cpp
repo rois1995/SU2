@@ -241,13 +241,7 @@ CADTElemClass::CADTElemClass(unsigned short val_nDim, vector<su2double>& val_coo
 
     /* Add a tolerance to the bounding box size, such that the overlap check in
        the tree traversal does not go wrong due to round off error. */
-    for (unsigned short k = 0; k < nDim; ++k) {
-      const su2double lenScale = BBMax[k] - BBMin[k];
-      const su2double tol = max(1.e-25, 1.e-6 * lenScale);
-
-      BBMin[k] -= tol;
-      BBMax[k] += tol;
-    }
+    InflateBox(nDim, BBMin, BBMax);
   }
 
   /* Build the ADT of the bounding boxes. */
@@ -522,6 +516,130 @@ void CADTElemClass::DetermineNearestElement_impl(vector<CBBoxTargetClass>& BBoxT
      the correct value. */
   Dist2ToElement(jj, coor, dist);
   dist = sqrt(dist);
+}
+
+void CADTElemClass::DetermineContainingElements(const su2double* coor, vector<unsigned long>& elemIDs,
+                                                vector<su2double>& weights) {
+  elemIDs.clear();
+  weights.clear();
+  if (isEmpty) return;
+  const auto iThread = omp_get_thread_num();
+  auto& frontLeaves = FrontLeaves[iThread];
+  auto& frontLeavesNew = FrontLeavesNew[iThread];
+
+  /*--- The traversal of DetermineContainingElement_impl without its early return. ---*/
+  frontLeaves.clear();
+  frontLeaves.push_back(0);
+  su2double parCoor[8], weightsInterpol[8];
+  while (!frontLeaves.empty()) {
+    frontLeavesNew.clear();
+    for (const auto ll : frontLeaves) {
+      for (unsigned short mm = 0; mm < 2; ++mm) {
+        const unsigned long kk = leaves[ll].children[mm];
+        const bool terminal = leaves[ll].childrenAreTerminal[mm];
+        /*--- A tree of one element stores it as both children of the root: visit it once. ---*/
+        if (mm == 1 && terminal && leaves[ll].childrenAreTerminal[0] && leaves[ll].children[0] == kk) continue;
+        const su2double* coorBBMin = terminal ? BBoxCoor.data() + nDimADT * kk : leaves[kk].xMin;
+        const su2double* coorBBMax = terminal ? coorBBMin + nDim : leaves[kk].xMax + nDim;
+        bool coorIsInside = true;
+        for (unsigned short k = 0; k < nDim; ++k) {
+          if (coor[k] < coorBBMin[k]) coorIsInside = false;
+          if (coor[k] > coorBBMax[k]) coorIsInside = false;
+        }
+        if (!coorIsInside) continue;
+        if (!terminal) {
+          frontLeavesNew.push_back(kk);
+        } else if (CoorInElement(kk, coor, parCoor, weightsInterpol)) {
+          elemIDs.push_back(localElemIDs[kk]);
+          weights.insert(weights.end(), weightsInterpol, weightsInterpol + 8);
+        }
+      }
+    }
+    frontLeaves.swap(frontLeavesNew);
+  }
+}
+
+void CADTElemClass::DetermineIntersectingElements(const su2double* bbMin, const su2double* bbMax,
+                                                  vector<unsigned long>& elemIDs) {
+  elemIDs.clear();
+  if (isEmpty) return;
+  const auto iThread = omp_get_thread_num();
+  auto& frontLeaves = FrontLeaves[iThread];
+  auto& frontLeavesNew = FrontLeavesNew[iThread];
+
+  /*--- A leaf holds boxes whose minimum corners lie in [xMin, xMax] (first nDim coordinates) and whose maximum corners
+   *    lie in [xMin + nDim, xMax + nDim]: no box of the leaf can intersect the query box if the smallest minimum corner
+   *    exceeds bbMax or the largest maximum corner lies below bbMin. ---*/
+  frontLeaves.clear();
+  frontLeaves.push_back(0);
+  while (!frontLeaves.empty()) {
+    frontLeavesNew.clear();
+    for (const auto ll : frontLeaves) {
+      for (unsigned short mm = 0; mm < 2; ++mm) {
+        const unsigned long kk = leaves[ll].children[mm];
+        const bool terminal = leaves[ll].childrenAreTerminal[mm];
+        /*--- A tree of one element stores it as both children of the root: visit it once. ---*/
+        if (mm == 1 && terminal && leaves[ll].childrenAreTerminal[0] && leaves[ll].children[0] == kk) continue;
+        const su2double* lo = terminal ? BBoxCoor.data() + nDimADT * kk : leaves[kk].xMin;
+        const su2double* hi = terminal ? BBoxCoor.data() + nDimADT * kk + nDim : leaves[kk].xMax + nDim;
+        bool intersects = true;
+        for (unsigned short k = 0; k < nDim; ++k) {
+          if (lo[k] > bbMax[k]) intersects = false;
+          if (hi[k] < bbMin[k]) intersects = false;
+        }
+        if (!intersects) continue;
+        if (terminal) {
+          elemIDs.push_back(localElemIDs[kk]);
+        } else {
+          frontLeavesNew.push_back(kk);
+        }
+      }
+    }
+    frontLeaves.swap(frontLeavesNew);
+  }
+}
+
+void CADTElemClass::DetermineElementsWithinDistance(const su2double* coor, su2double radius,
+                                                    vector<unsigned long>& elemIDs) {
+  elemIDs.clear();
+  if (isEmpty) return;
+  const auto iThread = omp_get_thread_num();
+  auto& frontLeaves = FrontLeaves[iThread];
+  auto& frontLeavesNew = FrontLeavesNew[iThread];
+  const su2double radius2 = radius * radius;
+
+  /*--- Possible (smallest) distance to a box, as in DetermineNearestElement_impl; for a leaf the box spanned by its
+   *    smallest minimum corner and its largest maximum corner contains every box of the leaf. ---*/
+  auto possibleDist2 = [&](const su2double* lo, const su2double* hi) {
+    su2double posDist2 = 0.0;
+    for (unsigned short k = 0; k < nDim; ++k) {
+      const su2double ds = min(0.0, coor[k] - lo[k]) + max(0.0, coor[k] - hi[k]);
+      posDist2 += ds * ds;
+    }
+    return posDist2;
+  };
+  frontLeaves.clear();
+  frontLeaves.push_back(0);
+  while (!frontLeaves.empty()) {
+    frontLeavesNew.clear();
+    for (const auto ll : frontLeaves) {
+      for (unsigned short mm = 0; mm < 2; ++mm) {
+        const unsigned long kk = leaves[ll].children[mm];
+        const bool terminal = leaves[ll].childrenAreTerminal[mm];
+        /*--- A tree of one element stores it as both children of the root: visit it once. ---*/
+        if (mm == 1 && terminal && leaves[ll].childrenAreTerminal[0] && leaves[ll].children[0] == kk) continue;
+        const su2double* lo = terminal ? BBoxCoor.data() + nDimADT * kk : leaves[kk].xMin;
+        const su2double* hi = terminal ? BBoxCoor.data() + nDimADT * kk + nDim : leaves[kk].xMax + nDim;
+        if (!(possibleDist2(lo, hi) <= radius2)) continue;
+        if (terminal) {
+          elemIDs.push_back(localElemIDs[kk]);
+        } else {
+          frontLeavesNew.push_back(kk);
+        }
+      }
+    }
+    frontLeaves.swap(frontLeavesNew);
+  }
 }
 
 bool CADTElemClass::CoorInElement(const unsigned long elemID, const su2double* coor, su2double* parCoor,
