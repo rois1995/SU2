@@ -588,11 +588,17 @@ public:
    *          bounds do not allow the target complexity. With ADAP_ISO_CORNER (2D), the metric is isotropic at
    *          sharp wall corners (FindSharpWallPoints), with the smallest size of the metric there, and grows
    *          from it with ADAP_HGRAD around them; this is included in the target complexity.
+   *          The boundary-layer metric of ADAP_BL_MARKER is intersected with the result.
    * \note The Hessians must be computed first (SetHessian_Adapt). Call outside of OpenMP parallel regions.
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] config - Definition of the particular problem.
+   * \param[in] givenMetric - If given: the metric before the global factor and the bounds (nPointDomain rows of the
+   *            upper triangle, the layout of the metric), used instead of the metric of the Hessians (e.g. a metric
+   *            predicted over a time window); the global factor, bounds, corner and boundary-layer metrics follow.
+   * \param[in] boundaryLayer - Intersect with the boundary-layer metric (ADAP_BL_MARKER) at the end.
    */
-  void ComputeMetric(CGeometry *geometry, const CConfig *config);
+  void ComputeMetric(CGeometry *geometry, const CConfig *config, const vector<su2double>* givenMetric = nullptr,
+                     bool boundaryLayer = true);
 
   /*!
    * \brief Find the sharp points of the walls, where ADAP_ISO_CORNER makes the adaptation metric isotropic.

@@ -2557,7 +2557,8 @@ vector<unsigned long> CSolver::FindSharpWallPoints(const CGeometry* geometry, co
   return sharp;
 }
 
-void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config) {
+void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const vector<su2double>* givenMetric,
+                            bool boundaryLayer) {
   SU2_ZONE_SCOPED
 
   const auto nSensor = config->GetnAdap_Sensor();
@@ -2604,15 +2605,19 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config) {
 
   vector<su2double> localScale(nSensor, 0.0), globalScale(nSensor, 0.0);
 
-  for (unsigned long iPoint = 0; iPoint < nPointDomain; ++iPoint) {
-    const su2double volume = geometry->nodes->GetVolume(iPoint);
-    for (auto iSensor = 0u; iSensor < nSensor; ++iSensor) {
-      su2double vec[3][3], val[3];
-      absHessian(iPoint, iSensor, vec, val);
-      localScale[iSensor] += pow(determinant(val), p / (2 * p + nDim)) * volume;
+  if (givenMetric == nullptr) {
+    for (unsigned long iPoint = 0; iPoint < nPointDomain; ++iPoint) {
+      const su2double volume = geometry->nodes->GetVolume(iPoint);
+      for (auto iSensor = 0u; iSensor < nSensor; ++iSensor) {
+        su2double vec[3][3], val[3];
+        absHessian(iPoint, iSensor, vec, val);
+        localScale[iSensor] += pow(determinant(val), p / (2 * p + nDim)) * volume;
+      }
     }
+    SU2_MPI::Allreduce(localScale.data(), globalScale.data(), nSensor, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+  } else if (givenMetric->size() < nPointDomain * nDim * (nDim + 1) / 2) {
+    SU2_MPI::Error("The given metric has fewer values than the points of the mesh.", CURRENT_FUNCTION);
   }
-  SU2_MPI::Allreduce(localScale.data(), globalScale.data(), nSensor, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
 
   /*--- Lp-optimal metric of a sensor, scaled to the complexity, in its eigen decomposition. ---*/
 
@@ -2627,7 +2632,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config) {
    *    sensor metric is first limited to an eigenvalue ratio of 1e14 (aspect ratio 1e7), for the accuracy of the
    *    intersection; this is looser than the aspect ratio bound unless a sensor asks for sizes far below ADAP_HMIN. ---*/
 
-  if (nSensor > 1) {
+  if (nSensor > 1 && givenMetric == nullptr) {
     for (unsigned long iPoint = 0; iPoint < nPointDomain; ++iPoint) {
       su2double metric[3][3] = {{0.0}};
 
@@ -2655,7 +2660,14 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config) {
   /*--- Eigen decomposition of the metric before the global factor and the bounds. ---*/
 
   auto unboundedMetric = [&](unsigned long iPoint, su2double (&vec)[3][3], su2double (&val)[3]) {
-    if (nSensor == 1) {
+    if (givenMetric != nullptr) {
+      su2double metric[3][3] = {{0.0}}, work[3];
+      const auto* row = &(*givenMetric)[iPoint * nDim * (nDim + 1) / 2];
+      for (unsigned short iDim = 0, iMet = 0; iDim < nDim; ++iDim)
+        for (unsigned short jDim = iDim; jDim < nDim; ++jDim, ++iMet) metric[iDim][jDim] = metric[jDim][iDim] = row[iMet];
+      CBlasStructure::EigenDecomposition(metric, vec, val, nDim, work);
+      for (auto i = 0u; i < nDim; ++i) val[i] = fmax(val[i], 1e-300);
+    } else if (nSensor == 1) {
       sensorMetric(iPoint, 0, vec, val);
     } else {
       su2double metric[3][3] = {{0.0}}, work[3];
@@ -2919,7 +2931,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config) {
    *    then exceed ADAP_COMPLEXITY, it is printed). The fade at the outer edge of each layer goes to the isotropic
    *    metric of the largest size of the metric. ---*/
 
-  if (config->GetnAdap_BL() > 0) {
+  if (boundaryLayer && config->GetnAdap_BL() > 0) {
     vector<su2double> coord(nPointDomain * nDim);
     vector<CBoundaryLayerMetric::Tensor> metric(nPointDomain);
     su2double localSmallest = std::numeric_limits<passivedouble>::max(), smallest = 0.0;
