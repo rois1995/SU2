@@ -76,7 +76,7 @@ protected:
   /*!
    * \brief Stop with an error if the mesh of this problem cannot be adapted or replaced: compressible EULER,
    *        NAVIER_STOKES or RANS, steady or dual time stepping, and the cases of CMMGInterface::CheckSupport (one
-   *        rank, one zone, static mesh, ...).
+   *        zone, static mesh, ...).
    */
   void CheckMeshAdaptation() const;
 
@@ -187,7 +187,7 @@ protected:
   /*!
    * \brief Mesh adaptation loop (ADAP_LOOP): solve on the input mesh (cycle 0), then for each cycle remesh from the
    *        metric of the last solution with the options of its level (ADAP_SIZES, ...), transfer the solution
-   *        (ADAP_TRANSFER) and solve again. Steady problems, single rank, MMG.
+   *        (ADAP_TRANSFER) and solve again. Steady problems, MMG (serial on the master rank with MPI).
    * \note An adaptation cycle has three parts behind small interfaces: the metric (ComputeMetric, feature-based here,
    *       a goal-based metric overrides it), the remesher (CRemesher: MMG) and the solution transfer
    *       (CSolutionTransfer: barycentric or conservative). The mesh replacement (ReplaceMesh) is the same for all of them.
@@ -350,6 +350,8 @@ public:
    *       always checked (also with REORIENT_ELEMENTS= NO). Time-domain problems keep their dual-time step (the
    *       new flow solvers would set it from TIME_STEP; with UNST_CFL_NUMBER it was computed at the first time step
    *       and is kept from then on, see KeepTimeStep).
+   *       MPI: the mesh must be complete on every rank (as from RemeshFromMetric, which broadcasts it); each rank
+   *       builds its partition from it, and the markers of the new geometry are checked by name over all ranks.
    * \param[in] mesh - New mesh, same markers as the current one (e.g. from RemeshFromMetric).
    * \param[in] transfer - Sets the solution on the new mesh from the previous one.
    */

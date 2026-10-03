@@ -189,9 +189,6 @@ void CMMGInterface::FloorFixedBoundaryMetric(CSimplexMesh& mesh) {
 }
 
 void CMMGInterface::CheckSupport(const CConfig& config, const CGeometry& geometry) {
-  if (SU2_MPI::GetSize() > 1) {
-    SU2_MPI::Error("Mesh adaptation with MMG runs on one MPI rank only for now.", CURRENT_FUNCTION);
-  }
   if (config.GetMultizone_Problem() || config.GetnZone() > 1 || config.GetnMarker_ZoneInterface() > 0) {
     SU2_MPI::Error("Mesh adaptation does not support multizone problems or sliding meshes.", CURRENT_FUNCTION);
   }
@@ -211,16 +208,12 @@ void CMMGInterface::CheckSupport(const CConfig& config, const CGeometry& geometr
   if (nDim != 2 && nDim != 3) {
     SU2_MPI::Error("Mesh adaptation needs a 2D or 3D mesh.", CURRENT_FUNCTION);
   }
-  if (geometry.GetnPoint() != geometry.GetnPointDomain()) {
-    SU2_MPI::Error("Mesh adaptation does not support halo points (MPI or periodic).", CURRENT_FUNCTION);
-  }
+  /*--- Halo points come from the MPI partition only (periodic boundaries are rejected above); the mesh is gathered
+   *    on the master rank for MMG (ExtractMesh). ---*/
   for (unsigned short iMarker = 0; iMarker < geometry.GetnMarker(); ++iMarker) {
     const auto kind = config.GetMarker_All_KindBC(iMarker);
     const auto tag = config.GetMarker_All_TagBound(iMarker);
     switch (kind) {
-      case SEND_RECEIVE:
-        SU2_MPI::Error("Mesh adaptation does not support MPI send/receive markers.", CURRENT_FUNCTION);
-        break;
       case PERIODIC_BOUNDARY:
         SU2_MPI::Error("Mesh adaptation does not support periodic boundaries yet (marker " + tag + ").",
                        CURRENT_FUNCTION);

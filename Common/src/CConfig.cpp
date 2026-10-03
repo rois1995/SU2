@@ -3309,7 +3309,7 @@ void CConfig::SetConfig_Options() {
    * height) of each boundary-layer marker \ingroup Config */
   addDoubleListOption("ADAP_BL_THICKNESS", nAdap_BL_Thickness, Adap_BL_Thickness);
 
-  /*--- Mesh adaptation loop (steady, single zone, single rank, needs MMG). Cycle 0 solves on the input mesh with the
+  /*--- Mesh adaptation loop (steady, single zone, needs MMG). Cycle 0 solves on the input mesh with the
    *    usual options (ITER, CFL_NUMBER, CONV_*), then each cycle remeshes from the metric of the last solution,
    *    transfers the solution and solves again. The per-level lists below have one value (used for every level) or
    *    one value per entry of ADAP_SIZES; without a list the scalar option in brackets applies to every level.

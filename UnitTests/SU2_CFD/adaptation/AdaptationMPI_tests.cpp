@@ -1,0 +1,530 @@
+/*!
+ * \file AdaptationMPI_tests.cpp
+ * \brief Mesh adaptation with MPI: gather of the partitioned mesh and of point values, scatter, broadcast, halo
+ *        exchange; the extracted and remeshed mesh, the solution transfers and the corner metric compared with the
+ *        serial computation (every rank alone, MPI_COMM_SELF) in the same run. Valid with any number of ranks, e.g.
+ *        mpirun -n 2 test_driver "[AdaptationMPI]".
+ * \version 8.5.0 "Harrier"
+ *
+ * SU2 Project Website: https://su2code.github.io
+ *
+ * The SU2 Project is maintained by the SU2 Foundation
+ * (http://su2foundation.org)
+ *
+ * Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md)
+ *
+ * SU2 is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * SU2 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with SU2. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "catch.hpp"
+
+#include <array>
+#include <cmath>
+
+#include "TransferTestCase.hpp"
+#include "../../../Common/include/adaptation/CMMGInterface.hpp"
+#include "../../../Common/include/adaptation/CMeshGather.hpp"
+#include "../../../Common/include/linear_algebra/blas_structure.hpp"
+#include "../../../SU2_CFD/include/adaptation/CBarycentricTransfer.hpp"
+#include "../../../SU2_CFD/include/adaptation/CConservativeTransfer.hpp"
+
+using namespace transfer_test;
+
+namespace {
+
+/*--- Run f with every rank alone (MPI_COMM_SELF): each rank does the serial computation of the whole problem. Objects
+ *    built inside must be used and deleted inside. ---*/
+template <class F>
+void Serial(F f) {
+#ifdef HAVE_MPI
+  const auto world = SU2_MPI::GetComm();
+  SU2_MPI::SetComm(MPI_COMM_SELF);
+  f();
+  SU2_MPI::SetComm(world);
+#else
+  f();
+#endif
+}
+
+bool IsRoot() { return SU2_MPI::GetRank() == MASTER_NODE; }
+
+/*--- Largest value over the ranks. ---*/
+passivedouble GlobalMax(passivedouble value) {
+  su2double local = value, global = 0.0;
+  SU2_MPI::Allreduce(&local, &global, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+  return SU2_TYPE::GetValue(global);
+}
+su2double GlobalSum(su2double value) {
+  su2double global = 0.0;
+  SU2_MPI::Allreduce(&value, &global, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+  return global;
+}
+
+/*--- Sorted face keys of a marker. ---*/
+std::vector<std::array<unsigned long, 3>> FaceKeys(const CSimplexMesh::Marker& marker, unsigned short nDim) {
+  std::vector<std::array<unsigned long, 3>> keys;
+  for (auto iFace = 0ul; iFace < marker.GetnElem(nDim); ++iFace) {
+    std::array<unsigned long, 3> key = {0, 0, 0};
+    for (unsigned short i = 0; i < nDim; ++i) key[i] = marker.elem[iFace * nDim + i];
+    std::sort(key.begin(), key.begin() + nDim);
+    keys.push_back(key);
+  }
+  std::sort(keys.begin(), keys.end());
+  return keys;
+}
+
+/*--- Bitwise equality of two meshes (arrays and markers in order). ---*/
+bool SameMesh(const CSimplexMesh& a, const CSimplexMesh& b) {
+  if (a.nDim != b.nDim || a.coord != b.coord || a.metric != b.metric || a.elem != b.elem || a.elemRef != b.elemRef ||
+      a.markers.size() != b.markers.size())
+    return false;
+  for (auto i = 0ul; i < a.markers.size(); ++i) {
+    if (a.markers[i].name != b.markers[i].name || a.markers[i].ref != b.markers[i].ref ||
+        a.markers[i].elem != b.markers[i].elem)
+      return false;
+  }
+  return true;
+}
+
+/*--- Smooth anisotropic metric of the coordinates (sizes 0.08..0.2, rotated by an angle that varies in space). ---*/
+void AnalyticMetric(unsigned short nDim, const su2double* x, su2double* metric) {
+  const su2double h1 = 0.08 + 0.06 * x[0], h2 = 0.2 - 0.05 * x[1], angle = 0.4 + 0.3 * x[1];
+  su2double R[3][3] = {{cos(angle), -sin(angle), 0.0}, {sin(angle), cos(angle), 0.0}, {0.0, 0.0, 1.0}};
+  const su2double eig[3] = {1.0 / (h1 * h1), 1.0 / (h2 * h2), 1.0 / pow(0.15, 2)};
+  for (unsigned short i = 0, iMet = 0; i < nDim; ++i)
+    for (unsigned short j = i; j < nDim; ++j, ++iMet) {
+      metric[iMet] = 0.0;
+      for (unsigned short k = 0; k < nDim; ++k) metric[iMet] += R[i][k] * eig[k] * R[j][k];
+    }
+}
+
+/*--- The transferred arrays (solution, time n, time n-1 of the flow and turbulence solvers) of the domain points by
+ *    global index: values[global index][...]; the rows of other points stay empty. ---*/
+using PointValues = std::vector<std::vector<su2double>>;
+PointValues TransferredValues(const MeshSolution& mesh) {
+  PointValues values(mesh.Fine().GetGlobal_nPointDomain());
+  for (auto iPoint = 0ul; iPoint < mesh.Fine().GetnPointDomain(); ++iPoint) {
+    auto& row = values[mesh.Fine().nodes->GetGlobalIndex(iPoint)];
+    for (const auto iSol : {FLOW_SOL, TURB_SOL}) {
+      auto* solver = mesh.solver[MESH_0][iSol];
+      if (solver == nullptr) continue;
+      auto* nodes = solver->GetNodes();
+      for (auto* array : {&nodes->GetSolution(), &nodes->GetSolution_time_n(), &nodes->GetSolution_time_n1()}) {
+        if (array->rows() == 0) continue;
+        for (unsigned long iVar = 0; iVar < array->cols(); ++iVar) row.push_back((*array)(iPoint, iVar));
+      }
+    }
+  }
+  return values;
+}
+
+/*--- Largest relative difference of the domain points of a partitioned mesh to the serial values (all ranks). ---*/
+passivedouble DifferenceToSerial(const MeshSolution& parallel, const PointValues& serial) {
+  const auto values = TransferredValues(parallel);
+  passivedouble diff = 0.0;
+  bool sizes = true;
+  for (auto iPoint = 0ul; iPoint < parallel.Fine().GetnPointDomain(); ++iPoint) {
+    const auto id = parallel.Fine().nodes->GetGlobalIndex(iPoint);
+    sizes &= values[id].size() == serial[id].size() && !serial[id].empty();
+    for (auto k = 0ul; k < std::min(values[id].size(), serial[id].size()); ++k)
+      diff = std::max(diff, RelDiff(values[id][k], serial[id][k], 1e-300));
+  }
+  return sizes ? GlobalMax(diff) : 1e300;
+}
+
+/*--- Fields of the transfer tests: the solution, Solution_time_n (U^n) and Solution_time_n1 (U^(n-1), another field)
+ *    of the flow (and SA) solver, smooth or affine functions of the coordinates (the same on every rank). ---*/
+void SetDonorFields(MeshSolution& donor, unsigned short nDim, bool affine) {
+  auto* flow = donor.solver[MESH_0][FLOW_SOL]->GetNodes();
+  auto* turb = donor.solver[MESH_0][TURB_SOL] ? donor.solver[MESH_0][TURB_SOL]->GetNodes() : nullptr;
+  for (auto iPoint = 0ul; iPoint < donor.Fine().GetnPoint(); ++iPoint) {
+    const auto* x = donor.Fine().nodes->GetCoord(iPoint);
+    su2double U[MAXVAR] = {}, Un1[MAXVAR] = {};
+    if (affine) {
+      AffineFlow(nDim)(x, U);
+    } else {
+      SmoothFlow(nDim, x, U);
+    }
+    for (unsigned short iVar = 0; iVar < nDim + 2; ++iVar) Un1[iVar] = U[iVar] * (1.0 + 0.01 * x[0]);
+    for (unsigned short iVar = 0; iVar < nDim + 2; ++iVar) {
+      flow->GetSolution()(iPoint, iVar) = U[iVar];
+      if (flow->GetSolution_time_n().rows() > 0) flow->GetSolution_time_n()(iPoint, iVar) = U[iVar];
+      if (flow->GetSolution_time_n1().rows() > 0) flow->GetSolution_time_n1()(iPoint, iVar) = Un1[iVar];
+    }
+    if (turb == nullptr) continue;
+    const su2double nu = 1e-4 + 2e-5 * x[0] - 1e-5 * x[1];
+    turb->GetSolution()(iPoint, 0) = nu;
+    if (turb->GetSolution_time_n().rows() > 0) turb->GetSolution_time_n()(iPoint, 0) = nu;
+    if (turb->GetSolution_time_n1().rows() > 0) turb->GetSolution_time_n1()(iPoint, 0) = 1.1 * nu;
+  }
+}
+
+}  // namespace
+
+TEST_CASE("MPI adaptation: gather, scatter, broadcast and halo exchange", "[AdaptationMPI]") {
+  for (const unsigned short nDim : {2, 3}) {
+    SECTION("nDim " + std::to_string(nDim)) {
+      auto config = MakeConfig(nDim, "SOLVER= EULER\n");
+      const auto input = BoxMesh(nDim, 4, true);
+      MeshSolution mesh(config.get(), input, 0);
+      const auto& geometry = mesh.Fine();
+
+      const CMeshGather gather(geometry);
+      CHECK(gather.GetnPointGlobal() == input.GetnPoint());
+      auto gathered = gather.GatherMesh(*config, mesh.markerTags, true);
+      const unsigned short nNode = nDim + 1;
+
+      /*--- On the master rank: the input mesh in its point numbering (points bitwise, the same elements, ordered by
+       *    their sorted nodes, each marker with its faces), and the control volumes fill the domain. ---*/
+      if (IsRoot()) {
+        CHECK(gathered.coord == input.coord);
+        REQUIRE(gathered.GetnElem() == input.GetnElem());
+        auto sortedElements = [nNode](const CSimplexMesh& mesh) {
+          std::vector<std::vector<unsigned long>> elements;
+          for (auto iElem = 0ul; iElem < mesh.GetnElem(); ++iElem) {
+            std::vector<unsigned long> nodes(&mesh.elem[iElem * nNode], &mesh.elem[iElem * nNode] + nNode);
+            std::sort(nodes.begin(), nodes.end());
+            elements.push_back(nodes);
+          }
+          return elements;
+        };
+        const auto elements = sortedElements(gathered);
+        auto reference = sortedElements(input);
+        std::sort(reference.begin(), reference.end());
+        CHECK(elements == reference);
+        REQUIRE(gathered.markers.size() == input.markers.size());
+        for (auto i = 1ul; i < gathered.markers.size(); ++i) {
+          CHECK(config->GetMarker_CfgFile_TagBound(gathered.markers[i - 1].name) <
+                config->GetMarker_CfgFile_TagBound(gathered.markers[i].name));
+        }
+        for (const auto& marker : gathered.markers) {
+          const auto* reference = input.FindMarker(marker.name);
+          REQUIRE(reference != nullptr);
+          CHECK(FaceKeys(marker, nDim) == FaceKeys(*reference, nDim));
+          CHECK(marker.ref == CMMGInterface::GetMarkerReference(*config, marker.name));
+        }
+        passivedouble volume = 0.0;
+        for (const auto v : gathered.volume) volume += v;
+        CHECK(volume == Approx(nDim == 2 ? 2.0 : 1.0).epsilon(1e-12));
+      }
+
+      /*--- Broadcast: every rank has the mesh; its domain points have these coordinates and control volumes. ---*/
+      CMeshGather::Broadcast(gathered);
+      REQUIRE(gathered.GetnPoint() == input.GetnPoint());
+      CHECK(gathered.coord == input.coord);
+      bool sameLocal = true;
+      for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint) {
+        const auto id = geometry.nodes->GetGlobalIndex(iPoint);
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+          sameLocal &= SU2_TYPE::GetValue(geometry.nodes->GetCoord(iPoint, iDim)) == gathered.coord[id * nDim + iDim];
+        sameLocal &= SU2_TYPE::GetValue(geometry.nodes->GetVolume(iPoint)) == gathered.volume[id];
+      }
+      CHECK(GlobalMax(sameLocal ? 0.0 : 1.0) == 0.0);
+
+      /*--- Gather and scatter of point values. ---*/
+      auto field = [nDim](const su2double* x, su2double* f) {
+        f[0] = sin(3.0 * x[0]) + x[1];
+        f[1] = x[nDim - 1] * x[0];
+      };
+      std::vector<su2double> local(geometry.GetnPointDomain() * 2);
+      for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint)
+        field(geometry.nodes->GetCoord(iPoint), &local[iPoint * 2]);
+      auto global = gather.Gather(local.data(), 2);
+      if (IsRoot()) {
+        REQUIRE(global.size() == 2 * input.GetnPoint());
+        bool exact = true;
+        for (auto i = 0ul; i < input.GetnPoint(); ++i) {
+          su2double x[3] = {0.0}, f[2];
+          for (unsigned short iDim = 0; iDim < nDim; ++iDim) x[iDim] = input.coord[i * nDim + iDim];
+          field(x, f);
+          exact &= global[2 * i] == f[0] && global[2 * i + 1] == f[1];
+        }
+        CHECK(exact);
+        for (auto& v : global) v = 2.0 * v + 1.0;
+      } else {
+        CHECK(global.empty());
+      }
+      std::vector<su2double> back(geometry.GetnPointDomain() * 2);
+      gather.Scatter(global, 2, back.data());
+      bool scattered = true;
+      for (auto i = 0ul; i < back.size(); ++i) scattered &= back[i] == 2.0 * local[i] + 1.0;
+      CHECK(GlobalMax(scattered ? 0.0 : 1.0) == 0.0);
+
+      /*--- Halo exchange: the halo points get the values of the ranks that own them. ---*/
+      std::vector<su2double> ids(geometry.GetnPoint(), -1.0);
+      for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint)
+        ids[iPoint] = geometry.nodes->GetGlobalIndex(iPoint);
+      CMeshGather::ExchangeHalo(geometry, ids.data(), 1);
+      bool halos = true;
+      for (auto iPoint = 0ul; iPoint < geometry.GetnPoint(); ++iPoint)
+        halos &= ids[iPoint] == su2double(geometry.nodes->GetGlobalIndex(iPoint));
+      CHECK(GlobalMax(halos ? 0.0 : 1.0) == 0.0);
+    }
+  }
+}
+
+#ifdef HAVE_MMG
+TEST_CASE("MPI adaptation: extracted and remeshed mesh independent of the ranks", "[AdaptationMPI]") {
+  /*--- The same mesh and analytic metric, extracted and remeshed by every rank alone (serial) and by all ranks (gather
+   *    on the master rank, MMG there, broadcast): the same arrays bit for bit, including the numbering. ---*/
+  for (const unsigned short nDim : {2, 3}) {
+    SECTION("nDim " + std::to_string(nDim)) {
+      const auto input = BoxMesh(nDim, nDim == 2 ? 6 : 3, true);
+      const auto nMet = CSimplexMesh::GetnMetric(nDim);
+      auto extract = [&](CSimplexMesh& extracted, CSimplexMesh& adapted) {
+        auto config = MakeConfig(nDim, "SOLVER= EULER\nADAP_HMIN= 1e-3\nADAP_HMAX= 1\n");
+        MeshSolution mesh(config.get(), input, 0);
+        su2activematrix metric(mesh.Fine().GetnPoint(), nMet);
+        for (auto iPoint = 0ul; iPoint < mesh.Fine().GetnPoint(); ++iPoint)
+          AnalyticMetric(nDim, mesh.Fine().nodes->GetCoord(iPoint), metric[iPoint]);
+        Mute mute;
+        extracted = CMMGInterface::ExtractMesh(*config, mesh.Fine(), metric);
+        CMMGRemesher remesher;
+        adapted = remesher.Remesh(*config, mesh.Fine(), metric);
+      };
+      CSimplexMesh serialMesh, serialAdapted, parallelMesh, parallelAdapted;
+      Serial([&]() { extract(serialMesh, serialAdapted); });
+      extract(parallelMesh, parallelAdapted);
+
+      if (IsRoot()) {
+        CHECK(SameMesh(parallelMesh, serialMesh));
+        CMMGInterface::ValidateMesh(parallelMesh, nullptr, "gathered mesh");
+      }
+      CHECK(serialAdapted.GetnPoint() > 0);
+      CHECK(SameMesh(parallelAdapted, serialAdapted));
+    }
+  }
+}
+#endif
+
+TEST_CASE("MPI adaptation: barycentric transfer independent of the ranks", "[AdaptationMPI]") {
+  struct Case {
+    unsigned short nDim;
+    string options;
+    bool affine;
+  };
+  const std::vector<Case> cases = {
+      {2, "SOLVER= EULER\n", true},
+      {3, "SOLVER= EULER\n", true},
+      {2, "SOLVER= RANS\nREYNOLDS_NUMBER= 1e6\nKIND_TURB_MODEL= SA\nTIME_DOMAIN= YES\nTIME_STEP= 1e-3\n"
+          "TIME_ITER= 10\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\n", false}};
+
+  for (const auto& test : cases) {
+    SECTION("nDim " + std::to_string(test.nDim) + ", " + test.options) {
+      const auto nDim = test.nDim;
+      PointValues serial;
+      su2double serialIntegral = 0.0;
+      auto run = [&](PointValues* values, su2double* integral, passivedouble* exactness, unsigned long* nPoint) {
+        auto config = MakeConfig(nDim, test.options);
+        MeshSolution donor(config.get(), BoxMesh(nDim, 4, true), 2);
+        SetDonorFields(donor, nDim, test.affine);
+        MeshSolution target(config.get(), BoxMesh(nDim, 6, true), 2);
+        CBarycentricTransfer transfer;
+        {
+          Mute mute;
+          transfer.Transfer(config.get(), donor.Donor(), target.geometry, target.solver);
+        }
+        if (values) *values = TransferredValues(target);
+        *integral = transfer.GetSummary().newIntegral[0];
+        *nPoint = transfer.GetSummary().nPoint;
+        if (exactness == nullptr) return;
+        /*--- Affine flow: exact at the domain points of every rank. ---*/
+        passivedouble maxDiff = 0.0;
+        if (test.affine) {
+          const auto* nodes = target.solver[MESH_0][FLOW_SOL]->GetNodes();
+          for (auto iPoint = 0ul; iPoint < target.Fine().GetnPoint(); ++iPoint) {
+            su2double exact[MAXVAR] = {};
+            AffineFlow(nDim)(target.Fine().nodes->GetCoord(iPoint), exact);
+            for (unsigned short iVar = 0; iVar < nDim + 2; ++iVar)
+              maxDiff = max(maxDiff, RelDiff(nodes->GetSolution(iPoint, iVar), exact[iVar]));
+          }
+          CheckCoarseLevels(target, FLOW_SOL);
+        }
+        *exactness = GlobalMax(maxDiff);
+        /*--- The difference to the serial transfer, while the target exists. ---*/
+        exactness[1] = DifferenceToSerial(target, serial);
+      };
+      unsigned long nSerial = 0, nParallel = 0;
+      Serial([&]() { run(&serial, &serialIntegral, nullptr, &nSerial); });
+      su2double integral = 0.0;
+      passivedouble checks[2] = {0.0, 0.0};
+      run(nullptr, &integral, checks, &nParallel);
+
+      CHECK(nParallel == nSerial);
+      if (test.affine) CHECK(checks[0] < 1e-12);
+      /*--- The same gathered meshes and donor values: the same values bit for bit. ---*/
+      CHECK(checks[1] == 0.0);
+      /*--- Integrals: the control volumes of the partitioned mesh may differ by round-off. ---*/
+      CHECK(RelDiff(integral, serialIntegral) < 1e-13);
+    }
+  }
+}
+
+TEST_CASE("MPI adaptation: conservative transfer independent of the ranks", "[AdaptationMPI]") {
+  struct Case {
+    unsigned short nDim;
+    string options;
+    bool affine;
+  };
+  const std::vector<Case> cases = {
+      {2, "SOLVER= EULER\n", true},
+      {3, "SOLVER= EULER\n", false},
+      {2, "SOLVER= EULER\nTIME_DOMAIN= YES\nTIME_STEP= 1e-3\nTIME_ITER= 10\n"
+          "TIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\n", false}};
+
+  for (const auto& test : cases) {
+    SECTION("nDim " + std::to_string(test.nDim) + ", " + test.options) {
+      const auto nDim = test.nDim;
+      PointValues serial;
+      std::vector<passivedouble> serialDefect;
+      auto run = [&](bool parallel, std::vector<passivedouble>& defect, passivedouble* checks) {
+        auto config = MakeConfig(nDim, test.options);
+        MeshSolution donor(config.get(), BoxMesh(nDim, 4, true), 2);
+        SetDonorFields(donor, nDim, test.affine);
+        MeshSolution target(config.get(), BoxMesh(nDim, 6, true), 2);
+        CConservativeTransfer transfer;
+        {
+          Mute mute;
+          transfer.Transfer(config.get(), donor.Donor(), target.geometry, target.solver);
+        }
+        defect = transfer.GetSummary().relativeDefect;
+        if (!parallel) {
+          serial = TransferredValues(target);
+          return;
+        }
+        checks[0] = DifferenceToSerial(target, serial);
+
+        /*--- The totals of the final state summed over the ranks (value x control volume of the domain points) are
+         *    those of the donor. ---*/
+        passivedouble worst = 0.0;
+        for (unsigned short iVar = 0; iVar < nDim + 2; ++iVar) {
+          su2double donorTotal = 0.0, newTotal = 0.0, scale = 0.0;
+          for (auto iPoint = 0ul; iPoint < donor.Fine().GetnPointDomain(); ++iPoint) {
+            const auto u = donor.solver[MESH_0][FLOW_SOL]->GetNodes()->GetSolution(iPoint, iVar);
+            donorTotal += u * donor.Fine().nodes->GetVolume(iPoint);
+            scale += fabs(u) * donor.Fine().nodes->GetVolume(iPoint);
+          }
+          for (auto iPoint = 0ul; iPoint < target.Fine().GetnPointDomain(); ++iPoint)
+            newTotal += target.solver[MESH_0][FLOW_SOL]->GetNodes()->GetSolution(iPoint, iVar) *
+                        target.Fine().nodes->GetVolume(iPoint);
+          donorTotal = GlobalSum(donorTotal);
+          newTotal = GlobalSum(newTotal);
+          scale = GlobalSum(scale);
+          worst = max(worst, SU2_TYPE::GetValue(fabs(newTotal - donorTotal) / scale));
+        }
+        checks[1] = worst;
+        /*--- Affine flow: exact at the domain points (where both domains coincide; the CG tolerance). ---*/
+        passivedouble maxDiff = 0.0;
+        if (test.affine) {
+          const auto* nodes = target.solver[MESH_0][FLOW_SOL]->GetNodes();
+          for (auto iPoint = 0ul; iPoint < target.Fine().GetnPoint(); ++iPoint) {
+            su2double exact[MAXVAR] = {};
+            AffineFlow(nDim)(target.Fine().nodes->GetCoord(iPoint), exact);
+            for (unsigned short iVar = 0; iVar < nDim + 2; ++iVar)
+              maxDiff = max(maxDiff, RelDiff(nodes->GetSolution(iPoint, iVar), exact[iVar]));
+          }
+        }
+        checks[2] = GlobalMax(maxDiff);
+      };
+      Serial([&]() { run(false, serialDefect, nullptr); });
+      std::vector<passivedouble> defect;
+      passivedouble checks[3] = {0.0, 0.0, 0.0};
+      run(true, defect, checks);
+
+      /*--- Same meshes and donor values; the control volumes of a partitioned mesh can differ by round-off, so the
+       *    projection differs at the level of the CG tolerance at most. ---*/
+      CHECK(checks[0] < 1e-12);
+      CHECK(checks[1] < 1e-13);
+      if (test.affine) CHECK(checks[2] < 1e-11);
+      REQUIRE(defect.size() == serialDefect.size());
+      for (auto f = 0ul; f < defect.size(); ++f) CHECK(fabs(defect[f]) < 1e-13);
+    }
+  }
+}
+
+TEST_CASE("MPI adaptation: corner metric across the partitions", "[AdaptationMPI]") {
+  /*--- Rectangle around a triangular obstacle (three sharp corners), uniform anisotropic Hessian: the isotropic corner
+   *    sizes are shortest paths from the corners, which cross the partitions. The metric equals the serial one (up to
+   *    the round-off of the global sums), and the largest size grows by at most log(ADAP_HGRAD) per edge length on
+   *    every edge, also between the ranks. ---*/
+  auto markerOf = [](const passivedouble* x) {
+    const passivedouble tol = 1e-12;
+    const bool outer = x[0] < tol || x[0] > 2.0 - tol || x[1] < tol || x[1] > 1.0 - tol;
+    return std::string(outer ? "far" : "wall");
+  };
+  auto keepElem = [](const passivedouble* x) { return !(x[1] > 0.5 && x[0] < 1.0 && x[1] - 0.5 < x[0] - 0.75); };
+  const auto input = simplex_test::MakeSimplexMesh(2, 16, markerOf, keepElem);
+  const std::array<su2double, 3> hessian = {19.0, 10.392304845413264, 7.0};
+
+  std::vector<su2double> serialMetric;
+  auto run = [&](bool parallel, passivedouble* checks) {
+    Mute mute;
+    stringstream ss(
+        "SOLVER= EULER\nMACH_NUMBER= 0.5\nMESH_FORMAT= SU2\nMESH_FILENAME= unused.su2\nMGLEVEL= 0\n"
+        "COMPUTE_METRIC= YES\nADAP_SENSOR= (MACH)\nADAP_NORM= 2\nNUM_METHOD_HESS= GREEN_GAUSS\n"
+        "MARKER_EULER= (wall)\nMARKER_FAR= (far)\nADAP_COMPLEXITY= 2000\nADAP_HMIN= 1e-4\nADAP_HMAX= 10\n"
+        "ADAP_ARMAX= 1000\n");
+    CConfig config(ss, SU2_COMPONENT::SU2_CFD, false);
+    CGeometry** geometry = nullptr;
+    CMemoryMeshReaderFVM reader(&config, input, 0, 1);
+    CDriver::BuildGeometryFVM(&config, new CPhysicalGeometry(&config, reader, 1), geometry, true);
+    auto** solver = CSolverFactory::CreateSolverContainer(config.GetKind_Solver(), &config, geometry[MESH_0], 0);
+    auto* nodes = solver[FLOW_SOL]->GetNodes();
+    for (auto iPoint = 0ul; iPoint < geometry[MESH_0]->GetnPoint(); ++iPoint)
+      for (auto iMet = 0u; iMet < 3; ++iMet) nodes->GetHessian()(iPoint, 0, iMet) = hessian[iMet];
+    solver[FLOW_SOL]->ComputeMetric(geometry[MESH_0], &config);
+
+    const auto& fine = *geometry[MESH_0];
+    if (!parallel) {
+      serialMetric.assign(fine.GetGlobal_nPointDomain() * 3, 0.0);
+      for (auto iPoint = 0ul; iPoint < fine.GetnPoint(); ++iPoint)
+        for (auto iMet = 0u; iMet < 3; ++iMet)
+          serialMetric[fine.nodes->GetGlobalIndex(iPoint) * 3 + iMet] = nodes->GetMetric(iPoint, iMet);
+    } else {
+      passivedouble diff = 0.0, worst = 0.0;
+      for (auto iPoint = 0ul; iPoint < fine.GetnPointDomain(); ++iPoint)
+        for (auto iMet = 0u; iMet < 3; ++iMet)
+          diff = max(diff, RelDiff(nodes->GetMetric(iPoint, iMet),
+                                   serialMetric[fine.nodes->GetGlobalIndex(iPoint) * 3 + iMet], 1.0));
+      /*--- Largest size on every edge (the halo metric is the one of the owner). ---*/
+      auto largestSize = [&](unsigned long iPoint) {
+        su2double M[3][3] = {{0.0}}, vec[3][3], val[3], work[3];
+        nodes->GetMetricMat(iPoint, M);
+        CBlasStructure::EigenDecomposition(M, vec, val, 2, work);
+        return 1.0 / sqrt(min(val[0], val[1]));
+      };
+      for (auto iEdge = 0ul; iEdge < fine.GetnEdge(); ++iEdge) {
+        const auto iPoint = fine.edges->GetNode(iEdge, 0), jPoint = fine.edges->GetNode(iEdge, 1);
+        const su2double length =
+            GeometryToolbox::Distance(2, fine.nodes->GetCoord(iPoint), fine.nodes->GetCoord(jPoint));
+        worst = max(worst, SU2_TYPE::GetValue(fabs(largestSize(iPoint) - largestSize(jPoint)) / (log(1.3) * length)));
+      }
+      checks[0] = GlobalMax(diff);
+      checks[1] = GlobalMax(worst);
+    }
+    for (unsigned short iSol = 0; iSol < MAX_SOLS; ++iSol) {
+      CSolverFactory::ClearSolverMeta(solver[iSol]);
+      delete solver[iSol];
+    }
+    delete[] solver;
+    delete geometry[MESH_0];
+    delete[] geometry;
+  };
+  Serial([&]() { run(false, nullptr); });
+  passivedouble checks[2] = {0.0, 0.0};
+  run(true, checks);
+  CHECK(checks[0] < 1e-10);
+  CHECK(checks[1] <= 1 + 1e-6);
+  CHECK(checks[1] > 0.5);
+}

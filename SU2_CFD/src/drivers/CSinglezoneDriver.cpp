@@ -1552,6 +1552,26 @@ void CSinglezoneDriver::ReplaceMesh(const CSimplexMesh& mesh, CSolutionTransfer&
   }
   const auto nMGLevels = config->GetnMGLevels();
 
+  /*--- Every marker of the new mesh with boundary elements is held, under its name, by some rank. Each rank holds the
+   *    markers of its partition only, in an order of its own (Marker_All_*), so everything that crosses the ranks
+   *    (the gathers of the solution transfers and of the next remesh, the mesh output) goes by marker name. ---*/
+  {
+    vector<string> tags, expected;
+    for (unsigned short iMarker = 0; iMarker < geometry[MESH_0]->GetnMarker(); iMarker++)
+      tags.push_back(config->GetMarker_All_TagBound(iMarker));
+    auto names = CMeshGather::GatherMarkerNames(*config, tags, *geometry[MESH_0]);
+    for (const auto& marker : mesh.markers)
+      if (!marker.elem.empty()) expected.push_back(marker.name);
+    std::sort(names.begin(), names.end());
+    std::sort(expected.begin(), expected.end());
+    if (names != expected) {
+      string list;
+      for (const auto& name : expected) list += " " + name;
+      SU2_MPI::Error("The markers of the new geometry differ from those of the new mesh (" + list + ").",
+                     CURRENT_FUNCTION);
+    }
+  }
+
   geometry[MESH_0]->SetPositive_ZArea(config);
   for (unsigned short iMesh = 0; iMesh <= nMGLevels; iMesh++) geometry[iMesh]->MatchActuator_Disk(config);
 
