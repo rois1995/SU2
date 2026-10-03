@@ -149,11 +149,6 @@ class CConservativeProjection {
                std::vector<passivedouble>& newValues);
 
   /*!
-   * \brief Control-volume mean of the donor field (S_j / |C_j|, with the total correction) of the last Project.
-   */
-  passivedouble GetMean(unsigned long iPoint, unsigned short iField) const;
-
-  /*!
    * \brief Restore the donor total of a field after values were changed, within the limiter bounds, on the nodes that
    *        are not frozen (redistribution as in the limiter).
    * \return False if the bounds cannot hold the total (the rest is then spread over the free nodes by volume).
@@ -236,18 +231,25 @@ class CConservativeProjection {
  *         projected density afterwards; nu_tilde itself for SA (not conservative in SU2: the dual-time term is
  *         d(nu_tilde)/dt and the convection uses the velocity), so its integral is kept. The Python reference
  *         multiplies every turbulence variable by rho (MultiplyByRho); for SA this transfer follows the solver
- *         instead. The values are then limited to the bounds the solver applies after each update (counted; this
- *         is the only step that can change a turbulence integral).
+ *         instead.
  *       - No-slip walls: the projected momentum of a wall point is not zero (its control volume reaches into the
  *         moving fluid). It is set to zero, rho E kept, as the solver imposes it in its first iteration, and the
- * removed momentum is redistributed over the other points within the limiter bounds (momentum totals exact).
+ *         removed momentum is redistributed over the other points within the limiter bounds (momentum totals exact;
+ *         if the bounds cannot hold it, the rest is spread by volume and the field is counted).
+ *       - Turbulence limited to the bounds the solver applies after each update (SST: k = (rho k) / rho, rho k set
+ *         back), counted; the only step that can change a turbulence integral.
  *       - Admissibility (as in the barycentric transfer) of the complete state of a node, flow and turbulence of the
  *         same time level: density, pressure, temperature and squared speed of sound from the fluid model must be
- *         positive and finite, with the internal energy of the solver (SST subtracts k = (rho k) / rho). A node that
- *         fails takes its control-volume mean of all projected fields (an average of admissible states, admissible
- *         for an ideal gas: rho e is concave in (rho, rho u, rho E, rho k)), else the flow and turbulence states of
- *         the admissible donor point of largest weight at its position (paired); the integral change is then
- *         redistributed over the other nodes within the limiter bounds. Counted.
+ *         positive and finite, with the internal energy of the solver (SST subtracts k). The limiter bounds every
+ *         variable separately, so high-speed states with a small internal energy can come out with the kinetic energy
+ *         above the total energy. Recovery (coupled and conservative, CAdmissibilityRecovery in the .cpp): the patch
+ *         of the node and its neighbours is blended towards its volume-weighted mean state, all fields of the level
+ *         together, with the largest factor that makes every state of the patch admissible; the patch grows (graph
+ *         rings) until its mean is admissible. The integrals of the patch and the zero wall momentum are kept exactly
+ *         and no new extrema appear. The transfer stops with an error if a state cannot be recovered (not even the
+ *         mean of the mesh is admissible), and, after the recovery, if any state of any time level is not admissible,
+ *         a no-slip wall momentum is not zero, or a flow total differs from the projection's by more than 1e-12 of
+ *         sum |u| V. Counted (points, patches, largest patch radius).
  *       - Time domain: as the barycentric transfer: U^n once into the solution and Solution_time_n; U^(n-1) projected
  *         for 2nd-order dual time stepping only (the same supermesh, one pass for all arrays), else
  *         Solution_time_n1 = U^n.
@@ -262,6 +264,9 @@ class CConservativeTransfer final : public CSolutionTransfer {
     unsigned long nFlowFixed = 0;        /*!< \brief Points where the projected flow state was not admissible (U^n). */
     unsigned long nHistoryFixed = 0;     /*!< \brief Same for U^(n-1). */
     unsigned long nTurbLimited = 0;      /*!< \brief Turbulence values limited to the bounds of the solver. */
+    unsigned long nRecoveryPatches = 0;  /*!< \brief Patches blended by the admissibility recovery (all levels). */
+    unsigned long maxRecoveryRing = 0;   /*!< \brief Largest patch radius (graph rings) of the recovery. */
+    unsigned long nWallBoundsExceeded = 0; /*!< \brief Momentum fields whose wall redistribution exceeded the bounds. */
     unsigned long nWallPoints = 0;       /*!< \brief Points on no-slip walls (momentum set to zero). */
     passivedouble maxWallMomentum = 0.0; /*!< \brief Largest projected momentum component there before. */
     unsigned short nTimeLevels = 0;

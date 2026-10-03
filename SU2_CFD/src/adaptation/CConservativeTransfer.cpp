@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <functional>
 #include <iomanip>
 #include <iostream>
 #include <limits>
@@ -109,6 +110,132 @@ std::string PointText(unsigned short nDim, const passivedouble* x) {
   text << ")";
   return text.str();
 }
+
+/*!
+ * \brief Coupled, conservative recovery of admissible states on the new mesh (CConservativeTransfer).
+ * \note For a point whose state is not admissible: the patch of the point and its neighbours (graph rings, grown
+ *       until it works, up to the whole connected mesh) gets the volume-weighted mean of the patch as the reference
+ *       state a (all fields of the time level together: flow and turbulence; the momentum mean over the points that
+ *       are not on no-slip walls, a has zero momentum on them), and every state of the patch is blended towards it:
+ *       u_j <- a_j + theta (u_j - a_j), one theta in [0, 1] for the patch: 0.9 of the largest for which every state of
+ *       the patch is admissible (bisection per point; the margin keeps the states off zero pressure; then checked,
+ *       halved if a state is still not admissible). Since
+ *       sum_j |C_j| (u_j - a_j) = 0 the integrals of the patch are kept exactly, the wall momentum stays zero, and every
+ *       new value lies between the values of the patch (no new extrema). The mean of admissible ideal-gas states is
+ *       admissible (rho e is concave in (rho, rho u, rho E, rho k)), so a patch mean fails only next to strongly
+ *       inadmissible states: the patch grows. If the mean of the whole mesh is not admissible, the recovery fails.
+ */
+template <class T>
+class CAdmissibilityRecovery {
+ public:
+  using Predicate = std::function<bool(const T* state)>;
+
+  CAdmissibilityRecovery(const CGeometry& geometry, unsigned short nDim, unsigned short nVar,
+                         const std::vector<bool>& wallPoint, Predicate admissible)
+      : geometry(geometry), nDim(nDim), nVar(nVar), wallPoint(wallPoint), admissible(std::move(admissible)) {
+    stamp.assign(geometry.GetnPoint(), 0);
+  }
+
+  unsigned long maxRing = 0; /*!< \brief Largest patch radius (graph rings) needed. */
+  unsigned long nPatches = 0;
+
+  /*!
+   * \brief Recover the patch around seed. The fields of a point start at values[iPoint * stride + offset].
+   * \return False if not even the mean of the whole connected mesh is admissible (nothing changed then).
+   */
+  bool Recover(unsigned long seed, std::vector<T>& values, size_t stride, size_t offset) {
+    tag++;
+    std::vector<unsigned long> patch = {seed}, frontier = {seed}, next;
+    stamp[seed] = tag;
+    std::vector<T> ref(nVar), refWall(nVar), state(nVar);
+
+    for (unsigned long ring = 1;; ++ring) {
+      next.clear();
+      for (const auto iPoint : frontier) {
+        for (unsigned short iNeigh = 0; iNeigh < geometry.nodes->GetnPoint(iPoint); ++iNeigh) {
+          const auto jPoint = geometry.nodes->GetPoint(iPoint, iNeigh);
+          if (stamp[jPoint] == tag) continue;
+          stamp[jPoint] = tag;
+          patch.push_back(jPoint);
+          next.push_back(jPoint);
+        }
+      }
+      const bool grown = !next.empty();
+      frontier.swap(next);
+
+      /*--- Reference states: volume-weighted means (momentum over the points off no-slip walls). ---*/
+      passivedouble volume = 0.0, volumeOffWall = 0.0;
+      bool anyWall = false;
+      std::fill(ref.begin(), ref.end(), T(0.0));
+      for (const auto iPoint : patch) {
+        const passivedouble cv = SU2_TYPE::GetValue(geometry.nodes->GetVolume(iPoint));
+        const bool wall = wallPoint[iPoint];
+        anyWall |= wall;
+        volume += cv;
+        if (!wall) volumeOffWall += cv;
+        const T* u = &values[iPoint * stride + offset];
+        for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
+          if (Momentum(iVar) && wall) continue;
+          ref[iVar] += cv * u[iVar];
+        }
+      }
+      for (unsigned short iVar = 0; iVar < nVar; ++iVar) {
+        const passivedouble v = Momentum(iVar) ? volumeOffWall : volume;
+        ref[iVar] = (v > 0.0) ? T(ref[iVar] / v) : T(0.0);
+        refWall[iVar] = Momentum(iVar) ? T(0.0) : ref[iVar];
+      }
+      if (!admissible(ref.data()) || (anyWall && !admissible(refWall.data()))) {
+        if (!grown) return false;
+        continue;
+      }
+
+      /*--- Largest blending factor: bisection for each state that is not admissible. ---*/
+      passivedouble theta = 1.0;
+      auto blend = [&](unsigned long iPoint, passivedouble t) {
+        const T* a = wallPoint[iPoint] ? refWall.data() : ref.data();
+        const T* u = &values[iPoint * stride + offset];
+        for (unsigned short iVar = 0; iVar < nVar; ++iVar) state[iVar] = a[iVar] + t * (u[iVar] - a[iVar]);
+        return admissible(state.data());
+      };
+      for (const auto iPoint : patch) {
+        if (blend(iPoint, 1.0)) continue;
+        passivedouble lo = 0.0, hi = 1.0;
+        for (int iter = 0; iter < 60; ++iter) {
+          const passivedouble mid = 0.5 * (lo + hi);
+          (blend(iPoint, mid) ? lo : hi) = mid;
+        }
+        /*--- 0.9 of the boundary value: the state stays strictly inside (with a concave rho e at least 10% of the
+         *    reference's internal energy), not at zero pressure where round-off decides. ---*/
+        theta = std::min(theta, 0.9 * lo);
+      }
+      for (int attempt = 0; attempt < 60; ++attempt) {
+        bool all = true;
+        for (const auto iPoint : patch) all = all && blend(iPoint, theta);
+        if (all) break;
+        theta = (attempt < 59) ? 0.5 * theta : 0.0;
+      }
+
+      for (const auto iPoint : patch) {
+        const T* a = wallPoint[iPoint] ? refWall.data() : ref.data();
+        T* u = &values[iPoint * stride + offset];
+        for (unsigned short iVar = 0; iVar < nVar; ++iVar) u[iVar] = a[iVar] + theta * (u[iVar] - a[iVar]);
+      }
+      maxRing = std::max(maxRing, ring);
+      nPatches++;
+      return true;
+    }
+  }
+
+ private:
+  bool Momentum(unsigned short iVar) const { return iVar >= 1 && iVar <= nDim; }
+
+  const CGeometry& geometry;
+  unsigned short nDim, nVar;
+  const std::vector<bool>& wallPoint;
+  Predicate admissible;
+  std::vector<unsigned long> stamp;
+  unsigned long tag = 0;
+};
 
 }  // namespace
 
@@ -940,10 +1067,6 @@ void CConservativeProjection::Project(unsigned short nFieldIn, const std::vector
   summary.timeLimiter = limiterTime;
 }
 
-passivedouble CConservativeProjection::GetMean(unsigned long iPoint, unsigned short iField) const {
-  return rhs[iPoint * nField + iField] / rowVolume[iPoint];
-}
-
 passivedouble CConservativeProjection::NewTotal(unsigned short iField, const std::vector<passivedouble>& values) const {
   passivedouble total = 0.0;
   for (auto iPoint = 0ul; iPoint < nPointT; ++iPoint) total += values[iPoint * nField + iField] * cvT[iPoint];
@@ -1088,73 +1211,101 @@ void CConservativeTransfer::Transfer(CConfig* config, const CMeshDonor& donor, C
           momentum = 0.0;
         }
       }
+      /*--- If the limiter bounds cannot hold the removed momentum, the rest is spread over the other points by volume
+       *    (the totals stay exact, the bounds are exceeded): counted and reported. ---*/
       for (unsigned short iDim = 0; iDim < nDim; ++iDim)
-        projection.Redistribute(offset + 1 + iDim, newValues, wallPoint);
+        if (!projection.Redistribute(offset + 1 + iDim, newValues, wallPoint)) summary.nWallBoundsExceeded++;
     }
   }
 
-  /*--- Admissibility of the complete states (flow and turbulence of a time level; the solver subtracts the SST k from
-   *    the internal energy): control-volume mean of all fields of the level, else the flow and turbulence states of the
-   *    admissible donor point of largest weight at the point; the integral change is redistributed over the other
-   *    points. ---*/
+  /*--- Turbulence within the bounds of the solver (the bounds it applies after each update; SST: k = (rho k) / rho,
+   *    rho k set back). This is the only step that can change a turbulence integral (counted). Done before the
+   *    admissibility, which then sees the final k. ---*/
 
-  std::unique_ptr<CBarycentricLocator> locator;
+  for (unsigned short iLevel = 0; iLevel < nLevel && nVarTurb > 0; ++iLevel) {
+    const unsigned short offset = iLevel * nPerLevel;
+    for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
+      auto* values = &newValues[iPoint * nField + offset];
+      const passivedouble density = values[0];
+      if (turbTimesDensity && !(density > 0.0)) continue;  // not admissible, recovered below with rho k
+      for (unsigned short iVar = 0; iVar < nVarTurb; ++iVar) {
+        const passivedouble factor = turbTimesDensity ? density : 1.0;
+        const passivedouble value = values[nVarFlow + iVar] / factor;
+        const passivedouble lower = SU2_TYPE::GetValue(turbSolver->GetLowerLimit(iVar));
+        const passivedouble upper = SU2_TYPE::GetValue(turbSolver->GetUpperLimit(iVar));
+        if (value < lower || value > upper) {
+          const passivedouble limit = (value < lower) ? lower : upper;
+          if (fabs(value - limit) > 1e-10 * fabs(limit)) summary.nTurbLimited++;
+          values[nVarFlow + iVar] = factor * limit;
+        }
+      }
+    }
+  }
+
+  /*--- Admissibility of the complete state of every point (flow and turbulence of a time level; the solver subtracts
+   *    the SST k = (rho k) / rho from the internal energy), recovered by the coupled conservative blending of
+   *    CAdmissibilityRecovery (integrals and wall momentum kept, no new extrema). The transfer stops if a state cannot
+   *    be recovered. ---*/
+
+  auto pointText = [&](unsigned long iPoint) {
+    passivedouble x[3] = {};
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) x[iDim] = SU2_TYPE::GetValue(newGeometry->nodes->GetCoord(iPoint, iDim));
+    return PointText(nDim, x);
+  };
+  su2double state[8] = {};
+  auto admissibleState = [&](const passivedouble* values) {
+    for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) state[iVar] = values[iVar];
+    const su2double k =
+        (turbTimesDensity && values[0] > 0.0) ? su2double(values[nVarFlow] / values[0]) : su2double(0.0);
+    return CBarycentricTransfer::AdmissibleState(*fluidModel, nDim, state, k);
+  };
+  CAdmissibilityRecovery<passivedouble> recovery(*newGeometry, nDim, nPerLevel, wallPoint, admissibleState);
   for (unsigned short iLevel = 0; iLevel < nLevel; ++iLevel) {
     const unsigned short offset = iLevel * nPerLevel;
-    const auto& donorFlow = flowArray(donor.solver[MESH_0], iLevel);
     auto& nFixed = iLevel ? summary.nHistoryFixed : summary.nFlowFixed;
-    std::vector<bool> fixed(nPoint, false);
-    su2double state[8] = {};
-    auto admissible = [&](unsigned long iPoint) {
-      const auto* values = &newValues[iPoint * nField + offset];
-      for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) state[iVar] = values[iVar];
-      const su2double k = (turbTimesDensity && values[0] > 0.0) ? su2double(values[nVarFlow] / values[0]) : su2double(0.0);
-      return CBarycentricTransfer::AdmissibleState(*fluidModel, nDim, state, k);
-    };
     for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
-      if (admissible(iPoint)) continue;
+      if (admissibleState(&newValues[iPoint * nField + offset])) continue;
       nFixed++;
-      fixed[iPoint] = true;
-      for (unsigned short iVar = 0; iVar < nPerLevel; ++iVar)
-        newValues[iPoint * nField + offset + iVar] = projection.GetMean(iPoint, offset + iVar);
-      if (admissible(iPoint)) continue;
-      if (!locator) locator = std::make_unique<CBarycentricLocator>(*donorGeometry, donor.markerTags, 1e300);
-      const auto stencil = locator->Locate(newGeometry->nodes->GetCoord(iPoint));
-      const su2activematrix* donorTurb = nVarTurb ? &turbArray(donor.solver[MESH_0], iLevel) : nullptr;
-      int best = -1;
-      for (unsigned short k = 0; k < stencil.nPoint; ++k) {
-        if (best >= 0 && stencil.weight[k] <= stencil.weight[best]) continue;
-        const auto jPoint = stencil.point[k];
-        const su2double k0 = turbTimesDensity ? (*donorTurb)(jPoint, 0) : su2double(0.0);
-        if (CBarycentricTransfer::AdmissibleState(*fluidModel, nDim, donorFlow[jPoint], k0)) best = k;
-      }
-      if (best < 0) {
-        SU2_MPI::Error("No admissible flow state for the point " + std::to_string(iPoint) + " of the new mesh.",
+      if (!recovery.Recover(iPoint, newValues, nField, offset)) {
+        SU2_MPI::Error("The projected state of the point " + pointText(iPoint) + (iLevel ? " (U^(n-1))" : "") +
+                           " is not admissible and cannot be recovered conservatively (not even the mean state of the "
+                           "mesh is admissible).",
                        CURRENT_FUNCTION);
       }
-      /*--- Paired: flow and turbulence of the same donor point. ---*/
-      const auto jPoint = stencil.point[best];
-      for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar)
-        newValues[iPoint * nField + offset + iVar] = SU2_TYPE::GetValue(donorFlow(jPoint, iVar));
-      for (unsigned short iVar = 0; iVar < nVarTurb; ++iVar) {
-        const passivedouble factor = turbTimesDensity ? SU2_TYPE::GetValue(donorFlow(jPoint, 0)) : 1.0;
-        newValues[iPoint * nField + offset + nVarFlow + iVar] = factor * SU2_TYPE::GetValue((*donorTurb)(jPoint, iVar));
+    }
+  }
+  summary.nRecoveryPatches = recovery.nPatches;
+  summary.maxRecoveryRing = recovery.maxRing;
+
+  /*--- Final checks before the arrays are set: every state admissible, the wall momentum zero, the totals of the flow
+   *    variables those of the projection. ---*/
+
+  const auto& projectionSummary = projection.GetSummary();
+  for (unsigned short iLevel = 0; iLevel < nLevel; ++iLevel) {
+    const unsigned short offset = iLevel * nPerLevel;
+    for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
+      const auto* values = &newValues[iPoint * nField + offset];
+      bool ok = admissibleState(values);
+      if (wallPoint[iPoint])
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) ok = ok && values[1 + iDim] == 0.0;
+      if (!ok) {
+        SU2_MPI::Error("The transferred state of the point " + pointText(iPoint) +
+                           " is not admissible after the recovery.",
+                       CURRENT_FUNCTION);
       }
     }
-    if (std::find(fixed.begin(), fixed.end(), true) != fixed.end()) {
-      for (unsigned short iVar = 0; iVar < nPerLevel; ++iVar) projection.Redistribute(offset + iVar, newValues, fixed);
-      for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
-        if (fixed[iPoint] || admissible(iPoint)) continue;
-        /*--- Made inadmissible by the redistribution (not expected): its mean, the total is then not exact. ---*/
-        nFixed++;
-        for (unsigned short iVar = 0; iVar < nPerLevel; ++iVar)
-          newValues[iPoint * nField + offset + iVar] = projection.GetMean(iPoint, offset + iVar);
+    for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) {
+      const auto f = offset + iVar;
+      const passivedouble defect = projection.NewTotal(f, newValues) - projectionSummary.targetTotal[f];
+      if (fabs(defect) > 1e-12 * std::max(projectionSummary.scale[f], passivedouble(1e-300))) {
+        SU2_MPI::Error("The transfer did not keep the total of " + summary.names[f] + " (relative defect " +
+                           std::to_string(defect / projectionSummary.scale[f]) + ").",
+                       CURRENT_FUNCTION);
       }
     }
   }
 
-  /*--- Set the arrays of the new mesh: flow, turbulence (divided by the projected density for SST, then limited to the
-   *    bounds of the solver). ---*/
+  /*--- Set the arrays of the new mesh: flow, turbulence (SST: divided by the density). ---*/
 
   for (unsigned short iLevel = 0; iLevel < nLevel; ++iLevel) {
     const unsigned short offset = iLevel * nPerLevel;
@@ -1166,16 +1317,8 @@ void CConservativeTransfer::Transfer(CConfig* config, const CMeshDonor& donor, C
     auto& turb = turbArray(solver[MESH_0], iLevel);
     for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
       const passivedouble density = newValues[iPoint * nField + offset];
-      for (unsigned short iVar = 0; iVar < nVarTurb; ++iVar) {
-        su2double value = newValues[iPoint * nField + offset + nVarFlow + iVar] / (turbTimesDensity ? density : 1.0);
-        const su2double lowerLimit = turbSolver->GetLowerLimit(iVar), upperLimit = turbSolver->GetUpperLimit(iVar);
-        if (value < lowerLimit || value > upperLimit) {
-          const su2double limit = (value < lowerLimit) ? lowerLimit : upperLimit;
-          if (fabs(value - limit) > 1e-10 * fabs(limit)) summary.nTurbLimited++;
-          value = limit;
-        }
-        turb(iPoint, iVar) = value;
-      }
+      for (unsigned short iVar = 0; iVar < nVarTurb; ++iVar)
+        turb(iPoint, iVar) = newValues[iPoint * nField + offset + nVarFlow + iVar] / (turbTimesDensity ? density : 1.0);
     }
   }
   for (const auto iSol : arrays.solverIndices) {
@@ -1263,9 +1406,14 @@ void CConservativeTransfer::Transfer(CConfig* config, const CMeshDonor& donor, C
     cout << "No-slip wall points: " << summary.nWallPoints << ", projected momentum set to zero (largest "
          << summary.maxWallMomentum << "), redistributed over the other points." << endl;
   }
-  cout << "Flow states not admissible after the projection (fixed): " << summary.nFlowFixed;
+  if (summary.nWallBoundsExceeded > 0) {
+    cout << "The limiter bounds could not hold the removed wall momentum of " << summary.nWallBoundsExceeded
+         << " momentum field(s): the rest was spread over the domain by volume (totals exact)." << endl;
+  }
+  cout << "States not admissible after the projection (k subtracted with SST): " << summary.nFlowFixed;
   if (summary.interpolateTimeN1) cout << ", U^(n-1): " << summary.nHistoryFixed;
-  cout << "." << endl;
+  cout << "; recovered by blending " << summary.nRecoveryPatches << " patch(es) towards their mean state (up to "
+       << summary.maxRecoveryRing << " neighbour rings), integrals kept." << endl;
   if (nVarTurb > 0)
     cout << "Turbulence values limited to the bounds of the solver: " << summary.nTurbLimited << "." << endl;
   if (summary.nTimeLevels > 0) {

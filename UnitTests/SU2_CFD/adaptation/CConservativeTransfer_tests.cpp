@@ -862,8 +862,8 @@ TEST_CASE("Conservative transfer: time history and turbulence", "[Adaptation]") 
 
 TEST_CASE("Conservative transfer: inadmissible projected state", "[Adaptation]") {
   /*--- Donor with zero total energy (negative pressure) at one point: the projected states near it are not admissible;
-   *    they are fixed (control-volume mean or a donor state), every state is admissible afterwards and the totals are
-   *    kept by the redistribution. ---*/
+   *    they are recovered (blended towards the mean of a patch), every state is admissible afterwards and the totals
+   *    are kept. ---*/
   const unsigned short nDim = 2;
   auto config = MakeConfig(nDim, "SOLVER= EULER\n");
   MeshSolution donor(config.get(), BoxMesh(nDim, 4, false), 0);
@@ -881,6 +881,7 @@ TEST_CASE("Conservative transfer: inadmissible projected state", "[Adaptation]")
   }
   const auto& summary = transfer.GetSummary();
   CHECK(summary.nFlowFixed >= 1);
+  CHECK(summary.nRecoveryPatches >= 1);
   auto* fluidModel = target.solver[MESH_0][FLOW_SOL]->GetFluidModel();
   const auto* nodes = target.solver[MESH_0][FLOW_SOL]->GetNodes();
   for (auto iPoint = 0ul; iPoint < target.Fine().GetnPoint(); ++iPoint) {
@@ -997,3 +998,76 @@ TEST_CASE("Conservative transfer: donor state not admissible with k", "[Adaptati
   for (unsigned short f = 0; f < nDim + 2; ++f) CHECK(fabs(summary.relativeDefect[f]) < 1e-12);
 }
 
+TEST_CASE("Conservative transfer: high-speed states, coupled recovery", "[Adaptation]") {
+  /*--- Valid high-speed donor states: momentum jumps (tanh) with a small internal energy (a fraction of the kinetic
+   *    energy per unit mass far from the jumps), U^n and a shifted U^(n-1). The projection to another mesh over- and
+   *    undershoots the momentum, the limiter bounds each variable separately, so states with the kinetic energy above
+   *    the total energy appear. The recovery must leave every state of both time levels admissible and keep the
+   *    totals of every flow variable. Before the coupled recovery, the per-variable redistribution and the second
+   *    fallback (the control-volume mean) lost up to 1.2e-3 of the totals in every case. ---*/
+  const unsigned short nDim = 2;
+  struct StressCase {
+    passivedouble energy, width;
+    unsigned long nDonor, nTarget;
+  };
+  const std::vector<StressCase> cases = {{1e-3, 0.02, 12, 7}, {1e-4, 0.01, 16, 7}, {1e-5, 0.005, 16, 9},
+                                         {1e-5, 0.03, 9, 16}, {1e-6, 0.002, 20, 11}};
+  for (const auto& test : cases) {
+    SECTION("energy " + std::to_string(test.energy) + ", width " + std::to_string(test.width) + ", n " +
+            std::to_string(test.nDonor) + " -> " + std::to_string(test.nTarget)) {
+      auto config = MakeConfig(nDim,
+                               "SOLVER= EULER\nTIME_DOMAIN= YES\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\n"
+                               "TIME_STEP= 1e-3\nTIME_ITER= 10\n");
+      auto field = [&test](passivedouble shift) {
+        return Field([&test, shift](const su2double* x, su2double* U) {
+          const su2double rho = 1.0 + 0.3 * x[1];
+          const su2double u = tanh((x[0] - 1.0 - shift) / test.width) - 0.5 * tanh((x[0] - 0.4 + shift) / test.width);
+          const su2double v = 0.5 * tanh((x[1] - 0.5 - shift) / test.width);
+          U[0] = rho;
+          U[1] = rho * u;
+          U[2] = rho * v;
+          U[3] = rho * (0.5 * (u * u + v * v) + test.energy);
+        });
+      };
+      MeshSolution donor(config.get(), BoxMesh(nDim, test.nDonor, true), 0);
+      auto* donorNodes = donor.solver[MESH_0][FLOW_SOL]->GetNodes();
+      for (auto iPoint = 0ul; iPoint < donor.Fine().GetnPoint(); ++iPoint) {
+        su2double Un[MAXVAR], Un1[MAXVAR];
+        field(0.0)(donor.Fine().nodes->GetCoord(iPoint), Un);
+        field(0.03)(donor.Fine().nodes->GetCoord(iPoint), Un1);
+        for (unsigned short iVar = 0; iVar < nDim + 2; ++iVar) {
+          donorNodes->GetSolution()(iPoint, iVar) = Un[iVar];
+          donorNodes->GetSolution_time_n()(iPoint, iVar) = Un[iVar];
+          donorNodes->GetSolution_time_n1()(iPoint, iVar) = Un1[iVar];
+        }
+      }
+      MeshSolution target(config.get(), BoxMesh(nDim, test.nTarget, true), 0);
+      CConservativeTransfer transfer;
+      {
+        Mute mute;
+        transfer.Transfer(config.get(), donor.Donor(), target.geometry, target.solver);
+      }
+      const auto& summary = transfer.GetSummary();
+      INFO("fixed " << summary.nFlowFixed << " / " << summary.nHistoryFixed << ", patches " << summary.nRecoveryPatches
+                    << ", rings " << summary.maxRecoveryRing);
+      CHECK(summary.nFlowFixed + summary.nHistoryFixed > 0);
+      /*--- With the smaller internal energies the mean of the first ring is not admissible: grown patches (the
+       *    secondary recovery) are exercised. ---*/
+      if (test.energy < 5e-5) CHECK(summary.maxRecoveryRing >= 2);
+      auto* fluidModel = target.solver[MESH_0][FLOW_SOL]->GetFluidModel();
+      auto* nodes = target.solver[MESH_0][FLOW_SOL]->GetNodes();
+      unsigned long nBad = 0;
+      for (auto iPoint = 0ul; iPoint < target.Fine().GetnPoint(); ++iPoint) {
+        su2double U[MAXVAR], V[MAXVAR];
+        for (unsigned short iVar = 0; iVar < nDim + 2; ++iVar) {
+          U[iVar] = nodes->GetSolution(iPoint, iVar);
+          V[iVar] = nodes->GetSolution_time_n1()(iPoint, iVar);
+        }
+        nBad += !CBarycentricTransfer::AdmissibleState(*fluidModel, nDim, U);
+        nBad += !CBarycentricTransfer::AdmissibleState(*fluidModel, nDim, V);
+      }
+      CHECK(nBad == 0);
+      for (unsigned short f = 0; f < 2 * (nDim + 2); ++f) CHECK(fabs(summary.relativeDefect[f]) < 1e-12);
+    }
+  }
+}
