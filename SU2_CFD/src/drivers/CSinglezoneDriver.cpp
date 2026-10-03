@@ -971,6 +971,11 @@ unsigned long CSinglezoneDriver::SolveTimeWindow(unsigned long first, unsigned l
   fixedPointWindow = true;
   fixedPointLastStep = last;
 
+  /*--- A discarded solve writes no file at all (not even the files that solver controllers write during the inner
+   *    iterations); its screen output stays. ---*/
+  output->SetFileWriting(accepted);
+
+  auto lastSolved = last;
   for (auto timeIter = first; timeIter <= last; timeIter++) {
     Preprocess(timeIter);
     Run();
@@ -979,12 +984,16 @@ unsigned long CSinglezoneDriver::SolveTimeWindow(unsigned long first, unsigned l
     if (accepted) {
       Monitor(timeIter);
       Output(timeIter);
-      if (StopCalc) return timeIter;
+      if (StopCalc) {
+        lastSolved = timeIter;
+        break;
+      }
     } else {
       output->SetConvergence(false);
     }
   }
-  return last;
+  output->SetFileWriting(true);
+  return lastSolved;
 }
 
 std::pair<passivedouble, passivedouble> CSinglezoneDriver::MetricChange(const vector<passivedouble>& meshMetric) const {
@@ -1213,14 +1222,12 @@ void CSinglezoneDriver::RunTimeFixedPointLoop() {
              << (accepted ? "accepted (files and history)." : "discarded (screen output only).") << endl;
       }
 
-      output->SetHistoryFileWriting(accepted);
       windowMetricTime = 0.0;
       StartTime = SU2_MPI::Wtime();
       config->Set_StartTime(StartTime);
       const auto solveStart = StartTime;
       const auto lastSolved = SolveTimeWindow(first, last, accepted);
       if (!accepted) UsedTimeCompute += SU2_MPI::Wtime() - StartTime;
-      output->SetHistoryFileWriting(true);
 
       row.nSolve++;
       row.points.push_back(nPointGlobal());

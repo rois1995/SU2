@@ -2403,7 +2403,8 @@ void CFlowOutput::SetNearfieldInverseDesign(CSolver *solver, const CGeometry *ge
 
     NearFieldEA_file.precision(config->GetOutput_Precision());
 
-    NearFieldEA_file.open("Equivalent_Area.dat", ios::out);
+    /*--- Not opened while the file output is off (SetFileWriting): the writes below then do nothing. ---*/
+    if (fileWriting) NearFieldEA_file.open("Equivalent_Area.dat", ios::out);
     NearFieldEA_file << "TITLE = \"Equivalent Area evaluation at each azimuthal angle\"" << "\n";
 
     if (config->GetSystemMeasurements() == US)
@@ -2536,7 +2537,7 @@ void CFlowOutput::SetNearfieldInverseDesign(CSolver *solver, const CGeometry *ge
 
     EquivArea_file.precision(config->GetOutput_Precision());
 
-    EquivArea_file.open("nearfield_flow.dat", ios::out);
+    if (fileWriting) EquivArea_file.open("nearfield_flow.dat", ios::out);
     EquivArea_file << "TITLE = \"Equivalent Area evaluation at each azimuthal angle\"" << "\n";
 
     if (config->GetSystemMeasurements() == US)
@@ -2590,6 +2591,8 @@ void CFlowOutput::WriteAdditionalFiles(CConfig *config, CGeometry *geometry, CSo
 }
 
 void CFlowOutput::WriteMetaData(const CConfig *config){
+
+  if (!fileWriting) return;
 
   ofstream meta_file;
 

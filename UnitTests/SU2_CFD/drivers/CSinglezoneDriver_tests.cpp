@@ -27,12 +27,23 @@
 #include "catch.hpp"
 
 #include <cstdio>
+#include <filesystem>
 #include <fstream>
+#include <map>
 #include <string>
 
 #include "../../../SU2_CFD/include/drivers/CSinglezoneDriver.hpp"
 
 namespace {
+
+/*--- Access to the protected parts of the driver that the adaptation loops use. ---*/
+class TestDriver : public CSinglezoneDriver {
+ public:
+  using CSinglezoneDriver::CSinglezoneDriver;
+  using CSinglezoneDriver::SolveTimeWindow;
+  CConfig* Config() { return config_container[ZONE_0]; }
+  COutput* Output() { return output_container[ZONE_0]; }
+};
 
 /*--- Number of entries of two containers that differ (bit for bit). ---*/
 template <class Container>
@@ -122,6 +133,68 @@ TEST_CASE("Time window state, same mesh, Euler with multigrid", "[Adaptation]") 
                                          "MARKER_FAR= (x_minus, x_plus, y_minus, y_plus)\n"
                                          "CONV_NUM_METHOD_FLOW= ROE\nMUSCL_FLOW= YES\n"
                                          "SLOPE_LIMITER_FLOW= VENKATAKRISHNAN\nMGLEVEL= 2\n");
+}
+
+TEST_CASE("Discarded window solve writes no file (fixed CL entering finite differences)", "[Adaptation]") {
+  /*--- A solve that the fixed-point loop discards runs Preprocess/Run/Postprocess/Update with the file output off.
+   *    Fixed-CL mode writes the result files and the meta data when it starts its finite differences (inside Run), at
+   *    inner iteration INNER_ITER - ITER_DCL_DALPHA of the first time step here: nothing may be written or changed. ---*/
+  namespace fs = std::filesystem;
+  const std::string name = "discarded_files";
+  const auto dir = fs::current_path() / (name + "_dir");
+  fs::remove_all(dir);
+  fs::create_directory(dir);
+  const auto cwd = fs::current_path();
+  fs::current_path(dir);
+  {
+    std::ofstream cfg(name + ".cfg");
+    cfg << "SOLVER= EULER\nMACH_NUMBER= 0.5\nAOA= 2.0\n"
+           "FREESTREAM_DENSITY= 1.0\nFREESTREAM_PRESSURE= 1.0\nFREESTREAM_TEMPERATURE= 1.0\n"
+           "FLUID_MODEL= IDEAL_GAS\nGAMMA_VALUE= 1.4\nGAS_CONSTANT= 1.0\nREF_DIMENSIONALIZATION= DIMENSIONAL\n"
+           "INIT_OPTION= TD_CONDITIONS\nREF_AREA= 1.0\n"
+           "MESH_FORMAT= RECTANGLE\nMESH_BOX_SIZE= (9, 9, 0)\nMESH_BOX_LENGTH= (1.0, 1.0, 0.0)\n"
+           "MARKER_FAR= (x_minus, x_plus, y_plus)\nMARKER_EULER= (y_minus)\nMARKER_MONITORING= (y_minus)\n"
+           "FIXED_CL_MODE= YES\nTARGET_CL= 0.1\nDCL_DALPHA= 0.1\nITER_DCL_DALPHA= 2\n"
+           "TIME_DOMAIN= YES\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\nTIME_STEP= 0.01\nTIME_ITER= 10\n"
+           "INNER_ITER= 5\nNUM_METHOD_GRAD= GREEN_GAUSS\nCFL_NUMBER= 10\nMGLEVEL= 0\n"
+           "CONV_NUM_METHOD_FLOW= ROE\nMUSCL_FLOW= NO\n"
+           "LINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ITER= 5\nCONV_RESIDUAL_MINVAL= -14\n"
+           "OUTPUT_FILES= (RESTART, PARAVIEW)\nWRT_FORCES_BREAKDOWN= YES\nSCREEN_WRT_FREQ_INNER= 1\n"
+           "CONV_FILENAME= history\n";
+  }
+
+  /*--- Name, size and modification time of every file of the directory. ---*/
+  auto listing = [&]() {
+    std::map<std::string, std::pair<std::uintmax_t, fs::file_time_type>> files;
+    for (const auto& entry : fs::directory_iterator(dir))
+      files[entry.path().filename().string()] = {fs::file_size(entry.path()), fs::last_write_time(entry.path())};
+    return files;
+  };
+
+  auto* origBuf = std::cout.rdbuf(nullptr);
+  bool finiteDifferences = false;
+  decltype(listing()) before, after;
+  {
+    TestDriver driver(const_cast<char*>((name + ".cfg").c_str()), 1, SU2_MPI::GetComm());
+    before = listing();
+    driver.Output()->SetFileWriting(false);
+    driver.SolveTimeWindow(0, 1, false);
+    driver.Output()->SetFileWriting(true);
+    finiteDifferences = driver.Config()->GetFinite_Difference_Mode();
+    after = listing();
+    driver.Finalize();
+  }
+  std::cout.rdbuf(origBuf);
+  fs::current_path(cwd);
+  fs::remove_all(dir);
+
+  CHECK(finiteDifferences);  // the case reaches the fixed-CL file output
+  CHECK(after.size() == before.size());
+  for (const auto& file : after) {
+    INFO("file " << file.first);
+    REQUIRE(before.count(file.first) == 1);
+    CHECK(before.at(file.first) == file.second);
+  }
 }
 
 TEST_CASE("Time window state, same mesh, RANS", "[Adaptation]") {

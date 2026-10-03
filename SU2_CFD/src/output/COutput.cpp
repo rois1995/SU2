@@ -250,7 +250,7 @@ void COutput::SetHistoryOutput(CGeometry ****geometry, CSolver *****solver, CCon
   }
 
   for (int iZone = 0; iZone < config[ZONE_0]->GetnZone(); iZone ++){
-    if (rank == MASTER_NODE) {
+    if (rank == MASTER_NODE && fileWriting) {
       WriteTurboSpanwisePerformance(TurboBladePerfs, geometry[iZone][val_iInst][MESH_0], config, iZone); //Spanwise files
     }
   }
@@ -289,7 +289,7 @@ void COutput::OutputScreenAndHistory(CConfig *config) {
 
   if (rank == MASTER_NODE && !noWriting) {
 
-    if (historyFileWriting && WriteHistoryFileOutput(config)) SetHistoryFileOutput(config);
+    if (fileWriting && WriteHistoryFileOutput(config)) SetHistoryFileOutput(config);
 
     if (WriteScreenHeader(config)) SetScreenHeader(config);
 
@@ -962,6 +962,9 @@ bool COutput::GetCauchyCorrectedTimeConvergence(const CConfig *config){
 bool COutput::SetResultFiles(CGeometry *geometry, CConfig *config, CSolver** solver_container,
                               unsigned long iter, bool force_writing) {
 
+  /*--- No files at all while the file output is off (SetFileWriting), also when forced (fixed-CL mode). ---*/
+  if (!fileWriting) return false;
+
   bool isFileWrite = false, dataIsLoaded = false;
   const auto nVolumeFiles = config->GetnVolumeOutputFiles();
   const auto* VolumeFiles = config->GetVolumeOutputFiles();
@@ -1014,6 +1017,8 @@ bool COutput::SetResultFiles(CGeometry *geometry, CConfig *config, CSolver** sol
 }
 
 bool COutput::WriteRestartFiles(CGeometry *geometry, CConfig *config, CSolver** solver_container) {
+
+  if (!fileWriting) return false;
 
   const auto nVolumeFiles = config->GetnVolumeOutputFiles();
   const auto* VolumeFiles = config->GetVolumeOutputFiles();

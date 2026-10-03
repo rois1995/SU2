@@ -335,7 +335,7 @@ protected:
   vector<string> adapBaseFilenames;      /*!< \brief Volume, surface and restart file names without the cycle. */
   unsigned long avgVolumeStartIter = 0;  /*!< \brief Value of curAbsTimeIter of the first sample of the volume time
                                               averages (after a mesh replacement they average the new mesh only). */
-  bool historyFileWriting = true;        /*!< \brief Write the history file (off for discarded solves). */
+  bool fileWriting = true;               /*!< \brief Write files (off for discarded solves, see SetFileWriting). */
 
   /*----------------------------- Adaptive CFL ----------------------------*/
 
@@ -560,10 +560,17 @@ public:
   void SetTimeState(const TimeState& state);
 
   /*!
-   * \brief Write the history file (default) or not: the screen output and the convergence monitoring continue without
-   *        it (solves of the fixed-point mesh adaptation that are discarded).
+   * \brief Write files (default) or not (solves of the fixed-point mesh adaptation that are discarded): with false no
+   *        file is written or changed, neither the history file nor the result files (volume, surface, restart, meta
+   *        data, forces breakdown, also those that fixed-CL mode writes during the inner iterations), nor the
+   *        equivalent-area and turbomachinery files; the screen output and the convergence monitoring continue.
    */
-  void SetHistoryFileWriting(bool write) { historyFileWriting = write; }
+  void SetFileWriting(bool write) { fileWriting = write; }
+
+  /*!
+   * \brief Whether files are written (see SetFileWriting).
+   */
+  bool GetFileWriting() const { return fileWriting; }
 
   /*!
    * \brief The volume time averages start (again) with the given time step (first time step on a new mesh).
