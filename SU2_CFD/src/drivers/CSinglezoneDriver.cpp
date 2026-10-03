@@ -30,6 +30,7 @@
 #include "../../include/output/COutput.hpp"
 #include "../../include/output/CMeshOutput.hpp"
 #include "../../include/iteration/CIteration.hpp"
+#include "../../include/integration/CMultiGridIntegration.hpp"
 #include "../../include/adaptation/CSolutionTransfer.hpp"
 #include "../../include/adaptation/CBarycentricTransfer.hpp"
 #include "../../include/adaptation/CConservativeTransfer.hpp"
@@ -846,6 +847,106 @@ void CSinglezoneDriver::RunTimeAdaptationLoop() {
   }
 }
 
+CSinglezoneDriver::CTimeWindowState CSinglezoneDriver::SaveTimeWindowState() const {
+  SU2_ZONE_SCOPED
+
+  const auto* config = config_container[ZONE_0];
+  const auto nMGLevels = config->GetnMGLevels();
+  CTimeWindowState state;
+  state.timeIter = config->GetTimeIter();
+
+  for (unsigned short iMesh = 0; iMesh <= nMGLevels; iMesh++) {
+    for (unsigned short iSol = 0; iSol < MAX_SOLS; iSol++) {
+      auto* solver = solver_container[ZONE_0][INST_0][iMesh][iSol];
+      if (solver == nullptr || solver->GetNodes() == nullptr) continue;
+      auto* nodes = solver->GetNodes();
+      CTimeWindowState::Arrays arrays;
+      arrays.iMesh = iMesh;
+      arrays.iSol = iSol;
+      arrays.solution = nodes->GetSolution();
+      arrays.timeN = nodes->GetSolution_time_n();
+      arrays.timeN1 = nodes->GetSolution_time_n1();
+      const auto nPoint = arrays.solution.rows(), nVar = arrays.solution.cols();
+      arrays.solutionOld.resize(nPoint, nVar);
+      arrays.localCFL.resize(nPoint);
+      for (auto iPoint = 0ul; iPoint < nPoint; iPoint++) {
+        for (auto iVar = 0ul; iVar < nVar; iVar++) arrays.solutionOld(iPoint, iVar) = nodes->GetSolution_Old(iPoint, iVar);
+        arrays.localCFL(iPoint) = nodes->GetLocalCFL(iPoint);
+      }
+      if (iSol == FLOW_SOL) arrays.primitive = nodes->GetPrimitive();
+      if (iSol == TURB_SOL) {
+        arrays.muT.resize(nPoint);
+        for (auto iPoint = 0ul; iPoint < nPoint; iPoint++) arrays.muT(iPoint) = nodes->GetmuT(iPoint);
+      }
+      state.solvers.push_back(std::move(arrays));
+    }
+  }
+
+  for (unsigned short iSol = 0; iSol < MAX_SOLS; iSol++) {
+    const auto* integration = dynamic_cast<const CMultiGridIntegration*>(integration_container[ZONE_0][INST_0][iSol]);
+    state.integration.push_back(integration ? std::make_shared<CMultiGridIntegration>(*integration) : nullptr);
+  }
+
+  for (unsigned short iMesh = 0; iMesh <= nMGLevels; iMesh++) state.CFL.push_back(config->GetCFL(iMesh));
+  state.dampResRestric = config->GetDamp_Res_Restric();
+  state.dampCorrecProlong = config->GetDamp_Correc_Prolong();
+  state.AoA = config->GetAoA();
+  state.AoS = config->GetAoS();
+  state.finestMesh = config->GetFinestMesh();
+  state.output = output_container[ZONE_0]->GetTimeState();
+  return state;
+}
+
+void CSinglezoneDriver::RestoreTimeWindowState(const CTimeWindowState& state) {
+  SU2_ZONE_SCOPED
+
+  auto* config = config_container[ZONE_0];
+  const auto nMGLevels = config->GetnMGLevels();
+  if (state.CFL.size() != nMGLevels + 1u) {
+    SU2_MPI::Error("The saved state of the time window belongs to another mesh.", CURRENT_FUNCTION);
+  }
+
+  for (const auto& arrays : state.solvers) {
+    auto* solver = solver_container[ZONE_0][INST_0][arrays.iMesh][arrays.iSol];
+    if (solver == nullptr || solver->GetNodes() == nullptr ||
+        solver->GetNodes()->GetSolution().rows() != arrays.solution.rows() ||
+        solver->GetNodes()->GetSolution().cols() != arrays.solution.cols()) {
+      SU2_MPI::Error("The saved state of the time window belongs to another mesh.", CURRENT_FUNCTION);
+    }
+    auto* nodes = solver->GetNodes();
+    nodes->GetSolution() = arrays.solution;
+    nodes->GetSolution_time_n() = arrays.timeN;
+    nodes->GetSolution_time_n1() = arrays.timeN1;
+    const auto nPoint = arrays.solution.rows(), nVar = arrays.solution.cols();
+    for (auto iPoint = 0ul; iPoint < nPoint; iPoint++) {
+      for (auto iVar = 0ul; iVar < nVar; iVar++) nodes->SetSolution_Old(iPoint, iVar, arrays.solutionOld(iPoint, iVar));
+      nodes->SetLocalCFL(iPoint, arrays.localCFL(iPoint));
+    }
+    for (auto iPoint = 0ul; iPoint < arrays.primitive.rows(); iPoint++)
+      for (auto iVar = 0ul; iVar < arrays.primitive.cols(); iVar++)
+        nodes->SetPrimitive(iPoint, iVar, arrays.primitive(iPoint, iVar));
+    for (auto iPoint = 0ul; iPoint < arrays.muT.size(); iPoint++) nodes->SetmuT(iPoint, arrays.muT(iPoint));
+  }
+
+  for (unsigned short iSol = 0; iSol < MAX_SOLS && iSol < state.integration.size(); iSol++) {
+    auto* integration = dynamic_cast<CMultiGridIntegration*>(integration_container[ZONE_0][INST_0][iSol]);
+    if ((integration == nullptr) != (state.integration[iSol] == nullptr)) {
+      SU2_MPI::Error("The saved state of the time window belongs to other solvers.", CURRENT_FUNCTION);
+    }
+    if (integration != nullptr) *integration = *state.integration[iSol];
+  }
+
+  for (unsigned short iMesh = 0; iMesh <= nMGLevels; iMesh++) config->SetCFL(iMesh, state.CFL[iMesh]);
+  config->SetDamp_Res_Restric(state.dampResRestric);
+  config->SetDamp_Correc_Prolong(state.dampCorrecProlong);
+  config->SetAoA(state.AoA);
+  config->SetAoS(state.AoS);
+  config->SetFinestMesh(state.finestMesh);
+  config->SetTimeIter(state.timeIter);
+  TimeIter = state.timeIter;
+  output_container[ZONE_0]->SetTimeState(state.output);
+}
+
 void CSinglezoneDriver::CheckAdaptedMeshNames() const {
 
   const auto* config = config_container[ZONE_0];
@@ -906,6 +1007,20 @@ void CSinglezoneDriver::WriteAdaptedMesh(unsigned long iCycle, unsigned long fir
 }
 
 void CSinglezoneDriver::ReplaceMesh(const CSimplexMesh& mesh, CSolutionTransfer& transfer) {
+  ReplaceMesh(mesh, transfer, nullptr, nullptr);
+}
+
+void CSinglezoneDriver::ReleaseMesh(CMeshDonor& mesh) {
+  if (mesh.solver != nullptr) FinalizeSolver(mesh.solver, mesh.nMGLevels);
+  if (mesh.geometry != nullptr) {
+    for (unsigned short iMesh = 0; iMesh <= mesh.nMGLevels; iMesh++) delete mesh.geometry[iMesh];
+    delete [] mesh.geometry;
+    mesh.geometry = nullptr;
+  }
+}
+
+void CSinglezoneDriver::ReplaceMesh(const CSimplexMesh& mesh, CSolutionTransfer& transfer,
+                                    const CMeshDonor* keptDonor, CMeshDonor* keepCurrent) {
   SU2_ZONE_SCOPED
 
   const su2double startTime = SU2_MPI::Wtime();
@@ -922,15 +1037,17 @@ void CSinglezoneDriver::ReplaceMesh(const CSimplexMesh& mesh, CSolutionTransfer&
                    ".", CURRENT_FUNCTION);
   }
 
-  /*--- The objects of the current mesh (the donor) stay in use until the new ones are complete. The config
-   *    describes the current mesh only until the new geometry is built, keep what the donor needs from it. ---*/
+  /*--- The objects of the current mesh (the donor, unless another one is given) stay in use until the new ones are
+   *    complete. The config describes the current mesh only until the new geometry is built, keep what the donor
+   *    needs from it. ---*/
 
-  CMeshDonor donor;
-  donor.geometry = geometry_container[ZONE_0][INST_0];
-  donor.solver = solver_container[ZONE_0][INST_0];
-  donor.nMGLevels = config->GetnMGLevels();
-  for (unsigned short iMarker = 0; iMarker < donor.geometry[MESH_0]->GetnMarker(); iMarker++)
-    donor.markerTags.push_back(config->GetMarker_All_TagBound(iMarker));
+  CMeshDonor current;
+  current.geometry = geometry_container[ZONE_0][INST_0];
+  current.solver = solver_container[ZONE_0][INST_0];
+  current.nMGLevels = config->GetnMGLevels();
+  for (unsigned short iMarker = 0; iMarker < current.geometry[MESH_0]->GetnMarker(); iMarker++)
+    current.markerTags.push_back(config->GetMarker_All_TagBound(iMarker));
+  const CMeshDonor& donor = (keptDonor != nullptr) ? *keptDonor : current;
 
   /*--- Start from the config state of a fresh run (requested multigrid levels, their CFL, damping, ...). ---*/
 
@@ -991,14 +1108,14 @@ void CSinglezoneDriver::ReplaceMesh(const CSimplexMesh& mesh, CSolutionTransfer&
 
   PreprocessPythonInterface(config_container, geometry_container, solver_container);
 
-  /*--- Release the donor, with its own number of levels. ---*/
+  /*--- Release the previous mesh, with its own number of levels (its geometry and solvers may be kept as the donor
+   *    of later transfers). ---*/
 
-  FinalizeNumerics(donorNumerics, donor.nMGLevels);
+  FinalizeNumerics(donorNumerics, current.nMGLevels);
   FinalizeIntegration(donorIntegration);
-  FinalizeSolver(donor.solver, donor.nMGLevels);
   delete donorIteration;
-  for (unsigned short iMesh = 0; iMesh <= donor.nMGLevels; iMesh++) delete donor.geometry[iMesh];
-  delete [] donor.geometry;
+  if (keepCurrent != nullptr) *keepCurrent = current;
+  else ReleaseMesh(current);
 
   /*--- The output continues the history file, its geometry data and convergence monitoring start again. ---*/
 

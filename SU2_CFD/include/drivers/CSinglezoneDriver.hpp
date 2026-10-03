@@ -28,10 +28,15 @@
 
 #pragma once
 #include "CDriver.hpp"
+#include "../output/COutput.hpp"
 #include "../../../Common/include/adaptation/CSimplexMesh.hpp"
+
+#include <memory>
 
 class CSolutionTransfer;
 class CRemesher;
+class CMultiGridIntegration;
+struct CMeshDonor;
 
 /*!
  * \class CSinglezoneDriver
@@ -63,6 +68,7 @@ protected:
   bool predictSnapshotValid = false;       /*!< \brief Snapshot j exists on the current mesh. */
   unsigned long windowFirstStep = 0;       /*!< \brief First time step solved on the current mesh. */
 
+
   /*!
    * \brief Stop with an error if the mesh of this problem cannot be adapted or replaced: compressible EULER,
    *        NAVIER_STOKES or RANS, steady or dual time stepping, and the cases of CMMGInterface::CheckSupport (one
@@ -83,6 +89,11 @@ protected:
    *       column Adap_Cycle) are the time windows counted from time step 0 (cycle = time step / ADAP_FREQ).
    */
   void RunTimeAdaptationLoop();
+
+  /*!
+   * \brief Delete the geometry and solvers of a mesh kept by ReplaceMesh (keepCurrent).
+   */
+  void ReleaseMesh(CMeshDonor& mesh);
 
   /*!
    * \brief Metric of the time window of the time-domain adaptation loop, called by Postprocess after each time step:
@@ -152,6 +163,40 @@ protected:
   void WriteAdaptedMesh(unsigned long iCycle, unsigned long firstTimeIter = 0) const;
 
 public:
+
+  /*!
+   * \brief State of the problem at the start of a time window (fixed-point windows of the time-domain adaptation
+   *        loop): what the next time step depends on. Solution, Solution_Old, Solution_time_n, Solution_time_n1 and
+   *        the local CFL of every solver on every multigrid level, the primitive variables of the flow solvers, the eddy
+   *        viscosity of the turbulence solvers, the multigrid integration state (smoothing statistics, damping), the
+   *        run-time config values (CFL of each level, multigrid damping, angles of attack and sideslip, finest level,
+   *        time iteration) and the time-dependent state of the output.
+   */
+  struct CTimeWindowState {
+    struct Arrays {
+      unsigned short iMesh = 0, iSol = 0;
+      su2activematrix solution, solutionOld, timeN, timeN1, primitive;
+      su2activevector localCFL, muT;
+    };
+    unsigned long timeIter = 0;
+    vector<Arrays> solvers;
+    vector<su2double> CFL;
+    su2double dampResRestric = 0.0, dampCorrecProlong = 0.0, AoA = 0.0, AoS = 0.0;
+    unsigned short finestMesh = 0;
+    vector<std::shared_ptr<CMultiGridIntegration> > integration;
+    COutput::TimeState output;
+  };
+
+  /*!
+   * \brief Save the state of the problem at the start of a time window (see CTimeWindowState).
+   */
+  CTimeWindowState SaveTimeWindowState() const;
+
+  /*!
+   * \brief Restore a state saved by SaveTimeWindowState on the same mesh: solving the same time steps again gives the
+   *        same solution, bit for bit.
+   */
+  void RestoreTimeWindowState(const CTimeWindowState& state);
 
   /*!
    * \brief Constructor of the class.
@@ -251,6 +296,18 @@ public:
    * \param[in] transfer - Sets the solution on the new mesh from the previous one.
    */
   void ReplaceMesh(const CSimplexMesh& mesh, CSolutionTransfer& transfer);
+
+  /*!
+   * \brief ReplaceMesh with another donor or keeping the current mesh (fixed-point windows).
+   * \param[in] mesh - New mesh.
+   * \param[in] transfer - Sets the solution on the new mesh from the donor.
+   * \param[in] donor - Donor of the transfer instead of the current mesh (kept by an earlier call); the current mesh is
+   *            then released. nullptr: the current mesh is the donor.
+   * \param[out] keepCurrent - If not nullptr, the geometry and solvers of the current mesh are not deleted but returned
+   *            here (with the marker names and levels, as a donor of later transfers); release with ReleaseMesh.
+   */
+  void ReplaceMesh(const CSimplexMesh& mesh, CSolutionTransfer& transfer, const CMeshDonor* donor,
+                   CMeshDonor* keepCurrent);
 
   /*!
    * \brief One mesh adaptation cycle: RemeshFromMetric, then ReplaceMesh. Call it after a converged solve
