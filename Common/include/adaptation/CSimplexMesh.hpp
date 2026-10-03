@@ -52,6 +52,7 @@ struct CSimplexMesh {
   unsigned short nDim = 0;            /*!< \brief Number of dimensions (2 or 3). */
   std::vector<passivedouble> coord;   /*!< \brief Point coordinates, nPoint x nDim. */
   std::vector<passivedouble> metric;  /*!< \brief Metric at the points, nPoint x nMetric, upper triangle (may be empty). */
+  std::vector<passivedouble> volume;  /*!< \brief Control volume of each point in SU2 (median dual; may be empty). */
   std::vector<unsigned long> elem;    /*!< \brief Volume connectivity, nElem x (nDim+1). */
   std::vector<int> elemRef;           /*!< \brief Reference of each volume element. */
   std::vector<Marker> markers;        /*!< \brief Boundary elements per physical marker. */

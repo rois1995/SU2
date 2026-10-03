@@ -1,1 +1,1 @@
-common_src += files(['CMMGInterface.cpp'])
+common_src += files(['CMMGInterface.cpp', 'CMeshGather.cpp'])
