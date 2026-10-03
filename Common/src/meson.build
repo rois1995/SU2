@@ -40,6 +40,16 @@ subdir('grid_movement')
 subdir('adt')
 subdir('adaptation')
 
+# Compensated sums of the distributed solution transfer (CAccurateSum): the compensation terms must survive the
+# compiler, so this one unit is a library of its own, compiled without fast math and without floating-point
+# contraction (options appended after the SU2 flags win). Pure doubles: the same library for every build type.
+accurate_sum_lib = static_library('SU2AccurateSum',
+                                  files(['adaptation/CAccurateSum.cpp']),
+                                  install : false,
+                                  cpp_args: [default_warning_flags, su2_cpp_args,
+                                             '-fno-fast-math', '-fno-unsafe-math-optimizations',
+                                             '-ffp-contract=off'])
+
 if get_option('enable-normal')
   common = static_library('SU2Common',
                           common_src, common_cuda_src,
@@ -48,7 +58,7 @@ if get_option('enable-normal')
                           cpp_args: [default_warning_flags, su2_cpp_args],
                           cuda_args: common_cuda_cpp_args)
 
-  common_dep = declare_dependency(link_with: common,
+  common_dep = declare_dependency(link_with: [common, accurate_sum_lib],
                                   include_directories : common_include)
 endif
 
@@ -64,7 +74,7 @@ if get_option('enable-autodiff')
                             cpp_args: [default_warning_flags, su2_cpp_args, codi_rev_args],
                             cuda_args: common_cuda_rev_args)
 
-  commonAD_dep = declare_dependency(link_with: commonAD,
+  commonAD_dep = declare_dependency(link_with: [commonAD, accurate_sum_lib],
                                     include_directories : common_include)
 
 endif
@@ -77,7 +87,7 @@ if get_option('enable-directdiff')
                             dependencies : [su2_deps, codi_dep],
                             cpp_args: [default_warning_flags, su2_cpp_args, codi_for_args])
 
-  commonDD_dep = declare_dependency(link_with: commonDD,
+  commonDD_dep = declare_dependency(link_with: [commonDD, accurate_sum_lib],
                                     include_directories : common_include)
 
 endif
