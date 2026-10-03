@@ -240,8 +240,9 @@ void CCGNSFileWriter::PrepareNames() {
     for (const auto& marker : boundaryMarkers) {
       const auto name = uniqueName(marker.name, taken);
       if (rank == MASTER_NODE && name != marker.name) {
-        cout << "CGNS output: the marker " << marker.name << " is written (and read back by SU2) as " << name
-             << " (names have at most 32 characters, are unique and are not GridCoordinates, ZoneBC or ZoneType)."
+        cout << "CGNS output: the boundary section, BC and family of the marker " << marker.name << " are named "
+             << name << " (names have at most 32 characters, are unique and are not GridCoordinates, ZoneBC or "
+             << "ZoneType); the marker name is kept in the descriptor SU2MarkerName of the section, SU2 reads it back."
              << endl;
       }
       taken.push_back(name);
@@ -376,6 +377,12 @@ void CCGNSFileWriter::WriteBoundaries() {
 #endif
     }
     cumulative += static_cast<cgsize_t>(nTotElem);
+
+    /*--- A section named otherwise than its marker keeps the marker name in a descriptor (read by the SU2 reader). ---*/
+    if (name != marker.name) {
+      CallCGNS(cg_goto(cgnsFileID, cgnsBase, "Zone_t", cgnsZone, "Elements_t", section, "end"));
+      CallCGNS(cg_descriptor_write(CGNS_MARKER_DESCRIPTOR, marker.name.c_str()));
+    }
 
     /*--- The BC points to the boundary elements and takes its type from a family with the name of the marker.
      These are metadata nodes, written by all ranks. ---*/

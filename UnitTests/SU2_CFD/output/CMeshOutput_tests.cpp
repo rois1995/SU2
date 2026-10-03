@@ -201,4 +201,29 @@ TEST_CASE("Mesh output from memory, CGNS, marker names of other CGNS nodes", "[A
   CheckWriteAndRead(simplex_test::MakeSimplexMesh(3, 2, names3D), "CGNS",
                     "MARKER_FAR= (Tetrahedra, Triangles, Zone, Fields, Prisms, Hexahedra, Pyramids)\n");
 }
+
+TEST_CASE("Mesh output from memory, CGNS, reserved and long marker names", "[Adaptation]") {
+  /*--- Markers named like the standard (SIDS) nodes of a zone, and names longer than the 32 characters of a CGNS
+   *    name (two of them equal in their first 32 characters): the sections get other names in the file, but the file
+   *    must be read back with the original marker names and the unchanged config (a restart of the adaptation). ---*/
+  const std::string long1 = "a_marker_name_longer_than_32_characters_one";
+  const std::string long2 = "a_marker_name_longer_than_32_characters_two";
+  auto names2D = [&](const passivedouble* x) -> std::string {
+    if (x[1] < 1e-12) return x[0] < 1.0 ? "GridCoordinates" : "ZoneBC";
+    if (x[1] > 1.0 - 1e-12) return "ZoneType";
+    return x[0] < 1e-12 ? long1 : long2;
+  };
+  CheckWriteAndRead(simplex_test::MakeSimplexMesh(2, 4, names2D), "CGNS",
+                    "MARKER_FAR= (GridCoordinates, ZoneBC, ZoneType, " + long1 + ", " + long2 + ")\n");
+  auto names3D = [&](const passivedouble* x) -> std::string {
+    if (x[2] < 1e-12) return x[0] < 0.5 ? "GridCoordinates" : "GridCoordinates_1";
+    if (x[2] > 1.0 - 1e-12) return "ZoneBC";
+    if (x[0] < 1e-12) return "ZoneType";
+    if (x[0] > 1.0 - 1e-12) return long1;
+    return x[1] < 1e-12 ? long2 : "Zone";
+  };
+  CheckWriteAndRead(simplex_test::MakeSimplexMesh(3, 2, names3D), "CGNS",
+                    "MARKER_FAR= (GridCoordinates, GridCoordinates_1, ZoneBC, ZoneType, " + long1 + ", " + long2 +
+                        ", Zone)\n");
+}
 #endif

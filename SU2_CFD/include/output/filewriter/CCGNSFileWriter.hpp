@@ -153,6 +153,8 @@ class CCGNSFileWriter final : public CFileWriter {
    *        base the zone(s) and the families. The boundary sections, BCs and families carry the marker names, which
    *        the SU2 CGNS reader takes as the marker tags: they are kept (at most 32 characters; a number is appended
    *        to a truncated name that equals another one, or to GridCoordinates, ZoneBC, ZoneType, with a message).
+   *        A boundary section whose name is not the marker name then holds the marker name in a Descriptor_t
+   *        "SU2MarkerName", from which the SU2 reader restores the marker (the file is read with the same config).
    *        The volume sections ("Triangles", ...), the solution ("Fields") and the zone ("Zone") are internal: one
    *        that equals a marker name gets the prefix "SU2 " (with a space, which marker names cannot contain).
    */

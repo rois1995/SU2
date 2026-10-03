@@ -195,6 +195,9 @@ inline unsigned short nPointsOfElementType(unsigned short elementType) {
 }
 
 const int CGNS_STRING_SIZE = 33; /*!< \brief Length of strings used in the CGNS format. */
+/*! \brief Descriptor of a CGNS boundary section with the SU2 marker name, when the section has another name (reserved
+ *         CGNS names, names longer than 32 characters). */
+inline constexpr char CGNS_MARKER_DESCRIPTOR[] = "SU2MarkerName";
 
 /*--- Layout of the header of the native SU2 binary solution/restart format, shared by
       CSU2BinaryFileWriter and the routines that read those files so they cannot drift

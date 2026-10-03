@@ -29,6 +29,8 @@
 #include "../../../include/toolboxes/CLinearPartitioner.hpp"
 #include "../../../include/geometry/meshreader/CCGNSMeshReaderBase.hpp"
 
+#include <cstring>
+
 CCGNSMeshReaderBase::CCGNSMeshReaderBase(const CConfig* val_config, unsigned short val_iZone, unsigned short val_nZone)
     : CMeshReaderBase(val_config, val_iZone, val_nZone) {
 #ifdef HAVE_CGNS
@@ -362,6 +364,28 @@ void CCGNSMeshReaderBase::ReadCGNSSectionMetadata() {
       elemOffset[s + 1] += element_count;
     else
       numberOfGlobalElements += element_count;
+
+    /*--- A boundary section written by SU2 under another name than its marker (reserved CGNS names, names longer
+     than 32 characters) holds the marker name in a descriptor: the marker gets its original name back. ---*/
+
+    if (!isInterior[s]) {
+      if (cg_goto(cgnsFileID, cgnsBase, "Zone_t", cgnsZone, "Elements_t", s + 1, "end")) cg_error_exit();
+      int nDescriptors = 0;
+      if (cg_ndescriptors(&nDescriptors)) cg_error_exit();
+      for (int d = 1; d <= nDescriptors; d++) {
+        char descriptorName[CGNS_STRING_SIZE];
+        char* text = nullptr;
+        if (cg_descriptor_read(d, descriptorName, &text)) cg_error_exit();
+        if (string(descriptorName) == CGNS_MARKER_DESCRIPTOR && text != nullptr && text[0] != '\0') {
+          if (rank == MASTER_NODE) {
+            cout << "Section " << string(sectionNames[s].data()) << " is the marker " << text << " ("
+                 << CGNS_MARKER_DESCRIPTOR << ")." << endl;
+          }
+          sectionNames[s].assign(text, text + strlen(text) + 1);
+        }
+        cg_free(text);
+      }
+    }
 
     /*--- Print some information to the console. ---*/
 
