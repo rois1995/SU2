@@ -36,6 +36,7 @@
 #include "../../include/adaptation/CConservativeTransfer.hpp"
 #include "../../include/adaptation/CMetricPredictor.hpp"
 #include "../../../Common/include/adaptation/CMMGInterface.hpp"
+#include "../../../Common/include/adaptation/CMeshGather.hpp"
 #include "../../../Common/include/geometry/CPhysicalGeometry.hpp"
 #include "../../../Common/include/geometry/meshreader/CMemoryMeshReaderFVM.hpp"
 #include "../../../Common/include/linear_algebra/blas_structure.hpp"
@@ -514,38 +515,49 @@ void CSinglezoneDriver::PredictWindowMetric() {
     return;
   }
 
-  /*--- End of the window: motion of the features between the two snapshots, metric moved over the horizon. ---*/
+  /*--- End of the window: motion of the features between the two snapshots, metric moved over the horizon. The mesh,
+   *    the snapshots, the flow velocity and the no-slip wall points are gathered on the master rank (global numbering
+   *    of the mesh, CMeshGather), where the serial predictor runs; the predicted metric and the motion go back to the
+   *    ranks that own the points. ---*/
 
   const auto startTime = SU2_MPI::Wtime();
-  CMetricPredictor predictor(*geometry);
-
-  vector<su2double> motion(nPointDomain * nDim, 0.0);
-  CMetricPredictor::MotionReport motionReport;
   const bool twoSnapshots = predictSnapshotValid && predictSnapshotStep < TimeIter;
   const su2double separation = twoSnapshots ? su2double(TimeIter - predictSnapshotStep) : su2double(0.0);
+  const su2double dt = config->GetDelta_UnstTimeND();
 
-  if (twoSnapshots) {
-    vector<su2double> sj(nPointDomain), sk(nPointDomain), guess(nPointDomain * nDim);
-    const su2double dt = config->GetDelta_UnstTimeND();
-    for (auto iPoint = 0ul; iPoint < nPointDomain; ++iPoint) {
-      sj[iPoint] = CMetricPredictor::Invariant(nDim, &predictSnapshot[iPoint * nMet]);
-      sk[iPoint] = CMetricPredictor::Invariant(nDim, &snapshot[iPoint * nMet]);
-      for (unsigned short iDim = 0; iDim < nDim; ++iDim)
-        guess[iPoint * nDim + iDim] = nodes->GetVelocity(iPoint, iDim) * dt;
+  vector<string> markerTags;
+  for (unsigned short iMarker = 0; iMarker < geometry->GetnMarker(); ++iMarker)
+    markerTags.push_back(config->GetMarker_All_TagBound(iMarker));
+  const CMeshGather gather(*geometry);
+  const auto mesh = gather.GatherMesh(*config, markerTags, false);
+
+  /*--- Per point: snapshot j, snapshot k, flow velocity x dt, no-slip wall (no motion: the features there, boundary
+   *    layers, are attached to the static wall). ---*/
+  const unsigned short nIn = 2 * nMet + nDim + 1;
+  vector<su2double> local(nPointDomain * nIn, 0.0);
+  for (auto iPoint = 0ul; iPoint < nPointDomain; ++iPoint) {
+    auto* row = &local[iPoint * nIn];
+    for (unsigned short iMet = 0; iMet < nMet; ++iMet) {
+      row[iMet] = twoSnapshots ? predictSnapshot[iPoint * nMet + iMet] : snapshot[iPoint * nMet + iMet];
+      row[nMet + iMet] = snapshot[iPoint * nMet + iMet];
     }
-    /*--- No motion at no-slip walls: the features there (boundary layers) are attached to the (static) wall. ---*/
-    vector<bool> wall(nPointDomain, false);
-    for (unsigned short iMarker = 0; iMarker < geometry->GetnMarker(); ++iMarker) {
-      if (!config->GetViscous_Wall(iMarker)) continue;
-      for (auto iVertex = 0ul; iVertex < geometry->GetnVertex(iMarker); ++iVertex) {
-        const auto iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
-        if (iPoint < nPointDomain) wall[iPoint] = true;
-      }
-    }
-    motion = predictor.MotionField(sj, sk, separation, &guess, config->GetAdap_Predict_Regularization(), motionReport,
-                                   &wall);
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) row[2 * nMet + iDim] = nodes->GetVelocity(iPoint, iDim) * dt;
   }
-  const auto motionTime = SU2_MPI::Wtime() - startTime;
+  for (unsigned short iMarker = 0; iMarker < geometry->GetnMarker(); ++iMarker) {
+    if (!config->GetViscous_Wall(iMarker)) continue;
+    for (auto iVertex = 0ul; iVertex < geometry->GetnVertex(iMarker); ++iVertex) {
+      const auto iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+      if (iPoint < nPointDomain) local[iPoint * nIn + nIn - 1] = 1.0;
+    }
+  }
+  const auto global = gather.Gather(local.data(), nIn);
+
+  CMetricPredictor::MotionReport motionReport;
+  CMetricPredictor::PredictionReport predictionReport;
+  CMetricPredictor::Options options;
+  options.anisoThreshold = config->GetAdap_Predict_Aniso();
+  options.hmin = config->GetAdap_Hmin();
+  options.hmax = config->GetAdap_Hmax();
 
   /*--- Instants of the horizon: 0, step, 2 step, ..., horizon. ---*/
   vector<su2double> instants;
@@ -553,16 +565,52 @@ void CSinglezoneDriver::PredictWindowMetric() {
   for (unsigned long t = 0; t < horizon; t += step) instants.push_back(t);
   instants.push_back(horizon);
 
-  CMetricPredictor::Options options;
-  options.anisoThreshold = config->GetAdap_Predict_Aniso();
-  options.hmin = config->GetAdap_Hmin();
-  options.hmax = config->GetAdap_Hmax();
-  CMetricPredictor::PredictionReport predictionReport;
-  const auto predicted = predictor.Predict(snapshot, motion, instants, options, predictionReport);
+  const unsigned short nOut = nMet + nDim;
+  vector<su2double> result;  // per point: predicted metric, motion
+  passivedouble motionTime = 0.0;
+  if (gather.IsRoot()) {
+    const auto nPointGlobal = gather.GetnPointGlobal();
+    CMetricPredictor predictor(mesh);
 
+    vector<su2double> metricK(nPointGlobal * nMet), motion(nPointGlobal * nDim, 0.0);
+    for (auto iPoint = 0ul; iPoint < nPointGlobal; ++iPoint)
+      for (unsigned short iMet = 0; iMet < nMet; ++iMet)
+        metricK[iPoint * nMet + iMet] = global[iPoint * nIn + nMet + iMet];
+
+    if (twoSnapshots) {
+      vector<su2double> sj(nPointGlobal), sk(nPointGlobal), guess(nPointGlobal * nDim);
+      vector<bool> wall(nPointGlobal, false);
+      for (auto iPoint = 0ul; iPoint < nPointGlobal; ++iPoint) {
+        const auto* row = &global[iPoint * nIn];
+        sj[iPoint] = CMetricPredictor::Invariant(nDim, row);
+        sk[iPoint] = CMetricPredictor::Invariant(nDim, row + nMet);
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) guess[iPoint * nDim + iDim] = row[2 * nMet + iDim];
+        wall[iPoint] = row[nIn - 1] > 0.5;
+      }
+      motion = predictor.MotionField(sj, sk, separation, &guess, config->GetAdap_Predict_Regularization(),
+                                     motionReport, &wall);
+    }
+    motionTime = SU2_TYPE::GetValue(SU2_MPI::Wtime() - startTime);
+
+    const auto predicted = predictor.Predict(metricK, motion, instants, options, predictionReport);
+    result.resize(nPointGlobal * nOut);
+    for (auto iPoint = 0ul; iPoint < nPointGlobal; ++iPoint) {
+      for (unsigned short iMet = 0; iMet < nMet; ++iMet) result[iPoint * nOut + iMet] = predicted[iPoint * nMet + iMet];
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+        result[iPoint * nOut + nMet + iDim] = motion[iPoint * nDim + iDim];
+    }
+  }
+
+  vector<su2double> localResult(nPointDomain * nOut), predicted(nPointDomain * nMet);
+  gather.Scatter(result, nOut, localResult.data());
   auto& motionOut = nodes->GetMetric_Motion();
-  for (auto iPoint = 0ul; iPoint < nPointDomain && motionOut.size() > 0; ++iPoint)
-    for (unsigned short iDim = 0; iDim < nDim; ++iDim) motionOut(iPoint, iDim) = motion[iPoint * nDim + iDim];
+  for (auto iPoint = 0ul; iPoint < nPointDomain; ++iPoint) {
+    for (unsigned short iMet = 0; iMet < nMet; ++iMet)
+      predicted[iPoint * nMet + iMet] = localResult[iPoint * nOut + iMet];
+    if (motionOut.size() == 0) continue;
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+      motionOut(iPoint, iDim) = localResult[iPoint * nOut + nMet + iDim];
+  }
   const auto predictTime = SU2_MPI::Wtime() - startTime;
 
   if (rank == MASTER_NODE) {

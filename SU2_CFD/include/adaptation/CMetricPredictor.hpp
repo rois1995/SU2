@@ -31,6 +31,7 @@
 #include <vector>
 
 #include "../../../Common/include/basic_types/datatype_structure.hpp"
+#include "../../../Common/include/adaptation/CSimplexMesh.hpp"
 
 class CGeometry;
 class CBarycentricLocator;
@@ -38,7 +39,8 @@ class CBarycentricLocator;
 /*!
  * \class CMetricPredictor
  * \brief Predicts the metric of the next time window from two metric snapshots of the current window, on the current
- *        mesh (simplices, serial). Mesh-native counterpart of the user's PredictMetric_Aniso_Numba.py (PIV on a raster):
+ *        mesh (simplices, serial: with MPI the driver gathers the mesh and the snapshots on one rank). Mesh-native
+ *        counterpart of the user's PredictMetric_Aniso_Numba.py (PIV on a raster):
  *        1. Motion field W (displacement per time step) of the scalar invariant s = 0.5 log10(det M) between the
  *           snapshots j and k (k the later one): optical flow on the mesh (MotionField).
  *        2. For each instant t of the horizon (time steps after snapshot k), the metric M_k is moved along W
@@ -108,6 +110,12 @@ class CMetricPredictor {
    * \param[in] geometry - Triangles (2D) or tetrahedra (3D), one rank (no halo points).
    */
   explicit CMetricPredictor(const CGeometry& geometry);
+
+  /*!
+   * \brief Build the operators of a mesh given as arrays (with MPI: the whole mesh gathered on one rank).
+   * \param[in] mesh - Points, triangles (2D) or tetrahedra (3D), boundary elements (for the closest boundary point).
+   */
+  explicit CMetricPredictor(const CSimplexMesh& mesh);
   ~CMetricPredictor();
 
   /*!

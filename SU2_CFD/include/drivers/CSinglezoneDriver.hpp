@@ -151,7 +151,9 @@ protected:
    *        at the end of the window the motion of its features (optical flow of the invariant 0.5 log10 det M between
    *        the snapshots, CMetricPredictor) moves the last snapshot over ADAP_PREDICT_HORIZON time steps, the instants
    *        are intersected, and CSolver::ComputeMetric scales the result to the complexity, applies the bounds and the
-   *        boundary-layer metric. Both snapshots are on the mesh of the window.
+   *        boundary-layer metric. Both snapshots are on the mesh of the window. With MPI the mesh, the snapshots, the
+   *        flow velocity and the no-slip wall points are gathered on the master rank (CMeshGather), the predictor runs
+   *        there, and the predicted metric and the motion are sent back to the ranks of their points.
    */
   void PredictWindowMetric();
 

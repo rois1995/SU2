@@ -34,6 +34,7 @@
 #include <utility>
 
 #include "../../../Common/include/geometry/CGeometry.hpp"
+#include "../../../Common/include/adaptation/CMeshGather.hpp"
 #include "../../../Common/include/linear_algebra/blas_structure.hpp"
 #include "../../include/adaptation/CBarycentricTransfer.hpp"
 #include "../../include/solvers/CSolver.hpp"
@@ -199,17 +200,26 @@ unsigned long ConjugateGradient(const Op& A, const Prec& P, const std::vector<su
 
 }  // namespace
 
-CMetricPredictor::CMetricPredictor(const CGeometry& geometry) {
-  nDim = geometry.GetnDim();
-  nPoint = geometry.GetnPoint();
-  nElem = geometry.GetnElem();
-  if (geometry.GetnPointDomain() != nPoint) {
-    SU2_MPI::Error("The metric prediction works on one rank (mesh without halo points).", CURRENT_FUNCTION);
+namespace {
+/*--- The mesh of a geometry without halo points (one rank). ---*/
+CSimplexMesh SerialMesh(const CGeometry& geometry) {
+  if (geometry.GetnPointDomain() != geometry.GetnPoint()) {
+    SU2_MPI::Error("The metric prediction of a geometry works on one rank (mesh without halo points); with MPI it "
+                   "works on the mesh gathered on one rank.", CURRENT_FUNCTION);
   }
+  return CMeshGather::LocalMesh(geometry, std::vector<std::string>(geometry.GetnMarker(), ""), false);
+}
+}  // namespace
+
+CMetricPredictor::CMetricPredictor(const CGeometry& geometry) : CMetricPredictor(SerialMesh(geometry)) {}
+
+CMetricPredictor::CMetricPredictor(const CSimplexMesh& mesh) {
+  nDim = mesh.nDim;
+  nPoint = mesh.GetnPoint();
+  nElem = mesh.GetnElem();
 
   coord.resize(nPoint * nDim);
-  for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint)
-    for (unsigned short iDim = 0; iDim < nDim; ++iDim) coord[iPoint * nDim + iDim] = geometry.nodes->GetCoord(iPoint, iDim);
+  for (auto i = 0ul; i < coord.size(); ++i) coord[i] = mesh.coord[i];
 
   /*--- Element gradients of the hat functions: x = x0 + A lambda', grad lambda_a = row a of A^-1, grad lambda_0 =
    *    -sum of the others; volume |det A| / nDim!. ---*/
@@ -220,12 +230,11 @@ CMetricPredictor::CMetricPredictor(const CGeometry& geometry) {
   elemVolume.resize(nElem);
   mass.assign(nPoint, 0.0);
 
+  if (mesh.elem.size() != nElem * nNode) {
+    SU2_MPI::Error("The metric prediction needs a mesh of triangles (2D) or tetrahedra (3D).", CURRENT_FUNCTION);
+  }
   for (auto iElem = 0ul; iElem < nElem; ++iElem) {
-    const auto* elem = geometry.elem[iElem];
-    if (elem->GetnNodes() != nNode) {
-      SU2_MPI::Error("The metric prediction needs a mesh of triangles (2D) or tetrahedra (3D).", CURRENT_FUNCTION);
-    }
-    for (unsigned short a = 0; a < nNode; ++a) elemNode[iElem * nNode + a] = elem->GetNode(a);
+    for (unsigned short a = 0; a < nNode; ++a) elemNode[iElem * nNode + a] = mesh.elem[iElem * nNode + a];
     const auto* x0 = &coord[elemNode[iElem * nNode] * nDim];
     Mat3 A = {{0.0}}, Ainv = {{0.0}};
     for (unsigned short a = 1; a < nNode; ++a)
@@ -280,7 +289,7 @@ CMetricPredictor::CMetricPredictor(const CGeometry& geometry) {
     }
   }
 
-  locator = std::make_unique<CBarycentricLocator>(geometry);
+  locator = std::make_unique<CBarycentricLocator>(mesh);
 }
 
 CMetricPredictor::~CMetricPredictor() = default;
