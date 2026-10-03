@@ -3314,7 +3314,8 @@ void CConfig::SetConfig_Options() {
    *    transfers the solution and solves again. The per-level lists below have one value (used for every level) or
    *    one value per entry of ADAP_SIZES; without a list the scalar option in brackets applies to every level.
    *    Time-domain runs (TIME_DOMAIN= YES, dual time stepping) adapt the mesh every ADAP_FREQ time steps from the
-   *    metric of the last ADAP_FREQ steps, with one complexity (ADAP_SIZES with one value), and continue in time. ---*/
+   *    metric of the last ADAP_FREQ steps, with one complexity (ADAP_SIZES with one value), and continue in time.
+   *    Not supported: DIRECT_DIFF. ---*/
   /*!\brief ADAP_LOOP \n DESCRIPTION: Run the mesh adaptation loop (needs COMPUTE_METRIC= YES and ADAP_SIZES) \ingroup Config */
   addBoolOption("ADAP_LOOP", Adap_Loop, false);
   /*!\brief ADAP_FREQ \n DESCRIPTION: Time-domain adaptation loop: number of physical time steps between two
@@ -6220,11 +6221,11 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
   if (Adap_Loop) {
     if (!Compute_Metric) SU2_MPI::Error("ADAP_LOOP= YES needs COMPUTE_METRIC= YES.", CURRENT_FUNCTION);
     if (nAdap_Sizes == 0) SU2_MPI::Error("ADAP_LOOP= YES needs ADAP_SIZES.", CURRENT_FUNCTION);
-    /*--- Forward mode: the solution transfers keep the derivatives of the solution (flow-condition variables), but
-     *    shape derivatives live in the coordinates of the deformed input mesh and the adapted meshes are passive. ---*/
-    if (DirectDiff == D_DESIGN) {
-      SU2_MPI::Error("ADAP_LOOP= YES cannot be used with DIRECT_DIFF= DESIGN_VARIABLES: the shape derivatives are carried "
-                     "by the coordinates of the input mesh, the adapted meshes do not have them.", CURRENT_FUNCTION);
+    /*--- Forward mode is not supported: the adapted meshes are passive (shape derivatives live in the coordinates of
+     *    the input mesh), and the admissibility recovery of the conservative transfer blends with a passive factor. ---*/
+    if (DirectDiff != NO_DERIVATIVE) {
+      SU2_MPI::Error("Forward-mode derivatives (DIRECT_DIFF) are not supported with mesh adaptation (ADAP_LOOP= YES).",
+                     CURRENT_FUNCTION);
     }
 
     /*--- Time-domain loop: dual time stepping, one complexity for every time window, the time step and the inner
