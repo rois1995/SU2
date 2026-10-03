@@ -948,6 +948,111 @@ TEST_CASE("Distributed conservative projection: partition equivalence and exact 
   }
 }
 
+TEST_CASE("Distributed conservative projection: brute-force supermesh and exact dense solve",
+          "[AdaptationMPI][DistributedTransfer]") {
+  /*--- Independent reference on small meshes: S by all-pairs clipping (no search structure), the mass matrix from the
+   *    element formula, the dense system solved by Gaussian elimination in long double. The distributed projection
+   *    without limiter (the domains coincide, no slivers) must agree to 1e-10 of the field scale at every P. ---*/
+  for (const unsigned short nDim : {2, 3}) {
+    const auto donorMesh = BoxMesh(nDim, nDim == 2 ? 3 : 2, true), targetMesh = BoxMesh(nDim, nDim == 2 ? 4 : 3, true);
+    const unsigned short nNode = nDim + 1, nField = nDim + 4;
+    const auto field = ProjectionFields(nDim);
+    const auto nD = donorMesh.GetnPoint(), nT = targetMesh.GetnPoint();
+    std::vector<passivedouble> U(nD * nField);
+    for (auto i = 0ul; i < nD; ++i) field(&donorMesh.coord[i * nDim], &U[i * nField]);
+
+    /*--- Right-hand side by all pairs. ---*/
+    struct Context {
+      const std::vector<unsigned long>* elem;
+      const std::vector<passivedouble>* U;
+      unsigned long t, e;
+      unsigned short nNode, nField;
+      std::vector<long double>* S;
+      const std::vector<unsigned long>* telem;
+    } ctx;
+    std::vector<long double> S(nT * nField, 0.0L);
+    ctx.elem = &donorMesh.elem;
+    ctx.telem = &targetMesh.elem;
+    ctx.U = &U;
+    ctx.nNode = nNode;
+    ctx.nField = nField;
+    ctx.S = &S;
+    auto piece = [](void* c, unsigned short i, passivedouble volume, const passivedouble*, const passivedouble* mu) {
+      auto& x = *static_cast<Context*>(c);
+      const auto row = (*x.telem)[x.t * x.nNode + i];
+      for (unsigned short f = 0; f < x.nField; ++f) {
+        long double value = 0.0L;
+        for (unsigned short k = 0; k < x.nNode; ++k) value += mu[k] * (*x.U)[(*x.elem)[x.e * x.nNode + k] * x.nField + f];
+        (*x.S)[row * x.nField + f] += volume * value;
+      }
+    };
+    std::vector<long double> M(nT * nT, 0.0L);
+    for (auto t = 0ul; t < targetMesh.GetnElem(); ++t) {
+      const passivedouble* nodes[4] = {};
+      for (unsigned short k = 0; k < nNode; ++k) nodes[k] = &targetMesh.coord[targetMesh.elem[t * nNode + k] * nDim];
+      conservative::Frame frame;
+      conservative::SetFrame(nDim, nodes, frame);
+      const long double vol = frame.volume;
+      const long double diag = (nDim == 2) ? 11.0L / 54.0L : 25.0L / 192.0L;
+      const long double off = (1.0L / nNode - diag) / nDim;
+      for (unsigned short k = 0; k < nNode; ++k)
+        for (unsigned short l = 0; l < nNode; ++l)
+          M[targetMesh.elem[t * nNode + k] * nT + targetMesh.elem[t * nNode + l]] += (k == l ? diag : off) * vol;
+      ctx.t = t;
+      for (auto e = 0ul; e < donorMesh.GetnElem(); ++e) {
+        const passivedouble* donorNodes[4] = {};
+        for (unsigned short k = 0; k < nNode; ++k) donorNodes[k] = &donorMesh.coord[donorMesh.elem[e * nNode + k] * nDim];
+        ctx.e = e;
+        bool clipped = false;
+        conservative::Overlap(nDim, frame, donorNodes, conservative::SimplexMeasure(nDim, donorNodes), piece, &ctx,
+                              &clipped);
+      }
+    }
+    /*--- Dense solve (partial pivoting), all fields at once. ---*/
+    std::vector<long double> X = S;
+    for (auto c = 0ul; c < nT; ++c) {
+      auto pivot = c;
+      for (auto r = c + 1; r < nT; ++r)
+        if (std::fabs(M[r * nT + c]) > std::fabs(M[pivot * nT + c])) pivot = r;
+      for (auto k = 0ul; k < nT; ++k) std::swap(M[c * nT + k], M[pivot * nT + k]);
+      for (unsigned short f = 0; f < nField; ++f) std::swap(X[c * nField + f], X[pivot * nField + f]);
+      for (auto r = c + 1; r < nT; ++r) {
+        const long double factor = M[r * nT + c] / M[c * nT + c];
+        if (factor == 0.0L) continue;
+        for (auto k = c; k < nT; ++k) M[r * nT + k] -= factor * M[c * nT + k];
+        for (unsigned short f = 0; f < nField; ++f) X[r * nField + f] -= factor * X[c * nField + f];
+      }
+    }
+    for (long r = nT - 1; r >= 0; --r)
+      for (unsigned short f = 0; f < nField; ++f) {
+        long double sum = X[r * nField + f];
+        for (auto k = r + 1; k < static_cast<long>(nT); ++k) sum -= M[r * nT + k] * X[k * nField + f];
+        X[r * nField + f] = sum / M[r * nT + r];
+      }
+    CConservativeProjection::Options options;
+    options.limiter = false;
+    const auto result = RunProjection(nDim, donorMesh, targetMesh, "", options, false, false);
+
+    /*--- The projection keeps the donor's lumped totals (sum u |C|): the exact projection shifted uniformly by the
+     *    correction (M 1 = row volumes) over the measure of the domain. ---*/
+    long double measure = 0.0L;
+    for (auto t = 0ul; t < targetMesh.GetnElem(); ++t) {
+      const passivedouble* nodes[4] = {};
+      for (unsigned short k = 0; k < nNode; ++k) nodes[k] = &targetMesh.coord[targetMesh.elem[t * nNode + k] * nDim];
+      measure += conservative::SimplexMeasure(nDim, nodes);
+    }
+    ValueMap exact;
+    for (auto i = 0ul; i < nT; ++i)
+      for (unsigned short f = 0; f < nField; ++f)
+        exact[i].push_back(static_cast<passivedouble>(X[i * nField + f] + result.summary.correction[f] / measure));
+    bool complete = false;
+    const auto diff = ProjectionDifference(result.values, exact, complete);
+    INFO("nDim " << nDim << ": difference to the exact dense projection " << diff);
+    CHECK(complete);
+    CHECK(diff < 1e-10);
+  }
+}
+
 TEST_CASE("Distributed conservative projection: import groups under a memory ceiling",
           "[AdaptationMPI][DistributedTransfer]") {
   /*--- A forced small ceiling splits the import into several groups (results within the tolerance of one group:
