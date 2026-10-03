@@ -1336,6 +1336,8 @@ private:
                 Adap_Predict_Separation = 0; /*!< \brief PREDICT: time steps between the two metric snapshots. */
   su2double Adap_Predict_Aniso = 1.5,       /*!< \brief PREDICT: anisotropy ratio above which the metric is reoriented. */
             Adap_Predict_Regularization = 0.5; /*!< \brief PREDICT: smoothness weight of the motion field. */
+  unsigned long Adap_FP_Iter = 2;           /*!< \brief FIXED_POINT: remeshes (and re-solves) of each window. */
+  su2double Adap_FP_Tol = 0.1;              /*!< \brief FIXED_POINT: metric change that ends the iterations. */
   unsigned short nAdap_Sizes = 0, nAdap_SubIter = 0, nAdap_Hmaxs = 0, nAdap_Hmins = 0, nAdap_Norms = 0,
                  nAdap_ARmaxs = 0, nAdap_FlowIter = 0, nAdap_FlowCFL = 0, nAdap_ResRed = 0; /*!< \brief List lengths. */
   unsigned long *Adap_Sizes = nullptr,      /*!< \brief Target complexity of each adaptation level. */
@@ -10506,6 +10508,20 @@ public:
    *        steepest feature of the metric (ADAP_PREDICT_REGULARIZATION).
    */
   su2double GetAdap_Predict_Regularization(void) const { return Adap_Predict_Regularization; }
+
+  /*!
+   * \brief FIXED_POINT: number of fixed-point iterations of each time window (ADAP_FP_ITER): the window is solved on
+   *        the current mesh, then remeshed from its metric and solved again from its start state, this many times.
+   *        The last solve is the accepted one.
+   */
+  unsigned long GetAdap_FP_Iter(void) const { return Adap_FP_Iter; }
+
+  /*!
+   * \brief FIXED_POINT: the iterations of a window end early when the metric of a re-solve differs from the metric
+   *        of the solve before it by less than this (mean |log| of the ratio of the edge lengths in the two metrics,
+   *        ADAP_FP_TOL); the next solve is then the accepted one.
+   */
+  su2double GetAdap_FP_Tol(void) const { return Adap_FP_Tol; }
 
   /*!
    * \brief Check if the time-domain adaptation loop adapts the mesh after a time step: the time windows are

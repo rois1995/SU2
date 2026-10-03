@@ -3373,6 +3373,15 @@ void CConfig::SetConfig_Options() {
    * the length over which it is smoothed in units of the width of the steepest feature of the metric (> 0) \n
    * DEFAULT: 0.5 \ingroup Config */
   addDoubleOption("ADAP_PREDICT_REGULARIZATION", Adap_Predict_Regularization, 0.5);
+  /*!\brief ADAP_FP_ITER \n DESCRIPTION: FIXED_POINT: fixed-point iterations of each time window (>= 1): the window is
+   * solved on the current mesh, remeshed from its metric and solved again from its start state on the new mesh, this
+   * many times; only the last solve writes files and history \n DEFAULT: 2 \ingroup Config */
+  addUnsignedLongOption("ADAP_FP_ITER", Adap_FP_Iter, 2);
+  /*!\brief ADAP_FP_TOL \n DESCRIPTION: FIXED_POINT: the iterations of a window end early when the metric of a
+   * re-solve differs from the metric of the solve before it (on the edges of the mesh of the re-solve, mean |log| of
+   * the ratio of the edge lengths in the two metrics) by less than this (> 0); the next solve is then the last one.
+   * Measured from the second solve of a window on, so it acts with ADAP_FP_ITER >= 3 \n DEFAULT: 0.1 \ingroup Config */
+  addDoubleOption("ADAP_FP_TOL", Adap_FP_Tol, 0.1);
   /*!\brief WRT_ADAP_MESH \n DESCRIPTION: Write the adapted mesh of each cycle of the loop, after it is built and the
    * solution is transferred, as MESH_OUT_FILENAME_adap_<cycle> (e.g. mesh_out_adap_00001.su2); in time-domain runs as
    * MESH_OUT_FILENAME_<first time step solved on it> (e.g. mesh_out_00040.su2). The format is
@@ -6246,6 +6255,12 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
       if (Kind_Adap_Unsteady_Metric == ADAP_UNSTEADY_METRIC::FIXED_POINT) {
         SU2_MPI::Error("ADAP_UNSTEADY_METRIC= FIXED_POINT is not implemented yet, use WINDOW_AVERAGE or PREDICT.",
                        CURRENT_FUNCTION);
+        if (Adap_FP_Iter < 1) {
+          SU2_MPI::Error("ADAP_FP_ITER must be >= 1 (remeshes and re-solves of each time window).", CURRENT_FUNCTION);
+        }
+        if (!(Adap_FP_Tol > 0.0) || !std::isfinite(SU2_TYPE::GetValue(Adap_FP_Tol))) {
+          SU2_MPI::Error("ADAP_FP_TOL must be a finite value > 0.", CURRENT_FUNCTION);
+        }
       }
       if (Kind_Adap_Unsteady_Metric == ADAP_UNSTEADY_METRIC::PREDICT) {
         if (Adap_Freq < 2) {
@@ -6277,6 +6292,14 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     if (!Time_Domain && OptionIsSet("ADAP_UNSTEADY_METRIC")) {
       SU2_MPI::Error("ADAP_UNSTEADY_METRIC is only used by the time-domain adaptation loop (TIME_DOMAIN= YES).",
                      CURRENT_FUNCTION);
+    }
+    if (!(Time_Domain && Kind_Adap_Unsteady_Metric == ADAP_UNSTEADY_METRIC::FIXED_POINT)) {
+      for (const auto* name : {"ADAP_FP_ITER", "ADAP_FP_TOL"}) {
+        if (OptionIsSet(name)) {
+          SU2_MPI::Error(string(name) + " is only used with ADAP_UNSTEADY_METRIC= FIXED_POINT (time-domain loop).",
+                         CURRENT_FUNCTION);
+        }
+      }
     }
     if (!(Time_Domain && Kind_Adap_Unsteady_Metric == ADAP_UNSTEADY_METRIC::PREDICT)) {
       for (const auto* name : {"ADAP_PREDICT_HORIZON", "ADAP_PREDICT_STEP", "ADAP_PREDICT_SEPARATION",
