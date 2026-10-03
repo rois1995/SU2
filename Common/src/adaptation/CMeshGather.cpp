@@ -206,10 +206,12 @@ std::vector<std::string> CMeshGather::GatherMarkerNames(const CConfig& config,
       name += all[i];
     }
   }
-  /*--- In the order of the config file. ---*/
-  std::stable_sort(names.begin(), names.end(), [&config](const std::string& a, const std::string& b) {
-    return config.GetMarker_CfgFile_TagBound(a) < config.GetMarker_CfgFile_TagBound(b);
-  });
+  /*--- In the order of the config file; the unnamed markers (empty name) last. ---*/
+  auto position = [&config](const std::string& name) -> int {
+    return name.empty() ? INT_MAX : config.GetMarker_CfgFile_TagBound(name);
+  };
+  std::stable_sort(names.begin(), names.end(),
+                   [&position](const std::string& a, const std::string& b) { return position(a) < position(b); });
   return names;
 }
 
@@ -229,7 +231,7 @@ CSimplexMesh CMeshGather::GatherMesh(const CConfig& config, const std::vector<st
   for (const auto& name : names) {
     CSimplexMesh::Marker marker;
     marker.name = name;
-    marker.ref = CMMGInterface::GetMarkerReference(config, name);
+    marker.ref = name.empty() ? 0 : CMMGInterface::GetMarkerReference(config, name);
     mesh.markers.push_back(std::move(marker));
   }
 

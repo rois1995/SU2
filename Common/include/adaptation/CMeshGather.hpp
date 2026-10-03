@@ -79,7 +79,8 @@ class CMeshGather {
    * \brief Collective: the whole mesh on the root (points, volume elements, boundary elements by marker name with
    *        their MMG reference, CMMGInterface::GetMarkerReference); the other ranks get nDim and the marker names only.
    * \param[in] config - Definition of the problem (marker references and order).
-   * \param[in] markerTags - Name of each marker of the geometry (by iMarker); SEND_RECEIVE markers are skipped.
+   * \param[in] markerTags - Name of each marker of the geometry (by iMarker); SEND_RECEIVE markers are skipped. An
+   *            empty name is an unnamed marker (one marker of the mesh with reference 0, after the named ones).
    * \param[in] controlVolumes - Also gather the control volume of each point (CSimplexMesh::volume).
    */
   CSimplexMesh GatherMesh(const CConfig& config, const std::vector<std::string>& markerTags,
@@ -105,7 +106,7 @@ class CMeshGather {
   /*!
    * \brief Collective: names of the physical markers (not SEND_RECEIVE) with boundary elements on any rank, in the
    *        order of the config file. Every rank holds only the markers with elements in its partition, in an order of
-   *        its own; the names are the key that is the same on all ranks.
+   *        its own; the names are the key that is the same on all ranks. An empty name (unnamed marker) comes last.
    * \param[in] config - Definition of the problem (order of the markers).
    * \param[in] markerTags - Name of each marker of the geometry (by iMarker).
    * \param[in] geometry - Partitioned geometry.

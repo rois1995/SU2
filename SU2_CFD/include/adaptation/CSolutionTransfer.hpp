@@ -46,7 +46,10 @@ struct CMeshDonor {
   CGeometry** geometry = nullptr;       /*!< \brief Geometry of each multigrid level of the donor. */
   CSolver*** solver = nullptr;          /*!< \brief Solvers of each multigrid level of the donor ([iMesh][iSol]). */
   unsigned short nMGLevels = 0;         /*!< \brief Number of coarse levels of the donor. */
-  std::vector<std::string> markerTags;  /*!< \brief Name of each marker of the donor geometry (by iMarker). */
+  std::vector<std::string> markerTags;  /*!< \brief Name of each marker of the donor geometry (by iMarker). On one rank
+                                             it may be shorter (empty): the markers without a name are unnamed donor
+                                             boundaries, which only take part in the search of the nearest boundary
+                                             face. With more than one rank every marker needs its name. */
 };
 
 /*!
@@ -107,6 +110,14 @@ class CSolutionTransfer {
    */
   static TransferArrays CheckProblem(const std::string& name, CConfig* config, const CMeshDonor& donor,
                                      CGeometry** geometry, CSolver*** solver);
+
+  /*!
+   * \brief Name of each marker of the finest donor geometry for CMeshGather::GatherMesh: CMeshDonor::markerTags, on
+   *        one rank completed with empty names (unnamed markers). With more than one rank a missing name is an error:
+   *        the names are the key of the markers across the ranks.
+   * \param[in] name - Name of the transfer for the messages.
+   */
+  static std::vector<std::string> DonorMarkerTags(const std::string& name, const CMeshDonor& donor);
 
   /*!
    * \brief As after loading a restart file: communication (the transfers set the domain points), old solution,

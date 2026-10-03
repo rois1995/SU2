@@ -640,6 +640,73 @@ TEST_CASE("Conservative transfer: affine and constant flow fields", "[Adaptation
   }
 }
 
+TEST_CASE("Conservative transfer: donor without marker names (one rank)", "[Adaptation]") {
+  /*--- Developer calls may leave CMeshDonor::markerTags empty on one rank: the donor boundary faces are then unnamed
+   *    and only take part in the search of the nearest face (fill of the new fluid outside the donor). Box: affine
+   *    field exact as with the names. Disk/ball with its boundary inscribed in the circle/sphere: fill pieces, totals
+   *    kept (walls), values close to those of the transfer with the names. ---*/
+  for (const unsigned short nDim : {2, 3}) {
+    for (const bool round : {false, true}) {
+      SECTION("nDim " + std::to_string(nDim) + (round ? ", disk/ball" : ", box")) {
+        auto config = round ? MakeRoundConfig("SOLVER= EULER\n", "MARKER_EULER= (round_a, round_b)\n")
+                            : MakeConfig(nDim, "SOLVER= EULER\n");
+        const unsigned short nMG = round ? 0 : 2;
+        MeshSolution donor(config.get(), round ? simplex_test::MakeRoundMesh(nDim, 4, 1.0) : BoxMesh(nDim, 4, true),
+                           nMG);
+        const Field field =
+            round ? Field([nDim](const su2double* x, su2double* U) { SmoothFlow(nDim, x, U); }) : AffineFlow(nDim);
+        donor.SetField(FLOW_SOL, field);
+        const auto mesh = round ? simplex_test::MakeRoundMesh(nDim, 6, 1.0) : BoxMesh(nDim, 6, true);
+        MeshSolution unnamedTarget(config.get(), mesh, nMG), namedTarget(config.get(), mesh, nMG);
+
+        auto transfer = [&](bool named, MeshSolution& target, passivedouble& defect) {
+          auto donorData = donor.Donor();
+          if (!named) donorData.markerTags.clear();
+          CConservativeTransfer conservative;
+          {
+            Mute mute;
+            conservative.Transfer(config.get(), donorData, target.geometry, target.solver);
+          }
+          defect = conservative.GetReport().conservationDefect;
+          return conservative.GetSummary();
+        };
+        passivedouble defect = 0.0, namedDefect = 0.0;
+        const auto summary = transfer(false, unnamedTarget, defect);
+        const auto namedSummary = transfer(true, namedTarget, namedDefect);
+        CHECK(summary.nPoint == unnamedTarget.Fine().GetnPoint());
+        CHECK(summary.nFlowFixed == 0);
+        CHECK(defect < 1e-12);
+        CHECK(summary.projection.nFillPieces == namedSummary.projection.nFillPieces);
+        CHECK((summary.projection.nFillPieces > 0) == round);
+
+        /*--- Box: all variables; disk/ball: the density (h about 0.5 on the coarse donor, as in the curved test). ---*/
+        const auto* nodes = unnamedTarget.solver[MESH_0][FLOW_SOL]->GetNodes();
+        const auto* namedNodes = namedTarget.solver[MESH_0][FLOW_SOL]->GetNodes();
+        const unsigned short nVarChecked = round ? 1 : nDim + 2;
+        passivedouble maxDiff = 0.0, maxNamedDiff = 0.0;
+        for (auto iPoint = 0ul; iPoint < unnamedTarget.Fine().GetnPoint(); ++iPoint) {
+          su2double exact[MAXVAR] = {};
+          field(unnamedTarget.Fine().nodes->GetCoord(iPoint), exact);
+          for (unsigned short iVar = 0; iVar < nVarChecked; ++iVar) {
+            maxDiff = max(maxDiff, RelDiff(nodes->GetSolution(iPoint, iVar), exact[iVar]));
+            maxNamedDiff =
+                max(maxNamedDiff, RelDiff(nodes->GetSolution(iPoint, iVar), namedNodes->GetSolution(iPoint, iVar)));
+          }
+        }
+        if (round) {
+          /*--- The fill takes the nearest donor face of any marker instead of the same marker. ---*/
+          CHECK(maxDiff < 0.1);
+          CHECK(maxNamedDiff < 5e-3);
+        } else {
+          CHECK(maxDiff < 1e-11);
+          CHECK(maxNamedDiff < 1e-12);
+          CheckCoarseLevels(unnamedTarget, FLOW_SOL);
+        }
+      }
+    }
+  }
+}
+
 TEST_CASE("Conservative transfer: smooth field converges at second order", "[Adaptation]") {
   /*--- Smooth (not affine) field from a mesh to a finer one, two refinements: the maximum nodal error drops by about 4
    *    per halving of the sizes, the totals are exact. ---*/

@@ -236,6 +236,74 @@ TEST_CASE("Barycentric transfer: point outside the donor mesh", "[Adaptation]") 
   }
 }
 
+TEST_CASE("Barycentric transfer: donor without marker names (one rank)", "[Adaptation]") {
+  /*--- Developer calls may leave CMeshDonor::markerTags empty on one rank: the donor boundary faces are then unnamed,
+   *    a new boundary point is located in the donor elements or, outside, on the nearest donor boundary face. ---*/
+  for (const unsigned short nDim : {2, 3}) {
+    SECTION("nDim " + std::to_string(nDim)) {
+      auto config = MakeConfig(nDim, "SOLVER= EULER\n");
+      MeshSolution donor(config.get(), BoxMesh(nDim, 4, true), 2);
+      donor.SetField(FLOW_SOL, AffineFlow(nDim));
+
+      /*--- One boundary point of the target moved outwards by d (located on the nearest face). ---*/
+      const passivedouble d = 1e-3;
+      auto mesh = BoxMesh(nDim, 6, true);
+      unsigned long moved = 0;
+      passivedouble best = 1e300;
+      for (auto iPoint = 0ul; iPoint < mesh.GetnPoint(); ++iPoint) {
+        passivedouble dist = 0.0;
+        for (unsigned short iDim = 0; iDim + 1 < nDim; ++iDim) dist += pow(mesh.coord[iPoint * nDim + iDim] - 0.4, 2);
+        dist += pow(mesh.coord[iPoint * nDim + nDim - 1] - 1.0, 2);
+        if (dist < best) {
+          best = dist;
+          moved = iPoint;
+        }
+      }
+      su2double projection[3] = {};
+      for (unsigned short iDim = 0; iDim < nDim; ++iDim) projection[iDim] = mesh.coord[moved * nDim + iDim];
+      mesh.coord[moved * nDim + nDim - 1] += d;
+
+      auto transfer = [&](bool named, MeshSolution& target) {
+        auto donorData = donor.Donor();
+        if (!named) donorData.markerTags.clear();
+        CBarycentricTransfer barycentric;
+        {
+          Mute mute;
+          barycentric.Transfer(config.get(), donorData, target.geometry, target.solver);
+        }
+        return barycentric.GetSummary();
+      };
+      MeshSolution unnamedTarget(config.get(), mesh, 2), namedTarget(config.get(), mesh, 2);
+      const auto summary = transfer(false, unnamedTarget);
+      transfer(true, namedTarget);
+      CHECK(summary.nPoint == unnamedTarget.Fine().GetnPoint());
+      CHECK(summary.nOutside == 1);
+      CHECK(fabs(summary.maxDistance - d) < 1e-12);
+      CHECK(summary.nFlowFixed == 0);
+
+      /*--- Exact at the other points, the value at the projection for the moved one: as with the names. ---*/
+      const auto* nodes = unnamedTarget.solver[MESH_0][FLOW_SOL]->GetNodes();
+      const auto* namedNodes = namedTarget.solver[MESH_0][FLOW_SOL]->GetNodes();
+      passivedouble maxDiff = 0.0, maxNamedDiff = 0.0;
+      for (auto iPoint = 0ul; iPoint < unnamedTarget.Fine().GetnPoint(); ++iPoint) {
+        const auto* x = unnamedTarget.Fine().nodes->GetCoord(iPoint);
+        su2double dist = 0.0;
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim) dist += pow(x[iDim] - projection[iDim], 2);
+        su2double exact[MAXVAR] = {};
+        AffineFlow(nDim)(sqrt(dist) < 2 * d ? projection : x, exact);
+        for (unsigned short iVar = 0; iVar < nDim + 2; ++iVar) {
+          maxDiff = max(maxDiff, RelDiff(nodes->GetSolution(iPoint, iVar), exact[iVar]));
+          maxNamedDiff =
+              max(maxNamedDiff, RelDiff(nodes->GetSolution(iPoint, iVar), namedNodes->GetSolution(iPoint, iVar)));
+        }
+      }
+      CHECK(maxDiff < 1e-12);
+      CHECK(maxNamedDiff < 1e-12);
+      CheckCoarseLevels(unnamedTarget, FLOW_SOL);
+    }
+  }
+}
+
 TEST_CASE("Barycentric transfer: inadmissible interpolated state", "[Adaptation]") {
   const unsigned short nDim = 2;
   auto config = MakeConfig(nDim, "SOLVER= EULER\n");

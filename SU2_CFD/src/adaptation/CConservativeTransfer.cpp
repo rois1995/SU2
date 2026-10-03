@@ -1241,7 +1241,7 @@ void CConservativeTransfer::Transfer(CConfig* config, const CMeshDonor& donor, C
   for (unsigned short iMarker = 0; iMarker < newGeometry->GetnMarker(); ++iMarker)
     newTags.push_back(config->GetMarker_All_TagBound(iMarker));
   const CMeshGather donorGather(*donorGeometry), newGather(*newGeometry);
-  const auto donorMesh = donorGather.GatherMesh(*config, donor.markerTags, true);
+  const auto donorMesh = donorGather.GatherMesh(*config, DonorMarkerTags("conservative", donor), true);
   const auto newMesh = newGather.GatherMesh(*config, newTags, true);
   std::vector<su2double> donorValues;
   {

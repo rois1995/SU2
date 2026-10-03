@@ -134,6 +134,25 @@ CSolutionTransfer::TransferArrays CSolutionTransfer::CheckProblem(const std::str
   return arrays;
 }
 
+std::vector<std::string> CSolutionTransfer::DonorMarkerTags(const std::string& name, const CMeshDonor& donor) {
+  const auto nMarker = donor.geometry[MESH_0]->GetnMarker();
+  auto tags = donor.markerTags;
+  if (tags.size() < nMarker) {
+    if (SU2_MPI::GetSize() > 1) {
+      const std::string counts = "the donor geometry has " + std::to_string(nMarker) +
+                                 " markers, CMeshDonor::markerTags names " + std::to_string(tags.size()) + ". ";
+      SU2_MPI::Error("The " + name + " solution transfer: " + counts +
+                         "With more than one rank every marker of the donor needs its name: the names identify the "
+                         "markers across the ranks.",
+                     CURRENT_FUNCTION);
+    }
+    /*--- One rank: the markers without a name are unnamed donor boundaries (as before the transfers ran on gathered
+     *    meshes): their faces only take part in the search of the nearest boundary face. ---*/
+    tags.resize(nMarker, "");
+  }
+  return tags;
+}
+
 void CSolutionTransfer::FinishTransfer(CConfig* config, CGeometry** geometry, CSolver*** solver,
                                        const TransferArrays& arrays) {
   /*--- As after loading a restart file: communication, primitive variables, eddy viscosity, coarse levels (in the
