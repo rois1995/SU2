@@ -39,7 +39,8 @@ su2_cfd_tests_ad = files(['Common/simple_ad_test.cpp',
                           'Common/toolboxes/multilayer_perceptron/MLP_Jacobian_tests.cpp'])
 
 # Forward-mode (direct differentiation) tests:
-su2_cfd_tests_dd = files(['Common/simple_directdiff_test.cpp'])
+su2_cfd_tests_dd = files(['Common/simple_directdiff_test.cpp',
+                          'SU2_CFD/adaptation/CSolutionTransfer_directdiff_tests.cpp'])
 
 # -------------------------------------------------------------------------
 # End of unit test listings

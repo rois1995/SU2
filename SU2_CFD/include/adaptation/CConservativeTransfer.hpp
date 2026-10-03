@@ -144,22 +144,22 @@ class CConservativeProjection {
    * \param[in] nField - Number of fields.
    * \param[in] donorValues - Donor values, point-major (nPointDonor x nField).
    * \param[out] newValues - New values (nPointTarget x nField), limited, with exact totals.
+   * \note The field arithmetic is active (su2double: forward-mode derivatives of the values, DIRECT_DIFF, are
+   *       projected with them), the geometry and the mass matrix are passive.
    */
-  void Project(unsigned short nField, const std::vector<passivedouble>& donorValues,
-               std::vector<passivedouble>& newValues);
+  void Project(unsigned short nField, const std::vector<su2double>& donorValues, std::vector<su2double>& newValues);
 
   /*!
    * \brief Restore the donor total of a field after values were changed, within the limiter bounds, on the nodes that
    *        are not frozen (redistribution as in the limiter).
    * \return False if the bounds cannot hold the total (the rest is then spread over the free nodes by volume).
    */
-  bool Redistribute(unsigned short iField, std::vector<passivedouble>& newValues,
-                    const std::vector<bool>& frozen) const;
+  bool Redistribute(unsigned short iField, std::vector<su2double>& newValues, const std::vector<bool>& frozen) const;
 
   /*!
    * \brief Total of a field on the new mesh, sum of value x SU2 control volume.
    */
-  passivedouble NewTotal(unsigned short iField, const std::vector<passivedouble>& newValues) const;
+  su2double NewTotal(unsigned short iField, const std::vector<su2double>& newValues) const;
 
   const Summary& GetSummary() const { return summary; }
 
@@ -184,8 +184,11 @@ class CConservativeProjection {
   void UpdateBounds(unsigned long iPoint, const unsigned long* donorPoints, unsigned short nDonor);
   void SolveMass(const std::vector<passivedouble>& b, std::vector<passivedouble>& x, unsigned long& iterations,
                  passivedouble& residual) const;
-  bool BoundedRedistribute(std::vector<passivedouble>& v, unsigned short iField, passivedouble total,
-                           const std::vector<passivedouble>& lower, const std::vector<passivedouble>& upper,
+  void SolveMassActive(const std::vector<su2double>& b, std::vector<su2double>& x, unsigned long& iterations,
+                       passivedouble& residual) const;
+  void SetBounds(unsigned short iField, std::vector<su2double>& lo, std::vector<su2double>& hi) const;
+  bool BoundedRedistribute(std::vector<su2double>& v, unsigned short iField, su2double total,
+                           const std::vector<su2double>& lower, const std::vector<su2double>& upper,
                            const std::vector<bool>* frozen, unsigned long* nClipped) const;
 
   Options options;
@@ -212,8 +215,9 @@ class CConservativeProjection {
   std::vector<passivedouble> massValue, massDiag;
 
   /*--- State of a projection. ---*/
-  const std::vector<passivedouble>* donorField = nullptr;
-  std::vector<passivedouble> rhs, lower, upper, range;
+  const std::vector<su2double>* donorField = nullptr;
+  std::vector<su2double> rhs, lower, upper, range;                           /*!< \brief Active (field values). */
+  std::vector<su2double> fillA, sliverA, fillOpenA, sliverOpenA, targetTotalA; /*!< \brief Active totals. */
   std::vector<passivedouble> covT, momT, covD, momD;
 
   Summary summary;
@@ -254,6 +258,11 @@ class CConservativeProjection {
  *         for 2nd-order dual time stepping only (the same supermesh, one pass for all arrays), else
  *         Solution_time_n1 = U^n.
  *       - Then, as after loading a restart: primitive variables, eddy viscosity, coarse multigrid levels.
+ *       - Derivatives: the field values stay active (su2double) through the projection, the limiter, the wall fix and
+ *         the recovery; the geometry, the supermesh and the mass matrix are passive, and the linear solve gives
+ *         x' = M^-1 b' for the derivatives. So forward-mode derivatives (DIRECT_DIFF) of the solution and of its time
+ *         history are transferred like the values. Nothing is recorded on a reverse-mode tape (the adaptation is
+ *         rejected with adjoint problems).
  */
 class CConservativeTransfer final : public CSolutionTransfer {
  public:

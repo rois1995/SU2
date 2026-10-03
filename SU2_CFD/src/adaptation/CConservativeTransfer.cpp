@@ -479,11 +479,11 @@ void CConservativeProjection::UpdateBounds(unsigned long iPoint, const unsigned 
   const auto& U = *donorField;
   for (unsigned short k = 0; k < nDonor; ++k) {
     for (unsigned short f = 0; f < nField; ++f) {
-      const auto value = U[donorPoints[k] * nField + f];
-      auto& lo = lower[iPoint * nField + f];
-      auto& hi = upper[iPoint * nField + f];
-      lo = std::min(lo, value);
-      hi = std::max(hi, value);
+      const su2double& value = U[donorPoints[k] * nField + f];
+      su2double& lo = lower[iPoint * nField + f];
+      su2double& hi = upper[iPoint * nField + f];
+      if (value < lo) lo = value;
+      if (value > hi) hi = value;
     }
   }
 }
@@ -532,7 +532,7 @@ bool CConservativeProjection::Overlap(const Frame& frame, unsigned long jElem, b
     }
     const auto& U = *donorField;
     for (unsigned short f = 0; f < nField; ++f) {
-      passivedouble value = 0.0;
+      su2double value = 0.0;
       for (unsigned short k = 0; k < nNode; ++k) value += mu[k] * U[nodesD[k] * nField + f];
       rhs[iPoint * nField + f] += volume * value;
     }
@@ -691,21 +691,49 @@ void CConservativeProjection::SolveMass(const std::vector<passivedouble>& b, std
   }
 }
 
-bool CConservativeProjection::BoundedRedistribute(std::vector<passivedouble>& v, unsigned short iField,
-                                                  passivedouble total, const std::vector<passivedouble>& lo,
-                                                  const std::vector<passivedouble>& hi, const std::vector<bool>* frozen,
-                                                  unsigned long* nClipped) const {
+void CConservativeProjection::SolveMassActive(const std::vector<su2double>& b, std::vector<su2double>& x,
+                                              unsigned long& iterations, passivedouble& residual) const {
+  /*--- M is passive (geometry), x = M^-1 b is linear in b: the values are solved as passive numbers, and in forward
+   *    mode (DIRECT_DIFF) the derivatives as well, x' = M^-1 b', to the same tolerance (instead of differentiating the
+   *    iterations of the conjugate gradients). The transfer is never recorded on a reverse-mode tape (the adaptation
+   *    is rejected with adjoint problems), so there the result is a passive value. ---*/
+  const auto n = nPointT;
+  std::vector<passivedouble> bValue(n), xValue;
+  for (auto i = 0ul; i < n; ++i) bValue[i] = SU2_TYPE::GetValue(b[i]);
+  SolveMass(bValue, xValue, iterations, residual);
+  x.resize(n);
+  for (auto i = 0ul; i < n; ++i) x[i] = xValue[i];
+#ifdef CODI_FORWARD_TYPE
+  std::vector<passivedouble> bDerivative(n), xDerivative;
+  bool seeded = false;
+  for (auto i = 0ul; i < n; ++i) {
+    bDerivative[i] = SU2_TYPE::GetDerivative(b[i]);
+    seeded |= (bDerivative[i] != 0.0);
+  }
+  if (seeded) {
+    unsigned long derivativeIterations = 0;
+    passivedouble derivativeResidual = 0.0;
+    SolveMass(bDerivative, xDerivative, derivativeIterations, derivativeResidual);
+    for (auto i = 0ul; i < n; ++i) SU2_TYPE::SetDerivative(x[i], xDerivative[i]);
+  }
+#endif
+}
+
+bool CConservativeProjection::BoundedRedistribute(std::vector<su2double>& v, unsigned short iField, su2double total,
+                                                  const std::vector<su2double>& lo, const std::vector<su2double>& hi,
+                                                  const std::vector<bool>* frozen, unsigned long* nClipped) const {
   const auto n = nPointT;
   auto isFree = [&](unsigned long i) { return frozen == nullptr || !(*frozen)[i]; };
 
   /*--- Clip to the bounds (count beyond round-off). ---*/
   if (nClipped != nullptr) *nClipped = 0;
   const passivedouble typical = summary.scale[iField] / std::max(summary.donorCV, passivedouble(1e-300));
-  const passivedouble countTol = 1e-12 * std::max({range[iField], typical, passivedouble(1e-300)});
+  const passivedouble countTol = 1e-12 * std::max({SU2_TYPE::GetValue(range[iField]), typical, passivedouble(1e-300)});
+  auto infinite = [](const su2double& value) { return std::isinf(SU2_TYPE::GetValue(value)); };
   for (auto i = 0ul; i < n; ++i) {
     if (!isFree(i)) continue;
     if (v[i] < lo[i] || v[i] > hi[i]) {
-      const passivedouble bound = (v[i] < lo[i]) ? lo[i] : hi[i];
+      const su2double bound = (v[i] < lo[i]) ? lo[i] : hi[i];
       if (nClipped != nullptr && fabs(v[i] - bound) > countTol) (*nClipped)++;
       v[i] = bound;
     }
@@ -713,56 +741,60 @@ bool CConservativeProjection::BoundedRedistribute(std::vector<passivedouble>& v,
 
   /*--- Redistribute the defect over the nodes with room, in proportion to the room (iterated). ---*/
   passivedouble scale = 0.0;
-  for (auto i = 0ul; i < n; ++i) scale += fabs(v[i]) * cvT[i];
-  scale = std::max(scale, fabs(total));
+  for (auto i = 0ul; i < n; ++i) scale += fabs(SU2_TYPE::GetValue(v[i])) * cvT[i];
+  scale = std::max(scale, fabs(SU2_TYPE::GetValue(total)));
   for (int iter = 0; iter < 100; ++iter) {
-    passivedouble sum = 0.0;
+    su2double sum = 0.0;
     for (auto i = 0ul; i < n; ++i) sum += v[i] * cvT[i];
-    const passivedouble r = total - sum;
+    const su2double r = total - sum;
     if (!(fabs(r) > 1e-15 * scale)) return true;
 
-    passivedouble capacity = 0.0, unboundedVolume = 0.0;
+    su2double capacity = 0.0;
+    passivedouble unboundedVolume = 0.0;
     for (auto i = 0ul; i < n; ++i) {
       if (!isFree(i)) continue;
-      const passivedouble room = (r > 0.0) ? hi[i] - v[i] : v[i] - lo[i];
-      if (std::isinf(room)) {
+      const su2double room = (r > 0.0) ? hi[i] - v[i] : v[i] - lo[i];
+      if (infinite(room)) {
         unboundedVolume += cvT[i];
-      } else {
-        capacity += std::max(room, passivedouble(0.0)) * cvT[i];
+      } else if (room > 0.0) {
+        capacity += room * cvT[i];
       }
     }
     if (unboundedVolume > 0.0) {
       for (auto i = 0ul; i < n; ++i) {
         if (!isFree(i)) continue;
-        const passivedouble room = (r > 0.0) ? hi[i] - v[i] : v[i] - lo[i];
-        if (std::isinf(room)) v[i] += r / unboundedVolume;
+        const su2double room = (r > 0.0) ? hi[i] - v[i] : v[i] - lo[i];
+        if (infinite(room)) v[i] += r / unboundedVolume;
       }
       continue;
     }
     if (!(capacity > 0.0)) break;
-    const passivedouble fraction = std::min(fabs(r) / capacity, passivedouble(1.0));
+    su2double fraction = fabs(r) / capacity;
+    if (fraction > 1.0) fraction = 1.0;
     for (auto i = 0ul; i < n; ++i) {
       if (!isFree(i)) continue;
-      const passivedouble room = std::max((r > 0.0) ? hi[i] - v[i] : v[i] - lo[i], passivedouble(0.0));
-      v[i] += (r > 0.0 ? fraction : -fraction) * room;
+      su2double room = (r > 0.0) ? hi[i] - v[i] : v[i] - lo[i];
+      if (!(room > 0.0)) room = 0.0;
+      v[i] += (r > 0.0 ? fraction : su2double(-fraction)) * room;
     }
   }
 
   /*--- The bounds cannot hold the total (or round-off is left): spread the rest over the free nodes by volume. ---*/
-  passivedouble sum = 0.0, freeVolume = 0.0;
+  su2double sum = 0.0;
+  passivedouble freeVolume = 0.0;
   for (auto i = 0ul; i < n; ++i) {
     sum += v[i] * cvT[i];
     if (isFree(i)) freeVolume += cvT[i];
   }
-  const passivedouble r = total - sum;
+  const su2double r = total - sum;
   if (freeVolume > 0.0)
     for (auto i = 0ul; i < n; ++i)
       if (isFree(i)) v[i] += r / freeVolume;
   return !(fabs(r) > 1e-12 * scale);
 }
 
-void CConservativeProjection::Project(unsigned short nFieldIn, const std::vector<passivedouble>& donorValues,
-                                      std::vector<passivedouble>& newValues) {
+void CConservativeProjection::Project(unsigned short nFieldIn, const std::vector<su2double>& donorValues,
+                                      std::vector<su2double>& newValues) {
   SU2_ZONE_SCOPED
 
   nField = nFieldIn;
@@ -778,6 +810,11 @@ void CConservativeProjection::Project(unsigned short nFieldIn, const std::vector
   rhs.assign(nPointT * nField, 0.0);
   lower.assign(nPointT * nField, kInf);
   upper.assign(nPointT * nField, -kInf);
+  fillA.assign(nField, 0.0);
+  sliverA.assign(nField, 0.0);
+  fillOpenA.assign(nField, 0.0);
+  sliverOpenA.assign(nField, 0.0);
+  targetTotalA.assign(nField, 0.0);
   covT.assign(nElemT * nNode, 0.0);
   momT.assign(nElemT * nNode * 3, 0.0);
   covD.assign(nElemD, 0.0);
@@ -898,12 +935,12 @@ void CConservativeProjection::Project(unsigned short nFieldIn, const std::vector
               std::max(summary.maxFillRelDistance, SU2_TYPE::GetValue(stencil.distance / stencil.faceSize));
         }
         for (unsigned short f = 0; f < nField; ++f) {
-          passivedouble value = 0.0;
+          su2double value = 0.0;
           for (unsigned short k = 0; k < stencil.nPoint; ++k)
             value += SU2_TYPE::GetValue(stencil.weight[k]) * U[stencil.point[k] * nField + f];
           rhs[iPoint * nField + f] += missing * value;
-          summary.fill[f] += missing * value;
-          if (open) summary.fillOpen[f] += missing * value;
+          fillA[f] += missing * value;
+          if (open) fillOpenA[f] += missing * value;
         }
         UpdateBounds(iPoint, stencil.point, stencil.nPoint);
         summary.nFillPieces++;
@@ -951,11 +988,11 @@ void CConservativeProjection::Project(unsigned short nFieldIn, const std::vector
     donorLocator->LocateOnBoundary(x, donorNames, &name);
     const bool open =
         std::find(options.openMarkers.begin(), options.openMarkers.end(), name) != options.openMarkers.end();
-    std::vector<passivedouble> content(nField, 0.0);
+    std::vector<su2double> content(nField, 0.0);
     for (unsigned short f = 0; f < nField; ++f) {
       for (unsigned short k = 0; k < nNode; ++k) content[f] += missing * mu[k] * U[nodesD[k] * nField + f];
-      summary.sliver[f] += content[f];
-      if (open) summary.sliverOpen[f] += content[f];
+      sliverA[f] += content[f];
+      if (open) sliverOpenA[f] += content[f];
     }
     summary.nSliverElems++;
     summary.sliverVolume += missing;
@@ -995,21 +1032,28 @@ void CConservativeProjection::Project(unsigned short nFieldIn, const std::vector
   summary.supermeshDefect.assign(nField, 0.0);
   range.assign(nField, 0.0);
   for (unsigned short f = 0; f < nField; ++f) {
-    passivedouble minValue = kInf, maxValue = -kInf, rhsTotal = 0.0;
+    summary.fill[f] = SU2_TYPE::GetValue(fillA[f]);
+    summary.sliver[f] = SU2_TYPE::GetValue(sliverA[f]);
+    summary.fillOpen[f] = SU2_TYPE::GetValue(fillOpenA[f]);
+    summary.sliverOpen[f] = SU2_TYPE::GetValue(sliverOpenA[f]);
+    su2double minValue = kInf, maxValue = -kInf, rhsTotal = 0.0, donorTotal = 0.0;
     for (auto iPoint = 0ul; iPoint < nPointD; ++iPoint) {
-      const auto value = U[iPoint * nField + f];
-      summary.donorTotal[f] += value * cvD[iPoint];
-      summary.scale[f] += fabs(value) * cvD[iPoint];
-      minValue = std::min(minValue, value);
-      maxValue = std::max(maxValue, value);
+      const su2double& value = U[iPoint * nField + f];
+      donorTotal += value * cvD[iPoint];
+      summary.scale[f] += fabs(SU2_TYPE::GetValue(value)) * cvD[iPoint];
+      if (value < minValue) minValue = value;
+      if (value > maxValue) maxValue = value;
     }
     range[f] = maxValue - minValue;
     for (auto iPoint = 0ul; iPoint < nPointT; ++iPoint) rhsTotal += rhs[iPoint * nField + f];
     /*--- Total of the new field: the donor total, or with NONE the content of the common domain plus S_n. ---*/
-    summary.targetTotal[f] = summary.donorTotal[f];
-    if (options.sliverRule == SliverRule::NONE) summary.targetTotal[f] += summary.fill[f] - summary.sliver[f];
-    if (options.sliverRule == SliverRule::CLOSED) summary.targetTotal[f] += summary.fillOpen[f] - summary.sliverOpen[f];
-    summary.correction[f] = summary.targetTotal[f] - rhsTotal;
+    targetTotalA[f] = donorTotal;
+    if (options.sliverRule == SliverRule::NONE) targetTotalA[f] += fillA[f] - sliverA[f];
+    if (options.sliverRule == SliverRule::CLOSED) targetTotalA[f] += fillOpenA[f] - sliverOpenA[f];
+    const su2double correction = targetTotalA[f] - rhsTotal;
+    summary.donorTotal[f] = SU2_TYPE::GetValue(donorTotal);
+    summary.targetTotal[f] = SU2_TYPE::GetValue(targetTotalA[f]);
+    summary.correction[f] = SU2_TYPE::GetValue(correction);
     passivedouble expected = 0.0;
     switch (options.sliverRule) {
       case SliverRule::BOUNDARY:
@@ -1028,7 +1072,7 @@ void CConservativeProjection::Project(unsigned short nFieldIn, const std::vector
     const passivedouble scale = std::max(summary.scale[f], passivedouble(1e-300));
     summary.supermeshDefect[f] = (summary.correction[f] - expected) / scale;
     for (auto iPoint = 0ul; iPoint < nPointT; ++iPoint)
-      rhs[iPoint * nField + f] += summary.correction[f] * rowVolume[iPoint] / sumRowVolume;
+      rhs[iPoint * nField + f] += correction * rowVolume[iPoint] / sumRowVolume;
   }
   summary.timeSlivers = SU2_TYPE::GetValue(SU2_MPI::Wtime() - start);
 
@@ -1040,56 +1084,59 @@ void CConservativeProjection::Project(unsigned short nFieldIn, const std::vector
   summary.nLimited.assign(nField, 0);
   summary.infeasible.assign(nField, false);
   summary.newTotal.assign(nField, 0.0);
-  std::vector<passivedouble> b(nPointT), x(nPointT), lo(nPointT), hi(nPointT);
+  std::vector<su2double> b(nPointT), x(nPointT), lo(nPointT), hi(nPointT);
   passivedouble solveTime = 0.0, limiterTime = 0.0;
   for (unsigned short f = 0; f < nField; ++f) {
     start = SU2_MPI::Wtime();
     for (auto iPoint = 0ul; iPoint < nPointT; ++iPoint) b[iPoint] = rhs[iPoint * nField + f];
-    SolveMass(b, x, summary.iterations[f], summary.residual[f]);
+    SolveMassActive(b, x, summary.iterations[f], summary.residual[f]);
     solveTime += SU2_TYPE::GetValue(SU2_MPI::Wtime() - start);
     start = SU2_MPI::Wtime();
 
-    const passivedouble widen = options.limiterTolerance * range[f];
-    for (auto iPoint = 0ul; iPoint < nPointT; ++iPoint) {
-      lo[iPoint] = options.limiter ? lower[iPoint * nField + f] - widen : -kInf;
-      hi[iPoint] = options.limiter ? upper[iPoint * nField + f] + widen : kInf;
-      if (std::isinf(lo[iPoint]) || std::isinf(hi[iPoint])) {
-        lo[iPoint] = -kInf;
-        hi[iPoint] = kInf;
-      }
-    }
-    summary.infeasible[f] = !BoundedRedistribute(x, f, summary.targetTotal[f], lo, hi, nullptr, &summary.nLimited[f]);
+    SetBounds(f, lo, hi);
+    summary.infeasible[f] = !BoundedRedistribute(x, f, targetTotalA[f], lo, hi, nullptr, &summary.nLimited[f]);
     for (auto iPoint = 0ul; iPoint < nPointT; ++iPoint) newValues[iPoint * nField + f] = x[iPoint];
-    summary.newTotal[f] = NewTotal(f, newValues);
+    summary.newTotal[f] = SU2_TYPE::GetValue(NewTotal(f, newValues));
     limiterTime += SU2_TYPE::GetValue(SU2_MPI::Wtime() - start);
   }
   summary.timeSolve = solveTime;
   summary.timeLimiter = limiterTime;
 }
 
-passivedouble CConservativeProjection::NewTotal(unsigned short iField, const std::vector<passivedouble>& values) const {
-  passivedouble total = 0.0;
+void CConservativeProjection::SetBounds(unsigned short iField, std::vector<su2double>& lo,
+                                        std::vector<su2double>& hi) const {
+  /*--- Limiter bounds of each node, widened by the tolerance times the donor range; none without the limiter or for a
+   *    node without bounds. ---*/
+  const su2double widen = options.limiterTolerance * range[iField];
+  lo.resize(nPointT);
+  hi.resize(nPointT);
+  for (auto iPoint = 0ul; iPoint < nPointT; ++iPoint) {
+    lo[iPoint] = options.limiter ? su2double(lower[iPoint * nField + iField] - widen) : su2double(-kInf);
+    hi[iPoint] = options.limiter ? su2double(upper[iPoint * nField + iField] + widen) : su2double(kInf);
+    if (std::isinf(SU2_TYPE::GetValue(lo[iPoint])) || std::isinf(SU2_TYPE::GetValue(hi[iPoint]))) {
+      lo[iPoint] = -kInf;
+      hi[iPoint] = kInf;
+    }
+  }
+}
+
+su2double CConservativeProjection::NewTotal(unsigned short iField, const std::vector<su2double>& values) const {
+  su2double total = 0.0;
   for (auto iPoint = 0ul; iPoint < nPointT; ++iPoint) total += values[iPoint * nField + iField] * cvT[iPoint];
   return total;
 }
 
-bool CConservativeProjection::Redistribute(unsigned short iField, std::vector<passivedouble>& newValues,
+bool CConservativeProjection::Redistribute(unsigned short iField, std::vector<su2double>& newValues,
                                            const std::vector<bool>& frozen) const {
-  std::vector<passivedouble> v(nPointT), lo(nPointT), hi(nPointT);
-  const passivedouble widen = options.limiterTolerance * range[iField];
+  std::vector<su2double> v(nPointT), lo, hi;
+  SetBounds(iField, lo, hi);
   for (auto iPoint = 0ul; iPoint < nPointT; ++iPoint) {
     v[iPoint] = newValues[iPoint * nField + iField];
-    lo[iPoint] = options.limiter ? lower[iPoint * nField + iField] - widen : -kInf;
-    hi[iPoint] = options.limiter ? upper[iPoint * nField + iField] + widen : kInf;
-    if (std::isinf(lo[iPoint]) || std::isinf(hi[iPoint])) {
-      lo[iPoint] = -kInf;
-      hi[iPoint] = kInf;
-    }
     /*--- Values already outside their bounds are not pulled back here. ---*/
-    lo[iPoint] = std::min(lo[iPoint], v[iPoint]);
-    hi[iPoint] = std::max(hi[iPoint], v[iPoint]);
+    if (v[iPoint] < lo[iPoint]) lo[iPoint] = v[iPoint];
+    if (v[iPoint] > hi[iPoint]) hi[iPoint] = v[iPoint];
   }
-  const bool ok = BoundedRedistribute(v, iField, summary.targetTotal[iField], lo, hi, &frozen, nullptr);
+  const bool ok = BoundedRedistribute(v, iField, targetTotalA[iField], lo, hi, &frozen, nullptr);
   for (auto iPoint = 0ul; iPoint < nPointT; ++iPoint) newValues[iPoint * nField + iField] = v[iPoint];
   return ok;
 }
@@ -1156,17 +1203,18 @@ void CConservativeTransfer::Transfer(CConfig* config, const CMeshDonor& donor, C
     return iLevel == 0 ? nodes->GetSolution() : nodes->GetSolution_time_n1();
   };
 
-  std::vector<passivedouble> donorValues(nPointDonor * nField);
+  /*--- The fields keep their derivatives (forward mode, DIRECT_DIFF): the projection is active in the field values,
+   *    passive in the geometry and the mass matrix. ---*/
+  std::vector<su2double> donorValues(nPointDonor * nField);
   for (unsigned short iLevel = 0; iLevel < nLevel; ++iLevel) {
     const auto& flow = flowArray(donor.solver[MESH_0], iLevel);
     for (auto iPoint = 0ul; iPoint < nPointDonor; ++iPoint) {
       auto* values = &donorValues[iPoint * nField + iLevel * nPerLevel];
-      for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) values[iVar] = SU2_TYPE::GetValue(flow(iPoint, iVar));
+      for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) values[iVar] = flow(iPoint, iVar);
       if (nVarTurb == 0) continue;
       const auto& turb = turbArray(donor.solver[MESH_0], iLevel);
-      const passivedouble factor = turbTimesDensity ? values[0] : 1.0;
       for (unsigned short iVar = 0; iVar < nVarTurb; ++iVar)
-        values[nVarFlow + iVar] = factor * SU2_TYPE::GetValue(turb(iPoint, iVar));
+        values[nVarFlow + iVar] = (turbTimesDensity ? values[0] : su2double(1.0)) * turb(iPoint, iVar);
     }
   }
 
@@ -1185,7 +1233,7 @@ void CConservativeTransfer::Transfer(CConfig* config, const CMeshDonor& donor, C
   projectionOptions.absoluteLimit =
       std::max(projectionOptions.absoluteLimit, 2.0 * SU2_TYPE::GetValue(config->GetAdap_Hausd()));
   CConservativeProjection projection(*donorGeometry, donor.markerTags, *newGeometry, newTags, projectionOptions);
-  std::vector<passivedouble> newValues;
+  std::vector<su2double> newValues;
   projection.Project(nField, donorValues, newValues);
 
   /*--- No-slip walls: the projected momentum of a wall point is not zero (its control volume reaches into the moving
@@ -1207,7 +1255,7 @@ void CConservativeTransfer::Transfer(CConfig* config, const CMeshDonor& donor, C
         if (!wallPoint[iPoint]) continue;
         for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
           auto& momentum = newValues[iPoint * nField + offset + 1 + iDim];
-          summary.maxWallMomentum = std::max(summary.maxWallMomentum, fabs(momentum));
+          summary.maxWallMomentum = std::max(summary.maxWallMomentum, fabs(SU2_TYPE::GetValue(momentum)));
           momentum = 0.0;
         }
       }
@@ -1226,15 +1274,14 @@ void CConservativeTransfer::Transfer(CConfig* config, const CMeshDonor& donor, C
     const unsigned short offset = iLevel * nPerLevel;
     for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
       auto* values = &newValues[iPoint * nField + offset];
-      const passivedouble density = values[0];
+      const su2double density = values[0];
       if (turbTimesDensity && !(density > 0.0)) continue;  // not admissible, recovered below with rho k
       for (unsigned short iVar = 0; iVar < nVarTurb; ++iVar) {
-        const passivedouble factor = turbTimesDensity ? density : 1.0;
-        const passivedouble value = values[nVarFlow + iVar] / factor;
-        const passivedouble lower = SU2_TYPE::GetValue(turbSolver->GetLowerLimit(iVar));
-        const passivedouble upper = SU2_TYPE::GetValue(turbSolver->GetUpperLimit(iVar));
+        const su2double factor = turbTimesDensity ? density : su2double(1.0);
+        const su2double value = values[nVarFlow + iVar] / factor;
+        const su2double lower = turbSolver->GetLowerLimit(iVar), upper = turbSolver->GetUpperLimit(iVar);
         if (value < lower || value > upper) {
-          const passivedouble limit = (value < lower) ? lower : upper;
+          const su2double limit = (value < lower) ? lower : upper;
           if (fabs(value - limit) > 1e-10 * fabs(limit)) summary.nTurbLimited++;
           values[nVarFlow + iVar] = factor * limit;
         }
@@ -1253,13 +1300,13 @@ void CConservativeTransfer::Transfer(CConfig* config, const CMeshDonor& donor, C
     return PointText(nDim, x);
   };
   su2double state[8] = {};
-  auto admissibleState = [&](const passivedouble* values) {
+  auto admissibleState = [&](const su2double* values) {
     for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) state[iVar] = values[iVar];
     const su2double k =
         (turbTimesDensity && values[0] > 0.0) ? su2double(values[nVarFlow] / values[0]) : su2double(0.0);
     return CBarycentricTransfer::AdmissibleState(*fluidModel, nDim, state, k);
   };
-  CAdmissibilityRecovery<passivedouble> recovery(*newGeometry, nDim, nPerLevel, wallPoint, admissibleState);
+  CAdmissibilityRecovery<su2double> recovery(*newGeometry, nDim, nPerLevel, wallPoint, admissibleState);
   for (unsigned short iLevel = 0; iLevel < nLevel; ++iLevel) {
     const unsigned short offset = iLevel * nPerLevel;
     auto& nFixed = iLevel ? summary.nHistoryFixed : summary.nFlowFixed;
@@ -1296,7 +1343,7 @@ void CConservativeTransfer::Transfer(CConfig* config, const CMeshDonor& donor, C
     }
     for (unsigned short iVar = 0; iVar < nVarFlow; ++iVar) {
       const auto f = offset + iVar;
-      const passivedouble defect = projection.NewTotal(f, newValues) - projectionSummary.targetTotal[f];
+      const passivedouble defect = SU2_TYPE::GetValue(projection.NewTotal(f, newValues)) - projectionSummary.targetTotal[f];
       if (fabs(defect) > 1e-12 * std::max(projectionSummary.scale[f], passivedouble(1e-300))) {
         SU2_MPI::Error("The transfer did not keep the total of " + summary.names[f] + " (relative defect " +
                            std::to_string(defect / projectionSummary.scale[f]) + ").",
@@ -1316,9 +1363,10 @@ void CConservativeTransfer::Transfer(CConfig* config, const CMeshDonor& donor, C
     if (nVarTurb == 0) continue;
     auto& turb = turbArray(solver[MESH_0], iLevel);
     for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
-      const passivedouble density = newValues[iPoint * nField + offset];
+      const su2double density = newValues[iPoint * nField + offset];
       for (unsigned short iVar = 0; iVar < nVarTurb; ++iVar)
-        turb(iPoint, iVar) = newValues[iPoint * nField + offset + nVarFlow + iVar] / (turbTimesDensity ? density : 1.0);
+        turb(iPoint, iVar) =
+            newValues[iPoint * nField + offset + nVarFlow + iVar] / (turbTimesDensity ? density : su2double(1.0));
     }
   }
   for (const auto iSol : arrays.solverIndices) {

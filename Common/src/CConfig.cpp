@@ -6182,6 +6182,12 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
   if (Adap_Loop) {
     if (!Compute_Metric) SU2_MPI::Error("ADAP_LOOP= YES needs COMPUTE_METRIC= YES.", CURRENT_FUNCTION);
     if (nAdap_Sizes == 0) SU2_MPI::Error("ADAP_LOOP= YES needs ADAP_SIZES.", CURRENT_FUNCTION);
+    /*--- Forward mode: the solution transfers keep the derivatives of the solution (flow-condition variables), but
+     *    shape derivatives live in the coordinates of the deformed input mesh and the adapted meshes are passive. ---*/
+    if (DirectDiff == D_DESIGN) {
+      SU2_MPI::Error("ADAP_LOOP= YES cannot be used with DIRECT_DIFF= DESIGN_VARIABLES: the shape derivatives are carried "
+                     "by the coordinates of the input mesh, the adapted meshes do not have them.", CURRENT_FUNCTION);
+    }
 
     /*--- Time-domain loop: dual time stepping, one complexity for every time window, the time step and the inner
      *    iterations of the run (no per-level flow options), a transfer that keeps the time history. ---*/
