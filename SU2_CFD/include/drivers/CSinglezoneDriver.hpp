@@ -57,6 +57,12 @@ protected:
   su2double windowMetricTime = 0.0; /*!< \brief Time spent on the window metric (sensors, Hessians, metric). */
   su2double lastReplaceTime = 0.0, lastTransferTime = 0.0; /*!< \brief Times of the last ReplaceMesh. */
 
+  /*--- ADAP_UNSTEADY_METRIC= PREDICT: first metric snapshot of the window (on the mesh of the window). ---*/
+  vector<su2double> predictSnapshot;       /*!< \brief Metric of snapshot j (nPointDomain rows, upper triangle). */
+  unsigned long predictSnapshotStep = 0;   /*!< \brief Time step of snapshot j. */
+  bool predictSnapshotValid = false;       /*!< \brief Snapshot j exists on the current mesh. */
+  unsigned long windowFirstStep = 0;       /*!< \brief First time step solved on the current mesh. */
+
   /*!
    * \brief Stop with an error if the mesh of this problem cannot be adapted or replaced: compressible EULER,
    *        NAVIER_STOKES or RANS, steady or dual time stepping, and the cases of CMMGInterface::CheckSupport (one
@@ -89,6 +95,17 @@ protected:
    *       features that move more than about their own size within one window.
    */
   void SampleTimeWindowMetric();
+
+  /*!
+   * \brief ADAP_UNSTEADY_METRIC= PREDICT, called by SampleTimeWindowMetric after each time step: the metric of the
+   *        time steps of the two snapshots of the window (step end - ADAP_PREDICT_SEPARATION, or the first step on the
+   *        current mesh if later, and the last step of the window) is computed without the boundary-layer metric;
+   *        at the end of the window the motion of its features (optical flow of the invariant 0.5 log10 det M between
+   *        the snapshots, CMetricPredictor) moves the last snapshot over ADAP_PREDICT_HORIZON time steps, the instants
+   *        are intersected, and CSolver::ComputeMetric scales the result to the complexity, applies the bounds and the
+   *        boundary-layer metric. Both snapshots are on the mesh of the window.
+   */
+  void PredictWindowMetric();
 
   /*!
    * \brief Write the restart files of the current solution (RESTART and RESTART_ASCII of OUTPUT_FILES) at the

@@ -98,6 +98,7 @@ protected:
   CVectorOfMatrix Gradient_Adapt; /*!< \brief Gradient of the mesh adaptation sensors. */
   CVectorOfMatrix Hessian;        /*!< \brief Hessian of the sensors, upper triangle (xx,xy,yy) or (xx,xy,xz,yy,yz,zz). */
   MatrixType Metric;              /*!< \brief Mesh adaptation metric tensor, same layout as the Hessian. */
+  MatrixType Metric_Motion;       /*!< \brief Motion of the metric features per time step (ADAP_UNSTEADY_METRIC= PREDICT). */
   MatrixType Hessian_Field;       /*!< \brief Work array, gradient of one sensor (differentiated to obtain its Hessian). */
   CVectorOfMatrix Hessian_Grad;   /*!< \brief Work array, gradient of Hessian_Field (non-symmetric Hessian of one sensor). */
 
@@ -2555,4 +2556,11 @@ public:
       for (unsigned long jDim = iDim; jDim < nDim; ++jDim, ++iMet)
         Metric(iPoint, iMet) = mat[iDim][jDim];
   }
+
+  /*!
+   * \brief Get the motion of the metric features per time step found at the last step of the window (nPoint x nDim,
+   *        allocated with ADAP_UNSTEADY_METRIC= PREDICT only; zero on a new mesh until the end of its window).
+   */
+  inline MatrixType& GetMetric_Motion() { return Metric_Motion; }
+  inline const MatrixType& GetMetric_Motion() const { return Metric_Motion; }
 };

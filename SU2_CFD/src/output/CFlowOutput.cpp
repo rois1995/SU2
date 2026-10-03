@@ -1815,6 +1815,16 @@ void CFlowOutput::SetVolumeOutputFieldsAdapt(const CConfig* config) {
   for (const auto& comp : components) {
     AddVolumeOutput("METRIC_" + comp, "Metric_" + comp, "METRIC", comp + "-component of the adaptation metric");
   }
+  if (config->GetAdap_Loop() && config->GetTime_Domain() &&
+      config->GetKind_Adap_Unsteady_Metric() == ADAP_UNSTEADY_METRIC::PREDICT) {
+    const char* axes[] = {"X", "Y", "Z"};
+    const char* names[] = {"x", "y", "z"};
+    for (auto iDim = 0u; iDim < nDim; ++iDim) {
+      AddVolumeOutput(string("METRIC_MOTION_") + axes[iDim], string("Metric_Motion_") + names[iDim], "METRIC_MOTION",
+                      string(names[iDim]) + "-component of the motion of the metric features per time step "
+                      "(ADAP_UNSTEADY_METRIC= PREDICT; set at the last step of each window, zero on a new mesh)");
+    }
+  }
 }
 
 void CFlowOutput::LoadVolumeDataAdapt(const CConfig* config, const CSolver* const* solver,
@@ -1833,6 +1843,12 @@ void CFlowOutput::LoadVolumeDataAdapt(const CConfig* config, const CSolver* cons
   }
   for (auto iMet = 0u; iMet < components.size(); ++iMet) {
     SetVolumeOutputValue("METRIC_" + components[iMet], iPoint, Node_Flow->GetMetric(iPoint, iMet));
+  }
+  const auto& motion = Node_Flow->GetMetric_Motion();
+  if (motion.size() > 0) {
+    const char* axes[] = {"X", "Y", "Z"};
+    for (auto iDim = 0u; iDim < nDim; ++iDim)
+      SetVolumeOutputValue(string("METRIC_MOTION_") + axes[iDim], iPoint, motion(iPoint, iDim));
   }
 }
 
