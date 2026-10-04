@@ -325,6 +325,21 @@ size_t CCanonicalBoundary::QueryBytes() const {
              Mul(3, workspace));
 }
 
+size_t CCanonicalBoundary::RetainedWorkspaceBound() const {
+  size_t bytes = 0;
+  for (const auto& adt : markerADT) bytes = transfer_memory::Add(bytes, adt->RetainedWorkspaceBound(1));
+  return bytes;
+}
+
+size_t CCanonicalBoundary::QueryTransientBytes() const {
+  using namespace transfer_memory;
+  /*--- The retained envelope covers the new workspace arrays; only the old arrays coexist during growth. ---*/
+  const size_t workspace =
+      Mul(Add(faces.GetnFace(), Mul(200, markerIds.size())), sizeof(CBBoxTargetClass) + 2 * sizeof(unsigned long));
+  return Add(GrowthBound(markerIds.size() + 1, sizeof(unsigned long)),
+             GrowthBound(faces.GetnFace(), sizeof(unsigned long)), workspace);
+}
+
 CFaceHit CCanonicalBoundary::Evaluate(unsigned long face, const passivedouble* x) const {
   CFaceHit hit;
   const passivedouble* nodes[3] = {};
@@ -539,10 +554,10 @@ std::vector<CElementHit> CDistributedLocator::LocateElementsImpl(const std::vect
 
   /*--- Admission before any per-point or payload allocation: the chunk count Q is the smallest for which the live
    *    bytes of every chunk phase fit the ceiling (the bound does not increase with Q), the largest over the ranks.
-   *    Baseline: resident structures, the caller's bytes and arguments, the results, the routing lists (CSR), the
-   *    count arrays, the routing scratch. ---*/
+   *    Baseline: resident structures and retained search workspace growth, the caller's bytes and arguments, the
+   *    results, the routing lists (CSR), the count arrays, the routing scratch. ---*/
   const size_t ceiling = GetTransferMemoryCeiling();
-  const size_t resident = GetMemory();
+  const size_t resident = Add(GetMemory(), adt ? adt->RetainedWorkspaceBound(1) : 0);
   const size_t resultBytes = Mul(nPoint, sizeof(CElementHit));
   const size_t routingBytes = Add(Mul(nEntry, sizeof(unsigned long)), Mul(size + 1, sizeof(size_t)));
   const size_t countBytes = Add(Mul(6 * size + 2, sizeof(uint64_t)), routing.QueryBytes());
@@ -552,7 +567,7 @@ std::vector<CElementHit> CDistributedLocator::LocateElementsImpl(const std::vect
   model.queryBytes = queryBytes;
   model.replyBytes = replyBytes;
   model.roundBytes = CPassiveComm::GetRoundBytes();
-  model.searchBytes = adt ? ContainmentQueryBound(owned.size(), sizeof(su2double)) : 0;
+  model.searchBytes = adt ? ContainmentQueryTransientBound(owned.size(), sizeof(su2double)) : 0;
   model.baseline = Add(resident, Bytes(coord), callerBytes, resultBytes, routingBytes, countBytes);
   model.out = outCount;
   model.in = inCount;
@@ -699,8 +714,8 @@ std::vector<CDistributedLocator::Stencil> CDistributedLocator::Locate(const std:
   /*--- After the location: the stencils with the hits, the marker scratch of a point, one nearest-face query. ---*/
   size_t maxMarkers = 0;
   for (const auto& list : markers) maxMarkers = std::max(maxMarkers, list.size());
-  const size_t afterBytes =
-      Add(Mul(nPoint, sizeof(Stencil)), GrowthBound(maxMarkers, sizeof(uint32_t)), boundary->QueryBytes());
+  const size_t afterBytes = Add(Mul(nPoint, sizeof(Stencil)), GrowthBound(maxMarkers, sizeof(uint32_t)),
+                                boundary->RetainedWorkspaceBound(), boundary->QueryTransientBytes());
   size_t predicted = 0;
   const auto hits = LocateElementsImpl(coord, Add(callerBytes, Bytes(markers)), afterBytes, &predicted);
   std::vector<Stencil> stencils(nPoint);

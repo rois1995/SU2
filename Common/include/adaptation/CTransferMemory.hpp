@@ -102,6 +102,12 @@ inline size_t TransportBytes(size_t nRank) { return Add(Mul(96, nRank), 256); }
 size_t ContainmentQueryBound(size_t nElem, size_t activeBytes);
 
 /*!
+ * \brief Containment scratch when the retained workspace envelope is already in the baseline: candidates, weights,
+ *        and the old front arrays during growth (the new arrays are covered by the retained envelope).
+ */
+size_t ContainmentQueryTransientBound(size_t nElem, size_t activeBytes);
+
+/*!
  * \brief The same for an intersecting-elements box query (element ids only) and the fronts.
  */
 size_t IntersectionQueryBound(size_t nElem);

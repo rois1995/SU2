@@ -31,6 +31,7 @@
 #include "catch.hpp"
 
 #include <array>
+#include <cmath>
 #include <cstdlib>
 #include <iomanip>
 #include <limits>
@@ -148,6 +149,32 @@ struct CeilingScope {
   explicit CeilingScope(size_t bytes) { SetTransferMemoryCeiling(bytes); }
   ~CeilingScope() { SetTransferMemoryCeiling(saved); }
 };
+
+/*--- Every triangle contains the origin, forcing a collect-all search to traverse the broadest fronts. ---*/
+CSimplexMesh FanMesh(unsigned long nElem) {
+  CSimplexMesh mesh;
+  mesh.nDim = 2;
+  mesh.coord.resize(2 * (nElem + 1), 0.0);
+  mesh.elemRef.assign(nElem, 1);
+  const char* names[] = {"right", "upper", "left", "lower_a", "lower_b"};
+  for (const auto* name : names) {
+    CSimplexMesh::Marker marker;
+    marker.name = name;
+    marker.ref = mesh.markers.size() + 1;
+    mesh.markers.push_back(marker);
+  }
+  const double pi = std::acos(-1.0);
+  for (auto e = 0ul; e < nElem; ++e) {
+    const double angle = 2.0 * pi * e / nElem;
+    mesh.coord[2 * (e + 1)] = std::cos(angle);
+    mesh.coord[2 * (e + 1) + 1] = std::sin(angle);
+    const auto next = 1 + (e + 1) % nElem;
+    mesh.elem.insert(mesh.elem.end(), {0ul, e + 1, next});
+    auto& edges = mesh.markers[e * mesh.markers.size() / nElem].elem;
+    edges.insert(edges.end(), {e + 1, next});
+  }
+  return mesh;
+}
 
 /*--- Points of the location fixtures (this rank's queries). ---*/
 enum class Queries { INTERLEAVED, CORNER, ASYMMETRIC, EMPTY_RANK_1, VERTICES };
@@ -340,6 +367,48 @@ TEST_CASE("Transfer memory: ADT bytes", "[TransferMemory]") {
   }
 }
 
+TEST_CASE("Transfer memory: ADT retained workspaces", "[TransferMemory]") {
+  auto mesh = FanMesh(512);
+  const auto nElem = mesh.GetnElem();
+  std::vector<su2double> coord(mesh.coord.begin(), mesh.coord.end());
+  std::vector<unsigned short> types(nElem, TRIANGLE), markers(nElem, 0);
+  std::vector<unsigned long> ids(nElem);
+  for (auto e = 0ul; e < nElem; ++e) ids[e] = e;
+  CADTElemClass adt(2, coord, mesh.elem, types, markers, ids, false);
+  const auto resident = adt.GetAllocatedBytes();
+  const auto retained = adt.RetainedWorkspaceBound(1);
+  const auto before = alloc_probe::Live();
+  su2double x[2] = {0.0, 0.0};
+  size_t found = 0;
+  alloc_probe::ResetPeak();
+  {
+    std::vector<unsigned long> candidates;
+    std::vector<su2double> weights;
+    adt.DetermineContainingElements(x, candidates, weights);
+    found = candidates.size();
+  }
+  const auto searchPeak = alloc_probe::Peak() - before;
+  const auto growth = alloc_probe::Live() - before;
+  CHECK(found == nElem);
+  CHECK(growth > 0);
+  CHECK(growth == adt.GetAllocatedBytes() - resident);
+  CHECK(growth <= retained);
+  CHECK(searchPeak <=
+        transfer_memory::Add(retained, transfer_memory::ContainmentQueryTransientBound(nElem, sizeof(su2double))));
+
+  /*--- A nearest-element search also keeps its box targets, within the same original retained envelope. ---*/
+  su2double distance = 0.0;
+  unsigned short marker = 0;
+  unsigned long element = 0;
+  int rank = 0;
+  const auto nearestBefore = alloc_probe::Live();
+  const auto treeBefore = adt.GetAllocatedBytes();
+  adt.DetermineNearestElement(x, distance, marker, element, rank);
+  const auto nearestGrowth = alloc_probe::Live() - nearestBefore;
+  CHECK(nearestGrowth == adt.GetAllocatedBytes() - treeBefore);
+  CHECK(transfer_memory::Add(growth, nearestGrowth) <= retained);
+}
+
 TEST_CASE("Transfer memory: resident structures", "[AdaptationMPI][TransferMemory]") {
   /*--- The bytes the locator and the projection keep after their constructors are their GetMemory() (4 kB slack for
    *    the objects themselves). ---*/
@@ -416,6 +485,58 @@ TEST_CASE("Transfer memory: point location", "[AdaptationMPI][TransferMemory]") 
       CHECK(FailedRanks(same) == 0);
       CHECK(nChunk >= 1);
     }
+  }
+}
+
+TEST_CASE("Transfer memory: retained search workspaces", "[AdaptationMPI][TransferMemory]") {
+  /*--- Fresh locators: broad traversal grows the retained fronts, and enough queries make the unchunked reply
+   *    exchange dominate the search. Check both one source rank and queries split over all ranks. ---*/
+  const unsigned long nElem = 4096, nQuery = 65536;
+  const int rank = SU2_MPI::GetRank(), size = SU2_MPI::GetSize();
+  auto config = MakeConfig(2, "SOLVER= EULER\n");
+  MeshSolution donor(config.get(), FanMesh(nElem), 0);
+  CHECK(nQuery * (24 + 64) + transfer_memory::ContainmentQueryTransientBound(nElem, sizeof(su2double)) <
+        nQuery * 2 * 64);
+  for (const bool split : {false, true}) {
+    const auto name = std::string("2D shared-vertex fan, ") + (split ? "split queries" : "queries from rank 0");
+    const unsigned long count =
+        split ? nQuery / size + (rank < static_cast<int>(nQuery % size) ? 1 : 0) : (rank == 0 ? nQuery : 0);
+    const std::vector<passivedouble> queries(count * 2, 0.0);
+    std::vector<CElementHit> reference, chunked;
+    size_t minimum = 0, growth = 0;
+    unsigned long chunks = 0;
+    {
+      Mute mute;
+      StartMeasure();
+      CDistributedLocator locator(donor.Fine(), donor.markerTags, *config, 0.0);
+      const auto resident = locator.GetMemory();
+      const auto coord = queries;
+      reference = locator.LocateElements(coord);
+      minimum = locator.GetLastMinimumCeiling();
+      chunks = locator.GetLastChunks();
+      growth = locator.GetMemory() - resident;
+      StopMeasure();
+    }
+    CheckPhases(name, GetTransferMemoryCeiling());
+    CHECK(chunks == 1);
+    CHECK(WorldMax(growth) > 0);
+    {
+      CeilingScope ceiling(minimum);
+      Mute mute;
+      StartMeasure();
+      CDistributedLocator locator(donor.Fine(), donor.markerTags, *config, 0.0);
+      const auto coord = queries;
+      chunked = locator.LocateElements(coord);
+      StopMeasure();
+    }
+    CheckPhases(name + ", smallest ceiling", minimum);
+    bool same = reference.size() == count && chunked.size() == count;
+    for (auto i = 0ul; same && i < reference.size(); ++i) {
+      same = reference[i].found && chunked[i].found && reference[i].key == chunked[i].key &&
+             reference[i].minWeight == chunked[i].minWeight;
+      for (int k = 0; k < 4; ++k) same &= reference[i].weight[k] == chunked[i].weight[k];
+    }
+    CHECK(FailedRanks(same) == 0);
   }
 }
 

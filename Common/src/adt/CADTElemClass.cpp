@@ -26,6 +26,7 @@
  */
 
 #include "../../include/adt/CADTElemClass.hpp"
+#include "../../include/adaptation/CTransferMemory.hpp"
 #include "../../include/parallelization/mpi_structure.hpp"
 #include "../../include/option_structure.hpp"
 
@@ -2449,6 +2450,24 @@ size_t CADTElemClass::GetAllocatedBytes() const {
   bytes += BBoxTargets.capacity() * sizeof(vector<CBBoxTargetClass>);
 #endif
   for (const auto& targets : BBoxTargets) bytes += targets.capacity() * sizeof(CBBoxTargetClass);
+  return bytes;
+}
+
+size_t CADTElemClass::RetainedWorkspaceBound(size_t nThreadUsed) const {
+  using namespace transfer_memory;
+  if (isEmpty) return 0;
+  /*--- At most nLeaves front entries and nLeaves + 1 box targets; doubling keeps at most 2 n entries in each
+   *    workspace, as in GrowthBound. The current capacities are already resident. ---*/
+  const size_t capacity = Mul(2, std::max<size_t>(200, Add(nLeaves, 1)));
+  auto growth = [&](size_t current, size_t elementBytes) {
+    return current < capacity ? Mul(capacity - current, elementBytes) : 0;
+  };
+  size_t bytes = 0;
+  for (size_t i = 0; i < std::min(nThreadUsed, FrontLeaves.size()); ++i) {
+    bytes = Add(bytes, growth(FrontLeaves[i].capacity(), sizeof(unsigned long)),
+                growth(FrontLeavesNew[i].capacity(), sizeof(unsigned long)),
+                growth(BBoxTargets[i].capacity(), sizeof(CBBoxTargetClass)));
+  }
   return bytes;
 }
 

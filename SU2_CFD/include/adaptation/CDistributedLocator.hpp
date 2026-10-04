@@ -123,8 +123,14 @@ class CCanonicalBoundary {
   /*! \brief Heap bytes held by this rank (all arrays at their capacity, the ADTs included). */
   size_t GetMemory() const;
 
-  /*! \brief Bound of the transient (and workspace growth) bytes of one Nearest query. */
+  /*! \brief Full retained workspace growth and transient envelope for Nearest queries (projection callers). */
   size_t QueryBytes() const;
+
+  /*! \brief Additional workspace bytes retained across Nearest queries, beyond GetMemory(). */
+  size_t RetainedWorkspaceBound() const;
+
+  /*! \brief Query scratch when RetainedWorkspaceBound() is already in the baseline. */
+  size_t QueryTransientBytes() const;
 
  private:
   unsigned short nDim;

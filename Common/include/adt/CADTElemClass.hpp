@@ -170,6 +170,12 @@ class CADTElemClass : public CADTBaseClass {
   size_t GetAllocatedBytes() const;
 
   /*!
+   * \brief Bound of additional bytes the traversal fronts and box targets can retain after queries on the first
+   *        nThreadUsed threads, beyond the capacities already included in GetAllocatedBytes().
+   */
+  size_t RetainedWorkspaceBound(size_t nThreadUsed) const;
+
+  /*!
    * \brief Heap bytes of a local tree (globalTree false) of nElem elements with nConn connectivity entries over
    *        nCoord coordinates (nDim per point), built from caller arrays of exactly these sizes.
    * \param[out] retained - Held by the tree after the constructor (fronts at their initial 200 entries).

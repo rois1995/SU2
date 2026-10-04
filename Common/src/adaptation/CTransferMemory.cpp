@@ -31,8 +31,13 @@
 namespace transfer_memory {
 
 size_t ContainmentQueryBound(size_t nElem, size_t activeBytes) {
+  return Add(ContainmentQueryTransientBound(nElem, activeBytes),
+             Mul(4, Mul(std::max<size_t>(nElem, 200), sizeof(unsigned long))));
+}
+
+size_t ContainmentQueryTransientBound(size_t nElem, size_t activeBytes) {
   const size_t candidates = Add(GrowthBound(nElem, sizeof(unsigned long)), GrowthBound(nElem, Mul(8, activeBytes)));
-  const size_t fronts = Mul(2, GrowthBound(std::max<size_t>(nElem, 200), sizeof(unsigned long)));
+  const size_t fronts = Mul(2, Mul(std::max<size_t>(nElem, 200), sizeof(unsigned long)));
   return Add(candidates, fronts, Mul(64, activeBytes));
 }
 
