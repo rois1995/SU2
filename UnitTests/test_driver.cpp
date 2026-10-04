@@ -31,8 +31,8 @@
 #define CATCH_CONFIG_RUNNER
 #include "catch.hpp"
 
-#include "../../../Common/include/parallelization/mpi_structure.hpp"
-#include "../../../Common/include/option_structure.hpp"
+#include "../Common/include/parallelization/mpi_structure.hpp"
+#include "../Common/include/option_structure.hpp"
 
 int main(int argc, char* argv[]) {
   /*--- Startup MPI, if supported ---*/

@@ -28,8 +28,8 @@
 #include "catch.hpp"
 #include <sstream>
 #include <iomanip>
-#include "../../../Common/include/geometry/dual_grid/CEdge.hpp"
-#include "../../../Common/include/geometry/dual_grid/CVertex.hpp"
+#include "../../../../Common/include/geometry/dual_grid/CEdge.hpp"
+#include "../../../../Common/include/geometry/dual_grid/CVertex.hpp"
 
 TEST_CASE("Volume Computation", "[Dual Grid]") {
   su2double Coord_FaceiPoint[3];

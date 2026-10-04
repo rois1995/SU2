@@ -39,7 +39,8 @@ namespace {
 
 /*--- Send buffers of all ranks to the root (counts in entries of the datatype), received in rank order. ---*/
 template <class T>
-std::vector<T> ToRoot(const std::vector<T>& send, MPI_Datatype type, int root, std::vector<int>* counts = nullptr) {
+std::vector<T> ToRoot(const std::vector<T>& send, SU2_MPI::Datatype type, int root,
+                      std::vector<int>* counts = nullptr) {
   const int size = SU2_MPI::GetSize(), rank = SU2_MPI::GetRank();
   if (send.size() > static_cast<size_t>(INT_MAX)) SU2_MPI::Error("Message too large for MPI.", CURRENT_FUNCTION);
   const int nSend = static_cast<int>(send.size());
@@ -68,7 +69,7 @@ std::vector<T> ToRoot(const std::vector<T>& send, MPI_Datatype type, int root, s
 
 /*--- Broadcast a vector from the root (its size too). ---*/
 template <class T>
-void BcastVector(std::vector<T>& values, MPI_Datatype type, int root) {
+void BcastVector(std::vector<T>& values, SU2_MPI::Datatype type, int root) {
   unsigned long n = values.size();
   SU2_MPI::Bcast(&n, 1, MPI_UNSIGNED_LONG, root, SU2_MPI::GetComm());
   values.resize(n);

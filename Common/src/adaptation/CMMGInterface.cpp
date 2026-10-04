@@ -167,19 +167,19 @@ void CMMGInterface::FloorFixedBoundaryMetric(CSimplexMesh& mesh) {
       if (Me <= 1.0) continue;  // not longer than 1 in the metric
 
       Mat S, half, invHalf, E = {{0.0}}, T, tmp, Snew;
-      spectral(M, S, [](passivedouble v) { return 1.0 / v; });
-      spectral(S, half, [](passivedouble v) { return sqrt(v); });
-      spectral(S, invHalf, [](passivedouble v) { return 1.0 / sqrt(v); });
+      spectral(M, S, [](passivedouble v) -> passivedouble { return 1.0 / v; });
+      spectral(S, half, [](passivedouble v) -> passivedouble { return sqrt(v); });
+      spectral(S, invHalf, [](passivedouble v) -> passivedouble { return 1.0 / sqrt(v); });
       for (unsigned short i = 0; i < nDim; ++i)
         for (unsigned short j = 0; j < nDim; ++j) E[i][j] = e[i] * e[j];
       product(invHalf, E, tmp);
       product(tmp, invHalf, T);
-      spectral(T, T, [](passivedouble v) { return std::max(v, passivedouble(1.0)); });
+      spectral(T, T, [](passivedouble v) -> passivedouble { return std::max(v, passivedouble(1.0)); });
       product(half, T, tmp);
       product(tmp, half, Snew);
       for (unsigned short i = 0; i < nDim; ++i)
         for (unsigned short j = 0; j < i; ++j) Snew[i][j] = Snew[j][i] = 0.5 * (Snew[i][j] + Snew[j][i]);
-      spectral(Snew, M, [](passivedouble v) { return 1.0 / v; });
+      spectral(Snew, M, [](passivedouble v) -> passivedouble { return 1.0 / v; });
       changed = true;
     }
     if (!changed) continue;

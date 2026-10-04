@@ -27,8 +27,8 @@
 
 #include "catch.hpp"
 #include <sstream>
-#include "../../../Common/include/geometry/primal_grid/CPrimalGrid.hpp"
-#include "../../../Common/include/geometry/primal_grid/CHexahedron.hpp"
+#include "../../../../Common/include/geometry/primal_grid/CPrimalGrid.hpp"
+#include "../../../../Common/include/geometry/primal_grid/CHexahedron.hpp"
 
 TEST_CASE("Center of gravity computation", "[Primal Grid]") {
   const int nDim = 3;

@@ -1354,7 +1354,8 @@ void CSinglezoneDriver::RunTimeFixedPointLoop() {
       row.metricTime += SU2_TYPE::GetValue(windowMetricTime);
 
       /*--- Change of the metric of this solve from the metric this mesh was built from. ---*/
-      const auto change = windowMetricDone ? MetricChange(meshMetric) : std::make_pair(-1.0, 0.0);
+      const auto change =
+          windowMetricDone ? MetricChange(meshMetric) : std::pair<passivedouble, passivedouble>(-1.0, 0.0);
       if (rank == MASTER_NODE && change.first >= 0.0) {
         cout << "Metric change from the metric of the mesh: mean |log(edge length ratio)| " << change.first << ", "
              << 100.0 * change.second << "% of the edges change by more than a factor 2." << endl;
