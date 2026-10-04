@@ -849,7 +849,14 @@ void CConservativeTransfer::Transfer(CConfig* config, const CMeshDonor& donor, C
   CDistributedProjection projection(*donorGeometry, DonorMarkerTags("conservative", donor), *newGeometry, newTags,
                                     *config, projectionOptions);
   std::vector<su2double> newValues;
-  projection.Project(nField, donorValues, newValues);
+  {
+    /*--- Live bytes of this transfer during the projection (memory ceiling, 5.17): names and a bound of the small
+     *    bookkeeping objects (configuration arrays, options, summary scalars). ---*/
+    using transfer_memory::Bytes;
+    const size_t callerBytes = Bytes(newTags) + Bytes(newNames) + Bytes(projectionOptions.openMarkers) +
+                               Bytes(summary.names) + (size_t(64) << 10);
+    projection.Project(nField, donorValues, newValues, callerBytes);
+  }
   const auto nPoint = newGeometry->GetnPointDomain();
   summary.nPoint = CPassiveComm::AllreduceSum(nPoint);
 

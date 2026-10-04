@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <memory>
 #include <string>
 #include <vector>
@@ -78,8 +79,12 @@ class CDistributedProjection {
    * \brief Collective: project the fields.
    * \param[in] donorValues - Values of the owned donor points (nPointDomain x nField).
    * \param[out] newValues - Values of the owned points of the new mesh (nPointDomain x nField), limited, exact totals.
+   * \param[in] callerBytes - Live heap bytes of the caller during the call, without the arguments and this object
+   *            (memory ceiling, MPI_TRANSFER_PLAN.md 5.17: the import and the coverage protocol are admitted with
+   * them).
    */
-  void Project(unsigned short nField, const std::vector<su2double>& donorValues, std::vector<su2double>& newValues);
+  void Project(unsigned short nField, const std::vector<su2double>& donorValues, std::vector<su2double>& newValues,
+               size_t callerBytes = 0);
 
   /*!
    * \brief Collective: restore the target total of a field after values were changed (frozen rows kept), within the
@@ -94,6 +99,19 @@ class CDistributedProjection {
 
   /*! \brief Imported donor elements of this rank (all groups) and clipped pairs, for the tests. */
   unsigned long GetLocalImports() const { return localImports; }
+
+  /*! \brief Heap bytes held by this object on this rank (all arrays at their capacity). */
+  size_t GetMemory() const;
+
+  /*! \brief Import sub-rounds of the last projection: largest over the groups and ranks (memory ceiling, 5.17). */
+  unsigned long GetLastSubRounds() const { return lastSubRounds; }
+  /*! \brief Duplicate node records received by the last projection (nodes shared with elements of other senders or
+   *         of other sub-rounds), summed over the ranks. */
+  unsigned long GetLastDuplicateNodes() const { return lastDuplicateNodes; }
+  /*! \brief Smallest memory ceiling that admits the import of the last projection (largest over the ranks). */
+  size_t GetLastMinimumCeiling() const { return lastMinimumCeiling; }
+  /*! \brief Tests: at least this many import sub-rounds per group (default 1). */
+  static void SetMinimumSubRounds(unsigned long n) { minimumSubRounds = std::max(1ul, n); }
 
  private:
   struct TargetElem {
@@ -119,9 +137,38 @@ class CDistributedProjection {
     bool contributed = false;
     CNeumaierSum cover, moment[3];
   };
+  /*! \brief Coverage record of an imported element, sorted by (owner rank, owner-local index). */
+  struct CoverageKey {
+    int rank = 0;
+    uint64_t index = 0;
+    unsigned long slot = 0; /*!< \brief Position in coverage. */
+    bool operator<(const CoverageKey& other) const {
+      return rank < other.rank || (rank == other.rank && index < other.index);
+    }
+  };
+  /*! \brief Imported element of a group's sub-mesh. */
+  struct SubElem {
+    int rank;
+    uint64_t index;
+    uint64_t gid[4];
+    CSimplexKey key;
+  };
 
-  void Supermesh(std::vector<FillEntry>& fills);
-  void Slivers(const std::vector<su2double>& localDonor);
+  /*!
+   * \brief Bound of the live bytes of a group's sub-mesh with nElem imported elements and nRecord received node
+   *        records (nRecord >= distinct nodes): while the node records are deduplicated, while the ADT is built, while
+   *        the target elements are clipped (with the fill stencils).
+   */
+  size_t SubMeshBytes(uint64_t nElem, uint64_t nRecord) const;
+
+  /*!
+   * rief Bound of the bytes the coverage protocol (Slivers) allocates on this rank with nRecord coverage records,
+   *        nPair (owned element, importer) pairs and nOwned owned donor elements.
+   */
+  size_t SliversBytes(uint64_t nRecord, uint64_t nPair, uint64_t nOwned) const;
+
+  void Supermesh(std::vector<FillEntry>& fills, size_t callerBytes);
+  void Slivers(const std::vector<su2double>& localDonor, const std::vector<FillEntry>& fills, size_t callerBytes);
   void Fill(const std::vector<FillEntry>& fills);
   void Totals(const std::vector<su2double>& donorValues);
   void Solve(std::vector<su2double>& newValues);
@@ -165,7 +212,12 @@ class CDistributedProjection {
   const std::vector<passivedouble>* subCoord = nullptr;
   unsigned long pairT = 0, pairE = 0;
   std::vector<Coverage> coverage;
+  std::vector<CoverageKey> coverageKeys;             /*!< \brief Sorted index of coverage. */
   std::vector<unsigned long> pairCoverage;           /*!< \brief Coverage record of each sub element. */
+  unsigned long ownerPairs = 0; /*!< \brief (Owned donor element, importer rank) pairs of the import plan. */
+  unsigned long lastSubRounds = 0, lastDuplicateNodes = 0;
+  size_t lastMinimumCeiling = 0;
+  static unsigned long minimumSubRounds;
   std::vector<su2double> rhs, lower, upper, range;
   std::vector<passivedouble> covT, momT;
   std::vector<su2double> fillA, fillOpenA, sliverA, sliverOpenA, targetTotalA;

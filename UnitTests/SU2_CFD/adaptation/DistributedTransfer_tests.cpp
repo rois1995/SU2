@@ -788,6 +788,7 @@ struct ProjectionResult {
   std::vector<passivedouble> newTotal;            /*!< \brief Per field: sum over the ranks of value x CV. */
   passivedouble affineError = 0.0;                /*!< \brief Largest relative error of the affine fields. */
   unsigned long localImports = 0;
+  size_t minimumCeiling = 0; /*!< \brief Smallest ceiling admitting the import. */
 };
 
 /*--- The distributed projection (or the serial one on the gathered meshes, oracle = true, run on every rank). ---*/
@@ -851,6 +852,7 @@ ProjectionResult RunProjection(unsigned short nDim, const CSimplexMesh& donorMes
     result.affineError = WorldMax(affine);
     result.summary = projection.GetSummary();
     result.localImports = projection.GetLocalImports();
+    result.minimumCeiling = projection.GetLastMinimumCeiling();
   }
   return result;
 }
@@ -1084,8 +1086,11 @@ TEST_CASE("Distributed conservative projection: import groups under a memory cei
     const auto reference = RunProjection(nDim, donorMesh, targetMesh, "", options, false, false);
     CHECK(reference.summary.nImportGroups == 1);
     const auto saved = GetTransferMemoryCeiling();
-    const size_t ceiling = reference.summary.memoryResident +
-                           std::max(reference.summary.memoryLargestBox, reference.summary.memoryImport / 3) + 1;
+    /*--- A third of the one-group import over the resident data, at least the smallest admitted ceiling. ---*/
+    const size_t ceiling =
+        std::max(reference.minimumCeiling,
+                 reference.summary.memoryResident +
+                     std::max(reference.summary.memoryLargestBox, reference.summary.memoryImport / 3) + 1);
     SetTransferMemoryCeiling(ceiling);
     const auto grouped = RunProjection(nDim, donorMesh, targetMesh, "", options, false, false);
     SetTransferMemoryCeiling(saved);

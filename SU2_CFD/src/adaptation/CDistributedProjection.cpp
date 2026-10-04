@@ -31,7 +31,6 @@
 #include <cmath>
 #include <iomanip>
 #include <limits>
-#include <map>
 #include <numeric>
 #include <sstream>
 
@@ -39,6 +38,7 @@
 #include "../../../Common/include/adaptation/CMeshGather.hpp"
 #include "../../../Common/include/geometry/CGeometry.hpp"
 #include "../../../Common/include/parallelization/CPassiveComm.hpp"
+#include "../../../Common/include/adaptation/CTransferMemory.hpp"
 
 using namespace conservative;
 
@@ -58,18 +58,6 @@ std::string PointText(unsigned short nDim, const passivedouble* x) {
 /*--- Coordinates of a local point as passive doubles. ---*/
 void PointCoord(const CGeometry& geometry, unsigned long iPoint, unsigned short nDim, passivedouble* x) {
   for (unsigned short iDim = 0; iDim < nDim; ++iDim) x[iDim] = SU2_TYPE::GetValue(geometry.nodes->GetCoord(iPoint, iDim));
-}
-
-/*--- Bytes of a vector-of-streams exchange: concatenate, AlltoallvRounds, split by source. ---*/
-std::vector<char> Exchange(const std::vector<std::vector<char>>& streams, std::vector<size_t>& recvBytes) {
-  const auto size = streams.size();
-  std::vector<size_t> sendBytes(size);
-  size_t total = 0;
-  for (size_t q = 0; q < size; ++q) total += sendBytes[q] = streams[q].size();
-  std::vector<char> send;
-  send.reserve(total);
-  for (const auto& stream : streams) send.insert(send.end(), stream.begin(), stream.end());
-  return CPassiveComm::AlltoallvRounds(send.data(), sendBytes, recvBytes);
 }
 
 }  // namespace
@@ -202,6 +190,8 @@ CDistributedProjection::CDistributedProjection(const CGeometry& donorIn, const s
 
 CDistributedProjection::~CDistributedProjection() = default;
 
+unsigned long CDistributedProjection::minimumSubRounds = 1;
+
 passivedouble CDistributedProjection::DistanceLimit(passivedouble faceSize) const {
   return std::max(faceSize, std::max(options.absoluteLimit, passivedouble(1e-3) * domainSize));
 }
@@ -242,9 +232,52 @@ void CDistributedProjection::AccumulatePiece(void* context, unsigned short i, pa
   }
 }
 
+size_t CDistributedProjection::GetMemory() const {
+  using transfer_memory::Bytes;
+  size_t bytes = ownedD.GetMemory() + Bytes(volumeD) + Bytes(inflatedD) + Bytes(namedMarkers) + Bytes(openIds) +
+                 Bytes(localRecords) + directory.GetMemory() + Bytes(elems) + Bytes(cvT) + Bytes(cvD) +
+                 Bytes(rowMarkers) + regions.GetMemory() + Bytes(regionBoxes);
+  if (boundary) bytes += sizeof(CCanonicalBoundary) + boundary->GetMemory();
+  bytes += Bytes(mass.rowPtr) + Bytes(mass.col) + Bytes(mass.value) + Bytes(mass.diag) + Bytes(mass.rowVolume);
+  bytes += Bytes(coverage) + Bytes(coverageKeys) + Bytes(pairCoverage) + Bytes(rhs) + Bytes(lower) + Bytes(upper) +
+           Bytes(range) + Bytes(covT) + Bytes(momT) + Bytes(fillA) + Bytes(fillOpenA) + Bytes(sliverA) +
+           Bytes(sliverOpenA) + Bytes(targetTotalA);
+  bytes += Bytes(summary.scale) + Bytes(summary.donorTotal) + Bytes(summary.targetTotal) + Bytes(summary.fill) +
+           Bytes(summary.sliver) + Bytes(summary.fillOpen) + Bytes(summary.sliverOpen) + Bytes(summary.correction) +
+           Bytes(summary.supermeshDefect) + Bytes(summary.newTotal) + Bytes(summary.iterations) +
+           Bytes(summary.residual) + Bytes(summary.nLimited) + Bytes(summary.infeasible) + Bytes(summary.nViolations) +
+           Bytes(summary.maxViolation);
+  return bytes;
+}
+
+size_t CDistributedProjection::SubMeshBytes(uint64_t nElem, uint64_t nRecord) const {
+  using namespace transfer_memory;
+  const size_t sp = sizeof(passivedouble), sa = sizeof(su2double), ul = sizeof(unsigned long);
+  const size_t sub = Mul(nElem, sizeof(SubElem));
+  const size_t records = Mul(nRecord, Add(sizeof(uint64_t), Mul(nDim, sp), recordBytes));
+  /*--- Deduplication of the node records: the order, the sorted gids, coordinates and values. ---*/
+  const size_t nodes = Mul(nRecord, Add(sizeof(uint64_t), Mul(nDim, sp), Mul(nField, sa)));
+  const size_t dedup = Add(sub, records, Mul(nRecord, ul), nodes);
+  /*--- Connectivity, measures, coverage slots; the ADT with the caller's copies and its constructor. ---*/
+  const size_t elements = Mul(nElem, Add(Mul(nNode, ul), sp, ul, sizeof(CoverageKey)));
+  size_t adtRetained = 0, adtPeak = 0;
+  CADTElemClass::PredictBytes(nDim, nRecord, nElem, nElem * nNode, &adtRetained, &adtPeak);
+  const size_t adtCopies = Add(Mul(Mul(nRecord, nDim), sa), Mul(nElem, Add(Mul(nNode, ul), 4, ul)));
+  const size_t build = Add(sub, nodes, elements, adtCopies, adtPeak, sizeof(CADTElemClass));
+  /*--- Clipping: the sub-mesh without the gids, the ADT, the candidates of a box query and of a containment query
+   *    (one vector for the ids), the nearest-face queries and the marker names of a fill stencil. ---*/
+  size_t maxMarkers = 0;
+  for (const auto& list : rowMarkers) maxMarkers = std::max(maxMarkers, list.size());
+  const size_t clip = Add(sub, Mul(nRecord, Add(Mul(nDim, sp), Mul(nField, sa))), elements, adtRetained,
+                          sizeof(CADTElemClass), IntersectionQueryBound(nElem), ContainmentQueryBound(nElem, sa),
+                          boundary->QueryBytes(), GrowthBound(maxMarkers, sizeof(uint32_t)));
+  return std::max({dedup, build, clip});
+}
+
 void CDistributedProjection::Project(unsigned short nFieldIn, const std::vector<su2double>& donorValues,
-                                     std::vector<su2double>& newValues) {
+                                     std::vector<su2double>& newValues, size_t callerBytesIn) {
   SU2_ZONE_SCOPED
+  using transfer_memory::Bytes;
   nField = nFieldIn;
   recordBytes = nField * FieldValueBytes();
   const auto timeSetup = summary.timeSetup;
@@ -279,48 +312,67 @@ void CDistributedProjection::Project(unsigned short nFieldIn, const std::vector<
   covT.assign(elems.size() * nNode, 0.0);
   momT.assign(elems.size() * nNode * 3, 0.0);
   coverage.clear();
+  coverageKeys.clear();
 
+  /*--- The caller's arrays and this call's local donor values are live in the gated phases (memory ceiling). ---*/
+  const size_t callerBytes = callerBytesIn + Bytes(donorValues) + Bytes(newValues) + Bytes(localDonor);
   std::vector<FillEntry> fills;
-  Supermesh(fills);
+  Supermesh(fills, callerBytes);
   start = SU2_MPI::Wtime();
-  Slivers(localDonor);
+  Slivers(localDonor, fills, callerBytes);
   localTime[2] = SU2_MPI::Wtime() - start;
   Fill(fills);
   Totals(donorValues);
   Solve(newValues);
   localRecords = std::vector<char>();
   coverage = std::vector<Coverage>();
+  coverageKeys = std::vector<CoverageKey>();
+  pairCoverage = std::vector<unsigned long>();
 }
 
-void CDistributedProjection::Supermesh(std::vector<FillEntry>& fills) {
+void CDistributedProjection::Supermesh(std::vector<FillEntry>& fills, size_t callerBytes) {
+  using namespace transfer_memory;
+  TransferMemoryEvent(TransferPhase::IMPORT, true, 0);
   const int size = SU2_MPI::GetSize(), rank = SU2_MPI::GetRank();
   const auto nOwnedD = ownedD.size();
   auto start = SU2_MPI::Wtime();
+  const size_t ceiling = GetTransferMemoryCeiling();
+  const size_t roundBytes = CPassiveComm::GetRoundBytes();
+  size_t predicted = 0;
 
-  /*--- Import plan: the region boxes that each owned donor element's inflated box intersects; per box of every rank
-   *    the number of elements it will import. ---*/
-  std::vector<std::vector<unsigned long>> hits(nOwnedD);
-  std::vector<uint64_t> boxCount(regions.GetnBox(), 0);
-  for (auto e = 0ul; e < nOwnedD; ++e) {
-    const double* lo = &inflatedD[e * 2 * nDim];
-    regions.BoxesIntersecting(lo, lo + nDim, hits[e]);
-    for (const auto b : hits[e]) boxCount[b]++;
-  }
-  const auto nLocalBox = regionBoxes.size() / (2 * nDim);
-  std::vector<uint64_t> importCount(nLocalBox, 0);
-  uint64_t distinctImport = 0;
+  /*--- Import plan, count pass (nothing stored per element yet): the region boxes that each owned donor element's
+   *    inflated box intersects; per box of every rank the number of elements it will import, per rank the distinct
+   *    elements sent to it, the (owned element, importer rank) pairs. ---*/
+  const size_t nBoxAll = regions.GetnBox();
+  std::vector<uint64_t> boxCount(nBoxAll, 0), distinct(size, 0);
+  size_t nHit = 0;
+  unsigned long pairsOwned = 0;
   {
-    /*--- Per destination rank: the counts of its boxes, then the number of distinct elements sent to it (an element
-     *    that intersects several boxes of a rank is imported once per group). ---*/
-    std::vector<uint64_t> distinct(size, 0);
+    std::vector<unsigned long> ids;
     for (auto e = 0ul; e < nOwnedD; ++e) {
+      const double* lo = &inflatedD[e * 2 * nDim];
+      regions.BoxesIntersecting(lo, lo + nDim, ids);
+      nHit += ids.size();
       int last = -1;
-      for (const auto b : hits[e]) {
-        if (regions.BoxRank(b) != last) distinct[regions.BoxRank(b)]++;
+      for (const auto b : ids) {
+        boxCount[b]++;
+        if (regions.BoxRank(b) != last) {
+          distinct[regions.BoxRank(b)]++;
+          pairsOwned++;
+        }
         last = regions.BoxRank(b);
       }
     }
+  }
+  ownerPairs = pairsOwned;
+  const auto nLocalBox = regionBoxes.size() / (2 * nDim);
+  std::vector<uint64_t> importCount(nLocalBox, 0);
+  uint64_t distinctImport = 0;
+  size_t planBytes = 0;
+  {
+    /*--- Per destination rank: the counts of its boxes, then the number of distinct elements sent to it. ---*/
     std::vector<uint64_t> send;
+    send.reserve(nBoxAll + size);
     std::vector<size_t> sendCount(size), recvCount;
     for (int t = 0; t < size; ++t) {
       send.insert(send.end(), boxCount.begin() + regions.FirstBox(t), boxCount.begin() + regions.FirstBox(t + 1));
@@ -328,6 +380,9 @@ void CDistributedProjection::Supermesh(std::vector<FillEntry>& fills) {
       sendCount[t] = regions.FirstBox(t + 1) - regions.FirstBox(t) + 1;
     }
     const auto received = CPassiveComm::Alltoallv(send, sendCount, recvCount);
+    /*--- Typed exchange: the sent array, the received bytes and their typed copy, staging and counts. ---*/
+    planBytes = Add(Mul(Add(Mul(2, nBoxAll + size), Mul(3, Mul(size, nLocalBox + 1))), sizeof(uint64_t)),
+                    TransportBytes(size), Mul(3 * size, sizeof(size_t)));
     for (size_t i = 0; i < received.size(); ++i) {
       const auto j = i % (nLocalBox + 1);
       if (j < nLocalBox) {
@@ -337,62 +392,89 @@ void CDistributedProjection::Supermesh(std::vector<FillEntry>& fills) {
       }
     }
   }
+  boxCount = std::vector<uint64_t>();
+  distinct = std::vector<uint64_t>();
 
-  /*--- Memory ceiling (5.17): resident structures and persistent cross-group records admitted first, then the
-   *    region boxes grouped in bisection order so that each group's planned import fits. ---*/
-  const size_t elemImport = sizeof(uint64_t) * (1 + nNode) + 220 + 16 * nNode;
-  const size_t nodeImport = sizeof(uint64_t) + 2 * nDim * sizeof(double) + recordBytes + nField * sizeof(su2double);
-  const size_t coverageBytes = sizeof(Coverage) + 48;
-  /*--- Distinct imported elements (exact upper bound of the coverage records, which are merged over the groups). ---*/
-  const uint64_t totalImport = distinctImport;
-  const size_t resident = elems.size() * (sizeof(TargetElem) + nNode * 4 * sizeof(double)) +
-                          nRow * nField * 3 * sizeof(su2double) + mass.col.size() * 16 + mass.nRow * 40 +
-                          localRecords.size() * 2 + directory.GetMemory() + boundary->GetMemory() +
-                          nOwnedD * (2 * nDim * sizeof(double) + 64);
-  const size_t persistent = totalImport * coverageBytes;
-  const size_t ceiling = GetTransferMemoryCeiling();
+  /*--- Memory ceiling (5.17), admission before the import data is allocated. Live during the whole import: resident
+   *    structures (with the target arrays of this projection), the caller's arrays, the fill stencils (bound: every
+   *    owned dual piece, grown by push_back), the target volume terms, the persistent coverage records and their index
+   *    (reserved for the distinct imported elements), the routing of the owned elements (CSR), the plan arrays, the
+   *    node stamps, the per-group element lists, the per-peer counts. ---*/
+  unsigned long nOwnedPieces = 0, nOwnerElems = 0;
+  for (const auto& elem : elems) {
+    nOwnerElems += elem.owner;
+    for (unsigned short k = 0; k < nNode; ++k) nOwnedPieces += elem.nodes[k] < nRow;
+  }
+  const size_t fillBound = GrowthBound(nOwnedPieces, sizeof(FillEntry));
+  const size_t persistent = Mul(distinctImport, sizeof(Coverage) + sizeof(CoverageKey));
+  const size_t routingBytes = Add(Mul(nHit, sizeof(unsigned long)), Mul(nOwnedD + 1, sizeof(size_t)));
+  const size_t listBytes = Add(Mul(pairsOwned, sizeof(unsigned long)), Mul(size + 1, sizeof(size_t)));
+  const size_t fixedBytes = Add(Mul(nLocalBox, sizeof(uint64_t) + sizeof(uint32_t)), Mul(4 * nBoxAll, sizeof(uint32_t)),
+                                TransportBytes(size), Mul(donor.GetnPoint(), sizeof(unsigned long)),
+                                Mul(nOwnerElems, sizeof(double)), Mul(8 * size, 8), regions.QueryBytes(), 4096);
+  const size_t sliverBound = Add(SliversBytes(distinctImport, pairsOwned, nOwnedD), persistent, fillBound);
+  auto liveBaseline = [&]() { return Add(GetMemory(), callerBytes, fillBound, routingBytes, listBytes, fixedBytes); };
+  const size_t planPeak = Add(liveBaseline(), persistent, planBytes);
+  predicted = planPeak;
+
+  /*--- Elements imported per group (upper bound from the per-box counts) and the bound of a group's import: the
+   *    sub-mesh phases, or the smallest sub-rounds (one element per peer and round). ---*/
+  const size_t perElemWire = 8 * (1 + nNode) + nNode * (8 + 8 * nDim + recordBytes);
+  const size_t reservedPerElem =
+      sizeof(SubElem) + nNode * (sizeof(uint64_t) + nDim * sizeof(passivedouble) + recordBytes);
+  const size_t groupExtra = Mul(4 * size, sizeof(uint64_t));
+  auto groupNeed = [&](uint64_t nElem) {
+    const size_t smallest = Mul(size, 2 * sizeof(uint64_t) + perElemWire);
+    const size_t rounds = Add(Mul(nElem, reservedPerElem), Mul(2, smallest), Staging(roundBytes, smallest, smallest),
+                              TransportBytes(size), Mul(32, size), nNode * sizeof(unsigned long));
+    return Add(groupExtra, std::max(SubMeshBytes(nElem, nElem * nNode), rounds));
+  };
   CLocalFailure failure;
   size_t budget = 0;
-  if (resident + persistent >= ceiling) {
+  const size_t base = Add(liveBaseline(), persistent);
+  {
+    /*--- Smallest ceiling that admits this projection (every region box its own group, K at its largest). ---*/
+    size_t minimum = std::max(planPeak, Add(GetMemory(), callerBytes, sliverBound));
+    for (auto b = 0ul; b < nLocalBox; ++b) minimum = std::max(minimum, Add(base, groupNeed(importCount[b])));
+    lastMinimumCeiling = CPassiveComm::AllreduceMax(static_cast<unsigned long>(minimum));
+  }
+  if (std::max(planPeak, Add(GetMemory(), callerBytes, sliverBound)) > ceiling) {
+    const bool slivers = planPeak <= ceiling;
     failure.Set(1, rank,
                 "Strong local coarsening: the target-centric conservative transfer would need " +
-                    std::to_string(resident + persistent) + " bytes of resident and coverage data on rank " +
-                    std::to_string(rank) + ", more than the memory ceiling of the transfer (" + std::to_string(ceiling) +
-                    " bytes).");
+                    std::to_string(slivers ? Add(GetMemory(), callerBytes, sliverBound) : planPeak) + " bytes of " +
+                    (slivers ? "owner coverage data" : "resident and coverage data") + " on rank " +
+                    std::to_string(rank) + ", more than the memory ceiling of the transfer (" +
+                    std::to_string(ceiling) + " bytes).");
   } else {
-    budget = ceiling - resident - persistent;
+    budget = ceiling - base;
   }
   std::vector<uint32_t> localGroup(nLocalBox, 0);
   unsigned long nLocalGroup = nLocalBox > 0 ? 1 : 0;
-  size_t used = 0;
+  uint64_t used = 0;
   /*--- One group if the whole distinct import fits (the per-box counts count an element once per box). ---*/
-  const bool oneGroup = !failure.Failed() && distinctImport * (elemImport + nNode * nodeImport) <= budget;
+  const bool oneGroup = !failure.Failed() && groupNeed(distinctImport) <= budget;
   for (auto b = 0ul; b < nLocalBox && !failure.Failed() && !oneGroup; ++b) {
-    const size_t need = importCount[b] * (elemImport + nNode * nodeImport);
-    if (need > budget) {
+    if (groupNeed(importCount[b]) > budget) {
       failure.Set(1, rank,
                   "Strong local coarsening: the target-centric conservative transfer would need " +
-                      std::to_string(need) + " bytes to import the donor elements of one region box on rank " +
-                      std::to_string(rank) + ", more than the memory ceiling of the transfer (" +
-                      std::to_string(ceiling) + " bytes) leaves (" + std::to_string(budget) + " bytes).");
+                      std::to_string(Add(base, groupNeed(importCount[b]))) +
+                      " bytes to import the donor elements of one region box on rank " + std::to_string(rank) +
+                      ", more than the memory ceiling of the transfer (" + std::to_string(ceiling) + " bytes).");
       break;
     }
-    if (used + need > budget) {
+    if (groupNeed(used + importCount[b]) > budget) {
       nLocalGroup++;
       used = 0;
     }
-    used += need;
+    used += importCount[b];
     localGroup[b] = nLocalGroup - 1;
   }
   CollectiveFailure(failure, CURRENT_FUNCTION);
   {
-    unsigned long planned[3] = {resident + persistent, 0, 0}, largest[3];
-    for (auto b = 0ul; b < nLocalBox; ++b) {
-      const size_t need = importCount[b] * (elemImport + nNode * nodeImport);
-      planned[1] = std::max<unsigned long>(planned[1], need);
-      planned[2] += need;
-    }
-    planned[2] = std::min<unsigned long>(planned[2], distinctImport * (elemImport + nNode * nodeImport));
+    unsigned long planned[3] = {base, 0, 0}, largest[3];
+    for (auto b = 0ul; b < nLocalBox; ++b) planned[1] = std::max<unsigned long>(planned[1], groupNeed(importCount[b]));
+    planned[2] = groupNeed(distinctImport);
     CPassiveComm::Allreduce(planned, largest, 3, CPassiveComm::Op::MAX);
     summary.memoryResident = largest[0];
     summary.memoryLargestBox = largest[1];
@@ -402,79 +484,170 @@ void CDistributedProjection::Supermesh(std::vector<FillEntry>& fills) {
   const auto groupOfBox = CPassiveComm::Allgatherv(localGroup, nullptr);
   summary.nImportGroups = nGroup;
 
-  /*--- Import group by group: the donor owners send each element with its nodes (coordinates and fields), the target
-   *    ranks build the sub-mesh, clip their elements of the group and set up the fill stencils. ---*/
+  /*--- Routing of the owned donor elements (CSR: the boxes each one intersects), the persistent records. ---*/
+  std::vector<size_t> hitStart(nOwnedD + 1, 0);
+  std::vector<unsigned long> hitBox(nHit);
+  {
+    std::vector<unsigned long> ids;
+    for (auto e = 0ul; e < nOwnedD; ++e) {
+      const double* lo = &inflatedD[e * 2 * nDim];
+      regions.BoxesIntersecting(lo, lo + nDim, ids);
+      std::copy(ids.begin(), ids.end(), hitBox.begin() + hitStart[e]);
+      hitStart[e + 1] = hitStart[e] + ids.size();
+    }
+  }
+  coverage.reserve(distinctImport);
+  coverageKeys.reserve(distinctImport);
+  std::vector<double> targetVolumeTerms;
+  targetVolumeTerms.reserve(nOwnerElems);
+
   const size_t elemBytes = sizeof(uint64_t) * (1 + nNode);
   const size_t nodeBytes = sizeof(uint64_t) + nDim * sizeof(double) + recordBytes;
   std::vector<unsigned long> stamp(donor.GetnPoint(), 0);
   unsigned long tag = 0;
-  std::vector<std::vector<unsigned long>> elemsOf(size);
-  std::map<std::pair<int, uint64_t>, unsigned long> coverageIndex;
   unsigned long nTested = 0, nPairs = 0, nOutside = 0, nDegenerate = 0;
   passivedouble maxUncovered = 0.0;
   unsigned long nBeyond = 0;
   passivedouble worstRatio = 0.0, worstX[3] = {};
   uint64_t worstGid = UINT64_MAX;
-  std::vector<double> targetVolumeTerms;
   passivedouble maxFillDistance = 0.0, maxFillRelDistance = 0.0;
   localImports = 0;
+  lastSubRounds = 0;
+  lastDuplicateNodes = 0;
   passivedouble importTime = 0.0;
 
   for (unsigned long g = 0; g < nGroup; ++g) {
     auto importStart = SU2_MPI::Wtime();
-    for (auto& list : elemsOf) list.clear();
+    /*--- Element lists of the group per destination (CSR, element order), the counts of every pair. ---*/
+    std::vector<size_t> listStart(size + 1, 0);
     for (auto e = 0ul; e < nOwnedD; ++e) {
       int last = -1;
-      for (const auto b : hits[e]) {
-        if (groupOfBox[b] != g) continue;
-        const int t = regions.BoxRank(b);
-        if (t == last) continue;
-        if (elemsOf[t].empty() || elemsOf[t].back() != e) elemsOf[t].push_back(e);
-        last = t;
+      for (auto h = hitStart[e]; h < hitStart[e + 1]; ++h) {
+        const auto b = hitBox[h];
+        if (groupOfBox[b] != g || regions.BoxRank(b) == last) continue;
+        last = regions.BoxRank(b);
+        listStart[last + 1]++;
       }
     }
-    std::vector<std::vector<char>> streams(size);
-    for (int t = 0; t < size; ++t) {
-      auto& stream = streams[t];
-      const auto& list = elemsOf[t];
-      tag++;
-      std::vector<unsigned long> nodes;
-      PutBytes(stream, static_cast<uint64_t>(list.size()));
-      for (const auto e : list) {
-        PutBytes(stream, static_cast<uint64_t>(e));
-        for (unsigned short k = 0; k < nNode; ++k) {
-          const auto iPoint = ownedD.nodes[e * nNode + k];
-          PutBytes(stream, static_cast<uint64_t>(donor.nodes->GetGlobalIndex(iPoint)));
-          if (stamp[iPoint] != tag) {
-            stamp[iPoint] = tag;
-            nodes.push_back(iPoint);
-          }
+    for (int t = 0; t < size; ++t) listStart[t + 1] += listStart[t];
+    std::vector<unsigned long> listElem(listStart[size]);
+    {
+      std::vector<size_t> fill(listStart.begin(), listStart.end() - 1);
+      for (auto e = 0ul; e < nOwnedD; ++e) {
+        int last = -1;
+        for (auto h = hitStart[e]; h < hitStart[e + 1]; ++h) {
+          const auto b = hitBox[h];
+          if (groupOfBox[b] != g || regions.BoxRank(b) == last) continue;
+          last = regions.BoxRank(b);
+          listElem[fill[last]++] = e;
         }
       }
-      PutBytes(stream, static_cast<uint64_t>(nodes.size()));
-      for (const auto iPoint : nodes) {
-        PutBytes(stream, static_cast<uint64_t>(donor.nodes->GetGlobalIndex(iPoint)));
-        for (unsigned short iDim = 0; iDim < nDim; ++iDim)
-          PutBytes(stream, static_cast<double>(SU2_TYPE::GetValue(donor.nodes->GetCoord(iPoint, iDim))));
-        stream.insert(stream.end(), &localRecords[iPoint * recordBytes], &localRecords[iPoint * recordBytes] + recordBytes);
-      }
     }
-    std::vector<size_t> recvBytes;
-    const auto received = Exchange(streams, recvBytes);
-    streams = std::vector<std::vector<char>>();
+    std::vector<uint64_t> sendElems(size), recvElems(size);
+    for (int t = 0; t < size; ++t) sendElems[t] = listStart[t + 1] - listStart[t];
+    CPassiveComm::Alltoall(sendElems.data(), recvElems.data(), sizeof(uint64_t));
+    uint64_t nElemGroup = 0;
+    for (int p = 0; p < size; ++p) nElemGroup += recvElems[p];
+    const uint64_t nRecordGroup = nElemGroup * nNode;
 
-    /*--- Sub-mesh: nodes by global index, elements by key, their measures, an ADT. ---*/
-    struct SubElem {
-      int rank;
-      uint64_t index;
-      uint64_t gid[4];
-      CSimplexKey key;
-    };
+    /*--- Sub-rounds K: smallest with the envelope (every element with all its nodes) under the ceiling, also the
+     *    sub-mesh phases (independent of K), the largest over the ranks. ---*/
+    CImportRoundModel model;
+    model.nRank = size;
+    model.rank = rank;
+    model.elemBytes = elemBytes;
+    model.nodeBytes = nodeBytes;
+    model.nNode = nNode;
+    model.roundBytes = roundBytes;
+    model.baseline = Add(liveBaseline(), groupExtra, Mul(nElemGroup, reservedPerElem));
+    model.sendElems = sendElems;
+    model.recvElems = recvElems;
+    const size_t subMesh = Add(liveBaseline(), groupExtra, SubMeshBytes(nElemGroup, nRecordGroup));
+    size_t localRounds = subMesh <= ceiling ? model.SmallestRounds(ceiling) : 0;
+    if (localRounds > 0) localRounds = std::max<size_t>(localRounds, minimumSubRounds);
+    CLocalFailure groupFailure;
+    if (localRounds == 0) {
+      groupFailure.Set(1, rank,
+                       "Strong local coarsening: the target-centric conservative transfer would need " +
+                           std::to_string(std::max(subMesh, model.Peak(model.MaxRounds()))) +
+                           " bytes to import or send the donor elements of import group " + std::to_string(g) +
+                           " on rank " + std::to_string(rank) + ", more than the memory ceiling of the transfer (" +
+                           std::to_string(ceiling) + " bytes).");
+    }
+    CollectiveFailure(groupFailure, CURRENT_FUNCTION);
+    const unsigned long nRound = CPassiveComm::AllreduceMax(static_cast<unsigned long>(localRounds));
+    if (model.Peak(nRound) > ceiling)
+      SU2_MPI::Error("Inconsistent import sub-rounds (internal error).", CURRENT_FUNCTION);
+    predicted = std::max({predicted, model.Peak(nRound), subMesh});
+    lastSubRounds = std::max(lastSubRounds, nRound);
+
+    /*--- Sub-mesh arrays reserved for the envelope; the sub-rounds append to them. ---*/
     std::vector<SubElem> subElems;
     std::vector<uint64_t> nodeGid;
     std::vector<passivedouble> nodeCoord;
     std::vector<char> nodeRecords;
-    {
+    subElems.reserve(nElemGroup);
+    nodeGid.reserve(nRecordGroup);
+    nodeCoord.reserve(nRecordGroup * nDim);
+    nodeRecords.reserve(nRecordGroup * recordBytes);
+    for (unsigned long k = 0; k < nRound; ++k) {
+      /*--- Exact stream sizes: element records, distinct nodes per destination and sub-round. ---*/
+      std::vector<size_t> sendBytes(size, 0), first(size), last(size);
+      size_t largest = 0;
+      for (int t = 0; t < size; ++t) {
+        const auto n = listStart[t + 1] - listStart[t];
+        first[t] = listStart[t] + n * k / nRound;
+        last[t] = listStart[t] + n * (k + 1) / nRound;
+        largest = std::max(largest, last[t] - first[t]);
+        tag++;
+        size_t nodesOf = 0;
+        for (auto i = first[t]; i < last[t]; ++i) {
+          for (unsigned short j = 0; j < nNode; ++j) {
+            const auto iPoint = ownedD.nodes[listElem[i] * nNode + j];
+            if (stamp[iPoint] != tag) {
+              stamp[iPoint] = tag;
+              nodesOf++;
+            }
+          }
+        }
+        sendBytes[t] = 2 * sizeof(uint64_t) + (last[t] - first[t]) * elemBytes + nodesOf * nodeBytes;
+      }
+      std::vector<char> send;
+      send.reserve(std::accumulate(sendBytes.begin(), sendBytes.end(), size_t(0)));
+      {
+        std::vector<unsigned long> nodes;
+        nodes.reserve(largest * nNode);
+        for (int t = 0; t < size; ++t) {
+          tag++;
+          nodes.clear();
+          PutBytes(send, static_cast<uint64_t>(last[t] - first[t]));
+          for (auto i = first[t]; i < last[t]; ++i) {
+            const auto e = listElem[i];
+            PutBytes(send, static_cast<uint64_t>(e));
+            for (unsigned short j = 0; j < nNode; ++j) {
+              const auto iPoint = ownedD.nodes[e * nNode + j];
+              PutBytes(send, static_cast<uint64_t>(donor.nodes->GetGlobalIndex(iPoint)));
+              if (stamp[iPoint] != tag) {
+                stamp[iPoint] = tag;
+                nodes.push_back(iPoint);
+              }
+            }
+          }
+          PutBytes(send, static_cast<uint64_t>(nodes.size()));
+          for (const auto iPoint : nodes) {
+            PutBytes(send, static_cast<uint64_t>(donor.nodes->GetGlobalIndex(iPoint)));
+            for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+              PutBytes(send, static_cast<double>(SU2_TYPE::GetValue(donor.nodes->GetCoord(iPoint, iDim))));
+            send.insert(send.end(), &localRecords[iPoint * recordBytes],
+                        &localRecords[iPoint * recordBytes] + recordBytes);
+          }
+        }
+      }
+      std::vector<size_t> recvBytes;
+      auto received = CPassiveComm::AlltoallvRounds(send.data(), sendBytes, recvBytes);
+      send = std::vector<char>();
+
+      /*--- Append to the sub-mesh arrays (within the reserved envelope). ---*/
       const char* src = received.data();
       for (int p = 0; p < size; ++p) {
         const char* end = src + recvBytes[p];
@@ -484,7 +657,7 @@ void CDistributedProjection::Supermesh(std::vector<FillEntry>& fills) {
           SubElem elem;
           elem.rank = p;
           elem.index = GetBytes<uint64_t>(src);
-          for (unsigned short k = 0; k < nNode; ++k) elem.gid[k] = GetBytes<uint64_t>(src);
+          for (unsigned short j = 0; j < nNode; ++j) elem.gid[j] = GetBytes<uint64_t>(src);
           elem.key = MakeSimplexKey(elem.gid, nNode);
           subElems.push_back(elem);
         }
@@ -498,19 +671,31 @@ void CDistributedProjection::Supermesh(std::vector<FillEntry>& fills) {
         if (src != end) SU2_MPI::Error("Malformed import stream.", CURRENT_FUNCTION);
       }
     }
+    if (subElems.size() != nElemGroup || nodeGid.size() > nRecordGroup)
+      SU2_MPI::Error("Import beyond its envelope (internal error).", CURRENT_FUNCTION);
     localImports += subElems.size();
-    std::vector<unsigned long> order(nodeGid.size());
-    std::iota(order.begin(), order.end(), 0ul);
-    std::sort(order.begin(), order.end(), [&](unsigned long a, unsigned long b) { return nodeGid[a] < nodeGid[b]; });
+
+    /*--- Sub-mesh: nodes by global index (duplicates of other senders and sub-rounds dropped), elements by key. ---*/
     std::vector<uint64_t> gidSorted;
     std::vector<passivedouble> coord;
     std::vector<su2double> values;
-    for (const auto i : order) {
-      if (!gidSorted.empty() && gidSorted.back() == nodeGid[i]) continue;
-      gidSorted.push_back(nodeGid[i]);
-      coord.insert(coord.end(), &nodeCoord[i * nDim], &nodeCoord[i * nDim] + nDim);
-      values.resize(values.size() + nField);
-      UnpackFieldValues(&nodeRecords[i * recordBytes], &values[values.size() - nField], nField);
+    {
+      std::vector<unsigned long> order(nodeGid.size());
+      std::iota(order.begin(), order.end(), 0ul);
+      std::sort(order.begin(), order.end(), [&](unsigned long a, unsigned long b) { return nodeGid[a] < nodeGid[b]; });
+      gidSorted.reserve(nodeGid.size());
+      coord.reserve(nodeGid.size() * nDim);
+      values.reserve(nodeGid.size() * nField);
+      for (const auto i : order) {
+        if (!gidSorted.empty() && gidSorted.back() == nodeGid[i]) {
+          lastDuplicateNodes++;
+          continue;
+        }
+        gidSorted.push_back(nodeGid[i]);
+        coord.insert(coord.end(), &nodeCoord[i * nDim], &nodeCoord[i * nDim] + nDim);
+        values.resize(values.size() + nField);
+        UnpackFieldValues(&nodeRecords[i * recordBytes], &values[values.size() - nField], nField);
+      }
     }
     nodeGid = std::vector<uint64_t>();
     nodeCoord = std::vector<passivedouble>();
@@ -520,6 +705,8 @@ void CDistributedProjection::Supermesh(std::vector<FillEntry>& fills) {
     std::vector<unsigned long> conn(nSub * nNode);
     std::vector<passivedouble> measure(nSub);
     pairCoverage.assign(nSub, 0);
+    std::vector<CoverageKey> added;
+    added.reserve(nSub);
     for (auto i = 0ul; i < nSub; ++i) {
       const passivedouble* nodes[4] = {};
       for (unsigned short k = 0; k < nNode; ++k) {
@@ -528,18 +715,41 @@ void CDistributedProjection::Supermesh(std::vector<FillEntry>& fills) {
         nodes[k] = &coord[conn[i * nNode + k] * nDim];
       }
       measure[i] = SimplexMeasure(nDim, nodes);
-      const auto key = std::make_pair(subElems[i].rank, subElems[i].index);
-      auto it = coverageIndex.find(key);
-      if (it == coverageIndex.end()) {
-        it = coverageIndex.emplace(key, coverage.size()).first;
+      /*--- Coverage record of the element (one per element over the groups, in the order of first import): the
+       *    sorted index of the earlier groups, else a new record (an element appears once per group). ---*/
+      CoverageKey key;
+      key.rank = subElems[i].rank;
+      key.index = subElems[i].index;
+      const auto it = std::lower_bound(coverageKeys.begin(), coverageKeys.end(), key);
+      if (it != coverageKeys.end() && it->rank == key.rank && it->index == key.index) {
+        pairCoverage[i] = it->slot;
+      } else {
+        if (coverage.size() == coverage.capacity()) SU2_MPI::Error("Coverage beyond the plan.", CURRENT_FUNCTION);
+        key.slot = coverage.size();
         Coverage record;
         record.rank = subElems[i].rank;
         record.index = subElems[i].index;
         record.volume = measure[i];
         coverage.push_back(record);
+        added.push_back(key);
+        pairCoverage[i] = key.slot;
       }
-      pairCoverage[i] = it->second;
     }
+    /*--- Merge the new keys into the index (from the back, within the reserved capacity). ---*/
+    std::sort(added.begin(), added.end());
+    {
+      size_t i = coverageKeys.size(), j = added.size(), k = i + j;
+      coverageKeys.resize(k);
+      while (j > 0) {
+        if (i > 0 && added[j - 1] < coverageKeys[i - 1]) {
+          coverageKeys[--k] = coverageKeys[--i];
+        } else {
+          coverageKeys[--k] = added[--j];
+        }
+      }
+    }
+    added = std::vector<CoverageKey>();
+    gidSorted = std::vector<uint64_t>();
     std::unique_ptr<CADTElemClass> adt;
     if (nSub > 0) {
       std::vector<su2double> adtCoord(coord.begin(), coord.end());
@@ -700,6 +910,7 @@ void CDistributedProjection::Supermesh(std::vector<FillEntry>& fills) {
     subValues = nullptr;
     subElem = nullptr;
     subCoord = nullptr;
+    pairCoverage = std::vector<unsigned long>();
   }
   localTime[1] = SU2_MPI::Wtime() - start - importTime;
   localTime[3] = importTime;
@@ -739,38 +950,101 @@ void CDistributedProjection::Supermesh(std::vector<FillEntry>& fills) {
   batch.Add(targetVolumeTerms);
   batch.Reduce();
   summary.targetVolume = batch.Get(0);
+  lastSubRounds = CPassiveComm::AllreduceMax(lastSubRounds);
+  lastDuplicateNodes = CPassiveComm::AllreduceSum(lastDuplicateNodes);
+  /*--- After the groups: the batch of the target volume terms (a copy as doubles, the triples of every rank). ---*/
+  TransferMemoryEvent(TransferPhase::IMPORT, false, predicted);
 }
 
-void CDistributedProjection::Slivers(const std::vector<su2double>& localDonor) {
-  const int size = SU2_MPI::GetSize();
+size_t CDistributedProjection::SliversBytes(uint64_t nRecord, uint64_t nPair, uint64_t nOwned) const {
+  using namespace transfer_memory;
+  const size_t nRank = SU2_MPI::GetSize();
+  const size_t roundBytes = CPassiveComm::GetRoundBytes();
+  const size_t sp = sizeof(passivedouble), sa = sizeof(su2double);
+  /*--- Round 1: per-peer counts and offsets, the importer's records (24 B, at most one per coverage record), the
+   *    owner's receive (at most one per (owned element, importer) pair), staging. ---*/
+  const size_t round1 = Add(Mul(24, nRecord), Mul(24, nPair), Staging(roundBytes, Mul(24, nRecord), Mul(24, nPair)),
+                            TransportBytes(nRank), Mul(4 * nRank, sizeof(size_t)));
+  /*--- Owner decisions: full and sliver flags, missing parts, the CSR of the partial pairs (start, cursor, hi/lo,
+   *    importer). ---*/
+  const size_t owner = Add(Mul(nOwned, 2 + sp), Mul(2 * (nOwned + 1), sizeof(size_t)), Mul(nPair, 16 + sizeof(int)));
+  /*--- Round 2: requests (8 B per pair), the importer's received requests and answers (8 and 56 B per record), the
+   *    owner's moments (56 B per pair, then a CSR of 3 hi/lo pairs per pair with start and cursor), staging. ---*/
+  const size_t round2 =
+      Add(Add(Mul(8, nPair), Mul(8, nRecord), Mul(56, nRecord), Mul(56, nPair)),
+          Mul(2, Staging(roundBytes, Mul(56, nRecord), Mul(56, nPair))), Mul(2, TransportBytes(nRank)),
+          Mul(2 * (nOwned + 1), sizeof(size_t)), Mul(48, nPair), Mul(8 * nRank, sizeof(size_t)));
+  /*--- Content: terms of every field (all and open, at most one per owned element), sliver volumes, overlap terms
+   *    (one per record), the batch (a double copy of the largest quantity with its derivative, the triples of every
+   *    rank, received, copied and staged), one nearest-face query (open boundaries). ---*/
+  const size_t nQuantity = 2 * nField + 3;
+  const size_t batch =
+      Add(Mul(2 * std::max(nOwned, nRecord), sizeof(double)), GrowthBound(3 * nQuantity, sizeof(double)),
+          GrowthBound(nQuantity, 2 * sizeof(size_t)), Mul(Mul(9 * nQuantity, nRank), sizeof(double)),
+          Mul(3 * (nRank + nQuantity), sizeof(double)), TransportBytes(nRank));
+  const size_t content = Add(Mul(Mul(2 * nField, nOwned), sa), Mul(2 * nField, sizeof(std::vector<su2double>)),
+                             Mul(nOwned + nRecord, sizeof(double)), batch, boundary->QueryBytes());
+  return Add(round1, owner, round2, content, 4096);
+}
+
+void CDistributedProjection::Slivers(const std::vector<su2double>& localDonor, const std::vector<FillEntry>& fills,
+                                     size_t callerBytes) {
+  using namespace transfer_memory;
+  TransferMemoryEvent(TransferPhase::SLIVERS, true, 0);
+  const int size = SU2_MPI::GetSize(), rank = SU2_MPI::GetRank();
   const auto nOwnedD = ownedD.size();
+  const size_t recordSize = sizeof(uint64_t) + 2 * sizeof(double);
+  const size_t answerSize = sizeof(uint64_t) + 6 * sizeof(double);
+
+  /*--- Memory ceiling (5.17): the coverage protocol's own arrays on top of the resident data, admitted before any of
+   *    them is allocated (owner side: one record per (owned element, importer) pair of the plan). ---*/
+  const size_t ceiling = GetTransferMemoryCeiling();
+  const size_t predicted =
+      Add(GetMemory(), callerBytes, Bytes(fills), SliversBytes(coverage.size(), ownerPairs, nOwnedD));
+  {
+    CLocalFailure failure;
+    if (predicted > ceiling) {
+      failure.Set(1, rank,
+                  "Strong local coarsening: the target-centric conservative transfer would need " +
+                      std::to_string(predicted) + " bytes of owner coverage data on rank " + std::to_string(rank) +
+                      ", more than the memory ceiling of the transfer (" + std::to_string(ceiling) + " bytes).");
+    }
+    CollectiveFailure(failure, CURRENT_FUNCTION);
+  }
+  auto put = [](char*& dst, const void* value, size_t bytes) {
+    std::memcpy(dst, value, bytes);
+    dst += bytes;
+  };
 
   /*--- Round 1: every importer sends, per imported element with a contribution, FULL or its Neumaier pair (hi, lo)
-   *    to the element's owner (also on one rank, as a self message). ---*/
-  std::vector<std::vector<char>> streams(size);
-  for (const auto& record : coverage) {
-    if (!record.contributed) continue;
-    const passivedouble c = record.cover.Sum();
-    auto& stream = streams[record.rank];
-    if (c >= record.volume * (1.0 - DecisionThreshold(1e-10))) {
-      PutBytes(stream, record.index | kFullBit);
-      PutBytes(stream, 0.0);
-      PutBytes(stream, 0.0);
-    } else {
-      PutBytes(stream, record.index);
-      PutBytes(stream, record.cover.s);
-      PutBytes(stream, record.cover.c);
-    }
-  }
+   *    to the element's owner (also on one rank, as a self message), in the order of the records. ---*/
   std::vector<size_t> recvBytes;
-  const auto received = Exchange(streams, recvBytes);
-  const size_t recordSize = sizeof(uint64_t) + 2 * sizeof(double);
-
-  /*--- Owner: decision per element; the pairs of the partly covered ones, by importer (rank order). ---*/
-  std::vector<char> full(nOwnedD, 0);
-  std::vector<std::vector<double>> pairs(nOwnedD);
-  std::vector<std::vector<int>> importers(nOwnedD);
+  std::vector<char> received;
   {
+    std::vector<size_t> sendBytes(size, 0), offset(size, 0);
+    for (const auto& record : coverage)
+      if (record.contributed) sendBytes[record.rank] += recordSize;
+    for (int t = 1; t < size; ++t) offset[t] = offset[t - 1] + sendBytes[t - 1];
+    std::vector<char> send(std::accumulate(sendBytes.begin(), sendBytes.end(), size_t(0)));
+    for (const auto& record : coverage) {
+      if (!record.contributed) continue;
+      const passivedouble c = record.cover.Sum();
+      char* dst = send.data() + offset[record.rank];
+      const bool isFull = c >= record.volume * (1.0 - DecisionThreshold(1e-10));
+      const uint64_t word = isFull ? (record.index | kFullBit) : record.index;
+      const double hi = isFull ? 0.0 : record.cover.s, lo = isFull ? 0.0 : record.cover.c;
+      put(dst, &word, sizeof(word));
+      put(dst, &hi, sizeof(hi));
+      put(dst, &lo, sizeof(lo));
+      offset[record.rank] += recordSize;
+    }
+    received = CPassiveComm::AlltoallvRounds(send.data(), sendBytes, recvBytes);
+  }
+
+  /*--- Owner: decision per element; the pairs of the partly covered ones by importer (rank order, CSR). ---*/
+  std::vector<char> full(nOwnedD, 0);
+  std::vector<size_t> pairStart(nOwnedD + 1, 0);
+  auto forEachRecord = [&](auto&& f) {
     const char* src = received.data();
     for (int p = 0; p < size; ++p) {
       const char* end = src + recvBytes[p];
@@ -779,17 +1053,31 @@ void CDistributedProjection::Slivers(const std::vector<su2double>& localDonor) {
         const double hi = GetBytes<double>(src), lo = GetBytes<double>(src);
         const auto e = word & ~kFullBit;
         if (e >= nOwnedD) SU2_MPI::Error("Coverage record of an unknown element.", CURRENT_FUNCTION);
-        if (word & kFullBit) {
-          full[e] = 1;
-        } else {
-          pairs[e].push_back(hi);
-          pairs[e].push_back(lo);
-          importers[e].push_back(p);
-        }
+        f(p, e, (word & kFullBit) != 0, hi, lo);
       }
     }
-    (void)recordSize;
+  };
+  forEachRecord([&](int, uint64_t e, bool isFull, double, double) {
+    if (isFull) {
+      full[e] = 1;
+    } else {
+      pairStart[e + 1]++;
+    }
+  });
+  for (auto e = 0ul; e < nOwnedD; ++e) pairStart[e + 1] += pairStart[e];
+  std::vector<double> pairValues(2 * pairStart[nOwnedD]);
+  std::vector<int> pairRank(pairStart[nOwnedD]);
+  {
+    std::vector<size_t> cursor(pairStart.begin(), pairStart.end() - 1);
+    forEachRecord([&](int p, uint64_t e, bool isFull, double hi, double lo) {
+      if (isFull) return;
+      const auto pos = cursor[e]++;
+      pairValues[2 * pos] = hi;
+      pairValues[2 * pos + 1] = lo;
+      pairRank[pos] = p;
+    });
   }
+  received = std::vector<char>();
   std::vector<passivedouble> missing(nOwnedD, 0.0);
   std::vector<char> sliver(nOwnedD, 0);
   CLocalFailure failure;
@@ -803,68 +1091,112 @@ void CDistributedProjection::Slivers(const std::vector<su2double>& localDonor) {
     const passivedouble volume = volumeD[e];
     if (full[e] || !(volume > 0.0)) continue;
     double covered = 0.0;
-    if (!pairs[e].empty() && !CAccurateSum::MergePairs(pairs[e].data(), pairs[e].size() / 2, &covered)) nonfinite(e);
+    const auto n = pairStart[e + 1] - pairStart[e];
+    if (n > 0 && !CAccurateSum::MergePairs(&pairValues[2 * pairStart[e]], n, &covered)) nonfinite(e);
     missing[e] = volume - covered;
     sliver[e] = missing[e] > kGapFraction * volume;
   }
+  pairValues = std::vector<double>();
+  full = std::vector<char>();
 
   /*--- Round 2: the moments of the partly covered slivers from their importers. ---*/
-  std::vector<std::vector<char>> requests(size);
-  for (auto e = 0ul; e < nOwnedD; ++e) {
-    if (!sliver[e]) continue;
-    for (const auto p : importers[e]) PutBytes(requests[p], static_cast<uint64_t>(e));
-  }
-  std::vector<size_t> requestBytes;
-  const auto asked = Exchange(requests, requestBytes);
-  std::map<std::pair<int, uint64_t>, unsigned long> index;
-  for (auto i = 0ul; i < coverage.size(); ++i) index[{coverage[i].rank, coverage[i].index}] = i;
-  std::vector<std::vector<char>> answers(size);
+  std::vector<size_t> askedBytes;
+  std::vector<char> asked;
   {
+    std::vector<size_t> sendBytes(size, 0), offset(size, 0);
+    for (auto e = 0ul; e < nOwnedD; ++e)
+      if (sliver[e])
+        for (auto i = pairStart[e]; i < pairStart[e + 1]; ++i) sendBytes[pairRank[i]] += sizeof(uint64_t);
+    for (int t = 1; t < size; ++t) offset[t] = offset[t - 1] + sendBytes[t - 1];
+    std::vector<char> requests(std::accumulate(sendBytes.begin(), sendBytes.end(), size_t(0)));
+    for (auto e = 0ul; e < nOwnedD; ++e) {
+      if (!sliver[e]) continue;
+      const uint64_t word = e;
+      for (auto i = pairStart[e]; i < pairStart[e + 1]; ++i) {
+        char* dst = requests.data() + offset[pairRank[i]];
+        put(dst, &word, sizeof(word));
+        offset[pairRank[i]] += sizeof(uint64_t);
+      }
+    }
+    asked = CPassiveComm::AlltoallvRounds(requests.data(), sendBytes, askedBytes);
+  }
+  std::vector<size_t> momentBytes;
+  std::vector<char> moments;
+  {
+    std::vector<size_t> sendBytes(size, 0);
+    for (int p = 0; p < size; ++p) sendBytes[p] = askedBytes[p] / sizeof(uint64_t) * answerSize;
+    std::vector<char> answers(std::accumulate(sendBytes.begin(), sendBytes.end(), size_t(0)));
     const char* src = asked.data();
+    char* dst = answers.data();
     for (int p = 0; p < size; ++p) {
-      const char* end = src + requestBytes[p];
+      const char* end = src + askedBytes[p];
       while (src < end) {
         const auto e = GetBytes<uint64_t>(src);
-        const auto it = index.find({p, e});
-        if (it == index.end()) SU2_MPI::Error("Moment request for an element not imported.", CURRENT_FUNCTION);
-        const auto& record = coverage[it->second];
-        PutBytes(answers[p], e);
+        CoverageKey key;
+        key.rank = p;
+        key.index = e;
+        const auto it = std::lower_bound(coverageKeys.begin(), coverageKeys.end(), key);
+        if (it == coverageKeys.end() || it->rank != p || it->index != e)
+          SU2_MPI::Error("Moment request for an element not imported.", CURRENT_FUNCTION);
+        const auto& record = coverage[it->slot];
+        put(dst, &e, sizeof(e));
         for (unsigned short iDim = 0; iDim < 3; ++iDim) {
-          PutBytes(answers[p], iDim < nDim ? record.moment[iDim].s : 0.0);
-          PutBytes(answers[p], iDim < nDim ? record.moment[iDim].c : 0.0);
+          const double hi = iDim < nDim ? record.moment[iDim].s : 0.0, lo = iDim < nDim ? record.moment[iDim].c : 0.0;
+          put(dst, &hi, sizeof(hi));
+          put(dst, &lo, sizeof(lo));
         }
       }
     }
+    asked = std::vector<char>();
+    moments = CPassiveComm::AlltoallvRounds(answers.data(), sendBytes, momentBytes);
   }
-  std::vector<size_t> answerBytes;
-  const auto moments = Exchange(answers, answerBytes);
-  std::vector<std::vector<double>> momentPairs(nOwnedD * 3);
+  pairStart = std::vector<size_t>();
+  pairRank = std::vector<int>();
+
+  /*--- Moments by element (CSR in arrival order: importers in rank order), per dimension the hi/lo pairs. ---*/
+  const auto nMoment = moments.size() / answerSize;
+  std::vector<size_t> momentStart(nOwnedD + 1, 0);
+  for (size_t m = 0; m < nMoment; ++m) {
+    uint64_t e = 0;
+    std::memcpy(&e, &moments[m * answerSize], sizeof(e));
+    if (e >= nOwnedD) SU2_MPI::Error("Moment of an unknown element.", CURRENT_FUNCTION);
+    momentStart[e + 1]++;
+  }
+  for (auto e = 0ul; e < nOwnedD; ++e) momentStart[e + 1] += momentStart[e];
+  std::vector<double> momentValues(6 * nMoment);
   {
+    std::vector<size_t> cursor(momentStart.begin(), momentStart.end() - 1);
     const char* src = moments.data();
-    const char* end = src + moments.size();
-    while (src < end) {
+    for (size_t m = 0; m < nMoment; ++m) {
       const auto e = GetBytes<uint64_t>(src);
+      const auto pos = cursor[e]++;
       for (unsigned short iDim = 0; iDim < 3; ++iDim) {
-        const double hi = GetBytes<double>(src), lo = GetBytes<double>(src);
-        momentPairs[e * 3 + iDim].push_back(hi);
-        momentPairs[e * 3 + iDim].push_back(lo);
+        momentValues[2 * (iDim * nMoment + pos)] = GetBytes<double>(src);
+        momentValues[2 * (iDim * nMoment + pos) + 1] = GetBytes<double>(src);
       }
     }
   }
+  moments = std::vector<char>();
 
   /*--- Content of every sliver on its owner. ---*/
   sliverA.assign(nField, 0.0);
   sliverOpenA.assign(nField, 0.0);
+  const auto nSliverLocal = static_cast<unsigned long>(std::count(sliver.begin(), sliver.end(), 1));
   std::vector<std::vector<su2double>> sliverTerms(nField), sliverOpenTerms(nField);
+  for (unsigned short f = 0; f < nField; ++f) {
+    sliverTerms[f].reserve(nSliverLocal);
+    sliverOpenTerms[f].reserve(nSliverLocal);
+  }
   std::vector<double> sliverVolume;
+  sliverVolume.reserve(nSliverLocal);
   unsigned long nSliver = 0;
   for (auto e = 0ul; e < nOwnedD; ++e) {
     if (!sliver[e]) continue;
     passivedouble moment[3] = {0.0, 0.0, 0.0};
+    const auto n = momentStart[e + 1] - momentStart[e];
     for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
-      const auto& list = momentPairs[e * 3 + iDim];
       double m = 0.0;
-      if (!list.empty() && !CAccurateSum::MergePairs(list.data(), list.size() / 2, &m)) nonfinite(e);
+      if (n > 0 && !CAccurateSum::MergePairs(&momentValues[2 * (iDim * nMoment + momentStart[e])], n, &m)) nonfinite(e);
       moment[iDim] = m;
     }
     passivedouble x[4][3] = {};
@@ -890,6 +1222,8 @@ void CDistributedProjection::Slivers(const std::vector<su2double>& localDonor) {
     sliverVolume.push_back(missing[e]);
     nSliver++;
   }
+  momentStart = std::vector<size_t>();
+  momentValues = std::vector<double>();
   CAccurateSumBatch batch;
   std::vector<size_t> q(nField), qOpen(nField);
   for (unsigned short f = 0; f < nField; ++f) {
@@ -898,6 +1232,7 @@ void CDistributedProjection::Slivers(const std::vector<su2double>& localDonor) {
   }
   const auto qVolume = batch.Add(sliverVolume);
   std::vector<double> overlapTerms;
+  overlapTerms.reserve(coverage.size());
   for (const auto& record : coverage) overlapTerms.push_back(record.cover.Sum());
   const auto qOverlap = batch.Add(overlapTerms);
   const auto qDonorVolume = batch.Add(volumeD);
@@ -911,6 +1246,7 @@ void CDistributedProjection::Slivers(const std::vector<su2double>& localDonor) {
   summary.donorVolume = batch.Get(qDonorVolume);
   summary.nSliverElems = CPassiveComm::AllreduceSum(nSliver);
   CollectiveFailure(failure, CURRENT_FUNCTION);
+  TransferMemoryEvent(TransferPhase::SLIVERS, false, predicted);
 }
 
 void CDistributedProjection::Fill(const std::vector<FillEntry>& fills) {
