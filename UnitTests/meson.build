@@ -77,6 +77,17 @@ if get_option('enable-tests')
         cpp_args: ['-fPIC', default_warning_flags, su2_cpp_args]
     )
     test('Catch2 test driver', test_driver)
+
+    # Memory ceiling of the solution transfers: the allocation probe replaces the global operator new/delete, so
+    # these tests have their own executable.
+    test_memory = executable(
+        'test_memory',
+        files(['SU2_CFD/adaptation/TransferMemory_tests.cpp', 'Common/memory/AllocationProbe.cpp', 'test_driver.cpp']),
+        install : false,
+        dependencies : [su2_cfd_dep, common_dep, su2_deps, catch2_dep],
+        cpp_args: ['-fPIC', default_warning_flags, su2_cpp_args]
+    )
+    test('Catch2 memory tests', test_memory)
   endif
 
   if get_option('enable-autodiff')
@@ -103,5 +114,15 @@ if get_option('enable-tests')
         cpp_args: ['-fPIC', default_warning_flags, su2_cpp_args, codi_for_args]
     )
     test('Catch2 test driver (DD)', test_driver_DD)
+
+    # Memory ceiling of the solution transfers with forward-mode (active, 16-byte) values.
+    test_memory_DD = executable(
+        'test_memory_DD',
+        files(['SU2_CFD/adaptation/TransferMemory_tests.cpp', 'Common/memory/AllocationProbe.cpp', 'test_driver.cpp']),
+        install : false,
+        dependencies : [su2_cfd_dep_dd, commonDD_dep, su2_deps, codi_dep, catch2_dep],
+        cpp_args: ['-fPIC', default_warning_flags, su2_cpp_args, codi_for_args]
+    )
+    test('Catch2 memory tests (DD)', test_memory_DD)
   endif
 endif
