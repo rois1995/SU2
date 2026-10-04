@@ -59,7 +59,9 @@ TEST_CASE("Custom adaptation strict expression grammar", "[Adaptation][CustomSen
     INFO(test.first);
     std::vector<std::string> symbols;
     const auto tree = mel::Parse<passivedouble>(CAdapSensors::ValidateExpression(test.first), symbols);
-    const auto value = mel::Eval<su2double>(tree, [](int) { return su2double(3.0); });
+    const std::map<std::string, su2double> inputs = {{"a", 3.0}};
+    for (const auto& symbol : symbols) REQUIRE(symbol == "a");
+    const auto value = mel::Eval<su2double>(tree, [&](int index) { return inputs.at(symbols.at(index)); });
     CHECK(SU2_TYPE::GetValue(value) == Approx(test.second));
   }
   std::string edge = "a";
@@ -86,6 +88,54 @@ CSimplexMesh SensorMesh() {
   });
 }
 }  // namespace
+
+TEST_CASE("Custom adaptation unary plus binds and preserves grouping", "[Adaptation][CustomSensors]") {
+  const std::pair<std::string, std::string> cases[] = {
+      {"+PRESSURE", "PRESSURE"}, {"2/+PRESSURE", "2/PRESSURE"},
+      {"+(PRESSURE*PRESSURE)", "(PRESSURE*PRESSURE)"},
+      {"2/+(PRESSURE*PRESSURE)", "2/(PRESSURE*PRESSURE)"},
+      {"2/+(PRESSURE+1)", "2/(PRESSURE+1)"},
+      {"+(-PRESSURE)", "((-PRESSURE))"}, {"-(+PRESSURE)", "(-(PRESSURE))"},
+      {"fmax(+PRESSURE,+2)", "fmax(PRESSURE,2)"},
+      {"+PRESSURE+1e+3", "PRESSURE+1e+3"}};
+  std::string definitions, selected;
+  for (size_t i = 0; i < sizeof(cases)/sizeof(cases[0]); ++i) {
+    INFO(cases[i].first);
+    const auto normalized = CAdapSensors::ValidateExpression(cases[i].first);
+    CHECK(normalized == cases[i].second);
+    std::vector<std::string> symbols;
+    mel::Parse<passivedouble>(normalized, symbols);
+    CHECK(symbols == std::vector<std::string>{"PRESSURE"});
+    if (i) { definitions += "; "; selected += ", "; }
+    const auto name = "S" + std::to_string(i);
+    definitions += name + " : " + cases[i].first;
+    selected += name;
+  }
+  auto config = SensorConfig(definitions, selected);
+  MeshSolution state(config.get(), SensorMesh(), 0);
+  auto* flow = state.solver[MESH_0][FLOW_SOL];
+  auto* nodes = flow->GetNodes();
+  const auto idx = CPrimitiveIndices<unsigned short>(false, false, 2, 0);
+  CAdapSensors sensors(*config, state.Fine(), state.solver[MESH_0]);
+  REQUIRE(sensors.GetStages().size() == sizeof(cases)/sizeof(cases[0]));
+  for (const auto& stage : sensors.GetStages()) {
+    REQUIRE(stage.symbols.size() == 1);
+    CHECK(stage.symbols[0].kind == CAdapSensors::KIND::PRIMITIVE);
+    CHECK(stage.symbols[0].index == idx.Pressure());
+  }
+  for (unsigned long point = 0; point < state.Fine().GetnPoint(); ++point)
+    nodes->SetPrimitive(point, idx.Pressure(), 3.0 + state.Fine().nodes->GetCoord(point, 0));
+  sensors.Sample(*flow, state.Fine(), *config, state.solver[MESH_0]);
+  for (unsigned long point = 0; point < state.Fine().GetnPointDomain(); ++point) {
+    const auto pressure = SU2_TYPE::GetValue(nodes->GetPrimitive(point, idx.Pressure()));
+    const passivedouble expected[] = {pressure, 2/pressure, pressure*pressure, 2/(pressure*pressure),
+                                     2/(pressure+1), -pressure, -pressure, pressure, pressure+1e3};
+    for (size_t i = 0; i < sizeof(cases)/sizeof(cases[0]); ++i) {
+      INFO(cases[i].first);
+      CHECK(SU2_TYPE::GetValue(nodes->GetAuxVar_Adapt(point, i)) == Approx(expected[i]));
+    }
+  }
+}
 
 TEST_CASE("Custom adaptation solver binding rejects invalid symbols", "[Adaptation][CustomSensors]") {
   const auto mesh = SensorMesh();

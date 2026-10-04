@@ -44,7 +44,7 @@
 
 namespace {
 
-/*--- Recursive descent is used only to validate grammar/arity and parenthesize unary signs.
+/*--- Recursive descent validates grammar/arity and normalizes unary signs for MEL.
  *     MEL supplies the expression tree and active evaluation. ---*/
 class Validator {
   std::vector<std::string> tokens;
@@ -76,7 +76,8 @@ class Validator {
     if (pos == tokens.size()) Fail();
     if (tokens[pos] == "+" || tokens[pos] == "-") {
       const auto sign = tokens[pos++];
-      return "(" + sign + Operand() + ")";
+      /*--- MEL supports unary minus, but treats unary plus as part of a symbol. ---*/
+      return sign == "+" ? Operand() : "(" + sign + Operand() + ")";
     }
     if (Take("(")) {
       const auto value = Expression();
