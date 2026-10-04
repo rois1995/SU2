@@ -4,7 +4,8 @@
 # -------------------------------------------------------------------------
 
 # Direct-mode tests:
-su2_cfd_tests = files(['Common/CConfig_tests.cpp',
+su2_cfd_tests = files(['SU2_CFD/adaptation/CAdapSensors_tests.cpp',
+                       'Common/CConfig_tests.cpp',
                        'Common/geometry/primal_grid/CPrimalGrid_tests.cpp',
                        'Common/geometry/dual_grid/CDualGrid_tests.cpp',
                        'Common/geometry/CGeometry_test.cpp',
@@ -43,7 +44,8 @@ su2_cfd_tests = files(['Common/CConfig_tests.cpp',
                        'Common/linear_algebra/edge_residual_blocks_tests.cpp'])
 
 # Reverse-mode (algorithmic differentiation) tests:
-su2_cfd_tests_ad = files(['Common/simple_ad_test.cpp',
+su2_cfd_tests_ad = files(['SU2_CFD/adaptation/CAdapSensors_tests.cpp',
+                          'Common/simple_ad_test.cpp',
                           'SU2_CFD/fluid/CFluidModel_tests_AD.cpp',
                           'Common/toolboxes/multilayer_perceptron/MLP_Jacobian_tests.cpp',
                           'Common/parallelization/CPassiveComm_tests.cpp',
@@ -53,7 +55,8 @@ su2_cfd_tests_ad = files(['Common/simple_ad_test.cpp',
                           'Common/adaptation/DistributedSearch_tests.cpp'])
 
 # Forward-mode (direct differentiation) tests:
-su2_cfd_tests_dd = files(['Common/simple_directdiff_test.cpp',
+su2_cfd_tests_dd = files(['SU2_CFD/adaptation/CAdapSensors_tests.cpp',
+                          'Common/simple_directdiff_test.cpp',
                           'SU2_CFD/adaptation/CSolutionTransfer_directdiff_tests.cpp',
                           'Common/parallelization/CPassiveComm_tests.cpp',
                           'Common/parallelization/NativeDouble_order1.cpp',

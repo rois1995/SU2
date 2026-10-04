@@ -238,7 +238,7 @@ void CSinglezoneDriver::ComputeMetric() {
    *    variables (also on halo points) until the next call. ---*/
 
   const auto startTime = SU2_MPI::Wtime();
-  solver_flow->SetAuxVar_Adapt(geometry, config);
+  solver_flow->SetAuxVar_Adapt(geometry, config, solver_container[ZONE_0][INST_0][MESH_0]);
   solver_flow->SetHessian_Adapt(geometry, config);
   solver_flow->ComputeMetric(geometry, config);
   if (rank == MASTER_NODE) cout << "Metric computed in " << SU2_MPI::Wtime() - startTime << " s." << endl;
@@ -417,7 +417,7 @@ void CSinglezoneDriver::SampleTimeWindowMetric() {
 
   /*--- Sensors and their Hessians at this time step. ---*/
 
-  solver_flow->SetAuxVar_Adapt(geometry, config);
+  solver_flow->SetAuxVar_Adapt(geometry, config, solver_container[ZONE_0][INST_0][MESH_0]);
   solver_flow->SetHessian_Adapt(geometry, config);
 
   /*--- Add |H| of each sensor (eigenvalues by their absolute values; a non-finite Hessian counts as zero, as in
@@ -500,7 +500,7 @@ void CSinglezoneDriver::PredictWindowMetric() {
     cout << "Metric snapshot of time step " << TimeIter << " for the prediction (ADAP_UNSTEADY_METRIC= PREDICT)."
          << endl;
   }
-  solver_flow->SetAuxVar_Adapt(geometry, config);
+  solver_flow->SetAuxVar_Adapt(geometry, config, solver_container[ZONE_0][INST_0][MESH_0]);
   solver_flow->SetHessian_Adapt(geometry, config);
   solver_flow->ComputeMetric(geometry, config, nullptr, false);
 

@@ -569,7 +569,7 @@ public:
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] config - Definition of the particular problem.
    */
-  inline virtual void SetAuxVar_Adapt(CGeometry *geometry, const CConfig *config) { }
+  inline virtual void SetAuxVar_Adapt(CGeometry *geometry, const CConfig *config, CSolver **solver_container) { }
 
   /*!
    * \brief Compute the gradients and Hessians of the mesh adaptation sensors (NUM_METHOD_HESS).

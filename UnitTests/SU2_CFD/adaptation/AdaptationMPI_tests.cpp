@@ -34,6 +34,7 @@
 #include <cmath>
 
 #include "TransferTestCase.hpp"
+#include "../../../SU2_CFD/include/variables/CPrimitiveIndices.hpp"
 #include "../../../Common/include/adaptation/CMMGInterface.hpp"
 #include "../../../Common/include/adaptation/CMeshGather.hpp"
 #include "../../../Common/include/adaptation/CReaderSlices.hpp"
@@ -684,4 +685,60 @@ TEST_CASE("MPI adaptation: reader slices of a complete mesh", "[AdaptationMPI]")
       }
     }
   }
+}
+
+TEST_CASE("MPI custom sensors, gradients, Hessians and metric by global point", "[Adaptation][CustomSensorsMPI]") {
+  const auto input = simplex_test::MakeSimplexMesh(2, 12, [](const passivedouble* x) {
+    if (x[0] < 1e-10) return std::string("left");
+    if (x[0] > 2.0-1e-10) return std::string("right");
+    if (x[1] > 1.0-1e-10) return std::string("upper");
+    return std::string(x[0] < 1 ? "lower_a" : "lower_b");
+  });
+  std::vector<passivedouble> reference;
+  auto run = [&](bool parallel) {
+    auto config = transfer_test::MakeConfig(2,
+        "SOLVER= EULER\nMATH_PROBLEM= DIRECT\nCOMPUTE_METRIC= YES\nADAP_SENSOR= (S)\n"
+        "ADAP_CUSTOM_SENSORS= 'G : GRAD_TEMPERATURE_X; S : PRESSURE+G*G'\n"
+        "NUM_METHOD_GRAD= GREEN_GAUSS\nNUM_METHOD_HESS= WEIGHTED_LEAST_SQUARES\nADAP_NORM= 2\n"
+        "ADAP_HMIN= 1e-4\nADAP_HMAX= 10\nADAP_COMPLEXITY= 1000\n");
+    transfer_test::MeshSolution state(config.get(), input, 0);
+    auto* flow = state.solver[MESH_0][FLOW_SOL];
+    auto* nodes = flow->GetNodes();
+    const auto idx = CPrimitiveIndices<unsigned short>(false, false, 2, 0);
+    for (unsigned long point = 0; point < state.Fine().GetnPoint(); ++point) {
+      const auto x = state.Fine().nodes->GetCoord(point);
+      nodes->SetPrimitive(point, idx.Pressure(), 1+x[0]*x[0]+2*x[1]*x[1]);
+      nodes->SetPrimitive(point, idx.Temperature(), x[0]*x[0]*x[0]);
+    }
+    flow->SetAuxVar_Adapt(&state.Fine(), config.get(), state.solver[MESH_0]);
+    flow->SetHessian_Adapt(&state.Fine(), config.get());
+    flow->ComputeMetric(&state.Fine(), config.get());
+    if (!parallel) reference.resize(state.Fine().GetGlobal_nPointDomain()*9);
+    passivedouble diff[4] = {};
+    for (unsigned long point = 0; point < state.Fine().GetnPointDomain(); ++point) {
+      const auto global = state.Fine().nodes->GetGlobalIndex(point);
+      passivedouble values[9] = {SU2_TYPE::GetValue(nodes->GetAuxVar_Adapt(point, 0))};
+      for (unsigned short dim = 0; dim < 2; ++dim)
+        values[1+dim] = SU2_TYPE::GetValue(nodes->GetGradient_Adapt()(point, 0, dim));
+      for (unsigned short comp = 0; comp < 3; ++comp) {
+        values[3+comp] = SU2_TYPE::GetValue(nodes->GetHessian(point, 0, comp));
+        values[6+comp] = SU2_TYPE::GetValue(nodes->GetMetric(point, comp));
+      }
+      for (unsigned short i = 0; i < 9; ++i) {
+        if (!parallel) reference[global*9+i] = values[i];
+        else {
+          const auto group = i == 0 ? 0 : i < 3 ? 1 : i < 6 ? 2 : 3;
+          diff[group] = max(diff[group], fabs(values[i]-reference[global*9+i]) / max(1.0, fabs(reference[global*9+i])));
+        }
+      }
+    }
+    if (parallel) {
+      for (auto& error : diff) error = GlobalMax(error);
+      if (IsRoot()) cout << "Custom sensor MPI maximum relative differences: values=" << diff[0]
+                        << " gradients=" << diff[1] << " Hessians=" << diff[2] << " metric=" << diff[3] << endl;
+      for (const auto error : diff) CHECK(error < 1e-10);
+    }
+  };
+  Serial([&]() { run(false); });
+  run(true);
 }

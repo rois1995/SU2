@@ -1755,7 +1755,16 @@ unsigned long CEulerSolver::SetPrimitive_Variables(CSolver **solver_container, c
   return nonPhysicalPoints;
 }
 
-void CEulerSolver::SetAuxVar_Adapt(CGeometry *geometry, const CConfig *config) {
+void CEulerSolver::SetAuxVar_Adapt(CGeometry *geometry, const CConfig *config, CSolver **solver_container) {
+  if (!config->GetAdap_CustomSensors().empty()) {
+    try {
+      if (!adapSensors) adapSensors = std::make_unique<CAdapSensors>(*config, *geometry, solver_container);
+      adapSensors->Sample(*this, *geometry, *config, solver_container);
+    } catch (const std::exception& error) {
+      SU2_MPI::Error(error.what(), CURRENT_FUNCTION);
+    }
+    return;
+  }
   SU2_ZONE_SCOPED
 
   enum class SENSOR {MACH, PRESSURE, TEMPERATURE, ENERGY, DENSITY, TOTALPRESSURE};

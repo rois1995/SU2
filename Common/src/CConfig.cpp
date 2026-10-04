@@ -30,6 +30,7 @@
 #include <limits>
 
 #include "../include/CConfig.hpp"
+#include "../include/adaptation/CAdapSensorOptions.hpp"
 #undef ENABLE_MAPS
 
 #include "../include/fem/fem_gauss_jacobi_quadrature.hpp"
@@ -3264,6 +3265,8 @@ void CConfig::SetConfig_Options() {
 
   /*!\brief ADAP_SENSOR \n DESCRIPTION: Sensors for mesh adaptation \ingroup Config */
   addStringListOption("ADAP_SENSOR", nAdap_Sensor, Adap_Sensor);
+  /*!\brief ADAP_CUSTOM_SENSORS \n DESCRIPTION: Ordered named expressions for adaptation. \ingroup Config */
+  addStringOption("ADAP_CUSTOM_SENSORS", Adap_CustomSensors, "");
   /*!\brief ADAP_NORM \n DESCRIPTION: Lp-norm for mesh adaptation \ingroup Config */
   addDoubleOption("ADAP_NORM", Adap_Norm, 1.0);
   /*!\brief ADAP_HMAX \n DESCRIPTION: Maximum cell size, applied to the final (intersected) metric \ingroup Config */
@@ -6158,6 +6161,13 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
   }
 
   /*--- Checks for mesh adaptation ---*/
+  try {
+    Adap_CustomDefinitions = AdapSensorOptions::Parse(Adap_CustomSensors);
+  } catch (const std::exception& error) {
+    SU2_MPI::Error(error.what(), CURRENT_FUNCTION);
+  }
+  if (nAdap_Sensor > 20) SU2_MPI::Error("At most 20 ADAP_SENSOR entries are supported.", CURRENT_FUNCTION);
+
   if (Compute_Metric) {
     /*--- Feature-based metric of the primal solution only (the adjoint solvers are not supported yet).
      *    Checked first: the adjoint problems have already replaced Kind_Solver by the DISC_ADJ_ kinds. ---*/
@@ -6179,7 +6189,8 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     if (Kind_Hessian_Method != GREEN_GAUSS && Kind_Hessian_Method != WEIGHTED_LEAST_SQUARES) {
       SU2_MPI::Error("NUM_METHOD_HESS must be GREEN_GAUSS or WEIGHTED_LEAST_SQUARES.", CURRENT_FUNCTION);
     }
-    const vector<string> Sensor_Avail{"MACH", "PRESSURE", "TEMPERATURE", "ENERGY", "DENSITY", "TOTALPRESSURE"};
+    vector<string> Sensor_Avail{"MACH", "PRESSURE", "TEMPERATURE", "ENERGY", "DENSITY", "TOTALPRESSURE"};
+    for (const auto& definition : Adap_CustomDefinitions) Sensor_Avail.push_back(definition.first);
     for (unsigned short iSensor = 0; iSensor < nAdap_Sensor; iSensor++) {
       const string& sensor = Adap_Sensor[iSensor];
       /*--- Goal-oriented adaptation (stage G, not ported yet) is for steady problems only. ---*/
@@ -6189,7 +6200,7 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
       }
       if (find(begin(Sensor_Avail), end(Sensor_Avail), sensor) == end(Sensor_Avail)) {
         SU2_MPI::Error("Invalid or unsupported adaptation sensor: " + sensor +
-                       "; must be MACH, PRESSURE, TEMPERATURE, ENERGY, DENSITY or TOTALPRESSURE.", CURRENT_FUNCTION);
+                       "; must be a built-in sensor or a name defined in ADAP_CUSTOM_SENSORS.", CURRENT_FUNCTION);
       }
       if (find(Adap_Sensor, Adap_Sensor + iSensor, sensor) != Adap_Sensor + iSensor) {
         SU2_MPI::Error("Repeated adaptation sensor: " + sensor, CURRENT_FUNCTION);

@@ -28,6 +28,7 @@
 #pragma once
 
 #include "CFVMFlowSolverBase.hpp"
+#include "../adaptation/CAdapSensors.hpp"
 #include "../variables/CEulerVariable.hpp"
 #include "../output/CTurboOutput.hpp"
 
@@ -39,6 +40,8 @@
  */
 class CEulerSolver : public CFVMFlowSolverBase<CEulerVariable, ENUM_REGIME::COMPRESSIBLE> {
 protected:
+  std::unique_ptr<CAdapSensors> adapSensors; /*!< \brief Bound on the first metric sample, after all solvers exist. */
+
   using BaseClass = CFVMFlowSolverBase<CEulerVariable, ENUM_REGIME::COMPRESSIBLE>;
 
   su2double
@@ -1536,7 +1539,7 @@ public:
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] config - Definition of the particular problem.
    */
-  void SetAuxVar_Adapt(CGeometry *geometry, const CConfig *config) final;
+  void SetAuxVar_Adapt(CGeometry *geometry, const CConfig *config, CSolver **solver_container) final;
 
   /*!
    * \brief The Euler and NS solvers support MPI+OpenMP.

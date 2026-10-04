@@ -286,15 +286,15 @@ void CSolver::GetPeriodicCommCountAndType(const CConfig* config,
       ICOUNT           = nVar;
       break;
     case PERIODIC_ADAPT_GG:
-      COUNT_PER_POINT  = config->GetnAdap_Sensor()*nDim;
+      COUNT_PER_POINT  = base_nodes->GetAuxVar_Adapt().cols()*nDim;
       MPI_TYPE         = COMM_TYPE::DOUBLE;
-      ICOUNT           = config->GetnAdap_Sensor();
+      ICOUNT           = base_nodes->GetAuxVar_Adapt().cols();
       JCOUNT           = nDim;
       break;
     case PERIODIC_ADAPT_LS:
-      COUNT_PER_POINT  = nDim*nDim + config->GetnAdap_Sensor()*nDim;
+      COUNT_PER_POINT  = nDim*nDim + base_nodes->GetAuxVar_Adapt().cols()*nDim;
       MPI_TYPE         = COMM_TYPE::DOUBLE;
-      ICOUNT           = config->GetnAdap_Sensor();
+      ICOUNT           = base_nodes->GetAuxVar_Adapt().cols();
       JCOUNT           = nDim;
       break;
     case PERIODIC_HESS_GG:
@@ -422,8 +422,8 @@ void CSolver::InitiatePeriodicComms(CGeometry *geometry,
   auto *Und_Lapl  = new su2double[nVar];
   auto *Sol_Min   = new su2double[std::max(nVar, nPrimVarGrad)];
   auto *Sol_Max   = new su2double[std::max(nVar, nPrimVarGrad)];
-  auto *rotPrim_i = new su2double[std::max({nVar, nPrimVar, config->GetnAdap_Sensor()})];
-  auto *rotPrim_j = new su2double[std::max({nVar, nPrimVar, config->GetnAdap_Sensor()})];
+  auto *rotPrim_i = new su2double[std::max<unsigned long>({nVar, nPrimVar, base_nodes->GetAuxVar_Adapt().cols()})];
+  auto *rotPrim_j = new su2double[std::max<unsigned long>({nVar, nPrimVar, base_nodes->GetAuxVar_Adapt().cols()})];
 
   su2double Sensor_i = 0.0, Sensor_j = 0.0, Pressure_i, Pressure_j;
   const su2double *Coord_i, *Coord_j;
@@ -1540,11 +1540,11 @@ void CSolver::GetCommCountAndType(const CConfig* config,
       MPI_TYPE         = COMM_TYPE::DOUBLE;
       break;
     case MPI_QUANTITIES::AUXVAR_ADAPT:
-      COUNT_PER_POINT  = config->GetnAdap_Sensor();
+      COUNT_PER_POINT  = base_nodes->GetAuxVar_Adapt().cols();
       MPI_TYPE         = COMM_TYPE::DOUBLE;
       break;
     case MPI_QUANTITIES::GRADIENT_ADAPT:
-      COUNT_PER_POINT  = config->GetnAdap_Sensor()*nDim;
+      COUNT_PER_POINT  = base_nodes->GetAuxVar_Adapt().cols()*nDim;
       MPI_TYPE         = COMM_TYPE::DOUBLE;
       break;
     case MPI_QUANTITIES::HESSIAN:

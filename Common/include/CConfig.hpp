@@ -1315,6 +1315,8 @@ private:
   bool Adap_Surface = true;                 /*!< \brief The remesher may change the boundary (surface) mesh. */
   unsigned short Kind_Hessian_Method;       /*!< \brief Numerical method for computation of Hessians. */
   unsigned short nAdap_Sensor = 0;          /*!< \brief Number of sensors to use for adaptation. */
+  string Adap_CustomSensors;                /*!< \brief Ordered custom adaptation sensor definitions. */
+  vector<pair<string, string>> Adap_CustomDefinitions;
   string* Adap_Sensor = nullptr;            /*!< \brief Sensors to use for adaptation. */
   su2double Adap_Norm,                      /*!< \brief Lp-norm for mesh adaptation. */
             Adap_Hmax,                      /*!< \brief Maximum cell size. */
@@ -10377,6 +10379,8 @@ public:
    * \brief Get the number of adaptation sensors.
    */
   unsigned short GetnAdap_Sensor(void) const { return nAdap_Sensor; }
+
+  const vector<pair<string, string>>& GetAdap_CustomSensors() const { return Adap_CustomDefinitions; }
 
   /*!
    * \brief Get the adaptation Lp-norm value.

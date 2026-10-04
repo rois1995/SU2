@@ -30,6 +30,8 @@
 #include "../../Common/include/geometry/CPhysicalGeometry.hpp"
 #include "../../Common/include/containers/container_decorators.hpp"
 #include "../../SU2_CFD/include/solvers/CSolver.hpp"
+#include "../../SU2_CFD/include/adaptation/CAdapSensors.hpp"
+#include "../../SU2_CFD/include/variables/CPrimitiveIndices.hpp"
 #include "../../SU2_CFD/include/solvers/CSolverFactory.hpp"
 #include "../../SU2_CFD/include/gradients/computeGradientsGreenGauss.hpp"
 #include "../../SU2_CFD/include/gradients/computeGradientsLeastSquares.hpp"
@@ -262,14 +264,16 @@ struct AdaptBoxTest {
   std::unique_ptr<CGeometry> geometry;
   CSolver** solver = nullptr;
 
-  AdaptBoxTest(const string& markers, const string& method, const string& adaptOptions = "ADAP_SENSOR= (MACH)\n") {
+  AdaptBoxTest(const string& markers, const string& method, const string& adaptOptions = "ADAP_SENSOR= (MACH)\n",
+               unsigned long boxSize = 8, const string& solverKind = "EULER",
+               passivedouble angle = 0.0, bool fullMirror = false) {
     const string configOptions =
-        "SOLVER= EULER\n"
+        "SOLVER= " + solverKind + "\n"
+        "MATH_PROBLEM= DIRECT\n"
         "MESH_FORMAT= BOX\n"
         "INIT_OPTION= TD_CONDITIONS\n" + markers +
-        "MESH_BOX_SIZE= 8,8,8\n"
-        "MESH_BOX_LENGTH= 1,1,1\n"
-        "MESH_BOX_OFFSET= 0,0,0\n"
+        "MESH_BOX_SIZE= " + std::to_string(boxSize) + "," + std::to_string(boxSize) + "," + std::to_string(boxSize) + "\n"
+        "MESH_BOX_LENGTH= " + (fullMirror ? string("1,1,2\nMESH_BOX_OFFSET= 0,0,-1\n") : string("1,1,1\nMESH_BOX_OFFSET= 0,0,0\n")) +
         "COMPUTE_METRIC= YES\n" + adaptOptions +
         "NUM_METHOD_HESS= " + method + "\n";
 
@@ -280,6 +284,13 @@ struct AdaptBoxTest {
     {
       auto aux_geometry = std::unique_ptr<CGeometry>(new CPhysicalGeometry(config.get(), 0, 1));
       geometry = std::unique_ptr<CGeometry>(new CPhysicalGeometry(aux_geometry.get(), config.get()));
+    }
+    if (angle != 0.0) {
+      for (unsigned long point = 0; point < geometry->GetnPoint(); ++point) {
+        const auto x = geometry->nodes->GetCoord(point, 0), z = geometry->nodes->GetCoord(point, 2);
+        geometry->nodes->SetCoord(point, 0, cos(angle)*x - sin(angle)*z);
+        geometry->nodes->SetCoord(point, 2, sin(angle)*x + cos(angle)*z);
+      }
     }
     geometry->SetSendReceive(config.get());
     geometry->SetBoundaries(config.get());
@@ -302,7 +313,12 @@ struct AdaptBoxTest {
   }
 
   ~AdaptBoxTest() {
-    if (solver != nullptr) delete solver[FLOW_SOL];
+    if (solver != nullptr) {
+      for (unsigned short iSol = 0; iSol < MAX_SOLS; ++iSol) {
+        CSolverFactory::ClearSolverMeta(solver[iSol]);
+        delete solver[iSol];
+      }
+    }
     delete[] solver;
   }
 };
@@ -654,4 +670,211 @@ TEST_CASE("Metric complexity", "[Adaptation]") {
     const su2double ref[3] = {c.eigenvalue, c.eigenvalue, c.eigenvalue};
     CHECK(test.EigenvalueError(ref) < 1e-12);
   }
+}
+
+/*--- The custom path uses the same cached primitives and scalar differentiation as built-in sensors. ---*/
+TEST_CASE("Custom pressure and current density identity", "[Adaptation][CustomSensors]") {
+  for (const auto* method : {"GREEN_GAUSS", "WEIGHTED_LEAST_SQUARES"}) {
+    AdaptBoxTest test("MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_minus, z_plus)\n", method,
+                      "ADAP_SENSOR= (PRESSURE, P, DENSITY, D)\nADAP_CUSTOM_SENSORS= 'P : PRESSURE; D : DENSITY'\n");
+    const auto idx = CPrimitiveIndices<unsigned short>(false, false, 3, 0);
+    auto* flow = test.solver[FLOW_SOL];
+    auto* nodes = flow->GetNodes();
+    std::vector<su2double> solution;
+    for (unsigned long point = 0; point < test.geometry->GetnPoint(); ++point) {
+      const auto x = test.geometry->nodes->GetCoord(point);
+      nodes->SetPrimitive(point, idx.Pressure(), 1 + x[0]*x[0] + 2*x[1]*x[1]);
+      nodes->SetPrimitive(point, idx.Density(), 123.0);  // Deliberately stale density cache.
+      nodes->SetSolution(point, 0, 2 + x[0]*x[0]);
+      for (unsigned short var = 0; var < flow->GetnVar(); ++var) solution.push_back(nodes->GetSolution(point, var));
+    }
+    flow->SetAuxVar_Adapt(test.geometry.get(), test.config.get(), test.solver);
+    flow->SetHessian_Adapt(test.geometry.get(), test.config.get());
+    for (unsigned long point = 0; point < test.geometry->GetnPoint(); ++point) {
+      CHECK(nodes->GetAuxVar_Adapt(point, 0) == nodes->GetAuxVar_Adapt(point, 1));
+      CHECK(nodes->GetAuxVar_Adapt(point, 2) == nodes->GetAuxVar_Adapt(point, 3));
+      CHECK(nodes->GetAuxVar_Adapt(point, 2) != 123.0);
+      for (unsigned short dim = 0; dim < 3; ++dim) {
+        CHECK(nodes->GetGradient_Adapt()(point, 0, dim) == nodes->GetGradient_Adapt()(point, 1, dim));
+        CHECK(nodes->GetGradient_Adapt()(point, 2, dim) == nodes->GetGradient_Adapt()(point, 3, dim));
+      }
+      for (unsigned short component = 0; component < 6; ++component) {
+        CHECK(nodes->GetHessian(point, 0, component) == nodes->GetHessian(point, 1, component));
+        CHECK(nodes->GetHessian(point, 2, component) == nodes->GetHessian(point, 3, component));
+      }
+      for (unsigned short var = 0; var < flow->GetnVar(); ++var)
+        CHECK(nodes->GetSolution(point, var) == solution[point * flow->GetnVar() + var]);
+      CHECK(nodes->GetPrimitive(point, idx.Density()) == 123.0);
+    }
+  }
+}
+
+TEST_CASE("Custom input gradient linear and cubic fields", "[Adaptation][CustomSensors]") {
+  for (const auto* method : {"GREEN_GAUSS", "WEIGHTED_LEAST_SQUARES"}) {
+    AdaptBoxTest test("MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_minus, z_plus)\n", method,
+                      "ADAP_SENSOR= (L, C)\nADAP_CUSTOM_SENSORS= 'L : GRAD_PRESSURE_X; C : GRAD_TEMPERATURE_X'\n");
+    const auto idx = CPrimitiveIndices<unsigned short>(false, false, 3, 0);
+    auto* flow = test.solver[FLOW_SOL];
+    auto* nodes = flow->GetNodes();
+    for (unsigned long point = 0; point < test.geometry->GetnPoint(); ++point) {
+      const auto x = test.geometry->nodes->GetCoord(point);
+      nodes->SetPrimitive(point, idx.Pressure(), 1 + 2*x[0] - x[1] + 3*x[2]);
+      nodes->SetPrimitive(point, idx.Temperature(), x[0]*x[0]*x[0]);
+    }
+    flow->SetAuxVar_Adapt(test.geometry.get(), test.config.get(), test.solver);
+    flow->SetHessian_Adapt(test.geometry.get(), test.config.get());
+    unsigned long checked = 0;
+    for (unsigned long point = 0; point < test.geometry->GetnPointDomain(); ++point) {
+      const auto x = test.geometry->nodes->GetCoord(point);
+      if (x[0] < 0.4 || x[0] > 0.6 || x[1] < 0.4 || x[1] > 0.6 || x[2] < 0.4 || x[2] > 0.6) continue;
+      ++checked;
+      CHECK(SU2_TYPE::GetValue(nodes->GetAuxVar_Adapt(point, 0)) == Approx(2.0).margin(1e-10));
+      CHECK(SU2_TYPE::GetValue(nodes->GetHessian(point, 1, 0)) == Approx(6.0).margin(1e-8));
+      for (unsigned short comp = 1; comp < 6; ++comp)
+        CHECK(SU2_TYPE::GetValue(nodes->GetHessian(point, 1, comp)) == Approx(0.0).margin(1e-8));
+    }
+    CHECK(checked > 0);
+  }
+}
+
+TEST_CASE("Custom translational periodic staging exceeds primitive storage", "[Adaptation][CustomSensors]") {
+  AdaptBoxTest test("MARKER_PERIODIC= (x_minus, x_plus, 0,0,0, 0,0,0, 1,0,0)\n"
+                    "MARKER_FAR= (y_minus, y_plus, z_minus, z_plus)\n", "WEIGHTED_LEAST_SQUARES",
+                    "ADAP_SENSOR= (S)\nADAP_CUSTOM_SENSORS= 'S : GRAD_VELOCITY_X_Y+GRAD_TEMPERATURE_Y"
+                    "+GRAD_PRESSURE_Y+GRAD_DENSITY_Y+GRAD_ENTHALPY_Y+GRAD_SOUND_SPEED_Y"
+                    "+GRAD_LAMINAR_VISCOSITY_Y+GRAD_EDDY_VISCOSITY_Y+GRAD_THERMAL_CONDUCTIVITY_Y"
+                    "+GRAD_CP_TOTAL_Y+GRAD_TURB[0]_Y'\nKIND_TURB_MODEL= SA\n", 8, "RANS");
+  const auto idx = CPrimitiveIndices<unsigned short>(false, false, 3, 0);
+  auto* flow = test.solver[FLOW_SOL];
+  auto* nodes = flow->GetNodes();
+  for (unsigned long point = 0; point < test.geometry->GetnPoint(); ++point) {
+    const auto y = test.geometry->nodes->GetCoord(point, 1);
+    for (const auto var : {idx.Velocity(), idx.Temperature(), idx.Pressure(), idx.Enthalpy(), idx.SoundSpeed(),
+                           idx.LaminarViscosity(), idx.EddyViscosity(), idx.ThermalConductivity(), idx.CpTotal()})
+      nodes->SetPrimitive(point, var, 2 + y);
+    nodes->SetSolution(point, 0, 2+y);
+    test.solver[TURB_SOL]->GetNodes()->SetSolution(point, 0, 2+y);
+  }
+  CAdapSensors sensors(*test.config, *test.geometry, test.solver);
+  CHECK(sensors.GetnStaged() == 13);
+  CHECK(sensors.GetnWork() > flow->GetnVar());
+  CHECK(sensors.GetnWork() > flow->GetnPrimVar());
+  sensors.Sample(*flow, *test.geometry, *test.config, test.solver);
+  for (unsigned long point = 0; point < test.geometry->GetnPointDomain(); ++point) {
+    CHECK(SU2_TYPE::GetValue(nodes->GetAuxVar_Adapt(point, 0)) == Approx(11.0).margin(1e-10));
+    for (unsigned short pad = 1; pad < sensors.GetnWork(); ++pad) CHECK(nodes->GetAuxVar_Adapt(point, pad) == 0.0);
+  }
+}
+
+TEST_CASE("Custom rotational periodic cascade is rejected", "[Adaptation][CustomSensors]") {
+  AdaptBoxTest test("MARKER_PERIODIC= (y_minus, x_minus, 0,0,0, 0,0,90, 0,0,0)\n"
+                    "MARKER_FAR= (x_plus, y_plus, z_minus, z_plus)\n", "WEIGHTED_LEAST_SQUARES",
+                    "ADAP_SENSOR= (S)\nADAP_CUSTOM_SENSORS= 'V : VELOCITY_X; S : V*V'\n");
+  CHECK_THROWS_AS(CAdapSensors(*test.config, *test.geometry, test.solver), std::invalid_argument);
+}
+
+TEST_CASE("Custom pressure metric is bitwise identical to built-in", "[Adaptation][CustomSensors]") {
+  const string markers = "MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_minus, z_plus)\n";
+  for (const auto* method : {"GREEN_GAUSS", "WEIGHTED_LEAST_SQUARES"}) {
+    AdaptBoxTest legacy(markers, method, "ADAP_SENSOR= (PRESSURE)\n");
+    AdaptBoxTest custom(markers, method, "ADAP_SENSOR= (P)\nADAP_CUSTOM_SENSORS= 'G : GRAD_PRESSURE_X; P : PRESSURE'\n");
+    const auto idx = CPrimitiveIndices<unsigned short>(false, false, 3, 0);
+    for (auto* test : {&legacy, &custom}) {
+      auto* flow = test->solver[FLOW_SOL];
+      for (unsigned long point = 0; point < test->geometry->GetnPoint(); ++point) {
+        const auto x = test->geometry->nodes->GetCoord(point);
+        flow->GetNodes()->SetPrimitive(point, idx.Pressure(), 1 + x[0]*x[0] + 2*x[1]*x[1] + 3*x[2]*x[2]);
+      }
+      flow->SetAuxVar_Adapt(test->geometry.get(), test->config.get(), test->solver);
+      flow->SetHessian_Adapt(test->geometry.get(), test->config.get());
+      flow->ComputeMetric(test->geometry.get(), test->config.get());
+    }
+    const auto* a = legacy.solver[FLOW_SOL]->GetNodes();
+    const auto* b = custom.solver[FLOW_SOL]->GetNodes();
+    REQUIRE(legacy.geometry->GetnPoint() == custom.geometry->GetnPoint());
+    for (unsigned long point = 0; point < legacy.geometry->GetnPoint(); ++point)
+      for (unsigned short comp = 0; comp < 6; ++comp) CHECK(a->GetMetric(point, comp) == b->GetMetric(point, comp));
+  }
+}
+
+TEST_CASE("Custom Mach square analytic Hessian converges", "[Adaptation][CustomSensors]") {
+  passivedouble errors[2] = {};
+  for (unsigned short refinement = 0; refinement < 2; ++refinement) {
+    const unsigned long size = refinement == 0 ? 12 : 24;
+    AdaptBoxTest test("MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_minus, z_plus)\n", "WEIGHTED_LEAST_SQUARES",
+                      "ADAP_SENSOR= (S)\nADAP_CUSTOM_SENSORS= 'S : MACH*MACH'\n", size);
+    const auto idx = CPrimitiveIndices<unsigned short>(false, false, 3, 0);
+    auto* flow = test.solver[FLOW_SOL];
+    auto* nodes = flow->GetNodes();
+    for (unsigned long point = 0; point < test.geometry->GetnPoint(); ++point) {
+      const auto x = test.geometry->nodes->GetCoord(point, 0);
+      nodes->SetSolution(point, 0, 1.0);
+      nodes->SetSolution(point, 1, exp(x));
+      nodes->SetSolution(point, 2, 0.0);
+      nodes->SetSolution(point, 3, 0.0);
+      nodes->SetVelocity(point);
+      nodes->SetPrimitive(point, idx.SoundSpeed(), 1.0);
+    }
+    flow->SetAuxVar_Adapt(test.geometry.get(), test.config.get(), test.solver);
+    flow->SetHessian_Adapt(test.geometry.get(), test.config.get());
+    unsigned long checked = 0;
+    for (unsigned long point = 0; point < test.geometry->GetnPointDomain(); ++point) {
+      const auto x = test.geometry->nodes->GetCoord(point);
+      CHECK(SU2_TYPE::GetValue(nodes->GetAuxVar_Adapt(point, 0)) == Approx(SU2_TYPE::GetValue(exp(2*x[0]))));
+      if (x[0] < 0.3 || x[0] > 0.7 || x[1] < 0.3 || x[1] > 0.7 || x[2] < 0.3 || x[2] > 0.7) continue;
+      ++checked;
+      errors[refinement] = max(errors[refinement], fabs(SU2_TYPE::GetValue(nodes->GetHessian(point, 0, 0) / (4*exp(2*x[0])) - 1)));
+    }
+    REQUIRE(checked > 0);
+  }
+  cout << "Custom MACH*MACH Hessian maximum relative errors: coarse=" << errors[0]
+       << " fine=" << errors[1] << endl;
+  CHECK(errors[0] < 0.02);
+  CHECK(errors[1] < 0.3*errors[0]);
+}
+
+TEST_CASE("Custom full velocity block on oblique symmetry plane", "[Adaptation][CustomSensors]") {
+  const string definitions = "ADAP_SENSOR= (S)\nADAP_CUSTOM_SENSORS= 'S : GRAD_VELOCITY_X_X"
+                             "+GRAD_PRESSURE_X*GRAD_PRESSURE_X+GRAD_PRESSURE_Y*GRAD_PRESSURE_Y"
+                             "+GRAD_PRESSURE_Z*GRAD_PRESSURE_Z'\n";
+  const passivedouble angle = PI_NUMBER/4;
+  for (const auto* method : {"GREEN_GAUSS", "WEIGHTED_LEAST_SQUARES"}) {
+    AdaptBoxTest half("MARKER_SYM= (z_minus)\nMARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus)\n",
+                      method, definitions, 8, "EULER", angle);
+    AdaptBoxTest full("MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_minus, z_plus)\n",
+                      method, definitions, 16, "EULER", angle, true);
+    for (auto* test : {&half, &full}) {
+      const auto idx = CPrimitiveIndices<unsigned short>(false, false, 3, 0);
+      auto* nodes = test->solver[FLOW_SOL]->GetNodes();
+      for (unsigned long point = 0; point < test->geometry->GetnPoint(); ++point) {
+        const auto x = test->geometry->nodes->GetCoord(point);
+        const auto t = cos(angle)*x[0]+sin(angle)*x[2], n = -sin(angle)*x[0]+cos(angle)*x[2];
+        nodes->SetPrimitive(point, idx.Velocity(), 2*cos(angle)*t-3*sin(angle)*n);
+        nodes->SetPrimitive(point, idx.Velocity()+1, 0.0);
+        nodes->SetPrimitive(point, idx.Velocity()+2, 2*sin(angle)*t+3*cos(angle)*n);
+        nodes->SetPrimitive(point, idx.Pressure(), 1+t+n*n);
+      }
+      CAdapSensors sensors(*test->config, *test->geometry, test->solver);
+      CHECK(sensors.GetnStaged() == 4);
+      sensors.Sample(*test->solver[FLOW_SOL], *test->geometry, *test->config, test->solver);
+      unsigned long onPlane = 0, checked = 0;
+      for (unsigned long point = 0; point < test->geometry->GetnPointDomain(); ++point) {
+        const auto x = test->geometry->nodes->GetCoord(point);
+        const auto t = cos(angle)*x[0]+sin(angle)*x[2], n = -sin(angle)*x[0]+cos(angle)*x[2];
+        if (t < 0.2 || t > 0.8 || x[1] < 0.2 || x[1] > 0.8 || n < -1e-10 || n > 0.6) continue;
+        ++checked;
+        if (fabs(SU2_TYPE::GetValue(n)) < 1e-10) ++onPlane;
+        CHECK(SU2_TYPE::GetValue(nodes->GetAuxVar_Adapt(point, 0)) == Approx(SU2_TYPE::GetValue(3.5+4*n*n)).margin(1e-9));
+      }
+      CHECK(checked > 0);
+      if (test == &half) CHECK(onPlane > 0);
+    }
+  }
+}
+
+TEST_CASE("Custom scalar aliases with component-like names support rotational periodicity", "[Adaptation][CustomSensors]") {
+  AdaptBoxTest test("MARKER_PERIODIC= (y_minus, x_minus, 0,0,0, 0,0,90, 0,0,0)\n"
+                    "MARKER_FAR= (x_plus, y_plus, z_minus, z_plus)\n", "WEIGHTED_LEAST_SQUARES",
+                    "ADAP_SENSOR= (S)\nADAP_CUSTOM_SENSORS= 'MyVELOCITY_X : PRESSURE; S : MyVELOCITY_X'\n");
+  CHECK_NOTHROW(CAdapSensors(*test.config, *test.geometry, test.solver));
 }

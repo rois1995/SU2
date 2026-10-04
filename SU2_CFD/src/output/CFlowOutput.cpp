@@ -1807,6 +1807,8 @@ void CFlowOutput::SetVolumeOutputFieldsAdapt(const CConfig* config) {
 
   for (auto iSensor = 0u; iSensor < config->GetnAdap_Sensor(); ++iSensor) {
     const auto sensor = config->GetAdap_Sensor(iSensor);
+    AddVolumeOutput("SENSOR_" + sensor, "SENSOR_" + sensor, "ADAP_SENSOR",
+                    "Last instantaneous sample of the " + sensor + " adaptation sensor (zero before sampling)");
     for (const auto& comp : components) {
       AddVolumeOutput("HESSIAN_" + sensor + "_" + comp, "Hessian_" + sensor + "_" + comp, "HESSIAN",
                       comp + "-component of the Hessian of the " + sensor + " adaptation sensor");
@@ -1836,6 +1838,7 @@ void CFlowOutput::LoadVolumeDataAdapt(const CConfig* config, const CSolver* cons
 
   for (auto iSensor = 0u; iSensor < config->GetnAdap_Sensor(); ++iSensor) {
     const auto sensor = config->GetAdap_Sensor(iSensor);
+    SetVolumeOutputValue("SENSOR_" + sensor, iPoint, Node_Flow->GetAuxVar_Adapt(iPoint, iSensor));
     for (auto iMet = 0u; iMet < components.size(); ++iMet) {
       SetVolumeOutputValue("HESSIAN_" + sensor + "_" + components[iMet], iPoint,
                            Node_Flow->GetHessian(iPoint, iSensor, iMet));
