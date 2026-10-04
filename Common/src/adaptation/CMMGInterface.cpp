@@ -648,6 +648,11 @@ void CMMGInterface::SetMesh(const CSimplexMesh& mesh) {
     const int k = static_cast<int>(iPoint) + 1;
     if (std::find(corners.begin(), corners.end(), k) == corners.end()) corners.push_back(k);
   }
+  std::vector<int> required;
+  for (const auto iPoint : params.requiredVertices) {
+    if (iPoint >= nPoint) SU2_MPI::Error("Required vertex out of range.", CURRENT_FUNCTION);
+    required.push_back(static_cast<int>(iPoint) + 1);
+  }
 
   /*--- Boundary elements of the required markers (surface adapted elsewhere), 1-based in the order of bound. ---*/
   std::vector<int> requiredBound;
@@ -689,6 +694,7 @@ void CMMGInterface::SetMesh(const CSimplexMesh& mesh) {
       ok &= MMG2D_Set_corner(mmg->mesh, k);
       ok &= MMG2D_Set_requiredVertex(mmg->mesh, k);
     }
+    for (const auto k : required) ok &= MMG2D_Set_requiredVertex(mmg->mesh, k);
     ok &= MMG2D_Set_solSize(mmg->mesh, mmg->met, MMG5_Vertex, nPoint, MMG5_Tensor);
     ok &= MMG2D_Set_tensorSols(mmg->met, metric.data());
     if (ok) ok &= MMG2D_Chk_meshData(mmg->mesh, mmg->met);
@@ -704,6 +710,7 @@ void CMMGInterface::SetMesh(const CSimplexMesh& mesh) {
       ok &= MMG3D_Set_corner(mmg->mesh, k);
       ok &= MMG3D_Set_requiredVertex(mmg->mesh, k);
     }
+    for (const auto k : required) ok &= MMG3D_Set_requiredVertex(mmg->mesh, k);
     ok &= MMG3D_Set_solSize(mmg->mesh, mmg->met, MMG5_Vertex, nPoint, MMG5_Tensor);
     ok &= MMG3D_Set_tensorSols(mmg->met, metric.data());
     if (ok) ok &= MMG3D_Chk_meshData(mmg->mesh, mmg->met);

@@ -80,6 +80,9 @@ class CMMGInterface {
     std::vector<std::string> requiredMarkers; /*!< \brief With a surface (surface true): markers whose boundary edges
                                                    (2D) or triangles (3D) are required, i.e. kept as they are. */
     std::vector<unsigned long> requiredPoints; /*!< \brief Extra required corner points (indices of the input mesh). */
+    std::vector<unsigned long> requiredVertices; /*!< \brief Extra required vertices that are not corners (indices of
+                                                      the input mesh): MMG keeps them, but they are not feature points
+                                                      of the boundary. */
   };
 
   /*!
