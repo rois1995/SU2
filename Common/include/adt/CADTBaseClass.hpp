@@ -86,4 +86,16 @@ class CADTBaseClass {
    * \return  Whether or not the ADT is empty.
    */
   inline bool IsEmpty(void) const { return isEmpty; }
+
+  /*!
+   * \brief Heap bytes held by the base class (leaves, their coordinates, the traversal fronts at their current
+   *        capacity).
+   */
+  size_t GetBaseAllocatedBytes() const;
+
+  /*!
+   * \brief Heap bytes of BuildADT for nPoints points of dimension nDimADT: retained (leaves and their coordinates)
+   *        and the temporaries of the build (freed when it returns).
+   */
+  static void PredictBuildBytes(unsigned short nDimADT, unsigned long nPoints, size_t* retained, size_t* temporary);
 };

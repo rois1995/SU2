@@ -34,6 +34,7 @@
 
 #include "../../include/CConfig.hpp"
 #include "../../include/adaptation/CAccurateSum.hpp"
+#include "../../include/adaptation/CTransferMemory.hpp"
 #include "../../include/geometry/CGeometry.hpp"
 #include "../../include/parallelization/CPassiveComm.hpp"
 
@@ -379,6 +380,20 @@ void CRankBoxTree::ToRanks(const std::vector<unsigned long>& boxIds, std::vector
   for (const auto iBox : boxIds) result.push_back(rank[iBox]);
   std::sort(result.begin(), result.end());
   result.erase(std::unique(result.begin(), result.end()), result.end());
+}
+
+size_t CRankBoxTree::GetMemory() const {
+  return boxes.capacity() * sizeof(double) + rank.capacity() * sizeof(int) +
+         (localIndex.capacity() + firstBox.capacity() + order.capacity()) * sizeof(unsigned long) +
+         nodes.capacity() * sizeof(Node);
+}
+
+size_t CRankBoxTree::QueryBytes() const {
+  /*--- Box ids and the traversal stack (at most every box / every node), the ranks of the boxes before they are
+   *    made unique (at most one per box). ---*/
+  return transfer_memory::Add(transfer_memory::GrowthBound(rank.size(), sizeof(unsigned long)),
+                              transfer_memory::GrowthBound(nodes.size() + 1, sizeof(unsigned long)),
+                              transfer_memory::GrowthBound(rank.size(), sizeof(int)));
 }
 
 void CRankBoxTree::RanksContaining(const double* x, std::vector<int>& result) const {

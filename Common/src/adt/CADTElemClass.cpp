@@ -2438,3 +2438,34 @@ bool CADTElemClass::Dist2ToQuadrilateral(const unsigned long i0, const unsigned 
 
   return true;
 }
+
+size_t CADTElemClass::GetAllocatedBytes() const {
+  size_t bytes = GetBaseAllocatedBytes();
+  bytes += coorPoints.capacity() * sizeof(su2double) + BBoxCoor.capacity() * sizeof(su2double);
+  bytes += elemVTK_Type.capacity() * sizeof(unsigned short) + localMarkers.capacity() * sizeof(unsigned short);
+  bytes += (nDOFsPerElem.capacity() + elemConns.capacity() + localElemIDs.capacity()) * sizeof(unsigned long);
+  bytes += ranksOfElems.capacity() * sizeof(int);
+#ifdef HAVE_OMP
+  bytes += BBoxTargets.capacity() * sizeof(vector<CBBoxTargetClass>);
+#endif
+  for (const auto& targets : BBoxTargets) bytes += targets.capacity() * sizeof(CBBoxTargetClass);
+  return bytes;
+}
+
+void CADTElemClass::PredictBytes(unsigned short nDim, unsigned long nCoord, unsigned long nElem, unsigned long nConn,
+                                 size_t* retained, size_t* constructorPeak) {
+  const size_t nThread = omp_get_max_threads();
+  /*--- Copies of the caller's arrays, ranks, cumulative DOFs, element boxes. ---*/
+  const size_t copies = nCoord * nDim * sizeof(su2double) + nConn * sizeof(unsigned long) +
+                        nElem * (2 * sizeof(unsigned short) + sizeof(unsigned long) + sizeof(int));
+  const size_t boxes = (nElem + 1) * sizeof(unsigned long) + 2 * nDim * nElem * sizeof(su2double);
+  size_t treeRetained = 0, treeTemporary = 0;
+  PredictBuildBytes(2 * nDim, nElem, &treeRetained, &treeTemporary);
+  size_t outer = 0;
+#ifdef HAVE_OMP
+  outer = nThread * (sizeof(vector<CBBoxTargetClass>) + 2 * sizeof(vector<unsigned long>));
+#endif
+  const size_t fronts = nThread * 200 * (sizeof(CBBoxTargetClass) + 2 * sizeof(unsigned long));
+  *retained = copies + boxes + treeRetained + outer + fronts;
+  *constructorPeak = std::max(*retained, copies + boxes + treeRetained + outer + treeTemporary);
+}

@@ -165,6 +165,21 @@ class CADTElemClass : public CADTBaseClass {
   void DetermineElementsWithinDistance(const su2double* coor, su2double radius, vector<unsigned long>& elemIDs);
 
   /*!
+   * \brief Heap bytes held by the tree now (all arrays at their capacity, traversal fronts included).
+   */
+  size_t GetAllocatedBytes() const;
+
+  /*!
+   * \brief Heap bytes of a local tree (globalTree false) of nElem elements with nConn connectivity entries over
+   *        nCoord coordinates (nDim per point), built from caller arrays of exactly these sizes.
+   * \param[out] retained - Held by the tree after the constructor (fronts at their initial 200 entries).
+   * \param[out] constructorPeak - Largest extra bytes during the constructor (its copies, the box coordinates, the
+   *        temporaries of BuildADT), on top of the caller's arrays.
+   */
+  static void PredictBytes(unsigned short nDim, unsigned long nCoord, unsigned long nElem, unsigned long nConn,
+                           size_t* retained, size_t* constructorPeak);
+
+  /*!
    * \brief Squared distance of a coordinate to an element (index in the ADT's own numbering = the order given to the
    *        constructor, local tree), as computed by the nearest-element search.
    */

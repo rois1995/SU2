@@ -204,3 +204,30 @@ void CADTBaseClass::BuildADT(unsigned short nDim, unsigned long nPoints, const s
     for (unsigned long i = 0; i < nPointIDs[nLeavesToDivide]; ++i) pointIDs[i] = pointIDsNew[i];
   }
 }
+
+size_t CADTBaseClass::GetBaseAllocatedBytes() const {
+  size_t bytes = leaves.capacity() * sizeof(CADTNodeClass) +
+                 (coorMinLeaves.capacity() + coorMaxLeaves.capacity()) * sizeof(su2double);
+#ifdef HAVE_OMP
+  bytes += (FrontLeaves.capacity() + FrontLeavesNew.capacity()) * sizeof(vector<unsigned long>);
+#endif
+  for (const auto& front : FrontLeaves) bytes += front.capacity() * sizeof(unsigned long);
+  for (const auto& front : FrontLeavesNew) bytes += front.capacity() * sizeof(unsigned long);
+  return bytes;
+}
+
+void CADTBaseClass::PredictBuildBytes(unsigned short nDimADT, unsigned long nPoints, size_t* retained,
+                                      size_t* temporary) {
+  /*--- As BuildADT: nPoints - 1 leaves (one for a single point), nothing for no point. ---*/
+  unsigned long nLeavesADT = nPoints - 1;
+  if (nPoints <= 1) ++nLeavesADT;
+  if (nLeavesADT == 0) {
+    *retained = 0;
+    *temporary = 0;
+    return;
+  }
+  const size_t nn = (nPoints + 1) / 2;
+  *retained = nLeavesADT * sizeof(CADTNodeClass) + 2 * nDimADT * nLeavesADT * sizeof(su2double);
+  *temporary =
+      2 * nPoints * sizeof(unsigned long) + 2 * (nn + 1) * sizeof(unsigned long) + 2 * nn * sizeof(unsigned long);
+}

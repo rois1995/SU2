@@ -59,6 +59,10 @@ struct COwnedSimplices {
   std::vector<unsigned long> nodes; /*!< \brief Local point indices, in the element's node order (nNode each). */
   std::vector<CSimplexKey> keys;    /*!< \brief Key of each owned element. */
   unsigned long size() const { return elem.size(); }
+  /*! \brief Heap bytes held. */
+  size_t GetMemory() const {
+    return (elem.capacity() + nodes.capacity()) * sizeof(unsigned long) + keys.capacity() * sizeof(CSimplexKey);
+  }
 };
 COwnedSimplices OwnedSimplices(const CGeometry& geometry);
 
@@ -139,6 +143,11 @@ class CRankBoxTree {
   void RanksContaining(const double* x, std::vector<int>& result) const;
   void RanksIntersecting(const double* lo, const double* hi, std::vector<int>& result) const;
   void RanksWithinDistance(const double* x, double r, std::vector<int>& result) const;
+
+  /*! \brief Heap bytes held (all arrays at their capacity). */
+  size_t GetMemory() const;
+  /*! \brief Bound of the transient bytes of one Boxes* or Ranks* query (box ids, ranks; grown by push_back). */
+  size_t QueryBytes() const;
 
  private:
   struct Node {
@@ -302,7 +311,7 @@ class CPointDirectory {
   uint64_t GetnGlobal() const { return nGlobal; }
   size_t GetRecordBytes() const { return recordBytes; }
   /*! \brief Bytes held by this rank. */
-  size_t GetMemory() const { return block.size(); }
+  size_t GetMemory() const { return block.capacity(); }
 
  private:
   int Owner(uint64_t gid) const;
