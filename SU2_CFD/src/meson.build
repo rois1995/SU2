@@ -180,7 +180,9 @@ su2_cfd_src += files(['adaptation/CAdapSensors.cpp',
                       'adaptation/CTransferAdmissibility.cpp',
                       'adaptation/CDistributedLocator.cpp',
                       'adaptation/ConservativeKernels.cpp',
-                      'adaptation/CDistributedProjection.cpp'])
+                      'adaptation/CDistributedProjection.cpp',
+                      'adaptation/CReferenceWall.cpp',
+                      'adaptation/CBoundaryLayerRemesher.cpp'])
 
 su2_cfd_src += files(['integration/CIntegration.cpp',
                       'integration/CIntegrationFactory.cpp',

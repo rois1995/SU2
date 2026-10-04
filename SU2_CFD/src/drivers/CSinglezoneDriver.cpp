@@ -37,6 +37,7 @@
 #include "../../include/adaptation/CMetricPredictor.hpp"
 #include "../../../Common/include/adaptation/CMMGInterface.hpp"
 #include "../../../Common/include/adaptation/CMeshGather.hpp"
+#include "../../include/adaptation/CBoundaryLayerRemesher.hpp"
 #include "../../../Common/include/geometry/CPhysicalGeometry.hpp"
 #include "../../../Common/include/geometry/meshreader/CDistributedMemoryMeshReaderFVM.hpp"
 #include "../../../Common/include/linear_algebra/blas_structure.hpp"
@@ -240,7 +241,9 @@ void CSinglezoneDriver::ComputeMetric() {
   const auto startTime = SU2_MPI::Wtime();
   solver_flow->SetAuxVar_Adapt(geometry, config, solver_container[ZONE_0][INST_0][MESH_0]);
   solver_flow->SetHessian_Adapt(geometry, config);
-  solver_flow->ComputeMetric(geometry, config);
+  /*--- ADAP_BL_METHOD= TWO_PASS: the remesher builds the boundary-layer metric itself, on its pass-A mesh. ---*/
+  const bool boundaryLayer = config->GetKind_Adap_BL_Method() != ADAP_BL_METHOD::TWO_PASS;
+  solver_flow->ComputeMetric(geometry, config, nullptr, boundaryLayer);
   if (rank == MASTER_NODE) cout << "Metric computed in " << SU2_MPI::Wtime() - startTime << " s." << endl;
 }
 
@@ -297,7 +300,11 @@ void CSinglezoneDriver::RunAdaptationLoop() {
   CheckMeshAdaptation();
   if (config->GetAdap_Mesh_Output()) CheckAdaptedMeshNames();
 
-  CMMGRemesher remesher;
+  CMMGRemesher mmgRemesher;
+  CBoundaryLayerRemesher twoPassRemesher;
+  CRemesher& remesher = (config->GetKind_Adap_BL_Method() == ADAP_BL_METHOD::TWO_PASS)
+                            ? static_cast<CRemesher&>(twoPassRemesher)
+                            : static_cast<CRemesher&>(mmgRemesher);
 
   std::unique_ptr<CSolutionTransfer> transfer;
   switch (config->GetKind_Adap_Transfer()) {
