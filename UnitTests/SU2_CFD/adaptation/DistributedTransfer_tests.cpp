@@ -742,8 +742,8 @@ TEST_CASE("Distributed point location: query chunks under a memory ceiling", "[A
       const auto chunksDefault = locator.GetLastChunks();
       const auto received = locator.GetLastQueriesReceived();
       const auto saved = GetTransferMemoryCeiling();
-      const size_t resident = locator.GetMemory() + 400 * sizeof(CElementHit);
-      const size_t ceiling = CPassiveComm::AllreduceMax(resident) + 3000;
+      /*--- The smallest ceiling the admission accepts (one query per peer and chunk at its limit). ---*/
+      const size_t ceiling = locator.GetLastMinimumCeiling();
       SetTransferMemoryCeiling(ceiling);
       const auto chunked = locator.LocateElements(coord);
       const auto nChunk = locator.GetLastChunks();

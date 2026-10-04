@@ -307,10 +307,22 @@ bool CCanonicalBoundary::HasMarker(uint32_t id) const {
 }
 
 size_t CCanonicalBoundary::GetMemory() const {
-  const size_t nFace = faces.GetnFace(), nNode = faces.nodeGid.size();
-  return nFace * (sizeof(uint32_t) + nDim * (2 * sizeof(uint64_t) + sizeof(unsigned long)) + sizeof(CSimplexKey) +
-                  2 * nDim * sizeof(double) * 2 + 64) +
-         nNode * (sizeof(uint64_t) + nDim * sizeof(double) * 2);
+  using transfer_memory::Bytes;
+  size_t bytes = Bytes(faces.marker) + Bytes(faces.faceGid) + Bytes(faces.nodeGid) + Bytes(faces.nodeCoord) +
+                 Bytes(keys) + Bytes(faceNode) + Bytes(markerIds) + Bytes(markerFirst) + Bytes(markerADT);
+  for (const auto& adt : markerADT) bytes += sizeof(CADTElemClass) + adt->GetAllocatedBytes();
+  return bytes;
+}
+
+size_t CCanonicalBoundary::QueryBytes() const {
+  using namespace transfer_memory;
+  /*--- Marker slots, the candidate ids of a range query, and the growth of the nearest-element workspaces (box
+   *    targets and fronts, at most one entry per face) of every marker's ADT. ---*/
+  const size_t nFace = faces.GetnFace();
+  const size_t workspace =
+      Mul(Add(nFace, Mul(200, markerIds.size())), sizeof(CBBoxTargetClass) + 2 * sizeof(unsigned long));
+  return Add(GrowthBound(markerIds.size() + 1, sizeof(unsigned long)), GrowthBound(nFace, sizeof(unsigned long)),
+             Mul(3, workspace));
 }
 
 CFaceHit CCanonicalBoundary::Evaluate(unsigned long face, const passivedouble* x) const {
@@ -453,10 +465,11 @@ passivedouble CDistributedLocator::GetDistanceLimit(passivedouble faceSize) cons
 }
 
 size_t CDistributedLocator::GetMemory() const {
-  const size_t nOwned = owned.size(), nNode = nDim + 1;
-  return nOwned * (2 * nDim * sizeof(double) * 2 + nNode * (3 * sizeof(unsigned long)) + sizeof(CSimplexKey) + 64) +
-         adtCoord.size() * sizeof(su2double) * 2 + routing.GetnBox() * (2 * nDim * sizeof(double) + 32) +
-         boundary->GetMemory();
+  using transfer_memory::Bytes;
+  size_t bytes = owned.GetMemory() + Bytes(ownedGid) + Bytes(adtCoord) + routing.GetMemory();
+  if (adt) bytes += sizeof(CADTElemClass) + adt->GetAllocatedBytes();
+  if (boundary) bytes += sizeof(CCanonicalBoundary) + boundary->GetMemory();
+  return bytes;
 }
 
 CElementHit CDistributedLocator::LocalBest(const passivedouble* x) {
@@ -483,61 +496,110 @@ CElementHit CDistributedLocator::LocalBest(const passivedouble* x) {
   return best;
 }
 
-std::vector<CElementHit> CDistributedLocator::LocateElements(const std::vector<passivedouble>& coord) {
+std::vector<CElementHit> CDistributedLocator::LocateElements(const std::vector<passivedouble>& coord,
+                                                             size_t callerBytes) {
+  transfer_memory::TransferMemoryEvent(transfer_memory::TransferPhase::LOCATE, true, 0);
+  size_t predicted = 0;
+  auto result = LocateElementsImpl(coord, callerBytes, 0, &predicted);
+  transfer_memory::TransferMemoryEvent(transfer_memory::TransferPhase::LOCATE, false, predicted);
+  return result;
+}
+
+std::vector<CElementHit> CDistributedLocator::LocateElementsImpl(const std::vector<passivedouble>& coord,
+                                                                 size_t callerBytes, size_t afterBytes,
+                                                                 size_t* predicted) {
+  using namespace transfer_memory;
   const int size = SU2_MPI::GetSize(), rank = SU2_MPI::GetRank();
   const unsigned short nNode = nDim + 1;
   const auto nPoint = coord.size() / nDim;
-  std::vector<CElementHit> result(nPoint);
-
-  /*--- Destinations: the ranks whose routing boxes contain the point. ---*/
-  std::vector<std::vector<unsigned long>> lists(size);
-  std::vector<int> ranks;
-  for (auto i = 0ul; i < nPoint; ++i) {
-    double x[3] = {0.0, 0.0, 0.0};
-    for (unsigned short iDim = 0; iDim < nDim; ++iDim) x[iDim] = coord[i * nDim + iDim];
-    routing.RanksContaining(x, ranks);
-    for (const auto r : ranks) lists[r].push_back(i);
-  }
-
-  /*--- Plan: total counts of every pair, then the number of chunks so that every rank's outgoing and incoming
-   *    queries and replies of one chunk fit the part of the ceiling left after the resident structures. ---*/
   const size_t queryBytes = sizeof(uint64_t) + nDim * sizeof(double);
   const size_t replyBytes = sizeof(uint64_t) * (1 + nNode) + sizeof(double) * (nNode + 1);
-  std::vector<uint64_t> outCount(size), inCount(size);
-  for (int r = 0; r < size; ++r) outCount[r] = lists[r].size();
+  auto pointOf = [&](unsigned long i, double* x) {
+    for (unsigned short iDim = 0; iDim < 3; ++iDim) x[iDim] = iDim < nDim ? double(coord[i * nDim + iDim]) : 0.0;
+  };
+
+  /*--- Count pass: routing entries (point, rank whose routing boxes contain it) per destination, nothing stored per
+   *    point yet; then the totals of every pair (MPI_TRANSFER_PLAN.md 5.17). ---*/
+  std::vector<uint64_t> outCount(size, 0), inCount(size, 0);
+  {
+    std::vector<int> ranks;
+    for (auto i = 0ul; i < nPoint; ++i) {
+      double x[3];
+      pointOf(i, x);
+      routing.RanksContaining(x, ranks);
+      for (const auto r : ranks) outCount[r]++;
+    }
+  }
   CPassiveComm::Alltoall(outCount.data(), inCount.data(), sizeof(uint64_t));
-  size_t nOut = 0, nIn = 0;
+  size_t nEntry = 0, nIn = 0;
   for (int r = 0; r < size; ++r) {
-    nOut += outCount[r];
+    nEntry += outCount[r];
     nIn += inCount[r];
   }
+
+  /*--- Admission before any per-point or payload allocation: the chunk count Q is the smallest for which the live
+   *    bytes of every chunk phase fit the ceiling (the bound does not increase with Q), the largest over the ranks.
+   *    Baseline: resident structures, the caller's bytes and arguments, the results, the routing lists (CSR), the
+   *    count arrays, the routing scratch. ---*/
   const size_t ceiling = GetTransferMemoryCeiling();
-  const size_t resident = GetMemory() + nPoint * sizeof(CElementHit);
+  const size_t resident = GetMemory();
+  const size_t resultBytes = Mul(nPoint, sizeof(CElementHit));
+  const size_t routingBytes = Add(Mul(nEntry, sizeof(unsigned long)), Mul(size + 1, sizeof(size_t)));
+  const size_t countBytes = Add(Mul(6 * size + 2, sizeof(uint64_t)), routing.QueryBytes());
+  CLocatorChunkModel model;
+  model.nRank = size;
+  model.rank = rank;
+  model.queryBytes = queryBytes;
+  model.replyBytes = replyBytes;
+  model.roundBytes = CPassiveComm::GetRoundBytes();
+  model.searchBytes = adt ? ContainmentQueryBound(owned.size(), sizeof(su2double)) : 0;
+  model.baseline = Add(resident, Bytes(coord), callerBytes, resultBytes, routingBytes, countBytes);
+  model.out = outCount;
+  model.in = inCount;
+  const size_t after = Add(resident, Bytes(coord), callerBytes, resultBytes, afterBytes);
+  const size_t localChunks = model.SmallestChunks(ceiling);
+  lastMinimumCeiling =
+      CPassiveComm::AllreduceMax(static_cast<unsigned long>(std::max(model.Peak(model.MaxChunks()), after)));
   CLocalFailure failure;
-  size_t available = 0;
-  if (resident >= ceiling) {
+  if (localChunks == 0 || after > ceiling) {
+    const size_t need = localChunks == 0 ? model.Peak(model.MaxChunks()) : after;
     failure.Set(1, rank,
-                "The distributed point location would need " + std::to_string(resident) +
-                    " bytes for its resident structures on rank " + std::to_string(rank) +
-                    ", more than the memory ceiling of the transfer (" + std::to_string(ceiling) + " bytes).");
-  } else {
-    available = ceiling - resident;
+                "The distributed point location would need " + std::to_string(need) + " bytes on rank " +
+                    std::to_string(rank) + " (resident " + std::to_string(resident) + ", " + std::to_string(nEntry) +
+                    " queries sent, " + std::to_string(nIn) +
+                    " received in the smallest chunks), more than the memory ceiling of the transfer (" +
+                    std::to_string(ceiling) + " bytes).");
   }
   CollectiveFailure(failure, CURRENT_FUNCTION);
-  auto chunksFor = [available](size_t bytes) { return bytes == 0 ? 0ul : (bytes - 1) / available + 1; };
-  const unsigned long need = std::max({chunksFor(nOut * queryBytes), chunksFor(nIn * queryBytes),
-                                       chunksFor(nIn * replyBytes), chunksFor(nOut * replyBytes), 1ul});
-  const unsigned long nChunk = CPassiveComm::AllreduceMax(need);
+  const unsigned long nChunk = CPassiveComm::AllreduceMax(static_cast<unsigned long>(localChunks));
+  if (model.Peak(nChunk) > ceiling) SU2_MPI::Error("Inconsistent query chunks (internal error).", CURRENT_FUNCTION);
+  *predicted = std::max(model.Peak(nChunk), after);
   lastChunks = nChunk;
-  lastSent = nOut;
+  lastSent = nEntry;
   lastReceived = nIn;
   lastMaxChunkReceived = 0;
 
+  /*--- Routing lists (CSR by destination, points in increasing order) and the results. ---*/
+  std::vector<size_t> listStart(size + 1, 0);
+  for (int r = 0; r < size; ++r) listStart[r + 1] = listStart[r] + outCount[r];
+  std::vector<unsigned long> listIndex(nEntry);
+  {
+    std::vector<size_t> fill(listStart.begin(), listStart.end() - 1);
+    std::vector<int> ranks;
+    for (auto i = 0ul; i < nPoint; ++i) {
+      double x[3];
+      pointOf(i, x);
+      routing.RanksContaining(x, ranks);
+      for (const auto r : ranks) listIndex[fill[r]++] = i;
+    }
+  }
+  std::vector<CElementHit> result(nPoint);
+
   for (unsigned long q = 0; q < nChunk; ++q) {
-    /*--- The q-th part of every destination's list. ---*/
+    /*--- The q-th part of every destination's list (at most ceil(n / Q) points). ---*/
     std::vector<size_t> sendBytes(size, 0), first(size), last(size);
     for (int r = 0; r < size; ++r) {
-      const auto n = lists[r].size();
+      const auto n = outCount[r];
       first[r] = n * q / nChunk;
       last[r] = n * (q + 1) / nChunk;
       sendBytes[r] = (last[r] - first[r]) * queryBytes;
@@ -546,7 +608,7 @@ std::vector<CElementHit> CDistributedLocator::LocateElements(const std::vector<p
     send.reserve(std::accumulate(sendBytes.begin(), sendBytes.end(), size_t(0)));
     for (int r = 0; r < size; ++r) {
       for (auto j = first[r]; j < last[r]; ++j) {
-        const auto i = lists[r][j];
+        const auto i = listIndex[listStart[r] + j];
         PutBytes(send, static_cast<uint64_t>(i));
         for (unsigned short iDim = 0; iDim < nDim; ++iDim) PutBytes(send, static_cast<double>(coord[i * nDim + iDim]));
       }
@@ -588,7 +650,7 @@ std::vector<CElementHit> CDistributedLocator::LocateElements(const std::vector<p
         for (unsigned short k = 0; k < nNode; ++k) hit.weight[k] = GetBytes<double>(src);
         if (!hit.found) continue;
         hit.key = MakeSimplexKey(hit.gid, nNode);
-        auto& best = result[lists[r][j]];
+        auto& best = result[listIndex[listStart[r] + j]];
         if (BetterElement(hit, best)) best = hit;
       }
     }
@@ -628,10 +690,19 @@ CDistributedLocator::Stencil CDistributedLocator::ElementStencil(const CElementH
   return stencil;
 }
 
-std::vector<CDistributedLocator::Stencil> CDistributedLocator::Locate(
-    const std::vector<passivedouble>& coord, const std::vector<std::vector<uint32_t>>& markers) {
-  const auto hits = LocateElements(coord);
-  const auto nPoint = hits.size();
+std::vector<CDistributedLocator::Stencil> CDistributedLocator::Locate(const std::vector<passivedouble>& coord,
+                                                                      const std::vector<std::vector<uint32_t>>& markers,
+                                                                      size_t callerBytes) {
+  using namespace transfer_memory;
+  TransferMemoryEvent(TransferPhase::LOCATE, true, 0);
+  const auto nPoint = coord.size() / nDim;
+  /*--- After the location: the stencils with the hits, the marker scratch of a point, one nearest-face query. ---*/
+  size_t maxMarkers = 0;
+  for (const auto& list : markers) maxMarkers = std::max(maxMarkers, list.size());
+  const size_t afterBytes =
+      Add(Mul(nPoint, sizeof(Stencil)), GrowthBound(maxMarkers, sizeof(uint32_t)), boundary->QueryBytes());
+  size_t predicted = 0;
+  const auto hits = LocateElementsImpl(coord, Add(callerBytes, Bytes(markers)), afterBytes, &predicted);
   std::vector<Stencil> stencils(nPoint);
   std::vector<uint32_t> known;
   for (auto i = 0ul; i < nPoint; ++i) {
@@ -648,5 +719,6 @@ std::vector<CDistributedLocator::Stencil> CDistributedLocator::Locate(
       stencils[i] = FaceStencil(boundary->NearestAny(x));
     }
   }
+  TransferMemoryEvent(TransferPhase::LOCATE, false, predicted);
   return stencils;
 }

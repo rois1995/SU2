@@ -32,6 +32,7 @@
 #include <vector>
 
 #include "../../../Common/include/adaptation/CDistributedSearch.hpp"
+#include "../../../Common/include/adaptation/CTransferMemory.hpp"
 #include "../../../Common/include/adt/CADTElemClass.hpp"
 
 class CConfig;
@@ -119,8 +120,11 @@ class CCanonicalBoundary {
   /*! \brief Global index of node k of a face. */
   uint64_t FaceNodeGid(unsigned long face, unsigned short k) const { return faces.faceGid[face * nDim + k]; }
 
-  /*! \brief Approximate memory of this rank in bytes. */
+  /*! \brief Heap bytes held by this rank (all arrays at their capacity, the ADTs included). */
   size_t GetMemory() const;
+
+  /*! \brief Bound of the transient (and workspace growth) bytes of one Nearest query. */
+  size_t QueryBytes() const;
 
  private:
   unsigned short nDim;
@@ -191,13 +195,17 @@ class CDistributedLocator {
    * \brief Collective: stencils of the points of this rank (any number, also none).
    * \param[in] coord - Coordinates (nDim per point).
    * \param[in] markers - Marker ids (config positions) of each point.
+   * \param[in] callerBytes - Live heap bytes of the caller during the call, without the arguments (memory ceiling,
+   *            MPI_TRANSFER_PLAN.md 5.17: query chunks are chosen so that everything fits).
    */
-  std::vector<Stencil> Locate(const std::vector<passivedouble>& coord, const std::vector<std::vector<uint32_t>>& markers);
+  std::vector<Stencil> Locate(const std::vector<passivedouble>& coord,
+                              const std::vector<std::vector<uint32_t>>& markers, size_t callerBytes = 0);
 
   /*!
    * \brief Collective: the canonical containing element of each point (CElementHit::found false outside the mesh).
+   * \param[in] callerBytes - As for Locate.
    */
-  std::vector<CElementHit> LocateElements(const std::vector<passivedouble>& coord);
+  std::vector<CElementHit> LocateElements(const std::vector<passivedouble>& coord, size_t callerBytes = 0);
 
   /*! \brief Canonical boundary (replicated). */
   CCanonicalBoundary& Boundary() { return *boundary; }
@@ -217,8 +225,10 @@ class CDistributedLocator {
   unsigned long GetLastQueriesReceived() const { return lastReceived; }
   /*! \brief Largest number of queries this rank received in one chunk of the last Locate. */
   unsigned long GetLastMaxChunkReceived() const { return lastMaxChunkReceived; }
+  /*! \brief Smallest memory ceiling that admits the last location (largest over the ranks). */
+  size_t GetLastMinimumCeiling() const { return lastMinimumCeiling; }
 
-  /*! \brief Approximate resident memory of the search structures on this rank (bytes). */
+  /*! \brief Heap bytes held by the search structures on this rank (all arrays at their capacity). */
   size_t GetMemory() const;
 
  private:
@@ -231,6 +241,15 @@ class CDistributedLocator {
   CRankBoxTree routing;
   std::unique_ptr<CCanonicalBoundary> boundary;
   unsigned long lastChunks = 0, lastSent = 0, lastReceived = 0, lastMaxChunkReceived = 0;
+  size_t lastMinimumCeiling = 0;
 
   CElementHit LocalBest(const passivedouble* x);
+
+  /*!
+   * \brief LocateElements with the memory admission: callerBytes are live bytes of the caller (not the arguments,
+   *        counted here), afterBytes are allocated after the location while the results live (Locate's stencils).
+   * \param[out] predicted - Bound of the live bytes of the phase (resident, caller, arguments, own allocations).
+   */
+  std::vector<CElementHit> LocateElementsImpl(const std::vector<passivedouble>& coord, size_t callerBytes,
+                                              size_t afterBytes, size_t* predicted);
 };

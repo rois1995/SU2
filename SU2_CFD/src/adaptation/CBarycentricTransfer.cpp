@@ -38,6 +38,7 @@
 #include "../../../Common/include/adaptation/CAccurateSum.hpp"
 #include "../../../Common/include/adaptation/CMeshGather.hpp"
 #include "../../../Common/include/adaptation/TransferTolerances.hpp"
+#include "../../../Common/include/adaptation/CTransferMemory.hpp"
 #include "../../../Common/include/geometry/CGeometry.hpp"
 #include "../../../Common/include/parallelization/CPassiveComm.hpp"
 #include "../../include/adaptation/CTransferAdmissibility.hpp"
@@ -46,6 +47,16 @@
 #include "../../include/solvers/CTurbSolver.hpp"
 
 namespace {
+
+/*--- Bound of the small bookkeeping objects of a transfer that are not counted one by one (configuration arrays of
+ *    CheckProblem, getters, scalars in containers): far above what they hold. ---*/
+constexpr size_t kSmallObjectBytes = size_t(64) << 10;
+
+/*--- Live bytes of the donor directory and the marker names (memory ceiling of the point location). ---*/
+size_t CallerBytes(const CPointDirectory& directory, const std::vector<std::string>& newTags,
+                   const std::vector<std::string>& donorTags) {
+  return directory.GetMemory() + transfer_memory::Bytes(newTags) + transfer_memory::Bytes(donorTags);
+}
 
 /*--- Coordinates of a point as text, for the error messages. ---*/
 std::string PointText(unsigned short nDim, const su2double* coord) {
@@ -462,6 +473,16 @@ void CBarycentricTransfer::Transfer(CConfig* config, const CMeshDonor& donor, CG
   phaseTime[0] = SU2_MPI::Wtime() - phase;
   phase = SU2_MPI::Wtime();
 
+  /*--- Live bytes of this transfer around the point location (memory ceiling, 5.17): the summary, the kept stencil
+   *    records and a bound of the small bookkeeping objects (configuration arrays, names). ---*/
+  auto summaryBytes = [&]() {
+    using transfer_memory::Bytes;
+    size_t bytes = Bytes(summary.markers) + Bytes(summary.donorIntegral) + Bytes(summary.newIntegral) +
+                   Bytes(summary.roundTripL2) + Bytes(summary.roundTripLinf) + Bytes(stencilRecords) +
+                   kSmallObjectBytes;
+    for (const auto& marker : summary.markers) bytes += Bytes(marker.name);
+    return bytes;
+  };
   std::vector<CDistributedLocator::Stencil> stencils;
   passivedouble domainSize = 0.0;
   unsigned long nQueriesSent = 0, nQueriesReceived = 0, nChunk = 0;
@@ -469,7 +490,7 @@ void CBarycentricTransfer::Transfer(CConfig* config, const CMeshDonor& donor, CG
     CDistributedLocator locator(*donorGeometry, donorTags, *config, 2.0 * SU2_TYPE::GetValue(config->GetAdap_Hausd()));
     summary.distanceLimit = locator.GetDistanceLimit(0.0);
     domainSize = locator.GetDomainSize();
-    stencils = locator.Locate(coord, pointMarkers);
+    stencils = locator.Locate(coord, pointMarkers, CallerBytes(directory, newTags, donorTags) + summaryBytes());
     nQueriesSent = locator.GetLastQueriesSent();
     nQueriesReceived = locator.GetLastQueriesReceived();
     nChunk = locator.GetLastChunks();
@@ -718,7 +739,10 @@ void CBarycentricTransfer::Transfer(CConfig* config, const CMeshDonor& donor, CG
     passivedouble inverseLimit = 0.0;
     {
       CDistributedLocator locator(*newGeometry, newTags, *config, 0.0);
-      inverse = locator.Locate(donorCoord, donorMarkers);
+      using transfer_memory::Bytes;
+      inverse = locator.Locate(donorCoord, donorMarkers,
+                               CallerBytes(directory, newTags, donorTags) + summaryBytes() + newDirectory.GetMemory() +
+                                   Bytes(coord) + Bytes(pointMarkers) + Bytes(unique) + Bytes(newValues));
       unsigned long nBeyond = 0;
       passivedouble worst = 0.0;
       for (const auto& stencil : inverse) {
