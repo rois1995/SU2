@@ -31,6 +31,7 @@
 #include <cstdio>
 #include <fstream>
 #include <iomanip>
+#include <limits>
 #include <map>
 #include <set>
 #include <sstream>
@@ -356,12 +357,14 @@ void CReferenceWall::ProjectOnInterval(const Segment& seg, unsigned long i, cons
   }
 }
 
-CReferenceWall::Projection CReferenceWall::Project(const passivedouble* point, const std::string& marker) const {
-  /*--- Candidate intervals: the three closest chords of the marker (and their neighbours). ---*/
+CReferenceWall::Projection CReferenceWall::Project(const passivedouble* point, const std::string& marker,
+                                                   long onlySegment) const {
+  /*--- Candidate intervals: the three closest chords of the marker or segment (and their neighbours). ---*/
   std::vector<std::tuple<passivedouble, long, unsigned long>> chords;  // distance, segment, interval
   for (unsigned long iSeg = 0; iSeg < segments.size(); ++iSeg) {
     const auto& seg = segments[iSeg];
     if (seg.marker != marker) continue;
+    if (onlySegment >= 0 && static_cast<long>(iSeg) != onlySegment) continue;
     for (unsigned long i = 0; i + 1 < seg.x.size(); ++i) {
       const passivedouble u[2] = {seg.x[i + 1][0] - seg.x[i][0], seg.x[i + 1][1] - seg.x[i][1]};
       const auto len2 = u[0] * u[0] + u[1] * u[1];
@@ -403,13 +406,15 @@ std::string CReferenceWall::Fingerprint() const {
   std::ostringstream text;
   text << segments.size() << " " << nKnot << " " << std::setprecision(15) << std::scientific << hash << " "
        << cornerAngle;
+  /*--- The feature settings of every segment: marker, closed, sharp start, sharp end. ---*/
+  for (const auto& seg : segments) text << " " << seg.marker << ":" << seg.closed << seg.sharpStart << seg.sharpEnd;
   return text.str();
 }
 
 void CReferenceWall::Write(const std::string& filename) const {
   std::ofstream file(filename);
   if (!file) SU2_MPI::Error("Could not write the reference wall " + filename + ".", CURRENT_FUNCTION);
-  file << "SU2_BL_REFERENCE_WALL 1\n";
+  file << "SU2_BL_REFERENCE_WALL 2\n";
   file << "CORNER_ANGLE " << std::setprecision(17) << cornerAngle << "\n";
   file << "NSEGMENT " << segments.size() << "\n";
   for (const auto& seg : segments) {
@@ -420,31 +425,52 @@ void CReferenceWall::Write(const std::string& filename) const {
   file << "FINGERPRINT " << Fingerprint() << "\n";
 }
 
-bool CReferenceWall::Read(const std::string& filename) {
+bool CReferenceWall::Read(const std::string& filename, std::string* error) {
+  auto fail = [&](const std::string& why) {
+    if (error != nullptr) *error = why;
+    return false;
+  };
   std::ifstream file(filename);
-  if (!file) return false;
+  if (!file) return fail("does not exist or cannot be opened");
+  /*--- Read into a copy: this object changes only if the whole file is valid. ---*/
+  CReferenceWall read;
   std::string word;
   int version = 0;
-  file >> word >> version;
-  if (word != "SU2_BL_REFERENCE_WALL" || version != 1) return false;
-  unsigned long nSegment = 0;
-  file >> word >> cornerAngle >> word >> nSegment;
-  segments.clear();
-  for (unsigned long iSeg = 0; iSeg < nSegment; ++iSeg) {
+  if (!(file >> word >> version) || word != "SU2_BL_REFERENCE_WALL")
+    return fail("is not a reference wall file (header)");
+  if (version != 2) return fail("has the unsupported format version " + std::to_string(version));
+  if (!(file >> word >> read.cornerAngle) || word != "CORNER_ANGLE" || !std::isfinite(read.cornerAngle))
+    return fail("is malformed (CORNER_ANGLE)");
+  long nSegment = 0;
+  if (!(file >> word >> nSegment) || word != "NSEGMENT" || nSegment < 1 || nSegment > 10000000)
+    return fail("is malformed (NSEGMENT)");
+  for (long iSeg = 0; iSeg < nSegment; ++iSeg) {
     Segment seg;
-    unsigned long nKnot = 0;
-    file >> word >> seg.marker >> seg.closed >> seg.sharpStart >> seg.sharpEnd >> nKnot;
-    if (!file || word != "SEGMENT") return false;
+    long nKnot = 0;
+    if (!(file >> word >> seg.marker >> seg.closed >> seg.sharpStart >> seg.sharpEnd >> nKnot) || word != "SEGMENT" ||
+        nKnot < 2 || nKnot > 1000000000)
+      return fail("is truncated or malformed (segment " + std::to_string(iSeg) + ")");
     seg.x.resize(nKnot);
-    for (auto& x : seg.x) file >> x[0] >> x[1];
-    Fit(seg);
-    segments.push_back(seg);
+    for (long k = 0; k < nKnot; ++k) {
+      auto& x = seg.x[k];
+      if (!(file >> x[0] >> x[1]) || !std::isfinite(x[0]) || !std::isfinite(x[1]))
+        return fail("is truncated or malformed (segment " + std::to_string(iSeg) + ", knot " + std::to_string(k) + ")");
+      if (k > 0 && Dist(seg.x[k - 1], x) <= 0.0)
+        return fail("is malformed (repeated knot in segment " + std::to_string(iSeg) + ")");
+    }
+    /*--- A periodic segment is a smooth closed loop: it ends where it starts and has no sharp ends. ---*/
+    if (seg.closed && (nKnot < 4 || Dist(seg.x.front(), seg.x.back()) > 0.0 || seg.sharpStart || seg.sharpEnd))
+      return fail("is malformed (closed segment " + std::to_string(iSeg) + ")");
+    read.Fit(seg);
+    read.segments.push_back(seg);
   }
   std::string fingerprint;
-  file >> word;
+  if (!(file >> word) || word != "FINGERPRINT") return fail("is truncated (no FINGERPRINT line)");
   std::getline(file, fingerprint);
   if (!fingerprint.empty() && fingerprint[0] == ' ') fingerprint.erase(0, 1);
-  return word == "FINGERPRINT" && fingerprint == Fingerprint();
+  if (fingerprint != read.Fingerprint()) return fail("does not match its fingerprint (edited or corrupted)");
+  *this = std::move(read);
+  return true;
 }
 
 passivedouble CReferenceWall::MaxDistance(const CSimplexMesh& mesh, const std::vector<std::string>& markers) const {
@@ -460,6 +486,161 @@ passivedouble CReferenceWall::MaxDistance(const CSimplexMesh& mesh, const std::v
     }
   }
   return maxDist;
+}
+
+namespace {
+
+/*--- Real roots in (lo, hi) of k1 + 2 k2 B + 3 k3 B^2 (the derivative of the cubic k0 + k1 B + k2 B^2 + k3 B^3). ---*/
+void DerivativeRoots(const passivedouble* k, passivedouble lo, passivedouble hi, std::vector<passivedouble>& out) {
+  const passivedouble A = 3.0 * k[3], B = 2.0 * k[2], C = k[1];
+  auto add = [&](passivedouble r) {
+    if (std::isfinite(r) && r > lo && r < hi) out.push_back(r);
+  };
+  if (A == 0.0) {
+    if (B != 0.0) add(-C / B);
+    return;
+  }
+  const passivedouble disc = B * B - 4.0 * A * C;
+  if (disc < 0.0) return;
+  const passivedouble q = -0.5 * (B + std::copysign(std::sqrt(disc), B));
+  add(q / A);
+  if (q != 0.0) add(C / q);
+}
+
+passivedouble Cubic(const passivedouble* k, passivedouble B) { return ((k[3] * B + k[2]) * B + k[1]) * B + k[0]; }
+
+}  // namespace
+
+passivedouble CReferenceWall::ArcChordDistance(const Segment& seg, passivedouble s0, passivedouble s1,
+                                               const passivedouble* a, const passivedouble* b) const {
+  const passivedouble u[2] = {b[0] - a[0], b[1] - a[1]};
+  const passivedouble len = std::hypot(u[0], u[1]);
+  if (!(len > 0.0)) return std::numeric_limits<passivedouble>::infinity();
+  const auto nInt = seg.s.size() - 1;
+  const passivedouble length = seg.s.back();
+  passivedouble lo = std::min(s0, s1), hi = std::max(s0, s1);
+
+  /*--- Parameter ranges inside [0, length]: a closed arc is shifted into one period and split at its end. ---*/
+  std::vector<std::array<passivedouble, 2>> ranges;
+  if (seg.closed) {
+    hi = std::min(hi, lo + length);
+    const passivedouble shift = std::floor(lo / length) * length;
+    lo -= shift;
+    hi -= shift;
+    if (hi > length) {
+      ranges.push_back({lo, length});
+      ranges.push_back({0.0, std::min(hi - length, length)});
+    } else {
+      ranges.push_back({lo, hi});
+    }
+  } else {
+    lo = std::max(lo, seg.s.front());
+    hi = std::min(hi, seg.s.back());
+    ranges.push_back({lo, std::max(lo, hi)});
+  }
+
+  passivedouble bound = 0.0;
+  /*--- Rounding margin: the representation of the absolute coordinates (the differences x - a lose up to a few ulps of
+   *    them, 64 eps) plus the evaluation of the local cubics (1e-12, about 4500 eps, of their term magnitudes). It does
+   *    not grow with a translation of the mesh beyond the representation error itself. ---*/
+  passivedouble absScale = std::max({std::fabs(a[0]), std::fabs(a[1]), std::fabs(b[0]), std::fabs(b[1])});
+  passivedouble localScale = len;
+  std::vector<passivedouble> candidates;
+  for (const auto& range : ranges) {
+    for (unsigned long i = 0; i < nInt; ++i) {
+      const passivedouble si = seg.s[i], sj = seg.s[i + 1];
+      /*--- Pieces that meet the range (a point range meets the piece that contains it). ---*/
+      if (sj < range[0] || si > range[1]) continue;
+      if (sj == range[0] && i + 1 < nInt && range[1] > range[0]) continue;
+      const passivedouble h = sj - si;
+      const passivedouble B0 = std::max(range[0], si) - si, B1 = std::max(B0, std::min(range[1], sj) - si);
+
+      /*--- x(B) = k0 + k1 B + k2 B^2 + k3 B^3 per coordinate, B = s - s_i (the cubic of Evaluate). ---*/
+      passivedouble k[2][4];
+      for (unsigned short d = 0; d < 2; ++d) {
+        const auto m0 = seg.m[i][d], m1 = seg.m[i + 1][d], x0 = seg.x[i][d], x1 = seg.x[i + 1][d];
+        k[d][0] = x0 - a[d];
+        k[d][1] = (x1 - x0) / h - h * (2.0 * m0 + m1) / 6.0;
+        k[d][2] = 0.5 * m0;
+        k[d][3] = (m1 - m0) / (6.0 * h);
+        absScale = std::max(absScale, std::fabs(x0));
+        passivedouble size = std::fabs(k[d][0]);
+        for (int j = 1; j < 4; ++j) size += std::fabs(k[d][j]) * std::pow(B1, j);
+        localScale = std::max(localScale, size);
+      }
+      /*--- Signed line distance c(B) and chord parameter u(B). ---*/
+      passivedouble c[4], w[4];
+      for (int j = 0; j < 4; ++j) {
+        c[j] = (u[0] * k[1][j] - u[1] * k[0][j]) / len;
+        w[j] = (u[0] * k[0][j] + u[1] * k[1][j]) / (len * len);
+      }
+      candidates = {B0, B1};
+      DerivativeRoots(c, B0, B1, candidates);
+      passivedouble maxC = 0.0;
+      for (const auto B : candidates) maxC = std::max(maxC, std::fabs(Cubic(c, B)));
+      candidates = {B0, B1};
+      DerivativeRoots(w, B0, B1, candidates);
+      passivedouble minU = std::numeric_limits<passivedouble>::max(), maxU = -minU;
+      for (const auto B : candidates) {
+        const auto value = Cubic(w, B);
+        minU = std::min(minU, value);
+        maxU = std::max(maxU, value);
+      }
+      const passivedouble e = len * std::max({0.0, -minU, maxU - 1.0});
+      bound = std::max(bound, std::sqrt(maxC * maxC + e * e));
+    }
+  }
+  return bound + 64.0 * std::numeric_limits<passivedouble>::epsilon() * absScale + 1e-12 * localScale;
+}
+
+namespace {
+/*--- Knuth's two-sum: x + y = a + b exactly. SU2 is built with -ffast-math, which would simplify the error term to 0:
+ *    every intermediate goes through a volatile, so each operation is evaluated as written (IEEE round to nearest). ---*/
+inline void TwoSum(passivedouble a, passivedouble b, passivedouble& x, passivedouble& y) {
+  volatile passivedouble sum = a + b;
+  volatile passivedouble bVirtual = sum - a;
+  volatile passivedouble aVirtual = sum - bVirtual;
+  volatile passivedouble bRound = b - bVirtual;
+  volatile passivedouble aRound = a - aVirtual;
+  x = sum;
+  y = aRound + bRound;
+}
+/*--- Shewchuk's GROW-EXPANSION: e (nonoverlapping, increasing magnitude) += b, exactly. ---*/
+void Grow(std::vector<passivedouble>& e, passivedouble b) {
+  passivedouble q = b;
+  for (auto& component : e) {
+    passivedouble sum, err;
+    TwoSum(q, component, sum, err);
+    component = err;
+    q = sum;
+  }
+  e.push_back(q);
+}
+}  // namespace
+
+int BLWallRule::Orientation(const passivedouble* a, const passivedouble* b, const passivedouble* c) {
+  const passivedouble left = (b[0] - a[0]) * (c[1] - a[1]), right = (b[1] - a[1]) * (c[0] - a[0]);
+  const passivedouble det = left - right;
+  const passivedouble bound = 3.3306690738754716e-16 * (std::fabs(left) + std::fabs(right));  // (3 + 16 eps) eps
+  if (det > bound) return 1;
+  if (-det > bound) return -1;
+  /*--- Exact: det = bx cy - bx ay - ax cy - by cx + by ax + ay cx, each product exact as hi + lo (fma). ---*/
+  const passivedouble terms[6][2] = {{b[0], c[1]}, {-b[0], a[1]}, {-a[0], c[1]},
+                                     {-b[1], c[0]}, {b[1], a[0]}, {a[1], c[0]}};
+  std::vector<passivedouble> expansion;
+  expansion.reserve(12);
+  for (const auto& term : terms) {
+    volatile passivedouble hi = term[0] * term[1];
+    const passivedouble lo = std::fma(term[0], term[1], -static_cast<passivedouble>(hi));
+    Grow(expansion, lo);
+    Grow(expansion, hi);
+  }
+  /*--- The sign of a nonoverlapping expansion is that of its largest (last nonzero) component. ---*/
+  for (auto it = expansion.rbegin(); it != expansion.rend(); ++it) {
+    if (*it > 0.0) return 1;
+    if (*it < 0.0) return -1;
+  }
+  return 0;
 }
 
 passivedouble BLWallRule::SizeAt(const SizeSamples& samples, passivedouble s) {

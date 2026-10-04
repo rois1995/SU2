@@ -46,8 +46,8 @@
  *    closed segment). With two points it is the straight line.
  *  - Curvature used by the size rule: max(|curvature of the spline|, 2 sin(turn/2) / L of the polyline at the nearest
  *    knot), so a coarse wall cannot hide a small radius from the rule.
- *  - Projection: the closest polyline interval (brute force over the marker), then Newton on the spline parameter in
- *    that interval and its two neighbours; the closest result is kept.
+ *  - Projection: the closest polyline interval (brute force over the marker, or over one segment of it), then Newton on
+ *    the spline parameter in that interval and its two neighbours; the closest result is kept.
  *  - The fit is a model of the first mesh's wall, not of the true geometry: its accuracy is that of the spline
  *    through the first mesh's points (0.25 h0 on the NACA0012 225x65 wall, 128 points, for h0 = 4e-6).
  */
@@ -101,8 +101,26 @@ class CReferenceWall {
 
   /*!
    * \brief Closest point on the segments of a marker.
+   * \param[in] point - Point.
+   * \param[in] marker - Marker name.
+   * \param[in] onlySegment - If >= 0: only this segment (it must belong to the marker), e.g. the own feature segment of
+   *            a wall point, which must not jump to another segment of the same marker.
    */
-  Projection Project(const passivedouble* point, const std::string& marker) const;
+  Projection Project(const passivedouble* point, const std::string& marker, long onlySegment = -1) const;
+
+  /*!
+   * \brief Guaranteed upper bound of the largest distance between the reference arc of a segment between two
+   *        parameters and the finite chord [a, b] (gate G3 of SERIAL_BL_FIX_PLAN.md 2.1.5).
+   * \details On each spline piece spanned by the arc, the signed distance to the chord's line c(s) and the chord
+   *          parameter u(s) of the arc are cubics. The distance to the finite chord is exactly sqrt(c^2 + e^2), with the
+   *          overshoot e = |b - a| max(0, -u, u - 1); max |c| and max e are exact (sub-interval ends and the real roots
+   *          of the quadratic derivatives), and the bound is sqrt(max c^2 + max e^2) per piece plus a rounding margin
+   *          (64 eps x the absolute coordinates, 1e-12 x the local cubic terms; independent of a translation). Closed segments: the arc runs from s0 to s1 without wrapping its length
+   *          (|s1 - s0| at most the segment length; the parameters may lie outside [0, length]).
+   * \return The bound; infinity for a degenerate chord (a = b).
+   */
+  passivedouble ArcChordDistance(const Segment& seg, passivedouble s0, passivedouble s1, const passivedouble* a,
+                                 const passivedouble* b) const;
 
   /*!
    * \brief Curvature used by the size rule at the parameter s of a segment (see the class note).
@@ -115,13 +133,17 @@ class CReferenceWall {
   void Write(const std::string& filename) const;
 
   /*!
-   * \brief Read a reference written by Write (the fingerprint is checked).
+   * \brief Read a reference written by Write (structure, finite coordinates, distinct knots and the fingerprint are
+   *        checked). On failure the object is left unchanged.
+   * \param[in] filename - File.
+   * \param[out] error - If given: why the file was not accepted (missing, malformed, truncated, fingerprint).
    * \return False if the file does not exist or is not a valid reference file.
    */
-  bool Read(const std::string& filename);
+  bool Read(const std::string& filename, std::string* error = nullptr);
 
   /*!
-   * \brief Fingerprint: number of segments and knots and a hash of the knot coordinates.
+   * \brief Fingerprint: number of segments and knots, a hash of the knot coordinates, the corner angle, and the
+   *        marker and feature flags (closed, sharp start, sharp end) of every segment.
    */
   std::string Fingerprint() const;
 
@@ -199,6 +221,13 @@ passivedouble SizeAt(const SizeSamples& samples, passivedouble s);
  */
 std::vector<passivedouble> NormalExtent(const CSimplexMesh& mesh, const std::string& marker,
                                         passivedouble cornerAngle);
+
+/*!
+ * \brief Robust orientation of a triangle (gate G4): sign of (b - a) x (c - a), exact (a floating-point filter, then
+ *        exact expansion arithmetic with fused multiply-add products when the filter cannot decide).
+ * \return 1 counterclockwise, -1 clockwise, 0 collinear.
+ */
+int Orientation(const passivedouble* a, const passivedouble* b, const passivedouble* c);
 
 }  // namespace BLWallRule
 
