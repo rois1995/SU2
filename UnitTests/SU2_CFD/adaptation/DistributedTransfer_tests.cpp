@@ -38,6 +38,7 @@
 
 #include "TransferTestCase.hpp"
 #include "../../../Common/include/adaptation/CDistributedSearch.hpp"
+#include "../../../Common/include/adaptation/TransferTolerances.hpp"
 #include "../../../Common/include/parallelization/CPassiveComm.hpp"
 #include "../../../SU2_CFD/include/adaptation/CBarycentricTransfer.hpp"
 #include "../../../SU2_CFD/include/adaptation/CDistributedLocator.hpp"
@@ -47,7 +48,23 @@
 
 using namespace transfer_test;
 
+/*--- Tests whose tolerances are those of double precision (1e-10..1e-14 of the field scale, bitwise equality with the
+ *    gathered reference, exact affine fields): not run in single precision builds, where the single precision contract
+ *    is tested instead ("Single precision transfer contract"). ---*/
+#define SKIP_IN_SINGLE_PRECISION()                                                      \
+  if (transfer_tol::kSinglePrecision) {                                                 \
+    WARN("Skipped in single precision: the tolerances are those of double precision."); \
+    return;                                                                             \
+  }
+
 namespace {
+
+/*--- Arrays of passive values from double expressions (no narrowing in single precision builds). ---*/
+std::vector<std::vector<passivedouble>> Passive(const std::vector<std::vector<double>>& values) {
+  std::vector<std::vector<passivedouble>> result;
+  for (const auto& row : values) result.emplace_back(row.begin(), row.end());
+  return result;
+}
 
 /*--- Run f with every rank alone (MPI_COMM_SELF): each rank computes the whole problem. ---*/
 template <class F>
@@ -242,7 +259,7 @@ void SetFields(MeshSolution& donor, unsigned short nDim, bool affine, Turb turb)
 CSimplexMesh Scaled(CSimplexMesh mesh, passivedouble factor) {
   if (factor == 1.0) return mesh;
   const unsigned short nDim = mesh.nDim;
-  const passivedouble centre[3] = {nDim == 2 ? 1.0 : 0.5, 0.5, 0.5};
+  const passivedouble centre[3] = {passivedouble(nDim == 2 ? 1.0 : 0.5), 0.5, 0.5};
   for (auto iPoint = 0ul; iPoint < mesh.GetnPoint(); ++iPoint)
     for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
       auto& x = mesh.coord[iPoint * nDim + iDim];
@@ -309,6 +326,7 @@ const std::string kTime1 = "TIME_DOMAIN= YES\nTIME_STEP= 1e-3\nTIME_ITER= 10\nTI
 }  // namespace
 
 TEST_CASE("Distributed barycentric transfer: partition equivalence", "[AdaptationMPI][DistributedTransfer]") {
+  SKIP_IN_SINGLE_PRECISION();
   /*--- Requirements matrix (0.1), barycentric column: stencil decisions equal for every P (required), values within
    *    1e-12 S_f of P = 1 (bitwise expected, reported), the gathered (MPI-1) reference with the same rules gives the
    *    same decisions and values; affine fields exact; coarse levels the restriction. ---*/
@@ -528,6 +546,7 @@ TEST_CASE("Distributed barycentric transfer: paired fallback at partition interf
 }
 
 TEST_CASE("Canonical nearest face: counterexamples and brute force", "[AdaptationMPI][DistributedTransfer]") {
+  SKIP_IN_SINGLE_PRECISION();
   auto makeFaces = [](const std::vector<std::vector<passivedouble>>& triangles, const std::vector<uint32_t>& markers) {
     CBoundaryFaces faces;
     faces.nDim = 3;
@@ -564,14 +583,14 @@ TEST_CASE("Canonical nearest face: counterexamples and brute force", "[Adaptatio
     SECTION("tolerance halo of the ADT (round 2), shift " + std::to_string(shift)) {
       /*--- A = (0,0,0),(1,0,0),(0,1,0); x = (0.5, 0.5 + 4e-11, 0) is 2.83e-11 outside A's hypotenuse; B lies under x
        *    at z = 1e-11: B is the nearest face, whatever face the ADT starts from. ---*/
-      const passivedouble s = shift;
-      const std::vector<std::vector<passivedouble>> triangles = {
-          {s, s, s, s + 1, s, s, s, s + 1, s},
-          {s + 0.4, s + 0.4, s + 1e-11, s + 0.6, s + 0.4, s + 1e-11, s + 0.5, s + 0.7, s + 1e-11}};
+      const double s = shift;
+      const auto triangles =
+          Passive({{s, s, s, s + 1, s, s, s, s + 1, s},
+                   {s + 0.4, s + 0.4, s + 1e-11, s + 0.6, s + 0.4, s + 1e-11, s + 0.5, s + 0.7, s + 1e-11}});
       for (const auto& markers : {std::vector<uint32_t>{0, 0}, std::vector<uint32_t>{0, 1}}) {
         const auto faces = makeFaces(triangles, markers);
         CCanonicalBoundary boundary(faces, std::sqrt(3.0));
-        const passivedouble x[3] = {s + 0.5, s + 0.5 + 4e-11, s};
+        const passivedouble x[3] = {passivedouble(s + 0.5), passivedouble(s + 0.5 + 4e-11), passivedouble(s)};
         const auto hit = boundary.NearestAny(x);
         const auto expected = bruteForce(faces, x);
         CHECK(hit.found);
@@ -586,12 +605,11 @@ TEST_CASE("Canonical nearest face: counterexamples and brute force", "[Adaptatio
     SECTION("distant face, query at the origin (round 3), shift " + std::to_string(shift)) {
       /*--- One triangle at x = 1e6, queried at the origin: canonical U = 999999.9999999999 while the inflated box is
        *    1e6 away; the margin 1e-12 (U + max|x| + L) keeps the face a candidate. ---*/
-      const passivedouble s = shift;
-      const std::vector<std::vector<passivedouble>> triangles = {
-          {s + 1e6, s - 1, s - 1, s + 1e6, s + 5, s - 1, s + 1e6, s - 1, s + 5}};
+      const double s = shift;
+      const auto triangles = Passive({{s + 1e6, s - 1, s - 1, s + 1e6, s + 5, s - 1, s + 1e6, s - 1, s + 5}});
       const auto faces = makeFaces(triangles, {0});
       CCanonicalBoundary boundary(faces, std::sqrt(72.0));
-      const passivedouble x[3] = {s, s, s};
+      const passivedouble x[3] = {passivedouble(s), passivedouble(s), passivedouble(s)};
       const auto hit = boundary.NearestAny(x);
       CHECK(hit.found);
       CHECK(hit.distance == bruteForce(faces, x).distance);
@@ -755,7 +773,7 @@ using FieldFunction = std::function<void(const passivedouble* x, passivedouble* 
 /*--- Fields of the projection tests: affine flow, a constant, a smooth field. ---*/
 FieldFunction ProjectionFields(unsigned short nDim) {
   return [nDim](const passivedouble* x, passivedouble* v) {
-    su2double xs[3] = {x[0], x[1], nDim == 3 ? x[2] : 0.0}, U[MAXVAR];
+    su2double xs[3] = {x[0], x[1], nDim == 3 ? x[2] : passivedouble(0.0)}, U[MAXVAR];
     AffineFlow(nDim)(xs, U);
     for (unsigned short f = 0; f < nDim + 2; ++f) v[f] = SU2_TYPE::GetValue(U[f]);
     v[nDim + 2] = 2.0;
@@ -873,6 +891,7 @@ passivedouble ProjectionDifference(const ValueMap& values, const ValueMap& refer
 
 TEST_CASE("Distributed conservative projection: partition equivalence and exact totals",
           "[AdaptationMPI][DistributedTransfer]") {
+  SKIP_IN_SINGLE_PRECISION();
   /*--- Requirements matrix (0.1), conservative column: values within 1e-10 S_f of P = 1 and of the serial projection
    *    on the gathered meshes, totals exact (1e-12 sum |u| V) at every P, measures consistent; affine fields exact
    *    where the domains coincide; slivers and fill with the CLOSED, GLOBAL and NONE rules on the disk and ball. ---*/
@@ -950,6 +969,7 @@ TEST_CASE("Distributed conservative projection: partition equivalence and exact 
 
 TEST_CASE("Distributed conservative projection: brute-force supermesh and exact dense solve",
           "[AdaptationMPI][DistributedTransfer]") {
+  SKIP_IN_SINGLE_PRECISION();
   /*--- Independent reference on small meshes: S by all-pairs clipping (no search structure), the mass matrix from the
    *    element formula, the dense system solved by Gaussian elimination in long double. The distributed projection
    *    without limiter (the domains coincide, no slivers) must agree to 1e-10 of the field scale at every P. ---*/
@@ -1055,6 +1075,7 @@ TEST_CASE("Distributed conservative projection: brute-force supermesh and exact 
 
 TEST_CASE("Distributed conservative projection: import groups under a memory ceiling",
           "[AdaptationMPI][DistributedTransfer]") {
+  SKIP_IN_SINGLE_PRECISION();
   /*--- A forced small ceiling splits the import into several groups (results within the tolerance of one group:
    *    only the order of the right-hand side sums changes). ---*/
   for (const unsigned short nDim : {2, 3}) {
@@ -1079,6 +1100,7 @@ TEST_CASE("Distributed conservative projection: import groups under a memory cei
 }
 
 TEST_CASE("Conservative kernels: enumeration fixtures", "[AdaptationMPI][DistributedTransfer]") {
+  SKIP_IN_SINGLE_PRECISION();
   SECTION("tiny target element inside a donor element (separating-plane counterexample)") {
     /*--- E = (1, 0.79645933750706 45), (0.5, 0.39822966908697405), (0, 0); T a 1e-17-sized triangle at
      *    (0.1365068111787508, 0.10872212439662993), inside E (exact barycentric coordinates 2e-7..4e-7, computed
@@ -1145,6 +1167,7 @@ TEST_CASE("Conservative kernels: enumeration fixtures", "[AdaptationMPI][Distrib
 
 TEST_CASE("Distributed conservative kernels: guarded CG and bounded redistribution",
           "[AdaptationMPI][DistributedTransfer]") {
+  SKIP_IN_SINGLE_PRECISION();
   /*--- Mass matrix of the owned rows of a partitioned box. ---*/
   for (const unsigned short nDim : {2, 3}) {
     auto config = MakeConfig(nDim, "SOLVER= EULER\n");
@@ -1279,6 +1302,7 @@ TEST_CASE("Transfer admissibility: two-stage recovery predicate", "[AdaptationMP
 
 TEST_CASE("Distributed conservative transfer: partition equivalence, walls, history, recovery",
           "[AdaptationMPI][DistributedTransfer]") {
+  SKIP_IN_SINGLE_PRECISION();
   /*--- The complete transfer (wall fix, bounds, recovery, final checks, FinishTransfer) against P = 1 and against the
    *    gathered (MPI-1) reference: values within 1e-10 of the field scale for the fixtures without decisions at a
    *    margin, totals of the flow variables exact at every P, invariants (admissible states, zero wall momentum). ---*/
@@ -1361,6 +1385,7 @@ TEST_CASE("Distributed conservative transfer: partition equivalence, walls, hist
 }
 
 TEST_CASE("Distributed conservative transfer: recovery on the gathered level", "[AdaptationMPI][DistributedTransfer]") {
+  SKIP_IN_SINGLE_PRECISION();
   /*--- High-speed states (momentum jumps, small internal energy): the projection gives inadmissible states, the
    *    recovery (stage 1 on the master rank until M3) repairs them; every state admissible, totals exact, at every P. ---*/
   const unsigned short nDim = 2;
@@ -1421,6 +1446,60 @@ TEST_CASE("Distributed conservative transfer: recovery on the gathered level", "
   CHECK(nBad == 0);
   CHECK(nBadSerial == 0);
   for (unsigned short f = 0; f < 2 * (nDim + 2); ++f) CHECK(std::fabs(parallel.relativeDefect[f]) < 1e-12);
+}
+
+/*------------------------------------------------------------------------------------------------------------------*/
+/*--- Single precision contract (REVIEW5_FIX_PLAN.md F1.4), run in every build ---*/
+/*------------------------------------------------------------------------------------------------------------------*/
+
+TEST_CASE("Single precision transfer contract", "[AdaptationMPI][DistributedTransfer][SinglePrecision]") {
+  /*--- Finite states, conservation within the acceptance gate of the build, stencil decisions equal for every P. ---*/
+  SECTION("barycentric: decisions equal to one rank, finite values") {
+    for (const auto& test : {BaryCase{"2D Euler", 2, "SOLVER= EULER\n", false, Turb::NONE, 4, 6, 1.0},
+                             BaryCase{"2D SA walls", 2, kRans + "KIND_TURB_MODEL= SA\n", false, Turb::SA, 4, 6, 1.0},
+                             BaryCase{"3D Euler", 3, "SOLVER= EULER\n", false, Turb::NONE, 3, 4, 1.0}}) {
+      BaryResult serial;
+      Serial([&]() { serial = RunBarycentric(test, false, false); });
+      const auto parallel = RunBarycentric(test, false, false);
+      CHECK(SameDecisions(parallel.records, serial.records, true));
+      bool finite = true;
+      for (const auto& entry : parallel.values)
+        for (const auto& v : entry.second) finite &= std::isfinite(SU2_TYPE::GetValue(v));
+      CHECK(FailedRanks(finite) == 0);
+    }
+  }
+  SECTION("conservative: totals within the acceptance gate, finite values") {
+    for (const unsigned short nDim : {2, 3}) {
+      CConservativeProjection::Options options;
+      const auto donorMesh = BoxMesh(nDim, nDim == 2 ? 6 : 3, true),
+                 targetMesh = BoxMesh(nDim, nDim == 2 ? 8 : 4, true);
+      const auto result = RunProjection(nDim, donorMesh, targetMesh, "", options, false, false);
+      for (auto f = 0ul; f < result.newTotal.size(); ++f)
+        CHECK(std::fabs(result.newTotal[f] - result.summary.targetTotal[f]) <=
+              TransferTol(1e-12, 1e-5) * result.summary.scale[f]);
+      bool finite = true;
+      for (const auto& entry : result.values)
+        for (const auto v : entry.second) finite &= std::isfinite(v);
+      CHECK(FailedRanks(finite) == 0);
+    }
+  }
+  SECTION("conservative: a partial gap between the noise floor and the gap threshold") {
+    /*--- The new domain ends at x = 2 - d with d / h = 0.01: the donor elements of the last column lose 2e-2 (edge on
+     *    x = 2) or about 1e-4 (vertex on x = 2) of their measure, far above the round-off floor of either precision:
+     *    the same 2 n_y slivers in single and double precision, the strip's area as their missing measure. ---*/
+    const unsigned long n = 4;
+    const passivedouble h = 1.0 / n, d = 0.01 * h;
+    auto targetMesh = BoxMesh(2, 6, true);
+    for (auto iPoint = 0ul; iPoint < targetMesh.GetnPoint(); ++iPoint) targetMesh.coord[2 * iPoint] *= (2.0 - d) / 2.0;
+    CConservativeProjection::Options options;
+    options.sliverRule = CConservativeProjection::SliverRule::GLOBAL;
+    const auto result = RunProjection(2, BoxMesh(2, n, true), targetMesh, "", options, false, false);
+    CHECK(result.summary.nSliverElems == 2 * n);
+    CHECK(std::fabs(result.summary.sliverVolume - d) <= TransferTol(1e-12, 1e-3) * d);
+    for (auto f = 0ul; f < result.newTotal.size(); ++f)
+      CHECK(std::fabs(result.newTotal[f] - result.summary.targetTotal[f]) <=
+            TransferTol(1e-12, 1e-5) * result.summary.scale[f]);
+  }
 }
 
 /*------------------------------------------------------------------------------------------------------------------*/

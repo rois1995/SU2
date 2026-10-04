@@ -100,7 +100,8 @@ class CConservativeProjection {
     SliverRule sliverRule = SliverRule::CLOSED;
     std::vector<std::string> openMarkers;  /*!< \brief Names of the open boundaries (far field, inlet, outlet). */
     passivedouble absoluteLimit = 0.0;     /*!< \brief Distance always accepted outside the donor (2 ADAP_HAUSD). */
-    passivedouble solverTolerance = 1e-13; /*!< \brief Relative residual of the conjugate gradients. */
+    /*! \brief Relative residual of the conjugate gradients (an acceptance gate: 1e-13, single precision 1e-6). */
+    passivedouble solverTolerance = TransferTol(1e-13, 1e-6);
     unsigned long maxSolverIter = 2000;
   };
 

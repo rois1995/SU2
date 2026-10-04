@@ -56,14 +56,13 @@ inline void Step(double x, double& s, double& c) {
   s = t;
 }
 
-}  // namespace
-
-SU2_ACCURATE_NOINLINE bool CAccurateSum::Local(const double* x, size_t n, size_t stride, double* triple,
-                                               size_t* firstBad) {
+/*--- Local sum of terms of type T (double, or float widened exactly to double before any arithmetic). ---*/
+template <class T>
+bool LocalSum(const T* x, size_t n, size_t stride, double* triple, size_t* firstBad) {
   double s = 0.0, c = 0.0, a = 0.0;
   size_t bad = n;
   for (size_t i = 0; i < n; ++i) {
-    const double xi = x[i * stride];
+    const double xi = static_cast<double>(x[i * stride]);
     if (!std::isfinite(xi) && bad == n) bad = i;
     Step(xi, s, c);
     a += std::fabs(xi);
@@ -78,6 +77,18 @@ SU2_ACCURATE_NOINLINE bool CAccurateSum::Local(const double* x, size_t n, size_t
   triple[1] = c;
   triple[2] = a;
   return ok;
+}
+
+}  // namespace
+
+SU2_ACCURATE_NOINLINE bool CAccurateSum::Local(const double* x, size_t n, size_t stride, double* triple,
+                                               size_t* firstBad) {
+  return LocalSum(x, n, stride, triple, firstBad);
+}
+
+SU2_ACCURATE_NOINLINE bool CAccurateSum::Local(const float* x, size_t n, size_t stride, double* triple,
+                                               size_t* firstBad) {
+  return LocalSum(x, n, stride, triple, firstBad);
 }
 
 SU2_ACCURATE_NOINLINE bool CAccurateSum::Merge(const double* triples, size_t nRank, double* result,

@@ -37,6 +37,7 @@
 #include "../../../Common/include/CConfig.hpp"
 #include "../../../Common/include/adaptation/CAccurateSum.hpp"
 #include "../../../Common/include/adaptation/CMeshGather.hpp"
+#include "../../../Common/include/adaptation/TransferTolerances.hpp"
 #include "../../../Common/include/geometry/CGeometry.hpp"
 #include "../../../Common/include/parallelization/CPassiveComm.hpp"
 #include "../../include/adaptation/CTransferAdmissibility.hpp"
@@ -486,7 +487,7 @@ void CBarycentricTransfer::Transfer(CConfig* config, const CMeshDonor& donor, CG
     summary.markers.back().name = "(interior)";
     const auto interior = summary.markers.size() - 1;
     const auto nEntry = summary.markers.size();
-    const passivedouble offTolerance = 1e-12 * domainSize;
+    const passivedouble offTolerance = DiagnosticTol(1e-12) * domainSize;
 
     std::vector<unsigned long> counts(4 * nEntry + 2, 0);  // per entry nPoint, nOutside, nOff, nBeyondFace; nOutside, nBeyond
     std::vector<double> maxima(2 * nEntry + 2, 0.0);       // per entry maxDistance, maxRelDistance; global both
@@ -891,7 +892,7 @@ void CBarycentricTransfer::TransferGathered(CConfig* config, const CMeshDonor& d
       summary.markers.emplace_back();
       summary.markers.back().name = "(interior)";
       const auto interior = summary.markers.size() - 1;
-      const su2double offTolerance = 1e-12 * locator.GetDomainSize();
+      const su2double offTolerance = DiagnosticTol(1e-12) * locator.GetDomainSize();
 
       unsigned long nBeyond = 0;
       su2double worstRatio = 0.0;

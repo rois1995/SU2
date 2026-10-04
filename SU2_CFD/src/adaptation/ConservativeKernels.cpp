@@ -448,7 +448,7 @@ SolveResult MassSolver::Solve(const std::vector<passivedouble>& b, std::vector<p
   for (auto i = 0ul; i < n; ++i) trLocal += (bt[i] - q[i]) * (bt[i] - q[i]);
   result.iterations = it;
   result.trueResidual = std::sqrt(Sum(trLocal) / bb);
-  if (!std::isfinite(result.trueResidual) || result.trueResidual > 1e-10) {
+  if (!std::isfinite(result.trueResidual) || result.trueResidual > TransferTol(1e-10, 1e-4)) {
     result.failed = true;
   } else if (result.trueResidual > tolerance) {
     result.warning = true;
@@ -548,7 +548,7 @@ RedistributeResult BoundedRedistribute(std::vector<su2double>& v, const std::vec
     batch.AddActive(terms);
     reduce(batch);
     r = total - batch.GetActive(0);
-    if (!(fabs(r) > 1e-15 * scale)) {
+    if (!(fabs(r) > TransferTol(1e-15, 1e-6) * scale)) {
       done = true;
       break;
     }
@@ -600,12 +600,12 @@ RedistributeResult BoundedRedistribute(std::vector<su2double>& v, const std::vec
     reduce(batch);
     r = total - batch.GetActive(0);
     const passivedouble volume = batch.Get(batch.Size() - 1);
-    if (fabs(r) > 1e-15 * scale) {
+    if (fabs(r) > TransferTol(1e-15, 1e-6) * scale) {
       if (volume > 0.0) {
         for (auto i = 0ul; i < n; ++i)
           if (isFree(i)) v[i] += r / volume;
         /*--- Reported as relaxed bounds beyond round-off of the total. ---*/
-        result.relaxed = fabs(r) > 1e-12 * scale;
+        result.relaxed = fabs(r) > TransferTol(1e-12, 1e-5) * scale;
       } else {
         result.error = true;
         result.reason = "a nonzero correction of the total is required but no value is free to take it";
@@ -631,8 +631,8 @@ RedistributeResult BoundedRedistribute(std::vector<su2double>& v, const std::vec
   batch.AddActive(terms);
   reduce(batch);
   result.residual = std::fabs(SU2_TYPE::GetValue(total) - batch.Get(0)) / std::max(scale, 1e-300);
-  result.totalExact = result.residual <= 1e-15;
-  if (!(result.residual <= 1e-12) && !result.error) {
+  result.totalExact = result.residual <= TransferTol(1e-15, 1e-6);
+  if (!(result.residual <= TransferTol(1e-12, 1e-5)) && !result.error) {
     result.error = true;
     result.reason = "the total is not restored (relative residual " + std::to_string(result.residual) + ")";
   }

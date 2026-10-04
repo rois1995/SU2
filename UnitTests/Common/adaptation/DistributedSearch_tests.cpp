@@ -40,6 +40,7 @@
 
 #include "../../../Common/include/adaptation/CAccurateSum.hpp"
 #include "../../../Common/include/adaptation/CDistributedSearch.hpp"
+#include "../../../Common/include/adaptation/TransferTolerances.hpp"
 #include "../../../Common/include/adt/CADTElemClass.hpp"
 #include "../../../Common/include/parallelization/CPassiveComm.hpp"
 #include "../../SU2_CFD/adaptation/TransferTestCase.hpp"
@@ -306,7 +307,7 @@ TEST_CASE("Distributed search: directory of point records", "[AdaptationMPI][Dis
       if (size >= 3 && owner == size / 2) owner = 0;
       if (owner != rank) continue;
       gids.push_back(g);
-      su2double values[3] = {1.0 * g, -2.5 * g, 1e-300 * (g + 1)};
+      su2double values[3] = {su2double(1.0 * g), su2double(-2.5 * g), su2double(1e-300 * (g + 1))};
 #ifdef CODI_FORWARD_TYPE
       for (int k = 0; k < 3; ++k) SU2_TYPE::SetDerivative(values[k], 0.25 * k + g);
 #endif
@@ -329,7 +330,7 @@ TEST_CASE("Distributed search: directory of point records", "[AdaptationMPI][Dis
       UnpackFieldValues(&fetched[i * recordBytes], values, 3);
       const auto g = request[i];
       ok &= SU2_TYPE::GetValue(values[0]) == 1.0 * g && SU2_TYPE::GetValue(values[1]) == -2.5 * g &&
-            SU2_TYPE::GetValue(values[2]) == 1e-300 * (g + 1);
+            SU2_TYPE::GetValue(values[2]) == passivedouble(1e-300 * (g + 1));
 #ifdef CODI_FORWARD_TYPE
       for (int k = 0; k < 3; ++k) ok &= SU2_TYPE::GetDerivative(values[k]) == 0.25 * k + g;
 #endif
@@ -468,7 +469,9 @@ TEST_CASE("Distributed search: ADT extensions against brute force", "[Adaptation
       ok &= near == nearExpected;
     }
     CHECK(ok);
-    CHECK(nMultiple > 10);
+    /*--- Coverage of the multi-element cases (in single precision a rounded edge midpoint is often inside one element
+     *    only). ---*/
+    CHECK(nMultiple > (transfer_tol::kSinglePrecision ? 5ul : 10ul));
 
     /*--- An empty tree answers nothing. ---*/
     auto empty = build({});
@@ -561,5 +564,104 @@ TEST_CASE("Distributed search: ownership and mesh invariants", "[AdaptationMPI][
       CHECK(xMax[0] == (nDim == 2 ? 2.0 : 1.0));
       CHECK(diagonal == Approx(nDim == 2 ? std::sqrt(5.0) : std::sqrt(3.0)).epsilon(1e-15));
     }
+  }
+}
+
+/*------------------------------------------------------------------------------------------------------------------*/
+/*--- Single precision compatibility (REVIEW5 F1): run in every build ---*/
+/*------------------------------------------------------------------------------------------------------------------*/
+
+int NativeDoubleSizeOrder1();
+int NativeDoubleSizeOrder2();
+int NativeDoubleSizeOrder3();
+
+TEST_CASE("Single precision: passive double reductions", "[AdaptationMPI][DistributedSearch][SinglePrecision]") {
+  /*--- The MPI type of a passive double is the library's double in every include order and precision. ---*/
+#ifdef HAVE_MPI
+  CHECK(NativeDoubleSizeOrder1() == static_cast<int>(sizeof(double)));
+  CHECK(NativeDoubleSizeOrder2() == static_cast<int>(sizeof(double)));
+  CHECK(NativeDoubleSizeOrder3() == static_cast<int>(sizeof(double)));
+#else
+  CHECK(NativeDoubleSizeOrder1() == 0);
+  CHECK(NativeDoubleSizeOrder2() == 0);
+  CHECK(NativeDoubleSizeOrder3() == 0);
+#endif
+  /*--- A 2^-40 term survives a double reduction (lost by MPI_FLOAT). ---*/
+  const int rank = SU2_MPI::GetRank(), size = SU2_MPI::GetSize();
+  const double tiny = std::ldexp(1.0, -40);
+  double send[3] = {1.0 + tiny, 1.0 + rank * tiny, 1.0 + rank * tiny}, sum = 0.0, lo = 0.0, hi = 0.0;
+  CPassiveComm::Allreduce(&send[0], &sum, 1, CPassiveComm::Op::SUM);
+  CPassiveComm::Allreduce(&send[1], &lo, 1, CPassiveComm::Op::MIN);
+  CPassiveComm::Allreduce(&send[2], &hi, 1, CPassiveComm::Op::MAX);
+  CHECK(sum == size * (1.0 + tiny));
+  CHECK(lo == 1.0);
+  CHECK(hi == 1.0 + (size - 1) * tiny);
+}
+
+TEST_CASE("Single precision: accurate sums of float terms", "[AdaptationMPI][DistributedSearch][SinglePrecision]") {
+  /*--- Float terms are widened exactly: the triple is bitwise that of the widened doubles. ---*/
+  auto same = [](const std::vector<float>& x, size_t n, size_t stride) {
+    std::vector<double> wide(x.begin(), x.end());
+    double a[3], b[3];
+    size_t badA = 0, badB = 0;
+    const bool okA = CAccurateSum::Local(x.data(), n, stride, a, &badA);
+    const bool okB = CAccurateSum::Local(wide.data(), n, stride, b, &badB);
+    bool equal = okA == okB && badA == badB;
+    for (int k = 0; k < 3; ++k) equal &= (std::isnan(a[k]) && std::isnan(b[k])) || a[k] == b[k];
+    return std::make_pair(equal, std::make_pair(okA, badA));
+  };
+  /*--- Cancellation: 2^24 + 1 - 2^24 is 0 in float arithmetic, 1 here. ---*/
+  const std::vector<float> cancel = {16777216.0f, 1.0f, -16777216.0f, 3e-8f, 1e30f, -1e30f, 0.5f};
+  auto r = same(cancel, cancel.size(), 1);
+  CHECK(r.first);
+  CHECK(r.second.first);
+  double triple[3];
+  CAccurateSum::Local(cancel.data(), cancel.size(), 1, triple);
+  CHECK(triple[0] + triple[1] == 1.5 + static_cast<double>(3e-8f));
+  /*--- Stride 3. ---*/
+  std::vector<float> strided(30);
+  for (int i = 0; i < 30; ++i)
+    strided[i] = static_cast<float>(std::ldexp(1.0 + i, (i % 7) * 10 - 30)) * (i % 2 ? -1 : 1);
+  CHECK(same(strided, 10, 3).first);
+  /*--- Empty. ---*/
+  r = same({}, 0, 1);
+  CHECK(r.first);
+  CHECK(r.second.first);
+  /*--- Nonfinite terms: reported with the first index. ---*/
+  for (const float bad : {std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::infinity()}) {
+    std::vector<float> x = {1.0f, 2.0f, 3.0f, 4.0f, bad, 5.0f, bad};
+    r = same(x, x.size(), 1);
+    CHECK(r.first);
+    CHECK_FALSE(r.second.first);
+    CHECK(r.second.second == 4);
+  }
+  /*--- Collective: the batch of float terms equals the batch of the widened doubles. ---*/
+  Random random(17 + SU2_MPI::GetRank());
+  std::vector<float> local(100 + 10 * SU2_MPI::GetRank());
+  for (auto& v : local) v = static_cast<float>((random.Uniform() - 0.5) * std::ldexp(1.0, random.Int(-20, 20)));
+  CAccurateSumBatch floats, doubles;
+  floats.Add(local);
+  doubles.Add(std::vector<double>(local.begin(), local.end()));
+  floats.Reduce();
+  doubles.Reduce();
+  CHECK(floats.Get(0) == doubles.Get(0));
+  CHECK(floats.GetAbs(0) == doubles.GetAbs(0));
+  CHECK(floats.Finite(0));
+}
+
+TEST_CASE("Single precision: transfer tolerance classes", "[DistributedSearch][SinglePrecision]") {
+  /*--- Double builds: every class returns its double value unchanged. Single precision: explicit acceptance gates,
+   *    geometric thresholds at least the round-off floor 16 eps, diagnostics scaled by 2^29. ---*/
+  if (!transfer_tol::kSinglePrecision) {
+    CHECK(TransferTol(1e-12, 1e-5) == passivedouble(1e-12));
+    CHECK(TransferTol(1e-15, 1e-6) == passivedouble(1e-15));
+    for (const double k : {1e-13, 1e-12, 1e-10, 1e-8}) CHECK(DecisionThreshold(k) == passivedouble(k));
+    CHECK(DiagnosticTol(1e-12) == passivedouble(1e-12));
+  } else {
+    CHECK(TransferTol(1e-12, 1e-5) == passivedouble(1e-5));
+    const passivedouble floor = 16 * std::numeric_limits<passivedouble>::epsilon();
+    for (const double k : {1e-13, 1e-12, 1e-10}) CHECK(DecisionThreshold(k) == floor);
+    CHECK(DecisionThreshold(1e-3) == passivedouble(1e-3));
+    CHECK(DiagnosticTol(1e-12) == passivedouble(1e-12 * 536870912.0));
   }
 }

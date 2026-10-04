@@ -752,7 +752,7 @@ void CDistributedProjection::Slivers(const std::vector<su2double>& localDonor) {
     if (!record.contributed) continue;
     const passivedouble c = record.cover.Sum();
     auto& stream = streams[record.rank];
-    if (c >= record.volume * (1.0 - 1e-10)) {
+    if (c >= record.volume * (1.0 - DecisionThreshold(1e-10))) {
       PutBytes(stream, record.index | kFullBit);
       PutBytes(stream, 0.0);
       PutBytes(stream, 0.0);
@@ -1079,7 +1079,7 @@ void CDistributedProjection::SetBounds(unsigned short iField, std::vector<su2dou
 
 passivedouble CDistributedProjection::CountTolerance(unsigned short iField) const {
   const passivedouble typical = summary.scale[iField] / std::max(summary.donorCV, passivedouble(1e-300));
-  return 1e-12 * std::max({SU2_TYPE::GetValue(range[iField]), typical, passivedouble(1e-300)});
+  return DiagnosticTol(1e-12) * std::max({SU2_TYPE::GetValue(range[iField]), typical, passivedouble(1e-300)});
 }
 
 void CDistributedProjection::Solve(std::vector<su2double>& newValues) {

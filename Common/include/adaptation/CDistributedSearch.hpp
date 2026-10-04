@@ -325,6 +325,9 @@ class CAccurateSumBatch {
   /*! \brief Register the terms x[0], x[stride], ... of a quantity; returns its index. */
   size_t Add(const double* x, size_t n, size_t stride = 1);
   size_t Add(const std::vector<double>& x) { return Add(x.data(), x.size(), 1); }
+  /*! \brief Float terms (single precision builds): widened exactly to double, the sums are double. */
+  size_t Add(const float* x, size_t n, size_t stride = 1);
+  size_t Add(const std::vector<float>& x) { return Add(x.data(), x.size(), 1); }
   /*! \brief Register a quantity of one local term. */
   size_t AddValue(double x) { return Add(&x, 1, 1); }
   /*! \brief Register active terms (value, and the derivative in forward mode). */

@@ -56,6 +56,12 @@ class CAccurateSum {
   static bool Local(const double* x, size_t n, size_t stride, double* triple, size_t* firstBad = nullptr);
 
   /*!
+   * \brief The same for float terms (single precision builds): each term is widened to double (exact for finite IEEE
+   *        floats) before any arithmetic, so the sum and its bound are those of the widened terms.
+   */
+  static bool Local(const float* x, size_t n, size_t stride, double* triple, size_t* firstBad = nullptr);
+
+  /*!
    * \brief Merge of the triples of nRank ranks (3 doubles each, in rank order): second Neumaier pass over
    *        s_0, c_0, s_1, c_1, ..., result s + c.
    * \param[out] result - The sum.

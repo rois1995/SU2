@@ -28,6 +28,7 @@
 #pragma once
 
 #include <climits>
+#include <limits>
 #include <cstddef>
 #include <cstring>
 #include <string>
@@ -61,6 +62,10 @@ int CheckedInt(T value, const char* quantity) {
   }
   return static_cast<int>(value);
 }
+
+/*--- Passive doubles are moved as bytes or as the library's double (NativeMpiDouble): IEEE binary64 is assumed. ---*/
+static_assert(std::numeric_limits<double>::is_iec559 && std::numeric_limits<double>::digits == 53,
+              "CPassiveComm assumes IEEE binary64 doubles.");
 
 /*!
  * \class CPassiveComm
@@ -294,10 +299,8 @@ class CPassiveComm {
   template <class T>
   static MPI_Datatype NativeType() {
     if constexpr (std::is_same<T, double>::value) {
-#ifdef USE_SINGLE_PRECISION
-      static_assert(sizeof(T) == 0, "MPI_DOUBLE is redefined as MPI_FLOAT in single precision builds.");
-#endif
-      return MPI_DOUBLE;
+      /*--- The library's double, also in single precision builds (where MPI_DOUBLE is redefined as MPI_FLOAT). ---*/
+      return NativeMpiDouble();
     } else if constexpr (std::is_same<T, float>::value) return MPI_FLOAT;
     else if constexpr (std::is_same<T, int>::value) return MPI_INT;
     else if constexpr (std::is_same<T, unsigned int>::value) return MPI_UNSIGNED;

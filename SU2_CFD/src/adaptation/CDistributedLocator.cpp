@@ -32,6 +32,7 @@
 #include <numeric>
 
 #include "../../../Common/include/CConfig.hpp"
+#include "../../../Common/include/adaptation/TransferTolerances.hpp"
 #include "../../../Common/include/geometry/CGeometry.hpp"
 #include "../../../Common/include/parallelization/CPassiveComm.hpp"
 
@@ -356,7 +357,7 @@ CFaceHit CCanonicalBoundary::Nearest(const passivedouble* x, const std::vector<u
 
   /*--- Radius with the margin of the proof (scales with the distance, the coordinates and the domain), then every
    *    face within it competes by the total key. ---*/
-  const passivedouble radius = U + 1e-12 * (U + normInf + domainSize);
+  const passivedouble radius = U + DecisionThreshold(1e-12) * (U + normInf + domainSize);
   std::vector<unsigned long> ids;
   for (const auto slot : slots) {
     markerADT[slot]->DetermineElementsWithinDistance(xs, radius, ids);
@@ -492,7 +493,9 @@ std::vector<CElementHit> CDistributedLocator::LocateElements(const std::vector<p
   std::vector<std::vector<unsigned long>> lists(size);
   std::vector<int> ranks;
   for (auto i = 0ul; i < nPoint; ++i) {
-    routing.RanksContaining(&coord[i * nDim], ranks);
+    double x[3] = {0.0, 0.0, 0.0};
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim) x[iDim] = coord[i * nDim + iDim];
+    routing.RanksContaining(x, ranks);
     for (const auto r : ranks) lists[r].push_back(i);
   }
 

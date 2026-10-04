@@ -29,6 +29,7 @@
 #include <cmath>
 
 #include "../../include/adaptation/CBarycentricTransfer.hpp"
+#include "../../../Common/include/adaptation/TransferTolerances.hpp"
 #include "../../include/solvers/CTurbSolver.hpp"
 
 namespace {
@@ -51,7 +52,7 @@ su2double CTransferAdmissibility::Bounded(unsigned short iVar, su2double value, 
   const su2double lower = Lower(iVar), upper = Upper(iVar);
   if (value < lower || value > upper) {
     const su2double limit = (value < lower) ? lower : upper;
-    if (counter != nullptr && fabs(value - limit) > 1e-10 * fabs(limit)) (*counter)++;
+    if (counter != nullptr && fabs(value - limit) > DiagnosticTol(1e-10) * fabs(limit)) (*counter)++;
     value = limit;
   }
   return value;

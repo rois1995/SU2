@@ -661,7 +661,7 @@ void CConservativeProjection::Project(unsigned short nFieldIn, const std::vector
     SetBounds(f, lo, hi);
     const passivedouble typical = summary.scale[f] / std::max(summary.donorCV, passivedouble(1e-300));
     const passivedouble countTol =
-        1e-12 * std::max({SU2_TYPE::GetValue(range[f]), typical, passivedouble(1e-300)});
+        DiagnosticTol(1e-12) * std::max({SU2_TYPE::GetValue(range[f]), typical, passivedouble(1e-300)});
     const auto limited =
         BoundedRedistribute(x, cvT, targetTotalA[f], lo, hi, nullptr, countTol, SU2_TYPE::GetValue(range[f]), false);
     if (limited.error) SU2_MPI::Error("The limiter of field " + std::to_string(f) + ": " + limited.reason + ".", CURRENT_FUNCTION);
@@ -712,7 +712,7 @@ bool CConservativeProjection::Redistribute(unsigned short iField, std::vector<su
   }
   const passivedouble typical = summary.scale[iField] / std::max(summary.donorCV, passivedouble(1e-300));
   const passivedouble countTol =
-      1e-12 * std::max({SU2_TYPE::GetValue(range[iField]), typical, passivedouble(1e-300)});
+      DiagnosticTol(1e-12) * std::max({SU2_TYPE::GetValue(range[iField]), typical, passivedouble(1e-300)});
   const auto result = BoundedRedistribute(v, cvT, targetTotalA[iField], lo, hi, &frozen, countTol,
                                           SU2_TYPE::GetValue(range[iField]), false);
   if (result.error) SU2_MPI::Error("The redistribution of field " + std::to_string(iField) + ": " + result.reason + ".", CURRENT_FUNCTION);
@@ -764,7 +764,7 @@ unsigned long BoundTurbulence(const CTransferAdmissibility& admissibility, std::
       const su2double lower = admissibility.Lower(iVar), upper = admissibility.Upper(iVar);
       if (value < lower || value > upper) {
         const su2double limit = (value < lower) ? lower : upper;
-        if (fabs(value - limit) > 1e-10 * fabs(limit)) nLimited++;
+        if (fabs(value - limit) > DiagnosticTol(1e-10) * fabs(limit)) nLimited++;
         fields[nVarFlow + iVar] = factor * limit;
       }
     }
@@ -992,7 +992,7 @@ void CConservativeTransfer::Transfer(CConfig* config, const CMeshDonor& donor, C
         const auto f = iLevel * nPerLevel + iVar;
         const passivedouble defect =
             SU2_TYPE::GetValue(projection.NewTotal(f, newValues)) - projectionSummary.targetTotal[f];
-        if (fabs(defect) > 1e-12 * std::max(projectionSummary.scale[f], passivedouble(1e-300))) {
+        if (fabs(defect) > TransferTol(1e-12, 1e-5) * std::max(projectionSummary.scale[f], passivedouble(1e-300))) {
           failure.Set(1, UINT64_MAX - f,
                       "The transfer did not keep the total of " + summary.names[f] + " (relative defect " +
                           std::to_string(defect / projectionSummary.scale[f]) + ").");
@@ -1264,7 +1264,7 @@ void CConservativeTransfer::TransferGathered(CConfig* config, const CMeshDonor& 
         const auto f = offset + iVar;
         const passivedouble defect =
             SU2_TYPE::GetValue(projection.NewTotal(f, newValues)) - projectionSummary.targetTotal[f];
-        if (fabs(defect) > 1e-12 * std::max(projectionSummary.scale[f], passivedouble(1e-300))) {
+        if (fabs(defect) > TransferTol(1e-12, 1e-5) * std::max(projectionSummary.scale[f], passivedouble(1e-300))) {
           SU2_MPI::Error("The transfer did not keep the total of " + summary.names[f] + " (relative defect " +
                              std::to_string(defect / projectionSummary.scale[f]) + ").",
                          CURRENT_FUNCTION);

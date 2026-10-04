@@ -61,6 +61,12 @@
 
 #ifdef HAVE_MPI
 
+/*!
+ * \brief The MPI datatype of a C double in every build. Defined before the single-precision redefinition of MPI_DOUBLE
+ *        below, so the body expands to the library's own type (used by CPassiveComm for passive double data).
+ */
+inline MPI_Datatype NativeMpiDouble() { return MPI_DOUBLE; }
+
 #ifdef USE_SINGLE_PRECISION
 #undef MPI_DOUBLE
 #define MPI_DOUBLE MPI_FLOAT

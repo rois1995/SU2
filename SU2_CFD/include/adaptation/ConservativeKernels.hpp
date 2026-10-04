@@ -32,16 +32,22 @@
 #include <vector>
 
 #include "../../../Common/include/basic_types/datatype_structure.hpp"
+#include "../../../Common/include/adaptation/TransferTolerances.hpp"
 
 class CGeometry;
 
 namespace conservative {
 
-constexpr passivedouble kOverlapFraction = 1e-13; /*!< \brief Overlaps below this fraction of the smaller element are
-                                                       ignored (round-off contacts at shared faces/edges/points). */
-constexpr passivedouble kGapFraction = 1e-10;     /*!< \brief Uncovered parts above this fraction are filled/moved. */
-constexpr passivedouble kCentroidFraction = 1e-8; /*!< \brief Below it, the centroid of a missing part is not computed
-                                                       from the moments (cancellation): the whole cell's centroid. */
+/*--- Geometric decision thresholds (TransferTolerances.hpp: not scaled with the precision, at least the round-off floor
+ *    of the compared quantity). ---*/
+/*! \brief Overlaps below this fraction of the smaller element are ignored (round-off contacts at shared
+ *         faces/edges/points). */
+constexpr passivedouble kOverlapFraction = DecisionThreshold(1e-13);
+/*! \brief Uncovered parts above this fraction are filled/moved. */
+constexpr passivedouble kGapFraction = DecisionThreshold(1e-10);
+/*! \brief Below it, the centroid of a missing part is not computed from the moments (cancellation): the whole cell's
+ *         centroid. */
+constexpr passivedouble kCentroidFraction = DecisionThreshold(1e-8);
 
 /*!
  * \brief Barycentric functions of the simplex y[0..nDim] (local frame): lambda_k(x) = a[k] + G[k].x. Returns the

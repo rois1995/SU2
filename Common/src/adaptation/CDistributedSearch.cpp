@@ -573,6 +573,16 @@ size_t CAccurateSumBatch::Add(const double* x, size_t n, size_t stride) {
   return firstBad.size() - 1;
 }
 
+size_t CAccurateSumBatch::Add(const float* x, size_t n, size_t stride) {
+  double triple[3];
+  size_t bad = n;
+  CAccurateSum::Local(x, n, stride, triple, &bad);
+  triples.insert(triples.end(), triple, triple + 3);
+  firstBad.push_back(bad);
+  derivativeOf.push_back(-1);
+  return firstBad.size() - 1;
+}
+
 size_t CAccurateSumBatch::AddActive(const su2double* x, size_t n, size_t stride) {
   std::vector<double> values(n);
   for (auto i = 0ul; i < n; ++i) values[i] = SU2_TYPE::GetValue(x[i * stride]);
