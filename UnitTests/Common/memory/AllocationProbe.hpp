@@ -4,7 +4,7 @@
  *        and counts the requested bytes alive (live) and their largest value (peak).
  * \note The requested size is kept in a header in front of each block, so sized and unsized deletes are exact and the
  *       bookkeeping allocates nothing. Allocations of the C library (malloc, e.g. inside MPI) are not seen. The
- *       usable bytes of the allocator (malloc_usable_size, with its rounding) are counted separately, for information.
+ *       usable bytes of the allocator (with its rounding) are counted separately where available, for information.
  * \version 8.5.0 "Harrier"
  *
  * SU2 Project Website: https://su2code.github.io
@@ -40,7 +40,9 @@ size_t Live();
 size_t Peak();
 /*! \brief Start a measurement window: Peak() = Live(). */
 void ResetPeak();
-/*! \brief The same for the usable bytes of the allocator. */
+/*! \brief Whether usable-byte reporting is available (otherwise the usable counters return zero). */
+bool HasUsable();
+/*! \brief The same for the usable bytes of the allocator, where available. */
 size_t LiveUsable();
 size_t PeakUsable();
 /*! \brief Number of operator new calls (all forms) so far. */

@@ -25,17 +25,30 @@
  */
 
 #include "AllocationProbe.hpp"
+#include "../../../Common/include/toolboxes/allocation_toolbox.hpp"
 
+#if defined(__GLIBC__) && !defined(SU2_PROBE_PORTABLE_ONLY)
 #include <malloc.h>
+#endif
 
 #include <atomic>
 #include <cstdint>
 #include <cstdlib>
+#include <limits>
 #include <new>
 
 namespace {
 
 std::atomic<size_t> live{0}, peak{0}, liveUsable{0}, peakUsable{0}, calls{0};
+
+size_t UsableBytes(void* pointer) {
+#if defined(__GLIBC__) && !defined(SU2_PROBE_PORTABLE_ONLY)
+  return malloc_usable_size(pointer);
+#else
+  (void)pointer;
+  return 0;
+#endif
+}
 
 void RaisePeak(std::atomic<size_t>& max, size_t value) {
   size_t current = max.load(std::memory_order_relaxed);
@@ -48,18 +61,13 @@ void RaisePeak(std::atomic<size_t>& max, size_t value) {
 void* Allocate(size_t bytes, size_t alignment) {
   if (alignment < 16) alignment = 16;
   const size_t header = alignment;
-  void* raw = nullptr;
-  if (alignment <= 16) {
-    raw = std::malloc(bytes + header);
-  } else {
-    const size_t total = (bytes + header + alignment - 1) / alignment * alignment;
-    raw = std::aligned_alloc(alignment, total);
-  }
+  if (bytes > std::numeric_limits<size_t>::max() - header - (alignment - 1)) return nullptr;
+  void* raw = MemoryAllocation::aligned_alloc<char>(alignment, bytes + header);
   if (raw == nullptr) return nullptr;
   char* user = static_cast<char*>(raw) + header;
   reinterpret_cast<size_t*>(user)[-1] = header;
   reinterpret_cast<size_t*>(user)[-2] = bytes;
-  const size_t usable = malloc_usable_size(raw);
+  const size_t usable = UsableBytes(raw);
   RaisePeak(peak, live.fetch_add(bytes, std::memory_order_relaxed) + bytes);
   RaisePeak(peakUsable, liveUsable.fetch_add(usable, std::memory_order_relaxed) + usable);
   calls.fetch_add(1, std::memory_order_relaxed);
@@ -73,8 +81,8 @@ void Release(void* pointer) {
   const size_t bytes = reinterpret_cast<size_t*>(user)[-2];
   void* raw = user - header;
   live.fetch_sub(bytes, std::memory_order_relaxed);
-  liveUsable.fetch_sub(malloc_usable_size(raw), std::memory_order_relaxed);
-  std::free(raw);
+  liveUsable.fetch_sub(UsableBytes(raw), std::memory_order_relaxed);
+  MemoryAllocation::aligned_free(raw);
 }
 
 void* AllocateOrThrow(size_t bytes, size_t alignment) {
@@ -94,6 +102,13 @@ void ResetPeak() {
 }
 size_t LiveUsable() { return liveUsable.load(); }
 size_t PeakUsable() { return peakUsable.load(); }
+bool HasUsable() {
+#if defined(__GLIBC__) && !defined(SU2_PROBE_PORTABLE_ONLY)
+  return true;
+#else
+  return false;
+#endif
+}
 size_t Calls() { return calls.load(); }
 }  // namespace alloc_probe
 

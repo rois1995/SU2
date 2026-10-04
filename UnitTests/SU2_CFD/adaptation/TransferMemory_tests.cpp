@@ -134,9 +134,9 @@ void CheckPhases(const std::string& name, size_t ceiling) {
       std::ostringstream row;
       row << "[memtable] P=" << SU2_MPI::GetSize() << " | " << std::left << std::setw(58) << name << " | "
           << std::setw(7) << phaseName[p] << " | measured " << std::setw(9) << measured << " | usable " << std::setw(9)
-          << usable << " | predicted " << std::setw(9) << predicted << " | ratio " << std::fixed << std::setprecision(2)
-          << (measured > 0 ? double(predicted) / measured : 0.0) << " | ceiling "
-          << (ceiling >> 20 > 1024 ? std::string("default") : std::to_string(ceiling));
+          << (alloc_probe::HasUsable() ? std::to_string(usable) : "n/a") << " | predicted " << std::setw(9) << predicted
+          << " | ratio " << std::fixed << std::setprecision(2) << (measured > 0 ? double(predicted) / measured : 0.0)
+          << " | ceiling " << (ceiling >> 20 > 1024 ? std::string("default") : std::to_string(ceiling));
       std::cout << row.str() << std::endl;
     }
   }
