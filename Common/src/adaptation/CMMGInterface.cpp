@@ -188,6 +188,65 @@ void CMMGInterface::FloorFixedBoundaryMetric(CSimplexMesh& mesh) {
   }
 }
 
+passivedouble CMMGInterface::CoarseningRatio(unsigned short nDim, const passivedouble* metricIn,
+                                             const passivedouble* metricOut) {
+  using Mat = passivedouble[3][3];
+  Mat A = {{0.0}}, B = {{0.0}};
+  for (unsigned short iDim = 0, iMet = 0; iDim < nDim; ++iDim)
+    for (unsigned short jDim = iDim; jDim < nDim; ++jDim, ++iMet) {
+      A[iDim][jDim] = A[jDim][iDim] = metricIn[iMet];
+      B[iDim][jDim] = B[jDim][iDim] = metricOut[iMet];
+    }
+  /*--- A^-1/2 (eigenvalues of a valid metric are positive). ---*/
+  passivedouble vec[3][3], val[3], work[3];
+  Mat invHalf;
+  CBlasStructure::EigenDecomposition(A, vec, val, nDim, work);
+  for (unsigned short i = 0; i < nDim; ++i) val[i] = 1.0 / sqrt(val[i]);
+  CBlasStructure::EigenRecomposition(invHalf, vec, val, nDim);
+  Mat tmp = {{0.0}}, C = {{0.0}};
+  for (unsigned short i = 0; i < nDim; ++i)
+    for (unsigned short j = 0; j < nDim; ++j)
+      for (unsigned short k = 0; k < nDim; ++k) tmp[i][j] += invHalf[i][k] * B[k][j];
+  for (unsigned short i = 0; i < nDim; ++i)
+    for (unsigned short j = 0; j < nDim; ++j)
+      for (unsigned short k = 0; k < nDim; ++k) C[i][j] += tmp[i][k] * invHalf[k][j];
+  for (unsigned short i = 0; i < nDim; ++i)
+    for (unsigned short j = 0; j < i; ++j) C[i][j] = C[j][i] = 0.5 * (C[i][j] + C[j][i]);
+  CBlasStructure::EigenDecomposition(C, vec, val, nDim, work);
+  passivedouble minVal = val[0];
+  for (unsigned short i = 1; i < nDim; ++i) minVal = std::min(minVal, val[i]);
+  return minVal;
+}
+
+std::vector<CMMGInterface::LocalParameter> CMMGInterface::WallLocalParameters(const CSimplexMesh& mesh) const {
+  std::vector<LocalParameter> local;
+  const auto nDim = mesh.nDim;
+  for (const auto& marker : mesh.markers) {
+    if (std::find(params.boundaryLayerMarkers.begin(), params.boundaryLayerMarkers.end(), marker.name) ==
+        params.boundaryLayerMarkers.end())
+      continue;
+    passivedouble longest = 0.0;
+    for (auto iFace = 0ul; iFace < marker.GetnElem(nDim); ++iFace) {
+      const auto* face = &marker.elem[iFace * nDim];
+      for (unsigned short a = 0; a < nDim; ++a) {
+        const auto b = (a + 1) % nDim;
+        passivedouble len2 = 0.0;
+        for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+          len2 += pow(mesh.coord[face[b] * nDim + iDim] - mesh.coord[face[a] * nDim + iDim], 2);
+        longest = std::max(longest, sqrt(len2));
+      }
+    }
+    if (longest <= 0.0) continue;
+    LocalParameter param;
+    param.ref = marker.ref;
+    param.hmin = params.hmin;
+    param.hmax = std::max(params.hmin, std::min(params.hmax, 2.0 * longest));
+    param.hausd = params.hausd;
+    local.push_back(param);
+  }
+  return local;
+}
+
 void CMMGInterface::CheckSupport(const CConfig& config, const CGeometry& geometry) {
   if (config.GetMultizone_Problem() || config.GetnZone() > 1 || config.GetnMarker_ZoneInterface() > 0) {
     SU2_MPI::Error("Mesh adaptation does not support multizone problems or sliding meshes.", CURRENT_FUNCTION);
@@ -516,6 +575,9 @@ CMMGInterface::CMMGInterface(const CConfig& config) : mmg(new MMGData) {
   params.angle = SU2_TYPE::GetValue(config.GetAdap_Angle());
   params.surface = config.GetAdap_Surface();
   params.boundaryLayer = (config.GetnAdap_BL() > 0);
+  for (unsigned short iBL = 0; iBL < config.GetnAdap_BL(); ++iBL)
+    params.boundaryLayerMarkers.push_back(config.GetAdap_BL(iBL).marker);
+  params.localWallHmax = config.GetAdap_BL_LocalHmax();
 }
 
 CMMGInterface::~CMMGInterface() = default;
@@ -547,6 +609,9 @@ void CMMGInterface::SetMesh(const CSimplexMesh& mesh) {
     info.ref = marker.ref;
     markerInfo.push_back(info);
   }
+  localParams.clear();
+  if (!localOverride.empty()) localParams = localOverride;
+  else if (params.localWallHmax) localParams = WallLocalParameters(mesh);
 
   /*--- MMG arrays: 1-based indices. ---*/
   std::vector<double> coord(mesh.coord.begin(), mesh.coord.end());
@@ -578,6 +643,25 @@ void CMMGInterface::SetMesh(const CSimplexMesh& mesh) {
   std::vector<int> corners;
   for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint)
     if (pointMarkers[iPoint].size() >= nDim) corners.push_back(static_cast<int>(iPoint) + 1);
+  for (const auto iPoint : params.requiredPoints) {
+    if (iPoint >= nPoint) SU2_MPI::Error("Required point out of range.", CURRENT_FUNCTION);
+    const int k = static_cast<int>(iPoint) + 1;
+    if (std::find(corners.begin(), corners.end(), k) == corners.end()) corners.push_back(k);
+  }
+
+  /*--- Boundary elements of the required markers (surface adapted elsewhere), 1-based in the order of bound. ---*/
+  std::vector<int> requiredBound;
+  {
+    int k = 0;
+    for (const auto& marker : mesh.markers) {
+      const bool required = std::find(params.requiredMarkers.begin(), params.requiredMarkers.end(), marker.name) !=
+                            params.requiredMarkers.end();
+      for (auto iElem = 0ul; iElem < marker.GetnElem(nDim); ++iElem) {
+        ++k;
+        if (required) requiredBound.push_back(k);
+      }
+    }
+  }
 
   /*--- Fixed surface: MMG keeps the boundary points but scales the coordinates to a unit box and back, which changes
    *    them by round-off. Their reference is their index + 1, so GetMesh can restore the exact input coordinates. ---*/
@@ -600,6 +684,7 @@ void CMMGInterface::SetMesh(const CSimplexMesh& mesh) {
     ok &= MMG2D_Set_vertices(mmg->mesh, coord.data(), pointRef.data());
     ok &= MMG2D_Set_triangles(mmg->mesh, elem.data(), elemRef.data());
     if (nBound > 0) ok &= MMG2D_Set_edges(mmg->mesh, bound.data(), boundRef.data());
+    for (const auto k : requiredBound) ok &= MMG2D_Set_requiredEdge(mmg->mesh, k);
     for (const auto k : corners) {
       ok &= MMG2D_Set_corner(mmg->mesh, k);
       ok &= MMG2D_Set_requiredVertex(mmg->mesh, k);
@@ -614,6 +699,7 @@ void CMMGInterface::SetMesh(const CSimplexMesh& mesh) {
     ok &= MMG3D_Set_vertices(mmg->mesh, coord.data(), pointRef.data());
     ok &= MMG3D_Set_tetrahedra(mmg->mesh, elem.data(), elemRef.data());
     if (nBound > 0) ok &= MMG3D_Set_triangles(mmg->mesh, bound.data(), boundRef.data());
+    for (const auto k : requiredBound) ok &= MMG3D_Set_requiredTriangle(mmg->mesh, k);
     for (const auto k : corners) {
       ok &= MMG3D_Set_corner(mmg->mesh, k);
       ok &= MMG3D_Set_requiredVertex(mmg->mesh, k);
@@ -640,7 +726,14 @@ CMMGInterface::Status CMMGInterface::Remesh() {
     ok &= MMG2D_Set_iparameter(mmg->mesh, mmg->met, MMG2D_IPARAM_nosurf, params.surface ? 0 : 1);
     ok &= MMG2D_Set_iparameter(mmg->mesh, mmg->met, MMG2D_IPARAM_nosizreq, params.surface ? 0 : 1);
     if (!params.surface) ok &= MMG2D_Set_dparameter(mmg->mesh, mmg->met, MMG2D_DPARAM_hgradreq, -1.0);
-    ok &= MMG2D_Set_iparameter(mmg->mesh, mmg->met, MMG2D_IPARAM_noswap, params.boundaryLayer ? 1 : 0);
+    const bool noswap = (params.swap < 0) ? params.boundaryLayer : (params.swap == 0);
+    ok &= MMG2D_Set_iparameter(mmg->mesh, mmg->met, MMG2D_IPARAM_noswap, noswap ? 1 : 0);
+    if (!localParams.empty()) {
+      ok &= MMG2D_Set_iparameter(mmg->mesh, mmg->met, MMG2D_IPARAM_numberOfLocalParam,
+                                 static_cast<int>(localParams.size()));
+      for (const auto& local : localParams)
+        ok &= MMG2D_Set_localParameter(mmg->mesh, mmg->met, MMG5_Edg, local.ref, local.hmin, local.hmax, local.hausd);
+    }
     if (ok) ier = MMG2D_mmg2dlib(mmg->mesh, mmg->met);
   } else {
     ok &= MMG3D_Set_iparameter(mmg->mesh, mmg->met, MMG3D_IPARAM_verbose, params.verbosity);
@@ -653,6 +746,13 @@ CMMGInterface::Status CMMGInterface::Remesh() {
     ok &= MMG3D_Set_iparameter(mmg->mesh, mmg->met, MMG3D_IPARAM_nosurf, params.surface ? 0 : 1);
     ok &= MMG3D_Set_iparameter(mmg->mesh, mmg->met, MMG3D_IPARAM_nosizreq, params.surface ? 0 : 1);
     if (!params.surface) ok &= MMG3D_Set_dparameter(mmg->mesh, mmg->met, MMG3D_DPARAM_hgradreq, -1.0);
+    if (!localParams.empty()) {
+      ok &= MMG3D_Set_iparameter(mmg->mesh, mmg->met, MMG3D_IPARAM_numberOfLocalParam,
+                                 static_cast<int>(localParams.size()));
+      for (const auto& local : localParams)
+        ok &= MMG3D_Set_localParameter(mmg->mesh, mmg->met, MMG5_Triangle, local.ref, local.hmin, local.hmax,
+                                       local.hausd);
+    }
     if (ok) ier = MMG3D_mmg3dlib(mmg->mesh, mmg->met);
   }
   if (!ok) SU2_MPI::Error("Could not set the MMG parameters.", CURRENT_FUNCTION);
@@ -715,6 +815,7 @@ CSimplexMesh CMMGInterface::GetMesh() const {
 
   /*--- Fixed surface: the exact input coordinates of the kept boundary points (identified by their reference and
    *    checked to be within round-off of the input point). ---*/
+  fixedSource.assign(np, -1);
   if (!fixedBoundary.empty()) {
     passivedouble size2 = 0.0;
     for (unsigned short iDim = 0; iDim < nDim; ++iDim) {
@@ -733,6 +834,7 @@ CSimplexMesh CMMGInterface::GetMesh() const {
       for (unsigned short iDim = 0; iDim < nDim; ++iDim)
         dist2 += pow(coord[iPoint * nDim + iDim] - fixedCoord[(ref - 1) * nDim + iDim], 2);
       if (dist2 > tol2) continue;
+      fixedSource[iPoint] = ref - 1;
       for (unsigned short iDim = 0; iDim < nDim; ++iDim)
         mesh.coord[iPoint * nDim + iDim] = fixedCoord[(ref - 1) * nDim + iDim];
     }
@@ -775,19 +877,59 @@ CSimplexMesh CMMGInterface::GetMesh() const {
 
 CSimplexMesh CMMGInterface::Adapt(const CSimplexMesh& mesh) {
   ValidateMesh(mesh, nullptr, "Mesh given to MMG");
+  metricCheck = MetricCheck();
+  CSimplexMesh floored;
   if (params.surface) {
     SetMesh(mesh);
   } else {
     /*--- Fixed boundary faces (MMG keeps the metric at their points, nosizreq): no boundary edge may be longer than
      *    1 in the metric of its points, else MMG fills the cells on it with nodes very close to it. ---*/
-    auto floored = mesh;
+    floored = mesh;
     FloorFixedBoundaryMetric(floored);
     SetMesh(floored);
   }
   Remesh();
   auto adapted = GetMesh();
   ValidateMesh(adapted, &mesh, "Mesh returned by MMG");
-  if (!params.surface) CheckSameBoundary(adapted, mesh, "Mesh returned by MMG with ADAP_SURFACE= NO");
+  if (!params.surface) {
+    CheckSameBoundary(adapted, mesh, "Mesh returned by MMG with ADAP_SURFACE= NO");
+
+    /*--- MetricCheck: MMG's metric at the kept boundary points must not be coarser than the (floored) one given. ---*/
+    const auto nMetric = CSimplexMesh::GetnMetric(nDim);
+    if (adapted.metric.size() == adapted.GetnPoint() * nMetric) {
+      std::vector<int> nMarkerOf(mesh.GetnPoint(), 0);
+      for (const auto& marker : mesh.markers) {
+        std::set<unsigned long> points(marker.elem.begin(), marker.elem.end());
+        for (const auto iPoint : points) nMarkerOf[iPoint]++;
+      }
+      for (auto iPoint = 0ul; iPoint < adapted.GetnPoint(); ++iPoint) {
+        const auto source = fixedSource[iPoint];
+        if (source < 0) continue;
+        ++metricCheck.nChecked;
+        const auto ratio = CoarseningRatio(nDim, &floored.metric[source * nMetric], &adapted.metric[iPoint * nMetric]);
+        metricCheck.worstRatio = std::min(metricCheck.worstRatio, ratio);
+        if (ratio >= 1.0 - metricCheckTolerance) continue;
+        ++metricCheck.nViolations;
+        if (nMarkerOf[source] >= 2) ++metricCheck.nCornerViolations;
+        metricCheck.points.push_back(source);
+      }
+      if (metricCheck.nViolations > 0) {
+        cout << "WARNING: MMG made the metric coarser at " << metricCheck.nViolations << " of " << metricCheck.nChecked
+             << " fixed boundary points (" << metricCheck.nCornerViolations << " corners; worst: smallest size ratio "
+             << 1.0 / sqrt(std::max(metricCheck.worstRatio, 1e-300)) << "x coarser). MMG's own boundary metric "
+             << "replaced the given one there (MMG issue #331: use an MMG with PR #332, or ADAP_BL_LOCAL_HMAX= YES); "
+             << "the target sizes, e.g. a boundary-layer first height, are not met at those points:";
+        const auto nShow = std::min<std::size_t>(metricCheck.points.size(), 10);
+        for (std::size_t i = 0; i < nShow; ++i) {
+          cout << " (";
+          for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+            cout << (iDim ? ", " : "") << mesh.coord[metricCheck.points[i] * nDim + iDim];
+          cout << ")";
+        }
+        cout << (metricCheck.points.size() > nShow ? " ..." : "") << endl;
+      }
+    }
+  }
   return adapted;
 }
 

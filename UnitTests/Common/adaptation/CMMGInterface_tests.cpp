@@ -548,4 +548,113 @@ TEST_CASE("MMG interface: 3D uniform refinement and coarsening", "[MMG]") {
   CheckUniformRemesh(3, 8, 2.0);
 }
 
+
+TEST_CASE("MMG interface: coarsening ratio of two metrics", "[MMG]") {
+  const passivedouble in2[3] = {1.0, 0.0, 4.0};
+  const passivedouble same2[3] = {1.0, 0.0, 4.0};
+  const passivedouble coarse2[3] = {1.0, 0.0, 1.0};   // 2x coarser along y
+  const passivedouble finer2[3] = {9.0, 0.5, 16.0};
+  CHECK(CMMGInterface::CoarseningRatio(2, in2, same2) == Approx(1.0).epsilon(1e-12));
+  CHECK(CMMGInterface::CoarseningRatio(2, in2, coarse2) == Approx(0.25).epsilon(1e-12));
+  CHECK(CMMGInterface::CoarseningRatio(2, in2, finer2) > 1.0);
+  /*--- Strongly anisotropic (a boundary-layer metric, aspect ratio 2e4) against MMG's isotropic hmax 0.5. ---*/
+  const passivedouble bl[3] = {1.0 / (0.04 * 0.04), 0.0, 1.0 / (2e-6 * 2e-6)};
+  const passivedouble iso[3] = {4.0, 0.0, 4.0};
+  CHECK(CMMGInterface::CoarseningRatio(2, bl, iso) == Approx(4.0 * 4e-12).epsilon(1e-6));
+  const passivedouble in3[6] = {1.0, 0.0, 0.0, 2.0, 0.0, 3.0};
+  const passivedouble coarse3[6] = {1.0, 0.0, 0.0, 2.0, 0.0, 0.3};
+  CHECK(CMMGInterface::CoarseningRatio(3, in3, coarse3) == Approx(0.1).epsilon(1e-12));
+}
+
+namespace {
+
+/*!
+ * \brief Boundary-layer metric (first height h0 2e-6, growth 1.15 per row, tangential size 0.25) on the walls z = 0
+ *        (3D) or y = 0 (2D) of the coarse box, hmax 0.5: hmax / h0 = 2.5e5, the regime where MMG 5.6 replaced the
+ *        metric at the wall points by its isotropic geometric metric (MMG issue #331). Returns the mesh adapted with
+ *        a fixed surface and the face heights of the wall faces.
+ */
+CSimplexMesh WallMetricCase(unsigned short nDim, bool localHmax, CMMGInterface::MetricCheck& check,
+                            std::vector<passivedouble>& heights) {
+  SimplexMeshCase test(nDim, 2);
+  const passivedouble h0 = 2e-6, t = 0.25;
+  const auto normal = nDim - 1;
+  su2activematrix metric(test.geometry->GetnPoint(), CSimplexMesh::GetnMetric(nDim));
+  for (auto iPoint = 0ul; iPoint < test.geometry->GetnPoint(); ++iPoint) {
+    const passivedouble d = SU2_TYPE::GetValue(test.geometry->nodes->GetCoord(iPoint, normal));
+    const passivedouble hn = std::min(h0 + 0.15 * d, t);
+    for (unsigned short iDim = 0, iMet = 0; iDim < nDim; ++iDim)
+      for (unsigned short jDim = iDim; jDim < nDim; ++jDim, ++iMet)
+        metric(iPoint, iMet) = (iDim != jDim) ? 0.0 : (iDim == normal ? 1.0 / (hn * hn) : 1.0 / (t * t));
+  }
+  const auto mesh = CMMGInterface::ExtractMesh(*test.config, *test.geometry, metric);
+  CMMGInterface mmg(*test.config);
+  auto& params = mmg.GetParameters();
+  params.surface = false;
+  params.hmin = 1e-6;
+  params.hmax = 0.5;
+  params.swap = 1;
+  params.localWallHmax = localHmax;
+  params.boundaryLayerMarkers = (nDim == 2) ? std::vector<string>{"lower_a", "lower_b"}
+                                            : std::vector<string>{"z_minus_a", "z_minus_b"};
+  if (localHmax) {
+    const auto local = mmg.WallLocalParameters(mesh);
+    REQUIRE(local.size() == 2);
+    for (const auto& param : local) CHECK(param.hmax == Approx(0.5));  // 2 x the longest wall edge (0.25 / 0.354)
+  }
+  auto adapted = mmg.Adapt(mesh);
+  check = mmg.GetMetricCheck();
+
+  /*--- Face heights of the wall faces: distance of the opposite vertex of their element from the wall. ---*/
+  std::set<std::vector<unsigned long>> wallFaces;
+  for (const auto& marker : adapted.markers) {
+    if (std::find(params.boundaryLayerMarkers.begin(), params.boundaryLayerMarkers.end(), marker.name) ==
+        params.boundaryLayerMarkers.end())
+      continue;
+    for (auto iFace = 0ul; iFace < marker.GetnElem(nDim); ++iFace) {
+      std::vector<unsigned long> face(&marker.elem[iFace * nDim], &marker.elem[iFace * nDim] + nDim);
+      std::sort(face.begin(), face.end());
+      wallFaces.insert(face);
+    }
+  }
+  heights.clear();
+  for (auto iElem = 0ul; iElem < adapted.GetnElem(); ++iElem) {
+    const auto* elem = &adapted.elem[iElem * (nDim + 1)];
+    for (unsigned short k = 0; k <= nDim; ++k) {
+      std::vector<unsigned long> face;
+      for (unsigned short j = 0; j <= nDim; ++j)
+        if (j != k) face.push_back(elem[j]);
+      std::sort(face.begin(), face.end());
+      if (wallFaces.count(face)) heights.push_back(adapted.coord[elem[k] * nDim + normal]);
+    }
+  }
+  return adapted;
+}
+
+}  // namespace
+
+TEST_CASE("MMG interface: boundary-layer metric kept at the fixed wall points (MMG issue 331)", "[MMG]") {
+  for (const bool localHmax : {false, true}) {
+    CMMGInterface::MetricCheck check;
+    std::vector<passivedouble> heights;
+    const auto adapted = WallMetricCase(2, localHmax, check, heights);
+    CHECK(check.nChecked > 0);
+    CHECK(check.nViolations == 0);   // fails with stock MMG 5.6 without the local parameters
+    CHECK(check.worstRatio > 1.0 - CMMGInterface::metricCheckTolerance);
+    REQUIRE(!heights.empty());
+    std::sort(heights.begin(), heights.end());
+    /*--- MMG builds the near-wall cells from the coarse input: first cells about h0. ---*/
+    CHECK(heights[heights.size() / 2] < 2.0 * 2e-6);
+    CHECK(heights.back() < 4.0 * 2e-6);
+  }
+}
+
+TEST_CASE("MMG interface: boundary-layer metric at the fixed wall points in 3D", "[MMG]") {
+  CMMGInterface::MetricCheck check;
+  std::vector<passivedouble> heights;
+  const auto adapted = WallMetricCase(3, true, check, heights);
+  CHECK(check.nChecked > 0);
+  CHECK(check.nViolations == 0);
+}
+
 #endif

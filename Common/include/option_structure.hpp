@@ -1276,6 +1276,19 @@ static const MapType<std::string, ADAP_UNSTEADY_METRIC> Adap_Unsteady_Metric_Map
 };
 
 /*!
+ * \brief How the remesher builds the near-wall cells of the boundary-layer markers (ADAP_BL_METHOD).
+ */
+enum class ADAP_BL_METHOD {
+  METRIC,   /*!< \brief The boundary-layer metric is intersected with the sensor metric, one remesh (default). */
+  TWO_PASS, /*!< \brief Pass A resets the near-wall band and resamples the wall on the cycle-0 reference wall with a
+                 curvature-capped tangential size (2D), pass B remeshes with the boundary-layer metric. */
+};
+static const MapType<std::string, ADAP_BL_METHOD> Adap_BL_Method_Map = {
+  MakePair("METRIC", ADAP_BL_METHOD::METRIC)
+  MakePair("TWO_PASS", ADAP_BL_METHOD::TWO_PASS)
+};
+
+/*!
  * \brief Options of one level (one entry of ADAP_SIZES) of the mesh adaptation loop, lists expanded.
  */
 struct CAdapLevel {

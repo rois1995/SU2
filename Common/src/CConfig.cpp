@@ -3312,6 +3312,33 @@ void CConfig::SetConfig_Options() {
   /*!\brief ADAP_BL_THICKNESS \n DESCRIPTION: Distance from the wall where the boundary-layer metric ends (>= the first
    * height) of each boundary-layer marker \ingroup Config */
   addDoubleListOption("ADAP_BL_THICKNESS", nAdap_BL_Thickness, Adap_BL_Thickness);
+  /*!\brief ADAP_BL_LOCAL_HMAX \n DESCRIPTION: MMG local parameters on the boundary-layer wall markers: hmax = 2 x their
+   * longest face edge. This bounds MMG's own geometric boundary metric there; MMG versions without the fix of MMG issue
+   * #331 can otherwise replace the boundary-layer metric at the wall points by it \ingroup Config */
+  addBoolOption("ADAP_BL_LOCAL_HMAX", Adap_BL_LocalHmax, true);
+  /*!\brief ADAP_BL_METHOD \n DESCRIPTION: How the near-wall cells are built: METRIC (one remesh with the boundary-layer
+   * metric) or TWO_PASS (2D: pass A resets the near-wall band and resamples the wall on the reference wall with a
+   * curvature-capped tangential size, pass B remeshes with the boundary-layer metric) \ingroup Config */
+  addEnumOption("ADAP_BL_METHOD", Kind_Adap_BL_Method, Adap_BL_Method_Map, ADAP_BL_METHOD::METRIC);
+  /*!\brief ADAP_BL_CURVATURE_FACTOR \n DESCRIPTION: TWO_PASS: wall tangential size at most c sqrt(2 R h0) (R radius of
+   * curvature of the reference wall, h0 the first height) \ingroup Config */
+  addDoubleOption("ADAP_BL_CURVATURE_FACTOR", Adap_BL_CurvatureFactor, 0.7);
+  /*!\brief ADAP_BL_GATE_FACTOR \n DESCRIPTION: TWO_PASS: pass A is accepted only if every wall edge L with the turn
+   * of the wall at its ends satisfies L sin(turn/2) <= k h0 \ingroup Config */
+  addDoubleOption("ADAP_BL_GATE_FACTOR", Adap_BL_GateFactor, 1.0);
+  /*!\brief ADAP_BL_GEOM_TOL \n DESCRIPTION: TWO_PASS: largest distance of the wall points from the reference wall
+   * after the projection (0: 0.25 x the smallest ADAP_BL_FIRST_HEIGHT) \ingroup Config */
+  addDoubleOption("ADAP_BL_GEOM_TOL", Adap_BL_GeomTol, 0.0);
+  /*!\brief ADAP_BL_REFERENCE \n DESCRIPTION: TWO_PASS: file of the reference wall, written at the first remesh and
+   * read when the loop restarts \ingroup Config */
+  addStringOption("ADAP_BL_REFERENCE", Adap_BL_Reference, string("adap_bl_reference.dat"));
+  /*!\brief ADAP_BL_REFERENCE_REBASE \n DESCRIPTION: TWO_PASS: rebuild the reference wall from the current wall instead of
+   * reading ADAP_BL_REFERENCE \ingroup Config */
+  addBoolOption("ADAP_BL_REFERENCE_REBASE", Adap_BL_ReferenceRebase, false);
+  /*!\brief ADAP_BL_SWAP \n DESCRIPTION: TWO_PASS: edge swaps in the boundary-layer pass (2D; the METRIC method never swaps in
+   * 2D with a boundary-layer metric). Without swaps MMG needs several times more points to build the near-wall cells
+   * from the reset band of pass A (flat plate: 217k instead of 36k points) \ingroup Config */
+  addBoolOption("ADAP_BL_SWAP", Adap_BL_Swap, true);
 
   /*--- Mesh adaptation loop (steady, single zone, needs MMG). Cycle 0 solves on the input mesh with the
    *    usual options (ITER, CFL_NUMBER, CONV_*), then each cycle remeshes from the metric of the last solution,
@@ -6442,10 +6469,22 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
         vector<su2double>(Adap_BL_Growth, Adap_BL_Growth + nAdap_BL_Growth),
         vector<su2double>(Adap_BL_Thickness, Adap_BL_Thickness + nAdap_BL_Thickness), hmins, Adap_BL);
     if (!error.empty()) SU2_MPI::Error(error, CURRENT_FUNCTION);
-    if (Adap_Surface && rank == MASTER_NODE) {
+    if (Adap_Surface && Kind_Adap_BL_Method == ADAP_BL_METHOD::METRIC && rank == MASTER_NODE) {
       cout << "WARNING: ADAP_BL_MARKER with ADAP_SURFACE= YES: the remesher may split the wall faces down to the "
               "first height (near-isotropic wall cells); ADAP_SURFACE= NO keeps the wall faces." << endl;
     }
+  }
+  if (!(Adap_BL_CurvatureFactor > 0.0) || !std::isfinite(SU2_TYPE::GetValue(Adap_BL_CurvatureFactor)))
+    SU2_MPI::Error("ADAP_BL_CURVATURE_FACTOR must be a finite value > 0.", CURRENT_FUNCTION);
+  if (!(Adap_BL_GateFactor > 0.0) || !std::isfinite(SU2_TYPE::GetValue(Adap_BL_GateFactor)))
+    SU2_MPI::Error("ADAP_BL_GATE_FACTOR must be a finite value > 0.", CURRENT_FUNCTION);
+  if (!(Adap_BL_GeomTol >= 0.0) || !std::isfinite(SU2_TYPE::GetValue(Adap_BL_GeomTol)))
+    SU2_MPI::Error("ADAP_BL_GEOM_TOL must be a finite value >= 0.", CURRENT_FUNCTION);
+  if (Kind_Adap_BL_Method == ADAP_BL_METHOD::TWO_PASS) {
+    if (Adap_BL.empty()) SU2_MPI::Error("ADAP_BL_METHOD= TWO_PASS needs ADAP_BL_MARKER.", CURRENT_FUNCTION);
+    if (val_nDim == 3) SU2_MPI::Error("ADAP_BL_METHOD= TWO_PASS is not implemented in 3D yet.", CURRENT_FUNCTION);
+    if (Time_Domain)
+      SU2_MPI::Error("ADAP_BL_METHOD= TWO_PASS is only implemented for the steady adaptation loop.", CURRENT_FUNCTION);
   }
 
   /*--- Check if SU2 was built with CGNS support, as that is required for CGNS mesh output. ---*/
