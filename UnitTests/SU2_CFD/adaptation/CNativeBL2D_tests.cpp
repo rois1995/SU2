@@ -14,6 +14,7 @@
 #include "../../../SU2_CFD/include/adaptation/CBarycentricTransfer.hpp"
 #include "../../../SU2_CFD/include/adaptation/CConservativeTransfer.hpp"
 #include "../../../SU2_CFD/include/drivers/CSinglezoneDriver.hpp"
+#include "../../../SU2_CFD/include/solvers/CTurbSolver.hpp"
 #include <cstdlib>
 #include <fstream>
 #include <iomanip>
@@ -29,6 +30,9 @@ class WallDriver : public CSinglezoneDriver {
   CConfig& Config() { return *config_container[ZONE_0]; }
   CGeometry& Geometry() { return *geometry_container[ZONE_0][INST_0][MESH_0]; }
   CSolver& Flow() { return *solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]; }
+  CTurbSolver* Turbulence() {
+    return static_cast<CTurbSolver*>(solver_container[ZONE_0][INST_0][MESH_0][TURB_SOL]);
+  }
   std::unique_ptr<CRemesher> Backend() { return MakeRemesher(); }
   const ReferenceState& Reference() const { return *nativeReference; }
   void ProduceMetric() {
@@ -226,12 +230,14 @@ TEST_CASE("Native SU2 BL: moving tangential refinement, coarsening and changed f
 
 TEST_CASE("Native SU2 BL: SU2-produced sensor/BL metric and resumed viscous solve", "[NativeProducedBL2D]") {
   World world;
+  const std::string turbulence = GENERATE("NONE", "SA", "SST");
 #ifdef HAVE_CGNS
   const bool cgns = GENERATE(false, true);
 #else
   const bool cgns = false;
 #endif
-  const std::string name = cgns ? "native_produced_bl_cgns" : "native_produced_bl";
+  const std::string name = std::string(cgns ? "native_produced_bl_cgns" : "native_produced_bl") +
+                           (turbulence == "NONE" ? "" : "_" + turbulence);
   if (world.rank == 0) {
     auto mesh = BoxMesh(2, 4, false);
     for (auto& x : mesh.coord) x *= .02;
@@ -239,6 +245,11 @@ TEST_CASE("Native SU2 BL: SU2-produced sensor/BL metric and resumed viscous solv
     auto options = WallOptions(.004, name);
     const std::string oldMinimum = "ADAP_HMIN= 1e-4";
     options.replace(options.find(oldMinimum), oldMinimum.size(), "ADAP_HMIN= 0.004");
+    if (turbulence != "NONE") {
+      const std::string solver = "SOLVER= NAVIER_STOKES";
+      options.replace(options.find(solver), solver.size(), "SOLVER= RANS");
+      options += "KIND_TURB_MODEL= " + turbulence + "\n";
+    }
     std::ofstream cfg(name + ".cfg");
     cfg << options << "ADAP_LOOP= YES\nADAP_SIZES= (20, 35, 12)\nADAP_SUBITER= (1)\n"
                    << "RESTART_FILENAME= " << name << "_restart\nSOLUTION_FILENAME= " << name
@@ -252,6 +263,59 @@ TEST_CASE("Native SU2 BL: SU2-produced sensor/BL metric and resumed viscous solv
   const auto original = driver->Reference().original;
   CConservativeTransfer transfer;
   size_t completed = 0;
+  const unsigned short nTurb = driver->Turbulence() ? driver->Turbulence()->GetnVar() : 0;
+  auto checkConservation = [&]() {
+    const auto& summary = transfer.GetSummary();
+    REQUIRE(summary.relativeDefect.size() == 4 + nTurb);
+    for (unsigned short k = 0; k < 4; ++k) CHECK(std::abs(summary.relativeDefect[k]) < 1e-10);
+    if (nTurb) REQUIRE(summary.turbulenceChange.size() == nTurb);
+    for (unsigned short k = 0; k < nTurb; ++k) {
+      CHECK(std::isfinite(summary.relativeDefect[4 + k]));
+      CHECK(std::isfinite(summary.turbulenceChange[k]));
+      if (world.rank == 0)
+        std::cout << "[native RANS] " << turbulence << " field=" << k
+                  << " relative integral change=" << summary.relativeDefect[4 + k]
+                  << " bounds-step change=" << summary.turbulenceChange[k] << '\n';
+    }
+  };
+  auto checkTurbulence = [&](bool transferred = false) {
+    if (!nTurb) return;
+    CPointDirectory owners;
+    std::vector<uint64_t> gids;
+    std::vector<char> records;
+    bool admissible = true;
+    double maximum = 0;
+    for (unsigned long p = 0; p < driver->Geometry().GetnPoint(); ++p) {
+      const bool owned = p < driver->Geometry().GetnPointDomain();
+      if (owned) gids.push_back(driver->Geometry().nodes->GetGlobalIndex(p));
+      for (unsigned short k = 0; k < nTurb; ++k) {
+        auto value = SU2_TYPE::GetValue(driver->Turbulence()->GetNodes()->GetSolution(p, k));
+        admissible &= std::isfinite(value) && value >= 0 && (k == 0 || value > 0);
+        if (transferred)
+          admissible &= value >= SU2_TYPE::GetValue(driver->Turbulence()->GetLowerLimit(k)) &&
+                        value <= SU2_TYPE::GetValue(driver->Turbulence()->GetUpperLimit(k));
+        if (owned) {
+          RecordStream encode(records);
+          encode(value);
+          if (k == 0) maximum = std::max(maximum, value);
+        }
+      }
+    }
+    CHECK(world.sum(!admissible) == 0);
+    CHECK(CPassiveComm::Allreduce(maximum, CPassiveComm::Op::MAX) > 0);
+    owners.Build(gids, records, 8 * nTurb, "native transferred turbulence owners");
+    gids.clear();
+    for (unsigned long p = 0; p < driver->Geometry().GetnPoint(); ++p)
+      gids.push_back(driver->Geometry().nodes->GetGlobalIndex(p));
+    const auto fetched = owners.Fetch(gids);
+    double error = 0;
+    for (unsigned long p = 0; p < gids.size(); ++p) {
+      const char* data = fetched.data() + 8 * nTurb * p;
+      for (unsigned short k = 0; k < nTurb; ++k)
+        error = std::max(error, RelDiff(driver->Turbulence()->GetNodes()->GetSolution(p, k), GetBytes<double>(data)));
+    }
+    CHECK(CPassiveComm::Allreduce(error, CPassiveComm::Op::MAX) < 1e-12);
+  };
   for (unsigned short cycle = 0; cycle < 3; ++cycle) {
     driver->Config().SetAdap_MetricLevel(cycle);
     auto& geometry = driver->Geometry();
@@ -262,7 +326,15 @@ TEST_CASE("Native SU2 BL: SU2-produced sensor/BL metric and resumed viscous solv
       const double x = SU2_TYPE::GetValue(geometry.nodes->GetCoord(p, 0));
       const double y = SU2_TYPE::GetValue(geometry.nodes->GetCoord(p, 1));
       const auto s = (x - center) / .006;
-      const std::array<double, 4> field{1.2 + .1 * x, 20 * y * (1 + .25 * std::exp(-.5 * s * s)), 0., 3 + .01 * x};
+      std::array<double, 4> field{1.2 + .1 * x, 20 * y * (1 + .25 * std::exp(-.5 * s * s)), 0., 3 + .01 * x};
+      if (auto* turb = driver->Turbulence()) {
+        const double value = (turbulence == "SST" ? .05 : .001) * y;
+        turb->GetNodes()->SetSolution(p, 0, value);
+        if (turbulence == "SST") {
+          turb->GetNodes()->SetSolution(p, 1, 100 + 10 * x);
+          field[3] += field[0] * value;
+        }
+      }
       for (unsigned short k = 0; k < 4; ++k) driver->Flow().GetNodes()->SetSolution(p, k, field[k]);
     }
     driver->ProduceMetric();
@@ -286,36 +358,50 @@ TEST_CASE("Native SU2 BL: SU2-produced sensor/BL metric and resumed viscous solv
     if (result.status != CRemeshResult::Status::COMPLETE) break;
     driver->ReplaceMesh(result, transfer);
     CHECK(driver->Reference().original == original);
-    for (const auto defect : transfer.GetSummary().relativeDefect) CHECK(std::abs(defect) < 1e-10);
+    checkConservation();
+    checkTurbulence(true);
     if (std::getenv("SU2_NATIVE_SAVE_AUDIT")) {
       CMeshGather gather(driver->Geometry());
       const auto adapted = gather.GatherMesh(driver->Config(), Tags(driver->Config(), driver->Geometry()), false);
       if (world.rank == 0) simplex_test::WriteSU2Mesh(adapted, artifact + "_adapted.su2");
     }
-    std::vector<double> before;
+    std::vector<double> before, turbBefore;
     for (unsigned long p = 0; p < driver->Geometry().GetnPointDomain(); ++p)
       for (unsigned short k = 0; k < 4; ++k)
         before.push_back(SU2_TYPE::GetValue(driver->Flow().GetNodes()->GetSolution(p, k)));
+    for (unsigned long p = 0; p < driver->Geometry().GetnPointDomain(); ++p)
+      for (unsigned short k = 0; k < nTurb; ++k)
+        turbBefore.push_back(SU2_TYPE::GetValue(driver->Turbulence()->GetNodes()->GetSolution(p, k)));
     driver->Run();
     driver->Postprocess();
     driver->Update();
     bool admissible = true;
-    double change = 0;
+    double change = 0, turbChange = 0;
     for (unsigned long p = 0; p < driver->Geometry().GetnPoint(); ++p) {
       const auto rho = SU2_TYPE::GetValue(driver->Flow().GetNodes()->GetSolution(p, 0));
       const auto mx = SU2_TYPE::GetValue(driver->Flow().GetNodes()->GetSolution(p, 1));
       const auto my = SU2_TYPE::GetValue(driver->Flow().GetNodes()->GetSolution(p, 2));
       const auto energy = SU2_TYPE::GetValue(driver->Flow().GetNodes()->GetSolution(p, 3));
+      const double rhoK = turbulence == "SST"
+                              ? rho * SU2_TYPE::GetValue(driver->Turbulence()->GetNodes()->GetSolution(p, 0))
+                              : 0.;
       admissible &= std::isfinite(rho) && std::isfinite(mx) && std::isfinite(my) && std::isfinite(energy) && rho > 0 &&
-                    energy > (mx * mx + my * my) / (2 * rho);
+                    energy > (mx * mx + my * my) / (2 * rho) + rhoK;
       if (p < driver->Geometry().GetnPointDomain())
         for (unsigned short k = 0; k < 4; ++k)
           change = std::max(change, std::abs(SU2_TYPE::GetValue(driver->Flow().GetNodes()->GetSolution(p, k)) -
                                            before[4 * p + k]));
+      if (p < driver->Geometry().GetnPointDomain())
+        for (unsigned short k = 0; k < nTurb; ++k)
+          turbChange = std::max(
+              turbChange, std::abs(SU2_TYPE::GetValue(driver->Turbulence()->GetNodes()->GetSolution(p, k)) -
+                                   turbBefore[nTurb * p + k]));
     }
     CHECK(world.sum(!admissible) == 0);
     CHECK(std::isfinite(SU2_TYPE::GetValue(driver->Flow().GetRes_RMS(0))));
     CHECK(CPassiveComm::Allreduce(change, CPassiveComm::Op::MAX) > 1e-12);
+    checkTurbulence();
+    if (nTurb) CHECK(CPassiveComm::Allreduce(turbChange, CPassiveComm::Op::MAX) > 1e-12);
     ++completed;
   }
   CHECK(completed == 3);
@@ -326,12 +412,17 @@ TEST_CASE("Native SU2 BL: SU2-produced sensor/BL metric and resumed viscous solv
     std::vector<char> records;
     for (unsigned long p = 0; p < driver->Geometry().GetnPointDomain(); ++p) {
       gids.push_back(driver->Geometry().nodes->GetGlobalIndex(p));
-      std::array<double, 4> values;
-      for (unsigned short k = 0; k < 4; ++k) values[k] = SU2_TYPE::GetValue(driver->Flow().GetNodes()->GetSolution(p, k));
       RecordStream encode(records);
-      encode(values);
+      for (unsigned short k = 0; k < 4; ++k) {
+        auto value = SU2_TYPE::GetValue(driver->Flow().GetNodes()->GetSolution(p, k));
+        encode(value);
+      }
+      for (unsigned short k = 0; k < nTurb; ++k) {
+        auto value = SU2_TYPE::GetValue(driver->Turbulence()->GetNodes()->GetSolution(p, k));
+        encode(value);
+      }
     }
-    snapshot.Build(gids, records, 32, "native BL restart solution");
+    snapshot.Build(gids, records, 8 * (4 + nTurb), "native BL restart solution");
     driver->WriteAdaptedMesh(3);
     outputMesh = driver->AdaptedMeshName(3, 0) + driver->Config().GetMesh_Out_FileExtension();
     savedReference = EncodeReference(driver->Reference());
@@ -361,11 +452,14 @@ TEST_CASE("Native SU2 BL: SU2-produced sensor/BL metric and resumed viscous solv
     const auto records = snapshot.Fetch(gids);
     double error = 0;
     for (unsigned long p = 0; p < gids.size(); ++p) {
-      const char* data = records.data() + 32 * p;
+      const char* data = records.data() + 8 * (4 + nTurb) * p;
       for (unsigned short k = 0; k < 4; ++k)
         error = std::max(error, RelDiff(driver->Flow().GetNodes()->GetSolution(p, k), GetBytes<double>(data)));
+      for (unsigned short k = 0; k < nTurb; ++k)
+        error = std::max(error, RelDiff(driver->Turbulence()->GetNodes()->GetSolution(p, k), GetBytes<double>(data)));
     }
     CHECK(CPassiveComm::Allreduce(error, CPassiveComm::Op::MAX) < 1e-12);
+    checkTurbulence();
     if (cgns) {
       // Remesh the restored viscous CGNS geometry too: physical wall labels,
       // retained reference and first-height protection must survive this reader.
@@ -378,7 +472,8 @@ TEST_CASE("Native SU2 BL: SU2-produced sensor/BL metric and resumed viscous solv
       if (result.status == CRemeshResult::Status::COMPLETE) {
         driver->ReplaceMesh(result, transfer);
         CHECK(driver->Reference().original == reloadedOriginal);
-        for (const auto defect : transfer.GetSummary().relativeDefect) CHECK(std::abs(defect) < 1e-10);
+        checkConservation();
+        checkTurbulence(true);
       }
     }
     driver->Finalize();

@@ -736,6 +736,19 @@ std::vector<std::string> FieldNames(unsigned short nDim, unsigned short nLevel, 
   return names;
 }
 
+std::string RejectedStateText(const CTransferAdmissibility& admissibility, const su2double* fields) {
+  std::ostringstream text;
+  text << std::setprecision(17) << " Conservative flow:";
+  for (unsigned short i = 0; i < admissibility.GetnVarFlow(); ++i) text << ' ' << SU2_TYPE::GetValue(fields[i]);
+  for (unsigned short i = 0; i < admissibility.GetnVarTurb(); ++i) {
+    const su2double raw = fields[admissibility.GetnVarFlow() + i] /
+                          (admissibility.IsSST() ? fields[0] : su2double(1.));
+    text << "; turbulence[" << i << "]=" << SU2_TYPE::GetValue(raw) << " in ["
+         << SU2_TYPE::GetValue(admissibility.Lower(i)) << ',' << SU2_TYPE::GetValue(admissibility.Upper(i)) << ']';
+  }
+  return text.str();
+}
+
 /*--- Kinds of the markers by name (the config file defines them for every rank). ---*/
 bool ViscousWall(const CConfig& config, const string& name) {
   const auto kind = config.GetMarker_CfgFile_KindBC(name);
@@ -763,8 +776,15 @@ unsigned long BoundTurbulence(const CTransferAdmissibility& admissibility, std::
       const su2double value = fields[nVarFlow + iVar] / factor;
       const su2double lower = admissibility.Lower(iVar), upper = admissibility.Upper(iVar);
       if (value < lower || value > upper) {
-        const su2double limit = (value < lower) ? lower : upper;
+        su2double limit = (value < lower) ? lower : upper;
         if (fabs(value - limit) > DiagnosticTol(1e-10) * fabs(limit)) nLimited++;
+        // SST stores rho*k/rho*omega, then reconstructs raw solver values by
+        // division. Clipping exactly to a bound can reconstruct one ulp outside
+        // it. Inset only the clipped raw limit; preserve the strict predicate.
+        if (sst)
+          SU2_TYPE::SetValue(limit, std::nextafter(SU2_TYPE::GetValue(limit),
+                              value < lower ? std::numeric_limits<passivedouble>::infinity()
+                                            : -std::numeric_limits<passivedouble>::infinity()));
         fields[nVarFlow + iVar] = factor * limit;
       }
     }
@@ -990,7 +1010,8 @@ void CConservativeTransfer::Transfer(CConfig* config, const CMeshDonor& donor, C
           for (unsigned short iDim = 0; iDim < nDim; ++iDim)
             x[iDim] = SU2_TYPE::GetValue(newGeometry->nodes->GetCoord(iPoint, iDim));
           failure.Set(2, newGeometry->nodes->GetGlobalIndex(iPoint),
-                      "The transferred state of the point " + PointText(nDim, x) + " is not admissible after the recovery.");
+                      "The transferred state of the point " + PointText(nDim, x) + " is not admissible after the recovery." +
+                          RejectedStateText(admissibility, values));
         }
       }
     }
@@ -1263,7 +1284,7 @@ void CConservativeTransfer::TransferGathered(CConfig* config, const CMeshDonor& 
           for (unsigned short iDim = 0; iDim < nDim; ++iDim) ok = ok && values[1 + iDim] == 0.0;
         if (!ok) {
           SU2_MPI::Error("The transferred state of the point " + pointText(iPoint) +
-                             " is not admissible after the recovery.",
+                             " is not admissible after the recovery." + RejectedStateText(admissibility, values),
                          CURRENT_FUNCTION);
         }
       }
