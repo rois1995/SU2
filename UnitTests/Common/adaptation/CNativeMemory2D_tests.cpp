@@ -89,6 +89,9 @@ TEST_CASE("Native dependency memory: complete movement and insertion patches wit
     options.dependency_bytes = budget;
     Engine engine(world, input, reference.Policy({}), options);
     const auto before = snapshot(engine.owned);
+    Engine::SelectionCache cache;
+    const std::set<Edge> attempted;
+    engine.chooseCached(action, attempted, cache);
     Choice move{{action, center.id, action == Action::BULK_SPLIT ? ring.front().id : 0},
                 world.rank == 0 ? 1. : -1., world.rank};
     const auto base = alloc_probe::Live();
@@ -97,6 +100,15 @@ TEST_CASE("Native dependency memory: complete movement and insertion patches wit
     const auto peak = alloc_probe::Peak();
     const auto measured = peak > base ? peak - base : 0;
     const auto maxMeasured = CPassiveComm::Allreduce(uint64_t(measured), CPassiveComm::Op::MAX);
+    const auto selectionBase = alloc_probe::Live();
+    alloc_probe::ResetPeak();
+    const auto cached = engine.chooseCached(action, attempted, cache);
+    const auto selectionPeak = alloc_probe::Peak();
+    const auto exhaustive = engine.choose(action, attempted);
+    CHECK(selectionPeak == selectionBase);
+    CHECK(cached.score == exhaustive.score);
+    CHECK(cached.op.a == exhaustive.op.a);
+    CHECK(cached.op.b == exhaustive.op.b);
     INFO("complete star cells=" << count << ", action=" << int(action) << ", budget=" << budget);
     if (budget == 64) {
       CHECK(world.sum(accepted) == 0);

@@ -150,6 +150,112 @@ TEST_CASE("Native MPI quality: short interior diagonal repairs an all-boundary e
   }
 }
 
+TEST_CASE("Native MPI wall repair: a fitting base still requests repair of an oversized side", "[NativeEngine2D]") {
+  World world;
+  const Node a{0, {0, 0}, 1 | FEATURE}, b{1, {1, 0}, 1 | FEATURE}, c{2, {3, .2}, 1 | FEATURE},
+      d{3, {0, 1}, 1 | FEATURE}, apex{4, {2.4, .15}, 0};
+  const PolylineReference geometry({{a, b, 10}, {b, c, 11}, {c, d, 11}, {d, a, 11}}, 45);
+  std::map<Id, Cell> owned;
+  const std::array<Node, 4> ring{a, b, c, d};
+  for (int k = 0; k < 4; ++k) {
+    Cell cell;
+    cell.t = triangle(ring[k], ring[(k + 1) % 4], apex);
+    cell.t.id = 10 + k;
+    cell.t.protected_cell = k == 0;
+    cell.marker[0] = geometry.ComponentOfOriginalFace(ring[k].id, ring[(k + 1) % 4].id);
+    for (auto& tensor : cell.nodal_target) tensor = {1, 0, 1 / (.15 * .15)};
+    if (k % world.size == world.rank) owned.emplace(cell.t.id, cell);
+  }
+  EngineOptions options;
+  options.geometry_tolerance = 1e-10;
+  Engine engine(world, owned, geometry.Policy({{10, .15}}), options);
+  Choice choice{{Action::SPLIT, a.id, b.id}, -1, world.rank};
+  if (world.rank == 0) {
+    const auto& wall = engine.owned.at(10);
+    REQUIRE(wall.target_cache[1] < 1.6);
+    REQUIRE(wall.target_cache[0] >= .18);
+    REQUIRE(*std::max_element(wall.target_cache.begin() + 1, wall.target_cache.end()) > 1.8);
+    choice = engine.CellChoice(wall, Action::SPLIT, {});
+    CHECK(choice.score > 0);
+    CHECK(edge(choice.op.a, choice.op.b) == edge(a.id, b.id));
+  }
+  CHECK(engine.round(choice) == (world.rank == 0));
+  const auto output = Gather(world, engine);
+  if (world.rank == 0) {
+    const auto marker = geometry.ComponentOfOriginalFace(a.id, b.id);
+    int walls = 0;
+    for (const auto& cell : output)
+      for (int k = 0; k < 3; ++k)
+        if (cell.marker[k] == marker) {
+          ++walls;
+          CHECK(cell.t.protected_cell == 1);
+          CHECK(2 * static_cast<double>(area(cell.t)) / norm(cell.t.v[(k + 1) % 3].p - cell.t.v[k].p) == Approx(.15));
+          CHECK(cell.target_cache[0] >= .18);
+          for (int j = 1; j < 4; ++j) CHECK(cell.target_cache[j] <= 1.8);
+        }
+    CHECK(walls == 2);
+  }
+}
+
+TEST_CASE("Native MPI selection: bounded cache preserves exhaustive choices after publication", "[NativeEngine2D][NativeSelection2D]") {
+  World world;
+  const auto action = GENERATE(Action::BULK_REMOVE, Action::BULK_SPLIT, Action::BULK_FLIP, Action::BULK_MOVE);
+  const bool ordered = GENERATE(false, true);
+  std::map<Id, Cell> owned;
+  std::vector<PolylineReference::Face> faces;
+  // More than64 owned cells even at four ranks; tied proposals, distinct
+  // priorities, cross-owner stars and normal rejected operations share a phase.
+  for (int group = 0; group < 96; ++group) {
+    const Id base = 5 * group;
+    const double x = 2 * group;
+    const Node center{base, {x + .25, .2}, 0};
+    const std::array<Node, 4> ring{{{base + 1, {x - .4, -.4}, 1}, {base + 2, {x + .4, -.4}, 1},
+                                  {base + 3, {x + .4, .4}, 1}, {base + 4, {x - .4, .4}, 1}}};
+    const double density = group % 3 == 0 ? .25 : group % 3 == 1 ? 16. : 4.;
+    for (int k = 0; k < 4; ++k) {
+      faces.push_back({ring[k], ring[(k + 1) % 4], 10});
+      Cell cell;
+      cell.t = triangle(center, ring[k], ring[(k + 1) % 4]);
+      cell.t.id = 4 * group + k;
+      for (auto& tensor : cell.nodal_target) tensor = {density, 0, density};
+      if ((4 * group + k) % world.size == world.rank) owned.emplace(cell.t.id, cell);
+    }
+  }
+  const PolylineReference reference(faces, 45);
+  for (auto& entry : owned)
+    entry.second.marker[1] = reference.ComponentOfOriginalFace(entry.second.t.v[1].id, entry.second.t.v[2].id);
+  EngineOptions options;
+  options.geometry_tolerance = 1e-10;
+  options.ordered = ordered;
+  Engine engine(world, owned, reference.Policy({}), options);
+  Engine::SelectionCache cache;
+  std::set<Edge> attempted;
+  int selections = 0;
+  for (int iteration = 0; iteration < 96; ++iteration) {
+    const auto exhaustive = engine.choose(action, attempted);
+    const auto cached = engine.chooseCached(action, attempted, cache);
+    CHECK(cached.score == exhaustive.score);
+    CHECK(cached.op.a == exhaustive.op.a);
+    CHECK(cached.op.b == exhaustive.op.b);
+    CHECK(cached.op.action == exhaustive.op.action);
+    if (!world.sum(cached.score >= 0)) break;
+    ++selections;
+    const bool accepted = engine.round(cached);
+    if (ordered) {
+      if (!engine.last_committed)
+        attempted.insert({engine.last_selected.op.a, engine.last_selected.op.b});
+    } else if (cached.score >= 0 && !accepted && !engine.last_deferred) {
+      attempted.insert({cached.op.a, cached.op.b});
+    }
+  }
+  CHECK(selections > 0);
+  CHECK(engine.stats.selection_scans[int(action)] > 0);
+  if (world.rank == 0)
+    std::cout << "[native selection] action=" << int(action) << " ordered=" << ordered
+              << " selections=" << selections << " full local scans=" << engine.stats.selection_scans[int(action)]
+              << '\n';
+}
+
 TEST_CASE("Native MPI engine: coupled boundary refinement and admitted publication", "[NativeEngine2D]") {
   World world;
   Case input;

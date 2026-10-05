@@ -31,10 +31,29 @@ struct DonorCell {
 };
 struct FieldRegion {
   std::array<double, 2> lo{}, hi{};
+  std::array<Point, 3> triangle{};
   int caller = 0;
   template <class S>
   void Fields(S& s) {
-    s(lo, hi, caller);
+    s(lo, hi, triangle, caller);
+  }
+  bool Overlaps(const std::array<Point, 3>& donor, double padding) const {
+    // A separating triangle edge excludes a donor only beyond the padded
+    // cavity. Touching triangles and uncertain roundoff remain admitted.
+    double scale = 1;
+    for (const auto& p : triangle) scale = std::max({scale, std::abs(p.x), std::abs(p.y)});
+    for (const auto& p : donor) scale = std::max({scale, std::abs(p.x), std::abs(p.y)});
+    const long double distance = padding + 32 * std::numeric_limits<double>::epsilon() * scale;
+    auto separated = [&](const auto& a, const auto& b) {
+      for (int k = 0; k < 3; ++k) {
+        const auto u = a[k], v = a[(k + 1) % 3];
+        const long double reach = distance * (std::abs(static_cast<long double>(v.x) - u.x) +
+                                              std::abs(static_cast<long double>(v.y) - u.y));
+        if (std::all_of(b.begin(), b.end(), [&](Point p) { return orient(u, v, p) < -reach; })) return true;
+      }
+      return false;
+    };
+    return !separated(triangle, donor) && !separated(donor, triangle);
   }
 };
 struct DonorId {
@@ -188,29 +207,53 @@ class DonorField {
     if (!(std::isfinite(extensionLimit) && extensionLimit >= 0))
       failure.Set(1, 0, "Invalid native target extension distance.");
     CollectiveFailure(failure, CURRENT_FUNCTION);
+    // Old and new physical chords can lie on opposite sides of the same
+    // original reference band. This covers their combined displacement;
+    // evaluate() still enforces the original, single extensionLimit.
+    const double coveragePadding = 2 * extensionLimit;
     std::vector<std::vector<FieldRegion>> to(world.size);
+    if (active && old.size() > PATCH_LIMIT) {
+      active = false;
+      ++rejected;
+    }
     if (active && !old.empty()) {
-      FieldRegion region;
-      region.caller = world.rank;
-      region.lo.fill(std::numeric_limits<double>::infinity());
-      region.hi.fill(-std::numeric_limits<double>::infinity());
-      for (const auto& cell : old)
-        for (const auto& node : cell.t.v) {
+      for (const auto& cell : old) {
+        FieldRegion region;
+        region.caller = world.rank;
+        region.lo.fill(std::numeric_limits<double>::infinity());
+        region.hi.fill(-std::numeric_limits<double>::infinity());
+        for (int k = 0; k < 3; ++k) {
+          const auto& node = cell.t.v[k];
+          region.triangle[k] = node.p;
           region.lo[0] = std::min(region.lo[0], node.p.x);
           region.lo[1] = std::min(region.lo[1], node.p.y);
           region.hi[0] = std::max(region.hi[0], node.p.x);
           region.hi[1] = std::max(region.hi[1], node.p.y);
         }
-      for (int k = 0; k < 2; ++k) {
-        region.lo[k] = std::nextafter(region.lo[k] - extensionLimit, -std::numeric_limits<double>::infinity());
-        region.hi[k] = std::nextafter(region.hi[k] + extensionLimit, std::numeric_limits<double>::infinity());
+        const double scale = std::max({1., std::abs(region.lo[0]), std::abs(region.lo[1]),
+                                       std::abs(region.hi[0]), std::abs(region.hi[1])});
+        const double boxPadding = coveragePadding + 32 * std::numeric_limits<double>::epsilon() * scale;
+        for (int k = 0; k < 2; ++k) {
+          region.lo[k] = std::nextafter(region.lo[k] - boxPadding, -std::numeric_limits<double>::infinity());
+          region.hi[k] = std::nextafter(region.hi[k] + boxPadding, std::numeric_limits<double>::infinity());
+        }
+        // At most PATCH_LIMIT triangle records per caller. Rank routing/ADT
+        // remains deferred; cavity coverage must not include its empty box.
+        for (auto& bucket : to) bucket.push_back(region);
       }
-      // ponytail: bounded ROI metadata scans local immutable donors. Rank-box routing/ADT comes after profiling.
-      for (auto& bucket : to) bucket.push_back(region);
     }
-    const auto regions = world.exchange(to);
+    auto regions = world.exchange(to);
+    std::sort(regions.begin(), regions.end(), [](const auto& a, const auto& b) { return a.caller < b.caller; });
     std::vector<std::vector<DonorId>> ids(world.size);
-    for (const auto& region : regions)
+    for (size_t first = 0; first < regions.size();) {
+      size_t last = first + 1;
+      while (last < regions.size() && regions[last].caller == regions[first].caller) ++last;
+      auto box = regions[first];
+      for (size_t i = first + 1; i < last; ++i)
+        for (int k = 0; k < 2; ++k) {
+          box.lo[k] = std::min(box.lo[k], regions[i].lo[k]);
+          box.hi[k] = std::max(box.hi[k], regions[i].hi[k]);
+        }
       for (const auto& entry : owned) {
         std::array<double, 2> lo{std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity()};
         std::array<double, 2> hi{-lo[0], -lo[1]};
@@ -220,14 +263,26 @@ class DonorField {
           hi[0] = std::max(hi[0], v.p.x);
           hi[1] = std::max(hi[1], v.p.y);
         }
-        if (lo[0] <= region.hi[0] && hi[0] >= region.lo[0] && lo[1] <= region.hi[1] && hi[1] >= region.lo[1])
-          ids[region.caller].push_back({entry.first, world.rank});
-        if (ids[region.caller].size() > FIELD_LIMIT) {
-          ids[region.caller].clear();
-          ids[region.caller].push_back({0, -1});
+        auto overlapsBox = [&](const auto& region) {
+          return lo[0] <= region.hi[0] && hi[0] >= region.lo[0] &&
+                 lo[1] <= region.hi[1] && hi[1] >= region.lo[1];
+        };
+        if (!overlapsBox(box)) continue;
+        const std::array<Point, 3> triangle{entry.second.triangle.v[0].p, entry.second.triangle.v[1].p,
+                                          entry.second.triangle.v[2].p};
+        for (size_t i = first; i < last; ++i)
+          if (overlapsBox(regions[i]) && regions[i].Overlaps(triangle, coveragePadding)) {
+            ids[box.caller].push_back({entry.first, world.rank});
+            break;  // Each immutable donor is returned once for this caller.
+          }
+        if (ids[box.caller].size() > FIELD_LIMIT) {
+          ids[box.caller].clear();
+          ids[box.caller].push_back({0, -1});
           break;
         }
       }
+      first = last;
+    }
     const auto found = world.exchange(ids);
     maxDiscovered = std::max(maxDiscovered, found.size());
     const size_t required = transfer_memory::Add(transfer_memory::Mul(old.size(), 4 * sizeof(Cell)),

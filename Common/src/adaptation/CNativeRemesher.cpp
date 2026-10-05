@@ -289,12 +289,13 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
   const auto bytes = CPassiveComm::Allreduce(uint64_t(world.bytes_sent), CPassiveComm::Op::SUM);
   const auto transportEstimate =
       CPassiveComm::Allreduce(uint64_t(world.max_exchange_work_bytes), CPassiveComm::Op::MAX);
-  std::array<uint64_t, 8> actions;
+  std::array<uint64_t, 8> actions, selectionScans;
   std::array<double, 8> phaseSeconds, choiceSeconds;
   for (size_t a = 0; a < actions.size(); ++a) {
     actions[a] = CPassiveComm::Allreduce(uint64_t(engine.stats.accepted[a]), CPassiveComm::Op::SUM);
     phaseSeconds[a] = CPassiveComm::Allreduce(engine.stats.phase_seconds[a], CPassiveComm::Op::MAX);
     choiceSeconds[a] = CPassiveComm::Allreduce(engine.stats.choice_seconds[a], CPassiveComm::Op::MAX);
+    selectionScans[a] = CPassiveComm::Allreduce(engine.stats.selection_scans[a], CPassiveComm::Op::SUM);
   }
   std::vector<RejectionCount> localReasons;
   for (const auto& entry : engine.stats.rejected) {
@@ -324,6 +325,9 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
     std::cout << '\n';
     std::cout << "Native candidate selection seconds (same action order, maximum across ranks):";
     for (const auto seconds : choiceSeconds) std::cout << ' ' << seconds;
+    std::cout << '\n';
+    std::cout << "Native cached selection full scans (same action order, sum across ranks):";
+    for (const auto scans : selectionScans) std::cout << ' ' << scans;
     std::cout << '\n';
     for (const auto& entry : reasons)
       std::cout << "Native deferred/rejected candidate: " << entry.first << " (" << entry.second << ").\n";

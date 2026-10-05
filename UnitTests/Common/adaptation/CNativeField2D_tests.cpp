@@ -98,6 +98,55 @@ TEST_CASE("Native MPI: receive-buffer admission precedes record exchange", "[Nat
   CHECK(world.bytes_sent > before);
 }
 
+TEST_CASE("Native MPI: a thin cavity imports its donor cover instead of its enclosing box", "[NativeField2D]") {
+  World world;
+  const double offset = GENERATE(0., 1e6);
+  auto node = [&](Id id, double x, double y) { return Node{id, {offset + x, offset + y}, 0}; };
+  std::map<Id, Cell> owned;
+  // A valid800-triangle donor square; the narrow diagonal cavity's enclosing
+  // box overlaps every donor, but its actual padded cover fits FIELD_LIMIT.
+  for (int j = 0; j < 20; ++j)
+    for (int i = 0; i < 20; ++i) {
+      const Node a = node(j * 21 + i, i / 20., j / 20.), b = node(j * 21 + i + 1, (i + 1) / 20., j / 20.),
+                 c = node((j + 1) * 21 + i + 1, (i + 1) / 20., (j + 1) / 20.),
+                 d = node((j + 1) * 21 + i, i / 20., (j + 1) / 20.);
+      for (int k = 0; k < 2; ++k) {
+        Cell cell;
+        cell.t = k ? triangle(a, c, d) : triangle(a, b, c);
+        cell.t.id = 2 * (j * 20 + i) + k;
+        for (int slot = 0; slot < 3; ++slot) cell.nodal_target[slot] = Affine(cell.t.v[slot].p);
+        if (int(cell.t.id % world.size) == world.rank) owned.emplace(cell.t.id, cell);
+      }
+    }
+  DonorField field(world, owned);
+  Cell lower, upper;
+  lower.t = triangle(node(1000, 0, 0), node(1001, 1, .99), node(1002, 1, 1));
+  upper.t = triangle(node(1000, 0, 0), node(1002, 1, 1), node(1003, 0, .01));
+  bool active = world.rank == 0;
+  size_t discovered = 0;
+  int rejected = 0;
+  const auto patch = field.import(active ? std::vector<Cell>{lower, upper} : std::vector<Cell>{}, active,
+                                   2 * 1024 * 1024, .002, discovered, rejected);
+  CHECK(rejected == 0);
+  CHECK(active == (world.rank == 0));
+  if (world.rank == 0) {
+    REQUIRE_FALSE(patch->cells.empty());
+    CHECK(patch->cells.size() <= FIELD_LIMIT);
+    CHECK(std::adjacent_find(patch->cells.begin(), patch->cells.end(),
+                            [](const auto& a, const auto& b) { return a.Key() == b.Key(); }) == patch->cells.end());
+    for (const Point p : std::vector<Point>{{0, 0}, {1, 1}, {.5, .5}, {.9, .895}, {.5, .507}}) {
+      // Last query is outside the thin cavity, inside its padded neighborhood.
+      const Point query{offset + p.x, offset + p.y};
+      const auto actual = patch->evaluate(query), expected = Affine(query);
+      CHECK(actual.xx == Approx(expected.xx));
+      CHECK(actual.xy == Approx(expected.xy));
+      CHECK(actual.yy == Approx(expected.yy));
+    }
+    CHECK_THROWS_AS(patch->evaluate({offset + .2, offset + .8}), std::runtime_error);
+  } else
+    CHECK(patch->cells.empty());
+}
+
 TEST_CASE("Native field: roundoff-only containment follows exact donor search", "[NativeField2D]") {
   const Node a{0, {.2, 0}, 1}, c{2, {.2 + .04, .02}, 1}, d{3, {.2, .02}, 1};
   DonorCell upper;
