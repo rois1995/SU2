@@ -34,6 +34,7 @@ DEFAULTS = {
     "bl_window": (0.5, 2.0),
     "bl_fraction": 0.8,
     "bl_ridge_fraction": 0.6,
+    "bl_coverage_fraction": 0.5,
     "geom_rtol": 1e-12,
 }
 
@@ -123,6 +124,8 @@ def metric_of(mesh, path):
     d = mesh.dim
     if len(points) != len(mesh.P):
         raise ValueError(f"{Path(path).name}: {len(points)} points, the mesh has {len(mesh.P)}")
+    if points.shape[1] < d or not np.isfinite(points[:, :d]).all():
+        raise ValueError(f"{Path(path).name}: missing or nonfinite coordinates")
     dev = float(np.abs(points[:, :d] - mesh.P).max())
     if dev > (1e-6 if precision == "Float32" else 1e-14) * mesh.size:
         raise ValueError(f"{Path(path).name}: points differ from the mesh by {dev:.3e}")
@@ -316,6 +319,25 @@ def gate(ok, value):
     return ["PASS" if ok else "FAIL", value]
 
 
+def classify(gates, known_fail=()):
+    failed = {name for name, (status, _) in gates.items() if status == "FAIL"}
+    if not failed:
+        return "PASS"
+    return "XFAIL" if failed <= set(known_fail) and gates.get("run", [None])[0] == "PASS" else "FAIL"
+
+
+def load_metric(mesh, path, mode):
+    """Read mandatory remesh evidence; only FIXED_POINT can omit the file."""
+    if path is None:
+        status = "NA" if mode == "FIXED_POINT" else "FAIL"
+        return None, None, {"metric_file": [status, f"no metric file for {mode}"]}
+    try:
+        M, precision = metric_of(mesh, path)
+    except (OSError, ValueError, KeyError, IndexError, TypeError, struct.error) as error:
+        return None, None, {"metric_file": ["FAIL", f"{Path(path).name}: {error}"]}
+    return M, precision, {"metric_file": ["PASS", Path(path).name]}
+
+
 def check_validity(mesh):
     res = {}
     d = mesh.dim
@@ -367,7 +389,7 @@ def metric_complexity(mesh, M):
     return float((np.sqrt(np.maximum(np.linalg.det(M), 0.0)) * dual_volumes(mesh)).sum())
 
 
-def check_metric_field(M, hmin, hmax, armax, bl=False, opts=DEFAULTS):
+def check_metric_field(M, hmin, hmax, armax, bl=False, opts=DEFAULTS, h0_min=None):
     """The metric file: finite, SPD, within the size and aspect-ratio bounds, and not uniform."""
     res = {}
     finite = bool(np.isfinite(M).all())
@@ -376,6 +398,8 @@ def check_metric_field(M, hmin, hmax, armax, bl=False, opts=DEFAULTS):
     s = opts["bound_slack"]
     h = 1.0 / np.sqrt(np.maximum(lam, 1e-300))
     ar = h.max(1) / h.min(1)
+    if bl:
+        hmin = 0.5 * min(hmin, h0_min if h0_min is not None else hmin)
     in_size = bool((h.min() >= hmin * (1 - s)) and (h.max() <= hmax * (1 + s)))
     in_ar = bool(ar.max() <= armax * (1 + s))
     value = (f"finite {finite}, SPD {spd}, sizes {h.min():.3e} .. {h.max():.3e} (bounds {hmin:g} .. {hmax:g}), "
@@ -385,7 +409,8 @@ def check_metric_field(M, hmin, hmax, armax, bl=False, opts=DEFAULTS):
     density = 1.0 / np.prod(h, axis=1)
     spread = float(np.percentile(density, 95) / np.percentile(density, 5))
     res["metric_nontrivial"] = gate(spread >= opts["metric_spread"], f"95th / 5th percentile of the metric density "
-                                                                     f"sqrt(det M) {spread:.3g} (>= {opts['metric_spread']})")
+                                                                 f"sqrt(det M) {spread:.3g} "
+                                                                 f"(>= {opts['metric_spread']})")
     return res
 
 
@@ -571,7 +596,7 @@ def check_corners(ref, out, angle, opts=DEFAULTS, seam_tol=None):
     return res
 
 
-def check_bl(out, markers, opts=DEFAULTS, report_only=False):
+def check_bl(out, markers, opts=DEFAULTS, report_only=False, require_ridge=False):
     """Heights of the wall-adjacent cells (d volume / face measure) in units of h0, as face-measure weighted fractions.
     markers: {name: h0}. Faces touching a joint with a non-BL marker are excluded; faces touching a joint of two BL
     markers (a BL ridge) are gated separately."""
@@ -579,37 +604,54 @@ def check_bl(out, markers, opts=DEFAULTS, report_only=False):
     F, owner = faces_of(out.E, d)
     lookup = {tuple(f): e for f, e in zip(F, owner)}
     pm = point_markers(out)
+    vol = np.abs(volumes(out.P, out.E, d))
     bl = set(markers)
     lo, hi = opts["bl_window"]
-    groups = {"wall": [], "ridge": []}
-    excluded = 0
+    values = {"bl_coverage": [], "bl_cell_height": [], "bl_ridge_cell_height": []}
+    passed = dict.fromkeys(values, True)
     for name, h0 in markers.items():
-        W = out.M[name]
-        elem = np.array([lookup[tuple(sorted(f))] for f in W])
-        h = d * np.abs(volumes(out.P, out.E[elem], d)) / face_measure(out.P, W) / h0
+        W = out.M.get(name, np.empty((0, d), dtype=np.int64))
         w = face_measure(out.P, W)
+        groups = {"wall": [], "ridge": []}
+        excluded = 0
         for k, f in enumerate(W):
+            elem = lookup.get(tuple(sorted(f)))
+            if elem is None or w[k] <= 0.0:
+                excluded += 1
+                continue
+            h = d * vol[elem] / w[k] / h0
             sets = [pm[int(p)] for p in f if len(pm[int(p)]) >= 2]
             if not sets:
-                groups["wall"].append((h[k], w[k]))
+                groups["wall"].append((h, w[k]))
             elif all(s <= bl for s in sets):
-                groups["ridge"].append((h[k], w[k]))
+                groups["ridge"].append((h, w[k]))
             else:
                 excluded += 1
-    res = {}
-    for group, rows in groups.items():
-        if not rows:
-            continue
-        h, w = np.array(rows).T
-        inside = (h >= lo) & (h <= hi)
-        frac = float((w * inside).sum() / w.sum())
-        value = (f"{len(h)} faces{f' ({excluded} at joints with other markers excluded)' if group == 'wall' else ''}"
-                 f", cell height in [{lo}, {hi}] h0: {frac:.1%} of the area (>= {opts['bl_fraction']:.0%}), median "
-                 f"{np.median(h):.3g} h0, below {int((h < lo).sum())}, above {int((h > hi).sum())}")
-        key = "bl_cell_height" if group == "wall" else "bl_ridge_cell_height"
-        need = opts["bl_fraction"] if group == "wall" else opts["bl_ridge_fraction"]
-        value = value.replace(f"(>= {opts['bl_fraction']:.0%})", f"(>= {need:.0%})")
-        res[key] = ["REPORT", value] if report_only else gate(frac >= need, value)
+        eligible = sum(area for rows in groups.values() for _, area in rows)
+        total = float(w.sum())
+        frac = eligible / total if total > 0.0 else 0.0
+        need = opts["bl_coverage_fraction"]
+        passed["bl_coverage"] &= eligible > 0.0 and frac >= need
+        values["bl_coverage"].append(f"{name}: eligible area {eligible:.3g} / {total:.3g} = {frac:.1%} "
+                                     f"(>= {need:.0%}), excluded faces {excluded}")
+        for group, rows in groups.items():
+            if not rows:
+                continue
+            h, area = np.array(rows).T
+            inside = (h >= lo) & (h <= hi)
+            frac = float((area * inside).sum() / area.sum())
+            key = "bl_cell_height" if group == "wall" else "bl_ridge_cell_height"
+            need = opts["bl_fraction"] if group == "wall" else opts["bl_ridge_fraction"]
+            passed[key] &= frac >= need
+            values[key].append(f"{name}: {len(h)} faces, cell height in [{lo}, {hi}] h0: {frac:.1%} of the area "
+                               f"(>= {need:.0%}), median {np.median(h):.3g} h0, below {int((h < lo).sum())}, "
+                               f"above {int((h > hi).sum())}")
+    if require_ridge and not values["bl_ridge_cell_height"]:
+        passed["bl_ridge_cell_height"] = False
+        values["bl_ridge_cell_height"].append("no eligible ridge faces (required)")
+    res = {key: gate(passed[key], "; ".join(rows)) for key, rows in values.items() if rows}
+    if report_only:
+        res = {key: ["REPORT", value] for key, (_, value) in res.items()}
     return res
 
 
@@ -716,22 +758,38 @@ def abs_tensor(H):
     return np.einsum("nij,nj,nkj->nik", vec, np.abs(lam), vec)
 
 
-def check_window_identity(steps, sensors, d, tol=1e-5):
+def check_window_identity(steps, sensors, d, V, tol=1e-5):
     """WINDOW_AVERAGE / FIXED_POINT: the Hessian written at the window end is the mean |H| of the window, so
     n H_end - sum of |H| of the earlier steps (written at their steps) is |H| of the last step: positive semidefinite.
-    A metric of the last step only would leave large negative eigenvalues where the feature was earlier."""
+    The residual's volume-weighted norm must be comparable to the previous instantaneous |H|."""
     n = len(steps)
-    worst, scale = 0.0, 0.0
+    if n < 2 or not sensors or not np.isfinite(V).all() or np.any(V < 0.0) or np.sum(V) <= 0.0:
+        return {"window_average": ["FAIL", "window samples, sensors or dual volumes unavailable"]}
+    ok, values = True, []
     for sensor in sensors:
         prefix = f"Hessian_{sensor}_"
-        past = [abs_tensor(sym_tensor(f, prefix, d)) for f in steps[:-1]]
-        mean = sym_tensor(steps[-1], prefix, d)
+        try:
+            tensors = [sym_tensor(f, prefix, d) for f in steps]
+        except (KeyError, ValueError, IndexError, TypeError) as error:
+            return {"window_average": ["FAIL", f"{sensor}: Hessian evidence unavailable: {error}"]}
+        if any(T.shape != (len(V), d, d) or not np.isfinite(T).all() for T in tensors):
+            return {"window_average": ["FAIL", f"{sensor}: missing or nonfinite Hessian evidence"]}
+        past = [abs_tensor(T) for T in tensors[:-1]]
+        mean = tensors[-1]
         R = n * mean - sum(past)
-        scale = max(scale, float(np.abs(np.linalg.eigvalsh(n * mean)).max()))
-        worst = min(worst, float(np.linalg.eigvalsh(R).min()))
-    rel = -worst / max(scale, 1e-300)
-    return {"window_average": gate(rel <= tol, f"{n} steps: smallest eigenvalue of n H_end - sum |H_k| = "
-                                               f"{-rel:.2e} of the largest (>= -{tol:g})")}
+        if not np.isfinite(R).all():
+            return {"window_average": ["FAIL", f"{sensor}: nonfinite residual"]}
+        norm = float(np.sqrt((V * (R ** 2).sum(axis=(1, 2))).sum()))
+        previous = float(np.sqrt((V * (past[-1] ** 2).sum(axis=(1, 2))).sum()))
+        if not np.isfinite([norm, previous]).all() or norm <= 0.0 or previous <= 0.0:
+            return {"window_average": ["FAIL", f"{sensor}: residual or previous Hessian norm is zero or nonfinite"]}
+        scale = float(np.abs(np.linalg.eigvalsh(n * mean)).max())
+        rel = float(np.linalg.eigvalsh(R).min()) / max(scale, 1e-300)
+        ratio = norm / previous
+        ok &= rel >= -tol and 0.5 <= ratio <= 2.0
+        values.append(f"{sensor}: residual eigenvalue {rel:.2e} of the largest (>= -{tol:g}), "
+                      f"weighted norm / previous |H| {ratio:.3g} (in [0.5, 2])")
+    return {"window_average": gate(ok, f"{n} steps: " + "; ".join(values))}
 
 
 def density_centre(mesh, M):
@@ -787,6 +845,7 @@ def analytic_references(kind):
 def selftest():
     """The gates on generated meshes: identity passes, targeted corruptions fail, analytic metric values."""
     import meshgen
+    import run_capability as runner
     results = []
 
     def expect(label, res, gate_name, status):
@@ -801,6 +860,41 @@ def selftest():
         meshgen.bump3d(tmp / "b.su2", nx=6, ny=3, nz=3)
         meshgen.plate(tmp / "p.su2")
         r, b, p = read_su2(tmp / "r.su2"), read_su2(tmp / "b.su2"), read_su2(tmp / "p.su2")
+        # Successful logs and meshes cannot replace mandatory metric evidence.
+        for mode in ("steady", "WINDOW_AVERAGE", "PREDICT"):
+            directory = tmp / mode
+            directory.mkdir()
+            (directory / "mesh.su2").write_bytes((tmp / "r.su2").read_bytes())
+            number = 1 if mode == "steady" else 2
+            (directory / f"mesh_out_{number:05d}.su2").write_bytes((tmp / "r.su2").read_bytes())
+            cfg = {"ADAP_SIZES": "(81)", "ADAP_HMIN": "0.001", "ADAP_HMAX": "1", "ADAP_ARMAX": "10"}
+            if mode != "steady":
+                cfg.update(TIME_DOMAIN="YES", ADAP_UNSTEADY_METRIC=mode, ADAP_FREQ="2", TIME_ITER="3")
+            log = ("Exit Success\nMMG2D status SUCCESS\nMesh complexity: 81 (ADAP_COMPLEXITY= 81)\n"
+                   "mean |Hessian| of the sensors over 2 time steps\nspeed of the features 0.1 per time step\n")
+            res, _, _ = runner.check_case({}, cfg, directory, log, 0)
+            expect(f"{mode} successful run", res, "run", "PASS")
+            expect(f"{mode} missing metric", res, "metric_file", "FAIL")
+            expect(f"{mode} classification", {"case": [classify(res), ""]}, "case", "FAIL")
+        expect("FIXED_POINT missing metric", load_metric(r, None, "FIXED_POINT")[2], "metric_file", "NA")
+        (tmp / "bad.dat").write_bytes(b"bad")
+        (tmp / "bad.vtu").write_bytes(b"bad")
+        for path in (tmp / "absent.dat", tmp, tmp / "bad.dat", tmp / "bad.vtu"):
+            expect(f"unreadable/malformed {path.name}", load_metric(r, path, "steady")[2], "metric_file", "FAIL")
+        # XFAIL covers only declared gates, with a successful run.
+        for case in (c for c in runner.CASES if c.get("known_fail")):
+            known = case["known_fail"]
+            res = {name: ["FAIL", "expected"] for name in known}
+            res["run"] = ["PASS", "success"]
+            expect(f"{case['name']} expected failures", {"case": [classify(res, known), ""]}, "case", "XFAIL")
+            for name in sorted(known):
+                single = {"run": ["PASS", ""], name: ["FAIL", "expected"]}
+                expect(f"{case['name']} only {name}", {"case": [classify(single, known), ""]}, "case", "XFAIL")
+            for name in ("run", "metric_file", "restart_bitwise", "mpi_vs_np1", "mpi_metric_vs_np1"):
+                bad = {**res, name: ["FAIL", "unrelated"]}
+                expect(f"{case['name']} + {name}", {"case": [classify(bad, known), ""]}, "case", "FAIL")
+            expect(f"{case['name']} no failures", {"case": [classify({"run": ["PASS", ""]}, known), ""]},
+                   "case", "PASS")
         for label, m in (("rect", r), ("bump3d", b)):
             for name, res in {**check_validity(m), **check_markers(m, m), **check_geometry(m, m, False, 0.01),
                               **check_geometry(m, m, True, 0.01), **check_corners(m, m, 45.0)}.items():
@@ -837,9 +931,40 @@ def selftest():
         assert abs(mean - exact) < 2e-3, res
         results.append(("analytic metric", "complexity / edge mean", f"64, {exact:.3f}", f"{c:.6f}, {mean:.3f}"))
         expect("uniform metric", check_metric_field(M, 1e-3, 1.0, 10.0), "metric_nontrivial", "FAIL")
+        # Oblique intersection follows CSolver::IntersectMetrics, after global bounds.
+        normal = np.array([np.cos(np.pi / 6.0), np.sin(np.pi / 6.0)])
+        B = np.eye(2) * 4.0 + (1.0 / 0.005 ** 2 - 4.0) * np.outer(normal, normal)
+        sq, isq = np.diag([1e3, 10.0]), np.diag([1e-3, 0.1])
+        lam, vec = np.linalg.eigh(isq @ B @ isq)
+        intersection = sq @ (vec @ np.diag(np.maximum(lam, 1.0)) @ vec.T) @ sq
+        for label, T, status in (("oblique intersection", intersection, "PASS"),
+                                 ("NaN", np.diag([np.nan, 100.0]), "FAIL"),
+                                 ("non-SPD", np.diag([-1.0, 100.0]), "FAIL"),
+                                 ("undersized", np.diag([1e8, 100.0]), "FAIL"),
+                                 ("oversized", np.diag([1e6, 1.0]), "FAIL"),
+                                 ("high aspect ratio", np.diag([1e6, 100.0]), "PASS")):
+            res = check_metric_field(np.tile(T, (len(r.P), 1, 1)), 0.001, 0.5, 10.0, bl=True, h0_min=0.005)
+            expect(f"BL metric {label}", res, "metric_field", status)
+        T = np.tile(np.diag([1.0 / 0.0003 ** 2, 100.0]), (len(r.P), 1, 1))
+        expect("BL h0 below HMIN", check_metric_field(T, 0.001, 0.5, 10.0, bl=True, h0_min=0.0005),
+               "metric_field", "PASS")
+        expect("ordinary metric bounds", check_metric_field(T, 0.001, 0.5, 10.0), "metric_field", "FAIL")
         # BL cell height of the plate's first row (2e-3)
         expect("plate rows", check_bl(p, {"wall": 2e-3}), "bl_cell_height", "PASS")
+        expect("plate coverage", check_bl(p, {"wall": 2e-3}), "bl_coverage", "PASS")
         expect("plate rows, wrong h0", check_bl(p, {"wall": 2e-2}), "bl_cell_height", "FAIL")
+        meshgen.rectangle(tmp / "coarse.su2", nx=1, ny=1)
+        coarse = read_su2(tmp / "coarse.su2")
+        expect("sole wall face excluded", check_bl(coarse, {"lower": 0.001}), "bl_coverage", "FAIL")
+        meshgen.rectangle(tmp / "partial.su2", nx=3, ny=2)
+        partial = read_su2(tmp / "partial.su2")
+        expect("wall coverage below half", check_bl(partial, {"lower": 5.0}), "bl_coverage", "FAIL")
+        expect("required ridge absent", check_bl(r, {"lower": 0.125, "upper": 0.125}, require_ridge=True),
+               "bl_ridge_cell_height", "FAIL")
+        expect("required ridge present", check_bl(r, {"lower": 0.125, "left": 0.125}, require_ridge=True),
+               "bl_ridge_cell_height", "PASS")
+        expect("one good wall cannot mask another", check_bl(r, {"lower": 0.125, "upper": 1.0}),
+               "bl_cell_height", "FAIL")
         # reference metric of an analytic quadratic sensor on the unit square: H = diag(2, 8), one sensor, p = 2
         fields = {"Hessian_S_XX": np.full(len(r.P), 2.0), "Hessian_S_XY": np.zeros(len(r.P)),
                   "Hessian_S_YY": np.full(len(r.P), 8.0)}
@@ -857,10 +982,27 @@ def selftest():
             Hk[k][k] = np.diag([-3.0, 1.0])
         to_fields = lambda T: {f"Hessian_S_{n}": T[:, "XYZ".index(n[0]), "XYZ".index(n[1])] for n in ("XX", "XY", "YY")}
         mean = sum(abs_tensor(H) for H in Hk) / 3.0
-        expect("window mean", check_window_identity([to_fields(Hk[0]), to_fields(Hk[1]), to_fields(mean)], ["S"], 2),
+        V = np.array([1.0, 2.0, 2.0, 1.0])
+        steps = [to_fields(Hk[0]), to_fields(Hk[1]), to_fields(mean)]
+        expect("window mean", check_window_identity(steps, ["S"], 2, V),
                "window_average", "PASS")
-        expect("last step only", check_window_identity([to_fields(Hk[0]), to_fields(Hk[1]), to_fields(abs_tensor(Hk[2]))],
-                                                       ["S"], 2), "window_average", "FAIL")
+        expect("last step only", check_window_identity(steps[:-1] + [to_fields(abs_tensor(Hk[2]))],
+                                                       ["S"], 2, V), "window_average", "FAIL")
+        past = sum(abs_tensor(H) for H in Hk[:-1])
+        for label, end in (("zero residual", past / 3.0),
+                           ("oversized PSD residual", (past + 3.0 * abs_tensor(Hk[-1])) / 3.0),
+                           ("undersized PSD residual", (past + 0.25 * abs_tensor(Hk[-1])) / 3.0)):
+            expect(label, check_window_identity(steps[:-1] + [to_fields(end)], ["S"], 2, V),
+                   "window_average", "FAIL")
+        expect("missing window Hessian", check_window_identity(steps, ["missing"], 2, V), "window_average", "FAIL")
+        expect("zero previous Hessian", check_window_identity([steps[0], to_fields(Hk[1] * 0.0), steps[-1]],
+                                                              ["S"], 2, V),
+               "window_average", "FAIL")
+        expect("unequal dual volumes", check_window_identity(steps, ["S"], 2, np.array([1.0, 16.0, 1.0, 1.0])),
+               "window_average", "FAIL")
+        bad = {**steps[-1], "Hessian_S_XX": np.full(4, np.nan)}
+        expect("nonfinite window Hessian", check_window_identity(steps[:-1] + [bad], ["S"], 2, V),
+               "window_average", "FAIL")
     for row in results:
         print("  ".join(str(v) for v in row))
     print(f"selftest PASS ({len(results)} checks)")

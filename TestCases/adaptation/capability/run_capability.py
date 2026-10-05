@@ -18,6 +18,7 @@ from pathlib import Path
 import re
 import shutil
 import signal
+import struct
 import subprocess
 import sys
 import time
@@ -37,12 +38,13 @@ NEEDS_333 = "needs the MMG #333 fix (MMG 5.8 -nosurf -nosizreq hangs in 3D witho
 VORTEX_TRACKING = {"TIME_STEP": "0.17", "TIME_ITER": "9", "ADAP_FREQ": "3"}
 
 # Each case: base config + changes (None removes an option). fixed: ADAP_SURFACE= NO; bl: {marker: h0};
-# reference: compare with the numpy metric; opts: threshold overrides; known_fail: reason of an expected failure.
+# reference: compare with the numpy metric; opts: threshold overrides; known_fail: gates; known_fail_reason: reason.
 CASES = [
     dict(name="naca_free", tags={"2d", "steady", "free"}, base="naca_euler.cfg", mesh="naca",
          changes={"ADAP_SURFACE": "YES"},
-         known_fail="free airfoil boundary deviates ~5e-3 (0.5 % chord) from the input near the leading edge, "
-                    "independent of ADAP_HAUSD (probed 4e-4 .. 1e-2): MMG2D hausd not effective there"),
+         known_fail={"free_boundary_geometry"},
+         known_fail_reason="free airfoil boundary deviates ~5e-3 (0.5 % chord) from the input near the leading edge, "
+                           "independent of ADAP_HAUSD (probed 4e-4 .. 1e-2): MMG2D hausd not effective there"),
     dict(name="naca_fixed", tags={"2d", "steady", "fixed"}, base="naca_euler.cfg", mesh="naca", fixed=True,
          reference=True,
          changes={"ADAP_SURFACE": "NO", "ADAP_SIZES": "(3000)", "ADAP_SUBITER": "(1)", "ADAP_FLOW_ITER": "(60)"}),
@@ -71,13 +73,14 @@ CASES = [
          changes={"ADAP_SURFACE": "YES", "ADAP_SIZES": "(2000)", "ADAP_BL_MARKER": "( lower )",
                   "ADAP_BL_FIRST_HEIGHT": "( 5e-3 )", "ADAP_BL_GROWTH": "( 1.3 )", "ADAP_BL_THICKNESS": "( 0.03 )"},
          analytic="bump3d", bl={"lower": 5e-3},
-         known_fail="MMG3D does not follow the 3D boundary-layer metric: metric edges in [0.71, 1.41] ~50 %, metric "
-                    "quality 1st percentile ~0.04, points ~4x the metric complexity (BL cell heights are fine)"),
+         known_fail={"metric_edges", "metric_quality", "points_vs_complexity"},
+         known_fail_reason="MMG3D does not follow the 3D boundary-layer metric: edges in [0.71, 1.41] ~50 %, "
+                           "metric quality 1st percentile ~0.04, points ~4x metric complexity (BL heights are fine)"),
     dict(name="bump3d_fixed_bl", tags={"3d", "steady", "fixed", "bl"}, base="bump3d_euler.cfg", mesh="bump3d",
          fixed=True, needs=NEEDS_333 + "; the BL ridge needs the refined #333 patch",
          changes={"ADAP_SURFACE": "NO", "ADAP_SIZES": "(2000)", "ADAP_BL_MARKER": "( lower, side0 )",
                   "ADAP_BL_FIRST_HEIGHT": "( 5e-3 )", "ADAP_BL_GROWTH": "( 1.3 )", "ADAP_BL_THICKNESS": "( 0.03 )"},
-         bl={"lower": 5e-3, "side0": 5e-3}),
+         bl={"lower": 5e-3, "side0": 5e-3}, require_ridge=True),
     dict(name="bump3d_wa", tags={"3d", "unsteady", "fixed", "custom"}, base="bump3d_euler.cfg", mesh="bump3d",
          fixed=True, restart=True, needs=NEEDS_333,
          changes={"ADAP_SURFACE": "NO", "TIME_DOMAIN": "YES", "TIME_MARCHING": "DUAL_TIME_STEPPING-2ND_ORDER",
@@ -284,7 +287,7 @@ def window_gates(case, cfg, directory, window, speeds, opts):
         aoa = np.radians(float(cfg.get("AOA", "0")))
         return capcheck.check_predict_lookahead(mesh, steps[-1], M, sensors, p, target, hmin, hmax, armax,
                                                 speeds.pop(0), horizon, np.array([np.cos(aoa), np.sin(aoa)]))
-    res = capcheck.check_window_identity(steps, sensors, mesh.dim)
+    res = capcheck.check_window_identity(steps, sensors, mesh.dim, capcheck.dual_volumes(mesh))
     res.update(capcheck.check_reference_metric(mesh, steps[-1], M, sensors, p, target, hmin, hmax, armax, tol=1e-4))
     return res
 
@@ -301,6 +304,8 @@ def check_case(case, cfg, directory, log, code):  # noqa: C901
     hausd, angle = float(cfg.get("ADAP_HAUSD", "0.01")), float(cfg.get("ADAP_ANGLE", "45"))
     hmin, hmax, armax = (float(cfg[k]) for k in ("ADAP_HMIN", "ADAP_HMAX", "ADAP_ARMAX"))
     bl = case.get("bl")
+    h0_min = min(float(v) for v in as_list(cfg["ADAP_BL_FIRST_HEIGHT"])) if bl else None
+    mode = cfg.get("ADAP_UNSTEADY_METRIC", "WINDOW_AVERAGE") if cfg.get("TIME_DOMAIN") == "YES" else "steady"
     last, first_metric = None, None
     speeds = [float(v) for v in re.findall(r"speed of the features (\S+) per time step", log)]
     for src_path, metric_path, out_path, target, window in pairs:
@@ -308,16 +313,16 @@ def check_case(case, cfg, directory, log, code):  # noqa: C901
         res = {}
         res.update(capcheck.check_validity(out))
         res.update(capcheck.check_markers(original, out))
-        M, precision = None, None
-        if metric_path is not None:
-            try:
-                M, precision = capcheck.metric_of(src, metric_path)
-            except ValueError as error:
-                res["metric_file"] = ["FAIL", str(error)]
+        M, precision, metric_gate = capcheck.load_metric(src, metric_path, mode)
+        res.update(metric_gate)
+        if M is not None:
+            res.update(capcheck.check_metric_field(M, hmin, hmax, armax, bl=bl is not None, opts=opts,
+                                                   h0_min=h0_min))
+            if not np.isfinite(M).all() or not (np.linalg.eigvalsh(M) > 0.0).all():
+                M = None
         if M is not None:
             if first_metric is None:
                 first_metric = M
-            res.update(capcheck.check_metric_field(M, hmin, hmax, armax, bl=bl is not None, opts=opts))
         cplx = capcheck.check_complexity(src, out, target, M, precision or "Float64", bl=bl is not None,
                                          opts=opts)
         res.update(cplx)
@@ -325,7 +330,7 @@ def check_case(case, cfg, directory, log, code):  # noqa: C901
             report = case.get("twopass", False) or case.get("fixed", False)
             res.update(capcheck.check_edges(src, out, M, opts, report_only=report))
         else:
-            res["metric_edges"] = ["NA", "no file with the metric of this remesh (FIXED_POINT: discarded solve)"]
+            res["metric_edges"] = ["NA", "no usable remesh metric (FIXED_POINT: discarded solve)"]
         if case.get("reference") and M is not None:
             _, fields, _ = capcheck.read_restart(metric_path)
             res.update(capcheck.check_reference_metric(src, fields, M, as_list(cfg["ADAP_SENSOR"]),
@@ -334,9 +339,13 @@ def check_case(case, cfg, directory, log, code):  # noqa: C901
         res.update(capcheck.check_corners(original, out, angle, opts,
                                           seam_tol=None if case.get("fixed") else 2.0 * hausd))
         if bl:
-            res.update(capcheck.check_bl(out, bl, opts))
-        if window is not None:
-            res.update(window_gates(case, cfg, directory, window, speeds, opts))
+            res.update(capcheck.check_bl(out, bl, opts, require_ridge=case.get("require_ridge", False)))
+        if window is not None and (M is not None or mode == "FIXED_POINT"):
+            try:
+                res.update(window_gates(case, cfg, directory, window, speeds, opts))
+            except (OSError, ValueError, KeyError, IndexError, TypeError, struct.error,
+                    np.linalg.LinAlgError) as error:
+                res["window_files"] = ["FAIL", str(error)]
         merge(gates, res, out_path.name)
         last = out
     return gates, last, first_metric
@@ -440,12 +449,12 @@ def main():
                                         if gates["run"][0] == "PASS" else ["FAIL", "no complete run"])
         if a.ranks > 1:
             gates.update(mpi_gates(case, cfg, directory, output, last, first_metric))
-        failed = any(v[0] == "FAIL" for v in gates.values())
-        status = ("XFAIL" if case.get("known_fail") else "FAIL") if failed else "PASS"
+        status = capcheck.classify(gates, case.get("known_fail", set()))
         record = {"case": case["name"], "ranks": a.ranks, "seconds": round(seconds, 1), "exit": code,
                   "points": len(last.P) if last is not None else None,
                   "meshes": {p.name: sha(p) for p in numbered(directory, "mesh_out*.su2").values()},
-                  "needs": case.get("needs"), "known_fail": case.get("known_fail"), "gates": gates, "status": status}
+                  "needs": case.get("needs"), "known_fail": sorted(case.get("known_fail", set())),
+                  "known_fail_reason": case.get("known_fail_reason"), "gates": gates, "status": status}
         results = [r for r in results if not (r["case"] == case["name"] and r["ranks"] == a.ranks)] + [record]
         results_path.write_text(json.dumps(results, indent=1) + "\n")
         print(f"{name}: {status} in {seconds:.1f} s, {record['points']} points", flush=True)
@@ -475,7 +484,7 @@ def write_summary(results, output):
     mark = {"PASS": "ok", "FAIL": "FAIL", "REPORT": "rep", "NA": "-"}
     for r in sorted(results, key=lambda r: (order.index(r["case"]) if r["case"] in order else 99, r["ranks"])):
         cells = " ".join(f"{mark[r['gates'][g][0]] if g in r['gates'] else '':>4}" for g in names)
-        note = r.get("known_fail") or r.get("needs")
+        note = r.get("known_fail_reason") or r.get("needs")
         rows.append(f"{r['case']:<18} {r['ranks']:>2} {r['seconds']:>6.1f} {str(r['points']):>7} {cells}  "
                     f"{r['status']}" + (f" ({note})" if note else ""))
     total = sum(r["seconds"] for r in results)

@@ -15,7 +15,8 @@ Not in serial_regression.py: the CI binaries have no MMG.
 Cases (tags: 2d 3d steady unsteady fixed free bl custom mpi4)
   naca_free           2D Euler NACA0012, 2 steady cycles (3000, 4000), ADAP_SURFACE= YES, sensors MACH + PRESSURE
                       KNOWN FAILURE: the free airfoil deviates ~5e-3 from the input near the leading edge whatever
-                      ADAP_HAUSD (4e-4 .. 1e-2): MMG2D's Hausdorff bound is not effective there
+                      ADAP_HAUSD (4e-4 .. 1e-2): MMG2D's Hausdorff bound is not effective there;
+                      expected gate: free_boundary_geometry
   naca_fixed          same, 1 cycle, ADAP_SURFACE= NO (boundary bitwise), metric checked against numpy (2 sensors)
   plate_metric        2D laminar flat plate (symmetry + wall), BL METRIC on the wall (h0 5e-5), free patches
   plate_metric_fixed  same with ADAP_SURFACE= NO
@@ -27,10 +28,11 @@ Cases (tags: 2d 3d steady unsteady fixed free bl custom mpi4)
   bump3d_fixed        same with ADAP_SURFACE= NO            needs the MMG #333 fix (hangs without it)
   bump3d_bl           3D BL METRIC on the bump, free patches
                       KNOWN FAILURE: MMG3D does not follow the 3D BL metric (metric edges in [0.71, 1.41] ~50 %,
-                      quality 1st percentile ~0.04, ~4x more points than the metric complexity); BL heights are fine
+                      quality 1st percentile ~0.04, ~4x more points than the metric complexity); BL heights are fine;
+                      expected gates: metric_edges, metric_quality, points_vs_complexity
   bump3d_fixed_bl     3D BL METRIC on two walls meeting at a ridge, ADAP_SURFACE= NO
                       needs the MMG #333 fix; the BL ridge is the mechanism the current #333 patch breaks (refined
-                      patch pending): watch bl_ridge_cell_height
+                      patch pending): bl_ridge_cell_height requires eligible ridge faces
   bump3d_wa           3D WINDOW_AVERAGE, ADAP_SURFACE= NO, custom sensor, restart   needs the MMG #333 fix
 np 1 and 2: all cases; np 4: tag mpi4 (vortex_wa, vortex_predict, bump3d_free).
 
@@ -48,8 +50,11 @@ Gates (per written mesh; worst over the meshes of a case). Files: steady cycle k
                        that is interior, not an element face, or repeated
   points_elements      no unused or duplicate points (1e-12 of the size), no duplicate elements
   markers              same marker names as the input, none empty
+  metric_file          readable metric file on the donor mesh with all Metric_* fields; mandatory for steady,
+                       WINDOW_AVERAGE and PREDICT; absence allowed only for FIXED_POINT (discarded solve)
   metric_field         metric file: finite, SPD, sizes in [ADAP_HMIN, ADAP_HMAX] (1 % slack), aspect ratio <= ADAP_ARMAX
-                       (not gated with a BL metric, which is applied after the bounds)
+                       BL metric: sizes in [0.5 min(ADAP_HMIN, smallest ADAP_BL_FIRST_HEIGHT), ADAP_HMAX], same slack;
+                       aspect ratio reported only (the BL intersection follows the global bounds)
   metric_nontrivial    95th / 5th percentile of sqrt(det M) >= 4
   points_vs_complexity output points / target: 2D [0.7, 2.0], 3D [0.7, 3.0] (BL: / complexity of the metric file;
                        bump2d_twopass 2D [0.7, 3.0])
@@ -64,8 +69,9 @@ Gates (per written mesh; worst over the meshes of a case). Files: steady cycle k
                        (double), 1e-4 (Float32); with 2 sensors the variants without a sensor or without the
                        per-sensor scaling must differ by > 1e-3. Scope: Hessian -> metric, not the sensors
   window_average       WINDOW_AVERAGE / FIXED_POINT (accepted solve): n H_end - sum of |H| of the earlier steps of the
-                       window is PSD (H_end, written at the window end, is the mean |H|); a metric of the last step
-                       only fails it when the feature moves
+                       window is finite and PSD within 1e-5 relative tolerance, for every sensor (H_end is the mean
+                       |H|). Its volume-weighted Frobenius norm / that of the previous instantaneous |H| must be in
+                       [0.5, 2]; missing evidence or zero norms fail, including means omitting the final sample
   predict_lookahead    PREDICT: the density centre of the written (predicted) metric is ahead of the instantaneous
                        metric of the window end (numpy, from its Hessians) by >= 0.25 x speed x horizon along the flow,
                        and its density at the current feature is >= 0.25 of the instantaneous one
@@ -79,9 +85,12 @@ Gates (per written mesh; worst over the meshes of a case). Files: steady cycle k
   corners              input corners (2D: points of >= 2 markers or turns > ADAP_ANGLE; 3D: points of >= 3 markers)
                        kept within 1e-12 of the size with the same markers; no new corner
   seams                3D: points of 2 markers on the input seams (1e-12 of the size fixed, 2 ADAP_HAUSD free)
-  bl_cell_height       wall-adjacent cell height d |K| / |face| in [0.5, 2] h0 for >= 80 % of the wall area (faces at
-                       joints with other markers excluded)
-  bl_ridge_cell_height same for the faces at a ridge of two BL walls, >= 60 %
+  bl_coverage          each BL marker: positive eligible face area and eligible / total area >= 50 %; faces touching
+                       non-BL markers excluded, eligible wall and BL ridge faces counted
+  bl_cell_height       wall-adjacent cell height d |K| / |face| in [0.5, 2] h0 for >= 80 % of the eligible wall area,
+                       evaluated separately per BL marker
+  bl_ridge_cell_height same for eligible faces at a ridge of two BL walls, >= 60 % per marker;
+                       bump3d_fixed_bl also requires nonempty eligible ridge evidence
   restart_bitwise      unsteady: restart from mesh_out_<ADAP_FREQ>.su2 with the rewritten restart files of the two
                        steps before it; the following restart files (across the next remesh, which the restart run
                        must do) are bitwise those of the uninterrupted run
@@ -89,4 +98,6 @@ Gates (per written mesh; worst over the meshes of a case). Files: steady cycle k
                        case must be in OUT)
   mpi_metric_vs_np1    np > 1: metric of the first remesh (same input mesh) within 1e-8 (double) / 1e-5 (Float32) of
                        the largest eigenvalue of np 1
-A known failure is reported as XFAIL and does not fail the run.
+XFAIL requires run=PASS and a nonempty set of failing gates wholly contained in the case's expected gates above.
+Any unrelated failure (including execution, metric files, restart or MPI) is FAIL; no failures is PASS.
+XFAIL does not fail the run. Expected gate sets are written as sorted lists, with a separate reason in results.json.
