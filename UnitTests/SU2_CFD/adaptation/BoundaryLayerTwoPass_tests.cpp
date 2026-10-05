@@ -33,12 +33,19 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <filesystem>
 #include <fstream>
 #include <limits>
 #include <memory>
 #include <set>
 #include <sstream>
 #include <stdexcept>
+
+#ifndef _WIN32
+#include <csignal>
+#include <sys/resource.h>
+#include <sys/stat.h>
+#endif
 
 #include "../../../Common/include/CConfig.hpp"
 #include "../../../Common/include/adaptation/CMMGInterface.hpp"
@@ -226,7 +233,7 @@ TEST_CASE("Reference wall: sharp corners, marker ends and persistence", "[Adapta
 
   /*--- Write and read back: same fingerprint, same projection. ---*/
   const string file = "bl_reference_wall_test.dat";
-  wall.Write(file);
+  REQUIRE(wall.Write(file));
   CReferenceWall copy;
   REQUIRE(copy.Read(file));
   CHECK(copy.Fingerprint() == wall.Fingerprint());
@@ -415,7 +422,7 @@ TEST_CASE("Two-pass remesh: injected gate failures (retry, fallback, immediate f
   mesh.metric.assign(nPoint * 3, 0.0);
   for (unsigned long i = 0; i < nPoint; ++i) mesh.metric[3 * i] = mesh.metric[3 * i + 2] = 100.0;
   CReferenceWall reference(mesh, {"wall"}, 45.0);
-  auto config = MakeConfig(blOptions + "ADAP_SURFACE= YES\n");
+  auto config = MakeConfig(blOptions + "ADAP_SURFACE= YES\nADAP_BL_SWAP= YES\n");
 
   auto run = [&](const CBoundaryLayerRemesher::PassAHook& hook, CBoundaryLayerRemesher::Report& report) {
     std::unique_ptr<Mute> mute(getenv("SU2_TEST_VERBOSE") == nullptr ? new Mute : nullptr);
@@ -434,6 +441,33 @@ TEST_CASE("Two-pass remesh: injected gate failures (retry, fallback, immediate f
   };
   CBoundaryLayerRemesher::Report report;
 
+  SECTION("G1 rejection after a successful BL remesh: swaps forced off") {
+    mesh = run(nullptr, report);
+    REQUIRE(report.passA);
+    REQUIRE(report.nFirstNode.size() == 1);
+    REQUIRE(report.nFirstNode[0] > 0);
+    CMMGInterface::ValidateMesh(mesh, nullptr, "earlier successful BL remesh");
+    /*--- A later cycle has a fresh sensor metric but retains the BL cells from the previous cycle. ---*/
+    mesh.metric.assign(3 * mesh.GetnPoint(), 0.0);
+    for (unsigned long p = 0; p < mesh.GetnPoint(); ++p) mesh.metric[3 * p] = mesh.metric[3 * p + 2] = 100.0;
+    const auto adapted = run([](CSimplexMesh& m, unsigned short) {
+      m.coord[2 * m.FindMarker("farfield")->elem[0]] += 1e-3;
+    }, report);
+    CHECK_FALSE(report.passA);
+    CHECK(report.immediateFallback);
+    CHECK(report.attempts == 1);
+    CHECK(report.failedGate.rfind("G1", 0) == 0);
+    CMMGInterface::ValidateMesh(adapted, &mesh, "fallback on existing BL band");
+
+    /*--- Explicit NOSWAP must produce exactly the same result even though the fallback requested swaps. ---*/
+    auto noSwap = MakeConfig(blOptions + "ADAP_SURFACE= YES\nADAP_BL_SWAP= NO\n");
+    CBoundaryLayerRemesher::Report expectedReport;
+    std::unique_ptr<Mute> mute(getenv("SU2_TEST_VERBOSE") == nullptr ? new Mute : nullptr);
+    const auto expected = CBoundaryLayerRemesher::BoundaryLayerPass(*noSwap, mesh, expectedReport);
+    CHECK(adapted.coord == expected.coord);
+    CHECK(adapted.elem == expected.elem);
+    CHECK(adapted.metric == expected.metric);
+  }
   SECTION("G4 once: retry accepted") {
     const auto adapted = run([&](CSimplexMesh& m, unsigned short attempt) { if (attempt == 0) invert(m); }, report);
     CHECK(report.passA);
@@ -686,7 +720,7 @@ TEST_CASE("Reference wall: creation and restart rules", "[Adaptation]") {
   /*--- Feature flags edited with the fingerprint kept: closed, sharp start/end, marker name. ---*/
   {
     CReferenceWall corner(PolylineMesh({{0, 0}, {1, 0}, {1, 1}, {0.5, 1.2}, {0, 1}}, true), {"wall"}, 45.0);
-    corner.Write(file);
+    REQUIRE(corner.Write(file));
     const auto text = ReadFile(file);
     const auto line = text.find("\nSEGMENT wall 0 1 1") + 1;
     REQUIRE(line > 0);
@@ -708,6 +742,82 @@ TEST_CASE("Reference wall: creation and restart rules", "[Adaptation]") {
             .find("corner angle") != string::npos);
   std::remove(file.c_str());
 }
+
+#ifndef _WIN32
+TEST_CASE("Reference wall: failed persistence preserves the previous file and reference", "[Adaptation]") {
+  struct TemporaryDirectory {
+    char path[32] = "bl_reference_failure_XXXXXX";
+    ~TemporaryDirectory() {
+      chmod(path, 0700);
+      std::filesystem::remove_all(path);
+    }
+  } directory;
+  REQUIRE(mkdtemp(directory.path) != nullptr);
+  const string file = string(directory.path) + "/reference.dat";
+  auto options = blOptions;
+  options.replace(options.find("bl_twopass_test.dat"), strlen("bl_twopass_test.dat"), file);
+  auto config = MakeConfig(options);
+  auto mesh = Annulus(24, 4, 0.5, 3.0);
+  CReferenceWall reference;
+  string info;
+  REQUIRE(CBoundaryLayerRemesher::PrepareReference(*config, mesh, true, reference, info).empty());
+  const auto previous = ReadFile(file);
+  const auto fingerprint = reference.Fingerprint();
+  /*--- Fit a different wall on rebase, so accepting the in-memory reference on failure is also detectable. ---*/
+  for (auto& x : mesh.coord) x *= 1.01;
+  CReferenceWall replacement(mesh, {"wall"}, 45.0);
+  REQUIRE(replacement.Fingerprint() != fingerprint);
+  string error, why;
+
+  SECTION("Cannot create the sibling in an unwritable directory") {
+    REQUIRE(chmod(directory.path, 0500) == 0);
+    CHECK_FALSE(replacement.Write(file, &why));
+    error = CBoundaryLayerRemesher::PrepareReference(*config, mesh, true, reference, info);
+    REQUIRE(chmod(directory.path, 0700) == 0);
+    CHECK(why.find("temporary sibling") != string::npos);
+  }
+  SECTION("A partial write or buffered flush fails") {
+    string expectedFailure;
+    SECTION("Buffered flush") { expectedFailure = "flush failed"; }
+    SECTION("Partial write") {
+      mesh = Annulus(256, 4, 0.505, 3.0);
+      replacement = CReferenceWall(mesh, {"wall"}, 45.0);
+      expectedFailure = "write failed";
+    }
+    rlimit previous;
+    REQUIRE(getrlimit(RLIMIT_FSIZE, &previous) == 0);
+    struct FileSizeLimit {
+      rlimit previous;
+      void (*handler)(int) = std::signal(SIGXFSZ, SIG_IGN);
+      ~FileSizeLimit() {
+        setrlimit(RLIMIT_FSIZE, &previous);
+        std::signal(SIGXFSZ, handler);
+      }
+    } limit{previous};
+    auto restricted = previous;
+    restricted.rlim_cur = 128;
+    REQUIRE(setrlimit(RLIMIT_FSIZE, &restricted) == 0);
+    CHECK_FALSE(replacement.Write(file, &why));
+    error = CBoundaryLayerRemesher::PrepareReference(*config, mesh, true, reference, info);
+    CHECK(why == expectedFailure);
+  }
+  INFO(error);
+  CHECK_FALSE(error.empty());
+  CHECK(info.empty());
+  CHECK(reference.Fingerprint() == fingerprint);
+  CHECK(ReadFile(file) == previous);
+  CReferenceWall read;
+  REQUIRE(read.Read(file));
+  CHECK(read.Fingerprint() == fingerprint);
+  /*--- Neither failure leaves an abandoned sibling behind. ---*/
+  CHECK(std::distance(std::filesystem::directory_iterator(directory.path), std::filesystem::directory_iterator()) == 1);
+
+  /*--- Once writes are possible, replacement succeeds and the complete new reference can be read. ---*/
+  REQUIRE(CBoundaryLayerRemesher::PrepareReference(*config, mesh, true, reference, info).empty());
+  REQUIRE(read.Read(file));
+  CHECK(read.Fingerprint() == replacement.Fingerprint());
+}
+#endif
 
 TEST_CASE("Gate G1: other boundaries, required corners and wall chains", "[Adaptation]") {
   const auto mesh = Annulus(24, 4, 0.5, 3.0);

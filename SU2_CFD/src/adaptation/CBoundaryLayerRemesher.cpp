@@ -197,7 +197,7 @@ void CBoundaryLayerRemesher::BoundMetric(unsigned short nDim, passivedouble hmin
 }
 
 CSimplexMesh CBoundaryLayerRemesher::BoundaryLayerPass(const CConfig& config, const CSimplexMesh& mesh,
-                                                       Report& report) {
+                                                       Report& report, bool passB) {
   const auto nDim = mesh.nDim;
   const auto nMetric = CSimplexMesh::GetnMetric(nDim);
   const auto nPoint = mesh.GetnPoint();
@@ -302,7 +302,8 @@ CSimplexMesh CBoundaryLayerRemesher::BoundaryLayerPass(const CConfig& config, co
   auto& params = mmg.GetParameters();
   params.surface = false;
   params.boundaryLayer = true;
-  params.swap = config.GetAdap_BL_Swap() ? 1 : 0;
+  /*--- Fallback input may already have a BL band: MMG2D swaps can create degenerate cells on re-adaptation. ---*/
+  params.swap = passB && config.GetAdap_BL_Swap() ? 1 : 0;
   auto adapted = mmg.Adapt(withBL);
   const auto& check = mmg.GetMetricCheck();
   report.nMetricChecked = check.nChecked;
@@ -1262,7 +1263,7 @@ CSimplexMesh CBoundaryLayerRemesher::TwoPass(const CConfig& config, const CSimpl
     LogEuclideanMean(nDim, stencil.nPoint, metrics, weights, m);
     BoundMetric(nDim, hmin, hmax, armax, m);
   }
-  return finish(BoundaryLayerPass(config, meshA, report));
+  return finish(BoundaryLayerPass(config, meshA, report, true));
 }
 
 std::string CBoundaryLayerRemesher::CheckReference(const CConfig& config, const CSimplexMesh& mesh,
@@ -1296,8 +1297,13 @@ std::string CBoundaryLayerRemesher::PrepareReference(const CConfig& config, cons
       " Set ADAP_BL_REFERENCE_REBASE= YES to rebuild it from the current wall (the wall then follows the current mesh "
       "from now on).";
   if (create) {
-    reference = CReferenceWall(mesh, WallNames(config, mesh), SU2_TYPE::GetValue(config.GetAdap_Angle()));
-    reference.Write(file);
+    CReferenceWall fresh(mesh, WallNames(config, mesh), SU2_TYPE::GetValue(config.GetAdap_Angle()));
+    std::string why;
+    if (!fresh.Write(file, &why)) {
+      info.clear();
+      return "Could not write the boundary-layer reference wall " + file + ": " + why + ".";
+    }
+    reference = std::move(fresh);
     info = "fitted to the current wall (" + std::to_string(reference.GetSegments().size()) + " segments) and written to " +
            file + (config.GetAdap_BL_ReferenceRebase() ? " (ADAP_BL_REFERENCE_REBASE= YES)." : ".");
     return "";

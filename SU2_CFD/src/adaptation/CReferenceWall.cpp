@@ -27,8 +27,12 @@
 #include "../../include/adaptation/CReferenceWall.hpp"
 
 #include <algorithm>
+#include <cerrno>
 #include <cmath>
 #include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <limits>
@@ -36,6 +40,14 @@
 #include <set>
 #include <sstream>
 #include <tuple>
+
+#ifdef _WIN32
+#include <fcntl.h>
+#include <io.h>
+#include <sys/stat.h>
+#else
+#include <unistd.h>
+#endif
 
 #include "../../../Common/include/parallelization/mpi_structure.hpp"
 
@@ -411,9 +423,13 @@ std::string CReferenceWall::Fingerprint() const {
   return text.str();
 }
 
-void CReferenceWall::Write(const std::string& filename) const {
-  std::ofstream file(filename);
-  if (!file) SU2_MPI::Error("Could not write the reference wall " + filename + ".", CURRENT_FUNCTION);
+bool CReferenceWall::Write(const std::string& filename, std::string* error) const {
+  auto fail = [&](const std::string& why) {
+    if (error != nullptr) *error = why;
+    return false;
+  };
+  /*--- Serialize before opening anything; a failure must never truncate the previous reference. ---*/
+  std::ostringstream file;
   file << "SU2_BL_REFERENCE_WALL 2\n";
   file << "CORNER_ANGLE " << std::setprecision(17) << cornerAngle << "\n";
   file << "NSEGMENT " << segments.size() << "\n";
@@ -423,6 +439,52 @@ void CReferenceWall::Write(const std::string& filename) const {
     for (const auto& x : seg.x) file << std::setprecision(17) << x[0] << " " << x[1] << "\n";
   }
   file << "FINGERPRINT " << Fingerprint() << "\n";
+  if (!file) return fail("serialization failed");
+  const auto text = file.str();
+
+  /*--- A unique sibling keeps the replacement on the same filesystem and avoids concurrent-writer collisions. ---*/
+  const auto pattern = filename + ".tmp.XXXXXX";
+  std::vector<char> temporary(pattern.begin(), pattern.end());
+  temporary.push_back('\0');
+#ifdef _WIN32
+  if (_mktemp_s(temporary.data(), temporary.size()) != 0)
+    return fail("could not name a temporary sibling: " + std::string(std::strerror(errno)));
+  const int fd = _open(temporary.data(), _O_WRONLY | _O_CREAT | _O_EXCL | _O_BINARY, _S_IREAD | _S_IWRITE);
+#else
+  const int fd = mkstemp(temporary.data());
+#endif
+  if (fd < 0) return fail("could not create a temporary sibling: " + std::string(std::strerror(errno)));
+#ifdef _WIN32
+  auto* output = _fdopen(fd, "w");
+#else
+  auto* output = fdopen(fd, "w");
+#endif
+  if (output == nullptr) {
+    const auto why = std::string(std::strerror(errno));
+#ifdef _WIN32
+    _close(fd);
+#else
+    close(fd);
+#endif
+    std::remove(temporary.data());
+    return fail("could not open the temporary sibling: " + why);
+  }
+  const char* failure = nullptr;
+  if (std::fwrite(text.data(), 1, text.size(), output) != text.size()) failure = "write failed";
+  if (std::fflush(output) != 0 && failure == nullptr) failure = "flush failed";
+  if (std::fclose(output) != 0 && failure == nullptr) failure = "close failed";
+  if (failure != nullptr) {
+    std::remove(temporary.data());
+    return fail(failure);
+  }
+  std::error_code renameError;
+  std::filesystem::rename(temporary.data(), filename, renameError);
+  if (renameError) {
+    std::remove(temporary.data());
+    return fail("could not replace the destination: " + renameError.message());
+  }
+  if (error != nullptr) error->clear();
+  return true;
 }
 
 bool CReferenceWall::Read(const std::string& filename, std::string* error) {

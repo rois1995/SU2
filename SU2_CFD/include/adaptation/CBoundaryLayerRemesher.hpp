@@ -264,9 +264,11 @@ class CBoundaryLayerRemesher final : public CRemesher {
 
   /*!
    * \brief Pass B alone: boundary-layer metric on the mesh (whose metric is the sensor metric), then MMG with the
-   *        fixed surface. Also the fallback of TwoPass.
+   *        fixed surface. Swaps are disabled by default for fallback input, which may already contain a BL band.
+   * \param[in] passB - True only for the accepted pass-A mesh (honours ADAP_BL_SWAP).
    */
-  static CSimplexMesh BoundaryLayerPass(const CConfig& config, const CSimplexMesh& mesh, Report& report);
+  static CSimplexMesh BoundaryLayerPass(const CConfig& config, const CSimplexMesh& mesh, Report& report,
+                                        bool passB = false);
 
   /*!
    * \brief Log-Euclidean weighted mean of metrics (upper triangles): exp(sum w log M).

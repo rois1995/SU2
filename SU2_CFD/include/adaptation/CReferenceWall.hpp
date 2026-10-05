@@ -128,9 +128,11 @@ class CReferenceWall {
   passivedouble Curvature(const Segment& seg, passivedouble s) const;
 
   /*!
-   * \brief Write the reference (knots, segment flags, settings) as text with a fingerprint line.
+   * \brief Write the reference (knots, segment flags, settings) atomically, with a fingerprint line.
+   * \param[out] error - If given: why the write or replacement failed.
+   * \return False on failure; the destination is left unchanged.
    */
-  void Write(const std::string& filename) const;
+  bool Write(const std::string& filename, std::string* error = nullptr) const;
 
   /*!
    * \brief Read a reference written by Write (structure, finite coordinates, distinct knots and the fingerprint are
