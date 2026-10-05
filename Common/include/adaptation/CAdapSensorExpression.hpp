@@ -78,6 +78,8 @@ class Validator {
     if (Take("(")) {
       const auto value = Expression();
       if (!Take(")")) Fail();
+      /*--- MEL cannot strip parentheses around a one-character atom. ---*/
+      if (value.size() == 1 && std::isalnum(static_cast<unsigned char>(value[0]))) return value;
       return "(" + value + ")";
     }
     const auto token = tokens[pos++];

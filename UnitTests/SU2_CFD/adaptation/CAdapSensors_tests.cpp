@@ -90,6 +90,27 @@ CSimplexMesh SensorMesh() {
 }
 }  // namespace
 
+TEST_CASE("Custom adaptation configuration accepts grouped single-character atoms", "[Adaptation][CustomSensors]") {
+  const std::pair<std::string, std::string> cases[] = {
+      {"(A)", "A"}, {"2/(A)", "2/A"}, {"(1)", "1"}, {"((A))", "A"}, {"(A)*(B)", "A*B"}};
+  for (const auto& test : cases) {
+    INFO(test.first);
+    CHECK(CAdapSensors::ValidateExpression(test.first) == test.second);
+    /*--- Exercise CConfig's MEL parsing, including the reported A : PRESSURE; S : 2/(A). ---*/
+    auto config = SensorConfig("A : PRESSURE; B : 2; S : " + test.first);
+    MeshSolution state(config.get(), SensorMesh(), 0);
+    auto* flow = state.solver[MESH_0][FLOW_SOL];
+    const auto idx = CPrimitiveIndices<unsigned short>(false, false, 2, 0);
+    for (unsigned long point = 0; point < state.Fine().GetnPoint(); ++point)
+      flow->GetNodes()->SetPrimitive(point, idx.Pressure(), 3.0);
+    flow->SetAuxVar_Adapt(&state.Fine(), config.get(), state.solver[MESH_0]);
+    const auto expected = test.first == "2/(A)" ? 2.0/3 : test.first == "(1)" ? 1.0 : test.first == "(A)*(B)" ? 6.0 : 3.0;
+    for (unsigned long point = 0; point < state.Fine().GetnPointDomain(); ++point)
+      CHECK(SU2_TYPE::GetValue(flow->GetNodes()->GetAuxVar_Adapt(point, 0)) == Approx(expected));
+  }
+  CHECK_NOTHROW(SensorConfig("A : PRESSURE; S : 2/(A)"));
+}
+
 TEST_CASE("Custom adaptation unary plus binds and preserves grouping", "[Adaptation][CustomSensors]") {
   const std::pair<std::string, std::string> cases[] = {
       {"+PRESSURE", "(PRESSURE)"}, {"2/+PRESSURE", "2/(PRESSURE)"},

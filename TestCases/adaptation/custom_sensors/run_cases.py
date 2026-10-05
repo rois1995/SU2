@@ -85,7 +85,7 @@ def point_fields(path):
     return fields
 
 
-def run(binary, directory, config, ranks=1, expect_error=None):
+def run(binary, directory, config, ranks=1, expect_error=None, preprocessing_error=False):
     wait_load()
     directory.mkdir(parents=True, exist_ok=True)
     (directory / "run.cfg").write_text(config)
@@ -101,6 +101,13 @@ def run(binary, directory, config, ranks=1, expect_error=None):
         # The serial CBaseMPI::Abort implementation exits with zero; require the actual diagnostic.
         assert expect_error in text, (directory, result.returncode, text[-2500:])
         assert "Exit Success (SU2_CFD)" not in text, (directory, "Expected configuration rejection")
+        if preprocessing_error:
+            assert "Solver Preprocessing" in text, (directory, "Expected solver preprocessing rejection")
+            assert "CEulerSolver::InitializeAdapSensors" in text, (directory, "Expected eager binding rejection")
+            assert "Begin Solver" not in text, (directory, "Binding error occurred after starting the solve")
+            assert "Compute Metric" not in text, (directory, "Binding error occurred at metric sampling")
+            for history in directory.glob("history*.csv"):
+                assert len(history.read_text().splitlines()) <= 1, (directory, "Iterations wrote convergence rows")
     else:
         assert result.returncode == 0, (directory, result.returncode, text[-2500:])
     return result.returncode
@@ -205,6 +212,28 @@ def main():
         code = run(binary, rejection, negative, args.ranks, "At most 20")
         results.append({"case": "reject_21", "ranks": args.ranks, "exit": code, "expected_rejection": True})
         (output / "results.json").write_text(json.dumps(results, indent=2)+"\n")
+        for name, definitions, diagnostic in [
+            ("unknown", "S : unknown", "Unknown, forward/self-referenced or unavailable adaptation symbol"),
+            ("forward", "S : later; later : PRESSURE", "Unknown, forward/self-referenced or unavailable adaptation symbol"),
+            ("inactive_turb", "S : TURB[0]", "Inactive solver in adaptation symbol"),
+            ("inactive_scalar", "S : SCALAR[0]", "Inactive solver in adaptation symbol"),
+            ("gradient_z", "S : GRAD_PRESSURE_Z", "Gradient direction not available"),
+            ("rotational", "V : VELOCITY_X; S : V*V", "do not support rotational periodicity"),
+        ]:
+            rejection = output / f"reject_binding_{name}"
+            rejection.mkdir(exist_ok=True)
+            mesh(rejection / "mesh.su2", vortex=name == "rotational")
+            changes = {"ADAP_CUSTOM_SENSORS": f"'{definitions}'"}
+            if name == "rotational":
+                changes.update({"MARKER_FAR": "(right, upper)",
+                                "MARKER_PERIODIC": "(lower, left, -5,-5,0, 0,0,90, 0,0,0)"})
+            negative = options(base, changes)
+            code = run(binary, rejection, negative, args.ranks, diagnostic, preprocessing_error=True)
+            record = {"case": f"reject_binding_{name}", "ranks": args.ranks, "exit": code,
+                      "expected_rejection": True, "before_first_iteration": True}
+            results.append(record)
+            (output / "results.json").write_text(json.dumps(results, indent=2)+"\n")
+            print(json.dumps(record), flush=True)
     print(f"PASS: {len(results)} cases", flush=True)
 
 

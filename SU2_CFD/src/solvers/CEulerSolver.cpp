@@ -1755,10 +1755,19 @@ unsigned long CEulerSolver::SetPrimitive_Variables(CSolver **solver_container, c
   return nonPhysicalPoints;
 }
 
+void CEulerSolver::InitializeAdapSensors(CGeometry *geometry, const CConfig *config, CSolver **solver_container) {
+  if (config->GetAdap_CustomSensors().empty()) return;
+  try {
+    adapSensors = std::make_unique<CAdapSensors>(*config, *geometry, solver_container);
+  } catch (const std::exception& error) {
+    SU2_MPI::Error(error.what(), CURRENT_FUNCTION);
+  }
+}
+
 void CEulerSolver::SetAuxVar_Adapt(CGeometry *geometry, const CConfig *config, CSolver **solver_container) {
   if (!config->GetAdap_CustomSensors().empty()) {
     try {
-      if (!adapSensors) adapSensors = std::make_unique<CAdapSensors>(*config, *geometry, solver_container);
+      if (!adapSensors) InitializeAdapSensors(geometry, config, solver_container);
       adapSensors->Sample(*this, *geometry, *config, solver_container);
     } catch (const std::exception& error) {
       SU2_MPI::Error(error.what(), CURRENT_FUNCTION);

@@ -33,6 +33,7 @@
 #include "../../../Common/include/geometry/CMultiGridGeometry.hpp"
 
 #include "../../include/solvers/CSolverFactory.hpp"
+#include "../../include/solvers/CEulerSolver.hpp"
 #include "../../include/solvers/CFEM_DG_EulerSolver.hpp"
 
 #include "../../include/output/COutputFactory.hpp"
@@ -1111,6 +1112,12 @@ void CDriver::InitializeSolver(CConfig* config, CGeometry** geometry, CSolver **
   /*--- Set up any necessary inlet profiles ---*/
 
   PreprocessInlet(solver, geometry, config);
+
+  /*--- Bind on the finest mesh before any solve, also when adaptation creates replacement solvers. ---*/
+  if (kindSolver == MAIN_SOLVER::EULER || kindSolver == MAIN_SOLVER::NAVIER_STOKES ||
+      kindSolver == MAIN_SOLVER::RANS) {
+    static_cast<CEulerSolver*>(solver[MESH_0][FLOW_SOL])->InitializeAdapSensors(geometry[MESH_0], config, solver[MESH_0]);
+  }
 
 }
 

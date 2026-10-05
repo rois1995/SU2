@@ -40,7 +40,7 @@
  */
 class CEulerSolver : public CFVMFlowSolverBase<CEulerVariable, ENUM_REGIME::COMPRESSIBLE> {
 protected:
-  std::unique_ptr<CAdapSensors> adapSensors; /*!< \brief Bound on the first metric sample, after all solvers exist. */
+  std::unique_ptr<CAdapSensors> adapSensors; /*!< \brief Bound during solver initialization, after all solvers exist. */
 
   using BaseClass = CFVMFlowSolverBase<CEulerVariable, ENUM_REGIME::COMPRESSIBLE>;
 
@@ -1533,6 +1533,9 @@ public:
    * \param[in] config - Definition of the particular problem.
    */
   void PrintVerificationError(const CConfig* config) const final;
+
+  /*! \brief Bind custom adaptation sensors after the full solver container is initialized. */
+  void InitializeAdapSensors(CGeometry *geometry, const CConfig *config, CSolver **solver_container);
 
   /*!
    * \brief Store the mesh adaptation sensors (MACH, PRESSURE, TEMPERATURE, ENERGY, DENSITY, TOTALPRESSURE).
