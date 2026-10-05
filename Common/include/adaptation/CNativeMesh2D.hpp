@@ -422,10 +422,20 @@ inline bool reconstruct(Request r, const std::vector<Triangle>& old, const Metri
       reason = "non-simple star or ear failure";
       return false;
     }
-    if (min_quality(fresh, metric) < .22 || max_length(fresh, metric) > 1.45) {
+    if (min_quality(fresh, metric) < .22) {
       reason = "coarsening misses target";
       return false;
     }
+    // An unchanged artificial perimeter is repaired by adjacent cavities. Only
+    // newly introduced edges must meet the coarsening length bound here.
+    const auto perimeter = boundary(old);
+    for (const auto& t : fresh)
+      for (int k = 0; k < 3; ++k)
+        if (!perimeter.count(edge(t.v[k].id, t.v[(k + 1) % 3].id)) &&
+            length(t.v[k], t.v[(k + 1) % 3], metric) > 1.45) {
+          reason = "coarsening misses target";
+          return false;
+        }
   } else if (r.kind == Kind::SPLIT) {
     if (old.size() != 2 || !all.count(r.b)) {
       reason = "not a complete interior edge star";
@@ -458,7 +468,10 @@ inline bool reconstruct(Request r, const std::vector<Triangle>& old, const Metri
       return false;
     }
     fresh = {triangle(c, d, a), triangle(d, c, b)};
-    if (min_quality(fresh, metric) <= min_quality(old, metric) + 1e-7 || max_length(fresh, metric) > 1.8) {
+    // Long unchanged perimeter edges must not prevent an improving reconnection.
+    // The replaced diagonal cannot introduce a new length deficit or worsen its old one.
+    if (min_quality(fresh, metric) <= min_quality(old, metric) + 1e-7 ||
+        length(c, d, metric) > std::max(1.8, length(a, b, metric))) {
       reason = "flip does not improve quality";
       return false;
     }

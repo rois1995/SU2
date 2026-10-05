@@ -198,3 +198,25 @@ TEST_CASE("Native movement: previously admissible edges cannot accumulate length
             std::max(1.8, length(before.at(a.id), before.at(b.id), metric)) + 1e-12);
     }
 }
+
+
+TEST_CASE("Native reconnection: long unchanged perimeter does not block improving local work", "[NativeMesh2D]") {
+  const Node a{1, {0, 0}, 1}, b{2, {3, 0}, 1}, c{3, {3, 1}, 1}, d{4, {0, 2}, 1};
+  const auto metric = checked([](Point) { return Tensor{1, 0, 1}; });
+  std::vector<Triangle> old{triangle(a, b, d), triangle(b, c, d)}, fresh;
+  std::string reason;
+  REQUIRE(SU2Native2D::reconstruct({Kind::FLIP, b.id, d.id, 1}, old, metric, 100, fresh, reason));
+  REQUIRE(validate_replacement(old, fresh, reason));
+  CHECK(min_quality(fresh, metric) > min_quality(old, metric));
+  CHECK(max_length(fresh, metric) < max_length(old, metric));
+  CHECK(max_length(fresh, metric) > 1.8);  // Still incomplete: later work must repair the perimeter.
+
+  const Node corner{5, {0, 3}, 1}, interior{6, {.1, .1}, 0};
+  old = {triangle(a, b, interior), triangle(b, corner, interior), triangle(corner, a, interior)};
+  fresh.clear();
+  REQUIRE(SU2Native2D::reconstruct({Kind::REMOVE, interior.id, 0, 1}, old, metric, 100, fresh, reason));
+  REQUIRE(fresh.size() == 1);
+  REQUIRE(validate_replacement(old, fresh, reason));
+  CHECK(min_quality(fresh, metric) >= .22);
+  CHECK(max_length(fresh, metric) == max_length(old, metric));
+}
