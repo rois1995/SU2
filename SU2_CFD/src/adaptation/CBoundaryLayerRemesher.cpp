@@ -1021,7 +1021,8 @@ CSimplexMesh CBoundaryLayerRemesher::TwoPass(const CConfig& config, const CSimpl
       const auto tmin = std::max(hmin, 2.0 * rule.h0);
       for (unsigned long j = 0; j < samples[iSeg].size.size(); ++j)
         samples[iSeg].size[j] = std::max(tmin, samples[iSeg].size[j] * scale[iSeg][j]);
-      BLWallRule::Grade(samples[iSeg], BLWallRule::SizeRule().gradation, segments[iSeg].closed);  // after the retry
+      if (!corners.empty())
+        BLWallRule::Grade(samples[iSeg], BLWallRule::SizeRule().gradation, segments[iSeg].closed);  // after the retry
       report.nSizeConflict += samples[iSeg].nConflict;
     }
 

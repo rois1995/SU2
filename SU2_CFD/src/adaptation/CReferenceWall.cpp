@@ -790,7 +790,7 @@ BLWallRule::CornerChanges BLWallRule::ApplyCorners(const CReferenceWall& wall, c
     const auto reach = std::max({2.0 * SizeFromEnd(a, corner.atEnd[0], 0.0), 2.0 * SizeFromEnd(b, corner.atEnd[1], 0.0),
                                  CornerReach(corner, gradation)});
     reachOf.push_back(reach);
-    std::vector<passivedouble> distances;
+    std::vector<passivedouble> distances = {std::min({reach, a.s.back() - a.s.front(), b.s.back() - b.s.front()})};
     for (unsigned short k = 0; k < 2; ++k) {
       const auto& smp = samples[corner.seg[k]];
       for (unsigned long j = 0; j < smp.s.size(); ++j) {

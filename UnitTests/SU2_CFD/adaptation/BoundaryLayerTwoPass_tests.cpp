@@ -31,6 +31,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <fstream>
 #include <memory>
 #include <set>
@@ -468,6 +469,80 @@ TEST_CASE("Two-pass remesh: injected gate failures (retry, fallback, immediate f
     CHECK(report.attempts == 1);
     CHECK(report.failedGate.find("lines of marker farfield") != string::npos);
   }
+}
+
+TEST_CASE("Two-pass remesh: corner-free retry preserves the legacy pass A", "[Adaptation][MMG]") {
+  /*--- Only wall points lie in the band; constant size 1e-3, sample spacing about 1.2e-4. ---*/
+  const unsigned long nTheta = 128;
+  auto mesh = Annulus(nTheta, 4, 0.01, 0.03);
+  mesh.metric.assign(mesh.GetnPoint() * 3, 0.0);
+  for (unsigned long p = 0; p < mesh.GetnPoint(); ++p) mesh.metric[3 * p] = mesh.metric[3 * p + 2] = 2.5e5;
+  CReferenceWall reference(mesh, {"wall"}, 45.0);
+  REQUIRE(BLWallRule::FindCorners(reference).empty());
+  auto config = MakeConfig("ADAP_HMIN= 1e-5\nADAP_HMAX= 1e-3\nADAP_ARMAX= 1e4\nADAP_BL_MARKER= (wall)\n"
+                           "ADAP_BL_FIRST_HEIGHT= (1e-4)\nADAP_BL_GROWTH= (1.2)\nADAP_BL_THICKNESS= (0.002)\n"
+                           "ADAP_BL_METHOD= TWO_PASS\nADAP_BL_CURVATURE_FACTOR= 1\nADAP_SURFACE= YES\n");
+  auto broken = mesh;
+  std::swap(broken.elem[1], broken.elem[2]);
+  std::vector<std::array<passivedouble, 2>> failures;
+  REQUIRE(CBoundaryLayerRemesher::CountInverted(broken, &failures) == 1);
+  const auto failure = reference.Project(failures[0].data(), "wall");
+  REQUIRE(failure.distance < 0.002);
+
+  /*--- Legacy retry: scale only samples within 2 t_w of the failure, without grading afterwards. ---*/
+  BLWallRule::SizeRule rule;
+  rule.h0 = 1e-4;
+  rule.hmin = 1e-5;
+  rule.hmax = 1e-3;
+  rule.curvatureFactor = 1.0;
+  auto samples = BLWallRule::SampleSize(reference, 0, rule,
+                                       [](const passivedouble*, const passivedouble*) { return 2e-3; });
+  const auto base = samples;
+  for (unsigned long j = 0; j < samples.s.size(); ++j)
+    if (fabs(samples.s[j] - failure.s) <= 2.0 * BLWallRule::SizeAt(base, samples.s[j]))
+      samples.size[j] = std::max(samples.tmin, samples.size[j] * 0.7);
+  auto graded = samples;
+  BLWallRule::Grade(graded, rule.gradation, true);
+  REQUIRE(graded.size != samples.size);  // this case detects the extra grading
+  auto legacy = mesh;
+  for (unsigned long p = 0; p < nTheta; ++p) {
+    const auto proj = reference.Project(&mesh.coord[2 * p], "wall");
+    const auto h = BLWallRule::SizeAt(samples, proj.s);
+    legacy.metric[3 * p] = legacy.metric[3 * p + 2] = 1.0 / (h * h);
+  }
+  std::unique_ptr<Mute> mute(getenv("SU2_TEST_VERBOSE") == nullptr ? new Mute : nullptr);
+  CMMGInterface mmg(*config);
+  auto& params = mmg.GetParameters();
+  params.boundaryLayer = false;
+  params.swap = 1;
+  params.localWallHmax = false;
+  params.requiredMarkers = {"farfield"};
+  CMMGInterface::LocalParameter local;
+  local.ref = mesh.FindMarker("wall")->ref;
+  local.hmin = 1e-4;
+  local.hmax = 1.5 * *std::max_element(samples.size.begin(), samples.size.end());
+  local.hausd = 0.5 * rule.h0;
+  mmg.SetLocalParameters({local});
+  const auto expected = mmg.Adapt(legacy);
+  CBoundaryLayerRemesher::Report report;
+  bool compared = false;
+  CBoundaryLayerRemesher::TwoPass(*config, mesh, reference, report, [&](CSimplexMesh& m, unsigned short attempt) {
+    if (attempt == 0) {
+      m = broken;  // G4 forces a local retry
+    } else {
+      REQUIRE(m.coord.size() == expected.coord.size());
+      REQUIRE(m.metric.size() == expected.metric.size());
+      CHECK(std::memcmp(m.coord.data(), expected.coord.data(), m.coord.size() * sizeof(passivedouble)) == 0);
+      CHECK(std::memcmp(m.metric.data(), expected.metric.data(), m.metric.size() * sizeof(passivedouble)) == 0);
+      CHECK(m.elem == expected.elem);
+      compared = true;
+      m = mesh;  // valid wall and cells, so the gate accepts the retry
+    }
+  });
+  CHECK(compared);
+  CHECK(report.passA);
+  CHECK(report.attempts == 2);
+  CHECK(report.nCorner == 0);
 }
 #endif
 
@@ -1057,6 +1132,36 @@ TEST_CASE("Corner rule: corners of the reference, floor, symmetry (SERIAL_BL_FIX
         CHECK(fabs(smp.size[j] - smp.size[j - 1]) <= rule.gradation * (smp.s[j] - smp.s[j - 1]) * (1 + 1e-9) + 1e-15);
     REQUIRE(ch.changed.size() == cs.size());
     for (const auto d : ch.changed) CHECK((floorOn ? d > 0.0 : d == 0.0));  // without the floor nothing changes
+  }
+}
+
+TEST_CASE("Corner rule: symmetry between samples with the floor disabled", "[Adaptation]") {
+  for (const passivedouble length : {0.01, 3e-4}) {
+    CReferenceWall wall(PolylineMesh({{-length, 0.0}, {0.0, 0.0}, {0.0, 0.01}}, false), {"wall"}, 45.0);
+    const auto corners = BLWallRule::FindCorners(wall);
+    REQUIRE(corners.size() == 1);
+    REQUIRE(corners[0].floor == 0.0);
+    BLWallRule::SizeRule rule;
+    rule.h0 = 1e-4;
+    rule.hmin = 1e-6;
+    rule.hmax = 1.0;
+    auto sensor = [](const passivedouble* x, const passivedouble*) { return x[1] > 0.0 ? 1e-3 : 2e-4; };
+    std::vector<BLWallRule::SizeSamples> samples;
+    for (unsigned long iSeg = 0; iSeg < 2; ++iSeg)
+      samples.push_back(BLWallRule::SampleSize(wall, iSeg, rule, sensor, 10));
+    BLWallRule::ApplyCorners(wall, corners, rule.gradation, samples);
+    /*--- Reach 4e-4 falls between the coarse samples (spacing 1e-3), clipped to the shorter side. ---*/
+    const auto reach = std::min(4e-4, length);
+    const auto& c = corners[0];
+    for (const passivedouble fraction : {0.0, 0.25, 0.5, 0.975, 1.0}) {
+      const auto r = fraction * reach;
+      passivedouble t[2];
+      for (unsigned short k = 0; k < 2; ++k) {
+        const auto& smp = samples[c.seg[k]];
+        t[k] = BLWallRule::SizeAt(smp, c.atEnd[k] ? smp.s.back() - r : smp.s.front() + r);
+      }
+      CHECK(t[0] == Approx(t[1]).epsilon(1e-12));
+    }
   }
 }
 
