@@ -1136,7 +1136,12 @@ TEST_CASE("Corner rule: corners of the reference, floor, symmetry (SERIAL_BL_FIX
 }
 
 TEST_CASE("Corner rule: symmetry between samples with the floor disabled", "[Adaptation]") {
-  for (const passivedouble length : {0.01, 3e-4}) {
+  const struct {
+    passivedouble length;
+    bool largerAtEnd;
+  } cases[] = {{0.01, false}, {3e-4, false}, {0.02, true}};
+  for (const auto& test : cases) {
+    const auto length = test.length;
     CReferenceWall wall(PolylineMesh({{-length, 0.0}, {0.0, 0.0}, {0.0, 0.01}}, false), {"wall"}, 45.0);
     const auto corners = BLWallRule::FindCorners(wall);
     REQUIRE(corners.size() == 1);
@@ -1145,12 +1150,15 @@ TEST_CASE("Corner rule: symmetry between samples with the floor disabled", "[Ada
     rule.h0 = 1e-4;
     rule.hmin = 1e-6;
     rule.hmax = 1.0;
-    auto sensor = [](const passivedouble* x, const passivedouble*) { return x[1] > 0.0 ? 1e-3 : 2e-4; };
+    auto sensor = [&](const passivedouble* x, const passivedouble*) {
+      return (test.largerAtEnd ? x[1] <= 0.0 : x[1] > 0.0) ? 1e-3 : 2e-4;
+    };
     std::vector<BLWallRule::SizeSamples> samples;
     for (unsigned long iSeg = 0; iSeg < 2; ++iSeg)
-      samples.push_back(BLWallRule::SampleSize(wall, iSeg, rule, sensor, 10));
+      samples.push_back(test.largerAtEnd ? BLWallRule::SampleSize(wall, iSeg, rule, sensor)
+                                        : BLWallRule::SampleSize(wall, iSeg, rule, sensor, 10));
     BLWallRule::ApplyCorners(wall, corners, rule.gradation, samples);
-    /*--- Reach 4e-4 falls between the coarse samples (spacing 1e-3), clipped to the shorter side. ---*/
+    /*--- Reach 4e-4 falls between the coarse samples, clipped to the shorter side. ---*/
     const auto reach = std::min(4e-4, length);
     const auto& c = corners[0];
     for (const passivedouble fraction : {0.0, 0.25, 0.5, 0.975, 1.0}) {
@@ -1162,6 +1170,60 @@ TEST_CASE("Corner rule: symmetry between samples with the floor disabled", "[Ada
       }
       CHECK(t[0] == Approx(t[1]).epsilon(1e-12));
     }
+  }
+}
+
+TEST_CASE("Corner rule: overlapping symmetry windows with the floor disabled", "[Adaptation]") {
+  auto mesh = PolylineMesh({{-0.01, 0.0}, {0.0, 0.0}, {0.0, 0.001}, {0.01, 0.001}}, false);
+  auto marker = mesh.markers.front();
+  mesh.markers.clear();
+  const std::vector<std::string> names = {"wall0", "wall1", "wall2"};
+  for (unsigned long i = 0; i < 3; ++i) {
+    marker.name = names[i];
+    marker.ref = i + 1;
+    marker.elem = {i, i + 1};
+    mesh.markers.push_back(marker);
+  }
+  CReferenceWall wall(mesh, names, 45.0);
+  REQUIRE(wall.GetSegments().size() == 3);
+  const auto corners = BLWallRule::FindCorners(wall);
+  REQUIRE(corners.size() == 2);
+  BLWallRule::SizeRule rule;
+  rule.h0 = 1e-4;
+  const passivedouble sensorSize[] = {1e-3, 1e-3, 2e-4};
+  std::vector<BLWallRule::SizeSamples> base;
+  for (unsigned long iSeg = 0; iSeg < 3; ++iSeg) {
+    REQUIRE(wall.GetSegments()[iSeg].marker == names[iSeg]);
+    base.push_back(BLWallRule::SampleSize(wall, iSeg, rule,
+                                        [&](const passivedouble*, const passivedouble*) { return sensorSize[iSeg]; }));
+  }
+  auto samples = base;
+  BLWallRule::ApplyCorners(wall, corners, rule.gradation, samples);
+  for (const auto& c : corners) {
+    REQUIRE(c.floor == 0.0);
+    /*--- Both initial windows reach 0.002; their common part is the whole 0.001 middle segment. ---*/
+    for (int i = 0; i <= 100; ++i) {
+      const auto r = 0.001 * i / 100.0;
+      passivedouble t[2];
+      for (unsigned short k = 0; k < 2; ++k) {
+        const auto& smp = samples[c.seg[k]];
+        t[k] = BLWallRule::SizeAt(smp, c.atEnd[k] ? smp.s.back() - r : smp.s.front() + r);
+      }
+      CHECK(t[0] == Approx(t[1]).epsilon(1e-12));
+      CHECK(t[0] == Approx(2e-4).epsilon(1e-12));
+    }
+  }
+  auto reversed = corners;
+  std::reverse(reversed.begin(), reversed.end());
+  auto samples2 = base;
+  BLWallRule::ApplyCorners(wall, reversed, rule.gradation, samples2);
+  for (unsigned long iSeg = 0; iSeg < 3; ++iSeg) {
+    CHECK(samples2[iSeg].s == samples[iSeg].s);
+    CHECK(samples2[iSeg].size == samples[iSeg].size);
+    for (const auto t : samples[iSeg].size) CHECK(t >= samples[iSeg].tmin * (1 - 1e-12));
+    for (unsigned long j = 1; j < samples[iSeg].s.size(); ++j)
+      CHECK(fabs(samples[iSeg].size[j] - samples[iSeg].size[j - 1]) <=
+            rule.gradation * (samples[iSeg].s[j] - samples[iSeg].s[j - 1]) * (1 + 1e-9) + 1e-15);
   }
 }
 

@@ -241,8 +241,8 @@ void Grade(SizeSamples& samples, passivedouble gradation, bool closed);
 /*!
  * \brief Corner rule on the sampled sizes of all segments (SERIAL_BL_FIX_PLAN.md 11.7):
  *        - symmetry at every corner: within r <= max(2 max(t_A(0), t_B(0)), reach of the floor) of it (r = arc
- *          length from the corner), both sides take min(t_A(r), t_B(r)) (from the sizes before this step), then the
- *          touched segments are graded again;
+ *          length from the corner), both sides take min(t_A(r), t_B(r)) respecting each side's t_min, then the
+ *          touched segments are graded again; repeat within the initial windows until no sizes change;
  *        - floor at a convex corner with floor t_c > 0: t <- max(t, f(r)), f(r) = max(t_min, t_c - gradation
  *          max(0, r - t_c)); the maximum of two graded profiles is graded.
  */

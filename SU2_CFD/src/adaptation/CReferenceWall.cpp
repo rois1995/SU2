@@ -776,9 +776,9 @@ BLWallRule::CornerChanges BLWallRule::ApplyCorners(const CReferenceWall& wall, c
 
   /*--- Symmetry: both sides of a corner take the smaller size at the same distance from it, never below their own
    *    t_min (markers with different h0). Both sides first get samples at the same distances within the reach, so the
-   *    two piecewise linear sizes are equal there; sizes before this step, so the order of the corners does not
-   *    matter. The touched segments are graded again: within the reach both sides are graded and their minimum too, so
-   *    the grading only lowers sizes beyond it. ---*/
+   *    two piecewise linear sizes are equal there. Repeat symmetry from the current sizes and grading of the touched
+   *    segments until no sizes change, propagating reductions through overlapping windows. Each round reads the same
+   *    snapshot, so the order of the corners does not matter; both steps only lower sizes. ---*/
   std::vector<passivedouble> reachOf;
   for (const auto& corner : corners) {
     const auto& a = samples[corner.seg[0]];
@@ -801,29 +801,36 @@ BLWallRule::CornerChanges BLWallRule::ApplyCorners(const CReferenceWall& wall, c
     for (unsigned short k = 0; k < 2; ++k)
       for (const auto r : distances) InsertFromEnd(samples[corner.seg[k]], corner.atEnd[k], r);
   }
-  const auto before = samples;
   std::set<unsigned long> touched;
-  for (unsigned long iCorner = 0; iCorner < corners.size(); ++iCorner) {
-    const auto& corner = corners[iCorner];
-    const auto reach = reachOf[iCorner];
-    if (!(reach > 0.0)) continue;
-    for (unsigned short k = 0; k < 2; ++k) {
-      const auto& other = before[corner.seg[1 - k]];
-      const auto otherLength = other.s.back() - other.s.front();
-      auto& own = samples[corner.seg[k]];
-      for (unsigned long j = 0; j < own.s.size(); ++j) {
-        const auto r = FromEnd(own, corner.atEnd[k], j);
-        if (r > reach || r > otherLength) continue;
-        const auto t = std::max(own.tmin, SizeFromEnd(other, corner.atEnd[1 - k], r));
-        if (t < own.size[j]) {
-          own.size[j] = t;
-          changes.nSymmetry++;
-          touched.insert(corner.seg[k]);
+  unsigned long rounds = 0;  // a closure of minima (finite); the bound only guards against a defect
+  do {
+    const auto before = samples;
+    touched.clear();
+    for (unsigned long iCorner = 0; iCorner < corners.size(); ++iCorner) {
+      const auto& corner = corners[iCorner];
+      const auto reach = reachOf[iCorner];
+      if (!(reach > 0.0)) continue;
+      for (unsigned short k = 0; k < 2; ++k) {
+        const auto& other = before[corner.seg[1 - k]];
+        const auto otherLength = other.s.back() - other.s.front();
+        auto& own = samples[corner.seg[k]];
+        const auto tol = 8.0 * std::numeric_limits<passivedouble>::epsilon() *
+                         std::max(own.s.back() - own.s.front(), otherLength);
+        for (unsigned long j = 0; j < own.s.size(); ++j) {
+          auto r = FromEnd(own, corner.atEnd[k], j);
+          if (r > reach + tol || r > otherLength + tol) continue;
+          r = std::max(0.0, std::min({r, reach, otherLength}));
+          const auto t = std::max(own.tmin, SizeFromEnd(other, corner.atEnd[1 - k], r));
+          if (t < own.size[j]) {
+            own.size[j] = t;
+            changes.nSymmetry++;
+            touched.insert(corner.seg[k]);
+          }
         }
       }
     }
-  }
-  for (const auto iSeg : touched) Grade(samples[iSeg], gradation, segments[iSeg].closed);
+    for (const auto iSeg : touched) Grade(samples[iSeg], gradation, segments[iSeg].closed);
+  } while (!touched.empty() && ++rounds < 10000);
 
   /*--- Floor at convex corners: t >= f(r) = max(t_min, t_c - gradation max(0, r - t_c)). ---*/
   for (const auto& corner : corners) {
