@@ -125,4 +125,45 @@ TEST_CASE("Native production loop: configured CGNS output, disabled output and C
   // Retain input/config/mesh/restart artifacts for independent CGNS auditing.
   SU2_MPI::Barrier(SU2_MPI::GetComm());
 }
+
+#ifdef HAVE_MMG
+// Hidden integration control for the existing default backend in an MMG build.
+// Reuse the production driver/configuration rather than a mocked selector.
+TEST_CASE("MMG default: production adaptation loop still resumes the uniform solve", "[MMGDefault2D][.]") {
+  World world;
+  const std::string name = "native_mmg_default_control";
+  if (world.rank == 0) {
+    for (unsigned long cycle = 0; cycle <= 2; ++cycle)
+      std::remove((CConfig::GetAdap_FileName(name + "_mesh", cycle) + ".cgns").c_str());
+    simplex_test::WriteSU2Mesh(BoxMesh(2, 6, true), name + ".su2");
+    auto options = Options(name, true);
+    const std::string selection = "ADAP_REMESHER= NATIVE_CAVITY\n";
+    REQUIRE(options.find(selection) != std::string::npos);
+    options.erase(options.find(selection), selection.size());
+    std::ofstream config(name + ".cfg");
+    config << options;
+  }
+  SU2_MPI::Barrier(SU2_MPI::GetComm());
+  const auto cfg = name + ".cfg";
+  auto driver = std::make_unique<CGNSDriver>(const_cast<char*>(cfg.c_str()), 1, SU2_MPI::GetComm());
+  REQUIRE(driver->Config().GetKind_Adap_Remesher() == ADAP_REMESHER::MMG);
+  std::array<double, 4> uniform;
+  for (unsigned short k = 0; k < 4; ++k)
+    uniform[k] = CPassiveComm::Allreduce(driver->Geometry().GetnPointDomain()
+                                           ? SU2_TYPE::GetValue(driver->Flow().GetNodes()->GetSolution(0, k))
+                                           : -std::numeric_limits<double>::infinity(), CPassiveComm::Op::MAX);
+  driver->StartSolver();
+  double error = 0;
+  for (unsigned long p = 0; p < driver->Geometry().GetnPoint(); ++p)
+    for (unsigned short k = 0; k < 4; ++k)
+      error = std::max(error, RelDiff(driver->Flow().GetNodes()->GetSolution(p, k), uniform[k], 1.));
+  CHECK(CPassiveComm::Allreduce(error, CPassiveComm::Op::MAX) < 1e-9);
+  CHECK(driver->Geometry().GetGlobal_nPointDomain() > 0);
+  if (world.rank == 0)
+    CHECK(std::ifstream(driver->AdaptedMeshName(2, 0) + ".cgns").good());
+  driver->Finalize();
+  driver.reset();
+  SU2_MPI::Barrier(SU2_MPI::GetComm());
+}
+#endif
 #endif
