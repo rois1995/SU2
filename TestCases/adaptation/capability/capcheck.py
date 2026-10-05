@@ -792,6 +792,41 @@ def check_window_identity(steps, sensors, d, V, tol=1e-5):
     return {"window_average": gate(ok, f"{n} steps: " + "; ".join(values))}
 
 
+def check_window_average_exact(steps, control, sensors, d, V, tol=1e-4):
+    """First window: compare the reconstructed final |H| with an independent instantaneous control solve.
+    Earlier signed Hessians must also agree, so both runs follow the same trajectory on the same mesh."""
+    n = len(steps)
+    if (n < 2 or control is None or len(control) != n or not sensors or not np.isfinite(V).all()
+            or np.any(V < 0.0) or np.sum(V) <= 0.0):
+        return {"window_average_exact": ["FAIL", "window/control samples, sensors or dual volumes unavailable"]}
+
+    def relative_error(A, B):
+        error = float(np.sqrt((V * ((A - B) ** 2).sum(axis=(1, 2))).sum()))
+        norm = float(np.sqrt((V * (B ** 2).sum(axis=(1, 2))).sum()))
+        if not np.isfinite([error, norm]).all():
+            return float("inf")
+        return error / norm if norm > 0.0 else (0.0 if error == 0.0 else float("inf"))
+
+    ok, values = True, []
+    for sensor in sensors:
+        prefix = f"Hessian_{sensor}_"
+        try:
+            tensors = [sym_tensor(f, prefix, d) for f in steps]
+            reference = [sym_tensor(f, prefix, d) for f in control]
+        except (KeyError, ValueError, IndexError, TypeError) as error:
+            return {"window_average_exact": ["FAIL", f"{sensor}: window/control Hessian evidence unavailable: {error}"]}
+        if any(T.shape != (len(V), d, d) or not np.isfinite(T).all() for T in tensors + reference):
+            return {"window_average_exact": ["FAIL", f"{sensor}: missing or nonfinite window/control Hessian evidence"]}
+        earlier = max(relative_error(A, B) for A, B in zip(tensors[:-1], reference[:-1]))
+        residual = n * tensors[-1] - sum(abs_tensor(T) for T in tensors[:-1])
+        final = relative_error(residual, abs_tensor(reference[-1]))
+        ok &= earlier <= tol and final <= tol
+        values.append(f"{sensor}: earlier trajectory {'agrees' if earlier <= tol else 'MISMATCH'}, "
+                      f"max weighted relative Frobenius error {earlier:.2e}; "
+                      f"final |H| {'agrees' if final <= tol else 'MISMATCH'}, error {final:.2e} (both <= {tol:g})")
+    return {"window_average_exact": gate(ok, f"{n} steps vs control: " + "; ".join(values))}
+
+
 def density_centre(mesh, M):
     """Centroid of the metric density above its median (weights: excess density x median-dual volume)."""
     rho = np.sqrt(np.maximum(np.linalg.det(M), 0.0))
@@ -989,6 +1024,21 @@ def selftest():
         expect("last step only", check_window_identity(steps[:-1] + [to_fields(abs_tensor(Hk[2]))],
                                                        ["S"], 2, V), "window_average", "FAIL")
         past = sum(abs_tensor(H) for H in Hk[:-1])
+        control = [to_fields(H) for H in Hk]
+        expect("exact window mean", check_window_average_exact(steps, control, ["S"], 2, V),
+               "window_average_exact", "PASS")
+        for label, end in (("duplicated penultimate sample", (past + abs_tensor(Hk[-2])) / 3.0),
+                           ("omitted final sample, n-1 normalization", past / 2.0),
+                           ("exact last step only", abs_tensor(Hk[-1]))):
+            expect(label, check_window_average_exact(steps[:-1] + [to_fields(end)], control, ["S"], 2, V),
+                   "window_average_exact", "FAIL")
+        expect("control trajectory mismatch", check_window_average_exact(steps, [to_fields(-Hk[0])] + control[1:],
+                                                                         ["S"], 2, V),
+               "window_average_exact", "FAIL")
+        expect("missing control sample", check_window_average_exact(steps, control[:-1], ["S"], 2, V),
+               "window_average_exact", "FAIL")
+        expect("missing control Hessian", check_window_average_exact(steps, control[:-1] + [{}], ["S"], 2, V),
+               "window_average_exact", "FAIL")
         for label, end in (("zero residual", past / 3.0),
                            ("oversized PSD residual", (past + 4.0 * abs_tensor(Hk[-1])) / 3.0),
                            ("undersized PSD residual", (past + 0.2 * abs_tensor(Hk[-1])) / 3.0)):
@@ -1003,6 +1053,8 @@ def selftest():
         bad = {**steps[-1], "Hessian_S_XX": np.full(4, np.nan)}
         expect("nonfinite window Hessian", check_window_identity(steps[:-1] + [bad], ["S"], 2, V),
                "window_average", "FAIL")
+        expect("nonfinite exact window Hessian", check_window_average_exact(steps[:-1] + [bad], control, ["S"], 2, V),
+               "window_average_exact", "FAIL")
     for row in results:
         print("  ".join(str(v) for v in row))
     print(f"selftest PASS ({len(results)} checks)")

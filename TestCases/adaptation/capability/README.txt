@@ -9,8 +9,16 @@ mesh and metric gates only. Flow convergence is NOT a gate (the runs are a few i
 Needs numpy, SU2_CFD built with MMG (-Denable-mmg=true) and mpirun for --ranks > 1. The runner waits while the load
 is above 7, pins itself and SU2 to 2 CPUs (4 ranks are oversubscribed on them), kills a run after --timeout s (300).
 All meshes are generated (meshgen.py) or taken from QuickStart; no data files. The linear preconditioner is JACOBI
-(common.cfg): ILU is block-wise per rank and makes np 1 and np 2 solve different flows before the first remesh. Output: OUT/<case>_np<N>/ (mesh.su2,
+(common.cfg): ILU is block-wise per rank and makes np 1 and np 2 solve different flows before the first remesh.
+Output: OUT/<case>_np<N>/ (mesh.su2,
 run.cfg, run.log, mesh_out*.su2, restart and VTU files), OUT/results.json, OUT/summary.txt (one column per gate).
+WINDOW_AVERAGE and FIXED_POINT also run an independent control after the main run, in a fresh
+OUT/<case>_np<N>_window/ with the same rank count and run_su2 settings. The control uses the first window's mesh:
+mesh.su2 for WINDOW_AVERAGE; mesh_out_00000.su2 for FIXED_POINT (the accepted mesh, whose solve starts from the
+initial condition). Its case config has ADAP_LOOP= NO, TIME_ITER= ADAP_FREQ (steps 0..e, e = ADAP_FREQ-1),
+HESSIAN in VOLUME_OUTPUT, OUTPUT_WRT_FREQ= (1, 1), and no restart input options (RESTART_SOL, RESTART_ITER,
+SOLUTION_FILENAME). Without the loop, Postprocess calls ComputeMetric every step, so control flow_<k>.vtu holds
+instantaneous Hessians at every step, including e. Summary solver times exclude control and restart runs.
 Not in serial_regression.py: the CI binaries have no MMG.
 
 Cases (tags: 2d 3d steady unsteady fixed free bl custom mpi4)
@@ -75,8 +83,18 @@ Gates (per written mesh; worst over the meshes of a case). Files: steady cycle k
   window_average       WINDOW_AVERAGE / FIXED_POINT (accepted solve): n H_end - sum of |H| of the earlier steps of the
                        window is finite and PSD within 1e-5 relative tolerance, for every sensor (H_end is the mean
                        |H|). Its volume-weighted Frobenius norm / that of the previous instantaneous |H| must be in
-                       [1/3, 3] (vortex_wa measures 0.52: its vortex decays fast); missing evidence or zero norms fail,
-                       including means omitting the final sample
+                       [1/3, 3] (vortex_wa measures 0.52: its vortex decays fast); missing evidence or zero norms fail.
+                       Applied to every window; PSD and the norm band alone cannot detect stale or omitted samples
+  window_control_run   independent first-window control: exit 0 and "Exit Success"; missing first-window mesh fails
+  window_average_exact WINDOW_AVERAGE / FIXED_POINT, first window only: for every sensor, the loop's reconstructed
+                       final sample n H_end - sum_{k<e} |H_k| equals |H_e| from the independent control (absolute
+                       eigenvalues), within a volume-weighted relative Frobenius error <= 1e-4 (Float32 VTUs).
+                       Also reports and gates the largest earlier-step error of the signed loop vs control Hessians
+                       at <= 1e-4: a trajectory mismatch fails clearly. Weights are the first mesh's median-dual
+                       volumes; each error is sqrt(sum V_i ||A_i-B_i||_F^2 / sum V_i ||B_i||_F^2), with the control
+                       as B. Missing control files/Hessians, nonfinite evidence or points off the first mesh fail.
+                       Selftest: the correct mean passes; duplicating the penultimate sample, omitting the final
+                       sample with n-1 normalization, and using the last step only each fail this exact gate
   predict_lookahead    PREDICT: the density centre of the written (predicted) metric is ahead of the instantaneous
                        metric of the window end (numpy, from its Hessians) by >= 0.25 x speed x horizon along the flow,
                        and its density at the current feature is >= 0.25 of the instantaneous one

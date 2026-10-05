@@ -153,7 +153,8 @@ def run_su2(binary, directory, ranks, timeout):
     wait_load()
     command = [str(binary), "run.cfg"]
     if ranks > 1:
-        # the ranks share 2 CPUs (affinity of this runner): yield when idle, else busy polling makes 4 ranks ~200x slower
+        # the ranks share 2 CPUs (affinity of this runner): yield when idle,
+        # else busy polling makes 4 ranks ~200x slower
         command = ["mpirun", "--oversubscribe", "--bind-to", "none", "--mca", "mpi_yield_when_idle", "1",
                    "-n", str(ranks)] + command
     env = {**os.environ, "OMP_NUM_THREADS": "1", "OPENBLAS_NUM_THREADS": "1"}
@@ -268,6 +269,30 @@ def merge(total, res, tag):
             total[gate_name] = [status, f"{tag}: {value}"]
 
 
+def window_control_check(binary, text, directory, ranks, timeout):
+    """Fresh first-window solve without adaptation or restart: every written Hessian is instantaneous."""
+    cfg = options(text)
+    control = directory.parent / f"{directory.name}_window"
+    if control.exists():
+        shutil.rmtree(control)
+    control.mkdir()
+    mesh = directory / ("mesh_out_00000.su2" if cfg["ADAP_UNSTEADY_METRIC"] == "FIXED_POINT" else "mesh.su2")
+    if not mesh.exists():
+        return capcheck.gate(False, f"window control: missing first-window mesh {mesh.name}")
+    shutil.copyfile(mesh, control / "mesh.su2")
+    cfg.update(MESH_FILENAME="mesh.su2", ADAP_LOOP="NO", TIME_ITER=cfg["ADAP_FREQ"], OUTPUT_WRT_FREQ="(1, 1)")
+    volume = as_list(cfg.get("VOLUME_OUTPUT", "()"))
+    if "HESSIAN" not in volume:
+        volume.append("HESSIAN")
+    cfg["VOLUME_OUTPUT"] = "(" + ", ".join(volume) + ")"
+    for key in ("RESTART_SOL", "RESTART_ITER", "SOLUTION_FILENAME"):
+        cfg.pop(key, None)
+    (control / "run.cfg").write_text("".join(f"{key}= {value}\n" for key, value in cfg.items()))
+    print(f"{control.name}: running window control", flush=True)
+    code, _, log = run_su2(binary, control, ranks, timeout)
+    return capcheck.gate(code == 0 and "Exit Success" in log, f"window control exit {code}, log {control / 'run.log'}")
+
+
 def window_gates(case, cfg, directory, window, speeds, opts):
     """Unsteady checks on the VTUs of one window (all on the window's mesh): WINDOW_AVERAGE / FIXED_POINT: the
     window-end Hessian is the mean |H| of the window and the written metric is the numpy metric of it; PREDICT: the
@@ -294,8 +319,28 @@ def window_gates(case, cfg, directory, window, speeds, opts):
         aoa = np.radians(float(cfg.get("AOA", "0")))
         return capcheck.check_predict_lookahead(mesh, steps[-1], M, sensors, p, target, hmin, hmax, armax,
                                                 speeds.pop(0), horizon, np.array([np.cos(aoa), np.sin(aoa)]))
-    res = capcheck.check_window_identity(steps, sensors, mesh.dim, capcheck.dual_volumes(mesh))
+    V = capcheck.dual_volumes(mesh)
+    res = capcheck.check_window_identity(steps, sensors, mesh.dim, V)
     res.update(capcheck.check_reference_metric(mesh, steps[-1], M, sensors, p, target, hmin, hmax, armax, tol=1e-4))
+    if first == 0:
+        control = directory.parent / f"{directory.name}_window"
+        control_vtus = numbered(control, "flow*.vtu")
+        missing = [k for k in range(last + 1) if k not in control_vtus]
+        if missing:
+            res["window_average_exact"] = ["FAIL", f"missing control VTUs of steps {missing} in {control}"]
+            return res
+        control_steps = []
+        try:
+            for k in range(last + 1):
+                points, fields, _ = capcheck.read_vtu(control_vtus[k])
+                if (len(points) != len(mesh.P) or points.shape[1] < mesh.dim
+                        or not np.isfinite(points[:, :mesh.dim]).all()
+                        or np.abs(points[:, :mesh.dim] - mesh.P).max() > 1e-6 * mesh.size):
+                    raise ValueError(f"{control_vtus[k].name} is not on first-window mesh {mesh_path.name}")
+                control_steps.append(fields)
+            res.update(capcheck.check_window_average_exact(steps, control_steps, sensors, mesh.dim, V))
+        except (OSError, ValueError, KeyError, IndexError, TypeError, struct.error, np.linalg.LinAlgError) as error:
+            res["window_average_exact"] = ["FAIL", f"control Hessian evidence unavailable: {error}"]
     return res
 
 
@@ -304,7 +349,10 @@ def check_case(case, cfg, directory, log, code):  # noqa: C901
     opts.update(case.get("opts", {}))
     pairs, expected = remesh_pairs(cfg, directory)
     gates = log_gates(case, cfg, log, code, len(pairs), expected)
+    mode = cfg.get("ADAP_UNSTEADY_METRIC", "WINDOW_AVERAGE") if cfg.get("TIME_DOMAIN") == "YES" else "steady"
     if not pairs:
+        if mode in ("WINDOW_AVERAGE", "FIXED_POINT"):
+            gates["window_average_exact"] = ["FAIL", "no first-window evidence"]
         return gates, None, None
     original = capcheck.read_su2(directory / "mesh.su2")
     analytic = capcheck.analytic_references(case["analytic"]) if case.get("analytic") else None
@@ -312,7 +360,6 @@ def check_case(case, cfg, directory, log, code):  # noqa: C901
     hmin, hmax, armax = (float(cfg[k]) for k in ("ADAP_HMIN", "ADAP_HMAX", "ADAP_ARMAX"))
     bl = case.get("bl")
     h0_min = min(float(v) for v in as_list(cfg["ADAP_BL_FIRST_HEIGHT"])) if bl else None
-    mode = cfg.get("ADAP_UNSTEADY_METRIC", "WINDOW_AVERAGE") if cfg.get("TIME_DOMAIN") == "YES" else "steady"
     last, first_metric = None, None
     speeds = [float(v) for v in re.findall(r"speed of the features (\S+) per time step", log)]
     for src_path, metric_path, out_path, target, window in pairs:
@@ -355,6 +402,8 @@ def check_case(case, cfg, directory, log, code):  # noqa: C901
                 res["window_files"] = ["FAIL", str(error)]
         merge(gates, res, out_path.name)
         last = out
+    if mode in ("WINDOW_AVERAGE", "FIXED_POINT"):
+        gates.setdefault("window_average_exact", ["FAIL", "no usable first-window Hessian evidence"])
     return gates, last, first_metric
 
 
@@ -450,7 +499,12 @@ def main():
         cfg = options(text)
         print(f"{name}: running", flush=True)
         code, seconds, log = run_su2(binary, directory, a.ranks, a.timeout)
+        control_gate = None
+        if cfg.get("TIME_DOMAIN") == "YES" and cfg.get("ADAP_UNSTEADY_METRIC") in ("WINDOW_AVERAGE", "FIXED_POINT"):
+            control_gate = window_control_check(binary, text, directory, a.ranks, a.timeout)
         gates, last, first_metric = check_case(case, cfg, directory, log, code)
+        if control_gate is not None:
+            gates["window_control_run"] = control_gate
         if case.get("restart"):
             gates["restart_bitwise"] = (restart_check(binary, text, directory, a.ranks, a.timeout)
                                         if gates["run"][0] == "PASS" else ["FAIL", "no complete run"])
@@ -495,7 +549,7 @@ def write_summary(results, output):
         rows.append(f"{r['case']:<18} {r['ranks']:>2} {r['seconds']:>6.1f} {str(r['points']):>7} {cells}  "
                     f"{r['status']}" + (f" ({note})" if note else ""))
     total = sum(r["seconds"] for r in results)
-    rows += ["", f"solver time of the listed runs {total:.0f} s (restart runs and checks not included)", ""]
+    rows += ["", f"solver time of the listed runs {total:.0f} s (control/restart runs and checks not included)", ""]
     rows += [f"{short[g]:>5} = {g}" for g in names]
     rows.append("")
     for r in results:
