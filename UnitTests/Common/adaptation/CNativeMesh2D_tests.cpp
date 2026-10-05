@@ -168,6 +168,54 @@ TEST_CASE("Native kernel: coupled tangential apex repair opens an inter-wall wed
   }
 }
 
+TEST_CASE("Native wall coarsening: a fitting base cannot undo a graded first-layer repair", "[NativeMesh2D]") {
+  const Node a{0, {0, 0}, 1 | FEATURE}, mid{1, {.5, 0}, 1}, b{2, {1, 0}, 1 | FEATURE},
+      c{3, {1, .8}, 1 | FEATURE}, d{4, {0, .8}, 1 | FEATURE},
+      left{5, {.25, .3}, 0}, right{6, {.75, .3}, 0};
+  const PolylineReference reference({{a, mid, 10}, {mid, b, 10}, {b, c, 11}, {c, d, 12}, {d, a, 11}}, 45);
+  const auto policy = reference.Policy({{10, .3}});
+  const auto metric = checked([](Point p) {
+    const double density = 1 + 31 * p.y / .3;
+    return Tensor{density, 0, density};  // Affine SPD nodal target, increasing away from the wall.
+  });
+  const std::vector<Triangle> input{triangle(a, mid, left), triangle(mid, b, right), triangle(left, mid, right),
+                                  triangle(a, left, d), triangle(left, right, d), triangle(right, c, d),
+                                  triangle(b, c, right)};
+  const auto perimeter = boundary(input);
+  std::vector<Cell> old;
+  for (size_t i = 0; i < input.size(); ++i) {
+    Cell cell;
+    cell.t = input[i];
+    cell.t.id = 10 + i;
+    cell.t.protected_cell = i < 2;
+    for (int k = 0; k < 3; ++k) {
+      const auto edge = SU2Native2D::edge(cell.t.v[k].id, cell.t.v[(k + 1) % 3].id);
+      if (perimeter.count(edge))
+        cell.marker[k] = reference.ComponentOfOriginalFace(edge.first, edge.second);
+    }
+    old.push_back(cell);
+  }
+  std::string reason;
+  REQUIRE(strict_cells(input, reason));
+  REQUIRE(max_length({input[0], input[1]}, metric) < 1.8);
+  REQUIRE(length(a, b, metric) < 1.45);  // The old base-only coarsening gate admits the join.
+  const auto action = GENERATE(Action::REMOVE, Action::REDISTRIBUTE);
+  Operation operation{action, mid.id};
+  operation.parameter = .25;  // Redistribution grows the other base to .75, still below the base limit.
+  std::vector<Cell> rejected;
+  CHECK_FALSE(reconstruct(operation, old, policy, metric, 100, rejected, reason, 1e-10));
+  CHECK(reason == "boundary coarsening or movement misses first-layer metric target");
+  // Keeping the existing two wall bases and the same height remains feasible.
+  std::vector<Cell> repaired;
+  REQUIRE(reconstruct({Action::HEIGHT, a.id, mid.id}, old, policy, metric, 100, repaired, reason, 1e-10));
+  for (const auto& cell : repaired)
+    if (cell.t.protected_cell) {
+      CHECK(max_length({cell.t}, metric) <= 1.8);
+      CHECK(quality(cell.t, metric) >= .18);
+      CHECK(2 * static_cast<double>(area(cell.t)) / norm(cell.t.v[1].p - cell.t.v[0].p) == Approx(.3));
+    }
+}
+
 TEST_CASE("Native movement: previously admissible edges cannot accumulate length drift", "[NativeMesh2D]") {
   const Node a{1, {-2, -1}, 1}, b{2, {2, -1}, 1}, c{3, {2, 1}, 1}, d{4, {-2, 1}, 1},
       center{5, {.7, .5}, 0};

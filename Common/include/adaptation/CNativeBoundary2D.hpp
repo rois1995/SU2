@@ -489,6 +489,15 @@ inline bool reconstruct(Operation op, const std::vector<Cell>& old, const Refere
       }
     }
   for (auto t : accepted) {
+    // A fitting physical base alone does not establish that its first-layer
+    // triangle fits a graded/anisotropic target. Do not undo a coupled split
+    // by joining short bases into an oversized protected child.
+    if ((op.action == Action::REMOVE || op.action == Action::REDISTRIBUTE) && t.protected_cell)
+      for (int k = 0; k < 3; ++k)
+        if (length(t.v[k], t.v[(k + 1) % 3], metric) > 1.8) {
+          reason = "boundary coarsening or movement misses first-layer metric target";
+          return false;
+        }
     Cell c;
     c.t = t;
     for (int i = 0; i < 3; ++i) {
