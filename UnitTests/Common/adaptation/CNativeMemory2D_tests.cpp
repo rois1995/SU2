@@ -52,9 +52,10 @@ TEST_CASE("Native dependency memory: measured complete transaction including tre
   // allocator rounding are outside operator-new requested bytes. High-valence staging has independent controls.
 }
 
-TEST_CASE("Native dependency memory: complete movement stars and low-budget rejection", "[NativeMemory]") {
+TEST_CASE("Native dependency memory: complete movement and insertion patches with rejection", "[NativeMemory]") {
   World world;
   const int count = GENERATE(6, 32, 64, 128);
+  const auto action = GENERATE(Action::BULK_MOVE, Action::BULK_SPLIT);
   std::vector<Node> ring;
   for (int k = 0; k < count; ++k) {
     const double angle = 2 * std::acos(-1.) * k / count;
@@ -88,25 +89,31 @@ TEST_CASE("Native dependency memory: complete movement stars and low-budget reje
     options.dependency_bytes = budget;
     Engine engine(world, input, reference.Policy({}), options);
     const auto before = snapshot(engine.owned);
-    Choice move{{Action::BULK_MOVE, center.id, 0}, world.rank == 0 ? 1. : -1., world.rank};
+    Choice move{{action, center.id, action == Action::BULK_SPLIT ? ring.front().id : 0},
+                world.rank == 0 ? 1. : -1., world.rank};
     const auto base = alloc_probe::Live();
     alloc_probe::ResetPeak();
     const bool accepted = engine.round(move);
     const auto peak = alloc_probe::Peak();
     const auto measured = peak > base ? peak - base : 0;
     const auto maxMeasured = CPassiveComm::Allreduce(uint64_t(measured), CPassiveComm::Op::MAX);
-    INFO("complete star cells=" << count << ", budget=" << budget);
+    INFO("complete star cells=" << count << ", action=" << int(action) << ", budget=" << budget);
     if (budget == 64) {
       CHECK(world.sum(accepted) == 0);
       CHECK(snapshot(engine.owned) == before);
       CHECK(world.sum(engine.stats.memory_rejected) > 0);
       // The deliberately tiny payload budget excludes the fixed control plane.
     } else {
-      CHECK(world.sum(accepted) == 1);
+      const bool oversizedSplit = action == Action::BULK_SPLIT && count > int(MAX_CAVITY);
+      CHECK(world.sum(accepted) == (oversizedSplit ? 0 : 1));
+      if (oversizedSplit) {
+        CHECK(snapshot(engine.owned) == before);
+        if (world.rank == 0) CHECK(engine.stats.rejected.at("cavity size limit") == 1);
+      }
       CHECK(maxMeasured <= budget);
     }
     if (world.rank == 0)
-      std::cout << "[native movement memory] ranks=" << world.size << " star cells=" << count
+      std::cout << "[native star memory] ranks=" << world.size << " action=" << int(action) << " star cells=" << count
                 << " complete round requested heap peak=" << maxMeasured << " budget=" << budget << '\n';
   }
   // The 64/128 fans intentionally exceed the final shape target at fixed valence;

@@ -53,6 +53,61 @@ std::vector<Cell> Gather(World& world, const Engine& engine) {
 }
 }  // namespace
 
+TEST_CASE("Native MPI insertion: endpoint-star import reconnects before collective publication", "[NativeEngine2D]") {
+  World world;
+  const Node a{0, {-1, 0}, 1}, b{1, {1, 0}, 1}, c{2, {0, 10}, 1}, d{3, {0, -10}, 1},
+      e{4, {-5, 5}, 1}, f{5, {5, 5}, 1}, g{6, {-5, -5}, 1}, h{7, {5, -5}, 1};
+  const std::vector<Triangle> input{triangle(a, b, c), triangle(b, a, d), triangle(a, c, e),
+                                    triangle(c, b, f), triangle(d, a, g), triangle(b, d, h)};
+  std::vector<PolylineReference::Face> faces;
+  const auto perimeter = boundary(input);
+  for (const auto& face : perimeter) faces.push_back({face.second.first, face.second.second, 10});
+  const PolylineReference reference(faces, 45);
+  std::map<Id, Cell> owned;
+  for (size_t k = 0; k < input.size(); ++k) {
+    Cell cell;
+    cell.t = input[k];
+    cell.t.id = 10 + k;
+    for (auto& tensor : cell.nodal_target) tensor = {1, 0, 1};
+    for (int slot = 0; slot < 3; ++slot)
+      if (perimeter.count(edge(cell.t.v[slot].id, cell.t.v[(slot + 1) % 3].id)))
+        cell.marker[slot] = reference.ComponentOfOriginalFace(cell.t.v[slot].id, cell.t.v[(slot + 1) % 3].id);
+    if (int(k % world.size) == world.rank) owned.emplace(cell.t.id, cell);
+  }
+  EngineOptions options;
+  options.geometry_tolerance = 1e-10;
+  SECTION("full closure spans owners and publishes the repaired insertion") {
+    Engine engine(world, owned, reference.Policy({}), options);
+    const bool accepted = engine.round({{Action::BULK_SPLIT, a.id, b.id}, world.rank == 0 ? 1. : -1., world.rank});
+    CHECK(accepted == (world.rank == 0));
+    CHECK(world.sum(accepted) == 1);
+    if (world.rank == 0) {
+      CHECK(engine.stats.max_patch == input.size());
+      CHECK(engine.stats.cross_rank == (world.size > 1 ? 1 : 0));
+    }
+    const auto output = Gather(world, engine);
+    if (world.rank == 0) {
+      const auto fresh = triangles(output);
+      const auto target = checked([](Point) { return Tensor{1, 0, 1}; });
+      std::string reason;
+      REQUIRE(validate_replacement(input, fresh, reason));
+      REQUIRE(strict_cells(fresh, reason));
+      CHECK(min_quality(fresh, target) >= .18);
+      CHECK(nodes(fresh).size() == nodes(input).size() + 1);
+      CHECK(physical(output).size() == perimeter.size());
+    }
+  }
+  SECTION("an inadmissible dependency budget preserves every owned record") {
+    options.dependency_bytes = 64;
+    Engine engine(world, owned, reference.Policy({}), options);
+    const auto before = Snapshot(engine.owned);
+    CHECK_FALSE(engine.round({{Action::BULK_SPLIT, a.id, b.id}, world.rank == 0 ? 1. : -1., world.rank}));
+    CHECK(Snapshot(engine.owned) == before);
+    CHECK(world.sum(engine.stats.commits) == 0);
+    CHECK(world.sum(engine.stats.memory_rejected) > 0);
+  }
+}
+
 TEST_CASE("Native MPI engine: coupled boundary refinement and admitted publication", "[NativeEngine2D]") {
   World world;
   Case input;

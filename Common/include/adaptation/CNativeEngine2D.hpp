@@ -211,8 +211,9 @@ class Engine {
     std::vector<Incidence> refs;
     std::vector<Cell> old, fresh;
     for (int growth = 0; growth < (surface ? 3 : 1); ++growth) {
-      refs = directory.lookup(seeds, overflow,
-                              choice.op.action == Action::BULK_SPLIT || choice.op.action == Action::BULK_FLIP);
+      // A split imports the union of both endpoint stars for bounded private
+      // cavity growth; a flip still needs only the two incident cells.
+      refs = directory.lookup(seeds, overflow, choice.op.action == Action::BULK_FLIP);
       stats.max_patch = std::max(stats.max_patch, refs.size());
       const auto required =
           transfer_memory::Mul(refs.size(), 4 * sizeof(Cell) + 6 * sizeof(Incidence) + 8 * sizeof(Claim));

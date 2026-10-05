@@ -280,3 +280,44 @@ TEST_CASE("Native wall carving: blocked height children are rejected before dono
   CHECK(samples == 0);
   CHECK(fresh.empty());
 }
+
+TEST_CASE("Native insertion: bounded cavity growth reconnects poor midpoint children", "[NativeMesh2D]") {
+  const Node a{0, {-1, 0}, 0}, b{1, {1, 0}, 0}, c{2, {0, 10}, 1}, d{3, {0, -10}, 1},
+      e{4, {-5, 5}, 1}, f{5, {5, 5}, 1}, g{6, {-5, -5}, 1}, h{7, {5, -5}, 1};
+  const auto metric = checked([](Point) { return Tensor{1, 0, 1}; });
+  std::vector<Triangle> old{triangle(a, b, c), triangle(b, a, d), triangle(a, c, e),
+                            triangle(c, b, f), triangle(d, a, g), triangle(b, d, h)};
+  const Node midpoint{100, {0, 0}, 0};
+  const std::vector<Triangle> bisected{triangle(a, midpoint, c), triangle(midpoint, b, c),
+                                      triangle(b, midpoint, d), triangle(midpoint, a, d)};
+  REQUIRE(min_quality(std::vector<Triangle>{old[0], old[1]}, metric) > .18);
+  REQUIRE(min_quality(bisected, metric) < .18);
+  std::vector<Triangle> fresh;
+  std::string reason;
+  SECTION("admitted neighbours repair the insertion before publication") {
+    REQUIRE(SU2Native2D::reconstruct({Kind::SPLIT, a.id, b.id, 1}, old, metric, midpoint.id, fresh, reason));
+    REQUIRE(validate_replacement(old, fresh, reason));
+    REQUIRE(strict_cells(fresh, reason));
+    CHECK(min_quality(fresh, metric) >= .18);
+    CHECK(max_length(fresh, metric) <= max_length(old, metric));
+    CHECK(nodes(fresh).size() == nodes(old).size() + 1);
+  }
+  SECTION("a protected neighbour stays intact while other neighbours reconnect") {
+    old[2].protected_cell = 1;
+    REQUIRE(SU2Native2D::reconstruct({Kind::SPLIT, a.id, b.id, 1}, old, metric, midpoint.id, fresh, reason));
+    REQUIRE(validate_replacement(old, fresh, reason));
+    REQUIRE(strict_cells(fresh, reason));
+    CHECK(std::count_if(fresh.begin(), fresh.end(), [](const auto& t) { return t.protected_cell; }) == 1);
+    const auto kept = std::find_if(fresh.begin(), fresh.end(), [](const auto& t) { return t.protected_cell; });
+    REQUIRE(kept != fresh.end());
+    for (int k = 0; k < 3; ++k) CHECK(kept->v[k].id == old[2].v[k].id);
+    CHECK(std::count_if(fresh.begin(), fresh.end(), [&](const auto& t) { return quality(t, metric) < .18; }) <
+          std::count_if(bisected.begin(), bisected.end(), [&](const auto& t) { return quality(t, metric) < .18; }));
+  }
+  SECTION("a split through the protected wall child is rejected") {
+    old[0].protected_cell = 1;
+    CHECK_FALSE(SU2Native2D::reconstruct({Kind::SPLIT, a.id, b.id, 1}, old, metric, midpoint.id, fresh, reason));
+    CHECK(fresh.empty());
+    CHECK(reason == "protected first layer");
+  }
+}

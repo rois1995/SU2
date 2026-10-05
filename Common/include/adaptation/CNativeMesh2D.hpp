@@ -399,6 +399,90 @@ inline bool affected(const Triangle& t, Request r) {
   return a && ((r.kind == Kind::REMOVE || r.kind == Kind::MOVE) || b);
 }
 constexpr std::size_t MAX_CAVITY = 32;
+
+/*! Insert in an edge star, then absorb admitted adjacent cells from the bounded
+ * dependency patch. Reconnection happens before publication, so midpoint
+ * children need not survive until a later global flip phase. Unabsorbed cells,
+ * protected wall children and the patch perimeter retain their geometry. */
+inline bool SplitPatch(Request r, const std::vector<Triangle>& old, const Metric& metric, Id new_point,
+                       std::vector<Triangle>& fresh, std::string& reason) {
+  const auto all = nodes(old);
+  if (!all.count(r.a) || !all.count(r.b)) {
+    reason = "missing requested edge";
+    return false;
+  }
+  const auto a = all.at(r.a), b = all.at(r.b);
+  const Node point{new_point, a.p + (b.p - a.p) * .5, 0};
+  std::set<size_t> selected;
+  for (size_t k = 0; k < old.size(); ++k)
+    if (affected(old[k], r)) {
+      if (old[k].protected_cell) {
+        reason = "protected first layer";
+        return false;
+      }
+      selected.insert(k);
+    }
+  if (selected.size() != 2) {
+    reason = "not a complete interior edge star";
+    return false;
+  }
+  auto fan = [&](const std::set<size_t>& members, std::vector<Triangle>& output) {
+    std::vector<Triangle> input;
+    for (const auto k : members) input.push_back(old[k]);
+    output.clear();
+    for (const auto& face : boundary(input)) {
+      const auto u = face.second.first, v = face.second.second;
+      if (!(orient(u.p, v.p, point.p) > 0)) return false;
+      output.push_back({0, {{u, v, point}}, 0});
+    }
+    // Geometric admission, including orientation and unchanged area/perimeter,
+    // precedes all donor queries in this enlarged cavity.
+    return validate_replacement(input, output, reason);
+  };
+  std::vector<Triangle> current;
+  if (!fan(selected, current)) return false;
+  for (size_t iteration = 0; iteration < old.size(); ++iteration) {
+    const double current_min = min_quality(current, metric);
+    if (current_min >= .22) break;
+    double penalty = 0;
+    for (const auto& t : current) penalty += std::max(.22 - quality(t, metric), 0.);
+    const auto perimeter = boundary(current);
+    const double current_max = max_length(current, metric);
+    double best_gain = 1e-5;
+    size_t chosen = old.size();
+    std::vector<Triangle> best;
+    for (size_t k = 0; k < old.size(); ++k) {
+      if (selected.count(k) || old[k].protected_cell) continue;
+      bool adjacent = false;
+      for (int slot = 0; slot < 3; ++slot)
+        adjacent |= perimeter.count(edge(old[k].v[slot].id, old[k].v[(slot + 1) % 3].id));
+      if (!adjacent) continue;
+      auto members = selected;
+      members.insert(k);
+      std::vector<Triangle> trial;
+      if (!fan(members, trial)) continue;
+      const double old_q = quality(old[k], metric);
+      if (min_quality(trial, metric) + 1e-7 < std::min(current_min, old_q)) continue;
+      double next_penalty = 0;
+      for (const auto& t : trial) next_penalty += std::max(.22 - quality(t, metric), 0.);
+      const double gain = penalty + std::max(.22 - old_q, 0.) - next_penalty;
+      if (!(gain > best_gain)) continue;
+      const double cap = std::max({1.8, current_max, max_length(std::vector<Triangle>{old[k]}, metric)});
+      if (max_length(trial, metric) > cap + 1e-12 * cap) continue;
+      chosen = k;
+      best_gain = gain;
+      best = std::move(trial);
+    }
+    if (chosen == old.size()) break;
+    selected.insert(chosen);
+    current = std::move(best);
+  }
+  fresh = std::move(current);
+  for (size_t k = 0; k < old.size(); ++k)
+    if (!selected.count(k)) fresh.push_back(old[k]);
+  return validate_replacement(old, fresh, reason);
+}
+
 inline bool reconstruct(Request r, const std::vector<Triangle>& old, const Metric& metric, Id new_point,
                         std::vector<Triangle>& fresh, std::string& reason) {
   if (old.empty() || old.size() > MAX_CAVITY) {
@@ -406,7 +490,7 @@ inline bool reconstruct(Request r, const std::vector<Triangle>& old, const Metri
     return false;
   }
   for (const auto& t : old)
-    if (t.protected_cell) {
+    if (t.protected_cell && r.kind != Kind::SPLIT) {
       reason = "protected first layer";
       return false;
     }
@@ -440,18 +524,7 @@ inline bool reconstruct(Request r, const std::vector<Triangle>& old, const Metri
           return false;
         }
   } else if (r.kind == Kind::SPLIT) {
-    if (old.size() != 2 || !all.count(r.b)) {
-      reason = "not a complete interior edge star";
-      return false;
-    }
-    const Node a = all.at(r.a), b = all.at(r.b), mid{new_point, (a.p + b.p) * .5, 0};
-    for (const auto& t : old) {
-      Node opposite;
-      for (auto v : t.v)
-        if (v.id != r.a && v.id != r.b) opposite = v;
-      fresh.push_back(triangle(a, mid, opposite));
-      fresh.push_back(triangle(mid, b, opposite));
-    }
+    return SplitPatch(r, old, metric, new_point, fresh, reason);
   } else if (r.kind == Kind::FLIP) {
     if (old.size() != 2 || !all.count(r.b)) {
       reason = "not a complete interior edge star";
