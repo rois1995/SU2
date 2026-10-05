@@ -25,6 +25,8 @@ void CNativeRemesher::CheckSupport(const CConfig& config, const CGeometry& geome
   CLocalFailure failure;
   if (!std::is_same<su2double, double>::value || !std::is_same<passivedouble, double>::value)
     failure.Set(1, 0, "Native adaptation currently requires a primal double-precision build.");
+  if (config.GetContinuous_Adjoint() || config.GetDiscrete_Adjoint())
+    failure.Set(1, 0, "Native adaptation does not support continuous or discrete adjoint configurations.");
   if (geometry.GetnDim() != 2) failure.Set(1, 0, "Native adaptation currently supports 2D triangles only.");
   if (config.GetMultizone_Problem() || config.GetnZone() > 1 || config.GetnMarker_ZoneInterface() > 0)
     failure.Set(1, 0, "Native adaptation does not support multizone or sliding meshes.");

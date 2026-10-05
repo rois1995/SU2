@@ -226,7 +226,12 @@ TEST_CASE("Native SU2 BL: moving tangential refinement, coarsening and changed f
 
 TEST_CASE("Native SU2 BL: SU2-produced sensor/BL metric and resumed viscous solve", "[NativeProducedBL2D]") {
   World world;
-  const std::string name = "native_produced_bl";
+#ifdef HAVE_CGNS
+  const bool cgns = GENERATE(false, true);
+#else
+  const bool cgns = false;
+#endif
+  const std::string name = cgns ? "native_produced_bl_cgns" : "native_produced_bl";
   if (world.rank == 0) {
     auto mesh = BoxMesh(2, 4, false);
     for (auto& x : mesh.coord) x *= .02;
@@ -237,7 +242,8 @@ TEST_CASE("Native SU2 BL: SU2-produced sensor/BL metric and resumed viscous solv
     std::ofstream cfg(name + ".cfg");
     cfg << options << "ADAP_LOOP= YES\nADAP_SIZES= (20, 35, 12)\nADAP_SUBITER= (1)\n"
                    << "RESTART_FILENAME= " << name << "_restart\nSOLUTION_FILENAME= " << name
-                   << "_restart\nMESH_OUT_FILENAME= " << name << "_mesh\nOUTPUT_WRT_FREQ= 1\n";
+                   << "_restart\nMESH_OUT_FILENAME= " << name << "_mesh\nOUTPUT_WRT_FREQ= 1\n"
+                   << "MESH_OUT_FORMAT= " << (cgns ? "CGNS" : "SU2") << '\n';
   }
   SU2_MPI::Barrier(SU2_MPI::GetComm());
   const auto cfg = name + ".cfg";
@@ -340,6 +346,7 @@ TEST_CASE("Native SU2 BL: SU2-produced sensor/BL metric and resumed viscous solv
       text << source.rdbuf();
       auto options = text.str();
       options.replace(options.find(name + ".su2"), name.size() + 4, outputMesh);
+      if (cgns) options.replace(options.find("MESH_FORMAT= SU2"), 16, "MESH_FORMAT= CGNS");
       std::ofstream restart(name + "_reload.cfg");
       restart << options << "RESTART_SOL= YES\n";
     }
@@ -359,6 +366,21 @@ TEST_CASE("Native SU2 BL: SU2-produced sensor/BL metric and resumed viscous solv
         error = std::max(error, RelDiff(driver->Flow().GetNodes()->GetSolution(p, k), GetBytes<double>(data)));
     }
     CHECK(CPassiveComm::Allreduce(error, CPassiveComm::Op::MAX) < 1e-12);
+    if (cgns) {
+      // Remesh the restored viscous CGNS geometry too: physical wall labels,
+      // retained reference and first-height protection must survive this reader.
+      const auto reloadedOriginal = driver->Reference().original;
+      driver->Config().SetAdap_MetricLevel(2);
+      driver->ProduceMetric();
+      const auto result = restoredBackend->Remesh(driver->Config(), driver->Geometry(),
+                                                driver->Flow().GetNodes()->GetMetric());
+      CHECK(result.status == CRemeshResult::Status::COMPLETE);
+      if (result.status == CRemeshResult::Status::COMPLETE) {
+        driver->ReplaceMesh(result, transfer);
+        CHECK(driver->Reference().original == reloadedOriginal);
+        for (const auto defect : transfer.GetSummary().relativeDefect) CHECK(std::abs(defect) < 1e-10);
+      }
+    }
     driver->Finalize();
     driver.reset();
   }

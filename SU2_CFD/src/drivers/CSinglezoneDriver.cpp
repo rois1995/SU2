@@ -410,7 +410,8 @@ void CSinglezoneDriver::RunAdaptationLoop() {
       else table << "-";
     }
     table.PrintFooter();
-    cout << "Solve: the flow iterations on the mesh of the cycle, with their output. Adapt: metric, MMG, new "
+    cout << "Solve: the flow iterations on the mesh of the cycle, with their output. Adapt: metric, "
+         << (config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY ? "native cavities" : "MMG") << ", new "
             "geometry and solvers, solution transfer and mesh output that make the mesh of the next cycle." << endl;
   }
 }
