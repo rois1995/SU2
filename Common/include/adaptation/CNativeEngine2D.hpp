@@ -65,6 +65,7 @@ struct EngineStats {
   size_t max_patch = 0, max_donors = 0;
   std::array<int, 8> accepted{};
   std::array<double, 8> phase_seconds{};
+  std::array<double, 8> choice_seconds{};
   std::map<std::string, int> rejected;
 };
 
@@ -146,6 +147,12 @@ class Engine {
             if (!b.fixed) add(b.id, 0, .65 - length);
           }
           if (action == Action::BULK_SPLIT && length > 1.6) add(key.first, key.second, length - 1.6);
+          // A shallow ear made entirely of boundary points has no movable
+          // vertex. Its interior diagonal may already meet the size target;
+          // inserting a free point is still needed to repair its shape.
+          if (action == Action::BULK_SPLIT && cell.target_cache[0] < .18 && !cell.marker[k] &&
+              std::all_of(cell.t.v.begin(), cell.t.v.end(), [](const auto& v) { return v.fixed != 0; }))
+            add(key.first, key.second, .18 - cell.target_cache[0]);
           if (action == Action::BULK_FLIP) add(key.first, key.second, 1 - cell.target_cache[0]);
           if (action == Action::BULK_MOVE && !a.fixed) add(a.id, 0, 1 - cell.target_cache[0]);
           continue;
@@ -408,7 +415,9 @@ class Engine {
     const double start = world.seconds();
     std::set<Edge> attempted;
     for (int iteration = 0; iteration < options.phase_rounds; ++iteration) {
+      const double choosing = world.seconds();
       const auto choice = choose(action, attempted);
+      stats.choice_seconds[int(action)] += world.seconds() - choosing;
       if (!world.sum(choice.score >= 0)) break;
       const bool accepted = round(choice);
       if (options.ordered) {

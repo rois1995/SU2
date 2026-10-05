@@ -477,6 +477,14 @@ inline bool SplitPatch(Request r, const std::vector<Triangle>& old, const Metric
     selected.insert(chosen);
     current = std::move(best);
   }
+  // A new free point also repairs shallow ears with three fixed boundary
+  // vertices. Improve it while its complete fan is still private, using the
+  // same geometry/per-edge admission as ordinary star movement.
+  if (min_quality(current, metric) < .22) {
+    std::vector<Triangle> moved;
+    std::string movementReason;
+    if (MoveStar(current, new_point, metric, moved, movementReason)) current.swap(moved);
+  }
   fresh = std::move(current);
   for (size_t k = 0; k < old.size(); ++k)
     if (!selected.count(k)) fresh.push_back(old[k]);

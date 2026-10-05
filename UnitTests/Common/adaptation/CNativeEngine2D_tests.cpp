@@ -108,6 +108,48 @@ TEST_CASE("Native MPI insertion: endpoint-star import reconnects before collecti
   }
 }
 
+TEST_CASE("Native MPI quality: short interior diagonal repairs an all-boundary ear", "[NativeEngine2D]") {
+  World world;
+  const Node a{0, {0, 0}, 1}, b{1, {1, -.1}, 1}, c{2, {2, 0}, 1}, d{3, {1, 1}, 1};
+  const std::vector<Triangle> input{triangle(a, b, c), triangle(a, c, d)};
+  const auto target = checked([](Point) { return Tensor{.36, 0, .36}; });
+  REQUIRE(min_quality(input, target) < .18);
+  REQUIRE(max_length(input, target) < 1.6);
+  std::vector<PolylineReference::Face> faces;
+  const auto perimeter = boundary(input);
+  for (const auto& face : perimeter) faces.push_back({face.second.first, face.second.second, 10});
+  const PolylineReference reference(faces, 45);
+  std::map<Id, Cell> owned;
+  for (size_t k = 0; k < input.size(); ++k) {
+    Cell cell;
+    cell.t = input[k];
+    cell.t.id = 10 + k;
+    for (auto& tensor : cell.nodal_target) tensor = {.36, 0, .36};
+    for (int slot = 0; slot < 3; ++slot)
+      if (perimeter.count(edge(cell.t.v[slot].id, cell.t.v[(slot + 1) % 3].id)))
+        cell.marker[slot] = reference.ComponentOfOriginalFace(cell.t.v[slot].id, cell.t.v[(slot + 1) % 3].id);
+    if (int(k % world.size) == world.rank) owned.emplace(cell.t.id, cell);
+  }
+  EngineOptions options;
+  options.geometry_tolerance = 1e-10;
+  options.fixed_boundary = true;  // Repair requires no physical boundary motion.
+  Engine engine(world, owned, reference.Policy({}), options);
+  const auto choice = engine.choose(Action::BULK_SPLIT, {});
+  CHECK(world.sum(choice.score >= 0) == 1);
+  engine.phase(Action::BULK_SPLIT);
+  const auto output = Gather(world, engine);
+  if (world.rank == 0) {
+    const auto fresh = triangles(output);
+    std::string reason;
+    REQUIRE(validate_replacement(input, fresh, reason));
+    REQUIRE(strict_cells(fresh, reason));
+    CHECK(min_quality(fresh, target) >= .18);
+    CHECK(max_length(fresh, target) <= 1.8);
+    CHECK(nodes(fresh).size() == 5);
+    CHECK(physical(output).size() == perimeter.size());
+  }
+}
+
 TEST_CASE("Native MPI engine: coupled boundary refinement and admitted publication", "[NativeEngine2D]") {
   World world;
   Case input;
@@ -205,6 +247,43 @@ TEST_CASE("Native MPI engine: cached priorities use original nodal targets", "[N
     CHECK(split.op.b == 1);
   }
   if (world.rank >= 2) CHECK(split.score < 0);
+}
+
+TEST_CASE("Native MPI policy: adaptive sampling repairs a frozen-boundary length obstruction", "[NativeFixedAdaptive2D]") {
+  World world;
+  Case input;
+  const bool fixed = GENERATE(false, true);
+  auto cells = input.Owned(world);
+  for (auto& cell : cells)
+    for (auto& target : cell.second.nodal_target) target.xx = 10000;
+  auto options = input.Options();
+  options.fixed_boundary = fixed;
+  Engine engine(world, cells, input.geometry.Policy({{10, input.height}}), options);
+  engine.adapt();
+  const auto output = Gather(world, engine);
+  if (world.rank == 0) {
+    const auto target = checked([](Point) { return Tensor{10000, 0, 62500}; });
+    const auto fresh = triangles(output);
+    const auto faces = physical(output);
+    std::string reason;
+    REQUIRE(strict_cells(fresh, reason));
+    if (fixed) {
+      CHECK(faces.size() == 4);
+      // The retained base is four metric units long, independently of how the
+      // volume is repaired. This proves the fixed policy cannot meet L<=1.8.
+      CHECK(max_length(fresh, target) >= 4.);
+    } else {
+      CHECK(faces.size() > 4);
+      CHECK(min_quality(fresh, target) >= .18);
+      CHECK(max_length(fresh, target) <= 1.8);
+    }
+    const auto wall = input.geometry.ComponentOfOriginalFace(0, 1);
+    for (const auto& cell : output)
+      for (int k = 0; k < 3; ++k)
+        if (cell.marker[k] == wall)
+          CHECK(static_cast<double>(2 * area(cell.t)) / norm(cell.t.v[(k + 1) % 3].p - cell.t.v[k].p) ==
+                Approx(input.height));
+  }
 }
 
 TEST_CASE("Native MPI engine: independent wall cavities publish in the same round", "[NativeEngine2D]") {
