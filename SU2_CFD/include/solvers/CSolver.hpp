@@ -3219,6 +3219,14 @@ public:
   inline virtual su2double GetTotal_Sens_AoA() const { return 0; }
 
   /*!
+   * \brief Residual adjoint lambda (stage G, ADAP_ADJ_LAMBDA= YES) of the discrete adjoint flow solver.
+   * \param[in] iPoint - Point index.
+   * \param[in] iVar - Variable index.
+   * \return lambda(iPoint, iVar), 0 for other solvers.
+   */
+  inline virtual passivedouble GetResidualAdjoint(unsigned long iPoint, unsigned short iVar) const { return 0.0; }
+
+  /*!
    * \brief Set the total farfield pressure sensitivity coefficient.
    * \return Value of the farfield pressure sensitivity coefficient
    *         (inviscid + viscous contribution).

@@ -95,6 +95,27 @@ protected:
    */
   void SecondaryRecording(void);
 
+  /*--- Residual adjoint (stage G, ADAP_ADJ_LAMBDA= YES). ---*/
+  su2passivematrix LambdaCheck_SolutionOut; /*!< \brief U_out of the main recording, kept for the check. */
+  passivedouble LambdaSweep_SensAoA = 0.0;  /*!< \brief d/dAlpha (radians) of the capture sweep. */
+  passivedouble LambdaSweep_SensMach = 0.0; /*!< \brief d/dMach of the capture sweep. */
+
+  /*!
+   * \brief One extra reverse sweep of the main recording that copies the adjoint of the right-hand side of the
+   *        flow linear solve (the residual adjoint lambda) into the adjoint flow solver. The adjoint solution
+   *        and the sensitivities are not changed. Needs the main tape.
+   */
+  void CaptureResidualAdjoint(void);
+
+  /*!
+   * \brief Developer check (ADAP_ADJ_LAMBDA_CHECK= YES) of the identity
+   *        d/dp (tape sweep) = dJ/dp(U_out)|explicit - sum_owned lambda . dR/dp(U_in)
+   *        for p = Alpha and Mach, with central finite differences of the residual and of the objective.
+   *        Runs with the tape off, after the last use of the tapes; restores the flow solution and the
+   *        free-stream velocity afterwards.
+   */
+  void CheckResidualAdjoint(void);
+
   /*!
    * \brief gets Convergence on physical time scale, (deactivated in adjoint case)
    * \return false

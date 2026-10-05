@@ -3353,6 +3353,17 @@ void CConfig::SetConfig_Options() {
    *    Not supported: DIRECT_DIFF; with ADAP_UNSTEADY_METRIC= FIXED_POINT also FIXED_CL_MODE and CFL_ADAPT. ---*/
   /*!\brief ADAP_LOOP \n DESCRIPTION: Run the mesh adaptation loop (needs COMPUTE_METRIC= YES and ADAP_SIZES) \ingroup Config */
   addBoolOption("ADAP_LOOP", Adap_Loop, false);
+  /*!\brief ADAP_ADJ_LAMBDA \n DESCRIPTION: Discrete adjoint (SU2_CFD_AD): after the adjoint solve, capture the
+   * residual adjoint lambda (adjoint of the right-hand side of the flow linear solve) with one extra reverse sweep;
+   * volume output group ADJ_LAMBDA. Steady compressible Euler, MGLEVEL= 0, FGMRES (stage G) \ingroup Config */
+  addBoolOption("ADAP_ADJ_LAMBDA", Adap_Adj_Lambda, false);
+  /*!\brief ADAP_ADJ_LAMBDA_CHECK \n DESCRIPTION: Developer check of the residual adjoint: finite differences of
+   * the residual and of the objective with respect to Alpha and Mach (needs ADAP_ADJ_LAMBDA and JST) \ingroup Config */
+  addBoolOption("ADAP_ADJ_LAMBDA_CHECK", Adap_Adj_Lambda_Check, false);
+  /*!\brief ADAP_ADJ_LAMBDA_PERTURB \n DESCRIPTION: Developer residual perturbation of a DIRECT flow run
+   * (global point, variable, value): the residual of that point changes by -value * volume. Needs
+   * PYTHON_CUSTOM_SOURCE= YES \ingroup Config */
+  addDoubleListOption("ADAP_ADJ_LAMBDA_PERTURB", nAdap_Adj_Lambda_Perturb, Adap_Adj_Lambda_Perturb);
   /*!\brief ADAP_FREQ \n DESCRIPTION: Time-domain adaptation loop: number of physical time steps between two
    * adaptations (the time window of the metric). The mesh is adapted after the time steps n with
    * (n + 1) % ADAP_FREQ == 0, counted from time step 0 \ingroup Config */
@@ -6212,6 +6223,60 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     }
   }
   if (nAdap_Sensor > 20) SU2_MPI::Error("At most 20 ADAP_SENSOR entries are supported.", CURRENT_FUNCTION);
+
+  /*--- Residual adjoint capture (stage G1a): supported recording profile. ---*/
+  if (Adap_Adj_Lambda_Check && !Adap_Adj_Lambda) {
+    SU2_MPI::Error("ADAP_ADJ_LAMBDA_CHECK= YES needs ADAP_ADJ_LAMBDA= YES.", CURRENT_FUNCTION);
+  }
+  if (Adap_Adj_Lambda) {
+    auto lambdaError = [](const string& what) {
+      SU2_MPI::Error("ADAP_ADJ_LAMBDA= YES: " + what, CURRENT_FUNCTION);
+    };
+    if (!DiscreteAdjoint) lambdaError("needs MATH_PROBLEM= DISCRETE_ADJOINT.");
+    if (Kind_Solver != MAIN_SOLVER::DISC_ADJ_EULER) lambdaError("only SOLVER= EULER (compressible) is supported.");
+    if (Time_Domain || TimeMarching != TIME_MARCHING::STEADY) lambdaError("only steady problems are supported.");
+    if (Multizone_Problem) lambdaError("MULTIZONE is not supported.");
+    if (GetBoolTurbomachinery()) lambdaError("turbomachinery is not supported.");
+    if (Kind_Species_Model != SPECIES_MODEL::NONE || Weakly_Coupled_Heat || Kind_Radiation != RADIATION_MODEL::NONE)
+      lambdaError("species, heat and radiation coupling are not supported.");
+    if (Kind_FluidModel != STANDARD_AIR && Kind_FluidModel != IDEAL_GAS) lambdaError("only ideal gas is supported.");
+    if (nMGLevels != 0) lambdaError("needs MGLEVEL= 0 (one flow linear solve per recorded iteration).");
+    if (Kind_TimeIntScheme_Flow != EULER_IMPLICIT || GetnRKStep() != 1)
+      lambdaError("needs TIME_DISCRE_FLOW= EULER_IMPLICIT (one step).");
+    if (Low_Mach_Precon || Kind_Upwind_Flow == UPWIND::TURKEL) lambdaError("low-Mach preconditioning is not supported.");
+    if (GetGrid_Movement() || Deform_Mesh || Rotating_Frame) lambdaError("grid movement and rotating frames are not supported.");
+    if (NewtonKrylov) lambdaError("NEWTON_KRYLOV is not supported.");
+    if (Fixed_CL_Mode) lambdaError("FIXED_CL_MODE is not supported.");
+    if (Axisymmetric || Body_Force || GravityForce || VorticityConfinement || PyCustomSource ||
+        Kind_Verification_Solution != VERIFICATION_SOLUTION::NONE || nMarker_ActDiskInlet != 0)
+      lambdaError("source terms (axisymmetric, body force, gravity, vorticity confinement, custom, verification "
+                  "solution, actuator disk) are not supported.");
+    if (Kind_DiscAdj_Linear_Solver != FGMRES) lambdaError("needs DISCADJ_LIN_SOLVER= FGMRES.");
+    for (unsigned short iObj = 0; iObj < nObj; iObj++) {
+      switch (Kind_ObjFunc[iObj]) {
+        case DRAG_COEFFICIENT: case LIFT_COEFFICIENT: case SIDEFORCE_COEFFICIENT:
+        case MOMENT_X_COEFFICIENT: case MOMENT_Y_COEFFICIENT: case MOMENT_Z_COEFFICIENT:
+        case FORCE_X_COEFFICIENT: case FORCE_Y_COEFFICIENT: case FORCE_Z_COEFFICIENT:
+          break;
+        default:
+          lambdaError("OBJECTIVE_FUNCTION must be force or moment coefficients (DRAG, LIFT, SIDEFORCE, MOMENT_*, FORCE_*).");
+      }
+    }
+    if (Adap_Adj_Lambda_Check && !(Kind_ConvNumScheme_Flow == SPACE_CENTERED && Kind_Centered_Flow == CENTERED::JST))
+      lambdaError("ADAP_ADJ_LAMBDA_CHECK needs CONV_NUM_METHOD_FLOW= JST.");
+  }
+  if (nAdap_Adj_Lambda_Perturb != 0) {
+    if (nAdap_Adj_Lambda_Perturb != 3)
+      SU2_MPI::Error("ADAP_ADJ_LAMBDA_PERTURB needs three values (global point, variable, value).", CURRENT_FUNCTION);
+    if (DiscreteAdjoint || ContinuousAdjoint || !PyCustomSource ||
+        (Kind_Solver != MAIN_SOLVER::EULER && Kind_Solver != MAIN_SOLVER::NAVIER_STOKES))
+      SU2_MPI::Error("ADAP_ADJ_LAMBDA_PERTURB needs MATH_PROBLEM= DIRECT, a compressible flow solver and "
+                     "PYTHON_CUSTOM_SOURCE= YES.", CURRENT_FUNCTION);
+    if (Adap_Adj_Lambda_Perturb[0] < 0 || Adap_Adj_Lambda_Perturb[1] < 0 ||
+        Adap_Adj_Lambda_Perturb[0] != floor(Adap_Adj_Lambda_Perturb[0]) ||
+        Adap_Adj_Lambda_Perturb[1] != floor(Adap_Adj_Lambda_Perturb[1]))
+      SU2_MPI::Error("ADAP_ADJ_LAMBDA_PERTURB: point and variable must be non-negative integers.", CURRENT_FUNCTION);
+  }
 
   if (Compute_Metric) {
     /*--- Feature-based metric of the primal solution only (the adjoint solvers are not supported yet).

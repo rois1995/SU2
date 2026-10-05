@@ -31,6 +31,7 @@
 #include "../../include/output/COutput.hpp"
 #include "../../include/iteration/CIterationFactory.hpp"
 #include "../../include/iteration/CTurboIteration.hpp"
+#include "../../include/solvers/CDiscAdjSolver.hpp"
 #include "../../../Common/include/toolboxes/CQuasiNewtonInvLeastSquares.hpp"
 
 
@@ -235,8 +236,14 @@ void CDiscAdjSinglezoneDriver::Postprocess() {
     case MAIN_SOLVER::DISC_ADJ_INC_EULER : case MAIN_SOLVER::DISC_ADJ_INC_NAVIER_STOKES : case MAIN_SOLVER::DISC_ADJ_INC_RANS :
     case MAIN_SOLVER::DISC_ADJ_HEAT :
 
+      /*--- Residual adjoint (stage G): one extra sweep of the main recording before it is replaced. ---*/
+      if (config->GetAdap_Adj_Lambda()) CaptureResidualAdjoint();
+
       /*--- Compute the geometrical sensitivities ---*/
       SecondaryRecording();
+
+      /*--- Developer check of the residual adjoint, after the last use of the tapes. ---*/
+      if (config->GetAdap_Adj_Lambda_Check()) CheckResidualAdjoint();
       break;
 
     case MAIN_SOLVER::DISC_ADJ_FEM :
@@ -481,4 +488,215 @@ void CDiscAdjSinglezoneDriver::SecondaryRecording(){
 
   AD::ClearAdjoints();
 
+}
+
+void CDiscAdjSinglezoneDriver::CaptureResidualAdjoint() {
+  SU2_ZONE_SCOPED
+
+#ifndef CODI_REVERSE_TYPE
+  SU2_MPI::Error("ADAP_ADJ_LAMBDA= YES needs a reverse-mode AD build (SU2_CFD_AD).", CURRENT_FUNCTION);
+#else
+  if (omp_get_max_threads() > 1) {
+    SU2_MPI::Error("ADAP_ADJ_LAMBDA= YES does not support OpenMP threads (run with one thread).", CURRENT_FUNCTION);
+  }
+  if (RecordingState != MainVariables || TrivialFunction()) {
+    SU2_MPI::Error("ADAP_ADJ_LAMBDA= YES needs the main recording of the flow iteration.", CURRENT_FUNCTION);
+  }
+
+  auto* flow = solver[FLOW_SOL];
+  auto* adjoint = dynamic_cast<CDiscAdjSolver*>(solver[ADJFLOW_SOL]);
+  if (adjoint == nullptr) SU2_MPI::Error("No discrete adjoint flow solver.", CURRENT_FUNCTION);
+  const auto nPoint = geometry->GetnPoint();
+  const auto nPointDomain = geometry->GetnPointDomain();
+  const auto nVar = flow->GetnVar();
+
+  /*--- Keep U_out (the state on which the objective of the main recording was evaluated) for the check. ---*/
+  if (config->GetAdap_Adj_Lambda_Check()) {
+    LambdaCheck_SolutionOut.resize(nPoint, nVar);
+    for (auto iPoint = 0ul; iPoint < nPoint; iPoint++)
+      for (auto iVar = 0u; iVar < nVar; iVar++)
+        LambdaCheck_SolutionOut(iPoint, iVar) = SU2_TYPE::GetValue(flow->GetNodes()->GetSolution(iPoint, iVar));
+  }
+
+  /*--- One reverse sweep seeded as in Run, without extracting the adjoint solution. ---*/
+  flow->System.StartRhsAdjointCapture();
+
+  iteration->InitializeAdjoint(solver_container, geometry_container, config_container, ZONE_0, INST_0);
+  SetAdjObjFunction();
+  AD::ComputeAdjoint();
+
+  AD::BeginUseAdjoints();
+  adjoint->GetSweepFreeStreamDerivatives(LambdaSweep_SensAoA, LambdaSweep_SensMach);
+  AD::EndUseAdjoints();
+
+  AD::ClearAdjoints();
+  flow->System.StopRhsAdjointCapture();
+
+  /*--- Exactly one flow linear solve must be on the tape, on every rank. ---*/
+  const unsigned long nLocal = flow->System.GetnRhsAdjointCaptures();
+  unsigned long nMin = 0, nMax = 0;
+  SU2_MPI::Allreduce(&nLocal, &nMin, 1, MPI_UNSIGNED_LONG, MPI_MIN, SU2_MPI::GetComm());
+  SU2_MPI::Allreduce(&nLocal, &nMax, 1, MPI_UNSIGNED_LONG, MPI_MAX, SU2_MPI::GetComm());
+  if (nMin != 1 || nMax != 1) {
+    SU2_MPI::Error("ADAP_ADJ_LAMBDA: the main recording holds " + to_string(nMax) +
+                   " flow linear solves (exactly 1 is needed; check MGLEVEL= 0 and one RK step).", CURRENT_FUNCTION);
+  }
+  const auto nonFinite = adjoint->SetResidualAdjoint(geometry, config, flow->System.GetRhsAdjoint());
+  if (nonFinite > 0) {
+    SU2_MPI::Error("ADAP_ADJ_LAMBDA: the residual adjoint has " + to_string(nonFinite) + " non-finite values.",
+                   CURRENT_FUNCTION);
+  }
+
+  /*--- Report: relaxation of the recorded update, norms of lambda and psi (global, owned points). ---*/
+  passivedouble minRelaxLocal = 1e300;
+  vector<passivedouble> local(3 * nVar + 1, 0.0), global(3 * nVar + 1, 0.0);
+  for (auto iPoint = 0ul; iPoint < nPointDomain; iPoint++) {
+    minRelaxLocal = min(minRelaxLocal, SU2_TYPE::GetValue(flow->GetNodes()->GetUnderRelaxation(iPoint)));
+    for (auto iVar = 0u; iVar < nVar; iVar++) {
+      const passivedouble lam = adjoint->GetResidualAdjoint(iPoint, iVar);
+      const passivedouble psi = SU2_TYPE::GetValue(adjoint->GetNodes()->GetSolution(iPoint, iVar));
+      local[iVar] += lam * lam;
+      local[nVar + iVar] += psi * psi;
+      local[2 * nVar + iVar] += (lam - psi) * (lam - psi);
+    }
+  }
+  passivedouble minRelax = 0.0;
+  SelectMPIWrapper<passivedouble>::W::Allreduce(&minRelaxLocal, &minRelax, 1, MPI_DOUBLE, MPI_MIN, SU2_MPI::GetComm());
+  SelectMPIWrapper<passivedouble>::W::Allreduce(local.data(), global.data(), 3 * nVar, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+
+  if (rank == MASTER_NODE) {
+    passivedouble sumLam = 0.0, sumDiff = 0.0;
+    cout << "\n-------------------------------------------------------------------------\n";
+    cout << "Residual adjoint (lambda = adjoint of the RHS of the flow solve; adjoint of R = -lambda).\n";
+    cout << "Reverse linear solve: " << flow->System.GetIterations() << " iterations, residual "
+         << flow->System.GetResidual() << ". Min. under-relaxation of the recorded update: " << minRelax << ".\n";
+    cout << scientific << setprecision(6);
+    for (auto iVar = 0u; iVar < nVar; iVar++) {
+      cout << "  var " << iVar << ": ||lambda|| " << sqrt(global[iVar]) << ", ||psi|| " << sqrt(global[nVar + iVar])
+           << ", ||lambda - psi|| " << sqrt(global[2 * nVar + iVar]) << "\n";
+      sumLam += global[iVar];
+      sumDiff += global[2 * nVar + iVar];
+    }
+    cout << "  ||lambda - psi|| / ||lambda|| = " << sqrt(sumDiff / max(sumLam, 1e-300)) << "\n";
+    cout << setprecision(16) << "  Sweep d/dAlpha (rad) " << LambdaSweep_SensAoA << ", d/dMach "
+         << LambdaSweep_SensMach << "\n";
+    cout << "-------------------------------------------------------------------------\n" << endl;
+    cout.unsetf(ios_base::floatfield);
+    cout << setprecision(6);
+  }
+#endif
+}
+
+void CDiscAdjSinglezoneDriver::CheckResidualAdjoint() {
+  SU2_ZONE_SCOPED
+
+  auto* flow = solver[FLOW_SOL];
+  auto* adjoint = dynamic_cast<CDiscAdjSolver*>(solver[ADJFLOW_SOL]);
+  const auto nPoint = geometry->GetnPoint();
+  const auto nPointDomain = geometry->GetnPointDomain();
+  const auto nVar = flow->GetnVar();
+  if (adjoint == nullptr || LambdaCheck_SolutionOut.rows() != nPoint) {
+    SU2_MPI::Error("ADAP_ADJ_LAMBDA_CHECK needs the residual adjoint capture.", CURRENT_FUNCTION);
+  }
+  auto* flowNodes = flow->GetNodes();
+
+  /*--- Save what the check changes: flow solution and the free-stream velocity elements. ---*/
+  vector<su2double> savedSolution(nPoint * nVar);
+  for (auto iPoint = 0ul; iPoint < nPoint; iPoint++)
+    for (auto iVar = 0u; iVar < nVar; iVar++) savedSolution[iPoint * nVar + iVar] = flowNodes->GetSolution(iPoint, iVar);
+  su2double* velocity = config->GetVelocity_FreeStreamND();
+  su2double savedVelocity[3] = {0.0, 0.0, 0.0};
+  for (auto iDim = 0u; iDim < nDim; iDim++) savedVelocity[iDim] = velocity[iDim];
+
+  /*--- Parameters as registered in CDiscAdjSolver::RegisterVariables: |V| proportional to Mach, direction from
+   *    Alpha and Beta; everything else (config AoA/Mach, reference values, pressure, temperature) fixed. ---*/
+  const passivedouble alpha0 = SU2_TYPE::GetValue(config->GetAoA()) * PI_NUMBER / 180.0;
+  const passivedouble beta0 = SU2_TYPE::GetValue(config->GetAoS()) * PI_NUMBER / 180.0;
+  const passivedouble mach0 = SU2_TYPE::GetValue(config->GetMach());
+  passivedouble vmod0 = 0.0;
+  for (auto iDim = 0u; iDim < nDim; iDim++) vmod0 += pow(SU2_TYPE::GetValue(savedVelocity[iDim]), 2);
+  vmod0 = sqrt(vmod0);
+
+  auto setFreeStream = [&](passivedouble alpha, passivedouble mach) {
+    const passivedouble scale = vmod0 * mach / mach0;
+    if (nDim == 2) {
+      velocity[0] = cos(alpha) * scale;
+      velocity[1] = sin(alpha) * scale;
+    } else {
+      velocity[0] = cos(alpha) * cos(beta0) * scale;
+      velocity[1] = sin(beta0) * scale;
+      velocity[2] = sin(alpha) * cos(beta0) * scale;
+    }
+  };
+
+  /*--- Residual of U_in (owned points with dt != 0, as in the recorded right-hand side) and objective of U_out. ---*/
+  vector<passivedouble> residual(nPointDomain * nVar);
+  auto evaluate = [&](passivedouble alpha, passivedouble mach) {
+    setFreeStream(alpha, mach);
+
+    for (auto iPoint = 0ul; iPoint < nPoint; iPoint++) flowNodes->SetSolution(iPoint, adjoint->GetNodes()->GetSolution_Direct(iPoint));
+    flow->Preprocessing(geometry, solver, config, MESH_0, 0, RUNTIME_FLOW_SYS, false);
+    flow->SetTime_Step(geometry, solver, config, MESH_0, config->GetTimeIter());
+    integration[FLOW_SOL]->ComputeResidual(geometry, solver, numerics[FLOW_SOL], config, MESH_0, RUNTIME_FLOW_SYS);
+    for (auto iPoint = 0ul; iPoint < nPointDomain; iPoint++) {
+      const bool active = flowNodes->GetDelta_Time(iPoint) != 0.0;
+      for (auto iVar = 0u; iVar < nVar; iVar++)
+        residual[iPoint * nVar + iVar] = active ? SU2_TYPE::GetValue(flow->LinSysRes(iPoint, iVar)) : 0.0;
+    }
+
+    for (auto iPoint = 0ul; iPoint < nPoint; iPoint++)
+      for (auto iVar = 0u; iVar < nVar; iVar++)
+        flowNodes->SetSolution(iPoint, iVar, LambdaCheck_SolutionOut(iPoint, iVar));
+    flow->Preprocessing(geometry, solver, config, MESH_0, 0, RUNTIME_FLOW_SYS, true);
+    flow->Pressure_Forces(geometry, config);
+    flow->Momentum_Forces(geometry, config);
+    flow->Friction_Forces(geometry, config);
+    flow->Evaluate_ObjFunc(config, solver);
+    return SU2_TYPE::GetValue(flow->GetTotal_ComboObj());
+  };
+
+  if (rank == MASTER_NODE) {
+    cout << "\n-------------------------------------------------------------------------\n";
+    cout << "Residual adjoint check: tape = d/dp of the capture sweep; identity = dJ/dp(U_out)|explicit\n"
+         << "  - sum_owned lambda . dR/dp(U_in), central differences with step h (Mach: h * Mach).\n";
+    cout << "  p      h          tape                    identity                explicit           rel. diff\n";
+  }
+
+  const passivedouble steps[] = {1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8};
+  for (int iParam = 0; iParam < 2; iParam++) {
+    const passivedouble tape = (iParam == 0) ? LambdaSweep_SensAoA : LambdaSweep_SensMach;
+    for (const auto h : steps) {
+      const passivedouble dp = (iParam == 0) ? h : h * mach0;
+      vector<passivedouble> resPlus, resMinus;
+      const passivedouble jPlus = (iParam == 0) ? evaluate(alpha0 + dp, mach0) : evaluate(alpha0, mach0 + dp);
+      resPlus = residual;
+      const passivedouble jMinus = (iParam == 0) ? evaluate(alpha0 - dp, mach0) : evaluate(alpha0, mach0 - dp);
+      resMinus = residual;
+
+      passivedouble contractionLocal = 0.0, contraction = 0.0;
+      for (auto iPoint = 0ul; iPoint < nPointDomain; iPoint++)
+        for (auto iVar = 0u; iVar < nVar; iVar++)
+          contractionLocal += adjoint->GetResidualAdjoint(iPoint, iVar) *
+                              (resPlus[iPoint * nVar + iVar] - resMinus[iPoint * nVar + iVar]) / (2.0 * dp);
+      SelectMPIWrapper<passivedouble>::W::Allreduce(&contractionLocal, &contraction, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+
+      const passivedouble explicitTerm = (jPlus - jMinus) / (2.0 * dp);
+      const passivedouble identity = explicitTerm - contraction;
+      if (rank == MASTER_NODE) {
+        cout << "  " << (iParam == 0 ? "Alpha" : "Mach ") << "  " << scientific << setprecision(1) << h << "  "
+             << setprecision(16) << tape << "  " << identity << "  " << setprecision(6) << explicitTerm << "  "
+             << setprecision(3) << fabs(tape - identity) / max(fabs(tape), 1e-300) << "\n";
+      }
+    }
+  }
+  if (rank == MASTER_NODE) {
+    cout << "-------------------------------------------------------------------------\n" << endl;
+    cout.unsetf(ios_base::floatfield);
+    cout << setprecision(6);
+  }
+
+  /*--- Restore. ---*/
+  for (auto iDim = 0u; iDim < nDim; iDim++) velocity[iDim] = savedVelocity[iDim];
+  for (auto iPoint = 0ul; iPoint < nPoint; iPoint++)
+    for (auto iVar = 0u; iVar < nVar; iVar++) flowNodes->SetSolution(iPoint, iVar, savedSolution[iPoint * nVar + iVar]);
 }

@@ -86,6 +86,21 @@ public:
   virtual ~CIntegration(void) = default;
 
   /*!
+   * \brief Space integration only (residual into LinSysRes), for diagnostics that evaluate the residual of a
+   *        given state (residual adjoint check, stage G). The solver must have been preprocessed.
+   * \param[in] geometry - Geometrical definition of the problem.
+   * \param[in] solver_container - Container vector with all the solutions.
+   * \param[in] numerics - Numerics of the solver.
+   * \param[in] config - Definition of the particular problem.
+   * \param[in] iMesh - Index of the mesh.
+   * \param[in] RunTime_EqSystem - System of equations.
+   */
+  inline void ComputeResidual(CGeometry *geometry, CSolver **solver_container, CNumerics **numerics,
+                              CConfig *config, unsigned short iMesh, unsigned short RunTime_EqSystem) {
+    Space_Integration(geometry, solver_container, numerics, config, iMesh, 0, RunTime_EqSystem);
+  }
+
+  /*!
    * \brief Save the geometry at different time steps.
    * \param[in] geometry - Geometrical definition of the problem.
    * \param[in] solver - Mesh solver.

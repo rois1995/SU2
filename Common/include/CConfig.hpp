@@ -1327,6 +1327,10 @@ private:
             Adap_Angle;                     /*!< \brief Sharp angle detection threshold of the remesher (degrees). */
   unsigned long Adap_Complexity;            /*!< \brief Target complexity of the final metric. */
   bool Adap_Loop = false;                   /*!< \brief Run the mesh adaptation loop. */
+  bool Adap_Adj_Lambda = false;             /*!< \brief Capture the residual adjoint lambda (stage G). */
+  bool Adap_Adj_Lambda_Check = false;       /*!< \brief Developer check of lambda by finite differences. */
+  unsigned short nAdap_Adj_Lambda_Perturb = 0; /*!< \brief Size of ADAP_ADJ_LAMBDA_PERTURB (0 or 3). */
+  su2double* Adap_Adj_Lambda_Perturb = nullptr; /*!< \brief (global point, variable, value) of a residual perturbation. */
   bool Wrt_Adap_Mesh = false;               /*!< \brief Write the adapted mesh of each cycle of the loop. */
   bool Adap_Mesh_Output = false;            /*!< \brief The loop writes its adapted meshes (WRT_ADAP_MESH or restarts). */
   ADAP_TRANSFER Kind_Adap_Transfer;         /*!< \brief Solution transfer to the adapted meshes. */
@@ -10519,6 +10523,30 @@ public:
    * \brief Check if the mesh adaptation loop is run (ADAP_LOOP).
    */
   bool GetAdap_Loop(void) const { return Adap_Loop; }
+
+  /*!
+   * \brief Capture the residual adjoint lambda after the adjoint solve (ADAP_ADJ_LAMBDA, stage G).
+   */
+  bool GetAdap_Adj_Lambda(void) const { return Adap_Adj_Lambda; }
+
+  /*!
+   * \brief Developer finite-difference check of the residual adjoint (ADAP_ADJ_LAMBDA_CHECK).
+   */
+  bool GetAdap_Adj_Lambda_Check(void) const { return Adap_Adj_Lambda_Check; }
+
+  /*!
+   * \brief Developer residual perturbation (ADAP_ADJ_LAMBDA_PERTURB): true and the values when it is set.
+   * \param[out] globalPoint - Global point index.
+   * \param[out] iVar - Variable index.
+   * \param[out] value - Source value (the residual changes by -value * volume).
+   */
+  bool GetAdap_Adj_Lambda_Perturb(unsigned long& globalPoint, unsigned short& iVar, su2double& value) const {
+    if (nAdap_Adj_Lambda_Perturb != 3) return false;
+    globalPoint = static_cast<unsigned long>(SU2_TYPE::GetValue(Adap_Adj_Lambda_Perturb[0]));
+    iVar = static_cast<unsigned short>(SU2_TYPE::GetValue(Adap_Adj_Lambda_Perturb[1]));
+    value = Adap_Adj_Lambda_Perturb[2];
+    return true;
+  }
 
   /*!
    * \brief Check if the adapted mesh of each cycle of the adaptation loop is written (WRT_ADAP_MESH).

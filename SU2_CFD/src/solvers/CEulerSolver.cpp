@@ -302,6 +302,25 @@ CEulerSolver::CEulerSolver(CGeometry *geometry, CConfig *config,
     nodes->NonPhysicalEdgeCounter.resize(geometry->GetnEdge()) = 0;
   }
 
+  /*--- Developer residual perturbation (stage G1a check of the residual adjoint): the custom source of one point
+   *    and variable is set, so its residual changes by -value * volume (CustomSourceResidual). ---*/
+  unsigned long perturbPoint = 0;
+  unsigned short perturbVar = 0;
+  su2double perturbValue = 0.0;
+  if (iMesh == MESH_0 && config->GetAdap_Adj_Lambda_Perturb(perturbPoint, perturbVar, perturbValue)) {
+    if (perturbVar >= nVar) SU2_MPI::Error("ADAP_ADJ_LAMBDA_PERTURB: variable index out of range.", CURRENT_FUNCTION);
+    unsigned long nOwnerLocal = 0, nOwner = 0;
+    for (unsigned long iPoint = 0; iPoint < nPointDomain; iPoint++) {
+      if (geometry->nodes->GetGlobalIndex(iPoint) == perturbPoint) {
+        nodes->GetUserDefinedSource()(iPoint, perturbVar) = perturbValue;
+        nOwnerLocal++;
+      }
+    }
+    SU2_MPI::Allreduce(&nOwnerLocal, &nOwner, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
+    if (nOwner != 1) SU2_MPI::Error("ADAP_ADJ_LAMBDA_PERTURB: the global point is not owned by exactly one rank.",
+                                    CURRENT_FUNCTION);
+  }
+
   /*--- Check that the initial solution is physical, report any non-physical nodes ---*/
 
   counter_local = 0;

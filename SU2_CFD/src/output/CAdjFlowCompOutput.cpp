@@ -64,6 +64,13 @@ CAdjFlowCompOutput::CAdjFlowCompOutput(CConfig *config, unsigned short nDim) : C
     nRequestedVolumeFields++;
   }
 
+  /*--- The residual adjoint (stage G) is written whenever it is captured. ---*/
+  if (config->GetAdap_Adj_Lambda() &&
+      find(requestedVolumeFields.begin(), requestedVolumeFields.end(), string("ADJ_LAMBDA")) == requestedVolumeFields.end()) {
+    requestedVolumeFields.emplace_back("ADJ_LAMBDA");
+    nRequestedVolumeFields++;
+  }
+
   stringstream ss;
   ss << "Zone " << config->GetiZone() << " (Adj. Comp. Fluid)";
   multiZoneHeaderString = ss.str();
@@ -280,6 +287,18 @@ void CAdjFlowCompOutput::SetVolumeOutputFields(CConfig *config) {
   AddVolumeOutput("SENSITIVITY", "Surface_Sensitivity", "SENSITIVITY", "sensitivity in normal direction");
   /// END_GROUP
 
+  if (config->GetAdap_Adj_Lambda()) {
+    /// BEGIN_GROUP: ADJ_LAMBDA, DESCRIPTION: Residual adjoint lambda (adjoint of the right-hand side of the flow
+    /// linear solve; the adjoint of the residual is -lambda). Only with ADAP_ADJ_LAMBDA= YES.
+    AddVolumeOutput("ADJ_LAMBDA_DENSITY", "Lambda_Density", "ADJ_LAMBDA", "Residual adjoint of the density");
+    AddVolumeOutput("ADJ_LAMBDA_MOMENTUM-X", "Lambda_Momentum_x", "ADJ_LAMBDA", "Residual adjoint of the x-momentum");
+    AddVolumeOutput("ADJ_LAMBDA_MOMENTUM-Y", "Lambda_Momentum_y", "ADJ_LAMBDA", "Residual adjoint of the y-momentum");
+    if (nDim == 3)
+      AddVolumeOutput("ADJ_LAMBDA_MOMENTUM-Z", "Lambda_Momentum_z", "ADJ_LAMBDA", "Residual adjoint of the z-momentum");
+    AddVolumeOutput("ADJ_LAMBDA_ENERGY", "Lambda_Energy", "ADJ_LAMBDA", "Residual adjoint of the energy");
+    /// END_GROUP
+  }
+
 }
 
 void CAdjFlowCompOutput::LoadVolumeData(CConfig *config, CGeometry *geometry, CSolver **solver, unsigned long iPoint) {
@@ -317,6 +336,15 @@ void CAdjFlowCompOutput::LoadVolumeData(CConfig *config, CGeometry *geometry, CS
   SetVolumeOutputValue("SENSITIVITY-Y", iPoint, Node_AdjFlow->GetSensitivity(iPoint, 1));
   if (nDim == 3)
     SetVolumeOutputValue("SENSITIVITY-Z", iPoint, Node_AdjFlow->GetSensitivity(iPoint, 2));
+
+  if (config->GetAdap_Adj_Lambda()) {
+    const auto* adj = solver[ADJFLOW_SOL];
+    SetVolumeOutputValue("ADJ_LAMBDA_DENSITY", iPoint, adj->GetResidualAdjoint(iPoint, 0));
+    SetVolumeOutputValue("ADJ_LAMBDA_MOMENTUM-X", iPoint, adj->GetResidualAdjoint(iPoint, 1));
+    SetVolumeOutputValue("ADJ_LAMBDA_MOMENTUM-Y", iPoint, adj->GetResidualAdjoint(iPoint, 2));
+    if (nDim == 3) SetVolumeOutputValue("ADJ_LAMBDA_MOMENTUM-Z", iPoint, adj->GetResidualAdjoint(iPoint, 3));
+    SetVolumeOutputValue("ADJ_LAMBDA_ENERGY", iPoint, adj->GetResidualAdjoint(iPoint, nDim + 1));
+  }
 
   LoadVolumeDataAdjScalar(config, solver, iPoint);
 }
