@@ -1227,6 +1227,67 @@ TEST_CASE("Corner rule: overlapping symmetry windows with the floor disabled", "
   }
 }
 
+TEST_CASE("Corner rule: break points propagate through overlapping symmetry windows", "[Adaptation]") {
+  /*--- One knot interval on the first two markers, ten on the third; its sensor has a minimum at r = 0.001.
+   *    The second corner inserts break points that must also be mirrored through the first corner. ---*/
+  std::vector<std::array<passivedouble, 2>> points = {{-0.01, 0.0}, {0.0, 0.0}, {0.0, 0.0025}};
+  for (int i = 1; i <= 10; ++i) points.push_back({0.001 * i, 0.0025});
+  auto mesh = PolylineMesh(points, false);
+  auto marker = mesh.markers.front();
+  mesh.markers.clear();
+  const std::vector<std::string> names = {"wall0", "wall1", "wall2"};
+  for (unsigned long i = 0; i < 3; ++i) {
+    marker.name = names[i];
+    marker.ref = i + 1;
+    marker.elem = {i, i + 1};
+    if (i == 2)
+      for (unsigned long j = 3; j + 1 < points.size(); ++j) marker.elem.insert(marker.elem.end(), {j, j + 1});
+    mesh.markers.push_back(marker);
+  }
+  CReferenceWall wall(mesh, names, 45.0);
+  REQUIRE(wall.GetSegments().size() == 3);
+  auto corners = BLWallRule::FindCorners(wall);
+  REQUIRE(corners.size() == 2);
+  BLWallRule::SizeRule rule;
+  rule.h0 = 1e-4;
+  std::vector<BLWallRule::SizeSamples> base;
+  for (unsigned long iSeg = 0; iSeg < 3; ++iSeg) {
+    REQUIRE(wall.GetSegments()[iSeg].marker == names[iSeg]);
+    base.push_back(BLWallRule::SampleSize(wall, iSeg, rule, [&](const passivedouble* x, const passivedouble*) {
+      return iSeg == 2 ? 2e-4 + 0.15 * fabs(x[0] - 0.001) : 1e-3;
+    }));
+  }
+  std::vector<BLWallRule::SizeSamples> forward;
+  for (const bool reverse : {false, true}) {
+    if (reverse) std::reverse(corners.begin(), corners.end());
+    auto samples = base;
+    BLWallRule::ApplyCorners(wall, corners, rule.gradation, samples);
+    for (const auto& c : corners) {
+      REQUIRE(c.floor == 0.0);
+      /*--- Both initial windows reach 0.002. Check between samples, including r = 0.0015 at the first corner. ---*/
+      for (int i = 0; i <= 100; ++i) {
+        const auto r = 0.002 * i / 100.0;
+        passivedouble t[2];
+        for (unsigned short k = 0; k < 2; ++k) {
+          const auto& smp = samples[c.seg[k]];
+          t[k] = BLWallRule::SizeAt(smp, c.atEnd[k] ? smp.s.back() - r : smp.s.front() + r);
+        }
+        CHECK(t[0] == Approx(t[1]).epsilon(1e-12));
+        if (c.x[1] == 0.0 && i == 75) CHECK(t[0] == Approx(2e-4).epsilon(1e-12));
+      }
+    }
+    if (!reverse) {
+      forward = samples;
+    } else {
+      for (unsigned long iSeg = 0; iSeg < 3; ++iSeg)
+        for (int i = 0; i <= 100; ++i) {
+          const auto s = samples[iSeg].s.back() * i / 100.0;
+          CHECK(BLWallRule::SizeAt(samples[iSeg], s) == Approx(BLWallRule::SizeAt(forward[iSeg], s)).epsilon(1e-12));
+        }
+    }
+  }
+}
+
 TEST_CASE("Corner rule: convexity from the input mesh (fluid angle, fan, wedge)", "[Adaptation]") {
   const auto omega = 16.0 * M_PI / 180.0;
   const auto lens = Lens(omega, 40);
