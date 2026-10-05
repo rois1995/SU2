@@ -1,0 +1,5 @@
+Error in "void CConfig::SetPostprocessing(SU2_COMPONENT, short unsigned int, short unsigned int)": 
+-------------------------------------------------------------------------
+The SHARP_EDGES and WALL_DISTANCE slope limiters need VENKAT_LIMITER_COEFF > 0 and
+ADJ_SHARP_LIMITER_COEFF > 0 (they set the width of the region limited to first order).
+------------------------------ Error Exit -------------------------------
