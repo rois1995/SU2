@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -73,6 +74,20 @@ struct CReaderSlices {
    * \param[in] root - Rank that holds the mesh.
    */
   static CReaderSlices FromComplete(const CSimplexMesh& mesh, int root = MASTER_NODE);
+
+  /*!
+   * \brief Collective: build reader slices from uniquely owned volume and physical boundary elements.
+   * \param[in] mesh - Local simplex connectivity uses local point indices. Shared points may be repeated on ranks;
+   *                  their coordinates and optional metric must agree exactly. Marker names/order are identical
+   *                  on all ranks. Empty ranks participate with nDim and marker names set.
+   * \param[in] pointKeys - One globally shared, potentially sparse identity per local point (unique locally).
+   * \note Rendezvous owners deduplicate point records and assign dense reader IDs. Volume rows are routed only to
+   *       touched linear slices; boundary rows are gathered on the master as required by the current reader.
+   *       Duplicate cell/face ownership, inconsistent point records and globally unused points are errors.
+   *       Numbering may depend on rank count. No complete volume mesh is gathered. Transport is chunked, but this
+   *       routine does not impose an allocator-inclusive working-memory ceiling.
+   */
+  static CReaderSlices FromDistributed(const CSimplexMesh& mesh, const std::vector<uint64_t>& pointKeys);
 
   /*!
    * \brief Collective: the metric at the local points (domain and halo) of a geometry built from these slices, fetched

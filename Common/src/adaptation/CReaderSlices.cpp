@@ -27,9 +27,14 @@
 #include "../../include/adaptation/CReaderSlices.hpp"
 
 #include <algorithm>
+#include <array>
+#include <cmath>
 #include <cstdint>
 #include <cstring>
+#include <map>
+#include <set>
 
+#include "../../include/adaptation/CDistributedSearch.hpp"
 #include "../../include/geometry/CGeometry.hpp"
 #include "../../include/option_structure.hpp"
 #include "../../include/parallelization/CPassiveComm.hpp"
@@ -211,6 +216,20 @@ CReaderSlices UnpackSlice(const std::vector<char>& bytes) {
   return slices;
 }
 
+/*--- Explicit scalar packing, using the existing passive transport. No struct layout is transmitted. ---*/
+std::vector<char> ExchangePacks(const std::vector<Packer>& packs) {
+  std::vector<size_t> sendBytes(packs.size()), recvBytes;
+  size_t total = 0;
+  for (size_t r = 0; r < packs.size(); ++r) {
+    sendBytes[r] = packs[r].bytes.size();
+    total += sendBytes[r];
+  }
+  std::vector<char> send;
+  send.reserve(total);
+  for (const auto& pack : packs) send.insert(send.end(), pack.bytes.begin(), pack.bytes.end());
+  return CPassiveComm::AlltoallvRounds(send.data(), sendBytes, recvBytes);
+}
+
 }  // namespace
 
 CReaderSlices CReaderSlices::FromComplete(const CSimplexMesh& mesh, int root) {
@@ -255,6 +274,238 @@ CReaderSlices CReaderSlices::FromComplete(const CSimplexMesh& mesh, int root) {
     CPassiveComm::SendRounds(bytes.data(), bytes.size(), q, SLICE_TAG);
   }
   return UnpackSlice(PackSlice(mesh, partitioner, root, elems.data() + offset[root], offset[root + 1] - offset[root]));
+}
+
+CReaderSlices CReaderSlices::FromDistributed(const CSimplexMesh& mesh, const std::vector<uint64_t>& pointKeys) {
+  const int rank = SU2_MPI::GetRank(), size = SU2_MPI::GetSize();
+  CLocalFailure failure;
+  auto fail = [&](uint64_t id, const std::string& reason) {
+    failure.Set(1, id, "Distributed reader slices: " + reason);
+  };
+  const auto nDim = mesh.nDim;
+  const auto minDim = CPassiveComm::AllreduceMin(nDim), maxDim = CPassiveComm::AllreduceMax(nDim);
+  if ((nDim != 2 && nDim != 3) || minDim != maxDim) fail(0, "inconsistent or unsupported dimension.");
+  CollectiveFailure(failure, CURRENT_FUNCTION);
+  const unsigned short nNode = nDim + 1;
+  const unsigned short nMetric = CPassiveComm::AllreduceMax(mesh.metric.empty() ? 0 : CSimplexMesh::GetnMetric(nDim));
+  const auto nPoint = mesh.GetnPoint(), nElem = mesh.GetnElem();
+  if (mesh.coord.size() != nPoint * nDim || pointKeys.size() != nPoint || mesh.elem.size() != nElem * nNode ||
+      mesh.metric.size() != nPoint * nMetric) fail(0, "inconsistent local array sizes.");
+  CollectiveFailure(failure, CURRENT_FUNCTION);
+
+  Packer names;
+  names.Put<uint64_t>(mesh.markers.size());
+  std::set<std::string> uniqueNames;
+  for (const auto& marker : mesh.markers) {
+    names.PutString(marker.name);
+    if (marker.name.empty() || !uniqueNames.insert(marker.name).second) fail(0, "empty or repeated marker name.");
+  }
+  auto rootNames = rank == MASTER_NODE ? names.bytes : std::vector<char>{};
+  CPassiveComm::BcastRounds(rootNames, MASTER_NODE);
+  if (names.bytes != rootNames) fail(0, "marker names/order differ between ranks.");
+
+  std::set<uint64_t> uniqueKeys;
+  std::vector<uint8_t> used(nPoint, 0);
+  for (unsigned long i = 0; i < nPoint; ++i) {
+    if (!uniqueKeys.insert(pointKeys[i]).second) fail(pointKeys[i], "repeated local point identity.");
+    for (unsigned short d = 0; d < nDim; ++d)
+      if (!std::isfinite(mesh.coord[i * nDim + d])) fail(pointKeys[i], "nonfinite point coordinate.");
+    for (unsigned short m = 0; m < nMetric; ++m)
+      if (!std::isfinite(mesh.metric[i * nMetric + m])) fail(pointKeys[i], "nonfinite point metric.");
+  }
+  for (unsigned long e = 0; e < nElem; ++e) {
+    std::set<unsigned long> nodes;
+    for (unsigned short k = 0; k < nNode; ++k) {
+      const auto p = mesh.elem[e * nNode + k];
+      if (p >= nPoint) fail(e, "volume point index out of range.");
+      else { used[p] = 1; nodes.insert(p); }
+    }
+    if (nodes.size() != nNode) fail(e, "repeated node in a volume element.");
+  }
+  for (const auto& marker : mesh.markers) {
+    if (marker.elem.size() % nDim) fail(0, "inconsistent boundary connectivity size.");
+    for (size_t e = 0; e < marker.elem.size() / nDim; ++e) {
+      std::set<unsigned long> nodes;
+      for (unsigned short k = 0; k < nDim; ++k) {
+        const auto p = marker.elem[e * nDim + k];
+        if (p >= nPoint) fail(e, "boundary point index out of range.");
+        else nodes.insert(p);
+      }
+      if (nodes.size() != nDim) fail(e, "repeated node in a boundary element.");
+    }
+  }
+  CollectiveFailure(failure, CURRENT_FUNCTION);
+
+  struct PointRecord {
+    std::array<passivedouble, 3> coord{};
+    std::array<passivedouble, 6> metric{};
+    std::vector<std::pair<int, uint64_t>> requesters;
+    bool used = false;
+  };
+  std::map<uint64_t, PointRecord> points;
+  {
+    std::vector<Packer> to(size);
+    for (unsigned long i = 0; i < nPoint; ++i) {
+      auto& pack = to[pointKeys[i] % size];
+      pack.Put<uint64_t>(pointKeys[i]);
+      pack.Put<uint64_t>(rank);
+      pack.Put<uint64_t>(i);
+      pack.Put<uint8_t>(used[i]);
+      pack.PutArray(&mesh.coord[i * nDim], nDim);
+      if (nMetric) pack.PutArray(&mesh.metric[i * nMetric], nMetric);
+    }
+    const auto bytes = ExchangePacks(to);
+    Unpacker in(bytes);
+    while (!in.AtEnd()) {
+      const auto key = in.Get<uint64_t>(), source = in.Get<uint64_t>(), index = in.Get<uint64_t>();
+      PointRecord record;
+      record.used = in.Get<uint8_t>() != 0;
+      in.GetArray(record.coord.data(), nDim);
+      in.GetArray(record.metric.data(), nMetric);
+      auto inserted = points.emplace(key, record);
+      auto& point = inserted.first->second;
+      if (!inserted.second && (point.coord != record.coord || point.metric != record.metric))
+        fail(key, "shared coordinates or metric differ.");
+      point.used |= record.used;
+      point.requesters.emplace_back(static_cast<int>(source), index);
+    }
+  }
+  for (const auto& entry : points)
+    if (!entry.second.used) fail(entry.first, "point is not used by any volume element.");
+  CollectiveFailure(failure, CURRENT_FUNCTION);
+
+  /*--- Reject duplicate volume/physical-face ownership at distributed key owners. A physical face with two
+   *    different markers is also a duplicate; marker identity is not part of the face's uniqueness key. ---*/
+  {
+    std::vector<Packer> to(size);
+    auto signature = [&](const unsigned long* localNodes, unsigned short count) {
+      std::array<uint64_t, 4> key{};
+      for (unsigned short k = 0; k < count; ++k) key[k] = pointKeys[localNodes[k]];
+      std::sort(key.begin(), key.begin() + count);
+      auto& pack = to[key[0] % size];
+      pack.Put<uint64_t>(count);
+      pack.PutArray(key.data(), key.size());
+    };
+    for (unsigned long e = 0; e < nElem; ++e) signature(&mesh.elem[e * nNode], nNode);
+    for (const auto& marker : mesh.markers)
+      for (unsigned long e = 0; e < marker.GetnElem(nDim); ++e) signature(&marker.elem[e * nDim], nDim);
+    const auto bytes = ExchangePacks(to);
+    Unpacker in(bytes);
+    std::set<std::pair<uint64_t, std::array<uint64_t, 4>>> seen;
+    while (!in.AtEnd()) {
+      const auto count = in.Get<uint64_t>();
+      std::array<uint64_t, 4> key;
+      in.GetArray(key.data(), key.size());
+      if (!seen.emplace(count, key).second) fail(key[0], "duplicate volume or physical-face ownership.");
+    }
+  }
+  CollectiveFailure(failure, CURRENT_FUNCTION);
+
+  CReaderSlices slices;
+  slices.nDim = nDim;
+  slices.nMetric = nMetric;
+  slices.nPointGlobal = CPassiveComm::AllreduceSum(points.size());
+  slices.nElemGlobal = CPassiveComm::AllreduceSum(nElem);
+  if (!slices.nPointGlobal || !slices.nElemGlobal) fail(0, "globally empty mesh.");
+  CollectiveFailure(failure, CURRENT_FUNCTION);
+  const CLinearPartitioner partitioner(slices.nPointGlobal, 0);
+  slices.firstPoint = partitioner.GetFirstIndexOnRank(rank);
+  slices.nPointLocal = partitioner.GetSizeOnRank(rank);
+  slices.coord.assign(nDim, std::vector<passivedouble>(slices.nPointLocal));
+  slices.metric.resize(slices.nPointLocal * nMetric);
+  std::vector<unsigned long> dense(nPoint);
+  {
+    std::vector<Packer> replies(size), coords(size);
+    auto id = CPassiveComm::ExscanSum(points.size());
+    for (const auto& entry : points) {
+      const auto& point = entry.second;
+      for (const auto& source : point.requesters) {
+        replies[source.first].Put<uint64_t>(source.second);
+        replies[source.first].Put<uint64_t>(id);
+      }
+      auto& pack = coords[partitioner.GetRankContainingIndex(id)];
+      pack.Put<uint64_t>(id++);
+      pack.PutArray(point.coord.data(), nDim);
+      pack.PutArray(point.metric.data(), nMetric);
+    }
+    const auto replyBytes = ExchangePacks(replies);
+    Unpacker reply(replyBytes);
+    std::vector<uint8_t> found(nPoint, 0);
+    while (!reply.AtEnd()) {
+      const auto index = reply.Get<uint64_t>(), newId = reply.Get<uint64_t>();
+      if (index >= nPoint || newId >= slices.nPointGlobal || (index < nPoint && found[index]++))
+        fail(index, "invalid dense identity reply.");
+      else dense[index] = newId;
+    }
+    if (std::find(found.begin(), found.end(), 0) != found.end()) fail(0, "missing dense identity reply.");
+    CollectiveFailure(failure, CURRENT_FUNCTION);
+    const auto coordBytes = ExchangePacks(coords);
+    Unpacker coord(coordBytes);
+    std::vector<uint8_t> present(slices.nPointLocal, 0);
+    while (!coord.AtEnd()) {
+      const auto newId = coord.Get<uint64_t>();
+      PointRecord record;
+      coord.GetArray(record.coord.data(), nDim);
+      coord.GetArray(record.metric.data(), nMetric);
+      if (newId < slices.firstPoint || newId >= slices.firstPoint + slices.nPointLocal) {
+        fail(newId, "point routed outside linear slice.");
+        continue;
+      }
+      const auto i = newId - slices.firstPoint;
+      if (present[i]++) fail(newId, "duplicate linear-slice point.");
+      for (unsigned short d = 0; d < nDim; ++d) slices.coord[d][i] = record.coord[d];
+      for (unsigned short m = 0; m < nMetric; ++m) slices.metric[i * nMetric + m] = record.metric[m];
+    }
+    if (std::find(present.begin(), present.end(), 0) != present.end()) fail(0, "missing linear-slice point.");
+    CollectiveFailure(failure, CURRENT_FUNCTION);
+  }
+
+  {
+    std::vector<Packer> to(size);
+    const auto firstElement = CPassiveComm::ExscanSum(nElem);
+    for (unsigned long e = 0; e < nElem; ++e) {
+      unsigned long row[SU2_CONN_SIZE] = {firstElement + e, nDim == 2 ? TRIANGLE : TETRAHEDRON};
+      std::set<int> destinations;
+      for (unsigned short k = 0; k < nNode; ++k) {
+        row[k + 2] = dense[mesh.elem[e * nNode + k]];
+        destinations.insert(partitioner.GetRankContainingIndex(row[k + 2]));
+      }
+      for (const int destination : destinations) to[destination].PutArray(row, SU2_CONN_SIZE);
+    }
+    const auto bytes = ExchangePacks(to);
+    slices.elemRows = CPassiveComm::FromBytes<unsigned long>(bytes);
+    slices.nElemLocal = slices.elemRows.size() / SU2_CONN_SIZE;
+    /*--- Source-rank concatenation is already ordered by prefix-allocated element identity. ---*/
+  }
+
+  std::vector<unsigned long> localBoundaryCounts(mesh.markers.size(), 0), boundaryCounts(mesh.markers.size(), 0);
+  Packer boundary;
+  for (size_t m = 0; m < mesh.markers.size(); ++m) {
+    const auto& marker = mesh.markers[m];
+    slices.markerNames.push_back(marker.name);
+    localBoundaryCounts[m] = marker.GetnElem(nDim);
+    for (unsigned long e = 0; e < marker.GetnElem(nDim); ++e) {
+      unsigned long row[SU2_CONN_SIZE] = {0, nDim == 2 ? LINE : TRIANGLE};
+      for (unsigned short k = 0; k < nDim; ++k) row[k + 2] = dense[marker.elem[e * nDim + k]];
+      boundary.Put<uint64_t>(m);
+      boundary.PutArray(row, SU2_CONN_SIZE);
+    }
+  }
+  CPassiveComm::Allreduce(localBoundaryCounts.data(), boundaryCounts.data(), boundaryCounts.size(), CPassiveComm::Op::SUM);
+  for (size_t m = 0; m < boundaryCounts.size(); ++m)
+    if (boundaryCounts[m]) slices.markersWithElements.push_back(slices.markerNames[m]);
+  const auto boundaryBytes = CPassiveComm::GathervRounds(boundary.bytes.data(), boundary.bytes.size(), MASTER_NODE, nullptr);
+  slices.boundaryRows.resize(mesh.markers.size());
+  if (rank == MASTER_NODE) {
+    Unpacker in(boundaryBytes);
+    while (!in.AtEnd()) {
+      const auto m = in.Get<uint64_t>();
+      unsigned long row[SU2_CONN_SIZE];
+      in.GetArray(row, SU2_CONN_SIZE);
+      slices.boundaryRows[m].insert(slices.boundaryRows[m].end(), row, row + SU2_CONN_SIZE);
+    }
+  }
+  return slices;
 }
 
 std::vector<passivedouble> CReaderSlices::FetchPointMetric(const CGeometry& geometry) const {

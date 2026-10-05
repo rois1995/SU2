@@ -32,6 +32,9 @@
 
 #include <array>
 #include <cmath>
+#include <cstdlib>
+#include <map>
+#include <set>
 
 #include "TransferTestCase.hpp"
 #include "../../../SU2_CFD/include/variables/CPrimitiveIndices.hpp"
@@ -45,6 +48,198 @@
 #include "../../../SU2_CFD/include/adaptation/CConservativeTransfer.hpp"
 
 using namespace transfer_test;
+
+/*--- Run explicitly in a subprocess with SU2_NATIVE_READER_FAULT set. These inputs must terminate collectively
+ *    with the named diagnostic; they are hidden from normal unit runs because SU2_MPI::Error aborts MPI. ---*/
+TEST_CASE("MPI adaptation: distributed reader rejects malformed ownership", "[.][NativeReaderFailure]") {
+  const char* mode = std::getenv("SU2_NATIVE_READER_FAULT");
+  REQUIRE(mode != nullptr);
+  const std::string fault(mode);
+  const auto input = BoxMesh(2, 2, false);
+  const int rank = SU2_MPI::GetRank();
+  CSimplexMesh local;
+  local.nDim = 2;
+  for (const auto& marker : input.markers) local.markers.push_back({marker.name, marker.ref, {}});
+  std::vector<uint64_t> keys;
+  if (rank == 0) {
+    local = input;
+    for (unsigned long p = 0; p < input.GetnPoint(); ++p) keys.push_back((uint64_t(1) << 40) + p * 97);
+    if (fault == "duplicate-cell") local.elem.insert(local.elem.end(), input.elem.begin(), input.elem.begin() + 3);
+    else if (fault == "duplicate-face") {
+      const auto first = input.markers[0].elem;
+      local.markers[1].elem.insert(local.markers[1].elem.end(), first.begin(), first.begin() + 2);
+    } else if (fault == "bad-index") local.elem[0] = input.GetnPoint();
+    else if (fault == "bad-shape") local.coord.push_back(0.0);
+    else if (fault == "nonfinite") local.coord[0] = std::numeric_limits<passivedouble>::quiet_NaN();
+    else if (fault == "unused-point") {
+      local.coord.insert(local.coord.end(), {5.0, 5.0}); keys.push_back(uint64_t(1) << 60);
+    } else if (fault == "duplicate-key") keys[1] = keys[0];
+  }
+  if (rank == 1) {
+    if (fault == "shared-record") {
+      keys.push_back((uint64_t(1) << 40));
+      local.coord = {input.coord[0] + 0.001, input.coord[1]};
+    } else if (fault == "marker-order") std::swap(local.markers[0], local.markers[1]);
+    else if (fault == "dimension") local.nDim = 3;
+  }
+  CReaderSlices::FromDistributed(local, keys);
+  FAIL("Malformed distributed reader input was accepted.");
+}
+
+TEST_CASE("MPI adaptation: distributed reader construction", "[AdaptationMPI][NativeReader]") {
+  const int rank = SU2_MPI::GetRank(), size = SU2_MPI::GetSize();
+  for (const unsigned short dim : {2, 3}) {
+    for (const bool withMetric : {false, true}) {
+      for (const bool emptyRank : {false, true}) {
+        INFO("dimension=" << dim << " metric=" << withMetric << " empty=" << emptyRank);
+        auto input = BoxMesh(dim, 2, true);
+        const auto nMetric = CSimplexMesh::GetnMetric(dim);
+        if (withMetric) {
+          input.metric.resize(input.GetnPoint() * nMetric);
+          for (unsigned long p = 0; p < input.GetnPoint(); ++p) {
+            for (unsigned short m = 0; m < nMetric; ++m)
+              input.metric[p * nMetric + m] = 0.125 * (1 + m) + input.coord[p * dim];
+          }
+        }
+        CSimplexMesh local;
+        local.nDim = dim;
+        for (const auto& marker : input.markers) local.markers.push_back({marker.name, marker.ref, {}});
+        std::vector<uint64_t> keys;
+        std::map<unsigned long, unsigned long> localIndex;
+        auto addPoint = [&](unsigned long original) {
+          const auto found = localIndex.find(original);
+          if (found != localIndex.end()) return found->second;
+          const auto index = local.GetnPoint();
+          localIndex[original] = index;
+          /*--- Sparse identities far above the dense point count; unrelated to coordinates/ownership. ---*/
+          keys.push_back((uint64_t(1) << 40) + original * 97);
+          for (unsigned short d = 0; d < dim; ++d) local.coord.push_back(input.coord[original * dim + d]);
+          if (withMetric) for (unsigned short m = 0; m < nMetric; ++m)
+            local.metric.push_back(input.metric[original * nMetric + m]);
+          return index;
+        };
+        const int active = emptyRank && size > 1 ? size - 1 : size;
+        for (unsigned long e = 0; e < input.GetnElem(); ++e) {
+          if ((3 * e + e / 3) % active != static_cast<unsigned long>(rank)) continue;
+          for (unsigned short k = 0; k <= dim; ++k) local.elem.push_back(addPoint(input.elem[e * (dim + 1) + k]));
+        }
+        for (size_t m = 0; m < input.markers.size(); ++m) {
+          const auto& marker = input.markers[m];
+          for (unsigned long e = 0; e < marker.GetnElem(dim); ++e) {
+            if ((e + m) % active != static_cast<unsigned long>(rank)) continue;
+            for (unsigned short k = 0; k < dim; ++k)
+              local.markers[m].elem.push_back(addPoint(marker.elem[e * dim + k]));
+          }
+        }
+        const auto previousRound = CPassiveComm::GetRoundBytes();
+        CPassiveComm::SetRoundBytes(127);
+        const auto slices = CReaderSlices::FromDistributed(local, keys);
+        CPassiveComm::SetRoundBytes(previousRound);
+        REQUIRE(slices.nPointGlobal == input.GetnPoint());
+        REQUIRE(slices.nElemGlobal == input.GetnElem());
+        CHECK(slices.nMetric == (withMetric ? nMetric : 0));
+
+        /*--- Audit-only gathering: identify returned points by their unique original coordinates, independently
+         *    of the directory's hash, prefix numbering and local ownership. ---*/
+        std::vector<passivedouble> coord;
+        for (unsigned long p = 0; p < slices.nPointLocal; ++p)
+          for (unsigned short d = 0; d < dim; ++d) coord.push_back(slices.coord[d][p]);
+        const auto allCoord = CPassiveComm::Allgatherv(coord, nullptr);
+        std::vector<unsigned long> original(slices.nPointGlobal);
+        std::set<unsigned long> unique;
+        bool correct = true;
+        for (unsigned long p = 0; p < slices.nPointGlobal; ++p) {
+          unsigned long match = input.GetnPoint();
+          for (unsigned long q = 0; q < input.GetnPoint(); ++q) {
+            bool same = true;
+            for (unsigned short d = 0; d < dim; ++d) same &= allCoord[p * dim + d] == input.coord[q * dim + d];
+            if (same) match = q;
+          }
+          correct &= match < input.GetnPoint();
+          original[p] = match;
+          unique.insert(match);
+        }
+        correct &= unique.size() == input.GetnPoint();
+        REQUIRE(CPassiveComm::AllreduceMax(correct ? 0 : 1) == 0);
+        for (unsigned long p = 0; p < slices.nPointLocal; ++p)
+          if (withMetric) for (unsigned short m = 0; m < nMetric; ++m)
+            CHECK(slices.metric[p * nMetric + m] == input.metric[original[slices.firstPoint + p] * nMetric + m]);
+
+        auto key = [&](const unsigned long* nodes, unsigned short count, bool renumbered) {
+          std::array<unsigned long, 4> result{};
+          for (unsigned short k = 0; k < count; ++k) result[k] = renumbered ? original[nodes[k]] : nodes[k];
+          std::sort(result.begin(), result.begin() + count);
+          return result;
+        };
+        std::set<std::array<unsigned long, 4>> expected;
+        for (unsigned long e = 0; e < input.GetnElem(); ++e) expected.insert(key(&input.elem[e * (dim + 1)], dim + 1, false));
+        const auto rows = CPassiveComm::Allgatherv(slices.elemRows, nullptr);
+        std::map<unsigned long, std::array<unsigned long, 4>> identities;
+        std::set<std::array<unsigned long, 4>> actual;
+        for (size_t r = 0; r < rows.size(); r += SU2_CONN_SIZE) {
+          const auto shape = key(&rows[r + 2], dim + 1, true);
+          const auto inserted = identities.emplace(rows[r], shape);
+          if (!inserted.second) CHECK(inserted.first->second == shape);
+          actual.insert(shape);
+        }
+        CHECK(actual == expected);
+        CHECK(identities.size() == input.GetnElem());
+        /*--- Each slice holds every element touching it, exactly once, and no other element. ---*/
+        std::set<unsigned long> received;
+        for (size_t r = 0; r < slices.elemRows.size(); r += SU2_CONN_SIZE) {
+          bool touches = false;
+          for (unsigned short k = 0; k <= dim; ++k) {
+            const auto p = slices.elemRows[r + 2 + k];
+            touches |= p >= slices.firstPoint && p < slices.firstPoint + slices.nPointLocal;
+          }
+          CHECK(touches);
+          CHECK(received.insert(slices.elemRows[r]).second);
+          if (r) CHECK(slices.elemRows[r - SU2_CONN_SIZE] < slices.elemRows[r]);
+        }
+        for (size_t r = 0; r < rows.size(); r += SU2_CONN_SIZE) {
+          bool touches = false;
+          for (unsigned short k = 0; k <= dim; ++k) {
+            const auto p = rows[r + 2 + k];
+            touches |= p >= slices.firstPoint && p < slices.firstPoint + slices.nPointLocal;
+          }
+          if (touches) CHECK(received.count(rows[r]) == 1);
+        }
+        REQUIRE(slices.markerNames.size() == input.markers.size());
+        for (size_t m = 0; m < input.markers.size(); ++m) {
+          CHECK(slices.markerNames[m] == input.markers[m].name);
+          if (rank != MASTER_NODE) { CHECK(slices.boundaryRows[m].empty()); continue; }
+          std::set<std::array<unsigned long, 4>> faces, reference;
+          for (size_t r = 0; r < slices.boundaryRows[m].size(); r += SU2_CONN_SIZE)
+            CHECK(faces.insert(key(&slices.boundaryRows[m][r + 2], dim, true)).second);
+          for (unsigned long e = 0; e < input.markers[m].GetnElem(dim); ++e)
+            reference.insert(key(&input.markers[m].elem[e * dim], dim, false));
+          CHECK(faces == reference);
+        }
+
+        /*--- Exercise the actual SU2 reader and geometry reconstruction, not only exported row shapes. ---*/
+        auto config = MakeConfig(dim, "SOLVER= EULER\n");
+        CGeometry** geometry = nullptr;
+        {
+          Mute mute;
+          config->SetMGLevels(0);
+          CDistributedMemoryMeshReaderFVM reader(config.get(), slices, 0, 1);
+          CDriver::BuildGeometryFVM(config.get(), new CPhysicalGeometry(config.get(), reader, 1), geometry, true);
+        }
+        CHECK(geometry[0]->GetGlobal_nPointDomain() == input.GetnPoint());
+        const auto fetched = slices.FetchPointMetric(*geometry[0]);
+        if (withMetric) {
+          for (unsigned long p = 0; p < geometry[0]->GetnPoint(); ++p) {
+            const auto id = geometry[0]->nodes->GetGlobalIndex(p);
+            for (unsigned short m = 0; m < nMetric; ++m)
+              CHECK(fetched[p * nMetric + m] == input.metric[original[id] * nMetric + m]);
+          }
+        } else CHECK(fetched.empty());
+        delete geometry[0];
+        delete[] geometry;
+      }
+    }
+  }
+}
 
 namespace {
 
