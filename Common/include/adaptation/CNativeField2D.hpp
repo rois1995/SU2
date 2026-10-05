@@ -243,7 +243,18 @@ class DonorField {
       for (const auto& id : found) requests[id.owner].push_back({id.id, world.rank});
     const auto queries = world.exchange(requests);
     std::vector<std::vector<DonorCell>> reply(world.size);
-    for (const auto& query : queries) reply[query.caller].push_back(owned.at(query.id));
+    const auto replyPacking = transfer_memory::Add(transfer_memory::Bytes(old), transfer_memory::Bytes(found),
+                                                   transfer_memory::Bytes(queries), transfer_memory::Bytes(requests),
+                                                   transfer_memory::Bytes(regions), transfer_memory::Bytes(to),
+                                                   transfer_memory::Bytes(ids), transfer_memory::Bytes(reply),
+                                                   transfer_memory::GrowthBound(queries.size(), sizeof(DonorCell)));
+    const bool canPack = world.sum(replyPacking > budget) == 0;
+    if (canPack) {
+      for (const auto& query : queries) reply[query.caller].push_back(owned.at(query.id));
+    } else if (active) {
+      active = false;
+      ++rejected;
+    }
     bool payloadAdmitted = false;
     auto cells = world.exchange(
         reply, &payloadAdmitted, budget,

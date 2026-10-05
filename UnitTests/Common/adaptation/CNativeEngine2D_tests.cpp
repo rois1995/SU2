@@ -154,6 +154,8 @@ TEST_CASE("Native MPI engine: cached priorities use original nodal targets", "[N
 
 TEST_CASE("Native MPI engine: independent wall cavities publish in the same round", "[NativeEngine2D]") {
   World world;
+  const bool crossOwner = GENERATE(false, true);
+  INFO("cross-owner disjoint cavities: " << crossOwner);
   std::vector<PolylineReference::Face> faces;
   std::map<Id, Cell> local;
   for (int rank = 0; rank < world.size; ++rank) {
@@ -162,21 +164,21 @@ TEST_CASE("Native MPI engine: independent wall cavities publish in the same roun
     const Node a{base, {offset, 0}, 1 | FEATURE}, b{base + 1, {offset + .04, 0}, 1 | FEATURE},
         c{base + 2, {offset + .04, .02}, 1 | FEATURE}, d{base + 3, {offset, .02}, 1 | FEATURE};
     faces.insert(faces.end(), {{a, b, 10}, {b, c, 11}, {c, d, 12}, {d, a, 11}});
-    if (rank == world.rank) {
+    {
       Cell lower, upper;
       lower.t = triangle(a, b, c);
       lower.t.id = base + 10;
       upper.t = triangle(a, c, d);
       upper.t.id = base + 11;
-      local.emplace(lower.t.id, lower);
-      local.emplace(upper.t.id, upper);
+      if (rank == world.rank) local.emplace(lower.t.id, lower);
+      if ((crossOwner ? (rank + 1) % world.size : rank) == world.rank) local.emplace(upper.t.id, upper);
     }
   }
   const PolylineReference reference(faces, 45);
   for (auto& entry : local) {
     auto& cell = entry.second;
     for (auto& m : cell.nodal_target) m = {625, 0, 62500};
-    const Id base = 32 * world.rank;
+    const Id base = 32 * (cell.t.id / 32);
     if (cell.t.id == base + 10)
       cell.marker = {reference.ComponentOfOriginalFace(base, base + 1),
                      reference.ComponentOfOriginalFace(base + 1, base + 2), 0};
@@ -191,7 +193,7 @@ TEST_CASE("Native MPI engine: independent wall cavities publish in the same roun
   CHECK(engine.round({{Action::SPLIT, base, base + 1}, 1., world.rank}));
   CHECK(world.sum(engine.stats.commits) == world.size);
   CHECK(engine.stats.conflicts == 0);
-  CHECK(engine.stats.cross_rank == 0);
+  CHECK(engine.stats.cross_rank == int(crossOwner && world.size > 1));
   const auto cells = Gather(world, engine);
   if (world.rank == 0) {
     std::string reason;

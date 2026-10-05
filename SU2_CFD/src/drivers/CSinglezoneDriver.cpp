@@ -36,6 +36,9 @@
 #include "../../include/adaptation/CConservativeTransfer.hpp"
 #include "../../include/adaptation/CMetricPredictor.hpp"
 #include "../../../Common/include/adaptation/CMMGInterface.hpp"
+#include "../../../Common/include/adaptation/CNativeRemesher.hpp"
+#include "../../../Common/include/adaptation/CNativeImport2D.hpp"
+#include "../../../Common/include/adaptation/CNativeReferenceIO.hpp"
 #include "../../../Common/include/adaptation/CMeshGather.hpp"
 #include "../../../Common/include/geometry/CPhysicalGeometry.hpp"
 #include "../../../Common/include/geometry/meshreader/CDistributedMemoryMeshReaderFVM.hpp"
@@ -261,12 +264,24 @@ void CSinglezoneDriver::CheckMeshAdaptation() const {
                      "DUAL_TIME_STEPPING-1ST_ORDER or DUAL_TIME_STEPPING-2ND_ORDER).", CURRENT_FUNCTION);
     }
   }
-  CMMGInterface::CheckSupport(*config, *geometry_container[ZONE_0][INST_0][MESH_0]);
+  if (config->GetKind_Adap_Remesher()==ADAP_REMESHER::NATIVE_CAVITY)
+    CNativeRemesher::CheckSupport(*config,*geometry_container[ZONE_0][INST_0][MESH_0]);
+  else CMMGInterface::CheckSupport(*config, *geometry_container[ZONE_0][INST_0][MESH_0]);
+}
+
+std::unique_ptr<CRemesher> CSinglezoneDriver::MakeRemesher() {
+  if (config_container[ZONE_0]->GetKind_Adap_Remesher()==ADAP_REMESHER::NATIVE_CAVITY) {
+    if (!nativeReference) nativeReference=std::make_shared<SU2NativeBoundary2D::ReferenceState>();
+    auto remesher = std::make_unique<CNativeRemesher>(nativeReference);
+    remesher->PrepareReference(*config_container[ZONE_0], *geometry_container[ZONE_0][INST_0][MESH_0]);
+    return remesher;
+  }
+  return std::make_unique<CMMGRemesher>();
 }
 
 CRemeshResult CSinglezoneDriver::RemeshFromMetric() {
-  CMMGRemesher remesher;
-  return RemeshFromMetric(remesher);
+  auto remesher = MakeRemesher();
+  return RemeshFromMetric(*remesher);
 }
 
 CRemeshResult CSinglezoneDriver::RemeshFromMetric(CRemesher& remesher) {
@@ -297,7 +312,7 @@ void CSinglezoneDriver::RunAdaptationLoop() {
   CheckMeshAdaptation();
   if (config->GetAdap_Mesh_Output()) CheckAdaptedMeshNames();
 
-  CMMGRemesher remesher;
+  auto remesher = MakeRemesher();
 
   std::unique_ptr<CSolutionTransfer> transfer;
   switch (config->GetKind_Adap_Transfer()) {
@@ -354,7 +369,7 @@ void CSinglezoneDriver::RunAdaptationLoop() {
 
     /*--- New mesh from the metric of this solution. ---*/
 
-    const auto mesh = RemeshFromMetric(remesher);
+    const auto mesh = RemeshFromMetric(*remesher);
 
     /*--- The adapted meshes start from the transferred solution, not from restart files, and with the options of
      *    their level. The first solve may have been a restart (also of the fixed-CL angle of attack). ---*/
@@ -753,7 +768,7 @@ void CSinglezoneDriver::RunTimeAdaptationLoop() {
   CheckMeshAdaptation();
   if (config->GetAdap_Mesh_Output()) CheckAdaptedMeshNames();
 
-  CMMGRemesher remesher;
+  auto remesher = MakeRemesher();
 
   /*--- ADAP_TRANSFER: CONSERVATIVE (default of time-domain runs) or BARYCENTRIC (FREESTREAM is rejected for
    *    time-domain runs by the config). ---*/
@@ -866,7 +881,7 @@ void CSinglezoneDriver::RunTimeAdaptationLoop() {
              << ")." << endl;
       }
 
-      const auto mesh = remesher.Remesh(*config, *geometry_container[ZONE_0][INST_0][MESH_0],
+      const auto mesh = remesher->Remesh(*config, *geometry_container[ZONE_0][INST_0][MESH_0],
                                         solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->GetMetric());
       const auto remeshTime = SU2_MPI::Wtime() - adaptStart;
       UsedTimePreproc += remeshTime;
@@ -1172,7 +1187,7 @@ void CSinglezoneDriver::RunTimeFixedPointLoop() {
   CheckMeshAdaptation();
   if (config->GetAdap_Mesh_Output()) CheckAdaptedMeshNames();
 
-  CMMGRemesher remesher;
+  auto remesher = MakeRemesher();
 
   const bool conservative = config->GetKind_Adap_Transfer() == ADAP_TRANSFER::CONSERVATIVE;
   std::unique_ptr<CSolutionTransfer> transferPtr;
@@ -1372,7 +1387,7 @@ void CSinglezoneDriver::RunTimeFixedPointLoop() {
       /*--- Discarded: back to the output state of the window start, new mesh from the metric of this solve. ---*/
       output->SetTimeState(start.output);
       const auto remeshStart = SU2_MPI::Wtime();
-      nextMesh = remesher.Remesh(*config, *geometry_container[ZONE_0][INST_0][MESH_0],
+      nextMesh = remesher->Remesh(*config, *geometry_container[ZONE_0][INST_0][MESH_0],
                                  solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->GetMetric());
       row.remeshTime += SU2_TYPE::GetValue(SU2_MPI::Wtime() - remeshStart);
       UsedTimePreproc += SU2_MPI::Wtime() - remeshStart;
@@ -1500,6 +1515,11 @@ void CSinglezoneDriver::WriteAdaptedMesh(unsigned long iCycle, unsigned long fir
          << "." << endl;
   }
   CMeshOutput::WriteMesh(config, geometry_container[ZONE_0][INST_0][MESH_0], fileName);
+  if (config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY) {
+    if (!nativeReference || !nativeReference->original)
+      SU2_MPI::Error("Native mesh output requires its retained geometry reference.", CURRENT_FUNCTION);
+    SU2NativeBoundary2D::WriteReference(fileName + config->GetMesh_Out_FileExtension() + ".native_ref", *nativeReference);
+  }
 }
 
 void CSinglezoneDriver::ReplaceMesh(const CRemeshResult& remeshed, CSolutionTransfer& transfer) {
@@ -1525,6 +1545,13 @@ void CSinglezoneDriver::ReleaseMesh(CMeshDonor& mesh) {
 void CSinglezoneDriver::ReplaceMesh(const CRemeshResult& remeshed, CSolutionTransfer& transfer,
                                     const CMeshDonor* keptDonor, CMeshDonor* keepCurrent) {
   SU2_ZONE_SCOPED
+
+  CLocalFailure acceptance;
+  if (remeshed.status!=CRemeshResult::Status::COMPLETE)
+    acceptance.Set(1,0,remeshed.status==CRemeshResult::Status::INCOMPLETE_QUALITY?
+          "Remesher returned incomplete quality. The accepted mesh and solution are retained.":
+          "Remesher returned incomplete coverage. The accepted mesh and solution are retained.");
+  CollectiveFailure(acceptance,CURRENT_FUNCTION);
 
   const su2double startTime = SU2_MPI::Wtime();
 
@@ -1636,6 +1663,8 @@ void CSinglezoneDriver::ReplaceMesh(const CRemeshResult& remeshed, CSolutionTran
   main_geometry = geometry[MESH_0];
 
   PreprocessPythonInterface(config_container, geometry_container, solver_container);
+
+  if (remeshed.onAccepted) remeshed.onAccepted();
 
   /*--- Release the previous mesh, with its own number of levels (its geometry and solvers may be kept as the donor
    *    of later transfers). ---*/

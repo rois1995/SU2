@@ -375,8 +375,12 @@ class Engine {
       approved = false;
       ++stats.rejected[failed.message];
     }
-    auto prepared =
-        directory.prepare(failed.any ? std::vector<Cell>{} : removed, failed.any ? std::vector<Cell>{} : added);
+    const auto stagingBytes = transfer_memory::Add(
+        baseline, transfer_memory::Bytes(pendingErase), transfer_memory::Bytes(pendingFresh),
+        transfer_memory::Bytes(perimeter), transfer_memory::Bytes(removed), transfer_memory::Bytes(added),
+        transfer_memory::Mul(staged.size(), sizeof(std::map<Id, Cell>::value_type) + 4 * sizeof(void*)));
+    auto prepared = directory.prepare(failed.any ? std::vector<Cell>{} : removed,
+                                      failed.any ? std::vector<Cell>{} : added, options.dependency_bytes, stagingBytes);
     if (!prepared.valid) {
       approved = false;
       ++stats.rejected[prepared.reason];

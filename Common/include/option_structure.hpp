@@ -1246,8 +1246,13 @@ struct CMGOptions {
 };
 
 /*!
- * \brief Solution transfer of the mesh adaptation loop (from the previous mesh to the adapted one).
+ * \brief Backend of the mesh adaptation loop; native cavities are opt-in.
  */
+enum class ADAP_REMESHER { MMG,NATIVE_CAVITY };
+static const MapType<std::string,ADAP_REMESHER> Adap_Remesher_Map = {
+  {"MMG",ADAP_REMESHER::MMG},{"NATIVE_CAVITY",ADAP_REMESHER::NATIVE_CAVITY}};
+
+/*! \brief Solution transfer from the previous mesh to the adapted one. */
 enum class ADAP_TRANSFER {
   BARYCENTRIC,  /*!< \brief Barycentric (P1) interpolation of the previous solution. */
   CONSERVATIVE, /*!< \brief Conservative P1 projection (supermesh), keeps the integrals of the conservative variables. */

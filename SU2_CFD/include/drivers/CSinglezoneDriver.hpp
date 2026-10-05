@@ -36,6 +36,7 @@
 
 class CSolutionTransfer;
 class CMultiGridIntegration;
+namespace SU2NativeBoundary2D { struct ReferenceState; }
 struct CMeshDonor;
 
 /*!
@@ -49,6 +50,8 @@ class CSinglezoneDriver : public CDriver {
 protected:
 
   unsigned long TimeIter;
+  std::shared_ptr<SU2NativeBoundary2D::ReferenceState> nativeReference;
+  std::unique_ptr<CRemesher> MakeRemesher();
 
   /*!
      * \brief  Returns whether all specified windowed-time-averaged ouputs have been converged

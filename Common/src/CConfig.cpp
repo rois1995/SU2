@@ -3295,6 +3295,7 @@ void CConfig::SetConfig_Options() {
    * the metric at the boundary points (MMG nosizreq, without the gradation from them, hgradreq -1), with sizes along
    * each boundary edge at its points of at least its length (MMG cannot split it) \ingroup Config */
   addBoolOption("ADAP_SURFACE", Adap_Surface, true);
+  addEnumOption("ADAP_REMESHER",Kind_Adap_Remesher,Adap_Remesher_Map,ADAP_REMESHER::MMG);
 
   /*--- Boundary-layer metric: near each wall marker of ADAP_BL_MARKER, the metric is intersected with a wall metric
    *    whose wall-normal size grows from ADAP_BL_FIRST_HEIGHT with geometric rows of ratio ADAP_BL_GROWTH, and whose
@@ -6442,7 +6443,7 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
         vector<su2double>(Adap_BL_Growth, Adap_BL_Growth + nAdap_BL_Growth),
         vector<su2double>(Adap_BL_Thickness, Adap_BL_Thickness + nAdap_BL_Thickness), hmins, Adap_BL);
     if (!error.empty()) SU2_MPI::Error(error, CURRENT_FUNCTION);
-    if (Adap_Surface && rank == MASTER_NODE) {
+    if (Adap_Surface && Kind_Adap_Remesher == ADAP_REMESHER::MMG && rank == MASTER_NODE) {
       cout << "WARNING: ADAP_BL_MARKER with ADAP_SURFACE= YES: the remesher may split the wall faces down to the "
               "first height (near-isotropic wall cells); ADAP_SURFACE= NO keeps the wall faces." << endl;
     }

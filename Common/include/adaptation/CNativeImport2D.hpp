@@ -10,6 +10,7 @@
 
 #include "CNativeField2D.hpp"
 #include "CNativeReference2D.hpp"
+#include "CNativeGeometryValidation2D.hpp"
 #include "CReaderSlices.hpp"
 
 namespace SU2NativeBoundary2D {
@@ -119,6 +120,7 @@ inline void Associate(World& world, std::map<Id, Cell>& owned, const std::vector
   const auto replies = world.exchange(replyTo);
   if (!state.original) {
     try {
+      ValidatePhysicalGraph(faces);
       auto original = std::make_shared<PolylineReference>(faces, featureAngle);
       state.original = std::move(original);
       state.marker_names = names;

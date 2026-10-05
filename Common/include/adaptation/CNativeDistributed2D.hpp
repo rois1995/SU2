@@ -254,14 +254,50 @@ class Directory {
     id ^= id >> 31;
     return id % world.size;
   }
-  Prepared prepare(const std::vector<Cell>& removed, const std::vector<Cell>& added) {
+  Prepared prepare(const std::vector<Cell>& removed, const std::vector<Cell>& added, size_t ceiling = SIZE_MAX,
+                   size_t baseline = 0) {
     std::vector<std::vector<Incidence>> to(world.size);
     for (int erase : {1, 0})
       for (const auto& c : erase ? removed : added)
         for (const auto& v : c.t.v) to[rendezvous(v.id)].push_back({v.id, c.t.id, c.version, world.rank, erase});
-    const auto records = world.exchange(to);
     CLocalFailure failure;
     Prepared staged;
+    bool admitted = true;
+    auto records = world.exchange(to, &admitted, ceiling, baseline);
+    if (!admitted) failure.Set(3, 0, "Native incidence transport exceeds the dependency budget.");
+    // Include every changed star, including unselected artificial-perimeter vertices. Selected-cavity caps
+    // alone do not bound the private copy of a high-valence perimeter star. Count before cloning any map.
+    std::sort(records.begin(), records.end(), [](const Incidence& a, const Incidence& b) {
+      return std::tie(a.node, a.erase, a.cell) < std::tie(b.node, b.erase, b.cell);
+    });
+    size_t starBytes = 0;
+    for (size_t first = 0; first < records.size();) {
+      size_t last = first, additions = 0, erasures = 0;
+      while (last < records.size() && records[last].node == records[first].node) {
+        additions += !records[last].erase;
+        erasures += records[last].erase != 0;
+        ++last;
+      }
+      const auto accepted = incident.find(records[first].node);
+      const auto count = accepted == incident.end() ? 0 : accepted->second.size();
+      if (ceiling != SIZE_MAX &&
+          (count > 128 || additions > 128 || erasures > count || count - erasures + additions > 128))
+        failure.Set(3, records[first].node, "Native changed incidence star exceeds the staging cap.");
+      // Requested-byte model: map payload plus tree links/padding. Allocator-inclusive verification is separate.
+      starBytes = transfer_memory::Add(
+          starBytes, sizeof(Stars::value_type) + 4 * sizeof(void*),
+          transfer_memory::Mul(count + additions, sizeof(Stars::mapped_type::value_type) + 4 * sizeof(void*)));
+      first = last;
+    }
+    const auto peak =
+        transfer_memory::Add(baseline, transfer_memory::Bytes(to), transfer_memory::Bytes(records), starBytes);
+    if (peak > ceiling) failure.Set(3, 0, "Native incidence staging exceeds the dependency budget.");
+    auto elected = ElectFailure(failure);
+    if (elected.any) {
+      staged.valid = false;
+      staged.reason = elected.message;
+      return staged;
+    }
     try {
       for (const auto& r : records)
         if (!staged.stars.count(r.node)) {
@@ -283,7 +319,7 @@ class Directory {
     } catch (const std::bad_alloc&) {
       failure.Set(2, 0, "Native incidence staging allocation failed.");
     }
-    const auto elected = ElectFailure(failure);
+    elected = ElectFailure(failure);
     staged.valid = !elected.any;
     staged.reason = elected.message;
     if (!staged.valid) staged.stars.clear();

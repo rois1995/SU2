@@ -181,4 +181,16 @@ TEST_CASE("Native MPI: oversized star rejects before cell payload", "[NativeDist
   CHECK(refs.empty());
   CHECK(directory.fetch(refs, owned, !overflow, stale).empty());
   CHECK_FALSE(stale);
+  const auto before = directory.incident;
+  std::vector<Cell> erased, added;
+  if (world.rank == 0) {
+    erased.push_back(FanCell(0, 700));
+    auto replacement = erased.front();
+    ++replacement.version;
+    added.push_back(replacement);
+  }
+  const auto prepared = directory.prepare(erased, added, 2 * 1024 * 1024);
+  CHECK_FALSE(prepared.valid);
+  CHECK(prepared.reason.find("staging cap") != std::string::npos);
+  CHECK(SameStars(directory.incident, before));
 }

@@ -28,6 +28,7 @@
 
 #include <string>
 #include <vector>
+#include <functional>
 
 #include "../containers/C2DContainer.hpp"
 #include "CReaderSlices.hpp"
@@ -48,6 +49,7 @@ struct CRemeshResult {
   CReaderSlices slices;              /*!< \brief This rank's part of the new mesh (with the metric of its points). */
   std::vector<std::string> markers;  /*!< \brief Markers of the new mesh with boundary elements (all ranks). */
   Status status = Status::COMPLETE;  /*!< \brief Status of the remesh. */
+  std::function<void()> onAccepted;  /*!< \brief Publish prepared reference bindings after successful replacement/transfer. */
 };
 
 /*!
