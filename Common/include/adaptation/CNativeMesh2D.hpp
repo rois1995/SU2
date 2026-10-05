@@ -312,6 +312,76 @@ inline bool MovementGoal(const std::map<Id, Node>& all, Id id, const Metric& met
           static_cast<double>(origin.y + (xx * ry - xy * rx) / det)};
   return std::isfinite(goal.x) && std::isfinite(goal.y);
 }
+
+/*! Improve a complete movable star without making an admitted edge inadmissible.
+ * A metric Laplacian is only a proposal: sharp P1 transitions need a bounded
+ * search in metric coordinates. Every trial keeps the old perimeter and orientation. */
+inline bool MoveStar(const std::vector<Triangle>& old, Id id, const Metric& metric,
+                     std::vector<Triangle>& fresh, std::string& reason) {
+  const auto all = nodes(old);
+  const auto origin = all.at(id).p;
+  double best = min_quality(old, metric);
+  std::map<Edge, double> limits;
+  for (const auto& t : old)
+    for (int k = 0; k < 3; ++k) {
+      const auto a = t.v[k], b = t.v[(k + 1) % 3];
+      limits.emplace(edge(a.id, b.id), std::max(1.8, length(a, b, metric)));
+    }
+  fresh = old;
+  Point chosen = origin;
+  bool improved = false;
+  auto trial = [&](Point position) {
+    auto candidate = old;
+    for (auto& t : candidate)
+      for (auto& v : t.v)
+        if (v.id == id) v.p = position;
+    if (!validate_replacement(old, candidate, reason)) return;
+    const double q = min_quality(candidate, metric);
+    if (!(q > best + 1e-4)) return;
+    for (const auto& t : candidate)
+      for (int k = 0; k < 3; ++k) {
+        const auto a = t.v[k], b = t.v[(k + 1) % 3];
+        const auto cap = limits.at(edge(a.id, b.id));
+        if (length(a, b, metric) > cap + 1e-12 * cap) return;
+      }
+    best = q;
+    chosen = position;
+    fresh.swap(candidate);
+    improved = true;
+  };
+  Point goal;
+  if (MovementGoal(all, id, metric, goal))
+    for (double fraction = 1; fraction >= 1. / 64; fraction *= .5) {
+      trial(origin + (goal - origin) * fraction);
+      if (improved) break;
+    }
+  if (best < .22) {
+    const auto m = metric(origin);
+    const double scale = std::max({std::abs(m.xx), std::abs(m.xy), std::abs(m.yy)});
+    const double xx = m.xx / scale, xy = m.xy / scale, yy = m.yy / scale;
+    const double largest = .5 * (xx + yy + std::hypot(xx - yy, 2 * xy));
+    const double smallest = static_cast<double>(NormalizedDeterminant(m.xx, m.xy, m.yy)) / largest;
+    const double angle = .5 * std::atan2(2 * xy, xx - yy);
+    const double factor = 1 / std::sqrt(scale);
+    const Point major{std::cos(angle) * factor / std::sqrt(largest),
+                      std::sin(angle) * factor / std::sqrt(largest)};
+    const Point minor{-std::sin(angle) * factor / std::sqrt(smallest),
+                       std::cos(angle) * factor / std::sqrt(smallest)};
+    const std::array<Point, 8> directions{{major, major * -1, minor, minor * -1,
+                                         (major + minor) * std::sqrt(.5), (major - minor) * std::sqrt(.5),
+                                         (minor - major) * std::sqrt(.5), (major + minor) * -std::sqrt(.5)}};
+    for (double step = .5; step >= 1. / 512 && best < .22; step *= .5)
+      for (int sweep = 0; sweep < 2 && best < .22; ++sweep) {
+        const auto center = chosen;
+        const auto before = best;
+        for (const auto direction : directions) trial(center + direction * step);
+        if (best == before) break;
+      }
+  }
+  if (!improved) reason = "no improving valid movement";
+  return improved;
+}
+
 struct Request {
   Kind kind = Kind::REMOVE;
   Id a = 0, b = 0;
@@ -397,27 +467,7 @@ inline bool reconstruct(Request r, const std::vector<Triangle>& old, const Metri
       reason = "fixed node";
       return false;
     }
-    Point goal;
-    if (!MovementGoal(all, r.a, metric, goal)) {
-      reason = "invalid movement system";
-      return false;
-    }
-    bool accepted = false;
-    for (double alpha = 1; alpha >= 1. / 64; alpha *= .5) {
-      fresh = old;
-      for (auto& t : fresh)
-        for (auto& v : t.v)
-          if (v.id == r.a) v.p = all.at(r.a).p + (goal - all.at(r.a).p) * alpha;
-      if (validate_replacement(old, fresh, reason) && min_quality(fresh, metric) > min_quality(old, metric) + 1e-4 &&
-          max_length(fresh, metric) <= max_length(old, metric) + .02) {
-        accepted = true;
-        break;
-      }
-    }
-    if (!accepted) {
-      reason = "no improving valid movement";
-      return false;
-    }
+    if (!MoveStar(old, r.a, metric, fresh, reason)) return false;
   }
   return validate_replacement(old, fresh, reason);
 }

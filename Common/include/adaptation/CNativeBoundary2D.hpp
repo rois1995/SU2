@@ -271,30 +271,7 @@ inline bool reconstruct(Operation op, const std::vector<Cell>& old, const Refere
         reason = "fixed node or protected first layer";
         return false;
       }
-      Point goal;
-      if (!MovementGoal(all, op.a, metric, goal)) {
-        reason = "invalid movement system";
-        return false;
-      }
-      bool accepted = false;
-      for (double fraction = 1; fraction >= 1. / 64; fraction *= .5) {
-        output = input;
-        for (auto& t : output)
-          for (auto& v : t.v)
-            if (v.id == op.a) v.p = all.at(op.a).p + (goal - all.at(op.a).p) * fraction;
-        // Admission before sampling: rejected movement candidates must not query
-        // an arbitrary outside-donor tensor through the metric callback.
-        if (!validate_replacement(input, output, reason)) continue;
-        if (min_quality(output, metric) > min_quality(input, metric) + 1e-4 &&
-            max_length(output, metric) <= max_length(input, metric) + .02) {
-          accepted = true;
-          break;
-        }
-      }
-      if (!accepted) {
-        reason = "no improving valid movement";
-        return false;
-      }
+      if (!MoveStar(input, op.a, metric, output, reason)) return false;
     } else if (!SU2Native2D::reconstruct(request, triangles(old), metric, next, output, reason))
       return false;
     if (!strict_cells(output, reason)) return false;

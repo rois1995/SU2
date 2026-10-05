@@ -188,6 +188,12 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
           cell.t.protected_cell = 1;
       }
   EngineOptions control;
+  // The original 300-round allowance was a small-fixture limit. Scale bounded
+  // work to uniquely owned input cells per worker; per-cavity admission is unchanged.
+  const auto globalCells = CPassiveComm::Allreduce(uint64_t(input.size()), CPassiveComm::Op::SUM);
+  const uint64_t denominator = 4 * uint64_t(world.size);
+  const auto rounds = globalCells / denominator + (globalCells % denominator != 0);
+  control.phase_rounds = int(std::min<uint64_t>(20000, std::max<uint64_t>(300, rounds)));
   control.geometry_tolerance = SU2_TYPE::GetValue(config.GetAdap_Hausd());
   control.fixed_boundary = !config.GetAdap_Surface();
   if (world.rank == 0)
@@ -197,11 +203,23 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
               << " bytes per rank, original P1 nodal target, boundary sampling "
               << (control.fixed_boundary ? "fixed" : "adaptive") << ".\n";
   if (world.rank == 0)
+    std::cout << "Native work allowance: " << control.phase_rounds << " collective rounds per phase, "
+              << control.sweeps << " sweeps, for " << globalCells << " input cells on " << world.size << " ranks.\n";
+  if (world.rank == 0)
     for (const auto& height : heights)
       std::cout << "Native requested first altitude: " << names[height.first] << " = " << height.second << '\n';
   Engine engine(world, std::move(input), policy, control);
+  uint64_t initialShape = 0, initialSize = 0;
+  for (const auto& entry : engine.owned) {
+    initialShape += entry.second.target_cache[0] < .18;
+    initialSize += *std::max_element(entry.second.target_cache.begin() + 1, entry.second.target_cache.end()) > 1.8;
+  }
+  initialShape = CPassiveComm::Allreduce(initialShape, CPassiveComm::Op::SUM);
+  initialSize = CPassiveComm::Allreduce(initialSize, CPassiveComm::Op::SUM);
+  if (world.rank == 0)
+    std::cout << "Native incoming residuals: shape=" << initialShape << ", edge length=" << initialSize << '\n';
   engine.adapt();
-  uint64_t missedQuality = 0, missedHeight = 0, missedGeometry = 0;
+  uint64_t missedQuality = 0, missedHeight = 0, missedGeometry = 0, missedShape = 0, missedSize = 0;
   double minQuality = 1, maxLength = 0;
   for (const auto& entry : engine.owned) {
     const auto& cell = entry.second;
@@ -209,6 +227,8 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
     const auto largest = *std::max_element(cell.target_cache.begin() + 1, cell.target_cache.end());
     maxLength = std::max(maxLength, largest);
     missedQuality += cell.target_cache[0] < .18 || largest > 1.8;
+    missedShape += cell.target_cache[0] < .18;
+    missedSize += largest > 1.8;
     for (int k = 0; k < 3; ++k)
       if (cell.marker[k]) {
         const auto a = cell.t.v[k], b = cell.t.v[(k + 1) % 3];
@@ -220,6 +240,8 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
   missedQuality = CPassiveComm::Allreduce(missedQuality, CPassiveComm::Op::SUM);
   missedHeight = CPassiveComm::Allreduce(missedHeight, CPassiveComm::Op::SUM);
   missedGeometry = CPassiveComm::Allreduce(missedGeometry, CPassiveComm::Op::SUM);
+  missedShape = CPassiveComm::Allreduce(missedShape, CPassiveComm::Op::SUM);
+  missedSize = CPassiveComm::Allreduce(missedSize, CPassiveComm::Op::SUM);
   minQuality = CPassiveComm::Allreduce(minQuality, CPassiveComm::Op::MIN);
   maxLength = CPassiveComm::Allreduce(maxLength, CPassiveComm::Op::MAX);
   CRemeshResult result;
@@ -260,6 +282,8 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
     std::cout << "Native adaptation: " << commits << " commits (" << cross << " across owners), qmin=" << minQuality
               << ", Lmax=" << maxLength << ", residual cells=" << missedQuality << ", height faces=" << missedHeight
               << ", reference faces=" << missedGeometry << ". No remesher-side target floor.\n";
+  if (world.rank == 0)
+    std::cout << "Native remaining residuals: shape=" << missedShape << ", edge length=" << missedSize << '\n';
   if (world.rank == 0) {
     std::cout << "Native operations (height/split/remove/redistribute/bulk remove/split/flip/move):";
     for (const auto count : actions) std::cout << ' ' << count;

@@ -167,3 +167,34 @@ TEST_CASE("Native kernel: coupled tangential apex repair opens an inter-wall wed
           Approx(.0045).epsilon(1e-12));
   }
 }
+
+TEST_CASE("Native movement: previously admissible edges cannot accumulate length drift", "[NativeMesh2D]") {
+  const Node a{1, {-2, -1}, 1}, b{2, {2, -1}, 1}, c{3, {2, 1}, 1}, d{4, {-2, 1}, 1},
+      center{5, {.7, .5}, 0};
+  const std::vector<Triangle> old{triangle(a, b, center), triangle(b, c, center),
+                                  triangle(c, d, center), triangle(d, a, center)};
+  const auto metric = checked([](Point) { return Tensor{1, 0, 1}; });
+  Point goal;
+  REQUIRE(MovementGoal(nodes(old), center.id, metric, goal));
+  CHECK(norm(goal - c.p) > 1.8);  // An unrestricted Laplacian would spoil this spoke.
+  std::vector<Triangle> fresh;
+  std::string reason;
+  auto unrestricted = old;
+  for (auto& t : unrestricted)
+    for (auto& v : t.v)
+      if (v.id == center.id) v.p = goal;
+  CHECK(min_quality(unrestricted, metric) > min_quality(old, metric));
+  CHECK(max_length(unrestricted, metric) <= max_length(old, metric));
+  // The old global length test admitted this move, despite the newly bad spoke.
+  CHECK_FALSE(MoveStar(old, center.id, metric, fresh, reason));
+  CHECK(nodes(fresh).at(center.id).p.x == center.p.x);
+  CHECK(nodes(fresh).at(center.id).p.y == center.p.y);
+  REQUIRE(validate_replacement(old, fresh, reason));
+  const auto before = nodes(old), after = nodes(fresh);
+  for (const auto& t : old)
+    for (int k = 0; k < 3; ++k) {
+      const auto a = t.v[k], b = t.v[(k + 1) % 3];
+      CHECK(length(after.at(a.id), after.at(b.id), metric) <=
+            std::max(1.8, length(before.at(a.id), before.at(b.id), metric)) + 1e-12);
+    }
+}
