@@ -420,7 +420,7 @@ inline bool reconstruct(Operation op, const std::vector<Cell>& old, const Refere
       // Keep it movable/removable after a later wall rebuild releases that cell.
       Node p{next, (f.a.p + f.b.p) * .5 + normal * h0 + (f.b.p - f.a.p) * beta, 0};
       auto child = triangle(f.a, f.b, p);
-      if (!inside(p.p, loop) || quality(child, metric) < .18) continue;
+      if (!inside(p.p, loop)) continue;
       bool blocked = false;
       for (auto v : loop)
         if (v.id != f.a.id && v.id != f.b.id && orient(f.a.p, f.b.p, v.p) >= 0 && orient(f.b.p, p.p, v.p) >= 0 &&
@@ -430,6 +430,7 @@ inline bool reconstruct(Operation op, const std::vector<Cell>& old, const Refere
       auto remainder = loop;
       remainder.insert(remainder.begin() + i + 1, p);
       if (!simple(remainder)) continue;
+      if (quality(child, metric) < .18) continue;
       std::vector<Triangle> test;
       if (!ear_clip(remainder, metric, test)) continue;
       double q = std::min(quality(child, metric), min_quality(test, metric));

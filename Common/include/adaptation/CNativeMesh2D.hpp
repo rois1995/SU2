@@ -264,8 +264,11 @@ inline bool ear_clip(std::vector<Node> polygon, const Metric& metric, std::vecto
           break;
         }
       }
+      // A blocked ear is outside the admitted triangulation. It may cross a
+      // physical hole and must never query the donor metric there.
+      if (blocked) continue;
       double q = quality(t, metric);
-      if (!blocked && q > best) {
+      if (q > best) {
         best = q;
         selected = (int)i;
       }

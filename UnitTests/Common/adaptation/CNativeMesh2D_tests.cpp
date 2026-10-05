@@ -220,3 +220,63 @@ TEST_CASE("Native reconnection: long unchanged perimeter does not block improvin
   CHECK(min_quality(fresh, metric) >= .22);
   CHECK(max_length(fresh, metric) == max_length(old, metric));
 }
+
+
+TEST_CASE("Native triangulation: blocked ears never query outside a concave donor domain", "[NativeMesh2D]") {
+  const std::vector<Node> polygon{{0, {0, 0}, 1}, {1, {4, 0}, 1}, {2, {4, 1}, 1},
+                                  {3, {1, 1}, 1}, {4, {1, 4}, 1}, {5, {0, 4}, 1}};
+  // The convex candidate at vertex0 covers the notch and contains vertex3.
+  // Its centroid(4/3,4/3) is outside the donor: geometry must reject it first.
+  int samples = 0;
+  const auto metric = checked([&](Point p) {
+    if (!inside(p, polygon)) throw std::runtime_error("Query outside concave donor.");
+    ++samples;
+    return Tensor{1, 0, 1};
+  });
+  std::vector<Triangle> cells;
+  REQUIRE(ear_clip(polygon, metric, cells));
+  REQUIRE(cells.size() == polygon.size() - 2);
+  CHECK(samples > 0);
+  std::string reason;
+  REQUIRE(strict_cells(cells, reason));
+  long double total = 0;
+  for (const auto& t : cells) total += area(t);
+  CHECK(static_cast<double>(total) == Approx(7.));
+}
+
+
+TEST_CASE("Native wall carving: blocked height children are rejected before donor queries", "[NativeMesh2D]") {
+  const std::vector<Node> polygon{{0, {0, 0}, 1}, {1, {4, 0}, 1}, {2, {4, 4}, 1}, {3, {3, 4}, 1},
+                                  {4, {3, 1}, 1}, {5, {1, 1}, 1}, {6, {1, 4}, 1}, {7, {0, 4}, 1}};
+  std::vector<PolylineReference::Face> faces;
+  for (size_t k = 0; k < polygon.size(); ++k)
+    faces.push_back({polygon[k], polygon[(k + 1) % polygon.size()], k == 0 ? 10 : 11});
+  const PolylineReference reference(faces, 45);
+  const auto uniform = checked([](Point) { return Tensor{1, 0, 1}; });
+  std::vector<Triangle> triangles;
+  REQUIRE(ear_clip(polygon, uniform, triangles));
+  std::vector<Cell> old;
+  const auto perimeter = boundary(triangles);
+  for (auto t : triangles) {
+    Cell cell;
+    cell.t = t;
+    cell.t.id = 10 + old.size();
+    for (int k = 0; k < 3; ++k) {
+      const auto a = t.v[k], b = t.v[(k + 1) % 3];
+      if (perimeter.count(edge(a.id, b.id))) cell.marker[k] = reference.ComponentOfOriginalFace(a.id, b.id);
+    }
+    old.push_back(cell);
+  }
+  int samples = 0;
+  const auto metric = checked([&](Point p) {
+    if (!inside(p, polygon)) throw std::runtime_error("Query outside U-shaped donor.");
+    ++samples;
+    return Tensor{1, 0, 1};
+  });
+  std::vector<Cell> fresh;
+  std::string reason;
+  CHECK_FALSE(reconstruct({Action::HEIGHT, 0, 1}, old, reference.Policy({{10, 3.9}}), metric, 100, fresh, reason));
+  CHECK(reason == "no admitted first-height ear; enlargement or different surface resolution required");
+  CHECK(samples == 0);
+  CHECK(fresh.empty());
+}
