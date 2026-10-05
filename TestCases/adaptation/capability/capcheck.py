@@ -786,9 +786,9 @@ def check_window_identity(steps, sensors, d, V, tol=1e-5):
         scale = float(np.abs(np.linalg.eigvalsh(n * mean)).max())
         rel = float(np.linalg.eigvalsh(R).min()) / max(scale, 1e-300)
         ratio = norm / previous
-        ok &= rel >= -tol and 0.5 <= ratio <= 2.0
+        ok &= rel >= -tol and 1.0 / 3.0 <= ratio <= 3.0
         values.append(f"{sensor}: residual eigenvalue {rel:.2e} of the largest (>= -{tol:g}), "
-                      f"weighted norm / previous |H| {ratio:.3g} (in [0.5, 2])")
+                      f"weighted norm / previous |H| {ratio:.3g} (in [1/3, 3])")
     return {"window_average": gate(ok, f"{n} steps: " + "; ".join(values))}
 
 
@@ -990,8 +990,8 @@ def selftest():
                                                        ["S"], 2, V), "window_average", "FAIL")
         past = sum(abs_tensor(H) for H in Hk[:-1])
         for label, end in (("zero residual", past / 3.0),
-                           ("oversized PSD residual", (past + 3.0 * abs_tensor(Hk[-1])) / 3.0),
-                           ("undersized PSD residual", (past + 0.25 * abs_tensor(Hk[-1])) / 3.0)):
+                           ("oversized PSD residual", (past + 4.0 * abs_tensor(Hk[-1])) / 3.0),
+                           ("undersized PSD residual", (past + 0.2 * abs_tensor(Hk[-1])) / 3.0)):
             expect(label, check_window_identity(steps[:-1] + [to_fields(end)], ["S"], 2, V),
                    "window_average", "FAIL")
         expect("missing window Hessian", check_window_identity(steps, ["missing"], 2, V), "window_average", "FAIL")

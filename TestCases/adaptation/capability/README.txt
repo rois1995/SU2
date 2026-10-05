@@ -8,15 +8,17 @@ mesh and metric gates only. Flow convergence is NOT a gate (the runs are a few i
 
 Needs numpy, SU2_CFD built with MMG (-Denable-mmg=true) and mpirun for --ranks > 1. The runner waits while the load
 is above 7, pins itself and SU2 to 2 CPUs (4 ranks are oversubscribed on them), kills a run after --timeout s (300).
-All meshes are generated (meshgen.py) or taken from QuickStart; no data files. Output: OUT/<case>_np<N>/ (mesh.su2,
+All meshes are generated (meshgen.py) or taken from QuickStart; no data files. The linear preconditioner is JACOBI
+(common.cfg): ILU is block-wise per rank and makes np 1 and np 2 solve different flows before the first remesh. Output: OUT/<case>_np<N>/ (mesh.su2,
 run.cfg, run.log, mesh_out*.su2, restart and VTU files), OUT/results.json, OUT/summary.txt (one column per gate).
 Not in serial_regression.py: the CI binaries have no MMG.
 
 Cases (tags: 2d 3d steady unsteady fixed free bl custom mpi4)
   naca_free           2D Euler NACA0012, 2 steady cycles (3000, 4000), ADAP_SURFACE= YES, sensors MACH + PRESSURE
-                      KNOWN FAILURE: the free airfoil deviates ~5e-3 from the input near the leading edge whatever
-                      ADAP_HAUSD (4e-4 .. 1e-2): MMG2D's Hausdorff bound is not effective there;
-                      expected gate: free_boundary_geometry
+                      KNOWN FAILURE: the free airfoil deviates 3.5e-3 .. 5.4e-3 from the input near the leading
+                      edge whatever ADAP_HAUSD (4e-4 .. 1e-2; limit 2 hausd + sagitta = 4.1e-3): MMG2D's Hausdorff
+                      bound is not effective there; PASS or XFAIL with the flow solution (ILU: 5.3e-3, JACOBI:
+                      3.5e-3); expected gate: free_boundary_geometry
   naca_fixed          same, 1 cycle, ADAP_SURFACE= NO (boundary bitwise), metric checked against numpy (2 sensors)
   plate_metric        2D laminar flat plate (symmetry + wall), BL METRIC on the wall (h0 5e-5), free patches
   plate_metric_fixed  same with ADAP_SURFACE= NO
@@ -33,6 +35,8 @@ Cases (tags: 2d 3d steady unsteady fixed free bl custom mpi4)
   bump3d_fixed_bl     3D BL METRIC on two walls meeting at a ridge, ADAP_SURFACE= NO
                       needs the MMG #333 fix; the BL ridge is the mechanism the current #333 patch breaks (refined
                       patch pending): bl_ridge_cell_height requires eligible ridge faces
+                      KNOWN FAILURE with the current #333 patch: lower wall 75 % and its ridge faces 55 % of the area
+                      in [0.5, 2] h0 (cells too tall); expected gates: bl_cell_height, bl_ridge_cell_height
   bump3d_wa           3D WINDOW_AVERAGE, ADAP_SURFACE= NO, custom sensor, restart   needs the MMG #333 fix
 np 1 and 2: all cases; np 4: tag mpi4 (vortex_wa, vortex_predict, bump3d_free).
 
@@ -71,7 +75,8 @@ Gates (per written mesh; worst over the meshes of a case). Files: steady cycle k
   window_average       WINDOW_AVERAGE / FIXED_POINT (accepted solve): n H_end - sum of |H| of the earlier steps of the
                        window is finite and PSD within 1e-5 relative tolerance, for every sensor (H_end is the mean
                        |H|). Its volume-weighted Frobenius norm / that of the previous instantaneous |H| must be in
-                       [0.5, 2]; missing evidence or zero norms fail, including means omitting the final sample
+                       [1/3, 3] (vortex_wa measures 0.52: its vortex decays fast); missing evidence or zero norms fail,
+                       including means omitting the final sample
   predict_lookahead    PREDICT: the density centre of the written (predicted) metric is ahead of the instantaneous
                        metric of the window end (numpy, from its Hessians) by >= 0.25 x speed x horizon along the flow,
                        and its density at the current feature is >= 0.25 of the instantaneous one

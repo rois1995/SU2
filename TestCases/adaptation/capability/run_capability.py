@@ -43,8 +43,9 @@ CASES = [
     dict(name="naca_free", tags={"2d", "steady", "free"}, base="naca_euler.cfg", mesh="naca",
          changes={"ADAP_SURFACE": "YES"},
          known_fail={"free_boundary_geometry"},
-         known_fail_reason="free airfoil boundary deviates ~5e-3 (0.5 % chord) from the input near the leading edge, "
-                           "independent of ADAP_HAUSD (probed 4e-4 .. 1e-2): MMG2D hausd not effective there"),
+         known_fail_reason="free airfoil boundary deviates 3.5e-3 .. 5.4e-3 from the input near the leading edge "
+                           "(limit 2 hausd + sagitta = 4.1e-3), independent of ADAP_HAUSD (probed 4e-4 .. 1e-2): "
+                           "MMG2D's Hausdorff bound is not effective there; passes or fails with the flow solution"),
     dict(name="naca_fixed", tags={"2d", "steady", "fixed"}, base="naca_euler.cfg", mesh="naca", fixed=True,
          reference=True,
          changes={"ADAP_SURFACE": "NO", "ADAP_SIZES": "(3000)", "ADAP_SUBITER": "(1)", "ADAP_FLOW_ITER": "(60)"}),
@@ -80,7 +81,11 @@ CASES = [
          fixed=True, needs=NEEDS_333 + "; the BL ridge needs the refined #333 patch",
          changes={"ADAP_SURFACE": "NO", "ADAP_SIZES": "(2000)", "ADAP_BL_MARKER": "( lower, side0 )",
                   "ADAP_BL_FIRST_HEIGHT": "( 5e-3 )", "ADAP_BL_GROWTH": "( 1.3 )", "ADAP_BL_THICKNESS": "( 0.03 )"},
-         bl={"lower": 5e-3, "side0": 5e-3}, require_ridge=True),
+         bl={"lower": 5e-3, "side0": 5e-3}, require_ridge=True,
+         known_fail={"bl_cell_height", "bl_ridge_cell_height"},
+         known_fail_reason="two BL walls at a ridge with ADAP_SURFACE= NO: lower wall 75 % and its ridge faces 55 % "
+                           "of the area in [0.5, 2] h0 (cells too tall), the mechanism the current #333 patch breaks "
+                           "(refined patch pending)"),
     dict(name="bump3d_wa", tags={"3d", "unsteady", "fixed", "custom"}, base="bump3d_euler.cfg", mesh="bump3d",
          fixed=True, restart=True, needs=NEEDS_333,
          changes={"ADAP_SURFACE": "NO", "TIME_DOMAIN": "YES", "TIME_MARCHING": "DUAL_TIME_STEPPING-2ND_ORDER",
@@ -148,7 +153,9 @@ def run_su2(binary, directory, ranks, timeout):
     wait_load()
     command = [str(binary), "run.cfg"]
     if ranks > 1:
-        command = ["mpirun", "--oversubscribe", "--bind-to", "none", "-n", str(ranks)] + command
+        # the ranks share 2 CPUs (affinity of this runner): yield when idle, else busy polling makes 4 ranks ~200x slower
+        command = ["mpirun", "--oversubscribe", "--bind-to", "none", "--mca", "mpi_yield_when_idle", "1",
+                   "-n", str(ranks)] + command
     env = {**os.environ, "OMP_NUM_THREADS": "1", "OPENBLAS_NUM_THREADS": "1"}
     start = time.monotonic()
     with (directory / "run.log").open("w") as log:
