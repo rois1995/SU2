@@ -180,7 +180,74 @@ struct SizeSamples {
   std::vector<passivedouble> size;   /*!< \brief Target size t_w. */
   unsigned long nConflict = 0;       /*!< \brief Samples where the minimum size exceeds the curvature cap. */
   unsigned long nCurvatureLimited = 0; /*!< \brief Samples where the curvature cap is the smallest bound. */
+  passivedouble tmin = 0.0;          /*!< \brief t_min of the segment. */
 };
+
+/*!
+ * \brief A sharp corner of the reference: two segment ends at the same knot, both flagged sharp (one segment twice for
+ *        a closed chain with one sharp vertex, e.g. an airfoil with a sharp trailing edge), or ends of two different
+ *        markers whose end tangents turn by more than the corner angle (SERIAL_BL_FIX_PLAN.md 11.7).
+ */
+struct Corner {
+  unsigned long seg[2] = {0, 0};      /*!< \brief The two segments. */
+  bool atEnd[2] = {false, false};     /*!< \brief The corner is the end (true) or the start (false) of the segment. */
+  passivedouble x[2] = {0.0, 0.0};    /*!< \brief Position. */
+  bool matched = false;               /*!< \brief Point of the input mesh found and its triangle fan valid (else no
+                                           floor). Set by the caller, like the fields below. */
+  bool convex = false;                /*!< \brief Fluid-side angle above pi. */
+  passivedouble wedge = 0.0;          /*!< \brief Solid wedge angle (radians, convex only), from the two wall edges. */
+  passivedouble h0 = 0.0;             /*!< \brief Smallest first height of the two sides. */
+  passivedouble tmin = 0.0;           /*!< \brief t_min = max(ADAP_HMIN, 2 h0) of the corner. */
+  passivedouble requested = 0.0;      /*!< \brief Requested floor m_c h0 / sin(wedge / 2) (convex only). */
+  passivedouble floor = 0.0;          /*!< \brief Effective floor t_c (0: none). */
+  passivedouble changed = 0.0;        /*!< \brief Largest distance from the corner of a size sample changed by the
+                                           corner rule (see CornerChanges). */
+};
+
+/*!
+ * \brief What the corner rule changed (SERIAL_BL_FIX_PLAN.md 11.7).
+ */
+struct CornerChanges {
+  unsigned long nSymmetry = 0;        /*!< \brief Samples lowered to the size of the other side of a corner. */
+  unsigned long nFloorRaised = 0;     /*!< \brief Samples raised by a convex-corner floor. */
+  passivedouble maxFloorRatio = 1.0;  /*!< \brief Largest raise factor of the floor. */
+  std::vector<passivedouble> changed; /*!< \brief Per corner: the largest distance from it of a sample the rule
+                                           changed (each changed sample counts for the nearest corner of its segment). */
+};
+
+/*!
+ * \brief Sharp corners of a reference (see Corner). A point where more or fewer than two segment ends meet is not one.
+ */
+std::vector<Corner> FindCorners(const CReferenceWall& wall);
+
+/*!
+ * \brief Effective convex-corner floor: min(requested, hmax, (gradation length / 2 + tmin) / (1 + gradation)), so the
+ *        support of the floor profile, t_c + (t_c - tmin) / gradation, stays within half of the shorter adjacent
+ *        segment (length); 0 if that is not above tmin.
+ */
+passivedouble CornerFloor(passivedouble requested, passivedouble hmax, passivedouble length, passivedouble tmin,
+                          passivedouble gradation);
+
+/*!
+ * \brief Distance from a convex corner where its floor profile reaches tmin (0 without a floor).
+ */
+passivedouble CornerReach(const Corner& corner, passivedouble gradation);
+
+/*!
+ * \brief Gradation |dt/ds| <= gradation along the samples (two sweeps; a closed segment cyclic, twice). Only lowers.
+ */
+void Grade(SizeSamples& samples, passivedouble gradation, bool closed);
+
+/*!
+ * \brief Corner rule on the sampled sizes of all segments (SERIAL_BL_FIX_PLAN.md 11.7):
+ *        - symmetry at every corner: within r <= max(2 max(t_A(0), t_B(0)), reach of the floor) of it (r = arc
+ *          length from the corner), both sides take min(t_A(r), t_B(r)) (from the sizes before this step), then the
+ *          touched segments are graded again;
+ *        - floor at a convex corner with floor t_c > 0: t <- max(t, f(r)), f(r) = max(t_min, t_c - gradation
+ *          max(0, r - t_c)); the maximum of two graded profiles is graded.
+ */
+CornerChanges ApplyCorners(const CReferenceWall& wall, const std::vector<Corner>& corners, passivedouble gradation,
+                           std::vector<SizeSamples>& samples);
 
 /*!
  * \brief Settings of the size rule t_w = max(t_min, min(t_sensor, c sqrt(2 R h0), hmax)), graded along the wall

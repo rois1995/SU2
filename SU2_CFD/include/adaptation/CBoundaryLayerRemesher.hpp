@@ -98,6 +98,21 @@ class CBoundaryLayerRemesher final : public CRemesher {
                                              the last MMG call (fixed boundary points checked, coarser, corners). */
     passivedouble metricWorstRatio = 1.0; /*!< \brief Smallest eigenvalue ratio of MetricCheck. */
     unsigned long nPointA = 0, nPointB = 0; /*!< \brief Points after pass A and pass B. */
+    unsigned long nCorner = 0, nConvexCorner = 0; /*!< \brief Sharp corners of the reference, convex ones. */
+    unsigned long nCornerUnmatched = 0; /*!< \brief Corners without an input mesh point (no floor). */
+    unsigned long nCornerSymmetry = 0;  /*!< \brief Wall size samples lowered by the corner symmetry. */
+    unsigned long nCornerFloorRaised = 0; /*!< \brief Wall size samples raised by a convex-corner floor. */
+    passivedouble maxCornerFloorRatio = 1.0; /*!< \brief Largest raise factor of the convex-corner floor. */
+    unsigned long nCornerFace = 0;      /*!< \brief Final wall faces within 2 t_c of a convex corner. */
+    unsigned long nCornerFaceOut = 0;   /*!< \brief Those with a first cell outside [0.5, 2] h0. */
+    passivedouble cornerFaceMin = 0.0, cornerFaceMax = 0.0; /*!< \brief Their smallest and largest first cell / h0. */
+    unsigned long nCornerEdgeRatio = 0; /*!< \brief Sharp corners whose two final wall edges differ by more than 1.2x. */
+    passivedouble maxCornerEdgeRatio = 1.0; /*!< \brief Largest ratio of the two final wall edges at a sharp corner. */
+    std::vector<BLWallRule::Corner> corners; /*!< \brief Sharp corners of the reference (classified). */
+    std::vector<std::string> nearWallMarker; /*!< \brief Boundary-layer markers of the first-node counts. */
+    std::vector<unsigned long> nFirstNode;   /*!< \brief Wall points with a neighbour off the marker (final mesh). */
+    std::vector<unsigned long> nFirstNodeBelow, nFirstNodeAbove; /*!< \brief Of those: the nearest such neighbour's
+                                                  wall distance below 0.5 h0, above 2 h0 (the window [0.5, 2] h0). */
   };
 
   /*!
@@ -217,6 +232,35 @@ class CBoundaryLayerRemesher final : public CRemesher {
    */
   static CBarycentricLocator::Stencil DonorStencil(CBarycentricLocator& locator, const su2double* x,
                                                    const std::vector<std::string>& markers);
+
+  /*!
+   * \brief Fluid-side angle (radians) of a mesh point: the sum of the angles at it of its triangles.
+   */
+  static passivedouble FluidAngle(const CSimplexMesh& mesh, unsigned long point);
+
+  /*!
+   * \brief Sharp corners of the reference with their convexity (from the angles of the input mesh at the corner
+   *        point), wedge angle, first height and convex-corner floor (SERIAL_BL_FIX_PLAN.md 11.7).
+   * \param[in] config - ADAP_BL_* (first heights), ADAP_HMAX.
+   * \param[in] mesh - Input mesh (2D).
+   * \param[in] reference - Reference wall.
+   * \param[out] nUnmatched - Corners without a point of the input mesh at their position (kept concave: no floor).
+   */
+  static std::vector<BLWallRule::Corner> Corners(const CConfig& config, const CSimplexMesh& mesh,
+                                                 const CReferenceWall& reference, unsigned long& nUnmatched);
+
+  /*!
+   * \brief Report of the corners on a final mesh: first cells of the boundary-layer wall faces within 2 t_c of each
+   *        convex corner, and the ratio of the two wall edges at every sharp corner.
+   */
+  /*!
+   * \brief First off-wall node of every wall point of each boundary-layer marker (final mesh): the smallest distance
+   *        to the marker of its edge neighbours that are not on the marker, against the window [0.5, 2] h0.
+   */
+  static void MeasureNearWall(const CSimplexMesh& mesh, const CConfig& config, Report& report);
+
+  static void MeasureCorners(const CSimplexMesh& mesh, const std::vector<std::string>& blMarkers,
+                             const std::vector<BLWallRule::Corner>& corners, Report& report);
 
   /*!
    * \brief Pass B alone: boundary-layer metric on the mesh (whose metric is the sensor metric), then MMG with the

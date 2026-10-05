@@ -31,6 +31,7 @@
 #include <fstream>
 #include <array>
 #include <cmath>
+#include <cstdint>
 #include <iostream>
 #include <limits>
 #include <map>
@@ -703,6 +704,225 @@ CBarycentricLocator::Stencil CBoundaryLayerRemesher::DonorStencil(CBarycentricLo
   return locator.LocateOnBoundary(x, markers);
 }
 
+passivedouble CBoundaryLayerRemesher::FluidAngle(const CSimplexMesh& mesh, unsigned long point) {
+  passivedouble sum = 0.0;
+  for (auto iElem = 0ul; iElem < mesh.GetnElem(); ++iElem) {
+    const auto* v = &mesh.elem[3 * iElem];
+    for (unsigned short k = 0; k < 3; ++k) {
+      if (v[k] != point) continue;
+      const auto* x = &mesh.coord[2 * point];
+      const auto* a = &mesh.coord[2 * v[(k + 1) % 3]];
+      const auto* b = &mesh.coord[2 * v[(k + 2) % 3]];
+      const passivedouble u[2] = {a[0] - x[0], a[1] - x[1]}, w[2] = {b[0] - x[0], b[1] - x[1]};
+      sum += std::atan2(std::fabs(u[0] * w[1] - u[1] * w[0]), u[0] * w[0] + u[1] * w[1]);
+    }
+  }
+  return sum;
+}
+
+std::vector<BLWallRule::Corner> CBoundaryLayerRemesher::Corners(const CConfig& config, const CSimplexMesh& mesh,
+                                                                const CReferenceWall& reference,
+                                                                unsigned long& nUnmatched) {
+  nUnmatched = 0;
+  auto corners = BLWallRule::FindCorners(reference);
+  std::map<std::string, passivedouble> h0Of;
+  std::map<unsigned long, std::vector<unsigned long>> wallNeighbours;  // wall point -> its wall neighbours
+  for (const auto& wall : Walls(config, mesh)) {
+    h0Of[wall.name] = wall.h0;
+    const auto& elem = mesh.FindMarker(wall.name)->elem;
+    for (unsigned long i = 0; i + 1 < elem.size(); i += 2) {
+      wallNeighbours[elem[i]].push_back(elem[i + 1]);
+      wallNeighbours[elem[i + 1]].push_back(elem[i]);
+    }
+  }
+  const auto tol = 1e-9 * DomainSize(mesh);
+  const auto hmin = SU2_TYPE::GetValue(config.GetAdap_Hmin());
+  const auto hmax = SU2_TYPE::GetValue(config.GetAdap_Hmax());
+  const auto gradation = BLWallRule::SizeRule().gradation;
+  const auto factor = SU2_TYPE::GetValue(config.GetAdap_BL_CornerFloor());
+  const auto& segments = reference.GetSegments();
+
+  for (auto& corner : corners) {
+    const auto& a = segments[corner.seg[0]];
+    const auto& b = segments[corner.seg[1]];
+    if (!h0Of.count(a.marker) || !h0Of.count(b.marker)) {
+      nUnmatched++;
+      continue;
+    }
+    corner.h0 = std::min(h0Of[a.marker], h0Of[b.marker]);
+    corner.tmin = std::max(hmin, 2.0 * corner.h0);
+
+    /*--- The input-mesh point of the corner, with exactly two wall neighbours. ---*/
+    long point = -1;
+    for (const auto& entry : wallNeighbours) {
+      const auto p = entry.first;
+      if (std::hypot(mesh.coord[2 * p] - corner.x[0], mesh.coord[2 * p + 1] - corner.x[1]) <= tol) point = p;
+    }
+    if (point < 0 || wallNeighbours[point].size() != 2) {
+      nUnmatched++;
+      continue;
+    }
+    const auto nbA = wallNeighbours[point][0], nbB = wallNeighbours[point][1];
+
+    /*--- Triangle fan: every triangle at the point positive; following each triangle (point, u, v) from u to v gives
+     *    one path from one wall neighbour to the other through all of them. ---*/
+    std::map<unsigned long, unsigned long> next;
+    bool valid = true;
+    for (auto iElem = 0ul; iElem < mesh.GetnElem() && valid; ++iElem) {
+      const auto* v = &mesh.elem[3 * iElem];
+      for (unsigned short k = 0; k < 3; ++k) {
+        if (v[k] != static_cast<unsigned long>(point)) continue;
+        const auto u = v[(k + 1) % 3], w = v[(k + 2) % 3];
+        if (BLWallRule::Orientation(&mesh.coord[2 * point], &mesh.coord[2 * u], &mesh.coord[2 * w]) <= 0 ||
+            next.count(u)) {
+          valid = false;
+          break;
+        }
+        next[u] = w;
+      }
+    }
+    unsigned long start = 0, end = 0;
+    if (valid) {
+      valid = next.count(nbA) != next.count(nbB);
+      start = next.count(nbA) ? nbA : nbB;
+      end = (start == nbA) ? nbB : nbA;
+    }
+    if (valid) {
+      auto cur = start;
+      unsigned long steps = 0;
+      while (cur != end && next.count(cur) && steps <= next.size()) {
+        cur = next[cur];
+        ++steps;
+      }
+      valid = (cur == end && steps == next.size());
+    }
+    if (!valid) {
+      nUnmatched++;
+      continue;
+    }
+
+    /*--- Fluid angle from the fan, wedge from the two wall rays (they must agree for a convex corner). ---*/
+    const auto alpha = FluidAngle(mesh, point);
+    const auto* x = &mesh.coord[2 * point];
+    const passivedouble u[2] = {mesh.coord[2 * nbA] - x[0], mesh.coord[2 * nbA + 1] - x[1]};
+    const passivedouble w[2] = {mesh.coord[2 * nbB] - x[0], mesh.coord[2 * nbB + 1] - x[1]};
+    const auto rays = std::atan2(std::fabs(u[0] * w[1] - u[1] * w[0]), u[0] * w[0] + u[1] * w[1]);
+    corner.convex = alpha > M_PI;
+    if (corner.convex && !(std::fabs(2.0 * M_PI - alpha - rays) <= 1e-6)) {
+      corner.convex = false;
+      nUnmatched++;
+      continue;
+    }
+    corner.matched = true;
+    if (!corner.convex) continue;
+    corner.wedge = rays;
+    corner.requested = factor * corner.h0 / std::sin(0.5 * rays);
+    const auto length = std::min(a.s.back() - a.s.front(), b.s.back() - b.s.front());
+    corner.floor = BLWallRule::CornerFloor(corner.requested, hmax, length, corner.tmin, gradation);
+  }
+  return corners;
+}
+
+void CBoundaryLayerRemesher::MeasureNearWall(const CSimplexMesh& mesh, const CConfig& config, Report& report) {
+  report.nearWallMarker.clear();
+  report.nFirstNode.clear();
+  report.nFirstNodeBelow.clear();
+  report.nFirstNodeAbove.clear();
+  for (const auto& wall : Walls(config, mesh)) {
+    const auto* marker = mesh.FindMarker(wall.name);
+    const std::set<unsigned long> own(marker->elem.begin(), marker->elem.end());
+    std::map<unsigned long, std::set<unsigned long>> neighbours;  // wall point -> neighbours off the marker
+    for (auto iElem = 0ul; iElem < mesh.GetnElem(); ++iElem) {
+      const auto* v = &mesh.elem[3 * iElem];
+      for (unsigned short k = 0; k < 3; ++k) {
+        if (!own.count(v[k])) continue;
+        for (unsigned short l = 1; l < 3; ++l)
+          if (!own.count(v[(k + l) % 3])) neighbours[v[k]].insert(v[(k + l) % 3]);
+      }
+    }
+    unsigned long n = 0, below = 0, above = 0;
+    for (const auto& entry : neighbours) {
+      passivedouble nearest = std::numeric_limits<passivedouble>::max();
+      for (const auto q : entry.second) {
+        const auto* x = &mesh.coord[2 * q];
+        passivedouble d = std::numeric_limits<passivedouble>::max();
+        for (auto iLine = 0ul; iLine < marker->GetnElem(2); ++iLine)
+          d = std::min(d, SegmentDistance(x, &mesh.coord[2 * marker->elem[2 * iLine]],
+                                          &mesh.coord[2 * marker->elem[2 * iLine + 1]]));
+        nearest = std::min(nearest, d);
+      }
+      n++;
+      below += (nearest < 0.5 * wall.h0);
+      above += (nearest > 2.0 * wall.h0);
+    }
+    report.nearWallMarker.push_back(wall.name);
+    report.nFirstNode.push_back(n);
+    report.nFirstNodeBelow.push_back(below);
+    report.nFirstNodeAbove.push_back(above);
+  }
+}
+
+void CBoundaryLayerRemesher::MeasureCorners(const CSimplexMesh& mesh, const std::vector<std::string>& blMarkers,
+                                            const std::vector<BLWallRule::Corner>& corners, Report& report) {
+  report.nCornerFace = report.nCornerFaceOut = report.nCornerEdgeRatio = 0;
+  report.cornerFaceMin = report.cornerFaceMax = 0.0;
+  report.maxCornerEdgeRatio = 1.0;
+  if (corners.empty()) return;
+  auto distance = [&](unsigned long p, const BLWallRule::Corner& c) {
+    return std::hypot(mesh.coord[2 * p] - c.x[0], mesh.coord[2 * p + 1] - c.x[1]);
+  };
+  const auto tol = 1e-9 * DomainSize(mesh);
+
+  /*--- Wall lines of the boundary-layer markers; per corner, the lines at it and the lines near it. ---*/
+  std::map<std::pair<unsigned long, unsigned long>, unsigned long> nearFace;  // face -> corner
+  for (unsigned long iCorner = 0; iCorner < corners.size(); ++iCorner) {
+    const auto& corner = corners[iCorner];
+    std::vector<passivedouble> atCorner;
+    for (const auto& name : blMarkers) {
+      const auto* marker = mesh.FindMarker(name);
+      if (marker == nullptr) continue;
+      for (auto iLine = 0ul; iLine < marker->GetnElem(2); ++iLine) {
+        const auto a = marker->elem[2 * iLine], b = marker->elem[2 * iLine + 1];
+        const auto len = std::hypot(mesh.coord[2 * b] - mesh.coord[2 * a], mesh.coord[2 * b + 1] - mesh.coord[2 * a + 1]);
+        if (distance(a, corner) <= tol || distance(b, corner) <= tol) atCorner.push_back(len);
+        if (!corner.convex) continue;
+        const passivedouble mid[2] = {0.5 * (mesh.coord[2 * a] + mesh.coord[2 * b]),
+                                      0.5 * (mesh.coord[2 * a + 1] + mesh.coord[2 * b + 1])};
+        const auto window = std::max({BLWallRule::CornerReach(corner, BLWallRule::SizeRule().gradation), corner.changed,
+                                      50.0 * corner.h0});
+        if (std::hypot(mid[0] - corner.x[0], mid[1] - corner.x[1]) <= window)
+          nearFace[std::minmax(a, b)] = iCorner;
+      }
+    }
+    if (atCorner.size() == 2) {
+      const auto ratio = std::max(atCorner[0], atCorner[1]) / std::min(atCorner[0], atCorner[1]);
+      report.maxCornerEdgeRatio = std::max(report.maxCornerEdgeRatio, ratio);
+      if (ratio > 1.2) report.nCornerEdgeRatio++;
+    }
+  }
+
+  /*--- First cells of the faces near convex corners: the height of the triangle on the face over it, / h0. ---*/
+  bool first = true;
+  for (auto iElem = 0ul; iElem < mesh.GetnElem(); ++iElem) {
+    const auto* v = &mesh.elem[3 * iElem];
+    for (unsigned short k = 0; k < 3; ++k) {
+      const auto it = nearFace.find(std::minmax(v[(k + 1) % 3], v[(k + 2) % 3]));
+      if (it == nearFace.end()) continue;
+      const auto* a = &mesh.coord[2 * v[(k + 1) % 3]];
+      const auto* b = &mesh.coord[2 * v[(k + 2) % 3]];
+      const auto* c = &mesh.coord[2 * v[k]];
+      const auto len = std::hypot(b[0] - a[0], b[1] - a[1]);
+      const auto h = std::fabs((b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])) / len /
+                     corners[it->second].h0;
+      report.nCornerFace++;
+      if (h < 0.5 || h > 2.0) report.nCornerFaceOut++;
+      report.cornerFaceMin = first ? h : std::min(report.cornerFaceMin, h);
+      report.cornerFaceMax = first ? h : std::max(report.cornerFaceMax, h);
+      first = false;
+    }
+  }
+}
+
 CSimplexMesh CBoundaryLayerRemesher::TwoPass(const CConfig& config, const CSimplexMesh& mesh,
                                              const CReferenceWall& reference, Report& report, const PassAHook& hook) {
   const auto nDim = mesh.nDim;
@@ -757,6 +977,7 @@ CSimplexMesh CBoundaryLayerRemesher::TwoPass(const CConfig& config, const CSimpl
 
   const auto& segments = reference.GetSegments();
   std::vector<std::vector<passivedouble>> scale(segments.size());
+  std::vector<std::vector<passivedouble>> baseS(segments.size());  // parameters of the samples before the corner rule
   CSimplexMesh meshA;
 
   /*--- Required corners of pass A: sharp vertices, chain ends and points shared with other markers. ---*/
@@ -766,6 +987,17 @@ CSimplexMesh CBoundaryLayerRemesher::TwoPass(const CConfig& config, const CSimpl
     fixedPoints.insert(fixedPoints.end(), fixed.begin(), fixed.end());
   }
   fixedPoints = UniquePoints(fixedPoints);
+
+  /*--- Sharp corners of the reference, classified on the input mesh (SERIAL_BL_FIX_PLAN.md 11.7). ---*/
+  const auto corners = Corners(config, mesh, reference, report.nCornerUnmatched);
+  report.corners = corners;
+  report.nCorner = corners.size();
+  for (const auto& corner : corners) report.nConvexCorner += corner.convex;
+  auto finish = [&](CSimplexMesh&& out) {
+    MeasureCorners(out, blNames, report.corners, report);
+    MeasureNearWall(out, config, report);
+    return std::move(out);
+  };
 
   for (unsigned short attempt = 0; attempt < 2; ++attempt) {
     report.attempts = attempt + 1;
@@ -785,10 +1017,23 @@ CSimplexMesh CBoundaryLayerRemesher::TwoPass(const CConfig& config, const CSimpl
       rule.hmax = hmax;
       samples[iSeg] = BLWallRule::SampleSize(reference, iSeg, rule, sensorSize(segments[iSeg].marker));
       if (scale[iSeg].size() != samples[iSeg].size.size()) scale[iSeg].assign(samples[iSeg].size.size(), 1.0);
+      baseS[iSeg] = samples[iSeg].s;
       const auto tmin = std::max(hmin, 2.0 * rule.h0);
       for (unsigned long j = 0; j < samples[iSeg].size.size(); ++j)
         samples[iSeg].size[j] = std::max(tmin, samples[iSeg].size[j] * scale[iSeg][j]);
+      BLWallRule::Grade(samples[iSeg], BLWallRule::SizeRule().gradation, segments[iSeg].closed);  // after the retry
       report.nSizeConflict += samples[iSeg].nConflict;
+    }
+
+    /*--- Sharp corners: the same sizes on both sides, a floor at convex corners (SERIAL_BL_FIX_PLAN.md 11.7). ---*/
+    const auto cornerChanges = BLWallRule::ApplyCorners(reference, corners, BLWallRule::SizeRule().gradation, samples);
+    report.nCornerSymmetry = cornerChanges.nSymmetry;
+    report.nCornerFloorRaised = cornerChanges.nFloorRaised;
+    report.maxCornerFloorRatio = cornerChanges.maxFloorRatio;
+    for (unsigned long i = 0; i < report.corners.size(); ++i) report.corners[i].changed = cornerChanges.changed[i];
+
+    for (unsigned long iSeg = 0; iSeg < segments.size(); ++iSeg) {
+      if (!wallOf.count(segments[iSeg].marker)) continue;
       if (const char* debugFile = std::getenv("SU2_BL_DEBUG_SIZES")) {  // developer output: the wall size samples
         std::ofstream out(std::string(debugFile) + "_" + std::to_string(iSeg) + "_" + std::to_string(attempt) + ".txt");
         for (unsigned long j = 0; j < samples[iSeg].s.size(); ++j) {
@@ -976,9 +1221,11 @@ CSimplexMesh CBoundaryLayerRemesher::TwoPass(const CConfig& config, const CSimpl
       for (const auto& wall : walls) {
         const auto proj = reference.Project(x.data(), wall.name);
         if (proj.segment < 0 || proj.distance > wall.thickness) continue;
-        auto& smp = samples[proj.segment];
-        for (unsigned long j = 0; j < smp.s.size(); ++j)
-          if (std::fabs(smp.s[j] - proj.s) <= 2.0 * smp.size[j]) scale[proj.segment][j] = 0.7;
+        /*--- On the samples of SampleSize (the corner rule may have added some). ---*/
+        const auto& smp = samples[proj.segment];
+        const auto& s = baseS[proj.segment];
+        for (unsigned long j = 0; j < s.size(); ++j)
+          if (std::fabs(s[j] - proj.s) <= 2.0 * BLWallRule::SizeAt(smp, s[j])) scale[proj.segment][j] = 0.7;
       }
     }
   }
@@ -989,7 +1236,7 @@ CSimplexMesh CBoundaryLayerRemesher::TwoPass(const CConfig& config, const CSimpl
       cout << "WARNING: TWO_PASS pass A rejected after " << report.attempts << " attempt(s) (" << report.failedGate
            << (report.immediateFallback ? ", no retry" : "")
            << "); one-pass boundary-layer remesh of the input mesh instead." << endl;
-    return BoundaryLayerPass(config, mesh, report);
+    return finish(BoundaryLayerPass(config, mesh, report));
   }
   report.passA = true;
 
@@ -1014,7 +1261,7 @@ CSimplexMesh CBoundaryLayerRemesher::TwoPass(const CConfig& config, const CSimpl
     LogEuclideanMean(nDim, stencil.nPoint, metrics, weights, m);
     BoundMetric(nDim, hmin, hmax, armax, m);
   }
-  return BoundaryLayerPass(config, meshA, report);
+  return finish(BoundaryLayerPass(config, meshA, report));
 }
 
 std::string CBoundaryLayerRemesher::CheckReference(const CConfig& config, const CSimplexMesh& mesh,
@@ -1094,6 +1341,17 @@ CRemeshResult CBoundaryLayerRemesher::Remesh(const CConfig& config, const CGeome
     }
     if (!error.empty()) SU2_MPI::Error(error, CURRENT_FUNCTION);
     cout << "Reference wall " << info << endl;
+    /*--- Hash of the gathered input (coordinates, elements, metric): equal hashes on different rank counts must give
+     *    the same mesh (FNV-1a over the bytes). ---*/
+    std::uint64_t hash = 1469598103934665603ull;
+    auto add = [&hash](const void* data, size_t bytes) {
+      const auto* c = static_cast<const unsigned char*>(data);
+      for (size_t i = 0; i < bytes; ++i) hash = (hash ^ c[i]) * 1099511628211ull;
+    };
+    add(mesh.coord.data(), mesh.coord.size() * sizeof(mesh.coord[0]));
+    add(mesh.elem.data(), mesh.elem.size() * sizeof(mesh.elem[0]));
+    add(mesh.metric.data(), mesh.metric.size() * sizeof(mesh.metric[0]));
+    cout << "TWO_PASS input hash (points, elements, metric): " << std::hex << hash << std::dec << endl;
     adapted = TwoPass(config, mesh, *reference, report);
   }
   const auto mmgTime = SU2_MPI::Wtime();
@@ -1123,6 +1381,32 @@ CRemeshResult CBoundaryLayerRemesher::Remesh(const CConfig& config, const CGeome
          << report.metricWorstRatio << "." << endl;
     cout << "  final wall: largest L sin(turn/2) / h0 = " << report.maxExtentRatio << ", lines with h0_eff > 1.1 h0: "
          << report.nExtentAbove << "; remesh " << mmgTime - startTime << " s." << endl;
+    for (unsigned long i = 0; i < report.nearWallMarker.size(); ++i) {
+      const auto n = std::max(1ul, report.nFirstNode[i]);
+      cout << "  first off-wall node of the " << report.nFirstNode[i] << " points of wall " << report.nearWallMarker[i]
+           << ": in [0.5, 2] h0 "
+           << 100.0 * (report.nFirstNode[i] - report.nFirstNodeBelow[i] - report.nFirstNodeAbove[i]) / n
+           << "%, below " << report.nFirstNodeBelow[i] << ", above " << report.nFirstNodeAbove[i] << "." << endl;
+    }
+    if (report.nCorner > 0) {
+      cout << "  sharp corners: " << report.nCorner << " (" << report.nConvexCorner << " convex, "
+           << report.nCornerUnmatched << " without a valid input point: no floor); size samples raised by the convex "
+           << "floor " << report.nCornerFloorRaised << " (largest factor " << report.maxCornerFloorRatio
+           << "), lowered by the symmetry " << report.nCornerSymmetry << "; corners whose two wall edges differ by "
+           << "more than 1.2x: " << report.nCornerEdgeRatio << " (largest ratio " << report.maxCornerEdgeRatio << ")."
+           << endl;
+      for (const auto& corner : report.corners) {
+        if (!corner.convex) continue;
+        cout << "  convex corner (" << corner.x[0] << ", " << corner.x[1] << "): wedge "
+             << corner.wedge * 180.0 / M_PI << " deg, floor requested " << corner.requested << ", effective "
+             << corner.floor << " (" << corner.floor / corner.h0 << " h0); sizes changed by the corner rule up to "
+             << corner.changed << " from it." << endl;
+      }
+      if (report.nConvexCorner > 0)
+        cout << "  first cells of the " << report.nCornerFace << " wall faces near convex corners: "
+             << report.cornerFaceMin << " .. " << report.cornerFaceMax << " h0, outside [0.5, 2] h0: "
+             << report.nCornerFaceOut << "." << endl;
+    }
   }
   return result;
 }

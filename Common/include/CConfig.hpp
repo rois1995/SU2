@@ -1363,6 +1363,7 @@ private:
   ADAP_BL_METHOD Kind_Adap_BL_Method;      /*!< \brief How the near-wall cells are built (ADAP_BL_METHOD). */
   su2double Adap_BL_CurvatureFactor = 0.7; /*!< \brief c of the wall size cap c sqrt(2 R h0). */
   su2double Adap_BL_GateFactor = 1.0;      /*!< \brief k of the wall edge gate L sin(turn/2) <= k h0. */
+  su2double Adap_BL_CornerFloor = 0.0;     /*!< \brief m_c of the convex-corner wall size floor (0: off). */
   su2double Adap_BL_GeomTol = 0.0;         /*!< \brief Max distance of the wall from its reference (0: 0.25 min h0). */
   string Adap_BL_Reference;                /*!< \brief File of the reference wall (written at the first remesh). */
   bool Adap_BL_ReferenceRebase = false;    /*!< \brief Rebuild the reference wall from the current wall. */
@@ -10470,6 +10471,11 @@ public:
    * \brief Factor k of the wall edge feasibility gate L sin(turn/2) <= k h0 (ADAP_BL_GATE_FACTOR).
    */
   su2double GetAdap_BL_GateFactor(void) const { return Adap_BL_GateFactor; }
+
+  /*!
+   * \brief Factor m_c of the wall size floor m_c h0 / sin(wedge/2) at convex sharp corners (ADAP_BL_CORNER_FLOOR, 0: off).
+   */
+  su2double GetAdap_BL_CornerFloor(void) const { return Adap_BL_CornerFloor; }
 
   /*!
    * \brief Largest allowed distance of the wall from its reference after projection (ADAP_BL_GEOM_TOL; 0 means

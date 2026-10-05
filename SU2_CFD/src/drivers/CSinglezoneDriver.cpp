@@ -475,7 +475,9 @@ void CSinglezoneDriver::SampleTimeWindowMetric() {
       cout << "Metric of the time window: mean |Hessian| of the sensors over " << windowSamples
            << " time steps (" << TimeIter + 1 - windowSamples << " to " << TimeIter << ")." << endl;
     }
-    solver_flow->ComputeMetric(geometry, config);
+    /*--- ADAP_BL_METHOD= TWO_PASS: the remesher builds the boundary-layer metric itself, on its pass-A mesh. ---*/
+    solver_flow->ComputeMetric(geometry, config, nullptr,
+                               config->GetKind_Adap_BL_Method() != ADAP_BL_METHOD::TWO_PASS);
     windowMetricDone = true;
   }
 
@@ -651,7 +653,8 @@ void CSinglezoneDriver::PredictWindowMetric() {
   }
 
   /*--- Complexity, bounds, corner and boundary-layer metrics. ---*/
-  solver_flow->ComputeMetric(geometry, config, &predicted);
+  solver_flow->ComputeMetric(geometry, config, &predicted,
+                             config->GetKind_Adap_BL_Method() != ADAP_BL_METHOD::TWO_PASS);
   predictSnapshotValid = false;
 }
 
@@ -760,7 +763,11 @@ void CSinglezoneDriver::RunTimeAdaptationLoop() {
   CheckMeshAdaptation();
   if (config->GetAdap_Mesh_Output()) CheckAdaptedMeshNames();
 
-  CMMGRemesher remesher;
+  CMMGRemesher mmgRemesher;
+  CBoundaryLayerRemesher twoPassRemesher;
+  CRemesher& remesher = (config->GetKind_Adap_BL_Method() == ADAP_BL_METHOD::TWO_PASS)
+                            ? static_cast<CRemesher&>(twoPassRemesher)
+                            : static_cast<CRemesher&>(mmgRemesher);
 
   /*--- ADAP_TRANSFER: CONSERVATIVE (default of time-domain runs) or BARYCENTRIC (FREESTREAM is rejected for
    *    time-domain runs by the config). ---*/

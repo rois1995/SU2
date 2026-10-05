@@ -65,17 +65,7 @@ BLWallRule::SizeSamples BLWallRule::SampleSize(const CReferenceWall& wall, unsig
   }
 
   /*--- Gradation along the wall: |dt/ds| <= gradation (two sweeps; closed segments cyclic, twice). ---*/
-  const auto n = out.s.size();
-  const unsigned short nRound = seg.closed ? 2 : 1;
-  for (unsigned short round = 0; round < nRound; ++round) {
-    for (unsigned long i = 1; i < n; ++i)
-      out.size[i] = std::min(out.size[i], out.size[i - 1] + rule.gradation * (out.s[i] - out.s[i - 1]));
-    for (unsigned long i = n - 1; i > 0; --i)
-      out.size[i - 1] = std::min(out.size[i - 1], out.size[i] + rule.gradation * (out.s[i] - out.s[i - 1]));
-    if (seg.closed) {
-      const auto t = std::min(out.size.front(), out.size.back());
-      out.size.front() = out.size.back() = t;
-    }
-  }
+  out.tmin = tmin;
+  Grade(out, rule.gradation, seg.closed);
   return out;
 }

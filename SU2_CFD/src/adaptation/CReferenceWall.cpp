@@ -653,6 +653,217 @@ passivedouble BLWallRule::SizeAt(const SizeSamples& samples, passivedouble s) {
   return (1.0 - w) * samples.size[i] + w * samples.size[i + 1];
 }
 
+void BLWallRule::Grade(SizeSamples& out, passivedouble gradation, bool closed) {
+  const auto n = out.s.size();
+  if (n < 2) return;
+  const unsigned short nRound = closed ? 2 : 1;
+  for (unsigned short round = 0; round < nRound; ++round) {
+    for (unsigned long i = 1; i < n; ++i)
+      out.size[i] = std::min(out.size[i], out.size[i - 1] + gradation * (out.s[i] - out.s[i - 1]));
+    for (unsigned long i = n - 1; i > 0; --i)
+      out.size[i - 1] = std::min(out.size[i - 1], out.size[i] + gradation * (out.s[i] - out.s[i - 1]));
+    if (closed) {
+      const auto t = std::min(out.size.front(), out.size.back());
+      out.size.front() = out.size.back() = t;
+    }
+  }
+}
+
+std::vector<BLWallRule::Corner> BLWallRule::FindCorners(const CReferenceWall& wall) {
+  struct End {
+    unsigned long seg;
+    bool atEnd;
+    bool sharp;
+    Vec2 x;
+    Vec2 inward;  // unit tangent pointing into the segment
+  };
+  std::vector<End> ends;
+  const auto& segments = wall.GetSegments();
+  for (unsigned long iSeg = 0; iSeg < segments.size(); ++iSeg) {
+    const auto& seg = segments[iSeg];
+    if (seg.closed || seg.x.size() < 2) continue;
+    for (const bool atEnd : {false, true}) {
+      passivedouble x[2], dx[2];
+      wall.Evaluate(seg, atEnd ? seg.s.back() : seg.s.front(), x, dx);
+      const auto norm = std::hypot(dx[0], dx[1]);
+      const passivedouble sign = (atEnd ? -1.0 : 1.0) / norm;
+      ends.push_back({iSeg, atEnd, atEnd ? seg.sharpEnd : seg.sharpStart, atEnd ? seg.x.back() : seg.x.front(),
+                      Vec2{sign * dx[0], sign * dx[1]}});
+    }
+  }
+  /*--- Group the ends by their knot; exactly two ends make a corner if both are sharp, or if they belong to
+   *    different markers and the wall turns there by more than the corner angle. ---*/
+  const passivedouble cornerTurn = wall.GetCornerAngle() * M_PI / 180.0;
+  std::map<Vec2, std::vector<unsigned long>> atPoint;
+  for (unsigned long i = 0; i < ends.size(); ++i) atPoint[ends[i].x].push_back(i);
+  std::vector<Corner> corners;
+  for (const auto& entry : atPoint) {
+    if (entry.second.size() != 2) continue;
+    const auto& e0 = ends[entry.second[0]];
+    const auto& e1 = ends[entry.second[1]];
+    bool corner = e0.sharp && e1.sharp;
+    if (!corner && segments[e0.seg].marker != segments[e1.seg].marker) {
+      /*--- Turn of the wall = pi - the angle between the two inward tangents. ---*/
+      const auto angle = std::atan2(std::fabs(e0.inward[0] * e1.inward[1] - e0.inward[1] * e1.inward[0]),
+                                    e0.inward[0] * e1.inward[0] + e0.inward[1] * e1.inward[1]);
+      corner = M_PI - angle > cornerTurn;
+    }
+    if (!corner) continue;
+    Corner c;
+    c.seg[0] = e0.seg;
+    c.atEnd[0] = e0.atEnd;
+    c.seg[1] = e1.seg;
+    c.atEnd[1] = e1.atEnd;
+    c.x[0] = entry.first[0];
+    c.x[1] = entry.first[1];
+    corners.push_back(c);
+  }
+  return corners;
+}
+
+passivedouble BLWallRule::CornerFloor(passivedouble requested, passivedouble hmax, passivedouble length,
+                                      passivedouble tmin, passivedouble gradation) {
+  if (!(requested > 0.0)) return 0.0;
+  const auto t = std::min({requested, hmax, (0.5 * gradation * length + tmin) / (1.0 + gradation)});
+  return (t > tmin) ? t : 0.0;
+}
+
+passivedouble BLWallRule::CornerReach(const Corner& corner, passivedouble gradation) {
+  if (!corner.convex || !(corner.floor > 0.0)) return 0.0;
+  return corner.floor + (corner.floor - corner.tmin) / gradation;
+}
+
+namespace {
+/*--- Distance of a sample from one end of its segment, and the size at a distance from that end. ---*/
+passivedouble FromEnd(const BLWallRule::SizeSamples& smp, bool atEnd, unsigned long j) {
+  return atEnd ? smp.s.back() - smp.s[j] : smp.s[j] - smp.s.front();
+}
+passivedouble SizeFromEnd(const BLWallRule::SizeSamples& smp, bool atEnd, passivedouble r) {
+  return BLWallRule::SizeAt(smp, atEnd ? smp.s.back() - r : smp.s.front() + r);
+}
+/*--- Insert a sample at the distance r from one end (its size interpolated), unless one is already there. ---*/
+void InsertFromEnd(BLWallRule::SizeSamples& smp, bool atEnd, passivedouble r) {
+  const auto s = atEnd ? smp.s.back() - r : smp.s.front() + r;
+  if (!(s > smp.s.front() && s < smp.s.back())) return;
+  const auto it = std::lower_bound(smp.s.begin(), smp.s.end(), s);
+  if (*it == s) return;
+  const auto i = it - smp.s.begin();
+  const auto t = BLWallRule::SizeAt(smp, s);
+  smp.s.insert(smp.s.begin() + i, s);
+  smp.size.insert(smp.size.begin() + i, t);
+}
+}  // namespace
+
+BLWallRule::CornerChanges BLWallRule::ApplyCorners(const CReferenceWall& wall, const std::vector<Corner>& corners,
+                                                   passivedouble gradation, std::vector<SizeSamples>& samples) {
+  CornerChanges changes;
+  changes.changed.assign(corners.size(), 0.0);
+  const auto& segments = wall.GetSegments();
+  const auto original = samples;
+
+  /*--- Samples at the break points of the floor profiles (r = t_c and r = reach), so that the piecewise linear sizes
+   *    hold the profile exactly (the maximum at the samples, interpolated, is at least the linear profile between
+   *    them). This does not change the sizes. ---*/
+  for (const auto& corner : corners) {
+    const auto reach = CornerReach(corner, gradation);
+    if (!(reach > 0.0)) continue;
+    for (unsigned short k = 0; k < 2; ++k) {
+      if (samples[corner.seg[k]].s.empty()) continue;
+      InsertFromEnd(samples[corner.seg[k]], corner.atEnd[k], corner.floor);
+      InsertFromEnd(samples[corner.seg[k]], corner.atEnd[k], reach);
+    }
+  }
+
+  /*--- Symmetry: both sides of a corner take the smaller size at the same distance from it, never below their own
+   *    t_min (markers with different h0). Both sides first get samples at the same distances within the reach, so the
+   *    two piecewise linear sizes are equal there; sizes before this step, so the order of the corners does not
+   *    matter. The touched segments are graded again: within the reach both sides are graded and their minimum too, so
+   *    the grading only lowers sizes beyond it. ---*/
+  std::vector<passivedouble> reachOf;
+  for (const auto& corner : corners) {
+    const auto& a = samples[corner.seg[0]];
+    const auto& b = samples[corner.seg[1]];
+    if (a.s.empty() || b.s.empty()) {
+      reachOf.push_back(0.0);
+      continue;
+    }
+    const auto reach = std::max({2.0 * SizeFromEnd(a, corner.atEnd[0], 0.0), 2.0 * SizeFromEnd(b, corner.atEnd[1], 0.0),
+                                 CornerReach(corner, gradation)});
+    reachOf.push_back(reach);
+    std::vector<passivedouble> distances;
+    for (unsigned short k = 0; k < 2; ++k) {
+      const auto& smp = samples[corner.seg[k]];
+      for (unsigned long j = 0; j < smp.s.size(); ++j) {
+        const auto r = FromEnd(smp, corner.atEnd[k], j);
+        if (r <= reach) distances.push_back(r);
+      }
+    }
+    for (unsigned short k = 0; k < 2; ++k)
+      for (const auto r : distances) InsertFromEnd(samples[corner.seg[k]], corner.atEnd[k], r);
+  }
+  const auto before = samples;
+  std::set<unsigned long> touched;
+  for (unsigned long iCorner = 0; iCorner < corners.size(); ++iCorner) {
+    const auto& corner = corners[iCorner];
+    const auto reach = reachOf[iCorner];
+    if (!(reach > 0.0)) continue;
+    for (unsigned short k = 0; k < 2; ++k) {
+      const auto& other = before[corner.seg[1 - k]];
+      const auto otherLength = other.s.back() - other.s.front();
+      auto& own = samples[corner.seg[k]];
+      for (unsigned long j = 0; j < own.s.size(); ++j) {
+        const auto r = FromEnd(own, corner.atEnd[k], j);
+        if (r > reach || r > otherLength) continue;
+        const auto t = std::max(own.tmin, SizeFromEnd(other, corner.atEnd[1 - k], r));
+        if (t < own.size[j]) {
+          own.size[j] = t;
+          changes.nSymmetry++;
+          touched.insert(corner.seg[k]);
+        }
+      }
+    }
+  }
+  for (const auto iSeg : touched) Grade(samples[iSeg], gradation, segments[iSeg].closed);
+
+  /*--- Floor at convex corners: t >= f(r) = max(t_min, t_c - gradation max(0, r - t_c)). ---*/
+  for (const auto& corner : corners) {
+    if (!corner.convex || !(corner.floor > 0.0)) continue;
+    for (unsigned short k = 0; k < 2; ++k) {
+      auto& own = samples[corner.seg[k]];
+      for (unsigned long j = 0; j < own.s.size(); ++j) {
+        const auto r = FromEnd(own, corner.atEnd[k], j);
+        const auto f = std::max(corner.tmin, corner.floor - gradation * std::max(0.0, r - corner.floor));
+        if (f > own.size[j]) {
+          changes.nFloorRaised++;
+          changes.maxFloorRatio = std::max(changes.maxFloorRatio, f / own.size[j]);
+          own.size[j] = f;
+        }
+      }
+    }
+  }
+  /*--- Extent of the changes: each changed sample counts for the nearest corner of its segment. ---*/
+  for (unsigned long iSeg = 0; iSeg < samples.size(); ++iSeg) {
+    const auto& smp = samples[iSeg];
+    for (unsigned long j = 0; j < smp.s.size(); ++j) {
+      const auto before = SizeAt(original[iSeg], smp.s[j]);
+      if (!(std::fabs(smp.size[j] - before) > 1e-12 * before)) continue;
+      long nearest = -1;
+      passivedouble rNearest = std::numeric_limits<passivedouble>::max();
+      for (unsigned long iCorner = 0; iCorner < corners.size(); ++iCorner)
+        for (unsigned short k = 0; k < 2; ++k) {
+          if (corners[iCorner].seg[k] != iSeg) continue;
+          const auto r = FromEnd(smp, corners[iCorner].atEnd[k], j);
+          if (r < rNearest) {
+            rNearest = r;
+            nearest = iCorner;
+          }
+        }
+      if (nearest >= 0) changes.changed[nearest] = std::max(changes.changed[nearest], rNearest);
+    }
+  }
+  return changes;
+}
+
 std::vector<passivedouble> BLWallRule::NormalExtent(const CSimplexMesh& mesh, const std::string& name,
                                                     passivedouble cornerAngle) {
   std::vector<passivedouble> extent;

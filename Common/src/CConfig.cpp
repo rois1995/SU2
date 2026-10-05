@@ -3326,6 +3326,10 @@ void CConfig::SetConfig_Options() {
   /*!\brief ADAP_BL_GATE_FACTOR \n DESCRIPTION: TWO_PASS: pass A is accepted only if every wall edge L with the turn
    * of the wall at its ends satisfies L sin(turn/2) <= k h0 \ingroup Config */
   addDoubleOption("ADAP_BL_GATE_FACTOR", Adap_BL_GateFactor, 1.0);
+  /*!\brief ADAP_BL_CORNER_FLOOR \n DESCRIPTION: TWO_PASS, experimental: at convex sharp corners of the boundary-layer
+   * walls (e.g. a sharp trailing edge, wedge angle w) the wall size is at least m h0 / sin(w/2) near the corner (0: off)
+   * \ingroup Config */
+  addDoubleOption("ADAP_BL_CORNER_FLOOR", Adap_BL_CornerFloor, 0.0);
   /*!\brief ADAP_BL_GEOM_TOL \n DESCRIPTION: TWO_PASS: largest distance of the wall points from the reference wall
    * after the projection (0: 0.25 x the smallest ADAP_BL_FIRST_HEIGHT) \ingroup Config */
   addDoubleOption("ADAP_BL_GEOM_TOL", Adap_BL_GeomTol, 0.0);
@@ -6478,13 +6482,16 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     SU2_MPI::Error("ADAP_BL_CURVATURE_FACTOR must be a finite value > 0.", CURRENT_FUNCTION);
   if (!(Adap_BL_GateFactor > 0.0) || !std::isfinite(SU2_TYPE::GetValue(Adap_BL_GateFactor)))
     SU2_MPI::Error("ADAP_BL_GATE_FACTOR must be a finite value > 0.", CURRENT_FUNCTION);
+  if (!(Adap_BL_CornerFloor >= 0.0) || !std::isfinite(SU2_TYPE::GetValue(Adap_BL_CornerFloor)))
+    SU2_MPI::Error("ADAP_BL_CORNER_FLOOR must be a finite value >= 0.", CURRENT_FUNCTION);
   if (!(Adap_BL_GeomTol >= 0.0) || !std::isfinite(SU2_TYPE::GetValue(Adap_BL_GeomTol)))
     SU2_MPI::Error("ADAP_BL_GEOM_TOL must be a finite value >= 0.", CURRENT_FUNCTION);
   if (Kind_Adap_BL_Method == ADAP_BL_METHOD::TWO_PASS) {
     if (Adap_BL.empty()) SU2_MPI::Error("ADAP_BL_METHOD= TWO_PASS needs ADAP_BL_MARKER.", CURRENT_FUNCTION);
     if (val_nDim == 3) SU2_MPI::Error("ADAP_BL_METHOD= TWO_PASS is not implemented in 3D yet.", CURRENT_FUNCTION);
-    if (Time_Domain)
-      SU2_MPI::Error("ADAP_BL_METHOD= TWO_PASS is only implemented for the steady adaptation loop.", CURRENT_FUNCTION);
+    if (Time_Domain && Kind_Adap_Unsteady_Metric == ADAP_UNSTEADY_METRIC::FIXED_POINT)
+      SU2_MPI::Error("ADAP_BL_METHOD= TWO_PASS is not implemented with ADAP_UNSTEADY_METRIC= FIXED_POINT.",
+                     CURRENT_FUNCTION);
   }
 
   /*--- Check if SU2 was built with CGNS support, as that is required for CGNS mesh output. ---*/

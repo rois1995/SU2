@@ -26,6 +26,8 @@
 
 #include "catch.hpp"
 
+#include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -847,3 +849,505 @@ TEST_CASE("Pass-B donor of a point outside the input mesh: closest face of its o
   const su2double y[3] = {0.6, 0.2, 0.0};
   CHECK(CBoundaryLayerRemesher::DonorStencil(locator, y, {"wall"}).inside);
 }
+
+namespace {
+
+/*--- Symmetric biconvex lens of chord 1 (tips at x = -0.5 and 0.5) with the wedge angle omega at both tips: points
+ *    counterclockwise from the trailing edge (0.5, 0) over the upper arc, the leading edge, and back over the lower arc
+ *    (cosine spacing, n intervals per side). ---*/
+std::vector<std::array<passivedouble, 2>> Lens(passivedouble omega, unsigned long n) {
+  const auto phi = 0.5 * omega, R = 0.5 / sin(phi), yc = R * cos(phi);
+  std::vector<std::array<passivedouble, 2>> points;
+  for (unsigned long k = 0; k < 2 * n; ++k) {
+    const bool upper = k < n;
+    const auto x = 0.5 * cos(M_PI * (upper ? k : k - n) / n) * (upper ? 1.0 : -1.0);
+    const auto y = sqrt(R * R - x * x) - yc;
+    points.push_back({x, upper ? y : -y});
+  }
+  return points;
+}
+
+/*--- O-mesh around a convex wall polygon containing the origin: rays to a far-field circle of radius rFar, nR
+ *    layers graded by 1.3; quads split by the diagonal that gives two positive triangles. Wall markers: points
+ *    [0, split] -> "wall", [split, end] -> wallB (if split > 0), else one marker "wall". ---*/
+CSimplexMesh OMesh(const std::vector<std::array<passivedouble, 2>>& wallPoints, unsigned long nR, passivedouble rFar,
+                   unsigned long split = 0, const string& wallB = "wall2") {
+  CSimplexMesh mesh;
+  mesh.nDim = 2;
+  const auto n = wallPoints.size();
+  for (unsigned long j = 0; j <= nR; ++j) {
+    const auto f = (pow(1.3, j) - 1.0) / (pow(1.3, nR) - 1.0);
+    for (const auto& p : wallPoints) {
+      const auto r = std::hypot(p[0], p[1]);
+      mesh.coord.push_back(p[0] + f * (rFar * p[0] / r - p[0]));
+      mesh.coord.push_back(p[1] + f * (rFar * p[1] / r - p[1]));
+    }
+  }
+  auto id = [&](unsigned long i, unsigned long j) { return (i % n) + j * n; };
+  auto positive = [&](unsigned long a, unsigned long b, unsigned long c) {
+    return BLWallRule::Orientation(&mesh.coord[2 * a], &mesh.coord[2 * b], &mesh.coord[2 * c]) > 0;
+  };
+  for (unsigned long j = 0; j < nR; ++j)
+    for (unsigned long i = 0; i < n; ++i) {
+      const auto a = id(i, j), b = id(i + 1, j), c = id(i + 1, j + 1), d = id(i, j + 1);
+      /*--- i runs counterclockwise along the wall and j outwards: (a, c, b) and (a, d, c) are counterclockwise. ---*/
+      if (positive(a, c, b) && positive(a, d, c)) {
+        mesh.elem.insert(mesh.elem.end(), {a, c, b, a, d, c});
+      } else {
+        mesh.elem.insert(mesh.elem.end(), {a, d, b, b, d, c});
+      }
+    }
+  mesh.elemRef.assign(mesh.GetnElem(), 0);
+  CSimplexMesh::Marker far, wall, other;
+  far.name = "farfield";
+  far.ref = 1;
+  wall.name = "wall";
+  wall.ref = 2;
+  other.name = wallB;
+  other.ref = 3;
+  for (unsigned long i = 0; i < n; ++i) {
+    far.elem.insert(far.elem.end(), {id(i, nR), id(i + 1, nR)});
+    auto& target = (split > 0 && i >= split) ? other : wall;
+    target.elem.insert(target.elem.end(), {id(i + 1, 0), id(i, 0)});
+  }
+  mesh.markers = {far, wall};
+  if (split > 0) mesh.markers.push_back(other);
+  return mesh;
+}
+
+std::unique_ptr<CConfig> LensConfig(bool split, const string& extra = "") {
+  const bool quiet = getenv("SU2_TEST_VERBOSE") == nullptr;
+  std::unique_ptr<Mute> mute(quiet ? new Mute : nullptr);
+  const string walls = split ? "wall, wall2" : "wall";
+  stringstream ss("SOLVER= NAVIER_STOKES\nREYNOLDS_NUMBER= 1e6\nMACH_NUMBER= 0.5\nMESH_FORMAT= SU2\n"
+                  "MESH_FILENAME= unused.su2\nMGLEVEL= 0\nCOMPUTE_METRIC= YES\nADAP_SENSOR= (MACH)\n"
+                  "MARKER_HEATFLUX= (" + string(split ? "wall, 0.0, wall2, 0.0" : "wall, 0.0") + ")\n"
+                  "MARKER_FAR= (farfield)\nADAP_HMIN= 1e-5\nADAP_HMAX= 1\nADAP_ARMAX= 1e4\nADAP_BL_MARKER= (" + walls +
+                  ")\nADAP_BL_FIRST_HEIGHT= (1e-4)\nADAP_BL_GROWTH= (1.2)\nADAP_BL_THICKNESS= (0.02)\n"
+                  "ADAP_BL_METHOD= TWO_PASS\nADAP_BL_REFERENCE= bl_twopass_test.dat\nADAP_SURFACE= YES\n" + extra);
+  return std::unique_ptr<CConfig>(new CConfig(ss, SU2_COMPONENT::SU2_CFD, false));
+}
+
+/*--- Interior angle of the lens polygon at a tip (the wedge of the discrete wall). ---*/
+passivedouble TipWedge(const std::vector<std::array<passivedouble, 2>>& p, unsigned long i) {
+  const auto n = p.size();
+  const auto& a = p[(i + n - 1) % n];
+  const auto& b = p[(i + 1) % n];
+  const passivedouble u[2] = {a[0] - p[i][0], a[1] - p[i][1]}, w[2] = {b[0] - p[i][0], b[1] - p[i][1]};
+  return atan2(fabs(u[0] * w[1] - u[1] * w[0]), u[0] * w[0] + u[1] * w[1]);
+}
+
+}  // namespace
+
+TEST_CASE("Corner rule: corners of the reference, floor, symmetry (SERIAL_BL_FIX_PLAN 11.7)", "[Adaptation]") {
+  const auto omega = 16.0 * M_PI / 180.0;
+  const auto lens = Lens(omega, 40);
+
+  /*--- Corners: the two tips of a lens; the four corners of a square; one per tip of a lens split into two markers at
+   *    its tips; none on an open polyline with free ends; one (a segment with itself) on a teardrop. ---*/
+  {
+    CReferenceWall wall(PolylineMesh(lens, true), {"wall"}, 45.0);
+    REQUIRE(wall.GetSegments().size() == 2);
+    CHECK(BLWallRule::FindCorners(wall).size() == 2);
+    const std::vector<std::array<passivedouble, 2>> square = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
+    CHECK(BLWallRule::FindCorners(CReferenceWall(PolylineMesh(square, true), {"wall"}, 45.0)).size() == 4);
+    CHECK(BLWallRule::FindCorners(CReferenceWall(PolylineMesh({{0, 0}, {1, 0.1}, {2, 0}}, false), {"wall"}, 45.0))
+              .empty());
+    /*--- Teardrop: the tip (1, 0) and the arc of the circle r = 0.3 between the two tangent points. ---*/
+    std::vector<std::array<passivedouble, 2>> teardrop = {{1.0, 0.0}};
+    const auto tangent = acos(0.3);
+    for (int k = 0; k < 40; ++k) {
+      const auto a = tangent + (2.0 * M_PI - 2.0 * tangent) * k / 39.0;
+      teardrop.push_back({0.3 * cos(a), 0.3 * sin(a)});
+    }
+    const auto drop = BLWallRule::FindCorners(CReferenceWall(PolylineMesh(teardrop, true), {"wall"}, 45.0));
+    REQUIRE(drop.size() == 1);
+    CHECK(drop[0].seg[0] == drop[0].seg[1]);
+    CHECK(drop[0].atEnd[0] != drop[0].atEnd[1]);
+    CHECK(drop[0].x[0] == 1.0);
+    const auto mesh = OMesh(lens, 4, 5.0, 40);
+    CHECK(BLWallRule::FindCorners(CReferenceWall(mesh, {"wall", "wall2"}, 45.0)).size() == 2);
+    CHECK(BLWallRule::FindCorners(CReferenceWall(mesh, {"wall"}, 45.0)).empty());  // its ends meet a non-BL marker
+  }
+
+  /*--- Effective floor: clamps by hmax and by the segment length (support within half of it); none at or below
+   *    t_min. ---*/
+  CHECK(BLWallRule::CornerFloor(1e-3, 10.0, 2.0, 2e-4, 0.15) == 1e-3);
+  CHECK(BLWallRule::CornerFloor(1e-3, 5e-4, 2.0, 2e-4, 0.15) == 5e-4);
+  const auto clamped = BLWallRule::CornerFloor(1.0, 10.0, 0.01, 1e-4, 0.15);
+  CHECK(clamped == Approx((0.15 * 0.005 + 1e-4) / 1.15));
+  CHECK(clamped + (clamped - 1e-4) / 0.15 == Approx(0.005));
+  CHECK(BLWallRule::CornerFloor(1.0, 10.0, 1e-4, 1e-4, 0.15) == 0.0);  // (0.15 5e-5 + 1e-4) / 1.15 < t_min
+  CHECK(BLWallRule::CornerFloor(0.0, 10.0, 2.0, 1e-4, 0.15) == 0.0);
+
+  /*--- Floor and symmetry on the lens: an asymmetric sensor (finer on the upper side), h0 1e-5 (t_min 2e-5). ---*/
+  CReferenceWall wall(PolylineMesh(lens, true), {"wall"}, 45.0);
+  BLWallRule::SizeRule rule;
+  rule.h0 = 1e-5;
+  rule.hmin = 1e-6;
+  rule.hmax = 1.0;
+  auto sensor = [](const passivedouble* x, const passivedouble*) { return x[1] > 0.0 ? 2e-3 : 8e-3; };
+  std::vector<BLWallRule::SizeSamples> base;
+  for (unsigned long iSeg = 0; iSeg < 2; ++iSeg) base.push_back(BLWallRule::SampleSize(wall, iSeg, rule, sensor, 20));
+  auto corners = BLWallRule::FindCorners(wall);
+  for (auto& c : corners) {
+    c.convex = true;
+    c.h0 = rule.h0;
+    c.tmin = 2e-5;
+    c.requested = 2.0 * c.h0 / sin(0.5 * omega);
+    c.floor = BLWallRule::CornerFloor(c.requested, 1.0, 1.0, c.tmin, rule.gradation);
+    REQUIRE(c.floor == Approx(c.requested));
+  }
+  auto samples = base;
+  const auto changes = BLWallRule::ApplyCorners(wall, corners, rule.gradation, samples);
+  CHECK(changes.nFloorRaised > 0);
+  CHECK(changes.nSymmetry > 0);
+  for (const auto& c : corners) {
+    const auto reach = BLWallRule::CornerReach(c, rule.gradation);
+    for (unsigned short k = 0; k < 2; ++k) {
+      const auto& smp = samples[c.seg[k]];
+      const auto& other = samples[c.seg[1 - k]];
+      for (unsigned long j = 0; j < smp.s.size(); ++j) {
+        const auto r = c.atEnd[k] ? smp.s.back() - smp.s[j] : smp.s[j] - smp.s.front();
+        /*--- At least the floor profile; equal on both sides near the corner. ---*/
+        CHECK(smp.size[j] >= std::max(c.tmin, c.floor - rule.gradation * std::max(0.0, r - c.floor)) * (1 - 1e-12));
+        if (r <= reach) {
+          const auto s = c.atEnd[1 - k] ? other.s.back() - r : other.s.front() + r;
+          CHECK(smp.size[j] == Approx(BLWallRule::SizeAt(other, s)).epsilon(1e-6));
+        }
+      }
+    }
+  }
+  /*--- Graded; away from the corners (beyond the reach of the floor and of the symmetry) unchanged. ---*/
+  for (unsigned long iSeg = 0; iSeg < 2; ++iSeg) {
+    const auto& smp = samples[iSeg];
+    for (unsigned long j = 1; j < smp.s.size(); ++j)
+      CHECK(fabs(smp.size[j] - smp.size[j - 1]) <= rule.gradation * (smp.s[j] - smp.s[j - 1]) * (1 + 1e-9) + 1e-15);
+    const auto& b = base[iSeg];
+    const auto len = b.s.back() - b.s.front();
+    for (unsigned long j = 0; j < b.s.size(); ++j) {
+      const auto r = std::min(b.s[j] - b.s.front(), b.s.back() - b.s[j]);
+      if (r > 0.2 * len) CHECK(BLWallRule::SizeAt(smp, b.s[j]) == b.size[j]);
+    }
+    CHECK(smp.s.size() > b.s.size());  // the break points of the floor profile were added
+  }
+  /*--- Order independence: the corners in the other order give the same sizes. ---*/
+  auto reversed = corners;
+  std::reverse(reversed.begin(), reversed.end());
+  auto samples2 = base;
+  BLWallRule::ApplyCorners(wall, reversed, rule.gradation, samples2);
+  for (unsigned long iSeg = 0; iSeg < 2; ++iSeg) CHECK(samples2[iSeg].size == samples[iSeg].size);
+
+  /*--- Different first heights on the two sides: the symmetry keeps each side's own t_min. ---*/
+  /*--- t_min 2e-5 on one side, 8e-5 on the other (h0 1e-5 and 4e-5), with and without the floor. ---*/
+  for (const bool floorOn : {false, true}) {
+    auto unequal = base;
+    unequal[1].tmin = 8e-5;
+    for (auto& t : unequal[1].size) t = std::max(t, 8e-5);
+    BLWallRule::Grade(unequal[1], rule.gradation, false);
+    auto cs = corners;
+    for (auto& c : cs) if (!floorOn) c.floor = 0.0;
+    const auto ch = BLWallRule::ApplyCorners(wall, cs, rule.gradation, unequal);
+    for (const auto t : unequal[1].size) CHECK(t >= 8e-5 * (1 - 1e-12));
+    bool lowered = false;
+    for (const auto t : unequal[0].size) lowered = lowered || (t < 8e-5);
+    if (!floorOn) CHECK(lowered);  // the other side keeps its own smaller sizes (the floor would raise them)
+    for (const auto& smp : unequal)
+      for (unsigned long j = 1; j < smp.s.size(); ++j)
+        CHECK(fabs(smp.size[j] - smp.size[j - 1]) <= rule.gradation * (smp.s[j] - smp.s[j - 1]) * (1 + 1e-9) + 1e-15);
+    REQUIRE(ch.changed.size() == cs.size());
+    for (const auto d : ch.changed) CHECK((floorOn ? d > 0.0 : d == 0.0));  // without the floor nothing changes
+  }
+}
+
+TEST_CASE("Corner rule: convexity from the input mesh (fluid angle, fan, wedge)", "[Adaptation]") {
+  const auto omega = 16.0 * M_PI / 180.0;
+  const auto lens = Lens(omega, 40);
+  auto config = LensConfig(false, "ADAP_BL_CORNER_FLOOR= 2\n");
+  {
+    const auto mesh = OMesh(lens, 6, 5.0);
+    CReferenceWall reference(mesh, {"wall"}, 45.0);
+    unsigned long nUnmatched = 0;
+    const auto corners = CBoundaryLayerRemesher::Corners(*config, mesh, reference, nUnmatched);
+    CHECK(nUnmatched == 0);
+    REQUIRE(corners.size() == 2);
+    for (const auto& c : corners) {
+      CHECK(c.matched);
+      CHECK(c.convex);
+      const unsigned long tip = c.x[0] > 0.0 ? 0 : 40;
+      CHECK(c.wedge == Approx(TipWedge(lens, tip)).epsilon(1e-12));
+      CHECK(c.floor == Approx(2.0 * 1e-4 / sin(0.5 * c.wedge)));
+    }
+    /*--- A triangle at a tip turned over: the fan is not valid, no floor. ---*/
+    auto broken = mesh;
+    for (unsigned long e = 0; e < broken.GetnElem(); ++e) {
+      auto* v = &broken.elem[3 * e];
+      if (v[0] == 0 || v[1] == 0 || v[2] == 0) {
+        std::swap(v[1], v[2]);
+        break;
+      }
+    }
+    const auto bad = CBoundaryLayerRemesher::Corners(*config, broken, reference, nUnmatched);
+    CHECK(nUnmatched == 1);
+    for (const auto& c : bad)
+      if (c.x[0] > 0.0) CHECK_FALSE(c.matched);
+  }
+  /*--- Concave corner: the inside of a box with a wall on two sides (fluid angle 90 degrees). ---*/
+  {
+    CSimplexMesh box;
+    box.nDim = 2;
+    box.coord = {0, 0, 1, 0, 1, 1, 0, 1, 0.5, 0.5};
+    box.elem = {0, 1, 4, 1, 2, 4, 2, 3, 4, 3, 0, 4};
+    box.elemRef.assign(4, 0);
+    CSimplexMesh::Marker wall, far;
+    wall.name = "wall";
+    wall.ref = 2;
+    wall.elem = {3, 0, 0, 1};
+    far.name = "farfield";
+    far.ref = 1;
+    far.elem = {1, 2, 2, 3};
+    box.markers = {far, wall};
+    CHECK(CBoundaryLayerRemesher::FluidAngle(box, 0) == Approx(0.5 * M_PI));
+    CHECK(CBoundaryLayerRemesher::FluidAngle(box, 4) == Approx(2.0 * M_PI));
+    CReferenceWall reference(box, {"wall"}, 45.0);
+    unsigned long nUnmatched = 0;
+    const auto corners = CBoundaryLayerRemesher::Corners(*config, box, reference, nUnmatched);
+    REQUIRE(corners.size() == 1);
+    CHECK(corners[0].matched);
+    CHECK_FALSE(corners[0].convex);
+    CHECK(corners[0].floor == 0.0);
+  }
+}
+
+#ifdef HAVE_MMG
+TEST_CASE("Two-pass remesh of a lens: sharp tips classified and reported (SERIAL_BL_FIX_PLAN 11.7)", "[Adaptation][MMG]") {
+  const passivedouble h0 = 1e-4;
+  for (const passivedouble degrees : {16.0, 40.0}) {
+    for (const bool split : {false, true}) {
+      if (split && degrees != 16.0) continue;
+      const auto lens = Lens(degrees * M_PI / 180.0, 40);
+      auto mesh = OMesh(lens, 14, 5.0, split ? 40 : 0);
+      /*--- Sensor: size 0.05, isotropic and finer around the tips (2 h0 + log(1.3) r, as ADAP_ISO_CORNER). ---*/
+      const auto nPoint = mesh.GetnPoint();
+      mesh.metric.assign(3 * nPoint, 0.0);
+      for (unsigned long i = 0; i < nPoint; ++i) {
+        const auto x = mesh.coord[2 * i], y = mesh.coord[2 * i + 1];
+        const auto r = std::min(std::hypot(x - 0.5, y), std::hypot(x + 0.5, y));
+        const auto s = std::min(0.05, 2.0 * h0 + log(1.3) * r);
+        mesh.metric[3 * i] = mesh.metric[3 * i + 2] = 1.0 / (s * s);
+      }
+      const std::vector<std::string> walls = split ? std::vector<std::string>{"wall", "wall2"}
+                                                   : std::vector<std::string>{"wall"};
+      CReferenceWall reference(mesh, walls, 45.0);
+      auto config = LensConfig(split);
+      CBoundaryLayerRemesher::Report report;
+      CSimplexMesh adapted;
+      {
+        std::unique_ptr<Mute> mute(getenv("SU2_TEST_VERBOSE") == nullptr ? new Mute : nullptr);
+        adapted = CBoundaryLayerRemesher::TwoPass(*config, mesh, reference, report);
+      }
+      INFO("wedge " << degrees << " split " << split);
+      CMMGInterface::ValidateMesh(adapted, &mesh, "lens");
+      CHECK(report.passA);
+      CHECK(report.nG2 + report.nG3 + report.nG4 + report.nG5 == 0);
+      CHECK(report.nCorner == 2);
+      CHECK(report.nConvexCorner == 2);
+      CHECK(report.nCornerUnmatched == 0);
+      /*--- The first cells near the tips are reported, not required in [0.5, 2] h0: no tested rule achieves that on
+       *    every lens (SERIAL_BL_FIX_PLAN.md 11.7, calibration); at least half of them are. ---*/
+      CHECK(report.nCornerFace >= 8);
+      CHECK(2 * report.nCornerFaceOut <= report.nCornerFace);
+      CHECK(report.cornerFaceMax <= 4.0);
+      CHECK(report.nMetricViolations == 0);
+      REQUIRE(report.nFirstNode.size() == (split ? 2u : 1u));
+      CHECK(report.nFirstNode[0] > 0);
+    }
+  }
+}
+#endif
+
+#ifdef HAVE_MMG
+TEST_CASE("Corner floor calibration sweep on lenses (developer, hidden)", "[.BLCornerSweep]") {
+  /*--- Prints one line per lens variant: wedge, points per side, split, faces near the tips, outside [0.5, 2] h0,
+   *    smallest and largest first cell / h0, effective floor / h0, points. The factor m_c comes from
+   *    ADAP_BL_CORNER_FLOOR in SU2_TEST_CORNER_FLOOR (default the built-in value). ---*/
+  const passivedouble h0 = 1e-4;
+  const char* factor = getenv("SU2_TEST_CORNER_FLOOR");
+  for (const passivedouble degrees : {10.0, 16.0, 24.0, 40.0})
+    for (const unsigned long n : {30ul, 40ul, 55ul})
+      for (const bool split : {false, true}) {
+        const auto lens = Lens(degrees * M_PI / 180.0, n);
+        auto mesh = OMesh(lens, 14, 5.0, split ? n : 0);
+        const auto nPoint = mesh.GetnPoint();
+        mesh.metric.assign(3 * nPoint, 0.0);
+        for (unsigned long i = 0; i < nPoint; ++i) {
+          const auto x = mesh.coord[2 * i], y = mesh.coord[2 * i + 1];
+          const auto r = std::min(std::hypot(x - 0.5, y), std::hypot(x + 0.5, y));
+          const auto s = std::min(0.05, 2.0 * h0 + log(1.3) * r);
+          mesh.metric[3 * i] = mesh.metric[3 * i + 2] = 1.0 / (s * s);
+        }
+        const std::vector<std::string> walls = split ? std::vector<std::string>{"wall", "wall2"}
+                                                     : std::vector<std::string>{"wall"};
+        CReferenceWall reference(mesh, walls, 45.0);
+        auto config = LensConfig(split, factor ? "ADAP_BL_CORNER_FLOOR= " + string(factor) + "\n" : "");
+        CBoundaryLayerRemesher::Report report;
+        CSimplexMesh adapted;
+        {
+          std::unique_ptr<Mute> mute(new Mute);
+          adapted = CBoundaryLayerRemesher::TwoPass(*config, mesh, reference, report);
+        }
+        std::cerr << "SWEEP " << degrees << " " << n << " " << split << " " << report.passA << " "
+                  << report.nCornerFace << " " << report.nCornerFaceOut << " " << report.cornerFaceMin << " "
+                  << report.cornerFaceMax << " " << report.corners[0].floor / h0 << " " << adapted.GetnPoint() << endl;
+      }
+}
+#endif
+
+#ifdef HAVE_MMG
+namespace {
+/*--- 2D SU2 ASCII mesh (triangles, quadrilaterals split; line markers) into a CSimplexMesh. ---*/
+CSimplexMesh ReadSU2(const string& file) {
+  std::ifstream in(file);
+  if (!in) throw std::runtime_error("cannot open " + file);
+  CSimplexMesh mesh;
+  mesh.nDim = 2;
+  string line;
+  auto value = [](const string& l) { return std::stoul(l.substr(l.find('=') + 1)); };
+  short ref = 0;
+  while (std::getline(in, line)) {
+    if (line.rfind("NELEM", 0) == 0) {
+      const auto n = value(line);
+      for (unsigned long i = 0; i < n; ++i) {
+        std::getline(in, line);
+        std::istringstream ss(line);
+        unsigned long type, a, b, c, d;
+        ss >> type >> a >> b >> c;
+        if (type == 5) {
+          mesh.elem.insert(mesh.elem.end(), {a, b, c});
+        } else {
+          ss >> d;
+          mesh.elem.insert(mesh.elem.end(), {a, b, c, a, c, d});
+        }
+      }
+    } else if (line.rfind("NPOIN", 0) == 0) {
+      const auto n = value(line);
+      for (unsigned long i = 0; i < n; ++i) {
+        std::getline(in, line);
+        std::istringstream ss(line);
+        passivedouble x, y;
+        ss >> x >> y;
+        mesh.coord.insert(mesh.coord.end(), {x, y});
+      }
+    } else if (line.rfind("MARKER_TAG", 0) == 0) {
+      CSimplexMesh::Marker marker;
+      auto name = line.substr(line.find('=') + 1);
+      name.erase(std::remove(name.begin(), name.end(), ' '), name.end());
+      marker.name = name;
+      marker.ref = ++ref;
+      std::getline(in, line);
+      const auto n = value(line);
+      for (unsigned long i = 0; i < n; ++i) {
+        std::getline(in, line);
+        std::istringstream ss(line);
+        unsigned long type, a, b;
+        ss >> type >> a >> b;
+        marker.elem.insert(marker.elem.end(), {a, b});
+      }
+      mesh.markers.push_back(marker);
+    }
+  }
+  mesh.elemRef.assign(mesh.GetnElem(), 0);
+  /*--- Positive orientation. ---*/
+  for (unsigned long e = 0; e < mesh.GetnElem(); ++e) {
+    auto* v = &mesh.elem[3 * e];
+    if (BLWallRule::Orientation(&mesh.coord[2 * v[0]], &mesh.coord[2 * v[1]], &mesh.coord[2 * v[2]]) < 0)
+      std::swap(v[1], v[2]);
+  }
+  return mesh;
+}
+}  // namespace
+
+TEST_CASE("Fixed analytic metric, repeated two-pass remeshes (developer, M3.3, hidden)", "[.BLFixedMetric]") {
+  /*--- SU2_TEST_MESH: plate (marker wall) or NACA (marker airfoil) input mesh; SU2_TEST_CASE: plate or naca. ---*/
+  const char* file = getenv("SU2_TEST_MESH");
+  const char* kind = getenv("SU2_TEST_CASE");
+  if (file == nullptr || kind == nullptr) {
+    WARN("SU2_TEST_MESH and SU2_TEST_CASE not set: nothing to do.");
+    return;
+  }
+  const bool plate = string(kind) == "plate";
+  const string wallName = plate ? "wall" : "airfoil";
+  const passivedouble h0 = plate ? 2e-6 : 4e-6;
+  auto mesh = ReadSU2(file);
+  auto metricAt = [&](CSimplexMesh& m) {
+    m.metric.assign(3 * m.GetnPoint(), 0.0);
+    for (unsigned long i = 0; i < m.GetnPoint(); ++i) {
+      const auto x = m.coord[2 * i], y = m.coord[2 * i + 1];
+      auto* M = &m.metric[3 * i];
+      if (plate) {
+        const auto hn = std::min(0.05, 1e-4 + 0.1 * fabs(y));
+        M[0] = 1.0 / (0.02 * 0.02);
+        M[2] = 1.0 / (hn * hn);
+      } else {
+        const auto d = std::hypot(x - std::min(1.0, std::max(0.0, x)), y);
+        const auto s = std::min(50.0, 2e-3 + 0.1 * d);
+        M[0] = M[2] = 1.0 / (s * s);
+      }
+    }
+  };
+  const bool quiet = getenv("SU2_TEST_VERBOSE") == nullptr;
+  std::unique_ptr<CConfig> config;
+  {
+    std::unique_ptr<Mute> mute(quiet ? new Mute : nullptr);
+    stringstream ss(string("SOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6e6\nMACH_NUMBER= 0.15\n") +
+                    "MESH_FORMAT= SU2\nMESH_FILENAME= unused.su2\nMGLEVEL= 0\nCOMPUTE_METRIC= YES\nADAP_SENSOR= (MACH)\n" +
+                    (plate ? "MARKER_HEATFLUX= (wall, 0.0)\nMARKER_FAR= (farfield, inlet, outlet)\nMARKER_SYM= (symmetry)\n"
+                                 "ADAP_HMAX= 0.5\nADAP_BL_FIRST_HEIGHT= (2e-6)\n"
+                           : "MARKER_HEATFLUX= (airfoil, 0.0)\nMARKER_FAR= (farfield)\nADAP_HMAX= 50\n"
+                             "ADAP_BL_FIRST_HEIGHT= (4e-6)\n") +
+                    "ADAP_HMIN= 1e-6\nADAP_ARMAX= 1e4\nADAP_BL_MARKER= (" + wallName + ")\nADAP_BL_GROWTH= (1.15)\n"
+                    "ADAP_BL_THICKNESS= (0.05)\nADAP_BL_METHOD= TWO_PASS\nADAP_SURFACE= YES\n" +
+                    (getenv("SU2_TEST_EXTRA") ? getenv("SU2_TEST_EXTRA") : ""));
+    config.reset(new CConfig(ss, SU2_COMPONENT::SU2_CFD, false));
+  }
+  CReferenceWall reference(mesh, {wallName}, SU2_TYPE::GetValue(config->GetAdap_Angle()));
+  for (int cycle = 1; cycle <= 3; ++cycle) {
+    metricAt(mesh);
+    CBoundaryLayerRemesher::Report report;
+    {
+      std::unique_ptr<Mute> mute(quiet ? new Mute : nullptr);
+      mesh = CBoundaryLayerRemesher::TwoPass(*config, mesh, reference, report);
+    }
+    /*--- Face heights of the wall: in-band fraction (count). ---*/
+    const auto* wall = mesh.FindMarker(wallName);
+    std::set<std::pair<unsigned long, unsigned long>> faces;
+    for (unsigned long i = 0; i < wall->GetnElem(2); ++i) faces.insert(std::minmax(wall->elem[2 * i], wall->elem[2 * i + 1]));
+    unsigned long nFace = 0, nIn = 0;
+    std::vector<passivedouble> heights;
+    for (unsigned long e = 0; e < mesh.GetnElem(); ++e) {
+      const auto* v = &mesh.elem[3 * e];
+      for (int k = 0; k < 3; ++k) {
+        const auto a = v[(k + 1) % 3], b = v[(k + 2) % 3];
+        if (!faces.count(std::minmax(a, b))) continue;
+        const passivedouble* pa = &mesh.coord[2 * a];
+        const passivedouble* pb = &mesh.coord[2 * b];
+        const passivedouble* pc = &mesh.coord[2 * v[k]];
+        const auto len = std::hypot(pb[0] - pa[0], pb[1] - pa[1]);
+        const auto h = fabs((pb[0] - pa[0]) * (pc[1] - pa[1]) - (pb[1] - pa[1]) * (pc[0] - pa[0])) / len / h0;
+        heights.push_back(h);
+        nFace++;
+        nIn += (h >= 0.5 && h <= 2.0);
+      }
+    }
+    std::sort(heights.begin(), heights.end());
+    std::cerr << "FIXEDMETRIC " << kind << " cycle " << cycle << " points " << mesh.GetnPoint() << " passA "
+              << report.passA << " attempts " << report.attempts << " wallFaces " << nFace << " inBand "
+              << 100.0 * nIn / std::max(1ul, nFace) << "% median " << heights[heights.size() / 2] << " cornerFacesOut "
+              << report.nCornerFaceOut << "/" << report.nCornerFace << " cornerMin " << report.cornerFaceMin
+              << " firstNode " << (report.nFirstNode.empty() ? 0 : report.nFirstNode[0]) << " below "
+              << (report.nFirstNodeBelow.empty() ? 0 : report.nFirstNodeBelow[0]) << " above "
+              << (report.nFirstNodeAbove.empty() ? 0 : report.nFirstNodeAbove[0]) << " sensorLoss "
+              << report.nSensorLoss << endl;
+  }
+}
+#endif
