@@ -193,6 +193,66 @@ inline bool strict_cells(const std::vector<Triangle>& cells, std::string& reason
   return true;
 }
 
+/*! Repair wedges between newly carved wall children while their complete stars
+ * are still private. Tangential apex motion preserves the requested altitude;
+ * the cavity perimeter and frozen donor metric remain unchanged. */
+inline void relax_wall_apices(std::vector<Triangle>& cells, const Metric& metric) {
+  for (int sweep = 0; sweep < 3; ++sweep) {
+    bool improved = false;
+    for (size_t child = 0; child < cells.size(); ++child) {
+      if (!cells[child].protected_cell) continue;
+      const auto wall = cells[child];  // Carving orders each child as base endpoints, apex.
+      const auto apex = wall.v[2];
+      std::vector<size_t> star;
+      for (size_t i = 0; i < cells.size(); ++i)
+        for (const auto& v : cells[i].v)
+          if (v.id == apex.id) star.push_back(i);
+      auto penalty = [&](const std::vector<Triangle>& candidate) {
+        double value = 0;
+        for (const auto i : star) {
+          const auto& t = candidate[i];
+          const double deficit = std::max(0., 1 - quality(t, metric) / .22);
+          value += deficit * deficit;
+          if (t.protected_cell) {
+            if (quality(t, metric) < .18) return std::numeric_limits<double>::infinity();
+            for (int k = 1; k < 3; ++k) {
+              const double excess = std::max(0., length(t.v[k], t.v[(k + 1) % 3], metric) / 1.8 - 1);
+              value += excess * excess;
+            }
+          }
+        }
+        return value;
+      };
+      double best = penalty(cells);
+      if (best == 0) continue;
+      const auto base = wall.v[1].p - wall.v[0].p;
+      const double current = dot(apex.p - wall.v[0].p, base) / dot(base, base);
+      const Point offset = apex.p - (wall.v[0].p + base * current);
+      auto choice = cells;
+      for (const double parameter : {.05, .2, .35, .5, .65, .8, .95}) {
+        auto trial = cells;
+        const Point position = wall.v[0].p + base * parameter + offset;
+        for (const auto i : star)
+          for (auto& v : trial[i].v)
+            if (v.id == apex.id) v.p = position;
+        std::string reason;
+        // Geometry admission precedes donor queries, including inverted/star-crossing trials.
+        if (!strict_cells(trial, reason)) continue;
+        const double score = penalty(trial);
+        if (score + 1e-12 < best) {
+          best = score;
+          choice = std::move(trial);
+        }
+      }
+      if (best + 1e-12 < penalty(cells)) {
+        cells.swap(choice);
+        improved = true;
+      }
+    }
+    if (!improved) break;
+  }
+}
+
 inline bool reconstruct(Operation op, const std::vector<Cell>& old, const Reference& reference, const Metric& metric,
                         Id next, std::vector<Cell>& fresh, std::string& reason,
                         double geometry_tolerance = std::numeric_limits<double>::infinity()) {
@@ -416,6 +476,7 @@ inline bool reconstruct(Operation op, const std::vector<Cell>& old, const Refere
     reason = "remaining polygon triangulation failed";
     return false;
   }
+  relax_wall_apices(accepted, metric);
   if (op.fault == 2 && !accepted.empty()) std::swap(accepted[0].v[1], accepted[0].v[2]);
   if (!strict_cells(accepted, reason)) return false;
   long double total = 0;

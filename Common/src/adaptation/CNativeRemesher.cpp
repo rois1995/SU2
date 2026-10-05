@@ -132,6 +132,14 @@ struct PendingBindings {
   std::map<FaceCoordinates, int> edges;
   bool published = false;
 };
+struct RejectionCount {
+  std::array<char, 128> reason{};
+  uint64_t count = 0;
+  template <class S>
+  void Fields(S& s) {
+    s(reason, count);
+  }
+};
 }  // namespace
 
 void CNativeRemesher::PrepareReference(const CConfig& config, const CGeometry& geometry) {
@@ -186,6 +194,9 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
               << ", requested wall altitude relative error<=1e-8; dependency budget=" << control.dependency_bytes
               << " bytes per rank, original P1 nodal target, boundary sampling "
               << (control.fixed_boundary ? "fixed" : "adaptive") << ".\n";
+  if (world.rank == 0)
+    for (const auto& height : heights)
+      std::cout << "Native requested first altitude: " << names[height.first] << " = " << height.second << '\n';
   Engine engine(world, std::move(input), policy, control);
   engine.adapt();
   uint64_t missedQuality = 0, missedHeight = 0, missedGeometry = 0;
@@ -224,9 +235,38 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
     }
   };
   const auto commits = world.sum(engine.stats.commits), cross = world.sum(engine.stats.cross_rank);
+  const auto rejectedSize = world.sum(engine.stats.size_rejected),
+             rejectedMemory = world.sum(engine.stats.memory_rejected),
+             rejectedStale = world.sum(engine.stats.stale_rejected), conflicts = world.sum(engine.stats.conflicts);
+  const auto bytes = CPassiveComm::Allreduce(uint64_t(world.bytes_sent), CPassiveComm::Op::SUM);
+  const auto transportEstimate =
+      CPassiveComm::Allreduce(uint64_t(world.max_exchange_work_bytes), CPassiveComm::Op::MAX);
+  std::array<uint64_t, 8> actions;
+  for (size_t a = 0; a < actions.size(); ++a)
+    actions[a] = CPassiveComm::Allreduce(uint64_t(engine.stats.accepted[a]), CPassiveComm::Op::SUM);
+  std::vector<RejectionCount> localReasons;
+  for (const auto& entry : engine.stats.rejected) {
+    RejectionCount record;
+    std::copy_n(entry.first.begin(), std::min(entry.first.size(), record.reason.size() - 1), record.reason.begin());
+    record.count = entry.second;
+    localReasons.push_back(record);
+  }
+  const auto allReasons = world.metadata(localReasons);
+  std::map<std::string, uint64_t> reasons;
+  for (const auto& entry : allReasons) reasons[entry.reason.data()] += entry.count;
   if (world.rank == 0)
     std::cout << "Native adaptation: " << commits << " commits (" << cross << " across owners), qmin=" << minQuality
               << ", Lmax=" << maxLength << ", residual cells=" << missedQuality << ", height faces=" << missedHeight
               << ", reference faces=" << missedGeometry << ". No remesher-side target floor.\n";
+  if (world.rank == 0) {
+    std::cout << "Native operations (height/split/remove/redistribute/bulk remove/split/flip/move):";
+    for (const auto count : actions) std::cout << ' ' << count;
+    std::cout << "; conflicts=" << conflicts << ", dependency-size rejects=" << rejectedSize
+              << ", memory rejects=" << rejectedMemory << ", stale rejects=" << rejectedStale
+              << ", engine encoded bytes=" << bytes << ", largest transport admission estimate=" << transportEstimate
+              << '\n';
+    for (const auto& entry : reasons)
+      std::cout << "Native deferred/rejected candidate: " << entry.first << " (" << entry.second << ").\n";
+  }
   return result;
 }

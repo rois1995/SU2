@@ -129,3 +129,41 @@ TEST_CASE("Native kernel: boundary and first-height cells change together", "[Na
     }
   }
 }
+
+TEST_CASE("Native kernel: coupled tangential apex repair opens an inter-wall wedge", "[NativeMesh2D]") {
+  // Coordinates of the two close apices that caused the eighth real SU2 BL cycle
+  // to fail. Close their complete stars with an unchanged artificial perimeter.
+  const Node a{0, {.023815431230468573, 0}, 1}, b{1, {.02941277152096965, 0}, 1},
+      c{2, {.04, 0}, 1}, d{3, {.04, .01}, 1}, e{4, {.023815431230468573, .01}, 1},
+      left{5, {.029132904506444596, .0045}, 0}, right{6, {.02994213294492117, .0045}, 0},
+      top{7, {.02627391247161338, .007985336090842557}, 0};
+  std::vector<Triangle> cells{triangle(a, b, left), triangle(b, c, right), triangle(left, b, right),
+                            triangle(top, left, right), triangle(a, left, top), triangle(right, c, d),
+                            triangle(top, right, d), triangle(a, top, e), triangle(top, d, e)};
+  cells[0].protected_cell = cells[1].protected_cell = 1;
+  const auto metric = checked([](Point) { return Tensor{10000., 0., 1 / (.0045 * .0045)}; });
+  std::string reason;
+  REQUIRE(strict_cells(cells, reason));
+  REQUIRE(min_quality(cells, metric) < .18);
+  const auto perimeter = boundary(cells);
+  const double originalLength = max_length(cells, metric);
+  relax_wall_apices(cells, metric);
+  REQUIRE(strict_cells(cells, reason));
+  CHECK(min_quality(cells, metric) >= .18);
+  // Fixed artificial edges are outside this repair; their longest length is unchanged.
+  CHECK(max_length(cells, metric) <= originalLength);
+  const auto after = boundary(cells);
+  REQUIRE(after.size() == perimeter.size());
+  for (const auto& edge : perimeter) {
+    REQUIRE(after.count(edge.first) == 1);
+    const auto face = after.at(edge.first);
+    CHECK(face.first.p.x == edge.second.first.p.x);
+    CHECK(face.first.p.y == edge.second.first.p.y);
+    CHECK(face.second.p.x == edge.second.second.p.x);
+    CHECK(face.second.p.y == edge.second.second.p.y);
+  }
+  for (int i = 0; i < 2; ++i) {
+    CHECK(static_cast<double>(2 * area(cells[i])) / norm(cells[i].v[1].p - cells[i].v[0].p) ==
+          Approx(.0045).epsilon(1e-12));
+  }
+}
