@@ -1318,6 +1318,35 @@ TEST_CASE("Corner rule: cyclic square windows have bounded sample growth", "[Ada
   }
 }
 
+TEST_CASE("Corner rule: connected zigzag has bounded sample growth", "[Adaptation]") {
+  const unsigned long n = 2000;
+  std::vector<std::array<passivedouble, 2>> points;
+  for (unsigned long i = 0; i <= n; ++i)
+    points.push_back({0.0005 * i, 0.0005 * (i % 2) + 1e-10 * sin(1.2345 * i)});
+  CReferenceWall wall(PolylineMesh(points, false), {"wall"}, 45.0);
+  REQUIRE(wall.GetSegments().size() == n);
+  const auto corners = BLWallRule::FindCorners(wall);
+  REQUIRE(corners.size() == n - 1);
+  for (const auto& c : corners) REQUIRE(c.floor == 0.0);
+  BLWallRule::SizeRule rule;
+  rule.h0 = 2e-4;
+  std::vector<BLWallRule::SizeSamples> samples;
+  unsigned long initial = 0;
+  for (unsigned long iSeg = 0; iSeg < wall.GetSegments().size(); ++iSeg) {
+    samples.push_back(BLWallRule::SampleSize(wall, iSeg, rule,
+                                           [](const passivedouble*, const passivedouble*) { return 0.005; }));
+    initial += samples.back().s.size();
+  }
+  const auto start = std::chrono::steady_clock::now();
+  BLWallRule::ApplyCorners(wall, corners, rule.gradation, samples);
+  const auto elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count();
+  unsigned long total = 0;
+  for (const auto& smp : samples) total += smp.s.size();
+  CAPTURE(initial, total, elapsed);
+  CHECK(total <= 4 * initial);
+  CHECK(elapsed < 5.0);
+}
+
 TEST_CASE("Corner rule: convexity from the input mesh (fluid angle, fan, wedge)", "[Adaptation]") {
   const auto omega = 16.0 * M_PI / 180.0;
   const auto lens = Lens(omega, 40);

@@ -776,17 +776,20 @@ BLWallRule::CornerChanges BLWallRule::ApplyCorners(const CReferenceWall& wall, c
     }
   }
 
+  const auto gridSnapshot = samples;
+
   /*--- Symmetry: both sides of a corner take the smaller size at the same distance from it, never below their own
    *    t_min (markers with different h0). Synchronise the grid once per corner, using the union of its two sides'
-   *    distances within the reach and the clipped reach; insertion work is bounded by the samples at that corner's
-   *    start. Symmetry between samples is exact for corners whose windows do not overlap another corner's window;
+   *    distances within the reach and the clipped reach from the snapshot after the floor break points, so inserted
+   *    samples cannot cascade through successive corners. Symmetry between samples is exact for corners whose
+   *    windows do not overlap another corner's window;
    *    with overlapping windows it holds only at shared samples. Repeat symmetry from the current sizes and grading
    *    of the touched segments until no sizes change (capped rounds), propagating reductions through overlapping
    *    windows. Each size round reads the same snapshot; both steps only lower sizes. ---*/
   std::vector<passivedouble> reachOf;
   for (const auto& corner : corners) {
-    const auto& a = samples[corner.seg[0]];
-    const auto& b = samples[corner.seg[1]];
+    const auto& a = gridSnapshot[corner.seg[0]];
+    const auto& b = gridSnapshot[corner.seg[1]];
     if (a.s.empty() || b.s.empty()) {
       reachOf.push_back(0.0);
       continue;
@@ -799,13 +802,13 @@ BLWallRule::CornerChanges BLWallRule::ApplyCorners(const CReferenceWall& wall, c
     const auto& corner = corners[iCorner];
     const auto reach = reachOf[iCorner];
     if (!(reach > 0.0)) continue;
-    const auto& a = samples[corner.seg[0]];
-    const auto& b = samples[corner.seg[1]];
+    const auto& a = gridSnapshot[corner.seg[0]];
+    const auto& b = gridSnapshot[corner.seg[1]];
     const auto tol = 8.0 * std::numeric_limits<passivedouble>::epsilon() *
                      std::max(a.s.back() - a.s.front(), b.s.back() - b.s.front());
     std::vector<passivedouble> distances = {std::min({reach, a.s.back() - a.s.front(), b.s.back() - b.s.front()})};
     for (unsigned short k = 0; k < 2; ++k) {
-      const auto& smp = samples[corner.seg[k]];
+      const auto& smp = gridSnapshot[corner.seg[k]];
       for (unsigned long j = 0; j < smp.s.size(); ++j) {
         const auto r = FromEnd(smp, corner.atEnd[k], j);
         if (r <= reach + tol) distances.push_back(std::min(r, reach));
