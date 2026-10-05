@@ -2579,6 +2579,8 @@ void CPhysicalGeometry::LoadSurfaceElements(CConfig* config, CGeometry* geometry
       /*--- Create the geometry object for this element. ---*/
 
       bound[iMarker][nElemBound_Local[iMarker]] = new CLine(Local_Nodes[0], Local_Nodes[1]);
+      /*--- Keep the original face ID for mesh output; SetBoundVolume uses GetGlobalIndex for the adjacent cell. ---*/
+      BoundaryGlobalIndex[bound[iMarker][nElemBound_Local[iMarker]]] = Elem_ID_Line[iElem];
 
       /*--- Increment our counters for this marker and element type. ---*/
 
@@ -2608,6 +2610,7 @@ void CPhysicalGeometry::LoadSurfaceElements(CConfig* config, CGeometry* geometry
       /*--- Create the geometry object for this element. ---*/
 
       bound[iMarker][nElemBound_Local[iMarker]] = new CTriangle(Local_Nodes[0], Local_Nodes[1], Local_Nodes[2]);
+      BoundaryGlobalIndex[bound[iMarker][nElemBound_Local[iMarker]]] = Elem_ID_BoundTria[iElem];
 
       /*--- Increment our counters for this marker and element type. ---*/
 
@@ -2638,6 +2641,7 @@ void CPhysicalGeometry::LoadSurfaceElements(CConfig* config, CGeometry* geometry
 
       bound[iMarker][nElemBound_Local[iMarker]] =
           new CQuadrilateral(Local_Nodes[0], Local_Nodes[1], Local_Nodes[2], Local_Nodes[3]);
+      BoundaryGlobalIndex[bound[iMarker][nElemBound_Local[iMarker]]] = Elem_ID_BoundQuad[iElem];
 
       /*--- Increment our counters for this marker and element type. ---*/
 
@@ -3259,6 +3263,8 @@ void CPhysicalGeometry::SetBoundaries(CConfig* config) {
           bound_Copy[iMarker][iElem_Bound] =
               new CQuadrilateral(bound[iMarker][iElem_Bound]->GetNode(0), bound[iMarker][iElem_Bound]->GetNode(1),
                                  bound[iMarker][iElem_Bound]->GetNode(2), bound[iMarker][iElem_Bound]->GetNode(3));
+        BoundaryGlobalIndex[bound_Copy[iMarker][iElem_Bound]] = BoundaryGlobalIndex.at(bound[iMarker][iElem_Bound]);
+        BoundaryGlobalIndex.erase(bound[iMarker][iElem_Bound]);
       }
     }
   }

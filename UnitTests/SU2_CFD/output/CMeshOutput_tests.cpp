@@ -28,6 +28,7 @@
 
 #include <algorithm>
 #include <cstdio>
+#include <fstream>
 #include <map>
 #include <set>
 
@@ -46,6 +47,8 @@ namespace {
 struct GlobalMesh {
   std::map<unsigned long, std::vector<passivedouble>> coord;
   std::multiset<std::vector<unsigned long>> elem;
+  std::map<unsigned long, std::vector<unsigned long>> elemByIndex;
+  std::map<string, std::vector<std::vector<unsigned long>>> markerOrder;
   std::map<string, std::multiset<std::vector<unsigned long>>> markers;
 };
 
@@ -86,11 +89,18 @@ GlobalMesh ReadMesh(CConfig* config) {
     std::sort(nodes.begin(), nodes.end());
     return nodes;
   };
-  for (auto iElem = 0ul; iElem < fine->GetnElem(); ++iElem) mesh.elem.insert(globalNodes(fine->elem[iElem]));
+  for (auto iElem = 0ul; iElem < fine->GetnElem(); ++iElem) {
+    const auto nodes = globalNodes(fine->elem[iElem]);
+    mesh.elem.insert(nodes);
+    mesh.elemByIndex[fine->elem[iElem]->GetGlobalIndex()] = nodes;
+  }
   for (unsigned short iMarker = 0; iMarker < fine->GetnMarker(); ++iMarker) {
     auto& marker = mesh.markers[config->GetMarker_All_TagBound(iMarker)];
-    for (auto iElem = 0ul; iElem < fine->GetnElem_Bound(iMarker); ++iElem)
-      marker.insert(globalNodes(fine->bound[iMarker][iElem]));
+    for (auto iElem = 0ul; iElem < fine->GetnElem_Bound(iMarker); ++iElem) {
+      const auto nodes = globalNodes(fine->bound[iMarker][iElem]);
+      marker.insert(nodes);
+      mesh.markerOrder[config->GetMarker_All_TagBound(iMarker)].push_back(nodes);
+    }
   }
   for (unsigned short iMesh = 0; iMesh <= config->GetnMGLevels(); ++iMesh) delete geometry[iMesh];
   delete[] geometry;
@@ -102,7 +112,8 @@ GlobalMesh ReadMesh(CConfig* config) {
  *        with CMeshOutput::WriteMesh, read that file, and compare both meshes by global point index (the output keeps
  *        the numbering of the geometry). The coordinates must be read back exactly in every format.
  */
-void CheckWriteAndRead(const CSimplexMesh& simplexMesh, const string& outFormat, const string& markerOptions = "") {
+void CheckWriteAndRead(const CSimplexMesh& simplexMesh, const string& outFormat,
+                       const string& markerOptions = "", bool scramble = false) {
   const auto nDim = simplexMesh.nDim;
   const string inputFile = "mesh_output_test_input.su2";
   const string outputName = "mesh_output_test_output";
@@ -115,6 +126,12 @@ void CheckWriteAndRead(const CSimplexMesh& simplexMesh, const string& outFormat,
   CGeometry** geometry = nullptr;
   auto* origBuf = std::cout.rdbuf(nullptr);
   CDriver::BuildGeometryFVM(config.get(), new CPhysicalGeometry(config.get(), 0, 1), geometry);
+  if (scramble) {
+    auto* fine = geometry[MESH_0];
+    std::reverse(fine->elem, fine->elem + fine->GetnElem());
+    for (unsigned short iMarker = 0; iMarker < fine->GetnMarker(); ++iMarker)
+      std::reverse(fine->bound[iMarker], fine->bound[iMarker] + fine->GetnElem_Bound(iMarker));
+  }
   CMeshOutput::WriteMesh(config.get(), geometry[MESH_0], outputName);
   std::cout.rdbuf(origBuf);
   delete geometry[MESH_0];
@@ -138,6 +155,10 @@ void CheckWriteAndRead(const CSimplexMesh& simplexMesh, const string& outFormat,
 
   CHECK(output.elem.size() == simplexMesh.GetnElem());
   CHECK(output.elem == input.elem);
+  if (outFormat != "CGNS") {
+    CHECK(output.elemByIndex == input.elemByIndex);
+    CHECK(output.markerOrder == input.markerOrder);
+  }
 
   /*--- Every marker of the mesh, with its own elements (coplanar markers of the same type are not merged). ---*/
   REQUIRE(output.markers.size() == simplexMesh.markers.size());
@@ -171,6 +192,45 @@ TEST_CASE("Mesh output from memory, SU2 binary", "[Adaptation]") {
   CheckWriteAndRead(simplex_test::MakeSimplexMesh(2, 4, simplex_test::Marker2D), "SU2B");
   CheckWriteAndRead(simplex_test::MakeSimplexMesh(3, 2, simplex_test::Marker3D), "SU2B");
   CheckWriteAndRead(AnisotropicRectangle(), "SU2B");
+}
+
+TEST_CASE("Mesh output preserves global element and boundary order", "[Adaptation][MeshOrder]") {
+  if (SU2_MPI::GetSize() != 1) return;
+  for (const auto& format : {"SU2", "SU2B"}) {
+    CheckWriteAndRead(simplex_test::MakeSimplexMesh(2, 4, simplex_test::Marker2D), format, "", true);
+    CheckWriteAndRead(simplex_test::MakeSimplexMesh(3, 2, simplex_test::Marker3D), format, "", true);
+  }
+}
+
+TEST_CASE("Mesh output preserves interleaved element types", "[Adaptation][MeshOrder]") {
+  if (SU2_MPI::GetSize() != 1) return;
+  const string inputFile = "mesh_output_mixed_input.su2";
+  const string outputName = "mesh_output_mixed_output";
+  {
+    std::ofstream file(inputFile);
+    file << "NDIME= 2\nNELEM= 3\n5 1 2 5 0\n9 0 1 4 3 1\n5 1 5 4 2\n"
+            "NPOIN= 6\n0 0 0\n1 0 1\n2 0 2\n0 1 3\n1 1 4\n2 1 5\n"
+            "NMARK= 1\nMARKER_TAG= wall\nMARKER_ELEMS= 6\n"
+            "3 0 1\n3 1 2\n3 2 5\n3 5 4\n3 4 3\n3 3 0\n";
+  }
+  for (const auto& format : {"SU2", "SU2B"}) {
+    auto config = MakeConfig(2, inputFile, "SU2", format, "MARKER_FAR= (wall)\n");
+    const auto input = ReadMesh(config.get());
+    CGeometry** geometry = nullptr;
+    auto* origBuf = std::cout.rdbuf(nullptr);
+    CDriver::BuildGeometryFVM(config.get(), new CPhysicalGeometry(config.get(), 0, 1), geometry);
+    CMeshOutput::WriteMesh(config.get(), geometry[MESH_0], outputName);
+    std::cout.rdbuf(origBuf);
+    delete geometry[MESH_0];
+    delete[] geometry;
+    const auto outputFile = outputName + config->GetMesh_Out_FileExtension();
+    auto outputConfig = MakeConfig(2, outputFile, format, "", "MARKER_FAR= (wall)\n");
+    const auto output = ReadMesh(outputConfig.get());
+    CHECK(output.elemByIndex == input.elemByIndex);
+    CHECK(output.markerOrder == input.markerOrder);
+    std::remove(outputFile.c_str());
+  }
+  std::remove(inputFile.c_str());
 }
 
 #ifdef HAVE_CGNS

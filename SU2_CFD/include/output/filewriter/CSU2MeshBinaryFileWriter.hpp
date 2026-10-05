@@ -34,6 +34,8 @@ private:
   unsigned short iZone, //!< Index of the current zone
   nZone;                //!< Number of zones
 
+  const vector<unsigned long>* volumeConnectivity = nullptr;  //!< Optional globally ordered mesh connectivity.
+
   bool boundaryFromMemory = false;                         //!< Write the markers set with SetBoundaryMarkers
   vector<CFVMDataSorter::BoundaryMarker> boundaryMarkers;  //!< Physical markers of the geometry
 
@@ -68,6 +70,15 @@ public:
    */
   void SetBoundaryMarkers(CConfig* config, CGeometry* geometry, const CFVMDataSorter* volumeSorter) {
     boundaryMarkers = volumeSorter->GatherBoundaryMarkers(config, geometry);
+    boundaryFromMemory = true;
+  }
+
+  /*! \brief Mesh-output path: ordered [VTK type, global nodes, global element ID] records of this rank. */
+  void SetVolumeConnectivity(const vector<unsigned long>* connectivity) { volumeConnectivity = connectivity; }
+
+  /*! \brief Mesh-output path: physical markers already ordered by their original surface IDs. */
+  void SetBoundaryMarkers(const vector<CFVMDataSorter::BoundaryMarker>& markers) {
+    boundaryMarkers = markers;
     boundaryFromMemory = true;
   }
 

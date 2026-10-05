@@ -76,42 +76,52 @@ void CSU2MeshFileWriter::WriteData(string val_filename) {
     if (rank == iProcessor) {
       output_file.open(val_filename, ios::app);
 
-      for (auto iElem = 0ul; iElem < dataSorter->GetnElem(TRIANGLE); iElem++) {
-        output_file << "5\t";
-        for (auto iNode = 0u; iNode < N_POINTS_TRIANGLE; ++iNode)
-          output_file << dataSorter->GetElemConnectivity(TRIANGLE, iElem, iNode) - 1 << "\t";
-        output_file << nElem + offset << "\n"; nElem++;
-      }
-      for (auto iElem = 0ul; iElem < dataSorter->GetnElem(QUADRILATERAL); iElem++) {
-        output_file << "9\t";
-        for (auto iNode = 0u; iNode < N_POINTS_QUADRILATERAL; ++iNode)
-          output_file << dataSorter->GetElemConnectivity(QUADRILATERAL, iElem, iNode) - 1 << "\t";
-        output_file << nElem + offset << "\n"; nElem++;
-      }
-      for (auto iElem = 0ul; iElem < dataSorter->GetnElem(TETRAHEDRON); iElem++) {
-        output_file << "10\t";
-        for (auto iNode = 0u; iNode < N_POINTS_TETRAHEDRON; ++iNode)
-          output_file << dataSorter->GetElemConnectivity(TETRAHEDRON, iElem, iNode) - 1 << "\t";
-        output_file << nElem + offset << "\n"; nElem++;
-      }
-      for (auto iElem = 0ul; iElem < dataSorter->GetnElem(HEXAHEDRON); iElem++) {
-        output_file << "12\t";
-        for (auto iNode = 0u; iNode < N_POINTS_HEXAHEDRON; ++iNode)
-          output_file << dataSorter->GetElemConnectivity(HEXAHEDRON, iElem, iNode) - 1 << "\t";
-        output_file << nElem + offset << "\n"; nElem++;
-      }
-      for (auto iElem = 0ul; iElem < dataSorter->GetnElem(PRISM); iElem++) {
-        output_file << "13\t";
-        for (auto iNode = 0u; iNode < N_POINTS_PRISM; ++iNode)
-          output_file << dataSorter->GetElemConnectivity(PRISM, iElem, iNode) - 1 << "\t";
-        output_file << nElem + offset << "\n"; nElem++;
-      }
+      if (volumeConnectivity) {
+        for (size_t pos = 0; pos < volumeConnectivity->size();) {
+          const auto nEntries = nPointsOfElementType((*volumeConnectivity)[pos]) + 2;
+          for (size_t i = 0; i < nEntries; ++i)
+            output_file << (*volumeConnectivity)[pos + i] << (i + 1 == nEntries ? "\n" : "\t");
+          pos += nEntries;
+          ++nElem;
+        }
+      } else {
+        for (auto iElem = 0ul; iElem < dataSorter->GetnElem(TRIANGLE); iElem++) {
+          output_file << "5\t";
+          for (auto iNode = 0u; iNode < N_POINTS_TRIANGLE; ++iNode)
+            output_file << dataSorter->GetElemConnectivity(TRIANGLE, iElem, iNode) - 1 << "\t";
+          output_file << nElem + offset << "\n"; nElem++;
+        }
+        for (auto iElem = 0ul; iElem < dataSorter->GetnElem(QUADRILATERAL); iElem++) {
+          output_file << "9\t";
+          for (auto iNode = 0u; iNode < N_POINTS_QUADRILATERAL; ++iNode)
+            output_file << dataSorter->GetElemConnectivity(QUADRILATERAL, iElem, iNode) - 1 << "\t";
+          output_file << nElem + offset << "\n"; nElem++;
+        }
+        for (auto iElem = 0ul; iElem < dataSorter->GetnElem(TETRAHEDRON); iElem++) {
+          output_file << "10\t";
+          for (auto iNode = 0u; iNode < N_POINTS_TETRAHEDRON; ++iNode)
+            output_file << dataSorter->GetElemConnectivity(TETRAHEDRON, iElem, iNode) - 1 << "\t";
+          output_file << nElem + offset << "\n"; nElem++;
+        }
+        for (auto iElem = 0ul; iElem < dataSorter->GetnElem(HEXAHEDRON); iElem++) {
+          output_file << "12\t";
+          for (auto iNode = 0u; iNode < N_POINTS_HEXAHEDRON; ++iNode)
+            output_file << dataSorter->GetElemConnectivity(HEXAHEDRON, iElem, iNode) - 1 << "\t";
+          output_file << nElem + offset << "\n"; nElem++;
+        }
+        for (auto iElem = 0ul; iElem < dataSorter->GetnElem(PRISM); iElem++) {
+          output_file << "13\t";
+          for (auto iNode = 0u; iNode < N_POINTS_PRISM; ++iNode)
+            output_file << dataSorter->GetElemConnectivity(PRISM, iElem, iNode) - 1 << "\t";
+          output_file << nElem + offset << "\n"; nElem++;
+        }
 
-      for (auto iElem = 0ul; iElem < dataSorter->GetnElem(PYRAMID); iElem++) {
-        output_file << "14\t";
-        for (auto iNode = 0u; iNode < N_POINTS_PYRAMID; ++iNode)
-          output_file << dataSorter->GetElemConnectivity(PYRAMID, iElem, iNode) - 1 << "\t";
-        output_file << nElem + offset << "\n"; nElem++;
+        for (auto iElem = 0ul; iElem < dataSorter->GetnElem(PYRAMID); iElem++) {
+          output_file << "14\t";
+          for (auto iNode = 0u; iNode < N_POINTS_PYRAMID; ++iNode)
+            output_file << dataSorter->GetElemConnectivity(PYRAMID, iElem, iNode) - 1 << "\t";
+          output_file << nElem + offset << "\n"; nElem++;
+        }
       }
 
       output_file.close();

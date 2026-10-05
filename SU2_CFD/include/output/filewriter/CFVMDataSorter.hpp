@@ -34,6 +34,8 @@ class CFVMDataSorter final: public CParallelDataSorter{
 
 private:
 
+  friend class CMeshOutput;  //!< Mesh output alone replaces connectivity with global-element ordering.
+
   vector<int> Local_Halo; //!< Array containing the flag whether a point is a halo node
 
 public:

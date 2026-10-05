@@ -39,6 +39,7 @@
  * \author F. Palacios, T. Economon, J. Alonso
  */
 class CPhysicalGeometry final : public CGeometry {
+  friend class CMeshOutput;  //!< Read original boundary IDs without changing the geometry ordering.
   unordered_map<unsigned long, unsigned long>
       Global_to_Local_Point;              /*!< \brief Global-local indexation for the points. */
   long* Local_to_Global_Point{nullptr};   /*!< \brief Local-global indexation for the points. */
@@ -49,6 +50,7 @@ class CPhysicalGeometry final : public CGeometry {
   vector<vector<unsigned long> > Neighbors;
   unordered_map<unsigned long, unsigned long> Color_List;
   vector<string> Marker_Tags;
+  unordered_map<const CPrimalGrid*, unsigned long> BoundaryGlobalIndex;  //!< Original face IDs for mesh output.
   unsigned long nLocal_Point{0}, nLocal_PointDomain{0}, nLocal_PointGhost{0}, nLocal_PointPeriodic{0}, nLocal_Elem{0},
       nLocal_Bound_Elem{0}, nGlobal_Elem{0}, nGlobal_Bound_Elem{0}, nLocal_Line{0}, nLocal_BoundTria{0},
       nLocal_BoundQuad{0}, nLinear_Line{0}, nLinear_BoundTria{0}, nLinear_BoundQuad{0}, nLocal_Tria{0}, nLocal_Quad{0},

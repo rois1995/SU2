@@ -27,12 +27,16 @@
 
 
 #include "../../include/output/CMeshOutput.hpp"
-#include "../../../Common/include/geometry/CGeometry.hpp"
+#include "../../../Common/include/geometry/CPhysicalGeometry.hpp"
+#include "../../../Common/include/parallelization/CPassiveComm.hpp"
 #include "../../include/output/filewriter/CFVMDataSorter.hpp"
 #include "../../include/output/filewriter/CSU2MeshFileWriter.hpp"
 #include "../../include/output/filewriter/CSU2MeshBinaryFileWriter.hpp"
 #include "../../include/output/filewriter/CCGNSFileWriter.hpp"
 
+#include <algorithm>
+#include <array>
+#include <numeric>
 #include <fstream>
 #include <memory>
 
@@ -90,7 +94,7 @@ void CMeshOutput::LoadVolumeData(CConfig *config, CGeometry *geometry, CSolver *
 
 void CMeshOutput::WriteMesh(CConfig *config, CGeometry *geometry, const string& fileName) {
 
-  /*--- Sort the coordinates and the volume elements by global index, as for the volume output. ---*/
+  /*--- Coordinates use the usual point sorter; mesh connectivity uses element IDs, not the lowest node ID. ---*/
 
   const auto nDim = geometry->GetnDim();
   vector<string> fieldNames = {"x", "y"};
@@ -103,7 +107,98 @@ void CMeshOutput::WriteMesh(CConfig *config, CGeometry *geometry, const string& 
     }
   }
   sorter.SortOutputData();
-  sorter.SortConnectivity(config, geometry, true);
+
+  vector<unsigned long> volumeConn;
+  vector<CFVMDataSorter::BoundaryMarker> boundaryMarkers;
+  if (config->GetMesh_Out_FileFormat() == ENUM_GRID::CGNS_GRID) {
+    sorter.SortConnectivity(config, geometry, true);
+  } else {
+    /*--- Send all copies (including halos) to the linear owner of the element ID, then sort and remove duplicates.
+     *    This also handles ranks with no elements and mixed element types without changing the volume sorter. ---*/
+    using Element = std::array<unsigned long, SU2_CONN_SIZE>;  // Global ID, VTK type, up to eight global node IDs.
+    const CLinearPartitioner elemPartition(geometry->GetGlobal_nElemDomain(), 0);
+    const auto size = SU2_MPI::GetSize();
+    vector<size_t> sendCount(size, 0), recvCount;
+    for (auto iElem = 0ul; iElem < geometry->GetnElem(); ++iElem)
+      ++sendCount[elemPartition.GetRankContainingIndex(geometry->elem[iElem]->GetGlobalIndex())];
+    vector<size_t> offset(size, 0);
+    std::partial_sum(sendCount.begin(), sendCount.end() - 1, offset.begin() + 1);
+    vector<Element> send(geometry->GetnElem());
+    for (auto iElem = 0ul; iElem < geometry->GetnElem(); ++iElem) {
+      const auto* elem = geometry->elem[iElem];
+      auto& record = send[offset[elemPartition.GetRankContainingIndex(elem->GetGlobalIndex())]++];
+      record[0] = elem->GetGlobalIndex();
+      record[1] = elem->GetVTK_Type();
+      for (unsigned short iNode = 0; iNode < elem->GetnNodes(); ++iNode)
+        record[iNode + 2] = geometry->nodes->GetGlobalIndex(elem->GetNode(iNode));
+    }
+    auto elements = CPassiveComm::Alltoallv(send, sendCount, recvCount);
+    std::sort(elements.begin(), elements.end(), [](const Element& a, const Element& b) { return a[0] < b[0]; });
+    elements.erase(std::unique(elements.begin(), elements.end(),
+                              [](const Element& a, const Element& b) { return a[0] == b[0]; }), elements.end());
+    const auto rank = SU2_MPI::GetRank();
+    if (elements.size() != elemPartition.GetSizeOnRank(rank))
+      SU2_MPI::Error("Mesh output is missing global volume element IDs.", CURRENT_FUNCTION);
+    for (size_t i = 0; i < elements.size(); ++i)
+      if (elements[i][0] != elemPartition.GetFirstIndexOnRank(rank) + i)
+        SU2_MPI::Error("Mesh output volume element IDs are not dense.", CURRENT_FUNCTION);
+
+    /*--- Retain the full order for the SU2 writers: grouping by type would reorder a mixed mesh even in serial. ---*/
+    for (const auto& elem : elements) {
+      const auto type = static_cast<GEO_TYPE>(elem[1]);
+      volumeConn.push_back(type);
+      for (unsigned short iNode = 0; iNode < nPointsOfElementType(type); ++iNode)
+        volumeConn.push_back(elem[iNode + 2]);
+      volumeConn.push_back(elem[0]);
+      ++sorter.nElemPerType[sorter.TypeMap.at(type)];
+    }
+    sorter.SetTotalElements();
+    sorter.connectivitySorted = true;
+
+    /*--- GetGlobalIndex/GetDomainElement of a boundary object stores its adjacent volume, not its face ID.
+     *    Geometry preserves the original face IDs separately before freeing the partition buffers. ---*/
+    const auto* physical = dynamic_cast<const CPhysicalGeometry*>(geometry);
+    if (!physical) SU2_MPI::Error("Mesh output needs a physical geometry for boundary IDs.", CURRENT_FUNCTION);
+
+    for (unsigned short iCfg = 0; iCfg < config->GetnMarker_CfgFile(); ++iCfg) {
+      const auto tag = config->GetMarker_CfgFile_TagBound(iCfg);
+      if (config->GetMarker_CfgFile_KindBC(tag) == SEND_RECEIVE) continue;
+      vector<Element> local;
+      for (unsigned short iMarker = 0; iMarker < geometry->GetnMarker(); ++iMarker) {
+        if (config->GetMarker_All_TagBound(iMarker) != tag) continue;
+        for (auto iElem = 0ul; iElem < geometry->GetnElem_Bound(iMarker); ++iElem) {
+          const auto* elem = geometry->bound[iMarker][iElem];
+          bool halo = false, owned = false;
+          Element record{};
+          record[1] = elem->GetVTK_Type();
+          for (unsigned short iNode = 0; iNode < elem->GetnNodes(); ++iNode) {
+            const auto node = elem->GetNode(iNode);
+            halo |= sorter.GetHalo(node);
+            owned |= geometry->nodes->GetDomain(node);
+            record[iNode + 2] = geometry->nodes->GetGlobalIndex(node);
+          }
+          if (halo || !owned) continue;
+          const auto id = physical->BoundaryGlobalIndex.find(elem);
+          if (id == physical->BoundaryGlobalIndex.end())
+            SU2_MPI::Error("Mesh output is missing a boundary element ID.", CURRENT_FUNCTION);
+          record[0] = id->second;
+          local.push_back(record);
+        }
+      }
+      auto faces = CPassiveComm::Allgatherv(local, nullptr);
+      if (faces.empty()) continue;
+      std::sort(faces.begin(), faces.end(), [](const Element& a, const Element& b) { return a[0] < b[0]; });
+      CFVMDataSorter::BoundaryMarker marker;
+      marker.name = tag;
+      marker.nElem = faces.size();
+      for (const auto& face : faces) {
+        marker.conn.push_back(face[1]);
+        for (unsigned short iNode = 0; iNode < nPointsOfElementType(face[1]); ++iNode)
+          marker.conn.push_back(face[iNode + 2]);
+      }
+      boundaryMarkers.push_back(std::move(marker));
+    }
+  }
 
   /*--- The boundaries come from the geometry, named as the markers. ---*/
 
@@ -114,14 +209,16 @@ void CMeshOutput::WriteMesh(CConfig *config, CGeometry *geometry, const string& 
     case ENUM_GRID::SU2: {
       auto* writer = new CSU2MeshFileWriter(&sorter, config->GetiZone(), config->GetnZone());
       fileWriter.reset(writer);
-      writer->SetBoundaryMarkers(config, geometry, &sorter);
+      writer->SetBoundaryMarkers(boundaryMarkers);
+      writer->SetVolumeConnectivity(&volumeConn);
       extension = CSU2MeshFileWriter::fileExt;
       break;
     }
     case ENUM_GRID::SU2_BIN: {
       auto* writer = new CSU2MeshBinaryFileWriter(&sorter, config->GetiZone(), config->GetnZone());
       fileWriter.reset(writer);
-      writer->SetBoundaryMarkers(config, geometry, &sorter);
+      writer->SetBoundaryMarkers(boundaryMarkers);
+      writer->SetVolumeConnectivity(&volumeConn);
       extension = CSU2MeshBinaryFileWriter::fileExt;
       break;
     }

@@ -48,7 +48,7 @@ namespace {
 using conn_t = uint64_t;
 constexpr int32_t SU2B_CONN_TYPE_SIZE = static_cast<int32_t>(sizeof(conn_t));
 
-/*--- Elements are always visited in this fixed order, matching CSU2MeshFileWriter
+/*--- Without explicit mesh connectivity, elements are visited in this fixed order, matching CSU2MeshFileWriter
       (the ASCII writer) so that the two formats produce numerically identical
       meshes for the same input. ---*/
 constexpr std::array<GEO_TYPE, 6> ElemTypes = {TRIANGLE, QUADRILATERAL, TETRAHEDRON,
@@ -123,14 +123,25 @@ void CSU2MeshBinaryFileWriter::WriteData(string val_filename) {
     if (rank == iProcessor) {
       FILE* f = OpenAppend(val_filename);
       unsigned long running = connOffset;
-      for (auto type : ElemTypes) {
-        const conn_t nPointsElem = nPointsOfElementType(type);
-        for (auto iElem = 0ul; iElem < dataSorter->GetnElem(type); iElem++) {
+      if (volumeConnectivity) {
+        for (size_t pos = 0; pos < volumeConnectivity->size();) {
           conn_t value = running;
           fwrite(&value, sizeof(value), 1, f);
-          running += nPointsElem + 2;
+          const auto nEntries = nPointsOfElementType((*volumeConnectivity)[pos]) + 2;
+          running += nEntries;
+          pos += nEntries;
+        }
+      } else {
+        for (auto type : ElemTypes) {
+          const conn_t nPointsElem = nPointsOfElementType(type);
+          for (auto iElem = 0ul; iElem < dataSorter->GetnElem(type); iElem++) {
+            conn_t value = running;
+            fwrite(&value, sizeof(value), 1, f);
+            running += nPointsElem + 2;
+          }
         }
       }
+
       fclose(f);
       localConnOffset = running - connOffset;
     }
@@ -156,19 +167,28 @@ void CSU2MeshBinaryFileWriter::WriteData(string val_filename) {
     if (rank == iProcessor) {
       FILE* f = OpenAppend(val_filename);
       conn_t globalIndex = elemIndexOffset;
-      for (auto type : ElemTypes) {
-        const auto nPointsElem = nPointsOfElementType(type);
-        for (auto iElem = 0ul; iElem < dataSorter->GetnElem(type); iElem++) {
-          conn_t vtkType = type;
-          fwrite(&vtkType, sizeof(vtkType), 1, f);
-          for (auto iNode = 0u; iNode < nPointsElem; iNode++) {
-            conn_t node = dataSorter->GetElemConnectivity(type, iElem, iNode) - 1;
-            fwrite(&node, sizeof(node), 1, f);
+      if (volumeConnectivity) {
+        for (const auto entry : *volumeConnectivity) {
+          const conn_t value = entry;
+          fwrite(&value, sizeof(value), 1, f);
+        }
+        globalIndex += dataSorter->GetnElem();
+      } else {
+        for (auto type : ElemTypes) {
+          const auto nPointsElem = nPointsOfElementType(type);
+          for (auto iElem = 0ul; iElem < dataSorter->GetnElem(type); iElem++) {
+            conn_t vtkType = type;
+            fwrite(&vtkType, sizeof(vtkType), 1, f);
+            for (auto iNode = 0u; iNode < nPointsElem; iNode++) {
+              conn_t node = dataSorter->GetElemConnectivity(type, iElem, iNode) - 1;
+              fwrite(&node, sizeof(node), 1, f);
+            }
+            fwrite(&globalIndex, sizeof(globalIndex), 1, f);
+            globalIndex++;
           }
-          fwrite(&globalIndex, sizeof(globalIndex), 1, f);
-          globalIndex++;
         }
       }
+
       fclose(f);
       localElemCount = static_cast<unsigned long>(globalIndex - elemIndexOffset);
     }
