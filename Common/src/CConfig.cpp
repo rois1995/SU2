@@ -6236,6 +6236,7 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     if (Kind_Solver != MAIN_SOLVER::DISC_ADJ_EULER) lambdaError("only SOLVER= EULER (compressible) is supported.");
     if (Time_Domain || TimeMarching != TIME_MARCHING::STEADY) lambdaError("only steady problems are supported.");
     if (Multizone_Problem) lambdaError("MULTIZONE is not supported.");
+    if (nMarker_PerBound != 0) lambdaError("periodic markers are not supported.");
     if (GetBoolTurbomachinery()) lambdaError("turbomachinery is not supported.");
     if (Kind_Species_Model != SPECIES_MODEL::NONE || Weakly_Coupled_Heat || Kind_Radiation != RADIATION_MODEL::NONE)
       lambdaError("species, heat and radiation coupling are not supported.");
@@ -6272,10 +6273,20 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
         (Kind_Solver != MAIN_SOLVER::EULER && Kind_Solver != MAIN_SOLVER::NAVIER_STOKES))
       SU2_MPI::Error("ADAP_ADJ_LAMBDA_PERTURB needs MATH_PROBLEM= DIRECT, a compressible flow solver and "
                      "PYTHON_CUSTOM_SOURCE= YES.", CURRENT_FUNCTION);
+    for (unsigned short i = 0; i < 3; ++i) {
+      if (!std::isfinite(SU2_TYPE::GetValue(Adap_Adj_Lambda_Perturb[i])))
+        SU2_MPI::Error("ADAP_ADJ_LAMBDA_PERTURB: all three values must be finite.", CURRENT_FUNCTION);
+    }
     if (Adap_Adj_Lambda_Perturb[0] < 0 || Adap_Adj_Lambda_Perturb[1] < 0 ||
         Adap_Adj_Lambda_Perturb[0] != floor(Adap_Adj_Lambda_Perturb[0]) ||
         Adap_Adj_Lambda_Perturb[1] != floor(Adap_Adj_Lambda_Perturb[1]))
       SU2_MPI::Error("ADAP_ADJ_LAMBDA_PERTURB: point and variable must be non-negative integers.", CURRENT_FUNCTION);
+    if (Adap_Adj_Lambda_Perturb[0] >= 9007199254740992.0 ||
+        Adap_Adj_Lambda_Perturb[0] >= std::ldexp(1.0, std::numeric_limits<unsigned long>::digits))
+      SU2_MPI::Error("ADAP_ADJ_LAMBDA_PERTURB: point index must be less than 2^53 and representable as unsigned long.",
+                     CURRENT_FUNCTION);
+    if (Adap_Adj_Lambda_Perturb[1] >= 32)
+      SU2_MPI::Error("ADAP_ADJ_LAMBDA_PERTURB: variable index must be less than 32.", CURRENT_FUNCTION);
   }
 
   if (Compute_Metric) {
