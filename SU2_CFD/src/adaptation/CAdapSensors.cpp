@@ -27,7 +27,6 @@
 #include "../../include/adaptation/CAdapSensors.hpp"
 
 #include <algorithm>
-#include <cctype>
 #include <cmath>
 #include <limits>
 #include <regex>
@@ -35,6 +34,7 @@
 #include <stdexcept>
 
 #include "../../../Common/include/CConfig.hpp"
+#include "../../../Common/include/adaptation/CAdapSensorExpression.hpp"
 #include "../../../Common/include/parallelization/CPassiveComm.hpp"
 #include "../../../Common/include/geometry/CGeometry.hpp"
 #include "../../include/solvers/CSolver.hpp"
@@ -42,115 +42,8 @@
 #include "../../include/gradients/computeGradientsGreenGauss.hpp"
 #include "../../include/gradients/computeGradientsLeastSquares.hpp"
 
-namespace {
-
-/*--- Recursive descent validates grammar/arity and normalizes unary signs for MEL.
- *     MEL supplies the expression tree and active evaluation. ---*/
-class Validator {
-  std::vector<std::string> tokens;
-  size_t pos = 0;
-
-  [[noreturn]] void Fail() const { throw std::invalid_argument("Invalid ADAP_CUSTOM_SENSORS expression syntax."); }
-  bool Take(const std::string& token) {
-    if (pos == tokens.size() || tokens[pos] != token) return false;
-    ++pos;
-    return true;
-  }
-  std::string Expression() {
-    auto result = Product();
-    while (pos < tokens.size() && (tokens[pos] == "+" || tokens[pos] == "-")) {
-      const auto op = tokens[pos++];
-      result += op + Product();
-    }
-    return result;
-  }
-  std::string Product() {
-    auto result = Operand();
-    while (pos < tokens.size() && (tokens[pos] == "*" || tokens[pos] == "/")) {
-      const auto op = tokens[pos++];
-      result += op + Operand();
-    }
-    return result;
-  }
-  std::string Operand() {
-    if (pos == tokens.size()) Fail();
-    if (tokens[pos] == "+" || tokens[pos] == "-") {
-      const auto sign = tokens[pos++];
-      /*--- MEL supports unary minus, but treats unary plus as part of a symbol. ---*/
-      return sign == "+" ? Operand() : "(" + sign + Operand() + ")";
-    }
-    if (Take("(")) {
-      const auto value = Expression();
-      if (!Take(")")) Fail();
-      return "(" + value + ")";
-    }
-    const auto token = tokens[pos++];
-    if (!std::isalnum(static_cast<unsigned char>(token[0])) && token[0] != '.') Fail();
-    if (!Take("(")) return token;
-    static const std::map<std::string, unsigned short> arities = {
-        {"sqrt", 1}, {"cbrt", 1}, {"pow", 2}, {"hypot", 2}, {"log", 1}, {"exp", 1}, {"fabs", 1},
-        {"fmax", 2}, {"fmin", 2}, {"cos", 1}, {"sin", 1}, {"tan", 1}, {"acos", 1}, {"asin", 1},
-        {"atan", 1}, {"atan2", 2}};
-    const auto it = arities.find(token);
-    if (it == arities.end()) throw std::invalid_argument("Unknown adaptation sensor function: " + token);
-    auto result = token + "(" + Expression();
-    unsigned short nargs = 1;
-    while (Take(",")) {
-      result += "," + Expression();
-      ++nargs;
-    }
-    if (!Take(")") || nargs != it->second) throw std::invalid_argument("Wrong arity for sensor function: " + token);
-    return result + ")";
-  }
-
-public:
-  explicit Validator(const std::string& expression) {
-    /*--- Do not merge whitespace between operands: "1 2" and "a b" must be errors. ---*/
-    static const std::regex number("([0-9]+(\\.[0-9]*)?|\\.[0-9]+)([eE][+-]?[0-9]+)?");
-    for (size_t i = 0; i < expression.size();) {
-      const auto c = static_cast<unsigned char>(expression[i]);
-      if (std::isspace(c)) { ++i; continue; }
-      const auto first = i;
-      if (std::isalpha(c)) {
-        while (i < expression.size()) {
-          const auto x = static_cast<unsigned char>(expression[i]);
-          if (!(std::isalnum(x) || x == '_' || x == '[' || x == ']')) break;
-          ++i;
-        }
-      } else if (std::isdigit(c) || c == '.') {
-        std::smatch match;
-        const auto tail = expression.substr(i);
-        if (!std::regex_search(tail, match, number, std::regex_constants::match_continuous)) Fail();
-        i += match.length();
-        try {
-          if (!std::isfinite(static_cast<passivedouble>(std::stod(match.str())))) Fail();
-        } catch (const std::out_of_range&) { Fail(); }
-      } else {
-        if (std::string("+-*/,()").find(c) == std::string::npos) Fail();
-        ++i;
-      }
-      tokens.push_back(expression.substr(first, i - first));
-      if (tokens.size() * 2 > 200) throw std::invalid_argument("Adaptation sensor expression exceeds 200-node bound.");
-      if (tokens.size() > 1) {
-        const auto& a = tokens[tokens.size() - 2];
-        const auto& b = tokens.back();
-        if ((a == "+" || a == "-") && (b == "+" || b == "-"))
-          throw std::invalid_argument("Adjacent signs are unsupported; write 2-(-1), not 2- -1.");
-      }
-    }
-  }
-  std::string Run() {
-    if (tokens.empty()) Fail();
-    const auto result = Expression();
-    if (pos != tokens.size()) Fail();
-    return result;
-  }
-};
-
-}  // namespace
-
 std::string CAdapSensors::ValidateExpression(const std::string& expression) {
-  return Validator(expression).Run();
+  return AdapSensorExpression::Validator(expression).Run();
 }
 
 CAdapSensors::Symbol CAdapSensors::Resolve(const std::string& name, CSolver* const* solvers) {

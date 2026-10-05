@@ -31,6 +31,7 @@
 
 #include "../include/CConfig.hpp"
 #include "../include/adaptation/CAdapSensorOptions.hpp"
+#include "../include/adaptation/CAdapSensorExpression.hpp"
 #undef ENABLE_MAPS
 
 #include "../include/fem/fem_gauss_jacobi_quadrature.hpp"
@@ -6165,6 +6166,19 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     Adap_CustomDefinitions = AdapSensorOptions::Parse(Adap_CustomSensors);
   } catch (const std::exception& error) {
     SU2_MPI::Error(error.what(), CURRENT_FUNCTION);
+  }
+  /*--- Check every definition before any flow solve, including unused definitions and disabled metrics. ---*/
+  for (const auto& definition : Adap_CustomDefinitions) {
+    try {
+      AdapSensorExpression::Validator validator(definition.second);
+      const auto expression = validator.Run();
+      std::vector<std::string> symbols;
+      mel::Parse<passivedouble>(expression, symbols);
+      AdapSensorExpression::CheckSymbols(definition.first, validator.GetIdentifiers(), symbols);
+    } catch (const std::exception& error) {
+      SU2_MPI::Error("Invalid custom adaptation sensor definition " + definition.first + ": " + error.what(),
+                     CURRENT_FUNCTION);
+    }
   }
   if (nAdap_Sensor > 20) SU2_MPI::Error("At most 20 ADAP_SENSOR entries are supported.", CURRENT_FUNCTION);
 

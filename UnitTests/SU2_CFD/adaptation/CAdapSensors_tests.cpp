@@ -26,6 +26,7 @@
 
 #include "catch.hpp"
 #include "../../../Common/include/adaptation/CAdapSensorOptions.hpp"
+#include "../../../Common/include/adaptation/CAdapSensorExpression.hpp"
 #include "../../../SU2_CFD/include/adaptation/CAdapSensors.hpp"
 #include "TransferTestCase.hpp"
 #include "../../../SU2_CFD/include/variables/CPrimitiveIndices.hpp"
@@ -47,7 +48,7 @@ TEST_CASE("Custom adaptation definition names", "[Adaptation][CustomSensors]") {
 TEST_CASE("Custom adaptation strict expression grammar", "[Adaptation][CustomSensors]") {
   for (const auto* text : {"1.2.3", "1e", "0x10", "1e+", "1e9999", "2- -1", "2+ +1", "2--1",
                            "2+-1", "2-+1", "()", "(a", "a)", "pow(a)", "fabs(a,b)", "fmax(a,)",
-                           "a b", "1 2", "a**b", "a^2", "a+", "a:b", "sqrt()", "bad(a)", ""}) {
+                           "a b", "1 2", "a**b", "a^2", "a+", "a:b", "sqrt()", "bad(a)", "TURB[-1]", ""}) {
     INFO(text);
     CHECK_THROWS_AS(CAdapSensors::ValidateExpression(text), std::invalid_argument);
   }
@@ -91,13 +92,13 @@ CSimplexMesh SensorMesh() {
 
 TEST_CASE("Custom adaptation unary plus binds and preserves grouping", "[Adaptation][CustomSensors]") {
   const std::pair<std::string, std::string> cases[] = {
-      {"+PRESSURE", "PRESSURE"}, {"2/+PRESSURE", "2/PRESSURE"},
-      {"+(PRESSURE*PRESSURE)", "(PRESSURE*PRESSURE)"},
-      {"2/+(PRESSURE*PRESSURE)", "2/(PRESSURE*PRESSURE)"},
-      {"2/+(PRESSURE+1)", "2/(PRESSURE+1)"},
-      {"+(-PRESSURE)", "((-PRESSURE))"}, {"-(+PRESSURE)", "(-(PRESSURE))"},
-      {"fmax(+PRESSURE,+2)", "fmax(PRESSURE,2)"},
-      {"+PRESSURE+1e+3", "PRESSURE+1e+3"}};
+      {"+PRESSURE", "(PRESSURE)"}, {"2/+PRESSURE", "2/(PRESSURE)"},
+      {"+(PRESSURE*PRESSURE)", "((PRESSURE)*(PRESSURE))"},
+      {"2/+(PRESSURE*PRESSURE)", "2/((PRESSURE)*(PRESSURE))"},
+      {"2/+(PRESSURE+1)", "2/((PRESSURE)+1)"},
+      {"+(-PRESSURE)", "((-(PRESSURE)))"}, {"-(+PRESSURE)", "(-((PRESSURE)))"},
+      {"fmax(+PRESSURE,+2)", "fmax((PRESSURE),2)"},
+      {"+PRESSURE+1e+3", "(PRESSURE)+1e+3"}};
   std::string definitions, selected;
   for (size_t i = 0; i < sizeof(cases)/sizeof(cases[0]); ++i) {
     INFO(cases[i].first);
@@ -137,10 +138,71 @@ TEST_CASE("Custom adaptation unary plus binds and preserves grouping", "[Adaptat
   }
 }
 
+TEST_CASE("Custom adaptation digit e identifiers bind across addition and subtraction", "[Adaptation][CustomSensors]") {
+  const std::pair<std::string, passivedouble> cases[] = {
+      {"A1e-1", 2}, {"A1e+1", 4}, {"A1E-1", 2}, {"A1E+1", 4},
+      {"A1e-A1E", 0}, {"A1e+A1E", 6}, {"pow(A1e,2)+A1e-1e-3", 11.999}};
+  std::string definitions = "A1e : PRESSURE; A1E : PRESSURE", selected;
+  for (size_t i = 0; i < sizeof(cases)/sizeof(cases[0]); ++i) {
+    INFO(cases[i].first);
+    AdapSensorExpression::Validator validator(cases[i].first);
+    std::vector<std::string> symbols;
+    mel::Parse<passivedouble>(validator.Run(), symbols);
+    CHECK_NOTHROW(AdapSensorExpression::CheckSymbols("S" + std::to_string(i), validator.GetIdentifiers(), symbols));
+    const auto name = "S" + std::to_string(i);
+    definitions += "; " + name + " : " + cases[i].first;
+    if (i) selected += ", ";
+    selected += name;
+  }
+  auto config = SensorConfig(definitions, selected);
+  MeshSolution state(config.get(), SensorMesh(), 0);
+  auto* flow = state.solver[MESH_0][FLOW_SOL];
+  const auto idx = CPrimitiveIndices<unsigned short>(false, false, 2, 0);
+  for (unsigned long point = 0; point < state.Fine().GetnPoint(); ++point)
+    flow->GetNodes()->SetPrimitive(point, idx.Pressure(), 3.0);
+  CAdapSensors sensors(*config, state.Fine(), state.solver[MESH_0]);
+  for (size_t i = 2; i < sensors.GetStages().size(); ++i)
+    for (const auto& symbol : sensors.GetStages()[i].symbols) {
+      CHECK(symbol.kind == CAdapSensors::KIND::STAGE);
+      CHECK(symbol.index < 2);
+    }
+  sensors.Sample(*flow, state.Fine(), *config, state.solver[MESH_0]);
+  for (unsigned long point = 0; point < state.Fine().GetnPointDomain(); ++point)
+    for (size_t i = 0; i < sizeof(cases)/sizeof(cases[0]); ++i)
+      CHECK(SU2_TYPE::GetValue(flow->GetNodes()->GetAuxVar_Adapt(point, i)) == Approx(cases[i].second));
+}
+
+TEST_CASE("Custom adaptation configuration symbol guard names mismatched definitions", "[Adaptation][CustomSensors]") {
+  /*--- Reproduce the MEL surprise without protection, then exercise the same guard used by CConfig. ---*/
+  for (const std::string expression : {"A1e-1", "A1e+1", "A1E-1", "A1E+1"}) {
+    INFO(expression);
+    AdapSensorExpression::Validator validator(expression);
+    const auto normalized = validator.Run();
+    std::vector<std::string> symbols;
+    mel::Parse<passivedouble>(expression, symbols);
+    CHECK_THROWS_WITH(AdapSensorExpression::CheckSymbols("Unused", validator.GetIdentifiers(), symbols),
+                      Catch::Contains("Unused") && Catch::Contains("MEL symbol mismatch"));
+    symbols.clear();
+    mel::Parse<passivedouble>(normalized, symbols);
+    CHECK_NOTHROW(AdapSensorExpression::CheckSymbols("Unused", validator.GetIdentifiers(), symbols));
+  }
+  /*--- Count duplicates too; comparing sets alone would miss these mismatches. ---*/
+  for (const std::vector<std::string>& symbols : {std::vector<std::string>{}, {"a", "a"}, {"a", "b"}, {"b"}})
+    CHECK_THROWS_WITH(AdapSensorExpression::CheckSymbols("Unused", {"a"}, symbols), Catch::Contains("Unused"));
+  CHECK_NOTHROW(AdapSensorExpression::CheckSymbols("S", {"a", "b"}, {"b", "a"}));
+  CHECK_NOTHROW(AdapSensorExpression::CheckSymbols("S", {}, {}));
+  /*--- Function names and repeated operands are excluded from the distinct identifier count. ---*/
+  AdapSensorExpression::Validator validator("pow(A1e,2)+A1e-1e-3");
+  validator.Run();
+  CHECK(validator.GetIdentifiers() == std::set<std::string>{"A1e"});
+  CHECK_NOTHROW(MakeConfig(2, "SOLVER= EULER\nMATH_PROBLEM= DIRECT\nCOMPUTE_METRIC= NO\n"
+                             "ADAP_CUSTOM_SENSORS= 'A1e : PRESSURE; Unused : A1e-1'\n"));
+}
+
 TEST_CASE("Custom adaptation solver binding rejects invalid symbols", "[Adaptation][CustomSensors]") {
   const auto mesh = SensorMesh();
   for (const auto* expression : {"S", "later", "GRAD_PRESSURE_Z", "GRAD_MACH_X", "GRAD_S_X",
-                                "TURB[01]", "TURB[-1]", "TURB[99]", "TURB[0]", "SCALAR[0]",
+                                "TURB[01]", "TURB[99]", "TURB[0]", "SCALAR[0]",
                                 "GRAD_TURB[0]_Y", "LAMINAR_VISCOSITY", "EDDY_VISCOSITY", "nan", "unknown"}) {
     INFO(expression);
     auto config = SensorConfig(std::string("S : ") + expression + "; later : 1");
