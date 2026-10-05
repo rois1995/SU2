@@ -64,6 +64,7 @@ struct EngineStats {
       stale_rejected = 0;
   size_t max_patch = 0, max_donors = 0;
   std::array<int, 8> accepted{};
+  std::array<double, 8> phase_seconds{};
   std::map<std::string, int> rejected;
 };
 
@@ -403,10 +404,11 @@ class Engine {
   }
 
   void phase(Action action) {
+    const double start = world.seconds();
     std::set<Edge> attempted;
     for (int iteration = 0; iteration < options.phase_rounds; ++iteration) {
       const auto choice = choose(action, attempted);
-      if (!world.sum(choice.score >= 0)) return;
+      if (!world.sum(choice.score >= 0)) break;
       const bool accepted = round(choice);
       if (options.ordered) {
         if (!last_committed || action == Action::REDISTRIBUTE)
@@ -414,6 +416,7 @@ class Engine {
       } else if (choice.score >= 0 && ((!accepted && !last_deferred) || action == Action::REDISTRIBUTE))
         attempted.insert({choice.op.a, choice.op.b});
     }
+    stats.phase_seconds[int(action)] += world.seconds() - start;
   }
   void adapt() {
     for (int sweep = 0; sweep < options.sweeps; ++sweep)

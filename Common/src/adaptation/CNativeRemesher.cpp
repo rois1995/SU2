@@ -188,12 +188,34 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
           cell.t.protected_cell = 1;
       }
   EngineOptions control;
-  // The original 300-round allowance was a small-fixture limit. Scale bounded
-  // work to uniquely owned input cells per worker; per-cavity admission is unchanged.
+  // Account for refinement demand as well as input size. Original frozen P1
+  // tensors are averaged at donor centroids; no tensor/target is altered.
+  long double localComplexity = 0;
+  for (const auto& entry : input) {
+    const auto& cell = entry.second;
+    Tensor m{0, 0, 0};
+    for (const auto& node : cell.nodal_target) {
+      m.xx += node.xx / 3;
+      m.xy += node.xy / 3;
+      m.yy += node.yy / 3;
+    }
+    const auto scale = std::max({std::abs(m.xx), std::abs(m.xy), std::abs(m.yy)});
+    localComplexity += area(cell.t) * scale * std::sqrt(NormalizedDeterminant(m.xx, m.xy, m.yy));
+  }
+  CLocalFailure workFailure;
+  if (!(std::isfinite(localComplexity) && localComplexity >= 0 &&
+        localComplexity <= std::numeric_limits<double>::max()))
+    workFailure.Set(1, 0, "Unrepresentable native frozen-target work estimate.");
+  CollectiveFailure(workFailure, CURRENT_FUNCTION);
+  const auto complexity = CPassiveComm::Allreduce(static_cast<double>(localComplexity), CPassiveComm::Op::SUM);
+  if (!std::isfinite(complexity)) workFailure.Set(1, 0, "Unrepresentable global native work estimate.");
+  CollectiveFailure(workFailure, CURRENT_FUNCTION);
   const auto globalCells = CPassiveComm::Allreduce(uint64_t(input.size()), CPassiveComm::Op::SUM);
-  const uint64_t denominator = 4 * uint64_t(world.size);
-  const auto rounds = globalCells / denominator + (globalCells % denominator != 0);
-  control.phase_rounds = int(std::min<uint64_t>(20000, std::max<uint64_t>(300, rounds)));
+  // A unit-edge equilateral metric triangle has area sqrt(3)/4. This is a
+  // work estimate, not a requested cell count or a guarantee of completion.
+  const long double estimatedCells = 4 * static_cast<long double>(complexity) / std::sqrt(3.L);
+  const auto rounds = std::ceil(std::max(static_cast<long double>(globalCells), estimatedCells) / (4 * world.size));
+  control.phase_rounds = int(std::min(20000.L, std::max(300.L, rounds)));
   control.geometry_tolerance = SU2_TYPE::GetValue(config.GetAdap_Hausd());
   control.fixed_boundary = !config.GetAdap_Surface();
   if (world.rank == 0)
@@ -204,7 +226,9 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
               << (control.fixed_boundary ? "fixed" : "adaptive") << ".\n";
   if (world.rank == 0)
     std::cout << "Native work allowance: " << control.phase_rounds << " collective rounds per phase, "
-              << control.sweeps << " sweeps, for " << globalCells << " input cells on " << world.size << " ranks.\n";
+              << control.sweeps << " sweeps, for " << globalCells << " input cells on " << world.size
+              << " ranks; frozen P1 centroid complexity=" << complexity << ", estimated unit triangles="
+              << estimatedCells << ".\n";
   if (world.rank == 0)
     for (const auto& height : heights)
       std::cout << "Native requested first altitude: " << names[height.first] << " = " << height.second << '\n';
@@ -266,8 +290,11 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
   const auto transportEstimate =
       CPassiveComm::Allreduce(uint64_t(world.max_exchange_work_bytes), CPassiveComm::Op::MAX);
   std::array<uint64_t, 8> actions;
-  for (size_t a = 0; a < actions.size(); ++a)
+  std::array<double, 8> phaseSeconds;
+  for (size_t a = 0; a < actions.size(); ++a) {
     actions[a] = CPassiveComm::Allreduce(uint64_t(engine.stats.accepted[a]), CPassiveComm::Op::SUM);
+    phaseSeconds[a] = CPassiveComm::Allreduce(engine.stats.phase_seconds[a], CPassiveComm::Op::MAX);
+  }
   std::vector<RejectionCount> localReasons;
   for (const auto& entry : engine.stats.rejected) {
     RejectionCount record;
@@ -291,6 +318,9 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
               << ", memory rejects=" << rejectedMemory << ", stale rejects=" << rejectedStale
               << ", engine encoded bytes=" << bytes << ", largest transport admission estimate=" << transportEstimate
               << '\n';
+    std::cout << "Native phase elapsed seconds (same action order, maximum across ranks):";
+    for (const auto seconds : phaseSeconds) std::cout << ' ' << seconds;
+    std::cout << '\n';
     for (const auto& entry : reasons)
       std::cout << "Native deferred/rejected candidate: " << entry.first << " (" << entry.second << ").\n";
   }
