@@ -47,7 +47,7 @@ class WallDriver : public CSinglezoneDriver {
     StopCalc = stopped;
   }
 };
-std::string WallOptions(double height, const std::string& name) {
+std::string WallOptions(double height, const std::string& name, bool opposing = false) {
   std::ostringstream out;
   out << std::setprecision(17)
       << "SOLVER= NAVIER_STOKES\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nAOA= 0\n"
@@ -55,10 +55,12 @@ std::string WallOptions(double height, const std::string& name) {
          "MESH_FORMAT= SU2\nMESH_FILENAME= "
       << name
       << ".su2\n"
-         "MARKER_FAR= (left, right, upper)\nMARKER_HEATFLUX= (lower_a, 0, lower_b, 0)\n"
-         "COMPUTE_METRIC= YES\nADAP_SENSOR= MACH\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\n"
+      << (opposing ? "MARKER_FAR= (left, right)\nMARKER_HEATFLUX= (lower_a, 0, lower_b, 0, upper, 0)\n"
+                   : "MARKER_FAR= (left, right, upper)\nMARKER_HEATFLUX= (lower_a, 0, lower_b, 0)\n")
+      << "COMPUTE_METRIC= YES\nADAP_SENSOR= MACH\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\n"
          "ADAP_HMIN= 1e-4\nADAP_HMAX= 0.04\nADAP_COMPLEXITY= 20\nADAP_HAUSD= 1e-8\n"
-         "ADAP_BL_MARKER= (lower_a, lower_b)\nADAP_BL_FIRST_HEIGHT= ("
+      << (opposing ? "ADAP_BL_MARKER= (lower_a, lower_b, upper)\n" : "ADAP_BL_MARKER= (lower_a, lower_b)\n")
+      << "ADAP_BL_FIRST_HEIGHT= ("
       << height
       << ")\n"
          "ADAP_BL_GROWTH= 1.2\nADAP_BL_THICKNESS= 0.016\n"
@@ -78,20 +80,24 @@ std::vector<std::string> Tags(const CConfig& config, const CGeometry& geometry) 
 
 TEST_CASE("Native SU2 BL: moving tangential refinement, coarsening and changed first altitude", "[NativeBL2D]") {
   World world;
+  const bool opposing = GENERATE(false, true);
   const bool conservative = GENERATE(false, true);
-  const std::string name = conservative ? "native_bl_conservative" : "native_bl_barycentric";
+  const std::string name = std::string(opposing ? "native_bl_opposing_" : "native_bl_") +
+                           (conservative ? "conservative" : "barycentric");
   if (world.rank == 0) {
     auto mesh = BoxMesh(2, 4, false);
     for (auto& x : mesh.coord) x *= .02;
     simplex_test::WriteSU2Mesh(mesh, name + ".su2");
     std::ofstream cfg(name + ".cfg");
-    cfg << WallOptions(.004, name);
+    cfg << WallOptions(.004, name, opposing);
   }
   SU2_MPI::Barrier(SU2_MPI::GetComm());
   const auto cfg = name + ".cfg";
   auto driver = std::make_unique<WallDriver>(const_cast<char*>(cfg.c_str()), 1, SU2_MPI::GetComm());
   // Admissible affine conservative fields, with exactly zero momentum on the no-slip wall.
-  auto expected = [](Point p) { return std::array<double, 4>{1.2 + .1 * p.x, 20 * p.y, 0., 3 + .01 * p.x}; };
+  auto expected = [opposing](Point p) {
+    return std::array<double, 4>{1.2 + .1 * p.x, opposing ? 0. : 20 * p.y, 0., 3 + .01 * p.x};
+  };
   for (unsigned long p = 0; p < driver->Geometry().GetnPoint(); ++p) {
     const auto values = expected({SU2_TYPE::GetValue(driver->Geometry().nodes->GetCoord(p, 0)),
                                   SU2_TYPE::GetValue(driver->Geometry().nodes->GetCoord(p, 1))});
@@ -109,7 +115,7 @@ TEST_CASE("Native SU2 BL: moving tangential refinement, coarsening and changed f
     const auto height = heights[cycle], center = centers[cycle];
     auto& geometry = driver->Geometry();
     // A fresh request changes h0 without changing geometry/solution ownership or the retained original reference.
-    std::stringstream options(WallOptions(height, name));
+    std::stringstream options(WallOptions(height, name, opposing));
     std::unique_ptr<CConfig> requested;
     {
       Mute mute;
@@ -173,9 +179,9 @@ TEST_CASE("Native SU2 BL: moving tangential refinement, coarsening and changed f
     if (world.rank == 0) {
       if (std::getenv("SU2_NATIVE_SAVE_AUDIT")) simplex_test::WriteSU2Mesh(mesh, artifact + "_adapted.su2");
       double maxHeightError = 0;
-      size_t walls = 0;
+      size_t walls = 0, upperWalls = 0;
       for (const auto& marker : mesh.markers)
-        if (marker.name == "lower_a" || marker.name == "lower_b")
+        if (marker.name == "lower_a" || marker.name == "lower_b" || (opposing && marker.name == "upper"))
           for (size_t f = 0; f < marker.elem.size(); f += 2) {
             const auto a = marker.elem[f], b = marker.elem[f + 1];
             for (size_t e = 0; e < mesh.elem.size(); e += 3) {
@@ -195,13 +201,16 @@ TEST_CASE("Native SU2 BL: moving tangential refinement, coarsening and changed f
                     std::abs((bx - ax) * (cy - ay) - (by - ay) * (cx - ax)) / std::hypot(bx - ax, by - ay);
                 maxHeightError = std::max(maxHeightError, std::abs(altitude / height - 1));
                 ++walls;
+                upperWalls += marker.name == "upper";
               }
             }
           }
       CHECK(walls >= 2);
+      if (opposing) CHECK(upperWalls >= 2);
       CHECK(maxHeightError < 1e-8);
       std::cout << "[native BL] cycle=" << cycle << " h0=" << height << " center=" << center
-                << " points=" << mesh.GetnPoint() << " wall faces=" << walls << " altitude error=" << maxHeightError
+                << " points=" << mesh.GetnPoint() << " wall faces=" << walls << " upper faces=" << upperWalls
+                << " altitude error=" << maxHeightError
                 << '\n';
     }
     double fieldError = 0;
