@@ -28,11 +28,13 @@
 
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
+#include <limits>
 #include <memory>
 #include <set>
 #include <sstream>
@@ -1227,9 +1229,9 @@ TEST_CASE("Corner rule: overlapping symmetry windows with the floor disabled", "
   }
 }
 
-TEST_CASE("Corner rule: break points propagate through overlapping symmetry windows", "[Adaptation]") {
+TEST_CASE("Corner rule: shared samples agree through overlapping symmetry windows", "[Adaptation]") {
   /*--- One knot interval on the first two markers, ten on the third; its sensor has a minimum at r = 0.001.
-   *    The second corner inserts break points that must also be mirrored through the first corner. ---*/
+   *    A single grid pass need not mirror the second corner's new break points through the first corner. ---*/
   std::vector<std::array<passivedouble, 2>> points = {{-0.01, 0.0}, {0.0, 0.0}, {0.0, 0.0025}};
   for (int i = 1; i <= 10; ++i) points.push_back({0.001 * i, 0.0025});
   auto mesh = PolylineMesh(points, false);
@@ -1257,34 +1259,62 @@ TEST_CASE("Corner rule: break points propagate through overlapping symmetry wind
       return iSeg == 2 ? 2e-4 + 0.15 * fabs(x[0] - 0.001) : 1e-3;
     }));
   }
-  std::vector<BLWallRule::SizeSamples> forward;
   for (const bool reverse : {false, true}) {
     if (reverse) std::reverse(corners.begin(), corners.end());
     auto samples = base;
     BLWallRule::ApplyCorners(wall, corners, rule.gradation, samples);
     for (const auto& c : corners) {
       REQUIRE(c.floor == 0.0);
-      /*--- Both initial windows reach 0.002. Check between samples, including r = 0.0015 at the first corner. ---*/
-      for (int i = 0; i <= 100; ++i) {
-        const auto r = 0.002 * i / 100.0;
-        passivedouble t[2];
-        for (unsigned short k = 0; k < 2; ++k) {
-          const auto& smp = samples[c.seg[k]];
-          t[k] = BLWallRule::SizeAt(smp, c.atEnd[k] ? smp.s.back() - r : smp.s.front() + r);
-        }
-        CHECK(t[0] == Approx(t[1]).epsilon(1e-12));
-        if (c.x[1] == 0.0 && i == 75) CHECK(t[0] == Approx(2e-4).epsilon(1e-12));
+      /*--- Both initial windows reach 0.002. Symmetry is guaranteed only at shared sample distances. ---*/
+      const auto& a = samples[c.seg[0]];
+      const auto& b = samples[c.seg[1]];
+      const auto tol = 8.0 * std::numeric_limits<passivedouble>::epsilon() *
+                       std::max(a.s.back() - a.s.front(), b.s.back() - b.s.front());
+      unsigned long shared = 0;
+      for (unsigned long j = 0; j < a.s.size(); ++j) {
+        const auto r = c.atEnd[0] ? a.s.back() - a.s[j] : a.s[j] - a.s.front();
+        if (r > 0.002 + tol) continue;
+        const auto s = c.atEnd[1] ? b.s.back() - r : b.s.front() + r;
+        for (unsigned long k = 0; k < b.s.size(); ++k)
+          if (fabs(b.s[k] - s) <= tol) {
+            CHECK(a.size[j] == Approx(b.size[k]).epsilon(1e-12));
+            ++shared;
+          }
       }
+      CHECK(shared > 1);
     }
-    if (!reverse) {
-      forward = samples;
-    } else {
-      for (unsigned long iSeg = 0; iSeg < 3; ++iSeg)
-        for (int i = 0; i <= 100; ++i) {
-          const auto s = samples[iSeg].s.back() * i / 100.0;
-          CHECK(BLWallRule::SizeAt(samples[iSeg], s) == Approx(BLWallRule::SizeAt(forward[iSeg], s)).epsilon(1e-12));
-        }
+  }
+}
+
+TEST_CASE("Corner rule: cyclic square windows have bounded sample growth", "[Adaptation]") {
+  for (const passivedouble y : {0.007, 0.0070000001}) {
+    CAPTURE(y);
+    CReferenceWall wall(PolylineMesh({{0.0, 0.0}, {0.007, 0.0}, {0.007, 0.007}, {0.0, y}}, true), {"wall"}, 45.0);
+    const auto corners = BLWallRule::FindCorners(wall);
+    REQUIRE(corners.size() == 4);
+    BLWallRule::SizeRule rule;
+    rule.h0 = 0.001;
+    std::vector<BLWallRule::SizeSamples> samples;
+    unsigned long initial = 0;
+    for (unsigned long iSeg = 0; iSeg < wall.GetSegments().size(); ++iSeg) {
+      samples.push_back(BLWallRule::SampleSize(wall, iSeg, rule,
+                                             [](const passivedouble*, const passivedouble*) { return 0.005; }));
+      initial += samples.back().s.size();
+      for (const auto t : samples.back().size) REQUIRE(t == Approx(0.002));
     }
+    for (const auto& c : corners) REQUIRE(c.floor == 0.0);
+    const auto start = std::chrono::steady_clock::now();
+    BLWallRule::ApplyCorners(wall, corners, rule.gradation, samples);
+    CHECK(std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count() < 5.0);
+    unsigned long total = 0;
+    for (const auto& smp : samples) {
+      total += smp.s.size();
+      for (const auto t : smp.size) CHECK(t >= smp.tmin * (1 - 1e-12));
+      for (unsigned long j = 1; j < smp.s.size(); ++j)
+        CHECK(fabs(smp.size[j] - smp.size[j - 1]) <=
+              rule.gradation * (smp.s[j] - smp.s[j - 1]) * (1 + 1e-9) + 1e-15);
+    }
+    CHECK(total <= 10 * initial);
   }
 }
 

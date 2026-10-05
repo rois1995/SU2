@@ -777,11 +777,12 @@ BLWallRule::CornerChanges BLWallRule::ApplyCorners(const CReferenceWall& wall, c
   }
 
   /*--- Symmetry: both sides of a corner take the smaller size at the same distance from it, never below their own
-   *    t_min (markers with different h0). Both sides first get samples at the same distances within the reach, so the
-   *    two piecewise linear sizes are equal there; repeat grid synchronisation until no samples are inserted, to
-   *    propagate break points through overlapping windows. Repeat symmetry from the current sizes and grading of the
-   *    touched segments until no sizes change, propagating reductions through overlapping windows. Each round reads
-   *    the same snapshot, so the order of the corners does not matter; both steps only lower sizes. ---*/
+   *    t_min (markers with different h0). Synchronise the grid once per corner, using the union of its two sides'
+   *    distances within the reach and the clipped reach; insertion work is bounded by the samples at that corner's
+   *    start. Symmetry between samples is exact for corners whose windows do not overlap another corner's window;
+   *    with overlapping windows it holds only at shared samples. Repeat symmetry from the current sizes and grading
+   *    of the touched segments until no sizes change (capped rounds), propagating reductions through overlapping
+   *    windows. Each size round reads the same snapshot; both steps only lower sizes. ---*/
   std::vector<passivedouble> reachOf;
   for (const auto& corner : corners) {
     const auto& a = samples[corner.seg[0]];
@@ -794,29 +795,25 @@ BLWallRule::CornerChanges BLWallRule::ApplyCorners(const CReferenceWall& wall, c
                                  CornerReach(corner, gradation)});
     reachOf.push_back(reach);
   }
-  bool inserted;
-  do {
-    inserted = false;
-    for (unsigned long iCorner = 0; iCorner < corners.size(); ++iCorner) {
-      const auto& corner = corners[iCorner];
-      const auto reach = reachOf[iCorner];
-      if (!(reach > 0.0)) continue;
-      const auto& a = samples[corner.seg[0]];
-      const auto& b = samples[corner.seg[1]];
-      const auto tol = 8.0 * std::numeric_limits<passivedouble>::epsilon() *
-                       std::max(a.s.back() - a.s.front(), b.s.back() - b.s.front());
-      std::vector<passivedouble> distances = {std::min({reach, a.s.back() - a.s.front(), b.s.back() - b.s.front()})};
-      for (unsigned short k = 0; k < 2; ++k) {
-        const auto& smp = samples[corner.seg[k]];
-        for (unsigned long j = 0; j < smp.s.size(); ++j) {
-          const auto r = FromEnd(smp, corner.atEnd[k], j);
-          if (r <= reach + tol) distances.push_back(std::min(r, reach));
-        }
+  for (unsigned long iCorner = 0; iCorner < corners.size(); ++iCorner) {
+    const auto& corner = corners[iCorner];
+    const auto reach = reachOf[iCorner];
+    if (!(reach > 0.0)) continue;
+    const auto& a = samples[corner.seg[0]];
+    const auto& b = samples[corner.seg[1]];
+    const auto tol = 8.0 * std::numeric_limits<passivedouble>::epsilon() *
+                     std::max(a.s.back() - a.s.front(), b.s.back() - b.s.front());
+    std::vector<passivedouble> distances = {std::min({reach, a.s.back() - a.s.front(), b.s.back() - b.s.front()})};
+    for (unsigned short k = 0; k < 2; ++k) {
+      const auto& smp = samples[corner.seg[k]];
+      for (unsigned long j = 0; j < smp.s.size(); ++j) {
+        const auto r = FromEnd(smp, corner.atEnd[k], j);
+        if (r <= reach + tol) distances.push_back(std::min(r, reach));
       }
-      for (unsigned short k = 0; k < 2; ++k)
-        for (const auto r : distances) inserted |= InsertFromEnd(samples[corner.seg[k]], corner.atEnd[k], r);
     }
-  } while (inserted);
+    for (unsigned short k = 0; k < 2; ++k)
+      for (const auto r : distances) InsertFromEnd(samples[corner.seg[k]], corner.atEnd[k], r);
+  }
   std::set<unsigned long> touched;
   unsigned long rounds = 0;  // a closure of minima (finite); the bound only guards against a defect
   do {
