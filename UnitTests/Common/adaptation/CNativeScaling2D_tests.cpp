@@ -26,7 +26,7 @@ TEST_CASE("Native engine size and partition envelope", "[NativeScaling2D][.]") {
     REQUIRE(number <= upper);
     return int(number);
   };
-  const int tiles = parameter("SU2_NATIVE_SCALING_TILES", 1, 256);
+  const int tiles = parameter("SU2_NATIVE_SCALING_TILES", 1, 4096);
   const int layout = parameter("SU2_NATIVE_SCALING_LAYOUT", 1, 2);
   const int anisotropy = parameter("SU2_NATIVE_SCALING_AR", 10, 1000);
   const int matched = parameter("SU2_NATIVE_SCALING_MATCHED", 1, 2);
@@ -73,7 +73,9 @@ TEST_CASE("Native engine size and partition envelope", "[NativeScaling2D][.]") {
   }
   EngineOptions options;
   options.geometry_tolerance = 1e-10;
-  options.phase_rounds = std::max(300, int(original.size() / (4 * world.size)));
+  options.phase_rounds = parameter("SU2_NATIVE_SCALING_ROUNDS",
+                                    std::max(300, int(original.size() / (4 * world.size))), 100000);
+  options.sweeps = parameter("SU2_NATIVE_SCALING_SWEEPS", 6, 48);
   SU2_MPI::Barrier(SU2_MPI::GetComm());
   const auto started = world.seconds();
   Engine engine(world, std::move(local), policy, options);
@@ -104,6 +106,11 @@ TEST_CASE("Native engine size and partition envelope", "[NativeScaling2D][.]") {
     if (statusLine.compare(0, 6, "VmHWM:") == 0) hwmKiB = std::stoull(statusLine.substr(6));
   hwmKiB = CPassiveComm::Allreduce(hwmKiB, CPassiveComm::Op::MAX);
   const auto maxOwned = CPassiveComm::Allreduce(uint64_t(engine.owned.size()), CPassiveComm::Op::MAX);
+  // Per-rank rejection evidence is written outside all measured engine timing/traffic.
+  std::ofstream rejectionFile("rejections_rank_" + std::to_string(world.rank) + ".csv");
+  rejectionFile << "reason,count\n";
+  for (const auto& rejection : engine.stats.rejected) rejectionFile << std::quoted(rejection.first) << ',' << rejection.second << '\n';
+  REQUIRE(rejectionFile.good());
   std::vector<std::vector<Cell>> outgoing(world.size);
   for (const auto& cell : engine.owned) outgoing[0].push_back(cell.second);
   const auto output = world.exchange(outgoing); // Outside all timing/traffic metrics; test-only audit gather.
@@ -159,6 +166,7 @@ TEST_CASE("Native engine size and partition envelope", "[NativeScaling2D][.]") {
            << ",\"traffic_bytes_sum\":" << traffic << ",\"exchange_work_bytes_max\":" << peakExchange
            << ",\"selection_scans_sum\":" << scans << ",\"commits\":" << commits << ",\"cross_rank\":" << crossRank
            << ",\"conflicts\":" << conflicts << ",\"memory_rejected\":" << memoryRejected
+           << ",\"phase_rounds\":" << options.phase_rounds << ",\"sweeps\":" << options.sweeps
            << ",\"rounds\":" << engine.stats.rounds << ",\"max_patch\":" << maxPatch << ",\"max_donors\":" << maxDonors
            << ",\"rss_hwm_kib_max\":" << hwmKiB << ",\"max_owned\":" << maxOwned << ",\"qmin\":" << qmin << ",\"lmax\":" << lmax
            << ",\"height_error\":" << heightError << ",\"missed_height\":" << missedHeight
