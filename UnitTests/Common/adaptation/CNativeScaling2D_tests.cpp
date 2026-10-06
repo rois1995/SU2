@@ -27,7 +27,7 @@ TEST_CASE("Native engine size and partition envelope", "[NativeScaling2D][.]") {
     return int(number);
   };
   const int tiles = parameter("SU2_NATIVE_SCALING_TILES", 1, 4096);
-  const int layout = parameter("SU2_NATIVE_SCALING_LAYOUT", 1, 2);
+  const int layout = parameter("SU2_NATIVE_SCALING_LAYOUT", 1, 3);
   const int anisotropy = parameter("SU2_NATIVE_SCALING_AR", 10, 1000);
   const int matched = parameter("SU2_NATIVE_SCALING_MATCHED", 1, 2);
   const int nx = 2 * tiles, ny = 4;
@@ -56,10 +56,22 @@ TEST_CASE("Native engine size and partition envelope", "[NativeScaling2D][.]") {
   }
   const PolylineReference reference(faces, 45);
   const auto policy = reference.Policy({{10, h0}, {12, h0}});
+  auto ownerOf = [&](size_t index) {
+    if (layout == 1) return int(index % world.size);
+    if (layout == 2) return std::min(world.size - 1, int(index * world.size / original.size()));
+    return std::min(world.size - 1, int((index / 2 % nx) * world.size / nx)); // Vertical geometric strips.
+  };
+  uint64_t inputCutEdges = 0;
+  for (int j = 0; j < ny; ++j)
+    for (int i = 0; i < nx; ++i) {
+      const size_t cell = 2 * (j * nx + i);
+      inputCutEdges += ownerOf(cell) != ownerOf(cell + 1);
+      if (i + 1 < nx) inputCutEdges += ownerOf(cell) != ownerOf(cell + 3);
+      if (j + 1 < ny) inputCutEdges += ownerOf(cell + 1) != ownerOf(cell + 2 * nx);
+    }
   std::map<Id, Cell> local;
   for (size_t index = 0; index < original.size(); ++index) {
-    const int owner = layout == 1 ? int(index % world.size) :
-        std::min(world.size - 1, int(index * world.size / original.size()));
+    const int owner = ownerOf(index);
     if (owner != world.rank) continue;
     Cell cell;
     cell.t = original[index];
@@ -159,7 +171,7 @@ TEST_CASE("Native engine size and partition envelope", "[NativeScaling2D][.]") {
     std::ofstream report("native_scaling.json");
     report << std::setprecision(17) << "{\"scope\":\"engine only; audit gather excluded\",\"tiles\":" << tiles
            << ",\"layout\":" << layout << ",\"matched\":" << matched << ",\"metric_height\":" << h0 / normalSize << ",\"anisotropy\":" << anisotropy << ",\"ranks\":" << world.size
-           << ",\"h0\":" << h0 << ",\"xmax\":" << nx * .02 << ",\"ymax\":" << yMax << ",\"input_cells\":" << original.size() << ",\"output_cells\":" << output.size()
+           << ",\"h0\":" << h0 << ",\"xmax\":" << nx * .02 << ",\"ymax\":" << yMax << ",\"input_cut_edges\":" << inputCutEdges << ",\"input_cells\":" << original.size() << ",\"output_cells\":" << output.size()
            << ",\"complete\":" << (complete ? "true" : "false") << ",\"init_seconds\":" << initSeconds
            << ",\"adapt_seconds\":" << adaptSeconds << ",\"selection_seconds_max\":" << selection
            << ",\"collective_seconds_max\":" << collectiveSeconds << ",\"collective_calls_max\":" << collectives

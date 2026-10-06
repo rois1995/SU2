@@ -37,8 +37,13 @@ native adaptation remain unsupported. MMG and Stage G are separate controls.
 3. Independently audit the raw meshes (exact orientation of binary64 inputs,
    topology, perimeter markers, area, target quality/length and wall heights).
    Incomplete contracts are outcomes; invalid topology is a failing gate.
-4. Repeat the largest passing size three times per rank, with contiguous and
-   cyclic ownership. Compare a fixed input, target and contract; also publish
+4. Escalate engine size (tiles128..4096, stopping on incomplete output, a
+   240-second timeout, structural failure or120-second observed engine cost),
+   using vertical geometric strips. Repeat the largest passing size three times
+   per rank, with cyclic, contiguous and vertical geometric ownership. The
+   original j-major contiguous blocks form horizontal strips with long cuts;
+   vertical strips provide a low-cut control. All three are prescribed before
+   repeated measurements; publish initial cut-edge counts. Compare a fixed input, target and contract; also publish
    output cell counts and commit counts, because rank-dependent work is not
    identical-work strong scaling. Do not quote reliable speedup from one sample.
 5. Matched geometry/tensor anisotropy: AR10/100/1000 at tiles4 and1/2/4 ranks.
