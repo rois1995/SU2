@@ -68,7 +68,8 @@ files.extend(source / relative for relative in (
     'SU2_CFD/include/output/COutput.hpp', 'SU2_CFD/src/drivers/CDiscAdjSinglezoneDriver.cpp',
     'SU2_CFD/include/drivers/CDiscAdjSinglezoneDriver.hpp', 'SU2_CFD/src/adaptation/CAdjointTransfer.cpp',
     'SU2_CFD/include/adaptation/CAdjointTransfer.hpp',
-    'UnitTests/Common/adaptation/CNativeScaling2D_tests.cpp'))
+    'UnitTests/Common/adaptation/CNativeScaling2D_tests.cpp',
+    'UnitTests/SU2_CFD/output/CMeshOutput_tests.cpp'))
 manifest = {'filter': args.filter, 'sequential': True, 'maximum_ranks': 4,
             'environment': {'OMP_NUM_THREADS': '1', 'OPENBLAS_NUM_THREADS': '1'},
             'build': str(build), 'binary_sha256': sha(binary),
