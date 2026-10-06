@@ -1,0 +1,17 @@
+{
+  "checked_unix_seconds": 1791284886.111902,
+  "source_revision": "8d1693140dc574e93b1ee49ea429b27fe9520fd2",
+  "primal_matrix_manifest": "integrated_primal_controls_v6/evidence.json",
+  "current_changes_from_primal_manifest": {
+    "SU2_CFD/src/drivers/CDiscAdjSinglezoneDriver.cpp": "46f6b7616793325a227bb55149317b4ac9dd137c70c1da7bb7ad15af1f9e1084",
+    "UnitTests/Common/adaptation/CNativeScaling2D_tests.cpp": "aa2343ef85c1bc248f66db6b53be6b357421c806f18a5fee21b2448a220a4f52"
+  },
+  "classification": {
+    "SU2_CFD/src/drivers/CDiscAdjSinglezoneDriver.cpp": "covered by corrected1/2/4 AD mesh-swap gates in ad_repair_controls_v14.json",
+    "UnitTests/Common/adaptation/CNativeScaling2D_tests.cpp": "opt-in measurement fixture, rebuilt and executing in robustness_chain_v8.json"
+  },
+  "ad_production_manifest": "ad_repair_controls_v14.json",
+  "ad_production_files_compared": 759,
+  "ad_production_changes": {},
+  "scope": "Source coverage comparison only; runner logs/archived binaries/compiled scope must also be assessed. Prepared patches have not changed these inputs."
+}

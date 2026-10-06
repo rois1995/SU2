@@ -222,3 +222,33 @@ Reconciliation revalidation: all other heads/remotes still match refs_initial;
 no new committed source to reconcile. The Stage G dirty production diff still
 matches recorded ff0a4c9588447bd89964ecae859fe44c465a102423b080619e4cc8018aaa2346.
 This excludes tags/stash from the head comparison and does not refresh network refs.
+
+
+## Interim completion audit (goal remains active)
+
+| Goal deliverable | Current proof | Work still required |
+|---|---|---|
+| Branch/worktree reconciliation | Pinned ledger; other heads/remotes unchanged; Stage G draft SHA unchanged; main HEAD/gitignore invariant retained | Revalidate at final audit; classify any later relevant source before importing |
+| Fresh integrated build and focused MPI gates | Primal output/native/memory/MMG/auxiliary1/2/4 pass;84 independent output audits; AD corrected mesh-swap1/2/4 pass | Actual warm/cold/interruption/native-adjoint rejection campaign is waiting |
+| Robustness envelope | Eight replacements, changing smooth tangential/height controls, one/opposing walls, affine transfer, boundary/corner/contact/admission tests executed | Abrupt nodal step control; affine AR escalation/incompatible request; fresh real NACA demand axes and all saved opposing-wall audits |
+| Practical scaling limits | Exact independent pilot and2048/4096/8192 controls; serial16384 timeout classified; cyclic9 repeats audited | Finish27 repeats and audit; higher-rank size limits; real remesh/replacement/transfer phase MAX measurements; quantitative final classification |
+| Reviewable branch/handoff/evidence | Committed source/docs, binary/source/config pins, preserved failed evidence, GRID_GUIDE and audited exports | Final requirement-by-requirement audit and a report whose claims match completed current-tree evidence |
+
+Current source coverage checked in integration_evidence/executed_source_coverage_v1.json.
+Against the executed primal v6 source manifest, only CDiscAdjSinglezoneDriver.cpp
+and the opt-in scaling probe changed. The former is covered by fresh corrected
+AD v14 gates; the latter was rebuilt and is executing in robustness v8. All759
+Common/SU2_CFD production files recorded in the AD v14 manifest match current
+sources. This is a source comparison, not a substitute for runtime/compiled-scope
+proof or a claim that pending prepared test patches have passed.
+
+Explicit support diagnostics to verify before final completion: hidden
+NativeUnsupportedDerivative and NativeMissingRestartReference tests are compiled
+but omitted by the successful49-case positive matrix. Execute each in fresh
+1/2/4 processes after current campaigns finish; expected outcome is a nonzero,
+non-timeout exit with its exact collective diagnostic. Also exercise actual
+native+TWO_PASS config rejection (ADAP_BL_METHOD=TWO_PASS in the native NACA
+input) before any primal cycle. Stage G runner already schedules discrete-adjoint
+native rejection. Preserve separate expected-failure logs, commands and hashes;
+never run these through a positive-Catch-pass checker or count an arbitrary
+crash as successful rejection.

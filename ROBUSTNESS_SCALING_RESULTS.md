@@ -240,3 +240,13 @@ fixture reuses the existing BL cycles and transfer policies with an abrupt
 .004/.014 nodal tangential request. Compilation, actual1/2/4 controls and
 independent frozen-P1 audits are pending. This gap is separate from matched
 constant AR robustness and from changing the smooth metric between cycles.
+
+
+Source coverage check: executed_source_coverage_v1.json compares current source
+with the archived primal v6 manifest and corrected AD v14 manifest. The only
+primal-manifest differences are the freshly validated adjoint-driver correction
+and the rebuilt opt-in scaling probe. All759 AD-manifest production files match.
+The pending timing/step patches remain unapplied, so they have not changed the
+source associated with these gates. Actual AD lifecycle, stress/size follow-through,
+measurement closure and explicit expected support failures remain incomplete;
+see the interim completion matrix in HANDOFF_Codex.md.
