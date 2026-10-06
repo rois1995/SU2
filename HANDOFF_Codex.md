@@ -172,3 +172,32 @@ binary-pinned campaigns finish, use minimal test-only instrumentation and a
 fresh targeted run to record actual remesh, replacement/repartition, transfer,
 CFD and artifact timing separately. Do not modify/relink a live campaign binary.
 This is required by goal/protocol, not a speculative optimization.
+
+
+Prepared measurement closure: pending_airfoil_phase_timing_v1.patch and its
+SHA/source manifest in integration_evidence. git apply --check passes; source
+and binaries are unchanged, and this patch is NOT compiled or tested yet.
+After robustness_chain_v8, goal_runtime_v7 and integration_followthrough_v1
+are all terminal (diagnose failures before advancing), verify the input source
+hash and apply it. Rebuild only UnitTests/test_driver with-j2 after host quiet.
+Run the existing NativeAirfoil2D baseline with the existing pinned baseline.cfg,
+fresh label integrated_airfoil_phase_timing_v1, ranks1/2/4 sequential,900s/rank,
+save-audit; then independent airfoil audits and validate all9 timing CSV rows.
+Do not use old binaries with newly modified source provenance.
+
+Patch reuses protected lastReplaceTime/lastTransferTime and the real production
+adapted-mesh writer. It records separate local phases reduced by MPI MAX:
+solve (includes inner-iteration output), metric, complete backend Remesh,
+ReplaceMesh, transfer, replacement minus transfer, and adapted-mesh output.
+The subtraction is performed per rank before MAX; it is not MAX(replace)-MAX(transfer).
+Per-phase maxima must not be added and called a synchronized overall wall time.
+Test snapshot gathers, saved-mesh checks and external audits remain outside
+remesh/transfer/output timing. Failed candidates record remesh timing with
+accepted=false and zero replacement/output. Targets and acceptance are unchanged.
+
+followthrough_external_guards_v1.json proves current build and archived engine
+executables still have the campaign SHA. Checker SHA is pinned; compare it with
+the eventual goal_runtime_v7 checker_sha256 before the4-rank lifecycle. No source
+checker or binary changes are allowed until the existing follower finishes.
+The prepared patch deliberately waits, so the already-loaded follower's omitted
+extra guards cannot be invalidated by this new work.

@@ -221,3 +221,14 @@ remesh and transfer/repartition phase measurements meeting the protocol scope;
 add only the necessary test instrumentation after live binary-pinned campaigns
 finish, then run a separately labelled control rather than changing a binary
 under an active campaign.
+
+
+A minimal test-only phase-timing patch is prepared and passes git apply --check
+(integration_evidence/pending_airfoil_phase_timing_v1.patch). It is deliberately
+not applied while binary-pinned campaigns run. Its planned rank maxima include
+actual backend import/adaptation/export in remeshing; replacement covers new
+partition/geometry/solvers and teardown, with its transfer subset reported
+separately; actual adapted-mesh output uses the production writer. Solve timing
+includes existing inner-iteration output. None of these planned measurements
+is a result yet. Compilation, fresh1/2/4 runtime, nine CSV validation and the
+same independent mesh/target audits remain required before closing this gap.
