@@ -231,7 +231,7 @@ This excludes tags/stash from the head comparison and does not refresh network r
 | Branch/worktree reconciliation | Pinned ledger; other heads/remotes unchanged; Stage G draft SHA unchanged; main HEAD/gitignore invariant retained | Revalidate at final audit; classify any later relevant source before importing |
 | Fresh integrated build and focused MPI gates | Primal output/native/memory/MMG/auxiliary1/2/4 pass;84 independent output audits; AD corrected mesh-swap1/2/4 pass | Actual warm/cold/interruption/native-adjoint rejection campaign is waiting |
 | Robustness envelope | Eight replacements, changing smooth tangential/height controls, one/opposing walls, affine transfer, boundary/corner/contact/admission tests executed | Abrupt nodal step control; affine AR escalation/incompatible request; fresh real NACA demand axes and all saved opposing-wall audits |
-| Practical scaling limits | Exact independent pilot and2048/4096/8192 controls; serial16384 timeout classified; cyclic9 repeats audited | Finish27 repeats and audit; higher-rank size limits; real remesh/replacement/transfer phase MAX measurements; quantitative final classification |
+| Practical scaling limits | Exact independent pilot and2048/4096/8192 controls; serial16384 timeout classified; cyclic9 repeats audited | 27 repetitions and final independent audit now pass; higher-rank size limits; real remesh/replacement/transfer phase MAX measurements; quantitative final classification |
 | Reviewable branch/handoff/evidence | Committed source/docs, binary/source/config pins, preserved failed evidence, GRID_GUIDE and audited exports | Final requirement-by-requirement audit and a report whose claims match completed current-tree evidence |
 
 Current source coverage checked in integration_evidence/executed_source_coverage_v1.json.
@@ -280,3 +280,20 @@ actual audit evaluation. Originals are untouched. Numeric/input-hash evidence:
 integration_evidence/audit_input_hash_check_v1.json. Fresh queued NACA audits
 will exercise the new original-reference hash path; do not claim that path's
 runtime verification from a syntax check alone.
+
+
+Latest update: all27 repeated8192-cell partition-layout runs are complete and
+pass the final independent structure/frozen-target audit in
+robustness_campaign_v8/repeated/independent_audit.json. Low-cut four-rank times
+vary28.060/40.365/50.656s (min/median/max), despite identical mesh/work hashes;
+do not promote the fastest sample as reliable scaling. Plot/CSV/provenance:
+partition_comparison_v1. Results below supersede the earlier18/27 interim status.
+
+Fresh integrated NACA baseline is running; runner52131, baseline child264049,
+initial MPI child264128 at last observation. Other supervisors52132/119961 still
+wait for prerequisites. No additional heavy job was launched for visualization.
+Actual earlier native-baseline NACA gallery is ready in real_airfoil_gallery_v1:
+initial10216 triangles, four-rank cycles23328/25549/19487 triangles, exact VTU/SU2
+exports and wall-detail preview. All nine earlier1/2/4 saved meshes independently
+verified; only short viscous/resumed-solve checks, not converged CFD accuracy.
+See GRID_GUIDE.md. This is prior baseline evidence, not fresh integration proof.

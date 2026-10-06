@@ -285,3 +285,32 @@ and reject changes during evaluation. The shared check passes a saved integrated
 four-rank cycle7 BL mesh and detects a deliberate edit of only a temporary copy.
 This strengthens report provenance without changing any target, algorithm or
 binary used by the live campaign. Earlier archived audits are preserved.
+
+
+## Completed three-layout repetitions
+
+All27 runs pass the final independent structure and full frozen-target audit:
+`integration_evidence/robustness_campaign_v8/repeated/independent_audit.json`.
+Three samples per layout/rank at8192 input triangles:
+
+| Initial ownership | 1 rank min / median / max (s) | 2 ranks (s) | 4 ranks (s) |
+|---|---:|---:|---:|
+| Cyclic | 97.988 / 99.516 / 101.773 | 94.756 / 95.533 / 115.950 | 52.242 / 52.513 / 53.654 |
+| Horizontal | 104.948 / 106.234 / 108.123 | 52.268 / 52.416 / 52.755 | 53.843 / 53.982 / 54.318 |
+| Vertical low-cut | 97.181 / 97.598 / 100.287 | 51.790 / 51.900 / 52.225 | 28.060 / 40.365 / 50.656 |
+
+[Plot](integration_evidence/partition_comparison_v1/partition_times.png), raw CSV
+and provenance are in `partition_comparison_v1`; plotting source is
+`integration_evidence/plot_partition_comparison.py`. Vertical four-rank snapshots
+and work counts are identical across repetitions (16012 commits,163 cross-owner,
+11 conflicts), while timings vary widely on this shared machine. The median
+is40.365s;28.060s is the fastest observation, not a reliable typical time.
+Rank/layout-dependent meshes and work prevent an identical-work speedup claim.
+Engine timing excludes CFD, transfer and audit. This supersedes the pending
+vertical/18-of27 statements in earlier interim sections; larger capacity and
+real-airfoil measurement closure remain pending.
+
+Actual prior native-baseline NACA meshes have been exported for inspection in
+`real_airfoil_gallery_v1` (see GRID_GUIDE.md). They include three four-rank
+adaptations, boundary-layer cells and short resumed viscous solves, but do not
+establish full CFD convergence or current integrated-tree runtime success.
