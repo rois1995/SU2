@@ -136,6 +136,11 @@ class CSysSolve {
   /*!< \brief Inner solver for nested preconditioning. */
   std::unique_ptr<CSysSolve<ScalarType>> inner_solver;
 
+  /*--- Capture of the adjoint of the right-hand side in the reverse sweep (residual adjoint, stage G). ---*/
+  bool captureRhsAdjoint = false;          /*!< \brief Copy the adjoint of the RHS in the reverse callback. */
+  unsigned long nRhsAdjointCaptures = 0;   /*!< \brief Number of reverse callbacks since the capture started. */
+  std::vector<passivedouble> rhsAdjoint;   /*!< \brief Adjoint of the RHS of the last captured solve. */
+
   /*!
    * \brief sign transfer function
    * \param[in] x - value having sign prescribed
@@ -515,4 +520,47 @@ class CSysSolve {
    * \brief Discard FGCRODR's deflation vectors for the next solve.
    */
   inline void ResetDeflation() const { k = 0; }
+
+  /*!
+   * \brief Start copying the adjoint of the right-hand side (the residual adjoint) in every reverse callback
+   *        of this solver (AD reverse mode only). Clears the counter and the stored vector.
+   */
+  inline void StartRhsAdjointCapture() {
+    captureRhsAdjoint = true;
+    nRhsAdjointCaptures = 0;
+    rhsAdjoint.clear();
+  }
+
+  /*!
+   * \brief Stop the capture started by StartRhsAdjointCapture (the stored vector is kept).
+   */
+  inline void StopRhsAdjointCapture() { captureRhsAdjoint = false; }
+
+  /*!
+   * \brief Called by the reverse callback: store the adjoint of the right-hand side if the capture is on.
+   * \param[in] x_b - Adjoint of the right-hand side (all local entries, halos included).
+   * \param[in] m - Number of entries of x_b (right-hand side).
+   * \param[in] n - Number of entries of the solution; m != n stores an empty vector (size error downstream).
+   */
+  inline void CaptureRhsAdjoint(const passivedouble* x_b, size_t m, size_t n) {
+    if (!captureRhsAdjoint) return;
+    if (m == n) rhsAdjoint.assign(x_b, x_b + m);
+    else rhsAdjoint.clear();
+    ++nRhsAdjointCaptures;
+  }
+
+  /*!
+   * \brief Whether the capture is on (read by the reverse callback).
+   */
+  inline bool GetRhsAdjointCapture() const { return captureRhsAdjoint; }
+
+  /*!
+   * \brief Number of reverse callbacks since the capture started.
+   */
+  inline unsigned long GetnRhsAdjointCaptures() const { return nRhsAdjointCaptures; }
+
+  /*!
+   * \brief Adjoint of the right-hand side of the last captured solve.
+   */
+  inline const std::vector<passivedouble>& GetRhsAdjoint() const { return rhsAdjoint; }
 };

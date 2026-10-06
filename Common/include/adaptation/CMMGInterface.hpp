@@ -70,7 +70,49 @@ class CMMGInterface {
                                      (MMG2D's swaps leave degenerate cells in a re-adapted boundary-layer mesh;
                                      in 3D the swaps are kept, without them there are more slivers). */
     int verbosity = -1;         /*!< \brief MMG verbosity, -1 silent, 1 MMG default, up to 10. */
+    std::vector<std::string> boundaryLayerMarkers; /*!< \brief Wall markers of the boundary-layer metric
+                                                        (ADAP_BL_MARKER). */
+    bool localWallHmax = true;  /*!< \brief Local MMG parameters on the boundary-layer wall markers
+                                     (ADAP_BL_LOCAL_HMAX): hmax = 2 x the longest face edge of the marker, which bounds
+                                     MMG's own geometric metric at their points (see MetricCheck). */
+    int swap = -1;              /*!< \brief Edge swaps in 2D: -1 automatic (none with a boundary-layer metric), 0 none,
+                                     1 swaps. */
+    std::vector<std::string> requiredMarkers; /*!< \brief With a surface (surface true): markers whose boundary edges
+                                                   (2D) or triangles (3D) are required, i.e. kept as they are. */
+    std::vector<unsigned long> requiredPoints; /*!< \brief Extra required corner points (indices of the input mesh). */
+    std::vector<unsigned long> requiredVertices; /*!< \brief Extra required vertices that are not corners (indices of
+                                                      the input mesh): MMG keeps them, but they are not feature points
+                                                      of the boundary. */
   };
+
+  /*!
+   * \brief Local MMG size parameters of one boundary reference (MMG2D/3D_Set_localParameter on its edges/triangles).
+   */
+  struct LocalParameter {
+    int ref = 0;                /*!< \brief Marker reference. */
+    passivedouble hmin = 0.0;   /*!< \brief Local minimum size. */
+    passivedouble hmax = 0.0;   /*!< \brief Local maximum size. */
+    passivedouble hausd = 0.0;  /*!< \brief Local Hausdorff distance. */
+  };
+
+  /*!
+   * \brief Check that MMG kept the metric at the fixed boundary points (ADAP_SURFACE= NO).
+   * \details MMG intersects the given metric at boundary points with its own geometric boundary metric. The result may
+   *          legitimately be finer than the given metric (intersection, gradation), never coarser. With MMG 5.6 the
+   *          intersection can fail silently when the two metrics differ by a ratio of about 1e5 in size (MMG issue
+   *          #331, fixed by PR #332); the point then keeps MMG's geometric metric, e.g. an isotropic hmax on a straight
+   *          wall, and the boundary-layer target there is lost. A point violates the check when
+   *          lambda_min(M_in^-1/2 M_out M_in^-1/2) < 1 - tolerance (some direction became coarser).
+   */
+  struct MetricCheck {
+    unsigned long nChecked = 0;       /*!< \brief Fixed boundary points compared. */
+    unsigned long nViolations = 0;    /*!< \brief Points where MMG's metric is coarser than the given one. */
+    unsigned long nCornerViolations = 0; /*!< \brief Of which corners (points of two or more markers). */
+    passivedouble worstRatio = 1.0;   /*!< \brief Smallest lambda_min found (1: nothing coarser). */
+    std::vector<unsigned long> points;/*!< \brief Input indices of the violating points. */
+  };
+  static constexpr passivedouble metricCheckTolerance = 0.05; /*!< \brief Tolerance of MetricCheck (eigenvalue
+                                                                 ratio; about 2.5% in size). */
 
   /*!
    * \brief MMG return status (same values as MMG5_SUCCESS, MMG5_LOWFAILURE, MMG5_STRONGFAILURE).
@@ -141,6 +183,32 @@ class CMMGInterface {
    * \param[in,out] mesh - Mesh with its metric; only the metric of the boundary points changes.
    */
   static void FloorFixedBoundaryMetric(CSimplexMesh& mesh);
+
+  /*!
+   * \brief Smallest eigenvalue of M_in^-1/2 M_out M_in^-1/2: below 1, M_out is coarser than M_in in some direction.
+   * \param[in] nDim - Number of dimensions.
+   * \param[in] metricIn - Reference metric (upper triangle).
+   * \param[in] metricOut - Metric to compare (upper triangle).
+   */
+  static passivedouble CoarseningRatio(unsigned short nDim, const passivedouble* metricIn,
+                                       const passivedouble* metricOut);
+
+  /*!
+   * \brief Local parameters of the boundary-layer wall markers of a mesh (Parameters::localWallHmax): for each marker
+   *        of Parameters::boundaryLayerMarkers with faces, hmin and hausd of the parameters, hmax = 2 x its longest
+   *        face edge.
+   */
+  std::vector<LocalParameter> WallLocalParameters(const CSimplexMesh& mesh) const;
+
+  /*!
+   * \brief Local parameters to use instead of WallLocalParameters for the next SetMesh (empty: WallLocalParameters).
+   */
+  void SetLocalParameters(std::vector<LocalParameter> local) { localOverride = std::move(local); }
+
+  /*!
+   * \brief Result of the metric check of the last Adapt with a fixed surface.
+   */
+  const MetricCheck& GetMetricCheck() const { return metricCheck; }
 
   /*!
    * \brief Collective: the whole mesh and metric of the (partitioned) geometry as plain arrays on the master rank, in
@@ -227,6 +295,11 @@ class CMMGInterface {
   Status status = Status::STRONGFAILURE; /*!< \brief Status of the last Remesh. */
   std::vector<bool> fixedBoundary;     /*!< \brief Fixed surface: boundary points of the loaded mesh. */
   std::vector<passivedouble> fixedCoord; /*!< \brief Fixed surface: coordinates of the loaded mesh. */
+  std::vector<LocalParameter> localParams; /*!< \brief Local parameters of the loaded mesh, set by Remesh. */
+  std::vector<LocalParameter> localOverride; /*!< \brief Local parameters given by SetLocalParameters. */
+  mutable std::vector<long> fixedSource; /*!< \brief Fixed surface: input index of each point of the last GetMesh
+                                              (-1 for new points). */
+  MetricCheck metricCheck;               /*!< \brief Metric check of the last Adapt. */
 };
 
 /*!

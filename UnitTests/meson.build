@@ -5,6 +5,7 @@
 
 # Direct-mode tests:
 su2_cfd_tests = files(['SU2_CFD/adaptation/CAdapSensors_tests.cpp',
+                       'SU2_CFD/adaptation/GoalMetric_tests.cpp',
                        'Common/CConfig_tests.cpp',
                        'Common/geometry/primal_grid/CPrimalGrid_tests.cpp',
                        'Common/geometry/dual_grid/CDualGrid_tests.cpp',
@@ -25,9 +26,11 @@ su2_cfd_tests = files(['SU2_CFD/adaptation/CAdapSensors_tests.cpp',
                        'SU2_CFD/drivers/CDriver_tests.cpp',
                        'SU2_CFD/drivers/CSinglezoneDriver_tests.cpp',
                        'SU2_CFD/adaptation/CBarycentricTransfer_tests.cpp',
+                       'SU2_CFD/adaptation/AdjointTransfer_tests.cpp',
                        'SU2_CFD/adaptation/CConservativeTransfer_tests.cpp',
                        'SU2_CFD/adaptation/CornerMetric_tests.cpp',
                        'SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp',
+                       'SU2_CFD/adaptation/BoundaryLayerTwoPass_tests.cpp',
                        'SU2_CFD/adaptation/CMetricPredictor_tests.cpp',
                        'SU2_CFD/adaptation/AdaptationMPI_tests.cpp',
                        'SU2_CFD/adaptation/CNativeImport2D_tests.cpp',
@@ -58,6 +61,8 @@ su2_cfd_tests = files(['SU2_CFD/adaptation/CAdapSensors_tests.cpp',
 
 # Reverse-mode (algorithmic differentiation) tests:
 su2_cfd_tests_ad = files(['SU2_CFD/adaptation/CAdapSensors_tests.cpp',
+                          'SU2_CFD/adaptation/GoalMetric_tests.cpp',
+                          'SU2_CFD/drivers/CDiscAdjSinglezoneDriver_tests.cpp',
                           'Common/simple_ad_test.cpp',
                           'SU2_CFD/fluid/CFluidModel_tests_AD.cpp',
                           'Common/toolboxes/multilayer_perceptron/MLP_Jacobian_tests.cpp',

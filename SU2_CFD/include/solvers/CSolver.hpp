@@ -191,6 +191,18 @@ private:
    directly instead of calling GetBaseClassPointerToNodes() or doing something equivalent. ---*/
   CVariable* base_nodes;  /*!< \brief Pointer to CVariable to allow polymorphic access to solver nodes. */
 
+protected:
+  passivedouble metricComplexityPreBL = 0.0; /*!< \brief Complexity of the last metric before the boundary layer. */
+  passivedouble metricComplexityFinal = 0.0; /*!< \brief Complexity of the last metric (final). */
+  bool metricComplexityBracketed = false;    /*!< \brief The target was bracketed by the size bounds. */
+  su2passivematrix GoalDiagnostics; /*!< \brief Per point (ADAP_SENSOR= GOAL): signed-sum ratio, eq. (33) ratio, the
+                                         momentum lambda used (nDim). */
+  unsigned long GoalRejected = 0;   /*!< \brief Non-finite flux Hessians of the last goal-oriented Hessian (global). */
+  unsigned long GoalNonFinite = 0;  /*!< \brief Non-finite goal-oriented estimates or diagnostics (global). */
+  passivedouble GoalMinRatio = 0.0; /*!< \brief Min over points of lambda_min(H_go) / tr(H_go) (global). */
+  unsigned long GoalWallCounts[3] = {0, 0, 0}; /*!< \brief Slip-wall reconstruction (global): wall points, donors
+                                                    without a full-rank stencil, wall points not reconstructed. */
+
 public:
 
   CSysVector<su2double> LinSysSol;    /*!< \brief vector to store iterative solution of implicit linear system. */
@@ -599,6 +611,67 @@ public:
    */
   void ComputeMetric(CGeometry *geometry, const CConfig *config, const vector<su2double>* givenMetric = nullptr,
                      bool boundaryLayer = true);
+
+  /*!
+   * \brief Complexity of the last ComputeMetric (global): attained by the global factor (after the bounds and the corner
+   *        metric, before the boundary-layer metric), and of the final metric (with the boundary-layer metric).
+   */
+  passivedouble GetMetricComplexityPreBL() const { return metricComplexityPreBL; }
+  passivedouble GetMetricComplexityFinal() const { return metricComplexityFinal; }
+  /*! \brief Whether the target complexity of the last ComputeMetric was bracketed by the size bounds. */
+  bool GetMetricComplexityBracketed() const { return metricComplexityBracketed; }
+
+  /*!
+   * \brief Goal-oriented Hessian (ADAP_SENSOR= GOAL, stage G): H_go = sum_{d,j} |d_d lambda_j| |H(F_{d,j})| into the
+   *        Hessian slot 0, from the work fields of AuxVar_Adapt (layout of GoalMetric: lambda, then the fluxes), which
+   *        must be set on the domain points. Steps: halo values; slip-wall reconstruction of the normal momentum
+   *        lambda (ADAP_GOAL_WALL_EXTRAPOLATION); symmetry mirror rules of the values, gradients and Hessians of these
+   *        vector/tensor fields (planes checked by GoalMetric::CheckSymmetry); gradients of all fields and Hessians of
+   *        the fluxes (NUM_METHOD_HESS, no other boundary correction); the estimate and its diagnostics (signed-sum
+   *        and eq. 33 ratios, GoalDiagnostics). Then ComputeMetric (one sensor) gives the metric.
+   * \note Call outside of OpenMP parallel regions, with the tape inactive. Periodic markers are not supported.
+   * \param[in] geometry - Geometrical definition of the problem.
+   * \param[in] config - Definition of the particular problem.
+   * \param[in] state - Optional conservative state of the domain points (nVar per point), for the eq. (33) ratio
+   *            (0 without it).
+   * \param[out] fluxHessians - Optional (tests): the Hessian of each flux field of the domain points after the mirror
+   *             rules, [(iPoint * nFlux + f) * nDim + a] * nDim + b.
+   */
+  void ComputeGoalHessian(CGeometry *geometry, const CConfig *config, const vector<su2double>* state = nullptr,
+                          vector<su2double>* fluxHessians = nullptr);
+
+  /*!
+   * \brief Set the work fields of the goal-oriented estimator (lambda and the Euler fluxes) on the domain points.
+   * \param[in] geometry - Geometrical definition of the problem.
+   * \param[in] config - Definition of the particular problem.
+   * \param[in] adjoint - Discrete adjoint flow solver (residual adjoint and the differentiated primal state).
+   * \param[out] state - Conservative state of the domain points (nVar per point).
+   */
+  inline virtual void SetGoalFields_Adapt(CGeometry *geometry, const CConfig *config, CSolver *adjoint,
+                                          vector<su2double>& state) {}
+
+  /*!
+   * \brief Per-point diagnostics of the goal-oriented estimator (0 before ComputeGoalHessian).
+   * \param[in] iPoint - Point.
+   * \param[in] k - 0: signed-sum ratio, 1: eq. (33) ratio, 2 + d: component d of the momentum lambda used.
+   */
+  inline passivedouble GetGoalDiagnostic(unsigned long iPoint, unsigned short k) const {
+    return (iPoint < GoalDiagnostics.rows() && k < GoalDiagnostics.cols()) ? GoalDiagnostics(iPoint, k) : 0.0;
+  }
+
+  /*!
+   * \brief Global checks of the last goal-oriented Hessian: non-finite (rejected) flux Hessians, non-finite estimates
+   *        or diagnostics, min over points of lambda_min(H_go) / tr(H_go).
+   */
+  inline unsigned long GetGoalRejected() const { return GoalRejected; }
+  inline unsigned long GetGoalNonFinite() const { return GoalNonFinite; }
+  inline passivedouble GetGoalMinRatio() const { return GoalMinRatio; }
+
+  /*!
+   * \brief Slip-wall reconstruction of the last goal-oriented Hessian (global counts).
+   * \param[in] k - 0: Euler-wall points, 1: donors without a full-rank stencil, 2: wall points not reconstructed.
+   */
+  inline unsigned long GetGoalWallCount(unsigned short k) const { return k < 3 ? GoalWallCounts[k] : 0; }
 
   /*!
    * \brief Find the sharp points of the walls, where ADAP_ISO_CORNER makes the adaptation metric isotropic.
@@ -3217,6 +3290,14 @@ public:
    *         (inviscid + viscous contribution).
    */
   inline virtual su2double GetTotal_Sens_AoA() const { return 0; }
+
+  /*!
+   * \brief Residual adjoint lambda (stage G, ADAP_ADJ_LAMBDA= YES) of the discrete adjoint flow solver.
+   * \param[in] iPoint - Point index.
+   * \param[in] iVar - Variable index.
+   * \return lambda(iPoint, iVar), 0 for other solvers.
+   */
+  inline virtual passivedouble GetResidualAdjoint(unsigned long iPoint, unsigned short iVar) const { return 0.0; }
 
   /*!
    * \brief Set the total farfield pressure sensitivity coefficient.

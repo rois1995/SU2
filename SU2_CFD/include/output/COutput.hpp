@@ -246,6 +246,7 @@ protected:
 
   vector<string> volumeFieldNames;          //!< Vector containing the volume field names.
   vector<string> requiredVolumeFieldNames;  //!< Vector containing the minimum required volume field names.
+  vector<string> excludedVolumeGroups;      //!< Volume output groups (or fields) left out of the files.
 
   string volumeFilename,               //!< Volume output filename.
   surfaceFilename,                     //!< Surface output filename.
@@ -578,6 +579,23 @@ public:
   void SetResidualReduction(su2double reduction) { residualReduction = reduction; }
 
   /*!
+   * \brief Monitor convergence on residual fields only (goal-oriented adaptation loop, one config for the primal and the
+   *        adjoint output): the candidates that are residual history fields of this output, else the fallback. The
+   *        monitor state is set up again for them (no Cauchy fields are needed for residuals).
+   * \param[in] candidates - Field names (e.g. CONV_FIELD of the config).
+   * \param[in] fallback - Residual field used when no candidate is one (error if it is not one either).
+   * \return The monitored fields.
+   */
+  vector<string> SetResidualConvergenceFields(const vector<string>& candidates, const string& fallback);
+
+  /*!
+   * \brief Leave the volume output fields of these groups (or names) out of the volume and restart files (both layouts),
+   *        e.g. the geometric sensitivities of the goal-oriented loop before they are computed. The field definitions
+   *        stay; the layouts and the data sorters are rebuilt. An empty list restores the full output.
+   */
+  void SetVolumeOutputExclusions(const vector<string>& groups);
+
+  /*!
    * \brief Names and values of the fields convergence is monitored on that are residuals.
    * \return Name and current value of every monitored residual field, in CONV_FIELD order.
    */
@@ -753,6 +771,13 @@ public:
 protected:
 
   /*----------------------------- Protected member functions ----------------------------*/
+
+  /*!
+   * \brief Offsets of the volume output fields in the full and the compact (restart) layout, from the requested and the
+   *        required fields, without the excluded groups (SetVolumeOutputExclusions).
+   * \param[out] FoundField - If given: whether each requested field or group was found.
+   */
+  void AssignVolumeFieldOffsets(std::vector<bool>* FoundField);
 
   /*!
    * \brief Set the history file header

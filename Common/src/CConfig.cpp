@@ -3313,6 +3313,37 @@ void CConfig::SetConfig_Options() {
   /*!\brief ADAP_BL_THICKNESS \n DESCRIPTION: Distance from the wall where the boundary-layer metric ends (>= the first
    * height) of each boundary-layer marker \ingroup Config */
   addDoubleListOption("ADAP_BL_THICKNESS", nAdap_BL_Thickness, Adap_BL_Thickness);
+  /*!\brief ADAP_BL_LOCAL_HMAX \n DESCRIPTION: MMG local parameters on the boundary-layer wall markers: hmax = 2 x their
+   * longest face edge. This bounds MMG's own geometric boundary metric there; MMG versions without the fix of MMG issue
+   * #331 can otherwise replace the boundary-layer metric at the wall points by it \ingroup Config */
+  addBoolOption("ADAP_BL_LOCAL_HMAX", Adap_BL_LocalHmax, true);
+  /*!\brief ADAP_BL_METHOD \n DESCRIPTION: How the near-wall cells are built: METRIC (one remesh with the boundary-layer
+   * metric) or TWO_PASS (2D: pass A resets the near-wall band and resamples the wall on the reference wall with a
+   * curvature-capped tangential size, pass B remeshes with the boundary-layer metric) \ingroup Config */
+  addEnumOption("ADAP_BL_METHOD", Kind_Adap_BL_Method, Adap_BL_Method_Map, ADAP_BL_METHOD::METRIC);
+  /*!\brief ADAP_BL_CURVATURE_FACTOR \n DESCRIPTION: TWO_PASS: wall tangential size at most c sqrt(2 R h0) (R radius of
+   * curvature of the reference wall, h0 the first height) \ingroup Config */
+  addDoubleOption("ADAP_BL_CURVATURE_FACTOR", Adap_BL_CurvatureFactor, 0.7);
+  /*!\brief ADAP_BL_GATE_FACTOR \n DESCRIPTION: TWO_PASS: pass A is accepted only if every wall edge L with the turn
+   * of the wall at its ends satisfies L sin(turn/2) <= k h0 \ingroup Config */
+  addDoubleOption("ADAP_BL_GATE_FACTOR", Adap_BL_GateFactor, 1.0);
+  /*!\brief ADAP_BL_CORNER_FLOOR \n DESCRIPTION: TWO_PASS, experimental: at convex sharp corners of the boundary-layer
+   * walls (e.g. a sharp trailing edge, wedge angle w) the wall size is at least m h0 / sin(w/2) near the corner (0: off)
+   * \ingroup Config */
+  addDoubleOption("ADAP_BL_CORNER_FLOOR", Adap_BL_CornerFloor, 0.0);
+  /*!\brief ADAP_BL_GEOM_TOL \n DESCRIPTION: TWO_PASS: largest distance of the wall points from the reference wall
+   * after the projection (0: 0.25 x the smallest ADAP_BL_FIRST_HEIGHT) \ingroup Config */
+  addDoubleOption("ADAP_BL_GEOM_TOL", Adap_BL_GeomTol, 0.0);
+  /*!\brief ADAP_BL_REFERENCE \n DESCRIPTION: TWO_PASS: file of the reference wall, written at the first remesh and
+   * read when the loop restarts \ingroup Config */
+  addStringOption("ADAP_BL_REFERENCE", Adap_BL_Reference, string("adap_bl_reference.dat"));
+  /*!\brief ADAP_BL_REFERENCE_REBASE \n DESCRIPTION: TWO_PASS: rebuild the reference wall from the current wall instead of
+   * reading ADAP_BL_REFERENCE \ingroup Config */
+  addBoolOption("ADAP_BL_REFERENCE_REBASE", Adap_BL_ReferenceRebase, false);
+  /*!\brief ADAP_BL_SWAP \n DESCRIPTION: TWO_PASS: edge swaps in the boundary-layer pass (2D; the METRIC method never swaps in
+   * 2D with a boundary-layer metric). Without swaps MMG needs several times more points to build the near-wall cells
+   * from the reset band of pass A (flat plate: 217k instead of 36k points) \ingroup Config */
+  addBoolOption("ADAP_BL_SWAP", Adap_BL_Swap, true);
 
   /*--- Mesh adaptation loop (steady, single zone, needs MMG). Cycle 0 solves on the input mesh with the
    *    usual options (ITER, CFL_NUMBER, CONV_*), then each cycle remeshes from the metric of the last solution,
@@ -3323,6 +3354,21 @@ void CConfig::SetConfig_Options() {
    *    Not supported: DIRECT_DIFF; with ADAP_UNSTEADY_METRIC= FIXED_POINT also FIXED_CL_MODE and CFL_ADAPT. ---*/
   /*!\brief ADAP_LOOP \n DESCRIPTION: Run the mesh adaptation loop (needs COMPUTE_METRIC= YES and ADAP_SIZES) \ingroup Config */
   addBoolOption("ADAP_LOOP", Adap_Loop, false);
+  /*!\brief ADAP_ADJ_LAMBDA \n DESCRIPTION: Discrete adjoint (SU2_CFD_AD): after the adjoint solve, capture the
+   * residual adjoint lambda (adjoint of the right-hand side of the flow linear solve) with one extra reverse sweep;
+   * volume output group ADJ_LAMBDA. Steady compressible Euler, MGLEVEL= 0, FGMRES (stage G) \ingroup Config */
+  addBoolOption("ADAP_ADJ_LAMBDA", Adap_Adj_Lambda, false);
+  /*!\brief ADAP_ADJ_LAMBDA_CHECK \n DESCRIPTION: Developer check of the residual adjoint: finite differences of
+   * the residual and of the objective with respect to Alpha and Mach (needs ADAP_ADJ_LAMBDA and JST) \ingroup Config */
+  addBoolOption("ADAP_ADJ_LAMBDA_CHECK", Adap_Adj_Lambda_Check, false);
+  /*!\brief ADAP_GOAL_WALL_EXTRAPOLATION \n DESCRIPTION: Goal-oriented metric (ADAP_SENSOR= GOAL): at Euler walls,
+   * replace the normal momentum component of lambda (not set by the discrete problem, zero in the captured field) by a
+   * linear extrapolation from the interior \ingroup Config */
+  addBoolOption("ADAP_GOAL_WALL_EXTRAPOLATION", Adap_Goal_Wall_Extrapolation, true);
+  /*!\brief ADAP_ADJ_LAMBDA_PERTURB \n DESCRIPTION: Developer residual perturbation of a DIRECT flow run
+   * (global point, variable, value): the residual of that point changes by -value * volume. Needs
+   * PYTHON_CUSTOM_SOURCE= YES \ingroup Config */
+  addDoubleListOption("ADAP_ADJ_LAMBDA_PERTURB", nAdap_Adj_Lambda_Perturb, Adap_Adj_Lambda_Perturb);
   /*!\brief ADAP_FREQ \n DESCRIPTION: Time-domain adaptation loop: number of physical time steps between two
    * adaptations (the time window of the metric). The mesh is adapted after the time steps n with
    * (n + 1) % ADAP_FREQ == 0, counted from time step 0 \ingroup Config */
@@ -3348,6 +3394,18 @@ void CConfig::SetConfig_Options() {
    * the residuals of CONV_FIELD have dropped by this many orders of magnitude from their largest value in that solve
    * (default: only CONV_RESIDUAL_MINVAL) \ingroup Config */
   addDoubleListOption("ADAP_RESIDUAL_REDUCTION", nAdap_ResRed, Adap_ResRed);
+  /*!\brief ADAP_ADJ_ITER \n DESCRIPTION: Goal-oriented loop (ADAP_SENSOR= GOAL): adjoint iterations on the adapted meshes
+   * of each level (ITER) \ingroup Config */
+  addULongListOption("ADAP_ADJ_ITER", nAdap_AdjIter, Adap_AdjIter);
+  /*!\brief ADAP_ADJ_RESIDUAL_REDUCTION \n DESCRIPTION: Goal-oriented loop: the adjoint solve on the adapted meshes of
+   * each level also stops when the adjoint residuals of CONV_FIELD have dropped by this many orders of magnitude from
+   * their largest value in that solve (default: only CONV_RESIDUAL_MINVAL) \ingroup Config */
+  addDoubleListOption("ADAP_ADJ_RESIDUAL_REDUCTION", nAdap_AdjResRed, Adap_AdjResRed);
+  /*!\brief ADAP_ADJ_WARM_START \n DESCRIPTION: Goal-oriented loop: start the adjoint of an adapted mesh from the adjoint
+   * of the previous mesh interpolated onto it (P1); NO starts it as a new adjoint run \ingroup Config */
+  addBoolOption("ADAP_ADJ_WARM_START", Adap_Adj_WarmStart, true);
+  /*--- Removed option (the adjoint has no CFL of its own: it uses the one of the recorded primal iteration). ---*/
+  addDoubleListOption("ADAP_ADJ_CFL", nAdap_AdjCFL, Adap_AdjCFL);
   /*!\brief ADAP_TRANSFER \n DESCRIPTION: Solution transfer to the adapted meshes \n OPTIONS: BARYCENTRIC (P1
    * interpolation), CONSERVATIVE (conservative P1 projection, keeps the integrals of the conservative variables),
    * FREESTREAM (no transfer, for debugging, steady only) \n DEFAULT: BARYCENTRIC for steady runs, CONSERVATIVE for
@@ -3398,9 +3456,6 @@ void CConfig::SetConfig_Options() {
   /*--- Time-domain loops that write restart files also write each mesh (the restart files of the transferred steps
    *    are rewritten on it and need it), whatever WRT_ADAP_MESH says: CConfig::GetAdap_Mesh_Output. ---*/
 
-  /*--- Goal-oriented adaptation loop options, not used by the C++ code yet (kept so existing config files parse) ---*/
-  addPythonOption("ADAP_ADJ_ITER");
-  addPythonOption("ADAP_ADJ_CFL");
 
   /* END_CONFIG_OPTIONS */
 
@@ -6183,16 +6238,114 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
   }
   if (nAdap_Sensor > 20) SU2_MPI::Error("At most 20 ADAP_SENSOR entries are supported.", CURRENT_FUNCTION);
 
+  /*--- Goal-oriented metric (stage G1b): discrete adjoint of a steady problem, GOAL alone, on a fixed mesh. It needs
+   *    the residual adjoint, so its recording profile applies. ---*/
+  const bool goalMetric = Compute_Metric && nAdap_Sensor > 0 &&
+                          find(Adap_Sensor, Adap_Sensor + nAdap_Sensor, string("GOAL")) != Adap_Sensor + nAdap_Sensor;
+  if (goalMetric) {
+    auto goalError = [](const string& what) { SU2_MPI::Error("ADAP_SENSOR= GOAL: " + what, CURRENT_FUNCTION); };
+    if (!DiscreteAdjoint) goalError("needs MATH_PROBLEM= DISCRETE_ADJOINT (SU2_CFD_AD).");
+    if (Time_Domain) goalError("goal-oriented adaptation is only available for steady problems.");
+    if (nAdap_Sensor != 1) goalError("GOAL must be the only adaptation sensor.");
+    if (!Adap_CustomDefinitions.empty()) goalError("ADAP_CUSTOM_SENSORS is not supported with GOAL.");
+    if (Adap_Loop) {
+      /*--- Goal-oriented loop (stage G3): the primal and the adjoint are solved on every mesh in one process. ---*/
+      if (CFL_Adapt) goalError("the adaptation loop needs CFL_ADAPT= NO (the CFL is also that of the recording).");
+      if (Kind_Adap_BL_Method == ADAP_BL_METHOD::TWO_PASS)
+        goalError("ADAP_BL_METHOD= TWO_PASS is not available with the goal-oriented loop.");
+      if (Adap_Adj_Lambda_Check) goalError("ADAP_ADJ_LAMBDA_CHECK is not available with the adaptation loop.");
+      /*--- The primal phase must iterate as SU2_CFD does: settings that a discrete adjoint run changes are rejected. ---*/
+      if (Inconsistent_Disc) goalError("INCONSISTENT_DISC is not available with the adaptation loop.");
+      if (RampMUSCL || RampOutlet || RampOutletPressure || RampOutletMassFlow)
+        goalError("RAMP_MUSCL and the outlet ramps are not available with the adaptation loop.");
+      if (OptionIsSet("OUTLIER_MITIGATION_PARAM"))
+        goalError("OUTLIER_MITIGATION_PARAM is not available with the adaptation loop (DIRECT runs only).");
+      if (nMarker_EngineInflow != 0 || nMarker_EngineExhaust != 0)
+        goalError("engine inflow/exhaust boundaries are not available with the adaptation loop.");
+    }
+    Adap_Adj_Lambda = true;
+    if (Adap_Norm != 1.0 && SU2_MPI::GetRank() == MASTER_NODE) {
+      cout << "WARNING: ADAP_SENSOR= GOAL is the L1-optimal metric of the goal-oriented estimate; ADAP_NORM= "
+           << Adap_Norm << " is used as given." << endl;
+    }
+  }
+
+  /*--- Residual adjoint capture (stage G1a): supported recording profile. ---*/
+  if (Adap_Adj_Lambda_Check && !Adap_Adj_Lambda) {
+    SU2_MPI::Error("ADAP_ADJ_LAMBDA_CHECK= YES needs ADAP_ADJ_LAMBDA= YES.", CURRENT_FUNCTION);
+  }
+  if (Adap_Adj_Lambda) {
+    auto lambdaError = [](const string& what) {
+      SU2_MPI::Error("ADAP_ADJ_LAMBDA= YES: " + what, CURRENT_FUNCTION);
+    };
+    if (!DiscreteAdjoint) lambdaError("needs MATH_PROBLEM= DISCRETE_ADJOINT.");
+    if (Kind_Solver != MAIN_SOLVER::DISC_ADJ_EULER) lambdaError("only SOLVER= EULER (compressible) is supported.");
+    if (Time_Domain || TimeMarching != TIME_MARCHING::STEADY) lambdaError("only steady problems are supported.");
+    if (Multizone_Problem) lambdaError("MULTIZONE is not supported.");
+    if (nMarker_PerBound != 0) lambdaError("periodic markers are not supported.");
+    if (GetBoolTurbomachinery()) lambdaError("turbomachinery is not supported.");
+    if (Kind_Species_Model != SPECIES_MODEL::NONE || Weakly_Coupled_Heat || Kind_Radiation != RADIATION_MODEL::NONE)
+      lambdaError("species, heat and radiation coupling are not supported.");
+    if (Kind_FluidModel != STANDARD_AIR && Kind_FluidModel != IDEAL_GAS) lambdaError("only ideal gas is supported.");
+    if (nMGLevels != 0) lambdaError("needs MGLEVEL= 0 (one flow linear solve per recorded iteration).");
+    if (Kind_TimeIntScheme_Flow != EULER_IMPLICIT || GetnRKStep() != 1)
+      lambdaError("needs TIME_DISCRE_FLOW= EULER_IMPLICIT (one step).");
+    if (Low_Mach_Precon || Kind_Upwind_Flow == UPWIND::TURKEL) lambdaError("low-Mach preconditioning is not supported.");
+    if (GetGrid_Movement() || Deform_Mesh || Rotating_Frame) lambdaError("grid movement and rotating frames are not supported.");
+    if (NewtonKrylov) lambdaError("NEWTON_KRYLOV is not supported.");
+    if (Fixed_CL_Mode) lambdaError("FIXED_CL_MODE is not supported.");
+    if (Axisymmetric || Body_Force || GravityForce || VorticityConfinement || PyCustomSource ||
+        Kind_Verification_Solution != VERIFICATION_SOLUTION::NONE || nMarker_ActDiskInlet != 0)
+      lambdaError("source terms (axisymmetric, body force, gravity, vorticity confinement, custom, verification "
+                  "solution, actuator disk) are not supported.");
+    if (Kind_DiscAdj_Linear_Solver != FGMRES) lambdaError("needs DISCADJ_LIN_SOLVER= FGMRES.");
+    for (unsigned short iObj = 0; iObj < nObj; iObj++) {
+      switch (Kind_ObjFunc[iObj]) {
+        case DRAG_COEFFICIENT: case LIFT_COEFFICIENT: case SIDEFORCE_COEFFICIENT:
+        case MOMENT_X_COEFFICIENT: case MOMENT_Y_COEFFICIENT: case MOMENT_Z_COEFFICIENT:
+        case FORCE_X_COEFFICIENT: case FORCE_Y_COEFFICIENT: case FORCE_Z_COEFFICIENT:
+          break;
+        default:
+          lambdaError("OBJECTIVE_FUNCTION must be force or moment coefficients (DRAG, LIFT, SIDEFORCE, MOMENT_*, FORCE_*).");
+      }
+    }
+    if (Adap_Adj_Lambda_Check && !(Kind_ConvNumScheme_Flow == SPACE_CENTERED && Kind_Centered_Flow == CENTERED::JST))
+      lambdaError("ADAP_ADJ_LAMBDA_CHECK needs CONV_NUM_METHOD_FLOW= JST.");
+  }
+  if (nAdap_Adj_Lambda_Perturb != 0) {
+    if (nAdap_Adj_Lambda_Perturb != 3)
+      SU2_MPI::Error("ADAP_ADJ_LAMBDA_PERTURB needs three values (global point, variable, value).", CURRENT_FUNCTION);
+    if (DiscreteAdjoint || ContinuousAdjoint || !PyCustomSource ||
+        (Kind_Solver != MAIN_SOLVER::EULER && Kind_Solver != MAIN_SOLVER::NAVIER_STOKES))
+      SU2_MPI::Error("ADAP_ADJ_LAMBDA_PERTURB needs MATH_PROBLEM= DIRECT, a compressible flow solver and "
+                     "PYTHON_CUSTOM_SOURCE= YES.", CURRENT_FUNCTION);
+    for (unsigned short i = 0; i < 3; ++i) {
+      if (!std::isfinite(SU2_TYPE::GetValue(Adap_Adj_Lambda_Perturb[i])))
+        SU2_MPI::Error("ADAP_ADJ_LAMBDA_PERTURB: all three values must be finite.", CURRENT_FUNCTION);
+    }
+    if (Adap_Adj_Lambda_Perturb[0] < 0 || Adap_Adj_Lambda_Perturb[1] < 0 ||
+        Adap_Adj_Lambda_Perturb[0] != floor(Adap_Adj_Lambda_Perturb[0]) ||
+        Adap_Adj_Lambda_Perturb[1] != floor(Adap_Adj_Lambda_Perturb[1]))
+      SU2_MPI::Error("ADAP_ADJ_LAMBDA_PERTURB: point and variable must be non-negative integers.", CURRENT_FUNCTION);
+    if (Adap_Adj_Lambda_Perturb[0] >= 9007199254740992.0 ||
+        Adap_Adj_Lambda_Perturb[0] >= std::ldexp(1.0, std::numeric_limits<unsigned long>::digits))
+      SU2_MPI::Error("ADAP_ADJ_LAMBDA_PERTURB: point index must be less than 2^53 and representable as unsigned long.",
+                     CURRENT_FUNCTION);
+    if (Adap_Adj_Lambda_Perturb[1] >= 32)
+      SU2_MPI::Error("ADAP_ADJ_LAMBDA_PERTURB: variable index must be less than 32.", CURRENT_FUNCTION);
+  }
+
   if (Compute_Metric) {
     /*--- Feature-based metric of the primal solution only (the adjoint solvers are not supported yet).
      *    Checked first: the adjoint problems have already replaced Kind_Solver by the DISC_ADJ_ kinds. ---*/
-    if (DiscreteAdjoint || ContinuousAdjoint) {
-      SU2_MPI::Error("COMPUTE_METRIC needs MATH_PROBLEM= DIRECT (adjoint problems are not supported).\n"
+    if ((DiscreteAdjoint && !goalMetric) || ContinuousAdjoint) {
+      SU2_MPI::Error("COMPUTE_METRIC needs MATH_PROBLEM= DIRECT (adjoint problems: only ADAP_SENSOR= (GOAL) with "
+                     "DISCRETE_ADJOINT).\n"
                      "Note: SU2_CFD_AD uses MATH_PROBLEM= DISCRETE_ADJOINT when the option is not set.",
                      CURRENT_FUNCTION);
     }
     /*--- Initial support: compressible Euler, Navier-Stokes and RANS with a single sensor list. ---*/
-    if (Kind_Solver != MAIN_SOLVER::EULER && Kind_Solver != MAIN_SOLVER::NAVIER_STOKES &&
+    if (!goalMetric && Kind_Solver != MAIN_SOLVER::EULER && Kind_Solver != MAIN_SOLVER::NAVIER_STOKES &&
         Kind_Solver != MAIN_SOLVER::RANS) {
       SU2_MPI::Error("COMPUTE_METRIC is only supported for SOLVER = EULER, NAVIER_STOKES or RANS.", CURRENT_FUNCTION);
     }
@@ -6206,6 +6359,7 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     }
     vector<string> Sensor_Avail{"MACH", "PRESSURE", "TEMPERATURE", "ENERGY", "DENSITY", "TOTALPRESSURE"};
     for (const auto& definition : Adap_CustomDefinitions) Sensor_Avail.push_back(definition.first);
+    if (goalMetric) Sensor_Avail.push_back("GOAL");
     for (unsigned short iSensor = 0; iSensor < nAdap_Sensor; iSensor++) {
       const string& sensor = Adap_Sensor[iSensor];
       /*--- Goal-oriented adaptation (stage G, not ported yet) is for steady problems only. ---*/
@@ -6244,6 +6398,10 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
    *    or the scalar option when the list is not given) and check every level. ---*/
   Adap_Levels.clear();
   Adap_Transfer_Default = !OptionIsSet("ADAP_TRANSFER");
+  if (OptionIsSet("ADAP_ADJ_CFL")) {
+    SU2_MPI::Error("ADAP_ADJ_CFL was removed: the adjoint uses the CFL of the recorded primal iteration (ADAP_FLOW_CFL "
+                   "on the adapted meshes, CFL_NUMBER on the input mesh).", CURRENT_FUNCTION);
+  }
   if (Adap_Loop) {
     if (!Compute_Metric) SU2_MPI::Error("ADAP_LOOP= YES needs COMPUTE_METRIC= YES.", CURRENT_FUNCTION);
     if (nAdap_Sizes == 0) SU2_MPI::Error("ADAP_LOOP= YES needs ADAP_SIZES.", CURRENT_FUNCTION);
@@ -6325,6 +6483,14 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
       SU2_MPI::Error("ADAP_FREQ is only used by the time-domain adaptation loop (TIME_DOMAIN= YES).", CURRENT_FUNCTION);
     }
 
+    if (!goalMetric) {
+      for (const auto* name : {"ADAP_ADJ_ITER", "ADAP_ADJ_RESIDUAL_REDUCTION", "ADAP_ADJ_WARM_START"}) {
+        if (OptionIsSet(name)) {
+          SU2_MPI::Error(string(name) + " is only used by the goal-oriented loop (ADAP_SENSOR= GOAL).", CURRENT_FUNCTION);
+        }
+      }
+    }
+
     if (!Time_Domain && OptionIsSet("ADAP_UNSTEADY_METRIC")) {
       SU2_MPI::Error("ADAP_UNSTEADY_METRIC is only used by the time-domain adaptation loop (TIME_DOMAIN= YES).",
                      CURRENT_FUNCTION);
@@ -6367,6 +6533,8 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     checkLength("ADAP_FLOW_ITER", nAdap_FlowIter);
     checkLength("ADAP_FLOW_CFL", nAdap_FlowCFL);
     checkLength("ADAP_RESIDUAL_REDUCTION", nAdap_ResRed);
+    checkLength("ADAP_ADJ_ITER", nAdap_AdjIter);
+    checkLength("ADAP_ADJ_RESIDUAL_REDUCTION", nAdap_AdjResRed);
 
     /*--- Value of a list at a level, or the default without the list. ---*/
     auto pick = [](unsigned short n, const auto* list, unsigned short iLevel, auto value) {
@@ -6389,6 +6557,8 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
       level.flowIter = pick(nAdap_FlowIter, Adap_FlowIter, iLevel, flowIter);
       level.flowCFL = pick(nAdap_FlowCFL, Adap_FlowCFL, iLevel, CFLFineGrid);
       level.residualReduction = pick(nAdap_ResRed, Adap_ResRed, iLevel, su2double(0.0));
+      level.adjIter = pick(nAdap_AdjIter, Adap_AdjIter, iLevel, nInnerIter);
+      level.adjResidualReduction = pick(nAdap_AdjResRed, Adap_AdjResRed, iLevel, su2double(0.0));
 
       const string where = " (adaptation level " + to_string(iLevel) + ").";
       auto finite = [](su2double value) { return std::isfinite(SU2_TYPE::GetValue(value)); };
@@ -6409,6 +6579,10 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
       }
       if (nAdap_ResRed > 0 && (!(level.residualReduction > 0.0) || !finite(level.residualReduction))) {
         SU2_MPI::Error("ADAP_RESIDUAL_REDUCTION must be a finite value > 0" + where, CURRENT_FUNCTION);
+      }
+      if (level.adjIter == 0) SU2_MPI::Error("ADAP_ADJ_ITER must be positive" + where, CURRENT_FUNCTION);
+      if (nAdap_AdjResRed > 0 && (!(level.adjResidualReduction > 0.0) || !finite(level.adjResidualReduction))) {
+        SU2_MPI::Error("ADAP_ADJ_RESIDUAL_REDUCTION must be a finite value > 0" + where, CURRENT_FUNCTION);
       }
       Adap_Levels.push_back(level);
     }
@@ -6443,10 +6617,29 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
         vector<su2double>(Adap_BL_Growth, Adap_BL_Growth + nAdap_BL_Growth),
         vector<su2double>(Adap_BL_Thickness, Adap_BL_Thickness + nAdap_BL_Thickness), hmins, Adap_BL);
     if (!error.empty()) SU2_MPI::Error(error, CURRENT_FUNCTION);
-    if (Adap_Surface && Kind_Adap_Remesher == ADAP_REMESHER::MMG && rank == MASTER_NODE) {
+    if (Adap_Surface && Kind_Adap_Remesher == ADAP_REMESHER::MMG &&
+        Kind_Adap_BL_Method == ADAP_BL_METHOD::METRIC && rank == MASTER_NODE) {
       cout << "WARNING: ADAP_BL_MARKER with ADAP_SURFACE= YES: the remesher may split the wall faces down to the "
               "first height (near-isotropic wall cells); ADAP_SURFACE= NO keeps the wall faces." << endl;
     }
+  }
+  if (!(Adap_BL_CurvatureFactor > 0.0) || !std::isfinite(SU2_TYPE::GetValue(Adap_BL_CurvatureFactor)))
+    SU2_MPI::Error("ADAP_BL_CURVATURE_FACTOR must be a finite value > 0.", CURRENT_FUNCTION);
+  if (!(Adap_BL_GateFactor > 0.0) || !std::isfinite(SU2_TYPE::GetValue(Adap_BL_GateFactor)))
+    SU2_MPI::Error("ADAP_BL_GATE_FACTOR must be a finite value > 0.", CURRENT_FUNCTION);
+  if (!(Adap_BL_CornerFloor >= 0.0) || !std::isfinite(SU2_TYPE::GetValue(Adap_BL_CornerFloor)))
+    SU2_MPI::Error("ADAP_BL_CORNER_FLOOR must be a finite value >= 0.", CURRENT_FUNCTION);
+  if (!(Adap_BL_GeomTol >= 0.0) || !std::isfinite(SU2_TYPE::GetValue(Adap_BL_GeomTol)))
+    SU2_MPI::Error("ADAP_BL_GEOM_TOL must be a finite value >= 0.", CURRENT_FUNCTION);
+  if (Kind_Adap_BL_Method == ADAP_BL_METHOD::TWO_PASS) {
+    if (Kind_Adap_Remesher != ADAP_REMESHER::MMG)
+      SU2_MPI::Error("ADAP_BL_METHOD= TWO_PASS requires ADAP_REMESHER= MMG; native cavities build the BL with METRIC.",
+                     CURRENT_FUNCTION);
+    if (Adap_BL.empty()) SU2_MPI::Error("ADAP_BL_METHOD= TWO_PASS needs ADAP_BL_MARKER.", CURRENT_FUNCTION);
+    if (val_nDim == 3) SU2_MPI::Error("ADAP_BL_METHOD= TWO_PASS is not implemented in 3D yet.", CURRENT_FUNCTION);
+    if (Time_Domain && Kind_Adap_Unsteady_Metric == ADAP_UNSTEADY_METRIC::FIXED_POINT)
+      SU2_MPI::Error("ADAP_BL_METHOD= TWO_PASS is not implemented with ADAP_UNSTEADY_METRIC= FIXED_POINT.",
+                     CURRENT_FUNCTION);
   }
 
   /*--- Check if SU2 was built with CGNS support, as that is required for CGNS mesh output. ---*/

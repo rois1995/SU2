@@ -1328,6 +1328,11 @@ private:
             Adap_Angle;                     /*!< \brief Sharp angle detection threshold of the remesher (degrees). */
   unsigned long Adap_Complexity;            /*!< \brief Target complexity of the final metric. */
   bool Adap_Loop = false;                   /*!< \brief Run the mesh adaptation loop. */
+  bool Adap_Adj_Lambda = false;             /*!< \brief Capture the residual adjoint lambda (stage G). */
+  bool Adap_Goal_Wall_Extrapolation = true; /*!< \brief GOAL: reconstruct the normal momentum lambda at Euler walls. */
+  bool Adap_Adj_Lambda_Check = false;       /*!< \brief Developer check of lambda by finite differences. */
+  unsigned short nAdap_Adj_Lambda_Perturb = 0; /*!< \brief Size of ADAP_ADJ_LAMBDA_PERTURB (0 or 3). */
+  su2double* Adap_Adj_Lambda_Perturb = nullptr; /*!< \brief (global point, variable, value) of a residual perturbation. */
   bool Wrt_Adap_Mesh = false;               /*!< \brief Write the adapted mesh of each cycle of the loop. */
   bool Adap_Mesh_Output = false;            /*!< \brief The loop writes its adapted meshes (WRT_ADAP_MESH or restarts). */
   ADAP_TRANSFER Kind_Adap_Transfer;         /*!< \brief Solution transfer to the adapted meshes. */
@@ -1342,7 +1347,12 @@ private:
   unsigned long Adap_FP_Iter = 2;           /*!< \brief FIXED_POINT: remeshes (and re-solves) of each window. */
   su2double Adap_FP_Tol = 0.1;              /*!< \brief FIXED_POINT: metric change that ends the iterations. */
   unsigned short nAdap_Sizes = 0, nAdap_SubIter = 0, nAdap_Hmaxs = 0, nAdap_Hmins = 0, nAdap_Norms = 0,
-                 nAdap_ARmaxs = 0, nAdap_FlowIter = 0, nAdap_FlowCFL = 0, nAdap_ResRed = 0; /*!< \brief List lengths. */
+                 nAdap_ARmaxs = 0, nAdap_FlowIter = 0, nAdap_FlowCFL = 0, nAdap_ResRed = 0,
+                 nAdap_AdjIter = 0, nAdap_AdjResRed = 0, nAdap_AdjCFL = 0; /*!< \brief List lengths. */
+  unsigned long *Adap_AdjIter = nullptr;    /*!< \brief Adjoint iterations of each level (GOAL loop). */
+  su2double *Adap_AdjResRed = nullptr,      /*!< \brief Adjoint residual reduction of each level (GOAL loop). */
+            *Adap_AdjCFL = nullptr;         /*!< \brief Removed option ADAP_ADJ_CFL (read only to reject it). */
+  bool Adap_Adj_WarmStart = true;           /*!< \brief GOAL loop: the adjoint starts from the transferred one. */
   unsigned long *Adap_Sizes = nullptr,      /*!< \brief Target complexity of each adaptation level. */
                 *Adap_SubIter = nullptr,    /*!< \brief Number of adaptations of each level. */
                 *Adap_FlowIter = nullptr;   /*!< \brief Flow iterations of each level. */
@@ -1360,6 +1370,15 @@ private:
             *Adap_BL_Growth = nullptr,      /*!< \brief Growth ratio of each boundary-layer marker. */
             *Adap_BL_Thickness = nullptr;   /*!< \brief Thickness of each boundary-layer marker. */
   vector<CAdapBoundaryLayer> Adap_BL;       /*!< \brief Boundary-layer metric of each marker, lists expanded. */
+  bool Adap_BL_LocalHmax = true;           /*!< \brief MMG local hmax on the boundary-layer wall markers. */
+  ADAP_BL_METHOD Kind_Adap_BL_Method;      /*!< \brief How the near-wall cells are built (ADAP_BL_METHOD). */
+  su2double Adap_BL_CurvatureFactor = 0.7; /*!< \brief c of the wall size cap c sqrt(2 R h0). */
+  su2double Adap_BL_GateFactor = 1.0;      /*!< \brief k of the wall edge gate L sin(turn/2) <= k h0. */
+  su2double Adap_BL_CornerFloor = 0.0;     /*!< \brief m_c of the convex-corner wall size floor (0: off). */
+  su2double Adap_BL_GeomTol = 0.0;         /*!< \brief Max distance of the wall from its reference (0: 0.25 min h0). */
+  string Adap_BL_Reference;                /*!< \brief File of the reference wall (written at the first remesh). */
+  bool Adap_BL_ReferenceRebase = false;    /*!< \brief Rebuild the reference wall from the current wall. */
+  bool Adap_BL_Swap = false;               /*!< \brief TWO_PASS: edge swaps in the boundary-layer pass (2D). */
   MG_CYCLE Kind_MGCycle_File = MG_CYCLE::V; /*!< \brief MGCYCLE as given in the config file (a restart changes it). */
   bool Unst_TimeStep_Kept = false;          /*!< \brief The dual-time step of UNST_CFL_NUMBER is established (time-domain
                                                  mesh adaptation): not computed again at RESTART_ITER. */
@@ -9948,6 +9967,12 @@ public:
   unsigned long GetnInner_Iter(void) const { return nInnerIter; }
 
   /*!
+   * \brief Set the number of inner iterations (goal-oriented adaptation loop: the primal and the adjoint phase of a
+   *        cycle each set their own).
+   */
+  void SetnInner_Iter(unsigned long nIter) { nInnerIter = nIter; }
+
+  /*!
    * \brief Get the number of outer iterations
    * \return Number of outer iterations for the multizone problem
    */
@@ -10362,7 +10387,7 @@ public:
    * \brief Check if goal-oriented error estimation is used.
    * \return <code>TRUE</code> if the first adaptation sensor is GOAL.
    */
-  bool GetGoal_Oriented_Metric(void) const { return nAdap_Sensor > 0 && Adap_Sensor[0] == "GOAL"; }
+  bool GetGoal_Oriented_Metric(void) const { return Compute_Metric && nAdap_Sensor > 0 && Adap_Sensor[0] == "GOAL"; }
 
   /*!
    * \brief Get the method used to compute Hessians.
@@ -10446,6 +10471,52 @@ public:
   const CAdapBoundaryLayer& GetAdap_BL(unsigned short iBL) const { return Adap_BL[iBL]; }
 
   /*!
+   * \brief Local MMG hmax on the boundary-layer wall markers (ADAP_BL_LOCAL_HMAX).
+   */
+  bool GetAdap_BL_LocalHmax(void) const { return Adap_BL_LocalHmax; }
+
+  /*!
+   * \brief How the near-wall cells of the boundary-layer markers are built (ADAP_BL_METHOD).
+   */
+  ADAP_BL_METHOD GetKind_Adap_BL_Method(void) const { return Kind_Adap_BL_Method; }
+
+  /*!
+   * \brief Factor c of the wall tangential size cap c sqrt(2 R h0) (ADAP_BL_CURVATURE_FACTOR).
+   */
+  su2double GetAdap_BL_CurvatureFactor(void) const { return Adap_BL_CurvatureFactor; }
+
+  /*!
+   * \brief Factor k of the wall edge feasibility gate L sin(turn/2) <= k h0 (ADAP_BL_GATE_FACTOR).
+   */
+  su2double GetAdap_BL_GateFactor(void) const { return Adap_BL_GateFactor; }
+
+  /*!
+   * \brief Factor m_c of the wall size floor m_c h0 / sin(wedge/2) at convex sharp corners (ADAP_BL_CORNER_FLOOR, 0: off).
+   */
+  su2double GetAdap_BL_CornerFloor(void) const { return Adap_BL_CornerFloor; }
+
+  /*!
+   * \brief Largest allowed distance of the wall from its reference after projection (ADAP_BL_GEOM_TOL; 0 means
+   *        0.25 x the smallest first height).
+   */
+  su2double GetAdap_BL_GeomTol(void) const { return Adap_BL_GeomTol; }
+
+  /*!
+   * \brief File of the reference wall (ADAP_BL_REFERENCE).
+   */
+  const string& GetAdap_BL_Reference(void) const { return Adap_BL_Reference; }
+
+  /*!
+   * \brief Rebuild the reference wall from the current wall (ADAP_BL_REFERENCE_REBASE).
+   */
+  bool GetAdap_BL_ReferenceRebase(void) const { return Adap_BL_ReferenceRebase; }
+
+  /*!
+   * \brief TWO_PASS: edge swaps in the boundary-layer pass in 2D (ADAP_BL_SWAP).
+   */
+  bool GetAdap_BL_Swap(void) const { return Adap_BL_Swap; }
+
+  /*!
    * \brief Expand and check the boundary-layer metric options: one value of ADAP_BL_FIRST_HEIGHT, ADAP_BL_GROWTH and
    *        ADAP_BL_THICKNESS for all markers or one per marker of ADAP_BL_MARKER; first height > 0, growth >= 1,
    *        thickness >= first height (all finite), no repeated marker, and every minimum size of the metric
@@ -10466,6 +10537,42 @@ public:
    * \brief Check if the mesh adaptation loop is run (ADAP_LOOP).
    */
   bool GetAdap_Loop(void) const { return Adap_Loop; }
+
+  /*!
+   * \brief Capture the residual adjoint lambda after the adjoint solve (ADAP_ADJ_LAMBDA, stage G).
+   */
+  bool GetAdap_Adj_Lambda(void) const { return Adap_Adj_Lambda; }
+
+  /*!
+   * \brief Goal-oriented adaptation loop: the adjoint of an adapted mesh starts from the adjoint of the previous mesh
+   *        interpolated onto it (ADAP_ADJ_WARM_START= YES), else from the initial state of a new adjoint run.
+   */
+  bool GetAdap_Adj_WarmStart(void) const { return Adap_Adj_WarmStart; }
+
+  /*!
+   * \brief Developer finite-difference check of the residual adjoint (ADAP_ADJ_LAMBDA_CHECK).
+   */
+  bool GetAdap_Adj_Lambda_Check(void) const { return Adap_Adj_Lambda_Check; }
+
+  /*!
+   * \brief Goal-oriented metric: reconstruct the normal momentum component of lambda at Euler walls from the interior
+   *        (ADAP_GOAL_WALL_EXTRAPOLATION), instead of the zero of the captured field.
+   */
+  bool GetAdap_Goal_Wall_Extrapolation(void) const { return Adap_Goal_Wall_Extrapolation; }
+
+  /*!
+   * \brief Developer residual perturbation (ADAP_ADJ_LAMBDA_PERTURB): true and the values when it is set.
+   * \param[out] globalPoint - Global point index.
+   * \param[out] iVar - Variable index.
+   * \param[out] value - Source value (the residual changes by -value * volume).
+   */
+  bool GetAdap_Adj_Lambda_Perturb(unsigned long& globalPoint, unsigned short& iVar, su2double& value) const {
+    if (nAdap_Adj_Lambda_Perturb != 3) return false;
+    globalPoint = static_cast<unsigned long>(SU2_TYPE::GetValue(Adap_Adj_Lambda_Perturb[0]));
+    iVar = static_cast<unsigned short>(SU2_TYPE::GetValue(Adap_Adj_Lambda_Perturb[1]));
+    value = Adap_Adj_Lambda_Perturb[2];
+    return true;
+  }
 
   /*!
    * \brief Check if the adapted mesh of each cycle of the adaptation loop is written (WRT_ADAP_MESH).
@@ -10628,9 +10735,11 @@ public:
    * \brief Prepare a solve that starts from a solution in memory (the adapted meshes of the adaptation loop): no
    *        restart file is read (RESTART_SOL= NO), and the multigrid cycle is MGCYCLE of the config file (a restart
    *        turns W_CYCLE into V_CYCLE), except FULLMG_CYCLE, which becomes V_CYCLE (the solution exists already).
+   *        Discrete adjoint (goal-oriented loop): the primal is not read either (Restart_Flow).
    */
   void SetSolutionInMemory(void) {
     Restart = false;
+    Restart_Flow = false;
     SetMGCycle_Adapted();
   }
 

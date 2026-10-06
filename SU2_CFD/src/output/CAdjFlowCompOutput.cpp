@@ -27,6 +27,7 @@
 
 
 #include "../../include/output/CAdjFlowCompOutput.hpp"
+#include "../../include/adaptation/CGoalMetric.hpp"
 
 #include "../../../Common/include/geometry/CGeometry.hpp"
 #include "../../include/solvers/CSolver.hpp"
@@ -61,6 +62,20 @@ CAdjFlowCompOutput::CAdjFlowCompOutput(CConfig *config, unsigned short nDim) : C
 
   if (find(requestedVolumeFields.begin(), requestedVolumeFields.end(), string("SENSITIVITY")) == requestedVolumeFields.end()) {
     requestedVolumeFields.emplace_back("SENSITIVITY");
+    nRequestedVolumeFields++;
+  }
+
+  /*--- The residual adjoint (stage G) is written whenever it is captured. ---*/
+  if (config->GetAdap_Adj_Lambda() &&
+      find(requestedVolumeFields.begin(), requestedVolumeFields.end(), string("ADJ_LAMBDA")) == requestedVolumeFields.end()) {
+    requestedVolumeFields.emplace_back("ADJ_LAMBDA");
+    nRequestedVolumeFields++;
+  }
+
+  /*--- The goal-oriented metric (stage G) is written whenever it is computed. ---*/
+  if (config->GetGoal_Oriented_Metric() &&
+      find(requestedVolumeFields.begin(), requestedVolumeFields.end(), string("GOAL_METRIC")) == requestedVolumeFields.end()) {
+    requestedVolumeFields.emplace_back("GOAL_METRIC");
     nRequestedVolumeFields++;
   }
 
@@ -280,6 +295,43 @@ void CAdjFlowCompOutput::SetVolumeOutputFields(CConfig *config) {
   AddVolumeOutput("SENSITIVITY", "Surface_Sensitivity", "SENSITIVITY", "sensitivity in normal direction");
   /// END_GROUP
 
+  if (config->GetAdap_Adj_Lambda()) {
+    /// BEGIN_GROUP: ADJ_LAMBDA, DESCRIPTION: Residual adjoint lambda (adjoint of the right-hand side of the flow
+    /// linear solve; the adjoint of the residual is -lambda). Only with ADAP_ADJ_LAMBDA= YES.
+    AddVolumeOutput("ADJ_LAMBDA_DENSITY", "Lambda_Density", "ADJ_LAMBDA", "Residual adjoint of the density");
+    AddVolumeOutput("ADJ_LAMBDA_MOMENTUM-X", "Lambda_Momentum_x", "ADJ_LAMBDA", "Residual adjoint of the x-momentum");
+    AddVolumeOutput("ADJ_LAMBDA_MOMENTUM-Y", "Lambda_Momentum_y", "ADJ_LAMBDA", "Residual adjoint of the y-momentum");
+    if (nDim == 3)
+      AddVolumeOutput("ADJ_LAMBDA_MOMENTUM-Z", "Lambda_Momentum_z", "ADJ_LAMBDA", "Residual adjoint of the z-momentum");
+    AddVolumeOutput("ADJ_LAMBDA_ENERGY", "Lambda_Energy", "ADJ_LAMBDA", "Residual adjoint of the energy");
+    /// END_GROUP
+  }
+
+  if (config->GetGoal_Oriented_Metric()) {
+    /// BEGIN_GROUP: GOAL_METRIC, DESCRIPTION: Goal-oriented estimate H_go = sum |d_d lambda_j| |H(F_dj)|, its metric
+    /// and diagnostics. Only with ADAP_SENSOR= (GOAL); zero before the metric is computed (files written during Run).
+    const vector<string> comps = (nDim == 2) ? vector<string>{"XX", "XY", "YY"}
+                                             : vector<string>{"XX", "XY", "XZ", "YY", "YZ", "ZZ"};
+    for (const auto& comp : comps)
+      AddVolumeOutput("GOAL_HESSIAN_" + comp, "Goal_Hessian_" + comp, "GOAL_METRIC", comp + "-component of H_go");
+    for (const auto& comp : comps)
+      AddVolumeOutput("METRIC_" + comp, "Metric_" + comp, "GOAL_METRIC", comp + "-component of the adaptation metric");
+    AddVolumeOutput("GOAL_SIGNED_RATIO", "Goal_Signed_Ratio", "GOAL_METRIC",
+                    "Nuclear norm of the signed sum over tr(H_go) (cancellation diagnostic)");
+    AddVolumeOutput("GOAL_EQ33_RATIO", "Goal_Eq33_Ratio", "GOAL_METRIC",
+                    "|sum_d A_d^T grad_d lambda| / sum |.| (interior weights of the improved estimate)");
+    const char* axes[] = {"X", "Y", "Z"};
+    for (auto iDim = 0u; iDim < nDim; iDim++) {
+      AddVolumeOutput(string("GOAL_LAMBDA_MOMENTUM-") + axes[iDim], string("Goal_Lambda_Momentum_") + axes[iDim],
+                      "GOAL_METRIC", "Momentum lambda used by the estimate (wall reconstruction applied)");
+    }
+    for (auto iDim = 0u; iDim < nDim; iDim++) {
+      AddVolumeOutput(string("GOAL_MASS_FLUX-") + axes[iDim], string("Goal_Mass_Flux_") + axes[iDim], "GOAL_METRIC",
+                      "Mass flux of the primal state used by the estimate");
+    }
+    /// END_GROUP
+  }
+
 }
 
 void CAdjFlowCompOutput::LoadVolumeData(CConfig *config, CGeometry *geometry, CSolver **solver, unsigned long iPoint) {
@@ -317,6 +369,34 @@ void CAdjFlowCompOutput::LoadVolumeData(CConfig *config, CGeometry *geometry, CS
   SetVolumeOutputValue("SENSITIVITY-Y", iPoint, Node_AdjFlow->GetSensitivity(iPoint, 1));
   if (nDim == 3)
     SetVolumeOutputValue("SENSITIVITY-Z", iPoint, Node_AdjFlow->GetSensitivity(iPoint, 2));
+
+  if (config->GetAdap_Adj_Lambda()) {
+    const auto* adj = solver[ADJFLOW_SOL];
+    SetVolumeOutputValue("ADJ_LAMBDA_DENSITY", iPoint, adj->GetResidualAdjoint(iPoint, 0));
+    SetVolumeOutputValue("ADJ_LAMBDA_MOMENTUM-X", iPoint, adj->GetResidualAdjoint(iPoint, 1));
+    SetVolumeOutputValue("ADJ_LAMBDA_MOMENTUM-Y", iPoint, adj->GetResidualAdjoint(iPoint, 2));
+    if (nDim == 3) SetVolumeOutputValue("ADJ_LAMBDA_MOMENTUM-Z", iPoint, adj->GetResidualAdjoint(iPoint, 3));
+    SetVolumeOutputValue("ADJ_LAMBDA_ENERGY", iPoint, adj->GetResidualAdjoint(iPoint, nDim + 1));
+  }
+
+  if (config->GetGoal_Oriented_Metric()) {
+    const auto* flow = solver[FLOW_SOL];
+    const auto* flowNodes = flow->GetNodes();
+    const vector<string> comps = (nDim == 2) ? vector<string>{"XX", "XY", "YY"}
+                                             : vector<string>{"XX", "XY", "XZ", "YY", "YZ", "ZZ"};
+    for (auto iMet = 0u; iMet < comps.size(); iMet++) {
+      SetVolumeOutputValue("GOAL_HESSIAN_" + comps[iMet], iPoint, flowNodes->GetHessian(iPoint, 0, iMet));
+      SetVolumeOutputValue("METRIC_" + comps[iMet], iPoint, flowNodes->GetMetric(iPoint, iMet));
+    }
+    SetVolumeOutputValue("GOAL_SIGNED_RATIO", iPoint, flow->GetGoalDiagnostic(iPoint, 0));
+    SetVolumeOutputValue("GOAL_EQ33_RATIO", iPoint, flow->GetGoalDiagnostic(iPoint, 1));
+    const char* axes[] = {"X", "Y", "Z"};
+    for (auto iDim = 0u; iDim < nDim; iDim++) {
+      SetVolumeOutputValue(string("GOAL_LAMBDA_MOMENTUM-") + axes[iDim], iPoint, flow->GetGoalDiagnostic(iPoint, 2 + iDim));
+      SetVolumeOutputValue(string("GOAL_MASS_FLUX-") + axes[iDim], iPoint,
+                           flowNodes->GetAuxVar_Adapt(iPoint, GoalMetric::FluxColumn(nDim, iDim, 0)));
+    }
+  }
 
   LoadVolumeDataAdjScalar(config, solver, iPoint);
 }

@@ -71,6 +71,14 @@ void CSysSolve_b<ScalarType>::Solve_b(const su2double::Real* x, su2double::Real*
     x_b[i] = SU2_TYPE::GetValue((*LinSysSol_b)[i]);
   }
   END_SU2_OMP_FOR
+
+  /*--- Residual adjoint capture (stage G): x_b is the adjoint of the right-hand side of this solve. ---*/
+
+  if (solver->GetRhsAdjointCapture()) {
+    SU2_OMP_MASTER { solver->CaptureRhsAdjoint(x_b, m, n); }
+    END_SU2_OMP_MASTER
+    SU2_OMP_BARRIER
+  }
 }
 
 template class CSysSolve_b<su2mixedfloat>;

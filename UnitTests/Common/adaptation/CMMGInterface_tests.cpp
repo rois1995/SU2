@@ -548,4 +548,197 @@ TEST_CASE("MMG interface: 3D uniform refinement and coarsening", "[MMG]") {
   CheckUniformRemesh(3, 8, 2.0);
 }
 
+
+TEST_CASE("MMG interface: coarsening ratio of two metrics", "[MMG]") {
+  const passivedouble in2[3] = {1.0, 0.0, 4.0};
+  const passivedouble same2[3] = {1.0, 0.0, 4.0};
+  const passivedouble coarse2[3] = {1.0, 0.0, 1.0};   // 2x coarser along y
+  const passivedouble finer2[3] = {9.0, 0.5, 16.0};
+  CHECK(CMMGInterface::CoarseningRatio(2, in2, same2) == Approx(1.0).epsilon(1e-12));
+  CHECK(CMMGInterface::CoarseningRatio(2, in2, coarse2) == Approx(0.25).epsilon(1e-12));
+  CHECK(CMMGInterface::CoarseningRatio(2, in2, finer2) > 1.0);
+  /*--- Strongly anisotropic (a boundary-layer metric, aspect ratio 2e4) against MMG's isotropic hmax 0.5. ---*/
+  const passivedouble bl[3] = {1.0 / (0.04 * 0.04), 0.0, 1.0 / (2e-6 * 2e-6)};
+  const passivedouble iso[3] = {4.0, 0.0, 4.0};
+  CHECK(CMMGInterface::CoarseningRatio(2, bl, iso) == Approx(4.0 * 4e-12).epsilon(1e-6));
+  const passivedouble in3[6] = {1.0, 0.0, 0.0, 2.0, 0.0, 3.0};
+  const passivedouble coarse3[6] = {1.0, 0.0, 0.0, 2.0, 0.0, 0.3};
+  CHECK(CMMGInterface::CoarseningRatio(3, in3, coarse3) == Approx(0.1).epsilon(1e-12));
+}
+
+namespace {
+
+/*!
+ * \brief Walls of a boundary-layer metric case: marker names, the axis of their normal (the walls lie at coordinate 0
+ *        along it).
+ */
+struct BLWall {
+  std::vector<string> markers;
+  unsigned short axis;
+};
+
+/*!
+ * \brief Boundary-layer metric (first height h0 2e-6, normal size h0 + 0.15 d, tangential size 0.25) on planar walls
+ *        of the box (n cells per unit length), intersected where several walls meet (each axis takes the finest of its
+ *        walls), hmax 0.5: hmax / h0 = 2.5e5, the regime where MMG 5.6 replaced the metric at the wall points by its
+ *        isotropic geometric metric (MMG issue #331). Optionally the wall points that are not corners (on fewer than
+ *        nDim markers) are given to MMG as required vertices. Returns the mesh adapted with a fixed surface and, per
+ *        wall, the face heights of its faces.
+ */
+CSimplexMesh WallMetricCase(unsigned short nDim, unsigned long n, const std::vector<BLWall>& walls, bool localHmax,
+                            bool requiredWallPoints, CMMGInterface::MetricCheck& check,
+                            std::vector<std::vector<passivedouble>>& heights, unsigned long& nBoundaryPoint,
+                            unsigned long& nRequired) {
+  SimplexMeshCase test(nDim, n);
+  const passivedouble h0 = 2e-6, t = 0.25;
+  su2activematrix metric(test.geometry->GetnPoint(), CSimplexMesh::GetnMetric(nDim));
+  for (auto iPoint = 0ul; iPoint < test.geometry->GetnPoint(); ++iPoint) {
+    passivedouble size[3] = {t, t, t};
+    for (const auto& wall : walls) {
+      const passivedouble d = SU2_TYPE::GetValue(test.geometry->nodes->GetCoord(iPoint, wall.axis));
+      size[wall.axis] = std::min(size[wall.axis], std::min(h0 + 0.15 * d, t));
+    }
+    for (unsigned short iDim = 0, iMet = 0; iDim < nDim; ++iDim)
+      for (unsigned short jDim = iDim; jDim < nDim; ++jDim, ++iMet)
+        metric(iPoint, iMet) = (iDim != jDim) ? 0.0 : 1.0 / (size[iDim] * size[iDim]);
+  }
+  const auto mesh = CMMGInterface::ExtractMesh(*test.config, *test.geometry, metric);
+  CMMGInterface mmg(*test.config);
+  auto& params = mmg.GetParameters();
+  params.surface = false;
+  params.hmin = 1e-6;
+  params.hmax = 0.5;
+  params.swap = 1;
+  params.localWallHmax = localHmax;
+  for (const auto& wall : walls)
+    params.boundaryLayerMarkers.insert(params.boundaryLayerMarkers.end(), wall.markers.begin(), wall.markers.end());
+  if (localHmax) {
+    const auto local = mmg.WallLocalParameters(mesh);
+    REQUIRE(local.size() == params.boundaryLayerMarkers.size());
+    /*--- min(hmax, 2 x the longest wall edge): edges 1/n in 2D, face diagonals sqrt(2)/n in 3D. ---*/
+    const passivedouble longest = (nDim == 2 ? 1.0 : sqrt(2.0)) / n;
+    for (const auto& param : local) CHECK(param.hmax == Approx(std::min(0.5, 2.0 * longest)));
+  }
+
+  /*--- Boundary points; with requiredWallPoints the wall points that are not corners become required vertices. ---*/
+  std::vector<std::set<string>> markersOf(mesh.GetnPoint());
+  for (const auto& marker : mesh.markers)
+    for (const auto iPoint : marker.elem) markersOf[iPoint].insert(marker.name);
+  nBoundaryPoint = 0;
+  nRequired = 0;
+  for (auto iPoint = 0ul; iPoint < mesh.GetnPoint(); ++iPoint) {
+    if (markersOf[iPoint].empty()) continue;
+    ++nBoundaryPoint;
+    if (!requiredWallPoints || markersOf[iPoint].size() >= nDim) continue;
+    const bool onWall = std::any_of(markersOf[iPoint].begin(), markersOf[iPoint].end(), [&](const string& name) {
+      return std::find(params.boundaryLayerMarkers.begin(), params.boundaryLayerMarkers.end(), name) !=
+             params.boundaryLayerMarkers.end();
+    });
+    if (!onWall) continue;
+    params.requiredVertices.push_back(iPoint);
+    ++nRequired;
+  }
+
+  auto adapted = mmg.Adapt(mesh);
+  check = mmg.GetMetricCheck();
+
+  /*--- Face heights of the wall faces: distance of the opposite vertex of their element from the wall. ---*/
+  heights.assign(walls.size(), {});
+  for (auto iWall = 0ul; iWall < walls.size(); ++iWall) {
+    std::set<std::vector<unsigned long>> wallFaces;
+    for (const auto& marker : adapted.markers) {
+      if (std::find(walls[iWall].markers.begin(), walls[iWall].markers.end(), marker.name) ==
+          walls[iWall].markers.end())
+        continue;
+      for (auto iFace = 0ul; iFace < marker.GetnElem(nDim); ++iFace) {
+        std::vector<unsigned long> face(&marker.elem[iFace * nDim], &marker.elem[iFace * nDim] + nDim);
+        std::sort(face.begin(), face.end());
+        wallFaces.insert(face);
+      }
+    }
+    for (auto iElem = 0ul; iElem < adapted.GetnElem(); ++iElem) {
+      const auto* elem = &adapted.elem[iElem * (nDim + 1)];
+      for (unsigned short k = 0; k <= nDim; ++k) {
+        std::vector<unsigned long> face;
+        for (unsigned short j = 0; j <= nDim; ++j)
+          if (j != k) face.push_back(elem[j]);
+        std::sort(face.begin(), face.end());
+        if (wallFaces.count(face)) heights[iWall].push_back(adapted.coord[elem[k] * nDim + walls[iWall].axis]);
+      }
+    }
+    std::sort(heights[iWall].begin(), heights[iWall].end());
+  }
+  return adapted;
+}
+
+const BLWall wall2D = {{"lower_a", "lower_b"}, 1};
+const BLWall wall3D = {{"z_minus_a", "z_minus_b"}, 2};
+
+}  // namespace
+
+TEST_CASE("MMG interface: boundary-layer metric kept at the fixed wall points (MMG issue 331)", "[MMG]") {
+  /*--- R1 (SERIAL_BL_FIX_PLAN 2.0.4): wall y = 0 with edges 0.5. R2: the local wall hmax on a wall with edges 0.125,
+   *    so that it (0.25) is below the global hmax 0.5. ---*/
+  for (const bool localHmax : {false, true}) {
+    CMMGInterface::MetricCheck check;
+    std::vector<std::vector<passivedouble>> heights;
+    unsigned long nBoundary = 0, nRequired = 0;
+    const auto adapted =
+        WallMetricCase(2, localHmax ? 8 : 2, {wall2D}, localHmax, false, check, heights, nBoundary, nRequired);
+    CHECK(check.nChecked == nBoundary);  // every fixed boundary point, the wall corners included
+    CHECK(check.nViolations == 0);   // fails with stock MMG 5.6 without the local parameters
+    CHECK(check.worstRatio > 1.0 - CMMGInterface::metricCheckTolerance);
+    REQUIRE(!heights[0].empty());
+    /*--- MMG builds the near-wall cells from the coarse input: first cells about h0. ---*/
+    CHECK(heights[0][heights[0].size() / 2] < 2.0 * 2e-6);
+    CHECK(heights[0].back() < 4.0 * 2e-6);
+  }
+}
+
+TEST_CASE("MMG interface: boundary-layer metric at the fixed wall points in 3D", "[MMG]") {
+  /*--- R3: wall z = 0 (the n = 2 box: its points are on the face edges and the marker joint). ---*/
+  CMMGInterface::MetricCheck check;
+  std::vector<std::vector<passivedouble>> heights;
+  unsigned long nBoundary = 0, nRequired = 0;
+  const auto adapted = WallMetricCase(3, 2, {wall3D}, true, false, check, heights, nBoundary, nRequired);
+  CHECK(check.nChecked == nBoundary);
+  CHECK(check.nViolations == 0);
+}
+
+TEST_CASE("MMG interface: boundary-layer metric at a ridge and corners between two walls in 3D", "[MMG]") {
+  /*--- R4: walls z = 0 and x = 0 (metrics intersected): regular points of both faces, the ridge x = z = 0 between
+   *    them and its two end corners. ---*/
+  for (const bool localHmax : {false, true}) {
+    CMMGInterface::MetricCheck check;
+    std::vector<std::vector<passivedouble>> heights;
+    unsigned long nBoundary = 0, nRequired = 0;
+    const auto adapted =
+        WallMetricCase(3, 2, {wall3D, {{"x_minus"}, 0}}, localHmax, false, check, heights, nBoundary, nRequired);
+    CHECK(check.nChecked == nBoundary);
+    CHECK(check.nViolations == 0);
+    CHECK(check.worstRatio > 1.0 - CMMGInterface::metricCheckTolerance);
+    /*--- Only the metric at the fixed points is checked here: from this coarse box MMG3D does not build first cells of
+     *    about h0 (median face height 3.6e-3 on z = 0 and 1.2e-2 on x = 0, i.e. 1e3 h0 and more), a 3D question left to
+     *    the 3D milestones (SERIAL_BL_FIX_PLAN 2.0.4). ---*/
+    for (const auto& h : heights) REQUIRE(!h.empty());
+  }
+}
+
+TEST_CASE("MMG interface: boundary-layer metric at required wall vertices", "[MMG]") {
+  /*--- R5: the wall points that are not corners given to MMG as required vertices only (2D on the 4-cell box: the
+   *    regular wall points; 3D on the 2-cell box: the marker joint and the face-edge points of the wall). ---*/
+  for (const unsigned short nDim : {2, 3}) {
+    CMMGInterface::MetricCheck check;
+    std::vector<std::vector<passivedouble>> heights;
+    unsigned long nBoundary = 0, nRequired = 0;
+    const auto adapted = WallMetricCase(nDim, nDim == 2 ? 4 : 2, {nDim == 2 ? wall2D : wall3D}, true, true, check,
+                                        heights, nBoundary, nRequired);
+    CHECK(nRequired > 0);
+    CHECK(check.nChecked == nBoundary);
+    CHECK(check.nViolations == 0);
+    REQUIRE(!heights[0].empty());
+    if (nDim == 2) CHECK(heights[0][heights[0].size() / 2] < 2.0 * 2e-6);
+  }
+}
+
 #endif

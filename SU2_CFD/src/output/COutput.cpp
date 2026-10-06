@@ -1780,42 +1780,7 @@ void COutput::PreprocessVolumeOutput(CConfig *config){
   std::vector<bool> FoundField(nRequestedVolumeFields, false);
   vector<string> FieldsToRemove;
 
-  /*--- Loop through all fields defined in the corresponding SetVolumeOutputFields().
-   * If it is also defined in the config (either as part of a group or a single field), the field
-   * object gets an offset so that we know where to find the data in the Local_Data() array.
-   * Note that the default offset is -1. An index !=-1 defines this field as part of the output. ---*/
-
-  unsigned short nVolumeFields = 0, nVolumeFieldsCompact = 0;
-
-  for (size_t iField_Output = 0; iField_Output < volumeOutput_List.size(); iField_Output++) {
-
-    const string &fieldReference = volumeOutput_List[iField_Output];
-    const auto it = volumeOutput_Map.find(fieldReference);
-    if (it != volumeOutput_Map.end()) {
-      VolumeOutputField &Field = it->second;
-
-      /*--- Loop through the minimum required fields for restarts. ---*/
-
-      for (const auto& RequiredField : restartVolumeFields) {
-        if ((RequiredField == Field.outputGroup || RequiredField == fieldReference) && Field.offsetCompact == -1) {
-          Field.offsetCompact = nVolumeFieldsCompact++;
-          requiredVolumeFieldNames.push_back(Field.fieldName);
-        }
-      }
-
-      /*--- Loop through all fields specified in the config. ---*/
-
-      for (size_t iReqField = 0; iReqField < nRequestedVolumeFields; iReqField++) {
-        const auto &RequestedField = requestedVolumeFields[iReqField];
-
-        if ((RequestedField == Field.outputGroup || RequestedField == fieldReference) && Field.offset == -1) {
-          Field.offset = nVolumeFields++;
-          volumeFieldNames.push_back(Field.fieldName);
-          FoundField[iReqField] = true;
-        }
-      }
-    }
-  }
+  AssignVolumeFieldOffsets(&FoundField);
 
   for (size_t iReqField = 0; iReqField < nRequestedVolumeFields; iReqField++){
     if (!FoundField[iReqField]){
@@ -1852,6 +1817,111 @@ void COutput::PreprocessVolumeOutput(CConfig *config){
     }
     cout << endl;
   }
+}
+
+void COutput::AssignVolumeFieldOffsets(std::vector<bool>* FoundField) {
+
+  /*--- Loop through all fields defined in the corresponding SetVolumeOutputFields().
+   * If it is also defined in the config (either as part of a group or a single field), the field
+   * object gets an offset so that we know where to find the data in the Local_Data() array.
+   * Note that the default offset is -1. An index !=-1 defines this field as part of the output.
+   * Fields of the excluded groups (SetVolumeOutputExclusions) keep -1 in both layouts. ---*/
+
+  unsigned short nVolumeFields = 0, nVolumeFieldsCompact = 0;
+
+  for (size_t iField_Output = 0; iField_Output < volumeOutput_List.size(); iField_Output++) {
+
+    const string &fieldReference = volumeOutput_List[iField_Output];
+    const auto it = volumeOutput_Map.find(fieldReference);
+    if (it != volumeOutput_Map.end()) {
+      VolumeOutputField &Field = it->second;
+
+      if (std::find(excludedVolumeGroups.begin(), excludedVolumeGroups.end(), Field.outputGroup) !=
+              excludedVolumeGroups.end() ||
+          std::find(excludedVolumeGroups.begin(), excludedVolumeGroups.end(), fieldReference) !=
+              excludedVolumeGroups.end()) {
+        continue;
+      }
+
+      /*--- Loop through the minimum required fields for restarts. ---*/
+
+      for (const auto& RequiredField : restartVolumeFields) {
+        if ((RequiredField == Field.outputGroup || RequiredField == fieldReference) && Field.offsetCompact == -1) {
+          Field.offsetCompact = nVolumeFieldsCompact++;
+          requiredVolumeFieldNames.push_back(Field.fieldName);
+        }
+      }
+
+      /*--- Loop through all fields specified in the config. ---*/
+
+      for (size_t iReqField = 0; iReqField < nRequestedVolumeFields; iReqField++) {
+        const auto &RequestedField = requestedVolumeFields[iReqField];
+
+        if ((RequestedField == Field.outputGroup || RequestedField == fieldReference) && Field.offset == -1) {
+          Field.offset = nVolumeFields++;
+          volumeFieldNames.push_back(Field.fieldName);
+          if (FoundField != nullptr) (*FoundField)[iReqField] = true;
+        }
+      }
+    }
+  }
+}
+
+void COutput::SetVolumeOutputExclusions(const vector<string>& groups) {
+
+  if (groups == excludedVolumeGroups) return;
+  excludedVolumeGroups = groups;
+
+  /*--- The definitions stay (the loaders set every field); only the layouts of the files are assigned again. ---*/
+  for (auto& entry : volumeOutput_Map) {
+    entry.second.offset = -1;
+    entry.second.offsetCompact = -1;
+  }
+  volumeFieldNames.clear();
+  requiredVolumeFieldNames.clear();
+  AssignVolumeFieldOffsets(nullptr);
+
+  /*--- The data sorters and the index caches follow the layout: allocated again on the next file output. ---*/
+  delete volumeDataSorter;
+  delete volumeDataSorterCompact;
+  delete surfaceDataSorter;
+  volumeDataSorter = nullptr;
+  volumeDataSorterCompact = nullptr;
+  surfaceDataSorter = nullptr;
+  cachePosition = 0;
+  fieldIndexCache.clear();
+  fieldIndexCacheCompact.clear();
+  curGetFieldIndex = 0;
+  fieldGetIndexCache.clear();
+}
+
+vector<string> COutput::SetResidualConvergenceFields(const vector<string>& candidates, const string& fallback) {
+
+  auto isResidual = [&](const string& name) {
+    const auto it = historyOutput_Map.find(name);
+    return it != historyOutput_Map.end() && (it->second.fieldType == HistoryFieldType::RESIDUAL ||
+                                             it->second.fieldType == HistoryFieldType::AUTO_RESIDUAL);
+  };
+  vector<string> fields;
+  for (const auto& name : candidates) {
+    if (isResidual(name) && std::find(fields.begin(), fields.end(), name) == fields.end()) fields.push_back(name);
+  }
+  if (fields.empty()) {
+    if (!isResidual(fallback)) {
+      SU2_MPI::Error("The convergence field " + fallback + " is not a residual history field of this output.",
+                     CURRENT_FUNCTION);
+    }
+    fields.push_back(fallback);
+  }
+
+  /*--- The monitor state of the new fields (as the constructor and the history preprocessing set it). ---*/
+  convFields = fields;
+  newFunc.assign(convFields.size(), 0.0);
+  oldFunc.assign(convFields.size(), 0.0);
+  cauchySerie.assign(convFields.size(), vector<su2double>(nCauchy_Elems, 0.0));
+  convResidualMax.clear();
+  convergence = false;
+  return fields;
 }
 
 void COutput::LoadDataIntoSorter(CConfig* config, CGeometry* geometry, CSolver** solver){

@@ -310,7 +310,7 @@ void CSolver::GetPeriodicCommCountAndType(const CConfig* config,
       JCOUNT           = nDim;
       break;
     case PERIODIC_HESSIAN:
-      COUNT_PER_POINT  = config->GetnAdap_Sensor()*3*(nDim-1);
+      COUNT_PER_POINT  = base_nodes->GetHessian().rows()*base_nodes->GetHessian().cols();
       MPI_TYPE         = COMM_TYPE::DOUBLE;
       break;
     case PERIODIC_METRIC:
@@ -1548,7 +1548,7 @@ void CSolver::GetCommCountAndType(const CConfig* config,
       MPI_TYPE         = COMM_TYPE::DOUBLE;
       break;
     case MPI_QUANTITIES::HESSIAN:
-      COUNT_PER_POINT  = config->GetnAdap_Sensor()*3*(nDim-1);
+      COUNT_PER_POINT  = base_nodes->GetHessian().rows()*base_nodes->GetHessian().cols();
       MPI_TYPE         = COMM_TYPE::DOUBLE;
       break;
     case MPI_QUANTITIES::METRIC:
@@ -2925,6 +2925,9 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   SU2_MPI::Allreduce(&localMaxDensity, &maxDensity, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
   SU2_MPI::Allreduce(&localMaxAR, &maxAR, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
   SU2_MPI::Allreduce(&localComplexity, &totComplexity, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+  metricComplexityPreBL = SU2_TYPE::GetValue(totComplexity);
+  metricComplexityFinal = metricComplexityPreBL;
+  metricComplexityBracketed = bracketed;
 
   if (rank == MASTER_NODE) {
     cout << "Metric field statistics:" << endl;
@@ -2932,6 +2935,11 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     cout << "Maximum density: " << maxDensity << "." << endl;
     cout << "Maximum cell AR: " << maxAR << "." << endl;
     cout << "Mesh complexity: " << totComplexity << " (ADAP_COMPLEXITY= " << complexity << ")." << endl;
+    if (config->GetGoal_Oriented_Metric()) {
+      cout << "Mesh complexity before the boundary-layer metric (16 digits): " << std::setprecision(16) << totComplexity
+           << ", relative to ADAP_COMPLEXITY " << totComplexity / complexity - 1.0 << std::setprecision(6)
+           << (bracketed ? " (target bracketed by the bounds)." : " (target outside the bounds).") << endl;
+    }
     if (nDim == 2 && nCorner > 0) {
       cout << "Sharp wall corners: " << nCorner << ", isotropic metric on " << nIsoPoint << " points (ADAP_ISO_CORNER)."
            << endl;
@@ -3002,6 +3010,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
         }
       }
     }
+    metricComplexityFinal = SU2_TYPE::GetValue(globalValues[0]);
     if (rank == MASTER_NODE) {
       cout << "Mesh complexity with the boundary-layer metric: " << globalValues[0] << " (ADAP_COMPLEXITY= "
            << complexity << ", ratio " << globalValues[0] / complexity << "). Maximum cell AR: " << globalValues[1]

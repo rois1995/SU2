@@ -63,6 +63,11 @@ class CIteration {
   std::shared_ptr<CTurbomachineryStagePerformance> TurbomachineryStagePerformance;  /*!< \brief turbo stage performance calculator. */
  public:
   /*!
+   * \brief Start the wall-time measurement of the iterations (as Solve does; Monitor reports the time since then).
+   */
+  void StartTimer() { StartTime = SU2_MPI::Wtime(); }
+
+  /*!
    * \brief Constructor of the class.
    */
   explicit CIteration(const CConfig* config)

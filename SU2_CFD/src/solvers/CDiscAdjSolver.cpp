@@ -26,6 +26,7 @@
  */
 
 #include "../../include/solvers/CDiscAdjSolver.hpp"
+#include "../../../Common/include/parallelization/CPassiveComm.hpp"
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
 #include "../../../Common/include/parallelization/omp_structure.hpp"
 
@@ -435,6 +436,72 @@ void CDiscAdjSolver::ExtractAdjoint_Solution(CGeometry *geometry, CConfig *confi
     AD::EndUseAdjoints();
   }
 
+}
+
+unsigned long CDiscAdjSolver::SetResidualAdjoint(const CGeometry* geometry, const CConfig* config,
+                                                 const vector<passivedouble>& x_b) {
+  SU2_ZONE_SCOPED
+
+  if (x_b.size() != nPoint * nVar) {
+    SU2_MPI::Error("Captured residual adjoint has " + to_string(x_b.size()) + " entries, expected " +
+                   to_string(nPoint * nVar) + ".", CURRENT_FUNCTION);
+  }
+  ResidualAdjoint.resize(nPoint, nVar) = passivedouble(0.0);
+  unsigned long nonFinite = 0;
+  for (auto iPoint = 0ul; iPoint < nPointDomain; iPoint++) {
+    /*--- Where dt = 0 the right-hand side is set to 0 instead of -R: R has no adjoint there. ---*/
+    if (direct_solver->GetNodes()->GetDelta_Time(iPoint) == 0.0) continue;
+    for (auto iVar = 0u; iVar < nVar; iVar++) {
+      const passivedouble value = x_b[iPoint * nVar + iVar];
+      if (!std::isfinite(value)) nonFinite++;
+      ResidualAdjoint(iPoint, iVar) = value;
+    }
+  }
+
+  /*--- Slip walls and symmetry planes (BC_Sym_Plane): R_tilde = P_k ... P_1 R with P = I - n n^T on the momentum,
+   *    hence adjoint(R) = P_1 ... P_k adjoint(R_tilde): project in reverse marker order, normals as in the BC. ---*/
+  for (int iMarker = static_cast<int>(config->GetnMarker_All()) - 1; iMarker >= 0; iMarker--) {
+    const auto kindBC = config->GetMarker_All_KindBC(iMarker);
+    if (kindBC != EULER_WALL && kindBC != SYMMETRY_PLANE) continue;
+    for (auto iVertex = 0ul; iVertex < geometry->nVertex[iMarker]; iVertex++) {
+      const auto iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
+      if (!geometry->nodes->GetDomain(iPoint)) continue;
+      passivedouble unitNormal[MAXNDIM] = {0.0};
+      const auto it = geometry->symmetryNormals[iMarker].find(iVertex);
+      if (it != geometry->symmetryNormals[iMarker].end()) {
+        for (auto iDim = 0u; iDim < nDim; iDim++) unitNormal[iDim] = SU2_TYPE::GetValue(it->second[iDim]);
+      } else {
+        const auto* normal = geometry->vertex[iMarker][iVertex]->GetNormal();
+        passivedouble area = 0.0;
+        for (auto iDim = 0u; iDim < nDim; iDim++) area += pow(SU2_TYPE::GetValue(normal[iDim]), 2);
+        area = sqrt(area);
+        for (auto iDim = 0u; iDim < nDim; iDim++) unitNormal[iDim] = SU2_TYPE::GetValue(normal[iDim]) / area;
+      }
+      passivedouble proj = 0.0;
+      for (auto iDim = 0u; iDim < nDim; iDim++) proj += ResidualAdjoint(iPoint, iDim + 1) * unitNormal[iDim];
+      for (auto iDim = 0u; iDim < nDim; iDim++) ResidualAdjoint(iPoint, iDim + 1) -= proj * unitNormal[iDim];
+    }
+  }
+
+  /*--- Halo values from the ranks that own the points (passive records). ---*/
+  CPassiveComm::ExchangeHalo(*geometry, ResidualAdjoint.data(), nVar * sizeof(passivedouble));
+
+  unsigned long nonFiniteGlobal = 0;
+  SU2_MPI::Allreduce(&nonFinite, &nonFiniteGlobal, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
+  return nonFiniteGlobal;
+}
+
+void CDiscAdjSolver::GetSweepFreeStreamDerivatives(passivedouble& sensAoA, passivedouble& sensMach) const {
+  SU2_ZONE_SCOPED
+
+  passivedouble local[2] = {0.0, 0.0}, global[2] = {0.0, 0.0};
+  if (KindDirect_Solver == RUNTIME_FLOW_SYS) {
+    local[0] = SU2_TYPE::GetDerivative(Alpha);
+    local[1] = SU2_TYPE::GetDerivative(Mach);
+  }
+  SelectMPIWrapper<passivedouble>::W::Allreduce(local, global, 2, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+  sensAoA = global[0];
+  sensMach = global[1];
 }
 
 void CDiscAdjSolver::ExtractAdjoint_Variables(CGeometry *geometry, CConfig *config) {

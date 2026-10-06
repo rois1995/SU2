@@ -172,15 +172,19 @@ su2_cfd_src += files(['drivers/CDriver.cpp',
                       'drivers/CDriverBase.cpp'])
 
 su2_cfd_src += files(['adaptation/CAdapSensors.cpp',
+                      'adaptation/CGoalMetric.cpp',
                       'adaptation/CSolutionTransfer.cpp',
                       'adaptation/CBarycentricTransfer.cpp',
+                      'adaptation/CAdjointTransfer.cpp',
                       'adaptation/CConservativeTransfer.cpp',
                       'adaptation/CBoundaryLayerMetric.cpp',
                       'adaptation/CMetricPredictor.cpp',
                       'adaptation/CTransferAdmissibility.cpp',
                       'adaptation/CDistributedLocator.cpp',
                       'adaptation/ConservativeKernels.cpp',
-                      'adaptation/CDistributedProjection.cpp'])
+                      'adaptation/CDistributedProjection.cpp',
+                      'adaptation/CReferenceWall.cpp',
+                      'adaptation/CBoundaryLayerRemesher.cpp'])
 
 su2_cfd_src += files(['integration/CIntegration.cpp',
                       'integration/CIntegrationFactory.cpp',

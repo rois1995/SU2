@@ -40,6 +40,7 @@
 #include "../../../Common/include/adaptation/CNativeImport2D.hpp"
 #include "../../../Common/include/adaptation/CNativeReferenceIO.hpp"
 #include "../../../Common/include/adaptation/CMeshGather.hpp"
+#include "../../include/adaptation/CBoundaryLayerRemesher.hpp"
 #include "../../../Common/include/geometry/CPhysicalGeometry.hpp"
 #include "../../../Common/include/geometry/meshreader/CDistributedMemoryMeshReaderFVM.hpp"
 #include "../../../Common/include/linear_algebra/blas_structure.hpp"
@@ -243,7 +244,9 @@ void CSinglezoneDriver::ComputeMetric() {
   const auto startTime = SU2_MPI::Wtime();
   solver_flow->SetAuxVar_Adapt(geometry, config, solver_container[ZONE_0][INST_0][MESH_0]);
   solver_flow->SetHessian_Adapt(geometry, config);
-  solver_flow->ComputeMetric(geometry, config);
+  /*--- ADAP_BL_METHOD= TWO_PASS: the remesher builds the boundary-layer metric itself, on its pass-A mesh. ---*/
+  const bool boundaryLayer = config->GetKind_Adap_BL_Method() != ADAP_BL_METHOD::TWO_PASS;
+  solver_flow->ComputeMetric(geometry, config, nullptr, boundaryLayer);
   if (rank == MASTER_NODE) cout << "Metric computed in " << SU2_MPI::Wtime() - startTime << " s." << endl;
 }
 
@@ -252,10 +255,12 @@ void CSinglezoneDriver::CheckMeshAdaptation() const {
   const auto* config = config_container[ZONE_0];
 
   const auto kindSolver = config->GetKind_Solver();
+  /*--- The discrete adjoint of compressible Euler with the goal-oriented metric (stage G) as well. ---*/
+  const bool goal = kindSolver == MAIN_SOLVER::DISC_ADJ_EULER && config->GetGoal_Oriented_Metric();
   if (kindSolver != MAIN_SOLVER::EULER && kindSolver != MAIN_SOLVER::NAVIER_STOKES &&
-      kindSolver != MAIN_SOLVER::RANS) {
-    SU2_MPI::Error("Mesh adaptation is only available for compressible EULER, NAVIER_STOKES or RANS.",
-                   CURRENT_FUNCTION);
+      kindSolver != MAIN_SOLVER::RANS && !goal) {
+    SU2_MPI::Error("Mesh adaptation is only available for compressible EULER, NAVIER_STOKES or RANS (and the discrete "
+                   "adjoint of EULER with ADAP_SENSOR= GOAL).", CURRENT_FUNCTION);
   }
   if (driver_config->GetTime_Domain() || config->GetTime_Domain()) {
     const auto marching = config->GetTime_Marching();
@@ -276,6 +281,8 @@ std::unique_ptr<CRemesher> CSinglezoneDriver::MakeRemesher() {
     remesher->PrepareReference(*config_container[ZONE_0], *geometry_container[ZONE_0][INST_0][MESH_0]);
     return remesher;
   }
+  if (config_container[ZONE_0]->GetKind_Adap_BL_Method() == ADAP_BL_METHOD::TWO_PASS)
+    return std::make_unique<CBoundaryLayerRemesher>();
   return std::make_unique<CMMGRemesher>();
 }
 
@@ -484,7 +491,9 @@ void CSinglezoneDriver::SampleTimeWindowMetric() {
       cout << "Metric of the time window: mean |Hessian| of the sensors over " << windowSamples
            << " time steps (" << TimeIter + 1 - windowSamples << " to " << TimeIter << ")." << endl;
     }
-    solver_flow->ComputeMetric(geometry, config);
+    /*--- ADAP_BL_METHOD= TWO_PASS: the remesher builds the boundary-layer metric itself, on its pass-A mesh. ---*/
+    solver_flow->ComputeMetric(geometry, config, nullptr,
+                               config->GetKind_Adap_BL_Method() != ADAP_BL_METHOD::TWO_PASS);
     windowMetricDone = true;
   }
 
@@ -660,7 +669,8 @@ void CSinglezoneDriver::PredictWindowMetric() {
   }
 
   /*--- Complexity, bounds, corner and boundary-layer metrics. ---*/
-  solver_flow->ComputeMetric(geometry, config, &predicted);
+  solver_flow->ComputeMetric(geometry, config, &predicted,
+                             config->GetKind_Adap_BL_Method() != ADAP_BL_METHOD::TWO_PASS);
   predictSnapshotValid = false;
 }
 

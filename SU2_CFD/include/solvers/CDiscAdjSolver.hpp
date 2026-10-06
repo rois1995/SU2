@@ -60,6 +60,8 @@ protected:
   su2double Mach, Alpha, Beta, Pressure, Temperature, BPressure, ModVel;
   su2double TemperatureRad, Total_Sens_Temp_Rad;
 
+  su2passivematrix ResidualAdjoint;  /*!< \brief Residual adjoint lambda (stage G), nPoint x nVar, halos from their owners. */
+
   CDiscAdjVariable* nodes = nullptr;  /*!< \brief The highest level in the variable hierarchy this solver can safely use. */
 
   /*!
@@ -157,6 +159,36 @@ public:
    *         (inviscid + viscous contribution).
    */
   inline su2double GetTotal_Sens_AoA() const override { return Total_Sens_AoA; }
+
+  /*!
+   * \brief Residual adjoint lambda (stage G).
+   */
+  inline passivedouble GetResidualAdjoint(unsigned long iPoint, unsigned short iVar) const override {
+    return (iPoint < ResidualAdjoint.rows()) ? ResidualAdjoint(iPoint, iVar) : 0.0;
+  }
+
+  /*!
+   * \brief Store the residual adjoint from the captured adjoint of the right-hand side of the flow solve:
+   *        lambda = x_b on owned points with a nonzero time step (where the RHS is the negated residual),
+   *        0 on the other owned points; halo values from the ranks that own them. At EULER_WALL / SYMMETRY_PLANE vertices the BC replaces the
+   *        residual by its tangential part (I - n n^T) R, so the normal momentum entry of x_b is not determined
+   *        by the discrete problem (it depends on the pseudo time step); lambda = (I - n n^T) x_b there, the
+   *        adjoint of the unprojected residual.
+   * \param[in] geometry - Geometry (markers, vertex normals).
+   * \param[in] config - Definition of the problem.
+   * \param[in] x_b - Captured vector (all local entries, nVar per point).
+   * \return Number of non-finite values (global).
+   */
+  unsigned long SetResidualAdjoint(const CGeometry* geometry, const CConfig* config, const vector<passivedouble>& x_b);
+
+  /*!
+   * \brief Derivatives of the current reverse sweep with respect to the registered Alpha (radians) and Mach,
+   *        summed over the ranks. Call after AD::ComputeAdjoint and before AD::ClearAdjoints. Does not change
+   *        Total_Sens_*. Zero for problems that do not register them.
+   * \param[out] sensAoA - d/dAlpha.
+   * \param[out] sensMach - d/dMach.
+   */
+  void GetSweepFreeStreamDerivatives(passivedouble& sensAoA, passivedouble& sensMach) const;
 
   /*!
    * \brief Set the total farfield pressure sensitivity coefficient.
