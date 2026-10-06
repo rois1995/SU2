@@ -19,7 +19,8 @@ The practical envelope is still being measured; the following are verified resul
 | Independent saved mesh/target/CGNS output checks | 1,2,4 | 84 audits, PASS |
 | Goal metric/custom sensors/two-pass/reference/adjoint transfer | 1,2,4 | 58 cases per rank, PASS |
 | Independent constant-target pilot geometry/topology audits | 1,2,4 | 12 cases, PASS |
-| Fresh AD build and GoalSwap controls | 1,2,4 planned | Build running; runtime pending |
+| Fresh AD build | — | PASS, executables archived with hashes |
+| AD GoalSwap controls | 1 passed; 2,4 pending | 3 cases/24 assertions at1 |
 
 Evidence: integration_evidence/integrated_output_controls_v6,
 integrated_primal_controls_v6, integrated_primal_memory_v6, integrated_mmg_default_v6,

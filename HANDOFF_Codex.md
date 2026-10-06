@@ -45,14 +45,14 @@ The tiny-fixture empty-partition abort is a CFD limitation, not a mesher result.
 ## Live supervisors: check JSON and host PIDs before acting
 
 - extended_chain_v9.json / run_extended_chain_v9.py, PID4119260: auxiliary58
-  cases now PASS1/2/4; fresh AD build currently running-j2; GoalSwap1/2/4 follows.
-- robustness_chain_v6.json / run_native_robustness_campaign_v6.py, PID4139800:
+  cases now PASS1/2/4; fresh AD build PASS; GoalSwap1 passed (3 cases/24 assertions), 2/4 pending.
+- robustness_chain_v7.json / run_native_robustness_campaign_v7.py, PID23496:
   waits for extended success, rebuilds only the primal probe/test binary, then
   size escalation (tiles128..4096) with low-cut vertical geometric ownership,
   three repetitions/rank for all3 layouts, matched AR10/100/1000, incompatible
   AR25, independent raw audits, actual NACA conservative/resumed-viscous baseline
   and demand axes, and saved opposing-wall audits from the fresh matrix.
-- goal_runtime_v5.json / run_integrated_goal_runtime_v5.py, PID4139802: waits
+- goal_runtime_v6.json / run_integrated_goal_runtime_v6.py, PID23497: waits
   for robustness success, actual warm/cold goal loops at1/2; SIGTERM to only one
   descendant rank during primal/adjoint recording at1/2; native-adjoint rejection.
   Short lifecycle checks use a hashed prior converged checkpoint on the identical
@@ -94,7 +94,7 @@ Dependencies externals/{codi,eigen,medi,mel,meson} are read-only symlinks to mai
 sources: leave T changes unstaged. Local preconfigure stamp already exists.
 Ninja: prior scratchpad/ninjabin. Static MMG SCOTCH root:
 /home/rausa/Software/scotch. Threads1; MPI<=4; builds-j2. New builds/evidence
-here, not /tmp or AdapNoExt. Disk free approximately61GB on4TB,7.4GB on/tmp.
+here, not /tmp or AdapNoExt. Disk free approximately49GB on4TB,7.4GB on/tmp.
 
 Initial refs/worktrees/main invariants and Stage G draft gzip/SHA are pinned in
 integration_evidence. Source manifestsv1/v2/v3 plusv6/v9 overrides and each runtime's
@@ -107,3 +107,8 @@ working directories and copy each job's native artifacts into audit_npN.
 This prevents a failed later cycle/rank from inheriting older snapshots.
 Existing successful v6/v9 evidence remains unchanged; new runs archive
 the changed runner and record their working directory explicitly.
+
+AD executable snapshots and hashes are preserved in ad_build_archive_v9.
+Idle robustness v6 / goal v5 were superseded before runtime to distinguish
+240-second time budgets from unexpected failures and parse host comm names
+with spaces safely. Only SIGTERM to their verified idle supervisor PIDs was used.
