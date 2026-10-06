@@ -553,7 +553,7 @@ TEST_CASE("Goal Hessian of manufactured fields", "[GoalMetric]") {
         unsigned long nChecked = 0;
         const auto err = ManufacturedError(test.Geo(), test.flow, m, n, nChecked);
         INFO(method << " nDim " << nDim << " rank-deficient " << deficient);
-        CHECK(nChecked > 0);
+        CHECK(CPassiveComm::AllreduceSum(nChecked) > 0);
         CHECK(err < 1e-10);
         CHECK(test.flow->GetGoalRejected() == 0);
         CHECK(test.flow->GetGoalNonFinite() == 0);
@@ -711,6 +711,7 @@ struct GoalBox {
     config = std::unique_ptr<CConfig>(new CConfig(ss, SU2_COMPONENT::SU2_CFD, false));
     {
       auto aux = std::unique_ptr<CGeometry>(new CPhysicalGeometry(config.get(), 0, 1));
+      aux->SetColorGrid_Parallel(config.get());
       geometry = std::unique_ptr<CGeometry>(new CPhysicalGeometry(aux.get(), config.get()));
     }
     for (unsigned long point = 0; point < geometry->GetnPoint(); ++point) {
@@ -750,6 +751,36 @@ struct GoalBox {
     delete[] solver;
   }
 };
+
+/*--- Compare independently partitioned half/full boxes through owned passive field records. ---*/
+template<class T>
+std::array<long long, 3> GoalPointKey(const T* x) {
+  return {std::llround(SU2_TYPE::GetValue(x[0]) * 1e9), std::llround(SU2_TYPE::GetValue(x[1]) * 1e9),
+          std::llround(SU2_TYPE::GetValue(x[2]) * 1e9)};
+}
+
+using GoalFieldRecord = std::array<passivedouble, 201>; // 20 gradients, 15 flux Hessians, goal Hessian.
+std::map<std::array<long long, 3>, GoalFieldRecord> GlobalBoxFields(const GoalBox& box,
+                                                                 const vector<su2double>& fluxHessians) {
+  vector<std::array<long long, 3>> keys;
+  vector<GoalFieldRecord> records;
+  const auto& gradients = box.flow->GetNodes()->GetGradient_Adapt();
+  for (auto p = 0ul; p < box.geometry->GetnPointDomain(); ++p) {
+    keys.push_back(GoalPointKey(box.geometry->nodes->GetCoord(p)));
+    GoalFieldRecord row{};
+    for (unsigned short k = 0; k < 20; ++k)
+      for (unsigned short d = 0; d < 3; ++d) row[3*k+d] = SU2_TYPE::GetValue(gradients(p,k,d));
+    for (unsigned short k = 0; k < 135; ++k) row[60+k] = SU2_TYPE::GetValue(fluxHessians[135*p+k]);
+    for (unsigned short k = 0; k < 6; ++k) row[195+k] = SU2_TYPE::GetValue(box.flow->GetNodes()->GetHessian(p,0,k));
+    records.push_back(row);
+  }
+  keys = CPassiveComm::Allgatherv(keys, nullptr);
+  records = CPassiveComm::Allgatherv(records, nullptr);
+  REQUIRE(keys.size() == records.size());
+  std::map<std::array<long long, 3>, GoalFieldRecord> result;
+  for (size_t k = 0; k < keys.size(); ++k) REQUIRE(result.emplace(keys[k],records[k]).second);
+  return result;
+}
 
 /*--- State and lambda with exact mirror parity about the plane through 0 with normal n (frame t1, t2, n). ---*/
 FieldFunction MirrorFields(const passivedouble* t1, const passivedouble* t2, const passivedouble* n) {
@@ -792,7 +823,7 @@ TEST_CASE("Goal Hessian of manufactured fields on hexahedra", "[GoalMetric]") {
       unsigned long nChecked = 0;
       const auto err = ManufacturedError(*box.geometry, box.flow, m, 6, nChecked);
       INFO(method << " rank-deficient " << deficient);
-      CHECK(nChecked > 0);
+      CHECK(CPassiveComm::AllreduceSum(nChecked) > 0);
       CHECK(err < 1e-10);
       CHECK(box.flow->GetGoalRejected() == 0);
       CHECK(box.flow->GetGoalNonFinite() == 0);
@@ -817,49 +848,41 @@ TEST_CASE("Goal symmetry plane: half mesh with the mirror rule equals the full m
     }
 
     /*--- Points of the half box in the full box, by coordinates. ---*/
-    std::map<std::array<long long, 3>, unsigned long> fullIndex;
-    auto key = [](const su2double* x) {
-      return std::array<long long, 3>{std::llround(SU2_TYPE::GetValue(x[0]) * 1e9), std::llround(SU2_TYPE::GetValue(x[1]) * 1e9),
-                                      std::llround(SU2_TYPE::GetValue(x[2]) * 1e9)};
-    };
-    for (auto iPoint = 0ul; iPoint < full.geometry->GetnPointDomain(); ++iPoint)
-      fullIndex[key(full.geometry->nodes->GetCoord(iPoint))] = iPoint;
-
+    const auto fullFields = GlobalBoxFields(full, hessFull);
     const unsigned short nField = 20, nFlux = 15;
     passivedouble scaleG[20] = {0.0}, scaleH[15] = {0.0}, scaleGo = 0.0;
     passivedouble errG[20] = {0.0}, errH[15] = {0.0}, errGo = 0.0;
     unsigned long nPlane = 0, nMatched = 0;
     const auto& gHalf = half.flow->GetNodes()->GetGradient_Adapt();
-    const auto& gFull = full.flow->GetNodes()->GetGradient_Adapt();
     for (auto iPoint = 0ul; iPoint < half.geometry->GetnPointDomain(); ++iPoint) {
-      const auto it = fullIndex.find(key(half.geometry->nodes->GetCoord(iPoint)));
-      REQUIRE(it != fullIndex.end());
-      const auto jPoint = it->second;
+      const auto it = fullFields.find(GoalPointKey(half.geometry->nodes->GetCoord(iPoint)));
+      REQUIRE(it != fullFields.end());
+      const auto& fullRow = it->second;
       ++nMatched;
       passivedouble s = 0.0;
       for (auto i = 0u; i < 3; ++i) s += SU2_TYPE::GetValue(half.geometry->nodes->GetCoord(iPoint, i)) * n[i];
       if (fabs(s) < 1e-10) ++nPlane;
       for (auto k = 0u; k < nField; ++k)
         for (auto a = 0u; a < 3; ++a) {
-          scaleG[k] = std::max(scaleG[k], fabs(SU2_TYPE::GetValue(gFull(jPoint, k, a))));
-          errG[k] = std::max(errG[k], fabs(SU2_TYPE::GetValue(gHalf(iPoint, k, a) - gFull(jPoint, k, a))));
+          scaleG[k] = std::max(scaleG[k], fabs(fullRow[3*k+a]));
+          errG[k] = std::max(errG[k], fabs((SU2_TYPE::GetValue(gHalf(iPoint, k, a)) - fullRow[3*k+a])));
         }
       for (auto f = 0u; f < nFlux; ++f)
         for (auto ab = 0u; ab < 9; ++ab) {
           const auto a = SU2_TYPE::GetValue(hessHalf[(iPoint * nFlux + f) * 9 + ab]);
-          const auto b = SU2_TYPE::GetValue(hessFull[(jPoint * nFlux + f) * 9 + ab]);
+          const auto b = fullRow[60+9*f+ab];
           scaleH[f] = std::max(scaleH[f], fabs(b));
           errH[f] = std::max(errH[f], fabs(a - b));
         }
       for (auto iMet = 0u; iMet < 6; ++iMet) {
         const auto a = SU2_TYPE::GetValue(half.flow->GetNodes()->GetHessian(iPoint, 0, iMet));
-        const auto b = SU2_TYPE::GetValue(full.flow->GetNodes()->GetHessian(jPoint, 0, iMet));
+        const auto b = fullRow[195+iMet];
         scaleGo = std::max(scaleGo, fabs(b));
         errGo = std::max(errGo, fabs(a - b));
       }
     }
     INFO("angle " << angle);
-    CHECK(nPlane > 0);
+    CHECK(CPassiveComm::AllreduceSum(nPlane) > 0);
     CHECK(nMatched == half.geometry->GetnPointDomain());
     for (auto k = 0u; k < nField; ++k) CHECK(errG[k] <= 1e-12 * scaleG[k]);
     for (auto f = 0u; f < nFlux; ++f) CHECK(errH[f] <= 1e-12 * scaleH[f]);
@@ -896,27 +919,21 @@ TEST_CASE("Goal symmetry plane: two orthogonal planes", "[GoalMetric]") {
     Mute mute;
     test->flow->ComputeGoalHessian(test->geometry.get(), test->config.get(), nullptr, test == &quarter ? &hessQ : &hessF);
   }
-  std::map<std::array<long long, 3>, unsigned long> fullIndex;
-  auto key = [](const su2double* x) {
-    return std::array<long long, 3>{std::llround(SU2_TYPE::GetValue(x[0]) * 1e9), std::llround(SU2_TYPE::GetValue(x[1]) * 1e9),
-                                    std::llround(SU2_TYPE::GetValue(x[2]) * 1e9)};
-  };
-  for (auto iPoint = 0ul; iPoint < full.geometry->GetnPointDomain(); ++iPoint)
-    fullIndex[key(full.geometry->nodes->GetCoord(iPoint))] = iPoint;
+  const auto fullFields = GlobalBoxFields(full, hessF);
   passivedouble scale = 0.0, err = 0.0;
   unsigned long nEdge = 0;
   for (auto iPoint = 0ul; iPoint < quarter.geometry->GetnPointDomain(); ++iPoint) {
     const auto* x = quarter.geometry->nodes->GetCoord(iPoint);
-    const auto jPoint = fullIndex.at(key(x));
+    const auto& fullRow = fullFields.at(GoalPointKey(x));
     if (fabs(SU2_TYPE::GetValue(x[1])) < 1e-10 && fabs(SU2_TYPE::GetValue(x[2])) < 1e-10) ++nEdge;
     for (auto iMet = 0u; iMet < 6; ++iMet) {
       const auto a = SU2_TYPE::GetValue(quarter.flow->GetNodes()->GetHessian(iPoint, 0, iMet));
-      const auto b = SU2_TYPE::GetValue(full.flow->GetNodes()->GetHessian(jPoint, 0, iMet));
+      const auto b = fullRow[195+iMet];
       scale = std::max(scale, fabs(b));
       err = std::max(err, fabs(a - b));
     }
   }
-  CHECK(nEdge > 0);
+  CHECK(CPassiveComm::AllreduceSum(nEdge) > 0);
   CHECK(scale > 0.0);
   CHECK(err <= 1e-12 * scale);
 }
@@ -1000,7 +1017,7 @@ TEST_CASE("Goal symmetry plane with WLS: exact for symmetric quadratic fields", 
       }
     }
   }
-  CHECK(nPlane > 0);
+  CHECK(CPassiveComm::AllreduceSum(nPlane) > 0);
   CHECK(err <= 1e-9 * scale);
   (void)n;
 }
