@@ -32,7 +32,9 @@ NativeMemory and default-MMG controls pass1/2/4; auxiliary58cases also pass1/2/4
 integrated_output_controls_v6, integrated_primal_controls_v6,
 integrated_primal_memory_v6, integrated_mmg_default_v6.
 Independent output audits and initial scaling pilot completed successfully.
-Initial pilot passes through1024input cells; larger/repeated/real-field limits remain pending.
+Initial cyclic pilot passes through1024input cells. Fresh low-cut2048-cell group
+passes1/2/4 with independent audits: adapt9.453/6.403/4.797s, single samples.
+Larger/repeated/real-field limits remain pending.
 
 Earlier failures preserved: missing preconfigure stamp (v1); old serial output
 count assumptions (v2); test private-member/Catch compile error (v3); duplicated

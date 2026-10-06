@@ -116,3 +116,19 @@ an admitted transaction violation. The probe enlarges a tiled rectangular strip
 at fixed ny=4 and constant target, so boundary size grows with input cells. It
 measures that workload, not a fixed-domain general2D/3D scaling law. Reference
 construction and the SU2 import/transfer/CFD path are outside its timing.
+
+## First low-cut size group — independently verified
+
+At2048 input cells, all1/2/4-rank vertical-strip cases are complete and pass
+independent exact geometry/topology/reference/target audits (large_t128).
+
+| Ranks | Input cut edges | Output cells | Adapt seconds | Cross-owner / commits | Conflicts | Peak RSS KiB/rank |
+|---:|---:|---:|---:|---:|---:|---:|
+| 1 | 0 | 1532 | 9.453158 | 0 / 4220 | 0 | 22660 |
+| 2 | 4 | 1548 | 6.403417 | 48 / 4360 | 3 | 22292 |
+| 4 | 12 | 1512 | 4.797245 | 204 / 5316 | 28 | 21876 |
+
+These are single samples with different adapted cell/transaction counts. They
+show a useful low-cut control, but repeated partition comparisons and the
+largest passing size are still pending. Raw evidence:
+integration_evidence/robustness_campaign_v8/large_t128/independent_audit.json.
