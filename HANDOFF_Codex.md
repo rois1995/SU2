@@ -36,8 +36,9 @@ Initial cyclic pilot passes through1024input cells. Fresh low-cut2048-cell group
 passes1/2/4 with independent audits: adapt9.453/6.403/4.797s, single samples.
 Low-cut4096-cell group also independently passes1/2/4:28.019/15.195/9.205s.
 Low-cut8192-cell group independently passes1/2/4:98.936/52.893/28.138s.
-The16384-cell serial case is running under the240-second budget; repeated
-partition/real-field limits remain pending.
+The16384-cell serial case timed out (124) at241.41s; no finished mesh/JSON.
+This is a cost-budget observation, not a construction failure. Repeated8192-cell
+partition comparisons are now running; real-field limits remain pending.
 
 Earlier failures preserved: missing preconfigure stamp (v1); old serial output
 count assumptions (v2); test private-member/Catch compile error (v3); duplicated
@@ -138,3 +139,13 @@ by protocol step7. If actual goal lifecycle1/2 passes, consider a fresh4-rank
 warm/cold control to distinguish any surviving solver limit from the old evidence;
 the halo fix may change post-swap behavior. Do not assume old numerical limits
 prove failure of the corrected integrated tree.
+
+Live tail: integration_followthrough_v1.json / run_integration_followthrough_v1.py,
+PID119961 waits for goal_runtime_v7 success. It measures larger vertical strips
+separately at2/4 (up to65536 input cells; same240s/120s stop rules), controls each
+successful serial airfoil stress at2/4, and rechecks actual warm/cold goal at4.
+Never launch another competing follower: this tail starts only after the earlier
+runtime is terminal. Unexpected failures stop for diagnosis. Source preparation
+includes additional binary/checker SHA guards; because PID119961 was already
+loaded while those guards were appended, externally verify these invariants
+before it reaches airfoil/goal work (or supersede only while idle with a fresh label).

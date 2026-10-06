@@ -95,3 +95,23 @@ an admitted transaction violation. The probe enlarges a tiled rectangular strip
 at fixed ny=4 and constant target, so boundary size grows with input cells. It
 measures that workload, not a fixed-domain general2D/3D scaling law. Reference
 construction and the SU2 import/transfer/CFD path are outside its timing.
+
+## Predeclared follow-through after the common-size cost boundary
+
+The serial16384-cell job exceeded its240-second budget on2026-10-06. This does
+not establish the higher-rank boundary. After the main campaigns, measure
+vertical strips at16384/32768/65536 input cells on2 and4 ranks, stopping each
+rank's size axis on incomplete output,240-second timeout, structural/process
+failure or120-second measured adaptation cost. These are single-sample capacity
+controls, not additional repeated speedup estimates. Independently audit every
+completed candidate. Run2/4 controls for each successful serial real-airfoil
+demand axis, then warm/cold actual goal lifecycle at4 on the corrected AD tree.
+Unexpected failures require classification before continuing. This ordering
+retains one own heavy job at a time and MPI<=4.
+
+Encoded payload-byte counts include self buckets and are not measured network
+traffic. World collective counts/times omit direct CPassiveComm calls and
+CollectiveFailure votes; they are not a complete MPI profile. Hardware is an
+8-core Intel Core i7-9700 with no SMT. The campaign records initial load (5.63,
+4.53,4.72); this is a shared workstation, not an exclusive benchmark allocation.
+MPI uses the installed OpenMPI defaults without an explicit binding override.

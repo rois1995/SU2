@@ -166,3 +166,15 @@ geometry validation change has been made to improve the benchmark.
 The real-airfoil fixture uses10216 seed triangles and three short primal
 iterations per cycle before producing each actual sensor/BL field. Its resumed
 viscous run tests lifecycle/admissibility and transfer, not converged CFD accuracy.
+
+## First observed cost boundary
+
+large_t1024_p1 (16384 input triangles, vertical-strip layout) exceeded the
+240-second whole-job budget; the supervisor returned124 after241.41s including
+termination. No finished native_scaling.json was produced. This is a measured
+budget limit for that serial strip workload, not proof of infeasibility or of
+invalid partial topology. Larger2/4-rank limits remain unmeasured; follow-through
+is prescribed in the protocol. Repeated comparisons use the8192-cell largest
+complete common size. Encoded payload counts include self buckets, and World
+collective counters omit some direct MPI calls/votes; do not interpret them as
+network traffic or a complete communication-time decomposition.
