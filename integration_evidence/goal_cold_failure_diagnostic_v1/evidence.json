@@ -1,0 +1,31 @@
+{
+  "scope": "Same saved flow/mesh and CFL50; static adjoint, no adaptation or mesh replacement",
+  "original_failed_case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_goal_runtime_v7/cold_p2",
+  "original_evidence_sha256": "50bd245f24a6bac69cf918270cb91e905c0f575e37c235c284d4c1fe103697a8",
+  "binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_goal_runtime_v7/SU2_CFD_AD",
+  "binary_sha256": "41d4295ffbe6f3f56b13ae94d03c60661bd091c52bd1459771e223b97f6d3255",
+  "flow": {
+    "points": 4622,
+    "min_density": 1.1733414217600502,
+    "min_internal_energy_density": 221242.17916882955
+  },
+  "inputs_sha256": {
+    "input.su2": "76c3e1b221145d9a3b8d0f22277d17b2bdcc8597c39eb5aa0c7b575f6b7ba418",
+    "solution_flow.dat": "d2131ca02abc5e27f1df644bbe6c64a84f7cfd5ddcacd85a47dcb49cdb82e982",
+    "run.cfg": "4ab38aeac417881917b06336fcca091e1219f6b00417543653b0bd002206444d"
+  },
+  "runner_sha256": "4cc5e71ed6e6092fcfcdc00d09d451b49dad60f683a305fb7cae353487a9e1f7",
+  "ranks": 2,
+  "command": [
+    "mpiexec",
+    "-n",
+    "2",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_goal_runtime_v7/SU2_CFD_AD",
+    "run.cfg"
+  ],
+  "phase": "terminal",
+  "exit": 1,
+  "elapsed_seconds": 28.13096612796653,
+  "residual_divergence": true,
+  "runtime_sha256": "fd37ead2c82ac28d32349612ab80cb373f5aa2cf9a98a8828bb6c1f9ba1003d8"
+}

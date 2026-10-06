@@ -27,35 +27,49 @@ ps: inspect host PID/PPID/comm with escalated execution, not full command lines.
 Use fresh evidence labels and preserve failures; never restart a live handle or
 extend an existing timeout merely because an observation expired.
 
-At the latest host check, foreign ninja420282 and two cc1plus processes remain
-live. Own native/AD simulations are idle. The last CFD case,
-`integrated_airfoil_height1e4_v8/runtime_np1`, is terminal (timeout); the next
-saved opposing-wall audit consumes `integrated_primal_controls_v6/audit_npN`.
-Recheck live JSON and real host processes before acting.
+The foreign build finished. All four original supervisors are now terminal:
+robustness succeeded, goal-runtime stopped on cold_p2 adjoint divergence, and its
+two followers stopped without launching work. Host process inspection confirmed
+those handles are gone. Do not restart any original version.
 
-All paths below are relative to `integration_evidence/`:
+| State / runner | Current result |
+|---|---|
+| robustness_chain_v8 / run_native_robustness_campaign_v8 |Terminal0; all48 saved opposing-wall independent audits PASS |
+| goal_runtime_v7 / run_integrated_goal_runtime_v7 |Terminal1; warm1/2 and cold1 short lifecycles pass, cold2 diverges in the final adjoint solve |
+| integration_followthrough_v1 |Terminal1; prerequisite failure, no capacity or4-rank jobs launched |
+| native_production_chain_v1 |Terminal1; prerequisite failure, no production jobs launched |
+| native_production_chain_v2 |Terminal1; np1 config parsing rejected PARAVIEW_BINARY, no solver iterations |
+| native_production_chain_v3 / run_native_production_checks_v3 |Fresh supervisor496844; actual production1/2/4 matrix in integrated_native_production_v2, verify live state |
+| integration_capacity_v2 / run_integration_capacity_v2 |Fresh supervisor503409 waits for production success; declared native capacity2/4 controls only, AD controls remain separate |
 
-| State file / script | Supervisor PID | Current role |
-|---|---:|---|
-| robustness_chain_v8 / run_native_robustness_campaign_v8 |52131|Waiting for machine quiet before saved opposing-wall audits; native baseline/demand jobs finished |
-| goal_runtime_v7 / run_integrated_goal_runtime_v7 |52132|Waits for robustness success; actual warm/cold1/2, single-descendant primal/adjoint SIGTERM1/2, native-adjoint rejection |
-| integration_followthrough_v1 / run_integration_followthrough_v1 |119961|Waits for goal success; larger engine2/4 capacities and corrected-tree actual warm/cold4 |
-| native_production_chain_v1 / run_native_production_checks_v1 |416452|Waits for follow-through success; actual main SU2_CFD native-loop/restart/ParaView/metric/mesh1/2/4 and nine independent audits |
+The cold2 failure was replayed as an ordinary static-mesh two-rank adjoint using
+its cycle2 mesh and actual saved flow. That fresh process, with no adaptation or
+mesh replacement, diverged too. All131 printed residual/sensitivity rows agree
+within1e-6 log10 (one printed last-place residual unit); sensitivities are exact
+at printed precision. Flow/restart pairing is exact and density/internal energy
+positive. This isolates the observed divergence from the in-process replacement
+lifecycle; it does not prove converged sensitivities or every transfer property.
+Pins: goal_cold_failure_classification_v1.json, diagnostic evidence and runnable
+diagnose_goal_cold_failure.py. Preserve the failed goal runtime as a CFD limit;
+interruption/native rejection and corrected-tree4-rank controls remain REQUIRED.
 
-A failed prerequisite stops followers for diagnosis. Terminal state alone is not
-success; inspect exit/checks. No competing heavy runner should be started.
+The first independent production attempt used an invalid testcase output token.
+Repository OUTPUT_TYPE maps PARAVIEW to binary XML; PARAVIEW_BINARY is absent.
+Fresh cases retain the same physical request and use OUTPUT_FILES=(RESTART,
+PARAVIEW). Native source is unchanged. Pins: native_production_config_failure_v1.
+The v3 runner reuses the existing archived production application (no duplicate
+large executable), rechecks all759 production sources, and validates restart,
+ParaView, metric, mesh/reference pairing and nine frozen-P1 targets. Allowing this
+independent primal gate after classifying the AD CFD failure does not make that
+failed lifecycle a pass. The production v1 folder retains the parser failure;
+actual new runs live in integrated_native_production_v2/np{1,2,4}.
 
-**Freeze until all four chains finish:** do not mutate/rebuild production or test
-sources/binaries; do not edit `run_native_production_checks_v1.py` or
-`check_airfoil_phase_timing.py` while production waits/runs. The production runner
-records their loaded hashes and rejects changes while waiting. The already-loaded
-follow-through lacks two subsequently added code guards: external evidence
-`followthrough_external_guards_v1.json` pins current+archived engine hash
-f4966b8ea17981c5d23d3784d2c5f2e3ac3b9d037b63c57e49949e9c49e7a2fb
-and capability-checker hash
-7dd21ce5b3716e84772201b29d271d5352b7aba345858013ed6ec414514517ff.
-Compare the latter with eventual goal_runtime_v7 checker_sha256 before its4-rank
-lifecycle; do not invalidate these guards by editing the checker or executable.
+**Freeze while production v3 or capacity v2 waits/runs:** do not rebuild production/test binaries or mutate
+run_native_production_checks_v3.py or check_airfoil_phase_timing.py. Its loaded
+hashes are pinned. Pending test patches remain unapplied. After these gates, resume
+outstanding AD controls sequentially, then apply the
+instrumentation/step patches and finish all required validation. Read current
+JSON and host handles before acting; the listed PID is not a permanent proof.
 
 ## Reconciled source and supported scope
 
@@ -174,12 +188,12 @@ runtime_npN and copied audit_npN. CASE_FILES.md explains exact names.
 
 The derived NACA fixture did NOT save nodal flow/restarts: Run/Postprocess/Update
 bypassed Output and used the solution in memory. Metric/transfer CSVs are not
-flow snapshots. The staged actual-production cases integrated_native_production_v1/
-np1,np2,np4 contain local input.su2/run.cfg and no executed outputs yet. They
-request real restart+ParaView conserved/primitive/metric fields and accepted
-SU2 meshes/reference sidecars. run_template.cfg and prepared.json pin the profile.
-Production runner self-check passes (right mapping accepted, wrong coordinates
-rejected); actual three-rank-matrix/nine-target audits are still pending.
+flow snapshots. The fresh production cases integrated_native_production_v2/np{1,2,4} contain
+local input.su2/run.cfg and request actual restart+ParaView conserved/primitive/
+metric fields plus accepted SU2 meshes/reference sidecars. Read v3 state and the
+case evidence for actual output availability. v1 retains the invalid-token parser
+failure. run_template.cfg/prepared.json pin the corrected profile; restart-to-mesh
+mapping self-check passes, actual matrix/nine-target audits are still pending.
 
 Audit tools hash donor/metric/candidate before/after evaluation and original
 NACA reference before/after its check. Input changes are rejected. The runtime
@@ -195,11 +209,11 @@ unchanged. Earlier archived audits are preserved.
 |---|---|
 | Reconciliation |Final revalidate main/heads/remotes/Stage G draft; classify later relevant changes |
 | Integrated validation |Actual Stage G warm/cold/interruption/native-rejection pipeline and corrected4rank follow-through; actual native production/output coupling matrix |
-| Robustness |Saved48 opposing audits; partial larger/thinner NACA target audits; abrupt nodal step controls and every saved one/opposing-wall target audit; explicit support diagnostics |
+| Robustness |Saved48 opposing audits PASS; partial larger/thinner NACA target audits; abrupt nodal step controls and every saved one/opposing-wall target audit; explicit support diagnostics |
 | Scaling |Higher-rank capacities; actual MPI MAX remesh/replacement/transfer/CFD/output, local rank timings/RSS/ownership; classify every failed/stopped axis |
 | Handoff/review |Commit tested source, exact evidence and final requirement-by-requirement report; do not substitute narrow checks for full requirements |
 
-After ALL FOUR current chains are terminal and failed gates classified:
+After production v3 and capacity v2 finish and failures are classified, resume AD controls and:
 
 1. Independently audit completed timeout-run snapshots: complexity12000 cycle1
    at h0=.0002; height1e4 cycle0 at h0=.0001. Use audit_native_airfoil.py on each
@@ -235,7 +249,7 @@ After ALL FOUR current chains are terminal and failed gates classified:
    - Native adaptation does not support continuous or discrete adjoint configurations.
    - Native solution restart requires the original geometry sidecar:
    - ADAP_BL_METHOD= TWO_PASS requires ADAP_REMESHER= MMG; native cavities build the BL with METRIC.
-   Discrete-native AD rejection is already scheduled in the lifecycle runner.
+   Discrete-native AD rejection was NOT reached after the cold2 failure; it remains required.
 6. Final completion audit against NATIVE_INTEGRATION_GOAL.md and protocol,
    covering every gate/invariant/artifact with authoritative current evidence.
    Fix integration defects, report demonstrated construction/resource/CFD limits
@@ -244,7 +258,7 @@ After ALL FOUR current chains are terminal and failed gates classified:
 Actual Stage G sensitivity-summary checks are lifecycle/finite-value checks;
 old final history SENS_GEO may remain stale while summary totals are correct.
 No converged-estimator/sensitivity-accuracy proof is implied. Old4-rank divergence
-is not proof for the corrected tree; the queued4-rank rerun decides its outcome.
+is not proof for the corrected tree; a fresh4-rank control remains required.
 
 Build dependencies: SCOTCH `/home/rausa/Software/scotch`; ninja executable:
 `/tmp/claude-1000/-media-rausa-4TB-SU2-Versions-SU2-AdapNoExt/bae33fc3-5b05-48ef-a3e8-4d222dffb2fe/scratchpad/ninjabin/ninja`.

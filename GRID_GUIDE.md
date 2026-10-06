@@ -90,15 +90,23 @@ Current verified results and live supervisor details:
 [HANDOFF_Codex.md](HANDOFF_Codex.md).
 
 
-## Self-contained production cases — prepared, not executed
+## Self-contained production cases — actual flow output campaign
 
-`integration_evidence/integrated_native_production_v1/np{1,2,4}` each contains
-local `input.su2` and `run.cfg`. The production-output runner is queued after the
-current pipelines; these directories currently contain inputs only. Unlike the
-derived fixture, the actual SU2_CFD adaptation loop calls Output. Its requested
-restart/ParaView files will contain conserved/primitive flow plus metric; SU2
-accepted meshes and immutable-reference sidecars will be saved by cycle.
-[Exact config template](integration_evidence/integrated_native_production_v1/run_template.cfg).
-[Sequential runner](integration_evidence/run_native_production_checks_v1.py).
-Consult native_production_chain_v1.json for actual live status before opening
-outputs or inferring that these prepared cases have run.
+`integration_evidence/integrated_native_production_v2/np{1,2,4}` each contains
+local `input.su2` and `run.cfg`. The fresh runner uses the actual SU2_CFD adaptation
+loop and requests double binary restart and ParaView flow/metric output.
+Cycle0 solution belongs to input.su2; later flow/restart files belong to
+mesh_adap_0000N.su2 with the same cycle index. Inspect actual files and evidence
+before treating any case as completed.
+[Exact config template](integration_evidence/integrated_native_production_v2/run_template.cfg).
+[Sequential runner](integration_evidence/run_native_production_checks_v3.py).
+[Live status](integration_evidence/native_production_chain_v3.json).
+The prior v1 folder preserves a config-parser failure (PARAVIEW_BINARY was invalid;
+this branch uses PARAVIEW for binary XML). No solver iterations ran in that attempt.
+
+Actual Euler goal-control restarts already exist in
+`integration_evidence/integrated_goal_runtime_v7/{warm_p1,warm_p2,cold_p1,cold_p2}`,
+paired by cycle with their input/adapted meshes. These are separate MMG/discrete-
+adjoint controls. cold_p2 diverged during the final adjoint solve; its saved cycle2
+primal restart is admissible and reproduced the adjoint failure in a static replay.
+They are not native viscous solution snapshots or converged aerodynamic evidence.

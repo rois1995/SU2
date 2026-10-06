@@ -468,3 +468,49 @@ hashes, archives the application and readers, and independently audits nine
 actual double-restart-derived P1 targets after successful runtimes. It is an
 additional integration/output gate, not a replacement for pending phase/step
 instrumentation or full CFD convergence validation.
+
+
+## Classified actual goal-control failure and production continuation
+
+All48 saved opposing-wall snapshots now independently PASS in
+integrated_primal_controls_v6/independent_opposing_v8. The main robustness
+supervisor is terminal0.
+
+Fresh corrected-tree actual Stage G warm1/2 and cold1 short three-cycle controls
+pass lifecycle/finite-summary/mesh checks. Warm2 final adjoint residual grows to
+log10 RMS2.913 and produces large finite sensitivities: its lifecycle pass is
+not solver convergence or sensitivity accuracy. Cold2 completes both MMG mesh
+replacements and short primal solves, then its final adjoint fixed-point iteration
+diverges above1e20. It has no complete goal summary because the process aborts.
+Both adapted meshes pass the runtime saved-mesh checks. The recorded2-rank
+checkpoint has4622 points, minimum density1.1733414 and minimum internal-energy
+density221242.18, with exact restart/grid coordinates.
+
+A fresh ordinary static-mesh adjoint replay, same saved cycle2 flow/grid/CFL50,
+reproduces the divergence in28.131s. All131 printed residual/sensitivity rows
+agree within1e-6 log10 (one last-place printed residual unit); printed sensitivities
+agree exactly. The failure does not require an in-process mesh replacement.
+Exact evidence: goal_cold_failure_classification_v1.json and
+ goal_cold_failure_diagnostic_v1. This is an observed CFD fixed-point limit;
+remaining actual interruption/native rejection and corrected-tree4-rank controls
+are still required. Neither follower launched any capacity/production simulation.
+
+The independent primal-output runner then stopped before any iteration because
+its testcase used invalid OUTPUT_FILES token PARAVIEW_BINARY. Repository enum
+inspection confirms PARAVIEW is binary XML. The original folder/state/logs are
+preserved and pinned in native_production_config_failure_v1.json. Corrected fresh
+cases integrated_native_production_v2 retain the physical/BL demand and request
+(RESTART, PARAVIEW). native_production_chain_v3 is the current sequential output
+supervisor; check its live state before claiming completed outputs. Production
+source and previously archived executable are unchanged. This independent gate
+continues after classifying the AD failure; that failure is not reclassified as a pass.
+
+
+The corrected serial production case has now written actual cycle0
+solution_adap_00000.dat and flow_adap_00000.vtu and entered its first remesh.
+This is output availability, not completion of the lifecycle/target audits.
+The follow-on capacity-only supervisor503409 (integration_capacity_v2) waits
+for production success. It reuses the unchanged archived native engine, tests
+the predeclared2/4 size axes sequentially, and reports skipped failed/unexecuted
+serial demand controls. Outstanding actual AD4/interruption/rejection gates
+remain explicit; this capacity-only runner does not claim their completion.

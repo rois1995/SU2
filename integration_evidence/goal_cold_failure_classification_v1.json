@@ -1,0 +1,39 @@
+{
+  "diagnosis_complete": true,
+  "classification": "CFD fixed-point adjoint divergence on saved cycle2 state; reproduced without adaptation",
+  "lifecycle_pass": false,
+  "primal_production_validation_independent": true,
+  "trajectory_rows": 131,
+  "exact_printed_trajectory_rows": 130,
+  "maximum_printed_absolute_differences": [
+    0.0,
+    1.000000000139778e-06,
+    0.0
+  ],
+  "compared_columns": [
+    "log10_RMS_ADJ_DENSITY",
+    "log10_RMS_ADJ_ENERGY",
+    "SENS_AOA"
+  ],
+  "diagnostic_exit": 1,
+  "original_exit": 1,
+  "flow_admissible": true,
+  "adapted_mesh_checks": true,
+  "scope": "All131 printed residual/sensitivity rows agree within one last-place printed residual unit (1e-6 log10); sensitivities agree exactly at printed precision. The observed divergence does not require in-process replacement. This does not prove converged sensitivities or all transfer properties.",
+  "still_required": [
+    "Actual interruption1/2 and native-adjoint rejection",
+    "Corrected-tree warm/cold4 controls and failure classification",
+    "Higher-rank capacities",
+    "Actual native production mesh/flow/metric1/2/4 outputs and audits"
+  ],
+  "input_files_sha256": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/goal_runtime_v7.json": "d74cdfc620b6d93d671c373bcc38ab08fb52a3cde53466d240f911faad68fbcc",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_goal_runtime_v7/cold_p2/runtime.log": "3059570f903a7220315698536229a4f240e8de602fafba5b789258bfc3fe2cb4",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_goal_runtime_v7/cold_p2/evidence.json": "50bd245f24a6bac69cf918270cb91e905c0f575e37c235c284d4c1fe103697a8",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/goal_cold_failure_diagnostic_v1/runtime.log": "fd37ead2c82ac28d32349612ab80cb373f5aa2cf9a98a8828bb6c1f9ba1003d8",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/goal_cold_failure_diagnostic_v1/evidence.json": "4d799611d2f3458b0620d852f4c7f462146f291ecf82f21e31bdd01474f17485",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/diagnose_goal_cold_failure.py": "4cc5e71ed6e6092fcfcdc00d09d451b49dad60f683a305fb7cae353487a9e1f7",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integration_followthrough_v1.json": "88644d90578492d667d066abbc005f3335bf47356af5503ab97805daebba8d1a",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_production_chain_v1.json": "543790c4b0765a94fca7b0a70313c2cd18aa965dc066c0d09d88891c17b1934a"
+  }
+}

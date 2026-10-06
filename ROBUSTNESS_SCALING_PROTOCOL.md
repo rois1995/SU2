@@ -158,3 +158,15 @@ actual restart-derived frozen-P1 targets against the original reference.
 This additional gate addresses the derived fixture's missing Output call; it
 does not replace phase timing, step-target tests or full CFD convergence proof.
 Do not apply prepared source patches while this fourth chain is waiting/running.
+
+
+Sequencing correction after executed failures: cold2 goal-runtime divergence was
+reproduced on its saved mesh/flow by a fresh ordinary static adjoint process,
+with all131 printed trajectories agreeing to one residual print unit. It is a
+classified CFD solver limit, not a successful lifecycle. Its followers stopped
+without launching. Independent primal production/output validation resumes only
+after that classification, with fresh labels; remaining AD/interruption/capacity
+requirements are unchanged. The first production attempt failed at config parsing:
+use OUTPUT_FILES=(RESTART, PARAVIEW), as the repository enum defines. Preserve
+both failed attempts and keep the production runner/checker/binary frozen while
+native_production_chain_v3 runs. Actual cases are integrated_native_production_v2.
