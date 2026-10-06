@@ -143,3 +143,26 @@ The4096-cell vertical-strip group also passes1/2/4 independently (large_t256):
 
 No transaction-memory rejection occurred in these six larger cases. The first
 failure/cost boundary and repeated comparisons are still pending.
+
+The8192-cell vertical-strip group passes1/2/4 independently (large_t512):
+
+| Ranks | Input cut edges | Output cells | Adapt seconds | Cross-owner / commits | Conflicts | Peak RSS KiB/rank |
+|---:|---:|---:|---:|---:|---:|---:|
+| 1 | 0 | 5808 | 98.935874 | 0 / 16714 | 0 | 31928 |
+| 2 | 4 | 5834 | 52.893111 | 48 / 16622 | 6 | 27236 |
+| 4 | 12 | 5766 | 28.137930 | 163 / 16012 | 11 | 25636 |
+
+This is the largest independently verified rank-common strip size so far.
+The16384-cell1-rank job is testing the declared240-second cost budget. No
+construction failure is inferred from a timeout. At8192 cells the serial
+selection time is7.158s and World collective time is.632s (init+adapt), compared
+with98.936s adaptation. Those counters do not account for every cost, and do
+not profile individual geometry/transaction routines. Source inspection shows
+full component scans in PolylineReference::Parameter and ::Deviation and an
+owned-cell scan for boundary CollisionVeto. These are concrete candidates for
+profiling; their measured fraction is not yet established. No scheduler or
+geometry validation change has been made to improve the benchmark.
+
+The real-airfoil fixture uses10216 seed triangles and three short primal
+iterations per cycle before producing each actual sensor/BL field. Its resumed
+viscous run tests lifecycle/admissibility and transfer, not converged CFD accuracy.

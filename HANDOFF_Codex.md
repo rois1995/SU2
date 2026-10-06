@@ -35,7 +35,9 @@ Independent output audits and initial scaling pilot completed successfully.
 Initial cyclic pilot passes through1024input cells. Fresh low-cut2048-cell group
 passes1/2/4 with independent audits: adapt9.453/6.403/4.797s, single samples.
 Low-cut4096-cell group also independently passes1/2/4:28.019/15.195/9.205s.
-Next8192-cell size is running; repeated/real-field limits remain pending.
+Low-cut8192-cell group independently passes1/2/4:98.936/52.893/28.138s.
+The16384-cell serial case is running under the240-second budget; repeated
+partition/real-field limits remain pending.
 
 Earlier failures preserved: missing preconfigure stamp (v1); old serial output
 count assumptions (v2); test private-member/Catch compile error (v3); duplicated
