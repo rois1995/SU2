@@ -18,6 +18,8 @@ for metadata in sorted(root.glob('*/native_scaling.json')):
   if key in points:errors.append('duplicate point identity')
   if not all(map(math.isfinite,value)):errors.append('nonfinite point')
   points[key]=value
+ for x,y in points.values():
+  if x < -1e-12 or x > m["xmax"]+1e-12 or y < -1e-12 or y > m["ymax"]+1e-12:errors.append("point lies outside the original rectangle")
  if len(set(points.values()))!=len(points):errors.append('duplicate coordinates under different identities')
  used=set();edges=defaultdict(list);cellIds=set();areas=[];qmin=1.;lmax=0.;cells=read('cells.csv')
  hn=.04/m['anisotropy'];heightError=0.;boundaryApex={}
@@ -54,6 +56,7 @@ for metadata in sorted(root.glob('*/native_scaling.json')):
   successors[a]=b
   pa,pb=points[a],points[b]
   if marker in (10,12):
+   if (marker==10 and not pb[0]>pa[0]) or (marker==12 and not pb[0]<pa[0]):errors.append('reversed or overlapping wall sampling')
    expectedY=0 if marker==10 else m['ymax']
    maxDeviation=max(maxDeviation,abs(pa[1]-expectedY),abs(pb[1]-expectedY))
    apex=points[perimeter[key][2]]
@@ -61,6 +64,8 @@ for metadata in sorted(root.glob('*/native_scaling.json')):
    altitude=abs((pb[0]-pa[0])*(apex[1]-pa[1])-(pb[1]-pa[1])*(apex[0]-pa[0]))/length
    heightError=max(heightError,abs(altitude/m['h0']-1))
   elif marker==11:
+   right=abs(pa[0]-m['xmax'])<abs(pa[0])
+   if (right and not pb[1]>pa[1]) or (not right and not pb[1]<pa[1]):errors.append('reversed side-boundary sampling')
    maxDeviation=max(maxDeviation,min(max(abs(pa[0]),abs(pb[0])),max(abs(pa[0]-m['xmax']),abs(pb[0]-m['xmax']))))
   else:errors.append('unexpected physical marker')
  if set(physical)!=set(perimeter):errors.append('physical boundary does not cover the complete perimeter')
