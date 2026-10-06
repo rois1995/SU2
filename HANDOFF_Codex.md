@@ -94,3 +94,10 @@ triangle/quad/triangle ordering motif to45vertices/48cells rather than
 changing solver empty-partition handling. Record the too-small-partition
 abort as an existing CFD constraint, not a mesher scaling result. v5 and
 extended v4 terminal. Sole latest chain v6; dependent extended v5.
+
+Prepared robustness_chain_v1 (waiting for successful extended v5): three
+repetitions for both ownership layouts at the largest common complete pilot
+size, matched AR10/100/1000, proved-incompatible AR25, independent raw audits,
+real-airfoil baseline1/2/4 plus one-axis demand escalations. Independent
+opposing-wall audits reuse the fresh integrated matrix outputs. This is
+queued work, not passed evidence; check JSON state before restarting.
