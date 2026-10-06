@@ -1,4 +1,5 @@
-"""Export the independently audited prior native NACA run without modifying it."""
+"""Export an independently audited native NACA baseline without modifying its evidence."""
+import argparse
 import hashlib
 import json
 import os
@@ -8,14 +9,30 @@ import xml.etree.ElementTree as ET
 from audit_native_bl import mesh
 
 root = Path(__file__).resolve().parent
-source = Path('/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/BL_NATIVE_INTEGRATION_WORK/native_airfoil_wall_metric_guard_runtime_v1')
-verification = json.loads((source/'independent_full_v1/evidence.json').read_text())
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--source', type=Path, default=Path('/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/BL_NATIVE_INTEGRATION_WORK/native_airfoil_wall_metric_guard_runtime_v1'))
+parser.add_argument('--audit', default='independent_full_v1')
+parser.add_argument('--destination', type=Path, default=root/'real_airfoil_gallery_v1')
+parser.add_argument('--caption', default='Earlier native baseline; short viscous/transfer tests passed.')
+args = parser.parse_args()
+source = args.source.resolve(strict=True)
+verification_path = source/args.audit/'evidence.json'
+verification = json.loads(verification_path.read_text())
 assert verification['verified'] and verification['terminal'] and len(verification['runs']) == 9
 assert all(row['verified'] for row in verification['runs'])
-output = root/'real_airfoil_gallery_v1'
+output = args.destination.resolve()
 output.mkdir()
-provenance = {'scope': 'Earlier native baseline, not current integrated-branch runtime evidence; mesh/transfer and short viscous tests, not converged CFD accuracy',
-              'source': str(source), 'independent_evidence_sha256': hashlib.sha256((source/'independent_full_v1/evidence.json').read_bytes()).hexdigest(), 'exports': []}
+provenance = {'scope': args.caption+' Mesh/transfer and short viscous tests, not converged CFD accuracy',
+              'source': str(source), 'independent_evidence_sha256': hashlib.sha256(verification_path.read_bytes()).hexdigest(), 'exports': []}
+# Recheck exact audited inputs when available (older reports predate these pins).
+audited_inputs = {}
+for row in verification['runs']:
+    report = json.loads(Path(row['output']).read_text())
+    for path, digest in report.get('input_files_sha256', {}).items():
+        assert audited_inputs.setdefault(path, digest) == digest
+for path, digest in audited_inputs.items():
+    assert hashlib.sha256(Path(path).read_bytes()).hexdigest() == digest
+provenance['audited_input_files_sha256'] = audited_inputs
 def export(input_path, name):
     points, triangles, markers = mesh(input_path)
     original_hash = hashlib.sha256(input_path.read_bytes()).hexdigest()
@@ -47,6 +64,9 @@ def export(input_path, name):
         vtu_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),points=len(points),triangles=len(triangles),
         physical_marker={index+1:tag for index,tag in enumerate(names)}))
     return points, triangles, markers
+for line in (source/'airfoil_input.cfg').read_text().splitlines():
+    if line.startswith('ADAP_BL_FIRST_HEIGHT='):
+        assert float(line.split('=', 1)[1].strip().strip('() ')) == .0002
 seed=export(source/'airfoil_input.su2','initial')
 final=None
 for cycle in range(3):
@@ -73,7 +93,7 @@ draw(axes[0,1],final,(-.08,1.08,-.18,.18),f'Native adaptation, 4 ranks: {len(fin
 draw(axes[1,0],final,(-.015,.075,-.055,.055),'Adapted leading edge')
 draw(axes[1,1],final,(upper[0]-.01,upper[0]+.01,upper[1]-.002,upper[1]+.004),'Adapted upper wall near mid-chord')
 fig.suptitle('NACA0012: actual anisotropic triangular mesh and boundary adaptation')
-fig.text(.5,.02,'Physical aspect ratios preserved. First wall altitude 0.0002 chord. Earlier native baseline; short viscous/transfer tests passed.',ha='center',fontsize=10)
+fig.text(.5,.02,'Physical aspect ratios preserved. First wall altitude 0.0002 chord. '+args.caption,ha='center',fontsize=10)
 fig.tight_layout(rect=(0,.045,1,.96));fig.savefig(output/'naca0012_preview.png',dpi=180);fig.savefig(output/'naca0012_preview.svg')
 (output/'provenance.json').write_text(json.dumps(provenance,indent=2)+'\n')
 print(json.dumps({'directory':str(output),'meshes':[{k:row[k] for k in ['name','points','triangles']} for row in provenance['exports']]},indent=2))

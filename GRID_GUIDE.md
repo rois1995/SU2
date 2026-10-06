@@ -46,33 +46,44 @@ sidecars, field/metric CSVs and transfer summaries. Source fixtures:
 [CNativeCGNS2D_tests.cpp](UnitTests/SU2_CFD/adaptation/CNativeCGNS2D_tests.cpp).
 Default-MMG control outputs are in `integration_evidence/integrated_mmg_default_v6/audit_np{1,2,4}`.
 
-## Real NACA0012 — ready to inspect
+## Real NACA0012 — fresh integrated grids
 
-These are actual **earlier native-baseline** meshes generated on four MPI ranks,
-with three adaptation/solution-transfer/resumed-viscous cycles. They are not fresh
-integrated-branch proof or a fully converged CFD accuracy study. Conditions:
-Mach0.3, Re10000, incidence1.25 degrees; prescribed first height0.0002 chord.
+The integrated three-cycle testcase now passes MPI1/2/4, with all nine saved
+adapted meshes independently verified against the actual frozen P1 metric and
+immutable original boundary. Mach0.3, Re10000, incidence1.25 degrees; prescribed
+first height0.0002 chord. These are short viscous/transfer/resumed-solve checks,
+not converged aerodynamic validation.
 
-Open `.vtu` in ParaView with **Surface With Edges**:
+Actual testcase root: `integration_evidence/integrated_airfoil_baseline_v8`.
+[File-by-file explanation](integration_evidence/integrated_airfoil_baseline_v8/CASE_FILES.md).
 
-- [Preview with leading-edge and upper-wall detail](integration_evidence/real_airfoil_gallery_v1/naca0012_preview.png)
-- [Initial mesh:10216 triangles](integration_evidence/real_airfoil_gallery_v1/initial.vtu)
-- [Adapted cycle0:23328 triangles](integration_evidence/real_airfoil_gallery_v1/np4_cycle0.vtu)
-- [Adapted cycle1:25549 triangles](integration_evidence/real_airfoil_gallery_v1/np4_cycle1.vtu)
-- [Adapted cycle2:19487 triangles](integration_evidence/real_airfoil_gallery_v1/np4_cycle2.vtu)
-- [Final mesh in SU2 format](integration_evidence/real_airfoil_gallery_v1/np4_cycle2.su2)
+- [Initial mesh used for adaptation](integration_evidence/integrated_airfoil_baseline_v8/airfoil_input.su2)
+- [Exact configuration](integration_evidence/integrated_airfoil_baseline_v8/airfoil_input.cfg)
+- [Four-rank donor before first adaptation](integration_evidence/integrated_airfoil_baseline_v8/audit_np4/native_airfoil_cycle_0_donor.su2)
+- [Four-rank frozen nodal metric](integration_evidence/integrated_airfoil_baseline_v8/audit_np4/native_airfoil_cycle_0_metric.csv)
+- [Four-rank accepted mesh after final adaptation](integration_evidence/integrated_airfoil_baseline_v8/audit_np4/native_airfoil_cycle_2_adapted.su2)
 
-Gallery folder also contains all four SU2 meshes, an SVG preview and provenance
-hashes. VTU coordinates/connectivity were checked exactly against the originals;
-physical_marker1=airfoil,2=farfield,0=volume. Earlier independent evidence verified
-all nine saved adapted meshes across1/2/4 ranks. Exporter:
-[export_airfoil_gallery.py](integration_evidence/export_airfoil_gallery.py).
+The CFD solution was held in memory; this fixture did **not** save nodal flow or
+restart files. Transfer CSVs contain integral summaries, not flow snapshots.
+Prepared donor/transferred solution export will run with the later instrumented
+fixture; it is not available yet.
 
-The fresh integrated three-cycle NACA campaign has now started, initially on one
-rank. Finished rank outputs will appear in
-`integration_evidence/integrated_airfoil_baseline_v8/audit_np{1,2,4}/native_airfoil_cycle_{0,1,2}_adapted.su2`.
-Input profile: [native_NACA0012.cfg](QuickStart/native_NACA0012.cfg).
-Source testcase: [CNativeAirfoil2D_tests.cpp](UnitTests/SU2_CFD/adaptation/CNativeAirfoil2D_tests.cpp).
+Ready for ParaView (**Surface With Edges**):
+
+- [Fresh integrated preview with wall detail](integration_evidence/integrated_airfoil_gallery_v8/naca0012_preview.png)
+- [Initial grid:10216 triangles](integration_evidence/integrated_airfoil_gallery_v8/initial.vtu)
+- [Adapted cycle0:23328 triangles](integration_evidence/integrated_airfoil_gallery_v8/np4_cycle0.vtu)
+- [Adapted cycle1:25549 triangles](integration_evidence/integrated_airfoil_gallery_v8/np4_cycle1.vtu)
+- [Adapted cycle2:19487 triangles](integration_evidence/integrated_airfoil_gallery_v8/np4_cycle2.vtu)
+
+Gallery also contains all four SU2 copies, SVG and provenance. All audited input
+hashes were rechecked; VTU coordinates/connectivity match the source exactly.
+physical_marker1=airfoil,2=farfield,0=volume.
+[Exporter](integration_evidence/export_airfoil_gallery.py) accepts the source,
+audit and destination arguments used to generate this fresh gallery.
+The previous native-baseline gallery remains in `real_airfoil_gallery_v1` and
+its earlier evidence is preserved.
+Source fixture: [CNativeAirfoil2D_tests.cpp](UnitTests/SU2_CFD/adaptation/CNativeAirfoil2D_tests.cpp).
 
 Current verified results and live supervisor details:
 [ROBUSTNESS_SCALING_RESULTS.md](ROBUSTNESS_SCALING_RESULTS.md),

@@ -348,3 +348,26 @@ folder, not merely the integration worktree. Read current_run.working_directory
 for CFD jobs; for independent auditors report the actual audit_npN input folder
 and destination reports. Current baseline reports: independent_v8, not the old
 baseline's independent_full_v1 name. Never infer a live case from an old PID.
+
+
+Baseline fully verified: MPI1/2/4 runtime and all9 independent_v8 mesh audits
+PASS, all exact input pins rechecked. Fresh integrated_airfoil_gallery_v8 exports
+initial+three4-rank meshes to VTU/SU2 with a visually inspected wall preview.
+GUIDE now leads with fresh integration evidence; prior gallery remains intact.
+Initial mesh is airfoil_input.su2 in the case parent, not copied into each runtime
+folder; config references the identical QuickStart input. CASE_FILES.md explains
+this. No field/restart files were saved by this derived driver: Run/Postprocess/
+Update does not invoke Output. Do not describe metric/transfer CSVs as solutions.
+
+**Apply only pending_airfoil_phase_timing_v3.patch/.json after current campaigns**;
+it supersedes v2/v1, which remain preserved. In addition to phase/rank RSS and
+ownership, v3 exports actual donor/transferred conserved flow CSVs in the same
+global point order as paired saved meshes, outside timers. No restart claim.
+Existing check_airfoil_phase_timing.py validates field identity/coordinates,
+finite/admissible values plus MAX/ownership/RSS; its self-check passes. No actual
+export has run. It still needs compilation, fresh MPI1/2/4 and independent audits.
+
+Current CFD demand case: integrated_airfoil_complexity12000_v8/runtime_np1,
+runner313708, MPI313813 at last report. Subsequent current-case paths must be
+read from live state rather than inferred. Goal lifecycle and follow-through
+supervisors remain queued. All future progress updates include active case path.

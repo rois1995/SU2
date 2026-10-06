@@ -385,3 +385,37 @@ that transport is outside the transaction ceiling, so it does not demonstrate a
 2MiB admitted-transaction breach. Per-rank actual CFD memory/durations are still
 pending the prepared timing fixture. Exact inputs/aggregation:
 `integration_evidence/partition_work_memory_summary_v1.json`.
+
+
+## Fresh integrated actual-sensor NACA baseline verified
+
+Runtime and independent nine-mesh audit now complete successfully on1/2/4 ranks:
+`integrated_airfoil_baseline_v8/evidence.json` and `independent_v8/evidence.json`.
+Every report's exact donor/metric/candidate/original-reference input hashes were
+rechecked against current files. Boundary sampling changes while the immutable
+original polyline, connected components, declared features and leading extremum
+remain retained within the original reference criteria. Four-rank wall faces
+change200→204→209→215; this is adaptive boundary sampling, not a fixed boundary.
+
+| Ranks | Adapted triangles across cycles | Min quality across cycles | Max metric edge | Max relative first-height error | Max corrected transfer defect |
+|---:|---|---:|---:|---:|---:|
+| 1 | 23368 / 25322 / 19502 | 0.244952 | 1.79998224 | 1.64e-13 | 2.03e-16 |
+| 2 | 23282 / 25289 / 19575 | 0.225805 | 1.79995807 | 1.64e-13 | 7.50e-16 |
+| 4 | 23328 / 25549 / 19487 | 0.227559 | 1.79999999 | 1.64e-13 | 2.03e-16 |
+
+Transfer defects come from saved conservative projection summaries and runtime
+assertions (corrected target includes open-boundary fill/sliver accounting), not
+an independent integration of saved nodal fields. This fixture saved no nodal
+flow or restart files: fields were in memory and its Run/Postprocess/Update path
+did not call Output. Initial/donor/adapted meshes and metric CSVs are present;
+CASE_FILES.md and GRID_GUIDE.md give exact locations. Fresh VTU gallery is
+`integrated_airfoil_gallery_v8`, reusing the exporter with explicit source/audit
+arguments and exact input-pin/VTU round-trip checks. Preview visually inspected.
+
+Prepared timing patch **v3 supersedes v2/v1** and additionally gathers actual
+conserved nodal flow before each remesh and immediately after transfer, paired
+with donor/adapted global point IDs and coordinates. No production/test source
+changed; v3 is not compiled or executed. Existing timing checker now also checks
+field identity/coordinates, finite values and positive density/internal energy;
+its minimal synthetic self-check passes, not an actual field-export runtime.
+Neither baseline nor pending exports establish converged CFD accuracy.

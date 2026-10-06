@@ -36,12 +36,39 @@ def validate(rows, maxima, ranks, points):
             raise ValueError('MPI phase maximum disagrees with local rows: ' + phase)
 
 
+
+def validate_solution(rows, points):
+    if len(rows) != len(points):
+        raise ValueError('Flow snapshot point count disagrees with its mesh')
+    minimum_density = float('inf'); minimum_internal = float('inf')
+    for index, (row, point) in enumerate(zip(rows, points)):
+        if int(row['point_id']) != index or (float(row['x']), float(row['y'])) != point:
+            raise ValueError('Flow snapshot global ID/coordinates disagree with its mesh')
+        rho, mx, my, energy = (float(row[k]) for k in ('density', 'momentum_x', 'momentum_y', 'energy_density'))
+        if not all(math.isfinite(v) for v in (rho, mx, my, energy)) or rho <= 0:
+            raise ValueError('Nonfinite or nonpositive flow snapshot')
+        internal = energy - (mx*mx + my*my)/(2*rho)
+        if not math.isfinite(internal) or internal <= 0:
+            raise ValueError('Flow snapshot has nonpositive internal energy')
+        minimum_density = min(minimum_density, rho); minimum_internal = min(minimum_internal, internal)
+    return dict(points=len(rows), min_density=minimum_density, min_internal_energy_density=minimum_internal)
+
+
 def self_check():
     row = dict(ranks=1, rank=0, accepted=1, owned_points=3, total_points=3, local_elements=1, rss_hwm_kib=1024)
     row.update({phase + '_s': 1. for phase in PHASES})
     row['replace_s'] = 2.
     maximum = dict(ranks=1, accepted=1, **{phase + '_max_s': row[phase + '_s'] for phase in PHASES})
     validate([row], maximum, 1, 3)
+    flow = dict(point_id=0, x=0., y=0., density=1., momentum_x=1., momentum_y=0., energy_density=2.)
+    validate_solution([flow], [(0., 0.)])
+    bad_flow = dict(flow, x=1.)
+    try:
+        validate_solution([bad_flow], [(0., 0.)])
+    except ValueError:
+        pass
+    else:
+        raise AssertionError('A flow snapshot mapped to the wrong point passed')
     maximum['remesh_max_s'] = 2.
     try:
         validate([row], maximum, 1, 3)
@@ -65,7 +92,10 @@ def main():
     root = args.directory.resolve(strict=True)
     hashes = {}
     def read(path):
-        data = path.read_bytes(); hashes[str(path.resolve())] = hashlib.sha256(data).hexdigest(); return data.decode()
+        data = path.read_bytes(); key = str(path.resolve()); digest = hashlib.sha256(data).hexdigest()
+        if hashes.setdefault(key, digest) != digest:
+            raise RuntimeError('Repeated input changed during evaluation: ' + key)
+        return data.decode()
     def one(path):
         rows = list(csv.DictReader(read(path).splitlines()))
         if len(rows) != 1:
@@ -85,11 +115,19 @@ def main():
             if len(point_headers) != 1:
                 raise ValueError('Missing or ambiguous adapted mesh point count')
             validate(rows, maximum, ranks, point_headers[0])
+            from audit_native_bl import mesh
+            fields = {}
+            for stage in ('donor', 'adapted'):
+                mesh_path = Path(str(prefix) + '_' + stage + '.su2')
+                read(mesh_path)  # Pin the exact geometry used by the paired field check.
+                points, _, _ = mesh(mesh_path)
+                solution_rows = list(csv.DictReader(read(Path(str(prefix) + '_' + stage + '_solution.csv')).splitlines()))
+                fields[stage] = validate_solution(solution_rows, points)
             rss = [int(r['rss_hwm_kib']) for r in rows]
             if any(now < old for now, old in zip(rss, previous)):
                 raise ValueError('Cumulative rank VmHWM decreased across cycles')
             previous = rss
-            records.append(dict(ranks=ranks, cycle=cycle, maximum=maximum, local=rows,
+            records.append(dict(ranks=ranks, cycle=cycle, maximum=maximum, local=rows, fields=fields,
                                 owned_point_imbalance=ranks*max(int(r['owned_points']) for r in rows)/point_headers[0]))
     if any(hashlib.sha256(Path(path).read_bytes()).hexdigest() != digest for path, digest in hashes.items()):
         raise RuntimeError('Input changed during timing evaluation')

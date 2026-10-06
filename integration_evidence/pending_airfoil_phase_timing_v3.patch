@@ -1,0 +1,145 @@
+--- a/UnitTests/SU2_CFD/adaptation/CNativeAirfoil2D_tests.cpp
++++ b/UnitTests/SU2_CFD/adaptation/CNativeAirfoil2D_tests.cpp
+@@ -12,6 +12,7 @@
+ #include "../../../Common/include/adaptation/CMeshGather.hpp"
+ #include "../../../SU2_CFD/include/adaptation/CConservativeTransfer.hpp"
+ #include "../../../SU2_CFD/include/drivers/CSinglezoneDriver.hpp"
++#include <array>
+ #include <cstdlib>
+ #include <fstream>
+ #include <iomanip>
+@@ -27,6 +28,12 @@
+   CSolver& Flow() { return *solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]; }
+   std::unique_ptr<CRemesher> Backend() { return MakeRemesher(); }
+   const ReferenceState& Reference() const { return *nativeReference; }
++  double TransferSeconds() const { return SU2_TYPE::GetValue(lastTransferTime); }
++  double ReplaceSeconds() const { return SU2_TYPE::GetValue(lastReplaceTime); }
++  void ExportAdaptedMesh(unsigned long cycle) {
++    CheckAdaptedMeshNames();
++    WriteAdaptedMesh(cycle);
++  }
+   void ProduceMetric() {
+     Flow().Preprocessing(&Geometry(), solver_container[ZONE_0][INST_0][MESH_0], &Config(), MESH_0, 0,
+                          RUNTIME_FLOW_SYS, false);
+@@ -134,12 +141,77 @@
+     CHECK(world.sum(!admissible) == 0);
+     CHECK(std::isfinite(SU2_TYPE::GetValue(driver->Flow().GetRes_RMS(0))));
+   };
++  // Inspectable field snapshots in the same global point order as GatherMesh.
++  // Outside phase timers; these are conserved flow fields, not SU2 restart files.
++  auto saveSolution = [&](const CMeshGather& gather, const CSimplexMesh& mesh, const std::string& artifact) {
++    const auto& geometry = driver->Geometry();
++    std::vector<su2double> local(4 * geometry.GetnPointDomain());
++    for (unsigned long p = 0; p < geometry.GetnPointDomain(); ++p)
++      for (unsigned short k = 0; k < 4; ++k) local[4 * p + k] = driver->Flow().GetNodes()->GetSolution(p, k);
++    const auto values = gather.Gather(local.data(), 4);
++    if (world.rank == 0) {
++      REQUIRE(values.size() == 4 * mesh.GetnPoint());
++      std::ofstream csv(artifact + "_solution.csv");
++      csv << std::setprecision(17) << "point_id,x,y,density,momentum_x,momentum_y,energy_density\n";
++      for (unsigned long p = 0; p < mesh.GetnPoint(); ++p) {
++        csv << p << ',' << mesh.coord[2 * p] << ',' << mesh.coord[2 * p + 1];
++        for (unsigned short k = 0; k < 4; ++k) csv << ',' << SU2_TYPE::GetValue(values[4 * p + k]);
++        csv << '\n';
++      }
++      REQUIRE(csv.good());
++    }
++  };
+   for (unsigned short cycle = 0; cycle < 3; ++cycle) {
+     driver->Config().SetAdap_MetricLevel(cycle);
+     driver->Config().SetAdap_FlowLevel(cycle);
++    // Real driver phases, separate from the test-only snapshot gathers/audits.
++    // Solve includes the existing inner-iteration monitoring and file output.
++    std::array<double, 7> seconds{};
++    auto phaseStart = SU2_MPI::Wtime();
+     driver->Run();
++    seconds[0] = SU2_MPI::Wtime() - phaseStart;
+     checkFlow();
++    phaseStart = SU2_MPI::Wtime();
+     driver->ProduceMetric();
++    seconds[1] = SU2_MPI::Wtime() - phaseStart;
++    auto writeTiming = [&](bool accepted) {
++      std::array<double, 7> maximum{};
++      for (size_t k = 0; k < seconds.size(); ++k) {
++        CHECK(std::isfinite(seconds[k]));
++        CHECK(seconds[k] >= 0);
++        maximum[k] = CPassiveComm::Allreduce(seconds[k], CPassiveComm::Op::MAX);
++      }
++      // Cumulative whole-process peak, including startup and earlier test snapshots.
++      // Per-rank values expose imbalance; this is not a remesher-only allocation peak.
++      uint64_t hwmKiB = 0;
++      std::ifstream processStatus("/proc/self/status");
++      std::string statusLine;
++      while (std::getline(processStatus, statusLine))
++        if (statusLine.compare(0, 6, "VmHWM:") == 0) hwmKiB = std::stoull(statusLine.substr(6));
++      CHECK(hwmKiB > 0);
++      std::ofstream localCsv("native_airfoil_cycle_" + std::to_string(cycle) + "_timing_rank_" +
++                             std::to_string(world.rank) + ".csv");
++      localCsv << std::setprecision(17)
++               << "ranks,rank,accepted,owned_points,total_points,local_elements,rss_hwm_kib,"
++                  "solve_with_inner_output_s,metric_s,remesh_s,replace_s,transfer_s,"
++                  "replace_without_transfer_s,mesh_output_s\n"
++               << world.size << ',' << world.rank << ',' << accepted << ','
++               << driver->Geometry().GetnPointDomain() << ',' << driver->Geometry().GetnPoint() << ','
++               << driver->Geometry().GetnElem() << ',' << hwmKiB;
++      for (const auto value : seconds) localCsv << ',' << value;
++      localCsv << '\n';
++      REQUIRE(localCsv.good());
++      if (world.rank == 0) {
++        std::ofstream csv("native_airfoil_cycle_" + std::to_string(cycle) + "_timing.csv");
++        csv << std::setprecision(17)
++            << "ranks,accepted,solve_with_inner_output_max_s,metric_max_s,remesh_max_s,replace_max_s,"
++               "transfer_max_s,replace_without_transfer_max_s,mesh_output_max_s\n"
++            << world.size << ',' << accepted;
++        for (const auto value : maximum) csv << ',' << value;
++        csv << '\n';
++        REQUIRE(csv.good());
++      }
++    };
+     auto& geometry = driver->Geometry();
+     const auto& metric = driver->Flow().GetNodes()->GetMetric();
+     const auto artifact = "native_airfoil_cycle_" + std::to_string(cycle);
+@@ -147,6 +219,7 @@
+       CMeshGather gather(geometry);
+       const auto donor = gather.GatherMesh(driver->Config(), Tags(driver->Config(), geometry), false);
+       const auto tensors = gather.Gather(metric.data(), 3);
++      saveSolution(gather, donor, artifact + "_donor");
+       if (world.rank == 0) {
+         simplex_test::WriteSU2Mesh(donor, artifact + "_donor.su2");
+         std::ofstream csv(artifact + "_metric.csv");
+@@ -162,9 +235,13 @@
+     for (unsigned long p = 0; p < acceptedCount; ++p)
+       for (unsigned short k = 0; k < 4; ++k)
+         acceptedSolution.push_back(SU2_TYPE::GetValue(driver->Flow().GetNodes()->GetSolution(p, k)));
++    SU2_MPI::Barrier(SU2_MPI::GetComm());
++    phaseStart = SU2_MPI::Wtime();
+     const auto result = backend->Remesh(driver->Config(), geometry, metric);
++    seconds[2] = SU2_MPI::Wtime() - phaseStart;
+     CHECK(result.status == CRemeshResult::Status::COMPLETE);
+     if (result.status != CRemeshResult::Status::COMPLETE) {
++      writeTiming(false);
+       CHECK(EncodeReference(driver->Reference()) == acceptedReference);
+       REQUIRE(geometry.GetnPoint() == acceptedCount);
+       for (unsigned long p = 0; p < acceptedCount; ++p)
+@@ -177,6 +254,13 @@
+       break;
+     }
+     driver->ReplaceMesh(result, transfer);
++    seconds[3] = driver->ReplaceSeconds();
++    seconds[4] = driver->TransferSeconds();
++    seconds[5] = seconds[3] - seconds[4];
++    phaseStart = SU2_MPI::Wtime();
++    driver->ExportAdaptedMesh(cycle + 1);
++    seconds[6] = SU2_MPI::Wtime() - phaseStart;
++    writeTiming(true);
+     checkFlow();
+     CHECK(driver->Reference().original == original);
+     CHECK(driver->Reference().marker_names.size() == 2);
+@@ -210,6 +294,7 @@
+     }
+     CMeshGather gather(driver->Geometry());
+     const auto mesh = gather.GatherMesh(driver->Config(), Tags(driver->Config(), driver->Geometry()), false);
++    saveSolution(gather, mesh, artifact + "_adapted");
+     if (world.rank == 0) {
+       simplex_test::WriteSU2Mesh(mesh, artifact + "_adapted.su2");
+       const auto wall = mesh.FindMarker(wallTag);
