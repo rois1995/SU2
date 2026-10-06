@@ -1,0 +1,26 @@
+45 degree sector against the full annulus (same field, one iteration, VENKATAKRISHNAN)
+  develop per1 Limiter_Velocity_x: min +0.9949 max +1.0562 mean +1.0116 | error to the annulus: mean 2.5e-02 max 2.6e-01
+  develop per1 Limiter_Velocity_y: min +0.0062 max +0.0992 mean +0.0172 | error to the annulus: mean 9.8e-01 max 9.9e-01
+  develop per2 Limiter_Velocity_x: min -0.0022 max +0.0517 mean +0.0117 | error to the annulus: mean 9.7e-01 max 9.9e-01
+  develop per2 Limiter_Velocity_y: min +0.9895 max +1.0357 mean +1.0053 | error to the annulus: mean 9.2e-03 max 3.8e-02
+  develop interior points Residual_Density: max difference to the annulus 1.4e-03 (max value 1.4e-03)
+  develop interior points Residual_Momentum_x: max difference to the annulus 2.8e-01 (max value 2.8e-01)
+  pr      per1 Limiter_Velocity_x: min +0.7965 max +0.9988 mean +0.9868 | error to the annulus: mean 1.1e-11 max 6.4e-11
+  pr      per1 Limiter_Velocity_y: min +0.9744 max +1.0008 mean +0.9951 | error to the annulus: mean 6.8e-13 max 2.7e-12
+  pr      per2 Limiter_Velocity_x: min +0.8492 max +0.9910 mean +0.9809 | error to the annulus: mean 2.4e-11 max 1.4e-10
+  pr      per2 Limiter_Velocity_y: min +0.9895 max +1.0185 mean +0.9961 | error to the annulus: mean 6.4e-12 max 2.3e-10
+  pr      interior points Residual_Density: max difference to the annulus 4.6e-12 (max value 1.4e-03)
+  pr      interior points Residual_Momentum_x: max difference to the annulus 6.9e-10 (max value 2.8e-01)
+90 degree sector against the full annulus (same field, one iteration, VENKATAKRISHNAN)
+  develop per1 Limiter_Velocity_x: min +0.7965 max +0.9988 mean +0.9868 | error to the annulus: mean 1.1e-11 max 6.4e-11
+  develop per1 Limiter_Velocity_y: min -1.0008 max -0.9744 mean -0.9951 | error to the annulus: mean 2.0e+00 max 2.0e+00
+  develop per2 Limiter_Velocity_x: min -1.0000 max -0.9744 mean -0.9951 | error to the annulus: mean 2.0e+00 max 2.0e+00
+  develop per2 Limiter_Velocity_y: min +0.7965 max +0.9988 mean +0.9868 | error to the annulus: mean 1.1e-11 max 6.5e-11
+  develop interior points Residual_Density: max difference to the annulus 2.2e-03 (max value 2.5e-03)
+  develop interior points Residual_Momentum_x: max difference to the annulus 3.6e-01 (max value 4.2e-01)
+  pr      per1 Limiter_Velocity_x: min +0.7965 max +0.9988 mean +0.9868 | error to the annulus: mean 1.1e-11 max 6.4e-11
+  pr      per1 Limiter_Velocity_y: min +0.9744 max +1.0008 mean +0.9951 | error to the annulus: mean 6.8e-13 max 2.7e-12
+  pr      per2 Limiter_Velocity_x: min +0.9744 max +1.0008 mean +0.9951 | error to the annulus: mean 6.1e-13 max 2.5e-12
+  pr      per2 Limiter_Velocity_y: min +0.7965 max +0.9988 mean +0.9868 | error to the annulus: mean 1.1e-11 max 6.5e-11
+  pr      interior points Residual_Density: max difference to the annulus 4.6e-12 (max value 2.5e-03)
+  pr      interior points Residual_Momentum_x: max difference to the annulus 9.4e-10 (max value 4.2e-01)

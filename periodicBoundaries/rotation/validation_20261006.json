@@ -1,0 +1,155 @@
+{
+  "branch": "fix_periodic_rotation",
+  "commit": "c39428c1da",
+  "base": "6db10127d1",
+  "build": {
+    "with_omp": true,
+    "mixed_precision": true,
+    "warning_level": 3,
+    "buildtype": "release",
+    "compiler": "GCC 9.4.0"
+  },
+  "checks": [
+    {
+      "script": "parallel_regression.py",
+      "tag": "periodic2d_no_limiter",
+      "actual": [
+        -3.216882,
+        -0.582814,
+        -0.62905,
+        2.26614,
+        -1.056885,
+        -811.47
+      ],
+      "reference": [
+        -3.216881,
+        -0.582813,
+        -0.629049,
+        2.266141,
+        -1.056877,
+        -811.47
+      ],
+      "max_abs_delta": 8.000000000008e-06,
+      "tolerance": 1e-05,
+      "passed": true
+    },
+    {
+      "script": "parallel_regression.py",
+      "tag": "periodic2d_multigrid",
+      "actual": [
+        -4.42278,
+        -1.615249,
+        -1.453733,
+        1.047348,
+        -1.410226,
+        -2060.6
+      ],
+      "reference": [
+        -4.422778,
+        -1.615251,
+        -1.453736,
+        1.04735,
+        -1.410225,
+        -2060.6
+      ],
+      "max_abs_delta": 2.9999999999752447e-06,
+      "tolerance": 1e-05,
+      "passed": true
+    },
+    {
+      "script": "parallel_regression.py",
+      "tag": "periodic2d",
+      "actual": [
+        -3.266248,
+        -0.617783,
+        -0.620251,
+        2.216476,
+        -1.007767,
+        -1035.0
+      ],
+      "reference": [
+        -3.266248,
+        -0.617784,
+        -0.620252,
+        2.216476,
+        -1.007761,
+        -1035.0
+      ],
+      "max_abs_delta": 6.000000000172534e-06,
+      "tolerance": 1e-05,
+      "passed": true
+    },
+    {
+      "script": "hybrid_regression.py",
+      "tag": "periodic2d",
+      "actual": [
+        -10.314545,
+        -8.056213,
+        -7.708669,
+        -4.833054,
+        -1.059806,
+        -2953.4
+      ],
+      "reference": [
+        -10.314545,
+        -8.056213,
+        -7.708669,
+        -4.833054,
+        -1.059806,
+        -2953.4
+      ],
+      "max_abs_delta": 0.0,
+      "tolerance": 0.0001,
+      "passed": true
+    },
+    {
+      "script": "hybrid_regression.py",
+      "tag": "Jones_tc_restart",
+      "actual": [
+        -11.925871,
+        -12.2033,
+        -19.179088,
+        -13.470092,
+        -19.030151,
+        -13.393012,
+        73286.0,
+        73286.0,
+        0.020056,
+        82.286
+      ],
+      "reference": [
+        -11.925871,
+        -12.2033,
+        -19.179088,
+        -13.470092,
+        -19.030151,
+        -13.393012,
+        73286.0,
+        73286.0,
+        0.020056,
+        82.286
+      ],
+      "max_abs_delta": 0.0,
+      "tolerance": 0.0001,
+      "passed": true
+    },
+    {
+      "script": "hybrid_regression.py",
+      "tag": "multi_interface",
+      "actual": [
+        -8.634571,
+        -8.895558,
+        -9.348754
+      ],
+      "reference": [
+        -8.634571,
+        -8.895558,
+        -9.348754
+      ],
+      "max_abs_delta": 0.0,
+      "tolerance": 0.0001,
+      "passed": true
+    }
+  ],
+  "translational_ad": "All 80 printed iterations match develop exactly after retaining identity-rotation arithmetic."
+}
