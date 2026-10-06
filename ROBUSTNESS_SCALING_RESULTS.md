@@ -574,3 +574,30 @@ native_production_complete_v1.json. native_production_chain_v3 is terminal0;
 independent audits took508.726s outside the production runtime measurements.
 The follow-on capacity supervisor has started the16384-triangle2-rank control;
 AD remainder waits for capacity. No full-goal completion is claimed.
+
+
+## Higher-rank capacities and actual AD remainder completed
+
+2-rank16384 whole-job timeout241.910s; no complete JSON or candidate mesh.4-rank
+16384 completes with11718 output cells and passes its independent exact structure/
+constant-target audit: adapt98.625s, whole job176.847s. It escalated under the
+predeclared120-second adaptation threshold;32768 then timed out241.040s. The
+budget covers initialization/adaptation/gather/output; no timed-out phase is
+established.2-rank32768/65536 and4-rank65536 remain unrun by the stopping policy.
+Both failed serial NACA demands are skipped for higher-rank controls under the
+successful-serial rule; thinner/demand MPI capacity is not inferred. Exact states:
+integration_capacity_v2 and capacity_ad_followthrough_complete_v1.
+
+Actual remaining AD controls all PASS: one-descendant SIGTERM during primal and
+adjoint recording on1/2 ranks, clean collective stop/no remesh and saved checkpoints;
+exact native rejection at2 before first primal; warm/cold4 three-cycle lifecycles,
+finite summaries/sensitivities and saved-mesh checks. Warm4 final adjoint log10 RMS
+1.54155 is growing; cold4 is-2.68074, neither final primal/adjoint converged. The
+finite-value/lifecycle passes are not sensitivity accuracy. Earlier cold2/static
+replay divergence remains preserved as a solver limit. goal_remaining_v1 is terminal0.
+
+The two prepared test-only patches are now applied and normal test build PASS
+(two objects+link,109.385s); production unchanged. Smooth/step fixtures pass1/2/4,
+and all96 fresh smooth snapshots independently PASS. Native validation closure
+PID621669 continues step/phase/partial/support gates sequentially; verify actual
+native_validation_closure_v1 state before interpreting completion.

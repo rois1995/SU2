@@ -40,8 +40,8 @@ those handles are gone. Do not restart any original version.
 | native_production_chain_v1 |Terminal1; prerequisite failure, no production jobs launched |
 | native_production_chain_v2 |Terminal1; np1 config parsing rejected PARAVIEW_BINARY, no solver iterations |
 | native_production_chain_v3 / run_native_production_checks_v3 |Terminal0; all1/2/4 actual production runtimes/outputs and all9 independent target/reference audits PASS |
-| integration_capacity_v2 / run_integration_capacity_v2 |Supervisor503409 now runs declared native capacity2/4 controls sequentially; verify actual state/host cwd |
-| goal_remaining_v1 / run_integrated_goal_remaining |Fresh supervisor517486 waits for capacity success; interruption primal/adjoint1/2, exact native-adjoint rejection2, then actual warm/cold4 |
+| integration_capacity_v2 / run_integration_capacity_v2 |Terminal0;2-rank16384 timeout,4-rank16384 complete/independently PASS,4-rank32768 timeout; larger sizes stopped |
+| goal_remaining_v1 / run_integrated_goal_remaining |Terminal0; all four interruption controls1/2, exact native-adjoint rejection2, actual warm/cold4 lifecycles PASS |
 
 The cold2 failure was replayed as an ordinary static-mesh two-rank adjoint using
 its cycle2 mesh and actual saved flow. That fresh process, with no adaptation or
@@ -52,7 +52,7 @@ positive. This isolates the observed divergence from the in-process replacement
 lifecycle; it does not prove converged sensitivities or every transfer property.
 Pins: goal_cold_failure_classification_v1.json, diagnostic evidence and runnable
 diagnose_goal_cold_failure.py. Preserve the failed goal runtime as a CFD limit;
-interruption/native rejection and corrected-tree4-rank controls remain REQUIRED.
+Interruption/native rejection and corrected-tree4-rank lifecycle controls now PASS in goal_remaining_v1. Warm4 final adjoint residual grows (log10 RMS1.54155); cold4 final log10 RMS-2.68074, neither final primal/adjoint is converged. These are lifecycle proofs, not sensitivity accuracy.
 
 The first independent production attempt used an invalid testcase output token.
 Repository OUTPUT_TYPE maps PARAVIEW to binary XML; PARAVIEW_BINARY is absent.
@@ -65,9 +65,11 @@ independent primal gate after classifying the AD CFD failure does not make that
 failed lifecycle a pass. The production v1 folder retains the parser failure;
 actual new runs live in integrated_native_production_v2/np{1,2,4}.
 
-**Freeze while production v3, capacity v2 or goal_remaining_v1 waits/runs:** do not rebuild production/test binaries or mutate
+All three recent chains are terminal0. **Current freeze: native_validation_closure_v1 (PID621669)**. It runs rebuilt smooth/step controls+full audits, exact support/restart negatives, phase/field NACA1/2/4+target/timing audits, partial larger/thinner targets and actual native+TWO_PASS rejects1/2/4. Do not mutate its tools/sources/executable while active. Verify current state; old PID listings are historical.
+
+Earlier freeze (now discharged): do not rebuild production/test binaries or mutate
 run_native_production_checks_v3.py or check_airfoil_phase_timing.py. Its loaded
-hashes are pinned. Pending test patches remain unapplied. The remaining AD runner accepts fresh labels and selected cases for diagnosis
+hashes are pinned. Both prepared patches were applied after the three chains finished. Normal test rebuild passed (two objects+link,109.385s); binary839340d6f5f05c89072b1efa35831ebbf0e716f74b9a16e0313fbb701304832d. Production sources/binaries unchanged. Current smooth/step1/2/4 runtime checks PASS;96 smooth independent snapshots PASS. Phase and further closure are in progress. The remaining AD runner accepts fresh labels and selected cases for diagnosis
 without repeating passed controls. It reuses archived AD inputs/application,
 rechecks759 production sources and the checker, archives its actual runner and
 signals only one own descendant. Unexpected failures still stop the chain;
@@ -127,7 +129,7 @@ executed_source_coverage_v1.json compares source coverage: since primalv6,
 only corrected AD driver and opt-in scaling probe differ; v14 and rebuilt v8
 cover them respectively. All759 Common/SU2_CFD production hashes from ADv14
 were rechecked unchanged. This is source coverage, not a substitute for compiled
-scope/runtime. Pending test patches remain unapplied.
+scope/runtime. Both prepared patches were applied after the three chains finished. Normal test rebuild passed (two objects+link,109.385s); binary839340d6f5f05c89072b1efa35831ebbf0e716f74b9a16e0313fbb701304832d. Production sources/binaries unchanged. Current smooth/step1/2/4 runtime checks PASS;96 smooth independent snapshots PASS. Phase and further closure are in progress.
 
 ## Measured robustness and scaling
 
@@ -238,8 +240,8 @@ After production v3, capacity v2 and goal_remaining_v1 finish and failures are c
    missing timed-out candidate can be audited.
 2. Verify source/patch hashes, apply ONLY pending_airfoil_phase_timing_v3.patch
    (v1/v2 superseded; retain them as historical evidence), plus
-   pending_bl_step_metric_v1.patch. Both passed git apply --check but are NOT
-   applied/compiled/run. Rebuild only normal UnitTests/test_driver-j2 after quiet.
+   pending_bl_step_metric_v1.patch. Both are now applied and the normal test rebuild passed. Smooth/step1/2/4
+   runtime controls passed; finish the active closure audits and phase proof.
 3. Run existing smooth NativeBL2D plus hidden NativeBLStep2D, fresh MPI1/2/4,
    serial diagnosis first. Step length .004 left/.014 right of moving center;
    same eight heights/centers and four wall/transfer combinations. This is
@@ -266,7 +268,7 @@ After production v3, capacity v2 and goal_remaining_v1 finish and failures are c
    - Native adaptation does not support continuous or discrete adjoint configurations.
    - Native solution restart requires the original geometry sidecar:
    - ADAP_BL_METHOD= TWO_PASS requires ADAP_REMESHER= MMG; native cavities build the BL with METRIC.
-   Discrete-native AD rejection was NOT reached after the cold2 failure; it remains required.
+   Discrete-native AD rejection now passes at2 ranks in goal_remaining_v1; normal-build support/restart/TWO_PASS controls remain in the closure.
 6. Final completion audit against NATIVE_INTEGRATION_GOAL.md and protocol,
    covering every gate/invariant/artifact with authoritative current evidence.
    Fix integration defects, report demonstrated construction/resource/CFD limits
@@ -280,3 +282,21 @@ is not proof for the corrected tree; a fresh4-rank control remains required.
 Build dependencies: SCOTCH `/home/rausa/Software/scotch`; ninja executable:
 `/tmp/claude-1000/-media-rausa-4TB-SU2-Versions-SU2-AdapNoExt/bae33fc3-5b05-48ef-a3e8-4d222dffb2fe/scratchpad/ninjabin/ninja`.
 Use PYTHONDONTWRITEBYTECODE=1; new builds/artifacts stay in this sibling worktree.
+
+
+Latest capacity/AD closure: capacity_ad_followthrough_complete_v1.json pins both
+terminal states.2-rank16384 whole-job timeout241.910s, no candidate metadata;
+4-rank16384 complete,11718 output cells, engine98.625s versus whole176.847s,
+independent constant-target audit PASS;4-rank32768 timeout241.040s. Whole-job
+budget includes initialization/gather/output, so timed-out phase is not established.
+2-rank32768/65536 and4-rank65536 were not run under stopping rules. Failed serial
+NACA demand axes receive no higher-rank controls by the predeclared successful-
+serial rule. Four one-descendant SIGTERM tests cleanly propagate interruption,
+save checkpoints and stop before remeshing; exact native AD rejection precedes
+primal solve; warm/cold4 complete three cycles and saved-mesh checks. No AD solver
+convergence/sensitivity-accuracy claim. Current test source changes are not yet
+committed while the measurement/closure campaign runs; preserve their build pins.
+
+Partial audit CLI returns0 when computation finishes even if residuals remain:
+review both resulting JSON contracts/reference checks explicitly at completion;
+the closure supervisor's exit0 for those commands is not a target pass by itself.

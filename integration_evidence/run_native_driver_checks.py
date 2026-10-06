@@ -18,6 +18,7 @@ parser.add_argument('--build', default='build-nommg')
 parser.add_argument('--save-audit', action='store_true')
 parser.add_argument('--airfoil-config', type=Path)
 parser.add_argument('--timeout', type=int, default=240)
+parser.add_argument('--expect-diagnostic', help='Exact diagnostic for an expected nonsignal error exit')
 args = parser.parse_args()
 if Path(args.build).name != args.build:
     parser.error('Use a plain build directory name under the integration workspace.')
@@ -89,6 +90,7 @@ manifest['build_options'] = {option['name']: option['value'] for option in json.
                                                    'enable-normal', 'enable-autodiff', 'enable-directdiff', 'b_ndebug',
                                                    'mmg_root', 'mmg_scotch_root')}
 manifest['timeout_seconds_per_job'] = args.timeout
+manifest['expected_diagnostic'] = args.expect_diagnostic
 source_archive = destination / 'sources'
 shutil.copy2(Path(__file__), destination / 'runner_source.py')
 for relative, expected_hash in manifest['source_sha256'].items():
@@ -117,6 +119,21 @@ if args.save_audit:
     env['SU2_NATIVE_SAVE_AUDIT'] = '1'
 all_ok = True
 for ranks in args.ranks:
+    # Defer every MPI launch to foreign builds/solver jobs; never terminate them.
+    quiet_since = None
+    while True:
+        busy = []
+        for line in subprocess.check_output(['ps', '-eo', 'pid,stat,comm'], text=True).splitlines()[1:]:
+            pid, flags, name = line.split(maxsplit=2)
+            if pid != '918696' and 'Z' not in flags and (name in ('ninja', 'cc1plus', 'test_driver', 'test_driver_AD', 'test_memory') or name.startswith('SU2_CFD')):
+                busy.append(int(pid))
+        manifest['waiting_for_machine'] = dict(busy=busy, next_ranks=ranks)
+        report.write_text(json.dumps(manifest, indent=2)+'\n')
+        if busy: quiet_since = None
+        elif quiet_since is None: quiet_since = time.monotonic()
+        elif time.monotonic()-quiet_since >= 15: break
+        time.sleep(5)
+    manifest.pop('waiting_for_machine', None)
     command = ['mpiexec', '-n', str(ranks), str(binary), args.filter, '--use-colour', 'no']
     log = destination / f'np{ranks}.log'
     run_directory = destination / f'runtime_np{ranks}'
@@ -147,7 +164,7 @@ for ranks in args.ranks:
         for artifact in sorted(run_directory.glob('native_*')):
             if artifact.is_file() and artifact.suffix in ('.su2', '.cgns', '.native_ref', '.csv', '.cfg', '.dat', '.meta'):
                 shutil.copy2(artifact, audit_directory / artifact.name)
-    ok = code == 0 and text.count('All tests passed') == ranks
+    ok = (0 < code < 128 and code != 124 and args.expect_diagnostic in text) if args.expect_diagnostic else (code == 0 and text.count('All tests passed') == ranks)
     manifest['runs'].append({'ranks': ranks, 'command': command, 'exit_code': code,
                              'elapsed_seconds': time.monotonic() - start,
                              'verified': ok, 'working_directory': str(run_directory), 'log': str(log)})

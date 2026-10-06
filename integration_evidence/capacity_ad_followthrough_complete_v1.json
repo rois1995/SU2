@@ -1,0 +1,264 @@
+{
+  "capacity_state_sha256": "dd740e64809ac858013aec106aad783f69cb8f3eb9146932b140887009d00e6e",
+  "ad_state_sha256": "34b444c22211b51ad22d8ddae5d9528b62d7fc0ca4f61a706e4e176f058492ed",
+  "capacity_steps": [
+    {
+      "label": "capacity_v2_t1024_p2",
+      "exit": 124,
+      "command": [
+        "mpiexec",
+        "-n",
+        "2",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/robustness_campaign_v8/test_driver",
+        "[NativeScaling2D]",
+        "--use-colour",
+        "no"
+      ],
+      "environment": {
+        "SU2_NATIVE_SCALING_TILES": "1024",
+        "SU2_NATIVE_SCALING_LAYOUT": "3"
+      },
+      "elapsed_seconds": 241.90959489508532,
+      "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/capacity_v2_t1024_p2.log",
+      "outcome": "time_budget"
+    },
+    {
+      "label": "capacity_v2_t1024_p4",
+      "exit": 0,
+      "command": [
+        "mpiexec",
+        "-n",
+        "4",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/robustness_campaign_v8/test_driver",
+        "[NativeScaling2D]",
+        "--use-colour",
+        "no"
+      ],
+      "environment": {
+        "SU2_NATIVE_SCALING_TILES": "1024",
+        "SU2_NATIVE_SCALING_LAYOUT": "3"
+      },
+      "elapsed_seconds": 176.84650251595303,
+      "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/capacity_v2_t1024_p4.log",
+      "measurement": {
+        "scope": "engine only; audit gather excluded",
+        "tiles": 1024,
+        "layout": 3,
+        "matched": 1,
+        "metric_height": 1,
+        "anisotropy": 10,
+        "ranks": 4,
+        "h0": 0.004,
+        "xmax": 40.96,
+        "ymax": 0.02,
+        "input_cut_edges": 12,
+        "input_cells": 16384,
+        "output_cells": 11718,
+        "complete": true,
+        "init_seconds": 0.04954615,
+        "adapt_seconds": 98.625287864,
+        "selection_seconds_max": 2.752591216999008,
+        "collective_seconds_max": 3.2828172500001784,
+        "collective_calls_max": 1159045,
+        "traffic_bytes_sum": 1094780880,
+        "exchange_work_bytes_max": 2264192,
+        "selection_scans_sum": 2606,
+        "commits": 32849,
+        "cross_rank": 156,
+        "conflicts": 2,
+        "memory_rejected": 0,
+        "phase_rounds": 1024,
+        "sweeps": 6,
+        "rounds": 19658,
+        "max_patch": 15,
+        "max_donors": 52,
+        "rss_hwm_kib_max": 30632,
+        "max_owned": 3011,
+        "qmin": 0.40794001227880905,
+        "lmax": 1.7059916978576726,
+        "height_error": 2.220446049250313e-16,
+        "missed_height": 0,
+        "missed_geometry": 0
+      }
+    },
+    {
+      "label": "audit_capacity_v2_t1024_p4",
+      "exit": 0,
+      "command": [
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/audit_engine_scaling.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integration_capacity_v2/larger_np4_t1024"
+      ],
+      "environment": {},
+      "elapsed_seconds": 0.6052804889623076,
+      "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/audit_capacity_v2_t1024_p4.log"
+    },
+    {
+      "label": "capacity_v2_t2048_p4",
+      "exit": 124,
+      "command": [
+        "mpiexec",
+        "-n",
+        "4",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/robustness_campaign_v8/test_driver",
+        "[NativeScaling2D]",
+        "--use-colour",
+        "no"
+      ],
+      "environment": {
+        "SU2_NATIVE_SCALING_TILES": "2048",
+        "SU2_NATIVE_SCALING_LAYOUT": "3"
+      },
+      "elapsed_seconds": 241.0403147978941,
+      "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/capacity_v2_t2048_p4.log",
+      "outcome": "time_budget"
+    }
+  ],
+  "serial_demands_skipped": [
+    {
+      "name": "complexity12000",
+      "reason": "serial lifecycle failed; successful-serial control rule"
+    },
+    {
+      "name": "height1e4",
+      "reason": "serial lifecycle failed; successful-serial control rule"
+    },
+    {
+      "name": "height5e5",
+      "reason": "serial axis not executed"
+    }
+  ],
+  "actual_ad_cases": [
+    {
+      "label": "interrupt_primal_p1",
+      "ranks": 1,
+      "exit": 0,
+      "elapsed_seconds": 0.7189395849127322,
+      "signal": {
+        "pid": 576011,
+        "seconds": 0.564805400907062,
+        "condition": "primal iteration"
+      },
+      "checks": {
+        "clean_exit": true,
+        "one_rank_signalled": true,
+        "one_interrupted_cycle": true,
+        "no_remesh": true,
+        "phase_diagnostic": true,
+        "primal_checkpoint": true
+      },
+      "passed": true
+    },
+    {
+      "label": "interrupt_primal_p2",
+      "ranks": 2,
+      "exit": 0,
+      "elapsed_seconds": 0.6281325180316344,
+      "signal": {
+        "pid": 576702,
+        "seconds": 0.47590883902739733,
+        "condition": "primal iteration"
+      },
+      "checks": {
+        "clean_exit": true,
+        "one_rank_signalled": true,
+        "one_interrupted_cycle": true,
+        "no_remesh": true,
+        "phase_diagnostic": true,
+        "primal_checkpoint": true
+      },
+      "passed": true
+    },
+    {
+      "label": "interrupt_adjoint_p1",
+      "ranks": 1,
+      "exit": 0,
+      "elapsed_seconds": 1.2871455870335922,
+      "signal": {
+        "pid": 577305,
+        "seconds": 0.9328176949638873,
+        "condition": "adjoint recording banner"
+      },
+      "checks": {
+        "clean_exit": true,
+        "one_rank_signalled": true,
+        "one_interrupted_cycle": true,
+        "no_remesh": true,
+        "phase_diagnostic": true,
+        "primal_checkpoint": true,
+        "adjoint_checkpoint": true
+      },
+      "passed": true
+    },
+    {
+      "label": "interrupt_adjoint_p2",
+      "ranks": 2,
+      "exit": 0,
+      "elapsed_seconds": 1.1428498959867284,
+      "signal": {
+        "pid": 577934,
+        "seconds": 0.9600737990112975,
+        "condition": "adjoint recording banner"
+      },
+      "checks": {
+        "clean_exit": true,
+        "one_rank_signalled": true,
+        "one_interrupted_cycle": true,
+        "no_remesh": true,
+        "phase_diagnostic": true,
+        "primal_checkpoint": true,
+        "adjoint_checkpoint": true
+      },
+      "passed": true
+    },
+    {
+      "label": "reject_native_p2",
+      "ranks": 2,
+      "exit": 1,
+      "elapsed_seconds": 0.4928726820508018,
+      "signal": null,
+      "checks": {
+        "error_exit": true,
+        "native_diagnostic": true,
+        "before_primal": true,
+        "no_summary": true
+      },
+      "passed": true
+    },
+    {
+      "label": "warm_p4",
+      "ranks": 4,
+      "exit": 0,
+      "elapsed_seconds": 37.8510033559287,
+      "signal": null,
+      "checks": {
+        "clean_exit": true,
+        "three_cycles": true,
+        "no_interrupt": true,
+        "warm_flags": true,
+        "finite_summary": true,
+        "final_sensitivities": true,
+        "valid_adapted_meshes": true
+      },
+      "passed": true
+    },
+    {
+      "label": "cold_p4",
+      "ranks": 4,
+      "exit": 0,
+      "elapsed_seconds": 38.29159052693285,
+      "signal": null,
+      "checks": {
+        "clean_exit": true,
+        "three_cycles": true,
+        "no_interrupt": true,
+        "warm_flags": true,
+        "finite_summary": true,
+        "final_sensitivities": true,
+        "valid_adapted_meshes": true
+      },
+      "passed": true
+    }
+  ],
+  "scope": "Native capacity and actual AD lifecycle/interruption/rejection controls. Warm4 final adjoint log10 residual1.54155 is growing; finite summaries are not convergence/sensitivity-accuracy proof. Earlier cold2 divergence remains a classified solver limit."
+}
