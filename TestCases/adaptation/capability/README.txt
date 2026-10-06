@@ -23,10 +23,8 @@ Not in serial_regression.py: the CI binaries have no MMG.
 
 Cases (tags: 2d 3d steady unsteady fixed free bl custom mpi4)
   naca_free           2D Euler NACA0012, 2 steady cycles (3000, 4000), ADAP_SURFACE= YES, sensors MACH + PRESSURE
-                      KNOWN FAILURE: the free airfoil deviates 3.5e-3 .. 5.4e-3 from the input near the leading
-                      edge whatever ADAP_HAUSD (4e-4 .. 1e-2; limit 2 hausd + sagitta = 4.1e-3): MMG2D's Hausdorff
-                      bound is not effective there; PASS or XFAIL with the flow solution (ILU: 5.3e-3, JACOBI:
-                      3.5e-3); expected gate: free_boundary_geometry
+                      needs the MMG2D boundary collapse length check (45_hausd_le patch); without it the free
+                      airfoil deviates 3.5e-3 .. 5.4e-3 near the leading edge (limit 2 hausd + sagitta = 4.1e-3)
   naca_fixed          same, 1 cycle, ADAP_SURFACE= NO (boundary bitwise), metric checked against numpy (2 sensors)
   plate_metric        2D laminar flat plate (symmetry + wall), BL METRIC on the wall (h0 5e-5), free patches
   plate_metric_fixed  same with ADAP_SURFACE= NO

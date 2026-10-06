@@ -42,10 +42,8 @@ VORTEX_TRACKING = {"TIME_STEP": "0.17", "TIME_ITER": "9", "ADAP_FREQ": "3"}
 CASES = [
     dict(name="naca_free", tags={"2d", "steady", "free"}, base="naca_euler.cfg", mesh="naca",
          changes={"ADAP_SURFACE": "YES"},
-         known_fail={"free_boundary_geometry"},
-         known_fail_reason="free airfoil boundary deviates 3.5e-3 .. 5.4e-3 from the input near the leading edge "
-                           "(limit 2 hausd + sagitta = 4.1e-3), independent of ADAP_HAUSD (probed 4e-4 .. 1e-2): "
-                           "MMG2D's Hausdorff bound is not effective there; passes or fails with the flow solution"),
+         needs="the MMG2D boundary collapse length check (without it the free airfoil deviates 3.5e-3 .. 5.4e-3 "
+               "near the leading edge, over the limit 2 hausd + sagitta = 4.1e-3)"),
     dict(name="naca_fixed", tags={"2d", "steady", "fixed"}, base="naca_euler.cfg", mesh="naca", fixed=True,
          reference=True,
          changes={"ADAP_SURFACE": "NO", "ADAP_SIZES": "(3000)", "ADAP_SUBITER": "(1)", "ADAP_FLOW_ITER": "(60)"}),
