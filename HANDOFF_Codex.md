@@ -39,8 +39,8 @@ those handles are gone. Do not restart any original version.
 | integration_followthrough_v1 |Terminal1; prerequisite failure, no capacity or4-rank jobs launched |
 | native_production_chain_v1 |Terminal1; prerequisite failure, no production jobs launched |
 | native_production_chain_v2 |Terminal1; np1 config parsing rejected PARAVIEW_BINARY, no solver iterations |
-| native_production_chain_v3 / run_native_production_checks_v3 |Fresh supervisor496844; actual production1/2/4 matrix in integrated_native_production_v2, verify live state |
-| integration_capacity_v2 / run_integration_capacity_v2 |Fresh supervisor503409 waits for production success; declared native capacity2/4 controls only |
+| native_production_chain_v3 / run_native_production_checks_v3 |Terminal0; all1/2/4 actual production runtimes/outputs and all9 independent target/reference audits PASS |
+| integration_capacity_v2 / run_integration_capacity_v2 |Supervisor503409 now runs declared native capacity2/4 controls sequentially; verify actual state/host cwd |
 | goal_remaining_v1 / run_integrated_goal_remaining |Fresh supervisor517486 waits for capacity success; interruption primal/adjoint1/2, exact native-adjoint rejection2, then actual warm/cold4 |
 
 The cold2 failure was replayed as an ordinary static-mesh two-rank adjoint using
@@ -207,8 +207,9 @@ remeshing or a reliable speedup distribution. Final triangles19502/19575/19487.
 All12 actual VTU scalar-field/coordinate sets exactly equal their paired double
 restart rounded to Float32; wrong-pair and NaN self-checks reject. Vector fields
 are outside this reader/check. Pins: production_scalar_pairing_v1.json and
-native_production_runtime_summary_v1.json. Nine frozen-P1/reference target audits
-are currently running; runtime success does not replace these proofs.
+native_production_runtime_summary_v1.json. All nine frozen-P1/reference target audits now PASS, and their input pins were
+rechecked. Every audited CSV tensor exactly matches its actual double restart
+component-wise. Consolidated completion pin: native_production_complete_v1.json.
 
 Audit tools hash donor/metric/candidate before/after evaluation and original
 NACA reference before/after its check. Input changes are rejected. The runtime

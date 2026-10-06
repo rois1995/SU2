@@ -114,8 +114,10 @@ Exact double-restart/mesh coordinate pairing and positive density/internal energ
 were checked for both (5233/11811 points), pinned in production_available_flow_v1.
 All1/2/4 production lifecycles and saved flow/metric checks now pass. Every
 plotted scalar and coordinate matches the double restart rounded to Float32
-across all12 rank/cycle outputs (production_scalar_pairing_v1.json). The nine
-independent frozen-P1/reference target audits remain in progress.
+across all12 rank/cycle outputs (production_scalar_pairing_v1.json). All nine
+independent frozen-P1/reference target audits now PASS. Exact target tensors
+were also compared with the actual double restarts; all audited input pins
+were rechecked (native_production_complete_v1.json).
 
 [Final four-rank native flow on the19487-triangle grid](integration_evidence/integrated_native_production_v2/np4/flow_adap_00003.vtu).
 [Its actual restart](integration_evidence/integrated_native_production_v2/np4/solution_adap_00003.dat).
