@@ -351,3 +351,37 @@ counts. This is whole-process memory including startup and earlier snapshots,
 not remesher-only allocation. `check_airfoil_phase_timing.py --self-check` passed;
 actual compilation/runtime, MPI-max-to-local consistency and ownership checks
 have not run. No live source or pinned executable changed.
+
+
+## Ownership, process memory and encoded payload at8192 input cells
+
+All27 audited raw hashes were rechecked before aggregation. Owned-cell imbalance
+is P times the largest rank-owned output-cell count divided by global output
+cells;1 is balanced. Within each layout/rank group this value is identical across
+three repetitions. RSS entries are the distribution of each run's maximum rank
+Linux VmHWM, captured before the final probe audit gather. They include startup,
+replicated synthetic input and earlier operations, not CFD or a transaction
+allocation ceiling. Encoded payload is summed across ranks including self buckets
+and engine initialization; it is not measured network traffic.
+
+| Ownership | Ranks | Owned-cell imbalance | Rank-max RSS min / median / max (MiB) | Encoded payload median (MiB) |
+|---|---:|---:|---:|---:|
+| Cyclic | 1 | 1.0000 | 31.234 / 31.406 / 31.832 | 413.386 |
+| Cyclic | 2 | 1.0407 | 26.477 / 26.523 / 26.836 | 484.646 |
+| Cyclic | 4 | 1.0720 | 24.953 / 24.965 / 25.082 | 533.728 |
+| Horizontal | 1 | 1.0000 | 31.445 / 31.520 / 31.539 | 413.386 |
+| Horizontal | 2 | 1.0028 | 26.973 / 27.020 / 27.055 | 459.870 |
+| Horizontal | 4 | 1.2640 | 24.934 / 25.090 / 25.168 | 544.537 |
+| Vertical low-cut | 1 | 1.0000 | 31.285 / 31.461 / 31.473 | 413.386 |
+| Vertical low-cut | 2 | 1.0130 | 26.547 / 26.750 / 26.852 | 451.679 |
+| Vertical low-cut | 4 | 1.0635 | 24.109 / 24.781 / 25.211 | 520.791 |
+
+Horizontal four-rank ownership ends with26.4% more cells on its busiest rank than
+the average, compared with6.35% for vertical and7.2% for cyclic. This imbalance
+is observed alongside the horizontal four-rank timing plateau; these measurements
+do not isolate its contribution or prove a sole cause. All27 report zero memory
+admission rejections. Initial-directory exchange work reaches3.625MiB at one rank;
+that transport is outside the transaction ceiling, so it does not demonstrate a
+2MiB admitted-transaction breach. Per-rank actual CFD memory/durations are still
+pending the prepared timing fixture. Exact inputs/aggregation:
+`integration_evidence/partition_work_memory_summary_v1.json`.

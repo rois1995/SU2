@@ -37,8 +37,8 @@ passes1/2/4 with independent audits: adapt9.453/6.403/4.797s, single samples.
 Low-cut4096-cell group also independently passes1/2/4:28.019/15.195/9.205s.
 Low-cut8192-cell group independently passes1/2/4:98.936/52.893/28.138s.
 The16384-cell serial case timed out (124) at241.41s; no finished mesh/JSON.
-This is a cost-budget observation, not a construction failure. Repeated8192-cell
-partition comparisons are now running; real-field limits remain pending.
+This is a cost-budget observation, not a construction failure. All27 repeated8192-cell
+partition controls and their independent audit now pass; real-field demand limits remain pending.
 
 Earlier failures preserved: missing preconfigure stamp (v1); old serial output
 count assumptions (v2); test private-member/Catch compile error (v3); duplicated
@@ -318,3 +318,18 @@ python3 integration_evidence/check_airfoil_phase_timing.py integration_evidence/
 It must prove every cycle/rank row, exact reported MPI maxima, global owned-point
 count versus saved adapted mesh, cumulative RSS and transfer/replacement scope.
 No actual per-rank measurement is claimed from the self-check alone.
+
+
+Fresh baseline runtime now passes1/2/4 (whole-job316.525/180.644/107.176s).
+Independent_v8 audits are live; the first four saved meshes pass at the latest
+report. The new original-reference hash path has executed on an actual NACA
+mesh, and all four donor/metric/candidate/original pins were reverified for np1
+cycle0. Full nine-mesh audit remains required before baseline geometry/target
+claims extend to all ranks/cycles. Process observation: audit supervisor288694
+and its real child confirmed live. AdapNoExt invariants rechecked unchanged.
+
+All27 current raw hashes and engine memory/ownership counters revalidated.
+partition_work_memory_summary_v1.json and the results table report rank-max RSS,
+encoded payload and final owned-cell imbalance. Horizontal4 imbalance1.26396
+versus vertical4 1.06348; association with a timing plateau does not isolate its
+cause. Zero memory admission rejections in these27 small-memory probes.
