@@ -541,3 +541,26 @@ archive and checks all759 current production sources plus checker/input hashes.
 A new unexpected failure stops it for classification; selected-case CLI permits
 resuming only outstanding controls with a fresh evidence label. No AD runtime
 has started in this queued remainder yet.
+
+
+## Actual production outputs complete; independent targets in progress
+
+The actual native SU2_CFD main-loop completes on all1/2/4 ranks, four short
+three-iteration solves and three adaptations each. All12 double restarts contain
+finite positive density/internal energy/pressure and finite SPD metrics, exactly
+paired with their input/accepted grids; accepted meshes have reference sidecars.
+Final triangles19502/19575/19487 and points9883/9920/9876. Whole-job times
+430.517/155.435/99.552s include CFD/output/adaptation/replacement/transfer;
+shared-host/rank-dependent work prevents a reliable strong-scaling claim.
+Exact output/runtime pins: native_production_runtime_summary_v1.json.
+
+A missing numerical output check was closed using the existing readers: every
+plotted scalar field and XY coordinate in all12 actual VTUs exactly equals the
+paired double restart rounded to Float32. This includes density, energy,
+pressure, temperature, Mach and every scalar metric component; all available
+additional scalar fields were compared too. The checker rejects a swapped
+mapping and NaN in its self-check. Vector fields are outside this scalar reader.
+Evidence: production_scalar_pairing_v1.json; runnable check:
+check_production_flow_outputs.py. The nine independent original-reference and
+frozen-P1 target audits run sequentially; do not treat runtime/output passes as
+substitutes for their pending completion.

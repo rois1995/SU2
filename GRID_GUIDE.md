@@ -112,7 +112,14 @@ Serial cycle0 and cycle1 actual flow files are available now:
 These are real solution outputs; open VTU in ParaView and select Pressure/Mach.
 Exact double-restart/mesh coordinate pairing and positive density/internal energy
 were checked for both (5233/11811 points), pinned in production_available_flow_v1.
-The complete lifecycle and frozen-P1 target audit matrix are still pending.
+All1/2/4 production lifecycles and saved flow/metric checks now pass. Every
+plotted scalar and coordinate matches the double restart rounded to Float32
+across all12 rank/cycle outputs (production_scalar_pairing_v1.json). The nine
+independent frozen-P1/reference target audits remain in progress.
+
+[Final four-rank native flow on the19487-triangle grid](integration_evidence/integrated_native_production_v2/np4/flow_adap_00003.vtu).
+[Its actual restart](integration_evidence/integrated_native_production_v2/np4/solution_adap_00003.dat).
+[Its accepted SU2 grid](integration_evidence/integrated_native_production_v2/np4/mesh_adap_00003.su2).
 
 The prior v1 folder preserves a config-parser failure (PARAVIEW_BINARY was invalid;
 this branch uses PARAVIEW for binary XML). No solver iterations ran in that attempt.

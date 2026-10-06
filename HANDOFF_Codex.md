@@ -201,7 +201,14 @@ now exist; production_available_flow_v1.json pins exact restart/grid pairing and
 positive conserved-state checks (5233/11811 points). This availability proof is
 not completion of the full runtime/target audit matrix. v1 retains the invalid-token parser
 failure. run_template.cfg/prepared.json pin the corrected profile; restart-to-mesh
-mapping self-check passes, actual1/2 runs now pass all four-cycle mesh/flow/metric output checks;4-rank run and nine-target audits are still pending.
+mapping self-check passes, All1/2/4 production runs now pass four-cycle mesh/flow/metric output checks.
+Whole-job times430.517/155.435/99.552s include all driver phases, not isolated
+remeshing or a reliable speedup distribution. Final triangles19502/19575/19487.
+All12 actual VTU scalar-field/coordinate sets exactly equal their paired double
+restart rounded to Float32; wrong-pair and NaN self-checks reject. Vector fields
+are outside this reader/check. Pins: production_scalar_pairing_v1.json and
+native_production_runtime_summary_v1.json. Nine frozen-P1/reference target audits
+are currently running; runtime success does not replace these proofs.
 
 Audit tools hash donor/metric/candidate before/after evaluation and original
 NACA reference before/after its check. Input changes are rejected. The runtime
