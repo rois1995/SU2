@@ -289,7 +289,26 @@ std::string CheckSymmetry(const CGeometry& geometry, const CConfig& config,
       return "symmetry marker " + config.GetMarker_All_TagBound(iMarker) + " is not in the config file.";
   }
 
-  /*--- Area-weighted normal and centroid of each symmetry marker (owned vertices, summed over the ranks). ---*/
+  /*--- Global bounding box: the tolerance scales with the mesh extent, independently of its origin. ---*/
+  passivedouble localMin[MAXDIM], localMax[MAXDIM], globalMin[MAXDIM], globalMax[MAXDIM];
+  for (auto iDim = 0u; iDim < nDim; ++iDim) {
+    localMin[iDim] = std::numeric_limits<passivedouble>::max();
+    localMax[iDim] = std::numeric_limits<passivedouble>::lowest();
+  }
+  for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint)
+    for (auto iDim = 0u; iDim < nDim; ++iDim) {
+      const auto coord = SU2_TYPE::GetValue(geometry.nodes->GetCoord(iPoint, iDim));
+      localMin[iDim] = std::min(localMin[iDim], coord);
+      localMax[iDim] = std::max(localMax[iDim], coord);
+    }
+  CPassiveComm::Allreduce(localMin, globalMin, nDim, CPassiveComm::Op::MIN);
+  CPassiveComm::Allreduce(localMax, globalMax, nDim, CPassiveComm::Op::MAX);
+  passivedouble extent = 0.0;
+  for (auto iDim = 0u; iDim < nDim; ++iDim) extent = std::max(extent, globalMax[iDim] - globalMin[iDim]);
+  const passivedouble tolDot = 1e-12, tolOrigin = 1e-10 * extent;
+
+  /*--- Area-weighted normal and centroid of each symmetry marker (owned vertices, summed over the ranks).
+   *    Centroids relative to the bounding-box origin avoid cancellation on translated meshes. ---*/
   std::vector<passivedouble> local(nCfg * 7, 0.0), global(nCfg * 7, 0.0);
   for (auto iMarker = 0u; iMarker < nMarker; ++iMarker) {
     if (config.GetMarker_All_KindBC(iMarker) != SYMMETRY_PLANE) continue;
@@ -303,7 +322,8 @@ std::string CheckSymmetry(const CGeometry& geometry, const CConfig& config,
       area = sqrt(area);
       for (auto iDim = 0u; iDim < nDim; ++iDim) {
         local[k * 7 + iDim] += SU2_TYPE::GetValue(normal[iDim]);
-        local[k * 7 + 3 + iDim] += area * SU2_TYPE::GetValue(geometry.nodes->GetCoord(iPoint, iDim));
+        local[k * 7 + 3 + iDim] +=
+            area * (SU2_TYPE::GetValue(geometry.nodes->GetCoord(iPoint, iDim)) - globalMin[iDim]);
       }
       local[k * 7 + 6] += area;
     }
@@ -333,13 +353,6 @@ std::string CheckSymmetry(const CGeometry& geometry, const CConfig& config,
     }
   }
 
-  passivedouble extent = 0.0;
-  for (auto iPoint = 0ul; iPoint < geometry.GetnPointDomain(); ++iPoint)
-    for (auto iDim = 0u; iDim < nDim; ++iDim)
-      extent = std::max(extent, fabs(SU2_TYPE::GetValue(geometry.nodes->GetCoord(iPoint, iDim))));
-  extent = CPassiveComm::Allreduce(extent, CPassiveComm::Op::MAX);
-  const passivedouble tolDot = 1e-12, tolOrigin = 1e-10 * std::max(extent, 1.0);
-
   /*--- Planarity (normals and offsets), orthogonality where two symmetry markers meet, and where a symmetry marker
    *    meets an Euler wall (the mirror rule must not undo the wall reconstruction of the normal momentum lambda). ---*/
   unsigned long nBad[4] = {0, 0, 0, 0};
@@ -349,16 +362,19 @@ std::string CheckSymmetry(const CGeometry& geometry, const CConfig& config,
       const auto iPoint = geometry.vertex[iMarker][iVertex]->GetNode();
       if (!geometry.nodes->GetDomain(iPoint)) continue;
       const auto* normal = geometry.vertex[iMarker][iVertex]->GetNormal();
-      passivedouble area = 0.0, dot = 0.0;
-      for (auto iDim = 0u; iDim < nDim; ++iDim) {
-        area += pow(SU2_TYPE::GetValue(normal[iDim]), 2);
-        dot += SU2_TYPE::GetValue(normal[iDim]) * SU2_TYPE::GetValue(normals[iMarker][iDim]);
+      passivedouble area = 0.0, normalError = 0.0;
+      for (auto iDim = 0u; iDim < nDim; ++iDim) area += pow(SU2_TYPE::GetValue(normal[iDim]), 2);
+      area = sqrt(area);
+      if (area > 0.0) {
+        for (auto iDim = 0u; iDim < nDim; ++iDim)
+          normalError += pow(SU2_TYPE::GetValue(normal[iDim]) / area - SU2_TYPE::GetValue(normals[iMarker][iDim]), 2);
       }
-      if (dot < (1.0 - 1e-8) * sqrt(area)) ++nBad[0];
+      if (!(area > 0.0) || normalError > 1e-16) ++nBad[0];
       passivedouble offset = 0.0;
       for (auto iDim = 0u; iDim < nDim; ++iDim)
-        offset += (SU2_TYPE::GetValue(geometry.nodes->GetCoord(iPoint, iDim)) - centroid[iMarker][iDim]) *
-                  SU2_TYPE::GetValue(normals[iMarker][iDim]);
+        offset +=
+            (SU2_TYPE::GetValue(geometry.nodes->GetCoord(iPoint, iDim)) - globalMin[iDim] - centroid[iMarker][iDim]) *
+            SU2_TYPE::GetValue(normals[iMarker][iDim]);
       if (fabs(offset) > tolOrigin) ++nBad[1];
       for (auto jMarker = 0u; jMarker < nMarker; ++jMarker) {
         const auto kind = config.GetMarker_All_KindBC(jMarker);
@@ -450,7 +466,7 @@ std::string CheckSymmetry(const CGeometry& geometry, const CConfig& config,
           const auto origin = config.GetRefOriginMoment(iMon);
           passivedouble offset = 0.0;
           for (auto iDim = 0u; iDim < nDim; ++iDim)
-            offset += (SU2_TYPE::GetValue(origin[iDim]) - cfgCentroid[k][iDim]) * n[iDim];
+            offset += (SU2_TYPE::GetValue(origin[iDim]) - globalMin[iDim] - cfgCentroid[k][iDim]) * n[iDim];
           if (fabs(offset) > tolOrigin) return "the moment origin is not on the symmetry plane " + tag + ".";
         }
       }
@@ -769,6 +785,10 @@ void CSolver::ComputeGoalHessian(CGeometry* geometry, const CConfig* config, con
 
     passivedouble trace = 0.0;
     for (auto a = 0u; a < nDim; ++a) trace += SU2_TYPE::GetValue(M[a][a]);
+    if (!std::isfinite(trace)) {
+      ++nNonFinite;
+      continue;
+    }
     su2double vec[MAXDIM][MAXDIM], val[MAXDIM], tmp[MAXDIM];
     CBlasStructure::EigenDecomposition(M, vec, val, nDim, tmp);
     if (trace > 0.0) {
@@ -777,7 +797,7 @@ void CSolver::ComputeGoalHessian(CGeometry* geometry, const CConfig* config, con
       ++nZero;
     }
 
-    const passivedouble rSign = (trace > 0.0) ? SU2_TYPE::GetValue(NuclearNorm(nDim, S)) / trace : 0.0;
+    passivedouble rSign = (trace > 0.0) ? SU2_TYPE::GetValue(NuclearNorm(nDim, S)) / trace : 0.0;
     passivedouble r33 = 0.0;
     if (state != nullptr) {
       su2double A[MAXDIM][MAXVAR][MAXVAR], gradLambda[MAXVAR * MAXDIM], num = 0.0, den = 0.0;
@@ -785,8 +805,16 @@ void CSolver::ComputeGoalHessian(CGeometry* geometry, const CConfig* config, con
       for (auto j = 0u; j < nVarG; ++j)
         for (auto d = 0u; d < nDim; ++d) gradLambda[j * nDim + d] = gradient(iPoint, j, d);
       Eq33Terms(nDim, gradLambda, A, num, den);
-      r33 = (den > 0.0) ? SU2_TYPE::GetValue(num / den) : 0.0;
+      finite = std::isfinite(SU2_TYPE::GetValue(num)) && std::isfinite(SU2_TYPE::GetValue(den));
+      if (finite && trace > 0.0 && den > 0.0) r33 = SU2_TYPE::GetValue(num / den);
     }
+    if (!finite || !std::isfinite(rSign) || !std::isfinite(r33)) {
+      ++nNonFinite;
+      continue;  // ratios remain 0; invalid diagnostics do not enter the statistics or histograms
+    }
+    /*--- Finite ratios are in [0,1], up to round-off. Clamp before converting to histogram bins. ---*/
+    rSign = std::min(1.0, std::max(0.0, rSign));
+    r33 = std::min(1.0, std::max(0.0, r33));
     GoalDiagnostics(iPoint, 0) = rSign;
     GoalDiagnostics(iPoint, 1) = r33;
 
@@ -796,8 +824,8 @@ void CSolver::ComputeGoalHessian(CGeometry* geometry, const CConfig* config, con
     localStats[1] += weight * r33;
     localStats[2] += weight;
     localStats[3] += volume;
-    const int binSign = std::min(nBin - 1, std::max(0, static_cast<int>(rSign * nBin)));
-    const int bin33 = std::min(nBin - 1, std::max(0, static_cast<int>(r33 * nBin)));
+    const int binSign = std::min(nBin - 1, static_cast<int>(rSign * nBin));
+    const int bin33 = std::min(nBin - 1, static_cast<int>(r33 * nBin));
     localStats[4 + binSign] += volume;
     localStats[4 + nBin + bin33] += volume;
   }
@@ -827,7 +855,7 @@ void CSolver::ComputeGoalHessian(CGeometry* geometry, const CConfig* config, con
       return 1.0;
     };
     cout << "Goal-oriented Hessian (ADAP_SENSOR= GOAL): " << counts[0] << " rejected (non-finite) flux Hessians, "
-         << counts[1] << " non-finite estimates, " << counts[2] << " points with H_go = 0." << endl;
+         << counts[1] << " non-finite estimates or diagnostics, " << counts[2] << " points with H_go = 0." << endl;
     cout << "  min over points of lambda_min(H_go)/tr(H_go): " << std::scientific << std::setprecision(3)
          << ((minRatio == std::numeric_limits<passivedouble>::max()) ? 0.0 : minRatio) << std::defaultfloat
          << std::setprecision(6) << " (positive semidefinite: >= -1e-12)." << endl;

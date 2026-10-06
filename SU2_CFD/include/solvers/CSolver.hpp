@@ -195,7 +195,7 @@ protected:
   su2passivematrix GoalDiagnostics; /*!< \brief Per point (ADAP_SENSOR= GOAL): signed-sum ratio, eq. (33) ratio, the
                                          momentum lambda used (nDim). */
   unsigned long GoalRejected = 0;   /*!< \brief Non-finite flux Hessians of the last goal-oriented Hessian (global). */
-  unsigned long GoalNonFinite = 0;  /*!< \brief Non-finite estimates of the last goal-oriented Hessian (global). */
+  unsigned long GoalNonFinite = 0;  /*!< \brief Non-finite goal-oriented estimates or diagnostics (global). */
   passivedouble GoalMinRatio = 0.0; /*!< \brief Min over points of lambda_min(H_go) / tr(H_go) (global). */
   unsigned long GoalWallCounts[3] = {0, 0, 0}; /*!< \brief Slip-wall reconstruction (global): wall points, donors
                                                     without a full-rank stencil, wall points not reconstructed. */
@@ -648,8 +648,8 @@ public:
   }
 
   /*!
-   * \brief Global checks of the last goal-oriented Hessian: non-finite (rejected) flux Hessians, non-finite estimates,
-   *        min over points of lambda_min(H_go) / tr(H_go).
+   * \brief Global checks of the last goal-oriented Hessian: non-finite (rejected) flux Hessians, non-finite estimates
+   *        or diagnostics, min over points of lambda_min(H_go) / tr(H_go).
    */
   inline unsigned long GetGoalRejected() const { return GoalRejected; }
   inline unsigned long GetGoalNonFinite() const { return GoalNonFinite; }

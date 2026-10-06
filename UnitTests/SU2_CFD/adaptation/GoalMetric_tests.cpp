@@ -31,6 +31,7 @@
 
 #include <array>
 #include <cmath>
+#include <limits>
 #include <map>
 #include <random>
 
@@ -604,10 +605,31 @@ TEST_CASE("Goal Hessian of smooth fields is PSD, the metric SPD at the complexit
       GoalMesh test(nDim, nDim == 2 ? 10 : 5, nDim == 2 ? FAR2D : FAR3D, string("NUM_METHOD_HESS= ") + method + "\n");
       SetFields(test.flow, test.Geo(), FromState(nDim, [nDim](const passivedouble* x, su2double* l) { SmoothLambda(nDim, x, l); },
                                                  [nDim](const passivedouble* x, su2double* U) { SmoothState(nDim, x, U); }));
-      test.Compute();
+      const auto nVar = GoalMetric::NumVar(nDim);
+      vector<su2double> state(test.Geo().GetnPointDomain() * nVar);
+      for (auto iPoint = 0ul; iPoint < test.Geo().GetnPointDomain(); ++iPoint) {
+        passivedouble x[3] = {0.0};
+        for (auto a = 0u; a < nDim; ++a) x[a] = SU2_TYPE::GetValue(test.Geo().nodes->GetCoord(iPoint, a));
+        SmoothState(nDim, x, &state[iPoint * nVar]);
+      }
+      {
+        Mute mute;
+        test.flow->ComputeGoalHessian(&test.Geo(), test.config.get(), &state);
+      }
       CHECK(test.flow->GetGoalRejected() == 0);
       CHECK(test.flow->GetGoalNonFinite() == 0);
       CHECK(test.flow->GetGoalMinRatio() >= -1e-12);
+      passivedouble maxEq33 = 0.0;
+      for (auto iPoint = 0ul; iPoint < test.Geo().GetnPointDomain(); ++iPoint) {
+        for (unsigned short k = 0; k < 2; ++k) {
+          const auto ratio = test.flow->GetGoalDiagnostic(iPoint, k);
+          CHECK(std::isfinite(ratio));
+          CHECK(ratio >= 0.0);
+          CHECK(ratio <= 1.0);
+        }
+        maxEq33 = std::max(maxEq33, test.flow->GetGoalDiagnostic(iPoint, 1));
+      }
+      CHECK(MaxAll(maxEq33) > 0.0);
       {
         Mute mute;
         test.flow->ComputeMetric(&test.Geo(), test.config.get());
@@ -629,6 +651,39 @@ TEST_CASE("Goal Hessian of smooth fields is PSD, the metric SPD at the complexit
       CHECK(spd);
       CHECK(complexity == Approx(400.0).epsilon(1e-6));
     }
+  }
+}
+
+/*--------------------------------------------------------------------------------------------------------------------*/
+
+TEST_CASE("Goal diagnostics keep zero-trace ratios zero and count non-finite eq. (33) terms", "[GoalMetric]") {
+  GoalMesh test(2, 4, FAR2D, "NUM_METHOD_HESS= GREEN_GAUSS\n");
+  auto& geo = test.Geo();
+  SetFields(test.flow, geo, [](const passivedouble* x, su2double* values) {
+    SmoothLambda(2, x, values);
+    for (auto k = 4u; k < GoalMetric::FieldCount(2); ++k) values[k] = 0.0;
+  });
+  const auto nVar = GoalMetric::NumVar(2);
+  vector<su2double> state(geo.GetnPointDomain() * nVar, 1.0);
+  /*--- Finite state, nonzero lambda gradients, but H_go = 0: both ratios remain 0. ---*/
+  {
+    Mute mute;
+    test.flow->ComputeGoalHessian(&geo, test.config.get(), &state);
+  }
+  CHECK(test.flow->GetGoalNonFinite() == 0);
+  for (auto iPoint = 0ul; iPoint < geo.GetnPointDomain(); ++iPoint)
+    for (unsigned short k = 0; k < 2; ++k) CHECK(test.flow->GetGoalDiagnostic(iPoint, k) == 0.0);
+  /*--- A non-finite denominator must be counted even when the ratio would otherwise be replaced by 0. ---*/
+  for (const passivedouble rho : {std::nan(""), std::numeric_limits<passivedouble>::infinity()}) {
+    for (auto iPoint = 0ul; iPoint < geo.GetnPointDomain(); ++iPoint) state[iPoint * nVar] = rho;
+    {
+      Mute mute;
+      test.flow->ComputeGoalHessian(&geo, test.config.get(), &state);
+    }
+    CHECK(test.flow->GetGoalRejected() == 0);
+    CHECK(test.flow->GetGoalNonFinite() == geo.GetGlobal_nPointDomain());
+    for (auto iPoint = 0ul; iPoint < geo.GetnPointDomain(); ++iPoint)
+      for (unsigned short k = 0; k < 2; ++k) CHECK(test.flow->GetGoalDiagnostic(iPoint, k) == 0.0);
   }
 }
 
@@ -964,6 +1019,40 @@ TEST_CASE("Goal symmetry support check", "[GoalMetric]") {
   CHECK(check(ySym, "OBJECTIVE_FUNCTION= LIFT\nAOA= 3.0\n").empty());
   CHECK(check(ySym, "OBJECTIVE_FUNCTION= MOMENT_Y\n").empty());
   CHECK(check(ySym, "OBJECTIVE_FUNCTION= FORCE_Z\n").empty());
+  /*--- Planarity is independent of translation and scale. ---*/
+  CHECK(check(ySym, "", [](su2double* x) {
+    for (unsigned short a = 0; a < 3; ++a) x[a] += 1e8;
+  }).empty());
+  CHECK(check(ySym, "", [](su2double* x) {
+    for (unsigned short a = 0; a < 3; ++a) x[a] *= 1e-3;
+  }).empty());
+  /*--- Parallel patches at different offsets: the small step keeps normal errors below 1e-8.
+   *    Translation along the plane and scaling must not loosen the offset tolerance. ---*/
+  for (const passivedouble scale : {1.0, 1e-3}) {
+    for (const passivedouble translation : {0.0, 1e8}) {
+      const auto patches = check(ySym, "", [=](su2double* x) {
+        if (x[0] > 0.5) x[1] += 1e-9;
+        for (unsigned short a = 0; a < 3; ++a) x[a] *= scale;
+        x[0] += translation;
+      });
+      CHECK(patches.find("planar") != string::npos);
+    }
+  }
+  /*--- Opposite 1e-6 tilts preserve the area-weighted plane normal and all vertex offsets. ---*/
+  {
+    GoalBox box(ySym, "GREEN_GAUSS", "4,4,4", "1,1,1", "0,0,0", 0.0);
+    for (auto iMarker = 0u; iMarker < box.geometry->GetnMarker(); ++iMarker) {
+      if (box.config->GetMarker_All_KindBC(iMarker) != SYMMETRY_PLANE) continue;
+      for (auto iVertex = 0ul; iVertex < box.geometry->GetnVertex(iMarker); ++iVertex) {
+        const auto iPoint = box.geometry->vertex[iMarker][iVertex]->GetNode();
+        auto* normal = box.geometry->vertex[iMarker][iVertex]->GetNormal();
+        const su2double tilt = box.geometry->nodes->GetCoord(iPoint, 0) < 0.5 ? su2double(1e-6) : su2double(-1e-6);
+        normal[2] = tilt * fabs(normal[1]);
+      }
+    }
+    vector<std::array<su2double, 3>> normals;
+    CHECK(GoalMetric::CheckSymmetry(*box.geometry, *box.config, normals).find("planar") != string::npos);
+  }
   CHECK_FALSE(check(ySym, "OBJECTIVE_FUNCTION= SIDEFORCE\n").empty());
   CHECK_FALSE(check(ySym, "OBJECTIVE_FUNCTION= MOMENT_X\n").empty());
   CHECK_FALSE(check(ySym, "OBJECTIVE_FUNCTION= FORCE_Y\n").empty());
@@ -1119,6 +1208,7 @@ TEST_CASE("Goal Hessian and metric independent of the partition", "[GoalMetric][
           test.flow->ComputeMetric(&geo, test.config.get());
         }
         CHECK(test.flow->GetGoalRejected() == 0);
+        CHECK(test.flow->GetGoalNonFinite() == 0);
         const auto* nodes = test.flow->GetNodes();
         const auto& grad = nodes->GetGradient_Adapt();
         if (!parallel) reference.assign(geo.GetGlobal_nPointDomain() * nValue, 0.0);
@@ -1134,8 +1224,10 @@ TEST_CASE("Goal Hessian and metric independent of the partition", "[GoalMetric][
             for (unsigned short a = 0; a < nDim; ++a) values[k++] = SU2_TYPE::GetValue(grad(iPoint, f, a));
           for (unsigned short a = 0; a < nDim; ++a) values[k++] = test.flow->GetGoalDiagnostic(iPoint, 2 + a);
           for (unsigned short i = 0; i < nValue; ++i) {
+            CHECK(std::isfinite(values[i]));
             if (!parallel) reference[global * nValue + i] = values[i];
             else {
+              CHECK(std::isfinite(reference[global * nValue + i]));
               scale[i] = std::max(scale[i], fabs(reference[global * nValue + i]));
               err[i] = std::max(err[i], fabs(values[i] - reference[global * nValue + i]));
             }
