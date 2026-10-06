@@ -1,6 +1,8 @@
 # Native integration, robustness and practical scaling goal
 
-Activated 2026-10-06 by explicit user request. Active; no token budget.
+Activated 2026-10-06 by explicit user request, without a token budget.
+Campaign completed against the unchanged deliverables below. Requirement proof:
+[INTEGRATION_COMPLETION_AUDIT.md](INTEGRATION_COMPLETION_AUDIT.md).
 
 Work only on `codex/native-integrated`, in this sibling worktree. Leave
 `feat_adap_noExt`, its checkout, its existing .gitignore change and the other

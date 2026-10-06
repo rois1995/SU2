@@ -2,7 +2,29 @@
 
 Working branch: `codex/native-integrated` in
 `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`.
-AdapNoExt is unchanged. Goal active; robustness/scaling limits are still being measured.
+AdapNoExt is unchanged. Integration/robustness campaign complete; measured limits are reported in
+ROBUSTNESS_SCALING_RESULTS.md.
+
+## Start here: input grid and solution used for adaptation
+
+Actual four-rank native CFD case folder:
+`/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_native_production_v2/np4`.
+These files are in the separate integration worktree, not AdapNoExt.
+
+| Stage | Grid | Inspectable solution | SU2 binary restart |
+| --- | --- | --- | --- |
+| Before first adaptation | [input.su2](integration_evidence/integrated_native_production_v2/np4/input.su2) | [flow_adap_00000.vtu](integration_evidence/integrated_native_production_v2/np4/flow_adap_00000.vtu) | [solution_adap_00000.dat](integration_evidence/integrated_native_production_v2/np4/solution_adap_00000.dat) |
+| First adapted grid | [mesh_adap_00001.su2](integration_evidence/integrated_native_production_v2/np4/mesh_adap_00001.su2) | [flow_adap_00001.vtu](integration_evidence/integrated_native_production_v2/np4/flow_adap_00001.vtu) | [solution_adap_00001.dat](integration_evidence/integrated_native_production_v2/np4/solution_adap_00001.dat) |
+
+[run.cfg](integration_evidence/integrated_native_production_v2/np4/run.cfg) is the actual local configuration.
+The run computes the initial flow from freestream in memory; it does not load an initial restart.
+The cycle0 output records that initial-grid solution before remeshing.
+Open the VTU files in ParaView: each contains both grid and solution; use
+**Surface With Edges**, then color by Pressure or Mach.
+Later-cycle files contain solutions after resumed CFD iterations, rather than
+an isolated immediate-transfer snapshot. These are short three-iteration-per-cycle
+coupling checks, not converged aerodynamic solutions. Corresponding files also
+exist in the `np1` and `np2` case folders.
 
 ## Ready-to-open scaling gallery
 
@@ -65,8 +87,13 @@ Actual testcase root: `integration_evidence/integrated_airfoil_baseline_v8`.
 
 The CFD solution was held in memory; this fixture did **not** save nodal flow or
 restart files. Transfer CSVs contain integral summaries, not flow snapshots.
-Prepared donor/transferred solution export will run with the later instrumented
-fixture; it is not available yet.
+Actual donor/immediate-transferred conserved flow CSVs are now available in
+`integration_evidence/integrated_airfoil_phase_timing_v1/audit_np{1,2,4}`:
+`native_airfoil_cycle_N_{donor,adapted}_solution.csv` pairs exactly by global
+point ID and coordinates with the corresponding saved SU2 mesh. All18field
+snapshots pass positive-density/internal-energy and mesh-pairing checks. These
+are CSV fields, not SU2 restart files; actual restart/ParaView outputs are
+linked in the production section and at the top of this guide.
 
 Ready for ParaView (**Surface With Edges**):
 

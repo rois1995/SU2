@@ -1,0 +1,41 @@
+{
+  "verified": true,
+  "checked_unix_seconds": 1791296441.739513,
+  "current_changes_from_primal_manifest": {
+    "SU2_CFD/src/drivers/CDiscAdjSinglezoneDriver.cpp": "46f6b7616793325a227bb55149317b4ac9dd137c70c1da7bb7ad15af1f9e1084",
+    "UnitTests/Common/adaptation/CNativeScaling2D_tests.cpp": "aa2343ef85c1bc248f66db6b53be6b357421c806f18a5fee21b2448a220a4f52",
+    "UnitTests/SU2_CFD/adaptation/CNativeAirfoil2D_tests.cpp": "af2554f2369508d5ec4fa2b1d8e0085f90d834e5dfed4430c40c94089e506073",
+    "UnitTests/SU2_CFD/adaptation/CNativeBL2D_tests.cpp": "a6970bd410c0047f9608afbb39c30550865b2fcedb095b00a41317eeaa306056"
+  },
+  "covered_production_files": 759,
+  "production_changes_from_ad_v14": {},
+  "primal_build_options": {
+    "buildtype": "debugoptimized",
+    "b_ndebug": "false",
+    "with-mpi": "enabled",
+    "with-omp": false,
+    "enable-cgns": true,
+    "enable-autodiff": false,
+    "enable-directdiff": false,
+    "enable-normal": true,
+    "enable-mmg": true,
+    "mmg_root": "/usr/local",
+    "mmg_scotch_root": "/home/rausa/Software/scotch"
+  },
+  "binary_sha256": "839340d6f5f05c89072b1efa35831ebbf0e716f74b9a16e0313fbb701304832d",
+  "test_registration_sha256": "283c9b68b5023c2f49ca0a9c862547a3d63b7292cb87f62df62b0a0ffd342b10",
+  "evidence_sha256": {
+    "integrated_primal_controls_v6/evidence.json": "aca2b3199ccdf7210b09489b1ec7c78ac02730670f0cad8af52c33caabd76d8c",
+    "ad_repair_controls_v14.json": "6309ea83e4a425235ee29e53d946372ccd03f37a89dd6d33f97710f0b63b2e74",
+    "native_phase_step_build_v1.json": "eada9951b79324a3c212104cfab2381ebe266d3ea54faaa427c5a69efdb7501c",
+    "integrated_airfoil_phase_timing_v1/evidence.json": "d923b56d5571e298c58a379f37a5fa3fca9b731757c86e62a8e139e2e3af2ca3",
+    "integrated_bl_step_v1/evidence.json": "c5f8940be4252b411cb7b6778819b8933179fea39db168a4298f7365d5fc4073"
+  },
+  "classification": {
+    "SU2_CFD/src/drivers/CDiscAdjSinglezoneDriver.cpp": "ADv14 and actual goal lifecycle/interruption controls",
+    "UnitTests/Common/adaptation/CNativeScaling2D_tests.cpp": "rebuilt executed engine robustness/capacity campaign",
+    "UnitTests/SU2_CFD/adaptation/CNativeAirfoil2D_tests.cpp": "rebuilt1/2/4 runtime, nine target/phase/field audits",
+    "UnitTests/SU2_CFD/adaptation/CNativeBL2D_tests.cpp": "rebuilt smooth/step1/2/4 and192 independent snapshots"
+  },
+  "scope": "Final source coverage reconciliation for actual executed tests; production unchanged. Source hashes alone are not runtime/compiled proof; named build and runtime evidence accompany each changed file."
+}

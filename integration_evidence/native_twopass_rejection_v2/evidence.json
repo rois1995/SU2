@@ -1,0 +1,51 @@
+{
+  "runner_pid": 690592,
+  "phase": "terminal",
+  "binary_sha256": "024bde2999c05fd46b87518b8aa7acfaf724943e7509d7b66684c56fff43ca52",
+  "runs": [
+    {
+      "ranks": 2,
+      "exit": 1,
+      "verified": true,
+      "elapsed_seconds": 0.3231186009943485,
+      "command": [
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=10s",
+        "60s",
+        "mpiexec",
+        "-n",
+        "2",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_native_production_v1/SU2_CFD",
+        "run.cfg"
+      ],
+      "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_twopass_rejection_v2/np2",
+      "config_sha256": "69c53cbcca990b226b9bafd94dbabe385b3a83e2a507b55f42a7f2c13547be4e",
+      "log_sha256": "53e4386eac2adacb99df2add1a908db198fab94de81cc7e7f5c4f54be1f03332",
+      "expected_diagnostic": "ADAP_BL_METHOD= TWO_PASS requires ADAP_REMESHER= MMG; native cavities build the BL with METRIC."
+    },
+    {
+      "ranks": 4,
+      "exit": 1,
+      "verified": true,
+      "elapsed_seconds": 1.3212656729156151,
+      "command": [
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=10s",
+        "60s",
+        "mpiexec",
+        "-n",
+        "4",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_native_production_v1/SU2_CFD",
+        "run.cfg"
+      ],
+      "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_twopass_rejection_v2/np4",
+      "config_sha256": "69c53cbcca990b226b9bafd94dbabe385b3a83e2a507b55f42a7f2c13547be4e",
+      "log_sha256": "3f7253dcbace1f3e38fa250af4838b673121767e1f6fb2b80fe0b9ab53b12e10",
+      "expected_diagnostic": "ADAP_BL_METHOD= TWO_PASS requires ADAP_REMESHER= MMG; native cavities build the BL with METRIC."
+    }
+  ],
+  "original_rank1_evidence": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_validation_closure_v1.json",
+  "exit": 0
+}

@@ -1,0 +1,57 @@
+{
+  "verified": true,
+  "checked_unix_seconds": 1791296679.268704,
+  "partial_contracts": [
+    {
+      "name": "complexity12000",
+      "cycle": 1,
+      "requested_height": 0.0002,
+      "cells": 40968,
+      "min_quality": 0.23791405954127945,
+      "max_length": 1.798235631082875,
+      "max_relative_height_error": 1.6353585152728556e-13,
+      "checks": {
+        "all_exact_positive": true,
+        "manifold_oriented_edges": true,
+        "physical_equals_exposed": true,
+        "annulus": true,
+        "quality": true,
+        "length": true,
+        "height": true,
+        "no_residuals": true,
+        "original_reference": true
+      },
+      "report_sha256": "ac10555d56392723ada9908163a93b06dc40bdebacb75a600de8b65558881bc6",
+      "all_input_pins_rechecked": true
+    },
+    {
+      "name": "height1e4",
+      "cycle": 0,
+      "requested_height": 0.0001,
+      "cells": 38852,
+      "min_quality": 0.27586680004595937,
+      "max_length": 1.7999779076258624,
+      "max_relative_height_error": 4.0090153419214403e-13,
+      "checks": {
+        "all_exact_positive": true,
+        "manifold_oriented_edges": true,
+        "physical_equals_exposed": true,
+        "annulus": true,
+        "quality": true,
+        "length": true,
+        "height": true,
+        "no_residuals": true,
+        "original_reference": true
+      },
+      "report_sha256": "605ba10c3bde4066fcde249594a1c3dc51b5f4bd3698a43adca428f53b352ed7",
+      "all_input_pins_rechecked": true
+    }
+  ],
+  "phase_target_audit_sha256": "106a3fdfad96f8131bb8c406212558358520c9280e5173cd34bcb145c6980a70",
+  "phase_field_audit_sha256": "219cd5654a7dc5b5b74849b1f9892acbb186c9ae4c1fd31b7883b8e616249ab0",
+  "all_phase_inputs_rechecked": true,
+  "twopass_rank1_state_sha256": "2e18fc1f868b15e33b7c52247d6f511ac9026fe11492f7fed72de8162788847a",
+  "twopass_rank24_state_sha256": "058156b762356519311b553af27811d597cccc893dca28a2d7d7bd25ca3d31fa",
+  "closure_failure_classification_sha256": "57198d0d05c735857de888c4b4801023093864d97e4e9e2317c0f9a36f076676",
+  "scope": "All9 phase targets, nine per-rank phase/ownership checks and18paired admissible immediate field snapshots; both accepted partial meshes independently meet complete contracts; native+TWO_PASS exact pre-solve rejection1/2/4. Original closure terminal1 is a classified helper-return bookkeeping defect; remaining ranks executed separately."
+}

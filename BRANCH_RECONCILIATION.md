@@ -40,8 +40,8 @@ mixed-volume element ordering and 17-significant-digit coordinate round trips.
 Source reconciliation is complete for these pinned inputs. Fresh integrated
 primal build,7 output cases and49 focused cases pass MPI1/2/4, as do native
 memory and default-MMG controls. Independent output audits and corrected AD
-mesh-swap gates also pass. Practical envelope and actual AD lifecycle validation
-remain in progress; consult HANDOFF_Codex.md and runtime JSON evidence.
+mesh-swap gates also pass. Practical envelope and actual AD lifecycle validation are complete within the
+declared scope; classified limits are reported in ROBUSTNESS_SCALING_RESULTS.md.
 
 Revalidated during the campaign: all other local heads/cached remote refs still
 match the initial snapshot, and the Stage G dirty diff matches its recorded SHA.
@@ -72,3 +72,24 @@ into this static nonperiodic adaptation branch. The companion solver checks are
 prior branch evidence, not fresh integration evidence. Reassess if periodic
 adaptation becomes an explicit supported target; do not infer such support from
 ordinary periodic CFD runs.
+
+
+## Current reconciliation and source coverage guards
+
+`integration_evidence/reconciliation_guard_v2.json` rechecks all local heads,
+all cached remote refs, every worktree's tracked source drafts, the original
+Stage G draft, AdapNoExt and included merge ancestry. All checks PASS. The only
+cached-ref changes are the two periodic-work refs assessed above; integration
+HEAD itself has advanced. No network fetch or modification of other worktrees
+was performed.
+
+`executed_source_coverage_v2.json` verifies all759Common/SU2_CFD production files
+unchanged since executed ADv14. The four differences from the original primal
+matrix are covered: corrected AD halo seeds, opt-in scaling measurement probe,
+and the rebuilt/validated BL-step and NACA-phase test-only instrumentation.
+The actual compiled registrations, assertion/build options and runtime evidence
+are recorded. Source hashes alone are not substituted for executed proof.
+All9new NACA targets and timing/field checks, both accepted partial-mesh full
+contracts and final40-case-per-rank MPI-transfer closure PASS. The test-only
+patches and closure helper return correction are committed as ffb3fb4c46.
+Final requirement/checkout evidence is in INTEGRATION_COMPLETION_AUDIT.md.

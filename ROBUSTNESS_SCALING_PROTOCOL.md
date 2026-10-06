@@ -1,6 +1,9 @@
 # Practical robustness and scaling protocol
 
-Predeclared 2026-10-06, before integrated pilot results. Goal active.
+Predeclared 2026-10-06, before integrated pilot results. Campaign complete;
+original definitions/stopping policy below are retained. Current outcomes and
+requirement proof are in ROBUSTNESS_SCALING_RESULTS.md and
+INTEGRATION_COMPLETION_AUDIT.md.
 
 The deliverable is an observed envelope, with failed cases preserved, not a
 claim that every anisotropic mesh can be adapted. Current native scope is
@@ -134,7 +137,10 @@ audit every accepted snapshot against its actual frozen donor field. Preserve an
 classify incomplete candidates; check that original reference, point count and
 all accepted flow values remain exact before reporting an observed construction
 limit. Reuse the existing saved-mesh auditors; no target floors or new meshing
-algorithm. The prepared patch is not applied or verified at runtime yet.
+algorithm. Executed closure: the patch is applied and compiled. All96 step snapshots and
+all96 unchanged smooth snapshots independently PASS on1/2/4; see
+native_step_support_complete_v1.json. The original declaration above remains
+the test definition, not a pending instruction.
 
 
 Measurement closure refinement: use prepared pending_airfoil_phase_timing_v3
@@ -145,11 +151,13 @@ overlaps. Validate maxima against local rows and ownership against the actual
 adapted mesh with check_airfoil_phase_timing.py after successful runtime. RSS
 includes process startup and earlier test snapshots; it is not attributable to
 one phase and phase maxima are not additive. Patches/checker self-check alone
-are not measured evidence. Execute only after live pinned campaigns finish.
+are not measured evidence. Both patches were applied after the pinned campaigns finished. All1/2/4
+instrumented runtime cases now pass; all9 independent phase/target/field verifications PASS in
+integrated_airfoil_phase_timing_v1.
 
 
-Actual main-loop/output coupling closure: staged integrated_native_production_v1
-runs the real SU2_CFD application on1/2/4 with the short baseline profile, local
+Actual main-loop/output coupling closure (historical declaration):
+integrated_native_production_v1 was staged to run the real SU2_CFD application on1/2/4 with the short baseline profile, local
 input mesh, noncompact double binary restart (including actual metric), ParaView
 flow fields and accepted mesh/reference outputs. Its queued supervisor starts
 only after robustness/AD/follow-through success and machine quiet. Pair restart
@@ -157,7 +165,9 @@ fields exactly with each donor grid using existing readers, and audit all nine
 actual restart-derived frozen-P1 targets against the original reference.
 This additional gate addresses the derived fixture's missing Output call; it
 does not replace phase timing, step-target tests or full CFD convergence proof.
-Do not apply prepared source patches while this fourth chain is waiting/running.
+That freeze is discharged: corrected production_v2 runtimes and all9 actual
+target audits passed under chain_v3 before either test-only patch was applied.
+native_production_complete_v1.json is the completion proof.
 
 
 Sequencing correction after executed failures: cold2 goal-runtime divergence was
@@ -168,5 +178,5 @@ without launching. Independent primal production/output validation resumes only
 after that classification, with fresh labels; remaining AD/interruption/capacity
 requirements are unchanged. The first production attempt failed at config parsing:
 use OUTPUT_FILES=(RESTART, PARAVIEW), as the repository enum defines. Preserve
-both failed attempts and keep the production runner/checker/binary frozen while
-native_production_chain_v3 runs. Actual cases are integrated_native_production_v2.
+both failed attempts and the production runner/checker/binary remained frozen while
+native_production_chain_v3 ran to terminal0. Actual cases are integrated_native_production_v2.
