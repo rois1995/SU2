@@ -60,3 +60,16 @@ The full goal still requires repeated/contiguous-ownership and matched-AR
 sweeps, fresh real-airfoil audits/transfer/cost limits, actual goal-loop and
 interruption checks, and the final quantitative report. See the predeclared
 ROBUSTNESS_SCALING_PROTOCOL.md. Do not mark the goal complete after a pilot.
+
+Update: fresh primal build passed. Initial focused matrix passed atMPI1
+(7611 assertions/49cases), then failed five inherited output tests atMPI2:
+the old ReadMesh helper compared each rank's local owned-point count with
+the global input count (22/23 versus45). All44 other selected cases passed.
+Both v2 primal and v1 extended supervisors are terminal failed; no AD/scaling
+jobs ran. Fixed the output test harness in6ce2cf34d4: gather/deduplicate global
+point/element/physical face records, validate halo agreement, synchronize
+file creation/deletion, and enable previously serial-only mixed/order tests.
+New sole chain: run_primal_chain_v3.py (incremental test rebuild, full fresh
+matrix, memory/default-MMG/audits, scaling_pilot_v3). Follow-up
+run_extended_chain_v2.py waits for it and also includes GoalMetric controls.
+Preserve failed v1 matrix and original build logs; do not call them passing.
