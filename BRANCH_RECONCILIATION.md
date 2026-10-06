@@ -21,6 +21,7 @@ Full initial refs and checkout invariants are in integration_evidence/.
 | origin/feature_MeshInterpolation, feature_Interpolate, feature_interp | Historical, not imported | 2015–2019 trees predate current MPI transfer; incompatible whole-tree imports |
 | origin/feature_communicator, feature_mpi_comms, fix_addGlobalElementIndex | Historical, not imported | Existing current communicator/index machinery already serves these purposes |
 | origin/feature_adap, xla27/feat_adap_mmg | Historical, not imported | Older external-adaptation approaches; current in-memory MMG and collective validation supersede them |
+| origin/fix_mesh_deformation_checks (5df818a43f) | Reviewed, separate scope | Four useful SU2_DEF deformation checks; both remesh backends reject moving/deforming meshes, so these are outside the static adaptation envelope and need their own SU2_DEF validation |
 | origin/develop/upstream/develop | Not wholesale merged | Broad unrelated upstream changes would expand the validation scope |
 
 Remote refs here are locally cached refs, not a claim that network heads were

@@ -29,13 +29,17 @@ TEST_CASE("Native engine size and partition envelope", "[NativeScaling2D][.]") {
   const int tiles = parameter("SU2_NATIVE_SCALING_TILES", 1, 256);
   const int layout = parameter("SU2_NATIVE_SCALING_LAYOUT", 1, 2);
   const int anisotropy = parameter("SU2_NATIVE_SCALING_AR", 10, 1000);
+  const int matched = parameter("SU2_NATIVE_SCALING_MATCHED", 1, 2);
   const int nx = 2 * tiles, ny = 4;
-  const double h0 = .004, normalSize = .04 / anisotropy;
+  const double normalSize = .04 / anisotropy;
+  const double yScale = matched == 1 ? 10. / anisotropy : 1.;
+  const double h0 = matched == 1 ? normalSize : .004;
+  const double dy = .005 * yScale, yMax = ny * dy;
   const Tensor tensor{625., 0., 1 / (normalSize * normalSize)};
-  auto node = [nx, ny](int i, int j) {
+  auto node = [nx, ny, dy](int i, int j) {
     const bool onBoundary = i == 0 || i == nx || j == 0 || j == ny;
     const bool corner = (i == 0 || i == nx) && (j == 0 || j == ny);
-    return Node{Id(j * (nx + 1) + i), {.02 * i, .005 * j}, onBoundary ? (corner ? 1 | FEATURE : 1) : 0};
+    return Node{Id(j * (nx + 1) + i), {.02 * i, dy * j}, onBoundary ? (corner ? 1 | FEATURE : 1) : 0};
   };
   std::vector<Triangle> original;
   for (int j = 0; j < ny; ++j)
@@ -47,7 +51,7 @@ TEST_CASE("Native engine size and partition envelope", "[NativeScaling2D][.]") {
   std::vector<PolylineReference::Face> faces;
   for (const auto& face : perimeter) {
     const auto a = face.second.first, b = face.second.second;
-    const int marker = a.p.y == 0 && b.p.y == 0 ? 10 : a.p.y == .02 && b.p.y == .02 ? 12 : 11;
+    const int marker = a.p.y == 0 && b.p.y == 0 ? 10 : a.p.y == yMax && b.p.y == yMax ? 12 : 11;
     faces.push_back({a, b, marker});
   }
   const PolylineReference reference(faces, 45);
@@ -131,7 +135,7 @@ TEST_CASE("Native engine size and partition envelope", "[NativeScaling2D][.]") {
     const bool complete = qmin >= .18 && lmax <= 1.8 && !missedHeight && !missedGeometry;
     std::ofstream report("native_scaling.json");
     report << std::setprecision(17) << "{\"scope\":\"engine only; audit gather excluded\",\"tiles\":" << tiles
-           << ",\"layout\":" << layout << ",\"anisotropy\":" << anisotropy << ",\"ranks\":" << world.size
+           << ",\"layout\":" << layout << ",\"matched\":" << matched << ",\"metric_height\":" << h0 / normalSize << ",\"anisotropy\":" << anisotropy << ",\"ranks\":" << world.size
            << ",\"input_cells\":" << original.size() << ",\"output_cells\":" << output.size()
            << ",\"complete\":" << (complete ? "true" : "false") << ",\"init_seconds\":" << initSeconds
            << ",\"adapt_seconds\":" << adaptSeconds << ",\"selection_seconds_max\":" << selection
