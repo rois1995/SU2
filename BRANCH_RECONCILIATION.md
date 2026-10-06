@@ -47,3 +47,28 @@ Revalidated during the campaign: all other local heads/cached remote refs still
 match the initial snapshot, and the Stage G dirty diff matches its recorded SHA.
 There is no new committed or changed Stage G draft source to reconcile. This
 comparison does not refresh remote refs or change another worker's checkout.
+
+
+## Later local-ref update: rotational periodic solver work
+
+A new cached `origin/fix_periodic_rotation` at
+c39428c1daf24b2ab4d7f7ab17b9dc1e8cd9a083 and an updated `origin/pr-images` at
+29c71a64b3ae04ed2a5aab3e63744f220e24c68b appeared during the campaign.
+This supersedes the earlier unchanged-cached-refs observation; this agent did
+not fetch. Other local heads remain pinned, and the Stage G dirty draft retains
+its original hash. Full assessment pin: integration_evidence/periodic_branch_assessment_v1.json.
+
+The solver branch adds exactly three commits above common ancestor6db10127d1:
+2990df482d (rotate both Jacobian block rows/columns), ce585c7422 (rotate the
+periodic solution on all multigrid levels), c39428c1da (velocity limiter stencil
+and extrema in the rotated frame). The implementation and regression diffs,
+plus the companion evidence README, were inspected. They remain separate scope:
+CNativeRemesher::CheckSupport rejects periodic boundaries/paired markers;
+CMMGInterface rejects periodic physical boundaries before remeshing; Stage G
+ADAP_ADJ_LAMBDA rejects periodic markers. Thus these changes do not repair a
+reachable supported adaptation path or change mesh generation/transfer/output.
+No periodic numerical fixes or refreshed solver reference values were imported
+into this static nonperiodic adaptation branch. The companion solver checks are
+prior branch evidence, not fresh integration evidence. Reassess if periodic
+adaptation becomes an explicit supported target; do not infer such support from
+ordinary periodic CFD runs.

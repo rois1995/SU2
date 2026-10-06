@@ -333,3 +333,18 @@ partition_work_memory_summary_v1.json and the results table report rank-max RSS,
 encoded payload and final owned-cell imbalance. Horizontal4 imbalance1.26396
 versus vertical4 1.06348; association with a timing plateau does not isolate its
 cause. Zero memory admission rejections in these27 small-memory probes.
+
+
+Local refs changed later: new origin/fix_periodic_rotation c39428c1da and updated
+origin/pr-images29c71a64b3, observed without fetching. This supersedes earlier
+unchanged-remote-ref statements. All three new periodic solver commits and
+companion evidence were assessed and pinned in periodic_branch_assessment_v1.
+They are outside both current native and MMG adaptation support (explicit
+periodic marker rejection), so no code/refreshed numeric references imported.
+See BRANCH_RECONCILIATION.md. Other local heads and Stage G draft stay pinned.
+
+User preference: every progress update should identify the ACTIVE TESTCASE
+folder, not merely the integration worktree. Read current_run.working_directory
+for CFD jobs; for independent auditors report the actual audit_npN input folder
+and destination reports. Current baseline reports: independent_v8, not the old
+baseline's independent_full_v1 name. Never infer a live case from an old PID.

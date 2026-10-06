@@ -1,0 +1,33 @@
+{
+  "checked_unix_seconds": 1791287328.7883425,
+  "ref": "refs/remotes/origin/fix_periodic_rotation",
+  "tip": "c39428c1daf24b2ab4d7f7ab17b9dc1e8cd9a083",
+  "base": "6db10127d1dcf57c33a2ab275a0b8051a83ed3fd",
+  "commits": [
+    "2990df482dee563cbb910294b9e99d752b01cc9b",
+    "ce585c742212d70f453bb358578cf8b525a92b84",
+    "c39428c1daf24b2ab4d7f7ab17b9dc1e8cd9a083"
+  ],
+  "diff_sha256": "df26b979dd857791c84899f70afb204e5ee02ce7803b33692673af85d28ec6a3",
+  "files": [
+    "SU2_CFD/include/limiters/computeLimiters_impl.hpp",
+    "SU2_CFD/include/solvers/CFVMFlowSolverBase.inl",
+    "SU2_CFD/include/solvers/CSolver.hpp",
+    "SU2_CFD/src/solvers/CSolver.cpp",
+    "TestCases/hybrid_regression.py",
+    "TestCases/navierstokes/periodic2D/multigrid.cfg",
+    "TestCases/navierstokes/periodic2D/no_limiter.cfg",
+    "TestCases/parallel_regression.py",
+    "TestCases/serial_regression.py"
+  ],
+  "decision": "Reviewed, separate scope; not imported. Native and MMG remeshers reject periodic physical boundaries; goal residual capture rejects periodic markers. These three fixes affect rotational periodic solver/Jacobian/multigrid/limiter numerics, not supported static nonperiodic adaptation.",
+  "guard_sources": [
+    "Common/src/adaptation/CNativeRemesher.cpp",
+    "Common/src/adaptation/CMMGInterface.cpp",
+    "Common/src/CConfig.cpp"
+  ],
+  "evidence_ref": "refs/remotes/origin/pr-images",
+  "evidence_tip": "29c71a64b3ae04ed2a5aab3e63744f220e24c68b",
+  "evidence_previous": "82c3344b2d0dcb44a8234520eb85d7f8d74b5dc8",
+  "evidence_scope": "Published branch evidence reviewed as prior evidence only, not integrated-tree verification; current local refs observed without fetching."
+}
