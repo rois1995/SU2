@@ -1147,7 +1147,10 @@ passivedouble WallReconstructionError(const string& markers, const simplex_test:
       err = std::max(err, fabs(test.flow->GetGoalDiagnostic(iPoint, 2 + c2) - exact));
     }
   }
-  return err / lamScale;
+  nWall = CPassiveComm::AllreduceSum(nWall);
+  lamScale = MaxAll(lamScale);
+  REQUIRE(lamScale > 0);
+  return MaxAll(err) / lamScale;
 }
 
 /*--- Rectangle mapped to an annular sector (curved lower wall r = 1). ---*/
