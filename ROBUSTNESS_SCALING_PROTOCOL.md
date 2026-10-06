@@ -135,3 +135,13 @@ classify incomplete candidates; check that original reference, point count and
 all accepted flow values remain exact before reporting an observed construction
 limit. Reuse the existing saved-mesh auditors; no target floors or new meshing
 algorithm. The prepared patch is not applied or verified at runtime yet.
+
+
+Measurement closure refinement: use prepared pending_airfoil_phase_timing_v2
+instead of v1. Besides independent phase MAX values, retain local rank duration
+rows, cumulative Linux VmHWM, owned/total CFD points and local elements including
+overlaps. Validate maxima against local rows and ownership against the actual
+adapted mesh with check_airfoil_phase_timing.py after successful runtime. RSS
+includes process startup and earlier test snapshots; it is not attributable to
+one phase and phase maxima are not additive. Patches/checker self-check alone
+are not measured evidence. Execute only after live pinned campaigns finish.

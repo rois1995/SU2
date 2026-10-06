@@ -297,3 +297,24 @@ initial10216 triangles, four-rank cycles23328/25549/19487 triangles, exact VTU/S
 exports and wall-detail preview. All nine earlier1/2/4 saved meshes independently
 verified; only short viscous/resumed-solve checks, not converged CFD accuracy.
 See GRID_GUIDE.md. This is prior baseline evidence, not fresh integration proof.
+
+
+Latest controls: affine AR10/100/1000 MPI1/2/4 all9 complete and independently
+pass, with current raw hashes reverified. Fixed-geometry AR25 MPI1/2/4 all3
+structurally pass but are correctly incomplete; metric first height2.5>edge
+cap1.8 proves incompatible demand. These are small engine-only controls, not
+large curved-BL capacity or CFD replacement evidence. Fresh integrated NACA
+baseline1/2 passed316.525/180.644s;4 is live (MPI284403 at last host check).
+
+Measurement patch **pending_airfoil_phase_timing_v2.patch/.json supersedes v1**:
+adds rank-local timing, cumulative process VmHWM and CFD ownership/overlap counts,
+with stream checks. Both original source SHA and git apply --check pass. Still
+NOT APPLIED/COMPILED/RUN. Apply only v2 (not v1) after all current supervisors and
+binary-pinned followers finish, together with pending_bl_step_metric_v1. Sources
+and binaries remain unchanged. Minimal validator self-check passed:
+python3 integration_evidence/check_airfoil_phase_timing.py --self-check
+After actual fresh1/2/4 timing runtime and independent mesh audits, execute:
+python3 integration_evidence/check_airfoil_phase_timing.py integration_evidence/integrated_airfoil_phase_timing_v1 --output integration_evidence/integrated_airfoil_phase_timing_v1/timing_audit.json
+It must prove every cycle/rank row, exact reported MPI maxima, global owned-point
+count versus saved adapted mesh, cumulative RSS and transfer/replacement scope.
+No actual per-rank measurement is claimed from the self-check alone.

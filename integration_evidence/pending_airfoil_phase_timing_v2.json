@@ -1,0 +1,10 @@
+{
+  "scope": "prepared test-only instrumentation; NOT APPLIED OR COMPILED; apply after all live binary-pinned campaigns finish",
+  "input_source_sha256": "fb7d2880c8b92d95dae355e1f482a0f7bef628557cc2c8b2a8ff9c2df7f63ee8",
+  "patch_sha256": "f80f28ca8e278e988e71721db951a929d506df2c824922d45a64c244357bb811",
+  "source": "UnitTests/SU2_CFD/adaptation/CNativeAirfoil2D_tests.cpp",
+  "check": "git apply --check passed",
+  "timing_scope": "local durations reduced by MPI MAX separately per phase; maxima are not additive; solve includes inner output; transfer is a subset of replacement; remainder includes partition/new geometry/solver initialization and teardown; test snapshot gathers/audits excluded",
+  "supersedes": "pending_airfoil_phase_timing_v1.patch",
+  "per_rank_scope": "local durations plus cumulative Linux VmHWM after each cycle, owned/total CFD points and local elements including overlaps; startup/test snapshots included; MAX reduction checked against rank rows on execution"
+}

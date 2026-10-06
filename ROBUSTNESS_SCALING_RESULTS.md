@@ -314,3 +314,40 @@ Actual prior native-baseline NACA meshes have been exported for inspection in
 `real_airfoil_gallery_v1` (see GRID_GUIDE.md). They include three four-rank
 adaptations, boundary-layer cells and short resumed viscous solves, but do not
 establish full CFD convergence or current integrated-tree runtime success.
+
+
+## Matched anisotropy and conflicting BL demand
+
+All nine64-input-triangle affine-matched controls (aspect ratios10/100/1000,
+MPI1/2/4) completed and independently pass exact orientation, topology, boundary,
+area and full constant-target criteria. Audit and current raw input hashes were
+rechecked: `robustness_campaign_v8/affine/independent_audit.json`.
+The normal geometry and prescribed h0 scale with the tensor, so the metric
+first height stays1. Quality minima range0.40924–0.65553 and maximum metric edges
+1.26410–1.57188. This is numerical robustness under affine scaling of a small
+straight-wall control, not a1000-aspect-ratio curved-airfoil capacity proof.
+
+All three fixed-geometry AR25 controls report incomplete and independently
+retain valid mesh structure, perimeter and exact prescribed first height:
+`robustness_campaign_v8/incompatible/independent_audit.json`. Here metric first
+height is2.5, exceeding the edge limit1.8. Any incident edge reaching the apex
+has metric length at least2.5, so the requested height and maximum edge length
+cannot both hold. Audited maximum length2.53179778 and minimum quality0.21890749
+agree with the engine; no admission-memory rejection occurred. This is an
+explicit conflicting request, not a deadlock or a relaxed acceptance threshold.
+The engine-only probe does not install candidates into CFD; accepted driver
+state retention is exercised separately by integrated failure controls.
+
+Fresh integrated NACA three-cycle runtime passed1 and2 ranks (whole-job316.525
+and180.644s);4 ranks are running at the last observation. Serial adapted cell
+counts23368/25322/19502. These include CFD, test snapshots and checks, so are not
+isolated remeshing costs. Independent original-reference/frozen-P1 audits remain
+pending until the baseline runner completes and archives its executable.
+
+Measurement-gap closure now uses prepared **pending_airfoil_phase_timing_v2**,
+superseding v1 but retaining both files. It adds local phase rows, cumulative
+rank Linux VmHWM and owned/total CFD point counts plus overlapping local element
+counts. This is whole-process memory including startup and earlier snapshots,
+not remesher-only allocation. `check_airfoil_phase_timing.py --self-check` passed;
+actual compilation/runtime, MPI-max-to-local consistency and ownership checks
+have not run. No live source or pinned executable changed.
