@@ -34,13 +34,14 @@ those handles are gone. Do not restart any original version.
 
 | State / runner | Current result |
 |---|---|
-| robustness_chain_v8 / run_native_robustness_campaign_v8 |Terminal0; all48 saved opposing-wall independent audits PASS |
+| robustness_chain_v8 / run_native_robustness_campaign_v8 |Terminal0; all48 opposing-wall audits PASS. Additional48 single-wall audits independently PASS in independent_single_v1 |
 | goal_runtime_v7 / run_integrated_goal_runtime_v7 |Terminal1; warm1/2 and cold1 short lifecycles pass, cold2 diverges in the final adjoint solve |
 | integration_followthrough_v1 |Terminal1; prerequisite failure, no capacity or4-rank jobs launched |
 | native_production_chain_v1 |Terminal1; prerequisite failure, no production jobs launched |
 | native_production_chain_v2 |Terminal1; np1 config parsing rejected PARAVIEW_BINARY, no solver iterations |
 | native_production_chain_v3 / run_native_production_checks_v3 |Fresh supervisor496844; actual production1/2/4 matrix in integrated_native_production_v2, verify live state |
-| integration_capacity_v2 / run_integration_capacity_v2 |Fresh supervisor503409 waits for production success; declared native capacity2/4 controls only, AD controls remain separate |
+| integration_capacity_v2 / run_integration_capacity_v2 |Fresh supervisor503409 waits for production success; declared native capacity2/4 controls only |
+| goal_remaining_v1 / run_integrated_goal_remaining |Fresh supervisor517486 waits for capacity success; interruption primal/adjoint1/2, exact native-adjoint rejection2, then actual warm/cold4 |
 
 The cold2 failure was replayed as an ordinary static-mesh two-rank adjoint using
 its cycle2 mesh and actual saved flow. That fresh process, with no adaptation or
@@ -64,10 +65,13 @@ independent primal gate after classifying the AD CFD failure does not make that
 failed lifecycle a pass. The production v1 folder retains the parser failure;
 actual new runs live in integrated_native_production_v2/np{1,2,4}.
 
-**Freeze while production v3 or capacity v2 waits/runs:** do not rebuild production/test binaries or mutate
+**Freeze while production v3, capacity v2 or goal_remaining_v1 waits/runs:** do not rebuild production/test binaries or mutate
 run_native_production_checks_v3.py or check_airfoil_phase_timing.py. Its loaded
-hashes are pinned. Pending test patches remain unapplied. After these gates, resume
-outstanding AD controls sequentially, then apply the
+hashes are pinned. Pending test patches remain unapplied. The remaining AD runner accepts fresh labels and selected cases for diagnosis
+without repeating passed controls. It reuses archived AD inputs/application,
+rechecks759 production sources and the checker, archives its actual runner and
+signals only one own descendant. Unexpected failures still stop the chain;
+classify before resuming remaining cases. After these gates, apply the
 instrumentation/step patches and finish all required validation. Read current
 JSON and host handles before acting; the listed PID is not a permanent proof.
 
@@ -152,6 +156,7 @@ exact datasets, commands, thresholds and distributions; this section is current.
   independently PASS. Geometry/h0/tensor scale together; not a curved1000-AR
   airfoil or large-demand proof. Fixed-geometry AR25 controls1/2/4: all3 valid
   but incomplete, necessary-condition incompatibility h0_metric2.5>edge cap1.8.
+- All96 smooth eight-cycle snapshots (single/opposing walls, barycentric/conservative,1/2/4 ranks) now pass independent frozen-P1 structure/target/height and flat-reference audits. Single-wall48 evidence: integrated_primal_controls_v6/independent_single_v1; all144 input pins rechecked after evaluation. Reusable run_native_bl_audits.py covers both wall variants for future step runs.
 - Actual sensor/BL NACA baseline h0=2e-4,4k/6k/3k: all three-cycle viscous/
   conservative-transfer/resumed-solve runtimes and all9 independent original-
   reference/frozen-P1 audits PASS. Evidence integrated_airfoil_baseline_v8 with
@@ -196,7 +201,7 @@ now exist; production_available_flow_v1.json pins exact restart/grid pairing and
 positive conserved-state checks (5233/11811 points). This availability proof is
 not completion of the full runtime/target audit matrix. v1 retains the invalid-token parser
 failure. run_template.cfg/prepared.json pin the corrected profile; restart-to-mesh
-mapping self-check passes, actual matrix/nine-target audits are still pending.
+mapping self-check passes, actual1/2 runs now pass all four-cycle mesh/flow/metric output checks;4-rank run and nine-target audits are still pending.
 
 Audit tools hash donor/metric/candidate before/after evaluation and original
 NACA reference before/after its check. Input changes are rejected. The runtime
@@ -212,11 +217,11 @@ unchanged. Earlier archived audits are preserved.
 |---|---|
 | Reconciliation |Final revalidate main/heads/remotes/Stage G draft; classify later relevant changes |
 | Integrated validation |Actual Stage G warm/cold/interruption/native-rejection pipeline and corrected4rank follow-through; actual native production/output coupling matrix |
-| Robustness |Saved48 opposing audits PASS; partial larger/thinner NACA target audits; abrupt nodal step controls and every saved one/opposing-wall target audit; explicit support diagnostics |
+| Robustness |Saved96 smooth one/opposing-wall audits PASS; partial larger/thinner NACA target audits; abrupt nodal step controls and every saved one/opposing-wall target audit; explicit support diagnostics |
 | Scaling |Higher-rank capacities; actual MPI MAX remesh/replacement/transfer/CFD/output, local rank timings/RSS/ownership; classify every failed/stopped axis |
 | Handoff/review |Commit tested source, exact evidence and final requirement-by-requirement report; do not substitute narrow checks for full requirements |
 
-After production v3 and capacity v2 finish and failures are classified, resume AD controls and:
+After production v3, capacity v2 and goal_remaining_v1 finish and failures are classified:
 
 1. Independently audit completed timeout-run snapshots: complexity12000 cycle1
    at h0=.0002; height1e4 cycle0 at h0=.0001. Use audit_native_airfoil.py on each
@@ -233,8 +238,9 @@ After production v3 and capacity v2 finish and failures are classified, resume A
    abrupt nodal data with continuous frozen P1 interpolation, not inconsistent
    cell-discontinuous values. On incomplete, verify exact original reference,
    point count and accepted flow retention; preserve candidate/residual evidence.
-   Audit opposing snapshots with run_native_opposing_audits.py; additionally
-   audit single-wall/rejected snapshots with audit_native_bl.audit.
+   Use run_native_bl_audits.py for all96 accepted one/opposing-wall snapshots
+   in each fresh smooth/step run; use audit_native_bl.audit for rejected candidates.
+   Run smooth and step in SEPARATE evidence folders: snapshot names are identical.
 4. Fresh existing NativeAirfoil2D baseline, label integrated_airfoil_phase_timing_v1,
    ranks1/2/4,900s/rank, save-audit, then full independent airfoil audits. v3 records
    solve(with inner output), metric, full backend import/adapt/export, replacement,

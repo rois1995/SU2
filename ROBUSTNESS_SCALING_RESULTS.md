@@ -514,3 +514,30 @@ for production success. It reuses the unchanged archived native engine, tests
 the predeclared2/4 size axes sequentially, and reports skipped failed/unexecuted
 serial demand controls. Outstanding actual AD4/interruption/rejection gates
 remain explicit; this capacity-only runner does not claim their completion.
+
+
+## Full saved smooth-BL coverage and queued remaining AD controls
+
+The48 single-wall eight-cycle snapshots now independently PASS exact orientation,
+manifold/physical-edge/Euler checks, q>=.18, frozen-P1 Simpson length<=1.8,
+first-height relative error<=1e-8, original flat geometry, marker junction and
+corners. Both barycentric/conservative transfers and all1/2/4 ranks are covered.
+All144 donor/metric/candidate input pins were rechecked after evaluation.
+Combined with the already executed48 opposing-wall audits, all96 smooth-BL
+snapshots have independent target/reference proof. Evidence: integrated_primal_controls_v6/
+independent_single_v1. The reusable run_native_bl_audits.py supports both wall
+variants and will cover the later step fixture. Smooth/step must run in separate
+folders because their artifact names coincide.
+
+Actual production1/2 now pass four-cycle restart/ParaView/metric/mesh pairing,
+finite/SPD metric and positive conserved/primitive field checks. Whole-job
+serial430.517s; inspect live evidence for the two/four-rank measurements. Nine
+independent original-reference/frozen-P1 audits remain pending until4 finishes.
+
+The remaining AD supervisor517486 (goal_remaining_v1) waits for capacity success.
+It runs the outstanding one-descendant SIGTERM primal/adjoint1/2 controls, exact
+native-adjoint rejection2, then corrected-tree warm/cold4. It reuses the pinned
+archive and checks all759 current production sources plus checker/input hashes.
+A new unexpected failure stops it for classification; selected-case CLI permits
+resuming only outstanding controls with a fresh evidence label. No AD runtime
+has started in this queued remainder yet.
