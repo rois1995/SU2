@@ -20,7 +20,7 @@ The practical envelope is still being measured; the following are verified resul
 | Goal metric/custom sensors/two-pass/reference/adjoint transfer | 1,2,4 | 58 cases per rank, PASS |
 | Independent constant-target pilot geometry/topology audits | 1,2,4 | 12 cases, PASS |
 | Fresh AD build | — | PASS, executables archived with hashes |
-| AD GoalSwap controls | 1 passed; 2,4 pending | 3 cases/24 assertions at1 |
+| AD GoalSwap controls | Original:1 passed,2 failed; fix validation1/2/4 pending | MPI halo-seed defect diagnosed and corrected |
 
 Evidence: integration_evidence/integrated_output_controls_v6,
 integrated_primal_controls_v6, integrated_primal_memory_v6, integrated_mmg_default_v6,
@@ -89,3 +89,17 @@ warm/cold lifecycle and single-rank interruption propagation. See
 ROBUSTNESS_SCALING_PROTOCOL.md and live JSON states in HANDOFF_Codex.md.
 
 Do not call the goal complete or publish a large-rank/3D scaling claim from this pilot.
+
+## MPI adjoint mesh-swap defect found during integration validation
+
+Original GoalSwap v9 passed1 rank but failed2. Owned primal/adjoint transfer and
+objective were exact, yet continuation residual discrepancy was3.2863 and final
+adjoint relative difference.999103. Tight Jacobi solves reproduced the failure
+with unchanged point ownership and recorded primal linear residual8.2855e-14,
+ruling out the initial incomplete-ILU hypothesis. The transfer utility supplies
+owner copies on halos, but the DA driver seeds every recorded primal output;
+its recorded halo exchange then duplicates those contributions. Clearing only
+halo adjoint seeds after SwapMesh retained owned warm starts and restored exact
+continuation in the2-rank v13 diagnostic. Original ILU-settings regression at
+1/2/4 is now running as v14. Production correction is limited to DA mesh swap;
+primal interpolation and its halo field semantics are unchanged.

@@ -864,6 +864,20 @@ void CDiscAdjSinglezoneDriver::SwapMesh(const CRemeshResult& remeshed, CSolution
   ReplaceMesh(remeshed, transfer);
 
   RefreshMeshPointers();
+
+  /*--- The transferred fields include owner copies on halos for interpolation/inspection. A discrete-adjoint
+   *    iteration seeds all recorded primal outputs, whose halo communication is already on the tape. Seeding
+   *    these copies again duplicates the owner's contribution. As with a fresh adjoint restart, only owned
+   *    solution values are warm-start seeds; ghost inputs extract zero adjoints after reverse communication. ---*/
+  for (unsigned short iSol = 0; iSol < MAX_SOLS; ++iSol) {
+    auto* adjointSolver = solver[iSol];
+    if (adjointSolver == nullptr || !adjointSolver->GetAdjoint()) continue;
+    auto* nodes = adjointSolver->GetNodes();
+    for (auto iPoint = geometry->GetnPointDomain(); iPoint < geometry->GetnPoint(); ++iPoint)
+      for (unsigned short iVar = 0; iVar < adjointSolver->GetnVar(); ++iVar)
+        nodes->SetSolution(iPoint, iVar, 0.0);
+    nodes->Set_OldSolution();
+  }
 }
 
 CDiscAdjSinglezoneDriver::PrimalPhase CDiscAdjSinglezoneDriver::RunPrimalPhase(unsigned long nIter) {

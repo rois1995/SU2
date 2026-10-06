@@ -44,15 +44,19 @@ The tiny-fixture empty-partition abort is a CFD limitation, not a mesher result.
 
 ## Live supervisors: check JSON and host PIDs before acting
 
-- extended_chain_v9.json / run_extended_chain_v9.py, PID4119260: auxiliary58
-  cases now PASS1/2/4; fresh AD build PASS; GoalSwap1 passed (3 cases/24 assertions), 2/4 pending.
-- robustness_chain_v7.json / run_native_robustness_campaign_v7.py, PID23496:
-  waits for extended success, rebuilds only the primal probe/test binary, then
+- ad_repair_controls_v14.json / run_ad_repair_controls_v14.py, PID52130:
+  fresh AD build passed. Original GoalSwap v9 passed1 but failed2 with exact
+  owned transfer and large continuation errors. Tight Jacobi diagnostic v12
+  reproduced it with unchanged ownership; clearing halo seeds restored exact
+  continuation in v13. Final v14 validates original ILU settings at1/2/4 and
+  archives fresh executables plus hashes of all tracked production/test sources.
+- robustness_chain_v8.json / run_native_robustness_campaign_v8.py, PID52131:
+  waits for final AD controls, rebuilds primal probe and CFD application, then
   size escalation (tiles128..4096) with low-cut vertical geometric ownership,
   three repetitions/rank for all3 layouts, matched AR10/100/1000, incompatible
   AR25, independent raw audits, actual NACA conservative/resumed-viscous baseline
   and demand axes, and saved opposing-wall audits from the fresh matrix.
-- goal_runtime_v6.json / run_integrated_goal_runtime_v6.py, PID23497: waits
+- goal_runtime_v7.json / run_integrated_goal_runtime_v7.py, PID52132: waits
   for robustness success, actual warm/cold goal loops at1/2; SIGTERM to only one
   descendant rank during primal/adjoint recording at1/2; native-adjoint rejection.
   Short lifecycle checks use a hashed prior converged checkpoint on the identical
@@ -94,7 +98,7 @@ Dependencies externals/{codi,eigen,medi,mel,meson} are read-only symlinks to mai
 sources: leave T changes unstaged. Local preconfigure stamp already exists.
 Ninja: prior scratchpad/ninjabin. Static MMG SCOTCH root:
 /home/rausa/Software/scotch. Threads1; MPI<=4; builds-j2. New builds/evidence
-here, not /tmp or AdapNoExt. Disk free approximately49GB on4TB,7.4GB on/tmp.
+here, not /tmp or AdapNoExt. Disk free approximately42GB on4TB,7.4GB on/tmp.
 
 Initial refs/worktrees/main invariants and Stage G draft gzip/SHA are pinned in
 integration_evidence. Source manifestsv1/v2/v3 plusv6/v9 overrides and each runtime's
@@ -112,3 +116,11 @@ AD executable snapshots and hashes are preserved in ad_build_archive_v9.
 Idle robustness v6 / goal v5 were superseded before runtime to distinguish
 240-second time budgets from unexpected failures and parse host comm names
 with spaces safely. Only SIGTERM to their verified idle supervisor PIDs was used.
+
+MPI adjoint correction in SwapMesh: transferred halo copies remain useful in the
+transfer utility, but the discrete-adjoint driver clears their seed values before
+recording (owned warm-start values retained). Recorded primal halo communication
+already carries the owner contribution; seeding a copy duplicates it. This is a
+production mesh-swap defect, separate from the earlier test-harness defects.
+Unmodified-v9 and tight-linear-v12 failures are preserved. Downstream v7/v6
+followers stopped automatically on that failed prerequisite; v8/v7 are fresh.

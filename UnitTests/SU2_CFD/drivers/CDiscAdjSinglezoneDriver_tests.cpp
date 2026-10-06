@@ -194,6 +194,16 @@ passivedouble MaxDifference(const PointValues& a, const PointValues& b) {
   return diff;
 }
 
+/*--- Halos are recorded primal outputs too; their seeds must not duplicate the owner solution. ---*/
+passivedouble HaloSeedMax(TestDADriver& driver) {
+  passivedouble maximum = 0.0;
+  const auto& psi = driver.Adjoint()->GetNodes()->GetSolution();
+  for (auto i = driver.Geometry()->GetnPointDomain(); i < driver.Geometry()->GetnPoint(); ++i)
+    for (auto v = 0ul; v < psi.cols(); ++v)
+      maximum = std::max(maximum, std::fabs(SU2_TYPE::GetValue(psi(i, v))));
+  return CPassiveComm::Allreduce(maximum, CPassiveComm::Op::MAX);
+}
+
 /*--- RMS of every adjoint variable after one adjoint iteration (Run with one iteration). ---*/
 std::vector<passivedouble> AdjointIteration(TestDADriver& driver) {
   driver.Run();
@@ -306,7 +316,7 @@ TEST_CASE("Discrete adjoint mesh swap: same mesh, next iterations as uninterrupt
 
   /*--- Run A: 2k adjoint iterations on one recording. ---*/
   std::vector<std::vector<passivedouble>> rmsA;
-  passivedouble objectiveA = 0.0;
+  passivedouble objectiveA = 0.0, linearResidualA = 0.0, linearResidualB = 0.0;
   PointValues psiA;
   {
     const auto cfg = WriteAdjointConfig("a", true);
@@ -315,6 +325,7 @@ TEST_CASE("Discrete adjoint mesh swap: same mesh, next iterations as uninterrupt
     driver.SetAdjointIterations(1);
     driver.Preprocess(0);
     objectiveA = driver.Objective();
+    linearResidualA = SU2_TYPE::GetValue(driver.Flow()->GetResLinSolver());
     for (unsigned long i = 0; i < 2 * k; ++i) rmsA.push_back(AdjointIteration(driver));
     psiA = Gathered(Values(driver.Geometry(), driver.Adjoint()->GetNodes()->GetSolution()));
     AD::Reset();
@@ -326,6 +337,8 @@ TEST_CASE("Discrete adjoint mesh swap: same mesh, next iterations as uninterrupt
   passivedouble objectiveB = 0.0, flowDiff = 0.0, psiDiff = 0.0;
   bool restartCompact = false, restartFull = false;
   PointValues psiB;
+  unsigned long changedOwners = 0;
+  passivedouble haloSeedBefore = 0.0, haloSeedAfter = 0.0;
   {
     const auto cfg = WriteAdjointConfig("b", true);
     Mute mute;
@@ -335,10 +348,23 @@ TEST_CASE("Discrete adjoint mesh swap: same mesh, next iterations as uninterrupt
     for (unsigned long i = 0; i < k; ++i) rmsB.push_back(AdjointIteration(driver));
     const auto direct = Gathered(DirectValues(driver));
     const auto psiBefore = Gathered(Values(driver.Geometry(), driver.Adjoint()->GetNodes()->GetSolution()));
+    haloSeedBefore = HaloSeedMax(driver);
 
+    PointValues owners;
+    for (auto i = 0ul; i < driver.Geometry()->GetnPointDomain(); ++i)
+      owners[driver.Geometry()->nodes->GetGlobalIndex(i)] = {static_cast<passivedouble>(SU2_MPI::GetRank())};
+    owners = Gathered(owners);
     const auto mesh = SameMesh(driver);
     auto transfer = MakeTransfer();
     driver.SwapMesh(mesh, *transfer);
+    haloSeedAfter = HaloSeedMax(driver);
+
+    PointValues newOwners;
+    for (auto i = 0ul; i < driver.Geometry()->GetnPointDomain(); ++i)
+      newOwners[driver.Geometry()->nodes->GetGlobalIndex(i)] = {static_cast<passivedouble>(SU2_MPI::GetRank())};
+    newOwners = Gathered(newOwners);
+    for (const auto& point : owners)
+      if (point.second != newOwners.at(point.first)) ++changedOwners;
 
     flowDiff = MaxDifference(Gathered(Values(driver.Geometry(), driver.Flow()->GetNodes()->GetSolution())), direct);
     psiDiff = MaxDifference(Gathered(Values(driver.Geometry(), driver.Adjoint()->GetNodes()->GetSolution())), psiBefore);
@@ -346,6 +372,7 @@ TEST_CASE("Discrete adjoint mesh swap: same mesh, next iterations as uninterrupt
     driver.SetAdjointIterations(1);
     driver.Preprocess(0);
     objectiveB = driver.Objective();
+    linearResidualB = SU2_TYPE::GetValue(driver.Flow()->GetResLinSolver());
     for (unsigned long i = 0; i < k; ++i) rmsB.push_back(AdjointIteration(driver));
     psiB = Gathered(Values(driver.Geometry(), driver.Adjoint()->GetNodes()->GetSolution()));
 
@@ -356,6 +383,8 @@ TEST_CASE("Discrete adjoint mesh swap: same mesh, next iterations as uninterrupt
     driver.Finalize();
   }
 
+  CHECK(haloSeedBefore <= 1e-12);
+  CHECK(haloSeedAfter == 0.0);
   CHECK(flowDiff <= 1e-12);
   CHECK(psiDiff <= 1e-12);
   CHECK(std::fabs(objectiveB - objectiveA) <= 1e-12 * std::fabs(objectiveA));
@@ -376,7 +405,9 @@ TEST_CASE("Discrete adjoint mesh swap: same mesh, next iterations as uninterrupt
   CHECK(restartCompact);
   CHECK(restartFull);
   if (SU2_MPI::GetRank() == MASTER_NODE) {
-    WARN("same-mesh swap: flow " << flowDiff << ", psi " << psiDiff << ", objective "
+    WARN("same-mesh swap: changed owners " << changedOwners << ", recorded linear residuals "
+         << linearResidualA << " / " << linearResidualB << ", halo seeds " << haloSeedBefore << " / " << haloSeedAfter
+         << ", flow " << flowDiff << ", psi " << psiDiff << ", objective "
                                  << std::fabs(objectiveB - objectiveA) / std::fabs(objectiveA)
                                  << ", worst per-iteration RMS " << worst << ", final psi " << MaxDifference(psiB, psiA));
   }
