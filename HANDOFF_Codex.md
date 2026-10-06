@@ -392,3 +392,31 @@ an additional integration/inspectability gap: derived fixture Run/Postprocess/
 Update bypassed production Output. Run sequentially after current pipelines,
 pin executable/sources/configs, extract restart metrics using existing capcheck
 reader for actual frozen-P1 audits. Do not mistake prepared folders for outputs.
+
+
+Thinner height case ended: h0/HMIN1e-4 serial timeout124/902.055s under900s
+whole-job cap. First mesh accepted38852 triangles/19563 points; timeout during
+cycle1 remeshing from that mesh (8382 shape/15685 length incoming residuals).
+No cycle1 candidate; h5e-5 not run under declared axis stop. New pins/classification
+in airfoil_height_cost_limit_v1.json. Completed cycle0 still needs independent
+actual-target/reference audit at h0=.0001. Foreign ninja/cc1plus build is delaying
+saved opposing audits; own heavy simulations are idle at last host observation.
+
+Additional verified-idle supervisor416452: native_production_chain_v1.json /
+run_native_production_checks_v1.py waits for integration_followthrough_v1 success.
+Cases integrated_native_production_v1/np1,np2,np4 use actual main SU2_CFD loop,
+local input.su2/run.cfg, restart+ParaView+double metric+mesh/reference outputs.
+Loaded runner and check_airfoil_phase_timing.py hashes are frozen: DO NOT EDIT
+those scripts or rebuild/mutate sources while this chain waits/runs. Wait for
+this production chain, in addition to the other three, before applying pending
+v3 timing/field and step patches and building the test driver. All759 production
+source pins match. Self-check verifies correct mapping and rejects wrong mesh
+coordinates. Actual production outputs/audits remain NOT RUN.
+
+Reproduction/config template: integrated_native_production_v1/run_template.cfg;
+original input is QuickStart/mesh_NACA0012_inv.su2 at the pinned SHA. Keep prepared
+configs/data separate from executed evidence. Production archive/actual output
+checks and nine double-restart-derived frozen-P1/original-reference audits will
+be required for this additional coupling gate; not a converged aerodynamic test.
+Partial completed demand audits (complexity cycle1 and thinner-height cycle0)
+remain pending after current chains; do not infer completion from timeout status.

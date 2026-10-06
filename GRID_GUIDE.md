@@ -88,3 +88,17 @@ Source fixture: [CNativeAirfoil2D_tests.cpp](UnitTests/SU2_CFD/adaptation/CNativ
 Current verified results and live supervisor details:
 [ROBUSTNESS_SCALING_RESULTS.md](ROBUSTNESS_SCALING_RESULTS.md),
 [HANDOFF_Codex.md](HANDOFF_Codex.md).
+
+
+## Self-contained production cases — prepared, not executed
+
+`integration_evidence/integrated_native_production_v1/np{1,2,4}` each contains
+local `input.su2` and `run.cfg`. The production-output runner is queued after the
+current pipelines; these directories currently contain inputs only. Unlike the
+derived fixture, the actual SU2_CFD adaptation loop calls Output. Its requested
+restart/ParaView files will contain conserved/primitive flow plus metric; SU2
+accepted meshes and immutable-reference sidecars will be saved by cycle.
+[Exact config template](integration_evidence/integrated_native_production_v1/run_template.cfg).
+[Sequential runner](integration_evidence/run_native_production_checks_v1.py).
+Consult native_production_chain_v1.json for actual live status before opening
+outputs or inferring that these prepared cases have run.

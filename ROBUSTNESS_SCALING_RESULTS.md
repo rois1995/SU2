@@ -442,3 +442,29 @@ audit before a full independent target claim. Reported replacement/transfer
 costs0.245765/0.129686s and0.561981/0.353944s are serial driver log values; there
 is no isolated remeshing duration or per-rank phase matrix for this failed run.
 No infeasibility, memory admission or MPI deadlock was demonstrated.
+
+
+## Thinner-wall serial cost boundary
+
+The h0/HMIN=1e-4-chord,4k/6k/3k demand run timed out124 at902.055s under its
+900-second whole-job budget. It accepted the first adapted mesh with38852
+triangles/19563 points, then timed out during cycle1 from that mesh. Cycle1
+incoming frozen-target residuals were8382 shape and15685 edge-length violations;
+no cycle1 accepted/rejected candidate exists. These are input-to-remeshing counts,
+not a final incomplete outcome or proof of impossible demand. The completed first
+mesh still requires an independent actual-target/reference audit at h0=1e-4.
+Exact snapshots/runtime pins: integration_evidence/airfoil_height_cost_limit_v1.json.
+The5e-5 height axis was not executed under the predeclared serial failure stop.
+This contrasts with complete0.0002-chord baseline lifecycles on1/2/4, but does
+not establish higher-rank thinner-wall capacity or an isolated adaptation cost.
+
+Actual native production-loop/restart/ParaView/metric validation is now queued
+behind all current robustness/goal/follow-through prerequisites via
+run_native_production_checks_v1.py (supervisor416452). The restart-to-mesh mapping
+self-check passes; all759 production source hashes still match the executed
+manifest. Prepared np1/np2/np4 folders contain input.su2/run.cfg; no simulation
+has started in them yet. This runner freezes its loaded script/field-checker
+hashes, archives the application and readers, and independently audits nine
+actual double-restart-derived P1 targets after successful runtimes. It is an
+additional integration/output gate, not a replacement for pending phase/step
+instrumentation or full CFD convergence validation.

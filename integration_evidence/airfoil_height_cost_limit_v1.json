@@ -1,0 +1,24 @@
+{
+  "checked_unix_seconds": 1791290194.8174741,
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_airfoil_height1e4_v8",
+  "runtime_evidence_sha256": "5ee78e46ed3f94a1908af1802cde3729cf050cfce3ed8e67d0b5c6e7b8dece16",
+  "elapsed_seconds": 902.0552168149734,
+  "exit_code": 124,
+  "outcome": "whole-job900s cost budget exceeded during cycle1 from38852 triangles; first h0=1e-4 adaptation accepted; not demonstrated infeasibility",
+  "completed_cells": [
+    38852
+  ],
+  "completed_points": [
+    19563
+  ],
+  "files_sha256": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_airfoil_height1e4_v8/audit_np1/native_airfoil_cycle_0_adapted.su2": "772740e843a15a1cbbfcc3d9df2457e6e2a865717e0f34843000436b87d6580b",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_airfoil_height1e4_v8/audit_np1/native_airfoil_cycle_0_donor.su2": "0d893892d87b894fbd6c4aa1951db0abc8ad58935bd4c5a5dae90a2311162ea6",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_airfoil_height1e4_v8/audit_np1/native_airfoil_cycle_0_metric.csv": "8e80996923c1c089d6d964fb8b8296e6ab42ef06775836e6bd84245c4768e98a",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_airfoil_height1e4_v8/audit_np1/native_airfoil_cycle_0_transfer.csv": "093c5c3017281d95688df8886d857742f99451379a5a02b118c3ae2af1eead1c",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_airfoil_height1e4_v8/audit_np1/native_airfoil_cycle_1_donor.su2": "772740e843a15a1cbbfcc3d9df2457e6e2a865717e0f34843000436b87d6580b",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_airfoil_height1e4_v8/audit_np1/native_airfoil_cycle_1_metric.csv": "4f47bf985f64ec64db9d508e1e03252746fd3a2993a48473c1bf977df5766958"
+  },
+  "pending": "fresh frozen-P1/original-reference audit of completed cycle0 at h0=1e-4; cycle1 has donor/metric but no completed candidate",
+  "next_height": "5e-5 was not executed: predeclared stop after unsuccessful serial1e-4 lifecycle"
+}
