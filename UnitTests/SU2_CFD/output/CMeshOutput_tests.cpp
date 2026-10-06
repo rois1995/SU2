@@ -257,10 +257,26 @@ TEST_CASE("Mesh output preserves interleaved element types", "[Adaptation][MeshO
   const string outputName = "mesh_output_mixed_output";
   if (SU2_MPI::GetRank() == MASTER_NODE) {
     std::ofstream file(inputFile);
-    file << "NDIME= 2\nNELEM= 3\n5 1 2 5 0\n9 0 1 4 3 1\n5 1 5 4 2\n"
-            "NPOIN= 6\n0 0 0\n1 0 1\n2 0 2\n0 1 3\n1 1 4\n2 1 5\n"
-            "NMARK= 1\nMARKER_TAG= wall\nMARKER_ELEMS= 6\n"
-            "3 0 1\n3 1 2\n3 2 5\n3 5 4\n3 4 3\n3 3 0\n";
+    // Repeat the triangle/quad/triangle motif so all four test ranks receive a useful CFD partition.
+    constexpr unsigned long nx = 8, ny = 4;
+    const auto point = [](unsigned long i, unsigned long j) { return j * (nx + 1) + i; };
+    file << "NDIME= 2\nNELEM= " << 3 * (nx / 2) * ny << '\n';
+    unsigned long element = 0;
+    for (unsigned long j = 0; j < ny; ++j)
+      for (unsigned long i = 0; i < nx; i += 2) {
+        file << "5 " << point(i+1,j) << ' ' << point(i+2,j) << ' ' << point(i+2,j+1) << ' ' << element++ << '\n';
+        file << "9 " << point(i,j) << ' ' << point(i+1,j) << ' ' << point(i+1,j+1) << ' ' << point(i,j+1)
+             << ' ' << element++ << '\n';
+        file << "5 " << point(i+1,j) << ' ' << point(i+2,j+1) << ' ' << point(i+1,j+1) << ' ' << element++ << '\n';
+      }
+    file << "NPOIN= " << (nx + 1) * (ny + 1) << '\n';
+    for (unsigned long j = 0; j <= ny; ++j)
+      for (unsigned long i = 0; i <= nx; ++i) file << i << ' ' << j << ' ' << point(i,j) << '\n';
+    file << "NMARK= 1\nMARKER_TAG= wall\nMARKER_ELEMS= " << 2 * (nx + ny) << '\n';
+    for (unsigned long i = 0; i < nx; ++i) file << "3 " << point(i,0) << ' ' << point(i+1,0) << '\n';
+    for (unsigned long j = 0; j < ny; ++j) file << "3 " << point(nx,j) << ' ' << point(nx,j+1) << '\n';
+    for (unsigned long i = nx; i > 0; --i) file << "3 " << point(i,ny) << ' ' << point(i-1,ny) << '\n';
+    for (unsigned long j = ny; j > 0; --j) file << "3 " << point(0,j) << ' ' << point(0,j-1) << '\n';
   }
   SU2_MPI::Barrier(SU2_MPI::GetComm());
   for (const auto& format : {"SU2", "SU2B"}) {

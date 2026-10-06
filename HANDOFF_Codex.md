@@ -87,3 +87,10 @@ doubled the expected boundary rows at MPI2. Use only the master's file rows
 for the independent boundary-order comparison. Native tests otherwise pass.
 v4/extended v3 stopped. Sole chain v5 first runs output-only1/2/4, then
 the full matrix and pilot; extended v4 waits for successful primal v5.
+
+Update: output-only v5 passes1/2. Four ranks exposed the tiny mixed fixture's
+empty CFD sparse pattern (six input vertices/three cells). Expanded the same
+triangle/quad/triangle ordering motif to45vertices/48cells rather than
+changing solver empty-partition handling. Record the too-small-partition
+abort as an existing CFD constraint, not a mesher scaling result. v5 and
+extended v4 terminal. Sole latest chain v6; dependent extended v5.

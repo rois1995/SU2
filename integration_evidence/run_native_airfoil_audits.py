@@ -12,13 +12,15 @@ import sys
 parser = argparse.ArgumentParser()
 parser.add_argument('directory', type=Path)
 parser.add_argument('--label', required=True)
+parser.add_argument('--height', type=float, default=.0002)
+parser.add_argument('--ranks', nargs='+', type=int, choices=(1, 2, 4), default=[1, 2, 4])
 args = parser.parse_args()
 directory = args.directory.resolve(strict=True)
 root = Path(__file__).resolve().parent
 runtime = json.loads((directory/'evidence.json').read_text())
 if runtime.get('current_run') or not runtime.get('archived_binary'):
     raise RuntimeError('The MPI runner must finish and archive its executable before auditing.')
-if [r['ranks'] for r in runtime['runs']] != [1, 2, 4] or not all(r['verified'] for r in runtime['runs']):
+if [r['ranks'] for r in runtime['runs']] != args.ranks or not all(r['verified'] for r in runtime['runs']):
     raise RuntimeError('Full airfoil evidence requires successful sequential MPI1/2/4 runs.')
 destination = directory/args.label
 destination.mkdir(exist_ok=False)
@@ -31,11 +33,11 @@ record = {'runner_pid': os.getpid(), 'runtime_evidence': str(directory/'evidence
           'source_sha256': {p: hashlib.sha256((root/p).read_bytes()).hexdigest() for p in scripts}, 'runs': []}
 state = destination/'evidence.json'
 all_ok = True
-for ranks in (1, 2, 4):
+for ranks in args.ranks:
     for cycle in range(3):
         output = destination/f'np{ranks}_cycle{cycle}.json'
         command = [sys.executable, str(destination/'sources/audit_native_airfoil.py'),
-                   str(directory/f'audit_np{ranks}'), '--cycle', str(cycle), '--height', '.0002',
+                   str(directory/f'audit_np{ranks}'), '--cycle', str(cycle), '--height', str(args.height),
                    '--suffix', 'adapted', '--reference', str(directory/'airfoil_input.su2'), '--output', str(output)]
         with (destination/f'np{ranks}_cycle{cycle}.log').open('x') as log:
             child = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT,
