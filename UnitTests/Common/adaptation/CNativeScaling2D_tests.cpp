@@ -32,7 +32,11 @@ TEST_CASE("Native engine size and partition envelope", "[NativeScaling2D][.]") {
   const int nx = 2 * tiles, ny = 4;
   const double h0 = .004, normalSize = .04 / anisotropy;
   const Tensor tensor{625., 0., 1 / (normalSize * normalSize)};
-  auto node = [nx](int i, int j) { return Node{Id(j * (nx + 1) + i), {.02 * i, .005 * j}, 0}; };
+  auto node = [nx, ny](int i, int j) {
+    const bool onBoundary = i == 0 || i == nx || j == 0 || j == ny;
+    const bool corner = (i == 0 || i == nx) && (j == 0 || j == ny);
+    return Node{Id(j * (nx + 1) + i), {.02 * i, .005 * j}, onBoundary ? (corner ? 1 | FEATURE : 1) : 0};
+  };
   std::vector<Triangle> original;
   for (int j = 0; j < ny; ++j)
     for (int i = 0; i < nx; ++i) {
