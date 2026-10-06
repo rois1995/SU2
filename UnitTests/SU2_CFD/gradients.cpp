@@ -28,6 +28,8 @@
 #include "catch.hpp"
 #include <array>
 #include "../../Common/include/geometry/CPhysicalGeometry.hpp"
+#include "../../Common/include/parallelization/CPassiveComm.hpp"
+#include <map>
 #include "../../Common/include/containers/container_decorators.hpp"
 #include "../../SU2_CFD/include/solvers/CSolver.hpp"
 #include "../../SU2_CFD/include/adaptation/CAdapSensors.hpp"
@@ -283,6 +285,7 @@ struct AdaptBoxTest {
     config = std::unique_ptr<CConfig>(new CConfig(ss, SU2_COMPONENT::SU2_CFD, false));
     {
       auto aux_geometry = std::unique_ptr<CGeometry>(new CPhysicalGeometry(config.get(), 0, 1));
+      aux_geometry->SetColorGrid_Parallel(config.get());
       geometry = std::unique_ptr<CGeometry>(new CPhysicalGeometry(aux_geometry.get(), config.get()));
     }
     if (angle != 0.0) {
@@ -733,7 +736,7 @@ TEST_CASE("Custom input gradient linear and cubic fields", "[Adaptation][CustomS
       for (unsigned short comp = 1; comp < 6; ++comp)
         CHECK(SU2_TYPE::GetValue(nodes->GetHessian(point, 1, comp)) == Approx(0.0).margin(1e-8));
     }
-    CHECK(checked > 0);
+    CHECK(CPassiveComm::AllreduceSum(checked) > 0);
   }
 }
 
@@ -789,11 +792,23 @@ TEST_CASE("Custom pressure metric is bitwise identical to built-in", "[Adaptatio
       flow->SetHessian_Adapt(test->geometry.get(), test->config.get());
       flow->ComputeMetric(test->geometry.get(), test->config.get());
     }
-    const auto* a = legacy.solver[FLOW_SOL]->GetNodes();
-    const auto* b = custom.solver[FLOW_SOL]->GetNodes();
-    REQUIRE(legacy.geometry->GetnPoint() == custom.geometry->GetnPoint());
-    for (unsigned long point = 0; point < legacy.geometry->GetnPoint(); ++point)
-      for (unsigned short comp = 0; comp < 6; ++comp) CHECK(a->GetMetric(point, comp) == b->GetMetric(point, comp));
+    auto gather = [](const AdaptBoxTest& test) {
+      vector<unsigned long> ids;
+      vector<std::array<passivedouble, 6>> rows;
+      for (unsigned long p = 0; p < test.geometry->GetnPointDomain(); ++p) {
+        ids.push_back(test.geometry->nodes->GetGlobalIndex(p));
+        std::array<passivedouble, 6> row{};
+        for (unsigned short c = 0; c < 6; ++c) row[c] = SU2_TYPE::GetValue(test.solver[FLOW_SOL]->GetNodes()->GetMetric(p,c));
+        rows.push_back(row);
+      }
+      ids = CPassiveComm::Allgatherv(ids, nullptr);
+      rows = CPassiveComm::Allgatherv(rows, nullptr);
+      REQUIRE(ids.size() == rows.size());
+      std::map<unsigned long, std::array<passivedouble, 6>> result;
+      for (size_t p = 0; p < ids.size(); ++p) REQUIRE(result.emplace(ids[p],rows[p]).second);
+      return result;
+    };
+    CHECK(gather(legacy) == gather(custom));
   }
 }
 
@@ -825,7 +840,8 @@ TEST_CASE("Custom Mach square analytic Hessian converges", "[Adaptation][CustomS
       ++checked;
       errors[refinement] = max(errors[refinement], fabs(SU2_TYPE::GetValue(nodes->GetHessian(point, 0, 0) / (4*exp(2*x[0])) - 1)));
     }
-    REQUIRE(checked > 0);
+    REQUIRE(CPassiveComm::AllreduceSum(checked) > 0);
+    errors[refinement] = CPassiveComm::Allreduce(errors[refinement], CPassiveComm::Op::MAX);
   }
   cout << "Custom MACH*MACH Hessian maximum relative errors: coarse=" << errors[0]
        << " fine=" << errors[1] << endl;
@@ -866,8 +882,8 @@ TEST_CASE("Custom full velocity block on oblique symmetry plane", "[Adaptation][
         if (fabs(SU2_TYPE::GetValue(n)) < 1e-10) ++onPlane;
         CHECK(SU2_TYPE::GetValue(nodes->GetAuxVar_Adapt(point, 0)) == Approx(SU2_TYPE::GetValue(3.5+4*n*n)).margin(1e-9));
       }
-      CHECK(checked > 0);
-      if (test == &half) CHECK(onPlane > 0);
+      CHECK(CPassiveComm::AllreduceSum(checked) > 0);
+      if (test == &half) CHECK(CPassiveComm::AllreduceSum(onPlane) > 0);
     }
   }
 }
