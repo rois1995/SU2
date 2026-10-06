@@ -50,3 +50,13 @@ Fixture flags/matched-anisotropy controls were completed while its object did
 not yet exist; no production source changed during the active build. Initial
 chain source_revision is25c6ccb420; runtime runner captures the final tested
 revision and full relevant source hashes. Preserve both source manifests.
+
+Queued follow-up: integration_evidence/run_extended_chain_v1.py (host PID3988784),
+state extended_chain_v1.json. It waits for successful terminal primal state,
+then independently audits the engine pilot, validates custom sensors/two-pass
+and adjoint transfer, and builds AD separately at-j2 before GoalSwap1/2/4.
+No heavy work runs concurrently. Failure of either chain stops subsequent work.
+The full goal still requires repeated/contiguous-ownership and matched-AR
+sweeps, fresh real-airfoil audits/transfer/cost limits, actual goal-loop and
+interruption checks, and the final quantitative report. See the predeclared
+ROBUSTNESS_SCALING_PROTOCOL.md. Do not mark the goal complete after a pilot.
