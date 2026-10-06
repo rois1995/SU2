@@ -41,10 +41,10 @@ Cases (tags: 2d 3d steady unsteady fixed free bl custom mpi4)
                       quality 1st percentile ~0.04, ~4x more points than the metric complexity); BL heights are fine;
                       expected gates: metric_edges, metric_quality, points_vs_complexity
   bump3d_fixed_bl     3D BL METRIC on two walls meeting at a ridge, ADAP_SURFACE= NO
-                      needs the MMG #333 fix; the BL ridge is the mechanism the current #333 patch breaks (refined
-                      patch pending): bl_ridge_cell_height requires eligible ridge faces
-                      KNOWN FAILURE with the current #333 patch: lower wall 75 % and its ridge faces 55 % of the area
-                      in [0.5, 2] h0 (cells too tall); expected gates: bl_cell_height, bl_ridge_cell_height
+                      needs the MMG #333 fix; bl_ridge_cell_height requires eligible ridge faces
+                      KNOWN FAILURE (also with the refined #333 fix v2): lower wall ~68-75 % and its ridge faces
+                      ~52-55 % of the area in [0.5, 2] h0 (cells too tall), the MMG3D 3D BL weakness of bump3d_bl;
+                      expected gates: bl_cell_height, bl_ridge_cell_height
   bump3d_wa           3D WINDOW_AVERAGE, ADAP_SURFACE= NO, custom sensor, restart   needs the MMG #333 fix
 np 1 and 2: all cases; np 4: tag mpi4 (vortex_wa, vortex_predict, bump3d_free).
 

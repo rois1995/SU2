@@ -78,14 +78,14 @@ CASES = [
          known_fail_reason="MMG3D does not follow the 3D boundary-layer metric: edges in [0.71, 1.41] ~50 %, "
                            "metric quality 1st percentile ~0.04, points ~4x metric complexity (BL heights are fine)"),
     dict(name="bump3d_fixed_bl", tags={"3d", "steady", "fixed", "bl"}, base="bump3d_euler.cfg", mesh="bump3d",
-         fixed=True, needs=NEEDS_333 + "; the BL ridge needs the refined #333 patch",
+         fixed=True, needs=NEEDS_333,
          changes={"ADAP_SURFACE": "NO", "ADAP_SIZES": "(2000)", "ADAP_BL_MARKER": "( lower, side0 )",
                   "ADAP_BL_FIRST_HEIGHT": "( 5e-3 )", "ADAP_BL_GROWTH": "( 1.3 )", "ADAP_BL_THICKNESS": "( 0.03 )"},
          bl={"lower": 5e-3, "side0": 5e-3}, require_ridge=True,
          known_fail={"bl_cell_height", "bl_ridge_cell_height"},
-         known_fail_reason="two BL walls at a ridge with ADAP_SURFACE= NO: lower wall 75 % and its ridge faces 55 % "
-                           "of the area in [0.5, 2] h0 (cells too tall), the mechanism the current #333 patch breaks "
-                           "(refined patch pending)"),
+         known_fail_reason="two BL walls at a ridge with ADAP_SURFACE= NO: lower wall ~68-75 % and its ridge faces "
+                           "~52-55 % of the area in [0.5, 2] h0 (cells too tall); unchanged with the refined #333 fix "
+                           "(v2), so it is the MMG3D 3D BL weakness of bump3d_bl, not the #333 patch"),
     dict(name="bump3d_wa", tags={"3d", "unsteady", "fixed", "custom"}, base="bump3d_euler.cfg", mesh="bump3d",
          fixed=True, restart=True, needs=NEEDS_333,
          changes={"ADAP_SURFACE": "NO", "TIME_DOMAIN": "YES", "TIME_MARCHING": "DUAL_TIME_STEPPING-2ND_ORDER",
