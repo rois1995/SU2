@@ -37,5 +37,7 @@ gate before accepted mesh replacement. CGNS reserved/long marker names retain
 SU2MarkerName descriptors. Parallel SU2 writers preserve in-memory boundaries,
 mixed-volume element ordering and 17-significant-digit coordinate round trips.
 
-Validation pending: source reconciliation is complete for these pinned inputs;
-combined runtime behavior is not yet established.
+Source reconciliation is complete for these pinned inputs. Fresh integrated
+primal build,7 output cases and49 focused cases pass MPI1/2/4, as do native
+memory and default-MMG controls. Independent audits, practical envelope and AD
+validation remain in progress; consult HANDOFF_Codex.md and runtime JSON evidence.
