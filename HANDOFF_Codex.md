@@ -80,3 +80,10 @@ Corrected ReadMesh to use the public file-reader connectivity for boundary
 order and existing CPhysicalGeometry reader constructor; no production API
 change. Latest sole chain: run_primal_chain_v4.py; dependent extended v3.
 Both preserve old failed evidence; build-integrated-v2 is reused incrementally.
+
+Update: v4 runtime identified a second test-harness error: SU2 readers
+replicate boundary rows across ranks, unlike CGNS. Gathering every copy
+doubled the expected boundary rows at MPI2. Use only the master's file rows
+for the independent boundary-order comparison. Native tests otherwise pass.
+v4/extended v3 stopped. Sole chain v5 first runs output-only1/2/4, then
+the full matrix and pilot; extended v4 waits for successful primal v5.

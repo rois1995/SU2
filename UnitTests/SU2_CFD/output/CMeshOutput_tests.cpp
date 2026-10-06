@@ -130,11 +130,14 @@ GlobalMesh ReadMesh(CConfig* config) {
   }
   for (const auto& value : mesh.elemByIndex) mesh.elem.insert(value.second);
 
-  // Reader rows retain file order; FVM readers store the full physical boundary on the master.
+  // Reader rows retain file order. SU2 readers replicate these rows; CGNS stores them only on master.
   // This also checks ordering independently of geometry's private boundary identity bookkeeping.
   for (unsigned long iMarker = 0; iMarker < reader->GetNumberOfMarkers(); ++iMarker) {
     const auto& tag = reader->GetMarkerNames()[iMarker];
-    const auto connectivity = CPassiveComm::Allgatherv(reader->GetSurfaceElementConnectivityForMarker(iMarker), nullptr);
+    const auto localRows = SU2_MPI::GetRank() == MASTER_NODE
+                               ? reader->GetSurfaceElementConnectivityForMarker(iMarker)
+                               : std::vector<unsigned long>{};
+    const auto connectivity = CPassiveComm::Allgatherv(localRows, nullptr);
     REQUIRE(connectivity.size() % SU2_CONN_SIZE == 0);
     for (size_t offset = 0; offset < connectivity.size(); offset += SU2_CONN_SIZE) {
       const auto count = nPointsOfElementType(connectivity[offset + 1]);
