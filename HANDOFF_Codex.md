@@ -48,8 +48,9 @@ The tiny-fixture empty-partition abort is a CFD limitation, not a mesher result.
   fresh AD build passed. Original GoalSwap v9 passed1 but failed2 with exact
   owned transfer and large continuation errors. Tight Jacobi diagnostic v12
   reproduced it with unchanged ownership; clearing halo seeds restored exact
-  continuation in v13. Final v14 validates original ILU settings at1/2/4 and
+  continuation in v13. Final v14 PASS3 cases/26 assertions per rank at1/2/4 (all continuation differences0), and
   archives fresh executables plus hashes of all tracked production/test sources.
+  Its terminal success permits the native robustness campaign to proceed.
 - robustness_chain_v8.json / run_native_robustness_campaign_v8.py, PID52131:
   waits for final AD controls, rebuilds primal probe and CFD application, then
   size escalation (tiles128..4096) with low-cut vertical geometric ownership,

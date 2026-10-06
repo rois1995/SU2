@@ -20,7 +20,7 @@ The practical envelope is still being measured; the following are verified resul
 | Goal metric/custom sensors/two-pass/reference/adjoint transfer | 1,2,4 | 58 cases per rank, PASS |
 | Independent constant-target pilot geometry/topology audits | 1,2,4 | 12 cases, PASS |
 | Fresh AD build | — | PASS, executables archived with hashes |
-| AD GoalSwap controls | Original:1 passed,2 failed; fix validation1/2/4 pending | MPI halo-seed defect diagnosed and corrected |
+| AD GoalSwap controls, corrected MPI halo seeds | 1,2,4 | 3 cases/26 assertions per rank, PASS |
 
 Evidence: integration_evidence/integrated_output_controls_v6,
 integrated_primal_controls_v6, integrated_primal_memory_v6, integrated_mmg_default_v6,
@@ -101,5 +101,8 @@ owner copies on halos, but the DA driver seeds every recorded primal output;
 its recorded halo exchange then duplicates those contributions. Clearing only
 halo adjoint seeds after SwapMesh retained owned warm starts and restored exact
 continuation in the2-rank v13 diagnostic. Original ILU-settings regression at
-1/2/4 is now running as v14. Production correction is limited to DA mesh swap;
+1/2/4 passed as v14: all3 cases/26 assertions per rank; same-mesh transfer,
+objective, per-iteration residuals and final adjoint differences are exactly0.
+All measured point ownerships are unchanged in this continuation fixture.
+This establishes the correction, not partition-independent iteration histories. Production correction is limited to DA mesh swap;
 primal interpolation and its halo field semantics are unchanged.
