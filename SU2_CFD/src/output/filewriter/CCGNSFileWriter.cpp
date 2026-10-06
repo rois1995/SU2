@@ -31,7 +31,7 @@
 #include "../../../../Common/include/geometry/CGeometry.hpp"
 
 #include <algorithm>
-#include <numeric>
+#include <tuple>
 
 const string CCGNSFileWriter::fileExt = ".cgns";
 
@@ -48,16 +48,18 @@ void CCGNSFileWriter::WriteData(string val_filename) {
   /*--- Set a timer for the file writing. ---*/
   startTime = SU2_MPI::Wtime();
 
-  /*--- Names of all nodes, before the file is opened (a duplicate name would stop the run with the file open). ---*/
+  /*--- Names of all the nodes, before the file is opened: a duplicate name would stop the run with the file open. ---*/
   PrepareNames();
 
   /*--- Open the CGNS file for writing.  ---*/
   InitializeMeshFile(val_filename);
 
   if (surfaceMarkers.empty()) {
-    WriteZone(zoneName);
+    WriteZone(volumeZoneName);
   } else {
-    /*--- One zone per marker, the surface data is sorted again for each of them. ---*/
+    /*--- One zone per marker, the surface data is sorted again for each of them. The zones are named as the
+     markers, with names made unique within the 32 characters of CGNS. ---*/
+
     for (size_t iMarker = 0; iMarker < surfaceMarkers.size(); ++iMarker) {
       dataSorter->SortConnectivity(config, geometry, vector<string>{surfaceMarkers[iMarker]});
       dataSorter->SortOutputData();
@@ -81,7 +83,7 @@ void CCGNSFileWriter::WriteData(string val_filename) {
 #endif
 }
 
-void CCGNSFileWriter::SetBoundaryMarkers(CConfig* valConfig, CGeometry* valGeometry,
+void CCGNSFileWriter::SetBoundaryMarkers(const CConfig* valConfig, const CGeometry* valGeometry,
                                          const CFVMDataSorter* volumeSorter) {
   boundaryMarkers.clear();
 
@@ -216,9 +218,10 @@ void CCGNSFileWriter::InitializeZone(const string& zoneName) {
   zoneData[1] = GlobalElem;
   zoneData[2] = 0;
 
-  CallCGNS(
-      cg_zone_write(cgnsFileID, cgnsBase, zoneName.substr(0, 32).c_str(), zoneData.data(), Unstructured, &cgnsZone));
+  CallCGNS(cg_zone_write(cgnsFileID, cgnsBase, zoneName.c_str(), zoneData.data(), Unstructured, &cgnsZone));
 }
+
+
 
 void CCGNSFileWriter::PrepareNames() {
   /*--- A name of at most 32 characters that is not taken yet: the tag, truncated; if that is taken, the tag truncated
@@ -259,7 +262,7 @@ void CCGNSFileWriter::PrepareNames() {
   auto isMarkerName = [&](const string& name) {
     return std::find(boundaryNames.begin(), boundaryNames.end(), name) != boundaryNames.end();
   };
-  zoneName = isMarkerName("Zone") ? "SU2 Zone" : "Zone";
+  volumeZoneName = isMarkerName("Zone") ? "SU2 Zone" : "Zone";
   solutionName = isMarkerName("Fields") ? "SU2 Fields" : "Fields";
 
   const std::map<unsigned short, string> baseNames = {
@@ -278,14 +281,13 @@ void CCGNSFileWriter::PrepareNames() {
 }
 
 cgsize_t CCGNSFileWriter::SectionCount(GEO_TYPE type) const {
-  const auto nTotElemCG = static_cast<cgsize_t>(dataSorter->GetnElemGlobal(type));
-  if (nTotElemCG == 0) return 0;
+  const auto nTotElem = static_cast<cgsize_t>(dataSorter->GetnElemGlobal(type));
   const auto maxElemSection = static_cast<cgsize_t>(maxSectionEntries / nPointsOfElementType(type));
-  return (nTotElemCG + maxElemSection - 1) / maxElemSection;
+  return (nTotElem + maxElemSection - 1) / maxElemSection;
 }
 
 void CCGNSFileWriter::WriteBoundaries() {
-  /*--- The names of the sections, BCs and families (the marker names, see PrepareNames). ---*/
+  /*--- The sections, BCs and families are named as the markers. ---*/
 
   const auto& names = boundaryNames;
 
@@ -303,18 +305,13 @@ void CCGNSFileWriter::WriteBoundaries() {
     }
     const unsigned long nLocalEntries = marker.conn.size() - nLocalElem;
 
-    /*--- Sizes and offsets of the elements of each rank, which are written as a contiguous range. ---*/
+    /*--- Offsets and totals of the elements and node ids of each rank, which are written as a contiguous range. ---*/
 
-    vector<unsigned long> elemPerRank(size), entriesPerRank(size);
-    SU2_MPI::Allgather(&nLocalElem, 1, MPI_UNSIGNED_LONG, elemPerRank.data(), 1, MPI_UNSIGNED_LONG, SU2_MPI::GetComm());
-    SU2_MPI::Allgather(&nLocalEntries, 1, MPI_UNSIGNED_LONG, entriesPerRank.data(), 1, MPI_UNSIGNED_LONG,
-                       SU2_MPI::GetComm());
+    unsigned long elemOffset, nTotElem, entryOffset, nTotNodeEntries;
+    std::tie(elemOffset, nTotElem) = GetRankOffset(nLocalElem);
+    std::tie(entryOffset, nTotNodeEntries) = GetRankOffset(nLocalEntries);
 
-    const auto nTotElem = std::accumulate(elemPerRank.begin(), elemPerRank.end(), 0ul);
     if (nTotElem == 0) continue;
-
-    auto elemOffset = std::accumulate(elemPerRank.begin(), elemPerRank.begin() + rank, 0ul);
-    auto entryOffset = std::accumulate(entriesPerRank.begin(), entriesPerRank.begin() + rank, 0ul);
 
     /*--- A marker with a single element type is written as a section of that type, one with several types
      (e.g. triangles and quadrilaterals) as a MIXED section. ---*/
@@ -351,7 +348,7 @@ void CCGNSFileWriter::WriteBoundaries() {
       /*--- The CGNS element type of each element is stored before the ids of its nodes, and the start offset of
        each element in the connectivity array is stored in a second array. ---*/
 
-      const auto nTotEntries = std::accumulate(entriesPerRank.begin(), entriesPerRank.end(), 0ul) + nTotElem;
+      const auto nTotEntries = nTotNodeEntries + nTotElem;
 
       vector<cgsize_t> elems, offsets{static_cast<cgsize_t>(entryOffset + elemOffset)};
       elems.reserve(marker.conn.size());
@@ -378,7 +375,7 @@ void CCGNSFileWriter::WriteBoundaries() {
     }
     cumulative += static_cast<cgsize_t>(nTotElem);
 
-    /*--- A section named otherwise than its marker keeps the marker name in a descriptor (read by the SU2 reader). ---*/
+    // Retain original physical marker tags when section names require truncation or disambiguation.
     if (name != marker.name) {
       CallCGNS(cg_goto(cgnsFileID, cgnsBase, "Zone_t", cgnsZone, "Elements_t", section, "end"));
       CallCGNS(cg_descriptor_write(CGNS_MARKER_DESCRIPTOR, marker.name.c_str()));
@@ -506,11 +503,7 @@ void CCGNSFileWriter::WriteConnectivity(GEO_TYPE type, const string& SectionName
   /*--- Retrieve element distribution among processes, the elements of a rank are a contiguous range. ---*/
   const auto nLocalElem = dataSorter->GetnElem(type);
 
-  vector<unsigned long> distElem(size);
-  SU2_MPI::Allgather(&nLocalElem, 1, MPI_UNSIGNED_LONG, distElem.data(), 1, MPI_UNSIGNED_LONG, SU2_MPI::GetComm());
-
-  cgsize_t firstElem = cumulative + 1;
-  for (int i = 0; i < rank; ++i) firstElem += static_cast<cgsize_t>(distElem[i]);
+  const cgsize_t firstElem = cumulative + 1 + static_cast<cgsize_t>(GetRankOffset(nLocalElem).first);
   const cgsize_t endElem = firstElem + static_cast<cgsize_t>(nLocalElem) - 1;
 
   /*--- Store the connectivity of this rank. ---*/
