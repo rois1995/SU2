@@ -149,3 +149,9 @@ runtime is terminal. Unexpected failures stop for diagnosis. Source preparation
 includes additional binary/checker SHA guards; because PID119961 was already
 loaded while those guards were appended, externally verify these invariants
 before it reaches airfoil/goal work (or supersede only while idle with a fresh label).
+
+User grid inspection: see GRID_GUIDE.md. Independently verified8192-cell
+1/2/4-rank and small64-cell4-rank probes have SU2/VTU exports plus provenance
+in integration_evidence/grid_gallery_v1. Exact VTU coordinates and SU2 validity
+were checked. A physical-coordinate crop preview is included. Saved integrated
+BL/CGNS controls and the clearly marked prior-baseline NACA result are linked.
