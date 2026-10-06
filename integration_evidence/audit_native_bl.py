@@ -1,6 +1,7 @@
 """Independent frozen-P1 and topology/altitude audit of saved small native BL fixtures."""
 import argparse
 import csv
+import hashlib
 from fractions import Fraction
 import json
 import math
@@ -27,6 +28,8 @@ def cross(a, b, c):
 
 
 def audit(donor_path, metric_path, candidate_path, height, wall_tags=("lower_a", "lower_b"), fast=False, extension_limit=0):
+    paths = tuple(Path(path).resolve() for path in (donor_path, metric_path, candidate_path))
+    input_hashes = {str(path): hashlib.sha256(path.read_bytes()).hexdigest() for path in paths}
     donor, donor_cells, donor_markers = mesh(donor_path)
     with Path(metric_path).open() as handle:
         tensors = [tuple(map(float, row)) for row in list(csv.reader(handle))[1:]]
@@ -104,7 +107,10 @@ def audit(donor_path, metric_path, candidate_path, height, wall_tags=("lower_a",
         profile.append({'distance_over_h0': [lower, upper if math.isfinite(upper) else None],
                         'inclined_edges':len(values),'normal_metric_projection_quantiles':
                         [values[int((len(values)-1)*q)] for q in (0,.25,.5,.75,1)] if values else []})
-    return {'donor':str(donor_path),'candidate':str(candidate_path), 'points':len(p),'cells':len(cells),
+    if input_hashes != {str(path): hashlib.sha256(path.read_bytes()).hexdigest() for path in paths}:
+        raise RuntimeError('Audit inputs changed during evaluation')
+    return {'donor':str(donor_path),'candidate':str(candidate_path), 'input_files_sha256':input_hashes,
+            'points':len(p),'cells':len(cells),
             'all_exact_positive':all(signs),'manifold_oriented_edges':manifold,'physical_equals_exposed':physical==exposed,
             'disk_euler':len(p)-len(edges)+len(cells), 'min_quality':min(qualities),'max_simpson_length':max(lengths.values()),
             'wall_faces':len(wall_bases),'max_relative_height_error':max(height_errors,default=0), 'outside_donor_queries':misses, 'numeric_roundoff_queries':locator.roundoff if locator else None,

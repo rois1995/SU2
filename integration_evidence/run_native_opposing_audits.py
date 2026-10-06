@@ -24,6 +24,8 @@ scripts = ('run_native_opposing_audits.py', 'audit_native_bl.py')
 for script in scripts:
     shutil.copy2(Path(__file__).with_name(script), destination/'sources'/script)
 record = {'source_sha256': {p: hashlib.sha256((destination/'sources'/p).read_bytes()).hexdigest() for p in scripts},
+          'runtime_evidence': str(directory/'evidence.json'),
+          'runtime_evidence_sha256': hashlib.sha256((directory/'evidence.json').read_bytes()).hexdigest(),
           'runs': []}
 heights = (.004, .004, .003, .003, .005, .005, .004, .0045)
 all_ok = True

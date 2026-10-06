@@ -277,3 +277,11 @@ medians are52.513/53.982s. The repeated vertical low-cut group remains pending.
 These comparisons use rank-dependent adapted meshes and transaction counts;
 shared-machine timing and counter scope caveats still apply. Do not infer a
 universal choice of MPI rank count or a general speedup law from them.
+
+
+Upcoming actual-airfoil/opposing audit reports now include SHA256 pins for the
+exact donor, metric and candidate inputs (plus original reference for NACA),
+and reject changes during evaluation. The shared check passes a saved integrated
+four-rank cycle7 BL mesh and detects a deliberate edit of only a temporary copy.
+This strengthens report provenance without changing any target, algorithm or
+binary used by the live campaign. Earlier archived audits are preserved.

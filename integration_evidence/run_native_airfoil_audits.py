@@ -30,6 +30,7 @@ scripts = ('run_native_airfoil_audits.py', 'audit_native_airfoil.py', 'audit_nat
 for script in scripts:
     shutil.copy2(root/script, destination/'sources'/script)
 record = {'runner_pid': os.getpid(), 'runtime_evidence': str(directory/'evidence.json'),
+          'runtime_evidence_sha256': hashlib.sha256((directory/'evidence.json').read_bytes()).hexdigest(),
           'source_sha256': {p: hashlib.sha256((root/p).read_bytes()).hexdigest() for p in scripts}, 'runs': []}
 state = destination/'evidence.json'
 all_ok = True

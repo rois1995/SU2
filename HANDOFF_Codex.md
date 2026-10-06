@@ -262,3 +262,21 @@ that layout. Tables/caveats in results. Snapshot partition_progress_summary_v2.
 Thus18/27 repetitions independently audited so far; vertical low-cut repeats
 are now running. Main final27-case independent audit remains scheduled and
 must pass before campaign advances to AR/incompatibility/actual airfoil work.
+
+
+Audit provenance tightened before queued actual-airfoil/opposing audits start:
+audit_native_bl.audit now hashes donor, frozen metric and candidate before/after
+numeric evaluation, reports exact input hashes and rejects a mid-audit edit.
+All callers were checked; numeric contract and source/test binaries are unchanged.
+audit_native_airfoil also pins the immutable original input mesh and checks that
+all inputs stay unchanged during its reference pass. Actual-airfoil/opposing
+runner summaries now hash the runtime evidence JSON they validated. They archive
+the auditor sources they actually execute; prior archived audits remain intact.
+
+Runnable check: python3 integration_evidence/check_native_audit_inputs.py.
+It passes against the saved four-rank opposing-wall conservative cycle7 and
+rejects a trailing-newline edit applied only to a temporary donor copy during
+actual audit evaluation. Originals are untouched. Numeric/input-hash evidence:
+integration_evidence/audit_input_hash_check_v1.json. Fresh queued NACA audits
+will exercise the new original-reference hash path; do not claim that path's
+runtime verification from a syntax check alone.
