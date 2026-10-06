@@ -1,0 +1,13 @@
+{
+  "source_revision": "7239db3b396b0195042f595db3a5d0b018bf91ed",
+  "base_manifest": "integrated_source_manifest_v3.json",
+  "base_sha256": "f2c08d206ea32b176d433cd7556da841032d68c587a64165a70b3b25a002cc1c",
+  "overrides": {
+    "UnitTests/Common/adaptation/CNativeScaling2D_tests.cpp": "aa2343ef85c1bc248f66db6b53be6b357421c806f18a5fee21b2448a220a4f52",
+    "UnitTests/SU2_CFD/adaptation/BoundaryLayerTwoPass_tests.cpp": "bc29c7a6637ccaa34ead70a450629592d42062a324f88e432f8922e1761d0666",
+    "UnitTests/SU2_CFD/adaptation/GoalMetric_tests.cpp": "cf380444e65b421ceafe5bb6113748d1409551bc6a799f6100d8a5f59baecf9c",
+    "UnitTests/SU2_CFD/gradients.cpp": "05eff73e38f57c56501f1523c36d4695ead698ce70a8c9d1a1733c2ee3294871",
+    "UnitTests/SU2_CFD/output/CMeshOutput_tests.cpp": "d9daf26e647ed610a48dbe046b8b2beba43fbc10bf1ba4cca3b96f74538614f6"
+  },
+  "note": "MPI fixture repairs passed auxiliary_v9. The new layout3 probe awaits the post-AD primal test rebuild. No production source changed after initial integration."
+}

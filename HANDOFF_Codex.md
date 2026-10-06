@@ -28,11 +28,11 @@ Fresh primal MPI/MMG/CGNS build completed in integration_evidence/build-integrat
 (-j2, debugoptimized with assertions, tests enabled). Corrected MPI output
 harness passes all7 selected cases at1/2/4; full selected matrix passes49cases
 at1/2/4 (11453 assertions at1; rank-dependent11610–12620 at2/4).
-NativeMemory and default-MMG controls pass1/2/4. Exact logs/evidence:
+NativeMemory and default-MMG controls pass1/2/4; auxiliary58cases also pass1/2/4. Exact logs/evidence:
 integrated_output_controls_v6, integrated_primal_controls_v6,
 integrated_primal_memory_v6, integrated_mmg_default_v6.
-Independent output audits and scaling pilot currently follow sequentially.
-No practical scaling envelope has yet been established.
+Independent output audits and initial scaling pilot completed successfully.
+Initial pilot passes through1024input cells; larger/repeated/real-field limits remain pending.
 
 Earlier failures preserved: missing preconfigure stamp (v1); old serial output
 count assumptions (v2); test private-member/Catch compile error (v3); duplicated
@@ -44,16 +44,28 @@ The tiny-fixture empty-partition abort is a CFD limitation, not a mesher result.
 
 ## Live supervisors: check JSON and host PIDs before acting
 
-- primal_chain_v6.json / run_primal_chain_v6.py, PID4057483: output/full matrix,
-  memory/default-MMG, independent output audits, then12-job scaling pilot.
-- extended_chain_v5.json / run_extended_chain_v5.py, PID4057485: waits for primal
-  success, audits pilot, validates auxiliary sensors/BL/adjoint transfer, builds
-  fresh AD at-j2, then GoalSwap1/2/4.
-- robustness_chain_v1.json / run_native_robustness_campaign_v1.py, PID4060658:
-  waits for extended success;3 repetitions/layout/rank at largest common passing
-  pilot size; matched AR10/100/1000; incompatible AR25; independent audits;
-  actual NACA conservative transfer/resumed viscous baseline1/2/4 and demand axes;
-  opposing8-cycle/two-transfer audits reuse the fresh matrix outputs.
+- extended_chain_v9.json / run_extended_chain_v9.py, PID4119260: auxiliary58
+  cases now PASS1/2/4; fresh AD build currently running-j2; GoalSwap1/2/4 follows.
+- robustness_chain_v6.json / run_native_robustness_campaign_v6.py, PID4139800:
+  waits for extended success, rebuilds only the primal probe/test binary, then
+  size escalation (tiles128..4096) with low-cut vertical geometric ownership,
+  three repetitions/rank for all3 layouts, matched AR10/100/1000, incompatible
+  AR25, independent raw audits, actual NACA conservative/resumed-viscous baseline
+  and demand axes, and saved opposing-wall audits from the fresh matrix.
+- goal_runtime_v5.json / run_integrated_goal_runtime_v5.py, PID4139802: waits
+  for robustness success, actual warm/cold goal loops at1/2; SIGTERM to only one
+  descendant rank during primal/adjoint recording at1/2; native-adjoint rejection.
+  Short lifecycle checks use a hashed prior converged checkpoint on the identical
+  input mesh; they are not estimator-accuracy or convergence-performance tests.
+
+Primal v6 completed successfully, including84 independent output audits and
+all12 initial cyclic scaling cases (16..1024 input triangles). Pilot independently
+passes exact orientation/topology/area/reference/target. Auxiliary v5..v8 stopped
+on inherited serial harness issues (BOX coloring, shared reference files and
+rank-local zero wall denominator); repaired tests now pass all58 at1/2/4 in v9.
+Old idle robustness v5 and goal runtime v4 were explicitly superseded before
+runtime work to add geometric layout3. Other old follower versions are terminal.
+See ROBUSTNESS_SCALING_RESULTS.md for current measured results and limitations.
 
 Only one heavy job at a time. Followers remain idle until prerequisite succeeds.
 A failed prerequisite stops downstream work; terminal state is not proof of pass.
@@ -67,7 +79,7 @@ and a quantitative results report. Do not mark complete after a pilot.
 ## Reproduction and limits
 
 Read ROBUSTNESS_SCALING_PROTOCOL.md. Hidden [NativeScaling2D] controls:
-SU2_NATIVE_SCALING_TILES1..256; LAYOUT1cyclic/2contiguous; AR1..1000;
+SU2_NATIVE_SCALING_TILES1..4096; LAYOUT1cyclic/2horizontal-contiguous/3vertical-geometric; AR1..1000;
 MATCHED1(default affine-matched geometry/h0/tensor) or2(fixed geometry/h0).
 Timing/traffic excludes audit gather. VmHWM includes startup and replicated
 synthetic input. Constant-probe metric_height>1.8 proves wall-altitude/edge
@@ -85,7 +97,7 @@ Ninja: prior scratchpad/ninjabin. Static MMG SCOTCH root:
 here, not /tmp or AdapNoExt. Disk free approximately61GB on4TB,7.4GB on/tmp.
 
 Initial refs/worktrees/main invariants and Stage G draft gzip/SHA are pinned in
-integration_evidence. Source manifestsv1/v2/v3 plusv6 overrides and each runtime's
+integration_evidence. Source manifestsv1/v2/v3 plusv6/v9 overrides and each runtime's
 archived executable/source hashes describe tested inputs. Prior completed native
 baseline57f0550db4 evidence remains read-only in
 AdapNoExt/BL_NATIVE_INTEGRATION_WORK and is not proof of this integration.
