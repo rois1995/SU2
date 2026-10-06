@@ -1,422 +1,251 @@
 # Codex handoff — native integration
 
-Updated 2026-10-06. Goal ACTIVE; see NATIVE_INTEGRATION_GOAL.md.
-Worktree: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
-Branch: codex/native-integrated. Do not write into AdapNoExt or other workers' worktrees.
-AdapNoExt remains feat_adap_noExt at88828474db587652ee1b0c09010de838ddbcfd06;
-its original tracked .gitignore modification is preserved, SHA256
+Updated2026-10-06. Goal ACTIVE and unbudgeted. This is the current checklist;
+earlier chronological handoff entries remain available in Git history.
+
+Worktree: `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`.
+Branch: `codex/native-integrated`.
+Every progress update must identify the **active testcase directory**. Read
+`current_run.working_directory` or the live supervisor's command; for audits,
+identify the actual saved-mesh input directory and report destination. A prior
+PID or old state-file label is not proof that a case remains live.
+
+AdapNoExt must remain untouched: `feat_adap_noExt` at
+88828474db587652ee1b0c09010de838ddbcfd06, only its pre-existing tracked
+`.gitignore` change, SHA256
 7ccfe4565155e5b9b4c2241148628c35317e27c452345dde976da2ef816c564c.
+`integration_evidence/main_initial.json` pins the invariant. Do not write into
+another worker's worktree. Leave `T externals/{codi,eigen,medi,mel,meson}` unstaged:
+they are read-only dependency symlinks to main.
 
-## Reconciliation
+## Resource policy and actual supervisors
 
-Pinned inputs combined: native57f0550db4, Stage G1e39b683ee plus assessed/hashed
-dirty draft, and cached origin/fixCGNSOutput e41e7eabc7. B0Spike from b0-repair
-c27a187a11 remains standalone research, excluded from production/default tests.
-Other branches and historical/deformation refs are classified in
-BRANCH_RECONCILIATION.md. No remote refresh is claimed. Original worktrees untouched.
+One own heavy job at a time, initially MPI<=4, OMP_NUM_THREADS=1,
+OPENBLAS_NUM_THREADS=1, builds-j2. Defer to foreign builds/solver jobs; never kill
+foreign PID918696 or other foreign jobs. Host processes are invisible to sandbox
+ps: inspect host PID/PPID/comm with escalated execution, not full command lines.
+Use fresh evidence labels and preserve failures; never restart a live handle or
+extend an existing timeout merely because an observation expired.
 
-One remesher factory serves direct/goal loops: native, MMG TWO_PASS or ordinary
-MMG. MMG remains default. Native TWO_PASS and native adjoint are rejected.
-Preserved in-memory boundaries, mixed element order, double precision and CGNS
-SU2MarkerName descriptors. Native scope: static single-zone primal-double2D
-triangles, immutable original marker polyline with adapted boundary sampling.
-No native3D/CAD/mixed/moving/time-domain/adjoint scalability claim.
+At the latest host check, foreign ninja420282 and two cc1plus processes remain
+live. Own native/AD simulations are idle. The last CFD case,
+`integrated_airfoil_height1e4_v8/runtime_np1`, is terminal (timeout); the next
+saved opposing-wall audit consumes `integrated_primal_controls_v6/audit_npN`.
+Recheck live JSON and real host processes before acting.
 
-## Verified integrated results
+All paths below are relative to `integration_evidence/`:
 
-Fresh primal MPI/MMG/CGNS build completed in integration_evidence/build-integrated-v2
-(-j2, debugoptimized with assertions, tests enabled). Corrected MPI output
-harness passes all7 selected cases at1/2/4; full selected matrix passes49cases
-at1/2/4 (11453 assertions at1; rank-dependent11610–12620 at2/4).
-NativeMemory and default-MMG controls pass1/2/4; auxiliary58cases also pass1/2/4. Exact logs/evidence:
-integrated_output_controls_v6, integrated_primal_controls_v6,
-integrated_primal_memory_v6, integrated_mmg_default_v6.
-Independent output audits and initial scaling pilot completed successfully.
-Initial cyclic pilot passes through1024input cells. Fresh low-cut2048-cell group
-passes1/2/4 with independent audits: adapt9.453/6.403/4.797s, single samples.
-Low-cut4096-cell group also independently passes1/2/4:28.019/15.195/9.205s.
-Low-cut8192-cell group independently passes1/2/4:98.936/52.893/28.138s.
-The16384-cell serial case timed out (124) at241.41s; no finished mesh/JSON.
-This is a cost-budget observation, not a construction failure. All27 repeated8192-cell
-partition controls and their independent audit now pass; real-field demand limits remain pending.
+| State file / script | Supervisor PID | Current role |
+|---|---:|---|
+| robustness_chain_v8 / run_native_robustness_campaign_v8 |52131|Waiting for machine quiet before saved opposing-wall audits; native baseline/demand jobs finished |
+| goal_runtime_v7 / run_integrated_goal_runtime_v7 |52132|Waits for robustness success; actual warm/cold1/2, single-descendant primal/adjoint SIGTERM1/2, native-adjoint rejection |
+| integration_followthrough_v1 / run_integration_followthrough_v1 |119961|Waits for goal success; larger engine2/4 capacities and corrected-tree actual warm/cold4 |
+| native_production_chain_v1 / run_native_production_checks_v1 |416452|Waits for follow-through success; actual main SU2_CFD native-loop/restart/ParaView/metric/mesh1/2/4 and nine independent audits |
 
-Earlier failures preserved: missing preconfigure stamp (v1); old serial output
-count assumptions (v2); test private-member/Catch compile error (v3); duplicated
-replicated SU2 reader rows (v4); tiny three-cell mixed fixture's empty CFD sparse
-pattern at4ranks (v5). Fixed test harness with owned point/global volume gather,
-halo agreement, master's public file-reader boundary rows and MPI file barriers.
-Expanded the same mixed triangle/quad/triangle motif to45vertices/48cells for4ranks.
-The tiny-fixture empty-partition abort is a CFD limitation, not a mesher result.
+A failed prerequisite stops followers for diagnosis. Terminal state alone is not
+success; inspect exit/checks. No competing heavy runner should be started.
 
-## Live supervisors: check JSON and host PIDs before acting
+**Freeze until all four chains finish:** do not mutate/rebuild production or test
+sources/binaries; do not edit `run_native_production_checks_v1.py` or
+`check_airfoil_phase_timing.py` while production waits/runs. The production runner
+records their loaded hashes and rejects changes while waiting. The already-loaded
+follow-through lacks two subsequently added code guards: external evidence
+`followthrough_external_guards_v1.json` pins current+archived engine hash
+f4966b8ea17981c5d23d3784d2c5f2e3ac3b9d037b63c57e49949e9c49e7a2fb
+and capability-checker hash
+7dd21ce5b3716e84772201b29d271d5352b7aba345858013ed6ec414514517ff.
+Compare the latter with eventual goal_runtime_v7 checker_sha256 before its4-rank
+lifecycle; do not invalidate these guards by editing the checker or executable.
 
-- ad_repair_controls_v14.json / run_ad_repair_controls_v14.py, PID52130:
-  fresh AD build passed. Original GoalSwap v9 passed1 but failed2 with exact
-  owned transfer and large continuation errors. Tight Jacobi diagnostic v12
-  reproduced it with unchanged ownership; clearing halo seeds restored exact
-  continuation in v13. Final v14 PASS3 cases/26 assertions per rank at1/2/4 (all continuation differences0), and
-  archives fresh executables plus hashes of all tracked production/test sources.
-  Its terminal success permits the native robustness campaign to proceed.
-- robustness_chain_v8.json / run_native_robustness_campaign_v8.py, PID52131:
-  waits for final AD controls, rebuilds primal probe and CFD application, then
-  size escalation (tiles128..4096) with low-cut vertical geometric ownership,
-  three repetitions/rank for all3 layouts, matched AR10/100/1000, incompatible
-  AR25, independent raw audits, actual NACA conservative/resumed-viscous baseline
-  and demand axes, and saved opposing-wall audits from the fresh matrix.
-- goal_runtime_v7.json / run_integrated_goal_runtime_v7.py, PID52132: waits
-  for robustness success, actual warm/cold goal loops at1/2; SIGTERM to only one
-  descendant rank during primal/adjoint recording at1/2; native-adjoint rejection.
-  Short lifecycle checks use a hashed prior converged checkpoint on the identical
-  input mesh; they are not estimator-accuracy or convergence-performance tests.
+## Reconciled source and supported scope
 
-Primal v6 completed successfully, including84 independent output audits and
-all12 initial cyclic scaling cases (16..1024 input triangles). Pilot independently
-passes exact orientation/topology/area/reference/target. Auxiliary v5..v8 stopped
-on inherited serial harness issues (BOX coloring, shared reference files and
-rank-local zero wall denominator); repaired tests now pass all58 at1/2/4 in v9.
-Old idle robustness v5 and goal runtime v4 were explicitly superseded before
-runtime work to add geometric layout3. Other old follower versions are terminal.
-See ROBUSTNESS_SCALING_RESULTS.md for current measured results and limitations.
+Pinned inputs combined: native57f0550db4, Stage G1e39b683ee plus its assessed
+hashed dirty draft, and cached origin/fixCGNSOutput e41e7eabc7. Stage G draft SHA:
+ff0a4c9588447bd89964ecae859fe44c465a102423b080619e4cc8018aaa2346.
+B0Spike/b0-repair stays standalone research, excluded from production/default tests.
+Full decisions/pins: BRANCH_RECONCILIATION.md, refs_initial.txt, worktrees_initial.txt,
+stage_g_draft.json and stage_g_draft.patch.gz.
 
-Only one heavy job at a time. Followers remain idle until prerequisite succeeds.
-A failed prerequisite stops downstream work; terminal state is not proof of pass.
-Host jobs are invisible in sandbox ps: use escalated host process inspection.
-Never kill foreign PID918696 (ancient test) or other foreign jobs.
-Use fresh evidence labels; never overwrite/restart an existing state.
-The full goal still needs actual AD warm/cold/interruption checks, larger/partition
-controls as warranted by pilot outcomes, classification of failed stress cases,
-and a quantitative results report. Do not mark complete after a pilot.
+Later cached-ref changes were assessed: origin/fix_periodic_rotation c39428c1da
+(three rotational Jacobian/multigrid/limiter commits) and origin/pr-images
+29c71a64b3. These are separate scope: both native and MMG remeshers reject periodic
+boundaries; Stage G residual capture rejects periodic markers. They were not
+imported. Assessment pin: periodic_branch_assessment_v1.json. No network refresh
+by this agent is claimed. Revalidate all heads/remotes and the Stage G draft at
+final audit; older unchanged-ref assertions are superseded by this assessment.
 
-## Reproduction and limits
+One remesher factory serves direct/goal loops: native, MMG TWO_PASS, ordinary MMG.
+MMG remains default. Native+TWO_PASS and native adjoint are rejected. Preserve
+in-memory boundaries, mixed-element output ordering,17-digit SU2 coordinates,
+CGNS SU2MarkerName descriptors and accepted mesh/solution/reference state.
+Native remains experimental static single-zone primal-double2D triangles;
+physical boundary sampling adapts on the immutable original marker polyline.
+No native3D/CAD/mixed/moving/time-domain/adjoint or general scalability claim.
 
-Read ROBUSTNESS_SCALING_PROTOCOL.md. Hidden [NativeScaling2D] controls:
-SU2_NATIVE_SCALING_TILES1..4096; LAYOUT1cyclic/2horizontal-contiguous/3vertical-geometric; AR1..1000;
-MATCHED1(default affine-matched geometry/h0/tensor) or2(fixed geometry/h0).
-Timing/traffic excludes audit gather. VmHWM includes startup and replicated
-synthetic input. Constant-probe metric_height>1.8 proves wall-altitude/edge
-incompatibility. Raw CSVs independently audited with exact binary64 orientation,
-topology, area, perimeter/reference and frozen target. Incomplete is measured,
-never an installation success or a relaxed target. Native default caps:
-2MiB transaction work,256 donor cells,128 discovery regions,64 cached candidates;
-whole-process memory is not bounded by the transaction budget. Replicated
-original boundary and reader master boundary rows are O(B).
+## Executed integrated proof
 
-Dependencies externals/{codi,eigen,medi,mel,meson} are read-only symlinks to main
-sources: leave T changes unstaged. Local preconfigure stamp already exists.
-Ninja: prior scratchpad/ninjabin. Static MMG SCOTCH root:
-/home/rausa/Software/scotch. Threads1; MPI<=4; builds-j2. New builds/evidence
-here, not /tmp or AdapNoExt. Disk free approximately42GB on4TB,7.4GB on/tmp.
+Fresh assertions-enabled primal MPI/MMG/CGNS build: build-integrated-v2.
+Output7cases/rank1/2/4 PASS; native/primal49cases/rank1/2/4 PASS; native-memory and
+default-MMG controls1/2/4 PASS; auxiliary58cases/rank1/2/4 PASS. Independent output
+checks84PASS. Evidence: integrated_output_controls_v6, integrated_primal_controls_v6,
+integrated_primal_memory_v6, integrated_mmg_default_v6; auxiliary v9.
+The old3-cell/6-vertex mixed fixture aborting in empty CFD sparse-pattern setup
+at4ranks is an inherited CFD limitation, not a mesher failure; its expanded
+45-vertex/48-cell fixture passes. Earlier harness/build failures remain preserved.
 
-Initial refs/worktrees/main invariants and Stage G draft gzip/SHA are pinned in
-integration_evidence. Source manifestsv1/v2/v3 plusv6/v9 overrides and each runtime's
-archived executable/source hashes describe tested inputs. Prior completed native
-baseline57f0550db4 evidence remains read-only in
-AdapNoExt/BL_NATIVE_INTEGRATION_WORK and is not proof of this integration.
+AD production correction79ce4bc81d: SwapMesh clears only nonowned adjoint seeds
+before recording. The taped primal halo exchange already carries the owned seed;
+seeding a transferred halo copy duplicates that contribution. Transfer utility
+halo copies remain intact. Original-v9 and tight-Jacobi-v12 failures are preserved;
+zero-halo diagnostic v13 restored exact continuation. Permanent v14 controls pass
+3cases/26assertions per rank1/2/4, exact zero continuation differences, ten
+lifecycles, restart/RSS and counters past LIMITER_ITER. This unchanged-ownership
+fixture does not prove partition-independent iteration histories or sensitivity
+accuracy. Archived AD executables: ad_repair_archive_v14.
+SU2_CFD_AD SHA41d4295ffbe6f3f56b13ae94d03c60661bd091c52bd1459771e223b97f6d3255;
+test_driver_AD SHA299045eb1f866034b168b96ed7a70d1cb026afe053a58a14fa48fc79ad539adc.
 
-Evidence-harness update: future driver checks use fresh runtime_np1/2/4
-working directories and copy each job's native artifacts into audit_npN.
-This prevents a failed later cycle/rank from inheriting older snapshots.
-Existing successful v6/v9 evidence remains unchanged; new runs archive
-the changed runner and record their working directory explicitly.
+executed_source_coverage_v1.json compares source coverage: since primalv6,
+only corrected AD driver and opt-in scaling probe differ; v14 and rebuilt v8
+cover them respectively. All759 Common/SU2_CFD production hashes from ADv14
+were rechecked unchanged. This is source coverage, not a substitute for compiled
+scope/runtime. Pending test patches remain unapplied.
 
-AD executable snapshots and hashes are preserved in ad_build_archive_v9.
-Idle robustness v6 / goal v5 were superseded before runtime to distinguish
-240-second time budgets from unexpected failures and parse host comm names
-with spaces safely. Only SIGTERM to their verified idle supervisor PIDs was used.
+## Measured robustness and scaling
 
-MPI adjoint correction in SwapMesh: transferred halo copies remain useful in the
-transfer utility, but the discrete-adjoint driver clears their seed values before
-recording (owned warm-start values retained). Recorded primal halo communication
-already carries the owner contribution; seeding a copy duplicates it. This is a
-production mesh-swap defect, separate from the earlier test-harness defects.
-Unmodified-v9 and tight-linear-v12 failures are preserved. Downstream v7/v6
-followers stopped automatically on that failed prerequisite; v8/v7 are fresh.
+Consult ROBUSTNESS_SCALING_PROTOCOL.md and ROBUSTNESS_SCALING_RESULTS.md for
+exact datasets, commands, thresholds and distributions; this section is current.
 
-Remaining follow-through after scheduled campaigns: the runner diagnoses higher
-complexity and thinner h0 on1 rank only. For each serial demand case that passes,
-run2/4-rank controls with fresh labels/configs and independent audits, as required
-by protocol step7. If actual goal lifecycle1/2 passes, consider a fresh4-rank
-warm/cold control to distinguish any surviving solver limit from the old evidence;
-the halo fix may change post-swap behavior. Do not assume old numerical limits
-prove failure of the corrected integrated tree.
+- Engine pilot16/64/256/1024 triangles: all12 cases independently PASS.
+- Low-cut2048/4096/8192 input cells: MPI1/2/4 independently PASS. Single-sample
+  adapt seconds9.453/6.403/4.797,28.019/15.195/9.205,98.936/52.893/28.138.
+- Serial16384 cells: timeout124 at241.410s under240s whole-job budget, no finished
+  mesh/JSON; cost observation, not demonstrated infeasibility.
+- All27 largest-common8192 repetitions (three layouts×three ranks×three repeats)
+  and final independent structure/full constant-target audit PASS. Evidence:
+  robustness_campaign_v8/repeated/independent_audit.json. Median adapt1/2/4:
+  cyclic99.516/95.533/52.513s; horizontal106.234/52.416/53.982s;
+  vertical97.598/51.900/40.365s. Vertical4 ranges28.060–50.656s despite identical
+  mesh/work hashes. Do not call the fastest sample typical or infer universal
+  speedup from rank-dependent work on a shared workstation.
+- partition_comparison_v1 has plot/CSV/provenance. partition_work_memory_summary_v1
+  pins rechecked raw inputs, rank-max process VmHWM, encoded payload and final
+  owned-cell imbalance. Horizontal4 imbalance1.26396 versus vertical4 1.06348;
+  this association does not establish the plateau's cause. No admission-memory
+  rejections in these27. Initial-directory exchange work above2MiB is outside
+  transaction admission; encoded traffic includes self buckets.
+- Matched AR10/100/1000 small straight-wall controls1/2/4: all9 complete and
+  independently PASS. Geometry/h0/tensor scale together; not a curved1000-AR
+  airfoil or large-demand proof. Fixed-geometry AR25 controls1/2/4: all3 valid
+  but incomplete, necessary-condition incompatibility h0_metric2.5>edge cap1.8.
+- Actual sensor/BL NACA baseline h0=2e-4,4k/6k/3k: all three-cycle viscous/
+  conservative-transfer/resumed-solve runtimes and all9 independent original-
+  reference/frozen-P1 audits PASS. Evidence integrated_airfoil_baseline_v8 with
+  independent_v8. Whole-job1/2/4 times316.525/180.644/107.176s include CFD,
+  gathers/checks; not isolated remesh timing. Final triangles19502/19575/19487.
+- Larger NACA4k/12k/3k serial: timeout124 at902.433s. Accepted23368 then40968
+  triangles; timeout during subsequent coarsening from40968. Cycle0 exact
+  donor/metric/candidate/original bytes match an executed baseline audit;
+  cycle1 needs its own independent audit. No cycle2 candidate. Pin:
+  airfoil_complexity_cost_limit_v1.json; not a construction infeasibility proof.
+- Thinner NACA h0/HMIN1e-4 serial: timeout124 at902.055s. Accepted38852 triangles,
+  timeout during next remesh from38852 (incoming8382shape/15685length residuals).
+  Completed cycle0 needs independent audit at h0=.0001. No cycle1 candidate;
+  5e-5 axis was not run under predeclared stop. Pin: airfoil_height_cost_limit_v1.json.
 
-Live tail: integration_followthrough_v1.json / run_integration_followthrough_v1.py,
-PID119961 waits for goal_runtime_v7 success. It measures larger vertical strips
-separately at2/4 (up to65536 input cells; same240s/120s stop rules), controls each
-successful serial airfoil stress at2/4, and rechecks actual warm/cold goal at4.
-Never launch another competing follower: this tail starts only after the earlier
-runtime is terminal. Unexpected failures stop for diagnosis. Source preparation
-includes additional binary/checker SHA guards; because PID119961 was already
-loaded while those guards were appended, externally verify these invariants
-before it reaches airfoil/goal work (or supersede only while idle with a fresh label).
+Whole-process memory is not bounded by native transaction caps:2MiB work,
+256donors,128discovery regions,64candidate cache; original boundary/master reader
+rows are O(B). Engine RSS includes startup/replicated manufactured input. World
+counters include init+adapt and omit direct CPassiveComm/failure votes; adapt
+seconds exclude init and audit gather. Strip ny=4, boundary grows with size.
+Hardware8-core i7-9700/62GiB RAM, noSMT; shared host and installed OpenMPI defaults.
+Selection/reference/collision/all-rank metadata are candidate bottlenecks, not
+measured dominant causes. Do not change scheduling/data structures without proof.
 
-User grid inspection: see GRID_GUIDE.md. Independently verified8192-cell
-1/2/4-rank and small64-cell4-rank probes have SU2/VTU exports plus provenance
-in integration_evidence/grid_gallery_v1. Exact VTU coordinates and SU2 validity
-were checked. A physical-coordinate crop preview is included. Saved integrated
-BL/CGNS controls and the clearly marked prior-baseline NACA result are linked.
+## Grids, solutions and audit provenance
 
+GRID_GUIDE.md links actual files. integrated_airfoil_gallery_v8 has fresh verified
+initial+three4-rank SU2/VTU exports and wall-detail preview (exact coordinate/
+connectivity round trips and audited input pins checked). Prior native-baseline
+real_airfoil_gallery_v1 remains distinct; grid_gallery_v1 contains audited strip
+exports. Original NACA input is case/airfoil_input.su2; configs reference its
+identical QuickStart copy. Donor/adapted/metric/transfer summaries live in
+runtime_npN and copied audit_npN. CASE_FILES.md explains exact names.
 
-Interim partition audit: all9 cyclic8192-cell repetitions independently PASS
-(structure and complete target), immutable copied datasets in
-integration_evidence/partition_layout1_audit_v2; snapshot aggregation in
-partition_progress_summary_v1.json. Medians/ranges in results. v1 audit had
-zero cases after a Python3.8 method mismatch; v2 is the successful audit.
-Horizontal controls are running; final27-case audit remains scheduled.
-Observed foreign periodic2-rank AD run overlapped a later serial repetition;
-shared-workstation timing caveat applies, never touch foreign jobs.
+The derived NACA fixture did NOT save nodal flow/restarts: Run/Postprocess/Update
+bypassed Output and used the solution in memory. Metric/transfer CSVs are not
+flow snapshots. The staged actual-production cases integrated_native_production_v1/
+np1,np2,np4 contain local input.su2/run.cfg and no executed outputs yet. They
+request real restart+ParaView conserved/primitive/metric fields and accepted
+SU2 meshes/reference sidecars. run_template.cfg and prepared.json pin the profile.
+Production runner self-check passes (right mapping accepted, wrong coordinates
+rejected); actual three-rank-matrix/nine-target audits are still pending.
 
-Completion measurement gap: ReplaceMesh logs are master-local, not rank MAX;
-per-phase native maxima do not give exact total remesh wall MAX. After the
-binary-pinned campaigns finish, use minimal test-only instrumentation and a
-fresh targeted run to record actual remesh, replacement/repartition, transfer,
-CFD and artifact timing separately. Do not modify/relink a live campaign binary.
-This is required by goal/protocol, not a speculative optimization.
+Audit tools hash donor/metric/candidate before/after evaluation and original
+NACA reference before/after its check. Input changes are rejected. The runtime
+original-reference path executed in actual fresh NACA audits. Auditors archive
+sources and runtime-evidence hashes. Runnable check:
+`python3 integration_evidence/check_native_audit_inputs.py` passes actual saved
+four-rank opposing cycle7 and rejects a deliberate temporary-copy edit; originals
+unchanged. Earlier archived audits are preserved.
 
+## Required remaining actions — goal is not complete
 
-Prepared measurement closure: pending_airfoil_phase_timing_v1.patch and its
-SHA/source manifest in integration_evidence. git apply --check passes; source
-and binaries are unchanged, and this patch is NOT compiled or tested yet.
-After robustness_chain_v8, goal_runtime_v7 and integration_followthrough_v1
-are all terminal (diagnose failures before advancing), verify the input source
-hash and apply it. Rebuild only UnitTests/test_driver with-j2 after host quiet.
-Run the existing NativeAirfoil2D baseline with the existing pinned baseline.cfg,
-fresh label integrated_airfoil_phase_timing_v1, ranks1/2/4 sequential,900s/rank,
-save-audit; then independent airfoil audits and validate all9 timing CSV rows.
-Do not use old binaries with newly modified source provenance.
+| Deliverable | Required closure |
+|---|---|
+| Reconciliation |Final revalidate main/heads/remotes/Stage G draft; classify later relevant changes |
+| Integrated validation |Actual Stage G warm/cold/interruption/native-rejection pipeline and corrected4rank follow-through; actual native production/output coupling matrix |
+| Robustness |Saved48 opposing audits; partial larger/thinner NACA target audits; abrupt nodal step controls and every saved one/opposing-wall target audit; explicit support diagnostics |
+| Scaling |Higher-rank capacities; actual MPI MAX remesh/replacement/transfer/CFD/output, local rank timings/RSS/ownership; classify every failed/stopped axis |
+| Handoff/review |Commit tested source, exact evidence and final requirement-by-requirement report; do not substitute narrow checks for full requirements |
 
-Patch reuses protected lastReplaceTime/lastTransferTime and the real production
-adapted-mesh writer. It records separate local phases reduced by MPI MAX:
-solve (includes inner-iteration output), metric, complete backend Remesh,
-ReplaceMesh, transfer, replacement minus transfer, and adapted-mesh output.
-The subtraction is performed per rank before MAX; it is not MAX(replace)-MAX(transfer).
-Per-phase maxima must not be added and called a synchronized overall wall time.
-Test snapshot gathers, saved-mesh checks and external audits remain outside
-remesh/transfer/output timing. Failed candidates record remesh timing with
-accepted=false and zero replacement/output. Targets and acceptance are unchanged.
+After ALL FOUR current chains are terminal and failed gates classified:
 
-followthrough_external_guards_v1.json proves current build and archived engine
-executables still have the campaign SHA. Checker SHA is pinned; compare it with
-the eventual goal_runtime_v7 checker_sha256 before the4-rank lifecycle. No source
-checker or binary changes are allowed until the existing follower finishes.
-The prepared patch deliberately waits, so the already-loaded follower's omitted
-extra guards cannot be invalidated by this new work.
+1. Independently audit completed timeout-run snapshots: complexity12000 cycle1
+   at h0=.0002; height1e4 cycle0 at h0=.0001. Use audit_native_airfoil.py on each
+   audit_np1, with its own original airfoil_input.su2 and fresh report labels.
+   Do not demand whole-run verified status from these partial datasets. No
+   missing timed-out candidate can be audited.
+2. Verify source/patch hashes, apply ONLY pending_airfoil_phase_timing_v3.patch
+   (v1/v2 superseded; retain them as historical evidence), plus
+   pending_bl_step_metric_v1.patch. Both passed git apply --check but are NOT
+   applied/compiled/run. Rebuild only normal UnitTests/test_driver-j2 after quiet.
+3. Run existing smooth NativeBL2D plus hidden NativeBLStep2D, fresh MPI1/2/4,
+   serial diagnosis first. Step length .004 left/.014 right of moving center;
+   same eight heights/centers and four wall/transfer combinations. This is
+   abrupt nodal data with continuous frozen P1 interpolation, not inconsistent
+   cell-discontinuous values. On incomplete, verify exact original reference,
+   point count and accepted flow retention; preserve candidate/residual evidence.
+   Audit opposing snapshots with run_native_opposing_audits.py; additionally
+   audit single-wall/rejected snapshots with audit_native_bl.audit.
+4. Fresh existing NativeAirfoil2D baseline, label integrated_airfoil_phase_timing_v1,
+   ranks1/2/4,900s/rank, save-audit, then full independent airfoil audits. v3 records
+   solve(with inner output), metric, full backend import/adapt/export, replacement,
+   transfer subset, per-rank replacement-minus-transfer and actual mesh writer.
+   MAX values are separate and not additive. Local rows include cumulative Linux
+   VmHWM and owned/total CFD points/local elements (overlaps included). Actual
+   donor/transferred conserved solution CSVs match dense global IDs/coordinates
+   of paired mesh snapshots and remain outside phase timers; not SU2 restarts.
+   Execute check_airfoil_phase_timing.py against actual saved evidence with a
+   fresh output timing_audit.json. Its synthetic self-check passed, not runtime.
+5. Execute compiled hidden NativeUnsupportedDerivative and
+   NativeMissingRestartReference separately at1/2/4, plus actual native+TWO_PASS
+   config rejection1/2/4. Each needs a nonzero NON-timeout/non-signal exit and its
+   exact diagnostic, never the positive Catch-pass checker or an arbitrary crash:
+   - Native adaptation does not support continuous or discrete adjoint configurations.
+   - Native solution restart requires the original geometry sidecar:
+   - ADAP_BL_METHOD= TWO_PASS requires ADAP_REMESHER= MMG; native cavities build the BL with METRIC.
+   Discrete-native AD rejection is already scheduled in the lifecycle runner.
+6. Final completion audit against NATIVE_INTEGRATION_GOAL.md and protocol,
+   covering every gate/invariant/artifact with authoritative current evidence.
+   Fix integration defects, report demonstrated construction/resource/CFD limits
+   separately, and keep the goal active until all required work is proven.
 
+Actual Stage G sensitivity-summary checks are lifecycle/finite-value checks;
+old final history SENS_GEO may remain stale while summary totals are correct.
+No converged-estimator/sensitivity-accuracy proof is implied. Old4-rank divergence
+is not proof for the corrected tree; the queued4-rank rerun decides its outcome.
 
-Completion coverage gap: no executed native fixture has an abrupt spatial nodal
-metric request (the eight-cycle BL control uses a smooth Gaussian). Prepared
-pending_bl_step_metric_v1.patch/json reuse the same fixture with a moving nodal
-step (.004/.014 tangential length), all4 wall/transfer combinations and unchanged
-h0 sequence. Original NativeBL2D remains a wrapper calling smooth mode; hidden
-NativeBLStep2D calls step mode. The shared helper now checks exact retained
-reference/point count/accepted flow on incomplete. git apply --check passes,
-but this patch is NOT applied/compiled/run. Apply together with the timing patch
-only after all live pinned campaigns terminate and failures are classified.
-After rebuilding, run NativeBL2D and NativeBLStep2D with fresh labels at1/2/4;
-serial diagnosis first, preserve any unexpected failure before proceeding.
-Use run_native_opposing_audits.py on successful step matrices and
-independent audit_native_bl.audit for single-wall/rejected snapshots as needed.
-Do not call the step request cell-discontinuous: actual retained target is P1.
-
-Reconciliation revalidation: all other heads/remotes still match refs_initial;
-no new committed source to reconcile. The Stage G dirty production diff still
-matches recorded ff0a4c9588447bd89964ecae859fe44c465a102423b080619e4cc8018aaa2346.
-This excludes tags/stash from the head comparison and does not refresh network refs.
-
-
-## Interim completion audit (goal remains active)
-
-| Goal deliverable | Current proof | Work still required |
-|---|---|---|
-| Branch/worktree reconciliation | Pinned ledger; other heads/remotes unchanged; Stage G draft SHA unchanged; main HEAD/gitignore invariant retained | Revalidate at final audit; classify any later relevant source before importing |
-| Fresh integrated build and focused MPI gates | Primal output/native/memory/MMG/auxiliary1/2/4 pass;84 independent output audits; AD corrected mesh-swap1/2/4 pass | Actual warm/cold/interruption/native-adjoint rejection campaign is waiting |
-| Robustness envelope | Eight replacements, changing smooth tangential/height controls, one/opposing walls, affine transfer, boundary/corner/contact/admission tests executed | Abrupt nodal step control; affine AR escalation/incompatible request; fresh real NACA demand axes and all saved opposing-wall audits |
-| Practical scaling limits | Exact independent pilot and2048/4096/8192 controls; serial16384 timeout classified; cyclic9 repeats audited | 27 repetitions and final independent audit now pass; higher-rank size limits; real remesh/replacement/transfer phase MAX measurements; quantitative final classification |
-| Reviewable branch/handoff/evidence | Committed source/docs, binary/source/config pins, preserved failed evidence, GRID_GUIDE and audited exports | Final requirement-by-requirement audit and a report whose claims match completed current-tree evidence |
-
-Current source coverage checked in integration_evidence/executed_source_coverage_v1.json.
-Against the executed primal v6 source manifest, only CDiscAdjSinglezoneDriver.cpp
-and the opt-in scaling probe changed. The former is covered by fresh corrected
-AD v14 gates; the latter was rebuilt and is executing in robustness v8. All759
-Common/SU2_CFD production files recorded in the AD v14 manifest match current
-sources. This is a source comparison, not a substitute for runtime/compiled-scope
-proof or a claim that pending prepared test patches have passed.
-
-Explicit support diagnostics to verify before final completion: hidden
-NativeUnsupportedDerivative and NativeMissingRestartReference tests are compiled
-but omitted by the successful49-case positive matrix. Execute each in fresh
-1/2/4 processes after current campaigns finish; expected outcome is a nonzero,
-non-timeout exit with its exact collective diagnostic. Also exercise actual
-native+TWO_PASS config rejection (ADAP_BL_METHOD=TWO_PASS in the native NACA
-input) before any primal cycle. Stage G runner already schedules discrete-adjoint
-native rejection. Preserve separate expected-failure logs, commands and hashes;
-never run these through a positive-Catch-pass checker or count an arbitrary
-crash as successful rejection.
-
-
-Horizontal repetition group completed: partition_layout2_audit_v1 independently
-passes all9 cases (complete and structural); copied raw hashes match originals.
-Points/cells/faces CSVs are identical across the3 repetitions within each rank.
-Horizontal8192 medians1/2/4 =106.234/52.416/53.982s; no four-rank benefit for
-that layout. Tables/caveats in results. Snapshot partition_progress_summary_v2.
-Thus18/27 repetitions independently audited so far; vertical low-cut repeats
-are now running. Main final27-case independent audit remains scheduled and
-must pass before campaign advances to AR/incompatibility/actual airfoil work.
-
-
-Audit provenance tightened before queued actual-airfoil/opposing audits start:
-audit_native_bl.audit now hashes donor, frozen metric and candidate before/after
-numeric evaluation, reports exact input hashes and rejects a mid-audit edit.
-All callers were checked; numeric contract and source/test binaries are unchanged.
-audit_native_airfoil also pins the immutable original input mesh and checks that
-all inputs stay unchanged during its reference pass. Actual-airfoil/opposing
-runner summaries now hash the runtime evidence JSON they validated. They archive
-the auditor sources they actually execute; prior archived audits remain intact.
-
-Runnable check: python3 integration_evidence/check_native_audit_inputs.py.
-It passes against the saved four-rank opposing-wall conservative cycle7 and
-rejects a trailing-newline edit applied only to a temporary donor copy during
-actual audit evaluation. Originals are untouched. Numeric/input-hash evidence:
-integration_evidence/audit_input_hash_check_v1.json. Fresh queued NACA audits
-will exercise the new original-reference hash path; do not claim that path's
-runtime verification from a syntax check alone.
-
-
-Latest update: all27 repeated8192-cell partition-layout runs are complete and
-pass the final independent structure/frozen-target audit in
-robustness_campaign_v8/repeated/independent_audit.json. Low-cut four-rank times
-vary28.060/40.365/50.656s (min/median/max), despite identical mesh/work hashes;
-do not promote the fastest sample as reliable scaling. Plot/CSV/provenance:
-partition_comparison_v1. Results below supersede the earlier18/27 interim status.
-
-Fresh integrated NACA baseline is running; runner52131, baseline child264049,
-initial MPI child264128 at last observation. Other supervisors52132/119961 still
-wait for prerequisites. No additional heavy job was launched for visualization.
-Actual earlier native-baseline NACA gallery is ready in real_airfoil_gallery_v1:
-initial10216 triangles, four-rank cycles23328/25549/19487 triangles, exact VTU/SU2
-exports and wall-detail preview. All nine earlier1/2/4 saved meshes independently
-verified; only short viscous/resumed-solve checks, not converged CFD accuracy.
-See GRID_GUIDE.md. This is prior baseline evidence, not fresh integration proof.
-
-
-Latest controls: affine AR10/100/1000 MPI1/2/4 all9 complete and independently
-pass, with current raw hashes reverified. Fixed-geometry AR25 MPI1/2/4 all3
-structurally pass but are correctly incomplete; metric first height2.5>edge
-cap1.8 proves incompatible demand. These are small engine-only controls, not
-large curved-BL capacity or CFD replacement evidence. Fresh integrated NACA
-baseline1/2 passed316.525/180.644s;4 is live (MPI284403 at last host check).
-
-Measurement patch **pending_airfoil_phase_timing_v2.patch/.json supersedes v1**:
-adds rank-local timing, cumulative process VmHWM and CFD ownership/overlap counts,
-with stream checks. Both original source SHA and git apply --check pass. Still
-NOT APPLIED/COMPILED/RUN. Apply only v2 (not v1) after all current supervisors and
-binary-pinned followers finish, together with pending_bl_step_metric_v1. Sources
-and binaries remain unchanged. Minimal validator self-check passed:
-python3 integration_evidence/check_airfoil_phase_timing.py --self-check
-After actual fresh1/2/4 timing runtime and independent mesh audits, execute:
-python3 integration_evidence/check_airfoil_phase_timing.py integration_evidence/integrated_airfoil_phase_timing_v1 --output integration_evidence/integrated_airfoil_phase_timing_v1/timing_audit.json
-It must prove every cycle/rank row, exact reported MPI maxima, global owned-point
-count versus saved adapted mesh, cumulative RSS and transfer/replacement scope.
-No actual per-rank measurement is claimed from the self-check alone.
-
-
-Fresh baseline runtime now passes1/2/4 (whole-job316.525/180.644/107.176s).
-Independent_v8 audits are live; the first four saved meshes pass at the latest
-report. The new original-reference hash path has executed on an actual NACA
-mesh, and all four donor/metric/candidate/original pins were reverified for np1
-cycle0. Full nine-mesh audit remains required before baseline geometry/target
-claims extend to all ranks/cycles. Process observation: audit supervisor288694
-and its real child confirmed live. AdapNoExt invariants rechecked unchanged.
-
-All27 current raw hashes and engine memory/ownership counters revalidated.
-partition_work_memory_summary_v1.json and the results table report rank-max RSS,
-encoded payload and final owned-cell imbalance. Horizontal4 imbalance1.26396
-versus vertical4 1.06348; association with a timing plateau does not isolate its
-cause. Zero memory admission rejections in these27 small-memory probes.
-
-
-Local refs changed later: new origin/fix_periodic_rotation c39428c1da and updated
-origin/pr-images29c71a64b3, observed without fetching. This supersedes earlier
-unchanged-remote-ref statements. All three new periodic solver commits and
-companion evidence were assessed and pinned in periodic_branch_assessment_v1.
-They are outside both current native and MMG adaptation support (explicit
-periodic marker rejection), so no code/refreshed numeric references imported.
-See BRANCH_RECONCILIATION.md. Other local heads and Stage G draft stay pinned.
-
-User preference: every progress update should identify the ACTIVE TESTCASE
-folder, not merely the integration worktree. Read current_run.working_directory
-for CFD jobs; for independent auditors report the actual audit_npN input folder
-and destination reports. Current baseline reports: independent_v8, not the old
-baseline's independent_full_v1 name. Never infer a live case from an old PID.
-
-
-Baseline fully verified: MPI1/2/4 runtime and all9 independent_v8 mesh audits
-PASS, all exact input pins rechecked. Fresh integrated_airfoil_gallery_v8 exports
-initial+three4-rank meshes to VTU/SU2 with a visually inspected wall preview.
-GUIDE now leads with fresh integration evidence; prior gallery remains intact.
-Initial mesh is airfoil_input.su2 in the case parent, not copied into each runtime
-folder; config references the identical QuickStart input. CASE_FILES.md explains
-this. No field/restart files were saved by this derived driver: Run/Postprocess/
-Update does not invoke Output. Do not describe metric/transfer CSVs as solutions.
-
-**Apply only pending_airfoil_phase_timing_v3.patch/.json after current campaigns**;
-it supersedes v2/v1, which remain preserved. In addition to phase/rank RSS and
-ownership, v3 exports actual donor/transferred conserved flow CSVs in the same
-global point order as paired saved meshes, outside timers. No restart claim.
-Existing check_airfoil_phase_timing.py validates field identity/coordinates,
-finite/admissible values plus MAX/ownership/RSS; its self-check passes. No actual
-export has run. It still needs compilation, fresh MPI1/2/4 and independent audits.
-
-Current CFD demand case: integrated_airfoil_complexity12000_v8/runtime_np1,
-runner313708, MPI313813 at last report. Subsequent current-case paths must be
-read from live state rather than inferred. Goal lifecycle and follow-through
-supervisors remain queued. All future progress updates include active case path.
-
-
-Higher NACA complexity ended: integrated_airfoil_complexity12000_v8 np1 timeout
-124/902.433s at900s whole-job budget. Cycles0/1 accepted23368/40968 triangles;
-timeout while coarsening cycle2 from40968, not while constructing the larger mesh.
-Actual processes verified terminated; do not restart/extend the original budget.
-Classified in airfoil_complexity_cost_limit_v1.json. Cycle0 exact donor/metric/
-candidate/original inputs match the executed baseline independent audit bytewise;
-cycle1 requires fresh independent audit after current heavy campaigns finish.
-Use audit_native_airfoil.py --cycle1 --height.0002 --reference case/airfoil_input.su2
-on its saved audit_np1. No cycle2 candidate exists. Do not claim whole3cycle pass.
-
-Current case advanced to integrated_airfoil_height1e4_v8/runtime_np1 (h0/HMIN1e-4).
-Prepared actual production-loop cases are in integrated_native_production_v1/
-np{1,2,4}, each with input.su2/run.cfg. They are NOT RUN. They request actual
-restart+ParaView fields and double-precision metric as well as accepted meshes/
-reference sidecars, retaining short baseline physical/flow settings. This closes
-an additional integration/inspectability gap: derived fixture Run/Postprocess/
-Update bypassed production Output. Run sequentially after current pipelines,
-pin executable/sources/configs, extract restart metrics using existing capcheck
-reader for actual frozen-P1 audits. Do not mistake prepared folders for outputs.
-
-
-Thinner height case ended: h0/HMIN1e-4 serial timeout124/902.055s under900s
-whole-job cap. First mesh accepted38852 triangles/19563 points; timeout during
-cycle1 remeshing from that mesh (8382 shape/15685 length incoming residuals).
-No cycle1 candidate; h5e-5 not run under declared axis stop. New pins/classification
-in airfoil_height_cost_limit_v1.json. Completed cycle0 still needs independent
-actual-target/reference audit at h0=.0001. Foreign ninja/cc1plus build is delaying
-saved opposing audits; own heavy simulations are idle at last host observation.
-
-Additional verified-idle supervisor416452: native_production_chain_v1.json /
-run_native_production_checks_v1.py waits for integration_followthrough_v1 success.
-Cases integrated_native_production_v1/np1,np2,np4 use actual main SU2_CFD loop,
-local input.su2/run.cfg, restart+ParaView+double metric+mesh/reference outputs.
-Loaded runner and check_airfoil_phase_timing.py hashes are frozen: DO NOT EDIT
-those scripts or rebuild/mutate sources while this chain waits/runs. Wait for
-this production chain, in addition to the other three, before applying pending
-v3 timing/field and step patches and building the test driver. All759 production
-source pins match. Self-check verifies correct mapping and rejects wrong mesh
-coordinates. Actual production outputs/audits remain NOT RUN.
-
-Reproduction/config template: integrated_native_production_v1/run_template.cfg;
-original input is QuickStart/mesh_NACA0012_inv.su2 at the pinned SHA. Keep prepared
-configs/data separate from executed evidence. Production archive/actual output
-checks and nine double-restart-derived frozen-P1/original-reference audits will
-be required for this additional coupling gate; not a converged aerodynamic test.
-Partial completed demand audits (complexity cycle1 and thinner-height cycle0)
-remain pending after current chains; do not infer completion from timeout status.
+Build dependencies: SCOTCH `/home/rausa/Software/scotch`; ninja executable:
+`/tmp/claude-1000/-media-rausa-4TB-SU2-Versions-SU2-AdapNoExt/bae33fc3-5b05-48ef-a3e8-4d222dffb2fe/scratchpad/ninjabin/ninja`.
+Use PYTHONDONTWRITEBYTECODE=1; new builds/artifacts stay in this sibling worktree.

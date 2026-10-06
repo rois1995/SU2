@@ -137,11 +137,24 @@ limit. Reuse the existing saved-mesh auditors; no target floors or new meshing
 algorithm. The prepared patch is not applied or verified at runtime yet.
 
 
-Measurement closure refinement: use prepared pending_airfoil_phase_timing_v2
-instead of v1. Besides independent phase MAX values, retain local rank duration
+Measurement closure refinement: use prepared pending_airfoil_phase_timing_v3
+instead of v1/v2. v3 additionally exports actual donor/transferred flow CSVs
+paired with their mesh IDs/coordinates, outside timers; they are not restart files. Besides independent phase MAX values, retain local rank duration
 rows, cumulative Linux VmHWM, owned/total CFD points and local elements including
 overlaps. Validate maxima against local rows and ownership against the actual
 adapted mesh with check_airfoil_phase_timing.py after successful runtime. RSS
 includes process startup and earlier test snapshots; it is not attributable to
 one phase and phase maxima are not additive. Patches/checker self-check alone
 are not measured evidence. Execute only after live pinned campaigns finish.
+
+
+Actual main-loop/output coupling closure: staged integrated_native_production_v1
+runs the real SU2_CFD application on1/2/4 with the short baseline profile, local
+input mesh, noncompact double binary restart (including actual metric), ParaView
+flow fields and accepted mesh/reference outputs. Its queued supervisor starts
+only after robustness/AD/follow-through success and machine quiet. Pair restart
+fields exactly with each donor grid using existing readers, and audit all nine
+actual restart-derived frozen-P1 targets against the original reference.
+This additional gate addresses the derived fixture's missing Output call; it
+does not replace phase timing, step-target tests or full CFD convergence proof.
+Do not apply prepared source patches while this fourth chain is waiting/running.
