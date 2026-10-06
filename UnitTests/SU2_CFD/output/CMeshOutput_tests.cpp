@@ -27,12 +27,14 @@
 #include "catch.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cstdio>
 #include <fstream>
 #include <map>
 #include <set>
 
 #include "../../../Common/include/CConfig.hpp"
+#include "../../../Common/include/parallelization/CPassiveComm.hpp"
 #include "../../../Common/include/geometry/CPhysicalGeometry.hpp"
 #include "../../../SU2_CFD/include/drivers/CDriver.hpp"
 #include "../../../SU2_CFD/include/output/CMeshOutput.hpp"
@@ -78,28 +80,70 @@ GlobalMesh ReadMesh(CConfig* config) {
   const auto* fine = geometry[MESH_0];
   const auto nDim = fine->GetnDim();
   GlobalMesh mesh;
+  // Test-only gather: compare complete global meshes, independently of the CFD partition and its halos.
+  std::vector<unsigned long> pointIds;
+  std::vector<std::array<passivedouble, 3>> coordinates;
   for (auto iPoint = 0ul; iPoint < fine->GetnPointDomain(); ++iPoint) {
-    auto& x = mesh.coord[fine->nodes->GetGlobalIndex(iPoint)];
-    for (unsigned short iDim = 0; iDim < nDim; ++iDim) x.push_back(SU2_TYPE::GetValue(fine->nodes->GetCoord(iPoint, iDim)));
+    pointIds.push_back(fine->nodes->GetGlobalIndex(iPoint));
+    std::array<passivedouble, 3> x{};
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+      x[iDim] = SU2_TYPE::GetValue(fine->nodes->GetCoord(iPoint, iDim));
+    coordinates.push_back(x);
   }
-  auto globalNodes = [&](const CPrimalGrid* element) {
-    std::vector<unsigned long> nodes;
+  pointIds = CPassiveComm::Allgatherv(pointIds, nullptr);
+  coordinates = CPassiveComm::Allgatherv(coordinates, nullptr);
+  REQUIRE(pointIds.size() == coordinates.size());
+  for (size_t i = 0; i < pointIds.size(); ++i)
+    REQUIRE(mesh.coord.emplace(pointIds[i], std::vector<passivedouble>(coordinates[i].begin(),
+                                                                    coordinates[i].begin() + nDim)).second);
+
+  using Record = std::array<unsigned long, SU2_CONN_SIZE>; // Global identity, node count, sorted global nodes.
+  auto record = [&](const CPrimalGrid* element, unsigned long id) {
+    Record result{};
+    result[0] = id;
+    result[1] = element->GetnNodes();
     for (unsigned short iNode = 0; iNode < element->GetnNodes(); ++iNode)
-      nodes.push_back(fine->nodes->GetGlobalIndex(element->GetNode(iNode)));
-    std::sort(nodes.begin(), nodes.end());
-    return nodes;
+      result[iNode + 2] = fine->nodes->GetGlobalIndex(element->GetNode(iNode));
+    std::sort(result.begin() + 2, result.begin() + 2 + result[1]);
+    return result;
   };
-  for (auto iElem = 0ul; iElem < fine->GetnElem(); ++iElem) {
-    const auto nodes = globalNodes(fine->elem[iElem]);
-    mesh.elem.insert(nodes);
-    mesh.elemByIndex[fine->elem[iElem]->GetGlobalIndex()] = nodes;
+  auto nodes = [](const Record& value) {
+    return std::vector<unsigned long>(value.begin() + 2, value.begin() + 2 + value[1]);
+  };
+  std::vector<Record> localElements;
+  for (auto iElem = 0ul; iElem < fine->GetnElem(); ++iElem)
+    localElements.push_back(record(fine->elem[iElem], fine->elem[iElem]->GetGlobalIndex()));
+  for (const auto& value : CPassiveComm::Allgatherv(localElements, nullptr)) {
+    const auto row = nodes(value);
+    const auto inserted = mesh.elemByIndex.emplace(value[0], row);
+    CHECK(inserted.second || inserted.first->second == row); // Halo copies must agree.
   }
-  for (unsigned short iMarker = 0; iMarker < fine->GetnMarker(); ++iMarker) {
-    auto& marker = mesh.markers[config->GetMarker_All_TagBound(iMarker)];
-    for (auto iElem = 0ul; iElem < fine->GetnElem_Bound(iMarker); ++iElem) {
-      const auto nodes = globalNodes(fine->bound[iMarker][iElem]);
-      marker.insert(nodes);
-      mesh.markerOrder[config->GetMarker_All_TagBound(iMarker)].push_back(nodes);
+  for (const auto& value : mesh.elemByIndex) mesh.elem.insert(value.second);
+
+  const auto* physical = dynamic_cast<const CPhysicalGeometry*>(fine);
+  REQUIRE(physical != nullptr);
+  for (unsigned short iCfg = 0; iCfg < config->GetnMarker_CfgFile(); ++iCfg) {
+    const auto tag = config->GetMarker_CfgFile_TagBound(iCfg);
+    if (config->GetMarker_CfgFile_KindBC(tag) == SEND_RECEIVE) continue;
+    std::vector<Record> localFaces;
+    for (unsigned short iMarker = 0; iMarker < fine->GetnMarker(); ++iMarker) {
+      if (config->GetMarker_All_TagBound(iMarker) != tag) continue;
+      for (auto iElem = 0ul; iElem < fine->GetnElem_Bound(iMarker); ++iElem) {
+        const auto* face = fine->bound[iMarker][iElem];
+        const auto id = physical->BoundaryGlobalIndex.find(face);
+        REQUIRE(id != physical->BoundaryGlobalIndex.end());
+        localFaces.push_back(record(face, id->second));
+      }
+    }
+    std::map<unsigned long, std::vector<unsigned long>> facesByIndex;
+    for (const auto& value : CPassiveComm::Allgatherv(localFaces, nullptr)) {
+      const auto row = nodes(value);
+      const auto inserted = facesByIndex.emplace(value[0], row);
+      CHECK(inserted.second || inserted.first->second == row);
+    }
+    for (const auto& face : facesByIndex) {
+      mesh.markers[tag].insert(face.second);
+      mesh.markerOrder[tag].push_back(face.second);
     }
   }
   for (unsigned short iMesh = 0; iMesh <= config->GetnMGLevels(); ++iMesh) delete geometry[iMesh];
@@ -117,7 +161,8 @@ void CheckWriteAndRead(const CSimplexMesh& simplexMesh, const string& outFormat,
   const auto nDim = simplexMesh.nDim;
   const string inputFile = "mesh_output_test_input.su2";
   const string outputName = "mesh_output_test_output";
-  simplex_test::WriteSU2Mesh(simplexMesh, inputFile);
+  if (SU2_MPI::GetRank() == MASTER_NODE) simplex_test::WriteSU2Mesh(simplexMesh, inputFile);
+  SU2_MPI::Barrier(SU2_MPI::GetComm());
 
   /*--- Read the mesh and write it from memory. ---*/
 
@@ -168,8 +213,12 @@ void CheckWriteAndRead(const CSimplexMesh& simplexMesh, const string& outFormat,
     CHECK(output.markers.at(marker.name) == input.markers.at(marker.name));
   }
 
-  std::remove(inputFile.c_str());
-  std::remove((outputName + extension).c_str());
+  SU2_MPI::Barrier(SU2_MPI::GetComm());
+  if (SU2_MPI::GetRank() == MASTER_NODE) {
+    std::remove(inputFile.c_str());
+    std::remove((outputName + extension).c_str());
+  }
+  SU2_MPI::Barrier(SU2_MPI::GetComm());
 }
 
 /*--- Rectangle [100, 100 + 2e-4] x [0, 1]: cells of 2.5e-5 x 0.25 near x = 100, where single precision has a
@@ -195,7 +244,6 @@ TEST_CASE("Mesh output from memory, SU2 binary", "[Adaptation]") {
 }
 
 TEST_CASE("Mesh output preserves global element and boundary order", "[Adaptation][MeshOrder]") {
-  if (SU2_MPI::GetSize() != 1) return;
   for (const auto& format : {"SU2", "SU2B"}) {
     CheckWriteAndRead(simplex_test::MakeSimplexMesh(2, 4, simplex_test::Marker2D), format, "", true);
     CheckWriteAndRead(simplex_test::MakeSimplexMesh(3, 2, simplex_test::Marker3D), format, "", true);
@@ -203,16 +251,16 @@ TEST_CASE("Mesh output preserves global element and boundary order", "[Adaptatio
 }
 
 TEST_CASE("Mesh output preserves interleaved element types", "[Adaptation][MeshOrder]") {
-  if (SU2_MPI::GetSize() != 1) return;
   const string inputFile = "mesh_output_mixed_input.su2";
   const string outputName = "mesh_output_mixed_output";
-  {
+  if (SU2_MPI::GetRank() == MASTER_NODE) {
     std::ofstream file(inputFile);
     file << "NDIME= 2\nNELEM= 3\n5 1 2 5 0\n9 0 1 4 3 1\n5 1 5 4 2\n"
             "NPOIN= 6\n0 0 0\n1 0 1\n2 0 2\n0 1 3\n1 1 4\n2 1 5\n"
             "NMARK= 1\nMARKER_TAG= wall\nMARKER_ELEMS= 6\n"
             "3 0 1\n3 1 2\n3 2 5\n3 5 4\n3 4 3\n3 3 0\n";
   }
+  SU2_MPI::Barrier(SU2_MPI::GetComm());
   for (const auto& format : {"SU2", "SU2B"}) {
     auto config = MakeConfig(2, inputFile, "SU2", format, "MARKER_FAR= (wall)\n");
     const auto input = ReadMesh(config.get());
@@ -228,9 +276,12 @@ TEST_CASE("Mesh output preserves interleaved element types", "[Adaptation][MeshO
     const auto output = ReadMesh(outputConfig.get());
     CHECK(output.elemByIndex == input.elemByIndex);
     CHECK(output.markerOrder == input.markerOrder);
-    std::remove(outputFile.c_str());
+    SU2_MPI::Barrier(SU2_MPI::GetComm());
+    if (SU2_MPI::GetRank() == MASTER_NODE) std::remove(outputFile.c_str());
+    SU2_MPI::Barrier(SU2_MPI::GetComm());
   }
-  std::remove(inputFile.c_str());
+  if (SU2_MPI::GetRank() == MASTER_NODE) std::remove(inputFile.c_str());
+  SU2_MPI::Barrier(SU2_MPI::GetComm());
 }
 
 #ifdef HAVE_CGNS
