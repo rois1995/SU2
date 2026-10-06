@@ -1,0 +1,11 @@
+{
+  "requested_trials": "Both models started from exact copies of the user-provided no-BL mesh",
+  "Euler": "Two adaptations completed, final12788triangles; density criterion met on all3solves; inter-grid force changes remain substantial",
+  "RANS": "User stopped first remesh; initial CFD solution saved and checked; no adapted RANS mesh accepted",
+  "excessive_complexity": "Diagnosis complete: TE point148 contributes89.29% of nodal complexity; coarse nodal/P1 representation of geometric BL/corner constraints",
+  "rejected_mesh_output": "Implemented for incomplete native candidates with WRT_ADAP_MESH=YES; explicit SU2 diagnostic format; MPI1/2/4 independently checked",
+  "old_Euler_failure": "Reproduced with byte-identical input/config/initial history/restart/VTU;36bad-quality cells independently verified;SU2/VTU/CSV/JSON/PNG saved",
+  "limits": "BL metric remedy not implemented. Rejected topology is exactly positive/manifold but near-duplicate-point gate fails for2pairs. No grid-converged aerodynamic validation or resolved-wall RANS success claimed.",
+  "next_work": "Geometric BL target queries with frozen sensor,or explicit staged BL creation; preserve finalh0 and validate composite target",
+  "case_root": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1"
+}

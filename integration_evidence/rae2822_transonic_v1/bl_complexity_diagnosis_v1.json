@@ -1,0 +1,495 @@
+{
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/rans_no_bl_seed_v1",
+  "input_files_sha256": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/rans_no_bl_seed_v1/input.su2": "940d8aed5d9ee0d6dc0a9f5b43a3973e7c76ed5d9123188c6e81d048cf6b6d26",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/rans_no_bl_seed_v1/solution_adap_00000.dat": "6f4d56f48484e8d0b14ca0d5e17da4113b2512b267cc49f943e030946f950be6",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/rans_no_bl_seed_v1/solver.log": "20eab1f59405dcb7119e86998fbbf9390efc8a8df29bd27accdbb71af3dc98e6",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/rans_no_bl_seed_v1/run.cfg": "3ee6528e4315e35e8b46aae9020cd326460013716d20cf576c71f4a2548c56dc",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/rans_no_bl_seed_v1/run_evidence.json": "8b7bd16e94750f5b3448d59e2a8376cae578346a20c848b5a6907875d5a8e047"
+  },
+  "checker_sha256": "de313bb4a816874b32a84584e814a4651f0cb6a6dcde44a56ce9d172981d5610",
+  "nodal_complexity": 824836.850731304,
+  "centroid_complexity": 1220091.9588849968,
+  "estimated_unit_triangles": 2817681.683593403,
+  "top_nodes": [
+    {
+      "point_id": 148,
+      "coordinates": [
+        1.0,
+        0.000169999999343418
+      ],
+      "dual_area": 7.365066389621105e-05,
+      "tensor": [
+        [
+          9999999999.999998,
+          -9.649418949102485e-09
+        ],
+        [
+          -9.649418949102485e-09,
+          9999999999.999998
+        ]
+      ],
+      "principal_sizes": [
+        1e-05,
+        1e-05
+      ],
+      "contribution": 736506.6389621109,
+      "fraction": 0.8929118992551325,
+      "incident_cells": [
+        4542,
+        4555,
+        4684,
+        5044,
+        6932
+      ]
+    },
+    {
+      "point_id": 154,
+      "coordinates": [
+        0.898338079452515,
+        8.05446234153351e-06
+      ],
+      "dual_area": 0.00021183036042952516,
+      "tensor": [
+        [
+          32891083.306999758,
+          -572538128.6707519
+        ],
+        [
+          -572538128.6707519,
+          9967111836.388903
+        ]
+      ],
+      "principal_sizes": [
+        0.018506793950269686,
+        1e-05
+      ],
+      "contribution": 1144.6086285873037,
+      "fraction": 0.0013876788210571442,
+      "incident_cells": [
+        4822,
+        5363,
+        5631,
+        6732
+      ]
+    },
+    {
+      "point_id": 164,
+      "coordinates": [
+        0.713221430778503,
+        -0.0199385173618793
+      ],
+      "dual_area": 0.00018081108917232026,
+      "tensor": [
+        [
+          188913135.98392335,
+          -1361401325.0646758
+        ],
+        [
+          -1361401325.0646758,
+          9811089882.948076
+        ]
+      ],
+      "principal_sizes": [
+        0.018200081573041826,
+        1e-05
+      ],
+      "contribution": 993.4630701908096,
+      "fraction": 0.0012044358460827748,
+      "incident_cells": [
+        4093,
+        4094,
+        4751,
+        6914
+      ]
+    },
+    {
+      "point_id": 186,
+      "coordinates": [
+        0.324997425079346,
+        -0.0575475804507732
+      ],
+      "dual_area": 0.0001518000645239166,
+      "tensor": [
+        [
+          3679560.139217198,
+          191689139.308076
+        ],
+        [
+          191689139.308076,
+          9996324189.090332
+        ]
+      ],
+      "principal_sizes": [
+        0.01636271253806367,
+        9.999999992880033e-06
+      ],
+      "contribution": 927.7194369752315,
+      "fraction": 0.0011247308315004492,
+      "incident_cells": [
+        630,
+        4686,
+        5601,
+        6798
+      ]
+    },
+    {
+      "point_id": 176,
+      "coordinates": [
+        0.501229524612427,
+        -0.0487848967313766
+      ],
+      "dual_area": 0.00016336989037014026,
+      "tensor": [
+        [
+          120146751.8963551,
+          -1089495628.4423409
+        ],
+        [
+          -1089495628.4423409,
+          9879856441.731789
+        ]
+      ],
+      "principal_sizes": [
+        0.017695295804710336,
+        9.999999999999997e-06
+      ],
+      "contribution": 923.2391036183448,
+      "fraction": 0.0011192990502301113,
+      "incident_cells": [
+        518,
+        4967,
+        5149,
+        6902
+      ]
+    },
+    {
+      "point_id": 190,
+      "coordinates": [
+        0.262565314769745,
+        -0.0550997033715248
+      ],
+      "dual_area": 0.00013084374042183957,
+      "tensor": [
+        [
+          31926510.1314347,
+          564089969.3433998
+        ],
+        [
+          564089969.3433998,
+          9968078335.91544
+        ]
+      ],
+      "principal_sizes": [
+        0.01436501867343414,
+        9.999999999999999e-06
+      ],
+      "contribution": 910.8497760873214,
+      "fraction": 0.0011042787131537077,
+      "incident_cells": [
+        614,
+        4702,
+        5092,
+        6093
+      ]
+    },
+    {
+      "point_id": 129,
+      "coordinates": [
+        0.77804034948349,
+        0.038942988961935
+      ],
+      "dual_area": 0.00013022467690352368,
+      "tensor": [
+        [
+          196112396.66719443,
+          1386584463.7211657
+        ],
+        [
+          1386584463.7211657,
+          9803892440.139837
+        ]
+      ],
+      "principal_sizes": [
+        0.014378733004697254,
+        1e-05
+      ],
+      "contribution": 905.6756034167053,
+      "fraction": 0.0010980057481836914,
+      "incident_cells": [
+        242,
+        5084,
+        5597,
+        6892
+      ]
+    },
+    {
+      "point_id": 109,
+      "coordinates": [
+        0.469041794538498,
+        0.0641887113451958
+      ],
+      "dual_area": 0.00013857202702149534,
+      "tensor": [
+        [
+          1441901.026210339,
+          119894261.59913051
+        ],
+        [
+          119894261.59913051,
+          9998562329.30567
+        ]
+      ],
+      "principal_sizes": [
+        0.01537491698853483,
+        1.0000000000000003e-05
+      ],
+      "contribution": 901.2863427154261,
+      "fraction": 0.0010926843798459557,
+      "incident_cells": [
+        627,
+        4615,
+        4707,
+        6874
+      ]
+    }
+  ],
+  "top_cells": [
+    {
+      "input_cell_id": 4684,
+      "point_ids": [
+        148,
+        149,
+        2973
+      ],
+      "centroid": [
+        0.9918199204027337,
+        -0.0026217913047251584
+      ],
+      "coordinates": [
+        [
+          1.0,
+          0.000169999999343418
+        ],
+        [
+          0.985397040843964,
+          0.000942859915085137
+        ],
+        [
+          0.9900627203642374,
+          -0.00897823382860403
+        ]
+      ],
+      "contribution": 332982.8603076002,
+      "fraction": 0.27291619937558037
+    },
+    {
+      "input_cell_id": 5044,
+      "point_ids": [
+        148,
+        2973,
+        2122
+      ],
+      "centroid": [
+        0.9977043458102591,
+        -0.006245124004532902
+      ],
+      "coordinates": [
+        [
+          1.0,
+          0.000169999999343418
+        ],
+        [
+          0.9900627203642374,
+          -0.00897823382860403
+        ],
+        [
+          1.00305031706654,
+          -0.009927138184338092
+        ]
+      ],
+      "contribution": 213745.09483113044,
+      "fraction": 0.17518769243136825
+    },
+    {
+      "input_cell_id": 4555,
+      "point_ids": [
+        147,
+        148,
+        277
+      ],
+      "centroid": [
+        0.9972045548752807,
+        0.0030064315461802004
+      ],
+      "coordinates": [
+        [
+          0.99185049533844,
+          0.00192502967547625
+        ],
+        [
+          1.0,
+          0.000169999999343418
+        ],
+        [
+          0.999763169287402,
+          0.006924264963720933
+        ]
+      ],
+      "contribution": 128762.51692371536,
+      "fraction": 0.10553509183142828
+    },
+    {
+      "input_cell_id": 4542,
+      "point_ids": [
+        276,
+        148,
+        2122
+      ],
+      "centroid": [
+        1.003294705203847,
+        -0.002931845602575234
+      ],
+      "coordinates": [
+        [
+          1.006833798545001,
+          0.0009616013772689728
+        ],
+        [
+          1.0,
+          0.000169999999343418
+        ],
+        [
+          1.00305031706654,
+          -0.009927138184338092
+        ]
+      ],
+      "contribution": 119033.03284472435,
+      "fraction": 0.0975607059598236
+    },
+    {
+      "input_cell_id": 6932,
+      "point_ids": [
+        276,
+        277,
+        148
+      ],
+      "centroid": [
+        1.0021989892774676,
+        0.002685288780111108
+      ],
+      "coordinates": [
+        [
+          1.006833798545001,
+          0.0009616013772689728
+        ],
+        [
+          0.999763169287402,
+          0.006924264963720933
+        ],
+        [
+          1.0,
+          0.000169999999343418
+        ]
+      ],
+      "contribution": 77246.57924535986,
+      "fraction": 0.06331209601278992
+    },
+    {
+      "input_cell_id": 871,
+      "point_ids": [
+        151,
+        1405,
+        150
+      ],
+      "centroid": [
+        0.9620640896649212,
+        -0.002932731689046113
+      ],
+      "coordinates": [
+        [
+          0.95268040895462,
+          0.00167925120331347
+        ],
+        [
+          0.9639386006865057,
+          -0.01196645353389617
+        ],
+        [
+          0.969573259353638,
+          0.00148900726344436
+        ]
+      ],
+      "contribution": 8392.247074262097,
+      "fraction": 0.006878372579335335
+    },
+    {
+      "input_cell_id": 4589,
+      "point_ids": [
+        152,
+        2079,
+        151
+      ],
+      "centroid": [
+        0.944313747523369,
+        -0.0026728082584797034
+      ],
+      "coordinates": [
+        [
+          0.934995710849762,
+          0.00151132768951356
+        ],
+        [
+          0.9452651227657249,
+          -0.01120900366826614
+        ],
+        [
+          0.95268040895462,
+          0.00167925120331347
+        ]
+      ],
+      "contribution": 8259.339616973743,
+      "fraction": 0.006769440251472266
+    },
+    {
+      "input_cell_id": 5363,
+      "point_ids": [
+        154,
+        2362,
+        153
+      ],
+      "centroid": [
+        0.9105488154661839,
+        -0.004765619569862009
+      ],
+      "coordinates": [
+        [
+          0.898338079452515,
+          8.05446234153351e-06
+        ],
+        [
+          0.9164861122882921,
+          -0.01522767485481419
+        ],
+        [
+          0.916822254657745,
+          0.00092276168288663
+        ]
+      ],
+      "contribution": 8212.261996822352,
+      "fraction": 0.006730854946644576
+    }
+  ],
+  "top_five_cell_fraction": 0.7145117856109904,
+  "flat_wall_example": {
+    "h0": 1e-05,
+    "growth": 1.2,
+    "depth": 0.01,
+    "geometric_integral": 29.143971005401138,
+    "nodal_quadrature": 502.73631840796014,
+    "p1_tensor_integral": 666.6865244944663,
+    "p1_inflation": 22.875624065468358
+  },
+  "interpretation": "Coarse nodal quadrature and frozen P1 tensors smear a pointwise thin BL/sharp-corner field over large donor areas. Values are consistent with the stored field, but do not resolve the intended geometric size law.",
+  "limits": "Flat-wall example isolates representation error; it is not an integral of the complete RAE2822 sensor-plus-BL field. No modified target or adapted RANS mesh is produced."
+}

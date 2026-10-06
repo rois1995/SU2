@@ -1,0 +1,130 @@
+{
+  "phase": "terminal",
+  "binary_sha256": "e01f1157893965a2b440f69d5fe70b5e3e4535ee9aaf4e244bb5e74cce2c12be",
+  "runs": [
+    {
+      "ranks": 1,
+      "command": [
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=10s",
+        "120s",
+        "mpiexec",
+        "-n",
+        "1",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+        "[NativeRejectedOutput]",
+        "-r",
+        "compact"
+      ],
+      "directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_rejected_output_v1/np1",
+      "exit": 0,
+      "elapsed_seconds": 4.320405963924713,
+      "verified": true,
+      "validity": {
+        "positive_volumes": [
+          "PASS",
+          "min 1.432e-04 mean 9.461e-04 non-positive 0"
+        ],
+        "conformity": [
+          "PASS",
+          "faces in >2 elements 0, boundary faces without marker 0, marker faces: interior 0, not an element face 0, repeated 0"
+        ],
+        "points_elements": [
+          "PASS",
+          "unused points 0, duplicate points 0, duplicate elements 0"
+        ]
+      },
+      "points": 1142,
+      "triangles": 2114,
+      "failure_cells": 97,
+      "diagnostic_sha256": {
+        "native_rejected_output_mesh_adap_00001_rejected.su2": "1157d9c9405680daefbe47bac8f40e5604675a156d049939f438dd125f7bfcb1",
+        "native_rejected_output_mesh_adap_00001_rejected_failures.csv": "6589dd3e6485d9d20eacfdab4a00e5fd54da4f1ef8ea4ed1a92894f124ebd19f"
+      }
+    },
+    {
+      "ranks": 2,
+      "command": [
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=10s",
+        "120s",
+        "mpiexec",
+        "-n",
+        "2",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+        "[NativeRejectedOutput]",
+        "-r",
+        "compact"
+      ],
+      "directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_rejected_output_v1/np2",
+      "exit": 0,
+      "elapsed_seconds": 3.5282266560243443,
+      "verified": true,
+      "validity": {
+        "positive_volumes": [
+          "PASS",
+          "min 1.575e-04 mean 9.033e-04 non-positive 0"
+        ],
+        "conformity": [
+          "PASS",
+          "faces in >2 elements 0, boundary faces without marker 0, marker faces: interior 0, not an element face 0, repeated 0"
+        ],
+        "points_elements": [
+          "PASS",
+          "unused points 0, duplicate points 0, duplicate elements 0"
+        ]
+      },
+      "points": 1192,
+      "triangles": 2214,
+      "failure_cells": 97,
+      "diagnostic_sha256": {
+        "native_rejected_output_mesh_adap_00001_rejected.su2": "3692cfb1edb572fdc6410455b36c5ada5bc363a79b627092e565e75cc0682218",
+        "native_rejected_output_mesh_adap_00001_rejected_failures.csv": "c22f9cb52c28697d092d7d79d2d44869d4201ccb94af687e5ae788d18c68cdd6"
+      }
+    },
+    {
+      "ranks": 4,
+      "command": [
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=10s",
+        "120s",
+        "mpiexec",
+        "-n",
+        "4",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+        "[NativeRejectedOutput]",
+        "-r",
+        "compact"
+      ],
+      "directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_rejected_output_v1/np4",
+      "exit": 0,
+      "elapsed_seconds": 3.5224839030997828,
+      "verified": true,
+      "validity": {
+        "positive_volumes": [
+          "PASS",
+          "min 1.013e-04 mean 9.425e-04 non-positive 0"
+        ],
+        "conformity": [
+          "PASS",
+          "faces in >2 elements 0, boundary faces without marker 0, marker faces: interior 0, not an element face 0, repeated 0"
+        ],
+        "points_elements": [
+          "PASS",
+          "unused points 0, duplicate points 0, duplicate elements 0"
+        ]
+      },
+      "points": 1146,
+      "triangles": 2122,
+      "failure_cells": 97,
+      "diagnostic_sha256": {
+        "native_rejected_output_mesh_adap_00001_rejected.su2": "cd320bfaa45b3781f5ebd3ecf79ff9cdcfed551fabf25fb2e963becbca8e4bb4",
+        "native_rejected_output_mesh_adap_00001_rejected_failures.csv": "e4b8d4aa479935287c0f7ba5ea68d9ffa15b5d9dfcca9516138931b21c16aa6c"
+      }
+    }
+  ],
+  "verified": true
+}

@@ -1,0 +1,1 @@
+Diagnostic replay of the earlier failed Euler trial on the OLD triangulated RANS seed. Not the new user-seed Euler/RANS campaign. Input and config are exact copies of euler_native_v2; solver change adds rejected candidate export only. No accepted state is replaced on incomplete quality.

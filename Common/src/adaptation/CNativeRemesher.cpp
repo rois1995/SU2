@@ -13,6 +13,9 @@
 #include "../../include/CConfig.hpp"
 #include "../../include/geometry/CGeometry.hpp"
 #include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
 
 using namespace SU2NativeBoundary2D;
 
@@ -142,6 +145,135 @@ struct RejectionCount {
     s(reason, count);
   }
 };
+struct RejectedLocation {
+    uint64_t id = 0;
+    int rank = 0;
+    double x = 0, y = 0, quality = 0, length = 0;
+    template <class S> void Fields(S& s) { s(id, rank, x, y, quality, length); }
+};
+
+/* Diagnostic-only output: stream one rank's text at a time, without rebuilding
+ * geometry, transferring solution, or publishing reference bindings.
+ * ponytail: text buffers scale with one rank's slice; chunk formatting if this
+ * diagnostic becomes too large. The complete volume mesh is never gathered. */
+void WriteRejectedCandidate(const CConfig& config, const CReaderSlices& slices, const Engine& engine,
+                            const ReferenceState& reference, unsigned long attempt) {
+  const auto base = CConfig::GetAdap_FileName(config.GetMesh_Out_FileName(), attempt) + "_rejected";
+  auto& world = engine.world;
+  const auto rank = world.rank;
+  std::ofstream mesh, report;
+  CLocalFailure failure;
+  if (rank == 0) {
+    if (std::ifstream(base + ".su2").good() || std::ifstream(base + "_failures.csv").good())
+      failure.Set(1, 0, "Refusing to overwrite rejected-mesh diagnostics: " + base);
+    else {
+      mesh.open(base + ".su2");
+      report.open(base + "_failures.csv");
+      if (!mesh || !report) failure.Set(1, 0, "Cannot open rejected-mesh diagnostics: " + base);
+    }
+  }
+  CollectiveFailure(failure, CURRENT_FUNCTION);
+  auto stream = [&](std::ostream& output, const std::string& local) {
+    for (int sender = 0; sender < world.size; ++sender) {
+      if (sender == 0 && rank == 0) output << local;
+      else if (rank == sender) CPassiveComm::SendRounds(local.data(), local.size(), 0, 19127);
+      else if (rank == 0) {
+        const auto bytes = CPassiveComm::RecvRounds(sender, 19127);
+        output.write(bytes.data(), bytes.size());
+      }
+    }
+  };
+  std::ostringstream text;
+  text << std::setprecision(17);
+  unsigned long localElements = 0;
+  for (unsigned long e = 0; e < slices.nElemLocal; ++e) {
+    const auto* row = slices.elemRows.data() + e * SU2_CONN_SIZE;
+    const auto lowest = std::min({row[2], row[3], row[4]});
+    // A reader element is repeated only on slices containing one of its nodes.
+    if (lowest < slices.firstPoint || lowest >= slices.firstPoint + slices.nPointLocal) continue;
+    text << TRIANGLE << ' ' << row[2] << ' ' << row[3] << ' ' << row[4] << ' ' << row[0] << '\n';
+    ++localElements;
+  }
+  if (CPassiveComm::AllreduceSum(localElements) != slices.nElemGlobal)
+    failure.Set(1, 0, "Rejected diagnostic does not own every volume element exactly once.");
+  CollectiveFailure(failure, CURRENT_FUNCTION);
+  if (rank == 0)
+    mesh << "% Rejected candidate: no CFD solution has been transferred to this mesh.\nNDIME= 2\nNELEM= "
+         << slices.nElemGlobal << '\n';
+  stream(mesh, text.str());
+  text.str(""); text.clear();
+  for (unsigned long p = 0; p < slices.nPointLocal; ++p)
+    text << slices.coord[0][p] << ' ' << slices.coord[1][p] << ' ' << slices.firstPoint + p << '\n';
+  if (rank == 0) mesh << "NPOIN= " << slices.nPointGlobal << '\n';
+  stream(mesh, text.str());
+  if (rank == 0) {
+    mesh << "NMARK= " << slices.markerNames.size() << '\n';
+    for (size_t m = 0; m < slices.markerNames.size(); ++m) {
+      const auto& rows = slices.boundaryRows[m];
+      mesh << "MARKER_TAG= " << slices.markerNames[m] << "\nMARKER_ELEMS= " << rows.size() / SU2_CONN_SIZE << '\n';
+      for (size_t i = 0; i < rows.size(); i += SU2_CONN_SIZE)
+        mesh << LINE << ' ' << rows[i + 2] << ' ' << rows[i + 3] << '\n';
+    }
+    report << "rank,native_cell_id,quality,max_metric_edge,shape_failure,length_failure,height_failure,reference_failure,"
+              "centroid_x,centroid_y,x0,y0,x1,y1,x2,y2,max_relative_height_error,max_reference_deviation\n";
+  }
+  text.str(""); text.clear();
+  std::vector<RejectedLocation> locations;
+  const auto policy = reference.original->Policy({});
+  for (const auto& entry : engine.owned) {
+    const auto& c = entry.second;
+    double heightError = 0, deviation = 0;
+    for (int k = 0; k < 3; ++k) if (c.marker[k]) {
+      const auto a = c.t.v[k], b = c.t.v[(k + 1) % 3];
+      deviation = std::max(deviation, policy.deviation({a, b, c.marker[k]}));
+      const auto marker = reference.marker_names[reference.original->Marker(c.marker[k])];
+      for (unsigned short layer = 0; layer < config.GetnAdap_BL(); ++layer)
+        if (config.GetAdap_BL(layer).marker == marker) {
+          const auto h = SU2_TYPE::GetValue(config.GetAdap_BL(layer).firstHeight);
+          heightError = std::max(heightError, std::abs(static_cast<double>(2 * area(c.t)) / norm(b.p - a.p) / h - 1));
+        }
+    }
+    const auto q = c.target_cache[0];
+    const auto length = *std::max_element(c.target_cache.begin() + 1, c.target_cache.end());
+    const bool shape = q < .18, size = length > 1.8, height = heightError > 1e-8,
+               geometry = deviation > SU2_TYPE::GetValue(config.GetAdap_Hausd());
+    if (!(shape || size || height || geometry)) continue;
+    const auto center = (c.t.v[0].p + c.t.v[1].p + c.t.v[2].p) * (1. / 3);
+    text << rank << ',' << entry.first << ',' << q << ',' << length << ',' << shape << ',' << size << ','
+         << height << ',' << geometry << ',' << center.x << ',' << center.y;
+    locations.push_back({entry.first, rank, center.x, center.y, q, length});
+    std::sort(locations.begin(), locations.end(), [](const auto& a, const auto& b) { return a.quality < b.quality; });
+    if (locations.size() > 8) locations.resize(8);
+    for (const auto& node : c.t.v) text << ',' << node.p.x << ',' << node.p.y;
+    text << ',' << heightError << ',' << deviation << '\n';
+  }
+  stream(report, text.str());
+  auto examples = world.metadata(locations);
+  if (rank == 0) {
+    std::sort(examples.begin(), examples.end(), [](const auto& a, const auto& b) { return a.quality < b.quality; });
+    for (size_t i = 0; i < std::min(size_t(8), examples.size()); ++i) {
+      const auto& row = examples[i];
+      const Point center{row.x, row.y};
+      double distance = std::numeric_limits<double>::infinity();
+      int marker = -1;
+      for (size_t component = 0; component < reference.original->Components().size(); ++component) {
+        const auto id = int(component + 1);
+        const auto error = norm(center - reference.original->At(id, reference.original->Parameter(id, center)));
+        if (error < distance) { distance = error; marker = reference.original->Marker(id); }
+      }
+      std::cout << "Native failure location: rank=" << row.rank << ", native cell=" << row.id
+                << ", centroid=(" << row.x << ", " << row.y << "), q=" << row.quality
+                << ", Lmax=" << row.length << ", nearest boundary=" << reference.marker_names.at(marker)
+                << ", distance=" << distance << '\n';
+    }
+    mesh.close(); report.close();
+    if (!mesh || !report) failure.Set(1, 0, "Failed writing rejected-mesh diagnostics: " + base);
+    else std::cout << "Rejected candidate saved: " << base << ".su2; failure coordinates and frozen-target values: "
+                   << base << "_failures.csv. Native cell IDs differ from the exported reader IDs; match coordinates.\n";
+  }
+  CollectiveFailure(failure, CURRENT_FUNCTION);
+}
+
 }  // namespace
 
 void CNativeRemesher::PrepareReference(const CConfig& config, const CGeometry& geometry) {
@@ -158,6 +290,7 @@ void CNativeRemesher::PrepareReference(const CConfig& config, const CGeometry& g
 
 CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& geometry, const su2activematrix& metric) {
   CheckSupport(config, geometry);
+  ++remeshAttempt;
   World world;
   CLocalFailure failure;
   if (metric.rows() < geometry.GetnPointDomain() || metric.cols() != 3)
@@ -332,5 +465,7 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
     for (const auto& entry : reasons)
       std::cout << "Native deferred/rejected candidate: " << entry.first << " (" << entry.second << ").\n";
   }
+  if (result.status != CRemeshResult::Status::COMPLETE && config.GetWrt_Adap_Mesh())
+    WriteRejectedCandidate(config, result.slices, engine, *reference, remeshAttempt);
   return result;
 }

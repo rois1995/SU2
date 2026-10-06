@@ -1,0 +1,33 @@
+{
+  "runner_pid": 787889,
+  "phase": "terminal",
+  "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/euler_native",
+  "ranks": 4,
+  "timeout_seconds": 1800,
+  "binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_native_production_v1/SU2_CFD",
+  "binary_sha256": "024bde2999c05fd46b87518b8aa7acfaf724943e7509d7b66684c56fff43ca52",
+  "config_sha256": "a0e72f2a5d618bd9138e5c250bbc5dd356493f9fe43dea410d4e97d6f576e2ec",
+  "mesh_sha256": "c5adf8b1c155db0692e6221a25a51ff376d70e681a46369266b5685955644712",
+  "source_revision": "9ec7409d2575d1c545dde6d5d216a6612b3ef6d0",
+  "production_sources_rechecked": 759,
+  "runner_sha256": "31ea825ac16af08251ffa21be6c2b781abeb4bd3357a693304f0f5a674aff31f",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "busy": [],
+  "command": [
+    "mpiexec",
+    "-n",
+    "4",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_native_production_v1/SU2_CFD",
+    "run.cfg"
+  ],
+  "started_unix_seconds": 1791299064.2189593,
+  "solver_exit": 1,
+  "elapsed_seconds": 0.3548378460109234,
+  "outputs": {
+    "input.su2": 1251781
+  }
+}

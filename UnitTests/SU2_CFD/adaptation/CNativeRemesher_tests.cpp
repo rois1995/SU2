@@ -160,3 +160,70 @@ TEST_CASE("Native SU2 backend: eight replacements preserve reference and affine 
     }
   }
 }
+
+TEST_CASE("Native rejected candidate is exported without publishing CFD state", "[NativeRejectedOutput]") {
+  World world;
+  const std::string name = "native_rejected_output";
+  if (world.rank == 0) {
+    simplex_test::WriteSU2Mesh(BoxMesh(2, 3, true), name + ".su2");
+    std::ofstream cfg(name + ".cfg");
+    cfg << "SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nAOA= 0\nMESH_FORMAT= SU2\nMESH_FILENAME= "
+        << name << ".su2\nMARKER_FAR= (left, right, upper)\nMARKER_EULER= (lower_a, lower_b)\n"
+           "COMPUTE_METRIC= YES\nADAP_SENSOR= MACH\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\n"
+           "ADAP_HAUSD= 1e-8\nADAP_BL_MARKER= (lower_a, lower_b)\nADAP_BL_FIRST_HEIGHT= (0.05, 0.05)\n"
+           "ADAP_BL_GROWTH= 1.2\nADAP_BL_THICKNESS= 0.2\nADAP_BL_METHOD= METRIC\nMGLEVEL= 0\nNUM_METHOD_GRAD= GREEN_GAUSS\n"
+           "CONV_NUM_METHOD_FLOW= ROE\nMUSCL_FLOW= NO\nITER= 2\nOUTPUT_FILES= (RESTART)\n"
+           "WRT_ADAP_MESH= YES\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= " << name << "_mesh\n";
+  }
+  SU2_MPI::Barrier(SU2_MPI::GetComm());
+  const auto cfg = name + ".cfg";
+  auto driver = std::make_unique<NativeDriver>(const_cast<char*>(cfg.c_str()), 1, SU2_MPI::GetComm());
+  auto backend = driver->Backend();
+  const auto acceptedReference = EncodeReference(driver->Reference());
+  auto& geometry = driver->Geometry();
+  const auto count = geometry.GetnPoint();
+  const auto field = AffineFlow(2);
+  std::vector<double> before;
+  for (unsigned long p = 0; p < count; ++p) {
+    su2double values[MAXVAR] = {};
+    field(geometry.nodes->GetCoord(p), values);
+    for (unsigned short k = 0; k < 4; ++k) {
+      driver->Flow().GetNodes()->SetSolution(p, k, values[k]);
+      before.push_back(SU2_TYPE::GetValue(values[k]));
+    }
+  }
+  su2activematrix metric(geometry.GetnPointDomain(), 3);
+  for (unsigned long p = 0; p < metric.rows(); ++p) {
+    metric(p, 0) = 100.; metric(p, 1) = 0.; metric(p, 2) = 2500.;
+  }
+  // Any triangle at altitude .05 has an edge with metric length >=2.5:
+  // the requested altitude and the length cap1.8 are deliberately incompatible.
+  const auto result = backend->Remesh(driver->Config(), geometry, metric);
+  CHECK(result.status != CRemeshResult::Status::COMPLETE);
+  CHECK(EncodeReference(driver->Reference()) == acceptedReference);
+  REQUIRE(geometry.GetnPoint() == count);
+  for (unsigned long p = 0; p < count; ++p)
+    for (unsigned short k = 0; k < 4; ++k)
+      CHECK(SU2_TYPE::GetValue(driver->Flow().GetNodes()->GetSolution(p, k)) == before[4 * p + k]);
+  const auto base = name + "_mesh_adap_00001_rejected";
+  if (world.rank == 0) {
+    std::ifstream mesh(base + ".su2"), report(base + "_failures.csv");
+    REQUIRE(mesh.good()); REQUIRE(report.good());
+    std::stringstream text; text << mesh.rdbuf();
+    CHECK(text.str().find("NPOIN= " + std::to_string(result.slices.nPointGlobal)) != std::string::npos);
+    CHECK(text.str().find("NELEM= " + std::to_string(result.slices.nElemGlobal)) != std::string::npos);
+    std::string header, row; std::getline(report, header); std::getline(report, row);
+    CHECK(header.find("native_cell_id,quality") != std::string::npos);
+    CHECK(header.find("centroid_x,centroid_y") != std::string::npos);
+    CHECK_FALSE(row.empty());
+  }
+  { Mute mute; driver->Finalize(); driver.reset(); }
+  SU2_MPI::Barrier(SU2_MPI::GetComm());
+  if (world.rank == 0) {
+    for (const auto& suffix : {".cfg", ".su2", "_history.csv"}) std::remove((name + suffix).c_str());
+    if (!std::getenv("SU2_NATIVE_SAVE_AUDIT")) {
+      std::remove((base + ".su2").c_str());
+      std::remove((base + "_failures.csv").c_str());
+    }
+  }
+}

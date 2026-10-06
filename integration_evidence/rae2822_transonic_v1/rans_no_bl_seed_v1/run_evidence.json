@@ -1,0 +1,38 @@
+{
+  "runner_pid": 817516,
+  "phase": "terminal",
+  "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/rans_no_bl_seed_v1",
+  "ranks": 4,
+  "timeout_seconds": 1800,
+  "binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_native_production_v1/SU2_CFD",
+  "binary_sha256": "024bde2999c05fd46b87518b8aa7acfaf724943e7509d7b66684c56fff43ca52",
+  "config_sha256": "3ee6528e4315e35e8b46aae9020cd326460013716d20cf576c71f4a2548c56dc",
+  "mesh_sha256": "940d8aed5d9ee0d6dc0a9f5b43a3973e7c76ed5d9123188c6e81d048cf6b6d26",
+  "source_revision": "9ec7409d2575d1c545dde6d5d216a6612b3ef6d0",
+  "production_sources_rechecked": 759,
+  "runner_sha256": "31ea825ac16af08251ffa21be6c2b781abeb4bd3357a693304f0f5a674aff31f",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "busy": [],
+  "command": [
+    "mpiexec",
+    "-n",
+    "4",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_native_production_v1/SU2_CFD",
+    "run.cfg"
+  ],
+  "started_unix_seconds": 1791299733.8819191,
+  "elapsed_seconds": 851.1863995039603,
+  "solver_exit": 1,
+  "outputs": {
+    "solution_adap_00000.dat": 690476,
+    "flow_adap_00000.vtu": 523363,
+    "input.su2": 367889,
+    "surface_adap_00000.vtu": 26844,
+    "history.csv": 477987,
+    "surface_adap_00000.csv": 107652
+  }
+}

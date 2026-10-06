@@ -5,6 +5,25 @@ Working branch: `codex/native-integrated` in
 AdapNoExt is unchanged. Integration/robustness campaign complete; measured limits are reported in
 ROBUSTNESS_SCALING_RESULTS.md.
 
+## RAE2822 transonic cases
+
+Actual case root: `integration_evidence/rae2822_transonic_v1`.
+The supplied [Euler-type input](integration_evidence/rae2822_transonic_v1/mesh_RAE2822_euler.su2)
+is used unchanged for both Euler and RANS.
+
+- [Euler grids and Mach preview](integration_evidence/rae2822_transonic_v1/euler_no_bl_seed_v1/mesh_and_mach.png).
+- [Euler final mesh plus solution](integration_evidence/rae2822_transonic_v1/euler_no_bl_seed_v1/flow_adap_00002.vtu).
+- [Rejected Euler grid](integration_evidence/rae2822_transonic_v1/euler_rejected_replay_v1/mesh_adap_00001_rejected.su2).
+- [Rejected grid in ParaView with failure mask](integration_evidence/rae2822_transonic_v1/euler_rejected_replay_v1/mesh_adap_00001_rejected.vtu).
+- [Failure location preview](integration_evidence/rae2822_transonic_v1/euler_rejected_replay_v1/mesh_adap_00001_rejected_locations.png).
+- [RANS BL complexity diagnosis](integration_evidence/rae2822_transonic_v1/BL_COMPLEXITY_DIAGNOSIS.md).
+
+Euler completed two adaptations; final mesh has 12,788 triangles. Force changes
+remain substantial. RANS was stopped by the user during excessive BL remeshing;
+its initial coarse-grid solution is in `rans_no_bl_seed_v1/flow_adap_00000.vtu`.
+The rejected Euler replay uses the earlier RANS-type seed for diagnosis, not
+as the starting mesh of the new campaign. See [all outcomes](integration_evidence/rae2822_transonic_v1/README.md).
+
 ## Start here: input grid and solution used for adaptation
 
 Actual four-rank native CFD case folder:

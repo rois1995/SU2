@@ -1,0 +1,1194 @@
+{
+  "mesh": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/euler_rejected_replay_v1/mesh_adap_00001_rejected.su2",
+  "paraview_mesh": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/euler_rejected_replay_v1/mesh_adap_00001_rejected.vtu",
+  "points": 5318,
+  "triangles": 10256,
+  "failure_count": 36,
+  "minimum_metric_quality": 1.88613894738495e-10,
+  "maximum_metric_length": 1.799471255808726,
+  "validity": {
+    "positive_volumes": [
+      "PASS",
+      "min 1.471e-27 mean 3.051e+00 non-positive 0"
+    ],
+    "conformity": [
+      "PASS",
+      "faces in >2 elements 0, boundary faces without marker 0, marker faces: interior 0, not an element face 0, repeated 0"
+    ],
+    "points_elements": [
+      "FAIL",
+      "unused points 0, duplicate points 2, duplicate elements 0"
+    ]
+  },
+  "exact_positive_orientation": true,
+  "prior_run_byte_pairing": {
+    "input.su2": true,
+    "run.cfg": true,
+    "history.csv": true,
+    "solution_adap_00000.dat": true,
+    "flow_adap_00000.vtu": true
+  },
+  "near_trailing_edge_failures": 34,
+  "locations": [
+    {
+      "exported_cell_row": 0,
+      "native_cell_id": 3224065,
+      "rank": 0,
+      "quality": 8.426126027062762e-08,
+      "max_metric_edge": 1.3070110854221817,
+      "centroid": [
+        0.996377994908557,
+        0.000950013849084011
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 9.831139524392689e-12,
+      "coordinates": [
+        [
+          0.9966043704694216,
+          0.0009012629304115342
+        ],
+        [
+          0.9962648051869285,
+          0.0009743897329298149
+        ],
+        [
+          0.9962648090693208,
+          0.0009743888839106841
+        ]
+      ],
+      "exported_point_ids": [
+        5257,
+        3890,
+        1225
+      ]
+    },
+    {
+      "exported_cell_row": 1,
+      "native_cell_id": 3224455,
+      "rank": 0,
+      "quality": 4.162195692946757e-08,
+      "max_metric_edge": 1.3070040462852457,
+      "centroid": [
+        0.9964911839831201,
+        0.0009256381067413957
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 4.9155537984e-12,
+      "coordinates": [
+        [
+          0.9966043704694216,
+          0.0009012629304115342
+        ],
+        [
+          0.9962648090693208,
+          0.0009743888839106841
+        ],
+        [
+          0.9966043724106178,
+          0.0009012625059019688
+        ]
+      ],
+      "exported_point_ids": [
+        5257,
+        1225,
+        2594
+      ]
+    },
+    {
+      "exported_cell_row": 2,
+      "native_cell_id": 3224834,
+      "rank": 0,
+      "quality": 2.1065253276991197e-08,
+      "max_metric_edge": 1.3070040462852457,
+      "centroid": [
+        0.9963779971732859,
+        0.0009500133538228513
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 2.457784405469353e-12,
+      "coordinates": [
+        [
+          0.9966043724106178,
+          0.0009012625059019688
+        ],
+        [
+          0.9962648090693208,
+          0.0009743888839106841
+        ],
+        [
+          0.996264810039919,
+          0.0009743886716559013
+        ]
+      ],
+      "exported_point_ids": [
+        2594,
+        1225,
+        3891
+      ]
+    },
+    {
+      "exported_cell_row": 6064,
+      "native_cell_id": 3225224,
+      "rank": 0,
+      "quality": 1.0405511671878538e-08,
+      "max_metric_edge": 1.3070022864997837,
+      "centroid": [
+        0.9964911851154845,
+        0.0009256378591108159
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 1.2288762900478724e-12,
+      "coordinates": [
+        [
+          0.9966043724106178,
+          0.0009012625059019688
+        ],
+        [
+          0.996264810039919,
+          0.0009743886716559013
+        ],
+        [
+          0.9966043728959169,
+          0.0009012623997745774
+        ]
+      ],
+      "exported_point_ids": [
+        2594,
+        3891,
+        5258
+      ]
+    },
+    {
+      "exported_cell_row": 3,
+      "native_cell_id": 3225603,
+      "rank": 0,
+      "quality": 5.266432891064312e-09,
+      "max_metric_edge": 1.3070022864997837,
+      "centroid": [
+        0.9963779977394681,
+        0.0009500132300075615
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 6.144457002629441e-13,
+      "coordinates": [
+        [
+          0.9966043728959169,
+          0.0009012623997745774
+        ],
+        [
+          0.996264810039919,
+          0.0009743886716559013
+        ],
+        [
+          0.9962648102825684,
+          0.0009743886185922057
+        ]
+      ],
+      "exported_point_ids": [
+        5258,
+        3891,
+        1226
+      ]
+    },
+    {
+      "exported_cell_row": 4,
+      "native_cell_id": 3225993,
+      "rank": 0,
+      "quality": 2.601415037877845e-09,
+      "max_metric_edge": 1.3070018465535986,
+      "centroid": [
+        0.9964911853985757,
+        0.000925637797203171
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 3.072303120304317e-13,
+      "coordinates": [
+        [
+          0.9966043728959169,
+          0.0009012623997745774
+        ],
+        [
+          0.9962648102825684,
+          0.0009743886185922057
+        ],
+        [
+          0.9966043730172416,
+          0.0009012623732427296
+        ]
+      ],
+      "exported_point_ids": [
+        5258,
+        1226,
+        2595
+      ]
+    },
+    {
+      "exported_cell_row": 5,
+      "native_cell_id": 3226372,
+      "rank": 0,
+      "quality": 1.3166087897918421e-09,
+      "max_metric_edge": 1.3070018465535986,
+      "centroid": [
+        0.9963779978810136,
+        0.0009500131990537391
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 1.5358770310879265e-13,
+      "coordinates": [
+        [
+          0.9966043730172416,
+          0.0009012623732427296
+        ],
+        [
+          0.9962648102825684,
+          0.0009743886185922057
+        ],
+        [
+          0.9962648103432308,
+          0.0009743886053262818
+        ]
+      ],
+      "exported_point_ids": [
+        2595,
+        1226,
+        3892
+      ]
+    },
+    {
+      "exported_cell_row": 6,
+      "native_cell_id": 3226749,
+      "rank": 0,
+      "quality": 3.2907430490480416e-10,
+      "max_metric_edge": 1.3070017365674305,
+      "centroid": [
+        0.9963779979164,
+        0.0009500131913152835
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 3.8396576470877464e-14,
+      "coordinates": [
+        [
+          0.9966043730475729,
+          0.0009012623666097676
+        ],
+        [
+          0.9962648103432308,
+          0.0009743886053262818
+        ],
+        [
+          0.9962648103583964,
+          0.0009743886020098008
+        ]
+      ],
+      "exported_point_ids": [
+        5259,
+        3892,
+        1227
+      ]
+    },
+    {
+      "exported_cell_row": 6065,
+      "native_cell_id": 3226762,
+      "rank": 0,
+      "quality": 6.501999406443573e-10,
+      "max_metric_edge": 1.3070017365674305,
+      "centroid": [
+        0.9964911854693485,
+        0.0009256377817262597
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 7.68012083810933e-14,
+      "coordinates": [
+        [
+          0.9966043730172416,
+          0.0009012623732427296
+        ],
+        [
+          0.9962648103432308,
+          0.0009743886053262818
+        ],
+        [
+          0.9966043730475729,
+          0.0009012623666097676
+        ]
+      ],
+      "exported_point_ids": [
+        2595,
+        3892,
+        5259
+      ]
+    },
+    {
+      "exported_cell_row": 7,
+      "native_cell_id": 6300283,
+      "rank": 0,
+      "quality": 0.15310176958328478,
+      "max_metric_edge": 0.7019325536245489,
+      "centroid": [
+        0.6667277372140551,
+        -0.02656125773740479
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 1.5644098285536808e-05,
+      "coordinates": [
+        [
+          0.6591430872970956,
+          -0.027634739824407145
+        ],
+        [
+          0.659474432468414,
+          -0.027597714215517
+        ],
+        [
+          0.6815656918766558,
+          -0.02445131917229022
+        ]
+      ],
+      "exported_point_ids": [
+        1310,
+        2680,
+        27
+      ]
+    },
+    {
+      "exported_cell_row": 9,
+      "native_cell_id": 6300288,
+      "rank": 0,
+      "quality": 0.15297988571657584,
+      "max_metric_edge": 0.6073098091471739,
+      "centroid": [
+        0.6906805601150828,
+        -0.023127767413288914
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 1.5062922262921242e-05,
+      "coordinates": [
+        [
+          0.6952767372936658,
+          -0.02245491319793902
+        ],
+        [
+          0.6815656918766558,
+          -0.02445131917229022
+        ],
+        [
+          0.695199251174927,
+          -0.0224770698696375
+        ]
+      ],
+      "exported_point_ids": [
+        1308,
+        27,
+        2676
+      ]
+    },
+    {
+      "exported_cell_row": 6067,
+      "native_cell_id": 8695687,
+      "rank": 0,
+      "quality": 3.2855637258523533e-07,
+      "max_metric_edge": 5.947310957026395e-07,
+      "centroid": [
+        0.9966043729869104,
+        0.0009012623798756916
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 2.3039253651428156e-13,
+      "coordinates": [
+        [
+          0.9966043728959169,
+          0.0009012623997745774
+        ],
+        [
+          0.9966043730172416,
+          0.0009012623732427296
+        ],
+        [
+          0.9966043730475729,
+          0.0009012623666097676
+        ]
+      ],
+      "exported_point_ids": [
+        5258,
+        2595,
+        5259
+      ]
+    },
+    {
+      "exported_cell_row": 6068,
+      "native_cell_id": 8695689,
+      "rank": 0,
+      "quality": 5.274685204291054e-08,
+      "max_metric_edge": 2.497869621945442e-06,
+      "centroid": [
+        0.9966043727847026,
+        0.0009012624240954379
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 8.887544788836461e-13,
+      "coordinates": [
+        [
+          0.9966043724106178,
+          0.0009012625059019688
+        ],
+        [
+          0.9966043728959169,
+          0.0009012623997745774
+        ],
+        [
+          0.9966043730475729,
+          0.0009012623666097676
+        ]
+      ],
+      "exported_point_ids": [
+        2594,
+        5258,
+        5259
+      ]
+    },
+    {
+      "exported_cell_row": 11,
+      "native_cell_id": 8695691,
+      "rank": 0,
+      "quality": 3.179128120563556e-08,
+      "max_metric_edge": 4.58747245300701e-06,
+      "centroid": [
+        0.9962648097972694,
+        0.000974388724719597
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 1.8433265339794438e-12,
+      "coordinates": [
+        [
+          0.9962648102825684,
+          0.0009743886185922057
+        ],
+        [
+          0.996264810039919,
+          0.0009743886716559013
+        ],
+        [
+          0.9962648090693208,
+          0.0009743888839106841
+        ]
+      ],
+      "exported_point_ids": [
+        1226,
+        3891,
+        1225
+      ]
+    },
+    {
+      "exported_cell_row": 12,
+      "native_cell_id": 8865787,
+      "rank": 0,
+      "quality": 2.1952663835789342e-10,
+      "max_metric_edge": 1.3070016792979462,
+      "centroid": [
+        0.996435752131993,
+        0.0009375755810948312
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 1.6466115550215784e-14,
+      "coordinates": [
+        [
+          0.9964380729900095,
+          0.000937075774664925
+        ],
+        [
+          0.9966043730475729,
+          0.0009012623666097676
+        ],
+        [
+          0.9962648103583964,
+          0.0009743886020098008
+        ]
+      ],
+      "exported_point_ids": [
+        3923,
+        5259,
+        1227
+      ]
+    },
+    {
+      "exported_cell_row": 6072,
+      "native_cell_id": 19634303,
+      "rank": 0,
+      "quality": 0.006407233603101535,
+      "max_metric_edge": 0.002020981748776362,
+      "centroid": [
+        0.9966044328675281,
+        0.0009013846776511882
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 1.3216358091836138e-07,
+      "coordinates": [
+        [
+          0.9966045557225448,
+          0.0009016285966400616
+        ],
+        [
+          0.9966043704694216,
+          0.0009012629304115342
+        ],
+        [
+          0.9966043724106178,
+          0.0009012625059019688
+        ]
+      ],
+      "exported_point_ids": [
+        5254,
+        5257,
+        2594
+      ]
+    },
+    {
+      "exported_cell_row": 9176,
+      "native_cell_id": 33751295,
+      "rank": 0,
+      "quality": 3.560556371943797e-10,
+      "max_metric_edge": 1.045643090102952,
+      "centroid": [
+        0.9965827516107328,
+        0.000905918632810955
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 1.0978375212276171e-14,
+      "coordinates": [
+        [
+          0.9966043730475729,
+          0.0009012623666097676
+        ],
+        [
+          0.9964380729900095,
+          0.000937075774664925
+        ],
+        [
+          0.996705808794616,
+          0.0008794177571581727
+        ]
+      ],
+      "exported_point_ids": [
+        5259,
+        3923,
+        3924
+      ]
+    },
+    {
+      "exported_cell_row": 433,
+      "native_cell_id": 33752448,
+      "rank": 0,
+      "quality": 5.727086288586051e-06,
+      "max_metric_edge": 0.3056631904358794,
+      "centroid": [
+        0.9962376805926807,
+        0.0009802312246494612
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 1.1235592661145893e-10,
+      "coordinates": [
+        [
+          0.9962647896573594,
+          0.000974393129006338
+        ],
+        [
+          0.996264727539083,
+          0.0009744067133124304
+        ],
+        [
+          0.9961835245815999,
+          0.0009918938316296152
+        ]
+      ],
+      "exported_point_ids": [
+        1224,
+        3889,
+        2628
+      ]
+    },
+    {
+      "exported_cell_row": 434,
+      "native_cell_id": 33752449,
+      "rank": 0,
+      "quality": 1.4303993505899935e-06,
+      "max_metric_edge": 0.3057219277714402,
+      "centroid": [
+        0.9962377064752959,
+        0.0009802255645219226
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 2.8088957986973236e-11,
+      "coordinates": [
+        [
+          0.9962648051869285,
+          0.0009743897329298149
+        ],
+        [
+          0.9962647896573594,
+          0.000974393129006338
+        ],
+        [
+          0.9961835245815999,
+          0.0009918938316296152
+        ]
+      ],
+      "exported_point_ids": [
+        3890,
+        1224,
+        2628
+      ]
+    },
+    {
+      "exported_cell_row": 435,
+      "native_cell_id": 33752450,
+      "rank": 0,
+      "quality": 3.575139490676159e-07,
+      "max_metric_edge": 0.305736612122437,
+      "centroid": [
+        0.9962377129459496,
+        0.0009802241494900382
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 7.022216043066464e-12,
+      "coordinates": [
+        [
+          0.9962648090693208,
+          0.0009743888839106841
+        ],
+        [
+          0.9962648051869285,
+          0.0009743897329298149
+        ],
+        [
+          0.9961835245815999,
+          0.0009918938316296152
+        ]
+      ],
+      "exported_point_ids": [
+        1225,
+        3890,
+        2628
+      ]
+    },
+    {
+      "exported_cell_row": 436,
+      "native_cell_id": 33752451,
+      "rank": 0,
+      "quality": 1.1171595291509753e-07,
+      "max_metric_edge": 0.30574120098358604,
+      "centroid": [
+        0.9962377146444963,
+        0.0009802237780441685
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 1.4921997275183537e-12,
+      "coordinates": [
+        [
+          0.9962648102825684,
+          0.0009743886185922057
+        ],
+        [
+          0.9962648090693208,
+          0.0009743888839106841
+        ],
+        [
+          0.9961835245815999,
+          0.0009918938316296152
+        ]
+      ],
+      "exported_point_ids": [
+        1226,
+        1225,
+        2628
+      ]
+    },
+    {
+      "exported_cell_row": 437,
+      "native_cell_id": 33752452,
+      "rank": 0,
+      "quality": 5.5858098166869495e-09,
+      "max_metric_edge": 0.3057414304266112,
+      "centroid": [
+        0.9962377150691331,
+        0.0009802236851827008
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 1.0971880983013065e-13,
+      "coordinates": [
+        [
+          0.9962648103432308,
+          0.0009743886053262818
+        ],
+        [
+          0.9962648102825684,
+          0.0009743886185922057
+        ],
+        [
+          0.9961835245815999,
+          0.0009918938316296152
+        ]
+      ],
+      "exported_point_ids": [
+        3892,
+        1226,
+        2628
+      ]
+    },
+    {
+      "exported_cell_row": 438,
+      "native_cell_id": 33752453,
+      "rank": 0,
+      "quality": 1.3961206252754196e-09,
+      "max_metric_edge": 0.30574148778756166,
+      "centroid": [
+        0.996237715094409,
+        0.0009802236796552326
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 2.7406089700711695e-14,
+      "coordinates": [
+        [
+          0.9962648103583964,
+          0.0009743886020098008
+        ],
+        [
+          0.9962648103432308,
+          0.0009743886053262818
+        ],
+        [
+          0.9961835245815999,
+          0.0009918938316296152
+        ]
+      ],
+      "exported_point_ids": [
+        1227,
+        3892,
+        2628
+      ]
+    },
+    {
+      "exported_cell_row": 439,
+      "native_cell_id": 33752454,
+      "rank": 0,
+      "quality": 1.8861392755184942e-10,
+      "max_metric_edge": 0.9666890599473743,
+      "centroid": [
+        0.9962954693100019,
+        0.0009677860694347803
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 5.47562827150382e-15,
+      "coordinates": [
+        [
+          0.9961835245815999,
+          0.0009918938316296152
+        ],
+        [
+          0.9964380729900095,
+          0.000937075774664925
+        ],
+        [
+          0.9962648103583964,
+          0.0009743886020098008
+        ]
+      ],
+      "exported_point_ids": [
+        2628,
+        3923,
+        1227
+      ]
+    },
+    {
+      "exported_cell_row": 6303,
+      "native_cell_id": 33949434,
+      "rank": 0,
+      "quality": 0.002104368157811777,
+      "max_metric_edge": 0.0020195456363374612,
+      "centroid": [
+        0.9966044337269118,
+        0.0009013844897172661
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 1.321607829851626e-07,
+      "coordinates": [
+        [
+          0.9966045557225448,
+          0.0009016285966400616
+        ],
+        [
+          0.9966043724106178,
+          0.0009012625059019688
+        ],
+        [
+          0.9966043730475729,
+          0.0009012623666097676
+        ]
+      ],
+      "exported_point_ids": [
+        5254,
+        2594,
+        5259
+      ]
+    },
+    {
+      "exported_cell_row": 9179,
+      "native_cell_id": 33949435,
+      "rank": 0,
+      "quality": 0.00861821479672733,
+      "max_metric_edge": 0.3995889772432218,
+      "centroid": [
+        0.9966382458549113,
+        0.0008941029068026673
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 1.3216008080521113e-07,
+      "coordinates": [
+        [
+          0.9966043730475729,
+          0.0009012623666097676
+        ],
+        [
+          0.996705808794616,
+          0.0008794177571581727
+        ],
+        [
+          0.9966045557225448,
+          0.0009016285966400616
+        ]
+      ],
+      "exported_point_ids": [
+        5259,
+        3924,
+        5254
+      ]
+    },
+    {
+      "exported_cell_row": 453,
+      "native_cell_id": 36583290,
+      "rank": 0,
+      "quality": 0.11584436920439102,
+      "max_metric_edge": 0.003491721695763266,
+      "centroid": [
+        0.9962647758476213,
+        0.0009746320093432627
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 2.306866117119319e-07,
+      "coordinates": [
+        [
+          0.9962648103464214,
+          0.00097509618571102
+        ],
+        [
+          0.996264727539083,
+          0.0009744067133124304
+        ],
+        [
+          0.9962647896573594,
+          0.000974393129006338
+        ]
+      ],
+      "exported_point_ids": [
+        3887,
+        3889,
+        1224
+      ]
+    },
+    {
+      "exported_cell_row": 454,
+      "native_cell_id": 36583292,
+      "rank": 0,
+      "quality": 0.028737816808487426,
+      "max_metric_edge": 0.003500561069848455,
+      "centroid": [
+        0.9962648017302365,
+        0.0009746263492157243
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 2.3060234474341085e-07,
+      "coordinates": [
+        [
+          0.9962648103464214,
+          0.00097509618571102
+        ],
+        [
+          0.9962647896573594,
+          0.000974393129006338
+        ],
+        [
+          0.9962648051869285,
+          0.0009743897329298149
+        ]
+      ],
+      "exported_point_ids": [
+        3887,
+        1224,
+        3890
+      ]
+    },
+    {
+      "exported_cell_row": 6305,
+      "native_cell_id": 36584826,
+      "rank": 0,
+      "quality": 0.02252983671550029,
+      "max_metric_edge": 1.3070110854221817,
+      "centroid": [
+        0.996480032713578,
+        0.0009290970956091416
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 1.0338204148825125e-06,
+      "coordinates": [
+        [
+          0.9965709224843841,
+          0.0009116386234860758
+        ],
+        [
+          0.9962648051869285,
+          0.0009743897329298149
+        ],
+        [
+          0.9966043704694216,
+          0.0009012629304115342
+        ]
+      ],
+      "exported_point_ids": [
+        2593,
+        3890,
+        5257
+      ]
+    },
+    {
+      "exported_cell_row": 6306,
+      "native_cell_id": 36584827,
+      "rank": 0,
+      "quality": 0.025982805971585886,
+      "max_metric_edge": 0.13401149289326553,
+      "centroid": [
+        0.9965932828921168,
+        0.0009048433835125571
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 1.1659748669079035e-06,
+      "coordinates": [
+        [
+          0.9966045557225448,
+          0.0009016285966400616
+        ],
+        [
+          0.9965709224843841,
+          0.0009116386234860758
+        ],
+        [
+          0.9966043704694216,
+          0.0009012629304115342
+        ]
+      ],
+      "exported_point_ids": [
+        5254,
+        2593,
+        5257
+      ]
+    },
+    {
+      "exported_cell_row": 6307,
+      "native_cell_id": 36590977,
+      "rank": 0,
+      "quality": 0.07434408470522769,
+      "max_metric_edge": 0.056437925764651856,
+      "centroid": [
+        0.9962682004747104,
+        0.0009771378865525099
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 3.4013804556865826e-06,
+      "coordinates": [
+        [
+          0.9962648051869285,
+          0.0009743897329298149
+        ],
+        [
+          0.9962749858907815,
+          0.000981927741016695
+        ],
+        [
+          0.9962648103464214,
+          0.00097509618571102
+        ]
+      ],
+      "exported_point_ids": [
+        3890,
+        2621,
+        3887
+      ]
+    },
+    {
+      "exported_cell_row": 455,
+      "native_cell_id": 36600186,
+      "rank": 0,
+      "quality": 0.09447307742092832,
+      "max_metric_edge": 0.3054282421814236,
+      "centroid": [
+        0.9962327287317939,
+        0.0009822603782925323
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 9.412849549733731e-07,
+      "coordinates": [
+        [
+          0.996264727539083,
+          0.0009744067133124304
+        ],
+        [
+          0.9962499340746986,
+          0.000980480589935551
+        ],
+        [
+          0.9961835245815999,
+          0.0009918938316296152
+        ]
+      ],
+      "exported_point_ids": [
+        3889,
+        1223,
+        2628
+      ]
+    },
+    {
+      "exported_cell_row": 456,
+      "native_cell_id": 36600187,
+      "rank": 0,
+      "quality": 0.0971649937907293,
+      "max_metric_edge": 0.059642994995742014,
+      "centroid": [
+        0.9962598239867345,
+        0.0009766611629863338
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 1.1718592107586963e-06,
+      "coordinates": [
+        [
+          0.9962648103464214,
+          0.00097509618571102
+        ],
+        [
+          0.9962499340746986,
+          0.000980480589935551
+        ],
+        [
+          0.996264727539083,
+          0.0009744067133124304
+        ]
+      ],
+      "exported_point_ids": [
+        3887,
+        1223,
+        3889
+      ]
+    },
+    {
+      "exported_cell_row": 6309,
+      "native_cell_id": 36615547,
+      "rank": 0,
+      "quality": 0.1785527280377277,
+      "max_metric_edge": 0.3594709797839726,
+      "centroid": [
+        0.9965654847474839,
+        0.00091868360015663
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 8.84372619704515e-06,
+      "coordinates": [
+        [
+          0.9966045557225448,
+          0.0009016285966400616
+        ],
+        [
+          0.9965209760355227,
+          0.0009427835803437526
+        ],
+        [
+          0.9965709224843841,
+          0.0009116386234860758
+        ]
+      ],
+      "exported_point_ids": [
+        5254,
+        5256,
+        2593
+      ]
+    },
+    {
+      "exported_cell_row": 6310,
+      "native_cell_id": 36615548,
+      "rank": 0,
+      "quality": 0.17717241742103976,
+      "max_metric_edge": 1.1695374664547291,
+      "centroid": [
+        0.9964522345689449,
+        0.0009429373122532145
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 8.711571744996377e-06,
+      "coordinates": [
+        [
+          0.9962648051869285,
+          0.0009743897329298149
+        ],
+        [
+          0.9965709224843841,
+          0.0009116386234860758
+        ],
+        [
+          0.9965209760355227,
+          0.0009427835803437526
+        ]
+      ],
+      "exported_point_ids": [
+        3890,
+        2593,
+        5256
+      ]
+    },
+    {
+      "exported_cell_row": 6311,
+      "native_cell_id": 36618620,
+      "rank": 0,
+      "quality": 0.17892909542851118,
+      "max_metric_edge": 0.37627799646808946,
+      "centroid": [
+        0.9963017048898902,
+        0.0009780122691267937
+      ],
+      "nearest_boundary": "AIRFOIL",
+      "distance_to_boundary": 1.1309770966663875e-05,
+      "coordinates": [
+        [
+          0.9962648051869285,
+          0.0009743897329298149
+        ],
+        [
+          0.9963653235919607,
+          0.0009777193334338712
+        ],
+        [
+          0.9962749858907815,
+          0.000981927741016695
+        ]
+      ],
+      "exported_point_ids": [
+        3890,
+        5255,
+        2621
+      ]
+    }
+  ],
+  "input_files_sha256": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/euler_rejected_replay_v1/mesh_adap_00001_rejected.su2": "e268c07c8463c24f89b6234e3062454445e9a489c5aa4e1642312728e0b0c191",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/euler_rejected_replay_v1/mesh_adap_00001_rejected_failures.csv": "87948710259f1e01024f6b039f0ffe281c0b5b55fb6c2ddc920c6518c347b089",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/euler_rejected_replay_v1/independent_rejected_metric_audit.json": "131a383b523ef6a9f3578ece4066ea4ebfdf32a280cfd764999577b5d40778d4"
+  },
+  "vtu_sha256": "f6a54d8e3fbb8811a9d34ef4dce2d32c2225c74cf604d622eff3a1ea0ced7c27",
+  "checker_sha256": "f1b7b0dcb9c3f599cb6c9e1eeadfa517030b37725291240d749ce8be635fc316",
+  "scope": "Rejected geometry only; no solution transferred. Native IDs and exported cell rows differ. Near-duplicate gate is reported without suppressing it."
+}

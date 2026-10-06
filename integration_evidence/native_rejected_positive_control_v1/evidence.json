@@ -1,0 +1,19 @@
+{
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=10s",
+    "180s",
+    "mpiexec",
+    "-n",
+    "4",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+    "[NativeRemesher]",
+    "-r",
+    "compact"
+  ],
+  "exit": 0,
+  "elapsed_seconds": 4.873524262919091,
+  "binary_sha256": "e01f1157893965a2b440f69d5fe70b5e3e4535ee9aaf4e244bb5e74cce2c12be",
+  "scope": "Existing eight-cycle accepted mesh/reference/affine-solution regression, both transfer methods on four ranks"
+}

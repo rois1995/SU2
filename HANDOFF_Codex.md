@@ -1,12 +1,67 @@
 # Codex handoff — native integration
 
-Updated 2026-10-06. Campaign complete, unbudgeted. Branch `codex/native-integrated`;
+Updated 2026-10-06. Integration goal complete; RAE follow-up outcomes below. Branch `codex/native-integrated`;
 worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`.
+
+## Current follow-up: RAE2822 transonic Euler/RANS and rejected diagnostics
+
+User mesh integration_evidence/rae2822_transonic_v1/mesh_RAE2822_euler.su2,
+SHA940d8aed5d9ee0d6dc0a9f5b43a3973e7c76ed5d9123188c6e81d048cf6b6d26.
+Exact no-BL seed3592points/6952triangles shared by both fresh cases.
+euler_no_bl_seed_v1 completed on4ranks,exit0,28.372s,two accepted adaptations;
+6952 ->8667 ->12788triangles. All3density criteria(log10RMS<=-8), topology,
+mesh/restart/VTU scalar pairing, admissible flow, original-polyline checks PASS.
+See its inspection.json,RESULTS.md,mesh_and_mach.png,surface_cp.png.
+Force changes are substantial; NOT grid-converged aerodynamic validation.
+
+rans_no_bl_seed_v1 explicitly stopped by user during native remeshing: terminal
+exit1,851.186s,user_stop.json distinguishes cancellation from native rejection.
+Initial coarse RANS solve met density+SA residual criteria atiteration847.
+BL h0=1e-5,growth1.2,T=.02 made nodal complexity824836.8507; sensor target4000.
+ONE TE node148 at(1,.00017),isotropic M=1e10I,dualarea7.365066e-5,contributes
+736506.639 (89.29%). Frozen centroid complexity1220091.959; about2.82million
+unit triangles estimated. Native work performed hundreds of thousands of
+transaction rounds, not an idle solve. Root investigation: coarse-mesh nodal/P1
+representation spreads extreme sharp-corner and wall metrics over donor areas.
+Do NOT restart this same thin-BL campaign or silently weaken target/quality.
+
+Rejected diagnostics IMPLEMENTED and VALIDATED. CNativeRemesher exports incomplete
+native candidates as _rejected.su2 and _rejected_failures.csv when WRT_ADAP_MESH
+isYES; accepted-state publication stays behind the existing COMPLETE guard.
+Diagnostic SU2 output is independent of accepted mesh format (CGNS remains supported).
+NativeRejectedOutput1/2/4 PASS, independently checked topology and exact failure
+coordinate pairing; accepted geometry/flow/reference unchanged. Existing eight-
+cycle NativeRemesher accepted-state control passes4ranks,both transfer methods.
+Archived diagnostic app and759source byte hashes: native_rejected_build_v1/evidence.json.
+Only two production source files changed: CNativeRemesher.cpp/.hpp.
+
+Actual old Euler failure reproduced at euler_rejected_replay_v1,exit1,96.454s;
+input/config/history/initial restart/VTU all BYTE-IDENTICAL to euler_native_v2.
+Candidate5318points/10256triangles,36bad cells independently confirmed against
+frozen donor P1 metric.34upperTE nearx=.99623-.99664,y=.000894-.000982;
+2lower surface near(.66673,-.02656),(.69068,-.02313).qmin1.88613895e-10,Lmax1.79947.
+Exactpositive/manifold/reference checks pass; separate near-duplicatepoint gate
+FAILS(two pairs at~1e-11chord),minimum area1.471e-27. Do not hide this limitation.
+SU2 and ParaView rejected files plus CSV/JSON/PNG locations are in that case.
+See its RESULTS.md. Specific transaction provenance was not recorded.
+
+BL_COMPLEXITY_DIAGNOSIS.md and bl_complexity_diagnosis_v1.json localize excessive
+RANS demand. Reproducible inspector and flat-wall self-check demonstrate P1
+representation inflation22.88x on a coarse normal interval. No BL metric remedy
+has been implemented. Next implementation choice: composite geometric BL oracle
+with frozen CFD sensor,or explicit staged BL construction; preserve finalh0.
+Do not rerun stopped RANS unchanged,lower its target silently,or accept bad grids.
+No own CFD/build/test jobs remain. Root defect and next work are documented;
+this follow-up is NOT a new activated goal.
+
+Old euler_native parser failure and rans_sa_native NOTRUN remain preserved.
+Work only on codex/native-integrated,AdapNoExt untouched. One own heavy job,
+MPI<=4,OMP/OPENBLAS1; check host handles before any launch. Prior goal complete.
 
 ## Completed campaign and next actions
 
 All requested integration/robustness/scaling validation is complete within the
-explicit native2D scope. No own heavy job is running. Completion proof is in
+explicit native2D scope. Its runs are terminal; follow-up status is above. Completion proof is in
 INTEGRATION_COMPLETION_AUDIT.md and integration_evidence/integration_completion_v1.json.
 Do not restart any old supervisor or repeat passed campaigns without a new
 change, failure or unresolved question.

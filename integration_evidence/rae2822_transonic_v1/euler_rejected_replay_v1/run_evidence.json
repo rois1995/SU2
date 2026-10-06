@@ -1,0 +1,42 @@
+{
+  "runner_pid": 884492,
+  "phase": "terminal",
+  "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/euler_rejected_replay_v1",
+  "ranks": 4,
+  "timeout_seconds": 1800,
+  "binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_rejected_build_v1/SU2_CFD",
+  "binary_sha256": "0ad3511a27edc7a1c7a299c800ded41df9971e02e413f17628fcd9fc127a1a04",
+  "config_sha256": "c178c47fb3584c3a9e47ee203db61a7b34959de34d7582920ec3ad551a8b66d9",
+  "mesh_sha256": "c5adf8b1c155db0692e6221a25a51ff376d70e681a46369266b5685955644712",
+  "source_revision": "9ec7409d2575d1c545dde6d5d216a6612b3ef6d0",
+  "production_sources_rechecked": 759,
+  "source_evidence": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_rejected_build_v1/evidence.json",
+  "source_evidence_sha256": "b68e8f82aca843902954195693d23d371c4e2c343935c255c6a20cfb3f28764c",
+  "runner_sha256": "3abcb979b005ba608fb4012f3214977521f6c92cfcf962fc5ed66f783fd11cb1",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "busy": [],
+  "command": [
+    "mpiexec",
+    "-n",
+    "4",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_rejected_build_v1/SU2_CFD",
+    "run.cfg"
+  ],
+  "started_unix_seconds": 1791301383.0227866,
+  "elapsed_seconds": 96.45374323497526,
+  "solver_exit": 1,
+  "outputs": {
+    "solution_adap_00000.dat": 1896013,
+    "flow_adap_00000.vtu": 1587069,
+    "input.su2": 1251781,
+    "surface_adap_00000.vtu": 20015,
+    "mesh_adap_00001_rejected.su2": 461432,
+    "history.csv": 978489,
+    "surface_adap_00000.csv": 76689,
+    "mesh_adap_00001_rejected_failures.csv": 8654
+  }
+}

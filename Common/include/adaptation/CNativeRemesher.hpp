@@ -23,5 +23,6 @@ class CNativeRemesher final : public CRemesher {
   CRemeshResult Remesh(const CConfig& config, const CGeometry& geometry, const su2activematrix& metric) override;
 
  private:
+  unsigned long remeshAttempt = 0;
   std::shared_ptr<SU2NativeBoundary2D::ReferenceState> reference;
 };
