@@ -1,0 +1,30 @@
+{
+  "scope": "prepared stress fixture; NOT APPLIED OR COMPILED",
+  "source": "UnitTests/SU2_CFD/adaptation/CNativeBL2D_tests.cpp",
+  "input_source_sha256": "acbd49846fab94e0d831fe460895b894aec63bbdd5775f52777ce467207f5e84",
+  "patch_sha256": "95c04482d77cd5bb10f551823197c103601a50d4186ad9699af2e3c439927437",
+  "filter": "[NativeBLStep2D]",
+  "amplitude": "tangential .004 left of moving center, .014 right; continuous frozen P1 interpolation, not a cell-discontinuous field",
+  "heights": [
+    0.004,
+    0.004,
+    0.003,
+    0.003,
+    0.005,
+    0.005,
+    0.004,
+    0.0045
+  ],
+  "centers": [
+    0.01,
+    0.03,
+    0.01,
+    0.03,
+    0.02,
+    0.03,
+    0.01,
+    0.02
+  ],
+  "policy": "all four existing combinations of one/opposing walls and barycentric/conservative transfer;1 rank diagnosis then2/4 controls; preserve failures; never relax target; record exact retained accepted state on incomplete",
+  "audit": "reuse run_native_opposing_audits.py on success; separately audit serial rejected candidate with audit_native_bl.audit on failure"
+}

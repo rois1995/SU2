@@ -232,3 +232,11 @@ separately; actual adapted-mesh output uses the production writer. Solve timing
 includes existing inner-iteration output. None of these planned measurements
 is a result yet. Compilation, fresh1/2/4 runtime, nine CSV validation and the
 same independent mesh/target audits remain required before closing this gap.
+
+
+Coverage audit also found abrupt spatial nodal target changes untested by the
+executed smooth/affine/constant fixtures. The prepared hidden NativeBLStep2D
+fixture reuses the existing BL cycles and transfer policies with an abrupt
+.004/.014 nodal tangential request. Compilation, actual1/2/4 controls and
+independent frozen-P1 audits are pending. This gap is separate from matched
+constant AR robustness and from changing the smooth metric between cycles.

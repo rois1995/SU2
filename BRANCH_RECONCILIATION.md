@@ -39,5 +39,11 @@ mixed-volume element ordering and 17-significant-digit coordinate round trips.
 
 Source reconciliation is complete for these pinned inputs. Fresh integrated
 primal build,7 output cases and49 focused cases pass MPI1/2/4, as do native
-memory and default-MMG controls. Independent audits, practical envelope and AD
-validation remain in progress; consult HANDOFF_Codex.md and runtime JSON evidence.
+memory and default-MMG controls. Independent output audits and corrected AD
+mesh-swap gates also pass. Practical envelope and actual AD lifecycle validation
+remain in progress; consult HANDOFF_Codex.md and runtime JSON evidence.
+
+Revalidated during the campaign: all other local heads/cached remote refs still
+match the initial snapshot, and the Stage G dirty diff matches its recorded SHA.
+There is no new committed or changed Stage G draft source to reconcile. This
+comparison does not refresh remote refs or change another worker's checkout.

@@ -115,3 +115,23 @@ CollectiveFailure votes; they are not a complete MPI profile. Hardware is an
 8-core Intel Core i7-9700 with no SMT. The campaign records initial load (5.63,
 4.53,4.72); this is a shared workstation, not an exclusive benchmark allocation.
 MPI uses the installed OpenMPI defaults without an explicit binding override.
+
+
+## Completion-gap control: abrupt nodal target changes
+
+Inspection of the executed native fixtures found a smooth Gaussian tangential
+metric and affine/constant targets, rather than an abrupt spatial target request.
+After the binary-pinned campaigns finish, add the prepared NativeBLStep2D
+control by reusing the eight-cycle BL fixture: tangential length .004 for nodes
+left of the moving center and .014 otherwise, same h0 sequence, geometry,
+transfer policies and targets. This is an abrupt nodal request; SU2's retained
+P1 interpolation remains continuous inside donor cells. It does not claim
+support for inconsistent cell-discontinuous values at a shared vertex.
+
+Diagnose on1 rank, then control at2/4 with a fresh evidence label. Use all four
+existing one/opposing-wall and barycentric/conservative combinations. Independently
+audit every accepted snapshot against its actual frozen donor field. Preserve and
+classify incomplete candidates; check that original reference, point count and
+all accepted flow values remain exact before reporting an observed construction
+limit. Reuse the existing saved-mesh auditors; no target floors or new meshing
+algorithm. The prepared patch is not applied or verified at runtime yet.

@@ -201,3 +201,24 @@ the eventual goal_runtime_v7 checker_sha256 before the4-rank lifecycle. No sourc
 checker or binary changes are allowed until the existing follower finishes.
 The prepared patch deliberately waits, so the already-loaded follower's omitted
 extra guards cannot be invalidated by this new work.
+
+
+Completion coverage gap: no executed native fixture has an abrupt spatial nodal
+metric request (the eight-cycle BL control uses a smooth Gaussian). Prepared
+pending_bl_step_metric_v1.patch/json reuse the same fixture with a moving nodal
+step (.004/.014 tangential length), all4 wall/transfer combinations and unchanged
+h0 sequence. Original NativeBL2D remains a wrapper calling smooth mode; hidden
+NativeBLStep2D calls step mode. The shared helper now checks exact retained
+reference/point count/accepted flow on incomplete. git apply --check passes,
+but this patch is NOT applied/compiled/run. Apply together with the timing patch
+only after all live pinned campaigns terminate and failures are classified.
+After rebuilding, run NativeBL2D and NativeBLStep2D with fresh labels at1/2/4;
+serial diagnosis first, preserve any unexpected failure before proceeding.
+Use run_native_opposing_audits.py on successful step matrices and
+independent audit_native_bl.audit for single-wall/rejected snapshots as needed.
+Do not call the step request cell-discontinuous: actual retained target is P1.
+
+Reconciliation revalidation: all other heads/remotes still match refs_initial;
+no new committed source to reconcile. The Stage G dirty production diff still
+matches recorded ff0a4c9588447bd89964ecae859fe44c465a102423b080619e4cc8018aaa2346.
+This excludes tags/stash from the head comparison and does not refresh network refs.
