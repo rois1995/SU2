@@ -34,7 +34,8 @@ integrated_primal_memory_v6, integrated_mmg_default_v6.
 Independent output audits and initial scaling pilot completed successfully.
 Initial cyclic pilot passes through1024input cells. Fresh low-cut2048-cell group
 passes1/2/4 with independent audits: adapt9.453/6.403/4.797s, single samples.
-Larger/repeated/real-field limits remain pending.
+Low-cut4096-cell group also independently passes1/2/4:28.019/15.195/9.205s.
+Next8192-cell size is running; repeated/real-field limits remain pending.
 
 Earlier failures preserved: missing preconfigure stamp (v1); old serial output
 count assumptions (v2); test private-member/Catch compile error (v3); duplicated
@@ -127,3 +128,11 @@ already carries the owner contribution; seeding a copy duplicates it. This is a
 production mesh-swap defect, separate from the earlier test-harness defects.
 Unmodified-v9 and tight-linear-v12 failures are preserved. Downstream v7/v6
 followers stopped automatically on that failed prerequisite; v8/v7 are fresh.
+
+Remaining follow-through after scheduled campaigns: the runner diagnoses higher
+complexity and thinner h0 on1 rank only. For each serial demand case that passes,
+run2/4-rank controls with fresh labels/configs and independent audits, as required
+by protocol step7. If actual goal lifecycle1/2 passes, consider a fresh4-rank
+warm/cold control to distinguish any surviving solver limit from the old evidence;
+the halo fix may change post-swap behavior. Do not assume old numerical limits
+prove failure of the corrected integrated tree.

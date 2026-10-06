@@ -132,3 +132,14 @@ These are single samples with different adapted cell/transaction counts. They
 show a useful low-cut control, but repeated partition comparisons and the
 largest passing size are still pending. Raw evidence:
 integration_evidence/robustness_campaign_v8/large_t128/independent_audit.json.
+
+The4096-cell vertical-strip group also passes1/2/4 independently (large_t256):
+
+| Ranks | Input cut edges | Output cells | Adapt seconds | Cross-owner / commits | Conflicts | Peak RSS KiB/rank |
+|---:|---:|---:|---:|---:|---:|---:|
+| 1 | 0 | 2948 | 28.019265 | 0 / 8403 | 0 | 26232 |
+| 2 | 4 | 2883 | 15.194881 | 58 / 7932 | 10 | 23792 |
+| 4 | 12 | 2957 | 9.204581 | 175 / 8534 | 11 | 22984 |
+
+No transaction-memory rejection occurred in these six larger cases. The first
+failure/cost boundary and repeated comparisons are still pending.
