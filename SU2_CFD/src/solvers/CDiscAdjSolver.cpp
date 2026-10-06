@@ -26,6 +26,7 @@
  */
 
 #include "../../include/solvers/CDiscAdjSolver.hpp"
+#include "../../../Common/include/parallelization/CPassiveComm.hpp"
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
 #include "../../../Common/include/parallelization/omp_structure.hpp"
 
@@ -481,6 +482,9 @@ unsigned long CDiscAdjSolver::SetResidualAdjoint(const CGeometry* geometry, cons
       for (auto iDim = 0u; iDim < nDim; iDim++) ResidualAdjoint(iPoint, iDim + 1) -= proj * unitNormal[iDim];
     }
   }
+
+  /*--- Halo values from the ranks that own the points (passive records). ---*/
+  CPassiveComm::ExchangeHalo(*geometry, ResidualAdjoint.data(), nVar * sizeof(passivedouble));
 
   unsigned long nonFiniteGlobal = 0;
   SU2_MPI::Allreduce(&nonFinite, &nonFiniteGlobal, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());

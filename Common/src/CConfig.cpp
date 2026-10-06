@@ -3360,6 +3360,10 @@ void CConfig::SetConfig_Options() {
   /*!\brief ADAP_ADJ_LAMBDA_CHECK \n DESCRIPTION: Developer check of the residual adjoint: finite differences of
    * the residual and of the objective with respect to Alpha and Mach (needs ADAP_ADJ_LAMBDA and JST) \ingroup Config */
   addBoolOption("ADAP_ADJ_LAMBDA_CHECK", Adap_Adj_Lambda_Check, false);
+  /*!\brief ADAP_GOAL_WALL_EXTRAPOLATION \n DESCRIPTION: Goal-oriented metric (ADAP_SENSOR= GOAL): at Euler walls,
+   * replace the normal momentum component of lambda (not set by the discrete problem, zero in the captured field) by a
+   * linear extrapolation from the interior \ingroup Config */
+  addBoolOption("ADAP_GOAL_WALL_EXTRAPOLATION", Adap_Goal_Wall_Extrapolation, true);
   /*!\brief ADAP_ADJ_LAMBDA_PERTURB \n DESCRIPTION: Developer residual perturbation of a DIRECT flow run
    * (global point, variable, value): the residual of that point changes by -value * volume. Needs
    * PYTHON_CUSTOM_SOURCE= YES \ingroup Config */
@@ -6224,6 +6228,24 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
   }
   if (nAdap_Sensor > 20) SU2_MPI::Error("At most 20 ADAP_SENSOR entries are supported.", CURRENT_FUNCTION);
 
+  /*--- Goal-oriented metric (stage G1b): discrete adjoint of a steady problem, GOAL alone, on a fixed mesh. It needs
+   *    the residual adjoint, so its recording profile applies. ---*/
+  const bool goalMetric = Compute_Metric && nAdap_Sensor > 0 &&
+                          find(Adap_Sensor, Adap_Sensor + nAdap_Sensor, string("GOAL")) != Adap_Sensor + nAdap_Sensor;
+  if (goalMetric) {
+    auto goalError = [](const string& what) { SU2_MPI::Error("ADAP_SENSOR= GOAL: " + what, CURRENT_FUNCTION); };
+    if (!DiscreteAdjoint) goalError("needs MATH_PROBLEM= DISCRETE_ADJOINT (SU2_CFD_AD).");
+    if (Time_Domain) goalError("goal-oriented adaptation is only available for steady problems.");
+    if (nAdap_Sensor != 1) goalError("GOAL must be the only adaptation sensor.");
+    if (!Adap_CustomDefinitions.empty()) goalError("ADAP_CUSTOM_SENSORS is not supported with GOAL.");
+    if (Adap_Loop) goalError("the adaptation loop (ADAP_LOOP= YES) is not available yet for GOAL.");
+    Adap_Adj_Lambda = true;
+    if (Adap_Norm != 1.0 && SU2_MPI::GetRank() == MASTER_NODE) {
+      cout << "WARNING: ADAP_SENSOR= GOAL is the L1-optimal metric of the goal-oriented estimate; ADAP_NORM= "
+           << Adap_Norm << " is used as given." << endl;
+    }
+  }
+
   /*--- Residual adjoint capture (stage G1a): supported recording profile. ---*/
   if (Adap_Adj_Lambda_Check && !Adap_Adj_Lambda) {
     SU2_MPI::Error("ADAP_ADJ_LAMBDA_CHECK= YES needs ADAP_ADJ_LAMBDA= YES.", CURRENT_FUNCTION);
@@ -6292,13 +6314,14 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
   if (Compute_Metric) {
     /*--- Feature-based metric of the primal solution only (the adjoint solvers are not supported yet).
      *    Checked first: the adjoint problems have already replaced Kind_Solver by the DISC_ADJ_ kinds. ---*/
-    if (DiscreteAdjoint || ContinuousAdjoint) {
-      SU2_MPI::Error("COMPUTE_METRIC needs MATH_PROBLEM= DIRECT (adjoint problems are not supported).\n"
+    if ((DiscreteAdjoint && !goalMetric) || ContinuousAdjoint) {
+      SU2_MPI::Error("COMPUTE_METRIC needs MATH_PROBLEM= DIRECT (adjoint problems: only ADAP_SENSOR= (GOAL) with "
+                     "DISCRETE_ADJOINT).\n"
                      "Note: SU2_CFD_AD uses MATH_PROBLEM= DISCRETE_ADJOINT when the option is not set.",
                      CURRENT_FUNCTION);
     }
     /*--- Initial support: compressible Euler, Navier-Stokes and RANS with a single sensor list. ---*/
-    if (Kind_Solver != MAIN_SOLVER::EULER && Kind_Solver != MAIN_SOLVER::NAVIER_STOKES &&
+    if (!goalMetric && Kind_Solver != MAIN_SOLVER::EULER && Kind_Solver != MAIN_SOLVER::NAVIER_STOKES &&
         Kind_Solver != MAIN_SOLVER::RANS) {
       SU2_MPI::Error("COMPUTE_METRIC is only supported for SOLVER = EULER, NAVIER_STOKES or RANS.", CURRENT_FUNCTION);
     }
@@ -6312,6 +6335,7 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     }
     vector<string> Sensor_Avail{"MACH", "PRESSURE", "TEMPERATURE", "ENERGY", "DENSITY", "TOTALPRESSURE"};
     for (const auto& definition : Adap_CustomDefinitions) Sensor_Avail.push_back(definition.first);
+    if (goalMetric) Sensor_Avail.push_back("GOAL");
     for (unsigned short iSensor = 0; iSensor < nAdap_Sensor; iSensor++) {
       const string& sensor = Adap_Sensor[iSensor];
       /*--- Goal-oriented adaptation (stage G, not ported yet) is for steady problems only. ---*/

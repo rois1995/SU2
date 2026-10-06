@@ -1328,6 +1328,7 @@ private:
   unsigned long Adap_Complexity;            /*!< \brief Target complexity of the final metric. */
   bool Adap_Loop = false;                   /*!< \brief Run the mesh adaptation loop. */
   bool Adap_Adj_Lambda = false;             /*!< \brief Capture the residual adjoint lambda (stage G). */
+  bool Adap_Goal_Wall_Extrapolation = true; /*!< \brief GOAL: reconstruct the normal momentum lambda at Euler walls. */
   bool Adap_Adj_Lambda_Check = false;       /*!< \brief Developer check of lambda by finite differences. */
   unsigned short nAdap_Adj_Lambda_Perturb = 0; /*!< \brief Size of ADAP_ADJ_LAMBDA_PERTURB (0 or 3). */
   su2double* Adap_Adj_Lambda_Perturb = nullptr; /*!< \brief (global point, variable, value) of a residual perturbation. */
@@ -10374,7 +10375,7 @@ public:
    * \brief Check if goal-oriented error estimation is used.
    * \return <code>TRUE</code> if the first adaptation sensor is GOAL.
    */
-  bool GetGoal_Oriented_Metric(void) const { return nAdap_Sensor > 0 && Adap_Sensor[0] == "GOAL"; }
+  bool GetGoal_Oriented_Metric(void) const { return Compute_Metric && nAdap_Sensor > 0 && Adap_Sensor[0] == "GOAL"; }
 
   /*!
    * \brief Get the method used to compute Hessians.
@@ -10533,6 +10534,12 @@ public:
    * \brief Developer finite-difference check of the residual adjoint (ADAP_ADJ_LAMBDA_CHECK).
    */
   bool GetAdap_Adj_Lambda_Check(void) const { return Adap_Adj_Lambda_Check; }
+
+  /*!
+   * \brief Goal-oriented metric: reconstruct the normal momentum component of lambda at Euler walls from the interior
+   *        (ADAP_GOAL_WALL_EXTRAPOLATION), instead of the zero of the captured field.
+   */
+  bool GetAdap_Goal_Wall_Extrapolation(void) const { return Adap_Goal_Wall_Extrapolation; }
 
   /*!
    * \brief Developer residual perturbation (ADAP_ADJ_LAMBDA_PERTURB): true and the values when it is set.

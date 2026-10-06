@@ -60,7 +60,7 @@ protected:
   su2double Mach, Alpha, Beta, Pressure, Temperature, BPressure, ModVel;
   su2double TemperatureRad, Total_Sens_Temp_Rad;
 
-  su2passivematrix ResidualAdjoint;  /*!< \brief Residual adjoint lambda (stage G), nPoint x nVar, halos 0. */
+  su2passivematrix ResidualAdjoint;  /*!< \brief Residual adjoint lambda (stage G), nPoint x nVar, halos from their owners. */
 
   CDiscAdjVariable* nodes = nullptr;  /*!< \brief The highest level in the variable hierarchy this solver can safely use. */
 
@@ -170,7 +170,7 @@ public:
   /*!
    * \brief Store the residual adjoint from the captured adjoint of the right-hand side of the flow solve:
    *        lambda = x_b on owned points with a nonzero time step (where the RHS is the negated residual),
-   *        0 on the other points and on halos. At EULER_WALL / SYMMETRY_PLANE vertices the BC replaces the
+   *        0 on the other owned points; halo values from the ranks that own them. At EULER_WALL / SYMMETRY_PLANE vertices the BC replaces the
    *        residual by its tangential part (I - n n^T) R, so the normal momentum entry of x_b is not determined
    *        by the discrete problem (it depends on the pseudo time step); lambda = (I - n n^T) x_b there, the
    *        adjoint of the unprojected residual.

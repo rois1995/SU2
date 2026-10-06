@@ -172,6 +172,7 @@ su2_cfd_src += files(['drivers/CDriver.cpp',
                       'drivers/CDriverBase.cpp'])
 
 su2_cfd_src += files(['adaptation/CAdapSensors.cpp',
+                      'adaptation/CGoalMetric.cpp',
                       'adaptation/CSolutionTransfer.cpp',
                       'adaptation/CBarycentricTransfer.cpp',
                       'adaptation/CConservativeTransfer.cpp',

@@ -5,6 +5,7 @@
 
 # Direct-mode tests:
 su2_cfd_tests = files(['SU2_CFD/adaptation/CAdapSensors_tests.cpp',
+                       'SU2_CFD/adaptation/GoalMetric_tests.cpp',
                        'Common/CConfig_tests.cpp',
                        'Common/geometry/primal_grid/CPrimalGrid_tests.cpp',
                        'Common/geometry/dual_grid/CDualGrid_tests.cpp',
@@ -46,6 +47,7 @@ su2_cfd_tests = files(['SU2_CFD/adaptation/CAdapSensors_tests.cpp',
 
 # Reverse-mode (algorithmic differentiation) tests:
 su2_cfd_tests_ad = files(['SU2_CFD/adaptation/CAdapSensors_tests.cpp',
+                          'SU2_CFD/adaptation/GoalMetric_tests.cpp',
                           'Common/simple_ad_test.cpp',
                           'SU2_CFD/fluid/CFluidModel_tests_AD.cpp',
                           'Common/toolboxes/multilayer_perceptron/MLP_Jacobian_tests.cpp',

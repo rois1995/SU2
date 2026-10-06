@@ -26,6 +26,7 @@
  */
 
 #include "../../include/solvers/CEulerSolver.hpp"
+#include "../../include/adaptation/CGoalMetric.hpp"
 #include "../../include/variables/CNSVariable.hpp"
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
 #include "../../../Common/include/toolboxes/printing_toolbox.hpp"
@@ -1830,6 +1831,49 @@ void CEulerSolver::SetAuxVar_Adapt(CGeometry *geometry, const CConfig *config, C
       }
       nodes->SetAuxVar_Adapt(iPoint, iSensor, value);
     }
+  }
+}
+
+void CEulerSolver::SetGoalFields_Adapt(CGeometry *geometry, const CConfig *config, CSolver *adjoint,
+                                       vector<su2double>& state) {
+  SU2_ZONE_SCOPED
+
+  const auto nField = GoalMetric::FieldCount(nDim), nFlux = GoalMetric::NumFlux(nDim);
+  auto& field = nodes->GetAuxVar_Adapt();
+  if (adjoint == nullptr || field.cols() != nField || nVar != GoalMetric::NumVar(nDim)) {
+    SU2_MPI::Error("The goal-oriented fields need the adjoint flow solver and the GOAL work arrays.", CURRENT_FUNCTION);
+  }
+  const su2double gamma = config->GetGamma();
+
+  state.assign(nPointDomain * nVar, 0.0);
+  unsigned long nonFinite = 0, firstGlobal = std::numeric_limits<unsigned long>::max();
+  for (unsigned long iPoint = 0; iPoint < nPointDomain; iPoint++) {
+    const su2double* U = adjoint->GetNodes()->GetSolution_Direct(iPoint);
+    if (U == nullptr) SU2_MPI::Error("The adjoint solver has no primal state.", CURRENT_FUNCTION);
+    su2double flux[GoalMetric::MAXFLUX];
+    GoalMetric::FluxFields(nDim, gamma, U, flux);
+    bool finite = true;
+    for (unsigned short iVar = 0; iVar < nVar; iVar++) {
+      state[iPoint * nVar + iVar] = U[iVar];
+      field(iPoint, iVar) = adjoint->GetResidualAdjoint(iPoint, iVar);
+      finite = finite && std::isfinite(SU2_TYPE::GetValue(U[iVar])) &&
+               std::isfinite(SU2_TYPE::GetValue(field(iPoint, iVar)));
+    }
+    for (unsigned short f = 0; f < nFlux; f++) {
+      field(iPoint, nVar + f) = flux[f];
+      finite = finite && std::isfinite(SU2_TYPE::GetValue(flux[f]));
+    }
+    if (!finite) {
+      nonFinite++;
+      firstGlobal = min(firstGlobal, geometry->nodes->GetGlobalIndex(iPoint));
+    }
+  }
+  unsigned long nonFiniteGlobal = 0, firstGlobalMin = 0;
+  SU2_MPI::Allreduce(&nonFinite, &nonFiniteGlobal, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
+  SU2_MPI::Allreduce(&firstGlobal, &firstGlobalMin, 1, MPI_UNSIGNED_LONG, MPI_MIN, SU2_MPI::GetComm());
+  if (nonFiniteGlobal > 0) {
+    SU2_MPI::Error("ADAP_SENSOR= GOAL: " + to_string(nonFiniteGlobal) + " points with non-finite state, lambda or "
+                   "fluxes (first global point " + to_string(firstGlobalMin) + ").", CURRENT_FUNCTION);
   }
 }
 

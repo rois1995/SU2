@@ -117,6 +117,13 @@ protected:
   void CheckResidualAdjoint(void);
 
   /*!
+   * \brief Goal-oriented metric (ADAP_SENSOR= GOAL, stage G) of the current mesh, after the residual adjoint capture
+   *        and the secondary recording: fields (lambda, fluxes of Solution_Direct), H_go, then the metric. The tape must
+   *        be inactive; the final output writes the fields.
+   */
+  void ComputeGoalMetric(void);
+
+  /*!
    * \brief gets Convergence on physical time scale, (deactivated in adjoint case)
    * \return false
    */

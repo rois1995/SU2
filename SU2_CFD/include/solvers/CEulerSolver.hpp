@@ -1545,6 +1545,17 @@ public:
   void SetAuxVar_Adapt(CGeometry *geometry, const CConfig *config, CSolver **solver_container) final;
 
   /*!
+   * \brief Work fields of the goal-oriented estimator (ADAP_SENSOR= GOAL): lambda of the adjoint solver and the Euler
+   *        fluxes of its differentiated primal state (Solution_Direct), perfect gas with the gamma of the config.
+   * \param[in] geometry - Geometrical definition of the problem.
+   * \param[in] config - Definition of the particular problem.
+   * \param[in] adjoint - Discrete adjoint flow solver.
+   * \param[out] state - Conservative state of the domain points.
+   */
+  void SetGoalFields_Adapt(CGeometry *geometry, const CConfig *config, CSolver *adjoint,
+                           vector<su2double>& state) final;
+
+  /*!
    * \brief The Euler and NS solvers support MPI+OpenMP.
    */
   inline bool GetHasHybridParallel() const final { return true; }

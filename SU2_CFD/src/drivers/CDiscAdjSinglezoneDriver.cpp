@@ -244,6 +244,9 @@ void CDiscAdjSinglezoneDriver::Postprocess() {
 
       /*--- Developer check of the residual adjoint, after the last use of the tapes. ---*/
       if (config->GetAdap_Adj_Lambda_Check()) CheckResidualAdjoint();
+
+      /*--- Goal-oriented metric of the current mesh (stage G1b), written by the final output. ---*/
+      if (config->GetGoal_Oriented_Metric()) ComputeGoalMetric();
       break;
 
     case MAIN_SOLVER::DISC_ADJ_FEM :
@@ -699,4 +702,46 @@ void CDiscAdjSinglezoneDriver::CheckResidualAdjoint() {
   for (auto iDim = 0u; iDim < nDim; iDim++) velocity[iDim] = savedVelocity[iDim];
   for (auto iPoint = 0ul; iPoint < nPoint; iPoint++)
     for (auto iVar = 0u; iVar < nVar; iVar++) flowNodes->SetSolution(iPoint, iVar, savedSolution[iPoint * nVar + iVar]);
+}
+
+void CDiscAdjSinglezoneDriver::ComputeGoalMetric() {
+  SU2_ZONE_SCOPED
+
+  if (AD::TapeActive()) SU2_MPI::Error("The goal-oriented metric needs the tape to be inactive.", CURRENT_FUNCTION);
+  auto* flow = solver[FLOW_SOL];
+  auto* adjoint = solver[ADJFLOW_SOL];
+  if (flow == nullptr || adjoint == nullptr) SU2_MPI::Error("No flow or adjoint flow solver.", CURRENT_FUNCTION);
+
+  if (rank == MASTER_NODE)
+    cout << endl << "-------------------------- Compute Goal Metric --------------------------" << endl;
+  const auto startTime = SU2_MPI::Wtime();
+
+  /*--- State used (the differentiated primal, Solution_Direct) against the flow solution in memory (U_out of the
+   *    last recording). ---*/
+  const auto nPointDomain = geometry->GetnPointDomain();
+  const auto nVar = flow->GetnVar();
+  passivedouble local[2] = {0.0, 0.0}, global[2] = {0.0, 0.0};
+  for (auto iPoint = 0ul; iPoint < nPointDomain; iPoint++) {
+    const su2double* U = adjoint->GetNodes()->GetSolution_Direct(iPoint);
+    for (auto iVar = 0u; iVar < nVar; iVar++) {
+      local[0] = max(local[0], fabs(SU2_TYPE::GetValue(U[iVar] - flow->GetNodes()->GetSolution(iPoint, iVar))));
+      local[1] = max(local[1], fabs(SU2_TYPE::GetValue(U[iVar])));
+    }
+  }
+  SelectMPIWrapper<passivedouble>::W::Allreduce(local, global, 2, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+  if (rank == MASTER_NODE) {
+    cout << "Primal state of the estimate: Solution_Direct; max |Solution_Direct - U_out| / max |Solution_Direct| = "
+         << scientific << setprecision(3) << global[0] / max(global[1], 1e-300) << "." << endl;
+    cout.unsetf(ios_base::floatfield);
+    cout << setprecision(6);
+  }
+
+  vector<su2double> state;
+  flow->SetGoalFields_Adapt(geometry, config, adjoint, state);
+  flow->ComputeGoalHessian(geometry, config, &state);
+
+  /*--- ADAP_BL_METHOD= TWO_PASS: the remesher builds the boundary-layer metric itself. ---*/
+  const bool boundaryLayer = config->GetKind_Adap_BL_Method() != ADAP_BL_METHOD::TWO_PASS;
+  flow->ComputeMetric(geometry, config, nullptr, boundaryLayer);
+  if (rank == MASTER_NODE) cout << "Goal metric computed in " << SU2_MPI::Wtime() - startTime << " s." << endl;
 }
