@@ -36,6 +36,9 @@
 #include "../../../Common/include/CConfig.hpp"
 #include "../../../Common/include/parallelization/CPassiveComm.hpp"
 #include "../../../Common/include/geometry/CPhysicalGeometry.hpp"
+#include "../../../Common/include/geometry/meshreader/CSU2ASCIIMeshReaderFVM.hpp"
+#include "../../../Common/include/geometry/meshreader/CSU2BinaryMeshReaderFVM.hpp"
+#include "../../../Common/include/geometry/meshreader/CCGNSMeshReaderFVM.hpp"
 #include "../../../SU2_CFD/include/drivers/CDriver.hpp"
 #include "../../../SU2_CFD/include/output/CMeshOutput.hpp"
 #include "../../Common/adaptation/SimplexMeshTestCase.hpp"
@@ -74,7 +77,14 @@ std::unique_ptr<CConfig> MakeConfig(unsigned short nDim, const string& meshFile,
 GlobalMesh ReadMesh(CConfig* config) {
   auto* origBuf = std::cout.rdbuf(nullptr);
   CGeometry** geometry = nullptr;
-  CDriver::BuildGeometryFVM(config, new CPhysicalGeometry(config, 0, 1), geometry);
+  std::unique_ptr<CMeshReaderBase> reader;
+  switch (config->GetMesh_FileFormat()) {
+    case SU2: reader = std::make_unique<CSU2ASCIIMeshReaderFVM>(config, 0, 1); break;
+    case SU2_BIN: reader = std::make_unique<CSU2BinaryMeshReaderFVM>(config, 0, 1); break;
+    case CGNS_GRID: reader = std::make_unique<CCGNSMeshReaderFVM>(config, 0, 1); break;
+    default: FAIL("Unsupported mesh format in output test");
+  }
+  CDriver::BuildGeometryFVM(config, new CPhysicalGeometry(config, *reader, 1), geometry);
   std::cout.rdbuf(origBuf);
 
   const auto* fine = geometry[MESH_0];
@@ -116,34 +126,23 @@ GlobalMesh ReadMesh(CConfig* config) {
   for (const auto& value : CPassiveComm::Allgatherv(localElements, nullptr)) {
     const auto row = nodes(value);
     const auto inserted = mesh.elemByIndex.emplace(value[0], row);
-    CHECK(inserted.second || inserted.first->second == row); // Halo copies must agree.
+    CHECK((inserted.second || inserted.first->second == row)); // Halo copies must agree.
   }
   for (const auto& value : mesh.elemByIndex) mesh.elem.insert(value.second);
 
-  const auto* physical = dynamic_cast<const CPhysicalGeometry*>(fine);
-  REQUIRE(physical != nullptr);
-  for (unsigned short iCfg = 0; iCfg < config->GetnMarker_CfgFile(); ++iCfg) {
-    const auto tag = config->GetMarker_CfgFile_TagBound(iCfg);
-    if (config->GetMarker_CfgFile_KindBC(tag) == SEND_RECEIVE) continue;
-    std::vector<Record> localFaces;
-    for (unsigned short iMarker = 0; iMarker < fine->GetnMarker(); ++iMarker) {
-      if (config->GetMarker_All_TagBound(iMarker) != tag) continue;
-      for (auto iElem = 0ul; iElem < fine->GetnElem_Bound(iMarker); ++iElem) {
-        const auto* face = fine->bound[iMarker][iElem];
-        const auto id = physical->BoundaryGlobalIndex.find(face);
-        REQUIRE(id != physical->BoundaryGlobalIndex.end());
-        localFaces.push_back(record(face, id->second));
-      }
-    }
-    std::map<unsigned long, std::vector<unsigned long>> facesByIndex;
-    for (const auto& value : CPassiveComm::Allgatherv(localFaces, nullptr)) {
-      const auto row = nodes(value);
-      const auto inserted = facesByIndex.emplace(value[0], row);
-      CHECK(inserted.second || inserted.first->second == row);
-    }
-    for (const auto& face : facesByIndex) {
-      mesh.markers[tag].insert(face.second);
-      mesh.markerOrder[tag].push_back(face.second);
+  // Reader rows retain file order; FVM readers store the full physical boundary on the master.
+  // This also checks ordering independently of geometry's private boundary identity bookkeeping.
+  for (unsigned long iMarker = 0; iMarker < reader->GetNumberOfMarkers(); ++iMarker) {
+    const auto& tag = reader->GetMarkerNames()[iMarker];
+    const auto connectivity = CPassiveComm::Allgatherv(reader->GetSurfaceElementConnectivityForMarker(iMarker), nullptr);
+    REQUIRE(connectivity.size() % SU2_CONN_SIZE == 0);
+    for (size_t offset = 0; offset < connectivity.size(); offset += SU2_CONN_SIZE) {
+      const auto count = nPointsOfElementType(connectivity[offset + 1]);
+      std::vector<unsigned long> row(connectivity.begin() + offset + SU2_CONN_SKIP,
+                                     connectivity.begin() + offset + SU2_CONN_SKIP + count);
+      std::sort(row.begin(), row.end());
+      mesh.markers[tag].insert(row);
+      mesh.markerOrder[tag].push_back(row);
     }
   }
   for (unsigned short iMesh = 0; iMesh <= config->GetnMGLevels(); ++iMesh) delete geometry[iMesh];

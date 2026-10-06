@@ -73,3 +73,10 @@ New sole chain: run_primal_chain_v3.py (incremental test rebuild, full fresh
 matrix, memory/default-MMG/audits, scaling_pilot_v3). Follow-up
 run_extended_chain_v2.py waits for it and also includes GoalMetric controls.
 Preserve failed v1 matrix and original build logs; do not call them passing.
+
+Update: v3 incremental rebuild stopped on a test-only private-member access
+and Catch assertion syntax. Neither v3 nor extended v2 ran runtime jobs.
+Corrected ReadMesh to use the public file-reader connectivity for boundary
+order and existing CPhysicalGeometry reader constructor; no production API
+change. Latest sole chain: run_primal_chain_v4.py; dependent extended v3.
+Both preserve old failed evidence; build-integrated-v2 is reused incrementally.
