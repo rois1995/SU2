@@ -101,3 +101,9 @@ integration_evidence. Source manifestsv1/v2/v3 plusv6/v9 overrides and each runt
 archived executable/source hashes describe tested inputs. Prior completed native
 baseline57f0550db4 evidence remains read-only in
 AdapNoExt/BL_NATIVE_INTEGRATION_WORK and is not proof of this integration.
+
+Evidence-harness update: future driver checks use fresh runtime_np1/2/4
+working directories and copy each job's native artifacts into audit_npN.
+This prevents a failed later cycle/rank from inheriting older snapshots.
+Existing successful v6/v9 evidence remains unchanged; new runs archive
+the changed runner and record their working directory explicitly.

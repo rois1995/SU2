@@ -119,12 +119,14 @@ all_ok = True
 for ranks in args.ranks:
     command = ['mpiexec', '-n', str(ranks), str(binary), args.filter, '--use-colour', 'no']
     log = destination / f'np{ranks}.log'
+    run_directory = destination / f'runtime_np{ranks}'
+    run_directory.mkdir()
     start = time.monotonic()
     with log.open('w') as output:
-        process = subprocess.Popen(command, cwd=destination, env=env, stdout=output,
+        process = subprocess.Popen(command, cwd=run_directory, env=env, stdout=output,
                                    stderr=subprocess.STDOUT, start_new_session=True)
         manifest['current_run'] = {'ranks': ranks, 'pid': process.pid, 'command': command,
-                                   'started_unix_seconds': time.time()}
+                                   'working_directory': str(run_directory), 'started_unix_seconds': time.time()}
         report.write_text(json.dumps(manifest, indent=2) + '\n')
         try:
             code = process.wait(timeout=args.timeout)
@@ -138,17 +140,17 @@ for ranks in args.ranks:
             code = 124
     text = log.read_text()
     if args.save_audit:
-        # Later rank counts reuse the test's filenames. Keep each rank's artifacts
-        # before starting the next MPI job, rather than retaining only the last run.
+        # Fresh per-job directories prevent a failed later cycle from inheriting stale
+        # snapshots produced by an earlier rank count.
         audit_directory = destination / f'audit_np{ranks}'
         audit_directory.mkdir()
-        for artifact in sorted(destination.glob('native_*')):
+        for artifact in sorted(run_directory.glob('native_*')):
             if artifact.is_file() and artifact.suffix in ('.su2', '.cgns', '.native_ref', '.csv', '.cfg', '.dat', '.meta'):
                 shutil.copy2(artifact, audit_directory / artifact.name)
     ok = code == 0 and text.count('All tests passed') == ranks
     manifest['runs'].append({'ranks': ranks, 'command': command, 'exit_code': code,
                              'elapsed_seconds': time.monotonic() - start,
-                             'verified': ok, 'log': str(log)})
+                             'verified': ok, 'working_directory': str(run_directory), 'log': str(log)})
     manifest.pop('current_run', None)
     report.write_text(json.dumps(manifest, indent=2) + '\n')
     print(f'np{ranks}: {"PASS" if ok else "FAIL"} ({log})', flush=True)
