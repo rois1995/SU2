@@ -232,7 +232,7 @@ TEST_CASE("Reference wall: sharp corners, marker ends and persistence", "[Adapta
   CHECK_FALSE(open.GetSegments()[0].sharpEnd);
 
   /*--- Write and read back: same fingerprint, same projection. ---*/
-  const string file = "bl_reference_wall_test.dat";
+  const string file = "bl_reference_wall_test_p" + std::to_string(SU2_MPI::GetRank()) + ".dat";
   REQUIRE(wall.Write(file));
   CReferenceWall copy;
   REQUIRE(copy.Read(file));
@@ -667,8 +667,10 @@ TEST_CASE("Reference wall: guaranteed arc-to-chord bound (gate G3)", "[Adaptatio
 
 TEST_CASE("Reference wall: creation and restart rules", "[Adaptation]") {
   const auto mesh = Annulus(24, 4, 0.5, 3.0);
-  const string file = "bl_twopass_test.dat";
-  auto config = MakeConfig(blOptions);
+  const string file = "bl_twopass_test_p" + std::to_string(SU2_MPI::GetRank()) + ".dat";
+  auto options = blOptions;
+  options.replace(options.find("bl_twopass_test.dat"), strlen("bl_twopass_test.dat"), file);
+  auto config = MakeConfig(options);
   std::string info;
 
   /*--- Fresh run: fitted and written; a restart reads it back. ---*/
@@ -681,9 +683,9 @@ TEST_CASE("Reference wall: creation and restart rules", "[Adaptation]") {
 
   /*--- Creation only on a fresh run or with REBASE. ---*/
   CHECK(CBoundaryLayerRemesher::CreatesReference(*config));
-  CHECK_FALSE(CBoundaryLayerRemesher::CreatesReference(*MakeConfig(blOptions + "RESTART_SOL= YES\n")));
+  CHECK_FALSE(CBoundaryLayerRemesher::CreatesReference(*MakeConfig(options + "RESTART_SOL= YES\n")));
   CHECK(CBoundaryLayerRemesher::CreatesReference(
-      *MakeConfig(blOptions + "RESTART_SOL= YES\nADAP_BL_REFERENCE_REBASE= YES\n")));
+      *MakeConfig(options + "RESTART_SOL= YES\nADAP_BL_REFERENCE_REBASE= YES\n")));
 
   /*--- Missing, truncated, foreign (fingerprint), moved wall: an error without REBASE, a new reference with it. ---*/
   auto moved = mesh;
@@ -738,7 +740,7 @@ TEST_CASE("Reference wall: creation and restart rules", "[Adaptation]") {
   /*--- A reference made with another corner angle is foreign. ---*/
   WriteFile(file, valid);
   CReferenceWall other;
-  CHECK(CBoundaryLayerRemesher::PrepareReference(*MakeConfig(blOptions + "ADAP_ANGLE= 30\n"), mesh, false, other, info)
+  CHECK(CBoundaryLayerRemesher::PrepareReference(*MakeConfig(options + "ADAP_ANGLE= 30\n"), mesh, false, other, info)
             .find("corner angle") != string::npos);
   std::remove(file.c_str());
 }
