@@ -250,3 +250,30 @@ The pending timing/step patches remain unapplied, so they have not changed the
 source associated with these gates. Actual AD lifecycle, stress/size follow-through,
 measurement closure and explicit expected support failures remain incomplete;
 see the interim completion matrix in HANDOFF_Codex.md.
+
+
+## Repeated horizontal ownership — independently verified interim result
+
+All nine layout2 repetitions at8192 input triangles independently pass structure
+and the complete frozen target. Evidence:
+integration_evidence/partition_layout2_audit_v1/independent_audit.json.
+The immutable snapshots' hashes match the original finished meshes/metadata.
+Raw snapshot aggregation: integration_evidence/partition_progress_summary_v2.json.
+
+| Ranks | Initial cut edges | Adapt seconds min / median / max | Output cells each | Cross-owner / commits each | Conflicts each |
+|---:|---:|---:|---:|---:|---:|
+| 1 | 0 | 104.948 / 106.234 / 108.123 | 5808 | 0 / 16714 | 0 |
+| 2 | 1024 | 52.268 / 52.416 / 52.755 | 5794 | 4355 / 15883 | 1043 |
+| 4 | 3072 | 53.843 / 53.982 / 54.318 | 5785 | 11418 / 14019 | 1329 |
+
+Within each horizontal rank group, points/cells/faces CSV hashes are identical
+across all three repetitions, as are the work counts. No memory admission was
+rejected. Four ranks give no measured improvement over two for this layout,
+despite the same fixed input/target/acceptance contract. This establishes a
+practical partition-sensitive limitation of this strip workload; it does not
+isolate scheduler, collision checks, transfer or communication as its cause.
+Cyclic two-rank median95.533s contrasts with horizontal52.416s, while four-rank
+medians are52.513/53.982s. The repeated vertical low-cut group remains pending.
+These comparisons use rank-dependent adapted meshes and transaction counts;
+shared-machine timing and counter scope caveats still apply. Do not infer a
+universal choice of MPI rank count or a general speedup law from them.

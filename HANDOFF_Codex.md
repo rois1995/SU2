@@ -252,3 +252,13 @@ input) before any primal cycle. Stage G runner already schedules discrete-adjoin
 native rejection. Preserve separate expected-failure logs, commands and hashes;
 never run these through a positive-Catch-pass checker or count an arbitrary
 crash as successful rejection.
+
+
+Horizontal repetition group completed: partition_layout2_audit_v1 independently
+passes all9 cases (complete and structural); copied raw hashes match originals.
+Points/cells/faces CSVs are identical across the3 repetitions within each rank.
+Horizontal8192 medians1/2/4 =106.234/52.416/53.982s; no four-rank benefit for
+that layout. Tables/caveats in results. Snapshot partition_progress_summary_v2.
+Thus18/27 repetitions independently audited so far; vertical low-cut repeats
+are now running. Main final27-case independent audit remains scheduled and
+must pass before campaign advances to AR/incompatibility/actual airfoil work.
