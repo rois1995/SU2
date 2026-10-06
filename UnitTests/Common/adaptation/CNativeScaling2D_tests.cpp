@@ -132,11 +132,27 @@ TEST_CASE("Native engine size and partition envelope", "[NativeScaling2D][.]") {
           missedHeight += error > 1e-8;
         }
       }
+    // Raw records permit a checker independent of the production quality/length routines.
+    std::ofstream pointFile("points.csv"), cellFile("cells.csv"), faceFile("faces.csv");
+    pointFile << std::setprecision(17) << "id,x,y\n";
+    cellFile << "id,a,b,c\n";
+    faceFile << "a,b,marker\n";
+    for (const auto& point : nodes(fresh))
+      pointFile << point.first << ',' << point.second.p.x << ',' << point.second.p.y << '\n';
+    for (const auto& cell : output) {
+      cellFile << cell.t.id << ',' << cell.t.v[0].id << ',' << cell.t.v[1].id << ',' << cell.t.v[2].id << '\n';
+      for (int k = 0; k < 3; ++k) if (cell.marker[k])
+        faceFile << cell.t.v[k].id << ',' << cell.t.v[(k + 1) % 3].id << ','
+                 << reference.Marker(cell.marker[k]) << '\n';
+    }
+    REQUIRE(pointFile.good());
+    REQUIRE(cellFile.good());
+    REQUIRE(faceFile.good());
     const bool complete = qmin >= .18 && lmax <= 1.8 && !missedHeight && !missedGeometry;
     std::ofstream report("native_scaling.json");
     report << std::setprecision(17) << "{\"scope\":\"engine only; audit gather excluded\",\"tiles\":" << tiles
            << ",\"layout\":" << layout << ",\"matched\":" << matched << ",\"metric_height\":" << h0 / normalSize << ",\"anisotropy\":" << anisotropy << ",\"ranks\":" << world.size
-           << ",\"input_cells\":" << original.size() << ",\"output_cells\":" << output.size()
+           << ",\"h0\":" << h0 << ",\"xmax\":" << nx * .02 << ",\"ymax\":" << yMax << ",\"input_cells\":" << original.size() << ",\"output_cells\":" << output.size()
            << ",\"complete\":" << (complete ? "true" : "false") << ",\"init_seconds\":" << initSeconds
            << ",\"adapt_seconds\":" << adaptSeconds << ",\"selection_seconds_max\":" << selection
            << ",\"collective_seconds_max\":" << collectiveSeconds << ",\"collective_calls_max\":" << collectives
