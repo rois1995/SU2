@@ -419,3 +419,26 @@ changed; v3 is not compiled or executed. Existing timing checker now also checks
 field identity/coordinates, finite values and positive density/internal energy;
 its minimal synthetic self-check passes, not an actual field-export runtime.
 Neither baseline nor pending exports establish converged CFD accuracy.
+
+
+## Real-airfoil serial cost boundary: larger refinement then coarsening
+
+The4k/12k/3k, h0=0.0002-chord serial demand run ended with timeout124 at
+902.433s under its900-second whole-job budget. MPI/rank processes were verified
+terminated; this was not an observation timeout and no job was restarted.
+It completed cycle0 (23368 triangles) and cycle1 (40968 triangles/20617 points),
+then timed out during cycle2 remeshing from40968 triangles. Thus refinement to
+40968 cells was accepted; the observed limit is completing this subsequent
+coarsening lifecycle within the whole-job budget, not producing that cell count.
+No cycle2 accepted/rejected mesh was written; donor and frozen metric remain.
+
+Exact provenance and saved transfer defects:
+`integration_evidence/airfoil_complexity_cost_limit_v1.json`. The first cycle's
+donor/metric/candidate/original inputs are byte-identical to the successfully
+executed baseline np1-cycle0 independent audit; all four hashes were compared.
+This reuses that numerical proof for identical inputs, not a newly executed
+audit. The40968-cell cycle1 still needs its own frozen-P1/original-reference
+audit before a full independent target claim. Reported replacement/transfer
+costs0.245765/0.129686s and0.561981/0.353944s are serial driver log values; there
+is no isolated remeshing duration or per-rank phase matrix for this failed run.
+No infeasibility, memory admission or MPI deadlock was demonstrated.

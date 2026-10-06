@@ -1,0 +1,43 @@
+{
+  "checked_unix_seconds": 1791289145.3291242,
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_airfoil_complexity12000_v8",
+  "runtime_evidence_sha256": "0b5b7a11a749ecfe7fb19fc6d100d8c43720f02705d3eef7010aa1f55a815f70",
+  "outcome": "whole-job cost budget exceeded while coarsening cycle2 from40968 triangles; not demonstrated infeasibility",
+  "exit_code": 124,
+  "elapsed_seconds": 902.4327514929464,
+  "completed": [
+    {
+      "cycle": 0,
+      "counts": {
+        "NELEM": 23368,
+        "NPOIN": 11811
+      },
+      "max_corrected_transfer_defect": 2.021757971005263e-16,
+      "files_sha256": {
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_airfoil_complexity12000_v8/audit_np1/native_airfoil_cycle_0_donor.su2": "0d893892d87b894fbd6c4aa1951db0abc8ad58935bd4c5a5dae90a2311162ea6",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_airfoil_complexity12000_v8/audit_np1/native_airfoil_cycle_0_metric.csv": "931ac7d1110623f402f47a0346514e289aaabab47de066248eaaf6804bcf9297",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_airfoil_complexity12000_v8/audit_np1/native_airfoil_cycle_0_adapted.su2": "48329ba2f6488e1763e2736ca33e41ea5446a082d6880ea634f1d27c150822ae",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_airfoil_complexity12000_v8/audit_np1/native_airfoil_cycle_0_transfer.csv": "e8ec3c3663e6f8e4ec20345ca957c95475868fd9611bf53a5db0369988e70a4a"
+      },
+      "independent_target_audit": "exact inputs compared with previously completed baseline audit"
+    },
+    {
+      "cycle": 1,
+      "counts": {
+        "NELEM": 40968,
+        "NPOIN": 20617
+      },
+      "max_corrected_transfer_defect": 2.0217579979896622e-16,
+      "files_sha256": {
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_airfoil_complexity12000_v8/audit_np1/native_airfoil_cycle_1_donor.su2": "48329ba2f6488e1763e2736ca33e41ea5446a082d6880ea634f1d27c150822ae",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_airfoil_complexity12000_v8/audit_np1/native_airfoil_cycle_1_metric.csv": "289dcc42c96ea8783ad240350385063429c4b1c042ccc4e71bdd762d4a7a08cb",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_airfoil_complexity12000_v8/audit_np1/native_airfoil_cycle_1_adapted.su2": "78d623b7525b8c1c5a3fb295b63c7c46c45cf197575683323eb724bb16ac7600",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_airfoil_complexity12000_v8/audit_np1/native_airfoil_cycle_1_transfer.csv": "74e5b47277547b46845c81a04772b70b78e4ddfe8abac0806df83df580355c4e"
+      },
+      "independent_target_audit": "pending"
+    }
+  ],
+  "baseline_exact_input_audit": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_airfoil_baseline_v8/independent_v8/np1_cycle0.json",
+  "baseline_audit_sha256": "1179776f8c4ad5077b017ff0c0ea0b1eb1789fcc1549f6c3ec72ad67a792b6ba",
+  "pending": "independent actual frozen-P1/original-reference audit of completed cycle1; cycle2 has only donor and metric, no completed candidate; no nodal solution snapshots existed in this version"
+}

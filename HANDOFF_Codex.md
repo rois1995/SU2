@@ -371,3 +371,24 @@ Current CFD demand case: integrated_airfoil_complexity12000_v8/runtime_np1,
 runner313708, MPI313813 at last report. Subsequent current-case paths must be
 read from live state rather than inferred. Goal lifecycle and follow-through
 supervisors remain queued. All future progress updates include active case path.
+
+
+Higher NACA complexity ended: integrated_airfoil_complexity12000_v8 np1 timeout
+124/902.433s at900s whole-job budget. Cycles0/1 accepted23368/40968 triangles;
+timeout while coarsening cycle2 from40968, not while constructing the larger mesh.
+Actual processes verified terminated; do not restart/extend the original budget.
+Classified in airfoil_complexity_cost_limit_v1.json. Cycle0 exact donor/metric/
+candidate/original inputs match the executed baseline independent audit bytewise;
+cycle1 requires fresh independent audit after current heavy campaigns finish.
+Use audit_native_airfoil.py --cycle1 --height.0002 --reference case/airfoil_input.su2
+on its saved audit_np1. No cycle2 candidate exists. Do not claim whole3cycle pass.
+
+Current case advanced to integrated_airfoil_height1e4_v8/runtime_np1 (h0/HMIN1e-4).
+Prepared actual production-loop cases are in integrated_native_production_v1/
+np{1,2,4}, each with input.su2/run.cfg. They are NOT RUN. They request actual
+restart+ParaView fields and double-precision metric as well as accepted meshes/
+reference sidecars, retaining short baseline physical/flow settings. This closes
+an additional integration/inspectability gap: derived fixture Run/Postprocess/
+Update bypassed production Output. Run sequentially after current pipelines,
+pin executable/sources/configs, extract restart metrics using existing capcheck
+reader for actual frozen-P1 audits. Do not mistake prepared folders for outputs.
