@@ -37,10 +37,13 @@ CSolutionTransfer::TransferArrays CSolutionTransfer::CheckProblem(const std::str
                                                                   CSolver*** solver) {
   TransferArrays arrays;
 
-  /*--- Supported problems: compressible flow, SA or SST. ---*/
+  /*--- Supported problems: compressible flow, SA or SST; also as the primal of a discrete adjoint problem (goal-oriented
+   *    loop), whose adjoint solvers are transferred by CDiscAdjTransfer. ---*/
 
   const auto kindSolver = config->GetKind_Solver();
-  if (kindSolver != MAIN_SOLVER::EULER && kindSolver != MAIN_SOLVER::NAVIER_STOKES && kindSolver != MAIN_SOLVER::RANS) {
+  if (kindSolver != MAIN_SOLVER::EULER && kindSolver != MAIN_SOLVER::NAVIER_STOKES && kindSolver != MAIN_SOLVER::RANS &&
+      kindSolver != MAIN_SOLVER::DISC_ADJ_EULER && kindSolver != MAIN_SOLVER::DISC_ADJ_NAVIER_STOKES &&
+      kindSolver != MAIN_SOLVER::DISC_ADJ_RANS) {
     SU2_MPI::Error(
         "The " + name + " solution transfer is only available for compressible EULER, NAVIER_STOKES or RANS.",
         CURRENT_FUNCTION);
@@ -64,6 +67,10 @@ CSolutionTransfer::TransferArrays CSolutionTransfer::CheckProblem(const std::str
     const auto* newSolver = solver[MESH_0][iSol];
     const auto* donorSolver = donor.solver[MESH_0][iSol];
     if (newSolver == nullptr && donorSolver == nullptr) continue;
+    /*--- Adjoint solvers are not part of the primal state (CDiscAdjTransfer sets them). ---*/
+    if ((newSolver != nullptr && newSolver->GetAdjoint()) || (donorSolver != nullptr && donorSolver->GetAdjoint())) {
+      continue;
+    }
     if (iSol != FLOW_SOL && iSol != TURB_SOL) {
       SU2_MPI::Error("The " + name + " solution transfer is not available for solver " + std::to_string(iSol) + ".",
                      CURRENT_FUNCTION);

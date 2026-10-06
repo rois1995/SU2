@@ -192,6 +192,9 @@ private:
   CVariable* base_nodes;  /*!< \brief Pointer to CVariable to allow polymorphic access to solver nodes. */
 
 protected:
+  passivedouble metricComplexityPreBL = 0.0; /*!< \brief Complexity of the last metric before the boundary layer. */
+  passivedouble metricComplexityFinal = 0.0; /*!< \brief Complexity of the last metric (final). */
+  bool metricComplexityBracketed = false;    /*!< \brief The target was bracketed by the size bounds. */
   su2passivematrix GoalDiagnostics; /*!< \brief Per point (ADAP_SENSOR= GOAL): signed-sum ratio, eq. (33) ratio, the
                                          momentum lambda used (nDim). */
   unsigned long GoalRejected = 0;   /*!< \brief Non-finite flux Hessians of the last goal-oriented Hessian (global). */
@@ -608,6 +611,15 @@ public:
    */
   void ComputeMetric(CGeometry *geometry, const CConfig *config, const vector<su2double>* givenMetric = nullptr,
                      bool boundaryLayer = true);
+
+  /*!
+   * \brief Complexity of the last ComputeMetric (global): attained by the global factor (after the bounds and the corner
+   *        metric, before the boundary-layer metric), and of the final metric (with the boundary-layer metric).
+   */
+  passivedouble GetMetricComplexityPreBL() const { return metricComplexityPreBL; }
+  passivedouble GetMetricComplexityFinal() const { return metricComplexityFinal; }
+  /*! \brief Whether the target complexity of the last ComputeMetric was bracketed by the size bounds. */
+  bool GetMetricComplexityBracketed() const { return metricComplexityBracketed; }
 
   /*!
    * \brief Goal-oriented Hessian (ADAP_SENSOR= GOAL, stage G): H_go = sum_{d,j} |d_d lambda_j| |H(F_{d,j})| into the

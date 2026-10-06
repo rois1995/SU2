@@ -2925,6 +2925,9 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   SU2_MPI::Allreduce(&localMaxDensity, &maxDensity, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
   SU2_MPI::Allreduce(&localMaxAR, &maxAR, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
   SU2_MPI::Allreduce(&localComplexity, &totComplexity, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+  metricComplexityPreBL = SU2_TYPE::GetValue(totComplexity);
+  metricComplexityFinal = metricComplexityPreBL;
+  metricComplexityBracketed = bracketed;
 
   if (rank == MASTER_NODE) {
     cout << "Metric field statistics:" << endl;
@@ -3007,6 +3010,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
         }
       }
     }
+    metricComplexityFinal = SU2_TYPE::GetValue(globalValues[0]);
     if (rank == MASTER_NODE) {
       cout << "Mesh complexity with the boundary-layer metric: " << globalValues[0] << " (ADAP_COMPLEXITY= "
            << complexity << ", ratio " << globalValues[0] / complexity << "). Maximum cell AR: " << globalValues[1]

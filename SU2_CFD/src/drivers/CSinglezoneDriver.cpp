@@ -252,10 +252,12 @@ void CSinglezoneDriver::CheckMeshAdaptation() const {
   const auto* config = config_container[ZONE_0];
 
   const auto kindSolver = config->GetKind_Solver();
+  /*--- The discrete adjoint of compressible Euler with the goal-oriented metric (stage G) as well. ---*/
+  const bool goal = kindSolver == MAIN_SOLVER::DISC_ADJ_EULER && config->GetGoal_Oriented_Metric();
   if (kindSolver != MAIN_SOLVER::EULER && kindSolver != MAIN_SOLVER::NAVIER_STOKES &&
-      kindSolver != MAIN_SOLVER::RANS) {
-    SU2_MPI::Error("Mesh adaptation is only available for compressible EULER, NAVIER_STOKES or RANS.",
-                   CURRENT_FUNCTION);
+      kindSolver != MAIN_SOLVER::RANS && !goal) {
+    SU2_MPI::Error("Mesh adaptation is only available for compressible EULER, NAVIER_STOKES or RANS (and the discrete "
+                   "adjoint of EULER with ADAP_SENSOR= GOAL).", CURRENT_FUNCTION);
   }
   if (driver_config->GetTime_Domain() || config->GetTime_Domain()) {
     const auto marching = config->GetTime_Marching();

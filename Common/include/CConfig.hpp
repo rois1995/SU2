@@ -1346,7 +1346,12 @@ private:
   unsigned long Adap_FP_Iter = 2;           /*!< \brief FIXED_POINT: remeshes (and re-solves) of each window. */
   su2double Adap_FP_Tol = 0.1;              /*!< \brief FIXED_POINT: metric change that ends the iterations. */
   unsigned short nAdap_Sizes = 0, nAdap_SubIter = 0, nAdap_Hmaxs = 0, nAdap_Hmins = 0, nAdap_Norms = 0,
-                 nAdap_ARmaxs = 0, nAdap_FlowIter = 0, nAdap_FlowCFL = 0, nAdap_ResRed = 0; /*!< \brief List lengths. */
+                 nAdap_ARmaxs = 0, nAdap_FlowIter = 0, nAdap_FlowCFL = 0, nAdap_ResRed = 0,
+                 nAdap_AdjIter = 0, nAdap_AdjResRed = 0, nAdap_AdjCFL = 0; /*!< \brief List lengths. */
+  unsigned long *Adap_AdjIter = nullptr;    /*!< \brief Adjoint iterations of each level (GOAL loop). */
+  su2double *Adap_AdjResRed = nullptr,      /*!< \brief Adjoint residual reduction of each level (GOAL loop). */
+            *Adap_AdjCFL = nullptr;         /*!< \brief Removed option ADAP_ADJ_CFL (read only to reject it). */
+  bool Adap_Adj_WarmStart = true;           /*!< \brief GOAL loop: the adjoint starts from the transferred one. */
   unsigned long *Adap_Sizes = nullptr,      /*!< \brief Target complexity of each adaptation level. */
                 *Adap_SubIter = nullptr,    /*!< \brief Number of adaptations of each level. */
                 *Adap_FlowIter = nullptr;   /*!< \brief Flow iterations of each level. */
@@ -9961,6 +9966,12 @@ public:
   unsigned long GetnInner_Iter(void) const { return nInnerIter; }
 
   /*!
+   * \brief Set the number of inner iterations (goal-oriented adaptation loop: the primal and the adjoint phase of a
+   *        cycle each set their own).
+   */
+  void SetnInner_Iter(unsigned long nIter) { nInnerIter = nIter; }
+
+  /*!
    * \brief Get the number of outer iterations
    * \return Number of outer iterations for the multizone problem
    */
@@ -10531,6 +10542,12 @@ public:
   bool GetAdap_Adj_Lambda(void) const { return Adap_Adj_Lambda; }
 
   /*!
+   * \brief Goal-oriented adaptation loop: the adjoint of an adapted mesh starts from the adjoint of the previous mesh
+   *        interpolated onto it (ADAP_ADJ_WARM_START= YES), else from the initial state of a new adjoint run.
+   */
+  bool GetAdap_Adj_WarmStart(void) const { return Adap_Adj_WarmStart; }
+
+  /*!
    * \brief Developer finite-difference check of the residual adjoint (ADAP_ADJ_LAMBDA_CHECK).
    */
   bool GetAdap_Adj_Lambda_Check(void) const { return Adap_Adj_Lambda_Check; }
@@ -10716,9 +10733,11 @@ public:
    * \brief Prepare a solve that starts from a solution in memory (the adapted meshes of the adaptation loop): no
    *        restart file is read (RESTART_SOL= NO), and the multigrid cycle is MGCYCLE of the config file (a restart
    *        turns W_CYCLE into V_CYCLE), except FULLMG_CYCLE, which becomes V_CYCLE (the solution exists already).
+   *        Discrete adjoint (goal-oriented loop): the primal is not read either (Restart_Flow).
    */
   void SetSolutionInMemory(void) {
     Restart = false;
+    Restart_Flow = false;
     SetMGCycle_Adapted();
   }
 

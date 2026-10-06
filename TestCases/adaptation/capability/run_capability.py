@@ -93,7 +93,15 @@ CASES = [
                   "ADAP_ARMAX": "100", "ADAP_SENSOR": "(S)", "ADAP_CUSTOM_SENSORS": "'S : MACH*MACH'",
                   "WRT_RESTART_COMPACT": "YES",
                   "VOLUME_OUTPUT": "(COORDINATES, SOLUTION, PRIMITIVE, HESSIAN, METRIC)"}),
+    # Goal-oriented loop (discrete adjoint, needs --ad-binary): primal restart by --binary in DIRECT first; the
+    # metric that makes mesh_out_adap_00001 is in the adjoint restart restart_adj_cd_adap_00000.dat.
+    dict(name="naca_goal", tags={"2d", "steady", "free", "goal"}, base="naca_goal.cfg", mesh="naca", goal=True,
+         changes={"ADAP_SURFACE": "YES"},
+         known_fail={"free_boundary_geometry"},
+         known_fail_reason="free airfoil boundary near the leading edge (as naca_free: MMG2D's Hausdorff bound)"),
 ]
+
+GOAL_PRIMAL_ITER = 300
 
 
 def make_mesh(kind, path):
@@ -233,7 +241,8 @@ def remesh_pairs(cfg, directory):
     sizes = [int(s) for s in as_list(cfg["ADAP_SIZES"])]
     pairs = []
     if cfg.get("TIME_DOMAIN", "NO") != "YES":
-        restarts = numbered(directory, "restart_flow*.dat")
+        goal = cfg.get("MATH_PROBLEM") == "DISCRETE_ADJOINT"
+        restarts = numbered(directory, "restart_adj*.dat" if goal else "restart_flow*.dat")
         subiter = [int(s) for s in as_list(cfg.get("ADAP_SUBITER", "(1)"))]
         targets = [size for size, n in zip(sizes, subiter) for _ in range(n)]
         previous = directory / "mesh.su2"
@@ -460,6 +469,28 @@ def mpi_gates(case, cfg, directory, output, last, first_metric):
     return res
 
 
+def goal_primal(binary, text, directory, ranks, timeout):
+    """Primal restart of a goal-oriented case (solution_flow.dat): the same problem in DIRECT with --binary."""
+    cfg = options(text)
+    primal = directory / "primal"
+    primal.mkdir()
+    shutil.copyfile(directory / "mesh.su2", primal / "mesh.su2")
+    keep = {"SOLVER", "MACH_NUMBER", "AOA", "FREESTREAM_PRESSURE", "FREESTREAM_TEMPERATURE", "REF_DIMENSIONALIZATION",
+            "MARKER_EULER", "MARKER_FAR", "MARKER_MONITORING", "CFL_NUMBER", "CONV_NUM_METHOD_FLOW", "JST_SENSOR_COEFF",
+            "MESH_FILENAME", "MESH_FORMAT", "MGLEVEL", "TIME_DISCRE_FLOW", "NUM_METHOD_GRAD", "TABULAR_FORMAT"}
+    lines = [f"{key}= {value}" for key, value in cfg.items() if key in keep]
+    lines += ["MATH_PROBLEM= DIRECT", f"ITER= {GOAL_PRIMAL_ITER}", "LINEAR_SOLVER= FGMRES",
+              f"LINEAR_SOLVER_PREC= {cfg.get('DISCADJ_LIN_PREC', 'JACOBI')}", "LINEAR_SOLVER_ITER= 10",
+              "OUTPUT_FILES= (RESTART)", "RESTART_FILENAME= solution_flow", "CONV_FILENAME= history",
+              "SCREEN_WRT_FREQ_INNER= 50"]
+    (primal / "run.cfg").write_text("\n".join(lines) + "\n")
+    code, seconds, log = run_su2(binary, primal, ranks, timeout)
+    ok = code == 0 and "Exit Success" in log and (primal / "solution_flow.dat").exists()
+    if ok:
+        shutil.copyfile(primal / "solution_flow.dat", directory / "solution_flow.dat")
+    return ok, seconds
+
+
 def select(names):
     if not names or "all" in names:
         return list(CASES)
@@ -473,6 +504,7 @@ def select(names):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--binary", required=True, type=Path)
+    ap.add_argument("--ad-binary", type=Path, help="SU2_CFD_AD with MMG for the goal-oriented cases (else SKIPPED)")
     ap.add_argument("--output", required=True, type=Path)
     ap.add_argument("--ranks", type=int, default=1)
     ap.add_argument("--cases", nargs="*")
@@ -495,8 +527,23 @@ def main():
         text = config_text(case["base"], case["changes"])
         (directory / "run.cfg").write_text(text)
         cfg = options(text)
+        run_binary = binary
+        if case.get("goal"):
+            if a.ad_binary is None:
+                record = {"case": case["name"], "ranks": a.ranks, "seconds": 0.0, "exit": None, "points": None,
+                          "meshes": {}, "needs": "--ad-binary (SU2_CFD_AD)", "known_fail": [],
+                          "known_fail_reason": None, "gates": {}, "status": "SKIPPED"}
+                results = [r for r in results if not (r["case"] == case["name"] and r["ranks"] == a.ranks)] + [record]
+                results_path.write_text(json.dumps(results, indent=1) + "\n")
+                print(f"{name}: SKIPPED (needs --ad-binary; a skipped case is not a pass)", flush=True)
+                continue
+            run_binary = a.ad_binary.resolve()
+            print(f"{name}: primal restart (DIRECT, {GOAL_PRIMAL_ITER} iterations)", flush=True)
+            ok, _ = goal_primal(binary, text, directory, a.ranks, a.timeout)
+            if not ok:
+                print(f"{name}: the primal restart run failed", flush=True)
         print(f"{name}: running", flush=True)
-        code, seconds, log = run_su2(binary, directory, a.ranks, a.timeout)
+        code, seconds, log = run_su2(run_binary, directory, a.ranks, a.timeout)
         control_gate = None
         if cfg.get("TIME_DOMAIN") == "YES" and cfg.get("ADAP_UNSTEADY_METRIC") in ("WINDOW_AVERAGE", "FIXED_POINT"):
             control_gate = window_control_check(binary, text, directory, a.ranks, a.timeout)
@@ -522,7 +569,10 @@ def main():
                 print(f"    {gate_name}: {gate_status} {value}", flush=True)
     write_summary(results, output)
     failed = [r for r in results if r["status"] == "FAIL"]
-    print(f"{'FAIL' if failed else 'PASS'}: {len(results) - len(failed)} of {len(results)} case runs pass or are "
+    skipped = [r for r in results if r["status"] == "SKIPPED"]
+    if skipped:
+        print(f"SKIPPED (not passed): {', '.join(r['case'] for r in skipped)}")
+    print(f"{'FAIL' if failed else 'PASS'}: {len(results) - len(failed) - len(skipped)} of {len(results)} case runs pass or are "
           f"known failures (summary in {output / 'summary.txt'})")
     raise SystemExit(1 if failed else 0)
 

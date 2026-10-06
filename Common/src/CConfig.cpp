@@ -3393,6 +3393,18 @@ void CConfig::SetConfig_Options() {
    * the residuals of CONV_FIELD have dropped by this many orders of magnitude from their largest value in that solve
    * (default: only CONV_RESIDUAL_MINVAL) \ingroup Config */
   addDoubleListOption("ADAP_RESIDUAL_REDUCTION", nAdap_ResRed, Adap_ResRed);
+  /*!\brief ADAP_ADJ_ITER \n DESCRIPTION: Goal-oriented loop (ADAP_SENSOR= GOAL): adjoint iterations on the adapted meshes
+   * of each level (ITER) \ingroup Config */
+  addULongListOption("ADAP_ADJ_ITER", nAdap_AdjIter, Adap_AdjIter);
+  /*!\brief ADAP_ADJ_RESIDUAL_REDUCTION \n DESCRIPTION: Goal-oriented loop: the adjoint solve on the adapted meshes of
+   * each level also stops when the adjoint residuals of CONV_FIELD have dropped by this many orders of magnitude from
+   * their largest value in that solve (default: only CONV_RESIDUAL_MINVAL) \ingroup Config */
+  addDoubleListOption("ADAP_ADJ_RESIDUAL_REDUCTION", nAdap_AdjResRed, Adap_AdjResRed);
+  /*!\brief ADAP_ADJ_WARM_START \n DESCRIPTION: Goal-oriented loop: start the adjoint of an adapted mesh from the adjoint
+   * of the previous mesh interpolated onto it (P1); NO starts it as a new adjoint run \ingroup Config */
+  addBoolOption("ADAP_ADJ_WARM_START", Adap_Adj_WarmStart, true);
+  /*--- Removed option (the adjoint has no CFL of its own: it uses the one of the recorded primal iteration). ---*/
+  addDoubleListOption("ADAP_ADJ_CFL", nAdap_AdjCFL, Adap_AdjCFL);
   /*!\brief ADAP_TRANSFER \n DESCRIPTION: Solution transfer to the adapted meshes \n OPTIONS: BARYCENTRIC (P1
    * interpolation), CONSERVATIVE (conservative P1 projection, keeps the integrals of the conservative variables),
    * FREESTREAM (no transfer, for debugging, steady only) \n DEFAULT: BARYCENTRIC for steady runs, CONSERVATIVE for
@@ -3443,9 +3455,6 @@ void CConfig::SetConfig_Options() {
   /*--- Time-domain loops that write restart files also write each mesh (the restart files of the transferred steps
    *    are rewritten on it and need it), whatever WRT_ADAP_MESH says: CConfig::GetAdap_Mesh_Output. ---*/
 
-  /*--- Goal-oriented adaptation loop options, not used by the C++ code yet (kept so existing config files parse) ---*/
-  addPythonOption("ADAP_ADJ_ITER");
-  addPythonOption("ADAP_ADJ_CFL");
 
   /* END_CONFIG_OPTIONS */
 
@@ -6238,7 +6247,21 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     if (Time_Domain) goalError("goal-oriented adaptation is only available for steady problems.");
     if (nAdap_Sensor != 1) goalError("GOAL must be the only adaptation sensor.");
     if (!Adap_CustomDefinitions.empty()) goalError("ADAP_CUSTOM_SENSORS is not supported with GOAL.");
-    if (Adap_Loop) goalError("the adaptation loop (ADAP_LOOP= YES) is not available yet for GOAL.");
+    if (Adap_Loop) {
+      /*--- Goal-oriented loop (stage G3): the primal and the adjoint are solved on every mesh in one process. ---*/
+      if (CFL_Adapt) goalError("the adaptation loop needs CFL_ADAPT= NO (the CFL is also that of the recording).");
+      if (Kind_Adap_BL_Method == ADAP_BL_METHOD::TWO_PASS)
+        goalError("ADAP_BL_METHOD= TWO_PASS is not available with the goal-oriented loop.");
+      if (Adap_Adj_Lambda_Check) goalError("ADAP_ADJ_LAMBDA_CHECK is not available with the adaptation loop.");
+      /*--- The primal phase must iterate as SU2_CFD does: settings that a discrete adjoint run changes are rejected. ---*/
+      if (Inconsistent_Disc) goalError("INCONSISTENT_DISC is not available with the adaptation loop.");
+      if (RampMUSCL || RampOutlet || RampOutletPressure || RampOutletMassFlow)
+        goalError("RAMP_MUSCL and the outlet ramps are not available with the adaptation loop.");
+      if (OptionIsSet("OUTLIER_MITIGATION_PARAM"))
+        goalError("OUTLIER_MITIGATION_PARAM is not available with the adaptation loop (DIRECT runs only).");
+      if (nMarker_EngineInflow != 0 || nMarker_EngineExhaust != 0)
+        goalError("engine inflow/exhaust boundaries are not available with the adaptation loop.");
+    }
     Adap_Adj_Lambda = true;
     if (Adap_Norm != 1.0 && SU2_MPI::GetRank() == MASTER_NODE) {
       cout << "WARNING: ADAP_SENSOR= GOAL is the L1-optimal metric of the goal-oriented estimate; ADAP_NORM= "
@@ -6374,6 +6397,10 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
    *    or the scalar option when the list is not given) and check every level. ---*/
   Adap_Levels.clear();
   Adap_Transfer_Default = !OptionIsSet("ADAP_TRANSFER");
+  if (OptionIsSet("ADAP_ADJ_CFL")) {
+    SU2_MPI::Error("ADAP_ADJ_CFL was removed: the adjoint uses the CFL of the recorded primal iteration (ADAP_FLOW_CFL "
+                   "on the adapted meshes, CFL_NUMBER on the input mesh).", CURRENT_FUNCTION);
+  }
   if (Adap_Loop) {
     if (!Compute_Metric) SU2_MPI::Error("ADAP_LOOP= YES needs COMPUTE_METRIC= YES.", CURRENT_FUNCTION);
     if (nAdap_Sizes == 0) SU2_MPI::Error("ADAP_LOOP= YES needs ADAP_SIZES.", CURRENT_FUNCTION);
@@ -6455,6 +6482,14 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
       SU2_MPI::Error("ADAP_FREQ is only used by the time-domain adaptation loop (TIME_DOMAIN= YES).", CURRENT_FUNCTION);
     }
 
+    if (!goalMetric) {
+      for (const auto* name : {"ADAP_ADJ_ITER", "ADAP_ADJ_RESIDUAL_REDUCTION", "ADAP_ADJ_WARM_START"}) {
+        if (OptionIsSet(name)) {
+          SU2_MPI::Error(string(name) + " is only used by the goal-oriented loop (ADAP_SENSOR= GOAL).", CURRENT_FUNCTION);
+        }
+      }
+    }
+
     if (!Time_Domain && OptionIsSet("ADAP_UNSTEADY_METRIC")) {
       SU2_MPI::Error("ADAP_UNSTEADY_METRIC is only used by the time-domain adaptation loop (TIME_DOMAIN= YES).",
                      CURRENT_FUNCTION);
@@ -6497,6 +6532,8 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     checkLength("ADAP_FLOW_ITER", nAdap_FlowIter);
     checkLength("ADAP_FLOW_CFL", nAdap_FlowCFL);
     checkLength("ADAP_RESIDUAL_REDUCTION", nAdap_ResRed);
+    checkLength("ADAP_ADJ_ITER", nAdap_AdjIter);
+    checkLength("ADAP_ADJ_RESIDUAL_REDUCTION", nAdap_AdjResRed);
 
     /*--- Value of a list at a level, or the default without the list. ---*/
     auto pick = [](unsigned short n, const auto* list, unsigned short iLevel, auto value) {
@@ -6519,6 +6556,8 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
       level.flowIter = pick(nAdap_FlowIter, Adap_FlowIter, iLevel, flowIter);
       level.flowCFL = pick(nAdap_FlowCFL, Adap_FlowCFL, iLevel, CFLFineGrid);
       level.residualReduction = pick(nAdap_ResRed, Adap_ResRed, iLevel, su2double(0.0));
+      level.adjIter = pick(nAdap_AdjIter, Adap_AdjIter, iLevel, nInnerIter);
+      level.adjResidualReduction = pick(nAdap_AdjResRed, Adap_AdjResRed, iLevel, su2double(0.0));
 
       const string where = " (adaptation level " + to_string(iLevel) + ").";
       auto finite = [](su2double value) { return std::isfinite(SU2_TYPE::GetValue(value)); };
@@ -6539,6 +6578,10 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
       }
       if (nAdap_ResRed > 0 && (!(level.residualReduction > 0.0) || !finite(level.residualReduction))) {
         SU2_MPI::Error("ADAP_RESIDUAL_REDUCTION must be a finite value > 0" + where, CURRENT_FUNCTION);
+      }
+      if (level.adjIter == 0) SU2_MPI::Error("ADAP_ADJ_ITER must be positive" + where, CURRENT_FUNCTION);
+      if (nAdap_AdjResRed > 0 && (!(level.adjResidualReduction > 0.0) || !finite(level.adjResidualReduction))) {
+        SU2_MPI::Error("ADAP_ADJ_RESIDUAL_REDUCTION must be a finite value > 0" + where, CURRENT_FUNCTION);
       }
       Adap_Levels.push_back(level);
     }

@@ -1302,6 +1302,9 @@ struct CAdapLevel {
   su2double flowCFL{0.0};         /*!< \brief Initial CFL of the flow solve (ADAP_FLOW_CFL, else CFL_NUMBER). */
   su2double residualReduction{0.0}; /*!< \brief Orders of magnitude of residual drop that also stop the flow solve
                                          (ADAP_RESIDUAL_REDUCTION), 0 for none. */
+  unsigned long adjIter{0};       /*!< \brief Adjoint iterations on these meshes (ADAP_ADJ_ITER, else ITER; GOAL loop). */
+  su2double adjResidualReduction{0.0}; /*!< \brief Orders of magnitude of adjoint residual drop that also stop the
+                                            adjoint solve (ADAP_ADJ_RESIDUAL_REDUCTION), 0 for none (GOAL loop). */
 };
 
 /*!
