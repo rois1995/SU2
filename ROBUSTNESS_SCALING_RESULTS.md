@@ -129,8 +129,7 @@ independent exact geometry/topology/reference/target audits (large_t128).
 | 4 | 12 | 1512 | 4.797245 | 204 / 5316 | 28 | 21876 |
 
 These are single samples with different adapted cell/transaction counts. They
-show a useful low-cut control, but repeated partition comparisons and the
-largest passing size are still pending. Raw evidence:
+show a useful low-cut control; repeated partition comparisons remain pending. Raw evidence:
 integration_evidence/robustness_campaign_v8/large_t128/independent_audit.json.
 
 The4096-cell vertical-strip group also passes1/2/4 independently (large_t256):
@@ -142,7 +141,7 @@ The4096-cell vertical-strip group also passes1/2/4 independently (large_t256):
 | 4 | 12 | 2957 | 9.204581 | 175 / 8534 | 11 | 22984 |
 
 No transaction-memory rejection occurred in these six larger cases. The first
-failure/cost boundary and repeated comparisons are still pending.
+failure/cost boundary is reported below; repeated comparisons remain pending.
 
 The8192-cell vertical-strip group passes1/2/4 independently (large_t512):
 
@@ -153,8 +152,8 @@ The8192-cell vertical-strip group passes1/2/4 independently (large_t512):
 | 4 | 12 | 5766 | 28.137930 | 163 / 16012 | 11 | 25636 |
 
 This is the largest independently verified rank-common strip size so far.
-The16384-cell1-rank job is testing the declared240-second cost budget. No
-construction failure is inferred from a timeout. At8192 cells the serial
+The16384-cell1-rank job exceeded the declared240-second cost budget, as reported
+below. No construction failure is inferred from that timeout. At8192 cells the serial
 selection time is7.158s and World collective time is.632s (init+adapt), compared
 with98.936s adaptation. Those counters do not account for every cost, and do
 not profile individual geometry/transaction routines. Source inspection shows
@@ -178,3 +177,47 @@ is prescribed in the protocol. Repeated comparisons use the8192-cell largest
 complete common size. Encoded payload counts include self buckets, and World
 collective counters omit some direct MPI calls/votes; do not interpret them as
 network traffic or a complete communication-time decomposition.
+
+
+## Repeated cyclic ownership — independently verified interim result
+
+All nine layout1 repetitions at8192 input triangles pass independent exact
+orientation/topology/perimeter/area and frozen metric/height/reference checks.
+The auditor used immutable copies of only finished cases, leaving the live
+campaign group and its scheduled final audit untouched. Evidence:
+integration_evidence/partition_layout1_audit_v2/independent_audit.json.
+Raw statistical snapshot: integration_evidence/partition_progress_summary_v1.json.
+
+| Ranks | Samples | Adapt seconds min / median / max | Output cells each | Cross-owner / commits each | Conflicts each |
+|---:|---:|---:|---:|---:|---:|
+| 1 | 3 | 97.988 / 99.516 / 101.773 | 5808 | 0 / 16714 | 0 |
+| 2 | 3 | 94.756 / 95.533 / 115.950 | 5804 | 12806 / 15699 | 346 |
+| 4 | 3 | 52.242 / 52.513 / 53.654 | 5750 | 12172 / 12954 | 2377 |
+
+Within each rank/layout, these repetitions have identical output counts and
+transaction counts. Cyclic ownership is materially more expensive than the
+single vertical low-cut sample at2/4 ranks (52.893/28.138s); repeated low-cut
+controls are required before quantifying the comparison. Rank-dependent output
+and transaction counts still preclude an identical-work speedup claim.
+No memory admissions were rejected in these nine runs.
+
+The failed partition_layout1_audit_v1 contains zero cases: the preliminary copy
+command used a Python method unavailable in installed Python3.8. It never
+examined a mesh. The corrected v2 copied and audited all nine cases successfully.
+Do not classify v1 as a mesher failure.
+
+Host observation during the next horizontal-strip repetition also found a
+foreign two-rank periodic SU2_CFD_AD job running alongside our one-rank probe.
+Our supervisors start each heavy job only after the observed machine is quiet;
+this cannot prevent another user starting a job afterward. No foreign process
+was stopped. All reported timings remain shared-workstation observations.
+
+Measurement gap to close before completion: actual driver logs report
+ReplaceMesh/solution-transfer times on the master rank, without an all-rank MAX.
+Native phase logs report per-phase rank maxima, which cannot be summed into an
+exact remesh wall-clock maximum. Keep those diagnostics distinct from the
+engine probe's measured wall maximum. The final report still needs actual
+remesh and transfer/repartition phase measurements meeting the protocol scope;
+add only the necessary test instrumentation after live binary-pinned campaigns
+finish, then run a separately labelled control rather than changing a binary
+under an active campaign.

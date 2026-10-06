@@ -155,3 +155,20 @@ User grid inspection: see GRID_GUIDE.md. Independently verified8192-cell
 in integration_evidence/grid_gallery_v1. Exact VTU coordinates and SU2 validity
 were checked. A physical-coordinate crop preview is included. Saved integrated
 BL/CGNS controls and the clearly marked prior-baseline NACA result are linked.
+
+
+Interim partition audit: all9 cyclic8192-cell repetitions independently PASS
+(structure and complete target), immutable copied datasets in
+integration_evidence/partition_layout1_audit_v2; snapshot aggregation in
+partition_progress_summary_v1.json. Medians/ranges in results. v1 audit had
+zero cases after a Python3.8 method mismatch; v2 is the successful audit.
+Horizontal controls are running; final27-case audit remains scheduled.
+Observed foreign periodic2-rank AD run overlapped a later serial repetition;
+shared-workstation timing caveat applies, never touch foreign jobs.
+
+Completion measurement gap: ReplaceMesh logs are master-local, not rank MAX;
+per-phase native maxima do not give exact total remesh wall MAX. After the
+binary-pinned campaigns finish, use minimal test-only instrumentation and a
+fresh targeted run to record actual remesh, replacement/repartition, transfer,
+CFD and artifact timing separately. Do not modify/relink a live campaign binary.
+This is required by goal/protocol, not a speculative optimization.
