@@ -106,3 +106,13 @@ objective, per-iteration residuals and final adjoint differences are exactly0.
 All measured point ownerships are unchanged in this continuation fixture.
 This establishes the correction, not partition-independent iteration histories. Production correction is limited to DA mesh swap;
 primal interpolation and its halo field semantics are unchanged.
+
+Measurement scope clarification: World traffic/exchange-work/collective counters
+include engine initialization and adaptation, while adapt_seconds excludes
+initialization and selection_seconds_max measures adaptation selection only.
+The maximum exchange-work counter can include the initial incidence-directory
+transport, which uses no transaction ceiling; a value above2MiB is not itself
+an admitted transaction violation. The probe enlarges a tiled rectangular strip
+at fixed ny=4 and constant target, so boundary size grows with input cells. It
+measures that workload, not a fixed-domain general2D/3D scaling law. Reference
+construction and the SU2 import/transfer/CFD path are outside its timing.

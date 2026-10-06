@@ -85,3 +85,13 @@ Measure which dominates before changing the scheduler or data structures.
 Publish the largest passing tested mesh and the first failure/timeout, with
 hardware/load, source/executable/input hashes, commands and outputs. No general
 large-rank/3D scalability claim follows from1/2/4 measurements.
+
+Measurement scope clarification: World traffic/exchange-work/collective counters
+include engine initialization and adaptation, while adapt_seconds excludes
+initialization and selection_seconds_max measures adaptation selection only.
+The maximum exchange-work counter can include the initial incidence-directory
+transport, which uses no transaction ceiling; a value above2MiB is not itself
+an admitted transaction violation. The probe enlarges a tiled rectangular strip
+at fixed ny=4 and constant target, so boundary size grows with input cells. It
+measures that workload, not a fixed-domain general2D/3D scaling law. Reference
+construction and the SU2 import/transfer/CFD path are outside its timing.
