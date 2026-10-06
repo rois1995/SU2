@@ -42,6 +42,7 @@ def run(label,command,cwd=source,timeout=900,diagnostic=None):
  row=dict(label=label,command=command,working_directory=str(cwd),exit=code,elapsed_seconds=time.monotonic()-begun,verified=passed,expected_diagnostic=diagnostic,log=str(log))
  status['steps'].append(row);status.pop('child_pid',None);save()
  if not passed:raise RuntimeError(label+' failed; preserve and classify before continuing')
+ return row
 save()
 try:
  build=json.loads((root/'native_phase_step_build_v1.json').read_text())

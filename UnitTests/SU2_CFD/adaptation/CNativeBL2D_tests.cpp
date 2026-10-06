@@ -78,7 +78,7 @@ std::vector<std::string> Tags(const CConfig& config, const CGeometry& geometry) 
 }
 }  // namespace
 
-TEST_CASE("Native SU2 BL: moving tangential refinement, coarsening and changed first altitude", "[NativeBL2D]") {
+static void CheckChangingBL(bool stepMetric) {
   World world;
   const bool opposing = GENERATE(false, true);
   const bool conservative = GENERATE(false, true);
@@ -130,7 +130,10 @@ TEST_CASE("Native SU2 BL: moving tangential refinement, coarsening and changed f
     for (unsigned long p = 0; p < metric.rows(); ++p) {
       const auto x = SU2_TYPE::GetValue(geometry.nodes->GetCoord(p, 0));
       const auto normalized = (x - center) / .006;
-      const auto tangential = .014 - .010 * std::exp(-.5 * normalized * normalized);
+      // A nodal step remains a continuous P1 target inside each frozen donor cell.
+      // Both amplitudes match the smooth control; only the spatial variation changes.
+      const auto tangential = stepMetric ? (x < center ? .004 : .014)
+                                         : .014 - .010 * std::exp(-.5 * normalized * normalized);
       metric(p, 0) = 1 / (tangential * tangential);
       metric(p, 1) = 0;
       metric(p, 2) = 1 / (height * height);
@@ -148,10 +151,21 @@ TEST_CASE("Native SU2 BL: moving tangential refinement, coarsening and changed f
           csv << tensors[3 * p] << ',' << tensors[3 * p + 1] << ',' << tensors[3 * p + 2] << '\n';
       }
     }
-    INFO("cycle=" << cycle << ", h0=" << height << ", refinement center=" << center);
+    INFO("cycle=" << cycle << ", h0=" << height << ", refinement center=" << center << ", step=" << stepMetric);
+    const auto acceptedReference = EncodeReference(driver->Reference());
+    const auto acceptedCount = geometry.GetnPoint();
+    std::vector<double> acceptedSolution;
+    for (unsigned long p = 0; p < acceptedCount; ++p)
+      for (unsigned short k = 0; k < 4; ++k)
+        acceptedSolution.push_back(SU2_TYPE::GetValue(driver->Flow().GetNodes()->GetSolution(p, k)));
     const auto result = backend->Remesh(*requested, geometry, metric);
     CHECK(result.status == CRemeshResult::Status::COMPLETE);
     if (result.status != CRemeshResult::Status::COMPLETE) {
+      CHECK(EncodeReference(driver->Reference()) == acceptedReference);
+      REQUIRE(geometry.GetnPoint() == acceptedCount);
+      for (unsigned long p = 0; p < acceptedCount; ++p)
+        for (unsigned short k = 0; k < 4; ++k)
+          CHECK(SU2_TYPE::GetValue(driver->Flow().GetNodes()->GetSolution(p, k)) == acceptedSolution[4 * p + k]);
       // A one-rank diagnostic writes the rejected reader candidate without publishing
       // it to the driver: the old CFD mesh and solution remain the accepted state.
       if (world.size == 1 && std::getenv("SU2_NATIVE_SAVE_AUDIT")) {
@@ -235,6 +249,15 @@ TEST_CASE("Native SU2 BL: moving tangential refinement, coarsening and changed f
     std::remove((name + ".su2").c_str());
     std::remove((name + "_history.csv").c_str());
   }
+}
+
+TEST_CASE("Native SU2 BL: moving tangential refinement, coarsening and changed first altitude", "[NativeBL2D]") {
+  CheckChangingBL(false);
+}
+
+// Opt-in stress: identical heights/transfers/geometry, abrupt moving nodal target.
+TEST_CASE("Native SU2 BL: moving nodal step with changing first altitude", "[NativeBLStep2D][.]") {
+  CheckChangingBL(true);
 }
 
 TEST_CASE("Native SU2 BL: SU2-produced sensor/BL metric and resumed viscous solve", "[NativeProducedBL2D]") {
