@@ -191,7 +191,10 @@ bypassed Output and used the solution in memory. Metric/transfer CSVs are not
 flow snapshots. The fresh production cases integrated_native_production_v2/np{1,2,4} contain
 local input.su2/run.cfg and request actual restart+ParaView conserved/primitive/
 metric fields plus accepted SU2 meshes/reference sidecars. Read v3 state and the
-case evidence for actual output availability. v1 retains the invalid-token parser
+case evidence for actual output availability. Serial cycle0/1 mesh+flow outputs
+now exist; production_available_flow_v1.json pins exact restart/grid pairing and
+positive conserved-state checks (5233/11811 points). This availability proof is
+not completion of the full runtime/target audit matrix. v1 retains the invalid-token parser
 failure. run_template.cfg/prepared.json pin the corrected profile; restart-to-mesh
 mapping self-check passes, actual matrix/nine-target audits are still pending.
 

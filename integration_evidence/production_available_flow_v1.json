@@ -1,0 +1,35 @@
+{
+  "scope": "Availability/pairing of actual completed cycle0/1 outputs while serial lifecycle continues; not full lifecycle or target-audit completion",
+  "runs": [
+    {
+      "cycle": 0,
+      "ranks": 1,
+      "precision": "Float64",
+      "flow": {
+        "points": 5233,
+        "min_density": 0.0017407750902879119,
+        "min_internal_energy_density": 360.91900105267723
+      },
+      "input_files_sha256": {
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_native_production_v2/np1/input.su2": "9094b51c2628d3bb4c865d774b2308dbb59a213ad19c007cfcd7d57e7aaeebeb",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_native_production_v2/np1/solution_adap_00000.dat": "1c4e474d198d84148a98463aa69f8e4719916b2864f879fa0bf1fac54b0a79c5",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_native_production_v2/np1/flow_adap_00000.vtu": "05de5660da732a459621728ec91761fe81b10875bb4cb2d926fa4bda48648df6"
+      }
+    },
+    {
+      "cycle": 1,
+      "ranks": 1,
+      "precision": "Float64",
+      "flow": {
+        "points": 11811,
+        "min_density": 0.0017311863197554845,
+        "min_internal_energy_density": 359.0862311818109
+      },
+      "input_files_sha256": {
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_native_production_v2/np1/mesh_adap_00001.su2": "e81aceced32003a5451ddb2de4ea7db39bdfd47a64cd1ee704abe687d47d8cae",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_native_production_v2/np1/solution_adap_00001.dat": "60dc9c58a3e62ae00cb5f73d86ff69752aa759c246bebe8cbd34be7a917be15b",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_native_production_v2/np1/flow_adap_00001.vtu": "aab578402cab9c0399d1bb3f7509262a97610f166b9b795767bc7589886eac7d"
+      }
+    }
+  ]
+}

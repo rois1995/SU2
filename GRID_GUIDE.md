@@ -101,6 +101,19 @@ before treating any case as completed.
 [Exact config template](integration_evidence/integrated_native_production_v2/run_template.cfg).
 [Sequential runner](integration_evidence/run_native_production_checks_v3.py).
 [Live status](integration_evidence/native_production_chain_v3.json).
+
+Serial cycle0 and cycle1 actual flow files are available now:
+
+- [Flow on initial grid](integration_evidence/integrated_native_production_v2/np1/flow_adap_00000.vtu)
+- [Flow on first adapted grid](integration_evidence/integrated_native_production_v2/np1/flow_adap_00001.vtu)
+- [First accepted grid](integration_evidence/integrated_native_production_v2/np1/mesh_adap_00001.su2)
+- [Actual first-adapted-grid restart](integration_evidence/integrated_native_production_v2/np1/solution_adap_00001.dat)
+
+These are real solution outputs; open VTU in ParaView and select Pressure/Mach.
+Exact double-restart/mesh coordinate pairing and positive density/internal energy
+were checked for both (5233/11811 points), pinned in production_available_flow_v1.
+The complete lifecycle and frozen-P1 target audit matrix are still pending.
+
 The prior v1 folder preserves a config-parser failure (PARAVIEW_BINARY was invalid;
 this branch uses PARAVIEW for binary XML). No solver iterations ran in that attempt.
 
