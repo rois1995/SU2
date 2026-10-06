@@ -157,6 +157,11 @@ protected:
   PrimalPhase RunPrimalPhase(unsigned long nIter);
 
   /*!
+   * \brief Record the primal state with the iteration counters of a fresh discrete adjoint run.
+   */
+  void PreprocessGoalAdjoint();
+
+  /*!
    * \brief Pointers of the driver to the current mesh (config, iteration, solvers, numerics, geometry, integration) and
    *        the state of a new mesh: nothing recorded, direct output reset, counters at 0.
    */

@@ -912,7 +912,7 @@ CDiscAdjSinglezoneDriver::PrimalPhase CDiscAdjSinglezoneDriver::RunPrimalPhase(u
            << std::setprecision(6) << endl;
     }
     if (stop) {
-      phase.converged = true;
+      phase.converged = !direct_output->GetConvergenceInterrupted();
       break;
     }
   }
@@ -922,6 +922,18 @@ CDiscAdjSinglezoneDriver::PrimalPhase CDiscAdjSinglezoneDriver::RunPrimalPhase(u
   phase.CD = SU2_TYPE::GetValue(solver[FLOW_SOL]->GetTotal_CD());
   phase.time = SU2_MPI::Wtime() - startTime;
   return phase;
+}
+
+void CDiscAdjSinglezoneDriver::PreprocessGoalAdjoint() {
+  SU2_ZONE_SCOPED
+
+  /*--- A fresh DA recording starts at iteration 0. Recompute the MUSCL limiter even after LIMITER_ITER.
+   *    MUSCL reconstruction and JST dissipation have no other iteration gates; RAMP_MUSCL is rejected.
+   *    CFL adaptation is off for DA; MGLEVEL= 0 excludes Full-MG CFL ramps. BC_EVAL_FREQ is bypassed for DA
+   *    (engine boundaries are rejected). Fixed-CL, actuator disks and outlet/motion ramps are rejected too. ---*/
+  config->SetInnerIter(0);
+  config->SetOuterIter(0);
+  Preprocess(0);
 }
 
 void CDiscAdjSinglezoneDriver::RunGoalAdaptationLoop() {
@@ -979,6 +991,8 @@ void CDiscAdjSinglezoneDriver::RunGoalAdaptationLoop() {
     passivedouble preBL = 0.0, final = 0.0, J = 0.0, CL = 0.0, CD = 0.0;
     passivedouble primalRes = 0.0, primalDrop = 0.0, adjointRes = 0.0, adjointDrop = 0.0;
     bool primalConverged = false, adjointConverged = false, bracketed = false, warm = false;
+    bool interrupted = false, sensitivities = false;
+    passivedouble sensGeo = 0.0, sensAoA = 0.0, sensMach = 0.0;
     unsigned long goalRejected = 0, goalNonFinite = 0;
     passivedouble goalMinRatio = 0.0;
     passivedouble tPrimal = 0.0, tRecord = 0.0, tAdjoint = 0.0, tMetric = 0.0, tOutput = 0.0, tRemesh = 0.0;
@@ -1033,6 +1047,19 @@ void CDiscAdjSinglezoneDriver::RunGoalAdaptationLoop() {
     direct_output->SetResultFiles(geometry, config, solver, primal.nIter - 1, true);
     row.tOutput = SU2_MPI::Wtime() - tOutput;
 
+    /*--- ConvergenceMonitoring already propagates interruption to every rank. Keep the available files. ---*/
+    row.interrupted = direct_output->GetConvergenceInterrupted();
+    if (row.interrupted) {
+      if (rank == MASTER_NODE)
+        cout << "Goal adaptation interrupted during the primal phase. Primal files saved; stopping before remeshing."
+             << endl;
+      row.rss = CurrentRSS();
+      row.rssMax = CPassiveComm::Allreduce(row.rss, CPassiveComm::Op::MAX);
+      rows.push_back(row);
+      AD::Reset();
+      break;
+    }
+
     /*--- 2. Adjoint phase: main recording of the primal state, fixed-point iterations. ---*/
     nAdjoint_Iter = level ? level->adjIter : nIterRun;
     config->SetnInner_Iter(nAdjoint_Iter);
@@ -1041,22 +1068,43 @@ void CDiscAdjSinglezoneDriver::RunGoalAdaptationLoop() {
     output->SetConvergence(false);
     StopCalc = false;
     auto tPhase = SU2_MPI::Wtime();
-    Preprocess(0);
+    PreprocessGoalAdjoint();
     row.tRecord = SU2_MPI::Wtime() - tPhase;
     tPhase = SU2_MPI::Wtime();
     Run();
     row.tAdjoint = SU2_MPI::Wtime() - tPhase;
     adjointOffset += goalAdjointIters;
     row.adjointIter = goalAdjointIters;
-    row.adjointConverged = output->GetConvergence() || (goalAdjointIters < nAdjoint_Iter);
+    row.interrupted = direct_output->GetConvergenceInterrupted() || output->GetConvergenceInterrupted();
+    row.adjointConverged = !row.interrupted && (output->GetConvergence() || (goalAdjointIters < nAdjoint_Iter));
     row.adjointRes = goalAdjointLast.empty() ? 0.0 : goalAdjointLast.front().second;
     row.adjointDrop = Reduction(goalAdjointMax, goalAdjointLast);
+
+    if (row.interrupted) {
+      tOutput = SU2_MPI::Wtime();
+      output->SetResultFiles(geometry, config, solver, goalAdjointIters > 0 ? goalAdjointIters - 1 : 0, true);
+      row.tOutput += SU2_MPI::Wtime() - tOutput;
+      if (rank == MASTER_NODE)
+        cout << "Goal adaptation interrupted during the adjoint phase. Primal and adjoint files saved; stopping before "
+                "remeshing." << endl;
+      row.rss = CurrentRSS();
+      row.rssMax = CPassiveComm::Allreduce(row.rss, CPassiveComm::Op::MAX);
+      rows.push_back(row);
+      AD::Reset();
+      break;
+    }
 
     /*--- 3. Residual adjoint, the sensitivities on the last cycle, the goal metric (tape off). ---*/
     tPhase = SU2_MPI::Wtime();
     CaptureResidualAdjoint();
     if (last) {
       SecondaryRecording();
+      /*--- As in any DA run, history SENS_GEO is not updated after the last recording. Keep Adap_Iter increasing.
+       *    Report the final solver totals in the summary instead. Total_Sens_AoA is per radian. ---*/
+      row.sensitivities = true;
+      row.sensGeo = SU2_TYPE::GetValue(solver[ADJFLOW_SOL]->GetTotal_Sens_Geo());
+      row.sensAoA = SU2_TYPE::GetValue(solver[ADJFLOW_SOL]->GetTotal_Sens_AoA());
+      row.sensMach = SU2_TYPE::GetValue(solver[ADJFLOW_SOL]->GetTotal_Sens_Mach());
       output->SetVolumeOutputExclusions({});
     }
     if (AD::TapeActive()) AD::StopRecording();
@@ -1108,15 +1156,23 @@ void CDiscAdjSinglezoneDriver::RunGoalAdaptationLoop() {
     table.AddColumn("Primal it", 10);
     table.AddColumn("Adj. it", 10);
     table.AddColumn("Adj. drop", 10);
+    table.AddColumn("Interrupted", 12);
     table.AddColumn("Time [s]", 10);
     table.AddColumn("RSS [MB]", 10);
     table.PrintHeader();
     for (const auto& row : rows) {
       table << row.cycle << row.nPoint << row.requested << row.preBL << row.J << row.primalIter << row.adjointIter
-            << row.adjointDrop << (row.tPrimal + row.tRecord + row.tAdjoint + row.tMetric + row.tOutput + row.tRemesh)
+            << row.adjointDrop << row.interrupted
+            << (row.tPrimal + row.tRecord + row.tAdjoint + row.tMetric + row.tOutput + row.tRemesh)
             << row.rssMax;
     }
     table.PrintFooter();
+    for (const auto& row : rows) {
+      if (row.sensitivities)
+        cout << std::setprecision(16) << "Final sensitivities, cycle " << row.cycle << ": sens_geo " << row.sensGeo
+             << ", sens_aoa (per radian) " << row.sensAoA << ", sens_mach " << row.sensMach
+             << std::setprecision(6) << endl;
+    }
     cout << "Target and pre-BL complexity: of the metric computed on the mesh of the cycle (it makes the next mesh; the "
             "last cycle uses the last level). The geometric sensitivities are computed on the last cycle only." << endl;
 
@@ -1124,7 +1180,7 @@ void CDiscAdjSinglezoneDriver::RunGoalAdaptationLoop() {
     csv << "cycle,points,requested_complexity,preBL_complexity,final_complexity,bracketed,J,CL,CD,primal_iter,"
            "primal_converged,primal_res,primal_drop,adjoint_iter,adjoint_converged,adjoint_res,adjoint_drop,warm_start,"
            "goal_rejected,goal_nonfinite,goal_min_ratio,t_primal,t_record,t_adjoint,t_capture_metric,t_output,"
-           "t_remesh_swap,rss_mb,rss_max_mb\n";
+           "t_remesh_swap,rss_mb,rss_max_mb,interrupted,sens_geo,sens_aoa,sens_mach\n";
     csv << std::setprecision(16);
     for (const auto& row : rows) {
       csv << row.cycle << "," << row.nPoint << "," << row.requested << "," << row.preBL << "," << row.final << ","
@@ -1133,7 +1189,10 @@ void CDiscAdjSinglezoneDriver::RunGoalAdaptationLoop() {
           << row.adjointConverged << "," << row.adjointRes << "," << row.adjointDrop << "," << row.warm << ","
           << row.goalRejected << "," << row.goalNonFinite << "," << row.goalMinRatio << "," << row.tPrimal << ","
           << row.tRecord << "," << row.tAdjoint << "," << row.tMetric << "," << row.tOutput << "," << row.tRemesh
-          << "," << row.rss << "," << row.rssMax << "\n";
+          << "," << row.rss << "," << row.rssMax << "," << row.interrupted << ",";
+      if (row.sensitivities) csv << row.sensGeo << "," << row.sensAoA << "," << row.sensMach;
+      else csv << ",,";
+      csv << "\n";
     }
   }
 }

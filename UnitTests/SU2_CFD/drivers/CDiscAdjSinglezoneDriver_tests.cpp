@@ -53,6 +53,8 @@ namespace {
 class TestDADriver : public CDiscAdjSinglezoneDriver {
  public:
   using CDiscAdjSinglezoneDriver::CDiscAdjSinglezoneDriver;
+  using CDiscAdjSinglezoneDriver::RunPrimalPhase;
+  using CDiscAdjSinglezoneDriver::PreprocessGoalAdjoint;
   CConfig* Config() { return config_container[ZONE_0]; }
   CGeometry* Geometry() { return geometry_container[ZONE_0][INST_0][MESH_0]; }
   CSolver* Flow() { return solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]; }
@@ -76,13 +78,16 @@ struct Mute {
 
 const std::string kName = "da_swap";
 
-std::string CommonOptions() {
+std::string CommonOptions(bool upwind = false) {
   return "SOLVER= EULER\nMACH_NUMBER= 0.5\nAOA= 5.0\n"
          "FREESTREAM_PRESSURE= 101325.0\nFREESTREAM_TEMPERATURE= 288.15\nREF_DIMENSIONALIZATION= DIMENSIONAL\n"
          "MESH_FORMAT= SU2\nMESH_FILENAME= " + kName + ".su2\n"
          "MARKER_FAR= (left, right, upper)\nMARKER_EULER= (lower_a, lower_b)\nMARKER_MONITORING= (lower_a, lower_b)\n"
-         "REF_AREA= 1.0\nREF_LENGTH= 1.0\n"
-         "CONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= (0.5, 0.02)\nTIME_DISCRE_FLOW= EULER_IMPLICIT\n"
+         "REF_AREA= 1.0\nREF_LENGTH= 1.0\n" +
+         (upwind ? "CONV_NUM_METHOD_FLOW= ROE\nMUSCL_FLOW= YES\nSLOPE_LIMITER_FLOW= VENKATAKRISHNAN\n"
+                   "LIMITER_ITER= 1\nFROZEN_LIMITER_DISC= NO\n"
+                 : "CONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= (0.5, 0.02)\n") +
+         "TIME_DISCRE_FLOW= EULER_IMPLICIT\n"
          "NUM_METHOD_GRAD= GREEN_GAUSS\nCFL_NUMBER= 20\nMGLEVEL= 0\n"
          "LINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ITER= 20\nLINEAR_SOLVER_ERROR= 1e-10\n"
          "DISCADJ_LIN_SOLVER= FGMRES\nDISCADJ_LIN_PREC= ILU\n"
@@ -113,11 +118,11 @@ void PreparePrimal() {
   done = true;
 }
 
-std::string WriteAdjointConfig(const std::string& suffix, bool compact) {
+std::string WriteAdjointConfig(const std::string& suffix, bool compact, bool upwind = false) {
   const std::string name = kName + "_" + suffix + ".cfg";
   if (SU2_MPI::GetRank() == MASTER_NODE) {
     std::ofstream cfg(name);
-    cfg << CommonOptions() << "MATH_PROBLEM= DISCRETE_ADJOINT\nOBJECTIVE_FUNCTION= DRAG\nITER= 1\n"
+    cfg << CommonOptions(upwind) << "MATH_PROBLEM= DISCRETE_ADJOINT\nOBJECTIVE_FUNCTION= DRAG\nITER= 1\n"
         << "QUASI_NEWTON_NUM_SAMPLES= 0\nRELAXATION_FACTOR_ADJOINT= 1.0\nCONV_RESIDUAL_MINVAL= -30\n"
         << "COMPUTE_METRIC= YES\nADAP_SENSOR= (GOAL)\nADAP_COMPLEXITY= 1500\nADAP_HMIN= 1e-4\nADAP_HMAX= 1.0\n"
         << "NUM_METHOD_HESS= GREEN_GAUSS\nOUTPUT_FILES= (RESTART)\nWRT_RESTART_COMPACT= " << (compact ? "YES" : "NO")
@@ -240,6 +245,60 @@ bool RestartRoundTrip(TestDADriver& driver, const std::vector<string>& exclusion
 }
 
 }  // namespace
+
+TEST_CASE("Goal recording after LIMITER_ITER matches a fresh discrete adjoint recording", "[GoalSwap]") {
+  PreparePrimal();
+  PointValues primalState;
+  passivedouble objectiveGoal = 0.0, objectiveFresh = 0.0;
+  std::vector<passivedouble> rmsGoal, rmsFresh;
+  unsigned long primalIters = 0, primalInnerIter = 0, recordingInnerIter = 1, recordingOuterIter = 1;
+  {
+    const auto cfg = WriteAdjointConfig("limiter_goal", true, true);
+    Mute mute;
+    TestDADriver driver(const_cast<char*>(cfg.c_str()), 1, SU2_MPI::GetComm());
+    /*--- Run the actual goal-loop primal phase past the limiter freeze. Save U_in, not the recording's U_out. ---*/
+    const auto phase = driver.RunPrimalPhase(6);
+    primalIters = phase.nIter;
+    primalInnerIter = driver.Config()->GetInnerIter();
+    primalState = Gathered(Values(driver.Geometry(), driver.Flow()->GetNodes()->GetSolution()));
+    driver.SetAdjointIterations(1);
+    driver.Config()->SetnInner_Iter(1);
+    /*--- Exercise the recording setup used by RunGoalAdaptationLoop. ---*/
+    driver.PreprocessGoalAdjoint();
+    recordingInnerIter = driver.Config()->GetInnerIter();
+    recordingOuterIter = driver.Config()->GetOuterIter();
+    objectiveGoal = driver.Objective();
+    rmsGoal = AdjointIteration(driver);
+    AD::Reset();
+    driver.Finalize();
+  }
+  {
+    const auto cfg = WriteAdjointConfig("limiter_fresh", true, true);
+    Mute mute;
+    TestDADriver driver(const_cast<char*>(cfg.c_str()), 1, SU2_MPI::GetComm());
+    /*--- A fresh DA driver records the same primal state, including halo points, at its initial counters. ---*/
+    for (auto iPoint = 0ul; iPoint < driver.Geometry()->GetnPoint(); ++iPoint) {
+      const auto& row = primalState.at(driver.Geometry()->nodes->GetGlobalIndex(iPoint));
+      for (unsigned short iVar = 0; iVar < driver.Flow()->GetnVar(); ++iVar)
+        driver.Flow()->GetNodes()->SetSolution(iPoint, iVar, row[iVar]);
+    }
+    driver.Flow()->GetNodes()->Set_OldSolution();
+    driver.SetAdjointIterations(1);
+    driver.Preprocess(0);
+    objectiveFresh = driver.Objective();
+    rmsFresh = AdjointIteration(driver);
+    AD::Reset();
+    driver.Finalize();
+  }
+  CHECK(primalIters == 6);
+  CHECK(primalInnerIter > 1);
+  CHECK(recordingInnerIter == 0);
+  CHECK(recordingOuterIter == 0);
+  CHECK(std::fabs(objectiveGoal - objectiveFresh) <= 1e-12);
+  REQUIRE(rmsGoal.size() == rmsFresh.size());
+  for (auto iVar = 0ul; iVar < rmsGoal.size(); ++iVar)
+    CHECK(std::fabs(rmsGoal[iVar] - rmsFresh[iVar]) <= 1e-12);
+}
 
 TEST_CASE("Discrete adjoint mesh swap: same mesh, next iterations as uninterrupted", "[GoalSwap]") {
   PreparePrimal();
