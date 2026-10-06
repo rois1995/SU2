@@ -601,3 +601,19 @@ The two prepared test-only patches are now applied and normal test build PASS
 and all96 fresh smooth snapshots independently PASS. Native validation closure
 PID621669 continues step/phase/partial/support gates sequentially; verify actual
 native_validation_closure_v1 state before interpreting completion.
+
+
+Fresh compiled abrupt nodal-step BL proof is now COMPLETE: all four one/opposing-
+wall × barycentric/conservative combinations across eight changing-height/center
+cycles pass1/2/4, and all96 independent structure/actual frozen-P1/height/original-
+flat reference audits PASS. The unchanged smooth helper also passes all runtime
+controls and96 fresh independent snapshots. All donor/metric/candidate input pins
+were rechecked. This validates abrupt nodal requests with continuous P1
+interpolation, not cell-discontinuous targets. Consolidated quantitative/pinned
+proof: native_step_support_complete_v1.json.
+
+Exact continuous-adjoint and missing-original-reference support negatives pass
+at1/2/4 (each MPI exit1, exact diagnostic; no timeout/signal accepted as proof).
+These use the extended existing runner, whose positive controls above pass too.
+The measured airfoil phase/field1/2/4 campaign is now active; its proof and partial
+larger/thinner contracts plus actual native+TWO_PASS negatives remain pending.

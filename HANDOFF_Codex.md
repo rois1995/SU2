@@ -300,3 +300,14 @@ committed while the measurement/closure campaign runs; preserve their build pins
 Partial audit CLI returns0 when computation finishes even if residuals remain:
 review both resulting JSON contracts/reference checks explicitly at completion;
 the closure supervisor's exit0 for those commands is not a target pass by itself.
+
+
+Current closure progress: fresh smooth and abrupt nodal-step fixtures each PASS
+MPI1/2/4 and all96 independent original-flat/frozen-P1/height audits (192 total).
+All audited donor/metric/candidate pins rechecked. Exact continuous-adjoint and
+missing-reference diagnostics pass1/2/4 with exit1 (no timeout/signal). Consolidated
+pin: native_step_support_complete_v1.json. Active case at the last check:
+integrated_airfoil_phase_timing_v1/runtime_np1; read its evidence current_run for
+actual rank/cwd. Full phase/field matrix, nine target audits, partial larger/thinner
+contracts and actual native+TWO_PASS rejection remain in the active closure.
+No additional build/source/tool changes are allowed until that handle terminates.

@@ -1,0 +1,38 @@
+{
+  "verified": true,
+  "scope": "Fresh rebuilt smooth and abrupt nodal-step BL controls1/2/4 and192 independent snapshots; exact continuous-adjoint/missing-reference rejection1/2/4; phase/partial/TWO_PASS still pending",
+  "cases": [
+    {
+      "label": "integrated_bl_smooth_v1",
+      "runtime_sha256": "9e716f46113e6fe6e52fed1c43870487feadec8112a39bb00c3f833e4ce054cc",
+      "audit_sha256": "46c1d5a7e546b9b5ffb628e3bd7b24d21119d7d12cd2038c7677613346d61877",
+      "binary_sha256": "839340d6f5f05c89072b1efa35831ebbf0e716f74b9a16e0313fbb701304832d",
+      "min_quality": 0.2408091374165786,
+      "max_length": 1.6490232778279414,
+      "max_relative_height_error": 4.440892098500626e-16,
+      "all_input_pins_rechecked": true
+    },
+    {
+      "label": "integrated_bl_step_v1",
+      "runtime_sha256": "c5f8940be4252b411cb7b6778819b8933179fea39db168a4298f7365d5fc4073",
+      "audit_sha256": "bf86ff810f5f34d03703296ea6506cdf7d9ed8153e6e6a8fcc96d21834acc8a8",
+      "binary_sha256": "839340d6f5f05c89072b1efa35831ebbf0e716f74b9a16e0313fbb701304832d",
+      "min_quality": 0.3912636548623356,
+      "max_length": 1.6950870183067561,
+      "max_relative_height_error": 4.440892098500626e-16,
+      "all_input_pins_rechecked": true
+    },
+    {
+      "label": "native_unsupported_derivative_v1",
+      "evidence_sha256": "561536fbe49896cfc4fbc7b3c1148bca3247c05a7939b32cbf54675a0ed7da60",
+      "expected_diagnostic": "Native adaptation does not support continuous or discrete adjoint configurations.",
+      "all_three_nonsignal_error_exits": 1
+    },
+    {
+      "label": "native_missing_restart_reference_v1",
+      "evidence_sha256": "fdf9c7d0b5860ab9fce825bab1c3d7484e5d916925c3d33839162669b544eb6d",
+      "expected_diagnostic": "Native solution restart requires the original geometry sidecar:",
+      "all_three_nonsignal_error_exits": 1
+    }
+  ]
+}
