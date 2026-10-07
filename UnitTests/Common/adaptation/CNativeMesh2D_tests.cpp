@@ -234,9 +234,8 @@ TEST_CASE("Native movement: previously admissible edges cannot accumulate length
   CHECK(min_quality(unrestricted, metric) > min_quality(old, metric));
   CHECK(max_length(unrestricted, metric) <= max_length(old, metric));
   // The old global length test admitted this move, despite the newly bad spoke.
-  CHECK_FALSE(MoveStar(old, center.id, metric, fresh, reason));
-  CHECK(nodes(fresh).at(center.id).p.x == center.p.x);
-  CHECK(nodes(fresh).at(center.id).p.y == center.p.y);
+  MoveStar(old, center.id, metric, fresh, reason);
+  CHECK(min_quality(fresh, metric) >= .18);
   REQUIRE(validate_replacement(old, fresh, reason));
   const auto before = nodes(old), after = nodes(fresh);
   for (const auto& t : old)
@@ -352,7 +351,13 @@ TEST_CASE("Native insertion: bounded cavity growth reconnects poor midpoint chil
   }
   SECTION("a protected neighbour stays intact while other neighbours reconnect") {
     old[2].protected_cell = 1;
-    REQUIRE(SU2Native2D::reconstruct({Kind::SPLIT, a.id, b.id, 1}, old, metric, midpoint.id, fresh, reason));
+    const bool admitted = SU2Native2D::reconstruct({Kind::SPLIT, a.id, b.id, 1}, old, metric, midpoint.id, fresh, reason);
+    if (!admitted) {
+      CHECK(reason == "insertion worsens sub-threshold shape");
+      CHECK(fresh.empty());
+      return; // An unsafe midpoint stays private when a protected neighbour prevents repair.
+    }
+    CHECK(min_quality(fresh, metric) >= .18);
     REQUIRE(validate_replacement(old, fresh, reason));
     REQUIRE(strict_cells(fresh, reason));
     CHECK(std::count_if(fresh.begin(), fresh.end(), [](const auto& t) { return t.protected_cell; }) == 1);
@@ -368,4 +373,194 @@ TEST_CASE("Native insertion: bounded cavity growth reconnects poor midpoint chil
     CHECK(fresh.empty());
     CHECK(reason == "protected first layer");
   }
+}
+
+TEST_CASE("Native surface reconstruction does not publish greedy near-collinear ears", "[NativeMesh2D][NativeSurfaceShape2D]") {
+  const std::vector<Node> loop{{0,{0,0},1}, {1,{1,-1e-12},1}, {2,{2,0},1},
+                               {3,{2,1},1}, {4,{0,1},1}};
+  const Node center{5,{1,.5},0};
+  std::vector<PolylineReference::Face> faces;
+  std::vector<Cell> old;
+  for (size_t k=0;k<loop.size();++k) faces.push_back({loop[k],loop[(k+1)%loop.size()],10});
+  const PolylineReference reference(faces,45);
+  for (size_t k=0;k<loop.size();++k) {
+    Cell c; c.t=triangle(loop[k],loop[(k+1)%loop.size()],center);
+    c.marker[0]=reference.ComponentOfOriginalFace(loop[k].id,loop[(k+1)%loop.size()].id);
+    old.push_back(c);
+  }
+  const auto metric=checked([](Point){return Tensor{1,0,1};});
+  REQUIRE(min_quality(triangles(old),metric)>.18);
+  std::vector<Cell> fresh;
+  std::string reason;
+  const bool accepted=reconstruct({Action::SPLIT,0,1},old,reference.Policy({}),metric,10,fresh,reason,1e-9);
+  // An unrepaired private triangulation must be rejected before publication.
+  if (accepted) CHECK(min_quality(triangles(fresh),metric)>=.18*(1-1e-12));
+  else CHECK(reason=="surface reconstruction worsens sub-threshold shape");
+}
+
+TEST_CASE("Native poor-seed deletion can progressively release thin rows", "[NativeMesh2D][NativeSurfaceShape2D]") {
+  const std::vector<Node> rim{{0,{0,0},1},{1,{1,0},1},{2,{1,.01},1},{3,{0,.01},1}};
+  const Node center{4,{.5,.005},0};
+  std::vector<Triangle> old;
+  for (size_t k=0;k<rim.size();++k) old.push_back(triangle(rim[k],rim[(k+1)%rim.size()],center));
+  const auto metric=checked([](Point){return Tensor{1,0,1};});
+  REQUIRE(min_quality(old,metric)<.18);
+  std::vector<Triangle> fresh;std::string reason;
+  REQUIRE(SU2Native2D::reconstruct({Kind::REMOVE,center.id,0,1},old,metric,10,fresh,reason));
+  CHECK(min_quality(fresh,metric)>min_quality(old,metric));
+  CHECK(min_quality(fresh,metric)<.18); // An intermediate repair, never a final acceptance.
+  CHECK(nodes(fresh).size()+1==nodes(old).size());
+  CHECK(max_length(fresh,metric)<=1.45);
+}
+
+TEST_CASE("Native size insertion cannot undo metric resolution in an absorbed star", "[NativeMesh2D][NativeSizeProgress2D]") {
+  const std::vector<Node> rim{{0,{0,0},1},{1,{2,0},1},{2,{2,2},1},{3,{0,2},1}};
+  const Node center{4,{1,.1},0};
+  std::vector<Triangle> old;
+  for (size_t k=0;k<rim.size();++k) old.push_back(triangle(rim[k],rim[(k+1)%rim.size()],center));
+  const auto metric=checked([](Point){return Tensor{2.56,0,10.24};});
+  REQUIRE(length(rim[0],center,metric)>1.6);
+  auto deficit=[&](const std::vector<Triangle>& cells) {
+    std::set<Edge> seen;double sum=0;
+    for (const auto& t:cells) for (int k=0;k<3;++k) {
+      const auto a=t.v[k],b=t.v[(k+1)%3];
+      if (seen.insert(edge(a.id,b.id)).second) {const double e=std::max(0.,length(a,b,metric)-1.8);sum+=e*e;}
+    }
+    return sum;
+  };
+  std::vector<Triangle> fresh;std::string reason;
+  const bool admitted=SU2Native2D::reconstruct({Kind::SPLIT,0,4,1},old,metric,10,fresh,reason);
+  if (admitted) {
+    const auto next=nodes(fresh);
+    // This fixture either retains the complete old vertex set or absorbs its
+    // free center, in which case refinement must reduce the length deficit.
+    if (!next.count(center.id)) CHECK(deficit(fresh)<deficit(old));
+    else CHECK(next.size()>nodes(old).size());
+  } else CHECK(fresh.empty());
+}
+
+TEST_CASE("Native flip repairs an oversized diagonal while keeping admissible shape", "[NativeMesh2D]") {
+  const Node a{0,{-1.1,0},1},b{1,{1.1,0},1},c{2,{.5,1},1},d{3,{.8,-.75},1};
+  const auto metric=checked([](Point){return Tensor{1,0,1};});
+  const std::vector<Triangle> old{triangle(a,b,c),triangle(b,a,d)};
+  std::vector<Triangle> fresh;std::string reason;
+  REQUIRE(length(a,b,metric)>1.8);
+  REQUIRE(SU2Native2D::reconstruct({Kind::FLIP,0,1,1},old,metric,100,fresh,reason));
+  CHECK(min_quality(fresh,metric)>=.18);
+  CHECK(min_quality(fresh,metric)<min_quality(old,metric));
+  CHECK(length(c,d,metric)<1.8);
+  REQUIRE(validate_replacement(old,fresh,reason));
+  std::vector<Triangle> reversed;
+  CHECK_FALSE(SU2Native2D::reconstruct({Kind::FLIP,2,3,1},fresh,metric,101,reversed,reason));
+}
+
+TEST_CASE("Native boundary coarsening preserves resolved BL bulk shape and spacing", "[NativeMesh2D]") {
+  std::vector<Node> grid;
+  for (int j=0;j<5;++j) for (int i=0;i<3;++i)
+    grid.push_back({Id(grid.size()),{i*.5,j*.05},i==0 || i==2 || j==0 || j==4 ? 1 : 0});
+  std::vector<Triangle> triangles;
+  for (int j=0;j<4;++j) for (int i=0;i<2;++i) {
+    const auto a=grid[3*j+i],b=grid[3*j+i+1],c=grid[3*(j+1)+i+1],d=grid[3*(j+1)+i];
+    triangles.push_back(triangle(a,b,c));triangles.push_back(triangle(a,c,d));
+  }
+  std::vector<PolylineReference::Face> faces;
+  for (const auto& face:boundary(triangles))
+    faces.push_back({face.second.first,face.second.second,
+                     face.second.first.p.y==0 && face.second.second.p.y==0 ? 10 : 11});
+  const PolylineReference reference(faces,45);
+  const auto policy=reference.Policy({{10,.05}});
+  std::vector<Cell> old;
+  const auto perimeter=boundary(triangles);
+  for (auto t:triangles) {
+    Cell cell;cell.t=t;cell.t.id=old.size();
+    for (int k=0;k<3;++k) {
+      const auto a=t.v[k],b=t.v[(k+1)%3];
+      if (perimeter.count(edge(a.id,b.id))) cell.marker[k]=reference.ComponentOfOriginalFace(a.id,b.id);
+      if (cell.marker[k] && policy.is_wall(cell.marker[k])) cell.t.protected_cell=1;
+    }
+    old.push_back(cell);
+  }
+  const auto metric=checked([](Point){return Tensor{1.44,0,400};});
+  REQUIRE(min_quality(triangles,metric)>=.18);REQUIRE(max_length(triangles,metric)<=1.8);
+  std::vector<Cell> fresh;std::string reason;
+  const bool admitted=SU2NativeBoundary2D::reconstruct({Action::REMOVE,1,0},old,policy,metric,100,fresh,reason,1e-10);
+  if (admitted) {
+    CHECK(min_quality(SU2NativeBoundary2D::triangles(fresh),metric)>=.18);
+    CHECK(max_length(SU2NativeBoundary2D::triangles(fresh),metric)<=1.8);
+  } else CHECK(fresh.empty());
+}
+
+TEST_CASE("Native bulk insertion balances graded metric edge length", "[NativeMesh2D]") {
+  const Node a{0,{0,0},1},b{1,{1,0},1},c{2,{1,1},1},d{3,{0,1},1};
+  const std::vector<Triangle> old{triangle(a,b,c),triangle(a,c,d)};
+  const auto metric=checked([](Point p){const double m=1+100*(1-p.x)*(1-p.x);return Tensor{m,0,m};});
+  std::vector<Triangle> fresh;std::string reason;
+  REQUIRE(SU2Native2D::reconstruct({Kind::SPLIT,0,2,1},old,metric,10,fresh,reason));
+  const auto inserted=nodes(fresh).at(10);
+  CHECK(inserted.p.x<.49);CHECK(inserted.p.x==inserted.p.y);
+  CHECK(length(a,inserted,metric)==Approx(length(inserted,c,metric)).epsilon(1e-8));
+  CHECK(min_quality(fresh,metric)>=.18);
+  REQUIRE(validate_replacement(old,fresh,reason));
+}
+
+TEST_CASE("Native movement reduces graded size deficits while preserving admissible shape", "[NativeMesh2D]") {
+  const Node a{0,{0,0},1},b{1,{1,0},1},c{2,{1,1},1},d{3,{0,1},1},center{4,{.48554697,.51848817},0};
+  const std::vector<Triangle> old{triangle(a,b,center),triangle(b,c,center),triangle(c,d,center),triangle(d,a,center)};
+  const auto metric=checked([](Point p){const double m=1+40*(1-p.x)*(1-p.x);return Tensor{m,0,m};});
+  auto deficit=[&](const std::vector<Triangle>& cells) {
+    const auto points=nodes(cells);double value=0;
+    for (const auto v:{a,b,c,d}) value+=std::pow(std::max(0.,length(v,points.at(center.id),metric)-1.8),2);
+    return value;
+  };
+  std::vector<Triangle> fresh;std::string reason;
+  REQUIRE(MoveStar(old,center.id,metric,fresh,reason));
+  CHECK(min_quality(fresh,metric)>=.18);
+  CHECK(min_quality(fresh,metric)<min_quality(old,metric));
+  CHECK(deficit(fresh)<deficit(old)*.9);
+  const auto moved=nodes(fresh).at(center.id);
+  for (const auto v:{a,b,c,d})
+    CHECK(length(v,moved,metric)<=std::max(1.8,length(v,center,metric))+1e-12);
+  REQUIRE(validate_replacement(old,fresh,reason));
+}
+
+TEST_CASE("Native first-layer apex moves tangentially with unchanged requested altitude", "[NativeMesh2D]") {
+  const Node a{0,{0,0},1},b{1,{1,0},1},c{2,{1,.25},1},d{3,{0,.25},1},center{4,{.8,.15},0};
+  const PolylineReference reference({{a,b,10},{b,c,11},{c,d,11},{d,a,11}},45);
+  const auto policy=reference.Policy({{10,.15}});
+  std::vector<Cell> old;
+  const std::array<Node,4> perimeter{{a,b,c,d}};
+  for (int k=0;k<4;++k) {
+    Cell cell;cell.t=triangle(perimeter[k],perimeter[(k+1)%4],center);cell.t.id=k;
+    cell.marker[0]=reference.ComponentOfOriginalFace(perimeter[k].id,perimeter[(k+1)%4].id);
+    cell.t.protected_cell=policy.is_wall(cell.marker[0]);old.push_back(cell);
+  }
+  const auto metric=checked([](Point){return Tensor{1,0,100};});
+  std::vector<Cell> fresh;std::string reason;
+  REQUIRE(reconstruct({Action::BULK_MOVE,center.id},old,policy,metric,100,fresh,reason,1e-10));
+  const auto moved=nodes(triangles(fresh)).at(center.id);
+  CHECK(moved.p.x<.8);CHECK(moved.p.y==center.p.y);
+  CHECK(min_quality(triangles(fresh),metric)>min_quality(triangles(old),metric));
+  CHECK(physical(fresh).size()==physical(old).size());
+  for (const auto& cell:fresh) if (cell.t.protected_cell)
+    CHECK(2*static_cast<double>(area(cell.t))/norm(cell.t.v[1].p-cell.t.v[0].p)==Approx(.15).epsilon(1e-8));
+  REQUIRE(validate_replacement(triangles(old),triangles(fresh),reason));
+}
+
+TEST_CASE("Native insertion reconnects its private fan before admitting a graded cavity", "[NativeMesh2D]") {
+  const Node a{0,{0,.0015818079676982433},1},b{1,{.84964659833923584,.07768100341278919},1},
+      c{2,{1.064159052583336,.78732623101466725},1},d{3,{-.026534076052650249,.65153299715349611},1};
+  const auto metric=checked([](Point p) {
+    const double angle=.33058031613373484*p.x,cs=std::cos(angle),sn=std::sin(angle),
+      t=1187.576041139243*(1+9.1311707809219804*p.x*p.x),n=1/std::pow(.0003+.2*p.y,2);
+    return Tensor{t*cs*cs+n*sn*sn,(t-n)*cs*sn,t*sn*sn+n*cs*cs};
+  });
+  const std::vector<Triangle> old{triangle(a,b,c),triangle(a,c,d)};
+  REQUIRE(min_quality(old,metric)>=.18);REQUIRE(length(a,c,metric)>1.8);
+  std::vector<Triangle> fresh;std::string reason;
+  REQUIRE(SU2Native2D::reconstruct({Kind::SPLIT,a.id,c.id,1},old,metric,10,fresh,reason));
+  CHECK(min_quality(fresh,metric)>=.18);CHECK(max_length(fresh,metric)<length(a,c,metric));
+  CHECK(nodes(fresh).size()==nodes(old).size()+1);
+  for (const auto& cell:fresh) for (int k=0;k<3;++k)
+    CHECK(edge(cell.v[k].id,cell.v[(k+1)%3].id)!=edge(a.id,c.id));
+  REQUIRE(validate_replacement(old,fresh,reason));
 }

@@ -1,5 +1,6 @@
 {
-  "binary_sha256": "0ad3511a27edc7a1c7a299c800ded41df9971e02e413f17628fcd9fc127a1a04",
+  "archived_binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cross_grid_build_v31/SU2_CFD",
+  "binary_sha256": "449bca7c124990a12c0f95f3c4d87ce94e2d100e9148b0b4e5a7e6276a5dbe85",
   "source_sha256": {
     "Common/include/CConfig.hpp": "00a4b668a595c9020da404293db5a49f9b628d3064de50958b6e9b17ef4fc587",
     "Common/include/adaptation/CAccurateSum.hpp": "a60949e5bb35a9448f1f0224149fa80294b6f8648a6300684725a1d4525c7021",
@@ -8,16 +9,16 @@
     "Common/include/adaptation/CDistributedSearch.hpp": "4717309f6d97a8c58ec19545c131e263f8cfaea9a8ea801620ac7d06fd27a812",
     "Common/include/adaptation/CMMGInterface.hpp": "3292bfcb2b9ba3c75f2522470b6cc71e876edc1f05369d4d1d07d4af3e251cde",
     "Common/include/adaptation/CMeshGather.hpp": "ecd2e071c531d0a599953a87a481a1bc4f61c977ef4d50d610673b14c2ac35d7",
-    "Common/include/adaptation/CNativeBoundary2D.hpp": "4c7eca9547078cb098bfdaef2f206094638242c4404f753b295cdcedaedefd3a",
+    "Common/include/adaptation/CNativeBoundary2D.hpp": "2cad241badcb07de004ea0a4e45ddc4fe55c0219a7048a11e659f29c30333585",
     "Common/include/adaptation/CNativeDistributed2D.hpp": "dd136c028c9a8a58017862d99230c75d99cacd3305426636066ac76a5c5df4ad",
-    "Common/include/adaptation/CNativeEngine2D.hpp": "c32103ac87bc0a0edda7a88be52014cb46574709d8ca2d33bf0d1a8fff0df7c0",
-    "Common/include/adaptation/CNativeField2D.hpp": "ed75865ee5b238deec4986b5ba116b8ea8c823f2044d6e922d6f36dc0f5cb37c",
+    "Common/include/adaptation/CNativeEngine2D.hpp": "70ef212ca7bf10d9c76ff0597b085ea004c25c9fc43f3628befefd00305244dd",
+    "Common/include/adaptation/CNativeField2D.hpp": "0ffd393f70b3beb4bb64f4a3a7a76da1e9be7e9c8b882295f9ce97653b86dacd",
     "Common/include/adaptation/CNativeGeometryValidation2D.hpp": "3ffc3b8064e35ef3380074449c43c11910be24a50c1956609ff3fd1ff3aecac7",
-    "Common/include/adaptation/CNativeImport2D.hpp": "4903c6cec4d2816675528ea3a637780390a111e16c1479f90fa217a99fd36b0b",
-    "Common/include/adaptation/CNativeMesh2D.hpp": "45f65f405e60c27019fc7f1ca8ff3994f4970f8a32f25ecfa3b299a5275cb07c",
+    "Common/include/adaptation/CNativeImport2D.hpp": "3271fb088d02b734e45f564cbbdf6f7f6feee85993a206864d7491149b7d2acb",
+    "Common/include/adaptation/CNativeMesh2D.hpp": "d3df15cd505efc4dba37ab2b77bd89598e8d4cfb3368c879339ab7ca8b4d1b64",
     "Common/include/adaptation/CNativeReference2D.hpp": "a5521dd75c13639522c03ce0b4063295de9956897dbb31b50ba324ad8fc027cb",
     "Common/include/adaptation/CNativeReferenceIO.hpp": "f29049f2a1f6e57a77f47b672e4fb985bf89424e4089b533b69d626cf7f15a5f",
-    "Common/include/adaptation/CNativeRemesher.hpp": "2ddf72c835229c3d0378c098dc6011f533727407a1f2f701e7925772df02577f",
+    "Common/include/adaptation/CNativeRemesher.hpp": "772cce8a8b97528c4b3a6851e90dc1dbc4c5eed83b9a9a079af4990dda41a465",
     "Common/include/adaptation/CReaderSlices.hpp": "cc5348193160e1e4493346199192931c7caee2901772d9ebd0d7d5bafe7f9a95",
     "Common/include/adaptation/CRemesher.hpp": "b5c80c5f1dc8fa63fe70094366d7ab5578fa77b2c97140b15a50be2fb65cdb28",
     "Common/include/adaptation/CSimplexMesh.hpp": "20c3077ad5c0e3aee8446f725eb04c0288c779c47061b5a5726e5abf697fc0e8",
@@ -166,7 +167,7 @@
     "Common/src/adaptation/CMMGInterface.cpp": "712322461ad187397d3bd7a59ae593232d82c9fed01e0028a5098dabd6e006ef",
     "Common/src/adaptation/CMeshGather.cpp": "aca73740dee5336df7f43626be095894c61461700e2b01e25c8a3194bcb84b49",
     "Common/src/adaptation/CNativePredicates2D.cpp": "94c538f5700d5bcb1bfcfd4be4bd78f06bfacc9b07a583622ea76e8146eb2c2b",
-    "Common/src/adaptation/CNativeRemesher.cpp": "32a773913f6c3b2ab17108f16c94ef76f085d6e273674a9738220b27c245f258",
+    "Common/src/adaptation/CNativeRemesher.cpp": "a59a2082602415b75e5b57116f9d815ff0ef67764b48beecf5764d76f677e46f",
     "Common/src/adaptation/CReaderSlices.cpp": "3e15ad735b2332cf0697eb63315310d9fb92bd26f48f00fef7116d67cbf2c1f2",
     "Common/src/adaptation/CTransferMemory.cpp": "b5ec2cf817d1bba837c37f2d4d2ef2df4d18cff1289ddc8e2cc217d2d52ffb37",
     "Common/src/adaptation/meson.build": "4954b2b80ba9c0c9b45eb7c1dd56088ef2f27b4c145c1841e49bbc560ac69b5f",
@@ -312,7 +313,7 @@
     "SU2_CFD/include/adaptation/CAdapSensors.hpp": "02b3741d2ca1e811405a71be4a95591a53664c4bcaf5d9573f52452cd67ab129",
     "SU2_CFD/include/adaptation/CAdjointTransfer.hpp": "c6e4855c3397664a8ea8e535d5326a687d399df715d12645b714404bfa0d0806",
     "SU2_CFD/include/adaptation/CBarycentricTransfer.hpp": "75fea2924aacac13e418d8593d8b2a6c74cd0a7d12cf6019a28b9ff2c1560da0",
-    "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "47409898ea11938db144e20b0b289a0ca9d74d32fcae5118316c6a91566c7fb2",
+    "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "1312e24b9d8b23e7566e7ebe6f30f09cd0a13a710abcbd6306a6f596dccb60b9",
     "SU2_CFD/include/adaptation/CBoundaryLayerRemesher.hpp": "576031a7bc4ca9cda01d7fa3b0c6fd81f1c914db5cc5efcb44d0e1d682c537f8",
     "SU2_CFD/include/adaptation/CConservativeTransfer.hpp": "ea58d0bb25d4bba0078326d00f927911f9332d87cb6481724d437ab7252e6d46",
     "SU2_CFD/include/adaptation/CDistributedLocator.hpp": "c06a08c4addf4d46a3d2b2305c4f73510d97d849265f44211a6d6d40f10f6c49",
@@ -567,7 +568,7 @@
     "SU2_CFD/src/adaptation/CAdapSensors.cpp": "9dd2e7bcdc6643785f6021697bb4094248476c3d1a4c09995af5eeb39af72072",
     "SU2_CFD/src/adaptation/CAdjointTransfer.cpp": "2106a0c3fcf5da494a6e8afe4ebb8408806f4f4a717229f0d36cb8b6633ca228",
     "SU2_CFD/src/adaptation/CBarycentricTransfer.cpp": "32ab57c75c645fd4f85abcb1a8b16ea2845a276d673052abd7ccb5ceec5778fe",
-    "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "96439afdd715a299b6535626e11f6295860c5765e408165154e759a02c41092f",
+    "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "456827d88fba1a3ab18c776fbab98fe32ce2648ece76f2db9c4509c758e49dd3",
     "SU2_CFD/src/adaptation/CBoundaryLayerRemesher.cpp": "e48db6f050fd9c3ccb8044a4ba59b535416635c09392912aa6ad25dbfc830fee",
     "SU2_CFD/src/adaptation/CConservativeTransfer.cpp": "9da510e846516899f222b5421d72e09fd05d89e978f8d592c02003c63604fee2",
     "SU2_CFD/src/adaptation/CDistributedLocator.cpp": "303d0e7ace73822c104174cdf39e95029f054a5ff421de8191b75405ab000098",
@@ -585,7 +586,7 @@
     "SU2_CFD/src/drivers/CDriverBase.cpp": "68e19b21c952900bda0e238fea6c9fb46f1a8021c1773445a2de03b18eced288",
     "SU2_CFD/src/drivers/CDummyDriver.cpp": "759231fad66a74e841f039cbbf13b233a2b908d06ffa37c5df832ba79cc59bf8",
     "SU2_CFD/src/drivers/CMultizoneDriver.cpp": "11ddf68d83a016a1a82dcdaf7dad518e6a7580c758e88ce42c47c17e21a1531a",
-    "SU2_CFD/src/drivers/CSinglezoneDriver.cpp": "3d7d2971e8324fcb0c136368d403b7dc3a402a778fc11a0667b8c548944e5a70",
+    "SU2_CFD/src/drivers/CSinglezoneDriver.cpp": "ed8822e504d619561e4385a8ebb42f578f89bfb5bf1c2ce3a61a08808d5c55ac",
     "SU2_CFD/src/fluid/CCoolProp.cpp": "ed4a2de23c2a1b1a168a99ed138a8f9cf64bddde4964e37e35407f0877a0b127",
     "SU2_CFD/src/fluid/CDataDrivenFluid.cpp": "1e8dfc746bde174d3d4aa78c8d8a2a8b0b64a700315c188a826944a01000e705",
     "SU2_CFD/src/fluid/CFluidFlamelet.cpp": "136c6a77ee91f8557af0ccd66370e161c2aef3eff74ff5bdb6ca536cdb1413cd",
@@ -719,7 +720,7 @@
     "SU2_CFD/src/solvers/CPoissonSolver.cpp": "83c8718e3a88c73535daa71d118f2ab26594373eacd5fd07aee13543f032798e",
     "SU2_CFD/src/solvers/CRadP1Solver.cpp": "fd024d11f8aca5f9dfb80469cdc599e34ce444530bcb71da748d56c6900e568f",
     "SU2_CFD/src/solvers/CRadSolver.cpp": "4283823568537c4bf8505ce49e965e2b26df3c456dd5d078a1f0040a90f8b289",
-    "SU2_CFD/src/solvers/CSolver.cpp": "fb785b3f05d7af90c6c351523f5bf6dd4086f2f0dedce47f8c15a36aee9d9e33",
+    "SU2_CFD/src/solvers/CSolver.cpp": "bf3810d8042549e39054d6bcfcdbc9e7ccf79506907d310eadfc83e49c9eb915",
     "SU2_CFD/src/solvers/CSolverFactory.cpp": "cb403413726d5987d2c01d49baee749174f955ae2e83869abb793f3e81968c8e",
     "SU2_CFD/src/solvers/CSpeciesFlameletSolver.cpp": "b11bb578286ebd75acf2dda95e462167f2dad33371da39beb1e079af7cf74ba8",
     "SU2_CFD/src/solvers/CSpeciesSolver.cpp": "c3c40bd6c012c5370b1e84a27136a8780ec0b41285226df7fd13c30eac800057",
@@ -761,28 +762,7 @@
     "SU2_CFD/src/variables/CTurbVariable.cpp": "8058a90b1e40115ec3743ca904aa25ac2abcdaa91956841fe9f1b483330b6db5",
     "SU2_CFD/src/variables/CVariable.cpp": "303b32f86aa7bc2a14f9ddbdf7b2d50a0183bcb767b119bb5d3eb60a2115f799"
   },
-  "changed_production_sources": [
-    "Common/include/adaptation/CNativeRemesher.hpp",
-    "Common/src/adaptation/CNativeRemesher.cpp"
-  ],
-  "test_driver_sha256": "e01f1157893965a2b440f69d5fe70b5e3e4535ee9aaf4e244bb5e74cce2c12be",
-  "fixture_sha256": "b48e13ceb06eb0d21ce3159c0014694dcad7700b9c9a0cf80c7424da23873646",
-  "build_command": [
-    "ninja",
-    "-C",
-    "integration_evidence/build-integrated-v2",
-    "-j2",
-    "SU2_CFD/src/SU2_CFD",
-    "UnitTests/test_driver"
-  ],
-  "build_exit": 0,
-  "negative_fixture_evidence": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_rejected_output_v1/evidence.json",
-  "binary_retention": {
-    "status": "superseded executable removed at user request",
-    "removed_paths": [
-      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_rejected_build_v1/SU2_CFD"
-    ],
-    "cleanup_inventory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/cleanup_20261007/inventory.json",
-    "note": "Historical run results and binary hashes are retained; these removed executables are no longer directly replayable. Source snapshots, logs, and simulation outputs are retained."
-  }
+  "source_revision": "73708f67223dca0cb5e640d968d97d0bb82d8de3",
+  "scope": "Remove temporary tracing/capture and unused experiment; native algorithms, target and acceptance gates retained.",
+  "test_driver_sha256": "eadbcd87fb51c059858153c295af9151e6c66b9bdbdcc3fe5a574ade85868e20"
 }

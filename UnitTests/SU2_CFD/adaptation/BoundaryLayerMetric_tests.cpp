@@ -557,3 +557,42 @@ TEST_CASE("Boundary-layer metric of a sphere 3D", "[Adaptation]") {
   CHECK(nLayer > 20);
   CHECK(nOut > 20);
 }
+
+TEST_CASE("Boundary layer point queries share the batch intersection and floor", "[BoundaryLayerMetric][NativeComposite2D]") {
+  CBoundaryLayerMetric layers(2, {FlatWall2D({0., 1., 2.}, 1e-5, 1.2, .02)}, 45);
+  std::vector<su2double> coord{.5, 0, .5, .001, .5, .019, .5, .1};
+  std::vector<Tensor> batch(4), points(4);
+  for (auto* field : {&batch, &points})
+    for (auto& m : *field) {m.m[0][0]=100; m.m[0][1]=m.m[1][0]=1; m.m[1][1]=400;}
+  layers.Apply(coord, batch, 1);
+  for (size_t k=0; k<points.size(); ++k) {
+    layers.ApplyPoint(&coord[2*k], points[k], 1);
+    CheckTensor(2, points[k], batch[k]);
+  }
+  CHECK(points[0].m[1][1] == Approx(1e10));
+  CHECK(points[1].m[1][1] < 1e8);
+  CHECK(points[3].m[1][1] == 400);
+}
+
+TEST_CASE("Native BL query preserves sensor intersection across the legacy floor switch", "[BoundaryLayerMetric][NativeComposite2D]") {
+  const double h0=1e-5,growth=1.2,L=.01,band=CBoundaryLayerMetric::floorFraction*L;
+  CBoundaryLayerMetric layers(2,{FlatWall2D({0,L},h0,growth,.02)});
+  auto at=[&](double distance,bool floor) {
+    const su2double coord[2]={L*.5,distance};Tensor m;m.m[0][0]=1e8;m.m[1][1]=1;
+    layers.ApplyPoint(coord,m,1,nullptr,floor);return m;
+  };
+  const double below=band-1e-12,above=band+1e-12;
+  const auto legacyBelow=at(below,true),legacyAbove=at(above,true);
+  // A smooth sensor and flat wall previously gave a 10,000-fold jump.
+  CHECK(legacyAbove.m[0][0]>legacyBelow.m[0][0]*1000);
+  const auto nativeBelow=at(below,false),nativeAbove=at(above,false);
+  for (const auto d:{below,above}) {
+    const auto m=at(d,false);
+    CHECK(m.m[0][0]==Approx(1e8));
+    CHECK(m.m[1][1]==Approx(1/std::pow(NormalSize(h0,growth,d),2)));
+    CHECK(m.m[0][0]>=1/(L*L));CHECK(m.m[1][1]>=1);
+    CHECK(m.m[0][0]*m.m[1][1]-m.m[0][1]*m.m[0][1]>0);
+  }
+  CHECK(nativeAbove.m[0][0]==Approx(nativeBelow.m[0][0]).epsilon(1e-8));
+  CHECK(nativeAbove.m[1][1]==Approx(nativeBelow.m[1][1]).epsilon(1e-8));
+}

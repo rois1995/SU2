@@ -1,0 +1,476 @@
+{
+  "scope": "Final same-source/app v31 MPI4 cross-grid lifecycles and independent inspections/metric audits. Timings are single workstation observations, not a speedup study. Native scope remains static-polyline primal 2D triangles; no converged-force, native3D/unsteady/CAD claim.",
+  "production_source_files_rechecked": 759,
+  "solver_sha256": "449bca7c124990a12c0f95f3c4d87ce94e2d100e9148b0b4e5a7e6276a5dbe85",
+  "test_driver_sha256": "eadbcd87fb51c059858153c295af9151e6c66b9bdbdcc3fe5a574ade85868e20",
+  "MPI_groups": [
+    {
+      "name": "native_release_core_v1",
+      "filter": "[NativeMesh2D],[NativeField2D],[NativeEngine2D],[NativeComposite2D],[BoundaryLayerMetric]",
+      "runs": [
+        {
+          "ranks": 1,
+          "command": [
+            "mpiexec",
+            "-n",
+            "1",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+            "[NativeMesh2D],[NativeField2D],[NativeEngine2D],[NativeComposite2D],[BoundaryLayerMetric]",
+            "--use-colour",
+            "no"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 0.6802093890000833,
+          "verified": true,
+          "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_release_core_v1/runtime_np1",
+          "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_release_core_v1/np1.log"
+        },
+        {
+          "ranks": 2,
+          "command": [
+            "mpiexec",
+            "-n",
+            "2",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+            "[NativeMesh2D],[NativeField2D],[NativeEngine2D],[NativeComposite2D],[BoundaryLayerMetric]",
+            "--use-colour",
+            "no"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 0.7347371880023275,
+          "verified": true,
+          "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_release_core_v1/runtime_np2",
+          "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_release_core_v1/np2.log"
+        },
+        {
+          "ranks": 4,
+          "command": [
+            "mpiexec",
+            "-n",
+            "4",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+            "[NativeMesh2D],[NativeField2D],[NativeEngine2D],[NativeComposite2D],[BoundaryLayerMetric]",
+            "--use-colour",
+            "no"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 0.8059649810020346,
+          "verified": true,
+          "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_release_core_v1/runtime_np4",
+          "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_release_core_v1/np4.log"
+        }
+      ],
+      "assertions_and_cases_per_rank": {
+        "1": [
+          [
+            "3650",
+            "42"
+          ]
+        ],
+        "2": [
+          [
+            "3344",
+            "42"
+          ],
+          [
+            "3658",
+            "42"
+          ]
+        ],
+        "4": [
+          [
+            "3345",
+            "42"
+          ],
+          [
+            "3345",
+            "42"
+          ],
+          [
+            "3666",
+            "42"
+          ],
+          [
+            "3344",
+            "42"
+          ]
+        ]
+      },
+      "source_files_rechecked": 103,
+      "evidence_sha256": "8426233dde4842d39e9dfadfc270df3465bfd7d324ecdc7abba325a60af0814a"
+    },
+    {
+      "name": "native_release_output_mpi_v1",
+      "filter": "[NativeCGNS2D],[NativeRejectedOutput],[NativeSupport2D],[MMGDefault2D],[AdaptationMPI]",
+      "runs": [
+        {
+          "ranks": 1,
+          "command": [
+            "mpiexec",
+            "-n",
+            "1",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+            "[NativeCGNS2D],[NativeRejectedOutput],[NativeSupport2D],[MMGDefault2D],[AdaptationMPI]",
+            "--use-colour",
+            "no"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 15.422924590999173,
+          "verified": true,
+          "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_release_output_mpi_v1/runtime_np1",
+          "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_release_output_mpi_v1/np1.log"
+        },
+        {
+          "ranks": 2,
+          "command": [
+            "mpiexec",
+            "-n",
+            "2",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+            "[NativeCGNS2D],[NativeRejectedOutput],[NativeSupport2D],[MMGDefault2D],[AdaptationMPI]",
+            "--use-colour",
+            "no"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 19.421864801999618,
+          "verified": true,
+          "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_release_output_mpi_v1/runtime_np2",
+          "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_release_output_mpi_v1/np2.log"
+        },
+        {
+          "ranks": 4,
+          "command": [
+            "mpiexec",
+            "-n",
+            "4",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+            "[NativeCGNS2D],[NativeRejectedOutput],[NativeSupport2D],[MMGDefault2D],[AdaptationMPI]",
+            "--use-colour",
+            "no"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 22.37519161399905,
+          "verified": true,
+          "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_release_output_mpi_v1/runtime_np4",
+          "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_release_output_mpi_v1/np4.log"
+        }
+      ],
+      "assertions_and_cases_per_rank": {
+        "1": [
+          [
+            "3667",
+            "44"
+          ]
+        ],
+        "2": [
+          [
+            "3527",
+            "44"
+          ],
+          [
+            "3876",
+            "44"
+          ]
+        ],
+        "4": [
+          [
+            "3443",
+            "44"
+          ],
+          [
+            "3309",
+            "44"
+          ],
+          [
+            "3572",
+            "44"
+          ],
+          [
+            "3113",
+            "44"
+          ]
+        ]
+      },
+      "source_files_rechecked": 103,
+      "evidence_sha256": "83ee5851bbcb6717108811750b32ecab514521805b72ea703b3a9ceafabaa9e3"
+    },
+    {
+      "name": "native_release_adapter_captured_v1",
+      "filter": "[NativeRemesher],[NativeProducedBL2D],[NativeRAEJointMPI]",
+      "runs": [
+        {
+          "ranks": 1,
+          "command": [
+            "mpiexec",
+            "-n",
+            "1",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+            "[NativeRemesher],[NativeProducedBL2D],[NativeRAEJointMPI]",
+            "--use-colour",
+            "no"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 7.107841264001763,
+          "verified": true,
+          "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_release_adapter_captured_v1/runtime_np1",
+          "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_release_adapter_captured_v1/np1.log"
+        },
+        {
+          "ranks": 2,
+          "command": [
+            "mpiexec",
+            "-n",
+            "2",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+            "[NativeRemesher],[NativeProducedBL2D],[NativeRAEJointMPI]",
+            "--use-colour",
+            "no"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 7.377816545002133,
+          "verified": true,
+          "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_release_adapter_captured_v1/runtime_np2",
+          "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_release_adapter_captured_v1/np2.log"
+        },
+        {
+          "ranks": 4,
+          "command": [
+            "mpiexec",
+            "-n",
+            "4",
+            "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+            "[NativeRemesher],[NativeProducedBL2D],[NativeRAEJointMPI]",
+            "--use-colour",
+            "no"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 7.735652530998777,
+          "verified": true,
+          "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_release_adapter_captured_v1/runtime_np4",
+          "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_release_adapter_captured_v1/np4.log"
+        }
+      ],
+      "assertions_and_cases_per_rank": {
+        "1": [
+          [
+            "64090",
+            "3"
+          ]
+        ],
+        "2": [
+          [
+            "64083",
+            "3"
+          ],
+          [
+            "64090",
+            "3"
+          ]
+        ],
+        "4": [
+          [
+            "64083",
+            "3"
+          ],
+          [
+            "64083",
+            "3"
+          ],
+          [
+            "64083",
+            "3"
+          ],
+          [
+            "64090",
+            "3"
+          ]
+        ]
+      },
+      "source_files_rechecked": 103,
+      "evidence_sha256": "9416ed84d61212083343b32c7ff9bed4fbf49ef0ba092fc3ca332543826001d2"
+    }
+  ],
+  "cases": [
+    {
+      "kind": "Euler",
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/nativefix_euler_rans_seed_v14",
+      "solver_exit": 0,
+      "elapsed_seconds": 187.38254731399866,
+      "timings": [
+        {
+          "cycle": 0,
+          "points": 13937,
+          "iterations": 2000,
+          "solve_seconds": 72.5988,
+          "adapt_seconds": 61.3114
+        },
+        {
+          "cycle": 1,
+          "points": 5411,
+          "iterations": 1812,
+          "solve_seconds": 21.0587,
+          "adapt_seconds": 18.9396
+        },
+        {
+          "cycle": 2,
+          "points": 6529,
+          "iterations": 978,
+          "solve_seconds": 12.8575,
+          "adapt_seconds": null
+        }
+      ],
+      "solve_seconds": 106.515,
+      "adapt_seconds": 80.251,
+      "maximum_ranks": 4,
+      "cycles": [
+        {
+          "cycle": 1,
+          "points": 5411,
+          "triangles": 10444,
+          "min_quality": 0.22515613611245985,
+          "max_metric_length": 1.7975738127597125,
+          "first_height_error": null,
+          "boundary_edges": {
+            "AIRFOIL": 318,
+            "FARFIELD": 60
+          },
+          "density_residual": -8.009458223,
+          "density_criterion_met": true,
+          "reference_deviation": 9.132119718484638e-07,
+          "mesh_sha256": "e9d9a90a40e68d4be00113e6e6dd811e5536ba2758390edfb385a357052c0218",
+          "mesh_byte_identical_to_app_v30": true
+        },
+        {
+          "cycle": 2,
+          "points": 6529,
+          "triangles": 12728,
+          "min_quality": 0.18244186146195468,
+          "max_metric_length": 1.798842097984293,
+          "first_height_error": null,
+          "boundary_edges": {
+            "AIRFOIL": 254,
+            "FARFIELD": 76
+          },
+          "density_residual": -8.003233175,
+          "density_criterion_met": true,
+          "reference_deviation": 9.385232147957199e-07,
+          "mesh_sha256": "d55294739b190ce8bd9afb38fae318a543cd105fb7266d1f9d04d2a923e5608d",
+          "mesh_byte_identical_to_app_v30": true
+        }
+      ],
+      "transfer_seconds": [
+        0.0853789,
+        0.0405892
+      ],
+      "inadmissible_states_and_recovery_patches_per_transfer": [
+        [
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0"
+        ]
+      ]
+    },
+    {
+      "kind": "RANS",
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/nativefix_rans_euler_seed_v23",
+      "solver_exit": 0,
+      "elapsed_seconds": 421.24264600400056,
+      "timings": [
+        {
+          "cycle": 0,
+          "points": 3592,
+          "iterations": 848,
+          "solve_seconds": 9.04856,
+          "adapt_seconds": 107.776
+        },
+        {
+          "cycle": 1,
+          "points": 12615,
+          "iterations": 2000,
+          "solve_seconds": 84.9211,
+          "adapt_seconds": 92.9878
+        },
+        {
+          "cycle": 2,
+          "points": 18591,
+          "iterations": 2000,
+          "solve_seconds": 126.076,
+          "adapt_seconds": null
+        }
+      ],
+      "solve_seconds": 220.04566,
+      "adapt_seconds": 200.7638,
+      "maximum_ranks": 4,
+      "cycles": [
+        {
+          "cycle": 1,
+          "points": 12615,
+          "triangles": 24833,
+          "min_quality": 0.20000165451928295,
+          "max_metric_length": 1.7999859270011307,
+          "first_height_error": 2.691735723203692e-12,
+          "boundary_edges": {
+            "FARFIELD": 47,
+            "AIRFOIL": 350
+          },
+          "density_residual": -6.050994983,
+          "density_criterion_met": false,
+          "reference_deviation": 1.1120708547587852e-07,
+          "mesh_sha256": "93d79ecdfce03ce63347e154a8bbe1f563cc008afb3d0b9728b44caebe493213",
+          "mesh_byte_identical_to_app_v30": true
+        },
+        {
+          "cycle": 2,
+          "points": 18591,
+          "triangles": 36263,
+          "min_quality": 0.22150394096796813,
+          "max_metric_length": 1.7999948578926859,
+          "first_height_error": 3.771649659256582e-12,
+          "boundary_edges": {
+            "FARFIELD": 67,
+            "AIRFOIL": 852
+          },
+          "density_residual": -7.956698575,
+          "density_criterion_met": false,
+          "reference_deviation": 5.535587322858095e-07,
+          "mesh_sha256": "25d26a0ef9a9815ff147ec986805994290b1000702532fb9c0d0f472f27f2ab8",
+          "mesh_byte_identical_to_app_v30": true
+        }
+      ],
+      "transfer_seconds": [
+        0.0628138,
+        0.175313
+      ],
+      "inadmissible_states_and_recovery_patches_per_transfer": [
+        [
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0"
+        ]
+      ]
+    }
+  ],
+  "sha256": {
+    "integration_evidence/rae2822_transonic_v1/nativefix_euler_rans_seed_v14/run.cfg": "c178c47fb3584c3a9e47ee203db61a7b34959de34d7582920ec3ad551a8b66d9",
+    "integration_evidence/rae2822_transonic_v1/nativefix_euler_rans_seed_v14/input.su2": "c5adf8b1c155db0692e6221a25a51ff376d70e681a46369266b5685955644712",
+    "integration_evidence/rae2822_transonic_v1/nativefix_euler_rans_seed_v14/run_evidence.json": "5305a14a60f2b9f551195e1f14f987c14fe38daf82b8e9a2ab2a3eee5a49c355",
+    "integration_evidence/rae2822_transonic_v1/nativefix_euler_rans_seed_v14/inspection.json": "ac46bf2671790a1c7f8a00e242363e59e8bd128fd8eb14156704a78a43a3e39d",
+    "integration_evidence/rae2822_transonic_v1/nativefix_euler_rans_seed_v14/solver.log": "a6c724af17a76eea0c3815a415cbe653fd1ca350a459874c58feae353f43eea4",
+    "integration_evidence/rae2822_transonic_v1/nativefix_euler_rans_seed_v14/mesh_and_mach.png": "51ba997783039460a22abfb1f367ac3b0f132dd55bf3ca399505f6e03e60bb7a",
+    "integration_evidence/rae2822_transonic_v1/nativefix_euler_rans_seed_v14/surface_cp.png": "14455adbbc7a54abf6bd69e23aff1f8803f80766497c4ca9d9ba8dbafa8e08bc",
+    "integration_evidence/rae2822_transonic_v1/nativefix_rans_euler_seed_v23/run.cfg": "3ee6528e4315e35e8b46aae9020cd326460013716d20cf576c71f4a2548c56dc",
+    "integration_evidence/rae2822_transonic_v1/nativefix_rans_euler_seed_v23/input.su2": "940d8aed5d9ee0d6dc0a9f5b43a3973e7c76ed5d9123188c6e81d048cf6b6d26",
+    "integration_evidence/rae2822_transonic_v1/nativefix_rans_euler_seed_v23/run_evidence.json": "973755e93627cd90ab18ddbb73fdc6ecf4b158749abef15db0ced33a3d4555a1",
+    "integration_evidence/rae2822_transonic_v1/nativefix_rans_euler_seed_v23/inspection.json": "187e038ead751e1bdc3b25fa7bf9d801ad33d8c457955ad655e233f18740b300",
+    "integration_evidence/rae2822_transonic_v1/nativefix_rans_euler_seed_v23/solver.log": "c78008eeec67af8b0fd7d0833447d2d59223b6958b631e6d9ac9c93ef0f491b2",
+    "integration_evidence/rae2822_transonic_v1/nativefix_rans_euler_seed_v23/mesh_and_mach.png": "267f94cec32e5749acc28275457260ec95830f83ada95f03070d792f586dbb85",
+    "integration_evidence/rae2822_transonic_v1/nativefix_rans_euler_seed_v23/surface_cp.png": "4b2f9e85b3a6c70158efa562b4d079916ca6d2845ab1d69b2ffeb0ef10ba215e",
+    "integration_evidence/native_cross_grid_build_v31/evidence.json": "9720a3295c60ab5d1a709c03f5feb3f4f3ac15704f08aedd5383fc2a493b7fa0"
+  }
+}

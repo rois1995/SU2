@@ -1,0 +1,70 @@
+{
+  "controller_pid": 689650,
+  "sequential": true,
+  "phase": "terminal_pass",
+  "stages": [
+    {
+      "name": "native_release_core_v1",
+      "exit_code": 0,
+      "elapsed_seconds": 51.66582035600004
+    },
+    {
+      "name": "native_release_output_mpi_v1",
+      "exit_code": 0,
+      "elapsed_seconds": 108.12465694999992
+    },
+    {
+      "name": "native_release_euler_v1",
+      "exit_code": 0,
+      "elapsed_seconds": 225.33434387099987
+    },
+    {
+      "name": "native_release_euler_inspection_v1",
+      "exit_code": 0,
+      "elapsed_seconds": 4.8081776189974335
+    },
+    {
+      "name": "native_release_euler_metric_v1",
+      "exit_code": 0,
+      "elapsed_seconds": 41.58760412599804
+    },
+    {
+      "name": "native_release_rans_v1",
+      "exit_code": 0,
+      "elapsed_seconds": 439.1923562919983
+    },
+    {
+      "name": "native_release_rans_inspection_v1",
+      "exit_code": 0,
+      "elapsed_seconds": 6.566594411000551
+    },
+    {
+      "name": "native_release_rans_metric_v1",
+      "exit_code": 0,
+      "elapsed_seconds": 202.85929438300082
+    },
+    {
+      "name": "native_release_adapter_captured_v1",
+      "exit_code": 0,
+      "elapsed_seconds": 73.00971196200044
+    }
+  ],
+  "command": [
+    "integration_evidence/run_native_driver_checks.py",
+    "--label",
+    "native_release_adapter_captured_v1",
+    "--build",
+    "build-integrated-v2",
+    "--ranks",
+    "1",
+    "2",
+    "4",
+    "--filter",
+    "[NativeRemesher],[NativeProducedBL2D],[NativeRAEJointMPI]",
+    "--save-audit",
+    "--cavity-replay-folder",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_joint_captured_mpi_v1/captured_fixture",
+    "--timeout",
+    "180"
+  ]
+}

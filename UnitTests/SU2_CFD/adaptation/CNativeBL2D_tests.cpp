@@ -7,6 +7,9 @@
  */
 
 #include "TransferTestCase.hpp"
+#include "../../../Common/include/adaptation/CNativeField2D.hpp"
+#include "../../../Common/include/adaptation/CNativeEngine2D.hpp"
+#include "../../../SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp"
 #include "../../../Common/include/adaptation/CNativeImport2D.hpp"
 #include "../../../Common/include/adaptation/CNativeRemesher.hpp"
 #include "../../../Common/include/adaptation/CNativeReferenceIO.hpp"
@@ -523,5 +526,163 @@ TEST_CASE("Native SU2 BL: SU2-produced sensor/BL metric and resumed viscous solv
       std::remove(outputMesh.c_str());
       std::remove((outputMesh + ".native_ref").c_str());
     }
+  }
+}
+
+namespace {
+MetricComposition ReplayBLTarget(const PolylineReference& reference,int marker,double h,double g,double thickness,
+                                 double core,double angle) {
+  CBoundaryLayerMetric::Wall wall;
+  wall.layer.firstHeight = h;
+  wall.layer.growth = g;
+  wall.layer.thickness = thickness;
+  wall.layer.marker = "captured_wall";
+  std::map<Id, unsigned long> points;
+  for (const auto& component : reference.Components())
+    if (component.marker == marker)
+      for (size_t k = 1; k < component.nodes.size(); ++k)
+        for (const auto node : {component.nodes[k - 1], component.nodes[k]}) {
+          const auto insertion = points.emplace(node.id, points.size());
+          if (insertion.second) {
+            wall.coord.push_back(node.p.x);
+            wall.coord.push_back(node.p.y);
+          }
+          wall.conn.push_back(insertion.first->second);
+        }
+  auto layers=std::make_shared<CBoundaryLayerMetric>(2, std::vector<CBoundaryLayerMetric::Wall>{wall}, angle);
+  return [layers,core](Point p, SU2Native2D::Tensor m) {
+    const su2double coord[] = {p.x, p.y};
+    CBoundaryLayerMetric::Tensor target;
+    target.m[0][0] = m.xx;
+    target.m[0][1] = target.m[1][0] = m.xy;
+    target.m[1][1] = m.yy;
+    layers->ApplyPoint(coord, target, core, nullptr, false);
+    return SU2Native2D::Tensor{SU2_TYPE::GetValue(target.m[0][0]), SU2_TYPE::GetValue(target.m[0][1]),
+                             SU2_TYPE::GetValue(target.m[1][1])};
+  };
+}
+}
+namespace {
+struct CapturedState {
+  std::map<Id,Cell> current,original;
+  std::vector<PolylineReference::Face> faces;
+  double core=0,h=0,g=0,thickness=0,angle=0,tolerance=0;
+  int marker=0;
+};
+CapturedState ReadCapturedState(const char* folder) {
+  CapturedState state;
+  auto& owned=state.current;auto& original=state.original;auto& faces=state.faces;
+  auto& core=state.core;auto& h=state.h;auto& g=state.g;auto& thickness=state.thickness;
+  auto& angle=state.angle;auto& tolerance=state.tolerance;auto& marker=state.marker;
+  int ranks=1;
+  for(int rank=0;rank<ranks;++rank) {
+    const auto filename=std::string(folder)+"/native_rejected_state_rank"+std::to_string(rank)+".bin";
+    std::ifstream in(filename,std::ios::binary);REQUIRE(in.good());
+    in.seekg(0,std::ios::end);REQUIRE(in.tellg()<=64*1024*1024);in.seekg(0);
+    const std::vector<char> bytes((std::istreambuf_iterator<char>(in)),std::istreambuf_iterator<char>());
+    RecordStream read(bytes);
+    uint64_t version;int savedRank,savedRanks,m;
+    double c,h0,g0,t,a,tol;
+    read(version,savedRank,savedRanks,c,m,h0,g0,t,a,tol);
+    REQUIRE(version==1);REQUIRE(savedRank==rank);REQUIRE(savedRanks>=1);REQUIRE(savedRanks<=4);
+    if(!rank) {ranks=savedRanks;core=c;marker=m;h=h0;g=g0;thickness=t;angle=a;tolerance=tol;}
+    else {REQUIRE(savedRanks==ranks);REQUIRE(c==core);REQUIRE(m==marker);REQUIRE(h0==h);REQUIRE(g0==g);REQUIRE(t==thickness);REQUIRE(a==angle);REQUIRE(tol==tolerance);}
+    auto records=[&](auto& values) {
+      uint64_t count;read(count);
+      typename std::decay_t<decltype(values)>::value_type value{};
+      RecordStream measure;measure(value);
+      REQUIRE(count<=(bytes.size()-read.Size())/measure.Size());
+      values.resize(count);for(auto& entry:values) read(entry);
+    };
+    std::vector<Cell> current;std::vector<DonorCell> donors;std::vector<PolylineReference::Face> reference;
+    records(current);records(donors);records(reference);REQUIRE(read.End());
+    for(const auto& cell:current) REQUIRE(owned.emplace(cell.t.id,cell).second);
+    for(const auto& d:donors) {Cell cell;cell.t=d.triangle;cell.marker=d.marker;cell.nodal_target=d.metric;REQUIRE(original.emplace(cell.t.id,cell).second);}
+    if(!rank) faces=std::move(reference);
+  }
+  return state;
+}
+}
+
+// Explicit captured-fixture regression. All ranks read the bounded local evidence;
+// donor import and replacement publication then use the actual MPI protocol.
+TEST_CASE("Captured blocked cavity publishes a two-point repair across owners", "[.][NativeRAEJointMPI]") {
+  World world;
+  const char* folder=std::getenv("NATIVE_RAE_STATE_REPLAY");REQUIRE(folder!=nullptr);
+  const auto state=ReadCapturedState(folder);
+  PolylineReference geometry(state.faces,state.angle);
+  const auto policy=geometry.Policy({{state.marker,state.h}});
+  Operation op{Action::BULK_SPLIT};double largest=1.8;
+  for(const auto& entry:state.current) {
+    const auto& cell=entry.second;
+    for(int k=0;k<3;++k)
+      if(!cell.t.protected_cell && !cell.marker[k] && cell.target_cache[k+1]>largest) {
+        largest=cell.target_cache[k+1];op.a=cell.t.v[k].id;op.b=cell.t.v[(k+1)%3].id;
+      }
+  }
+  REQUIRE(largest>1.8);
+  std::set<Id> seeds{op.a,op.b};std::vector<Cell> old;
+  for(int ring=0;ring<2;++ring) {
+    old.clear();
+    for(const auto& entry:state.current)
+      if((seeds.count(entry.second.t.v[0].id)||seeds.count(entry.second.t.v[1].id)||seeds.count(entry.second.t.v[2].id)))
+        old.push_back(entry.second);
+    if(!ring) for(const auto& cell:old) for(const auto& node:cell.t.v) seeds.insert(node.id);
+  }
+  REQUIRE(old.size()>MAX_CAVITY);REQUIRE(old.size()<=PATCH_LIMIT);
+  std::map<Id,Cell> original,owned;
+  size_t k=0;
+  for(const auto& entry:state.original) if(int(k++%world.size)==world.rank) original.emplace(entry);
+  for(size_t j=0;j<old.size();++j) if(int(j%world.size)==world.rank) owned.emplace(old[j].t.id,old[j]);
+  DonorField donor(world,original,ReplayBLTarget(geometry,state.marker,state.h,state.g,state.thickness,state.core,state.angle));
+  bool active=true;size_t maximum=0;int rejected=0;
+  auto field=donor.import(old,active,2*1024*1024,state.tolerance,maximum,rejected);
+  REQUIRE(active);REQUIRE(rejected==0);
+  for(const auto& cell:old) for(int v=0;v<3;++v) {
+    const auto p=cell.t.v[v].p;
+    field->cache.emplace(std::array<double,2>{p.x,p.y},cell.nodal_target[v]);
+  }
+  const auto metric=checked([field](Point p){return field->evaluate(p);});
+  const auto before=triangles(old);
+  EngineOptions options;options.geometry_tolerance=state.tolerance;
+  // Keep the actual original sensor/BL target. Engine's current-patch donor
+  // provides transaction coverage; this fixture's preimported field supplies
+  // the immutable original target, including every proposed interior point.
+  options.metric_composition=[field](Point p,Tensor){return field->evaluate(p);};
+  Engine engine(world,owned,policy,options);
+  Choice choice{op,world.rank==0?1.:-1.,world.rank};
+  SECTION("accepted two-point publication") {
+    CHECK(world.sum(engine.round(choice,true))==1);
+    CHECK(world.sum(engine.stats.joint_commits)==1);
+    CHECK(world.sum(engine.stats.cross_rank)==(world.size>1?1:0));
+    std::vector<std::vector<Cell>> to(world.size);
+    for(const auto& cell:engine.owned) to[0].push_back(cell.second);
+    const auto fresh=world.exchange(to);
+    if(world.rank==0) {
+      const auto after=triangles(fresh);std::string reason;
+      REQUIRE(after.size()==before.size()+4);
+      CHECK(nodes(after).size()==nodes(before).size()+2);
+      CHECK(strict_cells(after,reason));CHECK(validate_replacement(before,after,reason));
+      CHECK(min_quality(after,metric)>=.18);
+      CHECK(max_length(after,metric)<=max_length(before,metric)*(1+1e-12));
+      CHECK(SizeDeficit(after,metric)<SizeDeficit(before,metric)*(1-1e-8));
+      for(const auto& cell:old) if(cell.t.protected_cell) {
+        // Publication allocates replacement cell IDs; protected geometry is
+        // matched by its unchanged vertex identities and coordinates instead.
+        CHECK(std::count_if(after.begin(),after.end(),[&](const Triangle& t){
+          for(int v=0;v<3;++v) if(t.v[v].id!=cell.t.v[v].id || t.v[v].p.x!=cell.t.v[v].p.x || t.v[v].p.y!=cell.t.v[v].p.y) return false;
+          return t.protected_cell != 0;
+        })==1);
+      }
+      std::cout<<"JOINT MPI ranks="<<world.size<<" old="<<before.size()<<" fresh="<<after.size()
+               <<" q="<<min_quality(after,metric)<<" L="<<max_length(after,metric)<<std::endl;
+    }
+  }
+  SECTION("participant rejection retains the original records") {
+    std::vector<char> bytes;RecordStream snapshot(bytes);for(auto entry:engine.owned) snapshot(entry.second);
+    choice.op.fault=4;
+    CHECK_FALSE(engine.round(choice,true));CHECK(world.sum(engine.stats.joint_commits)==0);
+    std::vector<char> output;RecordStream after(output);for(auto entry:engine.owned) after(entry.second);
+    CHECK(output==bytes);
   }
 }

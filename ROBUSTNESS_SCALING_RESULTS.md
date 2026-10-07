@@ -9,6 +9,39 @@ Worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 source decisions; HANDOFF_Codex.md identifies current jobs and remaining work.
 ROBUSTNESS_SCALING_PROTOCOL.md retains the predeclared thresholds/stopping rules.
 
+## RAE2822 cross-grid update — 2026-10-07
+
+Appv31 completes both actual MPI4 cross-grid paths: Euler from the original
+triangulated RANS mesh and RANS from the supplied Euler mesh. Saved flow/mesh/
+reference and independent sensor/BL target audits pass. Final grids are byte-
+identical to the accepted appv30 controls:12,728Euler/36,263RANS triangles.
+Both physical surfaces adapt; RANS h0=1e-5 is retained with error<3.78e-12.
+
+Current common-binary regressions pass on1/2/4ranks:42core cases,44configured
+CGNS/default-MMG/output/general-MPI cases,3adapter/BL/captured-repair cases.
+The earlier supplemental filter's serial-only projection abort is retained;
+corrected selection passes all ranks. The final native implementation retains
+all target/geometry/height/ownership gates and removes temporary runtime trace/
+full-state capture and unused experiments.
+
+See [RAE_CROSS_GRID_VALIDATION.md](RAE_CROSS_GRID_VALIDATION.md) and
+[RAE_CROSS_GRID_COMPLETION_AUDIT.md](RAE_CROSS_GRID_COMPLETION_AUDIT.md) for proof.
+Final single-run costs are Euler106.52sCFD/80.25sadaptation and
+RANS220.05sCFD/200.76sadaptation. Adaptation is still75%/91%of CFD time, and
+initial RANS BL construction costs107.78s against9.05sinitial CFD. Earlier
+contended Euler adaptation exceeded its CFD cost. These observations establish
+practical cost, not repeatable speedup or a guarantee that remeshing is cheaper.
+No new large-rank,3D,unsteady,CAD or converged aerodynamic-force claim.
+Earlier tables below describe the completed October6 integration campaign.
+
+The user's October7 disk cleanup removed superseded archived executables and
+old AD compiler outputs while retaining logs, source snapshots and simulation
+artifacts. Exact historical binaries marked removed in their manifests are no
+longer directly replayable; original manifests are retained in
+integration_evidence/cleanup_20261007/original_manifests. Follow-up cleanup
+reclaimed another4.17GiB, removed newer superseded archives and shared identical
+current test binaries; receipt integration_evidence/cleanup_20261007_followup.
+
 ## What is demonstrated
 
 The integrated experimental native2D backend performs distributed boundary/BL

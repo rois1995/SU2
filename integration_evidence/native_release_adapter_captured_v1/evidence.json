@@ -1,39 +1,43 @@
 {
-  "filter": "[AdaptationMPI]",
+  "filter": "[NativeRemesher],[NativeProducedBL2D],[NativeRAEJointMPI]",
   "sequential": true,
   "maximum_ranks": 4,
   "environment": {
     "OMP_NUM_THREADS": "1",
-    "OPENBLAS_NUM_THREADS": "1"
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NATIVE_RAE_STATE_REPLAY": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_release_adapter_captured_v1/captured_fixture",
+    "SU2_NATIVE_SAVE_AUDIT": "1"
   },
   "build": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2",
-  "binary_sha256": "839340d6f5f05c89072b1efa35831ebbf0e716f74b9a16e0313fbb701304832d",
+  "binary_sha256": "eadbcd87fb51c059858153c295af9151e6c66b9bdbdcc3fe5a574ade85868e20",
   "executable_name": "test_driver",
   "source_sha256": {
     "Common/include/CConfig.hpp": "00a4b668a595c9020da404293db5a49f9b628d3064de50958b6e9b17ef4fc587",
     "Common/include/adaptation/CMMGInterface.hpp": "3292bfcb2b9ba3c75f2522470b6cc71e876edc1f05369d4d1d07d4af3e251cde",
-    "Common/include/adaptation/CNativeBoundary2D.hpp": "4c7eca9547078cb098bfdaef2f206094638242c4404f753b295cdcedaedefd3a",
+    "Common/include/adaptation/CNativeBoundary2D.hpp": "2cad241badcb07de004ea0a4e45ddc4fe55c0219a7048a11e659f29c30333585",
     "Common/include/adaptation/CNativeDistributed2D.hpp": "dd136c028c9a8a58017862d99230c75d99cacd3305426636066ac76a5c5df4ad",
-    "Common/include/adaptation/CNativeEngine2D.hpp": "c32103ac87bc0a0edda7a88be52014cb46574709d8ca2d33bf0d1a8fff0df7c0",
-    "Common/include/adaptation/CNativeField2D.hpp": "ed75865ee5b238deec4986b5ba116b8ea8c823f2044d6e922d6f36dc0f5cb37c",
+    "Common/include/adaptation/CNativeEngine2D.hpp": "70ef212ca7bf10d9c76ff0597b085ea004c25c9fc43f3628befefd00305244dd",
+    "Common/include/adaptation/CNativeField2D.hpp": "0ffd393f70b3beb4bb64f4a3a7a76da1e9be7e9c8b882295f9ce97653b86dacd",
     "Common/include/adaptation/CNativeGeometryValidation2D.hpp": "3ffc3b8064e35ef3380074449c43c11910be24a50c1956609ff3fd1ff3aecac7",
-    "Common/include/adaptation/CNativeImport2D.hpp": "4903c6cec4d2816675528ea3a637780390a111e16c1479f90fa217a99fd36b0b",
-    "Common/include/adaptation/CNativeMesh2D.hpp": "45f65f405e60c27019fc7f1ca8ff3994f4970f8a32f25ecfa3b299a5275cb07c",
+    "Common/include/adaptation/CNativeImport2D.hpp": "3271fb088d02b734e45f564cbbdf6f7f6feee85993a206864d7491149b7d2acb",
+    "Common/include/adaptation/CNativeMesh2D.hpp": "d3df15cd505efc4dba37ab2b77bd89598e8d4cfb3368c879339ab7ca8b4d1b64",
     "Common/include/adaptation/CNativeReference2D.hpp": "a5521dd75c13639522c03ce0b4063295de9956897dbb31b50ba324ad8fc027cb",
     "Common/include/adaptation/CNativeReferenceIO.hpp": "f29049f2a1f6e57a77f47b672e4fb985bf89424e4089b533b69d626cf7f15a5f",
-    "Common/include/adaptation/CNativeRemesher.hpp": "be3411917194c7d304f7a270bed54158ee0f3db5ce8e8e41244bb749beae9c84",
+    "Common/include/adaptation/CNativeRemesher.hpp": "772cce8a8b97528c4b3a6851e90dc1dbc4c5eed83b9a9a079af4990dda41a465",
     "Common/include/adaptation/CReaderSlices.hpp": "cc5348193160e1e4493346199192931c7caee2901772d9ebd0d7d5bafe7f9a95",
     "Common/include/adaptation/CRemesher.hpp": "b5c80c5f1dc8fa63fe70094366d7ab5578fa77b2c97140b15a50be2fb65cdb28",
     "Common/include/option_structure.hpp": "99a57df31428135156af495125acf764370f2e98a36a99fd4a8015880b9cfe22",
     "Common/src/CConfig.cpp": "f6cab1dc7d7ba5d46f5d66e2cb5ef49a8b10dd2fe04b65ac4f212b21795d2c99",
     "Common/src/adaptation/CMMGInterface.cpp": "712322461ad187397d3bd7a59ae593232d82c9fed01e0028a5098dabd6e006ef",
     "Common/src/adaptation/CNativePredicates2D.cpp": "94c538f5700d5bcb1bfcfd4be4bd78f06bfacc9b07a583622ea76e8146eb2c2b",
-    "Common/src/adaptation/CNativeRemesher.cpp": "efbd3ab716abc5feb476693f39fa40f2fcde9433656c739a18f20a98ead90ad7",
+    "Common/src/adaptation/CNativeRemesher.cpp": "a59a2082602415b75e5b57116f9d815ff0ef67764b48beecf5764d76f677e46f",
     "Common/src/adaptation/CReaderSlices.cpp": "3e15ad735b2332cf0697eb63315310d9fb92bd26f48f00fef7116d67cbf2c1f2",
     "Common/src/adaptation/meson.build": "4954b2b80ba9c0c9b45eb7c1dd56088ef2f27b4c145c1841e49bbc560ac69b5f",
     "Common/src/meson.build": "bb13c497e66c161e559bf79fa1d3e5f1bad2432e6fe2934f850d3040eb98b87f",
     "QuickStart/native_NACA0012.cfg": "4f018ed78290fc152c36044da9ce626bcf1fc1cee53a214d0eee37e092fbc130",
     "SU2_CFD/include/adaptation/CAdjointTransfer.hpp": "c6e4855c3397664a8ea8e535d5326a687d399df715d12645b714404bfa0d0806",
+    "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "1312e24b9d8b23e7566e7ebe6f30f09cd0a13a710abcbd6306a6f596dccb60b9",
     "SU2_CFD/include/adaptation/CTransferAdmissibility.hpp": "3e0913a189ac09b27495fcbd4394258f01afdffe589cb8f4423a80d29b626619",
     "SU2_CFD/include/drivers/CDiscAdjSinglezoneDriver.hpp": "f91c40a9066b1a2fa6f7ae4bf40b5f72423d2b37db91e20531fea897f149b60c",
     "SU2_CFD/include/drivers/CSinglezoneDriver.hpp": "40283acdda097af1972c4622ed8c30fcdf3b90809f7bcc2ef2adac6099376e0a",
@@ -58,10 +62,11 @@
     "SU2_CFD/include/output/filewriter/CTecplotBinaryFileWriter.hpp": "f2094f320c4eef28a864314a57a925ac208c48ac87e246d2e355d7d1776aa893",
     "SU2_CFD/include/output/filewriter/CTecplotFileWriter.hpp": "ca862168124cc16f6d7b5690f8f4daa6a85044b99a878d72a33ff74095c83f36",
     "SU2_CFD/src/adaptation/CAdjointTransfer.cpp": "2106a0c3fcf5da494a6e8afe4ebb8408806f4f4a717229f0d36cb8b6633ca228",
+    "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "456827d88fba1a3ab18c776fbab98fe32ce2648ece76f2db9c4509c758e49dd3",
     "SU2_CFD/src/adaptation/CConservativeTransfer.cpp": "9da510e846516899f222b5421d72e09fd05d89e978f8d592c02003c63604fee2",
     "SU2_CFD/src/adaptation/CTransferAdmissibility.cpp": "ca2b9a1f06b7973aba59114a0332a1bbb1714528f333ff2fd6e1fdfefadbf296",
     "SU2_CFD/src/drivers/CDiscAdjSinglezoneDriver.cpp": "46f6b7616793325a227bb55149317b4ac9dd137c70c1da7bb7ad15af1f9e1084",
-    "SU2_CFD/src/drivers/CSinglezoneDriver.cpp": "3d7d2971e8324fcb0c136368d403b7dc3a402a778fc11a0667b8c548944e5a70",
+    "SU2_CFD/src/drivers/CSinglezoneDriver.cpp": "ed8822e504d619561e4385a8ebb42f578f89bfb5bf1c2ce3a61a08808d5c55ac",
     "SU2_CFD/src/output/CMeshOutput.cpp": "8ce16b7e4a570d4c1a777f21b58f4d9087a2f3c35e633c252b0baa29c1f03152",
     "SU2_CFD/src/output/COutput.cpp": "e949804a4ad7d938253c00dac5fdef8033faadcba9d5611255ac0c3381b37bba",
     "SU2_CFD/src/output/filewriter/CCGNSFileWriter.cpp": "e4cdf95fb1f9cacf8416f9c643435b7203129b32f57cee1f38f64c3681071247",
@@ -83,23 +88,25 @@
     "SU2_CFD/src/output/filewriter/CSurfaceFVMDataSorter.cpp": "6ebc0e894889c389e739dcc567a19526ffc3a9c85327e7bc8a79244651f95ffe",
     "SU2_CFD/src/output/filewriter/CTecplotBinaryFileWriter.cpp": "cffe1f0b987770128bfedb5d1aa2aff7d6d0915b071675b09e841ab8ba24444f",
     "SU2_CFD/src/output/filewriter/CTecplotFileWriter.cpp": "0ef36c2c47dc5a2727e884c39429031760e9c02befdadb97af64145e63a0c674",
+    "SU2_CFD/src/solvers/CSolver.cpp": "bf3810d8042549e39054d6bcfcdbc9e7ccf79506907d310eadfc83e49c9eb915",
     "UnitTests/Common/adaptation/CNativeCollision2D_tests.cpp": "b1a39b2b23d0b98fd6e5aecf7856cded7a5d6a12cfbb4f9a02c0bc3aaeed16b3",
     "UnitTests/Common/adaptation/CNativeDistributed2D_tests.cpp": "cf7772c38c353dfed684697123b83d4fbf5021b62afab48f1f9eb2fbe8b2bafd",
-    "UnitTests/Common/adaptation/CNativeEngine2D_tests.cpp": "43b96812fa25b7e756f497cb4e987304b50fa87d0a3b2f5902a3553604da161a",
-    "UnitTests/Common/adaptation/CNativeField2D_tests.cpp": "1b58f09850e4acbfc0622445ad1260197937c775ea8bee5b6bf1c3ae4cd692fc",
+    "UnitTests/Common/adaptation/CNativeEngine2D_tests.cpp": "8c0079b1d11d26026da6b526dba22a52ebe9e9b502332d40c369b339706f089e",
+    "UnitTests/Common/adaptation/CNativeField2D_tests.cpp": "8ac20f3291d4fbf03a291ee0cb4a5979f69832cd6fae06bf9d4d3589e25ce864",
     "UnitTests/Common/adaptation/CNativeGeometryValidation2D_tests.cpp": "c80e1159b83c5687f2f1047e707c09440d7f59831fe3219246d81819c326cf47",
     "UnitTests/Common/adaptation/CNativeMemory2D_tests.cpp": "7c60eabf9951f283ee3c6f6926e20f2c531e6099dc6ed1c86ea0c0e2ac45d656",
-    "UnitTests/Common/adaptation/CNativeMesh2D_tests.cpp": "be4bb0d650b2b447bab38f4bff59e907d91b796ef1363e0ac447924b4e67023e",
+    "UnitTests/Common/adaptation/CNativeMesh2D_tests.cpp": "2976d269755ad94455c5dfeaf7d7adc5e71877c20a6a08c8ece9680ffec6367a",
     "UnitTests/Common/adaptation/CNativeReferenceIO_tests.cpp": "2f52e7e0c08bef71a97b31a93662ceca5103aa5a3ec3a88882d942f3cd0e55d1",
     "UnitTests/Common/adaptation/CNativeScaling2D_tests.cpp": "aa2343ef85c1bc248f66db6b53be6b357421c806f18a5fee21b2448a220a4f52",
     "UnitTests/SU2_CFD/adaptation/AdaptationMPI_tests.cpp": "7160d1c6a92c1cacabae18d29bb40d7be00746799a90383c9cb85f8905db5a8f",
+    "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "e3887f3bf311ce63feb707380d6c9fb1523683bc3e341776394b918fcd0f8f04",
     "UnitTests/SU2_CFD/adaptation/BoundaryLayerTwoPass_tests.cpp": "bc29c7a6637ccaa34ead70a450629592d42062a324f88e432f8922e1761d0666",
     "UnitTests/SU2_CFD/adaptation/CConservativeTransfer_tests.cpp": "a8f5fa65c5382515a8609b0d898755596982f5d1123c30c776cd4d1b0fa20d24",
     "UnitTests/SU2_CFD/adaptation/CNativeAirfoil2D_tests.cpp": "af2554f2369508d5ec4fa2b1d8e0085f90d834e5dfed4430c40c94089e506073",
-    "UnitTests/SU2_CFD/adaptation/CNativeBL2D_tests.cpp": "a6970bd410c0047f9608afbb39c30550865b2fcedb095b00a41317eeaa306056",
+    "UnitTests/SU2_CFD/adaptation/CNativeBL2D_tests.cpp": "0ad22620a7b604779c3cadcb1ac2c07dd02e28422261b40a676530e4b170abbe",
     "UnitTests/SU2_CFD/adaptation/CNativeCGNS2D_tests.cpp": "f84dde11269e019c88a9ee7f05dd5f7df4d76211162a614173fb92279f3ce23c",
     "UnitTests/SU2_CFD/adaptation/CNativeImport2D_tests.cpp": "5e97aa069550f7b134936f217c4ac8d721e818d37bbc4ab34ddfaac9588eb9ea",
-    "UnitTests/SU2_CFD/adaptation/CNativeRemesher_tests.cpp": "e474936f27ae13d33035baab3ae96a0de4f70e32326f4815c8758adc2c7cb466",
+    "UnitTests/SU2_CFD/adaptation/CNativeRemesher_tests.cpp": "b48e13ceb06eb0d21ce3159c0014694dcad7700b9c9a0cf80c7424da23873646",
     "UnitTests/SU2_CFD/adaptation/CNativeSupport2D_tests.cpp": "7594bbfeb293b697a433e51e7fcb7faba888d4b6e662f7c9c17016232a840481",
     "UnitTests/SU2_CFD/adaptation/GoalMetric_tests.cpp": "cf380444e65b421ceafe5bb6113748d1409551bc6a799f6100d8a5f59baecf9c",
     "UnitTests/SU2_CFD/adaptation/TransferTestCase.hpp": "f45954266330e3b5f795fdc4ecd843c24cc16029cc940b23558dd946b021993d",
@@ -111,10 +118,10 @@
     "meson_options.txt": "d5e6c66286a857afd21eaae2ffe0651d444130469b102c9ee95d885deafa0b0e"
   },
   "note": "Source hashes include drafts: check the recorded UnitTests/Meson registrations for compiled scope.",
-  "runner_sha256": "967c0aa681d1c259ba75d3eec4bbacddcfabe396df9578aa266dc019e4950e2b",
-  "runner_pid": 691175,
-  "source_revision": "67538f47486f6efbca784bdbfe5cc4c931a85a25",
-  "source_status": " M BRANCH_RECONCILIATION.md\n M GRID_GUIDE.md\n M HANDOFF_Codex.md\n M ROBUSTNESS_SCALING_PROTOCOL.md\n M ROBUSTNESS_SCALING_RESULTS.md\n M UnitTests/SU2_CFD/adaptation/CNativeAirfoil2D_tests.cpp\n M UnitTests/SU2_CFD/adaptation/CNativeBL2D_tests.cpp\n T externals/codi\n T externals/eigen\n T externals/medi\n T externals/mel\n T externals/meson\n M integration_evidence/run_native_validation_closure_v1.py\n",
+  "runner_sha256": "99e68d1756cb934baa7b89fe2b027f999b036dc187134306c8add34d67af47f7",
+  "runner_pid": 730880,
+  "source_revision": "73708f67223dca0cb5e640d968d97d0bb82d8de3",
+  "source_status": " M Common/include/adaptation/CNativeBoundary2D.hpp\n M Common/include/adaptation/CNativeEngine2D.hpp\n M Common/include/adaptation/CNativeField2D.hpp\n M Common/include/adaptation/CNativeImport2D.hpp\n M Common/include/adaptation/CNativeMesh2D.hpp\n M Common/include/adaptation/CNativeRemesher.hpp\n M Common/src/adaptation/CNativeRemesher.cpp\n M GRID_GUIDE.md\n M HANDOFF_Codex.md\n M ROBUSTNESS_SCALING_RESULTS.md\n M SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp\n M SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp\n M SU2_CFD/src/drivers/CSinglezoneDriver.cpp\n M SU2_CFD/src/solvers/CSolver.cpp\n M UnitTests/Common/adaptation/CNativeEngine2D_tests.cpp\n M UnitTests/Common/adaptation/CNativeField2D_tests.cpp\n M UnitTests/Common/adaptation/CNativeMesh2D_tests.cpp\n M UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp\n M UnitTests/SU2_CFD/adaptation/CNativeBL2D_tests.cpp\n M integration_evidence/inspect_rejected_rae2822.py\n M integration_evidence/integrated_general_transfer_v1/evidence.json\n M integration_evidence/native_rejected_build_v1/evidence.json\n M integration_evidence/run_native_driver_checks.py\n?? RAE_CROSS_GRID_COMPLETION_AUDIT.md\n?? RAE_CROSS_GRID_VALIDATION.md\n?? integration_evidence/audit_native_composite_rae.py\n?? integration_evidence/inspect_rae2822_solution.py\n?? integration_evidence/run_joint_surface_validation_v1.py\n?? integration_evidence/run_native_release_validation_v1.py\n",
   "runs": [
     {
       "ranks": 1,
@@ -123,15 +130,15 @@
         "-n",
         "1",
         "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
-        "[AdaptationMPI]",
+        "[NativeRemesher],[NativeProducedBL2D],[NativeRAEJointMPI]",
         "--use-colour",
         "no"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 7.183752248995006,
+      "elapsed_seconds": 7.107841264001763,
       "verified": true,
-      "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_general_transfer_v1/runtime_np1",
-      "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_general_transfer_v1/np1.log"
+      "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_release_adapter_captured_v1/runtime_np1",
+      "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_release_adapter_captured_v1/np1.log"
     },
     {
       "ranks": 2,
@@ -140,15 +147,15 @@
         "-n",
         "2",
         "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
-        "[AdaptationMPI]",
+        "[NativeRemesher],[NativeProducedBL2D],[NativeRAEJointMPI]",
         "--use-colour",
         "no"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 8.04288408299908,
+      "elapsed_seconds": 7.377816545002133,
       "verified": true,
-      "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_general_transfer_v1/runtime_np2",
-      "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_general_transfer_v1/np2.log"
+      "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_release_adapter_captured_v1/runtime_np2",
+      "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_release_adapter_captured_v1/np2.log"
     },
     {
       "ranks": 4,
@@ -157,15 +164,15 @@
         "-n",
         "4",
         "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
-        "[AdaptationMPI]",
+        "[NativeRemesher],[NativeProducedBL2D],[NativeRAEJointMPI]",
         "--use-colour",
         "no"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 11.177816138020717,
+      "elapsed_seconds": 7.735652530998777,
       "verified": true,
-      "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_general_transfer_v1/runtime_np4",
-      "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_general_transfer_v1/np4.log"
+      "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_release_adapter_captured_v1/runtime_np4",
+      "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_release_adapter_captured_v1/np4.log"
     }
   ],
   "build_options": {
@@ -181,15 +188,14 @@
     "mmg_root": "/usr/local",
     "mmg_scotch_root": "/home/rausa/Software/scotch"
   },
-  "timeout_seconds_per_job": 240,
+  "timeout_seconds_per_job": 180,
   "expected_diagnostic": null,
-  "archived_sources": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_general_transfer_v1/sources",
-  "binary_retention": {
-    "status": "superseded executable removed at user request",
-    "removed_paths": [
-      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/integrated_general_transfer_v1/test_driver"
-    ],
-    "cleanup_inventory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/cleanup_20261007/inventory.json",
-    "note": "Historical run results and binary hashes are retained; these removed executables are no longer directly replayable. Source snapshots, logs, and simulation outputs are retained."
-  }
+  "archived_sources": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_release_adapter_captured_v1/sources",
+  "captured_fixture_sha256": {
+    "native_rejected_state_rank0.bin": "9796a2645b98df6198b1dbc0cf45f1f5da534dfaa2c390fd72c85a26309a88a6",
+    "native_rejected_state_rank1.bin": "bc415f8f1b851bda3b5f258fb18bbca939c3d2b17efe89a485c8927da9a062e2",
+    "native_rejected_state_rank2.bin": "fbd3fbeabc6defdb66494fefcaf68ed4e56f8c7794178b56afcdd1f2ae612129",
+    "native_rejected_state_rank3.bin": "1c0897e286a470ad0469796c9fe9f1c98ffc6f5b1c7a01d7f9333187bf9ecb70"
+  },
+  "archived_binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_release_adapter_captured_v1/test_driver"
 }

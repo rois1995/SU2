@@ -17,6 +17,7 @@ parser.add_argument('--binary', choices=['test_driver', 'test_memory'], default=
 parser.add_argument('--build', default='build-nommg')
 parser.add_argument('--save-audit', action='store_true')
 parser.add_argument('--airfoil-config', type=Path)
+parser.add_argument('--cavity-replay-folder', type=Path, help='Archive the four-rank rejected-state fixture for explicit replay tests')
 parser.add_argument('--timeout', type=int, default=240)
 parser.add_argument('--expect-diagnostic', help='Exact diagnostic for an expected nonsignal error exit')
 args = parser.parse_args()
@@ -45,6 +46,9 @@ files = [source / p for p in [
     'Common/src/adaptation/CMMGInterface.cpp',
     'QuickStart/native_NACA0012.cfg',
     'Common/include/CConfig.hpp', 'Common/src/CConfig.cpp', 'Common/include/option_structure.hpp',
+    'SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp',
+    'SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp', 'SU2_CFD/src/solvers/CSolver.cpp',
+    'UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp',
     'Common/include/adaptation/CRemesher.hpp', 'Common/include/adaptation/CNativeRemesher.hpp',
     'Common/include/adaptation/CReaderSlices.hpp', 'Common/src/adaptation/CReaderSlices.cpp',
     'Common/include/adaptation/CNativeReferenceIO.hpp',
@@ -74,7 +78,7 @@ files.extend(source / relative for relative in (
     'UnitTests/SU2_CFD/adaptation/GoalMetric_tests.cpp', 'UnitTests/SU2_CFD/gradients.cpp',
     'UnitTests/SU2_CFD/adaptation/BoundaryLayerTwoPass_tests.cpp'))
 manifest = {'filter': args.filter, 'sequential': True, 'maximum_ranks': 4,
-            'environment': {'OMP_NUM_THREADS': '1', 'OPENBLAS_NUM_THREADS': '1'},
+            'environment': {'OMP_NUM_THREADS': '1', 'OPENBLAS_NUM_THREADS': '1', 'MKL_NUM_THREADS': '1'},
             'build': str(build), 'binary_sha256': sha(binary),
             'executable_name': args.binary,
             'source_sha256': {str(p.relative_to(source)): sha(p) for p in sorted(set(files))},
@@ -82,7 +86,7 @@ manifest = {'filter': args.filter, 'sequential': True, 'maximum_ranks': 4,
             'runner_sha256': sha(Path(__file__)),
             'runner_pid': os.getpid(),
             'source_revision': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=source, text=True).strip(),
-            'source_status': subprocess.check_output(['git', 'status', '--short'], cwd=source, text=True),
+            'source_status': subprocess.check_output(['git', 'status', '--short', '--ignore-submodules=all'], cwd=source, text=True),
             'runs': []}
 build_options = build / 'meson-info/intro-buildoptions.json'
 manifest['build_options'] = {option['name']: option['value'] for option in json.loads(build_options.read_text())
@@ -114,6 +118,23 @@ if args.airfoil_config:
             mesh = Path(line.split('=', 1)[1].split('%', 1)[0].strip()).resolve(strict=True)
             manifest['airfoil_mesh'] = {'path': str(mesh), 'sha256': sha(mesh)}
             shutil.copy2(mesh, destination / 'airfoil_input.su2')
+if args.cavity_replay_folder:
+    captured = args.cavity_replay_folder.resolve(strict=True)
+    archived = destination / 'captured_fixture'
+    archived.mkdir()
+    fixture_hashes = {}
+    for rank in range(4):
+        fixture = captured / f'native_rejected_state_rank{rank}.bin'
+        if not fixture.is_file() or fixture.stat().st_size > 64 * 1024 * 1024:
+            raise RuntimeError(f'Missing or oversized captured fixture: {fixture}')
+        expected = sha(fixture)
+        shutil.copy2(fixture, archived / fixture.name)
+        if sha(archived / fixture.name) != expected:
+            raise RuntimeError(f'Captured fixture changed during archive: {fixture}')
+        fixture_hashes[fixture.name] = expected
+    env['NATIVE_RAE_STATE_REPLAY'] = str(archived)
+    manifest['environment']['NATIVE_RAE_STATE_REPLAY'] = str(archived)
+    manifest['captured_fixture_sha256'] = fixture_hashes
 if args.save_audit:
     manifest['environment']['SU2_NATIVE_SAVE_AUDIT'] = '1'
     env['SU2_NATIVE_SAVE_AUDIT'] = '1'
@@ -155,7 +176,7 @@ for ranks in args.ranks:
                 os.killpg(process.pid, signal.SIGKILL)
                 process.wait()
             code = 124
-    text = log.read_text()
+    text = log.read_text(errors="replace")
     if args.save_audit:
         # Fresh per-job directories prevent a failed later cycle from inheriting stale
         # snapshots produced by an earlier rank count.
@@ -176,7 +197,18 @@ for ranks in args.ranks:
         break
 # Copy only after MPI ends. No later relink may change the executable associated with this evidence.
 archive = destination / args.binary
-shutil.copy2(binary, archive)
+# Immutable completed archives can share bytes; never link to the mutable build output.
+for previous in sorted(root.glob('*/evidence.json')):
+    if previous == report:
+        continue
+    recorded = json.loads(previous.read_text())
+    existing = Path(recorded.get('archived_binary', ''))
+    if (recorded.get('binary_sha256') == manifest['binary_sha256'] and existing.is_file()
+            and sha(existing) == manifest['binary_sha256']):
+        os.link(existing, archive)
+        break
+else:
+    shutil.copy2(binary, archive)
 manifest['archived_binary'] = str(archive)
 assert sha(archive) == manifest['binary_sha256']
 report.write_text(json.dumps(manifest, indent=2) + '\n')

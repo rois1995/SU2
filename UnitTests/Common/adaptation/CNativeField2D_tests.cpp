@@ -189,3 +189,38 @@ TEST_CASE("Native MPI: too many original donors reject before target payload", "
   CHECK(patch->cells.empty());
   CHECK(rejected == (world.rank == 0 ? 1 : 0));
 }
+
+TEST_CASE("Native MPI: geometric constraints apply after donor interpolation", "[NativeField2D][NativeComposite2D]") {
+  World world;
+  const auto original = Square();
+  std::map<Id, Cell> owned;
+  for (size_t k = 0; k < original.size(); ++k)
+    if (int(k % world.size) == world.rank) owned.emplace(original[k].t.id, original[k]);
+  const MetricComposition compose = [](Point p, Tensor sensor) {
+    const double h = 1e-5 + .2 * std::max(0., p.y);
+    sensor.yy = std::max(sensor.yy, 1 / (h * h));
+    return sensor;
+  };
+  DonorField donor(world, owned, compose);
+  bool active = world.rank == 0;
+  size_t discovered = 0;
+  int rejected = 0;
+  auto patch = donor.import(active ? original : std::vector<Cell>{}, active, 2 * 1024 * 1024,
+                             .002, discovered, rejected);
+  REQUIRE(rejected == 0);
+  if (world.rank == 0) {
+    REQUIRE(active);
+    for (const Point p : std::vector<Point>{{.5, 0}, {.5, .01}, {.5, .2}, {.5, 1}}) {
+      const auto expected = compose(p, Affine(p));
+      const auto actual = patch->evaluate(p);
+      CHECK(actual.xx == Approx(expected.xx));
+      CHECK(actual.xy == Approx(expected.xy));
+      CHECK(actual.yy == Approx(expected.yy));
+      CHECK(patch->evaluate(p).yy == actual.yy); // Cached samples retain the composed field.
+    }
+    CHECK(patch->evaluate({.5, .2}).yy < 1000); // No coarse-cell spreading of the wall's 1e10 value.
+    auto sample = original[0];
+    CacheTarget(sample, checked([patch](Point p) { return patch->evaluate(p); }), 123);
+    CHECK(sample.target_cache[0] == Approx(quality(sample.t, checked([patch](Point p) {return patch->evaluate(p);} ))));
+  }
+}

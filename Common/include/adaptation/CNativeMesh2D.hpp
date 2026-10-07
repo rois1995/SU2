@@ -96,6 +96,10 @@ struct Tensor {
   }
 };
 using Metric = std::function<Tensor(Point)>;
+// Optional geometric constraints are applied AFTER interpolation of the frozen
+// sensor tensor. Interpolating their nodal samples would spread a thin layer
+// across a coarse seed simplex.
+using MetricComposition = std::function<Tensor(Point, Tensor)>;
 using Edge = std::pair<Id, Id>;
 inline Edge edge(Id a, Id b) { return std::minmax(a, b); }
 inline Point centroid(const Triangle& t) {
@@ -320,33 +324,46 @@ inline bool MovementGoal(const std::map<Id, Node>& all, Id id, const Metric& met
  * A metric Laplacian is only a proposal: sharp P1 transitions need a bounded
  * search in metric coordinates. Every trial keeps the old perimeter and orientation. */
 inline bool MoveStar(const std::vector<Triangle>& old, Id id, const Metric& metric,
-                     std::vector<Triangle>& fresh, std::string& reason) {
+                     std::vector<Triangle>& fresh, std::string& reason, const Point* tangent = nullptr) {
   const auto all = nodes(old);
   const auto origin = all.at(id).p;
   double best = min_quality(old, metric);
   std::map<Edge, double> limits;
+  double bestCost = 0;
   for (const auto& t : old)
     for (int k = 0; k < 3; ++k) {
       const auto a = t.v[k], b = t.v[(k + 1) % 3];
-      limits.emplace(edge(a.id, b.id), std::max(1.8, length(a, b, metric)));
+      const double l = length(a, b, metric);
+      if (limits.emplace(edge(a.id, b.id), std::max(1.8, l)).second && (a.id == id || b.id == id))
+        bestCost += std::pow(std::max(0., l - 1.8), 2);
     }
+  // For an already legal shape, reduce oversized spokes without requiring
+  // further shape improvement. Fixed topology makes this deficit comparable.
+  const bool sizeRepair = best >= .18 && bestCost > 0;
   fresh = old;
   Point chosen = origin;
   bool improved = false;
   auto trial = [&](Point position) {
+    if (tangent) position = origin + *tangent * dot(position - origin, *tangent);
     auto candidate = old;
     for (auto& t : candidate)
       for (auto& v : t.v)
         if (v.id == id) v.p = position;
     if (!validate_replacement(old, candidate, reason)) return;
     const double q = min_quality(candidate, metric);
-    if (!(q > best + 1e-4)) return;
-    for (const auto& t : candidate)
-      for (int k = 0; k < 3; ++k) {
-        const auto a = t.v[k], b = t.v[(k + 1) % 3];
-        const auto cap = limits.at(edge(a.id, b.id));
-        if (length(a, b, metric) > cap + 1e-12 * cap) return;
-      }
+    if (sizeRepair ? q < .18 : !(q > best + 1e-4)) return;
+    for (size_t i = 0; i < old.size(); ++i)
+      if (old[i].protected_cell && quality(candidate[i], metric) < std::min(.18, quality(old[i], metric))) return;
+    const auto proposed = nodes(candidate);
+    double cost = 0;
+    for (const auto& entry : limits) {
+      const auto a = proposed.at(entry.first.first), b = proposed.at(entry.first.second);
+      const auto l = length(a, b, metric), cap = entry.second;
+      if (l > cap + 1e-12 * cap) return;
+      if (a.id == id || b.id == id) cost += std::pow(std::max(0., l - 1.8), 2);
+    }
+    if (sizeRepair && !(cost < bestCost * (1 - 1e-8))) return;
+    bestCost = cost;
     best = q;
     chosen = position;
     fresh.swap(candidate);
@@ -358,7 +375,8 @@ inline bool MoveStar(const std::vector<Triangle>& old, Id id, const Metric& metr
       trial(origin + (goal - origin) * fraction);
       if (improved) break;
     }
-  if (best < .22) {
+  auto needsSearch = [&] { return sizeRepair ? bestCost > 0 : best < .22; };
+  if (needsSearch()) {
     const auto m = metric(origin);
     const double scale = std::max({std::abs(m.xx), std::abs(m.xy), std::abs(m.yy)});
     const double xx = m.xx / scale, xy = m.xy / scale, yy = m.yy / scale;
@@ -373,12 +391,12 @@ inline bool MoveStar(const std::vector<Triangle>& old, Id id, const Metric& metr
     const std::array<Point, 8> directions{{major, major * -1, minor, minor * -1,
                                          (major + minor) * std::sqrt(.5), (major - minor) * std::sqrt(.5),
                                          (minor - major) * std::sqrt(.5), (major + minor) * -std::sqrt(.5)}};
-    for (double step = .5; step >= 1. / 512 && best < .22; step *= .5)
-      for (int sweep = 0; sweep < 2 && best < .22; ++sweep) {
+    for (double step = .5; step >= 1. / 512 && needsSearch(); step *= .5)
+      for (int sweep = 0; sweep < 2 && needsSearch(); ++sweep) {
         const auto center = chosen;
-        const auto before = best;
+        const auto before = chosen;
         for (const auto direction : directions) trial(center + direction * step);
-        if (best == before) break;
+        if (chosen.x == before.x && chosen.y == before.y) break;
       }
   }
   if (!improved) reason = "no improving valid movement";
@@ -400,6 +418,44 @@ inline bool affected(const Triangle& t, Request r) {
 }
 constexpr std::size_t MAX_CAVITY = 32;
 
+inline bool reconstruct(Request r, const std::vector<Triangle>& old, const Metric& metric, Id new_point,
+                        std::vector<Triangle>& fresh, std::string& reason);
+
+/*! Reconnect a private triangulation before enforcing its final shape floor.
+ * Local deficit reduction can repair tied bad cells without worsening other
+ * cells. A size insertion must not restore the edge it was asked to refine. */
+inline void RepairShape(std::vector<Triangle>& cells, const Metric& metric, double floor,
+                        Edge forbidden = {0, 0}) {
+  auto deficit = [&](const std::vector<Triangle>& input) {
+    double value = 0;
+    for (const auto& t : input) value += std::max(0., floor - quality(t, metric));
+    return value;
+  };
+  for (size_t pass = 0; pass < 2 * cells.size() && min_quality(cells, metric) < floor; ++pass) {
+    std::map<Edge, std::vector<size_t>> incidence;
+    for (size_t i = 0; i < cells.size(); ++i)
+      for (int k = 0; k < 3; ++k) incidence[edge(cells[i].v[k].id, cells[i].v[(k + 1) % 3].id)].push_back(i);
+    bool improved = false;
+    for (const auto& entry : incidence) {
+      if (entry.second.size() != 2) continue;
+      const auto left = entry.second[0], right = entry.second[1];
+      const std::vector<Triangle> old{cells[left], cells[right]};
+      std::vector<Triangle> fresh;
+      std::string reason;
+      if (!reconstruct({Kind::FLIP, entry.first.first, entry.first.second, 1}, old, metric, 0, fresh, reason)) continue;
+      bool restores = false;
+      for (const auto& t : fresh)
+        for (int k = 0; k < 3; ++k) restores |= edge(t.v[k].id, t.v[(k + 1) % 3].id) == forbidden;
+      if (restores || !(deficit(fresh) < deficit(old) - 1e-10)) continue;
+      cells[left] = fresh[0];
+      cells[right] = fresh[1];
+      improved = true;
+      break;
+    }
+    if (!improved) break;
+  }
+}
+
 /*! Insert in an edge star, then absorb admitted adjacent cells from the bounded
  * dependency patch. Reconnection happens before publication, so midpoint
  * children need not survive until a later global flip phase. Unabsorbed cells,
@@ -412,7 +468,7 @@ inline bool SplitPatch(Request r, const std::vector<Triangle>& old, const Metric
     return false;
   }
   const auto a = all.at(r.a), b = all.at(r.b);
-  const Node point{new_point, a.p + (b.p - a.p) * .5, 0};
+  Node point{new_point, a.p + (b.p - a.p) * .5, 0};
   std::set<size_t> selected;
   for (size_t k = 0; k < old.size(); ++k)
     if (affected(old[k], r)) {
@@ -441,6 +497,55 @@ inline bool SplitPatch(Request r, const std::vector<Triangle>& old, const Metric
   };
   std::vector<Triangle> current;
   if (!fan(selected, current)) return false;
+  const bool sizeInsertion = length(a, b, metric) > 1.6;
+  double fraction = .5;
+  if (sizeInsertion) {
+    // Equal Euclidean halves need not fit a graded metric. Use the same
+    // Simpson-length balance as surface splitting, retaining the edge geometry.
+    double lo = 0, hi = 1;
+    for (int iteration = 0; iteration < 32; ++iteration) {
+      fraction = .5 * (lo + hi);
+      const Node trial{new_point, a.p + (b.p - a.p) * fraction, 0};
+      const double left = length(a, trial, metric), right = length(trial, b, metric);
+      if (left == right) break;
+      if (left < right) lo = fraction;
+      else hi = fraction;
+    }
+  }
+  point.p = a.p + (b.p - a.p) * fraction;
+  if (!fan(selected, current)) return false;
+  auto sizeDeficit = [&](const std::vector<Triangle>& cells) {
+    std::set<Edge> seen;
+    long double value = 0;
+    for (const auto& t : cells)
+      for (int k = 0; k < 3; ++k) {
+        const auto u = t.v[k], v = t.v[(k + 1) % 3];
+        if (!seen.insert(edge(u.id, v.id)).second) continue;
+        const long double excess = std::max(0., length(u, v, metric) - 1.8);
+        value += excess * excess;
+      }
+    return value;
+  };
+  auto sizeProgress = [&](const std::vector<Triangle>& before, const std::vector<Triangle>& after) {
+    if (sizeInsertion) {
+      // Ordinary refinement adds resolution. Only absorption of an existing
+      // free vertex can undo it; require deficit progress for that replacement.
+      const auto previous = nodes(before), next = nodes(after);
+      const bool removed = std::any_of(previous.begin(), previous.end(),
+                                      [&](const auto& node) { return !next.count(node.first); });
+      if (!removed) return true;
+      const auto oldCost = sizeDeficit(before), newCost = sizeDeficit(after);
+      return oldCost > 0 ? newCost < oldCost : newCost == 0;
+    }
+    // Pure shape repair may retain a long artificial perimeter, but cannot
+    // create a new oversized interior edge while replacing a free vertex.
+    const auto perimeter = boundary(before);
+    for (const auto& t : after)
+      for (int k = 0; k < 3; ++k)
+        if (!perimeter.count(edge(t.v[k].id, t.v[(k + 1) % 3].id)) &&
+            length(t.v[k], t.v[(k + 1) % 3], metric) > 1.8) return false;
+    return true;
+  };
   for (size_t iteration = 0; iteration < old.size(); ++iteration) {
     const double current_min = min_quality(current, metric);
     if (current_min >= .22) break;
@@ -449,8 +554,34 @@ inline bool SplitPatch(Request r, const std::vector<Triangle>& old, const Metric
     const auto perimeter = boundary(current);
     const double current_max = max_length(current, metric);
     double best_gain = 1e-5;
-    size_t chosen = old.size();
+    std::set<size_t> chosen;
     std::vector<Triangle> best;
+    auto consider = [&](const std::set<size_t>& members, bool optimize) {
+      std::vector<Triangle> trial, added;
+      for (const auto k : members)
+        if (!selected.count(k)) added.push_back(old[k]);
+      if (added.empty() || !fan(members, trial)) return;
+      if (optimize && min_quality(trial, metric) < .22) {
+        std::vector<Triangle> moved;
+        std::string why;
+        if (MoveStar(trial, new_point, metric, moved, why)) trial.swap(moved);
+      }
+      const double old_q = min_quality(added, metric);
+      if (min_quality(trial, metric) + 1e-7 < std::min(current_min, old_q)) return;
+      double next_penalty = 0, added_penalty = 0;
+      for (const auto& t : trial) next_penalty += std::max(.22 - quality(t, metric), 0.);
+      for (const auto& t : added) added_penalty += std::max(.22 - quality(t, metric), 0.);
+      const double gain = penalty + added_penalty - next_penalty;
+      if (!(gain > best_gain)) return;
+      std::vector<Triangle> replaced;
+      for (const auto k : members) replaced.push_back(old[k]);
+      if (!sizeProgress(replaced, trial)) return;
+      const double cap = std::max({1.8, current_max, max_length(added, metric)});
+      if (max_length(trial, metric) > cap + 1e-12 * cap) return;
+      chosen = members;
+      best_gain = gain;
+      best = std::move(trial);
+    };
     for (size_t k = 0; k < old.size(); ++k) {
       if (selected.count(k) || old[k].protected_cell) continue;
       bool adjacent = false;
@@ -459,22 +590,37 @@ inline bool SplitPatch(Request r, const std::vector<Triangle>& old, const Metric
       if (!adjacent) continue;
       auto members = selected;
       members.insert(k);
-      std::vector<Triangle> trial;
-      if (!fan(members, trial)) continue;
-      const double old_q = quality(old[k], metric);
-      if (min_quality(trial, metric) + 1e-7 < std::min(current_min, old_q)) continue;
-      double next_penalty = 0;
-      for (const auto& t : trial) next_penalty += std::max(.22 - quality(t, metric), 0.);
-      const double gain = penalty + std::max(.22 - old_q, 0.) - next_penalty;
-      if (!(gain > best_gain)) continue;
-      const double cap = std::max({1.8, current_max, max_length(std::vector<Triangle>{old[k]}, metric)});
-      if (max_length(trial, metric) > cap + 1e-12 * cap) continue;
-      chosen = k;
-      best_gain = gain;
-      best = std::move(trial);
+      consider(members, false);
     }
-    if (chosen == old.size()) break;
-    selected.insert(chosen);
+    // A free perimeter vertex can hide a complete star behind a concave
+    // intermediate fan. Absorb its COMPLETE imported star in one proposal,
+    // then optimize the new point privately. Every removed vertex must be
+    // interior to this dependency patch; protected cells remain untouched.
+    const auto patchBoundary = boundary(old);
+    std::set<Id> exposed;
+    for (const auto& face : patchBoundary) {
+      exposed.insert(face.first.first);
+      exposed.insert(face.first.second);
+    }
+    std::set<Id> closurePoints;
+    for (const auto& face : perimeter) {
+      closurePoints.insert(face.first.first);
+      closurePoints.insert(face.first.second);
+    }
+    for (const auto id : closurePoints) {
+      if (all.at(id).fixed || exposed.count(id)) continue;
+      auto members = selected;
+      bool protectedStar = false;
+      for (size_t k = 0; k < old.size(); ++k)
+        for (const auto& v : old[k].v)
+          if (v.id == id) {
+            members.insert(k);
+            protectedStar |= old[k].protected_cell != 0;
+          }
+      if (!protectedStar) consider(members, true);
+    }
+    if (chosen.empty()) break;
+    selected = std::move(chosen);
     current = std::move(best);
   }
   // A new free point also repairs shallow ears with three fixed boundary
@@ -484,6 +630,25 @@ inline bool SplitPatch(Request r, const std::vector<Triangle>& old, const Metric
     std::vector<Triangle> moved;
     std::string movementReason;
     if (MoveStar(current, new_point, metric, moved, movementReason)) current.swap(moved);
+  }
+  std::vector<Triangle> replaced;
+  for (const auto k : selected) replaced.push_back(old[k]);
+  const double before = min_quality(replaced, metric);
+  RepairShape(current, metric, std::min(.18, before), sizeInsertion ? edge(r.a, r.b) : Edge{0, 0});
+  const double after = min_quality(current, metric);
+  if (after < std::min(.18, before) * (1 - 1e-12)) {
+    reason = "insertion worsens sub-threshold shape";
+    return false;
+  }
+  // A fitting edge is inserted only to repair shape. Without this progress
+  // check a failed repair repeatedly bisects the same shallow ear.
+  if (!sizeProgress(replaced, current)) {
+    reason = "insertion does not reduce length deficits";
+    return false;
+  }
+  if (!sizeInsertion && after <= before + 1e-7) {
+    reason = "insertion does not improve shape";
+    return false;
   }
   fresh = std::move(current);
   for (size_t k = 0; k < old.size(); ++k)
@@ -517,7 +682,13 @@ inline bool reconstruct(Request r, const std::vector<Triangle>& old, const Metri
       reason = "non-simple star or ear failure";
       return false;
     }
-    if (min_quality(fresh, metric) < .22) {
+    // Keep the normal coarsening margin. A poor seed needs progressive
+    // deletion of thin rows: require nondegradation of its worst quality,
+    // then let subsequent cavities repair it. Final acceptance still needs
+    // 0.18 everywhere. Requiring 0.22 here traps the original BL topology.
+    const double before = min_quality(old, metric);
+    const double requiredQuality = before < .18 ? before * (1 - 1e-12) : .22;
+    if (min_quality(fresh, metric) < requiredQuality) {
       reason = "coarsening misses target";
       return false;
     }
@@ -554,8 +725,14 @@ inline bool reconstruct(Request r, const std::vector<Triangle>& old, const Metri
     fresh = {triangle(c, d, a), triangle(d, c, b)};
     // Long unchanged perimeter edges must not prevent an improving reconnection.
     // The replaced diagonal cannot introduce a new length deficit or worsen its old one.
-    if (min_quality(fresh, metric) <= min_quality(old, metric) + 1e-7 ||
-        length(c, d, metric) > std::max(1.8, length(a, b, metric))) {
+    const double before = min_quality(old, metric), after = min_quality(fresh, metric),
+                 oldLength = length(a, b, metric), newLength = length(c, d, metric);
+    // A legal shape may still carry an oversized diagonal. Repair its size
+    // without requiring an additional shape gain; the reverse flip cannot
+    // recreate a long edge once the diagonal fits. Poor shapes cannot worsen.
+    const bool sizeRepair = oldLength > 1.8 && newLength < oldLength * (1 - 1e-12) &&
+                            after >= std::min(.18, before) * (1 - 1e-12);
+    if ((!sizeRepair && after <= before + 1e-7) || newLength > std::max(1.8, oldLength)) {
       reason = "flip does not improve quality";
       return false;
     }
@@ -589,7 +766,7 @@ inline std::vector<Request> candidates(const std::vector<Triangle>& local, Kind 
         }
       } else if (kind == Kind::MOVE) {
         const auto key = std::make_pair(a.id, Id(0));
-        Request r{kind, a.id, 0, 1 - quality(t, metric)};
+        Request r{kind, a.id, 0, std::max(1 - quality(t, metric), length(a, b, metric) - 1.8)};
         if (!a.fixed && (!result.count(key) || result[key].score < r.score)) result[key] = r;
       } else {
         const auto e = edge(a.id, b.id);
@@ -605,5 +782,264 @@ inline std::vector<Request> candidates(const std::vector<Triangle>& local, Kind 
   std::vector<Request> output;
   for (auto entry : result) output.push_back(entry.second);
   return output;
+}
+inline bool strict_cells(const std::vector<Triangle>& cells, std::string& reason) {
+  std::set<std::array<Id, 3>> unique;
+  std::map<Edge, std::vector<std::pair<Id, Id>>> incidence;
+  for (auto t : cells) {
+    if (!(area(t) > 0)) {
+      reason = "nonpositive cell";
+      return false;
+    }
+    std::array<Id, 3> ids{{t.v[0].id, t.v[1].id, t.v[2].id}};
+    std::sort(ids.begin(), ids.end());
+    if (!unique.insert(ids).second) {
+      reason = "duplicate triangle";
+      return false;
+    }
+    for (int k = 0; k < 3; ++k)
+      incidence[edge(t.v[k].id, t.v[(k + 1) % 3].id)].push_back({t.v[k].id, t.v[(k + 1) % 3].id});
+  }
+  for (auto f : incidence)
+    if (f.second.size() > 2 || (f.second.size() == 2 && !(f.second[0].first == f.second[1].second &&
+                                                          f.second[0].second == f.second[1].first))) {
+      reason = "nonmanifold or equally oriented interior edge";
+      return false;
+    }
+  const auto all = nodes(cells);
+  std::set<std::pair<double, double>> positions;
+  for (const auto& entry : all)
+    if (!positions.emplace(entry.second.p.x, entry.second.p.y).second) {
+      reason = "different node identities at the same position";
+      return false;
+    }
+  for (const auto& f : incidence) {
+    const auto a = all.at(f.first.first).p, b = all.at(f.first.second).p;
+    for (const auto& v : all)
+      if (v.first != f.first.first && v.first != f.first.second && OnSegment(a, b, v.second.p)) {
+        reason = "nonincident node on edge";
+        return false;
+      }
+    for (const auto& g : incidence)
+      if (f.first < g.first && f.first.first != g.first.first && f.first.first != g.first.second &&
+          f.first.second != g.first.first && f.first.second != g.first.second &&
+          SegmentsIntersect(a, b, all.at(g.first.first).p, all.at(g.first.second).p)) {
+        reason = "intersecting nonincident edges";
+        return false;
+      }
+  }
+  return true;
+}
+
+// Stagnation-only reconstruction. The ordinary 32-cell primitive remains bounded
+// separately; MPI imports and reserves this complete patch before private search.
+constexpr std::size_t MAX_JOINT_CAVITY = 128;
+// ponytail: bounded coordinate descent with two insertions; profile before adding a general optimizer.
+inline double SizeDeficit(const std::vector<Triangle>& cells, const Metric& metric) {
+  std::set<Edge> seen;
+  double value = 0;
+  for (const auto& t : cells)
+    for (int k = 0; k < 3; ++k) {
+      const auto a = t.v[k], b = t.v[(k + 1) % 3];
+      if (!seen.insert(edge(a.id, b.id)).second) continue;
+      const double excess = std::max(0., length(a, b, metric) - 1.8);
+      value += excess * excess;
+    }
+  return value;
+}
+inline Point SplitSeed(const std::vector<Triangle>& old, const Metric& metric, Edge request, Id id) {
+  std::vector<Triangle> pair;
+  for (const auto& t : old)
+    if (affected(t, {Kind::SPLIT, request.first, request.second, 1})) pair.push_back(t);
+  if (pair.size() != 2) throw std::runtime_error("not a complete interior edge star");
+  const auto all = nodes(pair);
+  Point chosen = (all.at(request.first).p + all.at(request.second).p) * .5;
+  const auto perimeter = boundary(pair);
+  double best = 1e100;
+  auto consider = [&](Point p) {
+    std::vector<Triangle> fan;
+    for (const auto& e : perimeter) {
+      if (orient(e.second.first.p, e.second.second.p, p) <= 0) return;
+      fan.push_back({0, {{e.second.first, e.second.second, {id, p, 0}}}, 0});
+    }
+    double cost = SizeDeficit(fan, metric);
+    for (const auto& t : fan) cost += 1000 * std::max(0., .1 - quality(t, metric));
+    if (cost < best) {
+      best = cost;
+      chosen = p;
+    }
+  };
+  consider(chosen);
+  for (const auto& parent : pair)
+    for (int i = 1; i < 40; ++i)
+      for (int j = 1; j < 40 - i; ++j)
+        consider(parent.v[0].p +
+                 ((parent.v[1].p - parent.v[0].p) * i + (parent.v[2].p - parent.v[0].p) * j) * (1. / 40));
+  return chosen;
+}
+inline std::vector<Triangle> JointPatch(const std::vector<Triangle>& old, const Metric& metric, Id first, Point seed,
+                                        Edge forbidden) {
+  if (old.empty() || old.size() > MAX_JOINT_CAVITY) return {};
+  std::vector<Triangle> pair, rest;
+  for (const auto& t : old) {
+    if (affected(t, {Kind::SPLIT, forbidden.first, forbidden.second, 1}))
+      pair.push_back(t);
+    else
+      rest.push_back(t);
+  }
+  if (pair.size() != 2 ||
+      std::any_of(pair.begin(), pair.end(), [](const Triangle& t) { return t.protected_cell != 0; }))
+    return {};
+  const auto perimeter = boundary(pair);
+  std::set<Id> locked;
+  for (const auto& face : boundary(old)) {
+    locked.insert(face.first.first);
+    locked.insert(face.first.second);
+  }
+  for (const auto& t : old)
+    for (const auto& v : t.v)
+      if (t.protected_cell || v.fixed) locked.insert(v.id);
+  std::vector<Triangle> fan;
+  for (const auto& face : perimeter) {
+    if (orient(face.second.first.p, face.second.second.p, seed) <= 0) return {};
+    fan.push_back({0, {{face.second.first, face.second.second, {first, seed, 0}}}, 0});
+  }
+  const auto sizeCost = [&](const std::vector<Triangle>& ts) { return SizeDeficit(ts, metric); };
+  const double oldCost = sizeCost(old), oldMax = max_length(old, metric);
+  std::vector<Triangle> best;
+  for (const double weight : {10., 100., 1000.})
+    for (size_t slot = 0; slot < fan.size(); ++slot)
+      for (const double f : {1. / 3, .6}) {
+        auto state = fan;
+        state.insert(state.end(), rest.begin(), rest.end());
+        const auto parent = state[slot];
+        const Node inserted{first + 1, parent.v[2].p * f + (parent.v[0].p + parent.v[1].p) * (.5 * (1 - f)), 0};
+        state[slot] = triangle(parent.v[0], parent.v[1], inserted);
+        state.push_back(triangle(parent.v[1], parent.v[2], inserted));
+        state.push_back(triangle(parent.v[2], parent.v[0], inserted));
+        auto score = [&](const std::vector<Triangle>& ts) {
+          double value = sizeCost(ts);
+          for (const auto& t : ts) {
+            const auto q = quality(t, metric);
+            if (!(q > 0)) return 1e100;
+            value += weight * std::max(0., .2 - q) + 1e-4 * (1 - q) * (1 - q);
+          }
+          return value;
+        };
+        auto consider = [&](const std::vector<size_t>& indices, std::vector<Triangle> trial) {
+          std::vector<Triangle> previous;
+          for (const auto index : indices) previous.push_back(state[index]);
+          std::string why;
+          if (!validate_replacement(previous, trial, why)) return false;
+          // Unchanged cell and edge terms cancel. The complete point star or flip
+          // pair contains every changed term; its unchanged perimeter also cancels.
+          if (!(score(trial) < score(previous) - 1e-10)) return false;
+          for (size_t k = 0; k < indices.size(); ++k) state[indices[k]] = trial[k];
+          return true;
+        };
+        std::vector<Id> movable;
+        for (const auto& entry : nodes(state))
+          if (!locked.count(entry.first)) movable.push_back(entry.first);
+        for (double step = 1; step >= 1. / 4096; step *= .5)
+          for (int sweep = 0; sweep < 8; ++sweep) {
+            bool changed = false;
+            for (const Id id : movable) {
+              const auto all = nodes(state);
+              const auto origin = all.at(id).p;
+              const auto m = metric(origin);
+              const double scale = std::max({std::abs(m.xx), std::abs(m.xy), std::abs(m.yy)});
+              const double large = .5 * ((m.xx + m.yy) / scale + std::hypot((m.xx - m.yy) / scale, 2 * m.xy / scale));
+              const double small = double(NormalizedDeterminant(m.xx, m.xy, m.yy)) / large;
+              const double angle = .5 * std::atan2(2 * m.xy, m.xx - m.yy), factor = 1 / std::sqrt(scale);
+              const Point major{std::cos(angle) * factor / std::sqrt(large),
+                                std::sin(angle) * factor / std::sqrt(large)};
+              const Point minor{-std::sin(angle) * factor / std::sqrt(small),
+                                std::cos(angle) * factor / std::sqrt(small)};
+              std::vector<Point> directions{major,
+                                            major * -1,
+                                            minor,
+                                            minor * -1,
+                                            (major + minor) * std::sqrt(.5),
+                                            (major - minor) * std::sqrt(.5),
+                                            (minor - major) * std::sqrt(.5),
+                                            (major + minor) * -std::sqrt(.5)};
+              std::vector<Triangle> star;
+              std::vector<size_t> indices;
+              for (size_t index = 0; index < state.size(); ++index)
+                for (const auto& v : state[index].v)
+                  if (v.id == id) {
+                    star.push_back(state[index]);
+                    indices.push_back(index);
+                    break;
+                  }
+              Point goal;
+              if (MovementGoal(nodes(star), id, metric, goal)) directions.push_back(goal - origin);
+              for (const auto direction : directions) {
+                std::vector<Triangle> trial;
+                for (const auto index : indices) trial.push_back(state[index]);
+                const auto position = origin + direction * step;
+                for (auto& t : trial)
+                  for (auto& v : t.v)
+                    if (v.id == id) v.p = position;
+                changed |= consider(indices, std::move(trial));
+              }
+            }
+            std::map<Edge, std::vector<size_t>> incidence;
+            for (size_t i = 0; i < state.size(); ++i)
+              for (int k = 0; k < 3; ++k) incidence[edge(state[i].v[k].id, state[i].v[(k + 1) % 3].id)].push_back(i);
+            for (const auto& e : incidence) {
+              if (e.second.size() != 2) continue;
+              const auto l = e.second[0], r = e.second[1];
+              if (state[l].protected_cell || state[r].protected_cell) continue;
+              const auto local = nodes({state[l], state[r]});
+              std::vector<Node> opposite;
+              for (const auto& v : local)
+                if (v.first != e.first.first && v.first != e.first.second) opposite.push_back(v.second);
+              if (opposite.size() != 2 || edge(opposite[0].id, opposite[1].id) == forbidden) continue;
+              const auto a = local.at(e.first.first), b = local.at(e.first.second), c = opposite[0], d = opposite[1];
+              if (!((orient(c.p, d.p, a.p) > 0 && orient(c.p, d.p, b.p) < 0) ||
+                    (orient(c.p, d.p, a.p) < 0 && orient(c.p, d.p, b.p) > 0)))
+                continue;
+              if (consider({l, r}, {triangle(c, d, a), triangle(d, c, b)})) {
+                changed = true;
+                break;
+              }
+            }
+            if (!changed) break;
+          }
+        const double q = min_quality(state, metric), cost = sizeCost(state), L = max_length(state, metric);
+        if (q >= .18 && cost < oldCost * (1 - 1e-8) && L <= oldMax * (1 + 1e-12)) {
+          best = state;
+          std::string why;
+          if (!strict_cells(best, why) || !validate_replacement(old, best, why)) throw std::runtime_error(why);
+          return best;
+        }
+      }
+  return {};
+}
+
+inline bool JointSplitPatch(Request request, const std::vector<Triangle>& old, const Metric& metric, Id first,
+                            std::vector<Triangle>& fresh, std::string& reason) {
+  fresh.clear();
+  if (request.kind != Kind::SPLIT || old.empty() || old.size() > MAX_JOINT_CAVITY) {
+    reason = "joint dependency cap or unsupported action";
+    return false;
+  }
+  const double before = SizeDeficit(old, metric), maximum = max_length(old, metric);
+  if (!(before > 0)) {
+    reason = "joint patch has no length deficit";
+    return false;
+  }
+  if (SplitPatch(request, old, metric, first, fresh, reason) && min_quality(fresh, metric) >= .18 &&
+      max_length(fresh, metric) <= maximum * (1 + 1e-12) && SizeDeficit(fresh, metric) < before * (1 - 1e-8) &&
+      strict_cells(fresh, reason) && validate_replacement(old, fresh, reason))
+    return true;
+  fresh = JointPatch(old, metric, first, SplitSeed(old, metric, edge(request.a, request.b), first),
+                     edge(request.a, request.b));
+  if (fresh.empty()) {
+    reason = "joint reconstruction misses shape or size progress";
+    return false;
+  }
+  return true;
 }
 }  // namespace SU2Native2D

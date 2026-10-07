@@ -751,42 +751,43 @@ std::vector<CBoundaryLayerMetric::WallReport> CBoundaryLayerMetric::Apply(const 
   std::vector<WallReport> reports(walls.size());
   const auto nPoint = metric.size();
 
+  for (unsigned short iWall = 0; iWall < walls.size(); ++iWall) reports[iWall].name = walls[iWall].layer.marker;
+  for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint)
+    ApplyPoint(&coord[iPoint * nDim], metric[iPoint], coreEigenvalue, &reports);
+  return reports;
+}
+
+void CBoundaryLayerMetric::ApplyPoint(const su2double* X, Tensor& metric, su2double coreEigenvalue,
+                                      std::vector<WallReport>* reports, bool useTangentialFloor) {
   for (unsigned short iWall = 0; iWall < walls.size(); ++iWall) {
-    auto& report = reports[iWall];
-    report.name = walls[iWall].layer.marker;
     const auto& d = *data[iWall];
-
-    for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
-      const auto* X = &coord[iPoint * nDim];
-      bool inside = true;
-      for (unsigned short iDim = 0; iDim < nDim; ++iDim) inside = inside && X[iDim] >= d.low[iDim] && X[iDim] <= d.high[iDim];
-      if (!inside) continue;
-
-      const auto sample = Evaluate(iWall, X, coreEigenvalue);
-      if (!(sample.weight > 0.0)) continue;
+    bool inside = true;
+    for (unsigned short iDim = 0; iDim < nDim; ++iDim)
+      inside = inside && X[iDim] >= d.low[iDim] && X[iDim] <= d.high[iDim];
+    if (!inside) continue;
+    const auto sample = Evaluate(iWall, X, coreEigenvalue);
+    if (!(sample.weight > 0.0)) continue;
+    su2double vec[3][3], val[3], work[3];
+    CBlasStructure::EigenDecomposition(sample.full.m, vec, val, nDim, work);
+    su2double C[3][3] = {{0.0}};
+    CSolver::IntersectMetrics(nDim, metric.m, sample.metric.m, C);
+    bool changed = false;
+    for (unsigned short i = 0; i < nDim; ++i)
+      for (unsigned short j = 0; j < nDim; ++j) {
+        const su2double value = 0.5 * (C[i][j] + C[j][i]);
+        changed = changed || (value != metric.m[i][j]);
+        metric.m[i][j] = value;
+      }
+    const bool floor = useTangentialFloor && sample.weight == 1.0 && TangentialFloor(sample, val, d.h0, metric);
+    if (reports) {
+      auto& report = reports->at(iWall);
       ++report.nPoint;
-
-      su2double vec[3][3], val[3], work[3];
-      CBlasStructure::EigenDecomposition(sample.full.m, vec, val, nDim, work);
+      report.nChanged += changed;
+      report.nFloor += floor;
       const su2double ratio = sqrt(*std::max_element(val, val + nDim) / *std::min_element(val, val + nDim));
       report.maxAspectRatio = max(report.maxAspectRatio, ratio);
-
-      su2double C[3][3] = {{0.0}};
-      CSolver::IntersectMetrics(nDim, metric[iPoint].m, sample.metric.m, C);
-      bool changed = false;
-      for (unsigned short i = 0; i < nDim; ++i)
-        for (unsigned short j = 0; j < nDim; ++j) {
-          const su2double value = 0.5 * (C[i][j] + C[j][i]);
-          changed = changed || (value != metric[iPoint].m[i][j]);
-          metric[iPoint].m[i][j] = value;
-        }
-      if (changed) ++report.nChanged;
-
-      /*--- Next to the wall, no tangential size below the one of the wall faces. ---*/
-      if (sample.weight == 1.0 && TangentialFloor(sample, val, d.h0, metric[iPoint])) ++report.nFloor;
     }
   }
-  return reports;
 }
 
 bool CBoundaryLayerMetric::TangentialFloor(const Sample& sample, const su2double* wallEigenvalues, su2double h0,

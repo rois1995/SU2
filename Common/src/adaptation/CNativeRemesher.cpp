@@ -19,8 +19,9 @@
 
 using namespace SU2NativeBoundary2D;
 
-CNativeRemesher::CNativeRemesher(std::shared_ptr<ReferenceState> retainedReference)
-    : reference(std::move(retainedReference)) {
+CNativeRemesher::CNativeRemesher(std::shared_ptr<ReferenceState> retainedReference,
+                                 CompositionFactory geometricConstraints)
+    : compositionFactory(std::move(geometricConstraints)), reference(std::move(retainedReference)) {
   if (!reference) throw std::invalid_argument("Native remesher needs driver-owned reference storage.");
 }
 
@@ -60,6 +61,10 @@ void CNativeRemesher::CheckSupport(const CConfig& config, const CGeometry& geome
       if (type != LINE && type != VERTEX) failure.Set(1, m, "Native adaptation needs line physical faces.");
     }
   }
+  for (unsigned short b = 0; b < config.GetnAdap_BL(); ++b)
+    for (unsigned short m = 0; m < geometry.GetnMarker(); ++m)
+      if (config.GetMarker_All_TagBound(m) == config.GetAdap_BL(b).marker && !config.GetSolid_Wall(m))
+        failure.Set(1, b, "ADAP_BL_MARKER: " + config.GetAdap_BL(b).marker + " is not a wall marker.");
   CollectiveFailure(failure, CURRENT_FUNCTION);
 }
 
@@ -321,6 +326,7 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
           cell.t.protected_cell = 1;
       }
   EngineOptions control;
+  if (compositionFactory) control.metric_composition = compositionFactory(config, geometry, metric);
   // Account for refinement demand as well as input size. Original frozen P1
   // tensors are averaged at donor centroids; no tensor/target is altered.
   long double localComplexity = 0;
@@ -346,7 +352,26 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
   const auto globalCells = CPassiveComm::Allreduce(uint64_t(input.size()), CPassiveComm::Op::SUM);
   // A unit-edge equilateral metric triangle has area sqrt(3)/4. This is a
   // work estimate, not a requested cell count or a guarantee of completion.
-  const long double estimatedCells = 4 * static_cast<long double>(complexity) / std::sqrt(3.L);
+  const long double sensorCells = 4 * static_cast<long double>(complexity) / std::sqrt(3.L);
+  long double layerCells = 0;
+  if (control.metric_composition)
+    for (unsigned short b = 0; b < config.GetnAdap_BL(); ++b) {
+      const auto& layer = config.GetAdap_BL(b);
+      const long double h = SU2_TYPE::GetValue(layer.firstHeight), g = SU2_TYPE::GetValue(layer.growth),
+                        thickness = SU2_TYPE::GetValue(layer.thickness);
+      // Approximate two triangles per geometric row and original wall edge.
+      // This accounts for BL work without coarse-area weighting of a pointwise
+      // wall tensor. Corners/rotated sensor intersections can need more work;
+      // the existing ceiling still bounds each phase, not guarantees completion.
+      const long double rows = g == 1 ? thickness / h : std::log1p((g - 1) * thickness / h) / std::log(g);
+      for (const auto& component : reference->original->Components())
+        if (names.at(component.marker) == layer.marker)
+          layerCells += 2 * (component.nodes.size() - 1) * std::ceil(rows);
+    }
+  const long double estimatedCells = sensorCells + layerCells;
+  if (!(std::isfinite(estimatedCells) && estimatedCells >= 0))
+    workFailure.Set(1, 0, "Unrepresentable geometric BL work allowance.");
+  CollectiveFailure(workFailure, CURRENT_FUNCTION);
   const auto rounds = std::ceil(std::max(static_cast<long double>(globalCells), estimatedCells) / (4 * world.size));
   control.phase_rounds = int(std::min(20000.L, std::max(300.L, rounds)));
   control.geometry_tolerance = SU2_TYPE::GetValue(config.GetAdap_Hausd());
@@ -355,13 +380,14 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
     std::cout << "Native contract: q>=0.18, frozen-target Simpson edge length<=1.8, reference deviation<="
               << control.geometry_tolerance
               << ", requested wall altitude relative error<=1e-8; dependency budget=" << control.dependency_bytes
-              << " bytes per rank, original P1 nodal target, boundary sampling "
+              << " bytes per rank, original P1 sensor target"
+              << (control.metric_composition ? " + geometric BL constraints" : "") << ", boundary sampling "
               << (control.fixed_boundary ? "fixed" : "adaptive") << ".\n";
   if (world.rank == 0)
     std::cout << "Native work allowance: " << control.phase_rounds << " collective rounds per phase, "
               << control.sweeps << " sweeps, for " << globalCells << " input cells on " << world.size
               << " ranks; frozen P1 centroid complexity=" << complexity << ", estimated unit triangles="
-              << estimatedCells << ".\n";
+              << estimatedCells << " (geometric BL row allowance=" << layerCells << ").\n";
   if (world.rank == 0)
     for (const auto& height : heights)
       std::cout << "Native requested first altitude: " << names[height.first] << " = " << height.second << '\n';
@@ -416,6 +442,8 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
     }
   };
   const auto commits = world.sum(engine.stats.commits), cross = world.sum(engine.stats.cross_rank);
+  const auto jointCommits = world.sum(engine.stats.joint_commits);
+  const auto jointSeconds = CPassiveComm::Allreduce(engine.stats.joint_seconds, CPassiveComm::Op::MAX);
   const auto rejectedSize = world.sum(engine.stats.size_rejected),
              rejectedMemory = world.sum(engine.stats.memory_rejected),
              rejectedStale = world.sum(engine.stats.stale_rejected), conflicts = world.sum(engine.stats.conflicts);
@@ -447,6 +475,8 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
   if (world.rank == 0)
     std::cout << "Native remaining residuals: shape=" << missedShape << ", edge length=" << missedSize << '\n';
   if (world.rank == 0) {
+    std::cout << "Native coordinated repair: " << jointCommits << " commits, " << jointSeconds
+              << " seconds (maximum across ranks).\n";
     std::cout << "Native operations (height/split/remove/redistribute/bulk remove/split/flip/move):";
     for (const auto count : actions) std::cout << ' ' << count;
     std::cout << "; conflicts=" << conflicts << ", dependency-size rejects=" << rejectedSize

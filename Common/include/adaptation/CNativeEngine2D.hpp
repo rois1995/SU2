@@ -58,11 +58,14 @@ struct EngineOptions {
   double geometry_tolerance = 0;
   int phase_rounds = 300, sweeps = 6;
   bool ordered = false, fixed_boundary = false;
+  MetricComposition metric_composition;
 };
 struct EngineStats {
   int rounds = 0, commits = 0, cross_rank = 0, conflicts = 0, size_rejected = 0, memory_rejected = 0,
       stale_rejected = 0;
   size_t max_patch = 0, max_donors = 0;
+  int joint_commits = 0;
+  double joint_seconds = 0;
   std::array<int, 8> accepted{};
   std::array<double, 8> phase_seconds{};
   std::array<double, 8> choice_seconds{};
@@ -91,7 +94,7 @@ class Engine {
         reference(std::move(policy)),
         options(control),
         owned(std::move(input)),
-        donor(w, owned) {
+        donor(w, owned, options.metric_composition) {
     CLocalFailure failure;
     if (!(std::isfinite(options.geometry_tolerance) && options.geometry_tolerance > 0) || !options.dependency_bytes ||
         options.phase_rounds < 1 || options.sweeps < 1)
@@ -104,6 +107,7 @@ class Engine {
         auto& cell = entry.second;
         if (entry.first != cell.t.id) throw std::runtime_error("Native owner map/cell identity mismatch.");
         FieldPatch patch;
+        patch.composition = donor.composition;
         patch.cells.push_back(donor.owned.at(entry.first));
         for (const auto marker : cell.marker)
           if (marker) patch.extension_components.insert(marker);
@@ -126,11 +130,10 @@ class Engine {
   }
 
   static bool Better(const Choice& a, const Choice& b) {
-    return a.score > b.score ||
-           (a.score == b.score && std::tie(a.op.a, a.op.b) < std::tie(b.op.a, b.op.b));
+    return a.score > b.score || (a.score == b.score && std::tie(a.op.a, a.op.b) < std::tie(b.op.a, b.op.b));
   }
 
-  Choice CellChoice(const Cell& cell, Action action, const std::set<Edge>& attempted) const {
+  Choice CellChoice(const Cell& cell, Action action, const std::set<Edge>& attempted, bool coordinated = false) const {
     Choice best;
     best.rank = world.rank;
     best.op.action = action;
@@ -150,19 +153,22 @@ class Engine {
       const auto length = cell.target_cache[k + 1];
       if (int(action) >= 4) {
         if (cell.t.protected_cell) continue;
-        if (action == Action::BULK_REMOVE && length < .65) {
-          if (!a.fixed) add(a.id, 0, .65 - length);
-          if (!b.fixed) add(b.id, 0, .65 - length);
+        if (coordinated) {
+          if (action == Action::BULK_SPLIT && !cell.marker[k] && length > 1.8) add(key.first, key.second, length - 1.8);
+          continue;
+        }
+        if (action == Action::BULK_REMOVE && (length < .65 || cell.target_cache[0] < .18)) {
+          const double demand = std::max(.65 - length, .18 - cell.target_cache[0]);
+          if (!a.fixed) add(a.id, 0, demand);
+          if (!b.fixed) add(b.id, 0, demand);
         }
         if (action == Action::BULK_SPLIT && length > 1.6) add(key.first, key.second, length - 1.6);
-        // A shallow ear made entirely of boundary points has no movable
-        // vertex. Its interior diagonal may already meet the size target;
-        // inserting a free point is still needed to repair its shape.
-        if (action == Action::BULK_SPLIT && cell.target_cache[0] < .18 && !cell.marker[k] &&
-            std::all_of(cell.t.v.begin(), cell.t.v.end(), [](const auto& v) { return v.fixed != 0; }))
+        // Shape repair can require a different cavity even when all edges
+        // fit. SplitPatch admits this insertion only if it improves shape.
+        if (action == Action::BULK_SPLIT && cell.target_cache[0] < .18 && !cell.marker[k])
           add(key.first, key.second, .18 - cell.target_cache[0]);
-        if (action == Action::BULK_FLIP) add(key.first, key.second, 1 - cell.target_cache[0]);
-        if (action == Action::BULK_MOVE && !a.fixed) add(a.id, 0, 1 - cell.target_cache[0]);
+        if (action == Action::BULK_FLIP) add(key.first, key.second, std::max(1 - cell.target_cache[0], length - 1.8));
+        if (action == Action::BULK_MOVE && !a.fixed) add(a.id, 0, std::max(1 - cell.target_cache[0], length - 1.8));
         continue;
       }
       if (!cell.marker[k]) continue;
@@ -173,6 +179,14 @@ class Engine {
         if (std::abs(actual / h - 1) > 1e-8) add(key.first, key.second, std::abs(actual / h - 1));
       }
       if (options.fixed_boundary) continue;
+      if (coordinated) {
+        if (action == Action::SPLIT && h == 0 && !cell.t.protected_cell) {
+          const double demand = std::max(.18 / cell.target_cache[0],
+              *std::max_element(cell.target_cache.begin() + 1, cell.target_cache.end()) / 1.8);
+          if (demand > 1) add(key.first, key.second, demand - 1);
+        }
+        continue;
+      }
       if (action == Action::SPLIT) {
         auto demand = std::max(length / 1.6, reference.deviation(face) / options.geometry_tolerance);
         // A wall base can already fit while a side edge or wall-cell shape
@@ -197,12 +211,12 @@ class Engine {
     return best;
   }
 
-  Choice choose(Action action, const std::set<Edge>& attempted) const {
+  Choice choose(Action action, const std::set<Edge>& attempted, bool coordinated = false) const {
     Choice best;
     best.rank = world.rank;
     best.op.action = action;
     for (const auto& entry : owned) {
-      const auto choice = CellChoice(entry.second, action, attempted);
+      const auto choice = CellChoice(entry.second, action, attempted, coordinated);
       if (Better(choice, best)) best = choice;
     }
     return best;
@@ -227,9 +241,9 @@ class Engine {
   };
   static_assert(sizeof(SelectionCache) <= 8192, "Native local selection cache exceeds its fixed storage bound.");
 
-  Choice chooseCached(Action action, const std::set<Edge>& attempted, SelectionCache& cache) {
+  Choice chooseCached(Action action, const std::set<Edge>& attempted, SelectionCache& cache, bool coordinated = false) {
     auto insert = [&](const Cell& cell) {
-      const auto choice = CellChoice(cell, action, attempted);
+      const auto choice = CellChoice(cell, action, attempted, coordinated);
       if (choice.score < 0) return;
       size_t position = 0;
       while (position < cache.size && !Better(choice, cache.entries[position].choice)) ++position;
@@ -261,7 +275,7 @@ class Engine {
         auto entry = cache.entries[k];
         const auto found = owned.find(entry.cell);
         if (found == owned.end() || found->second.version != entry.version) continue;
-        entry.choice = CellChoice(found->second, action, attempted);
+        entry.choice = CellChoice(found->second, action, attempted, coordinated);
         if (entry.choice.score >= 0) cache.entries[kept++] = entry;
       }
       cache.size = kept;
@@ -278,18 +292,19 @@ class Engine {
     return cache.size ? cache.entries[0].choice : result;
   }
 
-  bool round(Choice choice) {
+  bool round(Choice choice, bool coordinated = false) {
     ++stats.rounds;
     changedCount = 0;
     changedOverflow = false;
     last_deferred = false;
     last_committed = false;
     const int action = static_cast<int>(choice.op.action);
-    const int minAction = CPassiveComm::Allreduce(action, CPassiveComm::Op::MIN);
-    const int maxAction = CPassiveComm::Allreduce(action, CPassiveComm::Op::MAX);
+    const int protocol = action + (coordinated ? 8 : 0);
+    const int minimum = CPassiveComm::Allreduce(protocol, CPassiveComm::Op::MIN);
+    const int maximum = CPassiveComm::Allreduce(protocol, CPassiveComm::Op::MAX);
     CLocalFailure protocolFailure;
-    if (action < 0 || action > 7 || minAction != maxAction)
-      protocolFailure.Set(1, 0, "Native transaction actions differ between ranks.");
+    if (action < 0 || action > 7 || minimum != maximum || (coordinated && choice.op.action != Action::BULK_SPLIT && choice.op.action != Action::SPLIT))
+      protocolFailure.Set(1, 0, "Native transaction actions or reconstruction modes differ or are unsupported.");
     CollectiveFailure(protocolFailure, CURRENT_FUNCTION);
     if (options.ordered) {
       const auto choices = world.metadata(std::vector<Choice>{choice});
@@ -315,7 +330,7 @@ class Engine {
     }
     std::vector<Incidence> refs;
     std::vector<Cell> old, fresh;
-    for (int growth = 0; growth < (surface ? 3 : 1); ++growth) {
+    for (int growth = 0; growth < (surface ? 3 : coordinated ? 2 : 1); ++growth) {
       // A split imports the union of both endpoint stars for bounded private
       // cavity growth; a flip still needs only the two incident cells.
       refs = directory.lookup(seeds, overflow, choice.op.action == Action::BULK_FLIP);
@@ -343,6 +358,9 @@ class Engine {
         active = false;
       }
       if (surface && active) Enlarge(old, seeds);
+      if (coordinated && active)
+        for (const auto& cell : old)
+          for (const auto& vertex : cell.t.v) seeds.insert(vertex.id);
       if (!active) seeds.clear();
     }
     const bool reserved = directory.reserve(old, active, stats.conflicts);
@@ -357,7 +375,18 @@ class Engine {
     std::string reason;
     if (active) {
       try {
-        approved = reconstruct(choice.op, old, reference, target, pointBase, fresh, reason, options.geometry_tolerance);
+        // Unchanged vertices already have an authoritative sample of this
+        // immutable target. Different rounded donor-edge projections may
+        // differ by an ulp; keep that sample identical across incident cells.
+        // New/moved points still query the imported original donor field.
+        for (const auto& cell : old)
+          for (int k = 0; k < 3; ++k) {
+            const auto p = cell.t.v[k].p;
+            if (field->cache.size() < QUERY_CACHE_LIMIT)
+              field->cache.emplace(std::array<double, 2>{p.x, p.y}, cell.nodal_target[k]);
+          }
+        approved = reconstruct(choice.op, old, reference, target, pointBase, fresh, reason, options.geometry_tolerance,
+                               coordinated);
         if (approved && fresh.size() > 3 * PATCH_LIMIT) {
           approved = false;
           reason = "replacement cell cap";
@@ -506,6 +535,7 @@ class Engine {
       last_committed = !commit.empty();
       if (approved) {
         ++stats.commits;
+        stats.joint_commits += coordinated;
         ++stats.accepted[int(choice.op.action)];
         stats.cross_rank += participants.size() > 1;
       }
@@ -514,29 +544,69 @@ class Engine {
     return publish && approved;
   }
 
-  void phase(Action action) {
+  void phase(Action action, bool coordinated = false) {
     const double start = world.seconds();
     std::set<Edge> attempted;
     SelectionCache cache;
-    for (int iteration = 0; iteration < options.phase_rounds; ++iteration) {
+    for (int iteration = 0; iteration < (coordinated ? std::min(128, options.phase_rounds) : options.phase_rounds);
+         ++iteration) {
       const double choosing = world.seconds();
-      const auto choice = int(action) >= 4 ? chooseCached(action, attempted, cache) : choose(action, attempted);
+      const auto choice = int(action) >= 4 ? chooseCached(action, attempted, cache, coordinated)
+                                           : choose(action, attempted, coordinated);
       stats.choice_seconds[int(action)] += world.seconds() - choosing;
       if (!world.sum(choice.score >= 0)) break;
-      const bool accepted = round(choice);
+      const bool accepted = round(choice, coordinated);
       if (options.ordered) {
         if (!last_committed || action == Action::REDISTRIBUTE)
           attempted.insert({last_selected.op.a, last_selected.op.b});
       } else if (choice.score >= 0 && ((!accepted && !last_deferred) || action == Action::REDISTRIBUTE))
         attempted.insert({choice.op.a, choice.op.b});
     }
-    stats.phase_seconds[int(action)] += world.seconds() - start;
+    const double elapsed = world.seconds() - start;
+    stats.phase_seconds[int(action)] += elapsed;
+    if (coordinated) stats.joint_seconds += elapsed;
+  }
+  bool satisfied() const {
+    uint64_t missed = 0;
+    CLocalFailure failure;
+    try {
+      for (const auto& entry : owned) {
+        const auto& cell = entry.second;
+        missed += cell.target_cache[0] < .18 ||
+                  *std::max_element(cell.target_cache.begin() + 1, cell.target_cache.end()) > 1.8;
+        for (int k = 0; k < 3; ++k)
+          if (cell.marker[k]) {
+            const auto a = cell.t.v[k], b = cell.t.v[(k + 1) % 3];
+            missed += reference.deviation({a, b, cell.marker[k]}) > options.geometry_tolerance;
+            const double height = reference.height(cell.marker[k]);
+            if (height > 0) missed += std::abs(double(2 * area(cell.t)) / norm(b.p - a.p) / height - 1) > 1e-8;
+          }
+      }
+    } catch (const std::exception& error) {
+      failure.Set(1, 0, error.what());
+    }
+    CollectiveFailure(failure, CURRENT_FUNCTION);
+    return CPassiveComm::Allreduce(missed, CPassiveComm::Op::SUM) == 0;
+  }
+  void repair() {
+    // Reconsider failed edges after neighboring commits, with a finite work
+    // allowance. Original target, wall constraints and final gates are unchanged.
+    for (int pass = 0; pass < options.sweeps; ++pass) {
+      if (satisfied()) break;
+      const int before = stats.commits;
+      phase(Action::BULK_SPLIT, true);
+      if (!satisfied()) phase(Action::SPLIT, true);
+      if (!world.sum(stats.commits - before)) break;
+    }
   }
   void adapt() {
-    for (int sweep = 0; sweep < options.sweeps; ++sweep)
+    for (int sweep = 0; sweep < options.sweeps; ++sweep) {
       for (const auto action : {Action::HEIGHT, Action::SPLIT, Action::REMOVE, Action::REDISTRIBUTE,
                                 Action::BULK_REMOVE, Action::BULK_SPLIT, Action::BULK_FLIP, Action::BULK_MOVE})
         phase(action);
+      if (satisfied()) return;
+    }
+    repair();
   }
 
  private:

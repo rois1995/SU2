@@ -12,6 +12,8 @@
 #include "CNativeReference2D.hpp"
 #include "CNativeGeometryValidation2D.hpp"
 #include "CReaderSlices.hpp"
+#include <iomanip>
+#include <sstream>
 
 namespace SU2NativeBoundary2D {
 
@@ -199,8 +201,14 @@ inline CReaderSlices ReaderSlices(const std::map<Id, Cell>& owned, const Referen
       if (!found.second) {
         const auto& other = found.first->second;
         if (other.first.p.x != node.p.x || other.first.p.y != node.p.y || other.second.xx != target.xx ||
-            other.second.xy != target.xy || other.second.yy != target.yy)
-          failure.Set(1, node.id, "Inconsistent native output point/target cache.");
+            other.second.xy != target.xy || other.second.yy != target.yy) {
+          std::ostringstream message;
+          message << std::setprecision(17) << "Inconsistent native output point/target cache: point " << node.id
+                  << ", coordinates (" << other.first.p.x << ',' << other.first.p.y << ") / ("
+                  << node.p.x << ',' << node.p.y << "), targets (" << other.second.xx << ',' << other.second.xy
+                  << ',' << other.second.yy << ") / (" << target.xx << ',' << target.xy << ',' << target.yy << ").";
+          failure.Set(1, node.id, message.str());
+        }
       }
     }
   CollectiveFailure(failure, CURRENT_FUNCTION);

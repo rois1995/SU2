@@ -8,21 +8,34 @@ ROBUSTNESS_SCALING_RESULTS.md.
 ## RAE2822 transonic cases
 
 Actual case root: `integration_evidence/rae2822_transonic_v1`.
-The supplied [Euler-type input](integration_evidence/rae2822_transonic_v1/mesh_RAE2822_euler.su2)
-is used unchanged for both Euler and RANS.
+The latest completed common-app cases are Euler `nativefix_euler_rans_seed_v14`
+and RANS `nativefix_rans_euler_seed_v23`, both on app v31 with four MPI ranks.
+Euler starts from the triangulated original RANS grid and uses no BL metric.
+RANS starts from the supplied Euler grid and requests first height 1e-5.
+Both complete two adaptations and resume CFD with conservative transfer.
 
-- [Euler grids and Mach preview](integration_evidence/rae2822_transonic_v1/euler_no_bl_seed_v1/mesh_and_mach.png).
-- [Euler final mesh plus solution](integration_evidence/rae2822_transonic_v1/euler_no_bl_seed_v1/flow_adap_00002.vtu).
-- [Rejected Euler grid](integration_evidence/rae2822_transonic_v1/euler_rejected_replay_v1/mesh_adap_00001_rejected.su2).
-- [Rejected grid in ParaView with failure mask](integration_evidence/rae2822_transonic_v1/euler_rejected_replay_v1/mesh_adap_00001_rejected.vtu).
-- [Failure location preview](integration_evidence/rae2822_transonic_v1/euler_rejected_replay_v1/mesh_adap_00001_rejected_locations.png).
-- [RANS BL complexity diagnosis](integration_evidence/rae2822_transonic_v1/BL_COMPLEXITY_DIAGNOSIS.md).
+| Case | Input grid | Initial flow used for adaptation | First adapted mesh and flow | Second adapted mesh and flow | Preview |
+| --- | --- | --- | --- | --- | --- |
+| Euler | [input.su2](integration_evidence/rae2822_transonic_v1/nativefix_euler_rans_seed_v14/input.su2) | [flow0](integration_evidence/rae2822_transonic_v1/nativefix_euler_rans_seed_v14/flow_adap_00000.vtu) | [mesh1](integration_evidence/rae2822_transonic_v1/nativefix_euler_rans_seed_v14/mesh_adap_00001.su2), [flow1](integration_evidence/rae2822_transonic_v1/nativefix_euler_rans_seed_v14/flow_adap_00001.vtu) | [mesh2](integration_evidence/rae2822_transonic_v1/nativefix_euler_rans_seed_v14/mesh_adap_00002.su2), [flow2](integration_evidence/rae2822_transonic_v1/nativefix_euler_rans_seed_v14/flow_adap_00002.vtu) | [mesh/Mach](integration_evidence/rae2822_transonic_v1/nativefix_euler_rans_seed_v14/mesh_and_mach.png) |
+| RANS | [input.su2](integration_evidence/rae2822_transonic_v1/nativefix_rans_euler_seed_v23/input.su2) | [flow0](integration_evidence/rae2822_transonic_v1/nativefix_rans_euler_seed_v23/flow_adap_00000.vtu) | [mesh1](integration_evidence/rae2822_transonic_v1/nativefix_rans_euler_seed_v23/mesh_adap_00001.su2), [flow1](integration_evidence/rae2822_transonic_v1/nativefix_rans_euler_seed_v23/flow_adap_00001.vtu) | [mesh2](integration_evidence/rae2822_transonic_v1/nativefix_rans_euler_seed_v23/mesh_adap_00002.su2), [flow2](integration_evidence/rae2822_transonic_v1/nativefix_rans_euler_seed_v23/flow_adap_00002.vtu) | [mesh/Mach](integration_evidence/rae2822_transonic_v1/nativefix_rans_euler_seed_v23/mesh_and_mach.png) |
 
-Euler completed two adaptations; final mesh has 12,788 triangles. Force changes
-remain substantial. RANS was stopped by the user during excessive BL remeshing;
-its initial coarse-grid solution is in `rans_no_bl_seed_v1/flow_adap_00000.vtu`.
-The rejected Euler replay uses the earlier RANS-type seed for diagnosis, not
-as the starting mesh of the new campaign. See [all outcomes](integration_evidence/rae2822_transonic_v1/README.md).
+Open the VTU files in ParaView with **Surface With Edges**, colored by Mach or
+Pressure. Each contains the mesh and paired solution; matching binary restarts
+and surface fields are in the same folder. Final meshes have 12,728 Euler and
+36,263 RANS triangles. RANS has not met its configured residual convergence;
+neither case establishes grid-converged aerodynamic forces. See
+[validation and costs](RAE_CROSS_GRID_VALIDATION.md).
+
+These are the final validated cases after removal of temporary instrumentation.
+All solution/geometry and independent sensor/BL target audits pass. The earlier
+accepted v13/v22 files remain available; final grids are byte-identical to them.
+See [the completion audit](RAE_CROSS_GRID_COMPLETION_AUDIT.md).
+
+Diagnostic history remains available, including
+[the original rejected Euler grid](integration_evidence/rae2822_transonic_v1/euler_rejected_replay_v1/mesh_adap_00001_rejected.su2),
+[its failure mask](integration_evidence/rae2822_transonic_v1/euler_rejected_replay_v1/mesh_adap_00001_rejected.vtu),
+[its location preview](integration_evidence/rae2822_transonic_v1/euler_rejected_replay_v1/mesh_adap_00001_rejected_locations.png),
+and [the original RANS complexity diagnosis](integration_evidence/rae2822_transonic_v1/BL_COMPLEXITY_DIAGNOSIS.md).
 
 ## Start here: input grid and solution used for adaptation
 

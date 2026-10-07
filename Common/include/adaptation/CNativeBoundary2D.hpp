@@ -32,7 +32,7 @@
 namespace SU2NativeBoundary2D {
 using namespace SU2Native2D;
 constexpr int FEATURE = 32;
-constexpr std::size_t PATCH_LIMIT = 128;
+constexpr std::size_t PATCH_LIMIT = MAX_JOINT_CAVITY;
 struct Cell {
   Triangle t;
   std::array<int, 3> marker{{0, 0, 0}};
@@ -145,54 +145,6 @@ inline bool polygon(const std::vector<Cell>& cells, std::vector<Node>& output) {
   return output.size() == successor.size() && simple(output);
 }
 
-inline bool strict_cells(const std::vector<Triangle>& cells, std::string& reason) {
-  std::set<std::array<Id, 3>> unique;
-  std::map<Edge, std::vector<std::pair<Id, Id>>> incidence;
-  for (auto t : cells) {
-    if (!(area(t) > 0)) {
-      reason = "nonpositive cell";
-      return false;
-    }
-    std::array<Id, 3> ids{{t.v[0].id, t.v[1].id, t.v[2].id}};
-    std::sort(ids.begin(), ids.end());
-    if (!unique.insert(ids).second) {
-      reason = "duplicate triangle";
-      return false;
-    }
-    for (int k = 0; k < 3; ++k)
-      incidence[edge(t.v[k].id, t.v[(k + 1) % 3].id)].push_back({t.v[k].id, t.v[(k + 1) % 3].id});
-  }
-  for (auto f : incidence)
-    if (f.second.size() > 2 || (f.second.size() == 2 && !(f.second[0].first == f.second[1].second &&
-                                                          f.second[0].second == f.second[1].first))) {
-      reason = "nonmanifold or equally oriented interior edge";
-      return false;
-    }
-  const auto all = nodes(cells);
-  std::set<std::pair<double, double>> positions;
-  for (const auto& entry : all)
-    if (!positions.emplace(entry.second.p.x, entry.second.p.y).second) {
-      reason = "different node identities at the same position";
-      return false;
-    }
-  for (const auto& f : incidence) {
-    const auto a = all.at(f.first.first).p, b = all.at(f.first.second).p;
-    for (const auto& v : all)
-      if (v.first != f.first.first && v.first != f.first.second && OnSegment(a, b, v.second.p)) {
-        reason = "nonincident node on edge";
-        return false;
-      }
-    for (const auto& g : incidence)
-      if (f.first < g.first && f.first.first != g.first.first && f.first.first != g.first.second &&
-          f.first.second != g.first.first && f.first.second != g.first.second &&
-          SegmentsIntersect(a, b, all.at(g.first.first).p, all.at(g.first.second).p)) {
-        reason = "intersecting nonincident edges";
-        return false;
-      }
-  }
-  return true;
-}
-
 /*! Repair wedges between newly carved wall children while their complete stars
  * are still private. Tangential apex motion preserves the requested altitude;
  * the cavity perimeter and frozen donor metric remain unchanged. */
@@ -253,25 +205,59 @@ inline void relax_wall_apices(std::vector<Triangle>& cells, const Metric& metric
   }
 }
 
-inline bool reconstruct(Operation op, const std::vector<Cell>& old, const Reference& reference, const Metric& metric,
+inline bool reconstruct_step(Operation op, const std::vector<Cell>& old, const Reference& reference, const Metric& metric,
                         Id next, std::vector<Cell>& fresh, std::string& reason,
-                        double geometry_tolerance = std::numeric_limits<double>::infinity()) {
+                        double geometry_tolerance = std::numeric_limits<double>::infinity(), bool coordinated = false,
+                        bool private_surface = false) {
   if (old.empty() || old.size() > PATCH_LIMIT) {
     reason = "dependency cap";
+    return false;
+  }
+  if (coordinated && op.action != Action::BULK_SPLIT) {
+    reason = "unsupported coordinated action";
     return false;
   }
   if ((int)op.action >= 4) {
     std::vector<Triangle> output;
     Request request{(Kind)((int)op.action - 4), op.a, op.b, 1};
-    if (op.action == Action::BULK_MOVE) {
+    if (coordinated) {
+      if (!JointSplitPatch(request, triangles(old), metric, next, output, reason)) return false;
+    } else if (op.action == Action::BULK_MOVE) {
       auto input = triangles(old);
       auto all = nodes(input);
-      if (!all.count(op.a) || all.at(op.a).fixed ||
-          std::any_of(input.begin(), input.end(), [](auto t) { return t.protected_cell; })) {
+      if (!all.count(op.a) || all.at(op.a).fixed) {
         reason = "fixed node or protected first layer";
         return false;
       }
-      if (!MoveStar(input, op.a, metric, output, reason)) return false;
+      Point tangent;
+      bool constrained = false;
+      for (const auto& cell : old) {
+        if (!cell.t.protected_cell) continue;
+        bool hasWall = false;
+        for (int k = 0; k < 3; ++k) {
+          if (!cell.marker[k] || !reference.is_wall(cell.marker[k])) continue;
+          hasWall = true;
+          if (cell.t.v[(k + 2) % 3].id != op.a) {
+            reason = "fixed node or protected first layer";
+            return false;
+          }
+          const auto base = cell.t.v[(k + 1) % 3].p - cell.t.v[k].p;
+          const auto direction = base * (1 / norm(base));
+          if (constrained && std::abs(direction.x * tangent.y - direction.y * tangent.x) > 1e-12) {
+            reason = "first-layer apex has incompatible wall constraints";
+            return false;
+          }
+          tangent = direction;
+          constrained = true;
+        }
+        if (!hasWall) {
+          reason = "protected cell without a wall base";
+          return false;
+        }
+      }
+      // A wall apex has one tangential degree of freedom. Project the existing
+      // movement proposals onto it; the ordinary cavity and edge gates remain.
+      if (!MoveStar(input, op.a, metric, output, reason, constrained ? &tangent : nullptr)) return false;
     } else if (!SU2Native2D::reconstruct(request, triangles(old), metric, next, output, reason))
       return false;
     if (!strict_cells(output, reason)) return false;
@@ -282,6 +268,14 @@ inline bool reconstruct(Operation op, const std::vector<Cell>& old, const Refere
       for (int k = 0; k < 3; ++k) {
         auto e = edge(t.v[k].id, t.v[(k + 1) % 3].id);
         if (faces.count(e)) c.marker[k] = faces.at(e).marker;
+        if (c.marker[k] && reference.is_wall(c.marker[k])) {
+          const double height = static_cast<double>(2 * area(t)) / norm(t.v[(k + 1) % 3].p - t.v[k].p);
+          if (std::abs(height / reference.height(c.marker[k]) - 1) > 1e-8) {
+            reason = "first-height contract";
+            fresh.clear();
+            return false;
+          }
+        }
       }
       fresh.push_back(c);
     }
@@ -304,6 +298,7 @@ inline bool reconstruct(Operation op, const std::vector<Cell>& old, const Refere
       if (loop[i].id == id) return i;
     return loop.size();
   };
+  Node splitPoint;
   if (op.action == Action::SPLIT) {
     auto found = faces.find(edge(op.a, op.b));
     if (found == faces.end()) {
@@ -315,6 +310,7 @@ inline bool reconstruct(Operation op, const std::vector<Cell>& old, const Refere
     double ua = bounds.first, ub = bounds.second;
     Node p{next++, reference.point(f.marker, (ua + ub) * .5), 1};
     if (op.fault == 1) p.p = {std::numeric_limits<double>::quiet_NaN(), 0};
+    splitPoint = p;
     std::size_t i = locate(f.a.id);
     if (i == loop.size() || loop[(i + 1) % loop.size()].id != f.b.id) {
       reason = "split orientation";
@@ -396,65 +392,131 @@ inline bool reconstruct(Operation op, const std::vector<Cell>& old, const Refere
   }
   const auto expected_loop = loop;
   std::vector<Triangle> accepted;
-  // Carve wall children from the polygon, then triangulate the remaining disk.
-  // This releases old anchors rather than retaining old first-layer topology.
-  for (auto entry : faces) {
-    auto f = entry.second;
-    if (!reference.is_wall(f.marker)) continue;
-    const double h0 = reference.height(f.marker);
-    if (!(std::isfinite(h0) && h0 > 0)) {
-      reason = "invalid first height";
-      return false;
+  const bool buildsLayer =
+      std::any_of(faces.begin(), faces.end(), [&](const auto& f) { return reference.is_wall(f.second.marker); });
+  if (op.action == Action::SPLIT && !buildsLayer) {
+    // Preserve the existing interior triangulation and apex when splitting an
+    // Euler boundary edge. Re-triangulating its entire endpoint cavity can
+    // discard a useful free apex and leave a shallow all-boundary ear.
+    for (const auto& cell : old) {
+      bool split = false;
+      for (int k = 0; k < 3; ++k)
+        if (cell.marker[k] && edge(cell.t.v[k].id, cell.t.v[(k + 1) % 3].id) == edge(op.a, op.b)) {
+          const auto a = cell.t.v[k], b = cell.t.v[(k + 1) % 3], apex = cell.t.v[(k + 2) % 3];
+          accepted.push_back({0, {{a, splitPoint, apex}}, 0});
+          accepted.push_back({0, {{splitPoint, b, apex}}, 0});
+          split = true;
+        }
+      if (!split) accepted.push_back(cell.t);
     }
-    std::size_t i = locate(f.a.id);
-    if (i == loop.size() || loop[(i + 1) % loop.size()].id != f.b.id) {
-      reason = "wall edge no longer exposed";
-      return false;
-    }
-    Point tangent = (f.b.p - f.a.p) * (1 / norm(f.b.p - f.a.p)), normal{-tangent.y, tangent.x};
-    double best = -1;
-    Node choice;
-    std::vector<Node> best_loop;
-    for (double beta : {0., -.15, .15, -.3, .3, -.45, .45}) {
-      // The complete-star bulk guard protects this anchor through its wall cell.
-      // Keep it movable/removable after a later wall rebuild releases that cell.
-      Node p{next, (f.a.p + f.b.p) * .5 + normal * h0 + (f.b.p - f.a.p) * beta, 0};
-      auto child = triangle(f.a, f.b, p);
-      if (!inside(p.p, loop)) continue;
-      bool blocked = false;
-      for (auto v : loop)
-        if (v.id != f.a.id && v.id != f.b.id && orient(f.a.p, f.b.p, v.p) >= 0 && orient(f.b.p, p.p, v.p) >= 0 &&
-            orient(p.p, f.a.p, v.p) >= 0)
-          blocked = true;
-      if (blocked) continue;
-      auto remainder = loop;
-      remainder.insert(remainder.begin() + i + 1, p);
-      if (!simple(remainder)) continue;
-      if (quality(child, metric) < .18) continue;
-      std::vector<Triangle> test;
-      if (!ear_clip(remainder, metric, test)) continue;
-      double q = std::min(quality(child, metric), min_quality(test, metric));
-      if (q > best) {
-        best = q;
-        choice = p;
-        best_loop = std::move(remainder);
-      }
-    }
-    if (best < 0) {
-      reason = "no admitted first-height ear; enlargement or different surface resolution required";
-      return false;
-    }
-    auto child = triangle(f.a, f.b, choice);
-    child.protected_cell = 1;
-    accepted.push_back(child);
-    loop = std::move(best_loop);
-    ++next;
+    if (!strict_cells(accepted, reason)) return false;  // Geometry admission before any new target query.
   }
-  if (!ear_clip(loop, metric, accepted)) {
-    reason = "remaining polygon triangulation failed";
+  if (accepted.empty()) {
+    // Carve wall children from the polygon, then triangulate the remaining disk.
+    // This releases old anchors rather than retaining old first-layer topology.
+    for (auto entry : faces) {
+      auto f = entry.second;
+      if (!reference.is_wall(f.marker)) continue;
+      const double h0 = reference.height(f.marker);
+      if (!(std::isfinite(h0) && h0 > 0)) {
+        reason = "invalid first height";
+        return false;
+      }
+      std::size_t i = locate(f.a.id);
+      if (i == loop.size() || loop[(i + 1) % loop.size()].id != f.b.id) {
+        reason = "wall edge no longer exposed";
+        return false;
+      }
+      Point tangent = (f.b.p - f.a.p) * (1 / norm(f.b.p - f.a.p)), normal{-tangent.y, tangent.x};
+      double best = -1;
+      Node choice;
+      std::vector<Node> best_loop;
+      for (double beta : {0., -.15, .15, -.3, .3, -.45, .45}) {
+        // The complete-star bulk guard protects this anchor through its wall cell.
+        // Keep it movable/removable after a later wall rebuild releases that cell.
+        Node p{next, (f.a.p + f.b.p) * .5 + normal * h0 + (f.b.p - f.a.p) * beta, 0};
+        auto child = triangle(f.a, f.b, p);
+        if (!inside(p.p, loop)) continue;
+        bool blocked = false;
+        for (auto v : loop)
+          if (v.id != f.a.id && v.id != f.b.id && orient(f.a.p, f.b.p, v.p) >= 0 && orient(f.b.p, p.p, v.p) >= 0 &&
+              orient(p.p, f.a.p, v.p) >= 0)
+            blocked = true;
+        if (blocked) continue;
+        auto remainder = loop;
+        remainder.insert(remainder.begin() + i + 1, p);
+        if (!simple(remainder)) continue;
+        if (quality(child, metric) < .18) continue;
+        std::vector<Triangle> test;
+        if (!ear_clip(remainder, metric, test)) continue;
+        double q = std::min(quality(child, metric), min_quality(test, metric));
+        if (q > best) {
+          best = q;
+          choice = p;
+          best_loop = std::move(remainder);
+        }
+      }
+      if (best < 0) {
+        reason = "no admitted first-height ear; enlargement or different surface resolution required";
+        return false;
+      }
+      auto child = triangle(f.a, f.b, choice);
+      child.protected_cell = 1;
+      accepted.push_back(child);
+      loop = std::move(best_loop);
+      ++next;
+    }
+    if (!ear_clip(loop, metric, accepted)) {
+      reason = "remaining polygon triangulation failed";
+      return false;
+    }
+    relax_wall_apices(accepted, metric);
+  }
+  // Greedy ears can leave an almost-collinear final triangle even when the
+  // incoming cavity is usable. Reconnect its private triangulation before
+  // publication; an existing poor seed may improve incrementally, but a
+  // surface edit must not introduce a worse shape deficit.
+  // Prescribed-height construction deliberately changes the first-row
+  // aspect ratio and leaves the transition to bulk repair. The Euler surface
+  // path has no such layer construction and must retain its shape floor.
+  if (private_surface) {
+    // Only complete free stars can move: MoveStar keeps their exposed perimeter.
+    for (int pass = 0; pass < 2; ++pass) {
+      bool improved = false;
+      for (const auto& item : nodes(accepted)) {
+        if (item.second.fixed) continue;
+        std::vector<Triangle> star, repaired;
+        std::vector<size_t> indices;
+        for (size_t i = 0; i < accepted.size(); ++i)
+          for (const auto& v : accepted[i].v)
+            if (v.id == item.first) {
+              star.push_back(accepted[i]);
+              indices.push_back(i);
+              break;
+            }
+        if (min_quality(star, metric) >= .18) continue;
+        std::string why;
+        if (MoveStar(star, item.first, metric, repaired, why)) {
+          for (size_t i = 0; i < indices.size(); ++i) accepted[indices[i]] = repaired[i];
+          improved = true;
+        }
+      }
+      if (!improved) break;
+    }
+  }
+  const bool coarsening = op.action == Action::REMOVE || op.action == Action::REDISTRIBUTE;
+  const double shapeFloor = buildsLayer && !coarsening ? 0 : std::min(.18, min_quality(triangles(old), metric));
+  RepairShape(accepted, metric, private_surface ? .18 : shapeFloor);
+  if (!private_surface && min_quality(accepted, metric) < shapeFloor * (1 - 1e-12)) {
+    reason = "surface reconstruction worsens sub-threshold shape";
     return false;
   }
-  relax_wall_apices(accepted, metric);
+  // Rebuilding an already resolved wall star must not erase its bulk spacing.
+  // The unchanged artificial perimeter may still be long on a coarse seed.
+  if (coarsening && max_length(accepted, metric) > std::max(1.8, max_length(triangles(old), metric)) * (1 + 1e-12)) {
+    reason = "boundary coarsening or movement worsens bulk size";
+    return false;
+  }
   if (op.fault == 2 && !accepted.empty()) std::swap(accepted[0].v[1], accepted[0].v[2]);
   if (!strict_cells(accepted, reason)) return false;
   long double total = 0;
@@ -518,4 +580,72 @@ inline bool reconstruct(Operation op, const std::vector<Cell>& old, const Refere
   }
   return true;
 }
+/*! Bounded compound surface repair. Intermediate triangulations stay private;
+ * only a complete replacement satisfying the final contracts can be published. */
+inline bool reconstruct(Operation op, const std::vector<Cell>& old, const Reference& reference, const Metric& metric,
+                        Id next, std::vector<Cell>& fresh, std::string& reason,
+                        double geometry_tolerance = std::numeric_limits<double>::infinity(), bool coordinated = false) {
+  if (!coordinated || op.action != Action::SPLIT)
+    return reconstruct_step(op, old, reference, metric, next, fresh, reason, geometry_tolerance, coordinated);
+  fresh.clear();
+  if (old.empty() || old.size() > PATCH_LIMIT) {
+    reason = "dependency cap";
+    return false;
+  }
+  for (const auto& cell : old) {
+    if (cell.t.protected_cell) {
+      reason = "compound surface repair contains a protected layer";
+      return false;
+    }
+    for (const auto marker : cell.marker)
+      if (marker && reference.is_wall(marker)) {
+        reason = "compound surface repair requires unconstrained wall height";
+        return false;
+      }
+  }
+  const auto before = triangles(old);
+  const bool shapeRepair = min_quality(before, metric) < .18;
+  const double lengthLimit = std::max(1.8, max_length(before, metric));
+  const double sizeLimit = SizeDeficit(before, metric);
+  if (!shapeRepair && !(sizeLimit > 0)) {
+    reason = "compound surface repair has no shape or size deficit";
+    return false;
+  }
+  auto current = old;
+  // ponytail: eight private splits in one bounded patch; enlarge the operator only after measured stalls.
+  for (int step = 0; step < 8; ++step) {
+    std::vector<Cell> trial;
+    if (!reconstruct_step(op, current, reference, metric, next++, trial, reason, geometry_tolerance, false, true))
+      return false;
+    current.swap(trial);
+    const auto candidate = triangles(current);
+    if (min_quality(candidate, metric) >= .18 &&
+        max_length(candidate, metric) <= lengthLimit * (1 + 1e-12) &&
+        (shapeRepair ? SizeDeficit(candidate, metric) <= sizeLimit * (1 + 1e-12)
+                     : SizeDeficit(candidate, metric) < sizeLimit * (1 - 1e-8))) {
+      if (!strict_cells(candidate, reason)) return false;
+      fresh = std::move(current);
+      return true;
+    }
+    double best = 0;
+    Operation proposal{Action::SPLIT};
+    for (const auto& cell : current)
+      for (int k = 0; k < 3; ++k)
+        if (cell.marker[k]) {
+          const auto a = cell.t.v[k], b = cell.t.v[(k + 1) % 3];
+          const double demand = std::max({length(a, b, metric) / 1.6, .18 / quality(cell.t, metric),
+                                         max_length(std::vector<Triangle>{cell.t}, metric) / 1.8}) - 1;
+          if (demand > best) {
+            best = demand;
+            proposal.a = a.id;
+            proposal.b = b.id;
+          }
+        }
+    if (!(best > 0)) break;
+    op = proposal;
+  }
+  reason = "compound surface repair misses final shape or size contracts";
+  return false;
+}
+
 }  // namespace SU2NativeBoundary2D

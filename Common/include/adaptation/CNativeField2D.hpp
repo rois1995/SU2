@@ -78,6 +78,7 @@ struct DonorRequest {
  *    an explicitly associated physical component and a declared distance; global tensor axes never rotate. ---*/
 struct FieldPatch {
   std::vector<DonorCell> cells;
+  MetricComposition composition;
   std::set<int> extension_components;
   double extension_limit = 0;
   mutable size_t samples = 0, extensions = 0, roundoff_queries = 0;
@@ -102,6 +103,7 @@ struct FieldPatch {
     if (known != cache.end()) return known->second;
     ++samples;
     auto retain = [&](Tensor value) {
+      if (composition) value = composition(p, value);
       if (cache.size() < QUERY_CACHE_LIMIT) cache.emplace(std::array<double, 2>{p.x, p.y}, value);
       return value;
     };
@@ -191,7 +193,9 @@ class DonorField {
  public:
   World& world;
   const std::map<Id, DonorCell> owned;
-  DonorField(World& w, const std::map<Id, Cell>& original) : world(w), owned(Snapshot(original)) {
+  MetricComposition composition;
+  DonorField(World& w, const std::map<Id, Cell>& original, MetricComposition combine = {})
+      : world(w), owned(Snapshot(original)), composition(std::move(combine)) {
     CLocalFailure failure;
     for (const auto& cell : owned) {
       if (!(area(cell.second.triangle) > 0)) failure.Set(1, cell.first, "Nonpositive native donor simplex.");
@@ -321,6 +325,7 @@ class DonorField {
       ++rejected;
     }
     auto patch = std::make_shared<FieldPatch>();
+    patch->composition = composition;
     patch->cells = std::move(cells);
     patch->extension_limit = extensionLimit;
     for (const auto& cell : old)

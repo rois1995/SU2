@@ -2968,7 +2968,8 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
    *    then exceed ADAP_COMPLEXITY, it is printed). The fade at the outer edge of each layer goes to the isotropic
    *    metric of the largest size of the metric. ---*/
 
-  if (boundaryLayer && config->GetnAdap_BL() > 0) {
+  if (boundaryLayer && config->GetnAdap_BL() > 0 &&
+      config->GetKind_Adap_Remesher() != ADAP_REMESHER::NATIVE_CAVITY) {
     vector<su2double> coord(nPointDomain * nDim);
     vector<CBoundaryLayerMetric::Tensor> metric(nPointDomain);
     su2double localSmallest = std::numeric_limits<passivedouble>::max(), smallest = 0.0;

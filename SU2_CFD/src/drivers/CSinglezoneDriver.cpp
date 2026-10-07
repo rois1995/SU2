@@ -41,6 +41,7 @@
 #include "../../../Common/include/adaptation/CNativeReferenceIO.hpp"
 #include "../../../Common/include/adaptation/CMeshGather.hpp"
 #include "../../include/adaptation/CBoundaryLayerRemesher.hpp"
+#include "../../include/adaptation/CBoundaryLayerMetric.hpp"
 #include "../../../Common/include/geometry/CPhysicalGeometry.hpp"
 #include "../../../Common/include/geometry/meshreader/CDistributedMemoryMeshReaderFVM.hpp"
 #include "../../../Common/include/linear_algebra/blas_structure.hpp"
@@ -277,7 +278,57 @@ void CSinglezoneDriver::CheckMeshAdaptation() const {
 std::unique_ptr<CRemesher> CSinglezoneDriver::MakeRemesher() {
   if (config_container[ZONE_0]->GetKind_Adap_Remesher()==ADAP_REMESHER::NATIVE_CAVITY) {
     if (!nativeReference) nativeReference=std::make_shared<SU2NativeBoundary2D::ReferenceState>();
-    auto remesher = std::make_unique<CNativeRemesher>(nativeReference);
+    // Only the CFD sensor is frozen on the donor volume. Wall distances and
+    // tangential sizes use the retained original geometry at EVERY query,
+    // including imported remote cavities and private candidate points.
+    auto constraints = [state = nativeReference](const CConfig& config, const CGeometry& geometry,
+                                                const su2activematrix& metric) -> SU2Native2D::MetricComposition {
+      if (!config.GetnAdap_BL()) return {};
+      std::vector<CBoundaryLayerMetric::Wall> walls;
+      for (unsigned short b = 0; b < config.GetnAdap_BL(); ++b) {
+        CBoundaryLayerMetric::Wall wall;
+        wall.layer = config.GetAdap_BL(b);
+        std::map<uint64_t, unsigned long> points;
+        for (const auto& component : state->original->Components()) {
+          if (state->marker_names.at(component.marker) != wall.layer.marker) continue;
+          for (size_t k = 1; k < component.nodes.size(); ++k)
+            for (const auto node : {component.nodes[k - 1], component.nodes[k]}) {
+              auto insertion = points.emplace(node.id, points.size());
+              if (insertion.second) {
+                wall.coord.push_back(node.p.x);
+                wall.coord.push_back(node.p.y);
+              }
+              wall.conn.push_back(insertion.first->second);
+            }
+        }
+        walls.push_back(std::move(wall));
+      }
+      auto layers = std::make_shared<CBoundaryLayerMetric>(2, std::move(walls), config.GetAdap_Angle());
+      double localSmallest = std::numeric_limits<double>::max();
+      for (unsigned long p = 0; p < geometry.GetnPointDomain(); ++p) {
+        const double xx = SU2_TYPE::GetValue(metric(p, 0)), xy = SU2_TYPE::GetValue(metric(p, 1)),
+                     yy = SU2_TYPE::GetValue(metric(p, 2));
+        const double scale = std::max({std::abs(xx), std::abs(xy), std::abs(yy)});
+        const double largest = .5 * (xx / scale + yy / scale + std::hypot((xx - yy) / scale, 2 * xy / scale));
+        const double smallest = scale * static_cast<double>(SU2Native2D::NormalizedDeterminant(xx, xy, yy)) / largest;
+        localSmallest = std::min(localSmallest, smallest);
+      }
+      const auto core = CPassiveComm::Allreduce(localSmallest, CPassiveComm::Op::MIN);
+      return [layers, core](SU2Native2D::Point p, SU2Native2D::Tensor sensor) {
+        const su2double coord[2] = {p.x, p.y};
+        CBoundaryLayerMetric::Tensor m;
+        m.m[0][0] = sensor.xx;
+        m.m[0][1] = m.m[1][0] = sensor.xy;
+        m.m[1][1] = sensor.yy;
+        // Keep both sensor and wall constraints. The legacy tangential floor
+        // coarsens the sensor abruptly at its band edge; nodal interpolation
+        // previously hid that switch, but query-time cavities see it directly.
+        layers->ApplyPoint(coord, m, core, nullptr, false);
+        return SU2Native2D::Tensor{SU2_TYPE::GetValue(m.m[0][0]), SU2_TYPE::GetValue(m.m[0][1]),
+                                 SU2_TYPE::GetValue(m.m[1][1])};
+      };
+    };
+    auto remesher = std::make_unique<CNativeRemesher>(nativeReference, std::move(constraints));
     remesher->PrepareReference(*config_container[ZONE_0], *geometry_container[ZONE_0][INST_0][MESH_0]);
     return remesher;
   }

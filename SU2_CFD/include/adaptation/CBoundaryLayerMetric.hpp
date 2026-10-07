@@ -164,6 +164,13 @@ class CBoundaryLayerMetric {
   std::vector<WallReport> Apply(const std::vector<su2double>& coord, std::vector<Tensor>& metric,
                                 su2double coreEigenvalue);
 
+  /*! Apply geometric constraints at a query point, without interpolating their
+   *  samples on a coarse donor mesh. Reports are optional for remesher queries.
+   *  Disabling the legacy tangential floor retains the intersection with the
+   *  sensor: its hard band switch is unsuitable for a query-time target. */
+  void ApplyPoint(const su2double* coord, Tensor& metric, su2double coreEigenvalue,
+                  std::vector<WallReport>* reports = nullptr, bool useTangentialFloor = true);
+
  private:
   struct WallData;
   void Build();
