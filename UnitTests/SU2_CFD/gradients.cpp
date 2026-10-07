@@ -325,6 +325,38 @@ TEST_CASE("Hessian from analytic gradients on stretched meshes", "[Gradients][Me
   }
 }
 
+TEST_CASE("WLS Hessian reuse matches repeated geometry solves across sensors", "[HessianReliability]") {
+  QuadraticFunction field;
+  const auto nPoint = field.geometry->GetnPoint();
+  C3DDoubleMatrix gradient(nPoint, 3, 3), R(nPoint, 3, 3), gradGrad(nPoint, 3, 3);
+  C3DDoubleMatrix legacy(nPoint, 3, 6), reused(nPoint, 3, 6);
+  su2activematrix sensor(nPoint, 3), scratch(nPoint, 3);
+  for (auto point = 0ul; point < nPoint; ++point) {
+    auto x = field.geometry->nodes->GetCoord(point);
+    const auto a = x[0], b = x[1] * 1e-3;
+    field.geometry->nodes->SetCoord(point, 0, cos(.37)*a-sin(.37)*b);
+    field.geometry->nodes->SetCoord(point, 1, sin(.37)*a+cos(.37)*b);
+    x = field.geometry->nodes->GetCoord(point);
+    for (unsigned v = 0; v < 3; ++v) sensor(point,v) = (v+1)*(x[0]*x[0]+x[1]*x[2]);
+  }
+  computeGradientsLeastSquares(nullptr, MPI_QUANTITIES::SOLUTION, PERIODIC_NONE, *field.geometry, *field.config,
+                               true, sensor, 0, 3, -1, gradient, R, false);
+  for (auto point = 0ul; point < nPoint; ++point)
+    for (unsigned v = 0; v < 3; ++v)
+      for (unsigned d = 0; d < 3; ++d)
+        gradient(point,v,d) = (v+1)*GeometryToolbox::DotProduct(3, field.hess[d], field.geometry->nodes->GetCoord(point));
+  computeHessians(nullptr, WEIGHTED_LEAST_SQUARES, *field.geometry, *field.config, gradient, 0, 3,
+                  scratch, gradGrad, R, reused, true);
+  computeHessians(nullptr, WEIGHTED_LEAST_SQUARES, *field.geometry, *field.config, gradient, 0, 3,
+                  scratch, gradGrad, R, legacy);
+  for (auto point = 0ul; point < field.geometry->GetnPointDomain(); ++point)
+    for (unsigned v = 0; v < 3; ++v)
+      for (unsigned k = 0; k < 6; ++k) {
+        CHECK(reused(point,v,k) == Approx(legacy(point,v,k)).margin(1e-7));
+        CHECK(std::isfinite(SU2_TYPE::GetValue(reused(point,v,k))));
+      }
+}
+
 TEST_CASE("Metric intersection", "[Adaptation]") {
   const su2double c = cos(0.3), s = sin(0.3);
   const su2double R[3][3] = {{c, -s, 0.0}, {s, c, 0.0}, {0.0, 0.0, 1.0}};
@@ -538,6 +570,41 @@ TEST_CASE("Quadratic Hessian residuals expose sensor noise without zeroing curva
     }
   CPassiveComm::Allreduce(&local, &global, 1, CPassiveComm::Op::MAX);
   CHECK(global > 1.0);
+}
+
+TEST_CASE("Opt-in QR shrinkage reduces noisy curvature and retains resolved quadratic curvature", "[HessianReliability]") {
+  AdaptBoxTest test("MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_minus, z_plus)\n", "QUADRATIC_LEAST_SQUARES",
+                    "ADAP_SENSOR= (MACH, PRESSURE, DENSITY)\nADAP_HESSIAN_NOISE= 1\n");
+  auto* nodes = test.solver[FLOW_SOL]->GetNodes();
+  for (auto point = 0ul; point < test.geometry->GetnPoint(); ++point) {
+    const auto x = test.geometry->nodes->GetCoord(point);
+    const auto noise = test.geometry->nodes->GetGlobalIndex(point)%2 ? 1e-4 : -1e-4;
+    const auto quadratic = .5*(x[0]*x[0]+2*x[1]*x[1]-3*x[2]*x[2]);
+    nodes->SetAuxVar_Adapt(point,0, 1+noise);
+    nodes->SetAuxVar_Adapt(point,1, quadratic+noise);
+    nodes->SetAuxVar_Adapt(point,2, quadratic);
+  }
+  passivedouble energy[2] = {};
+  for (unsigned run = 0; run < 2; ++run) {
+    {
+      transfer_test::Mute mute;
+      computeHessiansQuadratic(*test.geometry, 3, nodes->GetAuxVar_Adapt(), nodes->GetGradient_Adapt(),
+                               nodes->GetHessian(), run);
+    }
+    const passivedouble exact[6] = {1,0,0,2,0,-3};
+    for (auto point = 0ul; point < test.geometry->GetnPointDomain(); ++point)
+      for (unsigned k = 0; k < 6; ++k) {
+        const auto H = SU2_TYPE::GetValue(nodes->GetHessian()(point,0,k));
+        CHECK(std::isfinite(H));
+        energy[run] += H*H;
+        if (run) {
+          CHECK(SU2_TYPE::GetValue(nodes->GetHessian()(point,1,k)) == Approx(exact[k]).margin(.15));
+          CHECK(SU2_TYPE::GetValue(nodes->GetHessian()(point,2,k)) == Approx(exact[k]).margin(1e-10));
+        }
+      }
+  }
+  CHECK(energy[0] > 0);
+  CHECK(energy[1] < .5*energy[0]);
 }
 
 /*--- Complete pressure sensor -> gradient -> Hessian chain on triangles/tetrahedra.

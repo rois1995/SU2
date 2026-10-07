@@ -3270,6 +3270,7 @@ void CConfig::SetConfig_Options() {
 
   /*!\brief NUM_METHOD_HESS \n DESCRIPTION: Numerical method for Hessian computation \n OPTIONS: See \link Hessian_Map \endlink. \n DEFAULT: GREEN_GAUSS. \ingroup Config*/
   addEnumOption("NUM_METHOD_HESS", Kind_Hessian_Method, Hessian_Map, GREEN_GAUSS);
+  addDoubleOption("ADAP_HESSIAN_NOISE", Adap_Hessian_Noise, 0.0);
 
   /*!\brief ADAP_SENSOR \n DESCRIPTION: Sensors for mesh adaptation \ingroup Config */
   addStringListOption("ADAP_SENSOR", nAdap_Sensor, Adap_Sensor);
@@ -6361,6 +6362,10 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
                      CURRENT_FUNCTION);
     }
     if (nAdap_Sensor == 0) SU2_MPI::Error("COMPUTE_METRIC = YES requires ADAP_SENSOR.", CURRENT_FUNCTION);
+    if (!(Adap_Hessian_Noise >= 0.0) || !std::isfinite(SU2_TYPE::GetValue(Adap_Hessian_Noise)))
+      SU2_MPI::Error("ADAP_HESSIAN_NOISE must be finite and nonnegative.", CURRENT_FUNCTION);
+    if (Adap_Hessian_Noise > 0.0 && Kind_Hessian_Method != QUADRATIC_LEAST_SQUARES)
+      SU2_MPI::Error("ADAP_HESSIAN_NOISE requires QUADRATIC_LEAST_SQUARES.", CURRENT_FUNCTION);
     if (Kind_Hessian_Method == QUADRATIC_LEAST_SQUARES) {
       if (goalMetric || nMarker_PerBound != 0 || nMarker_SymWall != 0)
         SU2_MPI::Error("QUADRATIC_LEAST_SQUARES currently requires primal sensors without periodic or symmetry markers.",

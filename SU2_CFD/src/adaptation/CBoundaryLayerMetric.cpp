@@ -199,19 +199,56 @@ CBoundaryLayerMetric::CBoundaryLayerMetric(const CGeometry& geometry, const CCon
   struct Box {
     passivedouble low[3], high[3];
   };
-  Box localBox;
-  for (unsigned short i = 0; i < 3; ++i) {
-    localBox.low[i] = std::numeric_limits<passivedouble>::max();
-    localBox.high[i] = std::numeric_limits<passivedouble>::lowest();
-  }
-  for (auto point = 0ul; point < geometry.GetnPointDomain(); ++point)
-    for (unsigned short i = 0; i < nDim; ++i) {
-      const auto x = SU2_TYPE::GetValue(geometry.nodes->GetCoord(point, i));
-      localBox.low[i] = std::min(localBox.low[i], x);
-      localBox.high[i] = std::max(localBox.high[i], x);
-    }
   const bool restricted = config.GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY;
-  const auto boxes = restricted ? CPassiveComm::Allgatherv(std::vector<Box>{localBox}, nullptr) : std::vector<Box>{};
+  std::vector<Box> localBoxes;
+  if (restricted && geometry.GetnPointDomain()) {
+    /*--- A bounded set of occupied spatial boxes avoids the empty space inside a whole-rank box.
+     *    Every owned query is covered, including ranks with no local wall. The padding below includes
+     *    incident-face support, so filtering is conservative rather than a nearest-wall approximation. ---*/
+    std::vector<unsigned long> points(geometry.GetnPointDomain());
+    std::iota(points.begin(), points.end(), 0);
+    struct Range { size_t begin, end; Box box; };
+    auto bounds = [&](size_t begin, size_t end) {
+      Box box{};
+      for (unsigned short i = 0; i < nDim; ++i) {
+        box.low[i] = std::numeric_limits<passivedouble>::max();
+        box.high[i] = std::numeric_limits<passivedouble>::lowest();
+        for (size_t k = begin; k < end; ++k) {
+          const auto x = SU2_TYPE::GetValue(geometry.nodes->GetCoord(points[k], i));
+          box.low[i] = std::min(box.low[i], x);
+          box.high[i] = std::max(box.high[i], x);
+        }
+      }
+      return Range{begin, end, box};
+    };
+    std::vector<Range> ranges{bounds(0, points.size())};
+    // ponytail: at most 64 boxes per rank; an indexed distributed query is needed at very large rank counts.
+    while (ranges.size() < (nRank > 1 ? 64u : 1u)) {
+      auto it = std::max_element(ranges.begin(), ranges.end(), [](const Range& a, const Range& b) {
+        return a.end - a.begin < b.end - b.begin;
+      });
+      if (it->end - it->begin < 128) break;
+      const auto old = *it;
+      unsigned short axis = 0;
+      for (unsigned short i = 1; i < nDim; ++i)
+        if (old.box.high[i] - old.box.low[i] > old.box.high[axis] - old.box.low[axis]) axis = i;
+      const auto middle = old.begin + (old.end - old.begin) / 2;
+      std::nth_element(points.begin() + old.begin, points.begin() + middle, points.begin() + old.end,
+                       [&](unsigned long a, unsigned long b) {
+                         const auto x = SU2_TYPE::GetValue(geometry.nodes->GetCoord(a, axis));
+                         const auto y = SU2_TYPE::GetValue(geometry.nodes->GetCoord(b, axis));
+                         return x < y || (x == y && geometry.nodes->GetGlobalIndex(a) < geometry.nodes->GetGlobalIndex(b));
+                       });
+      *it = bounds(old.begin, middle);
+      ranges.push_back(bounds(middle, old.end));
+    }
+    for (const auto& range : ranges) localBoxes.push_back(range.box);
+  }
+  std::vector<size_t> boxCounts;
+  const auto boxes = restricted ? CPassiveComm::Allgatherv(localBoxes, &boxCounts) : std::vector<Box>{};
+  std::vector<size_t> boxOffsets(nRank + 1);
+  if (restricted)
+    for (int peer = 0; peer < nRank; ++peer) boxOffsets[peer + 1] = boxOffsets[peer] + boxCounts[peer];
 
   for (unsigned short iBL = 0; iBL < config.GetnAdap_BL(); ++iBL) {
     Wall wall;
@@ -303,7 +340,6 @@ CBoundaryLayerMetric::CBoundaryLayerMetric(const CGeometry& geometry, const CCon
       /*--- Two face diameters beyond the BL band include all incident faces of vertices used by a closest face,
        *    including 3D angle-weighted normals/tensors. This keeps active BL geometry local; the immutable native
        *    reference remains replicated by the native backend's existing contract. ---*/
-      // ponytail: rank boxes may overinclude disconnected ownership; use spatial bins if memory profiling warrants it.
       const auto padding = SU2_TYPE::GetValue(wall.layer.thickness) + 2 * diameter;
       std::vector<unsigned long> sendIds;
       std::vector<passivedouble> sendCoord;
@@ -313,19 +349,26 @@ CBoundaryLayerMetric::CBoundaryLayerMetric(const CGeometry& geometry, const CCon
         coordOffset = 0;
         for (size_t idOffset = 0; idOffset < localIds.size();) {
           const auto count = localIds[idOffset];
-          bool intersects = true;
+          Box face{};
           for (unsigned short i = 0; i < nDim; ++i) {
-            passivedouble low = std::numeric_limits<passivedouble>::max(),
-                          high = std::numeric_limits<passivedouble>::lowest();
+            face.low[i] = std::numeric_limits<passivedouble>::max();
+            face.high[i] = std::numeric_limits<passivedouble>::lowest();
             for (size_t node = 0; node < count; ++node) {
               const auto x = SU2_TYPE::GetValue(localCoord[coordOffset + node * nDim + i]);
-              low = std::min(low, x);
-              high = std::max(high, x);
+              face.low[i] = std::min(face.low[i], x);
+              face.high[i] = std::max(face.high[i], x);
             }
-            const auto roundoff =
-                128 * std::numeric_limits<passivedouble>::epsilon() * std::max({fabs(low), fabs(high), padding});
-            intersects &=
-                low <= boxes[peer].high[i] + padding + roundoff && high >= boxes[peer].low[i] - padding - roundoff;
+          }
+          bool intersects = false;
+          for (size_t k = boxOffsets[peer]; k < boxOffsets[peer + 1] && !intersects; ++k) {
+            bool overlap = true;
+            for (unsigned short i = 0; i < nDim; ++i) {
+              const auto roundoff = 128 * std::numeric_limits<passivedouble>::epsilon() *
+                                    std::max({fabs(face.low[i]), fabs(face.high[i]), padding});
+              overlap &= face.low[i] <= boxes[k].high[i] + padding + roundoff &&
+                         face.high[i] >= boxes[k].low[i] - padding - roundoff;
+            }
+            intersects = overlap;
           }
           if (intersects) {
             sendIds.insert(sendIds.end(), localIds.begin() + idOffset, localIds.begin() + idOffset + count + 1);

@@ -68,36 +68,10 @@ FORCEINLINE void computeSmatrix(su2double r11, su2double r12, su2double r13,
   Smatrix[2][2] = (z33*z33)/detR2;
 }
 
-/*!
- * \brief Solve the least-squares problem for one point.
- * \ingroup FvmAlgos
- * \note See detail::computeGradientsLeastSquares for the
- *       purpose of template "nDim" and "periodic".
- */
-template<size_t nDim, bool periodic, class GradientType, class RMatrixType>
-FORCEINLINE void solveLeastSquares(size_t iPoint,
-                                   size_t varBegin,
-                                   size_t varEnd,
-                                   const RMatrixType& Rmatrix,
-                                   GradientType& gradient)
-{
-  const auto eps = pow(std::numeric_limits<passivedouble>::epsilon(),2);
-
-  /*--- Entries of upper triangular matrix R. ---*/
-
-  if (periodic) {
-    AD::StartPreacc();
-    AD::SetPreaccIn(Rmatrix(iPoint,0,0));
-    AD::SetPreaccIn(Rmatrix(iPoint,0,1));
-    AD::SetPreaccIn(Rmatrix(iPoint,1,1));
-    if (nDim == 3) {
-      AD::SetPreaccIn(Rmatrix(iPoint,0,2));
-      AD::SetPreaccIn(Rmatrix(iPoint,1,2));
-      AD::SetPreaccIn(Rmatrix(iPoint,2,1));
-      AD::SetPreaccIn(Rmatrix(iPoint,2,2));
-    }
-  }
-
+/*! \brief Inverse geometric normal matrix, shared by scalar gradients and batched Hessians. */
+template<size_t nDim, class RMatrixType>
+FORCEINLINE void leastSquaresInverse(size_t iPoint, const RMatrixType& Rmatrix, su2double (&Smatrix)[nDim][nDim]) {
+  const auto eps = pow(std::numeric_limits<passivedouble>::epsilon(), 2);
   /*--- Equilibrate coordinate directions before factorization. The singularity check must depend on
    *    stencil shape, not coordinate units or axis-aligned stretching. A missing direction stays zero. ---*/
   su2double coordScale[nDim];
@@ -132,7 +106,8 @@ FORCEINLINE void solveLeastSquares(size_t iPoint,
 
   /*--- S matrix := inv(R)*traspose(inv(R)) ---*/
 
-  su2double Smatrix[nDim][nDim] = {{0.0}};
+  for (size_t i = 0; i < nDim; ++i)
+    for (size_t j = 0; j < nDim; ++j) Smatrix[i][j] = 0.0;
 
   /*--- Detect singular matrix ---*/
 
@@ -142,6 +117,39 @@ FORCEINLINE void solveLeastSquares(size_t iPoint,
       for (size_t jDim = iDim; jDim < nDim; ++jDim)
         Smatrix[iDim][jDim] /= coordScale[iDim] * coordScale[jDim];
   }
+
+}
+
+/*!
+ * \brief Solve the least-squares problem for one point.
+ * \ingroup FvmAlgos
+ * \note See detail::computeGradientsLeastSquares for the
+ *       purpose of template "nDim" and "periodic".
+ */
+template<size_t nDim, bool periodic, class GradientType, class RMatrixType>
+FORCEINLINE void solveLeastSquares(size_t iPoint,
+                                   size_t varBegin,
+                                   size_t varEnd,
+                                   const RMatrixType& Rmatrix,
+                                   GradientType& gradient)
+{
+  /*--- Entries of upper triangular matrix R. ---*/
+
+  if (periodic) {
+    AD::StartPreacc();
+    AD::SetPreaccIn(Rmatrix(iPoint,0,0));
+    AD::SetPreaccIn(Rmatrix(iPoint,0,1));
+    AD::SetPreaccIn(Rmatrix(iPoint,1,1));
+    if (nDim == 3) {
+      AD::SetPreaccIn(Rmatrix(iPoint,0,2));
+      AD::SetPreaccIn(Rmatrix(iPoint,1,2));
+      AD::SetPreaccIn(Rmatrix(iPoint,2,1));
+      AD::SetPreaccIn(Rmatrix(iPoint,2,2));
+    }
+  }
+
+  su2double Smatrix[nDim][nDim];
+  leastSquaresInverse<nDim>(iPoint, Rmatrix, Smatrix);
 
   if (periodic) {
     /*--- Stop preacc here as gradient is in/out. ---*/

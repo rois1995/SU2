@@ -44,7 +44,7 @@
  */
 template <class FieldType, class GradientType, class HessianType>
 void computeHessiansQuadratic(CGeometry& geometry, unsigned short nSensor, const FieldType& field,
-                              GradientType& gradient, HessianType& hessian) {
+                              GradientType& gradient, HessianType& hessian, passivedouble noiseStrength = 0) {
   const unsigned short dim = geometry.GetnDim(), terms = dim + dim * (dim + 1) / 2;
   struct Sample {
     unsigned long center, id;
@@ -74,6 +74,7 @@ void computeHessiansQuadratic(CGeometry& geometry, unsigned short nSensor, const
   std::vector<passivedouble> fitCondition(valid.size(), 0);
   std::vector<size_t> fitDof(valid.size(), 0);
   unsigned long requested = 0, exported = 0;
+  std::vector<bool> filtered(valid.size(), false);
   auto exchange = [&]() {
     std::vector<std::vector<unsigned long>> request(ranks);
     for (auto point = 0ul; point < grow.size(); ++point) {
@@ -213,6 +214,19 @@ void computeHessiansQuadratic(CGeometry& geometry, unsigned short nSensor, const
         if (ring == 1) grow[point] = true;
         continue;
       }
+      /*--- The QR geometry is shared across sensors. R^-1 gives coefficient sensitivity to a weighted
+       *    residual; count off-diagonal Hessian coefficients twice for a Frobenius uncertainty bound. ---*/
+      passivedouble curvatureSensitivity = 0;
+      if (noiseStrength > 0 && cloud.size() > terms) {
+        const Eigen::MatrixXd inverseR = qr.matrixR().topLeftCorner(terms, terms)
+            .template triangularView<Eigen::Upper>().solve(Eigen::MatrixXd::Identity(terms, terms));
+        const Eigen::MatrixXd sensitivity = qr.colsPermutation() * inverseR;
+        unsigned short column = dim;
+        for (unsigned short i = 0; i < dim; ++i)
+          for (unsigned short j = i; j < dim; ++j)
+            curvatureSensitivity += (i == j ? 1 : 2) * sensitivity.row(column++).squaredNorm();
+        curvatureSensitivity = sqrt(curvatureSensitivity);
+      }
       for (unsigned short v = 0; v < nSensor; ++v) {
         const auto slot = point * nSensor + v;
         if ((ring == 2 && redundant[point] && residual[slot] <= poorFit) || !rhs.col(v).allFinite()) continue;
@@ -233,6 +247,20 @@ void computeHessiansQuadratic(CGeometry& geometry, unsigned short nSensor, const
         const auto pivot = qr.matrixR().topLeftCorner(terms, terms).diagonal().cwiseAbs().minCoeff();
         const auto resolution = 64 * std::numeric_limits<passivedouble>::epsilon() * amplitude / pivot;
         if (scaledHessian.cwiseAbs().maxCoeff() <= resolution) scaledHessian.setZero();
+        bool shrunk = false;
+        if (curvatureSensitivity > 0) {
+          // ponytail: residuals also contain model/truncation error; opt-in until CFD feature retention is validated.
+          const auto threshold = noiseStrength * error * norm * curvatureSensitivity / sqrt(passivedouble(cloud.size() - terms));
+          Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> spectral(scaledHessian);
+          if (spectral.info() != Eigen::Success) continue;
+          Eigen::VectorXd values = spectral.eigenvalues();
+          for (Eigen::Index k = 0; k < values.size(); ++k) {
+            const auto value = values(k);
+            values(k) = std::copysign(std::max(passivedouble(0), fabs(value) - threshold), value);
+            shrunk = shrunk || values(k) != value;
+          }
+          scaledHessian = spectral.eigenvectors() * values.asDiagonal() * spectral.eigenvectors().transpose();
+        }
         const Eigen::VectorXd physicalGradient = whitening * coefficient.head(dim);
         const Eigen::MatrixXd physicalHessian = whitening * scaledHessian * whitening.transpose();
         if (!physicalGradient.allFinite() || !physicalHessian.allFinite()) continue;
@@ -242,6 +270,7 @@ void computeHessiansQuadratic(CGeometry& geometry, unsigned short nSensor, const
           for (unsigned short j = i; j < dim; ++j) hessian(point, v, column++) = physicalHessian(i, j);
         if (valid[slot]) --local[0];
         valid[slot] = true;
+        filtered[slot] = shrunk;
         residual[slot] = error;
         const auto diagonal = qr.matrixR().topLeftCorner(terms, terms).diagonal().cwiseAbs();
         fitCondition[slot] = diagonal.minCoeff() / diagonal.maxCoeff();
@@ -253,6 +282,11 @@ void computeHessiansQuadratic(CGeometry& geometry, unsigned short nSensor, const
           grow[point] = grow[point] || !valid[point * nSensor + v] || residual[point * nSensor + v] > poorFit;
     }
   }
+  unsigned long localFiltered = std::count(filtered.begin(), filtered.end(), true), globalFiltered = 0;
+  CPassiveComm::Allreduce(&localFiltered, &globalFiltered, 1, CPassiveComm::Op::SUM);
+  if (noiseStrength > 0 && SU2_MPI::GetRank() == MASTER_NODE)
+    std::cout << "Hessian QR residual shrinkage: strength " << noiseStrength << ", " << globalFiltered
+              << " final point-sensor fits filtered (residual includes truncation and nonsmooth flow)." << std::endl;
   local[2] = std::count(valid.begin(), valid.end(), false);
   passivedouble residualSum = 0, residualMax = 0, residualGlobal[2] = {}, localCondition = 1, globalCondition = 1;
   unsigned long lowDof = 0, globalLowDof = 0;
