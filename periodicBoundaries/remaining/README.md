@@ -16,4 +16,6 @@ Combined release checks: 10 cases / 3175 assertions serial and OpenMP2; partitio
 
 `validation/develop-reproducer.patch` changes tests only. Apply it to clean develop, build the existing unit target, and select the relevant Catch2 case. The support configurations are complete BOX inputs. The flamelet unit exercises the real metadata and gradient helper without requiring an external chemistry table. Published logs identify actual fail/pass assertions; no crash from a malformed fixture is counted as a bug.
 
-Combined validation source checkpoint: `862f5ab8550940ddfe6b2dc1ed1a3fa5bdb3d4d8` on `codex_periodic_remaining_20261007`. Exact delivery heads are in `validation/branch-heads.json`.
+Combined validation source checkpoint: `2d3622408c1d369ef5408406c472d60760d2d248` on `codex_periodic_remaining_20261007`. Exact delivery heads are in `validation/branch-heads.json`.
+
+Initial CodeFactor findings on B/C/D/F were extra assignment spaces in regression scripts. All flagged lines are corrected and pushed; Python AST equivalence and pre-commit checks pass. Numeric source/tests are unchanged from the validated checkpoint. CI is rerunning; full-suite success is not claimed.
