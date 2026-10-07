@@ -37,9 +37,9 @@ def hist(run):
 def heat():
     fig, a = plt.subplots(1, 1, figsize=(6.4, 4.0))
     p = "pin_array_heat/"
-    for run, label, color, style in (("develop_heat_no", "heat equation off (develop and this PR)", REF, dict(lw=3.2, alpha=0.35)),
-                                     ("develop_heat_yes", "heat equation on, develop", DEV, dict(lw=1.4)),
-                                     ("pr_heat_yes", "heat equation on, this PR", FIX, dict(lw=1.4, ls="--"))):
+    for run, label, color, style in (("develop_heat_no", "heat equation off (develop and this PR)", REF, dict(lw=4.8, alpha=0.45, zorder=2)),
+                                     ("develop_heat_yes", "heat equation on, develop", DEV, dict(lw=1.4, zorder=3)),
+                                     ("pr_heat_yes", "heat equation on, this PR", FIX, dict(lw=1.4, ls="--", zorder=4))):
         h = hist(p + run)
         a.plot(h["Inner_Iter"], h["rms[P]"], color=color, label="%s: %d iterations" % (label, len(h["rms[P]"])), **style)
     a.set_xlabel("iteration")

@@ -85,9 +85,9 @@ def limiter():
     fig, ax = plt.subplots(1, 2, figsize=(11, 4.0), sharey=True)
     for a, comp, name in ((ax[0], "Limiter_Velocity_x", "x velocity"), (ax[1], "Limiter_Velocity_y", "y velocity")):
         ref = np.array([float(x[comp + "_annulus"]) for x in rows])
-        a.plot(r, ref, color=REF, lw=3.2, alpha=0.35, label="full annulus (no periodic boundary)")
-        a.plot(r, [float(x[comp + "_develop"]) for x in rows], color=DEV, lw=1.4, marker="o", ms=3, label="sector, develop")
-        a.plot(r, [float(x[comp + "_pr"]) for x in rows], color=FIX, lw=1.4, marker="o", ms=3, label="sector, this PR")
+        a.plot(r, ref, color=REF, lw=4.8, alpha=0.45, zorder=2, label="full annulus (no periodic boundary)")
+        a.plot(r, [float(x[comp + "_develop"]) for x in rows], color=DEV, lw=1.4, marker="o", ms=3, zorder=3, label="sector, develop")
+        a.plot(r, [float(x[comp + "_pr"]) for x in rows], color=FIX, lw=1.4, marker="o", ms=3, zorder=4, label="sector, this PR")
         a.set_xlabel("radius of the point on the periodic boundary")
         a.set_title("limiter of the %s" % name)
     ax[0].set_ylabel("limiter")

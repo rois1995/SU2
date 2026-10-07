@@ -37,9 +37,9 @@ def hist(run):
 def axis():
     rows = list(csv.DictReader(open(os.path.join(HERE, "pipe_axis", "axis_profile.csv"))))
     fig, ax = plt.subplots(1, 2, figsize=(11, 4.0), sharey=True)
-    runs = (("full_converged", "full pipe (no periodic boundary)", REF, dict(lw=3.2, alpha=0.35)),
-            ("develop_w30_converged", "30 degree sector, develop", DEV, dict(lw=1.4, marker="o", ms=3)),
-            ("pr_w30_converged", "30 degree sector, this PR", FIX, dict(lw=1.4, marker="o", ms=3)))
+    runs = (("full_converged", "full pipe (no periodic boundary)", REF, dict(lw=4.8, alpha=0.45, zorder=2)),
+            ("develop_w30_converged", "30 degree sector, develop", DEV, dict(lw=1.4, marker="o", ms=3, zorder=3)),
+            ("pr_w30_converged", "30 degree sector, this PR", FIX, dict(lw=1.4, marker="o", ms=3, zorder=4)))
     for a, line, xlabel, title in ((ax[0], "axis", "z along the axis", "(a) points on the axis"),
                                    (ax[1], "radius", "radius at half length (z = 1)", "(b) from the axis to the wall")):
         for run, label, color, style in runs:
