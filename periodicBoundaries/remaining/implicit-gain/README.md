@@ -1,5 +1,7 @@
 # Isolated periodic implicit convergence and cost assessment
 
+**Status: #2967 was closed at the user’s request on 2026-10-07.** This experiment is deferred; its branch and evidence are retained. The seven active periodic bug-fix PRs do not depend on it.
+
 Classification correction after reviewing the original implementation discussion: F/#2967 is a proposed numerical enhancement, labeled **changelog:feature**, with **priority removed**, and explicitly **not ready to merge**. The maintainer [explained](https://github.com/su2code/SU2/issues/763#issuecomment-524007345) that omitted neighboring Jacobian terms were a deliberate approximation to reduce communication/sparse-matrix costs. The new dense-reference tests verify the proposed complete operator; disagreement with that operator alone does not prove the old approximation was an implementation bug. #1585 explored the same class of enhancement and recorded preconditioner/adjoint difficulties. Current evidence does not establish resolution of #763/#1467 or an overall speedup. This supersedes earlier descriptions of F as a confirmed bug fix; the genuine correctness fixes in the other branches are unaffected. No production code or PR state changed.
 
 These cases measure outer convergence, Krylov work and elapsed time while keeping all other periodic fixes identical. Fewer outer iterations do not necessarily make a run faster.
@@ -34,7 +36,7 @@ For the published implementation (raw preconditioner), the larger-budget annulus
 
 With the experimental projected preconditioner, the larger-budget annular case takes 72.5% fewer outer iterations than legacy, but 55% more total linear iterations. The pipe takes 37.5% fewer outer iterations but 86.7% more linear work and remains slower. Relative to the same coupled operator with raw preconditioning, projection reduces linear work by 60.4% in the annulus and 40.3% in the pipe.
 
-The limited four-step solve is a remaining robustness regression. The enlarged-budget result does not erase it. #2967 stays draft until this behavior, full branch CI/regression references, CFD/geometry adjoints, multigrid forcing and ALE/GCL are assessed.
+The limited four-step solve is a remaining robustness regression. The enlarged-budget result does not erase it. Any future reconsideration of #2967 requires assessment of this behavior, full branch CI/regression references, CFD/geometry adjoints, multigrid forcing and ALE/GCL; it is currently closed.
 
 For the experimental projected-preconditioner variant, at the shared density-residual target, converged primary/thermodynamic fields agree with legacy within 3.2e-6 for the annulus and 7.6e-8 for the pipe on each field's stated scale `max(1,max|baseline field|)`. `compare_steady_fields.py` contains the runnable <=1e-5 check and `steady-field-comparison.json` records each field. The stopping condition is density residual, not a claim that every residual component meets the same threshold.
 
