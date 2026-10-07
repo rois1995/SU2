@@ -1,6 +1,7 @@
 # RAE cross-grid goal completion audit
 
-Status: **all runtime, source and artifact requirements verified; commit pending**.
+Status: **COMPLETE — runtime, source and artifact requirements verified**.
+Source implementation commit: `73b4bf9434`. The retained runnable checker passes.
 App v31 is the current cleaned source and passes the complete same-build campaign.
 Worktree: `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 `codex/native-integrated`. AdapNoExt remains untouched.
@@ -17,7 +18,7 @@ Worktree: `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 | Current implementation is identified by executable and source hashes | `native_cross_grid_build_v31/evidence.json`,759production source snapshots, current test archives | PASS terminal campaign; current source759files, solver/test binaries and archived artifacts SHA-verified |
 | Reviewable accepted and rejected grids, paired flow/restart files, failure locations and guide | Actual files in case folders and `GRID_GUIDE.md`; earlier rejected Euler controls retained | PASS final v31 input/adapted meshes, restart/VTU/surface fields and plots; earlier rejected outputs retained |
 | Practical runtime/complexity limits are measured and stated honestly | Per-case CFD/adaptation/transfer timing, accepted cell counts and MPI width, `RAE_CROSS_GRID_VALIDATION.md`, historical scaling envelope in `ROBUSTNESS_SCALING_RESULTS.md` | PASS final cost and scope recorded: up to4ranks/36,263triangles; substantial adaptation cost stated |
-| HANDOFF reflects actual jobs and remaining work; selected source changes committed on the separate branch | `HANDOFF_Codex.md`, live process inspection, Git branch/status/diff | Final source review complete; HANDOFF/docs being finalized and selective commit pending |
+| HANDOFF reflects actual jobs and remaining work; selected source changes committed on the separate branch | `HANDOFF_Codex.md`, live process inspection, Git branch/status/diff | PASS implementation committed as73b4bf9434; final checker PASS, HANDOFF updated, no owned jobs remain |
 
 All paths above are relative to `integration_evidence` unless they name root
 documents. Cases are under `rae2822_transonic_v1`. The main final campaign is

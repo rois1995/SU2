@@ -70,7 +70,7 @@ for kind,name,baseline,seedhash in [('Euler','nativefix_euler_rans_seed_v14','na
 record['sha256']['integration_evidence/native_cross_grid_build_v31/evidence.json']=sha(e/'native_cross_grid_build_v31/evidence.json')
 out=e/'native_cross_grid_v31_case_audit.json'
 if out.exists():
- assert json.loads(out.read_text())==record,'Stored completion audit differs from current evidence'
+ assert json.loads(out.read_text())==json.loads(json.dumps(record)), 'Stored completion audit differs from current evidence'
 else:
  out.write_text(json.dumps(record,indent=2)+'\n')
 print('Final case, MPI-group, current-source and artifact audit PASS:',out)

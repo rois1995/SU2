@@ -1,6 +1,6 @@
 # Codex handoff — native integration
 
-Updated 2026-10-07. Integration goal complete; new RAE repair goal ACTIVE. Branch `codex/native-integrated`;
+Updated 2026-10-07. Integration and RAE cross-grid repair goals COMPLETE. Branch `codex/native-integrated`;
 worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`.
 
 
@@ -78,8 +78,12 @@ supplemental filter's serial-projection MPI abort and the cancelled-before-launc
 corrected-v2 attempt remain recorded; neither is called a pass.
 
 Current reports:RAE_CROSS_GRID_VALIDATION.md, RAE_CROSS_GRID_COMPLETION_AUDIT.md,
-ROBUSTNESS_SCALING_RESULTS.md and GRID_GUIDE.md. Goal remains ACTIVE only while
-final documents/selective commit are finished; runtime/source/artifact proof PASS.
+ROBUSTNESS_SCALING_RESULTS.md and GRID_GUIDE.md. RAE repair goal COMPLETE.
+Source implementation committed as 73b4bf9434; final runnable evidence recheck
+PASS after normalizing tuple/list JSON representation in the checker.
+No owned CFD, build or test controller remains. Next authorized milestone:
+static 2D native unsteady adaptation, reusing existing MPI history transfer and
+time-window driver; implementation and lifecycle validation are still pending.
 Static primal2D triangles/original polyline only, up to4ranks/36kaccepted cells;
 no3D/unsteady/CAD/large-rank or grid-converged force claim. Cost remains high
 (75%/91%of CFD time), and coarse-seed BL startup exceeds its initial CFD cost.
