@@ -1,6 +1,7 @@
 """Replay a serial pre-BL tensor field/scale using frozen_metric_probe.patch.
 
 Usage: python3 integration_evidence/replay_frozen_metric.py BUILD_DIRECTORY
+Historical runner for pre-rebase source 3b320bfd6b, not the integrated BL policy.
 Requires the v3 frozen RAE inputs/configuration and NumPy for the final audit.
 The patch is investigation-only: restore CSolver.cpp and rebuild after use.
 No remeshing or flow iterations run. Output is metric-isolation/noise-replay.

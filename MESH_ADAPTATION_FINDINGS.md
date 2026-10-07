@@ -1,6 +1,11 @@
 # Mesh adaptation findings and follow-up work
 
 Working branch: `codex/metric-robustness`, fork https://github.com/rois1995/SU2.
+Rebased onto `codex/native-metric-integration` at `2abbd11769` on 2026-10-07.
+The other agent owns BL composition, geometric complexity and gradation; this
+branch continues Hessian/sensor-metric work and validates the shared BL policy.
+See `METRIC_ROBUSTNESS_INTEGRATION.md` for the current implementation contract.
+Older BL experiments and their receipts below are historical evidence.
 This file retains the investigation, implementation status, and deferred work.
 Baseline validated implementation: `e17a96d301`; detailed measurements and replay
 script are in `integration_evidence/metric_robustness_v2_validation.json` and
@@ -10,7 +15,7 @@ script are in `integration_evidence/metric_robustness_v2_validation.json` and
 
 | ID | Work | Status |
 |---|---|---|
-| 1 | Constrained tensor gradation: classify blocked directions, converge useful updates, reduce repeated work | Direct updater rejected by actual-case checks. Retained relaxation/performance changes; main representation reconciliation required |
+| 1 | Constrained tensor gradation: classify blocked directions, converge useful updates, reduce repeated work | Direct updater rejected by actual-case checks. Integrated base retains sensor-only gradation and geometric query composition; full composed-field guarantees remain the BL owner's follow-up |
 | 2 | Noise-aware Hessian treatment, with controls that retain resolved curvature | Implemented opt-in residual shrinkage; enabled RAE gate fails upstream metric construction. Fixed-input gradation is MPI consistent; retain default zero |
 | 4 | More selective MPI geometry exchange and storage | Implemented conservative occupied query boxes; unit/MPI tests passed; private candidate reference transport remains separate |
 | 5 | Reuse WLS geometry across sensors and derivative passes | Implemented within-call normal-matrix/weight reuse; stretched multisensor equivalence and MPI tests passed |
@@ -363,7 +368,10 @@ The config template now gives explicit OFF/ON examples. Three existing checks
 for default unfiltered noisy curvature, opt-in shrinkage and a resolved steep
 profile passed again; this does not supersede the failed enabled-noise RAE gate.
 
-The following is a proposed integration sequence, **not implemented main support**:
+The following records the earlier proposal. The integration base now implements
+sensor-only gradation, geometric query composition and BL-resolving complexity
+quadrature. Its combined-field audits and remaining limits are documented in
+`METRIC_ROBUSTNESS_INTEGRATION.md`; full composed-field correction remains open.
 
 1. For each complexity scale trial, bound and grade the sensor tensors using
    transported-neighbor intersection. Keep hard-normal BL projection out of
@@ -462,8 +470,10 @@ A >100-character filename regression covers all four paths on 1/2/4 ranks.
 ### Noise failure occurs before gradation
 
 The investigation-only `integration_evidence/frozen_metric_probe.patch` captures
-pre-BL tensors/scale and permits fixed-input replay. It is **not production
-configuration or a merge candidate**. Apply it only to a disposable source/build,
+pre-BL tensors/scale and permits fixed-input replay. It is **historical instrumentation, not production
+configuration or a merge candidate**. It targets pre-rebase source `3b320bfd6b`,
+not the current integrated BL implementation. Check out that historical source
+in a disposable worktree/build before applying it;
 run `replay_frozen_metric.py`, restore the source and rebuild. The final patch
 also captures the initial sensor intersection before corner/BL/gradation work;
 use `--capture-all` for that campaign. The replay still performs preceding root
@@ -495,9 +505,9 @@ was added, and default noise strength remains zero.
 2. Improve one-sided curved-wall and skew-sensitive recovery, with separate
    tangential/transverse and wall-interior/edge accuracy checks.
 3. Support symmetry/periodicity in QR before using this real wing for QR/noise.
-4. Reconcile complexity/gradation with main's geometric BL query policy, then
-   rebase after the main agent's integrated branch is published. Superseded
-   nodal hard-normal experiments must not be replayed onto it.
+4. Validate against the integrated geometric BL policy and coordinate any failures
+   with its owning agent. Rebase onto the published integration is complete;
+   superseded nodal hard-normal experiments have not been replayed.
 5. Validate actual adaptation/flow cycles, forces, conservation and wall
    resolution. Native 3D remeshing, AD and structured BL topology remain open.
 
@@ -507,3 +517,31 @@ fields are also preserved outside `/tmp` in
 Its manifest records file sizes and SHA-256 hashes. Input RAE files are copied
 there; original ONERA inputs remain in their existing test directory. Previous
 reports and the full deferred roadmap above remain retained.
+
+
+## Rebase onto the geometric BL integration (2026-10-07)
+
+The branch now descends from published integration `2abbd11769`. Only the two
+post-integration commits were replayed (`3b320bfd6b` -> `1eddab22a6`,
+`ce28cd2f99` -> `0164ee16dc`). The duplicate shared restart-reader fix was
+resolved in favor of the integration implementation. Relative production changes
+are limited to the remaining `CBaselineSolver` filename fixes; the integrated
+BL, complexity, solver metric and query code are unchanged.
+
+Fresh build and selected tests passed 26 cases on each of 1/2/4 MPI ranks,
+including Hessian, long restart filename, geometric query/quadrature and sensor
+gradation checks. Fresh frozen ONERA outputs are byte-for-byte identical to the
+pre-rebase runs. Its strict MPI metric gate still fails at the same values; no
+accuracy limitation was fixed by rebasing. Historical probe instrumentation
+requires its historical source and must not be applied to the integrated policy.
+
+Receipt: `integration_evidence/metric_rebase_v1_validation.json`. The old branch
+tip is retained as `codex/metric-robustness-pre-integration-rebase-20261007` and in
+a verified complete-history bundle under the durable evidence directory. New
+receipts/logs are saved there in `metric_rebase_v1`; unchanged ONERA fields remain
+in the earlier v4 archive, with hashes and paths recorded by the new receipt.
+
+Next implementation work belongs to Hessian/sensor metrics: stable multi-sensor
+combination, skewed/curved one-sided recovery and QR boundary support. The other
+agent continues to own BL composition, complexity and gradation; our branch
+validates against that shared contract.
