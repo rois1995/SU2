@@ -478,8 +478,10 @@ TEST_CASE("Quadratic Hessians preserve signed curvature and report failed fits",
     if (SU2_MPI::GetRank() == MASTER_NODE) {
       if (invalidSensor)
         CHECK(out.str().find("WARNING: Quadratic") != string::npos);
-      else
+      else {
         CHECK(out.str().find("0 WLS fallbacks") != string::npos);
+        CHECK(out.str().find("0 fits above 0.05") != string::npos);
+      }
     }
   }
 
@@ -514,6 +516,28 @@ TEST_CASE("Quadratic Hessians preserve signed curvature and report failed fits",
       for (unsigned short d = 0; d < 3; ++d) CHECK(nodes->GetGradient_Adapt()(point, v, d) == 11.0);
       for (unsigned short k = 0; k < 6; ++k) CHECK(nodes->GetHessian()(point, v, k) == 13.0);
     }
+}
+
+TEST_CASE("Quadratic Hessian residuals expose sensor noise without zeroing curvature", "[HessianReliability]") {
+  AdaptBoxTest test("MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_minus, z_plus)\n", "QUADRATIC_LEAST_SQUARES");
+  auto* flow = test.solver[FLOW_SOL];
+  auto* nodes = flow->GetNodes();
+  for (auto point = 0ul; point < test.geometry->GetnPoint(); ++point)
+    nodes->SetAuxVar_Adapt(point, 0, 1.0 + (test.geometry->nodes->GetGlobalIndex(point)%2 ? .25 : -.25));
+  stringstream out;
+  auto* buffer = cout.rdbuf(out.rdbuf());
+  flow->SetHessian_Adapt(test.geometry.get(), test.config.get());
+  cout.rdbuf(buffer);
+  if (SU2_MPI::GetRank() == MASTER_NODE)
+    CHECK(out.str().find("WARNING: Large quadratic fit residuals remain") != string::npos);
+  passivedouble local = 0, global = 0;
+  for (auto point = 0ul; point < test.geometry->GetnPointDomain(); ++point)
+    for (unsigned component = 0; component < 6; ++component) {
+      const auto value = SU2_TYPE::GetValue(nodes->GetHessian()(point,0,component));
+      CHECK(std::isfinite(value)); local = std::max(local, fabs(value));
+    }
+  CPassiveComm::Allreduce(&local, &global, 1, CPassiveComm::Op::MAX);
+  CHECK(global > 1.0);
 }
 
 /*--- Complete pressure sensor -> gradient -> Hessian chain on triangles/tetrahedra.

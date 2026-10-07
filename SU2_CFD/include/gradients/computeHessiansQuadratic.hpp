@@ -58,58 +58,99 @@ void computeHessiansQuadratic(CGeometry& geometry, unsigned short nSensor, const
     return result;
   };
 
-  /*--- Exchange complete neighborhoods of exported owners, not the truncated connectivity of halo nodes.
-   *    Use the existing bounded passive transport; global IDs remain integer values. ---*/
+  /*--- Request complete owner neighborhoods only for points needing a second ring. Halo connectivity
+   *    is truncated; exporting it locally would make reconstruction depend on the partition. ---*/
   const auto ranks = SU2_MPI::GetSize();
-  std::vector<std::vector<Sample>> byRank(ranks);
-  std::vector<std::vector<passivedouble>> valuesByRank(ranks);
-  for (int message = 0; message < geometry.nP2PSend; ++message) {
-    const auto peer = geometry.Neighbors_P2PSend[message];
-    for (int offset = geometry.nPoint_P2PSend[message]; offset < geometry.nPoint_P2PSend[message + 1]; ++offset) {
-      const auto point = geometry.Local_Point_P2PSend[offset];
-      const auto center = geometry.nodes->GetGlobalIndex(point);
-      auto append = [&](unsigned long neighbor) {
-        byRank[peer].push_back(sample(neighbor, center));
-        for (unsigned short v = 0; v < nSensor; ++v)
-          valuesByRank[peer].push_back(SU2_TYPE::GetValue(field(neighbor, v)));
-      };
-      append(point);
-      for (const auto neighbor : geometry.nodes->GetPoints(point)) append(neighbor);
-    }
-  }
-  std::vector<Sample> send;
-  std::vector<passivedouble> sendValues;
-  std::vector<size_t> counts(ranks), valueCounts(ranks), receivedCounts;
-  for (int peer = 0; peer < ranks; ++peer) {
-    counts[peer] = byRank[peer].size();
-    valueCounts[peer] = valuesByRank[peer].size();
-    send.insert(send.end(), byRank[peer].begin(), byRank[peer].end());
-    sendValues.insert(sendValues.end(), valuesByRank[peer].begin(), valuesByRank[peer].end());
-  }
-  const auto received = CPassiveComm::Alltoallv(send, counts, receivedCounts);
-  const auto receivedValues = CPassiveComm::Alltoallv(sendValues, valueCounts, receivedCounts);
+  std::vector<int> owner(geometry.GetnPoint(), -1);
+  for (int message = 0; message < geometry.nP2PRecv; ++message)
+    for (int k = geometry.nPoint_P2PRecv[message]; k < geometry.nPoint_P2PRecv[message + 1]; ++k)
+      owner[geometry.Local_Point_P2PRecv[k]] = geometry.Neighbors_P2PRecv[message];
+  std::vector<Sample> received;
+  std::vector<passivedouble> receivedValues;
   std::unordered_map<unsigned long, std::vector<size_t>> neighborhoods;
-  for (size_t k = 0; k < received.size(); ++k) neighborhoods[received[k].center].push_back(k);
+  std::vector<bool> redundant(geometry.GetnPointDomain(), false);
+  std::vector<bool> grow(geometry.GetnPointDomain(), false), valid(geometry.GetnPointDomain() * nSensor, false);
+  std::vector<passivedouble> residual(valid.size(), std::numeric_limits<passivedouble>::infinity());
+  std::vector<passivedouble> fitCondition(valid.size(), 0);
+  std::vector<size_t> fitDof(valid.size(), 0);
+  unsigned long requested = 0, exported = 0;
+  auto exchange = [&]() {
+    std::vector<std::vector<unsigned long>> request(ranks);
+    for (auto point = 0ul; point < grow.size(); ++point) {
+      if (!grow[point]) continue;
+      for (const auto neighbor : geometry.nodes->GetPoints(point)) {
+        if (neighbor < geometry.GetnPointDomain()) continue;
+        if (owner[neighbor] < 0) SU2_MPI::Error("Quadratic Hessian halo has no owner.", CURRENT_FUNCTION);
+        request[owner[neighbor]].push_back(geometry.nodes->GetGlobalIndex(neighbor));
+      }
+    }
+    std::vector<size_t> counts(ranks), incomingCounts;
+    std::vector<unsigned long> ids;
+    for (int peer = 0; peer < ranks; ++peer) {
+      auto& list = request[peer];
+      std::sort(list.begin(), list.end());
+      list.erase(std::unique(list.begin(), list.end()), list.end());
+      counts[peer] = list.size();
+      ids.insert(ids.end(), list.begin(), list.end());
+    }
+    requested = ids.size();
+    const auto incoming = CPassiveComm::Alltoallv(ids, counts, incomingCounts);
+    std::unordered_map<unsigned long, unsigned long> owned;
+    for (auto point = 0ul; point < geometry.GetnPointDomain(); ++point)
+      owned.emplace(geometry.nodes->GetGlobalIndex(point), point);
+    std::vector<Sample> send;
+    std::vector<passivedouble> values;
+    std::vector<size_t> valueCounts(ranks);
+    size_t offset = 0;
+    for (int peer = 0; peer < ranks; ++peer) {
+      const auto before = send.size();
+      for (size_t k = 0; k < incomingCounts[peer]; ++k) {
+        const auto center = incoming[offset++];
+        const auto found = owned.find(center);
+        if (found == owned.end()) SU2_MPI::Error("Quadratic Hessian requested a non-owned point.", CURRENT_FUNCTION);
+        auto append = [&](unsigned long point) {
+          send.push_back(sample(point, center));
+          for (unsigned short v = 0; v < nSensor; ++v) values.push_back(SU2_TYPE::GetValue(field(point, v)));
+        };
+        append(found->second);
+        for (const auto neighbor : geometry.nodes->GetPoints(found->second)) append(neighbor);
+      }
+      counts[peer] = send.size() - before;
+      valueCounts[peer] = counts[peer] * nSensor;
+    }
+    exported = send.size();
+    received = CPassiveComm::Alltoallv(send, counts, incomingCounts);
+    receivedValues = CPassiveComm::Alltoallv(values, valueCounts, incomingCounts);
+    for (size_t k = 0; k < received.size(); ++k) neighborhoods[received[k].center].push_back(k);
+  };
 
   unsigned long local[3] = {}, global[3] = {};  // first-ring fits, grown fits, fallback point-sensor pairs
-  for (auto point = 0ul; point < geometry.GetnPointDomain(); ++point) {
-    struct Entry {
-      Sample sample;
-      std::vector<passivedouble> values;
-    };
-    std::map<unsigned long, Entry> cloud;  // deterministic QR row order across partitions
-    const auto center = sample(point, 0);
-    auto appendLocal = [&](unsigned long neighbor) {
-      const auto item = sample(neighbor, center.id);
-      if (item.id == center.id || cloud.count(item.id)) return;
-      Entry entry{item, std::vector<passivedouble>(nSensor)};
-      for (unsigned short v = 0; v < nSensor; ++v) entry.values[v] = SU2_TYPE::GetValue(field(neighbor, v));
-      cloud.emplace(item.id, std::move(entry));
-    };
-    for (const auto neighbor : geometry.nodes->GetPoints(point)) appendLocal(neighbor);
-    std::vector<bool> accepted(nSensor, false);
-    // ponytail: grow at most two rings; extend only if reported fallback counts justify the extra communication.
-    for (unsigned short ring = 1; ring <= 2; ++ring) {
+  constexpr passivedouble poorFit =
+      0.05;  // Relative weighted fit residual; triggers stencil comparison, not smoothing.
+  for (unsigned short ring = 1; ring <= 2; ++ring) {
+    if (ring == 2) {
+      unsigned long pending = std::count(grow.begin(), grow.end(), true), globalPending = 0;
+      CPassiveComm::Allreduce(&pending, &globalPending, 1, CPassiveComm::Op::SUM);
+      if (!globalPending) break;
+      exchange();
+    }
+    for (auto point = 0ul; point < geometry.GetnPointDomain(); ++point) {
+      if (ring == 2 && !grow[point]) continue;
+      struct Entry {
+        Sample sample;
+        std::vector<passivedouble> values;
+      };
+      std::map<unsigned long, Entry> cloud;  // deterministic QR row order across partitions
+      const auto center = sample(point, 0);
+      auto appendLocal = [&](unsigned long neighbor) {
+        const auto item = sample(neighbor, center.id);
+        if (item.id == center.id || cloud.count(item.id)) return;
+        Entry entry{item, std::vector<passivedouble>(nSensor)};
+        for (unsigned short v = 0; v < nSensor; ++v) entry.values[v] = SU2_TYPE::GetValue(field(neighbor, v));
+        cloud.emplace(item.id, std::move(entry));
+      };
+      for (const auto neighbor : geometry.nodes->GetPoints(point)) appendLocal(neighbor);
+      // ponytail: compare at most two rings; extend only if failed-fit statistics justify more communication.
       if (ring == 2) {
         for (const auto neighbor : geometry.nodes->GetPoints(point)) {
           if (neighbor < geometry.GetnPointDomain()) {
@@ -126,7 +167,14 @@ void computeHessiansQuadratic(CGeometry& geometry, unsigned short nSensor, const
           }
         }
       }
-      if (cloud.size() < terms) continue;
+      if (ring == 1) {
+        redundant[point] = cloud.size() >= terms + 2;
+        grow[point] = !redundant[point];  // An exactly determined fit has no residual degrees of freedom.
+      }
+      if (cloud.size() < terms) {
+        if (ring == 1) grow[point] = true;
+        continue;
+      }
       Eigen::MatrixXd displacement(cloud.size(), dim), rhs(cloud.size(), nSensor);
       size_t row = 0;
       for (const auto& item : cloud) {
@@ -135,10 +183,16 @@ void computeHessiansQuadratic(CGeometry& geometry, unsigned short nSensor, const
           rhs(row, v) = item.second.values[v] - SU2_TYPE::GetValue(field(point, v));
         ++row;
       }
-      if (!displacement.allFinite()) continue;
+      if (!displacement.allFinite()) {
+        if (ring == 1) grow[point] = true;
+        continue;
+      }
       Eigen::JacobiSVD<Eigen::MatrixXd> svd(displacement, Eigen::ComputeThinV);
       const auto& singular = svd.singularValues();
-      if (!(singular(dim - 1) > 64 * std::numeric_limits<passivedouble>::epsilon() * singular(0))) continue;
+      if (!(singular(dim - 1) > 64 * std::numeric_limits<passivedouble>::epsilon() * singular(0))) {
+        if (ring == 1) grow[point] = true;
+        continue;
+      }
       const Eigen::MatrixXd whitening =
           svd.matrixV() * (sqrt(passivedouble(cloud.size())) * singular.cwiseInverse()).asDiagonal();
       const Eigen::MatrixXd coordinate = displacement * whitening;
@@ -155,10 +209,18 @@ void computeHessiansQuadratic(CGeometry& geometry, unsigned short nSensor, const
       }
       Eigen::ColPivHouseholderQR<Eigen::MatrixXd> qr(design);
       qr.setThreshold(1e-10);
-      if (qr.rank() != terms) continue;
+      if (qr.rank() != terms) {
+        if (ring == 1) grow[point] = true;
+        continue;
+      }
       for (unsigned short v = 0; v < nSensor; ++v) {
-        if (accepted[v] || !rhs.col(v).allFinite()) continue;
+        const auto slot = point * nSensor + v;
+        if ((ring == 2 && redundant[point] && residual[slot] <= poorFit) || !rhs.col(v).allFinite()) continue;
         const Eigen::VectorXd coefficient = qr.solve(rhs.col(v));
+        const auto norm = rhs.col(v).stableNorm();
+        const auto error = (design * coefficient - rhs.col(v)).stableNorm() /
+                           std::max(norm, std::numeric_limits<passivedouble>::min());
+        if (!std::isfinite(error) || (valid[slot] && redundant[point] && error >= residual[slot])) continue;
         Eigen::MatrixXd scaledHessian(dim, dim);
         unsigned short column = dim;
         for (unsigned short i = 0; i < dim; ++i)
@@ -178,17 +240,55 @@ void computeHessiansQuadratic(CGeometry& geometry, unsigned short nSensor, const
         column = 0;
         for (unsigned short i = 0; i < dim; ++i)
           for (unsigned short j = i; j < dim; ++j) hessian(point, v, column++) = physicalHessian(i, j);
-        accepted[v] = true;
+        if (valid[slot]) --local[0];
+        valid[slot] = true;
+        residual[slot] = error;
+        const auto diagonal = qr.matrixR().topLeftCorner(terms, terms).diagonal().cwiseAbs();
+        fitCondition[slot] = diagonal.minCoeff() / diagonal.maxCoeff();
+        fitDof[slot] = cloud.size() - terms;
         ++local[ring - 1];
       }
-      if (std::all_of(accepted.begin(), accepted.end(), [](bool value) { return value; })) break;
+      if (ring == 1)
+        for (unsigned short v = 0; v < nSensor; ++v)
+          grow[point] = grow[point] || !valid[point * nSensor + v] || residual[point * nSensor + v] > poorFit;
     }
-    local[2] += std::count(accepted.begin(), accepted.end(), false);
   }
+  local[2] = std::count(valid.begin(), valid.end(), false);
+  passivedouble residualSum = 0, residualMax = 0, residualGlobal[2] = {}, localCondition = 1, globalCondition = 1;
+  unsigned long lowDof = 0, globalLowDof = 0;
+  unsigned long poor = 0, globalPoor = 0, traffic[2] = {requested, exported}, globalTraffic[2] = {};
+  for (size_t k = 0; k < valid.size(); ++k) {
+    if (!valid[k]) continue;
+    localCondition = std::min(localCondition, fitCondition[k]);
+    residualSum += residual[k];
+    residualMax = std::max(residualMax, residual[k]);
+    poor += residual[k] > poorFit;
+    lowDof += fitDof[k] < 2;
+  }
+  CPassiveComm::Allreduce(&localCondition, &globalCondition, 1, CPassiveComm::Op::MIN);
+  CPassiveComm::Allreduce(&residualSum, &residualGlobal[0], 1, CPassiveComm::Op::SUM);
+  CPassiveComm::Allreduce(&residualMax, &residualGlobal[1], 1, CPassiveComm::Op::MAX);
+  CPassiveComm::Allreduce(&lowDof, &globalLowDof, 1, CPassiveComm::Op::SUM);
+  CPassiveComm::Allreduce(&poor, &globalPoor, 1, CPassiveComm::Op::SUM);
+  CPassiveComm::Allreduce(traffic, globalTraffic, 2, CPassiveComm::Op::SUM);
   CPassiveComm::Allreduce(local, global, 3, CPassiveComm::Op::SUM);
   if (SU2_MPI::GetRank() == MASTER_NODE) {
     std::cout << "Quadratic Hessian fits (owned point-sensor pairs): " << global[0] << " first ring, " << global[1]
               << " grown stencil, " << global[2] << " WLS fallbacks." << std::endl;
+    std::cout << "Quadratic Hessian relative weighted fit residual: mean "
+              << residualGlobal[0] / std::max(1ul, global[0] + global[1]) << ", maximum " << residualGlobal[1] << "; "
+              << globalPoor << " fits above " << poorFit << "; minimum QR pivot ratio " << globalCondition
+              << ". Second-ring MPI: " << globalTraffic[0] << " requested owner neighborhoods, " << globalTraffic[1]
+              << " exported samples." << std::endl;
+    if (globalLowDof)
+      std::cout << "WARNING: " << globalLowDof
+                << " quadratic fits have fewer than two residual degrees of freedom; "
+                   "a small residual alone does not establish their reliability."
+                << std::endl;
+    if (globalPoor)
+      std::cout << "WARNING: Large quadratic fit residuals remain after stencil comparison; inspect sensor noise "
+                   "and nonsmooth flow features. No resolved curvature was discarded."
+                << std::endl;
     if (global[2])
       std::cout << "WARNING: Quadratic Hessian reconstruction retained WLS for failed fits. "
                 << "Check non-finite sensor values and stencil rank." << std::endl;
