@@ -369,3 +369,35 @@ TEST_CASE("Native insertion: bounded cavity growth reconnects poor midpoint chil
     CHECK(reason == "protected first layer");
   }
 }
+
+TEST_CASE("Native reference tangential sizes use geometry tolerance and allow wall coarsening", "[MetricRobustness]") {
+  for (const unsigned count : {2u, 100u}) {
+    std::vector<PolylineReference::Face> faces;
+    for (unsigned k = 0; k < count; ++k)
+      faces.push_back({{k, {2.*k/count, 0}}, {k+1, {2.*(k+1)/count, 0}}, 0});
+    const PolylineReference reference(faces, 45);
+    bool conflict = true;
+    CHECK(reference.TangentialSize(1, 1, .001, .5, 1e-6, &conflict) == Approx(.5));
+    CHECK_FALSE(conflict);
+  }
+  std::vector<PolylineReference::Face> faces;
+  constexpr unsigned count = 100;
+  for (unsigned k = 0; k < count; ++k) {
+    const auto angle = 2*std::acos(-1.)*k/count, next = 2*std::acos(-1.)*(k+1)/count;
+    faces.push_back({{k, {cos(angle), sin(angle)}}, {(k+1)%count, {cos(next), sin(next)}}, 0});
+  }
+  // Make the closed seam bitwise identical.
+  faces.back().b.p = faces.front().a.p;
+  const PolylineReference reference(faces, 45);
+  const double arc = .7;
+  const auto size = reference.TangentialSize(1, arc, .001, 1, .01);
+  CHECK(size > norm(faces[0].b.p-faces[0].a.p));
+  auto chord = [&](double span) {
+    return Physical{{0, reference.At(1, arc-span/2)}, {1, reference.At(1, arc+span/2)}, 1};
+  };
+  CHECK(reference.Deviation(chord(size)) <= .01*(1+1e-8));
+  CHECK(reference.Deviation(chord(size*1.01)) > .01);
+  bool conflict = false;
+  CHECK(reference.TangentialSize(1, arc, .5, 1, 1e-6, &conflict) == Approx(.5));
+  CHECK(conflict);
+}

@@ -95,6 +95,34 @@ these constraints: a target below the attainable minimum is reported without
 relaxing the wall heights. Wall resolution can therefore impose a substantial
 minimum complexity even when the outer metric reaches `ADAP_HMAX`.
 
+Adapted-wall tangential sizes now use symmetric chords of the retained native
+polyline reference, capped by the same `ADAP_HAUSD` deviation check used by the
+backend and stopped at reference features. Existing wall-edge lengths do not
+set this cap. A conflict with the tangential minimum (`max(ADAP_HMIN, 2 h0)`)
+is reported; the backend's geometry acceptance remains authoritative.
+
+Native metrics also undergo full tensor gradation with `ADAP_HGRAD`, using
+synchronous halo exchanges and neighbors ordered by global point ID. Each
+complexity trial includes gradation, bounds and prescribed full-band BL normals.
+The outer BL fade is applied once before gradation. The report distinguishes a
+fixed point from the sweep limit and reports transported-metric violations;
+hard BL/bound constraints can prevent unrestricted gradation.
+
+Quadratic Hessian recovery reports weighted fit residuals and QR pivot ratios.
+Stencils with fewer than two residual degrees of freedom, failed fits or relative
+residuals above 0.05 seek a second ring. An overdetermined first-ring fit is kept
+when it has the smaller residual; resolved curvature is retained and persistent
+large residuals are reported. Second-ring owner neighborhoods are requested only
+where needed. Active native BL faces are exchanged by padded rank bounding boxes,
+including support for vertex normals; the backend's immutable original reference
+is still replicated.
+
+WLS inverse-distance-squared weights and its geometry matrix are recomputed on
+each gradient-kernel call. `Rmatrix` is a work array, not a persistent cache.
+Variables supplied together share that work, but the WLS Hessian path invokes
+the kernel again for each sensor. A persistent cache would need invalidation for
+mesh motion/adaptation and correct periodic/AD dependencies; it is not added here.
+
 Transactions import complete dependencies, reserve affected nodes, validate
 versions/interfaces/geometry, and prepare publication storage before the final
 collective vote. The default2MiB per-rank dependency admission applies to bounded

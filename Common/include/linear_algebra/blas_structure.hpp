@@ -29,6 +29,8 @@
 
 #pragma once
 
+#include <limits>
+
 class CConfig;
 
 /*!
@@ -195,10 +197,18 @@ class CBlasStructure {
       } else {
         /* Generate Householder vector. */
 
-        for (k = 0; k < i; k++) {
-          d[k] /= scale;
-          h += d[k] * d[k];
+        /*--- Fast-math can turn division by a subnormal scale into multiplication by an
+         *    overflowing reciprocal. Normalize with a power of two in that case. ---*/
+        if (scale < std::numeric_limits<double>::min()) {
+          using std::frexp;
+          using std::ldexp;
+          int exponent = 0;
+          const Scalar fraction = frexp(scale, &exponent);
+          for (k = 0; k < i; k++) d[k] = ldexp(d[k], -exponent) / fraction;
+        } else {
+          for (k = 0; k < i; k++) d[k] /= scale;
         }
+        for (k = 0; k < i; k++) h += d[k] * d[k];
         Scalar f = d[i - 1];
         Scalar g = sqrt(h);
         if (f > 0) {

@@ -242,11 +242,15 @@ void CSinglezoneDriver::ComputeMetric() {
    *    variables (also on halo points) until the next call. ---*/
 
   const auto startTime = SU2_MPI::Wtime();
+  if (config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY &&
+      config->GetnAdap_BL() && (!nativeReference || !nativeReference->original)) {
+    auto remesher = MakeRemesher(); // Initializes the retained immutable reference, including restart associations.
+  }
   solver_flow->SetAuxVar_Adapt(geometry, config, solver_container[ZONE_0][INST_0][MESH_0]);
   solver_flow->SetHessian_Adapt(geometry, config);
   /*--- ADAP_BL_METHOD= TWO_PASS: the remesher builds the boundary-layer metric itself, on its pass-A mesh. ---*/
   const bool boundaryLayer = config->GetKind_Adap_BL_Method() != ADAP_BL_METHOD::TWO_PASS;
-  solver_flow->ComputeMetric(geometry, config, nullptr, boundaryLayer);
+  solver_flow->ComputeMetric(geometry, config, nullptr, boundaryLayer, nativeReference.get());
   if (rank == MASTER_NODE) cout << "Metric computed in " << SU2_MPI::Wtime() - startTime << " s." << endl;
 }
 
@@ -493,7 +497,7 @@ void CSinglezoneDriver::SampleTimeWindowMetric() {
     }
     /*--- ADAP_BL_METHOD= TWO_PASS: the remesher builds the boundary-layer metric itself, on its pass-A mesh. ---*/
     solver_flow->ComputeMetric(geometry, config, nullptr,
-                               config->GetKind_Adap_BL_Method() != ADAP_BL_METHOD::TWO_PASS);
+                               config->GetKind_Adap_BL_Method() != ADAP_BL_METHOD::TWO_PASS, nativeReference.get());
     windowMetricDone = true;
   }
 
@@ -670,7 +674,7 @@ void CSinglezoneDriver::PredictWindowMetric() {
 
   /*--- Complexity, bounds, corner and boundary-layer metrics. ---*/
   solver_flow->ComputeMetric(geometry, config, &predicted,
-                             config->GetKind_Adap_BL_Method() != ADAP_BL_METHOD::TWO_PASS);
+                             config->GetKind_Adap_BL_Method() != ADAP_BL_METHOD::TWO_PASS, nativeReference.get());
   predictSnapshotValid = false;
 }
 

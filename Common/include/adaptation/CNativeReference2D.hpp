@@ -183,6 +183,44 @@ class PolylineReference {
     return maximum;
   }
 
+  /*--- Largest symmetric reference chord around arc that passes the native deviation gate. This depends on
+   *    immutable geometry, not the edge lengths of the current adapted wall. Features delimit the search.
+   *    A minimum larger than the geometric cap is returned explicitly through the optional conflict flag. ---*/
+  double TangentialSize(int component, double arc, double minimum, double maximum, double tolerance,
+                        bool* conflict = nullptr) const {
+    if (!(minimum > 0 && maximum >= minimum && tolerance > 0))
+      throw std::invalid_argument("Invalid native tangential size bounds.");
+    const auto& line = Get(component);
+    const double total = line.arc.back();
+    arc = line.closed ? std::fmod(arc + total, total) : std::clamp(arc, 0., total);
+    double high = std::min(maximum, line.closed ? 0.5 * total : 2 * std::min(arc, total - arc));
+    for (size_t k = 0; k + 1 < line.nodes.size(); ++k) {
+      if (!IsFeature(line.nodes[k].p)) continue;
+      auto distance = std::abs(arc - line.arc[k]);
+      if (line.closed) distance = std::min(distance, total - distance);
+      high = std::min(high, 2 * distance);
+    }
+    auto admissible = [&](double length) {
+      if (!(length > 0)) return true;
+      const auto a = At(component, arc - 0.5 * length), b = At(component, arc + 0.5 * length);
+      if (!(norm(b - a) > 0)) return false;
+      return Deviation({{0, a}, {1, b}, component}) <= tolerance;
+    };
+    double low = 0;
+    if (admissible(high)) low = high;
+    else {
+      // ponytail: 40 bisections of the local chord; an arc index can replace knot scans if profiling justifies it.
+      for (unsigned k = 0; k < 40; ++k) {
+        const auto middle = 0.5 * (low + high);
+        if (admissible(middle)) low = middle;
+        else high = middle;
+      }
+    }
+    const auto chord = norm(At(component, arc+0.5*low)-At(component, arc-0.5*low));
+    if (conflict) *conflict = chord < minimum;
+    return std::max(chord, minimum);
+  }
+
   Reference Policy(const std::map<int, double>& heightByMarker) const {
     /*--- The returned callbacks reference immutable geometry; the adapter must retain this object.
      *    Heights are copied per call so a later request can rebuild cells without rebasing geometry. ---*/

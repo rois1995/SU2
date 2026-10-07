@@ -36,6 +36,7 @@
 
 class CConfig;
 class CGeometry;
+namespace SU2NativeBoundary2D { struct ReferenceState; }
 
 /*!
  * \class CBoundaryLayerMetric
@@ -126,7 +127,7 @@ class CBoundaryLayerMetric {
                                                             largest tangential size of the wall metric. */
 
   /*!
-   * \brief Wall faces of the markers of ADAP_BL_MARKER, gathered from all ranks (collective call).
+   * \brief Wall faces of ADAP_BL_MARKER (collective); native ranks receive nearby faces and their geometric support.
    * \param[in] geometry - Geometry (boundary faces with their volume element).
    * \param[in] config - ADAP_BL_* options (the markers must be solid walls); ADAP_ANGLE for the corners.
    */
@@ -172,6 +173,9 @@ class CBoundaryLayerMetric {
    */
   std::vector<WallReport> Apply(const std::vector<su2double>& coord, std::vector<Tensor>& metric,
                                 su2double coreEigenvalue);
+
+  /*! \brief Use immutable native reference chords for adapted-wall tangential sizes. */
+  void SetNativeReference(const SU2NativeBoundary2D::ReferenceState& reference, const CConfig& config);
 
   /*! \brief Cache positive-weight samples; avoids repeating nearest-face searches during complexity scaling. */
   std::vector<PointSample> SamplePoints(const std::vector<su2double>& coord);

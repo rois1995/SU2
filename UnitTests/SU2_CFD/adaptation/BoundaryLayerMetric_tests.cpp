@@ -31,6 +31,7 @@
 #include <memory>
 
 #include "../../../Common/include/CConfig.hpp"
+#include "../../../Common/include/adaptation/CNativeImport2D.hpp"
 #include "../../../Common/include/geometry/CPhysicalGeometry.hpp"
 #include "../../../Common/include/geometry/meshreader/CMemoryMeshReaderFVM.hpp"
 #include "../../../Common/include/linear_algebra/blas_structure.hpp"
@@ -651,5 +652,118 @@ TEST_CASE("Native metric complexity includes prescribed BL and reports infeasibl
       CHECK(M.m[1][1] == Approx(1.0 / pow(NormalSize(2e-3, 1.2, y), 2)).epsilon(1e-10));
       CHECK(M.m[0][1] == Approx(0).margin(1e-6));
     }
+  }
+}
+
+TEST_CASE("Native BL tangential metric permits coarsening an already refined wall", "[MetricRobustness]") {
+  const auto mesh = simplex_test::MakeSimplexMesh(2, 4, [](const passivedouble* x) {
+    return std::string(x[1] < 1e-12 ? "wall" : "far");
+  });
+  const string options = "MARKER_HEATFLUX= (wall, 0)\nMARKER_FAR= (far)\nADAP_REMESHER= NATIVE_CAVITY\n"
+                         "ADAP_HMIN= 1e-4\nADAP_HMAX= .5\nADAP_HAUSD= 1e-6\nADAP_ISO_CORNER= NO\n";
+  MetricTest test(mesh, options, {1,0,1,0,0,0});
+  using namespace SU2NativeBoundary2D;
+  ReferenceState reference;
+  reference.original = std::make_shared<PolylineReference>(
+      std::vector<PolylineReference::Face>{{{0,{0,0}}, {1,{2,0}}, 0}}, 45);
+  for (const unsigned count : {2u, 100u}) {
+    std::vector<su2double> x;
+    for (unsigned k = 0; k <= count; ++k) x.push_back(2.*k/count);
+    auto wall = FlatWall2D(x, .001, 1.2, .1);
+    reference.accepted_edges.clear();
+    for (unsigned k = 0; k < count; ++k)
+      reference.accepted_edges.emplace(CoordinateKey({x[k],0}, {x[k+1],0}), 1);
+    CBoundaryLayerMetric layers(2, {wall});
+    layers.SetNativeReference(reference, *test.config);
+    std::vector<CBoundaryLayerMetric::Tensor> metric(1);
+    metric[0].m[0][0] = metric[0].m[1][1] = 1;
+    layers.Apply(layers.SamplePoints({.95,0}), metric, 1, true, false, 1000);
+    CHECK(metric[0].m[0][0] == Approx(4));
+    CHECK(metric[0].m[1][1] == Approx(1e6));
+  }
+}
+
+TEST_CASE("Symmetric eigen decomposition handles subnormal off-diagonal scales", "[LinearAlgebra][MetricRobustness]") {
+  for (volatile unsigned short dimension = 2; dimension <= 3; ++dimension) {
+    const auto dim = dimension; // Keep the shared kernel's runtime dimension, as in CSolver.
+    for (const auto offDiagonal : {1e-300, 1e-310, 1e-320}) {
+      su2double matrix[3][3] = {{.005,offDiagonal,offDiagonal},
+                              {offDiagonal,.006,offDiagonal},{offDiagonal,offDiagonal,.007}};
+      su2double vec[3][3], val[3], work[3], recovered[3][3];
+      CBlasStructure::EigenDecomposition(matrix, vec, val, dim, work);
+      CBlasStructure::EigenRecomposition(recovered, vec, val, dim);
+      for (unsigned i = 0; i < dim; ++i) {
+        REQUIRE(std::isfinite(val[i]));
+        CHECK(val[i] > 0);
+        for (unsigned j = 0; j < dim; ++j) {
+          REQUIRE(std::isfinite(vec[i][j]));
+          CHECK(recovered[i][j] == Approx(matrix[i][j]).margin(1e-16));
+        }
+      }
+    }
+  }
+}
+
+TEST_CASE("Native full tensor gradation includes complexity and crosses MPI partitions", "[MetricRobustness]") {
+  const auto mesh = simplex_test::MakeSimplexMesh(2, 12, [](const passivedouble*) { return std::string("far"); });
+  MetricTest test(mesh, "MARKER_FAR= (far)\nADAP_REMESHER= NATIVE_CAVITY\nADAP_HGRAD= 1.3\n"
+                        "ADAP_HMIN= .002\nADAP_HMAX= 1\nADAP_ARMAX= 100\n"
+                        "ADAP_COMPLEXITY= 300\nADAP_ISO_CORNER= NO\n", {1,0,1,0,0,0});
+  auto& H = test.solver[FLOW_SOL]->GetNodes()->GetHessian();
+  for (auto point = 0ul; point < test.Geometry().GetnPoint(); ++point) {
+    const auto* x = test.Geometry().nodes->GetCoord(point);
+    const auto bump = 200*exp(-((x[0]-.5)*(x[0]-.5)+(x[1]-.5)*(x[1]-.5))/.0025);
+    H(point,0,0) = H(point,0,2) = 1+bump; H(point,0,1) = .9*bump;
+  }
+  const auto output = test.ComputeMetric();
+  INFO(output);
+  REQUIRE(std::isfinite(test.solver[FLOW_SOL]->GetMetricComplexityFinal()));
+  CHECK(test.solver[FLOW_SOL]->GetMetricComplexityFinal() == Approx(300).epsilon(2e-6));
+  CHECK(test.solver[FLOW_SOL]->GetMetricComplexityBracketed());
+  if (SU2_MPI::GetRank() == MASTER_NODE) CHECK(output.find("iteration limit reached") == string::npos);
+  for (auto point = 0ul; point < test.Geometry().GetnPointDomain(); ++point) {
+    const auto M = test.Metric(point);
+    su2double vec[3][3], val[3], work[3];
+    CBlasStructure::EigenDecomposition(M.m, vec, val, 2, work);
+    CHECK(val[0] > 0); CHECK(val[1] > 0);
+    for (const auto neighbor : test.Geometry().nodes->GetPoints(point)) {
+      const auto other = test.Metric(neighbor);
+      const auto* x = test.Geometry().nodes->GetCoord(point);
+      const auto* y = test.Geometry().nodes->GetCoord(neighbor);
+      const su2double dx[2] = {x[0]-y[0], x[1]-y[1]};
+      su2double distance2 = 0, B[3][3] = {};
+      for (unsigned i = 0; i < 2; ++i)
+        for (unsigned j = 0; j < 2; ++j) distance2 += dx[i]*other.m[i][j]*dx[j];
+      const auto factor = 1/pow(1+log(1.3)*sqrt(distance2),2);
+      for (unsigned i = 0; i < 2; ++i)
+        for (unsigned j = 0; j < 2; ++j)
+          for (unsigned a = 0; a < 2; ++a)
+            for (unsigned b = 0; b < 2; ++b)
+              B[i][j] += vec[a][i]*factor*other.m[a][b]*vec[b][j]/sqrt(val[i]*val[j]);
+      su2double Q[3][3], lambda[3];
+      CBlasStructure::EigenDecomposition(B, Q, lambda, 2, work);
+      CHECK(std::max(lambda[0], lambda[1]) <= 1+2e-5);
+    }
+  }
+}
+
+TEST_CASE("Native BL spatial exchange preserves closest-face normals", "[MetricRobustness]") {
+  auto mesh = simplex_test::MakeSimplexMesh(2, 12,
+      [](const passivedouble* x) { return std::string(x[1] < 1e-12 ? "wall" : "far"); },
+      [](const passivedouble* x) { return x[0] < .75 || x[0] > 1.25; });
+  for (size_t k = 0; k < mesh.coord.size(); k += 2) if (mesh.coord[k] > 1) mesh.coord[k] += 100;
+  const string options = "MARKER_HEATFLUX= (wall,0)\nMARKER_FAR= (far)\nADAP_HMIN= 1e-4\nADAP_HMAX= 10\n"
+                         "ADAP_BL_MARKER= (wall)\nADAP_BL_FIRST_HEIGHT= (.001)\n"
+                         "ADAP_BL_GROWTH= (1.2)\nADAP_BL_THICKNESS= (.15)\n";
+  MetricTest native(mesh, options+"ADAP_REMESHER= NATIVE_CAVITY\n", {1,0,1,0,0,0});
+  MetricTest legacy(mesh, options+"ADAP_REMESHER= MMG\n", {1,0,1,0,0,0});
+  CBoundaryLayerMetric local(native.Geometry(), *native.config), global(legacy.Geometry(), *legacy.config);
+  for (auto point = 0ul; point < native.Geometry().GetnPointDomain(); ++point) {
+    const auto* x = native.Geometry().nodes->GetCoord(point);
+    if (x[1] > .1) continue;
+    const auto a = local.Evaluate(0,x,1), b = global.Evaluate(0,x,1);
+    CHECK(a.weight == Approx(b.weight));
+    CHECK(a.distance == Approx(b.distance).margin(1e-12));
+    CheckTensor(2, a.full, b.full, 1e-9);
   }
 }
