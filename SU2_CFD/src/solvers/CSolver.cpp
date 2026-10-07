@@ -2578,13 +2578,15 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   /*--- Eigen decomposition of |H| for a sensor. Non-finite Hessians are replaced by zero,
    *    small eigenvalues are bounded away from zero. ---*/
 
-  auto absHessian = [&](unsigned long iPoint, unsigned short iSensor, su2double (&vec)[3][3], su2double (&val)[3]) {
+  auto absHessian = [&](unsigned long iPoint, unsigned short iSensor, su2double (&vec)[3][3], su2double (&val)[3],
+                        unsigned long* nInvalid = nullptr) {
     su2double H[3][3] = {{0.0}}, work[3];
     base_nodes->GetHessianMat(iPoint, iSensor, H);
     bool finite = true;
     for (auto i = 0u; i < nDim; ++i)
       for (auto j = 0u; j < nDim; ++j) finite = finite && std::isfinite(SU2_TYPE::GetValue(H[i][j]));
     if (!finite) {
+      if (nInvalid != nullptr) ++*nInvalid;
       for (auto i = 0u; i < nDim; ++i)
         for (auto j = 0u; j < nDim; ++j) H[i][j] = 0.0;
     }
@@ -2613,15 +2615,26 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   vector<su2double> localScale(nSensor, 0.0), globalScale(nSensor, 0.0);
 
   if (givenMetric == nullptr) {
+    vector<unsigned long> localInvalid(nSensor, 0), globalInvalid(nSensor, 0);
     for (unsigned long iPoint = 0; iPoint < nPointDomain; ++iPoint) {
       const su2double volume = geometry->nodes->GetVolume(iPoint);
       for (auto iSensor = 0u; iSensor < nSensor; ++iSensor) {
         su2double vec[3][3], val[3];
-        absHessian(iPoint, iSensor, vec, val);
+        absHessian(iPoint, iSensor, vec, val, &localInvalid[iSensor]);
         localScale[iSensor] += pow(determinant(val), p / (2 * p + nDim)) * volume;
       }
     }
     SU2_MPI::Allreduce(localScale.data(), globalScale.data(), nSensor, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+    SU2_MPI::Allreduce(localInvalid.data(), globalInvalid.data(), nSensor, MPI_UNSIGNED_LONG, MPI_SUM,
+                       SU2_MPI::GetComm());
+    if (rank == MASTER_NODE) {
+      for (auto iSensor = 0u; iSensor < nSensor; ++iSensor) {
+        if (globalInvalid[iSensor] == 0) continue;
+        cout << "WARNING: Adaptation sensor " << iSensor + 1 << ": replaced non-finite Hessians by zero at "
+             << globalInvalid[iSensor] << " owned mesh points. Check the sensor and its gradient reconstruction."
+             << endl;
+      }
+    }
   } else if (givenMetric->size() < nPointDomain * nDim * (nDim + 1) / 2) {
     SU2_MPI::Error("The given metric has fewer values than the points of the mesh.", CURRENT_FUNCTION);
   }

@@ -83,6 +83,7 @@ struct GradientTestBase {
     cout.rdbuf(nullptr);
     {
       auto aux_geometry = std::unique_ptr<CGeometry>(new CPhysicalGeometry(config.get(), 0, 1));
+      aux_geometry->SetColorGrid_Parallel(config.get());
       geometry = std::unique_ptr<CGeometry>(new CPhysicalGeometry(aux_geometry.get(), config.get()));
     }
     geometry->SetSendReceive(config.get());
@@ -162,6 +163,41 @@ TEST_CASE("LS", "[Gradients]") { testLeastSquares<LinearFunction>(false); }
 
 TEST_CASE("WLS", "[Gradients]") { testLeastSquares<LinearFunction>(true); }
 
+template <size_t nDim, bool periodic>
+void testLeastSquaresScaling() {
+  const su2double reference[3] = {1.0, -2.0, 3.0};
+  for (const auto size : {1e-12, 1.0, 1e12}) {
+    for (const auto aspect : {1.0, 1e6}) {
+      for (const bool weighted : {false, true}) {
+        CAPTURE(nDim, periodic, size, aspect, weighted);
+        C3DDoubleMatrix R(1, nDim, nDim, 0.0), gradient(1, 1, nDim, 0.0);
+        /*--- Opposite edges of a stretched stencil; assemble the actual LS normal equations. ---*/
+        for (size_t axis = 0; axis < nDim; ++axis) {
+          const su2double edge = size * (axis == 0 ? 1.0 / aspect : 1.0);
+          const su2double weight = weighted ? 1.0 / (edge * edge) : 1.0;
+          R(0, axis, axis) = 2 * edge * edge * weight;
+          gradient(0, 0, axis) = R(0, axis, axis) * reference[axis];
+        }
+        detail::solveLeastSquares<nDim, periodic>(0, 0, 1, R, gradient);
+        for (size_t axis = 0; axis < nDim; ++axis)
+          CHECK(SU2_TYPE::GetValue(gradient(0, 0, axis)) == Approx(reference[axis]).margin(1e-12));
+      }
+    }
+  }
+  /*--- A stencil missing a coordinate direction must still be rejected. ---*/
+  C3DDoubleMatrix R(1, nDim, nDim, 0.0), gradient(1, 1, nDim, 1.0);
+  R(0, 0, 0) = 1.0;
+  detail::solveLeastSquares<nDim, periodic>(0, 0, 1, R, gradient);
+  for (size_t axis = 0; axis < nDim; ++axis) CHECK(gradient(0, 0, axis) == 0.0);
+}
+
+TEST_CASE("Least-squares coordinate scaling", "[Gradients][MetricRobustness]") {
+  testLeastSquaresScaling<2, false>();
+  testLeastSquaresScaling<3, false>();
+  testLeastSquaresScaling<2, true>();
+  testLeastSquaresScaling<3, true>();
+}
+
 struct QuadraticFunction : public GradientTestBase {
   const unsigned long nVar = 1;
   const su2double slope[3] = {1.0, -2.0, 3.0};
@@ -229,6 +265,43 @@ void testHessian(ENUM_FLOW_GRADIENT method) {
 TEST_CASE("Hessian GG", "[Gradients]") { testHessian<QuadraticFunction>(GREEN_GAUSS); }
 
 TEST_CASE("Hessian WLS", "[Gradients]") { testHessian<QuadraticFunction>(WEIGHTED_LEAST_SQUARES); }
+
+TEST_CASE("Hessian from analytic gradients on stretched meshes", "[Gradients][MetricRobustness]") {
+  for (const auto method : {LEAST_SQUARES, WEIGHTED_LEAST_SQUARES}) {
+    for (const auto size : {1e-7, 1.0, 1e7}) {
+      for (const auto angle : {0.0, 0.37}) {
+        CAPTURE(method, size, angle);
+        QuadraticFunction field;
+        const auto nPoint = field.geometry->GetnPoint();
+        CHECK(field.geometry->GetnPointDomain() > 0);
+        if (SU2_MPI::GetSize() > 1) CHECK(nPoint > field.geometry->GetnPointDomain());
+        C3DDoubleMatrix R(nPoint, 3, 3), gradient(nPoint, 1, 3), hessian(nPoint, 1, 6), gradGrad(nPoint, 3, 3);
+        su2activematrix gradientField(nPoint, 3);
+        for (auto point = 0ul; point < nPoint; ++point) {
+          /*--- Rotate a 1000:1 stencil, including halo coordinates and exact input gradients. ---*/
+          const su2double x = size * field.geometry->nodes->GetCoord(point, 0);
+          const su2double y = size * 1e-3 * field.geometry->nodes->GetCoord(point, 1);
+          const su2double z = size * field.geometry->nodes->GetCoord(point, 2);
+          field.geometry->nodes->SetCoord(point, 0, cos(angle) * x - sin(angle) * y);
+          field.geometry->nodes->SetCoord(point, 1, sin(angle) * x + cos(angle) * y);
+          field.geometry->nodes->SetCoord(point, 2, z);
+          const auto coord = field.geometry->nodes->GetCoord(point);
+          for (auto i = 0u; i < 3; ++i) gradient(point, 0, i) = GeometryToolbox::DotProduct(3, field.hess[i], coord);
+        }
+        computeHessians(nullptr, method, *field.geometry, *field.config, gradient, 0, 1, gradientField, gradGrad, R,
+                        hessian);
+        su2double error = 0.0;
+        for (auto point = 0ul; point < field.geometry->GetnPointDomain(); ++point) {
+          unsigned short component = 0;
+          for (auto i = 0u; i < 3; ++i)
+            for (auto j = i; j < 3; ++j, ++component)
+              error = max(error, abs(hessian(point, 0, component) - field.hess[i][j]));
+        }
+        CHECK(error < 1e-7);
+      }
+    }
+  }
+}
 
 TEST_CASE("Metric intersection", "[Adaptation]") {
   const su2double c = cos(0.3), s = sin(0.3);
@@ -594,6 +667,43 @@ struct ConstantHessianBoxTest : public AdaptBoxTest {
  *    (1, 30.4, 167.7) has a complexity of 71.4, a size of 0.077 and an aspect ratio of 12.95. ---*/
 const std::array<su2double, 6> hessianX = {100.0, 0.0, 0.0, 1.0, 0.0, 1.0};
 const std::array<su2double, 6> hessianXY = {50.5, 49.5, 0.0, 50.5, 0.0, 1.0};
+
+TEST_CASE("Non-finite Hessian diagnostics", "[Adaptation][MetricRobustness]") {
+  ConstantHessianBoxTest test("ADAP_SENSOR= (MACH, PRESSURE)\nADAP_COMPLEXITY= 10\n", {hessianX, hessianXY});
+  auto& H = test.solver[FLOW_SOL]->GetNodes()->GetHessian();
+  /*--- Corrupt two owned points per rank, including their halo copies and multiple components at one point.
+   *     Halo copies must not inflate the count; repeated metric evaluations must not either. ---*/
+  const unsigned long local[2] = {test.geometry->nodes->GetGlobalIndex(0), test.geometry->nodes->GetGlobalIndex(1)};
+  vector<unsigned long> corrupt(2 * SU2_MPI::GetSize());
+  SU2_MPI::Allgather(local, 2, MPI_UNSIGNED_LONG, corrupt.data(), 2, MPI_UNSIGNED_LONG, SU2_MPI::GetComm());
+  for (auto point = 0ul; point < test.geometry->GetnPoint(); ++point) {
+    const auto global = test.geometry->nodes->GetGlobalIndex(point);
+    const auto found = find(corrupt.begin(), corrupt.end(), global);
+    if (found == corrupt.end()) continue;
+    H(point, 0, 5) = -std::numeric_limits<passivedouble>::infinity();
+    if ((found - corrupt.begin()) % 2 == 0) {
+      H(point, 0, 0) = std::numeric_limits<passivedouble>::quiet_NaN();
+      H(point, 0, 3) = std::numeric_limits<passivedouble>::infinity();
+    }
+  }
+  for (unsigned short repeat = 0; repeat < 2; ++repeat) {
+    const auto output = test.ComputeMetric();
+    if (SU2_MPI::GetRank() == MASTER_NODE) {
+      const string expected =
+          "sensor 1: replaced non-finite Hessians by zero at " + std::to_string(corrupt.size()) + " owned mesh points";
+      CHECK(output.find(expected) != string::npos);
+      CHECK(output.find("sensor 2: replaced") == string::npos);
+    }
+    for (auto point = 0ul; point < test.geometry->GetnPoint(); ++point) {
+      su2double val[3];
+      test.Eigenvalues(point, val);
+      for (const auto eigenvalue : val) {
+        CHECK(std::isfinite(SU2_TYPE::GetValue(eigenvalue)));
+        CHECK(eigenvalue > 0.0);
+      }
+    }
+  }
+}
 
 TEST_CASE("Metric bounds after the intersection", "[Adaptation]") {
   /*--- Reference eigenvalues of the final metric: bounded intersection, scaled to the complexity. ---*/
