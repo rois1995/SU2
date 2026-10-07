@@ -1,0 +1,39 @@
+{
+  "controller_pid": 1114125,
+  "sequential": true,
+  "stages": [
+    {
+      "name": "native_metric_hessian_v3",
+      "exit_code": 0,
+      "elapsed_seconds": 24.956373433997214
+    },
+    {
+      "name": "native_metric_hessian_mpi_v2",
+      "exit_code": 0,
+      "elapsed_seconds": 82.82594418300141
+    },
+    {
+      "name": "native_metric_core_v2",
+      "exit_code": 0,
+      "elapsed_seconds": 51.665240743997856
+    }
+  ],
+  "phase": "cancelled_before_frozen_runs",
+  "command": [
+    "integration_evidence/run_native_driver_checks.py",
+    "--label",
+    "native_metric_output_mpi_v2",
+    "--build",
+    "build-integrated-v2",
+    "--ranks",
+    "1",
+    "2",
+    "4",
+    "--filter",
+    "[NativeCGNS2D],[NativeRejectedOutput],[NativeSupport2D],[MMGDefault2D],[AdaptationMPI]",
+    "--timeout",
+    "360"
+  ],
+  "reason": "Independent coarse-cell quadrature self-check found changing nearest-face distance outside the BL band; refine shared integration guard before continuing.",
+  "cancelled_controller_pid": 1114125
+}

@@ -1,0 +1,52 @@
+{
+  "controller_pid": 1147499,
+  "sequential": true,
+  "stages": [
+    {
+      "name": "verified_frozen_fine_weighted_least_squares_np1",
+      "exit_code": 0,
+      "elapsed_seconds": 34.671007090000785
+    },
+    {
+      "name": "verified_frozen_fine_weighted_least_squares_np2",
+      "exit_code": 0,
+      "elapsed_seconds": 27.06866672600154
+    },
+    {
+      "name": "verified_frozen_fine_weighted_least_squares_np4",
+      "exit_code": 0,
+      "elapsed_seconds": 24.05199831599748
+    },
+    {
+      "name": "verified_frozen_fine_quadratic_least_squares_np1",
+      "exit_code": 0,
+      "elapsed_seconds": 34.529163056999096
+    },
+    {
+      "name": "verified_frozen_fine_quadratic_least_squares_np2",
+      "exit_code": 0,
+      "elapsed_seconds": 24.51155392999499
+    },
+    {
+      "name": "verified_frozen_fine_quadratic_least_squares_np4",
+      "exit_code": 0,
+      "elapsed_seconds": 22.333941163000418
+    },
+    {
+      "name": "verified_frozen_coarse_weighted_least_squares_np1",
+      "exit_code": 1,
+      "elapsed_seconds": 19.463463111002056
+    }
+  ],
+  "phase": "terminal_failed",
+  "command": [
+    "integration_evidence/run_rae2822_trial.py",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_metric_integration_v3/frozen/coarse/weighted_least_squares_np1",
+    "--ranks",
+    "1",
+    "--timeout",
+    "600",
+    "--build-evidence",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_metric_integration_build_v4/evidence.json"
+  ]
+}

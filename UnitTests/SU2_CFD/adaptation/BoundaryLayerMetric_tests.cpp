@@ -31,6 +31,7 @@
 #include <memory>
 
 #include "../../../Common/include/CConfig.hpp"
+#include "../../../Common/include/adaptation/CNativeImport2D.hpp"
 #include "../../../Common/include/geometry/CPhysicalGeometry.hpp"
 #include "../../../Common/include/geometry/meshreader/CMemoryMeshReaderFVM.hpp"
 #include "../../../Common/include/linear_algebra/blas_structure.hpp"
@@ -595,4 +596,207 @@ TEST_CASE("Native BL query preserves sensor intersection across the legacy floor
   }
   CHECK(nativeAbove.m[0][0]==Approx(nativeBelow.m[0][0]).epsilon(1e-8));
   CHECK(nativeAbove.m[1][1]==Approx(nativeBelow.m[1][1]).epsilon(1e-8));
+}
+
+TEST_CASE("Native cached geometric composition preserves finer sensors and the point fade", "[MetricRobustness][NativeComposite2D]") {
+  CBoundaryLayerMetric layers(2, {FlatWall2D({0.,1.,2.}, 1e-5, 1.2, .02)}, 45);
+  const std::vector<su2double> coord{.5,0., .5,.001, .5,.019, .5,.03};
+  Tensor sensor; sensor.m[0][0]=1e8; sensor.m[1][1]=1e12; sensor.m[0][1]=sensor.m[1][0]=1e8;
+  const auto samples=layers.SamplePoints(coord);
+  std::vector<Tensor> cached(coord.size()/2,sensor);
+  for (const auto& item:samples) layers.ApplySample(item.wall,item.sample,cached[item.point],1.,nullptr,false);
+  for (unsigned k=0;k<cached.size();++k) {
+    Tensor actual=sensor;
+    layers.ApplyPoint(&coord[2*k],actual,1.,nullptr,false);
+    CheckTensor(2,cached[k],actual);
+    su2double delta[3][3]={}, vec[3][3], val[3], work[3];
+    for(unsigned i=0;i<2;++i) for(unsigned j=0;j<2;++j) delta[i][j]=actual.m[i][j]-sensor.m[i][j];
+    CBlasStructure::EigenDecomposition(delta,vec,val,2,work);
+    CHECK(std::min(val[0],val[1]) >= -1e-3);
+    CHECK(actual.m[1][1] >= sensor.m[1][1]*(1-1e-12));
+  }
+}
+
+TEST_CASE("Geometric complexity resolves a microscopic BL inside a coarse donor triangle", "[MetricRobustness][NativeComposite2D]") {
+  const double h0=1e-6, thickness=.01;
+  CBoundaryLayerMetric layers(2,{FlatWall2D({0.,1.,2.},h0,1.,thickness)},45);
+  const std::array<std::array<double,2>,3> cell{{{{.2,0.}},{{.8,0.}},{{.5,1.}}}};
+  Tensor sensor; sensor.m[0][0]=sensor.m[1][1]=1;
+  auto integrate=[&](double ratio) {
+    double integral=0,area=0;
+    const auto rule=layers.IntegrationRule2D(cell,ratio);
+    REQUIRE(rule.size()<2000);
+    for(const auto& point:rule) {
+      Tensor m=sensor;
+      for(const auto& sample:point.samples) layers.ApplySample(sample.wall,sample.sample,m,1.,nullptr,false);
+      integral+=point.weight*sqrt(m.m[0][0]*m.m[1][1]-m.m[0][1]*m.m[0][1]);
+      area+=point.weight;
+    }
+    CHECK(area==Approx(.3).epsilon(1e-12));
+    return integral;
+  };
+  // Independent one-dimensional Simpson integral: triangle width .6*(1-y).
+  double reference=.3*(1-thickness)*(1-thickness);
+  const unsigned n=10000;
+  for(unsigned k=0;k<=n;++k) {
+    const double y=thickness*k/n, t=std::max(0.,std::min(1.,(y-.9*thickness)/(.1*thickness)));
+    const double weight=1-t*t*(3-2*t), rho=pow(h0,-weight);
+    reference+=thickness/n/3*(k==0||k==n?1:(k%2?4:2))*.6*(1-y)*rho;
+  }
+  CHECK(integrate(1.5)==Approx(reference).epsilon(5e-4));
+  CHECK(integrate(1.25)==Approx(reference).epsilon(5e-4));
+  Tensor center=sensor;const su2double x[2]={.5,1./3};layers.ApplyPoint(x,center,1.,nullptr,false);
+  CHECK(.3*sqrt(center.m[0][0]*center.m[1][1]) < reference/100);
+}
+
+TEST_CASE("Geometric BL quadrature resolves a far vertex closest to another face", "[MetricRobustness][NativeComposite2D]") {
+  CBoundaryLayerMetric::Wall wall;
+  wall.layer={"wall",1e-4,1.2,.01};wall.coord={0,0,1,0,1,1,0,1};wall.conn={0,1,1,2,2,3,3,0};
+  CBoundaryLayerMetric layers(2,{wall},45);
+  const std::array<std::array<double,2>,3> cell{{{{.2,0.}},{{.8,0.}},{{.2,.4}}}};
+  // The top vertex is closest to the left wall, although the thin active band is at the bottom.
+  // Distance interpolation without resolving that switch puts fade bands at the wrong physical height.
+  auto density=[](double y) {
+    const double hn=std::max(1e-4,2*(1e-4+.2*y)/2.2);
+    const double t=std::clamp((y-.009)/.001,0.,1.),weight=1-t*t*(3-2*t);
+    const double normal=std::exp(weight*std::log(1/(hn*hn))+(1-weight)*std::log(4.));
+    return .6*(1-y/.4)*2*std::sqrt(std::max(9.,normal));
+  };
+  double reference=0;
+  const double intervals[]={0.,.5e-4,.009,.01,.4};
+  const unsigned n=10000;
+  for(unsigned band=1;band<5;++band) {
+    const double a=intervals[band-1],step=(intervals[band]-a)/n;
+    for(unsigned k=0;k<=n;++k) reference+=step/3*(k==0||k==n?1:(k%2?4:2))*density(a+k*step);
+  }
+  for(const double ratio:{1.5,1.25}) {
+    double total=0,area=0;
+    const auto rule=layers.IntegrationRule2D(cell,ratio);
+    for(const auto& point:rule) {
+      Tensor m;m.m[0][0]=4;m.m[1][1]=9;
+      for(const auto& sample:point.samples) layers.ApplySample(sample.wall,sample.sample,m,4.,nullptr,false);
+      total+=point.weight*std::sqrt(m.m[0][0]*m.m[1][1]-m.m[0][1]*m.m[0][1]);area+=point.weight;
+    }
+    CHECK(area==Approx(.12).epsilon(1e-12));
+    CHECK(total==Approx(reference).epsilon(5e-4));
+  }
+}
+
+TEST_CASE("Geometric integration detects a curved BL missed by every donor vertex", "[MetricRobustness][NativeComposite2D]") {
+  CBoundaryLayerMetric::Wall wall;wall.layer={"wall",1e-5,1.2,.01};
+  const unsigned count=40;
+  for(unsigned k=0;k<count;++k) {
+    const double angle=2*acos(-1.)*k/count;
+    wall.coord.push_back(cos(angle));wall.coord.push_back(sin(angle));
+    wall.conn.push_back(k);wall.conn.push_back((k+1)%count);
+  }
+  CBoundaryLayerMetric layers(2,{wall},45);
+  const std::array<std::array<double,2>,3> cell{{{{-.2,1.000001}},{{.2,1.000001}},{{0.,1.2}}}};
+  for(const auto& p:cell) {const su2double x[2]={p[0],p[1]};CHECK(layers.Evaluate(0,x,1.).weight==0);}
+  double area=0,integral=0;
+  for(const auto& point:layers.IntegrationRule2D(cell)) {
+    Tensor m;m.m[0][0]=m.m[1][1]=1;
+    for(const auto& sample:point.samples)layers.ApplySample(sample.wall,sample.sample,m,1.,nullptr,false);
+    area+=point.weight;integral+=point.weight*sqrt(m.m[0][0]*m.m[1][1]-m.m[0][1]*m.m[0][1]);
+  }
+  CHECK(area==Approx(.2*.199999).epsilon(1e-10));
+  CHECK(integral>2*area);
+}
+
+TEST_CASE("Symmetric eigen decomposition handles subnormal off-diagonal scales", "[LinearAlgebra][MetricRobustness]") {
+  for (volatile unsigned short dimension = 2; dimension <= 3; ++dimension) {
+    const auto dim = dimension; // Keep the shared kernel's runtime dimension, as in CSolver.
+    for (const auto offDiagonal : {1e-300, 1e-310, 1e-320}) {
+      su2double matrix[3][3] = {{.005,offDiagonal,offDiagonal},
+                              {offDiagonal,.006,offDiagonal},{offDiagonal,offDiagonal,.007}};
+      su2double vec[3][3], val[3], work[3], recovered[3][3];
+      CBlasStructure::EigenDecomposition(matrix, vec, val, dim, work);
+      CBlasStructure::EigenRecomposition(recovered, vec, val, dim);
+      for (unsigned i = 0; i < dim; ++i) {
+        REQUIRE(std::isfinite(val[i]));
+        CHECK(val[i] > 0);
+        for (unsigned j = 0; j < dim; ++j) {
+          REQUIRE(std::isfinite(vec[i][j]));
+          CHECK(recovered[i][j] == Approx(matrix[i][j]).margin(1e-16));
+        }
+      }
+    }
+  }
+}
+
+TEST_CASE("Native full tensor gradation includes complexity and crosses MPI partitions", "[MetricRobustness]") {
+  const auto mesh = simplex_test::MakeSimplexMesh(2, 12, [](const passivedouble*) { return std::string("far"); });
+  MetricTest test(mesh, "MARKER_FAR= (far)\nADAP_REMESHER= NATIVE_CAVITY\nADAP_HGRAD= 1.3\n"
+                        "ADAP_HMIN= .002\nADAP_HMAX= 1\nADAP_ARMAX= 100\n"
+                        "ADAP_COMPLEXITY= 300\nADAP_ISO_CORNER= NO\n", {1,0,1,0,0,0});
+  auto& H = test.solver[FLOW_SOL]->GetNodes()->GetHessian();
+  for (auto point = 0ul; point < test.Geometry().GetnPoint(); ++point) {
+    const auto* x = test.Geometry().nodes->GetCoord(point);
+    const auto bump = 200*exp(-((x[0]-.5)*(x[0]-.5)+(x[1]-.5)*(x[1]-.5))/.0025);
+    H(point,0,0) = H(point,0,2) = 1+bump; H(point,0,1) = .9*bump;
+  }
+  const auto output = test.ComputeMetric();
+  INFO(output);
+  REQUIRE(std::isfinite(test.solver[FLOW_SOL]->GetMetricComplexityFinal()));
+  CHECK(test.solver[FLOW_SOL]->GetMetricComplexityFinal() == Approx(300).epsilon(2e-6));
+  CHECK(test.solver[FLOW_SOL]->GetMetricComplexityBracketed());
+  if (SU2_MPI::GetRank() == MASTER_NODE) CHECK(output.find("iteration limit reached") == string::npos);
+  for (auto point = 0ul; point < test.Geometry().GetnPointDomain(); ++point) {
+    const auto M = test.Metric(point);
+    su2double vec[3][3], val[3], work[3];
+    CBlasStructure::EigenDecomposition(M.m, vec, val, 2, work);
+    CHECK(val[0] > 0); CHECK(val[1] > 0);
+    for (const auto neighbor : test.Geometry().nodes->GetPoints(point)) {
+      const auto other = test.Metric(neighbor);
+      const auto* x = test.Geometry().nodes->GetCoord(point);
+      const auto* y = test.Geometry().nodes->GetCoord(neighbor);
+      const su2double dx[2] = {x[0]-y[0], x[1]-y[1]};
+      su2double distance2 = 0, B[3][3] = {};
+      for (unsigned i = 0; i < 2; ++i)
+        for (unsigned j = 0; j < 2; ++j) distance2 += dx[i]*other.m[i][j]*dx[j];
+      const auto factor = 1/pow(1+log(1.3)*sqrt(distance2),2);
+      for (unsigned i = 0; i < 2; ++i)
+        for (unsigned j = 0; j < 2; ++j)
+          for (unsigned a = 0; a < 2; ++a)
+            for (unsigned b = 0; b < 2; ++b)
+              B[i][j] += vec[a][i]*factor*other.m[a][b]*vec[b][j]/sqrt(val[i]*val[j]);
+      su2double Q[3][3], lambda[3];
+      CBlasStructure::EigenDecomposition(B, Q, lambda, 2, work);
+      CHECK(std::max(lambda[0], lambda[1]) <= 1+2e-5);
+    }
+  }
+}
+
+TEST_CASE("Native overlapping walls intersect without overwriting a finer demand", "[MetricRobustness][NativeComposite2D]") {
+  auto bottom=FlatWall2D({0.,1.,2.},1e-3,1.2,.1), top=bottom;
+  bottom.layer.marker="a";top.layer.marker="z";top.layer.firstHeight=2e-3;
+  for(size_t k=1;k<top.coord.size();k+=2) top.coord[k]=.03;
+  CBoundaryLayerMetric layers(2,{bottom,top});
+  Tensor sensor;sensor.m[0][0]=4;sensor.m[1][1]=1e8;
+  for(const auto y:{0.,.015,.03}) {
+    auto combined=sensor;const su2double x[2]={.5,y};
+    layers.ApplyPoint(x,combined,1.,nullptr,false);
+    CHECK(combined.m[1][1]>=1e8*(1-1e-12));
+  }
+}
+
+TEST_CASE("Native BL spatial exchange preserves closest-face normals", "[MetricRobustness]") {
+  auto mesh = simplex_test::MakeSimplexMesh(2, 12,
+      [](const passivedouble* x) { return std::string(x[1] < 1e-12 ? "wall" : "far"); },
+      [](const passivedouble* x) { return x[0] < .75 || x[0] > 1.25; });
+  for (size_t k = 0; k < mesh.coord.size(); k += 2) if (mesh.coord[k] > 1) mesh.coord[k] += 100;
+  const string options = "MARKER_HEATFLUX= (wall,0)\nMARKER_FAR= (far)\nADAP_HMIN= 1e-4\nADAP_HMAX= 10\n"
+                         "ADAP_BL_MARKER= (wall)\nADAP_BL_FIRST_HEIGHT= (.001)\n"
+                         "ADAP_BL_GROWTH= (1.2)\nADAP_BL_THICKNESS= (.15)\n";
+  MetricTest native(mesh, options+"ADAP_REMESHER= NATIVE_CAVITY\n", {1,0,1,0,0,0});
+  MetricTest legacy(mesh, options+"ADAP_REMESHER= MMG\n", {1,0,1,0,0,0});
+  CBoundaryLayerMetric local(native.Geometry(), *native.config), global(legacy.Geometry(), *legacy.config);
+  for (auto point = 0ul; point < native.Geometry().GetnPointDomain(); ++point) {
+    const auto* x = native.Geometry().nodes->GetCoord(point);
+    if (x[1] > .1) continue;
+    const auto a = local.Evaluate(0,x,1), b = global.Evaluate(0,x,1);
+    CHECK(a.weight == Approx(b.weight));
+    CHECK(a.distance == Approx(b.distance).margin(1e-12));
+    CheckTensor(2, a.full, b.full, 1e-9);
+  }
 }

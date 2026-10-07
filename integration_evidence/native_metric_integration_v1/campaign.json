@@ -1,0 +1,50 @@
+{
+  "controller_pid": 1069255,
+  "sequential": true,
+  "stages": [
+    {
+      "name": "native_metric_hessian_v2",
+      "exit_code": 0,
+      "elapsed_seconds": 34.97244425700046
+    },
+    {
+      "name": "native_metric_hessian_mpi_v1",
+      "exit_code": 0,
+      "elapsed_seconds": 277.65786088499954
+    },
+    {
+      "name": "native_metric_core_v1",
+      "exit_code": 0,
+      "elapsed_seconds": 53.03509421099807
+    },
+    {
+      "name": "native_metric_output_mpi_v1",
+      "exit_code": 0,
+      "elapsed_seconds": 167.50147590900087
+    },
+    {
+      "name": "native_metric_adapter_v1",
+      "exit_code": 1,
+      "elapsed_seconds": 57.33663862099638
+    }
+  ],
+  "phase": "terminal_failed",
+  "command": [
+    "integration_evidence/run_native_driver_checks.py",
+    "--label",
+    "native_metric_adapter_v1",
+    "--build",
+    "build-integrated-v2",
+    "--ranks",
+    "1",
+    "2",
+    "4",
+    "--filter",
+    "[NativeRemesher],[NativeProducedBL2D],[NativeRAEJointMPI]",
+    "--timeout",
+    "360",
+    "--save-audit",
+    "--cavity-replay-folder",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_joint_captured_mpi_v1/captured_fixture"
+  ]
+}

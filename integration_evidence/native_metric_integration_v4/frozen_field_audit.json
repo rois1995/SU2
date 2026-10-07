@@ -1,0 +1,2992 @@
+{
+  "scope": "Frozen restart, zero CFD iterations, sensor-only donor field. Original geometric BL at nodes and P1 quarter-edge queries; transported residuals measured separately. No composed-gradation certificate or CFD-accuracy claim.",
+  "noise": 0,
+  "cases": {
+    "fine/weighted_least_squares": {
+      "points": 18591,
+      "triangles": 36263,
+      "original_wall_segments": 192,
+      "core_eigenvalue": 0.04931701730206965,
+      "minimum_sensor_eigenvalue": 0.049317017302069645,
+      "sensor_nodal_complexity": 49354.56858785839,
+      "composed_nodal_quadrature_counterexample": 58690.80912102065,
+      "sensor_nodal": {
+        "maximum_ratio": 1.000000093420824,
+        "directed_samples_above_1_plus_1e_5": 0
+      },
+      "composed_nodal": {
+        "maximum_ratio": 6.399629396420088,
+        "directed_samples_above_1_plus_1e_5": 3026
+      },
+      "sensor_domination_minimum_absolute_eigenvalue": -1.6159316930770072e-05,
+      "minimum_generalized_sensor_domination_ratio": 0.9999999999981879,
+      "domination_numerical_tolerance": 1e-06,
+      "composed_residual_by_destination_region": {
+        "wall": {
+          "maximum_ratio": 5.5488308758617695,
+          "directed_samples_above_1_plus_1e_5": 257
+        },
+        "full_band": {
+          "maximum_ratio": 6.399629396420088,
+          "directed_samples_above_1_plus_1e_5": 2608
+        },
+        "fade": {
+          "maximum_ratio": 2.455891409750152,
+          "directed_samples_above_1_plus_1e_5": 80
+        },
+        "outer": {
+          "maximum_ratio": 2.468352175971158,
+          "directed_samples_above_1_plus_1e_5": 81
+        }
+      },
+      "worst_composed_nodal_locations": [
+        {
+          "ratio": 6.399629396420088,
+          "destination_gid": 5561,
+          "source_gid": 12508,
+          "destination": [
+            0.0029898582353037073,
+            -0.007268305232053959
+          ],
+          "source": [
+            0.00303141251983655,
+            -0.007305965597000156
+          ],
+          "destination_region": "full_band",
+          "source_region": "full_band"
+        },
+        {
+          "ratio": 5.59338909984456,
+          "destination_gid": 3947,
+          "source_gid": 4435,
+          "destination": [
+            0.9999852817072015,
+            0.00016076496785577887
+          ],
+          "source": [
+            1.0,
+            0.000169999999343418
+          ],
+          "destination_region": "full_band",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 5.5488308758617695,
+          "destination_gid": 6731,
+          "source_gid": 4435,
+          "destination": [
+            0.99998226277046,
+            0.00017093874015487544
+          ],
+          "source": [
+            1.0,
+            0.000169999999343418
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 5.5036255417095585,
+          "destination_gid": 9476,
+          "source_gid": 13420,
+          "destination": [
+            0.0011303270904957563,
+            -0.004426387435140356
+          ],
+          "source": [
+            0.001003923453765751,
+            -0.004106607544694269
+          ],
+          "destination_region": "full_band",
+          "source_region": "full_band"
+        },
+        {
+          "ratio": 5.379047089561443,
+          "destination_gid": 12506,
+          "source_gid": 13420,
+          "destination": [
+            0.0011245720733338784,
+            -0.004402062022953771
+          ],
+          "source": [
+            0.001003923453765751,
+            -0.004106607544694269
+          ],
+          "destination_region": "full_band",
+          "source_region": "full_band"
+        },
+        {
+          "ratio": 5.303220014579761,
+          "destination_gid": 5999,
+          "source_gid": 4435,
+          "destination": [
+            0.9999811481846322,
+            0.0001740598160799343
+          ],
+          "source": [
+            1.0,
+            0.000169999999343418
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 4.786671740308358,
+          "destination_gid": 14179,
+          "source_gid": 10898,
+          "destination": [
+            0.0018726252743703523,
+            -0.005835792450435384
+          ],
+          "source": [
+            0.0019175983720249922,
+            -0.005872033867338123
+          ],
+          "destination_region": "full_band",
+          "source_region": "full_band"
+        },
+        {
+          "ratio": 4.674775140935237,
+          "destination_gid": 2843,
+          "source_gid": 6129,
+          "destination": [
+            1.0000153904340854,
+            0.00018781957356068805
+          ],
+          "source": [
+            1.0000156566086393,
+            0.000166915324867501
+          ],
+          "destination_region": "full_band",
+          "source_region": "full_band"
+        },
+        {
+          "ratio": 4.579402480749353,
+          "destination_gid": 12508,
+          "source_gid": 3964,
+          "destination": [
+            0.00303141251983655,
+            -0.007305965597000156
+          ],
+          "source": [
+            0.0028705469108055402,
+            -0.007098503207284414
+          ],
+          "destination_region": "full_band",
+          "source_region": "full_band"
+        },
+        {
+          "ratio": 4.441690792982098,
+          "destination_gid": 6129,
+          "source_gid": 1101,
+          "destination": [
+            1.0000156566086393,
+            0.000166915324867501
+          ],
+          "source": [
+            1.0000056386804674,
+            0.00015914656742085502
+          ],
+          "destination_region": "full_band",
+          "source_region": "full_band"
+        },
+        {
+          "ratio": 4.396784823297427,
+          "destination_gid": 15913,
+          "source_gid": 2943,
+          "destination": [
+            0.004461040976297516,
+            -0.00873708228425972
+          ],
+          "source": [
+            0.004439943289218658,
+            -0.008701125937968417
+          ],
+          "destination_region": "full_band",
+          "source_region": "full_band"
+        },
+        {
+          "ratio": 4.39442097389184,
+          "destination_gid": 5561,
+          "source_gid": 12480,
+          "destination": [
+            0.0029898582353037073,
+            -0.007268305232053959
+          ],
+          "source": [
+            0.0031559079930719358,
+            -0.007434427939384179
+          ],
+          "destination_region": "full_band",
+          "source_region": "full_band"
+        },
+        {
+          "ratio": 4.050755155914808,
+          "destination_gid": 2573,
+          "source_gid": 8710,
+          "destination": [
+            0.00016971718666507896,
+            -0.001490566106297091
+          ],
+          "source": [
+            0.00013938971071691527,
+            -0.0012784082288669076
+          ],
+          "destination_region": "full_band",
+          "source_region": "full_band"
+        },
+        {
+          "ratio": 3.9446909179538228,
+          "destination_gid": 18188,
+          "source_gid": 18215,
+          "destination": [
+            0.0019099067093824988,
+            -0.005841062815621356
+          ],
+          "source": [
+            0.0018157105086034433,
+            -0.0056707919049385925
+          ],
+          "destination_region": "full_band",
+          "source_region": "full_band"
+        },
+        {
+          "ratio": 3.9396076612139597,
+          "destination_gid": 12316,
+          "source_gid": 3027,
+          "destination": [
+            0.0005400922730035471,
+            -0.0029531954028575356
+          ],
+          "source": [
+            0.000499347609327237,
+            -0.0027999277782881707
+          ],
+          "destination_region": "full_band",
+          "source_region": "full_band"
+        },
+        {
+          "ratio": 3.9144897955350952,
+          "destination_gid": 383,
+          "source_gid": 4679,
+          "destination": [
+            1.0000204703642324,
+            0.00015789747388659985
+          ],
+          "source": [
+            0.9999995128935055,
+            0.0001481054372440319
+          ],
+          "destination_region": "full_band",
+          "source_region": "full_band"
+        },
+        {
+          "ratio": 3.9096659530600544,
+          "destination_gid": 12508,
+          "source_gid": 5561,
+          "destination": [
+            0.00303141251983655,
+            -0.007305965597000156
+          ],
+          "source": [
+            0.0029898582353037073,
+            -0.007268305232053959
+          ],
+          "destination_region": "full_band",
+          "source_region": "full_band"
+        },
+        {
+          "ratio": 3.894909836529937,
+          "destination_gid": 13420,
+          "source_gid": 12506,
+          "destination": [
+            0.001003923453765751,
+            -0.004106607544694269
+          ],
+          "source": [
+            0.0011245720733338784,
+            -0.004402062022953771
+          ],
+          "destination_region": "full_band",
+          "source_region": "full_band"
+        },
+        {
+          "ratio": 3.820328843789753,
+          "destination_gid": 12053,
+          "source_gid": 2943,
+          "destination": [
+            0.004661306304293856,
+            -0.008889920774538004
+          ],
+          "source": [
+            0.004439943289218658,
+            -0.008701125937968417
+          ],
+          "destination_region": "full_band",
+          "source_region": "full_band"
+        },
+        {
+          "ratio": 3.772916422595297,
+          "destination_gid": 3027,
+          "source_gid": 12316,
+          "destination": [
+            0.000499347609327237,
+            -0.0027999277782881707
+          ],
+          "source": [
+            0.0005400922730035471,
+            -0.0029531954028575356
+          ],
+          "destination_region": "full_band",
+          "source_region": "full_band"
+        }
+      ],
+      "mpi": {
+        "1": {
+          "maximum_relative_sensor_difference": 0.0,
+          "hessian_relative_with_global_floor": {
+            "MACH": 0.0,
+            "PRESSURE": 0.0
+          },
+          "reported_composed_complexity": 60000.0,
+          "elapsed_seconds": 16.11143778400583,
+          "fields_sha256": "20804988e2bbe9a3edd87e5801d86f82ffea7e68842cf5a75ebde76c2e75677d",
+          "log_sha256": "9b3974ff1551ccfe56e43e8bf535cc2a898b4502af9fd21c71d939d0a6479f08",
+          "hessian": "0.00717272 s (maximum rank time).",
+          "integration": "303738 points, preparation 0.586987 s.",
+          "work": "29 complexity trials, 948 total gradation sweeps, 17624268 owned-point visits; gradation 10.5074 s, halo 0.534875 s, sweep reductions 0.00217153 s (maximum accumulated rank times).",
+          "sensor_gradation": "32 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.",
+          "composed_audit": "maximum transported-metric ratio 6.39963, directed edges above 1+1e-5: 3026. Sensor gradation is not a combined-field certificate."
+        },
+        "2": {
+          "maximum_relative_sensor_difference": 1.040069249920026e-11,
+          "hessian_relative_with_global_floor": {
+            "MACH": 2.173862978404157e-11,
+            "PRESSURE": 1.3793560785274396e-11
+          },
+          "reported_composed_complexity": 60000.0,
+          "elapsed_seconds": 8.781032513994433,
+          "fields_sha256": "029aeb7a18e3e0779ce3533a2b738a0ba409931a09847875af016773d42a08fe",
+          "log_sha256": "4a5da70afc6f347b6020f96335dfb5bc819863f4e93fda3aa1f705b642bc6a4d",
+          "hessian": "0.00525493 s (maximum rank time).",
+          "integration": "303738 points, preparation 0.358793 s.",
+          "work": "29 complexity trials, 948 total gradation sweeps, 17624268 owned-point visits; gradation 5.18805 s, halo 0.335234 s, sweep reductions 0.128097 s (maximum accumulated rank times).",
+          "sensor_gradation": "32 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.",
+          "composed_audit": "maximum transported-metric ratio 6.39963, directed edges above 1+1e-5: 3026. Sensor gradation is not a combined-field certificate."
+        },
+        "4": {
+          "maximum_relative_sensor_difference": 1.4150713660960395e-10,
+          "hessian_relative_with_global_floor": {
+            "MACH": 1.5125444056820618e-10,
+            "PRESSURE": 1.8423989893919607e-11
+          },
+          "reported_composed_complexity": 60000.0,
+          "elapsed_seconds": 6.103687071998138,
+          "fields_sha256": "d6ac973f59afa51efe0a9eb34e1740aef251e5eb5055814cfcc51f4a96c8c7c2",
+          "log_sha256": "ca998f880c9654b60b427a0cc0545aa8db0b60cd095f411b63c590cdc72521cb",
+          "hessian": "0.0087725 s (maximum rank time).",
+          "integration": "303738 points, preparation 0.222505 s.",
+          "work": "29 complexity trials, 948 total gradation sweeps, 17624268 owned-point visits; gradation 3.22804 s, halo 0.301988 s, sweep reductions 0.476112 s (maximum accumulated rank times).",
+          "sensor_gradation": "32 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.",
+          "composed_audit": "maximum transported-metric ratio 6.39963, directed edges above 1+1e-5: 3026. Sensor gradation is not a combined-field certificate."
+        }
+      },
+      "quarter_edge": {
+        "sensor": {
+          "maximum_ratio": 4.911202217383771,
+          "directed_samples_above_1_plus_1e_5": 35215
+        },
+        "composed": {
+          "maximum_ratio": 7.734099176404744,
+          "directed_samples_above_1_plus_1e_5": 25921
+        },
+        "locations_per_edge": 5,
+        "worst_composed_locations": [
+          {
+            "ratio": 7.734099176404744,
+            "donor_edge_gids": [
+              12506,
+              13420
+            ],
+            "destination": [
+              0.0011245720733338784,
+              -0.004402062022953771
+            ],
+            "source": [
+              0.0010944099184418466,
+              -0.004328198403388895
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 7.325060045338807,
+            "donor_edge_gids": [
+              9476,
+              13420
+            ],
+            "destination": [
+              0.0011303270904957563,
+              -0.004426387435140356
+            ],
+            "source": [
+              0.001098726181313255,
+              -0.0043464424625288345
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 6.889384859415777,
+            "donor_edge_gids": [
+              5561,
+              12508
+            ],
+            "destination": [
+              0.003000246806436918,
+              -0.007277720323290508
+            ],
+            "source": [
+              0.0030106353775701286,
+              -0.007287135414527057
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 6.715258841870749,
+            "donor_edge_gids": [
+              12506,
+              13420
+            ],
+            "destination": [
+              0.0010944099184418466,
+              -0.004328198403388895
+            ],
+            "source": [
+              0.0011245720733338784,
+              -0.004402062022953771
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 6.705059722805277,
+            "donor_edge_gids": [
+              3964,
+              12508
+            ],
+            "destination": [
+              0.00303141251983655,
+              -0.007305965597000156
+            ],
+            "source": [
+              0.0029911961175787976,
+              -0.007254099999571221
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 6.6357453047418655,
+            "donor_edge_gids": [
+              12418,
+              14181
+            ],
+            "destination": [
+              0.0011661797559413994,
+              -0.004532186370637282
+            ],
+            "source": [
+              0.0010881874418053493,
+              -0.004335798624875877
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 6.359968627378637,
+            "donor_edge_gids": [
+              4915,
+              14181
+            ],
+            "destination": [
+              0.0011661797559413994,
+              -0.004532186370637282
+            ],
+            "source": [
+              0.001100142679274517,
+              -0.004374431704809814
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 6.220554665079687,
+            "donor_edge_gids": [
+              2573,
+              8710
+            ],
+            "destination": [
+              0.00016971718666507896,
+              -0.001490566106297091
+            ],
+            "source": [
+              0.00016213531767803803,
+              -0.0014375266369395451
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 6.153588033033653,
+            "donor_edge_gids": [
+              5561,
+              12480
+            ],
+            "destination": [
+              0.0029898582353037073,
+              -0.007268305232053959
+            ],
+            "source": [
+              0.0030313706747457647,
+              -0.0073098359088865136
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 6.043958325776987,
+            "donor_edge_gids": [
+              9476,
+              12418
+            ],
+            "destination": [
+              0.0011303270904957563,
+              -0.004426387435140356
+            ],
+            "source": [
+              0.001061297942721117,
+              -0.004256449423253182
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 6.022441313280305,
+            "donor_edge_gids": [
+              5561,
+              12508
+            ],
+            "destination": [
+              0.0030106353775701286,
+              -0.007287135414527057
+            ],
+            "source": [
+              0.003000246806436918,
+              -0.007277720323290508
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 5.954026408246477,
+            "donor_edge_gids": [
+              3027,
+              12316
+            ],
+            "destination": [
+              0.0005299061070844696,
+              -0.0029148784967151942
+            ],
+            "source": [
+              0.0005400922730035471,
+              -0.0029531954028575356
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 5.6158181831445795,
+            "donor_edge_gids": [
+              18188,
+              18215
+            ],
+            "destination": [
+              0.001886357659187735,
+              -0.005798495087950665
+            ],
+            "source": [
+              0.0019099067093824988,
+              -0.005841062815621356
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 5.59379000780748,
+            "donor_edge_gids": [
+              11139,
+              12020
+            ],
+            "destination": [
+              0.010232103987382545,
+              -0.013054690172653441
+            ],
+            "source": [
+              0.010053007584881136,
+              -0.012933756366686526
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 5.576626079288207,
+            "donor_edge_gids": [
+              9476,
+              13420
+            ],
+            "destination": [
+              0.001098726181313255,
+              -0.0043464424625288345
+            ],
+            "source": [
+              0.0011303270904957563,
+              -0.004426387435140356
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 5.532472517127454,
+            "donor_edge_gids": [
+              2573,
+              18147
+            ],
+            "destination": [
+              0.00016971718666507896,
+              -0.001490566106297091
+            ],
+            "source": [
+              0.0001552446441850006,
+              -0.001371575109489047
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 5.50215278586087,
+            "donor_edge_gids": [
+              18188,
+              18215
+            ],
+            "destination": [
+              0.0019099067093824988,
+              -0.005841062815621356
+            ],
+            "source": [
+              0.001886357659187735,
+              -0.005798495087950665
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 5.498637487589036,
+            "donor_edge_gids": [
+              12561,
+              18188
+            ],
+            "destination": [
+              0.0018815242139024638,
+              -0.0057909454609278346
+            ],
+            "source": [
+              0.0019099067093824988,
+              -0.005841062815621356
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 5.407052143361619,
+            "donor_edge_gids": [
+              3027,
+              12316
+            ],
+            "destination": [
+              0.0005400922730035471,
+              -0.0029531954028575356
+            ],
+            "source": [
+              0.0005299061070844696,
+              -0.0029148784967151942
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 5.300971934793973,
+            "donor_edge_gids": [
+              2943,
+              12053
+            ],
+            "destination": [
+              0.004495284042987458,
+              -0.008748324647110815
+            ],
+            "source": [
+              0.004439943289218658,
+              -0.008701125937968417
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          }
+        ]
+      }
+    },
+    "fine/quadratic_least_squares": {
+      "points": 18591,
+      "triangles": 36263,
+      "original_wall_segments": 192,
+      "core_eigenvalue": 0.035220999426828964,
+      "minimum_sensor_eigenvalue": 0.035220999426828964,
+      "sensor_nodal_complexity": 55329.15283584131,
+      "composed_nodal_quadrature_counterexample": 58189.680201919145,
+      "sensor_nodal": {
+        "maximum_ratio": 1.0000000977114105,
+        "directed_samples_above_1_plus_1e_5": 0
+      },
+      "composed_nodal": {
+        "maximum_ratio": 12.389249003043236,
+        "directed_samples_above_1_plus_1e_5": 4112
+      },
+      "sensor_domination_minimum_absolute_eigenvalue": -2.701136393073804e-05,
+      "minimum_generalized_sensor_domination_ratio": 0.9999999999972589,
+      "domination_numerical_tolerance": 1e-06,
+      "composed_residual_by_destination_region": {
+        "wall": {
+          "maximum_ratio": 4.859465759960127,
+          "directed_samples_above_1_plus_1e_5": 453
+        },
+        "full_band": {
+          "maximum_ratio": 12.389249003043236,
+          "directed_samples_above_1_plus_1e_5": 3605
+        },
+        "fade": {
+          "maximum_ratio": 1.8068519882882412,
+          "directed_samples_above_1_plus_1e_5": 25
+        },
+        "outer": {
+          "maximum_ratio": 1.586722097456307,
+          "directed_samples_above_1_plus_1e_5": 29
+        }
+      },
+      "worst_composed_nodal_locations": [
+        {
+          "ratio": 12.389249003043236,
+          "destination_gid": 18188,
+          "source_gid": 18215,
+          "destination": [
+            0.0019099067093824988,
+            -0.005841062815621356
+          ],
+          "source": [
+            0.0018157105086034433,
+            -0.0056707919049385925
+          ],
+          "destination_region": "full_band",
+          "source_region": "full_band"
+        },
+        {
+          "ratio": 11.198226953020715,
+          "destination_gid": 10898,
+          "source_gid": 12561,
+          "destination": [
+            0.0019175983720249922,
+            -0.005872033867338123
+          ],
+          "source": [
+            0.001796376727462358,
+            -0.005640593396847268
+          ],
+          "destination_region": "full_band",
+          "source_region": "full_band"
+        },
+        {
+          "ratio": 10.721614029869002,
+          "destination_gid": 18188,
+          "source_gid": 12561,
+          "destination": [
+            0.0019099067093824988,
+            -0.005841062815621356
+          ],
+          "source": [
+            0.001796376727462358,
+            -0.005640593396847268
+          ],
+          "destination_region": "full_band",
+          "source_region": "full_band"
+        },
+        {
+          "ratio": 8.229624609667697,
+          "destination_gid": 10898,
+          "source_gid": 12398,
+          "destination": [
+            0.0019175983720249922,
+            -0.005872033867338123
+          ],
+          "source": [
+            0.0017434752806508318,
+            -0.005561221927301351
+          ],
+          "destination_region": "full_band",
+          "source_region": "full_band"
+        },
+        {
+          "ratio": 7.445560805546373,
+          "destination_gid": 14179,
+          "source_gid": 10898,
+          "destination": [
+            0.0018726252743703523,
+            -0.005835792450435384
+          ],
+          "source": [
+            0.0019175983720249922,
+            -0.005872033867338123
+          ],
+          "destination_region": "full_band",
+          "source_region": "full_band"
+        },
+        {
+          "ratio": 6.930575503196981,
+          "destination_gid": 18215,
+          "source_gid": 18188,
+          "destination": [
+            0.0018157105086034433,
+            -0.0056707919049385925
+          ],
+          "source": [
+            0.0019099067093824988,
+            -0.005841062815621356
+          ],
+          "destination_region": "full_band",
+          "source_region": "full_band"
+        },
+        {
+          "ratio": 6.723754056797262,
+          "destination_gid": 12561,
+          "source_gid": 18188,
+          "destination": [
+            0.001796376727462358,
+            -0.005640593396847268
+          ],
+          "source": [
+            0.0019099067093824988,
+            -0.005841062815621356
+          ],
+          "destination_region": "full_band",
+          "source_region": "full_band"
+        },
+        {
+          "ratio": 6.08863581728897,
+          "destination_gid": 14179,
+          "source_gid": 12455,
+          "destination": [
+            0.0018726252743703523,
+            -0.005835792450435384
+          ],
+          "source": [
+            0.0020508351487979522,
+            -0.006066513473493566
+          ],
+          "destination_region": "full_band",
+          "source_region": "full_band"
+        },
+        {
+          "ratio": 5.115327438765419,
+          "destination_gid": 18215,
+          "source_gid": 4440,
+          "destination": [
+            0.0018157105086034433,
+            -0.0056707919049385925
+          ],
+          "source": [
+            0.00191289186477661,
+            -0.0058284979313612
+          ],
+          "destination_region": "full_band",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 5.00728192405717,
+          "destination_gid": 9476,
+          "source_gid": 13420,
+          "destination": [
+            0.0011303270904957563,
+            -0.004426387435140356
+          ],
+          "source": [
+            0.001003923453765751,
+            -0.004106607544694269
+          ],
+          "destination_region": "full_band",
+          "source_region": "full_band"
+        },
+        {
+          "ratio": 4.953642725053119,
+          "destination_gid": 12506,
+          "source_gid": 13420,
+          "destination": [
+            0.0011245720733338784,
+            -0.004402062022953771
+          ],
+          "source": [
+            0.001003923453765751,
+            -0.004106607544694269
+          ],
+          "destination_region": "full_band",
+          "source_region": "full_band"
+        },
+        {
+          "ratio": 4.859465759960127,
+          "destination_gid": 4440,
+          "source_gid": 7295,
+          "destination": [
+            0.00191289186477661,
+            -0.0058284979313612
+          ],
+          "source": [
+            0.002126364156470015,
+            -0.006107924798650879
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 4.772654321813805,
+          "destination_gid": 4440,
+          "source_gid": 7323,
+          "destination": [
+            0.00191289186477661,
+            -0.0058284979313612
+          ],
+          "source": [
+            0.001736097552201559,
+            -0.005503528089573117
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 4.593759854572891,
+          "destination_gid": 10898,
+          "source_gid": 14179,
+          "destination": [
+            0.0019175983720249922,
+            -0.005872033867338123
+          ],
+          "source": [
+            0.0018726252743703523,
+            -0.005835792450435384
+          ],
+          "destination_region": "full_band",
+          "source_region": "full_band"
+        },
+        {
+          "ratio": 4.328988391017669,
+          "destination_gid": 4440,
+          "source_gid": 18188,
+          "destination": [
+            0.00191289186477661,
+            -0.0058284979313612
+          ],
+          "source": [
+            0.0019099067093824988,
+            -0.005841062815621356
+          ],
+          "destination_region": "wall",
+          "source_region": "full_band"
+        },
+        {
+          "ratio": 4.053746748074509,
+          "destination_gid": 4440,
+          "source_gid": 18215,
+          "destination": [
+            0.00191289186477661,
+            -0.0058284979313612
+          ],
+          "source": [
+            0.0018157105086034433,
+            -0.0056707919049385925
+          ],
+          "destination_region": "wall",
+          "source_region": "full_band"
+        },
+        {
+          "ratio": 4.035557059713142,
+          "destination_gid": 12561,
+          "source_gid": 10898,
+          "destination": [
+            0.001796376727462358,
+            -0.005640593396847268
+          ],
+          "source": [
+            0.0019175983720249922,
+            -0.005872033867338123
+          ],
+          "destination_region": "full_band",
+          "source_region": "full_band"
+        },
+        {
+          "ratio": 3.991537057265022,
+          "destination_gid": 18188,
+          "source_gid": 4440,
+          "destination": [
+            0.0019099067093824988,
+            -0.005841062815621356
+          ],
+          "source": [
+            0.00191289186477661,
+            -0.0058284979313612
+          ],
+          "destination_region": "full_band",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 3.9746528234955694,
+          "destination_gid": 12398,
+          "source_gid": 10898,
+          "destination": [
+            0.0017434752806508318,
+            -0.005561221927301351
+          ],
+          "source": [
+            0.0019175983720249922,
+            -0.005872033867338123
+          ],
+          "destination_region": "full_band",
+          "source_region": "full_band"
+        },
+        {
+          "ratio": 3.877688763320157,
+          "destination_gid": 12508,
+          "source_gid": 3964,
+          "destination": [
+            0.00303141251983655,
+            -0.007305965597000156
+          ],
+          "source": [
+            0.0028705469108055402,
+            -0.007098503207284414
+          ],
+          "destination_region": "full_band",
+          "source_region": "full_band"
+        }
+      ],
+      "mpi": {
+        "1": {
+          "maximum_relative_sensor_difference": 0.0,
+          "hessian_relative_with_global_floor": {
+            "MACH": 0.0,
+            "PRESSURE": 0.0
+          },
+          "reported_composed_complexity": 60000.0,
+          "elapsed_seconds": 15.324731578002684,
+          "fields_sha256": "bd2d299e77e38b70b1c9b7e27c1b5117ab5f90f08bef5e3b82f9a6540ad7df24",
+          "log_sha256": "c12a1e1496054c6f12f19fd6afbf87a35a10fdb46018acf36325067ac28a04ab",
+          "hessian": "0.301349 s (maximum rank time).",
+          "integration": "303738 points, preparation 0.664298 s.",
+          "work": "27 complexity trials, 837 total gradation sweeps, 15560667 owned-point visits; gradation 9.34094 s, halo 0.473434 s, sweep reductions 0.00189674 s (maximum accumulated rank times).",
+          "sensor_gradation": "29 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.",
+          "composed_audit": "maximum transported-metric ratio 12.3892, directed edges above 1+1e-5: 4112. Sensor gradation is not a combined-field certificate."
+        },
+        "2": {
+          "maximum_relative_sensor_difference": 6.923909111321322e-12,
+          "hessian_relative_with_global_floor": {
+            "MACH": 0.0,
+            "PRESSURE": 0.0
+          },
+          "reported_composed_complexity": 60000.0,
+          "elapsed_seconds": 6.712224898998102,
+          "fields_sha256": "68574c05edf784698f8ff51530a799bd7319c25900f42254afdc7018991ecdda",
+          "log_sha256": "c160ca2b8a33e2d5ad93a7523c23625844e8c377559b0e3afa4383386f902a30",
+          "hessian": "0.132109 s (maximum rank time).",
+          "integration": "303738 points, preparation 0.324819 s.",
+          "work": "27 complexity trials, 837 total gradation sweeps, 15560667 owned-point visits; gradation 3.72954 s, halo 0.131322 s, sweep reductions 0.17096 s (maximum accumulated rank times).",
+          "sensor_gradation": "29 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.",
+          "composed_audit": "maximum transported-metric ratio 12.3892, directed edges above 1+1e-5: 4112. Sensor gradation is not a combined-field certificate."
+        },
+        "4": {
+          "maximum_relative_sensor_difference": 8.404277175751655e-12,
+          "hessian_relative_with_global_floor": {
+            "MACH": 0.0,
+            "PRESSURE": 0.0
+          },
+          "reported_composed_complexity": 60000.0,
+          "elapsed_seconds": 4.799622645994532,
+          "fields_sha256": "048526a55151d7d96e6ea7e9a2bf645e2572026e81da9904b3fabebf86bfbbb9",
+          "log_sha256": "081d75e403df3c2e99f1e8e1cf9fc3224231011ee75607f7998c86e4f122832f",
+          "hessian": "0.0747674 s (maximum rank time).",
+          "integration": "303738 points, preparation 0.193869 s.",
+          "work": "27 complexity trials, 837 total gradation sweeps, 15560667 owned-point visits; gradation 2.48492 s, halo 0.19055 s, sweep reductions 0.341251 s (maximum accumulated rank times).",
+          "sensor_gradation": "29 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.",
+          "composed_audit": "maximum transported-metric ratio 12.3892, directed edges above 1+1e-5: 4112. Sensor gradation is not a combined-field certificate."
+        }
+      },
+      "quarter_edge": {
+        "sensor": {
+          "maximum_ratio": 3.2936171175383993,
+          "directed_samples_above_1_plus_1e_5": 36935
+        },
+        "composed": {
+          "maximum_ratio": 15.880723481477203,
+          "directed_samples_above_1_plus_1e_5": 32175
+        },
+        "locations_per_edge": 5,
+        "worst_composed_locations": [
+          {
+            "ratio": 15.880723481477203,
+            "donor_edge_gids": [
+              18188,
+              18215
+            ],
+            "destination": [
+              0.0019099067093824988,
+              -0.005841062815621356
+            ],
+            "source": [
+              0.001886357659187735,
+              -0.005798495087950665
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 15.239118585427324,
+            "donor_edge_gids": [
+              12561,
+              18188
+            ],
+            "destination": [
+              0.0019099067093824988,
+              -0.005841062815621356
+            ],
+            "source": [
+              0.0018815242139024638,
+              -0.0057909454609278346
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 13.801232476888195,
+            "donor_edge_gids": [
+              10898,
+              12561
+            ],
+            "destination": [
+              0.0019175983720249922,
+              -0.005872033867338123
+            ],
+            "source": [
+              0.0018872929608843337,
+              -0.005814173749715408
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 12.662592228939737,
+            "donor_edge_gids": [
+              10898,
+              12398
+            ],
+            "destination": [
+              0.0019175983720249922,
+              -0.005872033867338123
+            ],
+            "source": [
+              0.0018740675991814522,
+              -0.00579433088232893
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 11.97763870821503,
+            "donor_edge_gids": [
+              18188,
+              18215
+            ],
+            "destination": [
+              0.001886357659187735,
+              -0.005798495087950665
+            ],
+            "source": [
+              0.0019099067093824988,
+              -0.005841062815621356
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 11.740753665849239,
+            "donor_edge_gids": [
+              12561,
+              18188
+            ],
+            "destination": [
+              0.0018815242139024638,
+              -0.0057909454609278346
+            ],
+            "source": [
+              0.0019099067093824988,
+              -0.005841062815621356
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 9.208022364266094,
+            "donor_edge_gids": [
+              12506,
+              13420
+            ],
+            "destination": [
+              0.0010944099184418466,
+              -0.004328198403388895
+            ],
+            "source": [
+              0.0011245720733338784,
+              -0.004402062022953771
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 8.430556114663261,
+            "donor_edge_gids": [
+              10898,
+              14179
+            ],
+            "destination": [
+              0.0018838685487840123,
+              -0.005844852804661069
+            ],
+            "source": [
+              0.0018951118231976722,
+              -0.005853913158886753
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 7.963997313635973,
+            "donor_edge_gids": [
+              10898,
+              12561
+            ],
+            "destination": [
+              0.0018872929608843337,
+              -0.005814173749715408
+            ],
+            "source": [
+              0.0019175983720249922,
+              -0.005872033867338123
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 7.780829632670802,
+            "donor_edge_gids": [
+              12455,
+              14179
+            ],
+            "destination": [
+              0.0018726252743703523,
+              -0.005835792450435384
+            ],
+            "source": [
+              0.0019171777429772524,
+              -0.0058934727061999296
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 7.737984468425145,
+            "donor_edge_gids": [
+              10898,
+              12398
+            ],
+            "destination": [
+              0.0018740675991814522,
+              -0.00579433088232893
+            ],
+            "source": [
+              0.0019175983720249922,
+              -0.005872033867338123
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 7.381716060193279,
+            "donor_edge_gids": [
+              12506,
+              13420
+            ],
+            "destination": [
+              0.0011245720733338784,
+              -0.004402062022953771
+            ],
+            "source": [
+              0.0010944099184418466,
+              -0.004328198403388895
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 7.192994477913098,
+            "donor_edge_gids": [
+              9476,
+              13420
+            ],
+            "destination": [
+              0.001098726181313255,
+              -0.0043464424625288345
+            ],
+            "source": [
+              0.0011303270904957563,
+              -0.004426387435140356
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 6.981741476391544,
+            "donor_edge_gids": [
+              9476,
+              13420
+            ],
+            "destination": [
+              0.0011303270904957563,
+              -0.004426387435140356
+            ],
+            "source": [
+              0.001098726181313255,
+              -0.0043464424625288345
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 6.945466540449493,
+            "donor_edge_gids": [
+              4440,
+              18188
+            ],
+            "destination": [
+              0.00191289186477661,
+              -0.0058284979313612
+            ],
+            "source": [
+              0.0019121455759280822,
+              -0.00583163915242624
+            ],
+            "destination_region": "wall",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 6.797145781716904,
+            "donor_edge_gids": [
+              4440,
+              7295
+            ],
+            "destination": [
+              0.00191289186477661,
+              -0.0058284979313612
+            ],
+            "source": [
+              0.0019662599376999612,
+              -0.00589835464818362
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 6.751789643950465,
+            "donor_edge_gids": [
+              4440,
+              18215
+            ],
+            "destination": [
+              0.00191289186477661,
+              -0.0058284979313612
+            ],
+            "source": [
+              0.0018885965257333184,
+              -0.005789071424755548
+            ],
+            "destination_region": "wall",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 6.6290010017706145,
+            "donor_edge_gids": [
+              4440,
+              7323
+            ],
+            "destination": [
+              0.00191289186477661,
+              -0.0058284979313612
+            ],
+            "source": [
+              0.0018686932866328475,
+              -0.00574725547091418
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 6.596320800157663,
+            "donor_edge_gids": [
+              10898,
+              14179
+            ],
+            "destination": [
+              0.0018951118231976722,
+              -0.005853913158886753
+            ],
+            "source": [
+              0.0018838685487840123,
+              -0.005844852804661069
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          },
+          {
+            "ratio": 6.348929807109995,
+            "donor_edge_gids": [
+              1404,
+              14179
+            ],
+            "destination": [
+              0.0018726252743703523,
+              -0.005835792450435384
+            ],
+            "source": [
+              0.0019659376511625545,
+              -0.005963372062428827
+            ],
+            "destination_region": "full_band",
+            "source_region": "full_band"
+          }
+        ]
+      }
+    },
+    "coarse/weighted_least_squares": {
+      "points": 3592,
+      "triangles": 6952,
+      "original_wall_segments": 192,
+      "core_eigenvalue": 0.01846087206201443,
+      "minimum_sensor_eigenvalue": 0.01846087206201443,
+      "sensor_nodal_complexity": 47368.61777310519,
+      "composed_nodal_quadrature_counterexample": 996268.6790710919,
+      "sensor_nodal": {
+        "maximum_ratio": 1.0000000006485814,
+        "directed_samples_above_1_plus_1e_5": 0
+      },
+      "composed_nodal": {
+        "maximum_ratio": 14.907521398246956,
+        "directed_samples_above_1_plus_1e_5": 396
+      },
+      "sensor_domination_minimum_absolute_eigenvalue": -9.5367431640625e-07,
+      "minimum_generalized_sensor_domination_ratio": 0.9999999999781721,
+      "domination_numerical_tolerance": 1e-06,
+      "composed_residual_by_destination_region": {
+        "wall": {
+          "maximum_ratio": 14.907521398246956,
+          "directed_samples_above_1_plus_1e_5": 363
+        },
+        "full_band": {
+          "maximum_ratio": 3.025399794733818,
+          "directed_samples_above_1_plus_1e_5": 9
+        },
+        "fade": {
+          "maximum_ratio": 2.365292681943451,
+          "directed_samples_above_1_plus_1e_5": 8
+        },
+        "outer": {
+          "maximum_ratio": 2.367292586190605,
+          "directed_samples_above_1_plus_1e_5": 16
+        }
+      },
+      "worst_composed_nodal_locations": [
+        {
+          "ratio": 14.907521398246956,
+          "destination_gid": 40,
+          "source_gid": 41,
+          "destination": [
+            0.0,
+            0.0
+          ],
+          "source": [
+            0.000105112791061401,
+            0.00116573786363006
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 12.710973466765623,
+          "destination_gid": 227,
+          "source_gid": 226,
+          "destination": [
+            0.00301876664161682,
+            -0.00727604469284415
+          ],
+          "source": [
+            0.00446805357933044,
+            -0.00871494319289923
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 11.965126682182802,
+          "destination_gid": 228,
+          "source_gid": 229,
+          "destination": [
+            0.00191289186477661,
+            -0.0058284979313612
+          ],
+          "source": [
+            0.00112196803092957,
+            -0.00437468197196722
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 11.67340799308875,
+          "destination_gid": 224,
+          "source_gid": 225,
+          "destination": [
+            0.00806289911270142,
+            -0.0115766050294042
+          ],
+          "source": [
+            0.00617718696594238,
+            -0.0101470667868853
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 10.71018079818035,
+          "destination_gid": 227,
+          "source_gid": 228,
+          "destination": [
+            0.00301876664161682,
+            -0.00727604469284415
+          ],
+          "source": [
+            0.00191289186477661,
+            -0.0058284979313612
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 10.500791162049168,
+          "destination_gid": 158,
+          "source_gid": 159,
+          "destination": [
+            0.823572218418121,
+            -0.00621785083785653
+          ],
+          "source": [
+            0.804945766925812,
+            -0.00824176799505949
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 10.358505884473448,
+          "destination_gid": 40,
+          "source_gid": 231,
+          "destination": [
+            0.0,
+            0.0
+          ],
+          "source": [
+            0.000175386667251587,
+            -0.00145979691296816
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 10.343558962397701,
+          "destination_gid": 226,
+          "source_gid": 225,
+          "destination": [
+            0.00446805357933044,
+            -0.00871494319289923
+          ],
+          "source": [
+            0.00617718696594238,
+            -0.0101470667868853
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 10.322012978536458,
+          "destination_gid": 224,
+          "source_gid": 223,
+          "destination": [
+            0.00806289911270142,
+            -0.0115766050294042
+          ],
+          "source": [
+            0.0101708769798279,
+            -0.0130018489435315
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 9.890316717186387,
+          "destination_gid": 157,
+          "source_gid": 158,
+          "destination": [
+            0.842267453670502,
+            -0.004354327917099
+          ],
+          "source": [
+            0.823572218418121,
+            -0.00621785083785653
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 9.817591998742232,
+          "destination_gid": 155,
+          "source_gid": 156,
+          "destination": [
+            0.879706740379333,
+            -0.00121056160423905
+          ],
+          "source": [
+            0.861017465591431,
+            -0.0026861138176173
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 9.64503363810536,
+          "destination_gid": 228,
+          "source_gid": 227,
+          "destination": [
+            0.00191289186477661,
+            -0.0058284979313612
+          ],
+          "source": [
+            0.00301876664161682,
+            -0.00727604469284415
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 9.553939605276568,
+          "destination_gid": 217,
+          "source_gid": 218,
+          "destination": [
+            0.0286163687705994,
+            -0.0214047711342573
+          ],
+          "source": [
+            0.0249027013778687,
+            -0.0200153794139624
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 9.38963017014894,
+          "destination_gid": 45,
+          "source_gid": 44,
+          "destination": [
+            0.00197309255599976,
+            0.00581538816913962
+          ],
+          "source": [
+            0.00127699971199036,
+            0.00465609692037106
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 9.372409116568543,
+          "destination_gid": 157,
+          "source_gid": 156,
+          "destination": [
+            0.842267453670502,
+            -0.004354327917099
+          ],
+          "source": [
+            0.861017465591431,
+            -0.0026861138176173
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 9.035077308715104,
+          "destination_gid": 46,
+          "source_gid": 47,
+          "destination": [
+            0.00285813212394714,
+            0.00697072176262736
+          ],
+          "source": [
+            0.00393903255462646,
+            0.00812128745019436
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 8.915599350278516,
+          "destination_gid": 217,
+          "source_gid": 216,
+          "destination": [
+            0.0286163687705994,
+            -0.0214047711342573
+          ],
+          "source": [
+            0.0326575934886932,
+            -0.0227834675461054
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 8.864804345701158,
+          "destination_gid": 46,
+          "source_gid": 45,
+          "destination": [
+            0.00285813212394714,
+            0.00697072176262736
+          ],
+          "source": [
+            0.00197309255599976,
+            0.00581538816913962
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 8.731200964321037,
+          "destination_gid": 45,
+          "source_gid": 46,
+          "destination": [
+            0.00197309255599976,
+            0.00581538816913962
+          ],
+          "source": [
+            0.00285813212394714,
+            0.00697072176262736
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 8.581827626650908,
+          "destination_gid": 42,
+          "source_gid": 41,
+          "destination": [
+            0.000345170497894287,
+            0.00233078026212752
+          ],
+          "source": [
+            0.000105112791061401,
+            0.00116573786363006
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        }
+      ],
+      "mpi": {
+        "1": {
+          "maximum_relative_sensor_difference": 0.0,
+          "hessian_relative_with_global_floor": {
+            "MACH": 0.0,
+            "PRESSURE": 0.0
+          },
+          "reported_composed_complexity": 60000.0,
+          "elapsed_seconds": 2.2774326969956746,
+          "fields_sha256": "365e97639690d501bf16f04bbd8f255855af9fc625d75451813de00b98c7b8ce",
+          "log_sha256": "eed37b330138453bc9d3d80a28edcbfa23252ac6e9d551675eeaa4619bdb5d00",
+          "hessian": "0.00135341 s (maximum rank time).",
+          "integration": "133641 points, preparation 0.164072 s.",
+          "work": "19 complexity trials, 88 total gradation sweeps, 316096 owned-point visits; gradation 0.128999 s, halo 0.00239036 s, sweep reductions 2.7975e-05 s (maximum accumulated rank times).",
+          "sensor_gradation": "4 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.",
+          "composed_audit": "maximum transported-metric ratio 14.9075, directed edges above 1+1e-5: 396. Sensor gradation is not a combined-field certificate."
+        },
+        "2": {
+          "maximum_relative_sensor_difference": 1.7430494040816634e-13,
+          "hessian_relative_with_global_floor": {
+            "MACH": 5.499626363784107e-15,
+            "PRESSURE": 2.8421472023934272e-15
+          },
+          "reported_composed_complexity": 60000.0,
+          "elapsed_seconds": 1.3246882509993156,
+          "fields_sha256": "747661296005dd4af194e1349551eaca68ae3c5ef3c16468178233e9ca791be6",
+          "log_sha256": "17ac9e059996236bc53699ebbd15926f1e6d49c14718cc40653d43b8ffd04df4",
+          "hessian": "0.00178446 s (maximum rank time).",
+          "integration": "133641 points, preparation 0.122995 s.",
+          "work": "19 complexity trials, 88 total gradation sweeps, 316096 owned-point visits; gradation 0.0655539 s, halo 0.00147794 s, sweep reductions 0.00248143 s (maximum accumulated rank times).",
+          "sensor_gradation": "4 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.",
+          "composed_audit": "maximum transported-metric ratio 14.9075, directed edges above 1+1e-5: 396. Sensor gradation is not a combined-field certificate."
+        },
+        "4": {
+          "maximum_relative_sensor_difference": 1.7726879206928865e-13,
+          "hessian_relative_with_global_floor": {
+            "MACH": 7.296534426149253e-15,
+            "PRESSURE": 4.803298152790781e-15
+          },
+          "reported_composed_complexity": 60000.0,
+          "elapsed_seconds": 0.8672661160017014,
+          "fields_sha256": "24628f5457405036e99a0efa127b430798ac17d4852c4637ec69860bd125e8ed",
+          "log_sha256": "93f505858aa2721ece7a0e3a05cd9a5bc6ddd3b1ef59bb93ebcc6164573cc3cd",
+          "hessian": "0.000537264 s (maximum rank time).",
+          "integration": "133641 points, preparation 0.0637251 s.",
+          "work": "19 complexity trials, 88 total gradation sweeps, 316096 owned-point visits; gradation 0.0345957 s, halo 0.00130454 s, sweep reductions 0.0014198 s (maximum accumulated rank times).",
+          "sensor_gradation": "4 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.",
+          "composed_audit": "maximum transported-metric ratio 14.9075, directed edges above 1+1e-5: 396. Sensor gradation is not a combined-field certificate."
+        }
+      },
+      "quarter_edge": {
+        "sensor": {
+          "maximum_ratio": 2.508830841354972,
+          "directed_samples_above_1_plus_1e_5": 1218
+        },
+        "composed": {
+          "maximum_ratio": 43.70688127092454,
+          "directed_samples_above_1_plus_1e_5": 1917
+        },
+        "locations_per_edge": 5,
+        "worst_composed_locations": [
+          {
+            "ratio": 43.70688127092454,
+            "donor_edge_gids": [
+              227,
+              228
+            ],
+            "destination": [
+              0.00301876664161682,
+              -0.00727604469284415
+            ],
+            "source": [
+              0.0027422979474067675,
+              -0.006914158002473412
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 42.831884737284454,
+            "donor_edge_gids": [
+              226,
+              227
+            ],
+            "destination": [
+              0.00301876664161682,
+              -0.00727604469284415
+            ],
+            "source": [
+              0.0033810883760452253,
+              -0.00763576931785792
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 41.14364260396511,
+            "donor_edge_gids": [
+              228,
+              229
+            ],
+            "destination": [
+              0.00191289186477661,
+              -0.0058284979313612
+            ],
+            "source": [
+              0.00171516090631485,
+              -0.005465043941512706
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 40.466687326478194,
+            "donor_edge_gids": [
+              227,
+              228
+            ],
+            "destination": [
+              0.00191289186477661,
+              -0.0058284979313612
+            ],
+            "source": [
+              0.0021893605589866625,
+              -0.006190384621731938
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 40.390510785428845,
+            "donor_edge_gids": [
+              40,
+              41
+            ],
+            "destination": [
+              0.0,
+              0.0
+            ],
+            "source": [
+              2.627819776535025e-05,
+              0.000291434465907515
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 39.31628166735349,
+            "donor_edge_gids": [
+              152,
+              153
+            ],
+            "destination": [
+              0.934995710849762,
+              0.00151132768951356
+            ],
+            "source": [
+              0.9304523468017577,
+              0.0013641861878568276
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 39.28264867098483,
+            "donor_edge_gids": [
+              151,
+              152
+            ],
+            "destination": [
+              0.934995710849762,
+              0.00151132768951356
+            ],
+            "source": [
+              0.9394168853759765,
+              0.0015533085679635375
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 38.87222609556687,
+            "donor_edge_gids": [
+              40,
+              231
+            ],
+            "destination": [
+              0.0,
+              0.0
+            ],
+            "source": [
+              4.384666681289675e-05,
+              -0.00036494922824204
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 34.68100689231977,
+            "donor_edge_gids": [
+              154,
+              155
+            ],
+            "destination": [
+              0.898338079452515,
+              8.05446234153351e-06
+            ],
+            "source": [
+              0.8936802446842195,
+              -0.0002965995543036124
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 34.13562076080865,
+            "donor_edge_gids": [
+              153,
+              154
+            ],
+            "destination": [
+              0.898338079452515,
+              8.05446234153351e-06
+            ],
+            "source": [
+              0.9029591232538224,
+              0.00023673126747780762
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 32.146799987815726,
+            "donor_edge_gids": [
+              155,
+              156
+            ],
+            "destination": [
+              0.879706740379333,
+              -0.00121056160423905
+            ],
+            "source": [
+              0.8750344216823576,
+              -0.0015794496575836127
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 31.863438888586117,
+            "donor_edge_gids": [
+              154,
+              155
+            ],
+            "destination": [
+              0.879706740379333,
+              -0.00121056160423905
+            ],
+            "source": [
+              0.8843645751476286,
+              -0.0009059075875939042
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 27.572347510667882,
+            "donor_edge_gids": [
+              151,
+              152
+            ],
+            "destination": [
+              0.95268040895462,
+              0.00167925120331347
+            ],
+            "source": [
+              0.9482592344284055,
+              0.0016372703248634926
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 27.48763121999244,
+            "donor_edge_gids": [
+              150,
+              151
+            ],
+            "destination": [
+              0.95268040895462,
+              0.00167925120331347
+            ],
+            "source": [
+              0.9569036215543746,
+              0.0016316902183461926
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 26.3116114745643,
+            "donor_edge_gids": [
+              153,
+              154
+            ],
+            "destination": [
+              0.916822254657745,
+              0.00092276168288663
+            ],
+            "source": [
+              0.9122012108564376,
+              0.0006940848777503559
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 26.077406069647502,
+            "donor_edge_gids": [
+              152,
+              153
+            ],
+            "destination": [
+              0.916822254657745,
+              0.00092276168288663
+            ],
+            "source": [
+              0.9213656187057493,
+              0.0010699031845433624
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 25.679468525592767,
+            "donor_edge_gids": [
+              157,
+              158
+            ],
+            "destination": [
+              0.842267453670502,
+              -0.004354327917099
+            ],
+            "source": [
+              0.8375936448574067,
+              -0.004820208647288383
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 25.589750019887873,
+            "donor_edge_gids": [
+              156,
+              157
+            ],
+            "destination": [
+              0.842267453670502,
+              -0.004354327917099
+            ],
+            "source": [
+              0.8469549566507343,
+              -0.003937274392228575
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 23.858366482953237,
+            "donor_edge_gids": [
+              149,
+              150
+            ],
+            "destination": [
+              0.969573259353638,
+              0.00148900726344436
+            ],
+            "source": [
+              0.9735292047262195,
+              0.0013524704263545542
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 23.540836082460636,
+            "donor_edge_gids": [
+              150,
+              151
+            ],
+            "destination": [
+              0.969573259353638,
+              0.00148900726344436
+            ],
+            "source": [
+              0.9653500467538835,
+              0.0015365682484116375
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          }
+        ]
+      }
+    },
+    "coarse/quadratic_least_squares": {
+      "points": 3592,
+      "triangles": 6952,
+      "original_wall_segments": 192,
+      "core_eigenvalue": 0.020056666127870573,
+      "minimum_sensor_eigenvalue": 0.02005666612787057,
+      "sensor_nodal_complexity": 48337.429289113,
+      "composed_nodal_quadrature_counterexample": 979071.6754784593,
+      "sensor_nodal": {
+        "maximum_ratio": 1.0000000582983262,
+        "directed_samples_above_1_plus_1e_5": 0
+      },
+      "composed_nodal": {
+        "maximum_ratio": 15.002363283926183,
+        "directed_samples_above_1_plus_1e_5": 412
+      },
+      "sensor_domination_minimum_absolute_eigenvalue": -9.5367431640625e-07,
+      "minimum_generalized_sensor_domination_ratio": 0.9999999999872671,
+      "domination_numerical_tolerance": 1e-06,
+      "composed_residual_by_destination_region": {
+        "wall": {
+          "maximum_ratio": 15.002363283926183,
+          "directed_samples_above_1_plus_1e_5": 364
+        },
+        "full_band": {
+          "maximum_ratio": 4.033650406382671,
+          "directed_samples_above_1_plus_1e_5": 12
+        },
+        "fade": {
+          "maximum_ratio": 1.7158914351787586,
+          "directed_samples_above_1_plus_1e_5": 6
+        },
+        "outer": {
+          "maximum_ratio": 2.500943674886928,
+          "directed_samples_above_1_plus_1e_5": 30
+        }
+      },
+      "worst_composed_nodal_locations": [
+        {
+          "ratio": 15.002363283926183,
+          "destination_gid": 40,
+          "source_gid": 41,
+          "destination": [
+            0.0,
+            0.0
+          ],
+          "source": [
+            0.000105112791061401,
+            0.00116573786363006
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 14.534689079215413,
+          "destination_gid": 155,
+          "source_gid": 156,
+          "destination": [
+            0.879706740379333,
+            -0.00121056160423905
+          ],
+          "source": [
+            0.861017465591431,
+            -0.0026861138176173
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 13.955837602270329,
+          "destination_gid": 228,
+          "source_gid": 229,
+          "destination": [
+            0.00191289186477661,
+            -0.0058284979313612
+          ],
+          "source": [
+            0.00112196803092957,
+            -0.00437468197196722
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 13.533764516062243,
+          "destination_gid": 227,
+          "source_gid": 226,
+          "destination": [
+            0.00301876664161682,
+            -0.00727604469284415
+          ],
+          "source": [
+            0.00446805357933044,
+            -0.00871494319289923
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 11.56216132773487,
+          "destination_gid": 155,
+          "source_gid": 154,
+          "destination": [
+            0.879706740379333,
+            -0.00121056160423905
+          ],
+          "source": [
+            0.898338079452515,
+            8.05446234153351e-06
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 11.463732519813798,
+          "destination_gid": 227,
+          "source_gid": 228,
+          "destination": [
+            0.00301876664161682,
+            -0.00727604469284415
+          ],
+          "source": [
+            0.00191289186477661,
+            -0.0058284979313612
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 11.254862700267033,
+          "destination_gid": 154,
+          "source_gid": 155,
+          "destination": [
+            0.898338079452515,
+            8.05446234153351e-06
+          ],
+          "source": [
+            0.879706740379333,
+            -0.00121056160423905
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 11.21681619872847,
+          "destination_gid": 228,
+          "source_gid": 227,
+          "destination": [
+            0.00191289186477661,
+            -0.0058284979313612
+          ],
+          "source": [
+            0.00301876664161682,
+            -0.00727604469284415
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 11.18590958457286,
+          "destination_gid": 224,
+          "source_gid": 225,
+          "destination": [
+            0.00806289911270142,
+            -0.0115766050294042
+          ],
+          "source": [
+            0.00617718696594238,
+            -0.0101470667868853
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 11.035914996796048,
+          "destination_gid": 203,
+          "source_gid": 204,
+          "destination": [
+            0.113496094942093,
+            -0.0403320826590061
+          ],
+          "source": [
+            0.105168461799622,
+            -0.0390156358480453
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 10.421540634035743,
+          "destination_gid": 40,
+          "source_gid": 231,
+          "destination": [
+            0.0,
+            0.0
+          ],
+          "source": [
+            0.000175386667251587,
+            -0.00145979691296816
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 10.197110057848931,
+          "destination_gid": 203,
+          "source_gid": 202,
+          "destination": [
+            0.113496094942093,
+            -0.0403320826590061
+          ],
+          "source": [
+            0.12227925658226,
+            -0.0416233465075493
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 9.855929823832458,
+          "destination_gid": 154,
+          "source_gid": 153,
+          "destination": [
+            0.898338079452515,
+            8.05446234153351e-06
+          ],
+          "source": [
+            0.916822254657745,
+            0.00092276168288663
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 9.563341630304528,
+          "destination_gid": 224,
+          "source_gid": 223,
+          "destination": [
+            0.00806289911270142,
+            -0.0115766050294042
+          ],
+          "source": [
+            0.0101708769798279,
+            -0.0130018489435315
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 9.428458165123747,
+          "destination_gid": 42,
+          "source_gid": 41,
+          "destination": [
+            0.000345170497894287,
+            0.00233078026212752
+          ],
+          "source": [
+            0.000105112791061401,
+            0.00116573786363006
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 9.025100993414565,
+          "destination_gid": 226,
+          "source_gid": 225,
+          "destination": [
+            0.00446805357933044,
+            -0.00871494319289923
+          ],
+          "source": [
+            0.00617718696594238,
+            -0.0101470667868853
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 9.001424904584233,
+          "destination_gid": 42,
+          "source_gid": 43,
+          "destination": [
+            0.000345170497894287,
+            0.00233078026212752
+          ],
+          "source": [
+            0.000732690095901489,
+            0.00349437515251338
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 8.884694454414522,
+          "destination_gid": 205,
+          "source_gid": 206,
+          "destination": [
+            0.0971992313861847,
+            -0.037697970867157
+          ],
+          "source": [
+            0.0896400511264801,
+            -0.0363651812076569
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 8.779299103009674,
+          "destination_gid": 219,
+          "source_gid": 220,
+          "destination": [
+            0.0214367806911469,
+            -0.0186234619468451
+          ],
+          "source": [
+            0.0182048976421356,
+            -0.0172290988266468
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        },
+        {
+          "ratio": 8.731553542799077,
+          "destination_gid": 205,
+          "source_gid": 204,
+          "destination": [
+            0.0971992313861847,
+            -0.037697970867157
+          ],
+          "source": [
+            0.105168461799622,
+            -0.0390156358480453
+          ],
+          "destination_region": "wall",
+          "source_region": "wall"
+        }
+      ],
+      "mpi": {
+        "1": {
+          "maximum_relative_sensor_difference": 0.0,
+          "hessian_relative_with_global_floor": {
+            "MACH": 0.0,
+            "PRESSURE": 0.0
+          },
+          "reported_composed_complexity": 60000.0,
+          "elapsed_seconds": 1.679565806996834,
+          "fields_sha256": "d60e639093b46e8890fc3ab5e7b8e87e2bf987a3f79f5863de7e2f910aa57aaf",
+          "log_sha256": "d27f7cdc552a63d7e9e2e78a603b864d9253510b42def13350e82b4c6934d0d0",
+          "hessian": "0.0440686 s (maximum rank time).",
+          "integration": "133641 points, preparation 0.163871 s.",
+          "work": "19 complexity trials, 116 total gradation sweeps, 416672 owned-point visits; gradation 0.168837 s, halo 0.00325568 s, sweep reductions 3.5514e-05 s (maximum accumulated rank times).",
+          "sensor_gradation": "5 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.",
+          "composed_audit": "maximum transported-metric ratio 15.0024, directed edges above 1+1e-5: 412. Sensor gradation is not a combined-field certificate."
+        },
+        "2": {
+          "maximum_relative_sensor_difference": 1.77499106583598e-14,
+          "hessian_relative_with_global_floor": {
+            "MACH": 0.0,
+            "PRESSURE": 0.0
+          },
+          "reported_composed_complexity": 60000.0,
+          "elapsed_seconds": 1.507047020997561,
+          "fields_sha256": "ef527c8caf916478feb38901ebc606944256797a56b6418545086a1a42f01825",
+          "log_sha256": "ce9e58e8b22e3b7cf305225962cb5039c6c54e94bae400d39c2c78a593c9a19c",
+          "hessian": "0.0359142 s (maximum rank time).",
+          "integration": "133641 points, preparation 0.141782 s.",
+          "work": "19 complexity trials, 116 total gradation sweeps, 416672 owned-point visits; gradation 0.0950754 s, halo 0.0031263 s, sweep reductions 0.00275692 s (maximum accumulated rank times).",
+          "sensor_gradation": "5 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.",
+          "composed_audit": "maximum transported-metric ratio 15.0024, directed edges above 1+1e-5: 412. Sensor gradation is not a combined-field certificate."
+        },
+        "4": {
+          "maximum_relative_sensor_difference": 1.3640802147771089e-14,
+          "hessian_relative_with_global_floor": {
+            "MACH": 0.0,
+            "PRESSURE": 0.0
+          },
+          "reported_composed_complexity": 60000.0,
+          "elapsed_seconds": 0.9656621899994207,
+          "fields_sha256": "b9098bbedd096c9926d36fd8999d7fe9d919e289f2af6dd26d81237ffd99cd0b",
+          "log_sha256": "458e4ff2afddb3506026e750988ffa8bf14abee4efc2e9c8e8cde0b2629aef5d",
+          "hessian": "0.0124954 s (maximum rank time).",
+          "integration": "133641 points, preparation 0.0728519 s.",
+          "work": "19 complexity trials, 116 total gradation sweeps, 416672 owned-point visits; gradation 0.0492058 s, halo 0.00212239 s, sweep reductions 0.00255598 s (maximum accumulated rank times).",
+          "sensor_gradation": "5 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.",
+          "composed_audit": "maximum transported-metric ratio 15.0024, directed edges above 1+1e-5: 412. Sensor gradation is not a combined-field certificate."
+        }
+      },
+      "quarter_edge": {
+        "sensor": {
+          "maximum_ratio": 2.7266358363342054,
+          "directed_samples_above_1_plus_1e_5": 1349
+        },
+        "composed": {
+          "maximum_ratio": 50.2864807553247,
+          "directed_samples_above_1_plus_1e_5": 2012
+        },
+        "locations_per_edge": 5,
+        "worst_composed_locations": [
+          {
+            "ratio": 50.2864807553247,
+            "donor_edge_gids": [
+              154,
+              155
+            ],
+            "destination": [
+              0.898338079452515,
+              8.05446234153351e-06
+            ],
+            "source": [
+              0.8936802446842195,
+              -0.0002965995543036124
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 49.057557783808065,
+            "donor_edge_gids": [
+              153,
+              154
+            ],
+            "destination": [
+              0.898338079452515,
+              8.05446234153351e-06
+            ],
+            "source": [
+              0.9029591232538224,
+              0.00023673126747780762
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 48.92131336447944,
+            "donor_edge_gids": [
+              154,
+              155
+            ],
+            "destination": [
+              0.879706740379333,
+              -0.00121056160423905
+            ],
+            "source": [
+              0.8843645751476286,
+              -0.0009059075875939042
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 48.53143933713129,
+            "donor_edge_gids": [
+              155,
+              156
+            ],
+            "destination": [
+              0.879706740379333,
+              -0.00121056160423905
+            ],
+            "source": [
+              0.8750344216823576,
+              -0.0015794496575836127
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 48.32654391171343,
+            "donor_edge_gids": [
+              228,
+              229
+            ],
+            "destination": [
+              0.00191289186477661,
+              -0.0058284979313612
+            ],
+            "source": [
+              0.00171516090631485,
+              -0.005465043941512706
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 47.530795049540785,
+            "donor_edge_gids": [
+              227,
+              228
+            ],
+            "destination": [
+              0.00191289186477661,
+              -0.0058284979313612
+            ],
+            "source": [
+              0.0021893605589866625,
+              -0.006190384621731938
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 47.01381039013783,
+            "donor_edge_gids": [
+              227,
+              228
+            ],
+            "destination": [
+              0.00301876664161682,
+              -0.00727604469284415
+            ],
+            "source": [
+              0.0027422979474067675,
+              -0.006914158002473412
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 45.81936578905257,
+            "donor_edge_gids": [
+              226,
+              227
+            ],
+            "destination": [
+              0.00301876664161682,
+              -0.00727604469284415
+            ],
+            "source": [
+              0.0033810883760452253,
+              -0.00763576931785792
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 40.61060826982256,
+            "donor_edge_gids": [
+              40,
+              41
+            ],
+            "destination": [
+              0.0,
+              0.0
+            ],
+            "source": [
+              2.627819776535025e-05,
+              0.000291434465907515
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 40.279204314587275,
+            "donor_edge_gids": [
+              151,
+              152
+            ],
+            "destination": [
+              0.934995710849762,
+              0.00151132768951356
+            ],
+            "source": [
+              0.9394168853759765,
+              0.0015533085679635375
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 40.12476984358284,
+            "donor_edge_gids": [
+              152,
+              153
+            ],
+            "destination": [
+              0.934995710849762,
+              0.00151132768951356
+            ],
+            "source": [
+              0.9304523468017577,
+              0.0013641861878568276
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 38.9578517651167,
+            "donor_edge_gids": [
+              40,
+              231
+            ],
+            "destination": [
+              0.0,
+              0.0
+            ],
+            "source": [
+              4.384666681289675e-05,
+              -0.00036494922824204
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 33.844035054502655,
+            "donor_edge_gids": [
+              150,
+              151
+            ],
+            "destination": [
+              0.95268040895462,
+              0.00167925120331347
+            ],
+            "source": [
+              0.9569036215543746,
+              0.0016316902183461926
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 33.56843423937532,
+            "donor_edge_gids": [
+              151,
+              152
+            ],
+            "destination": [
+              0.95268040895462,
+              0.00167925120331347
+            ],
+            "source": [
+              0.9482592344284055,
+              0.0016372703248634926
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 33.06270752116659,
+            "donor_edge_gids": [
+              150,
+              151
+            ],
+            "destination": [
+              0.969573259353638,
+              0.00148900726344436
+            ],
+            "source": [
+              0.9653500467538835,
+              0.0015365682484116375
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 32.752494657253145,
+            "donor_edge_gids": [
+              149,
+              150
+            ],
+            "destination": [
+              0.969573259353638,
+              0.00148900726344436
+            ],
+            "source": [
+              0.9735292047262195,
+              0.0013524704263545542
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 29.269912327025526,
+            "donor_edge_gids": [
+              153,
+              154
+            ],
+            "destination": [
+              0.916822254657745,
+              0.00092276168288663
+            ],
+            "source": [
+              0.9122012108564376,
+              0.0006940848777503559
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 28.78612989393548,
+            "donor_edge_gids": [
+              152,
+              153
+            ],
+            "destination": [
+              0.916822254657745,
+              0.00092276168288663
+            ],
+            "source": [
+              0.9213656187057493,
+              0.0010699031845433624
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 22.513494453239538,
+            "donor_edge_gids": [
+              230,
+              231
+            ],
+            "destination": [
+              0.000539183616638184,
+              -0.00291831674985588
+            ],
+            "source": [
+              0.00044823437929153475,
+              -0.00255368679063395
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          },
+          {
+            "ratio": 22.378043346275536,
+            "donor_edge_gids": [
+              229,
+              230
+            ],
+            "destination": [
+              0.000539183616638184,
+              -0.00291831674985588
+            ],
+            "source": [
+              0.0006848797202110306,
+              -0.003282408055383715
+            ],
+            "destination_region": "wall",
+            "source_region": "wall"
+          }
+        ]
+      }
+    }
+  },
+  "inputs": {
+    "fine": {
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_metric_integration_v4/frozen/fine/inputs/input.su2": "25d26a0ef9a9815ff147ec986805994290b1000702532fb9c0d0f472f27f2ab8",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_metric_integration_v4/frozen/fine/inputs/input.su2.native_ref": "bb277df17b549cb616f9903443455e0a491f406df799769f266af345243efe17",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_metric_integration_v4/frozen/fine/inputs/solution.dat": "cc530d8258d60df698f2477bbf374ad2c6f186a52dc29d5ee7427f36825be3ab"
+    },
+    "coarse": {
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_metric_integration_v4/frozen/coarse/inputs/input.su2": "940d8aed5d9ee0d6dc0a9f5b43a3973e7c76ed5d9123188c6e81d048cf6b6d26",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_metric_integration_v4/frozen/coarse/inputs/input.su2.native_ref": "374fc1b47e963d5f992ed67d4783927ad2ad05c251641b8fc29e1120fa9fda39",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_metric_integration_v4/frozen/coarse/inputs/solution.dat": "97f101666fc8d4d7f4a45148509c063669f552363e69ab98f8b15780641e01bf"
+    }
+  },
+  "elapsed_seconds": 15.994901588004723,
+  "auditor_sha256": "2834cb1080095570c6869132657e292388f52f45e789c857220bfa859d6064c1"
+}

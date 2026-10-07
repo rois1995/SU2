@@ -67,6 +67,8 @@
 
 using namespace std;
 
+namespace SU2NativeBoundary2D { struct ReferenceState; }
+
 class CSolver {
 protected:
   enum : size_t {OMP_MIN_SIZE = 32}; /*!< \brief Chunk size for small loops. */
@@ -610,7 +612,7 @@ public:
    * \param[in] boundaryLayer - Intersect with the boundary-layer metric (ADAP_BL_MARKER) at the end.
    */
   void ComputeMetric(CGeometry *geometry, const CConfig *config, const vector<su2double>* givenMetric = nullptr,
-                     bool boundaryLayer = true);
+                     bool boundaryLayer = true, const SU2NativeBoundary2D::ReferenceState* nativeReference = nullptr);
 
   /*!
    * \brief Complexity of the last ComputeMetric (global): attained by the global factor (after the bounds and the corner

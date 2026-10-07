@@ -68,6 +68,58 @@ FORCEINLINE void computeSmatrix(su2double r11, su2double r12, su2double r13,
   Smatrix[2][2] = (z33*z33)/detR2;
 }
 
+/*! \brief Inverse geometric normal matrix, shared by scalar gradients and batched Hessians. */
+template<size_t nDim, class RMatrixType>
+FORCEINLINE void leastSquaresInverse(size_t iPoint, const RMatrixType& Rmatrix, su2double (&Smatrix)[nDim][nDim]) {
+  const auto eps = pow(std::numeric_limits<passivedouble>::epsilon(), 2);
+  /*--- Equilibrate coordinate directions before factorization. The singularity check must depend on
+   *    stencil shape, not coordinate units or axis-aligned stretching. A missing direction stays zero. ---*/
+  su2double coordScale[nDim];
+  for (size_t iDim = 0; iDim < nDim; ++iDim) {
+    const auto diagonal = Rmatrix(iPoint, iDim, iDim);
+    coordScale[iDim] = diagonal > 0.0 ? sqrt(diagonal) : su2double(1.0);
+  }
+
+  su2double r11 = Rmatrix(iPoint,0,0) / coordScale[0] / coordScale[0];
+  su2double r12 = Rmatrix(iPoint,0,1) / coordScale[0] / coordScale[1];
+  su2double r22 = Rmatrix(iPoint,1,1) / coordScale[1] / coordScale[1];
+  su2double r13 = 0.0, r23 = 0.0, r33 = 1.0;
+
+  r11 = sqrt(max(r11, eps));
+  r12 /= r11;
+  r22 = sqrt(max(r22 - r12*r12, eps));
+
+  if (nDim == 3) {
+    r13 = Rmatrix(iPoint,0,2) / coordScale[0] / coordScale[2];
+    r33 = Rmatrix(iPoint,2,2) / coordScale[2] / coordScale[2];
+    const auto r23_a = Rmatrix(iPoint,1,2) / coordScale[1] / coordScale[2];
+    const auto r23_b = Rmatrix(iPoint,2,1) / coordScale[0] / coordScale[2];
+
+    r13 /= r11;
+    r23 = r23_a/r22 - r23_b*r12/(r11*r22);
+    r33 = sqrt(max(r33 - r23*r23 - r13*r13, eps));
+  }
+
+  /*--- Compute determinant ---*/
+
+  const su2double detR2 = pow(r11*r22*r33, 2);
+
+  /*--- S matrix := inv(R)*traspose(inv(R)) ---*/
+
+  for (size_t i = 0; i < nDim; ++i)
+    for (size_t j = 0; j < nDim; ++j) Smatrix[i][j] = 0.0;
+
+  /*--- Detect singular matrix ---*/
+
+  if (detR2 > eps) {
+    computeSmatrix(r11, r12, r13, r22, r23, r33, detR2, Smatrix);
+    for (size_t iDim = 0; iDim < nDim; ++iDim)
+      for (size_t jDim = iDim; jDim < nDim; ++jDim)
+        Smatrix[iDim][jDim] /= coordScale[iDim] * coordScale[jDim];
+  }
+
+}
+
 /*!
  * \brief Solve the least-squares problem for one point.
  * \ingroup FvmAlgos
@@ -81,8 +133,6 @@ FORCEINLINE void solveLeastSquares(size_t iPoint,
                                    const RMatrixType& Rmatrix,
                                    GradientType& gradient)
 {
-  const auto eps = pow(std::numeric_limits<passivedouble>::epsilon(),2);
-
   /*--- Entries of upper triangular matrix R. ---*/
 
   if (periodic) {
@@ -90,48 +140,16 @@ FORCEINLINE void solveLeastSquares(size_t iPoint,
     AD::SetPreaccIn(Rmatrix(iPoint,0,0));
     AD::SetPreaccIn(Rmatrix(iPoint,0,1));
     AD::SetPreaccIn(Rmatrix(iPoint,1,1));
-  }
-
-  su2double r11 = Rmatrix(iPoint,0,0);
-  su2double r12 = Rmatrix(iPoint,0,1);
-  su2double r22 = Rmatrix(iPoint,1,1);
-  su2double r13 = 0.0, r23 = 0.0, r33 = 1.0;
-
-  r11 = sqrt(max(r11, eps));
-  r12 /= r11;
-  r22 = sqrt(max(r22 - r12*r12, eps));
-
-  if (nDim == 3) {
-    if (periodic) {
+    if (nDim == 3) {
       AD::SetPreaccIn(Rmatrix(iPoint,0,2));
       AD::SetPreaccIn(Rmatrix(iPoint,1,2));
       AD::SetPreaccIn(Rmatrix(iPoint,2,1));
       AD::SetPreaccIn(Rmatrix(iPoint,2,2));
     }
-
-    r13 = Rmatrix(iPoint,0,2);
-    r33 = Rmatrix(iPoint,2,2);
-    const auto r23_a = Rmatrix(iPoint,1,2);
-    const auto r23_b = Rmatrix(iPoint,2,1);
-
-    r13 /= r11;
-    r23 = r23_a/r22 - r23_b*r12/(r11*r22);
-    r33 = sqrt(max(r33 - r23*r23 - r13*r13, eps));
   }
 
-  /*--- Compute determinant ---*/
-
-  const su2double detR2 = pow(r11*r22*r33, 2);
-
-  /*--- S matrix := inv(R)*traspose(inv(R)) ---*/
-
-  su2double Smatrix[nDim][nDim] = {{0.0}};
-
-  /*--- Detect singular matrix ---*/
-
-  if (detR2 > eps) {
-    computeSmatrix(r11, r12, r13, r22, r23, r33, detR2, Smatrix);
-  }
+  su2double Smatrix[nDim][nDim];
+  leastSquaresInverse<nDim>(iPoint, Rmatrix, Smatrix);
 
   if (periodic) {
     /*--- Stop preacc here as gradient is in/out. ---*/

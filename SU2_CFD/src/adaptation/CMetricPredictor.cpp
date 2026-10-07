@@ -283,7 +283,7 @@ CMetricPredictor::CMetricPredictor(const CSimplexMesh& mesh) {
         const auto j = elemNode[iElem * nNode + b];
         su2double dot = 0.0;
         for (unsigned short iDim = 0; iDim < nDim; ++iDim) dot += grad[a * nDim + iDim] * grad[b * nDim + iDim];
-        const auto pos = std::lower_bound(&colInd[rowPtr[i]], &colInd[rowPtr[i + 1]], j) - colInd.data();
+        const auto pos = std::lower_bound(colInd.data() + rowPtr[i], colInd.data() + rowPtr[i + 1], j) - colInd.data();
         stiffness[pos] += elemVolume[iElem] * dot;
       }
     }

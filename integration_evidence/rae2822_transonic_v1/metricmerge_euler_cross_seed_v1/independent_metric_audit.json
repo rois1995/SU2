@@ -1,0 +1,57 @@
+{
+  "checker_sha256": "68437d38cacfe7b0c163ff0cb5412b9e73bd9a4c55a379f590bb3595487cb2a4",
+  "cycles": [
+    {
+      "donor": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_euler_cross_seed_v1/input.su2",
+      "candidate": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_euler_cross_seed_v1/mesh_adap_00001.su2",
+      "input_files_sha256": {
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_euler_cross_seed_v1/input.su2": "c5adf8b1c155db0692e6221a25a51ff376d70e681a46369266b5685955644712",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_euler_cross_seed_v1/audit_donor_metric_00001.csv": "937dd532fa70b16f48caead89226b4ebbe9692ef220b27c2f53a267ada1c2ffe",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_euler_cross_seed_v1/mesh_adap_00001.su2": "f56da2e7d4a358e762ab09976d9dbfddb1ea99a3e0c51827e8f58ea912f7e0c9"
+      },
+      "points": 5722,
+      "cells": 11202,
+      "all_exact_positive": true,
+      "manifold_oriented_edges": true,
+      "physical_equals_exposed": true,
+      "disk_euler": 0,
+      "min_quality": 0.2506663836716154,
+      "max_simpson_length": 1.7082819223666832,
+      "wall_faces": 0,
+      "max_relative_height_error": 0,
+      "outside_donor_queries": 0,
+      "numeric_roundoff_queries": 112,
+      "physical_extension_queries": 0,
+      "max_physical_extension": 0,
+      "normal_spacing_profile": [],
+      "bad_cells": [],
+      "restart_sha256": "af5d0246e0f2dd7478237bc942c2efed2087851c65114f9218b269c2a83f872b"
+    },
+    {
+      "donor": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_euler_cross_seed_v1/mesh_adap_00001.su2",
+      "candidate": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_euler_cross_seed_v1/mesh_adap_00002.su2",
+      "input_files_sha256": {
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_euler_cross_seed_v1/mesh_adap_00001.su2": "f56da2e7d4a358e762ab09976d9dbfddb1ea99a3e0c51827e8f58ea912f7e0c9",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_euler_cross_seed_v1/audit_donor_metric_00002.csv": "5d5b02222c937e45ceb1860c3505ebc476148ac735554122dd5b5a991c2f396d",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_euler_cross_seed_v1/mesh_adap_00002.su2": "1884385ed2742be4ccb5146aaa7c3f38a74c899e69bcec944c9b50976e0d1c87"
+      },
+      "points": 7649,
+      "cells": 15013,
+      "all_exact_positive": true,
+      "manifold_oriented_edges": true,
+      "physical_equals_exposed": true,
+      "disk_euler": 0,
+      "min_quality": 0.3422865258676376,
+      "max_simpson_length": 1.799993633260908,
+      "wall_faces": 0,
+      "max_relative_height_error": 0,
+      "outside_donor_queries": 0,
+      "numeric_roundoff_queries": 130,
+      "physical_extension_queries": 1,
+      "max_physical_extension": 2.234224436671608e-07,
+      "normal_spacing_profile": [],
+      "bad_cells": [],
+      "restart_sha256": "3ef9df87543d7e800ce8e07a0ce612af13b5b93e414501762b3719c3cb6d5d7e"
+    }
+  ]
+}

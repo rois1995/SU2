@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "integration_evidence/audit_native_metric_quadrature.py", line 110, in <module>
+    if sys.argv[1:] == ['--self-check']:self_check()
+  File "integration_evidence/audit_native_metric_quadrature.py", line 107, in self_check
+    assert abs(totals[0]/totals[1]-1)<1e-5,totals
+AssertionError: [20.3114444503169, 20.156224928217632]

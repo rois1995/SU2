@@ -361,7 +361,15 @@ TEST_CASE("Native SU2 BL: SU2-produced sensor/BL metric and resumed viscous solv
       const double x = SU2_TYPE::GetValue(geometry.nodes->GetCoord(p, 0));
       const double y = SU2_TYPE::GetValue(geometry.nodes->GetCoord(p, 1));
       const auto s = (x - center) / .006;
-      std::array<double, 4> field{1.2 + .1 * x, 20 * y * (1 + .25 * std::exp(-.5 * s * s)), 0., 3 + .01 * x};
+      // Use the configured freestream scale for this actual CFD continuation.
+      // The old energy=3 fixture is ~0.003 K here; far-field jumps can cancel
+      // every implicit update through the solver's existing relaxation guard.
+      const double rho = SU2_TYPE::GetValue(driver->Flow().GetDensity_Inf()) * (1 + .1 * x);
+      const double velocity = SU2_TYPE::GetValue(driver->Flow().GetVelocity_Inf(0)) *
+                              (y / .02) * (1 + .25 * std::exp(-.5 * s * s));
+      const double pressure = SU2_TYPE::GetValue(driver->Flow().GetPressure_Inf());
+      const double gamma = SU2_TYPE::GetValue(driver->Config().GetGamma());
+      std::array<double, 4> field{rho, rho * velocity, 0., pressure / (gamma - 1) + .5 * rho * velocity * velocity};
       if (auto* turb = driver->Turbulence()) {
         const double value = (turbulence == "SST" ? .05 : .001) * y;
         turb->GetNodes()->SetSolution(p, 0, value);

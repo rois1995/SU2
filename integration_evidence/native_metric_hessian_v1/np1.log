@@ -1,0 +1,112 @@
+Filters: [HessianReliability],[Gradients],[MetricRobustness],[LinearAlgebra],Periodic Hessian*,Symmetry plane Hessian*,Euler wall Hessian*,Metric*,[GoalMetric],[CustomSensors],Boundary-layer metric*,[NativeMesh2D],[NativeReferenceIO]
+Goal MPI GREEN_GAUSS 2D: max relative difference 0, wall points next to the cut 0, symmetry/wall junction points next to the cut 0
+Goal MPI GREEN_GAUSS 3D: max relative difference 0, wall points next to the cut 0, symmetry/wall junction points next to the cut 0
+Goal MPI WEIGHTED_LEAST_SQUARES 2D: max relative difference 0, wall points next to the cut 0, symmetry/wall junction points next to the cut 0
+Goal MPI WEIGHTED_LEAST_SQUARES 3D: max relative difference 0, wall points next to the cut 0, symmetry/wall junction points next to the cut 0
+WLS geometry reuse benchmark: 20 three-sensor Hessian recoveries, legacy 0.018966 s, reuse 0.0101606 s.
+Pressure Hessian 2D, distorted=0, AR=1: coarse [grad,H,wall,eigen,direction]= 2.66454e-15 3.21965e-15 2.44249e-15 6.66134e-16 1.49012e-08; fine= 3.55271e-15 7.43849e-15 2.66454e-15 2.9976e-15 1.49012e-08
+Pressure Hessian 2D, distorted=0, AR=1000: coarse [grad,H,wall,eigen,direction]= 3.336e-12 1.28828e-10 2.32481e-12 6.49243e-11 0; fine= 6.55209e-12 2.06082e-10 6.70963e-12 1.0193e-10 1.49012e-08
+Pressure Hessian 2D, distorted=1, AR=1: coarse [grad,H,wall,eigen,direction]= 0.0174655 0.0330539 0.00652885 0.00858488 0.0155646; fine= 0.00547462 0.0109035 0.0034688 0.00293129 0.00511604
+Pressure Hessian 2D, distorted=1, AR=1000: coarse [grad,H,wall,eigen,direction]= 0.0174655 0.0330539 0.00652885 0.00858488 0.0155646; fine= 0.00547462 0.0109035 0.0034688 0.00293129 0.00511604
+Pressure Hessian 3D, distorted=0, AR=1: coarse [grad,H,wall,eigen,direction]= 1.42109e-14 5.77316e-14 1.4877e-14 1.19904e-14 0; fine= 5.05429e-14 4.45866e-13 6.00631e-14 1.65645e-13 2.10734e-08
+Pressure Hessian 3D, distorted=0, AR=1000: coarse [grad,H,wall,eigen,direction]= 1.45661e-12 2.27285e-11 4.35207e-13 1.07874e-11 1.49012e-08; fine= 3.35287e-12 1.30938e-10 3.06222e-12 6.87637e-11 2.10734e-08
+Pressure Hessian 3D, distorted=1, AR=1: coarse [grad,H,wall,eigen,direction]= 0.015923 0.0115182 0.0101864 0.0024467 0.000310621; fine= 0.00478575 0.00354105 0.00575601 0.000847573 9.85549e-05
+Pressure Hessian 3D, distorted=1, AR=1000: coarse [grad,H,wall,eigen,direction]= 0.015923 0.0115182 0.0101864 0.0024467 0.000310621; fine= 0.00478575 0.00354105 0.00575601 0.000847573 9.85549e-05
+Hessian recovery: 0.000163507 s (maximum rank time).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 1.
+Hessian recovery: 0.000376729 s (maximum rank time).
+Hessian recovery: 0.00011459 s (maximum rank time).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 1.
+Hessian recovery: 0.00034181 s (maximum rank time).
+Hessian recovery: 0.000340587 s (maximum rank time).
+Hessian recovery: 0.000461259 s (maximum rank time).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 1.
+Hessian recovery: 0.00035232 s (maximum rank time).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 1.
+Hessian recovery: 0.000333765 s (maximum rank time).
+Hessian recovery: 0.00044672 s (maximum rank time).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 1.
+Hessian recovery: 0.000430071 s (maximum rank time).
+Hessian recovery: 0.00019497 s (maximum rank time).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 1.
+Hessian recovery: 0.000414285 s (maximum rank time).
+Hessian recovery: 0.000134166 s (maximum rank time).
+Metric field statistics:
+Minimum density: 7329.62.
+Maximum density: 11109.6.
+Maximum cell AR: 2.44949.
+Mesh complexity: 10000 (ADAP_COMPLEXITY= 10000).
+Hessian recovery: 0.000115112 s (maximum rank time).
+Metric field statistics:
+Minimum density: 7329.62.
+Maximum density: 11109.6.
+Maximum cell AR: 2.44949.
+Mesh complexity: 10000 (ADAP_COMPLEXITY= 10000).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 1.
+Hessian recovery: 0.000283564 s (maximum rank time).
+Metric field statistics:
+Minimum density: 7329.62.
+Maximum density: 11109.6.
+Maximum cell AR: 2.44949.
+Mesh complexity: 10000 (ADAP_COMPLEXITY= 10000).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 1.
+Hessian recovery: 0.000234044 s (maximum rank time).
+Metric field statistics:
+Minimum density: 7329.62.
+Maximum density: 11109.6.
+Maximum cell AR: 2.44949.
+Mesh complexity: 10000 (ADAP_COMPLEXITY= 10000).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 1.
+Hessian recovery: 0.00111589 s (maximum rank time).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 1.
+Hessian recovery: 0.00624229 s (maximum rank time).
+Custom MACH*MACH Hessian maximum relative errors: coarse=0.011068 fine=0.00252302
+Warning: selected custom adaptation sensors must be mirror-even at MARKER_SYM. Cartesian components may be odd; use fabs or an even power. Odd sensors have incorrect boundary Hessians.
+Warning: selected custom adaptation sensors must be mirror-even at MARKER_SYM. Cartesian components may be odd; use fabs or an even power. Odd sensors have incorrect boundary Hessians.
+Native BL geometry wall: largest local subset 18 of 18 supplied wall faces (before duplicate removal).
+/usr/include/c++/9/bits/stl_vector.h:1042: std::vector<_Tp, _Alloc>::reference std::vector<_Tp, _Alloc>::operator[](std::vector<_Tp, _Alloc>::size_type) [with _Tp = long unsigned int; _Alloc = std::allocator<long unsigned int>; std::vector<_Tp, _Alloc>::reference = long unsigned int&; std::vector<_Tp, _Alloc>::size_type = long unsigned int]: Assertion '__builtin_expect(__n < this->size(), true)' failed.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Metric prediction: optical flow of a translated feature
+-------------------------------------------------------------------------------
+../../UnitTests/SU2_CFD/adaptation/CMetricPredictor_tests.cpp:130
+...............................................................................
+
+../../UnitTests/SU2_CFD/adaptation/CMetricPredictor_tests.cpp:130: FAILED:
+due to a fatal error condition:
+  SIGABRT - Abort (abnormal termination) signal
+
+===============================================================================
+test cases:     75 |     74 passed | 1 failed
+assertions: 328750 | 328749 passed | 1 failed
+
+[pc-rausa:1062741] *** Process received signal ***
+[pc-rausa:1062741] Signal: Aborted (6)
+[pc-rausa:1062741] Signal code:  (-6)
+[pc-rausa:1062741] [ 0] /lib/x86_64-linux-gnu/libpthread.so.0(+0x14420)[0x7f314ef6c420]
+[pc-rausa:1062741] [ 1] /lib/x86_64-linux-gnu/libc.so.6(gsignal+0xcb)[0x7f314eda900b]
+[pc-rausa:1062741] [ 2] /lib/x86_64-linux-gnu/libc.so.6(abort+0x12b)[0x7f314ed88859]
+[pc-rausa:1062741] [ 3] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0x24a358)[0x5580509d4358]
+[pc-rausa:1062741] [ 4] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0xa6adfc)[0x5580511f4dfc]
+[pc-rausa:1062741] [ 5] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0xa6b27c)[0x5580511f527c]
+[pc-rausa:1062741] [ 6] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0x3ea784)[0x558050b74784]
+[pc-rausa:1062741] [ 7] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0x59f543)[0x558050d29543]
+[pc-rausa:1062741] [ 8] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0x5b19de)[0x558050d3b9de]
+[pc-rausa:1062741] [ 9] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0x5ca4ce)[0x558050d544ce]
+[pc-rausa:1062741] [10] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0x5d1e50)[0x558050d5be50]
+[pc-rausa:1062741] [11] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0x5d2422)[0x558050d5c422]
+[pc-rausa:1062741] [12] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0x20b247)[0x558050995247]
+[pc-rausa:1062741] [13] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0xf3)[0x7f314ed8a083]
+[pc-rausa:1062741] [14] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0x2380be)[0x5580509c20be]
+[pc-rausa:1062741] *** End of error message ***
+--------------------------------------------------------------------------
+Primary job  terminated normally, but 1 process returned
+a non-zero exit code. Per user-direction, the job has been aborted.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+mpiexec noticed that process rank 0 with PID 0 on node pc-rausa exited on signal 6 (Aborted).
+--------------------------------------------------------------------------

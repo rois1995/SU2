@@ -86,6 +86,52 @@ First altitude means the adjacent triangle's apex distance from its actual wall
 base. It does not guarantee y+, cell-centre spacing, exact multilayer growth or
 prisms/quads. The full BL metric still guides the surrounding volume triangles.
 
+For `NATIVE_CAVITY`, only the CFD sensor tensor is frozen on the original
+volume connectivity. Every query first interpolates that sensor, then intersects
+it with wall constraints evaluated against the retained original geometry.
+This applies equally to new private points and imported MPI cavities. Finer
+sensor demands and coupling are preserved. All active walls are intersected;
+there is no experimental hard-normal reset or native tangential coarsening floor.
+The original outer fade interpolates wall eigenvalues in log space toward the
+frozen sensor core eigenvalue. Composed wall tensors are never interpolated
+through coarse donor cells.
+
+Each native complexity trial grades only the bounded sensor field, synchronizing
+owner/halo values in global-ID neighbor order. On 2D BL cases, positive cell
+quadrature integrates the same geometric composition at actual sample locations.
+Geometric distance bands resolve the first height inside a coarse donor cell;
+geometry samples are cached across scale trials. Final donor tensors remain
+sensor-only. Targets below the attainable geometric BL complexity are reported
+without weakening wall or sensor constraints.
+
+Sensor transport and the composed field are audited separately. The report
+counts directed-edge violations and distinguishes fixed-point changes from
+actual transported-metric residuals. A graded sensor is not a certificate of
+combined-field gradation, particularly inside coarse cells and through the
+original outer fade. No composed nodal correction is spread into the donor.
+Original polyline tangential lengths/corner treatment and native geometry gates
+remain authoritative. The incoming reference-chord helper is retained for
+experiments; its different sizing policy is not enabled by this integration.
+
+Quadratic Hessian recovery reports weighted fit residuals and QR pivot ratios.
+Stencils with fewer than two residual degrees of freedom, failed fits or relative
+residuals above 0.05 seek a second ring. An overdetermined first-ring fit is kept
+when it has the smaller residual; resolved curvature is retained and persistent
+large residuals are reported. Second-ring owner neighborhoods are requested only
+where needed. Standalone nodal BL geometry exchange uses bounded occupied query boxes with
+incident-face support. Production native composition uses the complete retained
+original reference, including private/remote queries; it remains replicated.
+
+WLS reuses the geometric normal matrices and weights across sensors within one
+adaptation call, where geometry and weighting match. Periodic, symmetry and AD
+paths retain the established kernels. No persistent mesh cache is introduced.
+`ADAP_HESSIAN_NOISE=0` remains the initial integration setting; a positive value
+is experimental and failed the incoming frozen RAE MPI/gradation integration
+check. Manufactured filtering tests do not supersede that failure.
+
+The shared symmetric eigensolver normalizes subnormal Householder scales with
+powers of two, avoiding overflowing reciprocals in fast-math builds.
+
 Transactions import complete dependencies, reserve affected nodes, validate
 versions/interfaces/geometry, and prepare publication storage before the final
 collective vote. The default2MiB per-rank dependency admission applies to bounded

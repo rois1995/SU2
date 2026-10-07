@@ -1,0 +1,329 @@
+{
+  "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_rans_cross_seed_v2",
+  "runtime": {
+    "runner_pid": 1180406,
+    "phase": "terminal",
+    "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_rans_cross_seed_v2",
+    "ranks": 4,
+    "timeout_seconds": 1200.0,
+    "binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_metric_integration_build_v4/SU2_CFD",
+    "binary_sha256": "498bb9fa3916635ee9bb9d05a54270ceff2525b30deb887cbc65dc98f7e9f69c",
+    "config_sha256": "0329146a9da5146fa37e90081f3980327306701979b51a8663587fa778403ced",
+    "mesh_sha256": "940d8aed5d9ee0d6dc0a9f5b43a3973e7c76ed5d9123188c6e81d048cf6b6d26",
+    "source_revision": "9450c0880e2b2c1c39dfc98bc2c9655844ab8731",
+    "production_sources_rechecked": 760,
+    "source_evidence": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_metric_integration_build_v4/evidence.json",
+    "source_evidence_sha256": "41325ad19647ae07c33c0568a738ed14aa2c8df07e4febbe367910d302041f33",
+    "runner_sha256": "3abcb979b005ba608fb4012f3214977521f6c92cfcf962fc5ed66f783fd11cb1",
+    "environment": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1"
+    },
+    "busy": [],
+    "command": [
+      "mpiexec",
+      "-n",
+      "4",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_metric_integration_build_v4/SU2_CFD",
+      "run.cfg"
+    ],
+    "started_unix_seconds": 1791392031.7269602,
+    "elapsed_seconds": 321.6066789070028,
+    "solver_exit": 0,
+    "outputs": {
+      "solution_adap_00000.dat": 690476,
+      "solution_adap_00002.dat": 2733740,
+      "flow_adap_00000.vtu": 523363,
+      "input.su2": 367889,
+      "surface_adap_00000.vtu": 26844,
+      "solution_adap_00001.dat": 2381420,
+      "surface_adap_00002.vtu": 72601,
+      "mesh_adap_00001.su2": 1202869,
+      "surface_adap_00001.vtu": 46723,
+      "history.csv": 2729987,
+      "surface_adap_00001.csv": 196818,
+      "surface_adap_00000.csv": 107645,
+      "flow_adap_00001.vtu": 1806378,
+      "surface_adap_00002.csv": 312936,
+      "flow_adap_00002.vtu": 2070805,
+      "mesh_adap_00002.su2": 1391746
+    }
+  },
+  "cycles": [
+    {
+      "cycle": 0,
+      "mesh": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_rans_cross_seed_v2/input.su2",
+      "restart": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_rans_cross_seed_v2/solution_adap_00000.dat",
+      "paraview": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_rans_cross_seed_v2/flow_adap_00000.vtu",
+      "points": 3592,
+      "triangles": 6952,
+      "boundary_edges": {
+        "AIRFOIL": 192,
+        "FARFIELD": 40
+      },
+      "validity": {
+        "positive_volumes": [
+          "PASS",
+          "min 4.926e-07 mean 4.500e+00 non-positive 0"
+        ],
+        "conformity": [
+          "PASS",
+          "faces in >2 elements 0, boundary faces without marker 0, marker faces: interior 0, not an element face 0, repeated 0"
+        ],
+        "points_elements": [
+          "PASS",
+          "unused points 0, duplicate points 0, duplicate elements 0"
+        ]
+      },
+      "exact_restart_mesh_pairing": true,
+      "all_vtu_scalar_pairing": {
+        "Density": true,
+        "Energy": true,
+        "Nu_Tilde": true,
+        "Pressure": true,
+        "Temperature": true,
+        "Mach": true,
+        "Pressure_Coefficient": true,
+        "Laminar_Viscosity": true,
+        "Heat_Flux": true,
+        "Y_Plus": true,
+        "Eddy_Viscosity": true,
+        "SENSOR_MACH": true,
+        "SENSOR_PRESSURE": true,
+        "Metric_XX": true,
+        "Metric_XY": true,
+        "Metric_YY": true
+      },
+      "minimum_density": 0.3239993065182664,
+      "minimum_internal_energy": 74070.53272664374,
+      "pressure_consistency_relative_error": 6.608282435533087e-16,
+      "reference": [
+        {
+          "marker": "AIRFOIL",
+          "original_components": 1,
+          "candidate_components": 1,
+          "original_faces": 192,
+          "candidate_faces": 192,
+          "covered_arc_over_period": 1.0,
+          "max_corresponding_parameter_deviation": 2.710505431213761e-20,
+          "max_vertex_projection_distance": 0.0,
+          "declared_feature_coordinates": [
+            [
+              1.0,
+              0.000169999999343418
+            ]
+          ],
+          "all_declared_features_exactly_retained": true,
+          "leading_extremum_shift": null
+        },
+        {
+          "marker": "FARFIELD",
+          "original_components": 1,
+          "candidate_components": 1,
+          "original_faces": 40,
+          "candidate_faces": 40,
+          "covered_arc_over_period": 1.0,
+          "max_corresponding_parameter_deviation": 7.94163268269059e-16,
+          "max_vertex_projection_distance": 0.0,
+          "declared_feature_coordinates": [],
+          "all_declared_features_exactly_retained": true,
+          "leading_extremum_shift": null
+        }
+      ],
+      "maximum_relative_first_height_error": null,
+      "last_density_residual": -8.000256417,
+      "density_criterion_met": true,
+      "CL": 0.1614858546,
+      "CD": 0.02836145261
+    },
+    {
+      "cycle": 1,
+      "mesh": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_rans_cross_seed_v2/mesh_adap_00001.su2",
+      "restart": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_rans_cross_seed_v2/solution_adap_00001.dat",
+      "paraview": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_rans_cross_seed_v2/flow_adap_00001.vtu",
+      "points": 12399,
+      "triangles": 24400,
+      "boundary_edges": {
+        "FARFIELD": 47,
+        "AIRFOIL": 351
+      },
+      "validity": {
+        "positive_volumes": [
+          "PASS",
+          "min 1.684e-11 mean 1.282e+00 non-positive 0"
+        ],
+        "conformity": [
+          "PASS",
+          "faces in >2 elements 0, boundary faces without marker 0, marker faces: interior 0, not an element face 0, repeated 0"
+        ],
+        "points_elements": [
+          "PASS",
+          "unused points 0, duplicate points 0, duplicate elements 0"
+        ]
+      },
+      "exact_restart_mesh_pairing": true,
+      "all_vtu_scalar_pairing": {
+        "Density": true,
+        "Energy": true,
+        "Nu_Tilde": true,
+        "Pressure": true,
+        "Temperature": true,
+        "Mach": true,
+        "Pressure_Coefficient": true,
+        "Laminar_Viscosity": true,
+        "Heat_Flux": true,
+        "Y_Plus": true,
+        "Eddy_Viscosity": true,
+        "SENSOR_MACH": true,
+        "SENSOR_PRESSURE": true,
+        "Metric_XX": true,
+        "Metric_XY": true,
+        "Metric_YY": true
+      },
+      "minimum_density": 0.23776717647618184,
+      "minimum_internal_energy": 53022.40960192244,
+      "pressure_consistency_relative_error": 6.568861179145451e-16,
+      "reference": [
+        {
+          "marker": "AIRFOIL",
+          "original_components": 1,
+          "candidate_components": 1,
+          "original_faces": 192,
+          "candidate_faces": 351,
+          "covered_arc_over_period": 1.0,
+          "max_corresponding_parameter_deviation": 1.1120708534335819e-07,
+          "max_vertex_projection_distance": 1.3877787807814457e-17,
+          "declared_feature_coordinates": [
+            [
+              1.0,
+              0.000169999999343418
+            ]
+          ],
+          "all_declared_features_exactly_retained": true,
+          "leading_extremum_shift": null
+        },
+        {
+          "marker": "FARFIELD",
+          "original_components": 1,
+          "candidate_components": 1,
+          "original_faces": 40,
+          "candidate_faces": 47,
+          "covered_arc_over_period": 1.0,
+          "max_corresponding_parameter_deviation": 2.591615988722191e-08,
+          "max_vertex_projection_distance": 1.7763568394002505e-15,
+          "declared_feature_coordinates": [],
+          "all_declared_features_exactly_retained": true,
+          "leading_extremum_shift": null
+        }
+      ],
+      "maximum_relative_first_height_error": 4.9180659544845184e-12,
+      "last_density_residual": -6.059992573,
+      "density_criterion_met": false,
+      "CL": 0.7335719006,
+      "CD": 0.01421342441
+    },
+    {
+      "cycle": 2,
+      "mesh": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_rans_cross_seed_v2/mesh_adap_00002.su2",
+      "restart": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_rans_cross_seed_v2/solution_adap_00002.dat",
+      "paraview": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_rans_cross_seed_v2/flow_adap_00002.vtu",
+      "points": 14234,
+      "triangles": 27865,
+      "boundary_edges": {
+        "FARFIELD": 45,
+        "AIRFOIL": 558
+      },
+      "validity": {
+        "positive_volumes": [
+          "PASS",
+          "min 4.633e-11 mean 1.123e+00 non-positive 0"
+        ],
+        "conformity": [
+          "PASS",
+          "faces in >2 elements 0, boundary faces without marker 0, marker faces: interior 0, not an element face 0, repeated 0"
+        ],
+        "points_elements": [
+          "PASS",
+          "unused points 0, duplicate points 0, duplicate elements 0"
+        ]
+      },
+      "exact_restart_mesh_pairing": true,
+      "all_vtu_scalar_pairing": {
+        "Density": true,
+        "Energy": true,
+        "Nu_Tilde": true,
+        "Pressure": true,
+        "Temperature": true,
+        "Mach": true,
+        "Pressure_Coefficient": true,
+        "Laminar_Viscosity": true,
+        "Heat_Flux": true,
+        "Y_Plus": true,
+        "Eddy_Viscosity": true,
+        "SENSOR_MACH": true,
+        "SENSOR_PRESSURE": true,
+        "Metric_XX": true,
+        "Metric_XY": true,
+        "Metric_YY": true
+      },
+      "minimum_density": 0.2379782523012745,
+      "minimum_internal_energy": 53288.539296155526,
+      "pressure_consistency_relative_error": 6.415854385017386e-16,
+      "reference": [
+        {
+          "marker": "AIRFOIL",
+          "original_components": 1,
+          "candidate_components": 1,
+          "original_faces": 192,
+          "candidate_faces": 558,
+          "covered_arc_over_period": 1.0000000000000002,
+          "max_corresponding_parameter_deviation": 9.497041441674156e-07,
+          "max_vertex_projection_distance": 9.378348791999613e-18,
+          "declared_feature_coordinates": [
+            [
+              1.0,
+              0.000169999999343418
+            ]
+          ],
+          "all_declared_features_exactly_retained": true,
+          "leading_extremum_shift": null
+        },
+        {
+          "marker": "FARFIELD",
+          "original_components": 1,
+          "candidate_components": 1,
+          "original_faces": 40,
+          "candidate_faces": 45,
+          "covered_arc_over_period": 1.0,
+          "max_corresponding_parameter_deviation": 2.0063075600196623e-07,
+          "max_vertex_projection_distance": 3.552713678800501e-15,
+          "declared_feature_coordinates": [],
+          "all_declared_features_exactly_retained": true,
+          "leading_extremum_shift": null
+        }
+      ],
+      "maximum_relative_first_height_error": 2.0967959590834084e-09,
+      "last_density_residual": -7.911398095,
+      "density_criterion_met": false,
+      "CL": 0.7368454726,
+      "CD": 0.01486337591
+    }
+  ],
+  "input_files_sha256": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_rans_cross_seed_v2/flow_adap_00000.vtu": "654bce696a7f202cb9efa4d32fb4d0315d6e9c06fb6cb8ae4ebb74b1e9ce07e0",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_rans_cross_seed_v2/mesh_adap_00001.su2": "c504926af9de7f1d53367a8f90603422a8f51703bc2913d5a86a7e555a7b1b42",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_rans_cross_seed_v2/run_evidence.json": "34cc020446b1307f57831d72fc8bfb9ba83ecb7dabc4227a6c5bec4528fb3e6c",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_rans_cross_seed_v2/run.cfg": "0329146a9da5146fa37e90081f3980327306701979b51a8663587fa778403ced",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_rans_cross_seed_v2/flow_adap_00002.vtu": "0c882ac10720fb4c92a41098a0919845c2c45517fa0bc52f4adbbda7b01aae80",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_rans_cross_seed_v2/flow_adap_00001.vtu": "ee133c50f2c438421f26b571c30580ca8830db6f989c91face624fc95a821a77",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_rans_cross_seed_v2/history.csv": "9c56c97d13277b97852b517b97fcdddab270047c43d0412e4901328b4e279b8c",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_rans_cross_seed_v2/solution_adap_00001.dat": "ea6338a5adefc3e2702b8792f2ac32ddb0b81b5c108baa6bd621df8e8a59c72b",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_rans_cross_seed_v2/mesh_adap_00002.su2": "f459f1942002f82e62d28dc8c6b880bf79814e21de6380f442fc8428b3ae5adf",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_rans_cross_seed_v2/solution_adap_00002.dat": "249cd5bb35d0c71fc26ee58f6242f92b2586907dd87886bf62aa12bc776844e3",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_rans_cross_seed_v2/input.su2": "940d8aed5d9ee0d6dc0a9f5b43a3973e7c76ed5d9123188c6e81d048cf6b6d26",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_rans_cross_seed_v2/solution_adap_00000.dat": "4103a3cafdd3889fce804a7af7bc1a2337b5cba6728fa4b6bed0313fa3b3ec8e"
+  },
+  "checker_sha256": "c2a83f6ef9bbab40340fa036a9c40bd91450e1fc97679fbe482ae463a3a86fe3",
+  "scope": "Saved mesh/solution pairing, admissibility, topology, first height and original-reference checks. No independent metric-quality audit or aerodynamic grid-convergence claim."
+}

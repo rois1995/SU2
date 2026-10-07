@@ -1,5 +1,26 @@
 # Where to inspect the grids
 
+## Metric integration: actual adapted RAE2822 grids
+
+Working root: `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`.
+These are fresh four-rank runs of `codex/native-metric-integration`; each completes
+two surface adaptations and resumes CFD with conservative transfer.
+
+| Case folder under integration_evidence/rae2822_transonic_v1 | First grid | Second grid | Mesh and flow preview |
+|---|---|---|---|
+| Euler from RANS grid: `metricmerge_euler_cross_seed_v1` | [mesh1](integration_evidence/rae2822_transonic_v1/metricmerge_euler_cross_seed_v1/mesh_adap_00001.su2), [flow1](integration_evidence/rae2822_transonic_v1/metricmerge_euler_cross_seed_v1/flow_adap_00001.vtu) | [mesh2](integration_evidence/rae2822_transonic_v1/metricmerge_euler_cross_seed_v1/mesh_adap_00002.su2), [flow2](integration_evidence/rae2822_transonic_v1/metricmerge_euler_cross_seed_v1/flow_adap_00002.vtu) | [mesh/Mach](integration_evidence/rae2822_transonic_v1/metricmerge_euler_cross_seed_v1/mesh_and_mach.png), [Cp](integration_evidence/rae2822_transonic_v1/metricmerge_euler_cross_seed_v1/surface_cp.png) |
+| RANS from Euler grid: `metricmerge_rans_cross_seed_v2` | [mesh1](integration_evidence/rae2822_transonic_v1/metricmerge_rans_cross_seed_v2/mesh_adap_00001.su2), [flow1](integration_evidence/rae2822_transonic_v1/metricmerge_rans_cross_seed_v2/flow_adap_00001.vtu) | [mesh2](integration_evidence/rae2822_transonic_v1/metricmerge_rans_cross_seed_v2/mesh_adap_00002.su2), [flow2](integration_evidence/rae2822_transonic_v1/metricmerge_rans_cross_seed_v2/flow_adap_00002.vtu) | [mesh/Mach](integration_evidence/rae2822_transonic_v1/metricmerge_rans_cross_seed_v2/mesh_and_mach.png), [Cp](integration_evidence/rae2822_transonic_v1/metricmerge_rans_cross_seed_v2/surface_cp.png) |
+
+The same folders contain `input.su2`, initial `flow_adap_00000.vtu`, every paired
+binary restart, actual `run.cfg`, saved-flow inspections and independent metric
+audits. Open VTU in ParaView with **Surface With Edges**, colored by Mach.
+RANS requests composed budgets10000/12000 because the geometric BL floor exceeds
+the old4000/6000 requests. Final grids have15013Euler/27865RANStriangles.
+RANS has not reached configured residual convergence. Neither mesh acceptance
+nor the frozen field checks certify continuous combined-field gradation or
+converged aerodynamic forces. See [integration review](METRIC_ROBUSTNESS_INTEGRATION.md).
+
+
 Working branch: `codex/native-integrated` in
 `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`.
 AdapNoExt is unchanged. Integration/robustness campaign complete; measured limits are reported in

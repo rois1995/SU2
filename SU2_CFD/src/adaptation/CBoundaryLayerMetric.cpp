@@ -34,6 +34,8 @@
 #include <numeric>
 
 #include "../../../Common/include/CConfig.hpp"
+#include "../../../Common/include/parallelization/CPassiveComm.hpp"
+#include "../../../Common/include/adaptation/CNativeImport2D.hpp"
 #include "../../../Common/include/geometry/CGeometry.hpp"
 #include "../../../Common/include/linear_algebra/blas_structure.hpp"
 #include "../../include/solvers/CSolver.hpp"
@@ -193,6 +195,59 @@ CBoundaryLayerMetric::CBoundaryLayerMetric(unsigned short nDim, std::vector<Wall
 CBoundaryLayerMetric::CBoundaryLayerMetric(const CGeometry& geometry, const CConfig& config)
     : nDim(geometry.GetnDim()), cornerAngle(config.GetAdap_Angle()) {
   const int nRank = SU2_MPI::GetSize();
+  struct Box {
+    passivedouble low[3], high[3];
+  };
+  const bool restricted = config.GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY;
+  std::vector<Box> localBoxes;
+  if (restricted && geometry.GetnPointDomain()) {
+    /*--- A bounded set of occupied spatial boxes avoids the empty space inside a whole-rank box.
+     *    Every owned query is covered, including ranks with no local wall. The padding below includes
+     *    incident-face support, so filtering is conservative rather than a nearest-wall approximation. ---*/
+    std::vector<unsigned long> points(geometry.GetnPointDomain());
+    std::iota(points.begin(), points.end(), 0);
+    struct Range { size_t begin, end; Box box; };
+    auto bounds = [&](size_t begin, size_t end) {
+      Box box{};
+      for (unsigned short i = 0; i < nDim; ++i) {
+        box.low[i] = std::numeric_limits<passivedouble>::max();
+        box.high[i] = std::numeric_limits<passivedouble>::lowest();
+        for (size_t k = begin; k < end; ++k) {
+          const auto x = SU2_TYPE::GetValue(geometry.nodes->GetCoord(points[k], i));
+          box.low[i] = std::min(box.low[i], x);
+          box.high[i] = std::max(box.high[i], x);
+        }
+      }
+      return Range{begin, end, box};
+    };
+    std::vector<Range> ranges{bounds(0, points.size())};
+    // ponytail: at most 64 boxes per rank; an indexed distributed query is needed at very large rank counts.
+    while (ranges.size() < (nRank > 1 ? 64u : 1u)) {
+      auto it = std::max_element(ranges.begin(), ranges.end(), [](const Range& a, const Range& b) {
+        return a.end - a.begin < b.end - b.begin;
+      });
+      if (it->end - it->begin < 128) break;
+      const auto old = *it;
+      unsigned short axis = 0;
+      for (unsigned short i = 1; i < nDim; ++i)
+        if (old.box.high[i] - old.box.low[i] > old.box.high[axis] - old.box.low[axis]) axis = i;
+      const auto middle = old.begin + (old.end - old.begin) / 2;
+      std::nth_element(points.begin() + old.begin, points.begin() + middle, points.begin() + old.end,
+                       [&](unsigned long a, unsigned long b) {
+                         const auto x = SU2_TYPE::GetValue(geometry.nodes->GetCoord(a, axis));
+                         const auto y = SU2_TYPE::GetValue(geometry.nodes->GetCoord(b, axis));
+                         return x < y || (x == y && geometry.nodes->GetGlobalIndex(a) < geometry.nodes->GetGlobalIndex(b));
+                       });
+      *it = bounds(old.begin, middle);
+      ranges.push_back(bounds(middle, old.end));
+    }
+    for (const auto& range : ranges) localBoxes.push_back(range.box);
+  }
+  std::vector<size_t> boxCounts;
+  const auto boxes = restricted ? CPassiveComm::Allgatherv(localBoxes, &boxCounts) : std::vector<Box>{};
+  std::vector<size_t> boxOffsets(nRank + 1);
+  if (restricted)
+    for (int peer = 0; peer < nRank; ++peer) boxOffsets[peer + 1] = boxOffsets[peer] + boxCounts[peer];
 
   for (unsigned short iBL = 0; iBL < config.GetnAdap_BL(); ++iBL) {
     Wall wall;
@@ -212,8 +267,9 @@ CBoundaryLayerMetric::CBoundaryLayerMetric(const CGeometry& geometry, const CCon
         const auto type = face->GetVTK_Type();
         if (type == VERTEX) continue;
         const bool valid = (nDim == 2) ? (type == LINE) : (type == TRIANGLE || type == QUADRILATERAL);
-        if (!valid) SU2_MPI::Error("The boundary-layer metric needs wall lines (2D) or triangles/quadrilaterals (3D).",
-                                   CURRENT_FUNCTION);
+        if (!valid)
+          SU2_MPI::Error("The boundary-layer metric needs wall lines (2D) or triangles/quadrilaterals (3D).",
+                         CURRENT_FUNCTION);
         const unsigned short nNode = face->GetnNodes();
         unsigned long node[4];
         for (unsigned short iNode = 0; iNode < nNode; ++iNode) node[iNode] = face->GetNode(iNode);
@@ -253,22 +309,97 @@ CBoundaryLayerMetric::CBoundaryLayerMetric(const CGeometry& geometry, const CCon
       }
     }
 
-    /*--- Gather the faces of all ranks. ---*/
-    int nIdLocal = localIds.size(), nCoordLocal = localCoord.size();
-    std::vector<int> nId(nRank), nCoord(nRank), dispId(nRank, 0), dispCoord(nRank, 0);
-    SU2_MPI::Allgather(&nIdLocal, 1, MPI_INT, nId.data(), 1, MPI_INT, SU2_MPI::GetComm());
-    SU2_MPI::Allgather(&nCoordLocal, 1, MPI_INT, nCoord.data(), 1, MPI_INT, SU2_MPI::GetComm());
-    for (int iRank = 1; iRank < nRank; ++iRank) {
-      dispId[iRank] = dispId[iRank - 1] + nId[iRank - 1];
-      dispCoord[iRank] = dispCoord[iRank - 1] + nCoord[iRank - 1];
+    unsigned long globalFaces = 0;
+    std::vector<unsigned long> allIds;
+    std::vector<su2double> allCoord;
+    if (restricted) {
+      unsigned long localFaces = 0;
+      passivedouble localDiameter = 0, diameter = 0;
+      size_t coordOffset = 0;
+      for (size_t idOffset = 0; idOffset < localIds.size();) {
+        const auto count = localIds[idOffset++];
+        ++localFaces;
+        for (size_t a = 0; a < count; ++a)
+          for (size_t b = a + 1; b < count; ++b) {
+            passivedouble squared = 0;
+            for (unsigned short i = 0; i < nDim; ++i) {
+              const auto delta =
+                  SU2_TYPE::GetValue(localCoord[coordOffset + a * nDim + i] - localCoord[coordOffset + b * nDim + i]);
+              squared += delta * delta;
+            }
+            localDiameter = std::max(localDiameter, sqrt(squared));
+          }
+        idOffset += count;
+        coordOffset += count * nDim;
+      }
+      CPassiveComm::Allreduce(&localFaces, &globalFaces, 1, CPassiveComm::Op::SUM);
+      CPassiveComm::Allreduce(&localDiameter, &diameter, 1, CPassiveComm::Op::MAX);
+      if (!globalFaces)
+        SU2_MPI::Error("ADAP_BL_MARKER: the marker " + wall.layer.marker + " has no faces.", CURRENT_FUNCTION);
+      /*--- Two face diameters beyond the BL band include all incident faces of vertices used by a closest face,
+       *    including 3D angle-weighted normals/tensors. This keeps active BL geometry local; the immutable native
+       *    reference remains replicated by the native backend's existing contract. ---*/
+      const auto padding = SU2_TYPE::GetValue(wall.layer.thickness) + 2 * diameter;
+      std::vector<unsigned long> sendIds;
+      std::vector<passivedouble> sendCoord;
+      std::vector<size_t> idCounts(nRank), coordCounts(nRank), receivedCounts;
+      for (int peer = 0; peer < nRank; ++peer) {
+        const auto beforeId = sendIds.size(), beforeCoord = sendCoord.size();
+        coordOffset = 0;
+        for (size_t idOffset = 0; idOffset < localIds.size();) {
+          const auto count = localIds[idOffset];
+          Box face{};
+          for (unsigned short i = 0; i < nDim; ++i) {
+            face.low[i] = std::numeric_limits<passivedouble>::max();
+            face.high[i] = std::numeric_limits<passivedouble>::lowest();
+            for (size_t node = 0; node < count; ++node) {
+              const auto x = SU2_TYPE::GetValue(localCoord[coordOffset + node * nDim + i]);
+              face.low[i] = std::min(face.low[i], x);
+              face.high[i] = std::max(face.high[i], x);
+            }
+          }
+          bool intersects = false;
+          for (size_t k = boxOffsets[peer]; k < boxOffsets[peer + 1] && !intersects; ++k) {
+            bool overlap = true;
+            for (unsigned short i = 0; i < nDim; ++i) {
+              const auto roundoff = 128 * std::numeric_limits<passivedouble>::epsilon() *
+                                    std::max({fabs(face.low[i]), fabs(face.high[i]), padding});
+              overlap &= face.low[i] <= boxes[k].high[i] + padding + roundoff &&
+                         face.high[i] >= boxes[k].low[i] - padding - roundoff;
+            }
+            intersects = overlap;
+          }
+          if (intersects) {
+            sendIds.insert(sendIds.end(), localIds.begin() + idOffset, localIds.begin() + idOffset + count + 1);
+            for (size_t k = 0; k < count * nDim; ++k)
+              sendCoord.push_back(SU2_TYPE::GetValue(localCoord[coordOffset + k]));
+          }
+          idOffset += count + 1;
+          coordOffset += count * nDim;
+        }
+        idCounts[peer] = sendIds.size() - beforeId;
+        coordCounts[peer] = sendCoord.size() - beforeCoord;
+      }
+      allIds = CPassiveComm::Alltoallv(sendIds, idCounts, receivedCounts);
+      const auto passiveCoord = CPassiveComm::Alltoallv(sendCoord, coordCounts, receivedCounts);
+      allCoord.assign(passiveCoord.begin(), passiveCoord.end());
+    } else {
+      /*--- Gather the faces of all ranks. ---*/
+      int nIdLocal = localIds.size(), nCoordLocal = localCoord.size();
+      std::vector<int> nId(nRank), nCoord(nRank), dispId(nRank, 0), dispCoord(nRank, 0);
+      SU2_MPI::Allgather(&nIdLocal, 1, MPI_INT, nId.data(), 1, MPI_INT, SU2_MPI::GetComm());
+      SU2_MPI::Allgather(&nCoordLocal, 1, MPI_INT, nCoord.data(), 1, MPI_INT, SU2_MPI::GetComm());
+      for (int iRank = 1; iRank < nRank; ++iRank) {
+        dispId[iRank] = dispId[iRank - 1] + nId[iRank - 1];
+        dispCoord[iRank] = dispCoord[iRank - 1] + nCoord[iRank - 1];
+      }
+      allIds.resize(dispId.back() + nId.back());
+      allCoord.resize(dispCoord.back() + nCoord.back());
+      SU2_MPI::Allgatherv(localIds.data(), nIdLocal, MPI_UNSIGNED_LONG, allIds.data(), nId.data(), dispId.data(),
+                          MPI_UNSIGNED_LONG, SU2_MPI::GetComm());
+      SU2_MPI::Allgatherv(localCoord.data(), nCoordLocal, MPI_DOUBLE, allCoord.data(), nCoord.data(), dispCoord.data(),
+                          MPI_DOUBLE, SU2_MPI::GetComm());
     }
-    std::vector<unsigned long> allIds(dispId.back() + nId.back());
-    std::vector<su2double> allCoord(dispCoord.back() + nCoord.back());
-    SU2_MPI::Allgatherv(localIds.data(), nIdLocal, MPI_UNSIGNED_LONG, allIds.data(), nId.data(), dispId.data(),
-                        MPI_UNSIGNED_LONG, SU2_MPI::GetComm());
-    SU2_MPI::Allgatherv(localCoord.data(), nCoordLocal, MPI_DOUBLE, allCoord.data(), nCoord.data(), dispCoord.data(),
-                        MPI_DOUBLE, SU2_MPI::GetComm());
-
     /*--- Points numbered in the order of their global index, each face once. ---*/
     std::map<unsigned long, unsigned long> pointIndex;
     std::map<unsigned long, std::vector<su2double>> pointCoord;
@@ -279,7 +410,7 @@ CBoundaryLayerMetric::CBoundaryLayerMetric(const CGeometry& geometry, const CCon
       std::vector<unsigned long> ids(allIds.begin() + iId, allIds.begin() + iId + nNode);
       for (unsigned long iNode = 0; iNode < nNode; ++iNode) {
         pointCoord.emplace(ids[iNode], std::vector<su2double>(allCoord.begin() + iCoord + iNode * nDim,
-                                                               allCoord.begin() + iCoord + (iNode + 1) * nDim));
+                                                              allCoord.begin() + iCoord + (iNode + 1) * nDim));
       }
       iId += nNode;
       iCoord += nNode * nDim;
@@ -287,9 +418,13 @@ CBoundaryLayerMetric::CBoundaryLayerMetric(const CGeometry& geometry, const CCon
       std::sort(key.begin(), key.end());
       if (seen.emplace(key, true).second) faces.push_back(ids);
     }
-    if (faces.empty()) {
-      SU2_MPI::Error("ADAP_BL_MARKER: the marker " + wall.layer.marker + " has no faces in the mesh.",
-                     CURRENT_FUNCTION);
+    if (restricted) {
+      const unsigned long local = faces.size();
+      unsigned long maximum = 0;
+      CPassiveComm::Allreduce(&local, &maximum, 1, CPassiveComm::Op::MAX);
+      if (SU2_MPI::GetRank() == MASTER_NODE)
+        std::cout << "Native BL geometry " << wall.layer.marker << ": largest local subset " << maximum
+                  << " of " << globalFaces << " supplied wall faces (before duplicate removal)." << std::endl;
     }
     for (const auto& entry : pointCoord) {
       const unsigned long index = pointIndex.size();
@@ -321,6 +456,7 @@ void CBoundaryLayerMetric::Build() {
     const auto& name = wall.layer.marker;
     const auto nPoint = wall.coord.size() / nDim;
     auto d = std::unique_ptr<WallData>(new WallData);
+    if (wall.conn.empty()) { data.push_back(std::move(d)); continue; }
     d->h0 = wall.layer.firstHeight;
     d->growth = wall.layer.growth;
     d->thickness = wall.layer.thickness;
@@ -576,6 +712,7 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::Evaluate(unsigned short iWall
   const auto& wall = walls[iWall];
   auto& d = *data[iWall];
   Sample sample;
+  if (!d.adt) return sample;
   auto x = [&](unsigned long iPoint) { return &wall.coord[iPoint * nDim]; };
 
   unsigned short markerID = 0;
@@ -648,7 +785,8 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::Evaluate(unsigned short iWall
 
     /*--- Tangential size: length of the closest segment, limited near the vertices where the wall turns. ---*/
     ht = length;
-    const su2double radiusSearch = 0.5 * ht;
+    /*--- Corner searches use the existing face radius: the reference chord already avoids crossing features. ---*/
+    const su2double radiusSearch = 0.5 * length;
     const long ci = static_cast<long>(floor(SU2_TYPE::GetValue(X[0] / d.cell)));
     const long cj = static_cast<long>(floor(SU2_TYPE::GetValue(X[1] / d.cell)));
     su2double limited = ht;
@@ -757,36 +895,236 @@ std::vector<CBoundaryLayerMetric::WallReport> CBoundaryLayerMetric::Apply(const 
   return reports;
 }
 
+double CBoundaryLayerMetric::CoreEigenvalue2D(double xx, double xy, double yy) {
+  const double scale=std::max({std::abs(xx),std::abs(xy),std::abs(yy)});
+  const double largest=.5*(xx/scale+yy/scale+std::hypot((xx-yy)/scale,2*xy/scale));
+  return scale*static_cast<double>(SU2Native2D::NormalizedDeterminant(xx,xy,yy))/largest;
+}
+
+std::shared_ptr<CBoundaryLayerMetric> CBoundaryLayerMetric::FromNativeReference(
+    const SU2NativeBoundary2D::ReferenceState& reference, const CConfig& config) {
+  if (!reference.original) throw std::invalid_argument("Native BL composition needs original geometry.");
+  std::vector<Wall> walls;
+  for (unsigned short b = 0; b < config.GetnAdap_BL(); ++b) {
+    Wall wall;
+    wall.layer = config.GetAdap_BL(b);
+    std::map<uint64_t, unsigned long> points;
+    for (const auto& component : reference.original->Components()) {
+      if (reference.marker_names.at(component.marker) != wall.layer.marker) continue;
+      for (size_t k = 1; k < component.nodes.size(); ++k)
+        for (const auto node : {component.nodes[k - 1], component.nodes[k]}) {
+          auto insertion = points.emplace(node.id, points.size());
+          if (insertion.second) { wall.coord.push_back(node.p.x); wall.coord.push_back(node.p.y); }
+          wall.conn.push_back(insertion.first->second);
+        }
+    }
+    walls.push_back(std::move(wall));
+  }
+  return std::make_shared<CBoundaryLayerMetric>(2, std::move(walls), config.GetAdap_Angle());
+}
+
+std::vector<CBoundaryLayerMetric::PointSample> CBoundaryLayerMetric::SamplePoints(const std::vector<su2double>& coord) {
+  std::vector<PointSample> result;
+  for (auto point = 0ul; point < coord.size() / nDim; ++point) {
+    const auto* X = &coord[point * nDim];
+    for (unsigned short wall = 0; wall < walls.size(); ++wall) {
+      const auto& d = *data[wall];
+      bool inside = true;
+      for (unsigned short k = 0; k < nDim; ++k) inside = inside && X[k] >= d.low[k] && X[k] <= d.high[k];
+      if (!inside || !d.adt) continue;
+      const auto sample = Evaluate(wall, X, 1.0);
+      if (sample.weight > 0.0) result.push_back({point, wall, sample});
+    }
+  }
+  return result;
+}
+
+std::vector<CBoundaryLayerMetric::IntegrationPoint2D> CBoundaryLayerMetric::IntegrationRule2D(
+    const std::array<std::array<double, 2>, 3>& triangle, double bandRatio) {
+  return IntegrationRule2DImpl(triangle, bandRatio, 0);
+}
+
+std::vector<CBoundaryLayerMetric::IntegrationPoint2D> CBoundaryLayerMetric::IntegrationRule2DImpl(
+    const std::array<std::array<double, 2>, 3>& triangle, double bandRatio, unsigned depth) {
+  if (nDim != 2 || !(bandRatio > 1.0)) throw std::invalid_argument("Invalid native BL quadrature.");
+  using Bary = std::array<double, 3>;
+  using Polygon = std::vector<Bary>;
+  auto position = [&](const Bary& b) {
+    std::array<su2double, 2> p{};
+    for (unsigned k = 0; k < 3; ++k)
+      for (unsigned d = 0; d < 2; ++d) p[d] += b[k] * triangle[k][d];
+    return p;
+  };
+  bool subdivide = false;
+  auto cross = [](const auto& a, const auto& b, const auto& c) {
+    return (b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);
+  };
+  auto pointSegment = [](const auto& p, const auto& a, const auto& b) {
+    const double xx=b[0]-a[0], yy=b[1]-a[1], length=xx*xx+yy*yy;
+    const auto t=std::clamp(((p[0]-a[0])*xx+(p[1]-a[1])*yy)/length,0.,1.);
+    return std::hypot(p[0]-a[0]-t*xx,p[1]-a[1]-t*yy);
+  };
+  auto inside = [&](const auto& p) {
+    double low=0, high=0;
+    for(unsigned k=0;k<3;++k) {const auto x=cross(triangle[k],triangle[(k+1)%3],p);low=std::min(low,x);high=std::max(high,x);}
+    return low==0 || high==0;
+  };
+  for (unsigned short wall=0;wall<walls.size() && !subdivide;++wall) {
+    if (!data[wall]->adt) continue;
+    const double thickness=SU2_TYPE::GetValue(walls[wall].layer.thickness);
+    std::array<double,3> d;
+    for(unsigned k=0;k<3;++k) {const su2double x[2]={triangle[k][0],triangle[k][1]};d[k]=SU2_TYPE::GetValue(Evaluate(wall,x,1.).distance);}
+    const double minimum=*std::min_element(d.begin(),d.end());
+    if (minimum >= thickness) {
+      // A curved wall can cross the integration band between donor vertices. Check segments, not nodal weights.
+      const auto& wallGeometry=walls[wall];
+      for(size_t face=0;face<wallGeometry.conn.size()/2 && !subdivide;++face) {
+        std::array<double,2> a,b;
+        for(unsigned j=0;j<2;++j) {a[j]=SU2_TYPE::GetValue(wallGeometry.coord[2*wallGeometry.conn[2*face]+j]);b[j]=SU2_TYPE::GetValue(wallGeometry.coord[2*wallGeometry.conn[2*face+1]+j]);}
+        bool separated=false;
+        for(unsigned j=0;j<2;++j) {
+          double low=triangle[0][j],high=low;
+          for(unsigned k=1;k<3;++k) {low=std::min(low,triangle[k][j]);high=std::max(high,triangle[k][j]);}
+          separated=separated || std::max(a[j],b[j])+thickness<low || std::min(a[j],b[j])-thickness>high;
+        }
+        if(separated) continue;
+        double gap=inside(a)||inside(b)?0:std::numeric_limits<double>::max();
+        for(unsigned k=0;k<3;++k) {
+          const auto& u=triangle[k];const auto& v=triangle[(k+1)%3];
+          gap=std::min({gap,pointSegment(u,a,b),pointSegment(a,u,v),pointSegment(b,u,v)});
+          if(cross(a,b,u)*cross(a,b,v)<0 && cross(u,v,a)*cross(u,v,b)<0) gap=0;
+        }
+        subdivide=gap < thickness*(1-1e-12);
+      }
+    } else {
+      // Refine changing nearest-face geometry before constructing distance bands. Even an outside midpoint
+      // can reveal a wrong near-wall distance slope from a far vertex closest to another face.
+      const double tolerance=.1*std::max(SU2_TYPE::GetValue(walls[wall].layer.firstHeight),minimum);
+      for(unsigned k=0;k<3;++k) {
+        const unsigned next=(k+1)%3;
+        const su2double x[2]={.5*(triangle[k][0]+triangle[next][0]),.5*(triangle[k][1]+triangle[next][1])};
+        const double exact=SU2_TYPE::GetValue(Evaluate(wall,x,1.).distance);
+        subdivide=subdivide || (std::abs(exact-.5*(d[k]+d[next]))>tolerance);
+      }
+    }
+  }
+  if (subdivide) {
+    if(depth>=16) SU2_MPI::Error("Geometric BL quadrature failed to resolve a wall band after 16 subdivisions.",CURRENT_FUNCTION);
+    const Bary vertices[6] = {{{1,0,0}},{{0,1,0}},{{0,0,1}},{{.5,.5,0}},{{0,.5,.5}},{{.5,0,.5}}};
+    const unsigned children[4][3]={{0,3,5},{3,1,4},{5,4,2},{3,4,5}};
+    std::vector<IntegrationPoint2D> refined;
+    for(const auto& child:children) {
+      std::array<std::array<double,2>,3> coords;
+      for(unsigned k=0;k<3;++k) {const auto x=position(vertices[child[k]]);for(unsigned j=0;j<2;++j)coords[k][j]=SU2_TYPE::GetValue(x[j]);}
+      auto rule=IntegrationRule2DImpl(coords,bandRatio,depth+1);
+      for(auto& point:rule) {
+        Bary parent{};
+        for(unsigned k=0;k<3;++k)for(unsigned j=0;j<3;++j)parent[j]+=point.barycentric[k]*vertices[child[k]][j];
+        point.barycentric=parent;refined.push_back(std::move(point));
+      }
+    }
+    return refined;
+  }
+  std::vector<Polygon> pieces{{{{1,0,0}}, {{0,1,0}}, {{0,0,1}}}};
+  for (unsigned short wall = 0; wall < walls.size(); ++wall) {
+    if (!data[wall]->adt) continue;
+    std::array<double, 3> distance{};
+    for (unsigned k = 0; k < 3; ++k) {
+      const su2double x[2] = {triangle[k][0], triangle[k][1]};
+      distance[k] = SU2_TYPE::GetValue(Evaluate(wall, x, 1.0).distance);
+    }
+    const auto& layer = walls[wall].layer;
+    const double h0 = SU2_TYPE::GetValue(layer.firstHeight), thickness = SU2_TYPE::GetValue(layer.thickness);
+    if (*std::min_element(distance.begin(), distance.end()) >= thickness) continue;
+    auto interpolatedDistance = [&](const Bary& b) {
+      return b[0]*distance[0] + b[1]*distance[1] + b[2]*distance[2];
+    };
+    std::vector<double> levels;
+    // Geometric bands resolve h0 even when no interior donor vertex lies inside the layer.
+    for (double level = h0; level < .9*thickness; level *= bandRatio) levels.push_back(level);
+    levels.push_back(.9*thickness);
+    for (unsigned k = 1; k <= 16; ++k) levels.push_back((.9+.1*k/16)*thickness);
+    for (const auto level : levels) {
+      std::vector<Polygon> next;
+      for (const auto& piece : pieces) {
+        Polygon low, high;
+        for (size_t k = 0; k < piece.size(); ++k) {
+          const auto& a = piece[k]; const auto& b = piece[(k+1)%piece.size()];
+          const auto da = interpolatedDistance(a), db = interpolatedDistance(b);
+          (da <= level ? low : high).push_back(a);
+          if ((da < level && db > level) || (da > level && db < level)) {
+            const auto t = (level-da)/(db-da);
+            Bary cut{};
+            for (unsigned j = 0; j < 3; ++j) cut[j] = a[j] + t*(b[j]-a[j]);
+            low.push_back(cut); high.push_back(cut);
+          }
+        }
+        if (low.size() >= 3) next.push_back(std::move(low));
+        if (high.size() >= 3) next.push_back(std::move(high));
+      }
+      pieces = std::move(next);
+    }
+  }
+  std::vector<IntegrationPoint2D> rule;
+  for (const auto& piece : pieces) {
+    for (size_t k = 1; k + 1 < piece.size(); ++k) {
+      const Bary vertices[3] = {piece[0], piece[k], piece[k+1]};
+      const auto a = position(vertices[0]), b = position(vertices[1]), c = position(vertices[2]);
+      const double area = .5 * std::abs(SU2_TYPE::GetValue((b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0])));
+      if (!(area > 0)) continue;
+      for (unsigned corner = 0; corner < 3; ++corner) {
+        Bary bary{};
+        for (unsigned j = 0; j < 3; ++j)
+          for (unsigned v = 0; v < 3; ++v) bary[j] += vertices[v][j] * (v == corner ? 2./3 : 1./6);
+        const auto x = position(bary);
+        rule.push_back({bary, area/3, SamplePoints({x[0],x[1]})});
+      }
+    }
+  }
+  return rule;
+}
+
+void CBoundaryLayerMetric::ApplySample(unsigned short wall, const Sample& sample, Tensor& metric,
+                                      su2double coreEigenvalue, std::vector<WallReport>* reports,
+                                      bool useTangentialFloor) {
+  if (!(sample.weight > 0.0)) return;
+  Tensor faded = sample.full;
+  if (sample.weight < 1.0) {
+    Spectral(nDim, sample.full.m, faded.m, [&](su2double value) {
+      return exp(sample.weight * log(value) + (1.0 - sample.weight) * log(coreEigenvalue));
+    });
+  }
+  su2double C[3][3] = {{0.0}};
+  CSolver::IntersectMetrics(nDim, metric.m, faded.m, C);
+  bool changed = false;
+  for (unsigned short i = 0; i < nDim; ++i)
+    for (unsigned short j = 0; j < nDim; ++j) {
+      const auto value = 0.5 * (C[i][j] + C[j][i]);
+      changed = changed || (value != metric.m[i][j]);
+      metric.m[i][j] = value;
+    }
+  su2double vec[3][3], val[3], work[3];
+  bool floor = false;
+  if (reports || (useTangentialFloor && sample.weight == 1.0)) {
+    CBlasStructure::EigenDecomposition(sample.full.m, vec, val, nDim, work);
+    floor = useTangentialFloor && sample.weight == 1.0 && TangentialFloor(sample, val, data[wall]->h0, metric);
+  }
+  if (reports) {
+    auto& report = reports->at(wall);
+    ++report.nPoint; report.nChanged += changed; report.nFloor += floor;
+    report.maxAspectRatio = max(report.maxAspectRatio,
+        sqrt(*std::max_element(val, val + nDim) / *std::min_element(val, val + nDim)));
+  }
+}
+
 void CBoundaryLayerMetric::ApplyPoint(const su2double* X, Tensor& metric, su2double coreEigenvalue,
                                       std::vector<WallReport>* reports, bool useTangentialFloor) {
-  for (unsigned short iWall = 0; iWall < walls.size(); ++iWall) {
-    const auto& d = *data[iWall];
+  for (unsigned short wall = 0; wall < walls.size(); ++wall) {
+    const auto& d = *data[wall];
     bool inside = true;
-    for (unsigned short iDim = 0; iDim < nDim; ++iDim)
-      inside = inside && X[iDim] >= d.low[iDim] && X[iDim] <= d.high[iDim];
-    if (!inside) continue;
-    const auto sample = Evaluate(iWall, X, coreEigenvalue);
-    if (!(sample.weight > 0.0)) continue;
-    su2double vec[3][3], val[3], work[3];
-    CBlasStructure::EigenDecomposition(sample.full.m, vec, val, nDim, work);
-    su2double C[3][3] = {{0.0}};
-    CSolver::IntersectMetrics(nDim, metric.m, sample.metric.m, C);
-    bool changed = false;
-    for (unsigned short i = 0; i < nDim; ++i)
-      for (unsigned short j = 0; j < nDim; ++j) {
-        const su2double value = 0.5 * (C[i][j] + C[j][i]);
-        changed = changed || (value != metric.m[i][j]);
-        metric.m[i][j] = value;
-      }
-    const bool floor = useTangentialFloor && sample.weight == 1.0 && TangentialFloor(sample, val, d.h0, metric);
-    if (reports) {
-      auto& report = reports->at(iWall);
-      ++report.nPoint;
-      report.nChanged += changed;
-      report.nFloor += floor;
-      const su2double ratio = sqrt(*std::max_element(val, val + nDim) / *std::min_element(val, val + nDim));
-      report.maxAspectRatio = max(report.maxAspectRatio, ratio);
-    }
+    for (unsigned short k = 0; k < nDim; ++k) inside = inside && X[k] >= d.low[k] && X[k] <= d.high[k];
+    if (!inside || !d.adt) continue;
+    ApplySample(wall, Evaluate(wall, X, 1.0), metric, coreEigenvalue, reports, useTangentialFloor);
   }
 }
 

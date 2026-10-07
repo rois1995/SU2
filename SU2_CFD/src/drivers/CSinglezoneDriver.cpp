@@ -243,11 +243,15 @@ void CSinglezoneDriver::ComputeMetric() {
    *    variables (also on halo points) until the next call. ---*/
 
   const auto startTime = SU2_MPI::Wtime();
+  if (config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY &&
+      config->GetnAdap_BL() && (!nativeReference || !nativeReference->original)) {
+    auto remesher = MakeRemesher(); // Initializes the retained immutable reference, including restart associations.
+  }
   solver_flow->SetAuxVar_Adapt(geometry, config, solver_container[ZONE_0][INST_0][MESH_0]);
   solver_flow->SetHessian_Adapt(geometry, config);
   /*--- ADAP_BL_METHOD= TWO_PASS: the remesher builds the boundary-layer metric itself, on its pass-A mesh. ---*/
   const bool boundaryLayer = config->GetKind_Adap_BL_Method() != ADAP_BL_METHOD::TWO_PASS;
-  solver_flow->ComputeMetric(geometry, config, nullptr, boundaryLayer);
+  solver_flow->ComputeMetric(geometry, config, nullptr, boundaryLayer, nativeReference.get());
   if (rank == MASTER_NODE) cout << "Metric computed in " << SU2_MPI::Wtime() - startTime << " s." << endl;
 }
 
@@ -284,33 +288,12 @@ std::unique_ptr<CRemesher> CSinglezoneDriver::MakeRemesher() {
     auto constraints = [state = nativeReference](const CConfig& config, const CGeometry& geometry,
                                                 const su2activematrix& metric) -> SU2Native2D::MetricComposition {
       if (!config.GetnAdap_BL()) return {};
-      std::vector<CBoundaryLayerMetric::Wall> walls;
-      for (unsigned short b = 0; b < config.GetnAdap_BL(); ++b) {
-        CBoundaryLayerMetric::Wall wall;
-        wall.layer = config.GetAdap_BL(b);
-        std::map<uint64_t, unsigned long> points;
-        for (const auto& component : state->original->Components()) {
-          if (state->marker_names.at(component.marker) != wall.layer.marker) continue;
-          for (size_t k = 1; k < component.nodes.size(); ++k)
-            for (const auto node : {component.nodes[k - 1], component.nodes[k]}) {
-              auto insertion = points.emplace(node.id, points.size());
-              if (insertion.second) {
-                wall.coord.push_back(node.p.x);
-                wall.coord.push_back(node.p.y);
-              }
-              wall.conn.push_back(insertion.first->second);
-            }
-        }
-        walls.push_back(std::move(wall));
-      }
-      auto layers = std::make_shared<CBoundaryLayerMetric>(2, std::move(walls), config.GetAdap_Angle());
+      auto layers = CBoundaryLayerMetric::FromNativeReference(*state, config);
       double localSmallest = std::numeric_limits<double>::max();
       for (unsigned long p = 0; p < geometry.GetnPointDomain(); ++p) {
         const double xx = SU2_TYPE::GetValue(metric(p, 0)), xy = SU2_TYPE::GetValue(metric(p, 1)),
                      yy = SU2_TYPE::GetValue(metric(p, 2));
-        const double scale = std::max({std::abs(xx), std::abs(xy), std::abs(yy)});
-        const double largest = .5 * (xx / scale + yy / scale + std::hypot((xx - yy) / scale, 2 * xy / scale));
-        const double smallest = scale * static_cast<double>(SU2Native2D::NormalizedDeterminant(xx, xy, yy)) / largest;
+        const double smallest=CBoundaryLayerMetric::CoreEigenvalue2D(xx,xy,yy);
         localSmallest = std::min(localSmallest, smallest);
       }
       const auto core = CPassiveComm::Allreduce(localSmallest, CPassiveComm::Op::MIN);
@@ -544,7 +527,7 @@ void CSinglezoneDriver::SampleTimeWindowMetric() {
     }
     /*--- ADAP_BL_METHOD= TWO_PASS: the remesher builds the boundary-layer metric itself, on its pass-A mesh. ---*/
     solver_flow->ComputeMetric(geometry, config, nullptr,
-                               config->GetKind_Adap_BL_Method() != ADAP_BL_METHOD::TWO_PASS);
+                               config->GetKind_Adap_BL_Method() != ADAP_BL_METHOD::TWO_PASS, nativeReference.get());
     windowMetricDone = true;
   }
 
@@ -721,7 +704,7 @@ void CSinglezoneDriver::PredictWindowMetric() {
 
   /*--- Complexity, bounds, corner and boundary-layer metrics. ---*/
   solver_flow->ComputeMetric(geometry, config, &predicted,
-                             config->GetKind_Adap_BL_Method() != ADAP_BL_METHOD::TWO_PASS);
+                             config->GetKind_Adap_BL_Method() != ADAP_BL_METHOD::TWO_PASS, nativeReference.get());
   predictSnapshotValid = false;
 }
 

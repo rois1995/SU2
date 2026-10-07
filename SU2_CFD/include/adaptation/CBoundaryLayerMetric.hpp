@@ -27,6 +27,7 @@
 #pragma once
 
 #include <memory>
+#include <array>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -36,6 +37,7 @@
 
 class CConfig;
 class CGeometry;
+namespace SU2NativeBoundary2D { struct ReferenceState; }
 
 /*!
  * \class CBoundaryLayerMetric
@@ -171,7 +173,34 @@ class CBoundaryLayerMetric {
   void ApplyPoint(const su2double* coord, Tensor& metric, su2double coreEigenvalue,
                   std::vector<WallReport>* reports = nullptr, bool useTangentialFloor = true);
 
+  /*! Original wall geometry is complete on every rank, including remote/private queries. */
+  static std::shared_ptr<CBoundaryLayerMetric> FromNativeReference(
+      const SU2NativeBoundary2D::ReferenceState& reference, const CConfig& config);
+
+  /*! Shared stable sensor-core eigenvalue for complexity trials and frozen query composition. */
+  static double CoreEigenvalue2D(double xx, double xy, double yy);
+
+  struct PointSample { unsigned long point; unsigned short wall; Sample sample; };
+  struct IntegrationPoint2D {
+    std::array<double, 3> barycentric;
+    double weight;
+    std::vector<PointSample> samples;
+  };
+  /*! Split donor triangles into geometric distance bands before positive degree-two quadrature.
+   *  Sensor values use original-cell barycentrics; wall tensors are evaluated at the actual sample.
+   *  The band ratio can be tightened to audit quadrature convergence without changing the target.
+   */
+  std::vector<IntegrationPoint2D> IntegrationRule2D(
+      const std::array<std::array<double, 2>, 3>& triangle, double bandRatio = 1.5);
+
+  std::vector<PointSample> SamplePoints(const std::vector<su2double>& coord);
+  /*! Same intersection/fade policy for cached integration samples and actual remesher queries. */
+  void ApplySample(unsigned short wall, const Sample& sample, Tensor& metric, su2double coreEigenvalue,
+                   std::vector<WallReport>* reports = nullptr, bool useTangentialFloor = true);
+
  private:
+  std::vector<IntegrationPoint2D> IntegrationRule2DImpl(
+      const std::array<std::array<double, 2>, 3>& triangle, double bandRatio, unsigned depth);
   struct WallData;
   void Build();
 

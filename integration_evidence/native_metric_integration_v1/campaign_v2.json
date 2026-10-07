@@ -1,0 +1,27 @@
+{
+  "controller_pid": 1099759,
+  "sequential": true,
+  "stages": [
+    {
+      "name": "native_metric_adapter_v2",
+      "exit_code": 0,
+      "elapsed_seconds": 114.36884081599419
+    },
+    {
+      "name": "frozen_fine_weighted_least_squares_np1",
+      "exit_code": 134,
+      "elapsed_seconds": 20.53641833599977
+    }
+  ],
+  "phase": "terminal_failed",
+  "command": [
+    "integration_evidence/run_rae2822_trial.py",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_metric_integration_v1/frozen/fine/weighted_least_squares_np1",
+    "--ranks",
+    "1",
+    "--timeout",
+    "600",
+    "--build-evidence",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_metric_integration_build_v2/evidence.json"
+  ]
+}

@@ -62,7 +62,11 @@ files = [source / p for p in [
     'UnitTests/SU2_CFD/adaptation/AdaptationMPI_tests.cpp',
     'UnitTests/Common/adaptation/CNativeReferenceIO_tests.cpp',
     'UnitTests/SU2_CFD/adaptation/TransferTestCase.hpp',
-    'UnitTests/meson.build', 'UnitTests/SU2_CFD/adaptation/CNativeRemesher_tests.cpp']]
+    'UnitTests/meson.build', 'UnitTests/SU2_CFD/adaptation/CNativeRemesher_tests.cpp',
+    'SU2_CFD/include/gradients/computeHessians.hpp',
+    'SU2_CFD/include/gradients/computeHessiansQuadratic.hpp',
+    'SU2_CFD/include/gradients/computeGradientsLeastSquares.hpp',
+    'Common/include/linear_algebra/blas_structure.hpp']]
 files.extend((source / 'Common/include/adaptation').glob('CNative*2D.hpp'))
 files.extend((source / 'UnitTests/Common/adaptation').glob('CNative*2D_tests.cpp'))
 files.extend((source / 'UnitTests/SU2_CFD/adaptation').glob('CNative*2D_tests.cpp'))

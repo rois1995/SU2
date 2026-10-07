@@ -28,6 +28,65 @@
 
 #include "computeGradientsGreenGauss.hpp"
 #include "computeGradientsLeastSquares.hpp"
+#include "../../../Common/include/linear_algebra/blas_structure.hpp"
+
+namespace detail {
+/*!
+ * \brief Reciprocal condition of the coordinate-equilibrated LS normal matrix.
+ * \note Passive diagnostic only: the solve and its derivatives are unchanged. Zero means a missing,
+ *       non-finite or numerically singular direction. This is the condition of A^T A, not of A.
+ */
+template <class RMatrixType>
+passivedouble hessianStencilReciprocalCondition(unsigned short nDim, unsigned long point, const RMatrixType& R) {
+  passivedouble scale[3], normal[3][3] = {}, vec[3][3], val[3], work[3];
+  for (unsigned short i = 0; i < nDim; ++i) {
+    const auto diagonal = SU2_TYPE::GetValue(R(point, i, i));
+    if (!(diagonal > 0.0) || !std::isfinite(diagonal)) return 0.0;
+    scale[i] = sqrt(diagonal);
+  }
+  for (unsigned short i = 0; i < nDim; ++i) {
+    for (unsigned short j = i; j < nDim; ++j) {
+      normal[i][j] = normal[j][i] = SU2_TYPE::GetValue(R(point, i, j)) / scale[i] / scale[j];
+      if (!std::isfinite(normal[i][j])) return 0.0;
+    }
+  }
+  CBlasStructure::EigenDecomposition(normal, vec, val, nDim, work);
+  const auto largest = *std::max_element(val, val + nDim), smallest = *std::min_element(val, val + nDim);
+  if (!(largest > 0.0) || !std::isfinite(largest) || !std::isfinite(smallest)) return 0.0;
+  return std::max(passivedouble(0.0), smallest / largest);
+}
+
+/*! \brief Reuse the preceding WLS normal matrices; share neighbor weights across all sensors.
+ *  \note Same geometry and weighting only. Periodic, symmetry and AD use the existing recovery path.
+ */
+template<size_t dim, class GradientType, class HessianType>
+void hessiansReuseGeometry(CGeometry& geometry, const GradientType& gradient, size_t begin, size_t end,
+                           const C3DDoubleMatrix& R, HessianType& hessian) {
+  for (size_t point = 0; point < geometry.GetnPointDomain(); ++point) {
+    su2double inverse[dim][dim];
+    leastSquaresInverse<dim>(point, R, inverse);
+    for (size_t v = begin; v < end; ++v)
+      for (size_t k = 0; k < dim * (dim + 1) / 2; ++k) hessian(point, v, k) = 0.0;
+    for (const auto neighbor : geometry.nodes->GetPoints(point)) {
+      su2double dx[dim], coefficient[dim] = {};
+      GeometryToolbox::Distance(dim, geometry.nodes->GetCoord(neighbor), geometry.nodes->GetCoord(point), dx);
+      const auto squared = GeometryToolbox::SquaredNorm(dim, dx);
+      if (!(squared > 0.0)) continue;
+      for (size_t i = 0; i < dim; ++i)
+        for (size_t j = 0; j < dim; ++j)
+          coefficient[i] += inverse[std::min(i,j)][std::max(i,j)] * dx[j] / squared;
+      for (size_t v = begin; v < end; ++v) {
+        su2double delta[dim];
+        for (size_t i = 0; i < dim; ++i) delta[i] = gradient(neighbor, v, i) - gradient(point, v, i);
+        size_t k = 0;
+        for (size_t i = 0; i < dim; ++i)
+          for (size_t j = i; j < dim; ++j)
+            hessian(point, v, k++) += 0.5 * (coefficient[j] * delta[i] + coefficient[i] * delta[j]);
+      }
+    }
+  }
+}
+}  // namespace detail
 
 /*!
  * \brief Compute Hessians by differentiating the gradients, then symmetrizing the result.
@@ -59,7 +118,7 @@
 template <class GradientType, class FieldType, class HessianType>
 void computeHessians(CSolver* solver, ENUM_FLOW_GRADIENT method, CGeometry& geometry, const CConfig& config,
                      const GradientType& gradient, const size_t varBegin, const size_t varEnd, FieldType& field,
-                     C3DDoubleMatrix& gradGrad, C3DDoubleMatrix& Rmatrix, HessianType& hessian) {
+                     C3DDoubleMatrix& gradGrad, C3DDoubleMatrix& Rmatrix, HessianType& hessian, bool reuseWlsGeometry = false) {
   const size_t nDim = geometry.GetnDim();
   const size_t nPoint = geometry.GetnPoint();
   const size_t nPointDomain = geometry.GetnPointDomain();
@@ -70,6 +129,15 @@ void computeHessians(CSolver* solver, ENUM_FLOW_GRADIENT method, CGeometry& geom
   if (solver != nullptr && method == LEAST_SQUARES) {
     SU2_MPI::Error("Periodic Hessians require GREEN_GAUSS or WEIGHTED_LEAST_SQUARES.", CURRENT_FUNCTION);
   }
+
+#if !defined(CODI_FORWARD_TYPE) && !defined(CODI_REVERSE_TYPE)
+  if (reuseWlsGeometry && method == WEIGHTED_LEAST_SQUARES && config.GetnMarker_Periodic() == 0 &&
+      config.GetnMarker_SymWall() == 0) {
+    if (nDim == 2) detail::hessiansReuseGeometry<2>(geometry, gradient, varBegin, varEnd, Rmatrix, hessian);
+    else detail::hessiansReuseGeometry<3>(geometry, gradient, varBegin, varEnd, Rmatrix, hessian);
+    return;
+  }
+#endif
 
   for (size_t iVar = varBegin; iVar < varEnd; ++iVar) {
     /*--- Gradient of this variable, including halo points. ---*/

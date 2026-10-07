@@ -1,8 +1,78 @@
 # Codex handoff — native integration
 
-Updated 2026-10-07. Integration and RAE cross-grid repair goals COMPLETE. Branch `codex/native-integrated`;
+Updated 2026-10-07. Previous native integration and RAE repair goals COMPLETE.
+Current branch `codex/native-metric-integration` (metric integration validated);
 worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`.
 
+
+## Validated metric integration — 2026-10-07
+
+Branch: `codex/native-metric-integration`, based on native main
+`9450c0880e2b2c1c39dfc98bc2c9655844ab8731`, with incoming merge parent
+`b14a14ea1dec771834d7d691fca27614605df39d`. The user authorized merging and
+pushing to rois1995/SU2. AdapNoExt and codex/native-integrated are untouched.
+The separate unsteady goal remains PAUSED. No owned CFD/build/test job remains.
+
+Read METRIC_ROBUSTNESS_INTEGRATION.md for the reconciliation, independent
+Hessian/WLS review, residual locations and performance limits. Original P1
+donors store sensors only; geometric BL is evaluated at every actual, private
+and remote query. Finer sensor requests and main's fade are retained. Noise is
+zero; the hard-normal reset is excluded. Shared composition feeds thin-BL
+integration and remesher queries; wall tensors are not spread into coarse donors.
+The measured coarse BL floor is 6564.71, above the historical 4000/6000 sensor
+budgets. Actual RANS explicitly requests composed budgets 10000/12000.
+
+Final app: integration_evidence/native_metric_integration_build_v4/SU2_CFD.
+SHA256: 498bb9fa3916635ee9bb9d05a54270ceff2525b30deb887cbc65dc98f7e9f69c.
+There are 760 production source pins. Core_v3 has 47 cases per rank,
+output_mpi_v3 has 44 and adapter_v4 has 3; all pass at MPI 1/2/4.
+Serial Hessian_v3 passes 105 cases, and Hessian_mpi_v2 passes 23 per rank
+at MPI 2/4; their Hessian production sources are unchanged. Reuse
+build-integrated-v2 with -j2, one heavy job, at most four ranks and library
+threads set to one. Never relink immutable archives. Final dry build has no work.
+
+Final evidence root: integration_evidence/native_metric_integration_v4.
+Run integration_evidence/check_native_metric_integration.py to recheck current
+sources, binaries, MPI groups, actual artifacts and preserved incoming data.
+completion_audit.json passes. post_frozen_v1.json is TERMINAL_PASS, nine stages;
+exec sessions 55058 and 60405 are terminal with exit zero.
+All twelve frozen coarse/fine WLS/QR runs pass with noise zero and unchanged
+flow. Maximum MPI sensor relative difference is 1.42e-10, below 1e-9.
+Independent Gaussian integration agrees within 0.0194% on the fine grid and
+0.0030% on the coarse grid. Frozen nodal sensor fixed points pass, but composed
+and quarter-edge P1 sensor transport residuals remain. Actual Euler cycle 0
+and RANS cycle 1 hit the 80-sweep sensor cap. Continuous or composed gradation
+is not certified. Mesh acceptance gates and sensor/geometry policy are intact.
+
+Actual four-rank folders under integration_evidence/rae2822_transonic_v1:
+
+- metricmerge_euler_cross_seed_v1: two accepted meshes, 5722/7649 points;
+  minimum q 0.250666/0.342287, maximum length 1.708282/1.799994.
+  Total 148.756 s; CFD 87.703 s, adaptation 42.675 s. Adapted density
+  residuals are below -8.
+- metricmerge_rans_cross_seed_v2: two accepted meshes, 12399/14234 points;
+  minimum q 0.180096/0.265992, maximum length 1.799997/1.789548,
+  relative height error at most 2.10e-9. Total 339.040 s; CFD 125.068 s,
+  adaptation 196.112 s. The cost objective is not met. RANS has not reached
+  configured convergence: density -7.911398/SA -7.336547 at iteration 2000.
+
+Both cases pass independent mesh, flow, reference and height checks. Surfaces
+adapt; both transfers have zero inadmissible states and recovery patches, and
+CFD resumes after each. GRID_GUIDE.md links the actual meshes, solutions and
+previews. RANS v1 was prepared only and was never run.
+
+Incoming findings and v3 pass/rejected reports are unchanged. The 57 raw files
+(224.02 MiB) in metric_branch_v3_reference have a SHA/size inventory. Failed
+predictor-iterator, restart-filename, synthetic-CFD-fixture, missing-reference,
+initial-quadrature and cancelled-campaign evidence remains local; compact
+receipts are pinned in preserved_integration_attempts.json. Coarse sidecar
+preparation retains original geometry/features verbatim and verifies bindings
+for the known original mesh; the missing-reference guard remains enforced.
+
+No 3D, unsteady, CAD, large-rank or converged-force claim is made. Future cost
+work should target measured candidate/collective-round costs and repeated
+gradation/root trials. Geometry-safe continuous field gradation is a separate
+investigation. Do not automatically resume the paused unsteady goal.
 
 ## Artifact cleanup — 2026-10-07
 

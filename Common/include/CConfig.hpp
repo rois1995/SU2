@@ -1315,6 +1315,7 @@ private:
   bool Adap_Iso_Corner = true;              /*!< \brief Isotropic adaptation metric at sharp wall corners. */
   bool Adap_Surface = true;                 /*!< \brief The remesher may change the boundary (surface) mesh. */
   ADAP_REMESHER Kind_Adap_Remesher=ADAP_REMESHER::MMG; /*!< \brief Opt-in native backend; MMG remains default. */
+  su2double Adap_Hessian_Noise; /*!< \brief Optional residual-based QR curvature shrinkage strength. */
   unsigned short Kind_Hessian_Method;       /*!< \brief Numerical method for computation of Hessians. */
   unsigned short nAdap_Sensor = 0;          /*!< \brief Number of sensors to use for adaptation. */
   string Adap_CustomSensors;                /*!< \brief Ordered custom adaptation sensor definitions. */
@@ -10403,6 +10404,7 @@ public:
    * \brief Get the method used to compute Hessians.
    * \return Numerical method for Hessians.
    */
+  su2double GetAdap_Hessian_Noise() const { return Adap_Hessian_Noise; }
   unsigned short GetKind_Hessian_Method(void) const { return Kind_Hessian_Method; }
 
   /*!

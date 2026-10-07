@@ -1,0 +1,50 @@
+{
+  "runner_pid": 1180406,
+  "phase": "terminal",
+  "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/metricmerge_rans_cross_seed_v2",
+  "ranks": 4,
+  "timeout_seconds": 1200.0,
+  "binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_metric_integration_build_v4/SU2_CFD",
+  "binary_sha256": "498bb9fa3916635ee9bb9d05a54270ceff2525b30deb887cbc65dc98f7e9f69c",
+  "config_sha256": "0329146a9da5146fa37e90081f3980327306701979b51a8663587fa778403ced",
+  "mesh_sha256": "940d8aed5d9ee0d6dc0a9f5b43a3973e7c76ed5d9123188c6e81d048cf6b6d26",
+  "source_revision": "9450c0880e2b2c1c39dfc98bc2c9655844ab8731",
+  "production_sources_rechecked": 760,
+  "source_evidence": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_metric_integration_build_v4/evidence.json",
+  "source_evidence_sha256": "41325ad19647ae07c33c0568a738ed14aa2c8df07e4febbe367910d302041f33",
+  "runner_sha256": "3abcb979b005ba608fb4012f3214977521f6c92cfcf962fc5ed66f783fd11cb1",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "busy": [],
+  "command": [
+    "mpiexec",
+    "-n",
+    "4",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_metric_integration_build_v4/SU2_CFD",
+    "run.cfg"
+  ],
+  "started_unix_seconds": 1791392031.7269602,
+  "elapsed_seconds": 321.6066789070028,
+  "solver_exit": 0,
+  "outputs": {
+    "solution_adap_00000.dat": 690476,
+    "solution_adap_00002.dat": 2733740,
+    "flow_adap_00000.vtu": 523363,
+    "input.su2": 367889,
+    "surface_adap_00000.vtu": 26844,
+    "solution_adap_00001.dat": 2381420,
+    "surface_adap_00002.vtu": 72601,
+    "mesh_adap_00001.su2": 1202869,
+    "surface_adap_00001.vtu": 46723,
+    "history.csv": 2729987,
+    "surface_adap_00001.csv": 196818,
+    "surface_adap_00000.csv": 107645,
+    "flow_adap_00001.vtu": 1806378,
+    "surface_adap_00002.csv": 312936,
+    "flow_adap_00002.vtu": 2070805,
+    "mesh_adap_00002.su2": 1391746
+  }
+}

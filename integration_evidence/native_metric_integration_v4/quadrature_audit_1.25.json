@@ -1,0 +1,34 @@
+{
+  "scope": "Independent original-P1 sensor plus geometric BL intersection/fade; tighter distance bands and 4x4 Duffy Gaussian cubature. Does not change the frozen target.",
+  "band_ratio": 1.25,
+  "cases": {
+    "fine": {
+      "quadrature_points": 2411296,
+      "integrated_area": 31286.81631035527,
+      "mesh_area": 31286.816310359085,
+      "complexities": {
+        "weighted_least_squares": 59989.29496507453,
+        "quadratic_least_squares": 59988.40425295103
+      },
+      "relative_to_reported_target": {
+        "weighted_least_squares": -0.00017841724875788945,
+        "quadratic_least_squares": -0.0001932624508160785
+      }
+    },
+    "coarse": {
+      "quadrature_points": 1121632,
+      "integrated_area": 31286.816310366637,
+      "mesh_area": 31286.816310366634,
+      "complexities": {
+        "weighted_least_squares": 59998.20839946493,
+        "quadratic_least_squares": 59999.26192206003
+      },
+      "relative_to_reported_target": {
+        "weighted_least_squares": -2.9860008917803604e-05,
+        "quadratic_least_squares": -1.2301298999428667e-05
+      }
+    }
+  },
+  "elapsed_seconds": 178.74042582499533,
+  "auditor_sha256": "64e951ee17aea5996f0404595ef977f954d5eacb400bb9e519051ddabcc64649"
+}
