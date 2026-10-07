@@ -11,7 +11,7 @@ script are in `integration_evidence/metric_robustness_v2_validation.json` and
 | ID | Work | Status |
 |---|---|---|
 | 1 | Constrained tensor gradation: classify blocked directions, converge useful updates, reduce repeated work | Direct updater rejected by actual-case checks. Retained relaxation/performance changes; main representation reconciliation required |
-| 2 | Noise-aware Hessian treatment, with controls that retain resolved curvature | Implemented opt-in residual shrinkage; manufactured tests passed, but enabled RAE metric MPI/gradation checks failed; retain default zero |
+| 2 | Noise-aware Hessian treatment, with controls that retain resolved curvature | Implemented opt-in residual shrinkage; enabled RAE gate fails upstream metric construction. Fixed-input gradation is MPI consistent; retain default zero |
 | 4 | More selective MPI geometry exchange and storage | Implemented conservative occupied query boxes; unit/MPI tests passed; private candidate reference transport remains separate |
 | 5 | Reuse WLS geometry across sensors and derivative passes | Implemented within-call normal-matrix/weight reuse; stretched multisensor equivalence and MPI tests passed |
 
@@ -390,3 +390,120 @@ to resolve its spatial variation. Merely interpolating a nodal correction that
 contains the fine wall tensor can reproduce the coarse-seed spreading defect.
 This needs design and validation before code integration, especially for private
 and remote queries. Main's original-geometry callback remains authoritative.
+
+
+## 3D stress checks and noise isolation (2026-10-07)
+
+Source `3b320bfd6b`; the complete receipt, including failures, is
+`integration_evidence/metric_robustness_3d_noise_v4.json`. The production binary
+contains the restart-reader fix and no metric-probe instrumentation. Ten selected
+Hessian/restart cases passed on one, two and four MPI ranks (91482 serial
+assertions). These checks establish the stated regression gates; **WLS accuracy
+on the severe curved case is not a passing gate**.
+
+### Severe 3D recovery limitations
+
+The existing manufactured pressure helper now also exercises rotated, skewed
+and doubly curved tetrahedra: flat aspect 10000/skew 4, curved aspect 1000/skew 2,
+with refinements 8 to 16. Errors are measured in layer coordinates, preventing
+large physical transverse curvature from hiding tangential error.
+
+| Case/method | Coarse interior Hessian max error | Fine interior Hessian max error | Fine wall transverse relative error | Fine dominant-direction sine |
+|---|---:|---:|---:|---:|
+| Flat WLS | 8.91e-8 | 5.88e-7 | 0.5 | 6.14e-8 |
+| Curved WLS | 10.45 | 319.81 | 0.384 | 0.963 |
+| Flat QR | 5.51e-9 | 2.89e-8 | 4.22e-10 | 2.98e-8 |
+| Curved QR | 0.741 | 0.210 | 0.129 | 0.0108 |
+
+Wall errors are maxima over the marked wall, including its edges/corners; the
+transverse direction is the layer-coordinate direction. This does not isolate
+an interior wall patch or prove that the entire wall has those errors. The
+initial accuracy-gated WLS run failed, and its log is retained. Comparing reused
+WLS geometry with the repeated legacy solve gives differences below 1.2e-13
+of the largest Hessian entry: the accuracy weakness predates the reuse change.
+QR improves in the curved interior, but the worst wall error does not decrease
+on these refinements. One-sided curved-wall reconstruction needs further work;
+finite tensors and a good geometry condition diagnostic alone are insufficient.
+
+### A matching ONERA M6 RANS fixture exists
+
+`/media/rausa/4TB/SU2_Versions/TestCasesForSSTIDDES/optimization_rans/steady_oneram6`
+contains a RANS/SA mesh and frozen restart: 96252 points, 545438 tetrahedra,
+exactly matching coordinates and unchanged six solution fields. The snapshot in
+`cont_adj_rans/oneram6` differs from its mesh by up to 0.0284 in coordinates and
+was rejected as a matching fixture. No adapted RANS version was established.
+
+Keep the true symmetry boundary. QR currently rejects it, so these runs exercise
+WLS's existing symmetry path, with within-call geometry reuse disabled. No flow
+or remesher iteration is performed; selecting MMG allows 3D metric construction
+but does not invoke MMG. There is no prescribed BL metric in this check and no
+exact Hessian or aerodynamic accuracy reference.
+
+| Ranks | Process (s) | Metric computation (s) | Hessian recovery (s) | Relative metric MPI difference |
+|---|---:|---:|---:|---:|
+| 1 | 9.876 | 0.373 | 0.135 | 0 |
+| 2 | 6.129 | 0.203 | 0.0744 | 2.46e-9 |
+| 4 | 4.220 | 0.108 | 0.0419 | 7.37e-7 |
+
+The precise metric timings in the JSON receipt take precedence over rounded
+values here. Metrics are finite SPD and independently integrate to complexity
+300000 within 4.2e-12 relative error. Hessian MPI differences are below 2.71e-11
+with the documented global floor. **The strict 1e-9 metric MPI gate fails** on
+two/four ranks; do not relax it to claim readiness. Independent eigenvalue
+analysis sees aspect 10000.00023 for configured 10000, reflecting visible
+roundoff in these condition-number 1e8 tensors. The 3D discrepancy needs separate
+isolation; it is not proof of the same cause as the 2D noise failure.
+
+The real run exposed a filename buffer overflow in the shared ASCII restart
+reader. Both shared ASCII/binary readers and both output-header readers now use
+the existing string directly instead of copying it into `char fname[100]`.
+A >100-character filename regression covers all four paths on 1/2/4 ranks.
+
+### Noise failure occurs before gradation
+
+The investigation-only `integration_evidence/frozen_metric_probe.patch` captures
+pre-BL tensors/scale and permits fixed-input replay. It is **not production
+configuration or a merge candidate**. Apply it only to a disposable source/build,
+run `replay_frozen_metric.py`, restore the source and rebuild. The final patch
+also captures the initial sensor intersection before corner/BL/gradation work;
+use `--capture-all` for that campaign. The replay still performs preceding root
+trials, so its elapsed time is not a single-pass gradation benchmark.
+
+With identical serial tensors and final scale, MPI differences stay below
+3.4e-14 at 0/1/10/80 sweep caps. Removing experimental hard-normal BL projection
+from the same frozen input converges in 32 sweeps to ratio 1.00000009965; MPI
+agreement remains below 6e-13. Keeping that projection stalls at ratio 2.28272,
+17 normal-limited edges and 80 sweeps. Thus the constraint-policy failure and
+the original enabled-noise MPI discrepancy are separate issues.
+
+The initial sensor tensor already differs by 5.47e-4 / 8.36e-4 on two/four
+ranks, before any corner adjustment, BL composition or gradation. Filtered QR
+Hessians are identical, and sensor normalization integrals differ by less than
+8.1e-15 relative. At a worst point the filtered sensors are nearly rank one.
+**Inference:** the highly conditioned multi-sensor intersection amplifies the
+normalization roundoff (its intermediate eigenvalue ratio cap is 1e14). This
+narrows the fault to upstream construction; isolating and stabilizing the
+individual operators remains necessary. No numerical intersection/reduction fix
+was added, and default noise strength remains zero.
+
+### Next improvements and durable evidence
+
+1. Stabilize multi-sensor combination for nearly rank-one tensors in 2D/3D;
+   include tiny normalization perturbations and MPI agreement without discarding
+   finer demands. Accurate sums can reduce input error but cannot by themselves
+   certify a stable intersection.
+2. Improve one-sided curved-wall and skew-sensitive recovery, with separate
+   tangential/transverse and wall-interior/edge accuracy checks.
+3. Support symmetry/periodicity in QR before using this real wing for QR/noise.
+4. Reconcile complexity/gradation with main's geometric BL query policy, then
+   rebase after the main agent's integrated branch is published. Superseded
+   nodal hard-normal experiments must not be replayed onto it.
+5. Validate actual adaptation/flow cycles, forces, conservation and wall
+   resolution. Native 3D remeshing, AD and structured BL topology remain open.
+
+The report, scripts, probe patch, logs, configs, frozen probe tensors and output
+fields are also preserved outside `/tmp` in
+`/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/metric_robustness_3d_noise_v4`.
+Its manifest records file sizes and SHA-256 hashes. Input RAE files are copied
+there; original ONERA inputs remain in their existing test directory. Previous
+reports and the full deferred roadmap above remain retained.
