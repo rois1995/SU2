@@ -35,6 +35,7 @@
 #include "../../SU2_CFD/include/adaptation/CAdapSensors.hpp"
 #include "../../SU2_CFD/include/variables/CPrimitiveIndices.hpp"
 #include "../../SU2_CFD/include/solvers/CSolverFactory.hpp"
+#include "../../SU2_CFD/include/solvers/CBaselineSolver.hpp"
 #include "../../SU2_CFD/include/gradients/computeGradientsGreenGauss.hpp"
 #include "../../SU2_CFD/include/gradients/computeGradientsLeastSquares.hpp"
 #include "../../SU2_CFD/include/gradients/computeHessians.hpp"
@@ -653,7 +654,8 @@ TEST_CASE("QR shrinkage retains a resolved steep profile and does not filter its
  *     Smooth grading and distortion vary the stencil with refinement. Error comparisons are made in
  *     local layer coordinates, so the physical normal curvature (O(aspect^2)) cannot hide tangential errors. ---*/
 std::array<passivedouble, 5> pressureHessianErrors(unsigned short nDim, unsigned long n, bool distorted,
-                                                   passivedouble aspect, passivedouble angle) {
+                                                   passivedouble aspect, passivedouble angle, passivedouble skew = 0,
+                                                   bool spanCurve = false, const char* method = "QUADRATIC_LEAST_SQUARES") {
   auto mesh = simplex_test::MakeSimplexMesh(
       nDim, n, [](const passivedouble* x) { return std::string(x[1] < 1e-12 ? "wall" : "far"); });
   const auto parameter = mesh.coord;
@@ -662,18 +664,20 @@ std::array<passivedouble, 5> pressureHessianErrors(unsigned short nDim, unsigned
   for (auto point = 0ul; point < mesh.GetnPoint(); ++point) {
     auto* x = &mesh.coord[point * nDim];
     const auto eta = distorted ? pow(x[1], 1.3) : x[1];
-    const auto u = x[0] + (distorted ? 0.1 * sin(pi * x[0]) * sin(pi * eta) : 0.0);
-    const auto v = (eta + bend * sin(pi * u)) / aspect;
+    const auto u = x[0] + (distorted ? 0.1 * sin(pi * x[0]) * sin(pi * eta) : 0.0) +
+                   (nDim == 3 ? skew * x[2] : 0.0);
+    const auto v = (eta + bend * sin(pi * u) +
+                    (spanCurve ? bend * sin(pi * x[2]) : 0.0)) / aspect;
     x[0] = c * u - s * v;
     x[1] = s * u + c * v;
   }
   std::unique_ptr<CConfig> config;
   {
     transfer_test::Mute mute;
-    stringstream options(
+    stringstream options(string(
         "SOLVER= EULER\nMESH_FORMAT= SU2\nMESH_FILENAME= unused.su2\n"
         "MARKER_FAR= (far)\nMARKER_EULER= (wall)\nCOMPUTE_METRIC= YES\n"
-        "ADAP_SENSOR= (PRESSURE)\nNUM_METHOD_HESS= QUADRATIC_LEAST_SQUARES\n");
+        "ADAP_SENSOR= (PRESSURE)\nNUM_METHOD_HESS= ") + method + "\n");
     config = std::make_unique<CConfig>(options, SU2_COMPONENT::SU2_CFD, false);
   }
   transfer_test::MeshSolution state(config.get(), mesh, 0);
@@ -684,8 +688,9 @@ std::array<passivedouble, 5> pressureHessianErrors(unsigned short nDim, unsigned
   auto layerCoord = [&](unsigned long point, passivedouble* q) {
     const auto* x = geometry.nodes->GetCoord(point);
     q[0] = c * SU2_TYPE::GetValue(x[0]) + s * SU2_TYPE::GetValue(x[1]);
-    q[1] = aspect * (-s * SU2_TYPE::GetValue(x[0]) + c * SU2_TYPE::GetValue(x[1])) - bend * sin(pi * q[0]);
     q[2] = nDim == 3 ? SU2_TYPE::GetValue(x[2]) : 0.0;
+    q[1] = aspect * (-s * SU2_TYPE::GetValue(x[0]) + c * SU2_TYPE::GetValue(x[1])) -
+           bend * sin(pi * q[0]) - (spanCurve ? bend * sin(pi * q[2]) : 0.0);
   };
   for (auto point = 0ul; point < geometry.GetnPoint(); ++point) {
     passivedouble q[3], pressure = 1.0;
@@ -698,6 +703,29 @@ std::array<passivedouble, 5> pressureHessianErrors(unsigned short nDim, unsigned
     transfer_test::Mute mute;
     flow->SetAuxVar_Adapt(&geometry, config.get(), state.solver[MESH_0]);
     flow->SetHessian_Adapt(&geometry, config.get());
+  }
+  if (string(method) == "WEIGHTED_LEAST_SQUARES") {
+    auto* nodes = flow->GetNodes();
+    vector<su2double> reused(geometry.GetnPointDomain() * 6);
+    passivedouble largest = 0, difference = 0;
+    for (auto point = 0ul; point < geometry.GetnPointDomain(); ++point)
+      for (unsigned k = 0; k < 6; ++k) {
+        reused[point * 6 + k] = nodes->GetHessian()(point, 0, k);
+        largest = max(largest, fabs(SU2_TYPE::GetValue(reused[point * 6 + k])));
+      }
+    {
+      transfer_test::Mute mute;
+      computeHessians(flow, WEIGHTED_LEAST_SQUARES, geometry, *config, nodes->GetGradient_Adapt(), 0, 1,
+                      nodes->GetHessian_Field(), nodes->GetHessian_Grad(), nodes->GetRmatrix(), nodes->GetHessian());
+    }
+    for (auto point = 0ul; point < geometry.GetnPointDomain(); ++point)
+      for (unsigned k = 0; k < 6; ++k)
+        difference = max(difference, fabs(SU2_TYPE::GetValue(reused[point * 6 + k] - nodes->GetHessian()(point, 0, k))));
+    largest = CPassiveComm::Allreduce(largest, CPassiveComm::Op::MAX);
+    difference = CPassiveComm::Allreduce(difference, CPassiveComm::Op::MAX);
+    CHECK(difference / largest < 1e-9);
+    if (SU2_MPI::GetRank() == MASTER_NODE) cout << "3D WLS reuse/legacy maximum difference over field scale="
+                                             << difference / largest << endl;
   }
   std::array<passivedouble, 5> error = {};  // gradient, interior Hessian, wall normal Hessian, eigenvalues, direction
   unsigned long nInterior = 0, nWall = 0;
@@ -712,8 +740,11 @@ std::array<passivedouble, 5> pressureHessianErrors(unsigned short nDim, unsigned
     }
     const auto first = bend * pi * cos(pi * q[0]), second = -bend * pi * pi * sin(pi * q[0]);
     ref[0][0] -= g[1] * second;
+    const auto spanFirst = spanCurve ? bend * pi * cos(pi * q[2]) : 0.0;
+    if (spanCurve) ref[2][2] += g[1] * bend * pi * pi * sin(pi * q[2]);
     const passivedouble T[3][3] = {
-        {c - s * first / aspect, -s / aspect, 0.0}, {s + c * first / aspect, c / aspect, 0.0}, {0.0, 0.0, 1.0}};
+        {c - s * first / aspect, -s / aspect, -s * spanFirst / aspect},
+        {s + c * first / aspect, c / aspect, c * spanFirst / aspect}, {0.0, 0.0, 1.0}};
     su2double tensor[3][3];
     flow->GetNodes()->GetHessianMat(point, 0, tensor);
     passivedouble recovered[3][3] = {};
@@ -806,6 +837,86 @@ struct PeriodicBoxTest : public AdaptBoxTest {
     return x[0] > 2 * h - tol || x[1] > 2 * h - tol;
   }
 };
+
+TEST_CASE("Restart readers accept long filenames in ASCII and binary", "[RestartReliability]") {
+  const auto mesh = simplex_test::MakeSimplexMesh(2, 2, [](const passivedouble*) { return "far"; });
+  const std::array<string, 6> names = {"x", "y", "Density", "Momentum_x", "Momentum_y", "Energy"};
+  for (const bool binary : {false, true}) {
+    const auto base = string(120, 'p') + (binary ? "_binary" : "_ascii");
+    const auto filename = base + (binary ? ".dat" : ".csv");
+    if (SU2_MPI::GetRank() == MASTER_NODE) {
+      std::ofstream file(filename, binary ? std::ios::binary : std::ios::out);
+      if (binary) {
+        const std::array<int, 5> header = {SU2_RESTART_MAGIC_NUMBER, 6, static_cast<int>(mesh.GetnPoint()),
+                                         static_cast<int>(sizeof(passivedouble)), 0};
+        file.write(reinterpret_cast<const char*>(header.data()), header.size() * sizeof(int));
+        for (const auto& name : names) {
+          char buffer[CGNS_STRING_SIZE] = {};
+          std::copy(name.begin(), name.end(), buffer);
+          file.write(buffer, sizeof(buffer));
+        }
+      } else {
+        file << "PointID";
+        for (const auto& name : names) file << "," << name;
+        file << "\n";
+      }
+      for (auto point = 0ul; point < mesh.GetnPoint(); ++point) {
+        const std::array<passivedouble, 6> row = {mesh.coord[2 * point], mesh.coord[2 * point + 1], 1, 1, 0, 3};
+        if (binary) file.write(reinterpret_cast<const char*>(row.data()), row.size() * sizeof(passivedouble));
+        else {
+          file << point;
+          for (const auto value : row) file << "," << value;
+          file << "\n";
+        }
+      }
+      CHECK(file.good());
+    }
+    SU2_MPI::Barrier(SU2_MPI::GetComm());
+    stringstream options(string("SOLVER= EULER\nMESH_FORMAT= SU2\nMESH_FILENAME= unused.su2\nMARKER_FAR= (far)\n") +
+                         "SOLUTION_FILENAME= " + base + "\nREAD_BINARY_RESTART= " + (binary ? "YES\n" : "NO\n"));
+    transfer_test::Mute mute;
+    CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
+    transfer_test::MeshSolution state(&config, mesh, 0);
+    auto* flow = state.solver[MESH_0][FLOW_SOL];
+    if (binary) flow->Read_SU2_Restart_Binary(&state.Fine(), &config, filename);
+    else flow->Read_SU2_Restart_ASCII(&state.Fine(), &config, filename);
+    CHECK(flow->fields.size() == names.size() + 1);
+    CBaselineSolver output(&state.Fine(), &config);
+    CHECK(output.GetnVar() == names.size());
+    SU2_MPI::Barrier(SU2_MPI::GetComm());
+    if (SU2_MPI::GetRank() == MASTER_NODE) std::remove(filename.c_str());
+  }
+}
+
+TEST_CASE("3D pressure Hessian recovery on skewed and doubly curved tetrahedra", "[Hessian3DStress]") {
+  for (const auto* method : {"WEIGHTED_LEAST_SQUARES", "QUADRATIC_LEAST_SQUARES"}) {
+    for (const bool curved : {false, true}) {
+      const auto aspect = curved ? 1000.0 : 10000.0;
+      const auto skew = curved ? 2.0 : 4.0;
+      CAPTURE(method, curved, aspect, skew);
+      const auto start = SU2_MPI::Wtime();
+      const auto coarse = pressureHessianErrors(3, 8, curved, aspect, .37, skew, curved, method);
+      const auto fine = pressureHessianErrors(3, 16, curved, aspect, .37, skew, curved, method);
+      const auto elapsed = CPassiveComm::Allreduce(SU2_MPI::Wtime() - start, CPassiveComm::Op::MAX);
+      if (SU2_MPI::GetRank() == MASTER_NODE) {
+        cout << "3D Hessian stress " << method << ", curved=" << curved << ", AR=" << aspect << ", skew=" << skew
+             << ": coarse [grad,H,wall,eigen,direction]=";
+        for (const auto e : coarse) cout << " " << e;
+        cout << "; fine=";
+        for (const auto e : fine) cout << " " << e;
+        cout << "; elapsed=" << elapsed << " s" << endl;
+      }
+      for (const auto e : fine) CHECK(std::isfinite(e));
+      // WLS accuracy on the curved/skewed case is a measured limitation, shared with legacy recovery above.
+      // Require QR convergence/directions; the WLS regression checks reuse equivalence, not physical accuracy.
+      if (string(method) == "QUADRATIC_LEAST_SQUARES") {
+        CHECK(fine[1] < .75 * coarse[1] + 1e-5);
+        CHECK(fine[4] < .1);
+        if (!curved) CHECK(fine[2] < 1e-4);
+      }
+    }
+  }
+}
 
 void testPeriodicHessian(const string& method) {
   PeriodicBoxTest test(method);

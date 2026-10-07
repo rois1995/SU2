@@ -1,0 +1,86 @@
+--- a/SU2_CFD/src/solvers/CSolver.cpp
++++ b/SU2_CFD/src/solvers/CSolver.cpp
+@@ -31,6 +31,9 @@
+ #include "../../../Common/include/parallelization/CPassiveComm.hpp"
+ 
+ #include <limits>
++#include <cstdlib>
++#include <fstream>
++#include <iomanip>
+ #include <queue>
+ 
+ #include "../../include/gradients/computeGradientsGreenGauss.hpp"
+@@ -2796,6 +2799,21 @@
+         for (auto j = 0u; j < nDim; ++j) blFrames[iPoint].m[i][j] = vec[i][j];
+   }
+ 
++  if (const auto* path = std::getenv("SU2_METRIC_PROBE_DUMP")) {
++    std::ofstream file(string(path) + ".initial.rank" + std::to_string(rank));
++    file << std::setprecision(17) << "sensorScales";
++    for (const auto value : globalScale) file << " " << value;
++    file << "\n";
++    for (auto point = 0ul; point < nPointDomain; ++point) {
++      su2double val[3] = {}, tensor[3][3];
++      for (unsigned i = 0; i < nDim; ++i) val[i] = eigenvalues[point * nDim + i];
++      CBlasStructure::EigenRecomposition(tensor, blFrames[point].m, val, nDim);
++      file << geometry->nodes->GetGlobalIndex(point) << " " << tensor[0][0] << " " << tensor[0][1] << " "
++           << tensor[1][1] << "\n";
++    }
++    if (!file) SU2_MPI::Error("Initial metric probe write failed.", CURRENT_FUNCTION);
++  }
++
+   /*--- Native BL geometry is frozen during the complexity solve. Cache its nearest-face samples once;
+    *    every trial applies the actual normal, tangential and fade constraints before integrating density. ---*/
+   std::unique_ptr<CBoundaryLayerMetric> nativeLayers;
+@@ -2857,7 +2875,8 @@
+     const auto gradationStart = SU2_MPI::Wtime();
+     const auto growth = log(config->GetAdap_Hgrad());
+     // ponytail: propagation is synchronous for MPI reproducibility; a work-queue solver needs equivalent ownership semantics.
+-    constexpr unsigned maxSweeps = 80;
++    const unsigned maxSweeps = std::getenv("SU2_METRIC_PROBE_SWEEPS") ?
++        std::stoul(std::getenv("SU2_METRIC_PROBE_SWEEPS")) : 80;
+     gradationConverged = false;
+     for (unsigned sweep = 0; sweep < maxSweeps; ++sweep) {
+       ++totalGradationSweeps;
+@@ -3209,6 +3228,41 @@
+     }
+   }
+ 
++  /*--- Investigation-only patch: freeze final pre-BL tensors and the selected scale. ---*/
++  if (const auto* path = std::getenv("SU2_METRIC_PROBE_DUMP")) {
++    if (nDim != 2 || !nativeMetric) SU2_MPI::Error("Metric probe requires the 2D native metric.", CURRENT_FUNCTION);
++    std::ofstream file(string(path) + ".rank" + std::to_string(rank));
++    file << std::setprecision(17) << "logScale " << logScale << "\n";
++    for (auto point = 0ul; point < nPointDomain; ++point) {
++      su2double val[3] = {}, tensor[3][3];
++      for (unsigned i = 0; i < nDim; ++i) val[i] = eigenvalues[point * nDim + i];
++      CBlasStructure::EigenRecomposition(tensor, blFrames[point].m, val, nDim);
++      file << geometry->nodes->GetGlobalIndex(point) << " " << tensor[0][0] << " " << tensor[0][1] << " "
++           << tensor[1][1] << "\n";
++    }
++    if (!file) SU2_MPI::Error("Metric probe write failed.", CURRENT_FUNCTION);
++  }
++  if (const auto* path = std::getenv("SU2_METRIC_PROBE_REPLAY")) {
++    std::ifstream file(path);
++    string label;
++    file >> label >> logScale;
++    if (label != "logScale" || nDim != 2 || !nativeMetric)
++      SU2_MPI::Error("Invalid metric probe replay.", CURRENT_FUNCTION);
++    std::map<unsigned long, std::array<su2double, 3>> tensors;
++    unsigned long id;
++    std::array<su2double, 3> row;
++    while (file >> id >> row[0] >> row[1] >> row[2]) tensors.emplace(id, row);
++    for (auto point = 0ul; point < nPointDomain; ++point) {
++      const auto found = tensors.find(geometry->nodes->GetGlobalIndex(point));
++      if (found == tensors.end()) SU2_MPI::Error("Incomplete metric probe replay.", CURRENT_FUNCTION);
++      su2double tensor[3][3] = {}, val[3], work[3];
++      tensor[0][0] = found->second[0]; tensor[0][1] = tensor[1][0] = found->second[1]; tensor[1][1] = found->second[2];
++      CBlasStructure::EigenDecomposition(tensor, blFrames[point].m, val, nDim, work);
++      for (unsigned i = 0; i < nDim; ++i) eigenvalues[point * nDim + i] = val[i];
++    }
++    if (rank == MASTER_NODE) cout << "Frozen metric replay: logScale=" << std::setprecision(17) << logScale << endl;
++  }
++
+   /*--- Final metric. Re-evaluate the selected endpoint if the root was infeasible. ---*/
+   if (nativeMetric) error = complexityError(logScale);
+   if (nativeMetric) {
