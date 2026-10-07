@@ -11,7 +11,7 @@ script are in `integration_evidence/metric_robustness_v2_validation.json` and
 | ID | Work | Status |
 |---|---|---|
 | 1 | Constrained tensor gradation: classify blocked directions, converge useful updates, reduce repeated work | Direct updater rejected by actual-case checks. Retained relaxation/performance changes; main representation reconciliation required |
-| 2 | Noise-aware Hessian treatment, with controls that retain resolved curvature | Implemented opt-in residual shrinkage with correlated-center uncertainty; exact/noisy/steep-profile and MPI tests passed |
+| 2 | Noise-aware Hessian treatment, with controls that retain resolved curvature | Implemented opt-in residual shrinkage; manufactured tests passed, but enabled RAE metric MPI/gradation checks failed; retain default zero |
 | 4 | More selective MPI geometry exchange and storage | Implemented conservative occupied query boxes; unit/MPI tests passed; private candidate reference transport remains separate |
 | 5 | Reuse WLS geometry across sensors and derivative passes | Implemented within-call normal-matrix/weight reuse; stretched multisensor equivalence and MPI tests passed |
 
@@ -194,7 +194,7 @@ The inspected NativeIntegrated checkout is `codex/native-unsteady-2d` at
 `b0cbfaf33409f8dac455d19ed85a74b9c1fa9f43`; it also adds `ApplyPoint` for
 pointwise/window use. The metric branch started from `73708f6722` and predates
 that API work. Text/API integration and the BL sizing policy are distinct issues.
-The user has been asked which conflict they mean; no main merge is authorized.
+The user's main-agent notes confirm both semantic conflicts; no main merge is authorized.
 
 ### Confirmed current-main representation contract
 
@@ -249,8 +249,8 @@ The initial no-pruning RAE experiment reached nodal complexity 60000, a final
 transported ratio printed as 1, 52 last-trial sweeps, 88 complexity trials and
 4569 cumulative sweeps, with 30.745 s of gradation on one rank. This is an
 experimental-policy comparison with the prior branch, not current main. Exact
-unchanged-stencil pruning is now included; final timings and independent audits
-will be recorded separately. WLS's three-sensor stretched-grid microbenchmark
+unchanged-stencil pruning was included at that checkpoint and subsequently removed;
+final timings and independent audits are recorded below. WLS's three-sensor stretched-grid microbenchmark
 measured 0.0144882 s for 20 legacy Hessian passes versus 0.00656786 s with reuse.
 Noise-energy reduction on the manufactured checkerboard is about 44%; exact
 quadratic and resolved steep-profile checks remain intact. No fixed fraction of
@@ -290,3 +290,65 @@ benefit. Keep the receipt and source history for future workload-specific
 assessment. The retained performance changes reuse buffers and geometric work,
 screen satisfied 2D transports without eigen decomposition, and measure cumulative
 work. Do not trade additional control/memory overhead for an unmeasured speedup.
+
+## Final retained-source validation and unresolved limits
+
+Source `887ca28f939302845e731051c410fbda22c2dc0a`, binary SHA-256
+`f95474b5338a43ddfa1c5fb4b9d0dd0dc8b40f1307a00d4b1a097fc09e63f456`.
+The complete receipt is `integration_evidence/metric_robustness_v3_validation.json`.
+Selected serial regressions passed 97 cases / 429643 assertions; MPI two/four
+ranks passed 24 cases per rank. Forward/reverse AD syntax probes passed.
+
+The strict independent frozen-restart audit passed for the six default-noise
+WLS/QR cases. Complexity independently integrated to 59999.9983 / 59999.9899,
+with finite SPD tensors, unchanged five restart solution fields, full-band normal
+size error below 6.7e-12 and coupling below 5.2e-10. Maximum relative metric
+differences over MPI were below 3.4e-10; QR Hessians were identical.
+
+| Method | Ranks | Process (s) | Gradation (s) | Hessian recovery (s) |
+|---|---:|---:|---:|---:|
+| WLS | 1 | 34.008 | 32.478 | 0.00620 |
+| WLS | 2 | 19.093 | 18.041 | 0.00306 |
+| WLS | 4 | 13.125 | 11.996 | 0.00343 |
+| QR, noise disabled | 1 | 33.508 | 31.636 | 0.20290 |
+| QR, noise disabled | 2 | 20.260 | 18.869 | 0.11119 |
+| QR, noise disabled | 4 | 13.231 | 12.193 | 0.06274 |
+| QR, noise strength 1 | 1 | 48.850 | 46.798 | 0.28388 |
+| QR, noise strength 1 | 2 | 30.976 | 29.461 | 0.16208 |
+| QR, noise strength 1 | 4 | 20.613 | 19.505 | 0.07893 |
+
+Both default methods used 37 complexity trials / 2960 cumulative sweeps.
+The WLS serial gradation phase fell from the instrumented earlier-branch
+128.644 s to 32.478 s; fewer trials and cheaper tensor work both contributed.
+This is a single-run comparison against our earlier experimental policy, **not
+current main**. Mean WLS sweep time was about 11 ms, or 0.88 s per 80-sweep
+trial, repeated throughout the complexity solve. MPI four-rank cumulative sweep
+reductions took 4.83 s within 12.00 s of gradation, so synchronization/load balance
+remains relevant after reducing local work.
+
+The 80-sweep limit remains active. Independent directed-edge audits measured
+maximum full-band ratios 1.01835 / 1.01891 and 1900 / 3236 edges above 1+1e-5;
+outer ratios were below 1+1e-7. Faster relaxation is **not** a convergence fix.
+Original reference chord conflicts and composite-field representation limits
+remain. No adaptation cycle or aerodynamic improvement is demonstrated.
+
+### Enabled-noise integration check failed
+
+The nine-case strict audit fails when it reaches the enabled-noise MPI metric.
+QR Hessians are identical across all three partitions, but relative final tensor
+differences reach 7.44e-6 (two ranks) and 1.93e-5 (four ranks), above the required
+1e-9. All three logs report complexity 60000, but the final transported-metric
+ratio worsens to 2.28272, with 17 normal-limited directed edges and 80 sweeps.
+The six-case default-only audit passed unchanged; no assertion was loosened.
+
+Retain `ADAP_HESSIAN_NOISE=0` for integration. The opt-in filter's manufactured
+curvature tests validate its implementation, not its physical suitability or
+interaction with the experimental hard-normal relaxation. Shock/truncation
+residuals can be removed as if they were noise. Reassess the filter with main's
+geometric composition and converged flow before recommending a nonzero setting.
+
+The rejected Schur updater and enabled-noise failure are separate results;
+removing the former did not resolve the latter. Integration should preserve
+main's sensor-only donor field, geometric BL evaluation and finer sensor demands.
+Independent Hessian/WLS changes remain assessable separately; the BL, constrained
+complexity and gradation architecture needs the reconciliation described above.
