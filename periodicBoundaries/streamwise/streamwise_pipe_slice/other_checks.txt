@@ -1,0 +1,16 @@
+Streamwise periodic checks without a run folder here (the inputs are made from the chtPinArray_2d case of the TestCases repository).
+
+Turbulent source term of the periodic temperature
+  Case: fluid zone of incomp_navierstokes/streamwise_periodic/chtPinArray_2d (INC_RANS, SST, pressure drop, heat flux on the pins),
+  STREAMWISE_PERIODIC_TEMPERATURE= YES, one iteration from the turbulent solution of the case (solution_0.dat).
+  rms[h] after the iteration: develop 0.7429064562, pr 0.7429043857. All other residuals are the same.
+
+Recovered pressure with a translation that is not along a coordinate axis
+  Case: the same mesh, laminar, STREAMWISE_PERIODIC_PRESSURE_DROP= 5.5772, 20 iterations, once on the original mesh and once on the mesh
+  rotated by 30 degrees (translation vector and initial velocity rotated too).
+  Recovered_Pressure - Pressure depends only on the position, it must be the same at the same point of both meshes.
+  Largest difference between the two meshes: develop 5.283e-01 Pa, pr 3.109e-15 Pa. Range of the offset: -5.5772 to 0 Pa.
+
+SWHeat with the energy equation off
+  sp_pipeSlice_3d_dp_hf_tp.cfg (the regression case, 11 iterations): the SWHeat column of the history is 0.0005 on develop and 0 with the
+  pr. In develop_energy_off of this folder it happened to be 0: the value is not initialized on develop.

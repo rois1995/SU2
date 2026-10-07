@@ -1,0 +1,965 @@
+diff --git a/UnitTests/Common/CConfig_tests.cpp b/UnitTests/Common/CConfig_tests.cpp
+index 1119187855..b9398a6807 100644
+--- a/UnitTests/Common/CConfig_tests.cpp
++++ b/UnitTests/Common/CConfig_tests.cpp
+@@ -29,6 +29,7 @@
+ #include <sstream>
+ #include <string>
+ #include "../../Common/include/CConfig.hpp"
++#include "../../Common/include/toolboxes/geometry_toolbox.hpp"
+ 
+ namespace {
+ 
+@@ -87,3 +88,106 @@ TEST_CASE("INIT_OPTION_INC defaults", "[Config]") {
+         INIT_OPTION_INC::OPERATING_PRESSURE);
+   CHECK(GetInitOptionInc(ideal_gas_options + "INIT_OPTION_INC= DENSITY_INIT\n") == INIT_OPTION_INC::DENSITY_INIT);
+ }
++
++TEST_CASE("Periodic affine transformation and its inverse", "[Config][Periodic]") {
++  const auto angles = GENERATE(std::string("0,0,0"), std::string("0,0,30"), std::string("20,30,10"),
++                               std::string("90,0,90"), std::string("-90,0,90"));
++  std::stringstream options(base_options + "MARKER_PERIODIC= (a,b, 2,-3,1, " + angles + ", 1,2,-3)\n");
++  auto* original = std::cout.rdbuf(nullptr);
++  CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
++  std::cout.rdbuf(original);
++  su2double rotations[2][3][3];
++  const std::string markers[] = {"a", "b"};
++  for (auto side = 0u; side < 2; ++side) {
++    const auto* rotation = config.GetPeriodicRotAngles(markers[side]);
++    GeometryToolbox::RotationMatrix(rotation[0], rotation[1], rotation[2], rotations[side]);
++  }
++  su2double error = 0;
++  for (auto iDim = 0u; iDim < 3; ++iDim) {
++    for (auto jDim = 0u; jDim < 3; ++jDim) {
++      su2double product = 0;
++      for (auto kDim = 0u; kDim < 3; ++kDim) product += rotations[1][iDim][kDim] * rotations[0][kDim][jDim];
++      error = std::max(error, fabs(product - (iDim == jDim)));
++    }
++    const auto* forward = config.GetPeriodicTranslation("a");
++    su2double translation = config.GetPeriodicTranslation("b")[iDim];
++    for (auto jDim = 0u; jDim < 3; ++jDim) translation += rotations[1][iDim][jDim] * forward[jDim];
++    error = std::max(error, fabs(translation));
++  }
++  INFO("Euler angles: " << angles);
++  CHECK(error < 1e-12);
++}
++
++TEST_CASE("Periodic Continuous support", "[.PeriodicSupportContinuous]") {
++  auto base = base_options;
++  base.erase(0, base.find("MESH_FORMAT="));
++  const std::string custom = "MARKER_CUSTOM= (x_minus, x_plus, z_plus, z_minus)";
++  base.replace(base.find(custom), custom.size(), "MARKER_CUSTOM= (z_minus)\nMARKER_SYM= (z_plus)");
++  std::stringstream options(base +
++                            "MARKER_PERIODIC= (x_minus,x_plus, 0,0,0, 0,0,0, 1,0,0)\nSOLVER= "
++                            "NAVIER_STOKES\nMACH_NUMBER= 0.2\nREYNOLDS_NUMBER= 1000000\nMATH_PROBLEM= CONTINUOUS_ADJOINT\n");
++  CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
++}
++
++TEST_CASE("Periodic Radiation support", "[.PeriodicSupportRadiation]") {
++  auto base = base_options;
++  const std::string custom = "MARKER_CUSTOM= (x_minus, x_plus, z_plus, z_minus)";
++  base.replace(base.find(custom), custom.size(), "MARKER_CUSTOM= (z_minus)\nMARKER_SYM= (z_plus)");
++  std::stringstream options(
++      base + "MARKER_PERIODIC= (x_minus,x_plus, 0,0,0, 0,0,0, 1,0,0)\nRADIATION_MODEL= P1\nINC_ENERGY_EQUATION= YES\n");
++  CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
++}
++
++TEST_CASE("Periodic Structure support", "[.PeriodicSupportStructure]") {
++  auto base = base_options;
++  base.erase(0, base.find("MESH_FORMAT="));
++  const std::string custom = "MARKER_CUSTOM= (x_minus, x_plus, z_plus, z_minus)";
++  base.replace(base.find(custom), custom.size(), "MARKER_CUSTOM= (z_minus)\nMARKER_SYM= (z_plus)");
++  std::stringstream options(base + "MARKER_PERIODIC= (x_minus,x_plus, 0,0,0, 0,0,0, 1,0,0)\nSOLVER= ELASTICITY\n");
++  CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
++}
++
++TEST_CASE("Streamwise periodic Rotation support", "[.StreamwisePeriodicSupportRotation]") {
++  auto base = base_options;
++  const std::string custom = "MARKER_CUSTOM= (x_minus, x_plus, z_plus, z_minus)";
++  base.replace(base.find(custom), custom.size(), "MARKER_CUSTOM= (z_minus)\nMARKER_SYM= (z_plus)");
++  std::stringstream options(base +
++                            "INC_NONDIM= DIMENSIONAL\nKIND_STREAMWISE_PERIODIC= PRESSURE_DROP\n"
++                            "INC_ENERGY_EQUATION= YES\nSTREAMWISE_PERIODIC_TEMPERATURE= YES\n"
++                            "MARKER_PERIODIC= (x_minus,x_plus, 0,0,0, 90,0,0, 1,0,0)\n");
++  CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
++}
++
++TEST_CASE("Streamwise periodic Zero support", "[.StreamwisePeriodicSupportZero]") {
++  auto base = base_options;
++  const std::string custom = "MARKER_CUSTOM= (x_minus, x_plus, z_plus, z_minus)";
++  base.replace(base.find(custom), custom.size(), "MARKER_CUSTOM= (z_minus)\nMARKER_SYM= (z_plus)");
++  std::stringstream options(base +
++                            "INC_NONDIM= DIMENSIONAL\nKIND_STREAMWISE_PERIODIC= PRESSURE_DROP\n"
++                            "INC_ENERGY_EQUATION= YES\nSTREAMWISE_PERIODIC_TEMPERATURE= YES\n"
++                            "MARKER_PERIODIC= (x_minus,x_plus, 0,0,0, 0,0,0, 0,0,0)\n");
++  CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
++}
++
++TEST_CASE("Streamwise periodic Convection support", "[.StreamwisePeriodicSupportConvection]") {
++  auto base = base_options;
++  const std::string custom = "MARKER_CUSTOM= (x_minus, x_plus, z_plus, z_minus)";
++  base.replace(base.find(custom), custom.size(), "MARKER_CUSTOM= (z_minus)");
++  std::stringstream options(
++      base +
++      "INC_NONDIM= DIMENSIONAL\nKIND_STREAMWISE_PERIODIC= PRESSURE_DROP\n"
++      "INC_ENERGY_EQUATION= YES\nSTREAMWISE_PERIODIC_TEMPERATURE= YES\n"
++      "MARKER_PERIODIC= (x_minus,x_plus, 0,0,0, 0,0,0, 1,0,0)\nMARKER_HEATTRANSFER= (z_plus,1,300)\n");
++  CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
++}
++
++TEST_CASE("Streamwise periodic CHT support", "[.StreamwisePeriodicSupportCHT]") {
++  auto base = base_options;
++  const std::string custom = "MARKER_CUSTOM= (x_minus, x_plus, z_plus, z_minus)";
++  base.replace(base.find(custom), custom.size(), "MARKER_CUSTOM= (z_minus)");
++  std::stringstream options(base +
++                            "INC_NONDIM= DIMENSIONAL\nKIND_STREAMWISE_PERIODIC= PRESSURE_DROP\n"
++                            "INC_ENERGY_EQUATION= YES\nSTREAMWISE_PERIODIC_TEMPERATURE= YES\n"
++                            "MARKER_PERIODIC= (x_minus,x_plus, 0,0,0, 0,0,0, 1,0,0)\nMARKER_CHT_INTERFACE= (z_plus)\n");
++  CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
++}
+diff --git a/UnitTests/Common/geometry/CGeometry_test.cpp b/UnitTests/Common/geometry/CGeometry_test.cpp
+index 22556b1605..2317da5dbe 100644
+--- a/UnitTests/Common/geometry/CGeometry_test.cpp
++++ b/UnitTests/Common/geometry/CGeometry_test.cpp
+@@ -26,7 +26,9 @@
+  */
+ 
+ #include "catch.hpp"
++#include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
+ #include "../../UnitQuadTestCase.hpp"
++#include "../../../Common/include/geometry/CMultiGridGeometry.hpp"
+ 
+ std::unique_ptr<UnitQuadTestCase> TestCase;
+ 
+@@ -140,3 +142,155 @@ TEST_CASE("Set bound control volume", "[Geometry]") {
+   CHECK(TestCase->geometry->vertex[3][2]->GetNormal()[1] == -0.0625);
+   CHECK(TestCase->geometry->vertex[5][3]->GetNormal()[2] == 0.03125);
+ }
++
++TEST_CASE("Periodic slip-wall normal", "[Periodic]") {
++  const bool multigrid = GENERATE(false, true);
++  UnitQuadTestCase field;
++  const auto start = field.config_options.find("MARKER_HEATFLUX=");
++  const auto end = field.config_options.find("VISCOSITY_MODEL=");
++  field.config_options.replace(start, end - start, "MARKER_EULER= (y_minus,y_plus)\nMARKER_CUSTOM= (z_minus,z_plus)\n");
++  field.AddOption("MARKER_PERIODIC= (x_minus,x_plus, 0,0,0, 30,0,0, 0,0,0)");
++  if (multigrid) field.AddOption("MGLEVEL= 1");
++  field.InitConfig();
++  field.InitGeometry(true);
++  /*--- Bend the BOX into an annular sector about x: y is radius, x is azimuth. ---*/
++  for (auto i = 0ul; i < field.geometry->GetnPoint(); ++i) {
++    const auto* x = field.geometry->nodes->GetCoord(i);
++    const su2double angle = x[0] * PI_NUMBER / 6, radius = 1 + x[1], axial = x[2];
++    const su2double coordinate[] = {axial, -radius * sin(angle), radius * cos(angle)};
++    field.geometry->nodes->SetCoord(i, coordinate);
++  }
++  field.geometry->SetControlVolume(field.config.get(), UPDATE);
++  field.geometry->SetBoundControlVolume(field.config.get(), UPDATE);
++  field.geometry->MatchPeriodic(field.config.get(), 1);
++  field.geometry->PreprocessPeriodicComms(field.geometry.get(), field.config.get());
++  std::unique_ptr<CMultiGridGeometry> coarse;
++  CGeometry* geometry = field.geometry.get();
++  if (multigrid) {
++    coarse.reset(new CMultiGridGeometry(geometry, field.config.get(), 1));
++    coarse->SetPoint_Connectivity(geometry);
++    coarse->SetEdges();
++    coarse->SetVertex(geometry, field.config.get());
++    coarse->SetControlVolume(geometry, ALLOCATE);
++    coarse->SetBoundControlVolume(geometry, field.config.get(), ALLOCATE);
++    coarse->SetCoord(geometry);
++    coarse->SetMGLevel(1);
++    coarse->MatchPeriodic(field.config.get(), 1);
++    coarse->PreprocessPeriodicComms(coarse.get(), field.config.get());
++    geometry = coarse.get();
++  }
++  su2double error = 0;
++  unsigned long checked = 0;
++  for (auto marker = 0u; marker < geometry->GetnMarker(); ++marker) {
++    if (field.config->GetMarker_All_TagBound(marker) != "y_plus") continue;
++    for (auto v = 0ul; v < geometry->GetnVertex(marker); ++v) {
++      const auto i = geometry->vertex[marker][v]->GetNode();
++      const auto* x = geometry->nodes->GetCoord(i);
++      if (fabs(x[1]) > 1e-12 || fabs(x[2] - 2) > 1e-12 || !geometry->nodes->GetDomain(i)) continue;
++      const auto it = geometry->symmetryNormals[marker].find(v);
++      const auto* normal = it == geometry->symmetryNormals[marker].end()
++                               ? geometry->vertex[marker][v]->GetNormal()
++                               : it->second.data();
++      error = std::max(error, fabs(normal[1]) / GeometryToolbox::Norm(3, normal));
++      ++checked;
++    }
++  }
++  unsigned long total = 0;
++  SU2_MPI::Allreduce(&checked, &total, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
++  REQUIRE(total > 0);
++  CHECK(error < 1e-12);
++}
++
++TEST_CASE("Periodic volume refresh after mesh deformation", "[Periodic]") {
++  UnitQuadTestCase field;
++  const auto start = field.config_options.find("MARKER_HEATFLUX=");
++  const auto end = field.config_options.find("VISCOSITY_MODEL=");
++  field.config_options.replace(start, end - start, "MARKER_CUSTOM= (y_minus,y_plus,z_plus,z_minus)\n");
++  field.AddOption("MARKER_PERIODIC= (x_minus,x_plus, 0,0,0, 0,0,0, 1,0,0)");
++  field.AddOption("DEFORM_MESH= YES");
++  field.InitConfig();
++  field.InitGeometry(true);
++  field.geometry->MatchPeriodic(field.config.get(), 1);
++  field.geometry->PreprocessPeriodicComms(field.geometry.get(), field.config.get());
++  field.InitSolver();
++  std::vector<std::array<su2double, 3>> original(field.geometry->GetnPoint());
++  for (auto i = 0ul; i < original.size(); ++i)
++    for (auto d = 0u; d < 3; ++d) original[i][d] = field.geometry->nodes->GetCoord(i, d);
++  CGeometry* meshes[] = {field.geometry.get()};
++  for (const auto amplitude : {0.05, -0.02, 0.0}) {
++    for (auto i = 0ul; i < original.size(); ++i) {
++      const auto& x = original[i];
++      field.geometry->nodes->SetCoord(i, 0, x[0] + amplitude * sin(2 * PI_NUMBER * x[0]) * sin(PI_NUMBER * x[2]));
++    }
++    SU2_OMP_PARALLEL { CGeometry::UpdateGeometry(meshes, field.config.get()); }
++    END_SU2_OMP_PARALLEL
++    su2double expected = 0, stored = 0;
++    for (auto i = 0ul; i < field.geometry->GetnPointDomain(); ++i) {
++      const auto* x = field.geometry->nodes->GetCoord(i);
++      if (fabs(x[1] - 0.5) > 1e-12 || fabs(x[2] - 0.5) > 1e-12) continue;
++      if (fabs(x[0] - 1) < 1e-12) expected = field.geometry->nodes->GetVolume(i);
++      if (fabs(x[0]) < 1e-12) stored = field.geometry->nodes->GetPeriodicVolume(i);
++    }
++    su2double totals[2] = {stored, expected}, global[2] = {};
++    SU2_MPI::Allreduce(totals, global, 2, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
++    REQUIRE(global[1] > 0);
++    CHECK(global[0] == Approx(global[1]).margin(1e-12));
++    auto* solver = field.solver[FLOW_SOL];
++    auto* nodes = solver->GetNodes();
++    for (auto i = 0ul; i < field.geometry->GetnPoint(); ++i)
++      for (auto v = 0u; v < solver->GetnPrimVarGrad(); ++v)
++        nodes->SetPrimitive(i, v, 2 + field.geometry->nodes->GetCoord(i, 1));
++    SU2_OMP_PARALLEL { solver->SetPrimitive_Gradient_GG(field.geometry.get(), field.config.get()); }
++    END_SU2_OMP_PARALLEL
++    su2double error = 0;
++    for (auto i = 0ul; i < field.geometry->GetnPointDomain(); ++i) {
++      const auto* x = field.geometry->nodes->GetCoord(i);
++      if (fabs(x[1] - 0.5) > 1e-12 || fabs(x[2] - 0.5) > 1e-12) continue;
++      if (fabs(x[0]) > 1e-12 && fabs(x[0] - 1) > 1e-12) continue;
++      error = std::max(error, fabs(nodes->GetGradient_Primitive()(i, 0, 1) - 1));
++    }
++    CHECK(error < 1e-12);
++  }
++}
++
++TEST_CASE("Periodic wall distance image assessment", "[PeriodicAssessment][WallDistance]") {
++  UnitQuadTestCase field;
++  field.SetOption("SOLVER= RANS");
++  field.SetOption("KIND_VERIFICATION_SOLUTION= NO_VERIFICATION_SOLUTION");
++  field.SetOption("MARKER_CUSTOM= (z_plus,z_minus)");
++  field.AddOption("KIND_TURB_MODEL= SA");
++  field.AddOption("MARKER_PERIODIC= (x_minus,x_plus, 0,0,0, 0,0,0, 1,0,0)");
++  field.InitConfig();
++  field.InitGeometry(true);
++  for (auto i = 0ul; i < field.geometry->GetnPoint(); ++i) {
++    const auto* x = field.geometry->nodes->GetCoord(i);
++    const auto hill = fabs(x[0] - 0.75) < 1e-12 ? 0.4 : 0.0;
++    field.geometry->nodes->SetCoord(i, 1, hill + (1 - hill) * x[1]);
++  }
++  field.geometry->SetWallDistance(std::numeric_limits<su2double>::max());
++  auto wall = field.geometry->ComputeViscousWallADT(field.config.get());
++  field.geometry->SetWallDistance(wall.get(), field.config.get(), 0);
++  su2double left = 0, right = 0, image = 0;
++  unsigned long checked = 0;
++  for (auto i = 0ul; i < field.geometry->GetnPointDomain(); ++i) {
++    const auto* x = field.geometry->nodes->GetCoord(i);
++    if (fabs(x[1] - 0.5) > 1e-12 || fabs(x[2] - 0.5) > 1e-12) continue;
++    if (fabs(x[0]) < 1e-12) {
++      left = field.geometry->nodes->GetWall_Distance(i);
++      su2double shifted[] = {x[0] + 1, x[1], x[2]};
++      unsigned short marker; unsigned long elem; int rank;
++      wall->DetermineNearestElement(shifted, image, marker, elem, rank);
++      ++checked;
++    }
++    if (fabs(x[0] - 1) < 1e-12) right = field.geometry->nodes->GetWall_Distance(i);
++  }
++  su2double globalLeft = 0, globalRight = 0, globalImage = 0;
++  unsigned long total = 0;
++  SU2_MPI::Allreduce(&left, &globalLeft, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
++  SU2_MPI::Allreduce(&right, &globalRight, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
++  SU2_MPI::Allreduce(&image, &globalImage, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
++  SU2_MPI::Allreduce(&checked, &total, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
++  REQUIRE(total == 1);
++  CHECK(globalRight == Approx(globalImage));
++  CHECK(globalLeft == Approx(globalImage));
++}
+diff --git a/UnitTests/Common/linear_algebra/edge_residual_blocks_tests.cpp b/UnitTests/Common/linear_algebra/edge_residual_blocks_tests.cpp
+index 12cd5e0422..117d481385 100644
+--- a/UnitTests/Common/linear_algebra/edge_residual_blocks_tests.cpp
++++ b/UnitTests/Common/linear_algebra/edge_residual_blocks_tests.cpp
+@@ -26,6 +26,7 @@
+  */
+ 
+ #include "catch.hpp"
++#include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
+ #include "../../UnitQuadTestCase.hpp"
+ 
+ /*--- A block whose entries are all different, so a mixed-up index reads back wrong. ---*/
+@@ -165,3 +166,169 @@ TEST_CASE("SetBlocks and SetOffDiagBlocks with quantized off-diagonal storage",
+     CheckBlock(matrix, jPoint, iPoint, nVar, jac_ji_new, quantTol);
+   }
+ }
++
++TEST_CASE("Complete periodic implicit operator and transpose", "[Periodic][LinearAlgebra]") {
++  const auto kind = GENERATE(0u, 1u, 2u, 3u);
++  const bool rotation = kind == 1;
++  const auto nPairs = kind > 1 ? kind : 1u;
++  UnitQuadTestCase field;
++  const auto start = field.config_options.find("MARKER_HEATFLUX=");
++  const auto end = field.config_options.find("VISCOSITY_MODEL=");
++  field.config_options.replace(start, end - start,
++                               nPairs == 1 ? "MARKER_CUSTOM= (y_minus,y_plus,z_plus,z_minus)\n"
++                                           : (nPairs == 2 ? "MARKER_CUSTOM= (z_plus,z_minus)\n" : ""));
++  std::string periodic = rotation ? "MARKER_PERIODIC= (x_minus,x_plus, 0,0.5,0.5, 90,0,0, 1,0,0"
++                                  : "MARKER_PERIODIC= (x_minus,x_plus, 0,0,0, 0,0,0, 1,0,0";
++  if (nPairs > 1) periodic += ", y_minus,y_plus, 0,0,0, 0,0,0, 0,1,0";
++  if (nPairs > 2) periodic += ", z_minus,z_plus, 0,0,0, 0,0,0, 0,0,1";
++  field.AddOption(periodic + ")");
++  field.AddOption("LINEAR_SOLVER_PREC= JACOBI\nLINEAR_SOLVER_ERROR= 1e-10\nLINEAR_SOLVER_ITER= 150");
++  field.InitConfig();
++  field.InitGeometry(true);
++  for (auto pair = 1u; pair <= nPairs; ++pair) field.geometry->MatchPeriodic(field.config.get(), pair);
++  field.geometry->PreprocessPeriodicComms(field.geometry.get(), field.config.get());
++  field.InitSolver();
++  auto& matrix = field.solver[FLOW_SOL]->Jacobian;
++  const auto nVar = field.solver[FLOW_SOL]->GetnVar();
++  const auto nPoint = field.geometry->GetnPoint();
++  const auto nDomain = field.geometry->GetnPointDomain();
++  unsigned long globalPoints = 0;
++  SU2_MPI::Allreduce(&nDomain, &globalPoints, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
++  REQUIRE(nDomain > 0);
++  const auto size = globalPoints * nVar;
++  std::vector<su2double> partialA(size * size, 0), partialP(size * size, 0), A(size * size), P(size * size);
++  matrix.SetValZero();
++  for (auto i = 0ul; i < nPoint; ++i) {
++    const auto globalI = field.geometry->nodes->GetGlobalIndex(i);
++    std::vector<unsigned long> columns = {i};
++    for (auto j : field.geometry->nodes->GetPoints(i)) columns.push_back(j);
++    for (auto j : columns) {
++      const auto globalJ = field.geometry->nodes->GetGlobalIndex(j);
++      auto* block = matrix.GetBlock(i, j);
++      REQUIRE(block != nullptr);
++      for (auto a = 0u; a < nVar; ++a)
++        for (auto b = 0u; b < nVar; ++b) {
++          /*--- Nonsymmetric blocks expose mistakes in the reverse operator. ---*/
++          const auto value =
++              (i == j && a == b ? 3.0 : 0.0) + 0.001 * (1 + a + 2 * b) + (i == j ? 0 : 0.002 * (1 + globalI));
++          block[a * nVar + b] = value;
++          if (i < nDomain)
++            partialA[(globalI * nVar + a) * size + globalJ * nVar + b] = SU2_TYPE::GetValue(block[a * nVar + b]);
++        }
++    }
++    if (i < nDomain)
++      for (auto a = 0u; a < nVar; ++a) partialP[(globalI * nVar + a) * size + globalI * nVar + a] = 1;
++  }
++  SU2_MPI::Allreduce(partialA.data(), A.data(), A.size(), MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
++  SU2_MPI::Allreduce(partialP.data(), P.data(), P.size(), MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
++  for (auto pair = 1u; pair <= nPairs; ++pair) {
++    std::fill(partialP.begin(), partialP.end(), 0);
++    for (auto i = 0ul; i < nDomain; ++i) {
++      const auto globalI = field.geometry->nodes->GetGlobalIndex(i);
++      for (auto a = 0u; a < nVar; ++a)
++        std::copy_n(P.data() + (globalI * nVar + a) * size, size, partialP.data() + (globalI * nVar + a) * size);
++    }
++    for (auto marker = 0u; marker < field.geometry->GetnMarker(); ++marker) {
++      if (field.config->GetMarker_All_KindBC(marker) != PERIODIC_BOUNDARY) continue;
++      const auto index = static_cast<unsigned short>(field.config->GetMarker_All_PerBound(marker));
++      if (index != pair && index != pair + nPairs) continue;
++      const auto* angles = field.config->GetPeriodicRotAngles(field.config->GetMarker_All_TagBound(marker));
++      su2double q[3][3];
++      GeometryToolbox::RotationMatrix(angles[0], angles[1], angles[2], q);
++      for (auto vertex = 0ul; vertex < field.geometry->GetnVertex(marker); ++vertex) {
++        const auto* point = field.geometry->vertex[marker][vertex];
++        const auto i = point->GetNode();
++        if (i >= nDomain) continue;
++        const auto globalI = field.geometry->nodes->GetGlobalIndex(i);
++        const auto donor = point->GetDonorGlobalIndex();
++        for (auto a = 0u; a < nVar; ++a)
++          for (auto j = 0ul; j < size; ++j) {
++            auto value = P[(globalI * nVar + a) * size + j];
++            if (a >= 1 && a <= 3) {
++              for (auto b = 1u; b <= 3; ++b) value += q[b - 1][a - 1] * P[(donor * nVar + b) * size + j];
++            } else {
++              value += P[(donor * nVar + a) * size + j];
++            }
++            partialP[(globalI * nVar + a) * size + j] = 0.5 * value;
++          }
++      }
++    }
++    SU2_MPI::Allreduce(partialP.data(), P.data(), P.size(), MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
++  }
++  auto product = [&](const std::vector<su2double>& mat, const std::vector<su2double>& x, bool transpose = false) {
++    std::vector<su2double> result(size, 0);
++    for (auto i = 0ul; i < size; ++i)
++      for (auto j = 0ul; j < size; ++j) result[i] += (transpose ? mat[j * size + i] : mat[i * size + j]) * x[j];
++    return result;
++  };
++  std::vector<su2double> x(size), y(size);
++  for (auto i = 0ul; i < size; ++i) {
++    x[i] = sin(0.1 * i);
++    y[i] = cos(0.07 * i);
++  }
++  const auto px = product(P, x), py = product(P, y);
++  auto reference = product(P, product(A, px));
++  auto transposeReference = product(P, product(A, py, true));
++  for (auto i = 0ul; i < size; ++i) {
++    reference[i] += x[i] - px[i];
++    transposeReference[i] += y[i] - py[i];
++  }
++  CSysVector<su2mixedfloat> input(nPoint, nDomain, nVar), output(nPoint, nDomain, nVar),
++      transposeOutput(nPoint, nDomain, nVar);
++  for (auto i = 0ul; i < nPoint; ++i)
++    for (auto a = 0u; a < nVar; ++a) input(i, a) = x[field.geometry->nodes->GetGlobalIndex(i) * nVar + a];
++  SU2_OMP_PARALLEL { matrix.MatrixVectorProduct(input, output, field.geometry.get(), field.config.get()); }
++  END_SU2_OMP_PARALLEL
++  su2double error = 0;
++  for (auto i = 0ul; i < nDomain; ++i)
++    for (auto a = 0u; a < nVar; ++a)
++      error = std::max(error, fabs(SU2_TYPE::GetValue(output(i, a)) -
++                                   reference[field.geometry->nodes->GetGlobalIndex(i) * nVar + a]));
++  CHECK(error < 1e-5);
++  CSysSolve<su2mixedfloat> system;
++  CSysVector<su2double> rhs(nPoint, nDomain, nVar), solution(nPoint, nDomain, nVar);
++  solution = su2double(0);
++  for (auto i = 0ul; i < nPoint; ++i)
++    for (auto a = 0u; a < nVar; ++a) rhs(i, a) = reference[field.geometry->nodes->GetGlobalIndex(i) * nVar + a];
++  SU2_OMP_PARALLEL { system.Solve(matrix, rhs, solution, field.geometry.get(), field.config.get()); }
++  END_SU2_OMP_PARALLEL
++  error = 0;
++  for (auto i = 0ul; i < nDomain; ++i)
++    for (auto a = 0u; a < nVar; ++a)
++      error = std::max(
++          error, fabs(SU2_TYPE::GetValue(solution(i, a)) - x[field.geometry->nodes->GetGlobalIndex(i) * nVar + a]));
++  CHECK(error < 1e-5);
++  SU2_OMP_PARALLEL { matrix.TransposeInPlace(); }
++  END_SU2_OMP_PARALLEL
++  for (auto i = 0ul; i < nPoint; ++i)
++    for (auto a = 0u; a < nVar; ++a) input(i, a) = y[field.geometry->nodes->GetGlobalIndex(i) * nVar + a];
++  SU2_OMP_PARALLEL { matrix.MatrixVectorProduct(input, transposeOutput, field.geometry.get(), field.config.get()); }
++  END_SU2_OMP_PARALLEL
++  error = 0;
++  su2double dotForward = 0, dotTranspose = 0;
++  for (auto i = 0ul; i < nDomain; ++i)
++    for (auto a = 0u; a < nVar; ++a) {
++      const auto global = field.geometry->nodes->GetGlobalIndex(i) * nVar + a;
++      error = std::max(error, fabs(SU2_TYPE::GetValue(transposeOutput(i, a)) - transposeReference[global]));
++      dotForward += y[global] * SU2_TYPE::GetValue(output(i, a));
++      dotTranspose += x[global] * SU2_TYPE::GetValue(transposeOutput(i, a));
++    }
++  CHECK(error < 1e-5);
++  su2double dots[] = {dotForward, dotTranspose}, globalDots[2] = {};
++  SU2_MPI::Allreduce(dots, globalDots, 2, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
++  CHECK(globalDots[0] == Approx(globalDots[1]).margin(1e-4));
++  SU2_OMP_PARALLEL { matrix.TransposeInPlace(); }
++  END_SU2_OMP_PARALLEL
++  solution = su2double(0);
++  for (auto i = 0ul; i < nPoint; ++i)
++    for (auto a = 0u; a < nVar; ++a)
++      rhs(i, a) = transposeReference[field.geometry->nodes->GetGlobalIndex(i) * nVar + a];
++  SU2_OMP_PARALLEL { system.Solve_b(matrix, rhs, solution, field.geometry.get(), field.config.get()); }
++  END_SU2_OMP_PARALLEL
++  error = 0;
++  for (auto i = 0ul; i < nDomain; ++i)
++    for (auto a = 0u; a < nVar; ++a)
++      error = std::max(
++          error, fabs(SU2_TYPE::GetValue(solution(i, a)) - y[field.geometry->nodes->GetGlobalIndex(i) * nVar + a]));
++  CHECK(error < 1e-5);
++}
+diff --git a/UnitTests/SU2_CFD/gradients.cpp b/UnitTests/SU2_CFD/gradients.cpp
+index 72baf525ca..01172a881b 100644
+--- a/UnitTests/SU2_CFD/gradients.cpp
++++ b/UnitTests/SU2_CFD/gradients.cpp
+@@ -26,11 +26,16 @@
+  */
+ 
+ #include "catch.hpp"
++#include "../../SU2_CFD/include/variables/CSpeciesFlameletVariable.hpp"
++#include "../../SU2_CFD/include/solvers/CIncNSSolver.hpp"
++#include "../UnitQuadTestCase.hpp"
++#include "../../Common/include/geometry/CMultiGridGeometry.hpp"
+ #include "../../Common/include/geometry/CPhysicalGeometry.hpp"
+ #include "../../Common/include/containers/container_decorators.hpp"
+ #include "../../SU2_CFD/include/solvers/CSolver.hpp"
+ #include "../../SU2_CFD/include/gradients/computeGradientsGreenGauss.hpp"
+ #include "../../SU2_CFD/include/gradients/computeGradientsLeastSquares.hpp"
++#include "../UnitQuadTestCase.hpp"
+ 
+ /*!
+  * \brief Base class for gradient tests using a unit cube geometry.
+@@ -154,3 +159,422 @@ TEST_CASE("GG", "[Gradients]") { testGreenGauss<LinearFunction>(); }
+ TEST_CASE("LS", "[Gradients]") { testLeastSquares<LinearFunction>(false); }
+ 
+ TEST_CASE("WLS", "[Gradients]") { testLeastSquares<LinearFunction>(true); }
++
++TEST_CASE("Periodic auxiliary gradients", "[Gradients][Periodic]") {
++  const bool rotation = GENERATE(false, true);
++  const bool stretched = GENERATE(false, true);
++  const auto method = GENERATE(std::string("GREEN_GAUSS"), std::string("WEIGHTED_LEAST_SQUARES"));
++  UnitQuadTestCase field;
++  const string custom = "MARKER_CUSTOM= ( x_minus, x_plus, z_plus, z_minus)";
++  field.config_options.replace(field.config_options.find(custom), custom.size(), "MARKER_CUSTOM= (z_plus, z_minus)");
++  field.AddOption(rotation ? "MARKER_PERIODIC= (x_minus,x_plus, 0,0.5,0.5, 90,0,0, 1,0,0)"
++                           : "MARKER_PERIODIC= (x_minus,x_plus, 0,0,0, 0,0,0, 1,0,0)");
++  field.AddOption("VORTICITY_CONFINEMENT= YES");
++  field.AddOption("NUM_METHOD_GRAD= " + method);
++  field.InitConfig();
++  field.InitGeometry(true);
++  if (stretched) {
++    for (auto i = 0ul; i < field.geometry->GetnPoint(); ++i) {
++      const auto x = field.geometry->nodes->GetCoord(i, 0);
++      field.geometry->nodes->SetCoord(i, 0, x * x);
++    }
++    field.geometry->SetControlVolume(field.config.get(), UPDATE);
++    field.geometry->SetBoundControlVolume(field.config.get(), UPDATE);
++  }
++  field.geometry->MatchPeriodic(field.config.get(), 1);
++  field.geometry->PreprocessPeriodicComms(field.geometry.get(), field.config.get());
++  field.InitSolver();
++
++  auto* solver = field.solver[FLOW_SOL];
++  auto* nodes = solver->GetNodes();
++  REQUIRE(nodes->GetnAuxVar() == 1);
++  for (auto iPoint = 0ul; iPoint < field.geometry->GetnPoint(); ++iPoint) {
++    const auto* coord = field.geometry->nodes->GetCoord(iPoint);
++    const auto y = coord[1] - 0.5;
++    const auto z = coord[2] - 0.5;
++    nodes->SetAuxVar(iPoint, 0,
++                     (rotation ? 2.0 + y * y + z * z : 2.0 + 3.0 * coord[1] - coord[2]) + coord[0] * (1 - coord[0]));
++  }
++  if (method == "GREEN_GAUSS")
++    solver->SetAuxVar_Gradient_GG(field.geometry.get(), field.config.get());
++  else
++    solver->SetAuxVar_Gradient_LS(field.geometry.get(), field.config.get());
++
++  su2double error = 0.0;
++  for (auto iPoint = 0ul; iPoint < field.geometry->GetnPointDomain(); ++iPoint) {
++    const auto* coord = field.geometry->nodes->GetCoord(iPoint);
++    if (rotation && (coord[1] == 0.0 || coord[1] == 1.0 || coord[2] == 0.0 || coord[2] == 1.0)) continue;
++    const auto index = static_cast<unsigned short>(
++        std::round((stretched ? sqrt(SU2_TYPE::GetValue(coord[0])) : SU2_TYPE::GetValue(coord[0])) * 4));
++    auto xcoord = [&](unsigned short k) {
++      const auto x = 0.25 * k;
++      return stretched ? x * x : x;
++    };
++    const auto left = xcoord(index == 0 ? 3 : index - 1), right = xcoord(index == 4 ? 1 : index + 1);
++    const auto hm = coord[0] - (index == 0 ? left - 1 : left);
++    const auto hp = (index == 4 ? right + 1 : right) - coord[0];
++    const auto fm = left * (1 - left), fp = right * (1 - right), fi = coord[0] * (1 - coord[0]);
++    const auto gx = method == "GREEN_GAUSS" ? (fp - fm) / (hp + hm) : ((fp - fi) / hp + (fi - fm) / hm) / 2;
++    const su2double expected[3] = {gx, rotation ? 2.0 * (coord[1] - 0.5) : 3.0,
++                                   rotation ? 2.0 * (coord[2] - 0.5) : -1.0};
++    for (auto iDim = 0u; iDim < 3; ++iDim)
++      error = max(error, abs(nodes->GetAuxVarGradient(iPoint, 0, iDim) - expected[iDim]));
++  }
++  CHECK(error < 1e-9);
++}
++
++TEST_CASE("Intersecting periodic stencils", "[Periodic][Gradients]") {
++  const auto nPairs = GENERATE(2u, 3u);
++  const bool diagonal = GENERATE(false, true);
++  const auto scheme = GENERATE(0u, 1u, 2u);
++  const bool msw = scheme == 1, incompressible = scheme == 2;
++  UnitQuadTestCase field;
++  const auto start = field.config_options.find("MARKER_HEATFLUX=");
++  const auto end = field.config_options.find("VISCOSITY_MODEL=");
++  field.config_options.replace(start, end - start, nPairs == 2 ? "MARKER_CUSTOM= (z_plus,z_minus)\n" : "");
++  std::string periodic = "MARKER_PERIODIC= (x_minus,x_plus, 0,0,0, 0,0,0, 1,0,0, y_minus,y_plus, 0,0,0, 0,0,0, 0,1,0";
++  if (nPairs == 3) periodic += ", z_minus,z_plus, 0,0,0, 0,0,0, 0,0,1";
++  field.AddOption(periodic + ")");
++  field.AddOption(msw ? "CONV_NUM_METHOD_FLOW= MSW" : "CONV_NUM_METHOD_FLOW= JST");
++  field.AddOption("MUSCL_FLOW= NO\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES");
++  if (incompressible) {
++    field.SetOption("SOLVER= INC_NAVIER_STOKES");
++  field.AddOption("FLUID_MODEL= CONSTANT_DENSITY");
++    field.SetOption("KIND_VERIFICATION_SOLUTION= NO_VERIFICATION_SOLUTION");
++  }
++  field.InitConfig();
++  field.InitGeometry(true);
++  if (diagonal) {
++    /*--- A triangulated plane adds NE/SW edges. The SW donor at a periodic
++     * corner is reached through two successive pairs, rather than one. ---*/
++    std::vector<std::vector<unsigned long>> neighbors(field.geometry->GetnPoint());
++    for (auto i = 0ul; i < neighbors.size(); ++i) {
++      for (auto j : field.geometry->nodes->GetPoints(i)) neighbors[i].push_back(j);
++      const auto* x = field.geometry->nodes->GetCoord(i);
++      for (auto j = 0ul; j < neighbors.size(); ++j) {
++        const auto* y = field.geometry->nodes->GetCoord(j);
++        if (fabs(y[0] - x[0] - 0.25) < 1e-12 && fabs(y[1] - x[1] - 0.25) < 1e-12 && fabs(y[2] - x[2]) < 1e-12) {
++          neighbors[i].push_back(j);
++          neighbors[j].push_back(i);
++        }
++      }
++    }
++    field.geometry->nodes->SetPoints(neighbors);
++    delete field.geometry->edges;
++    field.geometry->SetEdges();
++    for (auto i = 0ul; i < neighbors.size(); ++i) field.geometry->nodes->SetnNeighbor(i, neighbors[i].size());
++  }
++  for (auto pair = 1u; pair <= nPairs; ++pair) field.geometry->MatchPeriodic(field.config.get(), pair);
++  field.geometry->PreprocessPeriodicComms(field.geometry.get(), field.config.get());
++  field.InitSolver();
++  auto* solver = field.solver[FLOW_SOL];
++  auto* nodes = solver->GetNodes();
++  auto value = [](su2double x, su2double y, su2double z) {
++    return 10 + x * (1 - x) + 2 * y * (1 - y) + 3 * z * (1 - z);
++  };
++  unsigned long target = field.geometry->GetnPoint();
++  for (auto i = 0ul; i < field.geometry->GetnPoint(); ++i) {
++    const auto* x = field.geometry->nodes->GetCoord(i);
++    nodes->SetPressure(i, value(x[0], x[1], x[2]));
++    for (auto v = 0u; v < solver->GetnVar(); ++v)
++      nodes->SetSolution(
++          i, v,
++          v == 0 ? value(x[0], x[1], x[2])
++                 : (v + 1 == solver->GetnVar() ? (incompressible ? 300.0 : value(x[0], x[1], x[2]) / 0.4) : 0));
++    if (field.geometry->nodes->GetDomain(i) && x[0] == 0 && x[1] == 0 && x[2] == (nPairs == 3 ? 0 : 0.5)) target = i;
++  }
++  const auto z = nPairs == 3 ? 0.0 : 0.5;
++  const auto center = value(0, 0, z);
++  std::vector<su2double> stencil = {value(0.25, 0, z),     value(0.75, 0, z),
++                                    value(0, 0.25, z),     value(0, 0.75, z),
++                                    value(0, 0, z + 0.25), value(0, 0, nPairs == 3 ? 0.75 : z - 0.25)};
++  if (diagonal) {
++    stencil.push_back(value(0.25, 0.25, z));
++    stencil.push_back(value(0.75, 0.75, z));
++  }
++  su2double numerator = 0, denominator = 0, maximum = 0;
++  for (const auto neighbor : stencil) {
++    numerator += neighbor - center;
++    denominator += neighbor + center;
++    maximum = std::max(maximum, fabs(neighbor - center) / std::min(center, neighbor));
++  }
++  field.config->SetGlobalParam(field.config->GetKind_Solver(), RUNTIME_FLOW_SYS);
++  {
++    SU2_OMP_PARALLEL {
++      solver->Preprocessing(field.geometry.get(), field.solver, field.config.get(), 0, 0, RUNTIME_FLOW_SYS, false);
++    }
++    END_SU2_OMP_PARALLEL
++  }
++  unsigned long localTarget = target < field.geometry->GetnPoint(), globalTarget = 0;
++  SU2_MPI::Allreduce(&localTarget, &globalTarget, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
++  REQUIRE(globalTarget == 1);
++  INFO("pairs " << nPairs << ", diagonal " << diagonal << ", MSW " << msw << ", incompressible " << incompressible);
++  if (target < field.geometry->GetnPoint()) {
++    CHECK(field.geometry->nodes->GetnNeighbor(target) == stencil.size());
++    CHECK(nodes->GetSensor(target) ==
++          Approx(msw ? maximum : (incompressible ? 0.0 : fabs(numerator) / denominator)).margin(1e-12));
++    if (!msw) CHECK(nodes->GetUndivided_Laplacian(target, 0) == Approx(numerator).margin(1e-12));
++  }
++  /*--- Periodic scalar field: compare the assembled primitive LS normal
++   * equations with the complete stencil, including the composed diagonal. ---*/
++  solver->SetRotatePeriodic(false);
++  auto& gradient = nodes->GetGradient_Primitive();
++  auto& matrix = nodes->GetRmatrix();
++  for (auto i = 0ul; i < field.geometry->GetnPoint(); ++i) {
++    const auto* x = field.geometry->nodes->GetCoord(i);
++    for (auto v = 0u; v < solver->GetnPrimVarGrad(); ++v) nodes->SetPrimitive(i, v, value(x[0], x[1], x[2]));
++  }
++  computeGradientsLeastSquares(solver, MPI_QUANTITIES::PRIMITIVE_GRADIENT, PERIODIC_PRIM_LS, *field.geometry,
++                               *field.config, true, nodes->GetPrimitive(), 0, solver->GetnPrimVarGrad(), -1, gradient,
++                               matrix);
++  if (target < field.geometry->GetnPoint()) {
++    CHECK(gradient(target, 0, 0) == Approx(0).margin(1e-12));
++    CHECK(gradient(target, 0, 1) == Approx(0).margin(1e-12));
++    CHECK(gradient(target, 0, 2) == Approx(nPairs == 3 ? 0 : 3 * (1 - 2 * z)).margin(1e-12));
++  }
++}
++
++TEST_CASE("Coarse periodic boundary flags", "[Periodic]") {
++  UnitQuadTestCase field;
++  const auto start = field.config_options.find("MARKER_HEATFLUX=");
++  const auto end = field.config_options.find("VISCOSITY_MODEL=");
++  field.config_options.replace(start, end - start,
++                               "MARKER_HEATFLUX= (y_minus,0,y_plus,0)\nMARKER_CUSTOM= (z_plus,z_minus)\n");
++  field.AddOption("MARKER_PERIODIC= (x_minus,x_plus, 0,0,0, 0,0,0, 1,0,0)");
++  field.AddOption("MGLEVEL= 1");
++  field.InitConfig();
++  field.InitGeometry(true);
++  CMultiGridGeometry coarse(field.geometry.get(), field.config.get(), 1);
++  coarse.SetPoint_Connectivity(field.geometry.get());
++  coarse.SetVertex(field.geometry.get(), field.config.get());
++  unsigned long periodic = 0, missing = 0;
++  for (auto marker = 0u; marker < coarse.GetnMarker(); ++marker) {
++    if (field.config->GetMarker_All_KindBC(marker) == HEAT_FLUX) {
++      for (auto v = 0ul; v < coarse.GetnVertex(marker); ++v) {
++        const auto i = coarse.vertex[marker][v]->GetNode();
++        CHECK(coarse.nodes->GetPhysicalBoundary(i));
++        CHECK(coarse.nodes->GetSolidBoundary(i));
++        CHECK(coarse.nodes->GetViscousBoundary(i));
++      }
++    }
++    if (field.config->GetMarker_All_KindBC(marker) != PERIODIC_BOUNDARY) continue;
++    for (auto vertex = 0ul; vertex < coarse.GetnVertex(marker); ++vertex) {
++      ++periodic;
++      if (!coarse.nodes->GetPeriodicBoundary(coarse.vertex[marker][vertex]->GetNode())) ++missing;
++    }
++  }
++  unsigned long local[] = {periodic, missing}, global[2] = {};
++  SU2_MPI::Allreduce(local, global, 2, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
++  REQUIRE(global[0] > 0);
++  CHECK(global[1] == 0);
++}
++
++TEST_CASE("One-cell periodic stencil", "[Periodic][Gradients]") {
++  UnitQuadTestCase field;
++  const auto start = field.config_options.find("MARKER_HEATFLUX=");
++  const auto end = field.config_options.find("VISCOSITY_MODEL=");
++  field.config_options.replace(start, end - start, "MARKER_CUSTOM= (y_minus,y_plus,z_plus,z_minus)\n");
++  field.AddOption("MARKER_PERIODIC= (x_minus,x_plus, 0,0,0, 0,0,0, 1,0,0)");
++  field.SetOption("MESH_BOX_SIZE= 2,5,5");
++  field.AddOption("NUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES");
++  field.InitConfig();
++  field.InitGeometry(true);
++  field.geometry->MatchPeriodic(field.config.get(), 1);
++  field.geometry->PreprocessPeriodicComms(field.geometry.get(), field.config.get());
++  field.InitSolver();
++  auto* solver = field.solver[FLOW_SOL];
++  auto* nodes = solver->GetNodes();
++  for (auto i = 0ul; i < field.geometry->GetnPoint(); ++i) {
++    const auto* x = field.geometry->nodes->GetCoord(i);
++    for (auto v = 0u; v < solver->GetnPrimVarGrad(); ++v) nodes->SetPrimitive(i, v, 3 + x[1] + x[2]);
++  }
++  solver->SetRotatePeriodic(false);
++  auto& gradient = nodes->GetGradient_Primitive();
++  auto& matrix = nodes->GetRmatrix();
++  computeGradientsLeastSquares(solver, MPI_QUANTITIES::PRIMITIVE_GRADIENT, PERIODIC_PRIM_LS, *field.geometry,
++                               *field.config, true, nodes->GetPrimitive(), 0, solver->GetnPrimVarGrad(), -1, gradient,
++                               matrix);
++  unsigned long local = 0, global = 0;
++  for (auto i = 0ul; i < field.geometry->GetnPointDomain(); ++i) {
++    const auto* x = field.geometry->nodes->GetCoord(i);
++    if (x[1] != 0.5 || x[2] != 0.5) continue;
++    ++local;
++    CHECK(field.geometry->nodes->GetnNeighbor(i) == 6);
++    CHECK(matrix(i, 0, 0) == Approx(2).margin(1e-12));
++    CHECK(gradient(i, 0, 1) == Approx(1).margin(1e-12));
++    CHECK(gradient(i, 0, 2) == Approx(1).margin(1e-12));
++  }
++  SU2_MPI::Allreduce(&local, &global, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
++  REQUIRE(global == 2);
++}
++
++TEST_CASE("Flamelet preferential diffusion auxiliary gradients", "[Gradients][Flamelet][Periodic]") {
++  const bool periodic = GENERATE(false, true);
++  const auto method = GENERATE(std::string("GREEN_GAUSS"), std::string("WEIGHTED_LEAST_SQUARES"));
++  UnitQuadTestCase field;
++  field.SetOption("SOLVER= INC_NAVIER_STOKES");
++  field.SetOption("KIND_VERIFICATION_SOLUTION= NO_VERIFICATION_SOLUTION");
++  field.AddOption("KIND_SCALAR_MODEL= FLAMELET");
++  field.AddOption("FLUID_MODEL= FLUID_FLAMELET");
++  field.AddOption("INC_DENSITY_MODEL= VARIABLE");
++  field.SetOption("VISCOSITY_MODEL= FLAMELET");
++  field.AddOption("CONDUCTIVITY_MODEL= FLAMELET");
++  field.AddOption("DIFFUSIVITY_MODEL= FLAMELET");
++  field.AddOption(
++      "SPECIES_INIT= (0,300000,0.5)\nCONTROLLING_VARIABLE_NAMES= (ProgressVariable,EnthalpyTot,MixtureFraction)");
++  field.AddOption("CONTROLLING_VARIABLE_SOURCE_NAMES= (ProdRateTot_PV,NULL,NULL)");
++  field.AddOption("PREFERENTIAL_DIFFUSION= YES\nNUM_METHOD_GRAD= " + method);
++  if (periodic) {
++    const string custom = "MARKER_CUSTOM= ( x_minus, x_plus, z_plus, z_minus)";
++    field.config_options.replace(field.config_options.find(custom), custom.size(), "MARKER_CUSTOM= (z_plus,z_minus)");
++    field.AddOption("MARKER_PERIODIC= (x_minus,x_plus, 0,0,0, 0,0,0, 1,0,0)");
++  }
++  field.InitConfig();
++  field.InitGeometry(true);
++  if (periodic) {
++    field.geometry->MatchPeriodic(field.config.get(), 1);
++    field.geometry->PreprocessPeriodicComms(field.geometry.get(), field.config.get());
++  }
++  const su2double initial[] = {0, 300000, 0.5};
++  CSpeciesFlameletVariable nodes(initial, field.geometry->GetnPoint(), 3, 3, field.config.get());
++  CHECK(nodes.GetnAuxVar() == FLAMELET_PREF_DIFF_SCALARS::N_BETA_TERMS);
++  /*--- Exercise the shared auxiliary communication with four beta fields and
++   * three transported scalars, without requiring an unrelated flamelet table. ---*/
++  struct AuxiliarySolver : CSolver {
++    CVariable* nodes;
++    CVariable* GetBaseClassPointerToNodes() override { return nodes; }
++    AuxiliarySolver(CVariable& values, CGeometry& geometry) : nodes(&values) {
++      nDim = 3;
++      nVar = 3;
++      nPoint = geometry.GetnPoint();
++      nPointDomain = geometry.GetnPointDomain();
++      SetBaseClassPointerToNodes();
++    }
++  } solver(nodes, *field.geometry);
++  if (periodic) {
++    /*--- The flow solver normally supplies the complete periodic volume. ---*/
++    SU2_OMP_PARALLEL {
++      solver.InitiatePeriodicComms(field.geometry.get(), field.config.get(), 1, PERIODIC_VOLUME);
++      solver.CompletePeriodicComms(field.geometry.get(), field.config.get(), 1, PERIODIC_VOLUME);
++    }
++    END_SU2_OMP_PARALLEL
++  }
++  for (auto i = 0ul; i < field.geometry->GetnPoint(); ++i) {
++    const auto* x = field.geometry->nodes->GetCoord(i);
++    for (auto v = 0u; v < FLAMELET_PREF_DIFF_SCALARS::N_BETA_TERMS; ++v)
++      nodes.SetAuxVar(i, v, (v + 1) * (2 + (periodic ? x[0] * (1 - x[0]) : x[0]) + 3 * x[1] - x[2]));
++  }
++  if (method == "GREEN_GAUSS") {
++    SU2_OMP_PARALLEL { solver.SetAuxVar_Gradient_GG(field.geometry.get(), field.config.get()); }
++    END_SU2_OMP_PARALLEL
++  } else {
++    SU2_OMP_PARALLEL { solver.SetAuxVar_Gradient_LS(field.geometry.get(), field.config.get()); }
++    END_SU2_OMP_PARALLEL
++  }
++  su2double error = 0;
++  for (auto i = 0ul; i < field.geometry->GetnPointDomain(); ++i) {
++    const auto* x = field.geometry->nodes->GetCoord(i);
++    const su2double expected[] = {periodic ? (x[0] == 0 || x[0] == 1 ? 0.0 : 1 - 2 * x[0]) : 1.0, 3, -1};
++    for (auto v = 0u; v < FLAMELET_PREF_DIFF_SCALARS::N_BETA_TERMS; ++v)
++      for (auto d = 0u; d < 3; ++d)
++        error = std::max(error, fabs(nodes.GetAuxVarGradient(i, v, d) - (v + 1) * expected[d]));
++  }
++  CHECK(error < 1e-12);
++}
++
++TEST_CASE("Recovered periodic wall heat flux", "[Periodic][Heat]") {
++  UnitQuadTestCase field;
++  field.SetOption("SOLVER= INC_NAVIER_STOKES");
++  field.AddOption("FLUID_MODEL= CONSTANT_DENSITY");
++  field.SetOption("KIND_VERIFICATION_SOLUTION= NO_VERIFICATION_SOLUTION");
++  field.AddOption("INC_NONDIM= DIMENSIONAL");
++  field.AddOption("INC_ENERGY_EQUATION= YES\nKIND_STREAMWISE_PERIODIC= PRESSURE_DROP");
++  field.AddOption("STREAMWISE_PERIODIC_TEMPERATURE= YES\nINC_VELOCITY_INIT= (1,0,0)");
++  const string walls = "MARKER_HEATFLUX= (y_minus, 0.0, y_plus, 0.0)";
++  field.config_options.replace(field.config_options.find(walls), walls.size(), "MARKER_HEATFLUX= (y_minus,1,y_plus,3)");
++  const string custom = "MARKER_CUSTOM= ( x_minus, x_plus, z_plus, z_minus)";
++  field.config_options.replace(field.config_options.find(custom), custom.size(), "MARKER_CUSTOM= (z_plus,z_minus)");
++  field.AddOption("MARKER_PERIODIC= (x_minus,x_plus, 0,0,0, 0,0,0, 1,0,0)");
++  field.InitConfig();
++  field.InitGeometry(true);
++  for (auto i = 0ul; i < field.geometry->GetnPoint(); ++i) {
++    const auto* x = field.geometry->nodes->GetCoord(i);
++    field.geometry->nodes->SetCoord(i, 1, x[1] * (1 + 0.1 * sin(2 * PI_NUMBER * x[0])));
++  }
++  field.geometry->SetControlVolume(field.config.get(), UPDATE);
++  field.geometry->SetBoundControlVolume(field.config.get(), UPDATE);
++  field.geometry->MatchPeriodic(field.config.get(), 1);
++  field.geometry->PreprocessPeriodicComms(field.geometry.get(), field.config.get());
++  field.InitSolver();
++  auto* solver = static_cast<CIncNSSolver*>(field.solver[FLOW_SOL]);
++  field.config->SetGlobalParam(field.config->GetKind_Solver(), RUNTIME_FLOW_SYS);
++  {
++    SU2_OMP_PARALLEL {
++      solver->Preprocessing(field.geometry.get(), field.solver, field.config.get(), MESH_0, 0, RUNTIME_FLOW_SYS, false);
++    }
++    END_SU2_OMP_PARALLEL
++  }
++  const auto values = solver->GetStreamwisePeriodicValues();
++  REQUIRE(fabs(values.Streamwise_Periodic_MassFlow) > 1e-12);
++  REQUIRE(fabs(values.Streamwise_Periodic_IntegratedHeatFlow) > 1e-12);
++  auto* nodes = solver->GetNodes();
++  su2double error = 0;
++  unsigned long checked = 0, global = 0;
++  for (auto m = 0u; m < field.geometry->GetnMarker(); ++m) {
++    if (field.config->GetMarker_All_TagBound(m) != "y_plus") continue;
++    solver->LinSysRes = su2double(0);
++    {
++      SU2_OMP_PARALLEL {
++        solver->BC_HeatFlux_Wall(field.geometry.get(), field.solver, nullptr, nullptr, field.config.get(), m);
++      }
++      END_SU2_OMP_PARALLEL
++    }
++    for (auto v = 0ul; v < field.geometry->GetnVertex(m); ++v) {
++      const auto i = field.geometry->vertex[m][v]->GetNode();
++      if (!field.geometry->nodes->GetDomain(i)) continue;
++      const auto* normal = field.geometry->vertex[m][v]->GetNormal();
++      if (fabs(normal[0]) < 1e-12) continue;
++      const auto area = GeometryToolbox::Norm(3, normal);
++      /*--- T = T_periodic + g.x. With an inward area normal, the periodic
++       * conductive heat flux entering the fluid is q + k g.n. ---*/
++      const auto gx = values.Streamwise_Periodic_IntegratedHeatFlow /
++                      (values.Streamwise_Periodic_MassFlow * nodes->GetSpecificHeatCp(i));
++      const auto expected = -field.config->GetWall_HeatFlux("y_plus") / field.config->GetHeat_Flux_Ref() * area -
++                            nodes->GetThermalConductivity(i) * gx * normal[0];
++      error = std::max(error, fabs(solver->LinSysRes(i, 4) - expected));
++      ++checked;
++    }
++  }
++  SU2_MPI::Allreduce(&checked, &global, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
++  REQUIRE(global > 0);
++  CHECK(error < 1e-12);
++}
++
++TEST_CASE("Streamwise restart metadata discard control", "[PeriodicAssessment][Metadata]") {
++  const bool discard = GENERATE(false, true);
++  UnitQuadTestCase field;
++  field.SetOption("SOLVER= INC_NAVIER_STOKES");
++  field.AddOption("FLUID_MODEL= CONSTANT_DENSITY");
++  field.SetOption("KIND_VERIFICATION_SOLUTION= NO_VERIFICATION_SOLUTION");
++  field.AddOption("INC_NONDIM= DIMENSIONAL");
++  field.AddOption("KIND_STREAMWISE_PERIODIC= PRESSURE_DROP\nSTREAMWISE_PERIODIC_PRESSURE_DROP= 210");
++  field.AddOption(discard ? "DISCARD_INFILES= YES" : "DISCARD_INFILES= NO");
++  const string custom = "MARKER_CUSTOM= ( x_minus, x_plus, z_plus, z_minus)";
++  field.config_options.replace(field.config_options.find(custom), custom.size(), "MARKER_CUSTOM= (z_plus,z_minus)");
++  field.AddOption("MARKER_PERIODIC= (x_minus,x_plus, 0,0,0, 0,0,0, 1,0,0)");
++  field.InitConfig();
++  field.InitGeometry(true);
++  field.geometry->MatchPeriodic(field.config.get(), 1);
++  field.geometry->PreprocessPeriodicComms(field.geometry.get(), field.config.get());
++  field.InitSolver();
++  const char* filename = "periodic-assessment.meta";
++  if (SU2_MPI::GetRank() == 0) {
++    std::ofstream meta(filename);
++    meta << "STREAMWISE_PERIODIC_PRESSURE_DROP= 104.655\n";
++  }
++  SU2_MPI::Barrier(SU2_MPI::GetComm());
++  field.solver[FLOW_SOL]->Read_SU2_Restart_Metadata(field.geometry.get(), field.config.get(), false, filename);
++  CHECK(field.config->GetStreamwise_Periodic_PressureDrop() == Approx(discard ? 210.0 : 104.655));
++  SU2_MPI::Barrier(SU2_MPI::GetComm());
++  if (SU2_MPI::GetRank() == 0) std::remove(filename);
++}
+diff --git a/UnitTests/UnitQuadTestCase.hpp b/UnitTests/UnitQuadTestCase.hpp
+index d8da75dc09..5ad26920d8 100644
+--- a/UnitTests/UnitQuadTestCase.hpp
++++ b/UnitTests/UnitQuadTestCase.hpp
+@@ -61,11 +61,20 @@ struct UnitQuadTestCase {
+    */
+   void AddOption(const std::string& optionLine) { config_options += optionLine + "\n"; }
+ 
++  /*! \brief Replace one existing base option without repeating its key. */
++  void SetOption(const std::string& optionLine) {
++    const auto key = optionLine.substr(0, optionLine.find('=') + 1);
++    const auto start = config_options.find(key);
++    if (start == std::string::npos)
++      AddOption(optionLine);
++    else
++      config_options.replace(start, config_options.find('\n', start) - start, optionLine);
++  }
++
+   /*!
+    * \brief Initialize the config structure
+    */
+   void InitConfig() {
+-    cout.rdbuf(nullptr);
+     stringstream ss(config_options);
+     config = std::unique_ptr<CConfig>(new CConfig(ss, SU2_COMPONENT::SU2_CFD, false));
+     cout.rdbuf(orig_buf);
+@@ -75,7 +84,6 @@ struct UnitQuadTestCase {
+    * \brief Initialize the solver array
+    */
+   void InitSolver() {
+-    cout.rdbuf(nullptr);
+     solver = CSolverFactory::CreateSolverContainer(config.get()->GetKind_Solver(), config.get(), geometry.get(), 0);
+     cout.rdbuf(orig_buf);
+   }
+@@ -83,10 +91,12 @@ struct UnitQuadTestCase {
+   /*!
+    * \brief Initialize the geometry
+    */
+-  void InitGeometry() {
+-    cout.rdbuf(nullptr);
++  void InitGeometry(bool partition = false) {
+     {
+-      auto aux_geometry = std::unique_ptr<CGeometry>(new CPhysicalGeometry(config.get(), 0, 1));
++      const auto rank = partition ? SU2_MPI::GetRank() : 0;
++      const auto size = partition ? SU2_MPI::GetSize() : 1;
++      auto aux_geometry = std::unique_ptr<CGeometry>(new CPhysicalGeometry(config.get(), rank, size));
++      if (partition) aux_geometry->SetColorGrid_Parallel(config.get());
+       geometry = std::unique_ptr<CGeometry>(new CPhysicalGeometry(aux_geometry.get(), config.get()));
+     }
+     geometry->SetSendReceive(config.get());

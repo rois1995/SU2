@@ -1,0 +1,3 @@
+# Controlled sector/full comparison
+
+Each folder contains `run.cfg`, mesh and mapping, initial `solution.csv`, histories and final fields. Run `SU2_CFD run.cfg` from each folder with one rank. Fixed physical step `1e-4` and zero JST dissipation avoid the split-face nonlinear-dissipation/local-pseudotime comparison ambiguity. Compare implicit sector/full outputs with `pipecmp.py ... Density Momentum Energy`. Both annular and axis cases include a translational periodic pair. Maximum field-relative difference is below `4e-11`. Explicit controls match but do not advance density/energy in this one-step setup, so they are not additional advancement proof.

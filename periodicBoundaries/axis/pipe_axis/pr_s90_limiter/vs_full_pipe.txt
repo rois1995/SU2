@@ -1,0 +1,52 @@
+pr_s90_limiter against full_field4_limiter: same nodes, same field, one iteration
+axis:
+  Residual_Density         max|sector - full| 2.528e-05   max|full| 3.839e-02
+  Residual_Momentum_x      max|sector - full| 1.023e-12   max|full| 1.023e-12
+  Residual_Momentum_y      max|sector - full| 6.039e-13   max|full| 7.619e-13
+  Residual_Momentum_z      max|sector - full| 1.179e-03   max|full| 8.080e+00
+  Residual_Energy          max|sector - full| 7.747e+00   max|full| 1.271e+04
+  Limiter_Velocity_x       max|sector - full| 6.661e-16   max|full| 1.000e+00
+  Limiter_Velocity_y       max|sector - full| 7.772e-16   max|full| 1.000e+00
+  Limiter_Velocity_z       max|sector - full| 9.881e-15   max|full| 1.000e+00
+  Limiter_Pressure         max|sector - full| 1.530e-13   max|full| 1.000e+00
+periodic, first ring:
+  Residual_Density         max|sector - full| 2.626e-06   max|full| 2.292e-02
+  Residual_Momentum_x      max|sector - full| 1.471e-02   max|full| 2.777e-01
+  Residual_Momentum_y      max|sector - full| 2.433e-02   max|full| 9.179e-01
+  Residual_Momentum_z      max|sector - full| 2.758e-04   max|full| 3.615e+00
+  Residual_Energy          max|sector - full| 7.894e-01   max|full| 7.431e+03
+  Limiter_Velocity_x       max|sector - full| 6.661e-16   max|full| 9.400e-01
+  Limiter_Velocity_y       max|sector - full| 6.661e-16   max|full| 1.044e+00
+  Limiter_Velocity_z       max|sector - full| 6.328e-15   max|full| 6.270e-01
+  Limiter_Pressure         max|sector - full| 2.562e-13   max|full| 1.000e+00
+periodic:
+  Residual_Density         max|sector - full| 3.519e-05   max|full| 8.663e-02
+  Residual_Momentum_x      max|sector - full| 3.026e-01   max|full| 3.254e+00
+  Residual_Momentum_y      max|sector - full| 8.566e-02   max|full| 1.000e+01
+  Residual_Momentum_z      max|sector - full| 2.874e-03   max|full| 2.704e+01
+  Residual_Energy          max|sector - full| 1.009e+01   max|full| 2.717e+04
+  Limiter_Velocity_x       max|sector - full| 9.992e-16   max|full| 9.906e-01
+  Limiter_Velocity_y       max|sector - full| 4.441e-16   max|full| 1.016e+00
+  Limiter_Velocity_z       max|sector - full| 2.220e-15   max|full| 9.906e-01
+  Limiter_Pressure         max|sector - full| 2.740e-13   max|full| 1.000e+00
+first ring:
+  Residual_Density         max|sector - full| 1.610e-15   max|full| 1.705e-02
+  Residual_Momentum_x      max|sector - full| 5.182e-13   max|full| 4.059e-01
+  Residual_Momentum_y      max|sector - full| 4.546e-13   max|full| 4.240e-01
+  Residual_Momentum_z      max|sector - full| 3.268e-13   max|full| 3.823e+00
+  Residual_Energy          max|sector - full| 4.798e-10   max|full| 5.688e+03
+  Limiter_Velocity_x       max|sector - full| 2.220e-16   max|full| 1.027e+00
+  Limiter_Velocity_y       max|sector - full| 2.220e-16   max|full| 9.568e-01
+  Limiter_Velocity_z       max|sector - full| 2.331e-15   max|full| 6.145e-01
+  Limiter_Pressure         max|sector - full| 7.263e-13   max|full| 1.000e+00
+rest:
+  Residual_Density         max|sector - full| 6.450e-15   max|full| 2.303e-01
+  Residual_Momentum_x      max|sector - full| 2.586e-12   max|full| 4.675e+00
+  Residual_Momentum_y      max|sector - full| 1.776e-12   max|full| 4.924e+00
+  Residual_Momentum_z      max|sector - full| 1.585e-12   max|full| 7.919e+01
+  Residual_Energy          max|sector - full| 1.983e-09   max|full| 7.178e+04
+  Limiter_Velocity_x       max|sector - full| 1.110e-15   max|full| 1.015e+00
+  Limiter_Velocity_y       max|sector - full| 8.882e-16   max|full| 1.016e+00
+  Limiter_Velocity_z       max|sector - full| 1.776e-15   max|full| 9.906e-01
+  Limiter_Pressure         max|sector - full| 4.422e-13   max|full| 1.000e+00
+skipped 88 periodic nodes with zero residual (passive side)

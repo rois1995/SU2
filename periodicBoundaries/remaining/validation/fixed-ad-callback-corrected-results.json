@@ -1,0 +1,37 @@
+[
+  {
+    "case": "serial",
+    "exit": 0,
+    "command": [
+      "python3",
+      "/media/rausa/4TB/SU2_Versions/Prove/periodic/remaining_20261007/run_checked.py",
+      "fixed-ad-callback-corrected-serial.log",
+      "nice",
+      "timeout",
+      "-k",
+      "5",
+      "180",
+      "/media/rausa/4TB/SU2_Versions/Prove/periodic/remaining_20261007/build_ad/UnitTests/periodic_test_driver_AD",
+      "[Periodic]"
+    ]
+  },
+  {
+    "case": "mpi2",
+    "exit": 0,
+    "command": [
+      "python3",
+      "/media/rausa/4TB/SU2_Versions/Prove/periodic/remaining_20261007/run_checked.py",
+      "fixed-ad-callback-corrected-mpi2.log",
+      "nice",
+      "timeout",
+      "-k",
+      "5",
+      "180",
+      "mpirun",
+      "-np",
+      "2",
+      "/media/rausa/4TB/SU2_Versions/Prove/periodic/remaining_20261007/build_ad/UnitTests/periodic_test_driver_AD",
+      "[Periodic]"
+    ]
+  }
+]

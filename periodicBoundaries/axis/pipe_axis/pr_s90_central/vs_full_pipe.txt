@@ -1,0 +1,32 @@
+pr_s90_central against full_field4_central: same nodes, same field, one iteration
+axis:
+  Residual_Density         max|sector - full| 2.429e-16   max|full| 3.901e-02
+  Residual_Momentum_x      max|sector - full| 1.251e-12   max|full| 1.023e-12
+  Residual_Momentum_y      max|sector - full| 4.624e-13   max|full| 5.253e-13
+  Residual_Momentum_z      max|sector - full| 5.620e-13   max|full| 8.077e+00
+  Residual_Energy          max|sector - full| 6.003e-11   max|full| 1.287e+04
+periodic, first ring:
+  Residual_Density         max|sector - full| 7.980e-17   max|full| 2.129e-02
+  Residual_Momentum_x      max|sector - full| 5.618e-13   max|full| 2.564e-01
+  Residual_Momentum_y      max|sector - full| 5.220e-13   max|full| 3.460e-01
+  Residual_Momentum_z      max|sector - full| 1.615e-13   max|full| 3.837e+00
+  Residual_Energy          max|sector - full| 2.183e-11   max|full| 6.918e+03
+periodic:
+  Residual_Density         max|sector - full| 3.296e-16   max|full| 8.981e-02
+  Residual_Momentum_x      max|sector - full| 7.926e-13   max|full| 2.833e+00
+  Residual_Momentum_y      max|sector - full| 3.231e-12   max|full| 7.022e+00
+  Residual_Momentum_z      max|sector - full| 2.270e-12   max|full| 2.699e+01
+  Residual_Energy          max|sector - full| 1.091e-10   max|full| 2.733e+04
+first ring:
+  Residual_Density         max|sector - full| 5.898e-17   max|full| 1.643e-02
+  Residual_Momentum_x      max|sector - full| 4.257e-13   max|full| 1.658e-01
+  Residual_Momentum_y      max|sector - full| 3.412e-13   max|full| 2.764e-01
+  Residual_Momentum_z      max|sector - full| 1.233e-13   max|full| 4.057e+00
+  Residual_Energy          max|sector - full| 1.455e-11   max|full| 5.478e+03
+rest:
+  Residual_Density         max|sector - full| 1.596e-16   max|full| 2.277e-01
+  Residual_Momentum_x      max|sector - full| 1.532e-12   max|full| 3.398e+00
+  Residual_Momentum_y      max|sector - full| 1.301e-12   max|full| 4.242e+00
+  Residual_Momentum_z      max|sector - full| 9.095e-13   max|full| 7.927e+01
+  Residual_Energy          max|sector - full| 8.822e-11   max|full| 7.085e+04
+skipped 88 periodic nodes with zero residual (passive side)

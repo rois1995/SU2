@@ -1,0 +1,35 @@
+Filters: Periodic wall distance image assessment
+Three dimensional problem.
+125 grid points.
+64 volume elements.
+6 surface markers.
+16 boundary elements in index 0 (Marker = x_minus).
+16 boundary elements in index 1 (Marker = x_plus).
+16 boundary elements in index 2 (Marker = y_minus).
+16 boundary elements in index 3 (Marker = y_plus).
+16 boundary elements in index 4 (Marker = z_minus).
+16 boundary elements in index 5 (Marker = z_plus).
+64 hexahedra.
+All volume elements are correctly oriented.
+There has been a re-orientation of 64 QUADRILATERAL surface elements.
+Volume of the computational grid: 1.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Periodic wall distance image assessment
+-------------------------------------------------------------------------------
+../wt/UnitTests/Common/geometry/CGeometry_test.cpp:255
+...............................................................................
+
+../wt/UnitTests/Common/geometry/CGeometry_test.cpp:294: FAILED:
+  CHECK( globalLeft == Approx(globalImage) )
+with expansion:
+  0.5 == Approx( 0.26499947 )
+
+===============================================================================
+test cases: 1 | 1 failed
+assertions: 3 | 2 passed | 1 failed
+

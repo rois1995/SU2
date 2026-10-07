@@ -1,0 +1,273 @@
+[
+  {
+    "name": "affine",
+    "command": [
+      "nice",
+      "-n",
+      "10",
+      "timeout",
+      "-k",
+      "5",
+      "180",
+      "/media/rausa/4TB/SU2_Versions/Prove/periodic/remaining_20261007/build_control/UnitTests/test_driver",
+      "Periodic affine transformation and its inverse"
+    ],
+    "exit": 4
+  },
+  {
+    "name": "slip",
+    "command": [
+      "nice",
+      "-n",
+      "10",
+      "timeout",
+      "-k",
+      "5",
+      "180",
+      "/media/rausa/4TB/SU2_Versions/Prove/periodic/remaining_20261007/build_control/UnitTests/test_driver",
+      "Periodic slip-wall normal"
+    ],
+    "exit": 1
+  },
+  {
+    "name": "volume",
+    "command": [
+      "nice",
+      "-n",
+      "10",
+      "timeout",
+      "-k",
+      "5",
+      "180",
+      "/media/rausa/4TB/SU2_Versions/Prove/periodic/remaining_20261007/build_control/UnitTests/test_driver",
+      "Periodic volume refresh after mesh deformation"
+    ],
+    "exit": 4
+  },
+  {
+    "name": "aux",
+    "command": [
+      "nice",
+      "-n",
+      "10",
+      "timeout",
+      "-k",
+      "5",
+      "180",
+      "/media/rausa/4TB/SU2_Versions/Prove/periodic/remaining_20261007/build_control/UnitTests/test_driver",
+      "Periodic auxiliary gradients"
+    ],
+    "exit": 8
+  },
+  {
+    "name": "stencils",
+    "command": [
+      "nice",
+      "-n",
+      "10",
+      "timeout",
+      "-k",
+      "5",
+      "180",
+      "/media/rausa/4TB/SU2_Versions/Prove/periodic/remaining_20261007/build_control/UnitTests/test_driver",
+      "Intersecting periodic stencils"
+    ],
+    "exit": 52
+  },
+  {
+    "name": "coarse",
+    "command": [
+      "nice",
+      "-n",
+      "10",
+      "timeout",
+      "-k",
+      "5",
+      "180",
+      "/media/rausa/4TB/SU2_Versions/Prove/periodic/remaining_20261007/build_control/UnitTests/test_driver",
+      "Coarse periodic boundary flags"
+    ],
+    "exit": 115
+  },
+  {
+    "name": "onecell",
+    "command": [
+      "nice",
+      "-n",
+      "10",
+      "timeout",
+      "-k",
+      "5",
+      "180",
+      "/media/rausa/4TB/SU2_Versions/Prove/periodic/remaining_20261007/build_control/UnitTests/test_driver",
+      "One-cell periodic stencil"
+    ],
+    "exit": 4
+  },
+  {
+    "name": "flamelet",
+    "command": [
+      "nice",
+      "-n",
+      "10",
+      "timeout",
+      "-k",
+      "5",
+      "180",
+      "/media/rausa/4TB/SU2_Versions/Prove/periodic/remaining_20261007/build_control/UnitTests/test_driver",
+      "Flamelet preferential diffusion auxiliary gradients"
+    ],
+    "exit": null,
+    "evidence": "baseline-control-flamelet.log: 8 numeric assertions fail; exit code was not separately archived"
+  },
+  {
+    "name": "heat",
+    "command": [
+      "nice",
+      "-n",
+      "10",
+      "timeout",
+      "-k",
+      "5",
+      "180",
+      "/media/rausa/4TB/SU2_Versions/Prove/periodic/remaining_20261007/build_control/UnitTests/test_driver",
+      "Recovered periodic wall heat flux"
+    ],
+    "exit": 1
+  },
+  {
+    "name": "implicit",
+    "command": [
+      "nice",
+      "-n",
+      "10",
+      "timeout",
+      "-k",
+      "5",
+      "180",
+      "/media/rausa/4TB/SU2_Versions/Prove/periodic/remaining_20261007/build_control/UnitTests/test_driver",
+      "Complete periodic implicit operator and transpose"
+    ],
+    "exit": 16
+  },
+  {
+    "name": "metadata",
+    "command": [
+      "nice",
+      "-n",
+      "10",
+      "timeout",
+      "-k",
+      "5",
+      "180",
+      "/media/rausa/4TB/SU2_Versions/Prove/periodic/remaining_20261007/build_control/UnitTests/test_driver",
+      "[PeriodicAssessment]"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "PeriodicSupportContinuous",
+    "command": [
+      "nice",
+      "-n",
+      "10",
+      "timeout",
+      "-k",
+      "5",
+      "180",
+      "/media/rausa/4TB/SU2_Versions/Prove/periodic/remaining_20261007/build_control/UnitTests/test_driver",
+      "[.PeriodicSupportContinuous]"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "PeriodicSupportRadiation",
+    "command": [
+      "nice",
+      "-n",
+      "10",
+      "timeout",
+      "-k",
+      "5",
+      "180",
+      "/media/rausa/4TB/SU2_Versions/Prove/periodic/remaining_20261007/build_control/UnitTests/test_driver",
+      "[.PeriodicSupportRadiation]"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "PeriodicSupportStructure",
+    "command": [
+      "nice",
+      "-n",
+      "10",
+      "timeout",
+      "-k",
+      "5",
+      "180",
+      "/media/rausa/4TB/SU2_Versions/Prove/periodic/remaining_20261007/build_control/UnitTests/test_driver",
+      "[.PeriodicSupportStructure]"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "StreamwisePeriodicSupportRotation",
+    "command": [
+      "nice",
+      "-n",
+      "10",
+      "timeout",
+      "-k",
+      "5",
+      "180",
+      "/media/rausa/4TB/SU2_Versions/Prove/periodic/remaining_20261007/build_control/UnitTests/test_driver",
+      "[.StreamwisePeriodicSupportRotation]"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "StreamwisePeriodicSupportZero",
+    "command": [
+      "nice",
+      "-n",
+      "10",
+      "timeout",
+      "-k",
+      "5",
+      "180",
+      "/media/rausa/4TB/SU2_Versions/Prove/periodic/remaining_20261007/build_control/UnitTests/test_driver",
+      "[.StreamwisePeriodicSupportZero]"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "StreamwisePeriodicSupportConvection",
+    "command": [
+      "nice",
+      "-n",
+      "10",
+      "timeout",
+      "-k",
+      "5",
+      "180",
+      "/media/rausa/4TB/SU2_Versions/Prove/periodic/remaining_20261007/build_control/UnitTests/test_driver",
+      "[.StreamwisePeriodicSupportConvection]"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "StreamwisePeriodicSupportCHT",
+    "command": [
+      "nice",
+      "-n",
+      "10",
+      "timeout",
+      "-k",
+      "5",
+      "180",
+      "/media/rausa/4TB/SU2_Versions/Prove/periodic/remaining_20261007/build_control/UnitTests/test_driver",
+      "[.StreamwisePeriodicSupportCHT]"
+    ],
+    "exit": 0
+  }
+]

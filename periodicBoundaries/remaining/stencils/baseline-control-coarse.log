@@ -1,0 +1,606 @@
+Filters: Coarse periodic boundary flags
+Three dimensional problem.
+125 grid points.
+64 volume elements.
+6 surface markers.
+16 boundary elements in index 0 (Marker = x_minus).
+16 boundary elements in index 1 (Marker = x_plus).
+16 boundary elements in index 2 (Marker = y_minus).
+16 boundary elements in index 3 (Marker = y_plus).
+16 boundary elements in index 4 (Marker = z_minus).
+16 boundary elements in index 5 (Marker = z_plus).
+64 hexahedra.
+All volume elements are correctly oriented.
+There has been a re-orientation of 64 QUADRILATERAL surface elements.
+Volume of the computational grid: 1.
+MG level 1 has only 78 CVs (< MG_MIN_MESHSIZE=500). Reducing MG levels to 0.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Coarse periodic boundary flags
+-------------------------------------------------------------------------------
+../wt/UnitTests/SU2_CFD/gradients.cpp:337
+...............................................................................
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:355: FAILED:
+  CHECK( coarse.nodes->GetPhysicalBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:356: FAILED:
+  CHECK( coarse.nodes->GetSolidBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:357: FAILED:
+  CHECK( coarse.nodes->GetViscousBoundary(i) )
+with expansion:
+  false
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:369: FAILED:
+  CHECK( global[1] == 0 )
+with expansion:
+  50 == 0
+
+===============================================================================
+test cases:   1 |   1 failed
+assertions: 116 | 1 passed | 115 failed
+

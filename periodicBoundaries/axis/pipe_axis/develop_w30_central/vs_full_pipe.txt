@@ -1,0 +1,20 @@
+develop_w30_central against full_field12_central: same nodes, same field, one iteration
+axis:
+  Residual_Density         max|sector - full| 4.963e-02   max|full| 4.963e-02
+  Residual_Momentum_x      max|sector - full| 3.411e-13   max|full| 3.411e-13
+  Residual_Momentum_y      max|sector - full| 4.683e-13   max|full| 4.683e-13
+  Residual_Momentum_z      max|sector - full| 8.057e+00   max|full| 8.057e+00
+  Residual_Energy          max|sector - full| 1.617e+04   max|full| 1.617e+04
+periodic, first ring:
+  Residual_Density         max|sector - full| 1.251e-16   max|full| 2.295e-02
+  Residual_Momentum_x      max|sector - full| 2.309e-03   max|full| 1.702e-01
+  Residual_Momentum_y      max|sector - full| 5.343e-03   max|full| 3.030e-01
+  Residual_Momentum_z      max|sector - full| 5.959e-01   max|full| 3.816e+00
+  Residual_Energy          max|sector - full| 7.724e+03   max|full| 7.481e+03
+periodic:
+  Residual_Density         max|sector - full| 4.406e-16   max|full| 8.649e-02
+  Residual_Momentum_x      max|sector - full| 4.363e-12   max|full| 5.190e+00
+  Residual_Momentum_y      max|sector - full| 2.163e-12   max|full| 4.094e+00
+  Residual_Momentum_z      max|sector - full| 2.728e-12   max|full| 2.695e+01
+  Residual_Energy          max|sector - full| 1.382e-10   max|full| 2.585e+04
+skipped 88 periodic nodes with zero residual (passive side)

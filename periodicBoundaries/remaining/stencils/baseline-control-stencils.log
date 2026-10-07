@@ -1,0 +1,1266 @@
+Filters: Intersecting periodic stencils
+Three dimensional problem.
+125 grid points.
+64 volume elements.
+6 surface markers.
+16 boundary elements in index 0 (Marker = x_minus).
+16 boundary elements in index 1 (Marker = x_plus).
+16 boundary elements in index 2 (Marker = y_minus).
+16 boundary elements in index 3 (Marker = y_plus).
+16 boundary elements in index 4 (Marker = z_minus).
+16 boundary elements in index 5 (Marker = z_plus).
+64 hexahedra.
+All volume elements are correctly oriented.
+There has been a re-orientation of 64 QUADRILATERAL surface elements.
+Volume of the computational grid: 1.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Viscous flow: Computing pressure using the ideal gas law
+based on the free-stream temperature and a density computed
+from the Reynolds number.
+Force coefficients computed using free-stream values.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|       CONSTANT_VISCOSITY|          CONSTANT_PRANDTL|             STANDARD_AIR|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|             Viscosity|     1.716e-05|             1|   N.s/m^2|     1.716e-05|
++------------------------------------------------------------------------------+
+|        Prandtl (Lam.)|             -|             -|         -|          0.72|
+|       Prandtl (Turb.)|             -|             -|         -|           0.9|
++------------------------------------------------------------------------------+
+|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+|      Spec. Heat Ratio|             -|             -|         -|           1.4|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|       Static Pressure|        101325|             1|        Pa|        101325|
+|               Density|       1.22498|             1|    kg/m^3|       1.22498|
+|           Temperature|        288.15|             1|         K|        288.15|
+|          Total Energy|        221265|             1|   m^2/s^2|        221265|
+|            Velocity-X|       170.149|             1|       m/s|       170.149|
+|            Velocity-Y|             0|             1|       m/s|             0|
+|            Velocity-Z|             0|             1|       m/s|             0|
+|    Velocity Magnitude|       170.149|             1|       m/s|       170.149|
++------------------------------------------------------------------------------+
+|             Viscosity|     1.716e-05|             1|   N.s/m^2|     1.716e-05|
+|          Conductivity|             -|             1|   W/m^2.K|             -|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|           0.5|
+|       Reynolds Number|             -|             -|         -|   1.21462e+07|
++------------------------------------------------------------------------------+
+
+Warning: Fluid properties and solution are being 
+         initialized for the manufactured solution 
+         of the Navier-Stokes equations on a unit quad!!!
+
+Initialize Jacobian structure (Navier-Stokes). MG level: 0.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Intersecting periodic stencils
+-------------------------------------------------------------------------------
+../wt/UnitTests/SU2_CFD/gradients.cpp:226
+...............................................................................
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:313: FAILED:
+  CHECK( field.geometry->nodes->GetnNeighbor(target) == stencil.size() )
+with expansion:
+  4 == 6
+with message:
+  pairs 2, diagonal 0, MSW 0, incompressible 0
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:314: FAILED:
+  CHECK( nodes->GetSensor(target) == Approx(msw ? maximum : (incompressible ? 0.0 : fabs(numerator) / denominator)).margin(1e-12) )
+with expansion:
+  0.0021754895 == Approx( 0.0057803468 )
+with message:
+  pairs 2, diagonal 0, MSW 0, incompressible 0
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:316: FAILED:
+  CHECK( nodes->GetUndivided_Laplacian(target, 0) == Approx(numerator).margin(1e-12) )
+with expansion:
+  0.1875 == Approx( 0.75 )
+with message:
+  pairs 2, diagonal 0, MSW 0, incompressible 0
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:331: FAILED:
+  CHECK( gradient(target, 0, 0) == Approx(0).margin(1e-12) )
+with expansion:
+  0.75 == Approx( 0.0 )
+with message:
+  pairs 2, diagonal 0, MSW 0, incompressible 0
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:332: FAILED:
+  CHECK( gradient(target, 0, 1) == Approx(0).margin(1e-12) )
+with expansion:
+  1.5 == Approx( 0.0 )
+with message:
+  pairs 2, diagonal 0, MSW 0, incompressible 0
+
+Three dimensional problem.
+125 grid points.
+64 volume elements.
+6 surface markers.
+16 boundary elements in index 0 (Marker = x_minus).
+16 boundary elements in index 1 (Marker = x_plus).
+16 boundary elements in index 2 (Marker = y_minus).
+16 boundary elements in index 3 (Marker = y_plus).
+16 boundary elements in index 4 (Marker = z_minus).
+16 boundary elements in index 5 (Marker = z_plus).
+64 hexahedra.
+All volume elements are correctly oriented.
+There has been a re-orientation of 64 QUADRILATERAL surface elements.
+Volume of the computational grid: 1.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Viscous flow: Computing pressure using the ideal gas law
+based on the free-stream temperature and a density computed
+from the Reynolds number.
+Force coefficients computed using free-stream values.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|       CONSTANT_VISCOSITY|          CONSTANT_PRANDTL|             STANDARD_AIR|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|             Viscosity|     1.716e-05|             1|   N.s/m^2|     1.716e-05|
++------------------------------------------------------------------------------+
+|        Prandtl (Lam.)|             -|             -|         -|          0.72|
+|       Prandtl (Turb.)|             -|             -|         -|           0.9|
++------------------------------------------------------------------------------+
+|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+|      Spec. Heat Ratio|             -|             -|         -|           1.4|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|       Static Pressure|        101325|             1|        Pa|        101325|
+|               Density|       1.22498|             1|    kg/m^3|       1.22498|
+|           Temperature|        288.15|             1|         K|        288.15|
+|          Total Energy|        221265|             1|   m^2/s^2|        221265|
+|            Velocity-X|       170.149|             1|       m/s|       170.149|
+|            Velocity-Y|             0|             1|       m/s|             0|
+|            Velocity-Z|             0|             1|       m/s|             0|
+|    Velocity Magnitude|       170.149|             1|       m/s|       170.149|
++------------------------------------------------------------------------------+
+|             Viscosity|     1.716e-05|             1|   N.s/m^2|     1.716e-05|
+|          Conductivity|             -|             1|   W/m^2.K|             -|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|           0.5|
+|       Reynolds Number|             -|             -|         -|   1.21462e+07|
++------------------------------------------------------------------------------+
+
+Warning: Fluid properties and solution are being 
+         initialized for the manufactured solution 
+         of the Navier-Stokes equations on a unit quad!!!
+
+Initialize Jacobian structure (Navier-Stokes). MG level: 0.
+-------------------------------------------------------------------------------
+Intersecting periodic stencils
+-------------------------------------------------------------------------------
+../wt/UnitTests/SU2_CFD/gradients.cpp:226
+...............................................................................
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:313: FAILED:
+  CHECK( field.geometry->nodes->GetnNeighbor(target) == stencil.size() )
+with expansion:
+  4 == 6
+with message:
+  pairs 2, diagonal 0, MSW 1, incompressible 0
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:331: FAILED:
+  CHECK( gradient(target, 0, 0) == Approx(0).margin(1e-12) )
+with expansion:
+  0.75 == Approx( 0.0 )
+with message:
+  pairs 2, diagonal 0, MSW 1, incompressible 0
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:332: FAILED:
+  CHECK( gradient(target, 0, 1) == Approx(0).margin(1e-12) )
+with expansion:
+  1.5 == Approx( 0.0 )
+with message:
+  pairs 2, diagonal 0, MSW 1, incompressible 0
+
+Three dimensional problem.
+125 grid points.
+64 volume elements.
+6 surface markers.
+16 boundary elements in index 0 (Marker = x_minus).
+16 boundary elements in index 1 (Marker = x_plus).
+16 boundary elements in index 2 (Marker = y_minus).
+16 boundary elements in index 3 (Marker = y_plus).
+16 boundary elements in index 4 (Marker = z_minus).
+16 boundary elements in index 5 (Marker = z_plus).
+64 hexahedra.
+All volume elements are correctly oriented.
+There has been a re-orientation of 64 QUADRILATERAL surface elements.
+Volume of the computational grid: 1.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Incompressible flow: rho_ref, vel_ref, and temp_ref
+are based on the initial values, p_ref = rho_ref*vel_ref^2.
+Force coefficients computed using initial values.
+The reference area for force coeffs. is 1 m^2.
+The reference length for force coeffs. is 1 m.
+The pressure is decomposed into thermodynamic and dynamic components.
+The initial value of the dynamic pressure is 0.
+Mach number: 0.00301242, computed using the Bulk modulus.
+For external flows, the initial state is imposed at the far-field.
+Angle of attack (deg): 0, computed using the initial velocity.
+Side slip angle (deg): 0, computed using the initial velocity.
+Reynolds number per meter: 75093.2, computed using initial values.
+Reynolds number is a byproduct of inputs only (not used internally).
+SI units only. The grid should be dimensional (meters).
+No energy equation.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|       CONSTANT_VISCOSITY|          CONSTANT_PRANDTL|         CONSTANT_DENSITY|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|             Viscosity|     1.716e-05|        1.2886|   N.s/m^2|   1.33168e-05|
++------------------------------------------------------------------------------+
+|        Prandtl (Lam.)|             -|             -|         -|          0.72|
+|       Prandtl (Turb.)|             -|             -|         -|           0.9|
++------------------------------------------------------------------------------+
+|          Bulk Modulus|        142000|             1|        Pa|        142000|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|      Dynamic Pressure|             0|        1.2886|        Pa|             0|
+|        Total Pressure|        0.6443|        1.2886|        Pa|           0.5|
+|               Density|        1.2886|        1.2886|    kg/m^3|             1|
+|            Velocity-X|             1|             1|       m/s|             1|
+|            Velocity-Y|             0|             1|       m/s|             0|
+|            Velocity-Z|             0|             1|       m/s|             0|
+|    Velocity Magnitude|             1|             1|       m/s|             1|
++------------------------------------------------------------------------------+
+|             Viscosity|     1.716e-05|        1.2886|   N.s/m^2|   1.33168e-05|
+|          Conductivity|             -|    0.00447198|   W/m^2.K|             -|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|    0.00301242|
+|       Reynolds Number|             -|             -|         -|       75093.2|
++------------------------------------------------------------------------------+
+Initialize Jacobian structure (Navier-Stokes). MG level: 0.
+-------------------------------------------------------------------------------
+Intersecting periodic stencils
+-------------------------------------------------------------------------------
+../wt/UnitTests/SU2_CFD/gradients.cpp:226
+...............................................................................
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:313: FAILED:
+  CHECK( field.geometry->nodes->GetnNeighbor(target) == stencil.size() )
+with expansion:
+  4 == 6
+with message:
+  pairs 2, diagonal 0, MSW 0, incompressible 1
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:316: FAILED:
+  CHECK( nodes->GetUndivided_Laplacian(target, 0) == Approx(numerator).margin(1e-12) )
+with expansion:
+  0.1875 == Approx( 0.75 )
+with message:
+  pairs 2, diagonal 0, MSW 0, incompressible 1
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:331: FAILED:
+  CHECK( gradient(target, 0, 0) == Approx(0).margin(1e-12) )
+with expansion:
+  0.75 == Approx( 0.0 )
+with message:
+  pairs 2, diagonal 0, MSW 0, incompressible 1
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:332: FAILED:
+  CHECK( gradient(target, 0, 1) == Approx(0).margin(1e-12) )
+with expansion:
+  1.5 == Approx( 0.0 )
+with message:
+  pairs 2, diagonal 0, MSW 0, incompressible 1
+
+Three dimensional problem.
+125 grid points.
+64 volume elements.
+6 surface markers.
+16 boundary elements in index 0 (Marker = x_minus).
+16 boundary elements in index 1 (Marker = x_plus).
+16 boundary elements in index 2 (Marker = y_minus).
+16 boundary elements in index 3 (Marker = y_plus).
+16 boundary elements in index 4 (Marker = z_minus).
+16 boundary elements in index 5 (Marker = z_plus).
+64 hexahedra.
+All volume elements are correctly oriented.
+There has been a re-orientation of 64 QUADRILATERAL surface elements.
+Volume of the computational grid: 1.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Viscous flow: Computing pressure using the ideal gas law
+based on the free-stream temperature and a density computed
+from the Reynolds number.
+Force coefficients computed using free-stream values.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|       CONSTANT_VISCOSITY|          CONSTANT_PRANDTL|             STANDARD_AIR|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|             Viscosity|     1.716e-05|             1|   N.s/m^2|     1.716e-05|
++------------------------------------------------------------------------------+
+|        Prandtl (Lam.)|             -|             -|         -|          0.72|
+|       Prandtl (Turb.)|             -|             -|         -|           0.9|
++------------------------------------------------------------------------------+
+|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+|      Spec. Heat Ratio|             -|             -|         -|           1.4|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|       Static Pressure|        101325|             1|        Pa|        101325|
+|               Density|       1.22498|             1|    kg/m^3|       1.22498|
+|           Temperature|        288.15|             1|         K|        288.15|
+|          Total Energy|        221265|             1|   m^2/s^2|        221265|
+|            Velocity-X|       170.149|             1|       m/s|       170.149|
+|            Velocity-Y|             0|             1|       m/s|             0|
+|            Velocity-Z|             0|             1|       m/s|             0|
+|    Velocity Magnitude|       170.149|             1|       m/s|       170.149|
++------------------------------------------------------------------------------+
+|             Viscosity|     1.716e-05|             1|   N.s/m^2|     1.716e-05|
+|          Conductivity|             -|             1|   W/m^2.K|             -|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|           0.5|
+|       Reynolds Number|             -|             -|         -|   1.21462e+07|
++------------------------------------------------------------------------------+
+
+Warning: Fluid properties and solution are being 
+         initialized for the manufactured solution 
+         of the Navier-Stokes equations on a unit quad!!!
+
+Initialize Jacobian structure (Navier-Stokes). MG level: 0.
+-------------------------------------------------------------------------------
+Intersecting periodic stencils
+-------------------------------------------------------------------------------
+../wt/UnitTests/SU2_CFD/gradients.cpp:226
+...............................................................................
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:313: FAILED:
+  CHECK( field.geometry->nodes->GetnNeighbor(target) == stencil.size() )
+with expansion:
+  5 == 8
+with message:
+  pairs 2, diagonal 1, MSW 0, incompressible 0
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:314: FAILED:
+  CHECK( nodes->GetSensor(target) == Approx(msw ? maximum : (incompressible ? 0.0 : fabs(numerator) / denominator)).margin(1e-12) )
+with expansion:
+  0.0069284065 == Approx( 0.0107836089 )
+with message:
+  pairs 2, diagonal 1, MSW 0, incompressible 0
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:316: FAILED:
+  CHECK( nodes->GetUndivided_Laplacian(target, 0) == Approx(numerator).margin(1e-12) )
+with expansion:
+  0.75 == Approx( 1.875 )
+with message:
+  pairs 2, diagonal 1, MSW 0, incompressible 0
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:331: FAILED:
+  CHECK( gradient(target, 0, 0) == Approx(0).margin(1e-12) )
+with expansion:
+  0.75 == Approx( 0.0 )
+with message:
+  pairs 2, diagonal 1, MSW 0, incompressible 0
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:332: FAILED:
+  CHECK( gradient(target, 0, 1) == Approx(0).margin(1e-12) )
+with expansion:
+  1.5 == Approx( 0.0 )
+with message:
+  pairs 2, diagonal 1, MSW 0, incompressible 0
+
+Three dimensional problem.
+125 grid points.
+64 volume elements.
+6 surface markers.
+16 boundary elements in index 0 (Marker = x_minus).
+16 boundary elements in index 1 (Marker = x_plus).
+16 boundary elements in index 2 (Marker = y_minus).
+16 boundary elements in index 3 (Marker = y_plus).
+16 boundary elements in index 4 (Marker = z_minus).
+16 boundary elements in index 5 (Marker = z_plus).
+64 hexahedra.
+All volume elements are correctly oriented.
+There has been a re-orientation of 64 QUADRILATERAL surface elements.
+Volume of the computational grid: 1.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Viscous flow: Computing pressure using the ideal gas law
+based on the free-stream temperature and a density computed
+from the Reynolds number.
+Force coefficients computed using free-stream values.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|       CONSTANT_VISCOSITY|          CONSTANT_PRANDTL|             STANDARD_AIR|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|             Viscosity|     1.716e-05|             1|   N.s/m^2|     1.716e-05|
++------------------------------------------------------------------------------+
+|        Prandtl (Lam.)|             -|             -|         -|          0.72|
+|       Prandtl (Turb.)|             -|             -|         -|           0.9|
++------------------------------------------------------------------------------+
+|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+|      Spec. Heat Ratio|             -|             -|         -|           1.4|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|       Static Pressure|        101325|             1|        Pa|        101325|
+|               Density|       1.22498|             1|    kg/m^3|       1.22498|
+|           Temperature|        288.15|             1|         K|        288.15|
+|          Total Energy|        221265|             1|   m^2/s^2|        221265|
+|            Velocity-X|       170.149|             1|       m/s|       170.149|
+|            Velocity-Y|             0|             1|       m/s|             0|
+|            Velocity-Z|             0|             1|       m/s|             0|
+|    Velocity Magnitude|       170.149|             1|       m/s|       170.149|
++------------------------------------------------------------------------------+
+|             Viscosity|     1.716e-05|             1|   N.s/m^2|     1.716e-05|
+|          Conductivity|             -|             1|   W/m^2.K|             -|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|           0.5|
+|       Reynolds Number|             -|             -|         -|   1.21462e+07|
++------------------------------------------------------------------------------+
+
+Warning: Fluid properties and solution are being 
+         initialized for the manufactured solution 
+         of the Navier-Stokes equations on a unit quad!!!
+
+Initialize Jacobian structure (Navier-Stokes). MG level: 0.
+-------------------------------------------------------------------------------
+Intersecting periodic stencils
+-------------------------------------------------------------------------------
+../wt/UnitTests/SU2_CFD/gradients.cpp:226
+...............................................................................
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:313: FAILED:
+  CHECK( field.geometry->nodes->GetnNeighbor(target) == stencil.size() )
+with expansion:
+  5 == 8
+with message:
+  pairs 2, diagonal 1, MSW 1, incompressible 0
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:331: FAILED:
+  CHECK( gradient(target, 0, 0) == Approx(0).margin(1e-12) )
+with expansion:
+  0.75 == Approx( 0.0 )
+with message:
+  pairs 2, diagonal 1, MSW 1, incompressible 0
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:332: FAILED:
+  CHECK( gradient(target, 0, 1) == Approx(0).margin(1e-12) )
+with expansion:
+  1.5 == Approx( 0.0 )
+with message:
+  pairs 2, diagonal 1, MSW 1, incompressible 0
+
+Three dimensional problem.
+125 grid points.
+64 volume elements.
+6 surface markers.
+16 boundary elements in index 0 (Marker = x_minus).
+16 boundary elements in index 1 (Marker = x_plus).
+16 boundary elements in index 2 (Marker = y_minus).
+16 boundary elements in index 3 (Marker = y_plus).
+16 boundary elements in index 4 (Marker = z_minus).
+16 boundary elements in index 5 (Marker = z_plus).
+64 hexahedra.
+All volume elements are correctly oriented.
+There has been a re-orientation of 64 QUADRILATERAL surface elements.
+Volume of the computational grid: 1.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Incompressible flow: rho_ref, vel_ref, and temp_ref
+are based on the initial values, p_ref = rho_ref*vel_ref^2.
+Force coefficients computed using initial values.
+The reference area for force coeffs. is 1 m^2.
+The reference length for force coeffs. is 1 m.
+The pressure is decomposed into thermodynamic and dynamic components.
+The initial value of the dynamic pressure is 0.
+Mach number: 0.00301242, computed using the Bulk modulus.
+For external flows, the initial state is imposed at the far-field.
+Angle of attack (deg): 0, computed using the initial velocity.
+Side slip angle (deg): 0, computed using the initial velocity.
+Reynolds number per meter: 75093.2, computed using initial values.
+Reynolds number is a byproduct of inputs only (not used internally).
+SI units only. The grid should be dimensional (meters).
+No energy equation.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|       CONSTANT_VISCOSITY|          CONSTANT_PRANDTL|         CONSTANT_DENSITY|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|             Viscosity|     1.716e-05|        1.2886|   N.s/m^2|   1.33168e-05|
++------------------------------------------------------------------------------+
+|        Prandtl (Lam.)|             -|             -|         -|          0.72|
+|       Prandtl (Turb.)|             -|             -|         -|           0.9|
++------------------------------------------------------------------------------+
+|          Bulk Modulus|        142000|             1|        Pa|        142000|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|      Dynamic Pressure|             0|        1.2886|        Pa|             0|
+|        Total Pressure|        0.6443|        1.2886|        Pa|           0.5|
+|               Density|        1.2886|        1.2886|    kg/m^3|             1|
+|            Velocity-X|             1|             1|       m/s|             1|
+|            Velocity-Y|             0|             1|       m/s|             0|
+|            Velocity-Z|             0|             1|       m/s|             0|
+|    Velocity Magnitude|             1|             1|       m/s|             1|
++------------------------------------------------------------------------------+
+|             Viscosity|     1.716e-05|        1.2886|   N.s/m^2|   1.33168e-05|
+|          Conductivity|             -|    0.00447198|   W/m^2.K|             -|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|    0.00301242|
+|       Reynolds Number|             -|             -|         -|       75093.2|
++------------------------------------------------------------------------------+
+Initialize Jacobian structure (Navier-Stokes). MG level: 0.
+-------------------------------------------------------------------------------
+Intersecting periodic stencils
+-------------------------------------------------------------------------------
+../wt/UnitTests/SU2_CFD/gradients.cpp:226
+...............................................................................
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:313: FAILED:
+  CHECK( field.geometry->nodes->GetnNeighbor(target) == stencil.size() )
+with expansion:
+  5 == 8
+with message:
+  pairs 2, diagonal 1, MSW 0, incompressible 1
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:316: FAILED:
+  CHECK( nodes->GetUndivided_Laplacian(target, 0) == Approx(numerator).margin(1e-12) )
+with expansion:
+  0.75 == Approx( 1.875 )
+with message:
+  pairs 2, diagonal 1, MSW 0, incompressible 1
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:331: FAILED:
+  CHECK( gradient(target, 0, 0) == Approx(0).margin(1e-12) )
+with expansion:
+  0.75 == Approx( 0.0 )
+with message:
+  pairs 2, diagonal 1, MSW 0, incompressible 1
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:332: FAILED:
+  CHECK( gradient(target, 0, 1) == Approx(0).margin(1e-12) )
+with expansion:
+  1.5 == Approx( 0.0 )
+with message:
+  pairs 2, diagonal 1, MSW 0, incompressible 1
+
+Three dimensional problem.
+125 grid points.
+64 volume elements.
+6 surface markers.
+16 boundary elements in index 0 (Marker = x_minus).
+16 boundary elements in index 1 (Marker = x_plus).
+16 boundary elements in index 2 (Marker = y_minus).
+16 boundary elements in index 3 (Marker = y_plus).
+16 boundary elements in index 4 (Marker = z_minus).
+16 boundary elements in index 5 (Marker = z_plus).
+64 hexahedra.
+All volume elements are correctly oriented.
+There has been a re-orientation of 64 QUADRILATERAL surface elements.
+Volume of the computational grid: 1.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 3.
+ Matched 50 points with a max distance of: 0.
+Viscous flow: Computing pressure using the ideal gas law
+based on the free-stream temperature and a density computed
+from the Reynolds number.
+Force coefficients computed using free-stream values.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|       CONSTANT_VISCOSITY|          CONSTANT_PRANDTL|             STANDARD_AIR|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|             Viscosity|     1.716e-05|             1|   N.s/m^2|     1.716e-05|
++------------------------------------------------------------------------------+
+|        Prandtl (Lam.)|             -|             -|         -|          0.72|
+|       Prandtl (Turb.)|             -|             -|         -|           0.9|
++------------------------------------------------------------------------------+
+|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+|      Spec. Heat Ratio|             -|             -|         -|           1.4|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|       Static Pressure|        101325|             1|        Pa|        101325|
+|               Density|       1.22498|             1|    kg/m^3|       1.22498|
+|           Temperature|        288.15|             1|         K|        288.15|
+|          Total Energy|        221265|             1|   m^2/s^2|        221265|
+|            Velocity-X|       170.149|             1|       m/s|       170.149|
+|            Velocity-Y|             0|             1|       m/s|             0|
+|            Velocity-Z|             0|             1|       m/s|             0|
+|    Velocity Magnitude|       170.149|             1|       m/s|       170.149|
++------------------------------------------------------------------------------+
+|             Viscosity|     1.716e-05|             1|   N.s/m^2|     1.716e-05|
+|          Conductivity|             -|             1|   W/m^2.K|             -|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|           0.5|
+|       Reynolds Number|             -|             -|         -|   1.21462e+07|
++------------------------------------------------------------------------------+
+
+Warning: Fluid properties and solution are being 
+         initialized for the manufactured solution 
+         of the Navier-Stokes equations on a unit quad!!!
+
+Initialize Jacobian structure (Navier-Stokes). MG level: 0.
+-------------------------------------------------------------------------------
+Intersecting periodic stencils
+-------------------------------------------------------------------------------
+../wt/UnitTests/SU2_CFD/gradients.cpp:226
+...............................................................................
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:313: FAILED:
+  CHECK( field.geometry->nodes->GetnNeighbor(target) == stencil.size() )
+with expansion:
+  3 == 6
+with message:
+  pairs 3, diagonal 0, MSW 0, incompressible 0
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:316: FAILED:
+  CHECK( nodes->GetUndivided_Laplacian(target, 0) == Approx(numerator).margin(1e-12) )
+with expansion:
+  1.125 == Approx( 2.25 )
+with message:
+  pairs 3, diagonal 0, MSW 0, incompressible 0
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:331: FAILED:
+  CHECK( gradient(target, 0, 0) == Approx(0).margin(1e-12) )
+with expansion:
+  0.75 == Approx( 0.0 )
+with message:
+  pairs 3, diagonal 0, MSW 0, incompressible 0
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:332: FAILED:
+  CHECK( gradient(target, 0, 1) == Approx(0).margin(1e-12) )
+with expansion:
+  1.5 == Approx( 0.0 )
+with message:
+  pairs 3, diagonal 0, MSW 0, incompressible 0
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:333: FAILED:
+  CHECK( gradient(target, 0, 2) == Approx(nPairs == 3 ? 0 : 3 * (1 - 2 * z)).margin(1e-12) )
+with expansion:
+  2.25 == Approx( 0.0 )
+with message:
+  pairs 3, diagonal 0, MSW 0, incompressible 0
+
+Three dimensional problem.
+125 grid points.
+64 volume elements.
+6 surface markers.
+16 boundary elements in index 0 (Marker = x_minus).
+16 boundary elements in index 1 (Marker = x_plus).
+16 boundary elements in index 2 (Marker = y_minus).
+16 boundary elements in index 3 (Marker = y_plus).
+16 boundary elements in index 4 (Marker = z_minus).
+16 boundary elements in index 5 (Marker = z_plus).
+64 hexahedra.
+All volume elements are correctly oriented.
+There has been a re-orientation of 64 QUADRILATERAL surface elements.
+Volume of the computational grid: 1.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 3.
+ Matched 50 points with a max distance of: 0.
+Viscous flow: Computing pressure using the ideal gas law
+based on the free-stream temperature and a density computed
+from the Reynolds number.
+Force coefficients computed using free-stream values.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|       CONSTANT_VISCOSITY|          CONSTANT_PRANDTL|             STANDARD_AIR|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|             Viscosity|     1.716e-05|             1|   N.s/m^2|     1.716e-05|
++------------------------------------------------------------------------------+
+|        Prandtl (Lam.)|             -|             -|         -|          0.72|
+|       Prandtl (Turb.)|             -|             -|         -|           0.9|
++------------------------------------------------------------------------------+
+|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+|      Spec. Heat Ratio|             -|             -|         -|           1.4|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|       Static Pressure|        101325|             1|        Pa|        101325|
+|               Density|       1.22498|             1|    kg/m^3|       1.22498|
+|           Temperature|        288.15|             1|         K|        288.15|
+|          Total Energy|        221265|             1|   m^2/s^2|        221265|
+|            Velocity-X|       170.149|             1|       m/s|       170.149|
+|            Velocity-Y|             0|             1|       m/s|             0|
+|            Velocity-Z|             0|             1|       m/s|             0|
+|    Velocity Magnitude|       170.149|             1|       m/s|       170.149|
++------------------------------------------------------------------------------+
+|             Viscosity|     1.716e-05|             1|   N.s/m^2|     1.716e-05|
+|          Conductivity|             -|             1|   W/m^2.K|             -|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|           0.5|
+|       Reynolds Number|             -|             -|         -|   1.21462e+07|
++------------------------------------------------------------------------------+
+
+Warning: Fluid properties and solution are being 
+         initialized for the manufactured solution 
+         of the Navier-Stokes equations on a unit quad!!!
+
+Initialize Jacobian structure (Navier-Stokes). MG level: 0.
+-------------------------------------------------------------------------------
+Intersecting periodic stencils
+-------------------------------------------------------------------------------
+../wt/UnitTests/SU2_CFD/gradients.cpp:226
+...............................................................................
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:313: FAILED:
+  CHECK( field.geometry->nodes->GetnNeighbor(target) == stencil.size() )
+with expansion:
+  3 == 6
+with message:
+  pairs 3, diagonal 0, MSW 1, incompressible 0
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:331: FAILED:
+  CHECK( gradient(target, 0, 0) == Approx(0).margin(1e-12) )
+with expansion:
+  0.75 == Approx( 0.0 )
+with message:
+  pairs 3, diagonal 0, MSW 1, incompressible 0
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:332: FAILED:
+  CHECK( gradient(target, 0, 1) == Approx(0).margin(1e-12) )
+with expansion:
+  1.5 == Approx( 0.0 )
+with message:
+  pairs 3, diagonal 0, MSW 1, incompressible 0
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:333: FAILED:
+  CHECK( gradient(target, 0, 2) == Approx(nPairs == 3 ? 0 : 3 * (1 - 2 * z)).margin(1e-12) )
+with expansion:
+  2.25 == Approx( 0.0 )
+with message:
+  pairs 3, diagonal 0, MSW 1, incompressible 0
+
+Three dimensional problem.
+125 grid points.
+64 volume elements.
+6 surface markers.
+16 boundary elements in index 0 (Marker = x_minus).
+16 boundary elements in index 1 (Marker = x_plus).
+16 boundary elements in index 2 (Marker = y_minus).
+16 boundary elements in index 3 (Marker = y_plus).
+16 boundary elements in index 4 (Marker = z_minus).
+16 boundary elements in index 5 (Marker = z_plus).
+64 hexahedra.
+All volume elements are correctly oriented.
+There has been a re-orientation of 64 QUADRILATERAL surface elements.
+Volume of the computational grid: 1.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 3.
+ Matched 50 points with a max distance of: 0.
+Incompressible flow: rho_ref, vel_ref, and temp_ref
+are based on the initial values, p_ref = rho_ref*vel_ref^2.
+Force coefficients computed using initial values.
+The reference area for force coeffs. is 1 m^2.
+The reference length for force coeffs. is 1 m.
+The pressure is decomposed into thermodynamic and dynamic components.
+The initial value of the dynamic pressure is 0.
+Mach number: 0.00301242, computed using the Bulk modulus.
+For external flows, the initial state is imposed at the far-field.
+Angle of attack (deg): 0, computed using the initial velocity.
+Side slip angle (deg): 0, computed using the initial velocity.
+Reynolds number per meter: 75093.2, computed using initial values.
+Reynolds number is a byproduct of inputs only (not used internally).
+SI units only. The grid should be dimensional (meters).
+No energy equation.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|       CONSTANT_VISCOSITY|          CONSTANT_PRANDTL|         CONSTANT_DENSITY|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|             Viscosity|     1.716e-05|        1.2886|   N.s/m^2|   1.33168e-05|
++------------------------------------------------------------------------------+
+|        Prandtl (Lam.)|             -|             -|         -|          0.72|
+|       Prandtl (Turb.)|             -|             -|         -|           0.9|
++------------------------------------------------------------------------------+
+|          Bulk Modulus|        142000|             1|        Pa|        142000|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|      Dynamic Pressure|             0|        1.2886|        Pa|             0|
+|        Total Pressure|        0.6443|        1.2886|        Pa|           0.5|
+|               Density|        1.2886|        1.2886|    kg/m^3|             1|
+|            Velocity-X|             1|             1|       m/s|             1|
+|            Velocity-Y|             0|             1|       m/s|             0|
+|            Velocity-Z|             0|             1|       m/s|             0|
+|    Velocity Magnitude|             1|             1|       m/s|             1|
++------------------------------------------------------------------------------+
+|             Viscosity|     1.716e-05|        1.2886|   N.s/m^2|   1.33168e-05|
+|          Conductivity|             -|    0.00447198|   W/m^2.K|             -|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|    0.00301242|
+|       Reynolds Number|             -|             -|         -|       75093.2|
++------------------------------------------------------------------------------+
+Initialize Jacobian structure (Navier-Stokes). MG level: 0.
+-------------------------------------------------------------------------------
+Intersecting periodic stencils
+-------------------------------------------------------------------------------
+../wt/UnitTests/SU2_CFD/gradients.cpp:226
+...............................................................................
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:313: FAILED:
+  CHECK( field.geometry->nodes->GetnNeighbor(target) == stencil.size() )
+with expansion:
+  3 == 6
+with message:
+  pairs 3, diagonal 0, MSW 0, incompressible 1
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:316: FAILED:
+  CHECK( nodes->GetUndivided_Laplacian(target, 0) == Approx(numerator).margin(1e-12) )
+with expansion:
+  1.125 == Approx( 2.25 )
+with message:
+  pairs 3, diagonal 0, MSW 0, incompressible 1
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:331: FAILED:
+  CHECK( gradient(target, 0, 0) == Approx(0).margin(1e-12) )
+with expansion:
+  0.75 == Approx( 0.0 )
+with message:
+  pairs 3, diagonal 0, MSW 0, incompressible 1
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:332: FAILED:
+  CHECK( gradient(target, 0, 1) == Approx(0).margin(1e-12) )
+with expansion:
+  1.5 == Approx( 0.0 )
+with message:
+  pairs 3, diagonal 0, MSW 0, incompressible 1
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:333: FAILED:
+  CHECK( gradient(target, 0, 2) == Approx(nPairs == 3 ? 0 : 3 * (1 - 2 * z)).margin(1e-12) )
+with expansion:
+  2.25 == Approx( 0.0 )
+with message:
+  pairs 3, diagonal 0, MSW 0, incompressible 1
+
+Three dimensional problem.
+125 grid points.
+64 volume elements.
+6 surface markers.
+16 boundary elements in index 0 (Marker = x_minus).
+16 boundary elements in index 1 (Marker = x_plus).
+16 boundary elements in index 2 (Marker = y_minus).
+16 boundary elements in index 3 (Marker = y_plus).
+16 boundary elements in index 4 (Marker = z_minus).
+16 boundary elements in index 5 (Marker = z_plus).
+64 hexahedra.
+All volume elements are correctly oriented.
+There has been a re-orientation of 64 QUADRILATERAL surface elements.
+Volume of the computational grid: 1.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 3.
+ Matched 50 points with a max distance of: 0.
+Viscous flow: Computing pressure using the ideal gas law
+based on the free-stream temperature and a density computed
+from the Reynolds number.
+Force coefficients computed using free-stream values.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|       CONSTANT_VISCOSITY|          CONSTANT_PRANDTL|             STANDARD_AIR|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|             Viscosity|     1.716e-05|             1|   N.s/m^2|     1.716e-05|
++------------------------------------------------------------------------------+
+|        Prandtl (Lam.)|             -|             -|         -|          0.72|
+|       Prandtl (Turb.)|             -|             -|         -|           0.9|
++------------------------------------------------------------------------------+
+|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+|      Spec. Heat Ratio|             -|             -|         -|           1.4|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|       Static Pressure|        101325|             1|        Pa|        101325|
+|               Density|       1.22498|             1|    kg/m^3|       1.22498|
+|           Temperature|        288.15|             1|         K|        288.15|
+|          Total Energy|        221265|             1|   m^2/s^2|        221265|
+|            Velocity-X|       170.149|             1|       m/s|       170.149|
+|            Velocity-Y|             0|             1|       m/s|             0|
+|            Velocity-Z|             0|             1|       m/s|             0|
+|    Velocity Magnitude|       170.149|             1|       m/s|       170.149|
++------------------------------------------------------------------------------+
+|             Viscosity|     1.716e-05|             1|   N.s/m^2|     1.716e-05|
+|          Conductivity|             -|             1|   W/m^2.K|             -|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|           0.5|
+|       Reynolds Number|             -|             -|         -|   1.21462e+07|
++------------------------------------------------------------------------------+
+
+Warning: Fluid properties and solution are being 
+         initialized for the manufactured solution 
+         of the Navier-Stokes equations on a unit quad!!!
+
+Initialize Jacobian structure (Navier-Stokes). MG level: 0.
+-------------------------------------------------------------------------------
+Intersecting periodic stencils
+-------------------------------------------------------------------------------
+../wt/UnitTests/SU2_CFD/gradients.cpp:226
+...............................................................................
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:313: FAILED:
+  CHECK( field.geometry->nodes->GetnNeighbor(target) == stencil.size() )
+with expansion:
+  4 == 8
+with message:
+  pairs 3, diagonal 1, MSW 0, incompressible 0
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:316: FAILED:
+  CHECK( nodes->GetUndivided_Laplacian(target, 0) == Approx(numerator).margin(1e-12) )
+with expansion:
+  1.6875 == Approx( 3.375 )
+with message:
+  pairs 3, diagonal 1, MSW 0, incompressible 0
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:331: FAILED:
+  CHECK( gradient(target, 0, 0) == Approx(0).margin(1e-12) )
+with expansion:
+  0.75 == Approx( 0.0 )
+with message:
+  pairs 3, diagonal 1, MSW 0, incompressible 0
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:332: FAILED:
+  CHECK( gradient(target, 0, 1) == Approx(0).margin(1e-12) )
+with expansion:
+  1.5 == Approx( 0.0 )
+with message:
+  pairs 3, diagonal 1, MSW 0, incompressible 0
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:333: FAILED:
+  CHECK( gradient(target, 0, 2) == Approx(nPairs == 3 ? 0 : 3 * (1 - 2 * z)).margin(1e-12) )
+with expansion:
+  2.25 == Approx( 0.0 )
+with message:
+  pairs 3, diagonal 1, MSW 0, incompressible 0
+
+Three dimensional problem.
+125 grid points.
+64 volume elements.
+6 surface markers.
+16 boundary elements in index 0 (Marker = x_minus).
+16 boundary elements in index 1 (Marker = x_plus).
+16 boundary elements in index 2 (Marker = y_minus).
+16 boundary elements in index 3 (Marker = y_plus).
+16 boundary elements in index 4 (Marker = z_minus).
+16 boundary elements in index 5 (Marker = z_plus).
+64 hexahedra.
+All volume elements are correctly oriented.
+There has been a re-orientation of 64 QUADRILATERAL surface elements.
+Volume of the computational grid: 1.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 3.
+ Matched 50 points with a max distance of: 0.
+Viscous flow: Computing pressure using the ideal gas law
+based on the free-stream temperature and a density computed
+from the Reynolds number.
+Force coefficients computed using free-stream values.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|       CONSTANT_VISCOSITY|          CONSTANT_PRANDTL|             STANDARD_AIR|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|             Viscosity|     1.716e-05|             1|   N.s/m^2|     1.716e-05|
++------------------------------------------------------------------------------+
+|        Prandtl (Lam.)|             -|             -|         -|          0.72|
+|       Prandtl (Turb.)|             -|             -|         -|           0.9|
++------------------------------------------------------------------------------+
+|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+|      Spec. Heat Ratio|             -|             -|         -|           1.4|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|       Static Pressure|        101325|             1|        Pa|        101325|
+|               Density|       1.22498|             1|    kg/m^3|       1.22498|
+|           Temperature|        288.15|             1|         K|        288.15|
+|          Total Energy|        221265|             1|   m^2/s^2|        221265|
+|            Velocity-X|       170.149|             1|       m/s|       170.149|
+|            Velocity-Y|             0|             1|       m/s|             0|
+|            Velocity-Z|             0|             1|       m/s|             0|
+|    Velocity Magnitude|       170.149|             1|       m/s|       170.149|
++------------------------------------------------------------------------------+
+|             Viscosity|     1.716e-05|             1|   N.s/m^2|     1.716e-05|
+|          Conductivity|             -|             1|   W/m^2.K|             -|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|           0.5|
+|       Reynolds Number|             -|             -|         -|   1.21462e+07|
++------------------------------------------------------------------------------+
+
+Warning: Fluid properties and solution are being 
+         initialized for the manufactured solution 
+         of the Navier-Stokes equations on a unit quad!!!
+
+Initialize Jacobian structure (Navier-Stokes). MG level: 0.
+-------------------------------------------------------------------------------
+Intersecting periodic stencils
+-------------------------------------------------------------------------------
+../wt/UnitTests/SU2_CFD/gradients.cpp:226
+...............................................................................
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:313: FAILED:
+  CHECK( field.geometry->nodes->GetnNeighbor(target) == stencil.size() )
+with expansion:
+  4 == 8
+with message:
+  pairs 3, diagonal 1, MSW 1, incompressible 0
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:331: FAILED:
+  CHECK( gradient(target, 0, 0) == Approx(0).margin(1e-12) )
+with expansion:
+  0.75 == Approx( 0.0 )
+with message:
+  pairs 3, diagonal 1, MSW 1, incompressible 0
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:332: FAILED:
+  CHECK( gradient(target, 0, 1) == Approx(0).margin(1e-12) )
+with expansion:
+  1.5 == Approx( 0.0 )
+with message:
+  pairs 3, diagonal 1, MSW 1, incompressible 0
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:333: FAILED:
+  CHECK( gradient(target, 0, 2) == Approx(nPairs == 3 ? 0 : 3 * (1 - 2 * z)).margin(1e-12) )
+with expansion:
+  2.25 == Approx( 0.0 )
+with message:
+  pairs 3, diagonal 1, MSW 1, incompressible 0
+
+Three dimensional problem.
+125 grid points.
+64 volume elements.
+6 surface markers.
+16 boundary elements in index 0 (Marker = x_minus).
+16 boundary elements in index 1 (Marker = x_plus).
+16 boundary elements in index 2 (Marker = y_minus).
+16 boundary elements in index 3 (Marker = y_plus).
+16 boundary elements in index 4 (Marker = z_minus).
+16 boundary elements in index 5 (Marker = z_plus).
+64 hexahedra.
+All volume elements are correctly oriented.
+There has been a re-orientation of 64 QUADRILATERAL surface elements.
+Volume of the computational grid: 1.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 3.
+ Matched 50 points with a max distance of: 0.
+Incompressible flow: rho_ref, vel_ref, and temp_ref
+are based on the initial values, p_ref = rho_ref*vel_ref^2.
+Force coefficients computed using initial values.
+The reference area for force coeffs. is 1 m^2.
+The reference length for force coeffs. is 1 m.
+The pressure is decomposed into thermodynamic and dynamic components.
+The initial value of the dynamic pressure is 0.
+Mach number: 0.00301242, computed using the Bulk modulus.
+For external flows, the initial state is imposed at the far-field.
+Angle of attack (deg): 0, computed using the initial velocity.
+Side slip angle (deg): 0, computed using the initial velocity.
+Reynolds number per meter: 75093.2, computed using initial values.
+Reynolds number is a byproduct of inputs only (not used internally).
+SI units only. The grid should be dimensional (meters).
+No energy equation.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|       CONSTANT_VISCOSITY|          CONSTANT_PRANDTL|         CONSTANT_DENSITY|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|             Viscosity|     1.716e-05|        1.2886|   N.s/m^2|   1.33168e-05|
++------------------------------------------------------------------------------+
+|        Prandtl (Lam.)|             -|             -|         -|          0.72|
+|       Prandtl (Turb.)|             -|             -|         -|           0.9|
++------------------------------------------------------------------------------+
+|          Bulk Modulus|        142000|             1|        Pa|        142000|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|      Dynamic Pressure|             0|        1.2886|        Pa|             0|
+|        Total Pressure|        0.6443|        1.2886|        Pa|           0.5|
+|               Density|        1.2886|        1.2886|    kg/m^3|             1|
+|            Velocity-X|             1|             1|       m/s|             1|
+|            Velocity-Y|             0|             1|       m/s|             0|
+|            Velocity-Z|             0|             1|       m/s|             0|
+|    Velocity Magnitude|             1|             1|       m/s|             1|
++------------------------------------------------------------------------------+
+|             Viscosity|     1.716e-05|        1.2886|   N.s/m^2|   1.33168e-05|
+|          Conductivity|             -|    0.00447198|   W/m^2.K|             -|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|    0.00301242|
+|       Reynolds Number|             -|             -|         -|       75093.2|
++------------------------------------------------------------------------------+
+Initialize Jacobian structure (Navier-Stokes). MG level: 0.
+-------------------------------------------------------------------------------
+Intersecting periodic stencils
+-------------------------------------------------------------------------------
+../wt/UnitTests/SU2_CFD/gradients.cpp:226
+...............................................................................
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:313: FAILED:
+  CHECK( field.geometry->nodes->GetnNeighbor(target) == stencil.size() )
+with expansion:
+  4 == 8
+with message:
+  pairs 3, diagonal 1, MSW 0, incompressible 1
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:316: FAILED:
+  CHECK( nodes->GetUndivided_Laplacian(target, 0) == Approx(numerator).margin(1e-12) )
+with expansion:
+  1.6875 == Approx( 3.375 )
+with message:
+  pairs 3, diagonal 1, MSW 0, incompressible 1
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:331: FAILED:
+  CHECK( gradient(target, 0, 0) == Approx(0).margin(1e-12) )
+with expansion:
+  0.75 == Approx( 0.0 )
+with message:
+  pairs 3, diagonal 1, MSW 0, incompressible 1
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:332: FAILED:
+  CHECK( gradient(target, 0, 1) == Approx(0).margin(1e-12) )
+with expansion:
+  1.5 == Approx( 0.0 )
+with message:
+  pairs 3, diagonal 1, MSW 0, incompressible 1
+
+../wt/UnitTests/SU2_CFD/gradients.cpp:333: FAILED:
+  CHECK( gradient(target, 0, 2) == Approx(nPairs == 3 ? 0 : 3 * (1 - 2 * z)).margin(1e-12) )
+with expansion:
+  2.25 == Approx( 0.0 )
+with message:
+  pairs 3, diagonal 1, MSW 0, incompressible 1
+
+===============================================================================
+test cases:  1 |  0 passed |  1 failed
+assertions: 80 | 28 passed | 52 failed
+
