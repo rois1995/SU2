@@ -745,56 +745,91 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::Evaluate(unsigned short iWall
   return sample;
 }
 
+std::vector<CBoundaryLayerMetric::PointSample> CBoundaryLayerMetric::SamplePoints(const std::vector<su2double>& coord) {
+  std::vector<PointSample> result;
+  for (unsigned short wall = 0; wall < walls.size(); ++wall) {
+    const auto& d = *data[wall];
+    for (auto point = 0ul; point < coord.size() / nDim; ++point) {
+      const auto* X = &coord[point * nDim];
+      bool inside = true;
+      for (unsigned short i = 0; i < nDim; ++i) inside = inside && X[i] >= d.low[i] && X[i] <= d.high[i];
+      if (!inside) continue;
+      const auto sample = Evaluate(wall, X, 1.0);  // Only full metric, normal and weight are cached.
+      if (sample.weight > 0.0) result.push_back({point, wall, sample});
+    }
+  }
+  return result;
+}
+
 std::vector<CBoundaryLayerMetric::WallReport> CBoundaryLayerMetric::Apply(const std::vector<su2double>& coord,
                                                                           std::vector<Tensor>& metric,
                                                                           su2double coreEigenvalue) {
+  return Apply(SamplePoints(coord), metric, coreEigenvalue);
+}
+
+std::vector<CBoundaryLayerMetric::WallReport> CBoundaryLayerMetric::Apply(const std::vector<PointSample>& samples,
+                                                                          std::vector<Tensor>& metric,
+                                                                          su2double coreEigenvalue,
+                                                                          bool prescribedNormal, bool fixedSurface,
+                                                                          su2double arMax) {
   std::vector<WallReport> reports(walls.size());
-  const auto nPoint = metric.size();
+  for (unsigned short wall = 0; wall < walls.size(); ++wall) reports[wall].name = walls[wall].layer.marker;
 
-  for (unsigned short iWall = 0; iWall < walls.size(); ++iWall) {
-    auto& report = reports[iWall];
-    report.name = walls[iWall].layer.marker;
-    const auto& d = *data[iWall];
-
-    for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) {
-      const auto* X = &coord[iPoint * nDim];
-      bool inside = true;
-      for (unsigned short iDim = 0; iDim < nDim; ++iDim) inside = inside && X[iDim] >= d.low[iDim] && X[iDim] <= d.high[iDim];
-      if (!inside) continue;
-
-      const auto sample = Evaluate(iWall, X, coreEigenvalue);
-      if (!(sample.weight > 0.0)) continue;
-      ++report.nPoint;
-
-      su2double vec[3][3], val[3], work[3];
-      CBlasStructure::EigenDecomposition(sample.full.m, vec, val, nDim, work);
-      const su2double ratio = sqrt(*std::max_element(val, val + nDim) / *std::min_element(val, val + nDim));
-      report.maxAspectRatio = max(report.maxAspectRatio, ratio);
-
-      su2double C[3][3] = {{0.0}};
-      CSolver::IntersectMetrics(nDim, metric[iPoint].m, sample.metric.m, C);
-      bool changed = false;
-      for (unsigned short i = 0; i < nDim; ++i)
-        for (unsigned short j = 0; j < nDim; ++j) {
-          const su2double value = 0.5 * (C[i][j] + C[j][i]);
-          changed = changed || (value != metric[iPoint].m[i][j]);
-          metric[iPoint].m[i][j] = value;
-        }
-      if (changed) ++report.nChanged;
-
-      /*--- Next to the wall, no tangential size below the one of the wall faces. ---*/
-      if (sample.weight == 1.0 && TangentialFloor(sample, val, d.h0, metric[iPoint])) ++report.nFloor;
+  /*--- A more distant wall must not overwrite the prescribed spacing of the closest wall in overlapping bands.
+   *    Samples are ordered by marker name; equal distances therefore have a deterministic tie break. ---*/
+  std::vector<size_t> nearest;
+  if (prescribedNormal) {
+    nearest.assign(metric.size(), samples.size());
+    for (size_t k = 0; k < samples.size(); ++k) {
+      const auto point = samples[k].point;
+      if (nearest[point] == samples.size() || samples[k].sample.distance < samples[nearest[point]].sample.distance)
+        nearest[point] = k;
     }
+  }
+  for (size_t k = 0; k < samples.size(); ++k) {
+    const auto point = samples[k].point;
+    if (prescribedNormal && nearest[point] != k) continue;
+    const auto wall = samples[k].wall;
+    const auto& sample = samples[k].sample;
+    auto& report = reports[wall];
+    ++report.nPoint;
+    su2double vec[3][3], val[3], work[3];
+    CBlasStructure::EigenDecomposition(sample.full.m, vec, val, nDim, work);
+    report.maxAspectRatio =
+        max(report.maxAspectRatio, sqrt(*std::max_element(val, val + nDim) / *std::min_element(val, val + nDim)));
+    const Tensor previous = metric[point];
+    if (prescribedNormal) {
+      if (TangentialFloor(sample, val, data[wall]->h0, metric[point], true, fixedSurface, arMax)) ++report.nFloor;
+    } else {
+      Tensor faded = sample.full;
+      if (sample.weight < 1.0) {
+        const auto weight = sample.weight;
+        Spectral(nDim, sample.full.m, faded.m,
+                 [&](su2double value) { return exp(weight * log(value) + (1.0 - weight) * log(coreEigenvalue)); });
+      }
+      su2double intersection[3][3] = {{0.0}};
+      CSolver::IntersectMetrics(nDim, metric[point].m, faded.m, intersection);
+      for (unsigned short i = 0; i < nDim; ++i)
+        for (unsigned short j = 0; j < nDim; ++j)
+          metric[point].m[i][j] = 0.5 * (intersection[i][j] + intersection[j][i]);
+      if (sample.weight == 1.0 && TangentialFloor(sample, val, data[wall]->h0, metric[point])) ++report.nFloor;
+    }
+    bool changed = false;
+    for (unsigned short i = 0; i < nDim; ++i)
+      for (unsigned short j = 0; j < nDim; ++j) changed = changed || metric[point].m[i][j] != previous.m[i][j];
+    if (changed) ++report.nChanged;
   }
   return reports;
 }
 
 bool CBoundaryLayerMetric::TangentialFloor(const Sample& sample, const su2double* wallEigenvalues, su2double h0,
-                                           Tensor& M) const {
+                                           Tensor& M, bool prescribedNormal, bool fixedSurface, su2double arMax) const {
   /*--- Band: up to floorFraction x the largest tangential size of the wall metric, at least h0. The smallest
    *    eigenvalue of the wall metric is a tangential one (the normal one is 1 / hn^2, the largest). ---*/
   const su2double htMax = 1.0 / sqrt(*std::min_element(wallEigenvalues, wallEigenvalues + nDim));
-  if (sample.distance > max(h0, floorFraction * htMax)) return false;
+  const bool floor = fixedSurface && sample.distance <= max(h0, floorFraction * htMax);
+  if (!prescribedNormal && !floor) return false;
+  const Tensor previous = M;
 
   /*--- Orthonormal frame: tangents first, the wall normal last. ---*/
   const su2double* n = sample.normal;
@@ -822,7 +857,7 @@ bool CBoundaryLayerMetric::TangentialFloor(const Sample& sample, const su2double
   }
 
   /*--- Metrics in the frame: Q^T M Q. ---*/
-  auto toFrame = [&](const su2double (&A)[3][3], su2double (&B)[3][3]) {
+  auto toFrame = [&](const su2double(&A)[3][3], su2double(&B)[3][3]) {
     for (unsigned short i = 0; i < nDim; ++i)
       for (unsigned short j = 0; j < nDim; ++j) {
         B[i][j] = 0.0;
@@ -844,7 +879,9 @@ bool CBoundaryLayerMetric::TangentialFloor(const Sample& sample, const su2double
       Wt[i][j] = W[i][j];
     }
   if (nt == 1) {
-    U[0][0] = min(At[0][0], Wt[0][0]);
+    U[0][0] = floor ? min(At[0][0], Wt[0][0]) : max(At[0][0], Wt[0][0]);
+  } else if (!floor) {
+    CSolver::IntersectMetrics(2, At, Wt, U);
   } else {
     su2double iA[3][3] = {{0.0}}, iW[3][3] = {{0.0}}, I[3][3] = {{0.0}};
     Spectral(2, At, iA, [](su2double v) { return 1.0 / v; });
@@ -852,10 +889,28 @@ bool CBoundaryLayerMetric::TangentialFloor(const Sample& sample, const su2double
     CSolver::IntersectMetrics(2, iA, iW, I);
     Spectral(2, I, U, [](su2double v) { return 1.0 / v; });
   }
+  /*--- Bounds act on the tangential block; changing hn would violate the native first-height contract.
+   *    A fixed near-wall surface cannot be refined to satisfy a smaller aspect ratio: retain its geometry floor. ---*/
+  if (prescribedNormal && !floor) {
+    const auto normal = W[nt][nt], ratio = arMax * arMax;
+    if (nt == 1)
+      U[0][0] = min(max(U[0][0], normal / ratio), normal * ratio);
+    else {
+      su2double vec[3][3], val[3], work[3];
+      CBlasStructure::EigenDecomposition(U, vec, val, nt, work);
+      for (unsigned short i = 0; i < nt; ++i) val[i] = min(val[i], normal * ratio);
+      const auto lower = max(normal, *std::max_element(val, val + nt)) / ratio;
+      for (unsigned short i = 0; i < nt; ++i) val[i] = max(val[i], lower);
+      su2double bounded[3][3];
+      CBlasStructure::EigenRecomposition(bounded, vec, val, nt);
+      for (unsigned short i = 0; i < nt; ++i)
+        for (unsigned short j = 0; j < nt; ++j) U[i][j] = bounded[i][j];
+    }
+  }
   su2double B[3][3] = {{0.0}};
   for (unsigned short i = 0; i < nt; ++i)
     for (unsigned short j = 0; j < nt; ++j) B[i][j] = U[i][j];
-  B[nt][nt] = A[nt][nt];
+  B[nt][nt] = prescribedNormal ? W[nt][nt] : A[nt][nt];
 
   /*--- Back: M = Q B Q^T. ---*/
   for (unsigned short i = 0; i < nDim; ++i)
@@ -867,5 +922,15 @@ bool CBoundaryLayerMetric::TangentialFloor(const Sample& sample, const su2double
     }
   for (unsigned short i = 0; i < nDim; ++i)
     for (unsigned short j = 0; j < i; ++j) M.m[i][j] = M.m[j][i] = 0.5 * (M.m[i][j] + M.m[j][i]);
-  return true;
+  /*--- Smooth SPD transition back to the sensor metric in the outer band, including its coupling. ---*/
+  if (prescribedNormal && sample.weight < 1.0) {
+    su2double logOld[3][3], logLayer[3][3], blended[3][3];
+    Spectral(nDim, previous.m, logOld, [](su2double value) { return log(value); });
+    Spectral(nDim, M.m, logLayer, [](su2double value) { return log(value); });
+    for (unsigned short i = 0; i < nDim; ++i)
+      for (unsigned short j = 0; j < nDim; ++j)
+        blended[i][j] = (1.0 - sample.weight) * logOld[i][j] + sample.weight * logLayer[i][j];
+    Spectral(nDim, blended, M.m, [](su2double value) { return exp(value); });
+  }
+  return floor;
 }

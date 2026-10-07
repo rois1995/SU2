@@ -483,6 +483,19 @@ TEST_CASE("Quadratic Hessians preserve signed curvature and report failed fits",
     }
   }
 
+  /*--- Affine sensors can otherwise produce roundoff Hessians that a complexity normalization amplifies. ---*/
+  for (auto point = 0ul; point < test.geometry->GetnPoint(); ++point) {
+    const auto x = test.geometry->nodes->GetCoord(point);
+    nodes->SetAuxVar_Adapt(point, 2, 7.0 + 3*x[0] - 2*x[1] + x[2]);
+  }
+  {
+    transfer_test::Mute mute;
+    flow->SetHessian_Adapt(test.geometry.get(), test.config.get());
+  }
+  for (auto point = 0ul; point < test.geometry->GetnPointDomain(); ++point)
+    for (unsigned short component = 0; component < 6; ++component)
+      CHECK(SU2_TYPE::GetValue(nodes->GetHessian()(point, 2, component)) == 0.0);
+
   /*--- A planar stencil cannot recover 3D curvature: preserve the supplied fallback, never silently zero it. ---*/
   for (auto point = 0ul; point < test.geometry->GetnPoint(); ++point) {
     test.geometry->nodes->SetCoord(point, 2, 0.0);
@@ -1021,6 +1034,37 @@ TEST_CASE("Metric complexity", "[Adaptation]") {
     CHECK(test.Complexity() == Approx(c.complexity).epsilon(1e-12));
     const su2double ref[3] = {c.eigenvalue, c.eigenvalue, c.eigenvalue};
     CHECK(test.EigenvalueError(ref) < 1e-12);
+  }
+}
+
+TEST_CASE("Metric is invariant to sensor units and ignores flat competing sensors", "[MetricRobustness]") {
+  const string options = "ADAP_SENSOR= (MACH, PRESSURE)\nADAP_COMPLEXITY= 10\n"
+                         "ADAP_HMIN= 0.01\nADAP_HMAX= 10\nADAP_ARMAX= 1000\n";
+  ConstantHessianBoxTest reference(options, {hessianX, hessianXY});
+  reference.ComputeMetric();
+  for (const auto amplitude : {1e-200, 1e200}) {
+    auto a = hessianX, b = hessianXY;
+    for (auto& value : a) value *= amplitude;
+    for (auto& value : b) value /= amplitude;
+    ConstantHessianBoxTest test(options, {a, b});
+    test.ComputeMetric();
+    for (auto point = 0ul; point < test.geometry->GetnPoint(); ++point)
+      for (auto component = 0u; component < 6; ++component)
+        CHECK(SU2_TYPE::GetValue(test.solver[FLOW_SOL]->GetNodes()->GetMetric(point, component)) ==
+              Approx(SU2_TYPE::GetValue(reference.solver[FLOW_SOL]->GetNodes()->GetMetric(point, component))).margin(1e-10));
+  }
+  ConstantHessianBoxTest single("ADAP_SENSOR= (MACH)\nADAP_COMPLEXITY= 10\n"
+                               "ADAP_HMIN= 0.01\nADAP_HMAX= 10\nADAP_ARMAX= 1000\n", {hessianX});
+  single.ComputeMetric();
+  for (const bool flatFirst : {false, true}) {
+    const std::array<su2double, 6> zero{};
+    ConstantHessianBoxTest test(options, flatFirst ? vector<std::array<su2double, 6>>{zero, hessianX}
+                                                 : vector<std::array<su2double, 6>>{hessianX, zero});
+    test.ComputeMetric();
+    for (auto point = 0ul; point < test.geometry->GetnPoint(); ++point)
+      for (auto component = 0u; component < 6; ++component)
+        CHECK(SU2_TYPE::GetValue(test.solver[FLOW_SOL]->GetNodes()->GetMetric(point, component)) ==
+              Approx(SU2_TYPE::GetValue(single.solver[FLOW_SOL]->GetNodes()->GetMetric(point, component))).margin(1e-10));
   }
 }
 

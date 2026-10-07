@@ -557,3 +557,99 @@ TEST_CASE("Boundary-layer metric of a sphere 3D", "[Adaptation]") {
   CHECK(nLayer > 20);
   CHECK(nOut > 20);
 }
+
+TEST_CASE("Prescribed BL normals preserve heights, tangential refinement and SPD fade", "[MetricRobustness]") {
+  for (unsigned short dim : {2, 3}) {
+    CBoundaryLayerMetric::Wall wall;
+    if (dim == 2) wall = FlatWall2D({0.0, 0.5, 1.0}, 1e-3, 1.2, 0.1);
+    else {
+      wall.layer = {"wall", 1e-3, 1.2, 0.1};
+      wall.coord = {0,0,0, 1,0,0, 1,1,0, 0,1,0};
+      wall.conn = {0,1,2,3};
+    }
+    CBoundaryLayerMetric layers(dim, {wall});
+    std::vector<su2double> coordinates;
+    const std::vector<su2double> distance = {0.0, 0.005, 0.095, 0.099999, 0.1, 0.11};
+    Tensor input;
+    for (unsigned short i = 0; i < dim; ++i) input.m[i][i] = i + 1 == dim ? 1e10 : (i + 1) * 1e5;
+    input.m[0][dim-1] = input.m[dim-1][0] = 1e6;
+    for (const auto d : distance) {
+      for (unsigned short i = 0; i < dim; ++i) coordinates.push_back(i + 1 == dim ? d : 0.5);
+    }
+    std::vector<Tensor> metric(distance.size(), input);
+    const auto samples = layers.SamplePoints(coordinates);
+    const auto report = layers.Apply(samples, metric, 1.0, true, false, 1000.0);
+    CHECK(report[0].nFloor == 0);
+    for (size_t point = 0; point < distance.size(); ++point) {
+      const auto sample = layers.Evaluate(0, &coordinates[point*dim], 1.0);
+      su2double vec[3][3], val[3], work[3];
+      CBlasStructure::EigenDecomposition(metric[point].m, vec, val, dim, work);
+      for (unsigned short i = 0; i < dim; ++i) CHECK(val[i] > 0);
+      if (sample.weight == 1.0) {
+        CHECK(metric[point].m[dim-1][dim-1] == Approx(1.0 / pow(sample.hn, 2)).epsilon(1e-10));
+        for (unsigned short i = 0; i + 1 < dim; ++i) {
+          CHECK(metric[point].m[i][dim-1] == Approx(0).margin(1e-6));
+          CHECK(metric[point].m[i][i] == Approx(input.m[i][i]).epsilon(1e-10));
+        }
+      }
+      if (sample.weight == 0.0) CheckTensor(dim, metric[point], input);
+    }
+    CheckTensor(dim, metric[3], input, 1e-4); // continuous approach to the sensor metric
+    if (dim == 3) {
+      Tensor extreme;
+      extreme.m[0][0] = 1e12; extreme.m[1][1] = 1.0; extreme.m[2][2] = 1.0;
+      std::vector<Tensor> bounded(distance.size(), extreme);
+      layers.Apply(samples, bounded, 1.0, true, false, 10.0);
+      su2double vec[3][3], val[3], work[3];
+      CBlasStructure::EigenDecomposition(bounded[0].m, vec, val, dim, work);
+      CHECK(*std::max_element(val, val + dim) / *std::min_element(val, val + dim) <= 100.0 * (1.0 + 1e-10));
+      CHECK(bounded[0].m[2][2] == Approx(1e6));
+    }
+  }
+}
+
+TEST_CASE("Prescribed BL overlap uses the nearest active wall", "[MetricRobustness]") {
+  auto bottom = FlatWall2D({0.0, 1.0}, 1e-3, 1.2, 0.1), top = bottom;
+  bottom.layer.marker = "a"; top.layer.marker = "z"; top.layer.firstHeight = 2e-3;
+  for (size_t i = 1; i < top.coord.size(); i += 2) top.coord[i] = 0.03;
+  CBoundaryLayerMetric layers(2, {bottom, top});
+  const std::vector<su2double> coord = {0.5, 0.0, 0.5, 0.03};
+  std::vector<Tensor> metric(2);
+  for (auto& M : metric) M.m[0][0] = M.m[1][1] = 1.0;
+  layers.Apply(layers.SamplePoints(coord), metric, 1.0, true, false, 1000.0);
+  CHECK(metric[0].m[1][1] == Approx(1e6));
+  CHECK(metric[1].m[1][1] == Approx(2.5e5));
+}
+
+TEST_CASE("Native metric complexity includes prescribed BL and reports infeasible budgets", "[MetricRobustness]") {
+  const auto mesh = simplex_test::MakeSimplexMesh(2, 16, [](const passivedouble* x) {
+    return std::string(x[1] < 1e-12 ? "wall" : "far");
+  });
+  const string options = "MARKER_HEATFLUX= (wall, 0.0)\nMARKER_FAR= (far)\nADAP_REMESHER= NATIVE_CAVITY\n"
+                         "ADAP_HMIN= 1e-4\nADAP_HMAX= 10\nADAP_ARMAX= 1000\nADAP_ISO_CORNER= NO\n"
+                         "ADAP_BL_MARKER= (wall)\nADAP_BL_FIRST_HEIGHT= (2e-3)\n"
+                         "ADAP_BL_GROWTH= (1.2)\nADAP_BL_THICKNESS= (0.2)\n";
+  for (const auto target : {200.0, 2000.0}) {
+    MetricTest test(mesh, options + "ADAP_COMPLEXITY= " + std::to_string(target) + "\n", {4,3,1e4,0,0,0});
+    const auto output = test.ComputeMetric();
+    auto* flow = test.solver[FLOW_SOL];
+    if (target == 2000.0) {
+      CHECK(flow->GetMetricComplexityFinal() == Approx(target).epsilon(2e-6));
+      CHECK(flow->GetMetricComplexityBracketed());
+    } else {
+      CHECK(flow->GetMetricComplexityFinal() > target);
+      CHECK_FALSE(flow->GetMetricComplexityBracketed());
+      if (SU2_MPI::GetRank() == MASTER_NODE) {
+        CHECK(output.find("Minimum attainable complexity") != string::npos);
+        CHECK(output.find("prescribed wall heights are retained") != string::npos);
+      }
+    }
+    for (auto point = 0ul; point < test.Geometry().GetnPointDomain(); ++point) {
+      const auto y = test.Geometry().nodes->GetCoord(point, 1);
+      if (y > 0.18) continue;
+      const auto M = test.Metric(point);
+      CHECK(M.m[1][1] == Approx(1.0 / pow(NormalSize(2e-3, 1.2, y), 2)).epsilon(1e-10));
+      CHECK(M.m[0][1] == Approx(0).margin(1e-6));
+    }
+  }
+}

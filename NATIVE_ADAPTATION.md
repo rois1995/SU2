@@ -86,6 +86,15 @@ First altitude means the adjacent triangle's apex distance from its actual wall
 base. It does not guarantee y+, cell-centre spacing, exact multilayer growth or
 prisms/quads. The full BL metric still guides the surrounding volume triangles.
 
+For `NATIVE_CAVITY`, metric construction prescribes the configured wall-normal
+size throughout the full BL band, removes normal-tangent coupling there, and
+blends back to the sensor metric through the outer fade. Adapted surfaces retain
+tangential sensor refinement; fixed surfaces retain the near-wall tangential
+floor. Overlapping bands use the nearest active wall. Complexity scaling includes
+these constraints: a target below the attainable minimum is reported without
+relaxing the wall heights. Wall resolution can therefore impose a substantial
+minimum complexity even when the outer metric reaches `ADAP_HMAX`.
+
 Transactions import complete dependencies, reserve affected nodes, validate
 versions/interfaces/geometry, and prepare publication storage before the final
 collective vote. The default2MiB per-rank dependency admission applies to bounded

@@ -163,6 +163,14 @@ void computeHessiansQuadratic(CGeometry& geometry, unsigned short nSensor, const
         unsigned short column = dim;
         for (unsigned short i = 0; i < dim; ++i)
           for (unsigned short j = i; j < dim; ++j) scaledHessian(i, j) = scaledHessian(j, i) = coefficient(column++);
+        /*--- An affine sensor should not acquire curvature from subtraction/solve roundoff. Estimate the
+         *    input resolution in the scaled fit, amplified by the smallest QR pivot. This does not remove
+         *    resolved CFD noise or filter shocks; it only discards curvature below floating-point resolution. ---*/
+        passivedouble amplitude = fabs(SU2_TYPE::GetValue(field(point, v)));
+        for (const auto& item : cloud) amplitude = std::max(amplitude, fabs(item.second.values[v]));
+        const auto pivot = qr.matrixR().topLeftCorner(terms, terms).diagonal().cwiseAbs().minCoeff();
+        const auto resolution = 64 * std::numeric_limits<passivedouble>::epsilon() * amplitude / pivot;
+        if (scaledHessian.cwiseAbs().maxCoeff() <= resolution) scaledHessian.setZero();
         const Eigen::VectorXd physicalGradient = whitening * coefficient.head(dim);
         const Eigen::MatrixXd physicalHessian = whitening * scaledHessian * whitening.transpose();
         if (!physicalGradient.allFinite() || !physicalHessian.allFinite()) continue;

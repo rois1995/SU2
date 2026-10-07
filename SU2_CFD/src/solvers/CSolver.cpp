@@ -2605,6 +2605,32 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   const su2double arMax2 = pow(config->GetAdap_ARmax(), 2);
   const su2double complexity = config->GetAdap_Complexity();
 
+  const bool prescribedBL = boundaryLayer && config->GetnAdap_BL() > 0 &&
+                            config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY;
+
+  /*--- Normalize each sensor before decomposition and determinant powers. The Lp metric is homogeneous
+   *    in H, so this preserves its shape while removing dependence on sensor units and avoiding overflow.
+   *    Passive scaling is only a numerical preconditioner; it cancels analytically in the normalized metric. ---*/
+  vector<passivedouble> localHessianScale(nSensor, 0.0), hessianScale(nSensor, 0.0);
+  if (givenMetric == nullptr) {
+    for (auto point = 0ul; point < nPointDomain; ++point) {
+      for (auto sensor = 0u; sensor < nSensor; ++sensor) {
+        su2double H[3][3] = {{0.0}};
+        base_nodes->GetHessianMat(point, sensor, H);
+        bool finite = true;
+        passivedouble largest = 0.0;
+        for (auto i = 0u; i < nDim; ++i)
+          for (auto j = 0u; j < nDim; ++j) {
+            const auto value = SU2_TYPE::GetValue(H[i][j]);
+            finite = finite && std::isfinite(value);
+            largest = std::max(largest, fabs(value));
+          }
+        if (finite) localHessianScale[sensor] = std::max(localHessianScale[sensor], largest);
+      }
+    }
+    CPassiveComm::Allreduce(localHessianScale.data(), hessianScale.data(), nSensor, CPassiveComm::Op::MAX);
+  }
+
   /*--- Eigen decomposition of |H| for a sensor. Non-finite Hessians are replaced by zero,
    *    small eigenvalues are bounded away from zero. ---*/
 
@@ -2620,6 +2646,9 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
       for (auto i = 0u; i < nDim; ++i)
         for (auto j = 0u; j < nDim; ++j) H[i][j] = 0.0;
     }
+    const auto normalization = hessianScale[iSensor] > 0.0 ? hessianScale[iSensor] : 1.0;
+    for (auto i = 0u; i < nDim; ++i)
+      for (auto j = 0u; j < nDim; ++j) H[i][j] /= normalization;
     CBlasStructure::EigenDecomposition(H, vec, val, nDim, work);
     for (auto i = 0u; i < nDim; ++i) val[i] = fmax(fabs(val[i]), 1e-16);
   };
@@ -2686,22 +2715,28 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     for (unsigned long iPoint = 0; iPoint < nPointDomain; ++iPoint) {
       su2double metric[3][3] = {{0.0}};
 
+      bool first = true;
       for (auto iSensor = 0u; iSensor < nSensor; ++iSensor) {
+        if (hessianScale[iSensor] == 0.0) continue; // A flat sensor must not impose an isotropic competing metric.
         su2double vec[3][3], val[3], current[3][3];
         sensorMetric(iPoint, iSensor, vec, val);
         const su2double valMax = *max_element(val, val + nDim);
         for (auto i = 0u; i < nDim; ++i) val[i] = fmax(val[i], 1e-14 * valMax);
         CBlasStructure::EigenRecomposition(current, vec, val, nDim);
 
-        if (iSensor == 0) {
+        if (first) {
           for (auto i = 0u; i < nDim; ++i)
             for (auto j = 0u; j < nDim; ++j) metric[i][j] = current[i][j];
+          first = false;
         } else {
           su2double previous[3][3];
           for (auto i = 0u; i < nDim; ++i)
             for (auto j = 0u; j < nDim; ++j) previous[i][j] = metric[i][j];
           IntersectMetrics(nDim, previous, current, metric);
         }
+      }
+      if (first) { // All sensors are flat: the complexity and bounds define a uniform fallback.
+        for (auto i = 0u; i < nDim; ++i) metric[i][i] = 1.0;
       }
       base_nodes->SetMetricMat(iPoint, metric);
     }
@@ -2741,10 +2776,26 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   /*--- Unbounded eigenvalues of all points, for the complexity as a function of the global factor. ---*/
 
   vector<su2double> eigenvalues(nPointDomain * nDim);
+  vector<CBoundaryLayerMetric::Tensor> blFrames(prescribedBL ? nPointDomain : 0), blMetric(blFrames.size());
   for (unsigned long iPoint = 0; iPoint < nPointDomain; ++iPoint) {
     su2double vec[3][3], val[3];
     unboundedMetric(iPoint, vec, val);
     for (auto i = 0u; i < nDim; ++i) eigenvalues[iPoint * nDim + i] = val[i];
+    if (prescribedBL)
+      for (auto i = 0u; i < nDim; ++i)
+        for (auto j = 0u; j < nDim; ++j) blFrames[iPoint].m[i][j] = vec[i][j];
+  }
+
+  /*--- Native BL geometry is frozen during the complexity solve. Cache its nearest-face samples once;
+   *    every trial applies the actual normal, tangential and fade constraints before integrating density. ---*/
+  std::unique_ptr<CBoundaryLayerMetric> nativeLayers;
+  vector<CBoundaryLayerMetric::PointSample> blSamples;
+  if (prescribedBL) {
+    nativeLayers.reset(new CBoundaryLayerMetric(*geometry, *config));
+    vector<su2double> coord(nPointDomain * nDim);
+    for (auto point = 0ul; point < nPointDomain; ++point)
+      for (auto d = 0u; d < nDim; ++d) coord[point * nDim + d] = geometry->nodes->GetCoord(point, d);
+    blSamples = nativeLayers->SamplePoints(coord);
   }
 
   /*--- Logarithm of the final complexity over the target, for the logarithm of the global factor. ---*/
@@ -2752,11 +2803,24 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   auto complexityError = [&](su2double logScale) {
     const su2double scale = exp(logScale);
     su2double local = 0.0, global = 0.0;
+    su2double localSmallest = std::numeric_limits<passivedouble>::max(), smallest = 0.0;
     for (unsigned long iPoint = 0; iPoint < nPointDomain; ++iPoint) {
       su2double val[3] = {0.0};
       for (auto i = 0u; i < nDim; ++i) val[i] = eigenvalues[iPoint * nDim + i];
       boundEigenvalues(scale, val);
-      local += sqrt(determinant(val)) * geometry->nodes->GetVolume(iPoint);
+      if (prescribedBL) {
+        CBlasStructure::EigenRecomposition(blMetric[iPoint].m, blFrames[iPoint].m, val, nDim);
+        localSmallest = fmin(localSmallest, *min_element(val, val + nDim));
+      } else local += sqrt(determinant(val)) * geometry->nodes->GetVolume(iPoint);
+    }
+    if (prescribedBL) {
+      SU2_MPI::Allreduce(&localSmallest, &smallest, 1, MPI_DOUBLE, MPI_MIN, SU2_MPI::GetComm());
+      nativeLayers->Apply(blSamples, blMetric, smallest, true, !config->GetAdap_Surface(), config->GetAdap_ARmax());
+      for (auto point = 0ul; point < nPointDomain; ++point) {
+        su2double vec[3][3], val[3], work[3];
+        CBlasStructure::EigenDecomposition(blMetric[point].m, vec, val, nDim, work);
+        local += sqrt(determinant(val)) * geometry->nodes->GetVolume(point);
+      }
     }
     SU2_MPI::Allreduce(&local, &global, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
     return log(global / complexity);
@@ -2983,7 +3047,8 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     cout << "Minimum density: " << minDensity << "." << endl;
     cout << "Maximum density: " << maxDensity << "." << endl;
     cout << "Maximum cell AR: " << maxAR << "." << endl;
-    cout << "Mesh complexity: " << totComplexity << " (ADAP_COMPLEXITY= " << complexity << ")." << endl;
+    cout << (prescribedBL ? "Sensor metric complexity before prescribed BL: " : "Mesh complexity: ")
+         << totComplexity << " (ADAP_COMPLEXITY= " << complexity << ")." << endl;
     if (config->GetGoal_Oriented_Metric()) {
       cout << "Mesh complexity before the boundary-layer metric (16 digits): " << std::setprecision(16) << totComplexity
            << ", relative to ADAP_COMPLEXITY " << totComplexity / complexity - 1.0 << std::setprecision(6)
@@ -2996,11 +3061,11 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
       cout << "Sharp wall points: " << nCorner << ", the isotropic corner metric (ADAP_ISO_CORNER) is applied in 2D "
            << "only, the metric is not changed." << endl;
     }
-    if (fabs(error) > tol && !bracketed) {
+    if (!prescribedBL && fabs(error) > tol && !bracketed) {
       cout << "WARNING: The mesh complexity " << totComplexity << " differs from ADAP_COMPLEXITY= " << complexity
            << ", which cannot be reached with the bounds ADAP_HMIN, ADAP_HMAX and ADAP_ARMAX. The metric has the "
            << (error > 0.0 ? "largest sizes (ADAP_HMAX)" : "smallest sizes allowed") << " everywhere." << endl;
-    } else if (fabs(error) > tol) {
+    } else if (!prescribedBL && fabs(error) > tol) {
       cout << "WARNING: The mesh complexity " << totComplexity << " did not converge to ADAP_COMPLEXITY= "
            << complexity << "." << endl;
     }
@@ -3024,8 +3089,12 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     }
     SU2_MPI::Allreduce(&localSmallest, &smallest, 1, MPI_DOUBLE, MPI_MIN, SU2_MPI::GetComm());
 
-    CBoundaryLayerMetric layers(*geometry, *config);
-    const auto reports = layers.Apply(coord, metric, smallest);
+    std::unique_ptr<CBoundaryLayerMetric> legacyLayers;
+    if (!prescribedBL) legacyLayers.reset(new CBoundaryLayerMetric(*geometry, *config));
+    auto& layers = prescribedBL ? *nativeLayers : *legacyLayers;
+    const auto reports = prescribedBL
+        ? layers.Apply(blSamples, metric, smallest, true, !config->GetAdap_Surface(), config->GetAdap_ARmax())
+        : layers.Apply(coord, metric, smallest);
 
     su2double localValues[2] = {0.0, 0.0}, globalValues[2] = {0.0, 0.0};  // complexity, largest aspect ratio
     for (unsigned long iPoint = 0; iPoint < nPointDomain; ++iPoint) {
@@ -3049,10 +3118,11 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
         const su2double full = fmax(layer.firstHeight, 0.9 * layer.thickness);
         cout << "Boundary-layer metric " << layer.marker << ": first height " << layer.firstHeight << ", growth "
              << layer.growth << ", thickness " << layer.thickness << " (fade over " << layer.thickness - full
-             << "), on " << global[0] << " points, finer than the metric on " << global[1]
+             << "), on " << global[0] << (prescribedBL ? " points with prescribed normals, sensor metric changed on "
+                                                      : " points, finer than the metric on ") << global[1]
              << ", tangential floor next to the wall on " << global[2] << ", largest aspect ratio " << maxWallAR
              << "." << endl;
-        if (maxWallAR > config->GetAdap_ARmax()) {
+        if (maxWallAR > config->GetAdap_ARmax() && (!prescribedBL || !config->GetAdap_Surface())) {
           cout << "WARNING: The boundary-layer metric of " << layer.marker << " has aspect ratios up to " << maxWallAR
                << " (tangential wall size / wall-normal size), above ADAP_ARMAX= " << config->GetAdap_ARmax()
                << "; it is not limited by ADAP_ARMAX." << endl;
@@ -3061,6 +3131,13 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     }
     metricComplexityFinal = SU2_TYPE::GetValue(globalValues[0]);
     if (rank == MASTER_NODE) {
+      if (prescribedBL && fabs(error) > tol) {
+        if (!bracketed)
+          cout << "WARNING: ADAP_COMPLEXITY= " << complexity << " cannot be reached with the prescribed boundary-layer "
+               << "spacing, wall resolution and metric bounds. " << (error > 0.0 ? "Minimum" : "Maximum")
+               << " attainable complexity: " << globalValues[0] << ". The prescribed wall heights are retained." << endl;
+        else cout << "WARNING: The complexity solve including prescribed BL constraints did not converge." << endl;
+      }
       cout << "Mesh complexity with the boundary-layer metric: " << globalValues[0] << " (ADAP_COMPLEXITY= "
            << complexity << ", ratio " << globalValues[0] / complexity << "). Maximum cell AR: " << globalValues[1]
            << "." << endl;

@@ -39,7 +39,9 @@ class CGeometry;
 
 /*!
  * \class CBoundaryLayerMetric
- * \brief Metric of the boundary layer of wall markers (ADAP_BL_*), intersected with the adaptation metric.
+ * \brief Boundary-layer metric of wall markers (ADAP_BL_*).
+ * \note Native adaptation prescribes the normal size and retains tangential refinement; the legacy path
+ *       intersects the wall metric and applies a tangential floor next to fixed walls.
  * \details Each wall marker has a first height h0, a growth ratio g of geometric cell rows and a thickness T. At a point
  *          at distance d from the wall (closest point of the wall faces, exact nearest-face search of an ADT):
  *          - wall-normal size hn = max(h0, 2 (h0 + (g - 1) d) / (g + 1)): the rows of a geometric layer have heights
@@ -102,13 +104,20 @@ class CBoundaryLayerMetric {
     Tensor metric;              /*!< \brief Wall metric with the fade (equal to full where weight is 1). */
   };
 
+  /*! \brief Geometry-only BL sample, reusable while solving for metric complexity. */
+  struct PointSample {
+    unsigned long point;
+    unsigned short wall;
+    Sample sample;
+  };
+
   /*!
    * \brief Statistics of Apply for one wall (sums and extrema over the points of this rank).
    */
   struct WallReport {
     std::string name;                 /*!< \brief Marker name. */
     unsigned long nPoint = 0;         /*!< \brief Points where the wall metric has a positive weight. */
-    unsigned long nChanged = 0;       /*!< \brief Points where the intersection changed the metric (finer). */
+    unsigned long nChanged = 0;       /*!< \brief Points where applying the wall constraints changed the metric. */
     su2double maxAspectRatio = 0.0;   /*!< \brief Largest aspect ratio of the full-strength wall metric. */
     unsigned long nFloor = 0;         /*!< \brief Points with the tangential floor next to the wall. */
   };
@@ -164,12 +173,24 @@ class CBoundaryLayerMetric {
   std::vector<WallReport> Apply(const std::vector<su2double>& coord, std::vector<Tensor>& metric,
                                 su2double coreEigenvalue);
 
+  /*! \brief Cache positive-weight samples; avoids repeating nearest-face searches during complexity scaling. */
+  std::vector<PointSample> SamplePoints(const std::vector<su2double>& coord);
+
+  /*! \brief Apply cached geometry. Native prescribed normals use the nearest active wall, remove normal-tangent
+   *         coupling and retain hn; fixed surfaces keep the tangential floor, adapted surfaces may refine tangentially.
+   *         arMax bounds the adapted tangential block while preserving the prescribed normal size.
+   */
+  std::vector<WallReport> Apply(const std::vector<PointSample>& samples, std::vector<Tensor>& metric,
+                                su2double coreEigenvalue, bool prescribedNormal = false, bool fixedSurface = true,
+                                su2double arMax = 1e7);
+
  private:
   struct WallData;
   void Build();
 
   /*--- Tangential floor of the metric M of a point next to the wall (see the class note); false outside its band. ---*/
-  bool TangentialFloor(const Sample& sample, const su2double* wallEigenvalues, su2double h0, Tensor& M) const;
+  bool TangentialFloor(const Sample& sample, const su2double* wallEigenvalues, su2double h0, Tensor& M,
+                       bool prescribedNormal = false, bool fixedSurface = true, su2double arMax = 1e7) const;
 
   unsigned short nDim = 0;
   su2double cornerAngle = 0.0; /*!< \brief Turn of the wall (degrees) above which a 2D vertex is a corner. */
