@@ -123,6 +123,9 @@ Variables supplied together share that work, but the WLS Hessian path invokes
 the kernel again for each sensor. A persistent cache would need invalidation for
 mesh motion/adaptation and correct periodic/AD dependencies; it is not added here.
 
+The shared symmetric eigensolver normalizes subnormal Householder scales with
+powers of two, avoiding overflowing reciprocals in fast-math builds.
+
 Transactions import complete dependencies, reserve affected nodes, validate
 versions/interfaces/geometry, and prepare publication storage before the final
 collective vote. The default2MiB per-rank dependency admission applies to bounded

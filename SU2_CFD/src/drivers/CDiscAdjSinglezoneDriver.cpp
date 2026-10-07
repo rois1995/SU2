@@ -26,6 +26,7 @@
  */
 
 #include "../../include/drivers/CDiscAdjSinglezoneDriver.hpp"
+#include "../../../Common/include/adaptation/CNativeReferenceIO.hpp"
 #include "../../include/output/tools/CWindowingTools.hpp"
 #include "../../include/output/COutputFactory.hpp"
 #include "../../include/output/COutput.hpp"
@@ -797,7 +798,11 @@ void CDiscAdjSinglezoneDriver::ComputeGoalMetric() {
 
   /*--- ADAP_BL_METHOD= TWO_PASS: the remesher builds the boundary-layer metric itself. ---*/
   const bool boundaryLayer = config->GetKind_Adap_BL_Method() != ADAP_BL_METHOD::TWO_PASS;
-  flow->ComputeMetric(geometry, config, nullptr, boundaryLayer);
+  if (config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY &&
+      config->GetnAdap_BL() && (!nativeReference || !nativeReference->original)) {
+    auto remesher = MakeRemesher();
+  }
+  flow->ComputeMetric(geometry, config, nullptr, boundaryLayer, nativeReference.get());
   if (rank == MASTER_NODE) cout << "Goal metric computed in " << SU2_MPI::Wtime() - startTime << " s." << endl;
 }
 

@@ -211,7 +211,7 @@ CBoundaryLayerMetric::CBoundaryLayerMetric(const CGeometry& geometry, const CCon
       localBox.high[i] = std::max(localBox.high[i], x);
     }
   const bool restricted = config.GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY;
-  const auto boxes = CPassiveComm::Allgatherv(std::vector<Box>{localBox}, nullptr);
+  const auto boxes = restricted ? CPassiveComm::Allgatherv(std::vector<Box>{localBox}, nullptr) : std::vector<Box>{};
 
   for (unsigned short iBL = 0; iBL < config.GetnAdap_BL(); ++iBL) {
     Wall wall;

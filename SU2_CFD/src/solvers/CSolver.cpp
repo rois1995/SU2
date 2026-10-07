@@ -2800,8 +2800,14 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     for (auto point = 0ul; point < nPointDomain; ++point)
       for (auto d = 0u; d < nDim; ++d) coord[point * nDim + d] = geometry->nodes->GetCoord(point, d);
     blSamples = nativeLayers->SamplePoints(coord);
-    for (const auto& sample : blSamples)
-      if (sample.sample.weight == 1.0) blFullSamples.push_back(sample);
+    vector<size_t> nearest(nPointDomain, blSamples.size());
+    for (size_t k = 0; k < blSamples.size(); ++k) {
+      const auto point = blSamples[k].point;
+      if (nearest[point] == blSamples.size() ||
+          blSamples[k].sample.distance < blSamples[nearest[point]].sample.distance) nearest[point] = k;
+    }
+    for (const auto k : nearest)
+      if (k < blSamples.size() && blSamples[k].sample.weight == 1.0) blFullSamples.push_back(blSamples[k]);
   }
 
   vector<vector<unsigned long>> metricNeighbors(nativeMetric ? nPointDomain : 0);

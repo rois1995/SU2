@@ -747,6 +747,28 @@ TEST_CASE("Native full tensor gradation includes complexity and crosses MPI part
   }
 }
 
+TEST_CASE("Native gradation keeps the nearest wall when its band is fading", "[MetricRobustness]") {
+  const auto mesh = simplex_test::MakeSimplexMesh(2, 10, [](const passivedouble* x) {
+    return std::string(x[1] < 1e-12 ? "farwall" : x[1] > 1-1e-12 ? "near" : "outside");
+  });
+  MetricTest test(mesh, "MARKER_HEATFLUX= (farwall,0,near,0)\nMARKER_FAR= (outside)\n"
+      "ADAP_REMESHER= NATIVE_CAVITY\nADAP_HGRAD= 1e20\nADAP_ISO_CORNER= NO\n"
+      "ADAP_HMIN= 1e-4\nADAP_HMAX= 10\nADAP_COMPLEXITY= 1000\n"
+      "ADAP_BL_MARKER= (farwall,near)\nADAP_BL_FIRST_HEIGHT= (.002,.01)\n"
+      "ADAP_BL_GROWTH= (1.2,1.2)\nADAP_BL_THICKNESS= (1.2,.11)\n", {1,0,1,0,0,0});
+  test.ComputeMetric();
+  unsigned long checked = 0, global = 0;
+  for (auto point = 0ul; point < test.Geometry().GetnPointDomain(); ++point) {
+    const auto* x = test.Geometry().nodes->GetCoord(point);
+    if (fabs(x[0]-1) > 1e-12 || fabs(x[1]-.9) > 1e-12) continue;
+    // The nearest wall's faded metric is much finer than the distant full-band normal (about 9).
+    CHECK(test.Metric(point).m[1][1] > 100);
+    ++checked;
+  }
+  CPassiveComm::Allreduce(&checked, &global, 1, CPassiveComm::Op::SUM);
+  CHECK(global == 1);
+}
+
 TEST_CASE("Native BL spatial exchange preserves closest-face normals", "[MetricRobustness]") {
   auto mesh = simplex_test::MakeSimplexMesh(2, 12,
       [](const passivedouble* x) { return std::string(x[1] < 1e-12 ? "wall" : "far"); },
