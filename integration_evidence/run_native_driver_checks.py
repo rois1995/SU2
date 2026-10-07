@@ -17,6 +17,7 @@ parser.add_argument('--binary', choices=['test_driver', 'test_memory'], default=
 parser.add_argument('--build', default='build-nommg')
 parser.add_argument('--save-audit', action='store_true')
 parser.add_argument('--airfoil-config', type=Path)
+parser.add_argument('--frozen-metric', type=Path, help='Coordinate-keyed frozen sensor CSV for opt-in remesher scaling')
 parser.add_argument('--cavity-replay-folder', type=Path, help='Archive the four-rank rejected-state fixture for explicit replay tests')
 parser.add_argument('--timeout', type=int, default=240)
 parser.add_argument('--expect-diagnostic', help='Exact diagnostic for an expected nonsignal error exit')
@@ -122,6 +123,16 @@ if args.airfoil_config:
             mesh = Path(line.split('=', 1)[1].split('%', 1)[0].strip()).resolve(strict=True)
             manifest['airfoil_mesh'] = {'path': str(mesh), 'sha256': sha(mesh)}
             shutil.copy2(mesh, destination / 'airfoil_input.su2')
+if args.frozen_metric:
+    frozen = args.frozen_metric.resolve(strict=True)
+    archived = destination / 'frozen_sensor.csv'
+    shutil.copy2(frozen, archived)
+    expected = sha(frozen)
+    if sha(archived) != expected:
+        raise RuntimeError('Frozen metric changed during archive')
+    env['SU2_NATIVE_FROZEN_METRIC'] = str(archived)
+    manifest['environment']['SU2_NATIVE_FROZEN_METRIC'] = str(archived)
+    manifest['frozen_metric_sha256'] = expected
 if args.cavity_replay_folder:
     captured = args.cavity_replay_folder.resolve(strict=True)
     archived = destination / 'captured_fixture'

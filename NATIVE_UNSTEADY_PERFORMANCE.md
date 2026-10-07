@@ -228,3 +228,45 @@ then longer physical-time/inner-converged RAE accuracy and cadence controls. Sep
 fewer active remeshing ranks remain a possible subsequent implementation, not an
 existing runtime feature. Larger3D cavity work follows after 2D lifecycle and cost
 limits are established. Preserve mesh gates and rejected evidence throughout.
+
+## Same-target MPI follow-up
+
+The next performance goal is active. Opt-in `NativeFrozenAirfoil2D` reuses the
+production driver/backend with exact saved double sensor samples keyed by original
+coordinates. CSV import and test artifact gathering are outside measured remeshing.
+Both workloads are from the actual first unsteady RAE windows above; frozen
+sensors, geometry and BL settings are identical across rank counts. The small
+straight-wall BL smoke test and both real workloads pass MPI1/2/4. Every exported
+real mesh also passes independent original-P1/composed-metric q/length and topology
+checks. Both MPI4 meshes reproduce the real unsteady first adapted meshes exactly
+(points and connectivity).
+
+| Frozen workload | MPI ranks | Remesh wall time | Accepted points | Commits |
+| --- | ---: | ---: | ---: | ---: |
+| rae_euler_to_bl | 1 | 88.957s | 11285 | 56011 |
+| rae_euler_to_bl | 2 | 79.947s | 11757 | 56028 |
+| rae_euler_to_bl | 4 | 51.568s | 12252 | 44811 |
+| rae_bl_to_euler | 1 | 62.066s | 7795 | 28623 |
+| rae_bl_to_euler | 2 | 36.112s | 7778 | 28596 |
+| rae_bl_to_euler | 4 | 23.800s | 7964 | 27814 |
+
+These are same-target workload measurements, not fixed-work speedups: partitioning
+changes reconstruction trajectories, output point counts and operation counts.
+Raw cases/grids: `integration_evidence/native_frozen_rae_euler_to_bl_v1/runtime_np{1,2,4}`
+and `native_frozen_rae_bl_to_euler_v1/runtime_np{1,2,4}`. Summary and fixture pins:
+`native_frozen_scaling_v1/frozen_scaling_summary_v1.json`.
+
+Saved-profile follow-up (`profile_native_stack_details.py --selftest` passes)
+finds8526 native samples with visible MPI API frames,8035 in `PMPI_Allreduce`.
+This includes waiting, utilities and truncated-stack limitations; it is not an
+additive wall-cost measurement. Initial breakdown v1 misclassified a native type
+in ComputeMetric's function arguments; that output is retained, corrected v2 is
+authoritative and matches the earlier MPI sample count. Repo path names and
+function argument types are tested explicitly by the classifier.
+
+The next trial will consolidate native message preflight checks into one
+collective election, while guarding invalid peer-vector sizes locally and retaining
+all overflow, receive-size, memory-admission and atomic publication checks. This
+is a measured candidate, not an implemented optimization or speedup claim yet.
+Cheap donor containment pruning remains a separate experiment. Preserve accepted
+mesh/operation equivalence and negative MPI controls before retaining any change.

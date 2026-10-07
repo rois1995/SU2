@@ -338,3 +338,55 @@ TEST_CASE("Native realistic airfoil: actual sensor/BL targets and three changed 
   driver.reset();
   SU2_MPI::Barrier(SU2_MPI::GetComm());
 }
+
+// Separate CFD convergence from remesher scaling: every rank count imports the
+// same original sensor samples and lets the production backend compose geometry.
+TEST_CASE("Native frozen airfoil: identical input metric for MPI scaling", "[NativeFrozenAirfoil2D][.]") {
+  World world;
+  const auto configPath = std::getenv("SU2_NATIVE_AIRFOIL_CONFIG");
+  const auto metricPath = std::getenv("SU2_NATIVE_FROZEN_METRIC");
+  REQUIRE(configPath != nullptr);
+  REQUIRE(metricPath != nullptr);
+  auto driver = std::make_unique<AirfoilDriver>(const_cast<char*>(configPath), 1, SU2_MPI::GetComm());
+  auto& geometry = driver->Geometry();
+  std::ifstream input(metricPath);
+  REQUIRE(input.good());
+  std::string header;
+  std::getline(input, header);
+  REQUIRE(header == "x,y,xx,xy,yy");
+  // Test-only replicated lookup, outside measured remeshing and its memory
+  // admission; the production backend still receives only owned sensor rows.
+  std::map<std::array<double, 2>, Tensor> frozen;
+  double x, y, xx, xy, yy;
+  char comma;
+  while (input >> x >> comma >> y >> comma >> xx >> comma >> xy >> comma >> yy) {
+    REQUIRE(frozen.emplace(std::array<double, 2>{x, y}, Tensor{xx, xy, yy}).second);
+  }
+  REQUIRE(input.eof());
+  su2activematrix metric(geometry.GetnPointDomain(), 3);
+  size_t missing = 0;
+  for (unsigned long p = 0; p < metric.rows(); ++p) {
+    const auto coord = geometry.nodes->GetCoord(p);
+    const auto found = frozen.find({SU2_TYPE::GetValue(coord[0]), SU2_TYPE::GetValue(coord[1])});
+    if (found == frozen.end()) { ++missing; continue; }
+    metric(p, 0) = found->second.xx;
+    metric(p, 1) = found->second.xy;
+    metric(p, 2) = found->second.yy;
+  }
+  REQUIRE(world.sum(missing) == 0);
+  REQUIRE(world.sum(metric.rows()) == frozen.size());
+  auto backend = driver->Backend();
+  SU2_MPI::Barrier(SU2_MPI::GetComm());
+  const auto start = SU2_MPI::Wtime();
+  auto result = backend->Remesh(driver->Config(), geometry, metric);
+  const auto elapsed = SU2_MPI::Wtime() - start;
+  const auto maximum = CPassiveComm::Allreduce(elapsed, CPassiveComm::Op::MAX);
+  std::ofstream timing("native_frozen_timing_rank_" + std::to_string(world.rank) + ".csv");
+  timing << std::setprecision(17) << "ranks,rank,owned_points,remesh_seconds,remesh_max_seconds,accepted\n"
+         << world.size << ',' << world.rank << ',' << metric.rows() << ',' << elapsed << ',' << maximum << ','
+         << (result.status == CRemeshResult::Status::COMPLETE) << '\n';
+  REQUIRE(timing.good());
+  REQUIRE(result.status == CRemeshResult::Status::COMPLETE);
+  const auto candidate = GatherCandidate(world, result.slices);
+  if (world.rank == 0) simplex_test::WriteSU2Mesh(candidate, "native_frozen_adapted.su2");
+}

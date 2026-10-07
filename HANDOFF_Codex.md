@@ -5,6 +5,51 @@ Current branch `codex/native-unsteady-performance` (2D unsteady/cost checkpoint 
 worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`.
 
 
+## Current goal: frozen-target MPI cost and optimization
+
+ACTIVE after completing the bounded static 2D lifecycle/measured-cost goal.
+Committed checkpoint: aa73b62a773af472815bbc7c8b77187f8e763aee, branch
+codex/native-unsteady-performance. Completion index: integration_evidence/
+native_unsteady_performance_v1/lifecycle_cost_checkpoint_v3.json (32 actual
+completed cases,748 pinned artifacts). Checkpoint document snapshots are beside it.
+
+Next goal is same-frozen-sensor/geometry MPI1/2/4 remeshing scaling, profiling
+private interpolation/selection/communication imbalance, then improving the
+measured bottleneck with all main metric/geometry/height/rejection gates intact.
+Reuse the production backend via opt-in NativeFrozenAirfoil2D in the existing
+CNativeAirfoil2D test file; no separate mesher implementation. Fixture CSVs copy
+original double donor sensor samples exactly by coordinates. Geometry/BL is
+composed by the actual backend. Test-only replicated CSV lookup and artifact
+mesh gathering are outside measured remeshing. Different rank counts may still
+produce different accepted meshes; do not call these fixed-work efficiencies.
+
+Fixtures: integration_evidence/native_frozen_scaling_v1/{plate_smoke,
+rae_euler_to_bl,rae_bl_to_euler}. Small frozen BL smoke passes MPI1/2/4.
+Both real frozen campaigns are terminalPASS atMPI4/2/1, timeout300s per job.
+Euler-to-BL: integration_evidence/native_frozen_rae_euler_to_bl_v1/runtime_np{1,2,4},
+remesh88.957/79.947/51.568s, points11285/11757/12252, commits56011/56028/44811.
+BL-to-Euler: native_frozen_rae_bl_to_euler_v1/runtime_np{1,2,4},
+remesh62.066/36.112/23.800s, points7795/7778/7964, commits28623/28596/27814.
+Independent original-P1/geometric-BL q/length and topology audits PASS all six.
+Both MPI4 grids exactly reproduce actual unsteady first meshes (coordinates,
+connectivity). Different rank counts perform different work; no fixed-work speedup
+claim. Summary: native_frozen_scaling_v1/frozen_scaling_summary_v1.json.
+
+Saved-profile details authoritative v2:8526 native samples with MPI API frames,
+8035 PMPI_Allreduce; includes waiting/utilities and truncated stacks. v1 falsely
+counted native ReferenceState in ComputeMetric arguments and is retained. New
+profile_native_stack_details.py selftest guards path-name/argument-type mistakes.
+Next trial (NOT implemented): consolidate two World::exchange preflight failure
+elections into one by guarding invalid peer bucket sizes before looping. Preserve
+all overflow, receive-size, memory admission and atomic publication gates. Add a
+collective invalid-peer negative control; run core MPI and same-frozen-target
+artifact/operation/timing comparisons before accepting. Cheap exact donor-AABB
+pruning is a separate fallback experiment; preserve donor order and numerical/
+physical extension fallbacks. One heavy job, ranks<=4, threads1; do not relink the
+mutable unit driver while a sequential campaign is active. No owned CFD/job is
+active at this checkpoint. Goal remains ACTIVE until a measured optimization,
+CFD continuation and honest practical cost/memory limits are established.
+
 ## Resumed unsteady and performance work — 2026-10-07
 
 The user explicitly resumed the unsteady goal after the metric merge and made
