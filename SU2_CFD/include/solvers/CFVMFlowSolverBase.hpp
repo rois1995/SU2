@@ -807,8 +807,10 @@ class CFVMFlowSolverBase : public CSolver {
           iPoint_UndLapl[iPoint] = fmax(iPoint_UndLapl[iPoint], fabs(sensVar_j - sensVar_i) / fmin(sensVar_j, sensVar_i));
         } else {
           /*--- Jameson dissipation sensor, add variable difference and variable sum. ---*/
-          iPoint_UndLapl[iPoint] += sensVar_j - sensVar_i;
-          jPoint_UndLapl[iPoint] += sensVar_j + sensVar_i;
+          const auto weight = config->GetnMarker_Periodic() > 2 ?
+                                  geometry->GetPeriodicEdgeWeight(iPoint, jPoint, *config) : 1.0;
+          iPoint_UndLapl[iPoint] += weight * (sensVar_j - sensVar_i);
+          jPoint_UndLapl[iPoint] += weight * (sensVar_j + sensVar_i);
         }
       }
 
@@ -979,7 +981,8 @@ class CFVMFlowSolverBase : public CSolver {
 
         if (nodes->GetDelta_Time(iPoint) != 0.0) {
 
-          su2double Vol = geometry->nodes->GetVolume(iPoint) + geometry->nodes->GetPeriodicVolume(iPoint);
+          su2double Vol = geometry->nodes->GetVolume(iPoint);
+          if (!Jacobian.HasPeriodicProjection()) Vol += geometry->nodes->GetPeriodicVolume(iPoint);
 
           su2double Delta = Vol / nodes->GetDelta_Time(iPoint);
 

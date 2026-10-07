@@ -29,6 +29,7 @@
 #include <sstream>
 #include <string>
 #include "../../Common/include/CConfig.hpp"
+#include "../../Common/include/toolboxes/geometry_toolbox.hpp"
 
 namespace {
 
@@ -86,4 +87,108 @@ TEST_CASE("INIT_OPTION_INC defaults", "[Config]") {
   CHECK(GetInitOptionInc(ideal_gas_options + "INIT_OPTION_INC= OPERATING_PRESSURE\n") ==
         INIT_OPTION_INC::OPERATING_PRESSURE);
   CHECK(GetInitOptionInc(ideal_gas_options + "INIT_OPTION_INC= DENSITY_INIT\n") == INIT_OPTION_INC::DENSITY_INIT);
+}
+
+TEST_CASE("Periodic affine transformation and its inverse", "[Config][Periodic]") {
+  const auto angles = GENERATE(std::string("0,0,0"), std::string("0,0,30"), std::string("20,30,10"),
+                               std::string("90,0,90"), std::string("-90,0,90"));
+  std::stringstream options(base_options + "MARKER_PERIODIC= (a,b, 2,-3,1, " + angles + ", 1,2,-3)\n");
+  auto* original = std::cout.rdbuf(nullptr);
+  CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
+  std::cout.rdbuf(original);
+  su2double rotations[2][3][3];
+  const std::string markers[] = {"a", "b"};
+  for (auto side = 0u; side < 2; ++side) {
+    const auto* rotation = config.GetPeriodicRotAngles(markers[side]);
+    GeometryToolbox::RotationMatrix(rotation[0], rotation[1], rotation[2], rotations[side]);
+  }
+  su2double error = 0;
+  for (auto iDim = 0u; iDim < 3; ++iDim) {
+    for (auto jDim = 0u; jDim < 3; ++jDim) {
+      su2double product = 0;
+      for (auto kDim = 0u; kDim < 3; ++kDim) product += rotations[1][iDim][kDim] * rotations[0][kDim][jDim];
+      error = std::max(error, fabs(product - (iDim == jDim)));
+    }
+    const auto* forward = config.GetPeriodicTranslation("a");
+    su2double translation = config.GetPeriodicTranslation("b")[iDim];
+    for (auto jDim = 0u; jDim < 3; ++jDim) translation += rotations[1][iDim][jDim] * forward[jDim];
+    error = std::max(error, fabs(translation));
+  }
+  INFO("Euler angles: " << angles);
+  CHECK(error < 1e-12);
+}
+
+TEST_CASE("Periodic Continuous support", "[.PeriodicSupportContinuous]") {
+  auto base = base_options;
+  base.erase(0, base.find("MESH_FORMAT="));
+  const std::string custom = "MARKER_CUSTOM= (x_minus, x_plus, z_plus, z_minus)";
+  base.replace(base.find(custom), custom.size(), "MARKER_CUSTOM= (z_minus)\nMARKER_SYM= (z_plus)");
+  std::stringstream options(
+      base +
+      "MARKER_PERIODIC= (x_minus,x_plus, 0,0,0, 0,0,0, 1,0,0)\nSOLVER= "
+      "NAVIER_STOKES\nMACH_NUMBER= 0.2\nREYNOLDS_NUMBER= 1000000\nMATH_PROBLEM= CONTINUOUS_ADJOINT\n");
+  CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
+}
+
+TEST_CASE("Periodic Radiation support", "[.PeriodicSupportRadiation]") {
+  auto base = base_options;
+  const std::string custom = "MARKER_CUSTOM= (x_minus, x_plus, z_plus, z_minus)";
+  base.replace(base.find(custom), custom.size(), "MARKER_CUSTOM= (z_minus)\nMARKER_SYM= (z_plus)");
+  std::stringstream options(
+      base + "MARKER_PERIODIC= (x_minus,x_plus, 0,0,0, 0,0,0, 1,0,0)\nRADIATION_MODEL= P1\nINC_ENERGY_EQUATION= YES\n");
+  CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
+}
+
+TEST_CASE("Periodic Structure support", "[.PeriodicSupportStructure]") {
+  auto base = base_options;
+  base.erase(0, base.find("MESH_FORMAT="));
+  const std::string custom = "MARKER_CUSTOM= (x_minus, x_plus, z_plus, z_minus)";
+  base.replace(base.find(custom), custom.size(), "MARKER_CUSTOM= (z_minus)\nMARKER_SYM= (z_plus)");
+  std::stringstream options(base + "MARKER_PERIODIC= (x_minus,x_plus, 0,0,0, 0,0,0, 1,0,0)\nSOLVER= ELASTICITY\n");
+  CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
+}
+
+TEST_CASE("Streamwise periodic Rotation support", "[.StreamwisePeriodicSupportRotation]") {
+  auto base = base_options;
+  const std::string custom = "MARKER_CUSTOM= (x_minus, x_plus, z_plus, z_minus)";
+  base.replace(base.find(custom), custom.size(), "MARKER_CUSTOM= (z_minus)\nMARKER_SYM= (z_plus)");
+  std::stringstream options(base +
+                            "INC_NONDIM= DIMENSIONAL\nKIND_STREAMWISE_PERIODIC= PRESSURE_DROP\n"
+                            "INC_ENERGY_EQUATION= YES\nSTREAMWISE_PERIODIC_TEMPERATURE= YES\n"
+                            "MARKER_PERIODIC= (x_minus,x_plus, 0,0,0, 90,0,0, 1,0,0)\n");
+  CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
+}
+
+TEST_CASE("Streamwise periodic Zero support", "[.StreamwisePeriodicSupportZero]") {
+  auto base = base_options;
+  const std::string custom = "MARKER_CUSTOM= (x_minus, x_plus, z_plus, z_minus)";
+  base.replace(base.find(custom), custom.size(), "MARKER_CUSTOM= (z_minus)\nMARKER_SYM= (z_plus)");
+  std::stringstream options(base +
+                            "INC_NONDIM= DIMENSIONAL\nKIND_STREAMWISE_PERIODIC= PRESSURE_DROP\n"
+                            "INC_ENERGY_EQUATION= YES\nSTREAMWISE_PERIODIC_TEMPERATURE= YES\n"
+                            "MARKER_PERIODIC= (x_minus,x_plus, 0,0,0, 0,0,0, 0,0,0)\n");
+  CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
+}
+
+TEST_CASE("Streamwise periodic Convection support", "[.StreamwisePeriodicSupportConvection]") {
+  auto base = base_options;
+  const std::string custom = "MARKER_CUSTOM= (x_minus, x_plus, z_plus, z_minus)";
+  base.replace(base.find(custom), custom.size(), "MARKER_CUSTOM= (z_minus)");
+  std::stringstream options(
+      base +
+      "INC_NONDIM= DIMENSIONAL\nKIND_STREAMWISE_PERIODIC= PRESSURE_DROP\n"
+      "INC_ENERGY_EQUATION= YES\nSTREAMWISE_PERIODIC_TEMPERATURE= YES\n"
+      "MARKER_PERIODIC= (x_minus,x_plus, 0,0,0, 0,0,0, 1,0,0)\nMARKER_HEATTRANSFER= (z_plus,1,300)\n");
+  CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
+}
+
+TEST_CASE("Streamwise periodic CHT support", "[.StreamwisePeriodicSupportCHT]") {
+  auto base = base_options;
+  const std::string custom = "MARKER_CUSTOM= (x_minus, x_plus, z_plus, z_minus)";
+  base.replace(base.find(custom), custom.size(), "MARKER_CUSTOM= (z_minus)");
+  std::stringstream options(base +
+                            "INC_NONDIM= DIMENSIONAL\nKIND_STREAMWISE_PERIODIC= PRESSURE_DROP\n"
+                            "INC_ENERGY_EQUATION= YES\nSTREAMWISE_PERIODIC_TEMPERATURE= YES\n"
+                            "MARKER_PERIODIC= (x_minus,x_plus, 0,0,0, 0,0,0, 1,0,0)\nMARKER_CHT_INTERFACE= (z_plus)\n");
+  CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
 }

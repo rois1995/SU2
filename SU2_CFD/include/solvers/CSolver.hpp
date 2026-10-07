@@ -133,6 +133,8 @@ protected:
 
   /*--- End variables that need to go. ---*/
 
+  su2activevector periodicNeighborCount; /*!< \brief Partial periodic stencil count, including shared edges. */
+
   su2activevector iPoint_UndLapl;  /*!< \brief Auxiliary variable for the undivided Laplacians. */
   su2activevector jPoint_UndLapl;  /*!< \brief Auxiliary variable for the undivided Laplacians. */
 
@@ -4224,13 +4226,19 @@ public:
    * \brief Routine that sets the flag controlling implicit treatment for periodic BCs.
    * \param[in] val_implicit_periodic - Flag controlling implicit treatment for periodic BCs.
    */
-  inline void SetImplicitPeriodic(bool val_implicit_periodic) { implicit_periodic = val_implicit_periodic; }
+  inline void SetImplicitPeriodic(bool val_implicit_periodic) {
+    implicit_periodic = val_implicit_periodic;
+    Jacobian.SetPeriodicProjection(val_implicit_periodic ? (rotate_periodic ? 1 : -1) : -2);
+  }
 
   /*!
    * \brief Routine that sets the flag controlling solution rotation for periodic BCs.
    * \param[in] val_implicit_periodic - Flag controlling solution rotation for periodic BCs.
    */
-  inline void SetRotatePeriodic(bool val_rotate_periodic) { rotate_periodic = val_rotate_periodic; }
+  inline void SetRotatePeriodic(bool val_rotate_periodic) {
+    rotate_periodic = val_rotate_periodic;
+    if (implicit_periodic) Jacobian.SetPeriodicProjection(val_rotate_periodic ? 1 : -1);
+  }
 
   /*!
    * \brief Storage for the limiters with rotational periodicity: the min and max, over the edges of the periodic
