@@ -1,0 +1,373 @@
+{
+  "status": "Cleanup pushed; all 12 assessed review threads replied to and resolved",
+  "verified_utc": "2026-10-07T17:07:47.229384+00:00",
+  "commits": [
+    {
+      "worktree": "wt_geometry",
+      "branch": "fix_periodic_axis",
+      "sha": "6481f6949defeceae9026af0eb38787f5f3e0f76",
+      "checks": "Scoped token equivalence / single cast diff, git diff --check, pre-commit (SU2_CFD excluded by repository configuration). No CFD reruns needed for this cleanup.",
+      "precommit_log": "/media/rausa/4TB/SU2_Versions/Prove/periodic/remaining_20261007/precommit-review-wt_geometry.log"
+    },
+    {
+      "worktree": "wt_counts",
+      "branch": "fix_periodic_counts",
+      "sha": "afb78422e81e7492141bf5d0996aa5301ba46142",
+      "checks": "Scoped token equivalence / single cast diff, git diff --check, pre-commit (SU2_CFD excluded by repository configuration). No CFD reruns needed for this cleanup.",
+      "precommit_log": "/media/rausa/4TB/SU2_Versions/Prove/periodic/remaining_20261007/precommit-review-wt_counts.log"
+    },
+    {
+      "worktree": "wt_d",
+      "branch": "fix_streamwise_periodic",
+      "sha": "95c84b7adbcb3b2cb134bb19fcb85c7078d5f365",
+      "checks": "Scoped token equivalence / single cast diff, git diff --check, pre-commit (SU2_CFD excluded by repository configuration). No CFD reruns needed for this cleanup.",
+      "precommit_log": "/media/rausa/4TB/SU2_Versions/Prove/periodic/remaining_20261007/precommit-review-wt_d.log"
+    }
+  ],
+  "replies": [
+    {
+      "pr": 2963,
+      "original_comment": 4208134966,
+      "thread_id": "PRRT_kwDOAKhmnM6p82n5",
+      "body": "Fixed in 6481f6949d (`iField` no longer hides the existing index).",
+      "reply_url": "https://github.com/su2code/SU2/pull/2963#discussion_r4209658138",
+      "resolved": true
+    },
+    {
+      "pr": 2963,
+      "original_comment": 4208135019,
+      "thread_id": "PRRT_kwDOAKhmnM6p82oV",
+      "body": "Fixed in 6481f6949d (`iField` no longer hides the existing index).",
+      "reply_url": "https://github.com/su2code/SU2/pull/2963#discussion_r4209658786",
+      "resolved": true
+    },
+    {
+      "pr": 2964,
+      "original_comment": 4208168452,
+      "thread_id": "PRRT_kwDOAKhmnM6p87xn",
+      "body": "Fixed in afb78422e8 (`iField` no longer hides the existing index).",
+      "reply_url": "https://github.com/su2code/SU2/pull/2964#discussion_r4209659338",
+      "resolved": true
+    },
+    {
+      "pr": 2964,
+      "original_comment": 4208168470,
+      "thread_id": "PRRT_kwDOAKhmnM6p87x5",
+      "body": "Fixed in afb78422e8 (`iCoordinate` no longer hides the existing index).",
+      "reply_url": "https://github.com/su2code/SU2/pull/2964#discussion_r4209660046",
+      "resolved": true
+    },
+    {
+      "pr": 2964,
+      "original_comment": 4208168488,
+      "thread_id": "PRRT_kwDOAKhmnM6p87yB",
+      "body": "Fixed in afb78422e8 (`iCoordinate` no longer hides the existing index).",
+      "reply_url": "https://github.com/su2code/SU2/pull/2964#discussion_r4209660582",
+      "resolved": true
+    },
+    {
+      "pr": 2964,
+      "original_comment": 4208168506,
+      "thread_id": "PRRT_kwDOAKhmnM6p87yR",
+      "body": "Fixed in afb78422e8 (`iCoordinate` no longer hides the existing index).",
+      "reply_url": "https://github.com/su2code/SU2/pull/2964#discussion_r4209661096",
+      "resolved": true
+    },
+    {
+      "pr": 2964,
+      "original_comment": 4208168523,
+      "thread_id": "PRRT_kwDOAKhmnM6p87ye",
+      "body": "Fixed in afb78422e8 (`iCoordinate` no longer hides the existing index).",
+      "reply_url": "https://github.com/su2code/SU2/pull/2964#discussion_r4209661604",
+      "resolved": true
+    },
+    {
+      "pr": 2964,
+      "original_comment": 4208168547,
+      "thread_id": "PRRT_kwDOAKhmnM6p87yq",
+      "body": "Fixed in afb78422e8 (`iField` no longer hides the existing index).",
+      "reply_url": "https://github.com/su2code/SU2/pull/2964#discussion_r4209662279",
+      "resolved": true
+    },
+    {
+      "pr": 2964,
+      "original_comment": 4208168566,
+      "thread_id": "PRRT_kwDOAKhmnM6p87y4",
+      "body": "Fixed in afb78422e8 (`iCoordinate` no longer hides the existing index).",
+      "reply_url": "https://github.com/su2code/SU2/pull/2964#discussion_r4209662952",
+      "resolved": true
+    },
+    {
+      "pr": 2964,
+      "original_comment": 4208168585,
+      "thread_id": "PRRT_kwDOAKhmnM6p87zF",
+      "body": "Fixed in afb78422e8 (`iField` no longer hides the existing index).",
+      "reply_url": "https://github.com/su2code/SU2/pull/2964#discussion_r4209663481",
+      "resolved": true
+    },
+    {
+      "pr": 2964,
+      "original_comment": 4208168596,
+      "thread_id": "PRRT_kwDOAKhmnM6p87zN",
+      "body": "Fixed in afb78422e8 (`iCoordinate` no longer hides the existing index).",
+      "reply_url": "https://github.com/su2code/SU2/pull/2964#discussion_r4209663903",
+      "resolved": true
+    },
+    {
+      "pr": 2965,
+      "original_comment": 4208176113,
+      "thread_id": "PRRT_kwDOAKhmnM6p88-6",
+      "body": "Updated in 95c84b7adb (`nDim` is promoted to `unsigned long` before multiplication). Supported 2D/3D values remain unchanged: the square is 4/9.",
+      "reply_url": "https://github.com/su2code/SU2/pull/2965#discussion_r4209664376",
+      "resolved": true
+    }
+  ],
+  "ci_snapshot": {
+    "captured_utc": "2026-10-07T17:04:30.979724+00:00",
+    "prs": [
+      {
+        "number": 2961,
+        "url": "https://github.com/su2code/SU2/pull/2961",
+        "title": "Fixes for rotational periodic boundaries: implicit solver, multigrid and limiters",
+        "headRefOid": "9de9fd0b8298cc17a6e0fe4df8c2a4f74f8a3159",
+        "headRefName": "fix_periodic_rotation",
+        "isDraft": false,
+        "state": "OPEN",
+        "labels": [
+          {
+            "name": "priority"
+          },
+          {
+            "name": "changelog:fix"
+          }
+        ],
+        "unresolved_threads": 0,
+        "check_count": 37,
+        "pending_checks": 0,
+        "failed_checks": []
+      },
+      {
+        "number": 2963,
+        "url": "https://github.com/su2code/SU2/pull/2963",
+        "title": "Fix periodic axis geometry, slip normals and moving donor volumes",
+        "headRefOid": "6481f6949defeceae9026af0eb38787f5f3e0f76",
+        "headRefName": "fix_periodic_axis",
+        "isDraft": true,
+        "state": "OPEN",
+        "labels": [
+          {
+            "name": "priority"
+          },
+          {
+            "name": "changelog:fix"
+          }
+        ],
+        "unresolved_threads": 0,
+        "check_count": 21,
+        "pending_checks": 16,
+        "failed_checks": []
+      },
+      {
+        "number": 2964,
+        "url": "https://github.com/su2code/SU2/pull/2964",
+        "title": "Fix periodic neighbor counts, intersecting stencils and coarse flags",
+        "headRefOid": "afb78422e81e7492141bf5d0996aa5301ba46142",
+        "headRefName": "fix_periodic_counts",
+        "isDraft": true,
+        "state": "OPEN",
+        "labels": [
+          {
+            "name": "priority"
+          },
+          {
+            "name": "changelog:fix"
+          }
+        ],
+        "unresolved_threads": 0,
+        "check_count": 21,
+        "pending_checks": 16,
+        "failed_checks": []
+      },
+      {
+        "number": 2965,
+        "url": "https://github.com/su2code/SU2/pull/2965",
+        "title": "Fix streamwise periodic heat, massflow and auxiliary gradients",
+        "headRefOid": "95c84b7adbcb3b2cb134bb19fcb85c7078d5f365",
+        "headRefName": "fix_streamwise_periodic",
+        "isDraft": true,
+        "state": "OPEN",
+        "labels": [
+          {
+            "name": "priority"
+          },
+          {
+            "name": "changelog:fix"
+          }
+        ],
+        "unresolved_threads": 0,
+        "check_count": 21,
+        "pending_checks": 16,
+        "failed_checks": []
+      },
+      {
+        "number": 2966,
+        "url": "https://github.com/su2code/SU2/pull/2966",
+        "title": "Fix inverse periodic affine transforms in the parser and FEM",
+        "headRefOid": "39b17680934bdd72f27a8cd2594c934ba8f120ea",
+        "headRefName": "fix_periodic_transforms",
+        "isDraft": true,
+        "state": "OPEN",
+        "labels": [
+          {
+            "name": "changelog:fix"
+          }
+        ],
+        "unresolved_threads": 0,
+        "check_count": 40,
+        "pending_checks": 1,
+        "failed_checks": []
+      },
+      {
+        "number": 2968,
+        "url": "https://github.com/su2code/SU2/pull/2968",
+        "title": "Reject unsupported periodic adjoint, radiation and structural solvers",
+        "headRefOid": "b57a663144c6b74cafacb5073bfecea7b65275cf",
+        "headRefName": "fix_periodic_support",
+        "isDraft": true,
+        "state": "OPEN",
+        "labels": [
+          {
+            "name": "changelog:fix"
+          }
+        ],
+        "unresolved_threads": 0,
+        "check_count": 31,
+        "pending_checks": 1,
+        "failed_checks": [
+          "Build SU2 (ReverseOMP)"
+        ]
+      },
+      {
+        "number": 2969,
+        "url": "https://github.com/su2code/SU2/pull/2969",
+        "title": "Search translated wall images when computing periodic wall distance",
+        "headRefOid": "811dcb00325c87bb2e25bfe007487d15b7b272c2",
+        "headRefName": "fix_periodic_wall_distance",
+        "isDraft": true,
+        "state": "OPEN",
+        "labels": [
+          {
+            "name": "changelog:fix"
+          }
+        ],
+        "unresolved_threads": 0,
+        "check_count": 33,
+        "pending_checks": 1,
+        "failed_checks": [
+          "Address Sanitizer Tests (serial_regression.py)",
+          "Build SU2 (BaseOMP)",
+          "Build SU2 (BaseNoMPI)",
+          "Build SU2 (ForwardMPI)"
+        ]
+      }
+    ]
+  },
+  "ci_failures": [
+    {
+      "pr": 2968,
+      "check": "Build SU2 (ReverseOMP)",
+      "conclusion": "failure",
+      "url": "https://github.com/su2code/SU2/actions/runs/37631240288/job/112825890739",
+      "command": [
+        "gh",
+        "run",
+        "view",
+        "--repo",
+        "su2code/SU2",
+        "--job",
+        "112825890739",
+        "--log-failed"
+      ],
+      "log_read_exit": 0,
+      "excerpt": "Build SU2 (ReverseOMP)\tUNKNOWN STEP\t2026-10-07T14:16:19.5318368Z Download action repository 'actions/cache@v5' (SHA:caa296126883cff596d87d8935842f9db880ef25)\nBuild SU2 (ReverseOMP)\tUNKNOWN STEP\t2026-10-07T14:16:19.7534630Z Download action repository 'actions/upload-artifact@v7' (SHA:cf430e030ddbb5b0abf93d22962f4752f3646cd9)\nBuild SU2 (ReverseOMP)\tUNKNOWN STEP\t2026-10-07T14:16:20.5145760Z f6f7f9af6d56: Download complete\nBuild SU2 (ReverseOMP)\tUNKNOWN STEP\t2026-10-07T14:16:20.5864485Z f5aa802de1c5: Download complete\nBuild SU2 (ReverseOMP)\tUNKNOWN STEP\t2026-10-07T14:16:20.6093670Z 817807f3c64e: Download complete\nBuild SU2 (ReverseOMP)\tUNKNOWN STEP\t2026-10-07T14:16:22.8585385Z 63e3f9591413: Download complete\nBuild SU2 (ReverseOMP)\tUNKNOWN STEP\t2026-10-07T14:16:47.2350315Z Status: Downloaded newer image for ghcr.io/su2code/su2/build-su2:260405-0054\nBuild SU2 (ReverseOMP)\tUNKNOWN STEP\t2026-10-07T14:16:47.4674903Z Cache not found for input keys: ReverseOMP-90fa9b12a1aff5056caf99cc66b37cd7ac4bf467, ReverseOMP\nBuild SU2 (ReverseOMP)\tUNKNOWN STEP\t2026-10-07T14:16:49.6689462Z Submodule 'externals/eigen' (https://gitlab.com/libeigen/eigen.git) registered for path 'externals/eigen'\nBuild SU2 (ReverseOMP)\tUNKNOWN STEP\t2026-10-07T14:16:50.2926614Z Cloning into '/github/workspace/src/SU2_refs_pull_2968_merge/externals/eigen'...\nBuild SU2 (ReverseOMP)\tUNKNOWN STEP\t2026-10-07T14:16:56.4189019Z fatal: remote error: GitLab is currently unable to handle this request due to load (ID a46d86c7be09ee37-IAD).\nBuild SU2 (ReverseOMP)\tUNKNOWN STEP\t2026-10-07T14:16:56.4191025Z Unable to fetch in submodule path 'externals/eigen'; trying to directly fetch d71c30c47858effcbd39967097a2d99ee48db464:\nBuild SU2 (ReverseOMP)\tUNKNOWN STEP\t2026-10-07T14:16:56.7936904Z fatal: remote error: GitLab is currently unable to handle this request due to load (ID a46d86ca2a69d90d-IAD).\nBuild SU2 (ReverseOMP)\tUNKNOWN STEP\t2026-10-07T14:16:56.7943246Z fatal: Fetched in submodule path 'externals/eigen', but it did not contain d71c30c47858effcbd39967097a2d99ee48db464. Direct fetching of that commit failed.\nBuild SU2 (ReverseOMP)\tUNKNOWN STEP\t2026-10-07T14:16:57.7776634Z M\texternals/eigen\nBuild SU2 (ReverseOMP)\tUNKNOWN STEP\t2026-10-07T14:16:58.5910415Z fatal: remote error: GitLab is currently unable to handle this request due to load (ID a46d86d5890a3020-IAD).\nBuild SU2 (ReverseOMP)\tUNKNOWN STEP\t2026-10-07T14:16:58.5915536Z Unable to fetch in submodule path 'externals/eigen'; trying to directly fetch d71c30c47858effcbd39967097a2d99ee48db464:\nBuild SU2 (ReverseOMP)\tUNKNOWN STEP\t2026-10-07T14:16:58.9565432Z fatal: remote error: GitLab is currently unable to handle this request due to load (ID a46d86d7b9da5774-IAD).\nBuild SU2 (ReverseOMP)\tUNKNOWN STEP\t2026-10-07T14:16:58.9568653Z fatal: Fetched in submodule path 'externals/eigen', but it did not contain d71c30c47858effcbd39967097a2d99ee48db464. Direct fetching of that commit failed.\nBuild SU2 (ReverseOMP)\tUNKNOWN STEP\t2026-10-07T14:16:59.3733661Z WARNING: the currently checked out submodule commit in /github/workspace/src/SU2_refs_pull_2968_merge/externals/eigen does not match the SHA-1 found in the index.\nBuild SU2 (ReverseOMP)\tUNKNOWN STEP\t2026-10-07T14:16:59.3735591Z Use 'git submodule update --init /github/workspace/src/SU2_refs_pull_2968_merge/externals/eigen' to reset the module if necessary.\nBuild SU2 (ReverseOMP)\tUNKNOWN STEP\t2026-10-07T14:16:59.3868064Z ninja executable not found. Building ...\nBuild SU2 (ReverseOMP)\tUNKNOWN STEP\t2026-10-07T14:16:59.3872339Z FileNotFoundError: [Errno 2] No such file or directory: '/github/workspace/src/SU2_refs_pull_2968_merge/ninja'\nBuild SU2 (ReverseOMP)\tUNKNOWN STEP\t2026-10-07T14:16:59.3882992Z FileNotFoundError: [Errno 2] No such file or directory: '/github/workspace/src/SU2_refs_pull_2968_merge/externals/ninja/ninja'\nBuild SU2 (ReverseOMP)\tUNKNOWN STEP\t2026-10-07T14:16:59.3972597Z /compileSU2.sh: 74: ./ninja: not found",
+      "stderr": ""
+    },
+    {
+      "pr": 2969,
+      "check": "Address Sanitizer Tests (serial_regression.py)",
+      "conclusion": "failure",
+      "url": "https://github.com/su2code/SU2/actions/runs/37631263654/job/112844197565",
+      "command": [
+        "gh",
+        "run",
+        "view",
+        "--repo",
+        "su2code/SU2",
+        "--job",
+        "112844197565",
+        "--log-failed"
+      ],
+      "log_read_exit": 0,
+      "excerpt": "Address Sanitizer Tests (serial_regression.py)\tUNKNOWN STEP\t2026-10-07T14:30:35.7929988Z Artifact download completed successfully.\nAddress Sanitizer Tests (serial_regression.py)\tUNKNOWN STEP\t2026-10-07T14:30:36.2578324Z SHA256 digest of downloaded artifact is a70121b25f23903269b99f4fb5100a187aeba16be4e6e8669bee5283791cc76a\nAddress Sanitizer Tests (serial_regression.py)\tUNKNOWN STEP\t2026-10-07T14:30:36.2579275Z Artifact download completed successfully.\nAddress Sanitizer Tests (serial_regression.py)\tUNKNOWN STEP\t2026-10-07T14:30:36.4723877Z SHA256 digest of downloaded artifact is b4f4160d3e99e221563f363442898d112d1c6bed49fd009f9c5461fb503841d9\nAddress Sanitizer Tests (serial_regression.py)\tUNKNOWN STEP\t2026-10-07T14:30:36.4724920Z Artifact download completed successfully.\nAddress Sanitizer Tests (serial_regression.py)\tUNKNOWN STEP\t2026-10-07T14:30:37.9788404Z SHA256 digest of downloaded artifact is fe27789942117b9abc1a32a30badc40f416c39c474570ef39dfab8927ef31dff\nAddress Sanitizer Tests (serial_regression.py)\tUNKNOWN STEP\t2026-10-07T14:30:37.9789010Z Artifact download completed successfully.\nAddress Sanitizer Tests (serial_regression.py)\tUNKNOWN STEP\t2026-10-07T14:30:44.9346460Z SHA256 digest of downloaded artifact is f412561918ac219b87924e07e9be48554167f71e4ff8bdbbdf41a538766689d4\nAddress Sanitizer Tests (serial_regression.py)\tUNKNOWN STEP\t2026-10-07T14:30:44.9347043Z Artifact download completed successfully.\nAddress Sanitizer Tests (serial_regression.py)\tUNKNOWN STEP\t2026-10-07T14:31:43.3151522Z SHA256 digest of downloaded artifact is 636b201891eb5556e4b4708ecef9322e876c40df9370e7d41ba62aef12780e26\nAddress Sanitizer Tests (serial_regression.py)\tUNKNOWN STEP\t2026-10-07T14:31:43.3152549Z Artifact download completed successfully.\nAddress Sanitizer Tests (serial_regression.py)\tUNKNOWN STEP\t2026-10-07T14:31:43.3153118Z Total of 9 artifact(s) downloaded\nAddress Sanitizer Tests (serial_regression.py)\tUNKNOWN STEP\t2026-10-07T14:31:43.3157274Z Download artifact has finished successfully\nAddress Sanitizer Tests (serial_regression.py)\tUNKNOWN STEP\t2026-10-07T14:32:19.9543586Z Submodule 'externals/eigen' (https://gitlab.com/libeigen/eigen.git) registered for path 'externals/eigen'\nAddress Sanitizer Tests (serial_regression.py)\tUNKNOWN STEP\t2026-10-07T14:32:21.1856150Z Cloning into '/github/workspace/src/SU2_refs_pull_2969_merge/externals/eigen'...\nAddress Sanitizer Tests (serial_regression.py)\tUNKNOWN STEP\t2026-10-07T14:32:31.3477974Z From https://gitlab.com/libeigen/eigen\nAddress Sanitizer Tests (serial_regression.py)\tUNKNOWN STEP\t2026-10-07T14:32:31.4464129Z Submodule path 'externals/eigen': checked out 'd71c30c47858effcbd39967097a2d99ee48db464'\nAddress Sanitizer Tests (serial_regression.py)\tUNKNOWN STEP\t2026-10-07T14:32:38.3687755Z Submodule 'externals/Eigen' (https://gitlab.com/libeigen/eigen.git) registered for path 'subprojects/CoolProp/externals/Eigen'\nAddress Sanitizer Tests (serial_regression.py)\tUNKNOWN STEP\t2026-10-07T14:32:39.0630325Z Cloning into '/github/workspace/src/SU2_refs_pull_2969_merge/subprojects/CoolProp/externals/Eigen'...\nAddress Sanitizer Tests (serial_regression.py)\tUNKNOWN STEP\t2026-10-07T14:32:53.4712368Z From https://gitlab.com/libeigen/eigen\nAddress Sanitizer Tests (serial_regression.py)\tUNKNOWN STEP\t2026-10-07T14:32:53.5646039Z Submodule path 'subprojects/CoolProp/externals/Eigen': checked out '68f4e58cfacc686583d16cff90361f0b43bc2c1b'\nAddress Sanitizer Tests (serial_regression.py)\tUNKNOWN STEP\t2026-10-07T14:34:15.1110895Z fatal: early EOF\nAddress Sanitizer Tests (serial_regression.py)\tUNKNOWN STEP\t2026-10-07T14:34:15.1111687Z fatal: fetch-pack: invalid index-pack output\nAddress Sanitizer Tests (serial_regression.py)\tUNKNOWN STEP\t2026-10-07T14:34:52.1534448Z FileNotFoundError: [Errno 2] No such file or directory: '../Tutorials/compressible_flow/Transitional_Airfoil/Langtry_and_Menter/E387'\nAddress Sanitizer Tests (serial_regression.py)\tUNKNOWN STEP\t2026-10-07T14:34:52.1585955Z Tests failed",
+      "stderr": ""
+    },
+    {
+      "pr": 2969,
+      "check": "Build SU2 (BaseOMP)",
+      "conclusion": "failure",
+      "url": "https://github.com/su2code/SU2/actions/runs/37631263654/job/112826308203",
+      "command": [
+        "gh",
+        "run",
+        "view",
+        "--repo",
+        "su2code/SU2",
+        "--job",
+        "112826308203",
+        "--log-failed"
+      ],
+      "log_read_exit": 0,
+      "excerpt": "Build SU2 (BaseOMP)\tUNKNOWN STEP\t2026-10-07T14:18:39.4116898Z Failed to clone 'externals/eigen'. Retry scheduled\nBuild SU2 (BaseOMP)\tUNKNOWN STEP\t2026-10-07T14:18:43.1038607Z Cloning into '/github/workspace/src/SU2_refs_pull_2969_merge/externals/eigen'...\nBuild SU2 (BaseOMP)\tUNKNOWN STEP\t2026-10-07T14:18:43.4691664Z fatal: remote error: GitLab is currently unable to handle this request due to load (ID a46d8964bd3ae5f7-IAD).\nBuild SU2 (BaseOMP)\tUNKNOWN STEP\t2026-10-07T14:18:43.4703007Z fatal: clone of 'https://gitlab.com/libeigen/eigen.git' into submodule path '/github/workspace/src/SU2_refs_pull_2969_merge/externals/eigen' failed\nBuild SU2 (BaseOMP)\tUNKNOWN STEP\t2026-10-07T14:18:43.4726016Z Failed to clone 'externals/eigen' a second time, aborting\nBuild SU2 (BaseOMP)\tUNKNOWN STEP\t2026-10-07T14:18:44.8181283Z Cloning into '/github/workspace/src/SU2_refs_pull_2969_merge/externals/eigen'...\nBuild SU2 (BaseOMP)\tUNKNOWN STEP\t2026-10-07T14:18:45.1988948Z fatal: remote error: GitLab is currently unable to handle this request due to load (ID a46d896f99bdc9b0-IAD).\nBuild SU2 (BaseOMP)\tUNKNOWN STEP\t2026-10-07T14:18:45.2001018Z fatal: clone of 'https://gitlab.com/libeigen/eigen.git' into submodule path '/github/workspace/src/SU2_refs_pull_2969_merge/externals/eigen' failed\nBuild SU2 (BaseOMP)\tUNKNOWN STEP\t2026-10-07T14:18:45.2023281Z Failed to clone 'externals/eigen'. Retry scheduled\nBuild SU2 (BaseOMP)\tUNKNOWN STEP\t2026-10-07T14:18:45.2047655Z Cloning into '/github/workspace/src/SU2_refs_pull_2969_merge/externals/eigen'...\nBuild SU2 (BaseOMP)\tUNKNOWN STEP\t2026-10-07T14:18:45.5771158Z fatal: remote error: GitLab is currently unable to handle this request due to load (ID a46d8972081c7077-IAD).\nBuild SU2 (BaseOMP)\tUNKNOWN STEP\t2026-10-07T14:18:45.5782472Z fatal: clone of 'https://gitlab.com/libeigen/eigen.git' into submodule path '/github/workspace/src/SU2_refs_pull_2969_merge/externals/eigen' failed\nBuild SU2 (BaseOMP)\tUNKNOWN STEP\t2026-10-07T14:18:45.5807966Z Failed to clone 'externals/eigen' a second time, aborting\nBuild SU2 (BaseOMP)\tUNKNOWN STEP\t2026-10-07T14:18:45.9382339Z Cloning into '/github/workspace/src/SU2_refs_pull_2969_merge/externals/eigen'...\nBuild SU2 (BaseOMP)\tUNKNOWN STEP\t2026-10-07T14:18:46.3153299Z fatal: remote error: GitLab is currently unable to handle this request due to load (ID a46d8976ad7024ad-IAD).\nBuild SU2 (BaseOMP)\tUNKNOWN STEP\t2026-10-07T14:18:46.3171505Z fatal: clone of 'https://gitlab.com/libeigen/eigen.git' into submodule path '/github/workspace/src/SU2_refs_pull_2969_merge/externals/eigen' failed\nBuild SU2 (BaseOMP)\tUNKNOWN STEP\t2026-10-07T14:18:46.3192649Z Failed to clone 'externals/eigen'. Retry scheduled\nBuild SU2 (BaseOMP)\tUNKNOWN STEP\t2026-10-07T14:18:46.3216112Z Cloning into '/github/workspace/src/SU2_refs_pull_2969_merge/externals/eigen'...\nBuild SU2 (BaseOMP)\tUNKNOWN STEP\t2026-10-07T14:18:53.7384932Z Submodule path 'externals/eigen': checked out 'd71c30c47858effcbd39967097a2d99ee48db464'\nBuild SU2 (BaseOMP)\tUNKNOWN STEP\t2026-10-07T14:18:53.8550742Z Submodule path 'externals/eigen': checked out 'd71c30c47858effcbd39967097a2d99ee48db464'\nBuild SU2 (BaseOMP)\tUNKNOWN STEP\t2026-10-07T14:18:53.8667654Z Initialize submodule /github/workspace/src/SU2_refs_pull_2969_merge/externals/eigen using git ... \nBuild SU2 (BaseOMP)\tUNKNOWN STEP\t2026-10-07T14:18:53.8671003Z ninja executable not found. Building ...\nBuild SU2 (BaseOMP)\tUNKNOWN STEP\t2026-10-07T14:18:53.8685576Z FileNotFoundError: [Errno 2] No such file or directory: '/github/workspace/src/SU2_refs_pull_2969_merge/ninja'\nBuild SU2 (BaseOMP)\tUNKNOWN STEP\t2026-10-07T14:18:53.8690054Z FileNotFoundError: [Errno 2] No such file or directory: '/github/workspace/src/SU2_refs_pull_2969_merge/externals/ninja/ninja'\nBuild SU2 (BaseOMP)\tUNKNOWN STEP\t2026-10-07T14:18:53.8754664Z /compileSU2.sh: 74: ./ninja: not found",
+      "stderr": ""
+    },
+    {
+      "pr": 2969,
+      "check": "Build SU2 (BaseNoMPI)",
+      "conclusion": "failure",
+      "url": "https://github.com/su2code/SU2/actions/runs/37631263654/job/112826307838",
+      "command": [
+        "gh",
+        "run",
+        "view",
+        "--repo",
+        "su2code/SU2",
+        "--job",
+        "112826307838",
+        "--log-failed"
+      ],
+      "log_read_exit": 0,
+      "excerpt": "Build SU2 (BaseNoMPI)\tUNKNOWN STEP\t2026-10-07T14:12:05.4382288Z Getting action download info\nBuild SU2 (BaseNoMPI)\tUNKNOWN STEP\t2026-10-07T14:12:05.6839313Z Download action repository 'actions/cache@v5' (SHA:caa296126883cff596d87d8935842f9db880ef25)\nBuild SU2 (BaseNoMPI)\tUNKNOWN STEP\t2026-10-07T14:12:05.9447355Z Download action repository 'actions/upload-artifact@v7' (SHA:cf430e030ddbb5b0abf93d22962f4752f3646cd9)\nBuild SU2 (BaseNoMPI)\tUNKNOWN STEP\t2026-10-07T14:12:08.4915503Z f6f7f9af6d56: Download complete\nBuild SU2 (BaseNoMPI)\tUNKNOWN STEP\t2026-10-07T14:12:08.6670596Z 817807f3c64e: Download complete\nBuild SU2 (BaseNoMPI)\tUNKNOWN STEP\t2026-10-07T14:12:08.6768663Z f5aa802de1c5: Download complete\nBuild SU2 (BaseNoMPI)\tUNKNOWN STEP\t2026-10-07T14:12:10.1619276Z 63e3f9591413: Download complete\nBuild SU2 (BaseNoMPI)\tUNKNOWN STEP\t2026-10-07T14:12:37.8912220Z Status: Downloaded newer image for ghcr.io/su2code/su2/build-su2:260405-0054\nBuild SU2 (BaseNoMPI)\tUNKNOWN STEP\t2026-10-07T14:12:38.1367529Z Cache not found for input keys: BaseNoMPI-06e262232bedb987b0bf0b3c8721d45f230bf87b, BaseNoMPI\nBuild SU2 (BaseNoMPI)\tUNKNOWN STEP\t2026-10-07T14:12:40.4699443Z Submodule 'externals/eigen' (https://gitlab.com/libeigen/eigen.git) registered for path 'externals/eigen'\nBuild SU2 (BaseNoMPI)\tUNKNOWN STEP\t2026-10-07T14:12:41.8120198Z Cloning into '/github/workspace/src/SU2_refs_pull_2969_merge/externals/eigen'...\nBuild SU2 (BaseNoMPI)\tUNKNOWN STEP\t2026-10-07T14:12:55.6803961Z fatal: remote error: GitLab is currently unable to handle this request due to load (ID a46d80e72d45f157-ORD).\nBuild SU2 (BaseNoMPI)\tUNKNOWN STEP\t2026-10-07T14:12:55.6809083Z fatal: Fetched in submodule path 'externals/eigen', but it did not contain d71c30c47858effcbd39967097a2d99ee48db464. Direct fetching of that commit failed.\nBuild SU2 (BaseNoMPI)\tUNKNOWN STEP\t2026-10-07T14:12:56.7519223Z M\texternals/eigen\nBuild SU2 (BaseNoMPI)\tUNKNOWN STEP\t2026-10-07T14:12:57.1981844Z fatal: remote error: GitLab is currently unable to handle this request due to load (ID a46d80f089658c0a-ORD).\nBuild SU2 (BaseNoMPI)\tUNKNOWN STEP\t2026-10-07T14:12:57.1982900Z Unable to fetch in submodule path 'externals/eigen'; trying to directly fetch d71c30c47858effcbd39967097a2d99ee48db464:\nBuild SU2 (BaseNoMPI)\tUNKNOWN STEP\t2026-10-07T14:12:57.6665294Z fatal: remote error: GitLab is currently unable to handle this request due to load (ID a46d80f33ac19121-ORD).\nBuild SU2 (BaseNoMPI)\tUNKNOWN STEP\t2026-10-07T14:12:57.6670515Z fatal: Fetched in submodule path 'externals/eigen', but it did not contain d71c30c47858effcbd39967097a2d99ee48db464. Direct fetching of that commit failed.\nBuild SU2 (BaseNoMPI)\tUNKNOWN STEP\t2026-10-07T14:12:57.9921286Z WARNING: the currently checked out submodule commit in /github/workspace/src/SU2_refs_pull_2969_merge/externals/eigen does not match the SHA-1 found in the index.\nBuild SU2 (BaseNoMPI)\tUNKNOWN STEP\t2026-10-07T14:12:57.9922226Z Use 'git submodule update --init /github/workspace/src/SU2_refs_pull_2969_merge/externals/eigen' to reset the module if necessary.\nBuild SU2 (BaseNoMPI)\tUNKNOWN STEP\t2026-10-07T14:12:58.0018125Z ninja executable not found. Building ...\nBuild SU2 (BaseNoMPI)\tUNKNOWN STEP\t2026-10-07T14:12:58.0041510Z FileNotFoundError: [Errno 2] No such file or directory: '/github/workspace/src/SU2_refs_pull_2969_merge/ninja'\nBuild SU2 (BaseNoMPI)\tUNKNOWN STEP\t2026-10-07T14:12:58.0046117Z FileNotFoundError: [Errno 2] No such file or directory: '/github/workspace/src/SU2_refs_pull_2969_merge/externals/ninja/ninja'\nBuild SU2 (BaseNoMPI)\tUNKNOWN STEP\t2026-10-07T14:12:58.0105553Z /compileSU2.sh: 74: ./ninja: not found",
+      "stderr": ""
+    },
+    {
+      "pr": 2969,
+      "check": "Build SU2 (ForwardMPI)",
+      "conclusion": "failure",
+      "url": "https://github.com/su2code/SU2/actions/runs/37631263654/job/112826307818",
+      "command": [
+        "gh",
+        "run",
+        "view",
+        "--repo",
+        "su2code/SU2",
+        "--job",
+        "112826307818",
+        "--log-failed"
+      ],
+      "log_read_exit": 0,
+      "excerpt": "Build SU2 (ForwardMPI)\tUNKNOWN STEP\t2026-10-07T14:12:05.8824462Z Download action repository 'actions/cache@v5' (SHA:caa296126883cff596d87d8935842f9db880ef25)\nBuild SU2 (ForwardMPI)\tUNKNOWN STEP\t2026-10-07T14:12:06.0602936Z Download action repository 'actions/upload-artifact@v7' (SHA:cf430e030ddbb5b0abf93d22962f4752f3646cd9)\nBuild SU2 (ForwardMPI)\tUNKNOWN STEP\t2026-10-07T14:12:06.8702972Z f6f7f9af6d56: Download complete\nBuild SU2 (ForwardMPI)\tUNKNOWN STEP\t2026-10-07T14:12:06.9298037Z f5aa802de1c5: Download complete\nBuild SU2 (ForwardMPI)\tUNKNOWN STEP\t2026-10-07T14:12:06.9905611Z 817807f3c64e: Download complete\nBuild SU2 (ForwardMPI)\tUNKNOWN STEP\t2026-10-07T14:12:10.3103784Z 63e3f9591413: Download complete\nBuild SU2 (ForwardMPI)\tUNKNOWN STEP\t2026-10-07T14:12:32.6776047Z Status: Downloaded newer image for ghcr.io/su2code/su2/build-su2:260405-0054\nBuild SU2 (ForwardMPI)\tUNKNOWN STEP\t2026-10-07T14:12:32.9386724Z Cache not found for input keys: ForwardMPI-06e262232bedb987b0bf0b3c8721d45f230bf87b, ForwardMPI\nBuild SU2 (ForwardMPI)\tUNKNOWN STEP\t2026-10-07T14:12:35.1993565Z Submodule 'externals/eigen' (https://gitlab.com/libeigen/eigen.git) registered for path 'externals/eigen'\nBuild SU2 (ForwardMPI)\tUNKNOWN STEP\t2026-10-07T14:12:35.8653767Z Cloning into '/github/workspace/src/SU2_refs_pull_2969_merge/externals/eigen'...\nBuild SU2 (ForwardMPI)\tUNKNOWN STEP\t2026-10-07T14:12:45.2446027Z fatal: remote error: GitLab is currently unable to handle this request due to load (ID a46d80a5c868989d-IAD).\nBuild SU2 (ForwardMPI)\tUNKNOWN STEP\t2026-10-07T14:12:45.2451612Z Unable to fetch in submodule path 'externals/eigen'; trying to directly fetch d71c30c47858effcbd39967097a2d99ee48db464:\nBuild SU2 (ForwardMPI)\tUNKNOWN STEP\t2026-10-07T14:12:45.6106946Z fatal: remote error: GitLab is currently unable to handle this request due to load (ID a46d80a84c1c0020-IAD).\nBuild SU2 (ForwardMPI)\tUNKNOWN STEP\t2026-10-07T14:12:45.6114049Z fatal: Fetched in submodule path 'externals/eigen', but it did not contain d71c30c47858effcbd39967097a2d99ee48db464. Direct fetching of that commit failed.\nBuild SU2 (ForwardMPI)\tUNKNOWN STEP\t2026-10-07T14:12:46.5418862Z M\texternals/eigen\nBuild SU2 (ForwardMPI)\tUNKNOWN STEP\t2026-10-07T14:12:46.9670083Z fatal: remote error: GitLab is currently unable to handle this request due to load (ID a46d80b0da453f01-IAD).\nBuild SU2 (ForwardMPI)\tUNKNOWN STEP\t2026-10-07T14:12:46.9673135Z Unable to fetch in submodule path 'externals/eigen'; trying to directly fetch d71c30c47858effcbd39967097a2d99ee48db464:\nBuild SU2 (ForwardMPI)\tUNKNOWN STEP\t2026-10-07T14:12:47.7061677Z fatal: remote error: GitLab is currently unable to handle this request due to load (ID a46d80b57804e629-IAD).\nBuild SU2 (ForwardMPI)\tUNKNOWN STEP\t2026-10-07T14:12:47.7067495Z fatal: Fetched in submodule path 'externals/eigen', but it did not contain d71c30c47858effcbd39967097a2d99ee48db464. Direct fetching of that commit failed.\nBuild SU2 (ForwardMPI)\tUNKNOWN STEP\t2026-10-07T14:12:48.1578143Z WARNING: the currently checked out submodule commit in /github/workspace/src/SU2_refs_pull_2969_merge/externals/eigen does not match the SHA-1 found in the index.\nBuild SU2 (ForwardMPI)\tUNKNOWN STEP\t2026-10-07T14:12:48.1579696Z Use 'git submodule update --init /github/workspace/src/SU2_refs_pull_2969_merge/externals/eigen' to reset the module if necessary.\nBuild SU2 (ForwardMPI)\tUNKNOWN STEP\t2026-10-07T14:12:48.1728727Z ninja executable not found. Building ...\nBuild SU2 (ForwardMPI)\tUNKNOWN STEP\t2026-10-07T14:12:48.1736178Z FileNotFoundError: [Errno 2] No such file or directory: '/github/workspace/src/SU2_refs_pull_2969_merge/ninja'\nBuild SU2 (ForwardMPI)\tUNKNOWN STEP\t2026-10-07T14:12:48.1742274Z FileNotFoundError: [Errno 2] No such file or directory: '/github/workspace/src/SU2_refs_pull_2969_merge/externals/ninja/ninja'\nBuild SU2 (ForwardMPI)\tUNKNOWN STEP\t2026-10-07T14:12:48.1845821Z /compileSU2.sh: 74: ./ninja: not found",
+      "stderr": ""
+    }
+  ],
+  "note": "Original branch-heads.json retains the heads used for numerical validation. The cleanup changes only local names and one supported-value-preserving cast; no CFD reruns or reference updates. Combined checkpoint includes the closed implicit experiment and was not changed."
+}
