@@ -352,3 +352,41 @@ removing the former did not resolve the latter. Integration should preserve
 main's sensor-only donor field, geometric BL evaluation and finer sensor demands.
 Independent Hessian/WLS changes remain assessable separately; the BL, constrained
 complexity and gradation architecture needs the reconciliation described above.
+
+## Noise configuration and main-compatible gradation proposal
+
+The noise filter is already controlled by one config option; no second boolean
+is needed. `ADAP_HESSIAN_NOISE=0.0` is OFF and remains the default. A positive
+value is ON and sets strength; `1.0` uses one estimated uncertainty.
+Enabled filtering requires `NUM_METHOD_HESS=QUADRATIC_LEAST_SQUARES`.
+The config template now gives explicit OFF/ON examples. Three existing checks
+for default unfiltered noisy curvature, opt-in shrinkage and a resolved steep
+profile passed again; this does not supersede the failed enabled-noise RAE gate.
+
+The following is a proposed integration sequence, **not implemented main support**:
+
+1. For each complexity scale trial, bound and grade the sensor tensors using
+   transported-neighbor intersection. Keep hard-normal BL projection out of
+   that sweep. Require the actual directed-edge residual for acceptance;
+   small changes alone do not establish that constraints are satisfied.
+2. Freeze the resulting sensor field on the donor. At each actual query,
+   interpolate that field and invoke main's geometric BL composition against
+   the original wall. Preserve finer sensor demands and the existing fade;
+   apply the BL constraint once. Do not interpolate composed nodal wall tensors.
+3. Estimate complexity from that same query composition, using quadrature that
+   resolves the thin geometric band on coarse cells. The fade's core parameter
+   must be consistent per trial and frozen for final queries; no collectives
+   belong inside candidate-point callbacks.
+4. Audit the composed field separately. Sensor-field gradation does **not**
+   automatically establish gradation after geometric BL intersection, including
+   between sampled donor nodes and new candidate points. Main's lower-bound
+   intersection removes the hard-normal reset conflict, but size/aspect limits,
+   geometry variation and finite propagation still require checks.
+
+If full composed-field gradation is required, a separate geometric-aware
+correction representation is needed. Evaluate BL at the transport/query
+locations and retain only the additional gradation demand, with support adequate
+to resolve its spatial variation. Merely interpolating a nodal correction that
+contains the fine wall tensor can reproduce the coarse-seed spreading defect.
+This needs design and validation before code integration, especially for private
+and remote queries. Main's original-geometry callback remains authoritative.
