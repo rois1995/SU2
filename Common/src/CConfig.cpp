@@ -3268,8 +3268,8 @@ void CConfig::SetConfig_Options() {
   /*!\brief COMPUTE_METRIC \n DESCRIPTION: Compute the adaptation metric \ingroup Config */
   addBoolOption("COMPUTE_METRIC", Compute_Metric, false);
 
-  /*!\brief NUM_METHOD_HESS \n DESCRIPTION: Numerical method for Hessian computation \n OPTIONS: See \link Gradient_Map \endlink. \n DEFAULT: GREEN_GAUSS. \ingroup Config*/
-  addEnumOption("NUM_METHOD_HESS", Kind_Hessian_Method, Gradient_Map, GREEN_GAUSS);
+  /*!\brief NUM_METHOD_HESS \n DESCRIPTION: Numerical method for Hessian computation \n OPTIONS: See \link Hessian_Map \endlink. \n DEFAULT: GREEN_GAUSS. \ingroup Config*/
+  addEnumOption("NUM_METHOD_HESS", Kind_Hessian_Method, Hessian_Map, GREEN_GAUSS);
 
   /*!\brief ADAP_SENSOR \n DESCRIPTION: Sensors for mesh adaptation \ingroup Config */
   addStringListOption("ADAP_SENSOR", nAdap_Sensor, Adap_Sensor);
@@ -6361,8 +6361,14 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
                      CURRENT_FUNCTION);
     }
     if (nAdap_Sensor == 0) SU2_MPI::Error("COMPUTE_METRIC = YES requires ADAP_SENSOR.", CURRENT_FUNCTION);
-    if (Kind_Hessian_Method != GREEN_GAUSS && Kind_Hessian_Method != WEIGHTED_LEAST_SQUARES) {
-      SU2_MPI::Error("NUM_METHOD_HESS must be GREEN_GAUSS or WEIGHTED_LEAST_SQUARES.", CURRENT_FUNCTION);
+    if (Kind_Hessian_Method == QUADRATIC_LEAST_SQUARES) {
+      if (goalMetric || nMarker_PerBound != 0 || nMarker_SymWall != 0)
+        SU2_MPI::Error("QUADRATIC_LEAST_SQUARES currently requires primal sensors without periodic or symmetry markers.",
+                       CURRENT_FUNCTION);
+#if defined(CODI_FORWARD_TYPE) || defined(CODI_REVERSE_TYPE)
+      SU2_MPI::Error("QUADRATIC_LEAST_SQUARES currently supports the primal, non-differentiated executable only.",
+                     CURRENT_FUNCTION);
+#endif
     }
     vector<string> Sensor_Avail{"MACH", "PRESSURE", "TEMPERATURE", "ENERGY", "DENSITY", "TOTALPRESSURE"};
     for (const auto& definition : Adap_CustomDefinitions) Sensor_Avail.push_back(definition.first);

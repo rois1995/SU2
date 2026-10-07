@@ -1859,7 +1859,14 @@ enum ENUM_FLOW_GRADIENT {
   NO_GRADIENT            = 0,   /*!< \brief No gradient method. Only possible for reconstruction gradient, in which case, the option chosen for NUM_METHOD_GRAD is used. */
   GREEN_GAUSS            = 1,   /*!< \brief Gradient computation using Green-Gauss theorem. */
   LEAST_SQUARES          = 2,   /*!< \brief Gradient computation using unweighted least squares. */
-  WEIGHTED_LEAST_SQUARES = 3    /*!< \brief Gradients computation using inverse-distance weighted least squares. */
+  WEIGHTED_LEAST_SQUARES = 3,   /*!< \brief Gradients computation using inverse-distance weighted least squares. */
+  QUADRATIC_LEAST_SQUARES = 4   /*!< \brief Primal adaptation Hessians from a scaled quadratic QR fit. */
+};
+
+static const MapType<std::string, ENUM_FLOW_GRADIENT> Hessian_Map = {
+  MakePair("GREEN_GAUSS", GREEN_GAUSS)
+  MakePair("WEIGHTED_LEAST_SQUARES", WEIGHTED_LEAST_SQUARES)
+  MakePair("QUADRATIC_LEAST_SQUARES", QUADRATIC_LEAST_SQUARES)
 };
 static const MapType<std::string, ENUM_FLOW_GRADIENT> Gradient_Map = {
   MakePair("NONE", NO_GRADIENT)

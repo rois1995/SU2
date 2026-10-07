@@ -28,6 +28,34 @@
 
 #include "computeGradientsGreenGauss.hpp"
 #include "computeGradientsLeastSquares.hpp"
+#include "../../../Common/include/linear_algebra/blas_structure.hpp"
+
+namespace detail {
+/*!
+ * \brief Reciprocal condition of the coordinate-equilibrated LS normal matrix.
+ * \note Passive diagnostic only: the solve and its derivatives are unchanged. Zero means a missing,
+ *       non-finite or numerically singular direction. This is the condition of A^T A, not of A.
+ */
+template <class RMatrixType>
+passivedouble hessianStencilReciprocalCondition(unsigned short nDim, unsigned long point, const RMatrixType& R) {
+  passivedouble scale[3], normal[3][3] = {}, vec[3][3], val[3], work[3];
+  for (unsigned short i = 0; i < nDim; ++i) {
+    const auto diagonal = SU2_TYPE::GetValue(R(point, i, i));
+    if (!(diagonal > 0.0) || !std::isfinite(diagonal)) return 0.0;
+    scale[i] = sqrt(diagonal);
+  }
+  for (unsigned short i = 0; i < nDim; ++i) {
+    for (unsigned short j = i; j < nDim; ++j) {
+      normal[i][j] = normal[j][i] = SU2_TYPE::GetValue(R(point, i, j)) / scale[i] / scale[j];
+      if (!std::isfinite(normal[i][j])) return 0.0;
+    }
+  }
+  CBlasStructure::EigenDecomposition(normal, vec, val, nDim, work);
+  const auto largest = *std::max_element(val, val + nDim), smallest = *std::min_element(val, val + nDim);
+  if (!(largest > 0.0) || !std::isfinite(largest) || !std::isfinite(smallest)) return 0.0;
+  return std::max(passivedouble(0.0), smallest / largest);
+}
+}  // namespace detail
 
 /*!
  * \brief Compute Hessians by differentiating the gradients, then symmetrizing the result.

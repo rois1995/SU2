@@ -28,6 +28,7 @@
 
 #include "../../include/solvers/CSolver.hpp"
 #include "../../../Common/include/adaptation/CMeshGather.hpp"
+#include "../../../Common/include/parallelization/CPassiveComm.hpp"
 
 #include <limits>
 #include <queue>
@@ -35,6 +36,7 @@
 #include "../../include/gradients/computeGradientsGreenGauss.hpp"
 #include "../../include/gradients/computeGradientsLeastSquares.hpp"
 #include "../../include/gradients/computeHessians.hpp"
+#include "../../include/gradients/computeHessiansQuadratic.hpp"
 #include "../../include/limiters/computeLimiters.hpp"
 #include "../../../Common/include/toolboxes/MMS/CIncTGVSolution.hpp"
 #include "../../../Common/include/toolboxes/MMS/CInviscidVortexSolution.hpp"
@@ -2402,7 +2404,8 @@ void CSolver::SetAuxVar_Gradient_LS(CGeometry *geometry, const CConfig *config) 
 void CSolver::SetHessian_Adapt(CGeometry *geometry, const CConfig *config) {
   SU2_ZONE_SCOPED
 
-  const auto method = static_cast<ENUM_FLOW_GRADIENT>(config->GetKind_Hessian_Method());
+  const auto requestedMethod = static_cast<ENUM_FLOW_GRADIENT>(config->GetKind_Hessian_Method());
+  const auto method = requestedMethod == QUADRATIC_LEAST_SQUARES ? WEIGHTED_LEAST_SQUARES : requestedMethod;
   const auto nSensor = config->GetnAdap_Sensor();
   const auto& sensor = base_nodes->GetAuxVar_Adapt();
   auto& gradient = base_nodes->GetGradient_Adapt();
@@ -2439,6 +2442,33 @@ void CSolver::SetHessian_Adapt(CGeometry *geometry, const CConfig *config) {
 
   computeHessians(this, method, *geometry, *config, gradient, 0, nSensor, base_nodes->GetHessian_Field(),
                   base_nodes->GetHessian_Grad(), base_nodes->GetRmatrix(), hessian);
+
+  if (requestedMethod == QUADRATIC_LEAST_SQUARES) {
+    computeHessiansQuadratic(*geometry, nSensor, sensor, gradient, hessian);
+    InitiateComms(geometry, config, MPI_QUANTITIES::GRADIENT_ADAPT);
+    CompleteComms(geometry, config, MPI_QUANTITIES::GRADIENT_ADAPT);
+  } else if (method == WEIGHTED_LEAST_SQUARES) {
+    /*--- One geometric stencil for all sensors and both derivative passes; count owners only.
+     *    A finite Hessian can still be unreliable when these normal equations lose numerical rank. ---*/
+    const auto eps = std::numeric_limits<passivedouble>::epsilon();
+    unsigned long local[2] = {}, global[2] = {};
+    passivedouble localWorst = 1.0, worst = 1.0;
+    for (auto point = 0ul; point < nPointDomain; ++point) {
+      const auto rcond = detail::hessianStencilReciprocalCondition(nDim, point, base_nodes->GetRmatrix());
+      localWorst = std::min(localWorst, rcond);
+      if (rcond <= 64 * eps) ++local[0];
+      else if (rcond < sqrt(eps)) ++local[1];
+    }
+    CPassiveComm::Allreduce(local, global, 2, CPassiveComm::Op::SUM);
+    CPassiveComm::Allreduce(&localWorst, &worst, 1, CPassiveComm::Op::MIN);
+    if (rank == MASTER_NODE) {
+      cout << "Hessian WLS stencil statistics: " << global[0] << " numerically deficient, " << global[1]
+           << " poorly conditioned owned points; minimum normalized reciprocal condition " << worst << "." << endl;
+      if (global[0] + global[1] > 0)
+        cout << "WARNING: Weighted least-squares Hessians may be inaccurate even when finite. "
+             << "Check directional coverage of the reconstruction stencils." << endl;
+    }
+  }
 
   /*--- Same Hessians on both sides of periodic boundaries, then on halo points. ---*/
 
