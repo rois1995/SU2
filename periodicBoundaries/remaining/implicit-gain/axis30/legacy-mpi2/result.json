@@ -1,0 +1,40 @@
+{
+  "case": "axis30",
+  "mode": "legacy-mpi2",
+  "ranks": 2,
+  "command": [
+    "nice",
+    "-n",
+    "10",
+    "timeout",
+    "-k",
+    "5",
+    "300",
+    "mpirun",
+    "-np",
+    "2",
+    "/media/rausa/4TB/SU2_Versions/Prove/periodic/remaining_20261007/build_gain/SU2_CFD/src/SU2_CFD-unprojected",
+    "run.cfg"
+  ],
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "SU2_PERIODIC_COUPLING_COMPARE": "legacy"
+  },
+  "exit": 0,
+  "wall_seconds": 1.7254685999978392,
+  "iterations": 1698,
+  "linear_iterations": 11859.0,
+  "final": {
+    "Time_Iter": 0.0,
+    "Outer_Iter": 0.0,
+    "Inner_Iter": 1697.0,
+    "rms[Rho]": -10.00275714,
+    "rms[RhoU]": -8.03952342,
+    "rms[RhoV]": -8.111413689,
+    "rms[RhoW]": -6.576925031,
+    "rms[RhoE]": -4.646900756,
+    "Linear_Solver_Iterations": 7.0,
+    "LinSolRes": -6.603491999
+  },
+  "converged": true
+}

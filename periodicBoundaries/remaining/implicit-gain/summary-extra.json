@@ -1,0 +1,196 @@
+[
+  {
+    "case": "rotation45-linear50",
+    "mode": "fixed-initial",
+    "ranks": 1,
+    "command": [
+      "nice",
+      "-n",
+      "10",
+      "timeout",
+      "-k",
+      "5",
+      "300",
+      "/media/rausa/4TB/SU2_Versions/Prove/periodic/remaining_20261007/build_gain/SU2_CFD/src/SU2_CFD-unprojected",
+      "run.cfg"
+    ],
+    "environment": {
+      "OMP_NUM_THREADS": "1",
+      "SU2_PERIODIC_COUPLING_COMPARE": "fixed"
+    },
+    "exit": 0,
+    "wall_seconds": 22.226548156999343,
+    "iterations": 807,
+    "linear_iterations": 19818.0,
+    "final": {
+      "Time_Iter": 0.0,
+      "Outer_Iter": 0.0,
+      "Inner_Iter": 806.0,
+      "rms[Rho]": -10.04051618,
+      "rms[RhoU]": -8.145355629,
+      "rms[RhoV]": -7.759075915,
+      "rms[RhoE]": -5.439739299,
+      "Linear_Solver_Iterations": 27.0,
+      "LinSolRes": -1.066000015
+    },
+    "converged": true
+  },
+  {
+    "case": "rotation45",
+    "mode": "legacy-mpi2",
+    "ranks": 2,
+    "command": [
+      "nice",
+      "-n",
+      "10",
+      "timeout",
+      "-k",
+      "5",
+      "300",
+      "mpirun",
+      "-np",
+      "2",
+      "/media/rausa/4TB/SU2_Versions/Prove/periodic/remaining_20261007/build_gain/SU2_CFD/src/SU2_CFD-unprojected",
+      "run.cfg"
+    ],
+    "environment": {
+      "OMP_NUM_THREADS": "1",
+      "SU2_PERIODIC_COUPLING_COMPARE": "legacy"
+    },
+    "exit": 0,
+    "wall_seconds": 5.408213622999028,
+    "iterations": 1684,
+    "linear_iterations": 5797.0,
+    "final": {
+      "Time_Iter": 0.0,
+      "Outer_Iter": 0.0,
+      "Inner_Iter": 1683.0,
+      "rms[Rho]": -10.00184849,
+      "rms[RhoU]": -7.733668822,
+      "rms[RhoV]": -7.359552994,
+      "rms[RhoE]": -4.522150137,
+      "Linear_Solver_Iterations": 4.0,
+      "LinSolRes": -1.245493126
+    },
+    "converged": true
+  },
+  {
+    "case": "rotation45",
+    "mode": "fixed-initial-mpi2",
+    "ranks": 2,
+    "command": [
+      "nice",
+      "-n",
+      "10",
+      "timeout",
+      "-k",
+      "5",
+      "300",
+      "mpirun",
+      "-np",
+      "2",
+      "/media/rausa/4TB/SU2_Versions/Prove/periodic/remaining_20261007/build_gain/SU2_CFD/src/SU2_CFD-unprojected",
+      "run.cfg"
+    ],
+    "environment": {
+      "OMP_NUM_THREADS": "1",
+      "SU2_PERIODIC_COUPLING_COMPARE": "fixed"
+    },
+    "exit": 0,
+    "wall_seconds": 14.434142494999833,
+    "iterations": 4000,
+    "linear_iterations": 16000.0,
+    "final": {
+      "Time_Iter": 0.0,
+      "Outer_Iter": 0.0,
+      "Inner_Iter": 3999.0,
+      "rms[Rho]": -6.803199242,
+      "rms[RhoU]": -4.087354639,
+      "rms[RhoV]": -3.853759327,
+      "rms[RhoE]": -1.323760039,
+      "Linear_Solver_Iterations": 4.0,
+      "LinSolRes": -0.001193635732
+    },
+    "converged": false
+  },
+  {
+    "case": "axis30",
+    "mode": "legacy-mpi2",
+    "ranks": 2,
+    "command": [
+      "nice",
+      "-n",
+      "10",
+      "timeout",
+      "-k",
+      "5",
+      "300",
+      "mpirun",
+      "-np",
+      "2",
+      "/media/rausa/4TB/SU2_Versions/Prove/periodic/remaining_20261007/build_gain/SU2_CFD/src/SU2_CFD-unprojected",
+      "run.cfg"
+    ],
+    "environment": {
+      "OMP_NUM_THREADS": "1",
+      "SU2_PERIODIC_COUPLING_COMPARE": "legacy"
+    },
+    "exit": 0,
+    "wall_seconds": 1.7254685999978392,
+    "iterations": 1698,
+    "linear_iterations": 11859.0,
+    "final": {
+      "Time_Iter": 0.0,
+      "Outer_Iter": 0.0,
+      "Inner_Iter": 1697.0,
+      "rms[Rho]": -10.00275714,
+      "rms[RhoU]": -8.03952342,
+      "rms[RhoV]": -8.111413689,
+      "rms[RhoW]": -6.576925031,
+      "rms[RhoE]": -4.646900756,
+      "Linear_Solver_Iterations": 7.0,
+      "LinSolRes": -6.603491999
+    },
+    "converged": true
+  },
+  {
+    "case": "axis30",
+    "mode": "fixed-initial-mpi2",
+    "ranks": 2,
+    "command": [
+      "nice",
+      "-n",
+      "10",
+      "timeout",
+      "-k",
+      "5",
+      "300",
+      "mpirun",
+      "-np",
+      "2",
+      "/media/rausa/4TB/SU2_Versions/Prove/periodic/remaining_20261007/build_gain/SU2_CFD/src/SU2_CFD-unprojected",
+      "run.cfg"
+    ],
+    "environment": {
+      "OMP_NUM_THREADS": "1",
+      "SU2_PERIODIC_COUPLING_COMPARE": "fixed"
+    },
+    "exit": 0,
+    "wall_seconds": 2.8592806269989524,
+    "iterations": 1062,
+    "linear_iterations": 21240.0,
+    "final": {
+      "Time_Iter": 0.0,
+      "Outer_Iter": 0.0,
+      "Inner_Iter": 1061.0,
+      "rms[Rho]": -10.00604345,
+      "rms[RhoU]": -8.514023543,
+      "rms[RhoV]": -8.936592172,
+      "rms[RhoW]": -7.011716732,
+      "rms[RhoE]": -4.675462431,
+      "Linear_Solver_Iterations": 20.0,
+      "LinSolRes": -3.399167586
+    },
+    "converged": true
+  }
+]

@@ -1,0 +1,20 @@
+--- a/SU2_CFD/src/drivers/CDriver.cpp
++++ b/SU2_CFD/src/drivers/CDriver.cpp
+@@ -169,6 +169,17 @@
+        imposing various boundary condition type for the PDE. ---*/
+ 
+       InitializeSolver(config_container[iZone], geometry_container[iZone][iInst], solver_container[iZone][iInst]);
++      // Benchmark-only switch: all other periodic fixes remain identical.
++      const char* comparison = std::getenv("SU2_PERIODIC_COUPLING_COMPARE");
++      if (comparison && std::string(comparison) != "fixed" && std::string(comparison) != "legacy")
++        SU2_MPI::Error("Benchmark mode must be fixed or legacy", CURRENT_FUNCTION);
++      if (comparison && std::string(comparison) == "legacy") {
++        for (unsigned short level = 0; level <= config_container[iZone]->GetnMGLevels(); ++level)
++          solver_container[iZone][iInst][level][FLOW_SOL]->Jacobian.SetPeriodicProjection(-2);
++      }
++      if (rank == MASTER_NODE && comparison)
++        cout << "PERIODIC COUPLING BENCHMARK: " << comparison << endl;
++
+ 
+       /*--- Definition of the numerical method class:
+        numerics_container[#ZONES][#INSTANCES][#MG_GRIDS][#EQ_SYSTEMS][#EQ_TERMS].

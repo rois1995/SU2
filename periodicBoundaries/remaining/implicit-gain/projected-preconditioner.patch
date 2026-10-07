@@ -1,0 +1,165 @@
+diff --git a/Common/include/linear_algebra/CPreconditioner.hpp b/Common/include/linear_algebra/CPreconditioner.hpp
+index d8cbfd9a80..326cea7d14 100644
+--- a/Common/include/linear_algebra/CPreconditioner.hpp
++++ b/Common/include/linear_algebra/CPreconditioner.hpp
+@@ -29,6 +29,7 @@
+ #pragma once
+ 
+ #include <functional>
++#include <memory>
+ #include "../CConfig.hpp"
+ #include "../geometry/CGeometry.hpp"
+ #include "CSysVector.hpp"
+@@ -411,6 +412,28 @@ class CAbstractPreconditioner final : public CPreconditioner<ScalarType> {
+   inline void operator()(const CSysVector<ScalarType>& u, CSysVector<ScalarType>& v) const override { impl(u, v); }
+ };
+ 
++/*! \brief Match K = P A P + I-P with the inverse approximation P B P + I-P. */
++template <class ScalarType>
++class CPeriodicPreconditioner final : public CPreconditioner<ScalarType> {
++ private:
++  std::unique_ptr<CPreconditioner<ScalarType>> preconditioner;
++  CSysMatrix<ScalarType>& matrix;
++  CGeometry* geometry;
++  const CConfig* config;
++
++ public:
++  CPeriodicPreconditioner(CPreconditioner<ScalarType>* prec, CSysMatrix<ScalarType>& mat, CGeometry* geo,
++                          const CConfig* cfg)
++      : preconditioner(prec), matrix(mat), geometry(geo), config(cfg) {}
++
++  void Build() override { preconditioner->Build(); }
++
++  void operator()(const CSysVector<ScalarType>& u, CSysVector<ScalarType>& v) const override {
++    matrix.ApplyPeriodicPreconditioner(u, v, geometry, config,
++                                       [&](const auto& input, auto& output) { (*preconditioner)(input, output); });
++  }
++};
++
+ template <class ScalarType>
+ CPreconditioner<ScalarType>* CPreconditioner<ScalarType>::Create(ENUM_LINEAR_SOLVER_PREC kind,
+                                                                  CSysMatrix<ScalarType>& jacobian, CGeometry* geometry,
+@@ -443,6 +466,9 @@ CPreconditioner<ScalarType>* CPreconditioner<ScalarType>::Create(ENUM_LINEAR_SOL
+       break;
+   }
+ 
++  if (prec && jacobian.HasPeriodicProjection() && config->GetnMarker_Periodic() && !prec->IsIdentity())
++    prec = new CPeriodicPreconditioner<ScalarType>(prec, jacobian, geometry, config);
++
+   return prec;
+ }
+ 
+diff --git a/Common/include/linear_algebra/CSysMatrix.hpp b/Common/include/linear_algebra/CSysMatrix.hpp
+index dc621086b7..748c48f907 100644
+--- a/Common/include/linear_algebra/CSysMatrix.hpp
++++ b/Common/include/linear_algebra/CSysMatrix.hpp
+@@ -711,6 +711,19 @@ class CSysMatrix {
+   void SetPeriodicProjection(int vectorIndex) { periodicVectorIndex = vectorIndex; }
+   bool HasPeriodicProjection() const { return periodicVectorIndex >= -1; }
+ 
++  /*! \brief Preserve the constrained and complementary subspaces when preconditioning. */
++  template <class Apply>
++  void ApplyPeriodicPreconditioner(const CSysVector<ScalarType>& u, CSysVector<ScalarType>& v, CGeometry* geometry,
++                                   const CConfig* config, Apply&& apply) const {
++    if (projectedInput.GetLocSize() != u.GetLocSize()) {
++      SU2_OMP_SAFE_GLOBAL_ACCESS(projectedInput.Initialize(u.GetNBlk(), u.GetNBlkDomain(), u.GetNVar());)
++    }
++    ProjectPeriodic(u, projectedInput, geometry, config);
++    apply(projectedInput, v);
++    ProjectPeriodic(v, v, geometry, config);
++    v += u - projectedInput;
++  }
++
+   /*!
+    * \brief Constructor of the class.
+    */
+diff --git a/UnitTests/Common/linear_algebra/edge_residual_blocks_tests.cpp b/UnitTests/Common/linear_algebra/edge_residual_blocks_tests.cpp
+index bc4706b76d..c2e76a046e 100644
+--- a/UnitTests/Common/linear_algebra/edge_residual_blocks_tests.cpp
++++ b/UnitTests/Common/linear_algebra/edge_residual_blocks_tests.cpp
+@@ -26,6 +26,7 @@
+  */
+ 
+ #include "catch.hpp"
++#include "../../../Common/include/linear_algebra/CPreconditioner.hpp"
+ #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
+ #include "../../UnitQuadTestCase.hpp"
+ 
+@@ -169,6 +170,8 @@ TEST_CASE("SetBlocks and SetOffDiagBlocks with quantized off-diagonal storage",
+ 
+ TEST_CASE("Complete periodic implicit operator and transpose", "[Periodic][LinearAlgebra]") {
+   const auto kind = GENERATE(0u, 1u, 2u, 3u);
++  const auto kindPrec = GENERATE(JACOBI, ILU, LU_SGS);
++  CAPTURE(kind, kindPrec);
+   const bool rotation = kind == 1;
+   const auto nPairs = kind > 1 ? kind : 1u;
+   UnitQuadTestCase field;
+@@ -183,8 +186,9 @@ TEST_CASE("Complete periodic implicit operator and transpose", "[Periodic][Linea
+   if (nPairs > 2) periodic += ", z_minus,z_plus, 0,0,0, 0,0,0, 0,0,1";
+   field.AddOption(periodic + ")");
+   /*--- Avoid asking a float Krylov solver to converge below roundoff. ---*/
+-  field.AddOption("LINEAR_SOLVER_PREC= JACOBI\nLINEAR_SOLVER_ITER= 150");
+-  field.AddOption(sizeof(su2mixedfloat) == sizeof(float) ? "LINEAR_SOLVER_ERROR= 1e-7" : "LINEAR_SOLVER_ERROR= 1e-10");
++  field.AddOption(std::string("LINEAR_SOLVER_PREC= ") +
++                  (kindPrec == JACOBI ? "JACOBI" : (kindPrec == ILU ? "ILU" : "LU_SGS")) + "\nLINEAR_SOLVER_ITER= 150");
++  field.AddOption(sizeof(su2mixedfloat) == sizeof(float) ? "LINEAR_SOLVER_ERROR= 1e-6" : "LINEAR_SOLVER_ERROR= 1e-10");
+   field.InitConfig();
+   field.InitGeometry(true);
+   for (auto pair = 1u; pair <= nPairs; ++pair) field.geometry->MatchPeriodic(field.config.get(), pair);
+@@ -287,6 +291,41 @@ TEST_CASE("Complete periodic implicit operator and transpose", "[Periodic][Linea
+       error = std::max(error, fabs(SU2_TYPE::GetValue(output(i, a)) -
+                                    reference[field.geometry->nodes->GetGlobalIndex(i) * nVar + a]));
+   CHECK(error < 1e-5);
++  /*--- K acts as identity on inconsistent copies. Its preconditioner must preserve
++   * that complement, and keep consistent vectors in the constrained subspace. ---*/
++  {
++    std::unique_ptr<CPreconditioner<su2mixedfloat>> preconditioner(
++        CPreconditioner<su2mixedfloat>::Create(kindPrec, matrix, field.geometry.get(), field.config.get()));
++    SU2_OMP_PARALLEL { preconditioner->Build(); }
++    END_SU2_OMP_PARALLEL
++    for (auto i = 0ul; i < nPoint; ++i)
++      for (auto a = 0u; a < nVar; ++a) {
++        const auto global = field.geometry->nodes->GetGlobalIndex(i) * nVar + a;
++        input(i, a) = x[global] - px[global];
++      }
++    SU2_OMP_PARALLEL { (*preconditioner)(input, transposeOutput); }
++    END_SU2_OMP_PARALLEL
++    error = 0;
++    for (auto i = 0ul; i < nDomain; ++i)
++      for (auto a = 0u; a < nVar; ++a)
++        error = std::max(error, fabs(SU2_TYPE::GetValue(transposeOutput(i, a) - input(i, a))));
++    CHECK(error < 1e-5);
++    for (auto i = 0ul; i < nPoint; ++i)
++      for (auto a = 0u; a < nVar; ++a) input(i, a) = px[field.geometry->nodes->GetGlobalIndex(i) * nVar + a];
++    SU2_OMP_PARALLEL { (*preconditioner)(input, transposeOutput); }
++    END_SU2_OMP_PARALLEL
++    std::vector<su2double> localPreconditioned(size, 0), preconditioned(size);
++    for (auto i = 0ul; i < nDomain; ++i)
++      for (auto a = 0u; a < nVar; ++a)
++        localPreconditioned[field.geometry->nodes->GetGlobalIndex(i) * nVar + a] =
++            SU2_TYPE::GetValue(transposeOutput(i, a));
++    SU2_MPI::Allreduce(localPreconditioned.data(), preconditioned.data(), size, MPI_DOUBLE, MPI_SUM,
++                       SU2_MPI::GetComm());
++    const auto constrained = product(P, preconditioned);
++    error = 0;
++    for (auto i = 0ul; i < size; ++i) error = std::max(error, fabs(constrained[i] - preconditioned[i]));
++    CHECK(error < 1e-5);
++  }
+   /*--- Krylov solution accuracy depends on the arithmetic used by its basis. ---*/
+   const auto solveTolerance =
+       sizeof(su2mixedfloat) == sizeof(float) ? sqrt(std::numeric_limits<float>::epsilon()) : 1e-5;
+@@ -302,6 +341,7 @@ TEST_CASE("Complete periodic implicit operator and transpose", "[Periodic][Linea
+     for (auto a = 0u; a < nVar; ++a)
+       error = std::max(
+           error, fabs(SU2_TYPE::GetValue(solution(i, a)) - x[field.geometry->nodes->GetGlobalIndex(i) * nVar + a]));
++  CAPTURE(system.GetIterations(), system.GetResidual());
+   CHECK(error < solveTolerance);
+   SU2_OMP_PARALLEL { matrix.TransposeInPlace(); }
+   END_SU2_OMP_PARALLEL
+@@ -335,5 +375,6 @@ TEST_CASE("Complete periodic implicit operator and transpose", "[Periodic][Linea
+     for (auto a = 0u; a < nVar; ++a)
+       error = std::max(
+           error, fabs(SU2_TYPE::GetValue(solution(i, a)) - y[field.geometry->nodes->GetGlobalIndex(i) * nVar + a]));
++  CAPTURE(system.GetIterations(), system.GetResidual());
+   CHECK(error < solveTolerance);
+ }

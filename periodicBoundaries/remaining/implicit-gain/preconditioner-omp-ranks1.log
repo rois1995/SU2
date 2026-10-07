@@ -1,0 +1,220 @@
+Filters: [Periodic]
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+MG level 1 has only 78 CVs (< MG_MIN_MESHSIZE=500). Reducing MG levels to 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 2.71948e-16.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 5.75832e-17.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 5.75832e-17.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 5.75832e-17.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 5.75832e-17.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 3.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 3.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 3.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 3.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 3.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 3.
+ Matched 50 points with a max distance of: 0.
+MG level 1 has only 78 CVs (< MG_MIN_MESHSIZE=500). Reducing MG levels to 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Complete periodic implicit operator and transpose
+-------------------------------------------------------------------------------
+../wt_integration/UnitTests/Common/linear_algebra/edge_residual_blocks_tests.cpp:171
+...............................................................................
+
+../wt_integration/UnitTests/Common/linear_algebra/edge_residual_blocks_tests.cpp:379: FAILED:
+  CHECK( error < solveTolerance )
+with expansion:
+  0.0029879606 < 0.000345267
+with messages:
+  kind := 0
+  kindPrec := 1
+  system.GetIterations() := 46
+  system.GetResidual() := 0.0f
+  system.GetIterations() := 46
+  system.GetResidual() := 0.0f
+
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+-------------------------------------------------------------------------------
+Complete periodic implicit operator and transpose
+-------------------------------------------------------------------------------
+../wt_integration/UnitTests/Common/linear_algebra/edge_residual_blocks_tests.cpp:171
+...............................................................................
+
+../wt_integration/UnitTests/Common/linear_algebra/edge_residual_blocks_tests.cpp:345: FAILED:
+  CHECK( error < solveTolerance )
+with expansion:
+  0.0036879211 < 0.000345267
+with messages:
+  kind := 0
+  kindPrec := 4
+  system.GetIterations() := 32
+  system.GetResidual() := 0.0f
+
+../wt_integration/UnitTests/Common/linear_algebra/edge_residual_blocks_tests.cpp:379: FAILED:
+  CHECK( error < solveTolerance )
+with expansion:
+  0.0047610199 < 0.000345267
+with messages:
+  kind := 0
+  kindPrec := 4
+  system.GetIterations() := 32
+  system.GetResidual() := 0.0f
+  system.GetIterations() := 32
+  system.GetResidual() := 0.0f
+
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+-------------------------------------------------------------------------------
+Complete periodic implicit operator and transpose
+-------------------------------------------------------------------------------
+../wt_integration/UnitTests/Common/linear_algebra/edge_residual_blocks_tests.cpp:171
+...............................................................................
+
+../wt_integration/UnitTests/Common/linear_algebra/edge_residual_blocks_tests.cpp:345: FAILED:
+  CHECK( error < solveTolerance )
+with expansion:
+  0.0004929333 < 0.000345267
+with messages:
+  kind := 0
+  kindPrec := 2
+  system.GetIterations() := 29
+  system.GetResidual() := 0.0f
+
+../wt_integration/UnitTests/Common/linear_algebra/edge_residual_blocks_tests.cpp:379: FAILED:
+  CHECK( error < solveTolerance )
+with expansion:
+  0.0003738606 < 0.000345267
+with messages:
+  kind := 0
+  kindPrec := 2
+  system.GetIterations() := 29
+  system.GetResidual() := 0.0f
+  system.GetIterations() := 29
+  system.GetResidual() := 0.0f
+
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 5.75832e-17.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 5.75832e-17.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 5.75832e-17.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 3.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 3.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 3.
+ Matched 50 points with a max distance of: 0.
+===============================================================================
+test cases:   10 |    9 passed | 1 failed
+assertions: 9047 | 9042 passed | 5 failed
+

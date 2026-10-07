@@ -1,0 +1,70 @@
+Filters: Complete periodic implicit operator and transpose
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Complete periodic implicit operator and transpose
+-------------------------------------------------------------------------------
+../wt_integration/UnitTests/Common/linear_algebra/edge_residual_blocks_tests.cpp:171
+...............................................................................
+
+../wt_integration/UnitTests/Common/linear_algebra/edge_residual_blocks_tests.cpp:379: FAILED:
+  CHECK( error < solveTolerance )
+with expansion:
+  0.0004959905 < 0.000345267
+with messages:
+  kind := 0
+  kindPrec := 4
+  system.GetIterations() := 30
+  system.GetResidual() := 0.0f
+  system.GetIterations() := 30
+  system.GetResidual() := 0.0f
+
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 5.75832e-17.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 5.75832e-17.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 5.75832e-17.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 3.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 3.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 1.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 2.
+ Matched 50 points with a max distance of: 0.
+Matching the periodic boundary points for marker pair 3.
+ Matched 50 points with a max distance of: 0.
+===============================================================================
+test cases:    1 |    0 passed | 1 failed
+assertions: 8796 | 8795 passed | 1 failed
+
