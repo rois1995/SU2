@@ -10,10 +10,10 @@ script are in `integration_evidence/metric_robustness_v2_validation.json` and
 
 | ID | Work | Status |
 |---|---|---|
-| 1 | Constrained tensor gradation: classify blocked directions, converge useful updates, reduce repeated work | Prototype: direct constrained 2D updates, PSD transport screening, reusable buffers; validation pending |
-| 2 | Noise-aware Hessian treatment, with controls that retain resolved curvature | Prototype: opt-in QR spectral shrinkage using residual sensitivity; validation pending |
-| 4 | More selective MPI geometry exchange and storage | Prototype: up to 64 occupied spatial boxes per rank; validation pending |
-| 5 | Reuse WLS geometry across sensors and derivative passes | Prototype: reuse WLS normal matrices and share weights across sensors within one adaptation call; validation pending |
+| 1 | Constrained tensor gradation: classify blocked directions, converge useful updates, reduce repeated work | Experimental BL policy: direct updates, sparse stencil work and timings; unit/MPI tests passed, main representation reconciliation required |
+| 2 | Noise-aware Hessian treatment, with controls that retain resolved curvature | Implemented opt-in residual shrinkage with correlated-center uncertainty; exact/noisy/steep-profile and MPI tests passed |
+| 4 | More selective MPI geometry exchange and storage | Implemented conservative occupied query boxes; unit/MPI tests passed; private candidate reference transport remains separate |
+| 5 | Reuse WLS geometry across sensors and derivative passes | Implemented within-call normal-matrix/weight reuse; stretched multisensor equivalence and MPI tests passed |
 
 Performance is an acceptance condition. Check finite SPD tensors, complexity,
 wall-normal spacing, MPI agreement, residual gradation and elapsed time together.
@@ -167,3 +167,91 @@ publication checks when assessing any candidate.
 - Spatial boxes cover all owned points and retain conservative incident-face
   padding. Metadata is bounded per rank; the immutable original reference remains
   replicated and very large MPI process counts still need distributed indexing.
+
+## BL policy divergence raised by the user (2026-10-07)
+
+This branch's native BL policy is a deliberate change from the original/main
+policy, not simply a numerical fix. Original/main intersects each active wall
+with the sensor metric, retains the resulting normal entry (so sensors can
+refine below the BL normal size), and applies a tangential size floor in a small
+near-wall band. It applies BL after the sensor complexity solve; total complexity
+can exceed the sensor target.
+
+The branch instead prescribes the closest wall's normal entry throughout the full
+BL band, removes coupling there, allows tangential refinement for adapted surfaces,
+and includes BL/gradation in the complexity solve. Original-reference chord sizing
+also changes the dependence on current wall edge lengths. These choices address
+spacing drift and refinement feedback, but hard normal spacing can suppress
+legitimate sensor-driven normal refinement. A normal-size upper bound is not the
+same as an equality. Do not describe this as a compatibility-preserving fix or
+claim that spacing/complexity checks establish superior CFD accuracy.
+
+The 128.644 s / 4576-sweep performance baseline is the earlier implementation of
+this branch's constrained policy, **not the original/main implementation**. A
+faster version of that policy is not yet a timing comparison against main.
+
+The inspected NativeIntegrated checkout is `codex/native-unsteady-2d` at
+`b0cbfaf33409f8dac455d19ed85a74b9c1fa9f43`; it also adds `ApplyPoint` for
+pointwise/window use. The metric branch started from `73708f6722` and predates
+that API work. Text/API integration and the BL sizing policy are distinct issues.
+The user has been asked which conflict they mean; no main merge is authorized.
+
+### Confirmed current-main representation contract
+
+User supplied the main agent's reconciliation notes. Inspection confirms commit
+`73b4bf9434266bbc42c62d6239dec4fe127007a0` freezes only the CFD sensor field.
+`CSinglezoneDriver::MakeRemesher` constructs BL constraints from immutable original
+wall components and passes a `MetricComposition` callback to `CNativeRemesher`.
+Every candidate/remote-cavity query interpolates the donor sensor and invokes
+`CBoundaryLayerMetric::ApplyPoint` at that actual position. Native nodal BL
+composition is excluded in the solver. The callback uses intersection, retains
+finer sensor demands and disables the legacy abrupt tangential floor.
+
+Our composite nodal output must **not** feed that callback. In general
+`interpolate(B(x_i,S_i)) != B(x,interpolate(S_i))`; interpolating very large normal
+eigenvalues from a coarse Euler wall spreads tiny sizes into the interior.
+Prescribed normals do not fix that representation error. Frozen adapted-grid
+SPD/height/complexity/MPI checks also do not validate this interpolation contract.
+
+Main's detailed preparation is physically saved at
+`/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/METRIC_ROBUSTNESS_MERGE_PREPARATION.md`
+and committed in `b0cbfaf334`. Keep it as the integration reference. Main has
+validated cross-grid adaptation work newer than this branch's base; do not replace
+that behavior merely to make this branch's nodal checks pass.
+
+Reconciliation requirements retained for follow-up:
+1. Freeze/interpolate sensor-only tensors; apply BL once at every actual query
+   against original wall geometry, including remote/private candidate points.
+2. Use one composition function for complexity estimation and remeshing, including
+   normal/tangential/fade policy. Retain finer sensor demands by default; a hard
+   normal prescription is a separate explicitly selected policy.
+3. Integrate geometric BL density with adequate boundary-aware quadrature on
+   coarse seeds. Nodal volume weights alone can misestimate thin-layer complexity.
+4. Define how gradation propagates sensor and geometric constraints without
+   baking the wall tensors back into the donor interpolation field.
+5. Require coarse Euler-to-BL and BL-to-Euler regressions, sensor-finer-normal
+   coverage and performance comparison with current main, as well as MPI checks.
+
+Hessian recovery, conditioning, QR noise treatment and scoped MPI optimizations
+can be integrated separately. The current BL/complexity/gradation experiments
+remain on the research branch and are **not ready for a blind production merge**.
+
+## Current validation checkpoint
+
+The refinement after `00e9097db5` passed 97 selected serial tests (429643
+assertions), and 24 selected cases per rank on MPI 2/4. This includes within-call
+WLS reuse, exact/invalid/affine/conditioned/periodic/symmetry/Euler-wall Hessians,
+QR noise regularization, native tensor transport, geometry transport and existing
+native/reference tests. Forward/reverse AD syntax probes also instantiate the
+shared inverse and legacy recovery path; these are not full AD runtime validation.
+
+The initial no-pruning RAE experiment reached nodal complexity 60000, a final
+transported ratio printed as 1, 52 last-trial sweeps, 88 complexity trials and
+4569 cumulative sweeps, with 30.745 s of gradation on one rank. This is an
+experimental-policy comparison with the prior branch, not current main. Exact
+unchanged-stencil pruning is now included; final timings and independent audits
+will be recorded separately. WLS's three-sensor stretched-grid microbenchmark
+measured 0.0144882 s for 20 legacy Hessian passes versus 0.00656786 s with reuse.
+Noise-energy reduction on the manufactured checkerboard is about 44%; exact
+quadratic and resolved steep-profile checks remain intact. No fixed fraction of
+noise removal is a universal promise of a one-uncertainty threshold.

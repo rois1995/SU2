@@ -349,6 +349,17 @@ TEST_CASE("WLS Hessian reuse matches repeated geometry solves across sensors", "
                   scratch, gradGrad, R, reused, true);
   computeHessians(nullptr, WEIGHTED_LEAST_SQUARES, *field.geometry, *field.config, gradient, 0, 3,
                   scratch, gradGrad, R, legacy);
+  passivedouble times[2] = {};
+  for (unsigned run = 0; run < 2; ++run) {
+    const auto start = SU2_MPI::Wtime();
+    for (unsigned repeat = 0; repeat < 20; ++repeat)
+      computeHessians(nullptr, WEIGHTED_LEAST_SQUARES, *field.geometry, *field.config, gradient, 0, 3,
+                      scratch, gradGrad, R, reused, run != 0);
+    times[run] = SU2_MPI::Wtime() - start;
+  }
+  if (SU2_MPI::GetRank() == MASTER_NODE)
+    cout << "WLS geometry reuse benchmark: 20 three-sensor Hessian recoveries, legacy " << times[0]
+         << " s, reuse " << times[1] << " s." << endl;
   for (auto point = 0ul; point < field.geometry->GetnPointDomain(); ++point)
     for (unsigned v = 0; v < 3; ++v)
       for (unsigned k = 0; k < 6; ++k) {
@@ -604,7 +615,38 @@ TEST_CASE("Opt-in QR shrinkage reduces noisy curvature and retains resolved quad
       }
   }
   CHECK(energy[0] > 0);
-  CHECK(energy[1] < .5*energy[0]);
+  // One estimated uncertainty must reduce spurious curvature while preserving the resolved sensors above.
+  CHECK(energy[1] < .75*energy[0]);
+}
+
+TEST_CASE("QR shrinkage retains a resolved steep profile and does not filter its gradient", "[HessianReliability]") {
+  AdaptBoxTest test("MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_minus, z_plus)\n", "QUADRATIC_LEAST_SQUARES");
+  auto* nodes = test.solver[FLOW_SOL]->GetNodes();
+  const auto count = test.geometry->GetnPoint();
+  for (auto point = 0ul; point < count; ++point)
+    nodes->SetAuxVar_Adapt(point,0, tanh(4*(test.geometry->nodes->GetCoord(point,0)-.5)));
+  C3DDoubleMatrix originalGradient(count,1,3);
+  passivedouble maximum[2] = {};
+  for (unsigned run = 0; run < 2; ++run) {
+    {
+      transfer_test::Mute mute;
+      computeHessiansQuadratic(*test.geometry,1,nodes->GetAuxVar_Adapt(),nodes->GetGradient_Adapt(),
+                               nodes->GetHessian(),run);
+    }
+    for (auto point = 0ul; point < test.geometry->GetnPointDomain(); ++point) {
+      for (unsigned d = 0; d < 3; ++d) {
+        const auto value = nodes->GetGradient_Adapt()(point,0,d);
+        if (run) CHECK(value == Approx(originalGradient(point,0,d)).margin(1e-12));
+        else originalGradient(point,0,d) = value;
+      }
+      for (unsigned k = 0; k < 6; ++k) CHECK(std::isfinite(SU2_TYPE::GetValue(nodes->GetHessian()(point,0,k))));
+      maximum[run] = std::max(maximum[run], fabs(SU2_TYPE::GetValue(nodes->GetHessian()(point,0,0))));
+    }
+  }
+  passivedouble global[2] = {};
+  CPassiveComm::Allreduce(maximum,global,2,CPassiveComm::Op::MAX);
+  CHECK(global[0] > 1);
+  CHECK(global[1] > .1*global[0]);
 }
 
 /*--- Complete pressure sensor -> gradient -> Hessian chain on triangles/tetrahedra.

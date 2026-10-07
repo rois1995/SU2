@@ -1,5 +1,6 @@
 """Audit the frozen RAE2822 metric comparison (requires NumPy).
 
+An optional CASE_FOLDER selects a later replay (default: rae-native-metric-v2).
 BUILD_DIRECTORY contains rae-hessian/inputs/{mesh.su2,solution.dat},
 rae-native-metric-v2/{weighted,quadratic}_least_squares-mpi{1,2,4}/{fields.csv,solver.log},
 and SU2_CFD/src/SU2_CFD. The fixture uses AIRFOIL, h0=1e-5, g=1.2, T=.02,
@@ -10,7 +11,8 @@ BL spacing/coupling, complexity, MPI disagreement or changed restart fields.
 from pathlib import Path
 import csv,json,re,struct,hashlib,sys
 import numpy as np
-if len(sys.argv)!=2: raise SystemExit('Usage: check_rae2822_metric_constraints.py BUILD_DIRECTORY')
+if len(sys.argv) not in (2,3): raise SystemExit('Usage: check_rae2822_metric_constraints.py BUILD_DIRECTORY [CASE_FOLDER]')
+foldername=sys.argv[2] if len(sys.argv)==3 else 'rae-native-metric-v2'
 root=Path(sys.argv[1]).resolve()
 inputs=root/'rae-hessian/inputs'
 def load(case):
@@ -19,7 +21,7 @@ def load(case):
  return {name:a[:,i] for i,name in enumerate(names)}
 def tensor(d,p):
  A=np.zeros((len(d['x']),2,2));A[:,0,0]=d[p+'_XX'];A[:,0,1]=A[:,1,0]=d[p+'_XY'];A[:,1,1]=d[p+'_YY'];return A
-first=load(root/'rae-native-metric-v2/weighted_least_squares-mpi1');xy=np.column_stack([first['x'],first['y']])
+first=load(root/foldername/'weighted_least_squares-mpi1');xy=np.column_stack([first['x'],first['y']])
 lines=(inputs/'mesh.su2').read_text().splitlines();start=lines.index('MARKER_TAG= AIRFOIL');count=int(lines[start+1].split('=')[1]);edges=np.array([list(map(int,line.split()[1:3])) for line in lines[start+2:start+2+count]])
 a=xy[edges[:,0]];e=xy[edges[:,1]]-a;length=np.linalg.norm(e,axis=1);en=np.column_stack([-e[:,1],e[:,0]])/length[:,None]
 vn=np.zeros_like(xy)
@@ -33,9 +35,11 @@ binary=inputs/'solution.dat'
 with binary.open('rb') as f:
  header=struct.unpack('5i',f.read(20));names=[f.read(33).split(b'\0')[0].decode() for _ in range(header[1])];original=np.fromfile(f,dtype=np.float64,count=header[1]*header[2]).reshape(header[2],header[1])
 summary={'scope':'Frozen adapted RAE2822 RANS/SA restart, zero flow iterations; metric validation only. Closest segment normals independently reconstructed from the wall mesh. No exact Hessian or remeshing accuracy claim.','full_band_points':int(full.sum()),'wall_vertices':len(wall),'cases':{}}
-for folder,target in [('rae-native-metric-v2',60000)]:
+for folder,target in [(foldername,60000)]:
  out=summary['cases'].setdefault(str(target),{})
- for method in ['weighted_least_squares','quadratic_least_squares']:
+ methods=['weighted_least_squares','quadratic_least_squares']
+ if (root/folder/'quadratic_least_squares_noise-mpi1').exists(): methods.append('quadratic_least_squares_noise')
+ for method in methods:
   base=load(root/folder/(method+'-mpi1'));M=tensor(base,'Metric');val=np.linalg.eigvalsh(M);projection=np.einsum('ni,nij,nj->n',normal,M,normal);cross=np.einsum('ni,nij,nj->n',tangent,M,normal);size=1/np.sqrt(projection);log=(root/folder/(method+'-mpi1')/'solver.log').read_text();complexity=float(re.search(r'Mesh complexity with the boundary-layer metric: ([\d.e+\-]+)',log)[1]);entry={'reported_complexity':complexity,'independently_integrated_complexity':float(np.sum(np.sqrt(val[:,0]*val[:,1])*volume)),'minimum_metric_eigenvalue':float(val.min()),'maximum_metric_aspect_ratio':float(np.sqrt(val[:,1]/val[:,0]).max()),'full_band_max_relative_normal_size_error':float(np.max(abs(size[full]/hn[full]-1))),'full_band_max_relative_normal_tangent_coupling':float(np.max(abs(cross[full])*hn[full]**2)),'wall_min_normal_size_over_first_height':float((size[wall]/1e-5).min()),'mpi':{}}
   raw_edges=np.concatenate([tri[:,[0,1]],tri[:,[1,2]],tri[:,[2,0]]]);raw_edges=np.unique(np.sort(raw_edges,axis=1),axis=0)
   directed=np.concatenate([raw_edges,raw_edges[:,::-1]])
@@ -75,5 +79,5 @@ for folder,target in [('rae-native-metric-v2',60000)]:
   else: assert 'Minimum attainable complexity' in log and complexity>target
   out[method]=entry
 summary['binary_sha256']=hashlib.sha256((root/'SU2_CFD/src/SU2_CFD').read_bytes()).hexdigest()
-(root/'rae-native-metric-v2/validation.json').write_text(json.dumps(summary,indent=2)+'\n')
+(root/foldername/'validation.json').write_text(json.dumps(summary,indent=2)+'\n')
 print(json.dumps(summary,indent=2))

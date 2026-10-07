@@ -2403,6 +2403,7 @@ void CSolver::SetAuxVar_Gradient_LS(CGeometry *geometry, const CConfig *config) 
 
 void CSolver::SetHessian_Adapt(CGeometry *geometry, const CConfig *config) {
   SU2_ZONE_SCOPED
+  const auto hessianStart = SU2_MPI::Wtime();
 
   const auto requestedMethod = static_cast<ENUM_FLOW_GRADIENT>(config->GetKind_Hessian_Method());
   const auto method = requestedMethod == QUADRATIC_LEAST_SQUARES ? WEIGHTED_LEAST_SQUARES : requestedMethod;
@@ -2480,6 +2481,11 @@ void CSolver::SetHessian_Adapt(CGeometry *geometry, const CConfig *config) {
 
   InitiateComms(geometry, config, MPI_QUANTITIES::HESSIAN);
   CompleteComms(geometry, config, MPI_QUANTITIES::HESSIAN);
+  const passivedouble hessianLocal = SU2_MPI::Wtime() - hessianStart;
+  passivedouble hessianElapsed = 0;
+  CPassiveComm::Allreduce(&hessianLocal, &hessianElapsed, 1, CPassiveComm::Op::MAX);
+  if (rank == MASTER_NODE) cout << "Hessian recovery: " << hessianElapsed << " s (maximum rank time)." << endl;
+
 }
 
 void CSolver::IntersectMetrics(unsigned short nDim, const su2double (&A)[3][3], const su2double (&B)[3][3],
@@ -2822,7 +2828,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     }
   /*--- Full-band 2D metrics are diagonal in the fixed wall frame. Cache their geometric limits. ---*/
   vector<int> fullBand(nativeMetric ? nPointDomain : 0, -1);
-  vector<su2double> tangentUpper(blFullSamples.size());
+  vector<su2double> tangentUpper(blFullSamples.size()), tangentPrevious(blFullSamples.size());
   for (size_t k = 0; k < blFullSamples.size() && nDim == 2; ++k) {
     const auto& item = blFullSamples[k];
     fullBand[item.point] = k;
@@ -2835,14 +2841,15 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     tangentUpper[k] = fmin(eigMax, normal * arMax2);
     if (!config->GetAdap_Surface() && item.sample.distance <=
         fmax(nativeLayers->GetLayer(item.wall).firstHeight, CBoundaryLayerMetric::floorFraction / sqrt(wallTangent)))
-      tangentUpper[k] = fmin(tangentUpper[k], wallTangent);
+      tangentUpper[k] = fmin(eigMax, wallTangent);
   }
   vector<CBoundaryLayerMetric::Tensor> previous(nativeMetric ? nPoint : 0), inverse(nativeMetric ? nPointDomain : 0);
+  vector<unsigned char> changed(nativeMetric ? nPoint : 0, 1), active(nativeMetric ? nPointDomain : 0, 1);
   unsigned long blockedNormal = 0, blockedTangent = 0;
   bool gradationConverged = true;
   unsigned gradationSweeps = 0;
   passivedouble gradationViolation = 1;
-  unsigned long complexityTrials = 0, totalGradationSweeps = 0;
+  unsigned long complexityTrials = 0, totalGradationSweeps = 0, totalGradedPoints = 0;
   passivedouble gradationSeconds = 0, haloSeconds = 0, reductionSeconds = 0;
   auto gradeNativeMetric = [&]() {
     /*--- Metric-space homogeneous gradation (Alauzet, equation 9): transport M_j to i as
@@ -2861,18 +2868,45 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
       CompleteComms(geometry, config, MPI_QUANTITIES::METRIC);
       for (auto point = nPointDomain; point < nPoint; ++point) base_nodes->GetMetricMat(point, blMetric[point].m);
       haloSeconds += SU2_MPI::Wtime() - haloStart;
+#if !defined(CODI_FORWARD_TYPE) && !defined(CODI_REVERSE_TYPE)
+      if (nDim == 2 && sweep > 0) {
+        for (auto point = 0ul; point < nPoint; ++point) {
+          changed[point] = 0;
+          for (unsigned i = 0; i < nDim; ++i)
+            for (unsigned j = 0; j < nDim; ++j)
+              changed[point] |= blMetric[point].m[i][j] != previous[point].m[i][j];
+        }
+        for (auto point = 0ul; point < nPointDomain; ++point) {
+          active[point] = changed[point];
+          for (const auto neighbor : metricNeighbors[point]) active[point] |= changed[neighbor];
+        }
+      } else std::fill(active.begin(), active.end(), 1);
+#endif
       previous = blMetric;
       passivedouble localChange = 0, globalChange = 0;
-      blockedNormal = blockedTangent = 0;
       for (auto point = 0ul; point < nPointDomain; ++point) {
+        if (!active[point]) continue;
+        ++totalGradedPoints;
         su2double vec[3][3], val[3], work[3];
-        CBlasStructure::EigenDecomposition(previous[point].m, vec, val, nDim, work);
-        for (auto i = 0u; i < nDim; ++i)
-          if (!(val[i] > 0) || !std::isfinite(SU2_TYPE::GetValue(val[i])))
-            SU2_MPI::Error("Native gradation received a non-SPD trial metric at global point " +
-                           std::to_string(geometry->nodes->GetGlobalIndex(point)), CURRENT_FUNCTION);
-        for (auto i = 0u; i < nDim; ++i)
-          for (auto j = 0u; j < nDim; ++j) inverse[point].m[i][j] = vec[i][j] / sqrt(val[j]);
+        if (fullBand[point] >= 0) {
+          const auto k = fullBand[point];
+          const auto* n = blFullSamples[k].sample.normal;
+          const su2double t[2] = {-n[1], n[0]};
+          su2double tangent = 0;
+          for (unsigned i = 0; i < 2; ++i)
+            for (unsigned j = 0; j < 2; ++j) tangent += t[i] * previous[point].m[i][j] * t[j];
+          if (!(tangent > 0) || !std::isfinite(SU2_TYPE::GetValue(tangent)))
+            SU2_MPI::Error("Native BL gradation received a nonpositive tangential metric.", CURRENT_FUNCTION);
+          tangentPrevious[k] = tangent;
+        } else {
+          CBlasStructure::EigenDecomposition(previous[point].m, vec, val, nDim, work);
+          for (auto i = 0u; i < nDim; ++i)
+            if (!(val[i] > 0) || !std::isfinite(SU2_TYPE::GetValue(val[i])))
+              SU2_MPI::Error("Native gradation received a non-SPD trial metric at global point " +
+                             std::to_string(geometry->nodes->GetGlobalIndex(point)), CURRENT_FUNCTION);
+          for (auto i = 0u; i < nDim; ++i)
+            for (auto j = 0u; j < nDim; ++j) inverse[point].m[i][j] = vec[i][j] / sqrt(val[j]);
+        }
         auto& current = blMetric[point];
         for (const auto neighbor : metricNeighbors[point]) {
           su2double delta[3] = {}, distance2 = 0, transported[3][3] = {}, whitened[3][3] = {};
@@ -2884,10 +2918,11 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
           for (auto i = 0u; i < nDim; ++i)
             for (auto j = 0u; j < nDim; ++j) {
               transported[i][j] = factor * previous[neighbor].m[i][j];
-              if (nDim != 2) for (auto a = 0u; a < nDim; ++a)
-                for (auto b = 0u; b < nDim; ++b)
-                  whitened[i][j] +=
-                      inverse[point].m[a][i] * factor * previous[neighbor].m[a][b] * inverse[point].m[b][j];
+              if (nDim != 2)
+                for (auto a = 0u; a < nDim; ++a)
+                  for (auto b = 0u; b < nDim; ++b)
+                    whitened[i][j] +=
+                        inverse[point].m[a][i] * factor * previous[neighbor].m[a][b] * inverse[point].m[b][j];
             }
           if (nDim == 2) {
             /*--- A 2x2 PSD difference certifies that this transport is already satisfied, without an eigensolve. ---*/
@@ -2913,8 +2948,6 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
                *    by repeatedly introducing coupling and then removing it with the BL projection. ---*/
               auto required = tt;
               if (gap > 64 * std::numeric_limits<passivedouble>::epsilon() * normal) required += tn * tn / gap;
-              else if (gap < 0 || fabs(tn) > 64 * std::numeric_limits<passivedouble>::epsilon() * normal) ++blockedNormal;
-              if (required > tangentUpper[k]) ++blockedTangent;
               const auto next = fmin(fmax(tangent, required), tangentUpper[k]);
               for (unsigned i = 0; i < 2; ++i)
                 for (unsigned j = 0; j < 2; ++j) current.m[i][j] = next * t[i] * t[j] + normal * n[i] * n[j];
@@ -2939,6 +2972,17 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
       if (prescribedBL && nDim != 2)
         nativeLayers->Apply(blFullSamples, blMetric, eigMin, true, !config->GetAdap_Surface(), config->GetAdap_ARmax());
       for (auto point = 0ul; point < nPointDomain; ++point) {
+        if (!active[point]) continue;
+        if (fullBand[point] >= 0) {
+          const auto k = fullBand[point];
+          const auto* n = blFullSamples[k].sample.normal;
+          const su2double t[2] = {-n[1], n[0]};
+          su2double tangent = 0;
+          for (unsigned i = 0; i < 2; ++i)
+            for (unsigned j = 0; j < 2; ++j) tangent += t[i] * blMetric[point].m[i][j] * t[j];
+          localChange = std::max(localChange, fabs(SU2_TYPE::GetValue(tangent / tangentPrevious[k] - 1)));
+          continue;
+        }
         su2double difference[3][3] = {}, vec[3][3], val[3], work[3];
         for (auto i = 0u; i < nDim; ++i)
           for (auto j = 0u; j < nDim; ++j)
@@ -3016,15 +3060,46 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     SU2_MPI::Allreduce(&localValues[1], &globalValues[1], 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
     SU2_MPI::Allreduce(&localSmallest, &smallest, 1, MPI_DOUBLE, MPI_MIN, SU2_MPI::GetComm());
 
+    const su2double absoluteLow = log(eigMin / globalValues[1]);
+    const su2double absoluteHigh = log(eigMax / fmin(smallest, globalValues[1]));
     logScale = log(complexity / globalValues[0]) * 2.0 / nDim;
     if (fabs(logScale) < tol) logScale = 0.0;
+    if (nativeMetric) logScale = fmin(fmax(logScale, absoluteLow), absoluteHigh);
     error = complexityError(logScale);
     bracketed = true;
 
     if (fabs(error) <= tol) return;
 
-    su2double xLow = log(eigMin / globalValues[1]), xHigh = log(eigMax / fmin(smallest, globalValues[1]));
-    su2double fLow = complexityError(xLow), fHigh = complexityError(xHigh);
+    su2double xLow = absoluteLow, xHigh = absoluteHigh, fLow = 0, fHigh = 0;
+    if (nativeMetric) {
+      /*--- Each trial grades a complete tensor field. Bracket near the unbounded estimate first,
+       *    expanding to the same hard endpoints only when necessary; avoid grading both extreme fields. ---*/
+      su2double step = log(4.0);
+      if (error < 0) {
+        xLow = logScale; fLow = error;
+        xHigh = fmin(absoluteHigh, logScale + step);
+        fHigh = complexityError(xHigh);
+        while (fHigh < 0 && xHigh < absoluteHigh) {
+          step *= 2;
+          xHigh = fmin(absoluteHigh, logScale + step);
+          fHigh = complexityError(xHigh);
+        }
+      } else {
+        xHigh = logScale; fHigh = error;
+        xLow = fmax(absoluteLow, logScale - step);
+        fLow = complexityError(xLow);
+        while (fLow > 0 && xLow > absoluteLow) {
+          step *= 2;
+          xLow = fmax(absoluteLow, logScale - step);
+          fLow = complexityError(xLow);
+        }
+      }
+      if (fabs(fLow) <= tol) { logScale = xLow; error = fLow; return; }
+      if (fabs(fHigh) <= tol) { logScale = xHigh; error = fHigh; return; }
+    } else {
+      fLow = complexityError(xLow);
+      fHigh = complexityError(xHigh);
+    }
 
     if (fLow >= 0.0) {
       bracketed = false;
@@ -3184,6 +3259,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     CompleteComms(geometry, config, MPI_QUANTITIES::METRIC);
     for (auto point = nPointDomain; point < nPoint; ++point) base_nodes->GetMetricMat(point, blMetric[point].m);
     passivedouble localViolation = 1;
+    blockedNormal = blockedTangent = 0;
     for (auto point = 0ul; point < nPointDomain; ++point) {
       su2double vec[3][3], val[3], work[3], inv[3][3];
       CBlasStructure::EigenDecomposition(blMetric[point].m, vec, val, nDim, work);
@@ -3202,6 +3278,25 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
                 whitened[i][j] += inv[a][i] * factor * blMetric[neighbor].m[a][b] * inv[b][j];
         CBlasStructure::EigenDecomposition(whitened, vec, val, nDim, work);
         localViolation = std::max(localViolation, SU2_TYPE::GetValue(*max_element(val, val + nDim)));
+        if (fullBand[point] >= 0 && *max_element(val, val + nDim) > 1 + 1e-7) {
+          const auto k = fullBand[point];
+          const auto& sample = blFullSamples[k].sample;
+          const auto* n = sample.normal;
+          const su2double t[2] = {-n[1], n[0]};
+          su2double nn = 0, tn = 0, tt = 0;
+          for (unsigned i = 0; i < 2; ++i)
+            for (unsigned j = 0; j < 2; ++j) {
+              const auto value = factor * blMetric[neighbor].m[i][j];
+              nn += n[i] * value * n[j];
+              tn += t[i] * value * n[j];
+              tt += t[i] * value * t[j];
+            }
+          const auto normal = 1 / pow(sample.hn, 2), gap = normal - nn;
+          const auto resolution = 64 * std::numeric_limits<passivedouble>::epsilon() * normal;
+          if (gap < 0 || (gap <= resolution && fabs(tn) > resolution)) ++blockedNormal;
+          else if (tt + (gap > resolution ? tn * tn / gap : su2double(0)) > tangentUpper[k] * (1 + 1e-7))
+            ++blockedTangent;
+        }
       }
     }
     CPassiveComm::Allreduce(&localViolation, &gradationViolation, 1, CPassiveComm::Op::MAX);
@@ -3256,7 +3351,11 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   metricComplexityBracketed = bracketed;
 
   passivedouble workLocal[3] = {gradationSeconds, haloSeconds, reductionSeconds}, workGlobal[3] = {};
-  if (nativeMetric) CPassiveComm::Allreduce(workLocal, workGlobal, 3, CPassiveComm::Op::MAX);
+  unsigned long globalGradedPoints = 0;
+  if (nativeMetric) {
+    CPassiveComm::Allreduce(workLocal, workGlobal, 3, CPassiveComm::Op::MAX);
+    CPassiveComm::Allreduce(&totalGradedPoints, &globalGradedPoints, 1, CPassiveComm::Op::SUM);
+  }
   if (rank == MASTER_NODE) {
     cout << "Metric field statistics:" << endl;
     cout << "Minimum density: " << minDensity << "." << endl;
@@ -3267,10 +3366,10 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     if (nativeMetric) {
       cout << "Sensor metric complexity before native constraints: " << coreComplexity << "." << endl;
       cout << "Native metric work: " << complexityTrials << " complexity trials, " << totalGradationSweeps
-           << " total gradation sweeps; gradation " << workGlobal[0] << " s, halo " << workGlobal[1]
+           << " total gradation sweeps, " << globalGradedPoints << " owned-point visits; gradation " << workGlobal[0] << " s, halo " << workGlobal[1]
            << " s, sweep reductions " << workGlobal[2] << " s (maximum accumulated rank times)." << endl;
       cout << "Native BL gradation: " << blockedNormal << " normal-limited and " << blockedTangent
-           << " tangent-limited directed edges in the last sweep (current transports, not an infeasibility proof)." << endl;
+           << " tangent-limited directed edges in the final field (not an infeasibility proof)." << endl;
       cout << "Native metric gradation: " << gradationSweeps << " sweeps, "
            << (gradationConverged ? "fixed point reached" : "iteration limit reached")
            << ", maximum transported-metric ratio " << gradationViolation << "." << endl;
