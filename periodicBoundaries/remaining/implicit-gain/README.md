@@ -1,5 +1,7 @@
 # Isolated periodic implicit convergence and cost assessment
 
+Classification correction after reviewing the original implementation discussion: F/#2967 is a proposed numerical enhancement, labeled **changelog:feature**, with **priority removed**, and explicitly **not ready to merge**. The maintainer [explained](https://github.com/su2code/SU2/issues/763#issuecomment-524007345) that omitted neighboring Jacobian terms were a deliberate approximation to reduce communication/sparse-matrix costs. The new dense-reference tests verify the proposed complete operator; disagreement with that operator alone does not prove the old approximation was an implementation bug. #1585 explored the same class of enhancement and recorded preconditioner/adjoint difficulties. Current evidence does not establish resolution of #763/#1467 or an overall speedup. This supersedes earlier descriptions of F as a confirmed bug fix; the genuine correctness fixes in the other branches are unaffected. No production code or PR state changed.
+
 These cases measure outer convergence, Krylov work and elapsed time while keeping all other periodic fixes identical. Fewer outer iterations do not necessarily make a run faster.
 
 ## Protocol
