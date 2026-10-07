@@ -446,7 +446,7 @@ def main():
     test_list.append(periodic2d)
 
     # 3D rotational periodic pipe sector with nodes on the rotation axis
-    periodic3d_axis           = TestCase('periodic3d_axis')
+    periodic3d_axis = TestCase('periodic3d_axis')
     periodic3d_axis.cfg_dir = "navierstokes/periodic3D_axis"
     periodic3d_axis.cfg_file = "config.cfg"
     periodic3d_axis.test_iter = 100
@@ -805,7 +805,7 @@ def main():
     test_list.append(sp_pipeSlice_3d_dp_hf_tp)
 
     # Same with the energy equation, periodic temperature and an integrated wall heat
-    sp_pipeSlice_3d_dp_ihf_tp           = TestCase('sp_pipeSlice_3d_dp_ihf_tp')
+    sp_pipeSlice_3d_dp_ihf_tp = TestCase('sp_pipeSlice_3d_dp_ihf_tp')
     sp_pipeSlice_3d_dp_ihf_tp.cfg_dir = "incomp_navierstokes/streamwise_periodic/pipeSlice_3d"
     sp_pipeSlice_3d_dp_ihf_tp.cfg_file = "sp_pipeSlice_3d_dp_ihf_tp.cfg"
     sp_pipeSlice_3d_dp_ihf_tp.test_iter = 10
@@ -821,7 +821,7 @@ def main():
     test_list.append(inc_heatTransfer_BC)
 
     # 2D pin array, periodic with a body force, flow and weakly coupled heat equation
-    inc_periodic_weak_heat           = TestCase('inc_periodic_weak_heat')
+    inc_periodic_weak_heat = TestCase('inc_periodic_weak_heat')
     inc_periodic_weak_heat.cfg_dir = "incomp_navierstokes/streamwise_periodic/chtPinArray_2d"
     inc_periodic_weak_heat.cfg_file = "periodic_weak_heat.cfg"
     inc_periodic_weak_heat.test_iter = 10
@@ -1212,7 +1212,7 @@ def main():
     sbs_backward_step.cfg_dir    = "backscatter/backward_step"
     sbs_backward_step.cfg_file   = "backwardStep.cfg"
     sbs_backward_step.test_iter  = 3
-    sbs_backward_step.test_vals  = [-6.352885, -3.465372, -5.507901, -3.906544, -9.506305, -6.365236, -6.331021, -6.331028]
+    sbs_backward_step.test_vals = [-6.352885, -3.465372, -5.507901, -3.906544, -9.506305, -6.365236, -6.331021, -6.331028]
     sbs_backward_step.unsteady   = True
     sbs_backward_step.decompress = True
     sbs_backward_step.grid_file  = "backward_step.su2"
@@ -1325,7 +1325,7 @@ def main():
     multi_interface.cfg_dir            = "turbomachinery/multi_interface"
     multi_interface.cfg_file           = "multi_interface_rst.cfg"
     multi_interface.test_iter          = 5
-    multi_interface.test_vals          = [-8.634558, -8.895554, -9.348754]
+    multi_interface.test_vals = [-8.634558, -8.895554, -9.348754]
     multi_interface.test_vals_aarch64  = [-8.632227, -8.894736, -9.348706]
     test_list.append(multi_interface)
 
