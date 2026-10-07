@@ -2826,7 +2826,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
         return geometry->nodes->GetGlobalIndex(a) < geometry->nodes->GetGlobalIndex(b);
       });
     }
-  /*--- Full-band 2D metrics are diagonal in the fixed wall frame. Cache their geometric limits. ---*/
+  /*--- Cache full-band 2D frames for change measurements and final constraint diagnostics. ---*/
   vector<int> fullBand(nativeMetric ? nPointDomain : 0, -1);
   vector<su2double> tangentUpper(blFullSamples.size()), tangentPrevious(blFullSamples.size());
   for (size_t k = 0; k < blFullSamples.size() && nDim == 2; ++k) {
@@ -2844,7 +2844,6 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
       tangentUpper[k] = fmin(eigMax, wallTangent);
   }
   vector<CBoundaryLayerMetric::Tensor> previous(nativeMetric ? nPoint : 0), inverse(nativeMetric ? nPointDomain : 0);
-  vector<unsigned char> changed(nativeMetric ? nPoint : 0, 1), active(nativeMetric ? nPointDomain : 0, 1);
   unsigned long blockedNormal = 0, blockedTangent = 0;
   bool gradationConverged = true;
   unsigned gradationSweeps = 0;
@@ -2854,7 +2853,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   auto gradeNativeMetric = [&]() {
     /*--- Metric-space homogeneous gradation (Alauzet, equation 9): transport M_j to i as
      *    M_j / (1 + log(hgrad) sqrt(dx^T M_j dx))^2, then intersect. Synchronous sweeps and global-ID
-     *    neighbor order make the result independent of MPI ownership. Hard BL constraints are reapplied. ---*/
+     *    neighbor order make the result independent of MPI ownership. Hard BL constraints are reapplied; Schur-complement tangent forcing was rejected after a QR/MPI regression. ---*/
     const auto gradationStart = SU2_MPI::Wtime();
     const auto growth = log(config->GetAdap_Hgrad());
     // ponytail: propagation is synchronous for MPI reproducibility; a work-queue solver needs equivalent ownership semantics.
@@ -2868,24 +2867,9 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
       CompleteComms(geometry, config, MPI_QUANTITIES::METRIC);
       for (auto point = nPointDomain; point < nPoint; ++point) base_nodes->GetMetricMat(point, blMetric[point].m);
       haloSeconds += SU2_MPI::Wtime() - haloStart;
-#if !defined(CODI_FORWARD_TYPE) && !defined(CODI_REVERSE_TYPE)
-      if (nDim == 2 && sweep > 0) {
-        for (auto point = 0ul; point < nPoint; ++point) {
-          changed[point] = 0;
-          for (unsigned i = 0; i < nDim; ++i)
-            for (unsigned j = 0; j < nDim; ++j)
-              changed[point] |= blMetric[point].m[i][j] != previous[point].m[i][j];
-        }
-        for (auto point = 0ul; point < nPointDomain; ++point) {
-          active[point] = changed[point];
-          for (const auto neighbor : metricNeighbors[point]) active[point] |= changed[neighbor];
-        }
-      } else std::fill(active.begin(), active.end(), 1);
-#endif
       previous = blMetric;
       passivedouble localChange = 0, globalChange = 0;
       for (auto point = 0ul; point < nPointDomain; ++point) {
-        if (!active[point]) continue;
         ++totalGradedPoints;
         su2double vec[3][3], val[3], work[3];
         if (fullBand[point] >= 0) {
@@ -2930,29 +2914,6 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
             const auto yy = (1 + 1e-7) * current.m[1][1] - transported[1][1];
             const auto xy = (1 + 1e-7) * current.m[0][1] - transported[0][1];
             if (xx >= 0 && yy >= 0 && xx * yy >= xy * xy) continue;
-            if (fullBand[point] >= 0) {
-              const auto k = fullBand[point];
-              const auto& sample = blFullSamples[k].sample;
-              const auto* n = sample.normal;
-              const su2double t[2] = {-n[1], n[0]};
-              su2double tt = 0, tn = 0, nn = 0, tangent = 0;
-              for (unsigned i = 0; i < 2; ++i)
-                for (unsigned j = 0; j < 2; ++j) {
-                  tt += t[i] * transported[i][j] * t[j];
-                  tn += t[i] * transported[i][j] * n[j];
-                  nn += n[i] * transported[i][j] * n[j];
-                  tangent += t[i] * current.m[i][j] * t[j];
-                }
-              const auto normal = 1 / pow(sample.hn, 2), gap = normal - nn;
-              /*--- Schur complement of diag(tangent,normal)-transport. A blocked normal cannot be repaired
-               *    by repeatedly introducing coupling and then removing it with the BL projection. ---*/
-              auto required = tt;
-              if (gap > 64 * std::numeric_limits<passivedouble>::epsilon() * normal) required += tn * tn / gap;
-              const auto next = fmin(fmax(tangent, required), tangentUpper[k]);
-              for (unsigned i = 0; i < 2; ++i)
-                for (unsigned j = 0; j < 2; ++j) current.m[i][j] = next * t[i] * t[j] + normal * n[i] * n[j];
-              continue;
-            }
           } else {
             su2double eigenvectors[3][3], eigenvalues[3], workspace[3];
             CBlasStructure::EigenDecomposition(whitened, eigenvectors, eigenvalues, nDim, workspace);
@@ -2963,16 +2924,13 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
           for (auto i = 0u; i < nDim; ++i)
             for (auto j = 0u; j < nDim; ++j) current.m[i][j] = 0.5 * (intersection[i][j] + intersection[j][i]);
         }
-        if (fullBand[point] < 0) {
-          CBlasStructure::EigenDecomposition(current.m, vec, val, nDim, work);
-          boundEigenvalues(1, val);
-          CBlasStructure::EigenRecomposition(current.m, vec, val, nDim);
-        }
+        CBlasStructure::EigenDecomposition(current.m, vec, val, nDim, work);
+        boundEigenvalues(1, val);
+        CBlasStructure::EigenRecomposition(current.m, vec, val, nDim);
       }
-      if (prescribedBL && nDim != 2)
+      if (prescribedBL)
         nativeLayers->Apply(blFullSamples, blMetric, eigMin, true, !config->GetAdap_Surface(), config->GetAdap_ARmax());
       for (auto point = 0ul; point < nPointDomain; ++point) {
-        if (!active[point]) continue;
         if (fullBand[point] >= 0) {
           const auto k = fullBand[point];
           const auto* n = blFullSamples[k].sample.normal;

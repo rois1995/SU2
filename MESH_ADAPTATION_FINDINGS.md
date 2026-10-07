@@ -10,7 +10,7 @@ script are in `integration_evidence/metric_robustness_v2_validation.json` and
 
 | ID | Work | Status |
 |---|---|---|
-| 1 | Constrained tensor gradation: classify blocked directions, converge useful updates, reduce repeated work | Experimental BL policy: direct updates, sparse stencil work and timings; unit/MPI tests passed, main representation reconciliation required |
+| 1 | Constrained tensor gradation: classify blocked directions, converge useful updates, reduce repeated work | Direct updater rejected by actual-case checks. Retained relaxation/performance changes; main representation reconciliation required |
 | 2 | Noise-aware Hessian treatment, with controls that retain resolved curvature | Implemented opt-in residual shrinkage with correlated-center uncertainty; exact/noisy/steep-profile and MPI tests passed |
 | 4 | More selective MPI geometry exchange and storage | Implemented conservative occupied query boxes; unit/MPI tests passed; private candidate reference transport remains separate |
 | 5 | Reuse WLS geometry across sensors and derivative passes | Implemented within-call normal-matrix/weight reuse; stretched multisensor equivalence and MPI tests passed |
@@ -147,7 +147,7 @@ publication checks when assessing any candidate.
 - Noise controls must be explicit, tested on exact/noisy/sharp fields and timed;
   distinguish coefficient uncertainty from actual resolved flow features.
 
-## Current prototype contracts
+## Superseded prototype contracts (00e9097db5; see rejection below)
 
 - Direct full-band 2D gradation uses the Schur complement in the wall frame,
   retains the normal size and zero coupling, caps tangential updates, and counts
@@ -236,7 +236,7 @@ Hessian recovery, conditioning, QR noise treatment and scoped MPI optimizations
 can be integrated separately. The current BL/complexity/gradation experiments
 remain on the research branch and are **not ready for a blind production merge**.
 
-## Current validation checkpoint
+## Unit validation checkpoint before the actual-case rejection
 
 The refinement after `00e9097db5` passed 97 selected serial tests (429643
 assertions), and 24 selected cases per rank on MPI 2/4. This includes within-call
@@ -255,3 +255,38 @@ measured 0.0144882 s for 20 legacy Hessian passes versus 0.00656786 s with reuse
 Noise-energy reduction on the manufactured checkerboard is about 44%; exact
 quadratic and resolved steep-profile checks remain intact. No fixed fraction of
 noise removal is a universal promise of a one-uncertainty threshold.
+
+## Rejected direct Schur updater: actual-case gate
+
+The `70bfe3144e` direct constrained updater was rejected after all nine frozen
+runs. Serial/unit and manufactured MPI passes were insufficient. Unfiltered QR
+reported complexity 60617.5 on MPI 1/2 and 59804.9 on MPI 4 for target 60000;
+the maximum relative metric disagreement on four ranks was about 0.99975.
+QR Hessians remained exactly identical across partitions. Near a zero
+fixed-normal Schur gap, tangent forcing switches from a very large capped update
+to a blocked-normal fallback. That creates discontinuous trial complexity and
+can make different root paths select different tensors.
+
+The updater is removed in the subsequent source. The earlier relaxation policy
+is retained with independent performance optimizations while the shared geometric
+composition architecture is reconciled. This rollback does not make hard-normal
+nodal composition compatible with current main; that policy remains experimental.
+The failed runs and their source/hash/configuration receipt are preserved in
+`integration_evidence/metric_robustness_rejected_schur_v3.json` and locally under
+`/tmp/su2-metric-build/rae-native-metric-v3-rejected-schur`.
+
+Additional measured limits: bounded occupied boxes still retain all 852 wall
+faces on this partitioned RAE fixture. They do not solve replicated-original
+reference storage or arbitrary remote/private query coverage. Exact pruning cut
+WLS owned-point visits from a possible 84.9 million to 29.9 million and preserved
+the preliminary serial field bit-for-bit, but the two serial timings (30.745 vs
+31.5502 s) do not establish a runtime win from pruning alone. Four-rank scaling
+was limited by synchronization/load imbalance. Keep these as findings, not as
+claims that every optimization improved elapsed time.
+
+Unchanged-stencil pruning is also removed from the final refinement: the isolated
+serial comparison established fewer visits and identical fields, but no runtime
+benefit. Keep the receipt and source history for future workload-specific
+assessment. The retained performance changes reuse buffers and geometric work,
+screen satisfied 2D transports without eigen decomposition, and measure cumulative
+work. Do not trade additional control/memory overhead for an unmeasured speedup.
