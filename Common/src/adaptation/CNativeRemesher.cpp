@@ -39,7 +39,13 @@ void CNativeRemesher::CheckSupport(const CConfig& config, const CGeometry& geome
     failure.Set(1, 0, "Native adaptation does not support moving/deforming meshes.");
   if (config.GetFEMSolver() || !config.GetMarkerCreateCopy().empty())
     failure.Set(1, 0, "Native adaptation does not support FEM or MARKER_CREATE_COPY.");
-  if (config.GetTime_Domain()) failure.Set(1, 0, "Native time-domain adaptation is not enabled yet.");
+  if (config.GetTime_Domain()) {
+    const auto marching = config.GetTime_Marching();
+    if (marching != TIME_MARCHING::DT_STEPPING_1ST && marching != TIME_MARCHING::DT_STEPPING_2ND)
+      failure.Set(1, 0, "Native time-domain adaptation requires first- or second-order dual time stepping.");
+    if (config.GetKind_Adap_Unsteady_Metric() != ADAP_UNSTEADY_METRIC::WINDOW_AVERAGE)
+      failure.Set(1, 0, "Native time-domain adaptation currently supports WINDOW_AVERAGE only.");
+  }
   for (unsigned long e = 0; e < geometry.GetnElem(); ++e)
     if (geometry.elem[e]->GetVTK_Type() != TRIANGLE)
       failure.Set(1, e, "Native adaptation currently rejects mixed or non-triangle volume cells.");
@@ -450,6 +456,9 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
   const auto bytes = CPassiveComm::Allreduce(uint64_t(world.bytes_sent), CPassiveComm::Op::SUM);
   const auto transportEstimate =
       CPassiveComm::Allreduce(uint64_t(world.max_exchange_work_bytes), CPassiveComm::Op::MAX);
+  std::array<uint64_t, 3> fieldQueries;
+  CPassiveComm::Allreduce(engine.stats.field_queries.data(), fieldQueries.data(), fieldQueries.size(),
+                         CPassiveComm::Op::SUM);
   std::array<uint64_t, 8> actions, selectionScans;
   std::array<double, 8> phaseSeconds, choiceSeconds;
   for (size_t a = 0; a < actions.size(); ++a) {
@@ -477,6 +486,8 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
   if (world.rank == 0) {
     std::cout << "Native coordinated repair: " << jointCommits << " commits, " << jointSeconds
               << " seconds (maximum across ranks).\n";
+    std::cout << "Native private target requests/evaluations/dynamic evictions: " << fieldQueries[0] << ' '
+              << fieldQueries[1] << ' ' << fieldQueries[2] << '\n';
     std::cout << "Native operations (height/split/remove/redistribute/bulk remove/split/flip/move):";
     for (const auto count : actions) std::cout << ' ' << count;
     std::cout << "; conflicts=" << conflicts << ", dependency-size rejects=" << rejectedSize

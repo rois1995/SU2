@@ -790,11 +790,25 @@ void CSinglezoneDriver::WriteTimeHistoryRestarts() {
       std::swap(nodes->GetSolution(), nodes->GetSolution_time_n1());
     }
   };
+  /*--- Full restarts include primitives derived from Solution. Refresh them for the temporarily exposed history,
+   *    then restore current diagnostics before CFD resumes. Compact restarts contain only primary variables. ---*/
+  auto refreshOutput = [&]() {
+    if (config->GetWrt_Restart_Compact()) return;
+    SU2_OMP_PARALLEL_(if (solver[FLOW_SOL]->GetHasHybridParallel()))
+    solver[FLOW_SOL]->Preprocessing(geometry, solver, config, MESH_0, NO_RK_ITER, RUNTIME_FLOW_SYS, true);
+    if (solver[TURB_SOL] != nullptr) {
+      solver[TURB_SOL]->Postprocessing(geometry, solver, config, MESH_0);
+      solver[FLOW_SOL]->Preprocessing(geometry, solver, config, MESH_0, NO_RK_ITER, RUNTIME_FLOW_SYS, true);
+    }
+    END_SU2_OMP_PARALLEL
+  };
   swapHistory();
   config->SetTimeIter(timeIter - 1);
+  refreshOutput();
   output->WriteRestartFiles(geometry, config, solver);
   config->SetTimeIter(timeIter);
   swapHistory();
+  refreshOutput();
 }
 
 void CSinglezoneDriver::RunTimeAdaptationLoop() {
@@ -1019,7 +1033,7 @@ void CSinglezoneDriver::RunTimeAdaptationLoop() {
          << total[3] << " s (transfer " << total[4] << " s), adapted mesh and restart output " << total[5] << " s."
          << endl;
     cout << "Solve: the time steps on the mesh of the cycle with their output, without the metric. Metric: sensors, "
-            "Hessians and the window metric of every time step. Remesh: extraction, MMG and validation. Replace: new "
+            "Hessians and the window metric of every time step. Remesh: extraction, native cavities or MMG, and validation. Replace: new "
             "geometry and solvers with the solution transfer. Output: adapted mesh and restart files of the "
             "transferred steps. Outside: new points outside the donor mesh (closest donor boundary point used; "
             "conservative transfer: points whose control volume is partly outside), their largest distance. Cons. "
@@ -1774,10 +1788,16 @@ void CSinglezoneDriver::Output(unsigned long TimeIter) {
 
   StartTime = SU2_MPI::Wtime();
 
+  const auto* config = config_container[ZONE_0];
+  // Keep the actual donor solution/metric inspectable at native window ends
+  // even when ordinary volume output is less frequent than adaptation.
+  const bool nativeWindowOutput = config->GetTime_Domain() && config->GetAdap_Loop() &&
+      config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY && config->GetWrt_Adap_Mesh() &&
+      config->GetAdap_TimeWindowEnd(TimeIter);
   bool wrote_files = output_container[ZONE_0]->SetResultFiles(geometry_container[ZONE_0][INST_0][MESH_0],
                                                                config_container[ZONE_0],
                                                                solver_container[ZONE_0][INST_0][MESH_0],
-                                                               TimeIter, StopCalc);
+                                                               TimeIter, StopCalc || nativeWindowOutput);
 
   /*--- Save iteration solution for libROM ---*/
   if (config_container[MESH_0]->GetSave_libROM()) {

@@ -5,7 +5,7 @@ Library of run_capability.py, and a command line tool:
   capcheck.py --selftest
   capcheck.py input.su2 output.su2 [--metric file] [--complexity C] [--fixed] [--hausd H] [--angle A]
               [--bl-marker wall --bl-h0 1e-3] [--analytic bump3d|bump2d]
---metric: a non-compact SU2 binary restart (.dat, double) or an SU2 PARAVIEW file (.vtu, Float32) of the INPUT mesh
+--metric: a non-compact SU2 binary restart (.dat, double) or an SU2 PARAVIEW file (.vtu, Float32/Float64) of the INPUT mesh
 holding Metric_* (the metric that made the output mesh). Each gate is [status, value] with status PASS, FAIL,
 REPORT (measured, not gated) or NA.
 """
@@ -98,11 +98,14 @@ def read_vtu(path):
         values = np.frombuffer(data, dtype=dtype, count=nbytes // np.dtype(dtype).itemsize, offset=start + offset + 8)
         return values.reshape(-1, ncomp).astype(float)
 
-    points = array(re.search(r"<Points>\s*(<DataArray[^>]+/>)", header)[1])
+    point_tag = re.search(r"<Points>\s*(<DataArray[^>]+/>)", header)[1]
+    points = array(point_tag)
     section = header.split("<PointData>", 1)[1].split("</PointData>", 1)[0]
     fields = {re.search(r'Name="([^"]*)"', tag)[1]: array(tag)[:, 0]
               for tag in re.findall(r"<DataArray[^>]+/>", section) if 'NumberOfComponents= "1"' in tag}
-    return points, fields, "Float32"
+    real_tags = [point_tag] + [tag for tag in re.findall(r"<DataArray[^>]+/>", section) if 'type="Float' in tag]
+    precision = "Float64" if all('type="Float64"' in tag for tag in real_tags) else "Float32"
+    return points, fields, precision
 
 
 def read_restart(path):

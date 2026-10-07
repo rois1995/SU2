@@ -1,5 +1,5 @@
 """Run one prepared RAE2822 case, preserve outputs and obey workstation limits."""
-import argparse, hashlib, json, os, shutil, signal, subprocess, time
+import argparse, hashlib, json, os, re, shutil, signal, subprocess, time
 from pathlib import Path
 
 E = Path(__file__).resolve().parent
@@ -16,6 +16,8 @@ p.add_argument('case',type=Path);p.add_argument('--ranks',type=int,choices=(1,2,
 p.add_argument('--timeout',type=float,default=1800)
 p.add_argument('--build-evidence',type=Path,default=E/'integrated_native_production_v2/evidence.json');args=p.parse_args()
 wd=args.case.resolve(strict=True);state=wd/'run_evidence.json'
+mesh_name=re.search(r'^MESH_FILENAME\s*=\s*([^%\n]+)',(wd/'run.cfg').read_text(),re.M)[1].strip()
+mesh_path=(wd/mesh_name).resolve(strict=True)
 if state.exists():raise SystemExit('Preserve existing evidence; use a fresh case folder')
 prior=json.loads(args.build_evidence.read_text())
 binary=Path(prior.get('archived_binary',E/'integrated_native_production_v1/SU2_CFD'))
@@ -24,7 +26,7 @@ if any(sha(source/name)!=digest for name,digest in prior['source_sha256'].items(
 env=dict(os.environ,OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1')
 record=dict(runner_pid=os.getpid(),phase='preparing',working_directory=str(wd),ranks=args.ranks,
             timeout_seconds=args.timeout,binary=str(binary),binary_sha256=sha(binary),
-            config_sha256=sha(wd/'run.cfg'),mesh_sha256=sha(wd/'input.su2'),
+            config_sha256=sha(wd/'run.cfg'),mesh_sha256=sha(mesh_path),mesh_filename=mesh_name,
             source_revision=subprocess.check_output(['git','rev-parse','HEAD'],cwd=source,text=True).strip(),
             production_sources_rechecked=len(prior['source_sha256']),source_evidence=str(args.build_evidence.resolve()),
             source_evidence_sha256=sha(args.build_evidence),runner_sha256=sha(__file__),
@@ -57,6 +59,6 @@ with (wd/'solver.log').open('x') as log:
 record.update(phase='terminal',solver_exit=code,elapsed_seconds=time.monotonic()-start,
               outputs={f.name:f.stat().st_size for f in wd.iterdir() if f.is_file() and f.suffix in ('.su2','.dat','.vtu','.csv')})
 record.pop('child_pid',None);save()
-if sha(wd/'run.cfg')!=record['config_sha256'] or sha(wd/'input.su2')!=record['mesh_sha256']:raise RuntimeError('Case input changed during execution')
+if sha(wd/'run.cfg')!=record['config_sha256'] or sha(mesh_path)!=record['mesh_sha256']:raise RuntimeError('Case input changed during execution')
 print(str(wd)+': solver exit '+str(code)+', '+str(round(record['elapsed_seconds'],3))+' seconds')
 raise SystemExit(code)

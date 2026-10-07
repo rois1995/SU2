@@ -9,12 +9,13 @@
 #pragma once
 
 #include "CNativeDistributed2D.hpp"
+#include <deque>
 #include <memory>
 #include <tuple>
 
 namespace SU2NativeBoundary2D {
 
-constexpr size_t FIELD_LIMIT = 256, QUERY_CACHE_LIMIT = 2048;
+constexpr size_t FIELD_LIMIT = 256, QUERY_CACHE_LIMIT = 2048, QUERY_CACHE_BYTES = 128;
 struct DonorCell {
   Triangle triangle;
   std::array<int, 3> marker{};
@@ -82,8 +83,12 @@ struct FieldPatch {
   std::set<int> extension_components;
   double extension_limit = 0;
   mutable size_t samples = 0, extensions = 0, roundoff_queries = 0;
+  mutable uint64_t queries = 0, evictions = 0;
   mutable double maximum_extension = 0;
   mutable std::map<std::array<double, 2>, Tensor> cache;
+  // Only evaluated samples enter this queue; authoritative unchanged-vertex
+  // entries seeded by the engine must survive private reconstruction.
+  mutable std::deque<std::array<double, 2>> recent;
 
   static Tensor Blend(const DonorCell& cell, const std::array<long double, 3>& weights) {
     long double xx = 0, xy = 0, yy = 0;
@@ -99,12 +104,21 @@ struct FieldPatch {
   }
   Tensor evaluate(Point p) const {
     if (!(std::isfinite(p.x) && std::isfinite(p.y))) throw std::runtime_error("Nonfinite frozen-target query.");
+    ++queries;
     const auto known = cache.find({p.x, p.y});
     if (known != cache.end()) return known->second;
     ++samples;
     auto retain = [&](Tensor value) {
       if (composition) value = composition(p, value);
-      if (cache.size() < QUERY_CACHE_LIMIT) cache.emplace(std::array<double, 2>{p.x, p.y}, value);
+      while (cache.size() >= QUERY_CACHE_LIMIT && !recent.empty()) {
+        evictions += cache.erase(recent.front());
+        recent.pop_front();
+      }
+      if (cache.size() < QUERY_CACHE_LIMIT) {
+        const std::array<double, 2> key{p.x, p.y};
+        cache.emplace(key, value);
+        recent.push_back(key);
+      }
       return value;
     };
     for (const auto& cell : cells) {
@@ -291,7 +305,7 @@ class DonorField {
     maxDiscovered = std::max(maxDiscovered, found.size());
     const size_t required = transfer_memory::Add(transfer_memory::Mul(old.size(), 4 * sizeof(Cell)),
                                                  transfer_memory::Mul(found.size(), 4 * sizeof(DonorCell)),
-                                                 transfer_memory::Mul(QUERY_CACHE_LIMIT, 96));
+                                                 transfer_memory::Mul(QUERY_CACHE_LIMIT, QUERY_CACHE_BYTES));
     if (active && (old.empty() || found.empty() || found.size() > FIELD_LIMIT || required > budget ||
                    std::any_of(found.begin(), found.end(), [](auto r) { return r.owner < 0; }))) {
       active = false;

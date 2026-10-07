@@ -1,9 +1,121 @@
 # Codex handoff — native integration
 
 Updated 2026-10-07. Previous native integration and RAE repair goals COMPLETE.
-Current branch `codex/native-metric-integration` (metric integration validated);
+Current branch `codex/native-unsteady-performance` (2D unsteady/cost checkpoint validated);
 worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`.
 
+
+## Resumed unsteady and performance work — 2026-10-07
+
+The user explicitly resumed the unsteady goal after the metric merge and made
+performance essential, including profiling interpolation paths. New separate
+branch codex/native-unsteady-performance is based on pushed2abbd11769; completed
+branches and AdapNoExt are untouched. Worktree: SU2_NativeIntegrated.
+Current evidence/case root: integration_evidence/native_unsteady_performance_v1.
+Goal scope: static physical geometry, adaptive surface meshes, primal2Dtriangles,
+WINDOW_AVERAGE Euler/RANS, dual-time orders1/2, conservative solution and history
+transfer, rejection/restart/SU2/CGNS, MPI1/2/4. Cost must be measured at practical
+cadence. Profile native transactions, metric work and interpolation/history;
+use existing phase timing and Linuxperf rather than introducing a profiler.
+The old paused goal's work is now authorized again; tool status may still show
+paused because only the user/system can resume its control state.
+
+Native now admits static 2D WINDOW_AVERAGE with BDF1/2.
+The shared driver and existing conservative/barycentric history transfer are reused.
+Immutable scope app: native_unsteady_build_v1/SU2_CFD, SHA2565973119ef9aa4120c40af25c2b09e1c4ebf0a696f0d558ed2dbc7214b69a1207.
+Six actual vortex_v2 cases (orders1/2, MPI1/2/4) completed two adaptations each.
+All independent original-connectivity P1 metric, q/length, current/history
+integral and final positivity audits PASS; see independent_unsteady_audit.json
+inside each case. Double output is the existing VOLUME_OUTPUT_PRECISION=DOUBLE.
+The capcheck reader now reports that precision correctly. Original VTUs are donor
+snapshots; rewritten restarts n/n-1 are paired with the next adapted mesh.
+NativeSupport2D + DistributedTransfer tests pass at MPI1/2/4 in
+native_unsteady_history_v2; initial v1 fixture omitted required TIME_STEP and
+failed before native support checks. Failure evidence is preserved.
+
+Performance is NOT met at freq3. MPI4 vortex totals: CFD.093s, metric.052s,
+remesh.925s, replace.0198s (transfer.0101s). Native remesh does not scale on this
+small case; CFD/metric do. Baseline real RAE MPI4 profile is terminalPASS,
+176.610s elapsed, one accepted BL adaptation then CFD. Corrected CPU attribution
+in profile_rans_bl_startup_np4/sampling_summary.json:34421samples, native21009,
+metric3875, CFD9494, transfer9, setup34. Native13986samples have MPI frames
+(66.6% of native), suggesting waiting/imbalance/collectives. Initial root-only
+classifier was incomplete and is retained as sampling_summary_root_only_initial.
+Do not confuse these CPU samples with wall time. Native transaction/metric work
+is the priority; existing wall transfer timers resolve short projections.
+
+RAE MPI1 comparison completed:247.781s versus176.610s MPI4 total; native
+phase totals83.717s versus107.281s, with different distributed reconstruction
+trajectories (serialjoint46/6.91s, MPI4joint97/64.12s). Native scaling is weak;
+CFD benefits from MPI. This supports eventual separate remeshing communicator
+work, not a current M-rank capability claim.
+
+RANS time-domain coarse-to-BL SA/SST MPI4 cases plate_{sa,sst}_bdf2_np4_v1
+completed two accepted adaptations. Independent geometric BL composition,
+frozen sensor, current/history conservation and altitude audits PASS; maximum
+height relative error4.45e-16. These are lifecycle controls, not wall-shear/drag
+accuracy validation. Six SU2 window-boundary restarts reproduce uninterrupted
+results exactly at MPI1/2/4 for both orders. CGNS output plus actual four-rank
+CGNS BDF2 restart matches within8.89e-16. Mid-window average persistence and
+pre-first-adaptation native-reference checkpoints are not validated.
+
+Resolved-vortex physical-time.9 control: cadence100,300steps,dt.003,1225input
+points ->752finalpoints, elapsed3.128s; fixedgrid2.111s. CFD1.388s, metric.103s,
+remesh1.162s, replace.0223s (transfer.0123s), output.00476s. Cost narrowly below
+CFD with little margin; densityP1-lumpedL2 3.840e-4 adapted vs3.364e-4 fixed,
+Linf4.239e-3 vs4.477e-3. No accuracy/convergence certificate. Sparse output
+omitted pre-adaptation donor VTUs; new build forces ordinary requested output
+at native window ends under WRT_ADAP_MESH, reusing existing writer.
+
+Bounded FIFO query-cache trial preserves original P1/actual geometric BL math
+and authoritative unchanged-vertex samples; at most2048entries with conservative
+per-entry admission estimate128bytes. Dynamic computed samples may be evicted;
+seeded vertex samples never enter the FIFO. MPI field/engine/support/history/
+CGNS/rejected-output suite passes42cases per rank at1/2/4 in
+native_unsteady_cache_mpi_v2. Immutable trial app native_unsteady_build_v2
+SHA2563888c9067df010618b4f045ecb03a0c2d8c3805a925ad3dcf442913e7ea9e587.
+Completed case profile_rans_cache_np4_v2: nativecommits/operations/transport match
+baseline; adaptedmesh and donor restart are byte-identical. Coordinated repair
+64.118s ->26.759s; bulk split87.752s ->50.497s. Privatequeries132585546,
+evaluations27775647, dynamicevictions12045836. Final CFD continued and exited0:138.878s versus176.610s baseline. Nativephase
+sum107.281s ->69.547s (35.2% reduction); full adaptation108.716s ->70.9245s.
+Final solution is byte-identical too; one matched end-to-end reduction21.4%. Validated implementation ready for the separate-branch checkpoint.
+Post-cache cadence, all five SA order/MPI variants and BL-to-Euler cases
+completed; independent target/history/height audits pass. Barycentric unsteady
+case completes;4->2rank window restart differs1.35e-12. SA/SST saved current,
+history and continued turbulence scalars are finite and nonnegative. Native
+unsupported-window MPI2 exits1 with the intended diagnostic; three native/BL
+adapter cases pass at MPI1/2/4. See NATIVE_UNSTEADY_PERFORMANCE.md.
+Both actual RAE unsteady cases are terminalPASS with independent original-P1,
+reference/geometry/height and positive current/history checks:
+rae_rans_window200_np4_v1 (Euler mesh -> BL,12252/13386points) and
+rae_euler_from_bl_window100_np4_v1 (accepted RANS BL -> Euler,7964/7233points).
+Saved mesh_mach_windows.png previews, actual meshes, VTUs/restarts are in each
+folder. Total adaptation-related cost / CFD26.28%RANS,41.09%Euler. RANS first
+BL construction alone remains more expensive than its first CFD window. These
+are developing-flow controls, not certified temporal/aerodynamic accuracy.
+Initial strict whole-domain conservation audit failed because open curved
+farfield resampling changes domain area. Default CLOSED sliver-policy correction
+using independently measured near-constant farfield state passes unchanged1e-10
+gate (RANS policyresidual<5.3e-13). Initial failure/diagnosis preserved; sparse
+previous-history donor integral conservation is not independently established.
+
+Shared full BDF2 restart writer now refreshes primitive diagnostics around its
+history swap; compact restarts bypass it. Primary transfer/continuation were
+already correct, but old previous-history pressure diagnostics disagreed by up to .56%. New Euler/SA/SST MPI4 V3 cases have consistentP/T/Mach/velocity below
+4.5e-16, identical meshes and continuedprimary/turbulence fields toV2. The
+baseline diagnostic regression failure is retained. V3 4->2rank full checkpoint
+restart passes; combinedfinal MPI1/2/4 suite passes45cases/rank. Immutablefinal
+app native_unsteady_build_v3, SHA256ac36d778c1286abe67eb2dc775ba0f513479ee3da3e4a112feeeded86460833a.
+
+One heavy job, MPI<=4, threads1, builds-j2. Bounded 2D lifecycle/cost checkpoint
+is complete; the larger native unsteady goal continues. Next push
+is same-target MPI scaling and communication/imbalance cost, then converged
+physical-time/cadence accuracy. Mid-window metric-average persistence and
+pre-first-adaptation native-reference checkpoints remain gaps. Do not call
+production affordability or 3D support complete. Immutable test-driver archive
+deduplication reclaimed 2.035 GiB without removing case/evidence content; see
+archive_deduplication_v1.json. See NATIVE_UNSTEADY_PERFORMANCE.md.
 
 ## Validated metric integration — 2026-10-07
 
@@ -11,7 +123,8 @@ Branch: `codex/native-metric-integration`, based on native main
 `9450c0880e2b2c1c39dfc98bc2c9655844ab8731`, with incoming merge parent
 `b14a14ea1dec771834d7d691fca27614605df39d`. The user authorized merging and
 pushing to rois1995/SU2. AdapNoExt and codex/native-integrated are untouched.
-The separate unsteady goal remains PAUSED. No owned CFD/build/test job remains.
+At merge completion the unsteady goal was paused; it is now explicitly resumed.
+The completed merge had no owned jobs; see the current section for live work.
 
 Read METRIC_ROBUSTNESS_INTEGRATION.md for the reconciliation, independent
 Hessian/WLS review, residual locations and performance limits. Original P1
@@ -72,7 +185,7 @@ for the known original mesh; the missing-reference guard remains enforced.
 No 3D, unsteady, CAD, large-rank or converged-force claim is made. Future cost
 work should target measured candidate/collective-round costs and repeated
 gradation/root trials. Geometry-safe continuous field gradation is a separate
-investigation. Do not automatically resume the paused unsteady goal.
+investigation. The later explicit user request above authorizes resuming this goal.
 
 ## Artifact cleanup — 2026-10-07
 

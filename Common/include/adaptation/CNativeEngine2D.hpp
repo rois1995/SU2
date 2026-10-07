@@ -64,6 +64,7 @@ struct EngineStats {
   int rounds = 0, commits = 0, cross_rank = 0, conflicts = 0, size_rejected = 0, memory_rejected = 0,
       stale_rejected = 0;
   size_t max_patch = 0, max_donors = 0;
+  std::array<uint64_t, 3> field_queries{};  // requests, evaluated samples, dynamic evictions
   int joint_commits = 0;
   double joint_seconds = 0;
   std::array<int, 8> accepted{};
@@ -460,7 +461,7 @@ class Engine {
     const auto baseline =
         transfer_memory::Add(transfer_memory::Bytes(old), transfer_memory::Bytes(fresh), transfer_memory::Bytes(refs),
                              transfer_memory::Bytes(certificate), transfer_memory::Bytes(field->cells),
-                             transfer_memory::Mul(field->cache.size(), 96));
+                             transfer_memory::Mul(field->cache.size(), QUERY_CACHE_BYTES));
     const auto pendingErase = world.exchange(
         eraseTo, &admitted, options.dependency_bytes,
         transfer_memory::Add(baseline, transfer_memory::Bytes(freshTo), transfer_memory::Bytes(perimeterTo)));
@@ -540,6 +541,9 @@ class Engine {
         stats.cross_rank += participants.size() > 1;
       }
     }
+    stats.field_queries[0] += field->queries;
+    stats.field_queries[1] += field->samples;
+    stats.field_queries[2] += field->evictions;
     ++epoch;
     return publish && approved;
   }

@@ -25,11 +25,13 @@ performance advantage.
 | Static single-zone 2D triangular compressible Euler | Admitted in a primal double build | Controlled adaptation/transfer/output at MPI1/2/4 |
 | Static single-zone 2D triangular compressible Navier–Stokes | Admitted; configured wall height reconstructed | Eight changing-height one-/opposing-wall cycles with both transfers, actual sensor/BL targets and three-cycle realistic-airfoil runtime at MPI1/2/4; nine airfoil and48 opposing-wall independent audits pass |
 | Steady compressible RANS | Admitted by the driver and native checks | Actual sensor/BL targets, conservative transfer, resumed SA/SST updates and full SU2/CGNS solution/reference restart pass controlled MPI1/2/4 checks |
+| Static 2D time-domain Euler/RANS, `WINDOW_AVERAGE`, BDF1/2 | Admitted on `codex/native-unsteady-performance`; existing current/history transfers reused | Euler actual MPI1/2/4, SA/SST coarse-to-BL controls, independent saved-field/mesh audits and window-boundary SU2/CGNS restart; see NATIVE_UNSTEADY_PERFORMANCE.md for exact coverage and cost limits |
+| Native predicted/fixed-point time windows | Rejected until validated | No implementation or support claim |
 | SU2 and CGNS input/output | Existing readers and writers reused; CGNS requires its build dependency | Controlled mesh and viscous solution/reference round trips at MPI1/2/4 |
 | Barycentric and conservative transfer | Existing implementations reused | Both exercised on repeated controlled BL adaptation; conservative transfer and resumed CFD pass all three realistic-airfoil cycles at MPI1/2/4 |
 | Fixed physical sampling | `ADAP_SURFACE= NO` retains physical vertices/edges | Paired MPI controls demonstrate both a repairable fixed case and an incompatible retained-edge target |
 | Adaptive physical sampling | `ADAP_SURFACE= YES` permits reference-constrained split/remove/redistribution | Controlled MPI runs retain markers, components, feature vertices and first altitude |
-| 3D, mixed cells, periodic/paired interfaces, moving/deforming meshes, multizone, FEM, time-domain, adjoint/derivative builds | Explicitly rejected | Guard implementation; selected collective failure subprocess controls. This is not exhaustive runtime coverage of every rejection. |
+| 3D, mixed cells, periodic/paired interfaces, moving/deforming meshes, multizone, FEM, adjoint/derivative builds | Explicitly rejected | Guard implementation; selected collective failure subprocess controls. This is not exhaustive runtime coverage of every rejection. |
 | Smooth CAD/reference projection | No native fitted/CAD reference input implemented | Original polyline is the production reference; analytic smooth-reference research controls do not establish native CAD integration |
 
 The native path retains the **original mesh polyline**, component association,
@@ -199,3 +201,25 @@ In the research checkout, `BL_NATIVE_INTEGRATION_WORK/` holds runners,
 independent target/topology/reference audits, exact executable archives and
 per-run commands, source hashes, configurations and exit status.
 `HANDOFF_Codex.md` records the current sole job and remaining goal gates.
+
+## Unsteady checkpoints and performance
+
+On `codex/native-unsteady-performance`, static2D triangular `WINDOW_AVERAGE`
+uses the existing dual-time adaptation driver. Set `TIME_DOMAIN=YES`, positive
+`TIME_STEP`, `TIME_MARCHING=DUAL_TIME_STEPPING-1ST_ORDER` or `-2ND_ORDER`,
+`ADAP_FREQ`, and `ADAP_UNSTEADY_METRIC=WINDOW_AVERAGE`. Existing solver settings,
+BL contracts and transfer choices still apply. Native3D remains unsupported.
+
+Mesh `mesh_<first-step>.su2` or `.cgns` and its `.native_ref` pair with the
+rewritten restart of step `first-step-1` (and `first-step-2` for BDF2). The donor
+VTU of the preceding step stays on the previous mesh. When `WRT_ADAP_MESH=YES`,
+requested result formats are also written at native window ends, even with sparse
+ordinary output. Use `VOLUME_OUTPUT_PRECISION=DOUBLE` for independent strict
+frozen-metric audits. Restart equivalence is demonstrated at complete adaptation
+window boundaries; mid-window Hessian-accumulator persistence is not implemented.
+A restart before the first adaptation needs its original reference checkpoint;
+that checkpoint lifecycle is not validated here.
+
+The measured cache improvement reduces one RAE coarse-to-BL native phase cost
+by35.2% with byte-identical meshes and solutions. It does not establish affordable
+adaptation cadence for arbitrary unsteady flows. See NATIVE_UNSTEADY_PERFORMANCE.md.

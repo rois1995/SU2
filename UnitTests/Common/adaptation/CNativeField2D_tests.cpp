@@ -161,6 +161,7 @@ TEST_CASE("Native field: roundoff-only containment follows exact donor search", 
   CHECK(patch.extensions == 0);
   CHECK_THROWS_AS(patch.evaluate({rounded.x + 1e-10, rounded.y}), std::runtime_error);
   patch.cache.clear();
+  patch.recent.clear();
   patch.cells[0].marker[0] = 7;
   CHECK_THROWS_AS(patch.evaluate(rounded), std::runtime_error);
   patch.extension_components.insert(7);
@@ -223,4 +224,31 @@ TEST_CASE("Native MPI: geometric constraints apply after donor interpolation", "
     CacheTarget(sample, checked([patch](Point p) { return patch->evaluate(p); }), 123);
     CHECK(sample.target_cache[0] == Approx(quality(sample.t, checked([patch](Point p) {return patch->evaluate(p);} ))));
   }
+}
+
+TEST_CASE("Native field: saturated query cache retains recent points and authoritative vertices", "[NativeField2D]") {
+  FieldPatch patch;
+  for (const auto& cell : Square()) {
+    DonorCell donor;
+    donor.triangle = cell.t;
+    donor.metric = cell.nodal_target;
+    patch.cells.push_back(donor);
+  }
+  patch.Sort();
+  const std::array<double, 2> anchor{0, 0};
+  const Tensor authoritative{std::nextafter(4., 5.), .1, 8};
+  patch.cache.emplace(anchor, authoritative);
+  Point last;
+  for (size_t i = 1; i <= 2 * QUERY_CACHE_LIMIT; ++i) {
+    last = {double(i) / (2 * QUERY_CACHE_LIMIT + 1), .25};
+    CHECK(patch.evaluate(last).xx == Approx(Affine(last).xx));
+    REQUIRE(patch.cache.size() <= QUERY_CACHE_LIMIT);
+  }
+  const auto evaluated = patch.samples;
+  CHECK(patch.evaluate(last).xx == Approx(Affine(last).xx));
+  CHECK(patch.samples == evaluated);
+  CHECK(patch.evaluate({0, 0}).xx == authoritative.xx);
+  CHECK(patch.samples == evaluated);
+  CHECK(patch.evictions > 0);
+  CHECK(patch.recent.size() == QUERY_CACHE_LIMIT - 1);
 }
