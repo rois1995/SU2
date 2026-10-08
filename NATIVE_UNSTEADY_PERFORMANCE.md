@@ -359,3 +359,26 @@ final-source unsteady/restart validation and practical scaling limits remain pen
 Keep original sensor tensors when repartitioning; derived composed work estimates
 must not become donor values. Subset collectives/failure handling must use an
 explicit adaptation communicator while CFD geometry/state/history stay on N.
+
+## Cost-weighted partition helper checkpoint
+
+The first working-partition helper uses the existing ParMETIS cell-dual graph
+and two balance constraints: a bounded static estimate of adaptation work and
+cell count. Edge rendezvous builds the graph without gathering volume cells;
+empty original owners leave only the graph partitioner communicator. Migration
+retains every raw sensor tensor, coordinate, marker, protection flag and version.
+The accepted CFD geometry and state are untouched. Rejection under a one-rank
+migration ceiling leaves the input map unchanged collectively.
+
+MPI1/2/4 passes 66 core cases per rank, including sole-owner, empty-rank and
+interleaved distributions; malformed/nonmanifold connectivity produces the
+expected collective error at MPI2/4. Build and tests are source-pinned under
+`native_working_partition_build_v2`, `native_working_partition_core_mpi_v1`
+and `native_working_partition_invalid_graph_v1`. The initial regeneration failure
+is preserved under build v1 (Ninja was missing from Meson's PATH).
+
+This is helper validation. Production config wiring, real RAE cost/imbalance
+comparisons and reduced-rank remeshing remain pending. Graph storage scales with
+local cell count outside the migration-specific budget; ParMETIS index/weight
+limits are checked. Static weights are a hypothesis to validate against measured
+private costs, not a claim of balanced actual execution.

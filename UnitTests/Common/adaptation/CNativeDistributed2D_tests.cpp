@@ -7,7 +7,9 @@
  */
 
 #include "catch.hpp"
+#include <numeric>
 #include "../../../Common/include/adaptation/CNativeDistributed2D.hpp"
+#include "../../../Common/include/adaptation/CNativePartition2D.hpp"
 
 using namespace SU2NativeBoundary2D;
 
@@ -203,4 +205,97 @@ TEST_CASE("Native MPI failure: invalid peer buckets on one rank", "[NativeInvali
   if (world.rank == 0) to.clear();
   world.exchange(to);
   FAIL("Invalid peer buckets passed native exchange preflight.");
+}
+
+TEST_CASE("Native MPI: weighted working partition preserves complete raw cells", "[NativeDistributed2D]") {
+  World world;
+  const auto layout = GENERATE(0, 1, 2);  // One owner, one empty rank, interleaved owners.
+  const auto parts = GENERATE_COPY(1, world.size);
+  std::map<Id, Cell> input;
+  std::vector<uint32_t> weights;
+  std::map<Id, std::vector<char>> original;
+  for (int j = 0; j < 12; ++j)
+    for (int i = 0; i < 16; ++i) {
+      auto node = [&](int di, int dj) { return Node{Id((j + dj) * 17 + i + di), {double(i + di), double(j + dj)}, 0}; };
+      const auto a = node(0, 0), b = node(1, 0), c = node(1, 1), d = node(0, 1);
+      for (int k = 0; k < 2; ++k) {
+        const auto index = 2 * (16 * j + i) + k;
+        auto cell = FanCell(index);
+        cell.t = k ? triangle(a, c, d) : triangle(a, b, c);
+        cell.t.id = 100000 + 13 * index;  // Sparse cell IDs are not graph ordinals.
+        cell.t.protected_cell = index % 3 == 0;
+        original.emplace(cell.t.id, Bytes(cell));
+        const int owners = layout == 0 ? 1 : layout == 1 ? std::max(1, world.size - 1) : world.size;
+        if (index % owners == world.rank) input.emplace(cell.t.id, cell);
+      }
+    }
+  for (const auto& entry : input) {
+    const auto x = centroid(entry.second.t).x;
+    weights.push_back(x < 8 ? 4 : 1);
+  }
+  const auto before = input;
+  PartitionStats rejected;
+  CHECK_FALSE(Repartition(world, input, weights, parts, rejected, world.rank == 0 ? 1 : SIZE_MAX));
+  REQUIRE(input.size() == before.size());
+  for (const auto& entry : input) CHECK(Bytes(entry.second) == Bytes(before.at(entry.first)));
+
+  PartitionStats stats;
+  REQUIRE(Repartition(world, input, weights, parts, stats));
+  CHECK(std::accumulate(stats.cells_after.begin(), stats.cells_after.end(), uint64_t(0)) == 384);
+  CHECK(std::accumulate(stats.work_after.begin(), stats.work_after.end(), uint64_t(0)) == 960);
+  CHECK(stats.migration_bytes > 0);
+  for (const auto& entry : input) CHECK(Bytes(entry.second) == original.at(entry.first));
+  if (parts == 1) CHECK(input.size() == (world.rank == 0 ? 384 : 0));
+  else {
+    CHECK(*std::max_element(stats.cells_after.begin(), stats.cells_after.end()) <= 1.3 * 384 / parts);
+    CHECK(*std::max_element(stats.work_after.begin(), stats.work_after.end()) <= 1.3 * 960 / parts);
+  }
+  std::vector<Cell> local;
+  for (const auto& entry : input) local.push_back(entry.second);
+  const auto gathered = world.metadata(local);  // Tiny test fixture only; production never gathers volume cells.
+  std::set<Id> seen;
+  for (const auto& cell : gathered) CHECK(seen.insert(cell.t.id).second);
+  CHECK(seen.size() == original.size());
+}
+
+TEST_CASE("Native partition weights keep geometric BL out of raw sensor donors", "[NativeDistributed2D]") {
+  Cell cell;
+  cell.t = triangle({0, {0, 0}, 0}, {1, {1, 0}, 0}, {2, {0, 1}, 0});
+  cell.nodal_target.fill(Tensor{4, 0, 4});
+  cell.marker = {7, 0, 0};
+  const std::map<Id, Cell> input{{0, cell}};
+  const auto before = Bytes(cell);
+  int queries = 0, wallQueries = 0, interiorQueries = 0;
+  const MetricComposition composition = [&](Point p, Tensor sensor) {
+    ++queries;
+    if (p.y < 1e-4) {
+      ++wallQueries;
+      sensor.yy = std::max(sensor.yy, 1e8);
+    } else ++interiorQueries;
+    return sensor;
+  };
+  const auto plain = WorkWeights(input, {}, {});
+  const auto bl = WorkWeights(input, composition, {{7, 25}});
+  REQUIRE(bl.size() == 1);
+  CHECK(bl[0] > plain[0]);
+  CHECK(bl[0] < 512);  // Fine wall samples do not multiply the entire coarse-cell area.
+  CHECK(queries > 0);
+  CHECK(wallQueries > 0);
+  CHECK(interiorQueries > 0);
+  CHECK(Bytes(input.at(0)) == before);
+}
+
+TEST_CASE("Native MPI failure: nonmanifold working graph", "[NativeInvalidWorkingGraph][.]") {
+  World world;
+  std::map<Id, Cell> input;
+  if (world.rank == 0)
+    for (Id i = 0; i < 6; ++i) {
+      Cell cell;
+      cell.t = triangle({0, {0, 0}, 0}, {1, {1, 0}, 0}, {i + 2, {.5, double(i + 1)}, 0});
+      cell.t.id = i;
+      input.emplace(i, cell);
+    }
+  PartitionStats stats;
+  Repartition(world, input, std::vector<uint32_t>(input.size(), 1), world.size, stats);
+  FAIL("Nonmanifold native working graph passed preflight.");
 }

@@ -63,7 +63,7 @@ sensor CSV, adapted SU2 grid and a labeled copy of the original source flow VTU.
 Case-selectable independent auditor: integration_evidence/audit_native_frozen_case.py.
 Frozen immutable contention-aware runner: run_native_frozen_contention_control.py.
 All campaign sessions terminal0:34554,52092,63085,10923,80880,38500,68887,75915.
-No weighted partition or M<N production path implemented yet. Next implementation:
+Weighted partition helper now implemented and tested; production wiring and M<N are pending. Next implementation:
 weighted cell dual graph through existing ParMETIS (N communicator), migrate raw
 sensor-bearing cells unchanged BEFORE Engine construction. Work estimates use
 separate temporary samples of actual geometric composition: CacheTarget overwrites
@@ -74,6 +74,34 @@ must return/elect on N safely (current SU2_MPI::Error barrier uses N, so calling
 inside only M participants can deadlock). Existing ReaderSlices::FromDistributed on
 all N can redistribute output from first-M nonempty records; keep donor geometry,
 solution and all histories on N until direct transfer to the new N-rank geometry.
+2026-10-08 working-partition helper checkpoint: CNativePartition2D.hpp/.cpp,
+registered in Common/src/adaptation/meson.build. Distributed cell-dual graph built
+by edge rendezvous, sparse cell IDs mapped to independent graph ordinals; existing
+ParMETIS balances two constraints (bounded static work predictor and cell storage).
+Graph-only communicator excludes empty original owners. Single original owner
+uses existing serial METIS, no replicated volume mesh in production. Raw full Cell
+records migrate before Engine snapshot/cache composition; counts, weights and
+unique recipient identities checked before publishing by map swap. Collective
+migration admission rejection leaves the entire input unchanged. Graph storage
+is O(local cells), outside the migration-specific ceiling; idx_t range checked.
+Work predictor uses raw-sensor centroid complexity plus bounded actual-query
+quality/length demand and wall-row allowance, never coarse-area integration of
+wall tensors. Static predictor is provisional: measured private costs decide
+whether it is useful. No reduction in actual RAE imbalance established yet.
+Build v1 failed only Meson regeneration (Ninja not on PATH), retained log/source.
+Build v2 PASSES after correcting controller environment, -j2, archive762sources;
+app hash unchanged f3a03ef... because helper is not yet called by production.
+Core MPI1/2/4 PASSES66cases/rank, including sole-owner, empty-rank and interleaved
+ownership, exact complete wire-record preservation, balanced predicted work/storage
+and one-rank budget rejection. Hidden malformed/nonmanifold graph check PASSES
+expected collective diagnostic atMPI2/4, no deadlock. Evidence folders:
+native_working_partition_build_v{1,2}, native_working_partition_core_mpi_v1,
+native_working_partition_invalid_graph_v1. All owned job sessions terminal.
+Next: opt-in ADAP_NATIVE_REPARTITION production config at M=N; export final reader
+point tensors outside frozen remeshing timer and independently audit their
+original-sensor-plus-actual-query-BL residuals. Frozen RAE comparisons include full
+weight estimation/graph/partition/migration overhead; ownership changes work,
+so these are whole-workload comparisons, not fixed-work speedups.
 Final-source actual unsteady runs/restarts, transported tensor residual artifacts,
 weighted/rank-count comparisons and practical scaling limits remain pending.
 No unrelated heavy job was running at activation; editor activity/CPU pressure
