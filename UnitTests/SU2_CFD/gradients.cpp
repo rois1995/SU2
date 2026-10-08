@@ -27,6 +27,7 @@
 
 #include "catch.hpp"
 #include <array>
+#include <cstdlib>
 #include "../../Common/include/geometry/CPhysicalGeometry.hpp"
 #include "../../Common/include/parallelization/CPassiveComm.hpp"
 #include <map>
@@ -734,7 +735,8 @@ TEST_CASE("QR shrinkage retains a resolved steep profile and does not filter its
  *     local layer coordinates, so the physical normal curvature (O(aspect^2)) cannot hide tangential errors. ---*/
 std::array<passivedouble, 11> pressureHessianErrors(unsigned short nDim, unsigned long n, bool distorted,
                                                    passivedouble aspect, passivedouble angle, passivedouble skew = 0,
-                                                   bool spanCurve = false, const char* method = "QUADRATIC_LEAST_SQUARES") {
+                                                   bool spanCurve = false, const char* method = "QUADRATIC_LEAST_SQUARES",
+                                                   const string& dumpPrefix = "") {
   auto mesh = simplex_test::MakeSimplexMesh(
       nDim, n, [](const passivedouble* x) { return std::string(x[1] < 1e-12 ? "wall" : "far"); });
   const auto parameter = mesh.coord;
@@ -809,6 +811,21 @@ std::array<passivedouble, 11> pressureHessianErrors(unsigned short nDim, unsigne
   // First five historical measurements; then wall-interior and wall-edge transverse, tangent and mixed errors.
   std::array<passivedouble, 11> error = {};
   unsigned long nInterior = 0, nWall = 0, nWallInterior = 0, nWallEdge = 0;
+  std::ofstream dump;
+  if (!dumpPrefix.empty()) {
+    REQUIRE(SU2_MPI::GetSize() == 1);
+    simplex_test::WriteSU2Mesh(mesh, dumpPrefix + ".su2");
+    dump.open(dumpPrefix + ".csv");
+    REQUIRE(dump.good());
+    dump.precision(17);
+    dump << "PointID";
+    for (unsigned i = 0; i < nDim; ++i) dump << "," << "xyz"[i];
+    dump << ",SENSOR_PRESSURE";
+    for (unsigned i = 0; i < nDim; ++i)
+      for (unsigned j = i; j < nDim; ++j) dump << ",Hessian_PRESSURE_" << "XYZ"[i] << "XYZ"[j];
+    for (unsigned i = 0; i < nDim; ++i) dump << ",Parameter_" << "XYZ"[i];
+    dump << '\n';
+  }
   for (auto point = 0ul; point < geometry.GetnPointDomain(); ++point) {
     passivedouble q[3], g[3] = {}, ref[3][3] = {};
     layerCoord(point, q);
@@ -839,6 +856,15 @@ std::array<passivedouble, 11> pressureHessianErrors(unsigned short nDim, unsigne
             recovered[i][j] += T[a][i] * SU2_TYPE::GetValue(tensor[a][b]) * T[b][j];
     }
     const auto* raw = &parameter[geometry.nodes->GetGlobalIndex(point) * nDim];
+    if (dump.is_open()) {
+      dump << geometry.nodes->GetGlobalIndex(point);
+      for (unsigned i = 0; i < nDim; ++i) dump << ',' << SU2_TYPE::GetValue(geometry.nodes->GetCoord(point, i));
+      dump << ',' << SU2_TYPE::GetValue(flow->GetNodes()->GetAuxVar_Adapt()(point, 0));
+      for (unsigned i = 0; i < nDim; ++i)
+        for (unsigned j = i; j < nDim; ++j) dump << ',' << SU2_TYPE::GetValue(tensor[i][j]);
+      for (unsigned i = 0; i < nDim; ++i) dump << ',' << raw[i];
+      dump << '\n';
+    }
     if (raw[1] < 1e-12) {
       ++nWall;
       error[2] = max(error[2], fabs(recovered[1][1] / H[1][1] - 1.0));
@@ -877,6 +903,23 @@ std::array<passivedouble, 11> pressureHessianErrors(unsigned short nDim, unsigne
   CHECK(CPassiveComm::AllreduceSum(nWallInterior) > 0);
   CHECK(CPassiveComm::AllreduceSum(nWallEdge) > 0);
   return globalError;
+}
+
+TEST_CASE("Export matched recovery fields for the literature comparison", "[HessianRecoveryComparison]") {
+  // Optional serial benchmark exports; the ordinary test run leaves no files behind.
+  const auto* directory = std::getenv("SU2_HESSIAN_BENCHMARK_DIR");
+  for (const unsigned short dim : {2, 3})
+    for (const bool curved : {false, true})
+      for (const unsigned long n : {8, 16, 32})
+        for (const auto* method : {"GREEN_GAUSS", "WEIGHTED_LEAST_SQUARES", "QUADRATIC_LEAST_SQUARES"}) {
+          CAPTURE(dim, curved, n, method);
+          const auto name = "d" + std::to_string(dim) + (curved ? "-curved-n" : "-flat-n") +
+                            std::to_string(n) + "-" + method;
+          const auto errors = pressureHessianErrors(dim, n, curved, 1000, .37, dim == 3 ? 2.0 : 0.0,
+                                                    curved && dim == 3, method,
+                                                    directory ? string(directory) + "/" + name : "");
+          for (const auto error : errors) CHECK(std::isfinite(error));
+        }
 }
 
 TEST_CASE("Pressure Hessian end-to-end convergence on boundary-layer meshes", "[HessianReliability]") {

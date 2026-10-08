@@ -52,6 +52,12 @@ be mirror-even, as required by the existing sensor contract.
 
 ## Prioritized next comparisons
 
+The first comparison is complete in `CLEMENT_COMPARISON.md`. It establishes
+central-interior agreement with existing GG on these simplex meshes, exposes
+poor boundary recovery, and shows that constant interior extrapolation alone
+does not converge on the graded curved wall. The reproducible benchmark is
+retained; a separate production Clément backend was not introduced.
+
 1. Benchmark Clément recovery and a controlled boundary extrapolation on the
    current manufactured curved layers and the frozen RAE/M6 fields. Compare
    directional errors, spectral directions, cost and partition consistency.

@@ -1,5 +1,49 @@
 # Mesh adaptation findings and follow-up work
 
+## 2026-10-08: Clément comparison and boundary-donor limitation
+
+Completed the paper-based benchmark with 36 matched manufactured datasets
+(2D/3D; straight/curved layers; n=8/16/32; GG/WLS/QR), plus independent Clément
+recovery and two controlled constant boundary extensions. The replayable source
+is `integration_evidence/compare_hessian_recovery.py`; the native pressure-sensor
+export case is `[HessianRecoveryComparison]`. Production code/defaults and the
+main branch's geometric BL policy are unchanged.
+
+On the tested simplex meshes, native GG and Clément agree in the central
+interior within 1.2e-7 in layer coordinates. At n=32 on the curved 3D case,
+Clément/GG interior maximum error is 0.01350 versus QR 0.05482 (about four times
+smaller); in curved 2D QR remains better (0.003045 versus 0.006505). There is no
+universal winner. WLS errors increase with refinement on these stretched,
+rotated, graded examples; this remains a recovery limitation.
+
+Raw GG wall-interior maximum errors are 80.35 (2D) and 673.29 (3D); raw Clément
+reduces these to 1.779 and 6.400, and deeper-donor constant extension to 0.2233
+and 0.3006. These are benchmark derivative comparisons, not implemented
+production gains. QR gives 0.004561 and 0.08304 there. Constant extension is
+boundary-exact on the flat examples, but its curved near-wall normal errors
+plateau at roughly 5.6%/7.5%. It leaves adjacent interior Hessians unchanged.
+A runnable 1D noise-free quadratic calculation on y_i=(i/n)^1.3 retains 4.4%
+curvature bias at fixed donor ring 2 for n=8/16/32. Interior status alone is an
+insufficient donor-quality test; noise filtering and metric gradation cannot
+certify that this bias has disappeared.
+
+Frozen RAE/M6 comparisons cover all 919/10837 physical boundary vertices and
+produce finite tensors, with substantial disagreements from the original WLS/QR
+fields. There is no exact CFD Hessian/output reference, native Clément MPI
+validation or adaptation-cycle result. The NumPy prototype takes approximately
+4.5 s on M6 and caches 44.4 MB of geometry; these are not native C++ method-cost
+comparisons. Detailed source sections, accuracy tables, replay instructions and
+limits are in `Papers/CLEMENT_COMPARISON.md`.
+
+Evidence is saved physically in SU2_AdapNoExt under
+`integration_evidence/metric_robustness/clement_comparison_v1`. Next: correct
+and verify the GG adaptation boundary gradient operator through both recovery
+passes, compare higher-order/distance-aware boundary reconstruction, profile QR
+fallback preparation, then validate accepted choices with native MPI and fixed-
+complexity adaptation/flow cycles. Reuse the existing GG interior operator
+instead of introducing a redundant full-mesh Clément backend.
+
+
 Working branch: `codex/metric-robustness`, fork https://github.com/rois1995/SU2.
 Rebased onto `codex/native-metric-integration` at `2abbd11769` on 2026-10-07.
 The other agent owns BL composition, geometric complexity and gradation; this
