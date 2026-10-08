@@ -4339,7 +4339,9 @@ void CGeometry::ColorMGLevels(unsigned short nMGLevels, const CGeometry* const* 
 
 const CGeometry::CLineletInfo& CGeometry::GetLineletInfo(const CConfig* config) const {
   auto& li = lineletInfo;
-  if (!li.linelets.empty() || nPoint == 0) return li;
+  /* Empty partitions must complete the same collective construction as ranks with lines. */
+  if (li.computed) return li;
+  li.computed = true;
 
   li.lineletIdx.resize(nPoint, CLineletInfo::NO_LINELET);
 
@@ -4444,7 +4446,7 @@ const CGeometry::CLineletInfo& CGeometry::GetLineletInfo(const CConfig* config) 
   SU2_MPI::Allreduce(&sumNPoints, &globalNPoints, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
   SU2_MPI::Allreduce(&nLinelet, &globalNLineLets, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
 
-  if (rank == MASTER_NODE) {
+  if (rank == MASTER_NODE && globalNLineLets > 0) {
     std::cout << "Computed linelet structure, "
               << static_cast<unsigned long>(passivedouble(globalNPoints) / globalNLineLets)
               << " points in each line (average)." << std::endl;
@@ -4470,7 +4472,7 @@ const CGeometry::CLineletInfo& CGeometry::GetLineletInfo(const CConfig* config) 
 
   const auto coloring = colorSparsePattern<uint8_t, std::numeric_limits<uint8_t>::max()>(
       CCompressedSparsePatternUL(adjacency), 1, false, true);
-  const auto nColors = coloring.getOuterSize();
+  const unsigned long nColors = coloring.getOuterSize();  // Communicated as MPI_UNSIGNED_LONG.
 
   /*--- Sort linelets by color. ---*/
   std::vector<std::vector<unsigned long>> sortedLinelets;

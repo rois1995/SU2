@@ -48,13 +48,18 @@ def main():
         prepared.append((case, binary, text, inputs))
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=False)
+    (output / "plan.json").write_text(json.dumps(plan, indent=2) + "\n")
     results = []
+    (output / "results.json").write_text("[]\n")
     env = dict(os.environ, OMP_NUM_THREADS="1", OPENBLAS_NUM_THREADS="1")
     for case, binary, text, inputs in prepared:
+        while os.getloadavg()[0] > len(os.sched_getaffinity(0)):
+            print("Waiting for host contention before", case["name"], flush=True)
+            time.sleep(30)
         directory = output / case["name"]
         directory.mkdir()
         (directory / "case.cfg").write_text(text)
-        record = dict(case, binary_sha256=digest(binary), inputs=inputs,
+        record = dict(case, binary_sha256=digest(binary), inputs=inputs, timeout_seconds=args.timeout,
                       config=text, config_sha256=digest(directory / "case.cfg"), threads=1, nice=19)
         start = time.monotonic()
         with (directory / "run.log").open("w") as log:

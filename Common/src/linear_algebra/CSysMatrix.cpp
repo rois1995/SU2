@@ -1461,12 +1461,11 @@ void CSysMatrix<ScalarType>::BuildLineletPreconditioner(const CGeometry* geometr
   const auto nThreads = omp_get_max_threads();
 
   BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
-    const auto& li = geometry->GetLineletInfo(config);
-    if (!li.linelets.empty()) {
-      LineletUpper.resize(nThreads);
-      LineletVector.resize(nThreads);
-      LineletInvDiag.resize(nThreads);
-    }
+    geometry->GetLineletInfo(config);
+    /* Ranks without lines still need valid work arrays and participate in construction. */
+    LineletUpper.resize(nThreads);
+    LineletVector.resize(nThreads);
+    LineletInvDiag.resize(nThreads);
   }
   END_SU2_OMP_SAFE_GLOBAL_ACCESS
 
