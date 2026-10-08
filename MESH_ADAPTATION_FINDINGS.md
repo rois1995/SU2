@@ -7,9 +7,84 @@ branch continues Hessian/sensor-metric work and validates the shared BL policy.
 See `METRIC_ROBUSTNESS_INTEGRATION.md` for the current implementation contract.
 Older BL experiments and their receipts below are historical evidence.
 This file retains the investigation, implementation status, and deferred work.
+Support statements in older entries describe their dated checkpoints.
 Historical baseline implementation: `e17a96d301`; detailed measurements and replay
 script are in `integration_evidence/metric_robustness_v2_validation.json` and
 `integration_evidence/check_rae2822_metric_constraints.py`.
+
+## Literature assessment and QR symmetry support (2026-10-08)
+
+Source commit `747f0ef6ea` allows direct QR sensor recovery with symmetry markers.
+After fitting, the existing scalar-gradient and vector-gradient symmetry rules
+remove the normal gradient and mixed normal-tangential Hessian components while
+retaining normal-normal curvature. The implementation reuses boundary normals and
+the existing Hessian-gradient workspace; no new stencil ring, MPI exchange or
+full-mesh Hessian buffer is added. Euler and viscous wall behavior and the shared
+geometric BL composition remain unchanged. Periodic, goal and differentiated QR
+configurations remain rejected; custom sensors must obey the existing mirror-even
+contract. General curved/nonorthogonal symmetry cases are not independently
+certified by this campaign.
+
+The supplied PDFs identify an important alternative: Alauzet and Frazza 2021,
+Section 7.3, use a two-pass volume-weighted Clément recovery, not our QR wall
+correction. Vallet et al. 2007 discuss direct quadratic fitting and expanded
+boundary patches. Diskin and Thomas 2008 investigate directional enrichment and
+distance-based mapping for interior gradients. Galbraith et al. 2020 expose the
+cost of weak boundary recovery and compare boundary extrapolation. These are
+concrete benchmark candidates; the papers do not establish a universal winner or
+validate our exact partial cubic basis and thresholds. Details and section
+pointers: [Papers/IMPLEMENTATION_ASSESSMENT.md](Papers/IMPLEMENTATION_ASSESSMENT.md).
+
+New tests cover oblique 2D/3D planes, two orthogonal planes, Euler-wall junctions,
+signed normal curvature and a nonquadratic mirror-even sensor, with noise zero
+and one. All 148 selected serial cases passed (394550 assertions); all 32 selected
+MPI-safe cases per rank passed at two/four ranks. Maximum transformed Hessian
+errors for the manufactured quadratic at symmetry points, noise zero:
+
+| Manufactured geometry | WLS | QR |
+|---|---:|---:|
+| Rotated stretched 2D, one symmetry | 1.5 | 1.31e-10 |
+| Rotated stretched 3D, one symmetry | 1.65667 | 8.93e-10 |
+| Rotated stretched 3D, two symmetries | 4.36364 | 8.93e-10 |
+
+These are absolute errors in local layer coordinates with known quadratic
+derivatives, not aerodynamic error reductions. The new support makes the real
+ONERA M6 RANS/SA fixture usable by QR. Six frozen wing runs (noise zero/one at
+1/2/4 ranks, 96252 points and 545438 tetrahedra) passed unchanged-state, SPD,
+size/aspect, independent complexity, symmetry-Hessian and strict MPI checks.
+All 192504 point-sensor fits succeeded without WLS fallback; 169 used cubic terms.
+Hessians are identical across partitions; maximum metric relative MPI differences
+are 8.47e-15 (noise zero) and 2.02e-15 (noise one). At 8112 symmetry vertices,
+relative mixed-curvature residuals are below 7.2e-16 while nonzero normal curvature
+is retained. A serial RAE QR/noise-zero regression produces a byte-identical
+`fields.csv` to the preceding wall-recovery implementation, including sensor,
+Hessian, metric, solution and coordinates. Both AD header syntax probes pass;
+this is not full differentiated solver validation or AD QR support.
+
+Performance has a real tradeoff. Three alternating paired serial frozen M6 runs
+give median Hessian time 0.176376s for WLS and 2.50669s for QR/noise zero (about
+14.2 times); median whole-process times are 9.37608s and 11.66839s (about +24.4%).
+This compares the complete optional recovery methods, including QR's existing
+WLS fallback preparation, not the symmetry projection alone. Noise-one Hessian
+times in the six-run campaign are 3.56326/2.11961/1.21448s at 1/2/4 ranks, versus
+2.50511/1.52962/0.854762s without noise. One observation per rank under contention
+does not establish general scaling. Repeated paired fields are byte-identical
+within each method. All heavy jobs were sequential, nice 10, build jobs one,
+maximum MPI ranks four and one library thread per rank.
+
+Reliability limits remain: 105281 final wing fits have residual above 0.05 despite
+full rank; the mean is 0.092339, maximum 0.998883 and minimum QR pivot ratio
+4.15464e-7. Noise strength one filters every final wing fit. Neither result
+establishes better physical Hessians or force predictions, so noise stays zero
+by default. Accepted adaptation/flow validation remains open.
+
+Receipt: `integration_evidence/qr_symmetry_v1_validation.json`. Raw fields,
+commands, scripts, input/source/binary pins and paper inventory are saved under
+`/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/qr_symmetry_v1`.
+Next: benchmark Clément recovery and controlled boundary extrapolation at fixed
+complexity, then assess a distance-based Hessian with the full mapping-curvature
+chain rule. Profile avoidable WLS fallback preparation and validate accepted
+adaptation/flow cycles before adding further recovery heuristics.
 
 ## Publication provenance and limits (checked 2026-10-08)
 
