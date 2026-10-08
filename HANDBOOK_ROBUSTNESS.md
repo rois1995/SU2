@@ -78,6 +78,8 @@ Additional local corrections being validated:
 
 Build configuration: release GCC9.4, MPI/OpenMP enabled, tests enabled, no CGNS/TecIO/MMG. Flags include `-O3 -march=native -ffast-math -fno-finite-math-only`.
 
+During this integration, the one-worker build priority was lowered from nice=15 to nice=19 when the 8-CPU machine's load reached ~15. Lower only our Ninja process and its descendants; do not reprioritize unrelated workers. Wait for the build before starting comparison runs.
+
 ```sh
 nice -n 15 /tmp/native-build-tools/ninja -C /tmp/su2-cfd-mesh-build -j1 SU2_CFD/src/SU2_CFD UnitTests/test_driver
 OMP_NUM_THREADS=1 /tmp/su2-cfd-mesh-build/UnitTests/test_driver '[Limiters],[LinearAlgebra],[Gradients]'
@@ -88,6 +90,10 @@ Prepend `/tmp/native-build-tools` to `PATH` when building: Meson regeneration ot
 
 Pending: finish targeted limiter/bounds/under-relaxation tests; rebuild; run unit/parallel/AD checks; compare fixed-mesh RANS against the preserved QR control and repeat MMS; record hashes, exact configs, residuals, forces, iteration caps, nonconvergence and limits. Do not describe these as passed until recorded below.
 
+Focused parallel validation should exercise real matrices: on a small manufactured mesh compare MPI2/OMP1 with MPI2/OMP2 using `LINEAR_SOLVER_ILU_LEVEL_SCHEDULING=YES`; compare MPI1/MPI2 with `LINEAR_SOLVER_PREC=NONE` and tight linear tolerance for identity halo exchange. Krylov unit tests use a mock identity preconditioner and alone do not validate the real halo fix. Limiter unit calls execute inside actual OpenMP parallel regions; assertions remain outside them.
+
+Standalone AD build flags (from the worktree): `c++ -std=c++17 -O2 -ffast-math -fno-finite-math-only -ffunction-sections -fdata-sections -Wl,--gc-sections -fmax-errors=3 -Iexternals/codi/include -Iexternals/eigen -Iexternals/CLI11 UnitTests/SU2_CFD/anisotropic_ls_ad.cpp`. Add `-DCODI_FORWARD_TYPE` for forward; add both `-DCODI_REVERSE_TYPE -DCODI_JACOBIAN_LINEAR_TAPE` for reverse. The probe now includes accepted/rejected scalar-face derivatives. This does not replace a whole-solver adjoint test or local-volume limiter derivative validation.
+
 Potential existing comparison input: native integration evidence `frozen/fine/inputs/input.su2` and `solution` under the main worktree; RAE2822 SA, Mach0.729, Re6.5e6, AoA2.31. The metric evidence `.../native_gradation_residual_v1/validated/frozen-12000/rae/weighted_least_squares-mpi1/run.cfg` is a zero-iteration postprocessing config, not a completed convergence run. Disable metric/adaptation activity for matched fixed-mesh continuation. Its JST flow and first-order turbulence will not exercise every new limiter; additional matched turbulence-MUSCL cases are needed.
 
 ### Adapted RAE input selection
@@ -97,5 +103,27 @@ Potential existing comparison input: native integration evidence `frozen/fine/in
 - Actual adapted mesh: 15929 points, 31285 triangles (input: 18591 points, 36263 triangles). Mesh SHA256 `4cd3c068a4db0af272312ecc9638dffd635235810d5d7a6b81a15f2de6ba71e5`.
 - Independent source validation reports positive volumes, conforming connectivity, no unused/duplicate points/elements, exact restart pairing, and minimum metric quality 0.3613. This is geometry/admissibility evidence, **not CFD convergence**: source run took only one flow step before/after remeshing.
 - Matched candidate/current continuation holds this mesh and initial restart fixed, disables adaptation/metric computation and uses MGLEVEL=0. Test original first-order turbulence and matched turbulence MUSCL with global/local regularization.
+- Independent physical longest-edge/altitude maximum: input 5546.10, adapted 3917.70; 99th percentiles 1004.24 and 910.74. Source inspection reports adapted first-height relative error 2.35e-12 for requested 1e-5. Metric quality and physical aspect ratio are different measures.
 - Conventional BL comparison mesh: `/media/rausa/4TB/SU2_Versions/Prove/MeanFlowBugs/10_convergence/c2_rae2822_sa/mesh_RAE2822_turb.su2`, 13937 points, same AIRFOIL/FARFIELD tags; separate SA and SST fresh starts.
-- Runner: `TestCases/gradient_robustness/run_fixes.py BASELINE CANDIDATE NATIVE_CONFIG BL_MESH OUTPUT --adapted-config /tmp/su2-cfd-fixes-inputs/adapted_rae/snapshot.cfg`. Defaults to 2000 iterations, 600-second per-run cap, serial low priority, fresh output. It records failures/timeouts rather than concealing them. No runs of the new candidate have passed yet.
+- Runner: `TestCases/gradient_robustness/run_fixes.py QR_CONTROL CANDIDATE NATIVE_CONFIG BL_MESH OUTPUT --adapted-config /tmp/su2-cfd-fixes-inputs/adapted_rae/snapshot.cfg --main-baseline /tmp/su2-cfd-gradient-baseline/SU2_CFD`. Defaults to 2000 iterations, 600-second per-run cap, serial low priority, fresh output. It records failures/timeouts rather than concealing them. No runs of the new candidate have passed yet.
+- Runner variant `current` means the QR-only control at `4311028665`; `main` means the matched original e49 main binary without QR. Both are compared on adapted cases, so the limiter/convergence integration can be distinguished from the earlier gradient work.
+- The coefficient-comparison cases use `LIMITER_ITER=999999` (normal continuing updates), avoiding a freeze/calibration confound. A separate 200-step adapted-SA case freezes at iteration 50 to exercise the frozen scalar-limiter fix. Its effect is not attributed solely to coefficients.
+
+## Integration validation recorded so far
+
+2026-10-08, candidate CFD SHA256 `5b77b9acfedaf24d7ff973aff798987edf24ca9575fc480110ccc342363e58d4`:
+
+- Normal rebuild passed, one Ninja worker. Final limiter test source was rebuilt once more before executing tests.
+- Serial limiter/linear-algebra/gradient/config suite: 23 cases, 28407 assertions, passed. Hessian reliability: 8 cases, 91431 assertions, passed. NEMO primitive-limiter output naming: 1 case, 26 assertions, passed.
+- Actual OpenMP2 limiter/anisotropic-gradient regions: 6 cases, 27544 assertions, passed.
+- MPI2 ownership/limiter scaling: 3 cases, 13573 assertions per rank, passed.
+- Forward/reverse standalone AD: 12 QR field/geometry cases plus 2 scalar fallback cases each, passed. The infinite face returns the finite cell value and its derivative. Full-solver adjoints and local-volume limiter derivatives remain untested.
+- Matched manufactured NS: all 12 runs finite, all six reported error vectors identical to the QR control. Regular n=12 stopped after 192 iterations; others hit 300. This establishes no demonstrated manufactured-solution accuracy gain.
+- Real parallel CFD on the regular n=12 manufactured mesh, 20 steps, MGLEVEL0, linear tolerance1e-10: ILU MPI2/OMP1 vs MPI2/OMP2 max conserved-field scaled difference `1.8143e-15`; identity MPI1 vs MPI2 `1.6432e-15`. Both finite. The ILU case explicitly enables level scheduling.
+- Valgrind on the MPI2/OMP2 ILU case: both ranks exit successfully, zero invalid-access errors. Leak checking and undefined-value checks were disabled to focus on the original halo-row memory bug; this is not a leak audit.
+- Raw validation logs: `/tmp/su2-cfd-fixes-validation`; parallel case configs/results/logs: `/tmp/su2-cfd-fixes-parallel`.
+- First RANS attempt `/tmp/su2-cfd-fixes-rans` rejected the retained `ADAP_BL_MARKER` with `COMPUTE_METRIC=NO`. It was stopped without touching other jobs. The runner now removes source `ADAP_*` options, disables adapted mesh output, and requests ordinary solution/primitive fields for fixed-mesh comparisons. Preserve the failed logs; they are configuration failures, not numerical outcomes.
+- Validate all corrected cases with `--iterations 1` in a fresh smoke directory before the full campaign. The frozen test caps at the smaller of 200 and the requested iteration limit. Full RANS outcomes remain pending.
+- All 20 corrected one-step configs passed in `/tmp/su2-cfd-fixes-rans-smoke`. Full run is `/tmp/su2-cfd-fixes-rans-v2`, log `/tmp/su2-cfd-fixes-validation/rans-runner-v2.log`, execution session `55208` (session IDs are only useful in this live tool session). It uses nice=19, OMP1, 2000 iterations / 600 seconds per case, with a separate 200-step freeze probe.
+- At the first QR-control continuation, density residual passed -8 by iteration780 but SA residual remained near -7.1865. This is an early observation, not a final matched comparison; requiring both residuals matters.
+- Validated local safeguards and tests are committed as `596b18a991`. The later documentation/results commits do not alter the candidate binary.
