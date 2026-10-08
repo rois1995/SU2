@@ -62,12 +62,14 @@ passivedouble hessianStencilReciprocalCondition(unsigned short nDim, unsigned lo
 template<size_t dim, class GradientType, class HessianType>
 void hessiansReuseGeometry(CGeometry& geometry, const GradientType& gradient, size_t begin, size_t end,
                            const C3DDoubleMatrix& R, HessianType& hessian) {
+  std::vector<su2uint> orderedNeighbors;
   for (size_t point = 0; point < geometry.GetnPointDomain(); ++point) {
     su2double inverse[dim][dim];
     leastSquaresInverse<dim>(point, R, inverse);
     for (size_t v = begin; v < end; ++v)
       for (size_t k = 0; k < dim * (dim + 1) / 2; ++k) hessian(point, v, k) = 0.0;
-    for (const auto neighbor : geometry.nodes->GetPoints(point)) {
+    orderAdaptationNeighbors(geometry, point, orderedNeighbors);
+    for (const auto neighbor : orderedNeighbors) {
       su2double dx[dim], coefficient[dim] = {};
       GeometryToolbox::Distance(dim, geometry.nodes->GetCoord(neighbor), geometry.nodes->GetCoord(point), dx);
       const auto squared = GeometryToolbox::SquaredNorm(dim, dx);

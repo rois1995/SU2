@@ -2697,15 +2697,36 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
 
   if (givenMetric == nullptr) {
     vector<unsigned long> localInvalid(nSensor, 0), globalInvalid(nSensor, 0);
+#if !defined(CODI_FORWARD_TYPE) && !defined(CODI_REVERSE_TYPE)
+    vector<passivedouble> sensorTerms(nPointDomain * nSensor);
+#endif
     for (unsigned long iPoint = 0; iPoint < nPointDomain; ++iPoint) {
       const su2double volume = geometry->nodes->GetVolume(iPoint);
       for (auto iSensor = 0u; iSensor < nSensor; ++iSensor) {
         su2double vec[3][3], val[3];
         absHessian(iPoint, iSensor, vec, val, &localInvalid[iSensor]);
-        localScale[iSensor] += pow(determinant(val), p / (2 * p + nDim)) * volume;
+        const auto term = pow(determinant(val), p / (2 * p + nDim)) * volume;
+#if !defined(CODI_FORWARD_TYPE) && !defined(CODI_REVERSE_TYPE)
+        sensorTerms[iPoint * nSensor + iSensor] = SU2_TYPE::GetValue(term);
+#else
+        localScale[iSensor] += term;
+#endif
       }
     }
+#if !defined(CODI_FORWARD_TYPE) && !defined(CODI_REVERSE_TYPE)
+    // Reuse the protected compensated reducer; tiny normalization errors can move weak sensor directions.
+    CAccurateSumBatch sensorSums;
+    for (auto sensor = 0u; sensor < nSensor; ++sensor)
+      sensorSums.Add(sensorTerms.empty() ? nullptr : sensorTerms.data() + sensor, nPointDomain, nSensor);
+    sensorSums.Reduce();
+    for (auto sensor = 0u; sensor < nSensor; ++sensor) {
+      if (!sensorSums.Finite(sensor)) SU2_MPI::Error("Non-finite sensor normalization integral.", CURRENT_FUNCTION);
+      globalScale[sensor] = sensorSums.Get(sensor);
+    }
+#else
+    // Retain active MPI sums so differentiated builds preserve their existing tape/derivative semantics.
     SU2_MPI::Allreduce(localScale.data(), globalScale.data(), nSensor, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+#endif
     SU2_MPI::Allreduce(localInvalid.data(), globalInvalid.data(), nSensor, MPI_UNSIGNED_LONG, MPI_SUM,
                        SU2_MPI::GetComm());
     if (rank == MASTER_NODE) {

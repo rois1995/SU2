@@ -28,11 +28,23 @@
 
 #pragma once
 
+#include <algorithm>
+#include <vector>
 #include "../../../Common/include/parallelization/omp_structure.hpp"
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
 #include "correctGradientsSymmetry.hpp"
 
 namespace detail {
+
+/*! \brief Stable stencil accumulation for adaptation, independent of local MPI numbering. */
+inline void orderAdaptationNeighbors(const CGeometry& geometry, unsigned long point,
+                                     std::vector<su2uint>& neighbors) {
+  neighbors.clear();
+  for (const auto neighbor : geometry.nodes->GetPoints(point)) neighbors.push_back(neighbor);
+  std::sort(neighbors.begin(), neighbors.end(), [&](unsigned long a, unsigned long b) {
+    return geometry.nodes->GetGlobalIndex(a) < geometry.nodes->GetGlobalIndex(b);
+  });
+}
 
 /*!
  * \brief Prepare Smatrix for 2D.
@@ -229,6 +241,12 @@ void computeGradientsLeastSquares(CSolver* solver,
                      omp_get_max_threads(), OMP_MAX_CHUNK);
 #endif
 
+  /*--- Keep ordinary CFD stencil order; adaptation also differentiates these gradients into Hessians.
+   *    Reuse one small temporary neighbor buffer per calling thread, not one allocation per point. ---*/
+  const bool adaptationOrder = kindMpiComm == MPI_QUANTITIES::GRADIENT_ADAPT ||
+                               kindMpiComm == MPI_QUANTITIES::HESSIAN;
+  std::vector<su2uint> orderedNeighbors;
+
   /*--- First loop over non-halo points of the grid. ---*/
 
   SU2_OMP_FOR_DYN(chunkSize)
@@ -255,8 +273,17 @@ void computeGradientsLeastSquares(CSolver* solver,
         Rmatrix(iPoint, iDim, jDim) = 0.0;
 
 
-    for (auto jPoint : nodes->GetPoints(iPoint))
+    const auto neighbors = nodes->GetPoints(iPoint);
+    const auto* first = neighbors.begin();
+    const auto* last = neighbors.end();
+    if (adaptationOrder) {
+      orderAdaptationNeighbors(geometry, iPoint, orderedNeighbors);
+      first = orderedNeighbors.data();
+      last = orderedNeighbors.empty() ? first : first + orderedNeighbors.size();
+    }
+    for (auto next = first; next != last; ++next)
     {
+      const auto jPoint = *next;
       const auto coord_j = geometry.nodes->GetCoord(jPoint);
       AD::SetPreaccIn(coord_j, nDim);
 

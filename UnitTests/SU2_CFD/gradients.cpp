@@ -340,7 +340,7 @@ TEST_CASE("WLS Hessian reuse matches repeated geometry solves across sensors", "
     x = field.geometry->nodes->GetCoord(point);
     for (unsigned v = 0; v < 3; ++v) sensor(point,v) = (v+1)*(x[0]*x[0]+x[1]*x[2]);
   }
-  computeGradientsLeastSquares(nullptr, MPI_QUANTITIES::SOLUTION, PERIODIC_NONE, *field.geometry, *field.config,
+  computeGradientsLeastSquares(nullptr, MPI_QUANTITIES::GRADIENT_ADAPT, PERIODIC_NONE, *field.geometry, *field.config,
                                true, sensor, 0, 3, -1, gradient, R, false);
   for (auto point = 0ul; point < nPoint; ++point)
     for (unsigned v = 0; v < 3; ++v)
@@ -367,6 +367,38 @@ TEST_CASE("WLS Hessian reuse matches repeated geometry solves across sensors", "
         CHECK(reused(point,v,k) == Approx(legacy(point,v,k)).margin(1e-7));
         CHECK(std::isfinite(SU2_TYPE::GetValue(reused(point,v,k))));
       }
+}
+
+TEST_CASE("Adaptation WLS derivatives are independent of neighbor insertion order", "[HessianReliability]") {
+  QuadraticFunction field;
+  auto& geometry = *field.geometry;
+  const auto nPoint = geometry.GetnPoint(), owned = geometry.GetnPointDomain();
+  C3DDoubleMatrix gradient(nPoint, 1, 3, 0.0), R(nPoint, 3, 3), hessian(nPoint, 1, 6), work(nPoint, 3, 3);
+  su2activematrix scratch(nPoint, 3);
+  auto recover = [&]() {
+    computeGradientsLeastSquares(nullptr, MPI_QUANTITIES::GRADIENT_ADAPT, PERIODIC_NONE, geometry, *field.config,
+                                 true, field, 0, 1, -1, gradient, R, false);
+    computeHessians(nullptr, WEIGHTED_LEAST_SQUARES, geometry, *field.config, gradient, 0, 1,
+                    scratch, work, R, hessian, true);
+  };
+  recover();
+  vector<su2double> referenceGradient(owned * 3), referenceHessian(owned * 6);
+  for (auto point = 0ul; point < owned; ++point) {
+    for (auto k = 0u; k < 3; ++k) referenceGradient[point * 3 + k] = gradient(point, 0, k);
+    for (auto k = 0u; k < 6; ++k) referenceHessian[point * 6 + k] = hessian(point, 0, k);
+  }
+  // This fixture uses only neighbor-based kernels below; no edge/neighbor-position association is consumed.
+  vector<vector<unsigned long>> reversed(nPoint);
+  for (auto point = 0ul; point < nPoint; ++point) {
+    for (const auto neighbor : geometry.nodes->GetPoints(point)) reversed[point].push_back(neighbor);
+    std::reverse(reversed[point].begin(), reversed[point].end());
+  }
+  geometry.nodes->SetPoints(reversed);
+  recover();
+  for (auto point = 0ul; point < owned; ++point) {
+    for (auto k = 0u; k < 3; ++k) CHECK(gradient(point, 0, k) == referenceGradient[point * 3 + k]);
+    for (auto k = 0u; k < 6; ++k) CHECK(hessian(point, 0, k) == referenceHessian[point * 6 + k]);
+  }
 }
 
 TEST_CASE("Metric intersection", "[Adaptation]") {
