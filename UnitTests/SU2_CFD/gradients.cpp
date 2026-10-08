@@ -732,7 +732,7 @@ TEST_CASE("QR shrinkage retains a resolved steep profile and does not filter its
 /*--- Complete pressure sensor -> gradient -> Hessian chain on triangles/tetrahedra.
  *     Smooth grading and distortion vary the stencil with refinement. Error comparisons are made in
  *     local layer coordinates, so the physical normal curvature (O(aspect^2)) cannot hide tangential errors. ---*/
-std::array<passivedouble, 5> pressureHessianErrors(unsigned short nDim, unsigned long n, bool distorted,
+std::array<passivedouble, 11> pressureHessianErrors(unsigned short nDim, unsigned long n, bool distorted,
                                                    passivedouble aspect, passivedouble angle, passivedouble skew = 0,
                                                    bool spanCurve = false, const char* method = "QUADRATIC_LEAST_SQUARES") {
   auto mesh = simplex_test::MakeSimplexMesh(
@@ -806,8 +806,9 @@ std::array<passivedouble, 5> pressureHessianErrors(unsigned short nDim, unsigned
     if (SU2_MPI::GetRank() == MASTER_NODE) cout << "3D WLS reuse/legacy maximum difference over field scale="
                                              << difference / largest << endl;
   }
-  std::array<passivedouble, 5> error = {};  // gradient, interior Hessian, wall normal Hessian, eigenvalues, direction
-  unsigned long nInterior = 0, nWall = 0;
+  // First five historical measurements; then wall-interior and wall-edge transverse, tangent and mixed errors.
+  std::array<passivedouble, 11> error = {};
+  unsigned long nInterior = 0, nWall = 0, nWallInterior = 0, nWallEdge = 0;
   for (auto point = 0ul; point < geometry.GetnPointDomain(); ++point) {
     passivedouble q[3], g[3] = {}, ref[3][3] = {};
     layerCoord(point, q);
@@ -841,6 +842,18 @@ std::array<passivedouble, 5> pressureHessianErrors(unsigned short nDim, unsigned
     if (raw[1] < 1e-12) {
       ++nWall;
       error[2] = max(error[2], fabs(recovered[1][1] / H[1][1] - 1.0));
+      const bool wallInterior = raw[0] > 1e-12 && raw[0] < (nDim == 2 ? 2.0 : 1.0) - 1e-12 &&
+                                (nDim == 2 || (raw[2] > 1e-12 && raw[2] < 1.0 - 1e-12));
+      if (wallInterior) ++nWallInterior;
+      else ++nWallEdge;
+      const auto offset = wallInterior ? 5 : 8;
+      error[offset] = max(error[offset], fabs(recovered[1][1] / H[1][1] - 1.0));
+      for (unsigned short i = 0; i < nDim; ++i)
+        for (unsigned short j = 0; j < nDim; ++j) {
+          if (i == 1 && j == 1) continue;
+          const auto component = (i == 1 || j == 1) ? 2 : 1;
+          error[offset + component] = max(error[offset + component], fabs(recovered[i][j] - ref[i][j]));
+        }
     }
     bool interior = raw[0] >= 0.4 && raw[0] <= (nDim == 2 ? 1.6 : 0.6) && raw[1] >= 0.4 && raw[1] <= 0.6;
     if (nDim == 3) interior &= raw[2] >= 0.4 && raw[2] <= 0.6;
@@ -861,6 +874,8 @@ std::array<passivedouble, 5> pressureHessianErrors(unsigned short nDim, unsigned
   CPassiveComm::Allreduce(error.data(), globalError.data(), error.size(), CPassiveComm::Op::MAX);
   CHECK(CPassiveComm::AllreduceSum(nInterior) > 0);
   CHECK(CPassiveComm::AllreduceSum(nWall) > 0);
+  CHECK(CPassiveComm::AllreduceSum(nWallInterior) > 0);
+  CHECK(CPassiveComm::AllreduceSum(nWallEdge) > 0);
   return globalError;
 }
 
@@ -874,7 +889,7 @@ TEST_CASE("Pressure Hessian end-to-end convergence on boundary-layer meshes", "[
         const auto fine = pressureHessianErrors(nDim, 16, distorted, aspect, angle);
         if (SU2_MPI::GetRank() == MASTER_NODE) {
           cout << "Pressure Hessian " << nDim << "D, distorted=" << distorted << ", AR=" << aspect
-               << ": coarse [grad,H,wall,eigen,direction]=";
+               << ": coarse [grad,H,wall,eigen,direction; wall-interior transverse,tangent,mixed; wall-edge transverse,tangent,mixed]=";
           for (const auto e : coarse) cout << " " << e;
           cout << "; fine=";
           for (const auto e : fine) cout << " " << e;
@@ -889,6 +904,11 @@ TEST_CASE("Pressure Hessian end-to-end convergence on boundary-layer meshes", "[
           CHECK(fine[2] < 1e-8);
         else
           CHECK(fine[2] < 0.75 * coarse[2] + 1e-8);
+        if (distorted && aspect > 1) {
+          for (unsigned k = 5; k < 8; ++k) CHECK(fine[k] < .8 * coarse[k] + 1e-8);
+          CHECK(fine[5] < .002);
+          CHECK(fine[7] < .01);
+        }
       }
     }
   }
@@ -979,7 +999,7 @@ TEST_CASE("3D pressure Hessian recovery on skewed and doubly curved tetrahedra",
       const auto elapsed = CPassiveComm::Allreduce(SU2_MPI::Wtime() - start, CPassiveComm::Op::MAX);
       if (SU2_MPI::GetRank() == MASTER_NODE) {
         cout << "3D Hessian stress " << method << ", curved=" << curved << ", AR=" << aspect << ", skew=" << skew
-             << ": coarse [grad,H,wall,eigen,direction]=";
+             << ": coarse [grad,H,wall,eigen,direction; wall-interior transverse,tangent,mixed; wall-edge transverse,tangent,mixed]=";
         for (const auto e : coarse) cout << " " << e;
         cout << "; fine=";
         for (const auto e : fine) cout << " " << e;
@@ -992,6 +1012,15 @@ TEST_CASE("3D pressure Hessian recovery on skewed and doubly curved tetrahedra",
         CHECK(fine[1] < .75 * coarse[1] + 1e-5);
         CHECK(fine[4] < .1);
         if (!curved) CHECK(fine[2] < 1e-4);
+        else {
+          CHECK(fine[2] < .08);
+          CHECK(fine[5] < .06);
+          CHECK(fine[6] < .3);
+          CHECK(fine[7] < .1);
+          for (unsigned k = 5; k < 8; ++k) CHECK(fine[k] < .7 * coarse[k] + 1e-5);
+          // Edges may retain the original quadratic fit; require convergence there separately.
+          for (unsigned k = 8; k < 11; ++k) CHECK(fine[k] < .8 * coarse[k] + 1e-5);
+        }
       }
     }
   }
