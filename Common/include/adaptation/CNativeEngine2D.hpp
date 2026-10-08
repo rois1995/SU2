@@ -71,6 +71,8 @@ struct EngineStats {
   std::array<int, 8> accepted{};
   std::array<double, 8> phase_seconds{};
   std::array<double, 8> choice_seconds{};
+  // Adjacent, exclusive round scopes; each includes its local work and MPI waits.
+  std::array<double, 6> transaction_seconds{};
   std::array<uint64_t, 8> selection_scans{};
   std::map<std::string, int> rejected;
 };
@@ -295,6 +297,12 @@ class Engine {
   }
 
   bool round(Choice choice, bool coordinated = false) {
+    auto stageStarted = world.seconds();
+    auto finishStage = [&](size_t stage) {
+      const auto now = world.seconds();
+      stats.transaction_seconds[stage] += now - stageStarted;
+      stageStarted = now;
+    };
     ++stats.rounds;
     changedCount = 0;
     changedOverflow = false;
@@ -321,6 +329,7 @@ class Engine {
         choice.score = -1;
       }
     }
+    finishStage(0);  // Protocol checks and ordered proposal selection.
     bool active = choice.score >= 0, overflow = false, stale = false;
     const bool surface = int(choice.op.action) < 4;
     std::set<Id> seeds;
@@ -368,11 +377,13 @@ class Engine {
     const bool reserved = directory.reserve(old, active, stats.conflicts);
     last_deferred |= active && !reserved;
     active = reserved;
+    finishStage(1);  // Dependency closure/import and reservations.
     auto field = donor.import(old, active, options.dependency_bytes, options.geometry_tolerance, stats.max_donors,
                               stats.memory_rejected);
     const Metric target = checked([field](Point p) { return field->evaluate(p); });
     const Id pointBase = Allocate(nextPoint, active ? 3 * PATCH_LIMIT + 1 : 0);
     const Id cellBase = Allocate(nextCell, active ? 3 * PATCH_LIMIT : 0);
+    finishStage(2);  // Original-sensor donor import and identity allocation.
     bool approved = false;
     std::string reason;
     if (active) {
@@ -413,6 +424,7 @@ class Engine {
       stats.reconstruction_longest = std::max(stats.reconstruction_longest, elapsed);
       if (!approved) ++stats.rejected[reason];
     }
+    finishStage(3);  // Private reconstruction, including actual-query metric evaluation.
     std::vector<Perimeter> certificate;
     if (approved)
       for (const int oldFlag : {1, 0}) {
@@ -497,6 +509,7 @@ class Engine {
     std::set<int> commit;
     for (const auto& decision : decisions)
       if (decision.approve) commit.insert(decision.caller);
+    finishStage(4);  // Certificate exchange, collision/participant validation and decisions.
     std::vector<Cell> removed, added;
     std::map<Id, Cell> staged;
     CLocalFailure failure;
@@ -550,6 +563,7 @@ class Engine {
     stats.field_queries[1] += field->samples;
     stats.field_queries[2] += field->evictions;
     ++epoch;
+    finishStage(5);  // Staging, directory preparation/election and publication.
     return publish && approved;
   }
 

@@ -1,0 +1,24 @@
+{
+  "status": "PASS",
+  "scope": "Timing closure checks on completed native core MPI1/2/4 logs. Numerical/transfer checks remain in their original test receipts.",
+  "runs": [
+    {
+      "ranks": 1,
+      "profile_count": 93,
+      "status": "PASS",
+      "largest_printed_mean_closure_defect": 1.1199999994104815e-06
+    },
+    {
+      "ranks": 2,
+      "profile_count": 109,
+      "status": "PASS",
+      "largest_printed_mean_closure_defect": 2.160000000195339e-06
+    },
+    {
+      "ranks": 4,
+      "profile_count": 126,
+      "status": "PASS",
+      "largest_printed_mean_closure_defect": 8.999999999481645e-06
+    }
+  ]
+}

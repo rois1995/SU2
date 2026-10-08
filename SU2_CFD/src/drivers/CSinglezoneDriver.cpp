@@ -1649,6 +1649,7 @@ void CSinglezoneDriver::ReplaceMesh(const CRemeshResult& remeshed, CSolutionTran
     CDistributedMemoryMeshReaderFVM reader(config, remeshed.slices, ZONE_0, nZone);
     BuildGeometryFVM(config, new CPhysicalGeometry(config, reader, nZone), geometry, true);
   }
+  const auto geometryBuiltAt = SU2_MPI::Wtime();
   const auto nMGLevels = config->GetnMGLevels();
 
   /*--- Every marker of the new mesh with boundary elements is held, under its name, by some rank. Each rank holds the
@@ -1679,6 +1680,8 @@ void CSinglezoneDriver::ReplaceMesh(const CRemeshResult& remeshed, CSolutionTran
     CGeometry*** zones[] = {instances};
     CGeometry::ComputeWallDistance(config_container, zones);
   }
+
+  const auto geometryCheckedAt = SU2_MPI::Wtime();
 
   /*--- Solvers in the free-stream state (the restart files belong to the first mesh), then the solution from
    *    the donor, then the objects that depend on the solvers. ---*/
@@ -1749,7 +1752,14 @@ void CSinglezoneDriver::ReplaceMesh(const CRemeshResult& remeshed, CSolutionTran
   MDOFs = DOFsPerPoint * Mpoints;
   MDOFsDomain = DOFsPerPoint * MpointsDomain;
 
-  const su2double replaceTime = SU2_MPI::Wtime() - startTime;
+  const auto replacementFinishedAt = SU2_MPI::Wtime();
+  const su2double replaceTime = replacementFinishedAt - startTime;
+  const std::array<double, 5> localReplaceCost{SU2_TYPE::GetValue(geometryBuiltAt - startTime),
+      geometryCheckedAt - geometryBuiltAt, transferStart - geometryCheckedAt, transferTime,
+      replacementFinishedAt - transferStart - transferTime};
+  std::array<double, 5> maximumReplaceCost{};
+  if (config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY)
+    CPassiveComm::Allreduce(localReplaceCost.data(), maximumReplaceCost.data(), localReplaceCost.size(), CPassiveComm::Op::MAX);
   UsedTimePreproc += replaceTime;
   lastReplaceTime = replaceTime;
   lastTransferTime = transferTime;
@@ -1758,6 +1768,12 @@ void CSinglezoneDriver::ReplaceMesh(const CRemeshResult& remeshed, CSolutionTran
     cout << "The problem uses the new mesh: " << geometry[MESH_0]->GetGlobal_nPointDomain() << " points, "
          << nMGLevels << " multigrid levels." << endl;
     cout << "Mesh replaced in " << replaceTime << " s (solution transfer " << transferTime << " s)." << endl;
+    if (config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY) {
+      cout << "Mesh replacement seconds geometry-build/check-wall-distance/solver-init/transfer/finalize "
+              "(maximum across ranks, exclusive scopes):";
+      for (const auto seconds : maximumReplaceCost) cout << ' ' << seconds;
+      cout << endl;
+    }
   }
 }
 

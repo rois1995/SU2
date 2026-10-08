@@ -1,0 +1,90 @@
+{
+  "scope": "One same-executable trial per mode, N4/M1/2/3/4. Same original sensor/geometry/height, different trajectories and work: not fixed-work speedups. Working partition and N-rank reader return included; no CFD solve or transfer. M3 fastest in this first trial. Repeats, reverse workload and actual unsteady/restart/full CFD lifecycle costs remain required.",
+  "status": "PASS_FROZEN_CONTRACTS_ONLY",
+  "runs": [
+    {
+      "CFD_ranks": 4,
+      "adaptation_ranks": 1,
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_frozen_rae_euler_to_bl_workers1_v1/runtime_np4",
+      "binary_sha256": "06c8a3ed6bc33cef9f4d08ae76bb86331ce7b077684b9aa3115f056579aa59be",
+      "whole_process_seconds": 65.52934044199355,
+      "remesh_seconds": 63.907540895,
+      "max_rank_rss_hwm_kib": 62808,
+      "commits": 56011,
+      "points": 11285,
+      "native_execution_max_seconds": {
+        "workers": 63.8303,
+        "return_to_CFD": 0.042113,
+        "inactive_wait": 63.832,
+        "inactive_process_CPU": 0.334714
+      },
+      "grid_sha256": "6f8af369daf4c3d794e14add09d333ec0182a80da975748e288dd2bef5a942cb",
+      "audit_status": "PASS",
+      "max_directional_transported_metric_defect": 7.090722927831871e-11,
+      "max_first_height_relative_error": 3.2261970872582424e-12
+    },
+    {
+      "CFD_ranks": 4,
+      "adaptation_ranks": 2,
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_frozen_rae_euler_to_bl_workers2_v1/runtime_np4",
+      "binary_sha256": "06c8a3ed6bc33cef9f4d08ae76bb86331ce7b077684b9aa3115f056579aa59be",
+      "whole_process_seconds": 45.866245551995235,
+      "remesh_seconds": 45.372771937,
+      "max_rank_rss_hwm_kib": 48608,
+      "commits": 56392,
+      "points": 11511,
+      "native_execution_max_seconds": {
+        "workers": 45.2987,
+        "return_to_CFD": 0.0297582,
+        "inactive_wait": 45.3006,
+        "inactive_process_CPU": 0.304995
+      },
+      "grid_sha256": "e6ddcd64f477cb5d2033f78416870f62c1631ca4a8e2aa70131b7e3e7dee2ced",
+      "audit_status": "PASS",
+      "max_directional_transported_metric_defect": 7.090722927831871e-11,
+      "max_first_height_relative_error": 5.118461210429359e-12
+    },
+    {
+      "CFD_ranks": 4,
+      "adaptation_ranks": 3,
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_frozen_rae_euler_to_bl_workers3_v1/runtime_np4",
+      "binary_sha256": "06c8a3ed6bc33cef9f4d08ae76bb86331ce7b077684b9aa3115f056579aa59be",
+      "whole_process_seconds": 37.81620564199693,
+      "remesh_seconds": 37.349962938,
+      "max_rank_rss_hwm_kib": 45920,
+      "commits": 50739,
+      "points": 12246,
+      "native_execution_max_seconds": {
+        "workers": 37.2642,
+        "return_to_CFD": 0.0275372,
+        "inactive_wait": 37.266,
+        "inactive_process_CPU": 0.27253
+      },
+      "grid_sha256": "d0ddfd5ab3ca65acbef888456e685fdf023ff898b856e081d94d7beaa44df04a",
+      "audit_status": "PASS",
+      "max_directional_transported_metric_defect": 1.0042386067531084e-10,
+      "max_first_height_relative_error": 4.43312053732825e-12
+    },
+    {
+      "CFD_ranks": 4,
+      "adaptation_ranks": 4,
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_frozen_rae_euler_to_bl_workers4_v1/runtime_np4",
+      "binary_sha256": "06c8a3ed6bc33cef9f4d08ae76bb86331ce7b077684b9aa3115f056579aa59be",
+      "whole_process_seconds": 42.567030550999334,
+      "remesh_seconds": 42.096523507,
+      "max_rank_rss_hwm_kib": 42712,
+      "commits": 49616,
+      "points": 12216,
+      "native_execution_max_seconds": {
+        "workers": 42.0135,
+        "return_to_CFD": 0.0271535,
+        "inactive_wait": 0.0,
+        "inactive_process_CPU": 0.0
+      },
+      "grid_sha256": "e9d9dfc9444efecdbc708a9a7a3bb39dcf5632afb70c3f9d9be7df0938539850",
+      "audit_status": "PASS",
+      "max_directional_transported_metric_defect": 7.090722927831871e-11,
+      "max_first_height_relative_error": 6.042943923034727e-12
+    }
+  ]
+}

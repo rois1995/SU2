@@ -1,0 +1,366 @@
+{
+  "filter": "[NativeDistributed2D],[NativeField2D],[NativeEngine2D],[NativeSupport2D],[DistributedTransfer],[NativeCGNS2D],[NativeRejectedOutput],[NativeBL2D],[NativeProducedBL2D],[NativeRemesher],[MetricRobustness],[NativeComposite2D],[PassiveComm],[DistributedSearch]",
+  "sequential": true,
+  "maximum_ranks": 4,
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "SU2_NATIVE_SAVE_AUDIT": "1"
+  },
+  "build": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2",
+  "binary_sha256": "12c72828117254be5478c276e099892c8478bb8b461fce88935acb08a680739b",
+  "executable_name": "test_driver",
+  "source_sha256": {
+    "Common/include/CConfig.hpp": "c6cdd744b5ffd73b627d9f50792d77693308f3667265075c193d030c2f828d4a",
+    "Common/include/adaptation/CDistributedSearch.hpp": "267108ef0a3b5df7555cef5a692753a582f3a4490ec3be24667ec8936cfde1bb",
+    "Common/include/adaptation/CMMGInterface.hpp": "3292bfcb2b9ba3c75f2522470b6cc71e876edc1f05369d4d1d07d4af3e251cde",
+    "Common/include/adaptation/CNativeBoundary2D.hpp": "2cad241badcb07de004ea0a4e45ddc4fe55c0219a7048a11e659f29c30333585",
+    "Common/include/adaptation/CNativeDistributed2D.hpp": "419aaf7b27e34f1c0bdb19f819de2cc1c430d451b6a94cc8b34d42a79de2e4b2",
+    "Common/include/adaptation/CNativeEngine2D.hpp": "513cbd1b869b7297ae3725dd7f474c0f3fc46a02688b632fa315d07c502440fc",
+    "Common/include/adaptation/CNativeField2D.hpp": "a0023bb8e22589d97c0911f5410a6aeb57ffb2f59b8070cfe980e82398db3988",
+    "Common/include/adaptation/CNativeGeometryValidation2D.hpp": "3ffc3b8064e35ef3380074449c43c11910be24a50c1956609ff3fd1ff3aecac7",
+    "Common/include/adaptation/CNativeImport2D.hpp": "3271fb088d02b734e45f564cbbdf6f7f6feee85993a206864d7491149b7d2acb",
+    "Common/include/adaptation/CNativeMesh2D.hpp": "d3df15cd505efc4dba37ab2b77bd89598e8d4cfb3368c879339ab7ca8b4d1b64",
+    "Common/include/adaptation/CNativePartition2D.hpp": "46f822fe667eb6160e362992fa98f063cebd55a6559c27ac9b7ba21a26c9bd17",
+    "Common/include/adaptation/CNativeReference2D.hpp": "d198749092bf9d5cef5c9b936f2ea895eaf1fa30183e100b08d2cf0ddd3d3a0a",
+    "Common/include/adaptation/CNativeReferenceIO.hpp": "f29049f2a1f6e57a77f47b672e4fb985bf89424e4089b533b69d626cf7f15a5f",
+    "Common/include/adaptation/CNativeRemesher.hpp": "772cce8a8b97528c4b3a6851e90dc1dbc4c5eed83b9a9a079af4990dda41a465",
+    "Common/include/adaptation/CReaderSlices.hpp": "cc5348193160e1e4493346199192931c7caee2901772d9ebd0d7d5bafe7f9a95",
+    "Common/include/adaptation/CRemesher.hpp": "b5c80c5f1dc8fa63fe70094366d7ab5578fa77b2c97140b15a50be2fb65cdb28",
+    "Common/include/linear_algebra/blas_structure.hpp": "34273feae289c1e816259cedc7f5a449d273b72a8b4b9f4e16e0a8aad7897446",
+    "Common/include/option_structure.hpp": "eba96aae6d4fb4948af1711085d36ae12b7a6bf923adbbca82d274783dbae3f2",
+    "Common/include/parallelization/CPassiveComm.hpp": "ef85c3621bb90aead29f8877cc35ac4ca22e6ebffe49926ca3813faaa7545eb2",
+    "Common/src/CConfig.cpp": "9febc3067574b9452c97c8c883b8d62cddb098e453602531074d0bcc80e9bb3f",
+    "Common/src/adaptation/CDistributedSearch.cpp": "4a8cef165458384eb5acb0bc2392bc4bd924775dae7e5fae99623e016a742dad",
+    "Common/src/adaptation/CMMGInterface.cpp": "712322461ad187397d3bd7a59ae593232d82c9fed01e0028a5098dabd6e006ef",
+    "Common/src/adaptation/CNativePartition2D.cpp": "8ef734fabc48e7b2889206387f450bd63361b9801cf84a17c7fc5b290a79839a",
+    "Common/src/adaptation/CNativePredicates2D.cpp": "94c538f5700d5bcb1bfcfd4be4bd78f06bfacc9b07a583622ea76e8146eb2c2b",
+    "Common/src/adaptation/CNativeRemesher.cpp": "1267c19d239183989f616271f87b96198e9f716c14c3b4a680789dec161254da",
+    "Common/src/adaptation/CReaderSlices.cpp": "3e15ad735b2332cf0697eb63315310d9fb92bd26f48f00fef7116d67cbf2c1f2",
+    "Common/src/adaptation/meson.build": "ffae0c5603ee6f217396aeb675dd92be1e55ee3315415d48f527476349d267b5",
+    "Common/src/meson.build": "bb13c497e66c161e559bf79fa1d3e5f1bad2432e6fe2934f850d3040eb98b87f",
+    "Common/src/parallelization/CPassiveComm.cpp": "ad2be5e53848902b7a090381dc26aa1fadf5462ebd4fe1ffb47a49393bb12d58",
+    "QuickStart/native_NACA0012.cfg": "4f018ed78290fc152c36044da9ce626bcf1fc1cee53a214d0eee37e092fbc130",
+    "SU2_CFD/include/adaptation/CAdjointTransfer.hpp": "c6e4855c3397664a8ea8e535d5326a687d399df715d12645b714404bfa0d0806",
+    "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "69fd1123cbc8129d80a414f5217cdbd83ba12a9f5f5e1c761db06e96ce45c5c3",
+    "SU2_CFD/include/adaptation/CTransferAdmissibility.hpp": "3e0913a189ac09b27495fcbd4394258f01afdffe589cb8f4423a80d29b626619",
+    "SU2_CFD/include/drivers/CDiscAdjSinglezoneDriver.hpp": "f91c40a9066b1a2fa6f7ae4bf40b5f72423d2b37db91e20531fea897f149b60c",
+    "SU2_CFD/include/drivers/CSinglezoneDriver.hpp": "40283acdda097af1972c4622ed8c30fcdf3b90809f7bcc2ef2adac6099376e0a",
+    "SU2_CFD/include/gradients/computeGradientsLeastSquares.hpp": "6cf01fe872646c06f1710c9dc99531b1b2dc90820ca1e4019e2670143496d94c",
+    "SU2_CFD/include/gradients/computeHessians.hpp": "5d3982dc293ef3ca132a23488da639cd634b66bdb2b1df933272098440cb52ce",
+    "SU2_CFD/include/gradients/computeHessiansQuadratic.hpp": "089458b6227869cff298d658ce33da12124f182d49aeb651d46e36506ffac030",
+    "SU2_CFD/include/output/COutput.hpp": "dd87210fa5954fc0334cd546da6d655396fbe489c45b37586af8ed3d317e8ea3",
+    "SU2_CFD/include/output/filewriter/CCGNSFileWriter.hpp": "5806bdf972beed7bd9a188953692f7aa2998aabaec531b2f039c831d347da9fa",
+    "SU2_CFD/include/output/filewriter/CCSVFileWriter.hpp": "04c5bf1e8bc40a75a5c2c18e9595503366041cd58ac7af39390ee0b3c29da7ac",
+    "SU2_CFD/include/output/filewriter/CFEMDataSorter.hpp": "b89a809b7cd58f88442bb87df16695f22ed0686560d06b9bbbde30544a6eca3e",
+    "SU2_CFD/include/output/filewriter/CFVMDataSorter.hpp": "3493d07bfde5be6a5279919f22c20f26c9461e5848e7b4e24008f0655b08e049",
+    "SU2_CFD/include/output/filewriter/CFileWriter.hpp": "252cdcdbc61f65e8f748d2afe7e5f106d902aafd2d7d49fcfdeb001722800a77",
+    "SU2_CFD/include/output/filewriter/CParallelDataSorter.hpp": "6313ed4efe2e5507e8a26fce0fe907b08d5417e012a97a0379ed2010c0e0b50b",
+    "SU2_CFD/include/output/filewriter/CParaviewBinaryFileWriter.hpp": "20cae89a2a93af87a85dbc3623d4cc841b08530a8f00c5db0bff8119f7bb54ce",
+    "SU2_CFD/include/output/filewriter/CParaviewFileWriter.hpp": "b57e79b366220487b31e478379b354b7d327fcc09b9a4fd5a11d8cc095a654fd",
+    "SU2_CFD/include/output/filewriter/CParaviewVTMFileWriter.hpp": "fcf24e6b25893e5b9e65fc13c469dfbcbcf24ff49ea44aac7447ed1fc12b1eaa",
+    "SU2_CFD/include/output/filewriter/CParaviewXMLFileWriter.hpp": "1d381f352b748bd93e3cb6de1b1f4f8a2cc45e082bb572b529f9fa096e8ab686",
+    "SU2_CFD/include/output/filewriter/CSTLFileWriter.hpp": "8098f9f0d34de78a2c9e7a6b4bbdcb6655b9f81a7bd6f5bfe1f48f37c66e215b",
+    "SU2_CFD/include/output/filewriter/CSU2BinaryFileWriter.hpp": "f31d3e789225b6aa5de898236792f85bbac6df7cad342b6e9f9fd459dee3456e",
+    "SU2_CFD/include/output/filewriter/CSU2FileWriter.hpp": "e54e5c3bc62ba53610282404a09f42413605b6a3d2dd9b7f34a74cfc7f583cf1",
+    "SU2_CFD/include/output/filewriter/CSU2MeshBinaryFileWriter.hpp": "0a98b59ed200d4d46c5046fce024c356d5f0f823e1263eca9d0a5ff324d7ed0c",
+    "SU2_CFD/include/output/filewriter/CSU2MeshFileWriter.hpp": "5f1a63124bae94a783c7adecabafaf69ad902fa33023cddaf17549ed0fb4756a",
+    "SU2_CFD/include/output/filewriter/CSurfaceFEMDataSorter.hpp": "cdc71a1291b89724b92bda360c1741633a6c1218cd3d1c7d6e6fda5948932b8c",
+    "SU2_CFD/include/output/filewriter/CSurfaceFVMDataSorter.hpp": "03db8eea1fc036397c50d76357144fba1fcfa7248d3a7a804706e188b6b3b095",
+    "SU2_CFD/include/output/filewriter/CTecplotBinaryFileWriter.hpp": "f2094f320c4eef28a864314a57a925ac208c48ac87e246d2e355d7d1776aa893",
+    "SU2_CFD/include/output/filewriter/CTecplotFileWriter.hpp": "ca862168124cc16f6d7b5690f8f4daa6a85044b99a878d72a33ff74095c83f36",
+    "SU2_CFD/src/adaptation/CAdjointTransfer.cpp": "2106a0c3fcf5da494a6e8afe4ebb8408806f4f4a717229f0d36cb8b6633ca228",
+    "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "6cf21dcda23e62401ed8b6a7787b8c73a2e877c1974bec82bacf609aa5dc744a",
+    "SU2_CFD/src/adaptation/CConservativeTransfer.cpp": "9da510e846516899f222b5421d72e09fd05d89e978f8d592c02003c63604fee2",
+    "SU2_CFD/src/adaptation/CTransferAdmissibility.cpp": "ca2b9a1f06b7973aba59114a0332a1bbb1714528f333ff2fd6e1fdfefadbf296",
+    "SU2_CFD/src/drivers/CDiscAdjSinglezoneDriver.cpp": "8dc17e4132beb4a3156c32be1bf40e25d00ea1a21d6e77678717adb94e005181",
+    "SU2_CFD/src/drivers/CSinglezoneDriver.cpp": "41767a077a8d8648d82d75a94a1ac4b607f3af706b9dd38b61fe802715915ea8",
+    "SU2_CFD/src/output/CMeshOutput.cpp": "8ce16b7e4a570d4c1a777f21b58f4d9087a2f3c35e633c252b0baa29c1f03152",
+    "SU2_CFD/src/output/COutput.cpp": "e949804a4ad7d938253c00dac5fdef8033faadcba9d5611255ac0c3381b37bba",
+    "SU2_CFD/src/output/filewriter/CCGNSFileWriter.cpp": "e4cdf95fb1f9cacf8416f9c643435b7203129b32f57cee1f38f64c3681071247",
+    "SU2_CFD/src/output/filewriter/CCSVFileWriter.cpp": "9cead46c97d20b29ccd20bcf5a9b2036bae22139ca1b7481950b43ef2dd7687a",
+    "SU2_CFD/src/output/filewriter/CFEMDataSorter.cpp": "ae99389b26194c12009d24e85966b15f8f21c502d4204bfcbe97e18d2ec94cf5",
+    "SU2_CFD/src/output/filewriter/CFVMDataSorter.cpp": "6b098b383e8cf75420268225859d01e710a1f0a4c218f6f9afc6f0ded8f4904d",
+    "SU2_CFD/src/output/filewriter/CParallelDataSorter.cpp": "ad47b90feac3e6af473c9b7255c675f697023b7893fdef5e0b3f173f363623f9",
+    "SU2_CFD/src/output/filewriter/CParallelFileWriter.cpp": "7da5f97cfadaa5355febd510deac349a72d011f4c31752c63473aab0a2bf2a2e",
+    "SU2_CFD/src/output/filewriter/CParaviewBinaryFileWriter.cpp": "3f8925bb728722331147265ce965ba09fa86602898f9e253e48f12bacecac5d6",
+    "SU2_CFD/src/output/filewriter/CParaviewFileWriter.cpp": "58998ccacbfecf271a11464404c6233581573102dc556a53342b8f9029c4041f",
+    "SU2_CFD/src/output/filewriter/CParaviewVTMFileWriter.cpp": "0e1b53268b863fc9374ae1e91cbd40ac3dfb5005ffcc7ed3b21cf034669e4baa",
+    "SU2_CFD/src/output/filewriter/CParaviewXMLFileWriter.cpp": "31245c39a008ece41728877f06b7c74e2fbb49b38125b99512857f890fa3b09c",
+    "SU2_CFD/src/output/filewriter/CSTLFileWriter.cpp": "8df163cdee78374a0913ebdf82e7af5d68b3ccc81876c211babea09d785edb78",
+    "SU2_CFD/src/output/filewriter/CSU2BinaryFileWriter.cpp": "d4b511af7ed98820c3cfb381e4f947ad791479ef0fa42828d39362413f1857f9",
+    "SU2_CFD/src/output/filewriter/CSU2FileWriter.cpp": "cce6fc6fe2c427fd5cdd623603005c1b4ef6666e8dabf448b25f81a8ac08188c",
+    "SU2_CFD/src/output/filewriter/CSU2MeshBinaryFileWriter.cpp": "4051761feb8dd666e5e7944ee7550d798cfd0e70e913ea11269e0f0cca2ecc94",
+    "SU2_CFD/src/output/filewriter/CSU2MeshFileWriter.cpp": "c14c8ff8b8fe4b8277971ccf89ba6b2eadaa4b319c928741596fd806964f2dc0",
+    "SU2_CFD/src/output/filewriter/CSurfaceFEMDataSorter.cpp": "ef42e8f50b38fd0dd83a7eef507f7ed1d398ae41045c87798d5b64d37226d692",
+    "SU2_CFD/src/output/filewriter/CSurfaceFVMDataSorter.cpp": "6ebc0e894889c389e739dcc567a19526ffc3a9c85327e7bc8a79244651f95ffe",
+    "SU2_CFD/src/output/filewriter/CTecplotBinaryFileWriter.cpp": "cffe1f0b987770128bfedb5d1aa2aff7d6d0915b071675b09e841ab8ba24444f",
+    "SU2_CFD/src/output/filewriter/CTecplotFileWriter.cpp": "0ef36c2c47dc5a2727e884c39429031760e9c02befdadb97af64145e63a0c674",
+    "SU2_CFD/src/solvers/CSolver.cpp": "1f7d3a0440064976977bcc9b9f7993ea70173eae1e33eef42163709612a1fbaa",
+    "UnitTests/Common/adaptation/CNativeCollision2D_tests.cpp": "b1a39b2b23d0b98fd6e5aecf7856cded7a5d6a12cfbb4f9a02c0bc3aaeed16b3",
+    "UnitTests/Common/adaptation/CNativeDistributed2D_tests.cpp": "160e555c160faaab45cddc5fa1fa61b6ad784277ff89cae472e0cf5b6366ad2e",
+    "UnitTests/Common/adaptation/CNativeEngine2D_tests.cpp": "697133e43a88cfbb20fb01e0b70b5d70a29dbcd71aee767bcea3d3bd4a58a75e",
+    "UnitTests/Common/adaptation/CNativeField2D_tests.cpp": "cf65267de27b8aacfbe8e3846a0edaa8d3a45b611ebac42e0f71eaf230213d8c",
+    "UnitTests/Common/adaptation/CNativeGeometryValidation2D_tests.cpp": "c80e1159b83c5687f2f1047e707c09440d7f59831fe3219246d81819c326cf47",
+    "UnitTests/Common/adaptation/CNativeMemory2D_tests.cpp": "7c60eabf9951f283ee3c6f6926e20f2c531e6099dc6ed1c86ea0c0e2ac45d656",
+    "UnitTests/Common/adaptation/CNativeMesh2D_tests.cpp": "3dfe845868254200b1361a7df3be6a93b6933f26705ebb96093c13b3c1c40406",
+    "UnitTests/Common/adaptation/CNativeReferenceIO_tests.cpp": "2f52e7e0c08bef71a97b31a93662ceca5103aa5a3ec3a88882d942f3cd0e55d1",
+    "UnitTests/Common/adaptation/CNativeScaling2D_tests.cpp": "aa2343ef85c1bc248f66db6b53be6b357421c806f18a5fee21b2448a220a4f52",
+    "UnitTests/Common/adaptation/DistributedSearch_tests.cpp": "a2ed89a16567c7128e41b9afc27b4f13a645351e16910e932c653c23c9b78dd8",
+    "UnitTests/Common/parallelization/CPassiveComm_tests.cpp": "d4135451d743a791431cbf20dc6f18cade26c7ff997187fc1944e7537d7e04dc",
+    "UnitTests/SU2_CFD/adaptation/AdaptationMPI_tests.cpp": "7160d1c6a92c1cacabae18d29bb40d7be00746799a90383c9cb85f8905db5a8f",
+    "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "46b4e79ea82a53016ac5fe13298c5e4e9fe70489a7707cb060d107a008397bbe",
+    "UnitTests/SU2_CFD/adaptation/BoundaryLayerTwoPass_tests.cpp": "bc29c7a6637ccaa34ead70a450629592d42062a324f88e432f8922e1761d0666",
+    "UnitTests/SU2_CFD/adaptation/CConservativeTransfer_tests.cpp": "a8f5fa65c5382515a8609b0d898755596982f5d1123c30c776cd4d1b0fa20d24",
+    "UnitTests/SU2_CFD/adaptation/CNativeAirfoil2D_tests.cpp": "e8279caf227dd51554b81e32b477f9ba6fbc04409eb22bb1258bbefabc9f127a",
+    "UnitTests/SU2_CFD/adaptation/CNativeBL2D_tests.cpp": "02e7483b520d0771de76e82a0ba855aa91ec9726851c8b57198bfb76c1af55bd",
+    "UnitTests/SU2_CFD/adaptation/CNativeCGNS2D_tests.cpp": "f84dde11269e019c88a9ee7f05dd5f7df4d76211162a614173fb92279f3ce23c",
+    "UnitTests/SU2_CFD/adaptation/CNativeImport2D_tests.cpp": "5e97aa069550f7b134936f217c4ac8d721e818d37bbc4ab34ddfaac9588eb9ea",
+    "UnitTests/SU2_CFD/adaptation/CNativeRemesher_tests.cpp": "61fe6c6b30c9fad4238b0ecb2cf5d7f6998112c6c49f7c9c9004cce9be026bfa",
+    "UnitTests/SU2_CFD/adaptation/CNativeSupport2D_tests.cpp": "13cbd5bb90d8553a6c5804cb077ca15cc2b2baaee50832db53dcb12e3d851f10",
+    "UnitTests/SU2_CFD/adaptation/GoalMetric_tests.cpp": "cf380444e65b421ceafe5bb6113748d1409551bc6a799f6100d8a5f59baecf9c",
+    "UnitTests/SU2_CFD/adaptation/TransferTestCase.hpp": "f45954266330e3b5f795fdc4ecd843c24cc16029cc940b23558dd946b021993d",
+    "UnitTests/SU2_CFD/gradients.cpp": "3762febd635461e8b1290f7c259ac5bed8dfbb838a2c08637d791aa1d3bd7777",
+    "UnitTests/SU2_CFD/output/CMeshOutput_tests.cpp": "d9daf26e647ed610a48dbe046b8b2beba43fbc10bf1ba4cca3b96f74538614f6",
+    "UnitTests/meson.build": "283c9b68b5023c2f49ca0a9c862547a3d63b7292cb87f62df62b0a0ffd342b10",
+    "config_template.cfg": "700c244bc3bb937f3310129251eb35cd127f802d41c1ad599d4c30773d6bb4e6",
+    "meson.build": "76d32209a1b471daa9a4211451a00676e1f8029433376695f390842308cf7fbe",
+    "meson_options.txt": "d5e6c66286a857afd21eaae2ffe0651d444130469b102c9ee95d885deafa0b0e"
+  },
+  "note": "Source hashes include drafts: check the recorded UnitTests/Meson registrations for compiled scope.",
+  "runner_sha256": "581c69bc4f137cba86967a064b07c340536293fa3708afda72ef54e274271c3e",
+  "runner_pid": 2667873,
+  "source_revision": "bdb59520885ff0686e2cc40d46a661f37074a7c5",
+  "source_status": " M Common/include/adaptation/CNativeEngine2D.hpp\n M Common/src/adaptation/CNativeRemesher.cpp\n M HANDOFF_Codex.md\n M SU2_CFD/src/drivers/CDriver.cpp\n M SU2_CFD/src/drivers/CSinglezoneDriver.cpp\n M UnitTests/Common/adaptation/CNativeEngine2D_tests.cpp\n?? integration_evidence/audit_native_profile_accounting.py\n",
+  "runs": [
+    {
+      "ranks": 1,
+      "command": [
+        "mpiexec",
+        "-n",
+        "1",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+        "[NativeDistributed2D],[NativeField2D],[NativeEngine2D],[NativeSupport2D],[DistributedTransfer],[NativeCGNS2D],[NativeRejectedOutput],[NativeBL2D],[NativeProducedBL2D],[NativeRemesher],[MetricRobustness],[NativeComposite2D],[PassiveComm],[DistributedSearch]",
+        "--use-colour",
+        "no"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 19.696706735005137,
+      "machine_samples": [
+        {
+          "unix_seconds": 1791460741.28755,
+          "busy_fraction": 0.08515998992189466,
+          "cpu_pressure": "some avg10=0.13 avg60=0.43 avg300=0.89 total=3443364130\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+          "cpu_pressure_avg10": 0.13,
+          "loadavg": "2.10 2.74 2.49 1/1715 2668143"
+        },
+        {
+          "unix_seconds": 1791460746.3299432,
+          "busy_fraction": 0.15993983454499872,
+          "cpu_pressure": "some avg10=0.40 avg60=0.45 avg300=0.89 total=3443418359\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+          "cpu_pressure_avg10": 0.4,
+          "loadavg": "2.41 2.79 2.51 1/1710 2668274"
+        },
+        {
+          "unix_seconds": 1791460751.3541932,
+          "busy_fraction": 0.1538073625819465,
+          "cpu_pressure": "some avg10=0.45 avg60=0.46 avg300=0.88 total=3443472201\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+          "cpu_pressure_avg10": 0.45,
+          "loadavg": "2.30 2.76 2.50 2/1715 2668371"
+        },
+        {
+          "unix_seconds": 1791460756.386414,
+          "busy_fraction": 0.16172032193158958,
+          "cpu_pressure": "some avg10=0.70 avg60=0.51 avg300=0.88 total=3443530148\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+          "cpu_pressure_avg10": 0.7,
+          "loadavg": "2.19 2.74 2.49 4/1708 2668462"
+        },
+        {
+          "unix_seconds": 1791460762.215199,
+          "busy_fraction": 0.19565680221417925,
+          "cpu_pressure": "some avg10=0.38 avg60=0.46 avg300=0.86 total=3443554646\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+          "cpu_pressure_avg10": 0.38,
+          "loadavg": "2.18 2.72 2.49 2/1719 2668595"
+        },
+        {
+          "unix_seconds": 1791460767.2158508,
+          "busy_fraction": 0.2184562097971301,
+          "cpu_pressure": "some avg10=0.25 avg60=0.43 avg300=0.85 total=3443586232\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+          "cpu_pressure_avg10": 0.25,
+          "loadavg": "2.08 2.69 2.48 3/1726 2668719"
+        },
+        {
+          "unix_seconds": 1791460772.217703,
+          "busy_fraction": 0.2449799196787149,
+          "cpu_pressure": "some avg10=0.32 avg60=0.42 avg300=0.84 total=3443628797\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+          "cpu_pressure_avg10": 0.32,
+          "loadavg": "2.16 2.70 2.48 2/1729 2668883"
+        }
+      ],
+      "verified": true,
+      "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_exclusive_profile_core_mpi_v1/runtime_np1",
+      "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_exclusive_profile_core_mpi_v1/np1.log"
+    },
+    {
+      "ranks": 2,
+      "command": [
+        "mpiexec",
+        "-n",
+        "2",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+        "[NativeDistributed2D],[NativeField2D],[NativeEngine2D],[NativeSupport2D],[DistributedTransfer],[NativeCGNS2D],[NativeRejectedOutput],[NativeBL2D],[NativeProducedBL2D],[NativeRemesher],[MetricRobustness],[NativeComposite2D],[PassiveComm],[DistributedSearch]",
+        "--use-colour",
+        "no"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 18.214891445997637,
+      "machine_samples": [
+        {
+          "unix_seconds": 1791460781.1152496,
+          "busy_fraction": 0.20487433358720486,
+          "cpu_pressure": "some avg10=0.47 avg60=0.43 avg300=0.83 total=3443717346\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+          "cpu_pressure_avg10": 0.47,
+          "loadavg": "2.14 2.68 2.48 2/1710 2669093"
+        },
+        {
+          "unix_seconds": 1791460786.138544,
+          "busy_fraction": 0.4750755287009063,
+          "cpu_pressure": "some avg10=4.71 avg60=1.29 avg300=1.01 total=3444300364\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+          "cpu_pressure_avg10": 4.71,
+          "loadavg": "2.13 2.66 2.47 4/1716 2670115"
+        },
+        {
+          "unix_seconds": 1791460791.1542857,
+          "busy_fraction": 0.24224855054197125,
+          "cpu_pressure": "some avg10=3.67 avg60=1.30 avg300=1.01 total=3444381712\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+          "cpu_pressure_avg10": 3.67,
+          "loadavg": "1.96 2.62 2.46 4/1720 2670306"
+        },
+        {
+          "unix_seconds": 1791460796.1898506,
+          "busy_fraction": 0.22470499623399443,
+          "cpu_pressure": "some avg10=2.28 avg60=1.24 avg300=1.00 total=3444447835\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+          "cpu_pressure_avg10": 2.28,
+          "loadavg": "1.96 2.61 2.46 2/1712 2670535"
+        },
+        {
+          "unix_seconds": 1791460801.867916,
+          "busy_fraction": 0.3049614112458655,
+          "cpu_pressure": "some avg10=1.64 avg60=1.21 avg300=1.00 total=3444520085\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+          "cpu_pressure_avg10": 1.64,
+          "loadavg": "1.96 2.60 2.45 3/1721 2670689"
+        },
+        {
+          "unix_seconds": 1791460806.8686082,
+          "busy_fraction": 0.22441831373530152,
+          "cpu_pressure": "some avg10=1.10 avg60=1.13 avg300=0.99 total=3444528490\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+          "cpu_pressure_avg10": 1.1,
+          "loadavg": "1.97 2.59 2.45 2/1722 2670868"
+        },
+        {
+          "unix_seconds": 1791460811.8705678,
+          "busy_fraction": 0.23684210526315785,
+          "cpu_pressure": "some avg10=0.60 avg60=1.02 avg300=0.97 total=3444547711\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+          "cpu_pressure_avg10": 0.6,
+          "loadavg": "1.89 2.56 2.44 3/1722 2670972"
+        }
+      ],
+      "verified": true,
+      "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_exclusive_profile_core_mpi_v1/runtime_np2",
+      "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_exclusive_profile_core_mpi_v1/np2.log"
+    },
+    {
+      "ranks": 4,
+      "command": [
+        "mpiexec",
+        "-n",
+        "4",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+        "[NativeDistributed2D],[NativeField2D],[NativeEngine2D],[NativeSupport2D],[DistributedTransfer],[NativeCGNS2D],[NativeRejectedOutput],[NativeBL2D],[NativeProducedBL2D],[NativeRemesher],[MetricRobustness],[NativeComposite2D],[PassiveComm],[DistributedSearch]",
+        "--use-colour",
+        "no"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 24.591370754002128,
+      "machine_samples": [
+        {
+          "unix_seconds": 1791460819.4236343,
+          "busy_fraction": 0.13323239969719913,
+          "cpu_pressure": "some avg10=0.33 avg60=0.93 avg300=0.95 total=3444591791\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+          "cpu_pressure_avg10": 0.33,
+          "loadavg": "1.82 2.53 2.43 3/1705 2671224"
+        },
+        {
+          "unix_seconds": 1791460824.4664345,
+          "busy_fraction": 0.14526686807653577,
+          "cpu_pressure": "some avg10=0.30 avg60=0.87 avg300=0.93 total=3444634434\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+          "cpu_pressure_avg10": 0.3,
+          "loadavg": "1.67 2.48 2.42 1/1708 2671330"
+        },
+        {
+          "unix_seconds": 1791460829.5087285,
+          "busy_fraction": 0.1311924321633059,
+          "cpu_pressure": "some avg10=0.20 avg60=0.81 avg300=0.92 total=3444685275\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+          "cpu_pressure_avg10": 0.2,
+          "loadavg": "1.54 2.44 2.41 1/1708 2671548"
+        },
+        {
+          "unix_seconds": 1791460834.5544157,
+          "busy_fraction": 0.13086913086913088,
+          "cpu_pressure": "some avg10=0.23 avg60=0.76 avg300=0.91 total=3444728260\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+          "cpu_pressure_avg10": 0.23,
+          "loadavg": "1.50 2.42 2.40 1/1705 2671644"
+        },
+        {
+          "unix_seconds": 1791460840.4997568,
+          "busy_fraction": 0.44074931593348765,
+          "cpu_pressure": "some avg10=0.45 avg60=0.76 avg300=0.90 total=3444790320\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+          "cpu_pressure_avg10": 0.45,
+          "loadavg": "1.78 2.46 2.41 5/1723 2671776"
+        },
+        {
+          "unix_seconds": 1791460845.5005312,
+          "busy_fraction": 0.41439640089977503,
+          "cpu_pressure": "some avg10=0.45 avg60=0.74 avg300=0.90 total=3444819579\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+          "cpu_pressure_avg10": 0.45,
+          "loadavg": "1.79 2.45 2.41 2/1725 2671881"
+        },
+        {
+          "unix_seconds": 1791460850.5020714,
+          "busy_fraction": 0.21675,
+          "cpu_pressure": "some avg10=0.24 avg60=0.67 avg300=0.88 total=3444842332\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+          "cpu_pressure_avg10": 0.24,
+          "loadavg": "1.81 2.45 2.41 3/1725 2672030"
+        },
+        {
+          "unix_seconds": 1791460855.5028424,
+          "busy_fraction": 0.4665,
+          "cpu_pressure": "some avg10=0.16 avg60=0.62 avg300=0.87 total=3444877871\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+          "cpu_pressure_avg10": 0.16,
+          "loadavg": "2.15 2.51 2.43 5/1724 2672131"
+        }
+      ],
+      "verified": true,
+      "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_exclusive_profile_core_mpi_v1/runtime_np4",
+      "log": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_exclusive_profile_core_mpi_v1/np4.log"
+    }
+  ],
+  "build_options": {
+    "buildtype": "debugoptimized",
+    "b_ndebug": "false",
+    "with-mpi": "enabled",
+    "with-omp": false,
+    "enable-cgns": true,
+    "enable-autodiff": false,
+    "enable-directdiff": false,
+    "enable-normal": true,
+    "enable-mmg": true,
+    "mmg_root": "/usr/local",
+    "mmg_scotch_root": "/home/rausa/Software/scotch"
+  },
+  "timeout_seconds_per_job": 300,
+  "expected_diagnostic": null,
+  "archived_sources": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_exclusive_profile_core_mpi_v1/sources",
+  "archived_binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_exclusive_profile_core_mpi_v1/test_driver"
+}

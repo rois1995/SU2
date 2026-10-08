@@ -1,0 +1,85 @@
+{
+  "status": "PASS",
+  "scope": "2D ideal-gas Euler or constant-span straight-wall RANS, shared fade and geometric BL composition when present, double saved metrics, original-connectivity P1 target, current/history conservation, final positivity and restart pairing; not a flow-accuracy or cost certificate",
+  "windows": [
+    {
+      "first_step": 3,
+      "points": 749,
+      "triangles": 1409,
+      "min_quality": 0.6683482825795836,
+      "max_simpson_length": 1.6945181906030637,
+      "donor_metric": "flow_00002.vtu",
+      "history": [
+        {
+          "step": 1,
+          "relative_integral_defect": 2.0757776867536646e-15,
+          "donor_snapshot_available": true,
+          "min_density": 0.0009200402726150509,
+          "min_pressure": 80.64513702268839
+        },
+        {
+          "step": 2,
+          "relative_integral_defect": 5.05727934225208e-16,
+          "donor_snapshot_available": true,
+          "min_density": 0.0008695414515241884,
+          "min_pressure": 76.46051499616463
+        }
+      ],
+      "relative_first_height_error": 4.440892098500626e-16
+    },
+    {
+      "first_step": 6,
+      "points": 795,
+      "triangles": 1493,
+      "min_quality": 0.6460268271623136,
+      "max_simpson_length": 1.6170880196815964,
+      "donor_metric": "flow_00005.vtu",
+      "history": [
+        {
+          "step": 4,
+          "relative_integral_defect": 2.2670141291730286e-15,
+          "donor_snapshot_available": true,
+          "min_density": 0.0007080816327329046,
+          "min_pressure": 59.026431540924754
+        },
+        {
+          "step": 5,
+          "relative_integral_defect": 1.8546498839641025e-15,
+          "donor_snapshot_available": true,
+          "min_density": 0.0006760142584925057,
+          "min_pressure": 59.470578401697
+        }
+      ],
+      "relative_first_height_error": 2.220446049250313e-16
+    }
+  ],
+  "final_admissibility": {
+    "min_density": 0.0005963225857461053,
+    "min_pressure": 57.49029389885246
+  },
+  "checker_sha256": "ef7fc74aa586dfa15108b234f45cd350514d68842781ca0de525ba8f789d7bce",
+  "input_sha256": {
+    "flow_00001.vtu": "d05089d85aca66e5531cd6c87e418d2cb19480b395b01a7d0e0e20349136e5e6",
+    "solution_00001.dat": "bfc5d34309298414f89017363de43415875381fe02cdf37a218cac6d41ecdf0d",
+    "input.su2": "d1acc964ac75df7e0224c11c88b1a44bc682bbf7529487133854bcae9b64be6b",
+    "mesh_00006.su2": "360173bd8101270eb41d6183702eab39e1f637f1b4625a87cc366177cdab96c9",
+    "mesh_00003.su2": "a17a98724d7ab28717048935807db480ddfc7a7a1b3e884cfbdc5e45cf54c5da",
+    "solution_00002.dat": "c4ed474aea54abb330eda0937c8f41e6363298e2a863ee1a5d7b506c549d6011",
+    "flow_00005.vtu": "c358baec7e91fe9ce2f5f9b40146896f7c44dc0193f663b8e2252bea8875f8a2",
+    "solution_00000.dat": "1c0576e5cab63438ab627bd5cf99c9cf571f8262246f304d92d9be61e27ffff1",
+    "solution_00003.dat": "e47c0d90813dfc50d41cdfe0102efb06b24d23d29cb4b3782f098c867e3ef885",
+    "solution_00005.dat": "a319b5f1a20483e1076138da00dd0d943117704f46b0e5f286e827f3e8e9c131",
+    "flow_00002.vtu": "2fbc28b800d7b9d0d59c2d06c0873cc374881e93ee0767842f624babd8ee9723",
+    "flow_00003.vtu": "3e689c09431a60cce35921418f5034bbac0ff973e36179ff874e8452bf9a157b",
+    "run.cfg": "dd7dad5de14bb90fa686cbcaedf6598dd812fe96093e902940cb8f95661dfe7b",
+    "flow_00000.vtu": "312fc14378530997ec2438d6f897071d01184da6756cd33d8f3de9e551b6e6bc",
+    "flow_00008.vtu": "74aee728e1343dcc8389402aa1f22a2fad38af9459eae2f0083b91ee6ee1dc29",
+    "solution_00007.dat": "92e2540153bcac41bbb34a68bc47c687ecafd1588d28d88849062120717d38d2",
+    "flow_00007.vtu": "a1a06bca29ba586e8483fbd4fc7aec068659b14706cd5a6acc2ecd9babc635b8",
+    "solution_00008.dat": "a986a67de7558d28f9de44b1e0e3c6777f906369b21eb0807d583537b58b47fe",
+    "flow_00004.vtu": "0e2b4c0632ae29ea1267c1959b15af6b6965c143026a6a2b964d1c6a8b44ce61",
+    "solution_00004.dat": "c6ccd3b9305275c491864a3e7dbb733c9ccb5630c3377c12065583ac27a53546",
+    "solution_00006.dat": "95a9587804db179ba9a7f03b58ff2f52243ee17aeb8f036f5bad84c019ca5c81",
+    "flow_00006.vtu": "20c2165ef348bd77a0bdb31e5f69855a4bd26f0abfe3b7a8f803ead186cba52a"
+  }
+}

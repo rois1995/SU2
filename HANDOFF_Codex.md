@@ -181,11 +181,12 @@ M4 workers4_v1 terminalPASS42.567s whole;49616commits, independent audit PASS.
 M4 grid is BYTE-IDENTICAL to pre-subgroup weighted v2 grid. First same-source
 Euler-to-BL trio favors M4 (M1/M2/M4 whole65.529/45.866/42.567s), no fixed-work
 speedup claim. Comparison: native_adaptation_partition_v1/subset_euler_to_bl_comparison_v1.json.
-M3, reverse workload, repeats and actual unsteady/restart remain next. No actual CFD run yet on this
-reduced-rank source.
-No native/CFD source changes for either fixture correction. Frozen reduced-rank
-operation is demonstrated; actual unsteady/restart validation and recommended
-worker-count total-cost improvement remain pending. Authoritative native
+M3 first frozen trial completed/audited PASS37.816s whole, followed by current-source
+exclusive timing and actual N4/M3 vortex/SA lifecycle checks (see latest checkpoint).
+Reverse workload, repeats and real unsteady RAE/restart remain pending.
+No native/CFD source changes for either fixture correction. Frozen and small-case actual unsteady reduced-rank operation are demonstrated;
+real RAE/restart validation and recommended worker-count total-cost improvement
+remain pending. Authoritative native
 sources stay pinned during build. Original drafts retained. Actual CFD trial
 runner now includes CPU busy/PSI/owned-rank affinity before/during runs.
 Next: finish frozen same-input M1/M2/N comparisons and independent full-target/height/reference/tensor audits,
@@ -1224,3 +1225,83 @@ physical height/reference contracts collectively; stop only at complete sweep.
 Both production adapter and direct Engine adapt use predicate. New regression
 checks valid q/L with unmet altitude does NOT count complete. Validation pending.
 Next fresh common appv28 RANS/Euler replays, ten-minute bound set at launch.
+
+## Latest subset and profiling update — 2026-10-08
+
+Source checkpoint bdb59520885ff0686e2cc40d46a661f37074a7c5; goal ACTIVE.
+N4/M3 frozen Euler-to-BL workers3_v1 terminal PASS: whole37.816206s,
+complete Remesh37.349963s,12246points,50739commits. Independent audit PASS;
+qmin.1845586768,Lmax1.7999860512,hrel4.433e-12, transported directional
+defect1.004e-10. Audit session43333 terminal0; no owned heavy job remains.
+M3 is promising against one-trial M4 42.567s; repeats remain required.
+Detailed current timings/scopes/gaps:
+`integration_evidence/native_adaptation_partition_v1/remeshing_profile_assessment_v1.md`.
+Repartitioning is included in Remesh, but return ReaderSlices is not the subsequent
+CFD geometry partition/setup or direct-original solution/history transfer.
+Bulk split21.9394s dominates elapsed phases. Private reconstruction max15.0236s
+versus min4.03715s; active-worker imbalance persists. Tracked MPI totals include
+waits and do not cover every validation election; diagnostics are nonadditive.
+Next profiling needs exclusive per-rank dependency/donor import, reconstruction,
+validation/commit scopes and current-source sampled stacks. Keep lightweight
+operation scopes, no per-query clocks/profiling collectives. Reverse workload,
+repeat trials and actual unsteady/restart on reduced-rank source still pending.
+
+## Exclusive timing and actual subset lifecycle checkpoint — 2026-10-08
+
+Native timing build_v1 PASS, app77fbefa77179acd6d8e5c66da3eed61974f8dede4f4d2ce5937544cf9185c6f6,
+762 source pins. Added six adjacent round scopes: protocol, dependencies/reservation,
+original-sensor donors/IDs, reconstruction, certificate validation/decisions,
+staging/publication. Timers are outside point queries; existing three statistics
+reductions pack the extra values. Explicit engine-adapt unclassified residual
+accounts for inter-round checks, temporary destruction and loop work. Added
+engine initialization/final gates, native setup/import/working partition and
+CFD return geometry partition/migration, wall distance/solver initialization/
+transfer/finalization timers. Maxima are nonadditive; exclusive worker means
+close against engine-adapt means. Numerical/transaction decisions unchanged.
+Core current-source MPI1/2/4 PASS83cases/rank; all observed timing profiles close
+(93/109/126 profiles respectively). Profile audit has positive and broken-closure
+selfchecks. Existing stack classifier supports both SU2_CFD and test_driver,
+selfcheck PASS.
+Actual N4/M3 BDF2 vortex and coarse straight-wall SA RANS each completed two
+adaptations: independent quality/length/original-P1 and BL/current+previous
+history conservation/positivity audits PASS. Vortex max conservation3.269e-15;
+SA max2.267e-15 and hrel4.441e-16. This is the first actual unsteady lifecycle
+validation on reduced-rank source, not a real-airfoil cost/accuracy certificate.
+Cases: native_adaptation_partition_v1/{vortex_bdf2_n4_m3_profile_v1,
+plate_sa_bdf2_n4_m3_profile_v1}. Inspect independent_unsteady_audit.json and
+independent_profile_accounting.json.
+Current owned perf+frozen run is session70510 at
+native_adaptation_partition_v1/frozen_rae_euler_to_bl_n4_m3_profile_v1/runtime_np4.
+Profile CPU-clock:u99Hz/dwarf16384; classify stacks after terminal, then audit
+frozen metrics and timing closure. Its elapsed time is instrumented evidence,
+not a performance comparison. No other owned heavy job. Need SST/CGNS/restarts,
+actual unsteady RAE comparisons, reverse frozen workload and repeat/overhead
+controls; goal ACTIVE. Four-mode pre-timing-source frozen comparison preserved
+in subset_euler_to_bl_comparison_v2.json (M3 fastest single trial).
+
+Current profile+audit sessions70510/4089 terminalPASS; no owned heavy job now.
+Real frozen RAE exclusive timing/metric audit PASS; original M3 candidate remains
+BYTE-IDENTICAL. Authoritative current CPU classification sampling_summary_v3.json:
+9745native,5339MPI frames(54.79%),4771Allreduce;World::Fail3533nearest,
+FieldPatch::evaluate1185(12.16%). Earlier template-type labeling and failed
+call-only classifier preserved explicitly in classifier_reconciliation.json.
+Detailed scopes/costs/limitations: remeshing_profile_assessment_v2.md.
+Mean reconstruction8.285s,validation/waits11.572s,unclassified2.912s,adapt32.891s.
+This is sampled evidence, not speedup; timings include sampling overhead.
+Next: current-source restart/CGNS/SST controls, unprofiled repeats and actual RAE
+both directions; do not optimize synchronization blindly or weaken failure gates.
+
+Additional current-source controls all PASS: SST BDF2 N4/M2 and CGNS-output
+BDF2 N4/M3 each two adaptations, independent metric/BL/history/positivity and
+timing audits. N4/M3 accepted SU2 checkpoint restarted on N2; all conserved
+resumed states match parent within3.463e-13. CGNS input N4 restart matches
+within8.840e-16. These resume on fixed accepted meshes; post-restart remeshing
+and mid-window restart are not established by these comparisons. CGNS runner
+correctly deferred while an unrelated solver was active, then launched after
+it ended and the quiet gate passed. Owned sessions99399,90737,2032,67723,81073,
+67835 all terminalPASS. Summary subset_unsteady_lifecycle_checkpoint_v1.json.
+Next real RANS case prepared at native_adaptation_partition_v1/
+rae_rans_window200_n4_m3_v1. Same v4 physical/metric setup except explicit M3
+weighted partition and output every step, preserving independent donor snapshots
+for both BDF2 histories; retain same output policy in future M4 control.
+No affordability or recommended-worker-count claim; goal ACTIVE.

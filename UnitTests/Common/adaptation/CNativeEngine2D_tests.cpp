@@ -88,6 +88,18 @@ TEST_CASE("Native MPI insertion: endpoint-star import reconnects before collecti
     const bool accepted = engine.round({{Action::BULK_SPLIT, a.id, b.id}, world.rank == 0 ? 1. : -1., world.rank});
     CHECK(accepted == (world.rank == 0));
     CHECK(world.sum(accepted) == 1);
+    double transactionSeconds = 0;
+    for (const auto seconds : engine.stats.transaction_seconds) {
+      CHECK(std::isfinite(seconds));
+      CHECK(seconds >= 0);
+      transactionSeconds += seconds;
+    }
+    CHECK(transactionSeconds > 0);
+    CHECK(engine.stats.transaction_seconds[3] >= engine.stats.reconstruction_seconds);
+    CHECK(engine.stats.transaction_seconds[1] > 0);
+    CHECK(engine.stats.transaction_seconds[2] > 0);
+    CHECK(engine.stats.transaction_seconds[4] > 0);
+    CHECK(engine.stats.transaction_seconds[5] > 0);
     if (world.rank == 0) {
       CHECK(engine.stats.max_patch == input.size());
       CHECK(engine.stats.cross_rank == (world.size > 1 ? 1 : 0));

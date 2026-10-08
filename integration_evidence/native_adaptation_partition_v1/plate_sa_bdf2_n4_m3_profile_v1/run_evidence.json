@@ -1,0 +1,91 @@
+{
+  "runner_pid": 2677539,
+  "phase": "terminal",
+  "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_adaptation_partition_v1/plate_sa_bdf2_n4_m3_profile_v1",
+  "ranks": 4,
+  "timeout_seconds": 300.0,
+  "binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_exclusive_profile_build_v1/SU2_CFD",
+  "binary_sha256": "77fbefa77179acd6d8e5c66da3eed61974f8dede4f4d2ce5937544cf9185c6f6",
+  "config_sha256": "dd7dad5de14bb90fa686cbcaedf6598dd812fe96093e902940cb8f95661dfe7b",
+  "mesh_sha256": "d1acc964ac75df7e0224c11c88b1a44bc682bbf7529487133854bcae9b64be6b",
+  "mesh_filename": "input.su2",
+  "source_revision": "bdb59520885ff0686e2cc40d46a661f37074a7c5",
+  "production_sources_rechecked": 762,
+  "source_evidence": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_exclusive_profile_build_v1/evidence.json",
+  "source_evidence_sha256": "a06b102d4dfb8f131fadcea79111ea9803c8fb10ecb5ed25856b7c39e18b185b",
+  "runner_sha256": "d105f05de2b07e5fe78c95fdaf2673f1c0912dff311a7dcf28e415ea59e424fb",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "machine_samples": [
+    {
+      "unix_seconds": 1791461045.6581185,
+      "busy_fraction": 0.19364599092284418,
+      "cpu_pressure": "some avg10=0.52 avg60=0.83 avg300=0.86 total=3447367780\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.52,
+      "loadavg": "2.10 2.31 2.37 3/1729 2677730"
+    },
+    {
+      "unix_seconds": 1791461050.682939,
+      "busy_fraction": 0.2066094853683148,
+      "cpu_pressure": "some avg10=0.61 avg60=0.82 avg300=0.86 total=3447442634\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.61,
+      "loadavg": "2.02 2.29 2.36 5/1712 2677867"
+    },
+    {
+      "unix_seconds": 1791461055.7263854,
+      "busy_fraction": 0.20973782771535576,
+      "cpu_pressure": "some avg10=0.74 avg60=0.83 avg300=0.86 total=3447501996\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.74,
+      "loadavg": "1.93 2.26 2.35 3/1713 2678007"
+    },
+    {
+      "unix_seconds": 1791461060.7690256,
+      "busy_fraction": 0.20396387355745105,
+      "cpu_pressure": "some avg10=1.00 avg60=0.88 avg300=0.87 total=3447586334\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 1.0,
+      "loadavg": "1.94 2.26 2.35 2/1714 2678161"
+    }
+  ],
+  "busy": [],
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_adaptation_partition_v1/plate_sa_bdf2_n4_m3_profile_v1/process_tree_memory.txt",
+    "mpiexec",
+    "-n",
+    "4",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_exclusive_profile_build_v1/SU2_CFD",
+    "run.cfg"
+  ],
+  "started_unix_seconds": 1791461060.7914689,
+  "solver_exit": 0,
+  "elapsed_seconds": 2.4372266520076664,
+  "outputs": {
+    "flow_00001.vtu": 44167,
+    "solution_00001.dat": 156670,
+    "input.su2": 6489,
+    "mesh_00006.su2": 67380,
+    "mesh_00003.su2": 63398,
+    "solution_00002.dat": 156670,
+    "flow_00005.vtu": 206827,
+    "solution_00000.dat": 32702,
+    "solution_00003.dat": 156670,
+    "solution_00005.dat": 166238,
+    "flow_00002.vtu": 44167,
+    "flow_00003.vtu": 206827,
+    "flow_00000.vtu": 44167,
+    "flow_00008.vtu": 219296,
+    "solution_00007.dat": 166238,
+    "history.csv": 1580,
+    "flow_00007.vtu": 219296,
+    "solution_00008.dat": 166238,
+    "flow_00004.vtu": 206827,
+    "solution_00004.dat": 166238,
+    "solution_00006.dat": 166238,
+    "flow_00006.vtu": 219296
+  }
+}

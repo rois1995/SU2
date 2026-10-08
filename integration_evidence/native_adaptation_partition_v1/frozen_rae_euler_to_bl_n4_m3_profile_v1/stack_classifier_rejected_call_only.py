@@ -13,16 +13,10 @@ def inspect(path):
     def sample(lines):
         if not lines or not lines[0].startswith(('SU2_CFD ', 'test_driver ')): return
         symbols = [line.strip().split(' ', 1)[-1].rsplit(' (', 1)[0] for line in lines[1:]]
-        # Direct native symbols may omit arguments (+offset form). In generic
-        # handlers, only a call spelling identifies a native lambda's owner;
-        # template return/argument types must not become attributed call sites.
-        native = []
-        for symbol in symbols:
-            match = re.match(r'(SU2Native\w*2D::(?:\(anonymous namespace\)::)?[\w:]+|CNativeRemesher::\w+)', symbol)
-            if match is None:
-                match = re.search(r'(SU2Native\w*2D::[\w:]+|CNativeRemesher::\w+)(?:<[^()]*>)?\(', symbol)
-            if match is not None:
-                native.append(match[1])
+        # Require a function call spelling: template return/argument types are not call sites.
+        native = [re.search(r'(SU2Native\w*2D::[\w:]+|CNativeRemesher::\w+)(?:<[^()]*>)?\(', s)
+                  for s in symbols]
+        native = [match[1] for match in native if match is not None]
         if not native: return
         counters['native_samples'] += 1
         sites[native[0]] += 1
@@ -51,10 +45,10 @@ if __name__ == '__main__':
         with tempfile.TemporaryDirectory() as tmp:
             fixture = Path(tmp) / 'stacks.txt'
             fixture.write_text('SU2_CFD 42 cpu-clock:\n  123 MPI_Alltoall (libmpi.so)\n'
-                               '  234 SU2NativeBoundary2D::World::exchange+0x10 (SU2_CFD)\n\n'
+                               '  234 SU2NativeBoundary2D::World::exchange() (SU2_CFD)\n\n'
                                'SU2_CFD 42 cpu-clock:\n  567 CSolver::ComputeMetric (/SU2_NativeIntegrated/SU2_CFD)\n\n'
                                'test_driver 99 cpu-clock:u:\n'
-                               '  678 SU2NativeBoundary2D::FieldPatch::evaluate+0x20 (test_driver)\n\n'
+                               '  678 SU2NativeBoundary2D::FieldPatch::evaluate(SU2Native2D::Point) (test_driver)\n\n'
                                'test_driver 100 cpu-clock:u:\n'
                                '  789 std::_Function_handler<SU2Native2D::Tensor (SU2Native2D::Point), '
                                'SU2NativeBoundary2D::checked(std::function<void()>)>::_M_invoke (test_driver)\n\n')

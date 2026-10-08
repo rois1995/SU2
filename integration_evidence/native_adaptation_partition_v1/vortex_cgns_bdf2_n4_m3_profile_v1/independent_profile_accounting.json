@@ -1,0 +1,249 @@
+{
+  "status": "PASS",
+  "worker_profiles": [
+    {
+      "selection": {
+        "min": 0.00934672,
+        "mean": 0.00959275,
+        "max": 0.00995591
+      },
+      "private reconstruction": {
+        "min": 0.0603148,
+        "mean": 0.0742539,
+        "max": 0.090266
+      },
+      "tracked collectives": {
+        "min": 0.0816076,
+        "mean": 0.0845217,
+        "max": 0.0875727
+      },
+      "largest private transaction": {
+        "min": 0.000481954,
+        "mean": 0.000501972,
+        "max": 0.000539203
+      },
+      "round protocol": {
+        "min": 0.0023032,
+        "mean": 0.00234196,
+        "max": 0.00236187
+      },
+      "round dependency import": {
+        "min": 0.0697312,
+        "mean": 0.0698164,
+        "max": 0.0698768
+      },
+      "round donor import and IDs": {
+        "min": 0.12202,
+        "mean": 0.122391,
+        "max": 0.122606
+      },
+      "round reconstruction": {
+        "min": 0.0604272,
+        "mean": 0.0743704,
+        "max": 0.0903823
+      },
+      "round validation": {
+        "min": 0.0925275,
+        "mean": 0.108236,
+        "max": 0.122043
+      },
+      "round commit": {
+        "min": 0.0237608,
+        "mean": 0.0240345,
+        "max": 0.0242547
+      },
+      "engine initialization": {
+        "min": 0.00431799,
+        "mean": 0.00431924,
+        "max": 0.00432036
+      },
+      "incoming residual check": {
+        "min": 5.775e-06,
+        "mean": 7.96867e-06,
+        "max": 1.006e-05
+      },
+      "engine adapt": {
+        "min": 0.41692,
+        "mean": 0.416922,
+        "max": 0.416923
+      },
+      "final contract check": {
+        "min": 2.0907e-05,
+        "mean": 2.09453e-05,
+        "max": 2.0996e-05
+      },
+      "adapt unclassified": {
+        "min": 0.00559982,
+        "mean": 0.0061396,
+        "max": 0.00664735
+      }
+    },
+    {
+      "selection": {
+        "min": 0.00828835,
+        "mean": 0.00851817,
+        "max": 0.00869473
+      },
+      "private reconstruction": {
+        "min": 0.0225278,
+        "mean": 0.0254745,
+        "max": 0.0301285
+      },
+      "tracked collectives": {
+        "min": 0.0600313,
+        "mean": 0.0607842,
+        "max": 0.0619607
+      },
+      "largest private transaction": {
+        "min": 0.000275395,
+        "mean": 0.000327723,
+        "max": 0.000400082
+      },
+      "round protocol": {
+        "min": 0.00168136,
+        "mean": 0.00169837,
+        "max": 0.00170792
+      },
+      "round dependency import": {
+        "min": 0.0490603,
+        "mean": 0.0490667,
+        "max": 0.0490728
+      },
+      "round donor import and IDs": {
+        "min": 0.116164,
+        "mean": 0.116394,
+        "max": 0.11652
+      },
+      "round reconstruction": {
+        "min": 0.0226193,
+        "mean": 0.0255763,
+        "max": 0.0302319
+      },
+      "round validation": {
+        "min": 0.0478762,
+        "mean": 0.0526536,
+        "max": 0.05583
+      },
+      "round commit": {
+        "min": 0.0137465,
+        "mean": 0.0137595,
+        "max": 0.0137778
+      },
+      "engine initialization": {
+        "min": 0.00628683,
+        "mean": 0.0062891,
+        "max": 0.00629116
+      },
+      "incoming residual check": {
+        "min": 1.9639e-05,
+        "mean": 3.032e-05,
+        "max": 4.988e-05
+      },
+      "engine adapt": {
+        "min": 0.271773,
+        "mean": 0.271793,
+        "max": 0.271804
+      },
+      "final contract check": {
+        "min": 2.3919e-05,
+        "mean": 2.39347e-05,
+        "max": 2.3964e-05
+      },
+      "adapt unclassified": {
+        "min": 0.00392467,
+        "mean": 0.00412717,
+        "max": 0.00437113
+      }
+    }
+  ],
+  "accounting_closure": [
+    {
+      "engine_adapt_mean_seconds": 0.416922,
+      "accounted_mean_seconds": 0.41078301,
+      "unclassified_mean_seconds": 0.0061396,
+      "printed_closure_defect_seconds": 6.100000000119898e-07
+    },
+    {
+      "engine_adapt_mean_seconds": 0.271793,
+      "accounted_mean_seconds": 0.26766663999999996,
+      "unclassified_mean_seconds": 0.00412717,
+      "printed_closure_defect_seconds": 8.099999999622298e-07
+    }
+  ],
+  "setup": [
+    [
+      0.000712241,
+      5.2166e-05,
+      0.0091758
+    ],
+    [
+      0.000988491,
+      3.9739e-05,
+      0.0106108
+    ]
+  ],
+  "execution": [
+    [
+      0.421491,
+      0.000987856,
+      0.423001,
+      0.001806
+    ],
+    [
+      0.278374,
+      0.000856817,
+      0.27958,
+      0.001474
+    ]
+  ],
+  "working_partition": [
+    [
+      0.00299256,
+      0.000232962,
+      0.00565386,
+      0.000250257
+    ],
+    [
+      0.00434991,
+      0.000311736,
+      0.00563394,
+      0.000261903
+    ]
+  ],
+  "cfd_geometry": [
+    [
+      0.00202465,
+      0.000773904,
+      0.00111231
+    ],
+    [
+      0.00137491,
+      0.00152707,
+      0.00110069
+    ],
+    [
+      0.00119712,
+      0.000894085,
+      0.000920675
+    ]
+  ],
+  "replacement": [
+    [
+      0.00421118,
+      9.9651e-05,
+      0.000496036,
+      0.00432429,
+      0.000128577
+    ],
+    [
+      0.00331929,
+      3.4345e-05,
+      0.000346894,
+      0.00437426,
+      0.00019581
+    ]
+  ],
+  "scope": "Exclusive transaction means account for engine adaptation plus explicit unclassified overhead. All wall scopes include MPI waits. Rank maxima cannot be summed into critical-path cost. CFD geometry rows include initial geometry; transfer is nested in replacement. No performance or conservation certificate.",
+  "log_sha256": "8af4011f53cf2459693822b977a98190d04ecfe5e73fc32d56757dc01adc3622",
+  "checker_sha256": "d5b8c63f18c38f2e0d34bc4483970e78a7192dc053c201c202afd97ba973dae0"
+}

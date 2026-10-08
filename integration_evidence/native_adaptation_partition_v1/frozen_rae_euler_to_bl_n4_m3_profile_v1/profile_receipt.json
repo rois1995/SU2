@@ -1,0 +1,16 @@
+{
+  "scope": "Current-source frozen RAE Euler-to-BL N4/M3. CPU samples for function attribution; elapsed time includes profiling overhead and must not be used as a speedup benchmark.",
+  "events": "cpu-clock:u",
+  "frequency_hz": 99,
+  "call_graph": "dwarf,16384",
+  "phase": "terminal_pass",
+  "binary_manifest": "integration_evidence/native_exclusive_profile_build_v1/test_evidence.json",
+  "mesh_audit": "PASS",
+  "timing_audit": "PASS",
+  "authoritative_sampling_summary": "sampling_summary_v3.json",
+  "grid_identical_to_prior_uninstrumented_M3": true,
+  "native_samples": 9745,
+  "native_samples_with_MPI": 5339,
+  "metric_evaluation_nearest_samples": 1185,
+  "whole_process_seconds": 33.48876345100871
+}

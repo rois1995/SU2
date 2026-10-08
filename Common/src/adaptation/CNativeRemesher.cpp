@@ -303,6 +303,7 @@ void CNativeRemesher::PrepareReference(const CConfig& config, const CGeometry& g
 }
 
 CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& geometry, const su2activematrix& metric) {
+  const auto remeshStarted = SU2_MPI::Wtime();
   CheckSupport(config, geometry);
   ++remeshAttempt;
   World world;
@@ -315,6 +316,7 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
   const int adaptationRanks = config.GetAdap_Native_Ranks() ? int(config.GetAdap_Native_Ranks()) : world.size;
   PrepareReference(config, geometry);
   auto input = ImportNative(config, geometry, &metric, *reference);
+  const auto importedAt = world.seconds();
   const auto& names = reference->marker_names;
   std::map<int, double> heights;
   for (unsigned short b = 0; b < config.GetnAdap_BL(); ++b) {
@@ -407,6 +409,7 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
   if (world.rank == 0)
     for (const auto& height : heights)
       std::cout << "Native requested first altitude: " << names[height.first] << " = " << height.second << '\n';
+  const auto preparedAt = world.seconds();
   if (config.GetAdap_Native_Repartition() || adaptationRanks < world.size) {
     PartitionStats partition;
     std::vector<uint32_t> weights;
@@ -440,6 +443,7 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
                   << partition.work_after[r] << '\n';
     }
   }
+  const auto partitionedAt = world.seconds();
   CRemeshResult result;
   auto workerComm = world.comm;
 #ifdef HAVE_MPI
@@ -451,6 +455,7 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
     World workers(workerComm);
     try {
       Engine engine(workers, std::move(input), policy, control);
+      const auto engineReadyAt = workers.seconds();
       uint64_t initialShape = 0, initialSize = 0;
       for (const auto& entry : engine.owned) {
         initialShape += entry.second.target_cache[0] < .18;
@@ -460,7 +465,9 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
       initialSize = CPassiveComm::Allreduce(initialSize, CPassiveComm::Op::SUM, workers.comm);
       if (workers.rank == 0)
         std::cout << "Native incoming residuals: shape=" << initialShape << ", edge length=" << initialSize << '\n';
+      const auto adaptStarted = workers.seconds();
       engine.adapt();
+      const auto adaptedAt = workers.seconds();
       uint64_t missedQuality = 0, missedHeight = 0, missedGeometry = 0, missedShape = 0, missedSize = 0;
       double minQuality = 1, maxLength = 0;
       for (const auto& entry : engine.owned) {
@@ -489,6 +496,7 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
       result.status = missedHeight || missedGeometry
                           ? CRemeshResult::Status::INCOMPLETE_COVERAGE
                           : missedQuality ? CRemeshResult::Status::INCOMPLETE_QUALITY : CRemeshResult::Status::COMPLETE;
+      const auto checkedAt = workers.seconds();
       const auto commits = workers.sum(engine.stats.commits), cross = workers.sum(engine.stats.cross_rank);
       const auto jointCommits = workers.sum(engine.stats.joint_commits);
       const auto jointSeconds = CPassiveComm::Allreduce(engine.stats.joint_seconds, CPassiveComm::Op::MAX, workers.comm);
@@ -524,10 +532,17 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
       // Whole-operation timers avoid adding clocks to the millions of private
       // metric queries. Tracked collectives include waiting and exclude the
       // separate validation elections; these components are not additive wall time.
-      std::array<double, 4> localCost{0, engine.stats.reconstruction_seconds,
-                                      workers.collective_seconds, engine.stats.reconstruction_longest};
+      std::array<double, 15> localCost{0, engine.stats.reconstruction_seconds,
+          workers.collective_seconds, engine.stats.reconstruction_longest};
+      std::copy(engine.stats.transaction_seconds.begin(), engine.stats.transaction_seconds.end(), localCost.begin() + 4);
+      localCost[10] = engineReadyAt - workerStarted;
+      localCost[11] = adaptStarted - engineReadyAt;
+      localCost[12] = adaptedAt - adaptStarted;
+      localCost[13] = checkedAt - adaptedAt;
       for (const auto seconds : engine.stats.choice_seconds) localCost[0] += seconds;
-      std::array<double, 4> costMinimum{}, costSum{}, costMaximum{};
+      localCost[14] = localCost[12] - localCost[0];
+      for (const auto seconds : engine.stats.transaction_seconds) localCost[14] -= seconds;
+      std::array<double, 15> costMinimum{}, costSum{}, costMaximum{};
       CPassiveComm::Allreduce(localCost.data(), costMinimum.data(), localCost.size(), CPassiveComm::Op::MIN, workers.comm);
       CPassiveComm::Allreduce(localCost.data(), costSum.data(), localCost.size(), CPassiveComm::Op::SUM, workers.comm);
       CPassiveComm::Allreduce(localCost.data(), costMaximum.data(), localCost.size(), CPassiveComm::Op::MAX, workers.comm);
@@ -558,13 +573,16 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
         std::cout << "Native candidate selection seconds (same action order, maximum across ranks):";
         for (const auto seconds : choiceSeconds) std::cout << ' ' << seconds;
         std::cout << '\n';
-        const std::array<const char*, 4> costNames{"selection", "private reconstruction", "tracked collectives",
-                                                  "largest private transaction"};
+        const std::array<const char*, 15> costNames{"selection", "private reconstruction", "tracked collectives",
+            "largest private transaction", "round protocol", "round dependency import", "round donor import and IDs",
+            "round reconstruction", "round validation", "round commit", "engine initialization",
+            "incoming residual check", "engine adapt", "final contract check", "adapt unclassified"};
         for (size_t k = 0; k < costNames.size(); ++k)
           std::cout << "Native rank cost " << costNames[k] << " seconds min/mean/max: " << costMinimum[k] << ' '
                     << costSum[k] / workers.size << ' ' << costMaximum[k] << '\n';
         std::cout << "Native cost scopes: tracked collectives include waiting, exclude validation elections; "
-                     "rank costs are not additive wall phases.\n";
+                     "round scopes are exclusive within each rank, include MPI waits, and exclude local temporary "
+                     "destruction after round return; rank maxima are not additive wall phases.\n";
         std::cout << "Native cached selection full scans (same action order, sum across ranks):";
         for (const auto scans : selectionScans) std::cout << ' ' << scans;
         std::cout << '\n';
@@ -617,14 +635,19 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
       pending->published = true;
     }
   };
-  const std::array<double, 4> localExecution{workerSeconds, world.seconds() - returnStarted,
-      world.rank >= adaptationRanks ? waitSeconds : 0., world.rank >= adaptationRanks ? waitCpu : 0.};
-  std::array<double, 4> maximumExecution{};
+  const auto returnedAt = world.seconds();
+  const std::array<double, 7> localExecution{workerSeconds, returnedAt - returnStarted,
+      world.rank >= adaptationRanks ? waitSeconds : 0., world.rank >= adaptationRanks ? waitCpu : 0.,
+      importedAt - remeshStarted, preparedAt - importedAt, partitionedAt - preparedAt};
+  std::array<double, 7> maximumExecution{};
   CPassiveComm::Allreduce(localExecution.data(), maximumExecution.data(), localExecution.size(), CPassiveComm::Op::MAX);
   if (world.rank == 0) {
     std::cout << "Native execution seconds workers/return-to-CFD/idle-wall/idle-CPU (maximum across ranks):";
-    for (const auto seconds : maximumExecution) std::cout << ' ' << seconds;
+    for (size_t k = 0; k < 4; ++k) std::cout << ' ' << maximumExecution[k];
     std::cout << "; CFD ranks=" << world.size << ", adaptation ranks=" << adaptationRanks << '\n';
+    std::cout << "Native setup seconds import-reference/target-policy/working-partition (maximum across ranks):";
+    for (size_t k = 4; k < maximumExecution.size(); ++k) std::cout << ' ' << maximumExecution[k];
+    std::cout << '\n';
   }
   if (result.status != CRemeshResult::Status::COMPLETE && config.GetWrt_Adap_Mesh())
     WriteRejectedCandidate(config, result.slices, world, input, *reference, remeshAttempt);

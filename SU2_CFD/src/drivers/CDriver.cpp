@@ -87,6 +87,7 @@
 #include "../../include/iteration/CIterationFactory.hpp"
 
 #include "../../../Common/include/parallelization/omp_structure.hpp"
+#include "../../../Common/include/parallelization/CPassiveComm.hpp"
 #include "../../../Common/include/grid_movement/CVolumetricMovementFactory.hpp"
 
 #include <cassert>
@@ -731,7 +732,9 @@ void CDriver::BuildGeometryFVM(CConfig *config, CGeometry *geometry_aux, CGeomet
 
   /*--- Color the initial grid and set the send-receive domains (ParMETIS) ---*/
 
+  const auto partitionStarted = SU2_MPI::Wtime();
   geometry_aux->SetColorGrid_Parallel(config);
+  const auto partitionedAt = SU2_MPI::Wtime();
 
   /*--- Allocate the memory of the current domain, and divide the grid
      between the ranks. ---*/
@@ -741,6 +744,7 @@ void CDriver::BuildGeometryFVM(CConfig *config, CGeometry *geometry_aux, CGeomet
   /*--- Build the grid data structures using the ParMETIS coloring. ---*/
 
   geometry[MESH_0] = new CPhysicalGeometry(geometry_aux, config);
+  const auto migratedAt = SU2_MPI::Wtime();
 
   /*--- Deallocate the memory of geometry_aux and solver_aux ---*/
 
@@ -988,6 +992,17 @@ void CDriver::BuildGeometryFVM(CConfig *config, CGeometry *geometry_aux, CGeomet
     geometry[iMGlevel]->CompleteComms(geometry[iMGlevel], config, MPI_QUANTITIES::NEIGHBORS);
   }
 
+  if (config->GetAdap_Loop() && config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY) {
+    const std::array<double, 3> localGeometryCost{partitionedAt - partitionStarted, migratedAt - partitionedAt,
+                                               SU2_MPI::Wtime() - migratedAt};
+    std::array<double, 3> maximumGeometryCost{};
+    CPassiveComm::Allreduce(localGeometryCost.data(), maximumGeometryCost.data(), localGeometryCost.size(), CPassiveComm::Op::MAX);
+    if (rank == MASTER_NODE) {
+      cout << "CFD geometry seconds partition/migration/preprocess (maximum across ranks):";
+      for (const auto seconds : maximumGeometryCost) cout << ' ' << seconds;
+      cout << endl;
+    }
+  }
 }
 
 void CDriver::InitializeGeometryDGFEM(CConfig* config, CGeometry **&geometry) {

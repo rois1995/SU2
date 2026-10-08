@@ -1,0 +1,376 @@
+{
+  "status": "PASS_SUPPORTED_SMALL_LIFECYCLES",
+  "scope": "Current-source native subset-communicator BDF2 Euler/SA/SST/CGNS and restart controls. Not real RAE cost evidence, subsequent restart remeshing, mid-window restart, native3D or CFD accuracy validation.",
+  "runs": [
+    {
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_adaptation_partition_v1/vortex_bdf2_n4_m3_profile_v1",
+      "kind": "two unsteady adaptations",
+      "whole_process_seconds": 1.4491546759963967,
+      "binary_sha256": "77fbefa77179acd6d8e5c66da3eed61974f8dede4f4d2ce5937544cf9185c6f6",
+      "max_history_integral_defect": 3.268520942212428e-15,
+      "windows": [
+        {
+          "first_step": 3,
+          "points": 817,
+          "triangles": 1595,
+          "min_quality": 0.5796260891693572,
+          "max_simpson_length": 1.7400597223187095,
+          "donor_metric": "flow_00002.vtu",
+          "history": [
+            {
+              "step": 1,
+              "relative_integral_defect": 1.0809408446656662e-15,
+              "donor_snapshot_available": true,
+              "min_density": 0.9903972600775411,
+              "min_pressure": 0.9866793821420187
+            },
+            {
+              "step": 2,
+              "relative_integral_defect": 2.1618816893335404e-15,
+              "donor_snapshot_available": true,
+              "min_density": 0.9891366401293419,
+              "min_pressure": 0.9849926070501657
+            }
+          ],
+          "relative_first_height_error": null
+        },
+        {
+          "first_step": 6,
+          "points": 740,
+          "triangles": 1441,
+          "min_quality": 0.7143826005670236,
+          "max_simpson_length": 1.6791117100690467,
+          "donor_metric": "flow_00005.vtu",
+          "history": [
+            {
+              "step": 4,
+              "relative_integral_defect": 2.2737536988210593e-15,
+              "donor_snapshot_available": true,
+              "min_density": 0.9919330314619224,
+              "min_pressure": 0.9889426588691972
+            },
+            {
+              "step": 5,
+              "relative_integral_defect": 3.268520942212428e-15,
+              "donor_snapshot_available": true,
+              "min_density": 0.9939930382992348,
+              "min_pressure": 0.9916637791744528
+            }
+          ],
+          "relative_first_height_error": null
+        }
+      ],
+      "timing_accounting": [
+        {
+          "engine_adapt_mean_seconds": 0.442318,
+          "accounted_mean_seconds": 0.43532710999999996,
+          "unclassified_mean_seconds": 0.00699046,
+          "printed_closure_defect_seconds": 4.3000000005122274e-07
+        },
+        {
+          "engine_adapt_mean_seconds": 0.30298,
+          "accounted_mean_seconds": 0.29752193,
+          "unclassified_mean_seconds": 0.00545869,
+          "printed_closure_defect_seconds": 6.199999999512151e-07
+        }
+      ]
+    },
+    {
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_adaptation_partition_v1/plate_sa_bdf2_n4_m3_profile_v1",
+      "kind": "two unsteady adaptations",
+      "whole_process_seconds": 2.4372266520076664,
+      "binary_sha256": "77fbefa77179acd6d8e5c66da3eed61974f8dede4f4d2ce5937544cf9185c6f6",
+      "max_history_integral_defect": 2.2670141291730286e-15,
+      "windows": [
+        {
+          "first_step": 3,
+          "points": 749,
+          "triangles": 1409,
+          "min_quality": 0.6683482825795836,
+          "max_simpson_length": 1.6945181906030637,
+          "donor_metric": "flow_00002.vtu",
+          "history": [
+            {
+              "step": 1,
+              "relative_integral_defect": 2.0757776867536646e-15,
+              "donor_snapshot_available": true,
+              "min_density": 0.0009200402726150509,
+              "min_pressure": 80.64513702268839
+            },
+            {
+              "step": 2,
+              "relative_integral_defect": 5.05727934225208e-16,
+              "donor_snapshot_available": true,
+              "min_density": 0.0008695414515241884,
+              "min_pressure": 76.46051499616463
+            }
+          ],
+          "relative_first_height_error": 4.440892098500626e-16
+        },
+        {
+          "first_step": 6,
+          "points": 795,
+          "triangles": 1493,
+          "min_quality": 0.6460268271623136,
+          "max_simpson_length": 1.6170880196815964,
+          "donor_metric": "flow_00005.vtu",
+          "history": [
+            {
+              "step": 4,
+              "relative_integral_defect": 2.2670141291730286e-15,
+              "donor_snapshot_available": true,
+              "min_density": 0.0007080816327329046,
+              "min_pressure": 59.026431540924754
+            },
+            {
+              "step": 5,
+              "relative_integral_defect": 1.8546498839641025e-15,
+              "donor_snapshot_available": true,
+              "min_density": 0.0006760142584925057,
+              "min_pressure": 59.470578401697
+            }
+          ],
+          "relative_first_height_error": 2.220446049250313e-16
+        }
+      ],
+      "timing_accounting": [
+        {
+          "engine_adapt_mean_seconds": 1.23274,
+          "accounted_mean_seconds": 1.21780097,
+          "unclassified_mean_seconds": 0.0149409,
+          "printed_closure_defect_seconds": 1.8700000001814487e-06
+        },
+        {
+          "engine_adapt_mean_seconds": 0.341236,
+          "accounted_mean_seconds": 0.33639239,
+          "unclassified_mean_seconds": 0.00484326,
+          "printed_closure_defect_seconds": 3.499999999823089e-07
+        }
+      ]
+    },
+    {
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_adaptation_partition_v1/plate_sst_bdf2_n4_m2_profile_v1",
+      "kind": "two unsteady adaptations",
+      "whole_process_seconds": 2.2638058890006505,
+      "binary_sha256": "77fbefa77179acd6d8e5c66da3eed61974f8dede4f4d2ce5937544cf9185c6f6",
+      "max_history_integral_defect": 2.710098119478725e-15,
+      "windows": [
+        {
+          "first_step": 3,
+          "points": 781,
+          "triangles": 1473,
+          "min_quality": 0.4644035039673537,
+          "max_simpson_length": 1.694528701558049,
+          "donor_metric": "flow_00002.vtu",
+          "history": [
+            {
+              "step": 1,
+              "relative_integral_defect": 1.3424921168235382e-15,
+              "donor_snapshot_available": true,
+              "min_density": 0.0009199064869993467,
+              "min_pressure": 80.66904452457193
+            },
+            {
+              "step": 2,
+              "relative_integral_defect": 2.710098119478725e-15,
+              "donor_snapshot_available": true,
+              "min_density": 0.0008693668606014586,
+              "min_pressure": 76.47736501977398
+            }
+          ],
+          "relative_first_height_error": 2.220446049250313e-16
+        },
+        {
+          "first_step": 6,
+          "points": 779,
+          "triangles": 1462,
+          "min_quality": 0.7037127094126064,
+          "max_simpson_length": 1.5997833163292192,
+          "donor_metric": "flow_00005.vtu",
+          "history": [
+            {
+              "step": 4,
+              "relative_integral_defect": 1.7266328262164556e-15,
+              "donor_snapshot_available": true,
+              "min_density": 0.000699156209238824,
+              "min_pressure": 58.98149926625994
+            },
+            {
+              "step": 5,
+              "relative_integral_defect": 6.605200959285399e-16,
+              "donor_snapshot_available": true,
+              "min_density": 0.000669497830842561,
+              "min_pressure": 59.56452486890126
+            }
+          ],
+          "relative_first_height_error": 2.220446049250313e-16
+        }
+      ],
+      "timing_accounting": [
+        {
+          "engine_adapt_mean_seconds": 1.11427,
+          "accounted_mean_seconds": 1.10312317,
+          "unclassified_mean_seconds": 0.0111471,
+          "printed_closure_defect_seconds": 2.6999999991339507e-07
+        },
+        {
+          "engine_adapt_mean_seconds": 0.298374,
+          "accounted_mean_seconds": 0.29448244799999995,
+          "unclassified_mean_seconds": 0.00389159,
+          "printed_closure_defect_seconds": 3.799999997999848e-08
+        }
+      ]
+    },
+    {
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_adaptation_partition_v1/vortex_cgns_bdf2_n4_m3_profile_v1",
+      "kind": "two unsteady adaptations",
+      "whole_process_seconds": 1.3462441579904407,
+      "binary_sha256": "77fbefa77179acd6d8e5c66da3eed61974f8dede4f4d2ce5937544cf9185c6f6",
+      "max_history_integral_defect": 2.1316440927472394e-15,
+      "windows": [
+        {
+          "first_step": 3,
+          "points": 817,
+          "triangles": 1595,
+          "min_quality": 0.5796260891693572,
+          "max_simpson_length": 1.7400597223187095,
+          "donor_metric": "flow_00002.vtu",
+          "history": [
+            {
+              "step": 1,
+              "relative_integral_defect": 1.989534486443267e-15,
+              "donor_snapshot_available": true,
+              "min_density": 0.9903972600775411,
+              "min_pressure": 0.9866793821420187
+            },
+            {
+              "step": 2,
+              "relative_integral_defect": 1.847424880268978e-15,
+              "donor_snapshot_available": true,
+              "min_density": 0.9891366401293419,
+              "min_pressure": 0.9849926070501657
+            }
+          ],
+          "relative_first_height_error": null
+        },
+        {
+          "first_step": 6,
+          "points": 740,
+          "triangles": 1441,
+          "min_quality": 0.7143826005670236,
+          "max_simpson_length": 1.6791117100690467,
+          "donor_metric": "flow_00005.vtu",
+          "history": [
+            {
+              "step": 4,
+              "relative_integral_defect": 1.1777168263878013e-15,
+              "donor_snapshot_available": true,
+              "min_density": 0.9919330314619224,
+              "min_pressure": 0.9889426588691972
+            },
+            {
+              "step": 5,
+              "relative_integral_defect": 2.1316440927472394e-15,
+              "donor_snapshot_available": true,
+              "min_density": 0.9939930382992348,
+              "min_pressure": 0.9916637791744528
+            }
+          ],
+          "relative_first_height_error": null
+        }
+      ],
+      "timing_accounting": [
+        {
+          "engine_adapt_mean_seconds": 0.416922,
+          "accounted_mean_seconds": 0.41078301,
+          "unclassified_mean_seconds": 0.0061396,
+          "printed_closure_defect_seconds": 6.100000000119898e-07
+        },
+        {
+          "engine_adapt_mean_seconds": 0.271793,
+          "accounted_mean_seconds": 0.26766663999999996,
+          "unclassified_mean_seconds": 0.00412717,
+          "printed_closure_defect_seconds": 8.099999999622298e-07
+        }
+      ]
+    },
+    {
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_adaptation_partition_v1/vortex_restart_n4_to_n2_profile_v1",
+      "kind": "accepted-mesh BDF2 restart without subsequent remeshing",
+      "whole_process_seconds": 0.5110862509900471,
+      "binary_sha256": "77fbefa77179acd6d8e5c66da3eed61974f8dede4f4d2ce5937544cf9185c6f6",
+      "max_scaled_state_defect": 3.4629884106712797e-13,
+      "states": [
+        {
+          "step": 4,
+          "scaled_max_state_defect": 0.0,
+          "min_density": 0.9919330314619224,
+          "min_pressure": 0.9889426588691972
+        },
+        {
+          "step": 5,
+          "scaled_max_state_defect": 0.0,
+          "min_density": 0.9939930382992348,
+          "min_pressure": 0.9916637791744528
+        },
+        {
+          "step": 6,
+          "scaled_max_state_defect": 1.9395625283688373e-13,
+          "min_density": 0.9946173033107447,
+          "min_pressure": 0.9924959413259222
+        },
+        {
+          "step": 7,
+          "scaled_max_state_defect": 2.871106130619694e-13,
+          "min_density": 0.9952269492474666,
+          "min_pressure": 0.9933371487808529
+        },
+        {
+          "step": 8,
+          "scaled_max_state_defect": 3.4629884106712797e-13,
+          "min_density": 0.9957239137956837,
+          "min_pressure": 0.9940220012878735
+        }
+      ]
+    },
+    {
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_adaptation_partition_v1/vortex_restart_cgns_n4_profile_v1",
+      "kind": "accepted-mesh BDF2 restart without subsequent remeshing",
+      "whole_process_seconds": 1.0839251470024465,
+      "binary_sha256": "77fbefa77179acd6d8e5c66da3eed61974f8dede4f4d2ce5937544cf9185c6f6",
+      "max_scaled_state_defect": 8.840093157498093e-16,
+      "states": [
+        {
+          "step": 4,
+          "scaled_max_state_defect": 0.0,
+          "min_density": 0.9919330314619224,
+          "min_pressure": 0.9889426588691972
+        },
+        {
+          "step": 5,
+          "scaled_max_state_defect": 0.0,
+          "min_density": 0.9939930382992348,
+          "min_pressure": 0.9916637791744528
+        },
+        {
+          "step": 6,
+          "scaled_max_state_defect": 4.440892098500626e-16,
+          "min_density": 0.9946173033107475,
+          "min_pressure": 0.9924959413259263
+        },
+        {
+          "step": 7,
+          "scaled_max_state_defect": 6.627708454373064e-16,
+          "min_density": 0.9952269492474534,
+          "min_pressure": 0.993337148780835
+        },
+        {
+          "step": 8,
+          "scaled_max_state_defect": 8.840093157498093e-16,
+          "min_density": 0.9957239137956835,
+          "min_pressure": 0.9940220012878735
+        }
+      ]
+    }
+  ]
+}

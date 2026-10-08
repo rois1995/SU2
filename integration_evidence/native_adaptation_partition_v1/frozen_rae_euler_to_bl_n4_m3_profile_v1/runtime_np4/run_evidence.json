@@ -1,0 +1,137 @@
+{
+  "scope": "Frozen original sensor and actual geometric BL/native backend MPI4; contention-aware immutable executable control, setup/gather outside the remeshing timer",
+  "binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_exclusive_profile_build_v1/test_driver",
+  "binary_sha256": "12c72828117254be5478c276e099892c8478bb8b461fce88935acb08a680739b",
+  "source_evidence": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_exclusive_profile_build_v1/test_evidence.json",
+  "config_source": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_adaptation_partition_v1/configs_v1/rae_euler_to_bl_workers3.cfg",
+  "source_pins_checked": 762,
+  "recovered_original_sources": [],
+  "phase": "terminal",
+  "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_adaptation_partition_v1/frozen_rae_euler_to_bl_n4_m3_profile_v1/runtime_np4",
+  "inputs_sha256": {
+    "run.cfg": "88b4596d366b33c5cf8e8aac2068661681699c074462de713159655743695da5",
+    "input.su2": "940d8aed5d9ee0d6dc0a9f5b43a3973e7c76ed5d9123188c6e81d048cf6b6d26",
+    "frozen_sensor.csv": "1c78f8317cc48f26dd1aeef5575b2332e19cb7149ee15a63b0843bc91ecb33d2"
+  },
+  "original_flow_reference": {
+    "source": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_unsteady_performance_v1/rae_rans_window200_np4_v1/flow_00199.vtu",
+    "sha256": "10e87cf43f49c4adfb64a972fed7c99656610afd65040ece0f894cc7a5f7f1c6",
+    "scope": "Original CFD flow from which this frozen sensor was extracted. This case remeshes a frozen field and performs no CFD solve."
+  },
+  "machine_samples": [
+    {
+      "monotonic": 104875.904248293,
+      "busy_fraction": 0.23202614379084963,
+      "cpu_pressure": "some avg10=0.89 avg60=0.80 avg300=0.85 total=3449392708\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.89,
+      "loadavg": "1.45 1.86 2.18 3/1758 2682296"
+    },
+    {
+      "monotonic": 104880.91639887,
+      "busy_fraction": 0.22007528230865747,
+      "cpu_pressure": "some avg10=0.92 avg60=0.82 avg300=0.85 total=3449465971\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.92,
+      "loadavg": "2.46 2.07 2.25 2/1757 2682506"
+    },
+    {
+      "monotonic": 104885.936394078,
+      "busy_fraction": 0.22338568935427572,
+      "cpu_pressure": "some avg10=0.96 avg60=0.83 avg300=0.85 total=3449535265\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.96,
+      "loadavg": "2.26 2.03 2.23 3/1763 2682690"
+    },
+    {
+      "monotonic": 104890.95633433,
+      "busy_fraction": 0.17382567194172316,
+      "cpu_pressure": "some avg10=0.79 avg60=0.81 avg300=0.85 total=3449589465\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.79,
+      "loadavg": "2.08 2.00 2.22 3/1758 2682844"
+    },
+    {
+      "monotonic": 104897.688181122,
+      "busy_fraction": 0.6127840384260115,
+      "cpu_pressure": "some avg10=3.96 avg60=1.60 avg300=1.02 total=3450188015\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 3.96,
+      "loadavg": "2.39 2.06 2.24 4/1778 2684020",
+      "elapsed_seconds": 6.716405393002788
+    },
+    {
+      "monotonic": 104903.690262342,
+      "busy_fraction": 0.4171548117154812,
+      "cpu_pressure": "some avg10=2.17 avg60=1.45 avg300=1.00 total=3450196418\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 2.17,
+      "loadavg": "2.44 2.08 2.25 4/1767 2684212",
+      "elapsed_seconds": 12.718486188008683
+    },
+    {
+      "monotonic": 104909.691619114,
+      "busy_fraction": 0.4214807090719499,
+      "cpu_pressure": "some avg10=1.19 avg60=1.31 avg300=0.98 total=3450207044\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 1.19,
+      "loadavg": "2.53 2.11 2.26 4/1767 2684376",
+      "elapsed_seconds": 18.719844004008337
+    },
+    {
+      "monotonic": 104915.693021788,
+      "busy_fraction": 0.41413930140138044,
+      "cpu_pressure": "some avg10=0.65 avg60=1.18 avg300=0.96 total=3450215392\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.65,
+      "loadavg": "2.57 2.13 2.26 5/1729 2684562",
+      "elapsed_seconds": 24.721246668996173
+    },
+    {
+      "monotonic": 104921.69450893,
+      "busy_fraction": 0.42099770402838654,
+      "cpu_pressure": "some avg10=0.35 avg60=1.07 avg300=0.94 total=3450224521\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.35,
+      "loadavg": "2.60 2.14 2.26 5/1728 2684747",
+      "elapsed_seconds": 30.722732435009675
+    }
+  ],
+  "busy": [],
+  "command": [
+    "mpiexec",
+    "-n",
+    "4",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_exclusive_profile_build_v1/test_driver",
+    "[NativeFrozenAirfoil2D]",
+    "--use-colour",
+    "no"
+  ],
+  "rank_affinity_snapshot": [
+    {
+      "pid": 2682851,
+      "status": [
+        "VmHWM:\t   35448 kB",
+        "Threads:\t3",
+        "Cpus_allowed_list:\t0-7"
+      ]
+    },
+    {
+      "pid": 2682852,
+      "status": [
+        "VmHWM:\t   34656 kB",
+        "Threads:\t3",
+        "Cpus_allowed_list:\t0-7"
+      ]
+    },
+    {
+      "pid": 2682853,
+      "status": [
+        "VmHWM:\t   35452 kB",
+        "Threads:\t3",
+        "Cpus_allowed_list:\t0-7"
+      ]
+    },
+    {
+      "pid": 2682854,
+      "status": [
+        "VmHWM:\t   34744 kB",
+        "Threads:\t3",
+        "Cpus_allowed_list:\t0-7"
+      ]
+    }
+  ],
+  "elapsed_seconds": 33.48876345100871,
+  "solver_exit": 0
+}

@@ -1,0 +1,8 @@
+{
+  "initial": "sampling_summary.json",
+  "initial_limitation": "Native template types were counted as nearest sites; MPI totals remain directly counted.",
+  "rejected": "sampling_summary_v2.json",
+  "rejected_reason": "Call-only matching discarded actual perf symbols whose argument lists are omitted (+offset form), including MPI parents. It is not an authoritative profile.",
+  "corrected": "sampling_summary_v3.json",
+  "regressions": "Actual +offset native function spellings, native lambda owner inside generic handler, ignored namespace in binary path."
+}

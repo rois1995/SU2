@@ -1,0 +1,49 @@
+{
+  "status": "PASS",
+  "scope": "Accepted-mesh BDF2 window-boundary restart, same mesh and current/previous histories; compares conserved states at all resumed steps and positivity. Does not exercise subsequent remeshing or mid-window restart.",
+  "origin": {
+    "parent": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_adaptation_partition_v1/vortex_bdf2_n4_m3_profile_v1",
+    "restart_step": 6,
+    "source_mesh": "mesh_00006.su2",
+    "histories": [
+      "solution_00004.dat",
+      "solution_00005.dat"
+    ],
+    "parent_CFD_ranks": 4,
+    "restart_CFD_ranks": 2
+  },
+  "states": [
+    {
+      "step": 4,
+      "scaled_max_state_defect": 0.0,
+      "min_density": 0.9919330314619224,
+      "min_pressure": 0.9889426588691972
+    },
+    {
+      "step": 5,
+      "scaled_max_state_defect": 0.0,
+      "min_density": 0.9939930382992348,
+      "min_pressure": 0.9916637791744528
+    },
+    {
+      "step": 6,
+      "scaled_max_state_defect": 1.9395625283688373e-13,
+      "min_density": 0.9946173033107447,
+      "min_pressure": 0.9924959413259222
+    },
+    {
+      "step": 7,
+      "scaled_max_state_defect": 2.871106130619694e-13,
+      "min_density": 0.9952269492474666,
+      "min_pressure": 0.9933371487808529
+    },
+    {
+      "step": 8,
+      "scaled_max_state_defect": 3.4629884106712797e-13,
+      "min_density": 0.9957239137956837,
+      "min_pressure": 0.9940220012878735
+    }
+  ],
+  "max_scaled_state_defect": 3.4629884106712797e-13,
+  "checker_sha256": "227761b465e38f8ef0fed66f8375045866940bc12d615d2688286a25968ee19e"
+}

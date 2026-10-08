@@ -1,0 +1,75 @@
+{
+  "scope": "No-inline sampled CPU stacks, nearest visible native function and visible MPI API; includes waiting and truncated-stack limitations, not additive wall-phase timing",
+  "counters": {
+    "native_samples": 2354
+  },
+  "nearest_native_sites": [
+    [
+      "SU2NativeBoundary2D::FieldPatch::evaluate",
+      984
+    ],
+    [
+      "SU2Native2D::MoveStar",
+      571
+    ],
+    [
+      "SU2NativeBoundary2D::Engine::round",
+      264
+    ],
+    [
+      "SU2Native2D::SplitPatch",
+      131
+    ],
+    [
+      "SU2NativeBoundary2D::Engine::CellChoice",
+      126
+    ],
+    [
+      "SU2NativeBoundary2D::FieldRegion::Overlaps",
+      125
+    ],
+    [
+      "SU2NativeBoundary2D::checked",
+      57
+    ],
+    [
+      "SU2Native2D::JointPatch",
+      33
+    ],
+    [
+      "SU2NativeBoundary2D::Directory::prepare",
+      14
+    ],
+    [
+      "SU2NativeBoundary2D::RecordStream::operator",
+      12
+    ],
+    [
+      "SU2NativeBoundary2D::FieldPatch::Sort",
+      10
+    ],
+    [
+      "SU2NativeBoundary2D::PolylineReference::Policy",
+      9
+    ],
+    [
+      "SU2NativeBoundary2D::Engine::Engine",
+      7
+    ],
+    [
+      "SU2NativeBoundary2D::WorkWeights",
+      6
+    ],
+    [
+      "SU2NativeBoundary2D::Engine::chooseCached",
+      3
+    ],
+    [
+      "SU2NativeBoundary2D::Directory::fetch",
+      2
+    ]
+  ],
+  "mpi_apis": [],
+  "source_sha256": "25389cd942788a101aa9bd76ccea25718e6a9467948f0a47530bc0390aa1754f",
+  "checker_sha256": "8fec3818d0539507b3106466708b8c88cb899eee7d16450862b935f0a7ed8484"
+}

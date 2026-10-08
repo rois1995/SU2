@@ -1,0 +1,85 @@
+{
+  "status": "PASS",
+  "scope": "2D ideal-gas Euler or constant-span straight-wall RANS, shared fade and geometric BL composition when present, double saved metrics, original-connectivity P1 target, current/history conservation, final positivity and restart pairing; not a flow-accuracy or cost certificate",
+  "windows": [
+    {
+      "first_step": 3,
+      "points": 817,
+      "triangles": 1595,
+      "min_quality": 0.5796260891693572,
+      "max_simpson_length": 1.7400597223187095,
+      "donor_metric": "flow_00002.vtu",
+      "history": [
+        {
+          "step": 1,
+          "relative_integral_defect": 1.0809408446656662e-15,
+          "donor_snapshot_available": true,
+          "min_density": 0.9903972600775411,
+          "min_pressure": 0.9866793821420187
+        },
+        {
+          "step": 2,
+          "relative_integral_defect": 2.1618816893335404e-15,
+          "donor_snapshot_available": true,
+          "min_density": 0.9891366401293419,
+          "min_pressure": 0.9849926070501657
+        }
+      ],
+      "relative_first_height_error": null
+    },
+    {
+      "first_step": 6,
+      "points": 740,
+      "triangles": 1441,
+      "min_quality": 0.7143826005670236,
+      "max_simpson_length": 1.6791117100690467,
+      "donor_metric": "flow_00005.vtu",
+      "history": [
+        {
+          "step": 4,
+          "relative_integral_defect": 2.2737536988210593e-15,
+          "donor_snapshot_available": true,
+          "min_density": 0.9919330314619224,
+          "min_pressure": 0.9889426588691972
+        },
+        {
+          "step": 5,
+          "relative_integral_defect": 3.268520942212428e-15,
+          "donor_snapshot_available": true,
+          "min_density": 0.9939930382992348,
+          "min_pressure": 0.9916637791744528
+        }
+      ],
+      "relative_first_height_error": null
+    }
+  ],
+  "final_admissibility": {
+    "min_density": 0.9957239137956834,
+    "min_pressure": 0.9940220012878735
+  },
+  "checker_sha256": "ef7fc74aa586dfa15108b234f45cd350514d68842781ca0de525ba8f789d7bce",
+  "input_sha256": {
+    "flow_00001.vtu": "79c9912923432422ed0753e38ee48caa1619b128747aae065c3614f566721e2a",
+    "solution_00001.dat": "defdb8b8f96923d422730d3620da1a4c68e2a37695725e2c5716ad29a2f3b9ce",
+    "input.su2": "25e9956af7f4387435b2a366beb1c45c3624e66accbfed29308fedf8a3c3adb5",
+    "mesh_00006.su2": "4f885b993210d2c9880ecd029c910a8bab2ec3650d10f15e044c1d96150cbe55",
+    "mesh_00003.su2": "f9a43d4c1633fbc67199732de9ac1470a1da420feca5c8fcc0358d8c697c0cce",
+    "solution_00002.dat": "5fe964758169c7266b05761c0403621182ef45622a8e25e4191b48d52d17e200",
+    "flow_00005.vtu": "e11fa2a6bd61ade4af967883377b22a7f73afacc3fb70ccdbd02f7a005da02c7",
+    "solution_00000.dat": "a71b19fb2e4e0346cf68cabeed285ed6b9d6c0539a789c1175d0b084a0dc16a5",
+    "solution_00003.dat": "69f1f18de83b32420e49f6d2685db29059581c679636c491c52da6514dd170a7",
+    "solution_00005.dat": "e45ae0601e17d71ca2df020fa0cded41c0e8822b5d53f22ed390ebdd0bffbf73",
+    "flow_00002.vtu": "8bfa3a3db4250569237f330b8f18800bceff571818b1a39549d88b7d34aa0e32",
+    "flow_00003.vtu": "30b73a46bf5caf07a07b83e63d21e55af7b65f94d43e510a084356deb80f88ca",
+    "run.cfg": "fec24a3de30aeefe5fc109cb6315a3610fd492af763b4d0bfa26f9b7fc2c3228",
+    "flow_00000.vtu": "c64295c59c24c50cbf56de0ac21fbbc4f6e397d67af52ac61751015c7eb9ac66",
+    "flow_00008.vtu": "c6f59d6b4922058bec131210e3463b8b66296a4ec0d52b98da141d91368436d5",
+    "solution_00007.dat": "a441949f2a029d11bfd9410b55a63085bcbb4e4cb85301f2660c2486c1c38e82",
+    "flow_00007.vtu": "376658f9717af2d4f96dbe36b63463fabd6e4105292e9fbd9471e3387ffff873",
+    "solution_00008.dat": "c8ab1eea8428fe8be457df48670e221affc8fb18eefdb7ea1c18469d69fcac1b",
+    "flow_00004.vtu": "55ca69240746995f2f830fceb9c2433b42272123004484022cbe3a49f03fad05",
+    "solution_00004.dat": "ab8de9d28a22326cb293b450602cbd4270dee6a7a0708c12b669c7b8979faad6",
+    "solution_00006.dat": "5dd8332299413c677ca189809fbc5c5f672c1a0d1514a6dc66ad50473f149047",
+    "flow_00006.vtu": "4170bd5148a8c76b9185757cd0c1e593a613fa0251fd06fa298a66cf71964c8c"
+  }
+}
