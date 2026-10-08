@@ -2898,10 +2898,11 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
       });
     }
   vector<CBoundaryLayerMetric::Tensor> previous(nativeMetric ? nPoint : 0), inverse(nativeMetric ? nPointDomain : 0);
+  vector<bool> changed(nativeMetric ? nPointDomain : 0);
   bool gradationConverged = true;
   unsigned gradationSweeps = 0;
   passivedouble gradationViolation = 1;
-  unsigned long complexityTrials = 0, totalGradationSweeps = 0, totalGradedPoints = 0;
+  unsigned long complexityTrials = 0, totalGradationSweeps = 0, totalGradedPoints = 0, totalTensorUpdates = 0;
   passivedouble gradationSeconds = 0, haloSeconds = 0, reductionSeconds = 0;
   auto gradeNativeMetric = [&]() {
     /*--- Metric-space homogeneous gradation (Alauzet, equation 9): transport M_j to i as
@@ -2924,6 +2925,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
       passivedouble localChange = 0, globalChange = 0;
       for (auto point = 0ul; point < nPointDomain; ++point) {
         ++totalGradedPoints;
+        changed[point] = false;
         su2double vec[3][3], val[3], work[3];
         CBlasStructure::EigenDecomposition(previous[point].m, vec, val, nDim, work);
         for (auto i = 0u; i < nDim; ++i) {
@@ -2959,16 +2961,21 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
             CBlasStructure::EigenDecomposition(whitened, eigenvectors, eigenvalues, nDim, workspace);
             if (*max_element(eigenvalues, eigenvalues + nDim) <= 1 + 1e-7) continue;
           }
+          changed[point] = true;
           su2double intersection[3][3];
           IntersectMetrics(nDim, current.m, transported, intersection);
           for (auto i = 0u; i < nDim; ++i)
             for (auto j = 0u; j < nDim; ++j) current.m[i][j] = 0.5 * (intersection[i][j] + intersection[j][i]);
         }
+        // The input is already bounded. Retain it exactly when all transported demands are satisfied.
+        if (!changed[point]) continue;
+        ++totalTensorUpdates;
         CBlasStructure::EigenDecomposition(current.m, vec, val, nDim, work);
         boundEigenvalues(1, val);
         CBlasStructure::EigenRecomposition(current.m, vec, val, nDim);
       }
       for (auto point = 0ul; point < nPointDomain; ++point) {
+        if (!changed[point]) continue;  // Its relative change is exactly zero.
         su2double difference[3][3] = {}, vec[3][3], val[3], work[3];
         for (auto i = 0u; i < nDim; ++i)
           for (auto j = 0u; j < nDim; ++j)
@@ -2993,6 +3000,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
 
   /*--- Logarithm of the final complexity over the target, for the logarithm of the global factor. ---*/
 
+  su2double evaluatedLogScale = std::numeric_limits<passivedouble>::quiet_NaN();
   auto complexityError = [&](su2double logScale) {
     ++complexityTrials;
     const su2double scale = exp(logScale);
@@ -3041,6 +3049,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     }
     SU2_MPI::Allreduce(&local, &global, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
     integratedComplexity = global;
+    evaluatedLogScale = logScale;
     return log(global / complexity);
   };
 
@@ -3051,7 +3060,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
 
   const su2double tol = 1e-6;
 
-  auto solveGlobalFactor = [&](su2double& logScale, su2double& error, bool& bracketed) {
+  auto solveGlobalFactor = [&](su2double& logScale, su2double& error, bool& bracketed, bool reuseScale = false) {
     su2double localValues[2] = {0.0, 0.0}, globalValues[2] = {0.0, 0.0};  // complexity, largest eigenvalue
     su2double localSmallest = std::numeric_limits<passivedouble>::max(), smallest = 0.0;
 
@@ -3070,8 +3079,11 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
 
     const su2double absoluteLow = log(eigMin / globalValues[1]);
     const su2double absoluteHigh = log(eigMax / fmin(smallest, globalValues[1]));
-    logScale = log(complexity / globalValues[0]) * 2.0 / nDim;
-    if (fabs(logScale) < tol) logScale = 0.0;
+    // Corner updates perturb the previous solve: start from its scale, retaining the same safeguarded bracket.
+    if (!nativeMetric || !reuseScale) {
+      logScale = log(complexity / globalValues[0]) * 2.0 / nDim;
+      if (fabs(logScale) < tol) logScale = 0.0;
+    }
     if (nativeMetric) logScale = fmin(fmax(logScale, absoluteLow), absoluteHigh);
     error = complexityError(logScale);
     bracketed = true;
@@ -3252,7 +3264,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
             eigenvalues[iPoint * nDim + i] = fmax(anisotropic[iPoint * nDim + i], isoEigenvalue[iPoint]);
 
         const su2double previous = logScale;
-        solveGlobalFactor(logScale, error, bracketed);
+        solveGlobalFactor(logScale, error, bracketed, true);
         if (fabs(logScale - previous) < tol) break;
       }
       SU2_MPI::Allreduce(&nLocal, &nIsoPoint, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
@@ -3260,7 +3272,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   }
 
   /*--- Final metric. Re-evaluate the selected endpoint if the root was infeasible. ---*/
-  if (nativeMetric) error = complexityError(logScale);
+  if (nativeMetric && evaluatedLogScale != logScale) error = complexityError(logScale);
   passivedouble composedViolation = 1;
   unsigned long sensorBadEdges = 0, composedBadEdges = 0;
   if (nativeMetric) {
@@ -3350,10 +3362,13 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   metricComplexityBracketed = bracketed;
 
   passivedouble workLocal[3] = {gradationSeconds, haloSeconds, reductionSeconds}, workGlobal[3] = {};
-  unsigned long globalGradedPoints = 0;
+  unsigned long globalGradedPoints = 0, globalTensorUpdates = 0;
   if (nativeMetric) {
     CPassiveComm::Allreduce(workLocal, workGlobal, 3, CPassiveComm::Op::MAX);
-    CPassiveComm::Allreduce(&totalGradedPoints, &globalGradedPoints, 1, CPassiveComm::Op::SUM);
+    const unsigned long counts[2] = {totalGradedPoints, totalTensorUpdates};
+    unsigned long totals[2] = {};
+    CPassiveComm::Allreduce(counts, totals, 2, CPassiveComm::Op::SUM);
+    globalGradedPoints = totals[0]; globalTensorUpdates = totals[1];
   }
   if (rank == MASTER_NODE) {
     cout << (nativeMetric ? "Sensor-only donor metric statistics:" : "Metric field statistics:") << endl;
@@ -3369,6 +3384,8 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
       cout << "Native metric work: " << complexityTrials << " complexity trials, " << totalGradationSweeps
            << " total gradation sweeps, " << globalGradedPoints << " owned-point visits; gradation " << workGlobal[0] << " s, halo " << workGlobal[1]
            << " s, sweep reductions " << workGlobal[2] << " s (maximum accumulated rank times)." << endl;
+      cout << "Native gradation tensor updates: " << globalTensorUpdates << " of " << globalGradedPoints
+           << " owned-point visits." << endl;
       cout << "Native sensor gradation: " << gradationSweeps << " sweeps, "
            << (gradationConverged ? "fixed point reached" : "iteration limit reached")
            << ", maximum transported-metric ratio " << gradationViolation

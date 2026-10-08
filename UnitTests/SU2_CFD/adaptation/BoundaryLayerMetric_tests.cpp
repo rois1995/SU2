@@ -724,45 +724,53 @@ TEST_CASE("Symmetric eigen decomposition handles subnormal off-diagonal scales",
   }
 }
 
-TEST_CASE("Native full tensor gradation includes complexity and crosses MPI partitions", "[MetricRobustness]") {
-  const auto mesh = simplex_test::MakeSimplexMesh(2, 12, [](const passivedouble*) { return std::string("far"); });
-  MetricTest test(mesh, "MARKER_FAR= (far)\nADAP_REMESHER= NATIVE_CAVITY\nADAP_HGRAD= 1.3\n"
-                        "ADAP_HMIN= .002\nADAP_HMAX= 1\nADAP_ARMAX= 100\n"
-                        "ADAP_COMPLEXITY= 300\nADAP_ISO_CORNER= NO\n", {1,0,1,0,0,0});
-  auto& H = test.solver[FLOW_SOL]->GetNodes()->GetHessian();
-  for (auto point = 0ul; point < test.Geometry().GetnPoint(); ++point) {
-    const auto* x = test.Geometry().nodes->GetCoord(point);
-    const auto bump = 200*exp(-((x[0]-.5)*(x[0]-.5)+(x[1]-.5)*(x[1]-.5))/.0025);
-    H(point,0,0) = H(point,0,2) = 1+bump; H(point,0,1) = .9*bump;
-  }
-  const auto output = test.ComputeMetric();
-  INFO(output);
-  REQUIRE(std::isfinite(test.solver[FLOW_SOL]->GetMetricComplexityFinal()));
-  CHECK(test.solver[FLOW_SOL]->GetMetricComplexityFinal() == Approx(300).epsilon(2e-6));
-  CHECK(test.solver[FLOW_SOL]->GetMetricComplexityBracketed());
-  if (SU2_MPI::GetRank() == MASTER_NODE) CHECK(output.find("iteration limit reached") == string::npos);
-  for (auto point = 0ul; point < test.Geometry().GetnPointDomain(); ++point) {
-    const auto M = test.Metric(point);
-    su2double vec[3][3], val[3], work[3];
-    CBlasStructure::EigenDecomposition(M.m, vec, val, 2, work);
-    CHECK(val[0] > 0); CHECK(val[1] > 0);
-    for (const auto neighbor : test.Geometry().nodes->GetPoints(point)) {
-      const auto other = test.Metric(neighbor);
+TEST_CASE("Native full tensor gradation includes complexity and crosses MPI partitions in 2D and 3D", "[MetricRobustness]") {
+  for (const unsigned short dim : {2, 3}) {
+    INFO("Dimension " << dim);
+    const auto mesh = simplex_test::MakeSimplexMesh(dim, dim == 2 ? 12 : 6, [](const passivedouble*) { return std::string("far"); });
+    MetricTest test(mesh, "MARKER_FAR= (far)\nADAP_REMESHER= NATIVE_CAVITY\nADAP_HGRAD= 1.3\n"
+                          "ADAP_HMIN= .002\nADAP_HMAX= 1\nADAP_ARMAX= 100\n"
+                          "ADAP_COMPLEXITY= 300\nADAP_ISO_CORNER= NO\n", {1,0,1,0,0,0});
+    auto& H = test.solver[FLOW_SOL]->GetNodes()->GetHessian();
+    for (auto point = 0ul; point < test.Geometry().GetnPoint(); ++point) {
       const auto* x = test.Geometry().nodes->GetCoord(point);
-      const auto* y = test.Geometry().nodes->GetCoord(neighbor);
-      const su2double dx[2] = {x[0]-y[0], x[1]-y[1]};
-      su2double distance2 = 0, B[3][3] = {};
-      for (unsigned i = 0; i < 2; ++i)
-        for (unsigned j = 0; j < 2; ++j) distance2 += dx[i]*other.m[i][j]*dx[j];
-      const auto factor = 1/pow(1+log(1.3)*sqrt(distance2),2);
-      for (unsigned i = 0; i < 2; ++i)
-        for (unsigned j = 0; j < 2; ++j)
-          for (unsigned a = 0; a < 2; ++a)
-            for (unsigned b = 0; b < 2; ++b)
-              B[i][j] += vec[a][i]*factor*other.m[a][b]*vec[b][j]/sqrt(val[i]*val[j]);
-      su2double Q[3][3], lambda[3];
-      CBlasStructure::EigenDecomposition(B, Q, lambda, 2, work);
-      CHECK(std::max(lambda[0], lambda[1]) <= 1+2e-5);
+      su2double radius2 = 0;
+      for (unsigned i = 0; i < dim; ++i) radius2 += (x[i]-.5)*(x[i]-.5);
+      const auto bump = 200*exp(-radius2/.0025);
+      const su2double coupling[3][3] = {{1,.9,.2},{.9,1,.4},{.2,.4,1}};
+      for (unsigned i = 0, k = 0; i < dim; ++i)
+        for (unsigned j = i; j < dim; ++j, ++k) H(point,0,k) = (i == j ? 1 : 0) + bump*coupling[i][j];
+    }
+    const auto output = test.ComputeMetric();
+    INFO(output);
+    REQUIRE(std::isfinite(test.solver[FLOW_SOL]->GetMetricComplexityFinal()));
+    CHECK(test.solver[FLOW_SOL]->GetMetricComplexityFinal() == Approx(300).epsilon(2e-6));
+    CHECK(test.solver[FLOW_SOL]->GetMetricComplexityBracketed());
+    if (SU2_MPI::GetRank() == MASTER_NODE) CHECK(output.find("iteration limit reached") == string::npos);
+    for (auto point = 0ul; point < test.Geometry().GetnPointDomain(); ++point) {
+      const auto M = test.Metric(point);
+      su2double vec[3][3], val[3], work[3];
+      CBlasStructure::EigenDecomposition(M.m, vec, val, dim, work);
+      for (unsigned i = 0; i < dim; ++i) CHECK(val[i] > 0);
+      for (const auto neighbor : test.Geometry().nodes->GetPoints(point)) {
+        const auto other = test.Metric(neighbor);
+        const auto* x = test.Geometry().nodes->GetCoord(point);
+        const auto* y = test.Geometry().nodes->GetCoord(neighbor);
+        su2double dx[3] = {};
+        for (unsigned i = 0; i < dim; ++i) dx[i] = x[i]-y[i];
+        su2double distance2 = 0, B[3][3] = {};
+        for (unsigned i = 0; i < dim; ++i)
+          for (unsigned j = 0; j < dim; ++j) distance2 += dx[i]*other.m[i][j]*dx[j];
+        const auto factor = 1/pow(1+log(1.3)*sqrt(distance2),2);
+        for (unsigned i = 0; i < dim; ++i)
+          for (unsigned j = 0; j < dim; ++j)
+            for (unsigned a = 0; a < dim; ++a)
+              for (unsigned b = 0; b < dim; ++b)
+                B[i][j] += vec[a][i]*factor*other.m[a][b]*vec[b][j]/sqrt(val[i]*val[j]);
+        su2double Q[3][3], lambda[3];
+        CBlasStructure::EigenDecomposition(B, Q, lambda, dim, work);
+        CHECK(*std::max_element(lambda, lambda+dim) <= 1+2e-5);
+      }
     }
   }
 }
@@ -798,5 +806,33 @@ TEST_CASE("Native BL spatial exchange preserves closest-face normals", "[MetricR
     CHECK(a.weight == Approx(b.weight));
     CHECK(a.distance == Approx(b.distance).margin(1e-12));
     CheckTensor(2, a.full, b.full, 1e-9);
+  }
+}
+
+TEST_CASE("Native complexity retains the correct bounded tensor for infeasible targets", "[MetricRobustness]") {
+  for (const unsigned short dim : {2, 3}) {
+    const auto mesh = simplex_test::MakeSimplexMesh(dim, 4, [](const passivedouble*) { return std::string("far"); });
+    for (const bool upper : {false, true}) {
+      INFO("Dimension " << dim << ", upper endpoint " << upper);
+      const auto target = upper ? "1000000" : "1";
+      const std::array<su2double,6> identity = dim == 2 ? std::array<su2double,6>{1,0,1,0,0,0}
+                                                       : std::array<su2double,6>{1,0,0,1,0,1};
+      MetricTest test(mesh, string("MARKER_FAR= (far)\nADAP_REMESHER= NATIVE_CAVITY\nADAP_HGRAD= 1.3\n") +
+                          "ADAP_HMIN= .05\nADAP_HMAX= .5\nADAP_ISO_CORNER= NO\nADAP_COMPLEXITY= " + target + "\n", identity);
+      const auto output = test.ComputeMetric();
+      INFO(output);
+      CHECK_FALSE(test.solver[FLOW_SOL]->GetMetricComplexityBracketed());
+      su2double localVolume = 0, volume = 0;
+      for (auto point = 0ul; point < test.Geometry().GetnPointDomain(); ++point)
+        localVolume += test.Geometry().nodes->GetVolume(point);
+      SU2_MPI::Allreduce(&localVolume, &volume, 1, MPI_DOUBLE, MPI_SUM, SU2_MPI::GetComm());
+      const auto eigenvalue = upper ? 400. : 4.;
+      CHECK(test.solver[FLOW_SOL]->GetMetricComplexityFinal() == Approx(volume*pow(eigenvalue,dim/2.)).epsilon(2e-6));
+      for (auto point = 0ul; point < test.Geometry().GetnPoint(); ++point) {
+        const auto M = test.Metric(point);
+        for (unsigned i = 0; i < dim; ++i)
+          for (unsigned j = 0; j < dim; ++j) CHECK(M.m[i][j] == Approx(i == j ? eigenvalue : 0.).margin(1e-9));
+      }
+    }
   }
 }
