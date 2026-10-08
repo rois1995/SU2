@@ -14,6 +14,8 @@ using namespace transfer_test;
 TEST_CASE("Native support: default remains MMG and primal triangles are admitted", "[NativeSupport2D]") {
   auto config = MakeConfig(2, "SOLVER= EULER\n");
   CHECK(config->GetKind_Adap_Remesher() == ADAP_REMESHER::MMG);
+  CHECK(config->GetAdap_Native_Ranks() == 0);
+  CHECK_FALSE(config->GetAdap_Native_Repartition());
   MeshSolution mesh(config.get(), BoxMesh(2, 2, true), 0);
   CNativeRemesher::CheckSupport(*config, mesh.Fine());
 }
@@ -63,4 +65,13 @@ TEST_CASE("Native support failure: unvalidated predicted windows remain disabled
   MeshSolution mesh(config.get(), BoxMesh(2, 2, true), 0);
   CNativeRemesher::CheckSupport(*config, mesh.Fine());
   FAIL("Unvalidated native predicted-window strategy passed the support check.");
+}
+
+TEST_CASE("Native config failure: worker count exceeds CFD communicator", "[NativeInvalidWorkerCount][.]") {
+  // MakeConfig mutes cout; expected-failure subprocesses need the actual diagnostic.
+  std::stringstream options;
+  options << "SOLVER= EULER\nADAP_REMESHER= NATIVE_CAVITY\nADAP_NATIVE_RANKS= "
+          << SU2_MPI::GetSize() + 1 << '\n';
+  CConfig config(options, SU2_COMPONENT::SU2_CFD, false);
+  FAIL("Invalid worker count passed configuration validation.");
 }

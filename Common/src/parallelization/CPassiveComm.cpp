@@ -83,20 +83,20 @@ void CPassiveComm::SetRoundBytes(size_t bytes) {
   roundBytes = bytes;
 }
 
-void CPassiveComm::Alltoall(const void* send, void* recv, size_t blockBytes) {
+void CPassiveComm::Alltoall(const void* send, void* recv, size_t blockBytes, Communicator comm) {
 #ifdef HAVE_MPI
-  const int size = SU2_MPI::GetSize();
+  const int size = Size(comm);
   const int count = CheckedInt(blockBytes, "Block size of CPassiveComm::Alltoall");
   CheckedInt(blockBytes * size, "Total size of CPassiveComm::Alltoall");
-  MPI_Alltoall(const_cast<void*>(send), count, MPI_BYTE, recv, count, MPI_BYTE, Comm());
+  MPI_Alltoall(const_cast<void*>(send), count, MPI_BYTE, recv, count, MPI_BYTE, comm);
 #else
   if (blockBytes > 0) std::memcpy(recv, send, blockBytes);
 #endif
 }
 
 std::vector<char> CPassiveComm::AlltoallvRounds(const char* send, const std::vector<size_t>& sendBytes,
-                                                std::vector<size_t>& recvBytes) {
-  const int size = SU2_MPI::GetSize(), rank = SU2_MPI::GetRank();
+                                                std::vector<size_t>& recvBytes, Communicator comm) {
+  const int size = Size(comm), rank = Rank(comm);
   if (sendBytes.size() != static_cast<size_t>(size)) {
     SU2_MPI::Error("AlltoallvRounds needs one send count per rank.", CURRENT_FUNCTION);
   }
@@ -105,7 +105,7 @@ std::vector<char> CPassiveComm::AlltoallvRounds(const char* send, const std::vec
   /*--- Byte counts of every pair. ---*/
   std::vector<uint64_t> sendCount64(size), recvCount64(size);
   for (int q = 0; q < size; ++q) sendCount64[q] = sendBytes[q];
-  Alltoall(sendCount64.data(), recvCount64.data(), sizeof(uint64_t));
+  Alltoall(sendCount64.data(), recvCount64.data(), sizeof(uint64_t), comm);
   recvBytes.assign(recvCount64.begin(), recvCount64.end());
   const auto recvOffset = Offsets(recvBytes);
 
@@ -122,7 +122,7 @@ std::vector<char> CPassiveComm::AlltoallvRounds(const char* send, const std::vec
   const size_t planning = PlanningBytes(roundBytes, size);
   const size_t sendTotal = sendOffset[size] - sendBytes[rank], recvTotal = recvOffset[size] - recvBytes[rank];
   const unsigned long nRound =
-      AllreduceMax(std::max(CeilDiv(sendTotal, planning), CeilDiv(recvTotal, planning)));
+      AllreduceMax(std::max(CeilDiv(sendTotal, planning), CeilDiv(recvTotal, planning)), comm);
   lastRounds = nRound;
 
   std::vector<size_t> sendChunk(size, 0), recvChunk(size, 0);
@@ -156,7 +156,7 @@ std::vector<char> CPassiveComm::AlltoallvRounds(const char* send, const std::vec
         std::copy_n(send + sendOffset[q] + r * sendChunk[q], sendCounts[q], sendBuffer.data() + sendDispl[q]);
     }
     MPI_Alltoallv(Data(sendBuffer), sendCounts.data(), sendDispl.data(), MPI_BYTE, Data(recvBuffer),
-                  recvCounts.data(), recvDispl.data(), MPI_BYTE, Comm());
+                  recvCounts.data(), recvDispl.data(), MPI_BYTE, comm);
     for (int p = 0; p < size; ++p) {
       if (recvCounts[p] > 0)
         std::copy_n(recvBuffer.data() + recvDispl[p], recvCounts[p], result.data() + recvOffset[p] + r * recvChunk[p]);
@@ -275,14 +275,14 @@ std::vector<char> CPassiveComm::AllgathervRounds(const char* send, size_t nBytes
   return result;
 }
 
-void CPassiveComm::BcastRounds(std::vector<char>& data, int root) {
+void CPassiveComm::BcastRounds(std::vector<char>& data, int root, Communicator comm) {
 #ifdef HAVE_MPI
   uint64_t n = data.size();
-  MPI_Bcast(&n, sizeof(uint64_t), MPI_BYTE, root, Comm());
+  MPI_Bcast(&n, sizeof(uint64_t), MPI_BYTE, root, comm);
   data.resize(n);
   for (size_t start = 0; start < n; start += roundBytes) {
     const size_t chunk = std::min(roundBytes, n - start);
-    MPI_Bcast(data.data() + start, CheckedInt(chunk, "Broadcast chunk"), MPI_BYTE, root, Comm());
+    MPI_Bcast(data.data() + start, CheckedInt(chunk, "Broadcast chunk"), MPI_BYTE, root, comm);
   }
 #endif
 }
@@ -378,22 +378,22 @@ void CPassiveComm::ExchangeHalo(const CGeometry& geometry, void* records, size_t
 #endif
 }
 
-unsigned long CPassiveComm::ExscanSum(unsigned long value) {
+unsigned long CPassiveComm::ExscanSum(unsigned long value, Communicator comm) {
 #ifdef HAVE_MPI
   unsigned long result = 0;
-  MPI_Exscan(&value, &result, 1, MPI_UNSIGNED_LONG, MPI_SUM, Comm());
+  MPI_Exscan(&value, &result, 1, MPI_UNSIGNED_LONG, MPI_SUM, comm);
   /*--- MPI_Exscan leaves the result of rank 0 undefined. ---*/
-  if (SU2_MPI::GetRank() == 0) result = 0;
+  if (Rank(comm) == 0) result = 0;
   return result;
 #else
   return 0;
 #endif
 }
 
-unsigned long CPassiveComm::AllreduceMax(unsigned long value) {
+unsigned long CPassiveComm::AllreduceMax(unsigned long value, Communicator comm) {
 #ifdef HAVE_MPI
   unsigned long result = 0;
-  MPI_Allreduce(&value, &result, 1, MPI_UNSIGNED_LONG, MPI_MAX, Comm());
+  MPI_Allreduce(&value, &result, 1, MPI_UNSIGNED_LONG, MPI_MAX, comm);
   return result;
 #else
   return value;
@@ -410,10 +410,10 @@ unsigned long CPassiveComm::AllreduceSum(unsigned long value) {
 #endif
 }
 
-unsigned long CPassiveComm::AllreduceMin(unsigned long value) {
+unsigned long CPassiveComm::AllreduceMin(unsigned long value, Communicator comm) {
 #ifdef HAVE_MPI
   unsigned long result = 0;
-  MPI_Allreduce(&value, &result, 1, MPI_UNSIGNED_LONG, MPI_MIN, Comm());
+  MPI_Allreduce(&value, &result, 1, MPI_UNSIGNED_LONG, MPI_MIN, comm);
   return result;
 #else
   return value;

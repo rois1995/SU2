@@ -36,7 +36,11 @@ class NativeDriver : public CSinglezoneDriver {
 TEST_CASE("Native SU2 backend: eight replacements preserve reference and affine solution", "[NativeRemesher]") {
   World world;
   const bool conservative = GENERATE(false, true);
-  const std::string name = conservative ? "native_driver_conservative" : "native_driver_barycentric";
+  const int mode = GENERATE(0, 1, 2, 3);
+  if ((mode == 2 && world.size <= 2) || (mode == 3 && world.size <= 1)) return;
+  const int ranks = mode == 3 ? world.size : mode;
+  const std::string name = std::string(conservative ? "native_driver_conservative" : "native_driver_barycentric") +
+                           "_ranks" + std::to_string(ranks);
   if (world.rank == 0) {
     simplex_test::WriteSU2Mesh(BoxMesh(2, 6, true), name + ".su2");
     std::ofstream cfg(name + ".cfg");
@@ -46,7 +50,9 @@ TEST_CASE("Native SU2 backend: eight replacements preserve reference and affine 
         << ".su2\n"
            "MARKER_FAR= (left, right, upper, lower_a, lower_b)\n"
            "COMPUTE_METRIC= YES\nADAP_SENSOR= MACH\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\n"
-           "ADAP_HAUSD= 1e-8\nMGLEVEL= 0\nNUM_METHOD_GRAD= GREEN_GAUSS\n"
+           "ADAP_HAUSD= 1e-8\nADAP_NATIVE_REPARTITION= "
+        << (ranks ? "YES" : "NO") << "\nADAP_NATIVE_RANKS= "
+        << ranks << "\nMGLEVEL= 0\nNUM_METHOD_GRAD= GREEN_GAUSS\n"
            "CONV_NUM_METHOD_FLOW= ROE\nMUSCL_FLOW= NO\nITER= 2\n"
            "OUTPUT_FILES= (RESTART)\nWRT_ADAP_MESH= NO\nCONV_FILENAME= "
         << name << "_history\nMESH_OUT_FILENAME= " << name << "_mesh\n";
@@ -163,14 +169,17 @@ TEST_CASE("Native SU2 backend: eight replacements preserve reference and affine 
 
 TEST_CASE("Native rejected candidate is exported without publishing CFD state", "[NativeRejectedOutput]") {
   World world;
-  const std::string name = "native_rejected_output";
+  const int ranks = GENERATE(0, 1, 2);
+  if (ranks == 2 && world.size <= 2) return;
+  const std::string name = "native_rejected_output_ranks" + std::to_string(ranks);
   if (world.rank == 0) {
     simplex_test::WriteSU2Mesh(BoxMesh(2, 3, true), name + ".su2");
     std::ofstream cfg(name + ".cfg");
     cfg << "SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nAOA= 0\nMESH_FORMAT= SU2\nMESH_FILENAME= "
         << name << ".su2\nMARKER_FAR= (left, right, upper)\nMARKER_EULER= (lower_a, lower_b)\n"
            "COMPUTE_METRIC= YES\nADAP_SENSOR= MACH\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\n"
-           "ADAP_HAUSD= 1e-8\nADAP_BL_MARKER= (lower_a, lower_b)\nADAP_BL_FIRST_HEIGHT= (0.05, 0.05)\n"
+           "ADAP_HAUSD= 1e-8\nADAP_NATIVE_RANKS= "
+        << ranks << "\nADAP_BL_MARKER= (lower_a, lower_b)\nADAP_BL_FIRST_HEIGHT= (0.05, 0.05)\n"
            "ADAP_BL_GROWTH= 1.2\nADAP_BL_THICKNESS= 0.2\nADAP_BL_METHOD= METRIC\nMGLEVEL= 0\nNUM_METHOD_GRAD= GREEN_GAUSS\n"
            "CONV_NUM_METHOD_FLOW= ROE\nMUSCL_FLOW= NO\nITER= 2\nOUTPUT_FILES= (RESTART)\n"
            "WRT_ADAP_MESH= YES\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= " << name << "_mesh\n";

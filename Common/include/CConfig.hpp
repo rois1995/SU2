@@ -1313,6 +1313,7 @@ private:
   /*--- Mesh adaptation options ---*/
   bool Compute_Metric = false;              /*!< \brief Determines if the adaptation metric is computed. */
   bool Adap_Iso_Corner = true;              /*!< \brief Isotropic adaptation metric at sharp wall corners. */
+  unsigned long Adap_Native_Ranks = 0;       /*!< \brief Native adaptation ranks; zero uses all CFD ranks. */
   bool Adap_Native_Repartition = false;     /*!< \brief Cost-weighted native working partition, independent of CFD. */
   bool Adap_Surface = true;                 /*!< \brief The remesher may change the boundary (surface) mesh. */
   ADAP_REMESHER Kind_Adap_Remesher=ADAP_REMESHER::MMG; /*!< \brief Opt-in native backend; MMG remains default. */
@@ -10472,6 +10473,7 @@ public:
    */
   bool GetAdap_Surface(void) const { return Adap_Surface; }
   ADAP_REMESHER GetKind_Adap_Remesher(void) const { return Kind_Adap_Remesher; }
+  unsigned long GetAdap_Native_Ranks(void) const { return Adap_Native_Ranks; }
   bool GetAdap_Native_Repartition(void) const { return Adap_Native_Repartition; }
 
   /*!

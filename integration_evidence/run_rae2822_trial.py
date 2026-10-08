@@ -33,27 +33,55 @@ record=dict(runner_pid=os.getpid(),phase='preparing',working_directory=str(wd),r
             environment={k:env[k] for k in ('OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS')})
 def save():state.write_text(json.dumps(record,indent=2)+'\n')
 shutil.copy2(__file__,wd/'runner_source.py');save();quiet_since=None
+record['machine_samples'] = []
+def cpu_ticks():
+    values = list(map(int, Path('/proc/stat').read_text().splitlines()[0].split()[1:9]))
+    return sum(values), values[3] + values[4]
+def machine_sample(previous):
+    now = cpu_ticks(); total = now[0] - previous[0]; idle = now[1] - previous[1]
+    pressure = Path('/proc/pressure/cpu').read_text().strip()
+    sample = dict(unix_seconds=time.time(), busy_fraction=1 - idle / total if total else 0,
+                  cpu_pressure=pressure, cpu_pressure_avg10=float(pressure.split('avg10=', 1)[1].split()[0]),
+                  loadavg=Path('/proc/loadavg').read_text().strip())
+    record['machine_samples'].append(sample)
+    return now, sample
+previous = cpu_ticks(); time.sleep(5)
 while True:
+    previous, sample = machine_sample(previous)
     busy=[]
     for line in subprocess.check_output(['ps','-eo','pid,stat,comm'],text=True).splitlines()[1:]:
         pid,flags,name=line.split(maxsplit=2)
-        if pid!='918696' and 'Z' not in flags and (name in ('ninja','cc1plus','test_driver','test_driver_AD','test_memory') or name.startswith('SU2_CFD')):busy.append(int(pid))
+        if 'Z' not in flags and (name in ('ninja','cc1plus','test_driver','test_driver_AD','test_memory') or name.startswith('SU2_CFD')):busy.append(int(pid))
     record.update(phase='waiting_for_machine',busy=busy);save()
-    if busy:quiet_since=None
+    if busy or sample['busy_fraction'] > (os.cpu_count() - args.ranks - 1) / os.cpu_count() or sample['cpu_pressure_avg10'] > 10:quiet_since=None
     elif quiet_since is None:quiet_since=time.monotonic()
     elif time.monotonic()-quiet_since>=15:break
     time.sleep(5)
 # GNU time records the local process tree's maximum child RSS, including the
 # launcher. This is not aggregate rank memory or the remesher admission bound.
 command=['/usr/bin/time','-v','-o',str(wd/'process_tree_memory.txt'),
-         'mpiexec','-n',str(args.ranks),str(binary),'run.cfg'];start=time.monotonic()
+         'mpiexec','-n',str(args.ranks),str(binary),'run.cfg'];start=time.monotonic();previous=cpu_ticks();snapshot=[]
 with (wd/'solver.log').open('x') as log:
     child=subprocess.Popen(command,cwd=wd,env=env,stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
     record.update(phase='running',command=command,child_pid=child.pid,started_unix_seconds=time.time());save()
     while True:
         try:code=child.wait(timeout=5);break
         except subprocess.TimeoutExpired:
-            elapsed=time.monotonic()-start;record['elapsed_seconds']=elapsed;save()
+            elapsed=time.monotonic()-start
+            previous, sample = machine_sample(previous)
+            record['machine_samples'][-1]['elapsed_seconds'] = elapsed
+            if not snapshot:
+                for line in subprocess.check_output(['ps', '-eo', 'pid,comm'], text=True).splitlines()[1:]:
+                    pid, name = line.split(maxsplit=1)
+                    if not name.startswith('SU2_CFD'): continue
+                    status = Path('/proc') / pid
+                    try:
+                        if (status / 'cwd').resolve() == wd:
+                            snapshot.append(dict(pid=int(pid), status=[row for row in (status / 'status').read_text().splitlines()
+                                if row.startswith(('Cpus_allowed_list:', 'Threads:', 'VmHWM:'))]))
+                    except OSError: pass
+                record['rank_affinity_snapshot'] = snapshot
+            record['elapsed_seconds']=elapsed;save()
             if elapsed>=args.timeout:
                 os.killpg(child.pid,signal.SIGTERM)
                 try:child.wait(timeout=10)

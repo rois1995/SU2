@@ -121,11 +121,11 @@ class Engine {
     } catch (const std::exception& error) {
       failure.Set(1, 0, error.what());
     }
-    CollectiveFailure(failure, CURRENT_FUNCTION);
-    largestPoint = CPassiveComm::Allreduce(largestPoint, CPassiveComm::Op::MAX);
-    largestCell = CPassiveComm::Allreduce(largestCell, CPassiveComm::Op::MAX);
+    world.Fail(failure, CURRENT_FUNCTION);
+    largestPoint = CPassiveComm::Allreduce(largestPoint, CPassiveComm::Op::MAX, world.comm);
+    largestCell = CPassiveComm::Allreduce(largestCell, CPassiveComm::Op::MAX, world.comm);
     if (largestPoint == UINT64_MAX || largestCell == UINT64_MAX) failure.Set(1, 0, "Native identity range exhausted.");
-    CollectiveFailure(failure, CURRENT_FUNCTION);
+    world.Fail(failure, CURRENT_FUNCTION);
     nextPoint = largestPoint + 1;
     nextCell = largestCell + 1;
     directory.update({}, added);
@@ -302,12 +302,12 @@ class Engine {
     last_committed = false;
     const int action = static_cast<int>(choice.op.action);
     const int protocol = action + (coordinated ? 8 : 0);
-    const int minimum = CPassiveComm::Allreduce(protocol, CPassiveComm::Op::MIN);
-    const int maximum = CPassiveComm::Allreduce(protocol, CPassiveComm::Op::MAX);
+    const int minimum = CPassiveComm::Allreduce(protocol, CPassiveComm::Op::MIN, world.comm);
+    const int maximum = CPassiveComm::Allreduce(protocol, CPassiveComm::Op::MAX, world.comm);
     CLocalFailure protocolFailure;
     if (action < 0 || action > 7 || minimum != maximum || (coordinated && choice.op.action != Action::BULK_SPLIT && choice.op.action != Action::SPLIT))
       protocolFailure.Set(1, 0, "Native transaction actions or reconstruction modes differ or are unsupported.");
-    CollectiveFailure(protocolFailure, CURRENT_FUNCTION);
+    world.Fail(protocolFailure, CURRENT_FUNCTION);
     if (options.ordered) {
       const auto choices = world.metadata(std::vector<Choice>{choice});
       Choice best;
@@ -512,7 +512,7 @@ class Engine {
     } catch (const std::exception& error) {
       failure.Set(1, 0, error.what());
     }
-    const auto failed = ElectFailure(failure);
+    const auto failed = world.elect(failure);
     if (failed.any) {
       approved = false;
       ++stats.rejected[failed.message];
@@ -594,8 +594,8 @@ class Engine {
     } catch (const std::exception& error) {
       failure.Set(1, 0, error.what());
     }
-    CollectiveFailure(failure, CURRENT_FUNCTION);
-    return CPassiveComm::Allreduce(missed, CPassiveComm::Op::SUM) == 0;
+    world.Fail(failure, CURRENT_FUNCTION);
+    return CPassiveComm::Allreduce(missed, CPassiveComm::Op::SUM, world.comm) == 0;
   }
   void repair() {
     // Reconsider failed edges after neighboring commits, with a finite work
@@ -625,13 +625,13 @@ class Engine {
   size_t changedCount = 0;
   bool changedOverflow = false;
   Id Allocate(Id& next, size_t amount) {
-    const auto total = CPassiveComm::Allreduce(uint64_t(amount), CPassiveComm::Op::SUM);
+    const auto total = CPassiveComm::Allreduce(uint64_t(amount), CPassiveComm::Op::SUM, world.comm);
     CLocalFailure failure;
     if (next > UINT64_MAX - total) failure.Set(1, 0, "Native identity allocation overflow.");
     if (epoch == UINT64_MAX) failure.Set(1, 0, "Native transaction version range exhausted.");
-    CollectiveFailure(failure, CURRENT_FUNCTION);
+    world.Fail(failure, CURRENT_FUNCTION);
     static_assert(sizeof(unsigned long) == sizeof(Id), "Native MPI prefix requires 64-bit SU2 indices.");
-    const auto offset = CPassiveComm::ExscanSum(amount);
+    const auto offset = CPassiveComm::ExscanSum(amount, world.comm);
     const auto first = next + offset;
     next += total;
     return first;

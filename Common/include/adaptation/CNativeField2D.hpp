@@ -242,20 +242,20 @@ class DonorField {
         if (!(NormalizedDeterminant(m.xx, m.xy, m.yy) > 1e-14L))
           failure.Set(1, cell.first, "Nonfinite or numerically singular original nodal target.");
     }
-    CollectiveFailure(failure, CURRENT_FUNCTION);
+    world.Fail(failure, CURRENT_FUNCTION);
     try {
       BuildSearch();
     } catch (const std::exception& error) {
       failure.Set(1, 0, error.what());
     }
-    CollectiveFailure(failure, CURRENT_FUNCTION);
+    world.Fail(failure, CURRENT_FUNCTION);
   }
   std::shared_ptr<FieldPatch> import(const std::vector<Cell>& old, bool& active, size_t budget, double extensionLimit,
                                      size_t& maxDiscovered, int& rejected) {
     CLocalFailure failure;
     if (!(std::isfinite(extensionLimit) && extensionLimit >= 0))
       failure.Set(1, 0, "Invalid native target extension distance.");
-    CollectiveFailure(failure, CURRENT_FUNCTION);
+    world.Fail(failure, CURRENT_FUNCTION);
     // Old and new physical chords can lie on opposite sides of the same
     // original reference band. This covers their combined displacement;
     // evaluate() still enforces the original, single extensionLimit.

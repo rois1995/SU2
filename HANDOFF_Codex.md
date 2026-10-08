@@ -140,25 +140,58 @@ Failed checker sources/report and diagnosis retained under Euler-to-BL weighted 
 rejected_tensor_auditor_sources_v1. Corrected audit_v2 PASS, maximum directional
 defect7.091e-11. A regression retains the unequal-edge exact-endpoint tie case.
 Independent runner supports --config/--ranks and copies labeled original flow VTU.
-Subset wrapper/config draft prepared in /tmp/native_subset_wrapper_draft_v1;
-M<N still uncompiled/unvalidated at this checkpoint. Next: scoped native transport,
-explicit ADAP_NATIVE_RANKS, nonspinning inactive-rank wait, N-rank reader return,
-subset failure/atomic-rejection tests and actual unsteady/restart validation.
-Unapplied/uncompiled scoped transport draft: /tmp/native_subset_transport_draft_v2,
-with original/draft hashes. It adds explicit passive communicator parameters,
-World-local rank/size and subset failure elections. Still needs the actual worker
-wrapper, N-rank output/diagnostic return, config and validation. No source changes
-from this draft were applied during the production build. Inactive CFD ranks must
-avoid spinning while waiting: a native N-communicator Ibarrier + MPI_Test/sleep
-phase is the minimal proposed wait, validate measured idle CPU before recommending
-M<N. Keep SU2_MPI's global N communicator and original solution/history untouched.
-Correction to earlier fatal-error note: SU2 Error polls Ibarrier for one second,
-then may use global RMA and abort N; it is not a suitable subset reporting path.
-Only collectively elected M failures should unwind to a common N error election;
-unexpected local failures need fail-fast handling, not a potentially deadlocked
-N wait. Scope passive transport preflight and keep existing admission checks.
-Final-source actual unsteady runs/restarts, transported tensor residual artifacts,
-weighted/rank-count comparisons and practical scaling limits remain pending.
+Subset wrapper/config originated in /tmp/native_subset_wrapper_draft_v1;
+the applied/live-build state below supersedes this initial draft checkpoint.
+Weighted production checkpoint committed locally:24558223c6. No push performed.
+Reduced-rank implementation applied from /tmp/native_subset_transport_draft_v2
+and /tmp/native_subset_wrapper_draft_v1, original/draft SHA verified first.
+ADAP_NATIVE_RANKS=0 keeps all CFD ranks; M<N automatically weights/migrates raw
+working cells to first M ranks. Explicit native passive communicator parameters,
+World-local rank/size/election, M engine/diagnostics, sleeping MPI-3 N Ibarrier wait,
+N ReaderSlices/Bindings/rejected writer return. Global SU2 CFD communicator remains
+N; direct CFD/current/history solution transfer follows the existing driver.
+Only collectively elected M failures unwind to a common N election; unexpected
+rank-local failures retain fail-fast SU2 termination. MPI-2 fallback can spin.
+Added scoped transaction/budget/failure regression and full backend affine
+barycentric/conservative replacement tests for default, weighted N, M1/M2.
+Rejected output/state-preservation regression now exercises M1/M2; config rejects
+workers>N. Build native_subset_execution_build_v1 terminalPASS, app
+dfe3b1f81368406829964ae5549a596062191964716e0e62fd8f05921176b529.
+Core v1 stopped MPI1: test generator selected M1 twice while SAVE_AUDIT retained
+the first rejected candidate; writer correctly refused overwrite. Failed case
+retained, no native operator failure or CFD state loss established. Corrected
+unique rank modes; build v2 PASS, same CFD app. Core v2 PASS83cases/rank at
+MPI1/2/4 (test7e8372eaade722143259aa463e920d6cdc5a1ea856bcb8db36d61048f993001d).
+Measured inactive rank maxCPU .02656s during5.18291s wall (tiny-core cases only).
+Invalid-worker-count v1 exited .317s without hanging, but MakeConfig muted its
+diagnostic; expected-error checker correctly marked FAIL. Replaced that hidden
+fixture with unmuted CConfig constructor; build v3 PASS same application hash.
+Invalid-worker-count v2 PASS expected M>N diagnostic atMPI4, no deadlock.
+Frozen v3 test executable06c8a3ed6bc33cef9f4d08ae76bb86331ce7b077684b9aa3115f056579aa59be
+(full762source pins), applicationdfe3b1f81368406829964ae5549a596062191964716e0e62fd8f05921176b529.
+First frozen RAE Euler-to-BL N4/M1 launch in
+native_frozen_rae_euler_to_bl_workers1_v1/runtime_np4; inspect
+run_evidence.json for owned process. TERMINALPASS65.529s whole,63.907541s kernel,
+56011commits/11285points; all independent geometry/first-height/P1+BL/final-reader
+tensor checks PASS (max directional defect7.091e-11). Idle ranks maxCPU .334714s
+for63.832s wall; low CPU use demonstrated, no cost gain versus earlier M4 controls.
+N4/M2 Euler-to-BL frozen workers2_v1 terminalPASS45.866s whole,45.372772s kernel,
+56392commits, independent full metric/height/reference audit PASS. Same-source
+M4 workers4_v1 terminalPASS42.567s whole;49616commits, independent audit PASS.
+M4 grid is BYTE-IDENTICAL to pre-subgroup weighted v2 grid. First same-source
+Euler-to-BL trio favors M4 (M1/M2/M4 whole65.529/45.866/42.567s), no fixed-work
+speedup claim. Comparison: native_adaptation_partition_v1/subset_euler_to_bl_comparison_v1.json.
+M3, reverse workload, repeats and actual unsteady/restart remain next. No actual CFD run yet on this
+reduced-rank source.
+No native/CFD source changes for either fixture correction. Frozen reduced-rank
+operation is demonstrated; actual unsteady/restart validation and recommended
+worker-count total-cost improvement remain pending. Authoritative native
+sources stay pinned during build. Original drafts retained. Actual CFD trial
+runner now includes CPU busy/PSI/owned-rank affinity before/during runs.
+Next: finish frozen same-input M1/M2/N comparisons and independent full-target/height/reference/tensor audits,
+actual unsteady/restart/current+history transfer controls and measured complete
+costs. Final-source actual unsteady/restart and practical scaling limits remain
+pending. No native3D/general affordability claim; goal ACTIVE.
 No unrelated heavy job was running at activation; editor activity/CPU pressure
 exists and must be measured during controls. One heavy job, MPI<=4, threads1.
 

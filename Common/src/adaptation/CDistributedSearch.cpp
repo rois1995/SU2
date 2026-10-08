@@ -436,18 +436,18 @@ CTransferRoundScope::~CTransferRoundScope() { CPassiveComm::SetRoundBytes(saved)
 /*--- Failures                                                                                                     ---*/
 /*------------------------------------------------------------------------------------------------------------------*/
 
-CElectedFailure ElectFailure(const CLocalFailure& local) {
+CElectedFailure ElectFailure(const CLocalFailure& local, CPassiveComm::Communicator comm) {
   CElectedFailure elected;
-  const int rank = SU2_MPI::GetRank();
-  const unsigned long severity = CPassiveComm::AllreduceMax(local.severity);
+  const int rank = CPassiveComm::Rank(comm);
+  const unsigned long severity = CPassiveComm::AllreduceMax(local.severity, comm);
   if (severity == 0) return elected;
   const bool candidate = local.severity == severity;
-  const unsigned long gid = CPassiveComm::AllreduceMin(candidate ? static_cast<unsigned long>(local.gid) : ULONG_MAX);
+  const unsigned long gid = CPassiveComm::AllreduceMin(candidate ? static_cast<unsigned long>(local.gid) : ULONG_MAX, comm);
   const bool tied = candidate && static_cast<unsigned long>(local.gid) == gid;
-  const unsigned long root = CPassiveComm::AllreduceMin(tied ? static_cast<unsigned long>(rank) : ULONG_MAX);
+  const unsigned long root = CPassiveComm::AllreduceMin(tied ? static_cast<unsigned long>(rank) : ULONG_MAX, comm);
   std::vector<char> text;
   if (static_cast<unsigned long>(rank) == root) text.assign(local.message.begin(), local.message.end());
-  CPassiveComm::Bcast(text, static_cast<int>(root));
+  CPassiveComm::Bcast(text, static_cast<int>(root), comm);
   elected.any = true;
   elected.rank = static_cast<int>(root);
   elected.severity = static_cast<unsigned short>(severity);

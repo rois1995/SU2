@@ -394,3 +394,24 @@ integration_evidence/native_adaptation_partition_v1/weighted_same_source_compari
 Independent tensor auditor projection bug, rejected report/checker and corrected
 original-vertex regression are preserved; no native metric/tolerance change.
 M<N and final-source actual unsteady/restart/cost validation remain pending.
+
+2026-10-08 explicit worker communicator checkpoint: ADAP_NATIVE_RANKS=0 defaults
+N; explicit M<N automatically weighted-migrates working raw-sensor cells to first
+M ranks before constructing the engine. Native exchanges/elections/ID allocation
+use M, global CFD communicator/state/history remain N. MPI-3 inactive ranks
+poll a nonblocking barrier with 1ms sleeps; MPI-2 fallback may spin. Output reader
+slices/bindings/rejected writer return on N. Existing transfer goes directly from
+original CFD donors; no intermediate N->M solution interpolation.
+Core83cases/rank PASS MPI1/2/4, including subset failure/budget and exact affine
+conservative/barycentric replacement/rejection controls. Expected M>N check PASS.
+Two fixture failures retained: duplicate M1 rejected output with SAVE_AUDIT and
+muted expected diagnostic; native/CFD sources unchanged by fixture corrections.
+Frozen Euler-to-BL same-source M1/M2/M4 all PASS independent sensor+actual-query BL,
+first-height/reference and final-reader tensor checks (max directional7.091e-11).
+Whole times65.529/45.866/42.567s favor M4 in this first trio. M1 inactive CPU .335s
+for63.832s wall; lower worker count does free CPU but has not reduced total cost.
+M4 output matches pre-subgroup weighted grid byte-for-byte. Different modes make
+different operations/grids; not fixed-work speedups. Full evidence summary:
+integration_evidence/native_adaptation_partition_v1/subset_euler_to_bl_comparison_v1.json.
+Actual unsteady/restart, reverse workload, repeats, recommended-mode complete cost
+and practical memory/scaling limits remain pending; goal ACTIVE.

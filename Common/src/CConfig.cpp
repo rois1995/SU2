@@ -3305,6 +3305,7 @@ void CConfig::SetConfig_Options() {
   addBoolOption("ADAP_SURFACE", Adap_Surface, true);
   addEnumOption("ADAP_REMESHER",Kind_Adap_Remesher,Adap_Remesher_Map,ADAP_REMESHER::MMG);
   addBoolOption("ADAP_NATIVE_REPARTITION", Adap_Native_Repartition, false);
+  addUnsignedLongOption("ADAP_NATIVE_RANKS", Adap_Native_Ranks, 0);
 
   /*--- Boundary-layer metric: near each wall marker of ADAP_BL_MARKER, the metric is intersected with a wall metric
    *    whose wall-normal size grows from ADAP_BL_FIRST_HEIGHT with geometric rows of ratio ADAP_BL_GROWTH, and whose
@@ -6402,8 +6403,11 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     if (Adap_Complexity == 0) SU2_MPI::Error("ADAP_COMPLEXITY must be positive.", CURRENT_FUNCTION);
   }
 
-  if (Adap_Native_Repartition && Kind_Adap_Remesher != ADAP_REMESHER::NATIVE_CAVITY)
-    SU2_MPI::Error("ADAP_NATIVE_REPARTITION requires ADAP_REMESHER= NATIVE_CAVITY.", CURRENT_FUNCTION);
+  if ((Adap_Native_Repartition || Adap_Native_Ranks) && Kind_Adap_Remesher != ADAP_REMESHER::NATIVE_CAVITY)
+    SU2_MPI::Error("ADAP_NATIVE_REPARTITION/ADAP_NATIVE_RANKS require ADAP_REMESHER= NATIVE_CAVITY.", CURRENT_FUNCTION);
+
+  if (Adap_Native_Ranks > static_cast<unsigned long>(size))
+    SU2_MPI::Error("ADAP_NATIVE_RANKS cannot exceed the CFD communicator size.", CURRENT_FUNCTION);
 
   /*--- Remesher parameters (also checked without COMPUTE_METRIC, they are plain values). ---*/
   if (!(Adap_Hgrad > 1.0) || !std::isfinite(SU2_TYPE::GetValue(Adap_Hgrad))) {

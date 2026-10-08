@@ -70,7 +70,7 @@ static_assert(std::numeric_limits<double>::is_iec559 && std::numeric_limits<doub
 /*!
  * \class CPassiveComm
  * \brief Collective and point-to-point transport of passive data (coordinates, metrics, indices, flags) packed as bytes.
- * \note The calls are the native MPI functions with MPI_BYTE on the raw communicator SU2_MPI::GetComm() (an MPI_Comm
+ * \note The calls are the native MPI functions with MPI_BYTE on the supplied raw communicator (default SU2_MPI::GetComm()) (an MPI_Comm
  *       in every MPI build) and native MPI_Request handles. They do not go through the SU2_MPI wrapper: in the
  *       reverse (AD) and forward (DD) builds that is the MeDiPack wrapper, which has no conversion for MPI_BYTE and
  *       treats MPI_DOUBLE as the active type. Data sent here never carry derivatives (passivedouble, integers,
@@ -85,7 +85,7 @@ static_assert(std::numeric_limits<double>::is_iec559 && std::numeric_limits<doub
  *       for itself are copied directly (never through MPI). Messages are byte streams cut at any byte, so records of
  *       any size can be sent.
  *
- *       All collective calls must be made by every rank of SU2_MPI::GetComm() in the same order. The round size must
+ *       All collective calls must be made by every rank of the supplied communicator in the same order. The round size must
  *       be the same on all ranks (SetRoundBytes, for tests).
  *
  *       Used by the mesh adaptation (reader slices of the remeshed mesh, the metric of the new points) and meant as
@@ -93,6 +93,25 @@ static_assert(std::numeric_limits<double>::is_iec559 && std::numeric_limits<doub
  */
 class CPassiveComm {
  public:
+  using Communicator = SU2_MPI::Comm;
+  static int Rank(Communicator comm = SU2_MPI::GetComm()) {
+#ifdef HAVE_MPI
+    int rank = 0;
+    MPI_Comm_rank(comm, &rank);
+    return rank;
+#else
+    return 0;
+#endif
+  }
+  static int Size(Communicator comm = SU2_MPI::GetComm()) {
+#ifdef HAVE_MPI
+    int size = 1;
+    MPI_Comm_size(comm, &size);
+    return size;
+#else
+    return 1;
+#endif
+  }
 #ifdef HAVE_MPI
   using Request = MPI_Request;
 #else
@@ -121,7 +140,7 @@ class CPassiveComm {
    * \brief Collective: every rank sends blockBytes bytes to every rank (block q of send to rank q) and receives
    *        blockBytes bytes from every rank (block p of recv from rank p). blockBytes must be the same on all ranks.
    */
-  static void Alltoall(const void* send, void* recv, size_t blockBytes);
+  static void Alltoall(const void* send, void* recv, size_t blockBytes, Communicator comm = SU2_MPI::GetComm());
 
   /*!
    * \brief Collective: personalized exchange of byte streams in rounds.
@@ -131,7 +150,7 @@ class CPassiveComm {
    * \return The bytes received, those from rank p at offset sum(recvBytes[0..p-1]).
    */
   static std::vector<char> AlltoallvRounds(const char* send, const std::vector<size_t>& sendBytes,
-                                           std::vector<size_t>& recvBytes);
+                                           std::vector<size_t>& recvBytes, Communicator comm = SU2_MPI::GetComm());
 
   /*!
    * \brief Collective: the bytes of every rank on the root, in rank order, in rounds.
@@ -148,7 +167,7 @@ class CPassiveComm {
   /*!
    * \brief Collective: data of the root copied to all ranks (size included), in rounds.
    */
-  static void BcastRounds(std::vector<char>& data, int root);
+  static void BcastRounds(std::vector<char>& data, int root, Communicator comm = SU2_MPI::GetComm());
 
   /*!
    * \brief Point-to-point: send nBytes bytes to rank dest (not this rank), as the size followed by chunks of at most
@@ -179,12 +198,12 @@ class CPassiveComm {
   static void ExchangeHalo(const CGeometry& geometry, void* records, size_t recordBytes);
 
   /*! \brief Collective: exclusive prefix sum over the ranks; rank 0 gets 0 (MPI_Exscan leaves it undefined). */
-  static unsigned long ExscanSum(unsigned long value);
+  static unsigned long ExscanSum(unsigned long value, Communicator comm = SU2_MPI::GetComm());
 
   /*! \brief Collective reductions of integers over the ranks. */
-  static unsigned long AllreduceMax(unsigned long value);
+  static unsigned long AllreduceMax(unsigned long value, Communicator comm = SU2_MPI::GetComm());
   static unsigned long AllreduceSum(unsigned long value);
-  static unsigned long AllreduceMin(unsigned long value);
+  static unsigned long AllreduceMin(unsigned long value, Communicator comm = SU2_MPI::GetComm());
 
   /*! \brief Reduction operations of Allreduce. */
   enum class Op { SUM, MIN, MAX };
@@ -194,11 +213,11 @@ class CPassiveComm {
    *        (integers, characters, double, float); never through MeDiPack.
    */
   template <class T>
-  static void Allreduce(const T* send, T* recv, size_t n, Op op) {
+  static void Allreduce(const T* send, T* recv, size_t n, Op op, Communicator comm = SU2_MPI::GetComm()) {
     CheckPassive<T>();
 #ifdef HAVE_MPI
     MPI_Allreduce(const_cast<T*>(send), recv, CheckedInt(n, "Allreduce count"), NativeType<T>(), NativeOp(op),
-                  SU2_MPI::GetComm());
+                  comm);
 #else
     if (n > 0) std::memcpy(recv, send, n * sizeof(T));
 #endif
@@ -206,9 +225,9 @@ class CPassiveComm {
 
   /*! \brief Allreduce of one value. */
   template <class T>
-  static T Allreduce(T value, Op op) {
+  static T Allreduce(T value, Op op, Communicator comm = SU2_MPI::GetComm()) {
     T result = value;
-    Allreduce(&value, &result, 1, op);
+    Allreduce(&value, &result, 1, op, comm);
     return result;
   }
 
@@ -268,12 +287,12 @@ class CPassiveComm {
    * \brief Typed BcastRounds.
    */
   template <class T>
-  static void Bcast(std::vector<T>& data, int root) {
+  static void Bcast(std::vector<T>& data, int root, Communicator comm = SU2_MPI::GetComm()) {
     CheckPassive<T>();
     std::vector<char> bytes;
-    if (SU2_MPI::GetRank() == root) bytes.assign(reinterpret_cast<const char*>(data.data()),
+    if (Rank(comm) == root) bytes.assign(reinterpret_cast<const char*>(data.data()),
                                                  reinterpret_cast<const char*>(data.data()) + data.size() * sizeof(T));
-    BcastRounds(bytes, root);
+    BcastRounds(bytes, root, comm);
     data = FromBytes<T>(bytes);
   }
 

@@ -9,6 +9,7 @@
 #include "catch.hpp"
 #include "../../../Common/include/adaptation/CNativeEngine2D.hpp"
 #include "../../../Common/include/adaptation/CNativeReference2D.hpp"
+#include "../../../Common/include/adaptation/CNativePartition2D.hpp"
 
 using namespace SU2NativeBoundary2D;
 
@@ -812,3 +813,52 @@ TEST_CASE("Native compound surface repair publishes several boundary changes ato
     CHECK(world.sum(engine.choose(Action::SPLIT, {}, true).score >= 0) == 0);
   }
 }
+
+#ifdef HAVE_MPI
+TEST_CASE("Native workers: scoped transactions and failure return preserve CFD communicator", "[NativeEngine2D]") {
+  World cfd;
+  const auto originalComm = SU2_MPI::GetComm();
+  const int parts = GENERATE_COPY(1, std::min(2, cfd.size));
+  Case fixture;
+  auto cells = fixture.Owned(cfd);
+  PartitionStats partition;
+  REQUIRE(Repartition(cfd, cells, std::vector<uint32_t>(cells.size(), 1), parts, partition));
+  MPI_Comm comm;
+  MPI_Comm_split(originalComm, cfd.rank < parts ? 0 : MPI_UNDEFINED, cfd.rank, &comm);
+  bool caught = false;
+  if (cfd.rank < parts) {
+    World workers(comm);
+    CHECK(workers.size == parts);
+    Engine engine(workers, cells, fixture.geometry.Policy({{10, fixture.height}}), fixture.Options());
+    const auto before = Snapshot(engine.owned);
+    engine.options.dependency_bytes = 64;
+    CHECK_FALSE(engine.round({{Action::SPLIT, 0, 1}, 1., workers.rank}));
+    CHECK(Snapshot(engine.owned) == before);
+    engine.options.dependency_bytes = fixture.Options().dependency_bytes;
+    const bool accepted = engine.round({{Action::SPLIT, 0, 1}, 1., workers.rank});
+    CHECK(workers.sum(accepted) == 1);
+    const auto published = Snapshot(engine.owned);
+    std::vector<std::vector<Cell>> bad(workers.size);
+    if (workers.rank == parts - 1) bad.clear();
+    try { workers.exchange(bad); }
+    catch (const CElectedFailure& elected) {
+      caught = true;
+      CHECK(elected.rank == parts - 1);
+      CHECK(elected.message == "Invalid native peer buckets.");
+    }
+    CHECK(caught);
+    CHECK(Snapshot(engine.owned) == published);
+    cells = std::move(engine.owned);
+    MPI_Comm_free(&comm);
+  } else CHECK(cells.empty());
+  CHECK(SU2_MPI::GetComm() == originalComm);
+  CHECK(SU2_MPI::GetSize() == cfd.size);
+  CHECK(CPassiveComm::Allreduce(int(caught), CPassiveComm::Op::SUM) == parts);
+  std::vector<Cell> local;
+  for (const auto& cell : cells) local.push_back(cell.second);
+  const auto output = cfd.metadata(local);  // Tiny regression fixture only.
+  std::string reason;
+  CHECK(strict_cells(triangles(output), reason));
+  CHECK(physical(output).size() == 5);
+}
+#endif

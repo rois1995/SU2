@@ -55,6 +55,10 @@ files = [source / p for p in [
     'Common/include/adaptation/CNativeReferenceIO.hpp',
     'Common/src/adaptation/CNativeRemesher.cpp', 'Common/src/adaptation/CNativePartition2D.cpp',
     'Common/src/adaptation/CNativePredicates2D.cpp',
+    'Common/include/parallelization/CPassiveComm.hpp', 'Common/src/parallelization/CPassiveComm.cpp',
+    'Common/include/adaptation/CDistributedSearch.hpp', 'Common/src/adaptation/CDistributedSearch.cpp',
+    'UnitTests/Common/adaptation/DistributedSearch_tests.cpp',
+    'UnitTests/Common/parallelization/CPassiveComm_tests.cpp',
     'Common/src/adaptation/meson.build', 'Common/src/meson.build', 'config_template.cfg',
     'SU2_CFD/include/drivers/CSinglezoneDriver.hpp', 'SU2_CFD/src/drivers/CSinglezoneDriver.cpp',
     'SU2_CFD/src/adaptation/CConservativeTransfer.cpp',
@@ -158,15 +162,29 @@ all_ok = True
 for ranks in args.ranks:
     # Defer every MPI launch to foreign builds/solver jobs; never terminate them.
     quiet_since = None
+    machine_samples = []
+    def cpu_ticks():
+        v = list(map(int, Path('/proc/stat').read_text().splitlines()[0].split()[1:9]))
+        return sum(v), v[3] + v[4]
+    def sample_machine(previous):
+        now = cpu_ticks(); total = now[0] - previous[0]; idle = now[1] - previous[1]
+        pressure = Path('/proc/pressure/cpu').read_text().strip()
+        row = dict(unix_seconds=time.time(), busy_fraction=1-idle/total if total else 0,
+                   cpu_pressure=pressure, cpu_pressure_avg10=float(pressure.split('avg10=', 1)[1].split()[0]),
+                   loadavg=Path('/proc/loadavg').read_text().strip())
+        machine_samples.append(row)
+        return now, row
+    previous = cpu_ticks(); time.sleep(5)
     while True:
+        previous, sample = sample_machine(previous)
         busy = []
         for line in subprocess.check_output(['ps', '-eo', 'pid,stat,comm'], text=True).splitlines()[1:]:
             pid, flags, name = line.split(maxsplit=2)
-            if pid != '918696' and 'Z' not in flags and (name in ('ninja', 'cc1plus', 'test_driver', 'test_driver_AD', 'test_memory') or name.startswith('SU2_CFD')):
+            if 'Z' not in flags and (name in ('ninja', 'cc1plus', 'test_driver', 'test_driver_AD', 'test_memory') or name.startswith('SU2_CFD')):
                 busy.append(int(pid))
-        manifest['waiting_for_machine'] = dict(busy=busy, next_ranks=ranks)
+        manifest['waiting_for_machine'] = dict(busy=busy, next_ranks=ranks, machine_samples=machine_samples)
         report.write_text(json.dumps(manifest, indent=2)+'\n')
-        if busy: quiet_since = None
+        if busy or sample['busy_fraction'] > (os.cpu_count()-ranks-1)/os.cpu_count() or sample['cpu_pressure_avg10'] > 10: quiet_since = None
         elif quiet_since is None: quiet_since = time.monotonic()
         elif time.monotonic()-quiet_since >= 15: break
         time.sleep(5)
@@ -182,16 +200,23 @@ for ranks in args.ranks:
         manifest['current_run'] = {'ranks': ranks, 'pid': process.pid, 'command': command,
                                    'working_directory': str(run_directory), 'started_unix_seconds': time.time()}
         report.write_text(json.dumps(manifest, indent=2) + '\n')
-        try:
-            code = process.wait(timeout=args.timeout)
-        except subprocess.TimeoutExpired:
-            os.killpg(process.pid, signal.SIGTERM)
+        while True:
             try:
-                process.wait(timeout=5)
+                code = process.wait(timeout=5)
+                break
             except subprocess.TimeoutExpired:
-                os.killpg(process.pid, signal.SIGKILL)
-                process.wait()
-            code = 124
+                previous, sample = sample_machine(previous)
+                manifest['current_run']['machine_samples'] = machine_samples
+                report.write_text(json.dumps(manifest, indent=2) + '\n')
+                if time.monotonic() - start >= args.timeout:
+                    os.killpg(process.pid, signal.SIGTERM)
+                    try:
+                        process.wait(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        os.killpg(process.pid, signal.SIGKILL)
+                        process.wait()
+                    code = 124
+                    break
     text = log.read_text(errors="replace")
     if args.save_audit:
         # Fresh per-job directories prevent a failed later cycle from inheriting stale
@@ -203,7 +228,7 @@ for ranks in args.ranks:
                 shutil.copy2(artifact, audit_directory / artifact.name)
     ok = (0 < code < 128 and code != 124 and args.expect_diagnostic in text) if args.expect_diagnostic else (code == 0 and text.count('All tests passed') == ranks)
     manifest['runs'].append({'ranks': ranks, 'command': command, 'exit_code': code,
-                             'elapsed_seconds': time.monotonic() - start,
+                             'elapsed_seconds': time.monotonic() - start, 'machine_samples': machine_samples,
                              'verified': ok, 'working_directory': str(run_directory), 'log': str(log)})
     manifest.pop('current_run', None)
     report.write_text(json.dumps(manifest, indent=2) + '\n')

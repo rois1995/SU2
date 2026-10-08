@@ -83,7 +83,19 @@ class RecordStream {
 
 class World {
  public:
-  const int rank = SU2_MPI::GetRank(), size = SU2_MPI::GetSize();
+  const CPassiveComm::Communicator comm;
+  const int rank, size;
+  explicit World(CPassiveComm::Communicator c = SU2_MPI::GetComm())
+      : comm(c), rank(CPassiveComm::Rank(c)), size(CPassiveComm::Size(c)) {}
+  CElectedFailure elect(const CLocalFailure& local) const { return ElectFailure(local, comm); }
+  void Fail(const CLocalFailure& local, const std::string& function) const {
+    const auto elected = elect(local);
+    if (!elected.any) return;
+    if (comm == SU2_MPI::GetComm()) SU2_MPI::Error(elected.message, function);
+    // Only an elected group failure can unwind collectively back to the CFD
+    // ranks. Never enter SU2's global fatal-error protocol inside this subset.
+    throw elected;
+  }
   size_t bytes_sent = 0, max_exchange_bytes = 0;
   size_t max_exchange_work_bytes = 0;
   double collective_seconds = 0;
@@ -97,7 +109,7 @@ class World {
                           size_t baseline = 0) {
     CLocalFailure failure;
     if (to.size() != static_cast<size_t>(size)) failure.Set(1, 0, "Invalid native peer buckets.");
-    CollectiveFailure(failure, CURRENT_FUNCTION);
+    Fail(failure, CURRENT_FUNCTION);
     T example{};
     RecordStream measure;
     measure(example);
@@ -112,13 +124,13 @@ class World {
         total += sendBytes[r];
       }
     }
-    CollectiveFailure(failure, CURRENT_FUNCTION);
+    Fail(failure, CURRENT_FUNCTION);
     // Exchange lengths before packing/import. The bound includes bucket capacities, result records,
     // packed bytes, all transport temporaries and live round buffers. Other caller storage belongs in
     // baseline. Reuse the transfer's requested-byte model; allocator bookkeeping/RSS is not this quantity.
     std::vector<uint64_t> counts(sendBytes.begin(), sendBytes.end()), incoming(size);
     const auto countStarted = seconds();
-    CPassiveComm::Alltoall(counts.data(), incoming.data(), sizeof(uint64_t));
+    CPassiveComm::Alltoall(counts.data(), incoming.data(), sizeof(uint64_t), comm);
     collective_seconds += seconds() - countStarted;
     ++collective_calls;
     size_t receivedTotal = 0;
@@ -128,7 +140,7 @@ class World {
       else
         receivedTotal += static_cast<size_t>(count);
     }
-    CollectiveFailure(failure, CURRENT_FUNCTION);
+    Fail(failure, CURRENT_FUNCTION);
     const auto retained = transfer_memory::Add(baseline, transfer_memory::Bytes(to), transfer_memory::Mul(32, size));
     const auto peak = transfer_memory::Add(
         retained, total, receivedTotal,
@@ -141,7 +153,7 @@ class World {
     if (admitted) *admitted = accepted;
     if (!accepted) {
       if (!admitted) failure.Set(1, 0, "Native exchange exceeds its working-buffer ceiling.");
-      CollectiveFailure(failure, CURRENT_FUNCTION);
+      Fail(failure, CURRENT_FUNCTION);
       return {};
     }
     std::vector<char> bytes;
@@ -150,13 +162,13 @@ class World {
     for (const auto& bucket : to)
       for (auto value : bucket) encoder(value);
     const auto started = seconds();
-    const auto received = CPassiveComm::AlltoallvRounds(bytes.data(), sendBytes, recvBytes);
+    const auto received = CPassiveComm::AlltoallvRounds(bytes.data(), sendBytes, recvBytes, comm);
     collective_seconds += seconds() - started;
     ++collective_calls;
     bytes_sent += bytes.size();
     max_exchange_bytes = std::max(max_exchange_bytes, bytes.size() + received.size());
     if (received.size() % recordBytes) failure.Set(1, 0, "Partial native record received.");
-    CollectiveFailure(failure, CURRENT_FUNCTION);
+    Fail(failure, CURRENT_FUNCTION);
     std::vector<T> result;
     result.reserve(received.size() / recordBytes);
     RecordStream decoder(received);
@@ -176,7 +188,7 @@ class World {
  private:
   int Reduce(int value, CPassiveComm::Op op) {
     const auto started = seconds();
-    const auto result = CPassiveComm::Allreduce(value, op);
+    const auto result = CPassiveComm::Allreduce(value, op, comm);
     collective_seconds += seconds() - started;
     ++collective_calls;
     return result;
@@ -292,7 +304,7 @@ class Directory {
     const auto peak =
         transfer_memory::Add(baseline, transfer_memory::Bytes(to), transfer_memory::Bytes(records), starBytes);
     if (peak > ceiling) failure.Set(3, 0, "Native incidence staging exceeds the dependency budget.");
-    auto elected = ElectFailure(failure);
+    auto elected = world.elect(failure);
     if (elected.any) {
       staged.valid = false;
       staged.reason = elected.message;
@@ -319,7 +331,7 @@ class Directory {
     } catch (const std::bad_alloc&) {
       failure.Set(2, 0, "Native incidence staging allocation failed.");
     }
-    elected = ElectFailure(failure);
+    elected = world.elect(failure);
     staged.valid = !elected.any;
     staged.reason = elected.message;
     if (!staged.valid) staged.stars.clear();
@@ -345,7 +357,7 @@ class Directory {
     auto staged = prepare(removed, added);
     CLocalFailure failure;
     if (!staged.valid) failure.Set(1, 0, staged.reason);
-    CollectiveFailure(failure, CURRENT_FUNCTION);
+    world.Fail(failure, CURRENT_FUNCTION);
     commit(std::move(staged));
   }
   std::vector<Incidence> lookup(const std::set<Id>& ids, bool& overflow, bool intersection = false) {
@@ -398,7 +410,7 @@ class Directory {
         coverage[r.cell].insert(r.node);
       }
     }
-    CollectiveFailure(failure, CURRENT_FUNCTION);
+    world.Fail(failure, CURRENT_FUNCTION);
     if (intersection)
       for (auto it = unique.begin(); it != unique.end();) {
         if (coverage[it->first].size() != ids.size())

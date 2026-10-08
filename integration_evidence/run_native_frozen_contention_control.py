@@ -16,7 +16,7 @@ recovered=[]
 for name,digest in prior['source_sha256'].items():
  if sha(r/name)==digest:continue
  found=False
- for archive in ('native_frozen_rae_euler_to_bl_v1','native_unsteady_cache_mpi_v3','native_unsteady_mpi_v3','native_pruning_cost_core_mpi_v2','native_donor_index_core_mpi_v1','native_working_partition_core_mpi_v1'):
+ for archive in ('native_frozen_rae_euler_to_bl_v1','native_unsteady_cache_mpi_v3','native_unsteady_mpi_v3','native_pruning_cost_core_mpi_v2','native_donor_index_core_mpi_v1','native_working_partition_core_mpi_v1','native_working_partition_core_mpi_v3','native_subset_execution_core_mpi_v2'):
   p=e/archive/'sources'/name
   if p.is_file() and sha(p)==digest:found=True;recovered.append(str(p));break
  assert found,('Cannot verify original source pin',name)

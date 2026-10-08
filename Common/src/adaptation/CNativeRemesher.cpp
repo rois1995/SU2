@@ -17,6 +17,9 @@
 #include <fstream>
 #include <iomanip>
 #include <sstream>
+#include <thread>
+#include <chrono>
+#include <ctime>
 
 using namespace SU2NativeBoundary2D;
 
@@ -168,10 +171,9 @@ struct RejectedLocation {
  * geometry, transferring solution, or publishing reference bindings.
  * ponytail: text buffers scale with one rank's slice; chunk formatting if this
  * diagnostic becomes too large. The complete volume mesh is never gathered. */
-void WriteRejectedCandidate(const CConfig& config, const CReaderSlices& slices, const Engine& engine,
+void WriteRejectedCandidate(const CConfig& config, const CReaderSlices& slices, World& world, const std::map<Id, Cell>& owned,
                             const ReferenceState& reference, unsigned long attempt) {
   const auto base = CConfig::GetAdap_FileName(config.GetMesh_Out_FileName(), attempt) + "_rejected";
-  auto& world = engine.world;
   const auto rank = world.rank;
   std::ofstream mesh, report;
   CLocalFailure failure;
@@ -232,7 +234,7 @@ void WriteRejectedCandidate(const CConfig& config, const CReaderSlices& slices, 
   text.str(""); text.clear();
   std::vector<RejectedLocation> locations;
   const auto policy = reference.original->Policy({});
-  for (const auto& entry : engine.owned) {
+  for (const auto& entry : owned) {
     const auto& c = entry.second;
     double heightError = 0, deviation = 0;
     for (int k = 0; k < 3; ++k) if (c.marker[k]) {
@@ -307,7 +309,10 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
   CLocalFailure failure;
   if (metric.rows() < geometry.GetnPointDomain() || metric.cols() != 3)
     failure.Set(1, 0, "Native adaptation needs three metric values at every owned point.");
+  if (config.GetAdap_Native_Ranks() > static_cast<unsigned long>(world.size))
+    failure.Set(1, 0, "ADAP_NATIVE_RANKS exceeds the CFD communicator size.");
   CollectiveFailure(failure, CURRENT_FUNCTION);
+  const int adaptationRanks = config.GetAdap_Native_Ranks() ? int(config.GetAdap_Native_Ranks()) : world.size;
   PrepareReference(config, geometry);
   auto input = ImportNative(config, geometry, &metric, *reference);
   const auto& names = reference->marker_names;
@@ -383,7 +388,7 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
   if (!(std::isfinite(estimatedCells) && estimatedCells >= 0))
     workFailure.Set(1, 0, "Unrepresentable geometric BL work allowance.");
   CollectiveFailure(workFailure, CURRENT_FUNCTION);
-  const auto rounds = std::ceil(std::max(static_cast<long double>(globalCells), estimatedCells) / (4 * world.size));
+  const auto rounds = std::ceil(std::max(static_cast<long double>(globalCells), estimatedCells) / (4 * adaptationRanks));
   control.phase_rounds = int(std::min(20000.L, std::max(300.L, rounds)));
   control.geometry_tolerance = SU2_TYPE::GetValue(config.GetAdap_Hausd());
   control.fixed_boundary = !config.GetAdap_Surface();
@@ -396,13 +401,13 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
               << (control.fixed_boundary ? "fixed" : "adaptive") << ".\n";
   if (world.rank == 0)
     std::cout << "Native work allowance: " << control.phase_rounds << " collective rounds per phase, "
-              << control.sweeps << " sweeps, for " << globalCells << " input cells on " << world.size
+              << control.sweeps << " sweeps, for " << globalCells << " input cells on " << adaptationRanks
               << " ranks; frozen P1 centroid complexity=" << complexity << ", estimated unit triangles="
               << estimatedCells << " (geometric BL row allowance=" << layerCells << ").\n";
   if (world.rank == 0)
     for (const auto& height : heights)
       std::cout << "Native requested first altitude: " << names[height.first] << " = " << height.second << '\n';
-  if (config.GetAdap_Native_Repartition()) {
+  if (config.GetAdap_Native_Repartition() || adaptationRanks < world.size) {
     PartitionStats partition;
     std::vector<uint32_t> weights;
     const auto started = world.seconds();
@@ -413,7 +418,7 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
     }
     CollectiveFailure(failure, CURRENT_FUNCTION);
     const auto estimateSeconds = world.seconds() - started;
-    if (!Repartition(world, input, weights, world.size, partition))
+    if (!Repartition(world, input, weights, adaptationRanks, partition))
       failure.Set(1, 0, "Native working partition migration was not admitted.");
     CollectiveFailure(failure, CURRENT_FUNCTION);
     const std::array<double, 4> localSeconds{estimateSeconds, partition.graph_seconds,
@@ -423,7 +428,7 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
     const auto bytes = CPassiveComm::Allreduce(uint64_t(partition.migration_bytes), CPassiveComm::Op::MAX);
     if (world.rank == 0) {
       std::cout << "Native working partition: weighted, CFD ranks=" << world.size
-                << ", adaptation ranks=" << world.size << "; moved cells=" << partition.moved_cells
+                << ", adaptation ranks=" << adaptationRanks << "; moved cells=" << partition.moved_cells
                 << ", dual edge cuts=" << partition.edgecut << ", largest transport/staging estimate=" << bytes << '\n';
       std::cout << "Native working partition seconds estimate/graph/ParMETIS/migration (maximum across ranks):";
       for (const auto value : maximumSeconds) std::cout << ' ' << value;
@@ -435,139 +440,193 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
                   << partition.work_after[r] << '\n';
     }
   }
-  Engine engine(world, std::move(input), policy, control);
-  uint64_t initialShape = 0, initialSize = 0;
-  for (const auto& entry : engine.owned) {
-    initialShape += entry.second.target_cache[0] < .18;
-    initialSize += *std::max_element(entry.second.target_cache.begin() + 1, entry.second.target_cache.end()) > 1.8;
-  }
-  initialShape = CPassiveComm::Allreduce(initialShape, CPassiveComm::Op::SUM);
-  initialSize = CPassiveComm::Allreduce(initialSize, CPassiveComm::Op::SUM);
-  if (world.rank == 0)
-    std::cout << "Native incoming residuals: shape=" << initialShape << ", edge length=" << initialSize << '\n';
-  engine.adapt();
-  uint64_t missedQuality = 0, missedHeight = 0, missedGeometry = 0, missedShape = 0, missedSize = 0;
-  double minQuality = 1, maxLength = 0;
-  for (const auto& entry : engine.owned) {
-    const auto& cell = entry.second;
-    minQuality = std::min(minQuality, cell.target_cache[0]);
-    const auto largest = *std::max_element(cell.target_cache.begin() + 1, cell.target_cache.end());
-    maxLength = std::max(maxLength, largest);
-    missedQuality += cell.target_cache[0] < .18 || largest > 1.8;
-    missedShape += cell.target_cache[0] < .18;
-    missedSize += largest > 1.8;
-    for (int k = 0; k < 3; ++k)
-      if (cell.marker[k]) {
-        const auto a = cell.t.v[k], b = cell.t.v[(k + 1) % 3];
-        const auto h = policy.height(cell.marker[k]);
-        missedGeometry += policy.deviation({a, b, cell.marker[k]}) > control.geometry_tolerance;
-        if (h > 0) missedHeight += std::abs(static_cast<double>(2 * area(cell.t)) / norm(b.p - a.p) / h - 1) > 1e-8;
-      }
-  }
-  missedQuality = CPassiveComm::Allreduce(missedQuality, CPassiveComm::Op::SUM);
-  missedHeight = CPassiveComm::Allreduce(missedHeight, CPassiveComm::Op::SUM);
-  missedGeometry = CPassiveComm::Allreduce(missedGeometry, CPassiveComm::Op::SUM);
-  missedShape = CPassiveComm::Allreduce(missedShape, CPassiveComm::Op::SUM);
-  missedSize = CPassiveComm::Allreduce(missedSize, CPassiveComm::Op::SUM);
-  minQuality = CPassiveComm::Allreduce(minQuality, CPassiveComm::Op::MIN);
-  maxLength = CPassiveComm::Allreduce(maxLength, CPassiveComm::Op::MAX);
   CRemeshResult result;
-  result.status = missedHeight || missedGeometry
-                      ? CRemeshResult::Status::INCOMPLETE_COVERAGE
-                      : missedQuality ? CRemeshResult::Status::INCOMPLETE_QUALITY : CRemeshResult::Status::COMPLETE;
-  result.slices = ReaderSlices(engine.owned, *reference);
+  auto workerComm = world.comm;
+#ifdef HAVE_MPI
+  if (adaptationRanks < world.size)
+    MPI_Comm_split(world.comm, world.rank < adaptationRanks ? 0 : MPI_UNDEFINED, world.rank, &workerComm);
+#endif
+  const auto workerStarted = world.seconds();
+  if (world.rank < adaptationRanks) {
+    World workers(workerComm);
+    try {
+      Engine engine(workers, std::move(input), policy, control);
+      uint64_t initialShape = 0, initialSize = 0;
+      for (const auto& entry : engine.owned) {
+        initialShape += entry.second.target_cache[0] < .18;
+        initialSize += *std::max_element(entry.second.target_cache.begin() + 1, entry.second.target_cache.end()) > 1.8;
+      }
+      initialShape = CPassiveComm::Allreduce(initialShape, CPassiveComm::Op::SUM, workers.comm);
+      initialSize = CPassiveComm::Allreduce(initialSize, CPassiveComm::Op::SUM, workers.comm);
+      if (workers.rank == 0)
+        std::cout << "Native incoming residuals: shape=" << initialShape << ", edge length=" << initialSize << '\n';
+      engine.adapt();
+      uint64_t missedQuality = 0, missedHeight = 0, missedGeometry = 0, missedShape = 0, missedSize = 0;
+      double minQuality = 1, maxLength = 0;
+      for (const auto& entry : engine.owned) {
+        const auto& cell = entry.second;
+        minQuality = std::min(minQuality, cell.target_cache[0]);
+        const auto largest = *std::max_element(cell.target_cache.begin() + 1, cell.target_cache.end());
+        maxLength = std::max(maxLength, largest);
+        missedQuality += cell.target_cache[0] < .18 || largest > 1.8;
+        missedShape += cell.target_cache[0] < .18;
+        missedSize += largest > 1.8;
+        for (int k = 0; k < 3; ++k)
+          if (cell.marker[k]) {
+            const auto a = cell.t.v[k], b = cell.t.v[(k + 1) % 3];
+            const auto h = policy.height(cell.marker[k]);
+            missedGeometry += policy.deviation({a, b, cell.marker[k]}) > control.geometry_tolerance;
+            if (h > 0) missedHeight += std::abs(static_cast<double>(2 * area(cell.t)) / norm(b.p - a.p) / h - 1) > 1e-8;
+          }
+      }
+      missedQuality = CPassiveComm::Allreduce(missedQuality, CPassiveComm::Op::SUM, workers.comm);
+      missedHeight = CPassiveComm::Allreduce(missedHeight, CPassiveComm::Op::SUM, workers.comm);
+      missedGeometry = CPassiveComm::Allreduce(missedGeometry, CPassiveComm::Op::SUM, workers.comm);
+      missedShape = CPassiveComm::Allreduce(missedShape, CPassiveComm::Op::SUM, workers.comm);
+      missedSize = CPassiveComm::Allreduce(missedSize, CPassiveComm::Op::SUM, workers.comm);
+      minQuality = CPassiveComm::Allreduce(minQuality, CPassiveComm::Op::MIN, workers.comm);
+      maxLength = CPassiveComm::Allreduce(maxLength, CPassiveComm::Op::MAX, workers.comm);
+      result.status = missedHeight || missedGeometry
+                          ? CRemeshResult::Status::INCOMPLETE_COVERAGE
+                          : missedQuality ? CRemeshResult::Status::INCOMPLETE_QUALITY : CRemeshResult::Status::COMPLETE;
+      const auto commits = workers.sum(engine.stats.commits), cross = workers.sum(engine.stats.cross_rank);
+      const auto jointCommits = workers.sum(engine.stats.joint_commits);
+      const auto jointSeconds = CPassiveComm::Allreduce(engine.stats.joint_seconds, CPassiveComm::Op::MAX, workers.comm);
+      const auto rejectedSize = workers.sum(engine.stats.size_rejected),
+                 rejectedMemory = workers.sum(engine.stats.memory_rejected),
+                 rejectedStale = workers.sum(engine.stats.stale_rejected), conflicts = workers.sum(engine.stats.conflicts);
+      const auto bytes = CPassiveComm::Allreduce(uint64_t(workers.bytes_sent), CPassiveComm::Op::SUM, workers.comm);
+      const auto transportEstimate =
+          CPassiveComm::Allreduce(uint64_t(workers.max_exchange_work_bytes), CPassiveComm::Op::MAX, workers.comm);
+      std::array<uint64_t, 3> fieldQueries;
+      CPassiveComm::Allreduce(engine.stats.field_queries.data(), fieldQueries.data(), fieldQueries.size(),
+                             CPassiveComm::Op::SUM, workers.comm);
+      const std::array<uint64_t, 2> localSearch{engine.donor.search_candidates, engine.donor.full_scan_equivalent};
+      std::array<uint64_t, 2> donorSearch{};
+      CPassiveComm::Allreduce(localSearch.data(), donorSearch.data(), localSearch.size(), CPassiveComm::Op::SUM, workers.comm);
+      const auto donorIndexBytes = CPassiveComm::Allreduce(uint64_t(engine.donor.SearchBytes()), CPassiveComm::Op::MAX, workers.comm);
+      std::array<uint64_t, 8> actions, selectionScans;
+      std::array<double, 8> phaseSeconds, choiceSeconds;
+      for (size_t a = 0; a < actions.size(); ++a) {
+        actions[a] = CPassiveComm::Allreduce(uint64_t(engine.stats.accepted[a]), CPassiveComm::Op::SUM, workers.comm);
+        phaseSeconds[a] = CPassiveComm::Allreduce(engine.stats.phase_seconds[a], CPassiveComm::Op::MAX, workers.comm);
+        choiceSeconds[a] = CPassiveComm::Allreduce(engine.stats.choice_seconds[a], CPassiveComm::Op::MAX, workers.comm);
+        selectionScans[a] = CPassiveComm::Allreduce(engine.stats.selection_scans[a], CPassiveComm::Op::SUM, workers.comm);
+      }
+      std::vector<RejectionCount> localReasons;
+      for (const auto& entry : engine.stats.rejected) {
+        RejectionCount record;
+        std::copy_n(entry.first.begin(), std::min(entry.first.size(), record.reason.size() - 1), record.reason.begin());
+        record.count = entry.second;
+        localReasons.push_back(record);
+      }
+      const auto allReasons = workers.metadata(localReasons);
+      // Whole-operation timers avoid adding clocks to the millions of private
+      // metric queries. Tracked collectives include waiting and exclude the
+      // separate validation elections; these components are not additive wall time.
+      std::array<double, 4> localCost{0, engine.stats.reconstruction_seconds,
+                                      workers.collective_seconds, engine.stats.reconstruction_longest};
+      for (const auto seconds : engine.stats.choice_seconds) localCost[0] += seconds;
+      std::array<double, 4> costMinimum{}, costSum{}, costMaximum{};
+      CPassiveComm::Allreduce(localCost.data(), costMinimum.data(), localCost.size(), CPassiveComm::Op::MIN, workers.comm);
+      CPassiveComm::Allreduce(localCost.data(), costSum.data(), localCost.size(), CPassiveComm::Op::SUM, workers.comm);
+      CPassiveComm::Allreduce(localCost.data(), costMaximum.data(), localCost.size(), CPassiveComm::Op::MAX, workers.comm);
+      std::map<std::string, uint64_t> reasons;
+      for (const auto& entry : allReasons) reasons[entry.reason.data()] += entry.count;
+      if (workers.rank == 0)
+        std::cout << "Native adaptation: " << commits << " commits (" << cross << " across owners), qmin=" << minQuality
+                  << ", Lmax=" << maxLength << ", residual cells=" << missedQuality << ", height faces=" << missedHeight
+                  << ", reference faces=" << missedGeometry << ". No remesher-side target floor.\n";
+      if (workers.rank == 0)
+        std::cout << "Native remaining residuals: shape=" << missedShape << ", edge length=" << missedSize << '\n';
+      if (workers.rank == 0) {
+        std::cout << "Native coordinated repair: " << jointCommits << " commits, " << jointSeconds
+                  << " seconds (maximum across ranks).\n";
+        std::cout << "Native private target requests/evaluations/dynamic evictions: " << fieldQueries[0] << ' '
+                  << fieldQueries[1] << ' ' << fieldQueries[2] << '\n';
+        std::cout << "Native donor search candidates/full-scan equivalent: " << donorSearch[0] << ' ' << donorSearch[1]
+                  << "; local immutable index retained bytes (max rank): " << donorIndexBytes << '\n';
+        std::cout << "Native operations (height/split/remove/redistribute/bulk remove/split/flip/move):";
+        for (const auto count : actions) std::cout << ' ' << count;
+        std::cout << "; conflicts=" << conflicts << ", dependency-size rejects=" << rejectedSize
+                  << ", memory rejects=" << rejectedMemory << ", stale rejects=" << rejectedStale
+                  << ", engine encoded bytes=" << bytes << ", largest transport admission estimate=" << transportEstimate
+                  << '\n';
+        std::cout << "Native phase elapsed seconds (same action order, maximum across ranks):";
+        for (const auto seconds : phaseSeconds) std::cout << ' ' << seconds;
+        std::cout << '\n';
+        std::cout << "Native candidate selection seconds (same action order, maximum across ranks):";
+        for (const auto seconds : choiceSeconds) std::cout << ' ' << seconds;
+        std::cout << '\n';
+        const std::array<const char*, 4> costNames{"selection", "private reconstruction", "tracked collectives",
+                                                  "largest private transaction"};
+        for (size_t k = 0; k < costNames.size(); ++k)
+          std::cout << "Native rank cost " << costNames[k] << " seconds min/mean/max: " << costMinimum[k] << ' '
+                    << costSum[k] / workers.size << ' ' << costMaximum[k] << '\n';
+        std::cout << "Native cost scopes: tracked collectives include waiting, exclude validation elections; "
+                     "rank costs are not additive wall phases.\n";
+        std::cout << "Native cached selection full scans (same action order, sum across ranks):";
+        for (const auto scans : selectionScans) std::cout << ' ' << scans;
+        std::cout << '\n';
+        for (const auto& entry : reasons)
+          std::cout << "Native deferred/rejected candidate: " << entry.first << " (" << entry.second << ").\n";
+      }
+      input = std::move(engine.owned);
+    } catch (const CElectedFailure& elected) {
+      // All workers have elected the same failure and unwind together. Return
+      // to N before entering SU2's fatal protocol; accepted CFD state is intact.
+      failure.Set(elected.severity, elected.gid, elected.message);
+    } catch (const std::exception& error) {
+      // Unexpected rank-local errors cannot safely unwind a collective engine.
+      SU2_MPI::Error(error.what(), CURRENT_FUNCTION);
+    }
+  }
+  const auto workerSeconds = world.seconds() - workerStarted;
+  const auto waitStarted = world.seconds();
+  const auto waitCpuStarted = std::clock();
+#ifdef HAVE_MPI
+  if (adaptationRanks < world.size) {
+#if MPI_VERSION >= 3
+    // ponytail: 1 ms progress polling avoids idle CFD ranks spinning; revisit
+    // the interval only if measured wake-up latency affects total cost.
+    MPI_Request ready;
+    MPI_Ibarrier(world.comm, &ready);
+    int complete = 0;
+    while (!complete) {
+      MPI_Test(&ready, &complete, MPI_STATUS_IGNORE);
+      if (!complete) std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+#else
+    MPI_Barrier(world.comm);  // MPI-2 fallback may spin on inactive ranks.
+#endif
+    if (world.rank < adaptationRanks) MPI_Comm_free(&workerComm);
+  }
+#endif
+  const double waitCpu = double(std::clock() - waitCpuStarted) / CLOCKS_PER_SEC;
+  const double waitSeconds = world.seconds() - waitStarted;
+  CollectiveFailure(failure, CURRENT_FUNCTION);
+  result.status = static_cast<CRemeshResult::Status>(CPassiveComm::Allreduce(int(result.status), CPassiveComm::Op::MAX));
+  const auto returnStarted = world.seconds();
+  result.slices = ReaderSlices(input, *reference);
   result.markers = result.slices.markersWithElements;
   auto pending = std::make_shared<PendingBindings>();
-  pending->edges = Bindings(world, engine.owned);
+  pending->edges = Bindings(world, input);
   result.onAccepted = [state = reference, pending]() {
     if (!pending->published) {
       state->accepted_edges.swap(pending->edges);
       pending->published = true;
     }
   };
-  const auto commits = world.sum(engine.stats.commits), cross = world.sum(engine.stats.cross_rank);
-  const auto jointCommits = world.sum(engine.stats.joint_commits);
-  const auto jointSeconds = CPassiveComm::Allreduce(engine.stats.joint_seconds, CPassiveComm::Op::MAX);
-  const auto rejectedSize = world.sum(engine.stats.size_rejected),
-             rejectedMemory = world.sum(engine.stats.memory_rejected),
-             rejectedStale = world.sum(engine.stats.stale_rejected), conflicts = world.sum(engine.stats.conflicts);
-  const auto bytes = CPassiveComm::Allreduce(uint64_t(world.bytes_sent), CPassiveComm::Op::SUM);
-  const auto transportEstimate =
-      CPassiveComm::Allreduce(uint64_t(world.max_exchange_work_bytes), CPassiveComm::Op::MAX);
-  std::array<uint64_t, 3> fieldQueries;
-  CPassiveComm::Allreduce(engine.stats.field_queries.data(), fieldQueries.data(), fieldQueries.size(),
-                         CPassiveComm::Op::SUM);
-  const std::array<uint64_t, 2> localSearch{engine.donor.search_candidates, engine.donor.full_scan_equivalent};
-  std::array<uint64_t, 2> donorSearch{};
-  CPassiveComm::Allreduce(localSearch.data(), donorSearch.data(), localSearch.size(), CPassiveComm::Op::SUM);
-  const auto donorIndexBytes = CPassiveComm::Allreduce(uint64_t(engine.donor.SearchBytes()), CPassiveComm::Op::MAX);
-  std::array<uint64_t, 8> actions, selectionScans;
-  std::array<double, 8> phaseSeconds, choiceSeconds;
-  for (size_t a = 0; a < actions.size(); ++a) {
-    actions[a] = CPassiveComm::Allreduce(uint64_t(engine.stats.accepted[a]), CPassiveComm::Op::SUM);
-    phaseSeconds[a] = CPassiveComm::Allreduce(engine.stats.phase_seconds[a], CPassiveComm::Op::MAX);
-    choiceSeconds[a] = CPassiveComm::Allreduce(engine.stats.choice_seconds[a], CPassiveComm::Op::MAX);
-    selectionScans[a] = CPassiveComm::Allreduce(engine.stats.selection_scans[a], CPassiveComm::Op::SUM);
-  }
-  std::vector<RejectionCount> localReasons;
-  for (const auto& entry : engine.stats.rejected) {
-    RejectionCount record;
-    std::copy_n(entry.first.begin(), std::min(entry.first.size(), record.reason.size() - 1), record.reason.begin());
-    record.count = entry.second;
-    localReasons.push_back(record);
-  }
-  const auto allReasons = world.metadata(localReasons);
-  // Whole-operation timers avoid adding clocks to the millions of private
-  // metric queries. Tracked collectives include waiting and exclude the
-  // separate validation elections; these components are not additive wall time.
-  std::array<double, 4> localCost{0, engine.stats.reconstruction_seconds,
-                                  world.collective_seconds, engine.stats.reconstruction_longest};
-  for (const auto seconds : engine.stats.choice_seconds) localCost[0] += seconds;
-  std::array<double, 4> costMinimum{}, costSum{}, costMaximum{};
-  CPassiveComm::Allreduce(localCost.data(), costMinimum.data(), localCost.size(), CPassiveComm::Op::MIN);
-  CPassiveComm::Allreduce(localCost.data(), costSum.data(), localCost.size(), CPassiveComm::Op::SUM);
-  CPassiveComm::Allreduce(localCost.data(), costMaximum.data(), localCost.size(), CPassiveComm::Op::MAX);
-  std::map<std::string, uint64_t> reasons;
-  for (const auto& entry : allReasons) reasons[entry.reason.data()] += entry.count;
-  if (world.rank == 0)
-    std::cout << "Native adaptation: " << commits << " commits (" << cross << " across owners), qmin=" << minQuality
-              << ", Lmax=" << maxLength << ", residual cells=" << missedQuality << ", height faces=" << missedHeight
-              << ", reference faces=" << missedGeometry << ". No remesher-side target floor.\n";
-  if (world.rank == 0)
-    std::cout << "Native remaining residuals: shape=" << missedShape << ", edge length=" << missedSize << '\n';
+  const std::array<double, 4> localExecution{workerSeconds, world.seconds() - returnStarted,
+      world.rank >= adaptationRanks ? waitSeconds : 0., world.rank >= adaptationRanks ? waitCpu : 0.};
+  std::array<double, 4> maximumExecution{};
+  CPassiveComm::Allreduce(localExecution.data(), maximumExecution.data(), localExecution.size(), CPassiveComm::Op::MAX);
   if (world.rank == 0) {
-    std::cout << "Native coordinated repair: " << jointCommits << " commits, " << jointSeconds
-              << " seconds (maximum across ranks).\n";
-    std::cout << "Native private target requests/evaluations/dynamic evictions: " << fieldQueries[0] << ' '
-              << fieldQueries[1] << ' ' << fieldQueries[2] << '\n';
-    std::cout << "Native donor search candidates/full-scan equivalent: " << donorSearch[0] << ' ' << donorSearch[1]
-              << "; local immutable index retained bytes (max rank): " << donorIndexBytes << '\n';
-    std::cout << "Native operations (height/split/remove/redistribute/bulk remove/split/flip/move):";
-    for (const auto count : actions) std::cout << ' ' << count;
-    std::cout << "; conflicts=" << conflicts << ", dependency-size rejects=" << rejectedSize
-              << ", memory rejects=" << rejectedMemory << ", stale rejects=" << rejectedStale
-              << ", engine encoded bytes=" << bytes << ", largest transport admission estimate=" << transportEstimate
-              << '\n';
-    std::cout << "Native phase elapsed seconds (same action order, maximum across ranks):";
-    for (const auto seconds : phaseSeconds) std::cout << ' ' << seconds;
-    std::cout << '\n';
-    std::cout << "Native candidate selection seconds (same action order, maximum across ranks):";
-    for (const auto seconds : choiceSeconds) std::cout << ' ' << seconds;
-    std::cout << '\n';
-    const std::array<const char*, 4> costNames{"selection", "private reconstruction", "tracked collectives",
-                                              "largest private transaction"};
-    for (size_t k = 0; k < costNames.size(); ++k)
-      std::cout << "Native rank cost " << costNames[k] << " seconds min/mean/max: " << costMinimum[k] << ' '
-                << costSum[k] / world.size << ' ' << costMaximum[k] << '\n';
-    std::cout << "Native cost scopes: tracked collectives include waiting, exclude validation elections; "
-                 "rank costs are not additive wall phases.\n";
-    std::cout << "Native cached selection full scans (same action order, sum across ranks):";
-    for (const auto scans : selectionScans) std::cout << ' ' << scans;
-    std::cout << '\n';
-    for (const auto& entry : reasons)
-      std::cout << "Native deferred/rejected candidate: " << entry.first << " (" << entry.second << ").\n";
+    std::cout << "Native execution seconds workers/return-to-CFD/idle-wall/idle-CPU (maximum across ranks):";
+    for (const auto seconds : maximumExecution) std::cout << ' ' << seconds;
+    std::cout << "; CFD ranks=" << world.size << ", adaptation ranks=" << adaptationRanks << '\n';
   }
   if (result.status != CRemeshResult::Status::COMPLETE && config.GetWrt_Adap_Mesh())
-    WriteRejectedCandidate(config, result.slices, engine, *reference, remeshAttempt);
+    WriteRejectedCandidate(config, result.slices, world, input, *reference, remeshAttempt);
   return result;
 }

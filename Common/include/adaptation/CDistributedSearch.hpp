@@ -35,6 +35,7 @@
 #include <vector>
 
 #include "../basic_types/datatype_structure.hpp"
+#include "../parallelization/CPassiveComm.hpp"
 
 class CConfig;
 class CGeometry;
@@ -222,7 +223,7 @@ struct CElectedFailure {
 /*!
  * \brief Collective: elect one failure over the ranks (three reductions) and broadcast its message from its rank.
  */
-CElectedFailure ElectFailure(const CLocalFailure& local);
+CElectedFailure ElectFailure(const CLocalFailure& local, CPassiveComm::Communicator comm = SU2_MPI::GetComm());
 
 /*!
  * \brief Collective: if any rank failed, every rank calls SU2_MPI::Error with the message of the elected failure
