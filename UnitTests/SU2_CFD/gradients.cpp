@@ -395,6 +395,53 @@ TEST_CASE("Metric intersection", "[Adaptation]") {
   CHECK(err < 1e-12);
 }
 
+TEST_CASE("Metric intersection is stable for rotated nearly rank-one sensors and changes of units",
+          "[MetricIntersectionReliability][MetricRobustness]") {
+  // Independent 90-digit evaluation of the original A-whitened formula, on the represented input matrices.
+  const passivedouble reference[2][3][3] = {
+      {{1.0214526161333328, .6963763523486151, 0}, {.6963763523486151, .9785473838666484, 0}, {0, 0, 0}},
+      {{.8994759981913667, .6076441967883972, -.29789998731886613},
+       {.6076441967883972, .9280654130529765, -.32922440292343097},
+       {-.29789998731886613, -.32922440292343097, .5724585887556384}}};
+  for (const unsigned short nDim : {2, 3}) {
+    const auto ca = cos(.37), sa = sin(.37), cb = nDim == 3 ? cos(.41) : 1.0;
+    const auto sb = nDim == 3 ? sin(.41) : 0.0;
+    const su2double R[3][3] = {{ca * cb, -sa, ca * sb}, {sa * cb, ca, sa * sb}, {-sb, 0, cb}};
+    for (const auto scale : {1e-150, 1.0, 1e150}) {
+      CAPTURE(nDim, scale);
+      su2double A[3][3] = {}, B[3][3] = {}, C[3][3], swapped[3][3], perturbed[3][3];
+      for (auto i = 0u; i < nDim; ++i)
+        for (auto j = 0u; j < nDim; ++j) {
+          const auto u = cos(.8) * R[i][0] + sin(.8) * R[i][1];
+          const auto v = cos(.8) * R[j][0] + sin(.8) * R[j][1];
+          const auto floor = 1e-14 * (R[i][0] * R[j][0] + R[i][1] * R[j][1]);
+          A[i][j] = scale * (floor + (1 - 1e-14) * R[i][0] * R[j][0] + .2 * R[i][2] * R[j][2]);
+          B[i][j] = scale * (floor + (1 - 1e-14) * u * v + .4 * R[i][2] * R[j][2]);
+        }
+      CSolver::IntersectMetrics(nDim, A, B, C);
+      CSolver::IntersectMetrics(nDim, B, A, swapped);
+      for (auto i = 0u; i < nDim; ++i)
+        for (auto j = 0u; j < nDim; ++j) {
+          CHECK(std::isfinite(SU2_TYPE::GetValue(C[i][j])));
+          CHECK(SU2_TYPE::GetValue(C[i][j] / scale) == Approx(reference[nDim - 2][i][j]).margin(1e-11));
+          CHECK(SU2_TYPE::GetValue((C[i][j] - swapped[i][j]) / scale) == Approx(0).margin(1e-11));
+          B[i][j] *= 1 + 1e-14;
+        }
+      CSolver::IntersectMetrics(nDim, A, B, perturbed);
+      for (auto i = 0u; i < nDim; ++i)
+        for (auto j = 0u; j < nDim; ++j)
+          CHECK(SU2_TYPE::GetValue((C[i][j] - perturbed[i][j]) / scale) == Approx(0).margin(1e-11));
+      for (const auto* input : {&A, &B}) {
+        su2double difference[3][3] = {}, vec[3][3], val[3], work[3];
+        for (auto i = 0u; i < nDim; ++i)
+          for (auto j = 0u; j < nDim; ++j) difference[i][j] = (C[i][j] - (*input)[i][j]) / scale;
+        CBlasStructure::EigenDecomposition(difference, vec, val, nDim, work);
+        CHECK(SU2_TYPE::GetValue(val[0]) > -1e-11);
+      }
+    }
+  }
+}
+
 /*!
  * \brief Unit cube (8^3 hexahedra) with the given markers and a compressible flow solver, which computes the
  *        adaptation Hessians (MACH sensor) and provides the periodic communications.

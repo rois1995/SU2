@@ -2501,32 +2501,45 @@ void CSolver::IntersectMetrics(unsigned short nDim, const su2double (&A)[3][3], 
     }
   };
 
+  /*--- Use S=A+B as the whitening frame. In that frame A has eigenvalues lambda in [0,1]
+   *    and B=I-A, so the same intersection has eigenvalues max(lambda,1-lambda).
+   *    This avoids whitening by a nearly rank-one sensor when the other sensor supplies its missing direction.
+   *    Passive common scaling cancels algebraically and protects the matrix products from physical-unit extremes. ---*/
+  passivedouble scale = 0.0;
+  for (auto i = 0u; i < nDim; ++i)
+    for (auto j = 0u; j < nDim; ++j)
+      scale = max(scale, max(fabs(SU2_TYPE::GetValue(A[i][j])), fabs(SU2_TYPE::GetValue(B[i][j]))));
+  if (!(scale > 0.0) || !std::isfinite(scale))
+    SU2_MPI::Error("Metric intersection requires finite SPD tensors.", CURRENT_FUNCTION);
+
+  su2double sum[3][3], normalizedA[3][3];
+  for (auto i = 0u; i < nDim; ++i)
+    for (auto j = 0u; j < nDim; ++j) {
+      normalizedA[i][j] = A[i][j] / scale;
+      sum[i][j] = normalizedA[i][j] + B[i][j] / scale;
+    }
   su2double vec[3][3], val[3], work[3], sqrtVal[3], invSqrtVal[3];
-  su2double sqrtA[3][3], invSqrtA[3][3], T[3][3], tmp[3][3];
-
-  /*--- Square root of A and its inverse. ---*/
-
-  CBlasStructure::EigenDecomposition(A, vec, val, nDim, work);
+  su2double sqrtSum[3][3], invSqrtSum[3][3], T[3][3], tmp[3][3], result[3][3];
+  CBlasStructure::EigenDecomposition(sum, vec, val, nDim, work);
   for (auto i = 0u; i < nDim; ++i) {
-    sqrtVal[i] = sqrt(fmax(val[i], EPS));
+    if (!(SU2_TYPE::GetValue(val[i]) > 0.0))
+      SU2_MPI::Error("Metric intersection sum is numerically singular; check tensor conditioning.", CURRENT_FUNCTION);
+    sqrtVal[i] = sqrt(val[i]);
     invSqrtVal[i] = 1.0 / sqrtVal[i];
   }
-  CBlasStructure::EigenRecomposition(sqrtA, vec, sqrtVal, nDim);
-  CBlasStructure::EigenRecomposition(invSqrtA, vec, invSqrtVal, nDim);
+  CBlasStructure::EigenRecomposition(sqrtSum, vec, sqrtVal, nDim);
+  CBlasStructure::EigenRecomposition(invSqrtSum, vec, invSqrtVal, nDim);
 
-  /*--- In the basis where A is the identity, B is T = A^-1/2 B A^-1/2. The intersection is
-   *    diagonal in the eigenvectors of T, with eigenvalues max(1, eig(T)). ---*/
-
-  matMul(invSqrtA, B, tmp);
-  matMul(tmp, invSqrtA, T);
+  matMul(invSqrtSum, normalizedA, tmp);
+  matMul(tmp, invSqrtSum, T);
   CBlasStructure::EigenDecomposition(T, vec, val, nDim, work);
-  for (auto i = 0u; i < nDim; ++i) val[i] = fmax(val[i], 1.0);
+  for (auto i = 0u; i < nDim; ++i) val[i] = fmax(val[i], 1.0 - val[i]);
   CBlasStructure::EigenRecomposition(T, vec, val, nDim);
+  matMul(sqrtSum, T, tmp);
+  matMul(tmp, sqrtSum, result);
+  for (auto i = 0u; i < nDim; ++i)
+    for (auto j = 0u; j < nDim; ++j) C[i][j] = scale * (0.5 * result[i][j] + 0.5 * result[j][i]);
 
-  /*--- Back to the original basis, C = A^1/2 T A^1/2. ---*/
-
-  matMul(sqrtA, T, tmp);
-  matMul(tmp, sqrtA, C);
 }
 
 vector<unsigned long> CSolver::FindSharpWallPoints(const CGeometry* geometry, const CConfig* config) {
