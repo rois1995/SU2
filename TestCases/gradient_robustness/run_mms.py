@@ -82,7 +82,7 @@ def main():
                                 "OUTPUT_WRT_FREQ": "1000000"}
                 for key, value in replacements.items():
                     config = re.sub(r"^" + key + r"\s*=.*$", key + "= " + value, config, flags=re.MULTILINE)
-                config += "\nNUM_METHOD_GRAD_RECON= LEAST_SQUARES\nOUTPUT_FILES= (RESTART_ASCII)\n"
+                config += "\nMGLEVEL= 0\nNUM_METHOD_GRAD_RECON= LEAST_SQUARES\nOUTPUT_FILES= (RESTART_ASCII)\n"
                 (case / "case.cfg").write_text(config)
                 with (case / "run.log").open("w") as log:
                     process = subprocess.run(["nice", "-n", "10", str(binary), "case.cfg"], cwd=case,

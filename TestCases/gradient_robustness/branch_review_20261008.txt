@@ -8,7 +8,13 @@ turbulence, linear-solver, multigrid, periodic and mean-flow candidates
 for source/history review; this is not a code audit of all 620 branches.
 Checked live PR status and CI for the leading candidates, inspected
 their patches and connected baseline code, and ran small isolated
-checks. No additional CFD implementation or branch merges in this pass.
+checks. No additional CFD solver implementation or branch merges in this
+pass. The MMS runner now states MGLEVEL=0 explicitly; the previous
+template omitted it and already used SU2's default of zero.
+
+User constraint: our simulations and subsequent validation use
+MGLEVEL=0. Multigrid is excluded from the implementation/testing plan;
+the multigrid findings below are retained as background only.
 
 Our comparison baseline is codex/native-unsteady-performance at
 e49c545d700632bd9c68fc52535ef63d6ca8632d. Our QR change is c78571bc5e
@@ -224,6 +230,7 @@ Other relevant candidates, conditionally prioritized
   https://github.com/su2code/SU2/pull/2961
 
 - Stretched-mesh multigrid, upstream feature_mg_linear_prolong / #2931.
+  Excluded from our simulations and implementation plan at user request.
   Head 537b3c722d1a095179ed700b749b753f32b94f1e, open/non-draft.
   Proposes linear prolongation, anisotropy-aware partitioning, layer
   agglomeration fixes, coarse turbulence handling, all-level viscous
@@ -314,10 +321,11 @@ Next steps
    First fix solver correctness, then isolate QR and limiter-scaling
    effects. The existing 12 QR CFD runs did not establish an accuracy
    improvement and most reached the iteration cap.
-5. Apply distributed linear algebra fixes where relevant, then explore
-   CFL/agglomeration/prolongation independently with total nonlinear
-   work, linear work and time. Avoid mixing SST model changes into the
-   same accuracy experiment.
+5. Apply standalone distributed linear algebra fixes where relevant.
+   Measure total nonlinear work, linear work and time with MGLEVEL=0.
+   Line-based preconditioning can be assessed without multigrid;
+   no coarse-grid agglomeration or prolongation is planned. Avoid
+   mixing SST model changes into the same accuracy experiment.
 6. Keep one compile job and one-thread sequential cases by default,
    using low scheduling priority; use MPI2 only for focused ownership
    checks while other workers share the machine.
