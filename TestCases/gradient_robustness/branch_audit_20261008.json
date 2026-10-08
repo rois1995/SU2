@@ -1,0 +1,4141 @@
+{
+  "date": "2026-10-08",
+  "baseline": "e49c545d700632bd9c68fc52535ef63d6ca8632d",
+  "candidate": "c78571bc5e",
+  "upstream_develop": "f110e914b5fd0d31c889e2d4df5bb5683abc6fd6",
+  "branches": {
+    "rois1995/SU2": [
+      {
+        "name": "AAA",
+        "sha": "f74d7a688b54f51909d0609b9fe073519bb19d3b"
+      },
+      {
+        "name": "NEMO_STRONG_ISO",
+        "sha": "7124c606c65ffbb74a827a51767360a93e6d3a20"
+      },
+      {
+        "name": "OnlyForMovements",
+        "sha": "74bd50ab18903548364b5193fe3e5ef44a0f68a7"
+      },
+      {
+        "name": "arm64_runner_group",
+        "sha": "9c4290dc3828b53521da8d1fe8dfda6d0cf841aa"
+      },
+      {
+        "name": "cat_temp",
+        "sha": "16dfc837adf3f0749660c369d715afa679caf20d"
+      },
+      {
+        "name": "codex/metric-robustness",
+        "sha": "d980963c677c3224b3ec49456d6b28f63807c8d4"
+      },
+      {
+        "name": "codex/metric-robustness-pre-integration-rebase-20261007",
+        "sha": "ce28cd2f9916c5b8484921e082f268d0e213b370"
+      },
+      {
+        "name": "codex/native-metric-integration",
+        "sha": "2abbd11769fc57f1862432b03bbd02202bb10283"
+      },
+      {
+        "name": "codex/native-unsteady-performance",
+        "sha": "e6995fbff565955a5677ffcbcc66af9acf96a8f1"
+      },
+      {
+        "name": "codex_periodic_remaining_20261007",
+        "sha": "2d3622408c1d369ef5408406c472d60760d2d248"
+      },
+      {
+        "name": "config_parsing",
+        "sha": "e7d01411ec33351ac3a1a2d0d8a11ca6a004be1d"
+      },
+      {
+        "name": "dependabot/github_actions/actions/cache-4",
+        "sha": "167c0016f6f24df50c6ff89701b5792ced900281"
+      },
+      {
+        "name": "dependabot/github_actions/actions/download-artifact-4",
+        "sha": "2e377e2518dc7b09c92f97dc0375697444d20b37"
+      },
+      {
+        "name": "dependabot/github_actions/actions/upload-artifact-4",
+        "sha": "01b20e63a21f9dfeec1fd981865065a5f542b0bc"
+      },
+      {
+        "name": "develop",
+        "sha": "f6387af46e3e613bfbf0a73c0804e3e2719b6534"
+      },
+      {
+        "name": "enhancement_periodicbc_paralleldraft",
+        "sha": "2020e77f473de68f1ec3ce132c74caa295fbd5c2"
+      },
+      {
+        "name": "enhancement_periodicbc",
+        "sha": "497906890ff5f18217b1ca849a37c3a7a00650c6"
+      },
+      {
+        "name": "fature_nemo_p_cat",
+        "sha": "327548fc889879046741eb21c864a32405253f7d"
+      },
+      {
+        "name": "feat_adap_noExt",
+        "sha": "88828474db587652ee1b0c09010de838ddbcfd06"
+      },
+      {
+        "name": "feature_ABL",
+        "sha": "9f7c0a85e96aba13e1d9d6afea8629561114c48d"
+      },
+      {
+        "name": "feature_AUSMplus",
+        "sha": "e1080b2b91f44217a4df38eeb4fbc60a1c9ea6e7"
+      },
+      {
+        "name": "feature_ActDisk_Hover",
+        "sha": "4c9896532c4e19366493a03e5f3baed0e2dc1d0a"
+      },
+      {
+        "name": "feature_AdjTNE2",
+        "sha": "7071cc97cad34c1ed8e65ae105c1396674fa5db2"
+      },
+      {
+        "name": "feature_CGNS_output",
+        "sha": "0bfe1f5eafdf7c2c3c32aa62fb911334ff96a6f3"
+      },
+      {
+        "name": "feature_DE_AD_ALE",
+        "sha": "f1a19daf790680e10b71e66e59f30a4397bc678f"
+      },
+      {
+        "name": "feature_Deformation",
+        "sha": "d66c9808cd600c155a2807e14afc786ff76132b9"
+      },
+      {
+        "name": "feature_FSI_shape_opt",
+        "sha": "6fcf7c1119c054f3b194ea47e2528b2dd11426d5"
+      },
+      {
+        "name": "feature_FV_Average",
+        "sha": "12ca099be0e06ace45a1c99130816d923d59e70a"
+      },
+      {
+        "name": "feature_FV_WMLES",
+        "sha": "64c417e68672a2e0f1b8444cb1e8cf64c409377c"
+      },
+      {
+        "name": "feature_Interpolate",
+        "sha": "8e36fed3fc3ef2248f9d5104fb9f9aaab0c4bf7d"
+      },
+      {
+        "name": "feature_LM_model",
+        "sha": "1ec3ebb88cbbc00624dd3ee1125a89974556a66d"
+      },
+      {
+        "name": "feature_LMRough",
+        "sha": "37fbb819154cc57c2af76297b1b7f660021f31b4"
+      },
+      {
+        "name": "feature_MOR",
+        "sha": "95ed07c34f774455e23601342f43c2027a5e33af"
+      },
+      {
+        "name": "feature_MUSCL3",
+        "sha": "a5c1f9d8fdb849239ff84ece53e5939dfd576ca9"
+      },
+      {
+        "name": "feature_MeshInterpolation",
+        "sha": "0658b1177fa28fc7d797cc1a067ad566aa222415"
+      },
+      {
+        "name": "feature_NEMO_AUSMPLUSM_clean",
+        "sha": "794b956c65ff25618f3f6f7a208cc3a97c6bd277"
+      },
+      {
+        "name": "feature_NEMO_AUSMPLUSM",
+        "sha": "22986fe419159c05094e786e5559a1100c103b9a"
+      },
+      {
+        "name": "feature_NEMO_Sym_BC",
+        "sha": "acfec297d9a7beeb61f46422409c5ed0e7890729"
+      },
+      {
+        "name": "feature_NEMO_gust",
+        "sha": "9f495610ae4e821e606a7ebf18bd6d0af240fa32"
+      },
+      {
+        "name": "feature_NEMO_interp_rans",
+        "sha": "14c16ada23adb71333f5508b4f569de9d1e3a7b8"
+      },
+      {
+        "name": "feature_NEMO_print_tbath",
+        "sha": "57db0ff1310ea0326678e79e661122917045f3b3"
+      },
+      {
+        "name": "feature_NEMO_turb",
+        "sha": "efafeeea9c11f67ef75d058c2870ece2ca04494b"
+      },
+      {
+        "name": "feature_NEMO_unsteady_freestream_feature_NEMO",
+        "sha": "344723af71070025be6733e936d2f5bc14c9ee05"
+      },
+      {
+        "name": "feature_NEMO_unsteady_freestream",
+        "sha": "7d1eded40d349e07b6df62287c91223437d3b25d"
+      },
+      {
+        "name": "feature_NEMO_visc_ion",
+        "sha": "1025b8babd3f0d97127fba513d5de00c0a0c01e0"
+      },
+      {
+        "name": "feature_NEMO",
+        "sha": "3436a7459fb0539b4fda886e0f7262a505da0fc0"
+      },
+      {
+        "name": "feature_NEMOR",
+        "sha": "08c2df1fdf6e7368d9537ecb90408c5d0ad49d01"
+      },
+      {
+        "name": "feature_NPPR_GAS",
+        "sha": "e7adc450535d36d6d413bd53b7caae922c82f283"
+      },
+      {
+        "name": "feature_NPPR",
+        "sha": "72b2fa977b64b9683a388920f05298a40d39e5c5"
+      },
+      {
+        "name": "feature_NUBC",
+        "sha": "e3f01f36ccb7117d32f9253f3f57b563e2d98eab"
+      },
+      {
+        "name": "feature_PassiveScalar",
+        "sha": "9600f9063341e2dbc4501d758576cb956401a65b"
+      },
+      {
+        "name": "feature_PoissonFVM",
+        "sha": "bf991f8b3428b3bd425da1661db4dcdc961797b0"
+      },
+      {
+        "name": "feature_Pressure_based",
+        "sha": "99fbdc8df05a4f504d1c7a1a97187a569bba9175"
+      },
+      {
+        "name": "feature_QUAD",
+        "sha": "f53e8379461b5b3fa4a986af6d9dd94fac386584"
+      },
+      {
+        "name": "feature_RoughBCsSST",
+        "sha": "f74d7a688b54f51909d0609b9fe073519bb19d3b"
+      },
+      {
+        "name": "feature_SA_axisymmetry",
+        "sha": "c57590ef7bad165f55b80f0ead50ff9717565001"
+      },
+      {
+        "name": "feature_SST_RoughBCs",
+        "sha": "b3bb7b56255555e72b1561cfa8ee5a3b67b05519"
+      },
+      {
+        "name": "feature_SST_UQ",
+        "sha": "ecebad46365be88107c963b218fdc9c52f645992"
+      },
+      {
+        "name": "feature_SSTTrans_RoughAFT",
+        "sha": "0bbd2584c4ffcdbafc38a5b78943a174f833a9bb"
+      },
+      {
+        "name": "feature_SU2_TACS",
+        "sha": "3d3a9d892155199d875e1b4321f347d389436158"
+      },
+      {
+        "name": "feature_TMZHB",
+        "sha": "7a98320252dd8905bcc5beb8ff5ba5e652a49deb"
+      },
+      {
+        "name": "feature_TNE2_mutationpp",
+        "sha": "c5ed1ff3acba2508e3911bb76dc27c762e222a01"
+      },
+      {
+        "name": "feature_TURBO_FSI",
+        "sha": "875970038c9469bd4e45b1d12bd8c30630fa9712"
+      },
+      {
+        "name": "feature_TransLMModel",
+        "sha": "54297958847a371b1a6bfed05eba466e8e25d808"
+      },
+      {
+        "name": "feature_VG_BAY_model",
+        "sha": "fcbe6fc34c841e81e73c93588f35af0054866bfb"
+      },
+      {
+        "name": "feature_WMLES_update",
+        "sha": "5d566c3050e0210a8a45dfb41012ffeebfe29846"
+      },
+      {
+        "name": "feature_WMLES-Dev",
+        "sha": "b3743e90c755b65377f4864c2a5132610bb1c21c"
+      },
+      {
+        "name": "feature_WallFunctions",
+        "sha": "6b3f1fbeaf59a53808d6ecae21d0bdee8d38c813"
+      },
+      {
+        "name": "feature_WallModelLES",
+        "sha": "a8a07f96b82a00ca8576c719db950e0bb99f78f0"
+      },
+      {
+        "name": "feature_ac",
+        "sha": "ce07d5c086c846252d200132d21e719819ba2296"
+      },
+      {
+        "name": "feature_actuator_disk_Inc",
+        "sha": "59cbfabff3d83907c2c9e49577ae9651660e652b"
+      },
+      {
+        "name": "feature_adap_flux",
+        "sha": "138591d55fa1f641869539b5464d9d5c767eaf34"
+      },
+      {
+        "name": "feature_adap_sand",
+        "sha": "898414563400f5982cd5d4c8db85e5acca006390"
+      },
+      {
+        "name": "feature_adap_sst",
+        "sha": "78770167c0395c7a33a96ed6e6ff66faef3b210b"
+      },
+      {
+        "name": "feature_adap_tne2",
+        "sha": "35677ac700d68c2975fa772d39caf375789d5516"
+      },
+      {
+        "name": "feature_adap",
+        "sha": "fb57b41efd7fc1473d9dbef86e04a89b3c7d96c9"
+      },
+      {
+        "name": "feature_adaptive_incremental_load",
+        "sha": "d32230f9b8f285979d72a5b20c459c75fd854fc3"
+      },
+      {
+        "name": "feature_adaptive_sliding_meshes",
+        "sha": "d90217afead8b42968f26aa6a6d3fae272ab3378"
+      },
+      {
+        "name": "feature_adjoint_lut",
+        "sha": "07b7f9bc23c7815174ae3a04b53dbeb069e3bba5"
+      },
+      {
+        "name": "feature_amg",
+        "sha": "9fffaedb0f61c719aaf7600670cc7a6055f0e59d"
+      },
+      {
+        "name": "feature_arbitrary_motion",
+        "sha": "8856aefb07344f105b62d2203dd6e49a111bbc60"
+      },
+      {
+        "name": "feature_atc",
+        "sha": "6d803116e88b18b3a4aa9cd117c3bf7f1931d4eb"
+      },
+      {
+        "name": "feature_avg_output",
+        "sha": "8e4338e1db5e7fadb97cb6ba62042c3aae3b4b5c"
+      },
+      {
+        "name": "feature_bench",
+        "sha": "54b11eb202e6c1820a3e952b2fc1cc8f0a7bd86f"
+      },
+      {
+        "name": "feature_boom",
+        "sha": "c59a36b55d7ed9595309a0ad3f8b0d107382e78b"
+      },
+      {
+        "name": "feature_caa_bbn",
+        "sha": "b10bc8868e0cb918938949411b3b5db76058b716"
+      },
+      {
+        "name": "feature_caa",
+        "sha": "76c84893b7c4b65d07c4c23fc15523e6710b2a09"
+      },
+      {
+        "name": "feature_calibration",
+        "sha": "64afdd9eae6ec2ac5d3fd2c90db619a56320abc6"
+      },
+      {
+        "name": "feature_calorically_imperfect",
+        "sha": "b8ebde187c1d825d1881557d3b4c861ac2895c29"
+      },
+      {
+        "name": "feature_cat_wall",
+        "sha": "9ba56b9babd596be4bd96698cb7c7dc5520d775b"
+      },
+      {
+        "name": "feature_catalyst",
+        "sha": "fdf8b38efcfebe6044139cb50e1343e6b47e0046"
+      },
+      {
+        "name": "feature_cgns",
+        "sha": "d108890dbe27c7dc9299de52eaedd3c6bdada87a"
+      },
+      {
+        "name": "feature_channel",
+        "sha": "900c5ae1ffc14bf08175f753c1075c393bf1c902"
+      },
+      {
+        "name": "feature_checkpointing",
+        "sha": "a821dc41ed3dfc7f30825ef85bbffe185093f510"
+      },
+      {
+        "name": "feature_cleanup_driver",
+        "sha": "aaf66ad749544b7da3d32560c80d08c320955449"
+      },
+      {
+        "name": "feature_communicator",
+        "sha": "1f72b1c6229d985f2e341ea4727ba0b55a946944"
+      },
+      {
+        "name": "feature_conservative_scalars",
+        "sha": "2ad40dd8095338cab54437832b7d228504a6df47"
+      },
+      {
+        "name": "feature_custom_supersonic_inlets",
+        "sha": "c0f91b50062452bc50fbb7b91eaca48a5df95251"
+      },
+      {
+        "name": "feature_data_driven_eos",
+        "sha": "c35ac3bf72b766e7725d883d87a367b9d7b6e178"
+      },
+      {
+        "name": "feature_direct_ffd",
+        "sha": "8141504cba7c67895e1008d9ef5adf68485559be"
+      },
+      {
+        "name": "feature_discadj_MultizoneFSI",
+        "sha": "fef82c7ad199b23020ab293d122c89c030cae8b7"
+      },
+      {
+        "name": "feature_discadj_RemoveGradientDataVector",
+        "sha": "ce742b6b1ed1d4638eadbf2cbef0799e615d258e"
+      },
+      {
+        "name": "feature_discadj_spectrum_analyzer",
+        "sha": "51571adf0903c499de53ecffda1ac2d9b14902cc"
+      },
+      {
+        "name": "feature_doxy_update",
+        "sha": "5f35635b51be2589e79dfd39bd4ea4c17f41373b"
+      },
+      {
+        "name": "feature_driver_adjoint_singlezone",
+        "sha": "a49fb7c297ef95f0956945a6a7f92f8dd4bcba32"
+      },
+      {
+        "name": "feature_dynamic_fsi_discadj",
+        "sha": "fdd66630251f569846ead2b0752fac55de0b0462"
+      },
+      {
+        "name": "feature_easydebugoutput",
+        "sha": "503874dcbce9b5d277a5e7eefda99f725db520f2"
+      },
+      {
+        "name": "feature_ecc",
+        "sha": "6950ee3cf53171d7f86b19b7cc97f52f990b90aa"
+      },
+      {
+        "name": "feature_enumclass",
+        "sha": "60b91d7e01aff2c04229fec517ecfa4f8c105da4"
+      },
+      {
+        "name": "feature_esi",
+        "sha": "c7da729651eec8a31e70f8dd87d34272ce0d5eb3"
+      },
+      {
+        "name": "feature_ffd_rotrans",
+        "sha": "d3742a537142a72d29aa45f413cd6f685eb056bf"
+      },
+      {
+        "name": "feature_field_adjoint",
+        "sha": "10aba3c4bf062dc82084d6794817f1482c026c85"
+      },
+      {
+        "name": "feature_field_disc_adj",
+        "sha": "5cd0eb18b548ebac5a120d4cfa4e4f262544ed46"
+      },
+      {
+        "name": "feature_fix_enumerators",
+        "sha": "11fe6b1177a157d4379745aac9a14ccc97f28733"
+      },
+      {
+        "name": "feature_flamelet_dragon_reader",
+        "sha": "2642f7ff03e1d3a7571df7a9f4d2df1897e2bbba"
+      },
+      {
+        "name": "feature_flamelet",
+        "sha": "779e8df0e85f9d23f3c3c9d7fcdde46be901226e"
+      },
+      {
+        "name": "feature_fluid_lut",
+        "sha": "1dd07e4b7dca6b7d0301e05810fc887aa55090aa"
+      },
+      {
+        "name": "feature_fluid_top",
+        "sha": "41c9c05d2010fa44fee3565c4e4f06c6be5ed3a5"
+      },
+      {
+        "name": "feature_fluidprop_final",
+        "sha": "80adef2a2413d0804924f7433e7a1179da4a3809"
+      },
+      {
+        "name": "feature_fluidprop",
+        "sha": "944d1535a305f9306469273f854fb3c57eceda46"
+      },
+      {
+        "name": "feature_free_shape",
+        "sha": "bf9123a35f8d3092e134534a0fa5746746f6ff4d"
+      },
+      {
+        "name": "feature_fsi_iqn",
+        "sha": "a5ca477586198f6be3001545508fa28ac350e124"
+      },
+      {
+        "name": "feature_functional_pitching",
+        "sha": "ac50e71d3a870f22c0e6e04db0939cda344a913c"
+      },
+      {
+        "name": "feature_heat_farfield",
+        "sha": "dfb077e0f4e50d75255acafb96bd586f5a6686f7"
+      },
+      {
+        "name": "feature_heat",
+        "sha": "482d826f8d4a18fc75e792a7b7c83706fa70bf90"
+      },
+      {
+        "name": "feature_hom_Average",
+        "sha": "0d30aa49187e0a3e9bef3f48a0c6a86beafaffae"
+      },
+      {
+        "name": "feature_hom_discadj",
+        "sha": "eef40d679595aa6d27ca4bede0d89fbe0a50e9f4"
+      },
+      {
+        "name": "feature_hom_new_merge",
+        "sha": "e3df22d51c02c297c21b96c5e0b22cc1b1619657"
+      },
+      {
+        "name": "feature_hom_new",
+        "sha": "ce005541bdea0f742f176ff5a9bcec83b31f58e3"
+      },
+      {
+        "name": "feature_hom",
+        "sha": "acefb53432c7471126a62080be520801c10d8ef4"
+      },
+      {
+        "name": "feature_implicitDG",
+        "sha": "baea696b601c96d7273da1de2a61fcbb49cbc69e"
+      },
+      {
+        "name": "feature_inletprofile",
+        "sha": "4ce57dff183d886816e2b935472af160229d6745"
+      },
+      {
+        "name": "feature_inletprofileDES",
+        "sha": "f85ee7e4388f991d75323592dc2208df13e41e43"
+      },
+      {
+        "name": "feature_interp",
+        "sha": "1d1ca67e0e3a070d55e0520260ae9d1410de63c1"
+      },
+      {
+        "name": "feature_isothermalSWP",
+        "sha": "9799d8260e702a14b701a26a0650ffadf11ce3fb"
+      },
+      {
+        "name": "feature_kratos_interface",
+        "sha": "21a43cb452247fbfc54b128c70dc941b03080b04"
+      },
+      {
+        "name": "feature_libROM",
+        "sha": "c8bfda79cc493021fe497f1e516d9a6257f74a69"
+      },
+      {
+        "name": "feature_libromDMD",
+        "sha": "3cd58b948a1037d510af9daaa483bd6646808fd8"
+      },
+      {
+        "name": "feature_logging",
+        "sha": "6f545190d9c647a7b7243faa3da25471a47b19f6"
+      },
+      {
+        "name": "feature_massdiffusivity",
+        "sha": "3aaecf134ec796374b00c0d067db71bcfd9b054d"
+      },
+      {
+        "name": "feature_mesh_deformation",
+        "sha": "103eb8c81053b5ddd4f72199dc0608ff73b8b2a5"
+      },
+      {
+        "name": "feature_mesh_solver",
+        "sha": "821c5f95263e59409b0e2b2365a9bb1379c2ffae"
+      },
+      {
+        "name": "feature_misc",
+        "sha": "f6374dba124274ab8092fead62658f07220d284a"
+      },
+      {
+        "name": "feature_mixing_density",
+        "sha": "328a1b747a4785d13b749e7fb6cc4589fd1b9529"
+      },
+      {
+        "name": "feature_mms",
+        "sha": "9584b47c16fef3252bddbb3d73397569b714eb44"
+      },
+      {
+        "name": "feature_monitorpoints",
+        "sha": "7cfe3022af398e435fe539b41a7e10f81a9214ad"
+      },
+      {
+        "name": "feature_mpi_comms",
+        "sha": "349f58981f9a95ac3198c0699d5c5c472e9a449b"
+      },
+      {
+        "name": "feature_multicomp_properties",
+        "sha": "613509f88a2597caef9a2067e5bc3cc2d67680c9"
+      },
+      {
+        "name": "feature_multicomp",
+        "sha": "cbf436f4076cddbe186cddfcbc49766a3a129c56"
+      },
+      {
+        "name": "feature_multilayer_perceptron",
+        "sha": "88f0012afd0ac8f2b10778faadd0c0af4e8507d9"
+      },
+      {
+        "name": "feature_naca_thickness",
+        "sha": "39c5d12bdacdf3a3be6f42612d6a741df034f4bf"
+      },
+      {
+        "name": "feature_nemo_gsi",
+        "sha": "2f1b56a28ad09e20bf2844cbbadaf5188bf9b7de"
+      },
+      {
+        "name": "feature_nemo_isothermal_wall",
+        "sha": "8f509e346a5e1367c833899eeac22c3d0ffec0c9"
+      },
+      {
+        "name": "feature_new_flamelet",
+        "sha": "80ddee52ffddff6b5e6120f15132b7d89c948187"
+      },
+      {
+        "name": "feature_new_outputs",
+        "sha": "810d43887159e88fdd498c994606cd3e87cb283f"
+      },
+      {
+        "name": "feature_objfunc_massflowratio",
+        "sha": "d09d08a320afb2dc2077fca8330eb34faece5e43"
+      },
+      {
+        "name": "feature_optimization",
+        "sha": "e8778c70ff34f60561f4f86ea32bffcb31e25e15"
+      },
+      {
+        "name": "feature_output_rsm_gradients",
+        "sha": "9657334c19e9a2a6f496ba611e5f0caa126b4e80"
+      },
+      {
+        "name": "feature_paper_rodi",
+        "sha": "e98b8b909d76516ed339ebc7a1e042f03e764113"
+      },
+      {
+        "name": "feature_passive_scalar",
+        "sha": "919900ac683f96c6ff36e470b533d81802147c1d"
+      },
+      {
+        "name": "feature_periodic_sliding",
+        "sha": "5657cf723a32ab200892494b69e40717d9709cc8"
+      },
+      {
+        "name": "feature_periodicGM",
+        "sha": "c23947bd93ea4601a0b37682701d7d898a6528c1"
+      },
+      {
+        "name": "feature_piper",
+        "sha": "494bcc1fe7def97c6e7dd3c32d35ba78dbdb4c8a"
+      },
+      {
+        "name": "feature_polytropicGas",
+        "sha": "4f53c0ee25b2b5b77477af8d3829b9f0b90bce46"
+      },
+      {
+        "name": "feature_pyBeam_ShapeDesign",
+        "sha": "0640ef4b98c38e3b7232dddb5fe00f888004af88"
+      },
+      {
+        "name": "feature_pyBeam_ShapeDesignV2",
+        "sha": "8c7354253972f8d26173f7419b63739860b4093f"
+      },
+      {
+        "name": "feature_pyBeam",
+        "sha": "17a5575eb6e3a1495a60ff53c23b2128824df071"
+      },
+      {
+        "name": "feature_pySU2",
+        "sha": "85338fe806f87a175d2888fcb80a04c550a61de5"
+      },
+      {
+        "name": "feature_pyopt",
+        "sha": "275652307623040b0886a60ab91378825a689d57"
+      },
+      {
+        "name": "feature_pysu2_DEF",
+        "sha": "3f0247625a9510232edf439297d7295888c6a3ed"
+      },
+      {
+        "name": "feature_pysu2_fsi_adjoint",
+        "sha": "985884a852f749f05af4e95e37c813216d49ecc6"
+      },
+      {
+        "name": "feature_python_FSI",
+        "sha": "45349e0fca0b24312d500e6380eeba3c27dc5986"
+      },
+      {
+        "name": "feature_pytorch_communicator",
+        "sha": "1aa1ccd653be29d2de88e272f36e8897e202acd7"
+      },
+      {
+        "name": "feature_pytorch",
+        "sha": "4909a53f1c9a44a03fdc1e655a7c4e1e9b4a2426"
+      },
+      {
+        "name": "feature_rad_wall",
+        "sha": "1d85f406f418044a6c0d48fd4b16170ee52efc69"
+      },
+      {
+        "name": "feature_rad",
+        "sha": "42d157143f6d11fc7393c17fd4b6bb8ade30ce6b"
+      },
+      {
+        "name": "feature_rampFreestreamVel",
+        "sha": "1999d069b5805612ef60722e970913a778231dd9"
+      },
+      {
+        "name": "feature_reg",
+        "sha": "efadf210cb18868bc9c27c544094817bde3f0b6a"
+      },
+      {
+        "name": "feature_sa_e_uq",
+        "sha": "5bf407a8e104dcc8cecad60bcac2d1105172473d"
+      },
+      {
+        "name": "feature_scalar",
+        "sha": "dde606372115b5fc613ed6b3148882beddd0d49e"
+      },
+      {
+        "name": "feature_simd_numerics_instrument_AD",
+        "sha": "06e2d6c2535463a3825c0f058bda6faa35c82926"
+      },
+      {
+        "name": "feature_sym_plane",
+        "sha": "719b2d36af98eb86d70a963bce1024e8aada2f4b"
+      },
+      {
+        "name": "feature_symtest",
+        "sha": "2b95b3f89c8fbcd03be5dbed034da452c6c3ded0"
+      },
+      {
+        "name": "feature_tHB_AD",
+        "sha": "35f9aef4dabff8365bd23210c7420cef11a2c9de"
+      },
+      {
+        "name": "feature_template_linear_solver",
+        "sha": "7a460b71a540d1605ed0ee6240989910f0b6a898"
+      },
+      {
+        "name": "feature_thickness_constraint",
+        "sha": "4ded0da90b96a6e536f6d972b45c9b0d5957b505"
+      },
+      {
+        "name": "feature_transpiration",
+        "sha": "16999f6014f1339b4e174303205f4585e1377a24"
+      },
+      {
+        "name": "feature_turb_calibration",
+        "sha": "e512f76b38a2a8e7bc849bdc02089a60be261864"
+      },
+      {
+        "name": "feature_turbo_aeroelastic",
+        "sha": "7f5be7b640cffcca10d7252bee85df8dbd0ae2bb"
+      },
+      {
+        "name": "feature_turbo_bodyforce",
+        "sha": "1ab7650be25c3b0724854ea87ad152106c1e6836"
+      },
+      {
+        "name": "feature_turbo_ffd",
+        "sha": "2d0fb2cd5d0ca29f249e5f5e06b171ed30178fd8"
+      },
+      {
+        "name": "feature_turbo",
+        "sha": "192d0c3de0b03f96ab4f2d6b04bf369b7de0bd97"
+      },
+      {
+        "name": "feature_turbo2phase",
+        "sha": "9b2971dd241af8062a7fdf1b493b203f99556583"
+      },
+      {
+        "name": "feature_turboSM",
+        "sha": "44a6f3b013ba3db3e9bda36089d88d0cfcc662d0"
+      },
+      {
+        "name": "feature_turbomachinery_main",
+        "sha": "3f9402f499dfba9b5a7f633fda1e452e48722e40"
+      },
+      {
+        "name": "feature_turbomachinery_multigrid",
+        "sha": "93167bf2df9956bc949bb2104a7b2ca86465038e"
+      },
+      {
+        "name": "feature_turbomachinery_restruct_singlezone",
+        "sha": "a151f7d3da7cb80c16ea5d5b336f12964f4d6f48"
+      },
+      {
+        "name": "feature_turbomachinery",
+        "sha": "3b22ede0d42b247252abe1bdb8be96a2f140b2e7"
+      },
+      {
+        "name": "feature_turbomanchinery_output",
+        "sha": "1ae55f8e6d00f55a9f61d75b5e87adae1c74e434"
+      },
+      {
+        "name": "feature_unst_lut",
+        "sha": "5dd9b9ee30d661fa308165ae0b0aca3ab70a4987"
+      },
+      {
+        "name": "feature_unsteady_multizone_adjoint",
+        "sha": "4ebec9a58ea4efa717d13e4e417638b5190a39be"
+      },
+      {
+        "name": "feature_vortex_correction",
+        "sha": "ac8533cfcb03d69ee1d3e49a6088036a128ce77e"
+      },
+      {
+        "name": "feature_2ndorder_v8",
+        "sha": "5982148cd1be4bcfbbb56a1d89e2dad1cca77ac7"
+      },
+      {
+        "name": "feature_2phase",
+        "sha": "6597ca19b6e4fcf3d3b8aefee726178cd4126533"
+      },
+      {
+        "name": "fix_ad_extra_vars",
+        "sha": "1084b64b3724e9cd67190f08f89723b6be5964ea"
+      },
+      {
+        "name": "fix_addGlobalElementIndex",
+        "sha": "45e5ab7d54943fdf63dcf03685cbfa9b9d62b516"
+      },
+      {
+        "name": "fix_aeroelastic_motion",
+        "sha": "5ff8e0799327e2e78d84e8ca58d5e94ef27ff38c"
+      },
+      {
+        "name": "fix_bug_Solution_time_n",
+        "sha": "2db548e54e1b849df8128c0899f739b180f7cc78"
+      },
+      {
+        "name": "fix_cauchCrit",
+        "sha": "7269e8a35249a83dd5c11814d1c07ec499344bf8"
+      },
+      {
+        "name": "fix_dg_moving_wall",
+        "sha": "fdb9b8058efc82087ffb27efc5e9935631bd748b"
+      },
+      {
+        "name": "fix_discadjfsi",
+        "sha": "654ba3dfc207e25c31da9c09860224ad4044a610"
+      },
+      {
+        "name": "fix_fd_gradient_projection",
+        "sha": "6d2d1432b4ea5b7e261b9ecdeb7e87c2ef7166fc"
+      },
+      {
+        "name": "fix_ffd_boxes",
+        "sha": "dc19fb5ccd4a60410f4f5022d1615efa799810e4"
+      },
+      {
+        "name": "fix_gpu_pastix_misc",
+        "sha": "8c39408c54b3f694627493cc3ebcbffbfe8d8805"
+      },
+      {
+        "name": "fix_grid_motion_kinds",
+        "sha": "62d88f0a536bd866e68119f5f85b7cc8028b927d"
+      },
+      {
+        "name": "fix_grid_motion_nondim",
+        "sha": "e57fc9fc66745a21c0665c2f104b7ff931541702"
+      },
+      {
+        "name": "fix_inlet_file_shape_opt",
+        "sha": "921e85b9d7d9c152c131874a84f3534caf5705c2"
+      },
+      {
+        "name": "fix_krylov_solvers",
+        "sha": "eb5d695c5f86eafa2bc3ab6acf185f792e97d595"
+      },
+      {
+        "name": "fix_limiters",
+        "sha": "43d0afdd2d2942b30167d84eaccabfe1ec7bd227"
+      },
+      {
+        "name": "fix_linear_solver_parallel",
+        "sha": "8d96b78d70d3c6b42954e4baac443c240c5e744c"
+      },
+      {
+        "name": "fix_mesh_deformation_checks",
+        "sha": "5df818a43f489753468e933b01d269aa9d057a4f"
+      },
+      {
+        "name": "fix_moving_grid_restart",
+        "sha": "d8d8515c583893349ea84e3c4ade1ddf1697b684"
+      },
+      {
+        "name": "fix_moving_wall_jacobian",
+        "sha": "a69a8ecda663e044040cf87f976e77b2a1458a84"
+      },
+      {
+        "name": "fix_nishikawa_r4",
+        "sha": "3d87c0388959b4e4783b5cc7ed6813529b343213"
+      },
+      {
+        "name": "fix_pb_unsteady",
+        "sha": "9c4468120b95ba355e380ac5c83b7c851b841e3e"
+      },
+      {
+        "name": "fix_pb_variable_density_fixes",
+        "sha": "8abd51a584b74cb3e857c1ad8f279cf24e3bc9ea"
+      },
+      {
+        "name": "fix_pb_variable_density",
+        "sha": "5d81ff3b95b517b08c06420c7f403466dcbb5c4b"
+      },
+      {
+        "name": "fix_periodic_axis",
+        "sha": "6481f6949defeceae9026af0eb38787f5f3e0f76"
+      },
+      {
+        "name": "fix_periodic_counts",
+        "sha": "afb78422e81e7492141bf5d0996aa5301ba46142"
+      },
+      {
+        "name": "fix_periodic_implicit",
+        "sha": "4db1d1c3f6babb639f3e66b51f8d259c4b5aaf60"
+      },
+      {
+        "name": "fix_periodic_rotation",
+        "sha": "9de9fd0b8298cc17a6e0fe4df8c2a4f74f8a3159"
+      },
+      {
+        "name": "fix_periodic_support",
+        "sha": "b57a663144c6b74cafacb5073bfecea7b65275cf"
+      },
+      {
+        "name": "fix_periodic_transforms",
+        "sha": "39b17680934bdd72f27a8cd2594c934ba8f120ea"
+      },
+      {
+        "name": "fix_periodic_wall_distance",
+        "sha": "811dcb00325c87bb2e25bfe007487d15b7b272c2"
+      },
+      {
+        "name": "fix_python_3.8",
+        "sha": "33b1276512bf57474e39904f0ffce66f2582b64a"
+      },
+      {
+        "name": "fix_rbf_deformation",
+        "sha": "dec124b2659905c57cac5d863f18f9d7d84faea4"
+      },
+      {
+        "name": "fix_reconstructboundary",
+        "sha": "aa92b1d37d62f35a7d8d681276fc4f801f8c0203"
+      },
+      {
+        "name": "fix_sa_wall_function",
+        "sha": "8d2bf06723df67f409cf26a4594bc5a0013acf9d"
+      },
+      {
+        "name": "fix_scalar_limiter_eps",
+        "sha": "ae77daf13ea59eddc0c71681edf44541211d737e"
+      },
+      {
+        "name": "fix_scalar_muscl",
+        "sha": "b2234a5e1e44d22a4dc045f71ecde5371766743a"
+      },
+      {
+        "name": "fix_slidingmesh_reconstructboundary_2",
+        "sha": "eb3305ee6013a0f5d5d8ae1e9f32868e40b9afb2"
+      },
+      {
+        "name": "fix_slidingmesh",
+        "sha": "3c9f9bbf056b4b2a839267212f2b5d0950f9059b"
+      },
+      {
+        "name": "fix_sst_axisymmetry",
+        "sha": "084796952d103aa42462ab7eef341b274bb6cd9e"
+      },
+      {
+        "name": "fix_streamwise_periodic",
+        "sha": "95c84b7adbcb3b2cb134bb19fcb85c7078d5f365"
+      },
+      {
+        "name": "fix_su2def_design_variables",
+        "sha": "ee19a1b6821ff829130e8d0b696fe89e0cc29ff2"
+      },
+      {
+        "name": "fix_unsteady_adjoint_moving_grids",
+        "sha": "86f3a401ca13918ff7094dd25738ba04de2012ae"
+      },
+      {
+        "name": "fix_updatedvalues_fluidmz",
+        "sha": "63722237ee3c0f52260db4d863b7be4d933de88b"
+      },
+      {
+        "name": "fix_wall_function_forces",
+        "sha": "4340a2c980e6c2b6625a06be5be22ed41cc18c1f"
+      },
+      {
+        "name": "fix_yplus_calculation",
+        "sha": "8c4863ebe966bb975e408e7d72cd749f388cb2ad"
+      },
+      {
+        "name": "fix_2d_periodic_rotation",
+        "sha": "8f8d37d39142bff7f25db465b67122e898a3309d"
+      },
+      {
+        "name": "fix-cpp-inlet-with-periodic",
+        "sha": "b5b7d4bdd43d12ef8a12c66f5966b03b8480c850"
+      },
+      {
+        "name": "fixCGNSOutput",
+        "sha": "e41e7eabc7b057659ab72e258c8c0926dce7f33e"
+      },
+      {
+        "name": "fsi_DEF",
+        "sha": "72b2fa977b64b9683a388920f05298a40d39e5c5"
+      },
+      {
+        "name": "master",
+        "sha": "0e1495c7ff40afefc7d8613d110115fca40d6782"
+      },
+      {
+        "name": "modules_draft",
+        "sha": "6215d315ae0908fe14f763cad29a099f08bf7816"
+      },
+      {
+        "name": "ori",
+        "sha": "8976499bd8b4ce9b53af4658e89411b891fd9aa7"
+      },
+      {
+        "name": "output_update",
+        "sha": "808832a9be8f1b800049624cef6f6e76340197d9"
+      },
+      {
+        "name": "pr-images",
+        "sha": "847f371a79f590ae636f9fa70cbe3d32cc1a33de"
+      },
+      {
+        "name": "refactor_SU2_GEO",
+        "sha": "d2b32eb4390a4123bb4521087295934bd50c185a"
+      },
+      {
+        "name": "sc_develop",
+        "sha": "3ec8fd0ee9dcf20adff1549a827ccbaa234732ff"
+      },
+      {
+        "name": "shape_optimization_overhaul",
+        "sha": "798c2bc634ca5e45f99de60ad6b3e752ed358ef7"
+      },
+      {
+        "name": "test_euler_vorticity",
+        "sha": "9f287aee2777c0bb4f6409caee59ee88eaddd50f"
+      },
+      {
+        "name": "testing_symmetry_plane",
+        "sha": "ef92a7a9f510784a897e7d3a7a05fa254ac8be38"
+      },
+      {
+        "name": "turbo_SU2v6.1.0",
+        "sha": "326b9025476b3fe7f1c13bea9184e2db249f40eb"
+      },
+      {
+        "name": "turbo_output_opt",
+        "sha": "db17d0692570ef61903846dc2649b69df4658418"
+      },
+      {
+        "name": "update_wallfunctions",
+        "sha": "666a3a78359282fff0f6451f4a8164e7c1eec41d"
+      },
+      {
+        "name": "various_fixes_IV",
+        "sha": "7ab60870ce9be4c2a2f14a510f00fcb0eae2e2ed"
+      },
+      {
+        "name": "ventilator_dev",
+        "sha": "0828019368825b735da74b507958997af273e789"
+      }
+    ],
+    "su2code/SU2": [
+      {
+        "name": "NEMO_AUSMPLUSM_Rollback",
+        "sha": "ec84a551408f77e3f40af1c7056a5f9565b5299d"
+      },
+      {
+        "name": "NEMO_STRONG_ISO",
+        "sha": "7124c606c65ffbb74a827a51767360a93e6d3a20"
+      },
+      {
+        "name": "NEMO_ionization",
+        "sha": "8333235076b7a9eaf55eed590810af0db3539127"
+      },
+      {
+        "name": "arm64_runner_group",
+        "sha": "9c4290dc3828b53521da8d1fe8dfda6d0cf841aa"
+      },
+      {
+        "name": "cat_temp",
+        "sha": "16dfc837adf3f0749660c369d715afa679caf20d"
+      },
+      {
+        "name": "cgnsNamedBoundaries",
+        "sha": "268b9ba1bd300253a0aa903ae0bcf46bd718c5fd"
+      },
+      {
+        "name": "cgnsReaderMarkers",
+        "sha": "9b350d8919b1d6f18be7ef9b148a31c2eeb4e755"
+      },
+      {
+        "name": "config_parsing",
+        "sha": "e7d01411ec33351ac3a1a2d0d8a11ca6a004be1d"
+      },
+      {
+        "name": "dependabot/github_actions/actions/cache-6",
+        "sha": "75c1413338595cec5d82df390893c8dd131bce50"
+      },
+      {
+        "name": "dependabot/github_actions/actions/checkout-7",
+        "sha": "b18baf74aca5bbd2518cae2af618e5a6544dcb02"
+      },
+      {
+        "name": "dependabot/github_actions/actions/setup-python-7",
+        "sha": "6cbcf82274c314100c31f61264dc16cde93cef12"
+      },
+      {
+        "name": "develop_NEMO_fix_carbuncle",
+        "sha": "656f3eada0f21d422d975886f11794200e9827d3"
+      },
+      {
+        "name": "develop",
+        "sha": "f110e914b5fd0d31c889e2d4df5bb5683abc6fd6"
+      },
+      {
+        "name": "enhancement_periodicbc_paralleldraft",
+        "sha": "2020e77f473de68f1ec3ce132c74caa295fbd5c2"
+      },
+      {
+        "name": "enhancement_periodicbc",
+        "sha": "497906890ff5f18217b1ca849a37c3a7a00650c6"
+      },
+      {
+        "name": "fature_nemo_p_cat",
+        "sha": "327548fc889879046741eb21c864a32405253f7d"
+      },
+      {
+        "name": "feat_LineSearch",
+        "sha": "536a63981e65adcdcf1cefcf89d0d7759de7303a"
+      },
+      {
+        "name": "feat_adap_dev",
+        "sha": "ce7c4c5784f8f862a9a28b6753ed539550fd5e1e"
+      },
+      {
+        "name": "feature_ABL",
+        "sha": "9f7c0a85e96aba13e1d9d6afea8629561114c48d"
+      },
+      {
+        "name": "feature_AUSMplus",
+        "sha": "e1080b2b91f44217a4df38eeb4fbc60a1c9ea6e7"
+      },
+      {
+        "name": "feature_ActDisk_Hover",
+        "sha": "4c9896532c4e19366493a03e5f3baed0e2dc1d0a"
+      },
+      {
+        "name": "feature_AdjTNE2",
+        "sha": "7071cc97cad34c1ed8e65ae105c1396674fa5db2"
+      },
+      {
+        "name": "feature_BC_sensitivities",
+        "sha": "28d3c4743538600a421aef7c46324dd80663c8ae"
+      },
+      {
+        "name": "feature_CANTERA_PR_AD",
+        "sha": "a06cd611d76bba514472a141fa3b155688f44dcb"
+      },
+      {
+        "name": "feature_CANTERA_PR",
+        "sha": "c251a4ba138bbcd5555cd234f3065c5e54ee73b4"
+      },
+      {
+        "name": "feature_CANTERA",
+        "sha": "b0bdc937ea3eb345a9d1b7c1bf9a6ac3e1dd9f93"
+      },
+      {
+        "name": "feature_CGNS_output",
+        "sha": "0bfe1f5eafdf7c2c3c32aa62fb911334ff96a6f3"
+      },
+      {
+        "name": "feature_CustomMeshOutput",
+        "sha": "cac9492fa6eebfd1bd87d345e0dbb67a898fe7bb"
+      },
+      {
+        "name": "feature_DE_AD_ALE",
+        "sha": "f1a19daf790680e10b71e66e59f30a4397bc678f"
+      },
+      {
+        "name": "feature_Deformation",
+        "sha": "d66c9808cd600c155a2807e14afc786ff76132b9"
+      },
+      {
+        "name": "feature_ENERGY_INDEX",
+        "sha": "0341b12473f5bc948628d207c7883a7535d99d7f"
+      },
+      {
+        "name": "feature_EPM_sampling",
+        "sha": "690fbc07fb8a28a7d973e3ad3e49b11259638758"
+      },
+      {
+        "name": "feature_FSI_shape_opt",
+        "sha": "6fcf7c1119c054f3b194ea47e2528b2dd11426d5"
+      },
+      {
+        "name": "feature_FV_Average",
+        "sha": "12ca099be0e06ace45a1c99130816d923d59e70a"
+      },
+      {
+        "name": "feature_FV_WMLES",
+        "sha": "64c417e68672a2e0f1b8444cb1e8cf64c409377c"
+      },
+      {
+        "name": "feature_GGCorrection",
+        "sha": "a6067c5c21135e571600baffc70b33393d0894f0"
+      },
+      {
+        "name": "feature_GradOutput",
+        "sha": "b0d0a1950c872eb40a01e8bce6710c35e1341026"
+      },
+      {
+        "name": "feature_Interpolate",
+        "sha": "8e36fed3fc3ef2248f9d5104fb9f9aaab0c4bf7d"
+      },
+      {
+        "name": "feature_LM_model",
+        "sha": "1ec3ebb88cbbc00624dd3ee1125a89974556a66d"
+      },
+      {
+        "name": "feature_LUT_NICFD",
+        "sha": "6428c6e3d4832e2107edb99045ae178d0ffcb500"
+      },
+      {
+        "name": "feature_LocalGridLimiters",
+        "sha": "b92782db3bf35971d4b66c553792d537431e0bf5"
+      },
+      {
+        "name": "feature_MOR",
+        "sha": "4b13bcccfeb284367e7865679d5534846bddc2d1"
+      },
+      {
+        "name": "feature_MUSCL3",
+        "sha": "a5c1f9d8fdb849239ff84ece53e5939dfd576ca9"
+      },
+      {
+        "name": "feature_MeshInterpolation",
+        "sha": "0658b1177fa28fc7d797cc1a067ad566aa222415"
+      },
+      {
+        "name": "feature_NEMO_Sym_BC",
+        "sha": "acfec297d9a7beeb61f46422409c5ed0e7890729"
+      },
+      {
+        "name": "feature_NEMO_gust",
+        "sha": "9f495610ae4e821e606a7ebf18bd6d0af240fa32"
+      },
+      {
+        "name": "feature_NEMO_interp_rans",
+        "sha": "14c16ada23adb71333f5508b4f569de9d1e3a7b8"
+      },
+      {
+        "name": "feature_NEMO_print_tbath",
+        "sha": "57db0ff1310ea0326678e79e661122917045f3b3"
+      },
+      {
+        "name": "feature_NEMO_schemes",
+        "sha": "fff98152dfda7adf75fd890353e305459a4d28db"
+      },
+      {
+        "name": "feature_NEMO_slau",
+        "sha": "58f20a6c486b2975d2538852af4e5f408a8322b7"
+      },
+      {
+        "name": "feature_NEMO_turb",
+        "sha": "669b1d2f09701c4f2a388eb76bda98365a769d0f"
+      },
+      {
+        "name": "feature_NEMO_unsteady_freestream_feature_NEMO",
+        "sha": "344723af71070025be6733e936d2f5bc14c9ee05"
+      },
+      {
+        "name": "feature_NEMO_unsteady_freestream",
+        "sha": "7d1eded40d349e07b6df62287c91223437d3b25d"
+      },
+      {
+        "name": "feature_NEMO",
+        "sha": "3436a7459fb0539b4fda886e0f7262a505da0fc0"
+      },
+      {
+        "name": "feature_NEMOR",
+        "sha": "08c2df1fdf6e7368d9537ecb90408c5d0ad49d01"
+      },
+      {
+        "name": "feature_NPPR_GAS",
+        "sha": "e7adc450535d36d6d413bd53b7caae922c82f283"
+      },
+      {
+        "name": "feature_NPPR",
+        "sha": "72b2fa977b64b9683a388920f05298a40d39e5c5"
+      },
+      {
+        "name": "feature_NUBC",
+        "sha": "e3f01f36ccb7117d32f9253f3f57b563e2d98eab"
+      },
+      {
+        "name": "feature_PATO",
+        "sha": "779e21a24983bf7c4a8be9ef929e2b512ebd6bc5"
+      },
+      {
+        "name": "feature_PBFlow_V8",
+        "sha": "b5845799112f4d0784e78fcc28de8a1decf0c1b4"
+      },
+      {
+        "name": "feature_PassiveScalar",
+        "sha": "9600f9063341e2dbc4501d758576cb956401a65b"
+      },
+      {
+        "name": "feature_PoissonFVM",
+        "sha": "bf991f8b3428b3bd425da1661db4dcdc961797b0"
+      },
+      {
+        "name": "feature_Pressure_based",
+        "sha": "d6091c81cda160b8eed81ce3247691e56ac9fb1a"
+      },
+      {
+        "name": "feature_QUAD",
+        "sha": "21ba2307ea11bf26fc8a21553486145687663539"
+      },
+      {
+        "name": "feature_SA_TC",
+        "sha": "081a8056fd1c736ef617bfbdfcb9dccce35d1b5a"
+      },
+      {
+        "name": "feature_SA_axisymmetry",
+        "sha": "c57590ef7bad165f55b80f0ead50ff9717565001"
+      },
+      {
+        "name": "feature_SA-EDDES_mod",
+        "sha": "65a48e30d8561b7e776401446363b3b6d1791470"
+      },
+      {
+        "name": "feature_SAS",
+        "sha": "35958b82fa9fa7345ea993c3250929bc89313649"
+      },
+      {
+        "name": "feature_SH",
+        "sha": "89e6f7f0397cd4c2a471d27d758de6279fb19597"
+      },
+      {
+        "name": "feature_SST_IDDES",
+        "sha": "50e26fa222e2ce9fa47493d2af80c19481a349ba"
+      },
+      {
+        "name": "feature_SST_UQ",
+        "sha": "ecebad46365be88107c963b218fdc9c52f645992"
+      },
+      {
+        "name": "feature_SST-RC",
+        "sha": "87023e322d1bb465cccd6974da736d78d9142c6f"
+      },
+      {
+        "name": "feature_SSTBCM",
+        "sha": "2b6d97a155e3942b9f51c06f238f3e0eddd40207"
+      },
+      {
+        "name": "feature_SSTMod",
+        "sha": "7aaad3f12552069647264ac580834b38755e24c0"
+      },
+      {
+        "name": "feature_SU2_TACS",
+        "sha": "3d3a9d892155199d875e1b4321f347d389436158"
+      },
+      {
+        "name": "feature_TMZHB",
+        "sha": "7a98320252dd8905bcc5beb8ff5ba5e652a49deb"
+      },
+      {
+        "name": "feature_TNE2_mutationpp",
+        "sha": "c5ed1ff3acba2508e3911bb76dc27c762e222a01"
+      },
+      {
+        "name": "feature_TURBO_FSI",
+        "sha": "875970038c9469bd4e45b1d12bd8c30630fa9712"
+      },
+      {
+        "name": "feature_Trans_SLM_v8",
+        "sha": "1e7e7a34010386bcaf1e2d6da1ea639cf9b5eaef"
+      },
+      {
+        "name": "feature_Trans_SLM",
+        "sha": "afe6d255cfef0de2f01da3f4f04c97f8a86011d5"
+      },
+      {
+        "name": "feature_UQLM",
+        "sha": "2c9fbb6cfc0f9dfbb4a1f6afb9cf5004c33b1c25"
+      },
+      {
+        "name": "feature_VG_BAY_model",
+        "sha": "fcbe6fc34c841e81e73c93588f35af0054866bfb"
+      },
+      {
+        "name": "feature_WMLES_update",
+        "sha": "26336ef959bdbea08c6fb4e9c79515b14455920c"
+      },
+      {
+        "name": "feature_WMLES-Dev",
+        "sha": "b3743e90c755b65377f4864c2a5132610bb1c21c"
+      },
+      {
+        "name": "feature_WallFunctions",
+        "sha": "6b3f1fbeaf59a53808d6ecae21d0bdee8d38c813"
+      },
+      {
+        "name": "feature_WallModelLES",
+        "sha": "e62d3bb4ddd52b7561307f34945e555b7bb1c580"
+      },
+      {
+        "name": "feature_ac",
+        "sha": "ce07d5c086c846252d200132d21e719819ba2296"
+      },
+      {
+        "name": "feature_actuator_disk_Inc",
+        "sha": "59cbfabff3d83907c2c9e49577ae9651660e652b"
+      },
+      {
+        "name": "feature_adap_flux",
+        "sha": "138591d55fa1f641869539b5464d9d5c767eaf34"
+      },
+      {
+        "name": "feature_adap_sand",
+        "sha": "898414563400f5982cd5d4c8db85e5acca006390"
+      },
+      {
+        "name": "feature_adap_sst",
+        "sha": "78770167c0395c7a33a96ed6e6ff66faef3b210b"
+      },
+      {
+        "name": "feature_adap_tne2",
+        "sha": "35677ac700d68c2975fa772d39caf375789d5516"
+      },
+      {
+        "name": "feature_adap",
+        "sha": "fb57b41efd7fc1473d9dbef86e04a89b3c7d96c9"
+      },
+      {
+        "name": "feature_adaptive_incremental_load",
+        "sha": "d32230f9b8f285979d72a5b20c459c75fd854fc3"
+      },
+      {
+        "name": "feature_adaptive_sliding_meshes",
+        "sha": "d90217afead8b42968f26aa6a6d3fae272ab3378"
+      },
+      {
+        "name": "feature_adjoint_lut",
+        "sha": "07b7f9bc23c7815174ae3a04b53dbeb069e3bba5"
+      },
+      {
+        "name": "feature_amg",
+        "sha": "9fffaedb0f61c719aaf7600670cc7a6055f0e59d"
+      },
+      {
+        "name": "feature_arbitrary_motion",
+        "sha": "8856aefb07344f105b62d2203dd6e49a111bbc60"
+      },
+      {
+        "name": "feature_atc",
+        "sha": "6d803116e88b18b3a4aa9cd117c3bf7f1931d4eb"
+      },
+      {
+        "name": "feature_avg_output",
+        "sha": "8e4338e1db5e7fadb97cb6ba62042c3aae3b4b5c"
+      },
+      {
+        "name": "feature_axisymmetry_SA",
+        "sha": "97cbd67486a0eedc08c617ee4d14ce403b39e314"
+      },
+      {
+        "name": "feature_bench",
+        "sha": "54b11eb202e6c1820a3e952b2fc1cc8f0a7bd86f"
+      },
+      {
+        "name": "feature_boom",
+        "sha": "c59a36b55d7ed9595309a0ad3f8b0d107382e78b"
+      },
+      {
+        "name": "feature_bounded_scalar_comp",
+        "sha": "bbd580edc2b9e242c12e10cb8ae5af953039482d"
+      },
+      {
+        "name": "feature_caa_bbn",
+        "sha": "b10bc8868e0cb918938949411b3b5db76058b716"
+      },
+      {
+        "name": "feature_caa",
+        "sha": "76c84893b7c4b65d07c4c23fc15523e6710b2a09"
+      },
+      {
+        "name": "feature_cachedLeastSquares",
+        "sha": "e50d32088516db4d06413d40a3fa95620f4040ee"
+      },
+      {
+        "name": "feature_calibration",
+        "sha": "64afdd9eae6ec2ac5d3fd2c90db619a56320abc6"
+      },
+      {
+        "name": "feature_calorically_imperfect",
+        "sha": "b8ebde187c1d825d1881557d3b4c861ac2895c29"
+      },
+      {
+        "name": "feature_catalyst",
+        "sha": "fdf8b38efcfebe6044139cb50e1343e6b47e0046"
+      },
+      {
+        "name": "feature_cgns",
+        "sha": "d108890dbe27c7dc9299de52eaedd3c6bdada87a"
+      },
+      {
+        "name": "feature_channel",
+        "sha": "900c5ae1ffc14bf08175f753c1075c393bf1c902"
+      },
+      {
+        "name": "feature_checkpointing",
+        "sha": "a821dc41ed3dfc7f30825ef85bbffe185093f510"
+      },
+      {
+        "name": "feature_cleanup_driver",
+        "sha": "aaf66ad749544b7da3d32560c80d08c320955449"
+      },
+      {
+        "name": "feature_communicator",
+        "sha": "1f72b1c6229d985f2e341ea4727ba0b55a946944"
+      },
+      {
+        "name": "feature_comp_fluid_mixture",
+        "sha": "a535faf5ba95bf9a20c3b1a0f0edaad98077e2a1"
+      },
+      {
+        "name": "feature_compressible_fluid_mixture",
+        "sha": "54a71b47cd01a493509b8ff475fa9261642c0afd"
+      },
+      {
+        "name": "feature_consistent_extrapolation",
+        "sha": "6261e2dccc96a23fbb14bf67187a0769f9dfe847"
+      },
+      {
+        "name": "feature_custom_source_anirban",
+        "sha": "b5cd2dd15a651c53cb1a095f6e53861f7798e6a1"
+      },
+      {
+        "name": "feature_custom_supersonic_inlets",
+        "sha": "c0f91b50062452bc50fbb7b91eaca48a5df95251"
+      },
+      {
+        "name": "feature_data_driven_eos",
+        "sha": "79d8af222e4fdb8770d7d8856b9521901ac1d2d3"
+      },
+      {
+        "name": "feature_datadriven_fluid_fix",
+        "sha": "57152ce2f940eefbcc769b0a3bbc2f4a180bdf45"
+      },
+      {
+        "name": "feature_defect_correction",
+        "sha": "876c5b26e375409a804b8e28b0d62fe613305fe0"
+      },
+      {
+        "name": "feature_density_inc_unsteady",
+        "sha": "63f755d2cfa2cc0f1cd835c51f4845438e886795"
+      },
+      {
+        "name": "feature_dev_PATO",
+        "sha": "ae4b28dfde1c725353b1ec5a15bb9b7651075434"
+      },
+      {
+        "name": "feature_direct_ffd",
+        "sha": "8141504cba7c67895e1008d9ef5adf68485559be"
+      },
+      {
+        "name": "feature_discadj_MultizoneFSI",
+        "sha": "fef82c7ad199b23020ab293d122c89c030cae8b7"
+      },
+      {
+        "name": "feature_discadj_RemoveGradientDataVector",
+        "sha": "ce742b6b1ed1d4638eadbf2cbef0799e615d258e"
+      },
+      {
+        "name": "feature_discadj_spectrum_analyzer",
+        "sha": "51571adf0903c499de53ecffda1ac2d9b14902cc"
+      },
+      {
+        "name": "feature_doxy_update",
+        "sha": "5f35635b51be2589e79dfd39bd4ea4c17f41373b"
+      },
+      {
+        "name": "feature_driver_adjoint_singlezone",
+        "sha": "a49fb7c297ef95f0956945a6a7f92f8dd4bcba32"
+      },
+      {
+        "name": "feature_dynamic_fsi_discadj",
+        "sha": "fdd66630251f569846ead2b0752fac55de0b0462"
+      },
+      {
+        "name": "feature_easydebugoutput",
+        "sha": "503874dcbce9b5d277a5e7eefda99f725db520f2"
+      },
+      {
+        "name": "feature_ecc",
+        "sha": "6950ee3cf53171d7f86b19b7cc97f52f990b90aa"
+      },
+      {
+        "name": "feature_energy_mixture",
+        "sha": "7993582b40c4f133fc081b86f5d83e195b0e4afa"
+      },
+      {
+        "name": "feature_enum_sol",
+        "sha": "85751e670c1fc979cc374bf5b402d01992df2f6d"
+      },
+      {
+        "name": "feature_enum_solver",
+        "sha": "33ff18052b3b29aed06f9f0b632f8fe9fc872baa"
+      },
+      {
+        "name": "feature_enumclass",
+        "sha": "60b91d7e01aff2c04229fec517ecfa4f8c105da4"
+      },
+      {
+        "name": "feature_esi",
+        "sha": "c7da729651eec8a31e70f8dd87d34272ce0d5eb3"
+      },
+      {
+        "name": "feature_ffd_rotrans",
+        "sha": "d3742a537142a72d29aa45f413cd6f685eb056bf"
+      },
+      {
+        "name": "feature_field_adjoint",
+        "sha": "10aba3c4bf062dc82084d6794817f1482c026c85"
+      },
+      {
+        "name": "feature_field_disc_adj",
+        "sha": "5cd0eb18b548ebac5a120d4cfa4e4f262544ed46"
+      },
+      {
+        "name": "feature_fiml",
+        "sha": "77783678ebc187f6f00bf1c58ed57bc853e21ac4"
+      },
+      {
+        "name": "feature_fix_enumerators",
+        "sha": "11fe6b1177a157d4379745aac9a14ccc97f28733"
+      },
+      {
+        "name": "feature_fix_prefdif",
+        "sha": "32c9f4c6fe8d83ad49b7d60716a9b3dbec682ca6"
+      },
+      {
+        "name": "feature_fix_restart",
+        "sha": "76c5fffac0831c50d6d58bdf2c3fff0476c60940"
+      },
+      {
+        "name": "feature_flame_subgrid",
+        "sha": "293bc5f05b01f57e58e888e46f85d56a9a8162b9"
+      },
+      {
+        "name": "feature_flamelet_preferential_diffusion",
+        "sha": "4458048b208a471f5fc14cc582266030d1613138"
+      },
+      {
+        "name": "feature_flamelet_test",
+        "sha": "9ddb9e7eb3f989d145b24a07096f69a9769d308d"
+      },
+      {
+        "name": "feature_flamelet",
+        "sha": "779e8df0e85f9d23f3c3c9d7fcdde46be901226e"
+      },
+      {
+        "name": "feature_fluid_lut",
+        "sha": "1dd07e4b7dca6b7d0301e05810fc887aa55090aa"
+      },
+      {
+        "name": "feature_fluid_top",
+        "sha": "41c9c05d2010fa44fee3565c4e4f06c6be5ed3a5"
+      },
+      {
+        "name": "feature_fluidprop_final",
+        "sha": "80adef2a2413d0804924f7433e7a1179da4a3809"
+      },
+      {
+        "name": "feature_fluidprop",
+        "sha": "944d1535a305f9306469273f854fb3c57eceda46"
+      },
+      {
+        "name": "feature_free_shape",
+        "sha": "bf9123a35f8d3092e134534a0fa5746746f6ff4d"
+      },
+      {
+        "name": "feature_fsi_iqn",
+        "sha": "a5ca477586198f6be3001545508fa28ac350e124"
+      },
+      {
+        "name": "feature_fsi_python",
+        "sha": "8cbe673729af5328b1aae815cc6fbfd8f25a77e4"
+      },
+      {
+        "name": "feature_functional_pitching",
+        "sha": "ac50e71d3a870f22c0e6e04db0939cda344a913c"
+      },
+      {
+        "name": "feature_gamma_numerics",
+        "sha": "eaf3965308878bdc25f3e68bca73cff5c23a4d49"
+      },
+      {
+        "name": "feature_general",
+        "sha": "1b085062547ec5b066a28ddeeacf4907588f4f5a"
+      },
+      {
+        "name": "feature_heat_farfield",
+        "sha": "dfb077e0f4e50d75255acafb96bd586f5a6686f7"
+      },
+      {
+        "name": "feature_heat_sym_bc",
+        "sha": "2befb2dd5e5945da6f950f4a109da74cf36ee3b4"
+      },
+      {
+        "name": "feature_heat",
+        "sha": "482d826f8d4a18fc75e792a7b7c83706fa70bf90"
+      },
+      {
+        "name": "feature_hom_Average",
+        "sha": "0d30aa49187e0a3e9bef3f48a0c6a86beafaffae"
+      },
+      {
+        "name": "feature_hom_discadj",
+        "sha": "eef40d679595aa6d27ca4bede0d89fbe0a50e9f4"
+      },
+      {
+        "name": "feature_hom_new_merge",
+        "sha": "400a14cfb974430f11a4bcb0bde2edc3e949763a"
+      },
+      {
+        "name": "feature_hom_new",
+        "sha": "ce005541bdea0f742f176ff5a9bcec83b31f58e3"
+      },
+      {
+        "name": "feature_hom",
+        "sha": "acefb53432c7471126a62080be520801c10d8ef4"
+      },
+      {
+        "name": "feature_implicitDG",
+        "sha": "baea696b601c96d7273da1de2a61fcbb49cbc69e"
+      },
+      {
+        "name": "feature_inc_outflow_backflow",
+        "sha": "d38bce1f654a9ee33ed754eb9243d45154e6cf54"
+      },
+      {
+        "name": "feature_incompressible",
+        "sha": "cd99fcfa92b990d6a4ff8025fbe4aa7a3cb08491"
+      },
+      {
+        "name": "feature_inletprofile",
+        "sha": "4ce57dff183d886816e2b935472af160229d6745"
+      },
+      {
+        "name": "feature_inletprofileDES",
+        "sha": "f85ee7e4388f991d75323592dc2208df13e41e43"
+      },
+      {
+        "name": "feature_interp",
+        "sha": "1d1ca67e0e3a070d55e0520260ae9d1410de63c1"
+      },
+      {
+        "name": "feature_ion_mpp",
+        "sha": "cf02ded051b23b45bbc32dc8dc52acf775a872fc"
+      },
+      {
+        "name": "feature_isothermal_BC_strong",
+        "sha": "07752aadcb8c8c45389d7c41662714a06a9141c5"
+      },
+      {
+        "name": "feature_isothermalSWP",
+        "sha": "6d89aa55c851c804d4a73fc00e184199712321de"
+      },
+      {
+        "name": "feature_kratos_interface",
+        "sha": "21a43cb452247fbfc54b128c70dc941b03080b04"
+      },
+      {
+        "name": "feature_libROM",
+        "sha": "c8bfda79cc493021fe497f1e516d9a6257f74a69"
+      },
+      {
+        "name": "feature_libromDMD",
+        "sha": "3cd58b948a1037d510af9daaa483bd6646808fd8"
+      },
+      {
+        "name": "feature_logging",
+        "sha": "6f545190d9c647a7b7243faa3da25471a47b19f6"
+      },
+      {
+        "name": "feature_massdiffusivity",
+        "sha": "3aaecf134ec796374b00c0d067db71bcfd9b054d"
+      },
+      {
+        "name": "feature_mesh_deformation",
+        "sha": "103eb8c81053b5ddd4f72199dc0608ff73b8b2a5"
+      },
+      {
+        "name": "feature_mesh_solver",
+        "sha": "821c5f95263e59409b0e2b2365a9bb1379c2ffae"
+      },
+      {
+        "name": "feature_metis",
+        "sha": "66ed495f6e07530ab258f59d20f3f14e9e6c53b6"
+      },
+      {
+        "name": "feature_mg_linear_prolong",
+        "sha": "537b3c722d1a095179ed700b749b753f32b94f1e"
+      },
+      {
+        "name": "feature_misc",
+        "sha": "f6374dba124274ab8092fead62658f07220d284a"
+      },
+      {
+        "name": "feature_mixing_density",
+        "sha": "328a1b747a4785d13b749e7fb6cc4589fd1b9529"
+      },
+      {
+        "name": "feature_mlp_clipping",
+        "sha": "d84b3abb60d788786f72cc4570be13cc24187ed6"
+      },
+      {
+        "name": "feature_mms",
+        "sha": "9584b47c16fef3252bddbb3d73397569b714eb44"
+      },
+      {
+        "name": "feature_modBCSST",
+        "sha": "02be3f6cc7e67a6f34d923430f392b4b2d48b6fe"
+      },
+      {
+        "name": "feature_modJacSST",
+        "sha": "274345ffc2d1d16debe7ef03c4df0425f089de90"
+      },
+      {
+        "name": "feature_monitorpoints",
+        "sha": "7cfe3022af398e435fe539b41a7e10f81a9214ad"
+      },
+      {
+        "name": "feature_mpi_comms",
+        "sha": "349f58981f9a95ac3198c0699d5c5c472e9a449b"
+      },
+      {
+        "name": "feature_multicomp_properties",
+        "sha": "613509f88a2597caef9a2067e5bc3cc2d67680c9"
+      },
+      {
+        "name": "feature_multicomp",
+        "sha": "cbf436f4076cddbe186cddfcbc49766a3a129c56"
+      },
+      {
+        "name": "feature_mz_adjoint_for_turbo",
+        "sha": "67c032c6200df1bab036dd55a4d822cbf3bf1ea0"
+      },
+      {
+        "name": "feature_naca_thickness",
+        "sha": "39c5d12bdacdf3a3be6f42612d6a741df034f4bf"
+      },
+      {
+        "name": "feature_nemo_gsi",
+        "sha": "2f1b56a28ad09e20bf2844cbbadaf5188bf9b7de"
+      },
+      {
+        "name": "feature_nemo_inlet",
+        "sha": "8ae2b0e1379c060c5fc9849a9268992319f8465e"
+      },
+      {
+        "name": "feature_nemo_isothermal_wall",
+        "sha": "8f509e346a5e1367c833899eeac22c3d0ffec0c9"
+      },
+      {
+        "name": "feature_nemo_turb_v2",
+        "sha": "2856ee69e06ad04b60f83f46ce154f6d50a6e37d"
+      },
+      {
+        "name": "feature_nemoRANS_updated",
+        "sha": "40bba659d2ff1f0bada9b18e477dd9fbbf02dc5e"
+      },
+      {
+        "name": "feature_new_outputs",
+        "sha": "810d43887159e88fdd498c994606cd3e87cb283f"
+      },
+      {
+        "name": "feature_objfunc_massflowratio",
+        "sha": "d09d08a320afb2dc2077fca8330eb34faece5e43"
+      },
+      {
+        "name": "feature_oneshot",
+        "sha": "654bd22efc781eeff4f720f292beb9490b167bb5"
+      },
+      {
+        "name": "feature_optimization",
+        "sha": "e8778c70ff34f60561f4f86ea32bffcb31e25e15"
+      },
+      {
+        "name": "feature_output_comp",
+        "sha": "6ba8fe42b0dee47d5fb27dfa59e0a9943a0aa512"
+      },
+      {
+        "name": "feature_output_heat",
+        "sha": "571d385979ff92735b9ae76d6361b016d38df9b5"
+      },
+      {
+        "name": "feature_output_rsm_gradients",
+        "sha": "9657334c19e9a2a6f496ba611e5f0caa126b4e80"
+      },
+      {
+        "name": "feature_paper_rodi",
+        "sha": "e98b8b909d76516ed339ebc7a1e042f03e764113"
+      },
+      {
+        "name": "feature_passive_scalar",
+        "sha": "919900ac683f96c6ff36e470b533d81802147c1d"
+      },
+      {
+        "name": "feature_periodic_sliding",
+        "sha": "5657cf723a32ab200892494b69e40717d9709cc8"
+      },
+      {
+        "name": "feature_periodicGM",
+        "sha": "c23947bd93ea4601a0b37682701d7d898a6528c1"
+      },
+      {
+        "name": "feature_physicsinformed_training",
+        "sha": "0319d93aa71e205cde3426b090ae285a164f3807"
+      },
+      {
+        "name": "feature_piper",
+        "sha": "494bcc1fe7def97c6e7dd3c32d35ba78dbdb4c8a"
+      },
+      {
+        "name": "feature_polytropicGas",
+        "sha": "4f53c0ee25b2b5b77477af8d3829b9f0b90bce46"
+      },
+      {
+        "name": "feature_poro",
+        "sha": "81b18f4937c2f528bf57c87adef4caa9a5e37c15"
+      },
+      {
+        "name": "feature_porous_media_topopt",
+        "sha": "b558226a5a8fe5f41a5367cc999b4db1f5e3d3b1"
+      },
+      {
+        "name": "feature_power_iter",
+        "sha": "60f62ebd957a133b3d061bee92933c47af381b05"
+      },
+      {
+        "name": "feature_pressure_based_2026_write_poisson",
+        "sha": "128020c59f9d1eafbeab8422842a3b62b635dc06"
+      },
+      {
+        "name": "feature_pressure_robustness",
+        "sha": "578032d759b78836ce75058af35d95977e80f157"
+      },
+      {
+        "name": "feature_pyBeam_ShapeDesign",
+        "sha": "0640ef4b98c38e3b7232dddb5fe00f888004af88"
+      },
+      {
+        "name": "feature_pyBeam_ShapeDesignV2",
+        "sha": "8c7354253972f8d26173f7419b63739860b4093f"
+      },
+      {
+        "name": "feature_pyBeam",
+        "sha": "17a5575eb6e3a1495a60ff53c23b2128824df071"
+      },
+      {
+        "name": "feature_pySU2",
+        "sha": "85338fe806f87a175d2888fcb80a04c550a61de5"
+      },
+      {
+        "name": "feature_pyopt",
+        "sha": "275652307623040b0886a60ab91378825a689d57"
+      },
+      {
+        "name": "feature_pysu2_fsi_adjoint",
+        "sha": "dccb3391dc43b6fd616e080f2b66ed064e5fa511"
+      },
+      {
+        "name": "feature_python_FSI",
+        "sha": "45349e0fca0b24312d500e6380eeba3c27dc5986"
+      },
+      {
+        "name": "feature_pytorch_communicator",
+        "sha": "1aa1ccd653be29d2de88e272f36e8897e202acd7"
+      },
+      {
+        "name": "feature_pytorch",
+        "sha": "4909a53f1c9a44a03fdc1e655a7c4e1e9b4a2426"
+      },
+      {
+        "name": "feature_pywrapper_steady",
+        "sha": "e371749927555cb656f9741866d1bcc878f0e24a"
+      },
+      {
+        "name": "feature_qn_interface",
+        "sha": "cf5236272b8eb7cdece1348209ff6f55ea753a21"
+      },
+      {
+        "name": "feature_rad_wall",
+        "sha": "1d85f406f418044a6c0d48fd4b16170ee52efc69"
+      },
+      {
+        "name": "feature_rad",
+        "sha": "42d157143f6d11fc7393c17fd4b6bb8ade30ce6b"
+      },
+      {
+        "name": "feature_rampFreestreamVel",
+        "sha": "1999d069b5805612ef60722e970913a778231dd9"
+      },
+      {
+        "name": "feature_reg",
+        "sha": "efadf210cb18868bc9c27c544094817bde3f0b6a"
+      },
+      {
+        "name": "feature_rename",
+        "sha": "b352df54b52d2cc155d99e1be6a2cda90d6123db"
+      },
+      {
+        "name": "feature_restructuring_sliding_meshes",
+        "sha": "100ce41faa37de419957032f4982d66e89066fd9"
+      },
+      {
+        "name": "feature_sa_e_uq",
+        "sha": "5bf407a8e104dcc8cecad60bcac2d1105172473d"
+      },
+      {
+        "name": "feature_scalar",
+        "sha": "dde606372115b5fc613ed6b3148882beddd0d49e"
+      },
+      {
+        "name": "feature_simd_numerics_instrument_AD",
+        "sha": "06e2d6c2535463a3825c0f058bda6faa35c82926"
+      },
+      {
+        "name": "feature_solid-solid_cht",
+        "sha": "b78e15cb8d66a32ba1fd093fa34344816c947d2d"
+      },
+      {
+        "name": "feature_species_transport",
+        "sha": "8dfad23afcf88c952f6bb3a91b815f4bfcb5f133"
+      },
+      {
+        "name": "feature_spu_offload",
+        "sha": "3054c9264bb6cdfb4ca875eccc8eb17eaa4dca10"
+      },
+      {
+        "name": "feature_sst_tmr_alignment",
+        "sha": "d8079252803090619b5b7bbb630c2ab5448ae91b"
+      },
+      {
+        "name": "feature_submodules",
+        "sha": "6177d76bc691820c546c5bcc89c4b830c37eda97"
+      },
+      {
+        "name": "feature_sym_plane",
+        "sha": "7e91fb08188423923dd3f611bb5f6d7d0eba0e68"
+      },
+      {
+        "name": "feature_symtest",
+        "sha": "2b95b3f89c8fbcd03be5dbed034da452c6c3ded0"
+      },
+      {
+        "name": "feature_tHB_AD",
+        "sha": "35f9aef4dabff8365bd23210c7420cef11a2c9de"
+      },
+      {
+        "name": "feature_tag_debug_tape",
+        "sha": "1169606b5c4967804fd1ce5c053fd273ed2a11e7"
+      },
+      {
+        "name": "feature_template_linear_solver",
+        "sha": "7a460b71a540d1605ed0ee6240989910f0b6a898"
+      },
+      {
+        "name": "feature_testcase_fuel",
+        "sha": "3e3c8a77bcbf22843fff301fe78c4e4b0c04d935"
+      },
+      {
+        "name": "feature_thermally_perfect_mpp",
+        "sha": "9681920c1258a57c5b66694c4258904afba6b899"
+      },
+      {
+        "name": "feature_thickness_constraint",
+        "sha": "4ded0da90b96a6e536f6d972b45c9b0d5957b505"
+      },
+      {
+        "name": "feature_transpiration",
+        "sha": "16999f6014f1339b4e174303205f4585e1377a24"
+      },
+      {
+        "name": "feature_turb_calibration",
+        "sha": "e512f76b38a2a8e7bc849bdc02089a60be261864"
+      },
+      {
+        "name": "feature_turbo_aeroelastic_AD",
+        "sha": "b80e4ce0e4fd05afa136af0990a17dd619cdce42"
+      },
+      {
+        "name": "feature_turbo_aeroelastic",
+        "sha": "7f5be7b640cffcca10d7252bee85df8dbd0ae2bb"
+      },
+      {
+        "name": "feature_turbo_bodyforce",
+        "sha": "67b408d343d756c81bc2583de798d0af9b02aaa6"
+      },
+      {
+        "name": "feature_turbo_ffd",
+        "sha": "2d0fb2cd5d0ca29f249e5f5e06b171ed30178fd8"
+      },
+      {
+        "name": "feature_turbo",
+        "sha": "192d0c3de0b03f96ab4f2d6b04bf369b7de0bd97"
+      },
+      {
+        "name": "feature_turbo2phase",
+        "sha": "9b2971dd241af8062a7fdf1b493b203f99556583"
+      },
+      {
+        "name": "feature_turboSM",
+        "sha": "44a6f3b013ba3db3e9bda36089d88d0cfcc662d0"
+      },
+      {
+        "name": "feature_turbomachinery_main",
+        "sha": "3f9402f499dfba9b5a7f633fda1e452e48722e40"
+      },
+      {
+        "name": "feature_turbomachinery_multigrid",
+        "sha": "93167bf2df9956bc949bb2104a7b2ca86465038e"
+      },
+      {
+        "name": "feature_turbomachinery_restruct_singlezone",
+        "sha": "a151f7d3da7cb80c16ea5d5b336f12964f4d6f48"
+      },
+      {
+        "name": "feature_turbomachinery",
+        "sha": "3b22ede0d42b247252abe1bdb8be96a2f140b2e7"
+      },
+      {
+        "name": "feature_turbomanchinery_output",
+        "sha": "1ae55f8e6d00f55a9f61d75b5e87adae1c74e434"
+      },
+      {
+        "name": "feature_unst_lut",
+        "sha": "5dd9b9ee30d661fa308165ae0b0aca3ab70a4987"
+      },
+      {
+        "name": "feature_unsteady_multizone_adjoint",
+        "sha": "4ebec9a58ea4efa717d13e4e417638b5190a39be"
+      },
+      {
+        "name": "feature_update_custom_anirban1",
+        "sha": "3123aee5184874ca49eb3b6c73afdb2130ddc9e2"
+      },
+      {
+        "name": "feature_update_custom_source",
+        "sha": "2b3a3702c4a5379fcf9dbc371aee29c4084a76b3"
+      },
+      {
+        "name": "feature_update",
+        "sha": "5d71ae25ed91f8f66c05556c16a20471a332494a"
+      },
+      {
+        "name": "feature_van_albada",
+        "sha": "5db56f9edc264a8fb879043cf568c9479730aa8c"
+      },
+      {
+        "name": "feature_vance_correction",
+        "sha": "56470fe36739f76021a52d6f0390cbfe9f828d69"
+      },
+      {
+        "name": "feature_vinokur_approach",
+        "sha": "54632bd78dcf5c7f99a0124635ffb6f355a89e50"
+      },
+      {
+        "name": "feature_vortex_correction",
+        "sha": "ac8533cfcb03d69ee1d3e49a6088036a128ce77e"
+      },
+      {
+        "name": "feature_wmles_update",
+        "sha": "b80e4ce0e4fd05afa136af0990a17dd619cdce42"
+      },
+      {
+        "name": "feature_2ndOrderMixedGrids_V8",
+        "sha": "66ed495f6e07530ab258f59d20f3f14e9e6c53b6"
+      },
+      {
+        "name": "feature_2ndOrderMixedGrids",
+        "sha": "f2a9f8857429e4bb0f167b2d4aa1366ab3b50ad7"
+      },
+      {
+        "name": "feature_2ndordermixedgrids_clean",
+        "sha": "809d39a5d39040566d904ca072ddc74e8fa32406"
+      },
+      {
+        "name": "feature_2phase",
+        "sha": "6597ca19b6e4fcf3d3b8aefee726178cd4126533"
+      },
+      {
+        "name": "fix_NNInterp",
+        "sha": "0ccac2af57886666f7978325853539b6b09f29ff"
+      },
+      {
+        "name": "fix_ad_extra_vars",
+        "sha": "1084b64b3724e9cd67190f08f89723b6be5964ea"
+      },
+      {
+        "name": "fix_addGlobalElementIndex",
+        "sha": "45e5ab7d54943fdf63dcf03685cbfa9b9d62b516"
+      },
+      {
+        "name": "fix_bcgstab",
+        "sha": "eaed58fb9c8c98893dbe4386299b7a7b895345ff"
+      },
+      {
+        "name": "fix_branch",
+        "sha": "f27b33560864033a30608b6a56e3576cb32a041d"
+      },
+      {
+        "name": "fix_bug_Solution_time_n",
+        "sha": "2db548e54e1b849df8128c0899f739b180f7cc78"
+      },
+      {
+        "name": "fix_cauchCrit",
+        "sha": "7269e8a35249a83dd5c11814d1c07ec499344bf8"
+      },
+      {
+        "name": "fix_compact_restarts",
+        "sha": "8e007d2700715718cd3e956c312f536f7345ab83"
+      },
+      {
+        "name": "fix_density_inc_unsteady",
+        "sha": "100884c6193c837105f5b297789f10dab6fb906f"
+      },
+      {
+        "name": "fix_discadjfsi",
+        "sha": "654ba3dfc207e25c31da9c09860224ad4044a610"
+      },
+      {
+        "name": "fix_hf_nondim",
+        "sha": "05ada57b307ef00a9c2a93fa96c1fed39cee5e48"
+      },
+      {
+        "name": "fix_hllc_moving_grids",
+        "sha": "a59d8275319156dd3a580c2c7d36783f62c49269"
+      },
+      {
+        "name": "fix_inlet_file_shape_opt",
+        "sha": "921e85b9d7d9c152c131874a84f3534caf5705c2"
+      },
+      {
+        "name": "fix_limiters",
+        "sha": "43d0afdd2d2942b30167d84eaccabfe1ec7bd227"
+      },
+      {
+        "name": "fix_meanflow_small",
+        "sha": "c333a18ebd6c26c584e24088fedfe9b1c9364af5"
+      },
+      {
+        "name": "fix_mixture_fraction_LUT",
+        "sha": "e0aee8269c2f1e94da2af2b0bd035a6f4c0a8cc4"
+      },
+      {
+        "name": "fix_multigrid_agglomeration",
+        "sha": "7abb8fc7f2417183e71cebe6c5e4da572779bb90"
+      },
+      {
+        "name": "fix_multigrid",
+        "sha": "3d940405ce327b3bf45d535b242ee78a21276e19"
+      },
+      {
+        "name": "fix_pb_variable_density_fixes",
+        "sha": "8abd51a584b74cb3e857c1ad8f279cf24e3bc9ea"
+      },
+      {
+        "name": "fix_python_3.8",
+        "sha": "33b1276512bf57474e39904f0ffce66f2582b64a"
+      },
+      {
+        "name": "fix_reconstructboundary",
+        "sha": "aa92b1d37d62f35a7d8d681276fc4f801f8c0203"
+      },
+      {
+        "name": "fix_refactor_turbo_vertex",
+        "sha": "cde88927000681479e9edeabc5bf864b4e19d2fb"
+      },
+      {
+        "name": "fix_roe_3d_wave_strengths",
+        "sha": "a277f59157ab2142ca06a47e5e8a046f270a0da0"
+      },
+      {
+        "name": "fix_scalar_muscl",
+        "sha": "b2234a5e1e44d22a4dc045f71ecde5371766743a"
+      },
+      {
+        "name": "fix_slidingmesh_reconstructboundary_2",
+        "sha": "eb3305ee6013a0f5d5d8ae1e9f32868e40b9afb2"
+      },
+      {
+        "name": "fix_slidingmesh",
+        "sha": "3c9f9bbf056b4b2a839267212f2b5d0950f9059b"
+      },
+      {
+        "name": "fix_sst_k_consistency",
+        "sha": "37dcfedd0e07553af04066473fb386fb6af1516c"
+      },
+      {
+        "name": "fix_swp_massflow_gradval",
+        "sha": "abb5c9032cd78a8986dc1927cdb1988e559af77a"
+      },
+      {
+        "name": "fix_underrelaxation_factor",
+        "sha": "d875b761191b1d3193b163fbdcaa0851c851cf10"
+      },
+      {
+        "name": "fix_unsteady",
+        "sha": "c186293a3aa6942f7c4a5a6f33b3aeff77870ef5"
+      },
+      {
+        "name": "fix_updatedvalues_fluidmz",
+        "sha": "63722237ee3c0f52260db4d863b7be4d933de88b"
+      },
+      {
+        "name": "fix_yplus_calculation",
+        "sha": "8c4863ebe966bb975e408e7d72cd749f388cb2ad"
+      },
+      {
+        "name": "fix_2d_periodic_rotation",
+        "sha": "8f8d37d39142bff7f25db465b67122e898a3309d"
+      },
+      {
+        "name": "fix-cpp-inlet-with-periodic",
+        "sha": "b5b7d4bdd43d12ef8a12c66f5966b03b8480c850"
+      },
+      {
+        "name": "fixCC",
+        "sha": "3d5fba176a9096c5c2646f84a668a4bac4a695e9"
+      },
+      {
+        "name": "fixes_NEMO",
+        "sha": "45610bd45e905ac9f4911bb6113d68816f757e4f"
+      },
+      {
+        "name": "fluid-pro",
+        "sha": "1dd07e4b7dca6b7d0301e05810fc887aa55090aa"
+      },
+      {
+        "name": "ionization_viscous_NEMO",
+        "sha": "a5823d3ecd7ade906543b6e848fa317fd2a0ba80"
+      },
+      {
+        "name": "level_schedule",
+        "sha": "6497b6ffab6530a5f42f8ccccbf55e052a2afe67"
+      },
+      {
+        "name": "master",
+        "sha": "bc15466602a687d6fb796d5df7a12ce3fde0949a"
+      },
+      {
+        "name": "meanFlowFixes",
+        "sha": "09415a28dccc616c0e1c662b0c1518a96169d643"
+      },
+      {
+        "name": "metis_based_ilu_parallelization",
+        "sha": "6d167fc9dbf96bf6a7999df03e22c47161d1ca5e"
+      },
+      {
+        "name": "mg_smooth_testing",
+        "sha": "7fa05bac8fbdd36e69ac3d372f6f6e8030a785c2"
+      },
+      {
+        "name": "modules_draft",
+        "sha": "6215d315ae0908fe14f763cad29a099f08bf7816"
+      },
+      {
+        "name": "ori",
+        "sha": "8976499bd8b4ce9b53af4658e89411b891fd9aa7"
+      },
+      {
+        "name": "output_update",
+        "sha": "808832a9be8f1b800049624cef6f6e76340197d9"
+      },
+      {
+        "name": "outputDoublePrecision",
+        "sha": "bcec2eb3e4165d762648fa5ab6fb93de9c76a4b7"
+      },
+      {
+        "name": "paraviewParallelOutput",
+        "sha": "64da37eb42fbca05ab63958e7a69b244e350d669"
+      },
+      {
+        "name": "pedro/cache_misses",
+        "sha": "f4a48ffc7b83b43844724e456624f07ae914683e"
+      },
+      {
+        "name": "pedro/use_available_residual",
+        "sha": "5a78f21c8a069504e27b4af7192d677c5799f250"
+      },
+      {
+        "name": "refactor_SU2_GEO",
+        "sha": "d2b32eb4390a4123bb4521087295934bd50c185a"
+      },
+      {
+        "name": "revert-2152-feature_solid-solid_cht",
+        "sha": "0bab10f3232c47bedaeada4d36d7236ae37d26dd"
+      },
+      {
+        "name": "sc_develop",
+        "sha": "3ec8fd0ee9dcf20adff1549a827ccbaa234732ff"
+      },
+      {
+        "name": "shape_optimization_overhaul",
+        "sha": "798c2bc634ca5e45f99de60ad6b3e752ed358ef7"
+      },
+      {
+        "name": "tape_check_mode_with_turbo",
+        "sha": "fd90fdab4dd6ee719160c1279ecdce887d0fe48f"
+      },
+      {
+        "name": "temp_da",
+        "sha": "959f60a326a6f826e3e177fa3ab5a7d9f1cec50d"
+      },
+      {
+        "name": "test_euler_vorticity",
+        "sha": "9f287aee2777c0bb4f6409caee59ee88eaddd50f"
+      },
+      {
+        "name": "test_flamelet",
+        "sha": "506562c3d24ab9b8fa77a787f986d699ca68d77f"
+      },
+      {
+        "name": "test_nemo",
+        "sha": "0abec4abe3290b9cd95ad1a3611203cdca6b7c34"
+      },
+      {
+        "name": "testcase_axisymmetric_jet",
+        "sha": "dfb7ad458e34072927e1fcdfdc7c6c19852b529d"
+      },
+      {
+        "name": "testing_symmetry_plane",
+        "sha": "ef92a7a9f510784a897e7d3a7a05fa254ac8be38"
+      },
+      {
+        "name": "topopt",
+        "sha": "1b085062547ec5b066a28ddeeacf4907588f4f5a"
+      },
+      {
+        "name": "turbo_SU2v6.1.0",
+        "sha": "326b9025476b3fe7f1c13bea9184e2db249f40eb"
+      },
+      {
+        "name": "turbo_output_opt",
+        "sha": "db17d0692570ef61903846dc2649b69df4658418"
+      },
+      {
+        "name": "update_configtemplate",
+        "sha": "3cb1a55663aca986879919163e89719f1c8202e5"
+      },
+      {
+        "name": "update_wallfunctions",
+        "sha": "a152cc5a5c4e480b07f8371e793898501f2ed893"
+      },
+      {
+        "name": "various_fixes_IV",
+        "sha": "7ab60870ce9be4c2a2f14a510f00fcb0eae2e2ed"
+      },
+      {
+        "name": "ventilator_dev",
+        "sha": "0828019368825b735da74b507958997af273e789"
+      },
+      {
+        "name": "volume_outputs_in_custom_output",
+        "sha": "11deda7909479fce9fb09b0921b358fb3a51e758"
+      }
+    ]
+  },
+  "pull_requests": [
+    {
+      "number": 2942,
+      "title": "Fix the internal energy used by the under-relaxation factor",
+      "url": "https://github.com/su2code/SU2/pull/2942",
+      "state": "open",
+      "draft": false,
+      "merged": false,
+      "head_repo": "su2code/SU2",
+      "head_ref": "fix_underrelaxation_factor",
+      "head_sha": "d875b761191b1d3193b163fbdcaa0851c851cf10",
+      "merge_commit_sha": "6556ec550a347f5b86041d548501f4fc9d968a93",
+      "updated_at": "2026-10-05T12:28:58Z"
+    },
+    {
+      "number": 2943,
+      "title": "Fix the HLLC scheme on moving grids and its Jacobians",
+      "url": "https://github.com/su2code/SU2/pull/2943",
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "head_repo": "su2code/SU2",
+      "head_ref": "fix_hllc_moving_grids",
+      "head_sha": "a59d8275319156dd3a580c2c7d36783f62c49269",
+      "merge_commit_sha": "62c5766332c7af6b2a8bc7a5e6ffce1c5050c16b",
+      "updated_at": "2026-09-30T12:41:30Z"
+    },
+    {
+      "number": 2944,
+      "title": "Fix L2Roe, LMRoe and the general-gas Roe scheme in 3D",
+      "url": "https://github.com/su2code/SU2/pull/2944",
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "head_repo": "su2code/SU2",
+      "head_ref": "fix_roe_3d_wave_strengths",
+      "head_sha": "a277f59157ab2142ca06a47e5e8a046f270a0da0",
+      "merge_commit_sha": "b198fcda6b0fd70f395a114725cb2c171a51396c",
+      "updated_at": "2026-10-01T10:05:09Z"
+    },
+    {
+      "number": 2945,
+      "title": "Fix the incompressible moving-grid Jacobian and several smaller mean-flow bugs",
+      "url": "https://github.com/su2code/SU2/pull/2945",
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "head_repo": "su2code/SU2",
+      "head_ref": "fix_meanflow_small",
+      "head_sha": "c333a18ebd6c26c584e24088fedfe9b1c9364af5",
+      "merge_commit_sha": "1656c88feb025420d0c378b5869d78c21fc19910",
+      "updated_at": "2026-09-30T12:41:34Z"
+    },
+    {
+      "number": 2946,
+      "title": "Use the SST k consistently in the compressible flow solver (fixes #1851)",
+      "url": "https://github.com/su2code/SU2/pull/2946",
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "head_repo": "su2code/SU2",
+      "head_ref": "fix_sst_k_consistency",
+      "head_sha": "37dcfedd0e07553af04066473fb386fb6af1516c",
+      "merge_commit_sha": "cff644a7e255019b4d4b330bc41d16ab3a03cc88",
+      "updated_at": "2026-09-30T13:21:34Z"
+    },
+    {
+      "number": 2948,
+      "title": "Align the SST model with the NASA TMR definitions",
+      "url": "https://github.com/su2code/SU2/pull/2948",
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "head_repo": "su2code/SU2",
+      "head_ref": "feature_sst_tmr_alignment",
+      "head_sha": "d8079252803090619b5b7bbb630c2ab5448ae91b",
+      "merge_commit_sha": "8cae5874b0504bc8f7222ee478be2061d6283051",
+      "updated_at": "2026-09-30T16:19:24Z"
+    },
+    {
+      "number": 2956,
+      "title": "Fix the second-order convection of turbulence and species",
+      "url": "https://github.com/su2code/SU2/pull/2956",
+      "state": "open",
+      "draft": false,
+      "merged": false,
+      "head_repo": "su2code/SU2",
+      "head_ref": "fix_scalar_muscl",
+      "head_sha": "b2234a5e1e44d22a4dc045f71ecde5371766743a",
+      "merge_commit_sha": "fde7b4baf4885f016d6cfc53fb6af847f63d182d",
+      "updated_at": "2026-10-03T05:25:58Z"
+    },
+    {
+      "number": 2957,
+      "title": "Fix the divergence of the SA wall functions",
+      "url": "https://github.com/su2code/SU2/pull/2957",
+      "state": "closed",
+      "draft": false,
+      "merged": true,
+      "head_repo": "su2code/SU2",
+      "head_ref": "fix_sa_wall_function",
+      "head_sha": "7b746959eb7a7265af83292a2670ad12c53229d8",
+      "merge_commit_sha": "e28f35a11041bb8f7d3b2eb95a5dcaa2087fe19d",
+      "updated_at": "2026-10-08T07:55:33Z"
+    },
+    {
+      "number": 2959,
+      "title": "Fixes for the slope limiters of the flow",
+      "url": "https://github.com/su2code/SU2/pull/2959",
+      "state": "open",
+      "draft": false,
+      "merged": false,
+      "head_repo": "su2code/SU2",
+      "head_ref": "fix_limiters",
+      "head_sha": "43d0afdd2d2942b30167d84eaccabfe1ec7bd227",
+      "merge_commit_sha": "7d494744649c65b6471b1a2f9a49b363870bd204",
+      "updated_at": "2026-10-05T12:32:37Z"
+    },
+    {
+      "number": 2961,
+      "title": "Fixes for rotational periodic boundaries: implicit solver, multigrid and limiters",
+      "url": "https://github.com/su2code/SU2/pull/2961",
+      "state": "open",
+      "draft": false,
+      "merged": false,
+      "head_repo": "rois1995/SU2",
+      "head_ref": "fix_periodic_rotation",
+      "head_sha": "9de9fd0b8298cc17a6e0fe4df8c2a4f74f8a3159",
+      "merge_commit_sha": "acb03864c191a4c4e696afd6448c3e543c521453",
+      "updated_at": "2026-10-08T16:53:08Z"
+    },
+    {
+      "number": 2967,
+      "title": "Add a fully coupled periodic implicit operator",
+      "url": "https://github.com/su2code/SU2/pull/2967",
+      "state": "closed",
+      "draft": true,
+      "merged": false,
+      "head_repo": "rois1995/SU2",
+      "head_ref": "fix_periodic_implicit",
+      "head_sha": "4db1d1c3f6babb639f3e66b51f8d259c4b5aaf60",
+      "merge_commit_sha": "cc3c536e3ca2dac4b2e34e45f7e46adb74da2b2d",
+      "updated_at": "2026-10-07T16:45:06Z"
+    },
+    {
+      "number": 2931,
+      "title": "Multigrid linear prolongation with tigher full multigrid turbulence integration",
+      "url": "https://github.com/su2code/SU2/pull/2931",
+      "state": "open",
+      "draft": false,
+      "merged": false,
+      "head_repo": "su2code/SU2",
+      "head_ref": "feature_mg_linear_prolong",
+      "head_sha": "537b3c722d1a095179ed700b749b753f32b94f1e",
+      "merge_commit_sha": "2c2fbd7e1f2d2719a86cfffd1aff24b991d591dc",
+      "updated_at": "2026-10-04T08:04:24Z"
+    },
+    {
+      "number": 2873,
+      "title": "Full Multi-Grid improvements",
+      "url": "https://github.com/su2code/SU2/pull/2873",
+      "state": "closed",
+      "draft": false,
+      "merged": true,
+      "head_repo": "su2code/SU2",
+      "head_ref": "feature_fmg",
+      "head_sha": "ea0623dbdf99106dbd25a572c511328e53b74529",
+      "merge_commit_sha": "0b697492c86ce9b8f46e8a4106dd3c007f991267",
+      "updated_at": "2026-08-26T19:34:54Z"
+    },
+    {
+      "number": 2863,
+      "title": "Multigrid with 3D implicit line agglomeration",
+      "url": "https://github.com/su2code/SU2/pull/2863",
+      "state": "closed",
+      "draft": false,
+      "merged": true,
+      "head_repo": "su2code/SU2",
+      "head_ref": "feature_fullmg",
+      "head_sha": "407cac6b9b9057b1132df16fc2da10a763cd4ec7",
+      "merge_commit_sha": "edbda6eb54bc34f3ddb103eac2f081b4e721df84",
+      "updated_at": "2026-09-23T18:59:08Z"
+    },
+    {
+      "number": 2566,
+      "title": "Add nested preconditioner: FGMRES with BiCGSTAB",
+      "url": "https://github.com/su2code/SU2/pull/2566",
+      "state": "closed",
+      "draft": false,
+      "merged": true,
+      "head_repo": "eorbay-metu/SU2",
+      "head_ref": "feature_precond_linsol",
+      "head_sha": "541f5ddf75404728e98d444f95ffb090491a1d2b",
+      "merge_commit_sha": "848b0978844afed5aecbefb95fea58f6eef18757",
+      "updated_at": "2026-10-03T20:51:01Z"
+    },
+    {
+      "number": 2728,
+      "title": "Fixing relaxation factor for conserved turbulent variables in SST model",
+      "url": "https://github.com/su2code/SU2/pull/2728",
+      "state": "closed",
+      "draft": false,
+      "merged": true,
+      "head_repo": "C-Perron/SU2",
+      "head_ref": "fix-turb-relaxation",
+      "head_sha": "1890f235b8e915782076cbf55d4e414114c51425",
+      "merge_commit_sha": "3e895c8c0ad45584409f447713ab2735954ee206",
+      "updated_at": "2026-02-14T23:42:21Z"
+    },
+    {
+      "number": 2458,
+      "title": "Correct inconsistency regarding the density used in conservative scalar solver",
+      "url": "https://github.com/su2code/SU2/pull/2458",
+      "state": "closed",
+      "draft": false,
+      "merged": true,
+      "head_repo": "emaberman/SU2",
+      "head_ref": "fix_sst_advance",
+      "head_sha": "a4a527089286a7bbe430e8c0ab39dd7c4a358731",
+      "merge_commit_sha": "510f2afa93282eaa566487588731b538575373e7",
+      "updated_at": "2025-03-25T20:37:35Z"
+    },
+    {
+      "number": 2533,
+      "title": "Updating the Cross-Diffusion Term Discretisation in k-w SST Model",
+      "url": "https://github.com/su2code/SU2/pull/2533",
+      "state": "closed",
+      "draft": false,
+      "merged": true,
+      "head_repo": "su2code/SU2",
+      "head_ref": "feature_SST_CD_discretisation",
+      "head_sha": "4cb2cb517efb6a2fd18ec062038a2a4c80d62168",
+      "merge_commit_sha": "0b6e0ad10d5c874ac61b09254e2b583089a4ff32",
+      "updated_at": "2025-07-29T20:15:47Z"
+    },
+    {
+      "number": 2878,
+      "title": "Modernize scalar numerics",
+      "url": "https://github.com/su2code/SU2/pull/2878",
+      "state": "closed",
+      "draft": false,
+      "merged": true,
+      "head_repo": "su2code/SU2",
+      "head_ref": "pedro/vectorize_scalars",
+      "head_sha": "68e15ddd7cf5aa09ecb2bdb279b4fc1e586d5868",
+      "merge_commit_sha": "c6aa31cd0103eada32c786d6220697bc654c3a3b",
+      "updated_at": "2026-09-18T04:04:22Z"
+    },
+    {
+      "number": 2899,
+      "title": "Fix LINELET with mpi, add regression case for laminar NACA0012",
+      "url": "https://github.com/su2code/SU2/pull/2899",
+      "state": "open",
+      "draft": false,
+      "merged": false,
+      "head_repo": "Syphonicc/SU2",
+      "head_ref": "linelet-regression-test",
+      "head_sha": "ef2282942a242b918d1c6f2af58000ddea5d08a6",
+      "merge_commit_sha": "73a2086e10dbad7477e909c4a0f384587147fc7b",
+      "updated_at": "2026-10-03T04:15:21Z"
+    }
+  ],
+  "source_patches": {
+    "multigrid": [
+      {
+        "filename": "SU2_CFD/src/integration/CMultiGridIntegration.cpp",
+        "patch": "@@ -28,6 +28,7 @@\n #include \"../../include/integration/CMultiGridIntegration.hpp\"\n #include \"../../../Common/include/parallelization/omp_structure.hpp\"\n #include \"../../../Common/include/toolboxes/printing_toolbox.hpp\"\n+#include \"../../../Common/include/toolboxes/geometry_toolbox.hpp\"\n #include <algorithm>\n \n \n@@ -50,6 +51,53 @@ static su2double applyGlobalTrend(su2double factor, passivedouble crossCycleRati\n   return max(su2double{CLAMP_MIN}, min(su2double{CLAMP_MAX}, factor));\n }\n \n+/*!\\cond PRIVATE\n+ *  Inverts the symmetric least-squares matrix. False means the stencil is too degenerate\n+ *  to define a gradient.\n+ \\endcond */\n+static bool invertLeastSquaresMatrix(unsigned short nDim, const su2double A[3][3], su2double inv[3][3]) {\n+\n+  /*--- Compare against the trace so the test does not depend on the mesh units. ---*/\n+\n+  su2double trace = 0.0;\n+  for (auto iDim = 0u; iDim < nDim; iDim++) trace += A[iDim][iDim];\n+  if (trace <= 0.0) return false;\n+\n+  const su2double scale = trace / su2double(nDim);\n+\n+  /*--- det/scale^nDim is the conditioning of the fit. At 1e-8 the inverse still carries about\n+   *    nine digits; below it the gradient is noise and the control volume stays constant. ---*/\n+  constexpr passivedouble REL_TOL = 1e-8;\n+\n+  if (nDim == 2) {\n+    const su2double det = A[0][0]*A[1][1] - A[0][1]*A[0][1];\n+    if (det <= REL_TOL * scale * scale) return false;\n+\n+    inv[0][0] =  A[1][1]/det;\n+    inv[0][1] = -A[0][1]/det;\n+    inv[1][0] = inv[0][1];\n+    inv[1][1] =  A[0][0]/det;\n+    return true;\n+  }\n+\n+  const su2double a = A[0][0], b = A[0][1], c = A[0][2];\n+  const su2double d = A[1][1], e = A[1][2], f = A[2][2];\n+\n+  const su2double det = a*(d*f - e*e) - b*(b*f - e*c) + c*(b*e - d*c);\n+  if (det <= REL_TOL * scale * scale * scale) return false;\n+\n+  inv[0][0] = (d*f - e*e)/det;\n+  inv[0][1] = (c*e - b*f)/det;\n+  inv[0][2] = (b*e - c*d)/det;\n+  inv[1][1] = (a*f - c*c)/det;\n+  inv[1][2] = (b*c - a*e)/det;\n+  inv[2][2] = (a*d - b*b)/det;\n+  inv[1][0] = inv[0][1];\n+  inv[2][0] = inv[0][2];\n+  inv[2][1] = inv[1][2];\n+  return true;\n+}\n+\n inline passivedouble ComputeLinSysResRMS(const CSolver* solver) {\n   passivedouble result = 0;\n   for (unsigned short iVar = 0; iVar < solver->GetnVar(); ++iVar) {\n@@ -72,7 +120,9 @@ void CMultiGridIntegration::adaptDampingFactors(CConfig* config, passivedouble c\n     applyGlobalTrend(config->GetDamp_Correc_Prolong(), crossCycleRatio));\n }\n \n-CMultiGridIntegration::CMultiGridIntegration() : CIntegration() { }\n+CMultiGridIntegration::CMultiGridIntegration() : CIntegration() {\n+  prolongGradient.resize(MAX_MG_LEVELS + 1);\n+}\n \n void CMultiGridIntegration::MonitorFullMG_Startup(const vector<pair<string, passivedouble> >& convFields,\n                                                  const CConfig *config) {\n@@ -101,14 +151,15 @@ void CMultiGridIntegration::MonitorFullMG_Startup(const vector<pair<string, pass\n       mg_startup_promote_reason = MGStartupPromote::CONVERGENCE;\n   }\n \n-  /*--- Ratio of successive residuals, so a difference in log10. One slow iteration\n-   *    is not stagnation, and a field still coming down means the level is not stalled. ---*/\n+  /*--- Ratio of successive residuals, so a difference in log10. One slow iteration is not\n+   *    stagnation, and a field still coming down or growing means the level is not stalled. ---*/\n \n   const passivedouble stall_tol = SU2_TYPE::GetValue(mgOpts.MG_Startup_Stagnation);\n   if (stall_tol > 0.0 && !mg_startup_conv_prev.empty()) {\n+    const passivedouble band = fabs(log10(stall_tol));\n     bool stalled = true;\n     for (auto iField = 0ul; iField < nFields; iField++)\n-      stalled = stalled && (convFields[iField].second - mg_startup_conv_prev[iField] >= log10(stall_tol));\n+      stalled = stalled && (fabs(convFields[iField].second - mg_startup_conv_prev[iField]) <= band);\n \n     if (stalled)\n       mg_startup_stall_count++;\n@@ -451,6 +502,15 @@ void CMultiGridIntegration::MultiGrid_Iteration(CGeometry ****geometry,\n         geometry[iZone][iInst][FinestMesh], config[iZone], true);\n   }\n \n+  /*--- The scalar solvers run on the active startup level and need its vorticity and strain rate. ---*/\n+\n+  if (fmg_warmup) {\n+    solver_container[iZone][iInst][FinestMesh][Solver_Position]->Preprocessing(geometry[iZone][iInst][FinestMesh],\n+                                                                               solver_container[iZone][iInst][FinestMesh],\n+                                                                               config[iZone], FinestMesh, NO_RK_ITER,\n+                                                                               RunTime_EqSystem, true);\n+  }\n+\n   /*--- Computes primitive variables and gradients in the finest mesh (useful for the next solver (turbulence) and output ---*/\n \n   solver_container[iZone][iInst][MESH_0][Solver_Position]->Preprocessing(geometry[iZone][iInst][MESH_0],\n@@ -670,7 +730,8 @@ void CMultiGridIntegration::MultiGrid_Cycle(CGeometry ****geometry,\n     /*--- Compute prolongated solution, and smooth the correction $u^(new)_k = u_k +\n           Smooth(I^k_(k+1)(u_(k+1)-I^(k+1)_k u_k))$ ---*/\n \n-    GetProlongated_Correction(RunTime_EqSystem, solver_fine, solver_coarse, geometry_fine, geometry_coarse, config);\n+    GetProlongated_Correction(RunTime_EqSystem, solver_fine, solver_coarse, geometry_fine, geometry_coarse, config,\n+                              iMesh+1);\n \n     const auto& mgOpts = config->GetMGOptions();\n     SmoothProlongated_Correction(RunTime_EqSystem, solver_fine, geometry_fine, mgOpts.MG_CorrecSmooth[iMesh], mgOpts.MG_Smooth_Coeff, config, iMesh);\n@@ -873,7 +934,8 @@ void CMultiGridIntegration::PostSmoothing(unsigned short RunTime_EqSystem,\n \n \n void CMultiGridIntegration::GetProlongated_Correction(unsigned short RunTime_EqSystem, CSolver *sol_fine, CSolver *sol_coarse,\n-                                                      CGeometry *geo_fine, CGeometry *geo_coarse, CConfig *config) {\n+                                                      CGeometry *geo_fine, CGeometry *geo_coarse, CConfig *config,\n+                                                      unsigned short iMesh) {\n   SU2_ZONE_SCOPED\n \n   const unsigned short nVar = sol_coarse->GetnVar();\n@@ -941,13 +1003,203 @@ void CMultiGridIntegration::GetProlongated_Correction(unsigned short RunTime_EqS\n   /*--- Interpolate the coarse-grid correction onto the fine\n    *    grid and store in LinSysRes. ---*/\n \n-  /*--- Halos too: the correction smoother reads them before its first exchange. ---*/\n-  SU2_OMP_FOR_STAT(roundUpDiv(geo_coarse->GetnPoint(), omp_get_num_threads()))\n-  for (auto Point_Coarse = 0ul; Point_Coarse < geo_coarse->GetnPoint(); Point_Coarse++) {\n+  if (!config->GetMGOptions().MG_Linear_Prolongation) {\n+\n+    /*--- Halos too: the correction smoother reads them before its first exchange. ---*/\n+    SU2_OMP_FOR_STAT(roundUpDiv(geo_coarse->GetnPoint(), omp_get_num_threads()))\n+    for (auto Point_Coarse = 0ul; Point_Coarse < geo_coarse->GetnPoint(); Point_Coarse++) {\n+      const auto* Correction = sol_coarse->GetNodes()->GetSolution_Old(Point_Coarse);\n+      for (auto iChildren = 0u; iChildren < geo_coarse->nodes->GetnChildren_CV(Point_Coarse); iChildren++) {\n+        const auto Point_Fine = geo_coarse->nodes->GetChildren_CV(Point_Coarse, iChildren);\n+        sol_fine->LinSysRes.SetBlock(Point_Fine, Correction);\n+      }\n+    }\n+    END_SU2_OMP_FOR\n+\n+    return;\n+  }\n+\n+  /*--- The coarse coordinate is the volume-weighted centroid of the children, so the\n+   *    reconstruction below averages back to the coarse correction exactly. ---*/\n+\n+  ComputeProlongationGradient(sol_coarse, geo_coarse, geo_fine, config, iMesh);\n+\n+  const unsigned short nDim = geo_coarse->GetnDim();\n+  const auto& gradient = prolongGradient[iMesh];\n+\n+  /*--- A halo agglomerate holds a partial child list, so only owners write, and the\n+   *    exchange below fills the fine halos the correction smoother reads. ---*/\n+\n+  SU2_OMP_FOR_STAT(roundUpDiv(geo_coarse->GetnPointDomain(), omp_get_num_threads()))\n+  for (auto Point_Coarse = 0ul; Point_Coarse < geo_coarse->GetnPointDomain(); Point_Coarse++) {\n+\n     const auto* Correction = sol_coarse->GetNodes()->GetSolution_Old(Point_Coarse);\n+    const auto* Coord_Coarse = geo_coarse->nodes->GetCoord(Point_Coarse);\n+\n     for (auto iChildren = 0u; iChildren < geo_coarse->nodes->GetnChildren_CV(Point_Coarse); iChildren++) {\n       const auto Point_Fine = geo_coarse->nodes->GetChildren_CV(Point_Coarse, iChildren);\n-      sol_fine->LinSysRes.SetBlock(Point_Fine, Correction);\n+\n+      su2double Distance[MAXNDIM] = {0.0};\n+      GeometryToolbox::Distance(nDim, geo_fine->nodes->GetCoord(Point_Fine), Coord_Coarse, Distance);\n+\n+      su2double Solution[MAXNVAR] = {0.0};\n+      for (auto iVar = 0u; iVar < nVar; iVar++) {\n+        Solution[iVar] = Correction[iVar];\n+        for (auto iDim = 0u; iDim < nDim; iDim++)\n+          Solution[iVar] += gradient(Point_Coarse, iVar, iDim) * Distance[iDim];\n+      }\n+      sol_fine->LinSysRes.SetBlock(Point_Fine, Solution);\n+    }\n+  }\n+  END_SU2_OMP_FOR\n+\n+  SU2_OMP_BARRIER\n+  CSysMatrixComms::Initiate(sol_fine->LinSysRes, geo_fine, config);\n+  CSysMatrixComms::Complete(sol_fine->LinSysRes, geo_fine, config);\n+\n+}\n+\n+void CMultiGridIntegration::ComputeProlongationGradient(CSolver *sol_coarse, CGeometry *geo_coarse,\n+                                                        CGeometry *geo_fine, const CConfig *config,\n+                                                        unsigned short iMesh) {\n+  SU2_ZONE_SCOPED\n+\n+  const unsigned short nVar = sol_coarse->GetnVar();\n+  const unsigned short nDim = geo_coarse->GetnDim();\n+  const auto nPointDomain = geo_coarse->GetnPointDomain();\n+  auto* nodes = sol_coarse->GetNodes();\n+\n+  /*--- Every thread of this rank takes this branch together, and the loops below would all be\n+   *    empty anyway. It also keeps the sizing test off a container that was never resized. ---*/\n+  if (nPointDomain == 0) return;\n+\n+  BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS\n+  {\n+    auto& grad = prolongGradient[iMesh];\n+    if ((grad.length() != nPointDomain) || (grad.rows() != nVar) || (grad.cols() != nDim))\n+      grad.resize(nPointDomain, nVar, nDim, 0.0);\n+  }\n+  END_SU2_OMP_SAFE_GLOBAL_ACCESS\n+\n+  auto& gradient = prolongGradient[iMesh];\n+\n+  /*--- Unweighted fit: inverse-distance weights would let the short wall-normal edges of a\n+   *    stretched agglomerate dominate it. ---*/\n+\n+  SU2_OMP_FOR_STAT(roundUpDiv(nPointDomain, omp_get_num_threads()))\n+  for (auto iPoint = 0ul; iPoint < nPointDomain; iPoint++) {\n+\n+    for (auto iVar = 0u; iVar < nVar; iVar++)\n+      for (auto iDim = 0u; iDim < nDim; iDim++) gradient(iPoint, iVar, iDim) = 0.0;\n+\n+    const auto* Coord_i = geo_coarse->nodes->GetCoord(iPoint);\n+    const auto* Correction_i = nodes->GetSolution_Old(iPoint);\n+\n+    su2double Amat[MAXNDIM][MAXNDIM] = {{0.0}};\n+    su2double rhs[MAXNVAR][MAXNDIM] = {{0.0}};\n+\n+    for (auto jPoint : geo_coarse->nodes->GetPoints(iPoint)) {\n+\n+      su2double Distance[MAXNDIM] = {0.0};\n+      GeometryToolbox::Distance(nDim, geo_coarse->nodes->GetCoord(jPoint), Coord_i, Distance);\n+\n+      for (auto iDim = 0u; iDim < nDim; iDim++)\n+        for (auto jDim = 0u; jDim < nDim; jDim++) Amat[iDim][jDim] += Distance[iDim]*Distance[jDim];\n+\n+      const auto* Correction_j = nodes->GetSolution_Old(jPoint);\n+\n+      for (auto iVar = 0u; iVar < nVar; iVar++) {\n+        const su2double delta = Correction_j[iVar] - Correction_i[iVar];\n+        for (auto iDim = 0u; iDim < nDim; iDim++) rhs[iVar][iDim] += Distance[iDim]*delta;\n+      }\n+    }\n+\n+    su2double Ainv[MAXNDIM][MAXNDIM] = {{0.0}};\n+    if (!invertLeastSquaresMatrix(nDim, Amat, Ainv)) continue;\n+\n+    for (auto iVar = 0u; iVar < nVar; iVar++)\n+      for (auto iDim = 0u; iDim < nDim; iDim++) {\n+        su2double value = 0.0;\n+        for (auto jDim = 0u; jDim < nDim; jDim++) value += Ainv[iDim][jDim]*rhs[iVar][jDim];\n+        gradient(iPoint, iVar, iDim) = value;\n+      }\n+  }\n+  END_SU2_OMP_FOR\n+\n+  /*--- The children of a wall agglomerate are all wall nodes, so their velocity correction is\n+   *    the constrained one the caller already imposed and only its gradient has to go. The\n+   *    remaining variables carry no wall condition and reconstruct along the surface. ---*/\n+\n+  const short iVel = nodes->GetVelocityIndex();\n+\n+  if (iVel >= 0) {\n+    for (auto iMarker = 0u; iMarker < config->GetnMarker_All(); iMarker++) {\n+\n+      const auto kindBC = config->GetMarker_All_KindBC(iMarker);\n+      if (!config->GetViscous_Wall(iMarker) && (kindBC != EULER_WALL) && (kindBC != SYMMETRY_PLANE)) continue;\n+\n+      SU2_OMP_FOR_STAT(32)\n+      for (auto iVertex = 0ul; iVertex < geo_coarse->nVertex[iMarker]; iVertex++) {\n+        const auto iPoint = geo_coarse->vertex[iMarker][iVertex]->GetNode();\n+        if (iPoint >= nPointDomain) continue;\n+        for (auto iVar = iVel; iVar < min<short>(iVel + nDim, nVar); iVar++)\n+          for (auto iDim = 0u; iDim < nDim; iDim++) gradient(iPoint, iVar, iDim) = 0.0;\n+      }\n+      END_SU2_OMP_FOR\n+    }\n+  }\n+\n+  /*--- Barth-Jespersen limiter over the children. One factor per variable scales the whole\n+   *    gradient, which is what keeps the children averaging back to the coarse value. ---*/\n+\n+  SU2_OMP_FOR_STAT(roundUpDiv(nPointDomain, omp_get_num_threads()))\n+  for (auto iPoint = 0ul; iPoint < nPointDomain; iPoint++) {\n+\n+    const auto* Coord_i = geo_coarse->nodes->GetCoord(iPoint);\n+    const auto* Correction_i = nodes->GetSolution_Old(iPoint);\n+\n+    su2double Correction_Min[MAXNVAR], Correction_Max[MAXNVAR];\n+    for (auto iVar = 0u; iVar < nVar; iVar++) {\n+      Correction_Min[iVar] = Correction_i[iVar];\n+      Correction_Max[iVar] = Correction_i[iVar];\n+    }\n+\n+    for (auto jPoint : geo_coarse->nodes->GetPoints(iPoint)) {\n+      const auto* Correction_j = nodes->GetSolution_Old(jPoint);\n+      for (auto iVar = 0u; iVar < nVar; iVar++) {\n+        Correction_Min[iVar] = min(Correction_Min[iVar], Correction_j[iVar]);\n+        Correction_Max[iVar] = max(Correction_Max[iVar], Correction_j[iVar]);\n+      }\n+    }\n+\n+    su2double limiter[MAXNVAR];\n+    for (auto iVar = 0u; iVar < nVar; iVar++) limiter[iVar] = 1.0;\n+\n+    for (auto iChildren = 0u; iChildren < geo_coarse->nodes->GetnChildren_CV(iPoint); iChildren++) {\n+\n+      const auto Point_Fine = geo_coarse->nodes->GetChildren_CV(iPoint, iChildren);\n+\n+      su2double Distance[MAXNDIM] = {0.0};\n+      GeometryToolbox::Distance(nDim, geo_fine->nodes->GetCoord(Point_Fine), Coord_i, Distance);\n+\n+      for (auto iVar = 0u; iVar < nVar; iVar++) {\n+\n+        su2double delta = 0.0;\n+        for (auto iDim = 0u; iDim < nDim; iDim++) delta += gradient(iPoint, iVar, iDim)*Distance[iDim];\n+\n+        /*--- Scaled with the correction so the cut-off tracks its magnitude. ---*/\n+        const su2double tol = EPS*max(fabs(Correction_Max[iVar]), fabs(Correction_Min[iVar])) + EPS*EPS;\n+\n+        if (delta > tol)\n+          limiter[iVar] = min(limiter[iVar], (Correction_Max[iVar] - Correction_i[iVar])/delta);\n+        else if (delta < -tol)\n+          limiter[iVar] = min(limiter[iVar], (Correction_Min[iVar] - Correction_i[iVar])/delta);\n+      }\n+    }\n+\n+    for (auto iVar = 0u; iVar < nVar; iVar++) {\n+      const su2double factor = max(su2double(0.0), min(su2double(1.0), limiter[iVar]));\n+      for (auto iDim = 0u; iDim < nDim; iDim++) gradient(iPoint, iVar, iDim) *= factor;\n     }\n   }\n   END_SU2_OMP_FOR"
+      }
+    ],
+    "under_relaxation": [
+      {
+        "filename": "SU2_CFD/src/solvers/CEulerSolver.cpp",
+        "patch": "@@ -2551,9 +2551,12 @@ void CEulerSolver::ComputeUnderRelaxationFactor(const CConfig* config) {\n     su2double ratio = fabs(LinSysSol(iPoint, 0)) / max(nodes->GetSolution(iPoint, 0), EPS);\n     su2double e_old = nodes->GetSolution(iPoint, nVar - 1);\n     su2double e_new = e_old + LinSysSol(iPoint, nVar - 1);\n+    /*--- rho*e = rho*E - |rho*u|^2 / (2*rho), with the old and the proposed new density. ---*/\n+    const su2double rho_old = max(nodes->GetSolution(iPoint, 0), EPS);\n+    const su2double rho_new = max(rho_old + LinSysSol(iPoint, 0), EPS);\n     for (unsigned short jVar = 1; jVar <= nDim; jVar++) {\n-      e_old -= 0.5 * pow(nodes->GetSolution(iPoint, jVar), 2);\n-      e_new -= 0.5 * pow(nodes->GetSolution(iPoint, jVar) + LinSysSol(iPoint, jVar), 2);\n+      e_old -= 0.5 * pow(nodes->GetSolution(iPoint, jVar), 2) / rho_old;\n+      e_new -= 0.5 * pow(nodes->GetSolution(iPoint, jVar) + LinSysSol(iPoint, jVar), 2) / rho_new;\n     }\n     ratio = fmax(ratio, fabs(e_new - e_old) / max(e_old, EPS));\n "
+      }
+    ],
+    "scalar_bounds": "https://github.com/su2code/SU2/pull/2956"
+  },
+  "author_reported_evidence": {
+    "scalar": [
+      {
+        "url": "https://github.com/su2code/SU2/pull/2956#issuecomment-5960636166",
+        "body": "### Test cases\n\nFiles (configurations, histories, plot script) for each case: [scalarMuscl](https://github.com/rois1995/SU2/tree/pr-images/scalarMuscl). Meshes are from the TestCases repository. 2 MPI ranks, \"develop\" = `a6b7496b74`.\n\n![MUSCL fixes](https://raw.githubusercontent.com/rois1995/SU2/pr-images/scalarMuscl/muscl_fixes.png)\n\n**1. Values outside the allowed range:** `rans/naca0012/turb_NACA0012_sst.cfg`, 10\u00b0, from the free stream, `MUSCL_TURB= YES`.\n\n| | iterations | CD |\n|---|---|---|\n| develop, first order | 447 | 0.015775 |\n| develop, MUSCL | 10000, not converged | 0.4717 |\n| this PR, MUSCL | 527 | 0.015743 |\n\n**2. Bounded scheme with density \u2260 1:** `incomp_rans/rough_flatplate/rough_flatplate_incomp.cfg` without roughness, `BOUNDED_SCALAR`, water density (998.2) with the viscosity scaled to keep the Reynolds number. It must match the run with density 1.\n\n| | converges | CD |\n|---|---|---|\n| develop, density 1 | yes | 0.0028593 |\n| develop, density 998.2 | no, stalls | 0.0030075 |\n| this PR, density 998.2 | yes | 0.0028593 |\n\n**3. Limiter lost after `LIMITER_ITER`:** `rans/naca0012/turb_NACA0012_sa.cfg`, restart, turbulence limiter `VENKATAKRISHNAN_WANG`, `LIMITER_ITER= 50`.\n\n| | CL |\n|---|---|\n| develop, no limiter | 1.0832985 |\n| develop, limiter never frozen | 1.0824923 |\n| develop, `LIMITER_ITER= 50` | 1.0832986, the same as no limiter |\n| this PR, `LIMITER_ITER= 50` | 1.0824915, the same as never frozen |\n\n**4. `VAN_ALBADA_EDGE` for turbulence:** `rans/flatplate/turb_SST_flatplate.cfg`, `MUSCL_TURB= YES`. Develop stops with \"Unknown limiter type\"; this PR converges (CD 0.0028093).\n\n**5. Flow `VAN_ALBADA_EDGE` on the turbulence velocity:** case 3 with `SLOPE_LIMITER_FLOW= VAN_ALBADA_EDGE`. CL 1.0876936 on develop, 1.0878103 with this PR.\n\n**6. Sliding interfaces:** `sliding_interface/bars_SST_2D` with `BOUNDED_SCALAR` and `KIND_INTERPOLATION= WEIGHTED_AVERAGE`. With this PR the bounded scheme follows `SCALAR_UPWIND`: rms[Rho] in zone 1 after 500 iterations is -4.399, against -4.397 for upwind and -4.207 before.\n\n**7. Reconstruction gradient without MUSCL:** case 4 with first-order turbulence and `NUM_METHOD_GRAD_RECON= LEAST_SQUARES`, 1 rank. The histories are identical; 0.238 s per iteration instead of 0.296 s.\n\n**New regression test** `turb_naca0012_sst_muscl_edge`: develop stops with \"Unknown limiter type\". The test values change if fix 3 or fix 5 is undone.\n"
+      }
+    ],
+    "limiters": [
+      {
+        "url": "https://github.com/su2code/SU2/pull/2959#issuecomment-5994513176",
+        "body": "### Test cases\n\nFiles (configurations, histories, limiter statistics) for each case: [limiters](https://github.com/rois1995/SU2/tree/pr-images/limiters). Meshes are from the TestCases repository. 2 MPI ranks, \"develop\" = `6db10127d1`.\n\n**1. `NISHIKAWA_R4`:** new test `ramp_r4` (`euler/ramp/inv_ramp_r4.cfg`, the `ramp` case with `NISHIKAWA_R4`, 10 iterations from the restart).\n\n| | rms[Rho] | CL | CD |\n|---|---|---|---|\n| develop | -2.179615 | -0.076739 | 0.054872 |\n| this PR | -2.786698 | -0.076172 | 0.054828 |\n\nThe new unit test `[Limiters]` checks that a limiter gives the same value for an overshoot and for the same undershoot. Develop fails 13 of 50 checks.\n\n**2. `WALL_DISTANCE` without a turbulence model:** `navierstokes/flatplate/lam_flatplate.cfg` with `SLOPE_LIMITER_FLOW= WALL_DISTANCE` and `ADJ_SHARP_LIMITER_COEFF= 0.02`, 50 iterations.\n\n| | points with limiter 0 | mean limiter |\n|---|---|---|\n| develop | 4225 of 4225 | 0 |\n| this PR | 45 (the wall points) | 0.69 |\n\nNew test `flatplate_wall_limiter` (the same case, 20 iterations): rms[Rho] -5.719472 on develop, -5.373432 with this PR.\n\n**3. Zero width:** `rans/flatplate/turb_SA_flatplate.cfg` with `SLOPE_LIMITER_FLOW= WALL_DISTANCE`, 20 iterations.\n\n| | points with limiter 0 |\n|---|---|\n| develop, `VENKAT_LIMITER_COEFF= 0.05` | 113 of 13289 (the wall points) |\n| develop, `VENKAT_LIMITER_COEFF= 0` | 13289 of 13289, the run ends normally |\n| this PR, `VENKAT_LIMITER_COEFF= 0` | stops with a configuration error |\n\n**4. NEMO limiter outputs:** `nonequilibrium/invwedge/invwedge_roe.cfg` (5 species, 2D) with the `LIMITER` volume output.\n\n| develop field | what it holds | name in this PR |\n|---|---|---|\n| `LIMITER_MOMENTUM-X` | limiter of the O2 density | `LIMITER_DENSITY_1` |\n| `LIMITER_MOMENTUM-Y` | limiter of the NO density | `LIMITER_DENSITY_2` |\n| `LIMITER_ENERGY` | limiter of the N density | `LIMITER_DENSITY_3` |\n\nThe new unit test `[NEMO][Output]` checks the names. Develop fails 25 of 26 checks.\n"
+      }
+    ]
+  },
+  "ci": {
+    "2931": {
+      "checked_head_sha": "537b3c722d1a095179ed700b749b753f32b94f1e",
+      "returned_checks": 38,
+      "failures": [
+        {
+          "name": "Regression Tests (serial_regression.py)",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111390950129"
+        },
+        {
+          "name": "Regression Tests (hybrid_regression.py)",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111390950115"
+        },
+        {
+          "name": "Regression Tests (parallel_regression_AD.py)",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111390950100"
+        },
+        {
+          "name": "Regression Tests (vandv.py)",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111390950095"
+        },
+        {
+          "name": "Regression Tests (serial_regression_AD.py)",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111390950089"
+        },
+        {
+          "name": "Regression Tests (parallel_regression.py)",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111390950084"
+        },
+        {
+          "name": "Regression Tests (hybrid_regression_AD.py)",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111390950077"
+        },
+        {
+          "name": "Regression Tests (tutorials.py)",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111390950061"
+        }
+      ],
+      "checks": [
+        {
+          "name": "Thread Sanitizer Tests (hybrid_regression_AD.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111392655287"
+        },
+        {
+          "name": "Thread Sanitizer Tests (hybrid_regression.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111392655276"
+        },
+        {
+          "name": "Address Sanitizer Tests (serial_regression_AD.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111391250310"
+        },
+        {
+          "name": "Address Sanitizer Tests (serial_regression.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111391250289"
+        },
+        {
+          "name": "Regression Tests (serial_regression.py)",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111390950129"
+        },
+        {
+          "name": "Regression Tests (hybrid_regression.py)",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111390950115"
+        },
+        {
+          "name": "Regression Tests (parallel_regression_AD.py)",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111390950100"
+        },
+        {
+          "name": "Regression Tests (vandv.py)",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111390950095"
+        },
+        {
+          "name": "Regression Tests (serial_regression_AD.py)",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111390950089"
+        },
+        {
+          "name": "Regression Tests (parallel_regression.py)",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111390950084"
+        },
+        {
+          "name": "Regression Tests (hybrid_regression_AD.py)",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111390950077"
+        },
+        {
+          "name": "Regression Tests (tutorials.py)",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111390950061"
+        },
+        {
+          "name": "Unit Tests (test_driver_DD)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111390950012"
+        },
+        {
+          "name": "Unit Tests (test_driver)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111390950005"
+        },
+        {
+          "name": "Unit Tests (test_driver_AD)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111390949967"
+        },
+        {
+          "name": "Tape Tests (serial_regression_AD.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111390949959"
+        },
+        {
+          "name": "CodeQL",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/runs/111388223365"
+        },
+        {
+          "name": "label",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186080145/job/111388147742"
+        },
+        {
+          "name": "WIP",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/runs/111388122647"
+        },
+        {
+          "name": "Build SU2 (ReverseMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111388057431"
+        },
+        {
+          "name": "Build SU2 (ReverseOMP)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111388057185"
+        },
+        {
+          "name": "Build SU2 (BaseNoMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111388057167"
+        },
+        {
+          "name": "Build SU2 (BaseOMP)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111388057153"
+        },
+        {
+          "name": "Build SU2 (ForwardNoMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111388057144"
+        },
+        {
+          "name": "Build SU2 (ReverseTagNoMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111388057128"
+        },
+        {
+          "name": "Build SU2 (ForwardOMP)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111388057112"
+        },
+        {
+          "name": "Build SU2 (ForwardMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111388057111"
+        },
+        {
+          "name": "Build SU2 (ReverseNoMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111388057101"
+        },
+        {
+          "name": "Build SU2 (BaseMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111388057085"
+        },
+        {
+          "name": "Build SU2 (tsan) (ReverseOMP-tsan)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111388056982"
+        },
+        {
+          "name": "Build SU2 (asan) (ReverseNoMPI-asan)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111388056973"
+        },
+        {
+          "name": "Build SU2 (asan) (BaseNoMPI-asan)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111388056952"
+        },
+        {
+          "name": "Build SU2 (tsan) (BaseOMP-tsan)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111388056950"
+        },
+        {
+          "name": "Compute shared flags",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111388035470"
+        },
+        {
+          "name": "Analyze (cpp)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043018/job/111388035135"
+        },
+        {
+          "name": "Analyze (python)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043018/job/111388034949"
+        },
+        {
+          "name": "formatting",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186042998/job/111388034885"
+        },
+        {
+          "name": "label",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37186043006/job/111388034813"
+        }
+      ]
+    },
+    "2942": {
+      "checked_head_sha": "d875b761191b1d3193b163fbdcaa0851c851cf10",
+      "returned_checks": 38,
+      "failures": [],
+      "checks": [
+        {
+          "name": "label",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37309834114/job/111762244728"
+        },
+        {
+          "name": "WIP",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/runs/109988620196"
+        },
+        {
+          "name": "Tape Tests (serial_regression_AD.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400713/job/109972838049"
+        },
+        {
+          "name": "Regression Tests (hybrid_regression.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400713/job/109972838000"
+        },
+        {
+          "name": "Regression Tests (hybrid_regression_AD.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400713/job/109972837950"
+        },
+        {
+          "name": "Regression Tests (serial_regression_AD.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400713/job/109972837796"
+        },
+        {
+          "name": "Regression Tests (tutorials.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400713/job/109972837791"
+        },
+        {
+          "name": "Regression Tests (parallel_regression.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400713/job/109972837636"
+        },
+        {
+          "name": "Regression Tests (vandv.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400713/job/109972837582"
+        },
+        {
+          "name": "Regression Tests (serial_regression.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400713/job/109972837570"
+        },
+        {
+          "name": "Regression Tests (parallel_regression_AD.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400713/job/109972837522"
+        },
+        {
+          "name": "Unit Tests (test_driver_AD)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400713/job/109972837421"
+        },
+        {
+          "name": "Unit Tests (test_driver_DD)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400713/job/109972837334"
+        },
+        {
+          "name": "Unit Tests (test_driver)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400713/job/109972837326"
+        },
+        {
+          "name": "Build SU2 (ReverseMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400713/job/109964230930"
+        },
+        {
+          "name": "Thread Sanitizer Tests (hybrid_regression_AD.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400713/job/109964230503"
+        },
+        {
+          "name": "Address Sanitizer Tests (serial_regression_AD.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400713/job/109964230196"
+        },
+        {
+          "name": "Build SU2 (ReverseNoMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400713/job/109964229789"
+        },
+        {
+          "name": "Build SU2 (tsan) (ReverseOMP-tsan)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400713/job/109964229775"
+        },
+        {
+          "name": "Build SU2 (ForwardOMP)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400713/job/109964229699"
+        },
+        {
+          "name": "Build SU2 (ForwardNoMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400713/job/109964229654"
+        },
+        {
+          "name": "Build SU2 (ReverseTagNoMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400713/job/109964229629"
+        },
+        {
+          "name": "Build SU2 (ReverseOMP)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400713/job/109964229518"
+        },
+        {
+          "name": "Build SU2 (asan) (ReverseNoMPI-asan)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400713/job/109964229504"
+        },
+        {
+          "name": "Build SU2 (tsan) (BaseOMP-tsan)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400713/job/109964229496"
+        },
+        {
+          "name": "Thread Sanitizer Tests (hybrid_regression.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400713/job/109964229072"
+        },
+        {
+          "name": "Build SU2 (ForwardMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400713/job/109964228681"
+        },
+        {
+          "name": "Address Sanitizer Tests (serial_regression.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400713/job/109964228436"
+        },
+        {
+          "name": "Build SU2 (BaseNoMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400713/job/109964228431"
+        },
+        {
+          "name": "Build SU2 (asan) (BaseNoMPI-asan)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400713/job/109964228219"
+        },
+        {
+          "name": "Build SU2 (BaseMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400713/job/109964227929"
+        },
+        {
+          "name": "Build SU2 (BaseOMP)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400713/job/109964227683"
+        },
+        {
+          "name": "Compute shared flags",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400713/job/109964227270"
+        },
+        {
+          "name": "CodeQL",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/runs/109938634488"
+        },
+        {
+          "name": "label",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400832/job/109938154042"
+        },
+        {
+          "name": "Analyze (python)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400749/job/109938153403"
+        },
+        {
+          "name": "Analyze (cpp)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400749/job/109938153209"
+        },
+        {
+          "name": "formatting",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/36730400708/job/109938152465"
+        }
+      ]
+    },
+    "2956": {
+      "checked_head_sha": "b2234a5e1e44d22a4dc045f71ecde5371766743a",
+      "returned_checks": 37,
+      "failures": [],
+      "checks": [
+        {
+          "name": "Address Sanitizer Tests (serial_regression_AD.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799109/job/111141356230"
+        },
+        {
+          "name": "Address Sanitizer Tests (serial_regression.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799109/job/111141356228"
+        },
+        {
+          "name": "Thread Sanitizer Tests (hybrid_regression.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799109/job/111140704805"
+        },
+        {
+          "name": "Thread Sanitizer Tests (hybrid_regression_AD.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799109/job/111140704791"
+        },
+        {
+          "name": "Regression Tests (hybrid_regression_AD.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799109/job/111139828391"
+        },
+        {
+          "name": "Regression Tests (parallel_regression.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799109/job/111139828354"
+        },
+        {
+          "name": "Regression Tests (vandv.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799109/job/111139828346"
+        },
+        {
+          "name": "Regression Tests (tutorials.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799109/job/111139828330"
+        },
+        {
+          "name": "Regression Tests (parallel_regression_AD.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799109/job/111139828325"
+        },
+        {
+          "name": "Regression Tests (serial_regression_AD.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799109/job/111139828318"
+        },
+        {
+          "name": "Regression Tests (hybrid_regression.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799109/job/111139828303"
+        },
+        {
+          "name": "Regression Tests (serial_regression.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799109/job/111139828292"
+        },
+        {
+          "name": "Tape Tests (serial_regression_AD.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799109/job/111139828224"
+        },
+        {
+          "name": "Unit Tests (test_driver_AD)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799109/job/111139828216"
+        },
+        {
+          "name": "Unit Tests (test_driver_DD)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799109/job/111139828210"
+        },
+        {
+          "name": "Unit Tests (test_driver)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799109/job/111139828209"
+        },
+        {
+          "name": "CodeQL",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/runs/111137126064"
+        },
+        {
+          "name": "Build SU2 (BaseOMP)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799109/job/111136966818"
+        },
+        {
+          "name": "Build SU2 (ForwardOMP)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799109/job/111136966704"
+        },
+        {
+          "name": "Build SU2 (ReverseOMP)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799109/job/111136966694"
+        },
+        {
+          "name": "Build SU2 (ReverseTagNoMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799109/job/111136966688"
+        },
+        {
+          "name": "Build SU2 (ReverseNoMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799109/job/111136966676"
+        },
+        {
+          "name": "Build SU2 (ForwardMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799109/job/111136966674"
+        },
+        {
+          "name": "Build SU2 (ForwardNoMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799109/job/111136966663"
+        },
+        {
+          "name": "Build SU2 (BaseNoMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799109/job/111136966647"
+        },
+        {
+          "name": "Build SU2 (ReverseMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799109/job/111136966638"
+        },
+        {
+          "name": "Build SU2 (BaseMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799109/job/111136966635"
+        },
+        {
+          "name": "Build SU2 (asan) (BaseNoMPI-asan)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799109/job/111136966520"
+        },
+        {
+          "name": "Build SU2 (tsan) (ReverseOMP-tsan)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799109/job/111136966516"
+        },
+        {
+          "name": "Build SU2 (tsan) (BaseOMP-tsan)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799109/job/111136966506"
+        },
+        {
+          "name": "Build SU2 (asan) (ReverseNoMPI-asan)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799109/job/111136966486"
+        },
+        {
+          "name": "Analyze (cpp)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799122/job/111136946604"
+        },
+        {
+          "name": "label",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799134/job/111136946598"
+        },
+        {
+          "name": "Compute shared flags",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799109/job/111136946560"
+        },
+        {
+          "name": "formatting",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799098/job/111136946466"
+        },
+        {
+          "name": "Analyze (python)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37099799122/job/111136946430"
+        },
+        {
+          "name": "WIP",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/runs/111136942176"
+        }
+      ]
+    },
+    "2959": {
+      "checked_head_sha": "43d0afdd2d2942b30167d84eaccabfe1ec7bd227",
+      "returned_checks": 40,
+      "failures": [
+        {
+          "name": "Regression Tests (hybrid_regression.py)",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111770887888"
+        },
+        {
+          "name": "Regression Tests (parallel_regression.py)",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111770887649"
+        }
+      ],
+      "checks": [
+        {
+          "name": "Address Sanitizer Tests (serial_regression_AD.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111774854164"
+        },
+        {
+          "name": "Address Sanitizer Tests (serial_regression.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111774854149"
+        },
+        {
+          "name": "Thread Sanitizer Tests (hybrid_regression_AD.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111772625073"
+        },
+        {
+          "name": "Thread Sanitizer Tests (hybrid_regression.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111772625000"
+        },
+        {
+          "name": "Regression Tests (parallel_regression_AD.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111770887889"
+        },
+        {
+          "name": "Regression Tests (hybrid_regression.py)",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111770887888"
+        },
+        {
+          "name": "Regression Tests (hybrid_regression_AD.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111770887781"
+        },
+        {
+          "name": "Regression Tests (serial_regression_AD.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111770887730"
+        },
+        {
+          "name": "Regression Tests (tutorials.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111770887693"
+        },
+        {
+          "name": "Regression Tests (serial_regression.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111770887671"
+        },
+        {
+          "name": "Regression Tests (vandv.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111770887670"
+        },
+        {
+          "name": "Unit Tests (test_driver)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111770887653"
+        },
+        {
+          "name": "Regression Tests (parallel_regression.py)",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111770887649"
+        },
+        {
+          "name": "Unit Tests (test_driver_DD)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111770887606"
+        },
+        {
+          "name": "Unit Tests (test_driver_AD)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111770887564"
+        },
+        {
+          "name": "Tape Tests (serial_regression_AD.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111770887534"
+        },
+        {
+          "name": "CodeQL",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/runs/111764096439"
+        },
+        {
+          "name": "Build SU2 (ReverseNoMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111763673407"
+        },
+        {
+          "name": "Build SU2 (BaseOMP)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111763673346"
+        },
+        {
+          "name": "Build SU2 (tsan) (BaseOMP-tsan)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111763673275"
+        },
+        {
+          "name": "Build SU2 (ForwardOMP)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111763673250"
+        },
+        {
+          "name": "Build SU2 (ReverseTagNoMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111763673249"
+        },
+        {
+          "name": "Build SU2 (BaseMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111763673236"
+        },
+        {
+          "name": "Build SU2 (tsan) (ReverseOMP-tsan)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111763673229"
+        },
+        {
+          "name": "Build SU2 (ForwardMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111763673202"
+        },
+        {
+          "name": "Build SU2 (ForwardNoMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111763673199"
+        },
+        {
+          "name": "Build SU2 (BaseNoMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111763673188"
+        },
+        {
+          "name": "Build SU2 (ReverseMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111763673136"
+        },
+        {
+          "name": "Build SU2 (ReverseOMP)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111763673121"
+        },
+        {
+          "name": "Build SU2 (asan) (ReverseNoMPI-asan)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111763673040"
+        },
+        {
+          "name": "Build SU2 (asan) (BaseNoMPI-asan)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111763672944"
+        },
+        {
+          "name": "Analyze (python)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253372/job/111763633410"
+        },
+        {
+          "name": "Analyze (cpp)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253372/job/111763633003"
+        },
+        {
+          "name": "label",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310252892/job/111763631394"
+        },
+        {
+          "name": "formatting",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253419/job/111763631036"
+        },
+        {
+          "name": "Compute shared flags",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111763630856"
+        },
+        {
+          "name": "label",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253391/job/111763630568"
+        },
+        {
+          "name": "label",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310253020/job/111763629807"
+        },
+        {
+          "name": "label",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310252218/job/111763627614"
+        },
+        {
+          "name": "label",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37310252168/job/111763626765"
+        }
+      ]
+    },
+    "2961": {
+      "checked_head_sha": "9de9fd0b8298cc17a6e0fe4df8c2a4f74f8a3159",
+      "returned_checks": 37,
+      "failures": [],
+      "checks": [
+        {
+          "name": "Address Sanitizer Tests (serial_regression_AD.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488200/job/112722969863"
+        },
+        {
+          "name": "Address Sanitizer Tests (serial_regression.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488200/job/112722969769"
+        },
+        {
+          "name": "Regression Tests (hybrid_regression_AD.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488200/job/112719145737"
+        },
+        {
+          "name": "Regression Tests (tutorials.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488200/job/112719145684"
+        },
+        {
+          "name": "Regression Tests (parallel_regression.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488200/job/112719145673"
+        },
+        {
+          "name": "Regression Tests (serial_regression.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488200/job/112719145649"
+        },
+        {
+          "name": "Regression Tests (hybrid_regression.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488200/job/112719145569"
+        },
+        {
+          "name": "Regression Tests (vandv.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488200/job/112719145553"
+        },
+        {
+          "name": "Regression Tests (parallel_regression_AD.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488200/job/112719145475"
+        },
+        {
+          "name": "Regression Tests (serial_regression_AD.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488200/job/112719145472"
+        },
+        {
+          "name": "Unit Tests (test_driver_AD)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488200/job/112719145333"
+        },
+        {
+          "name": "Unit Tests (test_driver)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488200/job/112719145298"
+        },
+        {
+          "name": "Unit Tests (test_driver_DD)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488200/job/112719145253"
+        },
+        {
+          "name": "Tape Tests (serial_regression_AD.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488200/job/112719145246"
+        },
+        {
+          "name": "Build SU2 (ForwardMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488200/job/112714633370"
+        },
+        {
+          "name": "Build SU2 (ForwardOMP)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488200/job/112714600053"
+        },
+        {
+          "name": "Build SU2 (ReverseOMP)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488200/job/112714599787"
+        },
+        {
+          "name": "Build SU2 (ReverseTagNoMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488200/job/112714599328"
+        },
+        {
+          "name": "Thread Sanitizer Tests (hybrid_regression_AD.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488200/job/112714599326"
+        },
+        {
+          "name": "Build SU2 (ForwardNoMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488200/job/112714599190"
+        },
+        {
+          "name": "Thread Sanitizer Tests (hybrid_regression.py)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488200/job/112714599175"
+        },
+        {
+          "name": "Build SU2 (ReverseNoMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488200/job/112714598383"
+        },
+        {
+          "name": "Build SU2 (BaseNoMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488200/job/112714598217"
+        },
+        {
+          "name": "Build SU2 (ReverseMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488200/job/112714598105"
+        },
+        {
+          "name": "Build SU2 (tsan) (ReverseOMP-tsan)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488200/job/112714598027"
+        },
+        {
+          "name": "Build SU2 (tsan) (BaseOMP-tsan)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488200/job/112714597965"
+        },
+        {
+          "name": "Build SU2 (asan) (BaseNoMPI-asan)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488200/job/112714597813"
+        },
+        {
+          "name": "Build SU2 (BaseMPI)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488200/job/112714597789"
+        },
+        {
+          "name": "Build SU2 (BaseOMP)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488200/job/112714597764"
+        },
+        {
+          "name": "Compute shared flags",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488200/job/112714596636"
+        },
+        {
+          "name": "Build SU2 (asan) (ReverseNoMPI-asan)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488200/job/112714596282"
+        },
+        {
+          "name": "CodeQL",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/runs/112337953179"
+        },
+        {
+          "name": "Analyze (cpp)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488270/job/112337459055"
+        },
+        {
+          "name": "Analyze (python)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488270/job/112337458591"
+        },
+        {
+          "name": "formatting",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488201/job/112337454944"
+        },
+        {
+          "name": "label",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/actions/runs/37483488101/job/112337454819"
+        },
+        {
+          "name": "WIP",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/su2code/SU2/runs/112337434046"
+        }
+      ]
+    }
+  },
+  "ci_failures": {
+    "111770887888": {
+      "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111770887888",
+      "failed_tests": [
+        "jones_turbocharger_restart"
+      ],
+      "sample_failure_details": [
+        "2026-10-05T12:56:51.1508057Z \n2026-10-05T12:56:51.1508409Z ==================== Start Test: jones_turbocharger_restart ====================\n2026-10-05T12:56:51.1509288Z /github/workspace/tests/TestCases/turbomachinery/APU_turbocharger\n2026-10-05T12:56:51.1510062Z jones_turbocharger_restart: FAILED\n2026-10-05T12:56:51.1510870Z Output for the failed case\n2026-10-05T12:56:51.1511631Z execution command: SU2_CFD -t 2 Jones_restart.cfg.autotest > Jones_restart.cfg.log 2>&1\n2026-10-05T12:56:51.1512744Z ERROR: Difference between computed input and test_vals exceeded tolerance. TOL=0.0001\n2026-10-05T12:56:51.1513487Z CPU architecture=x86_64\n2026-10-05T12:56:51.1513784Z test_iter=5\n2026-10-05T12:56:51.1514302Z test_vals (stored): -11.907561, -12.214137, -19.151426, -13.451780, -19.085218, -13.450796, 73286.000000, 73286.000000, 0.020056, 82.286000\n2026-10-05T12:56:51.1515158Z sim_vals (computed): -11.907561, -12.213960, -19.151426, -13.451780, -19.085218, -13.450796, 73286.000000, 73286.000000, 0.020056, 82.286000\n2026-10-05T12:56:51.1515930Z delta_vals: 0.000000, 0.000177, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000\n2026-10-05T12:56:51.1516437Z test duration: 0.08 min\n2026-10-05T12:56:51.1516805Z ==================== End Test: jones_turbocharger_restart ====================\n2026-10-05T12:56:51.1517107Z \n2026-10-05T12:56:53.6061579Z ==================== Start Test: axial_stage2D ====================\n2026-10-05T12:56:53.6062337Z /github/workspace/tests/TestCases/turbomachinery/axial_stage_2D\n2026-10-05T12:56:53.6062873Z axial_stage2D: PASSED\n2026-10-05T12:56:53.6064176Z execution command: SU2_CFD -t 2 Axial_stage2D.cfg.autotest > Axial_stage2D.cfg.log 2>&1\n2026-10-05T12:56:53.6064801Z CPU architecture=x86_64"
+      ]
+    },
+    "111770887649": {
+      "url": "https://github.com/su2code/SU2/actions/runs/37310253437/job/111770887649",
+      "failed_tests": [
+        "flatplate_supersonic",
+        "jones_turbocharger_restart"
+      ],
+      "sample_failure_details": [
+        "2026-10-05T12:59:33.6925092Z \n2026-10-05T12:59:33.6925479Z ==================== Start Test: flatplate_supersonic ====================\n2026-10-05T12:59:33.6926455Z /github/workspace/tests/TestCases/navierstokes/flatplate\n2026-10-05T12:59:33.6927425Z flatplate_supersonic: FAILED\n2026-10-05T12:59:33.6928164Z Output for the failed case\n2026-10-05T12:59:33.6929076Z execution command: mpirun --allow-run-as-root -n 2 SU2_CFD flatplate_supersonic.cfg.autotest > flatplate_supersonic.cfg.log 2>&1\n2026-10-05T12:59:33.6930472Z ERROR: Difference between computed input and test_vals exceeded tolerance. TOL=1e-05\n2026-10-05T12:59:33.6931156Z CPU architecture=x86_64\n2026-10-05T12:59:33.6931814Z test_iter=100\n2026-10-05T12:59:33.6932449Z test_vals (stored): 100.000000, -2.940836, -0.677210, -0.570631, 2.495392, 0.001469\n2026-10-05T12:59:33.6933107Z sim_vals (computed): 100.000000, -2.940782, -0.677520, -0.570573, 2.495436, 0.001747\n2026-10-05T12:59:33.6933810Z delta_vals: 0.000000, 0.000054, 0.000310, 0.000058, 0.000044, 0.000278\n2026-10-05T12:59:33.6934223Z test duration: 0.13 min\n2026-10-05T12:59:33.6934594Z ==================== End Test: flatplate_supersonic ====================\n2026-10-05T12:59:33.6934870Z \n2026-10-05T12:59:34.3715765Z ==================== Start Test: flatplate_udobj ====================\n2026-10-05T12:59:34.3716568Z /github/workspace/tests/TestCases/user_defined_functions\n2026-10-05T12:59:34.3717003Z flatplate_udobj: PASSED\n2026-10-05T12:59:34.3717584Z execution command: mpirun --allow-run-as-root -n 2 SU2_CFD lam_flatplate.cfg.autotest > lam_flatplate.cfg.log 2>&1\n2026-10-05T12:59:34.3718178Z CPU architecture=x86_64",
+        "2026-10-05T13:07:59.7743976Z \n2026-10-05T13:07:59.7744289Z ==================== Start Test: jones_turbocharger_restart ====================\n2026-10-05T13:07:59.7745039Z /github/workspace/tests/TestCases/turbomachinery/APU_turbocharger\n2026-10-05T13:07:59.7745677Z jones_turbocharger_restart: FAILED\n2026-10-05T13:07:59.7746149Z Output for the failed case\n2026-10-05T13:07:59.7746926Z execution command: mpirun --allow-run-as-root -n 2 SU2_CFD Jones_restart.cfg.autotest > Jones_restart.cfg.log 2>&1\n2026-10-05T13:07:59.7748022Z ERROR: Difference between computed input and test_vals exceeded tolerance. TOL=1e-05\n2026-10-05T13:07:59.7748734Z CPU architecture=x86_64\n2026-10-05T13:07:59.7749175Z test_iter=5\n2026-10-05T13:07:59.7750148Z test_vals (stored): -11.941917, -12.212515, -19.254664, -13.545311, -19.087161, -13.454459, 73286.000000, 73286.000000, 0.020056, 82.286000\n2026-10-05T13:07:59.7751435Z sim_vals (computed): -11.941917, -12.212489, -19.254664, -13.545311, -19.087161, -13.454459, 73286.000000, 73286.000000, 0.020056, 82.286000\n2026-10-05T13:07:59.7752815Z delta_vals: 0.000000, 0.000026, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000\n2026-10-05T13:07:59.7753588Z test duration: 0.07 min\n2026-10-05T13:07:59.7754182Z ==================== End Test: jones_turbocharger_restart ====================\n2026-10-05T13:07:59.7754649Z \n2026-10-05T13:08:02.0297605Z ==================== Start Test: axial_stage2D ====================\n2026-10-05T13:08:02.0298326Z /github/workspace/tests/TestCases/turbomachinery/axial_stage_2D\n2026-10-05T13:08:02.0298764Z axial_stage2D: PASSED\n2026-10-05T13:08:02.0299327Z execution command: mpirun --allow-run-as-root -n 2 SU2_CFD Axial_stage2D.cfg.autotest > Axial_stage2D.cfg.log 2>&1\n2026-10-05T13:08:02.0300276Z CPU architecture=x86_64"
+      ]
+    },
+    "111390950129": {
+      "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111390950129",
+      "failed_tests": [
+        "channel",
+        "naca0012",
+        "naca0012_FMG",
+        "oneram6",
+        "fixedcl_naca0012",
+        "polar_naca0012",
+        "flatplate",
+        "cylinder",
+        "cylinder_lowmach",
+        "poiseuille_profile",
+        "rae2822_sa",
+        "rae2822_sst",
+        "rae2822_sst_sust",
+        "turb_flatplate",
+        "turb_naca0012_sa",
+        "turb_naca0012_sst",
+        "turb_naca0012_sst_sust",
+        "axi_rans_air_nozzle_restart",
+        "axi_rans_air_nozzle_species",
+        "turb_naca0012_sst_restart_mg",
+        "inc_euler_naca0012",
+        "inc_lam_cylinder",
+        "inc_turb_naca0012",
+        "contadj_naca0012",
+        "contadj_oneram6",
+        "contadj_fixedcl_naca0012",
+        "contadj_ns_cylinder",
+        "contadj_rans_rae2822",
+        "rot_naca0012",
+        "cavity",
+        "spinning_cylinder",
+        "sine_gust",
+        "aeroelastic",
+        "unst_pitching_naca64a010_rans",
+        "unst_pitching_naca64a010_euler",
+        "unst_plunging_naca0012",
+        "unst_deforming_naca0012",
+        "ls89_sa",
+        "edge_VW",
+        "edge_PPR",
+        "jones_turbocharger_restart",
+        "uniform_flow",
+        "bars_SST_2D",
+        "fsi2d",
+        "fsi_cht",
+        "dyn_fsi",
+        "airfoil_fsi_rbf",
+        "contadj_multi_py",
+        "opt_multiobj1surf_py",
+        "pywrapper_naca0012",
+        "pywrapper_turb_naca0012_sst",
+        "pywrapper_fsi2d",
+        "pywrapper_unsteadyCHT"
+      ],
+      "sample_failure_details": [
+        "2026-10-04T07:53:26.0010577Z \n2026-10-04T07:53:26.0010840Z ==================== Start Test: channel ====================\n2026-10-04T07:53:26.0011491Z /github/workspace/tests/TestCases/euler/channel\n2026-10-04T07:53:26.0012069Z channel: FAILED\n2026-10-04T07:53:26.0012476Z Output for the failed case\n2026-10-04T07:53:26.0013193Z execution command: SU2_CFD inv_channel_RK.cfg.autotest > inv_channel_RK.cfg.log 2>&1\n2026-10-04T07:53:26.0014213Z ERROR: Difference between computed input and test_vals exceeded tolerance. TOL=1e-05\n2026-10-04T07:53:26.0014991Z CPU architecture=x86_64\n2026-10-04T07:53:26.0015559Z test_iter=10\n2026-10-04T07:53:26.0016214Z test_vals (stored): -1.906687, 3.625653, -0.011054, 0.205254, 1.000000\n2026-10-04T07:53:26.0017012Z sim_vals (computed): -1.907206, 3.625276, -0.006144, 0.202561, 1.000000\n2026-10-04T07:53:26.0017762Z delta_vals: 0.000519, 0.000377, 0.004910, 0.002693, 0.000000\n2026-10-04T07:53:26.0018361Z test duration: 0.02 min\n2026-10-04T07:53:26.0018858Z ==================== End Test: channel ====================\n2026-10-04T07:53:26.0019259Z \n2026-10-04T07:53:26.5879484Z \n2026-10-04T07:53:26.5880237Z -------------------------------------------------------------------------\n2026-10-04T07:53:26.5881079Z |    ___ _   _ ___                                                      |\n2026-10-04T07:53:26.5881819Z |   / __| | | |_  )   Release 8.5.0 \"Harrier\"                           |\n2026-10-04T07:53:26.5882518Z |   \\__ \\ |_| |/ /                                                      |",
+        "2026-10-04T07:53:26.6046452Z \n2026-10-04T07:53:26.6046697Z ==================== Start Test: naca0012 ====================\n2026-10-04T07:53:26.6047351Z /github/workspace/tests/TestCases/euler/naca0012\n2026-10-04T07:53:26.6047927Z naca0012: FAILED\n2026-10-04T07:53:26.6048343Z Output for the failed case\n2026-10-04T07:53:26.6049076Z execution command: SU2_CFD inv_NACA0012_Roe.cfg.autotest > inv_NACA0012_Roe.cfg.log 2>&1\n2026-10-04T07:53:26.6050128Z ERROR: Difference between computed input and test_vals exceeded tolerance. TOL=1e-05\n2026-10-04T07:53:26.6050926Z CPU architecture=x86_64\n2026-10-04T07:53:26.6051366Z test_iter=20\n2026-10-04T07:53:26.6051867Z test_vals (stored): -4.032065, -3.525196, 0.273051, 0.009680\n2026-10-04T07:53:26.6052572Z sim_vals (computed): -4.047672, -3.540605, 0.274910, 0.009980\n2026-10-04T07:53:26.6053227Z delta_vals: 0.015607, 0.015409, 0.001859, 0.000300\n2026-10-04T07:53:26.6053787Z test duration: 0.00 min\n2026-10-04T07:53:26.6054279Z ==================== End Test: naca0012 ====================\n2026-10-04T07:53:26.6054668Z \n2026-10-04T07:53:26.9908787Z \n2026-10-04T07:53:26.9909715Z -------------------------------------------------------------------------\n2026-10-04T07:53:26.9910822Z |    ___ _   _ ___                                                      |\n2026-10-04T07:53:26.9911730Z |   / __| | | |_  )   Release 8.5.0 \"Harrier\"                           |\n2026-10-04T07:53:26.9912549Z |   \\__ \\ |_| |/ /                                                      |"
+      ]
+    },
+    "111390950084": {
+      "url": "https://github.com/su2code/SU2/actions/runs/37186043098/job/111390950084",
+      "failed_tests": [
+        "invwedge_roe",
+        "channel",
+        "naca0012",
+        "oneram6",
+        "fixedcl_naca0012",
+        "polar_naca0012",
+        "flatplate",
+        "cylinder",
+        "cylinder_lowmach",
+        "poiseuille_profile",
+        "rae2822_sa",
+        "rae2822_sst",
+        "rae2822_sst_sust",
+        "turb_flatplate",
+        "turb_flatplate_species",
+        "turb_naca0012_sa",
+        "turb_naca0012_sst",
+        "turb_naca0012_sst_sust",
+        "axi_rans_air_nozzle_restart",
+        "turb_naca0012_sst_restart_mg",
+        "inc_euler_naca0012",
+        "inc_nozzle",
+        "inc_lam_cylinder",
+        "inc_lam_sphere",
+        "turbmod_sa_bsl_rae2822",
+        "turbmod_sa_neg_rae2822",
+        "turbmod_sa_comp_rae2822",
+        "turbmod_sa_edw_rae2822",
+        "turbmod_sa_comp_edw_rae2822",
+        "turbmod_sa_qcr_rae2822",
+        "contadj_naca0012",
+        "contadj_oneram6",
+        "contadj_fixedcl_naca0012",
+        "contadj_ns_cylinder",
+        "contadj_rans_rae822",
+        "rot_naca0012",
+        "cavity",
+        "spinning_cylinder",
+        "edge_VW",
+        "edge_PPR",
+        "jones_turbocharger_restart",
+        "bars_SST_2D",
+        "pywrapper_naca0012",
+        "pywrapper_turb_naca0012_sst",
+        "pywrapper_aeroelastic",
+        "pywrapper_unsteadyCHT"
+      ],
+      "sample_failure_details": [
+        "2026-10-04T07:53:53.5140218Z \n2026-10-04T07:53:53.5140346Z ==================== Start Test: invwedge_roe ====================\n2026-10-04T07:53:53.5140657Z /github/workspace/tests/TestCases/nonequilibrium/invwedge\n2026-10-04T07:53:53.5140932Z invwedge_roe: FAILED\n2026-10-04T07:53:53.5141147Z Output for the failed case\n2026-10-04T07:53:53.5141542Z execution command: mpirun --allow-run-as-root -n 2 SU2_CFD invwedge_roe.cfg.autotest > invwedge_roe.cfg.log 2>&1\n2026-10-04T07:53:53.5142035Z ERROR: Difference between computed input and test_vals exceeded tolerance. TOL=1e-05\n2026-10-04T07:53:53.5142377Z CPU architecture=x86_64\n2026-10-04T07:53:53.5142586Z test_iter=10\n2026-10-04T07:53:53.5142910Z test_vals (stored): -1.158437, -1.683200, -17.734417, -18.064156, -18.007526, 2.157771, 1.789407, 5.196450, 0.767270\n2026-10-04T07:53:53.5143391Z sim_vals (computed): -0.856717, -1.381479, -16.733080, -17.063919, -17.006196, 2.492274, 1.625077, 5.504576, 1.052309\n2026-10-04T07:53:53.5143843Z delta_vals: 0.301720, 0.301721, 1.001337, 1.000237, 1.001330, 0.334503, 0.164330, 0.308126, 0.285039\n2026-10-04T07:53:53.5144302Z test duration: 0.07 min\n2026-10-04T07:53:53.5144566Z ==================== End Test: invwedge_roe ====================\n2026-10-04T07:53:53.5144751Z \n2026-10-04T07:53:57.6113364Z ==================== Start Test: invwedge_lax ====================\n2026-10-04T07:53:57.6113936Z /github/workspace/tests/TestCases/nonequilibrium/invwedge\n2026-10-04T07:53:57.6114485Z invwedge_lax: PASSED\n2026-10-04T07:53:57.6114998Z execution command: mpirun --allow-run-as-root -n 2 SU2_CFD invwedge_lax.cfg.autotest > invwedge_lax.cfg.log 2>&1\n2026-10-04T07:53:57.6115510Z CPU architecture=x86_64",
+        "2026-10-04T07:55:47.1465676Z \n2026-10-04T07:55:47.1465795Z ==================== Start Test: channel ====================\n2026-10-04T07:55:47.1466131Z /github/workspace/tests/TestCases/euler/channel\n2026-10-04T07:55:47.1466459Z channel: FAILED\n2026-10-04T07:55:47.1466680Z Output for the failed case\n2026-10-04T07:55:47.1467160Z execution command: mpirun --allow-run-as-root -n 2 SU2_CFD inv_channel_RK.cfg.autotest > inv_channel_RK.cfg.log 2>&1\n2026-10-04T07:55:47.1467724Z ERROR: Difference between computed input and test_vals exceeded tolerance. TOL=1e-05\n2026-10-04T07:55:47.1468081Z CPU architecture=x86_64\n2026-10-04T07:55:47.1468332Z test_iter=20\n2026-10-04T07:55:47.1468567Z test_vals (stored): 3.612169, 0.104888, 0.172110, 1.000000\n2026-10-04T07:55:47.1468912Z sim_vals (computed): 3.609499, 0.108965, 0.169898, 1.000000\n2026-10-04T07:55:47.1469268Z delta_vals: 0.002670, 0.004077, 0.002212, 0.000000\n2026-10-04T07:55:47.1469527Z test duration: 0.02 min\n2026-10-04T07:55:47.1469766Z ==================== End Test: channel ====================\n2026-10-04T07:55:47.1469938Z \n2026-10-04T07:55:47.5369017Z ==================== Start Test: naca0012_su2bin_convert ====================\n2026-10-04T07:55:47.5369510Z /github/workspace/tests/TestCases/euler/naca0012\n2026-10-04T07:55:47.5369878Z naca0012_su2bin_convert: PASSED\n2026-10-04T07:55:47.5370490Z execution command: mpirun --allow-run-as-root -n 2 SU2_DEF mesh_su2_to_su2bin.cfg > mesh_su2_to_su2bin_check.log 2>&1\n2026-10-04T07:55:47.5371061Z ERROR: The iteration number 1 could not be found."
+      ]
+    }
+  }
+}

@@ -1,0 +1,333 @@
+SU2 CFD robustness branch review — 2026-10-08
+
+Work completed
+--------------
+Inventoried all 268 live branches on rois1995/SU2 and all 352 on
+su2code/SU2 through the GitHub API. Selected the limiter, MUSCL,
+turbulence, linear-solver, multigrid, periodic and mean-flow candidates
+for source/history review; this is not a code audit of all 620 branches.
+Checked live PR status and CI for the leading candidates, inspected
+their patches and connected baseline code, and ran small isolated
+checks. No additional CFD implementation or branch merges in this pass.
+
+Our comparison baseline is codex/native-unsteady-performance at
+e49c545d700632bd9c68fc52535ef63d6ca8632d. Our QR change is c78571bc5e
+on codex/cfd-mesh-robustness. The main branch is now e6995fbff5; its
+intervening changes concern cluster scripts/documentation.
+Cached upstream/develop was a6b7496b74. Live upstream/develop is
+f110e914b5fd0d31c889e2d4df5bb5683abc6fd6, so cached remote refs alone
+would miss recent changes. The three intervening upstream commits
+are NEMO output, SA wall-function and large-mesh output fixes.
+
+Evidence files:
+  branch_audit_20261008.json: live branch SHAs, PR status, selected
+    source patches, author-reported experiments, CI/check URLs and
+    sampled failing CI logs.
+  branch_audit_probes_20261008.json: our results and standalone C++
+    source extracted from the exact reviewed implementations.
+Remote status is a snapshot, not a promise of later branch state.
+Author-reported CFD results below were inspected, not rerun here.
+
+Recommended order and supported effects
+---------------------------------------
+1. Scalar MUSCL correctness: fix_scalar_muscl / PR #2956.
+   Fork and upstream have the same head b2234a5e1e44d22a4dc045f71ecde5371766743a.
+   Open, not draft, not merged; absent from our baseline.
+   https://github.com/su2code/SU2/pull/2956
+
+   Confirmed baseline mechanisms:
+   - CommonPreprocessing stops recomputing point limiters after
+     LIMITER_ITER, but CUpwScalarBase also sets the applied limiter
+     type to NONE afterward. Freezing therefore removes limiting.
+   - VAN_ALBADA_EDGE goes through the point-limiter dispatcher and
+     aborts for scalar equations. The scalar flux also suppresses
+     the flow's edge limiter when reconstructing carrying velocity.
+   - A separate scalar reconstruction gradient is computed when
+     the global flow needs one even if MUSCL_TURB/SPECIES is NO.
+   - Scalar face reconstruction lacks lower/upper admissibility bounds.
+   - Bounded correction uses mass flux for nonconservative variables
+     instead of the matching upwind volume flux, and lacks the
+     conservative-variable density division in its diagonal.
+     Sliding donor corrections are not weighted like their fluxes.
+
+   Reviewed fixes preserve the last point limiter, dispatch edge
+   limiting in the shared reconstruction helper, skip unused
+   reconstruction gradients, pass scalar bounds, match the bounded
+   residual/Jacobian coefficients and weight sliding donors.
+   Reaches SA, SST and species through the shared scalar kernel;
+   inspect transition/flamelet/heat/pressure-scalar configurations
+   when adopting, not only the turbulence callers.
+
+   Expected effect: retain shock/large-gradient control after freezing,
+   allow second-order turbulence with the edge limiter, and prevent
+   finite negative/out-of-range face k or omega. This is a real route
+   to better robustness; it does not prove higher order on mixed grids.
+   First-order fallback adds local dissipation and needs monitoring.
+
+   Author's evidence reports SST NACA0012 MUSCL at 10 degrees changing
+   from 10000 iterations without convergence to 527; density-scaled
+   bounded SA reproducing the density-one drag; frozen-limiter and
+   edge-limiter comparisons. These are case-specific reported results.
+   https://github.com/su2code/SU2/pull/2956#issuecomment-5960636166
+   All 37 checks returned for the reviewed head were successful,
+   including serial/MPI/hybrid, AD, unit and sanitizer jobs.
+
+   Important limit independently checked: the bounds fallback uses
+   out*phi1st + (1-out)*phi. Comparisons do not detect NaN, and 0*Inf
+   is NaN. It handles finite out-of-range states, not arbitrary
+   nonfinite states. Test nonfinite rejection and avoid invalid masked
+   arithmetic before describing this as general positivity protection.
+   Our probe is IEEE scalar arithmetic, not the full flux/AD kernel.
+   The bounds of SA_NEG must keep its allowed negative values.
+
+2. Compressible internal-energy update guard: PR #2942.
+   Upstream fix_underrelaxation_factor head d875b761191b1d3193b163fbdcaa0851c851cf10.
+   Open, not draft, not merged; absent by direct baseline inspection.
+   https://github.com/su2code/SU2/pull/2942
+
+   CEulerSolver::ComputeUnderRelaxationFactor subtracts
+   |rho*u|^2/2 from rho*E; it must subtract |rho*u|^2/(2*rho),
+   separately with old and proposed density. This can freeze valid
+   updates when density is away from one.
+   Algebraic example: rho=10, rho*u=20, rho*E=30 and energy update=0.1.
+   Baseline internal energy is -170 and relaxation is zero;
+   corrected internal energy is 10 and relaxation is one for a
+   maximum update fraction of 0.2. This is an isolated calculation,
+   not a full nonlinear CFD test.
+   Expected effect: remove artificial update freezing; residual histories
+   can change widely. It does not change the spatial residual formula.
+   All 38 returned checks for the reviewed head were successful.
+
+3. Flow limiter fixes: fix_limiters / PR #2959.
+   Fork/upstream same head 43d0afdd2d2942b30167d84eaccabfe1ec7bd227.
+   Open, not draft, not merged; absent from our baseline.
+   https://github.com/su2code/SU2/pull/2959
+
+   R4 computes Dp=abs(delta) but cubes signed delta in its denominator.
+   Replacing delta^3 with Dp^3 restores overshoot/undershoot symmetry.
+   Our compiled extracted LimiterHelpers reproduced 13 failures in
+   the branch's 50 symmetry/reference checks on our baseline and
+   zero on the fix. At proj=delta=1 and zero epsilon, R4 is 0.875;
+   at proj=delta=-1 baseline is 1.1666667 and fixed is 0.875.
+   This confirms the formula defect, not a general CFD speedup.
+
+   WALL_DISTANCE is also requested without a turbulence solver;
+   otherwise laminar limiter users can receive zero wall distances
+   and first-order reconstruction throughout. Zero-width geometric
+   limiters are rejected; NEMO limiter output names are corrected.
+   Older fix_nishikawa_r4 duplicates the R4 idea; use the newer
+   fix_limiters candidate rather than applying both.
+
+   CI is not entirely green: MPI and hybrid jobs fail reference
+   comparisons. Inspected logs show flatplate_supersonic (MPI) and
+   jones_turbocharger_restart (MPI/hybrid); Jones hybrid difference
+   is 0.000177 with tolerance 0.0001. Cause is not established here.
+   Resolve against a matched baseline before refreshing references.
+   https://github.com/su2code/SU2/actions/runs/37310253437
+
+4. Krylov and parallel linear algebra corrections.
+   Fork fix_krylov_solvers head eb5d695c5f86eafa2bc3ab6acf185f792e97d595.
+   https://github.com/rois1995/SU2/tree/fix_krylov_solvers
+   Missing fixes preserve relative tolerance across restarted FGMRES,
+   limit recycled FGCRODR vectors when the next solve shrinks,
+   avoid an update with no new Krylov direction after a failed
+   orthogonalization, validate deflation size, and correct monitoring
+   frequency and a quantized recycled-vector sizing error.
+   The branch includes unit cases; these were reviewed, not run here.
+   Expected effect: correct stopping and prevent solver corner-case
+   failures, especially with inexact/restarted implicit solves.
+   Only relevant paths change; ordinary nonrestarted FGMRES is not
+   evidence of benefit from the restarted-tolerance correction.
+
+   Fork fix_linear_solver_parallel head 8d96b78d70d3c6b42954e4baac443c240c5e744c.
+   https://github.com/rois1995/SU2/tree/fix_linear_solver_parallel
+   ILU level scheduling is restricted to owned rows, since halo
+   factors do not exist. Identity preconditioning exchanges its output
+   halos before matrix products. Missing in baseline. Tests include
+   MPI identity and MPI2 x OpenMP2 level-scheduled ILU configurations.
+   Expected effect: valid distributed Krylov/preconditioner data,
+   not higher spatial accuracy. Requires actual partitioned testing.
+
+   Upstream LINELET PR #2899 is also open and absent by source review.
+   Its title and older body disagree about scope: the current patch
+   DOES change geometry and matrix code. It uses a collective-safe
+   computed flag and allocates linelet work arrays even on ranks with
+   no lines. Such ranks otherwise can access unallocated vectors.
+   This is relevant to partitions away from anisotropic wall layers.
+   https://github.com/su2code/SU2/pull/2899
+   No independent MPI reproduction or timing was performed here.
+
+5. Turbulence limiter scaling: fork fix_scalar_limiter_eps.
+   Head ae77daf13ea59eddc0c71681edf44541211d737e; not in baseline
+   or the reviewed fix_scalar_muscl head. It is a separate experiment.
+   https://github.com/rois1995/SU2/tree/fix_scalar_limiter_eps
+   Divide projections and field differences by max(abs(phi),phi_inf)
+   for turbulence/transition point limiters with absolute epsilon;
+   Wang stays range-relative. Flow/species remain unchanged.
+   Expected effect: more consistent limiting across variable magnitude
+   and units, especially small nu_tilde and very large omega.
+   Treat this as a numerical change needing verification, not merely
+   a coding correction. Near-zero free-stream/reference values, wall
+   layers, nondimensionalization and limiter activation need tests.
+   The new reference value is not registered as a preaccumulation
+   input in the patch; check sensitivities when that reference is active.
+   This does not address the shared edge limiter's absolute 1e-6
+   regularization in numerics/util.hpp. Scaling the point path alone
+   does not establish scale invariance of every limiter.
+
+Other relevant candidates, conditionally prioritized
+----------------------------------------------------
+- SA wall functions, PR #2957 / origin/fix_sa_wall_function.
+  Merged upstream as e28f35a11041bb8f7d3b2eb95a5dcaa2087fe19d,
+  but absent from our baseline by direct diff. Starts the Newton
+  inversion at the off-wall neighbor, at least the target nu_t,
+  rather than a drifting unconstrained wall value.
+  Expected effect: avoid failed inversion/divergence for wall-function
+  restarts. Relevant only when wall functions are enabled.
+  https://github.com/su2code/SU2/pull/2957
+
+- SST energy consistency, PR #2946, head 37dcfedd0e07553af04066473fb386fb6af1516c.
+  Draft/open. Convective fluxes, sound speeds, eigenvectors, boundary
+  states and sources must treat k in the total energy consistently.
+  Reviewed scalar and SIMD patches add this propagation and tests.
+  Potentially important for high Mach/high turbulence; broad physics
+  and AD reach, so test independently rather than silently bundling.
+  PR #2948 is stacked on it and also changes selectable SST variants,
+  sustaining ambient values and optional wall omega clipping.
+  Keep model-definition changes separate from robustness bug fixes.
+  https://github.com/su2code/SU2/pull/2946
+  https://github.com/su2code/SU2/pull/2948
+
+- Flow MUSCL face validation and moving-grid fixes, PRs #2943–#2945.
+  Draft/open, stacked on #2942; broad older PR #2941 is CLOSED,
+  UNMERGED and superseded. Scalar pressure/density checks are moved
+  ahead of thermodynamic evaluation. This patch alone does not fix
+  every arithmetic-mask issue in the ideal-gas SIMD reconstruction.
+  HLLC moving-frame flux and finite-difference Jacobian tests (#2943)
+  matter for actual mesh motion; L2Roe/LMRoe/general-gas 3D wave
+  strengths (#2944) matter on oblique faces. Standard Roe is excluded
+  from that defect. Incompressible moving-grid FDS/JST/Lax Jacobians
+  (#2945) correct repeated grid terms without changing the residual.
+  Remeshing between stationary meshes is distinct from ALE motion.
+  https://github.com/su2code/SU2/pull/2943
+  https://github.com/su2code/SU2/pull/2944
+  https://github.com/su2code/SU2/pull/2945
+
+- Rotational periodicity, fork fix_periodic_rotation / PR #2961.
+  Head 9de9fd0b8298cc17a6e0fe4df8c2a4f74f8a3159, open/non-draft,
+  absent by baseline source inspection. Transform implicit blocks
+  on both sides, rotate coarse-level velocity, and exchange limiter
+  bounds/increments in the matching frame instead of rotating
+  component limiter factors like a vector. All 37 returned checks
+  successful. Relevant to rotational periodic adapted meshes;
+  separate from the still unsupported periodic QR fallback.
+  https://github.com/su2code/SU2/pull/2961
+
+- Stretched-mesh multigrid, upstream feature_mg_linear_prolong / #2931.
+  Head 537b3c722d1a095179ed700b749b753f32b94f1e, open/non-draft.
+  Proposes linear prolongation, anisotropy-aware partitioning, layer
+  agglomeration fixes, coarse turbulence handling, all-level viscous
+  correction, residual-based CFL and local first order at wall ends.
+  The viscous Jacobian uses a clipped effective projected distance,
+  so it is an approximation requiring convergence tests.
+  These are promising mechanisms, not established universal gains.
+  https://github.com/su2code/SU2/pull/2931
+
+  Independently compiled its separate invertLeastSquaresMatrix.
+  Full-rank diagonal matrices for stencil AR=1,1000,10000 pass;
+  AR=20000,100000,1000000 fail and give constant prolongation.
+  det/(trace/2)^2 = 4*AR^-2/(1+AR^-2)^2 and cutoff=1e-8.
+  This is an intentional conditioning fallback, but loses the linear
+  enhancement in precisely our extreme anisotropy range. Our shared
+  gradient QR does not reach this separate implementation. Reuse an
+  equilibrated robust fit if exploring it.
+  Eight returned regression jobs fail; unit/build/sanitizer jobs pass.
+  Inspected serial/MPI logs contain broad reference mismatches, not
+  proof of divergence. Resolve changed defaults/operators and baselines
+  before adoption, rather than updating references automatically.
+  https://github.com/su2code/SU2/actions/runs/37186043098
+
+- Upstream fix_bcgstab, eaed58fb9c8c98893dbe4386299b7a7b895345ff.
+  Returns the best recorded iterate when COMM_FULL detects the last
+  residual is worse. The same proposal appears inside #2931.
+  More vectors/copies; no accuracy/convergence-time guarantee, and
+  test recurrence breakdown/early exit as well as capped iterations.
+  Do not apply twice.
+  https://github.com/su2code/SU2/tree/fix_bcgstab
+
+Already present or unsuitable to copy
+------------------------------------
+Confirmed ancestors of our exact baseline:
+  #2728 conservative SST update relaxation (density scaling).
+  #2458 current-density consistency when advancing conservative scalars.
+  #2533 SST cross-diffusion discretization.
+  #2878 modern scalar numerics.
+  #2863 3D implicit-line multigrid agglomeration.
+  #2873 FMG startup/CFL improvements.
+  fix_reconstructboundary; fix_slidingmesh_reconstructboundary_2;
+  fix_cauchCrit; fix_sst_axisymmetry.
+These are not new improvements to import.
+
+#2566 nested FGMRES/BiCGSTAB is merged in upstream but not in our
+baseline by config/solver source inspection. Potentially useful for
+stiff solves, but introduces extra inner work; measure total work/time,
+not just fewer outer iterations.
+https://github.com/su2code/SU2/pull/2566
+
+feature_MUSCL3 is identical on fork/upstream at a5c1f9d8f and dates
+to 2017. It modifies old monolithic mean-flow files with hundreds of
+lines for a Drikakis–Zoltak reconstruction. Our current shared U-MUSCL
+already has kappa options. Do not assume this legacy "third order"
+branch gives third order on irregular adapted meshes or port it whole.
+
+feature_defect_correction / #2584 is closed, unmerged WIP derived
+from the Bellosta mixed-grid branch. feature_2ndOrderMixedGrids on
+upstream has the same f2a9f88574 reviewed earlier; V8/clean ports are
+separate heads, not evidence that the defects were corrected.
+Requires the earlier scalar/SIMD, boundary, degeneracy, Jacobian and
+geometry checks before use.
+https://github.com/su2code/SU2/pull/2584
+
+Fully coupled periodic operator #2967 is closed/deferred.
+Its published comparison reduces outer iterations but increases total
+linear work and wall time, and stalls at a small linear budget.
+Do not import it as an established convergence fix.
+https://github.com/su2code/SU2/pull/2967
+
+Next steps
+----------
+1. On codex/cfd-mesh-robustness, isolate the internal-energy correction
+   and shared scalar MUSCL correctness fixes in separate commits.
+   Recompute branch test references from our matched baseline; do not
+   copy upstream references for a different integration.
+2. Verify freeze/restart behavior, finite/nonfinite face bounds,
+   SA_NEG admissibility, bounded density scaling, and flow/turbulence
+   limiter combinations. Compare serial and truly partitioned MPI;
+   check representative field/geometry derivatives with limiter
+   preaccumulation, not just the QR helper.
+3. Validate R4 plus WALL_DISTANCE/config guards; reproduce the failing
+   CI comparisons against the parent before accepting new references.
+4. RANS SA/SST on identical regular, stretched, skewed and curved
+   meshes: record flow AND turbulence residuals, limiter/fallback
+   activity, forces, skin friction and wall heat flux. Require matched
+   convergence before comparing spatial errors; run a refinement study.
+   First fix solver correctness, then isolate QR and limiter-scaling
+   effects. The existing 12 QR CFD runs did not establish an accuracy
+   improvement and most reached the iteration cap.
+5. Apply distributed linear algebra fixes where relevant, then explore
+   CFL/agglomeration/prolongation independently with total nonlinear
+   work, linear work and time. Avoid mixing SST model changes into the
+   same accuracy experiment.
+6. Keep one compile job and one-thread sequential cases by default,
+   using low scheduling priority; use MPI2 only for focused ownership
+   checks while other workers share the machine.
+
+Reporting for subsequent work: state changes completed and tested,
+observed effects separately from expected effects, and concrete next
+steps. Preserve negative results and unresolved checks.
+
+No new full CFD, RANS, ALE, remeshing or full adjoint campaign was run
+for this branch review. Main risks are cross-branch physics/default
+changes, scalar nonfinite handling, multigrid anisotropic fallback,
+distributed ownership, and interpreting unconverged residuals as
+accuracy or interpreting changed CI references as proven defects.
