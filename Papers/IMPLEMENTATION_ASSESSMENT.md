@@ -93,3 +93,14 @@ boundary-only GG corrections failed the unchanged frozen M6 metric MPI gates.
 The proposed future convective/viscous transfer is retained in
 `../GRADIENT_TRANSFER_FOLLOWUP.md`; derivative accuracy is not evidence of
 nonlinear solver robustness.
+
+## Geometry cost and supported fourth-degree wall models
+
+`RECOVERY_GEOMETRY_WALL_BIAS.md` records the single-cell-pass GG projection,
+explicit scratch-memory/cost tradeoff, and the QR wall extension requiring enough
+samples for both selected tangent and mixed quartic terms. The pure-tangent-only
+variant failed the existing 2D curved-wall convergence gates and is rejected.
+The supported variant improves the manufactured 3D normal bias while tested 2D
+fits remain unchanged. Source/operator basis and experimental design choices are
+distinguished there; fixed-complexity flow cycles remain to be run on aligned
+baseline/candidate remesher revisions.

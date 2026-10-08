@@ -44,70 +44,91 @@ namespace detail {
  * \note Adaptation opt-in only, before symmetry and halo exchange. Complete owned incident stars are
  *       available after geometry partitioning. Preserve GG for periodic, mixed or degenerate stars.
  *       This restores affine consistency, not quadratic boundary exactness (Clément has truncation bias).
- *       One small reusable star buffer; no full-mesh geometry cache or additional MPI exchange.
- *       ponytail: Serial star traversal; use per-thread buffers if hybrid scaling becomes limiting.
+ *       Evaluate geometry once per cell/pass; temporary owner sums preserve whole-star fallback.
+ *       ponytail: Serial scatter; use deterministic partitioned sums if hybrid scaling becomes limiting.
  */
 template <size_t dim, class FieldType, class GradientType>
 void correctGradientsSimplex(CGeometry& geometry, const FieldType& field, size_t begin, size_t end,
                              GradientType& gradient) {
-  constexpr size_t maxVariables = 20;
-  if (end - begin > maxVariables) SU2_MPI::Error("Too many variables for GG boundary recovery.", CURRENT_FUNCTION);
-  std::vector<unsigned long> star;
-  for (auto point = 0ul; point < geometry.GetnPointDomain(); ++point) {
-    star.assign(geometry.nodes->GetElems(point).begin(), geometry.nodes->GetElems(point).end());
-    std::sort(star.begin(), star.end(), [&](auto a, auto b) {
-      return geometry.elem[a]->GetGlobalIndex() < geometry.elem[b]->GetGlobalIndex();
-    });
-    su2double sum[maxVariables][dim] = {}, volume = 0;
-    bool valid = !star.empty();
-    for (const auto element : star) {
-      const auto* cell = geometry.elem[element];
-      if (cell->GetVTK_Type() != (dim == 2 ? TRIANGLE : TETRAHEDRON)) { valid = false; break; }
-      su2double edge[dim][dim], cofactor[dim][dim], determinant;
-      passivedouble scale[dim] = {}, product = 1;
-      for (size_t j = 0; j < dim; ++j)
-        for (size_t i = 0; i < dim; ++i) {
-          edge[j][i] = geometry.nodes->GetCoord(cell->GetNode(j + 1), i) -
-                       geometry.nodes->GetCoord(cell->GetNode(0), i);
-          scale[i] = std::max(scale[i], fabs(SU2_TYPE::GetValue(edge[j][i])));
-        }
+  if (end == begin) return;
+  if (end - begin > 20) SU2_MPI::Error("Too many variables for GG simplex recovery.", CURRENT_FUNCTION);
+  const auto owned = geometry.GetnPointDomain();
+  C3DDoubleMatrix sum(owned, end - begin, dim, su2double(0));
+  std::vector<su2double> volume(owned, 0);
+  std::vector<bool> valid(owned, true);
+  std::vector<unsigned long> elements(geometry.GetnElem());
+  for (auto element = 0ul; element < elements.size(); ++element) elements[element] = element;
+  std::sort(elements.begin(), elements.end(), [&](auto a, auto b) {
+    return geometry.elem[a]->GetGlobalIndex() < geometry.elem[b]->GetGlobalIndex();
+  });
+  for (const auto element : elements) {
+    const auto* cell = geometry.elem[element];
+    bool hasOwner = false;
+    for (auto node = 0u; node < cell->GetnNodes(); ++node) hasOwner |= cell->GetNode(node) < owned;
+    if (!hasOwner) continue;
+    auto invalidate = [&]() {
+      for (auto node = 0u; node < cell->GetnNodes(); ++node)
+        if (cell->GetNode(node) < owned) valid[cell->GetNode(node)] = false;
+    };
+    if (cell->GetVTK_Type() != (dim == 2 ? TRIANGLE : TETRAHEDRON)) { invalidate(); continue; }
+    bool cellValid = true;
+    su2double edge[dim][dim], cofactor[dim][dim], determinant;
+    passivedouble scale[dim] = {}, product = 1;
+    for (size_t j = 0; j < dim; ++j)
       for (size_t i = 0; i < dim; ++i) {
-        if (!(scale[i] > 0) || !std::isfinite(scale[i])) { valid = false; break; }
-        product *= scale[i];
-        for (size_t j = 0; j < dim; ++j) edge[j][i] /= scale[i];
+        edge[j][i] = geometry.nodes->GetCoord(cell->GetNode(j + 1), i) -
+                     geometry.nodes->GetCoord(cell->GetNode(0), i);
+        scale[i] = std::max(scale[i], fabs(SU2_TYPE::GetValue(edge[j][i])));
       }
-      if (!valid) break;
-      if constexpr (dim == 2) {
-        cofactor[0][0] = edge[1][1]; cofactor[0][1] = -edge[0][1];
-        cofactor[1][0] = -edge[1][0]; cofactor[1][1] = edge[0][0];
-        determinant = edge[0][0] * edge[1][1] - edge[0][1] * edge[1][0];
-      } else {
-        su2double cross[3];
-        for (size_t j = 0; j < dim; ++j) {
-          GeometryToolbox::CrossProduct(edge[(j + 1) % dim], edge[(j + 2) % dim], cross);
-          for (size_t i = 0; i < dim; ++i) cofactor[i][j] = cross[i];
-        }
-        determinant = 0;
-        for (size_t i = 0; i < dim; ++i) determinant += edge[0][i] * cofactor[i][0];
-      }
-      const auto det = SU2_TYPE::GetValue(determinant);
-      if (!std::isfinite(det) || fabs(det) <= 64 * std::numeric_limits<passivedouble>::epsilon() ||
-          !(product > 0) || !std::isfinite(product)) { valid = false; break; }
-      volume += fabs(determinant) * product;  // The constant dim! cancels in the star average.
-      for (size_t v = begin; v < end; ++v)
-        for (size_t j = 0; j < dim; ++j) {
-          const auto delta = field(cell->GetNode(j + 1), v) - field(cell->GetNode(0), v);
-          for (size_t i = 0; i < dim; ++i)
-            sum[v - begin][i] += (det > 0 ? 1 : -1) * product / scale[i] * cofactor[i][j] * delta;
-        }
+    for (size_t i = 0; i < dim; ++i) {
+      if (!(scale[i] > 0) || !std::isfinite(scale[i])) { cellValid = false; break; }
+      product *= scale[i];
+      for (size_t j = 0; j < dim; ++j) edge[j][i] /= scale[i];
     }
-    if (!valid || !(SU2_TYPE::GetValue(volume) > 0) || !std::isfinite(SU2_TYPE::GetValue(volume))) continue;
+    if (!cellValid) { invalidate(); continue; }
+    if constexpr (dim == 2) {
+      cofactor[0][0] = edge[1][1]; cofactor[0][1] = -edge[0][1];
+      cofactor[1][0] = -edge[1][0]; cofactor[1][1] = edge[0][0];
+      determinant = edge[0][0] * edge[1][1] - edge[0][1] * edge[1][0];
+    } else {
+      su2double cross[3];
+      for (size_t j = 0; j < dim; ++j) {
+        GeometryToolbox::CrossProduct(edge[(j + 1) % dim], edge[(j + 2) % dim], cross);
+        for (size_t i = 0; i < dim; ++i) cofactor[i][j] = cross[i];
+      }
+      determinant = 0;
+      for (size_t i = 0; i < dim; ++i) determinant += edge[0][i] * cofactor[i][0];
+    }
+    const auto det = SU2_TYPE::GetValue(determinant);
+    if (!std::isfinite(det) || fabs(det) <= 64 * std::numeric_limits<passivedouble>::epsilon() ||
+        !(product > 0) || !std::isfinite(product)) { invalidate(); continue; }
+    const auto weight = fabs(determinant) * product;  // The constant dim! cancels in the star average.
+    su2double contribution[20][dim][dim];
+    for (size_t v = begin; v < end; ++v)
+      for (size_t j = 0; j < dim; ++j) {
+        const auto delta = field(cell->GetNode(j + 1), v) - field(cell->GetNode(0), v);
+        for (size_t i = 0; i < dim; ++i)
+          contribution[v - begin][j][i] = (det > 0 ? 1 : -1) * product / scale[i] * cofactor[i][j] * delta;
+      }
+    for (auto node = 0u; node <= dim; ++node) {
+      const auto point = cell->GetNode(node);
+      if (point >= owned || !valid[point]) continue;
+      volume[point] += weight;
+      for (size_t v = begin; v < end; ++v)
+        for (size_t j = 0; j < dim; ++j)
+          for (size_t i = 0; i < dim; ++i) sum(point, v - begin, i) += contribution[v - begin][j][i];
+    }
+  }
+  for (auto point = 0ul; point < owned; ++point) {
+    if (!valid[point] || !(SU2_TYPE::GetValue(volume[point]) > 0) ||
+        !std::isfinite(SU2_TYPE::GetValue(volume[point]))) continue;
+    bool finite = true;
     for (size_t v = begin; v < end; ++v)
       for (size_t i = 0; i < dim; ++i)
-        valid = valid && std::isfinite(SU2_TYPE::GetValue(sum[v - begin][i] / volume));
-    if (valid)
+        finite &= std::isfinite(SU2_TYPE::GetValue(sum(point, v - begin, i) / volume[point]));
+    if (finite)
       for (size_t v = begin; v < end; ++v)
-        for (size_t i = 0; i < dim; ++i) gradient(point, v, i) = sum[v - begin][i] / volume;
+        for (size_t i = 0; i < dim; ++i) gradient(point, v, i) = sum(point, v - begin, i) / volume[point];
   }
 }
 

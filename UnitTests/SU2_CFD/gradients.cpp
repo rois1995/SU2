@@ -839,10 +839,10 @@ TEST_CASE("QR shrinkage retains a resolved steep profile and does not filter its
 /*--- Complete pressure sensor -> gradient -> Hessian chain on triangles/tetrahedra.
  *     Smooth grading and distortion vary the stencil with refinement. Error comparisons are made in
  *     local layer coordinates, so the physical normal curvature (O(aspect^2)) cannot hide tangential errors. ---*/
-std::array<passivedouble, 11> pressureHessianErrors(unsigned short nDim, unsigned long n, bool distorted,
+std::array<passivedouble, 12> pressureHessianErrors(unsigned short nDim, unsigned long n, bool distorted,
                                                    passivedouble aspect, passivedouble angle, passivedouble skew = 0,
                                                    bool spanCurve = false, const char* method = "QUADRATIC_LEAST_SQUARES",
-                                                   const string& dumpPrefix = "") {
+                                                   const string& dumpPrefix = "", bool tangentialQuartic = false) {
   auto mesh = simplex_test::MakeSimplexMesh(
       nDim, n, [](const passivedouble* x) { return std::string(x[1] < 1e-12 ? "wall" : "far"); });
   const auto parameter = mesh.coord;
@@ -884,6 +884,7 @@ std::array<passivedouble, 11> pressureHessianErrors(unsigned short nDim, unsigne
     layerCoord(point, q);
     for (unsigned short i = 0; i < nDim; ++i)
       for (unsigned short j = 0; j < nDim; ++j) pressure += 0.5 * q[i] * H[i][j] * q[j];
+    if (tangentialQuartic) pressure += .03*pow(q[0],4) + .02*pow(q[0],3)*q[1];
     flow->GetNodes()->SetPrimitive(point, idx.Pressure(), pressure);
   }
   {
@@ -915,7 +916,7 @@ std::array<passivedouble, 11> pressureHessianErrors(unsigned short nDim, unsigne
                                              << difference / largest << endl;
   }
   // First five historical measurements; then wall-interior and wall-edge transverse, tangent and mixed errors.
-  std::array<passivedouble, 11> error = {};
+  std::array<passivedouble, 12> error = {};
   unsigned long nInterior = 0, nWall = 0, nWallInterior = 0, nWallEdge = 0;
   std::ofstream dump;
   if (!dumpPrefix.empty()) {
@@ -940,6 +941,12 @@ std::array<passivedouble, 11> pressureHessianErrors(unsigned short nDim, unsigne
         g[i] += H[i][j] * q[j];
         ref[i][j] = H[i][j];
       }
+    }
+    if (tangentialQuartic) {
+      g[0] += .12*pow(q[0],3) + .06*q[0]*q[0]*q[1];
+      g[1] += .02*pow(q[0],3);
+      ref[0][0] += .36*q[0]*q[0] + .12*q[0]*q[1];
+      ref[0][1] += .06*q[0]*q[0]; ref[1][0] = ref[0][1];
     }
     const auto first = bend * pi * cos(pi * q[0]), second = -bend * pi * pi * sin(pi * q[0]);
     ref[0][0] -= g[1] * second;
@@ -976,6 +983,12 @@ std::array<passivedouble, 11> pressureHessianErrors(unsigned short nDim, unsigne
       error[2] = max(error[2], fabs(recovered[1][1] / H[1][1] - 1.0));
       const bool wallInterior = raw[0] > 1e-12 && raw[0] < (nDim == 2 ? 2.0 : 1.0) - 1e-12 &&
                                 (nDim == 2 || (raw[2] > 1e-12 && raw[2] < 1.0 - 1e-12));
+      const bool centralWall = raw[0] >= .4 && raw[0] <= (nDim == 2 ? 1.6 : .6) &&
+                               (nDim == 2 || (raw[2] >= .4 && raw[2] <= .6));
+      if (centralWall)
+        for (unsigned short i = 0; i < nDim; ++i)
+          for (unsigned short j = 0; j < nDim; ++j)
+            error[11] = max(error[11], fabs(recovered[i][j] - ref[i][j]));
       if (wallInterior) ++nWallInterior;
       else ++nWallEdge;
       const auto offset = wallInterior ? 5 : 8;
@@ -1009,6 +1022,15 @@ std::array<passivedouble, 11> pressureHessianErrors(unsigned short nDim, unsigne
   CHECK(CPassiveComm::AllreduceSum(nWallInterior) > 0);
   CHECK(CPassiveComm::AllreduceSum(nWallEdge) > 0);
   return globalError;
+}
+
+TEST_CASE("Thin 3D wall QR differentiates resolved tangential and mixed quartics",
+          "[HessianReliability][WallQuartic]") {
+  const auto errors = pressureHessianErrors(3, 16, false, 1000, .37, 0, false,
+                                           "QUADRATIC_LEAST_SQUARES", "", true);
+  if (SU2_MPI::GetRank() == MASTER_NODE)
+    cout << "Tangential/mixed quartic 3D central wall Hessian error=" << errors[11] << endl;
+  CHECK(errors[11] < 1e-5);
 }
 
 TEST_CASE("Export matched recovery fields for the literature comparison", "[HessianRecoveryComparison]") {

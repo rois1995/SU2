@@ -26,6 +26,14 @@ policy below. See `Papers/GG_BOUNDARY_RECOVERY.md` and
 rejected boundary-only trials, MPI gates, native cost and limits. The future
 convective/viscous transfer request is retained in `GRADIENT_TRANSFER_FOLLOWUP.md`.
 
+Latest recovery follow-up: single-cell-pass GG evaluation reduces repeated
+geometry work using temporary owner sums; supported thin-wall QR fits can add
+selected coupled quartics. The shared geometric BL/gradation/complexity policy
+remains the contract below. See `Papers/RECOVERY_GEOMETRY_WALL_BIAS.md` for scope,
+performance, rejected variants and the cycle-test integration plan. Mixed-cell
+and future convective/viscous distinctions are retained in
+`GRADIENT_TRANSFER_FOLLOWUP.md`.
+
 ## Reconciled metric contract
 
 `Metric_*` stores bounded, graded **sensor tensors only**. Native donor queries

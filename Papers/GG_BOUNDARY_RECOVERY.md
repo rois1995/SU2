@@ -1,5 +1,10 @@
 # Adaptation Green–Gauss boundary recovery
 
+This records the original simplex-recovery checkpoint 0eeb5a49ba. The newer
+cell-pass optimization and separate QR wall-bias work, including measured cost,
+additional temporary memory and rejected variants, are documented in
+`RECOVERY_GEOMETRY_WALL_BIAS.md`. The historical measurements below are retained.
+
 ## Operator and publication basis
 
 [Alauzet and Frazza (2021)](https://doi.org/10.1016/j.jcp.2021.110340),

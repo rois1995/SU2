@@ -40,7 +40,7 @@
  * \note Primal only. One-sided boundary stencils are allowed; periodic markers are rejected by CConfig.
  *       Input sensors must be communicated first. Failed fits retain the caller's WLS derivatives.
  *       Complete donor neighborhoods are exchanged, so two-ring stencils do not depend on partition boundaries.
- *       Supported grown thin wall stencils include tangential/mixed cubic terms to reduce truncation bias.
+ *       Supported grown thin wall stencils include tangential/mixed cubic/quartic terms to reduce truncation bias.
  *       Call outside OpenMP regions; the caller applies scalar symmetry conditions and communicates the derivatives.
  */
 template <class FieldType, class GradientType, class HessianType>
@@ -205,6 +205,11 @@ void computeHessiansQuadratic(CGeometry& geometry, unsigned short nSensor, const
       if (ring == 2 && geometry.nodes->GetSolidBoundary(point) && singular(dim - 2) > 10 * singular(dim - 1) &&
           cloud.size() >= terms + cubicTerms + 2)
         fitTerms += cubicTerms;
+      const auto cubicFitTerms = terms + cubicTerms;
+      // Compare a richer wall model only on the existing grown thin stencils.
+      // At most one thin-direction factor: two rings do not support a full fourth-order fit.
+      const auto quarticTerms = dim == 2 ? 2 : 9;
+      if (fitTerms > terms && cloud.size() >= cubicFitTerms + quarticTerms + 2) fitTerms += quarticTerms;
       Eigen::MatrixXd design(cloud.size(), fitTerms);
       Eigen::VectorXd weights;
       if (noiseStrength > 0) weights.resize(cloud.size());
@@ -222,13 +227,21 @@ void computeHessiansQuadratic(CGeometry& geometry, unsigned short nSensor, const
                 if (i == dim - 1) continue;
                 design(k, column++) = coordinate(k, i) * coordinate(k, j) * coordinate(k, l);
               }
+        if (fitTerms > cubicFitTerms)
+          for (unsigned short i = 0; i < dim; ++i)
+            for (unsigned short j = i; j < dim; ++j)
+              for (unsigned short l = j; l < dim; ++l)
+                for (unsigned short m = l; m < dim; ++m) {
+                  if (l == dim - 1) continue;
+                  design(k, column++) = coordinate(k, i) * coordinate(k, j) * coordinate(k, l) * coordinate(k, m);
+                }
         if (noiseStrength > 0) weights(k) = weight;
         design.row(k) *= weight;
         rhs.row(k) *= weight;
       }
       Eigen::ColPivHouseholderQR<Eigen::MatrixXd> qr(design);
       qr.setThreshold(1e-10);
-      if (fitTerms > terms) {
+      while (fitTerms > terms) {
         bool supported = qr.rank() == fitTerms;
         if (supported) {
           const Eigen::MatrixXd R = qr.matrixR().topLeftCorner(fitTerms, fitTerms)
@@ -239,11 +252,10 @@ void computeHessiansQuadratic(CGeometry& geometry, unsigned short nSensor, const
           const auto conditionBound = R.norm() * inverseR.norm();
           supported = std::isfinite(conditionBound) && conditionBound <= 1000;
         }
-        if (!supported) {
-          fitTerms = terms;
-          design.conservativeResize(Eigen::NoChange, terms);
-          qr.compute(design);
-        }
+        if (supported) break;
+        fitTerms = fitTerms > cubicFitTerms ? cubicFitTerms : terms;
+        design.conservativeResize(Eigen::NoChange, fitTerms);
+        qr.compute(design);
       }
       if (qr.rank() != fitTerms) {
         if (ring == 1) grow[point] = true;
@@ -356,8 +368,8 @@ void computeHessiansQuadratic(CGeometry& geometry, unsigned short nSensor, const
   if (SU2_MPI::GetRank() == MASTER_NODE) {
     std::cout << "Quadratic Hessian fits (owned point-sensor pairs): " << global[0] << " first ring, " << global[1]
               << " grown stencil, " << global[2] << " WLS fallbacks." << std::endl;
-    std::cout << "Quadratic Hessian thin-stencil cubic corrections: " << global[3]
-              << " point-sensor fits; unsupported corrections retain the quadratic fit." << std::endl;
+    std::cout << "Quadratic Hessian thin-stencil cubic/quartic corrections: " << global[3]
+              << " point-sensor fits; unsupported quartics retain cubic/quadratic fits." << std::endl;
     std::cout << "Quadratic Hessian relative weighted fit residual: mean "
               << residualGlobal[0] / std::max(1ul, global[0] + global[1]) << ", maximum " << residualGlobal[1] << "; "
               << globalPoor << " fits above " << poorFit << "; minimum QR pivot ratio " << globalCondition

@@ -1,5 +1,37 @@
 # Mesh adaptation findings and follow-up work
 
+## 2026-10-08: recovery geometry reuse and supported QR wall bias reduction
+
+GG P1 recovery evaluates geometry/contributions once per cell/pass and scatters
+in global-ID order, retaining whole-star fallback on mixed/invalid cells.
+Six paired M6 measurements give median 0.570 -> 0.394 s (31% less recovery time),
+with 11.52 MiB temporary payload at the maximum tested pass; no persistent
+geometry cache or extra exchange. Whole-process timing varies under contention.
+The method and simplex-only scope are unchanged; floating reassociation can
+change low bits and amplify ill-conditioned metric differences versus the old
+implementation, but original derivative/MPI/SPD/bounds/complexity gates pass.
+
+QR's grown thin wall stencils can add selected tangent/mixed quartics only when
+sample count, rank and condition gates support them. Curved 3D wall-normal error
+at n=32 falls from 2.08% to 1.00%; central interiors and all tested 2D QR fields
+are unchanged. Two-ring 2D stencils cannot support the required coupled model.
+A smaller pure-tangential model passed an exact polynomial check but failed
+existing curved-wall convergence; that variant is preserved and rejected.
+No existing convergence or reliability gate was weakened.
+
+The accepted QR extension costs about 1.75% more recovery time in the paired M6
+campaign. M6 frozen fields are unchanged, so this is a manufactured derivative
+improvement, not demonstrated M6 flow accuracy. Noise off/on RAE/M6 partition
+checks pass; neighborhood traffic is unchanged. Final units: 151 serial cases,
+400078 assertions; 35 MPI-safe cases per rank; AD syntax and 36 matched cases pass.
+
+Details, publication basis, limitations and deferred work are in
+`Papers/RECOVERY_GEOMETRY_WALL_BIAS.md`. Element support and the later convective/
+viscous transfer request remain in `GRADIENT_TRANSFER_FOLLOWUP.md`. Cycle tests
+should use an integration candidate and baseline on the same accepted remesher
+revision, then be repeated after merge on main; the other agent's latest branch
+is ahead of our common base and is not an isolated metric control.
+
 ## 2026-10-08: deterministic simplex recovery for adaptation GG
 
 Primal adaptation GG now uses a volume-weighted P1 simplex projection through

@@ -24,3 +24,41 @@ memory and communication costs before accepting a production flow change.
 
 Current boundary-recovery work remains restricted to adaptation call sites.
 The flow-gradient transfer and its validation are not implemented yet.
+
+## Element support distinction and cycle comparison (2026-10-08)
+
+User explicitly asked to retain this distinction. WLS stabilization/reuse,
+point-based QR fitting/noise/MPI stencils and metric tensor algebra are not
+inherently simplex-only. Their availability does not certify accuracy on every
+mixed topology. The new adaptation GG P1 recovery is specifically for complete
+triangle/tetrahedron stars. A vertex touching a quad, prism, pyramid or hex
+retains legacy GG. Its measured boundary improvements apply to tested simplex
+meshes; the hexahedral check certifies fallback preservation, not an improvement.
+
+For prism/hex boundary layers, compare existing point-based WLS/QR with
+element-aware recovery using the appropriate shape functions and quadrature.
+Test interfaces, wall-normal derivatives, MPI and cost before extending the
+recovery or transferring it to convective/viscous flow gradients.
+
+Immediate work: reduce repeated simplex geometry evaluation while retaining
+deterministic owner accumulation and mixed/degenerate fallback; compare
+higher-order boundary reconstruction on the same manufactured fields before
+accepting a wall-bias policy. Do not infer high-order wall accuracy from affine
+consistency or extrapolate simplex gains to prism/hex meshes.
+
+Adaptation-cycle candidates should first run on codex/metric-robustness, where
+the recovery changes exist, paired with the integrated-main baseline at matched
+inputs, settings, complexity and execution resources. Pin both revisions and
+separate recovery changes from other branch differences. After integration,
+repeat the accepted cycle checks on the merged main revision. Never validate
+an unmerged improvement using main alone or treat a branch result as proof
+that the final merged executable behaves identically.
+
+At this checkpoint the other agent's NativeIntegrated worktree is on
+codex/native-unsteady-performance at 99aa0d7f72, ahead of our common integration
+base 2abbd11769. It contains newer native partition/worker/performance work and
+uncommitted audit/handoff edits. Before attributing adaptation-cycle differences
+to recovery, stage the validated metric changes on the same accepted remesher
+revision as the control (rebase or isolated integration candidate). Keep the
+other agent's active worktree unchanged. Comparing these diverged heads directly
+would mix metric and remesher changes.
