@@ -157,6 +157,7 @@ private:
   su2double FixAzimuthalLine;        /*!< \brief Fix an azimuthal line due to misalignments of the nearfield. */
   su2double **DV_Value;              /*!< \brief Previous value of the design variable. */
   su2double Venkat_LimiterCoeff;     /*!< \brief Limiter coefficient */
+  bool LimiterLocalLength;           /*!< \brief Use a local dual-volume length in limiter regularization. */
   unsigned long LimiterIter;         /*!< \brief Freeze the value of the limiter after a number of iterations */
   su2double AdjSharp_LimiterCoeff;   /*!< \brief Coefficient to identify the limit of a sharp edge. */
   unsigned short SystemMeasurements; /*!< \brief System of measurements. */
@@ -2633,6 +2634,7 @@ public:
    * \return Value of the limiter coefficient.
    */
   su2double GetVenkat_LimiterCoeff(void) const { return Venkat_LimiterCoeff; }
+  bool GetLimiterLocalLength() const { return LimiterLocalLength; }
 
   /*!
    * \brief Freeze the value of the limiter after a number of iterations.

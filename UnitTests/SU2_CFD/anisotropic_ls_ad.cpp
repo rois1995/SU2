@@ -1,6 +1,8 @@
-/* Standalone forward/reverse AD check of the QR fallback; build with CODI_FORWARD_TYPE or CODI_REVERSE_TYPE. */
+/* Standalone forward/reverse AD checks of QR and scalar fallback; build with either CoDiPack type. */
 #include "../../SU2_CFD/include/solvers/CSolver.hpp"
 #include "../../SU2_CFD/include/gradients/computeGradientsLeastSquares.hpp"
+#include "../../SU2_CFD/include/limiters/computeLimiters.hpp"
+#include "../../SU2_CFD/include/numerics/util.hpp"
 #include <array>
 #include <iostream>
 
@@ -99,9 +101,38 @@ bool check(bool weighted, unsigned mode) {
   return valid;
 }
 
+bool checkBounds(bool admissible) {
+  su2double parameter = 1.2;
+#ifdef CODI_REVERSE_TYPE
+  auto& tape = su2double::getTape();
+  tape.reset();
+  tape.setActive();
+  tape.registerInput(parameter);
+#else
+  SU2_TYPE::SetDerivative(parameter, 1.0);
+#endif
+  const su2double face = admissible ? parameter : su2double(std::numeric_limits<double>::infinity());
+  const su2double cell = parameter * parameter;
+  su2double objective = boundedReconstruction(face, cell, 0.0, 2.0);
+#ifdef CODI_REVERSE_TYPE
+  tape.registerOutput(objective);
+  tape.setPassive();
+  objective.setGradient(1.0);
+  tape.evaluate();
+  const auto derivative = parameter.getGradient();
+#else
+  const auto derivative = SU2_TYPE::GetDerivative(objective);
+#endif
+  const bool valid = std::isfinite(derivative) && fabs(derivative - (admissible ? 1.0 : 2.4)) < 1e-12 &&
+                     fabs(SU2_TYPE::GetValue(objective) - (admissible ? 1.2 : 1.44)) < 1e-12;
+  std::cout << "bounds admissible=" << admissible << " derivative=" << derivative << " valid=" << valid << '\n';
+  return valid;
+}
+
 int main() {
   bool valid = true;
   for (const bool weighted : {false, true})
     for (unsigned mode = 0; mode < 3; ++mode) valid &= check<2>(weighted, mode) && check<3>(weighted, mode);
+  valid &= checkBounds(true) && checkBounds(false);
   return valid ? 0 : 1;
 }

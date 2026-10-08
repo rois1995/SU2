@@ -209,6 +209,31 @@ void computeLimiters_impl(CSolver* solver,
 
     su2double geoFactor = limiterDetails.geometricFactor(iPoint, geometry);
 
+    constexpr bool lengthEpsilon = LimiterKind == LIMITER::VENKATAKRISHNAN ||
+                                   LimiterKind == LIMITER::NISHIKAWA_R3 ||
+                                   LimiterKind == LIMITER::NISHIKAWA_R4 ||
+                                   LimiterKind == LIMITER::NISHIKAWA_R5;
+    if constexpr (lengthEpsilon) {
+      if (config.GetLimiterLocalLength()) {
+        AD::SetPreaccIn(nodes->GetVolume(iPoint));
+        AD::SetPreaccIn(nodes->GetPeriodicVolume(iPoint));
+        const su2double volume = nodes->GetVolume(iPoint) + nodes->GetPeriodicVolume(iPoint);
+        su2double length = 0.0;
+        if (volume > 0.0) {
+          if constexpr (nDim == 2) length = 2.0 * sqrt(volume / PI_NUMBER);
+          else length = pow(6.0 * volume / PI_NUMBER, 1.0/3.0);
+        }
+        const su2double eps1 = fabs(length * config.GetVenkat_LimiterCoeff());
+        if constexpr (LimiterKind == LIMITER::VENKATAKRISHNAN)
+          limiterDetails.eps2 = max(pow(eps1, 3), LimiterHelpers<>::epsilon());
+        else {
+          constexpr int power = LimiterKind == LIMITER::NISHIKAWA_R3 ? 4 :
+                                LimiterKind == LIMITER::NISHIKAWA_R4 ? 5 : 6;
+          limiterDetails.epsp = max(pow(eps1, power), LimiterHelpers<>::epsilon());
+        }
+      }
+    }
+
     /*--- Wang's epsilon is already relative to the range of the field. ---*/
     constexpr bool absoluteEpsilon = LimiterKind != LIMITER::VENKATAKRISHNAN_WANG;
 
@@ -219,7 +244,8 @@ void computeLimiters_impl(CSolver* solver,
     {
       su2double scale = 1.0;
       if (absoluteEpsilon && refValue != nullptr) {
-        scale = max(fabs(field(iPoint,iVar)), refValue[iVar]);
+        AD::SetPreaccIn(refValue[iVar]);
+        scale = max(fabs(field(iPoint,iVar)), fabs(refValue[iVar]));
         if (scale <= 0.0) scale = 1.0;
       }
 

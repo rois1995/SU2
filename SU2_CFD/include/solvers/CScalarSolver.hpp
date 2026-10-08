@@ -190,7 +190,8 @@ class CScalarSolver : public CSolver {
           if (conv_numerics->GetBoundedScalar()) {
             const su2double* velocity = &PrimVar_j[prim_idx.Velocity()];
             const su2double density = solver_container[FLOW_SOL]->GetNodes()->GetDensity(iPoint);
-            conv_numerics->SetMassFlux(BoundedScalarBCFlux(iPoint, true, density, velocity, Normal));
+            conv_numerics->SetMassFlux(BoundedScalarBCFlux(iPoint, true, density, velocity, Normal,
+                                                         &PrimVar_j[prim_idx.Density()], weight));
           }
 
           auto residual = conv_numerics->ComputeResidual(config);

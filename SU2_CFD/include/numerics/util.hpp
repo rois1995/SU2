@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <cmath>
 #include <type_traits>
 
 #include "../../../Common/include/option_structure.hpp"
@@ -117,6 +118,20 @@ struct CLaneTraits<simd::Array<Scalar_t, N>> {
   using Int = simd::Array<unsigned long, N>;
   static constexpr bool IsArray = true;
 };
+
+template<class Double>
+FORCEINLINE Double boundedReconstruction(const Double& face, const Double& first,
+                                         const su2double& lower, const su2double& upper) {
+  if constexpr (CLaneTraits<Double>::IsArray) {
+    Double result;
+    for (size_t lane = 0; lane < Double::Size; ++lane)
+      result[lane] = boundedReconstruction(face[lane], first[lane], lower, upper);
+    return result;
+  } else {
+    const auto value = SU2_TYPE::GetValue(face);
+    return std::isfinite(value) && value >= lower && value <= upper ? face : first;
+  }
+}
 
 /*!
  * \brief Constexpr version of max.

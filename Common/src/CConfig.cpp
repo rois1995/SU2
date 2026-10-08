@@ -2141,6 +2141,7 @@ void CConfig::SetConfig_Options() {
   /*!\brief VENKAT_LIMITER_COEFF
    *  \n DESCRIPTION: Coefficient for the limiter. DEFAULT value 0.05. Larger values decrease the extent of limiting, values approaching zero cause lower-order approximation to the solution. \ingroup Config */
   addDoubleOption("VENKAT_LIMITER_COEFF", Venkat_LimiterCoeff, 0.05);
+  addBoolOption("LIMITER_LOCAL_LENGTH", LimiterLocalLength, false);
   /*!\brief ADJ_SHARP_LIMITER_COEFF
    *  \n DESCRIPTION: Coefficient for detecting the limit of the sharp edges. DEFAULT value 3.0.  Use with sharp edges limiter. \ingroup Config*/
   addDoubleOption("ADJ_SHARP_LIMITER_COEFF", AdjSharp_LimiterCoeff, 3.0);
@@ -8062,19 +8063,23 @@ void CConfig::SetOutput(SU2_COMPONENT val_software, unsigned short val_izone) {
           break;
         case LIMITER::VENKATAKRISHNAN:
           cout << "Venkatakrishnan slope-limiting method, with constant: " << Venkat_LimiterCoeff << ".\n";
-          cout << "The reference element size is: " << RefElemLength << ". " << endl;
+          if (LimiterLocalLength) cout << "Limiter length: local dual-volume equivalent diameter.\n";
+          else cout << "The reference element size is: " << RefElemLength << ". " << endl;
           break;
         case LIMITER::NISHIKAWA_R3:
           cout << "Nishikawa's R3 slope-limiting method, with constant: " << Venkat_LimiterCoeff << ".\n";
-          cout << "The reference element size is: " << RefElemLength << ". " << endl;
+          if (LimiterLocalLength) cout << "Limiter length: local dual-volume equivalent diameter.\n";
+          else cout << "The reference element size is: " << RefElemLength << ". " << endl;
           break;
         case LIMITER::NISHIKAWA_R4:
           cout << "Nishikawa's R4 slope-limiting method, with constant: " << Venkat_LimiterCoeff << ".\n";
-          cout << "The reference element size is: " << RefElemLength << ". " << endl;
+          if (LimiterLocalLength) cout << "Limiter length: local dual-volume equivalent diameter.\n";
+          else cout << "The reference element size is: " << RefElemLength << ". " << endl;
           break;
         case LIMITER::NISHIKAWA_R5:
           cout << "Nishikawa's R5 slope-limiting method, with constant: " << Venkat_LimiterCoeff << ".\n";
-          cout << "The reference element size is: " << RefElemLength << ". " << endl;
+          if (LimiterLocalLength) cout << "Limiter length: local dual-volume equivalent diameter.\n";
+          else cout << "The reference element size is: " << RefElemLength << ". " << endl;
           break;
         case LIMITER::VENKATAKRISHNAN_WANG:
           cout << "Venkatakrishnan-Wang slope-limiting method, with constant: " << Venkat_LimiterCoeff << "." << endl;

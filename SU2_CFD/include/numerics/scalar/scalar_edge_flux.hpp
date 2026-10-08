@@ -484,10 +484,8 @@ class CUpwScalarBase : public CUpwScalarFlux<Double_, Derived, FlowIndices, nDim
         if (opt.lowerLimit) {
           for (size_t iVar = 0; iVar < res.nVar; ++iVar) {
             const su2double lo = opt.lowerLimit[iVar], hi = opt.upperLimit[iVar];
-            const Double out_i = fmax(phi.i.all(iVar) < lo, phi.i.all(iVar) > hi);
-            const Double out_j = fmax(phi.j.all(iVar) < lo, phi.j.all(iVar) > hi);
-            phi.i.all(iVar) = out_i * phi1st.i.all(iVar) + (1 - out_i) * phi.i.all(iVar);
-            phi.j.all(iVar) = out_j * phi1st.j.all(iVar) + (1 - out_j) * phi.j.all(iVar);
+            phi.i.all(iVar) = boundedReconstruction(phi.i.all(iVar), phi1st.i.all(iVar), lo, hi);
+            phi.j.all(iVar) = boundedReconstruction(phi.j.all(iVar), phi1st.j.all(iVar), lo, hi);
           }
         }
       }
