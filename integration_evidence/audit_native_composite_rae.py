@@ -8,7 +8,7 @@ import argparse, hashlib, json, math, re, sys, time
 from pathlib import Path
 import numpy as np
 from frozen_field_audit import FrozenField
-from airfoil_reference_audit import loops
+from airfoil_reference_audit import original_wall
 root=Path(__file__).resolve().parent.parent
 sys.path.insert(0,str(root/'TestCases/adaptation/capability'))
 import capcheck
@@ -99,12 +99,12 @@ def audit(wd,cycle):
     angle=float(setting('ADAP_ANGLE'));extension=float(setting('ADAP_HAUSD'))
     donorpath=wd/('input.su2' if cycle==1 else f'mesh_adap_{cycle-1:05d}.su2')
     candidatepath=wd/f'mesh_adap_{cycle:05d}.su2';restart=wd/f'solution_adap_{cycle-1:05d}.dat'
-    donor=capcheck.read_su2(donorpath);candidate=capcheck.read_su2(candidatepath);original=capcheck.read_su2(wd/'input.su2')
+    donor=capcheck.read_su2(donorpath);candidate=capcheck.read_su2(candidatepath)
     metric,_=capcheck.metric_of(donor,restart)
     xx=metric[:,0,0].astype(np.longdouble);yy=metric[:,1,1].astype(np.longdouble);xy=metric[:,0,1].astype(np.longdouble)
     largest=(xx+yy+np.hypot(xx-yy,2*xy))/2;core=float(np.min((xx*yy-xy*xy)/largest));assert core>0
-    line=loops(original.P,original.E,original.M)['AIRFOIL'][0];edges=list(zip(line,line[1:]+line[:1]))
-    wall=GeometricWall(original.P,edges,h,g,thickness,angle,core)
+    points,edges,reference_paths=original_wall(wd/'input.su2')
+    wall=GeometricWall(points,edges,h,g,thickness,angle,core)
     frozen=FrozenField(donor.P,donor.E,np.stack([xx,xy,yy],axis=1),donor.M,extension)
     cache={}
     def target(p):
@@ -125,7 +125,7 @@ def audit(wd,cycle):
             xx,xy,yy=target(p);values.append(math.sqrt(xx*d[0]**2+2*xy*d[0]*d[1]+yy*d[1]**2))
         length=(values[0]+4*values[1]+values[2])/6;maxl=max(maxl,length)
         if length>1.8+1e-8:badl.append(edge.tolist())
-    paths=[donorpath,candidatepath,restart,wd/'input.su2',wd/'run.cfg',Path(__file__),Path(__file__).with_name('frozen_field_audit.py'),Path(__file__).with_name('airfoil_reference_audit.py')]
+    paths=[*reference_paths,donorpath,candidatepath,restart,wd/'run.cfg',Path(__file__),Path(__file__).with_name('frozen_field_audit.py'),Path(__file__).with_name('airfoil_reference_audit.py')]
     return dict(cycle=cycle,points=len(candidate.P),triangles=len(candidate.E),min_quality=minq,max_simpson_length=maxl,
       bad_quality_cells=badq,bad_length_edges=badl,numerical_gate_tolerance=1e-8,core_eigenvalue=core,
       reference_corners=len(wall.corners),unique_target_queries=len(cache),boundary_extensions=frozen.extensions,

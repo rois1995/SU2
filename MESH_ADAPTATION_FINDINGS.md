@@ -1,5 +1,21 @@
 # Mesh adaptation findings and follow-up work
 
+## 2026-10-08: matched RAE2822 recovery adaptation cycle
+
+One matched native RANS cycle passed mesh, geometric BL/frozen-metric, transfer
+admissibility and saved-field audits for both GG operators. With ~15900 points
+and 2000 resumed iterations, new recovery gives a 4.72x smaller SA residual;
+both density criteria pass, neither SA criterion passes. Quality is unchanged
+and force accuracy is not established. A single timing pair is 139.8 -> 130.4 s.
+
+The larger performance target is graded complexity work (~6000 sweeps per
+pre-remesh metric) and duplicate steady metric evaluation (~18-19 s each).
+The 80-sweep sensor limit and composed transport residuals remain explicit.
+The same shared remesher was pinned; newer main remesher changes were excluded.
+See `Papers/ADAPTATION_CYCLE_RECOVERY.md` and the cycle validation receipt for
+measurements, limits and next actions. The original-wall sidecar is now reused
+by the continuation auditor; production policies are unchanged in this step.
+
 ## 2026-10-08: recovery geometry reuse and supported QR wall bias reduction
 
 GG P1 recovery evaluates geometry/contributions once per cell/pass and scatters

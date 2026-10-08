@@ -62,3 +62,12 @@ to recovery, stage the validated metric changes on the same accepted remesher
 revision as the control (rebase or isolated integration candidate). Keep the
 other agent's active worktree unchanged. Comparing these diverged heads directly
 would mix metric and remesher changes.
+
+Matched-cycle follow-up (2026-10-08): both native RAE2822 GG recovery cases passed
+independent mesh/BL/flow-output checks on the shared 2ab remesher. SA residual
+is 4.72x smaller in the improved run after 2000 iterations, with similar cell
+counts; neither case meets the SA stopping criterion. This is not force accuracy
+or flow-gradient-transfer validation. See Papers/ADAPTATION_CYCLE_RECOVERY.md.
+Measured next performance targets are duplicate steady metric construction and
+repeated gradation inside complexity trials. Keep newer-remesher paired checks
+and post-merge checks pending; mixed cells and 3D remain separate test scopes.

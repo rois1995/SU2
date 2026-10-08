@@ -1,0 +1,901 @@
+{
+  "binary_source_commits": {
+    "baseline": {
+      "source_commit": "747f0ef6ead0d1fe361f02cbedd1c86e0e933d10",
+      "binary": "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/qr_symmetry_v1/bin/SU2_CFD",
+      "binary_sha256": "8cdded0ddef12efffe15d7517084a9b062ff1468d4e9b8f014d3d931c189e59b",
+      "receipt_sha256": "c51fa811150053c9bf123f96dada48e7273466322ff168b4c265be9befe6b9f9"
+    },
+    "improved": {
+      "source_commit": "7cfc984277755a7b1369f9e3d168e9ad4e5f680b",
+      "binary": "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/recovery_geometry_wall_bias_v1/bin/SU2_CFD",
+      "binary_sha256": "7cbe10e9a83b0f3540dedb17291a277f8362482de34025eb7304c46cfb40e218",
+      "receipt_sha256": "2ec16d793f5496477be79ec41d8a4249d3fab1977fcce819cbcc4b3de4bd876a"
+    }
+  },
+  "common_remesher_base": "2abbd11769fc57f1862432b03bbd02202bb10283",
+  "production_sources_rechecked": 759,
+  "production_unchanged_since": "7cfc984277755a7b1369f9e3d168e9ad4e5f680b",
+  "shared_source_files_checked": 66,
+  "scope": "Single matched GG recovery cycle; common integrated remesher base 2abbd117. Not the newer native-unsteady-performance head, and no grid-convergence certificate.",
+  "campaign": {
+    "versions": {
+      "baseline": {
+        "source_commit": "747f0ef6ead0d1fe361f02cbedd1c86e0e933d10",
+        "binary": "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/qr_symmetry_v1/bin/SU2_CFD",
+        "binary_sha256": "8cdded0ddef12efffe15d7517084a9b062ff1468d4e9b8f014d3d931c189e59b",
+        "receipt_sha256": "c51fa811150053c9bf123f96dada48e7273466322ff168b4c265be9befe6b9f9"
+      },
+      "improved": {
+        "source_commit": "7cfc984277755a7b1369f9e3d168e9ad4e5f680b",
+        "binary": "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/recovery_geometry_wall_bias_v1/bin/SU2_CFD",
+        "binary_sha256": "7cbe10e9a83b0f3540dedb17291a277f8362482de34025eb7304c46cfb40e218",
+        "receipt_sha256": "2ec16d793f5496477be79ec41d8a4249d3fab1977fcce819cbcc4b3de4bd876a"
+      }
+    },
+    "shared_remesher_bl_transfer_driver_sha256": {
+      "Common/include/adaptation/CAccurateSum.hpp": "a60949e5bb35a9448f1f0224149fa80294b6f8648a6300684725a1d4525c7021",
+      "Common/include/adaptation/CAdapSensorExpression.hpp": "bfc47200676ec1097e0bbb2ce744d4111ec085f2033774467d29f960e5bbb74c",
+      "Common/include/adaptation/CAdapSensorOptions.hpp": "88ead1c6723c704e69d607b2d4a381ebfeb9c05d51029eceb05e45349c79efde",
+      "Common/include/adaptation/CDistributedSearch.hpp": "4717309f6d97a8c58ec19545c131e263f8cfaea9a8ea801620ac7d06fd27a812",
+      "Common/include/adaptation/CMMGInterface.hpp": "3292bfcb2b9ba3c75f2522470b6cc71e876edc1f05369d4d1d07d4af3e251cde",
+      "Common/include/adaptation/CMeshGather.hpp": "ecd2e071c531d0a599953a87a481a1bc4f61c977ef4d50d610673b14c2ac35d7",
+      "Common/include/adaptation/CNativeBoundary2D.hpp": "2cad241badcb07de004ea0a4e45ddc4fe55c0219a7048a11e659f29c30333585",
+      "Common/include/adaptation/CNativeDistributed2D.hpp": "dd136c028c9a8a58017862d99230c75d99cacd3305426636066ac76a5c5df4ad",
+      "Common/include/adaptation/CNativeEngine2D.hpp": "70ef212ca7bf10d9c76ff0597b085ea004c25c9fc43f3628befefd00305244dd",
+      "Common/include/adaptation/CNativeField2D.hpp": "0ffd393f70b3beb4bb64f4a3a7a76da1e9be7e9c8b882295f9ce97653b86dacd",
+      "Common/include/adaptation/CNativeGeometryValidation2D.hpp": "3ffc3b8064e35ef3380074449c43c11910be24a50c1956609ff3fd1ff3aecac7",
+      "Common/include/adaptation/CNativeImport2D.hpp": "3271fb088d02b734e45f564cbbdf6f7f6feee85993a206864d7491149b7d2acb",
+      "Common/include/adaptation/CNativeMesh2D.hpp": "d3df15cd505efc4dba37ab2b77bd89598e8d4cfb3368c879339ab7ca8b4d1b64",
+      "Common/include/adaptation/CNativeReference2D.hpp": "d198749092bf9d5cef5c9b936f2ea895eaf1fa30183e100b08d2cf0ddd3d3a0a",
+      "Common/include/adaptation/CNativeReferenceIO.hpp": "f29049f2a1f6e57a77f47b672e4fb985bf89424e4089b533b69d626cf7f15a5f",
+      "Common/include/adaptation/CNativeRemesher.hpp": "772cce8a8b97528c4b3a6851e90dc1dbc4c5eed83b9a9a079af4990dda41a465",
+      "Common/include/adaptation/CReaderSlices.hpp": "cc5348193160e1e4493346199192931c7caee2901772d9ebd0d7d5bafe7f9a95",
+      "Common/include/adaptation/CRemesher.hpp": "b5c80c5f1dc8fa63fe70094366d7ab5578fa77b2c97140b15a50be2fb65cdb28",
+      "Common/include/adaptation/CSimplexMesh.hpp": "20c3077ad5c0e3aee8446f725eb04c0288c779c47061b5a5726e5abf697fc0e8",
+      "Common/include/adaptation/CTransferMemory.hpp": "c73a9f79fdffa170f0a486578fa7a39f2317d0576d371c38f952f37c87842a93",
+      "Common/include/adaptation/TransferTolerances.hpp": "8cb439e27283c910e1fba102427f6455771eb5ae384cd69bdca4366cf94a89ca",
+      "Common/src/adaptation/CAccurateSum.cpp": "8033d8fce7d219d7b2ffacb4335048acfcd6dbf667b417cf776ed0b7874c638b",
+      "Common/src/adaptation/CDistributedSearch.cpp": "cd28934c263be3aa667d8e2839ba8bfc20ce3a3cbf8fd5784296e2d847c0f101",
+      "Common/src/adaptation/CMMGInterface.cpp": "712322461ad187397d3bd7a59ae593232d82c9fed01e0028a5098dabd6e006ef",
+      "Common/src/adaptation/CMeshGather.cpp": "aca73740dee5336df7f43626be095894c61461700e2b01e25c8a3194bcb84b49",
+      "Common/src/adaptation/CNativePredicates2D.cpp": "94c538f5700d5bcb1bfcfd4be4bd78f06bfacc9b07a583622ea76e8146eb2c2b",
+      "Common/src/adaptation/CNativeRemesher.cpp": "a59a2082602415b75e5b57116f9d815ff0ef67764b48beecf5764d76f677e46f",
+      "Common/src/adaptation/CReaderSlices.cpp": "3e15ad735b2332cf0697eb63315310d9fb92bd26f48f00fef7116d67cbf2c1f2",
+      "Common/src/adaptation/CTransferMemory.cpp": "b5ec2cf817d1bba837c37f2d4d2ef2df4d18cff1289ddc8e2cc217d2d52ffb37",
+      "Common/src/adaptation/meson.build": "4954b2b80ba9c0c9b45eb7c1dd56088ef2f27b4c145c1841e49bbc560ac69b5f",
+      "SU2_CFD/include/adaptation/CAdapSensors.hpp": "02b3741d2ca1e811405a71be4a95591a53664c4bcaf5d9573f52452cd67ab129",
+      "SU2_CFD/include/adaptation/CAdjointTransfer.hpp": "c6e4855c3397664a8ea8e535d5326a687d399df715d12645b714404bfa0d0806",
+      "SU2_CFD/include/adaptation/CBarycentricTransfer.hpp": "75fea2924aacac13e418d8593d8b2a6c74cd0a7d12cf6019a28b9ff2c1560da0",
+      "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "69fd1123cbc8129d80a414f5217cdbd83ba12a9f5f5e1c761db06e96ce45c5c3",
+      "SU2_CFD/include/adaptation/CBoundaryLayerRemesher.hpp": "576031a7bc4ca9cda01d7fa3b0c6fd81f1c914db5cc5efcb44d0e1d682c537f8",
+      "SU2_CFD/include/adaptation/CConservativeTransfer.hpp": "ea58d0bb25d4bba0078326d00f927911f9332d87cb6481724d437ab7252e6d46",
+      "SU2_CFD/include/adaptation/CDistributedLocator.hpp": "c06a08c4addf4d46a3d2b2305c4f73510d97d849265f44211a6d6d40f10f6c49",
+      "SU2_CFD/include/adaptation/CDistributedProjection.hpp": "da7c577e0eb9e30063d284731773320c2a6c0c85c2887c0bf6f336e773644b09",
+      "SU2_CFD/include/adaptation/CGoalMetric.hpp": "0e8c40306b3dbddc95caeceb927e7bc1afd0cf968b8622883623efbf3e5f837f",
+      "SU2_CFD/include/adaptation/CMetricPredictor.hpp": "02d07ec4f8e94466ff0bbfc5161874c4b94f3dfbf2badb6799721745d480feb7",
+      "SU2_CFD/include/adaptation/CReferenceWall.hpp": "a9b9f4f48651a74760700a6802725265cf3f4fff8e2fefed328795377a359280",
+      "SU2_CFD/include/adaptation/CReferenceWall.inl": "55b8846fc10c318066c51f43751bb801cde88f229f363d728e1e5cca7d849679",
+      "SU2_CFD/include/adaptation/CSolutionTransfer.hpp": "800984f78f28d5a3cffe3f4d8910b4c05469742488bf9d451fb32c0db31880f2",
+      "SU2_CFD/include/adaptation/CTransferAdmissibility.hpp": "3e0913a189ac09b27495fcbd4394258f01afdffe589cb8f4423a80d29b626619",
+      "SU2_CFD/include/adaptation/ConservativeKernels.hpp": "5bd8479dac33d02c4972718cac6e2df3045960e56ac129e477c425403d5c738b",
+      "SU2_CFD/include/adaptation/ConvexClipping.hpp": "f9a92bc81c3588dda386606d2ad6ab63f808af9831c7d8ec9ad3120b48ffa9cf",
+      "SU2_CFD/src/adaptation/CAdjointTransfer.cpp": "2106a0c3fcf5da494a6e8afe4ebb8408806f4f4a717229f0d36cb8b6633ca228",
+      "SU2_CFD/src/adaptation/CBarycentricTransfer.cpp": "32ab57c75c645fd4f85abcb1a8b16ea2845a276d673052abd7ccb5ceec5778fe",
+      "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "6cf21dcda23e62401ed8b6a7787b8c73a2e877c1974bec82bacf609aa5dc744a",
+      "SU2_CFD/src/adaptation/CBoundaryLayerRemesher.cpp": "e48db6f050fd9c3ccb8044a4ba59b535416635c09392912aa6ad25dbfc830fee",
+      "SU2_CFD/src/adaptation/CConservativeTransfer.cpp": "9da510e846516899f222b5421d72e09fd05d89e978f8d592c02003c63604fee2",
+      "SU2_CFD/src/adaptation/CDistributedLocator.cpp": "303d0e7ace73822c104174cdf39e95029f054a5ff421de8191b75405ab000098",
+      "SU2_CFD/src/adaptation/CDistributedProjection.cpp": "b651e393ee2897167a45c990c214ae2c77a602444361813970fa5620bf3944bb",
+      "SU2_CFD/src/adaptation/CGoalMetric.cpp": "945d0b0488c0ebe1caf6bcc4127dc17daff4c74c65c19bd600a6cdb67ea98d6f",
+      "SU2_CFD/src/adaptation/CMetricPredictor.cpp": "f7e08d8b2999cc013f80940faab22361edb6a8055b4c90b417cec1144301adcc",
+      "SU2_CFD/src/adaptation/CReferenceWall.cpp": "a6e6783adf83e94b1096b430bfda240162f13a01853e61bec5e4a73610f96cab",
+      "SU2_CFD/src/adaptation/CSolutionTransfer.cpp": "286b6305f908dbd2a4f0cbe17ca86cebe3129594bed67b1fef69e110fd5c7476",
+      "SU2_CFD/src/adaptation/CTransferAdmissibility.cpp": "ca2b9a1f06b7973aba59114a0332a1bbb1714528f333ff2fd6e1fdfefadbf296",
+      "SU2_CFD/src/adaptation/ConservativeKernels.cpp": "341947f5f231f8345e9ed0b662d99a6f0d833ed32ab9d4cb3af6b73f3a4de8d2",
+      "SU2_CFD/src/drivers/CDiscAdjMultizoneDriver.cpp": "e99f3edd3c6e512c6a9e0d8c5973243884a7edd24d60960b281f9b724aaa882c",
+      "SU2_CFD/src/drivers/CDiscAdjSinglezoneDriver.cpp": "8dc17e4132beb4a3156c32be1bf40e25d00ea1a21d6e77678717adb94e005181",
+      "SU2_CFD/src/drivers/CDriver.cpp": "629f1fbdab54d532739030858c25a4afcad46d1ee12fffa220cca2d2f1c53ade",
+      "SU2_CFD/src/drivers/CDriverBase.cpp": "68e19b21c952900bda0e238fea6c9fb46f1a8021c1773445a2de03b18eced288",
+      "SU2_CFD/src/drivers/CDummyDriver.cpp": "759231fad66a74e841f039cbbf13b233a2b908d06ffa37c5df832ba79cc59bf8",
+      "SU2_CFD/src/drivers/CMultizoneDriver.cpp": "11ddf68d83a016a1a82dcdaf7dad518e6a7580c758e88ce42c47c17e21a1531a",
+      "SU2_CFD/src/drivers/CSinglezoneDriver.cpp": "e1fefe081ea52b19f7bfa7b19c69bc2333f8c281324491d7be47267318cff774"
+    },
+    "seed": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/rae2822_transonic_v1/nativefix_rans_euler_seed_v21",
+    "config": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\nMESH_FILENAME= input.su2\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\nNUM_METHOD_HESS= GREEN_GAUSS\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\nMGLEVEL= 0\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\nITER= 1\nCONV_RESIDUAL_MINVAL= -8\nCONV_STARTITER= 100\nCOMPUTE_METRIC= YES\nADAP_SENSOR= ( MACH, PRESSURE )\nADAP_NORM= 2\nADAP_HMAX= 20\nADAP_ARMAX= 10000\nADAP_HGRAD= 1.3\nADAP_HAUSD= 1e-6\nADAP_ANGLE= 45\nADAP_ISO_CORNER= YES\nADAP_SURFACE= YES\nADAP_REMESHER= NATIVE_CAVITY\nADAP_LOOP= YES\nADAP_SIZES= ( 12000 )\nADAP_SUBITER= ( 1 )\nADAP_FLOW_ITER= ( 2000 )\nADAP_FLOW_CFL= ( 3 )\nADAP_TRANSFER= CONSERVATIVE\nWRT_ADAP_MESH= YES\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\nOUTPUT_FILES= ( RESTART, PARAVIEW, SURFACE_PARAVIEW, SURFACE_CSV )\nWRT_RESTART_COMPACT= NO\nRESTART_FILENAME= solution\nSOLUTION_FILENAME= seed\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\nCONV_FILENAME= history\nTABULAR_FORMAT= CSV\nVOLUME_OUTPUT= ( COORDINATES, SOLUTION, PRIMITIVE, ADAP_SENSOR, HESSIAN, METRIC )\nHISTORY_OUTPUT= ( ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL )\nOUTPUT_WRT_FREQ= 100\nSCREEN_WRT_FREQ_INNER= 20\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\nMUSCL_TURB= NO\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\nADAP_HMIN= 1e-6\nADAP_BL_MARKER= ( AIRFOIL )\nADAP_BL_FIRST_HEIGHT= ( 1e-5 )\nADAP_BL_GROWTH= 1.2\nADAP_BL_THICKNESS= 0.02\nADAP_BL_METHOD= METRIC\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\n\nADAP_HESSIAN_NOISE= 0\n",
+    "ranks": 4,
+    "runs": [
+      {
+        "case": "baseline",
+        "command": [
+          "nice",
+          "-n",
+          "10",
+          "timeout",
+          "--kill-after=10s",
+          "1200s",
+          "mpirun",
+          "--host",
+          "localhost:4",
+          "-np",
+          "4",
+          "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/qr_symmetry_v1/bin/SU2_CFD",
+          "run.cfg"
+        ],
+        "inputs_sha256": {
+          "input.su2": "25d26a0ef9a9815ff147ec986805994290b1000702532fb9c0d0f472f27f2ab8",
+          "input.su2.native_ref": "bb277df17b549cb616f9903443455e0a491f406df799769f266af345243efe17",
+          "seed.dat": "cc530d8258d60df698f2477bbf374ad2c6f186a52dc29d5ee7427f36825be3ab",
+          "run.cfg": "ec5f6f9a753d4bf529489d7f55ff3bebf44d8488f22faf6d841378cfdd125509"
+        },
+        "phase": "terminal",
+        "solver_exit": 0,
+        "elapsed_seconds": 139.82809348299634
+      },
+      {
+        "case": "improved",
+        "command": [
+          "nice",
+          "-n",
+          "10",
+          "timeout",
+          "--kill-after=10s",
+          "1200s",
+          "mpirun",
+          "--host",
+          "localhost:4",
+          "-np",
+          "4",
+          "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/recovery_geometry_wall_bias_v1/bin/SU2_CFD",
+          "run.cfg"
+        ],
+        "inputs_sha256": {
+          "input.su2": "25d26a0ef9a9815ff147ec986805994290b1000702532fb9c0d0f472f27f2ab8",
+          "input.su2.native_ref": "bb277df17b549cb616f9903443455e0a491f406df799769f266af345243efe17",
+          "seed.dat": "cc530d8258d60df698f2477bbf374ad2c6f186a52dc29d5ee7427f36825be3ab",
+          "run.cfg": "ec5f6f9a753d4bf529489d7f55ff3bebf44d8488f22faf6d841378cfdd125509"
+        },
+        "phase": "terminal",
+        "solver_exit": 0,
+        "elapsed_seconds": 130.39776587599772
+      }
+    ],
+    "scope": "Single matched GG recovery cycle; common integrated remesher base 2abbd117. Not the newer native-unsteady-performance head, and no grid-convergence certificate.",
+    "phase": "terminal",
+    "case": "improved",
+    "busy": []
+  },
+  "comparison": {
+    "scope": "Single matched GG recovery cycle; common integrated remesher base 2abbd117. Not the newer native-unsteady-performance head, and no grid-convergence certificate.",
+    "cases": {
+      "baseline": {
+        "solver_exit": 0,
+        "process_seconds": 139.82809348299634,
+        "hessian_seconds": [
+          0.00213563,
+          0.00196185,
+          0.00151685
+        ],
+        "metric_seconds": [
+          18.7954,
+          19.3717,
+          24.7552
+        ],
+        "metric_work": [
+          "78 complexity trials, 6015 total gradation sweeps, 111824865 owned-point visits; gradation 15.5362 s, halo 0.438762 s, sweep reductions 2.91356 s (maximum accumulated rank times).",
+          "78 complexity trials, 6015 total gradation sweeps, 111824865 owned-point visits; gradation 16.0951 s, halo 0.473165 s, sweep reductions 2.83273 s (maximum accumulated rank times).",
+          "114 complexity trials, 8961 total gradation sweeps, 142883145 owned-point visits; gradation 21.0172 s, halo 0.529725 s, sweep reductions 4.24051 s (maximum accumulated rank times)."
+        ],
+        "sensor_gradation": [
+          "80 sweeps, iteration limit reached, maximum transported-metric ratio 1.00017, directed edges above 1+1e-5: 103.",
+          "80 sweeps, iteration limit reached, maximum transported-metric ratio 1.00017, directed edges above 1+1e-5: 103.",
+          "80 sweeps, iteration limit reached, maximum transported-metric ratio 1.00026, directed edges above 1+1e-5: 222."
+        ],
+        "composed_gradation": [
+          "maximum transported-metric ratio 96.0982, directed edges above 1+1e-5: 14882. Sensor gradation is not a combined-field certificate.",
+          "maximum transported-metric ratio 96.0982, directed edges above 1+1e-5: 14882. Sensor gradation is not a combined-field certificate.",
+          "maximum transported-metric ratio 133.531, directed edges above 1+1e-5: 15297. Sensor gradation is not a combined-field certificate."
+        ],
+        "native_summary": [
+          "Native geometric integration: 303954 points, preparation 0.174543 s.",
+          "Native metric work: 78 complexity trials, 6015 total gradation sweeps, 111824865 owned-point visits; gradation 15.5362 s, halo 0.438762 s, sweep reductions 2.91356 s (maximum accumulated rank times).",
+          "Native sensor gradation: 80 sweeps, iteration limit reached, maximum transported-metric ratio 1.00017, directed edges above 1+1e-5: 103.",
+          "Native composed nodal audit: maximum transported-metric ratio 96.0982, directed edges above 1+1e-5: 14882. Sensor gradation is not a combined-field certificate.",
+          "Native geometric integration: 303954 points, preparation 0.174362 s.",
+          "Native metric work: 78 complexity trials, 6015 total gradation sweeps, 111824865 owned-point visits; gradation 16.0951 s, halo 0.473165 s, sweep reductions 2.83273 s (maximum accumulated rank times).",
+          "Native sensor gradation: 80 sweeps, iteration limit reached, maximum transported-metric ratio 1.00017, directed edges above 1+1e-5: 103.",
+          "Native composed nodal audit: maximum transported-metric ratio 96.0982, directed edges above 1+1e-5: 14882. Sensor gradation is not a combined-field certificate.",
+          "Native contract: q>=0.18, frozen-target Simpson edge length<=1.8, reference deviation<=1e-06, requested wall altitude relative error<=1e-8; dependency budget=2097152 bytes per rank, original P1 sensor target + geometric BL constraints, boundary sampling adaptive.",
+          "Native work allowance: 2267 collective rounds per phase, 6 sweeps, for 36263 input cells on 4 ranks; frozen P1 centroid complexity=6437.49, estimated unit triangles=27538.7 (geometric BL row allowance=12672).",
+          "Native requested first altitude: AIRFOIL = 1e-05",
+          "Native incoming residuals: shape=173, edge length=1666",
+          "Native adaptation: 15021 commits (280 across owners), qmin=0.360178, Lmax=1.79985, residual cells=0, height faces=0, reference faces=0. No remesher-side target floor.",
+          "Native remaining residuals: shape=0, edge length=0",
+          "Native coordinated repair: 0 commits, 0 seconds (maximum across ranks).",
+          "Native operations (height/split/remove/redistribute/bulk remove/split/flip/move): 0 12 357 320 4096 2247 1964 6025; conflicts=2, dependency-size rejects=0, memory rejects=0, stale rejects=0, engine encoded bytes=361242944, largest transport admission estimate=4939040",
+          "Native phase elapsed seconds (same action order, maximum across ranks): 0.000923113 0.0558015 1.09651 1.21365 5.61621 3.34314 4.31652 5.41793",
+          "Native candidate selection seconds (same action order, maximum across ranks): 0.000916583 0.0130148 0.176323 0.179263 1.127 0.620166 0.189946 0.212733",
+          "Native cached selection full scans (same action order, sum across ranks): 0 0 0 0 2227 1848 71 87",
+          "Native deferred/rejected candidate: Query outside frozen donor and associated extension band. (168).",
+          "Native deferred/rejected candidate: boundary coarsening or movement misses geometry/metric target (96).",
+          "Native deferred/rejected candidate: boundary coarsening or movement worsens bulk size (41).",
+          "Native deferred/rejected candidate: coarsening misses target (2578).",
+          "Native deferred/rejected candidate: failed projection or nonsimple boundary (1).",
+          "Native deferred/rejected candidate: flip does not improve quality (4723).",
+          "Native deferred/rejected candidate: insertion worsens sub-threshold shape (5).",
+          "Native deferred/rejected candidate: no admitted first-height ear; enlargement or different surface resolution required (5).",
+          "Native deferred/rejected candidate: no improving valid movement (3043).",
+          "Native deferred/rejected candidate: no representable tangential redistribution (4).",
+          "Native deferred/rejected candidate: nonconvex quadrilateral (2093).",
+          "Native deferred/rejected candidate: not a complete interior edge star (7).",
+          "Native deferred/rejected candidate: physical face misses declared reference tolerance (126).",
+          "Native deferred/rejected candidate: protected first layer (622).",
+          "Native deferred/rejected candidate: surface reconstruction worsens sub-threshold shape (3).",
+          "Native geometric integration: 270858 points, preparation 0.142608 s.",
+          "Native metric work: 114 complexity trials, 8961 total gradation sweeps, 142883145 owned-point visits; gradation 21.0172 s, halo 0.529725 s, sweep reductions 4.24051 s (maximum accumulated rank times).",
+          "Native sensor gradation: 80 sweeps, iteration limit reached, maximum transported-metric ratio 1.00026, directed edges above 1+1e-5: 222.",
+          "Native composed nodal audit: maximum transported-metric ratio 133.531, directed edges above 1+1e-5: 15297. Sensor gradation is not a combined-field certificate."
+        ],
+        "accepted_mesh_written": true,
+        "rejected_meshes": [],
+        "checks": [
+          {
+            "checker": "inspect_rae2822_solution.py",
+            "exit_code": 0
+          },
+          {
+            "checker": "audit_native_composite_rae.py",
+            "exit_code": 0
+          }
+        ],
+        "inspection": [
+          {
+            "cycle": 0,
+            "mesh": "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/adaptation_cycle_pair_v1/baseline/input.su2",
+            "restart": "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/adaptation_cycle_pair_v1/baseline/solution_adap_00000.dat",
+            "paraview": "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/adaptation_cycle_pair_v1/baseline/flow_adap_00000.vtu",
+            "points": 18591,
+            "triangles": 36263,
+            "boundary_edges": {
+              "FARFIELD": 67,
+              "AIRFOIL": 852
+            },
+            "validity": {
+              "positive_volumes": [
+                "PASS",
+                "min 4.911e-11 mean 8.628e-01 non-positive 0"
+              ],
+              "conformity": [
+                "PASS",
+                "faces in >2 elements 0, boundary faces without marker 0, marker faces: interior 0, not an element face 0, repeated 0"
+              ],
+              "points_elements": [
+                "PASS",
+                "unused points 0, duplicate points 0, duplicate elements 0"
+              ]
+            },
+            "exact_restart_mesh_pairing": true,
+            "all_vtu_scalar_pairing": {
+              "Density": true,
+              "Energy": true,
+              "Nu_Tilde": true,
+              "Pressure": true,
+              "Temperature": true,
+              "Mach": true,
+              "Pressure_Coefficient": true,
+              "Laminar_Viscosity": true,
+              "Heat_Flux": true,
+              "Y_Plus": true,
+              "Eddy_Viscosity": true,
+              "SENSOR_MACH": true,
+              "Hessian_MACH_XX": true,
+              "Hessian_MACH_XY": true,
+              "Hessian_MACH_YY": true,
+              "SENSOR_PRESSURE": true,
+              "Hessian_PRESSURE_XX": true,
+              "Hessian_PRESSURE_XY": true,
+              "Hessian_PRESSURE_YY": true,
+              "Metric_XX": true,
+              "Metric_XY": true,
+              "Metric_YY": true
+            },
+            "minimum_density": 0.24138092940426498,
+            "minimum_internal_energy": 54079.97023531133,
+            "pressure_consistency_relative_error": 6.606262278880473e-16,
+            "reference": [
+              {
+                "marker": "FARFIELD",
+                "original_components": 1,
+                "candidate_components": 1,
+                "original_faces": 67,
+                "candidate_faces": 67,
+                "covered_arc_over_period": 1.0,
+                "max_corresponding_parameter_deviation": 8.881784197001252e-16,
+                "max_vertex_projection_distance": 0.0,
+                "declared_feature_coordinates": [],
+                "all_declared_features_exactly_retained": true,
+                "leading_extremum_shift": null
+              },
+              {
+                "marker": "AIRFOIL",
+                "original_components": 1,
+                "candidate_components": 1,
+                "original_faces": 852,
+                "candidate_faces": 852,
+                "covered_arc_over_period": 1.0,
+                "max_corresponding_parameter_deviation": 1.3552527156068805e-20,
+                "max_vertex_projection_distance": 0.0,
+                "declared_feature_coordinates": [
+                  [
+                    1.0,
+                    0.000169999999343418
+                  ]
+                ],
+                "all_declared_features_exactly_retained": true,
+                "leading_extremum_shift": null
+              }
+            ],
+            "maximum_relative_first_height_error": null,
+            "last_density_residual": -7.957603602,
+            "density_criterion_met": false,
+            "CL": 0.7243196146,
+            "CD": 0.01321479687
+          },
+          {
+            "cycle": 1,
+            "mesh": "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/adaptation_cycle_pair_v1/baseline/mesh_adap_00001.su2",
+            "restart": "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/adaptation_cycle_pair_v1/baseline/solution_adap_00001.dat",
+            "paraview": "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/adaptation_cycle_pair_v1/baseline/flow_adap_00001.vtu",
+            "points": 15945,
+            "triangles": 31316,
+            "boundary_edges": {
+              "FARFIELD": 51,
+              "AIRFOIL": 523
+            },
+            "validity": {
+              "positive_volumes": [
+                "PASS",
+                "min 4.045e-11 mean 9.991e-01 non-positive 0"
+              ],
+              "conformity": [
+                "PASS",
+                "faces in >2 elements 0, boundary faces without marker 0, marker faces: interior 0, not an element face 0, repeated 0"
+              ],
+              "points_elements": [
+                "PASS",
+                "unused points 0, duplicate points 0, duplicate elements 0"
+              ]
+            },
+            "exact_restart_mesh_pairing": true,
+            "all_vtu_scalar_pairing": {
+              "Density": true,
+              "Energy": true,
+              "Nu_Tilde": true,
+              "Pressure": true,
+              "Temperature": true,
+              "Mach": true,
+              "Pressure_Coefficient": true,
+              "Laminar_Viscosity": true,
+              "Heat_Flux": true,
+              "Y_Plus": true,
+              "Eddy_Viscosity": true,
+              "SENSOR_MACH": true,
+              "Hessian_MACH_XX": true,
+              "Hessian_MACH_XY": true,
+              "Hessian_MACH_YY": true,
+              "SENSOR_PRESSURE": true,
+              "Hessian_PRESSURE_XX": true,
+              "Hessian_PRESSURE_XY": true,
+              "Hessian_PRESSURE_YY": true,
+              "Metric_XX": true,
+              "Metric_XY": true,
+              "Metric_YY": true
+            },
+            "minimum_density": 0.2431144447595865,
+            "minimum_internal_energy": 54399.756250933395,
+            "pressure_consistency_relative_error": 6.743216972332401e-16,
+            "reference": [
+              {
+                "marker": "FARFIELD",
+                "original_components": 1,
+                "candidate_components": 1,
+                "original_faces": 67,
+                "candidate_faces": 51,
+                "covered_arc_over_period": 1.0,
+                "max_corresponding_parameter_deviation": 2.0513793975368797e-07,
+                "max_vertex_projection_distance": 1.4273168140722167e-14,
+                "declared_feature_coordinates": [],
+                "all_declared_features_exactly_retained": true,
+                "leading_extremum_shift": null
+              },
+              {
+                "marker": "AIRFOIL",
+                "original_components": 1,
+                "candidate_components": 1,
+                "original_faces": 852,
+                "candidate_faces": 523,
+                "covered_arc_over_period": 0.9999999999999996,
+                "max_corresponding_parameter_deviation": 5.263539387619537e-07,
+                "max_vertex_projection_distance": 5.263539387644555e-07,
+                "declared_feature_coordinates": [
+                  [
+                    1.0,
+                    0.000169999999343418
+                  ]
+                ],
+                "all_declared_features_exactly_retained": true,
+                "leading_extremum_shift": null
+              }
+            ],
+            "maximum_relative_first_height_error": 2.901678897160309e-12,
+            "last_density_residual": -8.419763698,
+            "density_criterion_met": true,
+            "CL": 0.7237685196,
+            "CD": 0.01379211046
+          }
+        ],
+        "metric_audit": {
+          "cycle": 1,
+          "points": 15945,
+          "triangles": 31316,
+          "min_quality": 0.3601782986405135,
+          "max_simpson_length": 1.7998468593715324,
+          "numerical_gate_tolerance": 1e-08,
+          "core_eigenvalue": 0.0025,
+          "reference_corners": 1,
+          "unique_target_queries": 94522,
+          "boundary_extensions": 8,
+          "maximum_extension": 5.263539387656615e-07,
+          "roundoff_queries": 438,
+          "input_sha256": {
+            "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/adaptation_cycle_pair_v1/baseline/input.su2": "25d26a0ef9a9815ff147ec986805994290b1000702532fb9c0d0f472f27f2ab8",
+            "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/adaptation_cycle_pair_v1/baseline/input.su2.native_ref": "bb277df17b549cb616f9903443455e0a491f406df799769f266af345243efe17",
+            "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/adaptation_cycle_pair_v1/baseline/mesh_adap_00001.su2": "ad2d4149afaf6250735d0e5e1a940aab62eabaf2877ac748c204650660fa2cb1",
+            "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/adaptation_cycle_pair_v1/baseline/solution_adap_00000.dat": "47676a16b7069193644a882d6ef35f2a6c3201d293ddd8e4488b51dd670e457e",
+            "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/adaptation_cycle_pair_v1/baseline/run.cfg": "ec5f6f9a753d4bf529489d7f55ff3bebf44d8488f22faf6d841378cfdd125509",
+            "/tmp/su2-metric-robustness/integration_evidence/audit_native_composite_rae.py": "c88454bb75383ec2fd756f760369efa5391b8c10c8db2f616f3d443d826dc4b4",
+            "/tmp/su2-metric-robustness/integration_evidence/frozen_field_audit.py": "31e129d83552f74d7551ad5fe6d6ce7ee51ece5b7f3d6002dbf030b3d9da4e59",
+            "/tmp/su2-metric-robustness/integration_evidence/airfoil_reference_audit.py": "b25b9ee14e6fc88c2e0bc036c0bfb5afe0f604782f4ba7b3beab5bc36407dac2"
+          },
+          "scope": "Independent original-connectivity P1 sensor, original geometric wall constraints, centroid q and Simpson edge lengths. Does not validate CFD convergence or arbitrary configurations.",
+          "elapsed_seconds": 111.31984465901041,
+          "bad_quality_cells": 0,
+          "bad_length_edges": 0
+        },
+        "resumed_flow": {
+          "iterations": 2000,
+          "first_density_residual": -2.397320521,
+          "last_density_residual": -8.419763698,
+          "last_turbulence_residual": -6.857260249,
+          "CL": 0.7237685196,
+          "CD": 0.01379211046
+        }
+      },
+      "improved": {
+        "solver_exit": 0,
+        "process_seconds": 130.39776587599772,
+        "hessian_seconds": [
+          0.0058792,
+          0.00486634,
+          0.00459362
+        ],
+        "metric_seconds": [
+          18.2596,
+          17.7244,
+          15.9123
+        ],
+        "metric_work": [
+          "78 complexity trials, 6015 total gradation sweeps, 111824865 owned-point visits; gradation 15.3146 s, halo 0.517881 s, sweep reductions 2.53662 s (maximum accumulated rank times).",
+          "78 complexity trials, 6015 total gradation sweeps, 111824865 owned-point visits; gradation 14.8516 s, halo 0.46514 s, sweep reductions 2.39959 s (maximum accumulated rank times).",
+          "79 complexity trials, 6222 total gradation sweeps, 99104016 owned-point visits; gradation 13.6177 s, halo 0.327967 s, sweep reductions 2.31802 s (maximum accumulated rank times)."
+        ],
+        "sensor_gradation": [
+          "80 sweeps, iteration limit reached, maximum transported-metric ratio 1.00016, directed edges above 1+1e-5: 104.",
+          "80 sweeps, iteration limit reached, maximum transported-metric ratio 1.00016, directed edges above 1+1e-5: 104.",
+          "80 sweeps, iteration limit reached, maximum transported-metric ratio 1.00014, directed edges above 1+1e-5: 291."
+        ],
+        "composed_gradation": [
+          "maximum transported-metric ratio 98.9903, directed edges above 1+1e-5: 14820. Sensor gradation is not a combined-field certificate.",
+          "maximum transported-metric ratio 98.9903, directed edges above 1+1e-5: 14820. Sensor gradation is not a combined-field certificate.",
+          "maximum transported-metric ratio 108.556, directed edges above 1+1e-5: 15332. Sensor gradation is not a combined-field certificate."
+        ],
+        "native_summary": [
+          "Native geometric integration: 303954 points, preparation 0.183086 s.",
+          "Native metric work: 78 complexity trials, 6015 total gradation sweeps, 111824865 owned-point visits; gradation 15.3146 s, halo 0.517881 s, sweep reductions 2.53662 s (maximum accumulated rank times).",
+          "Native sensor gradation: 80 sweeps, iteration limit reached, maximum transported-metric ratio 1.00016, directed edges above 1+1e-5: 104.",
+          "Native composed nodal audit: maximum transported-metric ratio 98.9903, directed edges above 1+1e-5: 14820. Sensor gradation is not a combined-field certificate.",
+          "Native geometric integration: 303954 points, preparation 0.167848 s.",
+          "Native metric work: 78 complexity trials, 6015 total gradation sweeps, 111824865 owned-point visits; gradation 14.8516 s, halo 0.46514 s, sweep reductions 2.39959 s (maximum accumulated rank times).",
+          "Native sensor gradation: 80 sweeps, iteration limit reached, maximum transported-metric ratio 1.00016, directed edges above 1+1e-5: 104.",
+          "Native composed nodal audit: maximum transported-metric ratio 98.9903, directed edges above 1+1e-5: 14820. Sensor gradation is not a combined-field certificate.",
+          "Native contract: q>=0.18, frozen-target Simpson edge length<=1.8, reference deviation<=1e-06, requested wall altitude relative error<=1e-8; dependency budget=2097152 bytes per rank, original P1 sensor target + geometric BL constraints, boundary sampling adaptive.",
+          "Native work allowance: 2267 collective rounds per phase, 6 sweeps, for 36263 input cells on 4 ranks; frozen P1 centroid complexity=6444.61, estimated unit triangles=27555.2 (geometric BL row allowance=12672).",
+          "Native requested first altitude: AIRFOIL = 1e-05",
+          "Native incoming residuals: shape=172, edge length=1705",
+          "Native adaptation: 14938 commits (272 across owners), qmin=0.361313, Lmax=1.79995, residual cells=0, height faces=0, reference faces=0. No remesher-side target floor.",
+          "Native remaining residuals: shape=0, edge length=0",
+          "Native coordinated repair: 0 commits, 0 seconds (maximum across ranks).",
+          "Native operations (height/split/remove/redistribute/bulk remove/split/flip/move): 0 10 356 319 4095 2225 1906 6027; conflicts=6, dependency-size rejects=0, memory rejects=0, stale rejects=0, engine encoded bytes=361599520, largest transport admission estimate=4939040",
+          "Native phase elapsed seconds (same action order, maximum across ranks): 0.00109992 0.0611729 1.08418 1.2879 5.63707 3.34403 4.35023 6.20084",
+          "Native candidate selection seconds (same action order, maximum across ranks): 0.00109445 0.0158726 0.18801 0.19879 1.07382 0.602163 0.179341 0.245921",
+          "Native cached selection full scans (same action order, sum across ranks): 0 0 0 0 2183 1916 70 88",
+          "Native deferred/rejected candidate: Query outside frozen donor and associated extension band. (167).",
+          "Native deferred/rejected candidate: boundary coarsening or movement misses geometry/metric target (102).",
+          "Native deferred/rejected candidate: boundary coarsening or movement worsens bulk size (41).",
+          "Native deferred/rejected candidate: coarsening misses target (2611).",
+          "Native deferred/rejected candidate: flip does not improve quality (4756).",
+          "Native deferred/rejected candidate: insertion worsens sub-threshold shape (7).",
+          "Native deferred/rejected candidate: no admitted first-height ear; enlargement or different surface resolution required (7).",
+          "Native deferred/rejected candidate: no improving valid movement (3039).",
+          "Native deferred/rejected candidate: no representable tangential redistribution (4).",
+          "Native deferred/rejected candidate: nonconvex quadrilateral (2110).",
+          "Native deferred/rejected candidate: not a complete interior edge star (12).",
+          "Native deferred/rejected candidate: physical face misses declared reference tolerance (134).",
+          "Native deferred/rejected candidate: protected first layer (638).",
+          "Native deferred/rejected candidate: surface reconstruction worsens sub-threshold shape (4).",
+          "Native geometric integration: 273735 points, preparation 0.143457 s.",
+          "Native metric work: 79 complexity trials, 6222 total gradation sweeps, 99104016 owned-point visits; gradation 13.6177 s, halo 0.327967 s, sweep reductions 2.31802 s (maximum accumulated rank times).",
+          "Native sensor gradation: 80 sweeps, iteration limit reached, maximum transported-metric ratio 1.00014, directed edges above 1+1e-5: 291.",
+          "Native composed nodal audit: maximum transported-metric ratio 108.556, directed edges above 1+1e-5: 15332. Sensor gradation is not a combined-field certificate."
+        ],
+        "accepted_mesh_written": true,
+        "rejected_meshes": [],
+        "checks": [
+          {
+            "checker": "inspect_rae2822_solution.py",
+            "exit_code": 0
+          },
+          {
+            "checker": "audit_native_composite_rae.py",
+            "exit_code": 0
+          }
+        ],
+        "inspection": [
+          {
+            "cycle": 0,
+            "mesh": "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/adaptation_cycle_pair_v1/improved/input.su2",
+            "restart": "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/adaptation_cycle_pair_v1/improved/solution_adap_00000.dat",
+            "paraview": "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/adaptation_cycle_pair_v1/improved/flow_adap_00000.vtu",
+            "points": 18591,
+            "triangles": 36263,
+            "boundary_edges": {
+              "FARFIELD": 67,
+              "AIRFOIL": 852
+            },
+            "validity": {
+              "positive_volumes": [
+                "PASS",
+                "min 4.911e-11 mean 8.628e-01 non-positive 0"
+              ],
+              "conformity": [
+                "PASS",
+                "faces in >2 elements 0, boundary faces without marker 0, marker faces: interior 0, not an element face 0, repeated 0"
+              ],
+              "points_elements": [
+                "PASS",
+                "unused points 0, duplicate points 0, duplicate elements 0"
+              ]
+            },
+            "exact_restart_mesh_pairing": true,
+            "all_vtu_scalar_pairing": {
+              "Density": true,
+              "Energy": true,
+              "Nu_Tilde": true,
+              "Pressure": true,
+              "Temperature": true,
+              "Mach": true,
+              "Pressure_Coefficient": true,
+              "Laminar_Viscosity": true,
+              "Heat_Flux": true,
+              "Y_Plus": true,
+              "Eddy_Viscosity": true,
+              "SENSOR_MACH": true,
+              "Hessian_MACH_XX": true,
+              "Hessian_MACH_XY": true,
+              "Hessian_MACH_YY": true,
+              "SENSOR_PRESSURE": true,
+              "Hessian_PRESSURE_XX": true,
+              "Hessian_PRESSURE_XY": true,
+              "Hessian_PRESSURE_YY": true,
+              "Metric_XX": true,
+              "Metric_XY": true,
+              "Metric_YY": true
+            },
+            "minimum_density": 0.24138092940426498,
+            "minimum_internal_energy": 54079.97023531133,
+            "pressure_consistency_relative_error": 6.606262278880473e-16,
+            "reference": [
+              {
+                "marker": "FARFIELD",
+                "original_components": 1,
+                "candidate_components": 1,
+                "original_faces": 67,
+                "candidate_faces": 67,
+                "covered_arc_over_period": 1.0,
+                "max_corresponding_parameter_deviation": 8.881784197001252e-16,
+                "max_vertex_projection_distance": 0.0,
+                "declared_feature_coordinates": [],
+                "all_declared_features_exactly_retained": true,
+                "leading_extremum_shift": null
+              },
+              {
+                "marker": "AIRFOIL",
+                "original_components": 1,
+                "candidate_components": 1,
+                "original_faces": 852,
+                "candidate_faces": 852,
+                "covered_arc_over_period": 1.0,
+                "max_corresponding_parameter_deviation": 1.3552527156068805e-20,
+                "max_vertex_projection_distance": 0.0,
+                "declared_feature_coordinates": [
+                  [
+                    1.0,
+                    0.000169999999343418
+                  ]
+                ],
+                "all_declared_features_exactly_retained": true,
+                "leading_extremum_shift": null
+              }
+            ],
+            "maximum_relative_first_height_error": null,
+            "last_density_residual": -7.957603602,
+            "density_criterion_met": false,
+            "CL": 0.7243196146,
+            "CD": 0.01321479687
+          },
+          {
+            "cycle": 1,
+            "mesh": "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/adaptation_cycle_pair_v1/improved/mesh_adap_00001.su2",
+            "restart": "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/adaptation_cycle_pair_v1/improved/solution_adap_00001.dat",
+            "paraview": "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/adaptation_cycle_pair_v1/improved/flow_adap_00001.vtu",
+            "points": 15928,
+            "triangles": 31283,
+            "boundary_edges": {
+              "FARFIELD": 51,
+              "AIRFOIL": 522
+            },
+            "validity": {
+              "positive_volumes": [
+                "PASS",
+                "min 4.419e-11 mean 1.000e+00 non-positive 0"
+              ],
+              "conformity": [
+                "PASS",
+                "faces in >2 elements 0, boundary faces without marker 0, marker faces: interior 0, not an element face 0, repeated 0"
+              ],
+              "points_elements": [
+                "PASS",
+                "unused points 0, duplicate points 0, duplicate elements 0"
+              ]
+            },
+            "exact_restart_mesh_pairing": true,
+            "all_vtu_scalar_pairing": {
+              "Density": true,
+              "Energy": true,
+              "Nu_Tilde": true,
+              "Pressure": true,
+              "Temperature": true,
+              "Mach": true,
+              "Pressure_Coefficient": true,
+              "Laminar_Viscosity": true,
+              "Heat_Flux": true,
+              "Y_Plus": true,
+              "Eddy_Viscosity": true,
+              "SENSOR_MACH": true,
+              "Hessian_MACH_XX": true,
+              "Hessian_MACH_XY": true,
+              "Hessian_MACH_YY": true,
+              "SENSOR_PRESSURE": true,
+              "Hessian_PRESSURE_XX": true,
+              "Hessian_PRESSURE_XY": true,
+              "Hessian_PRESSURE_YY": true,
+              "Metric_XX": true,
+              "Metric_XY": true,
+              "Metric_YY": true
+            },
+            "minimum_density": 0.24257082846401903,
+            "minimum_internal_energy": 54284.104800890826,
+            "pressure_consistency_relative_error": 6.563612488552519e-16,
+            "reference": [
+              {
+                "marker": "FARFIELD",
+                "original_components": 1,
+                "candidate_components": 1,
+                "original_faces": 67,
+                "candidate_faces": 51,
+                "covered_arc_over_period": 1.0,
+                "max_corresponding_parameter_deviation": 2.0513793975368797e-07,
+                "max_vertex_projection_distance": 1.5888218580782548e-14,
+                "declared_feature_coordinates": [],
+                "all_declared_features_exactly_retained": true,
+                "leading_extremum_shift": null
+              },
+              {
+                "marker": "AIRFOIL",
+                "original_components": 1,
+                "candidate_components": 1,
+                "original_faces": 852,
+                "candidate_faces": 522,
+                "covered_arc_over_period": 0.9999999999999993,
+                "max_corresponding_parameter_deviation": 9.547671057914984e-07,
+                "max_vertex_projection_distance": 5.263539387644555e-07,
+                "declared_feature_coordinates": [
+                  [
+                    1.0,
+                    0.000169999999343418
+                  ]
+                ],
+                "all_declared_features_exactly_retained": true,
+                "leading_extremum_shift": null
+              }
+            ],
+            "maximum_relative_first_height_error": 3.83204579179619e-12,
+            "last_density_residual": -8.332432647,
+            "density_criterion_met": true,
+            "CL": 0.7241585199,
+            "CD": 0.01379978027
+          }
+        ],
+        "metric_audit": {
+          "cycle": 1,
+          "points": 15928,
+          "triangles": 31283,
+          "min_quality": 0.3613133740433729,
+          "max_simpson_length": 1.7999471174925974,
+          "numerical_gate_tolerance": 1e-08,
+          "core_eigenvalue": 0.0025,
+          "reference_corners": 1,
+          "unique_target_queries": 94422,
+          "boundary_extensions": 6,
+          "maximum_extension": 5.263539387656615e-07,
+          "roundoff_queries": 429,
+          "input_sha256": {
+            "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/adaptation_cycle_pair_v1/improved/input.su2": "25d26a0ef9a9815ff147ec986805994290b1000702532fb9c0d0f472f27f2ab8",
+            "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/adaptation_cycle_pair_v1/improved/input.su2.native_ref": "bb277df17b549cb616f9903443455e0a491f406df799769f266af345243efe17",
+            "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/adaptation_cycle_pair_v1/improved/mesh_adap_00001.su2": "78be7affd865ab79ed99d343d7917236bcf80c7a7361239275b59803b97bba98",
+            "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/adaptation_cycle_pair_v1/improved/solution_adap_00000.dat": "a7d8c2b9e3e1986f582911fa9c5ce74b37307b21b168cd7dd3d4ab36df568aa5",
+            "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/adaptation_cycle_pair_v1/improved/run.cfg": "ec5f6f9a753d4bf529489d7f55ff3bebf44d8488f22faf6d841378cfdd125509",
+            "/tmp/su2-metric-robustness/integration_evidence/audit_native_composite_rae.py": "c88454bb75383ec2fd756f760369efa5391b8c10c8db2f616f3d443d826dc4b4",
+            "/tmp/su2-metric-robustness/integration_evidence/frozen_field_audit.py": "31e129d83552f74d7551ad5fe6d6ce7ee51ece5b7f3d6002dbf030b3d9da4e59",
+            "/tmp/su2-metric-robustness/integration_evidence/airfoil_reference_audit.py": "b25b9ee14e6fc88c2e0bc036c0bfb5afe0f604782f4ba7b3beab5bc36407dac2"
+          },
+          "scope": "Independent original-connectivity P1 sensor, original geometric wall constraints, centroid q and Simpson edge lengths. Does not validate CFD convergence or arbitrary configurations.",
+          "elapsed_seconds": 110.21047502900183,
+          "bad_quality_cells": 0,
+          "bad_length_edges": 0
+        },
+        "resumed_flow": {
+          "iterations": 2000,
+          "first_density_residual": -2.407156097,
+          "last_density_residual": -8.332432647,
+          "last_turbulence_residual": -7.531627166,
+          "CL": 0.7241585199,
+          "CD": 0.01379978027
+        }
+      }
+    },
+    "analysis_sha256": "6b1c1a1008352905f5ca0bd623c331ddd7494ad088cc6ec7aeca80fafe69859d",
+    "matched_pre_adaptation_flow_bitwise": true,
+    "recovery_field_changes": {
+      "Hessian_MACH": {
+        "relative_quantiles": [
+          1.7680548449851485e-18,
+          1.1118542323527341e-13,
+          0.0020873138388204883,
+          0.39067336524303586,
+          15.257703131196184
+        ]
+      },
+      "Hessian_PRESSURE": {
+        "relative_quantiles": [
+          4.776557942901693e-16,
+          9.013488893843686e-13,
+          0.5183196151660676,
+          2.1926478687798885,
+          129.11276159915923
+        ]
+      },
+      "Metric": {
+        "relative_quantiles": [
+          0.0,
+          0.013245749852200945,
+          0.16797362862782186,
+          0.35391365456214546,
+          1.0378345177666257
+        ]
+      }
+    },
+    "accepted_and_independently_verified": true,
+    "both_flow_criteria_met": false
+  },
+  "self_check": "Original-reference sidecar and no-sidecar paths match exact original edges; geometric intersection math passes. Run integration_evidence/run_metric_cycle_pair.py --self-check.",
+  "passed": true,
+  "flow_converged": false,
+  "gradation_certificate": false,
+  "limits": "One matched 2D GG cycle; similar mesh quality and lower SA residual, no force-accuracy, 3D, repeated-runtime or newer-remesher certificate. Existing sensor/composed gradation residuals remain.",
+  "durable_archive": "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/adaptation_cycle_pair_v1",
+  "report_sha256": "5e081cb0782e551445773e4ba364042e0f62cef36bd74c0e3a76794cf7ad092f",
+  "local_source_sha256": {
+    "integration_evidence/run_metric_cycle_pair.py": "a8820e4bd4205b50ee38c0d3384cbcedb93dba6bc873aa181c5c740db3a8dcc5",
+    "integration_evidence/analyze_metric_cycle_pair.py": "6b1c1a1008352905f5ca0bd623c331ddd7494ad088cc6ec7aeca80fafe69859d",
+    "integration_evidence/inspect_rae2822_solution.py": "c2a83f6ef9bbab40340fa036a9c40bd91450e1fc97679fbe482ae463a3a86fe3",
+    "integration_evidence/audit_native_composite_rae.py": "c88454bb75383ec2fd756f760369efa5391b8c10c8db2f616f3d443d826dc4b4",
+    "integration_evidence/audit_native_metric_integration.py": "c9523c5373d23ee59f79ba76a4aeffe92f384c0c554cc26e7869e3c4bad72f73",
+    "integration_evidence/airfoil_reference_audit.py": "b25b9ee14e6fc88c2e0bc036c0bfb5afe0f604782f4ba7b3beab5bc36407dac2",
+    "integration_evidence/audit_native_bl.py": "cff150658edcd3d365f44e01fb26c5cd533afbe766bc551912386000a464055c",
+    "integration_evidence/frozen_field_audit.py": "31e129d83552f74d7551ad5fe6d6ce7ee51ece5b7f3d6002dbf030b3d9da4e59",
+    "TestCases/adaptation/capability/capcheck.py": "7dd21ce5b3716e84772201b29d271d5352b7aba345858013ed6ec414514517ff",
+    "Papers/ADAPTATION_CYCLE_RECOVERY.md": "5e081cb0782e551445773e4ba364042e0f62cef36bd74c0e3a76794cf7ad092f",
+    "GRADIENT_TRANSFER_FOLLOWUP.md": "418ee651eb40b7594eac91ae934fb27f0777a45bd11491273fb64fb24ec9a594",
+    "MESH_ADAPTATION_FINDINGS.md": "f52703c131257fda080aeb92cab630bdf985bde3fd8cf650b7a3cd482bcdf441"
+  },
+  "original_reference_audit": {
+    "baseline": [
+      {
+        "marker": "AIRFOIL",
+        "original_components": 1,
+        "candidate_components": 1,
+        "original_faces": 192,
+        "candidate_faces": 523,
+        "covered_arc_over_period": 1.0,
+        "max_corresponding_parameter_deviation": 4.1239445730169045e-07,
+        "max_vertex_projection_distance": 1.0408340855860843e-17,
+        "declared_feature_coordinates": [
+          [
+            1.0,
+            0.000169999999343418
+          ]
+        ],
+        "all_declared_features_exactly_retained": true,
+        "leading_extremum_shift": null
+      },
+      {
+        "marker": "FARFIELD",
+        "original_components": 1,
+        "candidate_components": 1,
+        "original_faces": 40,
+        "candidate_faces": 51,
+        "covered_arc_over_period": 1.0,
+        "max_corresponding_parameter_deviation": 2.0513793975368797e-07,
+        "max_vertex_projection_distance": 3.552713678800501e-15,
+        "declared_feature_coordinates": [],
+        "all_declared_features_exactly_retained": true,
+        "leading_extremum_shift": null
+      }
+    ],
+    "improved": [
+      {
+        "marker": "AIRFOIL",
+        "original_components": 1,
+        "candidate_components": 1,
+        "original_faces": 192,
+        "candidate_faces": 522,
+        "covered_arc_over_period": 0.9999999999999998,
+        "max_corresponding_parameter_deviation": 9.547671058242555e-07,
+        "max_vertex_projection_distance": 1.3877787807814457e-17,
+        "declared_feature_coordinates": [
+          [
+            1.0,
+            0.000169999999343418
+          ]
+        ],
+        "all_declared_features_exactly_retained": true,
+        "leading_extremum_shift": null
+      },
+      {
+        "marker": "FARFIELD",
+        "original_components": 1,
+        "candidate_components": 1,
+        "original_faces": 40,
+        "candidate_faces": 51,
+        "covered_arc_over_period": 1.0,
+        "max_corresponding_parameter_deviation": 2.0513793975368797e-07,
+        "max_vertex_projection_distance": 3.552713678800501e-15,
+        "declared_feature_coordinates": [],
+        "all_declared_features_exactly_retained": true,
+        "leading_extremum_shift": null
+      }
+    ]
+  },
+  "retained_original_sidecar_geometry_identical": true
+}

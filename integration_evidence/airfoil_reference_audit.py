@@ -1,5 +1,8 @@
 """Independent original-polyline correspondence and feature audit for the airfoil gate."""
 import math
+import json
+import numpy as np
+from pathlib import Path
 from audit_native_bl import mesh, cross
 
 
@@ -86,3 +89,22 @@ def reference_audit(original_path, candidate_path):
                      'leading_extremum_shift':min(p[0] for p in coords)-min(p[0] for p in line)
                                             if tag=='airfoil' else None})
     return rows
+
+
+def original_wall(path):
+ sidecar=Path(str(path)+'.native_ref')
+ if not sidecar.exists():
+  points,cells,markers=mesh(path);return np.array(points),np.array(markers['AIRFOIL']),[path]
+ rows=sidecar.read_text().splitlines();assert rows[0]=='SU2_NATIVE_REFERENCE 1'
+ markers,faces,bindings=map(int,rows[1].split());names=[json.loads(s) for s in rows[2:2+markers]]
+ points={};edges=[]
+ for line in rows[2+markers:2+markers+faces]:
+  s=line.split();marker=int(s[0])
+  if names[marker]!='AIRFOIL':continue
+  ids=[]
+  for i in (1,5):
+   gid=int(s[i]);xy=tuple(map(float,s[i+1:i+3]));assert gid not in points or points[gid]==xy
+   points[gid]=xy;ids.append(gid)
+  edges.append(ids)
+ ids=sorted(points);mapping={gid:i for i,gid in enumerate(ids)}
+ return np.array([points[i] for i in ids]),np.array([[mapping[a],mapping[b]] for a,b in edges]),[path,sidecar]
