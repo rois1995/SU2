@@ -76,6 +76,8 @@ follows from merely completing a high-rank run.
 original donor snapshots at n/n-1, their transported restarts, final state,
 configuration, complete solver logs, timing/metric CSVs and provenance.
 `ClusterResults/jobs/` records allocation/hardware/binary/campaign summaries;
+each `${JOB_ID}_launcher/` also retains the SGE wrapper stdout/stderr, source
+revision and exit code, including failures before any solver case is created;
 `ClusterResults/tools/` contains the matching audit code. Download only
 `ClusterResults`, then audit from any working directory (Python + NumPy):
 

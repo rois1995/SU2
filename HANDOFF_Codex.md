@@ -1427,3 +1427,15 @@ native_adaptation_partition_v1/frozen_repeats_v1; stopped receipts distinguish
 completed controls from cancelled audit. No timing recommendation from single
 controls. Goal ACTIVE/incomplete: cluster results, repeated totalcost evidence
 and practical scaling/memory limits remain required.
+
+Cluster workflow follow-up only; local performance stop remains in effect.
+Found early SGE failures (e.g. missing machinefile) occurred before Python
+created ClusterResults and therefore escaped the download-only recipe.
+RunNativeSGE.sh now archives wrapper stdout/stderr, revision, exact wrapper
+and exit status under ClusterResults/jobs/${JOB_ID}_launcher before resolving
+compiler/MPI/input prerequisites. bash-n and fake-launcher selfcheck PASS,
+including missing machinefile exit2 with downloadable diagnostics. No real
+CFD/MPI/metric/performance assessment launched locally. Solver C++ unchanged;
+existing compiled native executables need no rebuild for this script update.
+Full goal remains ACTIVE/incomplete pending cluster data and verified totalcost
+advantages/scaling limits; no worker recommendation or affordability claim.

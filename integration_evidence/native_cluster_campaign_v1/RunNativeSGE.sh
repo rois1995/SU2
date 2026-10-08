@@ -8,6 +8,14 @@
 #$ -v LD_LIBRARY_PATH_GCC=/home/aero/share/bin/compiler/gcc-10.2.0/lib64
 set -euo pipefail
 cd "${SGE_O_WORKDIR:?Submit from the repository root}"
+# Preserve diagnostics even when failure occurs before Python creates case exports.
+native_launcher_dir="ClusterResults/jobs/${JOB_ID:?}_launcher"
+mkdir -p ClusterResults/jobs
+mkdir "$native_launcher_dir"
+exec > >(tee "$native_launcher_dir/launcher.out") 2> >(tee "$native_launcher_dir/launcher.err" >&2)
+trap 'printf "%s\n" "$?" > "$native_launcher_dir/exit_code.txt"' EXIT
+cp integration_evidence/native_cluster_campaign_v1/RunNativeSGE.sh "$native_launcher_dir/RunNativeSGE.sh"
+git rev-parse HEAD > "$native_launcher_dir/source_revision.txt"
 export PATH="${PATH_GCC:?}:$PATH"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH_GCC:?}:${LD_LIBRARY_PATH:-}"
 export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1

@@ -38,6 +38,17 @@ print('Exit Success')
         subprocess.run(['git','init','-q',str(root)],check=True)
         # A revision is needed for provenance, not to validate the fake source.
         subprocess.run(['git','-C',str(root),'-c','user.name=Selfcheck','-c','user.email=selfcheck@example.invalid','commit','-q','--allow-empty','-m','fake orchestration check'],check=True)
+        script=Path(__file__).resolve().parent/'native_cluster_campaign_v1/RunNativeSGE.sh'
+        (pack/'RunNativeSGE.sh').write_text(script.read_text())
+        launch_env=dict(os.environ,SGE_O_WORKDIR=str(root),JOB_ID='launcher_missing',NSLOTS='4',
+                        PATH_GCC='/unused',LD_LIBRARY_PATH_GCC='/unused',MACHINEFILE_PATH=str(root/'missing_hosts'))
+        failed=subprocess.run(['bash',str(script)],env=launch_env,capture_output=True,text=True)
+        receipt=root/'ClusterResults/jobs/launcher_missing_launcher'
+        assert failed.returncode==2 and (receipt/'exit_code.txt').read_text().strip()=='2'
+        assert 'Missing scheduler machinefile' in (receipt/'launcher.err').read_text()
+        assert (receipt/'source_revision.txt').read_text().strip()
+        assert (receipt/'RunNativeSGE.sh').read_bytes()==script.read_bytes()
+        # The launch failed before any solver could run, but its diagnostics are downloadable.
         args=['cluster','--kind','actual_bl_to_euler','--binary',str(binary),'--machinefile',str(hosts),'--ranks','4','--workers','4:2','--repeat','2','--events','1']
         with patch.object(campaign,'ROOT',root),patch.dict(os.environ,dict(PATH=str(launchers)+':'+os.environ['PATH'],JOB_ID='selfcheck')),patch.object(sys,'argv',args):
             assert campaign.main()==0
@@ -50,7 +61,7 @@ print('Exit Success')
             assert campaign.main()==1
         summary=json.loads((root/'ClusterResults/jobs/selfcheck_missing_actual_bl_to_euler/summary.json').read_text())
         assert summary['status']=='FAILED_CASES' and len(summary['failures'])==3
-        print('Cluster orchestration selfcheck PASS: repeated worker pairs, config overrides, selected collection and missing-data failure. Fake launcher only.')
+        print('Cluster orchestration selfcheck PASS: early SGE failure diagnostics, repeated worker pairs, config overrides, selected collection and missing-data failure. Fake launcher only.')
 
 
 if __name__=='__main__':main()
