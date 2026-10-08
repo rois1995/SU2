@@ -43,7 +43,10 @@ while True:
     elif quiet_since is None:quiet_since=time.monotonic()
     elif time.monotonic()-quiet_since>=15:break
     time.sleep(5)
-command=['mpiexec','-n',str(args.ranks),str(binary),'run.cfg'];start=time.monotonic()
+# GNU time records the local process tree's maximum child RSS, including the
+# launcher. This is not aggregate rank memory or the remesher admission bound.
+command=['/usr/bin/time','-v','-o',str(wd/'process_tree_memory.txt'),
+         'mpiexec','-n',str(args.ranks),str(binary),'run.cfg'];start=time.monotonic()
 with (wd/'solver.log').open('x') as log:
     child=subprocess.Popen(command,cwd=wd,env=env,stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
     record.update(phase='running',command=command,child_pid=child.pid,started_unix_seconds=time.time());save()

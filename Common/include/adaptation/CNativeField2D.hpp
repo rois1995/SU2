@@ -9,9 +9,12 @@
 #pragma once
 
 #include "CNativeDistributed2D.hpp"
+#include "../adt/CADTElemClass.hpp"
+#include "../option_structure.hpp"
 #include <deque>
 #include <memory>
 #include <tuple>
+#include <unordered_map>
 
 namespace SU2NativeBoundary2D {
 
@@ -74,6 +77,13 @@ struct DonorRequest {
   }
 };
 
+struct CoordinateHash {
+  size_t operator()(const std::array<double, 2>& p) const {
+    const auto x = std::hash<double>{}(p[0]), y = std::hash<double>{}(p[1]);
+    return x ^ (y + size_t(0x9e3779b9) + (x << 6) + (x >> 2));
+  }
+};
+
 /*--- The original donor never changes during a remesh call. Canonical sorted original node keys resolve
  *    containment ties independently of cell IDs, ownership and delivery order. Extension is allowed only to
  *    an explicitly associated physical component and a declared distance; global tensor axes never rotate. ---*/
@@ -85,7 +95,7 @@ struct FieldPatch {
   mutable size_t samples = 0, extensions = 0, roundoff_queries = 0;
   mutable uint64_t queries = 0, evictions = 0;
   mutable double maximum_extension = 0;
-  mutable std::map<std::array<double, 2>, Tensor> cache;
+  mutable std::unordered_map<std::array<double, 2>, Tensor, CoordinateHash> cache;
   // Only evaluated samples enter this queue; authoritative unchanged-vertex
   // entries seeded by the engine must survive private reconstruction.
   mutable std::deque<std::array<double, 2>> recent;
@@ -123,9 +133,20 @@ struct FieldPatch {
     };
     for (const auto& cell : cells) {
       const auto& t = cell.triangle;
-      const std::array<long double, 3> signs{orient(p, t.v[1].p, t.v[2].p), orient(t.v[0].p, p, t.v[2].p),
-                                             orient(t.v[0].p, t.v[1].p, p)};
-      if (*std::min_element(signs.begin(), signs.end()) < 0) continue;
+      // A closed coordinate box can exclude exact containment without a
+      // predicate. Roundoff-only containment and boundary extension below
+      // still examine all donors in the original canonical order.
+      if (p.x < std::min({t.v[0].p.x, t.v[1].p.x, t.v[2].p.x}) ||
+          p.x > std::max({t.v[0].p.x, t.v[1].p.x, t.v[2].p.x}) ||
+          p.y < std::min({t.v[0].p.y, t.v[1].p.y, t.v[2].p.y}) ||
+          p.y > std::max({t.v[0].p.y, t.v[1].p.y, t.v[2].p.y})) continue;
+      std::array<long double, 3> signs{};
+      signs[0] = orient(p, t.v[1].p, t.v[2].p);
+      if (signs[0] < 0) continue;
+      signs[1] = orient(t.v[0].p, p, t.v[2].p);
+      if (signs[1] < 0) continue;
+      signs[2] = orient(t.v[0].p, t.v[1].p, p);
+      if (signs[2] < 0) continue;
       const auto denominator = signs[0] + signs[1] + signs[2];
       if (!(denominator > 0 && std::isfinite(denominator))) throw std::runtime_error("Unusable frozen donor simplex.");
       auto weights = signs;
@@ -208,6 +229,10 @@ class DonorField {
   World& world;
   const std::map<Id, DonorCell> owned;
   MetricComposition composition;
+  uint64_t search_candidates = 0, full_scan_equivalent = 0;
+  size_t SearchBytes() const {
+    return transfer_memory::Add(transfer_memory::Bytes(search_keys), search ? search->GetAllocatedBytes() : 0);
+  }
   DonorField(World& w, const std::map<Id, Cell>& original, MetricComposition combine = {})
       : world(w), owned(Snapshot(original)), composition(std::move(combine)) {
     CLocalFailure failure;
@@ -216,6 +241,12 @@ class DonorField {
       for (const auto& m : cell.second.metric)
         if (!(NormalizedDeterminant(m.xx, m.xy, m.yy) > 1e-14L))
           failure.Set(1, cell.first, "Nonfinite or numerically singular original nodal target.");
+    }
+    CollectiveFailure(failure, CURRENT_FUNCTION);
+    try {
+      BuildSearch();
+    } catch (const std::exception& error) {
+      failure.Set(1, 0, error.what());
     }
     CollectiveFailure(failure, CURRENT_FUNCTION);
   }
@@ -263,6 +294,7 @@ class DonorField {
     auto regions = world.exchange(to);
     std::sort(regions.begin(), regions.end(), [](const auto& a, const auto& b) { return a.caller < b.caller; });
     std::vector<std::vector<DonorId>> ids(world.size);
+    std::vector<unsigned long> candidates;
     for (size_t first = 0; first < regions.size();) {
       size_t last = first + 1;
       while (last < regions.size() && regions[last].caller == regions[first].caller) ++last;
@@ -272,7 +304,22 @@ class DonorField {
           box.lo[k] = std::min(box.lo[k], regions[i].lo[k]);
           box.hi[k] = std::max(box.hi[k], regions[i].hi[k]);
         }
-      for (const auto& entry : owned) {
+      // Admit worst-case query scratch before traversal. Large donor partitions or a tiny
+      // dependency ceiling retain the original allocation-free scan instead of weakening admission.
+      const bool indexed = search &&
+          transfer_memory::Add(transfer_memory::Bytes(regions), transfer_memory::Bytes(to),
+                               transfer_memory::Bytes(ids), transfer_memory::IntersectionQueryBound(owned.size())) <= budget;
+      if (indexed) {
+        const su2double lo[2]{box.lo[0], box.lo[1]}, hi[2]{box.hi[0], box.hi[1]};
+        search->DetermineIntersectingElements(lo, hi, candidates);
+        std::sort(candidates.begin(), candidates.end());  // Preserve original ordered cell-ID discovery.
+      }
+      search_candidates += indexed ? candidates.size() : owned.size();
+      full_scan_equivalent += owned.size();
+      size_t candidate = 0;
+      auto scan = owned.begin();
+      while (indexed ? candidate < candidates.size() : scan != owned.end()) {
+        const auto& entry = indexed ? *owned.find(search_keys[candidates[candidate++]]) : *scan++;
         std::array<double, 2> lo{std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity()};
         std::array<double, 2> hi{-lo[0], -lo[1]};
         for (const auto& v : entry.second.triangle.v) {
@@ -305,7 +352,8 @@ class DonorField {
     maxDiscovered = std::max(maxDiscovered, found.size());
     const size_t required = transfer_memory::Add(transfer_memory::Mul(old.size(), 4 * sizeof(Cell)),
                                                  transfer_memory::Mul(found.size(), 4 * sizeof(DonorCell)),
-                                                 transfer_memory::Mul(QUERY_CACHE_LIMIT, QUERY_CACHE_BYTES));
+                                                 transfer_memory::Mul(QUERY_CACHE_LIMIT, QUERY_CACHE_BYTES),
+                                                 transfer_memory::Bytes(candidates));
     if (active && (old.empty() || found.empty() || found.size() > FIELD_LIMIT || required > budget ||
                    std::any_of(found.begin(), found.end(), [](auto r) { return r.owner < 0; }))) {
       active = false;
@@ -319,7 +367,8 @@ class DonorField {
     const auto replyPacking = transfer_memory::Add(transfer_memory::Bytes(old), transfer_memory::Bytes(found),
                                                    transfer_memory::Bytes(queries), transfer_memory::Bytes(requests),
                                                    transfer_memory::Bytes(regions), transfer_memory::Bytes(to),
-                                                   transfer_memory::Bytes(ids), transfer_memory::Bytes(reply),
+                                                   transfer_memory::Bytes(ids), transfer_memory::Bytes(candidates),
+                                                   transfer_memory::Bytes(reply),
                                                    transfer_memory::GrowthBound(queries.size(), sizeof(DonorCell)));
     const bool canPack = world.sum(replyPacking > budget) == 0;
     if (canPack) {
@@ -333,7 +382,8 @@ class DonorField {
         reply, &payloadAdmitted, budget,
         transfer_memory::Add(transfer_memory::Bytes(old), transfer_memory::Bytes(found),
                              transfer_memory::Bytes(queries), transfer_memory::Bytes(requests),
-                             transfer_memory::Bytes(regions), transfer_memory::Bytes(to), transfer_memory::Bytes(ids)));
+                             transfer_memory::Bytes(regions), transfer_memory::Bytes(to), transfer_memory::Bytes(ids),
+                             transfer_memory::Bytes(candidates)));
     if (active && !payloadAdmitted) {
       active = false;
       ++rejected;
@@ -350,6 +400,38 @@ class DonorField {
   }
 
  private:
+  std::unique_ptr<CADTElemClass> search;
+  std::vector<Id> search_keys;
+  void BuildSearch() {
+    search_keys.reserve(owned.size());
+    for (const auto& entry : owned) search_keys.push_back(entry.first);
+    // Production Native requires primal binary64. Other builds retain the original exact scan;
+    // narrowing passive coordinates into an ADT could exclude valid thin/translated donors.
+    if constexpr (std::is_same<su2double, double>::value) {
+      std::vector<su2double> coordinates;
+      std::vector<unsigned long> connectivity, ids;
+      std::vector<unsigned short> types(owned.size(), LINE), markers(owned.size(), 0);
+      coordinates.reserve(4 * owned.size());
+      connectivity.reserve(2 * owned.size());
+      ids.reserve(owned.size());
+      for (const auto& entry : owned) {
+        const auto& nodes = entry.second.triangle.v;
+        for (int side = 0; side < 2; ++side) {
+          for (int axis = 0; axis < 2; ++axis) {
+            const auto value = [&](const Node& n) { return axis ? n.p.y : n.p.x; };
+            coordinates.push_back(side ? std::max({value(nodes[0]), value(nodes[1]), value(nodes[2])})
+                                       : std::min({value(nodes[0]), value(nodes[1]), value(nodes[2])}));
+          }
+          connectivity.push_back(connectivity.size());
+        }
+        ids.push_back(ids.size());
+      }
+      // Only box intersections are used: a two-corner LINE indexes a donor box with less
+      // storage than a duplicate triangle. Inflated ADT boxes are a conservative broad phase;
+      // the original uninflated-box and padded triangle tests below remain authoritative.
+      search = std::make_unique<CADTElemClass>(2, coordinates, connectivity, types, markers, ids, false);
+    }
+  }
   static std::map<Id, DonorCell> Snapshot(const std::map<Id, Cell>& original) {
     std::map<Id, DonorCell> result;
     for (const auto& cell : original)

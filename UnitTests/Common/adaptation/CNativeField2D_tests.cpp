@@ -159,6 +159,10 @@ TEST_CASE("Native field: roundoff-only containment follows exact donor search", 
   CHECK(patch.evaluate(rounded).xx == 4);
   CHECK(patch.roundoff_queries == 1);
   CHECK(patch.extensions == 0);
+  // Just outside the donor coordinate box must still reach the numerical
+  // containment fallback; a box shortcut must not become a domain gate.
+  CHECK(patch.evaluate({std::nextafter(a.p.x, -std::numeric_limits<double>::infinity()), .01}).xx == 4);
+  CHECK(patch.roundoff_queries == 2);
   CHECK_THROWS_AS(patch.evaluate({rounded.x + 1e-10, rounded.y}), std::runtime_error);
   patch.cache.clear();
   patch.recent.clear();
@@ -249,6 +253,76 @@ TEST_CASE("Native field: saturated query cache retains recent points and authori
   CHECK(patch.samples == evaluated);
   CHECK(patch.evaluate({0, 0}).xx == authoritative.xx);
   CHECK(patch.samples == evaluated);
+  CHECK(patch.evaluate({-0., 0.}).xx == authoritative.xx);
+  CHECK(patch.samples == evaluated);
   CHECK(patch.evictions > 0);
   CHECK(patch.recent.size() == QUERY_CACHE_LIMIT - 1);
+}
+
+TEST_CASE("Native MPI: indexed discovery agrees with exact donor cover", "[NativeField2D]") {
+  World world;
+  const double offset = GENERATE(0., 1e6);
+  std::map<Id, Cell> owned;
+  std::vector<Cell> original;
+  for (int j = 0; j < 12; ++j)
+    for (int i = 0; i < 12; ++i) {
+      auto node = [&](int di, int dj) {
+        return Node{Id((j + dj) * 13 + i + di), {offset + (i + di) / 12., offset + (j + dj) / 12.}, 0};
+      };
+      const auto a = node(0, 0), b = node(1, 0), c = node(1, 1), d = node(0, 1);
+      for (int k = 0; k < 2; ++k) {
+        Cell cell;
+        cell.t = k ? triangle(a, c, d) : triangle(a, b, c);
+        cell.t.id = 10000 - 2 * (j * 12 + i) - k;  // IDs oppose spatial/insertion order.
+        for (int v = 0; v < 3; ++v) cell.nodal_target[v] = Affine(cell.t.v[v].p);
+        original.push_back(cell);
+        if (int(cell.t.id % world.size) == world.rank) owned.emplace(cell.t.id, cell);
+      }
+    }
+  DonorField field(world, owned);
+  for (int q = 0; q < 12; ++q) {
+    const double x = offset + .1 + .05 * q, y = offset + .1 + .04 * ((q + world.rank) % 12);
+    Cell cavity;
+    cavity.t = triangle(Node{900, {x, y}, 0}, Node{901, {x + .1, y}, 0}, Node{902, {x, y + .1}, 0});
+    FieldRegion region;
+    region.lo = {x, y};
+    region.hi = {x + .1, y + .1};
+    for (int k = 0; k < 3; ++k) region.triangle[k] = cavity.t.v[k].p;
+    const double padding = .004;
+    const double boxPadding = padding + 32 * std::numeric_limits<double>::epsilon() *
+                                           std::max({1., std::abs(x), std::abs(y), std::abs(x + .1), std::abs(y + .1)});
+    for (int k = 0; k < 2; ++k) {
+      region.lo[k] = std::nextafter(region.lo[k] - boxPadding, -std::numeric_limits<double>::infinity());
+      region.hi[k] = std::nextafter(region.hi[k] + boxPadding, std::numeric_limits<double>::infinity());
+    }
+    std::set<std::array<Id, 3>> expected;
+    for (const auto& cell : original) {
+      const std::array<Point, 3> points{cell.t.v[0].p, cell.t.v[1].p, cell.t.v[2].p};
+      if (region.Overlaps(points, padding)) {
+        DonorCell donor;
+        donor.triangle = cell.t;
+        expected.insert(donor.Key());
+      }
+    }
+    bool active = true;
+    size_t discovered = 0;
+    int rejected = 0;
+    const auto patch = field.import({cavity}, active, 2 * 1024 * 1024, .002, discovered, rejected);
+    CHECK(active);
+    CHECK(rejected == 0);
+    std::set<std::array<Id, 3>> actual;
+    for (const auto& cell : patch->cells) actual.insert(cell.Key());
+    CHECK(actual == expected);
+    CHECK(patch->cells.size() == actual.size());
+    CHECK(std::is_sorted(patch->cells.begin(), patch->cells.end(),
+                         [](const auto& a, const auto& b) { return a.Key() < b.Key(); }));
+    const auto value = patch->evaluate({x + .025, y + .025}), affine = Affine({x + .025, y + .025});
+    CHECK(value.xx == Approx(affine.xx));
+    CHECK(value.xy == Approx(affine.xy));
+    CHECK(value.yy == Approx(affine.yy));
+  }
+  if constexpr (std::is_same<su2double, double>::value) {
+    CHECK(field.search_candidates < field.full_scan_equivalent);
+    CHECK(field.SearchBytes() > 0);
+  }
 }

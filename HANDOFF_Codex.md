@@ -1,13 +1,87 @@
 # Codex handoff — native integration
 
-Updated 2026-10-07. Previous native integration and RAE repair goals COMPLETE.
+Updated 2026-10-08. Previous native integration and RAE repair goals COMPLETE.
 Current branch `codex/native-unsteady-performance` (2D unsteady/cost checkpoint validated);
 worktree `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`.
 
 
-## Current goal: frozen-target MPI cost and optimization
+## Current goal: adaptation partition and execution
 
-ACTIVE after completing the bounded static 2D lifecycle/measured-cost goal.
+User activated and explicitly superseded the previous goal on 2026-10-08.
+Authoritative objective: NATIVE_ADAPTATION_PARTITION_GOAL.md.
+Start with contention-aware old/current fixed-mesh timing controls; then local donor
+indexing, adaptation-cost weighted M=N partitioning and explicit M<=N execution.
+Keep accepted CFD state/history on N ranks and transfer directly from that donor.
+Tracker ACTIVE: user cleared the previous entry and create_goal successfully
+activated the new objective on 2026-10-08. No budget was requested.
+Fixed-mesh CFD controls started sequentially under native_unsteady_performance_v2:
+cfd_control_euler_from_bl_{old_bare,current_timed,current_bare,old_timed}_v1.
+60 BDF2 steps, 30 inner iterations, same 13386-point BL mesh, adaptation and metric
+OFF. Source-pinned old/current binaries; 15-second quiet launch gate requires no
+CFD/compiler job, >=5 available CPU equivalents on the 8-core host, CPU PSIavg10<=10.
+Record /proc CPU busy fractions, PSI/load and owned rank affinity while running.
+All four fixed-mesh controls terminalPASS: old bare54.237, current timed48.144,
+current bare55.525, old timed49.690 seconds. Final density/momenta/energy values
+are EXACTLY equal across all four, matching input/config hashes. CPU busy fractions
+rise~0.83-0.98; CPU PSIavg10 reaches31.94 during controls despite launch gating.
+No large old/current regression or GNUtime penalty appears; shared-host variation
+prevents attributing historical/full-run phase changes or small timing differences.
+Evidence: native_unsteady_performance_v2/fixed_mesh_cost_controls_v1.json.
+
+Local donor index implemented using existing CADTElemClass(globalTree=false),
+bounding-box LINE records only; exact uninflated box/padded triangle checks and
+original cell-ID discovery/canonical patch ordering stay authoritative. Other
+numeric builds retain original scan (production Native already requires primal64).
+Pre-query IntersectionQueryBound is admitted against the dependency ceiling;
+otherwise original allocation-free scan. Candidate arrays enter payload admission.
+End-of-remesh candidate/full-scan counters and retained index bytes are reported.
+Differential distributed donor-cover check includes translated geometry/reversed IDs.
+Build v1 terminalFAIL: missing direct include for existing LINE enum; log/source
+preserved. Added option_structure.hpp. Build v2 terminalPASS, archive/hash controller
+session8569 terminal0. Appf3a03ef23612ac336c98386cf250626ea6343a82640f677774e714c5ee69811f,
+test72116a8b7f5307afd9719f72091a9224557430cff7e4f617ab4e7617b45f6923.
+Native donor index core MPI1/2/4 PASSES64cases/rank (session57936 terminal0).
+Euler-to-BL index frozen MPI4 pilot terminalPASS53.292s whole test,52.759290s
+remeshing;985k candidates vs719m full-scan equivalent,405272 index bytes maxrank.
+Independent original-P1/geometric-BL/reference/height/topology audit PASS;
+output byte-identical to pre-index pruning-cost-v2 mesh (44811commits unchanged).
+Fresh pre-index same-work control terminalPASS58.186s whole test,57.673294kernel;
+one pair gives8.52% kernel reduction, provisional pending repeats/host variation.
+Private reconstruction max26.733index vs26.695baseline: imbalance persists.
+BL-to-Euler index MPI4 pilot terminalPASS16.763s whole test;3.215m candidates
+vs1.217b full-scan equivalent,1486072 index bytes maxrank.27814commits unchanged;
+mesh byte-identical to pre-index. Independent original-P1/reference/topology audit PASS.
+Two fixed-work repeats per binary/workload now COMPLETE (8 cases, allterminal0).
+Euler-to-BL baseline kernels57.673294/57.619868, index52.759290/54.940094s:
+mean6.5865% reduction. BL-to-Euler baseline40.695734/41.106110, index16.104937/
+16.455077s: mean60.1965% reduction. All grids byte-identical per workload; operations,
+private target-query counters and input/config/CSV hashes identical. CPU/PSI recorded;
+shared-host results, not universal speedups. Summary and runnable checker:
+native_adaptation_partition_v1/donor_index_fixed_work_comparison_v1.json and
+summarize_donor_index_fixed_work_v1.py. Case folders include input.su2, frozen
+sensor CSV, adapted SU2 grid and a labeled copy of the original source flow VTU.
+Case-selectable independent auditor: integration_evidence/audit_native_frozen_case.py.
+Frozen immutable contention-aware runner: run_native_frozen_contention_control.py.
+All campaign sessions terminal0:34554,52092,63085,10923,80880,38500,68887,75915.
+No weighted partition or M<N production path implemented yet. Next implementation:
+weighted cell dual graph through existing ParMETIS (N communicator), migrate raw
+sensor-bearing cells unchanged BEFORE Engine construction. Work estimates use
+separate temporary samples of actual geometric composition: CacheTarget overwrites
+nodal_target with composed values, so never snapshot those as original sensor donors.
+For M<N add explicit communicator arguments to native passive transport, World and
+failure election; keep SU2's CFD communicator N unchanged. Subset failure handling
+must return/elect on N safely (current SU2_MPI::Error barrier uses N, so calling it
+inside only M participants can deadlock). Existing ReaderSlices::FromDistributed on
+all N can redistribute output from first-M nonempty records; keep donor geometry,
+solution and all histories on N until direct transfer to the new N-rank geometry.
+Final-source actual unsteady runs/restarts, transported tensor residual artifacts,
+weighted/rank-count comparisons and practical scaling limits remain pending.
+No unrelated heavy job was running at activation; editor activity/CPU pressure
+exists and must be measured during controls. One heavy job, MPI<=4, threads1.
+
+## Superseded goal evidence: frozen-target MPI cost and optimization
+
+Superseded as the working objective; its evidence remains available.
 Committed checkpoint: aa73b62a773af472815bbc7c8b77187f8e763aee, branch
 codex/native-unsteady-performance. Completion index: integration_evidence/
 native_unsteady_performance_v1/lifecycle_cost_checkpoint_v3.json (32 actual
@@ -39,16 +113,76 @@ Saved-profile details authoritative v2:8526 native samples with MPI API frames,
 8035 PMPI_Allreduce; includes waiting/utilities and truncated stacks. v1 falsely
 counted native ReferenceState in ComputeMetric arguments and is retained. New
 profile_native_stack_details.py selftest guards path-name/argument-type mistakes.
-Next trial (NOT implemented): consolidate two World::exchange preflight failure
-elections into one by guarding invalid peer bucket sizes before looping. Preserve
-all overflow, receive-size, memory admission and atomic publication gates. Add a
-collective invalid-peer negative control; run core MPI and same-frozen-target
-artifact/operation/timing comparisons before accepting. Cheap exact donor-AABB
-pruning is a separate fallback experiment; preserve donor order and numerical/
-physical extension fallbacks. One heavy job, ranks<=4, threads1; do not relink the
-mutable unit driver while a sequential campaign is active. No owned CFD/job is
-active at this checkpoint. Goal remains ACTIVE until a measured optimization,
-CFD continuation and honest practical cost/memory limits are established.
+Preflight consolidation was IMPLEMENTED, passed48corecases/rank atMPI1/2/4
+and single-malformed-rank negative controls atMPI1/2/4. Six frozen real trials
+produce byte-identical meshes and identical commits/operations/queries/transport
+counters to baseline, but show no speed benefit (mostly0.1-2.8%slower). REJECTED
+and original World::exchange restored. Evidence and complete trial source retained
+in native_frozen_scaling_v1/preflight_rejected_experiment_v1.json; archived app
+native_preflight_build_v1, SHA2560ef465018efac316041a7317dc47da05de7d68421fea8f312a219c8f74cbec67.
+Linux per-rank peakRSS through remeshing (driver/CSV setup included, artifact
+gather excluded) is now recorded by the hidden frozen benchmark. Trial peaks:
+RANS~44/53/66MiB at4/2/1, Euler~57/83/139MiB at4/2/1. These are process resident
+highwater measurements, not requested-byte admission limits or remesher-only memory.
+
+Standard unordered_map trial passed48corecases/rank atMPI1/2/4 and malformed-peer
+control. All six frozen real meshes/counters are byte-identical to baseline.
+RANS1/2/4 costs88.003/76.064/48.994s; Euler66.338/36.070/23.626s.
+Mixed result preserved in native_frozen_scaling_v1/std_hash_trial_comparison_v1.json.
+A repeated immutable serial Euler tree baseline costs65.810s versus62.066s
+original, exposing~6% timing variation; no established serial hash regression.
+Control: serial_timing_control_v1.json. Standalone real-coordinate warm lookup
+probe favors exact-bit hashing but is not a full mesher result.
+
+Exact-bit hash trial passed48corecases/rank atMPI1/2/4 and native gates atall
+six frozen workloads, but FAILED strict byte reproduction: RANS276/531/304 lines
+and Euler1line per rank differ at roundoff scale. Cause is not established; no
+independent-audit reuse or fixed-work speedup claim. REJECTED in favor of the
+simpler validated standard hash. Complete source/binaries/grids/logs retained in
+native_query_bits_hash_build_v1 and bits_hash_rejected_experiment_v1.json.
+
+Containment pilot passed48corecases/rank atMPI1/2/4. MPI4 frozen pilots
+pruning_np4_v1 cost47.946s Euler→BL and21.851s BL→Euler; native gates/operation
+counts pass. Coordinates differ at rounding scale, identical to the rejected
+exact-bit trial meshes; independent audits and timing repeats are required.
+Pilot archive native_query_pruning_build_v1 and pruning_pilot_v1.json retained.
+
+Final candidate BUILT: standard hash plus exact-only donor containment pruning
+and whole-private-operation timing. Rank min/mean/max selection, reconstruction,
+tracked collectives and largest transaction are reported once per remesh with
+three packed end reductions; no per-query clocks. Tracked collective timings
+include waiting and exclude validation elections, so are not additive wall cost.
+Archive native_query_pruning_cost_build_v2 has app/test and760production pins.
+CoreMPI1/2/4 passes63cases per rank including metric composition controls.
+Six frozenMPI4/2/1 workloads complete, with independent original-P1/geometric-BL,
+height/reference and topology audits PASS. Immutable paired MPI4 controls give
+Euler→BL52.134→48.287s (-7.38%), BL→Euler23.882→21.793s (-8.75%).
+Serial Euler64.496s sample excluded due possible housekeeping overlap; clean
+immutable repeat54.083s. Do not use the excluded sample for timing comparisons.
+MPI4 RANS private reconstruction ranges0.618–23.477s per rank, largest private
+transaction2.823s; substantial imbalance remains. Costs are not additive phases.
+Follow-up controls/audits session99294 terminalPASS; log/tmp/native_final_measurement_followup_v2.log.
+Actual CFD session50942 terminalPASS (log/tmp/native_final_cfd_v4.log).
+Fresh Euler,SA,SST,CGNS BDF2 cases each finish two adaptations and independent
+solution/history/mesh audits PASS. RAE RANS600 and Euler300 also complete two
+adaptations and independent frozen-field/geometry/height/state-history audits PASS.
+Actual RANS elapsed800.925s: CFD683.475, metric43.7732, remesh72.6062,
+replacement0.503051 (transfer0.237451 included), adapted output0.0743186.
+Actual Euler elapsed226.030s: CFD160.708, metric5.27348, remesh59.0476,
+replacement0.309975 (transfer0.162664 included), adapted output0.0394626.
+Both substantially slower than historic checkpoints, including CFD BEFORE adaptation;
+cause remains unresolved. RANS adaptation/CFD17.11% is not evidence of software
+improvement because CFD became slower; Euler remains40.24%. Controlled kernel
+improvements7.38/8.75% remain separately supported. Fixed-mesh controls pending.
+Actual cases: integration_evidence/native_unsteady_performance_v2. Fresh SU2 4→2
+and CGNS-input restarts are prepared but NOT RUN YET. No code relinks planned.
+User resumed on2026-10-08; tracker returned blocked despite current progress.
+Work is authorized/resumed and there is no present technical blocker; only user/
+system can reset tracker status. Finish required validation before marking complete.
+Trial runner now wraps MPI in GNUtime for local-process-tree highwater memory,
+including launcher; not aggregate rank memory or remesher admission limits.
+One heavy job, ranks<=4, threads1, builds-j2; no relinks while campaigning.
+Previous goal superseded by NATIVE_ADAPTATION_PARTITION_GOAL.md; no general affordability or native3D claim.
 
 ## Resumed unsteady and performance work — 2026-10-07
 

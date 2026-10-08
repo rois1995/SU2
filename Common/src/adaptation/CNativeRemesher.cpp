@@ -459,6 +459,10 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
   std::array<uint64_t, 3> fieldQueries;
   CPassiveComm::Allreduce(engine.stats.field_queries.data(), fieldQueries.data(), fieldQueries.size(),
                          CPassiveComm::Op::SUM);
+  const std::array<uint64_t, 2> localSearch{engine.donor.search_candidates, engine.donor.full_scan_equivalent};
+  std::array<uint64_t, 2> donorSearch{};
+  CPassiveComm::Allreduce(localSearch.data(), donorSearch.data(), localSearch.size(), CPassiveComm::Op::SUM);
+  const auto donorIndexBytes = CPassiveComm::Allreduce(uint64_t(engine.donor.SearchBytes()), CPassiveComm::Op::MAX);
   std::array<uint64_t, 8> actions, selectionScans;
   std::array<double, 8> phaseSeconds, choiceSeconds;
   for (size_t a = 0; a < actions.size(); ++a) {
@@ -475,6 +479,16 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
     localReasons.push_back(record);
   }
   const auto allReasons = world.metadata(localReasons);
+  // Whole-operation timers avoid adding clocks to the millions of private
+  // metric queries. Tracked collectives include waiting and exclude the
+  // separate validation elections; these components are not additive wall time.
+  std::array<double, 4> localCost{0, engine.stats.reconstruction_seconds,
+                                  world.collective_seconds, engine.stats.reconstruction_longest};
+  for (const auto seconds : engine.stats.choice_seconds) localCost[0] += seconds;
+  std::array<double, 4> costMinimum{}, costSum{}, costMaximum{};
+  CPassiveComm::Allreduce(localCost.data(), costMinimum.data(), localCost.size(), CPassiveComm::Op::MIN);
+  CPassiveComm::Allreduce(localCost.data(), costSum.data(), localCost.size(), CPassiveComm::Op::SUM);
+  CPassiveComm::Allreduce(localCost.data(), costMaximum.data(), localCost.size(), CPassiveComm::Op::MAX);
   std::map<std::string, uint64_t> reasons;
   for (const auto& entry : allReasons) reasons[entry.reason.data()] += entry.count;
   if (world.rank == 0)
@@ -488,6 +502,8 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
               << " seconds (maximum across ranks).\n";
     std::cout << "Native private target requests/evaluations/dynamic evictions: " << fieldQueries[0] << ' '
               << fieldQueries[1] << ' ' << fieldQueries[2] << '\n';
+    std::cout << "Native donor search candidates/full-scan equivalent: " << donorSearch[0] << ' ' << donorSearch[1]
+              << "; local immutable index retained bytes (max rank): " << donorIndexBytes << '\n';
     std::cout << "Native operations (height/split/remove/redistribute/bulk remove/split/flip/move):";
     for (const auto count : actions) std::cout << ' ' << count;
     std::cout << "; conflicts=" << conflicts << ", dependency-size rejects=" << rejectedSize
@@ -500,6 +516,13 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
     std::cout << "Native candidate selection seconds (same action order, maximum across ranks):";
     for (const auto seconds : choiceSeconds) std::cout << ' ' << seconds;
     std::cout << '\n';
+    const std::array<const char*, 4> costNames{"selection", "private reconstruction", "tracked collectives",
+                                              "largest private transaction"};
+    for (size_t k = 0; k < costNames.size(); ++k)
+      std::cout << "Native rank cost " << costNames[k] << " seconds min/mean/max: " << costMinimum[k] << ' '
+                << costSum[k] / world.size << ' ' << costMaximum[k] << '\n';
+    std::cout << "Native cost scopes: tracked collectives include waiting, exclude validation elections; "
+                 "rank costs are not additive wall phases.\n";
     std::cout << "Native cached selection full scans (same action order, sum across ranks):";
     for (const auto scans : selectionScans) std::cout << ' ' << scans;
     std::cout << '\n';

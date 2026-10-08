@@ -67,6 +67,7 @@ struct EngineStats {
   std::array<uint64_t, 3> field_queries{};  // requests, evaluated samples, dynamic evictions
   int joint_commits = 0;
   double joint_seconds = 0;
+  double reconstruction_seconds = 0, reconstruction_longest = 0;
   std::array<int, 8> accepted{};
   std::array<double, 8> phase_seconds{};
   std::array<double, 8> choice_seconds{};
@@ -375,6 +376,7 @@ class Engine {
     bool approved = false;
     std::string reason;
     if (active) {
+      const double rebuilding = world.seconds();
       try {
         // Unchanged vertices already have an authoritative sample of this
         // immutable target. Different rounded donor-edge projections may
@@ -406,6 +408,9 @@ class Engine {
         approved = false;
         reason = error.what();
       }
+      const double elapsed = world.seconds() - rebuilding;
+      stats.reconstruction_seconds += elapsed;
+      stats.reconstruction_longest = std::max(stats.reconstruction_longest, elapsed);
       if (!approved) ++stats.rejected[reason];
     }
     std::vector<Perimeter> certificate;

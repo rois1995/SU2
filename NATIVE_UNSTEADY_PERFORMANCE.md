@@ -264,9 +264,98 @@ in ComputeMetric's function arguments; that output is retained, corrected v2 is
 authoritative and matches the earlier MPI sample count. Repo path names and
 function argument types are tested explicitly by the classifier.
 
-The next trial will consolidate native message preflight checks into one
-collective election, while guarding invalid peer-vector sizes locally and retaining
-all overflow, receive-size, memory-admission and atomic publication checks. This
-is a measured candidate, not an implemented optimization or speedup claim yet.
-Cheap donor containment pruning remains a separate experiment. Preserve accepted
-mesh/operation equivalence and negative MPI controls before retaining any change.
+### Rejected communication trial and interpolation controls
+
+Consolidating two message-preflight failure elections passed48core cases per
+rank atMPI1/2/4 and one-invalid-rank negative controls. Every frozen grid and
+operation/query/transport count stayed identical. Six real trials were mostly
+0.1–2.8% slower: no measured benefit. The original protocol is restored; source,
+binaries, logs and rejection report remain in `native_preflight_build_v1` and
+`native_frozen_scaling_v1/preflight_rejected_experiment_v1.json`.
+
+The frozen benchmark now records Linux per-rank VmHWM after remeshing, before
+artifact gathering. It includes driver and replicated fixture setup; it is not
+remesher-only memory or the requested-byte admission quantity. Observed peak
+process RSS was about44/53/66MiB for Euler→BL atMPI4/2/1 and57/83/139MiB for
+BL→Euler. These small test workloads do not establish a general memory limit.
+
+A standard unordered coordinate cache trial preserves all six meshes and counts.
+Euler→BL cost88.003/76.064/48.994s atMPI1/2/4; BL→Euler66.338/36.070/23.626s.
+The immutable serial tree baseline repeated at65.810s versus62.066s original:
+timing variability prevents attributing the initial apparent serial regression
+to the hash table. Saved comparison and control are `std_hash_trial_comparison_v1.json`
+and `serial_timing_control_v1.json` under the frozen-scaling evidence folder.
+
+A standalone warm lookup probe favors canonical exact-bit hashing, but excludes
+cache construction, eviction, donor search, geometry and MPI. The full trial
+passed native gates atall six frozen workloads but changed coordinates at
+roundoff scale:276/531/304 RANS lines and one Euler line per rank. The cause is
+not established. Strict reproduction failed, so this experiment is rejected;
+no independent-audit reuse or fixed-work speedup claim. Source, binary, grids
+and logs remain in `native_query_bits_hash_build_v1` and
+`native_frozen_scaling_v1/bits_hash_rejected_experiment_v1.json`.
+
+The next trial uses the simpler standard hash plus closed coordinate-box and
+early negative-orientation rejection only during exact donor containment.
+Original donor ordering/weights and all roundoff/extension searches remain
+unchanged. An outside-box nextafter regression guards against making the box a
+domain gate. Measurement is pending.
+
+
+## Adaptation partition goal activated — 2026-10-08
+
+The user explicitly replaced the previous performance goal and cleared its tracker.
+The new goal is ACTIVE, defined in NATIVE_ADAPTATION_PARTITION_GOAL.md: establish
+contention-aware timing controls, accelerate donor discovery, introduce weighted
+adaptation partitioning at M=N, and support explicit M<=N on a separate communicator.
+Accepted CFD state/time histories remain on N ranks, with direct donor-to-final-mesh
+transfer. Partition/migration and return costs count toward total adaptation cost.
+
+Four identical fixed-mesh CFD-only controls (60 BDF2 steps, inner cap30, MPI4,
+13386-point BL mesh, metric/adaptation OFF) completed. Old bare/current bare take
+54.237/55.525s; old GNUtime/current GNUtime take49.690/48.144s. Primary final
+states are exactly equal across all four, and input/config hashes agree. CPU
+busy fractions0.83-0.98 and CPU PSIavg10 up to31.94 demonstrate in-run contention;
+launch gating alone does not establish an isolated benchmark. These controls do
+not show the large old/current slowdown or wrapper penalty suspected from the
+historical comparison. They also do not prove every full-run phase regression is
+environmental or establish a small software speedup. Full evidence and auditor:
+native_unsteady_performance_v2/fixed_mesh_cost_controls_v1.json and
+fixed_mesh_cost_controls_auditor_v1.py. The actual v4 unsteady RANS/Euler cases
+both passed independent mesh, geometric BL where requested, primitive and
+state/history audits. Their adaptation/CFD ratios17.11%/40.24% remain workload
+measurements on this shared host; the lower RANS ratio is not a software gain.
+
+The local immutable-donor broad phase is validated in native_donor_index_build_v2
+(app SHA f3a03ef23612ac336c98386cf250626ea6343a82640f677774e714c5ee69811f).
+The v1 missing-enum-header build failure remains preserved. It reuses the existing
+local CADTElemClass with bounding-box LINE records; exact old box/triangle tests
+and canonical donor ordering remain authoritative. Primal-double production only;
+other numeric builds retain the original scan. Existing worst-case intersection
+scratch admission is checked before traversal; too-large donor partitions/tiny
+ceilings use the original allocation-free scan. Index storage is O(local donor
+cells), reported separately; query candidates enter dependency admission.
+
+MPI1/2/4 each pass64core cases, including a new differential exact donor-cover check
+with translated geometry and reversed IDs. Two MPI4 repeats per source version and
+frozen workload complete under recorded contention. Euler-to-BL baseline kernels
+57.673294/57.619868s versus index52.759290/54.940094s, mean6.59% reduction.
+BL-to-Euler baseline40.695734/41.106110s versus index16.104937/16.455077s,
+mean60.20% reduction. This is fixed-work evidence: all grids are byte-identical
+within each workload; operations, private target-query counters and input/config/
+frozen CSV hashes match. The two index grids independently pass original-P1/
+geometric-BL where requested, quality, length, topology, reference and first-height
+checks. Candidate counts fall719358200->984576 and1217151953->3214796;
+retained index memory maxrank405272/1486072bytes. Kernel improvements are measured
+on this shared workstation with two repeats, not universal hardware guarantees.
+The Euler-to-BL private reconstruction imbalance remains (0.684/9.955/26.733s
+min/mean/max); donor discovery lies outside that timer.
+
+Summary and source checker: native_adaptation_partition_v1/
+donor_index_fixed_work_comparison_v1.json and summarize_donor_index_fixed_work_v1.py.
+Frozen cases contain their starting grid, frozen sensor, adapted grid and labeled
+original source-flow VTU for inspection. Weighted partitioning, explicit M<N,
+final-source unsteady/restart validation and practical scaling limits remain pending.
+Keep original sensor tensors when repartitioning; derived composed work estimates
+must not become donor values. Subset collectives/failure handling must use an
+explicit adaptation communicator while CFD geometry/state/history stay on N.

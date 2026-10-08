@@ -194,3 +194,13 @@ TEST_CASE("Native MPI: oversized star rejects before cell payload", "[NativeDist
   CHECK(prepared.reason.find("staging cap") != std::string::npos);
   CHECK(SameStars(directory.incident, before));
 }
+
+// One malformed rank must fail collectively before any peer array is indexed
+// or counts are exchanged; run only in an expected-error MPI subprocess.
+TEST_CASE("Native MPI failure: invalid peer buckets on one rank", "[NativeInvalidPeerBuckets][.]") {
+  World world;
+  std::vector<std::vector<Cell>> to(world.size);
+  if (world.rank == 0) to.clear();
+  world.exchange(to);
+  FAIL("Invalid peer buckets passed native exchange preflight.");
+}

@@ -381,10 +381,18 @@ TEST_CASE("Native frozen airfoil: identical input metric for MPI scaling", "[Nat
   auto result = backend->Remesh(driver->Config(), geometry, metric);
   const auto elapsed = SU2_MPI::Wtime() - start;
   const auto maximum = CPassiveComm::Allreduce(elapsed, CPassiveComm::Op::MAX);
+  // Whole-process peak through remeshing, including driver/fixture setup;
+  // artifact gathering below is excluded, as in the existing airfoil campaign.
+  uint64_t hwmKiB = 0;
+  std::ifstream processStatus("/proc/self/status");
+  std::string statusLine;
+  while (std::getline(processStatus, statusLine))
+    if (statusLine.compare(0, 6, "VmHWM:") == 0) hwmKiB = std::stoull(statusLine.substr(6));
+  REQUIRE(hwmKiB > 0);
   std::ofstream timing("native_frozen_timing_rank_" + std::to_string(world.rank) + ".csv");
-  timing << std::setprecision(17) << "ranks,rank,owned_points,remesh_seconds,remesh_max_seconds,accepted\n"
+  timing << std::setprecision(17) << "ranks,rank,owned_points,remesh_seconds,remesh_max_seconds,accepted,rss_hwm_kib\n"
          << world.size << ',' << world.rank << ',' << metric.rows() << ',' << elapsed << ',' << maximum << ','
-         << (result.status == CRemeshResult::Status::COMPLETE) << '\n';
+         << (result.status == CRemeshResult::Status::COMPLETE) << ',' << hwmKiB << '\n';
   REQUIRE(timing.good());
   REQUIRE(result.status == CRemeshResult::Status::COMPLETE);
   const auto candidate = GatherCandidate(world, result.slices);
