@@ -56,10 +56,13 @@ def state(mesh, path):
     return np.column_stack([rho, momenta, energy]), dict(min_density=float(min(rho)), min_pressure=float(min(pressure)))
 
 
-def audit(case):
+def audit(case, require_native_reference=True):
     cfg = (case / 'run.cfg').read_text()
     def setting(key): return re.search(r'^' + key + r'\s*=\s*(.*)', cfg, re.M)[1].strip()
     assert setting('SOLVER') in ('EULER', 'RANS') and setting('VOLUME_OUTPUT_PRECISION') == 'DOUBLE'
+    if not require_native_reference:
+        assert setting('ADAP_REMESHER') == 'MMG' and setting('SOLVER') == 'EULER', \
+            'Reference-sidecar exemption is only for an explicit MMG Euler control'
     freq, steps = int(setting('ADAP_FREQ')), int(setting('TIME_ITER'))
     order = 2 if '2ND' in setting('TIME_MARCHING') else 1
     restart = re.search(r'^RESTART_SOL\s*=\s*YES\s*$', cfg, re.M) is not None
@@ -74,7 +77,8 @@ def audit(case):
         reference = read_mesh(parent / 'input.su2')
         checkpoint = read_mesh(parent / origin['source_mesh'])
         assert np.array_equal(checkpoint.P, meshes[start].P) and np.array_equal(checkpoint.E, meshes[start].E)
-        assert (case / 'input.su2.native_ref').is_file(), 'Retain original geometry reference across restart'
+        if require_native_reference:
+            assert (case / 'input.su2.native_ref').is_file(), 'Retain original geometry reference across restart'
     rows = []
     for first in range(start + freq, steps, freq):
         mesh_path = case / f'mesh_{first:05d}.su2'
@@ -147,13 +151,16 @@ def audit(case):
             defect = float(np.max(np.abs(after - before) / norm))
             assert defect < 1e-10
             history.append(dict(step=index, relative_integral_defect=defect, donor_snapshot_available=True, **admissibility))
-        assert (case / (mesh_path.name + '.native_ref')).is_file()
+        if require_native_reference:
+            assert (case / (mesh_path.name + '.native_ref')).is_file()
         rows.append(dict(first_step=first, points=len(candidate.P), triangles=len(candidate.E), min_quality=minq,
                          max_simpson_length=maxl, donor_metric=metric_path.name, history=history, relative_first_height_error=height_error))
     final = meshes[max(meshes)]
     _, final_admissibility = state(final, case / f'solution_{steps - 1:05d}.dat')
     log = (case / 'solver.log').read_text()
-    assert 'Exit Success' in log and log.count('Native adaptation:') == len(rows)
+    assert 'Exit Success' in log
+    events = log.count('Native adaptation:' if require_native_reference else 'Mesh Adaptation Cycle')
+    assert events == len(rows)
     return dict(status='PASS', restart_step=start if restart else None, scope='2D ideal-gas Euler or constant-span straight-wall RANS, shared fade and geometric BL composition when present, double saved metrics, original-connectivity P1 target, current/history conservation, final positivity and restart pairing; not a flow-accuracy or cost certificate', windows=rows, final_admissibility=final_admissibility,
                 checker_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
                 input_sha256={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in case.iterdir() if p.suffix in ('.cfg','.su2','.dat','.vtu')})

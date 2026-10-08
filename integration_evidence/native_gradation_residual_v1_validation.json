@@ -1,0 +1,901 @@
+{
+  "scope": "Native sensor nodal gradation and metric cost only; CFD residual convergence belongs to the other session.",
+  "base_commit": "2f532a2a2e65954dca68cfe769be53919ad1e7a9",
+  "branch": "codex/metric-robustness",
+  "production_delta": {
+    "base_commit": "2f532a2a2e65954dca68cfe769be53919ad1e7a9",
+    "checked_files": 759,
+    "changed_production_files": [
+      "SU2_CFD/src/solvers/CSolver.cpp"
+    ]
+  },
+  "source_sha256": {
+    "SU2_CFD/src/solvers/CSolver.cpp": "9ec371b2da15c045a44a2ed35e348046466fed02ae7a9315a5df0686601e6e48",
+    "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "5d393b230bb88e65cfefb5b1cb1cf4408cd240ec2d3be31c1b10faf48f8ba2c0"
+  },
+  "binaries_sha256": {
+    "candidate": "42f6bfb42fa588440568bceda5b36c14b20dcf63053b28284b641c8594e060bc",
+    "control": "cbaf4e365e69305cd05ed4e26ebbd668f90c669a0d18d38e4b1580cd238bf92d",
+    "tests": "451503c8a8eb2ab8833237ff402f1d4faa56c8c778c0838dac7d68e423ad2ef0"
+  },
+  "implementation": {
+    "active_stencil": "first round all points; subsequently changed tensors, their neighbors and prior attempted corrections",
+    "stopping": "no attempted transported-demand correction on any rank",
+    "demand_tolerance": 1e-07,
+    "safety_round_cap": 256,
+    "communication": "same synchronous full halo and one global MAX reduction per round; no sparse communication",
+    "geometric_bl_policy": "unchanged actual-position original-wall composition, finer sensor demands retained"
+  },
+  "diagnosis": {
+    "bad_edges": 104,
+    "affected_vertices": 162,
+    "max_ratio": 1.0001577587985027,
+    "affected_eigenvalues_range": [
+      0.002503231927583081,
+      2042772.1190127335
+    ],
+    "affected_max_aspect": 29.8763243721204,
+    "hmin_upper_bound_eigenvalue": 1000000000000.0,
+    "hmax_lower_bound_eigenvalue": 0.0025,
+    "AR_bound": 10000,
+    "affected_vertices_on_wall": 0,
+    "affected_vertices_on_farfield": 0,
+    "nearest_wall_distance_range": [
+      0.004676489872812751,
+      76.01593526662195
+    ],
+    "nearest_farfield_distance_range": [
+      24.505878521627487,
+      99.5240517448071
+    ]
+  },
+  "independent_continuation": {
+    "scope": "Independent NumPy continuation of saved capped sensor metric; no complexity refit, MPI or BL composition; diagnostic only.",
+    "sweeps": [
+      {
+        "additional_sweeps": 1,
+        "active_points": 18591,
+        "updated_points": 943,
+        "max_transport_ratio": 1.0000483573045713,
+        "violating_edges": 78,
+        "seconds": 0.1687622400058899
+      },
+      {
+        "additional_sweeps": 2,
+        "active_points": 1636,
+        "updated_points": 880,
+        "max_transport_ratio": 1.0000446786170185,
+        "violating_edges": 57,
+        "seconds": 0.32593615900259465
+      },
+      {
+        "additional_sweeps": 3,
+        "active_points": 1548,
+        "updated_points": 824,
+        "max_transport_ratio": 1.0000419248280519,
+        "violating_edges": 44,
+        "seconds": 0.4781020719965454
+      },
+      {
+        "additional_sweeps": 10,
+        "active_points": 998,
+        "updated_points": 517,
+        "max_transport_ratio": 1.0000172504918414,
+        "violating_edges": 3,
+        "seconds": 0.6779754330054857
+      },
+      {
+        "additional_sweeps": 20,
+        "active_points": 407,
+        "updated_points": 137,
+        "max_transport_ratio": 1.0000032607392195,
+        "violating_edges": 0,
+        "seconds": 0.8956577240023762
+      },
+      {
+        "additional_sweeps": 30,
+        "active_points": 99,
+        "updated_points": 24,
+        "max_transport_ratio": 1.0000006940227872,
+        "violating_edges": 0,
+        "seconds": 1.1033721519925166
+      },
+      {
+        "additional_sweeps": 40,
+        "active_points": 45,
+        "updated_points": 9,
+        "max_transport_ratio": 1.0000001625985457,
+        "violating_edges": 0,
+        "seconds": 1.3036147279926809
+      },
+      {
+        "additional_sweeps": 47,
+        "active_points": 6,
+        "updated_points": 0,
+        "max_transport_ratio": 1.0000000999966219,
+        "violating_edges": 0,
+        "seconds": 1.485583133995533
+      }
+    ],
+    "maximum_relative_tensor_change": 0.00015323460062417483
+  },
+  "tests": {
+    "test_binary_sha256": "451503c8a8eb2ab8833237ff402f1d4faa56c8c778c0838dac7d68e423ad2ef0",
+    "runs": [
+      {
+        "ranks": 1,
+        "command": [
+          "nice",
+          "-n",
+          "10",
+          "timeout",
+          "--kill-after=5s",
+          "180s",
+          "mpirun",
+          "--host",
+          "localhost:4",
+          "-np",
+          "1",
+          "/tmp/su2-metric-build/UnitTests/test_driver",
+          "[Adaptation],[Gradients],[HessianReliability],[Hessian3DStress],[RestartReliability],[MetricRobustness],[NativeComposite2D]"
+        ],
+        "seconds": 8.469202339998446,
+        "exit_code": 0,
+        "summaries": [
+          [
+            "407540",
+            "154"
+          ]
+        ],
+        "affine": [
+          "dim=2, legacy gradient=18.1768, corrected gradient=1.84908e-12, scaled Hessian=3.91124e-14",
+          "dim=3, legacy gradient=121.037, corrected gradient=3.32337e-12, scaled Hessian=3.22281e-13"
+        ],
+        "log_sha256": "f979c10058a9a77209cf498d389d131b19dd033d5390af88a651bd00eddf299b"
+      },
+      {
+        "ranks": 2,
+        "command": [
+          "nice",
+          "-n",
+          "10",
+          "timeout",
+          "--kill-after=5s",
+          "180s",
+          "mpirun",
+          "--host",
+          "localhost:4",
+          "-np",
+          "2",
+          "/tmp/su2-metric-build/UnitTests/test_driver",
+          "[HessianReliability],[Hessian3DStress],[RestartReliability],[MetricRobustness],[NativeComposite2D],[CustomSensorsMPI],[GoalMPI],Metric intersection,[SteadyMetricReuse]"
+        ],
+        "seconds": 2.610675566989812,
+        "exit_code": 0,
+        "summaries": [
+          [
+            "172555",
+            "38"
+          ],
+          [
+            "173893",
+            "38"
+          ]
+        ],
+        "affine": [
+          "dim=2, legacy gradient=18.1768, corrected gradient=1.84908e-12, scaled Hessian=3.91124e-14",
+          "dim=3, legacy gradient=121.037, corrected gradient=3.32337e-12, scaled Hessian=3.22281e-13"
+        ],
+        "log_sha256": "6cacc398b2edaba6b859046c4b30934ad550a01a57cc565882555f5e9d0bc922"
+      },
+      {
+        "ranks": 4,
+        "command": [
+          "nice",
+          "-n",
+          "10",
+          "timeout",
+          "--kill-after=5s",
+          "180s",
+          "mpirun",
+          "--host",
+          "localhost:4",
+          "-np",
+          "4",
+          "/tmp/su2-metric-build/UnitTests/test_driver",
+          "[HessianReliability],[Hessian3DStress],[RestartReliability],[MetricRobustness],[NativeComposite2D],[CustomSensorsMPI],[GoalMPI],Metric intersection,[SteadyMetricReuse]"
+        ],
+        "seconds": 2.2026270259957528,
+        "exit_code": 0,
+        "summaries": [
+          [
+            "111305",
+            "38"
+          ],
+          [
+            "113336",
+            "38"
+          ],
+          [
+            "112360",
+            "38"
+          ],
+          [
+            "113135",
+            "38"
+          ]
+        ],
+        "affine": [
+          "dim=2, legacy gradient=18.1768, corrected gradient=1.84908e-12, scaled Hessian=3.91124e-14",
+          "dim=3, legacy gradient=121.037, corrected gradient=3.32337e-12, scaled Hessian=3.22281e-13"
+        ],
+        "log_sha256": "6d240c6e7f5c9f6efce5512335243287a3be60ddcafe6ea13e705505fefb29d2"
+      }
+    ]
+  },
+  "ad_syntax": [
+    {
+      "mode": "forward",
+      "command": [
+        "nice",
+        "-n",
+        "10",
+        "timeout",
+        "--kill-after=5s",
+        "180s",
+        "c++",
+        "-ISU2_CFD/src/libSU2core.a.p",
+        "-ISU2_CFD/src",
+        "-I../su2-metric-robustness/SU2_CFD/src",
+        "-I../su2-metric-robustness/externals/CLI11",
+        "-I../su2-metric-robustness/externals/eigen",
+        "-I../su2-metric-robustness/externals/metis/include",
+        "-I../su2-metric-robustness/externals/metis/GKlib",
+        "-I../su2-metric-robustness/externals/metis/libmetis",
+        "-I../su2-metric-robustness/externals/parmetis/include",
+        "-I../su2-metric-robustness/externals/parmetis/libparmetis",
+        "-I../su2-metric-robustness/externals/mel",
+        "-ICommon/src",
+        "-I../su2-metric-robustness/Common/src",
+        "-I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi",
+        "-I/usr/lib/x86_64-linux-gnu/openmpi/include",
+        "-fdiagnostics-color=always",
+        "-DNDEBUG",
+        "-D_FILE_OFFSET_BITS=64",
+        "-std=c++17",
+        "-fPIC",
+        "-fopenmp",
+        "-pthread",
+        "-Wno-empty-body",
+        "-Wno-ignored-qualifiers",
+        "-Wno-unused-parameter",
+        "-Wno-deprecated-declarations",
+        "-Wno-error=cast-function-type",
+        "-Wno-cast-function-type",
+        "-Wno-error=stringop-truncation",
+        "-Wno-stringop-truncation",
+        "-Wno-error=missing-field-initializers",
+        "-Wno-missing-field-initializers",
+        "-Wno-error=class-memaccess",
+        "-Wno-class-memaccess",
+        "-Wno-overloaded-virtual",
+        "-Wno-array-bounds",
+        "-march=x86-64",
+        "-ffast-math",
+        "-fno-finite-math-only",
+        "-DHAVE_MPI",
+        "-DHAVE_METIS",
+        "-DHAVE_PARMETIS",
+        "-DEIGEN_DONT_PARALLELIZE",
+        "../su2-metric-robustness/SU2_CFD/src/solvers/CSolver.cpp",
+        "-fsyntax-only",
+        "-I../su2-metric-robustness/externals/codi/include",
+        "-I/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/externals/medi/include",
+        "-I/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/externals/opdi/include",
+        "-DCODI_FORWARD_TYPE"
+      ],
+      "exit_code": 0,
+      "seconds": 10.0566687190003
+    },
+    {
+      "mode": "reverse",
+      "command": [
+        "nice",
+        "-n",
+        "10",
+        "timeout",
+        "--kill-after=5s",
+        "180s",
+        "c++",
+        "-ISU2_CFD/src/libSU2core.a.p",
+        "-ISU2_CFD/src",
+        "-I../su2-metric-robustness/SU2_CFD/src",
+        "-I../su2-metric-robustness/externals/CLI11",
+        "-I../su2-metric-robustness/externals/eigen",
+        "-I../su2-metric-robustness/externals/metis/include",
+        "-I../su2-metric-robustness/externals/metis/GKlib",
+        "-I../su2-metric-robustness/externals/metis/libmetis",
+        "-I../su2-metric-robustness/externals/parmetis/include",
+        "-I../su2-metric-robustness/externals/parmetis/libparmetis",
+        "-I../su2-metric-robustness/externals/mel",
+        "-ICommon/src",
+        "-I../su2-metric-robustness/Common/src",
+        "-I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi",
+        "-I/usr/lib/x86_64-linux-gnu/openmpi/include",
+        "-fdiagnostics-color=always",
+        "-DNDEBUG",
+        "-D_FILE_OFFSET_BITS=64",
+        "-std=c++17",
+        "-fPIC",
+        "-fopenmp",
+        "-pthread",
+        "-Wno-empty-body",
+        "-Wno-ignored-qualifiers",
+        "-Wno-unused-parameter",
+        "-Wno-deprecated-declarations",
+        "-Wno-error=cast-function-type",
+        "-Wno-cast-function-type",
+        "-Wno-error=stringop-truncation",
+        "-Wno-stringop-truncation",
+        "-Wno-error=missing-field-initializers",
+        "-Wno-missing-field-initializers",
+        "-Wno-error=class-memaccess",
+        "-Wno-class-memaccess",
+        "-Wno-overloaded-virtual",
+        "-Wno-array-bounds",
+        "-march=x86-64",
+        "-ffast-math",
+        "-fno-finite-math-only",
+        "-DHAVE_MPI",
+        "-DHAVE_METIS",
+        "-DHAVE_PARMETIS",
+        "-DEIGEN_DONT_PARALLELIZE",
+        "../su2-metric-robustness/SU2_CFD/src/solvers/CSolver.cpp",
+        "-fsyntax-only",
+        "-I../su2-metric-robustness/externals/codi/include",
+        "-I/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/externals/medi/include",
+        "-I/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/externals/opdi/include",
+        "-DCODI_REVERSE_TYPE",
+        "-DCODI_JACOBIAN_LINEAR_TAPE",
+        "-DCODI_EnableOpenMP",
+        "-DCODI_EnableOpDiLib"
+      ],
+      "exit_code": 0,
+      "seconds": 11.961733090996859
+    }
+  ],
+  "frozen_cases": [
+    {
+      "complexity": 12000,
+      "method": "green_gauss",
+      "ranks": 1,
+      "metric_relative_mpi": 0.0,
+      "transport": {
+        "maximum_ratio": 1.0000000999969876,
+        "directed_samples_above_1_plus_1e_5": 0
+      }
+    },
+    {
+      "complexity": 12000,
+      "method": "green_gauss",
+      "ranks": 2,
+      "metric_relative_mpi": 2.1330666674733685e-12,
+      "transport": {
+        "maximum_ratio": 1.0000000999969763,
+        "directed_samples_above_1_plus_1e_5": 0
+      }
+    },
+    {
+      "complexity": 12000,
+      "method": "green_gauss",
+      "ranks": 4,
+      "metric_relative_mpi": 1.7368702128785635e-12,
+      "transport": {
+        "maximum_ratio": 1.0000000999969525,
+        "directed_samples_above_1_plus_1e_5": 0
+      }
+    },
+    {
+      "complexity": 12000,
+      "method": "weighted_least_squares",
+      "ranks": 1,
+      "metric_relative_mpi": 0.0,
+      "transport": {
+        "maximum_ratio": 1.0000000999820013,
+        "directed_samples_above_1_plus_1e_5": 0
+      }
+    },
+    {
+      "complexity": 12000,
+      "method": "weighted_least_squares",
+      "ranks": 2,
+      "metric_relative_mpi": 3.3855143330709557e-13,
+      "transport": {
+        "maximum_ratio": 1.000000099982,
+        "directed_samples_above_1_plus_1e_5": 0
+      }
+    },
+    {
+      "complexity": 12000,
+      "method": "weighted_least_squares",
+      "ranks": 4,
+      "metric_relative_mpi": 3.795589634660121e-13,
+      "transport": {
+        "maximum_ratio": 1.0000000999819998,
+        "directed_samples_above_1_plus_1e_5": 0
+      }
+    },
+    {
+      "complexity": 12000,
+      "method": "quadratic_least_squares",
+      "ranks": 1,
+      "metric_relative_mpi": 0.0,
+      "transport": {
+        "maximum_ratio": 1.0000000999970737,
+        "directed_samples_above_1_plus_1e_5": 0
+      }
+    },
+    {
+      "complexity": 12000,
+      "method": "quadratic_least_squares",
+      "ranks": 2,
+      "metric_relative_mpi": 2.0004180570757314e-12,
+      "transport": {
+        "maximum_ratio": 1.0000000999970737,
+        "directed_samples_above_1_plus_1e_5": 0
+      }
+    },
+    {
+      "complexity": 12000,
+      "method": "quadratic_least_squares",
+      "ranks": 4,
+      "metric_relative_mpi": 2.306499471492745e-12,
+      "transport": {
+        "maximum_ratio": 1.0000000999970728,
+        "directed_samples_above_1_plus_1e_5": 0
+      }
+    },
+    {
+      "complexity": 60000,
+      "method": "green_gauss",
+      "ranks": 1,
+      "metric_relative_mpi": 0.0,
+      "transport": {
+        "maximum_ratio": 1.000000099579337,
+        "directed_samples_above_1_plus_1e_5": 0
+      }
+    },
+    {
+      "complexity": 60000,
+      "method": "green_gauss",
+      "ranks": 2,
+      "metric_relative_mpi": 2.953754413454622e-12,
+      "transport": {
+        "maximum_ratio": 1.000000099579335,
+        "directed_samples_above_1_plus_1e_5": 0
+      }
+    },
+    {
+      "complexity": 60000,
+      "method": "green_gauss",
+      "ranks": 4,
+      "metric_relative_mpi": 1.7590595420465372e-12,
+      "transport": {
+        "maximum_ratio": 1.0000000995793368,
+        "directed_samples_above_1_plus_1e_5": 0
+      }
+    },
+    {
+      "complexity": 60000,
+      "method": "weighted_least_squares",
+      "ranks": 1,
+      "metric_relative_mpi": 0.0,
+      "transport": {
+        "maximum_ratio": 1.000000093260654,
+        "directed_samples_above_1_plus_1e_5": 0
+      }
+    },
+    {
+      "complexity": 60000,
+      "method": "weighted_least_squares",
+      "ranks": 2,
+      "metric_relative_mpi": 1.006473634606925e-12,
+      "transport": {
+        "maximum_ratio": 1.000000093260654,
+        "directed_samples_above_1_plus_1e_5": 0
+      }
+    },
+    {
+      "complexity": 60000,
+      "method": "weighted_least_squares",
+      "ranks": 4,
+      "metric_relative_mpi": 6.571072721703007e-13,
+      "transport": {
+        "maximum_ratio": 1.0000000932606545,
+        "directed_samples_above_1_plus_1e_5": 0
+      }
+    },
+    {
+      "complexity": 60000,
+      "method": "quadratic_least_squares",
+      "ranks": 1,
+      "metric_relative_mpi": 0.0,
+      "transport": {
+        "maximum_ratio": 1.0000000954220156,
+        "directed_samples_above_1_plus_1e_5": 0
+      }
+    },
+    {
+      "complexity": 60000,
+      "method": "quadratic_least_squares",
+      "ranks": 2,
+      "metric_relative_mpi": 2.2202390310708244e-12,
+      "transport": {
+        "maximum_ratio": 1.0000000954220156,
+        "directed_samples_above_1_plus_1e_5": 0
+      }
+    },
+    {
+      "complexity": 60000,
+      "method": "quadratic_least_squares",
+      "ranks": 4,
+      "metric_relative_mpi": 3.1710199247438744e-12,
+      "transport": {
+        "maximum_ratio": 1.0000000954220152,
+        "directed_samples_above_1_plus_1e_5": 0
+      }
+    }
+  ],
+  "frozen_maximum_metric_relative_mpi": 3.1710199247438744e-12,
+  "matched_performance": {
+    "scope": "Three alternating matched quiet-machine timings at four ranks. Metric constraints are acceptance criteria; CFD residual convergence is outside scope.",
+    "timing": {
+      "control": {
+        "metric_seconds": [
+          5.89361,
+          5.82788,
+          5.75141
+        ],
+        "median_seconds": 5.82788,
+        "work": [
+          [
+            "29 complexity trials, 2281 total gradation sweeps, 42406071 owned-point visits; gradation 4.72137 s, halo 0.0693557 s, sweep reductions 1.1937 s (maximum accumulated rank times)."
+          ],
+          [
+            "29 complexity trials, 2281 total gradation sweeps, 42406071 owned-point visits; gradation 4.66112 s, halo 0.0833133 s, sweep reductions 1.11652 s (maximum accumulated rank times)."
+          ],
+          [
+            "29 complexity trials, 2281 total gradation sweeps, 42406071 owned-point visits; gradation 4.53844 s, halo 0.0643724 s, sweep reductions 1.05175 s (maximum accumulated rank times)."
+          ]
+        ]
+      },
+      "candidate": {
+        "metric_seconds": [
+          5.06883,
+          4.99775,
+          5.09225
+        ],
+        "median_seconds": 5.06883,
+        "work": [
+          [
+            "29 complexity trials, 3615 total gradation sweeps, 20301421 owned-point visits; gradation 3.87379 s, halo 0.0866296 s, sweep reductions 1.38144 s (maximum accumulated rank times)."
+          ],
+          [
+            "29 complexity trials, 3615 total gradation sweeps, 20301421 owned-point visits; gradation 3.82596 s, halo 0.120091 s, sweep reductions 1.43295 s (maximum accumulated rank times)."
+          ],
+          [
+            "29 complexity trials, 3615 total gradation sweeps, 20301421 owned-point visits; gradation 3.90796 s, halo 0.0837147 s, sweep reductions 1.52056 s (maximum accumulated rank times)."
+          ]
+        ]
+      },
+      "metric_time_reduction_fraction": 0.13024461725361536
+    },
+    "checks": {
+      "coordinates_flow_sensors_hessians_bitwise": {
+        "PointID": true,
+        "x": true,
+        "y": true,
+        "Density": true,
+        "Momentum_x": true,
+        "Momentum_y": true,
+        "Energy": true,
+        "Nu_Tilde": true,
+        "Pressure": true,
+        "Temperature": true,
+        "Mach": true,
+        "Pressure_Coefficient": true,
+        "Velocity_x": true,
+        "Velocity_y": true,
+        "Laminar_Viscosity": true,
+        "Skin_Friction_Coefficient_x": true,
+        "Skin_Friction_Coefficient_y": true,
+        "Heat_Flux": true,
+        "Y_Plus": true,
+        "Eddy_Viscosity": true,
+        "SENSOR_MACH": true,
+        "Hessian_MACH_XX": true,
+        "Hessian_MACH_XY": true,
+        "Hessian_MACH_YY": true,
+        "SENSOR_PRESSURE": true,
+        "Hessian_PRESSURE_XX": true,
+        "Hessian_PRESSURE_XY": true,
+        "Hessian_PRESSURE_YY": true
+      },
+      "metric_relative_difference_quantiles": [
+        0.0,
+        8.820693050339834e-07,
+        1.912236054105346e-06,
+        2.484700321529601e-05,
+        0.0001530528999248377
+      ],
+      "control": {
+        "min_eigenvalue": 0.002499999999999998,
+        "max_eigenvalue": 677304187.6902956,
+        "max_aspect": 202.05318104560274,
+        "transport": {
+          "maximum_ratio": 1.0001577587985018,
+          "directed_samples_above_1_plus_1e_5": 104
+        }
+      },
+      "candidate": {
+        "min_eigenvalue": 0.002499999999999998,
+        "max_eigenvalue": 677303242.0116472,
+        "max_aspect": 202.05311688570848,
+        "transport": {
+          "maximum_ratio": 1.0000000999969525,
+          "directed_samples_above_1_plus_1e_5": 0
+        }
+      },
+      "quarter_edge_P1_sensor_diagnostic": {
+        "maximum_ratio": 1.9192955235757339,
+        "directed_samples_above_1_plus_1e_5": 51269
+      }
+    },
+    "passed": true
+  },
+  "stencil_visit_reduction_fraction": 0.5212614486260705,
+  "mesh_smoke": {
+    "scope": "One remesh/transfer smoke check, one flow step per mesh for integration/admissibility only; no CFD residual/convergence evaluation.",
+    "solver_exit": 0,
+    "elapsed_seconds": 31.783943089001696,
+    "command": [
+      "nice",
+      "-n",
+      "10",
+      "timeout",
+      "--kill-after=5s",
+      "600s",
+      "mpirun",
+      "--host",
+      "localhost:4",
+      "-np",
+      "4",
+      "/tmp/su2-metric-build/native-gradation-residual-v1/bin/SU2_CFD",
+      "run.cfg"
+    ],
+    "binary_sha256": "42f6bfb42fa588440568bceda5b36c14b20dcf63053b28284b641c8594e060bc",
+    "pre_adaptation_fields_except_metric_bitwise": {
+      "x": true,
+      "y": true,
+      "Density": true,
+      "Momentum_x": true,
+      "Momentum_y": true,
+      "Energy": true,
+      "Nu_Tilde": true,
+      "Pressure": true,
+      "Temperature": true,
+      "Mach": true,
+      "Pressure_Coefficient": true,
+      "Velocity_x": true,
+      "Velocity_y": true,
+      "Laminar_Viscosity": true,
+      "Skin_Friction_Coefficient_x": true,
+      "Skin_Friction_Coefficient_y": true,
+      "Heat_Flux": true,
+      "Y_Plus": true,
+      "Eddy_Viscosity": true,
+      "SENSOR_MACH": true,
+      "Hessian_MACH_XX": true,
+      "Hessian_MACH_XY": true,
+      "Hessian_MACH_YY": true,
+      "SENSOR_PRESSURE": true,
+      "Hessian_PRESSURE_XX": true,
+      "Hessian_PRESSURE_XY": true,
+      "Hessian_PRESSURE_YY": true
+    },
+    "original_reference": [
+      {
+        "marker": "AIRFOIL",
+        "original_components": 1,
+        "candidate_components": 1,
+        "original_faces": 192,
+        "candidate_faces": 522,
+        "covered_arc_over_period": 0.9999999999999998,
+        "max_corresponding_parameter_deviation": 9.547734624727473e-07,
+        "max_vertex_projection_distance": 1.3877787807814457e-17,
+        "declared_feature_coordinates": [
+          [
+            1.0,
+            0.000169999999343418
+          ]
+        ],
+        "all_declared_features_exactly_retained": true,
+        "leading_extremum_shift": null
+      },
+      {
+        "marker": "FARFIELD",
+        "original_components": 1,
+        "candidate_components": 1,
+        "original_faces": 40,
+        "candidate_faces": 51,
+        "covered_arc_over_period": 1.0,
+        "max_corresponding_parameter_deviation": 2.0513793975368797e-07,
+        "max_vertex_projection_distance": 3.552713678800501e-15,
+        "declared_feature_coordinates": [],
+        "all_declared_features_exactly_retained": true,
+        "leading_extremum_shift": null
+      }
+    ],
+    "original_sidecar_geometry_retained": true,
+    "mesh_validation": {
+      "cycle": 1,
+      "mesh": "/tmp/su2-metric-build/native-gradation-residual-v1/mesh-smoke/mesh_adap_00001.su2",
+      "restart": "/tmp/su2-metric-build/native-gradation-residual-v1/mesh-smoke/solution_adap_00001.dat",
+      "paraview": "/tmp/su2-metric-build/native-gradation-residual-v1/mesh-smoke/flow_adap_00001.vtu",
+      "points": 15929,
+      "triangles": 31285,
+      "boundary_edges": {
+        "FARFIELD": 51,
+        "AIRFOIL": 522
+      },
+      "validity": {
+        "positive_volumes": [
+          "PASS",
+          "min 4.419e-11 mean 1.000e+00 non-positive 0"
+        ],
+        "conformity": [
+          "PASS",
+          "faces in >2 elements 0, boundary faces without marker 0, marker faces: interior 0, not an element face 0, repeated 0"
+        ],
+        "points_elements": [
+          "PASS",
+          "unused points 0, duplicate points 0, duplicate elements 0"
+        ]
+      },
+      "exact_restart_mesh_pairing": true,
+      "all_vtu_scalar_pairing": {
+        "Density": true,
+        "Energy": true,
+        "Nu_Tilde": true,
+        "Pressure": true,
+        "Temperature": true,
+        "Mach": true,
+        "Pressure_Coefficient": true,
+        "Laminar_Viscosity": true,
+        "Heat_Flux": true,
+        "Y_Plus": true,
+        "Eddy_Viscosity": true,
+        "SENSOR_MACH": true,
+        "Hessian_MACH_XX": true,
+        "Hessian_MACH_XY": true,
+        "Hessian_MACH_YY": true,
+        "SENSOR_PRESSURE": true,
+        "Hessian_PRESSURE_XX": true,
+        "Hessian_PRESSURE_XY": true,
+        "Hessian_PRESSURE_YY": true,
+        "Metric_XX": true,
+        "Metric_XY": true,
+        "Metric_YY": true
+      },
+      "minimum_density": 0.24135335383238204,
+      "minimum_internal_energy": 54073.76404127505,
+      "pressure_consistency_relative_error": 6.697252944780229e-16,
+      "reference": [
+        {
+          "marker": "FARFIELD",
+          "original_components": 1,
+          "candidate_components": 1,
+          "original_faces": 67,
+          "candidate_faces": 51,
+          "covered_arc_over_period": 1.0,
+          "max_corresponding_parameter_deviation": 2.0513793975368797e-07,
+          "max_vertex_projection_distance": 1.4217791915866692e-14,
+          "declared_feature_coordinates": [],
+          "all_declared_features_exactly_retained": true,
+          "leading_extremum_shift": null
+        },
+        {
+          "marker": "AIRFOIL",
+          "original_components": 1,
+          "candidate_components": 1,
+          "original_faces": 852,
+          "candidate_faces": 522,
+          "covered_arc_over_period": 0.9999999999999998,
+          "max_corresponding_parameter_deviation": 9.547734624399902e-07,
+          "max_vertex_projection_distance": 5.263539387644555e-07,
+          "declared_feature_coordinates": [
+            [
+              1.0,
+              0.000169999999343418
+            ]
+          ],
+          "all_declared_features_exactly_retained": true,
+          "leading_extremum_shift": null
+        }
+      ],
+      "maximum_relative_first_height_error": 2.348787830896981e-12
+    },
+    "metric_audit": {
+      "cycle": 1,
+      "points": 15929,
+      "triangles": 31285,
+      "min_quality": 0.36131351187315947,
+      "max_simpson_length": 1.7999471327249175,
+      "bad_quality_cells": [],
+      "bad_length_edges": [],
+      "numerical_gate_tolerance": 1e-08,
+      "core_eigenvalue": 0.0024999999999999988,
+      "reference_corners": 1,
+      "unique_target_queries": 94428,
+      "boundary_extensions": 6,
+      "maximum_extension": 5.263539387656615e-07,
+      "roundoff_queries": 445,
+      "input_sha256": {
+        "/tmp/su2-metric-build/native-gradation-residual-v1/mesh-smoke/input.su2": "25d26a0ef9a9815ff147ec986805994290b1000702532fb9c0d0f472f27f2ab8",
+        "/tmp/su2-metric-build/native-gradation-residual-v1/mesh-smoke/input.su2.native_ref": "bb277df17b549cb616f9903443455e0a491f406df799769f266af345243efe17",
+        "/tmp/su2-metric-build/native-gradation-residual-v1/mesh-smoke/mesh_adap_00001.su2": "4cd3c068a4db0af272312ecc9638dffd635235810d5d7a6b81a15f2de6ba71e5",
+        "/tmp/su2-metric-build/native-gradation-residual-v1/mesh-smoke/solution_adap_00000.dat": "872da276ce570097b45d843d283433d2dc10653523e904f046940c10ed84c6aa",
+        "/tmp/su2-metric-build/native-gradation-residual-v1/mesh-smoke/run.cfg": "7d0affc0c0eaca81006e683f21da2bad676e27f4ac6fb2475bd18a3438f6979a",
+        "/tmp/su2-metric-robustness/integration_evidence/audit_native_composite_rae.py": "c88454bb75383ec2fd756f760369efa5391b8c10c8db2f616f3d443d826dc4b4",
+        "/tmp/su2-metric-robustness/integration_evidence/frozen_field_audit.py": "31e129d83552f74d7551ad5fe6d6ce7ee51ece5b7f3d6002dbf030b3d9da4e59",
+        "/tmp/su2-metric-robustness/integration_evidence/airfoil_reference_audit.py": "b25b9ee14e6fc88c2e0bc036c0bfb5afe0f604782f4ba7b3beab5bc36407dac2"
+      },
+      "scope": "Independent original-connectivity P1 sensor, original geometric wall constraints, centroid q and Simpson edge lengths. Does not validate CFD convergence or arbitrary configurations.",
+      "elapsed_seconds": 105.54458207299467
+    },
+    "passed": true,
+    "gradation": [
+      "127 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.",
+      "126 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0."
+    ],
+    "metric_work": [
+      "29 complexity trials, 3615 total gradation sweeps, 20301381 owned-point visits; gradation 4.18675 s, halo 0.186091 s, sweep reductions 1.5227 s (maximum accumulated rank times).",
+      "43 complexity trials, 5057 total gradation sweeps, 24968858 owned-point visits; gradation 5.34949 s, halo 0.180365 s, sweep reductions 2.37416 s (maximum accumulated rank times)."
+    ],
+    "metric_seconds": [
+      "5.33942",
+      "6.6799"
+    ]
+  },
+  "remaining_P1_sensor_interpolation_gap": {
+    "control": {
+      "maximum_ratio": 1.9192960961367818,
+      "directed_samples_above_1_plus_1e_5": 51269
+    },
+    "candidate": {
+      "maximum_ratio": 1.9192955235757339,
+      "directed_samples_above_1_plus_1e_5": 51269
+    },
+    "scope": "Independent P1 quarter-edge sensor diagnostic; not a continuous certificate. Same pre-existing interpolation gap remains after nodal convergence."
+  },
+  "acceptance": {
+    "passed": true,
+    "sensor_nodal_constraints": true,
+    "mesh_BL_quality_length_height": true,
+    "continuous_sensor_gradation_certified": false,
+    "composed_BL_gradation_certified": false,
+    "AD_runtime_derivatives_certified": false,
+    "native_3D_remeshing_certified": false
+  },
+  "limits": [
+    "256-round safety cap can still be reached on pathological/incompatible constraints",
+    "Full eligibility scans/halos each round; synchronization work can rise",
+    "Measured speedup is for this frozen 2D RANS case",
+    "3D evidence is manufactured sensor metric computation, not geometric BL/remeshing",
+    "CFD convergence, general mixed meshes, and convective/viscous-gradient transfer are outside scope"
+  ],
+  "controller_events": "Own idle waiting child controllers were deliberately stopped/resumed during machine contention; waiting logs preserved. No production acceptance gate failed or was weakened.",
+  "physical_raw_archive": "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/native_gradation_residual_v1/validated",
+  "archive_inputs": "Pinned input copies included; original configs/scripts record their original absolute paths and may need path relocation to rerun.",
+  "documentation": "Papers/NATIVE_GRADATION_RESIDUALS.md"
+}

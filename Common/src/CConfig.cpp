@@ -6369,8 +6369,8 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     if (Adap_Hessian_Noise > 0.0 && Kind_Hessian_Method != QUADRATIC_LEAST_SQUARES)
       SU2_MPI::Error("ADAP_HESSIAN_NOISE requires QUADRATIC_LEAST_SQUARES.", CURRENT_FUNCTION);
     if (Kind_Hessian_Method == QUADRATIC_LEAST_SQUARES) {
-      if (goalMetric || nMarker_PerBound != 0 || nMarker_SymWall != 0)
-        SU2_MPI::Error("QUADRATIC_LEAST_SQUARES currently requires primal sensors without periodic or symmetry markers.",
+      if (goalMetric || nMarker_PerBound != 0)
+        SU2_MPI::Error("QUADRATIC_LEAST_SQUARES currently requires primal sensors without periodic markers.",
                        CURRENT_FUNCTION);
 #if defined(CODI_FORWARD_TYPE) || defined(CODI_REVERSE_TYPE)
       SU2_MPI::Error("QUADRATIC_LEAST_SQUARES currently supports the primal, non-differentiated executable only.",

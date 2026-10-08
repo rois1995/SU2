@@ -410,7 +410,10 @@ void CSinglezoneDriver::RunAdaptationLoop() {
 
     /*--- New mesh from the metric of this solution. ---*/
 
-    const auto mesh = RemeshFromMetric(*remesher);
+    /*--- Postprocess just built the metric of this solve, with this cycle's options. Consume it directly,
+     *    as in the time-window loop; public RemeshFromMetric still refreshes potentially changed solutions. ---*/
+    const auto mesh = remesher->Remesh(*config, *geometry_container[ZONE_0][INST_0][MESH_0],
+                                      solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->GetMetric());
 
     /*--- The adapted meshes start from the transferred solution, not from restart files, and with the options of
      *    their level. The first solve may have been a restart (also of the fixed-CL angle of attack). ---*/

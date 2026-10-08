@@ -1,0 +1,15 @@
+{
+  "status": "RESOLVED",
+  "interpretation": "MPI4 completion succeeds after moving owned ranks from 2 available CPUs to 4. Matching traced collective sequences and ongoing progress do not establish a protocol deadlock. Previous timeout failures remain preserved.",
+  "matching_prefix": 7903,
+  "first_collective_difference": null,
+  "trace_sha256": {
+    "mpi_trace_rank0.txt": "80dff3323411c69d51847b884b1c5b2294790f5c0a08923e3f5a398bf73ba1f1",
+    "mpi_trace_rank1.txt": "8d7b649c2e880ed26dea9110e43031fe0e9a12e18bcc682584d64d668cebb6c3",
+    "mpi_trace_rank2.txt": "5fbe7dce37b82008e218beecd6d58ffc14198ba75cd58da03f3b20ecf41ef0f2",
+    "mpi_trace_rank3.txt": "8d7b649c2e880ed26dea9110e43031fe0e9a12e18bcc682584d64d668cebb6c3"
+  },
+  "reproducer": "mpi4_four_core_reproducer/run_evidence.json",
+  "affinity_correction": "mpi4_four_core_reproducer/affinity_correction.json",
+  "scope": "Correctness diagnosis; no benchmark or speedup claim."
+}

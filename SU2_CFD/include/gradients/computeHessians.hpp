@@ -62,12 +62,14 @@ passivedouble hessianStencilReciprocalCondition(unsigned short nDim, unsigned lo
 template<size_t dim, class GradientType, class HessianType>
 void hessiansReuseGeometry(CGeometry& geometry, const GradientType& gradient, size_t begin, size_t end,
                            const C3DDoubleMatrix& R, HessianType& hessian) {
+  std::vector<su2uint> orderedNeighbors;
   for (size_t point = 0; point < geometry.GetnPointDomain(); ++point) {
     su2double inverse[dim][dim];
     leastSquaresInverse<dim>(point, R, inverse);
     for (size_t v = begin; v < end; ++v)
       for (size_t k = 0; k < dim * (dim + 1) / 2; ++k) hessian(point, v, k) = 0.0;
-    for (const auto neighbor : geometry.nodes->GetPoints(point)) {
+    orderAdaptationNeighbors(geometry, point, orderedNeighbors);
+    for (const auto neighbor : orderedNeighbors) {
       su2double dx[dim], coefficient[dim] = {};
       GeometryToolbox::Distance(dim, geometry.nodes->GetCoord(neighbor), geometry.nodes->GetCoord(point), dx);
       const auto squared = GeometryToolbox::SquaredNorm(dim, dx);
@@ -87,6 +89,41 @@ void hessiansReuseGeometry(CGeometry& geometry, const GradientType& gradient, si
   }
 }
 }  // namespace detail
+
+/*!
+ * \brief Apply the existing symmetry rule to packed Hessians of mirror-even scalars.
+ * \note Remove normal-tangential components, retaining normal-normal curvature. Reuse the caller's
+ *       gradient workspace and the same modified/original normals as the gradient kernels.
+ *       Euler walls are excluded: a slip wall does not imply an even scalar extension.
+ */
+template <size_t dim, class HessianType>
+void correctHessiansSymmetry(CGeometry& geometry, const CConfig& config, size_t begin, size_t end,
+                             C3DDoubleMatrix& work, HessianType& hessian) {
+  if (config.GetnMarker_SymWall() == 0) return;
+  std::vector<unsigned short> markers;
+  for (auto marker = 0u; marker < geometry.GetnMarker(); ++marker)
+    if (config.GetMarker_All_KindBC(marker) == SYMMETRY_PLANE) markers.push_back(marker);
+  for (size_t v = begin; v < end; ++v) {
+    for (const auto marker : markers)
+      for (auto vertex = 0ul; vertex < geometry.GetnVertex(marker); ++vertex) {
+        const auto point = geometry.vertex[marker][vertex]->GetNode();
+        size_t k = 0;
+        for (size_t i = 0; i < dim; ++i)
+          for (size_t j = i; j < dim; ++j)
+            work(point, i, j) = work(point, j, i) = hessian(point, v, k++);
+      }
+    // The gradient of a scalar is a vector: its gradient follows the velocity symmetry rule.
+    correctGradientsSymmetry<dim>(geometry, config, 0, dim, 0, work, false);
+    for (const auto marker : markers)
+      for (auto vertex = 0ul; vertex < geometry.GetnVertex(marker); ++vertex) {
+        const auto point = geometry.vertex[marker][vertex]->GetNode();
+        size_t k = 0;
+        for (size_t i = 0; i < dim; ++i)
+          for (size_t j = i; j < dim; ++j)
+            hessian(point, v, k++) = 0.5 * (work(point, i, j) + work(point, j, i));
+      }
+  }
+}
 
 /*!
  * \brief Compute Hessians by differentiating the gradients, then symmetrizing the result.
@@ -114,11 +151,13 @@ void hessiansReuseGeometry(CGeometry& geometry, const GradientType& gradient, si
  * \param[out] Rmatrix - Work array (nPoint, nDim, nDim) for least squares.
  * \param[out] hessian - Generic object implementing operator (iPoint, iVar, iMet), with the upper
  *             triangle stored row-wise: (xx, xy, yy) in 2D, (xx, xy, xz, yy, yz, zz) in 3D.
+ * \param[in] simplexRecovery - Opt in to adaptation P1 simplex recovery in the second GG pass.
  */
 template <class GradientType, class FieldType, class HessianType>
 void computeHessians(CSolver* solver, ENUM_FLOW_GRADIENT method, CGeometry& geometry, const CConfig& config,
                      const GradientType& gradient, const size_t varBegin, const size_t varEnd, FieldType& field,
-                     C3DDoubleMatrix& gradGrad, C3DDoubleMatrix& Rmatrix, HessianType& hessian, bool reuseWlsGeometry = false) {
+                     C3DDoubleMatrix& gradGrad, C3DDoubleMatrix& Rmatrix, HessianType& hessian,
+                     bool reuseWlsGeometry = false, bool simplexRecovery = false) {
   const size_t nDim = geometry.GetnDim();
   const size_t nPoint = geometry.GetnPoint();
   const size_t nPointDomain = geometry.GetnPointDomain();
@@ -150,7 +189,7 @@ void computeHessians(CSolver* solver, ENUM_FLOW_GRADIENT method, CGeometry& geom
     switch (method) {
       case GREEN_GAUSS:
         computeGradientsGreenGauss(solver, MPI_QUANTITIES::HESSIAN, PERIODIC_HESS_GG, geometry, config, field, 0,
-                                   nDim, 0, gradGrad, false);
+                                   nDim, 0, gradGrad, false, true, simplexRecovery);
         break;
       case LEAST_SQUARES:
       case WEIGHTED_LEAST_SQUARES:

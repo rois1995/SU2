@@ -1,0 +1,99 @@
+{
+  "status": "PASS",
+  "scope": "Original-reference geometry plus fixed-point output/positivity; no fixed-point discarded donor-target or transferred-history certificate",
+  "rae_original_reference": [
+    {
+      "marker": "AIRFOIL",
+      "original_components": 1,
+      "candidate_components": 1,
+      "original_faces": 192,
+      "candidate_faces": 522,
+      "covered_arc_over_period": 0.9999999999999998,
+      "max_corresponding_parameter_deviation": 9.559365207324139e-07,
+      "max_vertex_projection_distance": 1.1275702593849246e-17,
+      "declared_feature_coordinates": [
+        [
+          1.0,
+          0.000169999999343418
+        ]
+      ],
+      "all_declared_features_exactly_retained": true,
+      "leading_extremum_shift": null
+    },
+    {
+      "marker": "FARFIELD",
+      "original_components": 1,
+      "candidate_components": 1,
+      "original_faces": 40,
+      "candidate_faces": 51,
+      "covered_arc_over_period": 1.0,
+      "max_corresponding_parameter_deviation": 2.0513794393015372e-07,
+      "max_vertex_projection_distance": 7.105427357601002e-15,
+      "declared_feature_coordinates": [],
+      "all_declared_features_exactly_retained": true,
+      "leading_extremum_shift": null
+    }
+  ],
+  "fixed_point": {
+    "points": 692,
+    "triangles": 1341,
+    "mesh_gates": {
+      "positive_volumes": [
+        "PASS",
+        "min 2.088e-03 mean 7.457e-02 non-positive 0"
+      ],
+      "conformity": [
+        "PASS",
+        "faces in >2 elements 0, boundary faces without marker 0, marker faces: interior 0, not an element face 0, repeated 0"
+      ],
+      "points_elements": [
+        "PASS",
+        "unused points 0, duplicate points 0, duplicate elements 0"
+      ],
+      "markers": [
+        "PASS",
+        "['left', 'right', 'lower', 'upper']"
+      ],
+      "free_boundary_geometry": [
+        "PASS",
+        "lower (flat): 0.0e+00 <= 1e-11; right (flat): 0.0e+00 <= 1e-11; upper (flat): 0.0e+00 <= 1e-11; left (flat): 0.0e+00 <= 1e-11"
+      ]
+    },
+    "accepted_steps": [
+      {
+        "step": 0,
+        "min_density": 0.993482064862405,
+        "min_pressure": 0.9913129201753619
+      },
+      {
+        "step": 1,
+        "min_density": 0.9949981078390997,
+        "min_pressure": 0.9935383109252467
+      },
+      {
+        "step": 2,
+        "min_density": 0.9976431274799805,
+        "min_pressure": 0.9973881040492988
+      }
+    ]
+  },
+  "input_sha256": {
+    "integration_evidence/native_post_rebase_metric_v1/frozen-12000/rae/green_gauss-mpi1/original_reference.su2": "940d8aed5d9ee0d6dc0a9f5b43a3973e7c76ed5d9123188c6e81d048cf6b6d26",
+    "integration_evidence/native_post_rebase_metric_v1/rae-steady-smoke-n4m3/input.su2": "25d26a0ef9a9815ff147ec986805994290b1000702532fb9c0d0f472f27f2ab8",
+    "integration_evidence/native_post_rebase_metric_v1/rae-steady-smoke-n4m3/mesh_adap_00001.su2": "51421356a5bd2e69ee444c90ad9fab6c62f9b1ef3c40f4694738949cff237efa",
+    "integration_evidence/native_post_rebase_metric_v1/rae-steady-smoke-n4m3/mesh_adap_00001.su2.native_ref": "1e6fe90b66cf9937fddf2a61676943430d02b3d338f90522920643edbbb7c451",
+    "integration_evidence/native_post_rebase_metric_v1/vortex-fixed-point-mmg-n4-v2/flow_00001.vtu": "102ffebfc96dfa19e438b302579d6ad144e1d277ee39d222c79cd71a6f36a5e6",
+    "integration_evidence/native_post_rebase_metric_v1/vortex-fixed-point-mmg-n4-v2/run_evidence.json": "9c6771df21254c097e797d9664e9d8217ac1a099f340391b432cdac8c43330b9",
+    "integration_evidence/native_post_rebase_metric_v1/vortex-fixed-point-mmg-n4-v2/solution_00001.dat": "ee24fb3b1d194c7244bcd19fd61af55bd6a3e30fd4484c5993dc2ece894b0357",
+    "integration_evidence/native_post_rebase_metric_v1/vortex-fixed-point-mmg-n4-v2/input.su2": "25e9956af7f4387435b2a366beb1c45c3624e66accbfed29308fedf8a3c3adb5",
+    "integration_evidence/native_post_rebase_metric_v1/vortex-fixed-point-mmg-n4-v2/solution_00002.dat": "7c2038ef0314f58b2c4725ac9ca7c9793e72b99237cdc73cfd721d9efd4685e1",
+    "integration_evidence/native_post_rebase_metric_v1/vortex-fixed-point-mmg-n4-v2/solution_00000.dat": "3f3bbca8f2700beb985a9ae5a5ee49d4627bf95ba2bcdec886efd1a98d5a8e34",
+    "integration_evidence/native_post_rebase_metric_v1/vortex-fixed-point-mmg-n4-v2/flow_00002.vtu": "82f1814ba51f1b1587611216b0221f7c1b253c2d25cf3a1c1fa786ec0125c1c4",
+    "integration_evidence/native_post_rebase_metric_v1/vortex-fixed-point-mmg-n4-v2/run.cfg": "c7223cc4c619ed870cd70e57652968bbe535182658cd32d651a91f178b7991c2",
+    "integration_evidence/native_post_rebase_metric_v1/vortex-fixed-point-mmg-n4-v2/flow_00000.vtu": "9b946dece339ce7a5aedb9e96e63793fcc35c8078dcbd4bab39902f234770d42",
+    "integration_evidence/native_post_rebase_metric_v1/vortex-fixed-point-mmg-n4-v2/history.csv": "ce86b0578abf780d70130a3847dc971b12db5829f142e8f3ab9e2777fd4349c3",
+    "integration_evidence/native_post_rebase_metric_v1/vortex-fixed-point-mmg-n4-v2/solver.log": "2d83e812f0c0b7f94f31f8c67c4e021fbf792225cf9f5bd784b94ff8569f1737",
+    "integration_evidence/native_post_rebase_metric_v1/vortex-fixed-point-mmg-n4-v2/mesh_00000.su2": "a3cd28e91ed0e602bf2c57bc6f01c77c27283c3ac454957c4792e1b4a8bd79f0"
+  },
+  "checker_sha256": "340a65fd08a2d3e11dcdbc0419bfae4aea4214d589146c19c6694b8941ca1eb0"
+}

@@ -8,6 +8,7 @@ import csv,hashlib,json,re,sys,time
 from pathlib import Path
 import numpy as np
 from audit_native_composite_rae import GeometricWall,check_math
+from airfoil_reference_audit import original_wall
 sys.path.insert(0,str(Path(__file__).resolve().parent.parent/'TestCases/adaptation/capability'))
 import capcheck
 
@@ -20,23 +21,6 @@ def load(p):
 def tensor(d,p='Metric'):
  a=np.zeros((len(d['x']),2,2));a[:,0,0]=d[p+'_XX'];a[:,0,1]=a[:,1,0]=d[p+'_XY'];a[:,1,1]=d[p+'_YY'];return a
 
-def original_wall(path):
- sidecar=Path(str(path)+'.native_ref')
- if not sidecar.exists():
-  mesh=capcheck.read_su2(path);return mesh.P,mesh.M['AIRFOIL'],[path]
- rows=sidecar.read_text().splitlines();assert rows[0]=='SU2_NATIVE_REFERENCE 1'
- markers,faces,bindings=map(int,rows[1].split());names=[json.loads(s) for s in rows[2:2+markers]]
- points={};edges=[]
- for line in rows[2+markers:2+markers+faces]:
-  s=line.split();marker=int(s[0])
-  if names[marker]!='AIRFOIL':continue
-  ids=[]
-  for i in (1,5):
-   gid=int(s[i]);xy=tuple(map(float,s[i+1:i+3]));assert gid not in points or points[gid]==xy
-   points[gid]=xy;ids.append(gid)
-  edges.append(ids)
- ids=sorted(points);mapping={gid:i for i,gid in enumerate(ids)}
- return np.array([points[i] for i in ids]),np.array([[mapping[a],mapping[b]] for a,b in edges]),[path,sidecar]
 
 def batch_wall(wall,p,sensor):
  """NumPy reference composition, with independent symmetric eigensolves."""

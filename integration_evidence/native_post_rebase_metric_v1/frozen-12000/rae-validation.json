@@ -1,0 +1,256 @@
+{
+  "scope": "Frozen RANS/SA, zero flow/remesh iterations; sensor-only MPI, SPD, size/aspect and transport checks; independent nodal geometric BL composition. No composed-gradation, continuous-complexity or aerodynamic accuracy certificate.",
+  "criteria": {
+    "relative_metric_mpi": 1e-09,
+    "relative_hessian_mpi_with_global_floor": 1e-09,
+    "relative_solution": 1e-14,
+    "relative_reported_complexity": 1e-05,
+    "sensor_transport": 1.00001
+  },
+  "inputs": {
+    "input.su2": "25d26a0ef9a9815ff147ec986805994290b1000702532fb9c0d0f472f27f2ab8",
+    "input.su2.native_ref": "bb277df17b549cb616f9903443455e0a491f406df799769f266af345243efe17",
+    "solution.dat": "cc530d8258d60df698f2477bbf374ad2c6f186a52dc29d5ee7427f36825be3ab"
+  },
+  "cases": {
+    "green_gauss": {
+      "minimum_generalized_sensor_domination": 0.9999999999841354,
+      "minimum_generalized_bl_domination": 0.9999999999902109,
+      "composed_nodal_transport_diagnostic": {
+        "maximum_ratio": 98.95712161789632,
+        "directed_samples_above_1_plus_1e_5": 14752
+      },
+      "mpi": {
+        "1": {
+          "minimum_sensor_eigenvalue": 0.0024999999999999988,
+          "maximum_sensor_aspect_ratio": 202.07463693668888,
+          "relative_metric_mpi": 0.0,
+          "hessian_relative_with_global_floor": {
+            "MACH": 0.0,
+            "PRESSURE": 0.0
+          },
+          "solution_matches_restart": {
+            "Density": true,
+            "Momentum_x": true,
+            "Momentum_y": true,
+            "Energy": true,
+            "Nu_Tilde": true
+          },
+          "sensor_nodal_transport": {
+            "maximum_ratio": 1.000000099933413,
+            "directed_samples_above_1_plus_1e_5": 0
+          },
+          "reported_composed_complexity": 12000.0,
+          "fields_sha256": "c4cf678818cdfe592f2f6e688bc27d8be38783c82998d0281537623271dfee1b",
+          "passed": true
+        },
+        "2": {
+          "minimum_sensor_eigenvalue": 0.002499999999999999,
+          "maximum_sensor_aspect_ratio": 202.07463693672327,
+          "relative_metric_mpi": 1.5853273097851378e-12,
+          "hessian_relative_with_global_floor": {
+            "MACH": 0.0,
+            "PRESSURE": 0.0
+          },
+          "solution_matches_restart": {
+            "Density": true,
+            "Momentum_x": true,
+            "Momentum_y": true,
+            "Energy": true,
+            "Nu_Tilde": true
+          },
+          "sensor_nodal_transport": {
+            "maximum_ratio": 1.000000099933424,
+            "directed_samples_above_1_plus_1e_5": 0
+          },
+          "reported_composed_complexity": 12000.0,
+          "fields_sha256": "bc2a82e0a57956a29ae90196d64bbed138f9078e91b2da4cf3a11d3191ee3a3f",
+          "passed": true
+        },
+        "4": {
+          "minimum_sensor_eigenvalue": 0.002499999999999999,
+          "maximum_sensor_aspect_ratio": 202.0746369367088,
+          "relative_metric_mpi": 1.884685682140908e-12,
+          "hessian_relative_with_global_floor": {
+            "MACH": 0.0,
+            "PRESSURE": 0.0
+          },
+          "solution_matches_restart": {
+            "Density": true,
+            "Momentum_x": true,
+            "Momentum_y": true,
+            "Energy": true,
+            "Nu_Tilde": true
+          },
+          "sensor_nodal_transport": {
+            "maximum_ratio": 1.0000000999335867,
+            "directed_samples_above_1_plus_1e_5": 0
+          },
+          "reported_composed_complexity": 12000.0,
+          "fields_sha256": "e913de25a95c36d51d04f0ee6335e9a7ef400c388ec6ba0786ac7a45fdb176a0",
+          "passed": true
+        }
+      }
+    },
+    "weighted_least_squares": {
+      "minimum_generalized_sensor_domination": 0.9999999999903828,
+      "minimum_generalized_bl_domination": 0.9999999999899022,
+      "composed_nodal_transport_diagnostic": {
+        "maximum_ratio": 176.5358821450293,
+        "directed_samples_above_1_plus_1e_5": 14526
+      },
+      "mpi": {
+        "1": {
+          "minimum_sensor_eigenvalue": 0.0025,
+          "maximum_sensor_aspect_ratio": 87.40511233954639,
+          "relative_metric_mpi": 0.0,
+          "hessian_relative_with_global_floor": {
+            "MACH": 0.0,
+            "PRESSURE": 0.0
+          },
+          "solution_matches_restart": {
+            "Density": true,
+            "Momentum_x": true,
+            "Momentum_y": true,
+            "Energy": true,
+            "Nu_Tilde": true
+          },
+          "sensor_nodal_transport": {
+            "maximum_ratio": 1.0000000999660048,
+            "directed_samples_above_1_plus_1e_5": 0
+          },
+          "reported_composed_complexity": 12000.0,
+          "fields_sha256": "09d8226f9ce732174845b195003229a579732240b6d57db096103a34d38a8bd8",
+          "passed": true
+        },
+        "2": {
+          "minimum_sensor_eigenvalue": 0.0025,
+          "maximum_sensor_aspect_ratio": 87.40511233956124,
+          "relative_metric_mpi": 5.712180769080114e-13,
+          "hessian_relative_with_global_floor": {
+            "MACH": 0.0,
+            "PRESSURE": 0.0
+          },
+          "solution_matches_restart": {
+            "Density": true,
+            "Momentum_x": true,
+            "Momentum_y": true,
+            "Energy": true,
+            "Nu_Tilde": true
+          },
+          "sensor_nodal_transport": {
+            "maximum_ratio": 1.0000000999660017,
+            "directed_samples_above_1_plus_1e_5": 0
+          },
+          "reported_composed_complexity": 12000.0,
+          "fields_sha256": "26a7993f2ebd05d42fa01c18632d2cc4400ab958cfa7cfa35938bc25cfcf34b5",
+          "passed": true
+        },
+        "4": {
+          "minimum_sensor_eigenvalue": 0.0025,
+          "maximum_sensor_aspect_ratio": 87.4051123395585,
+          "relative_metric_mpi": 2.6532329812080136e-13,
+          "hessian_relative_with_global_floor": {
+            "MACH": 0.0,
+            "PRESSURE": 0.0
+          },
+          "solution_matches_restart": {
+            "Density": true,
+            "Momentum_x": true,
+            "Momentum_y": true,
+            "Energy": true,
+            "Nu_Tilde": true
+          },
+          "sensor_nodal_transport": {
+            "maximum_ratio": 1.0000000999660037,
+            "directed_samples_above_1_plus_1e_5": 0
+          },
+          "reported_composed_complexity": 12000.0,
+          "fields_sha256": "24c5dc591dcf853064d7c9bbd2ed70b475d608cf838dd5fe3ec7fbce6c23b3b6",
+          "passed": true
+        }
+      }
+    },
+    "quadratic_least_squares": {
+      "minimum_generalized_sensor_domination": 0.999999999989881,
+      "minimum_generalized_bl_domination": 0.9999999999860225,
+      "composed_nodal_transport_diagnostic": {
+        "maximum_ratio": 100.16394581130999,
+        "directed_samples_above_1_plus_1e_5": 14800
+      },
+      "mpi": {
+        "1": {
+          "minimum_sensor_eigenvalue": 0.002499999999999999,
+          "maximum_sensor_aspect_ratio": 295.3029740123003,
+          "relative_metric_mpi": 0.0,
+          "hessian_relative_with_global_floor": {
+            "MACH": 0.0,
+            "PRESSURE": 0.0
+          },
+          "solution_matches_restart": {
+            "Density": true,
+            "Momentum_x": true,
+            "Momentum_y": true,
+            "Energy": true,
+            "Nu_Tilde": true
+          },
+          "sensor_nodal_transport": {
+            "maximum_ratio": 1.0000000999923195,
+            "directed_samples_above_1_plus_1e_5": 0
+          },
+          "reported_composed_complexity": 12000.0,
+          "fields_sha256": "be6bfe69f6a7c2d7fda11229c13683ec56bc86dd1b425a9814ad89a3897a8b87",
+          "passed": true
+        },
+        "2": {
+          "minimum_sensor_eigenvalue": 0.002499999999999999,
+          "maximum_sensor_aspect_ratio": 295.3029740122928,
+          "relative_metric_mpi": 4.599908705570527e-12,
+          "hessian_relative_with_global_floor": {
+            "MACH": 0.0,
+            "PRESSURE": 0.0
+          },
+          "solution_matches_restart": {
+            "Density": true,
+            "Momentum_x": true,
+            "Momentum_y": true,
+            "Energy": true,
+            "Nu_Tilde": true
+          },
+          "sensor_nodal_transport": {
+            "maximum_ratio": 1.0000000999923209,
+            "directed_samples_above_1_plus_1e_5": 0
+          },
+          "reported_composed_complexity": 12000.0,
+          "fields_sha256": "309cfac5d84af03d04a472109aee512514883eb13a06b32c0c3e846b1e016f7f",
+          "passed": true
+        },
+        "4": {
+          "minimum_sensor_eigenvalue": 0.002499999999999999,
+          "maximum_sensor_aspect_ratio": 295.30297401229285,
+          "relative_metric_mpi": 1.9603677548083197e-12,
+          "hessian_relative_with_global_floor": {
+            "MACH": 0.0,
+            "PRESSURE": 0.0
+          },
+          "solution_matches_restart": {
+            "Density": true,
+            "Momentum_x": true,
+            "Momentum_y": true,
+            "Energy": true,
+            "Nu_Tilde": true
+          },
+          "sensor_nodal_transport": {
+            "maximum_ratio": 1.000000099992323,
+            "directed_samples_above_1_plus_1e_5": 0
+          },
+          "reported_composed_complexity": 12000.0,
+          "fields_sha256": "a5d7dfebf721d64d77a0ffb88f599630081fb134f5dd7e2cb85c7d91df75a2f8",
+          "passed": true
+        }
+      }
+    }
+  },
+  "passed": true,
+  "auditor_sha256": "f3b349a8e1531ee96893f27299ec0e9e15197f78365792277c5681d9e05977cc"
+}

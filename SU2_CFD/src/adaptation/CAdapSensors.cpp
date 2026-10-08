@@ -201,7 +201,7 @@ void CAdapSensors::Sample(CSolver& flow, CGeometry& geometry, const CConfig& con
     const auto idxVel = velocityBlock ? 0 : -1;
     if (config.GetKind_Hessian_Method() == GREEN_GAUSS)
       computeGradientsGreenGauss(&flow, MPI_QUANTITIES::GRADIENT_ADAPT, PERIODIC_ADAPT_GG, geometry, config,
-                                 auxiliary, 0, inputs.size(), idxVel, gradient, false);
+                                 auxiliary, 0, inputs.size(), idxVel, gradient, false, true, true);
     else
       computeGradientsLeastSquares(&flow, MPI_QUANTITIES::GRADIENT_ADAPT, PERIODIC_ADAPT_LS, geometry, config,
                                    true, auxiliary, 0, inputs.size(), idxVel, gradient, nodes->GetRmatrix(), false);

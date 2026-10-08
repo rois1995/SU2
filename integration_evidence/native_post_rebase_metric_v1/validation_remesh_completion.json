@@ -1,0 +1,165 @@
+{
+  "status": "FAIL",
+  "scope": "Merged-source correctness completion; four CPUs avoid two-core MPI oversubscription; no performance assessment",
+  "controller_pid": 3583278,
+  "build_sha256": "5bf50192cedecd6d5940b86ea751f817f925e625bc6cb49976b099d5eebe7a17",
+  "stages": [
+    {
+      "label": "solver",
+      "command": [
+        "mpirun",
+        "--host",
+        "localhost:4",
+        "-np",
+        "4",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_post_rebase_metric_v1/build_v2/test_driver",
+        "[NativeFrozenAirfoil2D]",
+        "--use-colour",
+        "no"
+      ],
+      "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_post_rebase_metric_v1/frozen_euler_to_bl-n4m3-v2",
+      "status": "PASS",
+      "exit_code": 0,
+      "log_sha256": "fc92881bab0a46407f085ec83908d21fa4f9bc398a606f7548bc196938f9a874",
+      "test_summaries": [
+        "3609 assertions in 1 test case",
+        "3609 assertions in 1 test case",
+        "3609 assertions in 1 test case",
+        "3609 assertions in 1 test case"
+      ]
+    },
+    {
+      "label": "independent_frozen",
+      "command": [
+        "python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/audit_native_frozen_case.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_post_rebase_metric_v1/frozen_euler_to_bl-n4m3-v2",
+        "rae_euler_to_bl",
+        "--self-contained"
+      ],
+      "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_post_rebase_metric_v1/frozen_euler_to_bl-n4m3-v2",
+      "status": "PASS",
+      "exit_code": 0,
+      "log_sha256": "e09743c2e4ce0b236742bee7c6236d2519efb3d3d647665ad8a3378d13540472",
+      "test_summaries": []
+    },
+    {
+      "label": "solver",
+      "command": [
+        "mpirun",
+        "--host",
+        "localhost:4",
+        "-np",
+        "4",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_post_rebase_metric_v1/build_v2/test_driver",
+        "[NativeFrozenAirfoil2D]",
+        "--use-colour",
+        "no"
+      ],
+      "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_post_rebase_metric_v1/frozen_bl_to_euler-n4m3-v2",
+      "status": "PASS",
+      "exit_code": 0,
+      "log_sha256": "2409d5869f7a1d36264575c704ff4f7af7a4ab7082e2518223d744779e23ff52",
+      "test_summaries": [
+        "13403 assertions in 1 test case",
+        "13403 assertions in 1 test case",
+        "13403 assertions in 1 test case",
+        "13403 assertions in 1 test case"
+      ]
+    },
+    {
+      "label": "independent_frozen",
+      "command": [
+        "python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/audit_native_frozen_case.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_post_rebase_metric_v1/frozen_bl_to_euler-n4m3-v2",
+        "rae_bl_to_euler",
+        "--self-contained"
+      ],
+      "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_post_rebase_metric_v1/frozen_bl_to_euler-n4m3-v2",
+      "status": "PASS",
+      "exit_code": 0,
+      "log_sha256": "b0998ab6543ff25ef5beab7a609f3d7bfe6f6b532fa54b88ed4e755fd98122e1",
+      "test_summaries": []
+    },
+    {
+      "label": "solver",
+      "command": [
+        "mpirun",
+        "--host",
+        "localhost:4",
+        "-np",
+        "4",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_post_rebase_metric_v1/build_v2/SU2_CFD",
+        "run.cfg"
+      ],
+      "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_post_rebase_metric_v1/vortex-window-cgns-n4m3",
+      "status": "PASS",
+      "exit_code": 0,
+      "log_sha256": "1fcbbae12dcfec82fe31086ec6c1f7b20844b1daf60e37ec2e01485457080b7b",
+      "test_summaries": []
+    },
+    {
+      "label": "independent_unsteady",
+      "command": [
+        "python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/audit_native_unsteady.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_post_rebase_metric_v1/vortex-window-cgns-n4m3"
+      ],
+      "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_post_rebase_metric_v1/vortex-window-cgns-n4m3",
+      "status": "PASS",
+      "exit_code": 0,
+      "log_sha256": "5ac328e572d97ee4c64956e5b6ec79d82699d05025604b85616fb8c327e690db",
+      "test_summaries": []
+    },
+    {
+      "label": "solver",
+      "command": [
+        "mpirun",
+        "--host",
+        "localhost:4",
+        "-np",
+        "4",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_post_rebase_metric_v1/build_v2/SU2_CFD",
+        "run.cfg"
+      ],
+      "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_post_rebase_metric_v1/plate-sa-window-n4m3",
+      "status": "PASS",
+      "exit_code": 0,
+      "log_sha256": "1d1258519296dfce4ecb3183c8690d63d2e2955e364ddf44db6eaabf15486112",
+      "test_summaries": []
+    },
+    {
+      "label": "independent_unsteady",
+      "command": [
+        "python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/audit_native_unsteady.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_post_rebase_metric_v1/plate-sa-window-n4m3"
+      ],
+      "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_post_rebase_metric_v1/plate-sa-window-n4m3",
+      "status": "PASS",
+      "exit_code": 0,
+      "log_sha256": "83aefcb0b5853362088e6eb28afca76aaa0122440b659ab51686841030364818",
+      "test_summaries": []
+    },
+    {
+      "label": "solver",
+      "command": [
+        "mpirun",
+        "--host",
+        "localhost:4",
+        "-np",
+        "4",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_post_rebase_metric_v1/build_v2/SU2_CFD",
+        "run.cfg"
+      ],
+      "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_post_rebase_metric_v1/vortex-predict-n4m3",
+      "status": "FAIL",
+      "exit_code": 1,
+      "log_sha256": "bde591a3596cb4792ad133bb99f9a3a82c278db355b5e3f26767e3a3c9c8ac7c",
+      "test_summaries": []
+    }
+  ],
+  "machine_samples": [],
+  "phase": "terminal"
+}

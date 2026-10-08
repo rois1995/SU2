@@ -1,0 +1,1189 @@
+{
+  "date": "2026-10-07",
+  "production_source_commit": "3b320bfd6b0b2c27966e8acee28013d8cf70ae59",
+  "production_cfd_sha256": "9a2b47bde45d54e31d7972abbea1025eae081639f383becf615939c3ae13f5aa",
+  "production_test_sha256": "34b3e2b93edb34edc73d6304952fb8b0c560de918bef563bdad14a8967cf8cd3",
+  "scope": "3D manufactured and frozen-RANS metric checks, and 2D frozen-tensor noise isolation. No remeshing or flow iterations. Failures retained; this is not production-readiness approval.",
+  "regressions": {
+    "binary_sha256": "34b3e2b93edb34edc73d6304952fb8b0c560de918bef563bdad14a8967cf8cd3",
+    "filter": "[HessianReliability],[Hessian3DStress],[RestartReliability]",
+    "runs": [
+      {
+        "ranks": 1,
+        "command": [
+          "timeout",
+          "--kill-after=5s",
+          "300s",
+          "mpirun",
+          "--host",
+          "localhost:4",
+          "-np",
+          "1",
+          "/tmp/su2-metric-build/UnitTests/test_driver",
+          "[HessianReliability],[Hessian3DStress],[RestartReliability]"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 2.980464101994585,
+        "log_sha256": "d091eb0b50fcef36eb0676caf9ae59ba34bc30868974c0840e4f84565aa808bd",
+        "success_summaries": [
+          [
+            "91482",
+            "10"
+          ]
+        ],
+        "stress_output": [
+          "3D WLS reuse/legacy maximum difference over field scale=5.14281e-16",
+          "3D WLS reuse/legacy maximum difference over field scale=6.85708e-16",
+          "3D Hessian stress WEIGHTED_LEAST_SQUARES, curved=0, AR=10000, skew=4: coarse [grad,H,wall,eigen,direction]= 3.6125 8.9148e-08 0.5 1.52922e-08 1.49012e-08; fine= 1.80625 5.88219e-07 0.5 9.84859e-08 6.14391e-08; elapsed=0.288652 s",
+          "3D WLS reuse/legacy maximum difference over field scale=8.81213e-14",
+          "3D WLS reuse/legacy maximum difference over field scale=1.12967e-13",
+          "3D Hessian stress WEIGHTED_LEAST_SQUARES, curved=1, AR=1000, skew=2: coarse [grad,H,wall,eigen,direction]= 7.76807 10.4455 0.384428 8.512 0.778587; fine= 12.0836 319.811 0.384428 283.015 0.963347; elapsed=0.185668 s",
+          "3D Hessian stress QUADRATIC_LEAST_SQUARES, curved=0, AR=10000, skew=4: coarse [grad,H,wall,eigen,direction]= 5.49645e-10 5.50722e-09 1.37279e-10 2.75749e-09 2.58096e-08; fine= 9.01918e-10 2.89328e-08 4.21746e-10 1.47489e-08 2.98023e-08; elapsed=0.333455 s",
+          "3D Hessian stress QUADRATIC_LEAST_SQUARES, curved=1, AR=1000, skew=2: coarse [grad,H,wall,eigen,direction]= 0.168508 0.741058 0.12119 0.115807 0.0416659; fine= 0.0546713 0.210344 0.128851 0.0328101 0.0107759; elapsed=0.228003 s"
+        ]
+      },
+      {
+        "ranks": 2,
+        "command": [
+          "timeout",
+          "--kill-after=5s",
+          "300s",
+          "mpirun",
+          "--host",
+          "localhost:4",
+          "-np",
+          "2",
+          "/tmp/su2-metric-build/UnitTests/test_driver",
+          "[HessianReliability],[Hessian3DStress],[RestartReliability]"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 2.005080649003503,
+        "log_sha256": "1cda947ac9413e1d03605c2990acc70178320ec1e7cc9cd259e7a16458bc3a51",
+        "success_summaries": [
+          [
+            "45826",
+            "10"
+          ],
+          [
+            "45834",
+            "10"
+          ]
+        ],
+        "stress_output": [
+          "3D WLS reuse/legacy maximum difference over field scale=5.14281e-16",
+          "3D WLS reuse/legacy maximum difference over field scale=6.85708e-16",
+          "3D Hessian stress WEIGHTED_LEAST_SQUARES, curved=0, AR=10000, skew=4: coarse [grad,H,wall,eigen,direction]= 3.6125 8.92638e-08 0.5 1.51821e-08 2.58096e-08; fine= 1.80625 5.89641e-07 0.5 9.84579e-08 5.96046e-08; elapsed=0.179418 s",
+          "3D WLS reuse/legacy maximum difference over field scale=6.52076e-14",
+          "3D WLS reuse/legacy maximum difference over field scale=1.17693e-13",
+          "3D Hessian stress WEIGHTED_LEAST_SQUARES, curved=1, AR=1000, skew=2: coarse [grad,H,wall,eigen,direction]= 7.76807 10.4455 0.384428 8.512 0.778587; fine= 12.0836 319.811 0.384428 283.015 0.963347; elapsed=0.124446 s",
+          "3D Hessian stress QUADRATIC_LEAST_SQUARES, curved=0, AR=10000, skew=4: coarse [grad,H,wall,eigen,direction]= 5.49645e-10 5.50722e-09 1.37279e-10 2.75749e-09 2.58096e-08; fine= 9.01918e-10 2.89328e-08 4.21746e-10 1.47489e-08 2.98023e-08; elapsed=0.20249 s",
+          "3D Hessian stress QUADRATIC_LEAST_SQUARES, curved=1, AR=1000, skew=2: coarse [grad,H,wall,eigen,direction]= 0.168508 0.741058 0.12119 0.115807 0.0416659; fine= 0.0546713 0.210344 0.128851 0.0328101 0.0107759; elapsed=0.152701 s"
+        ]
+      },
+      {
+        "ranks": 4,
+        "command": [
+          "timeout",
+          "--kill-after=5s",
+          "300s",
+          "mpirun",
+          "--host",
+          "localhost:4",
+          "-np",
+          "4",
+          "/tmp/su2-metric-build/UnitTests/test_driver",
+          "[HessianReliability],[Hessian3DStress],[RestartReliability]"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 1.7356506830037688,
+        "log_sha256": "5ff2c066b72856ba0a52f9b6d34120263d9d74862ef50733e3f4412efe90051c",
+        "success_summaries": [
+          [
+            "23010",
+            "10"
+          ],
+          [
+            "23002",
+            "10"
+          ],
+          [
+            "23002",
+            "10"
+          ],
+          [
+            "23002",
+            "10"
+          ]
+        ],
+        "stress_output": [
+          "3D WLS reuse/legacy maximum difference over field scale=1.02856e-15",
+          "3D WLS reuse/legacy maximum difference over field scale=8.57135e-16",
+          "3D Hessian stress WEIGHTED_LEAST_SQUARES, curved=0, AR=10000, skew=4: coarse [grad,H,wall,eigen,direction]= 3.6125 8.96368e-08 0.5 1.56096e-08 2.10734e-08; fine= 1.80625 5.89867e-07 0.5 9.92402e-08 6.32203e-08; elapsed=0.148848 s",
+          "3D WLS reuse/legacy maximum difference over field scale=9.37962e-14",
+          "3D WLS reuse/legacy maximum difference over field scale=1.12967e-13",
+          "3D Hessian stress WEIGHTED_LEAST_SQUARES, curved=1, AR=1000, skew=2: coarse [grad,H,wall,eigen,direction]= 7.76807 10.4455 0.384428 8.512 0.778587; fine= 12.0836 319.811 0.384428 283.015 0.963347; elapsed=0.110582 s",
+          "3D Hessian stress QUADRATIC_LEAST_SQUARES, curved=0, AR=10000, skew=4: coarse [grad,H,wall,eigen,direction]= 5.49645e-10 5.50722e-09 1.37279e-10 2.75749e-09 2.58096e-08; fine= 9.01918e-10 2.89328e-08 4.21746e-10 1.47489e-08 2.98023e-08; elapsed=0.156681 s",
+          "3D Hessian stress QUADRATIC_LEAST_SQUARES, curved=1, AR=1000, skew=2: coarse [grad,H,wall,eigen,direction]= 0.168508 0.741058 0.12119 0.115807 0.0416659; fine= 0.0546713 0.210344 0.128851 0.0328101 0.0107759; elapsed=0.126165 s"
+        ]
+      }
+    ]
+  },
+  "stress_3d": {
+    "error_order": [
+      "gradient in layer coordinates",
+      "interior Hessian in layer coordinates",
+      "wall normal Hessian",
+      "interior eigenvalues",
+      "dominant-direction sine"
+    ],
+    "cases": [
+      {
+        "method": "WEIGHTED_LEAST_SQUARES",
+        "curved": false,
+        "aspect": 10000,
+        "skew": 4,
+        "coarse": [
+          3.6125,
+          8.9148e-08,
+          0.5,
+          1.52922e-08,
+          1.49012e-08
+        ],
+        "fine": [
+          1.80625,
+          5.88219e-07,
+          0.5,
+          9.84859e-08,
+          6.14391e-08
+        ],
+        "elapsed_seconds": 0.288652
+      },
+      {
+        "method": "WEIGHTED_LEAST_SQUARES",
+        "curved": true,
+        "aspect": 1000,
+        "skew": 2,
+        "coarse": [
+          7.76807,
+          10.4455,
+          0.384428,
+          8.512,
+          0.778587
+        ],
+        "fine": [
+          12.0836,
+          319.811,
+          0.384428,
+          283.015,
+          0.963347
+        ],
+        "elapsed_seconds": 0.185668
+      },
+      {
+        "method": "QUADRATIC_LEAST_SQUARES",
+        "curved": false,
+        "aspect": 10000,
+        "skew": 4,
+        "coarse": [
+          5.49645e-10,
+          5.50722e-09,
+          1.37279e-10,
+          2.75749e-09,
+          2.58096e-08
+        ],
+        "fine": [
+          9.01918e-10,
+          2.89328e-08,
+          4.21746e-10,
+          1.47489e-08,
+          2.98023e-08
+        ],
+        "elapsed_seconds": 0.333455
+      },
+      {
+        "method": "QUADRATIC_LEAST_SQUARES",
+        "curved": true,
+        "aspect": 1000,
+        "skew": 2,
+        "coarse": [
+          0.168508,
+          0.741058,
+          0.12119,
+          0.115807,
+          0.0416659
+        ],
+        "fine": [
+          0.0546713,
+          0.210344,
+          0.128851,
+          0.0328101,
+          0.0107759
+        ],
+        "elapsed_seconds": 0.228003
+      }
+    ],
+    "reuse_legacy_max_relative_difference": 1.12967e-13,
+    "limitations": [
+      "WLS curved/skewed interior and direction accuracy deteriorates under refinement; the repeated legacy geometry solve gives the same result.",
+      "WLS flat-wall normal relative error is 0.5; QR curved-wall normal relative error is 0.128851 on the fine mesh.",
+      "QR interior errors improve on the curved case; no fine curved-wall accuracy gate is claimed. WLS checks finite values and equivalence only.",
+      "Initial WLS accuracy-gated test failed; its log is preserved. Final passing regression is not a WLS accuracy certificate."
+    ]
+  },
+  "oneram6": {
+    "validation": {
+      "scope": "Frozen matched ONERA M6 RANS/SA snapshot, zero flow/remesh iterations; WLS symmetry fallback. No exact Hessian, aerodynamic or 3D native-remeshing accuracy claim.",
+      "points": 96252,
+      "tetrahedra": 545438,
+      "max_mesh_restart_coordinate_difference": 0.0,
+      "criteria": {
+        "relative_complexity": 2e-06,
+        "relative_metric_mpi": 1e-09,
+        "relative_hessian_mpi_with_global_floor": 1e-09,
+        "relative_solution": 1e-14
+      },
+      "cases": {
+        "1": {
+          "minimum_metric_eigenvalue": 0.10399706102618855,
+          "maximum_metric_aspect_ratio": 10000.0001856665,
+          "independent_complexity": 299999.99999973003,
+          "max_relative_metric_difference": 0.0,
+          "solution_max_relative_difference": {
+            "Density": 0.0,
+            "Momentum_x": 0.0,
+            "Momentum_y": 0.0,
+            "Momentum_z": 0.0,
+            "Energy": 0.0,
+            "Nu_Tilde": 0.0
+          },
+          "hessians": {
+            "MACH": {
+              "finite": true,
+              "max_relative_difference_with_global_floor": 0.0
+            },
+            "PRESSURE": {
+              "finite": true,
+              "max_relative_difference_with_global_floor": 0.0
+            }
+          },
+          "fields_sha256": "b0c8d7c3559829e1054c878f0fc244f883a264180af2c5851f49dd45b2457b95",
+          "passed": true
+        },
+        "2": {
+          "minimum_metric_eigenvalue": 0.10399706102616868,
+          "maximum_metric_aspect_ratio": 10000.000212563249,
+          "independent_complexity": 299999.9999987586,
+          "max_relative_metric_difference": 2.463488695612328e-09,
+          "solution_max_relative_difference": {
+            "Density": 0.0,
+            "Momentum_x": 0.0,
+            "Momentum_y": 0.0,
+            "Momentum_z": 0.0,
+            "Energy": 0.0,
+            "Nu_Tilde": 0.0
+          },
+          "hessians": {
+            "MACH": {
+              "finite": true,
+              "max_relative_difference_with_global_floor": 3.4979166534535703e-13
+            },
+            "PRESSURE": {
+              "finite": true,
+              "max_relative_difference_with_global_floor": 1.7934656598672554e-13
+            }
+          },
+          "fields_sha256": "63ff7abca6d85db304fa7c533d1642c9fc19ce3c7461a2709549dfb2b555220c",
+          "passed": false
+        },
+        "4": {
+          "minimum_metric_eigenvalue": 0.10399706102411166,
+          "maximum_metric_aspect_ratio": 10000.000231749927,
+          "independent_complexity": 300000.0000003063,
+          "max_relative_metric_difference": 7.369440026674298e-07,
+          "solution_max_relative_difference": {
+            "Density": 0.0,
+            "Momentum_x": 0.0,
+            "Momentum_y": 0.0,
+            "Momentum_z": 0.0,
+            "Energy": 0.0,
+            "Nu_Tilde": 0.0
+          },
+          "hessians": {
+            "MACH": {
+              "finite": true,
+              "max_relative_difference_with_global_floor": 2.706319722250089e-11
+            },
+            "PRESSURE": {
+              "finite": true,
+              "max_relative_difference_with_global_floor": 4.74907993644122e-13
+            }
+          },
+          "fields_sha256": "e360cefa590f082cf33672eb46bc84f1c1f91a77ba0ea9d36f821a7f01b1d0d2",
+          "passed": false
+        }
+      },
+      "inputs": {
+        "mesh_ONERAM6_turb.su2": "9b39c9b15f21f2b182d04b5dec0a945cf2e765cbb5286c6433ffd5ff3ffe1278",
+        "solution_flow.csv": "5ce05570966d165ec1400bd40b1fb317f36d073f373a64a81f0569d1f403c6fb"
+      },
+      "passed": false
+    },
+    "runs": {
+      "binary_sha256": "9a2b47bde45d54e31d7972abbea1025eae081639f383becf615939c3ae13f5aa",
+      "runs": [
+        {
+          "ranks": 1,
+          "command": [
+            "/usr/bin/time",
+            "-v",
+            "-o",
+            "usage.txt",
+            "timeout",
+            "--kill-after=5s",
+            "300s",
+            "mpirun",
+            "--host",
+            "localhost:4",
+            "-np",
+            "1",
+            "/tmp/su2-metric-build/SU2_CFD/src/SU2_CFD",
+            "run.cfg"
+          ],
+          "elapsed_seconds": 9.876062328999978,
+          "exit_code": 0,
+          "config": "SOLVER= RANS\nKIND_TURB_MODEL= SA\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nREAD_BINARY_RESTART= NO\nMACH_NUMBER= 0.8395\nAOA= 3.06\nFREESTREAM_TEMPERATURE= 288.15\nREYNOLDS_NUMBER= 11.72E6\nREYNOLDS_LENGTH= 0.64607\nREF_LENGTH= 0.64607\nREF_AREA= 0\nMESH_FILENAME= /media/rausa/4TB/SU2_Versions/TestCasesForSSTIDDES/optimization_rans/steady_oneram6/mesh_ONERAM6_turb.su2\nSOLUTION_FILENAME= /media/rausa/4TB/SU2_Versions/TestCasesForSSTIDDES/optimization_rans/steady_oneram6/solution_flow\nMARKER_HEATFLUX= ( wing, 0 )\nMARKER_FAR= ( farfield )\nMARKER_SYM= ( symmetry )\nMARKER_MONITORING= ( wing )\nMARKER_PLOTTING= ( wing )\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\nNUM_METHOD_HESS= WEIGHTED_LEAST_SQUARES\nMGLEVEL= 0\nITER= 0\nCOMPUTE_METRIC= YES\nADAP_REMESHER= MMG\nADAP_LOOP= NO\nADAP_SENSOR= ( MACH, PRESSURE )\nADAP_NORM= 2\nADAP_COMPLEXITY= 300000\nADAP_HMIN= 1e-6\nADAP_HMAX= 20\nADAP_ARMAX= 10000\nADAP_ISO_CORNER= NO\nOUTPUT_FILES= ( RESTART_ASCII )\nRESTART_FILENAME= fields\nWRT_RESTART_COMPACT= NO\nVOLUME_OUTPUT= ( COORDINATES, SOLUTION, ADAP_SENSOR, HESSIAN, METRIC )\nHISTORY_OUTPUT= ( ITER, RMS_RES )\nCONV_NUM_METHOD_FLOW= JST\nTIME_DISCRE_FLOW= EULER_IMPLICIT\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\nMUSCL_TURB= NO\nTIME_DISCRE_TURB= EULER_IMPLICIT\n",
+          "log_sha256": "6347d8bf8706ab413a1135b4beddb533f783022586d77ebfc4a4322910b05ce5",
+          "usage": "\tCommand being timed: \"timeout --kill-after=5s 300s mpirun --host localhost:4 -np 1 /tmp/su2-metric-build/SU2_CFD/src/SU2_CFD run.cfg\"\n\tUser time (seconds): 9.11\n\tSystem time (seconds): 0.42\n\tPercent of CPU this job got: 96%\n\tElapsed (wall clock) time (h:mm:ss or m:ss): 0:09.87\n\tAverage shared text size (kbytes): 0\n\tAverage unshared data size (kbytes): 0\n\tAverage stack size (kbytes): 0\n\tAverage total size (kbytes): 0\n\tMaximum resident set size (kbytes): 1139552\n\tAverage resident set size (kbytes): 0\n\tMajor (requiring I/O) page faults: 2066\n\tMinor (reclaiming a frame) page faults: 331649\n\tVoluntary context switches: 1257\n\tInvoluntary context switches: 131\n\tSwaps: 0\n\tFile system inputs: 0\n\tFile system outputs: 144840\n\tSocket messages sent: 0\n\tSocket messages received: 0\n\tSignals delivered: 0\n\tPage size (bytes): 4096\n\tExit status: 0\n",
+          "hessian_recovery_seconds": 0.135007,
+          "metric_computation_seconds": 0.373111
+        },
+        {
+          "ranks": 2,
+          "command": [
+            "/usr/bin/time",
+            "-v",
+            "-o",
+            "usage.txt",
+            "timeout",
+            "--kill-after=5s",
+            "300s",
+            "mpirun",
+            "--host",
+            "localhost:4",
+            "-np",
+            "2",
+            "/tmp/su2-metric-build/SU2_CFD/src/SU2_CFD",
+            "run.cfg"
+          ],
+          "elapsed_seconds": 6.129400416997669,
+          "exit_code": 0,
+          "config": "SOLVER= RANS\nKIND_TURB_MODEL= SA\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nREAD_BINARY_RESTART= NO\nMACH_NUMBER= 0.8395\nAOA= 3.06\nFREESTREAM_TEMPERATURE= 288.15\nREYNOLDS_NUMBER= 11.72E6\nREYNOLDS_LENGTH= 0.64607\nREF_LENGTH= 0.64607\nREF_AREA= 0\nMESH_FILENAME= /media/rausa/4TB/SU2_Versions/TestCasesForSSTIDDES/optimization_rans/steady_oneram6/mesh_ONERAM6_turb.su2\nSOLUTION_FILENAME= /media/rausa/4TB/SU2_Versions/TestCasesForSSTIDDES/optimization_rans/steady_oneram6/solution_flow\nMARKER_HEATFLUX= ( wing, 0 )\nMARKER_FAR= ( farfield )\nMARKER_SYM= ( symmetry )\nMARKER_MONITORING= ( wing )\nMARKER_PLOTTING= ( wing )\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\nNUM_METHOD_HESS= WEIGHTED_LEAST_SQUARES\nMGLEVEL= 0\nITER= 0\nCOMPUTE_METRIC= YES\nADAP_REMESHER= MMG\nADAP_LOOP= NO\nADAP_SENSOR= ( MACH, PRESSURE )\nADAP_NORM= 2\nADAP_COMPLEXITY= 300000\nADAP_HMIN= 1e-6\nADAP_HMAX= 20\nADAP_ARMAX= 10000\nADAP_ISO_CORNER= NO\nOUTPUT_FILES= ( RESTART_ASCII )\nRESTART_FILENAME= fields\nWRT_RESTART_COMPACT= NO\nVOLUME_OUTPUT= ( COORDINATES, SOLUTION, ADAP_SENSOR, HESSIAN, METRIC )\nHISTORY_OUTPUT= ( ITER, RMS_RES )\nCONV_NUM_METHOD_FLOW= JST\nTIME_DISCRE_FLOW= EULER_IMPLICIT\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\nMUSCL_TURB= NO\nTIME_DISCRE_TURB= EULER_IMPLICIT\n",
+          "log_sha256": "b0348b2c375de31257fefe6c69e3234ac8af05ac6b1cd0442a71f525567003c7",
+          "usage": "\tCommand being timed: \"timeout --kill-after=5s 300s mpirun --host localhost:4 -np 2 /tmp/su2-metric-build/SU2_CFD/src/SU2_CFD run.cfg\"\n\tUser time (seconds): 11.08\n\tSystem time (seconds): 0.56\n\tPercent of CPU this job got: 190%\n\tElapsed (wall clock) time (h:mm:ss or m:ss): 0:06.12\n\tAverage shared text size (kbytes): 0\n\tAverage unshared data size (kbytes): 0\n\tAverage stack size (kbytes): 0\n\tAverage total size (kbytes): 0\n\tMaximum resident set size (kbytes): 624360\n\tAverage resident set size (kbytes): 0\n\tMajor (requiring I/O) page faults: 2119\n\tMinor (reclaiming a frame) page faults: 320660\n\tVoluntary context switches: 2334\n\tInvoluntary context switches: 233\n\tSwaps: 0\n\tFile system inputs: 0\n\tFile system outputs: 144856\n\tSocket messages sent: 0\n\tSocket messages received: 0\n\tSignals delivered: 0\n\tPage size (bytes): 4096\n\tExit status: 0\n",
+          "hessian_recovery_seconds": 0.0743919,
+          "metric_computation_seconds": 0.202865
+        },
+        {
+          "ranks": 4,
+          "command": [
+            "/usr/bin/time",
+            "-v",
+            "-o",
+            "usage.txt",
+            "timeout",
+            "--kill-after=5s",
+            "300s",
+            "mpirun",
+            "--host",
+            "localhost:4",
+            "-np",
+            "4",
+            "/tmp/su2-metric-build/SU2_CFD/src/SU2_CFD",
+            "run.cfg"
+          ],
+          "elapsed_seconds": 4.220332030999998,
+          "exit_code": 0,
+          "config": "SOLVER= RANS\nKIND_TURB_MODEL= SA\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nREAD_BINARY_RESTART= NO\nMACH_NUMBER= 0.8395\nAOA= 3.06\nFREESTREAM_TEMPERATURE= 288.15\nREYNOLDS_NUMBER= 11.72E6\nREYNOLDS_LENGTH= 0.64607\nREF_LENGTH= 0.64607\nREF_AREA= 0\nMESH_FILENAME= /media/rausa/4TB/SU2_Versions/TestCasesForSSTIDDES/optimization_rans/steady_oneram6/mesh_ONERAM6_turb.su2\nSOLUTION_FILENAME= /media/rausa/4TB/SU2_Versions/TestCasesForSSTIDDES/optimization_rans/steady_oneram6/solution_flow\nMARKER_HEATFLUX= ( wing, 0 )\nMARKER_FAR= ( farfield )\nMARKER_SYM= ( symmetry )\nMARKER_MONITORING= ( wing )\nMARKER_PLOTTING= ( wing )\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\nNUM_METHOD_HESS= WEIGHTED_LEAST_SQUARES\nMGLEVEL= 0\nITER= 0\nCOMPUTE_METRIC= YES\nADAP_REMESHER= MMG\nADAP_LOOP= NO\nADAP_SENSOR= ( MACH, PRESSURE )\nADAP_NORM= 2\nADAP_COMPLEXITY= 300000\nADAP_HMIN= 1e-6\nADAP_HMAX= 20\nADAP_ARMAX= 10000\nADAP_ISO_CORNER= NO\nOUTPUT_FILES= ( RESTART_ASCII )\nRESTART_FILENAME= fields\nWRT_RESTART_COMPACT= NO\nVOLUME_OUTPUT= ( COORDINATES, SOLUTION, ADAP_SENSOR, HESSIAN, METRIC )\nHISTORY_OUTPUT= ( ITER, RMS_RES )\nCONV_NUM_METHOD_FLOW= JST\nTIME_DISCRE_FLOW= EULER_IMPLICIT\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\nMUSCL_TURB= NO\nTIME_DISCRE_TURB= EULER_IMPLICIT\n",
+          "log_sha256": "8931221bd0a2c82f262e8d14abebe209daed977eaa1c7733afb37a9e5e1fcc5f",
+          "usage": "\tCommand being timed: \"timeout --kill-after=5s 300s mpirun --host localhost:4 -np 4 /tmp/su2-metric-build/SU2_CFD/src/SU2_CFD run.cfg\"\n\tUser time (seconds): 14.70\n\tSystem time (seconds): 0.72\n\tPercent of CPU this job got: 365%\n\tElapsed (wall clock) time (h:mm:ss or m:ss): 0:04.21\n\tAverage shared text size (kbytes): 0\n\tAverage unshared data size (kbytes): 0\n\tAverage stack size (kbytes): 0\n\tAverage total size (kbytes): 0\n\tMaximum resident set size (kbytes): 342276\n\tAverage resident set size (kbytes): 0\n\tMajor (requiring I/O) page faults: 2198\n\tMinor (reclaiming a frame) page faults: 341453\n\tVoluntary context switches: 4927\n\tInvoluntary context switches: 1684\n\tSwaps: 0\n\tFile system inputs: 0\n\tFile system outputs: 144840\n\tSocket messages sent: 0\n\tSocket messages received: 0\n\tSignals delivered: 0\n\tPage size (bytes): 4096\n\tExit status: 0\n",
+          "hessian_recovery_seconds": 0.0419476,
+          "metric_computation_seconds": 0.107922
+        }
+      ]
+    },
+    "fixture": "/media/rausa/4TB/SU2_Versions/TestCasesForSSTIDDES/optimization_rans/steady_oneram6",
+    "scope": "RANS/SA transonic solution; keep true symmetry, use existing WLS symmetry path (geometry reuse disabled here). No prescribed BL metric, no exact Hessian reference; MMG selected only to allow 3D metric construction and never invoked.",
+    "rejected_fixture": {
+      "path": "/media/rausa/4TB/SU2_Versions/TestCasesForSSTIDDES/cont_adj_rans/oneram6",
+      "maximum_coordinate_difference": 0.028416060184563108,
+      "worst_point": 7839,
+      "reason": "Restart coordinates do not match supplied mesh; preliminary output excluded from matched-case validation."
+    },
+    "restart_crash": {
+      "before_fix_exit_code": 134,
+      "cause": "Fixed char fname[100] buffer overflow in CSolver::Read_SU2_Restart_ASCII for the matching fixture path.",
+      "fix": "Use the live string c_str() in both shared ASCII/binary restart readers and both CBaselineSolver header paths; long filename regression passes on 1/2/4 ranks."
+    },
+    "limitations": [
+      "Strict 1e-9 MPI metric gate fails at 2.46349e-9 (two ranks) and 7.36944e-7 (four ranks), despite finite SPD and matched complexity.",
+      "Hessian MPI differences remain below 2.71e-11 with a global floor; no Hessian physical-accuracy conclusion follows.",
+      "Independent eigenvalue aspect diagnostic reaches 10000.00023 at prescribed 10000; rounding on condition-number 1e8 tensors is visible.",
+      "QR symmetry support remains unavailable. Native remeshing remains 2D only."
+    ]
+  },
+  "noise_isolation": {
+    "fixed_input_campaign": {
+      "scope": "Investigation-only experimental nodal BL policy; fixed serial pre-BL tensors and scale, zero flow/remesh iterations.",
+      "binary_sha256": "aed958551426ce6825ea71eecdebf1bf80697bf64d3cf113aa3b38ff9709d0c7",
+      "runs": [
+        {
+          "label": "capture",
+          "ranks": 1,
+          "sweeps_cap": 80,
+          "boundary_layer": true,
+          "elapsed_seconds": 63.1083885070002,
+          "exit_code": 0,
+          "command": [
+            "timeout",
+            "--kill-after=5s",
+            "300s",
+            "mpirun",
+            "--host",
+            "localhost:4",
+            "-np",
+            "1",
+            "/tmp/su2-metric-build/SU2_CFD/src/SU2_CFD",
+            "run.cfg"
+          ],
+          "configuration": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\nMESH_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/mesh.su2\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\nNUM_METHOD_HESS= QUADRATIC_LEAST_SQUARES\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\nMGLEVEL= 0\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\nITER= 0\nCONV_RESIDUAL_MINVAL= -8\nCONV_STARTITER= 100\nCOMPUTE_METRIC= YES\nADAP_SENSOR= ( MACH, PRESSURE )\nADAP_NORM= 2\nADAP_HMAX= 20\nADAP_ARMAX= 10000\nADAP_HGRAD= 1.3\nADAP_HAUSD= 1e-6\nADAP_ANGLE= 45\nADAP_ISO_CORNER= YES\nADAP_SURFACE= YES\nADAP_REMESHER= NATIVE_CAVITY\nADAP_LOOP= NO\nADAP_SIZES= ( 4000, 6000 )\nADAP_SUBITER= ( 1 )\nADAP_FLOW_ITER= ( 2000 )\nADAP_FLOW_CFL= ( 3 )\nADAP_TRANSFER= CONSERVATIVE\nWRT_ADAP_MESH= NO\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\nOUTPUT_FILES= ( RESTART_ASCII )\nWRT_RESTART_COMPACT= NO\nRESTART_FILENAME= fields\nSOLUTION_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/solution\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\nCONV_FILENAME= history\nTABULAR_FORMAT= CSV\nVOLUME_OUTPUT= ( COORDINATES, SOLUTION, PRIMITIVE, ADAP_SENSOR, HESSIAN, METRIC )\nHISTORY_OUTPUT= ( ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL )\nOUTPUT_WRT_FREQ= 1\nSCREEN_WRT_FREQ_INNER= 20\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\nMUSCL_TURB= NO\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\nADAP_HMIN= 1e-6\nADAP_BL_MARKER= ( AIRFOIL )\nADAP_BL_FIRST_HEIGHT= ( 1e-5 )\nADAP_BL_GROWTH= 1.2\nADAP_BL_THICKNESS= 0.02\nADAP_BL_METHOD= METRIC\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\nADAP_COMPLEXITY= 60000\n\nADAP_HESSIAN_NOISE= 1\n",
+          "probe_environment": {
+            "SU2_METRIC_PROBE_SWEEPS": "80",
+            "SU2_METRIC_PROBE_DUMP": "/tmp/su2-metric-build/metric-isolation/noise-replay/capture/pre_bl"
+          },
+          "gradation": "80 sweeps, iteration limit reached, maximum transported-metric ratio 2.28272.",
+          "work": "58 complexity trials, 4640 total gradation sweeps, 86262240 owned-point visits; gradation 60.7092 s, halo 1.57784 s, sweep reductions 0.0115881 s (maximum accumulated rank times).",
+          "blocked": "17 normal-limited and 0 tangent-limited directed edges in the final field (not an infeasibility proof).",
+          "solver.log_sha256": "0033c5086f86d0d0e4873ce3a8f1d01b7b56707f39d5c0a44ff88df1b54b5fd0",
+          "fields.csv_sha256": "d2d089123282fe265ba93b5d7297015de5203b41e98e6ae1bd83467df893990d"
+        },
+        {
+          "label": "fixed-0",
+          "ranks": 1,
+          "sweeps_cap": 0,
+          "boundary_layer": true,
+          "elapsed_seconds": 2.232226620999427,
+          "exit_code": 0,
+          "command": [
+            "timeout",
+            "--kill-after=5s",
+            "300s",
+            "mpirun",
+            "--host",
+            "localhost:4",
+            "-np",
+            "1",
+            "/tmp/su2-metric-build/SU2_CFD/src/SU2_CFD",
+            "run.cfg"
+          ],
+          "configuration": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\nMESH_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/mesh.su2\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\nNUM_METHOD_HESS= QUADRATIC_LEAST_SQUARES\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\nMGLEVEL= 0\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\nITER= 0\nCONV_RESIDUAL_MINVAL= -8\nCONV_STARTITER= 100\nCOMPUTE_METRIC= YES\nADAP_SENSOR= ( MACH, PRESSURE )\nADAP_NORM= 2\nADAP_HMAX= 20\nADAP_ARMAX= 10000\nADAP_HGRAD= 1.3\nADAP_HAUSD= 1e-6\nADAP_ANGLE= 45\nADAP_ISO_CORNER= YES\nADAP_SURFACE= YES\nADAP_REMESHER= NATIVE_CAVITY\nADAP_LOOP= NO\nADAP_SIZES= ( 4000, 6000 )\nADAP_SUBITER= ( 1 )\nADAP_FLOW_ITER= ( 2000 )\nADAP_FLOW_CFL= ( 3 )\nADAP_TRANSFER= CONSERVATIVE\nWRT_ADAP_MESH= NO\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\nOUTPUT_FILES= ( RESTART_ASCII )\nWRT_RESTART_COMPACT= NO\nRESTART_FILENAME= fields\nSOLUTION_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/solution\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\nCONV_FILENAME= history\nTABULAR_FORMAT= CSV\nVOLUME_OUTPUT= ( COORDINATES, SOLUTION, PRIMITIVE, ADAP_SENSOR, HESSIAN, METRIC )\nHISTORY_OUTPUT= ( ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL )\nOUTPUT_WRT_FREQ= 1\nSCREEN_WRT_FREQ_INNER= 20\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\nMUSCL_TURB= NO\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\nADAP_HMIN= 1e-6\nADAP_BL_MARKER= ( AIRFOIL )\nADAP_BL_FIRST_HEIGHT= ( 1e-5 )\nADAP_BL_GROWTH= 1.2\nADAP_BL_THICKNESS= 0.02\nADAP_BL_METHOD= METRIC\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\nADAP_COMPLEXITY= 60000\n\nADAP_HESSIAN_NOISE= 1\n",
+          "probe_environment": {
+            "SU2_METRIC_PROBE_SWEEPS": "0",
+            "SU2_METRIC_PROBE_REPLAY": "/tmp/su2-metric-build/metric-isolation/noise-replay/capture/pre_bl.rank0"
+          },
+          "gradation": "0 sweeps, iteration limit reached, maximum transported-metric ratio 52863485.091239661.",
+          "work": "43 complexity trials, 0 total gradation sweeps, 0 owned-point visits; gradation 0.00026592900000066422 s, halo 0 s, sweep reductions 0 s (maximum accumulated rank times).",
+          "blocked": "95 normal-limited and 0 tangent-limited directed edges in the final field (not an infeasibility proof).",
+          "scale": "logScale=-4.7566332359710328",
+          "solver.log_sha256": "7c40f0ab2d2d47f02d1728a04a505e28ecf7efe57a1df7b2375f37059a3d3fa1",
+          "fields.csv_sha256": "e211cdf4d1b95bacab0f925aa8cc7e7a40affe2090f5907b29550f3a48b3e573"
+        },
+        {
+          "label": "fixed-0",
+          "ranks": 2,
+          "sweeps_cap": 0,
+          "boundary_layer": true,
+          "elapsed_seconds": 1.4401251220006088,
+          "exit_code": 0,
+          "command": [
+            "timeout",
+            "--kill-after=5s",
+            "300s",
+            "mpirun",
+            "--host",
+            "localhost:4",
+            "-np",
+            "2",
+            "/tmp/su2-metric-build/SU2_CFD/src/SU2_CFD",
+            "run.cfg"
+          ],
+          "configuration": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\nMESH_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/mesh.su2\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\nNUM_METHOD_HESS= QUADRATIC_LEAST_SQUARES\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\nMGLEVEL= 0\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\nITER= 0\nCONV_RESIDUAL_MINVAL= -8\nCONV_STARTITER= 100\nCOMPUTE_METRIC= YES\nADAP_SENSOR= ( MACH, PRESSURE )\nADAP_NORM= 2\nADAP_HMAX= 20\nADAP_ARMAX= 10000\nADAP_HGRAD= 1.3\nADAP_HAUSD= 1e-6\nADAP_ANGLE= 45\nADAP_ISO_CORNER= YES\nADAP_SURFACE= YES\nADAP_REMESHER= NATIVE_CAVITY\nADAP_LOOP= NO\nADAP_SIZES= ( 4000, 6000 )\nADAP_SUBITER= ( 1 )\nADAP_FLOW_ITER= ( 2000 )\nADAP_FLOW_CFL= ( 3 )\nADAP_TRANSFER= CONSERVATIVE\nWRT_ADAP_MESH= NO\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\nOUTPUT_FILES= ( RESTART_ASCII )\nWRT_RESTART_COMPACT= NO\nRESTART_FILENAME= fields\nSOLUTION_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/solution\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\nCONV_FILENAME= history\nTABULAR_FORMAT= CSV\nVOLUME_OUTPUT= ( COORDINATES, SOLUTION, PRIMITIVE, ADAP_SENSOR, HESSIAN, METRIC )\nHISTORY_OUTPUT= ( ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL )\nOUTPUT_WRT_FREQ= 1\nSCREEN_WRT_FREQ_INNER= 20\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\nMUSCL_TURB= NO\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\nADAP_HMIN= 1e-6\nADAP_BL_MARKER= ( AIRFOIL )\nADAP_BL_FIRST_HEIGHT= ( 1e-5 )\nADAP_BL_GROWTH= 1.2\nADAP_BL_THICKNESS= 0.02\nADAP_BL_METHOD= METRIC\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\nADAP_COMPLEXITY= 60000\n\nADAP_HESSIAN_NOISE= 1\n",
+          "probe_environment": {
+            "SU2_METRIC_PROBE_SWEEPS": "0",
+            "SU2_METRIC_PROBE_REPLAY": "/tmp/su2-metric-build/metric-isolation/noise-replay/capture/pre_bl.rank0"
+          },
+          "gradation": "0 sweeps, iteration limit reached, maximum transported-metric ratio 52863485.091239661.",
+          "work": "43 complexity trials, 0 total gradation sweeps, 0 owned-point visits; gradation 0.00020631800000014966 s, halo 0 s, sweep reductions 0 s (maximum accumulated rank times).",
+          "blocked": "95 normal-limited and 0 tangent-limited directed edges in the final field (not an infeasibility proof).",
+          "scale": "logScale=-4.7566332359710328",
+          "solver.log_sha256": "42a031a19818413805148deed9956e942cdad8078f342827aaf2ac8df3822cc9",
+          "fields.csv_sha256": "adc27e441031328bcf3c9d3652763211d1e93e4f3ba07c864a0297cb8025f245"
+        },
+        {
+          "label": "fixed-0",
+          "ranks": 4,
+          "sweeps_cap": 0,
+          "boundary_layer": true,
+          "elapsed_seconds": 1.19942422999884,
+          "exit_code": 0,
+          "command": [
+            "timeout",
+            "--kill-after=5s",
+            "300s",
+            "mpirun",
+            "--host",
+            "localhost:4",
+            "-np",
+            "4",
+            "/tmp/su2-metric-build/SU2_CFD/src/SU2_CFD",
+            "run.cfg"
+          ],
+          "configuration": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\nMESH_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/mesh.su2\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\nNUM_METHOD_HESS= QUADRATIC_LEAST_SQUARES\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\nMGLEVEL= 0\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\nITER= 0\nCONV_RESIDUAL_MINVAL= -8\nCONV_STARTITER= 100\nCOMPUTE_METRIC= YES\nADAP_SENSOR= ( MACH, PRESSURE )\nADAP_NORM= 2\nADAP_HMAX= 20\nADAP_ARMAX= 10000\nADAP_HGRAD= 1.3\nADAP_HAUSD= 1e-6\nADAP_ANGLE= 45\nADAP_ISO_CORNER= YES\nADAP_SURFACE= YES\nADAP_REMESHER= NATIVE_CAVITY\nADAP_LOOP= NO\nADAP_SIZES= ( 4000, 6000 )\nADAP_SUBITER= ( 1 )\nADAP_FLOW_ITER= ( 2000 )\nADAP_FLOW_CFL= ( 3 )\nADAP_TRANSFER= CONSERVATIVE\nWRT_ADAP_MESH= NO\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\nOUTPUT_FILES= ( RESTART_ASCII )\nWRT_RESTART_COMPACT= NO\nRESTART_FILENAME= fields\nSOLUTION_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/solution\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\nCONV_FILENAME= history\nTABULAR_FORMAT= CSV\nVOLUME_OUTPUT= ( COORDINATES, SOLUTION, PRIMITIVE, ADAP_SENSOR, HESSIAN, METRIC )\nHISTORY_OUTPUT= ( ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL )\nOUTPUT_WRT_FREQ= 1\nSCREEN_WRT_FREQ_INNER= 20\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\nMUSCL_TURB= NO\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\nADAP_HMIN= 1e-6\nADAP_BL_MARKER= ( AIRFOIL )\nADAP_BL_FIRST_HEIGHT= ( 1e-5 )\nADAP_BL_GROWTH= 1.2\nADAP_BL_THICKNESS= 0.02\nADAP_BL_METHOD= METRIC\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\nADAP_COMPLEXITY= 60000\n\nADAP_HESSIAN_NOISE= 1\n",
+          "probe_environment": {
+            "SU2_METRIC_PROBE_SWEEPS": "0",
+            "SU2_METRIC_PROBE_REPLAY": "/tmp/su2-metric-build/metric-isolation/noise-replay/capture/pre_bl.rank0"
+          },
+          "gradation": "0 sweeps, iteration limit reached, maximum transported-metric ratio 52863485.091239661.",
+          "work": "43 complexity trials, 0 total gradation sweeps, 0 owned-point visits; gradation 0.00019149699999998493 s, halo 0 s, sweep reductions 0 s (maximum accumulated rank times).",
+          "blocked": "95 normal-limited and 0 tangent-limited directed edges in the final field (not an infeasibility proof).",
+          "scale": "logScale=-4.7566332359710328",
+          "solver.log_sha256": "a5bbb829bc57aa34d41987251fb3d80851a233a9be3a046eff364fa011030e4b",
+          "fields.csv_sha256": "0c5273effbaa205b250c5a85eee7d8b09ab645f670f27be22077a35584886292"
+        },
+        {
+          "label": "fixed-1",
+          "ranks": 1,
+          "sweeps_cap": 1,
+          "boundary_layer": true,
+          "elapsed_seconds": 3.050027523000608,
+          "exit_code": 0,
+          "command": [
+            "timeout",
+            "--kill-after=5s",
+            "300s",
+            "mpirun",
+            "--host",
+            "localhost:4",
+            "-np",
+            "1",
+            "/tmp/su2-metric-build/SU2_CFD/src/SU2_CFD",
+            "run.cfg"
+          ],
+          "configuration": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\nMESH_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/mesh.su2\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\nNUM_METHOD_HESS= QUADRATIC_LEAST_SQUARES\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\nMGLEVEL= 0\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\nITER= 0\nCONV_RESIDUAL_MINVAL= -8\nCONV_STARTITER= 100\nCOMPUTE_METRIC= YES\nADAP_SENSOR= ( MACH, PRESSURE )\nADAP_NORM= 2\nADAP_HMAX= 20\nADAP_ARMAX= 10000\nADAP_HGRAD= 1.3\nADAP_HAUSD= 1e-6\nADAP_ANGLE= 45\nADAP_ISO_CORNER= YES\nADAP_SURFACE= YES\nADAP_REMESHER= NATIVE_CAVITY\nADAP_LOOP= NO\nADAP_SIZES= ( 4000, 6000 )\nADAP_SUBITER= ( 1 )\nADAP_FLOW_ITER= ( 2000 )\nADAP_FLOW_CFL= ( 3 )\nADAP_TRANSFER= CONSERVATIVE\nWRT_ADAP_MESH= NO\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\nOUTPUT_FILES= ( RESTART_ASCII )\nWRT_RESTART_COMPACT= NO\nRESTART_FILENAME= fields\nSOLUTION_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/solution\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\nCONV_FILENAME= history\nTABULAR_FORMAT= CSV\nVOLUME_OUTPUT= ( COORDINATES, SOLUTION, PRIMITIVE, ADAP_SENSOR, HESSIAN, METRIC )\nHISTORY_OUTPUT= ( ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL )\nOUTPUT_WRT_FREQ= 1\nSCREEN_WRT_FREQ_INNER= 20\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\nMUSCL_TURB= NO\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\nADAP_HMIN= 1e-6\nADAP_BL_MARKER= ( AIRFOIL )\nADAP_BL_FIRST_HEIGHT= ( 1e-5 )\nADAP_BL_GROWTH= 1.2\nADAP_BL_THICKNESS= 0.02\nADAP_BL_METHOD= METRIC\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\nADAP_COMPLEXITY= 60000\n\nADAP_HESSIAN_NOISE= 1\n",
+          "probe_environment": {
+            "SU2_METRIC_PROBE_SWEEPS": "1",
+            "SU2_METRIC_PROBE_REPLAY": "/tmp/su2-metric-build/metric-isolation/noise-replay/capture/pre_bl.rank0"
+          },
+          "gradation": "1 sweeps, iteration limit reached, maximum transported-metric ratio 75.751457629172933.",
+          "work": "49 complexity trials, 49 total gradation sweeps, 910959 owned-point visits; gradation 0.99456712499999966 s, halo 0.018793749000001636 s, sweep reductions 0.00017766600000168609 s (maximum accumulated rank times).",
+          "blocked": "17 normal-limited and 0 tangent-limited directed edges in the final field (not an infeasibility proof).",
+          "scale": "logScale=-4.7566332359710328",
+          "solver.log_sha256": "c82a971f248dfb7963de7e51b78c842a273451129451e04ba049af439245f11a",
+          "fields.csv_sha256": "aa6fca86b662a94d2e50e11225ba3c46d0dea549a822fdbbc2623a20e81ce373"
+        },
+        {
+          "label": "fixed-1",
+          "ranks": 2,
+          "sweeps_cap": 1,
+          "boundary_layer": true,
+          "elapsed_seconds": 2.132468511998013,
+          "exit_code": 0,
+          "command": [
+            "timeout",
+            "--kill-after=5s",
+            "300s",
+            "mpirun",
+            "--host",
+            "localhost:4",
+            "-np",
+            "2",
+            "/tmp/su2-metric-build/SU2_CFD/src/SU2_CFD",
+            "run.cfg"
+          ],
+          "configuration": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\nMESH_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/mesh.su2\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\nNUM_METHOD_HESS= QUADRATIC_LEAST_SQUARES\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\nMGLEVEL= 0\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\nITER= 0\nCONV_RESIDUAL_MINVAL= -8\nCONV_STARTITER= 100\nCOMPUTE_METRIC= YES\nADAP_SENSOR= ( MACH, PRESSURE )\nADAP_NORM= 2\nADAP_HMAX= 20\nADAP_ARMAX= 10000\nADAP_HGRAD= 1.3\nADAP_HAUSD= 1e-6\nADAP_ANGLE= 45\nADAP_ISO_CORNER= YES\nADAP_SURFACE= YES\nADAP_REMESHER= NATIVE_CAVITY\nADAP_LOOP= NO\nADAP_SIZES= ( 4000, 6000 )\nADAP_SUBITER= ( 1 )\nADAP_FLOW_ITER= ( 2000 )\nADAP_FLOW_CFL= ( 3 )\nADAP_TRANSFER= CONSERVATIVE\nWRT_ADAP_MESH= NO\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\nOUTPUT_FILES= ( RESTART_ASCII )\nWRT_RESTART_COMPACT= NO\nRESTART_FILENAME= fields\nSOLUTION_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/solution\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\nCONV_FILENAME= history\nTABULAR_FORMAT= CSV\nVOLUME_OUTPUT= ( COORDINATES, SOLUTION, PRIMITIVE, ADAP_SENSOR, HESSIAN, METRIC )\nHISTORY_OUTPUT= ( ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL )\nOUTPUT_WRT_FREQ= 1\nSCREEN_WRT_FREQ_INNER= 20\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\nMUSCL_TURB= NO\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\nADAP_HMIN= 1e-6\nADAP_BL_MARKER= ( AIRFOIL )\nADAP_BL_FIRST_HEIGHT= ( 1e-5 )\nADAP_BL_GROWTH= 1.2\nADAP_BL_THICKNESS= 0.02\nADAP_BL_METHOD= METRIC\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\nADAP_COMPLEXITY= 60000\n\nADAP_HESSIAN_NOISE= 1\n",
+          "probe_environment": {
+            "SU2_METRIC_PROBE_SWEEPS": "1",
+            "SU2_METRIC_PROBE_REPLAY": "/tmp/su2-metric-build/metric-isolation/noise-replay/capture/pre_bl.rank0"
+          },
+          "gradation": "1 sweeps, iteration limit reached, maximum transported-metric ratio 75.751457629172933.",
+          "work": "49 complexity trials, 49 total gradation sweeps, 910959 owned-point visits; gradation 0.55257137199999928 s, halo 0.062659346999999643 s, sweep reductions 0.02310514199999969 s (maximum accumulated rank times).",
+          "blocked": "17 normal-limited and 0 tangent-limited directed edges in the final field (not an infeasibility proof).",
+          "scale": "logScale=-4.7566332359710328",
+          "solver.log_sha256": "c1f36762d6dda3a783714a1fbb21e77f0b50e7be2e4f3ea47bf6d72cf01c07a6",
+          "fields.csv_sha256": "e9b0365dfa0f7005aeb07a9ec7aefb0c2f201f47fd225853045f323e2f9a6e33"
+        },
+        {
+          "label": "fixed-1",
+          "ranks": 4,
+          "sweeps_cap": 1,
+          "boundary_layer": true,
+          "elapsed_seconds": 1.607495108997682,
+          "exit_code": 0,
+          "command": [
+            "timeout",
+            "--kill-after=5s",
+            "300s",
+            "mpirun",
+            "--host",
+            "localhost:4",
+            "-np",
+            "4",
+            "/tmp/su2-metric-build/SU2_CFD/src/SU2_CFD",
+            "run.cfg"
+          ],
+          "configuration": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\nMESH_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/mesh.su2\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\nNUM_METHOD_HESS= QUADRATIC_LEAST_SQUARES\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\nMGLEVEL= 0\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\nITER= 0\nCONV_RESIDUAL_MINVAL= -8\nCONV_STARTITER= 100\nCOMPUTE_METRIC= YES\nADAP_SENSOR= ( MACH, PRESSURE )\nADAP_NORM= 2\nADAP_HMAX= 20\nADAP_ARMAX= 10000\nADAP_HGRAD= 1.3\nADAP_HAUSD= 1e-6\nADAP_ANGLE= 45\nADAP_ISO_CORNER= YES\nADAP_SURFACE= YES\nADAP_REMESHER= NATIVE_CAVITY\nADAP_LOOP= NO\nADAP_SIZES= ( 4000, 6000 )\nADAP_SUBITER= ( 1 )\nADAP_FLOW_ITER= ( 2000 )\nADAP_FLOW_CFL= ( 3 )\nADAP_TRANSFER= CONSERVATIVE\nWRT_ADAP_MESH= NO\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\nOUTPUT_FILES= ( RESTART_ASCII )\nWRT_RESTART_COMPACT= NO\nRESTART_FILENAME= fields\nSOLUTION_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/solution\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\nCONV_FILENAME= history\nTABULAR_FORMAT= CSV\nVOLUME_OUTPUT= ( COORDINATES, SOLUTION, PRIMITIVE, ADAP_SENSOR, HESSIAN, METRIC )\nHISTORY_OUTPUT= ( ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL )\nOUTPUT_WRT_FREQ= 1\nSCREEN_WRT_FREQ_INNER= 20\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\nMUSCL_TURB= NO\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\nADAP_HMIN= 1e-6\nADAP_BL_MARKER= ( AIRFOIL )\nADAP_BL_FIRST_HEIGHT= ( 1e-5 )\nADAP_BL_GROWTH= 1.2\nADAP_BL_THICKNESS= 0.02\nADAP_BL_METHOD= METRIC\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\nADAP_COMPLEXITY= 60000\n\nADAP_HESSIAN_NOISE= 1\n",
+          "probe_environment": {
+            "SU2_METRIC_PROBE_SWEEPS": "1",
+            "SU2_METRIC_PROBE_REPLAY": "/tmp/su2-metric-build/metric-isolation/noise-replay/capture/pre_bl.rank0"
+          },
+          "gradation": "1 sweeps, iteration limit reached, maximum transported-metric ratio 75.751457629172933.",
+          "work": "49 complexity trials, 49 total gradation sweeps, 910959 owned-point visits; gradation 0.33836453399999944 s, halo 0.075542121999999212 s, sweep reductions 0.039779815000000385 s (maximum accumulated rank times).",
+          "blocked": "17 normal-limited and 0 tangent-limited directed edges in the final field (not an infeasibility proof).",
+          "scale": "logScale=-4.7566332359710328",
+          "solver.log_sha256": "7009018d1ce19d1434a11177045025b53827261a905bf21b5051d910e8474113",
+          "fields.csv_sha256": "01a5ee62ec0a150c71fc2fb38b4fe959e9e28b89951efa37308a4a689c910d2d"
+        },
+        {
+          "label": "fixed-10",
+          "ranks": 1,
+          "sweeps_cap": 10,
+          "boundary_layer": true,
+          "elapsed_seconds": 10.063763942998776,
+          "exit_code": 0,
+          "command": [
+            "timeout",
+            "--kill-after=5s",
+            "300s",
+            "mpirun",
+            "--host",
+            "localhost:4",
+            "-np",
+            "1",
+            "/tmp/su2-metric-build/SU2_CFD/src/SU2_CFD",
+            "run.cfg"
+          ],
+          "configuration": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\nMESH_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/mesh.su2\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\nNUM_METHOD_HESS= QUADRATIC_LEAST_SQUARES\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\nMGLEVEL= 0\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\nITER= 0\nCONV_RESIDUAL_MINVAL= -8\nCONV_STARTITER= 100\nCOMPUTE_METRIC= YES\nADAP_SENSOR= ( MACH, PRESSURE )\nADAP_NORM= 2\nADAP_HMAX= 20\nADAP_ARMAX= 10000\nADAP_HGRAD= 1.3\nADAP_HAUSD= 1e-6\nADAP_ANGLE= 45\nADAP_ISO_CORNER= YES\nADAP_SURFACE= YES\nADAP_REMESHER= NATIVE_CAVITY\nADAP_LOOP= NO\nADAP_SIZES= ( 4000, 6000 )\nADAP_SUBITER= ( 1 )\nADAP_FLOW_ITER= ( 2000 )\nADAP_FLOW_CFL= ( 3 )\nADAP_TRANSFER= CONSERVATIVE\nWRT_ADAP_MESH= NO\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\nOUTPUT_FILES= ( RESTART_ASCII )\nWRT_RESTART_COMPACT= NO\nRESTART_FILENAME= fields\nSOLUTION_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/solution\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\nCONV_FILENAME= history\nTABULAR_FORMAT= CSV\nVOLUME_OUTPUT= ( COORDINATES, SOLUTION, PRIMITIVE, ADAP_SENSOR, HESSIAN, METRIC )\nHISTORY_OUTPUT= ( ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL )\nOUTPUT_WRT_FREQ= 1\nSCREEN_WRT_FREQ_INNER= 20\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\nMUSCL_TURB= NO\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\nADAP_HMIN= 1e-6\nADAP_BL_MARKER= ( AIRFOIL )\nADAP_BL_FIRST_HEIGHT= ( 1e-5 )\nADAP_BL_GROWTH= 1.2\nADAP_BL_THICKNESS= 0.02\nADAP_BL_METHOD= METRIC\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\nADAP_COMPLEXITY= 60000\n\nADAP_HESSIAN_NOISE= 1\n",
+          "probe_environment": {
+            "SU2_METRIC_PROBE_SWEEPS": "10",
+            "SU2_METRIC_PROBE_REPLAY": "/tmp/su2-metric-build/metric-isolation/noise-replay/capture/pre_bl.rank0"
+          },
+          "gradation": "10 sweeps, iteration limit reached, maximum transported-metric ratio 3.3710452925672318.",
+          "work": "58 complexity trials, 580 total gradation sweeps, 10782780 owned-point visits; gradation 7.9062749930000074 s, halo 0.16733575100000486 s, sweep reductions 0.0013274130000073825 s (maximum accumulated rank times).",
+          "blocked": "17 normal-limited and 0 tangent-limited directed edges in the final field (not an infeasibility proof).",
+          "scale": "logScale=-4.7566332359710328",
+          "solver.log_sha256": "1f95df5badc30ec5a0ade0f05e4589806cb12b9b3c6d843aa479a42a783c0a68",
+          "fields.csv_sha256": "dc5a1852f1cfd1f406b6f62530fd07df913a36c9ff462cf71659dcb9dc0a7c29"
+        },
+        {
+          "label": "fixed-10",
+          "ranks": 4,
+          "sweeps_cap": 10,
+          "boundary_layer": true,
+          "elapsed_seconds": 3.662587678001728,
+          "exit_code": 0,
+          "command": [
+            "timeout",
+            "--kill-after=5s",
+            "300s",
+            "mpirun",
+            "--host",
+            "localhost:4",
+            "-np",
+            "4",
+            "/tmp/su2-metric-build/SU2_CFD/src/SU2_CFD",
+            "run.cfg"
+          ],
+          "configuration": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\nMESH_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/mesh.su2\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\nNUM_METHOD_HESS= QUADRATIC_LEAST_SQUARES\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\nMGLEVEL= 0\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\nITER= 0\nCONV_RESIDUAL_MINVAL= -8\nCONV_STARTITER= 100\nCOMPUTE_METRIC= YES\nADAP_SENSOR= ( MACH, PRESSURE )\nADAP_NORM= 2\nADAP_HMAX= 20\nADAP_ARMAX= 10000\nADAP_HGRAD= 1.3\nADAP_HAUSD= 1e-6\nADAP_ANGLE= 45\nADAP_ISO_CORNER= YES\nADAP_SURFACE= YES\nADAP_REMESHER= NATIVE_CAVITY\nADAP_LOOP= NO\nADAP_SIZES= ( 4000, 6000 )\nADAP_SUBITER= ( 1 )\nADAP_FLOW_ITER= ( 2000 )\nADAP_FLOW_CFL= ( 3 )\nADAP_TRANSFER= CONSERVATIVE\nWRT_ADAP_MESH= NO\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\nOUTPUT_FILES= ( RESTART_ASCII )\nWRT_RESTART_COMPACT= NO\nRESTART_FILENAME= fields\nSOLUTION_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/solution\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\nCONV_FILENAME= history\nTABULAR_FORMAT= CSV\nVOLUME_OUTPUT= ( COORDINATES, SOLUTION, PRIMITIVE, ADAP_SENSOR, HESSIAN, METRIC )\nHISTORY_OUTPUT= ( ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL )\nOUTPUT_WRT_FREQ= 1\nSCREEN_WRT_FREQ_INNER= 20\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\nMUSCL_TURB= NO\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\nADAP_HMIN= 1e-6\nADAP_BL_MARKER= ( AIRFOIL )\nADAP_BL_FIRST_HEIGHT= ( 1e-5 )\nADAP_BL_GROWTH= 1.2\nADAP_BL_THICKNESS= 0.02\nADAP_BL_METHOD= METRIC\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\nADAP_COMPLEXITY= 60000\n\nADAP_HESSIAN_NOISE= 1\n",
+          "probe_environment": {
+            "SU2_METRIC_PROBE_SWEEPS": "10",
+            "SU2_METRIC_PROBE_REPLAY": "/tmp/su2-metric-build/metric-isolation/noise-replay/capture/pre_bl.rank0"
+          },
+          "gradation": "10 sweeps, iteration limit reached, maximum transported-metric ratio 3.3710452925672318.",
+          "work": "58 complexity trials, 580 total gradation sweeps, 10782780 owned-point visits; gradation 2.5427090210000012 s, halo 0.1923315299999997 s, sweep reductions 0.56334427299999668 s (maximum accumulated rank times).",
+          "blocked": "17 normal-limited and 0 tangent-limited directed edges in the final field (not an infeasibility proof).",
+          "scale": "logScale=-4.7566332359710328",
+          "solver.log_sha256": "34280802ec78fa8e9f38b481c5b5e7ad52f06c5031db7f4e83f4e3bf082aa3fa",
+          "fields.csv_sha256": "ae13de6ed3ffae0ca12e8ea5f1ac67fa41c5e9542fbdf171b41893f97372aee2"
+        },
+        {
+          "label": "fixed-80",
+          "ranks": 1,
+          "sweeps_cap": 80,
+          "boundary_layer": true,
+          "elapsed_seconds": 76.90435743600028,
+          "exit_code": 0,
+          "command": [
+            "timeout",
+            "--kill-after=5s",
+            "300s",
+            "mpirun",
+            "--host",
+            "localhost:4",
+            "-np",
+            "1",
+            "/tmp/su2-metric-build/SU2_CFD/src/SU2_CFD",
+            "run.cfg"
+          ],
+          "configuration": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\nMESH_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/mesh.su2\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\nNUM_METHOD_HESS= QUADRATIC_LEAST_SQUARES\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\nMGLEVEL= 0\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\nITER= 0\nCONV_RESIDUAL_MINVAL= -8\nCONV_STARTITER= 100\nCOMPUTE_METRIC= YES\nADAP_SENSOR= ( MACH, PRESSURE )\nADAP_NORM= 2\nADAP_HMAX= 20\nADAP_ARMAX= 10000\nADAP_HGRAD= 1.3\nADAP_HAUSD= 1e-6\nADAP_ANGLE= 45\nADAP_ISO_CORNER= YES\nADAP_SURFACE= YES\nADAP_REMESHER= NATIVE_CAVITY\nADAP_LOOP= NO\nADAP_SIZES= ( 4000, 6000 )\nADAP_SUBITER= ( 1 )\nADAP_FLOW_ITER= ( 2000 )\nADAP_FLOW_CFL= ( 3 )\nADAP_TRANSFER= CONSERVATIVE\nWRT_ADAP_MESH= NO\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\nOUTPUT_FILES= ( RESTART_ASCII )\nWRT_RESTART_COMPACT= NO\nRESTART_FILENAME= fields\nSOLUTION_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/solution\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\nCONV_FILENAME= history\nTABULAR_FORMAT= CSV\nVOLUME_OUTPUT= ( COORDINATES, SOLUTION, PRIMITIVE, ADAP_SENSOR, HESSIAN, METRIC )\nHISTORY_OUTPUT= ( ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL )\nOUTPUT_WRT_FREQ= 1\nSCREEN_WRT_FREQ_INNER= 20\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\nMUSCL_TURB= NO\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\nADAP_HMIN= 1e-6\nADAP_BL_MARKER= ( AIRFOIL )\nADAP_BL_FIRST_HEIGHT= ( 1e-5 )\nADAP_BL_GROWTH= 1.2\nADAP_BL_THICKNESS= 0.02\nADAP_BL_METHOD= METRIC\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\nADAP_COMPLEXITY= 60000\n\nADAP_HESSIAN_NOISE= 1\n",
+          "probe_environment": {
+            "SU2_METRIC_PROBE_SWEEPS": "80",
+            "SU2_METRIC_PROBE_REPLAY": "/tmp/su2-metric-build/metric-isolation/noise-replay/capture/pre_bl.rank0"
+          },
+          "gradation": "80 sweeps, iteration limit reached, maximum transported-metric ratio 2.2827171790004206.",
+          "work": "58 complexity trials, 4640 total gradation sweeps, 86262240 owned-point visits; gradation 74.750159199999985 s, halo 2.1684420060001628 s, sweep reductions 0.016145600000200488 s (maximum accumulated rank times).",
+          "blocked": "17 normal-limited and 0 tangent-limited directed edges in the final field (not an infeasibility proof).",
+          "scale": "logScale=-4.7566332359710328",
+          "solver.log_sha256": "b66cb728705cce3eb2fca838a2b8dc10d6cf6a8d0ad402442a7dcdf3b8478a1e",
+          "fields.csv_sha256": "dded22dfed450be3b42e843fd7e312f5c4635cf0868301494321e3dd64a69ab3"
+        },
+        {
+          "label": "fixed-80",
+          "ranks": 2,
+          "sweeps_cap": 80,
+          "boundary_layer": true,
+          "elapsed_seconds": 33.855544873000326,
+          "exit_code": 0,
+          "command": [
+            "timeout",
+            "--kill-after=5s",
+            "300s",
+            "mpirun",
+            "--host",
+            "localhost:4",
+            "-np",
+            "2",
+            "/tmp/su2-metric-build/SU2_CFD/src/SU2_CFD",
+            "run.cfg"
+          ],
+          "configuration": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\nMESH_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/mesh.su2\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\nNUM_METHOD_HESS= QUADRATIC_LEAST_SQUARES\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\nMGLEVEL= 0\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\nITER= 0\nCONV_RESIDUAL_MINVAL= -8\nCONV_STARTITER= 100\nCOMPUTE_METRIC= YES\nADAP_SENSOR= ( MACH, PRESSURE )\nADAP_NORM= 2\nADAP_HMAX= 20\nADAP_ARMAX= 10000\nADAP_HGRAD= 1.3\nADAP_HAUSD= 1e-6\nADAP_ANGLE= 45\nADAP_ISO_CORNER= YES\nADAP_SURFACE= YES\nADAP_REMESHER= NATIVE_CAVITY\nADAP_LOOP= NO\nADAP_SIZES= ( 4000, 6000 )\nADAP_SUBITER= ( 1 )\nADAP_FLOW_ITER= ( 2000 )\nADAP_FLOW_CFL= ( 3 )\nADAP_TRANSFER= CONSERVATIVE\nWRT_ADAP_MESH= NO\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\nOUTPUT_FILES= ( RESTART_ASCII )\nWRT_RESTART_COMPACT= NO\nRESTART_FILENAME= fields\nSOLUTION_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/solution\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\nCONV_FILENAME= history\nTABULAR_FORMAT= CSV\nVOLUME_OUTPUT= ( COORDINATES, SOLUTION, PRIMITIVE, ADAP_SENSOR, HESSIAN, METRIC )\nHISTORY_OUTPUT= ( ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL )\nOUTPUT_WRT_FREQ= 1\nSCREEN_WRT_FREQ_INNER= 20\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\nMUSCL_TURB= NO\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\nADAP_HMIN= 1e-6\nADAP_BL_MARKER= ( AIRFOIL )\nADAP_BL_FIRST_HEIGHT= ( 1e-5 )\nADAP_BL_GROWTH= 1.2\nADAP_BL_THICKNESS= 0.02\nADAP_BL_METHOD= METRIC\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\nADAP_COMPLEXITY= 60000\n\nADAP_HESSIAN_NOISE= 1\n",
+          "probe_environment": {
+            "SU2_METRIC_PROBE_SWEEPS": "80",
+            "SU2_METRIC_PROBE_REPLAY": "/tmp/su2-metric-build/metric-isolation/noise-replay/capture/pre_bl.rank0"
+          },
+          "gradation": "80 sweeps, iteration limit reached, maximum transported-metric ratio 2.2827171790004206.",
+          "work": "58 complexity trials, 4640 total gradation sweeps, 86262240 owned-point visits; gradation 32.333868324000001 s, halo 1.2678995439999383 s, sweep reductions 3.9944910440000285 s (maximum accumulated rank times).",
+          "blocked": "17 normal-limited and 0 tangent-limited directed edges in the final field (not an infeasibility proof).",
+          "scale": "logScale=-4.7566332359710328",
+          "solver.log_sha256": "11cfe08f3dfcc029e70d7495faa6f45187f992571c33f0e4cef0c2af5e5934c1",
+          "fields.csv_sha256": "ef6f493bd1fb8783543ea2a1a9c1aa1428097069787f99800d49cf4bdd7bf6bf"
+        },
+        {
+          "label": "fixed-80",
+          "ranks": 4,
+          "sweeps_cap": 80,
+          "boundary_layer": true,
+          "elapsed_seconds": 18.09611171099823,
+          "exit_code": 0,
+          "command": [
+            "timeout",
+            "--kill-after=5s",
+            "300s",
+            "mpirun",
+            "--host",
+            "localhost:4",
+            "-np",
+            "4",
+            "/tmp/su2-metric-build/SU2_CFD/src/SU2_CFD",
+            "run.cfg"
+          ],
+          "configuration": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\nMESH_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/mesh.su2\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\nNUM_METHOD_HESS= QUADRATIC_LEAST_SQUARES\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\nMGLEVEL= 0\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\nITER= 0\nCONV_RESIDUAL_MINVAL= -8\nCONV_STARTITER= 100\nCOMPUTE_METRIC= YES\nADAP_SENSOR= ( MACH, PRESSURE )\nADAP_NORM= 2\nADAP_HMAX= 20\nADAP_ARMAX= 10000\nADAP_HGRAD= 1.3\nADAP_HAUSD= 1e-6\nADAP_ANGLE= 45\nADAP_ISO_CORNER= YES\nADAP_SURFACE= YES\nADAP_REMESHER= NATIVE_CAVITY\nADAP_LOOP= NO\nADAP_SIZES= ( 4000, 6000 )\nADAP_SUBITER= ( 1 )\nADAP_FLOW_ITER= ( 2000 )\nADAP_FLOW_CFL= ( 3 )\nADAP_TRANSFER= CONSERVATIVE\nWRT_ADAP_MESH= NO\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\nOUTPUT_FILES= ( RESTART_ASCII )\nWRT_RESTART_COMPACT= NO\nRESTART_FILENAME= fields\nSOLUTION_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/solution\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\nCONV_FILENAME= history\nTABULAR_FORMAT= CSV\nVOLUME_OUTPUT= ( COORDINATES, SOLUTION, PRIMITIVE, ADAP_SENSOR, HESSIAN, METRIC )\nHISTORY_OUTPUT= ( ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL )\nOUTPUT_WRT_FREQ= 1\nSCREEN_WRT_FREQ_INNER= 20\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\nMUSCL_TURB= NO\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\nADAP_HMIN= 1e-6\nADAP_BL_MARKER= ( AIRFOIL )\nADAP_BL_FIRST_HEIGHT= ( 1e-5 )\nADAP_BL_GROWTH= 1.2\nADAP_BL_THICKNESS= 0.02\nADAP_BL_METHOD= METRIC\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\nADAP_COMPLEXITY= 60000\n\nADAP_HESSIAN_NOISE= 1\n",
+          "probe_environment": {
+            "SU2_METRIC_PROBE_SWEEPS": "80",
+            "SU2_METRIC_PROBE_REPLAY": "/tmp/su2-metric-build/metric-isolation/noise-replay/capture/pre_bl.rank0"
+          },
+          "gradation": "80 sweeps, iteration limit reached, maximum transported-metric ratio 2.2827171790004206.",
+          "work": "58 complexity trials, 4640 total gradation sweeps, 86262240 owned-point visits; gradation 16.964227533000003 s, halo 0.88866916400003149 s, sweep reductions 5.4307174979999608 s (maximum accumulated rank times).",
+          "blocked": "17 normal-limited and 0 tangent-limited directed edges in the final field (not an infeasibility proof).",
+          "scale": "logScale=-4.7566332359710328",
+          "solver.log_sha256": "34f4e37135697e4960c3ce5b396c6fae16f3e58271fbca09cd54f233029eadf7",
+          "fields.csv_sha256": "2305a080f9455e190078f73f4a469ce4ea653c4f4d1018e7968c03446dfb098b"
+        },
+        {
+          "label": "fixed-no-bl",
+          "ranks": 1,
+          "sweeps_cap": 80,
+          "boundary_layer": false,
+          "elapsed_seconds": 8.871184341001936,
+          "exit_code": 0,
+          "command": [
+            "timeout",
+            "--kill-after=5s",
+            "300s",
+            "mpirun",
+            "--host",
+            "localhost:4",
+            "-np",
+            "1",
+            "/tmp/su2-metric-build/SU2_CFD/src/SU2_CFD",
+            "run.cfg"
+          ],
+          "configuration": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\nMESH_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/mesh.su2\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\nNUM_METHOD_HESS= QUADRATIC_LEAST_SQUARES\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\nMGLEVEL= 0\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\nITER= 0\nCONV_RESIDUAL_MINVAL= -8\nCONV_STARTITER= 100\nCOMPUTE_METRIC= YES\nADAP_SENSOR= ( MACH, PRESSURE )\nADAP_NORM= 2\nADAP_HMAX= 20\nADAP_ARMAX= 10000\nADAP_HGRAD= 1.3\nADAP_HAUSD= 1e-6\nADAP_ANGLE= 45\nADAP_ISO_CORNER= YES\nADAP_SURFACE= YES\nADAP_REMESHER= NATIVE_CAVITY\nADAP_LOOP= NO\nADAP_SIZES= ( 4000, 6000 )\nADAP_SUBITER= ( 1 )\nADAP_FLOW_ITER= ( 2000 )\nADAP_FLOW_CFL= ( 3 )\nADAP_TRANSFER= CONSERVATIVE\nWRT_ADAP_MESH= NO\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\nOUTPUT_FILES= ( RESTART_ASCII )\nWRT_RESTART_COMPACT= NO\nRESTART_FILENAME= fields\nSOLUTION_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/solution\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\nCONV_FILENAME= history\nTABULAR_FORMAT= CSV\nVOLUME_OUTPUT= ( COORDINATES, SOLUTION, PRIMITIVE, ADAP_SENSOR, HESSIAN, METRIC )\nHISTORY_OUTPUT= ( ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL )\nOUTPUT_WRT_FREQ= 1\nSCREEN_WRT_FREQ_INNER= 20\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\nMUSCL_TURB= NO\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\nADAP_HMIN= 1e-6\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\nADAP_COMPLEXITY= 60000\n\nADAP_HESSIAN_NOISE= 1\n",
+          "probe_environment": {
+            "SU2_METRIC_PROBE_SWEEPS": "80",
+            "SU2_METRIC_PROBE_REPLAY": "/tmp/su2-metric-build/metric-isolation/noise-replay/capture/pre_bl.rank0"
+          },
+          "gradation": "32 sweeps, fixed point reached, maximum transported-metric ratio 1.0000000996523131.",
+          "work": "29 complexity trials, 808 total gradation sweeps, 15021528 owned-point visits; gradation 7.3559686989999999 s, halo 0.24206723000000885 s, sweep reductions 0.0019798439999867412 s (maximum accumulated rank times).",
+          "blocked": "0 normal-limited and 0 tangent-limited directed edges in the final field (not an infeasibility proof).",
+          "scale": "logScale=-4.7566332359710328",
+          "solver.log_sha256": "ad60990c393078cbbc55beac4da2d1aa66ba4d8c5f90788a8364af3ffca70256",
+          "fields.csv_sha256": "6a13e34ab070545f0a3b2a1e041a899d30f41a549e58d86190989394f71664a0"
+        },
+        {
+          "label": "fixed-no-bl",
+          "ranks": 4,
+          "sweeps_cap": 80,
+          "boundary_layer": false,
+          "elapsed_seconds": 3.64319593899927,
+          "exit_code": 0,
+          "command": [
+            "timeout",
+            "--kill-after=5s",
+            "300s",
+            "mpirun",
+            "--host",
+            "localhost:4",
+            "-np",
+            "4",
+            "/tmp/su2-metric-build/SU2_CFD/src/SU2_CFD",
+            "run.cfg"
+          ],
+          "configuration": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\nMESH_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/mesh.su2\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\nNUM_METHOD_HESS= QUADRATIC_LEAST_SQUARES\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\nMGLEVEL= 0\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\nITER= 0\nCONV_RESIDUAL_MINVAL= -8\nCONV_STARTITER= 100\nCOMPUTE_METRIC= YES\nADAP_SENSOR= ( MACH, PRESSURE )\nADAP_NORM= 2\nADAP_HMAX= 20\nADAP_ARMAX= 10000\nADAP_HGRAD= 1.3\nADAP_HAUSD= 1e-6\nADAP_ANGLE= 45\nADAP_ISO_CORNER= YES\nADAP_SURFACE= YES\nADAP_REMESHER= NATIVE_CAVITY\nADAP_LOOP= NO\nADAP_SIZES= ( 4000, 6000 )\nADAP_SUBITER= ( 1 )\nADAP_FLOW_ITER= ( 2000 )\nADAP_FLOW_CFL= ( 3 )\nADAP_TRANSFER= CONSERVATIVE\nWRT_ADAP_MESH= NO\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\nOUTPUT_FILES= ( RESTART_ASCII )\nWRT_RESTART_COMPACT= NO\nRESTART_FILENAME= fields\nSOLUTION_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/solution\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\nCONV_FILENAME= history\nTABULAR_FORMAT= CSV\nVOLUME_OUTPUT= ( COORDINATES, SOLUTION, PRIMITIVE, ADAP_SENSOR, HESSIAN, METRIC )\nHISTORY_OUTPUT= ( ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL )\nOUTPUT_WRT_FREQ= 1\nSCREEN_WRT_FREQ_INNER= 20\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\nMUSCL_TURB= NO\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\nADAP_HMIN= 1e-6\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\nADAP_COMPLEXITY= 60000\n\nADAP_HESSIAN_NOISE= 1\n",
+          "probe_environment": {
+            "SU2_METRIC_PROBE_SWEEPS": "80",
+            "SU2_METRIC_PROBE_REPLAY": "/tmp/su2-metric-build/metric-isolation/noise-replay/capture/pre_bl.rank0"
+          },
+          "gradation": "32 sweeps, fixed point reached, maximum transported-metric ratio 1.0000000996523131.",
+          "work": "29 complexity trials, 808 total gradation sweeps, 15021528 owned-point visits; gradation 2.6469222539999997 s, halo 0.18821279400000757 s, sweep reductions 0.3847948099999936 s (maximum accumulated rank times).",
+          "blocked": "0 normal-limited and 0 tangent-limited directed edges in the final field (not an infeasibility proof).",
+          "scale": "logScale=-4.7566332359710328",
+          "solver.log_sha256": "2ccd4c2679ba7b31c7720287e3cf1f09b280c79c97b2b7acdf192a701d8b429a",
+          "fields.csv_sha256": "64253214c43056d2534387326579d492c9b13d33744656438c58e69b7ced4fe3"
+        },
+        {
+          "label": "capture-mpi2",
+          "ranks": 2,
+          "sweeps_cap": 80,
+          "boundary_layer": true,
+          "elapsed_seconds": 34.15562999199756,
+          "exit_code": 0,
+          "command": [
+            "timeout",
+            "--kill-after=5s",
+            "300s",
+            "mpirun",
+            "--host",
+            "localhost:4",
+            "-np",
+            "2",
+            "/tmp/su2-metric-build/SU2_CFD/src/SU2_CFD",
+            "run.cfg"
+          ],
+          "configuration": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\nMESH_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/mesh.su2\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\nNUM_METHOD_HESS= QUADRATIC_LEAST_SQUARES\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\nMGLEVEL= 0\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\nITER= 0\nCONV_RESIDUAL_MINVAL= -8\nCONV_STARTITER= 100\nCOMPUTE_METRIC= YES\nADAP_SENSOR= ( MACH, PRESSURE )\nADAP_NORM= 2\nADAP_HMAX= 20\nADAP_ARMAX= 10000\nADAP_HGRAD= 1.3\nADAP_HAUSD= 1e-6\nADAP_ANGLE= 45\nADAP_ISO_CORNER= YES\nADAP_SURFACE= YES\nADAP_REMESHER= NATIVE_CAVITY\nADAP_LOOP= NO\nADAP_SIZES= ( 4000, 6000 )\nADAP_SUBITER= ( 1 )\nADAP_FLOW_ITER= ( 2000 )\nADAP_FLOW_CFL= ( 3 )\nADAP_TRANSFER= CONSERVATIVE\nWRT_ADAP_MESH= NO\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\nOUTPUT_FILES= ( RESTART_ASCII )\nWRT_RESTART_COMPACT= NO\nRESTART_FILENAME= fields\nSOLUTION_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/solution\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\nCONV_FILENAME= history\nTABULAR_FORMAT= CSV\nVOLUME_OUTPUT= ( COORDINATES, SOLUTION, PRIMITIVE, ADAP_SENSOR, HESSIAN, METRIC )\nHISTORY_OUTPUT= ( ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL )\nOUTPUT_WRT_FREQ= 1\nSCREEN_WRT_FREQ_INNER= 20\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\nMUSCL_TURB= NO\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\nADAP_HMIN= 1e-6\nADAP_BL_MARKER= ( AIRFOIL )\nADAP_BL_FIRST_HEIGHT= ( 1e-5 )\nADAP_BL_GROWTH= 1.2\nADAP_BL_THICKNESS= 0.02\nADAP_BL_METHOD= METRIC\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\nADAP_COMPLEXITY= 60000\n\nADAP_HESSIAN_NOISE= 1\n",
+          "probe_environment": {
+            "SU2_METRIC_PROBE_SWEEPS": "80",
+            "SU2_METRIC_PROBE_DUMP": "/tmp/su2-metric-build/metric-isolation/noise-replay/capture-mpi2/pre_bl"
+          },
+          "gradation": "80 sweeps, iteration limit reached, maximum transported-metric ratio 2.28272.",
+          "work": "58 complexity trials, 4640 total gradation sweeps, 86262240 owned-point visits; gradation 32.5706 s, halo 1.3132 s, sweep reductions 4.74022 s (maximum accumulated rank times).",
+          "blocked": "17 normal-limited and 0 tangent-limited directed edges in the final field (not an infeasibility proof).",
+          "solver.log_sha256": "f129090de9e3d9a94c10edbc46e088e491373ceb90632a7d85b47b696d65594d",
+          "fields.csv_sha256": "2e739af32440860526d1cc8b3a11af031e6d3e8b5f1c230eca7edbe62088d7de"
+        },
+        {
+          "label": "capture-mpi4",
+          "ranks": 4,
+          "sweeps_cap": 80,
+          "boundary_layer": true,
+          "elapsed_seconds": 20.202582866004377,
+          "exit_code": 0,
+          "command": [
+            "timeout",
+            "--kill-after=5s",
+            "300s",
+            "mpirun",
+            "--host",
+            "localhost:4",
+            "-np",
+            "4",
+            "/tmp/su2-metric-build/SU2_CFD/src/SU2_CFD",
+            "run.cfg"
+          ],
+          "configuration": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\nMESH_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/mesh.su2\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\nNUM_METHOD_HESS= QUADRATIC_LEAST_SQUARES\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\nMGLEVEL= 0\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\nITER= 0\nCONV_RESIDUAL_MINVAL= -8\nCONV_STARTITER= 100\nCOMPUTE_METRIC= YES\nADAP_SENSOR= ( MACH, PRESSURE )\nADAP_NORM= 2\nADAP_HMAX= 20\nADAP_ARMAX= 10000\nADAP_HGRAD= 1.3\nADAP_HAUSD= 1e-6\nADAP_ANGLE= 45\nADAP_ISO_CORNER= YES\nADAP_SURFACE= YES\nADAP_REMESHER= NATIVE_CAVITY\nADAP_LOOP= NO\nADAP_SIZES= ( 4000, 6000 )\nADAP_SUBITER= ( 1 )\nADAP_FLOW_ITER= ( 2000 )\nADAP_FLOW_CFL= ( 3 )\nADAP_TRANSFER= CONSERVATIVE\nWRT_ADAP_MESH= NO\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\nOUTPUT_FILES= ( RESTART_ASCII )\nWRT_RESTART_COMPACT= NO\nRESTART_FILENAME= fields\nSOLUTION_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/solution\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\nCONV_FILENAME= history\nTABULAR_FORMAT= CSV\nVOLUME_OUTPUT= ( COORDINATES, SOLUTION, PRIMITIVE, ADAP_SENSOR, HESSIAN, METRIC )\nHISTORY_OUTPUT= ( ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL )\nOUTPUT_WRT_FREQ= 1\nSCREEN_WRT_FREQ_INNER= 20\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\nMUSCL_TURB= NO\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\nADAP_HMIN= 1e-6\nADAP_BL_MARKER= ( AIRFOIL )\nADAP_BL_FIRST_HEIGHT= ( 1e-5 )\nADAP_BL_GROWTH= 1.2\nADAP_BL_THICKNESS= 0.02\nADAP_BL_METHOD= METRIC\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\nADAP_COMPLEXITY= 60000\n\nADAP_HESSIAN_NOISE= 1\n",
+          "probe_environment": {
+            "SU2_METRIC_PROBE_SWEEPS": "80",
+            "SU2_METRIC_PROBE_DUMP": "/tmp/su2-metric-build/metric-isolation/noise-replay/capture-mpi4/pre_bl"
+          },
+          "gradation": "80 sweeps, iteration limit reached, maximum transported-metric ratio 2.28272.",
+          "work": "58 complexity trials, 4640 total gradation sweeps, 86262240 owned-point visits; gradation 18.8919 s, halo 1.13632 s, sweep reductions 6.16006 s (maximum accumulated rank times).",
+          "blocked": "17 normal-limited and 0 tangent-limited directed edges in the final field (not an infeasibility proof).",
+          "solver.log_sha256": "fd2555fae13281c747da92f0043e497043ad7408b246160bb427ae088e41a6af",
+          "fields.csv_sha256": "baa636c78194235343511535d4e2dd0abaab0911751142fedaf503d979a5b8b8"
+        }
+      ],
+      "frozen_input_sha256": "9ae24d62a1836c8447a70f1ee7532ad38dbed37f1bef10e695aef25dfeea59af",
+      "mpi_comparisons": {
+        "fixed-0": {
+          "2": {
+            "max_relative_metric_difference": 2.9008054380272354e-14,
+            "worst_global_point": 9944,
+            "max_absolute_hessian_difference": 0.0
+          },
+          "4": {
+            "max_relative_metric_difference": 3.3124465144963137e-14,
+            "worst_global_point": 7374,
+            "max_absolute_hessian_difference": 0.0
+          }
+        },
+        "fixed-1": {
+          "2": {
+            "max_relative_metric_difference": 2.900838676787237e-14,
+            "worst_global_point": 9944,
+            "max_absolute_hessian_difference": 0.0
+          },
+          "4": {
+            "max_relative_metric_difference": 3.2960086442755065e-14,
+            "worst_global_point": 7374,
+            "max_absolute_hessian_difference": 0.0
+          }
+        },
+        "fixed-10": {
+          "4": {
+            "max_relative_metric_difference": 3.3125038208772806e-14,
+            "worst_global_point": 7374,
+            "max_absolute_hessian_difference": 0.0
+          }
+        },
+        "fixed-80": {
+          "2": {
+            "max_relative_metric_difference": 2.8979377325616486e-14,
+            "worst_global_point": 9944,
+            "max_absolute_hessian_difference": 0.0
+          },
+          "4": {
+            "max_relative_metric_difference": 3.2963541347338125e-14,
+            "worst_global_point": 7374,
+            "max_absolute_hessian_difference": 0.0
+          }
+        },
+        "fixed-no-bl": {
+          "4": {
+            "max_relative_metric_difference": 5.977494609757531e-13,
+            "worst_global_point": 18347,
+            "max_absolute_hessian_difference": 0.0
+          }
+        }
+      },
+      "upstream_comparison": {
+        "2": {
+          "max_relative_pre_bl_difference": 0.0004240474573370973,
+          "worst_global_point": 11153,
+          "scale_log_difference": -7.379511668403893e-08
+        },
+        "4": {
+          "max_relative_pre_bl_difference": 0.0003996213728611561,
+          "worst_global_point": 11153,
+          "scale_log_difference": -4.1541057616001353e-07
+        }
+      },
+      "captured_log_scales": {
+        "1": -4.756633235971033,
+        "2": -4.7566333097661495,
+        "4": -4.756633651381609
+      }
+    },
+    "initial_construction_campaign": {
+      "scope": "Investigation-only experimental nodal BL policy; fixed serial pre-BL tensors and scale, zero flow/remesh iterations.",
+      "binary_sha256": "21da4d31fc600b42fc9c97fea7cd108730e00ea7e5f95a2717abf2f52aa686cd",
+      "runs": [
+        {
+          "label": "capture",
+          "ranks": 1,
+          "sweeps_cap": 80,
+          "boundary_layer": true,
+          "elapsed_seconds": 38.72059703300329,
+          "exit_code": 0,
+          "command": [
+            "timeout",
+            "--kill-after=5s",
+            "300s",
+            "mpirun",
+            "--host",
+            "localhost:4",
+            "-np",
+            "1",
+            "/tmp/su2-metric-build/SU2_CFD/src/SU2_CFD",
+            "run.cfg"
+          ],
+          "configuration": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\nMESH_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/mesh.su2\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\nNUM_METHOD_HESS= QUADRATIC_LEAST_SQUARES\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\nMGLEVEL= 0\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\nITER= 0\nCONV_RESIDUAL_MINVAL= -8\nCONV_STARTITER= 100\nCOMPUTE_METRIC= YES\nADAP_SENSOR= ( MACH, PRESSURE )\nADAP_NORM= 2\nADAP_HMAX= 20\nADAP_ARMAX= 10000\nADAP_HGRAD= 1.3\nADAP_HAUSD= 1e-6\nADAP_ANGLE= 45\nADAP_ISO_CORNER= YES\nADAP_SURFACE= YES\nADAP_REMESHER= NATIVE_CAVITY\nADAP_LOOP= NO\nADAP_SIZES= ( 4000, 6000 )\nADAP_SUBITER= ( 1 )\nADAP_FLOW_ITER= ( 2000 )\nADAP_FLOW_CFL= ( 3 )\nADAP_TRANSFER= CONSERVATIVE\nWRT_ADAP_MESH= NO\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\nOUTPUT_FILES= ( RESTART_ASCII )\nWRT_RESTART_COMPACT= NO\nRESTART_FILENAME= fields\nSOLUTION_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/solution\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\nCONV_FILENAME= history\nTABULAR_FORMAT= CSV\nVOLUME_OUTPUT= ( COORDINATES, SOLUTION, PRIMITIVE, ADAP_SENSOR, HESSIAN, METRIC )\nHISTORY_OUTPUT= ( ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL )\nOUTPUT_WRT_FREQ= 1\nSCREEN_WRT_FREQ_INNER= 20\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\nMUSCL_TURB= NO\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\nADAP_HMIN= 1e-6\nADAP_BL_MARKER= ( AIRFOIL )\nADAP_BL_FIRST_HEIGHT= ( 1e-5 )\nADAP_BL_GROWTH= 1.2\nADAP_BL_THICKNESS= 0.02\nADAP_BL_METHOD= METRIC\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\nADAP_COMPLEXITY= 60000\n\nADAP_HESSIAN_NOISE= 1\n",
+          "probe_environment": {
+            "SU2_METRIC_PROBE_SWEEPS": "80",
+            "SU2_METRIC_PROBE_DUMP": "/tmp/su2-metric-build/metric-isolation/noise-upstream-construction/capture/pre_bl"
+          },
+          "gradation": "80 sweeps, iteration limit reached, maximum transported-metric ratio 2.28272.",
+          "work": "58 complexity trials, 4640 total gradation sweeps, 86262240 owned-point visits; gradation 37.0252 s, halo 0.490903 s, sweep reductions 0.00384183 s (maximum accumulated rank times).",
+          "blocked": "17 normal-limited and 0 tangent-limited directed edges in the final field (not an infeasibility proof).",
+          "solver.log_sha256": "bdcf8472bc42aabd16d7eacba4183694a7c79aef709ae055c1fa209de19d934d",
+          "fields.csv_sha256": "d2d089123282fe265ba93b5d7297015de5203b41e98e6ae1bd83467df893990d"
+        },
+        {
+          "label": "capture-mpi2",
+          "ranks": 2,
+          "sweeps_cap": 80,
+          "boundary_layer": true,
+          "elapsed_seconds": 20.47053330900235,
+          "exit_code": 0,
+          "command": [
+            "timeout",
+            "--kill-after=5s",
+            "300s",
+            "mpirun",
+            "--host",
+            "localhost:4",
+            "-np",
+            "2",
+            "/tmp/su2-metric-build/SU2_CFD/src/SU2_CFD",
+            "run.cfg"
+          ],
+          "configuration": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\nMESH_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/mesh.su2\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\nNUM_METHOD_HESS= QUADRATIC_LEAST_SQUARES\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\nMGLEVEL= 0\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\nITER= 0\nCONV_RESIDUAL_MINVAL= -8\nCONV_STARTITER= 100\nCOMPUTE_METRIC= YES\nADAP_SENSOR= ( MACH, PRESSURE )\nADAP_NORM= 2\nADAP_HMAX= 20\nADAP_ARMAX= 10000\nADAP_HGRAD= 1.3\nADAP_HAUSD= 1e-6\nADAP_ANGLE= 45\nADAP_ISO_CORNER= YES\nADAP_SURFACE= YES\nADAP_REMESHER= NATIVE_CAVITY\nADAP_LOOP= NO\nADAP_SIZES= ( 4000, 6000 )\nADAP_SUBITER= ( 1 )\nADAP_FLOW_ITER= ( 2000 )\nADAP_FLOW_CFL= ( 3 )\nADAP_TRANSFER= CONSERVATIVE\nWRT_ADAP_MESH= NO\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\nOUTPUT_FILES= ( RESTART_ASCII )\nWRT_RESTART_COMPACT= NO\nRESTART_FILENAME= fields\nSOLUTION_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/solution\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\nCONV_FILENAME= history\nTABULAR_FORMAT= CSV\nVOLUME_OUTPUT= ( COORDINATES, SOLUTION, PRIMITIVE, ADAP_SENSOR, HESSIAN, METRIC )\nHISTORY_OUTPUT= ( ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL )\nOUTPUT_WRT_FREQ= 1\nSCREEN_WRT_FREQ_INNER= 20\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\nMUSCL_TURB= NO\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\nADAP_HMIN= 1e-6\nADAP_BL_MARKER= ( AIRFOIL )\nADAP_BL_FIRST_HEIGHT= ( 1e-5 )\nADAP_BL_GROWTH= 1.2\nADAP_BL_THICKNESS= 0.02\nADAP_BL_METHOD= METRIC\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\nADAP_COMPLEXITY= 60000\n\nADAP_HESSIAN_NOISE= 1\n",
+          "probe_environment": {
+            "SU2_METRIC_PROBE_SWEEPS": "80",
+            "SU2_METRIC_PROBE_DUMP": "/tmp/su2-metric-build/metric-isolation/noise-upstream-construction/capture-mpi2/pre_bl"
+          },
+          "gradation": "80 sweeps, iteration limit reached, maximum transported-metric ratio 2.28272.",
+          "work": "58 complexity trials, 4640 total gradation sweeps, 86262240 owned-point visits; gradation 19.3183 s, halo 0.422354 s, sweep reductions 1.83 s (maximum accumulated rank times).",
+          "blocked": "17 normal-limited and 0 tangent-limited directed edges in the final field (not an infeasibility proof).",
+          "solver.log_sha256": "5bc6990638f965dd324f53fd56bb54a5d2d252048c9a71ab7803807d5d1133a7",
+          "fields.csv_sha256": "2e739af32440860526d1cc8b3a11af031e6d3e8b5f1c230eca7edbe62088d7de"
+        },
+        {
+          "label": "capture-mpi4",
+          "ranks": 4,
+          "sweeps_cap": 80,
+          "boundary_layer": true,
+          "elapsed_seconds": 11.675875116998213,
+          "exit_code": 0,
+          "command": [
+            "timeout",
+            "--kill-after=5s",
+            "300s",
+            "mpirun",
+            "--host",
+            "localhost:4",
+            "-np",
+            "4",
+            "/tmp/su2-metric-build/SU2_CFD/src/SU2_CFD",
+            "run.cfg"
+          ],
+          "configuration": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\nMESH_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/mesh.su2\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\nNUM_METHOD_HESS= QUADRATIC_LEAST_SQUARES\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\nMGLEVEL= 0\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\nITER= 0\nCONV_RESIDUAL_MINVAL= -8\nCONV_STARTITER= 100\nCOMPUTE_METRIC= YES\nADAP_SENSOR= ( MACH, PRESSURE )\nADAP_NORM= 2\nADAP_HMAX= 20\nADAP_ARMAX= 10000\nADAP_HGRAD= 1.3\nADAP_HAUSD= 1e-6\nADAP_ANGLE= 45\nADAP_ISO_CORNER= YES\nADAP_SURFACE= YES\nADAP_REMESHER= NATIVE_CAVITY\nADAP_LOOP= NO\nADAP_SIZES= ( 4000, 6000 )\nADAP_SUBITER= ( 1 )\nADAP_FLOW_ITER= ( 2000 )\nADAP_FLOW_CFL= ( 3 )\nADAP_TRANSFER= CONSERVATIVE\nWRT_ADAP_MESH= NO\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\nOUTPUT_FILES= ( RESTART_ASCII )\nWRT_RESTART_COMPACT= NO\nRESTART_FILENAME= fields\nSOLUTION_FILENAME= /tmp/su2-metric-build/rae-hessian/inputs/solution\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\nCONV_FILENAME= history\nTABULAR_FORMAT= CSV\nVOLUME_OUTPUT= ( COORDINATES, SOLUTION, PRIMITIVE, ADAP_SENSOR, HESSIAN, METRIC )\nHISTORY_OUTPUT= ( ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL )\nOUTPUT_WRT_FREQ= 1\nSCREEN_WRT_FREQ_INNER= 20\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\nMUSCL_TURB= NO\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\nADAP_HMIN= 1e-6\nADAP_BL_MARKER= ( AIRFOIL )\nADAP_BL_FIRST_HEIGHT= ( 1e-5 )\nADAP_BL_GROWTH= 1.2\nADAP_BL_THICKNESS= 0.02\nADAP_BL_METHOD= METRIC\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\nADAP_COMPLEXITY= 60000\n\nADAP_HESSIAN_NOISE= 1\n",
+          "probe_environment": {
+            "SU2_METRIC_PROBE_SWEEPS": "80",
+            "SU2_METRIC_PROBE_DUMP": "/tmp/su2-metric-build/metric-isolation/noise-upstream-construction/capture-mpi4/pre_bl"
+          },
+          "gradation": "80 sweeps, iteration limit reached, maximum transported-metric ratio 2.28272.",
+          "work": "58 complexity trials, 4640 total gradation sweeps, 86262240 owned-point visits; gradation 10.736 s, halo 0.383594 s, sweep reductions 2.39641 s (maximum accumulated rank times).",
+          "blocked": "17 normal-limited and 0 tangent-limited directed edges in the final field (not an infeasibility proof).",
+          "solver.log_sha256": "53512b7bf0807f72b4495f47647b7bf10f2ccbc72f9b4a1ebe7616f4a0e19f3a",
+          "fields.csv_sha256": "baa636c78194235343511535d4e2dd0abaab0911751142fedaf503d979a5b8b8"
+        }
+      ],
+      "frozen_input_sha256": "9ae24d62a1836c8447a70f1ee7532ad38dbed37f1bef10e695aef25dfeea59af",
+      "mpi_comparisons": {},
+      "construction_comparisons": {
+        "pre_bl": {
+          "2": {
+            "max_relative_tensor_difference": 0.0004240474573370973,
+            "worst_global_point": 11153,
+            "serial_parameters": [
+              -4.756633235971033
+            ],
+            "mpi_parameters": [
+              -4.7566333097661495
+            ]
+          },
+          "4": {
+            "max_relative_tensor_difference": 0.0003996213728611561,
+            "worst_global_point": 11153,
+            "serial_parameters": [
+              -4.756633235971033
+            ],
+            "mpi_parameters": [
+              -4.756633651381609
+            ]
+          }
+        },
+        "pre_bl.initial": {
+          "2": {
+            "max_relative_tensor_difference": 0.0005465545392902766,
+            "worst_global_point": 11153,
+            "serial_parameters": [
+              4.959396961575084e-06,
+              2.494560321022351e-05
+            ],
+            "mpi_parameters": [
+              4.959396961575055e-06,
+              2.4945603210223564e-05
+            ]
+          },
+          "4": {
+            "max_relative_tensor_difference": 0.0008355311140452774,
+            "worst_global_point": 8660,
+            "serial_parameters": [
+              4.959396961575084e-06,
+              2.494560321022351e-05
+            ],
+            "mpi_parameters": [
+              4.9593969615750445e-06,
+              2.494560321022361e-05
+            ]
+          }
+        }
+      }
+    },
+    "probe_patch_sha256": "f447d6c976e2a0a4e0beb1a3e030644ad2a8fa3d96248995c1323e6551c2b0a6",
+    "probe_source_note": "Investigation-only patch, absent from production binary. Fixed-replay campaign used the patch subset without initial-dump output; later initial-construction campaign added that output and included restart filename fixes. Probe binary hashes are recorded separately; the final patch reproduces both modes.",
+    "findings": [
+      "Fixed serial pre-BL tensors and final scale agree across MPI below 3.4e-14 with 0/1/10/80 sweep caps.",
+      "With identical inputs and no experimental hard-normal BL projection, gradation converges in 32 sweeps to ratio 1.0000000996523131; MPI difference below 6e-13.",
+      "With the hard-normal nodal BL projection, ratio remains 2.28272 at 80 sweeps with 17 normal-limited directed edges. This is a separate constraint/policy failure.",
+      "Initial sensor metric already differs by 5.46555e-4 / 8.35531e-4 before any corner, BL or gradation processing, despite identical filtered Hessians and sensor normalization integral differences below 8.1e-15 relative.",
+      "Inference: nearly rank-deficient filtered Hessians, the 1e14 per-sensor condition cap and generalized-eigenvalue multi-sensor intersection amplify normalization roundoff. Precise stabilization and causal isolation of each operator remain follow-up work.",
+      "Keep ADAP_HESSIAN_NOISE=0. No intersection or reduction stabilization was added here; no claim of physical noise filtering suitability."
+    ],
+    "serial_worst_point_example": {
+      "point_id": 11153,
+      "MACH_filtered_hessian_eigenvalues": [
+        0,
+        5968369.20815962
+      ],
+      "PRESSURE_filtered_hessian_eigenvalues": [
+        9.53674316e-07,
+        75629383300.0
+      ]
+    }
+  },
+  "next_tasks": [
+    "Stabilize condition-sensitive multi-sensor metric combination without silently discarding finer demands; test nearly rank-one 2D/3D tensors and MPI normalization perturbations.",
+    "Improve one-sided curved-wall Hessian recovery and skew sensitivity; preserve separate normal/tangent accuracy gates.",
+    "Add symmetry/periodic QR support before real ONERA QR/noise comparison.",
+    "Integrate main geometric BL composition, complexity and gradation policy on the main-agent branch, then rebase without replaying superseded experiments.",
+    "Validate accepted adaptation cycles and aerodynamic/wall-resolution outcomes; profile memory and work rather than adding a persistent cache speculatively."
+  ],
+  "durable_evidence_directory": "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/metric_robustness_3d_noise_v4",
+  "checks": {
+    "diff_check": "passed",
+    "probe_patch_apply_check": "passed",
+    "python_compile": "passed",
+    "real_rans_strict_metric_audit": "failed (retained)",
+    "selected_unit_mpi_regressions": "passed"
+  }
+}

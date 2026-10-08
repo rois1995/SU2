@@ -1,5 +1,5 @@
 from pathlib import Path
-import hashlib, json, re, sys
+import hashlib, json, re, subprocess, sys
 import numpy as np
 
 root = Path('/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated')
@@ -77,10 +77,14 @@ for kind in ('actual_euler_to_bl', 'actual_bl_to_euler'):
         matches.append(same)
 
 tools = {str(p.relative_to(root/'ClusterResults/tools')): sha(p) for p in (root/'ClusterResults/tools').rglob('*') if p.is_file() and p.suffix == '.py'}
-assert all(sha(root/name) == digest for name,digest in tools.items())
+baseline = 'e6995fbff565955a5677ffcbcc66af9acf96a8f1'
+for name,digest in tools.items():
+    blob = subprocess.check_output(['git','show',baseline+':'+name],cwd=root)
+    assert hashlib.sha256(blob).hexdigest() == digest
+original_pins = subprocess.check_output(['git','show',baseline+':integration_evidence/native_cluster_campaign_v1/source_pins.json'],cwd=root)
 receipt = dict(status='PASS', scope='Independent numerical and file-integrity checks; descriptive timing only',
                original_manifest_files=count, original_bytes=size, copied_tools_sha256=tools,
-               original_source_pins_sha256=sha(root/'integration_evidence/native_cluster_campaign_v1/source_pins.json'),
+               original_source_pins_sha256=hashlib.sha256(original_pins).hexdigest(),
                first_donor_equality=matches, cases=rows,
                timing_limits=['One repetition per mode; N=4; two actual adaptations',
                               'Campaigns overlapped on node-a-ag2.local with overlapping allowed CPU sets',

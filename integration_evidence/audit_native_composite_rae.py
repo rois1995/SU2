@@ -8,7 +8,7 @@ import argparse, hashlib, json, math, re, sys, time
 from pathlib import Path
 import numpy as np
 from frozen_field_audit import FrozenField
-from airfoil_reference_audit import loops
+from airfoil_reference_audit import original_wall
 root=Path(__file__).resolve().parent.parent
 sys.path.insert(0,str(root/'TestCases/adaptation/capability'))
 import capcheck
@@ -121,7 +121,7 @@ def audit(wd,cycle,donorpath=None,candidatepath=None,restart=None,sensor_csv=Non
     if donorpath is None:donorpath=wd/('input.su2' if cycle==1 else f'mesh_adap_{cycle-1:05d}.su2')
     if candidatepath is None:candidatepath=wd/f'mesh_adap_{cycle:05d}.su2'
     if restart is None:restart=wd/f'solution_adap_{cycle-1:05d}.dat'
-    donor=capcheck.read_su2(donorpath);candidate=capcheck.read_su2(candidatepath);original=capcheck.read_su2(wd/'input.su2')
+    donor=capcheck.read_su2(donorpath);candidate=capcheck.read_su2(candidatepath)
     if sensor_csv is None:
         metric,_=capcheck.metric_of(donor,restart)
     else:
@@ -132,8 +132,8 @@ def audit(wd,cycle,donorpath=None,candidatepath=None,restart=None,sensor_csv=Non
         metric=np.empty((len(raw),2,2));metric[:,0,0]=raw[:,0];metric[:,0,1]=metric[:,1,0]=raw[:,1];metric[:,1,1]=raw[:,2]
     xx=metric[:,0,0].astype(np.longdouble);yy=metric[:,1,1].astype(np.longdouble);xy=metric[:,0,1].astype(np.longdouble)
     largest=(xx+yy+np.hypot(xx-yy,2*xy))/2;core=float(np.min((xx*yy-xy*xy)/largest));assert core>0
-    line=loops(original.P,original.E,original.M)['AIRFOIL'][0];edges=list(zip(line,line[1:]+line[:1]))
-    wall=GeometricWall(original.P,edges,h,g,thickness,angle,core) if has_layer else None
+    points,edges,reference_paths=original_wall(wd/'input.su2')
+    wall=GeometricWall(points,edges,h,g,thickness,angle,core) if has_layer else None
     frozen=FrozenField(donor.P,donor.E,np.stack([xx,xy,yy],axis=1),donor.M,extension)
     cache={}
     def target(p):
@@ -175,7 +175,7 @@ def audit(wd,cycle,donorpath=None,candidatepath=None,restart=None,sensor_csv=Non
         transported_audit=dict(status='PASS' if largest_defect<=tolerance else 'FAIL',points=len(records),
           max_relative_directional_tensor_defect=largest_defect,tolerance=tolerance,worst_point=worst,
           scope='Independent original-sensor P1 plus actual-point geometric BL versus final distributed reader tensors; no interpolation of wall tensors.')
-    paths=[donorpath,candidatepath,restart,wd/'input.su2',wd/'run.cfg',Path(__file__),Path(__file__).with_name('frozen_field_audit.py'),Path(__file__).with_name('airfoil_reference_audit.py')]
+    paths=[*reference_paths,donorpath,candidatepath,restart,wd/'input.su2',wd/'run.cfg',Path(__file__),Path(__file__).with_name('frozen_field_audit.py'),Path(__file__).with_name('airfoil_reference_audit.py')]
     if sensor_csv is not None:paths.append(sensor_csv)
     if transported is not None:paths.extend(transported)
     return dict(cycle=cycle,points=len(candidate.P),triangles=len(candidate.E),min_quality=minq,max_simpson_length=maxl,

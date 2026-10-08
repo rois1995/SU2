@@ -37,10 +37,11 @@
 
 /*!
  * \brief Fit sensor differences directly using SVD coordinate whitening and pivoted QR.
- * \note Primal only. One-sided wall stencils are allowed; periodic/symmetry markers are rejected by CConfig.
+ * \note Primal only. One-sided boundary stencils are allowed; periodic markers are rejected by CConfig.
  *       Input sensors must be communicated first. Failed fits retain the caller's WLS derivatives.
  *       Complete donor neighborhoods are exchanged, so two-ring stencils do not depend on partition boundaries.
- *       Call outside OpenMP regions; the caller communicates the resulting gradients and Hessians.
+ *       Supported grown thin wall stencils include tangential/mixed cubic/quartic terms to reduce truncation bias.
+ *       Call outside OpenMP regions; the caller applies scalar symmetry conditions and communicates the derivatives.
  */
 template <class FieldType, class GradientType, class HessianType>
 void computeHessiansQuadratic(CGeometry& geometry, unsigned short nSensor, const FieldType& field,
@@ -125,7 +126,7 @@ void computeHessiansQuadratic(CGeometry& geometry, unsigned short nSensor, const
     for (size_t k = 0; k < received.size(); ++k) neighborhoods[received[k].center].push_back(k);
   };
 
-  unsigned long local[3] = {}, global[3] = {};  // first-ring fits, grown fits, fallback point-sensor pairs
+  unsigned long local[4] = {}, global[4] = {};  // first-ring, grown, fallback and cubic-corrected point-sensor pairs
   constexpr passivedouble poorFit =
       0.05;  // Relative weighted fit residual; triggers stencil comparison, not smoothing.
   for (unsigned short ring = 1; ring <= 2; ++ring) {
@@ -197,7 +198,19 @@ void computeHessiansQuadratic(CGeometry& geometry, unsigned short nSensor, const
       const Eigen::MatrixXd whitening =
           svd.matrixV() * (sqrt(passivedouble(cloud.size())) * singular.cwiseInverse()).asDiagonal();
       const Eigen::MatrixXd coordinate = displacement * whitening;
-      Eigen::MatrixXd design(cloud.size(), terms);
+      unsigned short fitTerms = terms;
+      const auto cubicTerms = dim * (dim + 1) * (dim + 2) / 6 - 1;
+      // A grown, thin wall stencil can separate cubic truncation from its quadratic coefficients.
+      // ponytail: omit pure thin-direction cubic; a complete cubic fit needs more independent layer samples.
+      if (ring == 2 && geometry.nodes->GetSolidBoundary(point) && singular(dim - 2) > 10 * singular(dim - 1) &&
+          cloud.size() >= terms + cubicTerms + 2)
+        fitTerms += cubicTerms;
+      const auto cubicFitTerms = terms + cubicTerms;
+      // Compare a richer wall model only on the existing grown thin stencils.
+      // At most one thin-direction factor: two rings do not support a full fourth-order fit.
+      const auto quarticTerms = dim == 2 ? 2 : 9;
+      if (fitTerms > terms && cloud.size() >= cubicFitTerms + quarticTerms + 2) fitTerms += quarticTerms;
+      Eigen::MatrixXd design(cloud.size(), fitTerms);
       Eigen::VectorXd weights;
       if (noiseStrength > 0) weights.resize(cloud.size());
       for (Eigen::Index k = 0; k < coordinate.rows(); ++k) {
@@ -207,13 +220,44 @@ void computeHessiansQuadratic(CGeometry& geometry, unsigned short nSensor, const
         for (unsigned short i = 0; i < dim; ++i)
           for (unsigned short j = i; j < dim; ++j)
             design(k, column++) = coordinate(k, i) * coordinate(k, j) * (i == j ? 0.5 : 1.0);
+        if (fitTerms > terms)
+          for (unsigned short i = 0; i < dim; ++i)
+            for (unsigned short j = i; j < dim; ++j)
+              for (unsigned short l = j; l < dim; ++l) {
+                if (i == dim - 1) continue;
+                design(k, column++) = coordinate(k, i) * coordinate(k, j) * coordinate(k, l);
+              }
+        if (fitTerms > cubicFitTerms)
+          for (unsigned short i = 0; i < dim; ++i)
+            for (unsigned short j = i; j < dim; ++j)
+              for (unsigned short l = j; l < dim; ++l)
+                for (unsigned short m = l; m < dim; ++m) {
+                  if (l == dim - 1) continue;
+                  design(k, column++) = coordinate(k, i) * coordinate(k, j) * coordinate(k, l) * coordinate(k, m);
+                }
         if (noiseStrength > 0) weights(k) = weight;
         design.row(k) *= weight;
         rhs.row(k) *= weight;
       }
       Eigen::ColPivHouseholderQR<Eigen::MatrixXd> qr(design);
       qr.setThreshold(1e-10);
-      if (qr.rank() != terms) {
+      while (fitTerms > terms) {
+        bool supported = qr.rank() == fitTerms;
+        if (supported) {
+          const Eigen::MatrixXd R = qr.matrixR().topLeftCorner(fitTerms, fitTerms)
+              .template triangularView<Eigen::Upper>();
+          const Eigen::MatrixXd inverseR = R.template triangularView<Eigen::Upper>()
+              .solve(Eigen::MatrixXd::Identity(fitTerms, fitTerms));
+          // Frobenius norms give an upper bound on the 2-norm condition; rank alone is insufficient here.
+          const auto conditionBound = R.norm() * inverseR.norm();
+          supported = std::isfinite(conditionBound) && conditionBound <= 1000;
+        }
+        if (supported) break;
+        fitTerms = fitTerms > cubicFitTerms ? cubicFitTerms : terms;
+        design.conservativeResize(Eigen::NoChange, fitTerms);
+        qr.compute(design);
+      }
+      if (qr.rank() != fitTerms) {
         if (ring == 1) grow[point] = true;
         continue;
       }
@@ -221,10 +265,10 @@ void computeHessiansQuadratic(CGeometry& geometry, unsigned short nSensor, const
        *    center value: the covariance of weighted differences includes both diag(w^2) and w*w^T.
        *    Project this covariance through the QR fit and residual, rather than treating rows as independent. ---*/
       passivedouble curvatureSensitivity = 0;
-      if (noiseStrength > 0 && cloud.size() > terms) {
-        const Eigen::MatrixXd inverseR = qr.matrixR().topLeftCorner(terms, terms)
-            .template triangularView<Eigen::Upper>().solve(Eigen::MatrixXd::Identity(terms, terms));
-        const Eigen::MatrixXd Q = qr.householderQ() * Eigen::MatrixXd::Identity(cloud.size(), terms);
+      if (noiseStrength > 0 && cloud.size() > fitTerms) {
+        const Eigen::MatrixXd inverseR = qr.matrixR().topLeftCorner(fitTerms, fitTerms)
+            .template triangularView<Eigen::Upper>().solve(Eigen::MatrixXd::Identity(fitTerms, fitTerms));
+        const Eigen::MatrixXd Q = qr.householderQ() * Eigen::MatrixXd::Identity(cloud.size(), fitTerms);
         const Eigen::MatrixXd response = ((qr.colsPermutation() * inverseR * Q.transpose()).array()
                                           .rowwise() * weights.transpose().array()).matrix();
         const auto residualVariance = 2 * weights.squaredNorm() - (Q.transpose() * weights).squaredNorm() -
@@ -256,7 +300,7 @@ void computeHessiansQuadratic(CGeometry& geometry, unsigned short nSensor, const
          *    resolved CFD noise or filter shocks; it only discards curvature below floating-point resolution. ---*/
         passivedouble amplitude = fabs(SU2_TYPE::GetValue(field(point, v)));
         for (const auto& item : cloud) amplitude = std::max(amplitude, fabs(item.second.values[v]));
-        const auto pivot = qr.matrixR().topLeftCorner(terms, terms).diagonal().cwiseAbs().minCoeff();
+        const auto pivot = qr.matrixR().topLeftCorner(fitTerms, fitTerms).diagonal().cwiseAbs().minCoeff();
         const auto resolution = 64 * std::numeric_limits<passivedouble>::epsilon() * amplitude / pivot;
         if (scaledHessian.cwiseAbs().maxCoeff() <= resolution) scaledHessian.setZero();
         bool shrunk = false;
@@ -284,9 +328,10 @@ void computeHessiansQuadratic(CGeometry& geometry, unsigned short nSensor, const
         valid[slot] = true;
         if (noiseStrength > 0) filtered[slot] = shrunk;
         residual[slot] = error;
-        const auto diagonal = qr.matrixR().topLeftCorner(terms, terms).diagonal().cwiseAbs();
+        const auto diagonal = qr.matrixR().topLeftCorner(fitTerms, fitTerms).diagonal().cwiseAbs();
         fitCondition[slot] = diagonal.minCoeff() / diagonal.maxCoeff();
-        fitDof[slot] = cloud.size() - terms;
+        fitDof[slot] = cloud.size() - fitTerms;
+        local[3] += fitTerms > terms;
         ++local[ring - 1];
       }
       if (ring == 1)
@@ -319,10 +364,12 @@ void computeHessiansQuadratic(CGeometry& geometry, unsigned short nSensor, const
   CPassiveComm::Allreduce(&lowDof, &globalLowDof, 1, CPassiveComm::Op::SUM);
   CPassiveComm::Allreduce(&poor, &globalPoor, 1, CPassiveComm::Op::SUM);
   CPassiveComm::Allreduce(traffic, globalTraffic, 2, CPassiveComm::Op::SUM);
-  CPassiveComm::Allreduce(local, global, 3, CPassiveComm::Op::SUM);
+  CPassiveComm::Allreduce(local, global, 4, CPassiveComm::Op::SUM);
   if (SU2_MPI::GetRank() == MASTER_NODE) {
     std::cout << "Quadratic Hessian fits (owned point-sensor pairs): " << global[0] << " first ring, " << global[1]
               << " grown stencil, " << global[2] << " WLS fallbacks." << std::endl;
+    std::cout << "Quadratic Hessian thin-stencil cubic/quartic corrections: " << global[3]
+              << " point-sensor fits; unsupported quartics retain cubic/quadratic fits." << std::endl;
     std::cout << "Quadratic Hessian relative weighted fit residual: mean "
               << residualGlobal[0] / std::max(1ul, global[0] + global[1]) << ", maximum " << residualGlobal[1] << "; "
               << globalPoor << " fits above " << poorFit << "; minimum QR pivot ratio " << globalCondition

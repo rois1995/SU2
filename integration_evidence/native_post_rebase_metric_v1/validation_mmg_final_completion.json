@@ -1,0 +1,40 @@
+{
+  "status": "PASS",
+  "scope": "Merged-source correctness completion; four CPUs avoid two-core MPI oversubscription; no performance assessment",
+  "controller_pid": 3603153,
+  "build_sha256": "5bf50192cedecd6d5940b86ea751f817f925e625bc6cb49976b099d5eebe7a17",
+  "stages": [
+    {
+      "label": "independent_mmg_unsteady_v2",
+      "command": [
+        "python3",
+        "/tmp/check_mmg_unsteady.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_post_rebase_metric_v1/vortex-predict-mmg-n4-v2"
+      ],
+      "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_post_rebase_metric_v1/vortex-predict-mmg-n4-v2",
+      "status": "PASS",
+      "exit_code": 0,
+      "log_sha256": "b829ba98536983c566765df362f12c9316c75d43e32db0a6692de7db0a3028bd",
+      "test_summaries": []
+    },
+    {
+      "label": "solver",
+      "command": [
+        "mpirun",
+        "--host",
+        "localhost:4",
+        "-np",
+        "4",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_post_rebase_metric_v1/build_v2/SU2_CFD",
+        "run.cfg"
+      ],
+      "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_post_rebase_metric_v1/vortex-fixed-point-mmg-n4-v2",
+      "status": "PASS",
+      "exit_code": 0,
+      "log_sha256": "2d83e812f0c0b7f94f31f8c67c4e021fbf792225cf9f5bd784b94ff8569f1737",
+      "test_summaries": []
+    }
+  ],
+  "machine_samples": [],
+  "phase": "terminal"
+}

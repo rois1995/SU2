@@ -1,0 +1,332 @@
+{
+  "source_commit": "0164ee16dc50d9b5f57a0fc5e73a5c08cd5b1f9d",
+  "integration_base": "2abbd11769fc57f1862432b03bbd02202bb10283",
+  "cfd_sha256": "14caddbc8abd56e9485c784f04212a7f7adeaed2f9c116ae52d4b7502d80186a",
+  "test_driver_sha256": "e633ad13eb7c37b37e477661bdde071ea6f29cae6260d4876195dd4c5b7ef6bb",
+  "build_log_sha256": "df33b8aeb29aff98ebf96bb6c4d1b74a3388b51f5565cc0ba7c0781a4df0b06f",
+  "filter": "[HessianReliability],[Hessian3DStress],[RestartReliability],[MetricRobustness],[NativeComposite2D]",
+  "unit_runs": [
+    {
+      "ranks": 1,
+      "command": [
+        "timeout",
+        "--kill-after=5s",
+        "300s",
+        "mpirun",
+        "--host",
+        "localhost:4",
+        "-np",
+        "1",
+        "/tmp/su2-metric-build/UnitTests/test_driver",
+        "[HessianReliability],[Hessian3DStress],[RestartReliability],[MetricRobustness],[NativeComposite2D]"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.2759895139970467,
+      "log_sha256": "c8aa25c975395b8dacf6c8060b59a867e5ae23bb7862115110acee60b2b58356",
+      "success_summaries": [
+        [
+          "112978",
+          "26"
+        ]
+      ]
+    },
+    {
+      "ranks": 2,
+      "command": [
+        "timeout",
+        "--kill-after=5s",
+        "300s",
+        "mpirun",
+        "--host",
+        "localhost:4",
+        "-np",
+        "2",
+        "/tmp/su2-metric-build/UnitTests/test_driver",
+        "[HessianReliability],[Hessian3DStress],[RestartReliability],[MetricRobustness],[NativeComposite2D]"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.2757716449996224,
+      "log_sha256": "aa453adef90c55c9b0370719617acbba5704d07423b695165e08709ab6b30c3d",
+      "success_summaries": [
+        [
+          "59099",
+          "26"
+        ],
+        [
+          "59039",
+          "26"
+        ]
+      ]
+    },
+    {
+      "ranks": 4,
+      "command": [
+        "timeout",
+        "--kill-after=5s",
+        "300s",
+        "mpirun",
+        "--host",
+        "localhost:4",
+        "-np",
+        "4",
+        "/tmp/su2-metric-build/UnitTests/test_driver",
+        "[HessianReliability],[Hessian3DStress],[RestartReliability],[MetricRobustness],[NativeComposite2D]"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.9123520309949527,
+      "log_sha256": "9999beb0e06b485d0bb6429a554a84d66b4b84ac511f3a32848a0804f9ae4eb0",
+      "success_summaries": [
+        [
+          "31187",
+          "26"
+        ],
+        [
+          "31278",
+          "26"
+        ],
+        [
+          "31170",
+          "26"
+        ],
+        [
+          "31343",
+          "26"
+        ]
+      ]
+    }
+  ],
+  "frozen_runs": [
+    {
+      "ranks": 1,
+      "command": [
+        "timeout",
+        "--kill-after=5s",
+        "300s",
+        "mpirun",
+        "--host",
+        "localhost:4",
+        "-np",
+        "1",
+        "/tmp/su2-metric-build/SU2_CFD/src/SU2_CFD",
+        "run.cfg"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 10.35025873700215,
+      "configuration": "SOLVER= RANS\nKIND_TURB_MODEL= SA\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nREAD_BINARY_RESTART= NO\nMACH_NUMBER= 0.8395\nAOA= 3.06\nFREESTREAM_TEMPERATURE= 288.15\nREYNOLDS_NUMBER= 11.72E6\nREYNOLDS_LENGTH= 0.64607\nREF_LENGTH= 0.64607\nREF_AREA= 0\nMESH_FILENAME= /media/rausa/4TB/SU2_Versions/TestCasesForSSTIDDES/optimization_rans/steady_oneram6/mesh_ONERAM6_turb.su2\nSOLUTION_FILENAME= /media/rausa/4TB/SU2_Versions/TestCasesForSSTIDDES/optimization_rans/steady_oneram6/solution_flow\nMARKER_HEATFLUX= ( wing, 0 )\nMARKER_FAR= ( farfield )\nMARKER_SYM= ( symmetry )\nMARKER_MONITORING= ( wing )\nMARKER_PLOTTING= ( wing )\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\nNUM_METHOD_HESS= WEIGHTED_LEAST_SQUARES\nMGLEVEL= 0\nITER= 0\nCOMPUTE_METRIC= YES\nADAP_REMESHER= MMG\nADAP_LOOP= NO\nADAP_SENSOR= ( MACH, PRESSURE )\nADAP_NORM= 2\nADAP_COMPLEXITY= 300000\nADAP_HMIN= 1e-6\nADAP_HMAX= 20\nADAP_ARMAX= 10000\nADAP_ISO_CORNER= NO\nOUTPUT_FILES= ( RESTART_ASCII )\nRESTART_FILENAME= fields\nWRT_RESTART_COMPACT= NO\nVOLUME_OUTPUT= ( COORDINATES, SOLUTION, ADAP_SENSOR, HESSIAN, METRIC )\nHISTORY_OUTPUT= ( ITER, RMS_RES )\nCONV_NUM_METHOD_FLOW= JST\nTIME_DISCRE_FLOW= EULER_IMPLICIT\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\nMUSCL_TURB= NO\nTIME_DISCRE_TURB= EULER_IMPLICIT\n",
+      "log_sha256": "7cf5dbea3a0df78b7cf0f937d85047a8aaabe96ddb71d088c62e296856145109",
+      "fields_sha256": "b0c8d7c3559829e1054c878f0fc244f883a264180af2c5851f49dd45b2457b95"
+    },
+    {
+      "ranks": 2,
+      "command": [
+        "timeout",
+        "--kill-after=5s",
+        "300s",
+        "mpirun",
+        "--host",
+        "localhost:4",
+        "-np",
+        "2",
+        "/tmp/su2-metric-build/SU2_CFD/src/SU2_CFD",
+        "run.cfg"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.405505038004776,
+      "configuration": "SOLVER= RANS\nKIND_TURB_MODEL= SA\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nREAD_BINARY_RESTART= NO\nMACH_NUMBER= 0.8395\nAOA= 3.06\nFREESTREAM_TEMPERATURE= 288.15\nREYNOLDS_NUMBER= 11.72E6\nREYNOLDS_LENGTH= 0.64607\nREF_LENGTH= 0.64607\nREF_AREA= 0\nMESH_FILENAME= /media/rausa/4TB/SU2_Versions/TestCasesForSSTIDDES/optimization_rans/steady_oneram6/mesh_ONERAM6_turb.su2\nSOLUTION_FILENAME= /media/rausa/4TB/SU2_Versions/TestCasesForSSTIDDES/optimization_rans/steady_oneram6/solution_flow\nMARKER_HEATFLUX= ( wing, 0 )\nMARKER_FAR= ( farfield )\nMARKER_SYM= ( symmetry )\nMARKER_MONITORING= ( wing )\nMARKER_PLOTTING= ( wing )\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\nNUM_METHOD_HESS= WEIGHTED_LEAST_SQUARES\nMGLEVEL= 0\nITER= 0\nCOMPUTE_METRIC= YES\nADAP_REMESHER= MMG\nADAP_LOOP= NO\nADAP_SENSOR= ( MACH, PRESSURE )\nADAP_NORM= 2\nADAP_COMPLEXITY= 300000\nADAP_HMIN= 1e-6\nADAP_HMAX= 20\nADAP_ARMAX= 10000\nADAP_ISO_CORNER= NO\nOUTPUT_FILES= ( RESTART_ASCII )\nRESTART_FILENAME= fields\nWRT_RESTART_COMPACT= NO\nVOLUME_OUTPUT= ( COORDINATES, SOLUTION, ADAP_SENSOR, HESSIAN, METRIC )\nHISTORY_OUTPUT= ( ITER, RMS_RES )\nCONV_NUM_METHOD_FLOW= JST\nTIME_DISCRE_FLOW= EULER_IMPLICIT\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\nMUSCL_TURB= NO\nTIME_DISCRE_TURB= EULER_IMPLICIT\n",
+      "log_sha256": "cc197f67658e757b9c755958f2c93a5399ea7b524aa35491fb12808ab1b26f2a",
+      "fields_sha256": "63ff7abca6d85db304fa7c533d1642c9fc19ce3c7461a2709549dfb2b555220c"
+    },
+    {
+      "ranks": 4,
+      "command": [
+        "timeout",
+        "--kill-after=5s",
+        "300s",
+        "mpirun",
+        "--host",
+        "localhost:4",
+        "-np",
+        "4",
+        "/tmp/su2-metric-build/SU2_CFD/src/SU2_CFD",
+        "run.cfg"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.366304301998753,
+      "configuration": "SOLVER= RANS\nKIND_TURB_MODEL= SA\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nREAD_BINARY_RESTART= NO\nMACH_NUMBER= 0.8395\nAOA= 3.06\nFREESTREAM_TEMPERATURE= 288.15\nREYNOLDS_NUMBER= 11.72E6\nREYNOLDS_LENGTH= 0.64607\nREF_LENGTH= 0.64607\nREF_AREA= 0\nMESH_FILENAME= /media/rausa/4TB/SU2_Versions/TestCasesForSSTIDDES/optimization_rans/steady_oneram6/mesh_ONERAM6_turb.su2\nSOLUTION_FILENAME= /media/rausa/4TB/SU2_Versions/TestCasesForSSTIDDES/optimization_rans/steady_oneram6/solution_flow\nMARKER_HEATFLUX= ( wing, 0 )\nMARKER_FAR= ( farfield )\nMARKER_SYM= ( symmetry )\nMARKER_MONITORING= ( wing )\nMARKER_PLOTTING= ( wing )\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\nNUM_METHOD_HESS= WEIGHTED_LEAST_SQUARES\nMGLEVEL= 0\nITER= 0\nCOMPUTE_METRIC= YES\nADAP_REMESHER= MMG\nADAP_LOOP= NO\nADAP_SENSOR= ( MACH, PRESSURE )\nADAP_NORM= 2\nADAP_COMPLEXITY= 300000\nADAP_HMIN= 1e-6\nADAP_HMAX= 20\nADAP_ARMAX= 10000\nADAP_ISO_CORNER= NO\nOUTPUT_FILES= ( RESTART_ASCII )\nRESTART_FILENAME= fields\nWRT_RESTART_COMPACT= NO\nVOLUME_OUTPUT= ( COORDINATES, SOLUTION, ADAP_SENSOR, HESSIAN, METRIC )\nHISTORY_OUTPUT= ( ITER, RMS_RES )\nCONV_NUM_METHOD_FLOW= JST\nTIME_DISCRE_FLOW= EULER_IMPLICIT\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\nMUSCL_TURB= NO\nTIME_DISCRE_TURB= EULER_IMPLICIT\n",
+      "log_sha256": "0287e4b839c26982d33244a994cda337b6e3d1f44ddc3159c37a2e56265ba4ec",
+      "fields_sha256": "e360cefa590f082cf33672eb46bc84f1c1f91a77ba0ea9d36f821a7f01b1d0d2"
+    }
+  ],
+  "frozen_audit": {
+    "command": [
+      "python3",
+      "/tmp/su2-metric-robustness/integration_evidence/check_oneram6_metric.py",
+      "/tmp/su2-metric-build/metric-rebase-v1/recheck"
+    ],
+    "exit_code": 1,
+    "validation": {
+      "scope": "Frozen matched ONERA M6 RANS/SA snapshot, zero flow/remesh iterations; WLS symmetry fallback. No exact Hessian, aerodynamic or 3D native-remeshing accuracy claim.",
+      "points": 96252,
+      "tetrahedra": 545438,
+      "max_mesh_restart_coordinate_difference": 0.0,
+      "criteria": {
+        "relative_complexity": 2e-06,
+        "relative_metric_mpi": 1e-09,
+        "relative_hessian_mpi_with_global_floor": 1e-09,
+        "relative_solution": 1e-14
+      },
+      "cases": {
+        "1": {
+          "minimum_metric_eigenvalue": 0.10399706102618855,
+          "maximum_metric_aspect_ratio": 10000.0001856665,
+          "independent_complexity": 299999.99999973003,
+          "max_relative_metric_difference": 0.0,
+          "solution_max_relative_difference": {
+            "Density": 0.0,
+            "Momentum_x": 0.0,
+            "Momentum_y": 0.0,
+            "Momentum_z": 0.0,
+            "Energy": 0.0,
+            "Nu_Tilde": 0.0
+          },
+          "hessians": {
+            "MACH": {
+              "finite": true,
+              "max_relative_difference_with_global_floor": 0.0
+            },
+            "PRESSURE": {
+              "finite": true,
+              "max_relative_difference_with_global_floor": 0.0
+            }
+          },
+          "fields_sha256": "b0c8d7c3559829e1054c878f0fc244f883a264180af2c5851f49dd45b2457b95",
+          "passed": true
+        },
+        "2": {
+          "minimum_metric_eigenvalue": 0.10399706102616868,
+          "maximum_metric_aspect_ratio": 10000.000212563249,
+          "independent_complexity": 299999.9999987586,
+          "max_relative_metric_difference": 2.463488695612328e-09,
+          "solution_max_relative_difference": {
+            "Density": 0.0,
+            "Momentum_x": 0.0,
+            "Momentum_y": 0.0,
+            "Momentum_z": 0.0,
+            "Energy": 0.0,
+            "Nu_Tilde": 0.0
+          },
+          "hessians": {
+            "MACH": {
+              "finite": true,
+              "max_relative_difference_with_global_floor": 3.4979166534535703e-13
+            },
+            "PRESSURE": {
+              "finite": true,
+              "max_relative_difference_with_global_floor": 1.7934656598672554e-13
+            }
+          },
+          "fields_sha256": "63ff7abca6d85db304fa7c533d1642c9fc19ce3c7461a2709549dfb2b555220c",
+          "passed": false
+        },
+        "4": {
+          "minimum_metric_eigenvalue": 0.10399706102411166,
+          "maximum_metric_aspect_ratio": 10000.000231749927,
+          "independent_complexity": 300000.0000003063,
+          "max_relative_metric_difference": 7.369440026674298e-07,
+          "solution_max_relative_difference": {
+            "Density": 0.0,
+            "Momentum_x": 0.0,
+            "Momentum_y": 0.0,
+            "Momentum_z": 0.0,
+            "Energy": 0.0,
+            "Nu_Tilde": 0.0
+          },
+          "hessians": {
+            "MACH": {
+              "finite": true,
+              "max_relative_difference_with_global_floor": 2.706319722250089e-11
+            },
+            "PRESSURE": {
+              "finite": true,
+              "max_relative_difference_with_global_floor": 4.74907993644122e-13
+            }
+          },
+          "fields_sha256": "e360cefa590f082cf33672eb46bc84f1c1f91a77ba0ea9d36f821a7f01b1d0d2",
+          "passed": false
+        }
+      },
+      "inputs": {
+        "mesh_ONERAM6_turb.su2": "9b39c9b15f21f2b182d04b5dec0a945cf2e765cbb5286c6433ffd5ff3ffe1278",
+        "solution_flow.csv": "5ce05570966d165ec1400bd40b1fb317f36d073f373a64a81f0569d1f403c6fb"
+      },
+      "passed": false
+    },
+    "note": "The strict MPI metric gate was already failing before rebase; retained without loosening its threshold."
+  },
+  "date": "2026-10-07",
+  "previous_tip": "ce28cd2f9916c5b8484921e082f268d0e213b370",
+  "backup_branch": "codex/metric-robustness-pre-integration-rebase-20261007",
+  "replayed_commits": {
+    "3b320bfd6b": "1eddab22a6",
+    "ce28cd2f99": "0164ee16dc"
+  },
+  "conflict_resolution": "Kept integration CSolver restart filename implementation (.data()); replayed the remaining CBaselineSolver fixes and tests.",
+  "unchanged_integration_production_files": [
+    "SU2_CFD/src/solvers/CSolver.cpp",
+    "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp",
+    "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp",
+    "SU2_CFD/src/drivers/CSinglezoneDriver.cpp"
+  ],
+  "production_changes_relative_to_base": [
+    "SU2_CFD/src/solvers/CBaselineSolver.cpp"
+  ],
+  "scope": "Rebase and regression validation only. BL/gradation/complexity ownership remains with the integration agent. No noise, multi-sensor numerical or curved-wall accuracy fix is claimed.",
+  "next_steps": [
+    "Stabilize nearly rank-deficient multi-sensor metric combination and strict MPI agreement.",
+    "Improve skewed/curved-wall Hessian accuracy, including one-sided recovery and symmetry/periodic QR.",
+    "Validate future changes against the integration owner's geometric BL contract."
+  ],
+  "backup_bundle": {
+    "path": "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/pre-integration-rebase-20261007.bundle",
+    "bytes": 581774126,
+    "sha256": "9d8d0906bd89391487aa439d9948cd556e0cfc72b01d7e6d4952db9c0b7f3102",
+    "verify": "Complete-history bundle verified successfully."
+  },
+  "frozen_output_preservation": {
+    "1": {
+      "byte_identical_to_pre_rebase": true,
+      "durable_fields_path": "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/metric_robustness_3d_noise_v4/metric-isolation/oneram6-rans-matched-mpi1/fields.csv",
+      "sha256": "b0c8d7c3559829e1054c878f0fc244f883a264180af2c5851f49dd45b2457b95"
+    },
+    "2": {
+      "byte_identical_to_pre_rebase": true,
+      "durable_fields_path": "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/metric_robustness_3d_noise_v4/metric-isolation/oneram6-rans-matched-mpi2/fields.csv",
+      "sha256": "63ff7abca6d85db304fa7c533d1642c9fc19ce3c7461a2709549dfb2b555220c"
+    },
+    "4": {
+      "byte_identical_to_pre_rebase": true,
+      "durable_fields_path": "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/metric_robustness_3d_noise_v4/metric-isolation/oneram6-rans-matched-mpi4/fields.csv",
+      "sha256": "e360cefa590f082cf33672eb46bc84f1c1f91a77ba0ea9d36f821a7f01b1d0d2"
+    }
+  },
+  "integration_production_source_sha256": {
+    "SU2_CFD/src/solvers/CSolver.cpp": "1f7d3a0440064976977bcc9b9f7993ea70173eae1e33eef42163709612a1fbaa",
+    "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "6cf21dcda23e62401ed8b6a7787b8c73a2e877c1974bec82bacf609aa5dc744a",
+    "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "69fd1123cbc8129d80a414f5217cdbd83ba12a9f5f5e1c761db06e96ce45c5c3",
+    "SU2_CFD/src/drivers/CSinglezoneDriver.cpp": "e1fefe081ea52b19f7bfa7b19c69bc2333f8c281324491d7be47267318cff774",
+    "SU2_CFD/src/solvers/CBaselineSolver.cpp": "f20d6e4aa60520e83dbed69d61260596caf955f75e44190fd8bd453e28f3e5ef"
+  },
+  "validation_summary": {
+    "build": "passed; ninja confirms no pending work",
+    "unit_cases_per_rank": 26,
+    "serial_assertions": 112978,
+    "unit_ranks": [
+      1,
+      2,
+      4
+    ],
+    "strict_3d_metric_mpi_gate": "known failure retained unchanged",
+    "diff_check": "passed",
+    "python_compile": "passed"
+  }
+}

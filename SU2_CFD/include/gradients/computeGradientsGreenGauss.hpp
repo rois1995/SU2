@@ -31,12 +31,106 @@
 
 #include <vector>
 #include <algorithm>
+#include <limits>
 
 #include "../../../Common/include/parallelization/omp_structure.hpp"
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
 #include "correctGradientsSymmetry.hpp"
 
 namespace detail {
+
+/*!
+ * \brief Recover gradients by a volume-weighted P1 simplex projection (adaptation opt-in).
+ * \note Adaptation opt-in only, before symmetry and halo exchange. Complete owned incident stars are
+ *       available after geometry partitioning. Preserve GG for periodic, mixed or degenerate stars.
+ *       This restores affine consistency, not quadratic boundary exactness (Clément has truncation bias).
+ *       Evaluate geometry once per cell/pass; temporary owner sums preserve whole-star fallback.
+ *       ponytail: Serial scatter; use deterministic partitioned sums if hybrid scaling becomes limiting.
+ */
+template <size_t dim, class FieldType, class GradientType>
+void correctGradientsSimplex(CGeometry& geometry, const FieldType& field, size_t begin, size_t end,
+                             GradientType& gradient) {
+  if (end == begin) return;
+  if (end - begin > 20) SU2_MPI::Error("Too many variables for GG simplex recovery.", CURRENT_FUNCTION);
+  const auto owned = geometry.GetnPointDomain();
+  C3DDoubleMatrix sum(owned, end - begin, dim, su2double(0));
+  std::vector<su2double> volume(owned, 0);
+  std::vector<bool> valid(owned, true);
+  std::vector<unsigned long> elements(geometry.GetnElem());
+  for (auto element = 0ul; element < elements.size(); ++element) elements[element] = element;
+  std::sort(elements.begin(), elements.end(), [&](auto a, auto b) {
+    return geometry.elem[a]->GetGlobalIndex() < geometry.elem[b]->GetGlobalIndex();
+  });
+  for (const auto element : elements) {
+    const auto* cell = geometry.elem[element];
+    bool hasOwner = false;
+    for (auto node = 0u; node < cell->GetnNodes(); ++node) hasOwner |= cell->GetNode(node) < owned;
+    if (!hasOwner) continue;
+    auto invalidate = [&]() {
+      for (auto node = 0u; node < cell->GetnNodes(); ++node)
+        if (cell->GetNode(node) < owned) valid[cell->GetNode(node)] = false;
+    };
+    if (cell->GetVTK_Type() != (dim == 2 ? TRIANGLE : TETRAHEDRON)) { invalidate(); continue; }
+    bool cellValid = true;
+    su2double edge[dim][dim], cofactor[dim][dim], determinant;
+    passivedouble scale[dim] = {}, product = 1;
+    for (size_t j = 0; j < dim; ++j)
+      for (size_t i = 0; i < dim; ++i) {
+        edge[j][i] = geometry.nodes->GetCoord(cell->GetNode(j + 1), i) -
+                     geometry.nodes->GetCoord(cell->GetNode(0), i);
+        scale[i] = std::max(scale[i], fabs(SU2_TYPE::GetValue(edge[j][i])));
+      }
+    for (size_t i = 0; i < dim; ++i) {
+      if (!(scale[i] > 0) || !std::isfinite(scale[i])) { cellValid = false; break; }
+      product *= scale[i];
+      for (size_t j = 0; j < dim; ++j) edge[j][i] /= scale[i];
+    }
+    if (!cellValid) { invalidate(); continue; }
+    if constexpr (dim == 2) {
+      cofactor[0][0] = edge[1][1]; cofactor[0][1] = -edge[0][1];
+      cofactor[1][0] = -edge[1][0]; cofactor[1][1] = edge[0][0];
+      determinant = edge[0][0] * edge[1][1] - edge[0][1] * edge[1][0];
+    } else {
+      su2double cross[3];
+      for (size_t j = 0; j < dim; ++j) {
+        GeometryToolbox::CrossProduct(edge[(j + 1) % dim], edge[(j + 2) % dim], cross);
+        for (size_t i = 0; i < dim; ++i) cofactor[i][j] = cross[i];
+      }
+      determinant = 0;
+      for (size_t i = 0; i < dim; ++i) determinant += edge[0][i] * cofactor[i][0];
+    }
+    const auto det = SU2_TYPE::GetValue(determinant);
+    if (!std::isfinite(det) || fabs(det) <= 64 * std::numeric_limits<passivedouble>::epsilon() ||
+        !(product > 0) || !std::isfinite(product)) { invalidate(); continue; }
+    const auto weight = fabs(determinant) * product;  // The constant dim! cancels in the star average.
+    su2double contribution[20][dim][dim];
+    for (size_t v = begin; v < end; ++v)
+      for (size_t j = 0; j < dim; ++j) {
+        const auto delta = field(cell->GetNode(j + 1), v) - field(cell->GetNode(0), v);
+        for (size_t i = 0; i < dim; ++i)
+          contribution[v - begin][j][i] = (det > 0 ? 1 : -1) * product / scale[i] * cofactor[i][j] * delta;
+      }
+    for (auto node = 0u; node <= dim; ++node) {
+      const auto point = cell->GetNode(node);
+      if (point >= owned || !valid[point]) continue;
+      volume[point] += weight;
+      for (size_t v = begin; v < end; ++v)
+        for (size_t j = 0; j < dim; ++j)
+          for (size_t i = 0; i < dim; ++i) sum(point, v - begin, i) += contribution[v - begin][j][i];
+    }
+  }
+  for (auto point = 0ul; point < owned; ++point) {
+    if (!valid[point] || !(SU2_TYPE::GetValue(volume[point]) > 0) ||
+        !std::isfinite(SU2_TYPE::GetValue(volume[point]))) continue;
+    bool finite = true;
+    for (size_t v = begin; v < end; ++v)
+      for (size_t i = 0; i < dim; ++i)
+        finite &= std::isfinite(SU2_TYPE::GetValue(sum(point, v - begin, i) / volume[point]));
+    if (finite)
+      for (size_t v = begin; v < end; ++v)
+        for (size_t i = 0; i < dim; ++i) gradient(point, v, i) = sum(point, v - begin, i) / volume[point];
+  }
+}
 
 /*!
  * \brief Compute the gradient of a field using the Green-Gauss theorem.
@@ -60,13 +154,15 @@ namespace detail {
  * \param[out] gradient - Generic object implementing operator (iPoint, iVar, iDim).
  * \param[in] eulerWalls - Apply the symmetry corrections on Euler walls too, otherwise only on symmetry planes.
  * \param[in] symmetryPlanes - Apply the symmetry corrections on symmetry planes (false: no correction there).
+ * \param[in] simplexRecovery - Adaptation-only P1 simplex recovery; call outside OpenMP regions.
  */
 template <size_t nDim, class FieldType, class GradientType>
 void computeGradientsGreenGauss(CSolver* solver, MPI_QUANTITIES kindMpiComm, PERIODIC_QUANTITIES kindPeriodicComm,
                                 CGeometry& geometry, const CConfig& config, const FieldType& field,
                                 const size_t varBegin, const size_t varEnd, const int idxVel, GradientType& gradient,
-                                const bool eulerWalls, const bool symmetryPlanes) {
+                                const bool eulerWalls, const bool symmetryPlanes, const bool simplexRecovery) {
   const size_t nPointDomain = geometry.GetnPointDomain();
+  const bool stableAdaptation = simplexRecovery && config.GetnMarker_Periodic() == 0;
 
 #ifdef HAVE_OMP
   constexpr size_t OMP_MAX_CHUNK = 512;
@@ -164,6 +260,9 @@ void computeGradientsGreenGauss(CSolver* solver, MPI_QUANTITIES kindMpiComm, PER
   } // iMarkers
 
 
+  if (stableAdaptation)
+    correctGradientsSimplex<nDim>(geometry, field, varBegin, varEnd, gradient);
+
   /*--- Compute the corrections for symmetry planes and Euler walls. ---*/
 
   correctGradientsSymmetry<nDim>(geometry, config, varBegin, varEnd, idxVel, gradient, eulerWalls, symmetryPlanes);
@@ -196,15 +295,16 @@ template <class FieldType, class GradientType>
 void computeGradientsGreenGauss(CSolver* solver, MPI_QUANTITIES kindMpiComm, PERIODIC_QUANTITIES kindPeriodicComm,
                                 CGeometry& geometry, const CConfig& config, const FieldType& field,
                                 const size_t varBegin, const size_t varEnd, const int idxVel, GradientType& gradient,
-                                const bool eulerWalls = true, const bool symmetryPlanes = true) {
+                                const bool eulerWalls = true, const bool symmetryPlanes = true,
+                                const bool simplexRecovery = false) {
   switch (geometry.GetnDim()) {
     case 2:
       detail::computeGradientsGreenGauss<2>(solver, kindMpiComm, kindPeriodicComm, geometry, config, field, varBegin,
-                                            varEnd, idxVel, gradient, eulerWalls, symmetryPlanes);
+                                            varEnd, idxVel, gradient, eulerWalls, symmetryPlanes, simplexRecovery);
       break;
     case 3:
       detail::computeGradientsGreenGauss<3>(solver, kindMpiComm, kindPeriodicComm, geometry, config, field, varBegin,
-                                            varEnd, idxVel, gradient, eulerWalls, symmetryPlanes);
+                                            varEnd, idxVel, gradient, eulerWalls, symmetryPlanes, simplexRecovery);
       break;
     default:
       SU2_MPI::Error("Too many dimensions to compute gradients.", CURRENT_FUNCTION);

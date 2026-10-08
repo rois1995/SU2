@@ -8,6 +8,32 @@ Integration validation is complete; final proof is
 `AdapNoExt` and `codex/native-integrated` remain untouched. Push target:
 `rois1995/SU2:codex/native-metric-integration`.
 
+Robustness branch follow-up (2026-10-08): direct QR recovery now supports
+mirror-even primal scalar sensors on symmetry markers. It reuses the existing
+normal policy and Hessian workspace, retaining normal-normal curvature. This
+extends the published integration baseline described below; periodic, goal and
+differentiated QR configurations remain rejected. See
+`Papers/IMPLEMENTATION_ASSESSMENT.md` and
+`integration_evidence/qr_symmetry_v1_validation.json` for the literature assessment,
+2D/3D manufactured checks, frozen M6 partition checks and measured method cost.
+
+Robustness follow-up: primal adaptation GG now uses deterministic volume-weighted
+P1 recovery on complete owned simplex stars through both passes. Ordinary flow,
+periodic/goal and unsupported-cell operators retain their prior behavior.
+Geometric BL composition, gradation and complexity remain the shared integration
+policy below. See `Papers/GG_BOUNDARY_RECOVERY.md` and
+`integration_evidence/gg_simplex_recovery_v1_validation.json` for improvements,
+rejected boundary-only trials, MPI gates, native cost and limits. The future
+convective/viscous transfer request is retained in `GRADIENT_TRANSFER_FOLLOWUP.md`.
+
+Latest recovery follow-up: single-cell-pass GG evaluation reduces repeated
+geometry work using temporary owner sums; supported thin-wall QR fits can add
+selected coupled quartics. The shared geometric BL/gradation/complexity policy
+remains the contract below. See `Papers/RECOVERY_GEOMETRY_WALL_BIAS.md` for scope,
+performance, rejected variants and the cycle-test integration plan. Mixed-cell
+and future convective/viscous distinctions are retained in
+`GRADIENT_TRANSFER_FOLLOWUP.md`.
+
 ## Reconciled metric contract
 
 `Metric_*` stores bounded, graded **sensor tensors only**. Native donor queries

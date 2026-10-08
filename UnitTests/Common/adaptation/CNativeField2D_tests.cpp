@@ -28,6 +28,26 @@ std::vector<Cell> Square() {
 }
 }  // namespace
 
+TEST_CASE("Native field: nodal gradation does not certify interior P1 queries", "[NativeField2D]") {
+  const double growth = std::log(1.3), fine = .01, coarse = fine + growth;
+  DonorCell cell;
+  cell.triangle = triangle(Node{0, {0, 0}, 0}, Node{1, {1, 0}, 0}, Node{2, {0, 1}, 0});
+  cell.metric = {Tensor{1/(fine*fine), 0, 1/(fine*fine)},
+                 Tensor{1/(coarse*coarse), 0, 1/(coarse*coarse)},
+                 Tensor{1/(coarse*coarse), 0, 1/(coarse*coarse)}};
+  FieldPatch patch;
+  patch.cells = {cell};
+  auto ratio = [&](Point source, Point destination) {
+    const auto src = patch.evaluate(source), dst = patch.evaluate(destination);
+    return src.xx / dst.xx / std::pow(1 + growth*std::sqrt(src.quadratic(destination-source)), 2);
+  };
+  for (const auto& source : cell.triangle.v)
+    for (const auto& destination : cell.triangle.v)
+      if (source.id != destination.id) CHECK(ratio(source.p, destination.p) <= 1 + 1e-12);
+  // This uses the real donor query: passing every endpoint check cannot certify its subsegments.
+  CHECK(ratio({.75, 0}, {1, 0}) > 1.01);
+}
+
 TEST_CASE("Native MPI: frozen P1 target and associated thin-band extension", "[NativeField2D]") {
   World world;
   const auto original = Square();

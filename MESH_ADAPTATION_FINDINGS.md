@@ -1,17 +1,427 @@
 # Mesh adaptation findings and follow-up work
 
+## 2026-10-08: matched RAE2822 recovery adaptation cycle
+
+One matched native RANS cycle passed mesh, geometric BL/frozen-metric, transfer
+admissibility and saved-field audits for both GG operators. With ~15900 points
+and 2000 resumed iterations, new recovery gives a 4.72x smaller SA residual;
+both density criteria pass, neither SA criterion passes. Quality is unchanged
+and force accuracy is not established. A single timing pair is 139.8 -> 130.4 s.
+
+The larger performance target is graded complexity work (~6000 sweeps per
+pre-remesh metric) and duplicate steady metric evaluation (~18-19 s each).
+The 80-sweep sensor limit and composed transport residuals remain explicit.
+The same shared remesher was pinned; newer main remesher changes were excluded.
+See `Papers/ADAPTATION_CYCLE_RECOVERY.md` and the cycle validation receipt for
+measurements, limits and next actions. The original-wall sidecar is now reused
+by the continuation auditor; production policies are unchanged in this step.
+
+## 2026-10-08: recovery geometry reuse and supported QR wall bias reduction
+
+GG P1 recovery evaluates geometry/contributions once per cell/pass and scatters
+in global-ID order, retaining whole-star fallback on mixed/invalid cells.
+Six paired M6 measurements give median 0.570 -> 0.394 s (31% less recovery time),
+with 11.52 MiB temporary payload at the maximum tested pass; no persistent
+geometry cache or extra exchange. Whole-process timing varies under contention.
+The method and simplex-only scope are unchanged; floating reassociation can
+change low bits and amplify ill-conditioned metric differences versus the old
+implementation, but original derivative/MPI/SPD/bounds/complexity gates pass.
+
+QR's grown thin wall stencils can add selected tangent/mixed quartics only when
+sample count, rank and condition gates support them. Curved 3D wall-normal error
+at n=32 falls from 2.08% to 1.00%; central interiors and all tested 2D QR fields
+are unchanged. Two-ring 2D stencils cannot support the required coupled model.
+A smaller pure-tangential model passed an exact polynomial check but failed
+existing curved-wall convergence; that variant is preserved and rejected.
+No existing convergence or reliability gate was weakened.
+
+The accepted QR extension costs about 1.75% more recovery time in the paired M6
+campaign. M6 frozen fields are unchanged, so this is a manufactured derivative
+improvement, not demonstrated M6 flow accuracy. Noise off/on RAE/M6 partition
+checks pass; neighborhood traffic is unchanged. Final units: 151 serial cases,
+400078 assertions; 35 MPI-safe cases per rank; AD syntax and 36 matched cases pass.
+
+Details, publication basis, limitations and deferred work are in
+`Papers/RECOVERY_GEOMETRY_WALL_BIAS.md`. Element support and the later convective/
+viscous transfer request remain in `GRADIENT_TRANSFER_FOLLOWUP.md`. Cycle tests
+should use an integration candidate and baseline on the same accepted remesher
+revision, then be repeated after merge on main; the other agent's latest branch
+is ahead of our common base and is not an isolated metric control.
+
+## 2026-10-08: deterministic simplex recovery for adaptation GG
+
+Primal adaptation GG now uses a volume-weighted P1 simplex projection through
+both recovery passes, reusing the existing GG fallback, symmetry rules and MPI
+exchange. Physical-boundary affine gradient errors on stretched/curved 2D/3D
+meshes fall from 18.18/121.04 to below 3.4e-12. At n=32, curved wall-interior
+Hessian errors fall from 80.35/673.29 to 1.779/6.400 (45/105 times smaller).
+Central-interior accuracy is preserved; quadratic/graded-wall bias remains.
+QR remains more accurate at these walls. This is not an aerodynamic certificate.
+
+M6 Mach/pressure Hessians match bit-for-bit at 1/2/4 ranks and metric differences
+are below 6e-15. The frozen RAE audit passes using the original geometric BL
+policy. WLS/QR outputs are byte-identical. The 150 serial cases (400061
+assertions), 34 MPI-safe cases per rank, 36 manufactured comparisons and
+forward/reverse AD syntax probes validate this checkpoint; AD runtime and
+large-scale hybrid/MPI scaling are still unverified.
+
+The first boundary-only fix failed M6 MPI checks. Interior difference sums
+improved the pressure-Hessian discrepancy from 1.4e-7 to 1.1e-10, but its
+metrics still differed by 7.1e-6. Deterministic original-cell stars eliminate
+that geometry/accumulation dependency. Both rejected patches and receipts are
+preserved; gates were not relaxed. This evidence justified extending the
+projection into the interior instead of relying on dual-face geometry.
+
+Performance cost is explicit: M6 serial Hessian median 0.0501 -> 0.5488 s
+(about 11x; +0.499 s per metric computation); four ranks 0.282 s. RAE serial
+0.00583 -> 0.01936 s. Whole-process M6 timing does not distinguish an overhead
+under contention. There is no persistent geometry cache or additional exchange.
+Profile repeated cell geometry/serial accumulation before scaling or flow transfer.
+
+Detailed method, publication, evidence and limitations:
+`Papers/GG_BOUNDARY_RECOVERY.md`. Source/evidence are pushed on
+`codex/metric-robustness` and durable artifacts saved under
+`integration_evidence/metric_robustness/gg_simplex_recovery_v1`.
+Next: higher-order/distance-aware boundary recovery on multiple topologies,
+performance profiling, fixed-complexity adaptation/flow cycles. The user's
+future convective/viscous low-quality-grid investigation is explicitly retained
+in `GRADIENT_TRANSFER_FOLLOWUP.md`; current recovery opt-ins do not modify those
+flow operators.
+
+## 2026-10-08: Clément comparison and boundary-donor limitation
+
+Completed the paper-based benchmark with 36 matched manufactured datasets
+(2D/3D; straight/curved layers; n=8/16/32; GG/WLS/QR), plus independent Clément
+recovery and two controlled constant boundary extensions. The replayable source
+is `integration_evidence/compare_hessian_recovery.py`; the native pressure-sensor
+export case is `[HessianRecoveryComparison]`. Production code/defaults and the
+main branch's geometric BL policy are unchanged.
+
+On the tested simplex meshes, native GG and Clément agree in the central
+interior within 1.2e-7 in layer coordinates. At n=32 on the curved 3D case,
+Clément/GG interior maximum error is 0.01350 versus QR 0.05482 (about four times
+smaller); in curved 2D QR remains better (0.003045 versus 0.006505). There is no
+universal winner. WLS errors increase with refinement on these stretched,
+rotated, graded examples; this remains a recovery limitation.
+
+Raw GG wall-interior maximum errors are 80.35 (2D) and 673.29 (3D); raw Clément
+reduces these to 1.779 and 6.400, and deeper-donor constant extension to 0.2233
+and 0.3006. These are benchmark derivative comparisons, not implemented
+production gains. QR gives 0.004561 and 0.08304 there. Constant extension is
+boundary-exact on the flat examples, but its curved near-wall normal errors
+plateau at roughly 5.6%/7.5%. It leaves adjacent interior Hessians unchanged.
+A runnable 1D noise-free quadratic calculation on y_i=(i/n)^1.3 retains 4.4%
+curvature bias at fixed donor ring 2 for n=8/16/32. Interior status alone is an
+insufficient donor-quality test; noise filtering and metric gradation cannot
+certify that this bias has disappeared.
+
+Frozen RAE/M6 comparisons cover all 919/10837 physical boundary vertices and
+produce finite tensors, with substantial disagreements from the original WLS/QR
+fields. There is no exact CFD Hessian/output reference, native Clément MPI
+validation or adaptation-cycle result. The NumPy prototype takes approximately
+4.5 s on M6 and caches 44.4 MB of geometry; these are not native C++ method-cost
+comparisons. Detailed source sections, accuracy tables, replay instructions and
+limits are in `Papers/CLEMENT_COMPARISON.md`.
+
+Evidence is saved physically in SU2_AdapNoExt under
+`integration_evidence/metric_robustness/clement_comparison_v1`. Next: correct
+and verify the GG adaptation boundary gradient operator through both recovery
+passes, compare higher-order/distance-aware boundary reconstruction, profile QR
+fallback preparation, then validate accepted choices with native MPI and fixed-
+complexity adaptation/flow cycles. Reuse the existing GG interior operator
+instead of introducing a redundant full-mesh Clément backend.
+
+
 Working branch: `codex/metric-robustness`, fork https://github.com/rois1995/SU2.
+Rebased onto `codex/native-metric-integration` at `2abbd11769` on 2026-10-07.
+The other agent owns BL composition, geometric complexity and gradation; this
+branch continues Hessian/sensor-metric work and validates the shared BL policy.
+See `METRIC_ROBUSTNESS_INTEGRATION.md` for the current implementation contract.
+Older BL experiments and their receipts below are historical evidence.
 This file retains the investigation, implementation status, and deferred work.
-Baseline validated implementation: `e17a96d301`; detailed measurements and replay
+Support statements in older entries describe their dated checkpoints.
+Historical baseline implementation: `e17a96d301`; detailed measurements and replay
 script are in `integration_evidence/metric_robustness_v2_validation.json` and
 `integration_evidence/check_rae2822_metric_constraints.py`.
 
-## Current authorized work (2026-10-07)
+## Literature assessment and QR symmetry support (2026-10-08)
+
+Source commit `747f0ef6ea` allows direct QR sensor recovery with symmetry markers.
+After fitting, the existing scalar-gradient and vector-gradient symmetry rules
+remove the normal gradient and mixed normal-tangential Hessian components while
+retaining normal-normal curvature. The implementation reuses boundary normals and
+the existing Hessian-gradient workspace; no new stencil ring, MPI exchange or
+full-mesh Hessian buffer is added. Euler and viscous wall behavior and the shared
+geometric BL composition remain unchanged. Periodic, goal and differentiated QR
+configurations remain rejected; custom sensors must obey the existing mirror-even
+contract. General curved/nonorthogonal symmetry cases are not independently
+certified by this campaign.
+
+The supplied PDFs identify an important alternative: Alauzet and Frazza 2021,
+Section 7.3, use a two-pass volume-weighted Clément recovery, not our QR wall
+correction. Vallet et al. 2007 discuss direct quadratic fitting and expanded
+boundary patches. Diskin and Thomas 2008 investigate directional enrichment and
+distance-based mapping for interior gradients. Galbraith et al. 2020 expose the
+cost of weak boundary recovery and compare boundary extrapolation. These are
+concrete benchmark candidates; the papers do not establish a universal winner or
+validate our exact partial cubic basis and thresholds. Details and section
+pointers: [Papers/IMPLEMENTATION_ASSESSMENT.md](Papers/IMPLEMENTATION_ASSESSMENT.md).
+
+New tests cover oblique 2D/3D planes, two orthogonal planes, Euler-wall junctions,
+signed normal curvature and a nonquadratic mirror-even sensor, with noise zero
+and one. All 148 selected serial cases passed (394550 assertions); all 32 selected
+MPI-safe cases per rank passed at two/four ranks. Maximum transformed Hessian
+errors for the manufactured quadratic at symmetry points, noise zero:
+
+| Manufactured geometry | WLS | QR |
+|---|---:|---:|
+| Rotated stretched 2D, one symmetry | 1.5 | 1.31e-10 |
+| Rotated stretched 3D, one symmetry | 1.65667 | 8.93e-10 |
+| Rotated stretched 3D, two symmetries | 4.36364 | 8.93e-10 |
+
+These are absolute errors in local layer coordinates with known quadratic
+derivatives, not aerodynamic error reductions. The new support makes the real
+ONERA M6 RANS/SA fixture usable by QR. Six frozen wing runs (noise zero/one at
+1/2/4 ranks, 96252 points and 545438 tetrahedra) passed unchanged-state, SPD,
+size/aspect, independent complexity, symmetry-Hessian and strict MPI checks.
+All 192504 point-sensor fits succeeded without WLS fallback; 169 used cubic terms.
+Hessians are identical across partitions; maximum metric relative MPI differences
+are 8.47e-15 (noise zero) and 2.02e-15 (noise one). At 8112 symmetry vertices,
+relative mixed-curvature residuals are below 7.2e-16 while nonzero normal curvature
+is retained. A serial RAE QR/noise-zero regression produces a byte-identical
+`fields.csv` to the preceding wall-recovery implementation, including sensor,
+Hessian, metric, solution and coordinates. Both AD header syntax probes pass;
+this is not full differentiated solver validation or AD QR support.
+
+Performance has a real tradeoff. Three alternating paired serial frozen M6 runs
+give median Hessian time 0.176376s for WLS and 2.50669s for QR/noise zero (about
+14.2 times); median whole-process times are 9.37608s and 11.66839s (about +24.4%).
+This compares the complete optional recovery methods, including QR's existing
+WLS fallback preparation, not the symmetry projection alone. Noise-one Hessian
+times in the six-run campaign are 3.56326/2.11961/1.21448s at 1/2/4 ranks, versus
+2.50511/1.52962/0.854762s without noise. One observation per rank under contention
+does not establish general scaling. Repeated paired fields are byte-identical
+within each method. All heavy jobs were sequential, nice 10, build jobs one,
+maximum MPI ranks four and one library thread per rank.
+
+Reliability limits remain: 105281 final wing fits have residual above 0.05 despite
+full rank; the mean is 0.092339, maximum 0.998883 and minimum QR pivot ratio
+4.15464e-7. Noise strength one filters every final wing fit. Neither result
+establishes better physical Hessians or force predictions, so noise stays zero
+by default. Accepted adaptation/flow validation remains open.
+
+Receipt: `integration_evidence/qr_symmetry_v1_validation.json`. Raw fields,
+commands, scripts, input/source/binary pins and paper inventory are saved under
+`/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/qr_symmetry_v1`.
+Next: benchmark Clément recovery and controlled boundary extrapolation at fixed
+complexity, then assess a distance-based Hessian with the full mapping-curvature
+chain rule. Profile avoidable WLS fallback preparation and validate accepted
+adaptation/flow cycles before adding further recovery heuristics.
+
+## Publication provenance and limits (checked 2026-10-08)
+
+The prioritized PDF checklist is in [Papers/READING_LIST.md](Papers/READING_LIST.md),
+with the four papers already requested, five immediate additions, and later
+metric/gradation, validation and parallel adaptation references.
+
+The implementation combines published method families, standard numerical
+linear algebra and experimental engineering choices. The references checked
+here explain the foundations and known failure modes; this audit does not mean
+every recent change was derived from these papers before implementation.
+Manufactured tests and frozen solution checks are empirical evidence, not a
+published convergence proof or evidence of improved aerodynamic predictions.
+
+| Topic | Relevant primary source | Relationship to this branch |
+|---|---|---|
+| Curved, highly stretched CFD meshes | Mavriplis, *Revisiting the Least-squares Procedure for Gradient Reconstruction on Unstructured Meshes*, NASA/CR-2003-212683 (2003), [public report](https://ntrs.nasa.gov/citations/20040070704) | Documents serious gradient errors from stretching combined with curvature and dependence on weighting/discretization. It motivates examining this failure mode; it does not establish our Hessian algorithm. |
+| Quadratic recovery in node-centered finite volumes | Diskin and Thomas, *Effects of Mesh Irregularities on Accuracy of Finite-Volume Discretization Schemes*, AIAA 2012-0609, [public full paper](https://ntrs.nasa.gov/api/citations/20120001451/downloads/20120001451.pdf), particularly Sections II and VII | Studies quadratic least-squares fits, growing insufficient stencils to neighbors of neighbors, and curved/high-aspect meshes. These are directly relevant method choices. Their fits, flux discretizations and accuracy results differ from our weighted sensor Hessian recovery. |
+| Polynomial recovery and Hessian theory | Zhang and Naga (2005), [gradient recovery](https://epubs.siam.org/doi/10.1137/S1064827503402837); Guo, Zhang and Zhao (2014 preprint), [Hessian Recovery for Finite Element Methods](https://arxiv.org/html/1406.3108v2), Sections 2.2 and 3 | Polynomial patch fitting is established. The Hessian paper applies gradient recovery twice; our QR path differentiates one scalar polynomial fit directly. Its finite-element assumptions and superconvergence results cannot be claimed for our finite-volume RANS implementation or partial cubic basis. |
+| Metric intersection | Alauzet, Frey, George and Mohammadi (2007), [3D transient fixed point mesh adaptation](https://doi.org/10.1016/j.jcp.2006.08.012) | Supports intersection through simultaneous reduction of quadratic forms. The scaled A+B whitening frame in this branch is our numerically motivated algebraic evaluation of that operation; no source identified here specifically prescribes this implementation. |
+| Anisotropic gradation and RANS adaptation | Alauzet, [Size gradation control of anisotropic meshes](https://doi.org/10.1016/j.finel.2009.06.028); Alauzet and Frazza (2021), [Feature-based and goal-oriented anisotropic mesh adaptation for RANS applications in aeronautics and aerospace](https://doi.org/10.1016/j.jcp.2021.110340) | Establish the wider metric/gradation and RANS adaptation setting. They do not validate this branch's exact geometric BL composition or new Hessian correction. Geometric BL/gradation implementation remains owned by the integration branch. |
+
+Choices that must remain explicitly identified as implementation heuristics:
+
+- Wall-only partial cubic enrichment, omission of the pure thin-direction cubic,
+  the SVD separation threshold 10, condition-bound threshold 1000, and requirement
+  of two residual degrees of freedom. These were selected through stencil
+  support analysis and manufactured comparisons, not copied as a complete
+  published algorithm. The coarse-grid regression and unsupported edges below
+  remain material limits.
+- Residual-based Hessian uncertainty and the exact spectral noise shrinkage
+  policy. Noise remains optional and defaults to zero; preservation of physical
+  shocks and wall features has not been established by the frozen checks.
+- Global-ID accumulation order for adaptation WLS and the choice to reuse the
+  existing compensated summation helper. These address measured floating-point
+  partition dependence, not a new mathematical reconstruction method.
+- QR/SVD conditioning and rank checks are standard numerical tools. The exact
+  basis, scaling, fallback thresholds and MPI stencil packaging are engineering
+  decisions that need their own tests.
+
+Next literature assessment: compare direct and twice-recovered Hessians on
+one-sided, curved, stretched node-centered finite-volume stencils; assess
+boundary/symmetry extensions and anisotropy-uniform error bounds before choosing
+further recovery changes. Public sources above are accessible. Full papers on
+these specific boundary-layer recovery questions, especially any used for the
+user's pyAMG workflow, would be useful additional evidence.
+
+## Curved-wall QR recovery improvement (2026-10-08)
+
+Commit `6312fee370` adds a supported cubic correction to the existing opt-in
+quadratic sensor recovery. It applies at solid-wall points on grown stencils,
+using the same complete two-ring samples and MPI exchange. Interior recovery
+and the integrated geometric BL composition policy retain their existing paths.
+Receipt: `integration_evidence/curved_wall_recovery_v1_validation.json`.
+
+The smallest SVD direction must be separated from the other directions by a
+factor greater than 10. The fit includes tangential and mixed cubic terms but
+omits the pure thin-direction cubic term, which can be inseparable from lower
+orders on three sampled layer levels. It requires two remaining residual degrees
+of freedom, full rank, and a Frobenius bound on the 2-norm condition at most 1000.
+Unsupported extensions use the existing quadratic fit; failed quadratic fits
+still retain WLS. Noise covariance, roundoff suppression and fit diagnostics now
+use the actual number of fit coefficients. The cubic-fit count uses the existing
+statistics reduction, so no extra collective or stencil ring is introduced.
+
+Tests now measure wall-interior and wall-edge transverse, tangential and mixed
+derivatives separately. New physical accuracy/convergence assertions would fail
+on the old measurements; finite tensors alone are insufficient. All 147 selected
+serial cases passed (379112 assertions), and 31 MPI-safe cases per rank passed on
+two/four ranks. The differentiated header syntax probes pass; QR is still rejected
+in differentiated, symmetry and periodic configurations.
+
+| Refined manufactured case | Before | After | Improvement |
+|---|---:|---:|---:|
+| Doubly curved/skewed 3D: worst wall transverse relative error | 12.8851% | 6.48616% | 49.7% lower |
+| Same 3D case: wall-interior transverse relative error | 12.8851% | 5.67254% | 56.0% lower |
+| Same 3D case: wall-interior tangential absolute error | 0.566651 | 0.225506 | 60.2% lower |
+| Same 3D case: wall-interior mixed absolute error | 0.194001 | 0.0833072 | 57.1% lower |
+| Curved 2D AR1000: wall transverse relative error | 0.34688% | 0.110208% | 68.2% lower |
+| Curved 2D AR1000: wall-interior mixed absolute error | 0.0514686 | 0.00247931 | 95.2% lower |
+| Curved 3D AR1000 without span curvature/skew: wall-interior transverse relative error | 0.551333% | 0.107329% | 80.5% lower |
+
+These errors use analytic derivatives in local layer coordinates. The new method
+does not improve every mesh resolution: on the coarse doubly curved/skewed 3D
+case the worst transverse wall error rises from 12.1190% to 14.0426%, then falls
+to 6.48616% on refinement. Unsupported edge/corner fits retain the earlier errors.
+Interior errors retain the baseline values. WLS's curved/skewed accuracy weakness
+is unchanged; this improvement applies when `NUM_METHOD_HESS=QUADRATIC_LEAST_SQUARES`.
+
+Twelve final frozen RANS/SA checks passed independent unchanged-state, SPD,
+size/aspect, sensor transport and MPI gates, plus reported complexity checks
+(M6 complexity is also independently integrated). The RAE fixture uses
+1584 corrected point/sensor fits on each partition. Maximum metric MPI differences
+are 6.54e-12 (QR/noise off), 9.44e-11 (QR/noise on), and 1.09e-12 (WLS).
+M6 retains its true symmetry and WLS path, with the numerical MPI gate passing.
+The noise default stays zero. Geometric composed-field transport residuals remain
+diagnostics owned by the BL integration work; this is not a certificate of their
+gradation or of improved forces, flow convergence, wall y+ or native 3D remeshing.
+
+Rejected candidates are preserved: stronger inverse-distance weighting improved
+the difficult case but more than doubled a simpler case's wall-normal error;
+unrestricted enrichment worsened 2D interior eigenvalue errors; full cubic fits
+produced unreliable thin-direction/edge derivatives. Final enrichment is limited
+to wall points and supported tangential/mixed terms. Independent Python screens
+are exploratory; the final acceptance measurements come from the C++ solver chain.
+
+Raw fields, tests, rejected candidates, scripts, paired performance measurements
+and input/binary/source pins are saved outside `/tmp` under
+`/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/curved_wall_recovery_v1`.
+All heavy work runs sequentially with nice 10, build jobs 1, MPI ranks at most 4
+and one library thread per rank. Three alternating paired serial RAE QR/noise-off
+runs give median Hessian time 0.193526s before and 0.193830s after (about +0.16%).
+Median metric/process times are 9.34549/10.3061s before and 9.18881/10.2028s after.
+This small sample under contention establishes no measurable slowdown on this
+fixture; it is not a general speedup claim. Different sensor fields also change
+complexity/gradation work. Raw observations are in the validation receipt.
+
+Next: add QR symmetry support so the real ONERA wing can exercise direct recovery;
+then periodic support. Better WLS/edge reconstruction and accepted adaptation/flow
+checks remain open. A complete cubic fit would require more independent normal
+layer samples; assess its communication and noise cost before extending rings.
+
+## Numerical stability implementation (2026-10-08)
+
+Source commits `f27bae8dcf` and `3d57a82801` fix the previously failing strict
+metric MPI gates without changing the geometric BL policy. Receipt:
+`integration_evidence/metric_numerical_stability_v1_validation.json`.
+
+- The shared tensor intersection now uses the scaled sum of both inputs as its
+  whitening frame. It evaluates the same generalized spectral maximum while
+  avoiding cancellation from whitening by a nearly rank-one rotated sensor.
+  Independent 90-digit references cover 2D/3D, condition 1e14, input swapping,
+  perturbations and scales 1e-150 to 1e150. Original double evaluation had relative
+  errors 4.61e-4 / 8.80e-4 on the rotated cases; the balanced evaluation is near
+  machine precision. This shared helper also serves BL composition and gradation;
+  their mathematical policy, interpolation and geometry remain unchanged.
+- Adaptation WLS gradient/Hessian accumulation visits neighbors by global ID,
+  including the reused-geometry Hessian path. A temporary vector is reused per
+  calling thread; no persistent weight/stencil cache is added. Ordinary CFD
+  gradient calls retain their existing ordering. Reversing fixture adjacency
+  preserves adaptation derivatives exactly.
+- Primal sensor normalization reuses the existing compensated sum library,
+  whose translation unit protects compensation from fast-math reassociation.
+  Temporary storage is one passive scalar per owned point/sensor (about 1.47MiB
+  on this serial M6 fixture and 0.28MiB on RAE). Differentiated builds retain
+  their active MPI normalization sums; these improvements are not a full AD
+  reproducibility or accuracy certificate.
+
+All 147 selected serial cases passed (378972 assertions); 31 MPI-safe cases per
+rank passed on two/four ranks. The five legacy `[Gradients]` MPI failures also
+occur in the unchanged integration executable: those fixtures use null solver
+communication and inspect incomplete halo data. A broader MPI in-memory mesh
+reader fixture also fails in that executable. Failed logs and baseline runs are
+retained; no production guard or assertion was weakened to obtain these passes.
+Forward/reverse kernel/header syntax probes pass with a valid reverse tape;
+full differentiated solver behavior remains unvalidated.
+
+All twelve frozen RANS/SA runs completed, with zero flow/remeshing iterations.
+The original solution values and mesh coordinates pass the independent checks:
+
+| Fixture / recovery | Maximum metric difference, MPI 1 vs 2/4 | Complexity | Independent sensor transport |
+|---|---:|---:|---|
+| ONERA M6 WLS with true symmetry | 6.63e-15 (previously 7.37e-7) | 300000, independently integrated | Not enabled in this 3D case |
+| RAE WLS, noise 0 | 1.09e-12 | Reported geometric composed integral 60000 | Maximum ratio 1.000000094 |
+| RAE QR, noise 0 | 3.85e-12 | Reported geometric composed integral 60000 | Maximum ratio 1.000000098 |
+| RAE QR, noise 1 | 1.34e-10 (intersection-only: 2.00e-4) | Reported geometric composed integral 60000 | Maximum ratio 1.000000099 |
+
+Recovered Hessian CSV components are identical across these partitions. M6's
+former worst weak eigenvalue amplified order-dependent WLS roundoff; changing
+intersection alone did not fix it. On RAE with noise enabled, filtered Hessians
+were already identical; compensated normalization was additionally necessary.
+The strict MPI limit stays 1e-9. Noise strength remains zero by default because
+numerical reproducibility does not establish physical feature preservation.
+
+The independent RAE reference composes BL at the actual point and retains both
+sensor and BL demands (minimum generalized domination about 1 minus 4.2e-12).
+It still measures **composed** nodal transport maxima 6.40012 / 12.39031 / 4.63954
+for WLS / QR / QR-noise. Converged sensor gradation is not a composed-field
+certificate. No composed-field correction or continuous quadrature accuracy
+claim is introduced here; these remain with the BL integration owner.
+
+Performance was checked with one heavy job at a time, nice 10, build jobs 1,
+MPI ranks at most 4 and library threads 1. A paired kernel benchmark measures
+about 7% (2D) / 8% (3D) additional intersection cost; it still uses two eigensolves
+and four matrix products. The combined WLS reuse fixture retains about a 2.37x
+advantage over repeated geometry recovery. Observed serial RAE metric times are
+10.91s / 9.81s / 11.69s (WLS / QR / QR-noise), M6 0.435s including 0.187s Hessian
+recovery. These single observations under machine contention are not controlled
+whole-solver performance comparisons. Final sensor gradation needs 32 / 29 / 25
+sweeps; cumulative complexity-solve work is recorded separately in the receipts.
+
+Durable raw fields, logs, configs, input copies, build/probe failures, executables,
+benchmark and a SHA-256 manifest are saved outside `/tmp` under
+`/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/metric_numerical_stability_v1`.
+The numerical blockers below are historical. Next work is curved/skewed wall
+recovery with separate wall-interior/edge accuracy gates, followed by QR symmetry
+and periodic support. Full adaptation/flow validation and differentiated solver
+validation remain necessary; native 3D remeshing is separate work.
+
+## Authorized work and retained history (2026-10-07)
 
 | ID | Work | Status |
 |---|---|---|
-| 1 | Constrained tensor gradation: classify blocked directions, converge useful updates, reduce repeated work | Direct updater rejected by actual-case checks. Retained relaxation/performance changes; main representation reconciliation required |
-| 2 | Noise-aware Hessian treatment, with controls that retain resolved curvature | Implemented opt-in residual shrinkage; manufactured tests passed, but enabled RAE metric MPI/gradation checks failed; retain default zero |
+| 1 | Constrained tensor gradation: classify blocked directions, converge useful updates, reduce repeated work | Direct updater rejected by actual-case checks. Integrated base retains sensor-only gradation and geometric query composition; full composed-field guarantees remain the BL owner's follow-up |
+| 2 | Noise-aware Hessian treatment, with controls that retain resolved curvature | Implemented opt-in residual shrinkage; numerical MPI blocker fixed on 2026-10-08. Physical feature preservation remains unvalidated; retain default zero |
 | 4 | More selective MPI geometry exchange and storage | Implemented conservative occupied query boxes; unit/MPI tests passed; private candidate reference transport remains separate |
 | 5 | Reuse WLS geometry across sensors and derivative passes | Implemented within-call normal-matrix/weight reuse; stretched multisensor equivalence and MPI tests passed |
 
@@ -21,6 +431,9 @@ Do not obtain a speedup by silently dropping required constraints or declaring a
 sweep limit to be convergence. Keep material limitations visible.
 
 ## Implemented and validated before this work
+
+This section describes the historical pre-integration implementation. Its hard
+normal BL reset was superseded by the geometric intersection contract above.
 
 - Coordinate-equilibrated WLS solves and stencil conditioning diagnostics.
 - Opt-in primal direct quadratic recovery using coordinate whitening and pivoted
@@ -363,7 +776,10 @@ The config template now gives explicit OFF/ON examples. Three existing checks
 for default unfiltered noisy curvature, opt-in shrinkage and a resolved steep
 profile passed again; this does not supersede the failed enabled-noise RAE gate.
 
-The following is a proposed integration sequence, **not implemented main support**:
+The following records the earlier proposal. The integration base now implements
+sensor-only gradation, geometric query composition and BL-resolving complexity
+quadrature. Its combined-field audits and remaining limits are documented in
+`METRIC_ROBUSTNESS_INTEGRATION.md`; full composed-field correction remains open.
 
 1. For each complexity scale trial, bound and grade the sensor tensors using
    transported-neighbor intersection. Keep hard-normal BL projection out of
@@ -390,3 +806,150 @@ to resolve its spatial variation. Merely interpolating a nodal correction that
 contains the fine wall tensor can reproduce the coarse-seed spreading defect.
 This needs design and validation before code integration, especially for private
 and remote queries. Main's original-geometry callback remains authoritative.
+
+
+## 3D stress checks and noise isolation (2026-10-07)
+
+Source `3b320bfd6b`; the complete receipt, including failures, is
+`integration_evidence/metric_robustness_3d_noise_v4.json`. The production binary
+contains the restart-reader fix and no metric-probe instrumentation. Ten selected
+Hessian/restart cases passed on one, two and four MPI ranks (91482 serial
+assertions). These checks establish the stated regression gates; **WLS accuracy
+on the severe curved case is not a passing gate**.
+
+### Severe 3D recovery limitations
+
+The existing manufactured pressure helper now also exercises rotated, skewed
+and doubly curved tetrahedra: flat aspect 10000/skew 4, curved aspect 1000/skew 2,
+with refinements 8 to 16. Errors are measured in layer coordinates, preventing
+large physical transverse curvature from hiding tangential error.
+
+| Case/method | Coarse interior Hessian max error | Fine interior Hessian max error | Fine wall transverse relative error | Fine dominant-direction sine |
+|---|---:|---:|---:|---:|
+| Flat WLS | 8.91e-8 | 5.88e-7 | 0.5 | 6.14e-8 |
+| Curved WLS | 10.45 | 319.81 | 0.384 | 0.963 |
+| Flat QR | 5.51e-9 | 2.89e-8 | 4.22e-10 | 2.98e-8 |
+| Curved QR | 0.741 | 0.210 | 0.129 | 0.0108 |
+
+Wall errors are maxima over the marked wall, including its edges/corners; the
+transverse direction is the layer-coordinate direction. This does not isolate
+an interior wall patch or prove that the entire wall has those errors. The
+initial accuracy-gated WLS run failed, and its log is retained. Comparing reused
+WLS geometry with the repeated legacy solve gives differences below 1.2e-13
+of the largest Hessian entry: the accuracy weakness predates the reuse change.
+QR improves in the curved interior, but the worst wall error does not decrease
+on these refinements. One-sided curved-wall reconstruction needs further work;
+finite tensors and a good geometry condition diagnostic alone are insufficient.
+
+### A matching ONERA M6 RANS fixture exists
+
+`/media/rausa/4TB/SU2_Versions/TestCasesForSSTIDDES/optimization_rans/steady_oneram6`
+contains a RANS/SA mesh and frozen restart: 96252 points, 545438 tetrahedra,
+exactly matching coordinates and unchanged six solution fields. The snapshot in
+`cont_adj_rans/oneram6` differs from its mesh by up to 0.0284 in coordinates and
+was rejected as a matching fixture. No adapted RANS version was established.
+
+Keep the true symmetry boundary. QR currently rejects it, so these runs exercise
+WLS's existing symmetry path, with within-call geometry reuse disabled. No flow
+or remesher iteration is performed; selecting MMG allows 3D metric construction
+but does not invoke MMG. There is no prescribed BL metric in this check and no
+exact Hessian or aerodynamic accuracy reference.
+
+| Ranks | Process (s) | Metric computation (s) | Hessian recovery (s) | Relative metric MPI difference |
+|---|---:|---:|---:|---:|
+| 1 | 9.876 | 0.373 | 0.135 | 0 |
+| 2 | 6.129 | 0.203 | 0.0744 | 2.46e-9 |
+| 4 | 4.220 | 0.108 | 0.0419 | 7.37e-7 |
+
+The precise metric timings in the JSON receipt take precedence over rounded
+values here. Metrics are finite SPD and independently integrate to complexity
+300000 within 4.2e-12 relative error. Hessian MPI differences are below 2.71e-11
+with the documented global floor. **The strict 1e-9 metric MPI gate fails** on
+two/four ranks; do not relax it to claim readiness. Independent eigenvalue
+analysis sees aspect 10000.00023 for configured 10000, reflecting visible
+roundoff in these condition-number 1e8 tensors. The 3D discrepancy needs separate
+isolation; it is not proof of the same cause as the 2D noise failure.
+
+The real run exposed a filename buffer overflow in the shared ASCII restart
+reader. Both shared ASCII/binary readers and both output-header readers now use
+the existing string directly instead of copying it into `char fname[100]`.
+A >100-character filename regression covers all four paths on 1/2/4 ranks.
+
+### Noise failure occurs before gradation
+
+The investigation-only `integration_evidence/frozen_metric_probe.patch` captures
+pre-BL tensors/scale and permits fixed-input replay. It is **historical instrumentation, not production
+configuration or a merge candidate**. It targets pre-rebase source `3b320bfd6b`,
+not the current integrated BL implementation. Check out that historical source
+in a disposable worktree/build before applying it;
+run `replay_frozen_metric.py`, restore the source and rebuild. The final patch
+also captures the initial sensor intersection before corner/BL/gradation work;
+use `--capture-all` for that campaign. The replay still performs preceding root
+trials, so its elapsed time is not a single-pass gradation benchmark.
+
+With identical serial tensors and final scale, MPI differences stay below
+3.4e-14 at 0/1/10/80 sweep caps. Removing experimental hard-normal BL projection
+from the same frozen input converges in 32 sweeps to ratio 1.00000009965; MPI
+agreement remains below 6e-13. Keeping that projection stalls at ratio 2.28272,
+17 normal-limited edges and 80 sweeps. Thus the constraint-policy failure and
+the original enabled-noise MPI discrepancy are separate issues.
+
+The initial sensor tensor already differs by 5.47e-4 / 8.36e-4 on two/four
+ranks, before any corner adjustment, BL composition or gradation. Filtered QR
+Hessians are identical, and sensor normalization integrals differ by less than
+8.1e-15 relative. At a worst point the filtered sensors are nearly rank one.
+**Inference:** the highly conditioned multi-sensor intersection amplifies the
+normalization roundoff (its intermediate eigenvalue ratio cap is 1e14). This
+narrows the fault to upstream construction; isolating and stabilizing the
+individual operators remains necessary. No numerical intersection/reduction fix
+was added, and default noise strength remains zero.
+
+### Next improvements and durable evidence
+
+1. Stabilize multi-sensor combination for nearly rank-one tensors in 2D/3D;
+   include tiny normalization perturbations and MPI agreement without discarding
+   finer demands. Accurate sums can reduce input error but cannot by themselves
+   certify a stable intersection.
+2. Improve one-sided curved-wall and skew-sensitive recovery, with separate
+   tangential/transverse and wall-interior/edge accuracy checks.
+3. Support symmetry/periodicity in QR before using this real wing for QR/noise.
+4. Validate against the integrated geometric BL policy and coordinate any failures
+   with its owning agent. Rebase onto the published integration is complete;
+   superseded nodal hard-normal experiments have not been replayed.
+5. Validate actual adaptation/flow cycles, forces, conservation and wall
+   resolution. Native 3D remeshing, AD and structured BL topology remain open.
+
+The report, scripts, probe patch, logs, configs, frozen probe tensors and output
+fields are also preserved outside `/tmp` in
+`/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/metric_robustness_3d_noise_v4`.
+Its manifest records file sizes and SHA-256 hashes. Input RAE files are copied
+there; original ONERA inputs remain in their existing test directory. Previous
+reports and the full deferred roadmap above remain retained.
+
+
+## Rebase onto the geometric BL integration (2026-10-07)
+
+The branch now descends from published integration `2abbd11769`. Only the two
+post-integration commits were replayed (`3b320bfd6b` -> `1eddab22a6`,
+`ce28cd2f99` -> `0164ee16dc`). The duplicate shared restart-reader fix was
+resolved in favor of the integration implementation. Relative production changes
+are limited to the remaining `CBaselineSolver` filename fixes; the integrated
+BL, complexity, solver metric and query code are unchanged.
+
+Fresh build and selected tests passed 26 cases on each of 1/2/4 MPI ranks,
+including Hessian, long restart filename, geometric query/quadrature and sensor
+gradation checks. Fresh frozen ONERA outputs are byte-for-byte identical to the
+pre-rebase runs. Its strict MPI metric gate still fails at the same values; no
+accuracy limitation was fixed by rebasing. Historical probe instrumentation
+requires its historical source and must not be applied to the integrated policy.
+
+Receipt: `integration_evidence/metric_rebase_v1_validation.json`. The old branch
+tip is retained as `codex/metric-robustness-pre-integration-rebase-20261007` and in
+a verified complete-history bundle under the durable evidence directory. New
+receipts/logs are saved there in `metric_rebase_v1`; unchanged ONERA fields remain
+in the earlier v4 archive, with hashes and paths recorded by the new receipt.
+
+Next implementation work belongs to Hessian/sensor metrics: stable multi-sensor
+combination, skewed/curved one-sided recovery and QR boundary support. The other
+agent continues to own BL composition, complexity and gradation; our branch
+validates against that shared contract.
