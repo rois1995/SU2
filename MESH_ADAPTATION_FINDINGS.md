@@ -13,6 +13,10 @@ script are in `integration_evidence/metric_robustness_v2_validation.json` and
 
 ## Publication provenance and limits (checked 2026-10-08)
 
+The prioritized PDF checklist is in [Papers/READING_LIST.md](Papers/READING_LIST.md),
+with the four papers already requested, five immediate additions, and later
+metric/gradation, validation and parallel adaptation references.
+
 The implementation combines published method families, standard numerical
 linear algebra and experimental engineering choices. The references checked
 here explain the foundations and known failure modes; this audit does not mean
