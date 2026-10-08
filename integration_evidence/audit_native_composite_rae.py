@@ -47,7 +47,9 @@ class GeometricWall:
     def __call__(self,p,sensor):
         p=np.asarray(p)
         if (p<self.lo).any() or (p>self.hi).any():return sensor
-        along=np.clip(np.sum((p-self.a)*self.delta,axis=1)/self.length**2,0,1)
+        # Direct squared length preserves exact endpoint projections; squaring a
+        # rounded square root can create a spurious distance and change vertex ties.
+        along=np.clip(np.sum((p-self.a)*self.delta,axis=1)/np.sum(self.delta**2,axis=1),0,1)
         radial=p-self.a-along[:,None]*self.delta
         distances=np.linalg.norm(radial,axis=1);i=int(np.argmin(distances));distance=distances[i]
         if along[i] in (0,1):
@@ -80,17 +82,34 @@ class GeometricWall:
         return float(out[0,0]),float(out[0,1]),float(out[1,1])
 
 
+def tensor_defect(expected,actual):
+    """Largest relative directional error; a large BL eigenvalue must not hide the weaker direction."""
+    values,vectors=np.linalg.eigh(expected)
+    assert values[0]>0 and np.isfinite(values).all()
+    inverse=(vectors/np.sqrt(values))@vectors.T
+    error=inverse@(actual-expected)@inverse
+    return float(np.max(np.abs(np.linalg.eigvalsh((error+error.T)/2))))
+
+
 def check_math():
+    assert abs(tensor_defect(np.diag([1e12,1.]),np.diag([1e12,1.01]))-.01)<1e-14
     assert np.allclose(intersection(np.diag([4.,1.]),np.diag([1.,9.])),np.diag([4.,9.]))
     wall=GeometricWall([[0,0],[1,0],[1,1],[0,1]],[[0,1],[1,2],[2,3],[3,0]],.01,1.2,.1,45,1.)
     xx,xy,yy=wall([.5,.005],(4.,0.,1.));assert abs(xx-4)<1e-10 and abs(xy)<1e-10 and abs(yy-10000)<1e-6
     assert wall([.5,.2],(4.,0.,1.))==(4.,0.,1.)
     # Oblique intersection must dominate each input in every direction.
+    # Exact vertex with unequal incident segments must use the shorter segment
+    # under the specified nearest-midpoint tie rule. This caught sqrt/square drift.
+    endpoint_wall=GeometricWall([[0.00197309255599976, 0.00581538816913962], [0.00285813212394714, 0.00697072176262736], [0.00393903255462646, 0.00812128745019436]]+[[.02,.02]],[[0,1],[1,2],[2,3],[3,0]],1e-5,1.2,.02,179.,1.)
+    value=endpoint_wall(endpoint_wall.points[1],(1.,0.,1.))
+    actual_smallest=np.linalg.eigvalsh([[value[0],value[1]],[value[1],value[2]]])[0]
+    expected_smallest=1/min(endpoint_wall.length[0],endpoint_wall.length[1])**2
+    assert abs(actual_smallest/expected_smallest-1)<1e-8
     a=np.array([[10.,2.],[2.,1.]]);b=np.array([[2.,-3.],[-3.,10.]])
     c=intersection(a,b);assert min(np.linalg.eigvalsh(c-a))>-1e-12 and min(np.linalg.eigvalsh(c-b))>-1e-12
 
 
-def audit(wd,cycle,donorpath=None,candidatepath=None,restart=None):
+def audit(wd,cycle,donorpath=None,candidatepath=None,restart=None,sensor_csv=None,transported=None):
     cfg=(wd/'run.cfg').read_text()
     def setting(name):return re.search(r'^'+name+r'\s*=\s*(.*)',cfg,re.M)[1].strip()
     assert setting('ADAP_REMESHER')=='NATIVE_CAVITY'
@@ -103,7 +122,14 @@ def audit(wd,cycle,donorpath=None,candidatepath=None,restart=None):
     if candidatepath is None:candidatepath=wd/f'mesh_adap_{cycle:05d}.su2'
     if restart is None:restart=wd/f'solution_adap_{cycle-1:05d}.dat'
     donor=capcheck.read_su2(donorpath);candidate=capcheck.read_su2(candidatepath);original=capcheck.read_su2(wd/'input.su2')
-    metric,_=capcheck.metric_of(donor,restart)
+    if sensor_csv is None:
+        metric,_=capcheck.metric_of(donor,restart)
+    else:
+        samples=np.loadtxt(sensor_csv,delimiter=',',skiprows=1,ndmin=2)
+        lookup={tuple(row[:2]):row[2:] for row in samples}
+        assert len(lookup)==len(donor.P)==len(samples)
+        raw=np.array([lookup[tuple(point)] for point in donor.P])
+        metric=np.empty((len(raw),2,2));metric[:,0,0]=raw[:,0];metric[:,0,1]=metric[:,1,0]=raw[:,1];metric[:,1,1]=raw[:,2]
     xx=metric[:,0,0].astype(np.longdouble);yy=metric[:,1,1].astype(np.longdouble);xy=metric[:,0,1].astype(np.longdouble)
     largest=(xx+yy+np.hypot(xx-yy,2*xy))/2;core=float(np.min((xx*yy-xy*xy)/largest));assert core>0
     line=loops(original.P,original.E,original.M)['AIRFOIL'][0];edges=list(zip(line,line[1:]+line[:1]))
@@ -128,9 +154,32 @@ def audit(wd,cycle,donorpath=None,candidatepath=None,restart=None):
             xx,xy,yy=target(p);values.append(math.sqrt(xx*d[0]**2+2*xy*d[0]*d[1]+yy*d[1]**2))
         length=(values[0]+4*values[1]+values[2])/6;maxl=max(maxl,length)
         if length>1.8+1e-8:badl.append(edge.tolist())
+    transported_audit=None
+    if transported is not None:
+        records=[]
+        import csv
+        for path in transported:
+            with path.open() as handle:
+                reader=csv.DictReader(handle);assert reader.fieldnames==['point','x','y','xx','xy','yy']
+                records.extend((int(row['point']),*[float(row[key]) for key in ('x','y','xx','xy','yy')]) for row in reader)
+        records.sort(key=lambda row:row[0])
+        assert [row[0] for row in records]==list(range(len(candidate.P))), 'Transported tensors must cover every final reader point exactly once'
+        largest_defect=0.;worst=None
+        for row in records:
+            point=np.array(row[1:3]);assert np.array_equal(point,candidate.P[row[0]])
+            ex=target(point);expected=np.array([[ex[0],ex[1]],[ex[1],ex[2]]])
+            actual=np.array([[row[3],row[4]],[row[4],row[5]]]);assert np.isfinite(actual).all()
+            defect=tensor_defect(expected,actual)
+            if defect>largest_defect:largest_defect=defect;worst={'point':row[0],'coordinates':row[1:3],'expected':list(map(float,ex)),'transported':row[3:]}
+        tolerance=1e-7
+        transported_audit=dict(status='PASS' if largest_defect<=tolerance else 'FAIL',points=len(records),
+          max_relative_directional_tensor_defect=largest_defect,tolerance=tolerance,worst_point=worst,
+          scope='Independent original-sensor P1 plus actual-point geometric BL versus final distributed reader tensors; no interpolation of wall tensors.')
     paths=[donorpath,candidatepath,restart,wd/'input.su2',wd/'run.cfg',Path(__file__),Path(__file__).with_name('frozen_field_audit.py'),Path(__file__).with_name('airfoil_reference_audit.py')]
+    if sensor_csv is not None:paths.append(sensor_csv)
+    if transported is not None:paths.extend(transported)
     return dict(cycle=cycle,points=len(candidate.P),triangles=len(candidate.E),min_quality=minq,max_simpson_length=maxl,
-      bad_quality_cells=badq,bad_length_edges=badl,numerical_gate_tolerance=1e-8,core_eigenvalue=core,
+      transported_metric=transported_audit,bad_quality_cells=badq,bad_length_edges=badl,numerical_gate_tolerance=1e-8,core_eigenvalue=core,
       reference_corners=len(wall.corners) if wall is not None else 0,unique_target_queries=len(cache),boundary_extensions=frozen.extensions,
       maximum_extension=frozen.max_extension,roundoff_queries=frozen.roundoff,
       input_sha256={str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in paths},

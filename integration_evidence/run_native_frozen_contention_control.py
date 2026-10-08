@@ -1,6 +1,11 @@
 from pathlib import Path
-import json,hashlib,subprocess,os,time,signal,sys,shutil
-r=Path('/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated');e=r/'integration_evidence';case=Path(sys.argv[1]).resolve();manifest=Path(sys.argv[2]);prior=json.loads(manifest.read_text());binary=Path(prior['archived_binary'])
+import argparse,json,hashlib,subprocess,os,time,signal,sys,shutil
+parser=argparse.ArgumentParser(description='Source-pinned frozen native remeshing, one contention-aware MPI job.')
+parser.add_argument('case',type=Path);parser.add_argument('manifest',type=Path);parser.add_argument('fixture',type=Path)
+parser.add_argument('--config',type=Path,help='Override config while keeping the exact frozen sensor/grid fixture')
+parser.add_argument('--ranks',type=int,choices=(1,2,4),default=4)
+args=parser.parse_args()
+r=Path('/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated');e=r/'integration_evidence';case=args.case.resolve();manifest=args.manifest.resolve();prior=json.loads(manifest.read_text());binary=Path(prior['archived_binary'])
 def sha(p):
  h=hashlib.sha256()
  with p.open('rb') as f:
@@ -11,12 +16,19 @@ recovered=[]
 for name,digest in prior['source_sha256'].items():
  if sha(r/name)==digest:continue
  found=False
- for archive in ('native_frozen_rae_euler_to_bl_v1','native_unsteady_cache_mpi_v3','native_unsteady_mpi_v3','native_pruning_cost_core_mpi_v2','native_donor_index_core_mpi_v1'):
+ for archive in ('native_frozen_rae_euler_to_bl_v1','native_unsteady_cache_mpi_v3','native_unsteady_mpi_v3','native_pruning_cost_core_mpi_v2','native_donor_index_core_mpi_v1','native_working_partition_core_mpi_v1'):
   p=e/archive/'sources'/name
   if p.is_file() and sha(p)==digest:found=True;recovered.append(str(p));break
  assert found,('Cannot verify original source pin',name)
-case.mkdir(parents=True,exist_ok=False);fixture=Path(sys.argv[3]).resolve();shutil.copy2(fixture/'run.cfg',case/'run.cfg');shutil.copy2(fixture/'input.su2',case/'input.su2');shutil.copy2(fixture/'frozen_sensor.csv',case/'frozen_sensor.csv')
-record=dict(scope='Frozen original sensor and actual geometric BL/native backend MPI4; contention-aware immutable executable control, setup/gather outside the remeshing timer',binary=str(binary),binary_sha256=prior['binary_sha256'],source_evidence=str(manifest.resolve()),source_pins_checked=len(prior['source_sha256']),recovered_original_sources=recovered,phase='preparing',working_directory=str(case),inputs_sha256={p.name:sha(p) for p in (case/'run.cfg',case/'input.su2')})
+case.mkdir(parents=True,exist_ok=False);fixture=args.fixture.resolve();config_source=(args.config or fixture/'run.cfg').resolve();shutil.copy2(config_source,case/'run.cfg');shutil.copy2(fixture/'input.su2',case/'input.su2');shutil.copy2(fixture/'frozen_sensor.csv',case/'frozen_sensor.csv')
+record=dict(scope=f'Frozen original sensor and actual geometric BL/native backend MPI{args.ranks}; contention-aware immutable executable control, setup/gather outside the remeshing timer',binary=str(binary),binary_sha256=prior['binary_sha256'],source_evidence=str(manifest.resolve()),config_source=str(config_source),source_pins_checked=len(prior['source_sha256']),recovered_original_sources=recovered,phase='preparing',working_directory=str(case),inputs_sha256={p.name:sha(p) for p in (case/'run.cfg',case/'input.su2')})
+references={'rae_euler_to_bl':('rae_rans_window200_np4_v1',199),'rae_bl_to_euler':('rae_euler_from_bl_window100_np4_v1',99)}
+if fixture.name in references:
+ original,step=references[fixture.name];flow_source=e/'native_unsteady_performance_v1'/original/f'flow_{step:05d}.vtu'
+ shutil.copy2(flow_source,case/'frozen_sensor_source_flow.vtu')
+ note={'source':str(flow_source),'sha256':sha(case/'frozen_sensor_source_flow.vtu'),'scope':'Original CFD flow from which this frozen sensor was extracted. This case remeshes a frozen field and performs no CFD solve.'}
+ (case/'frozen_sensor_source_flow.json').write_text(json.dumps(note,indent=2)+'\n')
+ record['original_flow_reference']=note
 report=case/'run_evidence.json';assert not report.exists();shutil.copy2(__file__,case/'runner_source.py')
 def save():report.write_text(json.dumps(record,indent=2)+'\n')
 env=dict(os.environ,OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1',SU2_NATIVE_AIRFOIL_CONFIG=str(case/'run.cfg'),SU2_NATIVE_FROZEN_METRIC=str(case/'frozen_sensor.csv'));record['inputs_sha256']['frozen_sensor.csv']=sha(case/'frozen_sensor.csv');quiet=None
@@ -33,11 +45,11 @@ while True:
  previous,sample=machine_sample(previous)
  busy=[s for s in subprocess.check_output(['ps','-eo','pid,stat,comm'],text=True).splitlines()[1:] if len(s.split())==3 and 'Z' not in s.split()[1] and (s.split()[2] in ('ninja','cc1plus','test_driver') or s.split()[2].startswith('SU2_CFD'))]
  record.update(phase='waiting_for_machine',busy=busy);save()
- if busy or sample['busy_fraction']>(os.cpu_count()-5)/os.cpu_count() or sample['cpu_pressure_avg10']>10:quiet=None
+ if busy or sample['busy_fraction']>(os.cpu_count()-args.ranks-1)/os.cpu_count() or sample['cpu_pressure_avg10']>10:quiet=None
  elif quiet is None:quiet=time.monotonic()
  elif time.monotonic()-quiet>=15:break
  time.sleep(5)
-command=['mpiexec','-n','4',str(binary),'[NativeFrozenAirfoil2D]','--use-colour','no']
+command=['mpiexec','-n',str(args.ranks),str(binary),'[NativeFrozenAirfoil2D]','--use-colour','no']
 start=time.monotonic();snapshot=[];previous=cpu_ticks();sample_started=start
 with (case/'solver.log').open('x') as log:
  child=subprocess.Popen(command,cwd=case,env=env,stdout=log,stderr=subprocess.STDOUT,start_new_session=True);record.update(phase='running',command=command,child_pid=child.pid);save()
@@ -62,4 +74,4 @@ with (case/'solver.log').open('x') as log:
     try:child.wait(timeout=10)
     except subprocess.TimeoutExpired:os.killpg(child.pid,signal.SIGKILL);child.wait()
     code=124;break
-record.update(phase='terminal',solver_exit=code,elapsed_seconds=time.monotonic()-start);record.pop('child_pid',None);save();assert code==0 and (case/'solver.log').read_text().count('All tests passed')==4;print(case.name,record['elapsed_seconds'],flush=True)
+record.update(phase='terminal',solver_exit=code,elapsed_seconds=time.monotonic()-start);record.pop('child_pid',None);save();assert code==0 and (case/'solver.log').read_text().count('All tests passed')==args.ranks;print(case.name,record['elapsed_seconds'],flush=True)

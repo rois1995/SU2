@@ -1,0 +1,59 @@
+{
+  "scope": "One matched pair per frozen workload on the same build. Host contention recorded, no repeat uncertainty estimate. Different ownership changes mesh/work: not fixed-work speedups. No M<N or actual unsteady validation yet.",
+  "comparisons": {
+    "rae_euler_to_bl": {
+      "runs": {
+        "weighted": {
+          "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_frozen_rae_euler_to_bl_weighted_v2/runtime_np4",
+          "run_evidence": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_frozen_rae_euler_to_bl_weighted_v2/runtime_np4/run_evidence.json",
+          "audit": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_frozen_rae_euler_to_bl_weighted_v2/runtime_np4/independent_frozen_metric_audit_v2.json",
+          "process_seconds": 39.77227776800282,
+          "kernel_seconds": 39.300531794,
+          "max_rank_rss_hwm_kib": 44176,
+          "adapted_grid_sha256": "e9d9dfc9444efecdbc708a9a7a3bb39dcf5632afb70c3f9d9be7df0938539850",
+          "binary_sha256": "4865559109cc798a6933426eec469a8c19b3931642c2d2df9c65df6d15520d32"
+        },
+        "default": {
+          "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_frozen_rae_euler_to_bl_weighted_default_control_v1/runtime_np4",
+          "run_evidence": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_frozen_rae_euler_to_bl_weighted_default_control_v1/runtime_np4/run_evidence.json",
+          "audit": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_frozen_rae_euler_to_bl_weighted_default_control_v1/runtime_np4/independent_frozen_metric_audit.json",
+          "process_seconds": 39.86858285900962,
+          "kernel_seconds": 39.362495359,
+          "max_rank_rss_hwm_kib": 45492,
+          "adapted_grid_sha256": "01cdbd7156948611035c47cec6f3d9ed163cad1096ee19ff88ad2b15038294c8",
+          "binary_sha256": "4865559109cc798a6933426eec469a8c19b3931642c2d2df9c65df6d15520d32"
+        }
+      },
+      "kernel_reduction_percent": 0.15741777657861666,
+      "whole_process_reduction_percent": 0.24155634361865408,
+      "same_output_grid": false
+    },
+    "rae_bl_to_euler": {
+      "runs": {
+        "weighted": {
+          "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_frozen_rae_bl_to_euler_weighted_v1/runtime_np4",
+          "run_evidence": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_frozen_rae_bl_to_euler_weighted_v1/runtime_np4/run_evidence.json",
+          "audit": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_frozen_rae_bl_to_euler_weighted_v1/runtime_np4/independent_frozen_metric_audit.json",
+          "process_seconds": 10.623932050002622,
+          "kernel_seconds": 10.121281674,
+          "max_rank_rss_hwm_kib": 58280,
+          "adapted_grid_sha256": "005da8d7b0078ad40ac84f867b06c06acb128b0dd6b7d072796a33679aa481f6",
+          "binary_sha256": "4865559109cc798a6933426eec469a8c19b3931642c2d2df9c65df6d15520d32"
+        },
+        "default": {
+          "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_frozen_rae_bl_to_euler_weighted_default_control_v1/runtime_np4",
+          "run_evidence": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_frozen_rae_bl_to_euler_weighted_default_control_v1/runtime_np4/run_evidence.json",
+          "audit": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_frozen_rae_bl_to_euler_weighted_default_control_v1/runtime_np4/independent_frozen_metric_audit.json",
+          "process_seconds": 11.083808180002961,
+          "kernel_seconds": 10.505894063000001,
+          "max_rank_rss_hwm_kib": 58700,
+          "adapted_grid_sha256": "ad5b7082b2624604d2ec3eddd21c358592a684faeee6d65a1f45c9cdcfc0671c",
+          "binary_sha256": "4865559109cc798a6933426eec469a8c19b3931642c2d2df9c65df6d15520d32"
+        }
+      },
+      "kernel_reduction_percent": 3.6609201148766646,
+      "whole_process_reduction_percent": 4.149080555454143,
+      "same_output_grid": false
+    }
+  }
+}

@@ -63,7 +63,7 @@ sensor CSV, adapted SU2 grid and a labeled copy of the original source flow VTU.
 Case-selectable independent auditor: integration_evidence/audit_native_frozen_case.py.
 Frozen immutable contention-aware runner: run_native_frozen_contention_control.py.
 All campaign sessions terminal0:34554,52092,63085,10923,80880,38500,68887,75915.
-Weighted partition helper now implemented and tested; production wiring and M<N are pending. Next implementation:
+Weighted M=N helper and production wiring validated on two frozen workloads; M<N is pending. Implementation:
 weighted cell dual graph through existing ParMETIS (N communicator), migrate raw
 sensor-bearing cells unchanged BEFORE Engine construction. Work estimates use
 separate temporary samples of actual geometric composition: CacheTarget overwrites
@@ -102,6 +102,61 @@ point tensors outside frozen remeshing timer and independently audit their
 original-sensor-plus-actual-query-BL residuals. Frozen RAE comparisons include full
 weight estimation/graph/partition/migration overhead; ownership changes work,
 so these are whole-workload comparisons, not fixed-work speedups.
+Weighted M=N production config draft is now ADAP_NATIVE_REPARTITION= NO by
+default (native backend only). YES uses the helper before Engine construction;
+weight/dual-graph/ParMETIS/migration timers and rank load tables are printed.
+Protected first-row cells omit the full wall-row construction allowance.
+Build v3 terminalPASS after full config rebuild (~305 targets, -j2, CPU PSI
+recorded); appde0d98e736bebd4e66f1a0d5340e90f64f25878dbfc5ad15e42ad2d8a374a5fc.
+Final-source core v2 terminalPASS66cases/rank atMPI1/2/4. New frozen helper exports
+native_frozen_target_rank_*.csv after kernel timer/HWM; independent auditor now
+supports exact frozen sensor CSV plus every final reader tensor. Relative
+DIRECTIONAL tensor error is checked by whitening with the expected metric, so a
+large BL eigenvalue cannot conceal a defect in the weak direction. Tolerance1e-7;
+small runnable anisotropic weak-direction math check PASS. Actual transported-tensor audit now PASS on both weighted/default frozen workloads;
+this does not establish final-source unsteady/restart residuals.
+First weighted frozen Euler-to-BL attempt v1 TERMINALFAIL before partition/remesh,
+0.3665s: work sampler omitted physical-component associations, so an ulp-rounded
+wall-edge midpoint could not use the existing numerical containment envelope.
+This is reproduced by the existing FieldPatch roundoff regression. Added the
+same association loop as Engine initialization, with a focused WorkWeights
+regression; NO containment limits, geometry or metric semantics relaxed.
+Build v4 terminalPASS: app71f81287fefdc7dbb56980a5a3ad69f86400d21d4e347ea2f6481985f8b6ebba;
+core v3 PASS67cases/rank MPI1/2/4, including rounded-edge work sampler.
+Weighted Euler-to-BL v2 and same-source default control PASS remeshing and
+independent grid/reference/first-height/final-tensor audits. Whole-process times
+39.772/39.869s: no meaningful speedup in this matched pair, despite predicted
+work balanced from15270/5303/24620/20617 to16906/15684/16937/16283.
+Weighted/private max21.166s vs default22.278s; substantial actual imbalance remains.
+Weighted commits49616 vs44811, so not fixed-work acceleration.
+Weighted BL-to-Euler v1 and default control PASS; whole-process10.624/11.084s,
+a small difference that needs repeats. Same-source summary:
+native_adaptation_partition_v1/weighted_same_source_comparison_v1.json.
+Transported metric audit found and fixed an independent Python projection bug:
+length**2 reconstructed a rounded squared norm and selected the wrong adjacent
+edge at an EXACT original wall vertex. Native uses direct dot(delta,delta).
+Auditor now matches that projection; unchanged 1e-7 directional tensor tolerance.
+Failed checker sources/report and diagnosis retained under Euler-to-BL weighted v2
+rejected_tensor_auditor_sources_v1. Corrected audit_v2 PASS, maximum directional
+defect7.091e-11. A regression retains the unequal-edge exact-endpoint tie case.
+Independent runner supports --config/--ranks and copies labeled original flow VTU.
+Subset wrapper/config draft prepared in /tmp/native_subset_wrapper_draft_v1;
+M<N still uncompiled/unvalidated at this checkpoint. Next: scoped native transport,
+explicit ADAP_NATIVE_RANKS, nonspinning inactive-rank wait, N-rank reader return,
+subset failure/atomic-rejection tests and actual unsteady/restart validation.
+Unapplied/uncompiled scoped transport draft: /tmp/native_subset_transport_draft_v2,
+with original/draft hashes. It adds explicit passive communicator parameters,
+World-local rank/size and subset failure elections. Still needs the actual worker
+wrapper, N-rank output/diagnostic return, config and validation. No source changes
+from this draft were applied during the production build. Inactive CFD ranks must
+avoid spinning while waiting: a native N-communicator Ibarrier + MPI_Test/sleep
+phase is the minimal proposed wait, validate measured idle CPU before recommending
+M<N. Keep SU2_MPI's global N communicator and original solution/history untouched.
+Correction to earlier fatal-error note: SU2 Error polls Ibarrier for one second,
+then may use global RMA and abort N; it is not a suitable subset reporting path.
+Only collectively elected M failures should unwind to a common N error election;
+unexpected local failures need fail-fast handling, not a potentially deadlocked
+N wait. Scope passive transport preflight and keep existing admission checks.
 Final-source actual unsteady runs/restarts, transported tensor residual artifacts,
 weighted/rank-count comparisons and practical scaling limits remain pending.
 No unrelated heavy job was running at activation; editor activity/CPU pressure

@@ -24,6 +24,10 @@ std::vector<uint32_t> WorkWeights(const std::map<Id, Cell>& input, const MetricC
     FieldPatch field;
     field.cells.push_back({cell.t, cell.marker, cell.nodal_target});
     field.composition = composition;
+    // Match engine initialization: a rounded physical-edge midpoint requires
+    // its actual component association, even within the numerical-only envelope.
+    for (const auto marker : cell.marker)
+      if (marker) field.extension_components.insert(marker);
     auto sampled = cell;
     CacheTarget(sampled, checked([&](Point p) { return field.evaluate(p); }), 0);
     Tensor sensor{0, 0, 0};
@@ -45,7 +49,7 @@ std::vector<uint32_t> WorkWeights(const std::map<Id, Cell>& input, const MetricC
                  std::max(0., std::log2(.65 / smallest)));
     for (const auto marker : cell.marker) {
       const auto rows = wallRows.find(marker);
-      if (marker && rows != wallRows.end()) work += 2 * rows->second;
+      if (marker && rows != wallRows.end() && !cell.t.protected_cell) work += 2 * rows->second;
     }
     if (!(std::isfinite(work) && work > 0)) throw std::runtime_error("Invalid native partition work estimate.");
     // ponytail: bounded static predictor, not measured transaction cost. Refit only

@@ -382,3 +382,15 @@ comparisons and reduced-rank remeshing remain pending. Graph storage scales with
 local cell count outside the migration-specific budget; ParMETIS index/weight
 limits are checked. Static weights are a hypothesis to validate against measured
 private costs, not a claim of balanced actual execution.
+
+2026-10-08 weighted M=N production checkpoint: config remains opt-in/default NO.
+Both RAE frozen workloads pass independent original-sensor/geometric-BL, final
+reader-tensor and geometry audits. Euler-to-BL matched same-source whole times
+39.772 vs39.869s: no meaningful improvement. BL-to-Euler10.624 vs11.084s:
+small provisional difference, needs repeats. Weight balance does not establish
+actual cost balance (Euler-to-BL private max21.166s vs mean8.503s). Different
+ownership changes operations/grids; not fixed-work acceleration. Summary:
+integration_evidence/native_adaptation_partition_v1/weighted_same_source_comparison_v1.json.
+Independent tensor auditor projection bug, rejected report/checker and corrected
+original-vertex regression are preserved; no native metric/tolerance change.
+M<N and final-source actual unsteady/restart/cost validation remain pending.

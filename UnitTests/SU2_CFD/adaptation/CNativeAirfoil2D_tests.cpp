@@ -395,6 +395,17 @@ TEST_CASE("Native frozen airfoil: identical input metric for MPI scaling", "[Nat
          << (result.status == CRemeshResult::Status::COMPLETE) << ',' << hwmKiB << '\n';
   REQUIRE(timing.good());
   REQUIRE(result.status == CRemeshResult::Status::COMPLETE);
-  const auto candidate = GatherCandidate(world, result.slices);
+  const auto& slices = result.slices;
+  REQUIRE(slices.nMetric == 3);
+  REQUIRE(slices.metric.size() == 3 * slices.nPointLocal);
+  // Inspectable transported targets, outside the kernel timer and peak-RSS sample.
+  // Reader IDs let the independent auditor check every final point without a gather.
+  std::ofstream transported("native_frozen_target_rank_" + std::to_string(world.rank) + ".csv");
+  transported << std::setprecision(17) << "point,x,y,xx,xy,yy\n";
+  for (unsigned long p = 0; p < slices.nPointLocal; ++p)
+    transported << slices.firstPoint + p << ',' << slices.coord[0][p] << ',' << slices.coord[1][p] << ','
+                << slices.metric[3 * p] << ',' << slices.metric[3 * p + 1] << ',' << slices.metric[3 * p + 2] << '\n';
+  REQUIRE(transported.good());
+  const auto candidate = GatherCandidate(world, slices);
   if (world.rank == 0) simplex_test::WriteSU2Mesh(candidate, "native_frozen_adapted.su2");
 }

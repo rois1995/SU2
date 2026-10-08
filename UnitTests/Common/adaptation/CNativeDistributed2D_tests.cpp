@@ -283,6 +283,24 @@ TEST_CASE("Native partition weights keep geometric BL out of raw sensor donors",
   CHECK(wallQueries > 0);
   CHECK(interiorQueries > 0);
   CHECK(Bytes(input.at(0)) == before);
+  auto protectedInput = input;
+  protectedInput.at(0).t.protected_cell = 1;
+  CHECK(WorkWeights(protectedInput, composition, {{7, 25}})[0] < bl[0]);
+}
+
+TEST_CASE("Native work sampling associates rounded physical-edge queries", "[NativeDistributed2D]") {
+  const Node a{0, {.2, 0}, 1}, b{1, {.2 + .04, .02}, 1}, c{2, {.2, .02}, 1};
+  Cell cell;
+  cell.t = triangle(a, b, c);
+  cell.marker[0] = 7;
+  cell.nodal_target.fill(Tensor{4, 0, 8});
+  const Point midpoint{double((static_cast<long double>(a.p.x) + b.p.x) / 2), .01};
+  CHECK(orient(a.p, b.p, midpoint) < 0);
+  const auto before = Bytes(cell);
+  const auto weights = WorkWeights({{0, cell}}, {}, {});
+  REQUIRE(weights.size() == 1);
+  CHECK(weights[0] > 0);
+  CHECK(Bytes(cell) == before);
 }
 
 TEST_CASE("Native MPI failure: nonmanifold working graph", "[NativeInvalidWorkingGraph][.]") {

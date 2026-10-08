@@ -8,6 +8,7 @@
 
 #include "../../include/adaptation/CNativeRemesher.hpp"
 #include "../../include/adaptation/CNativeEngine2D.hpp"
+#include "../../include/adaptation/CNativePartition2D.hpp"
 #include "../../include/adaptation/CNativeReferenceIO.hpp"
 #include "../../include/adaptation/CMeshGather.hpp"
 #include "../../include/CConfig.hpp"
@@ -360,6 +361,7 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
   // work estimate, not a requested cell count or a guarantee of completion.
   const long double sensorCells = 4 * static_cast<long double>(complexity) / std::sqrt(3.L);
   long double layerCells = 0;
+  std::map<int, double> wallRows;
   if (control.metric_composition)
     for (unsigned short b = 0; b < config.GetnAdap_BL(); ++b) {
       const auto& layer = config.GetAdap_BL(b);
@@ -370,9 +372,12 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
       // wall tensor. Corners/rotated sensor intersections can need more work;
       // the existing ceiling still bounds each phase, not guarantees completion.
       const long double rows = g == 1 ? thickness / h : std::log1p((g - 1) * thickness / h) / std::log(g);
-      for (const auto& component : reference->original->Components())
-        if (names.at(component.marker) == layer.marker)
-          layerCells += 2 * (component.nodes.size() - 1) * std::ceil(rows);
+      const auto& components = reference->original->Components();
+      for (size_t c = 0; c < components.size(); ++c)
+        if (names.at(components[c].marker) == layer.marker) {
+          layerCells += 2 * (components[c].nodes.size() - 1) * std::ceil(rows);
+          wallRows.emplace(c + 1, double(std::ceil(rows)));
+        }
     }
   const long double estimatedCells = sensorCells + layerCells;
   if (!(std::isfinite(estimatedCells) && estimatedCells >= 0))
@@ -397,6 +402,39 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
   if (world.rank == 0)
     for (const auto& height : heights)
       std::cout << "Native requested first altitude: " << names[height.first] << " = " << height.second << '\n';
+  if (config.GetAdap_Native_Repartition()) {
+    PartitionStats partition;
+    std::vector<uint32_t> weights;
+    const auto started = world.seconds();
+    try {
+      weights = WorkWeights(input, control.metric_composition, wallRows);
+    } catch (const std::exception& error) {
+      failure.Set(1, 0, error.what());
+    }
+    CollectiveFailure(failure, CURRENT_FUNCTION);
+    const auto estimateSeconds = world.seconds() - started;
+    if (!Repartition(world, input, weights, world.size, partition))
+      failure.Set(1, 0, "Native working partition migration was not admitted.");
+    CollectiveFailure(failure, CURRENT_FUNCTION);
+    const std::array<double, 4> localSeconds{estimateSeconds, partition.graph_seconds,
+        partition.partition_seconds, partition.migration_seconds};
+    std::array<double, 4> maximumSeconds{};
+    CPassiveComm::Allreduce(localSeconds.data(), maximumSeconds.data(), localSeconds.size(), CPassiveComm::Op::MAX);
+    const auto bytes = CPassiveComm::Allreduce(uint64_t(partition.migration_bytes), CPassiveComm::Op::MAX);
+    if (world.rank == 0) {
+      std::cout << "Native working partition: weighted, CFD ranks=" << world.size
+                << ", adaptation ranks=" << world.size << "; moved cells=" << partition.moved_cells
+                << ", dual edge cuts=" << partition.edgecut << ", largest transport/staging estimate=" << bytes << '\n';
+      std::cout << "Native working partition seconds estimate/graph/ParMETIS/migration (maximum across ranks):";
+      for (const auto value : maximumSeconds) std::cout << ' ' << value;
+      std::cout << '\n';
+      for (int r = 0; r < world.size; ++r)
+        std::cout << "Native working rank " << r << " cells before/after=" << partition.cells_before[r]
+                  << '/' << partition.cells_after[r]
+                  << ", predicted work before/after=" << partition.work_before[r] << '/'
+                  << partition.work_after[r] << '\n';
+    }
+  }
   Engine engine(world, std::move(input), policy, control);
   uint64_t initialShape = 0, initialSize = 0;
   for (const auto& entry : engine.owned) {

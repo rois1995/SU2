@@ -1313,6 +1313,7 @@ private:
   /*--- Mesh adaptation options ---*/
   bool Compute_Metric = false;              /*!< \brief Determines if the adaptation metric is computed. */
   bool Adap_Iso_Corner = true;              /*!< \brief Isotropic adaptation metric at sharp wall corners. */
+  bool Adap_Native_Repartition = false;     /*!< \brief Cost-weighted native working partition, independent of CFD. */
   bool Adap_Surface = true;                 /*!< \brief The remesher may change the boundary (surface) mesh. */
   ADAP_REMESHER Kind_Adap_Remesher=ADAP_REMESHER::MMG; /*!< \brief Opt-in native backend; MMG remains default. */
   su2double Adap_Hessian_Noise; /*!< \brief Optional residual-based QR curvature shrinkage strength. */
@@ -10471,6 +10472,7 @@ public:
    */
   bool GetAdap_Surface(void) const { return Adap_Surface; }
   ADAP_REMESHER GetKind_Adap_Remesher(void) const { return Kind_Adap_Remesher; }
+  bool GetAdap_Native_Repartition(void) const { return Adap_Native_Repartition; }
 
   /*!
    * \brief Get the number of wall markers of the boundary-layer metric (ADAP_BL_MARKER).
