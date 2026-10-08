@@ -1,0 +1,904 @@
+{
+  "date": "2026-10-08",
+  "branch": "codex/cfd-mesh-robustness",
+  "base_commit": "e49c545d700632bd9c68fc52535ef63d6ca8632d",
+  "build": {
+    "compiler": "GCC 9.4.0",
+    "meson": "1.8.2",
+    "buildtype": "release",
+    "mpi": true,
+    "omp": true,
+    "cgns": false,
+    "tecio": false,
+    "mmg": false,
+    "math_flags": [
+      "-O3",
+      "-march=native",
+      "-ffast-math",
+      "-fno-finite-math-only"
+    ],
+    "jobs": 1,
+    "nice": 10
+  },
+  "linear_stencils": {
+    "baseline": {
+      "failures_at_1e_minus_7": 12,
+      "worst_error": 0.000818888,
+      "cases": [
+        {
+          "dim": 2,
+          "scale": 1e-07,
+          "aspect": 1.0,
+          "weighted": false,
+          "max_error": 1.33227e-15
+        },
+        {
+          "dim": 2,
+          "scale": 1e-07,
+          "aspect": 1.0,
+          "weighted": true,
+          "max_error": 1.55431e-15
+        },
+        {
+          "dim": 2,
+          "scale": 1e-07,
+          "aspect": 1000.0,
+          "weighted": false,
+          "max_error": 3.22888e-10
+        },
+        {
+          "dim": 2,
+          "scale": 1e-07,
+          "aspect": 1000.0,
+          "weighted": true,
+          "max_error": 1.4619e-11
+        },
+        {
+          "dim": 2,
+          "scale": 1e-07,
+          "aspect": 1000000.0,
+          "weighted": false,
+          "max_error": 0.000264815
+        },
+        {
+          "dim": 2,
+          "scale": 1e-07,
+          "aspect": 1000000.0,
+          "weighted": true,
+          "max_error": 6.3683e-06
+        },
+        {
+          "dim": 2,
+          "scale": 1.0,
+          "aspect": 1.0,
+          "weighted": false,
+          "max_error": 1.33227e-15
+        },
+        {
+          "dim": 2,
+          "scale": 1.0,
+          "aspect": 1.0,
+          "weighted": true,
+          "max_error": 1.33227e-15
+        },
+        {
+          "dim": 2,
+          "scale": 1.0,
+          "aspect": 1000.0,
+          "weighted": false,
+          "max_error": 2.48613e-10
+        },
+        {
+          "dim": 2,
+          "scale": 1.0,
+          "aspect": 1000.0,
+          "weighted": true,
+          "max_error": 1.47868e-11
+        },
+        {
+          "dim": 2,
+          "scale": 1.0,
+          "aspect": 1000000.0,
+          "weighted": false,
+          "max_error": 0.000198875
+        },
+        {
+          "dim": 2,
+          "scale": 1.0,
+          "aspect": 1000000.0,
+          "weighted": true,
+          "max_error": 6.3748e-06
+        },
+        {
+          "dim": 2,
+          "scale": 10000000.0,
+          "aspect": 1.0,
+          "weighted": false,
+          "max_error": 1.55431e-15
+        },
+        {
+          "dim": 2,
+          "scale": 10000000.0,
+          "aspect": 1.0,
+          "weighted": true,
+          "max_error": 1.55431e-15
+        },
+        {
+          "dim": 2,
+          "scale": 10000000.0,
+          "aspect": 1000.0,
+          "weighted": false,
+          "max_error": 2.66975e-10
+        },
+        {
+          "dim": 2,
+          "scale": 10000000.0,
+          "aspect": 1000.0,
+          "weighted": true,
+          "max_error": 7.02371e-12
+        },
+        {
+          "dim": 2,
+          "scale": 10000000.0,
+          "aspect": 1000000.0,
+          "weighted": false,
+          "max_error": 0.000383249
+        },
+        {
+          "dim": 2,
+          "scale": 10000000.0,
+          "aspect": 1000000.0,
+          "weighted": true,
+          "max_error": 1.70522e-05
+        },
+        {
+          "dim": 3,
+          "scale": 1e-07,
+          "aspect": 1.0,
+          "weighted": false,
+          "max_error": 3.10862e-15
+        },
+        {
+          "dim": 3,
+          "scale": 1e-07,
+          "aspect": 1.0,
+          "weighted": true,
+          "max_error": 2.66454e-15
+        },
+        {
+          "dim": 3,
+          "scale": 1e-07,
+          "aspect": 1000.0,
+          "weighted": false,
+          "max_error": 6.56793e-10
+        },
+        {
+          "dim": 3,
+          "scale": 1e-07,
+          "aspect": 1000.0,
+          "weighted": true,
+          "max_error": 3.82885e-11
+        },
+        {
+          "dim": 3,
+          "scale": 1e-07,
+          "aspect": 1000000.0,
+          "weighted": false,
+          "max_error": 0.000617155
+        },
+        {
+          "dim": 3,
+          "scale": 1e-07,
+          "aspect": 1000000.0,
+          "weighted": true,
+          "max_error": 2.96879e-05
+        },
+        {
+          "dim": 3,
+          "scale": 1.0,
+          "aspect": 1.0,
+          "weighted": false,
+          "max_error": 2.66454e-15
+        },
+        {
+          "dim": 3,
+          "scale": 1.0,
+          "aspect": 1.0,
+          "weighted": true,
+          "max_error": 2.66454e-15
+        },
+        {
+          "dim": 3,
+          "scale": 1.0,
+          "aspect": 1000.0,
+          "weighted": false,
+          "max_error": 9.18785e-10
+        },
+        {
+          "dim": 3,
+          "scale": 1.0,
+          "aspect": 1000.0,
+          "weighted": true,
+          "max_error": 3.29705e-11
+        },
+        {
+          "dim": 3,
+          "scale": 1.0,
+          "aspect": 1000000.0,
+          "weighted": false,
+          "max_error": 0.000815382
+        },
+        {
+          "dim": 3,
+          "scale": 1.0,
+          "aspect": 1000000.0,
+          "weighted": true,
+          "max_error": 3.72397e-05
+        },
+        {
+          "dim": 3,
+          "scale": 10000000.0,
+          "aspect": 1.0,
+          "weighted": false,
+          "max_error": 2.66454e-15
+        },
+        {
+          "dim": 3,
+          "scale": 10000000.0,
+          "aspect": 1.0,
+          "weighted": true,
+          "max_error": 2.44249e-15
+        },
+        {
+          "dim": 3,
+          "scale": 10000000.0,
+          "aspect": 1000.0,
+          "weighted": false,
+          "max_error": 8.72795e-10
+        },
+        {
+          "dim": 3,
+          "scale": 10000000.0,
+          "aspect": 1000.0,
+          "weighted": true,
+          "max_error": 3.59965e-11
+        },
+        {
+          "dim": 3,
+          "scale": 10000000.0,
+          "aspect": 1000000.0,
+          "weighted": false,
+          "max_error": 0.000818888
+        },
+        {
+          "dim": 3,
+          "scale": 10000000.0,
+          "aspect": 1000000.0,
+          "weighted": true,
+          "max_error": 4.00193e-05
+        }
+      ]
+    },
+    "candidate": {
+      "failures_at_1e_minus_7": 0,
+      "worst_error": 2.46785e-09,
+      "cases": [
+        {
+          "dim": 2,
+          "scale": 1e-07,
+          "aspect": 1.0,
+          "weighted": false,
+          "max_error": 1.33227e-15
+        },
+        {
+          "dim": 2,
+          "scale": 1e-07,
+          "aspect": 1.0,
+          "weighted": true,
+          "max_error": 1.55431e-15
+        },
+        {
+          "dim": 2,
+          "scale": 1e-07,
+          "aspect": 1000.0,
+          "weighted": false,
+          "max_error": 3.22888e-10
+        },
+        {
+          "dim": 2,
+          "scale": 1e-07,
+          "aspect": 1000.0,
+          "weighted": true,
+          "max_error": 1.4619e-11
+        },
+        {
+          "dim": 2,
+          "scale": 1e-07,
+          "aspect": 1000000.0,
+          "weighted": false,
+          "max_error": 1.33829e-09
+        },
+        {
+          "dim": 2,
+          "scale": 1e-07,
+          "aspect": 1000000.0,
+          "weighted": true,
+          "max_error": 1.26331e-09
+        },
+        {
+          "dim": 2,
+          "scale": 1.0,
+          "aspect": 1.0,
+          "weighted": false,
+          "max_error": 1.33227e-15
+        },
+        {
+          "dim": 2,
+          "scale": 1.0,
+          "aspect": 1.0,
+          "weighted": true,
+          "max_error": 1.33227e-15
+        },
+        {
+          "dim": 2,
+          "scale": 1.0,
+          "aspect": 1000.0,
+          "weighted": false,
+          "max_error": 2.48613e-10
+        },
+        {
+          "dim": 2,
+          "scale": 1.0,
+          "aspect": 1000.0,
+          "weighted": true,
+          "max_error": 1.47868e-11
+        },
+        {
+          "dim": 2,
+          "scale": 1.0,
+          "aspect": 1000000.0,
+          "weighted": false,
+          "max_error": 8.28073e-10
+        },
+        {
+          "dim": 2,
+          "scale": 1.0,
+          "aspect": 1000000.0,
+          "weighted": true,
+          "max_error": 1.65614e-09
+        },
+        {
+          "dim": 2,
+          "scale": 10000000.0,
+          "aspect": 1.0,
+          "weighted": false,
+          "max_error": 1.55431e-15
+        },
+        {
+          "dim": 2,
+          "scale": 10000000.0,
+          "aspect": 1.0,
+          "weighted": true,
+          "max_error": 1.55431e-15
+        },
+        {
+          "dim": 2,
+          "scale": 10000000.0,
+          "aspect": 1000.0,
+          "weighted": false,
+          "max_error": 2.66975e-10
+        },
+        {
+          "dim": 2,
+          "scale": 10000000.0,
+          "aspect": 1000.0,
+          "weighted": true,
+          "max_error": 7.02371e-12
+        },
+        {
+          "dim": 2,
+          "scale": 10000000.0,
+          "aspect": 1000000.0,
+          "weighted": false,
+          "max_error": 1.16887e-09
+        },
+        {
+          "dim": 2,
+          "scale": 10000000.0,
+          "aspect": 1000000.0,
+          "weighted": true,
+          "max_error": 1.50482e-09
+        },
+        {
+          "dim": 3,
+          "scale": 1e-07,
+          "aspect": 1.0,
+          "weighted": false,
+          "max_error": 3.10862e-15
+        },
+        {
+          "dim": 3,
+          "scale": 1e-07,
+          "aspect": 1.0,
+          "weighted": true,
+          "max_error": 2.66454e-15
+        },
+        {
+          "dim": 3,
+          "scale": 1e-07,
+          "aspect": 1000.0,
+          "weighted": false,
+          "max_error": 6.56793e-10
+        },
+        {
+          "dim": 3,
+          "scale": 1e-07,
+          "aspect": 1000.0,
+          "weighted": true,
+          "max_error": 3.82885e-11
+        },
+        {
+          "dim": 3,
+          "scale": 1e-07,
+          "aspect": 1000000.0,
+          "weighted": false,
+          "max_error": 1.88317e-09
+        },
+        {
+          "dim": 3,
+          "scale": 1e-07,
+          "aspect": 1000000.0,
+          "weighted": true,
+          "max_error": 2.46785e-09
+        },
+        {
+          "dim": 3,
+          "scale": 1.0,
+          "aspect": 1.0,
+          "weighted": false,
+          "max_error": 2.66454e-15
+        },
+        {
+          "dim": 3,
+          "scale": 1.0,
+          "aspect": 1.0,
+          "weighted": true,
+          "max_error": 2.66454e-15
+        },
+        {
+          "dim": 3,
+          "scale": 1.0,
+          "aspect": 1000.0,
+          "weighted": false,
+          "max_error": 9.18785e-10
+        },
+        {
+          "dim": 3,
+          "scale": 1.0,
+          "aspect": 1000.0,
+          "weighted": true,
+          "max_error": 3.29705e-11
+        },
+        {
+          "dim": 3,
+          "scale": 1.0,
+          "aspect": 1000000.0,
+          "weighted": false,
+          "max_error": 1.72128e-09
+        },
+        {
+          "dim": 3,
+          "scale": 1.0,
+          "aspect": 1000000.0,
+          "weighted": true,
+          "max_error": 1.94715e-09
+        },
+        {
+          "dim": 3,
+          "scale": 10000000.0,
+          "aspect": 1.0,
+          "weighted": false,
+          "max_error": 2.66454e-15
+        },
+        {
+          "dim": 3,
+          "scale": 10000000.0,
+          "aspect": 1.0,
+          "weighted": true,
+          "max_error": 2.44249e-15
+        },
+        {
+          "dim": 3,
+          "scale": 10000000.0,
+          "aspect": 1000.0,
+          "weighted": false,
+          "max_error": 8.72795e-10
+        },
+        {
+          "dim": 3,
+          "scale": 10000000.0,
+          "aspect": 1000.0,
+          "weighted": true,
+          "max_error": 3.59965e-11
+        },
+        {
+          "dim": 3,
+          "scale": 10000000.0,
+          "aspect": 1000000.0,
+          "weighted": false,
+          "max_error": 1.74904e-09
+        },
+        {
+          "dim": 3,
+          "scale": 10000000.0,
+          "aspect": 1000000.0,
+          "weighted": true,
+          "max_error": 1.82342e-09
+        }
+      ]
+    }
+  },
+  "timings": [
+    {
+      "aspect": 1.0,
+      "weighted": false,
+      "calls_per_sample": 2000,
+      "points": 1000,
+      "variables": 1,
+      "baseline_seconds": [
+        0.242835,
+        0.245024,
+        0.262285
+      ],
+      "candidate_seconds": [
+        0.237205,
+        0.245709,
+        0.250049
+      ],
+      "median_ratio": 1.002795644508293
+    },
+    {
+      "aspect": 1.0,
+      "weighted": true,
+      "calls_per_sample": 2000,
+      "points": 1000,
+      "variables": 1,
+      "baseline_seconds": [
+        0.236736,
+        0.234693,
+        0.259276
+      ],
+      "candidate_seconds": [
+        0.243671,
+        0.238287,
+        0.238776
+      ],
+      "median_ratio": 1.0086171938361719
+    },
+    {
+      "aspect": 10000.0,
+      "weighted": false,
+      "calls_per_sample": 2000,
+      "points": 1000,
+      "variables": 1,
+      "baseline_seconds": [
+        0.234493,
+        0.235182,
+        0.23494
+      ],
+      "candidate_seconds": [
+        0.566545,
+        0.570684,
+        0.566316
+      ],
+      "median_ratio": 2.4114454754405377
+    },
+    {
+      "aspect": 10000.0,
+      "weighted": true,
+      "calls_per_sample": 2000,
+      "points": 1000,
+      "variables": 1,
+      "baseline_seconds": [
+        0.238081,
+        0.237456,
+        0.238785
+      ],
+      "candidate_seconds": [
+        0.242446,
+        0.241714,
+        0.240687
+      ],
+      "median_ratio": 1.0152595125188488
+    }
+  ],
+  "ad": {
+    "forward": {
+      "cases": 12,
+      "all_passed": true,
+      "output": [
+        "dim=2 weighted=0 mode=0 derivative=1 valid=1",
+        "dim=3 weighted=0 mode=0 derivative=1 valid=1",
+        "dim=2 weighted=0 mode=1 derivative=7.76394e-16 valid=1",
+        "dim=3 weighted=0 mode=1 derivative=7.76394e-16 valid=1",
+        "dim=2 weighted=0 mode=2 derivative=1.00735 valid=1",
+        "dim=3 weighted=0 mode=2 derivative=1.00735 valid=1",
+        "dim=2 weighted=1 mode=0 derivative=1 valid=1",
+        "dim=3 weighted=1 mode=0 derivative=1 valid=1",
+        "dim=2 weighted=1 mode=1 derivative=1.24704e-16 valid=1",
+        "dim=3 weighted=1 mode=1 derivative=1.24704e-16 valid=1",
+        "dim=2 weighted=1 mode=2 derivative=0.359767 valid=1",
+        "dim=3 weighted=1 mode=2 derivative=0.359767 valid=1"
+      ]
+    },
+    "reverse": {
+      "cases": 12,
+      "all_passed": true,
+      "output": [
+        "dim=2 weighted=0 mode=0 derivative=1 valid=1",
+        "dim=3 weighted=0 mode=0 derivative=1 valid=1",
+        "dim=2 weighted=0 mode=1 derivative=-3.49954e-16 valid=1",
+        "dim=3 weighted=0 mode=1 derivative=-3.49954e-16 valid=1",
+        "dim=2 weighted=0 mode=2 derivative=1.00735 valid=1",
+        "dim=3 weighted=0 mode=2 derivative=1.00735 valid=1",
+        "dim=2 weighted=1 mode=0 derivative=1 valid=1",
+        "dim=3 weighted=1 mode=0 derivative=1 valid=1",
+        "dim=2 weighted=1 mode=1 derivative=3.49954e-16 valid=1",
+        "dim=3 weighted=1 mode=1 derivative=5.67028e-16 valid=1",
+        "dim=2 weighted=1 mode=2 derivative=0.359767 valid=1",
+        "dim=3 weighted=1 mode=2 derivative=0.359767 valid=1"
+      ]
+    }
+  },
+  "cfds": [
+    {
+      "shape": "regular",
+      "cells_per_direction": 12,
+      "aspect_parameter": 1.0,
+      "label": "baseline",
+      "exit_code": 0,
+      "iterations": 192,
+      "density_log10_residual": -11.0400487,
+      "reached_density_residual_threshold": true,
+      "rms_errors": {
+        "Rho": 0.0031476,
+        "RhoU": 1.04664,
+        "RhoV": 1.24871,
+        "RhoE": 527.222
+      }
+    },
+    {
+      "shape": "regular",
+      "cells_per_direction": 12,
+      "aspect_parameter": 1.0,
+      "label": "candidate",
+      "exit_code": 0,
+      "iterations": 192,
+      "density_log10_residual": -11.0400487,
+      "reached_density_residual_threshold": true,
+      "rms_errors": {
+        "Rho": 0.0031476,
+        "RhoU": 1.04664,
+        "RhoV": 1.24871,
+        "RhoE": 527.222
+      }
+    },
+    {
+      "shape": "regular",
+      "cells_per_direction": 24,
+      "aspect_parameter": 1.0,
+      "label": "baseline",
+      "exit_code": 0,
+      "iterations": 300,
+      "density_log10_residual": -10.42790018,
+      "reached_density_residual_threshold": false,
+      "rms_errors": {
+        "Rho": 0.00106394,
+        "RhoU": 0.310443,
+        "RhoV": 0.340067,
+        "RhoE": 159.768
+      }
+    },
+    {
+      "shape": "regular",
+      "cells_per_direction": 24,
+      "aspect_parameter": 1.0,
+      "label": "candidate",
+      "exit_code": 0,
+      "iterations": 300,
+      "density_log10_residual": -10.42790018,
+      "reached_density_residual_threshold": false,
+      "rms_errors": {
+        "Rho": 0.00106394,
+        "RhoU": 0.310443,
+        "RhoV": 0.340067,
+        "RhoE": 159.768
+      }
+    },
+    {
+      "shape": "thin",
+      "cells_per_direction": 12,
+      "aspect_parameter": 10000.0,
+      "label": "baseline",
+      "exit_code": 0,
+      "iterations": 300,
+      "density_log10_residual": -3.268246096,
+      "reached_density_residual_threshold": false,
+      "rms_errors": {
+        "Rho": 0.00120414,
+        "RhoU": 0.0921063,
+        "RhoV": 0.521667,
+        "RhoE": 586.715
+      }
+    },
+    {
+      "shape": "thin",
+      "cells_per_direction": 12,
+      "aspect_parameter": 10000.0,
+      "label": "candidate",
+      "exit_code": 0,
+      "iterations": 300,
+      "density_log10_residual": -3.268246095,
+      "reached_density_residual_threshold": false,
+      "rms_errors": {
+        "Rho": 0.00120414,
+        "RhoU": 0.0921063,
+        "RhoV": 0.521667,
+        "RhoE": 586.715
+      }
+    },
+    {
+      "shape": "thin",
+      "cells_per_direction": 24,
+      "aspect_parameter": 10000.0,
+      "label": "baseline",
+      "exit_code": 0,
+      "iterations": 300,
+      "density_log10_residual": -4.274005586,
+      "reached_density_residual_threshold": false,
+      "rms_errors": {
+        "Rho": 0.000446807,
+        "RhoU": 0.0205648,
+        "RhoV": 0.148685,
+        "RhoE": 171.046
+      }
+    },
+    {
+      "shape": "thin",
+      "cells_per_direction": 24,
+      "aspect_parameter": 10000.0,
+      "label": "candidate",
+      "exit_code": 0,
+      "iterations": 300,
+      "density_log10_residual": -4.274005574,
+      "reached_density_residual_threshold": false,
+      "rms_errors": {
+        "Rho": 0.000446807,
+        "RhoU": 0.0205648,
+        "RhoV": 0.148685,
+        "RhoE": 171.046
+      }
+    },
+    {
+      "shape": "curved",
+      "cells_per_direction": 12,
+      "aspect_parameter": 10000.0,
+      "label": "baseline",
+      "exit_code": 0,
+      "iterations": 300,
+      "density_log10_residual": -6.114911935,
+      "reached_density_residual_threshold": false,
+      "rms_errors": {
+        "Rho": 5.46225e-06,
+        "RhoU": 0.000624224,
+        "RhoV": 0.00128178,
+        "RhoE": 0.843848
+      }
+    },
+    {
+      "shape": "curved",
+      "cells_per_direction": 12,
+      "aspect_parameter": 10000.0,
+      "label": "candidate",
+      "exit_code": 0,
+      "iterations": 300,
+      "density_log10_residual": -6.11491139,
+      "reached_density_residual_threshold": false,
+      "rms_errors": {
+        "Rho": 5.46225e-06,
+        "RhoU": 0.000624224,
+        "RhoV": 0.00128178,
+        "RhoE": 0.843847
+      }
+    },
+    {
+      "shape": "curved",
+      "cells_per_direction": 24,
+      "aspect_parameter": 10000.0,
+      "label": "baseline",
+      "exit_code": 0,
+      "iterations": 300,
+      "density_log10_residual": -6.215513276,
+      "reached_density_residual_threshold": false,
+      "rms_errors": {
+        "Rho": 2.45357e-06,
+        "RhoU": 0.000247626,
+        "RhoV": 0.000974724,
+        "RhoE": 0.639177
+      }
+    },
+    {
+      "shape": "curved",
+      "cells_per_direction": 24,
+      "aspect_parameter": 10000.0,
+      "label": "candidate",
+      "exit_code": 0,
+      "iterations": 300,
+      "density_log10_residual": -6.21551427,
+      "reached_density_residual_threshold": false,
+      "rms_errors": {
+        "Rho": 2.45357e-06,
+        "RhoU": 0.000247626,
+        "RhoV": 0.000974724,
+        "RhoE": 0.639176
+      }
+    }
+  ],
+  "checks": {
+    "gradient_and_hessian": {
+      "cases": 17,
+      "assertions": 115630,
+      "passed": true
+    },
+    "threads2": {
+      "cases": 2,
+      "assertions": 24038,
+      "passed": true
+    },
+    "mpi2": {
+      "cases_per_rank": 2,
+      "assertions_per_rank": 12038,
+      "passed": true
+    },
+    "mesh_generation": "All six meshes checked for positive triangle areas and expected counts."
+  },
+  "limitations": [
+    "CFD comparisons are capped at 300 iterations and mostly unconverged; they do not establish an accuracy gain or convergence order.",
+    "Periodic LS interfaces and batched inverse-normal-matrix Hessian reuse retain their existing algorithms.",
+    "Full RANS, unsteady, moving-grid, adaptation and end-to-end discrete-adjoint validation have not been run.",
+    "QR preserves the original linear LS fit; it does not remove truncation errors or recover differences lost in stored field values.",
+    "Local timing figures describe this one-variable gradient kernel, not whole-solver performance.",
+    "A preliminary nonlinear independent-QR comparison at aspect ratio 1e6 differed by 9.27076e-6; the stable reference regression uses aspect ratio 1e4."
+  ],
+  "sha256": {
+    "candidate_header": "a3d92f353546c7cd94ff07f6e69298c7b24e6917e78631344c9fc170a2915c01",
+    "baseline_cfd": "b6647bae6335516dffe10fe687a036e397f11a7d4bbf89a99553ea021e9d5d23",
+    "candidate_cfd": "411c35021ddde04355c3370fd591443eaf6f4173c6004de21d630e5e93edc8f3"
+  },
+  "baseline_replacements": [
+    {
+      "file": "../su2-cfd-mesh-robustness/SU2_CFD/src/solvers/CIncNSSolver.cpp",
+      "object": "/tmp/su2-cfd-gradient-baseline/solvers_CIncNSSolver.cpp.o"
+    },
+    {
+      "file": "../su2-cfd-mesh-robustness/SU2_CFD/src/solvers/CNEMONSSolver.cpp",
+      "object": "/tmp/su2-cfd-gradient-baseline/solvers_CNEMONSSolver.cpp.o"
+    },
+    {
+      "file": "../su2-cfd-mesh-robustness/SU2_CFD/src/solvers/CNSSolver.cpp",
+      "object": "/tmp/su2-cfd-gradient-baseline/solvers_CNSSolver.cpp.o"
+    },
+    {
+      "file": "../su2-cfd-mesh-robustness/SU2_CFD/src/solvers/CSolver.cpp",
+      "object": "/tmp/su2-cfd-gradient-baseline/solvers_CSolver.cpp.o"
+    },
+    {
+      "file": "../su2-cfd-mesh-robustness/SU2_CFD/src/adaptation/CAdapSensors.cpp",
+      "object": "/tmp/su2-cfd-gradient-baseline/adaptation_CAdapSensors.cpp.o"
+    },
+    {
+      "file": "../su2-cfd-mesh-robustness/SU2_CFD/src/adaptation/CGoalMetric.cpp",
+      "object": "/tmp/su2-cfd-gradient-baseline/adaptation_CGoalMetric.cpp.o"
+    }
+  ]
+}

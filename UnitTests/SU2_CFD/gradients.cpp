@@ -27,6 +27,7 @@
 
 #include "catch.hpp"
 #include <array>
+#include <Eigen/QR>
 #include "../../Common/include/geometry/CPhysicalGeometry.hpp"
 #include "../../Common/include/parallelization/CPassiveComm.hpp"
 #include <map>
@@ -164,6 +165,127 @@ TEST_CASE("GG", "[Gradients]") { testGreenGauss<LinearFunction>(); }
 TEST_CASE("LS", "[Gradients]") { testLeastSquares<LinearFunction>(false); }
 
 TEST_CASE("WLS", "[Gradients]") { testLeastSquares<LinearFunction>(true); }
+
+TEST_CASE("Least-squares linear fields on rotated anisotropic simplex meshes", "[Gradients][AnisotropicLS]") {
+  for (const unsigned short nDim : {2, 3}) {
+    auto config = transfer_test::MakeConfig(nDim, "SOLVER= EULER\n");
+    transfer_test::MeshSolution domain(config.get(), transfer_test::BoxMesh(nDim, 4, true), 0);
+    auto& geometry = domain.Fine();
+    const auto nPoint = geometry.GetnPoint();
+    su2activematrix coordinates(nPoint, nDim), field(nPoint, 3);
+    C3DDoubleMatrix R(nPoint, nDim, nDim), gradient(nPoint, 3, nDim);
+    for (auto point = 0ul; point < nPoint; ++point)
+      for (unsigned short d = 0; d < nDim; ++d) coordinates(point, d) = geometry.nodes->GetCoord(point, d);
+    for (const auto size : {1e-7, 1.0, 1e7}) {
+      for (const auto aspect : {1.0, 1e3, 1e6}) {
+        for (const bool weighted : {false, true}) {
+          CAPTURE(nDim, size, aspect, weighted);
+          for (auto point = 0ul; point < nPoint; ++point) {
+            const auto x = size * coordinates(point, 0), y = size * coordinates(point, 1) / aspect;
+            geometry.nodes->SetCoord(point, 0, cos(.37) * x - sin(.37) * y);
+            geometry.nodes->SetCoord(point, 1, sin(.37) * x + cos(.37) * y);
+            if (nDim == 3) geometry.nodes->SetCoord(point, 2, size * coordinates(point, 2));
+            for (unsigned short v = 0; v < 3; ++v) {
+              field(point, v) = size * (v + 1) * .7;
+              for (unsigned short d = 0; d < nDim; ++d)
+                field(point, v) += (v + 1) * (d == 1 ? -2.0 : d + 1.0) * geometry.nodes->GetCoord(point, d);
+            }
+          }
+          SU2_OMP_PARALLEL {
+            computeGradientsLeastSquares(nullptr, MPI_QUANTITIES::SOLUTION, PERIODIC_NONE, geometry, *config,
+                                         weighted, field, 0, 3, -1, gradient, R, false, false);
+          }
+          passivedouble error = 0.0;
+          for (auto point = 0ul; point < geometry.GetnPointDomain(); ++point)
+            for (unsigned short v = 0; v < 3; ++v)
+              for (unsigned short d = 0; d < nDim; ++d)
+                error = max(error, fabs(SU2_TYPE::GetValue(gradient(point, v, d)) / (v + 1) -
+                                        (d == 1 ? -2.0 : d + 1.0)));
+          INFO("maximum gradient error: " << error);
+          CHECK(error < 1e-7);
+        }
+      }
+    }
+  }
+}
+
+TEST_CASE("Correlated least-squares stencils retain the weighted fit and reject rank loss", "[Gradients][AnisotropicLS]") {
+  LinearFunction domain;
+  auto& geometry = *domain.geometry;
+  const auto nPoint = geometry.GetnPoint();
+  su2activematrix field(nPoint, 3);
+  C3DDoubleMatrix R(nPoint, 3, 3), gradient(nPoint, 3, 3, 7.0);
+  for (auto point = 0ul; point < nPoint; ++point) {
+    const auto x = geometry.nodes->GetCoord(point, 0), y = 1e-4 * geometry.nodes->GetCoord(point, 1);
+    geometry.nodes->SetCoord(point, 0, cos(.37) * x - sin(.37) * y);
+    geometry.nodes->SetCoord(point, 1, sin(.37) * x + cos(.37) * y);
+    const auto coord = geometry.nodes->GetCoord(point);
+    field(point, 1) = coord[0] * coord[0] + .5 * coord[1] * coord[2];
+    field(point, 2) = 1.0;
+  }
+  for (const bool weighted : {false, true}) {
+    CAPTURE(weighted);
+    computeGradientsLeastSquares(nullptr, MPI_QUANTITIES::SOLUTION, PERIODIC_NONE, geometry, *domain.config,
+                                 weighted, field, 1, 3, -1, gradient, R, false, false);
+    passivedouble error = 0.0;
+    for (auto point = 0ul; point < geometry.GetnPointDomain(); ++point) {
+      const auto neighbors = geometry.nodes->GetPoints(point);
+      Eigen::MatrixXd A(geometry.nodes->GetnPoint(point), 3);
+      Eigen::VectorXd b(geometry.nodes->GetnPoint(point));
+      size_t row = 0;
+      for (const auto neighbor : neighbors) {
+        su2double dx[3];
+        GeometryToolbox::Distance(3, geometry.nodes->GetCoord(neighbor), geometry.nodes->GetCoord(point), dx);
+        const su2double weight = weighted ? 1.0 / sqrt(GeometryToolbox::SquaredNorm(3, dx)) : su2double(1.0);
+        for (unsigned d = 0; d < 3; ++d) A(row, d) = SU2_TYPE::GetValue(dx[d] * weight);
+        b(row++) = SU2_TYPE::GetValue((field(neighbor, 1) - field(point, 1)) * weight);
+      }
+      const Eigen::VectorXd reference = A.colPivHouseholderQr().solve(b);
+      for (unsigned d = 0; d < 3; ++d) {
+        error = max(error, fabs(SU2_TYPE::GetValue(gradient(point, 1, d)) - reference(d)) /
+                           max(passivedouble(1.0), fabs(reference(d))));
+        CHECK(gradient(point, 0, d) == 7.0);
+        CHECK(gradient(point, 2, d) == 0.0);
+      }
+    }
+    INFO("weighted QR fit error: " << error);
+    CHECK(error < 1e-7);
+  }
+  /*--- Collapse a rotated stencil onto a line; neither stale values nor huge gradients may survive. ---*/
+  for (auto point = 0ul; point < nPoint; ++point) {
+    const auto t = geometry.nodes->GetCoord(point, 0);
+    geometry.nodes->SetCoord(point, 1, 2 * t);
+    geometry.nodes->SetCoord(point, 2, 3 * t);
+  }
+  for (const bool weighted : {false, true}) {
+    computeGradientsLeastSquares(nullptr, MPI_QUANTITIES::SOLUTION, PERIODIC_NONE, geometry, *domain.config,
+                                 weighted, field, 1, 3, -1, gradient, R, false, false);
+    for (auto point = 0ul; point < geometry.GetnPointDomain(); ++point)
+      for (unsigned v = 1; v < 3; ++v)
+        for (unsigned d = 0; d < 3; ++d) CHECK(gradient(point, v, d) == 0.0);
+  }
+}
+
+TEST_CASE("Least-squares gradient kernel timing", "[.AnisotropicTiming]") {
+  for (const auto aspect : {1.0, 1e4}) {
+    LinearFunction field;
+    const auto nPoint = field.geometry->GetnPoint();
+    C3DDoubleMatrix R(nPoint, 3, 3), gradient(nPoint, 1, 3);
+    for (auto point = 0ul; point < nPoint; ++point) {
+      const auto x = field.geometry->nodes->GetCoord(point, 0), y = field.geometry->nodes->GetCoord(point, 1) / aspect;
+      field.geometry->nodes->SetCoord(point, 0, cos(.37) * x - sin(.37) * y);
+      field.geometry->nodes->SetCoord(point, 1, sin(.37) * x + cos(.37) * y);
+    }
+    for (const bool weighted : {false, true}) {
+      const auto start = SU2_MPI::Wtime();
+      for (unsigned repeat = 0; repeat < 2000; ++repeat)
+        computeGradientsLeastSquares(nullptr, MPI_QUANTITIES::SOLUTION, PERIODIC_NONE, *field.geometry, *field.config,
+                                     weighted, field, 0, 1, -1, gradient, R, false, false);
+      std::cout << "LS kernel aspect=" << aspect << " weighted=" << weighted
+                << " seconds=" << SU2_MPI::Wtime() - start << '\n';
+    }
+  }
+}
 
 template <size_t nDim, bool periodic>
 void testLeastSquaresScaling() {

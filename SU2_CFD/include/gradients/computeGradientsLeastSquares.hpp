@@ -34,6 +34,66 @@
 
 namespace detail {
 
+/*! \brief Solve from coordinate rows using streaming Givens QR, without squaring the stencil condition number.
+ *  \note The enclosing gradient loop has already registered the coordinates and field as AD inputs.
+ */
+template<size_t nDim, class NodesType, class FieldType, class GradientType, class RMatrixType>
+void solveLeastSquaresQR(size_t point, size_t begin, size_t end, NodesType& nodes, bool weighted,
+                         const FieldType& field, const RMatrixType& R, GradientType& gradient) {
+  su2double scale[nDim], triangular[nDim][nDim] = {};
+  for (size_t v = begin; v < end; ++v)
+    for (size_t d = 0; d < nDim; ++d) gradient(point, v, d) = 0.0;
+  for (size_t d = 0; d < nDim; ++d) {
+    if (!(R(point, d, d) > 0.0)) return;
+    scale[d] = sqrt(R(point, d, d));
+  }
+  for (const auto neighbor : nodes.GetPoints(point)) {
+    su2double row[nDim], cosine[nDim], sine[nDim];
+    GeometryToolbox::Distance(nDim, nodes.GetCoord(neighbor), nodes.GetCoord(point), row);
+    su2double weight = 1.0;
+    if (weighted) {
+      const auto squared = GeometryToolbox::SquaredNorm(nDim, row);
+      if (!(squared > 0.0)) continue;
+      weight = 1.0 / sqrt(squared);
+    }
+    for (size_t d = 0; d < nDim; ++d) row[d] *= weight / scale[d];
+    for (size_t i = 0; i < nDim; ++i) {
+      const su2double squared = triangular[i][i] * triangular[i][i] + row[i] * row[i];
+      const su2double norm = squared > 0.0 ? sqrt(squared) : su2double(0.0);
+      cosine[i] = norm > 0.0 ? triangular[i][i] / norm : su2double(1.0);
+      sine[i] = norm > 0.0 ? row[i] / norm : su2double(0.0);
+      triangular[i][i] = norm;
+      for (size_t j = i + 1; j < nDim; ++j) {
+        const su2double rotated = cosine[i] * triangular[i][j] + sine[i] * row[j];
+        row[j] = cosine[i] * row[j] - sine[i] * triangular[i][j];
+        triangular[i][j] = rotated;
+      }
+    }
+    for (size_t v = begin; v < end; ++v) {
+      su2double residual = weight * (field(neighbor, v) - field(point, v));
+      for (size_t d = 0; d < nDim; ++d) {
+        const su2double rotated = cosine[d] * gradient(point, v, d) + sine[d] * residual;
+        residual = cosine[d] * residual - sine[d] * gradient(point, v, d);
+        gradient(point, v, d) = rotated;
+      }
+    }
+  }
+  /*--- Column norms are one; reject unresolved directions rather than amplify roundoff. ---*/
+  for (size_t d = 0; d < nDim; ++d) {
+    if (triangular[d][d] > 64 * std::numeric_limits<passivedouble>::epsilon()) continue;
+    for (size_t v = begin; v < end; ++v)
+      for (size_t i = 0; i < nDim; ++i) gradient(point, v, i) = 0.0;
+    return;
+  }
+  for (size_t v = begin; v < end; ++v) {
+    for (size_t i = nDim; i-- > 0;) {
+      for (size_t j = i + 1; j < nDim; ++j) gradient(point, v, i) -= triangular[i][j] * gradient(point, v, j);
+      gradient(point, v, i) /= triangular[i][i];
+    }
+    for (size_t d = 0; d < nDim; ++d) gradient(point, v, d) /= scale[d];
+  }
+}
+
 /*!
  * \brief Prepare Smatrix for 2D.
  * \ingroup FvmAlgos
@@ -70,7 +130,8 @@ FORCEINLINE void computeSmatrix(su2double r11, su2double r12, su2double r13,
 
 /*! \brief Inverse geometric normal matrix, shared by scalar gradients and batched Hessians. */
 template<size_t nDim, class RMatrixType>
-FORCEINLINE void leastSquaresInverse(size_t iPoint, const RMatrixType& Rmatrix, su2double (&Smatrix)[nDim][nDim]) {
+FORCEINLINE bool leastSquaresInverse(size_t iPoint, const RMatrixType& Rmatrix, su2double (&Smatrix)[nDim][nDim],
+                                    bool qrFallback = false) {
   const auto eps = pow(std::numeric_limits<passivedouble>::epsilon(), 2);
   /*--- Equilibrate coordinate directions before factorization. The singularity check must depend on
    *    stencil shape, not coordinate units or axis-aligned stretching. A missing direction stays zero. ---*/
@@ -111,13 +172,15 @@ FORCEINLINE void leastSquaresInverse(size_t iPoint, const RMatrixType& Rmatrix, 
 
   /*--- Detect singular matrix ---*/
 
-  if (detR2 > eps) {
+  /*--- With a row-based retry available, switch before correlation consumes normal-equation precision. ---*/
+  const bool invert = detR2 > (qrFallback ? 1e-6 : eps);
+  if (invert) {
     computeSmatrix(r11, r12, r13, r22, r23, r33, detR2, Smatrix);
     for (size_t iDim = 0; iDim < nDim; ++iDim)
       for (size_t jDim = iDim; jDim < nDim; ++jDim)
         Smatrix[iDim][jDim] /= coordScale[iDim] * coordScale[jDim];
   }
-
+  return invert;
 }
 
 /*!
@@ -125,13 +188,15 @@ FORCEINLINE void leastSquaresInverse(size_t iPoint, const RMatrixType& Rmatrix, 
  * \ingroup FvmAlgos
  * \note See detail::computeGradientsLeastSquares for the
  *       purpose of template "nDim" and "periodic".
+ * \return False when the stencil needs QR; the RHS and AD preaccumulation stay open for the retry.
  */
 template<size_t nDim, bool periodic, class GradientType, class RMatrixType>
-FORCEINLINE void solveLeastSquares(size_t iPoint,
+FORCEINLINE bool solveLeastSquares(size_t iPoint,
                                    size_t varBegin,
                                    size_t varEnd,
                                    const RMatrixType& Rmatrix,
-                                   GradientType& gradient)
+                                   GradientType& gradient,
+                                   bool qrFallback = false)
 {
   /*--- Entries of upper triangular matrix R. ---*/
 
@@ -149,7 +214,8 @@ FORCEINLINE void solveLeastSquares(size_t iPoint,
   }
 
   su2double Smatrix[nDim][nDim];
-  leastSquaresInverse<nDim>(iPoint, Rmatrix, Smatrix);
+  const bool invert = leastSquaresInverse<nDim>(iPoint, Rmatrix, Smatrix, qrFallback);
+  if (qrFallback && !invert) return false;
 
   if (periodic) {
     /*--- Stop preacc here as gradient is in/out. ---*/
@@ -158,7 +224,6 @@ FORCEINLINE void solveLeastSquares(size_t iPoint,
         AD::SetPreaccOut(Smatrix[iDim][jDim]);
     AD::EndPreacc();
   }
-
   /*--- Computation of the gradient: S*c ---*/
 
   for (size_t iVar = varBegin; iVar < varEnd; ++iVar)
@@ -180,6 +245,7 @@ FORCEINLINE void solveLeastSquares(size_t iPoint,
         AD::SetPreaccOut(gradient(iPoint, iVar, iDim));
     AD::EndPreacc();
   }
+  return true;
 }
 
 /*!
@@ -315,8 +381,12 @@ void computeGradientsLeastSquares(CSolver* solver,
     }
     else {
       /*--- Periodic comms are not needed, solve the LS problem for iPoint. ---*/
-
-      solveLeastSquares<nDim, false>(iPoint, varBegin, varEnd, Rmatrix, gradient);
+      if (!solveLeastSquares<nDim, false>(iPoint, varBegin, varEnd, Rmatrix, gradient, true)) {
+        solveLeastSquaresQR<nDim>(iPoint, varBegin, varEnd, *nodes, weighted, field, Rmatrix, gradient);
+        for (size_t iVar = varBegin; iVar < varEnd; ++iVar)
+          for (size_t iDim = 0; iDim < nDim; ++iDim) AD::SetPreaccOut(gradient(iPoint, iVar, iDim));
+        AD::EndPreacc();
+      }
     }
   }
   END_SU2_OMP_FOR
@@ -325,6 +395,7 @@ void computeGradientsLeastSquares(CSolver* solver,
 
   if (periodic)
   {
+    /*--- ponytail: periodic interfaces exchange normal equations; direct QR needs a row/factor exchange. ---*/
     for (size_t iPeriodic = 1; iPeriodic <= config.GetnMarker_Periodic()/2; ++iPeriodic)
     {
       solver->InitiatePeriodicComms(&geometry, &config, iPeriodic, kindPeriodicComm);
