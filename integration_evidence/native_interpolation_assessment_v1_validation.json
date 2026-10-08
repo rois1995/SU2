@@ -1,0 +1,892 @@
+{
+  "base_commit": "d980963c677c3224b3ec49456d6b28f63807c8d4",
+  "branch": "codex/metric-robustness",
+  "scope": "Offline sensor-interpolation diagnostics and actual donor counterexample; no production policy changes or new production speedup. CFD convergence belongs to another session.",
+  "production_files_verified_unchanged": 759,
+  "new_source_sha256": {
+    "integration_evidence/analyze_sensor_interpolation.py": "d377d687572e0d914d7f8b98afab4b2b6deccc86b7c6c399eadba4b6ff0090a9",
+    "UnitTests/Common/adaptation/CNativeField2D_tests.cpp": "717407e839f3d2bc6c14b47dfe142a25f0f91aaa7f22d4dfe25e325f152e2673"
+  },
+  "unit_tests": {
+    "binary_sha256": "872797d0af2ff28e0cbf10066874e6c8ece365a4e8dff077748bc9b9e1290be5",
+    "runs": [
+      {
+        "command": [
+          "nice",
+          "-n",
+          "10",
+          "timeout",
+          "--kill-after=5s",
+          "180s",
+          "mpirun",
+          "--host",
+          "localhost:4",
+          "-np",
+          "1",
+          "/tmp/su2-metric-build/UnitTests/test_driver",
+          "[NativeField2D]"
+        ],
+        "exit_code": 0,
+        "seconds": 0.3953997350035934,
+        "summaries": [
+          [
+            "121",
+            "7"
+          ]
+        ]
+      },
+      {
+        "command": [
+          "nice",
+          "-n",
+          "10",
+          "timeout",
+          "--kill-after=5s",
+          "180s",
+          "mpirun",
+          "--host",
+          "localhost:4",
+          "-np",
+          "2",
+          "/tmp/su2-metric-build/UnitTests/test_driver",
+          "[NativeField2D]"
+        ],
+        "exit_code": 0,
+        "seconds": 0.4134700080030598,
+        "summaries": [
+          [
+            "37",
+            "7"
+          ],
+          [
+            "121",
+            "7"
+          ]
+        ]
+      },
+      {
+        "command": [
+          "nice",
+          "-n",
+          "10",
+          "timeout",
+          "--kill-after=5s",
+          "180s",
+          "mpirun",
+          "--host",
+          "localhost:4",
+          "-np",
+          "4",
+          "/tmp/su2-metric-build/UnitTests/test_driver",
+          "[NativeField2D]"
+        ],
+        "exit_code": 0,
+        "seconds": 0.3719410390040139,
+        "summaries": [
+          [
+            "121",
+            "7"
+          ],
+          [
+            "37",
+            "7"
+          ],
+          [
+            "37",
+            "7"
+          ],
+          [
+            "37",
+            "7"
+          ]
+        ]
+      }
+    ]
+  },
+  "cli_checks": {
+    "passed": true,
+    "runs": [
+      {
+        "name": "constant",
+        "command": [
+          "python3",
+          "/tmp/su2-metric-robustness/integration_evidence/analyze_sensor_interpolation.py",
+          "/tmp/su2-metric-build/native-interpolation-assessment-v1/constant/mesh.su2",
+          "/tmp/su2-metric-build/native-interpolation-assessment-v1/constant/fields.csv",
+          "--hgrad",
+          "1.17",
+          "--output",
+          "/tmp/su2-metric-build/native-interpolation-assessment-v1/constant/report.json"
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "invalid-hgrad",
+        "command": [
+          "python3",
+          "/tmp/su2-metric-robustness/integration_evidence/analyze_sensor_interpolation.py",
+          "/tmp/su2-metric-build/native-interpolation-assessment-v1/constant/mesh.su2",
+          "/tmp/su2-metric-build/native-interpolation-assessment-v1/constant/fields.csv",
+          "--hgrad",
+          "1.0",
+          "--output",
+          "/tmp/su2-metric-build/native-interpolation-assessment-v1/constant/report.json"
+        ],
+        "exit_code": 2
+      }
+    ]
+  },
+  "frozen_reports": {
+    "green_gauss-12000-samples16": {
+      "scope": "Compare SPD interpolation on frozen 2D sensor fields; no production policy is changed.\n\nEdge samples are diagnostics, not a continuous gradation certificate. The centroid\nintegral is a common sensor-only estimator, not geometric-BL complexity quadrature.",
+      "hgrad": 1.3,
+      "subdivisions": 16,
+      "points": 18591,
+      "edges": 54854,
+      "directed_sample_count": 1755328,
+      "self_checks_passed": true,
+      "methods": {
+        "p1": {
+          "maximum_sampled_transport_ratio": 1.4454138245181394,
+          "directed_samples_above_1_plus_1e_5": 183088,
+          "minimum_domination_of_P1": 0.9999999999997077,
+          "samples_weaker_than_P1_by_1e_7": 0,
+          "centroid_sensor_integral_relative_to_P1": 1.0,
+          "worst_sample": {
+            "edge_gids": [
+              6701,
+              14042
+            ],
+            "source_fraction": 0.9375,
+            "destination_fraction": 1.0
+          }
+        },
+        "log": {
+          "maximum_sampled_transport_ratio": 1.0524319132124689,
+          "directed_samples_above_1_plus_1e_5": 106780,
+          "minimum_domination_of_P1": 0.5136545855419364,
+          "samples_weaker_than_P1_by_1e_7": 821878,
+          "centroid_sensor_integral_relative_to_P1": 0.9799040778844799,
+          "worst_sample": {
+            "edge_gids": [
+              6701,
+              14042
+            ],
+            "source_fraction": 0.9375,
+            "destination_fraction": 1.0
+          }
+        },
+        "inverse": {
+          "maximum_sampled_transport_ratio": 1.2180303831741908,
+          "directed_samples_above_1_plus_1e_5": 161977,
+          "minimum_domination_of_P1": 0.30637262075370036,
+          "samples_weaker_than_P1_by_1e_7": 821889,
+          "centroid_sensor_integral_relative_to_P1": 0.9605582090865692,
+          "worst_sample": {
+            "edge_gids": [
+              6701,
+              14042
+            ],
+            "source_fraction": 0.0,
+            "destination_fraction": 0.0625
+          }
+        },
+        "inverse_root": {
+          "maximum_sampled_transport_ratio": 1.00349979074086,
+          "directed_samples_above_1_plus_1e_5": 12848,
+          "minimum_domination_of_P1": 0.3867135277336405,
+          "samples_weaker_than_P1_by_1e_7": 821887,
+          "centroid_sensor_integral_relative_to_P1": 0.973080413287043,
+          "worst_sample": {
+            "edge_gids": [
+              4736,
+              9396
+            ],
+            "source_fraction": 0.9375,
+            "destination_fraction": 1.0
+          }
+        }
+      },
+      "inputs_sha256": {
+        "/tmp/su2-metric-build/native-gradation-residual-v1/inputs/input.su2": "25d26a0ef9a9815ff147ec986805994290b1000702532fb9c0d0f472f27f2ab8",
+        "/tmp/su2-metric-build/native-gradation-residual-v1/frozen-12000/rae/green_gauss-mpi1/fields.csv": "9a0ce8709af04c88040d69a9dfaeda676c86f565544ded75d1352aa336413729"
+      },
+      "P1_endpoint_slopes": {
+        "scope": "Necessary infinitesimal transport condition for affine P1 edges; not a continuous certificate.",
+        "maximum_slope_over_allowed_slope": 6.637798443827228,
+        "endpoint_edge_pairs_above_1_plus_1e_5": 36198,
+        "worst_edge_gids": [
+          6701,
+          14042
+        ],
+        "worst_endpoint_gid": 14042
+      }
+    },
+    "green_gauss-12000-samples4": {
+      "scope": "Compare SPD interpolation on frozen 2D sensor fields; no production policy is changed.\n\nEdge samples are diagnostics, not a continuous gradation certificate. The centroid\nintegral is a common sensor-only estimator, not geometric-BL complexity quadrature.",
+      "hgrad": 1.3,
+      "subdivisions": 4,
+      "points": 18591,
+      "edges": 54854,
+      "directed_sample_count": 438832,
+      "self_checks_passed": true,
+      "methods": {
+        "p1": {
+          "maximum_sampled_transport_ratio": 1.919295523575751,
+          "directed_samples_above_1_plus_1e_5": 51269,
+          "minimum_domination_of_P1": 0.9999999999997661,
+          "samples_weaker_than_P1_by_1e_7": 0,
+          "centroid_sensor_integral_relative_to_P1": 1.0,
+          "worst_sample": {
+            "edge_gids": [
+              6701,
+              14042
+            ],
+            "source_fraction": 0.75,
+            "destination_fraction": 1.0
+          }
+        },
+        "log": {
+          "maximum_sampled_transport_ratio": 1.1601446161636084,
+          "directed_samples_above_1_plus_1e_5": 29748,
+          "minimum_domination_of_P1": 0.5211589053628519,
+          "samples_weaker_than_P1_by_1e_7": 164376,
+          "centroid_sensor_integral_relative_to_P1": 0.9799040778844799,
+          "worst_sample": {
+            "edge_gids": [
+              6701,
+              14042
+            ],
+            "source_fraction": 0.75,
+            "destination_fraction": 1.0
+          }
+        },
+        "inverse": {
+          "maximum_sampled_transport_ratio": 1.335163504101858,
+          "directed_samples_above_1_plus_1e_5": 45223,
+          "minimum_domination_of_P1": 0.30637262075370036,
+          "samples_weaker_than_P1_by_1e_7": 164379,
+          "centroid_sensor_integral_relative_to_P1": 0.9605582090865692,
+          "worst_sample": {
+            "edge_gids": [
+              6701,
+              14042
+            ],
+            "source_fraction": 0.0,
+            "destination_fraction": 0.25
+          }
+        },
+        "inverse_root": {
+          "maximum_sampled_transport_ratio": 1.0145129894576386,
+          "directed_samples_above_1_plus_1e_5": 4391,
+          "minimum_domination_of_P1": 0.39444681081001276,
+          "samples_weaker_than_P1_by_1e_7": 164377,
+          "centroid_sensor_integral_relative_to_P1": 0.973080413287043,
+          "worst_sample": {
+            "edge_gids": [
+              4736,
+              9396
+            ],
+            "source_fraction": 0.75,
+            "destination_fraction": 1.0
+          }
+        }
+      },
+      "inputs_sha256": {
+        "/tmp/su2-metric-build/native-gradation-residual-v1/inputs/input.su2": "25d26a0ef9a9815ff147ec986805994290b1000702532fb9c0d0f472f27f2ab8",
+        "/tmp/su2-metric-build/native-gradation-residual-v1/frozen-12000/rae/green_gauss-mpi1/fields.csv": "9a0ce8709af04c88040d69a9dfaeda676c86f565544ded75d1352aa336413729"
+      },
+      "P1_endpoint_slopes": {
+        "scope": "Necessary infinitesimal transport condition for affine P1 edges; not a continuous certificate.",
+        "maximum_slope_over_allowed_slope": 6.637798443827228,
+        "endpoint_edge_pairs_above_1_plus_1e_5": 36198,
+        "worst_edge_gids": [
+          6701,
+          14042
+        ],
+        "worst_endpoint_gid": 14042
+      }
+    },
+    "green_gauss-12000-samples64": {
+      "scope": "Compare SPD interpolation on frozen 2D sensor fields; no production policy is changed.\n\nEdge samples are diagnostics, not a continuous gradation certificate. The centroid\nintegral is a common sensor-only estimator, not geometric-BL complexity quadrature.",
+      "hgrad": 1.3,
+      "subdivisions": 64,
+      "points": 18591,
+      "edges": 54854,
+      "directed_sample_count": 7021312,
+      "self_checks_passed": true,
+      "methods": {
+        "p1": {
+          "maximum_sampled_transport_ratio": 1.1271280967117299,
+          "directed_samples_above_1_plus_1e_5": 704524,
+          "minimum_domination_of_P1": 0.9999999999997077,
+          "samples_weaker_than_P1_by_1e_7": 0,
+          "centroid_sensor_integral_relative_to_P1": 1.0,
+          "worst_sample": {
+            "edge_gids": [
+              6701,
+              14042
+            ],
+            "source_fraction": 0.984375,
+            "destination_fraction": 1.0
+          }
+        },
+        "log": {
+          "maximum_sampled_transport_ratio": 1.0137573283653554,
+          "directed_samples_above_1_plus_1e_5": 388000,
+          "minimum_domination_of_P1": 0.5136545855419364,
+          "samples_weaker_than_P1_by_1e_7": 3451880,
+          "centroid_sensor_integral_relative_to_P1": 0.9799040778844799,
+          "worst_sample": {
+            "edge_gids": [
+              6701,
+              14042
+            ],
+            "source_fraction": 0.984375,
+            "destination_fraction": 1.0
+          }
+        },
+        "inverse": {
+          "maximum_sampled_transport_ratio": 1.071464676899534,
+          "directed_samples_above_1_plus_1e_5": 597824,
+          "minimum_domination_of_P1": 0.30637262075370036,
+          "samples_weaker_than_P1_by_1e_7": 3451929,
+          "centroid_sensor_integral_relative_to_P1": 0.9605582090865692,
+          "worst_sample": {
+            "edge_gids": [
+              6701,
+              14042
+            ],
+            "source_fraction": 0.0,
+            "destination_fraction": 0.015625
+          }
+        },
+        "inverse_root": {
+          "maximum_sampled_transport_ratio": 1.0008431962564113,
+          "directed_samples_above_1_plus_1e_5": 36333,
+          "minimum_domination_of_P1": 0.3859470335482568,
+          "samples_weaker_than_P1_by_1e_7": 3451911,
+          "centroid_sensor_integral_relative_to_P1": 0.973080413287043,
+          "worst_sample": {
+            "edge_gids": [
+              4736,
+              9396
+            ],
+            "source_fraction": 0.984375,
+            "destination_fraction": 1.0
+          }
+        }
+      },
+      "inputs_sha256": {
+        "/tmp/su2-metric-build/native-gradation-residual-v1/inputs/input.su2": "25d26a0ef9a9815ff147ec986805994290b1000702532fb9c0d0f472f27f2ab8",
+        "/tmp/su2-metric-build/native-gradation-residual-v1/frozen-12000/rae/green_gauss-mpi1/fields.csv": "9a0ce8709af04c88040d69a9dfaeda676c86f565544ded75d1352aa336413729"
+      },
+      "P1_endpoint_slopes": {
+        "scope": "Necessary infinitesimal transport condition for affine P1 edges; not a continuous certificate.",
+        "maximum_slope_over_allowed_slope": 6.637798443827228,
+        "endpoint_edge_pairs_above_1_plus_1e_5": 36198,
+        "worst_edge_gids": [
+          6701,
+          14042
+        ],
+        "worst_endpoint_gid": 14042
+      }
+    },
+    "green_gauss-60000-samples4": {
+      "scope": "Compare SPD interpolation on frozen 2D sensor fields; no production policy is changed.\n\nEdge samples are diagnostics, not a continuous gradation certificate. The centroid\nintegral is a common sensor-only estimator, not geometric-BL complexity quadrature.",
+      "hgrad": 1.3,
+      "subdivisions": 4,
+      "points": 18591,
+      "edges": 54854,
+      "directed_sample_count": 438832,
+      "self_checks_passed": true,
+      "methods": {
+        "p1": {
+          "maximum_sampled_transport_ratio": 2.6452449113410705,
+          "directed_samples_above_1_plus_1e_5": 34164,
+          "minimum_domination_of_P1": 0.9999999999990175,
+          "samples_weaker_than_P1_by_1e_7": 0,
+          "centroid_sensor_integral_relative_to_P1": 1.0,
+          "worst_sample": {
+            "edge_gids": [
+              1333,
+              12461
+            ],
+            "source_fraction": 0.75,
+            "destination_fraction": 1.0
+          }
+        },
+        "log": {
+          "maximum_sampled_transport_ratio": 1.2804184433820558,
+          "directed_samples_above_1_plus_1e_5": 20157,
+          "minimum_domination_of_P1": 0.3470281072762696,
+          "samples_weaker_than_P1_by_1e_7": 164562,
+          "centroid_sensor_integral_relative_to_P1": 0.954932700970361,
+          "worst_sample": {
+            "edge_gids": [
+              5,
+              15472
+            ],
+            "source_fraction": 0.75,
+            "destination_fraction": 1.0
+          }
+        },
+        "inverse": {
+          "maximum_sampled_transport_ratio": 1.6319191798278343,
+          "directed_samples_above_1_plus_1e_5": 29760,
+          "minimum_domination_of_P1": 0.16692300946644215,
+          "samples_weaker_than_P1_by_1e_7": 164562,
+          "centroid_sensor_integral_relative_to_P1": 0.913960191986043,
+          "worst_sample": {
+            "edge_gids": [
+              5,
+              15472
+            ],
+            "source_fraction": 0.0,
+            "destination_fraction": 0.25
+          }
+        },
+        "inverse_root": {
+          "maximum_sampled_transport_ratio": 1.0443186442873598,
+          "directed_samples_above_1_plus_1e_5": 3187,
+          "minimum_domination_of_P1": 0.23710240425876847,
+          "samples_weaker_than_P1_by_1e_7": 164562,
+          "centroid_sensor_integral_relative_to_P1": 0.9366785237898289,
+          "worst_sample": {
+            "edge_gids": [
+              14779,
+              16025
+            ],
+            "source_fraction": 0.25,
+            "destination_fraction": 0.0
+          }
+        }
+      },
+      "inputs_sha256": {
+        "/tmp/su2-metric-build/native-gradation-residual-v1/inputs/input.su2": "25d26a0ef9a9815ff147ec986805994290b1000702532fb9c0d0f472f27f2ab8",
+        "/tmp/su2-metric-build/native-gradation-residual-v1/frozen-60000/rae/green_gauss-mpi1/fields.csv": "27cf0b4af210e551ee01d327f39a330d5d81a2a7d84b9467faea6e7743a373cc"
+      },
+      "P1_endpoint_slopes": {
+        "scope": "Necessary infinitesimal transport condition for affine P1 edges; not a continuous certificate.",
+        "maximum_slope_over_allowed_slope": 12.200233218686401,
+        "endpoint_edge_pairs_above_1_plus_1e_5": 26972,
+        "worst_edge_gids": [
+          1333,
+          12461
+        ],
+        "worst_endpoint_gid": 12461
+      }
+    },
+    "quadratic_least_squares-12000-samples4": {
+      "scope": "Compare SPD interpolation on frozen 2D sensor fields; no production policy is changed.\n\nEdge samples are diagnostics, not a continuous gradation certificate. The centroid\nintegral is a common sensor-only estimator, not geometric-BL complexity quadrature.",
+      "hgrad": 1.3,
+      "subdivisions": 4,
+      "points": 18591,
+      "edges": 54854,
+      "directed_sample_count": 438832,
+      "self_checks_passed": true,
+      "methods": {
+        "p1": {
+          "maximum_sampled_transport_ratio": 1.863452846971144,
+          "directed_samples_above_1_plus_1e_5": 50032,
+          "minimum_domination_of_P1": 0.9999999999997583,
+          "samples_weaker_than_P1_by_1e_7": 0,
+          "centroid_sensor_integral_relative_to_P1": 1.0,
+          "worst_sample": {
+            "edge_gids": [
+              6701,
+              14042
+            ],
+            "source_fraction": 0.75,
+            "destination_fraction": 1.0
+          }
+        },
+        "log": {
+          "maximum_sampled_transport_ratio": 1.1503216177325417,
+          "directed_samples_above_1_plus_1e_5": 28661,
+          "minimum_domination_of_P1": 0.5351982545092957,
+          "samples_weaker_than_P1_by_1e_7": 164391,
+          "centroid_sensor_integral_relative_to_P1": 0.9809781626535524,
+          "worst_sample": {
+            "edge_gids": [
+              9418,
+              14619
+            ],
+            "source_fraction": 0.75,
+            "destination_fraction": 1.0
+          }
+        },
+        "inverse": {
+          "maximum_sampled_transport_ratio": 1.3087195211762759,
+          "directed_samples_above_1_plus_1e_5": 43792,
+          "minimum_domination_of_P1": 0.3194591288368641,
+          "samples_weaker_than_P1_by_1e_7": 164391,
+          "centroid_sensor_integral_relative_to_P1": 0.9626592472318253,
+          "worst_sample": {
+            "edge_gids": [
+              6701,
+              14042
+            ],
+            "source_fraction": 0.0,
+            "destination_fraction": 0.25
+          }
+        },
+        "inverse_root": {
+          "maximum_sampled_transport_ratio": 1.0137718606332373,
+          "directed_samples_above_1_plus_1e_5": 2943,
+          "minimum_domination_of_P1": 0.40825878535608656,
+          "samples_weaker_than_P1_by_1e_7": 164391,
+          "centroid_sensor_integral_relative_to_P1": 0.9742517190141545,
+          "worst_sample": {
+            "edge_gids": [
+              907,
+              2474
+            ],
+            "source_fraction": 0.75,
+            "destination_fraction": 1.0
+          }
+        }
+      },
+      "inputs_sha256": {
+        "/tmp/su2-metric-build/native-gradation-residual-v1/inputs/input.su2": "25d26a0ef9a9815ff147ec986805994290b1000702532fb9c0d0f472f27f2ab8",
+        "/tmp/su2-metric-build/native-gradation-residual-v1/frozen-12000/rae/quadratic_least_squares-mpi1/fields.csv": "edd7e5c91fc5da2fe9658b0565c515dc652a59ccbd916859e7af2af790ec6f7e"
+      },
+      "P1_endpoint_slopes": {
+        "scope": "Necessary infinitesimal transport condition for affine P1 edges; not a continuous certificate.",
+        "maximum_slope_over_allowed_slope": 6.25880858997868,
+        "endpoint_edge_pairs_above_1_plus_1e_5": 35471,
+        "worst_edge_gids": [
+          6701,
+          14042
+        ],
+        "worst_endpoint_gid": 14042
+      }
+    },
+    "quadratic_least_squares-60000-samples4": {
+      "scope": "Compare SPD interpolation on frozen 2D sensor fields; no production policy is changed.\n\nEdge samples are diagnostics, not a continuous gradation certificate. The centroid\nintegral is a common sensor-only estimator, not geometric-BL complexity quadrature.",
+      "hgrad": 1.3,
+      "subdivisions": 4,
+      "points": 18591,
+      "edges": 54854,
+      "directed_sample_count": 438832,
+      "self_checks_passed": true,
+      "methods": {
+        "p1": {
+          "maximum_sampled_transport_ratio": 3.497777249059571,
+          "directed_samples_above_1_plus_1e_5": 36715,
+          "minimum_domination_of_P1": 0.9999999999985948,
+          "samples_weaker_than_P1_by_1e_7": 0,
+          "centroid_sensor_integral_relative_to_P1": 1.0,
+          "worst_sample": {
+            "edge_gids": [
+              2150,
+              12006
+            ],
+            "source_fraction": 0.75,
+            "destination_fraction": 1.0
+          }
+        },
+        "log": {
+          "maximum_sampled_transport_ratio": 1.478485680485361,
+          "directed_samples_above_1_plus_1e_5": 21767,
+          "minimum_domination_of_P1": 0.23331157361304292,
+          "samples_weaker_than_P1_by_1e_7": 164544,
+          "centroid_sensor_integral_relative_to_P1": 0.9355933952320264,
+          "worst_sample": {
+            "edge_gids": [
+              2150,
+              12006
+            ],
+            "source_fraction": 0.75,
+            "destination_fraction": 1.0
+          }
+        },
+        "inverse": {
+          "maximum_sampled_transport_ratio": 1.8193524751456058,
+          "directed_samples_above_1_plus_1e_5": 31519,
+          "minimum_domination_of_P1": 0.09719079794197238,
+          "samples_weaker_than_P1_by_1e_7": 164544,
+          "centroid_sensor_integral_relative_to_P1": 0.8786550151105028,
+          "worst_sample": {
+            "edge_gids": [
+              488,
+              6777
+            ],
+            "source_fraction": 1.0,
+            "destination_fraction": 0.75
+          }
+        },
+        "inverse_root": {
+          "maximum_sampled_transport_ratio": 1.038432183055626,
+          "directed_samples_above_1_plus_1e_5": 2954,
+          "minimum_domination_of_P1": 0.1495119277910698,
+          "samples_weaker_than_P1_by_1e_7": 164544,
+          "centroid_sensor_integral_relative_to_P1": 0.908499653758687,
+          "worst_sample": {
+            "edge_gids": [
+              7008,
+              11383
+            ],
+            "source_fraction": 0.25,
+            "destination_fraction": 0.0
+          }
+        }
+      },
+      "inputs_sha256": {
+        "/tmp/su2-metric-build/native-gradation-residual-v1/inputs/input.su2": "25d26a0ef9a9815ff147ec986805994290b1000702532fb9c0d0f472f27f2ab8",
+        "/tmp/su2-metric-build/native-gradation-residual-v1/frozen-60000/rae/quadratic_least_squares-mpi1/fields.csv": "52e16aaedb9c0676295195fb7e00cfc00a079e7cc49b12ab96dfda1f4dcbcb33"
+      },
+      "P1_endpoint_slopes": {
+        "scope": "Necessary infinitesimal transport condition for affine P1 edges; not a continuous certificate.",
+        "maximum_slope_over_allowed_slope": 20.65664288218172,
+        "endpoint_edge_pairs_above_1_plus_1e_5": 30012,
+        "worst_edge_gids": [
+          2150,
+          12006
+        ],
+        "worst_endpoint_gid": 12006
+      }
+    },
+    "weighted_least_squares-12000-samples4": {
+      "scope": "Compare SPD interpolation on frozen 2D sensor fields; no production policy is changed.\n\nEdge samples are diagnostics, not a continuous gradation certificate. The centroid\nintegral is a common sensor-only estimator, not geometric-BL complexity quadrature.",
+      "hgrad": 1.3,
+      "subdivisions": 4,
+      "points": 18591,
+      "edges": 54854,
+      "directed_sample_count": 438832,
+      "self_checks_passed": true,
+      "methods": {
+        "p1": {
+          "maximum_sampled_transport_ratio": 1.742592991416052,
+          "directed_samples_above_1_plus_1e_5": 54890,
+          "minimum_domination_of_P1": 0.999999999999966,
+          "samples_weaker_than_P1_by_1e_7": 0,
+          "centroid_sensor_integral_relative_to_P1": 1.0,
+          "worst_sample": {
+            "edge_gids": [
+              4673,
+              9288
+            ],
+            "source_fraction": 0.75,
+            "destination_fraction": 1.0
+          }
+        },
+        "log": {
+          "maximum_sampled_transport_ratio": 1.1526931756361487,
+          "directed_samples_above_1_plus_1e_5": 38096,
+          "minimum_domination_of_P1": 0.5972507168878525,
+          "samples_weaker_than_P1_by_1e_7": 164250,
+          "centroid_sensor_integral_relative_to_P1": 0.9834205006767572,
+          "worst_sample": {
+            "edge_gids": [
+              4673,
+              9288
+            ],
+            "source_fraction": 0.75,
+            "destination_fraction": 1.0
+          }
+        },
+        "inverse": {
+          "maximum_sampled_transport_ratio": 1.3038897390604358,
+          "directed_samples_above_1_plus_1e_5": 46915,
+          "minimum_domination_of_P1": 0.38013383093207276,
+          "samples_weaker_than_P1_by_1e_7": 164259,
+          "centroid_sensor_integral_relative_to_P1": 0.9674333887810663,
+          "worst_sample": {
+            "edge_gids": [
+              4673,
+              9288
+            ],
+            "source_fraction": 0.0,
+            "destination_fraction": 0.25
+          }
+        },
+        "inverse_root": {
+          "maximum_sampled_transport_ratio": 1.0046233272399148,
+          "directed_samples_above_1_plus_1e_5": 1980,
+          "minimum_domination_of_P1": 0.4704710241947908,
+          "samples_weaker_than_P1_by_1e_7": 164257,
+          "centroid_sensor_integral_relative_to_P1": 0.9760234661721894,
+          "worst_sample": {
+            "edge_gids": [
+              7230,
+              16380
+            ],
+            "source_fraction": 0.75,
+            "destination_fraction": 1.0
+          }
+        }
+      },
+      "inputs_sha256": {
+        "/tmp/su2-metric-build/native-gradation-residual-v1/inputs/input.su2": "25d26a0ef9a9815ff147ec986805994290b1000702532fb9c0d0f472f27f2ab8",
+        "/tmp/su2-metric-build/native-gradation-residual-v1/frozen-12000/rae/weighted_least_squares-mpi1/fields.csv": "45b40c205a09877d9464f9fc8f0856e2ef69311d207ec45b5ff2587069abc1cc"
+      },
+      "P1_endpoint_slopes": {
+        "scope": "Necessary infinitesimal transport condition for affine P1 edges; not a continuous certificate.",
+        "maximum_slope_over_allowed_slope": 5.584412223725404,
+        "endpoint_edge_pairs_above_1_plus_1e_5": 35349,
+        "worst_edge_gids": [
+          4673,
+          9288
+        ],
+        "worst_endpoint_gid": 9288
+      }
+    },
+    "weighted_least_squares-60000-samples4": {
+      "scope": "Compare SPD interpolation on frozen 2D sensor fields; no production policy is changed.\n\nEdge samples are diagnostics, not a continuous gradation certificate. The centroid\nintegral is a common sensor-only estimator, not geometric-BL complexity quadrature.",
+      "hgrad": 1.3,
+      "subdivisions": 4,
+      "points": 18591,
+      "edges": 54854,
+      "directed_sample_count": 438832,
+      "self_checks_passed": true,
+      "methods": {
+        "p1": {
+          "maximum_sampled_transport_ratio": 4.911064972861786,
+          "directed_samples_above_1_plus_1e_5": 35215,
+          "minimum_domination_of_P1": 0.9999999999996265,
+          "samples_weaker_than_P1_by_1e_7": 0,
+          "centroid_sensor_integral_relative_to_P1": 1.0,
+          "worst_sample": {
+            "edge_gids": [
+              5451,
+              6482
+            ],
+            "source_fraction": 0.75,
+            "destination_fraction": 1.0
+          }
+        },
+        "log": {
+          "maximum_sampled_transport_ratio": 1.5427757110650187,
+          "directed_samples_above_1_plus_1e_5": 24456,
+          "minimum_domination_of_P1": 0.1511950328253722,
+          "samples_weaker_than_P1_by_1e_7": 163725,
+          "centroid_sensor_integral_relative_to_P1": 0.9430528933640084,
+          "worst_sample": {
+            "edge_gids": [
+              5451,
+              6482
+            ],
+            "source_fraction": 0.75,
+            "destination_fraction": 1.0
+          }
+        },
+        "inverse": {
+          "maximum_sampled_transport_ratio": 2.248739308382981,
+          "directed_samples_above_1_plus_1e_5": 30536,
+          "minimum_domination_of_P1": 0.05213150066253165,
+          "samples_weaker_than_P1_by_1e_7": 163725,
+          "centroid_sensor_integral_relative_to_P1": 0.8939149002163737,
+          "worst_sample": {
+            "edge_gids": [
+              5451,
+              6482
+            ],
+            "source_fraction": 0.0,
+            "destination_fraction": 0.25
+          }
+        },
+        "inverse_root": {
+          "maximum_sampled_transport_ratio": 1.0288217442729506,
+          "directed_samples_above_1_plus_1e_5": 2339,
+          "minimum_domination_of_P1": 0.08485206285818882,
+          "samples_weaker_than_P1_by_1e_7": 163725,
+          "centroid_sensor_integral_relative_to_P1": 0.9184657768540868,
+          "worst_sample": {
+            "edge_gids": [
+              13905,
+              14781
+            ],
+            "source_fraction": 0.75,
+            "destination_fraction": 1.0
+          }
+        }
+      },
+      "inputs_sha256": {
+        "/tmp/su2-metric-build/native-gradation-residual-v1/inputs/input.su2": "25d26a0ef9a9815ff147ec986805994290b1000702532fb9c0d0f472f27f2ab8",
+        "/tmp/su2-metric-build/native-gradation-residual-v1/frozen-60000/rae/weighted_least_squares-mpi1/fields.csv": "b92252f0d85559cafd531895272b067fa50f71a99deab3c180e339c642675892"
+      },
+      "P1_endpoint_slopes": {
+        "scope": "Necessary infinitesimal transport condition for affine P1 edges; not a continuous certificate.",
+        "maximum_slope_over_allowed_slope": 41.02063832698171,
+        "endpoint_edge_pairs_above_1_plus_1e_5": 27632,
+        "worst_edge_gids": [
+          5451,
+          6482
+        ],
+        "worst_endpoint_gid": 6482
+      }
+    }
+  },
+  "BL_transition": {
+    "scope": "Independent flat-wall synthetic counterexample of the current actual-position BL fade, with an exactly uniform sensor. No RAE or production BL-policy change. Global ADAP_HGRAD transport is distinct from local BL growth.",
+    "first_height": 1e-05,
+    "BL_growth": 1.2,
+    "thickness": 0.02,
+    "hgrad": 1.3,
+    "cases": [
+      {
+        "uniform_sensor_normal_size": 0.05,
+        "full_band_normal_size": 0.003281818181818181,
+        "fade_width": 0.0019999999999999983,
+        "minimum_width_required_by_normal_size_bound": 0.17806610177267707,
+        "endpoint_transport_ratio": 172.53518813424805,
+        "sampled_max_transport_ratio": 1.0647743352611692,
+        "violating_directed_subsegments": 128
+      },
+      {
+        "uniform_sensor_normal_size": 20.0,
+        "full_band_normal_size": 0.003281818181818181,
+        "fade_width": 0.0019999999999999983,
+        "minimum_width_required_by_normal_size_bound": 76.21738510160529,
+        "endpoint_transport_ratio": 27605630.10147968,
+        "sampled_max_transport_ratio": 1.2260344070190672,
+        "violating_directed_subsegments": 128
+      }
+    ],
+    "oracle_sha256": "c88454bb75383ec2fd756f760369efa5391b8c10c8db2f616f3d443d826dc4b4"
+  },
+  "scalar_P1_refinement_example": {
+    "scope": "Isotropic unit-edge P1 derivative condition with fine endpoint fixed; illustrative, no complexity solve.",
+    "hgrad": 1.3,
+    "fine_size": 0.01,
+    "nodally_permitted_coarse_size": 0.27236426446749107,
+    "largest_coarse_size_passing_P1_infinitesimal_bound": 0.03832810611036082,
+    "coarse_metric_increase_factor": 50.49699450711648
+  },
+  "independent_quarter_audit_agreement": true,
+  "other_branch": {
+    "name": "codex/native-unsteady-performance",
+    "head": "e6995fbff565955a5677ffcbcc66af9acf96a8f1",
+    "FieldPatch_Blend_identical": true,
+    "production_not_modified_or_built": true
+  },
+  "numerical_decision": "No tested interpolation swap qualifies as a continuous gradation remedy; each weakens the current P1 target and still has sampled violations. Retain production geometric BL and interpolation policies for now.",
+  "acceptance": {
+    "diagnostic_checks_passed": true,
+    "continuous_sensor_gradation_fixed": false,
+    "global_composed_BL_gradation_fixed": false,
+    "AD_or_3D_production_checks_required": false
+  },
+  "next": "Prototype interpolation-aware sensor constraints with complexity/MPI/cost checks; separately define acceptance of narrow geometric BL fades; pin ungraded demand before considering a representation change.",
+  "probe_events": [
+    {
+      "event": "reader attribute probe",
+      "result": "Mesh.nDim lookup failed before assessment; corrected to array dimensions; all eight comparisons then completed."
+    },
+    {
+      "event": "initial local MPI launch",
+      "result": "Sandbox denied loopback sockets before tests; failed log retained; authorized local-MPI rerun passes."
+    },
+    {
+      "event": "summary parser",
+      "result": "ANSI color sequences hid numerical summaries from receipt regex; stripped ANSI and parsed original passing logs; no test rerun or gate change."
+    },
+    {
+      "event": "other worktree status",
+      "result": "Default status failed on stale externals/eigen submodule metadata; no edit made; status ignoring submodules and read-only Blend comparison completed."
+    }
+  ],
+  "physical_archive": "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/native_interpolation_assessment_v1",
+  "documentation": "Papers/SENSOR_INTERPOLATION_GRADATION.md"
+}

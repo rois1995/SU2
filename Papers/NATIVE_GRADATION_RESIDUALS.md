@@ -1,5 +1,7 @@
 # Native sensor gradation: convergence and active stencils
 
+Follow-up: SENSOR_INTERPOLATION_GRADATION.md records the measured interpolation alternatives, local P1 slope check and separate BL-fade counterexample. No production representation change was accepted by that assessment.
+
 This pass starts from 2f532a2a2e65954dca68cfe769be53919ad1e7a9 on codex/metric-robustness. It follows NATIVE_GRADATION_WORK.md and fixes its remaining nodal sensor violations. Only CSolver::ComputeMetric production code changes. Geometric BL evaluation, Hessians, flow gradients, remeshing and steady/unsteady driver behavior retain their preceding implementations. CFD residual convergence belongs to the other session and is outside this work.
 
 ## Diagnosis and implementation
