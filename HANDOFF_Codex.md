@@ -1402,3 +1402,15 @@ cluster checkout. Non-force push to origin(rois1995/SU2) succeeded at
 0af90ff5e09a858b15ea2198341208d53812ee7b. Campaign README now directs remote
 checkout; bundle is optional. Goal still ACTIVE; cluster execution/scaling
 and repeated local cost measurements remain pending. No heavy job active.
+
+Local frozen repetition campaign started at native_adaptation_partition_v1/
+frozen_repeats_v1. First weighted Euler-to-BL M3/M4 controls terminalPASS:
+37.763226/41.732095 seconds, same archived12c72828 test executable and762
+production source pins. Shared sampler observed all4 ranks, no competing
+compute samples; independent mesh/target audits and repeats still pending.
+Updated frozen runner uses shared sampler/root-relative paths and checks
+immutable small inputs at exit. No owned heavy job now. User cluster Git1.8.3.1
+requires checkout instead of switch; README corrected. GitLab Eigen clone
+server-load failure: retry pinned submodule, no dependency version change.
+Cluster pilots now one repetition, M4original plus weighted M4/M3/M2, actual
+twoevents; schedule sequentially before 3repeat/long-window scaling campaign.

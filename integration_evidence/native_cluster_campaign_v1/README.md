@@ -6,7 +6,7 @@ source pins. The branch is published in `rois1995/SU2`. In a checkout of that fo
 
 ```bash
 git fetch origin codex/native-unsteady-performance
-git switch --track origin/codex/native-unsteady-performance
+git checkout -b codex/native-unsteady-performance origin/codex/native-unsteady-performance
 git submodule update --init --recursive
 ```
 
@@ -16,7 +16,18 @@ database. The previously supplied bundle remains an optional offline checkpoint.
 
 Build optimized primal-double executables with MPI and debug symbols, OpenMP off,
 CGNS enabled and tests enabled, using the MPI/compiler installation that launches
-jobs. Build `SU2_CFD` and `test_driver`; use `build-native` as build directory or
+jobs. For a fresh build directory, the native-only setup is:
+
+```bash
+CC=mpicc CXX=mpicxx python3 meson.py setup build-native --buildtype=debugoptimized \
+  -Dwith-mpi=enabled -Dwith-omp=false -Denable-tests=true -Denable-cgns=true \
+  -Denable-autodiff=false -Denable-directdiff=false \
+  -Denable-mixedprec=false -Denable-singleprec=false -Denable-mmg=false
+./ninja -C build-native -j2 SU2_CFD/src/SU2_CFD UnitTests/test_driver
+```
+
+Load the same GCC/MPI environment as your jobs before configuring. MMG is not
+required for this native-only campaign. Build `SU2_CFD` and `test_driver`; use `build-native` as build directory or
 set `SU2_CFD_BIN`/`SU2_TEST_BIN` to their paths inside the checkout. Keep the build
 log/options and run the native MPI regressions before scaling. The campaign
 checks all 762 validated C++ source pins and input hashes before running; it
@@ -34,12 +45,14 @@ Start with four ranks and two actual adaptations, then inspect the exported
 independent mesh/metric/history gates:
 
 ```bash
-qsub -pe mpi 4 -v BENCH_KIND=frozen_euler_to_bl,REPEATS=3 integration_evidence/native_cluster_campaign_v1/RunNativeSGE.sh
-qsub -pe mpi 4 -v BENCH_KIND=frozen_bl_to_euler,REPEATS=3 integration_evidence/native_cluster_campaign_v1/RunNativeSGE.sh
-qsub -pe mpi 4 -v BENCH_KIND=actual_euler_to_bl,REPEATS=3,ADAPT_EVENTS=2 integration_evidence/native_cluster_campaign_v1/RunNativeSGE.sh
-qsub -pe mpi 4 -v BENCH_KIND=actual_bl_to_euler,REPEATS=3,ADAPT_EVENTS=2 integration_evidence/native_cluster_campaign_v1/RunNativeSGE.sh
+qsub -pe mpi 4 -v BENCH_KIND=frozen_euler_to_bl,REPEATS=1,ADAP_WORKERS=4:3:2 integration_evidence/native_cluster_campaign_v1/RunNativeSGE.sh
+qsub -pe mpi 4 -v BENCH_KIND=frozen_bl_to_euler,REPEATS=1,ADAP_WORKERS=4:3:2 integration_evidence/native_cluster_campaign_v1/RunNativeSGE.sh
+qsub -pe mpi 4 -v BENCH_KIND=actual_euler_to_bl,REPEATS=1,ADAPT_EVENTS=2,ADAP_WORKERS=4:3:2 integration_evidence/native_cluster_campaign_v1/RunNativeSGE.sh
+qsub -pe mpi 4 -v BENCH_KIND=actual_bl_to_euler,REPEATS=1,ADAPT_EVENTS=2,ADAP_WORKERS=4:3:2 integration_evidence/native_cluster_campaign_v1/RunNativeSGE.sh
 ```
 
+Submit these pilots sequentially (or use SGE `-hold_jid` dependencies). Their
+purpose is to check the build/MPI/data collection before a large matrix.
 Each allocation includes the original N-worker partition as a control, then
 weighted partitions with workers N, N/2 and N/4 sequentially, rotating order across
 three repetitions. To choose workers explicitly, pass `ADAP_WORKERS=4:3:2`.
@@ -47,7 +60,8 @@ three repetitions. To choose workers explicitly, pass `ADAP_WORKERS=4:3:2`.
 `actual_bl_to_euler` is Euler from the original BL grid, without a BL metric.
 No `ADAP_HESSIAN_NOISE` filtering is enabled.
 
-After successful pilots, increase N through 8,16,32 and request ten actual
+After successful independently audited pilots, set `REPEATS=3`, increase N
+through 8,16,32 and request ten actual
 adaptation events with `ADAPT_EVENTS=10`: RANS runs 2200 steps, Euler 1100.
 Later try 64,96,192 only where the previous size merits it. This small RAE mesh
 will expose an overdecomposition limit; it is not representative of a large
