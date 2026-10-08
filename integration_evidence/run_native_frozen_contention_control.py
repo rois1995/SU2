@@ -1,11 +1,12 @@
 from pathlib import Path
 import argparse,json,hashlib,subprocess,os,time,signal,sys,shutil
+from native_process_sampler import compute_processes
 parser=argparse.ArgumentParser(description='Source-pinned frozen native remeshing, one contention-aware MPI job.')
 parser.add_argument('case',type=Path);parser.add_argument('manifest',type=Path);parser.add_argument('fixture',type=Path)
 parser.add_argument('--config',type=Path,help='Override config while keeping the exact frozen sensor/grid fixture')
 parser.add_argument('--ranks',type=int,choices=(1,2,4),default=4)
 args=parser.parse_args()
-r=Path('/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated');e=r/'integration_evidence';case=args.case.resolve();manifest=args.manifest.resolve();prior=json.loads(manifest.read_text());binary=Path(prior['archived_binary'])
+r=Path(__file__).resolve().parent.parent;e=r/'integration_evidence';case=args.case.resolve();manifest=args.manifest.resolve();prior=json.loads(manifest.read_text());binary=Path(prior['archived_binary'])
 def sha(p):
  h=hashlib.sha256()
  with p.open('rb') as f:
@@ -39,11 +40,14 @@ def machine_sample(previous):
  now=cpu_ticks();total=now[0]-previous[0];idle=now[1]-previous[1]
  psi=Path('/proc/pressure/cpu').read_text();avg10=float(psi.split('avg10=',1)[1].split()[0])
  sample=dict(monotonic=time.monotonic(),busy_fraction=(1-idle/total if total else 0),cpu_pressure=psi.strip(),cpu_pressure_avg10=avg10,loadavg=Path('/proc/loadavg').read_text().strip())
+ sample['compute_processes']=compute_processes(case)
+ owned=[item for item in sample['compute_processes'] if item['owned_solver']]
+ sample.update(owned_ranks_observed=len(owned),observed_aggregate_rank_rss_kib=sum(item['memory_kib'].get('VmRSS',0) for item in owned))
  record['machine_samples'].append(sample);return now,sample
 previous=cpu_ticks();time.sleep(5)
 while True:
  previous,sample=machine_sample(previous)
- busy=[s for s in subprocess.check_output(['ps','-eo','pid,stat,comm'],text=True).splitlines()[1:] if len(s.split())==3 and 'Z' not in s.split()[1] and (s.split()[2] in ('ninja','cc1plus','test_driver') or s.split()[2].startswith('SU2_CFD'))]
+ busy=[item for item in sample['compute_processes'] if not item['owned_solver']]
  record.update(phase='waiting_for_machine',busy=busy);save()
  if busy or sample['busy_fraction']>(os.cpu_count()-args.ranks-1)/os.cpu_count() or sample['cpu_pressure_avg10']>10:quiet=None
  elif quiet is None:quiet=time.monotonic()
@@ -74,4 +78,12 @@ with (case/'solver.log').open('x') as log:
     try:child.wait(timeout=10)
     except subprocess.TimeoutExpired:os.killpg(child.pid,signal.SIGKILL);child.wait()
     code=124;break
-record.update(phase='terminal',solver_exit=code,elapsed_seconds=time.monotonic()-start);record.pop('child_pid',None);save();assert code==0 and (case/'solver.log').read_text().count('All tests passed')==args.ranks;print(case.name,record['elapsed_seconds'],flush=True)
+record.update(phase='terminal',solver_exit=code,elapsed_seconds=time.monotonic()-start);record.pop('child_pid',None)
+active=[sample for sample in record['machine_samples'] if 'elapsed_seconds' in sample]
+record['observed_peak_aggregate_rank_rss_kib']=max((sample['observed_aggregate_rank_rss_kib'] for sample in active if sample['owned_ranks_observed']==args.ranks),default=None)
+record['memory_scope']='Host-local rank RSS sampled at five-second intervals; lower bound on simultaneous peak, not remesher-only memory. Rank CSV HWM includes complete frozen-process setup.'
+record['competing_compute_samples']=[sample['elapsed_seconds'] for sample in active if any(not item['owned_solver'] for item in sample['compute_processes'])]
+save()
+assert all(sha(case/name)==digest for name,digest in record['inputs_sha256'].items()),'Frozen input changed during execution'
+assert code==0 and (case/'solver.log').read_text().count('All tests passed')==args.ranks
+print(case.name,record['elapsed_seconds'],flush=True)

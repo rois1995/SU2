@@ -1414,3 +1414,16 @@ requires checkout instead of switch; README corrected. GitLab Eigen clone
 server-load failure: retry pinned submodule, no dependency version change.
 Cluster pilots now one repetition, M4original plus weighted M4/M3/M2, actual
 twoevents; schedule sequentially before 3repeat/long-window scaling campaign.
+
+USER CONSTRAINT 2026-10-08: STOP local performance assessments. Future timing/
+scaling campaigns belong on the cluster. Do not launch more local performance
+controls or restart this campaign without explicit user authorization.
+Frozen original-M4 r1 solver terminalPASS47.609295s. M3/M4 independent mesh,
+transported target, first-height/geometry and timing-accounting audits PASS.
+Original-M4 independent audit(pid3011304) terminated with SIGTERM at user request;
+its orchestration handle1254 terminalexit1. No PASS for interrupted audit.
+No owned heavy job remains. All grids/sensors/logs/source pins preserved in
+native_adaptation_partition_v1/frozen_repeats_v1; stopped receipts distinguish
+completed controls from cancelled audit. No timing recommendation from single
+controls. Goal ACTIVE/incomplete: cluster results, repeated totalcost evidence
+and practical scaling/memory limits remain required.
