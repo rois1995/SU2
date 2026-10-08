@@ -2,9 +2,17 @@
 
 Compile `codex/native-unsteady-performance`. Validated production C++ checkpoint:
 `99aa0d7f725b0c872f969d6bd64c6ee9f8414165`; campaign-only commits retain those C++
-source pins. This local branch has not been pushed. Transfer a complete checkout
-with initialized build dependencies, including this campaign and its inputs.
-Do not copy a worktree `.git` pointer without its object database.
+source pins. The branch is published in `rois1995/SU2`. In a checkout of that fork:
+
+```bash
+git fetch origin codex/native-unsteady-performance
+git switch --track origin/codex/native-unsteady-performance
+git submodule update --init --recursive
+```
+
+Use a complete checkout with initialized build dependencies; the campaign and
+inputs are tracked. Do not copy a worktree `.git` pointer without its object
+database. The previously supplied bundle remains an optional offline checkpoint.
 
 Build optimized primal-double executables with MPI and debug symbols, OpenMP off,
 CGNS enabled and tests enabled, using the MPI/compiler installation that launches

@@ -1396,3 +1396,9 @@ CPU affinity, retaining inaccessible heavy processes in the local launch gate.
 No owned heavy job now; no push. Goal ACTIVE: repeated fullcost/scaling/memory
 limits and reproducible total improvements remain outstanding. A Git bundle
 will provide branch checkout without pushing. Production sources unchanged.
+
+2026-10-08: User clarified that the performance branch should be pushed for
+cluster checkout. Non-force push to origin(rois1995/SU2) succeeded at
+0af90ff5e09a858b15ea2198341208d53812ee7b. Campaign README now directs remote
+checkout; bundle is optional. Goal still ACTIVE; cluster execution/scaling
+and repeated local cost measurements remain pending. No heavy job active.
