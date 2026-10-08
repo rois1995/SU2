@@ -11,7 +11,82 @@ Historical baseline implementation: `e17a96d301`; detailed measurements and repl
 script are in `integration_evidence/metric_robustness_v2_validation.json` and
 `integration_evidence/check_rae2822_metric_constraints.py`.
 
-## Current implementation status (2026-10-08)
+## Curved-wall QR recovery improvement (2026-10-08)
+
+Commit `6312fee370` adds a supported cubic correction to the existing opt-in
+quadratic sensor recovery. It applies at solid-wall points on grown stencils,
+using the same complete two-ring samples and MPI exchange. Interior recovery
+and the integrated geometric BL composition policy retain their existing paths.
+Receipt: `integration_evidence/curved_wall_recovery_v1_validation.json`.
+
+The smallest SVD direction must be separated from the other directions by a
+factor greater than 10. The fit includes tangential and mixed cubic terms but
+omits the pure thin-direction cubic term, which can be inseparable from lower
+orders on three sampled layer levels. It requires two remaining residual degrees
+of freedom, full rank, and a Frobenius bound on the 2-norm condition at most 1000.
+Unsupported extensions use the existing quadratic fit; failed quadratic fits
+still retain WLS. Noise covariance, roundoff suppression and fit diagnostics now
+use the actual number of fit coefficients. The cubic-fit count uses the existing
+statistics reduction, so no extra collective or stencil ring is introduced.
+
+Tests now measure wall-interior and wall-edge transverse, tangential and mixed
+derivatives separately. New physical accuracy/convergence assertions would fail
+on the old measurements; finite tensors alone are insufficient. All 147 selected
+serial cases passed (379112 assertions), and 31 MPI-safe cases per rank passed on
+two/four ranks. The differentiated header syntax probes pass; QR is still rejected
+in differentiated, symmetry and periodic configurations.
+
+| Refined manufactured case | Before | After | Improvement |
+|---|---:|---:|---:|
+| Doubly curved/skewed 3D: worst wall transverse relative error | 12.8851% | 6.48616% | 49.7% lower |
+| Same 3D case: wall-interior transverse relative error | 12.8851% | 5.67254% | 56.0% lower |
+| Same 3D case: wall-interior tangential absolute error | 0.566651 | 0.225506 | 60.2% lower |
+| Same 3D case: wall-interior mixed absolute error | 0.194001 | 0.0833072 | 57.1% lower |
+| Curved 2D AR1000: wall transverse relative error | 0.34688% | 0.110208% | 68.2% lower |
+| Curved 2D AR1000: wall-interior mixed absolute error | 0.0514686 | 0.00247931 | 95.2% lower |
+| Curved 3D AR1000 without span curvature/skew: wall-interior transverse relative error | 0.551333% | 0.107329% | 80.5% lower |
+
+These errors use analytic derivatives in local layer coordinates. The new method
+does not improve every mesh resolution: on the coarse doubly curved/skewed 3D
+case the worst transverse wall error rises from 12.1190% to 14.0426%, then falls
+to 6.48616% on refinement. Unsupported edge/corner fits retain the earlier errors.
+Interior errors retain the baseline values. WLS's curved/skewed accuracy weakness
+is unchanged; this improvement applies when `NUM_METHOD_HESS=QUADRATIC_LEAST_SQUARES`.
+
+Twelve final frozen RANS/SA checks passed independent unchanged-state, SPD,
+size/aspect, sensor transport and MPI gates, plus reported complexity checks
+(M6 complexity is also independently integrated). The RAE fixture uses
+1584 corrected point/sensor fits on each partition. Maximum metric MPI differences
+are 6.54e-12 (QR/noise off), 9.44e-11 (QR/noise on), and 1.09e-12 (WLS).
+M6 retains its true symmetry and WLS path, with the numerical MPI gate passing.
+The noise default stays zero. Geometric composed-field transport residuals remain
+diagnostics owned by the BL integration work; this is not a certificate of their
+gradation or of improved forces, flow convergence, wall y+ or native 3D remeshing.
+
+Rejected candidates are preserved: stronger inverse-distance weighting improved
+the difficult case but more than doubled a simpler case's wall-normal error;
+unrestricted enrichment worsened 2D interior eigenvalue errors; full cubic fits
+produced unreliable thin-direction/edge derivatives. Final enrichment is limited
+to wall points and supported tangential/mixed terms. Independent Python screens
+are exploratory; the final acceptance measurements come from the C++ solver chain.
+
+Raw fields, tests, rejected candidates, scripts, paired performance measurements
+and input/binary/source pins are saved outside `/tmp` under
+`/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/curved_wall_recovery_v1`.
+All heavy work runs sequentially with nice 10, build jobs 1, MPI ranks at most 4
+and one library thread per rank. Three alternating paired serial RAE QR/noise-off
+runs give median Hessian time 0.193526s before and 0.193830s after (about +0.16%).
+Median metric/process times are 9.34549/10.3061s before and 9.18881/10.2028s after.
+This small sample under contention establishes no measurable slowdown on this
+fixture; it is not a general speedup claim. Different sensor fields also change
+complexity/gradation work. Raw observations are in the validation receipt.
+
+Next: add QR symmetry support so the real ONERA wing can exercise direct recovery;
+then periodic support. Better WLS/edge reconstruction and accepted adaptation/flow
+checks remain open. A complete cubic fit would require more independent normal
+layer samples; assess its communication and noise cost before extending rings.
+
+## Numerical stability implementation (2026-10-08)
 
 Source commits `f27bae8dcf` and `3d57a82801` fix the previously failing strict
 metric MPI gates without changing the geometric BL policy. Receipt:
