@@ -132,6 +132,48 @@ void CheckSameMeshResolve(const std::string& name, const std::string& options) {
 
 }  // namespace
 
+TEST_CASE("Steady adaptation consumes its completed metric; public remeshing refreshes it",
+          "[Adaptation][SteadyMetricReuse]") {
+  class CountingDriver : public TestDriver {
+   public:
+    using TestDriver::TestDriver;
+    unsigned metricCalls = 0;
+    void ComputeMetric() override {
+      ++metricCalls;
+      const su2double metric[3][3] = {{4, 0, 0}, {0, 4, 0}, {0, 0, 4}};
+      for (auto p = 0ul; p < Geometry()->GetnPoint(); ++p) FlowSolver()->GetNodes()->SetMetricMat(p, metric);
+    }
+  };
+  const std::string name = "steady_metric_reuse";
+  if (SU2_MPI::GetRank() == MASTER_NODE) {
+    simplex_test::WriteSU2Mesh(simplex_test::MakeSimplexMesh(2, 4, simplex_test::Marker2D), name + ".su2");
+    std::ofstream cfg(name + ".cfg");
+    cfg << "SOLVER= EULER\nMACH_NUMBER= 0.5\nAOA= 0\nMGLEVEL= 0\n"
+           "MESH_FORMAT= SU2\nMESH_FILENAME= " << name << ".su2\n"
+           "MARKER_FAR= (left, right, upper, lower_a, lower_b)\n"
+           "CONV_NUM_METHOD_FLOW= ROE\nMUSCL_FLOW= NO\nITER= 1\nCFL_NUMBER= 1\n"
+           "COMPUTE_METRIC= YES\nADAP_SENSOR= MACH\nADAP_LOOP= YES\nADAP_REMESHER= NATIVE_CAVITY\n"
+           "ADAP_SIZES= (8)\nADAP_SUBITER= (1)\nADAP_FLOW_ITER= (1)\nADAP_FLOW_CFL= (1)\n"
+           "ADAP_HMIN= 0.01\nADAP_HMAX= 2\nADAP_HAUSD= 1e-8\nADAP_TRANSFER= BARYCENTRIC\n"
+           "OUTPUT_FILES= (RESTART)\nWRT_ADAP_MESH= NO\nRESTART_FILENAME= " << name << "_solution\n"
+           "MESH_OUT_FILENAME= " << name << "_mesh\nCONV_FILENAME= " << name << "_history\n";
+  }
+  SU2_MPI::Barrier(SU2_MPI::GetComm());
+  {
+    CountingDriver driver(const_cast<char*>((name + ".cfg").c_str()), 1, SU2_MPI::GetComm());
+    driver.StartSolver();
+    CHECK(driver.metricCalls == 2);  // One computation on each mesh; the old loop makes three.
+    const auto result = driver.RemeshFromMetric();
+    CHECK(driver.metricCalls == 3);  // Explicit remeshing must recompute from the current solution.
+    CHECK(result.status == CRemeshResult::Status::COMPLETE);
+    driver.Finalize();
+  }
+  SU2_MPI::Barrier(SU2_MPI::GetComm());
+  if (SU2_MPI::GetRank() == MASTER_NODE)
+    for (const auto& entry : std::filesystem::directory_iterator(std::filesystem::current_path()))
+      if (entry.path().filename().string().find(name) == 0) std::filesystem::remove(entry.path());
+}
+
 TEST_CASE("Time window state, same mesh, Euler with multigrid", "[Adaptation]") {
   /*--- Convected vortex. ---*/
   CheckSameMeshResolve("fp_state_euler", "SOLVER= EULER\nKIND_VERIFICATION_SOLUTION= INVISCID_VORTEX\n"
