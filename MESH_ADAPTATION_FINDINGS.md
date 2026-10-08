@@ -11,6 +11,48 @@ Historical baseline implementation: `e17a96d301`; detailed measurements and repl
 script are in `integration_evidence/metric_robustness_v2_validation.json` and
 `integration_evidence/check_rae2822_metric_constraints.py`.
 
+## Publication provenance and limits (checked 2026-10-08)
+
+The implementation combines published method families, standard numerical
+linear algebra and experimental engineering choices. The references checked
+here explain the foundations and known failure modes; this audit does not mean
+every recent change was derived from these papers before implementation.
+Manufactured tests and frozen solution checks are empirical evidence, not a
+published convergence proof or evidence of improved aerodynamic predictions.
+
+| Topic | Relevant primary source | Relationship to this branch |
+|---|---|---|
+| Curved, highly stretched CFD meshes | Mavriplis, *Revisiting the Least-squares Procedure for Gradient Reconstruction on Unstructured Meshes*, NASA/CR-2003-212683 (2003), [public report](https://ntrs.nasa.gov/citations/20040070704) | Documents serious gradient errors from stretching combined with curvature and dependence on weighting/discretization. It motivates examining this failure mode; it does not establish our Hessian algorithm. |
+| Quadratic recovery in node-centered finite volumes | Diskin and Thomas, *Effects of Mesh Irregularities on Accuracy of Finite-Volume Discretization Schemes*, AIAA 2012-0609, [public full paper](https://ntrs.nasa.gov/api/citations/20120001451/downloads/20120001451.pdf), particularly Sections II and VII | Studies quadratic least-squares fits, growing insufficient stencils to neighbors of neighbors, and curved/high-aspect meshes. These are directly relevant method choices. Their fits, flux discretizations and accuracy results differ from our weighted sensor Hessian recovery. |
+| Polynomial recovery and Hessian theory | Zhang and Naga (2005), [gradient recovery](https://epubs.siam.org/doi/10.1137/S1064827503402837); Guo, Zhang and Zhao (2014 preprint), [Hessian Recovery for Finite Element Methods](https://arxiv.org/html/1406.3108v2), Sections 2.2 and 3 | Polynomial patch fitting is established. The Hessian paper applies gradient recovery twice; our QR path differentiates one scalar polynomial fit directly. Its finite-element assumptions and superconvergence results cannot be claimed for our finite-volume RANS implementation or partial cubic basis. |
+| Metric intersection | Alauzet, Frey, George and Mohammadi (2007), [3D transient fixed point mesh adaptation](https://doi.org/10.1016/j.jcp.2006.08.012) | Supports intersection through simultaneous reduction of quadratic forms. The scaled A+B whitening frame in this branch is our numerically motivated algebraic evaluation of that operation; no source identified here specifically prescribes this implementation. |
+| Anisotropic gradation and RANS adaptation | Alauzet, [Size gradation control of anisotropic meshes](https://doi.org/10.1016/j.finel.2009.06.028); Alauzet and Frazza (2021), [Feature-based and goal-oriented anisotropic mesh adaptation for RANS applications in aeronautics and aerospace](https://doi.org/10.1016/j.jcp.2021.110340) | Establish the wider metric/gradation and RANS adaptation setting. They do not validate this branch's exact geometric BL composition or new Hessian correction. Geometric BL/gradation implementation remains owned by the integration branch. |
+
+Choices that must remain explicitly identified as implementation heuristics:
+
+- Wall-only partial cubic enrichment, omission of the pure thin-direction cubic,
+  the SVD separation threshold 10, condition-bound threshold 1000, and requirement
+  of two residual degrees of freedom. These were selected through stencil
+  support analysis and manufactured comparisons, not copied as a complete
+  published algorithm. The coarse-grid regression and unsupported edges below
+  remain material limits.
+- Residual-based Hessian uncertainty and the exact spectral noise shrinkage
+  policy. Noise remains optional and defaults to zero; preservation of physical
+  shocks and wall features has not been established by the frozen checks.
+- Global-ID accumulation order for adaptation WLS and the choice to reuse the
+  existing compensated summation helper. These address measured floating-point
+  partition dependence, not a new mathematical reconstruction method.
+- QR/SVD conditioning and rank checks are standard numerical tools. The exact
+  basis, scaling, fallback thresholds and MPI stencil packaging are engineering
+  decisions that need their own tests.
+
+Next literature assessment: compare direct and twice-recovered Hessians on
+one-sided, curved, stretched node-centered finite-volume stencils; assess
+boundary/symmetry extensions and anisotropy-uniform error bounds before choosing
+further recovery changes. Public sources above are accessible. Full papers on
+these specific boundary-layer recovery questions, especially any used for the
+user's pyAMG workflow, would be useful additional evidence.
+
 ## Curved-wall QR recovery improvement (2026-10-08)
 
 Commit `6312fee370` adds a supported cubic correction to the existing opt-in
