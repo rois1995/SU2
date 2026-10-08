@@ -35,7 +35,8 @@ def main():
     for campaign in args.campaigns:
         for result in json.loads((campaign / "results.json").read_text()):
             directory = campaign / result["name"]
-            rows = history(directory / "history.csv")
+            path = directory / "history.csv"
+            rows = history(path) if path.exists() else []
             if not rows or not result["finite_residuals"]:
                 report["runs"].append(result)
                 continue
@@ -73,13 +74,18 @@ def main():
                     assert wall, "Boundary vertices must be identified before counting interior floors"
                     ids = get("PointID").astype(int)
                     interior = ~np.isin(ids, list(wall))
-                    clipped = (get("Nu_Tilde") <= 1e-15) & interior
-                    record["state"]["interior_sa_floor_ids"] = ids[clipped].tolist()
-                    record["state"]["interior_sa_floor_count"] = int(clipped.sum())
+                    if "NEGATIVE" in opts.get("SA_OPTIONS", ""):
+                        record["state"]["interior_negative_sa_count"] = int(((get("Nu_Tilde") < 0) & interior).sum())
+                        record["state"]["min_nu_tilde"] = float(get("Nu_Tilde").min())
+                    else:
+                        clipped = (get("Nu_Tilde") <= 1e-15) & interior
+                        record["state"]["interior_sa_floor_ids"] = ids[clipped].tolist()
+                        record["state"]["interior_sa_floor_count"] = int(clipped.sum())
             report["runs"].append(record)
             series.append((result["name"], rows))
             inputs = result["inputs"]
-            group = (inputs["mesh"]["sha256"], inputs.get("restart", {}).get("sha256"), opts["KIND_TURB_MODEL"])
+            group = (inputs["mesh"]["sha256"], inputs.get("restart", {}).get("sha256"), opts["KIND_TURB_MODEL"],
+                     opts.get("SA_OPTIONS", "NONE"), opts.get("SST_OPTIONS", "NONE"))
             if group not in controls:
                 controls[group] = (result["name"], rows, opts)
             else:

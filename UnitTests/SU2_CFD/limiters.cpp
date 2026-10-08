@@ -30,6 +30,8 @@
 #include "../../SU2_CFD/include/solvers/CTurbSolver.hpp"
 #include "../../SU2_CFD/include/limiters/computeLimiters.hpp"
 #include "../../SU2_CFD/include/numerics/util.hpp"
+#include "../../SU2_CFD/include/numerics/turbulent/turb_sa_edge_flux.hpp"
+#include "../../SU2_CFD/include/variables/CTurbSAVariable.hpp"
 #include "adaptation/TransferTestCase.hpp"
 #include "../UnitQuadTestCase.hpp"
 #include "../../SU2_CFD/include/variables/CPrimitiveIndices.hpp"
@@ -262,4 +264,101 @@ TEST_CASE("Positive SA updates recover from the floor without removing relative 
       }
     }
   }
+}
+
+TEST_CASE("SST bound-active updates do not freeze the other variable", "[Limiters][UnderRelaxation]") {
+  auto config = transfer_test::MakeConfig(2, "SOLVER= RANS\nREYNOLDS_NUMBER= 1e6\nKIND_TURB_MODEL= SST\n");
+  transfer_test::MeshSolution domain(config.get(), transfer_test::BoxMesh(2, 2, false), 0);
+  auto* solver = static_cast<CTurbSolver*>(domain.solver[0][TURB_SOL]);
+  auto* nodes = solver->GetNodes();
+  auto* flow = domain.solver[0][FLOW_SOL];
+  const CPrimitiveIndices<unsigned short> indices(false, false, 2, 0);
+  const auto kMin = solver->GetLowerLimit(0), wMin = solver->GetLowerLimit(1);
+  for (auto point = 0ul; point < domain.Fine().GetnPoint(); ++point) {
+    flow->GetNodes()->SetSolution(point, 0, 2.0);
+    flow->GetNodes()->GetPrimitive(point)[indices.Density()] = 2.0;
+  }
+  for (const auto scenario : {0, 1, 2, 3, 4}) {
+    CAPTURE(scenario);
+    const auto k = scenario == 1 ? 2.0 : (scenario == 3 ? 2 * kMin : kMin);
+    const auto w = scenario == 1 || scenario == 2 ? wMin : 10.0;
+    const auto dk = scenario == 4 ? 0.01 : -0.8;
+    for (auto point = 0ul; point < domain.Fine().GetnPoint(); ++point) {
+      nodes->SetSolution(point, 0, k);
+      nodes->SetSolution(point, 1, w);
+      nodes->SetSolution_Old(point, 0, k);
+      nodes->SetSolution_Old(point, 1, w);
+      solver->LinSysSol(point, 0) = dk;
+      solver->LinSysSol(point, 1) = -4.0;
+    }
+    SU2_OMP_PARALLEL {
+      solver->CompleteImplicitIteration(&domain.Fine(), domain.solver[0], config.get());
+    }
+    for (auto point = 0ul; point < domain.Fine().GetnPointDomain(); ++point) {
+      const auto alpha = nodes->GetUnderRelaxation(point);
+      if (scenario == 0) {
+        CHECK(alpha == 1.0);
+        CHECK(nodes->GetSolution(point, 0) == kMin);
+        CHECK(nodes->GetSolution(point, 1) == Approx(8.0));
+      } else if (scenario == 1) {
+        CHECK(alpha == 1.0);
+        CHECK(nodes->GetSolution(point, 0) == Approx(1.6));
+        CHECK(nodes->GetSolution(point, 1) == wMin);
+      } else if (scenario == 2) {
+        CHECK(alpha == 0.0);
+        CHECK(nodes->GetSolution(point, 0) == kMin);
+        CHECK(nodes->GetSolution(point, 1) == wMin);
+      } else {
+        CHECK(alpha > 0.0);
+        CHECK(alpha < 1e-6);
+        CHECK(nodes->GetSolution(point, 1) == Approx(10.0).epsilon(1e-6));
+        CHECK(nodes->GetSolution(point, 0) >= kMin);
+        if (scenario == 4) CHECK(nodes->GetSolution(point, 0) > kMin);
+      }
+    }
+  }
+}
+
+TEST_CASE("Native SA-negative diffusion is consistent with the published nonlinear operator", "[Turbulence][SANegDiffusion]") {
+  auto config = transfer_test::MakeConfig(2, "SOLVER= RANS\nREYNOLDS_NUMBER= 1e6\nKIND_TURB_MODEL= SA\n"
+                                           "SA_OPTIONS= (NEGATIVE, WITHFT2)\n");
+  const su2double velocity[2] = {0.0, 0.0};
+  CEulerVariable flow(1.0, velocity, 1.0, 3, 2, 4, config.get());
+  CTurbSAVariable scalar(0.0, 0.0, 3, 2, 1, config.get());
+  const CEulerVariable::CIndices<unsigned short> indices(2, 0);
+  for (auto point = 0ul; point < 3; ++point) {
+    flow.GetPrimitive(point)[indices.Density()] = 1.0;
+    flow.GetPrimitive(point)[indices.LaminarViscosity()] = 1.0;
+  }
+  const EdgeSide<CTurbSAVariable> side{scalar, &flow, {}, {}};
+  CScalarFlux_SA<su2double, decltype(indices), 2, 1> flux(*config);
+  const CPair<su2double> rho{1.0, 1.0};
+  for (const su2double phi : {-2.0, 2.0}) {
+    CAPTURE(phi);
+    su2double lastError = 1e30;
+    for (const su2double h : {0.01, 0.001, 0.0001}) {
+      scalar.SetSolution(0, 0, phi);
+      scalar.SetSolution(1, 0, phi + h);
+      scalar.SetSolution(2, 0, phi - h);
+      const auto right = flux.coefficients(indices, 0ul, side, 1ul, side, rho);
+      const auto left = flux.coefficients(indices, 0ul, side, 2ul, side, rho);
+      const auto diffusion = (right.i(0) - left.i(0)) / h;
+      // For nu=1, nu_tilde=phi+x: [fn+chi*fn'+cb2]/sigma from ICCFD7-1902 Eq.14.
+      const auto exact = phi < 0 ? -0.567 : 2.433;
+      const auto error = fabs(diffusion - exact);
+      if (phi < 0) CHECK(error < lastError);
+      else CHECK(error < 2e-8);
+      lastError = error;
+      if (h == 0.0001) CHECK(diffusion == Approx(exact).margin(2e-8));
+    }
+  }
+  // The two row coefficients may differ, but their edge energy contribution must dissipate.
+  for (const su2double left : {-20.0, -2.0, -0.1, 0.1, 2.0, 20.0})
+    for (const su2double right : {-20.0, -2.0, -0.1, 0.1, 2.0, 20.0}) {
+      if (left == right) continue;
+      scalar.SetSolution(0, 0, left);
+      scalar.SetSolution(1, 0, right);
+      const auto coefficient = flux.coefficients(indices, 0ul, side, 1ul, side, rho);
+      CHECK((left * coefficient.i(0) - right * coefficient.j(0)) / (left - right) > 0.0);
+    }
 }

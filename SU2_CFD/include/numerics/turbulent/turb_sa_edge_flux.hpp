@@ -138,15 +138,15 @@ class CScalarFlux_SA
     const Double nu_ij = 0.5 * (nu_i + nu_j);
     const Double nuTilde_ij = 0.5 * (nuTilde_i + nuTilde_j);
 
-    /*--- fn is only ever != 1 under SA_OPTIONS= NEGATIVE, and then only where the row's own
-     * nu_tilde pulls the coefficient negative; without it (nu + nu_tilde going anti-diffusive)
-     * the equation diverges, see Allmaras, Johnson & Spalart's negative SA modification. ---*/
-    const Double fn_i = fn(((1.0 + cb2) * nuTilde_ij - cb2 * nuTilde_i) / nu_ij);
-    const Double fn_j = fn(((1.0 + cb2) * nuTilde_ij - cb2 * nuTilde_j) / nu_ij);
-
     Vector<Double, nVar> D_i, D_j;
-    D_i(0) = (nu_ij + (1.0 + cb2) * nuTilde_ij * fn_i - cb2 * nuTilde_i * fn_i) / sigma;
-    D_j(0) = (nu_ij + (1.0 + cb2) * nuTilde_ij * fn_j - cb2 * nuTilde_j * fn_j) / sigma;
+    D_i(0) = (nu_ij + (1.0 + cb2) * nuTilde_ij - cb2 * nuTilde_i) / sigma;
+    D_j(0) = (nu_ij + (1.0 + cb2) * nuTilde_ij - cb2 * nuTilde_j) / sigma;
+    if (negativeSA) {
+      // SA-neg modifies the shared diffusivity; cb2*|grad(nu_tilde)|^2 is unchanged (ICCFD7-1902 Eq.14).
+      const Double correction = nuTilde_ij * (fn(nuTilde_ij / nu_ij) - 1.0) / sigma;
+      D_i(0) += correction;
+      D_j(0) += correction;
+    }
     for (size_t iVar = 1; iVar < nVar; ++iVar) {
       D_i(iVar) = 0.0;
       D_j(iVar) = 0.0;

@@ -83,7 +83,9 @@ def main():
         if record["status"] == "finished" and not record["finite_residuals"]:
             record["status"] = "invalid_history"
         results.append(record)
-        (output / "results.json").write_text(json.dumps(results, indent=2, allow_nan=False) + "\n")
+        pending = output / "results.pending.json"
+        pending.write_text(json.dumps(results, indent=2, allow_nan=False) + "\n")
+        pending.replace(output / "results.json")
         print(case["name"], record["status"], len(rows), record["last_history"], flush=True)
 
 

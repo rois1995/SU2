@@ -294,10 +294,16 @@ void CTurbSolver::ComputeUnderRelaxationFactorHelper(CSolver** solver_container,
   SU2_OMP_FOR_STAT(omp_chunk_size)
   for (unsigned long iPoint = 0; iPoint < nPointDomain; iPoint++) {
     su2double localUnderRelaxation = 1.0;
+    unsigned short activeLowerBounds = 0;
 
     for (unsigned short iVar = 0; iVar < nVar; iVar++) {
 
       su2double current_sol = nodes->GetSolution(iPoint, iVar);
+      // SST updates already clipped at a lower bound must not throttle the other variable.
+      if (Conservative && current_sol <= lowerlimit[iVar] && LinSysSol(iPoint, iVar) < 0.0) {
+        ++activeLowerBounds;
+        continue;
+      }
       if (Conservative) {
         /* Need to multiply by density if this is a conservative variable */
         current_sol *= solver_container[FLOW_SOL]->GetNodes()->GetDensity(iPoint);
@@ -311,6 +317,8 @@ void CTurbSolver::ComputeUnderRelaxationFactorHelper(CSolver** solver_container,
         localUnderRelaxation = min(allowableRatio / ratio, localUnderRelaxation);
       }
     }
+
+    if (activeLowerBounds == nVar) localUnderRelaxation = 0.0;
 
     /* Cancel tiny updates to avoid non-realizable states, but retain positive SA
      steps so the relative-change limit does not freeze recovery from the floor. */
