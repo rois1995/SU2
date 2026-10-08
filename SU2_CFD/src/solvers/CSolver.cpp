@@ -2898,7 +2898,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
       });
     }
   vector<CBoundaryLayerMetric::Tensor> previous(nativeMetric ? nPoint : 0), inverse(nativeMetric ? nPointDomain : 0);
-  vector<bool> changed(nativeMetric ? nPointDomain : 0);
+  vector<bool> changed(nativeMetric ? nPointDomain : 0), sourceChanged(nativeMetric ? nPoint : 0);
   bool gradationConverged = true;
   unsigned gradationSweeps = 0;
   passivedouble gradationViolation = 1;
@@ -2910,8 +2910,8 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
      *    neighbor order make the result independent of MPI ownership. Only sensor tensors enter these sweeps; no geometric wall tensor or hard-normal reset is propagated. ---*/
     const auto gradationStart = SU2_MPI::Wtime();
     const auto growth = log(config->GetAdap_Hgrad());
-    // ponytail: propagation is synchronous for MPI reproducibility; a work-queue solver needs equivalent ownership semantics.
-    constexpr unsigned maxSweeps = 80;
+    // ponytail: a synchronous frontier preserves MPI order; the round cap still bounds pathological propagation.
+    constexpr unsigned maxSweeps = 256;
     gradationConverged = false;
     for (unsigned sweep = 0; sweep < maxSweeps; ++sweep) {
       ++totalGradationSweeps;
@@ -2921,11 +2921,23 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
       CompleteComms(geometry, config, MPI_QUANTITIES::METRIC);
       for (auto point = nPointDomain; point < nPoint; ++point) base_nodes->GetMetricMat(point, blMetric[point].m);
       haloSeconds += SU2_MPI::Wtime() - haloStart;
+      // Compare after halo exchange so a change across a partition activates the same global stencil.
+      for (auto point = 0ul; point < nPoint; ++point) {
+        sourceChanged[point] = sweep == 0;
+        for (auto i = 0u; i < nDim; ++i)
+          for (auto j = 0u; j < nDim; ++j)
+            sourceChanged[point] = sourceChanged[point] || blMetric[point].m[i][j] != previous[point].m[i][j];
+      }
       previous = blMetric;
-      passivedouble localChange = 0, globalChange = 0;
+      unsigned long localNeedsUpdate = 0, globalNeedsUpdate = 0;
       for (auto point = 0ul; point < nPointDomain; ++point) {
-        ++totalGradedPoints;
+        // Retry attempted corrections even if bounds left the tensor unchanged; that is not a certificate.
+        const bool active = changed[point] || sourceChanged[point] ||
+            std::any_of(metricNeighbors[point].begin(), metricNeighbors[point].end(),
+                        [&](auto neighbor) { return sourceChanged[neighbor]; });
         changed[point] = false;
+        if (!active) continue;
+        ++totalGradedPoints;
         su2double vec[3][3], val[3], work[3];
         CBlasStructure::EigenDecomposition(previous[point].m, vec, val, nDim, work);
         for (auto i = 0u; i < nDim; ++i) {
@@ -2970,27 +2982,16 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
         // The input is already bounded. Retain it exactly when all transported demands are satisfied.
         if (!changed[point]) continue;
         ++totalTensorUpdates;
+        localNeedsUpdate = 1;
         CBlasStructure::EigenDecomposition(current.m, vec, val, nDim, work);
         boundEigenvalues(1, val);
         CBlasStructure::EigenRecomposition(current.m, vec, val, nDim);
       }
-      for (auto point = 0ul; point < nPointDomain; ++point) {
-        if (!changed[point]) continue;  // Its relative change is exactly zero.
-        su2double difference[3][3] = {}, vec[3][3], val[3], work[3];
-        for (auto i = 0u; i < nDim; ++i)
-          for (auto j = 0u; j < nDim; ++j)
-            for (auto a = 0u; a < nDim; ++a)
-              for (auto b = 0u; b < nDim; ++b)
-                difference[i][j] += inverse[point].m[a][i] * (blMetric[point].m[a][b] - previous[point].m[a][b]) *
-                                    inverse[point].m[b][j];
-        CBlasStructure::EigenDecomposition(difference, vec, val, nDim, work);
-        for (auto i = 0u; i < nDim; ++i) localChange = std::max(localChange, fabs(SU2_TYPE::GetValue(val[i])));
-      }
       const auto reductionStart = SU2_MPI::Wtime();
-      CPassiveComm::Allreduce(&localChange, &globalChange, 1, CPassiveComm::Op::MAX);
+      CPassiveComm::Allreduce(&localNeedsUpdate, &globalNeedsUpdate, 1, CPassiveComm::Op::MAX);
       reductionSeconds += SU2_MPI::Wtime() - reductionStart;
       gradationSweeps = sweep + 1;
-      if (globalChange < 1e-8) {
+      if (globalNeedsUpdate == 0) {
         gradationConverged = true;
         break;
       }

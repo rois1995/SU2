@@ -836,3 +836,43 @@ TEST_CASE("Native complexity retains the correct bounded tensor for infeasible t
     }
   }
 }
+
+TEST_CASE("Native sparse gradation reaches a remote demand beyond eighty rounds", "[MetricRobustness]") {
+  constexpr unsigned n = 48;
+  const auto mesh = simplex_test::MakeSimplexMesh(2, n, [](const passivedouble*) { return std::string("far"); });
+  MetricTest test(mesh, "MARKER_FAR= (far)\nADAP_REMESHER= NATIVE_CAVITY\nADAP_HGRAD= 1.01\n"
+                        "ADAP_HMIN= 1e-4\nADAP_HMAX= 10\nADAP_ARMAX= 100\n"
+                        "ADAP_COMPLEXITY= 300\nADAP_ISO_CORNER= NO\n", {1,0,1,0,0,0});
+  auto& H = test.solver[FLOW_SOL]->GetNodes()->GetHessian();
+  const auto seedX = 4./n;
+  for (auto point = 0ul; point < test.Geometry().GetnPoint(); ++point) {
+    const auto* x = test.Geometry().nodes->GetCoord(point);
+    if (fabs(x[0]-seedX)<1e-12 && fabs(x[1]-.5)<1e-12) H(point,0,0)=H(point,0,2)=10000;
+  }
+  const auto output = test.ComputeMetric();
+  INFO(output);
+  CHECK(test.solver[FLOW_SOL]->GetMetricComplexityFinal() == Approx(300).epsilon(2e-6));
+  CHECK(test.solver[FLOW_SOL]->GetMetricComplexityBracketed());
+  if (SU2_MPI::GetRank() == MASTER_NODE) {
+    const auto position = output.find("Native sensor gradation: ");
+    REQUIRE(position != string::npos);
+    CHECK(std::stoul(output.substr(position+string("Native sensor gradation: ").size())) > 80);
+    CHECK(output.find("fixed point reached") != string::npos);
+    CHECK(output.find("iteration limit reached") == string::npos);
+  }
+  su2double localSeedSize = 0, seedSize = 0;
+  for (auto point = 0ul; point < test.Geometry().GetnPointDomain(); ++point) {
+    const auto* x = test.Geometry().nodes->GetCoord(point);
+    if (fabs(x[0]-seedX)<1e-12 && fabs(x[1]-.5)<1e-12) localSeedSize = 1/sqrt(test.Metric(point).m[0][0]);
+  }
+  SU2_MPI::Allreduce(&localSeedSize, &seedSize, 1, MPI_DOUBLE, MPI_MAX, SU2_MPI::GetComm());
+  REQUIRE(seedSize>0);
+  // On the horizontal row, the graph shortest path is exactly its Euclidean distance from the unique fine seed.
+  for (auto point = 0ul; point < test.Geometry().GetnPoint(); ++point) {
+    const auto* x = test.Geometry().nodes->GetCoord(point);
+    if (fabs(x[1]-.5)<1e-12 && x[0]>=seedX) {
+      const auto expected = seedSize+log(1.01)*(x[0]-seedX);
+      CHECK(1/sqrt(test.Metric(point).m[0][0]) == Approx(expected).epsilon(5e-6));
+    }
+  }
+}

@@ -1,5 +1,7 @@
 # Native metric gradation work reduction
 
+Follow-up: NATIVE_GRADATION_RESIDUALS.md records the subsequent active-stencil and stopping-criterion change, which removes the nodal sensor violations described below. This note retains the preceding checkpoint's measurements and limitations.
+
 Built from the validated steady metric-reuse checkpoint f4017c9d705709248e642b312a97ba30abc8d861. The optimization reduces repeated native graded-complexity work. It preserves geometric BL evaluation at actual candidate positions, sensor-only donor storage and intersection with finer sensor demands. No native remeshing, BL geometry, Hessian, flow-gradient or unsteady lifecycle code is changed in this pass.
 
 ## Implementation
