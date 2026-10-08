@@ -12,8 +12,9 @@ Authoritative objective: NATIVE_ADAPTATION_PARTITION_GOAL.md.
 Start with contention-aware old/current fixed-mesh timing controls; then local donor
 indexing, adaptation-cost weighted M=N partitioning and explicit M<=N execution.
 Keep accepted CFD state/history on N ranks and transfer directly from that donor.
-Tracker ACTIVE: user cleared the previous entry and create_goal successfully
-activated the new objective on 2026-10-08. No budget was requested.
+Tracker PAUSED at the user's explicit request while waiting for cluster runs.
+Newly authorized cluster analysis and metric integration proceed as concrete tasks;
+the tracker has not been recreated or marked complete. No budget was requested.
 Fixed-mesh CFD controls started sequentially under native_unsteady_performance_v2:
 cfd_control_euler_from_bl_{old_bare,current_timed,current_bare,old_timed}_v1.
 60 BDF2 steps, 30 inner iterations, same 13386-point BL mesh, adaptation and metric
@@ -1450,3 +1451,34 @@ case collection, rejects a changed pinned source, and also handles Git present
 but an unavailable repository revision. Checks PASS; no real CFD/MPI/metric/
 performance test launched. User must pull scripts on login node and resubmit;
 no C++ changes or solver rebuild. Actual cluster execution remains unverified.
+
+## Downloaded cluster results and post-rebase integration (2026-10-08)
+
+All 16 downloaded N=4 cases independently PASS: eight frozen and eight actual
+unsteady runs, two adaptations each. All 280 collected original files (276242614
+bytes) retain their manifest hashes. Both histories per event have donor snapshots
+and pass the independent CLOSED-policy check with open-farfield area correction.
+First donor conservative states and sensor metrics are exact across the four
+partition modes within each actual workload. Raw evidence: ClusterResults/cases/.
+Assessment and compact numerical/phase receipts:
+integration_evidence/native_cluster_analysis_v1/ASSESSMENT.md and assessment.json.
+All campaigns overlap on node-a-ag2.local and have overlapping allowed CPU sets;
+this does not prove oversubscription but prevents an isolated speedup claim. One
+repeat per mode, N=4 only. Observed weighted M4 full adaptation totals: RANS65.223,
+Euler16.700 s; M3/M2 are larger. RANS metric36.882 s vs remesh27.738 s motivates
+the authorized metric optimizations. MPI reconstruction imbalance remains.
+
+User now requests integrating the post-rebase metric handoff and preparing a
+matched old/new cluster campaign after correctness validation. Source handoff:
+SU2_AdapNoExt/Papers/POST_REBASE_METRIC_HANDOFF.md, validated metric head6285044614;
+current performance baselinee6995fbff5. Read/reviewed functional range including
+carry-over long-path restart fix, stable intersections, deterministic WLS,
+compensated normalization, supported QR wall/symmetry corrections, adaptation-only
+GG simplex recovery, steady metric reuse and active nodal sensor gradation.
+Preserve sensor-only donor P1 and actual-position geometric BL, finer demands,
+fade, M<=N execution, failure/output/restart lifecycle and noise default0.
+Uncertified P1/composed-field gradation stays explicit; no hard-normal reset.
+No new local performance campaign. Build/test jobs wait for machine capacity.
+Unsteady WINDOW_AVERAGE averages |H| every step by definition; PREDICT already
+samples only its scheduled snapshot steps. Steady duplicate metric is removable
+without changing those temporal targets or public refresh semantics.
