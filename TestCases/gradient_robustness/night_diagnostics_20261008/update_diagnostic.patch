@@ -1,0 +1,85 @@
+diff --git a/SU2_CFD/src/integration/CIntegration.cpp b/SU2_CFD/src/integration/CIntegration.cpp
+index 1e24f9768c..aa9d5f06d9 100644
+--- a/SU2_CFD/src/integration/CIntegration.cpp
++++ b/SU2_CFD/src/integration/CIntegration.cpp
+@@ -26,6 +26,9 @@
+  */
+ 
+ #include "../../include/integration/CIntegration.hpp"
++#include <fstream>
++#include <iomanip>
++#include <cstdlib>
+ #include "../../../Common/include/parallelization/omp_structure.hpp"
+ 
+ 
+@@ -49,6 +52,19 @@ void CIntegration::Space_Integration(CGeometry *geometry,
+   bool dual_time = ((config->GetTime_Marching() == TIME_MARCHING::DT_STEPPING_1ST) ||
+                     (config->GetTime_Marching() == TIME_MARCHING::DT_STEPPING_2ND));
+ 
++  auto traceSA = [&](const char* stage) {
++    if (!std::getenv("SU2_SA_TRACE") || omp_get_max_threads() != 1 || size != 1 || MainSolver != TURB_SOL) return;
++    static std::ofstream trace("sa_terms.csv");
++    const std::vector<unsigned long> selected = {1432,2108,2889,3084,3681,3717,6020,6350,6507,7426,8094,10214,12427};
++    for (auto point = 0ul; point < geometry->GetnPointDomain(); ++point) {
++      const auto global = geometry->nodes->GetGlobalIndex(point);
++      if (std::find(selected.begin(), selected.end(), global) == selected.end()) continue;
++      trace << std::setprecision(17) << config->GetInnerIter() << ',' << point << ',' << global << ',' << stage << ','
++            << solver_container[MainSolver]->LinSysRes(point,0) << ',' << geometry->nodes->GetCoord(point,0)
++            << ',' << geometry->nodes->GetCoord(point,1) << ',' << geometry->nodes->GetWall_Distance(point) << '\n';
++    }
++  };
++
+   /*--- Compute inviscid residuals ---*/
+ 
+   switch (config->GetKind_ConvNumScheme()) {
+@@ -60,12 +76,18 @@ void CIntegration::Space_Integration(CGeometry *geometry,
+       break;
+   }
+ 
++  traceSA("convective");
++
+   /*--- Compute viscous residuals ---*/
+   solver_container[MainSolver]->Viscous_Residual(geometry, solver_container, numerics, config, iMesh, iRKStep);
+ 
++  traceSA("convective_viscous");
++
+   /*--- Compute source term residuals ---*/
+   solver_container[MainSolver]->Source_Residual(geometry, solver_container, numerics, config, iMesh);
+ 
++  traceSA("convective_viscous_source");
++
+   /*--- Add viscous and convective residuals, and compute the Dual Time Source term ---*/
+ 
+   if (dual_time)
+diff --git a/SU2_CFD/src/solvers/CTurbSolver.cpp b/SU2_CFD/src/solvers/CTurbSolver.cpp
+index de6d1d98ae..e7372e8db4 100644
+--- a/SU2_CFD/src/solvers/CTurbSolver.cpp
++++ b/SU2_CFD/src/solvers/CTurbSolver.cpp
+@@ -26,6 +26,9 @@
+  */
+ 
+ #include "../../include/solvers/CTurbSolver.hpp"
++#include <fstream>
++#include <iomanip>
++#include <cstdlib>
+ #include "../../../Common/include/parallelization/omp_structure.hpp"
+ #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
+ #include "../../include/solvers/CScalarSolver.inl"
+@@ -321,6 +324,17 @@ void CTurbSolver::ComputeUnderRelaxationFactorHelper(CSolver** solver_container,
+     /* Store the under-relaxation factor for this point. */
+ 
+     nodes->SetUnderRelaxation(iPoint, localUnderRelaxation);
++    if (std::getenv("SU2_SA_TRACE") && omp_get_max_threads() == 1 && SU2_MPI::GetSize() == 1 && nVar == 1) {
++      static std::ofstream trace("sa_updates.csv");
++      static unsigned long iteration = 0;
++      if (iPoint == 0) ++iteration;
++      const std::vector<unsigned long> selected = {1432,2108,2889,3084,3681,3717,6020,6350,6507,7426,8094,10214,12427};
++      if (nodes->GetSolution(iPoint,0) <= 1e-15)
++        trace << std::setprecision(17) << iteration-1 << ',' << iPoint << ',' << nodes->GetSolution(iPoint,0)
++              << ',' << nodes->GetSolution_Old(iPoint,0) << ',' << LinSysRes(iPoint,0) << ',' << LinSysSol(iPoint,0)
++              << ',' << localUnderRelaxation << '\n';
++    }
++
+   }
+   END_SU2_OMP_FOR
+ }

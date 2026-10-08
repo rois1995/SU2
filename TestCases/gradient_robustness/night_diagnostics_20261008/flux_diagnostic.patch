@@ -1,0 +1,71 @@
+diff --git a/SU2_CFD/src/solvers/CTurbSASolver.cpp b/SU2_CFD/src/solvers/CTurbSASolver.cpp
+index 2b2a2d3e18..8d949def10 100644
+--- a/SU2_CFD/src/solvers/CTurbSASolver.cpp
++++ b/SU2_CFD/src/solvers/CTurbSASolver.cpp
+@@ -26,6 +26,9 @@
+  */
+ 
+ #include "../../include/solvers/CTurbSASolver.hpp"
++#include <fstream>
++#include <iomanip>
++#include <cstdlib>
+ #include "../../include/solvers/CScalarSolver.inl"
+ #include "../../include/variables/CTurbSAVariable.hpp"
+ #include "../../include/variables/CFlowVariable.hpp"
+@@ -353,6 +356,56 @@ void CTurbSASolver::Upwind_Residual(CGeometry* geometry, CSolver** solver_contai
+   /*--- nVar is 1, or 4 with the three Langevin equations of stochastic backscatter. ---*/
+   DispatchScheme<CScalarFlux_SA, 1, 4>(config, [&](auto tag) {
+     EdgeFluxResidual<typename decltype(tag)::type>(geometry, solver_container, config, opt);
++    if (std::getenv("SU2_SA_TRACE") && omp_get_max_threads() == 1 && SU2_MPI::GetSize() == 1 && nVar == 1) {
++      using Scheme = typename decltype(tag)::type;
++      constexpr auto dim = Scheme::nDim;
++      const Scheme flux(*config);
++      auto* flowNodes = su2staticcast_p<CFlowVariable*>(solver_container[FLOW_SOL]->GetNodes());
++      const EdgeSide<CTurbVariable> side{*nodes, flowNodes, CMatrixView<const su2double>(geometry->nodes->GetCoord()), {}};
++      static std::ofstream trace("sa_fluxes.csv");
++      const std::vector<unsigned long> selected = {1432,2108,2889,3084,3681,3717,6020,6350,6507,7426,8094,10214,12427};
++      auto options = opt;
++      options.implicit = false;
++      options.lowerLimit = lowerlimit;
++      options.upperLimit = upperlimit;
++      for (auto point = 0ul; point < nPointDomain; ++point) {
++        auto global = geometry->nodes->GetGlobalIndex(point);
++        if (std::find(selected.begin(), selected.end(), global) == selected.end()) continue;
++        su2double convective = 0.0, diffusive = 0.0, twoPoint = 0.0;
++        for (auto edge : geometry->nodes->GetEdges(point)) {
++          const auto i = geometry->edges->GetNode(edge,0), j = geometry->edges->GetNode(edge,1);
++          const auto normal = gatherVariables<dim>(static_cast<unsigned long>(edge), geometry->edges->GetNormal());
++          const auto mass = opt.boundedScalar ? (*solver_container[FLOW_SOL]->GetEdgeMassFluxes())[edge] : 0.0;
++          options.convective = true; options.viscous = false;
++          const auto c = flux.ComputeFlux(options, i, side, j, side, normal, mass);
++          convective += point == i ? c.flux_i(0) : c.flux_j(0);
++          if (opt.boundedScalar) {
++            const auto q = BoundedScalarDivergenceFlux(mass, flowNodes->GetDensity(i), flowNodes->GetDensity(j));
++            convective += (point == i ? -q : q) * nodes->GetSolution(point,0);
++          }
++          options.convective = false; options.viscous = true;
++          const auto d = flux.ComputeFlux(options, i, side, j, side, normal, mass);
++          diffusive += point == i ? d.flux_i(0) : d.flux_j(0);
++          const auto vector = distanceVector<dim>(i, side.coord, j, side.coord);
++          const auto projection = dot(vector,normal) / fmax(squaredNorm(vector), EPS);
++
++          const CPair<su2double> rho{flowNodes->GetDensity(i),flowNodes->GetDensity(j)};
++          CPair<::Vector<su2double, Scheme::nVar>> coeff;
++          if (config->GetKind_Regime() == ENUM_REGIME::COMPRESSIBLE) {
++            if constexpr (std::is_base_of<CUpwScalarBase<su2double, Scheme, CEulerVariable::CIndices<unsigned short>, dim, Scheme::nVar>, Scheme>::value)
++              coeff = flux.coefficients(CEulerVariable::CIndices<unsigned short>(dim,0),i,side,j,side,rho);
++          } else {
++            if constexpr (std::is_base_of<CUpwScalarBase<su2double, Scheme, CIncEulerVariable::CIndices<unsigned short>, dim, Scheme::nVar>, Scheme>::value)
++              coeff = flux.coefficients(CIncEulerVariable::CIndices<unsigned short>(dim,0),i,side,j,side,rho);
++          }
++          const auto delta = nodes->GetSolution(j,0)-nodes->GetSolution(i,0);
++          twoPoint += (point == i ? -coeff.i(0) : coeff.j(0)) * projection * delta;
++        }
++        trace << std::setprecision(17) << config->GetInnerIter() << ',' << global << ',' << nodes->GetSolution(point,0)
++              << ',' << convective << ',' << diffusive << ',' << twoPoint << ',' << LinSysRes(point,0) << '\n';
++      }
++    }
++
+   });
+ }
+ 

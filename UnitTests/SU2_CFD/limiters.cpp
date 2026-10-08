@@ -27,6 +27,7 @@
 
 #include "catch.hpp"
 #include "../../SU2_CFD/include/solvers/CSolver.hpp"
+#include "../../SU2_CFD/include/solvers/CTurbSolver.hpp"
 #include "../../SU2_CFD/include/limiters/computeLimiters.hpp"
 #include "../../SU2_CFD/include/numerics/util.hpp"
 #include "adaptation/TransferTestCase.hpp"
@@ -230,5 +231,35 @@ TEST_CASE("Bounded scalar residual and Jacobian preserve a constant field with v
         CHECK(fabs(scalar->LinSysRes(point, var)) < 1e-11);
         CHECK(fabs(product(point, var)) < 1e-11);
       }
+  }
+}
+
+TEST_CASE("Positive SA updates recover from the floor without removing relative relaxation",
+          "[Limiters][UnderRelaxation]") {
+  auto config = transfer_test::MakeConfig(2, "SOLVER= RANS\nREYNOLDS_NUMBER= 1e6\nKIND_TURB_MODEL= SA\n");
+  transfer_test::MeshSolution domain(config.get(), transfer_test::BoxMesh(2, 2, false), 0);
+  auto* solver = static_cast<CTurbSolver*>(domain.solver[0][TURB_SOL]);
+  auto* nodes = solver->GetNodes();
+  for (const su2double update : {-1e-4, 0.0, 1e-4}) {
+    for (auto point = 0ul; point < domain.Fine().GetnPointDomain(); ++point) {
+      nodes->SetSolution(point, 0, EPS);
+      nodes->SetSolution_Old(point, 0, EPS);
+      solver->LinSysSol(point, 0) = update;
+    }
+    SU2_OMP_PARALLEL {
+      solver->ComputeUnderRelaxationFactorHelper(domain.solver[0], config->GetMaxUpdateFractionSA());
+    }
+    for (auto point = 0ul; point < domain.Fine().GetnPointDomain(); ++point) {
+      const auto relaxation = nodes->GetUnderRelaxation(point);
+      if (update > 0) {
+        CHECK(relaxation > 0.0);
+        CHECK(relaxation < 1e-10);
+        CHECK(relaxation * update == Approx(config->GetMaxUpdateFractionSA() * 2 * EPS).margin(1e-30));
+        nodes->AddClippedSolution(point, 0, relaxation * update, EPS, 1.0);
+        CHECK(nodes->GetSolution(point, 0) > EPS);
+      } else {
+        CHECK(relaxation == (update == 0.0 ? 1.0 : 0.0));
+      }
+    }
   }
 }

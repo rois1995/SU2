@@ -312,11 +312,10 @@ void CTurbSolver::ComputeUnderRelaxationFactorHelper(CSolver** solver_container,
       }
     }
 
-    /* Threshold the relaxation factor in the event that there is
-     a very small value. This helps avoid catastrophic crashes due
-     to non-realizable states by canceling the update. */
-
-    if (localUnderRelaxation < 1e-10) localUnderRelaxation = 0.0;
+    /* Cancel tiny updates to avoid non-realizable states, but retain positive SA
+     steps so the relative-change limit does not freeze recovery from the floor. */
+    if (localUnderRelaxation < 1e-10 && (nVar != 1 || LinSysSol(iPoint, 0) <= 0.0))
+      localUnderRelaxation = 0.0;
 
     /* Store the under-relaxation factor for this point. */
 
