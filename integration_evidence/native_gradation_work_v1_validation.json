@@ -1,5 +1,5 @@
 {
-  "scope": "Native graded-complexity work reduction; cost, MPI, metric invariants and 2D RANS cycle checks; no capped/composed gradation, 3D BL/remeshing, AD derivative or aerodynamic accuracy certificate.",
+  "scope": "Native graded-complexity work reduction: metric cost, MPI, tensor invariants and 2D mesh/BL acceptance. CFD residual convergence belongs to another session and is not an acceptance criterion. No capped/composed gradation, 3D BL/remeshing or AD derivative/runtime certificate.",
   "base_commit": "f4017c9d705709248e642b312a97ba30abc8d861",
   "branch": "codex/metric-robustness",
   "archive": "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/native_gradation_work_v1",
@@ -2019,5 +2019,20 @@
     "3D manufactured no-BL metric coverage, not 3D native remeshing or geometric BL certificate",
     "Forward/reverse AD syntax only",
     "Single cycle and three frozen timing pairs; no general aerodynamic accuracy claim"
-  ]
+  ],
+  "whole_cycle_time_is_performance_evidence": false,
+  "interruption_recovery": {
+    "original_cycle_controller_pid": 3039692,
+    "duplicate_controller_pid": 3040722,
+    "original_cycle_preserved": true,
+    "duplicate_launch_stopped": false,
+    "AD_validated_receipt_preserved": "CSolver-ad-validated-before-interruption.json",
+    "note": "A redundant probe overlapped part of the already-running CFD solve after interruption; cycle wall time is not an isolated performance measurement. Performance.json timings predate this overlap.",
+    "duplicate_launch_finished_naturally": true,
+    "controller_logs_not_used_as_acceptance_evidence": [
+      "ad-cycle-final.log",
+      "cycle-analysis.log"
+    ],
+    "acceptance_evidence": "Validated JSON, solver.log, independent checker logs and capped-and-audit.log; metric benchmark timings predate the redundant probe."
+  }
 }
