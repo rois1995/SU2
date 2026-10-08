@@ -7,16 +7,93 @@ branch continues Hessian/sensor-metric work and validates the shared BL policy.
 See `METRIC_ROBUSTNESS_INTEGRATION.md` for the current implementation contract.
 Older BL experiments and their receipts below are historical evidence.
 This file retains the investigation, implementation status, and deferred work.
-Baseline validated implementation: `e17a96d301`; detailed measurements and replay
+Historical baseline implementation: `e17a96d301`; detailed measurements and replay
 script are in `integration_evidence/metric_robustness_v2_validation.json` and
 `integration_evidence/check_rae2822_metric_constraints.py`.
 
-## Current authorized work (2026-10-07)
+## Current implementation status (2026-10-08)
+
+Source commits `f27bae8dcf` and `3d57a82801` fix the previously failing strict
+metric MPI gates without changing the geometric BL policy. Receipt:
+`integration_evidence/metric_numerical_stability_v1_validation.json`.
+
+- The shared tensor intersection now uses the scaled sum of both inputs as its
+  whitening frame. It evaluates the same generalized spectral maximum while
+  avoiding cancellation from whitening by a nearly rank-one rotated sensor.
+  Independent 90-digit references cover 2D/3D, condition 1e14, input swapping,
+  perturbations and scales 1e-150 to 1e150. Original double evaluation had relative
+  errors 4.61e-4 / 8.80e-4 on the rotated cases; the balanced evaluation is near
+  machine precision. This shared helper also serves BL composition and gradation;
+  their mathematical policy, interpolation and geometry remain unchanged.
+- Adaptation WLS gradient/Hessian accumulation visits neighbors by global ID,
+  including the reused-geometry Hessian path. A temporary vector is reused per
+  calling thread; no persistent weight/stencil cache is added. Ordinary CFD
+  gradient calls retain their existing ordering. Reversing fixture adjacency
+  preserves adaptation derivatives exactly.
+- Primal sensor normalization reuses the existing compensated sum library,
+  whose translation unit protects compensation from fast-math reassociation.
+  Temporary storage is one passive scalar per owned point/sensor (about 1.47MiB
+  on this serial M6 fixture and 0.28MiB on RAE). Differentiated builds retain
+  their active MPI normalization sums; these improvements are not a full AD
+  reproducibility or accuracy certificate.
+
+All 147 selected serial cases passed (378972 assertions); 31 MPI-safe cases per
+rank passed on two/four ranks. The five legacy `[Gradients]` MPI failures also
+occur in the unchanged integration executable: those fixtures use null solver
+communication and inspect incomplete halo data. A broader MPI in-memory mesh
+reader fixture also fails in that executable. Failed logs and baseline runs are
+retained; no production guard or assertion was weakened to obtain these passes.
+Forward/reverse kernel/header syntax probes pass with a valid reverse tape;
+full differentiated solver behavior remains unvalidated.
+
+All twelve frozen RANS/SA runs completed, with zero flow/remeshing iterations.
+The original solution values and mesh coordinates pass the independent checks:
+
+| Fixture / recovery | Maximum metric difference, MPI 1 vs 2/4 | Complexity | Independent sensor transport |
+|---|---:|---:|---|
+| ONERA M6 WLS with true symmetry | 6.63e-15 (previously 7.37e-7) | 300000, independently integrated | Not enabled in this 3D case |
+| RAE WLS, noise 0 | 1.09e-12 | Reported geometric composed integral 60000 | Maximum ratio 1.000000094 |
+| RAE QR, noise 0 | 3.85e-12 | Reported geometric composed integral 60000 | Maximum ratio 1.000000098 |
+| RAE QR, noise 1 | 1.34e-10 (intersection-only: 2.00e-4) | Reported geometric composed integral 60000 | Maximum ratio 1.000000099 |
+
+Recovered Hessian CSV components are identical across these partitions. M6's
+former worst weak eigenvalue amplified order-dependent WLS roundoff; changing
+intersection alone did not fix it. On RAE with noise enabled, filtered Hessians
+were already identical; compensated normalization was additionally necessary.
+The strict MPI limit stays 1e-9. Noise strength remains zero by default because
+numerical reproducibility does not establish physical feature preservation.
+
+The independent RAE reference composes BL at the actual point and retains both
+sensor and BL demands (minimum generalized domination about 1 minus 4.2e-12).
+It still measures **composed** nodal transport maxima 6.40012 / 12.39031 / 4.63954
+for WLS / QR / QR-noise. Converged sensor gradation is not a composed-field
+certificate. No composed-field correction or continuous quadrature accuracy
+claim is introduced here; these remain with the BL integration owner.
+
+Performance was checked with one heavy job at a time, nice 10, build jobs 1,
+MPI ranks at most 4 and library threads 1. A paired kernel benchmark measures
+about 7% (2D) / 8% (3D) additional intersection cost; it still uses two eigensolves
+and four matrix products. The combined WLS reuse fixture retains about a 2.37x
+advantage over repeated geometry recovery. Observed serial RAE metric times are
+10.91s / 9.81s / 11.69s (WLS / QR / QR-noise), M6 0.435s including 0.187s Hessian
+recovery. These single observations under machine contention are not controlled
+whole-solver performance comparisons. Final sensor gradation needs 32 / 29 / 25
+sweeps; cumulative complexity-solve work is recorded separately in the receipts.
+
+Durable raw fields, logs, configs, input copies, build/probe failures, executables,
+benchmark and a SHA-256 manifest are saved outside `/tmp` under
+`/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/metric_numerical_stability_v1`.
+The numerical blockers below are historical. Next work is curved/skewed wall
+recovery with separate wall-interior/edge accuracy gates, followed by QR symmetry
+and periodic support. Full adaptation/flow validation and differentiated solver
+validation remain necessary; native 3D remeshing is separate work.
+
+## Authorized work and retained history (2026-10-07)
 
 | ID | Work | Status |
 |---|---|---|
 | 1 | Constrained tensor gradation: classify blocked directions, converge useful updates, reduce repeated work | Direct updater rejected by actual-case checks. Integrated base retains sensor-only gradation and geometric query composition; full composed-field guarantees remain the BL owner's follow-up |
-| 2 | Noise-aware Hessian treatment, with controls that retain resolved curvature | Implemented opt-in residual shrinkage; enabled RAE gate fails upstream metric construction. Fixed-input gradation is MPI consistent; retain default zero |
+| 2 | Noise-aware Hessian treatment, with controls that retain resolved curvature | Implemented opt-in residual shrinkage; numerical MPI blocker fixed on 2026-10-08. Physical feature preservation remains unvalidated; retain default zero |
 | 4 | More selective MPI geometry exchange and storage | Implemented conservative occupied query boxes; unit/MPI tests passed; private candidate reference transport remains separate |
 | 5 | Reuse WLS geometry across sensors and derivative passes | Implemented within-call normal-matrix/weight reuse; stretched multisensor equivalence and MPI tests passed |
 
@@ -26,6 +103,9 @@ Do not obtain a speedup by silently dropping required constraints or declaring a
 sweep limit to be convergence. Keep material limitations visible.
 
 ## Implemented and validated before this work
+
+This section describes the historical pre-integration implementation. Its hard
+normal BL reset was superseded by the geometric intersection contract above.
 
 - Coordinate-equilibrated WLS solves and stencil conditioning diagnostics.
 - Opt-in primal direct quadratic recovery using coordinate whitening and pivoted
