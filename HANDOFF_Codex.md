@@ -1439,3 +1439,14 @@ CFD/MPI/metric/performance assessment launched locally. Solver C++ unchanged;
 existing compiled native executables need no rebuild for this script update.
 Full goal remains ACTIVE/incomplete pending cluster data and verified totalcost
 advantages/scaling limits; no worker recommendation or affordability claim.
+
+User-reported cluster job581658 failed at mandatory `git rev-parse HEAD`: Git
+is absent on compute nodes. Bugfix only; performance goal remains PAUSED.
+Both shell and Python runner revision capture are now optional (unavailable/
+null), retaining mandatory input/source/binary hashes. Source-pin manifest hash
+is recorded in job/case provenance. Existing fake-script selfcheck now runs
+with Git absent from PATH, checks archived early-failure diagnostics and full
+case collection, rejects a changed pinned source, and also handles Git present
+but an unavailable repository revision. Checks PASS; no real CFD/MPI/metric/
+performance test launched. User must pull scripts on login node and resubmit;
+no C++ changes or solver rebuild. Actual cluster execution remains unverified.

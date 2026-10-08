@@ -51,8 +51,12 @@ def main():
     assert all(sha(ROOT/name)==digest for name,digest in pins.items()),'Source differs from validated C++ checkpoint'
     binary_sha=sha(binary)
     environment=dict(os.environ,OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1')
+    try:
+        revision=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True,stderr=subprocess.DEVNULL).strip()
+    except (OSError,subprocess.CalledProcessError):
+        revision=None  # Compute nodes may lack Git; source hashes still determine the validated C++.
     metadata=dict(kind=args.kind,CFD_ranks=args.ranks,adaptation_workers=workers,partition_variants=variants,repetitions=args.repeat,events=args.events,
-                  binary=str(binary.relative_to(ROOT)),binary_sha256=binary_sha,source_revision=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
+                  binary=str(binary.relative_to(ROOT)),binary_sha256=binary_sha,source_revision=revision,source_pins_sha256=sha(pack/'source_pins.json'),
                   source_pins_checked=len(pins),machinefile=machinefile.read_text(),scheduler={key:os.environ.get(key) for key in ('JOB_ID','NSLOTS','QUEUE','PE')})
     build_options=next((parent/'meson-info/intro-buildoptions.json' for parent in binary.parents if (parent/'meson-info/intro-buildoptions.json').is_file()),None)
     metadata['meson_build_options']=json.loads(build_options.read_text()) if build_options else None
@@ -86,7 +90,7 @@ def main():
             if frozen:env.update(SU2_NATIVE_AIRFOIL_CONFIG=str(case/'run.cfg'),SU2_NATIVE_FROZEN_METRIC=str(case/'frozen_sensor.csv'))
             tail=['[NativeFrozenAirfoil2D]','--use-colour','no'] if frozen else ['-t','1','run.cfg']
             command=['mpirun','-n',str(args.ranks),'-machinefile',str(machinefile),str(binary)]+tail
-            record=dict(phase='preparing',working_directory=str(case),ranks=args.ranks,adaptation_ranks=m,repartition=repartition,command=command,binary_sha256=binary_sha,source_revision=metadata['source_revision'],
+            record=dict(phase='preparing',working_directory=str(case),ranks=args.ranks,adaptation_ranks=m,repartition=repartition,command=command,binary_sha256=binary_sha,source_revision=metadata['source_revision'],source_pins_sha256=metadata['source_pins_sha256'],
                         inputs_sha256={p.name:sha(p) for p in case.iterdir() if p.is_file()},machine_samples=[])
             evidence=case/'run_evidence.json'
             def save():evidence.write_text(json.dumps(record,indent=2)+'\n')

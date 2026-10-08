@@ -32,7 +32,10 @@ set `SU2_CFD_BIN`/`SU2_TEST_BIN` to their paths inside the checkout. Keep the bu
 log/options and run the native MPI regressions before scaling. The campaign
 checks all 762 validated C++ source pins and input hashes before running; it
 records binary hashes, linked libraries, compiler-host hardware and revision.
-These checks do not by themselves prove the binary was built from those sources.
+Git is optional on compute nodes: an unavailable revision is recorded as such;
+source/input/binary hashes remain checked and the source-pin manifest hash is
+recorded in job and case provenance. These checks do not by themselves prove
+the binary was built from those sources.
 
 [RunNativeSGE.sh](RunNativeSGE.sh) uses the supplied `aero-ags.q`/`mpi` environment
 and GCC paths. Submit from the checkout root. It expects the existing scheduler
