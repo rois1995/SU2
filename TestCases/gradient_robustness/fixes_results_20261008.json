@@ -1,0 +1,1959 @@
+{
+  "manifest": {
+    "binaries": {
+      "current": {
+        "path": "/tmp/su2-cfd-fixes-control/SU2_CFD",
+        "sha256": "411c35021ddde04355c3370fd591443eaf6f4173c6004de21d630e5e93edc8f3"
+      },
+      "fixed": {
+        "path": "/tmp/su2-cfd-mesh-build/SU2_CFD/src/SU2_CFD",
+        "sha256": "5b77b9acfedaf24d7ff973aff798987edf24ca9575fc480110ccc342363e58d4"
+      },
+      "main": {
+        "path": "/tmp/su2-cfd-gradient-baseline/SU2_CFD",
+        "sha256": "b6647bae6335516dffe10fe687a036e397f11a7d4bbf89a99553ea021e9d5d23"
+      }
+    },
+    "native_config": {
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_AdapNoExt/integration_evidence/metric_robustness/native_gradation_residual_v1/validated/frozen-12000/rae/weighted_least_squares-mpi1/run.cfg",
+      "sha256": "9c31a640777ac2776f05bf1387d8a07da7fa4d3558099e7b1a52bb9e5658ebb2"
+    },
+    "adapted_config": {
+      "path": "/tmp/su2-cfd-fixes-inputs/adapted_rae/snapshot.cfg",
+      "sha256": "7b13818199d1e8a057ced45f3cd114827c48655469a0fb739efc378c4b9174a6"
+    },
+    "bl_mesh": {
+      "path": "/media/rausa/4TB/SU2_Versions/Prove/MeanFlowBugs/10_convergence/c2_rae2822_sa/mesh_RAE2822_turb.su2",
+      "sha256": "60fc63b5cab8eb1aeb3a3fe661a0f0c6a210fadb907f031f02efdb054883f11f"
+    },
+    "threads": 1,
+    "MGLEVEL": 0,
+    "iterations": 2000,
+    "timeout_seconds": 600,
+    "note": "Wall time is informational on a contended machine, not a performance benchmark."
+  },
+  "runs": [
+    {
+      "case": "native_sa_current_settings",
+      "variant": "current",
+      "status": "finished",
+      "exit_code": 0,
+      "wall_seconds": 258.28291372700187,
+      "history_rows": 2000,
+      "last_history": {
+        "Time_Iter": "0",
+        "Outer_Iter": "0",
+        "Inner_Iter": "1999",
+        "rms[Rho]": "-9.867555637",
+        "rms[RhoU]": "-8.139448059",
+        "rms[RhoV]": "-8.285419296",
+        "rms[RhoE]": "-5.103227538",
+        "rms[nu]": "-7.186515989",
+        "Linear_Solver_Iterations": "3",
+        "LinSolRes": "-1.319313697",
+        "LinSolIterTurb": "1",
+        "LinSolResTurb": "-5.156013173",
+        "Min DT": "1.077820075e-08",
+        "Max DT": "0.2174811617",
+        "Min CFL": "1",
+        "Max CFL": "30",
+        "Avg CFL": "29.98908074",
+        "RefForce": "14426.18948",
+        "CD": "0.01321484826",
+        "CL": "0.7243226139",
+        "CSF": "0",
+        "CMx": "0",
+        "CMy": "0",
+        "CMz": "0.0938905889",
+        "CFx": "-0.01599057117",
+        "CFy": "0.7242666517",
+        "CFz": "0",
+        "CEff": "54.81126983",
+        "Buffet": "0.005207110711"
+      },
+      "config_sha256": "de8e29984a63928c6857806f17db2a3a37eff32c782bb059fdb9f5e483790115",
+      "config": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\nMESH_FILENAME= /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_metric_integration_v1/frozen/fine/inputs/input.su2\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\n\nNUM_METHOD_HESS= WEIGHTED_LEAST_SQUARES\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\n\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\n\nCONV_STARTITER= 100\n\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\n\nWRT_RESTART_COMPACT= NO\n\nSOLUTION_FILENAME= /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_metric_integration_v1/frozen/fine/inputs/solution\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\n\n\n\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\n\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\n\n\n\n\n\n\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\n\n\n\nMGLEVEL= 0\n\nITER= 2000\n\nCOMPUTE_METRIC= NO\n\nADAP_LOOP= NO\n\nOUTPUT_FILES= (RESTART_ASCII)\n\nOUTPUT_WRT_FREQ= 1000000\n\nSCREEN_WRT_FREQ_INNER= 100\n\nHISTORY_OUTPUT= (ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL)\n\nTABULAR_FORMAT= CSV\n\nCONV_FILENAME= history\n\nRESTART_FILENAME= fields\n\nCONV_RESIDUAL_MINVAL= -8\n\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\n\nNUM_METHOD_GRAD_RECON= WEIGHTED_LEAST_SQUARES\n\nWRT_ADAP_MESH= NO\n\nVOLUME_OUTPUT= (COORDINATES, SOLUTION, PRIMITIVE)\n\nMUSCL_TURB= NO\n",
+      "residual_monitors": [
+        "rms[Rho]",
+        "rms[nu]"
+      ],
+      "residuals_finite": true,
+      "convergence_assessment_eligible": false,
+      "residual_target_met": false,
+      "last_100_iterations": {
+        "rms[Rho]": {
+          "min": -9.867555637,
+          "max": -9.76844768,
+          "median": -9.8179737055
+        },
+        "rms[nu]": {
+          "min": -7.186515989,
+          "max": -7.186515989,
+          "median": -7.186515989
+        },
+        "CL": {
+          "min": 0.7243226004,
+          "max": 0.7243226139,
+          "median": 0.7243226075
+        },
+        "CD": {
+          "min": 0.01321484805,
+          "max": 0.01321484826,
+          "median": 0.01321484816
+        },
+        "Avg CFL": {
+          "min": 29.98908074,
+          "max": 29.98908074,
+          "median": 29.98908074
+        }
+      },
+      "state": {
+        "finite": true,
+        "points": 18591,
+        "min_density": 0.2413806807576989,
+        "min_internal_energy_density": 54079.859530385926,
+        "sha256": "0a187ac67b0ad0f2acb317579d441bbd0c553cfaaaf037751aa67c7b19a5ad70",
+        "nu_at_floor_count": 859
+      }
+    },
+    {
+      "case": "native_sa_current_settings",
+      "variant": "fixed",
+      "status": "finished",
+      "exit_code": 0,
+      "wall_seconds": 257.4275009730045,
+      "history_rows": 2000,
+      "last_history": {
+        "Time_Iter": "0",
+        "Outer_Iter": "0",
+        "Inner_Iter": "1999",
+        "rms[Rho]": "-7.933047341",
+        "rms[RhoU]": "-5.724875521",
+        "rms[RhoV]": "-5.796120743",
+        "rms[RhoE]": "-2.549282524",
+        "rms[nu]": "-7.186233326",
+        "Linear_Solver_Iterations": "3",
+        "LinSolRes": "-1.341596158",
+        "LinSolIterTurb": "1",
+        "LinSolResTurb": "-2.404250004",
+        "Min DT": "1.077860066e-08",
+        "Max DT": "0.2174811699",
+        "Min CFL": "1",
+        "Max CFL": "30",
+        "Avg CFL": "29.98908074",
+        "RefForce": "14426.18948",
+        "CD": "0.0130671274",
+        "CL": "0.7145253237",
+        "CSF": "0",
+        "CMx": "0",
+        "CMy": "0",
+        "CMz": "0.09207374995",
+        "CFx": "-0.01574328061",
+        "CFy": "0.714471369",
+        "CFz": "0",
+        "CEff": "54.68113241",
+        "Buffet": "0.005207110711"
+      },
+      "config_sha256": "6ab5dcc9997b8eb5c2ef2132bf585d365eee9fa18d17f813e0f3b5e49c5b6977",
+      "config": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\nMESH_FILENAME= /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_metric_integration_v1/frozen/fine/inputs/input.su2\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\n\nNUM_METHOD_HESS= WEIGHTED_LEAST_SQUARES\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\n\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\n\nCONV_STARTITER= 100\n\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\n\nWRT_RESTART_COMPACT= NO\n\nSOLUTION_FILENAME= /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_metric_integration_v1/frozen/fine/inputs/solution\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\n\n\n\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\n\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\n\n\n\n\n\n\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\n\n\n\nMGLEVEL= 0\n\nITER= 2000\n\nCOMPUTE_METRIC= NO\n\nADAP_LOOP= NO\n\nOUTPUT_FILES= (RESTART_ASCII)\n\nOUTPUT_WRT_FREQ= 1000000\n\nSCREEN_WRT_FREQ_INNER= 100\n\nHISTORY_OUTPUT= (ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL)\n\nTABULAR_FORMAT= CSV\n\nCONV_FILENAME= history\n\nRESTART_FILENAME= fields\n\nCONV_RESIDUAL_MINVAL= -8\n\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\n\nNUM_METHOD_GRAD_RECON= WEIGHTED_LEAST_SQUARES\n\nWRT_ADAP_MESH= NO\n\nVOLUME_OUTPUT= (COORDINATES, SOLUTION, PRIMITIVE)\n\nMUSCL_TURB= NO\n\nLIMITER_LOCAL_LENGTH= NO\n",
+      "residual_monitors": [
+        "rms[Rho]",
+        "rms[nu]"
+      ],
+      "residuals_finite": true,
+      "convergence_assessment_eligible": false,
+      "residual_target_met": false,
+      "last_100_iterations": {
+        "rms[Rho]": {
+          "min": -7.933047341,
+          "max": -7.815125942,
+          "median": -7.8746967305
+        },
+        "rms[nu]": {
+          "min": -7.186233326,
+          "max": -7.1857099,
+          "median": -7.186014991
+        },
+        "CL": {
+          "min": 0.7145253237,
+          "max": 0.7145294629,
+          "median": 0.7145272288
+        },
+        "CD": {
+          "min": 0.0130671274,
+          "max": 0.01306715218,
+          "median": 0.013067138925
+        },
+        "Avg CFL": {
+          "min": 29.98908074,
+          "max": 29.98908074,
+          "median": 29.98908074
+        }
+      },
+      "state": {
+        "finite": true,
+        "points": 18591,
+        "min_density": 0.2431282450578517,
+        "min_internal_energy_density": 54463.53716445832,
+        "sha256": "009fc98beb94db1129a3261f536efb9839e49f12be40e5ec0c2ab002fbcd72bb",
+        "nu_at_floor_count": 859
+      }
+    },
+    {
+      "case": "native_sa_muscl",
+      "variant": "current",
+      "status": "finished",
+      "exit_code": 0,
+      "wall_seconds": 242.35749956699146,
+      "history_rows": 2000,
+      "last_history": {
+        "Time_Iter": "0",
+        "Outer_Iter": "0",
+        "Inner_Iter": "1999",
+        "rms[Rho]": "-7.756106815",
+        "rms[RhoU]": "-5.413953404",
+        "rms[RhoV]": "-5.612940293",
+        "rms[RhoE]": "-2.416296099",
+        "rms[nu]": "-2.933469019",
+        "Linear_Solver_Iterations": "3",
+        "LinSolRes": "-1.422631037",
+        "LinSolIterTurb": "1",
+        "LinSolResTurb": "-2.647487632",
+        "Min DT": "1.078023609e-08",
+        "Max DT": "0.217481171",
+        "Min CFL": "1",
+        "Max CFL": "30",
+        "Avg CFL": "29.68646119",
+        "RefForce": "14426.18948",
+        "CD": "0.01360143632",
+        "CL": "0.7367588573",
+        "CSF": "0",
+        "CMx": "0",
+        "CMy": "0",
+        "CMz": "0.09633652134",
+        "CFx": "-0.01610555478",
+        "CFy": "0.7367083711",
+        "CFz": "0",
+        "CEff": "54.16772464",
+        "Buffet": "0.005207110711"
+      },
+      "config_sha256": "d802784f92c8f7492c07b24707e2706c36c15159634474b067a5caef63cc148f",
+      "config": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\nMESH_FILENAME= /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_metric_integration_v1/frozen/fine/inputs/input.su2\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\n\nNUM_METHOD_HESS= WEIGHTED_LEAST_SQUARES\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\n\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\n\nCONV_STARTITER= 100\n\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\n\nWRT_RESTART_COMPACT= NO\n\nSOLUTION_FILENAME= /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_metric_integration_v1/frozen/fine/inputs/solution\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\n\n\n\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\n\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\n\n\n\n\n\n\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\n\n\n\nMGLEVEL= 0\n\nITER= 2000\n\nCOMPUTE_METRIC= NO\n\nADAP_LOOP= NO\n\nOUTPUT_FILES= (RESTART_ASCII)\n\nOUTPUT_WRT_FREQ= 1000000\n\nSCREEN_WRT_FREQ_INNER= 100\n\nHISTORY_OUTPUT= (ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL)\n\nTABULAR_FORMAT= CSV\n\nCONV_FILENAME= history\n\nRESTART_FILENAME= fields\n\nCONV_RESIDUAL_MINVAL= -8\n\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\n\nNUM_METHOD_GRAD_RECON= WEIGHTED_LEAST_SQUARES\n\nWRT_ADAP_MESH= NO\n\nVOLUME_OUTPUT= (COORDINATES, SOLUTION, PRIMITIVE)\n\nMUSCL_TURB= YES\n\nSLOPE_LIMITER_TURB= VENKATAKRISHNAN\n\nVENKAT_LIMITER_COEFF= 0.05\n\nLIMITER_ITER= 999999\n",
+      "residual_monitors": [
+        "rms[Rho]",
+        "rms[nu]"
+      ],
+      "residuals_finite": true,
+      "convergence_assessment_eligible": false,
+      "residual_target_met": false,
+      "last_100_iterations": {
+        "rms[Rho]": {
+          "min": -7.756106815,
+          "max": -7.624193734,
+          "median": -7.690933251000001
+        },
+        "rms[nu]": {
+          "min": -2.933469019,
+          "max": -2.933454502,
+          "median": -2.933462422
+        },
+        "CL": {
+          "min": 0.7367545793,
+          "max": 0.7367588573,
+          "median": 0.7367569012
+        },
+        "CD": {
+          "min": 0.01360141978,
+          "max": 0.01360143632,
+          "median": 0.013601428655000001
+        },
+        "Avg CFL": {
+          "min": 29.68646119,
+          "max": 29.68646119,
+          "median": 29.68646119
+        }
+      },
+      "state": {
+        "finite": true,
+        "points": 18591,
+        "min_density": 0.2393778921203626,
+        "min_internal_energy_density": 53608.259615470706,
+        "sha256": "e2e242c1a7c441fca843ab41ceabd1ccdfc7356e1b48ea6cc124e630e3ada714",
+        "nu_at_floor_count": 1052
+      }
+    },
+    {
+      "case": "native_sa_muscl",
+      "variant": "fixed",
+      "status": "finished",
+      "exit_code": 0,
+      "wall_seconds": 315.1963445270085,
+      "history_rows": 2000,
+      "last_history": {
+        "Time_Iter": "0",
+        "Outer_Iter": "0",
+        "Inner_Iter": "1999",
+        "rms[Rho]": "-8.621971449",
+        "rms[RhoU]": "-6.409839575",
+        "rms[RhoV]": "-6.467869811",
+        "rms[RhoE]": "-3.230720101",
+        "rms[nu]": "-7.124346739",
+        "Linear_Solver_Iterations": "3",
+        "LinSolRes": "-1.310905019",
+        "LinSolIterTurb": "1",
+        "LinSolResTurb": "-2.934398269",
+        "Min DT": "1.077951458e-08",
+        "Max DT": "0.2174811722",
+        "Min CFL": "1",
+        "Max CFL": "30",
+        "Avg CFL": "29.98908074",
+        "RefForce": "14426.18948",
+        "CD": "0.0133673823",
+        "CL": "0.7262032761",
+        "CSF": "0",
+        "CMx": "0",
+        "CMy": "0",
+        "CMz": "0.09432966098",
+        "CFx": "-0.0159139634",
+        "CFy": "0.7261519337",
+        "CFz": "0",
+        "CEff": "54.32651358",
+        "Buffet": "0.005207110711"
+      },
+      "config_sha256": "8c72abd1c001e99a6c77d5d0fc2e7d8fdb080260f88ccb13ad0057c71dfcb2f9",
+      "config": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\nMESH_FILENAME= /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_metric_integration_v1/frozen/fine/inputs/input.su2\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\n\nNUM_METHOD_HESS= WEIGHTED_LEAST_SQUARES\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\n\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\n\nCONV_STARTITER= 100\n\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\n\nWRT_RESTART_COMPACT= NO\n\nSOLUTION_FILENAME= /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_metric_integration_v1/frozen/fine/inputs/solution\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\n\n\n\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\n\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\n\n\n\n\n\n\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\n\n\n\nMGLEVEL= 0\n\nITER= 2000\n\nCOMPUTE_METRIC= NO\n\nADAP_LOOP= NO\n\nOUTPUT_FILES= (RESTART_ASCII)\n\nOUTPUT_WRT_FREQ= 1000000\n\nSCREEN_WRT_FREQ_INNER= 100\n\nHISTORY_OUTPUT= (ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL)\n\nTABULAR_FORMAT= CSV\n\nCONV_FILENAME= history\n\nRESTART_FILENAME= fields\n\nCONV_RESIDUAL_MINVAL= -8\n\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\n\nNUM_METHOD_GRAD_RECON= WEIGHTED_LEAST_SQUARES\n\nWRT_ADAP_MESH= NO\n\nVOLUME_OUTPUT= (COORDINATES, SOLUTION, PRIMITIVE)\n\nMUSCL_TURB= YES\n\nSLOPE_LIMITER_TURB= VENKATAKRISHNAN\n\nVENKAT_LIMITER_COEFF= 0.05\n\nLIMITER_ITER= 999999\n\nLIMITER_LOCAL_LENGTH= NO\n",
+      "residual_monitors": [
+        "rms[Rho]",
+        "rms[nu]"
+      ],
+      "residuals_finite": true,
+      "convergence_assessment_eligible": false,
+      "residual_target_met": false,
+      "last_100_iterations": {
+        "rms[Rho]": {
+          "min": -8.621971449,
+          "max": -8.494415257,
+          "median": -8.55903112
+        },
+        "rms[nu]": {
+          "min": -7.124346739,
+          "max": -7.124257595,
+          "median": -7.1243105175
+        },
+        "CL": {
+          "min": 0.7262023807,
+          "max": 0.7262032761,
+          "median": 0.726202867
+        },
+        "CD": {
+          "min": 0.01336737508,
+          "max": 0.0133673823,
+          "median": 0.01336737902
+        },
+        "Avg CFL": {
+          "min": 29.98908074,
+          "max": 29.98908074,
+          "median": 29.98908074
+        }
+      },
+      "state": {
+        "finite": true,
+        "points": 18591,
+        "min_density": 0.2411143838218407,
+        "min_internal_energy_density": 54003.010979918006,
+        "sha256": "a0f9c3d71de79973d93ee6e166742bd0b78bd36efa9cee98ffc5a1db7f813882",
+        "nu_at_floor_count": 859
+      }
+    },
+    {
+      "case": "native_sa_muscl",
+      "variant": "fixed_local",
+      "status": "finished",
+      "exit_code": 0,
+      "wall_seconds": 240.17107997600397,
+      "history_rows": 2000,
+      "last_history": {
+        "Time_Iter": "0",
+        "Outer_Iter": "0",
+        "Inner_Iter": "1999",
+        "rms[Rho]": "-8.622527797",
+        "rms[RhoU]": "-6.410401039",
+        "rms[RhoV]": "-6.468272544",
+        "rms[RhoE]": "-3.231135945",
+        "rms[nu]": "-7.124310494",
+        "Linear_Solver_Iterations": "3",
+        "LinSolRes": "-1.310915817",
+        "LinSolIterTurb": "1",
+        "LinSolResTurb": "-2.936051538",
+        "Min DT": "1.07795156e-08",
+        "Max DT": "0.2174811722",
+        "Min CFL": "1",
+        "Max CFL": "30",
+        "Avg CFL": "29.98908074",
+        "RefForce": "14426.18948",
+        "CD": "0.01336733317",
+        "CL": "0.7261995782",
+        "CSF": "0",
+        "CMx": "0",
+        "CMy": "0",
+        "CMz": "0.09432899869",
+        "CFx": "-0.01591386345",
+        "CFy": "0.7261482369",
+        "CFz": "0",
+        "CEff": "54.32643663",
+        "Buffet": "0.005207110711"
+      },
+      "config_sha256": "dd81310e27086a018e9e585fdee4a9eef29f1eecfaf6923f37b5c0d210377b95",
+      "config": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\nMESH_FILENAME= /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_metric_integration_v1/frozen/fine/inputs/input.su2\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\n\nNUM_METHOD_HESS= WEIGHTED_LEAST_SQUARES\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\n\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\n\nCONV_STARTITER= 100\n\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\n\nWRT_RESTART_COMPACT= NO\n\nSOLUTION_FILENAME= /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_metric_integration_v1/frozen/fine/inputs/solution\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\n\n\n\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\n\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\n\n\n\n\n\n\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\n\n\n\nMGLEVEL= 0\n\nITER= 2000\n\nCOMPUTE_METRIC= NO\n\nADAP_LOOP= NO\n\nOUTPUT_FILES= (RESTART_ASCII)\n\nOUTPUT_WRT_FREQ= 1000000\n\nSCREEN_WRT_FREQ_INNER= 100\n\nHISTORY_OUTPUT= (ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL)\n\nTABULAR_FORMAT= CSV\n\nCONV_FILENAME= history\n\nRESTART_FILENAME= fields\n\nCONV_RESIDUAL_MINVAL= -8\n\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\n\nNUM_METHOD_GRAD_RECON= WEIGHTED_LEAST_SQUARES\n\nWRT_ADAP_MESH= NO\n\nVOLUME_OUTPUT= (COORDINATES, SOLUTION, PRIMITIVE)\n\nMUSCL_TURB= YES\n\nSLOPE_LIMITER_TURB= VENKATAKRISHNAN\n\nVENKAT_LIMITER_COEFF= 0.05\n\nLIMITER_ITER= 999999\n\nLIMITER_LOCAL_LENGTH= YES\n",
+      "residual_monitors": [
+        "rms[Rho]",
+        "rms[nu]"
+      ],
+      "residuals_finite": true,
+      "convergence_assessment_eligible": false,
+      "residual_target_met": false,
+      "last_100_iterations": {
+        "rms[Rho]": {
+          "min": -8.622527797,
+          "max": -8.494955317,
+          "median": -8.5595787725
+        },
+        "rms[nu]": {
+          "min": -7.124310494,
+          "max": -7.124221877,
+          "median": -7.124274488999999
+        },
+        "CL": {
+          "min": 0.7261986837,
+          "max": 0.7261995782,
+          "median": 0.7261991695000001
+        },
+        "CD": {
+          "min": 0.01336732596,
+          "max": 0.01336733317,
+          "median": 0.01336732989
+        },
+        "Avg CFL": {
+          "min": 29.98908074,
+          "max": 29.98908074,
+          "median": 29.98908074
+        }
+      },
+      "state": {
+        "finite": true,
+        "points": 18591,
+        "min_density": 0.2411150410458409,
+        "min_internal_energy_density": 54003.16058625529,
+        "sha256": "2f316cc289f4dfb2079a1dd29318c3a07d591e01c0cc463dbc81bac6a2e98a33",
+        "nu_at_floor_count": 859
+      }
+    },
+    {
+      "case": "adapted_sa_current_settings",
+      "variant": "main",
+      "status": "finished",
+      "exit_code": 0,
+      "wall_seconds": 201.9920231599972,
+      "history_rows": 2000,
+      "last_history": {
+        "Time_Iter": "0",
+        "Outer_Iter": "0",
+        "Inner_Iter": "1999",
+        "rms[Rho]": "-8.396623871",
+        "rms[RhoU]": "-6.116629955",
+        "rms[RhoV]": "-6.262124326",
+        "rms[RhoE]": "-2.938940354",
+        "rms[nu]": "-7.530567744",
+        "Linear_Solver_Iterations": "3",
+        "LinSolRes": "-1.413749298",
+        "LinSolIterTurb": "1",
+        "LinSolResTurb": "-2.590432851",
+        "Min DT": "2.243368529e-08",
+        "Max DT": "0.3000824182",
+        "Min CFL": "1",
+        "Max CFL": "30",
+        "Avg CFL": "29.99635884",
+        "RefForce": "14426.18948",
+        "CD": "0.01381113637",
+        "CL": "0.724211985",
+        "CSF": "0",
+        "CMx": "0",
+        "CMy": "0",
+        "CMz": "0.09433097652",
+        "CFx": "-0.0153903086",
+        "CFy": "0.7241801469",
+        "CFz": "0",
+        "CEff": "52.43681372",
+        "Buffet": "0.0051905015"
+      },
+      "config_sha256": "c4afeb5868931bd9eb14eda744710c8ced4f332d5baec285fb847d5de8950277",
+      "config": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\n\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\n\nNUM_METHOD_HESS= GREEN_GAUSS\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\n\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\n\nCONV_STARTITER= 100\n\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\n\nWRT_RESTART_COMPACT= NO\n\n\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\n\n\n\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\n\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\n\n\n\n\n\n\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\n\n\nMESH_FILENAME= /tmp/su2-cfd-fixes-inputs/adapted_rae/mesh_adap_00001.su2\n\nSOLUTION_FILENAME= /tmp/su2-cfd-fixes-inputs/adapted_rae/solution_adap_00001\n\nMGLEVEL= 0\n\nITER= 2000\n\nCOMPUTE_METRIC= NO\n\nADAP_LOOP= NO\n\nOUTPUT_FILES= (RESTART_ASCII)\n\nOUTPUT_WRT_FREQ= 1000000\n\nSCREEN_WRT_FREQ_INNER= 100\n\nHISTORY_OUTPUT= (ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL)\n\nTABULAR_FORMAT= CSV\n\nCONV_FILENAME= history\n\nRESTART_FILENAME= fields\n\nCONV_RESIDUAL_MINVAL= -8\n\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\n\nNUM_METHOD_GRAD_RECON= WEIGHTED_LEAST_SQUARES\n\nWRT_ADAP_MESH= NO\n\nVOLUME_OUTPUT= (COORDINATES, SOLUTION, PRIMITIVE)\n\nMUSCL_TURB= NO\n",
+      "residual_monitors": [
+        "rms[Rho]",
+        "rms[nu]"
+      ],
+      "residuals_finite": true,
+      "convergence_assessment_eligible": false,
+      "residual_target_met": false,
+      "last_100_iterations": {
+        "rms[Rho]": {
+          "min": -8.396623871,
+          "max": -8.252468339,
+          "median": -8.325024114000001
+        },
+        "rms[nu]": {
+          "min": -7.530567744,
+          "max": -7.529957868,
+          "median": -7.530319228
+        },
+        "CL": {
+          "min": 0.7242104458,
+          "max": 0.724211985,
+          "median": 0.72421128315
+        },
+        "CD": {
+          "min": 0.01381112004,
+          "max": 0.01381113637,
+          "median": 0.013811129005
+        },
+        "Avg CFL": {
+          "min": 29.99635884,
+          "max": 29.99635884,
+          "median": 29.99635884
+        }
+      },
+      "state": {
+        "finite": true,
+        "points": 15929,
+        "min_density": 0.2425633080957356,
+        "min_internal_energy_density": 54282.21476675833,
+        "sha256": "a552617a58c29023e5243720b66c1e8b65c494b49509ece3e7e252ccc2d5bb6d",
+        "nu_at_floor_count": 524
+      }
+    },
+    {
+      "case": "adapted_sa_current_settings",
+      "variant": "current",
+      "status": "finished",
+      "exit_code": 0,
+      "wall_seconds": 212.6319113579957,
+      "history_rows": 2000,
+      "last_history": {
+        "Time_Iter": "0",
+        "Outer_Iter": "0",
+        "Inner_Iter": "1999",
+        "rms[Rho]": "-8.396623871",
+        "rms[RhoU]": "-6.116629955",
+        "rms[RhoV]": "-6.262124326",
+        "rms[RhoE]": "-2.938940354",
+        "rms[nu]": "-7.530567744",
+        "Linear_Solver_Iterations": "3",
+        "LinSolRes": "-1.413749298",
+        "LinSolIterTurb": "1",
+        "LinSolResTurb": "-2.590432851",
+        "Min DT": "2.243368529e-08",
+        "Max DT": "0.3000824182",
+        "Min CFL": "1",
+        "Max CFL": "30",
+        "Avg CFL": "29.99635884",
+        "RefForce": "14426.18948",
+        "CD": "0.01381113637",
+        "CL": "0.724211985",
+        "CSF": "0",
+        "CMx": "0",
+        "CMy": "0",
+        "CMz": "0.09433097652",
+        "CFx": "-0.0153903086",
+        "CFy": "0.7241801469",
+        "CFz": "0",
+        "CEff": "52.43681372",
+        "Buffet": "0.0051905015"
+      },
+      "config_sha256": "c4afeb5868931bd9eb14eda744710c8ced4f332d5baec285fb847d5de8950277",
+      "config": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\n\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\n\nNUM_METHOD_HESS= GREEN_GAUSS\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\n\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\n\nCONV_STARTITER= 100\n\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\n\nWRT_RESTART_COMPACT= NO\n\n\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\n\n\n\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\n\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\n\n\n\n\n\n\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\n\n\nMESH_FILENAME= /tmp/su2-cfd-fixes-inputs/adapted_rae/mesh_adap_00001.su2\n\nSOLUTION_FILENAME= /tmp/su2-cfd-fixes-inputs/adapted_rae/solution_adap_00001\n\nMGLEVEL= 0\n\nITER= 2000\n\nCOMPUTE_METRIC= NO\n\nADAP_LOOP= NO\n\nOUTPUT_FILES= (RESTART_ASCII)\n\nOUTPUT_WRT_FREQ= 1000000\n\nSCREEN_WRT_FREQ_INNER= 100\n\nHISTORY_OUTPUT= (ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL)\n\nTABULAR_FORMAT= CSV\n\nCONV_FILENAME= history\n\nRESTART_FILENAME= fields\n\nCONV_RESIDUAL_MINVAL= -8\n\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\n\nNUM_METHOD_GRAD_RECON= WEIGHTED_LEAST_SQUARES\n\nWRT_ADAP_MESH= NO\n\nVOLUME_OUTPUT= (COORDINATES, SOLUTION, PRIMITIVE)\n\nMUSCL_TURB= NO\n",
+      "residual_monitors": [
+        "rms[Rho]",
+        "rms[nu]"
+      ],
+      "residuals_finite": true,
+      "convergence_assessment_eligible": false,
+      "residual_target_met": false,
+      "last_100_iterations": {
+        "rms[Rho]": {
+          "min": -8.396623871,
+          "max": -8.252468339,
+          "median": -8.325024114000001
+        },
+        "rms[nu]": {
+          "min": -7.530567744,
+          "max": -7.529957868,
+          "median": -7.530319228
+        },
+        "CL": {
+          "min": 0.7242104458,
+          "max": 0.724211985,
+          "median": 0.72421128315
+        },
+        "CD": {
+          "min": 0.01381112004,
+          "max": 0.01381113637,
+          "median": 0.013811129005
+        },
+        "Avg CFL": {
+          "min": 29.99635884,
+          "max": 29.99635884,
+          "median": 29.99635884
+        }
+      },
+      "state": {
+        "finite": true,
+        "points": 15929,
+        "min_density": 0.2425633080957356,
+        "min_internal_energy_density": 54282.21476675833,
+        "sha256": "a552617a58c29023e5243720b66c1e8b65c494b49509ece3e7e252ccc2d5bb6d",
+        "nu_at_floor_count": 524
+      }
+    },
+    {
+      "case": "adapted_sa_current_settings",
+      "variant": "fixed",
+      "status": "finished",
+      "exit_code": 0,
+      "wall_seconds": 194.08106194800348,
+      "history_rows": 2000,
+      "last_history": {
+        "Time_Iter": "0",
+        "Outer_Iter": "0",
+        "Inner_Iter": "1999",
+        "rms[Rho]": "-8.095553877",
+        "rms[RhoU]": "-5.993013746",
+        "rms[RhoV]": "-6.119997538",
+        "rms[RhoE]": "-2.8048769",
+        "rms[nu]": "-7.524094685",
+        "Linear_Solver_Iterations": "3",
+        "LinSolRes": "-1.396500452",
+        "LinSolIterTurb": "1",
+        "LinSolResTurb": "-2.533589537",
+        "Min DT": "2.243596861e-08",
+        "Max DT": "0.3000822931",
+        "Min CFL": "1",
+        "Max CFL": "30",
+        "Avg CFL": "29.99635884",
+        "RefForce": "14426.18948",
+        "CD": "0.01365351914",
+        "CL": "0.7142410306",
+        "CSF": "0",
+        "CMx": "0",
+        "CMy": "0",
+        "CMz": "0.09246342485",
+        "CFx": "-0.01514590661",
+        "CFy": "0.7142109422",
+        "CFz": "0",
+        "CEff": "52.31186356",
+        "Buffet": "0.0051905015"
+      },
+      "config_sha256": "5dbf3d9ed23241591ae6fa7e94858a690a1938184479711f29ab9e84a4e39776",
+      "config": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\n\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\n\nNUM_METHOD_HESS= GREEN_GAUSS\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\n\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\n\nCONV_STARTITER= 100\n\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\n\nWRT_RESTART_COMPACT= NO\n\n\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\n\n\n\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\n\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\n\n\n\n\n\n\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\n\n\nMESH_FILENAME= /tmp/su2-cfd-fixes-inputs/adapted_rae/mesh_adap_00001.su2\n\nSOLUTION_FILENAME= /tmp/su2-cfd-fixes-inputs/adapted_rae/solution_adap_00001\n\nMGLEVEL= 0\n\nITER= 2000\n\nCOMPUTE_METRIC= NO\n\nADAP_LOOP= NO\n\nOUTPUT_FILES= (RESTART_ASCII)\n\nOUTPUT_WRT_FREQ= 1000000\n\nSCREEN_WRT_FREQ_INNER= 100\n\nHISTORY_OUTPUT= (ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL)\n\nTABULAR_FORMAT= CSV\n\nCONV_FILENAME= history\n\nRESTART_FILENAME= fields\n\nCONV_RESIDUAL_MINVAL= -8\n\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\n\nNUM_METHOD_GRAD_RECON= WEIGHTED_LEAST_SQUARES\n\nWRT_ADAP_MESH= NO\n\nVOLUME_OUTPUT= (COORDINATES, SOLUTION, PRIMITIVE)\n\nMUSCL_TURB= NO\n\nLIMITER_LOCAL_LENGTH= NO\n",
+      "residual_monitors": [
+        "rms[Rho]",
+        "rms[nu]"
+      ],
+      "residuals_finite": true,
+      "convergence_assessment_eligible": false,
+      "residual_target_met": false,
+      "last_100_iterations": {
+        "rms[Rho]": {
+          "min": -8.095553877,
+          "max": -7.99111619,
+          "median": -8.0437558675
+        },
+        "rms[nu]": {
+          "min": -7.524094685,
+          "max": -7.523494611,
+          "median": -7.523841056
+        },
+        "CL": {
+          "min": 0.7142410306,
+          "max": 0.7142431175,
+          "median": 0.7142419978
+        },
+        "CD": {
+          "min": 0.01365351914,
+          "max": 0.01365353471,
+          "median": 0.01365352658
+        },
+        "Avg CFL": {
+          "min": 29.99635884,
+          "max": 29.99635884,
+          "median": 29.99635884
+        }
+      },
+      "state": {
+        "finite": true,
+        "points": 15929,
+        "min_density": 0.244104808443509,
+        "min_internal_energy_density": 54651.586249962056,
+        "sha256": "7f2c4f873575c3d8ae8ecf6a1badb9edf87dc768ef8a8213b9f28d5a5b088c70",
+        "nu_at_floor_count": 524
+      }
+    },
+    {
+      "case": "adapted_sa_muscl",
+      "variant": "main",
+      "status": "finished",
+      "exit_code": 0,
+      "wall_seconds": 193.00555027999508,
+      "history_rows": 2000,
+      "last_history": {
+        "Time_Iter": "0",
+        "Outer_Iter": "0",
+        "Inner_Iter": "1999",
+        "rms[Rho]": "-7.540157609",
+        "rms[RhoU]": "-5.144662328",
+        "rms[RhoV]": "-5.3797535",
+        "rms[RhoE]": "-2.16316501",
+        "rms[nu]": "-2.893643076",
+        "Linear_Solver_Iterations": "3",
+        "LinSolRes": "-1.559631249",
+        "LinSolIterTurb": "1",
+        "LinSolResTurb": "-3.079473991",
+        "Min DT": "1.64422915e-08",
+        "Max DT": "0.3000825937",
+        "Min CFL": "1",
+        "Max CFL": "30",
+        "Avg CFL": "29.69232218",
+        "RefForce": "14426.18948",
+        "CD": "0.01417848131",
+        "CL": "0.7360092473",
+        "CSF": "0",
+        "CMx": "0",
+        "CMy": "0",
+        "CMz": "0.0966735963",
+        "CFx": "-0.0154987648",
+        "CFy": "0.7359826287",
+        "CFz": "0",
+        "CEff": "51.91030206",
+        "Buffet": "0.0051905015"
+      },
+      "config_sha256": "6ba5c887ceb113e7b782308598bf329f9da4638a6774e6c0261049ca836e250d",
+      "config": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\n\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\n\nNUM_METHOD_HESS= GREEN_GAUSS\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\n\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\n\nCONV_STARTITER= 100\n\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\n\nWRT_RESTART_COMPACT= NO\n\n\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\n\n\n\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\n\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\n\n\n\n\n\n\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\n\n\nMESH_FILENAME= /tmp/su2-cfd-fixes-inputs/adapted_rae/mesh_adap_00001.su2\n\nSOLUTION_FILENAME= /tmp/su2-cfd-fixes-inputs/adapted_rae/solution_adap_00001\n\nMGLEVEL= 0\n\nITER= 2000\n\nCOMPUTE_METRIC= NO\n\nADAP_LOOP= NO\n\nOUTPUT_FILES= (RESTART_ASCII)\n\nOUTPUT_WRT_FREQ= 1000000\n\nSCREEN_WRT_FREQ_INNER= 100\n\nHISTORY_OUTPUT= (ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL)\n\nTABULAR_FORMAT= CSV\n\nCONV_FILENAME= history\n\nRESTART_FILENAME= fields\n\nCONV_RESIDUAL_MINVAL= -8\n\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\n\nNUM_METHOD_GRAD_RECON= WEIGHTED_LEAST_SQUARES\n\nWRT_ADAP_MESH= NO\n\nVOLUME_OUTPUT= (COORDINATES, SOLUTION, PRIMITIVE)\n\nMUSCL_TURB= YES\n\nSLOPE_LIMITER_TURB= VENKATAKRISHNAN\n\nVENKAT_LIMITER_COEFF= 0.05\n\nLIMITER_ITER= 999999\n",
+      "residual_monitors": [
+        "rms[Rho]",
+        "rms[nu]"
+      ],
+      "residuals_finite": true,
+      "convergence_assessment_eligible": false,
+      "residual_target_met": false,
+      "last_100_iterations": {
+        "rms[Rho]": {
+          "min": -7.540157609,
+          "max": -7.399618222,
+          "median": -7.4703299325
+        },
+        "rms[nu]": {
+          "min": -2.893643076,
+          "max": -2.893628551,
+          "median": -2.893636472
+        },
+        "CL": {
+          "min": 0.7360028606,
+          "max": 0.7360092473,
+          "median": 0.736006324
+        },
+        "CD": {
+          "min": 0.01417843447,
+          "max": 0.01417848131,
+          "median": 0.01417845986
+        },
+        "Avg CFL": {
+          "min": 29.69232218,
+          "max": 29.69232218,
+          "median": 29.69232218
+        }
+      },
+      "state": {
+        "finite": true,
+        "points": 15929,
+        "min_density": 0.240714874442941,
+        "min_internal_energy_density": 53844.30619917534,
+        "sha256": "e127030db3cfc2c65c809c58282e8fa52f5505f40de8b2d50a856462a3b32c71",
+        "nu_at_floor_count": 690
+      }
+    },
+    {
+      "case": "adapted_sa_muscl",
+      "variant": "current",
+      "status": "finished",
+      "exit_code": 0,
+      "wall_seconds": 231.2954046290106,
+      "history_rows": 2000,
+      "last_history": {
+        "Time_Iter": "0",
+        "Outer_Iter": "0",
+        "Inner_Iter": "1999",
+        "rms[Rho]": "-7.540157609",
+        "rms[RhoU]": "-5.144662328",
+        "rms[RhoV]": "-5.3797535",
+        "rms[RhoE]": "-2.16316501",
+        "rms[nu]": "-2.893643076",
+        "Linear_Solver_Iterations": "3",
+        "LinSolRes": "-1.559631249",
+        "LinSolIterTurb": "1",
+        "LinSolResTurb": "-3.079473991",
+        "Min DT": "1.64422915e-08",
+        "Max DT": "0.3000825937",
+        "Min CFL": "1",
+        "Max CFL": "30",
+        "Avg CFL": "29.69232218",
+        "RefForce": "14426.18948",
+        "CD": "0.01417848131",
+        "CL": "0.7360092473",
+        "CSF": "0",
+        "CMx": "0",
+        "CMy": "0",
+        "CMz": "0.0966735963",
+        "CFx": "-0.0154987648",
+        "CFy": "0.7359826287",
+        "CFz": "0",
+        "CEff": "51.91030206",
+        "Buffet": "0.0051905015"
+      },
+      "config_sha256": "6ba5c887ceb113e7b782308598bf329f9da4638a6774e6c0261049ca836e250d",
+      "config": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\n\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\n\nNUM_METHOD_HESS= GREEN_GAUSS\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\n\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\n\nCONV_STARTITER= 100\n\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\n\nWRT_RESTART_COMPACT= NO\n\n\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\n\n\n\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\n\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\n\n\n\n\n\n\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\n\n\nMESH_FILENAME= /tmp/su2-cfd-fixes-inputs/adapted_rae/mesh_adap_00001.su2\n\nSOLUTION_FILENAME= /tmp/su2-cfd-fixes-inputs/adapted_rae/solution_adap_00001\n\nMGLEVEL= 0\n\nITER= 2000\n\nCOMPUTE_METRIC= NO\n\nADAP_LOOP= NO\n\nOUTPUT_FILES= (RESTART_ASCII)\n\nOUTPUT_WRT_FREQ= 1000000\n\nSCREEN_WRT_FREQ_INNER= 100\n\nHISTORY_OUTPUT= (ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL)\n\nTABULAR_FORMAT= CSV\n\nCONV_FILENAME= history\n\nRESTART_FILENAME= fields\n\nCONV_RESIDUAL_MINVAL= -8\n\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\n\nNUM_METHOD_GRAD_RECON= WEIGHTED_LEAST_SQUARES\n\nWRT_ADAP_MESH= NO\n\nVOLUME_OUTPUT= (COORDINATES, SOLUTION, PRIMITIVE)\n\nMUSCL_TURB= YES\n\nSLOPE_LIMITER_TURB= VENKATAKRISHNAN\n\nVENKAT_LIMITER_COEFF= 0.05\n\nLIMITER_ITER= 999999\n",
+      "residual_monitors": [
+        "rms[Rho]",
+        "rms[nu]"
+      ],
+      "residuals_finite": true,
+      "convergence_assessment_eligible": false,
+      "residual_target_met": false,
+      "last_100_iterations": {
+        "rms[Rho]": {
+          "min": -7.540157609,
+          "max": -7.399618222,
+          "median": -7.4703299325
+        },
+        "rms[nu]": {
+          "min": -2.893643076,
+          "max": -2.893628551,
+          "median": -2.893636472
+        },
+        "CL": {
+          "min": 0.7360028606,
+          "max": 0.7360092473,
+          "median": 0.736006324
+        },
+        "CD": {
+          "min": 0.01417843447,
+          "max": 0.01417848131,
+          "median": 0.01417845986
+        },
+        "Avg CFL": {
+          "min": 29.69232218,
+          "max": 29.69232218,
+          "median": 29.69232218
+        }
+      },
+      "state": {
+        "finite": true,
+        "points": 15929,
+        "min_density": 0.240714874442941,
+        "min_internal_energy_density": 53844.30619917534,
+        "sha256": "e127030db3cfc2c65c809c58282e8fa52f5505f40de8b2d50a856462a3b32c71",
+        "nu_at_floor_count": 690
+      }
+    },
+    {
+      "case": "adapted_sa_muscl",
+      "variant": "fixed",
+      "status": "finished",
+      "exit_code": 0,
+      "wall_seconds": 309.3914235409902,
+      "history_rows": 2000,
+      "last_history": {
+        "Time_Iter": "0",
+        "Outer_Iter": "0",
+        "Inner_Iter": "1999",
+        "rms[Rho]": "-8.252107214",
+        "rms[RhoU]": "-5.987566959",
+        "rms[RhoV]": "-6.126965649",
+        "rms[RhoE]": "-2.800960952",
+        "rms[nu]": "-7.477772043",
+        "Linear_Solver_Iterations": "3",
+        "LinSolRes": "-1.417456177",
+        "LinSolIterTurb": "1",
+        "LinSolResTurb": "-2.288644138",
+        "Min DT": "1.644456842e-08",
+        "Max DT": "0.3000824497",
+        "Min CFL": "1",
+        "Max CFL": "30",
+        "Avg CFL": "29.98907653",
+        "RefForce": "14426.18948",
+        "CD": "0.0139468547",
+        "CL": "0.7253009671",
+        "CSF": "0",
+        "CMx": "0",
+        "CMy": "0",
+        "CMz": "0.09462178868",
+        "CFx": "-0.01529859326",
+        "CFy": "0.7252737143",
+        "CFz": "0",
+        "CEff": "52.00462632",
+        "Buffet": "0.0051905015"
+      },
+      "config_sha256": "fc9f94885d1c000d735c8a8148054977404b0d3c05720fe7d7d0e1e2f43b3f1f",
+      "config": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\n\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\n\nNUM_METHOD_HESS= GREEN_GAUSS\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\n\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\n\nCONV_STARTITER= 100\n\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\n\nWRT_RESTART_COMPACT= NO\n\n\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\n\n\n\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\n\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\n\n\n\n\n\n\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\n\n\nMESH_FILENAME= /tmp/su2-cfd-fixes-inputs/adapted_rae/mesh_adap_00001.su2\n\nSOLUTION_FILENAME= /tmp/su2-cfd-fixes-inputs/adapted_rae/solution_adap_00001\n\nMGLEVEL= 0\n\nITER= 2000\n\nCOMPUTE_METRIC= NO\n\nADAP_LOOP= NO\n\nOUTPUT_FILES= (RESTART_ASCII)\n\nOUTPUT_WRT_FREQ= 1000000\n\nSCREEN_WRT_FREQ_INNER= 100\n\nHISTORY_OUTPUT= (ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL)\n\nTABULAR_FORMAT= CSV\n\nCONV_FILENAME= history\n\nRESTART_FILENAME= fields\n\nCONV_RESIDUAL_MINVAL= -8\n\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\n\nNUM_METHOD_GRAD_RECON= WEIGHTED_LEAST_SQUARES\n\nWRT_ADAP_MESH= NO\n\nVOLUME_OUTPUT= (COORDINATES, SOLUTION, PRIMITIVE)\n\nMUSCL_TURB= YES\n\nSLOPE_LIMITER_TURB= VENKATAKRISHNAN\n\nVENKAT_LIMITER_COEFF= 0.05\n\nLIMITER_ITER= 999999\n\nLIMITER_LOCAL_LENGTH= NO\n",
+      "residual_monitors": [
+        "rms[Rho]",
+        "rms[nu]"
+      ],
+      "residuals_finite": true,
+      "convergence_assessment_eligible": false,
+      "residual_target_met": false,
+      "last_100_iterations": {
+        "rms[Rho]": {
+          "min": -8.252107214,
+          "max": -8.110130026,
+          "median": -8.18167873
+        },
+        "rms[nu]": {
+          "min": -7.477772043,
+          "max": -7.474359771,
+          "median": -7.476383306000001
+        },
+        "CL": {
+          "min": 0.7252988732,
+          "max": 0.7253009671,
+          "median": 0.72530001155
+        },
+        "CD": {
+          "min": 0.01394683259,
+          "max": 0.0139468547,
+          "median": 0.01394684471
+        },
+        "Avg CFL": {
+          "min": 29.98907653,
+          "max": 29.98907653,
+          "median": 29.98907653
+        }
+      },
+      "state": {
+        "finite": true,
+        "points": 15929,
+        "min_density": 0.2424668038119417,
+        "min_internal_energy_density": 54243.94144332004,
+        "sha256": "02d76aa5ac4a7e469ed3767d9f215ae0225309dd93bc5088ae529bfa59cbf68a",
+        "nu_at_floor_count": 528
+      }
+    },
+    {
+      "case": "adapted_sa_muscl",
+      "variant": "fixed_local",
+      "status": "finished",
+      "exit_code": 0,
+      "wall_seconds": 283.0747482099978,
+      "history_rows": 2000,
+      "last_history": {
+        "Time_Iter": "0",
+        "Outer_Iter": "0",
+        "Inner_Iter": "1999",
+        "rms[Rho]": "-8.252265046",
+        "rms[RhoU]": "-5.987724863",
+        "rms[RhoV]": "-6.127054933",
+        "rms[RhoE]": "-2.801068546",
+        "rms[nu]": "-7.477671472",
+        "Linear_Solver_Iterations": "3",
+        "LinSolRes": "-1.417439524",
+        "LinSolIterTurb": "1",
+        "LinSolResTurb": "-2.290177305",
+        "Min DT": "1.644457145e-08",
+        "Max DT": "0.3000824497",
+        "Min CFL": "1",
+        "Max CFL": "30",
+        "Avg CFL": "29.98907653",
+        "RefForce": "14426.18948",
+        "CD": "0.01394675422",
+        "CL": "0.7252969982",
+        "CSF": "0",
+        "CMx": "0",
+        "CMy": "0",
+        "CMz": "0.09462099829",
+        "CFx": "-0.01529853369",
+        "CFy": "0.7252697446",
+        "CFz": "0",
+        "CEff": "52.00471642",
+        "Buffet": "0.0051905015"
+      },
+      "config_sha256": "6ec94b3f3bc379838c3ddb1eb26b144ed82d3291e20abeabb18cc27bcb91940d",
+      "config": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\n\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\n\nNUM_METHOD_HESS= GREEN_GAUSS\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\n\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\n\nCONV_STARTITER= 100\n\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\n\nWRT_RESTART_COMPACT= NO\n\n\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\n\n\n\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\n\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\n\n\n\n\n\n\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\n\n\nMESH_FILENAME= /tmp/su2-cfd-fixes-inputs/adapted_rae/mesh_adap_00001.su2\n\nSOLUTION_FILENAME= /tmp/su2-cfd-fixes-inputs/adapted_rae/solution_adap_00001\n\nMGLEVEL= 0\n\nITER= 2000\n\nCOMPUTE_METRIC= NO\n\nADAP_LOOP= NO\n\nOUTPUT_FILES= (RESTART_ASCII)\n\nOUTPUT_WRT_FREQ= 1000000\n\nSCREEN_WRT_FREQ_INNER= 100\n\nHISTORY_OUTPUT= (ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL)\n\nTABULAR_FORMAT= CSV\n\nCONV_FILENAME= history\n\nRESTART_FILENAME= fields\n\nCONV_RESIDUAL_MINVAL= -8\n\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\n\nNUM_METHOD_GRAD_RECON= WEIGHTED_LEAST_SQUARES\n\nWRT_ADAP_MESH= NO\n\nVOLUME_OUTPUT= (COORDINATES, SOLUTION, PRIMITIVE)\n\nMUSCL_TURB= YES\n\nSLOPE_LIMITER_TURB= VENKATAKRISHNAN\n\nVENKAT_LIMITER_COEFF= 0.05\n\nLIMITER_ITER= 999999\n\nLIMITER_LOCAL_LENGTH= YES\n",
+      "residual_monitors": [
+        "rms[Rho]",
+        "rms[nu]"
+      ],
+      "residuals_finite": true,
+      "convergence_assessment_eligible": false,
+      "residual_target_met": false,
+      "last_100_iterations": {
+        "rms[Rho]": {
+          "min": -8.252265046,
+          "max": -8.110276386,
+          "median": -8.181830421499999
+        },
+        "rms[nu]": {
+          "min": -7.477671472,
+          "max": -7.474280196,
+          "median": -7.4762913865
+        },
+        "CL": {
+          "min": 0.7252949047,
+          "max": 0.7252969982,
+          "median": 0.7252960428499999
+        },
+        "CD": {
+          "min": 0.01394673211,
+          "max": 0.01394675422,
+          "median": 0.013946744229999999
+        },
+        "Avg CFL": {
+          "min": 29.98907653,
+          "max": 29.98907653,
+          "median": 29.98907653
+        }
+      },
+      "state": {
+        "finite": true,
+        "points": 15929,
+        "min_density": 0.242467492227608,
+        "min_internal_energy_density": 54244.09484825419,
+        "sha256": "0e4bb4a394c229852103e3b8ce15b0cc7d7bf7e8ac8812d674477e7d221a514a",
+        "nu_at_floor_count": 528
+      }
+    },
+    {
+      "case": "bl_sa_muscl",
+      "variant": "current",
+      "status": "finished",
+      "exit_code": 0,
+      "wall_seconds": 195.29122836999886,
+      "history_rows": 2000,
+      "last_history": {
+        "Time_Iter": "0",
+        "Outer_Iter": "0",
+        "Inner_Iter": "1999",
+        "rms[Rho]": "-6.60506807",
+        "rms[RhoU]": "-3.80791723",
+        "rms[RhoV]": "-4.190324229",
+        "rms[RhoE]": "-1.138290125",
+        "rms[nu]": "-3.588084205",
+        "Linear_Solver_Iterations": "0",
+        "LinSolRes": "-3.971537907",
+        "LinSolIterTurb": "0",
+        "LinSolResTurb": "-5.582657613",
+        "Min DT": "7.01487265e-09",
+        "Max DT": "0.005578896666",
+        "Min CFL": "1",
+        "Max CFL": "1",
+        "Avg CFL": "1",
+        "RefForce": "14426.18948",
+        "CD": "0.01434561688",
+        "CL": "0.7463845962",
+        "CSF": "0",
+        "CMx": "0",
+        "CMy": "0",
+        "CMz": "0.09794523818",
+        "CFx": "-0.01574995577",
+        "CFy": "0.7463562829",
+        "CFz": "0",
+        "CEff": "52.02875571",
+        "Buffet": "0.005135115658"
+      },
+      "config_sha256": "6f357453c7e885886274c80ff04bcf2f9defabd439219510be54c6f358aefaf8",
+      "config": "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n%                                                                              %\n% SU2 configuration file                                                       %\n% Case description: Transonic simulation RAE2822 (RANS)                        %\n% Author: Francisco Palacios                                                   %\n% Institution: Stanford University                                             %\n% Date: 5/15/2013                                                              %\n% File Version 8.5.0 \"Harrier\"                                                 %\n%                                                                              %\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n% ------------- DIRECT, ADJOINT, AND LINEARIZED PROBLEM DEFINITION ------------%\n%\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nMATH_PROBLEM= DIRECT\n\n% -------------------- COMPRESSIBLE FREE-STREAM DEFINITION --------------------%\n%\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREYNOLDS_NUMBER= 6.5E6\nREYNOLDS_LENGTH= 1.0\n\n% ---------------------- REFERENCE VALUE DEFINITION ---------------------------%\n%\nREF_ORIGIN_MOMENT_X = 0.25\nREF_ORIGIN_MOMENT_Y = 0.00\nREF_ORIGIN_MOMENT_Z = 0.00\nREF_LENGTH= 1.0\nREF_AREA= 1.0\n\n% -------------------- BOUNDARY CONDITION DEFINITION --------------------------%\n%\nMARKER_HEATFLUX= ( AIRFOIL, 0.0 )\nMARKER_FAR= ( FARFIELD )\nMARKER_PLOTTING= ( AIRFOIL )\nMARKER_MONITORING= ( AIRFOIL )\n\n% ------------- COMMON PARAMETERS DEFINING THE NUMERICAL METHOD ---------------%\n%\n\n\nLINEAR_SOLVER= BCGSTAB\n\n\n\n% -------------------------- MULTIGRID PARAMETERS -----------------------------%\n%\n\nMGCYCLE= V_CYCLE\nMG_PRE_SMOOTH= ( 1, 2, 2, 2 )\nMG_POST_SMOOTH= ( 2, 2, 2, 2 )\nMG_CORRECTION_SMOOTH= ( 1, 1, 1, 1 )\nMG_DAMP_RESTRICTION= 0.75\nMG_DAMP_PROLONGATION= 0.75\nMG_IMPLICIT_LINES= YES\n\n% -------------------- FLOW NUMERICAL METHOD DEFINITION -----------------------%\n%\n\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\n\n% -------------------- TURBULENT NUMERICAL METHOD DEFINITION ------------------%\n%\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\n\nTIME_DISCRE_TURB= EULER_IMPLICIT\n\n% ---------------- ADJOINT-FLOW NUMERICAL METHOD DEFINITION -------------------%\nOBJECTIVE_FUNCTION= DRAG\nCONV_NUM_METHOD_ADJFLOW= JST\nADJ_SHARP_LIMITER_COEFF= 3.0\nADJ_JST_SENSOR_COEFF= ( 0.0, 0.01 )\nCFL_REDUCTION_ADJFLOW= 0.75\nTIME_DISCRE_ADJFLOW= EULER_IMPLICIT\nFROZEN_VISC_CONT= YES\n\n% --------------------------- CONVERGENCE PARAMETERS --------------------------%\n\nCONV_STARTITER= 10\nCONV_CAUCHY_ELEMS= 100\nCONV_CAUCHY_EPS= 1E-6\n\n% ------------------------- INPUT/OUTPUT INFORMATION --------------------------%\n%\n\nMESH_FORMAT= SU2\nMESH_OUT_FILENAME= mesh_out\nSOLUTION_FILENAME= solution_flow\nSOLUTION_ADJ_FILENAME= solution_adj\n\nRESTART_ADJ_FILENAME= restart_adj\nVOLUME_FILENAME= flow\nVOLUME_ADJ_FILENAME= adjoint\nGRAD_OBJFUNC_FILENAME= of_grad\nSURFACE_FILENAME= surface_flow\nSURFACE_ADJ_FILENAME= surface_adjoint\n\n% ------------------------ GRID DEFORMATION PARAMETERS ------------------------%\n%\nDV_KIND= FFD_SETTING\nDV_MARKER= ( AIRFOIL )\nDV_PARAM= ( 1, 0.5 )\nDV_VALUE= 0.01\nHOLD_GRID_FIXED= NO\nHOLD_GRID_FIXED_COORD= ( -0.5, -0.49, 0.0, 2.5, 0.49, 0.0 )\n\n% --------------------- OPTIMAL SHAPE DESIGN DEFINITION -----------------------%\n%\n\nOPT_CONSTRAINT= NONE\nDEFINITION_DV= ( 30, 1.0 | AIRFOIL | 0, 0.05 ); ( 30, 1.0 | AIRFOIL | 0, 0.10 ); ( 30, 1.0 | AIRFOIL | 0, 0.15 ); ( 30, 1.0 | AIRFOIL | 0, 0.20 ); ( 30, 1.0 | AIRFOIL | 0, 0.25 ); ( 30, 1.0 | AIRFOIL | 0, 0.30 ); ( 30, 1.0 | AIRFOIL | 0, 0.35 ); ( 30, 1.0 | AIRFOIL | 0, 0.40 ); ( 30, 1.0 | AIRFOIL | 0, 0.45 ); ( 30, 1.0 | AIRFOIL | 0, 0.50 ); ( 30, 1.0 | AIRFOIL | 0, 0.55 ); ( 30, 1.0 | AIRFOIL | 0, 0.60 ); ( 30, 1.0 | AIRFOIL | 0, 0.65 ); ( 30, 1.0 | AIRFOIL | 0, 0.70 ); ( 30, 1.0 | AIRFOIL | 0, 0.75 ); ( 30, 1.0 | AIRFOIL | 0, 0.80 ); ( 30, 1.0 | AIRFOIL | 0, 0.85 ); ( 30, 1.0 | AIRFOIL | 0, 0.90 ); ( 30, 1.0 | AIRFOIL | 0, 0.95 ); ( 30, 1.0 | AIRFOIL | 1, 0.05 ); ( 30, 1.0 | AIRFOIL | 1, 0.10 ); ( 30, 1.0 | AIRFOIL | 1, 0.15 ); ( 30, 1.0 | AIRFOIL | 1, 0.20 ); ( 30, 1.0 | AIRFOIL | 1, 0.25 ); ( 30, 1.0 | AIRFOIL | 1, 0.30 ); ( 30, 1.0 | AIRFOIL | 1, 0.35 ); ( 30, 1.0 | AIRFOIL | 1, 0.40 ); ( 30, 1.0 | AIRFOIL | 1, 0.45 ); ( 30, 1.0 | AIRFOIL | 1, 0.50 ); ( 30, 1.0 | AIRFOIL | 1, 0.55 ); ( 30, 1.0 | AIRFOIL | 1, 0.60 ); ( 30, 1.0 | AIRFOIL | 1, 0.65 ); ( 30, 1.0 | AIRFOIL | 1, 0.70 ); ( 30, 1.0 | AIRFOIL | 1, 0.75 ); ( 30, 1.0 | AIRFOIL | 1, 0.80 ); ( 30, 1.0 | AIRFOIL | 1, 0.85 ); ( 30, 1.0 | AIRFOIL | 1, 0.90 ); ( 30, 1.0 | AIRFOIL | 1, 0.95 )\n\nMGLEVEL= 0\n\nITER= 2000\n\nCOMPUTE_METRIC= NO\n\nADAP_LOOP= NO\n\nOUTPUT_FILES= (RESTART_ASCII)\n\nOUTPUT_WRT_FREQ= 1000000\n\nSCREEN_WRT_FREQ_INNER= 100\n\nHISTORY_OUTPUT= (ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL)\n\nTABULAR_FORMAT= CSV\n\nCONV_FILENAME= history\n\nRESTART_FILENAME= fields\n\nCONV_RESIDUAL_MINVAL= -8\n\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\n\nNUM_METHOD_GRAD_RECON= WEIGHTED_LEAST_SQUARES\n\nWRT_ADAP_MESH= NO\n\nVOLUME_OUTPUT= (COORDINATES, SOLUTION, PRIMITIVE)\n\nMESH_FILENAME= /media/rausa/4TB/SU2_Versions/Prove/MeanFlowBugs/10_convergence/c2_rae2822_sa/mesh_RAE2822_turb.su2\n\nRESTART_SOL= NO\n\nCONV_NUM_METHOD_FLOW= ROE\n\nMUSCL_FLOW= YES\n\nSLOPE_LIMITER_FLOW= VENKATAKRISHNAN\n\nMUSCL_TURB= YES\n\nSLOPE_LIMITER_TURB= VENKATAKRISHNAN\n\nVENKAT_LIMITER_COEFF= 0.05\n\nLIMITER_ITER= 999999\n\nCFL_NUMBER= 3\n\nCFL_ADAPT= YES\n\nCFL_ADAPT_PARAM= (0.5, 1.2, 1, 30, 0.05, 10)\n\nLINEAR_SOLVER_PREC= ILU\n\nLINEAR_SOLVER_ITER= 25\n\nLINEAR_SOLVER_ERROR= 0.05\n\nCONV_FIELD= (RMS_DENSITY, RMS_NU_TILDE)\n\nSCREEN_OUTPUT= (INNER_ITER, RMS_DENSITY, LIFT, DRAG, AVG_CFL)\n",
+      "residual_monitors": [
+        "rms[Rho]",
+        "rms[nu]"
+      ],
+      "residuals_finite": true,
+      "convergence_assessment_eligible": true,
+      "residual_target_met": false,
+      "last_100_iterations": {
+        "rms[Rho]": {
+          "min": -6.753372969,
+          "max": -4.875127024,
+          "median": -6.7438487345
+        },
+        "rms[nu]": {
+          "min": -3.588084206,
+          "max": -3.588062306,
+          "median": -3.588066476
+        },
+        "CL": {
+          "min": 0.7463746385,
+          "max": 0.7463856773,
+          "median": 0.74637545555
+        },
+        "CD": {
+          "min": 0.0143455009,
+          "max": 0.01434622544,
+          "median": 0.01434558308
+        },
+        "Avg CFL": {
+          "min": 1.0,
+          "max": 29.70036593,
+          "median": 3.6390386305
+        }
+      },
+      "state": {
+        "finite": true,
+        "points": 13937,
+        "min_density": 0.2380003468210069,
+        "min_internal_energy_density": 53190.14003315898,
+        "sha256": "dbf8f9186e15eddc54971efbe9210d24f2dabfe69416548c01ac0d8d798b6052",
+        "nu_at_floor_count": 334
+      }
+    },
+    {
+      "case": "bl_sa_muscl",
+      "variant": "fixed",
+      "status": "finished",
+      "exit_code": 0,
+      "wall_seconds": 223.54007635200105,
+      "history_rows": 2000,
+      "last_history": {
+        "Time_Iter": "0",
+        "Outer_Iter": "0",
+        "Inner_Iter": "1999",
+        "rms[Rho]": "-5.93699053",
+        "rms[RhoU]": "-3.893289548",
+        "rms[RhoV]": "-3.569709395",
+        "rms[RhoE]": "-0.4326703466",
+        "rms[nu]": "-8.310775613",
+        "Linear_Solver_Iterations": "0",
+        "LinSolRes": "-2.209833392",
+        "LinSolIterTurb": "0",
+        "LinSolResTurb": "-1.954335552",
+        "Min DT": "2.104471902e-07",
+        "Max DT": "0.1673673103",
+        "Min CFL": "30",
+        "Max CFL": "30",
+        "Avg CFL": "30",
+        "RefForce": "14426.18948",
+        "CD": "0.01419345752",
+        "CL": "0.7364345052",
+        "CSF": "0",
+        "CMx": "0",
+        "CMy": "0",
+        "CMz": "0.09611824031",
+        "CFx": "-0.01550094128",
+        "CFy": "0.7364081447",
+        "CFz": "0",
+        "CEff": "51.88549049",
+        "Buffet": "0.005135115658"
+      },
+      "config_sha256": "c8d1d23a4db26331b32ad4fac637ced6eb2c77e1b6b21a1802af4657275a120c",
+      "config": "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n%                                                                              %\n% SU2 configuration file                                                       %\n% Case description: Transonic simulation RAE2822 (RANS)                        %\n% Author: Francisco Palacios                                                   %\n% Institution: Stanford University                                             %\n% Date: 5/15/2013                                                              %\n% File Version 8.5.0 \"Harrier\"                                                 %\n%                                                                              %\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n% ------------- DIRECT, ADJOINT, AND LINEARIZED PROBLEM DEFINITION ------------%\n%\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nMATH_PROBLEM= DIRECT\n\n% -------------------- COMPRESSIBLE FREE-STREAM DEFINITION --------------------%\n%\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREYNOLDS_NUMBER= 6.5E6\nREYNOLDS_LENGTH= 1.0\n\n% ---------------------- REFERENCE VALUE DEFINITION ---------------------------%\n%\nREF_ORIGIN_MOMENT_X = 0.25\nREF_ORIGIN_MOMENT_Y = 0.00\nREF_ORIGIN_MOMENT_Z = 0.00\nREF_LENGTH= 1.0\nREF_AREA= 1.0\n\n% -------------------- BOUNDARY CONDITION DEFINITION --------------------------%\n%\nMARKER_HEATFLUX= ( AIRFOIL, 0.0 )\nMARKER_FAR= ( FARFIELD )\nMARKER_PLOTTING= ( AIRFOIL )\nMARKER_MONITORING= ( AIRFOIL )\n\n% ------------- COMMON PARAMETERS DEFINING THE NUMERICAL METHOD ---------------%\n%\n\n\nLINEAR_SOLVER= BCGSTAB\n\n\n\n% -------------------------- MULTIGRID PARAMETERS -----------------------------%\n%\n\nMGCYCLE= V_CYCLE\nMG_PRE_SMOOTH= ( 1, 2, 2, 2 )\nMG_POST_SMOOTH= ( 2, 2, 2, 2 )\nMG_CORRECTION_SMOOTH= ( 1, 1, 1, 1 )\nMG_DAMP_RESTRICTION= 0.75\nMG_DAMP_PROLONGATION= 0.75\nMG_IMPLICIT_LINES= YES\n\n% -------------------- FLOW NUMERICAL METHOD DEFINITION -----------------------%\n%\n\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\n\n% -------------------- TURBULENT NUMERICAL METHOD DEFINITION ------------------%\n%\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\n\nTIME_DISCRE_TURB= EULER_IMPLICIT\n\n% ---------------- ADJOINT-FLOW NUMERICAL METHOD DEFINITION -------------------%\nOBJECTIVE_FUNCTION= DRAG\nCONV_NUM_METHOD_ADJFLOW= JST\nADJ_SHARP_LIMITER_COEFF= 3.0\nADJ_JST_SENSOR_COEFF= ( 0.0, 0.01 )\nCFL_REDUCTION_ADJFLOW= 0.75\nTIME_DISCRE_ADJFLOW= EULER_IMPLICIT\nFROZEN_VISC_CONT= YES\n\n% --------------------------- CONVERGENCE PARAMETERS --------------------------%\n\nCONV_STARTITER= 10\nCONV_CAUCHY_ELEMS= 100\nCONV_CAUCHY_EPS= 1E-6\n\n% ------------------------- INPUT/OUTPUT INFORMATION --------------------------%\n%\n\nMESH_FORMAT= SU2\nMESH_OUT_FILENAME= mesh_out\nSOLUTION_FILENAME= solution_flow\nSOLUTION_ADJ_FILENAME= solution_adj\n\nRESTART_ADJ_FILENAME= restart_adj\nVOLUME_FILENAME= flow\nVOLUME_ADJ_FILENAME= adjoint\nGRAD_OBJFUNC_FILENAME= of_grad\nSURFACE_FILENAME= surface_flow\nSURFACE_ADJ_FILENAME= surface_adjoint\n\n% ------------------------ GRID DEFORMATION PARAMETERS ------------------------%\n%\nDV_KIND= FFD_SETTING\nDV_MARKER= ( AIRFOIL )\nDV_PARAM= ( 1, 0.5 )\nDV_VALUE= 0.01\nHOLD_GRID_FIXED= NO\nHOLD_GRID_FIXED_COORD= ( -0.5, -0.49, 0.0, 2.5, 0.49, 0.0 )\n\n% --------------------- OPTIMAL SHAPE DESIGN DEFINITION -----------------------%\n%\n\nOPT_CONSTRAINT= NONE\nDEFINITION_DV= ( 30, 1.0 | AIRFOIL | 0, 0.05 ); ( 30, 1.0 | AIRFOIL | 0, 0.10 ); ( 30, 1.0 | AIRFOIL | 0, 0.15 ); ( 30, 1.0 | AIRFOIL | 0, 0.20 ); ( 30, 1.0 | AIRFOIL | 0, 0.25 ); ( 30, 1.0 | AIRFOIL | 0, 0.30 ); ( 30, 1.0 | AIRFOIL | 0, 0.35 ); ( 30, 1.0 | AIRFOIL | 0, 0.40 ); ( 30, 1.0 | AIRFOIL | 0, 0.45 ); ( 30, 1.0 | AIRFOIL | 0, 0.50 ); ( 30, 1.0 | AIRFOIL | 0, 0.55 ); ( 30, 1.0 | AIRFOIL | 0, 0.60 ); ( 30, 1.0 | AIRFOIL | 0, 0.65 ); ( 30, 1.0 | AIRFOIL | 0, 0.70 ); ( 30, 1.0 | AIRFOIL | 0, 0.75 ); ( 30, 1.0 | AIRFOIL | 0, 0.80 ); ( 30, 1.0 | AIRFOIL | 0, 0.85 ); ( 30, 1.0 | AIRFOIL | 0, 0.90 ); ( 30, 1.0 | AIRFOIL | 0, 0.95 ); ( 30, 1.0 | AIRFOIL | 1, 0.05 ); ( 30, 1.0 | AIRFOIL | 1, 0.10 ); ( 30, 1.0 | AIRFOIL | 1, 0.15 ); ( 30, 1.0 | AIRFOIL | 1, 0.20 ); ( 30, 1.0 | AIRFOIL | 1, 0.25 ); ( 30, 1.0 | AIRFOIL | 1, 0.30 ); ( 30, 1.0 | AIRFOIL | 1, 0.35 ); ( 30, 1.0 | AIRFOIL | 1, 0.40 ); ( 30, 1.0 | AIRFOIL | 1, 0.45 ); ( 30, 1.0 | AIRFOIL | 1, 0.50 ); ( 30, 1.0 | AIRFOIL | 1, 0.55 ); ( 30, 1.0 | AIRFOIL | 1, 0.60 ); ( 30, 1.0 | AIRFOIL | 1, 0.65 ); ( 30, 1.0 | AIRFOIL | 1, 0.70 ); ( 30, 1.0 | AIRFOIL | 1, 0.75 ); ( 30, 1.0 | AIRFOIL | 1, 0.80 ); ( 30, 1.0 | AIRFOIL | 1, 0.85 ); ( 30, 1.0 | AIRFOIL | 1, 0.90 ); ( 30, 1.0 | AIRFOIL | 1, 0.95 )\n\nMGLEVEL= 0\n\nITER= 2000\n\nCOMPUTE_METRIC= NO\n\nADAP_LOOP= NO\n\nOUTPUT_FILES= (RESTART_ASCII)\n\nOUTPUT_WRT_FREQ= 1000000\n\nSCREEN_WRT_FREQ_INNER= 100\n\nHISTORY_OUTPUT= (ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL)\n\nTABULAR_FORMAT= CSV\n\nCONV_FILENAME= history\n\nRESTART_FILENAME= fields\n\nCONV_RESIDUAL_MINVAL= -8\n\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\n\nNUM_METHOD_GRAD_RECON= WEIGHTED_LEAST_SQUARES\n\nWRT_ADAP_MESH= NO\n\nVOLUME_OUTPUT= (COORDINATES, SOLUTION, PRIMITIVE)\n\nMESH_FILENAME= /media/rausa/4TB/SU2_Versions/Prove/MeanFlowBugs/10_convergence/c2_rae2822_sa/mesh_RAE2822_turb.su2\n\nRESTART_SOL= NO\n\nCONV_NUM_METHOD_FLOW= ROE\n\nMUSCL_FLOW= YES\n\nSLOPE_LIMITER_FLOW= VENKATAKRISHNAN\n\nMUSCL_TURB= YES\n\nSLOPE_LIMITER_TURB= VENKATAKRISHNAN\n\nVENKAT_LIMITER_COEFF= 0.05\n\nLIMITER_ITER= 999999\n\nCFL_NUMBER= 3\n\nCFL_ADAPT= YES\n\nCFL_ADAPT_PARAM= (0.5, 1.2, 1, 30, 0.05, 10)\n\nLINEAR_SOLVER_PREC= ILU\n\nLINEAR_SOLVER_ITER= 25\n\nLINEAR_SOLVER_ERROR= 0.05\n\nCONV_FIELD= (RMS_DENSITY, RMS_NU_TILDE)\n\nSCREEN_OUTPUT= (INNER_ITER, RMS_DENSITY, LIFT, DRAG, AVG_CFL)\n\nLIMITER_LOCAL_LENGTH= NO\n",
+      "residual_monitors": [
+        "rms[Rho]",
+        "rms[nu]"
+      ],
+      "residuals_finite": true,
+      "convergence_assessment_eligible": true,
+      "residual_target_met": false,
+      "last_100_iterations": {
+        "rms[Rho]": {
+          "min": -6.883446057,
+          "max": -4.923091379,
+          "median": -6.837868545
+        },
+        "rms[nu]": {
+          "min": -8.639129426,
+          "max": -8.011896155,
+          "median": -8.5264977565
+        },
+        "CL": {
+          "min": 0.7364276438,
+          "max": 0.7364345052,
+          "median": 0.73643094885
+        },
+        "CD": {
+          "min": 0.01419294247,
+          "max": 0.01419345752,
+          "median": 0.014193164415
+        },
+        "Avg CFL": {
+          "min": 1.0,
+          "max": 30.0,
+          "median": 1.0
+        }
+      },
+      "state": {
+        "finite": true,
+        "points": 13937,
+        "min_density": 0.2402134056071193,
+        "min_internal_energy_density": 53666.520656736444,
+        "sha256": "41dffbef7eb58b569b57e1a773e12d31e81004fbde27a03e26b79e81d618a4bd",
+        "nu_at_floor_count": 192
+      }
+    },
+    {
+      "case": "bl_sa_muscl",
+      "variant": "fixed_local",
+      "status": "finished",
+      "exit_code": 0,
+      "wall_seconds": 234.94021891798184,
+      "history_rows": 2000,
+      "last_history": {
+        "Time_Iter": "0",
+        "Outer_Iter": "0",
+        "Inner_Iter": "1999",
+        "rms[Rho]": "-5.795537048",
+        "rms[RhoU]": "-3.791806186",
+        "rms[RhoV]": "-3.736742091",
+        "rms[RhoE]": "-0.2990125425",
+        "rms[nu]": "-8.635484327",
+        "Linear_Solver_Iterations": "0",
+        "LinSolRes": "-4.450069529",
+        "LinSolIterTurb": "0",
+        "LinSolResTurb": "-5.510402401",
+        "Min DT": "1.315296071e-08",
+        "Max DT": "0.01046045269",
+        "Min CFL": "1",
+        "Max CFL": "1",
+        "Avg CFL": "1",
+        "RefForce": "14426.18948",
+        "CD": "0.01419373801",
+        "CL": "0.7364891237",
+        "CSF": "0",
+        "CMx": "0",
+        "CMy": "0",
+        "CMz": "0.09612583815",
+        "CFx": "-0.01550286248",
+        "CFy": "0.7364627301",
+        "CFz": "0",
+        "CEff": "51.88831322",
+        "Buffet": "0.005135115658"
+      },
+      "config_sha256": "75f9a9e805655ca85b7cc72475c37b1fe843094e8670c28b4598e6d5fd7ef8cf",
+      "config": "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n%                                                                              %\n% SU2 configuration file                                                       %\n% Case description: Transonic simulation RAE2822 (RANS)                        %\n% Author: Francisco Palacios                                                   %\n% Institution: Stanford University                                             %\n% Date: 5/15/2013                                                              %\n% File Version 8.5.0 \"Harrier\"                                                 %\n%                                                                              %\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n% ------------- DIRECT, ADJOINT, AND LINEARIZED PROBLEM DEFINITION ------------%\n%\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nMATH_PROBLEM= DIRECT\n\n% -------------------- COMPRESSIBLE FREE-STREAM DEFINITION --------------------%\n%\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREYNOLDS_NUMBER= 6.5E6\nREYNOLDS_LENGTH= 1.0\n\n% ---------------------- REFERENCE VALUE DEFINITION ---------------------------%\n%\nREF_ORIGIN_MOMENT_X = 0.25\nREF_ORIGIN_MOMENT_Y = 0.00\nREF_ORIGIN_MOMENT_Z = 0.00\nREF_LENGTH= 1.0\nREF_AREA= 1.0\n\n% -------------------- BOUNDARY CONDITION DEFINITION --------------------------%\n%\nMARKER_HEATFLUX= ( AIRFOIL, 0.0 )\nMARKER_FAR= ( FARFIELD )\nMARKER_PLOTTING= ( AIRFOIL )\nMARKER_MONITORING= ( AIRFOIL )\n\n% ------------- COMMON PARAMETERS DEFINING THE NUMERICAL METHOD ---------------%\n%\n\n\nLINEAR_SOLVER= BCGSTAB\n\n\n\n% -------------------------- MULTIGRID PARAMETERS -----------------------------%\n%\n\nMGCYCLE= V_CYCLE\nMG_PRE_SMOOTH= ( 1, 2, 2, 2 )\nMG_POST_SMOOTH= ( 2, 2, 2, 2 )\nMG_CORRECTION_SMOOTH= ( 1, 1, 1, 1 )\nMG_DAMP_RESTRICTION= 0.75\nMG_DAMP_PROLONGATION= 0.75\nMG_IMPLICIT_LINES= YES\n\n% -------------------- FLOW NUMERICAL METHOD DEFINITION -----------------------%\n%\n\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\n\n% -------------------- TURBULENT NUMERICAL METHOD DEFINITION ------------------%\n%\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\n\nTIME_DISCRE_TURB= EULER_IMPLICIT\n\n% ---------------- ADJOINT-FLOW NUMERICAL METHOD DEFINITION -------------------%\nOBJECTIVE_FUNCTION= DRAG\nCONV_NUM_METHOD_ADJFLOW= JST\nADJ_SHARP_LIMITER_COEFF= 3.0\nADJ_JST_SENSOR_COEFF= ( 0.0, 0.01 )\nCFL_REDUCTION_ADJFLOW= 0.75\nTIME_DISCRE_ADJFLOW= EULER_IMPLICIT\nFROZEN_VISC_CONT= YES\n\n% --------------------------- CONVERGENCE PARAMETERS --------------------------%\n\nCONV_STARTITER= 10\nCONV_CAUCHY_ELEMS= 100\nCONV_CAUCHY_EPS= 1E-6\n\n% ------------------------- INPUT/OUTPUT INFORMATION --------------------------%\n%\n\nMESH_FORMAT= SU2\nMESH_OUT_FILENAME= mesh_out\nSOLUTION_FILENAME= solution_flow\nSOLUTION_ADJ_FILENAME= solution_adj\n\nRESTART_ADJ_FILENAME= restart_adj\nVOLUME_FILENAME= flow\nVOLUME_ADJ_FILENAME= adjoint\nGRAD_OBJFUNC_FILENAME= of_grad\nSURFACE_FILENAME= surface_flow\nSURFACE_ADJ_FILENAME= surface_adjoint\n\n% ------------------------ GRID DEFORMATION PARAMETERS ------------------------%\n%\nDV_KIND= FFD_SETTING\nDV_MARKER= ( AIRFOIL )\nDV_PARAM= ( 1, 0.5 )\nDV_VALUE= 0.01\nHOLD_GRID_FIXED= NO\nHOLD_GRID_FIXED_COORD= ( -0.5, -0.49, 0.0, 2.5, 0.49, 0.0 )\n\n% --------------------- OPTIMAL SHAPE DESIGN DEFINITION -----------------------%\n%\n\nOPT_CONSTRAINT= NONE\nDEFINITION_DV= ( 30, 1.0 | AIRFOIL | 0, 0.05 ); ( 30, 1.0 | AIRFOIL | 0, 0.10 ); ( 30, 1.0 | AIRFOIL | 0, 0.15 ); ( 30, 1.0 | AIRFOIL | 0, 0.20 ); ( 30, 1.0 | AIRFOIL | 0, 0.25 ); ( 30, 1.0 | AIRFOIL | 0, 0.30 ); ( 30, 1.0 | AIRFOIL | 0, 0.35 ); ( 30, 1.0 | AIRFOIL | 0, 0.40 ); ( 30, 1.0 | AIRFOIL | 0, 0.45 ); ( 30, 1.0 | AIRFOIL | 0, 0.50 ); ( 30, 1.0 | AIRFOIL | 0, 0.55 ); ( 30, 1.0 | AIRFOIL | 0, 0.60 ); ( 30, 1.0 | AIRFOIL | 0, 0.65 ); ( 30, 1.0 | AIRFOIL | 0, 0.70 ); ( 30, 1.0 | AIRFOIL | 0, 0.75 ); ( 30, 1.0 | AIRFOIL | 0, 0.80 ); ( 30, 1.0 | AIRFOIL | 0, 0.85 ); ( 30, 1.0 | AIRFOIL | 0, 0.90 ); ( 30, 1.0 | AIRFOIL | 0, 0.95 ); ( 30, 1.0 | AIRFOIL | 1, 0.05 ); ( 30, 1.0 | AIRFOIL | 1, 0.10 ); ( 30, 1.0 | AIRFOIL | 1, 0.15 ); ( 30, 1.0 | AIRFOIL | 1, 0.20 ); ( 30, 1.0 | AIRFOIL | 1, 0.25 ); ( 30, 1.0 | AIRFOIL | 1, 0.30 ); ( 30, 1.0 | AIRFOIL | 1, 0.35 ); ( 30, 1.0 | AIRFOIL | 1, 0.40 ); ( 30, 1.0 | AIRFOIL | 1, 0.45 ); ( 30, 1.0 | AIRFOIL | 1, 0.50 ); ( 30, 1.0 | AIRFOIL | 1, 0.55 ); ( 30, 1.0 | AIRFOIL | 1, 0.60 ); ( 30, 1.0 | AIRFOIL | 1, 0.65 ); ( 30, 1.0 | AIRFOIL | 1, 0.70 ); ( 30, 1.0 | AIRFOIL | 1, 0.75 ); ( 30, 1.0 | AIRFOIL | 1, 0.80 ); ( 30, 1.0 | AIRFOIL | 1, 0.85 ); ( 30, 1.0 | AIRFOIL | 1, 0.90 ); ( 30, 1.0 | AIRFOIL | 1, 0.95 )\n\nMGLEVEL= 0\n\nITER= 2000\n\nCOMPUTE_METRIC= NO\n\nADAP_LOOP= NO\n\nOUTPUT_FILES= (RESTART_ASCII)\n\nOUTPUT_WRT_FREQ= 1000000\n\nSCREEN_WRT_FREQ_INNER= 100\n\nHISTORY_OUTPUT= (ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL)\n\nTABULAR_FORMAT= CSV\n\nCONV_FILENAME= history\n\nRESTART_FILENAME= fields\n\nCONV_RESIDUAL_MINVAL= -8\n\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\n\nNUM_METHOD_GRAD_RECON= WEIGHTED_LEAST_SQUARES\n\nWRT_ADAP_MESH= NO\n\nVOLUME_OUTPUT= (COORDINATES, SOLUTION, PRIMITIVE)\n\nMESH_FILENAME= /media/rausa/4TB/SU2_Versions/Prove/MeanFlowBugs/10_convergence/c2_rae2822_sa/mesh_RAE2822_turb.su2\n\nRESTART_SOL= NO\n\nCONV_NUM_METHOD_FLOW= ROE\n\nMUSCL_FLOW= YES\n\nSLOPE_LIMITER_FLOW= VENKATAKRISHNAN\n\nMUSCL_TURB= YES\n\nSLOPE_LIMITER_TURB= VENKATAKRISHNAN\n\nVENKAT_LIMITER_COEFF= 0.05\n\nLIMITER_ITER= 999999\n\nCFL_NUMBER= 3\n\nCFL_ADAPT= YES\n\nCFL_ADAPT_PARAM= (0.5, 1.2, 1, 30, 0.05, 10)\n\nLINEAR_SOLVER_PREC= ILU\n\nLINEAR_SOLVER_ITER= 25\n\nLINEAR_SOLVER_ERROR= 0.05\n\nCONV_FIELD= (RMS_DENSITY, RMS_NU_TILDE)\n\nSCREEN_OUTPUT= (INNER_ITER, RMS_DENSITY, LIFT, DRAG, AVG_CFL)\n\nLIMITER_LOCAL_LENGTH= YES\n",
+      "residual_monitors": [
+        "rms[Rho]",
+        "rms[nu]"
+      ],
+      "residuals_finite": true,
+      "convergence_assessment_eligible": true,
+      "residual_target_met": false,
+      "last_100_iterations": {
+        "rms[Rho]": {
+          "min": -7.053004397,
+          "max": -4.912292198,
+          "median": -6.7105150705
+        },
+        "rms[nu]": {
+          "min": -8.771137334,
+          "max": -7.887671069,
+          "median": -8.591525038499999
+        },
+        "CL": {
+          "min": 0.7364769705,
+          "max": 0.7364901664,
+          "median": 0.7364832753999999
+        },
+        "CD": {
+          "min": 0.01419349725,
+          "max": 0.01419409155,
+          "median": 0.01419362385
+        },
+        "Avg CFL": {
+          "min": 1.0,
+          "max": 30.0,
+          "median": 20.33726848
+        }
+      },
+      "state": {
+        "finite": true,
+        "points": 13937,
+        "min_density": 0.240204350644247,
+        "min_internal_energy_density": 53665.1082793133,
+        "sha256": "05ec6cb8351fdf36895e71bac89497a57a5883dea447d6b6ce7151144e5fedca",
+        "nu_at_floor_count": 192
+      }
+    },
+    {
+      "case": "bl_sst_muscl",
+      "variant": "current",
+      "status": "finished",
+      "exit_code": 0,
+      "wall_seconds": 202.04514304199256,
+      "history_rows": 2000,
+      "last_history": {
+        "Time_Iter": "0",
+        "Outer_Iter": "0",
+        "Inner_Iter": "1999",
+        "rms[Rho]": "-4.885814614",
+        "rms[RhoU]": "-2.870674707",
+        "rms[RhoV]": "-2.405872896",
+        "rms[RhoE]": "0.6213311934",
+        "rms[k]": "-3.398102506",
+        "rms[w]": "3.828902179",
+        "Linear_Solver_Iterations": "1",
+        "LinSolRes": "-2.44473198",
+        "LinSolIterTurb": "1",
+        "LinSolResTurb": "-6.54249387",
+        "Min DT": "1.592201125e-08",
+        "Max DT": "0.1673679217",
+        "Min CFL": "1",
+        "Max CFL": "30",
+        "Avg CFL": "29.99791921",
+        "RefForce": "14426.18948",
+        "CD": "0.01366365321",
+        "CL": "0.7213099169",
+        "CSF": "0",
+        "CMx": "0",
+        "CMy": "0",
+        "CMz": "0.09317464917",
+        "CFx": "-0.01542070061",
+        "CFy": "0.7212744925",
+        "CFz": "0",
+        "CEff": "52.79041452",
+        "Buffet": "0.005135115658"
+      },
+      "config_sha256": "bcbe440fda7714f4a3fc4e8238db4584d00a0ed14203967f52ce7de66dd89cd3",
+      "config": "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n%                                                                              %\n% SU2 configuration file                                                       %\n% Case description: Transonic simulation RAE2822 (RANS)                        %\n% Author: Francisco Palacios                                                   %\n% Institution: Stanford University                                             %\n% Date: 5/15/2013                                                              %\n% File Version 8.5.0 \"Harrier\"                                                 %\n%                                                                              %\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n% ------------- DIRECT, ADJOINT, AND LINEARIZED PROBLEM DEFINITION ------------%\n%\nSOLVER= RANS\nKIND_TURB_MODEL= SST\nMATH_PROBLEM= DIRECT\n\n\n% -------------------- COMPRESSIBLE FREE-STREAM DEFINITION --------------------%\n%\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREYNOLDS_NUMBER= 6.5E6\nREYNOLDS_LENGTH= 1.0\nFREESTREAM_TURBULENCEINTENSITY = 0.001\nFREESTREAM_TURB2LAMVISCRATIO = 100.0\n\n% ---------------------- REFERENCE VALUE DEFINITION ---------------------------%\n%\nREF_ORIGIN_MOMENT_X = 0.25\nREF_ORIGIN_MOMENT_Y = 0.00\nREF_ORIGIN_MOMENT_Z = 0.00\nREF_LENGTH= 1.0\nREF_AREA= 1.0\n\n% -------------------- BOUNDARY CONDITION DEFINITION --------------------------%\n%\nMARKER_HEATFLUX= ( AIRFOIL, 0.0 )\nMARKER_FAR= ( FARFIELD )\nMARKER_PLOTTING= ( AIRFOIL )\nMARKER_MONITORING= ( AIRFOIL )\n\n% ------------- COMMON PARAMETERS DEFINING THE NUMERICAL METHOD ---------------%\n%\n\n\nLINEAR_SOLVER= FGMRES\n\n\n\n\n% -------------------------- MULTIGRID PARAMETERS -----------------------------%\n%\n\nMGCYCLE= V_CYCLE\nMG_PRE_SMOOTH= ( 2, 2, 2, 2 )\nMG_POST_SMOOTH= ( 2, 2, 2, 2 )\nMG_CORRECTION_SMOOTH= ( 1, 1, 1, 1 )\nMG_DAMP_RESTRICTION= 0.75\nMG_DAMP_PROLONGATION= 0.75\nMG_IMPLICIT_LINES= YES\n\n% -------------------- FLOW NUMERICAL METHOD DEFINITION -----------------------%\n%\n\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\n\n% -------------------- TURBULENT NUMERICAL METHOD DEFINITION ------------------%\n%\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR \n\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB=0.5\n% --------------------------- CONVERGENCE PARAMETERS --------------------------%\n\nCONV_STARTITER= 10\nCONV_CAUCHY_ELEMS= 100\nCONV_CAUCHY_EPS= 1E-6\n\n% ------------------------- INPUT/OUTPUT INFORMATION --------------------------%\n%\n\nMESH_FORMAT= SU2\nMESH_OUT_FILENAME= mesh_out\nSOLUTION_FILENAME= solution_flow\nSOLUTION_ADJ_FILENAME= solution_adj\n\nRESTART_ADJ_FILENAME= restart_adj\nVOLUME_FILENAME= flow\nVOLUME_ADJ_FILENAME= adjoint\nGRAD_OBJFUNC_FILENAME= of_grad\nSURFACE_FILENAME= surface_flow\nSURFACE_ADJ_FILENAME= surface_adjoint\n\n\nMGLEVEL= 0\n\nITER= 2000\n\nCOMPUTE_METRIC= NO\n\nADAP_LOOP= NO\n\nOUTPUT_FILES= (RESTART_ASCII)\n\nOUTPUT_WRT_FREQ= 1000000\n\nSCREEN_WRT_FREQ_INNER= 100\n\nHISTORY_OUTPUT= (ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL)\n\nTABULAR_FORMAT= CSV\n\nCONV_FILENAME= history\n\nRESTART_FILENAME= fields\n\nCONV_RESIDUAL_MINVAL= -8\n\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\n\nNUM_METHOD_GRAD_RECON= WEIGHTED_LEAST_SQUARES\n\nWRT_ADAP_MESH= NO\n\nVOLUME_OUTPUT= (COORDINATES, SOLUTION, PRIMITIVE)\n\nMESH_FILENAME= /media/rausa/4TB/SU2_Versions/Prove/MeanFlowBugs/10_convergence/c2_rae2822_sa/mesh_RAE2822_turb.su2\n\nRESTART_SOL= NO\n\nCONV_NUM_METHOD_FLOW= ROE\n\nMUSCL_FLOW= YES\n\nSLOPE_LIMITER_FLOW= VENKATAKRISHNAN\n\nMUSCL_TURB= YES\n\nSLOPE_LIMITER_TURB= VENKATAKRISHNAN\n\nVENKAT_LIMITER_COEFF= 0.05\n\nLIMITER_ITER= 999999\n\nCFL_NUMBER= 3\n\nCFL_ADAPT= YES\n\nCFL_ADAPT_PARAM= (0.5, 1.2, 1, 30, 0.05, 10)\n\nLINEAR_SOLVER_PREC= ILU\n\nLINEAR_SOLVER_ITER= 25\n\nLINEAR_SOLVER_ERROR= 0.05\n\nCONV_FIELD= (RMS_DENSITY, RMS_TKE, RMS_DISSIPATION)\n\nSCREEN_OUTPUT= (INNER_ITER, RMS_DENSITY, LIFT, DRAG, AVG_CFL)\n",
+      "residual_monitors": [
+        "rms[Rho]",
+        "rms[k]",
+        "rms[w]"
+      ],
+      "residuals_finite": true,
+      "convergence_assessment_eligible": true,
+      "residual_target_met": false,
+      "last_100_iterations": {
+        "rms[Rho]": {
+          "min": -7.050730905,
+          "max": -4.814739152,
+          "median": -5.0411068455
+        },
+        "rms[k]": {
+          "min": -3.875026178,
+          "max": -3.253974028,
+          "median": -3.4658563595
+        },
+        "rms[w]": {
+          "min": 3.825851442,
+          "max": 3.82971251,
+          "median": 3.8277474204999997
+        },
+        "CL": {
+          "min": 0.721302787,
+          "max": 0.7213099169,
+          "median": 0.7213057569
+        },
+        "CD": {
+          "min": 0.01366302204,
+          "max": 0.0136640003,
+          "median": 0.01366350396
+        },
+        "Avg CFL": {
+          "min": 1.0,
+          "max": 29.99791921,
+          "median": 29.99791921
+        }
+      },
+      "state": {
+        "finite": true,
+        "points": 13937,
+        "min_density": 0.2424753979205105,
+        "min_internal_energy_density": 54195.25745564701,
+        "sha256": "27a19c89784ec723ecb443af65db00a48277f920c608d25ffa28c5090f4c5dff"
+      }
+    },
+    {
+      "case": "bl_sst_muscl",
+      "variant": "fixed",
+      "status": "finished",
+      "exit_code": 0,
+      "wall_seconds": 194.43315138400067,
+      "history_rows": 2000,
+      "last_history": {
+        "Time_Iter": "0",
+        "Outer_Iter": "0",
+        "Inner_Iter": "1999",
+        "rms[Rho]": "-4.919612102",
+        "rms[RhoU]": "-2.90386711",
+        "rms[RhoV]": "-2.435915566",
+        "rms[RhoE]": "0.5874437152",
+        "rms[k]": "-3.408222532",
+        "rms[w]": "3.829742717",
+        "Linear_Solver_Iterations": "1",
+        "LinSolRes": "-2.447721893",
+        "LinSolIterTurb": "1",
+        "LinSolResTurb": "-6.571475752",
+        "Min DT": "1.592241558e-08",
+        "Max DT": "0.1673679214",
+        "Min CFL": "1",
+        "Max CFL": "30",
+        "Avg CFL": "29.99791921",
+        "RefForce": "14426.18948",
+        "CD": "0.0136642574",
+        "CL": "0.7213184543",
+        "CSF": "0",
+        "CMx": "0",
+        "CMy": "0",
+        "CMz": "0.09317690188",
+        "CFx": "-0.01542044103",
+        "CFy": "0.7212830474",
+        "CFz": "0",
+        "CEff": "52.78870511",
+        "Buffet": "0.005135115658"
+      },
+      "config_sha256": "c61d1786ebdd785783986603846331f6415c4f8176c960be425aebaea33732c2",
+      "config": "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n%                                                                              %\n% SU2 configuration file                                                       %\n% Case description: Transonic simulation RAE2822 (RANS)                        %\n% Author: Francisco Palacios                                                   %\n% Institution: Stanford University                                             %\n% Date: 5/15/2013                                                              %\n% File Version 8.5.0 \"Harrier\"                                                 %\n%                                                                              %\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n% ------------- DIRECT, ADJOINT, AND LINEARIZED PROBLEM DEFINITION ------------%\n%\nSOLVER= RANS\nKIND_TURB_MODEL= SST\nMATH_PROBLEM= DIRECT\n\n\n% -------------------- COMPRESSIBLE FREE-STREAM DEFINITION --------------------%\n%\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREYNOLDS_NUMBER= 6.5E6\nREYNOLDS_LENGTH= 1.0\nFREESTREAM_TURBULENCEINTENSITY = 0.001\nFREESTREAM_TURB2LAMVISCRATIO = 100.0\n\n% ---------------------- REFERENCE VALUE DEFINITION ---------------------------%\n%\nREF_ORIGIN_MOMENT_X = 0.25\nREF_ORIGIN_MOMENT_Y = 0.00\nREF_ORIGIN_MOMENT_Z = 0.00\nREF_LENGTH= 1.0\nREF_AREA= 1.0\n\n% -------------------- BOUNDARY CONDITION DEFINITION --------------------------%\n%\nMARKER_HEATFLUX= ( AIRFOIL, 0.0 )\nMARKER_FAR= ( FARFIELD )\nMARKER_PLOTTING= ( AIRFOIL )\nMARKER_MONITORING= ( AIRFOIL )\n\n% ------------- COMMON PARAMETERS DEFINING THE NUMERICAL METHOD ---------------%\n%\n\n\nLINEAR_SOLVER= FGMRES\n\n\n\n\n% -------------------------- MULTIGRID PARAMETERS -----------------------------%\n%\n\nMGCYCLE= V_CYCLE\nMG_PRE_SMOOTH= ( 2, 2, 2, 2 )\nMG_POST_SMOOTH= ( 2, 2, 2, 2 )\nMG_CORRECTION_SMOOTH= ( 1, 1, 1, 1 )\nMG_DAMP_RESTRICTION= 0.75\nMG_DAMP_PROLONGATION= 0.75\nMG_IMPLICIT_LINES= YES\n\n% -------------------- FLOW NUMERICAL METHOD DEFINITION -----------------------%\n%\n\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\n\n% -------------------- TURBULENT NUMERICAL METHOD DEFINITION ------------------%\n%\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR \n\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB=0.5\n% --------------------------- CONVERGENCE PARAMETERS --------------------------%\n\nCONV_STARTITER= 10\nCONV_CAUCHY_ELEMS= 100\nCONV_CAUCHY_EPS= 1E-6\n\n% ------------------------- INPUT/OUTPUT INFORMATION --------------------------%\n%\n\nMESH_FORMAT= SU2\nMESH_OUT_FILENAME= mesh_out\nSOLUTION_FILENAME= solution_flow\nSOLUTION_ADJ_FILENAME= solution_adj\n\nRESTART_ADJ_FILENAME= restart_adj\nVOLUME_FILENAME= flow\nVOLUME_ADJ_FILENAME= adjoint\nGRAD_OBJFUNC_FILENAME= of_grad\nSURFACE_FILENAME= surface_flow\nSURFACE_ADJ_FILENAME= surface_adjoint\n\n\nMGLEVEL= 0\n\nITER= 2000\n\nCOMPUTE_METRIC= NO\n\nADAP_LOOP= NO\n\nOUTPUT_FILES= (RESTART_ASCII)\n\nOUTPUT_WRT_FREQ= 1000000\n\nSCREEN_WRT_FREQ_INNER= 100\n\nHISTORY_OUTPUT= (ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL)\n\nTABULAR_FORMAT= CSV\n\nCONV_FILENAME= history\n\nRESTART_FILENAME= fields\n\nCONV_RESIDUAL_MINVAL= -8\n\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\n\nNUM_METHOD_GRAD_RECON= WEIGHTED_LEAST_SQUARES\n\nWRT_ADAP_MESH= NO\n\nVOLUME_OUTPUT= (COORDINATES, SOLUTION, PRIMITIVE)\n\nMESH_FILENAME= /media/rausa/4TB/SU2_Versions/Prove/MeanFlowBugs/10_convergence/c2_rae2822_sa/mesh_RAE2822_turb.su2\n\nRESTART_SOL= NO\n\nCONV_NUM_METHOD_FLOW= ROE\n\nMUSCL_FLOW= YES\n\nSLOPE_LIMITER_FLOW= VENKATAKRISHNAN\n\nMUSCL_TURB= YES\n\nSLOPE_LIMITER_TURB= VENKATAKRISHNAN\n\nVENKAT_LIMITER_COEFF= 0.05\n\nLIMITER_ITER= 999999\n\nCFL_NUMBER= 3\n\nCFL_ADAPT= YES\n\nCFL_ADAPT_PARAM= (0.5, 1.2, 1, 30, 0.05, 10)\n\nLINEAR_SOLVER_PREC= ILU\n\nLINEAR_SOLVER_ITER= 25\n\nLINEAR_SOLVER_ERROR= 0.05\n\nCONV_FIELD= (RMS_DENSITY, RMS_TKE, RMS_DISSIPATION)\n\nSCREEN_OUTPUT= (INNER_ITER, RMS_DENSITY, LIFT, DRAG, AVG_CFL)\n\nLIMITER_LOCAL_LENGTH= NO\n",
+      "residual_monitors": [
+        "rms[Rho]",
+        "rms[k]",
+        "rms[w]"
+      ],
+      "residuals_finite": true,
+      "convergence_assessment_eligible": true,
+      "residual_target_met": false,
+      "last_100_iterations": {
+        "rms[Rho]": {
+          "min": -5.018002658,
+          "max": -4.837765136,
+          "median": -4.919872663
+        },
+        "rms[k]": {
+          "min": -3.46233123,
+          "max": -3.333719949,
+          "median": -3.4077985855
+        },
+        "rms[w]": {
+          "min": 3.826545603,
+          "max": 3.829743103,
+          "median": 3.828205964
+        },
+        "CL": {
+          "min": 0.7212918407,
+          "max": 0.7213184543,
+          "median": 0.7213059314
+        },
+        "CD": {
+          "min": 0.01366291559,
+          "max": 0.01366428207,
+          "median": 0.01366401764
+        },
+        "Avg CFL": {
+          "min": 29.99791921,
+          "max": 29.99791921,
+          "median": 29.99791921
+        }
+      },
+      "state": {
+        "finite": true,
+        "points": 13937,
+        "min_density": 0.2424751693750156,
+        "min_internal_energy_density": 54195.26333506315,
+        "sha256": "51b783db344a18c03e9dfb14be721afd1e42f286caead845d50512fa1f6b8dd0"
+      }
+    },
+    {
+      "case": "bl_sst_muscl",
+      "variant": "fixed_local",
+      "status": "finished",
+      "exit_code": 0,
+      "wall_seconds": 170.9386317759927,
+      "history_rows": 2000,
+      "last_history": {
+        "Time_Iter": "0",
+        "Outer_Iter": "0",
+        "Inner_Iter": "1999",
+        "rms[Rho]": "-4.9264448",
+        "rms[RhoU]": "-2.920285372",
+        "rms[RhoV]": "-2.44292117",
+        "rms[RhoE]": "0.5801812795",
+        "rms[k]": "-3.4085606",
+        "rms[w]": "3.828380135",
+        "Linear_Solver_Iterations": "1",
+        "LinSolRes": "-2.498986493",
+        "LinSolIterTurb": "1",
+        "LinSolResTurb": "-6.564782553",
+        "Min DT": "1.592293337e-08",
+        "Max DT": "0.1673678568",
+        "Min CFL": "1",
+        "Max CFL": "30",
+        "Avg CFL": "29.99791921",
+        "RefForce": "14426.18948",
+        "CD": "0.01366335363",
+        "CL": "0.7213270531",
+        "CSF": "0",
+        "CMx": "0",
+        "CMy": "0",
+        "CMz": "0.09317392285",
+        "CFx": "-0.01542169064",
+        "CFy": "0.7212916028",
+        "CFz": "0",
+        "CEff": "52.79282616",
+        "Buffet": "0.005135115658"
+      },
+      "config_sha256": "bb5ec282b43c23895e2e7571e5ad4197a116527c7b4d24565f559e5d4181a79e",
+      "config": "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n%                                                                              %\n% SU2 configuration file                                                       %\n% Case description: Transonic simulation RAE2822 (RANS)                        %\n% Author: Francisco Palacios                                                   %\n% Institution: Stanford University                                             %\n% Date: 5/15/2013                                                              %\n% File Version 8.5.0 \"Harrier\"                                                 %\n%                                                                              %\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n% ------------- DIRECT, ADJOINT, AND LINEARIZED PROBLEM DEFINITION ------------%\n%\nSOLVER= RANS\nKIND_TURB_MODEL= SST\nMATH_PROBLEM= DIRECT\n\n\n% -------------------- COMPRESSIBLE FREE-STREAM DEFINITION --------------------%\n%\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREYNOLDS_NUMBER= 6.5E6\nREYNOLDS_LENGTH= 1.0\nFREESTREAM_TURBULENCEINTENSITY = 0.001\nFREESTREAM_TURB2LAMVISCRATIO = 100.0\n\n% ---------------------- REFERENCE VALUE DEFINITION ---------------------------%\n%\nREF_ORIGIN_MOMENT_X = 0.25\nREF_ORIGIN_MOMENT_Y = 0.00\nREF_ORIGIN_MOMENT_Z = 0.00\nREF_LENGTH= 1.0\nREF_AREA= 1.0\n\n% -------------------- BOUNDARY CONDITION DEFINITION --------------------------%\n%\nMARKER_HEATFLUX= ( AIRFOIL, 0.0 )\nMARKER_FAR= ( FARFIELD )\nMARKER_PLOTTING= ( AIRFOIL )\nMARKER_MONITORING= ( AIRFOIL )\n\n% ------------- COMMON PARAMETERS DEFINING THE NUMERICAL METHOD ---------------%\n%\n\n\nLINEAR_SOLVER= FGMRES\n\n\n\n\n% -------------------------- MULTIGRID PARAMETERS -----------------------------%\n%\n\nMGCYCLE= V_CYCLE\nMG_PRE_SMOOTH= ( 2, 2, 2, 2 )\nMG_POST_SMOOTH= ( 2, 2, 2, 2 )\nMG_CORRECTION_SMOOTH= ( 1, 1, 1, 1 )\nMG_DAMP_RESTRICTION= 0.75\nMG_DAMP_PROLONGATION= 0.75\nMG_IMPLICIT_LINES= YES\n\n% -------------------- FLOW NUMERICAL METHOD DEFINITION -----------------------%\n%\n\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\n\n% -------------------- TURBULENT NUMERICAL METHOD DEFINITION ------------------%\n%\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR \n\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB=0.5\n% --------------------------- CONVERGENCE PARAMETERS --------------------------%\n\nCONV_STARTITER= 10\nCONV_CAUCHY_ELEMS= 100\nCONV_CAUCHY_EPS= 1E-6\n\n% ------------------------- INPUT/OUTPUT INFORMATION --------------------------%\n%\n\nMESH_FORMAT= SU2\nMESH_OUT_FILENAME= mesh_out\nSOLUTION_FILENAME= solution_flow\nSOLUTION_ADJ_FILENAME= solution_adj\n\nRESTART_ADJ_FILENAME= restart_adj\nVOLUME_FILENAME= flow\nVOLUME_ADJ_FILENAME= adjoint\nGRAD_OBJFUNC_FILENAME= of_grad\nSURFACE_FILENAME= surface_flow\nSURFACE_ADJ_FILENAME= surface_adjoint\n\n\nMGLEVEL= 0\n\nITER= 2000\n\nCOMPUTE_METRIC= NO\n\nADAP_LOOP= NO\n\nOUTPUT_FILES= (RESTART_ASCII)\n\nOUTPUT_WRT_FREQ= 1000000\n\nSCREEN_WRT_FREQ_INNER= 100\n\nHISTORY_OUTPUT= (ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL)\n\nTABULAR_FORMAT= CSV\n\nCONV_FILENAME= history\n\nRESTART_FILENAME= fields\n\nCONV_RESIDUAL_MINVAL= -8\n\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\n\nNUM_METHOD_GRAD_RECON= WEIGHTED_LEAST_SQUARES\n\nWRT_ADAP_MESH= NO\n\nVOLUME_OUTPUT= (COORDINATES, SOLUTION, PRIMITIVE)\n\nMESH_FILENAME= /media/rausa/4TB/SU2_Versions/Prove/MeanFlowBugs/10_convergence/c2_rae2822_sa/mesh_RAE2822_turb.su2\n\nRESTART_SOL= NO\n\nCONV_NUM_METHOD_FLOW= ROE\n\nMUSCL_FLOW= YES\n\nSLOPE_LIMITER_FLOW= VENKATAKRISHNAN\n\nMUSCL_TURB= YES\n\nSLOPE_LIMITER_TURB= VENKATAKRISHNAN\n\nVENKAT_LIMITER_COEFF= 0.05\n\nLIMITER_ITER= 999999\n\nCFL_NUMBER= 3\n\nCFL_ADAPT= YES\n\nCFL_ADAPT_PARAM= (0.5, 1.2, 1, 30, 0.05, 10)\n\nLINEAR_SOLVER_PREC= ILU\n\nLINEAR_SOLVER_ITER= 25\n\nLINEAR_SOLVER_ERROR= 0.05\n\nCONV_FIELD= (RMS_DENSITY, RMS_TKE, RMS_DISSIPATION)\n\nSCREEN_OUTPUT= (INNER_ITER, RMS_DENSITY, LIFT, DRAG, AVG_CFL)\n\nLIMITER_LOCAL_LENGTH= YES\n",
+      "residual_monitors": [
+        "rms[Rho]",
+        "rms[k]",
+        "rms[w]"
+      ],
+      "residuals_finite": true,
+      "convergence_assessment_eligible": true,
+      "residual_target_met": false,
+      "last_100_iterations": {
+        "rms[Rho]": {
+          "min": -5.177117975,
+          "max": -4.833160933,
+          "median": -4.9269559955
+        },
+        "rms[k]": {
+          "min": -3.548114744,
+          "max": -3.328350916,
+          "median": -3.4130362155
+        },
+        "rms[w]": {
+          "min": 3.827476325,
+          "max": 3.830428656,
+          "median": 3.829081721
+        },
+        "CL": {
+          "min": 0.7213198173,
+          "max": 0.7213298069,
+          "median": 0.72132611085
+        },
+        "CD": {
+          "min": 0.01366323345,
+          "max": 0.01366369998,
+          "median": 0.01366348078
+        },
+        "Avg CFL": {
+          "min": 29.99791921,
+          "max": 29.99791921,
+          "median": 29.99791921
+        }
+      },
+      "state": {
+        "finite": true,
+        "points": 13937,
+        "min_density": 0.2424707887894298,
+        "min_internal_energy_density": 54194.38110596188,
+        "sha256": "abaf3f2afe7b22d23fe0944f6e0ea0be5d4daaa2e2c2180292a0ff3b0c78890c"
+      }
+    },
+    {
+      "case": "frozen_sa_limiter",
+      "variant": "current",
+      "status": "finished",
+      "exit_code": 0,
+      "wall_seconds": 22.842598753020866,
+      "history_rows": 200,
+      "last_history": {
+        "Time_Iter": "0",
+        "Outer_Iter": "0",
+        "Inner_Iter": "199",
+        "rms[Rho]": "-4.62827292",
+        "rms[RhoU]": "-1.945536199",
+        "rms[RhoV]": "-2.432004477",
+        "rms[RhoE]": "0.8046053141",
+        "rms[nu]": "-2.757300883",
+        "Linear_Solver_Iterations": "3",
+        "LinSolRes": "-1.626336183",
+        "LinSolIterTurb": "1",
+        "LinSolResTurb": "-2.995975933",
+        "Min DT": "1.643895074e-08",
+        "Max DT": "0.3000825134",
+        "Min CFL": "1",
+        "Max CFL": "30",
+        "Avg CFL": "29.66137234",
+        "RefForce": "14426.18948",
+        "CD": "0.01406521003",
+        "CL": "0.7271454094",
+        "CSF": "0",
+        "CMx": "0",
+        "CMy": "0",
+        "CMz": "0.09527961428",
+        "CFx": "-0.01525467654",
+        "CFy": "0.7271214282",
+        "CFz": "0",
+        "CEff": "51.69815506",
+        "Buffet": "0.0051905015"
+      },
+      "config_sha256": "1e1270e7805e0ec273016f51986420e3ed325adcdaa2221ae30b3dd18be692c3",
+      "config": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\n\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\n\nNUM_METHOD_HESS= GREEN_GAUSS\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\n\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\n\n\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\n\nWRT_RESTART_COMPACT= NO\n\n\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\n\n\n\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\n\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\n\n\n\n\n\n\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\n\n\nMESH_FILENAME= /tmp/su2-cfd-fixes-inputs/adapted_rae/mesh_adap_00001.su2\n\nSOLUTION_FILENAME= /tmp/su2-cfd-fixes-inputs/adapted_rae/solution_adap_00001\n\nMGLEVEL= 0\n\nITER= 200\n\nCOMPUTE_METRIC= NO\n\nADAP_LOOP= NO\n\nOUTPUT_FILES= (RESTART_ASCII)\n\nOUTPUT_WRT_FREQ= 1000000\n\nSCREEN_WRT_FREQ_INNER= 100\n\nHISTORY_OUTPUT= (ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL)\n\nTABULAR_FORMAT= CSV\n\nCONV_FILENAME= history\n\nRESTART_FILENAME= fields\n\nCONV_RESIDUAL_MINVAL= -8\n\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\n\nNUM_METHOD_GRAD_RECON= WEIGHTED_LEAST_SQUARES\n\nWRT_ADAP_MESH= NO\n\nVOLUME_OUTPUT= (COORDINATES, SOLUTION, PRIMITIVE)\n\nMUSCL_TURB= YES\n\nSLOPE_LIMITER_TURB= VENKATAKRISHNAN\n\nVENKAT_LIMITER_COEFF= 0.05\n\nLIMITER_ITER= 50\n\nCONV_STARTITER= 300\n",
+      "residual_monitors": [
+        "rms[Rho]",
+        "rms[nu]"
+      ],
+      "residuals_finite": true,
+      "convergence_assessment_eligible": false,
+      "residual_target_met": false,
+      "last_100_iterations": {
+        "rms[Rho]": {
+          "min": -4.708229236,
+          "max": -4.41690818,
+          "median": -4.605687322
+        },
+        "rms[nu]": {
+          "min": -2.831796259,
+          "max": -2.757300883,
+          "median": -2.768730872
+        },
+        "CL": {
+          "min": 0.7217662832,
+          "max": 0.7271454094,
+          "median": 0.7245426448
+        },
+        "CD": {
+          "min": 0.01382053738,
+          "max": 0.01406521003,
+          "median": 0.014021960555
+        },
+        "Avg CFL": {
+          "min": 29.66100641,
+          "max": 29.67603187,
+          "median": 29.66423797
+        }
+      },
+      "state": {
+        "finite": true,
+        "points": 15929,
+        "min_density": 0.2425618270257005,
+        "min_internal_energy_density": 54265.385755928335,
+        "sha256": "356ceded4c47393d4d9d45933df34dc9fd9ad0768cc6dcc1ce8c3e8cfe05b38c",
+        "nu_at_floor_count": 706
+      }
+    },
+    {
+      "case": "frozen_sa_limiter",
+      "variant": "fixed",
+      "status": "finished",
+      "exit_code": 0,
+      "wall_seconds": 21.73448846800602,
+      "history_rows": 200,
+      "last_history": {
+        "Time_Iter": "0",
+        "Outer_Iter": "0",
+        "Inner_Iter": "199",
+        "rms[Rho]": "-5.231086871",
+        "rms[RhoU]": "-2.731677282",
+        "rms[RhoV]": "-3.136699568",
+        "rms[RhoE]": "0.2595273221",
+        "rms[nu]": "-5.157719308",
+        "Linear_Solver_Iterations": "3",
+        "LinSolRes": "-1.501315886",
+        "LinSolIterTurb": "1",
+        "LinSolResTurb": "-1.454864848",
+        "Min DT": "1.90947522e-08",
+        "Max DT": "0.3000824235",
+        "Min CFL": "1",
+        "Max CFL": "30",
+        "Avg CFL": "29.99453826",
+        "RefForce": "14426.18948",
+        "CD": "0.01387258955",
+        "CL": "0.7229685897",
+        "CSF": "0",
+        "CMx": "0",
+        "CMy": "0",
+        "CMz": "0.09410682153",
+        "CFx": "-0.01527878884",
+        "CFy": "0.7229402389",
+        "CFz": "0",
+        "CEff": "52.11489803",
+        "Buffet": "0.0051905015"
+      },
+      "config_sha256": "863c24be2f72a6aaaed46d7124fc1638d1b8efa52b2513c39650ee9bd4716283",
+      "config": "% User-supplied Euler-type mesh, no initial BL; byte-identical input for both models.\n% RAE2822 transonic native adaptation: inspect evidence before claiming convergence.\nMATH_PROBLEM= DIRECT\nRESTART_SOL= YES\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREF_ORIGIN_MOMENT_X= 0.25\nREF_ORIGIN_MOMENT_Y= 0\nREF_ORIGIN_MOMENT_Z= 0\nREF_LENGTH= 1\nREF_AREA= 1\n\nMESH_FORMAT= SU2\nMARKER_FAR= ( FARFIELD )\nMARKER_MONITORING= ( AIRFOIL )\nMARKER_PLOTTING= ( AIRFOIL )\n\nNUM_METHOD_HESS= GREEN_GAUSS\nCONV_NUM_METHOD_FLOW= JST\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\n\nCFL_NUMBER= 3\nCFL_ADAPT= YES\nCFL_ADAPT_PARAM= ( 0.5, 1.2, 1, 30, 0.05, 10 )\nLINEAR_SOLVER= FGMRES\nLINEAR_SOLVER_PREC= ILU\nLINEAR_SOLVER_ERROR= 0.05\nLINEAR_SOLVER_ITER= 25\n\n\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= mesh\n\nWRT_RESTART_COMPACT= NO\n\n\nVOLUME_FILENAME= flow\nSURFACE_FILENAME= surface\n\n\n\nSOLVER= RANS\nKIND_TURB_MODEL= SA\nREYNOLDS_NUMBER= 6.5e6\nREYNOLDS_LENGTH= 1\nMARKER_HEATFLUX= ( AIRFOIL, 0 )\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\n\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB= 0.5\n\n\n\n\n\n\nCONV_FIELD= ( RMS_DENSITY, RMS_NU_TILDE )\nSCREEN_OUTPUT= ( INNER_ITER, RMS_DENSITY, RMS_NU_TILDE, LIFT, DRAG, AVG_CFL )\n\n\nMESH_FILENAME= /tmp/su2-cfd-fixes-inputs/adapted_rae/mesh_adap_00001.su2\n\nSOLUTION_FILENAME= /tmp/su2-cfd-fixes-inputs/adapted_rae/solution_adap_00001\n\nMGLEVEL= 0\n\nITER= 200\n\nCOMPUTE_METRIC= NO\n\nADAP_LOOP= NO\n\nOUTPUT_FILES= (RESTART_ASCII)\n\nOUTPUT_WRT_FREQ= 1000000\n\nSCREEN_WRT_FREQ_INNER= 100\n\nHISTORY_OUTPUT= (ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL)\n\nTABULAR_FORMAT= CSV\n\nCONV_FILENAME= history\n\nRESTART_FILENAME= fields\n\nCONV_RESIDUAL_MINVAL= -8\n\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\n\nNUM_METHOD_GRAD_RECON= WEIGHTED_LEAST_SQUARES\n\nWRT_ADAP_MESH= NO\n\nVOLUME_OUTPUT= (COORDINATES, SOLUTION, PRIMITIVE)\n\nMUSCL_TURB= YES\n\nSLOPE_LIMITER_TURB= VENKATAKRISHNAN\n\nVENKAT_LIMITER_COEFF= 0.05\n\nLIMITER_ITER= 50\n\nCONV_STARTITER= 300\n\nLIMITER_LOCAL_LENGTH= NO\n",
+      "residual_monitors": [
+        "rms[Rho]",
+        "rms[nu]"
+      ],
+      "residuals_finite": true,
+      "convergence_assessment_eligible": false,
+      "residual_target_met": false,
+      "last_100_iterations": {
+        "rms[Rho]": {
+          "min": -5.283684159,
+          "max": -4.894104094,
+          "median": -5.1185251065
+        },
+        "rms[nu]": {
+          "min": -5.205013849,
+          "max": -3.940116086,
+          "median": -4.8064225595
+        },
+        "CL": {
+          "min": 0.7229685897,
+          "max": 0.7235965818,
+          "median": 0.7233729059
+        },
+        "CD": {
+          "min": 0.01387228167,
+          "max": 0.01399189617,
+          "median": 0.013898779399999998
+        },
+        "Avg CFL": {
+          "min": 29.99453826,
+          "max": 29.99453826,
+          "median": 29.99453826
+        }
+      },
+      "state": {
+        "finite": true,
+        "points": 15929,
+        "min_density": 0.2427989121201758,
+        "min_internal_energy_density": 54335.94788655026,
+        "sha256": "a93c1a85b41c9bbab464538815764ddcd76c1b183757057b00fca9399854166c",
+        "nu_at_floor_count": 525
+      }
+    }
+  ],
+  "pairs": [
+    {
+      "case": "native_sa_current_settings",
+      "reference": "current",
+      "variant": "fixed",
+      "convergence_assessment_eligible": false,
+      "common_iteration": 1999,
+      "residual_log10_change": {
+        "rms[Rho]": -1.9345082960000006,
+        "rms[RhoU]": -2.414572537999999,
+        "rms[RhoV]": -2.4892985530000002,
+        "rms[RhoE]": -2.5539450139999995,
+        "rms[nu]": -0.00028266300000012734
+      },
+      "force_difference": {
+        "CL": -0.009797290199999975,
+        "CD": -0.00014772086000000052
+      }
+    },
+    {
+      "case": "native_sa_muscl",
+      "reference": "current",
+      "variant": "fixed",
+      "convergence_assessment_eligible": false,
+      "common_iteration": 1999,
+      "residual_log10_change": {
+        "rms[Rho]": 0.8658646340000002,
+        "rms[RhoU]": 0.9958861710000004,
+        "rms[RhoV]": 0.8549295179999996,
+        "rms[RhoE]": 0.814424002,
+        "rms[nu]": 4.19087772
+      },
+      "force_difference": {
+        "CL": -0.010555581199999997,
+        "CD": -0.00023405402000000082
+      }
+    },
+    {
+      "case": "native_sa_muscl",
+      "reference": "current",
+      "variant": "fixed_local",
+      "convergence_assessment_eligible": false,
+      "common_iteration": 1999,
+      "residual_log10_change": {
+        "rms[Rho]": 0.8664209820000002,
+        "rms[RhoU]": 0.996447635,
+        "rms[RhoV]": 0.8553322510000001,
+        "rms[RhoE]": 0.8148398459999999,
+        "rms[nu]": 4.190841475000001
+      },
+      "force_difference": {
+        "CL": -0.010559279099999985,
+        "CD": -0.00023410314999999966
+      }
+    },
+    {
+      "case": "adapted_sa_current_settings",
+      "reference": "current",
+      "variant": "main",
+      "convergence_assessment_eligible": false,
+      "common_iteration": 1999,
+      "residual_log10_change": {
+        "rms[Rho]": 0.0,
+        "rms[RhoU]": 0.0,
+        "rms[RhoV]": 0.0,
+        "rms[RhoE]": 0.0,
+        "rms[nu]": 0.0
+      },
+      "force_difference": {
+        "CL": 0.0,
+        "CD": 0.0
+      }
+    },
+    {
+      "case": "adapted_sa_current_settings",
+      "reference": "current",
+      "variant": "fixed",
+      "convergence_assessment_eligible": false,
+      "common_iteration": 1999,
+      "residual_log10_change": {
+        "rms[Rho]": -0.3010699939999988,
+        "rms[RhoU]": -0.1236162089999997,
+        "rms[RhoV]": -0.14212678800000056,
+        "rms[RhoE]": -0.13406345400000008,
+        "rms[nu]": -0.00647305900000017
+      },
+      "force_difference": {
+        "CL": -0.009970954399999954,
+        "CD": -0.00015761722999999873
+      }
+    },
+    {
+      "case": "adapted_sa_muscl",
+      "reference": "current",
+      "variant": "main",
+      "convergence_assessment_eligible": false,
+      "common_iteration": 1999,
+      "residual_log10_change": {
+        "rms[Rho]": 0.0,
+        "rms[RhoU]": 0.0,
+        "rms[RhoV]": 0.0,
+        "rms[RhoE]": 0.0,
+        "rms[nu]": 0.0
+      },
+      "force_difference": {
+        "CL": 0.0,
+        "CD": 0.0
+      }
+    },
+    {
+      "case": "adapted_sa_muscl",
+      "reference": "current",
+      "variant": "fixed",
+      "convergence_assessment_eligible": false,
+      "common_iteration": 1999,
+      "residual_log10_change": {
+        "rms[Rho]": 0.711949605,
+        "rms[RhoU]": 0.8429046309999997,
+        "rms[RhoV]": 0.7472121490000001,
+        "rms[RhoE]": 0.6377959419999999,
+        "rms[nu]": 4.584128967
+      },
+      "force_difference": {
+        "CL": -0.01070828019999992,
+        "CD": -0.00023162660999999883
+      }
+    },
+    {
+      "case": "adapted_sa_muscl",
+      "reference": "current",
+      "variant": "fixed_local",
+      "convergence_assessment_eligible": false,
+      "common_iteration": 1999,
+      "residual_log10_change": {
+        "rms[Rho]": 0.7121074369999993,
+        "rms[RhoU]": 0.8430625350000005,
+        "rms[RhoV]": 0.7473014330000005,
+        "rms[RhoE]": 0.637903536,
+        "rms[nu]": 4.584028396
+      },
+      "force_difference": {
+        "CL": -0.010712249099999904,
+        "CD": -0.0002317270899999998
+      }
+    },
+    {
+      "case": "bl_sa_muscl",
+      "reference": "current",
+      "variant": "fixed",
+      "convergence_assessment_eligible": true,
+      "common_iteration": 1999,
+      "residual_log10_change": {
+        "rms[Rho]": -0.6680775399999996,
+        "rms[RhoU]": 0.08537231799999967,
+        "rms[RhoV]": -0.620614834,
+        "rms[RhoE]": -0.7056197784,
+        "rms[nu]": 4.722691408000001
+      },
+      "force_difference": {
+        "CL": -0.009950090999999994,
+        "CD": -0.00015215936000000096
+      }
+    },
+    {
+      "case": "bl_sa_muscl",
+      "reference": "current",
+      "variant": "fixed_local",
+      "convergence_assessment_eligible": true,
+      "common_iteration": 1999,
+      "residual_log10_change": {
+        "rms[Rho]": -0.8095310219999998,
+        "rms[RhoU]": -0.016111044000000074,
+        "rms[RhoV]": -0.4535821379999998,
+        "rms[RhoE]": -0.8392775825,
+        "rms[nu]": 5.047400122000001
+      },
+      "force_difference": {
+        "CL": -0.009895472500000002,
+        "CD": -0.00015187887000000025
+      }
+    },
+    {
+      "case": "bl_sst_muscl",
+      "reference": "current",
+      "variant": "fixed",
+      "convergence_assessment_eligible": true,
+      "common_iteration": 1999,
+      "residual_log10_change": {
+        "rms[Rho]": 0.033797488000000264,
+        "rms[RhoU]": 0.03319240300000015,
+        "rms[RhoV]": 0.030042669999999827,
+        "rms[RhoE]": 0.03388747819999993,
+        "rms[k]": 0.01012002600000006,
+        "rms[w]": -0.0008405379999998353
+      },
+      "force_difference": {
+        "CL": 8.537399999952733e-06,
+        "CD": 6.041899999996436e-07
+      }
+    },
+    {
+      "case": "bl_sst_muscl",
+      "reference": "current",
+      "variant": "fixed_local",
+      "convergence_assessment_eligible": true,
+      "common_iteration": 1999,
+      "residual_log10_change": {
+        "rms[Rho]": 0.04063018599999957,
+        "rms[RhoU]": 0.04961066499999989,
+        "rms[RhoV]": 0.03704827399999999,
+        "rms[RhoE]": 0.0411499139,
+        "rms[k]": 0.010458094000000084,
+        "rms[w]": 0.0005220439999997772
+      },
+      "force_difference": {
+        "CL": 1.713619999998972e-05,
+        "CD": -2.995799999998966e-07
+      }
+    },
+    {
+      "case": "frozen_sa_limiter",
+      "reference": "current",
+      "variant": "fixed",
+      "convergence_assessment_eligible": false,
+      "common_iteration": 199,
+      "residual_log10_change": {
+        "rms[Rho]": 0.6028139509999999,
+        "rms[RhoU]": 0.7861410830000002,
+        "rms[RhoV]": 0.704695091,
+        "rms[RhoE]": 0.545077992,
+        "rms[nu]": 2.400418425
+      },
+      "force_difference": {
+        "CL": -0.004176819700000056,
+        "CD": -0.0001926204800000008
+      }
+    }
+  ],
+  "limits": [
+    "MGLEVEL=0; serial nice=19 on a contended host; timings are not benchmarks.",
+    "Earlier native/adapted stress grids are excluded; bl_* identifies the selected RANS grids.",
+    "Residual thresholds are case-specific monitors, not an accuracy proof.",
+    "Force changes on nonconverged states do not establish better accuracy."
+  ]
+}

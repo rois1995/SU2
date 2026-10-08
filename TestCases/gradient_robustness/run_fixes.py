@@ -36,6 +36,8 @@ def main():
                         help="Original native main binary, additionally compared on the adapted mesh")
     parser.add_argument("--iterations", type=int, default=2000)
     parser.add_argument("--timeout", type=int, default=600)
+    parser.add_argument("--adapted-only", action="store_true",
+                        help="Test a user-identified adapted RANS grid: existing turbulence settings and MUSCL")
     args = parser.parse_args()
     if args.iterations <= 0 or args.timeout <= 0:
         parser.error("Iteration and timeout limits must be positive")
@@ -79,6 +81,11 @@ def main():
                   {"MUSCL_TURB": "YES", "SLOPE_LIMITER_TURB": "VENKATAKRISHNAN",
                    "VENKAT_LIMITER_COEFF": "0.05", "LIMITER_ITER": "50", "ITER": str(min(args.iterations, 200)),
                    "CONV_STARTITER": "300"}))
+    if args.adapted_only:
+        common["INNER_ITER"] = str(args.iterations)
+        cases = [("bl_adapted_sa_current_settings", adapted, {"MUSCL_TURB": "NO"}),
+                 ("bl_adapted_sa_muscl", adapted, {"MUSCL_TURB": "YES", "SLOPE_LIMITER_TURB": "VENKATAKRISHNAN",
+                                                  "VENKAT_LIMITER_COEFF": "0.05", "LIMITER_ITER": "999999"})]
     manifest = {"binaries": {name: {"path": str(path), "sha256": digest(path)} for name, path in binaries.items()},
                 "native_config": {"path": str(native_config), "sha256": digest(native_config)},
                 "adapted_config": {"path": str(adapted_config), "sha256": digest(adapted_config)},
@@ -90,7 +97,7 @@ def main():
     env = dict(os.environ, OMP_NUM_THREADS="1", OPENBLAS_NUM_THREADS="1")
     for name, template, options in cases:
         variants = [("current", "current", False), ("fixed", "fixed", False)]
-        if name.startswith("adapted_"):
+        if name.startswith("adapted_") or args.adapted_only:
             variants.insert(0, ("main", "main", False))
         if "muscl" in name:
             variants.append(("fixed_local", "fixed", True))

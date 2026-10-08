@@ -1,0 +1,2534 @@
+{
+  "candidate_source_commit": "596b18a991",
+  "candidate_binary_sha256": "5b77b9acfedaf24d7ff973aff798987edf24ca9575fc480110ccc342363e58d4",
+  "prior_checks": {
+    "serial_limiter_linear_gradient_config": {
+      "cases": 23,
+      "assertions": 28407
+    },
+    "hessian": {
+      "cases": 8,
+      "assertions": 91431
+    },
+    "nemo_output_names": {
+      "cases": 1,
+      "assertions": 26
+    },
+    "omp2_limiter_anisotropic": {
+      "cases": 6,
+      "assertions": 27544
+    },
+    "mpi2_limiter_anisotropic": {
+      "cases": 3,
+      "assertions_per_rank": 13573
+    },
+    "standalone_forward_reverse_ad": "12 QR and 2 bounded fallback cases each; full solver/local-volume limiter AD untested"
+  },
+  "final_checks": {
+    "limiter_suite": {
+      "cases": 5,
+      "assertions": 3598
+    },
+    "actual_bounded_transport": {
+      "serial_assertions": 92,
+      "omp2_assertions": 92,
+      "mpi2_assertions_by_rank": [
+        44,
+        50
+      ],
+      "models": [
+        "SA",
+        "SST"
+      ]
+    },
+    "fixture_failures_corrected": [
+      "CPrimitiveIndices constructor requires four arguments",
+      "RANS config requires a positive Reynolds number"
+    ]
+  },
+  "logs": {
+    "bounded-transport-mpi2.log": {
+      "path": "/tmp/su2-cfd-fixes-validation/bounded-transport-mpi2.log",
+      "sha256": "638427bb0975470c76b37bc5d07c1e2ae328eb0d9fad46392bd6bd6b2520ac8b"
+    },
+    "nemo-output.log": {
+      "path": "/tmp/su2-cfd-fixes-validation/nemo-output.log",
+      "sha256": "67f2af88c0286fabeb2540c5723e77aaae2cb7ccfb9f36f742404122cd822245"
+    },
+    "units-serial.log": {
+      "path": "/tmp/su2-cfd-fixes-validation/units-serial.log",
+      "sha256": "639dbeb84453b4d8a76dfb30ca6f0cbb2da0fb3767cf065e27d187c8ae5d4da0"
+    },
+    "bounded-transport-backtrace.log": {
+      "path": "/tmp/su2-cfd-fixes-validation/bounded-transport-backtrace.log",
+      "sha256": "a0f4ac586fd32c34bd7b28c8e97a0b727db699dfe4ee1eb773c180e70cce217c"
+    },
+    "bounded-transport-build.log": {
+      "path": "/tmp/su2-cfd-fixes-validation/bounded-transport-build.log",
+      "sha256": "09fa372c2d8383730b43cb054c6576ec4f08b10f9a2c2ab03cc3770efbaf7589"
+    },
+    "limiters-final.log": {
+      "path": "/tmp/su2-cfd-fixes-validation/limiters-final.log",
+      "sha256": "65a9650831aecf2054e008f568f3b06e4277483a58e3fcdb07a242297e26e9a9"
+    },
+    "forward.log": {
+      "path": "/tmp/su2-cfd-fixes-validation/forward.log",
+      "sha256": "143a78b49b6456b636a574df5e8cd6de1c66fb3b4eab1ab35ca7aa58748a4748"
+    },
+    "units-mpi2.log": {
+      "path": "/tmp/su2-cfd-fixes-validation/units-mpi2.log",
+      "sha256": "90ff3eac2a9d3327ffd06a5e1ca9f706ccd6fdda2c98f883b56f2f2ae8aa5f89"
+    },
+    "forward-build.log": {
+      "path": "/tmp/su2-cfd-fixes-validation/forward-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "reverse-build.log": {
+      "path": "/tmp/su2-cfd-fixes-validation/reverse-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "bounded-transport-omp2.log": {
+      "path": "/tmp/su2-cfd-fixes-validation/bounded-transport-omp2.log",
+      "sha256": "83671515143c067802b716ffdbadb14745386526151c6448900b425b266a21a2"
+    },
+    "units-omp2.log": {
+      "path": "/tmp/su2-cfd-fixes-validation/units-omp2.log",
+      "sha256": "10df8a0c92bb065a7760364d02a8ba69140efeb0b3ce92fabf0141d86543bce5"
+    },
+    "bounded-transport-serial.log": {
+      "path": "/tmp/su2-cfd-fixes-validation/bounded-transport-serial.log",
+      "sha256": "83671515143c067802b716ffdbadb14745386526151c6448900b425b266a21a2"
+    },
+    "hessians.log": {
+      "path": "/tmp/su2-cfd-fixes-validation/hessians.log",
+      "sha256": "fb5c7814c04df1c877ad59a8bcd9d8c18e8b83df40d57efc9cba00d675b9d7be"
+    },
+    "reverse.log": {
+      "path": "/tmp/su2-cfd-fixes-validation/reverse.log",
+      "sha256": "4b8f41cdf04102f792244f5e2a4e0af009cd50c6fabc1c69727808be9b3a9577"
+    }
+  },
+  "parallel_cfd": {
+    "ilu_threads": {
+      "conserved_field_max_scaled_difference": 1.81429597123128e-15,
+      "finite": true,
+      "states": [
+        "ilu_mpi2_omp1",
+        "ilu_mpi2_omp2"
+      ]
+    },
+    "identity_ranks": {
+      "conserved_field_max_scaled_difference": 1.6432384964088245e-15,
+      "finite": true,
+      "states": [
+        "none_mpi1_omp1",
+        "none_mpi2_omp1"
+      ]
+    }
+  },
+  "valgrind": "MPI2/OMP2 ILU: zero invalid-access errors on both ranks; leak/undefined-value checks disabled.",
+  "mms_results": [
+    {
+      "shape": "regular",
+      "n": 12,
+      "aspect": 1.0,
+      "label": "baseline",
+      "exit_code": 0,
+      "rms_error": {
+        "Rho": 0.0031476,
+        "RhoU": 1.04664,
+        "RhoV": 1.24871,
+        "RhoE": 527.222
+      },
+      "last_history": {
+        "Time_Iter": "          0",
+        "Outer_Iter": "           0",
+        "Inner_Iter": "         191",
+        "    \"rms[Rho]\"    ": "       -11.0400487",
+        "    \"rms[RhoU]\"   ": "       -8.72177236",
+        "    \"rms[RhoV]\"   ": "      -8.886956767",
+        "    \"rms[RhoE]\"   ": "       -6.16534862"
+      }
+    },
+    {
+      "shape": "regular",
+      "n": 12,
+      "aspect": 1.0,
+      "label": "candidate",
+      "exit_code": 0,
+      "rms_error": {
+        "Rho": 0.0031476,
+        "RhoU": 1.04664,
+        "RhoV": 1.24871,
+        "RhoE": 527.222
+      },
+      "last_history": {
+        "Time_Iter": "          0",
+        "Outer_Iter": "           0",
+        "Inner_Iter": "         191",
+        "    \"rms[Rho]\"    ": "       -11.0400487",
+        "    \"rms[RhoU]\"   ": "       -8.72177236",
+        "    \"rms[RhoV]\"   ": "      -8.886956767",
+        "    \"rms[RhoE]\"   ": "       -6.16534862"
+      }
+    },
+    {
+      "shape": "regular",
+      "n": 24,
+      "aspect": 1.0,
+      "label": "baseline",
+      "exit_code": 0,
+      "rms_error": {
+        "Rho": 0.00106394,
+        "RhoU": 0.310443,
+        "RhoV": 0.340067,
+        "RhoE": 159.768
+      },
+      "last_history": {
+        "Time_Iter": "          0",
+        "Outer_Iter": "           0",
+        "Inner_Iter": "         299",
+        "    \"rms[Rho]\"    ": "      -10.42790018",
+        "    \"rms[RhoU]\"   ": "      -8.184668674",
+        "    \"rms[RhoV]\"   ": "      -8.290463136",
+        "    \"rms[RhoE]\"   ": "      -5.703366853"
+      }
+    },
+    {
+      "shape": "regular",
+      "n": 24,
+      "aspect": 1.0,
+      "label": "candidate",
+      "exit_code": 0,
+      "rms_error": {
+        "Rho": 0.00106394,
+        "RhoU": 0.310443,
+        "RhoV": 0.340067,
+        "RhoE": 159.768
+      },
+      "last_history": {
+        "Time_Iter": "          0",
+        "Outer_Iter": "           0",
+        "Inner_Iter": "         299",
+        "    \"rms[Rho]\"    ": "      -10.42790018",
+        "    \"rms[RhoU]\"   ": "      -8.184668674",
+        "    \"rms[RhoV]\"   ": "      -8.290463136",
+        "    \"rms[RhoE]\"   ": "      -5.703366853"
+      }
+    },
+    {
+      "shape": "thin",
+      "n": 12,
+      "aspect": 10000.0,
+      "label": "baseline",
+      "exit_code": 0,
+      "rms_error": {
+        "Rho": 0.00120414,
+        "RhoU": 0.0921063,
+        "RhoV": 0.521667,
+        "RhoE": 586.715
+      },
+      "last_history": {
+        "Time_Iter": "          0",
+        "Outer_Iter": "           0",
+        "Inner_Iter": "         299",
+        "    \"rms[Rho]\"    ": "      -3.268246095",
+        "    \"rms[RhoU]\"   ": "      -1.347327565",
+        "    \"rms[RhoV]\"   ": "      -1.427391835",
+        "    \"rms[RhoE]\"   ": "      0.6772483343"
+      }
+    },
+    {
+      "shape": "thin",
+      "n": 12,
+      "aspect": 10000.0,
+      "label": "candidate",
+      "exit_code": 0,
+      "rms_error": {
+        "Rho": 0.00120414,
+        "RhoU": 0.0921063,
+        "RhoV": 0.521667,
+        "RhoE": 586.715
+      },
+      "last_history": {
+        "Time_Iter": "          0",
+        "Outer_Iter": "           0",
+        "Inner_Iter": "         299",
+        "    \"rms[Rho]\"    ": "      -3.268246095",
+        "    \"rms[RhoU]\"   ": "      -1.347327565",
+        "    \"rms[RhoV]\"   ": "      -1.427391835",
+        "    \"rms[RhoE]\"   ": "      0.6772483343"
+      }
+    },
+    {
+      "shape": "thin",
+      "n": 24,
+      "aspect": 10000.0,
+      "label": "baseline",
+      "exit_code": 0,
+      "rms_error": {
+        "Rho": 0.000446807,
+        "RhoU": 0.0205648,
+        "RhoV": 0.148685,
+        "RhoE": 171.046
+      },
+      "last_history": {
+        "Time_Iter": "          0",
+        "Outer_Iter": "           0",
+        "Inner_Iter": "         299",
+        "    \"rms[Rho]\"    ": "      -4.274005574",
+        "    \"rms[RhoU]\"   ": "       -2.20574924",
+        "    \"rms[RhoV]\"   ": "      -2.369737892",
+        "    \"rms[RhoE]\"   ": "     -0.1809682341"
+      }
+    },
+    {
+      "shape": "thin",
+      "n": 24,
+      "aspect": 10000.0,
+      "label": "candidate",
+      "exit_code": 0,
+      "rms_error": {
+        "Rho": 0.000446807,
+        "RhoU": 0.0205648,
+        "RhoV": 0.148685,
+        "RhoE": 171.046
+      },
+      "last_history": {
+        "Time_Iter": "          0",
+        "Outer_Iter": "           0",
+        "Inner_Iter": "         299",
+        "    \"rms[Rho]\"    ": "      -4.274005574",
+        "    \"rms[RhoU]\"   ": "       -2.20574924",
+        "    \"rms[RhoV]\"   ": "      -2.369737892",
+        "    \"rms[RhoE]\"   ": "     -0.1809682341"
+      }
+    },
+    {
+      "shape": "curved",
+      "n": 12,
+      "aspect": 10000.0,
+      "label": "baseline",
+      "exit_code": 0,
+      "rms_error": {
+        "Rho": 5.46225e-06,
+        "RhoU": 0.000624224,
+        "RhoV": 0.00128178,
+        "RhoE": 0.843847
+      },
+      "last_history": {
+        "Time_Iter": "          0",
+        "Outer_Iter": "           0",
+        "Inner_Iter": "         299",
+        "    \"rms[Rho]\"    ": "       -6.11491139",
+        "    \"rms[RhoU]\"   ": "      -4.038677982",
+        "    \"rms[RhoV]\"   ": "      -4.355972234",
+        "    \"rms[RhoE]\"   ": "      -2.022703099"
+      }
+    },
+    {
+      "shape": "curved",
+      "n": 12,
+      "aspect": 10000.0,
+      "label": "candidate",
+      "exit_code": 0,
+      "rms_error": {
+        "Rho": 5.46225e-06,
+        "RhoU": 0.000624224,
+        "RhoV": 0.00128178,
+        "RhoE": 0.843847
+      },
+      "last_history": {
+        "Time_Iter": "          0",
+        "Outer_Iter": "           0",
+        "Inner_Iter": "         299",
+        "    \"rms[Rho]\"    ": "       -6.11491139",
+        "    \"rms[RhoU]\"   ": "      -4.038677982",
+        "    \"rms[RhoV]\"   ": "      -4.355972234",
+        "    \"rms[RhoE]\"   ": "      -2.022703099"
+      }
+    },
+    {
+      "shape": "curved",
+      "n": 24,
+      "aspect": 10000.0,
+      "label": "baseline",
+      "exit_code": 0,
+      "rms_error": {
+        "Rho": 2.45357e-06,
+        "RhoU": 0.000247626,
+        "RhoV": 0.000974724,
+        "RhoE": 0.639176
+      },
+      "last_history": {
+        "Time_Iter": "          0",
+        "Outer_Iter": "           0",
+        "Inner_Iter": "         299",
+        "    \"rms[Rho]\"    ": "       -6.21551427",
+        "    \"rms[RhoU]\"   ": "      -4.192183685",
+        "    \"rms[RhoV]\"   ": "      -4.421767153",
+        "    \"rms[RhoE]\"   ": "      -1.816243376"
+      }
+    },
+    {
+      "shape": "curved",
+      "n": 24,
+      "aspect": 10000.0,
+      "label": "candidate",
+      "exit_code": 0,
+      "rms_error": {
+        "Rho": 2.45357e-06,
+        "RhoU": 0.000247626,
+        "RhoV": 0.000974724,
+        "RhoE": 0.639176
+      },
+      "last_history": {
+        "Time_Iter": "          0",
+        "Outer_Iter": "           0",
+        "Inner_Iter": "         299",
+        "    \"rms[Rho]\"    ": "       -6.21551427",
+        "    \"rms[RhoU]\"   ": "      -4.192183685",
+        "    \"rms[RhoV]\"   ": "      -4.421767153",
+        "    \"rms[RhoE]\"   ": "      -1.816243376"
+      }
+    }
+  ],
+  "mms_interpretation": "All six reported error vectors identical to QR control; no accuracy gain demonstrated. Regular12 reaches target, other meshes cap300.",
+  "edge_limiter": [
+    {
+      "variant": "current",
+      "exit_code": 1,
+      "history_rows": 0,
+      "finite_residuals": false,
+      "last_history": {},
+      "config": "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n%                                                                              %\n% SU2 configuration file                                                       %\n% Case description: Transonic simulation RAE2822 (RANS)                        %\n% Author: Francisco Palacios                                                   %\n% Institution: Stanford University                                             %\n% Date: 5/15/2013                                                              %\n% File Version 8.5.0 \"Harrier\"                                                 %\n%                                                                              %\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n% ------------- DIRECT, ADJOINT, AND LINEARIZED PROBLEM DEFINITION ------------%\n%\nSOLVER= RANS\nKIND_TURB_MODEL= SST\nMATH_PROBLEM= DIRECT\n\n\n% -------------------- COMPRESSIBLE FREE-STREAM DEFINITION --------------------%\n%\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREYNOLDS_NUMBER= 6.5E6\nREYNOLDS_LENGTH= 1.0\nFREESTREAM_TURBULENCEINTENSITY = 0.001\nFREESTREAM_TURB2LAMVISCRATIO = 100.0\n\n% ---------------------- REFERENCE VALUE DEFINITION ---------------------------%\n%\nREF_ORIGIN_MOMENT_X = 0.25\nREF_ORIGIN_MOMENT_Y = 0.00\nREF_ORIGIN_MOMENT_Z = 0.00\nREF_LENGTH= 1.0\nREF_AREA= 1.0\n\n% -------------------- BOUNDARY CONDITION DEFINITION --------------------------%\n%\nMARKER_HEATFLUX= ( AIRFOIL, 0.0 )\nMARKER_FAR= ( FARFIELD )\nMARKER_PLOTTING= ( AIRFOIL )\nMARKER_MONITORING= ( AIRFOIL )\n\n% ------------- COMMON PARAMETERS DEFINING THE NUMERICAL METHOD ---------------%\n%\n\n\nLINEAR_SOLVER= FGMRES\n\n\n\n\n% -------------------------- MULTIGRID PARAMETERS -----------------------------%\n%\n\nMGCYCLE= V_CYCLE\nMG_PRE_SMOOTH= ( 2, 2, 2, 2 )\nMG_POST_SMOOTH= ( 2, 2, 2, 2 )\nMG_CORRECTION_SMOOTH= ( 1, 1, 1, 1 )\nMG_DAMP_RESTRICTION= 0.75\nMG_DAMP_PROLONGATION= 0.75\nMG_IMPLICIT_LINES= YES\n\n% -------------------- FLOW NUMERICAL METHOD DEFINITION -----------------------%\n%\n\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\n\n% -------------------- TURBULENT NUMERICAL METHOD DEFINITION ------------------%\n%\n\n\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB=0.5\n% --------------------------- CONVERGENCE PARAMETERS --------------------------%\n\nCONV_CAUCHY_ELEMS= 100\nCONV_CAUCHY_EPS= 1E-6\n\n% ------------------------- INPUT/OUTPUT INFORMATION --------------------------%\n%\n\nMESH_FORMAT= SU2\nMESH_OUT_FILENAME= mesh_out\nSOLUTION_FILENAME= solution_flow\nSOLUTION_ADJ_FILENAME= solution_adj\n\nRESTART_ADJ_FILENAME= restart_adj\nVOLUME_FILENAME= flow\nVOLUME_ADJ_FILENAME= adjoint\nGRAD_OBJFUNC_FILENAME= of_grad\nSURFACE_FILENAME= surface_flow\nSURFACE_ADJ_FILENAME= surface_adjoint\n\n\nMGLEVEL= 0\n\n\nCOMPUTE_METRIC= NO\n\nADAP_LOOP= NO\n\nOUTPUT_FILES= (RESTART_ASCII)\n\nOUTPUT_WRT_FREQ= 1000000\n\nSCREEN_WRT_FREQ_INNER= 100\n\nHISTORY_OUTPUT= (ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL)\n\nTABULAR_FORMAT= CSV\n\nCONV_FILENAME= history\n\nRESTART_FILENAME= fields\n\nCONV_RESIDUAL_MINVAL= -8\n\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\n\nNUM_METHOD_GRAD_RECON= WEIGHTED_LEAST_SQUARES\n\nWRT_ADAP_MESH= NO\n\nVOLUME_OUTPUT= (COORDINATES, SOLUTION, PRIMITIVE)\n\nMESH_FILENAME= /media/rausa/4TB/SU2_Versions/Prove/MeanFlowBugs/10_convergence/c2_rae2822_sa/mesh_RAE2822_turb.su2\n\nRESTART_SOL= NO\n\nCONV_NUM_METHOD_FLOW= ROE\n\nMUSCL_FLOW= YES\n\n\nMUSCL_TURB= YES\n\n\nVENKAT_LIMITER_COEFF= 0.05\n\nLIMITER_ITER= 999999\n\nCFL_NUMBER= 3\n\nCFL_ADAPT= YES\n\nCFL_ADAPT_PARAM= (0.5, 1.2, 1, 30, 0.05, 10)\n\nLINEAR_SOLVER_PREC= ILU\n\nLINEAR_SOLVER_ITER= 25\n\nLINEAR_SOLVER_ERROR= 0.05\n\nCONV_FIELD= (RMS_DENSITY, RMS_TKE, RMS_DISSIPATION)\n\nSCREEN_OUTPUT= (INNER_ITER, RMS_DENSITY, LIFT, DRAG, AVG_CFL)\n\nCONV_NUM_METHOD_TURB= SCALAR_UPWIND\n\nSLOPE_LIMITER_TURB= VAN_ALBADA_EDGE\n\nSLOPE_LIMITER_FLOW= VAN_ALBADA_EDGE\n\nITER= 20\n\nCONV_STARTITER= 100\n"
+    },
+    {
+      "variant": "fixed",
+      "exit_code": 0,
+      "history_rows": 20,
+      "finite_residuals": true,
+      "last_history": {
+        "Time_Iter": "          0",
+        "Outer_Iter": "           0",
+        "Inner_Iter": "          19",
+        "    \"rms[Rho]\"    ": "      -2.224867981",
+        "    \"rms[RhoU]\"   ": "       0.180944236",
+        "    \"rms[RhoV]\"   ": "      0.2863318949",
+        "    \"rms[RhoE]\"   ": "        3.27116542",
+        "     \"rms[k]\"     ": "     -0.4599032263",
+        "     \"rms[w]\"     ": "       6.048811513",
+        "Linear_Solver_Iterations": "                         3",
+        "    \"LinSolRes\"   ": "      -1.507337748",
+        "LinSolIterTurb": "               1",
+        "  \"LinSolResTurb\" ": "      -5.171770792",
+        "     \"Min DT\"     ": "   1.301650855e-08",
+        "     \"Max DT\"     ": "       0.086373618",
+        "     \"Min CFL\"    ": "                 1",
+        "     \"Max CFL\"    ": "                 1",
+        "     \"Avg CFL\"    ": "                 1",
+        "    \"RefForce\"    ": "       14426.18948",
+        "       \"CD\"       ": "      0.2442054705",
+        "       \"CL\"       ": "      0.2016154506",
+        "       \"CSF\"      ": "                 0",
+        "       \"CMx\"      ": "                 0",
+        "       \"CMy\"      ": "                 0",
+        "       \"CMz\"      ": "     0.07639612563",
+        "       \"CFx\"      ": "      0.2358806737",
+        "       \"CFy\"      ": "      0.2112946036",
+        "       \"CFz\"      ": "                 0",
+        "      \"CEff\"      ": "      0.8255976009",
+        "     \"Buffet\"     ": "   0.0006889894929"
+      },
+      "config": "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n%                                                                              %\n% SU2 configuration file                                                       %\n% Case description: Transonic simulation RAE2822 (RANS)                        %\n% Author: Francisco Palacios                                                   %\n% Institution: Stanford University                                             %\n% Date: 5/15/2013                                                              %\n% File Version 8.5.0 \"Harrier\"                                                 %\n%                                                                              %\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n% ------------- DIRECT, ADJOINT, AND LINEARIZED PROBLEM DEFINITION ------------%\n%\nSOLVER= RANS\nKIND_TURB_MODEL= SST\nMATH_PROBLEM= DIRECT\n\n\n% -------------------- COMPRESSIBLE FREE-STREAM DEFINITION --------------------%\n%\nMACH_NUMBER= 0.729\nAOA= 2.31\nFREESTREAM_TEMPERATURE= 288.15\nREYNOLDS_NUMBER= 6.5E6\nREYNOLDS_LENGTH= 1.0\nFREESTREAM_TURBULENCEINTENSITY = 0.001\nFREESTREAM_TURB2LAMVISCRATIO = 100.0\n\n% ---------------------- REFERENCE VALUE DEFINITION ---------------------------%\n%\nREF_ORIGIN_MOMENT_X = 0.25\nREF_ORIGIN_MOMENT_Y = 0.00\nREF_ORIGIN_MOMENT_Z = 0.00\nREF_LENGTH= 1.0\nREF_AREA= 1.0\n\n% -------------------- BOUNDARY CONDITION DEFINITION --------------------------%\n%\nMARKER_HEATFLUX= ( AIRFOIL, 0.0 )\nMARKER_FAR= ( FARFIELD )\nMARKER_PLOTTING= ( AIRFOIL )\nMARKER_MONITORING= ( AIRFOIL )\n\n% ------------- COMMON PARAMETERS DEFINING THE NUMERICAL METHOD ---------------%\n%\n\n\nLINEAR_SOLVER= FGMRES\n\n\n\n\n% -------------------------- MULTIGRID PARAMETERS -----------------------------%\n%\n\nMGCYCLE= V_CYCLE\nMG_PRE_SMOOTH= ( 2, 2, 2, 2 )\nMG_POST_SMOOTH= ( 2, 2, 2, 2 )\nMG_CORRECTION_SMOOTH= ( 1, 1, 1, 1 )\nMG_DAMP_RESTRICTION= 0.75\nMG_DAMP_PROLONGATION= 0.75\nMG_IMPLICIT_LINES= YES\n\n% -------------------- FLOW NUMERICAL METHOD DEFINITION -----------------------%\n%\n\nJST_SENSOR_COEFF= ( 0.5, 0.02 )\nTIME_DISCRE_FLOW= EULER_IMPLICIT\n\n% -------------------- TURBULENT NUMERICAL METHOD DEFINITION ------------------%\n%\n\n\nTIME_DISCRE_TURB= EULER_IMPLICIT\nCFL_REDUCTION_TURB=0.5\n% --------------------------- CONVERGENCE PARAMETERS --------------------------%\n\nCONV_CAUCHY_ELEMS= 100\nCONV_CAUCHY_EPS= 1E-6\n\n% ------------------------- INPUT/OUTPUT INFORMATION --------------------------%\n%\n\nMESH_FORMAT= SU2\nMESH_OUT_FILENAME= mesh_out\nSOLUTION_FILENAME= solution_flow\nSOLUTION_ADJ_FILENAME= solution_adj\n\nRESTART_ADJ_FILENAME= restart_adj\nVOLUME_FILENAME= flow\nVOLUME_ADJ_FILENAME= adjoint\nGRAD_OBJFUNC_FILENAME= of_grad\nSURFACE_FILENAME= surface_flow\nSURFACE_ADJ_FILENAME= surface_adjoint\n\n\nMGLEVEL= 0\n\n\nCOMPUTE_METRIC= NO\n\nADAP_LOOP= NO\n\nOUTPUT_FILES= (RESTART_ASCII)\n\nOUTPUT_WRT_FREQ= 1000000\n\nSCREEN_WRT_FREQ_INNER= 100\n\nHISTORY_OUTPUT= (ITER, RMS_RES, AERO_COEFF, CFL_NUMBER, LINSOL)\n\nTABULAR_FORMAT= CSV\n\nCONV_FILENAME= history\n\nRESTART_FILENAME= fields\n\nCONV_RESIDUAL_MINVAL= -8\n\nNUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES\n\nNUM_METHOD_GRAD_RECON= WEIGHTED_LEAST_SQUARES\n\nWRT_ADAP_MESH= NO\n\nVOLUME_OUTPUT= (COORDINATES, SOLUTION, PRIMITIVE)\n\nMESH_FILENAME= /media/rausa/4TB/SU2_Versions/Prove/MeanFlowBugs/10_convergence/c2_rae2822_sa/mesh_RAE2822_turb.su2\n\nRESTART_SOL= NO\n\nCONV_NUM_METHOD_FLOW= ROE\n\nMUSCL_FLOW= YES\n\n\nMUSCL_TURB= YES\n\n\nVENKAT_LIMITER_COEFF= 0.05\n\nLIMITER_ITER= 999999\n\nCFL_NUMBER= 3\n\nCFL_ADAPT= YES\n\nCFL_ADAPT_PARAM= (0.5, 1.2, 1, 30, 0.05, 10)\n\nLINEAR_SOLVER_PREC= ILU\n\nLINEAR_SOLVER_ITER= 25\n\nLINEAR_SOLVER_ERROR= 0.05\n\nCONV_FIELD= (RMS_DENSITY, RMS_TKE, RMS_DISSIPATION)\n\nSCREEN_OUTPUT= (INNER_ITER, RMS_DENSITY, LIFT, DRAG, AVG_CFL)\n\nCONV_NUM_METHOD_TURB= SCALAR_UPWIND\n\nSLOPE_LIMITER_TURB= VAN_ALBADA_EDGE\n\nSLOPE_LIMITER_FLOW= VAN_ALBADA_EDGE\n\nITER= 20\n\nCONV_STARTITER= 100\n"
+    }
+  ],
+  "edge_limiter_candidate_fields_finite": true,
+  "excluded_stress_mesh_floor_diagnostics": {
+    "adapted_sa_current_settings_current": {
+      "floor_count": 524,
+      "wall_count": 522,
+      "interior_count": 2,
+      "interior_global_ids": [
+        10524,
+        11654
+      ]
+    },
+    "adapted_sa_current_settings_fixed": {
+      "floor_count": 524,
+      "wall_count": 522,
+      "interior_count": 2,
+      "interior_global_ids": [
+        10524,
+        11654
+      ]
+    },
+    "adapted_sa_current_settings_main": {
+      "floor_count": 524,
+      "wall_count": 522,
+      "interior_count": 2,
+      "interior_global_ids": [
+        10524,
+        11654
+      ]
+    },
+    "adapted_sa_muscl_current": {
+      "floor_count": 690,
+      "wall_count": 522,
+      "interior_count": 168,
+      "interior_global_ids": [
+        58,
+        59,
+        235,
+        364,
+        465,
+        798,
+        804,
+        927,
+        959,
+        963,
+        964,
+        985,
+        1002,
+        1086,
+        1123,
+        1301,
+        1468,
+        1481,
+        1515,
+        1713,
+        1764,
+        1779,
+        1979,
+        1985,
+        2010,
+        2043,
+        2081,
+        2174,
+        2226,
+        2244,
+        2246,
+        2495,
+        2502,
+        2592,
+        2604,
+        2635,
+        2772,
+        2790,
+        2924,
+        2942,
+        3091,
+        3123,
+        3986,
+        4392,
+        4428,
+        4632,
+        4766,
+        4808,
+        4983,
+        5001,
+        5205,
+        5231,
+        5255,
+        5454,
+        5472,
+        5477,
+        5492,
+        5532,
+        5536,
+        5557,
+        5615,
+        5648,
+        5684,
+        5686,
+        5959,
+        5977,
+        6030,
+        6229,
+        6233,
+        6248,
+        6253,
+        6377,
+        6452,
+        6685,
+        6765,
+        6933,
+        6940,
+        7042,
+        7278,
+        7895,
+        7952,
+        8036,
+        8278,
+        8283,
+        8376,
+        8393,
+        8411,
+        8555,
+        8567,
+        8674,
+        8740,
+        8797,
+        8799,
+        9003,
+        9043,
+        9068,
+        9078,
+        9213,
+        9225,
+        9291,
+        9337,
+        9458,
+        9520,
+        9635,
+        9707,
+        9857,
+        10042,
+        10075,
+        10086,
+        10209,
+        10213,
+        10225,
+        10397,
+        10454,
+        10462,
+        10463,
+        10474,
+        10524,
+        10535,
+        10574,
+        10582,
+        10589,
+        10620,
+        10712,
+        10751,
+        10761,
+        10920,
+        11031,
+        11990,
+        12103,
+        12205,
+        12297,
+        12305,
+        12309,
+        12546,
+        12805,
+        12952,
+        13015,
+        13020,
+        13102,
+        13124,
+        13404,
+        13419,
+        13445,
+        13569,
+        13664,
+        14178,
+        14185,
+        14193,
+        14195,
+        14196,
+        14405,
+        14437,
+        14477,
+        14536,
+        14537,
+        14758,
+        14835,
+        15018,
+        15087,
+        15100,
+        15392,
+        15394,
+        15402,
+        15405,
+        15418,
+        15597,
+        15774
+      ]
+    },
+    "adapted_sa_muscl_fixed": {
+      "floor_count": 528,
+      "wall_count": 522,
+      "interior_count": 6,
+      "interior_global_ids": [
+        2174,
+        7952,
+        8674,
+        10524,
+        11654,
+        15597
+      ]
+    },
+    "adapted_sa_muscl_fixed_local": {
+      "floor_count": 528,
+      "wall_count": 522,
+      "interior_count": 6,
+      "interior_global_ids": [
+        2174,
+        7952,
+        8674,
+        10524,
+        11654,
+        15597
+      ]
+    },
+    "adapted_sa_muscl_main": {
+      "floor_count": 690,
+      "wall_count": 522,
+      "interior_count": 168,
+      "interior_global_ids": [
+        58,
+        59,
+        235,
+        364,
+        465,
+        798,
+        804,
+        927,
+        959,
+        963,
+        964,
+        985,
+        1002,
+        1086,
+        1123,
+        1301,
+        1468,
+        1481,
+        1515,
+        1713,
+        1764,
+        1779,
+        1979,
+        1985,
+        2010,
+        2043,
+        2081,
+        2174,
+        2226,
+        2244,
+        2246,
+        2495,
+        2502,
+        2592,
+        2604,
+        2635,
+        2772,
+        2790,
+        2924,
+        2942,
+        3091,
+        3123,
+        3986,
+        4392,
+        4428,
+        4632,
+        4766,
+        4808,
+        4983,
+        5001,
+        5205,
+        5231,
+        5255,
+        5454,
+        5472,
+        5477,
+        5492,
+        5532,
+        5536,
+        5557,
+        5615,
+        5648,
+        5684,
+        5686,
+        5959,
+        5977,
+        6030,
+        6229,
+        6233,
+        6248,
+        6253,
+        6377,
+        6452,
+        6685,
+        6765,
+        6933,
+        6940,
+        7042,
+        7278,
+        7895,
+        7952,
+        8036,
+        8278,
+        8283,
+        8376,
+        8393,
+        8411,
+        8555,
+        8567,
+        8674,
+        8740,
+        8797,
+        8799,
+        9003,
+        9043,
+        9068,
+        9078,
+        9213,
+        9225,
+        9291,
+        9337,
+        9458,
+        9520,
+        9635,
+        9707,
+        9857,
+        10042,
+        10075,
+        10086,
+        10209,
+        10213,
+        10225,
+        10397,
+        10454,
+        10462,
+        10463,
+        10474,
+        10524,
+        10535,
+        10574,
+        10582,
+        10589,
+        10620,
+        10712,
+        10751,
+        10761,
+        10920,
+        11031,
+        11990,
+        12103,
+        12205,
+        12297,
+        12305,
+        12309,
+        12546,
+        12805,
+        12952,
+        13015,
+        13020,
+        13102,
+        13124,
+        13404,
+        13419,
+        13445,
+        13569,
+        13664,
+        14178,
+        14185,
+        14193,
+        14195,
+        14196,
+        14405,
+        14437,
+        14477,
+        14536,
+        14537,
+        14758,
+        14835,
+        15018,
+        15087,
+        15100,
+        15392,
+        15394,
+        15402,
+        15405,
+        15418,
+        15597,
+        15774
+      ]
+    }
+  },
+  "initial_mesh_quality": {
+    "input": {
+      "mesh": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_metric_integration_v1/frozen/fine/inputs/input.su2",
+      "sha256": "25d26a0ef9a9815ff147ec986805994290b1000702532fb9c0d0f472f27f2ab8",
+      "points": 18591,
+      "triangles": 36263,
+      "max_longest_edge_over_altitude": 5546.097114917212,
+      "p99_longest_edge_over_altitude": 1004.2395536558577,
+      "validity": {
+        "positive_volumes": [
+          "PASS",
+          "min 4.911e-11 mean 8.628e-01 non-positive 0"
+        ],
+        "conformity": [
+          "PASS",
+          "faces in >2 elements 0, boundary faces without marker 0, marker faces: interior 0, not an element face 0, repeated 0"
+        ],
+        "points_elements": [
+          "PASS",
+          "unused points 0, duplicate points 0, duplicate elements 0"
+        ]
+      }
+    },
+    "adapted": {
+      "mesh": "/tmp/su2-cfd-fixes-inputs/adapted_rae/mesh_adap_00001.su2",
+      "sha256": "4cd3c068a4db0af272312ecc9638dffd635235810d5d7a6b81a15f2de6ba71e5",
+      "points": 15929,
+      "triangles": 31285,
+      "max_longest_edge_over_altitude": 3917.703843044582,
+      "p99_longest_edge_over_altitude": 910.7389308632015,
+      "validity": {
+        "positive_volumes": [
+          "PASS",
+          "min 4.419e-11 mean 1.000e+00 non-positive 0"
+        ],
+        "conformity": [
+          "PASS",
+          "faces in >2 elements 0, boundary faces without marker 0, marker faces: interior 0, not an element face 0, repeated 0"
+        ],
+        "points_elements": [
+          "PASS",
+          "unused points 0, duplicate points 0, duplicate elements 0"
+        ]
+      }
+    }
+  },
+  "user_selected_adapted_mesh": {
+    "mesh_00400.su2": {
+      "source": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/ClusterResults/cases/581712_actual_euler_to_bl_n4_m4_pYES_r1/mesh_00400.su2",
+      "sha256": "4b805909cce30f825e8f01580b21bd06255944dd45905120ec9e959202322326"
+    },
+    "mesh_00400.su2.native_ref": {
+      "source": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/ClusterResults/cases/581712_actual_euler_to_bl_n4_m4_pYES_r1/mesh_00400.su2.native_ref",
+      "sha256": "e4c3019a6183d264e12bc2c70b6a5525f85228599742d37e3aa499c81a2af220"
+    },
+    "solution_00599.dat": {
+      "source": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/ClusterResults/cases/581712_actual_euler_to_bl_n4_m4_pYES_r1/solution_00599.dat",
+      "sha256": "ee3757cea6fa462a9b08376e1587dd3fe725e3283ac7463c057031953f8a318e"
+    },
+    "run.cfg": {
+      "source": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/ClusterResults/cases/581712_actual_euler_to_bl_n4_m4_pYES_r1/run.cfg",
+      "sha256": "2b8902851c360c351ddffc34695d67e589598a6a346a1cb448ee9a62c3808f99"
+    },
+    "independent_rae_unsteady_audit.json": {
+      "source": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/ClusterResults/cases/581712_actual_euler_to_bl_n4_m4_pYES_r1/independent_rae_unsteady_audit.json",
+      "sha256": "517b48dcd0ebe73f6a03e273c14f97d13bfad2c017ad4fd8a731add17cfc1e0a"
+    },
+    "collection_manifest.json": {
+      "source": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/ClusterResults/cases/581712_actual_euler_to_bl_n4_m4_pYES_r1/collection_manifest.json",
+      "sha256": "4bde14d775451a1249d1d6c7707ed20c69eaae76935af917cd1bcdf9987b4c31"
+    },
+    "snapshot.cfg": {
+      "sha256": "a9b6e318953836cf17a13a53965457e5c0b3812bb642e8758304a81cf07210e7"
+    },
+    "validation": {
+      "points": 13024,
+      "triangles": 25576,
+      "restart_coordinates_bitwise_equal": true,
+      "restart_fields_finite": true,
+      "minimum_density": 0.29723153817181464,
+      "scope": "Steady fixed-mesh continuation from the latest collected unsteady state; no unsteady convergence claim."
+    },
+    "physical_quality": {
+      "max_edge_over_altitude": 5624.947018555801,
+      "p99_edge_over_altitude": 1199.0486076331522,
+      "positive_triangles": true
+    },
+    "floor_diagnostics": {
+      "bl_adapted_sa_current_settings_main": {
+        "wall_floor_count": 432,
+        "interior_floor_count": 12,
+        "interior_floor_global_ids": [
+          2108,
+          2889,
+          3084,
+          3681,
+          3717,
+          6020,
+          6350,
+          6507,
+          7426,
+          8094,
+          10214,
+          12427
+        ],
+        "interior_floor_coordinates": [
+          [
+            0.411887741122916,
+            -0.05660343021083927
+          ],
+          [
+            0.4148675639444151,
+            -0.056213388900815044
+          ],
+          [
+            0.4179057104347074,
+            -0.055963992633649456
+          ],
+          [
+            0.4311692368822273,
+            -0.05526361541743271
+          ],
+          [
+            0.4143806567795045,
+            -0.05665636814247424
+          ],
+          [
+            0.9846139525281917,
+            0.003579351090684414
+          ],
+          [
+            0.9823469469320086,
+            0.004163570327028145
+          ],
+          [
+            0.5193729078110332,
+            0.06308572952439943
+          ],
+          [
+            0.019661839785544477,
+            -0.017951764050034652
+          ],
+          [
+            0.5218586525848702,
+            -0.04721540468786172
+          ],
+          [
+            0.054547121926127616,
+            -0.02906455463023444
+          ],
+          [
+            0.7765495383002582,
+            -0.011729138398937546
+          ]
+        ]
+      },
+      "bl_adapted_sa_current_settings_current": {
+        "wall_floor_count": 432,
+        "interior_floor_count": 12,
+        "interior_floor_global_ids": [
+          2108,
+          2889,
+          3084,
+          3681,
+          3717,
+          6020,
+          6350,
+          6507,
+          7426,
+          8094,
+          10214,
+          12427
+        ],
+        "interior_floor_coordinates": [
+          [
+            0.411887741122916,
+            -0.05660343021083927
+          ],
+          [
+            0.4148675639444151,
+            -0.056213388900815044
+          ],
+          [
+            0.4179057104347074,
+            -0.055963992633649456
+          ],
+          [
+            0.4311692368822273,
+            -0.05526361541743271
+          ],
+          [
+            0.4143806567795045,
+            -0.05665636814247424
+          ],
+          [
+            0.9846139525281917,
+            0.003579351090684414
+          ],
+          [
+            0.9823469469320086,
+            0.004163570327028145
+          ],
+          [
+            0.5193729078110332,
+            0.06308572952439943
+          ],
+          [
+            0.019661839785544477,
+            -0.017951764050034652
+          ],
+          [
+            0.5218586525848702,
+            -0.04721540468786172
+          ],
+          [
+            0.054547121926127616,
+            -0.02906455463023444
+          ],
+          [
+            0.7765495383002582,
+            -0.011729138398937546
+          ]
+        ]
+      },
+      "bl_adapted_sa_current_settings_fixed": {
+        "wall_floor_count": 432,
+        "interior_floor_count": 12,
+        "interior_floor_global_ids": [
+          2108,
+          2889,
+          3084,
+          3681,
+          3717,
+          6020,
+          6350,
+          6507,
+          7426,
+          8094,
+          10214,
+          12427
+        ],
+        "interior_floor_coordinates": [
+          [
+            0.411887741122916,
+            -0.05660343021083927
+          ],
+          [
+            0.4148675639444151,
+            -0.056213388900815044
+          ],
+          [
+            0.4179057104347074,
+            -0.055963992633649456
+          ],
+          [
+            0.4311692368822273,
+            -0.05526361541743271
+          ],
+          [
+            0.4143806567795045,
+            -0.05665636814247424
+          ],
+          [
+            0.9846139525281917,
+            0.003579351090684414
+          ],
+          [
+            0.9823469469320086,
+            0.004163570327028145
+          ],
+          [
+            0.5193729078110332,
+            0.06308572952439943
+          ],
+          [
+            0.019661839785544477,
+            -0.017951764050034652
+          ],
+          [
+            0.5218586525848702,
+            -0.04721540468786172
+          ],
+          [
+            0.054547121926127616,
+            -0.02906455463023444
+          ],
+          [
+            0.7765495383002582,
+            -0.011729138398937546
+          ]
+        ]
+      },
+      "bl_adapted_sa_muscl_main": {
+        "wall_floor_count": 432,
+        "interior_floor_count": 122,
+        "interior_floor_global_ids": [
+          27,
+          44,
+          194,
+          311,
+          351,
+          763,
+          787,
+          1286,
+          1432,
+          1524,
+          1567,
+          1597,
+          1662,
+          1763,
+          1852,
+          1934,
+          1935,
+          2108,
+          2147,
+          2185,
+          2232,
+          2687,
+          2706,
+          2889,
+          3084,
+          3434,
+          3477,
+          3510,
+          3518,
+          3717,
+          3770,
+          3840,
+          3988,
+          3995,
+          4036,
+          4137,
+          4227,
+          4351,
+          4353,
+          4354,
+          4374,
+          4435,
+          4488,
+          4515,
+          4587,
+          4595,
+          4729,
+          4832,
+          5044,
+          5060,
+          5214,
+          5320,
+          6020,
+          6350,
+          6469,
+          6507,
+          6564,
+          6580,
+          6696,
+          7014,
+          7198,
+          7335,
+          7397,
+          7426,
+          7573,
+          7579,
+          7627,
+          7659,
+          7856,
+          8094,
+          8106,
+          8136,
+          8242,
+          8419,
+          8426,
+          8551,
+          8581,
+          8668,
+          8676,
+          8679,
+          8711,
+          8815,
+          8943,
+          9446,
+          9825,
+          9858,
+          9859,
+          9875,
+          9884,
+          10059,
+          10071,
+          10096,
+          10115,
+          10214,
+          10255,
+          10415,
+          10466,
+          10554,
+          10604,
+          10641,
+          10663,
+          10713,
+          10822,
+          10933,
+          11067,
+          11163,
+          11210,
+          11212,
+          11494,
+          11501,
+          11505,
+          11584,
+          11688,
+          11716,
+          11735,
+          11849,
+          11973,
+          11983,
+          12021,
+          12192,
+          12427,
+          12858
+        ],
+        "interior_floor_coordinates": [
+          [
+            13.57527049821885,
+            5.831172418444446
+          ],
+          [
+            0.7269702746886746,
+            0.07455193656972965
+          ],
+          [
+            0.002667544167543695,
+            0.006789484862930082
+          ],
+          [
+            0.5062270609047813,
+            0.10803769451219125
+          ],
+          [
+            0.1775451204871531,
+            0.05423784793613971
+          ],
+          [
+            0.43828481506186867,
+            -0.06367473583597362
+          ],
+          [
+            0.5273574419732189,
+            0.07488812158661756
+          ],
+          [
+            6.495335592088222,
+            -1.554810713058552
+          ],
+          [
+            0.06885010666145171,
+            -0.032546026351536445
+          ],
+          [
+            0.025309845444652406,
+            0.02140981741987994
+          ],
+          [
+            0.4218145305015538,
+            -0.05611848466940076
+          ],
+          [
+            1.3485818658171103,
+            -0.14798474525705282
+          ],
+          [
+            0.5914241030359075,
+            0.07512450089085368
+          ],
+          [
+            0.43106124974098886,
+            -0.06299511767814722
+          ],
+          [
+            0.5627716510664514,
+            0.07561102458532826
+          ],
+          [
+            0.9541810860300521,
+            -0.04049007462062424
+          ],
+          [
+            0.9154941111972948,
+            -0.03743978884075615
+          ],
+          [
+            0.411887741122916,
+            -0.05660343021083927
+          ],
+          [
+            1.129463654700649,
+            0.11207970137236242
+          ],
+          [
+            1.6210250158864075,
+            -0.2399781684751499
+          ],
+          [
+            0.24455121227352544,
+            0.06304708119361924
+          ],
+          [
+            0.0008236950844680244,
+            0.004001778948400007
+          ],
+          [
+            -1.4146673878397726e-05,
+            0.0005964658104979838
+          ],
+          [
+            0.4148675639444151,
+            -0.056213388900815044
+          ],
+          [
+            0.4179057104347074,
+            -0.055963992633649456
+          ],
+          [
+            0.28924122590623036,
+            0.06660452639259776
+          ],
+          [
+            0.5957939054772932,
+            -0.050263186652227905
+          ],
+          [
+            0.5418414869060806,
+            -0.056267672843411345
+          ],
+          [
+            0.24767111197489172,
+            0.06387901992821629
+          ],
+          [
+            0.4143806567795045,
+            -0.05665636814247424
+          ],
+          [
+            0.2226336378025222,
+            0.06093127417876868
+          ],
+          [
+            0.9359320098624968,
+            -0.03538408644650579
+          ],
+          [
+            0.0286504456014001,
+            0.02279167116475943
+          ],
+          [
+            0.002497252463541996,
+            0.006623369149852464
+          ],
+          [
+            0.028924827009449997,
+            0.023881077655115737
+          ],
+          [
+            0.007215821795916954,
+            -0.011115196257205013
+          ],
+          [
+            0.025342625599760315,
+            -0.02031877750043241
+          ],
+          [
+            1.1345648161568844,
+            -0.0638104660264928
+          ],
+          [
+            1.8251174079611443,
+            0.1780769458247305
+          ],
+          [
+            1.914820408867234,
+            -0.23470720980227197
+          ],
+          [
+            4.025497487341081,
+            0.659673106026213
+          ],
+          [
+            0.17552083179218117,
+            0.053496717574737604
+          ],
+          [
+            1.563329922073152,
+            0.20509008427165498
+          ],
+          [
+            0.715689887782428,
+            -0.03957089497204376
+          ],
+          [
+            0.8983737689100381,
+            0.05575892643412596
+          ],
+          [
+            0.9431834585061373,
+            0.05261281759785316
+          ],
+          [
+            0.0016072065791346993,
+            0.005311559036703106
+          ],
+          [
+            0.46363441844398956,
+            -0.06168918142339264
+          ],
+          [
+            0.028114104234914648,
+            -0.02133145524594437
+          ],
+          [
+            0.5236665479642525,
+            -0.05816395296421339
+          ],
+          [
+            0.9847384262947109,
+            -0.03413422327964163
+          ],
+          [
+            0.6727167292828719,
+            -0.040805507196903505
+          ],
+          [
+            0.9846139525281917,
+            0.003579351090684414
+          ],
+          [
+            0.9823469469320086,
+            0.004163570327028145
+          ],
+          [
+            0.9454999342260639,
+            -0.02886431983350571
+          ],
+          [
+            0.5193729078110332,
+            0.06308572952439943
+          ],
+          [
+            1.015565271159553,
+            -0.04710700646331745
+          ],
+          [
+            0.8669017865693543,
+            0.06382968975665622
+          ],
+          [
+            0.30964415004836543,
+            0.06863720821276167
+          ],
+          [
+            0.4638556111898739,
+            -0.06022949013823813
+          ],
+          [
+            0.9156526742596299,
+            0.04770280818254805
+          ],
+          [
+            0.253161296308142,
+            0.06376068333140654
+          ],
+          [
+            0.020665507435136957,
+            0.01910977786278845
+          ],
+          [
+            0.019661839785544477,
+            -0.017951764050034652
+          ],
+          [
+            1.9996270024566314,
+            0.24235372019907536
+          ],
+          [
+            0.9841124021031415,
+            -0.0433688637031885
+          ],
+          [
+            0.96960977871902,
+            0.05155176604002919
+          ],
+          [
+            0.8297477372145464,
+            -0.026658291723598983
+          ],
+          [
+            0.7758164856642846,
+            0.06892778330118356
+          ],
+          [
+            0.5218586525848702,
+            -0.04721540468786172
+          ],
+          [
+            0.42132291066652144,
+            -0.05596505603111461
+          ],
+          [
+            1.0355786528024393,
+            0.06686274901650945
+          ],
+          [
+            0.4304282008651808,
+            0.0749593998700541
+          ],
+          [
+            3.4551896019148,
+            -0.7004697507100159
+          ],
+          [
+            1.828899348936122,
+            -0.2963593934769794
+          ],
+          [
+            0.05056030122249501,
+            -0.028263103997595008
+          ],
+          [
+            0.10958666286263445,
+            0.0437973161717482
+          ],
+          [
+            1.1934025929183818,
+            0.13375662976349106
+          ],
+          [
+            1.385600893143728,
+            0.16858732363932458
+          ],
+          [
+            1.7420623318023245,
+            0.2129624964105949
+          ],
+          [
+            1.187800858750296,
+            0.08101824334366335
+          ],
+          [
+            0.0025381187003158203,
+            0.006640412271967563
+          ],
+          [
+            1.1706952753099762,
+            -0.11443464731148452
+          ],
+          [
+            0.7373760421451799,
+            -0.03700737261229756
+          ],
+          [
+            0.839610936021979,
+            0.059734702282278035
+          ],
+          [
+            1.015737138789188,
+            -0.02885956249539419
+          ],
+          [
+            1.059506400079319,
+            0.05515647634166414
+          ],
+          [
+            1.027377359448732,
+            0.03971334563389475
+          ],
+          [
+            1.00203308255773,
+            -0.03292997939690572
+          ],
+          [
+            0.5816521292882585,
+            -0.05164955534370503
+          ],
+          [
+            0.6300807603509603,
+            0.07395744691210837
+          ],
+          [
+            0.5324899478222844,
+            0.07737862326737686
+          ],
+          [
+            0.5423564492368297,
+            0.07540647567222122
+          ],
+          [
+            0.054547121926127616,
+            -0.02906455463023444
+          ],
+          [
+            0.1990067909397765,
+            -0.05744999550611056
+          ],
+          [
+            0.7106734546789448,
+            0.06750220660933082
+          ],
+          [
+            1.005661582569172,
+            0.06739889143750222
+          ],
+          [
+            0.18445882992476645,
+            0.05570124867152509
+          ],
+          [
+            0.07192516902730743,
+            -0.03495973156466348
+          ],
+          [
+            0.30015481971692365,
+            0.06779185368946485
+          ],
+          [
+            0.6676878216795177,
+            0.0701990795173764
+          ],
+          [
+            0.0005473739124951253,
+            0.0036229081947942005
+          ],
+          [
+            0.705938636033649,
+            -0.03719202609261482
+          ],
+          [
+            0.9187953508600323,
+            0.05433596963683014
+          ],
+          [
+            7.407287040959352,
+            2.05483715667723
+          ],
+          [
+            0.4068702792906592,
+            -0.06185552843100845
+          ],
+          [
+            0.017661948528734733,
+            -0.01723724340004055
+          ],
+          [
+            0.00017711835361308243,
+            0.002324197435953344
+          ],
+          [
+            0.6170220472784058,
+            0.07306025440257524
+          ],
+          [
+            0.4575598057938437,
+            0.07406931694722997
+          ],
+          [
+            0.4978259237910338,
+            0.0770256226597613
+          ],
+          [
+            0.023340451336016227,
+            0.020806874914611112
+          ],
+          [
+            2.492206495179679,
+            -0.3288651379047818
+          ],
+          [
+            1.0228765911784103,
+            0.054332652498500666
+          ],
+          [
+            0.9564358747709202,
+            0.04280491061728062
+          ],
+          [
+            0.001079867819692052,
+            0.004663305789378035
+          ],
+          [
+            1.09987139868743,
+            -0.07268100903255538
+          ],
+          [
+            0.2579506151743768,
+            0.0652448890373742
+          ],
+          [
+            0.29942915769489264,
+            0.06641158996692556
+          ],
+          [
+            2.1276404607245403,
+            -0.31453255605961356
+          ],
+          [
+            0.7765495383002582,
+            -0.011729138398937546
+          ],
+          [
+            0.9539001358516243,
+            -0.030962448812653212
+          ]
+        ]
+      },
+      "bl_adapted_sa_muscl_current": {
+        "wall_floor_count": 432,
+        "interior_floor_count": 122,
+        "interior_floor_global_ids": [
+          27,
+          44,
+          194,
+          311,
+          351,
+          763,
+          787,
+          1286,
+          1432,
+          1524,
+          1567,
+          1597,
+          1662,
+          1763,
+          1852,
+          1934,
+          1935,
+          2108,
+          2147,
+          2185,
+          2232,
+          2687,
+          2706,
+          2889,
+          3084,
+          3434,
+          3477,
+          3510,
+          3518,
+          3717,
+          3770,
+          3840,
+          3988,
+          3995,
+          4036,
+          4137,
+          4227,
+          4351,
+          4353,
+          4354,
+          4374,
+          4435,
+          4488,
+          4515,
+          4587,
+          4595,
+          4729,
+          4832,
+          5044,
+          5060,
+          5214,
+          5320,
+          6020,
+          6350,
+          6469,
+          6507,
+          6564,
+          6580,
+          6696,
+          7014,
+          7198,
+          7335,
+          7397,
+          7426,
+          7573,
+          7579,
+          7627,
+          7659,
+          7856,
+          8094,
+          8106,
+          8136,
+          8242,
+          8419,
+          8426,
+          8551,
+          8581,
+          8668,
+          8676,
+          8679,
+          8711,
+          8815,
+          8943,
+          9446,
+          9825,
+          9858,
+          9859,
+          9875,
+          9884,
+          10059,
+          10071,
+          10096,
+          10115,
+          10214,
+          10255,
+          10415,
+          10466,
+          10554,
+          10604,
+          10641,
+          10663,
+          10713,
+          10822,
+          10933,
+          11067,
+          11163,
+          11210,
+          11212,
+          11494,
+          11501,
+          11505,
+          11584,
+          11688,
+          11716,
+          11735,
+          11849,
+          11973,
+          11983,
+          12021,
+          12192,
+          12427,
+          12858
+        ],
+        "interior_floor_coordinates": [
+          [
+            13.57527049821885,
+            5.831172418444446
+          ],
+          [
+            0.7269702746886746,
+            0.07455193656972965
+          ],
+          [
+            0.002667544167543695,
+            0.006789484862930082
+          ],
+          [
+            0.5062270609047813,
+            0.10803769451219125
+          ],
+          [
+            0.1775451204871531,
+            0.05423784793613971
+          ],
+          [
+            0.43828481506186867,
+            -0.06367473583597362
+          ],
+          [
+            0.5273574419732189,
+            0.07488812158661756
+          ],
+          [
+            6.495335592088222,
+            -1.554810713058552
+          ],
+          [
+            0.06885010666145171,
+            -0.032546026351536445
+          ],
+          [
+            0.025309845444652406,
+            0.02140981741987994
+          ],
+          [
+            0.4218145305015538,
+            -0.05611848466940076
+          ],
+          [
+            1.3485818658171103,
+            -0.14798474525705282
+          ],
+          [
+            0.5914241030359075,
+            0.07512450089085368
+          ],
+          [
+            0.43106124974098886,
+            -0.06299511767814722
+          ],
+          [
+            0.5627716510664514,
+            0.07561102458532826
+          ],
+          [
+            0.9541810860300521,
+            -0.04049007462062424
+          ],
+          [
+            0.9154941111972948,
+            -0.03743978884075615
+          ],
+          [
+            0.411887741122916,
+            -0.05660343021083927
+          ],
+          [
+            1.129463654700649,
+            0.11207970137236242
+          ],
+          [
+            1.6210250158864075,
+            -0.2399781684751499
+          ],
+          [
+            0.24455121227352544,
+            0.06304708119361924
+          ],
+          [
+            0.0008236950844680244,
+            0.004001778948400007
+          ],
+          [
+            -1.4146673878397726e-05,
+            0.0005964658104979838
+          ],
+          [
+            0.4148675639444151,
+            -0.056213388900815044
+          ],
+          [
+            0.4179057104347074,
+            -0.055963992633649456
+          ],
+          [
+            0.28924122590623036,
+            0.06660452639259776
+          ],
+          [
+            0.5957939054772932,
+            -0.050263186652227905
+          ],
+          [
+            0.5418414869060806,
+            -0.056267672843411345
+          ],
+          [
+            0.24767111197489172,
+            0.06387901992821629
+          ],
+          [
+            0.4143806567795045,
+            -0.05665636814247424
+          ],
+          [
+            0.2226336378025222,
+            0.06093127417876868
+          ],
+          [
+            0.9359320098624968,
+            -0.03538408644650579
+          ],
+          [
+            0.0286504456014001,
+            0.02279167116475943
+          ],
+          [
+            0.002497252463541996,
+            0.006623369149852464
+          ],
+          [
+            0.028924827009449997,
+            0.023881077655115737
+          ],
+          [
+            0.007215821795916954,
+            -0.011115196257205013
+          ],
+          [
+            0.025342625599760315,
+            -0.02031877750043241
+          ],
+          [
+            1.1345648161568844,
+            -0.0638104660264928
+          ],
+          [
+            1.8251174079611443,
+            0.1780769458247305
+          ],
+          [
+            1.914820408867234,
+            -0.23470720980227197
+          ],
+          [
+            4.025497487341081,
+            0.659673106026213
+          ],
+          [
+            0.17552083179218117,
+            0.053496717574737604
+          ],
+          [
+            1.563329922073152,
+            0.20509008427165498
+          ],
+          [
+            0.715689887782428,
+            -0.03957089497204376
+          ],
+          [
+            0.8983737689100381,
+            0.05575892643412596
+          ],
+          [
+            0.9431834585061373,
+            0.05261281759785316
+          ],
+          [
+            0.0016072065791346993,
+            0.005311559036703106
+          ],
+          [
+            0.46363441844398956,
+            -0.06168918142339264
+          ],
+          [
+            0.028114104234914648,
+            -0.02133145524594437
+          ],
+          [
+            0.5236665479642525,
+            -0.05816395296421339
+          ],
+          [
+            0.9847384262947109,
+            -0.03413422327964163
+          ],
+          [
+            0.6727167292828719,
+            -0.040805507196903505
+          ],
+          [
+            0.9846139525281917,
+            0.003579351090684414
+          ],
+          [
+            0.9823469469320086,
+            0.004163570327028145
+          ],
+          [
+            0.9454999342260639,
+            -0.02886431983350571
+          ],
+          [
+            0.5193729078110332,
+            0.06308572952439943
+          ],
+          [
+            1.015565271159553,
+            -0.04710700646331745
+          ],
+          [
+            0.8669017865693543,
+            0.06382968975665622
+          ],
+          [
+            0.30964415004836543,
+            0.06863720821276167
+          ],
+          [
+            0.4638556111898739,
+            -0.06022949013823813
+          ],
+          [
+            0.9156526742596299,
+            0.04770280818254805
+          ],
+          [
+            0.253161296308142,
+            0.06376068333140654
+          ],
+          [
+            0.020665507435136957,
+            0.01910977786278845
+          ],
+          [
+            0.019661839785544477,
+            -0.017951764050034652
+          ],
+          [
+            1.9996270024566314,
+            0.24235372019907536
+          ],
+          [
+            0.9841124021031415,
+            -0.0433688637031885
+          ],
+          [
+            0.96960977871902,
+            0.05155176604002919
+          ],
+          [
+            0.8297477372145464,
+            -0.026658291723598983
+          ],
+          [
+            0.7758164856642846,
+            0.06892778330118356
+          ],
+          [
+            0.5218586525848702,
+            -0.04721540468786172
+          ],
+          [
+            0.42132291066652144,
+            -0.05596505603111461
+          ],
+          [
+            1.0355786528024393,
+            0.06686274901650945
+          ],
+          [
+            0.4304282008651808,
+            0.0749593998700541
+          ],
+          [
+            3.4551896019148,
+            -0.7004697507100159
+          ],
+          [
+            1.828899348936122,
+            -0.2963593934769794
+          ],
+          [
+            0.05056030122249501,
+            -0.028263103997595008
+          ],
+          [
+            0.10958666286263445,
+            0.0437973161717482
+          ],
+          [
+            1.1934025929183818,
+            0.13375662976349106
+          ],
+          [
+            1.385600893143728,
+            0.16858732363932458
+          ],
+          [
+            1.7420623318023245,
+            0.2129624964105949
+          ],
+          [
+            1.187800858750296,
+            0.08101824334366335
+          ],
+          [
+            0.0025381187003158203,
+            0.006640412271967563
+          ],
+          [
+            1.1706952753099762,
+            -0.11443464731148452
+          ],
+          [
+            0.7373760421451799,
+            -0.03700737261229756
+          ],
+          [
+            0.839610936021979,
+            0.059734702282278035
+          ],
+          [
+            1.015737138789188,
+            -0.02885956249539419
+          ],
+          [
+            1.059506400079319,
+            0.05515647634166414
+          ],
+          [
+            1.027377359448732,
+            0.03971334563389475
+          ],
+          [
+            1.00203308255773,
+            -0.03292997939690572
+          ],
+          [
+            0.5816521292882585,
+            -0.05164955534370503
+          ],
+          [
+            0.6300807603509603,
+            0.07395744691210837
+          ],
+          [
+            0.5324899478222844,
+            0.07737862326737686
+          ],
+          [
+            0.5423564492368297,
+            0.07540647567222122
+          ],
+          [
+            0.054547121926127616,
+            -0.02906455463023444
+          ],
+          [
+            0.1990067909397765,
+            -0.05744999550611056
+          ],
+          [
+            0.7106734546789448,
+            0.06750220660933082
+          ],
+          [
+            1.005661582569172,
+            0.06739889143750222
+          ],
+          [
+            0.18445882992476645,
+            0.05570124867152509
+          ],
+          [
+            0.07192516902730743,
+            -0.03495973156466348
+          ],
+          [
+            0.30015481971692365,
+            0.06779185368946485
+          ],
+          [
+            0.6676878216795177,
+            0.0701990795173764
+          ],
+          [
+            0.0005473739124951253,
+            0.0036229081947942005
+          ],
+          [
+            0.705938636033649,
+            -0.03719202609261482
+          ],
+          [
+            0.9187953508600323,
+            0.05433596963683014
+          ],
+          [
+            7.407287040959352,
+            2.05483715667723
+          ],
+          [
+            0.4068702792906592,
+            -0.06185552843100845
+          ],
+          [
+            0.017661948528734733,
+            -0.01723724340004055
+          ],
+          [
+            0.00017711835361308243,
+            0.002324197435953344
+          ],
+          [
+            0.6170220472784058,
+            0.07306025440257524
+          ],
+          [
+            0.4575598057938437,
+            0.07406931694722997
+          ],
+          [
+            0.4978259237910338,
+            0.0770256226597613
+          ],
+          [
+            0.023340451336016227,
+            0.020806874914611112
+          ],
+          [
+            2.492206495179679,
+            -0.3288651379047818
+          ],
+          [
+            1.0228765911784103,
+            0.054332652498500666
+          ],
+          [
+            0.9564358747709202,
+            0.04280491061728062
+          ],
+          [
+            0.001079867819692052,
+            0.004663305789378035
+          ],
+          [
+            1.09987139868743,
+            -0.07268100903255538
+          ],
+          [
+            0.2579506151743768,
+            0.0652448890373742
+          ],
+          [
+            0.29942915769489264,
+            0.06641158996692556
+          ],
+          [
+            2.1276404607245403,
+            -0.31453255605961356
+          ],
+          [
+            0.7765495383002582,
+            -0.011729138398937546
+          ],
+          [
+            0.9539001358516243,
+            -0.030962448812653212
+          ]
+        ]
+      },
+      "bl_adapted_sa_muscl_fixed": {
+        "wall_floor_count": 432,
+        "interior_floor_count": 13,
+        "interior_floor_global_ids": [
+          1432,
+          2108,
+          2889,
+          3084,
+          3681,
+          3717,
+          6020,
+          6350,
+          6507,
+          7426,
+          8094,
+          10214,
+          12427
+        ],
+        "interior_floor_coordinates": [
+          [
+            0.06885010666145171,
+            -0.032546026351536445
+          ],
+          [
+            0.411887741122916,
+            -0.05660343021083927
+          ],
+          [
+            0.4148675639444151,
+            -0.056213388900815044
+          ],
+          [
+            0.4179057104347074,
+            -0.055963992633649456
+          ],
+          [
+            0.4311692368822273,
+            -0.05526361541743271
+          ],
+          [
+            0.4143806567795045,
+            -0.05665636814247424
+          ],
+          [
+            0.9846139525281917,
+            0.003579351090684414
+          ],
+          [
+            0.9823469469320086,
+            0.004163570327028145
+          ],
+          [
+            0.5193729078110332,
+            0.06308572952439943
+          ],
+          [
+            0.019661839785544477,
+            -0.017951764050034652
+          ],
+          [
+            0.5218586525848702,
+            -0.04721540468786172
+          ],
+          [
+            0.054547121926127616,
+            -0.02906455463023444
+          ],
+          [
+            0.7765495383002582,
+            -0.011729138398937546
+          ]
+        ]
+      },
+      "bl_adapted_sa_muscl_fixed_local": {
+        "wall_floor_count": 432,
+        "interior_floor_count": 13,
+        "interior_floor_global_ids": [
+          1432,
+          2108,
+          2889,
+          3084,
+          3681,
+          3717,
+          6020,
+          6350,
+          6507,
+          7426,
+          8094,
+          10214,
+          12427
+        ],
+        "interior_floor_coordinates": [
+          [
+            0.06885010666145171,
+            -0.032546026351536445
+          ],
+          [
+            0.411887741122916,
+            -0.05660343021083927
+          ],
+          [
+            0.4148675639444151,
+            -0.056213388900815044
+          ],
+          [
+            0.4179057104347074,
+            -0.055963992633649456
+          ],
+          [
+            0.4311692368822273,
+            -0.05526361541743271
+          ],
+          [
+            0.4143806567795045,
+            -0.05665636814247424
+          ],
+          [
+            0.9846139525281917,
+            0.003579351090684414
+          ],
+          [
+            0.9823469469320086,
+            0.004163570327028145
+          ],
+          [
+            0.5193729078110332,
+            0.06308572952439943
+          ],
+          [
+            0.019661839785544477,
+            -0.017951764050034652
+          ],
+          [
+            0.5218586525848702,
+            -0.04721540468786172
+          ],
+          [
+            0.054547121926127616,
+            -0.02906455463023444
+          ],
+          [
+            0.7765495383002582,
+            -0.011729138398937546
+          ]
+        ]
+      }
+    }
+  },
+  "adapted_execution": {
+    "all_seven_cfd_children_exit_code": 0,
+    "history_rows_each": 2000,
+    "tool_wrapper_exit_code": 143,
+    "note": "Wrapper returned143 after all seven written child results reported exit0, complete histories/fields, and solver Exit Success; cause unknown. Numerical completion independently checked."
+  }
+}

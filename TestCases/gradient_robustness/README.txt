@@ -61,8 +61,9 @@ better nonlinear CFD accuracy, viscous stability, or wall shear/heat accuracy.
 Periodic meshes keep their current communicated normal-equation solve. Batched
 Hessian recovery that reuses inverse normal matrices also keeps its current
 algorithm. Extending QR to periodic interfaces needs a row or factor exchange.
-No full RANS, moving-grid, unsteady, remeshing, or end-to-end adjoint campaign was
-run. Compilation used one job with nice=10; CFD used one thread and nice=10.
+At this first gradient-only checkpoint, no full RANS, moving-grid, unsteady,
+remeshing, or end-to-end adjoint campaign was run. Compilation used one job with
+nice=10; CFD used one thread and nice=10.
 Only the ownership check used two MPI ranks. Timings are local gradient-kernel
 measurements under shared-machine conditions, not whole-solver speed claims.
 After reusing the existing factorization for the retry decision, measured normal
@@ -99,3 +100,48 @@ Standalone AD check, from the source root:
 For reverse mode, replace CODI_FORWARD_TYPE with CODI_REVERSE_TYPE and add
 -DCODI_JACOBIAN_LINEAR_TAPE. The section flags discard unused solver-header
 functions, keeping this a standalone check of the actual helper.
+
+Subsequent limiter/MUSCL/convergence integration (2026-10-08)
+
+HANDBOOK_ROBUSTNESS.md in the repository root records reviewed upstream commits,
+local safeguards, source/binary provenance, successful checks, negative results
+and next steps. LIMITER_LOCAL_LENGTH defaults to NO; its dimension-aware 2D/3D
+length is experimental. Turbulence point-limiters now use field-relative
+regularization. R4 sign symmetry, scalar face admissibility, bounded transport,
+compressible update relaxation, and parallel linear-solver fixes are covered.
+
+fixes_results_20261008.json stores the initial 20-case comparison, exact configs,
+binary/config hashes, residual gates, tail ranges, matched-iteration differences
+and final-state admissibility. Only the six conventional boundary-layer SA/SST
+variants are eligible RANS convergence cases; the earlier native/adapted stress
+grids are excluded following the user's Euler-mesh correction. Associated
+density/turbulence figures show only the eligible cases. The mixed conventional
+mesh has 18042 triangles and 4800 quadrilaterals. No case satisfies all residual
+targets: SA improves strongly, SST does not show a material turbulence gain.
+Force changes do not establish accuracy. Local length remains off by default.
+
+fixes_checks_20261008.json stores focused unit, actual residual/Jacobian,
+MPI/OpenMP, AD, MMS, Valgrind and edge-limiter evidence. MMS error vectors are
+unchanged; no demonstrated accuracy gain. Full solver adjoints and local-volume
+limiter derivatives are untested. All simulations use MGLEVEL=0, serial nice=19;
+parallel runs are short correctness checks, not performance benchmarks.
+
+The user selected ClusterResults/cases/581712_actual_euler_to_bl_n4_m4_pYES_r1/
+mesh_00400.su2 for the adapted RANS check. It has constructed BL geometry and is
+distinct from the unadapted Euler seed. Its exact restart pairing and geometry
+audit are archived in fixes_checks_20261008.json. This comparison is a steady
+fixed-mesh continuation from solution_00599.dat, not an unsteady validation.
+The seven-variant adapted campaign is complete in adapted_rans_results_20261008.json
+and its associated density/turbulence figures. At 2000 matched iterations, fixes
+reduce MUSCL SA RMS about 252 times; density improves about 1.3 times. Interior SA
+floor counts fall from122 to13. No variant meets both residual targets. Original
+main/QR controls have identical reported results; local length adds negligible
+benefit. All final states are finite with positive density/internal energy.
+
+Reproduce the initial campaign:
+  python3 TestCases/gradient_robustness/run_fixes.py QR_CONTROL CANDIDATE NATIVE_CONFIG BL_MESH NEW_OUTPUT --adapted-config SNAPSHOT_CFG --main-baseline MAIN_CONTROL
+  python3 TestCases/gradient_robustness/summarize_fixes.py NEW_OUTPUT TestCases/gradient_robustness/fixes_results_20261008.json
+For the user-selected adapted RANS snapshot, add --adapted-only to run_fixes.py
+and --expected-runs 7 to summarize_fixes.py. Convert unsteady config using
+TIME_DOMAIN=NO, TIME_MARCHING=NO, and explicitly set both ITER and INNER_ITER.
+The runner performs the iteration override; retain the source CFL10 setting.

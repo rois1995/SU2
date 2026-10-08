@@ -31,6 +31,7 @@
 #include "../../SU2_CFD/include/numerics/util.hpp"
 #include "adaptation/TransferTestCase.hpp"
 #include "../UnitQuadTestCase.hpp"
+#include "../../SU2_CFD/include/variables/CPrimitiveIndices.hpp"
 
 /*--- The limiters are evaluated with the projection and the difference to the neighbor maximum (both >= 0)
  * and with the projection and the difference to the neighbor minimum (both <= 0). A limiter function must
@@ -187,5 +188,47 @@ TEST_CASE("Compressible update relaxation uses internal energy density", "[Limit
     const auto expected = min(domain.config->GetMaxUpdateFractionFlow() / ratio, 1.0);
     for (auto point = 0ul; point < domain.geometry->GetnPointDomain(); ++point)
       CHECK(nodes->GetUnderRelaxation(point) == Approx(expected));
+  }
+}
+
+TEST_CASE("Bounded scalar residual and Jacobian preserve a constant field with varying density",
+          "[Limiters][BoundedTransport]") {
+  for (const std::string model : {"SA", "SST"}) {
+    CAPTURE(model);
+    auto config = transfer_test::MakeConfig(2, "SOLVER= RANS\nREYNOLDS_NUMBER= 1e6\nKIND_TURB_MODEL= " + model +
+        "\nCONV_NUM_METHOD_TURB= BOUNDED_SCALAR\nMUSCL_TURB= NO\nTIME_DISCRE_TURB= EULER_IMPLICIT\n");
+    transfer_test::MeshSolution domain(config.get(), transfer_test::BoxMesh(2, 2, false), 0);
+    auto& geometry = domain.Fine();
+    auto* flow = domain.solver[0][FLOW_SOL];
+    auto* scalar = domain.solver[0][TURB_SOL];
+    const auto nVar = scalar->GetnVar();
+    const CPrimitiveIndices<unsigned short> indices(false, false, 2, config->GetnSpecies());
+    auto* mass = const_cast<su2activevector*>(flow->GetEdgeMassFluxes());
+    REQUIRE(mass != nullptr);
+    for (auto edge = 0ul; edge < geometry.GetnEdge(); ++edge) (*mass)[edge] = edge % 2 ? -3.0 : 2.0;
+    CSysVector<su2mixedfloat> constant(geometry.GetnPoint(), geometry.GetnPointDomain(), nVar, 0.0), product(constant);
+    for (auto point = 0ul; point < geometry.GetnPoint(); ++point) {
+      const auto density = 2.0 + geometry.nodes->GetCoord(point, 0);
+      flow->GetNodes()->SetSolution(point, 0, density);
+      flow->GetNodes()->GetPrimitive(point)[indices.Density()] = density;
+      for (unsigned short var = 0; var < nVar; ++var) {
+        const su2double value = 0.7 + 0.3 * var;
+        scalar->GetNodes()->SetSolution(point, var, value);
+        constant(point, var) = (model == "SST" ? density : 1.0) * value;
+        for (unsigned short dim = 0; dim < 2; ++dim) scalar->GetNodes()->GetGradient(point)[var][dim] = 0.0;
+      }
+    }
+    config->SetGlobalParam(config->GetKind_Solver(), RUNTIME_TURB_SYS);
+    scalar->LinSysRes.SetValZero();
+    scalar->Jacobian.SetValZero();
+    SU2_OMP_PARALLEL {
+      scalar->Upwind_Residual(&geometry, domain.solver[0], nullptr, config.get(), 0);
+      scalar->Jacobian.MatrixVectorProduct(constant, product, &geometry, config.get());
+    }
+    for (auto point = 0ul; point < geometry.GetnPointDomain(); ++point)
+      for (unsigned short var = 0; var < nVar; ++var) {
+        CHECK(fabs(scalar->LinSysRes(point, var)) < 1e-11);
+        CHECK(fabs(product(point, var)) < 1e-11);
+      }
   }
 }
