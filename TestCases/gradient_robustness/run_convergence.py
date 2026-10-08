@@ -37,7 +37,8 @@ def main():
             parser.error("Solver must be executable")
         text = configure(template.read_text(), case["options"])
         opts = {key: value.strip() for key, value in read_options(text).items()}
-        if opts.get("MGLEVEL") != "0" or opts.get("TIME_DOMAIN", "NO") != "NO" or opts.get("ADAP_LOOP", "NO") != "NO":
+        if (opts.get("MGLEVEL") != "0" or opts.get("TIME_DOMAIN", "NO") != "NO"
+                or opts.get("TIME_MARCHING", "NO") != "NO" or opts.get("ADAP_LOOP", "NO") != "NO"):
             parser.error("These experiments require steady fixed meshes and MGLEVEL=0")
         mesh = Path(opts["MESH_FILENAME"]).resolve(strict=True)
         inputs = {"mesh": {"path": str(mesh), "sha256": digest(mesh)}}

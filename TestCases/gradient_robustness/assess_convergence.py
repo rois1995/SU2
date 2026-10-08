@@ -15,7 +15,7 @@ def wall_points(mesh, tags):
     lines = mesh.read_text().splitlines()
     wall = set()
     for index, line in enumerate(lines):
-        if line.startswith("MARKER_TAG=") and line.split("=", 1)[1].strip() in tags:
+        if line.strip().startswith("MARKER_TAG=") and line.split("=", 1)[1].strip() in tags:
             count = int(lines[index + 1].split("=")[1])
             for element in lines[index + 2:index + 2 + count]:
                 wall.update(map(int, element.split()[1:]))
@@ -30,12 +30,13 @@ def main():
     report = {"runs": [], "limits": ["MGLEVEL=0, serial nice=19; host contention precludes timing claims.",
               "A burst is a density log-residual rise exceeding 0.2 in one iteration; this is descriptive.",
               "All results concern fixed RANS boundary-layer meshes; forces alone do not establish accuracy."]}
-    series = []
+    series, controls = [], {}
+    report["comparisons"] = []
     for campaign in args.campaigns:
         for result in json.loads((campaign / "results.json").read_text()):
             directory = campaign / result["name"]
             rows = history(directory / "history.csv")
-            if not rows:
+            if not rows or not result["finite_residuals"]:
                 report["runs"].append(result)
                 continue
             opts = {key: value.strip() for key, value in read_options(result["config"]).items()}
@@ -77,6 +78,22 @@ def main():
                     record["state"]["interior_sa_floor_count"] = int(clipped.sum())
             report["runs"].append(record)
             series.append((result["name"], rows))
+            inputs = result["inputs"]
+            group = (inputs["mesh"]["sha256"], inputs.get("restart", {}).get("sha256"), opts["KIND_TURB_MODEL"])
+            if group not in controls:
+                controls[group] = (result["name"], rows, opts)
+            else:
+                name, reference, settings = controls[group]
+                by_iteration = {row["Inner_Iter"]: row for row in rows}
+                common = [row for row in reference if row["Inner_Iter"] in by_iteration]
+                assert common, "Matched inputs require at least one common history iteration"
+                before = common[-1]
+                after = by_iteration[before["Inner_Iter"]]
+                report["comparisons"].append({"reference": name, "candidate": result["name"],
+                    "common_iteration": int(before["Inner_Iter"]),
+                    "residual_log10_reduction": {key: before[key] - after[key] for key in keys},
+                    "changed_options": {key: [settings.get(key), opts.get(key)]
+                                        for key in set(settings) | set(opts) if settings.get(key) != opts.get(key)}})
     args.output.write_text(json.dumps(report, indent=2, allow_nan=False) + "\n")
     import matplotlib
     matplotlib.use("Agg")
