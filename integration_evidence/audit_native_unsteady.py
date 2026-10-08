@@ -62,9 +62,21 @@ def audit(case):
     assert setting('SOLVER') in ('EULER', 'RANS') and setting('VOLUME_OUTPUT_PRECISION') == 'DOUBLE'
     freq, steps = int(setting('ADAP_FREQ')), int(setting('TIME_ITER'))
     order = 2 if '2ND' in setting('TIME_MARCHING') else 1
-    meshes = {0: capcheck.read_su2(case / 'input.su2')}
+    restart = re.search(r'^RESTART_SOL\s*=\s*YES\s*$', cfg, re.M) is not None
+    start = int(setting('RESTART_ITER')) if restart else 0
+    assert 0 <= start < steps and start % freq == 0, 'This audit covers complete windows from a window-boundary restart'
+    meshes = {start: read_mesh(case / 'input.su2')}
+    reference = meshes[start]
+    if restart:
+        origin = json.loads((case / 'restart_origin.json').read_text())
+        assert origin['restart_step'] == start
+        parent = Path(origin['parent'])
+        reference = read_mesh(parent / 'input.su2')
+        checkpoint = read_mesh(parent / origin['source_mesh'])
+        assert np.array_equal(checkpoint.P, meshes[start].P) and np.array_equal(checkpoint.E, meshes[start].E)
+        assert (case / 'input.su2.native_ref').is_file(), 'Retain original geometry reference across restart'
     rows = []
-    for first in range(freq, steps, freq):
+    for first in range(start + freq, steps, freq):
         mesh_path = case / f'mesh_{first:05d}.su2'
         if not mesh_path.exists(): mesh_path = case / f'mesh_{first:05d}.cgns'
         donor = meshes[first - freq]
@@ -77,7 +89,7 @@ def audit(case):
         height_error = None
         if setting('SOLVER') == 'RANS':
             from audit_native_composite_rae import intersection
-            original = meshes[0]
+            original = reference
             wall_edges = original.M['lower']
             assert np.max(np.abs(original.P[wall_edges, 1])) < 1e-14
             spans = np.linalg.norm(original.P[wall_edges[:, 1]] - original.P[wall_edges[:, 0]], axis=1)
@@ -142,7 +154,7 @@ def audit(case):
     _, final_admissibility = state(final, case / f'solution_{steps - 1:05d}.dat')
     log = (case / 'solver.log').read_text()
     assert 'Exit Success' in log and log.count('Native adaptation:') == len(rows)
-    return dict(status='PASS', scope='2D ideal-gas Euler or constant-span straight-wall RANS, shared fade and geometric BL composition when present, double saved metrics, original-connectivity P1 target, current/history conservation, final positivity and restart pairing; not a flow-accuracy or cost certificate', windows=rows, final_admissibility=final_admissibility,
+    return dict(status='PASS', restart_step=start if restart else None, scope='2D ideal-gas Euler or constant-span straight-wall RANS, shared fade and geometric BL composition when present, double saved metrics, original-connectivity P1 target, current/history conservation, final positivity and restart pairing; not a flow-accuracy or cost certificate', windows=rows, final_admissibility=final_admissibility,
                 checker_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
                 input_sha256={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in case.iterdir() if p.suffix in ('.cfg','.su2','.dat','.vtu')})
 

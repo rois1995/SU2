@@ -1,0 +1,31 @@
+{
+  "status": "PASS_BOTH_HISTORIES_AT_BOTH_EVENTS",
+  "scope": "The generic audit scope conservatively mentions sparse histories; this case has every donor snapshot. The four original/transported history integrals are independently checked. Raw domain totals change with open FARFIELD resampling; CLOSED-policy residuals are the conservation gate.",
+  "history_checks": [
+    {
+      "first_step": 200,
+      "donor_step": 198,
+      "raw_domain_integral_defect": 1.4894418110324008e-10,
+      "closed_policy_residual": 1.0816624019824072e-14
+    },
+    {
+      "first_step": 200,
+      "donor_step": 199,
+      "raw_domain_integral_defect": 1.4893724123310563e-10,
+      "closed_policy_residual": 3.670719385839323e-15
+    },
+    {
+      "first_step": 400,
+      "donor_step": 398,
+      "raw_domain_integral_defect": 5.994614314412442e-10,
+      "closed_policy_residual": 6.921753519013836e-13
+    },
+    {
+      "first_step": 400,
+      "donor_step": 399,
+      "raw_domain_integral_defect": 5.994644308586941e-10,
+      "closed_policy_residual": 6.942941978933128e-13
+    }
+  ],
+  "maximum_closed_policy_residual": 6.942941978933128e-13
+}

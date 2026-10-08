@@ -1,0 +1,513 @@
+{
+  "runner_pid": 2841781,
+  "phase": "terminal",
+  "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_adaptation_partition_v1/vortex_restart_remesh_n4_m3_v1",
+  "ranks": 4,
+  "timeout_seconds": 1800.0,
+  "binary": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_exclusive_profile_build_v1/SU2_CFD",
+  "binary_sha256": "77fbefa77179acd6d8e5c66da3eed61974f8dede4f4d2ce5937544cf9185c6f6",
+  "config_sha256": "e0a5da05059cc54623f03cb6076de8948a6dca04169149b5cd95b362ceb9e4f7",
+  "mesh_sha256": "f9a43d4c1633fbc67199732de9ac1470a1da420feca5c8fcc0358d8c697c0cce",
+  "mesh_filename": "input.su2",
+  "source_revision": "99aa0d7f725b0c872f969d6bd64c6ee9f8414165",
+  "production_sources_rechecked": 762,
+  "source_evidence": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_exclusive_profile_build_v1/evidence.json",
+  "source_evidence_sha256": "a06b102d4dfb8f131fadcea79111ea9803c8fb10ecb5ed25856b7c39e18b185b",
+  "runner_sha256": "d105f05de2b07e5fe78c95fdaf2673f1c0912dff311a7dcf28e415ea59e424fb",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "machine_samples": [
+    {
+      "unix_seconds": 1791466188.7541401,
+      "busy_fraction": 0.46858440575321725,
+      "cpu_pressure": "some avg10=1.45 avg60=3.03 avg300=6.30 total=3618160571\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 1.45,
+      "loadavg": "4.95 7.63 6.09 12/1821 2842030"
+    },
+    {
+      "unix_seconds": 1791466193.781778,
+      "busy_fraction": 0.2561067741123143,
+      "cpu_pressure": "some avg10=1.60 avg60=2.96 avg300=6.24 total=3618226969\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 1.6,
+      "loadavg": "4.80 7.55 6.07 3/1806 2842147"
+    },
+    {
+      "unix_seconds": 1791466198.7971137,
+      "busy_fraction": 0.27031802120141346,
+      "cpu_pressure": "some avg10=1.17 avg60=2.74 avg300=6.13 total=3618306318\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 1.17,
+      "loadavg": "4.57 7.46 6.05 5/1804 2842285"
+    },
+    {
+      "unix_seconds": 1791466203.8137565,
+      "busy_fraction": 0.26419379258137776,
+      "cpu_pressure": "some avg10=0.93 avg60=2.60 avg300=6.05 total=3618353625\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.93,
+      "loadavg": "4.45 7.39 6.04 3/1802 2842377"
+    },
+    {
+      "unix_seconds": 1791466208.830414,
+      "busy_fraction": 0.25367922175106017,
+      "cpu_pressure": "some avg10=0.63 avg60=2.38 avg300=5.93 total=3618387003\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.63,
+      "loadavg": "4.25 7.30 6.01 5/1796 2842516"
+    },
+    {
+      "unix_seconds": 1791466213.8464098,
+      "busy_fraction": 0.25969477107830874,
+      "cpu_pressure": "some avg10=0.75 avg60=2.29 avg300=5.87 total=3618440216\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.75,
+      "loadavg": "3.99 7.19 5.99 4/1789 2842629"
+    },
+    {
+      "unix_seconds": 1791466218.861774,
+      "busy_fraction": 0.25755683237571825,
+      "cpu_pressure": "some avg10=0.41 avg60=2.07 avg300=5.75 total=3618487867\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.41,
+      "loadavg": "3.91 7.12 5.97 2/1763 2842761"
+    },
+    {
+      "unix_seconds": 1791466223.877878,
+      "busy_fraction": 0.25225225225225223,
+      "cpu_pressure": "some avg10=0.42 avg60=1.97 avg300=5.67 total=3618529565\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.42,
+      "loadavg": "3.68 7.02 5.94 2/1771 2842965"
+    },
+    {
+      "unix_seconds": 1791466228.8978453,
+      "busy_fraction": 0.2645885286783043,
+      "cpu_pressure": "some avg10=0.38 avg60=1.81 avg300=5.56 total=3618578255\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.38,
+      "loadavg": "3.70 6.97 5.93 3/1771 2843079"
+    },
+    {
+      "unix_seconds": 1791466233.9143896,
+      "busy_fraction": 0.25865529352734573,
+      "cpu_pressure": "some avg10=0.25 avg60=1.70 avg300=5.49 total=3618622929\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.25,
+      "loadavg": "3.73 6.92 5.92 4/1770 2843169"
+    },
+    {
+      "unix_seconds": 1791466238.93015,
+      "busy_fraction": 0.2616002006521194,
+      "cpu_pressure": "some avg10=0.47 avg60=1.60 avg300=5.39 total=3618690982\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.47,
+      "loadavg": "3.59 6.84 5.90 4/1770 2843286"
+    },
+    {
+      "unix_seconds": 1791466243.9462562,
+      "busy_fraction": 0.2650662665666417,
+      "cpu_pressure": "some avg10=0.31 avg60=1.49 avg300=5.32 total=3618728690\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.31,
+      "loadavg": "3.54 6.77 5.88 5/1773 2843398"
+    },
+    {
+      "unix_seconds": 1791466248.9667099,
+      "busy_fraction": 0.30588822355289425,
+      "cpu_pressure": "some avg10=0.35 avg60=1.38 avg300=5.21 total=3618831275\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.35,
+      "loadavg": "3.50 6.71 5.87 12/1768 2843620"
+    },
+    {
+      "unix_seconds": 1791466253.9869683,
+      "busy_fraction": 0.26176324913323423,
+      "cpu_pressure": "some avg10=0.68 avg60=1.39 avg300=5.16 total=3618877307\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.68,
+      "loadavg": "3.54 6.66 5.86 2/1771 2843787"
+    },
+    {
+      "unix_seconds": 1791466259.0017753,
+      "busy_fraction": 0.27338308457711447,
+      "cpu_pressure": "some avg10=0.70 avg60=1.32 avg300=5.07 total=3618932728\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.7,
+      "loadavg": "4.45 6.80 5.91 3/1773 2843959"
+    },
+    {
+      "unix_seconds": 1791466264.017803,
+      "busy_fraction": 0.2709838107098381,
+      "cpu_pressure": "some avg10=0.83 avg60=1.30 avg300=5.01 total=3619011247\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.83,
+      "loadavg": "4.18 6.71 5.88 5/1774 2844126"
+    },
+    {
+      "unix_seconds": 1791466269.0338616,
+      "busy_fraction": 0.30404907975460127,
+      "cpu_pressure": "some avg10=0.90 avg60=1.27 avg300=4.93 total=3619073369\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.9,
+      "loadavg": "4.16 6.66 5.87 4/1767 2844378"
+    },
+    {
+      "unix_seconds": 1791466274.0460958,
+      "busy_fraction": 0.2885375494071146,
+      "cpu_pressure": "some avg10=0.60 avg60=1.19 avg300=4.86 total=3619120102\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.6,
+      "loadavg": "4.63 6.72 5.89 3/1767 2844535"
+    },
+    {
+      "unix_seconds": 1791466279.0624235,
+      "busy_fraction": 0.2776134122287969,
+      "cpu_pressure": "some avg10=0.81 avg60=1.17 avg300=4.78 total=3619203949\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.81,
+      "loadavg": "4.50 6.66 5.88 6/1771 2844708"
+    },
+    {
+      "unix_seconds": 1791466284.078976,
+      "busy_fraction": 0.29403095062638174,
+      "cpu_pressure": "some avg10=0.87 avg60=1.16 avg300=4.73 total=3619255957\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.87,
+      "loadavg": "4.46 6.61 5.87 5/1773 2844881"
+    },
+    {
+      "unix_seconds": 1791466289.0962527,
+      "busy_fraction": 0.31773399014778325,
+      "cpu_pressure": "some avg10=0.81 avg60=1.11 avg300=4.65 total=3619339066\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.81,
+      "loadavg": "4.50 6.58 5.86 5/1778 2845057"
+    },
+    {
+      "unix_seconds": 1791466294.1143742,
+      "busy_fraction": 0.3542079207920792,
+      "cpu_pressure": "some avg10=0.87 avg60=1.10 avg300=4.60 total=3619423940\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.87,
+      "loadavg": "4.62 6.57 5.86 5/1776 2845197"
+    },
+    {
+      "unix_seconds": 1791466299.1319265,
+      "busy_fraction": 0.4681372549019608,
+      "cpu_pressure": "some avg10=2.74 avg60=1.42 avg300=4.59 total=3619864596\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 2.74,
+      "loadavg": "5.29 6.68 5.90 9/1813 2845669"
+    },
+    {
+      "unix_seconds": 1791466304.1537862,
+      "busy_fraction": 0.4388417373939091,
+      "cpu_pressure": "some avg10=4.72 avg60=1.93 avg300=4.66 total=3620097266\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 4.72,
+      "loadavg": "5.03 6.60 5.88 2/1775 2846559"
+    },
+    {
+      "unix_seconds": 1791466309.1657648,
+      "busy_fraction": 0.25149700598802394,
+      "cpu_pressure": "some avg10=2.77 avg60=1.78 avg300=4.57 total=3620140249\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 2.77,
+      "loadavg": "4.87 6.54 5.87 2/1766 2846762"
+    },
+    {
+      "unix_seconds": 1791466314.1786902,
+      "busy_fraction": 0.22973310052382145,
+      "cpu_pressure": "some avg10=1.85 avg60=1.67 avg300=4.51 total=3620164085\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 1.85,
+      "loadavg": "4.56 6.45 5.84 5/1760 2846918"
+    },
+    {
+      "unix_seconds": 1791466319.1937716,
+      "busy_fraction": 0.3278606965174129,
+      "cpu_pressure": "some avg10=1.02 avg60=1.51 avg300=4.41 total=3620205610\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 1.02,
+      "loadavg": "4.35 6.38 5.82 3/1767 2847109"
+    },
+    {
+      "unix_seconds": 1791466324.2057886,
+      "busy_fraction": 0.45424918525946356,
+      "cpu_pressure": "some avg10=1.01 avg60=1.47 avg300=4.37 total=3620288206\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 1.01,
+      "loadavg": "4.32 6.34 5.81 5/1774 2847289"
+    },
+    {
+      "unix_seconds": 1791466329.2218122,
+      "busy_fraction": 0.4474406991260924,
+      "cpu_pressure": "some avg10=0.98 avg60=1.43 avg300=4.30 total=3620338139\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.98,
+      "loadavg": "4.14 6.26 5.79 2/1756 2847433"
+    },
+    {
+      "unix_seconds": 1791466334.237799,
+      "busy_fraction": 0.24026779072650628,
+      "cpu_pressure": "some avg10=0.80 avg60=1.37 avg300=4.25 total=3620408717\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.8,
+      "loadavg": "4.13 6.23 5.78 3/1762 2847613"
+    },
+    {
+      "unix_seconds": 1791466339.2538388,
+      "busy_fraction": 0.24052841475573283,
+      "cpu_pressure": "some avg10=0.80 avg60=1.33 avg300=4.18 total=3620461477\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.8,
+      "loadavg": "3.88 6.14 5.75 3/1761 2847782"
+    },
+    {
+      "unix_seconds": 1791466344.2737887,
+      "busy_fraction": 0.24589756340129287,
+      "cpu_pressure": "some avg10=0.72 avg60=1.27 avg300=4.13 total=3620501739\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.72,
+      "loadavg": "3.73 6.07 5.73 2/1757 2847938"
+    },
+    {
+      "unix_seconds": 1791466349.2901337,
+      "busy_fraction": 0.34889495902657064,
+      "cpu_pressure": "some avg10=1.23 avg60=1.31 avg300=4.08 total=3620610723\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 1.23,
+      "loadavg": "3.67 6.02 5.72 6/1759 2848106"
+    },
+    {
+      "unix_seconds": 1791466354.3094306,
+      "busy_fraction": 0.41714285714285715,
+      "cpu_pressure": "some avg10=1.15 avg60=1.29 avg300=4.03 total=3620678985\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 1.15,
+      "loadavg": "3.77 6.00 5.71 6/1760 2848263"
+    },
+    {
+      "unix_seconds": 1791466359.32627,
+      "busy_fraction": 0.6230287859824781,
+      "cpu_pressure": "some avg10=2.37 avg60=1.52 avg300=4.03 total=3620954097\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 2.37,
+      "loadavg": "4.11 6.04 5.72 8/1804 2848476"
+    },
+    {
+      "unix_seconds": 1791466364.345879,
+      "busy_fraction": 0.5405674464907915,
+      "cpu_pressure": "some avg10=4.08 avg60=1.91 avg300=4.07 total=3621300158\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 4.08,
+      "loadavg": "4.02 5.99 5.71 3/1799 2848794"
+    },
+    {
+      "unix_seconds": 1791466369.3620198,
+      "busy_fraction": 0.33126704686337716,
+      "cpu_pressure": "some avg10=2.99 avg60=1.88 avg300=4.02 total=3621423948\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 2.99,
+      "loadavg": "4.02 5.95 5.70 6/1805 2849035"
+    },
+    {
+      "unix_seconds": 1791466374.3790376,
+      "busy_fraction": 0.324812030075188,
+      "cpu_pressure": "some avg10=2.15 avg60=1.79 avg300=3.98 total=3621468585\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 2.15,
+      "loadavg": "4.02 5.92 5.69 3/1802 2849307"
+    },
+    {
+      "unix_seconds": 1791466379.3938026,
+      "busy_fraction": 0.26975816504612316,
+      "cpu_pressure": "some avg10=1.48 avg60=1.69 avg300=3.91 total=3621530831\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 1.48,
+      "loadavg": "3.78 5.84 5.67 4/1807 2849519"
+    },
+    {
+      "unix_seconds": 1791466384.4057572,
+      "busy_fraction": 0.46532438478747207,
+      "cpu_pressure": "some avg10=1.83 avg60=1.74 avg300=3.89 total=3621658989\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 1.83,
+      "loadavg": "3.80 5.81 5.66 5/1802 2849754"
+    },
+    {
+      "unix_seconds": 1791466389.4177809,
+      "busy_fraction": 0.6070547607301431,
+      "cpu_pressure": "some avg10=2.89 avg60=1.96 avg300=3.89 total=3621921145\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 2.89,
+      "loadavg": "3.81 5.78 5.65 2/1788 2849991"
+    },
+    {
+      "unix_seconds": 1791466394.4316244,
+      "busy_fraction": 0.2682504330611235,
+      "cpu_pressure": "some avg10=2.08 avg60=1.86 avg300=3.84 total=3621959599\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 2.08,
+      "loadavg": "3.75 5.73 5.63 3/1754 2850169"
+    },
+    {
+      "unix_seconds": 1791466399.4475207,
+      "busy_fraction": 0.34905660377358494,
+      "cpu_pressure": "some avg10=2.25 avg60=1.91 avg300=3.81 total=3622144767\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 2.25,
+      "loadavg": "3.93 5.73 5.64 2/1753 2850319"
+    },
+    {
+      "unix_seconds": 1791466404.4620132,
+      "busy_fraction": 0.4877805486284289,
+      "cpu_pressure": "some avg10=3.04 avg60=2.08 avg300=3.82 total=3622398851\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 3.04,
+      "loadavg": "4.09 5.74 5.64 5/1770 2850539"
+    },
+    {
+      "unix_seconds": 1791466409.4781606,
+      "busy_fraction": 0.45282076884672995,
+      "cpu_pressure": "some avg10=2.66 avg60=2.10 avg300=3.79 total=3622491860\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 2.66,
+      "loadavg": "4.09 5.71 5.63 8/1775 2850727"
+    },
+    {
+      "unix_seconds": 1791466414.5053847,
+      "busy_fraction": 0.607843137254902,
+      "cpu_pressure": "some avg10=3.25 avg60=2.25 avg300=3.80 total=3622715351\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 3.25,
+      "loadavg": "4.56 5.78 5.65 3/1757 2850869"
+    },
+    {
+      "unix_seconds": 1791466419.5218313,
+      "busy_fraction": 0.3418888612010964,
+      "cpu_pressure": "some avg10=2.50 avg60=2.19 avg300=3.76 total=3622834382\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 2.5,
+      "loadavg": "4.43 5.74 5.64 2/1766 2851042"
+    },
+    {
+      "unix_seconds": 1791466424.5378408,
+      "busy_fraction": 0.2451323015476785,
+      "cpu_pressure": "some avg10=1.82 avg60=2.08 avg300=3.71 total=3622861545\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 1.82,
+      "loadavg": "4.32 5.69 5.62 3/1766 2851189"
+    },
+    {
+      "unix_seconds": 1791466429.5528665,
+      "busy_fraction": 0.33416272704652894,
+      "cpu_pressure": "some avg10=1.99 avg60=2.08 avg300=3.68 total=3622995043\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 1.99,
+      "loadavg": "4.29 5.66 5.61 6/1769 2851368"
+    },
+    {
+      "unix_seconds": 1791466434.5700107,
+      "busy_fraction": 0.3160389124469942,
+      "cpu_pressure": "some avg10=1.66 avg60=2.01 avg300=3.64 total=3623064073\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 1.66,
+      "loadavg": "4.27 5.63 5.61 4/1767 2851514"
+    },
+    {
+      "unix_seconds": 1791466439.5863304,
+      "busy_fraction": 0.3193403298350824,
+      "cpu_pressure": "some avg10=1.60 avg60=1.95 avg300=3.59 total=3623165996\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 1.6,
+      "loadavg": "4.33 5.62 5.60 2/1768 2851675"
+    },
+    {
+      "unix_seconds": 1791466444.6018279,
+      "busy_fraction": 0.29293940911367056,
+      "cpu_pressure": "some avg10=1.22 avg60=1.85 avg300=3.55 total=3623233784\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 1.22,
+      "loadavg": "4.46 5.63 5.60 3/1769 2851858"
+    },
+    {
+      "unix_seconds": 1791466449.6177974,
+      "busy_fraction": 0.2462537462537463,
+      "cpu_pressure": "some avg10=0.79 avg60=1.71 avg300=3.48 total=3623263676\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.79,
+      "loadavg": "4.34 5.58 5.59 3/1762 2852008"
+    },
+    {
+      "unix_seconds": 1791466454.6317804,
+      "busy_fraction": 0.26427855711422843,
+      "cpu_pressure": "some avg10=0.53 avg60=1.60 avg300=3.43 total=3623305679\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.53,
+      "loadavg": "4.32 5.56 5.58 4/1761 2852153"
+    },
+    {
+      "unix_seconds": 1791466459.6484764,
+      "busy_fraction": 0.2962226640159046,
+      "cpu_pressure": "some avg10=0.71 avg60=1.54 avg300=3.38 total=3623369621\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.71,
+      "loadavg": "4.21 5.52 5.57 3/1766 2852331"
+    },
+    {
+      "unix_seconds": 1791466464.6652927,
+      "busy_fraction": 0.26568357910522367,
+      "cpu_pressure": "some avg10=0.80 avg60=1.50 avg300=3.35 total=3623428986\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.8,
+      "loadavg": "3.95 5.44 5.54 2/1768 2852480"
+    },
+    {
+      "unix_seconds": 1791466469.6785982,
+      "busy_fraction": 0.2776388194097048,
+      "cpu_pressure": "some avg10=0.77 avg60=1.42 avg300=3.30 total=3623488798\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.77,
+      "loadavg": "3.88 5.40 5.53 4/1764 2852632"
+    },
+    {
+      "unix_seconds": 1791466474.694009,
+      "busy_fraction": 0.2369608826479438,
+      "cpu_pressure": "some avg10=0.84 avg60=1.40 avg300=3.26 total=3623560087\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.84,
+      "loadavg": "3.73 5.34 5.51 3/1758 2852769"
+    },
+    {
+      "unix_seconds": 1791466479.7220511,
+      "busy_fraction": 0.21068472535741156,
+      "cpu_pressure": "some avg10=0.91 avg60=1.36 avg300=3.22 total=3623628601\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.91,
+      "loadavg": "3.43 5.25 5.48 2/1767 2852918"
+    },
+    {
+      "unix_seconds": 1791466484.7517014,
+      "busy_fraction": 0.3111835506519559,
+      "cpu_pressure": "some avg10=0.76 avg60=1.30 avg300=3.18 total=3623893638\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 0.76,
+      "loadavg": "3.31 5.20 5.46 9/1824 2853152"
+    },
+    {
+      "unix_seconds": 1791466489.7746813,
+      "busy_fraction": 0.4225387306346826,
+      "cpu_pressure": "some avg10=3.95 avg60=1.99 avg300=3.29 total=3624251830\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 3.95,
+      "loadavg": "3.13 5.13 5.44 12/1798 2854201"
+    },
+    {
+      "unix_seconds": 1791466494.8010743,
+      "busy_fraction": 0.3228564244405331,
+      "cpu_pressure": "some avg10=3.67 avg60=2.05 avg300=3.29 total=3624401386\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 3.67,
+      "loadavg": "2.96 5.06 5.41 5/1801 2854379"
+    },
+    {
+      "unix_seconds": 1791466499.817885,
+      "busy_fraction": 0.22205476011052494,
+      "cpu_pressure": "some avg10=2.64 avg60=1.99 avg300=3.25 total=3624491806\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 2.64,
+      "loadavg": "2.88 5.01 5.39 2/1794 2854554"
+    },
+    {
+      "unix_seconds": 1791466504.8378735,
+      "busy_fraction": 0.21517723414877687,
+      "cpu_pressure": "some avg10=2.10 avg60=1.92 avg300=3.21 total=3624551241\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 2.1,
+      "loadavg": "2.81 4.96 5.38 5/1792 2854717"
+    },
+    {
+      "unix_seconds": 1791466509.8585064,
+      "busy_fraction": 0.22445898339204828,
+      "cpu_pressure": "some avg10=1.75 avg60=1.86 avg300=3.18 total=3624637406\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "cpu_pressure_avg10": 1.75,
+      "loadavg": "2.66 4.89 5.35 1/1789 2854882"
+    }
+  ],
+  "busy": [],
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_adaptation_partition_v1/vortex_restart_remesh_n4_m3_v1/process_tree_memory.txt",
+    "mpiexec",
+    "-n",
+    "4",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_exclusive_profile_build_v1/SU2_CFD",
+    "run.cfg"
+  ],
+  "started_unix_seconds": 1791466509.8737369,
+  "solver_exit": 0,
+  "elapsed_seconds": 0.8574564949958585,
+  "outputs": {
+    "history_00003.csv": 973,
+    "solution_00001.dat": 124831,
+    "input.su2": 70666,
+    "mesh_00006.su2": 63827,
+    "solution_00002.dat": 124831,
+    "flow_00005.vtu": 173303,
+    "solution_00003.dat": 124831,
+    "solution_00005.dat": 113127,
+    "flow_00003.vtu": 173303,
+    "flow_00008.vtu": 157132,
+    "solution_00007.dat": 113127,
+    "flow_00007.vtu": 157132,
+    "solution_00008.dat": 113127,
+    "flow_00004.vtu": 173303,
+    "solution_00004.dat": 113127,
+    "solution_00006.dat": 113127,
+    "flow_00006.vtu": 157132
+  }
+}

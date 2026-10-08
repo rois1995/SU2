@@ -1,0 +1,25 @@
+{
+  "status": "HIGH_CPU_PRESSURE_TIMING_NOT_A_SPEEDUP_CONTROL",
+  "observed_unix_seconds": 1791466098.2638285,
+  "live_heavy_processes": [
+    {
+      "pid": 2837877,
+      "name": "ninja",
+      "start_unix_seconds": 1791466061.71,
+      "working_directory": "/tmp/su2-metric-build",
+      "started_before_control_end": false
+    },
+    {
+      "pid": 2839049,
+      "name": "cc1plus",
+      "start_unix_seconds": 1791466095.43,
+      "working_directory": "/tmp/su2-metric-build",
+      "started_before_control_end": false
+    }
+  ],
+  "peak_active_cpu_pressure_avg10": 36.33,
+  "scope": "Quiet gate passed before launch, but CPU pressure rose substantially during execution. The currently visible unrelated build started after this control ended; it does not establish overlap or explain the timing difference. No detailed external process sampling was saved during the control, so the source of the pressure is undetermined. No unrelated process was signaled.",
+  "control_started_unix_seconds": 1791465849.2485783,
+  "control_ended_unix_seconds": 1791466021.314576,
+  "rejected_receipt": "contention_receipt_rejected_attribution_v1.json"
+}

@@ -1,0 +1,213 @@
+{
+  "status": "PASS",
+  "windows": [
+    {
+      "cycle": 1,
+      "points": 7720,
+      "triangles": 14817,
+      "min_quality": 0.22201807591632428,
+      "max_simpson_length": 1.772588277878232,
+      "transported_metric": null,
+      "bad_quality_cells": [],
+      "bad_length_edges": [],
+      "numerical_gate_tolerance": 1e-08,
+      "core_eigenvalue": 0.006827957385010134,
+      "reference_corners": 0,
+      "unique_target_queries": 45074,
+      "boundary_extensions": 0,
+      "maximum_extension": 0,
+      "roundoff_queries": 478,
+      "input_sha256": {
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_adaptation_partition_v1/rae_euler_from_bl_window100_n4_m4_v1/input.su2": "205e59ae6c3b7b32584f463103a566e3bc7cf6cfe0815a7afc41ee46fa37148f",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_adaptation_partition_v1/rae_euler_from_bl_window100_n4_m4_v1/mesh_00100.su2": "8dad7bdccc45625dfca5687227758a15914796ff1acde9bd72d3bf3328b4219b",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_adaptation_partition_v1/rae_euler_from_bl_window100_n4_m4_v1/flow_00099.vtu": "a1d59f553997f12ca71e3d89fe0fff497c9f3a29fc027cea1b6b367c66ff79a4",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_adaptation_partition_v1/rae_euler_from_bl_window100_n4_m4_v1/run.cfg": "9adfdc5db918a04562cccba5a5ef2d9d57e4ccbc3669bb98ddee1a80b7233749",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/audit_native_composite_rae.py": "fbdd2d2427a63ae52f55c86665073298092f1383eda0cd1ea9173ea51118746e",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/frozen_field_audit.py": "31e129d83552f74d7551ad5fe6d6ce7ee51ece5b7f3d6002dbf030b3d9da4e59",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/airfoil_reference_audit.py": "fa3eb8f49f553e25b4c1d19d3e1eeb0246b0290761480fd9a1392e28669c76ec"
+      },
+      "scope": "Independent original-connectivity P1 sensor, original geometric wall constraints, centroid q and Simpson edge lengths. Does not validate CFD convergence or arbitrary configurations.",
+      "status": "PASS",
+      "first_step": 100,
+      "validity": {
+        "positive_volumes": [
+          "PASS",
+          "min 9.984e-09 mean 2.112e+00 non-positive 0"
+        ],
+        "conformity": [
+          "PASS",
+          "faces in >2 elements 0, boundary faces without marker 0, marker faces: interior 0, not an element face 0, repeated 0"
+        ],
+        "points_elements": [
+          "PASS",
+          "unused points 0, duplicate points 0, duplicate elements 0"
+        ]
+      },
+      "original_reference": [
+        {
+          "marker": "FARFIELD",
+          "original_components": 1,
+          "candidate_components": 1,
+          "original_faces": 40,
+          "candidate_faces": 40,
+          "covered_arc_over_period": 1.0,
+          "max_corresponding_parameter_deviation": 1.6172216819962094e-07,
+          "max_vertex_projection_distance": 7.105427357601002e-15,
+          "declared_feature_coordinates": [],
+          "all_declared_features_exactly_retained": true,
+          "leading_extremum_shift": null
+        },
+        {
+          "marker": "AIRFOIL",
+          "original_components": 1,
+          "candidate_components": 1,
+          "original_faces": 451,
+          "candidate_faces": 583,
+          "covered_arc_over_period": 1.0000000000000002,
+          "max_corresponding_parameter_deviation": 8.223779746999302e-07,
+          "max_vertex_projection_distance": 1.3877787807814457e-17,
+          "declared_feature_coordinates": [
+            [
+              1.0,
+              0.000169999999343418
+            ]
+          ],
+          "all_declared_features_exactly_retained": true,
+          "leading_extremum_shift": null
+        }
+      ],
+      "outer_farfield_area_change": -9.160996382817643e-06,
+      "max_relative_first_height_error": null,
+      "history": [
+        {
+          "step": 98,
+          "relative_integral_defect": 2.916660619756015e-10,
+          "closed_policy_integral_residual": 1.2052688303888655e-12,
+          "minimum_nu_tilde": null,
+          "min_density": 0.9100329628136987,
+          "min_pressure": 67175.87668200862
+        },
+        {
+          "step": 99,
+          "relative_integral_defect": 2.916618539295543e-10,
+          "closed_policy_integral_residual": 1.210565077474118e-12,
+          "minimum_nu_tilde": null,
+          "min_density": 0.9096038310108844,
+          "min_pressure": 67127.42095183684
+        }
+      ]
+    },
+    {
+      "cycle": 2,
+      "points": 7199,
+      "triangles": 13932,
+      "min_quality": 0.570416045030163,
+      "max_simpson_length": 1.7796750615192856,
+      "transported_metric": null,
+      "bad_quality_cells": [],
+      "bad_length_edges": [],
+      "numerical_gate_tolerance": 1e-08,
+      "core_eigenvalue": 0.0025,
+      "reference_corners": 0,
+      "unique_target_queries": 42262,
+      "boundary_extensions": 13,
+      "maximum_extension": 8.530770693408963e-08,
+      "roundoff_queries": 342,
+      "input_sha256": {
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_adaptation_partition_v1/rae_euler_from_bl_window100_n4_m4_v1/mesh_00100.su2": "8dad7bdccc45625dfca5687227758a15914796ff1acde9bd72d3bf3328b4219b",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_adaptation_partition_v1/rae_euler_from_bl_window100_n4_m4_v1/mesh_00200.su2": "cf40bbcf1d8ad2e32de52e564f4d77aeb14a88fc33f3d2e6bef079f9b558c649",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_adaptation_partition_v1/rae_euler_from_bl_window100_n4_m4_v1/flow_00199.vtu": "22a4e17ab6f90312280c9c182819dd4a58d7f3161bf451813eead9636d807837",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_adaptation_partition_v1/rae_euler_from_bl_window100_n4_m4_v1/input.su2": "205e59ae6c3b7b32584f463103a566e3bc7cf6cfe0815a7afc41ee46fa37148f",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_adaptation_partition_v1/rae_euler_from_bl_window100_n4_m4_v1/run.cfg": "9adfdc5db918a04562cccba5a5ef2d9d57e4ccbc3669bb98ddee1a80b7233749",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/audit_native_composite_rae.py": "fbdd2d2427a63ae52f55c86665073298092f1383eda0cd1ea9173ea51118746e",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/frozen_field_audit.py": "31e129d83552f74d7551ad5fe6d6ce7ee51ece5b7f3d6002dbf030b3d9da4e59",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/airfoil_reference_audit.py": "fa3eb8f49f553e25b4c1d19d3e1eeb0246b0290761480fd9a1392e28669c76ec"
+      },
+      "scope": "Independent original-connectivity P1 sensor, original geometric wall constraints, centroid q and Simpson edge lengths. Does not validate CFD convergence or arbitrary configurations.",
+      "status": "PASS",
+      "first_step": 200,
+      "validity": {
+        "positive_volumes": [
+          "PASS",
+          "min 2.127e-08 mean 2.246e+00 non-positive 0"
+        ],
+        "conformity": [
+          "PASS",
+          "faces in >2 elements 0, boundary faces without marker 0, marker faces: interior 0, not an element face 0, repeated 0"
+        ],
+        "points_elements": [
+          "PASS",
+          "unused points 0, duplicate points 0, duplicate elements 0"
+        ]
+      },
+      "original_reference": [
+        {
+          "marker": "FARFIELD",
+          "original_components": 1,
+          "candidate_components": 1,
+          "original_faces": 40,
+          "candidate_faces": 40,
+          "covered_arc_over_period": 1.0,
+          "max_corresponding_parameter_deviation": 1.6172216819962094e-07,
+          "max_vertex_projection_distance": 1.4210854715202004e-14,
+          "declared_feature_coordinates": [],
+          "all_declared_features_exactly_retained": true,
+          "leading_extremum_shift": null
+        },
+        {
+          "marker": "AIRFOIL",
+          "original_components": 1,
+          "candidate_components": 1,
+          "original_faces": 451,
+          "candidate_faces": 426,
+          "covered_arc_over_period": 1.0000000000000004,
+          "max_corresponding_parameter_deviation": 8.661422261747167e-07,
+          "max_vertex_projection_distance": 1.1221492485224971e-17,
+          "declared_feature_coordinates": [
+            [
+              1.0,
+              0.000169999999343418
+            ]
+          ],
+          "all_declared_features_exactly_retained": true,
+          "leading_extremum_shift": null
+        }
+      ],
+      "outer_farfield_area_change": -3.979933538289515e-07,
+      "max_relative_first_height_error": null,
+      "history": [
+        {
+          "step": 198,
+          "relative_integral_defect": 1.2781912626066434e-11,
+          "closed_policy_integral_residual": 6.111194791513927e-14,
+          "minimum_nu_tilde": null,
+          "min_density": 0.8295902453529383,
+          "min_pressure": 58636.41798350566
+        },
+        {
+          "step": 199,
+          "relative_integral_defect": 1.2775489280091959e-11,
+          "closed_policy_integral_residual": 4.9540901096054845e-14,
+          "minimum_nu_tilde": null,
+          "min_density": 0.8294158756740756,
+          "min_pressure": 58618.153986950245
+        }
+      ]
+    }
+  ],
+  "final_admissibility": {
+    "min_density": 0.7994216983030139,
+    "min_pressure": 55796.58246455684
+  },
+  "phase_seconds": {
+    "CFD": 143.73,
+    "metric": 4.83802,
+    "remesh": 22.4687,
+    "replace": 0.350606,
+    "transfer": 0.222139,
+    "adapted_output": 0.120509
+  },
+  "adaptation_over_CFD": 0.19326400194809712,
+  "scope": "Actual original P1 sensors plus original geometric BL; topology/reference/altitude, current and previous state positivity, available donor integral checks with independent near-constant farfield domain correction for default CLOSED sliver policy. Whole-domain totals change with open boundary resampling. Sparse previous-history donor snapshots are not independently conserved here. Inner/time/flow convergence and aerodynamic accuracy are not certified.",
+  "checker_sha256": "45888c805f6255dbf000498df16247a14655732cc686d8c27f60ab57abc40cf2"
+}

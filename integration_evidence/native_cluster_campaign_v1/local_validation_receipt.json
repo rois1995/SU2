@@ -1,0 +1,529 @@
+{
+  "status": "PASS_LOCAL_ORCHESTRATION_AND_PORTABLE_EXPORTS",
+  "scope": "Fake-launcher orchestration check and actual/frozen independent audits using only selected exports; no cluster campaign execution or scaling claim.",
+  "cpp_checkpoint": "99aa0d7f725b0c872f969d6bd64c6ee9f8414165",
+  "source_pins_checked": 762,
+  "regular_input_files": 12,
+  "input_bytes": 9364363,
+  "exports": [
+    {
+      "case": "rae_euler_m3_export_v2",
+      "files": 23,
+      "bytes": 22579545,
+      "collection_manifest": {
+        "status": "COMPLETE_SELECTED_EVIDENCE",
+        "source": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_adaptation_partition_v1/rae_euler_from_bl_window100_n4_m3_v1",
+        "collector_sha256": "abb2cfc0aea9480daa303d9376413b42f8492eb141defced8d485f723409250c",
+        "missing": [],
+        "files": {
+          "case_origin.json": {
+            "bytes": 429,
+            "sha256": "5b59fa7202284ba126d1a9c8d29cbf0181d241bdb08c8639c5a1f640b582b656"
+          },
+          "flow_00098.vtu": {
+            "bytes": 3233983,
+            "sha256": "caab021a5c28b60b7677b956d3670981e21d21a306b5e158fdbe89b479acc118"
+          },
+          "flow_00099.vtu": {
+            "bytes": 3233983,
+            "sha256": "a1d59f553997f12ca71e3d89fe0fff497c9f3a29fc027cea1b6b367c66ff79a4"
+          },
+          "flow_00198.vtu": {
+            "bytes": 1860802,
+            "sha256": "f480ee3ef24584fbff9ae46c0814ce7a8d4b22d41823385df3dbfb13415cfc65"
+          },
+          "flow_00199.vtu": {
+            "bytes": 1860802,
+            "sha256": "207d807625b03170005fc3358d020a6280a55e1c177d3607d4592e318c25ea62"
+          },
+          "flow_00299.vtu": {
+            "bytes": 1826415,
+            "sha256": "0a72f910e35395198767c1df6c8ebf5514f0a716363863d11d2eb531e94aea10"
+          },
+          "history.csv": {
+            "bytes": 147189,
+            "sha256": "5941b291ba3c123489b9d99cda82cdd6d96bde40463d26b9ecc6d8d242d457d5"
+          },
+          "independent_profile_accounting.json": {
+            "bytes": 5429,
+            "sha256": "eb496d65b0866d1bc3a50a6846851be30a2e11522b2f1e77349505436dfcbbb1"
+          },
+          "independent_rae_unsteady_audit.json": {
+            "bytes": 10411,
+            "sha256": "180e10639b9ef1ace43cd11e855f29c798a2063c505e058f52d503349e5bef09"
+          },
+          "input.su2": {
+            "bytes": 1304659,
+            "sha256": "205e59ae6c3b7b32584f463103a566e3bc7cf6cfe0815a7afc41ee46fa37148f"
+          },
+          "mesh_00100.su2": {
+            "bytes": 728104,
+            "sha256": "9f4a6753743bb16a8e708158e3158dbf4bcfe13a88140b402f6e51ed875eabbb"
+          },
+          "mesh_00100.su2.native_ref": {
+            "bytes": 101468,
+            "sha256": "98c63d81ff53c494edc451fab0748847ddd83195d3cfc33ce18175a357fe19b2"
+          },
+          "mesh_00200.su2": {
+            "bytes": 714724,
+            "sha256": "a075821e47fe71a5c232176be13eef0fc73d9aaea8190423b96cd4aa11c0b120"
+          },
+          "mesh_00200.su2.native_ref": {
+            "bytes": 89286,
+            "sha256": "c7cb2d42a6d15718ac3ef8e30bd957f41bf006585da0a1d9010486097f86c680"
+          },
+          "process_tree_memory.txt": {
+            "bytes": 871,
+            "sha256": "3dc3dc37ca83dc7c78083a4eb15ed1e20f5b694555da63462c7f82ec811e0746"
+          },
+          "run.cfg": {
+            "bytes": 1972,
+            "sha256": "bc784eb91deb4f13281d6ab98b75bc2f9abe12afc079c0c7373d9249f38adc38"
+          },
+          "run_evidence.json": {
+            "bytes": 51517,
+            "sha256": "586c52b56e8e7536e137f5f0d526b89bdafedd5449e17069c48190bf0f4cfff2"
+          },
+          "solution_00098.dat": {
+            "bytes": 1421443,
+            "sha256": "257bdb546d306420dbb8d4423e9da8d4be838668af06942b027ffc9209c0b5d6"
+          },
+          "solution_00099.dat": {
+            "bytes": 1421443,
+            "sha256": "b54bf74f0caaf99be0360af6bdc1afbd5b8fd7db5daa3d6ff11fdacc7655adcc"
+          },
+          "solution_00198.dat": {
+            "bytes": 1393475,
+            "sha256": "a9fa5efaa2741b508a40c4c4e31145ef38847697d0920788a3d42a327a1138d0"
+          },
+          "solution_00199.dat": {
+            "bytes": 1393475,
+            "sha256": "d4d61fb280b5d84459a95f33ed9db37fc7a54e647980dde27154fda23357ca8d"
+          },
+          "solution_00299.dat": {
+            "bytes": 1393475,
+            "sha256": "d4db38b6b7c04cee8d107040c0f7c31fb5d935ddd54462f265ff40119d8d228b"
+          },
+          "solver.log": {
+            "bytes": 384190,
+            "sha256": "8f866bae85afc0d4e250918a83f4b27a040702a64f8c5d935fe0107012e1f5f2"
+          }
+        },
+        "scope": "Original donor snapshots at each adaptation and both transported histories, all adapted/rejected meshes and references, final state, logs/config/provenance. Raw intermediate outputs remain at source; nothing deleted."
+      },
+      "independent_audit": {
+        "status": "PASS",
+        "windows": [
+          {
+            "cycle": 1,
+            "points": 7721,
+            "triangles": 14819,
+            "min_quality": 0.1841786634467251,
+            "max_simpson_length": 1.7982747770207297,
+            "transported_metric": null,
+            "bad_quality_cells": [],
+            "bad_length_edges": [],
+            "numerical_gate_tolerance": 1e-08,
+            "core_eigenvalue": 0.006827957385010134,
+            "reference_corners": 0,
+            "unique_target_queries": 45080,
+            "boundary_extensions": 0,
+            "maximum_extension": 0,
+            "roundoff_queries": 483,
+            "input_sha256": {
+              "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_campaign_v1/ClusterResults/cases/rae_euler_m3_export_v2/input.su2": "205e59ae6c3b7b32584f463103a566e3bc7cf6cfe0815a7afc41ee46fa37148f",
+              "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_campaign_v1/ClusterResults/cases/rae_euler_m3_export_v2/mesh_00100.su2": "9f4a6753743bb16a8e708158e3158dbf4bcfe13a88140b402f6e51ed875eabbb",
+              "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_campaign_v1/ClusterResults/cases/rae_euler_m3_export_v2/flow_00099.vtu": "a1d59f553997f12ca71e3d89fe0fff497c9f3a29fc027cea1b6b367c66ff79a4",
+              "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_campaign_v1/ClusterResults/cases/rae_euler_m3_export_v2/run.cfg": "bc784eb91deb4f13281d6ab98b75bc2f9abe12afc079c0c7373d9249f38adc38",
+              "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_campaign_v1/ClusterResults/tools/integration_evidence/audit_native_composite_rae.py": "fbdd2d2427a63ae52f55c86665073298092f1383eda0cd1ea9173ea51118746e",
+              "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_campaign_v1/ClusterResults/tools/integration_evidence/frozen_field_audit.py": "31e129d83552f74d7551ad5fe6d6ce7ee51ece5b7f3d6002dbf030b3d9da4e59",
+              "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_campaign_v1/ClusterResults/tools/integration_evidence/airfoil_reference_audit.py": "fa3eb8f49f553e25b4c1d19d3e1eeb0246b0290761480fd9a1392e28669c76ec"
+            },
+            "scope": "Independent original-connectivity P1 sensor, original geometric wall constraints, centroid q and Simpson edge lengths. Does not validate CFD convergence or arbitrary configurations.",
+            "status": "PASS",
+            "first_step": 100,
+            "validity": {
+              "positive_volumes": [
+                "PASS",
+                "min 6.330e-09 mean 2.111e+00 non-positive 0"
+              ],
+              "conformity": [
+                "PASS",
+                "faces in >2 elements 0, boundary faces without marker 0, marker faces: interior 0, not an element face 0, repeated 0"
+              ],
+              "points_elements": [
+                "PASS",
+                "unused points 0, duplicate points 0, duplicate elements 0"
+              ]
+            },
+            "original_reference": [
+              {
+                "marker": "FARFIELD",
+                "original_components": 1,
+                "candidate_components": 1,
+                "original_faces": 40,
+                "candidate_faces": 40,
+                "covered_arc_over_period": 1.0,
+                "max_corresponding_parameter_deviation": 1.6172216819962094e-07,
+                "max_vertex_projection_distance": 7.105427357601002e-15,
+                "declared_feature_coordinates": [],
+                "all_declared_features_exactly_retained": true,
+                "leading_extremum_shift": null
+              },
+              {
+                "marker": "AIRFOIL",
+                "original_components": 1,
+                "candidate_components": 1,
+                "original_faces": 451,
+                "candidate_faces": 583,
+                "covered_arc_over_period": 1.0000000000000002,
+                "max_corresponding_parameter_deviation": 8.223779746999302e-07,
+                "max_vertex_projection_distance": 1.3877787807814457e-17,
+                "declared_feature_coordinates": [
+                  [
+                    1.0,
+                    0.000169999999343418
+                  ]
+                ],
+                "all_declared_features_exactly_retained": true,
+                "leading_extremum_shift": null
+              }
+            ],
+            "outer_farfield_area_change": -9.160996382817643e-06,
+            "max_relative_first_height_error": null,
+            "history": [
+              {
+                "step": 98,
+                "relative_integral_defect": 2.916683408457846e-10,
+                "closed_policy_integral_residual": 1.2028116839674547e-12,
+                "minimum_nu_tilde": null,
+                "min_density": 0.9097762464222099,
+                "min_pressure": 67116.65365406885
+              },
+              {
+                "step": 99,
+                "relative_integral_defect": 2.916545615134335e-10,
+                "closed_policy_integral_residual": 1.2178574935949044e-12,
+                "minimum_nu_tilde": null,
+                "min_density": 0.9093089380763675,
+                "min_pressure": 67067.87084158765
+              }
+            ]
+          },
+          {
+            "cycle": 2,
+            "points": 7569,
+            "triangles": 14656,
+            "min_quality": 0.32821088374793395,
+            "max_simpson_length": 1.7991837074354036,
+            "transported_metric": null,
+            "bad_quality_cells": [],
+            "bad_length_edges": [],
+            "numerical_gate_tolerance": 1e-08,
+            "core_eigenvalue": 0.0025,
+            "reference_corners": 0,
+            "unique_target_queries": 44450,
+            "boundary_extensions": 16,
+            "maximum_extension": 1.2348950530196606e-07,
+            "roundoff_queries": 364,
+            "input_sha256": {
+              "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_campaign_v1/ClusterResults/cases/rae_euler_m3_export_v2/mesh_00100.su2": "9f4a6753743bb16a8e708158e3158dbf4bcfe13a88140b402f6e51ed875eabbb",
+              "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_campaign_v1/ClusterResults/cases/rae_euler_m3_export_v2/mesh_00200.su2": "a075821e47fe71a5c232176be13eef0fc73d9aaea8190423b96cd4aa11c0b120",
+              "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_campaign_v1/ClusterResults/cases/rae_euler_m3_export_v2/flow_00199.vtu": "207d807625b03170005fc3358d020a6280a55e1c177d3607d4592e318c25ea62",
+              "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_campaign_v1/ClusterResults/cases/rae_euler_m3_export_v2/input.su2": "205e59ae6c3b7b32584f463103a566e3bc7cf6cfe0815a7afc41ee46fa37148f",
+              "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_campaign_v1/ClusterResults/cases/rae_euler_m3_export_v2/run.cfg": "bc784eb91deb4f13281d6ab98b75bc2f9abe12afc079c0c7373d9249f38adc38",
+              "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_campaign_v1/ClusterResults/tools/integration_evidence/audit_native_composite_rae.py": "fbdd2d2427a63ae52f55c86665073298092f1383eda0cd1ea9173ea51118746e",
+              "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_campaign_v1/ClusterResults/tools/integration_evidence/frozen_field_audit.py": "31e129d83552f74d7551ad5fe6d6ce7ee51ece5b7f3d6002dbf030b3d9da4e59",
+              "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_campaign_v1/ClusterResults/tools/integration_evidence/airfoil_reference_audit.py": "fa3eb8f49f553e25b4c1d19d3e1eeb0246b0290761480fd9a1392e28669c76ec"
+            },
+            "scope": "Independent original-connectivity P1 sensor, original geometric wall constraints, centroid q and Simpson edge lengths. Does not validate CFD convergence or arbitrary configurations.",
+            "status": "PASS",
+            "first_step": 200,
+            "validity": {
+              "positive_volumes": [
+                "PASS",
+                "min 8.494e-09 mean 2.135e+00 non-positive 0"
+              ],
+              "conformity": [
+                "PASS",
+                "faces in >2 elements 0, boundary faces without marker 0, marker faces: interior 0, not an element face 0, repeated 0"
+              ],
+              "points_elements": [
+                "PASS",
+                "unused points 0, duplicate points 0, duplicate elements 0"
+              ]
+            },
+            "original_reference": [
+              {
+                "marker": "FARFIELD",
+                "original_components": 1,
+                "candidate_components": 1,
+                "original_faces": 40,
+                "candidate_faces": 40,
+                "covered_arc_over_period": 1.0,
+                "max_corresponding_parameter_deviation": 1.6172216819962094e-07,
+                "max_vertex_projection_distance": 7.105427357601002e-15,
+                "declared_feature_coordinates": [],
+                "all_declared_features_exactly_retained": true,
+                "leading_extremum_shift": null
+              },
+              {
+                "marker": "AIRFOIL",
+                "original_components": 1,
+                "candidate_components": 1,
+                "original_faces": 451,
+                "candidate_faces": 442,
+                "covered_arc_over_period": 1.0000000000000002,
+                "max_corresponding_parameter_deviation": 8.236341444262033e-07,
+                "max_vertex_projection_distance": 1.0408340855860843e-17,
+                "declared_feature_coordinates": [
+                  [
+                    1.0,
+                    0.000169999999343418
+                  ]
+                ],
+                "all_declared_features_exactly_retained": true,
+                "leading_extremum_shift": null
+              }
+            ],
+            "outer_farfield_area_change": -2.4590025127224635e-07,
+            "max_relative_first_height_error": null,
+            "history": [
+              {
+                "step": 198,
+                "relative_integral_defect": 8.001736235655199e-12,
+                "closed_policy_integral_residual": 1.4218769597356524e-13,
+                "minimum_nu_tilde": null,
+                "min_density": 0.8285456999176088,
+                "min_pressure": 58536.72090720821
+              },
+              {
+                "step": 199,
+                "relative_integral_defect": 8.004777623375762e-12,
+                "closed_policy_integral_residual": 1.3930724594556518e-13,
+                "minimum_nu_tilde": null,
+                "min_density": 0.8285985225014235,
+                "min_pressure": 58539.643643211224
+              }
+            ]
+          }
+        ],
+        "final_admissibility": {
+          "min_density": 0.8021316039876302,
+          "min_pressure": 56085.625697993164
+        },
+        "phase_seconds": {
+          "CFD": 95.2124,
+          "metric": 4.08796,
+          "remesh": 17.6747,
+          "replace": 0.247041,
+          "transfer": 0.148726,
+          "adapted_output": 0.03458
+        },
+        "adaptation_over_CFD": 0.23152741659699785,
+        "scope": "Actual original P1 sensors plus original geometric BL; topology/reference/altitude, current and previous state positivity, available donor integral checks with independent near-constant farfield domain correction for default CLOSED sliver policy. Whole-domain totals change with open boundary resampling. Sparse previous-history donor snapshots are not independently conserved here. Inner/time/flow convergence and aerodynamic accuracy are not certified.",
+        "checker_sha256": "45888c805f6255dbf000498df16247a14655732cc686d8c27f60ab57abc40cf2"
+      }
+    },
+    {
+      "case": "frozen_rae_m3_export_v1",
+      "files": 19,
+      "bytes": 4251656,
+      "collection_manifest": {
+        "status": "COMPLETE_SELECTED_EVIDENCE",
+        "source": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_adaptation_partition_v1/frozen_rae_euler_to_bl_n4_m3_profile_v1/runtime_np4",
+        "missing": [],
+        "files": {
+          "frozen_sensor.csv": {
+            "bytes": 354502,
+            "sha256": "1c78f8317cc48f26dd1aeef5575b2332e19cb7149ee15a63b0843bc91ecb33d2"
+          },
+          "frozen_sensor_source_flow.json": {
+            "bytes": 380,
+            "sha256": "42fcf84da1fa99d49f92f0e6cfdb409f5039ac7351b0fdb46ed335d7f7d1f3d2"
+          },
+          "frozen_sensor_source_flow.vtu": {
+            "bytes": 1098800,
+            "sha256": "10e87cf43f49c4adfb64a972fed7c99656610afd65040ece0f894cc7a5f7f1c6"
+          },
+          "history.csv": {
+            "bytes": 563,
+            "sha256": "a315857a92f8ee4c5764612da825a7b820e1448368986f424b0b14aedc4ae5ae"
+          },
+          "independent_frozen_metric_audit.json": {
+            "bytes": 5711,
+            "sha256": "e59d424b78d22a56fa0b28a43ac70ec063a7e1efa27a91763bb68bf61dfd03a9"
+          },
+          "independent_profile_accounting.json": {
+            "bytes": 2902,
+            "sha256": "0a56c8b321bd007c5fe2f123e52937a45834c90645b6bf0e2b167974a9d69f38"
+          },
+          "input.su2": {
+            "bytes": 367889,
+            "sha256": "940d8aed5d9ee0d6dc0a9f5b43a3973e7c76ed5d9123188c6e81d048cf6b6d26"
+          },
+          "native_frozen_adapted.su2": {
+            "bytes": 1122536,
+            "sha256": "d0ddfd5ab3ca65acbef888456e685fdf023ff898b856e081d94d7beaa44df04a"
+          },
+          "native_frozen_target_rank_0.csv": {
+            "bytes": 316553,
+            "sha256": "d4663e31569f03f220110ab037c847b903e23f695da5aa7ad0964240c47e86b0"
+          },
+          "native_frozen_target_rank_1.csv": {
+            "bytes": 317950,
+            "sha256": "959f4de64e180c84ffa93af0e65cfa5584a3536b13370dbe566a1c9de8c328f7"
+          },
+          "native_frozen_target_rank_2.csv": {
+            "bytes": 317787,
+            "sha256": "62c1e3fd454b61cccd84b40b0de970f275628b962d4f3bcf0b11000c65163d80"
+          },
+          "native_frozen_target_rank_3.csv": {
+            "bytes": 320098,
+            "sha256": "cbe1e720bfb60fa81dbd743b05685f3b3a4e2706db07cc40da07cbb52e871585"
+          },
+          "native_frozen_timing_rank_0.csv": {
+            "bytes": 133,
+            "sha256": "4e5048340dda2d0f4bc1e3cfa4ba4a6d21b5dc71ec9ff42ca72b4f2e37b23d78"
+          },
+          "native_frozen_timing_rank_1.csv": {
+            "bytes": 127,
+            "sha256": "ded6446318dbaf24e2456e02e9ae3f8d679fabb4182a6122817980b4e075bb59"
+          },
+          "native_frozen_timing_rank_2.csv": {
+            "bytes": 133,
+            "sha256": "aab67eaf695a7d415252f635cea1da0a584f72e07f395422fa31e03e72f11d68"
+          },
+          "native_frozen_timing_rank_3.csv": {
+            "bytes": 133,
+            "sha256": "e36d9d092ecaefa55bb69c9140fd8e6cd3fb2aac11d21a1a8ba44660d496a6d9"
+          },
+          "run.cfg": {
+            "bytes": 2507,
+            "sha256": "88b4596d366b33c5cf8e8aac2068661681699c074462de713159655743695da5"
+          },
+          "run_evidence.json": {
+            "bytes": 5623,
+            "sha256": "353fbbfbb7c1c756a56707c3b39e991268037d72779aa89dab5c756aa23fa17a"
+          },
+          "solver.log": {
+            "bytes": 17329,
+            "sha256": "097fe5463afc9d9e5472af6364e3fdaff634ef345a802cad189e98be6b0b4e62"
+          }
+        },
+        "scope": "Original donor snapshots at each adaptation and both transported histories, all adapted/rejected meshes and references, final state, logs/config/provenance. Raw intermediate outputs remain at source; nothing deleted."
+      },
+      "independent_audit": {
+        "cycle": 1,
+        "points": 12246,
+        "triangles": 24101,
+        "min_quality": 0.18455867683682248,
+        "max_simpson_length": 1.799986051249447,
+        "transported_metric": {
+          "status": "PASS",
+          "points": 12246,
+          "max_relative_directional_tensor_defect": 1.0042386067531084e-10,
+          "tolerance": 1e-07,
+          "worst_point": {
+            "point": 9041,
+            "coordinates": [
+              0.9209338510068674,
+              0.001045914702153175
+            ],
+            "expected": [
+              8807079.521229714,
+              -271847344.90878654,
+              8393973722.867892
+            ],
+            "transported": [
+              8807079.52122996,
+              -271847344.90878576,
+              8393973722.8679
+            ]
+          },
+          "scope": "Independent original-sensor P1 plus actual-point geometric BL versus final distributed reader tensors; no interpolation of wall tensors."
+        },
+        "bad_quality_cells": [],
+        "bad_length_edges": [],
+        "numerical_gate_tolerance": 1e-08,
+        "core_eigenvalue": 0.0025,
+        "reference_corners": 1,
+        "unique_target_queries": 72694,
+        "boundary_extensions": 0,
+        "maximum_extension": 0,
+        "roundoff_queries": 248,
+        "input_sha256": {
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_campaign_v1/ClusterResults/cases/frozen_rae_m3_export_v1/input.su2": "940d8aed5d9ee0d6dc0a9f5b43a3973e7c76ed5d9123188c6e81d048cf6b6d26",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_campaign_v1/ClusterResults/cases/frozen_rae_m3_export_v1/native_frozen_adapted.su2": "d0ddfd5ab3ca65acbef888456e685fdf023ff898b856e081d94d7beaa44df04a",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_campaign_v1/ClusterResults/cases/frozen_rae_m3_export_v1/frozen_sensor_source_flow.vtu": "10e87cf43f49c4adfb64a972fed7c99656610afd65040ece0f894cc7a5f7f1c6",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_campaign_v1/ClusterResults/cases/frozen_rae_m3_export_v1/run.cfg": "88b4596d366b33c5cf8e8aac2068661681699c074462de713159655743695da5",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_campaign_v1/ClusterResults/tools/integration_evidence/audit_native_composite_rae.py": "fbdd2d2427a63ae52f55c86665073298092f1383eda0cd1ea9173ea51118746e",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_campaign_v1/ClusterResults/tools/integration_evidence/frozen_field_audit.py": "31e129d83552f74d7551ad5fe6d6ce7ee51ece5b7f3d6002dbf030b3d9da4e59",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_campaign_v1/ClusterResults/tools/integration_evidence/airfoil_reference_audit.py": "fa3eb8f49f553e25b4c1d19d3e1eeb0246b0290761480fd9a1392e28669c76ec",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_campaign_v1/ClusterResults/cases/frozen_rae_m3_export_v1/frozen_sensor.csv": "1c78f8317cc48f26dd1aeef5575b2332e19cb7149ee15a63b0843bc91ecb33d2",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_campaign_v1/ClusterResults/cases/frozen_rae_m3_export_v1/native_frozen_target_rank_0.csv": "d4663e31569f03f220110ab037c847b903e23f695da5aa7ad0964240c47e86b0",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_campaign_v1/ClusterResults/cases/frozen_rae_m3_export_v1/native_frozen_target_rank_1.csv": "959f4de64e180c84ffa93af0e65cfa5584a3536b13370dbe566a1c9de8c328f7",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_campaign_v1/ClusterResults/cases/frozen_rae_m3_export_v1/native_frozen_target_rank_2.csv": "62c1e3fd454b61cccd84b40b0de970f275628b962d4f3bcf0b11000c65163d80",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_campaign_v1/ClusterResults/cases/frozen_rae_m3_export_v1/native_frozen_target_rank_3.csv": "cbe1e720bfb60fa81dbd743b05685f3b3a4e2706db07cc40da07cbb52e871585"
+        },
+        "scope": "Independent original-connectivity P1 sensor, original geometric wall constraints, centroid q and Simpson edge lengths. Does not validate CFD convergence or arbitrary configurations.",
+        "validity": {
+          "positive_volumes": [
+            "PASS",
+            "min 4.068e-11 mean 1.298e+00 non-positive 0"
+          ],
+          "conformity": [
+            "PASS",
+            "faces in >2 elements 0, boundary faces without marker 0, marker faces: interior 0, not an element face 0, repeated 0"
+          ],
+          "points_elements": [
+            "PASS",
+            "unused points 0, duplicate points 0, duplicate elements 0"
+          ]
+        },
+        "original_reference": [
+          {
+            "marker": "AIRFOIL",
+            "original_components": 1,
+            "candidate_components": 1,
+            "original_faces": 192,
+            "candidate_faces": 351,
+            "covered_arc_over_period": 1.0,
+            "max_corresponding_parameter_deviation": 3.9330333805261773e-07,
+            "max_vertex_projection_distance": 1.0598076236045806e-17,
+            "declared_feature_coordinates": [
+              [
+                1.0,
+                0.000169999999343418
+              ]
+            ],
+            "all_declared_features_exactly_retained": true,
+            "leading_extremum_shift": null
+          },
+          {
+            "marker": "FARFIELD",
+            "original_components": 1,
+            "candidate_components": 1,
+            "original_faces": 40,
+            "candidate_faces": 40,
+            "covered_arc_over_period": 1.0,
+            "max_corresponding_parameter_deviation": 1.873735240387183e-07,
+            "max_vertex_projection_distance": 1.7763568394002505e-15,
+            "declared_feature_coordinates": [],
+            "all_declared_features_exactly_retained": true,
+            "leading_extremum_shift": null
+          }
+        ],
+        "status": "PASS",
+        "max_relative_first_height_error": 4.43312053732825e-12,
+        "frozen_csv_sha256": "1c78f8317cc48f26dd1aeef5575b2332e19cb7149ee15a63b0843bc91ecb33d2",
+        "checker_sha256": "8ad5ecdd769698d146d7f593f9ff2a15c79109d60dacb95bf68b0f2939c5869b"
+      }
+    }
+  ],
+  "helper_sha256": {
+    "collect_native_cluster_results.py": "abb2cfc0aea9480daa303d9376413b42f8492eb141defced8d485f723409250c",
+    "native_cluster_campaign_selfcheck.py": "bd82bd66f0255ddd43d8e69849735dec4854c54d5ed7a6219fad5bd7ded12416",
+    "run_native_cluster_campaign.py": "bc04d557303de84ef54c257eb1971ca2bc9d970a7783f03d78524735ec8c7163"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "status": "PASS_RESTART_AND_SUBSEQUENT_REMESH",
+  "nonrestart_audit_regression": "unchanged windows and final admissibility",
+  "states_before_next_adaptation": [
+    {
+      "step": 1,
+      "scaled_max_state_defect": 0.0
+    },
+    {
+      "step": 2,
+      "scaled_max_state_defect": 0.0
+    },
+    {
+      "step": 3,
+      "scaled_max_state_defect": 0.0
+    },
+    {
+      "step": 4,
+      "scaled_max_state_defect": 0.0
+    },
+    {
+      "step": 5,
+      "scaled_max_state_defect": 0.0
+    }
+  ],
+  "initial_history_states_exact": true,
+  "next_donor_metric_relative_component_difference": 0.0,
+  "parent_and_restart_final_mesh_exact": true,
+  "parent_points": 740,
+  "restart_points": 740,
+  "scope": "Window-boundary BDF2 restart with N4/M3 through another remesh. Initial/current/previous states compared before the next remesh; subsequent mesh/transport gates audited independently. Does not establish mid-window restart or aerodynamic accuracy.",
+  "checker_sha256": "2a1343afb4c287e0dd74ac132d1265ce5b7253d1cf33077de95ca6e2b4e46f91",
+  "states_after_next_adaptation": [
+    {
+      "step": 6,
+      "scaled_max_state_defect": 0.0
+    },
+    {
+      "step": 7,
+      "scaled_max_state_defect": 0.0
+    },
+    {
+      "step": 8,
+      "scaled_max_state_defect": 0.0
+    }
+  ]
+}

@@ -1,7 +1,6 @@
 """Run one prepared RAE2822 case, preserve outputs and obey workstation limits."""
 import argparse, hashlib, json, os, re, shutil, signal, subprocess, time
 from pathlib import Path
-from native_process_sampler import compute_processes
 
 E = Path(__file__).resolve().parent
 source = E.parent
@@ -44,16 +43,15 @@ def machine_sample(previous):
     sample = dict(unix_seconds=time.time(), busy_fraction=1 - idle / total if total else 0,
                   cpu_pressure=pressure, cpu_pressure_avg10=float(pressure.split('avg10=', 1)[1].split()[0]),
                   loadavg=Path('/proc/loadavg').read_text().strip())
-    sample['compute_processes'] = compute_processes(wd)
-    owned = [item for item in sample['compute_processes'] if item['owned_solver']]
-    sample['owned_ranks_observed'] = len(owned)
-    sample['observed_aggregate_rank_rss_kib'] = sum(item['memory_kib'].get('VmRSS', 0) for item in owned)
     record['machine_samples'].append(sample)
     return now, sample
 previous = cpu_ticks(); time.sleep(5)
 while True:
     previous, sample = machine_sample(previous)
-    busy = [item['pid'] for item in sample['compute_processes']]
+    busy=[]
+    for line in subprocess.check_output(['ps','-eo','pid,stat,comm'],text=True).splitlines()[1:]:
+        pid,flags,name=line.split(maxsplit=2)
+        if 'Z' not in flags and (name in ('ninja','cc1plus','test_driver','test_driver_AD','test_memory') or name.startswith('SU2_CFD')):busy.append(int(pid))
     record.update(phase='waiting_for_machine',busy=busy);save()
     if busy or sample['busy_fraction'] > (os.cpu_count() - args.ranks - 1) / os.cpu_count() or sample['cpu_pressure_avg10'] > 10:quiet_since=None
     elif quiet_since is None:quiet_since=time.monotonic()
@@ -91,11 +89,7 @@ with (wd/'solver.log').open('x') as log:
                 code=124;break
 record.update(phase='terminal',solver_exit=code,elapsed_seconds=time.monotonic()-start,
               outputs={f.name:f.stat().st_size for f in wd.iterdir() if f.is_file() and f.suffix in ('.su2','.dat','.vtu','.csv')})
-record.pop('child_pid',None)
-active_samples = [sample for sample in record['machine_samples'] if 'elapsed_seconds' in sample]
-record['observed_peak_aggregate_rank_rss_kib'] = max((sample['observed_aggregate_rank_rss_kib'] for sample in active_samples if sample['owned_ranks_observed'] == args.ranks), default=None)
-record['memory_scope'] = 'Owned rank RSS sampled every five seconds; maximum is a sampled lower bound, not exact simultaneous peak or remesher-only memory. Per-process VmHWM includes earlier CFD phases. GNU time reports maximum child RSS, not aggregate rank memory.'
-save()
+record.pop('child_pid',None);save()
 if sha(wd/'run.cfg')!=record['config_sha256'] or sha(mesh_path)!=record['mesh_sha256']:raise RuntimeError('Case input changed during execution')
 print(str(wd)+': solver exit '+str(code)+', '+str(round(record['elapsed_seconds'],3))+' seconds')
 raise SystemExit(code)

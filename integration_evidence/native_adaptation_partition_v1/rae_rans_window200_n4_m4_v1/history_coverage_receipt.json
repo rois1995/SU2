@@ -1,0 +1,31 @@
+{
+  "status": "PASS_BOTH_HISTORIES_AT_BOTH_EVENTS",
+  "history_checks": [
+    {
+      "first_step": 200,
+      "donor_step": 198,
+      "raw_domain_integral_defect": 1.48932866746196e-10,
+      "closed_policy_residual": 6.161597809650583e-15
+    },
+    {
+      "first_step": 200,
+      "donor_step": 199,
+      "raw_domain_integral_defect": 1.4893346977554017e-10,
+      "closed_policy_residual": 5.624340156464272e-15
+    },
+    {
+      "first_step": 400,
+      "donor_step": 398,
+      "raw_domain_integral_defect": 5.993129249038588e-10,
+      "closed_policy_residual": 6.95826530609985e-13
+    },
+    {
+      "first_step": 400,
+      "donor_step": 399,
+      "raw_domain_integral_defect": 5.99325648541117e-10,
+      "closed_policy_residual": 6.881245956659545e-13
+    }
+  ],
+  "maximum_closed_policy_residual": 6.95826530609985e-13,
+  "scope": "All four saved donor/current or previous-history pairs independently checked; conservation uses CLOSED open-FARFIELD policy. Generic sparse-history audit wording does not apply to this fully saved case."
+}

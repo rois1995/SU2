@@ -1,0 +1,207 @@
+{
+  "status": "PASS_MATCHED_FIRST_TARGET_AND_INDEPENDENT_GATES",
+  "first_target": {
+    "first_donor_conserved_states_exact": true,
+    "first_donor_metric_exact": true,
+    "first_donor_max_state_difference": 0.0,
+    "first_donor_max_metric_difference": 0.0
+  },
+  "results": [
+    {
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_adaptation_partition_v1/rae_rans_window200_n4_m3_v1",
+      "adaptation_ranks": 3,
+      "whole_seconds": 482.45849334599916,
+      "phase_seconds": {
+        "CFD": 398.089,
+        "metric": 40.6189,
+        "remesh": 42.9013,
+        "replace": 0.343071,
+        "transfer": 0.189376,
+        "adapted_output": 0.0598474
+      },
+      "window_costs": [
+        {
+          "cycle": 0,
+          "steps": "0-199",
+          "points": 3592,
+          "phase_seconds": {
+            "CFD": 23.665,
+            "metric": 1.77162,
+            "remesh": 35.8914,
+            "replace": 0.127225,
+            "transfer": 0.0579928,
+            "adapted_output": 0.0276226
+          },
+          "applied_adaptation_seconds": 37.8178676
+        },
+        {
+          "cycle": 1,
+          "steps": "200-399",
+          "points": 12246,
+          "phase_seconds": {
+            "CFD": 174.852,
+            "metric": 17.5127,
+            "remesh": 7.00988,
+            "replace": 0.215846,
+            "transfer": 0.131383,
+            "adapted_output": 0.0322248
+          },
+          "applied_adaptation_seconds": 24.7706508
+        },
+        {
+          "cycle": 2,
+          "steps": "400-599",
+          "points": 13091,
+          "phase_seconds": {
+            "CFD": 199.572,
+            "metric": 21.3345,
+            "remesh": null,
+            "replace": null,
+            "transfer": null,
+            "adapted_output": null
+          },
+          "applied_adaptation_seconds": null
+        }
+      ],
+      "applied_windows_adaptation_seconds": 62.5885184,
+      "metric_in_windows_without_remeshing_seconds": 21.3345,
+      "total_adaptation_seconds": 83.92311839999998,
+      "adaptation_over_CFD": 0.2108149644928646,
+      "points": [
+        12246,
+        13091
+      ],
+      "history_checks": [
+        {
+          "first_step": 200,
+          "donor_step": 198,
+          "raw_domain_integral_defect": 1.4894418110324008e-10,
+          "closed_policy_residual": 1.0816624019824072e-14
+        },
+        {
+          "first_step": 200,
+          "donor_step": 199,
+          "raw_domain_integral_defect": 1.4893724123310563e-10,
+          "closed_policy_residual": 3.670719385839323e-15
+        },
+        {
+          "first_step": 400,
+          "donor_step": 398,
+          "raw_domain_integral_defect": 5.994614314412442e-10,
+          "closed_policy_residual": 6.921753519013836e-13
+        },
+        {
+          "first_step": 400,
+          "donor_step": 399,
+          "raw_domain_integral_defect": 5.994644308586941e-10,
+          "closed_policy_residual": 6.942941978933128e-13
+        }
+      ],
+      "maximum_closed_policy_residual": 6.942941978933128e-13,
+      "peak_active_cpu_pressure_avg10": 25.64,
+      "scope": "Both saved donor histories at each event independently checked; CLOSED-policy conservation includes independently measured open FARFIELD area change."
+    },
+    {
+      "case": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_adaptation_partition_v1/rae_rans_window200_n4_m4_v1",
+      "adaptation_ranks": 4,
+      "whole_seconds": 478.79074630799005,
+      "phase_seconds": {
+        "CFD": 397.273,
+        "metric": 33.0217,
+        "remesh": 47.5823,
+        "replace": 0.349569,
+        "transfer": 0.19525,
+        "adapted_output": 0.0583533
+      },
+      "window_costs": [
+        {
+          "cycle": 0,
+          "steps": "0-199",
+          "points": 3592,
+          "phase_seconds": {
+            "CFD": 25.8799,
+            "metric": 1.79839,
+            "remesh": 42.1176,
+            "replace": 0.152646,
+            "transfer": 0.0729061,
+            "adapted_output": 0.029361
+          },
+          "applied_adaptation_seconds": 44.097997
+        },
+        {
+          "cycle": 1,
+          "steps": "200-399",
+          "points": 12216,
+          "phase_seconds": {
+            "CFD": 173.795,
+            "metric": 16.5901,
+            "remesh": 5.46476,
+            "replace": 0.196922,
+            "transfer": 0.122344,
+            "adapted_output": 0.0289923
+          },
+          "applied_adaptation_seconds": 22.280774299999997
+        },
+        {
+          "cycle": 2,
+          "steps": "400-599",
+          "points": 13005,
+          "phase_seconds": {
+            "CFD": 197.598,
+            "metric": 14.6332,
+            "remesh": null,
+            "replace": null,
+            "transfer": null,
+            "adapted_output": null
+          },
+          "applied_adaptation_seconds": null
+        }
+      ],
+      "applied_windows_adaptation_seconds": 66.3787713,
+      "metric_in_windows_without_remeshing_seconds": 14.6332,
+      "total_adaptation_seconds": 81.0119223,
+      "adaptation_over_CFD": 0.2039200305583314,
+      "points": [
+        12216,
+        13005
+      ],
+      "history_checks": [
+        {
+          "first_step": 200,
+          "donor_step": 198,
+          "raw_domain_integral_defect": 1.48932866746196e-10,
+          "closed_policy_residual": 6.161597809650583e-15
+        },
+        {
+          "first_step": 200,
+          "donor_step": 199,
+          "raw_domain_integral_defect": 1.4893346977554017e-10,
+          "closed_policy_residual": 5.624340156464272e-15
+        },
+        {
+          "first_step": 400,
+          "donor_step": 398,
+          "raw_domain_integral_defect": 5.993129249038588e-10,
+          "closed_policy_residual": 6.95826530609985e-13
+        },
+        {
+          "first_step": 400,
+          "donor_step": 399,
+          "raw_domain_integral_defect": 5.99325648541117e-10,
+          "closed_policy_residual": 6.881245956659545e-13
+        }
+      ],
+      "maximum_closed_policy_residual": 6.95826530609985e-13,
+      "peak_active_cpu_pressure_avg10": 16.1,
+      "scope": "Both saved donor histories at each event independently checked; CLOSED-policy conservation includes independently measured open FARFIELD area change."
+    }
+  ],
+  "comparison": {
+    "left_relative_to_right_applied_windows_change": -0.05710037751180852,
+    "left_relative_to_right_total_adaptation_change": 0.03593540330050882,
+    "left_relative_to_right_remesh_change": -0.09837691746720945,
+    "left_relative_to_right_whole_change": 0.007660438440574513
+  },
+  "scope": "One run per mode. Different remeshing operations, meshes and subsequent CFD trajectories. Host contention recorded, not controlled away. No fixed-work speedup or recommended-worker-count claim.",
+  "checker_sha256": "d8591b983512b523d0832f08701fe4a3e827bf72b3e6cf349382c089f1b1d6a6"
+}

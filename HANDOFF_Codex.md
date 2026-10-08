@@ -1305,3 +1305,94 @@ rae_rans_window200_n4_m3_v1. Same v4 physical/metric setup except explicit M3
 weighted partition and output every step, preserving independent donor snapshots
 for both BDF2 histories; retain same output policy in future M4 control.
 No affordability or recommended-worker-count claim; goal ACTIVE.
+
+Current local checkpoint:99aa0d7f725b0c872f969d6bd64c6ee9f8414165
+on codex/native-unsteady-performance. No push performed.
+Real RAE RANS owned runner session19476 VERIFIED LIVE; state running;
+child 2728578, elapsed 111.16298110299977s at this observation.
+Case folder:/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_adaptation_partition_v1/rae_rans_window200_n4_m3_v1
+Poll session19476 before any new heavy job. Runner timeout1800s, MPI4,threads1;
+quiet gate passed and machine CPU/PSI/affinity is recorded during execution.
+This is actual unsteady N4/M3 from coarse Euler geometry,600steps/window200,
+50inner cap,original sensor/BL settings/noise0. Output every step retains
+independent donor histories; future M4 comparison must match that policy.
+No frozen-speedup attribution from profiled elapsed times. Goal ACTIVE.
+
+RAE RANS N4/M3 session19476 terminalPASS482.458493s. Independent audit25984
+terminalPASS including all four donor histories (freq1 output):
+meshes12246/13091,qmin.1845587/.2258252,Lmax1.799986/1.799954,
+hrel4.433e-12. Raw domain-integral defects1.489e-10/5.995e-10; independently
+corrected CLOSED/open-farfield policy residuals<=6.943e-13. AllSA histories
+nonnegative, finaldensity.2977074/pressure26709.6357 positive. Exact coverage
+receipt history_coverage_receipt.json distinguishes generic sparse-snapshot
+audit prose from this fully saved case. Timing accounting PASS.
+Costs CFD398.089,metric40.6189,remesh42.9013,replace.343071 (transfer.189376
+nested),adaptedoutput.0598474; total adaptation83.9231184s,21.0815% of CFD.
+Not an affordability or speedup claim. Host editor/browser contention recorded;
+no unrelated solver present at the during-run process audit.
+Current owned M4 control runner session1344 is VERIFIED LIVE, lastobserved
+running,child2765998. Case rae_rans_window200_n4_m4_v1; identical inputs/
+physics/output/executable except M4. Poll this handle before anotherheavyjob.
+Prepared (NOT RUN) Euler-on-BL cases rae_euler_from_bl_window100_n4_m3_v1
+and rae_euler_from_bl_window100_n4_m4_v1, copied the existing RANSgrid,
+no BL metric request. Same per-step output policy for both. GoalACTIVE.
+
+RAE RANS M4 session1344 and independent audit78064 both terminalPASS.
+Whole478.790746s, CFD397.273,metric33.0217,remesh47.5823,
+replace.349569 (transfer.19525 nested),output.0583533;
+fulladaptation81.0119223s,20.3920% of CFD. Meshes12216/13005;
+qmin.2035572/.2219526,Lmax1.7999718/1.7999813,hrel<=6.043e-12.
+M3 reduced native remesh9.84% but fulladaptation was3.59% larger relative toM4.
+One pair/different meshes/recorded host activity: NO speedup recommendation.
+FirstRANS private reconstruction M4 min3.430/mean8.829/max21.485s;
+M3 min3.961/mean8.579/max14.791. Mid-remesh repartition discussed only,
+NOT implemented or added to goal. Would require safe transaction checkpoint,
+immutable original donor preservation and subgroup-safe partition collectives.
+Current owned Euler-from-BL runner session68601 VERIFIED LIVE, phase running.
+Case:/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_adaptation_partition_v1/rae_euler_from_bl_window100_n4_m3_v1
+Poll session68601 before anotherheavyjob. CFD4,workers3,threads1,
+quietmachinegate passed. New pair audit helper prepared, run after solver
+terminal to avoid analysis interference. Goal ACTIVE; no push.
+
+RANS matched-pair audit PASS: identical first donor conserved arrays and metric
+arrays; complete both-history gates and fullcost comparison saved in
+native_adaptation_partition_v1/rae_rans_subset_pair_v1.json.
+EulerfromBL M3 runner68601 terminalPASS117.812s; independentaudit35016
+terminalPASS both events:7721/7569points,qmin.1841787/.3282109,
+Lmax1.7982748/1.7991837; no BL metric requested. Timingclosure PASS;
+CFD95.2124,metric4.08796,remesh17.6747,replace.247041 (transfer.148726nested),
+output.03458; fulladaptation22.044281s,23.153% of CFD.
+Current owned matchingEuler M4 runner47275 started; pollbeforeanotherheavyjob.
+Prepared (NOT RUN) vortex_restart_remesh_n4_m3_v1 from mesh00003 +histories1/2,
+restartstep3 through8, additional remesh at6. Existing smallcase auditor now
+supports complete window-boundary restart windows and retained original
+reference; validate on this fresh case and a previous nonrestartcase.
+No production source changes; goalACTIVE; no push.
+
+Actual RAE reverse-direction M4 and restart-remesh controls terminal PASS.
+Both actual RAE first donor states/metrics match M3/M4 exactly; both histories
+pass independent gates. RANS applied-window costs favor M3 by5.71%, while
+terminal metric accumulation reverses total cost ordering; do not recommend M.
+Euler M4 CPU pressure peak36.33 invalidates a clean timing comparison. A compiler
+observed afterward started after the control ended: rejected attribution receipt
+and corrected qualification preserved. Pair v2 reports separate applied-window
+and terminal metric costs. No production C++ changes since99aa0d7f72.
+Vortex N4/M3 window-boundary restart with another remesh at6 PASS; original donor
+histories, next metric, next mesh and resumed states bit-exact to parent.
+Nonrestart auditor regression PASS; mid-window restart not established.
+
+SGE/qsub campaign prepared in integration_evidence/native_cluster_campaign_v1.
+Four frozen/actual directions, original N partition control and weighted N/N2/N4
+workers, repetitions and longer actual windows; ranks<=192 only as cluster
+experiments, no scaling claim. Twelve regular inputs9.36MB and762 source pins
+are contained in repository. RunNativeSGE.sh uses supplied queue/PE/GCC paths;
+site machinefile/exclusive resources remain platform responsibilities.
+Raw outputs stay in ClusterRaw; selected evidence and audit tools in
+ClusterResults for download only. Fake-launcher success/missing-data checks
+PASS; actual Euler portable export23files22.58MB and frozen19files4.25MB
+independently audit PASS from /tmp using only copied tools/data.
+No cluster jobs submitted. New shared host sampler records rank RSS/process
+CPU affinity, retaining inaccessible heavy processes in the local launch gate.
+No owned heavy job now; no push. Goal ACTIVE: repeated fullcost/scaling/memory
+limits and reproducible total improvements remain outstanding. A Git bundle
+will provide branch checkout without pushing. Production sources unchanged.

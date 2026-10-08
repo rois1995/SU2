@@ -1,0 +1,22 @@
+{
+  "status": "CONTENDED_TIMING_NOT_A_SPEEDUP_CONTROL",
+  "observed_unix_seconds": 1791466098.2638285,
+  "live_heavy_processes": [
+    {
+      "pid": 2837877,
+      "name": "ninja",
+      "start_unix_seconds": 1791466061.71,
+      "working_directory": "/tmp/su2-metric-build",
+      "started_before_control_end": false
+    },
+    {
+      "pid": 2839049,
+      "name": "cc1plus",
+      "start_unix_seconds": 1791466095.43,
+      "working_directory": "/tmp/su2-metric-build",
+      "started_before_control_end": false
+    }
+  ],
+  "peak_active_cpu_pressure_avg10": 36.33,
+  "scope": "Quiet gate passed before launch. An unrelated build became active during the run; retained timing describes this execution, not a controlled speedup measurement. No unrelated process was signaled."
+}

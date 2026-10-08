@@ -1,0 +1,55 @@
+{
+  "status": "COPIED_REGULAR_FILES",
+  "files": {
+    "inputs/frozen_euler_to_bl/input.su2": {
+      "bytes": 367889,
+      "sha256": "940d8aed5d9ee0d6dc0a9f5b43a3973e7c76ed5d9123188c6e81d048cf6b6d26"
+    },
+    "inputs/frozen_euler_to_bl/run.cfg": {
+      "bytes": 2394,
+      "sha256": "f4cad3c2d866db4c39368d20f2343ab35456e2b1d4850a37547698cbc2690a77"
+    },
+    "inputs/frozen_euler_to_bl/frozen_sensor.csv": {
+      "bytes": 354502,
+      "sha256": "1c78f8317cc48f26dd1aeef5575b2332e19cb7149ee15a63b0843bc91ecb33d2"
+    },
+    "inputs/frozen_euler_to_bl/frozen_sensor_source_flow.vtu": {
+      "bytes": 1098800,
+      "sha256": "10e87cf43f49c4adfb64a972fed7c99656610afd65040ece0f894cc7a5f7f1c6"
+    },
+    "inputs/actual_bl_to_euler/input.su2": {
+      "bytes": 1304659,
+      "sha256": "205e59ae6c3b7b32584f463103a566e3bc7cf6cfe0815a7afc41ee46fa37148f"
+    },
+    "inputs/actual_bl_to_euler/run.cfg": {
+      "bytes": 1972,
+      "sha256": "bc784eb91deb4f13281d6ab98b75bc2f9abe12afc079c0c7373d9249f38adc38"
+    },
+    "inputs/actual_euler_to_bl/input.su2": {
+      "bytes": 367889,
+      "sha256": "940d8aed5d9ee0d6dc0a9f5b43a3973e7c76ed5d9123188c6e81d048cf6b6d26"
+    },
+    "inputs/actual_euler_to_bl/run.cfg": {
+      "bytes": 2392,
+      "sha256": "9fee406ee351c4624dfc6d833c7397a4dd49f5d00cbd1bc86aece407ac7dc1a9"
+    },
+    "inputs/frozen_bl_to_euler/input.su2": {
+      "bytes": 1304659,
+      "sha256": "205e59ae6c3b7b32584f463103a566e3bc7cf6cfe0815a7afc41ee46fa37148f"
+    },
+    "inputs/frozen_bl_to_euler/run.cfg": {
+      "bytes": 1974,
+      "sha256": "e11728ae9100177b1b9bd04b2308ae95e9810ffc21557c3d6d1e3cd143f069da"
+    },
+    "inputs/frozen_bl_to_euler/frozen_sensor.csv": {
+      "bytes": 1323250,
+      "sha256": "b7b883e55e0f3beffa55e5ca77d5ec1104f2c4b0ea81e88ac44fe5431e6ac7d7"
+    },
+    "inputs/frozen_bl_to_euler/frozen_sensor_source_flow.vtu": {
+      "bytes": 3233983,
+      "sha256": "a1d59f553997f12ca71e3d89fe0fff497c9f3a29fc027cea1b6b367c66ff79a4"
+    }
+  },
+  "validated_cpp_checkpoint": "99aa0d7f725b0c872f969d6bd64c6ee9f8414165",
+  "scope": "Exact existing frozen raw-sensor fixtures and actual RAE inputs/settings; runtime overrides only worker count and requested number of full windows. No solver binaries bundled."
+}
