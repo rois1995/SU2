@@ -2,13 +2,15 @@
 
 Updated: 2026-10-09. This is the transferable record for the mesh-quality CFD work. Pending entries below are not measured results.
 
-## Current night checkpoint (2026-10-09, 00:16 CEST)
+## Completed night assessment (2026-10-09, 00:24 CEST)
 
-- Latest pushed numerical commit: `489f2701fe`, branch `codex/cfd-mesh-robustness`; SA positive recovery and LINELET fixes are pushed. User explicitly requested continued overnight work and a push.
-- Pushed, tested source corrections: bound-aware SST relaxation and model-consistent native Cartesian SA-neg diffusion. The full affected suite passes4036 assertions/10 cases; serial/OMP/MPI focused tests passed. Read the night sections below for measured effects/limits before accepting defaults.
-- All7 solver/limiter controls finished. Frozen Venkat, flow Wang and long fixed-CFL3 reach selected density/SA monitor targets; Wang changes drag substantially. The coefficient1.0, R4 and tighter linear solve do not remove the CFL10 plateau.
-- Main follow-up has8/9 completed: SST control/candidate, GG-all, LINELET, freeze/restart and positive FT2. Old negative-SA is running; model-consistent SA-neg and SST GG viscous follow afterwards. Freezing after100/500 reaches selected monitors, but live-limiter restart restores the CFL10 plateau. Flow limiter dimensional scaling is a concrete missing next target. Build is complete. Preserve immutable binaries and raw local evidence; do not rerun completed cases unnecessarily.
-- Automatic review rejected raw trace uploads. Keep histories/full states/CSV traces/plots local. Push source and assessment notes; do not route rejected raw payload through another format.
+- Branch `codex/cfd-mesh-robustness` starts at native-main `e49c545d700632bd9c68fc52535ef63d6ca8632d`. Numerical/source fixes are pushed through `489f2701fe`; this final assessment is a subsequent documentation commit. User explicitly requested a push.
+- All5 overnight campaigns finished:27 entries,26 successful CFD runs and1 preserved parser/setup failure. MGLEVEL=0 throughout, only the conventional and user-selected adapted RANS boundary-layer meshes. All completed states are finite with positive density/internal energy. Serial/nice19/OMP1 and contention prevent timing claims.
+- New fixes: retain positive SA recovery steps; exclude bound-active SST directions from common relaxation; correct native SA-neg diffusion to the published operator; repair LINELET empty-rank/empty-line handling. Full affected suite:4036 assertions/10 cases; focused serial/OMP2/MPI2 checks passed. Earlier gradient/MUSCL/limiter/Krylov fixes remain on this branch.
+- Measured: adapted SA recovery improves SA23times and floor band13 ->8; SST omega improves43900times but its k plateau remains. GG-all removes remaining adapted SA floor points and improves SA21times versus WLS/recovery, with lift changed0.255%; no gradient accuracy proof/default change. Corrected SA-neg improves SA21times versus the old negative-SA code; density still misses its monitor.
+- Fixed-CFL10 plateau is localized at the sharp trailing edge. Freezing limiters reaches selected monitors, but reactivating them restores the plateau. Live limiters with fixed-CFL3 reach selected density/SA monitors after7197 continuation steps. Wang reaches them earlier but changes drag17.45%, requiring accuracy assessment. Coefficient1.0, tighter linear solves, accurate turbulence Jacobians and LINELET show no important convergence gain here. GG viscous/source gradients remove the SST interior floor but worsen residuals at the tested cap.
+- Raw final report/plots: `/tmp/su2-cfd-night-evidence/night_final.json` and matching `_sa`, `_sst`, `_adapted` PNG/SVG files. Histories/states/traces remain local. Automatic review rejected raw-trace upload; source and assessment notes are pushed. Do not upload that rejected payload under another format.
+- **Next priority:** flow limiter dimensional scaling (still absent although turbulence has it), followed by consistency/accuracy tests of viscous gradients/nonorthogonal diffusion. See final next-steps section. Earlier checkpoint sections below retain their historical pending wording; the completion results supersede it. Do not rerun completed campaigns merely because an old paragraph says pending.
 
 ## User requirements
 
@@ -214,7 +216,7 @@ The user supplied this exact mesh after excluding Euler grids from convergence a
 - First-order transport gives essentially no SA residual improvement and modest density reduction. Lift/drag changes are not evidence of better accuracy on these unconverged continuations. Local length makes negligible difference and stays off by default.
 - The AIRFOIL has432 wall vertices at the SA floor in all variants; counts in the table exclude them. `fixes_checks_20261008.json` stores IDs and coordinates of every clipped interior point for subsequent diagnostics. Geometry checks and positivity do not certify wall shear or heat accuracy.
 
-## Next steps and remaining limits
+## Pre-night next steps (historical)
 
 1. On the **selected adapted RANS mesh**, inspect raw SA linear updates, under-relaxation and residual terms at the13 clipped interior vertices. Distinguish positive updates canceled by the relaxation threshold from genuinely negative updates caused by diffusion/gradient/source discretization. Do not change the positivity rule based only on floor counts. Check the12-point first-order plateau separately.
 2. Investigate SST's omega plateau and the flow residuals on the conventional BL mesh. Separate boundary/viscous-gradient errors from linear-solver/CFL behavior using controlled changes to one setting at a time. A line-based preconditioner can be evaluated independently; **no multigrid**.
@@ -223,7 +225,7 @@ The user supplied this exact mesh after excluding Euler grids from convergence a
 
 Source fixes are complete for this comparison phase; unresolved plateaus are recorded, not declared solved. Preserve controls and snapshots, use fresh output directories, and compare equal iterations when limits differ. No automatic coefficient retuning or physical-model substitution is justified by this evidence.
 
-## Night continuation, 2026-10-08 (work in progress)
+## Night continuation, 2026-10-08 (completed; chronological evidence)
 
 User authorized continued implementation/assessment overnight and explicitly requested a push to the fork. Work remains on `codex/cfd-mesh-robustness`; MGLEVEL=0, RANS boundary-layer meshes only. Current controls are immutable copies of the previous accepted binary at `/tmp/su2-cfd-night-control/SU2_CFD`. Controlled campaigns are serial/nice19/OMP1; the LINELET rebuild uses one nice19 compile worker. No speed claims on this contended host.
 
@@ -354,3 +356,29 @@ CFVMFlowSolverBase::SetPrimitive_Limiter calls computeLimiters without its optio
 For the exact Venkat function, y=delta*(delta+proj)+eps2 and limiter=(y+delta*proj)/(y+2*proj*proj). A pressure example with proj=10, delta=5, K=0.05, reference pressure30000 and reference length1 gives limiter0.45454570248 in Pa versus0.99866991798 after rescaling pressure by30000. Raising K to1 gives only0.45652173913 in Pa. Relative normalization gives the same result across either unit representation. This arithmetic probe establishes unit dependence, not the cause of the RANS plateau.
 
 Primary support: Nishikawa, White & O'Connell2023, section4, https://ntrs.nasa.gov/api/citations/20230004018/downloads/NishikawaWhiteOConnell_v7.pdf. Their field scaling includes a speed-of-sound floor for velocity components (avoiding a zero transverse reference). Their higher-order cell-centered scheme is not directly transferable to SU2's vertex-centered residual. Before a flow patch, inspect primitive indices/references in every flow family, AD inputs and zero components; add actual-kernel unit-rescaling checks and matched RANS/accuracy comparisons. No flow scaling patch/default change was made in this phase. This is a higher-priority next step than blindly increasing K or freezing limiters.
+
+### Completed negative-SA/FT2 assessment
+
+Three3000-step runs use the same adapted RANS mesh/restart and FT2 model setting. Positive SA/FT2 gives density=-6.888013138, SA=-6.924385709 and8 interior floor-band points, essentially matching positive SA/noft2. Old native negative-SA/FT2 gives density=-6.803301645, SA=-6.745456152 with9 negative working-variable values. Corrected negative-SA/FT2 gives density=-6.888871479, SA=-8.074755655 with11 negative values (minimum-0.0006139036525674949). Negative values are permitted by this model and are not floor clipping. Corrected versus old negative-SA improves SA1.3293 orders (~21.3times); versus positive SA/FT2 it improves SA1.1504 orders (~14.1times), while the latter is a model comparison rather than a numerical-fix comparison. Density is still above the selected-8 monitor target; no joint convergence claim.
+
+All three states are finite with positive density/internal energy; their13024-point native eddy-viscosity outputs are finite and nonnegative. Corrected-SA-neg final CL=0.7332971621, CD=0.01667542168; positive-SA/FT2 CL=0.7333442439, CD=0.01667313761. Corrected-negative last500 density/SA residual spans are0.1404/0.2268 orders. No default turbulence-model change was made; published-operator consistency is the reason for the source correction, not these lower residuals alone. Full raw states, VTK fields and histories remain local.
+
+### Final SST GG-viscous/source-gradient result
+
+Same bound-aware SST model/fixed-CFL3 restart and WLS reconstruction;3000 steps with GREEN_GAUSS viscous/source gradients gives density=-6.167098835, k=-2.501573978, omega=+0.5998227366, CL=0.7245199300, CD=0.01340511361. WLS candidate at the same3000 gives density=-8.506788512, k=-5.600710310, omega=-0.8108856556. Thus GG is worse by2.340/3.099/1.411 log orders for density/k/omega at this cap. The sole interior k-floor point disappears (1 ->0), illustrating why floor counts alone are insufficient. Fields remain finite, positive density/internal energy, nonnegative k and positive omega. This changes flow and turbulence viscous/source gradients together, not solely k diffusion. No default change; no claim about eventual convergence beyond the measured cap.
+
+### Reproduce and continue after this phase
+
+Plans live under `/tmp/su2-cfd-night-evidence`: control_plan.json, recovery_plan.json, solver_limiter_plan.json, followup_plan.json, sa_neg_corrected_plan.json. The matching campaigns are `/tmp/su2-cfd-night-cfl-controls`, `/tmp/su2-cfd-night-recovery`, `/tmp/su2-cfd-night-solver-limiters`, `/tmp/su2-cfd-night-followup`, `/tmp/su2-cfd-night-sa-neg-corrected`. run_convergence.py checks input hashes/settings, serializes nice19/OMP1 jobs and load-gates between them. assess_convergence.py generated night_final.json; its26 completed states passed finite/positive density/internal-energy checks. Model grouping includes SA_OPTIONS/SST_OPTIONS; negative working variables are distinguished from positive-SA clipping. Dedicated native VTK checks confirmed nonnegative eddy viscosity for positive FT2 and both old/corrected SA-neg variants.
+
+Raw-8 density/SA monitor stops are **selected operational targets**, not proof that every equation is converged, accuracy is verified or force error is small. Residual fields have different physical units. Compare identical iteration, inputs, physical model and changed options before quoting improvements. The fitted-gradient/curvature toys are analytic stencil evidence, not validated CFD methods.
+
+Remaining work, in priority order:
+
+1. Implement and assess flow-field-relative limiter epsilon with safe primitive references (including nonzero velocity reference), actual-kernel field-unit invariance and AD checks. Current flow call omits the optional reference; turbulence scaling alone does not cover it. Preserve a measured legacy control; normalization can materially alter shock/drag prediction and cannot be justified by residuals alone.
+2. Diagnose the WLS/nonorthogonal viscous transport at the remaining adapted-SA and SST sharp-TE floor hotspots with curved/stretched/mixed-grid manufactured diffusion/NS cases. Distinguish stable linear-fit arithmetic from truncation/geometry error. Test mapped/curvature-aware gradients or consistent face quadrature only after establishing polynomial/geometry/source consistency. Do not remove corrections or lower floors blindly.
+3. Compare Cp, skin friction, shock location, forces and refinement errors on physically matched RAE2822 cases. Wang's large drag shift and GG's lift shift make accuracy evidence essential. Late limiter freezing can aid a frozen operator, but its reactivated residual still fails the present CFL10 target. A true live-limiter fixed point remains required when that operator is the intended solution.
+4. Reduce remaining joint flow/SST residuals using monitored, normalized equation measures; corrected SST relaxation solves an update stall, not its spatial k residual. Retest successful numerical changes on additional BL meshes before defaults.
+5. Validate full solver adjoints, periodic interfaces, moving grids, unsteady and axisymmetric CFD when extending to those workflows. This phase is fixed Cartesian RANS; standalone AD/short parallel checks do not establish those capabilities. No multigrid or physical-model draft patches were introduced.
+
+Machine state at completion: owned long campaigns and build finished; no owned CFD process is left running. Leave other workers and their worktrees untouched. Production source contains no diagnostic trace instrumentation. The original workspace has an identical discoverability copy of this handbook; its unrelated user changes remain unstaged. Push documentation/source only on the robustness branch and verify local HEAD equals the remote branch.
