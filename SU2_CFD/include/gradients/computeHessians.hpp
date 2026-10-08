@@ -151,11 +151,13 @@ void correctHessiansSymmetry(CGeometry& geometry, const CConfig& config, size_t 
  * \param[out] Rmatrix - Work array (nPoint, nDim, nDim) for least squares.
  * \param[out] hessian - Generic object implementing operator (iPoint, iVar, iMet), with the upper
  *             triangle stored row-wise: (xx, xy, yy) in 2D, (xx, xy, xz, yy, yz, zz) in 3D.
+ * \param[in] simplexRecovery - Opt in to adaptation P1 simplex recovery in the second GG pass.
  */
 template <class GradientType, class FieldType, class HessianType>
 void computeHessians(CSolver* solver, ENUM_FLOW_GRADIENT method, CGeometry& geometry, const CConfig& config,
                      const GradientType& gradient, const size_t varBegin, const size_t varEnd, FieldType& field,
-                     C3DDoubleMatrix& gradGrad, C3DDoubleMatrix& Rmatrix, HessianType& hessian, bool reuseWlsGeometry = false) {
+                     C3DDoubleMatrix& gradGrad, C3DDoubleMatrix& Rmatrix, HessianType& hessian,
+                     bool reuseWlsGeometry = false, bool simplexRecovery = false) {
   const size_t nDim = geometry.GetnDim();
   const size_t nPoint = geometry.GetnPoint();
   const size_t nPointDomain = geometry.GetnPointDomain();
@@ -187,7 +189,7 @@ void computeHessians(CSolver* solver, ENUM_FLOW_GRADIENT method, CGeometry& geom
     switch (method) {
       case GREEN_GAUSS:
         computeGradientsGreenGauss(solver, MPI_QUANTITIES::HESSIAN, PERIODIC_HESS_GG, geometry, config, field, 0,
-                                   nDim, 0, gradGrad, false);
+                                   nDim, 0, gradGrad, false, true, simplexRecovery);
         break;
       case LEAST_SQUARES:
       case WEIGHTED_LEAST_SQUARES:

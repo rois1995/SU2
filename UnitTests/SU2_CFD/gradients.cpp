@@ -167,6 +167,112 @@ TEST_CASE("LS", "[Gradients]") { testLeastSquares<LinearFunction>(false); }
 
 TEST_CASE("WLS", "[Gradients]") { testLeastSquares<LinearFunction>(true); }
 
+TEST_CASE("Adaptation GG boundary recovery restores affine consistency on stretched simplices",
+          "[HessianReliability][GGBoundary]") {
+  for (const unsigned short dim : {2, 3}) {
+    auto mesh = simplex_test::MakeSimplexMesh(dim, 8, [](const passivedouble* x) {
+      return std::string(x[1] < 1e-12 ? "wall" : "far");
+    });
+    const passivedouble c = cos(.37), s = sin(.37), aspect = 1000;
+    for (auto point = 0ul; point < mesh.GetnPoint(); ++point) {
+      auto* x = &mesh.coord[point * dim];
+      const auto u = x[0] + (dim == 3 ? 2*x[2] : 0);
+      const auto v = (pow(x[1], 1.3) + .02*sin(acos(-1.)*u)) / aspect;
+      x[0] = c*u-s*v; x[1] = s*u+c*v;
+    }
+    std::unique_ptr<CConfig> config;
+    {
+      transfer_test::Mute mute;
+      stringstream options("SOLVER= EULER\nMESH_FORMAT= SU2\nMESH_FILENAME= unused.su2\n"
+                           "MARKER_FAR= (far)\nMARKER_EULER= (wall)\nCOMPUTE_METRIC= YES\n"
+                           "ADAP_SENSOR= (PRESSURE)\nNUM_METHOD_HESS= GREEN_GAUSS\n");
+      config = std::make_unique<CConfig>(options, SU2_COMPONENT::SU2_CFD, false);
+    }
+    transfer_test::MeshSolution state(config.get(), mesh, 0);
+    auto& geometry = state.Fine();
+    auto* flow = state.solver[MESH_0][FLOW_SOL];
+    auto* nodes = flow->GetNodes();
+    const auto idx = CPrimitiveIndices<unsigned short>(false, false, dim, 0);
+    const passivedouble exact[3] = {.1, -.2, .03};
+    for (auto point = 0ul; point < geometry.GetnPoint(); ++point) {
+      passivedouble pressure = 1;
+      for (auto i = 0u; i < dim; ++i) pressure += exact[i] * SU2_TYPE::GetValue(geometry.nodes->GetCoord(point, i));
+      nodes->SetPrimitive(point, idx.Pressure(), pressure);
+    }
+    {
+      transfer_test::Mute mute;
+      flow->SetAuxVar_Adapt(&geometry, config.get(), state.solver[MESH_0]);
+      flow->SetHessian_Adapt(&geometry, config.get());
+    }
+    C3DDoubleMatrix legacy(geometry.GetnPoint(), 1, dim), explicitLegacy(geometry.GetnPoint(), 1, dim);
+    const auto& field = nodes->GetAuxVar_Adapt();
+    computeGradientsGreenGauss(nullptr, MPI_QUANTITIES::GRADIENT_ADAPT, PERIODIC_NONE,
+                               geometry, *config, field, 0, 1, -1, legacy, false);
+    computeGradientsGreenGauss(nullptr, MPI_QUANTITIES::GRADIENT_ADAPT, PERIODIC_NONE,
+                               geometry, *config, field, 0, 1, -1, explicitLegacy, false, true, false);
+    passivedouble errors[3] = {}, global[3];
+    unsigned long boundary = 0;
+    for (auto point = 0ul; point < geometry.GetnPointDomain(); ++point) {
+      const bool physical = geometry.nodes->GetPhysicalBoundary(point);
+      boundary += physical;
+      for (auto i = 0u; i < dim; ++i) {
+        CHECK(legacy(point, 0, i) == explicitLegacy(point, 0, i));
+        if (!physical) continue;
+        errors[0] = max(errors[0], fabs(SU2_TYPE::GetValue(legacy(point, 0, i)) - exact[i]));
+        errors[1] = max(errors[1], fabs(SU2_TYPE::GetValue(nodes->GetGradient_Adapt()(point, 0, i)) - exact[i]));
+      }
+      // Compare Hessian roundoff in scaled layer coordinates; physical normal size is 1/aspect.
+      const passivedouble T[3][3] = {{c, -s/aspect, 0}, {s, c/aspect, 0}, {0, 0, 1}};
+      su2double H[3][3]; nodes->GetHessianMat(point, 0, H);
+      for (auto i = 0u; i < dim; ++i)
+        for (auto j = 0u; j < dim; ++j) {
+          passivedouble value = 0;
+          for (auto a = 0u; a < dim; ++a)
+            for (auto b = 0u; b < dim; ++b) value += T[a][i]*SU2_TYPE::GetValue(H[a][b])*T[b][j];
+          errors[2] = max(errors[2], fabs(value));
+        }
+    }
+    CPassiveComm::Allreduce(errors, global, 3, CPassiveComm::Op::MAX);
+    CHECK(CPassiveComm::AllreduceSum(boundary) > 0);
+    CHECK(global[0] > .01);
+    CHECK(global[1] < 1e-9);
+    CHECK(global[2] < 1e-6);
+    if (SU2_MPI::GetRank() == MASTER_NODE)
+      cout << "GG simplex boundary affine: dim=" << dim << ", legacy gradient=" << global[0]
+           << ", corrected gradient=" << global[1] << ", scaled Hessian=" << global[2] << endl;
+
+    // A collapsed incident simplex must preserve the caller's existing recovery, not use a partial star.
+    for (auto point = 0ul; point < geometry.GetnPointDomain(); ++point) {
+      if (!geometry.nodes->GetPhysicalBoundary(point)) continue;
+      auto* cell = geometry.elem[geometry.nodes->GetElem(point, 0)];
+      cell->Change_Orientation();
+      if (dim == 2) detail::correctGradientsSimplex<2>(geometry, field, 0, 1, legacy);
+      else detail::correctGradientsSimplex<3>(geometry, field, 0, 1, legacy);
+      for (auto i = 0u; i < dim; ++i) CHECK(legacy(point, 0, i) == Approx(exact[i]).margin(1e-9));
+      cell->Change_Orientation();
+      for (auto node = 1u; node <= dim; ++node)
+        for (auto i = 0u; i < dim; ++i)
+          geometry.nodes->SetCoord(cell->GetNode(node), i, geometry.nodes->GetCoord(cell->GetNode(0), i));
+      std::fill(legacy.data(), legacy.data() + legacy.size(), su2double(17));
+      if (dim == 2) detail::correctGradientsSimplex<2>(geometry, field, 0, 1, legacy);
+      else detail::correctGradientsSimplex<3>(geometry, field, 0, 1, legacy);
+      for (auto i = 0u; i < dim; ++i) CHECK(legacy(point, 0, i) == 17);
+      break;
+    }
+  }
+}
+
+TEST_CASE("GG simplex boundary opt-in preserves non-simplex recovery", "[HessianReliability][GGBoundary]") {
+  LinearFunction field;
+  C3DDoubleMatrix legacy(field.geometry->GetnPoint(), 1, 3), corrected(field.geometry->GetnPoint(), 1, 3);
+  computeGradientsGreenGauss(nullptr, MPI_QUANTITIES::SOLUTION, PERIODIC_NONE, *field.geometry, *field.config,
+                             field, 0, 1, -1, legacy);
+  computeGradientsGreenGauss(nullptr, MPI_QUANTITIES::SOLUTION, PERIODIC_NONE, *field.geometry, *field.config,
+                             field, 0, 1, -1, corrected, true, true, true);
+  for (auto point = 0ul; point < field.geometry->GetnPointDomain(); ++point)
+    for (auto i = 0u; i < 3; ++i) CHECK(legacy(point, 0, i) == corrected(point, 0, i));
+}
+
 template <size_t nDim, bool periodic>
 void testLeastSquaresScaling() {
   const su2double reference[3] = {1.0, -2.0, 3.0};

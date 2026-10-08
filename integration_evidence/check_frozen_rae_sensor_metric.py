@@ -1,6 +1,6 @@
 """Audit frozen RAE sensor metrics with noise off/on; no flow or remeshing.
 
-Usage: python3 integration_evidence/check_frozen_rae_sensor_metric.py CAMPAIGN
+Usage: python3 integration_evidence/check_frozen_rae_sensor_metric.py CAMPAIGN [METHOD ...]
 Uses the existing independent geometric BL reference. The reported complexity
 is the production composed integral; nodal integration below is a diagnostic,
 not an independent integral of the continuous geometric field.
@@ -16,8 +16,7 @@ from audit_native_metric_integration import (
 )
 
 
-def audit(root):
-    methods = ('weighted_least_squares', 'quadratic_least_squares', 'quadratic_least_squares_noise')
+def audit(root, methods=('weighted_least_squares', 'quadratic_least_squares', 'quadratic_least_squares_noise')):
     config = (root / 'rae' / (methods[0] + '-mpi1') / 'run.cfg').read_text()
     meshpath = Path(re.search(r'^MESH_FILENAME= (.*)$', config, re.M)[1])
     restart = Path(re.search(r'^SOLUTION_FILENAME= (.*)$', config, re.M)[1] + '.dat')
@@ -99,4 +98,5 @@ def audit(root):
 
 
 if __name__ == '__main__':
-    raise SystemExit(0 if audit(Path(sys.argv[1]).resolve()) else 1)
+    root = Path(sys.argv[1]).resolve()
+    raise SystemExit(0 if (audit(root, tuple(sys.argv[2:])) if len(sys.argv) > 2 else audit(root)) else 1)

@@ -1,5 +1,45 @@
 # Mesh adaptation findings and follow-up work
 
+## 2026-10-08: deterministic simplex recovery for adaptation GG
+
+Primal adaptation GG now uses a volume-weighted P1 simplex projection through
+both recovery passes, reusing the existing GG fallback, symmetry rules and MPI
+exchange. Physical-boundary affine gradient errors on stretched/curved 2D/3D
+meshes fall from 18.18/121.04 to below 3.4e-12. At n=32, curved wall-interior
+Hessian errors fall from 80.35/673.29 to 1.779/6.400 (45/105 times smaller).
+Central-interior accuracy is preserved; quadratic/graded-wall bias remains.
+QR remains more accurate at these walls. This is not an aerodynamic certificate.
+
+M6 Mach/pressure Hessians match bit-for-bit at 1/2/4 ranks and metric differences
+are below 6e-15. The frozen RAE audit passes using the original geometric BL
+policy. WLS/QR outputs are byte-identical. The 150 serial cases (400061
+assertions), 34 MPI-safe cases per rank, 36 manufactured comparisons and
+forward/reverse AD syntax probes validate this checkpoint; AD runtime and
+large-scale hybrid/MPI scaling are still unverified.
+
+The first boundary-only fix failed M6 MPI checks. Interior difference sums
+improved the pressure-Hessian discrepancy from 1.4e-7 to 1.1e-10, but its
+metrics still differed by 7.1e-6. Deterministic original-cell stars eliminate
+that geometry/accumulation dependency. Both rejected patches and receipts are
+preserved; gates were not relaxed. This evidence justified extending the
+projection into the interior instead of relying on dual-face geometry.
+
+Performance cost is explicit: M6 serial Hessian median 0.0501 -> 0.5488 s
+(about 11x; +0.499 s per metric computation); four ranks 0.282 s. RAE serial
+0.00583 -> 0.01936 s. Whole-process M6 timing does not distinguish an overhead
+under contention. There is no persistent geometry cache or additional exchange.
+Profile repeated cell geometry/serial accumulation before scaling or flow transfer.
+
+Detailed method, publication, evidence and limitations:
+`Papers/GG_BOUNDARY_RECOVERY.md`. Source/evidence are pushed on
+`codex/metric-robustness` and durable artifacts saved under
+`integration_evidence/metric_robustness/gg_simplex_recovery_v1`.
+Next: higher-order/distance-aware boundary recovery on multiple topologies,
+performance profiling, fixed-complexity adaptation/flow cycles. The user's
+future convective/viscous low-quality-grid investigation is explicitly retained
+in `GRADIENT_TRANSFER_FOLLOWUP.md`; current recovery opt-ins do not modify those
+flow operators.
+
 ## 2026-10-08: Clément comparison and boundary-donor limitation
 
 Completed the paper-based benchmark with 36 matched manufactured datasets

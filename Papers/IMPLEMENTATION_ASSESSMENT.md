@@ -81,3 +81,15 @@ Zero rank failures therefore do not establish recovery accuracy. With noise
 strength 1, all 192504 final fits are filtered. Residuals contain truncation and
 physical flow features as well as noise, so the default remains zero until
 feature/output preservation is validated.
+
+## Matched comparison and simplex recovery implemented
+
+`CLEMENT_COMPARISON.md` records the completed matched comparison and the graded
+interior-donor counterexample. `GG_BOUNDARY_RECOVERY.md` records the resulting
+adaptation-only volume-weighted P1 simplex recovery, its published operator
+basis, deterministic MPI accumulation, measured boundary improvement, remaining
+bias and additional native cost. Full owned-star recovery was needed because
+boundary-only GG corrections failed the unchanged frozen M6 metric MPI gates.
+The proposed future convective/viscous transfer is retained in
+`../GRADIENT_TRANSFER_FOLLOWUP.md`; derivative accuracy is not evidence of
+nonlinear solver robustness.

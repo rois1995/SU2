@@ -2409,6 +2409,7 @@ void CSolver::SetHessian_Adapt(CGeometry *geometry, const CConfig *config) {
   const auto requestedMethod = static_cast<ENUM_FLOW_GRADIENT>(config->GetKind_Hessian_Method());
   const auto method = requestedMethod == QUADRATIC_LEAST_SQUARES ? WEIGHTED_LEAST_SQUARES : requestedMethod;
   const auto nSensor = config->GetnAdap_Sensor();
+  const bool simplexRecovery = nSensor != 0 && config->GetAdap_Sensor(0) != "GOAL";
   const auto& sensor = base_nodes->GetAuxVar_Adapt();
   auto& gradient = base_nodes->GetGradient_Adapt();
   auto& hessian = base_nodes->GetHessian();
@@ -2428,7 +2429,7 @@ void CSolver::SetHessian_Adapt(CGeometry *geometry, const CConfig *config) {
   switch (method) {
     case GREEN_GAUSS:
       computeGradientsGreenGauss(this, MPI_QUANTITIES::GRADIENT_ADAPT, PERIODIC_ADAPT_GG, *geometry, *config,
-                                 sensor, 0, nSensor, -1, gradient, false);
+                                 sensor, 0, nSensor, -1, gradient, false, true, simplexRecovery);
       break;
     case WEIGHTED_LEAST_SQUARES:
       computeGradientsLeastSquares(this, MPI_QUANTITIES::GRADIENT_ADAPT, PERIODIC_ADAPT_LS, *geometry, *config,
@@ -2443,7 +2444,7 @@ void CSolver::SetHessian_Adapt(CGeometry *geometry, const CConfig *config) {
    *    because periodic communications access them. ---*/
 
   computeHessians(this, method, *geometry, *config, gradient, 0, nSensor, base_nodes->GetHessian_Field(),
-                  base_nodes->GetHessian_Grad(), base_nodes->GetRmatrix(), hessian, true);
+                  base_nodes->GetHessian_Grad(), base_nodes->GetRmatrix(), hessian, true, simplexRecovery);
 
   if (requestedMethod == QUADRATIC_LEAST_SQUARES) {
     computeHessiansQuadratic(*geometry, nSensor, sensor, gradient, hessian,
