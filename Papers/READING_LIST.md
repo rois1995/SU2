@@ -117,7 +117,7 @@ and author manuscripts are suitable when the publisher version is unavailable.
     Read for polynomial-preserving recovery foundations and their assumptions.
     Suggested filename: `Zhang_Naga_2005_PolynomialRecovery.pdf`.
 
-16. **L. Frazza, F. Alauzet and A. Loseille (2018), Mesh Adaptation Strategies Using Wall Functions and Low-Reynolds Models.** AIAA 2018-4153.
+16. **L. Frazza, A. Loseille and F. Alauzet (2018), Mesh Adaptation Strategies Using Wall Functions and Low-Reynolds Models.** AIAA 2018-4153.
     [DOI](https://doi.org/10.2514/6.2018-4153) · [authors' publication list](https://pages.saclay.inria.fr/frederic.alauzet/proceedings.html).
     Assess treatment of initially under-resolved near-wall turbulence before
     pursuing automatic first-height selection or changes to wall modeling.

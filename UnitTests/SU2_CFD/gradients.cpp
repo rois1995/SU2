@@ -1177,6 +1177,149 @@ TEST_CASE("Symmetry plane Hessian GG", "[Adaptation]") { testSymmetryHessian("GR
 
 TEST_CASE("Symmetry plane Hessian WLS", "[Adaptation]") { testSymmetryHessian("WEIGHTED_LEAST_SQUARES"); }
 
+TEST_CASE("QR scalar symmetry preserves normal curvature on rotated planes and wall junctions",
+          "[HessianReliability][QuadraticSymmetry]") {
+  for (const unsigned short dim : {2, 3}) {
+    for (const bool twoPlanes : {false, true}) {
+      if (dim == 2 && twoPlanes) continue;
+      for (const auto noise : {0, 1}) {
+        CAPTURE(dim, twoPlanes, noise);
+        const auto normalAxis = dim == 2 ? 0 : 2;
+        auto mesh = simplex_test::MakeSimplexMesh(dim, 6, [&](const passivedouble* q) {
+          if (q[normalAxis] < 1e-12) return string("sym");
+          if (twoPlanes && q[0] < 1e-12) return string("sym2");
+          if (q[1] < 1e-12) return string("wall");
+          return string("far");
+        });
+        const auto ca = cos(.37), sa = sin(.37), cb = dim == 3 ? cos(.41) : 1.0;
+        const auto sb = dim == 3 ? sin(.41) : 0.0;
+        const passivedouble R[3][3] = {{ca * cb, -sa, ca * sb}, {sa * cb, ca, sa * sb}, {-sb, 0, cb}};
+        const passivedouble scale[3] = {1, 1e-3, 1};
+        for (auto point = 0ul; point < mesh.GetnPoint(); ++point) {
+          passivedouble q[3] = {};
+          for (auto i = 0u; i < dim; ++i) q[i] = mesh.coord[point * dim + i];
+          for (auto i = 0u; i < dim; ++i) {
+            mesh.coord[point * dim + i] = 0;
+            for (auto j = 0u; j < dim; ++j) mesh.coord[point * dim + i] += R[i][j] * scale[j] * q[j];
+          }
+        }
+        std::unique_ptr<CConfig> config;
+        {
+          transfer_test::Mute mute;
+          stringstream options(string("SOLVER= EULER\nMESH_FORMAT= SU2\nMESH_FILENAME= unused.su2\n"
+                                      "MARKER_FAR= (far)\nMARKER_EULER= (wall)\nMARKER_SYM= (") +
+                               (twoPlanes ? "sym, sym2" : "sym") + ")\nCOMPUTE_METRIC= YES\n"
+                               "ADAP_SENSOR= (MACH, PRESSURE)\nNUM_METHOD_HESS= QUADRATIC_LEAST_SQUARES\n"
+                               "ADAP_HESSIAN_NOISE= " + std::to_string(noise) + "\n");
+          config = std::make_unique<CConfig>(options, SU2_COMPONENT::SU2_CFD, false);
+        }
+        transfer_test::MeshSolution state(config.get(), mesh, 0);
+        auto& geometry = state.Fine();
+        auto* flow = state.solver[MESH_0][FLOW_SOL];
+        auto* nodes = flow->GetNodes();
+        auto coordinates = [&](unsigned long point, passivedouble* q) {
+          for (auto i = 0u; i < dim; ++i) {
+            q[i] = 0;
+            for (auto j = 0u; j < dim; ++j)
+              q[i] += R[j][i] * SU2_TYPE::GetValue(geometry.nodes->GetCoord(point, j)) / scale[i];
+          }
+        };
+        const passivedouble diagonal[3] = {2, -3, 6};
+        const auto tangentMixed = dim == 3 && !twoPlanes ? .4 : 0.0;
+        for (auto point = 0ul; point < geometry.GetnPoint(); ++point) {
+          passivedouble q[3] = {}, value = 1;
+          coordinates(point, q);
+          for (auto i = 0u; i < dim; ++i) value += .5 * diagonal[i] * q[i] * q[i];
+          value += q[1] + tangentMixed * q[0] * q[1];
+          nodes->SetAuxVar_Adapt(point, 0, value);
+          nodes->SetAuxVar_Adapt(point, 1, value + .3 * q[normalAxis] * q[normalAxis] * q[1] +
+                                             (twoPlanes ? .2 * q[0] * q[0] * q[1] : 0));
+        }
+        passivedouble errors[4] = {}, globalErrors[4] = {};  // WLS/QR: all points and symmetry points
+        {
+          transfer_test::Mute mute;
+          computeGradientsLeastSquares(flow, MPI_QUANTITIES::GRADIENT_ADAPT, PERIODIC_ADAPT_LS, geometry,
+                                       *config, true, nodes->GetAuxVar_Adapt(), 0, 2, -1,
+                                       nodes->GetGradient_Adapt(), nodes->GetRmatrix(), false);
+          computeHessians(flow, WEIGHTED_LEAST_SQUARES, geometry, *config, nodes->GetGradient_Adapt(), 0, 2,
+                          nodes->GetHessian_Field(), nodes->GetHessian_Grad(), nodes->GetRmatrix(),
+                          nodes->GetHessian());
+        }
+        for (auto point = 0ul; point < geometry.GetnPointDomain(); ++point) {
+          passivedouble q[3] = {};
+          coordinates(point, q);
+          const bool sym = fabs(q[normalAxis]) < 1e-10 || (twoPlanes && fabs(q[0]) < 1e-10);
+          su2double H[3][3];
+          nodes->GetHessianMat(point, 0, H);
+          for (auto i = 0u; i < dim; ++i)
+            for (auto j = 0u; j < dim; ++j) {
+              passivedouble value = 0;
+              for (auto k = 0u; k < dim; ++k)
+                for (auto l = 0u; l < dim; ++l)
+                  value += scale[i] * R[k][i] * SU2_TYPE::GetValue(H[k][l]) * R[l][j] * scale[j];
+              const auto exact = i == j ? diagonal[i] : (i + j == 1 ? tangentMixed : 0);
+              errors[0] = std::max(errors[0], fabs(value - exact));
+              if (sym) errors[1] = std::max(errors[1], fabs(value - exact));
+            }
+        }
+        {
+          transfer_test::Mute mute;
+          flow->SetHessian_Adapt(&geometry, config.get());
+        }
+        unsigned long localSym = 0, localJunction = 0, counts[2] = {};
+        for (auto point = 0ul; point < geometry.GetnPointDomain(); ++point) {
+          passivedouble q[3] = {}, H[2][3][3] = {}, g[2][3] = {};
+          coordinates(point, q);
+          for (auto v = 0u; v < 2; ++v) {
+            su2double physical[3][3];
+            nodes->GetHessianMat(point, v, physical);
+            for (auto i = 0u; i < dim; ++i) {
+              for (auto j = 0u; j < dim; ++j) {
+                g[v][i] += scale[i] * R[j][i] * SU2_TYPE::GetValue(nodes->GetGradient_Adapt()(point, v, j));
+                for (auto k = 0u; k < dim; ++k)
+                  for (auto l = 0u; l < dim; ++l)
+                    H[v][i][j] += scale[i] * R[k][i] * SU2_TYPE::GetValue(physical[k][l]) * R[l][j] * scale[j];
+              }
+            }
+          }
+          for (auto i = 0u; i < dim; ++i)
+            for (auto j = 0u; j < dim; ++j) {
+              const auto exact = i == j ? diagonal[i] : (i + j == 1 ? tangentMixed : 0);
+              CHECK(H[0][i][j] == Approx(exact).margin(1e-7));
+              errors[2] = std::max(errors[2], fabs(H[0][i][j] - exact));
+              if (fabs(q[normalAxis]) < 1e-10 || (twoPlanes && fabs(q[0]) < 1e-10))
+                errors[3] = std::max(errors[3], fabs(H[0][i][j] - exact));
+            }
+          const bool sym = fabs(q[normalAxis]) < 1e-10, sym2 = twoPlanes && fabs(q[0]) < 1e-10;
+          if (sym || sym2) {
+            ++localSym;
+            localJunction += fabs(q[1]) < 1e-10;
+            for (auto axis = 0u; axis < dim; ++axis) {
+              if (!(axis == normalAxis && sym) && !(axis == 0 && sym2)) continue;
+              for (auto v = 0u; v < 2; ++v) {
+                CHECK(fabs(g[v][axis]) < 1e-9);
+                for (auto tangent = 0u; tangent < dim; ++tangent)
+                  if (tangent != axis) CHECK(fabs(H[v][axis][tangent]) < 1e-7);
+              }
+              CHECK(H[0][axis][axis] == Approx(diagonal[axis]).margin(1e-7));
+            }
+          }
+          if (fabs(q[1]) < 1e-10) CHECK(g[0][1] == Approx(1 + tangentMixed * q[0]).margin(1e-9));
+        }
+        const unsigned long local[2] = {localSym, localJunction};
+        CPassiveComm::Allreduce(local, counts, 2, CPassiveComm::Op::SUM);
+        CHECK(counts[0] > 0);
+        CHECK(counts[1] > 0);
+        CPassiveComm::Allreduce(errors, globalErrors, 4, CPassiveComm::Op::MAX);
+        if (SU2_MPI::GetRank() == MASTER_NODE)
+          cout << "QR symmetry manufactured comparison: dim=" << dim << ", planes=" << (twoPlanes ? 2 : 1)
+               << ", noise=" << noise << ", WLS all/plane=" << globalErrors[0] << "/" << globalErrors[1]
+               << ", QR all/plane=" << globalErrors[2] << "/" << globalErrors[3] << endl;
+      }
+    }
+  }
+}
+
 void testEulerWallHessian(const string& method) {
   AdaptBoxTest wall("MARKER_EULER= (z_minus)\nMARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus)\n", method);
   AdaptBoxTest far("MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_minus, z_plus)\n", method);

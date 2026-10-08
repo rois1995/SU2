@@ -37,11 +37,11 @@
 
 /*!
  * \brief Fit sensor differences directly using SVD coordinate whitening and pivoted QR.
- * \note Primal only. One-sided wall stencils are allowed; periodic/symmetry markers are rejected by CConfig.
+ * \note Primal only. One-sided boundary stencils are allowed; periodic markers are rejected by CConfig.
  *       Input sensors must be communicated first. Failed fits retain the caller's WLS derivatives.
  *       Complete donor neighborhoods are exchanged, so two-ring stencils do not depend on partition boundaries.
  *       Supported grown thin wall stencils include tangential/mixed cubic terms to reduce truncation bias.
- *       Call outside OpenMP regions; the caller communicates the resulting gradients and Hessians.
+ *       Call outside OpenMP regions; the caller applies scalar symmetry conditions and communicates the derivatives.
  */
 template <class FieldType, class GradientType, class HessianType>
 void computeHessiansQuadratic(CGeometry& geometry, unsigned short nSensor, const FieldType& field,

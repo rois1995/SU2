@@ -2448,6 +2448,15 @@ void CSolver::SetHessian_Adapt(CGeometry *geometry, const CConfig *config) {
   if (requestedMethod == QUADRATIC_LEAST_SQUARES) {
     computeHessiansQuadratic(*geometry, nSensor, sensor, gradient, hessian,
                              SU2_TYPE::GetValue(config->GetAdap_Hessian_Noise()));
+    if (config->GetnMarker_SymWall() != 0) {
+      if (nDim == 2) {
+        correctGradientsSymmetry<2>(*geometry, *config, 0, nSensor, -1, gradient, false);
+        correctHessiansSymmetry<2>(*geometry, *config, 0, nSensor, base_nodes->GetHessian_Grad(), hessian);
+      } else {
+        correctGradientsSymmetry<3>(*geometry, *config, 0, nSensor, -1, gradient, false);
+        correctHessiansSymmetry<3>(*geometry, *config, 0, nSensor, base_nodes->GetHessian_Grad(), hessian);
+      }
+    }
     InitiateComms(geometry, config, MPI_QUANTITIES::GRADIENT_ADAPT);
     CompleteComms(geometry, config, MPI_QUANTITIES::GRADIENT_ADAPT);
   } else if (method == WEIGHTED_LEAST_SQUARES) {

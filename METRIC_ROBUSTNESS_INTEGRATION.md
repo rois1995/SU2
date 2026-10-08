@@ -8,6 +8,15 @@ Integration validation is complete; final proof is
 `AdapNoExt` and `codex/native-integrated` remain untouched. Push target:
 `rois1995/SU2:codex/native-metric-integration`.
 
+Robustness branch follow-up (2026-10-08): direct QR recovery now supports
+mirror-even primal scalar sensors on symmetry markers. It reuses the existing
+normal policy and Hessian workspace, retaining normal-normal curvature. This
+extends the published integration baseline described below; periodic, goal and
+differentiated QR configurations remain rejected. See
+`Papers/IMPLEMENTATION_ASSESSMENT.md` and
+`integration_evidence/qr_symmetry_v1_validation.json` for the literature assessment,
+2D/3D manufactured checks, frozen M6 partition checks and measured method cost.
+
 ## Reconciled metric contract
 
 `Metric_*` stores bounded, graded **sensor tensors only**. Native donor queries

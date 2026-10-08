@@ -91,6 +91,41 @@ void hessiansReuseGeometry(CGeometry& geometry, const GradientType& gradient, si
 }  // namespace detail
 
 /*!
+ * \brief Apply the existing symmetry rule to packed Hessians of mirror-even scalars.
+ * \note Remove normal-tangential components, retaining normal-normal curvature. Reuse the caller's
+ *       gradient workspace and the same modified/original normals as the gradient kernels.
+ *       Euler walls are excluded: a slip wall does not imply an even scalar extension.
+ */
+template <size_t dim, class HessianType>
+void correctHessiansSymmetry(CGeometry& geometry, const CConfig& config, size_t begin, size_t end,
+                             C3DDoubleMatrix& work, HessianType& hessian) {
+  if (config.GetnMarker_SymWall() == 0) return;
+  std::vector<unsigned short> markers;
+  for (auto marker = 0u; marker < geometry.GetnMarker(); ++marker)
+    if (config.GetMarker_All_KindBC(marker) == SYMMETRY_PLANE) markers.push_back(marker);
+  for (size_t v = begin; v < end; ++v) {
+    for (const auto marker : markers)
+      for (auto vertex = 0ul; vertex < geometry.GetnVertex(marker); ++vertex) {
+        const auto point = geometry.vertex[marker][vertex]->GetNode();
+        size_t k = 0;
+        for (size_t i = 0; i < dim; ++i)
+          for (size_t j = i; j < dim; ++j)
+            work(point, i, j) = work(point, j, i) = hessian(point, v, k++);
+      }
+    // The gradient of a scalar is a vector: its gradient follows the velocity symmetry rule.
+    correctGradientsSymmetry<dim>(geometry, config, 0, dim, 0, work, false);
+    for (const auto marker : markers)
+      for (auto vertex = 0ul; vertex < geometry.GetnVertex(marker); ++vertex) {
+        const auto point = geometry.vertex[marker][vertex]->GetNode();
+        size_t k = 0;
+        for (size_t i = 0; i < dim; ++i)
+          for (size_t j = i; j < dim; ++j)
+            hessian(point, v, k++) = 0.5 * (work(point, i, j) + work(point, j, i));
+      }
+  }
+}
+
+/*!
  * \brief Compute Hessians by differentiating the gradients, then symmetrizing the result.
  * \ingroup FvmAlgos
  * \note The gradients must be known on halo points. Hessians are computed on domain points
