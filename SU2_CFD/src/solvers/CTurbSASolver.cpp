@@ -531,23 +531,22 @@ void CTurbSASolver::BC_HeatFlux_Wall(CGeometry *geometry, CSolver **solver_conta
                                      CNumerics *visc_numerics, CConfig *config, unsigned short val_marker) {
   SU2_ZONE_SCOPED
 
-  /*--- Evaluate nu tilde at the closest point to the surface using the wall functions. ---*/
+  const string Marker_Tag = config->GetMarker_All_TagBound(val_marker);
+  const bool wall_functions = config->GetWallFunction_Treatment(Marker_Tag) == WALL_FUNCTIONS::STANDARD_FUNCTION;
 
-  if (config->GetWall_Functions()) {
+  /*--- Impose the interior value only where this marker's wall model is active. ---*/
+
+  if (wall_functions) {
     SU2_OMP_SAFE_GLOBAL_ACCESS(SetTurbVars_WF(geometry, solver_container, config, val_marker);)
-    return;
   }
 
   const bool implicit = (config->GetKind_TimeIntScheme() == EULER_IMPLICIT);
-  string Marker_Tag = config->GetMarker_All_TagBound(val_marker);
   WALL_TYPE WallType;
   su2double Roughness_Height;
   tie(WallType, Roughness_Height) = config->GetWallRoughnessProperties(Marker_Tag);
   Roughness_Height = max(Roughness_Height, EPS);
 
-  /*--- The dirichlet condition is used only without wall function, otherwise the
-   convergence is compromised as we are providing nu tilde values for the
-   first point of the wall  ---*/
+  /*--- Active vertices constrain the interior neighbour; inactive vertices use the resolved wall condition. ---*/
 
   SU2_OMP_FOR_STAT(OMP_MIN_SIZE)
   for (auto iVertex = 0u; iVertex < geometry->nVertex[val_marker]; iVertex++) {
@@ -557,6 +556,10 @@ void CTurbSASolver::BC_HeatFlux_Wall(CGeometry *geometry, CSolver **solver_conta
     /*--- Check if the node belongs to the domain (i.e, not a halo node) ---*/
 
     if (!geometry->nodes->GetDomain(iPoint)) continue;
+
+    const auto y_plus = solver_container[FLOW_SOL]->GetYPlus(val_marker, iVertex);
+    if (wall_functions && std::isfinite(SU2_TYPE::GetValue(y_plus)) &&
+        y_plus >= config->GetwallModel_MinYPlus()) continue;
 
     if (WallType == WALL_TYPE::SMOOTH) {
       for (auto iVar = 0u; iVar < nVar; iVar++)
@@ -963,7 +966,7 @@ void CTurbSASolver::SetTurbVars_WF(CGeometry *geometry, CSolver **solver_contain
 
       /*--- Do not use wall model at the ipoint when y+ < "limit" ---*/
 
-      if (Y_Plus < config->GetwallModel_MinYPlus()) continue;
+      if (!std::isfinite(SU2_TYPE::GetValue(Y_Plus)) || Y_Plus < config->GetwallModel_MinYPlus()) continue;
 
       su2double Lam_Visc_Normal = flow_nodes->GetLaminarViscosity(iPoint_Neighbor);
       su2double Density_Normal = flow_nodes->GetDensity(iPoint_Neighbor);
