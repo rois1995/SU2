@@ -1,0 +1,62 @@
+{
+  "status": "PASS",
+  "restart_step": null,
+  "scope": "2D ideal-gas Euler or constant-span straight-wall RANS, shared fade and geometric BL composition when present, double saved metrics, original-connectivity P1 target, current/history conservation, final positivity and restart pairing; not a flow-accuracy or cost certificate",
+  "windows": [
+    {
+      "first_step": 5,
+      "points": 699,
+      "triangles": 1357,
+      "min_quality": 0.5829019512829569,
+      "max_simpson_length": 1.7886896037140911,
+      "donor_metric": "flow_00004.vtu",
+      "history": [
+        {
+          "step": 3,
+          "relative_integral_defect": 2.7625047036375344e-15,
+          "donor_snapshot_available": true,
+          "min_density": 0.9899967032841547,
+          "min_pressure": 0.9861761587996721
+        },
+        {
+          "step": 4,
+          "relative_integral_defect": 1.8015680745282972e-15,
+          "donor_snapshot_available": true,
+          "min_density": 0.9918878869790143,
+          "min_pressure": 0.9888186873055078
+        }
+      ],
+      "relative_first_height_error": null
+    }
+  ],
+  "final_admissibility": {
+    "min_density": 0.9966445196300074,
+    "min_pressure": 0.9953051978348452
+  },
+  "checker_sha256": "fcfbd4c2a40d9b017d99379ff0a62dfe4d97751c16bfbcb1e8a06a3eb79c37b5",
+  "input_sha256": {
+    "flow_00002.vtu": "8781d43947b9b2502cb6e510523660de71dca6d5309c9cd8d55f3b611311f077",
+    "solution_00002.dat": "996badb3433000ea30a209b5e5014ce080a81c8c6248ac93a4f3001af775ff2f",
+    "flow_00007.vtu": "0d9fdd7204a0fe689e0702e13dfc2e462f91bbcbe130572a23c7c959e850ede9",
+    "solution_00001.dat": "a7fc157f1c2d5b121a242ec6eeda80f3f48c02b735ec4444c169379da9105fd6",
+    "solution_00005.dat": "9f3ba4ce5ef57bd001317bc75faa965ee26338e6df6913ad7cb2a526b0a09f52",
+    "flow_00006.vtu": "fa5b6ccdd7bdacbf32f96e960901aff93d9114bb94ac3f004c47b2bc0719e7ee",
+    "run.cfg": "412a7c9d9f4cc8a5b13144d7b94badeeacd7ad3efedb320501d73e37edf7ee2b",
+    "solution_00004.dat": "27807b6e8fbba4c1d02a713f9b631d2d32eb049f7645f02ce74e775586f35bfb",
+    "solution_00009.dat": "55c3ee64a4a1cd26fe9d119965f1e0153e09734f7a5f36a1267f023c9fd5631e",
+    "mesh_00005.su2": "db30ddb696eaa2c59935099fa7611b9805a33f2e55a698bf699ed59b2be38548",
+    "flow_00005.vtu": "3146eb92d923ee1e1a0d146386bcf4f16a3f61bc46925933d13a62edf9cb87cf",
+    "flow_00001.vtu": "1c39b8e2bf82232a52bf27cea8eab66e480d8007f1fe717f885b9bf7fbed41f6",
+    "input.su2": "25e9956af7f4387435b2a366beb1c45c3624e66accbfed29308fedf8a3c3adb5",
+    "flow_00003.vtu": "3592f0da31c19199ceab9f37611d4a702cf00edfd98cf530ed089eb3fc9d75e9",
+    "solution_00000.dat": "21193774e93b14503bae8e8753a4f04101cf641192b676da9dbcabeb6a611d06",
+    "flow_00009.vtu": "e79868c9d5f23845e1e52210ed56231c70f257710dad336b14b30953c20c3743",
+    "flow_00008.vtu": "e918d029d975c5ca76b025127924ac69f2d49c75de02231e2558f99551780848",
+    "solution_00008.dat": "3c02b30b7e601a20dffd091a33636974dbd95445b311d823f084fee14a90852a",
+    "flow_00000.vtu": "e39b9743bb705bf531db72eca1699ca5dbe95242d454a35eecddafa7148e5d98",
+    "solution_00007.dat": "0c111fe618b52b304e8f641a10b923b96cd37abd8d0dfe19387e6ea24202ecd1",
+    "solution_00006.dat": "0b45892ccb64c9adba25e7d9d4c7dbe2e2dba5302da75f70323b9cc4e24395da",
+    "solution_00003.dat": "e060c1f99922fcd12f033b9b9844be585c9f34691fd6e9ec8636ddf2f566532e",
+    "flow_00004.vtu": "ca80d6637816b4c15b5ad4adb06491c8ade8e7b298a7568cced2c319a3b16ea6"
+  }
+}

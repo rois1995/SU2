@@ -68,7 +68,8 @@ def mpi(n,program,*tail):return ['mpirun','-machinefile',str(machinefile),'-np',
 def check_case(row):
  case=root/row['case'];text=run('solver',mpi(row['ranks'],binary,'run.cfg'),case)
  assert 'Exit Success' in text
- assert list(map(int,re.findall(r'Metric snapshot of time step (\d+)',text)))==row['snapshots']
+ actual=list(map(int,re.findall(r'Metric snapshot of time step (\d+)',text)))
+ assert actual==row['snapshots'], f"{row['name']}: expected snapshot steps {row['snapshots']}, got {actual}; check TIME_ITER, MAX_TIME and the solver stop reason"
  if row['count']>2:
   assert text.count(f"Temporal feature fit: {row['count']} snapshots")==len(row['snapshots'])//row['count']
  else:assert 'Temporal feature fit:' not in text

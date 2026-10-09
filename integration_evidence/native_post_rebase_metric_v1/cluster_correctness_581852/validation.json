@@ -1,0 +1,291 @@
+{
+  "status": "FAIL",
+  "scope": "Sequential correctness checks for selectable PREDICT history; never a timing benchmark.",
+  "stages": [
+    {
+      "label": "metric",
+      "command": [
+        "mpirun",
+        "-machinefile",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581852/machinefile",
+        "-np",
+        "1",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/UnitTests/test_driver",
+        "[Adaptation],[Gradients],[HessianReliability],[Hessian3DStress],[RestartReliability],[MetricRobustness],[NativeComposite2D]",
+        "--use-colour",
+        "no"
+      ],
+      "working_directory": "ClusterResults/predict_correctness_581852/units-mpi1",
+      "status": "PASS",
+      "exit_code": 0,
+      "log_sha256": "761c5f42cd5ff162f89497ddccb13b52314e2491d1fd240b37fd5064f7ea2e49",
+      "test_summaries": [
+        "420831 assertions in 161 test cases"
+      ]
+    },
+    {
+      "label": "native",
+      "command": [
+        "mpirun",
+        "-machinefile",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581852/machinefile",
+        "-np",
+        "1",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/UnitTests/test_driver",
+        "[NativeDistributed2D],[NativeField2D],[NativeEngine2D],[NativeSupport2D],[DistributedTransfer],[NativeCGNS2D],[NativeRejectedOutput],[NativeBL2D],[NativeProducedBL2D],[NativeRemesher],[MetricRobustness],[NativeComposite2D],[PassiveComm],[DistributedSearch]",
+        "--use-colour",
+        "no"
+      ],
+      "working_directory": "ClusterResults/predict_correctness_581852/units-mpi1",
+      "status": "PASS",
+      "exit_code": 0,
+      "log_sha256": "a10ee547b6bf0cb147907c3bd3aea5324d977934e6f889c5a764acd44961f929",
+      "test_summaries": [
+        "50070 assertions in 87 test cases"
+      ]
+    },
+    {
+      "label": "metric",
+      "command": [
+        "mpirun",
+        "-machinefile",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581852/machinefile",
+        "-np",
+        "2",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/UnitTests/test_driver",
+        "[HessianReliability],[Hessian3DStress],[RestartReliability],[MetricRobustness],[NativeComposite2D],[CustomSensorsMPI],[GoalMPI],Metric intersection,[SteadyMetricReuse],[MetricPredictionMPI]",
+        "--use-colour",
+        "no"
+      ],
+      "working_directory": "ClusterResults/predict_correctness_581852/units-mpi2",
+      "status": "PASS",
+      "exit_code": 0,
+      "log_sha256": "bbab7c1fcb7151957fc955509515af940a9b1f5ac0d0ef1bd9577a0d158d07e0",
+      "test_summaries": [
+        "173614 assertions in 39 test cases",
+        "174963 assertions in 39 test cases"
+      ]
+    },
+    {
+      "label": "native",
+      "command": [
+        "mpirun",
+        "-machinefile",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581852/machinefile",
+        "-np",
+        "2",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/UnitTests/test_driver",
+        "[NativeDistributed2D],[NativeField2D],[NativeEngine2D],[NativeSupport2D],[DistributedTransfer],[NativeCGNS2D],[NativeRejectedOutput],[NativeBL2D],[NativeProducedBL2D],[NativeRemesher],[MetricRobustness],[NativeComposite2D],[PassiveComm],[DistributedSearch]",
+        "--use-colour",
+        "no"
+      ],
+      "working_directory": "ClusterResults/predict_correctness_581852/units-mpi2",
+      "status": "PASS",
+      "exit_code": 0,
+      "log_sha256": "29e699bcc88426126dfaa2d1ca2edcac1ce000093841fe728669a4476033f7b0",
+      "test_summaries": [
+        "34597 assertions in 87 test cases",
+        "37706 assertions in 87 test cases"
+      ]
+    },
+    {
+      "label": "metric",
+      "command": [
+        "mpirun",
+        "-machinefile",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581852/machinefile",
+        "-np",
+        "4",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/UnitTests/test_driver",
+        "[HessianReliability],[Hessian3DStress],[RestartReliability],[MetricRobustness],[NativeComposite2D],[CustomSensorsMPI],[GoalMPI],Metric intersection,[SteadyMetricReuse],[MetricPredictionMPI]",
+        "--use-colour",
+        "no"
+      ],
+      "working_directory": "ClusterResults/predict_correctness_581852/units-mpi4",
+      "status": "PASS",
+      "exit_code": 0,
+      "log_sha256": "2637e6d3526d752ce1699045365699f6f344d8df0ce0c33b8bbf33e38c02f105",
+      "test_summaries": [
+        "112115 assertions in 39 test cases",
+        "114146 assertions in 39 test cases",
+        "113188 assertions in 39 test cases",
+        "113968 assertions in 39 test cases"
+      ]
+    },
+    {
+      "label": "native",
+      "command": [
+        "mpirun",
+        "-machinefile",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581852/machinefile",
+        "-np",
+        "4",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/UnitTests/test_driver",
+        "[NativeDistributed2D],[NativeField2D],[NativeEngine2D],[NativeSupport2D],[DistributedTransfer],[NativeCGNS2D],[NativeRejectedOutput],[NativeBL2D],[NativeProducedBL2D],[NativeRemesher],[MetricRobustness],[NativeComposite2D],[PassiveComm],[DistributedSearch]",
+        "--use-colour",
+        "no"
+      ],
+      "working_directory": "ClusterResults/predict_correctness_581852/units-mpi4",
+      "status": "PASS",
+      "exit_code": 0,
+      "log_sha256": "03d7b790ed6b022d328afbf330362bd7da0d7cd87884006c919117bfeb9bb5fe",
+      "test_summaries": [
+        "27424 assertions in 87 test cases",
+        "27798 assertions in 87 test cases",
+        "27761 assertions in 87 test cases",
+        "30077 assertions in 87 test cases"
+      ]
+    },
+    {
+      "label": "fixed_point_guard",
+      "command": [
+        "mpirun",
+        "-machinefile",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581852/machinefile",
+        "-np",
+        "4",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/UnitTests/test_driver",
+        "[NativeUnsupportedWindowMetric]",
+        "--use-colour",
+        "no"
+      ],
+      "working_directory": "ClusterResults/predict_correctness_581852/native-fixed-point-guard",
+      "status": "PASS",
+      "exit_code": 1,
+      "log_sha256": "7696192a6b7096463c970fd6e0e8011dc57459ee233d383036eca6d422d4644a",
+      "test_summaries": []
+    },
+    {
+      "label": "solver",
+      "command": [
+        "mpirun",
+        "-machinefile",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581852/machinefile",
+        "-np",
+        "1",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/SU2_CFD/src/SU2_CFD",
+        "run.cfg"
+      ],
+      "working_directory": "ClusterResults/predict_correctness_581852/invalid_count_low",
+      "status": "PASS",
+      "exit_code": 1,
+      "log_sha256": "4beb0b2718a320530d56384cb668f45427d4485f80c3b29dfebb3ecdbb42a47b",
+      "test_summaries": []
+    },
+    {
+      "label": "solver",
+      "command": [
+        "mpirun",
+        "-machinefile",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581852/machinefile",
+        "-np",
+        "1",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/SU2_CFD/src/SU2_CFD",
+        "run.cfg"
+      ],
+      "working_directory": "ClusterResults/predict_correctness_581852/invalid_count_high",
+      "status": "PASS",
+      "exit_code": 1,
+      "log_sha256": "91e4a7ed472850c5d02c6b098a9aa1cfd7cbe63639016c0e13ccc66a04f2700c",
+      "test_summaries": []
+    },
+    {
+      "label": "solver",
+      "command": [
+        "mpirun",
+        "-machinefile",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581852/machinefile",
+        "-np",
+        "1",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/SU2_CFD/src/SU2_CFD",
+        "run.cfg"
+      ],
+      "working_directory": "ClusterResults/predict_correctness_581852/invalid_cadence_span",
+      "status": "PASS",
+      "exit_code": 1,
+      "log_sha256": "536bbe6492f7b761990a6a740f711f69d60dac24881604fd0538e3240a66d363",
+      "test_summaries": []
+    },
+    {
+      "label": "solver",
+      "command": [
+        "mpirun",
+        "-machinefile",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581852/machinefile",
+        "-np",
+        "1",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/SU2_CFD/src/SU2_CFD",
+        "run.cfg"
+      ],
+      "working_directory": "ClusterResults/predict_correctness_581852/invalid_negative_filter",
+      "status": "PASS",
+      "exit_code": 1,
+      "log_sha256": "6f21909c9d3eaa2bad732eab45069449ac7931f96d5619ed194de5cda45b9742",
+      "test_summaries": []
+    },
+    {
+      "label": "solver",
+      "command": [
+        "mpirun",
+        "-machinefile",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581852/machinefile",
+        "-np",
+        "4",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/SU2_CFD/src/SU2_CFD",
+        "run.cfg"
+      ],
+      "working_directory": "ClusterResults/predict_correctness_581852/default_two_n4m3",
+      "status": "PASS",
+      "exit_code": 0,
+      "log_sha256": "18e64021da6a236efe3e5038fed57fbff1ea4b1e44205b049c027469ae94af19",
+      "test_summaries": []
+    },
+    {
+      "label": "solver",
+      "command": [
+        "mpirun",
+        "-machinefile",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581852/machinefile",
+        "-np",
+        "1",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/SU2_CFD/src/SU2_CFD",
+        "run.cfg"
+      ],
+      "working_directory": "ClusterResults/predict_correctness_581852/four_fixture_n1m1",
+      "status": "PASS",
+      "exit_code": 0,
+      "log_sha256": "eaec6932fe1e097e3705152325cb28a96ebb91bd8fbf00a357d73a24d28a61d4",
+      "test_summaries": []
+    },
+    {
+      "label": "solver",
+      "command": [
+        "mpirun",
+        "-machinefile",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581852/machinefile",
+        "-np",
+        "1",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/SU2_CFD/src/SU2_CFD",
+        "run.cfg"
+      ],
+      "working_directory": "ClusterResults/predict_correctness_581852/four_n1m1",
+      "status": "PASS",
+      "exit_code": 0,
+      "log_sha256": "d0c4e2d85cacf15a3a46d1f853afaf8964bfa6eb9846a2997f68c738f49d0e09",
+      "test_summaries": []
+    }
+  ],
+  "binary_sha256": "dddc3df010ea47152bd8e14ac07038e15fd5e883c86147e58717fa422680649c",
+  "test_binary_sha256": "b8bb7bc0bf3ba701232513d0c4d0e812e3483cac605da6ecd13e1a4845b7971e",
+  "checkpoint_sha256": "946c4610ad34b4aa686dec69ad9c0940f454818cebf4b38efb01b2669ad7ecf0",
+  "source_and_suite_files": 837,
+  "scheduler": {
+    "JOB_ID": "581852",
+    "NSLOTS": "4",
+    "QUEUE": "aero-ags.q",
+    "PE": "mpi"
+  },
+  "skipped": "MMG controls and archived workstation bitwise-output comparison; native-only cluster build",
+  "phase": "terminal",
+  "error": ""
+}

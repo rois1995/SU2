@@ -2,8 +2,8 @@
 
 Use this gate after implementation changes. Heavy correctness and performance
 checks belong on the cluster; local work is limited to source/script checks and
-small fake-file harness tests. The first PREDICT history/filter runtime validation
-is still pending the user-run cluster job. A successful build or prepared
+small fake-file harness tests. Full PREDICT history/filter runtime validation
+is still pending completion of the user-run cluster gate. A successful build or prepared
 checkpoint does not replace that PASS. Run this gate before performance jobs.
 
 The first cluster job (581847) passed 160/161 serial metric tests. Its sole failure
@@ -13,6 +13,17 @@ That fixture is now corrected without removing the exact connectivity or
 predicted-field checks. Rebuild `test_driver` and rerun; later MPI/CFD stages
 were not reached. The saved failure and connectivity replay are preserved in
 `../native_post_rebase_metric_v1/cluster_correctness_581847_failure.json`.
+
+The rerun (581852) passes all metric/native suites on MPI1/2/4 and all five
+rejection guards. The first two native PREDICT CFD cases pass independent audits.
+The third case stops at step 11 because its omitted MAX_TIME defaults to 1s;
+15 steps at 0.1s need a larger time limit. All seven fixtures now explicitly set
+MAX_TIME=100.0 so TIME_ITER controls completion. Its two completed remeshes also
+pass a separately scoped saved-output audit, but the aggregate remains FAIL.
+Later MPI CFD/CGNS/RANS/partial-restart cases are still pending. Preserve the
+original results; pull and prepare a new checkpoint before rerunning the same
+job. This fixture-only correction needs no production rebuild (ninja may be a
+no-op). Evidence: `../native_post_rebase_metric_v1/cluster_correctness_581852/`.
 
 From a complete checkout of `rois1995/SU2:codex/native-unsteady-performance`,
 update and rebuild both executables on the login/build host using the native-only

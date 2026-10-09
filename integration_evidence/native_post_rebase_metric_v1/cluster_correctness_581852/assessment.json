@@ -1,0 +1,365 @@
+{
+  "status": "PARTIAL_VALIDATION_SUITE_FAIL",
+  "job": 581852,
+  "source_checkpoint": "f211821fe361cf417aa5114cae6f12bb4a485222",
+  "binary_sha256": "dddc3df010ea47152bd8e14ac07038e15fd5e883c86147e58717fa422680649c",
+  "test_binary_sha256": "b8bb7bc0bf3ba701232513d0c4d0e812e3483cac605da6ecd13e1a4845b7971e",
+  "checkpoint_sha256": "946c4610ad34b4aa686dec69ad9c0940f454818cebf4b38efb01b2669ad7ecf0",
+  "unit_stages": [
+    {
+      "label": "metric",
+      "command": [
+        "mpirun",
+        "-machinefile",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581852/machinefile",
+        "-np",
+        "1",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/UnitTests/test_driver",
+        "[Adaptation],[Gradients],[HessianReliability],[Hessian3DStress],[RestartReliability],[MetricRobustness],[NativeComposite2D]",
+        "--use-colour",
+        "no"
+      ],
+      "working_directory": "ClusterResults/predict_correctness_581852/units-mpi1",
+      "status": "PASS",
+      "exit_code": 0,
+      "log_sha256": "761c5f42cd5ff162f89497ddccb13b52314e2491d1fd240b37fd5064f7ea2e49",
+      "test_summaries": [
+        "420831 assertions in 161 test cases"
+      ]
+    },
+    {
+      "label": "native",
+      "command": [
+        "mpirun",
+        "-machinefile",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581852/machinefile",
+        "-np",
+        "1",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/UnitTests/test_driver",
+        "[NativeDistributed2D],[NativeField2D],[NativeEngine2D],[NativeSupport2D],[DistributedTransfer],[NativeCGNS2D],[NativeRejectedOutput],[NativeBL2D],[NativeProducedBL2D],[NativeRemesher],[MetricRobustness],[NativeComposite2D],[PassiveComm],[DistributedSearch]",
+        "--use-colour",
+        "no"
+      ],
+      "working_directory": "ClusterResults/predict_correctness_581852/units-mpi1",
+      "status": "PASS",
+      "exit_code": 0,
+      "log_sha256": "a10ee547b6bf0cb147907c3bd3aea5324d977934e6f889c5a764acd44961f929",
+      "test_summaries": [
+        "50070 assertions in 87 test cases"
+      ]
+    },
+    {
+      "label": "metric",
+      "command": [
+        "mpirun",
+        "-machinefile",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581852/machinefile",
+        "-np",
+        "2",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/UnitTests/test_driver",
+        "[HessianReliability],[Hessian3DStress],[RestartReliability],[MetricRobustness],[NativeComposite2D],[CustomSensorsMPI],[GoalMPI],Metric intersection,[SteadyMetricReuse],[MetricPredictionMPI]",
+        "--use-colour",
+        "no"
+      ],
+      "working_directory": "ClusterResults/predict_correctness_581852/units-mpi2",
+      "status": "PASS",
+      "exit_code": 0,
+      "log_sha256": "bbab7c1fcb7151957fc955509515af940a9b1f5ac0d0ef1bd9577a0d158d07e0",
+      "test_summaries": [
+        "173614 assertions in 39 test cases",
+        "174963 assertions in 39 test cases"
+      ]
+    },
+    {
+      "label": "native",
+      "command": [
+        "mpirun",
+        "-machinefile",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581852/machinefile",
+        "-np",
+        "2",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/UnitTests/test_driver",
+        "[NativeDistributed2D],[NativeField2D],[NativeEngine2D],[NativeSupport2D],[DistributedTransfer],[NativeCGNS2D],[NativeRejectedOutput],[NativeBL2D],[NativeProducedBL2D],[NativeRemesher],[MetricRobustness],[NativeComposite2D],[PassiveComm],[DistributedSearch]",
+        "--use-colour",
+        "no"
+      ],
+      "working_directory": "ClusterResults/predict_correctness_581852/units-mpi2",
+      "status": "PASS",
+      "exit_code": 0,
+      "log_sha256": "29e699bcc88426126dfaa2d1ca2edcac1ce000093841fe728669a4476033f7b0",
+      "test_summaries": [
+        "34597 assertions in 87 test cases",
+        "37706 assertions in 87 test cases"
+      ]
+    },
+    {
+      "label": "metric",
+      "command": [
+        "mpirun",
+        "-machinefile",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581852/machinefile",
+        "-np",
+        "4",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/UnitTests/test_driver",
+        "[HessianReliability],[Hessian3DStress],[RestartReliability],[MetricRobustness],[NativeComposite2D],[CustomSensorsMPI],[GoalMPI],Metric intersection,[SteadyMetricReuse],[MetricPredictionMPI]",
+        "--use-colour",
+        "no"
+      ],
+      "working_directory": "ClusterResults/predict_correctness_581852/units-mpi4",
+      "status": "PASS",
+      "exit_code": 0,
+      "log_sha256": "2637e6d3526d752ce1699045365699f6f344d8df0ce0c33b8bbf33e38c02f105",
+      "test_summaries": [
+        "112115 assertions in 39 test cases",
+        "114146 assertions in 39 test cases",
+        "113188 assertions in 39 test cases",
+        "113968 assertions in 39 test cases"
+      ]
+    },
+    {
+      "label": "native",
+      "command": [
+        "mpirun",
+        "-machinefile",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581852/machinefile",
+        "-np",
+        "4",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/UnitTests/test_driver",
+        "[NativeDistributed2D],[NativeField2D],[NativeEngine2D],[NativeSupport2D],[DistributedTransfer],[NativeCGNS2D],[NativeRejectedOutput],[NativeBL2D],[NativeProducedBL2D],[NativeRemesher],[MetricRobustness],[NativeComposite2D],[PassiveComm],[DistributedSearch]",
+        "--use-colour",
+        "no"
+      ],
+      "working_directory": "ClusterResults/predict_correctness_581852/units-mpi4",
+      "status": "PASS",
+      "exit_code": 0,
+      "log_sha256": "03d7b790ed6b022d328afbf330362bd7da0d7cd87884006c919117bfeb9bb5fe",
+      "test_summaries": [
+        "27424 assertions in 87 test cases",
+        "27798 assertions in 87 test cases",
+        "27761 assertions in 87 test cases",
+        "30077 assertions in 87 test cases"
+      ]
+    }
+  ],
+  "guards_passed": 5,
+  "completed_cases": [
+    {
+      "name": "default_two_n4m3",
+      "status": "PASS",
+      "snapshot_steps": [
+        0,
+        2,
+        3,
+        5,
+        6,
+        8
+      ],
+      "windows": [
+        {
+          "first_step": 3,
+          "points": 778,
+          "triangles": 1513,
+          "min_quality": 0.5143406278988786,
+          "max_simpson_length": 1.731293010115501,
+          "donor_metric": "flow_00002.vtu",
+          "history": [
+            {
+              "step": 1,
+              "relative_integral_defect": 1.912503256352283e-15,
+              "donor_snapshot_available": true,
+              "min_density": 0.9904458156091595,
+              "min_pressure": 0.9867832434253332
+            },
+            {
+              "step": 2,
+              "relative_integral_defect": 1.9895344864435147e-15,
+              "donor_snapshot_available": true,
+              "min_density": 0.9892592340324762,
+              "min_pressure": 0.9851476748133495
+            }
+          ],
+          "relative_first_height_error": null
+        },
+        {
+          "first_step": 6,
+          "points": 742,
+          "triangles": 1441,
+          "min_quality": 0.6246977229518975,
+          "max_simpson_length": 1.7950970958367776,
+          "donor_metric": "flow_00005.vtu",
+          "history": [
+            {
+              "step": 4,
+              "relative_integral_defect": 2.2737536987832606e-15,
+              "donor_snapshot_available": true,
+              "min_density": 0.9917934189171864,
+              "min_pressure": 0.9887488802570401
+            },
+            {
+              "step": 5,
+              "relative_integral_defect": 2.1250036183810702e-15,
+              "donor_snapshot_available": true,
+              "min_density": 0.9940238806026652,
+              "min_pressure": 0.9917058268779032
+            }
+          ],
+          "relative_first_height_error": null
+        }
+      ],
+      "final_admissibility": {
+        "min_density": 0.9957265833640763,
+        "min_pressure": 0.9940256028695589
+      }
+    },
+    {
+      "name": "four_fixture_n1m1",
+      "status": "PASS",
+      "snapshot_steps": [
+        1,
+        2,
+        3,
+        4,
+        6,
+        7,
+        8,
+        9
+      ],
+      "windows": [
+        {
+          "first_step": 5,
+          "points": 699,
+          "triangles": 1357,
+          "min_quality": 0.5829019512829569,
+          "max_simpson_length": 1.7886896037140911,
+          "donor_metric": "flow_00004.vtu",
+          "history": [
+            {
+              "step": 3,
+              "relative_integral_defect": 2.7625047036375344e-15,
+              "donor_snapshot_available": true,
+              "min_density": 0.9899967032841547,
+              "min_pressure": 0.9861761587996721
+            },
+            {
+              "step": 4,
+              "relative_integral_defect": 1.8015680745282972e-15,
+              "donor_snapshot_available": true,
+              "min_density": 0.9918878869790143,
+              "min_pressure": 0.9888186873055078
+            }
+          ],
+          "relative_first_height_error": null
+        }
+      ],
+      "final_admissibility": {
+        "min_density": 0.9966445196300074,
+        "min_pressure": 0.9953051978348452
+      }
+    }
+  ],
+  "metric_audits": [
+    {
+      "case": "default_two_n4m3",
+      "diagnostic": "Native sensor gradation:",
+      "observations": 9,
+      "max_logged_ratio": 1.0,
+      "edges_above_tolerance": 0,
+      "scope": "Logged nodal diagnostic, rounded ratio; these completed cases are Euler and do not validate sensor-plus-BL gradation."
+    },
+    {
+      "case": "default_two_n4m3",
+      "diagnostic": "Native composed nodal audit:",
+      "observations": 9,
+      "max_logged_ratio": 1.0,
+      "edges_above_tolerance": 0,
+      "scope": "Logged nodal diagnostic, rounded ratio; these completed cases are Euler and do not validate sensor-plus-BL gradation."
+    },
+    {
+      "case": "four_fixture_n1m1",
+      "diagnostic": "Native sensor gradation:",
+      "observations": 10,
+      "max_logged_ratio": 1.0,
+      "edges_above_tolerance": 0,
+      "scope": "Logged nodal diagnostic, rounded ratio; these completed cases are Euler and do not validate sensor-plus-BL gradation."
+    },
+    {
+      "case": "four_fixture_n1m1",
+      "diagnostic": "Native composed nodal audit:",
+      "observations": 10,
+      "max_logged_ratio": 1.0,
+      "edges_above_tolerance": 0,
+      "scope": "Logged nodal diagnostic, rounded ratio; these completed cases are Euler and do not validate sensor-plus-BL gradation."
+    },
+    {
+      "case": "four_n1m1",
+      "diagnostic": "Native sensor gradation:",
+      "observations": 11,
+      "max_logged_ratio": 1.0,
+      "edges_above_tolerance": 0,
+      "scope": "Logged nodal diagnostic, rounded ratio; these completed cases are Euler and do not validate sensor-plus-BL gradation."
+    },
+    {
+      "case": "four_n1m1",
+      "diagnostic": "Native composed nodal audit:",
+      "observations": 11,
+      "max_logged_ratio": 1.0,
+      "edges_above_tolerance": 0,
+      "scope": "Logged nodal diagnostic, rounded ratio; these completed cases are Euler and do not validate sensor-plus-BL gradation."
+    }
+  ],
+  "failure": {
+    "case": "four_n1m1",
+    "solver_exit": 0,
+    "reason": "Default MAX_TIME=1.0 ends the run at step 11 before TIME_ITER=15; test config omitted MAX_TIME.",
+    "expected_snapshots": [
+      1,
+      2,
+      3,
+      4,
+      6,
+      7,
+      8,
+      9,
+      11,
+      12,
+      13,
+      14
+    ],
+    "actual_snapshots": [
+      1,
+      2,
+      3,
+      4,
+      6,
+      7,
+      8,
+      9,
+      11
+    ],
+    "remeshes_completed": 2,
+    "partial_audit": "four_n1m1_partial_audit.json",
+    "suite_remains_fail": true
+  },
+  "pending": [
+    "four_n1m1 complete 15-step window",
+    "four_n2m1",
+    "four_cgns_n4m3",
+    "plate_sa_four_n4m3",
+    "partial_restart_7_n1m1",
+    "partial_restart_8_n1m1",
+    "partial_restart_9_n1m1",
+    "matched performance comparison"
+  ],
+  "fix": "MAX_TIME=100.0 in all seven reusable fixtures; clearer cadence assertion. No production-source change.",
+  "local_validation": "Saved-output audit only. No local MPI/CFD or performance run.",
+  "evidence_sha256": {
+    "checkpoint.json": "946c4610ad34b4aa686dec69ad9c0940f454818cebf4b38efb01b2669ad7ecf0",
+    "launcher.err": "da2550692a757033b057c3f76fc5b6befde2c81ac51573546e0ab8d1bf89b4c3",
+    "four_n1m1_partial_audit.json": "3b029b7cd938e0cb9646179f48953d24e9c7df25571b726b3a4afe275b046036",
+    "validation.json": "518bbe087d26e2e79962f88796248b7542b5a822725c128e26aa578cdd574b4d",
+    "four_n1m1/run.cfg": "9129156cb23ca199c97f7dd31abeef3a210c4d52e1146b02791a60d6b0032212",
+    "four_n1m1/solver.log": "d0c4e2d85cacf15a3a46d1f853afaf8964bfa6eb9846a2997f68c738f49d0e09",
+    "four_fixture_n1m1/independent_unsteady_audit.json": "e2449536e934dd55cac11bb34acbbb0409498287a7db4f6cf66df3a57927f609",
+    "default_two_n4m3/independent_unsteady_audit.json": "411298f009adc24cd158b7195b0a05e9868ca4e69a831a34e56fadf5adf676c5"
+  }
+}
