@@ -1,9 +1,18 @@
-# Cluster correctness gate for the new prediction history
+# Reusable native adaptation correctness gate
 
-Local MPI/CFD correctness checks were stopped at the user's request. The complete
-primal-double MPI/CGNS build passed. The metric merge has its earlier completed
-validation; the new selectable PREDICT history and native PREDICT support are
-**not yet runtime validated**. Run this gate before the matched performance jobs.
+Use this gate after implementation changes. Heavy correctness and performance
+checks belong on the cluster; local work is limited to source/script checks and
+small fake-file harness tests. The first PREDICT history/filter runtime validation
+is still pending the user-run cluster job. A successful build or prepared
+checkpoint does not replace that PASS. Run this gate before performance jobs.
+
+The first cluster job (581847) passed 160/161 serial metric tests. Its sole failure
+was an orientation mismatch in the new independent reference fixture: the mesh
+generator deliberately emits clockwise triangles, whereas SU2 corrects them.
+That fixture is now corrected without removing the exact connectivity or
+predicted-field checks. Rebuild `test_driver` and rerun; later MPI/CFD stages
+were not reached. The saved failure and connectivity replay are preserved in
+`../native_post_rebase_metric_v1/cluster_correctness_581847_failure.json`.
 
 From a complete checkout of `rois1995/SU2:codex/native-unsteady-performance`,
 update and rebuild both executables on the login/build host using the native-only
@@ -11,9 +20,11 @@ MPI/CGNS configuration in [README.md](README.md). Rebuild after pulling; retain
 compiler/MPI/options and build logs. Compute nodes need no Git. Python 3, NumPy
 and h5py are required for independent SU2/CGNS output audits.
 
-Submit from the repository root:
+From the repository root, repeat this sequence after pulling or changing code:
 
 ```bash
+./ninja -C build-native -j2 SU2_CFD/src/SU2_CFD UnitTests/test_driver
+python3 integration_evidence/native_cluster_metric_comparison_v1/prepare_correctness.py
 qsub -pe mpi 4 integration_evidence/native_cluster_metric_comparison_v1/RunPredictCorrectnessSGE.sh
 ```
 
@@ -25,11 +36,28 @@ If another owned job is queued/running, add `-hold_jid JOB_ID` to serialize them
 This is a correctness job, not a performance measurement. Per-stage timeout is
 two hours, and failures stop subsequent stages while preserving available output.
 
-The job checks source, test, suite and input hashes before launching. Binaries
-must resolve inside the checkout; a source hash alone cannot establish how they
-were built. It records binary hashes and copies the scheduler allocation inside
-the result folder. Complete inputs are regular tracked files, with no runtime
-links into workstation cases or another checkout.
+Preparation writes `build-native/native_correctness_checkpoint.json` with
+`PREPARED_NOT_VALIDATED`, current production/test sources, suite/input hashes,
+binary hashes and available Meson build-option metadata. It discovers new C++
+source/test files and additional declared fixtures; intentional implementation
+changes do not require editing the performance campaign's frozen source pins.
+Reprepare after rebuilding changed code. Repeated checks of the same unchanged
+build can reuse its checkpoint.
+
+The job verifies the checkpoint before launching, guards source/suite files
+between stages, and verifies sources and both binaries again before PASS. It
+saves `checkpoint.json` with each job's results. A source snapshot alone cannot
+prove binary build provenance: rebuild both executables first and retain build
+logs. Never modify the checkout, binaries or checkpoint while its jobs are queued
+or running; use separate complete checkouts for different versions. Earlier job
+folders are preserved when a new checkpoint is prepared.
+
+Binaries and suite files must resolve inside the checkout. The scheduler allocation
+is copied into the result folder. Inputs are regular tracked files, with no runtime
+links into workstation cases or another checkout. For alternative build paths,
+use the preparation helper's `--binary`, `--test-binary` and `--output` options,
+and pass matching `SU2_CFD_BIN`, `SU2_TEST_BIN` and `CORRECTNESS_CHECKPOINT` values
+through `qsub -v`; the job rejects binaries that differ from the checkpoint.
 
 Checks include:
 

@@ -22,4 +22,5 @@ machinefile="${MACHINEFILE_PATH:-$PWD/machinefile.${JOB_ID}}"
 python3 integration_evidence/native_post_rebase_metric_v1/complete_predict_history_validation.py \
  --binary "${SU2_CFD_BIN:-$PWD/build-native/SU2_CFD/src/SU2_CFD}" \
  --test-binary "${SU2_TEST_BIN:-$PWD/build-native/UnitTests/test_driver}" \
- --machinefile "$machinefile"
+ --machinefile "$machinefile" \
+ --checkpoint "${CORRECTNESS_CHECKPOINT:-$PWD/build-native/native_correctness_checkpoint.json}"

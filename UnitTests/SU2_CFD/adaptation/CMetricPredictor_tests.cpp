@@ -685,8 +685,17 @@ TEST_CASE("Metric prediction: history gather and prediction scatter match the co
   const auto whole = gather.GatherMesh(*test.config, tags, false);
   auto reference = simplex_test::MakeSimplexMesh(2, 12, simplex_test::Marker2D);
   std::vector<std::array<unsigned long, 3>> cells;
-  for (auto e = 0ul; e < reference.GetnElem(); ++e)
-    cells.push_back({reference.elem[e * 3], reference.elem[e * 3 + 1], reference.elem[e * 3 + 2]});
+  // The generator includes clockwise triangles; SU2 reverses them while building the geometry.
+  for (auto e = 0ul; e < reference.GetnElem(); ++e) {
+    std::array<unsigned long, 3> ids = {reference.elem[e * 3], reference.elem[e * 3 + 1], reference.elem[e * 3 + 2]};
+    const auto* a = &reference.coord[ids[0] * 2];
+    const auto* b = &reference.coord[ids[1] * 2];
+    const auto* c = &reference.coord[ids[2] * 2];
+    const auto area = (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+    REQUIRE(area != 0);
+    if (area < 0) std::swap(ids[0], ids[2]);
+    cells.push_back(ids);
+  }
   std::sort(cells.begin(), cells.end(), [](auto a, auto b) {
     std::sort(a.begin(), a.end()); std::sort(b.begin(), b.end()); return a < b;
   });

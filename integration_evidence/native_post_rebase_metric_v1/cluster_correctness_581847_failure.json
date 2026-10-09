@@ -1,0 +1,20 @@
+{
+  "job_id": 581847,
+  "status": "CLUSTER_FAILURE_DIAGNOSED_FIXTURE_CORRECTED_RERUN_PENDING",
+  "tests": 161,
+  "passed_tests": 160,
+  "assertions": 420255,
+  "passed_assertions": 420254,
+  "failed_assertion": "CHECK(whole.elem == reference.elem)",
+  "cause": "Independent generated reference retained 288 deliberately clockwise triangles; SU2 geometry reverses these, and gather retains the corrected orientation.",
+  "saved_vector_check": {
+    "triangles": 576,
+    "reversed_clockwise_triangles": 288,
+    "exact_equality_after_orientation_correction": true
+  },
+  "scope": "Lightweight replay of the two saved connectivity vectors only; no local MPI/CFD run. Cluster MPI1/2/4 rerun still required; CFD prediction smokes not reached.",
+  "evidence_sha256": {
+    "cluster_correctness_581847_metric.log": "d749705a33bda207d9a747c2746b12a9b69d2e6ace1c2d0940bc9b256b4517ec",
+    "cluster_correctness_581847_validation.json": "fa5a438992669c1606318b568f521a8d9125639647eeb85d9b11a04b59f47820"
+  }
+}

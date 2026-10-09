@@ -1,0 +1,38 @@
+{
+  "status": "FAIL",
+  "scope": "Sequential correctness checks for selectable PREDICT history; never a timing benchmark.",
+  "stages": [
+    {
+      "label": "metric",
+      "command": [
+        "mpirun",
+        "-machinefile",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581847/machinefile",
+        "-np",
+        "1",
+        "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/UnitTests/test_driver",
+        "[Adaptation],[Gradients],[HessianReliability],[Hessian3DStress],[RestartReliability],[MetricRobustness],[NativeComposite2D]",
+        "--use-colour",
+        "no"
+      ],
+      "working_directory": "ClusterResults/predict_correctness_581847/units-mpi1",
+      "status": "FAIL",
+      "exit_code": 1,
+      "log_sha256": "d749705a33bda207d9a747c2746b12a9b69d2e6ace1c2d0940bc9b256b4517ec",
+      "test_summaries": []
+    }
+  ],
+  "binary_sha256": "dddc3df010ea47152bd8e14ac07038e15fd5e883c86147e58717fa422680649c",
+  "test_binary_sha256": "a933ebd169e9f7ade0bad6c8f420a1bd308214334c2638312e551686d328d975",
+  "source_pins_sha256": "863b43743e75336ccd1ba97f3857cd01b86bea904636c458c3330dfab32b55b1",
+  "suite_pins_sha256": "11e4599810610316608c488d84f336d84c1f3feab7b35d593d0148252f0bd2ee",
+  "scheduler": {
+    "JOB_ID": "581847",
+    "NSLOTS": "4",
+    "QUEUE": "aero-ags.q",
+    "PE": "mpi"
+  },
+  "skipped": "MMG controls and archived workstation bitwise-output comparison; native-only cluster build",
+  "phase": "terminal",
+  "error": "('metric', 1)"
+}

@@ -5,6 +5,7 @@ root=Path(__file__).resolve().parents[2]
 os.chdir(root);sys.path.insert(0,str(root/'integration_evidence'))
 from audit_native_unsteady import audit,read_mesh,state
 from collect_native_cluster_results import TOOLS
+from native_cluster_metric_comparison_v1.prepare_correctness import verify
 import numpy as np
 import h5py  # CGNS audit dependency: fail before allocating solver work if unavailable.
 parser=argparse.ArgumentParser(description=__doc__)
@@ -12,6 +13,7 @@ parser.add_argument('--binary',type=Path,default=root/'build-native/SU2_CFD/src/
 parser.add_argument('--test-binary',type=Path,default=root/'build-native/UnitTests/test_driver')
 parser.add_argument('--machinefile',type=Path,required=True)
 parser.add_argument('--timeout',type=int,default=7200)
+parser.add_argument('--checkpoint',type=Path,default=root/'build-native/native_correctness_checkpoint.json')
 args=parser.parse_args()
 def closed(path):
  path=path.resolve();path.relative_to(root);assert path.is_file();return path
@@ -21,14 +23,16 @@ assert args.timeout>0 and int(os.environ.get('NSLOTS','0'))>=4,'Request at least
 job=os.environ['JOB_ID'];assert re.fullmatch(r'[A-Za-z0-9_-]+',job)
 base=root/'integration_evidence/native_post_rebase_metric_v1'
 prepared=base/'predict_history_v1'
-pack=root/'integration_evidence/native_cluster_metric_comparison_v1'
-pins=json.loads(closed(root/'integration_evidence/native_cluster_campaign_v1/source_pins.json').read_text())
-suite_pins=json.loads(closed(pack/'correctness_pins.json').read_text())
-for name,digest in {**pins,**suite_pins}.items():assert sha(closed(root/name))==digest,'Source or suite differs: '+name
+checkpoint_file=closed(args.checkpoint)
+checkpoint_data=json.loads(checkpoint_file.read_text());verify(root,checkpoint_data)
+assert str(binary.relative_to(root))==checkpoint_data['binaries']['SU2_CFD']['path']
+assert str(test_binary.relative_to(root))==checkpoint_data['binaries']['test_driver']['path']
+pins=checkpoint_data['files_sha256']
 out=root/'ClusterResults'/('predict_correctness_'+job);out.mkdir(parents=True,exist_ok=False)
 machinefile=out/'machinefile';shutil.copy2(args.machinefile,machinefile)
+shutil.copy2(checkpoint_file,out/'checkpoint.json')
 env=dict(os.environ,OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1')
-record=dict(status='RUNNING',scope=__doc__,stages=[],binary_sha256=sha(binary),test_binary_sha256=sha(test_binary),source_pins_sha256=sha(root/'integration_evidence/native_cluster_campaign_v1/source_pins.json'),suite_pins_sha256=sha(pack/'correctness_pins.json'),scheduler={key:os.environ.get(key) for key in ('JOB_ID','NSLOTS','QUEUE','PE')},skipped='MMG controls and archived workstation bitwise-output comparison; native-only cluster build')
+record=dict(status='RUNNING',scope=__doc__,stages=[],binary_sha256=sha(binary),test_binary_sha256=sha(test_binary),checkpoint_sha256=sha(out/'checkpoint.json'),source_and_suite_files=len(pins),scheduler={key:os.environ.get(key) for key in ('JOB_ID','NSLOTS','QUEUE','PE')},skipped='MMG controls and archived workstation bitwise-output comparison; native-only cluster build')
 for name in TOOLS:
  target=out/'tools'/name;target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(closed(root/name),target)
 rows=[]
@@ -41,7 +45,7 @@ for row in json.loads((prepared/'prepared_cases.json').read_text()):
 def save(): (out/'validation.json').write_text(json.dumps(record,indent=2)+'\n')
 def run(label,command,cwd,negative=None):
  cwd.mkdir(parents=True,exist_ok=True)
- assert all(sha(closed(root/p))==v for p,v in {**pins,**suite_pins}.items())
+ assert all(sha(closed(root/p))==v for p,v in pins.items())
  row=dict(label=label,command=command,working_directory=str(cwd.relative_to(root)),status='RUNNING');record['stages'].append(row);save()
  logpath=cwd/(label+'.log')
  with logpath.open('x') as log:
@@ -66,7 +70,7 @@ def check_case(row):
  assert 'Exit Success' in text
  assert list(map(int,re.findall(r'Metric snapshot of time step (\d+)',text)))==row['snapshots']
  if row['count']>2:
-  assert text.count('Temporal feature fit: 4 snapshots')==len(row['snapshots'])//4
+  assert text.count(f"Temporal feature fit: {row['count']} snapshots")==len(row['snapshots'])//row['count']
  else:assert 'Temporal feature fit:' not in text
  result=audit(case,require_native_reference=row['workers']!=0);assert len(result['windows'])==row['adaptations']
  (case/'independent_unsteady_audit.json').write_text(json.dumps(result,indent=2)+'\n')
@@ -111,7 +115,8 @@ try:
   eigen=np.linalg.eigvalsh(metric);assert precision=='Float64' and np.isfinite(eigen).all() and (eigen>0).all()
   report=dict(status='PASS',scope='Partial-window snapshot selection and matching restart geometry/state; no new remesh or history transfer in these short restarts',samples=samples,final_admissibility=admissibility,min_metric_eigenvalue=float(eigen.min()),input_sha256={p.name:sha(p) for p in case.iterdir() if p.name in ('input.su2','input.su2.native_ref','run.cfg')})
   (case/'independent_partial_restart_audit.json').write_text(json.dumps(report,indent=2)+'\n');print('PARTIAL RESTART PASS',start,flush=True)
- assert sha(binary)==record['binary_sha256'] and sha(test_binary)==record['test_binary_sha256'],'Executables changed during job'
+ verify(root,checkpoint_data)
+ assert sha(out/'checkpoint.json')==record['checkpoint_sha256'],'Saved checkpoint changed during job'
  record.update(status='PASS',phase='terminal',cases=rows);save();print('PREDICT HISTORY VALIDATION PASS',len(record['stages']),'sequential stages',flush=True)
 except BaseException as error:
  record.update(status='FAIL',phase='terminal',error=str(error));save();raise
