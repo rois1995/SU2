@@ -20,6 +20,8 @@
 #include <thread>
 #include <chrono>
 #include <ctime>
+#include <cstdlib>
+#include <cstring>
 
 using namespace SU2NativeBoundary2D;
 
@@ -341,6 +343,14 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
           cell.t.protected_cell = 1;
       }
   EngineOptions control;
+  const char* profile = std::getenv("SU2_NATIVE_BALANCE_PROFILE");
+  if (profile && std::strcmp(profile, "YES") && std::strcmp(profile, "NO"))
+    failure.Set(1, 0, "SU2_NATIVE_BALANCE_PROFILE must be YES or NO.");
+  control.balance_profile = profile && !std::strcmp(profile, "YES");
+  const int profileMin = CPassiveComm::Allreduce(int(control.balance_profile), CPassiveComm::Op::MIN);
+  const int profileMax = CPassiveComm::Allreduce(int(control.balance_profile), CPassiveComm::Op::MAX);
+  if (profileMin != profileMax) failure.Set(1, 0, "Native balance profiling differs across CFD ranks.");
+  CollectiveFailure(failure, CURRENT_FUNCTION);
   if (compositionFactory) control.metric_composition = compositionFactory(config, geometry, metric);
   // Account for refinement demand as well as input size. Original frozen P1
   // tensors are averaged at donor centroids; no tensor/target is altered.
@@ -589,6 +599,46 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
         std::cout << '\n';
         for (const auto& entry : reasons)
           std::cout << "Native deferred/rejected candidate: " << entry.first << " (" << entry.second << ").\n";
+      }
+      if (engine.stats.balance) {
+        const auto profileStarted = workers.seconds();
+        CLocalFailure outputFailure;
+        try {
+          const auto prefix = "native_balance_" + std::to_string(remeshAttempt) + "_rank_" + std::to_string(workers.rank);
+          if (std::ifstream(prefix + "_operations.csv").good() || std::ifstream(prefix + "_hotspots.csv").good())
+            throw std::runtime_error("Native balance profile already exists; preserve it and use a fresh working directory.");
+          std::ofstream operations(prefix + "_operations.csv"), hotspots(prefix + "_hotspots.csv");
+          operations << std::setprecision(17)
+                     << "rank,workers,action,selected,attempts,reconstructed,committed,private_wall_seconds,private_cpu_seconds,cpu_samples,requests,evaluations,evictions,cells,max_cells,longest_seconds,phase_seconds,selection_seconds,selection_scans\n";
+          for (size_t i = 0; i < engine.stats.balance->operations.size(); ++i) {
+            const auto& op = engine.stats.balance->operations[i];
+            operations << workers.rank << ',' << workers.size << ',' << i << ',' << op.selected << ',' << op.attempts
+                       << ',' << op.reconstructed << ',' << op.committed << ',' << op.wall_seconds << ',' << op.cpu_seconds
+                       << ',' << op.cpu_samples << ',' << op.requests << ',' << op.evaluations << ',' << op.evictions
+                       << ',' << op.cells << ',' << op.max_cells << ',' << op.longest_seconds
+                       << ',' << engine.stats.phase_seconds[i] << ',' << engine.stats.choice_seconds[i]
+                       << ',' << engine.stats.selection_scans[i] << '\n';
+          }
+          hotspots << std::setprecision(17)
+                   << "rank,workers,round,action,coordinated,seed_a,seed_b,cells,boundary_cells,reconstructed,committed,private_wall_seconds,private_cpu_seconds,requests,evaluations,evictions,xmin,ymin,xmax,ymax\n";
+          for (size_t i = 0; i < engine.stats.balance->hotspot_count; ++i) {
+            const auto& h = engine.stats.balance->hotspots[i];
+            hotspots << workers.rank << ',' << workers.size << ',' << h.round << ',' << h.action << ',' << h.coordinated
+                     << ',' << h.seed_a << ',' << h.seed_b << ',' << h.cells << ',' << h.boundary_cells
+                     << ',' << h.reconstructed << ',' << h.committed << ',' << h.wall_seconds << ',' << h.cpu_seconds
+                     << ',' << h.requests << ',' << h.evaluations << ',' << h.evictions
+                     << ',' << h.xmin << ',' << h.ymin << ',' << h.xmax << ',' << h.ymax << '\n';
+          }
+          operations.flush(); hotspots.flush();
+          if (!operations.good() || !hotspots.good()) throw std::runtime_error("Cannot write native balance profile.");
+        } catch (const std::exception& error) {
+          outputFailure.Set(1, 0, error.what());
+        }
+        workers.Fail(outputFailure, CURRENT_FUNCTION);
+        const double outputSeconds = CPassiveComm::Allreduce(workers.seconds() - profileStarted, CPassiveComm::Op::MAX, workers.comm);
+        if (workers.rank == 0)
+          std::cout << "Native balance profile output seconds (maximum, files and status election): " << outputSeconds
+                    << "; CPU is process time within private reconstruction; hotspots retain at most 32 attempts per worker.\n";
       }
       input = std::move(engine.owned);
     } catch (const CElectedFailure& elected) {

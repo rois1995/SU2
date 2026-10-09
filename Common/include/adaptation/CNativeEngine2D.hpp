@@ -9,6 +9,7 @@
 #pragma once
 
 #include "CNativeField2D.hpp"
+#include "CNativeBalanceProfile2D.hpp"
 
 namespace SU2NativeBoundary2D {
 
@@ -57,7 +58,7 @@ struct EngineOptions {
   size_t dependency_bytes = 2 * 1024 * 1024;
   double geometry_tolerance = 0;
   int phase_rounds = 300, sweeps = 6;
-  bool ordered = false, fixed_boundary = false;
+  bool ordered = false, fixed_boundary = false, balance_profile = false;
   MetricComposition metric_composition;
 };
 struct EngineStats {
@@ -75,6 +76,7 @@ struct EngineStats {
   std::array<double, 6> transaction_seconds{};
   std::array<uint64_t, 8> selection_scans{};
   std::map<std::string, int> rejected;
+  std::unique_ptr<BalanceProfile> balance;
 };
 
 /*--- Input consists of uniquely owned positive cells with physical component labels and original nodal tensors.
@@ -107,6 +109,7 @@ class Engine {
     std::vector<Cell> added;
     added.reserve(owned.size());
     try {
+      if (options.balance_profile) stats.balance.reset(new BalanceProfile);
       for (auto& entry : owned) {
         auto& cell = entry.second;
         if (entry.first != cell.t.id) throw std::runtime_error("Native owner map/cell identity mismatch.");
@@ -331,6 +334,9 @@ class Engine {
     }
     finishStage(0);  // Protocol checks and ordered proposal selection.
     bool active = choice.score >= 0, overflow = false, stale = false;
+    if (stats.balance && active) ++stats.balance->operations[action].selected;
+    BalanceSample profileSample;
+    bool profiled = false;
     const bool surface = int(choice.op.action) < 4;
     std::set<Id> seeds;
     if (active) {
@@ -388,6 +394,8 @@ class Engine {
     std::string reason;
     if (active) {
       const double rebuilding = world.seconds();
+      const auto cpuStarted = stats.balance ? std::clock() : std::clock_t(-1);
+      const std::array<uint64_t, 3> queryStarted{field->queries, field->samples, field->evictions};
       try {
         // Unchanged vertices already have an authoritative sample of this
         // immutable target. Different rounded donor-edge projections may
@@ -420,6 +428,35 @@ class Engine {
         reason = error.what();
       }
       const double elapsed = world.seconds() - rebuilding;
+      const auto cpuFinished = stats.balance ? std::clock() : std::clock_t(-1);
+      if (stats.balance) {
+        profiled = true;
+        profileSample.round = stats.rounds;
+        profileSample.seed_a = choice.op.a;
+        profileSample.seed_b = choice.op.b;
+        profileSample.action = action;
+        profileSample.coordinated = coordinated;
+        profileSample.reconstructed = approved;
+        profileSample.cells = old.size();
+        profileSample.wall_seconds = elapsed;
+        profileSample.cpu_seconds = BalanceProfile::CpuSeconds(cpuStarted, cpuFinished);
+        profileSample.requests = field->queries - queryStarted[0];
+        profileSample.evaluations = field->samples - queryStarted[1];
+        profileSample.evictions = field->evictions - queryStarted[2];
+        if (!old.empty()) {
+          profileSample.xmin = profileSample.xmax = old.front().t.v[0].p.x;
+          profileSample.ymin = profileSample.ymax = old.front().t.v[0].p.y;
+        }
+        for (const auto& cell : old) {
+          profileSample.boundary_cells += std::any_of(cell.marker.begin(), cell.marker.end(), [](int m) { return m != 0; });
+          for (const auto& node : cell.t.v) {
+            profileSample.xmin = std::min(profileSample.xmin, node.p.x);
+            profileSample.xmax = std::max(profileSample.xmax, node.p.x);
+            profileSample.ymin = std::min(profileSample.ymin, node.p.y);
+            profileSample.ymax = std::max(profileSample.ymax, node.p.y);
+          }
+        }
+      }
       stats.reconstruction_seconds += elapsed;
       stats.reconstruction_longest = std::max(stats.reconstruction_longest, elapsed);
       if (!approved) ++stats.rejected[reason];
@@ -562,6 +599,10 @@ class Engine {
     stats.field_queries[0] += field->queries;
     stats.field_queries[1] += field->samples;
     stats.field_queries[2] += field->evictions;
+    if (profiled) {
+      profileSample.committed = publish && approved;
+      stats.balance->Record(profileSample);
+    }
     ++epoch;
     finishStage(5);  // Staging, directory preparation/election and publication.
     return publish && approved;

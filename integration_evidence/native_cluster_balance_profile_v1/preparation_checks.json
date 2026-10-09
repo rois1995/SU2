@@ -1,0 +1,31 @@
+{
+  "status": "LOCAL_PREPARATION_PASS_NOT_RUNTIME_VALIDATED",
+  "timestamp_utc": "2026-10-09T19:13:48.787872+00:00",
+  "checks": {
+    "fake_file_tests": 6,
+    "simulated_full_pilot_cases": 16,
+    "simulated_changed_pair_cases_before_stop": 2,
+    "resource_warnings_as_errors": "PASS",
+    "python_ast": "PASS",
+    "sge_bash_syntax": "PASS",
+    "git_diff_check": "PASS",
+    "reviewed_control_source_pin_count": 809,
+    "changed_source_control_identity_checks": 3
+  },
+  "files_sha256": {
+    "Common/include/adaptation/CNativeBalanceProfile2D.hpp": "c009eb40a2ba12ab19e9a558d18e6ce139e4cd0d60a5cc6ab7016f1f0a61d230",
+    "Common/include/adaptation/CNativeEngine2D.hpp": "32a65a5597046a64ff24afa4ef9796ad91fc3e2fbf5826d7e3a4f0bcaad285e9",
+    "Common/src/adaptation/CNativeRemesher.cpp": "6aa3ba305bbff97901b83b97878ac9bb48c8aab71a22cd4602595493688a796c",
+    "HANDOFF_Codex.md": "b99acac307f4caa3fb615c38e40fc85f6168af1a0f7d8809fd372cd1858ab45a",
+    "UnitTests/Common/adaptation/CNativeEngine2D_tests.cpp": "7ee2125ccbccd99730bc5e930856c9c5fdfa65311824d9be7163bd936bb64012",
+    "integration_evidence/native_cluster_balance_profile_v1/README.md": "4cd56645f7370a5cce04b9fc83a3d781db35e87f8e733c9f139590bdd9df36ea",
+    "integration_evidence/native_cluster_balance_profile_v1/RunBalanceProfileSGE.sh": "7e78efa32f563e59e2743b5add2a1b25068025e9cf8b8bcb22ddea8f59d02c0f",
+    "integration_evidence/native_cluster_balance_profile_v1/analyze.py": "70d14fffa90d87c4bd94c2f7180820f3da2f34e0eab8d9b500c9251bfd4b5928",
+    "integration_evidence/native_cluster_balance_profile_v1/check_package.py": "c04bacf4fd10bb6667be8113c9de10b65da0b17f72591cfd1f2ad7fbd2db0c71",
+    "integration_evidence/native_cluster_balance_profile_v1/control.json": "7efed82f2366643cd544ab5462cdf50e73ac69659eaf9a2929ed6ee48bf2f841",
+    "integration_evidence/native_cluster_balance_profile_v1/control_source_pins.json": "f7b807c23812185abeaf7e29036be3941996f5be4b2506ef0a8608667c9057e1",
+    "integration_evidence/native_cluster_balance_profile_v1/prepare.py": "c2fc06cd9081b3ea8c8344c89889614603898e862c6e1f900efc10f34189a6e8",
+    "integration_evidence/native_cluster_balance_profile_v1/run.py": "11afa8488499da724e544f70e8ce86a9825c894277717dc1849ecba2cd09b6f9"
+  },
+  "scope": "Fake files/process receipts only. No local SU2/MPI/build/qsub execution. C++ compilation, MPI consistency, actual numerical audit and instrumentation overhead pending user-run cluster gate."
+}

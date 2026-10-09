@@ -44,6 +44,55 @@ Candidate extrema across allmodes: qmin0.1821233856, Lmax1.7999999618, relative 
 
 Preserved full aggregate, review hashes/extrema and launcher evidence: `integration_evidence/native_cluster_metric_comparison_v1/cluster_audit_581995/`. Original reports: `ClusterResults/saved_metric_audit_581995/`. Existing simulation grids remain under jobs581948(RANS) /581950(Euler), with allfour partition modes. This audit reads saved output and establishes no additional timing/scaling gain. Composed BL gradation, converged aerodynamics/native3D remain unresolved. Next recommended engineering step is measured local reconstruction cost by rank/operation/spatial region and improved initial weights, potentially learned from preceding adaptation events; defer mid-remesh migration unless persistent movable hotspots justify it. No production code change or new goal activation was made.
 
+Compact reconstruction-balance pilot prepared (2026-10-09): user authorized the
+next cluster package and requests minimal saved data. Production now has opt-in
+`SU2_NATIVE_BALANCE_PROFILE=YES`, with eight operation totals and at most32
+expensive private attempts per worker (including failed reconstruction), wall/
+process-CPU cost, cavity size/location and target query counters. It never changes
+selection, target or publication decisions. NO/unset does not allocate profile
+storage; candidate flag-consistency elections remain and count toward overhead.
+Profile output is collectively checked, refuses existing readable filenames, and
+is separately timed outside engine-adapt but inside full remesh cost. New unit
+checks cover bounded rejected-attempt records and unchanged coupled MPI HEIGHT
+reconstruction. C++ compilation/runtime remain pending the user-run cluster job.
+
+Package: `integration_evidence/native_cluster_balance_profile_v1/README.md`.
+Use existing candidate cluster checkout on `codex/native-unsteady-performance`:
+pull, run `prepare.py --preserve-control` BEFORE rebuilding the test driver,
+`./ninja -C build-native -j2 UnitTests/test_driver`, run `prepare.py`, then submit
+`qsub integration_evidence/native_cluster_balance_profile_v1/RunBalanceProfileSGE.sh`.
+Preserved control hash must be validated b8bb7bc0bf3ba701232513d0c4d0e812e3483cac605da6ecd13e1a4845b7971e;
+copy stays inside build-native/balance-control. Do not replace old binary first.
+Source pins for the reviewed control remain in this package. No CFD rebuild or
+local solver run was performed; source/binary preparation is not a build proof.
+
+One shared-node SGE four-slot allocation runs focused MPI1/2/4 units then16
+sequential frozen Euler-to-BL/BL-to-Euler control/profile cases at N4/M4 NO and
+N4/M4/M3/M2 YES. Mesh/geometry/height/tensor and timing-accounting audits must PASS;
+paired adapted mesh +four transported tensor files must be byte-identical or the
+campaign stops. Profiling min/mean/max private costs and committed operation
+counts must close against existing logs. This measures private operation imbalance
+and instrumentation overhead; it is not live repartition, general scaling, or a
+composed-BL-gradation certificate. No per-query clocks are added. Existing actual
+campaign still supplies CFD repartition/transfer/output lifecycle evidence.
+
+Download `ClusterResults/balance_profile_JOB_ID/` plus
+`ClusterResults/jobs/JOB_ID_balance_profile_launcher/`. Cases under cases/ hold
+inspectable grids/tensors and complete frozen audit inputs. Tools stored once per
+job; repeated verified content hardlinked within the job (use rsync -aH to retain
+savings). No CFD timestep histories or ClusterRaw produced. Task-owned temporary
+outputs removed only after verified compact export; failed copying/hash checks
+retain the actual working directory. Successful unit-stage incidental geometry
+is pruned after receipt/log verification; failures preserved. Previous evidence
+untouched. Every working/retained testcase folder is printed by the controller.
+
+Local fake-file package checks PASS: control preservation/checkpoint/path guards,
+CSV/pair checks, deduplication/verified cleanup, all16-case orchestration, failed
+unit gate and changed-pair early stop. Python AST/bash syntax and diff checks PASS.
+No SU2/MPI/qsub/build was executed locally. New C++ tests and real cluster audits
+are deliberately pending. Historical performance source pins remain unchanged;
+use the new package rather than the old frozen source-pinned submission helper.
+
 The long-running goal tracker remains paused. Cluster runs are user-owned. Do not resume local solver checks or claim prediction validation/performance success before reviewing the cluster results. Earlier notes below are chronological history and may describe superseded pending work.
 
 ---

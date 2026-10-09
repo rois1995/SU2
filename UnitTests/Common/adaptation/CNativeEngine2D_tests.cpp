@@ -874,3 +874,56 @@ TEST_CASE("Native workers: scoped transactions and failure return preserve CFD c
   CHECK(physical(output).size() == 5);
 }
 #endif
+
+TEST_CASE("Native balance profile retains bounded hotspots including rejected private work", "[NativeBalanceProfile2D]") {
+  BalanceProfile profile;
+  for (uint64_t i = 1; i <= 80; ++i) {
+    BalanceSample sample;
+    sample.round = i;
+    sample.action = i % 8;
+    sample.wall_seconds = double(i);
+    sample.cpu_seconds = i % 2 ? -1 : double(i) / 2;
+    sample.reconstructed = i % 3 != 0;
+    sample.committed = sample.reconstructed && i % 5 != 0;
+    sample.cells = i;
+    sample.requests = 2 * i;
+    profile.Record(sample);
+  }
+  CHECK(profile.hotspot_count == BalanceProfile::HOTSPOTS);
+  double least = 80;
+  uint64_t attempts = 0, cpuSamples = 0, cells = 0;
+  for (const auto& h : profile.hotspots) least = std::min(least, h.wall_seconds);
+  CHECK(least == 49);
+  for (const auto& op : profile.operations) {
+    attempts += op.attempts; cpuSamples += op.cpu_samples; cells += op.cells;
+    CHECK(op.committed <= op.reconstructed);
+    CHECK(op.reconstructed <= op.attempts);
+  }
+  CHECK(attempts == 80); CHECK(cpuSamples == 40); CHECK(cells == 3240);
+  CHECK(BalanceProfile::CpuSeconds(std::clock_t(-1), 1) == -1);
+  CHECK(BalanceProfile::CpuSeconds(2, 1) == -1);
+  CHECK(BalanceProfile::CpuSeconds(0, CLOCKS_PER_SEC) == 1);
+}
+
+TEST_CASE("Native balance observations preserve coupled MPI wall reconstruction", "[NativeBalanceProfile2D]") {
+  World world; Case input;
+  const auto owned = input.Owned(world);
+  auto options = input.Options();
+  Engine control(world, owned, input.geometry.Policy({{10, input.height}}), options);
+  options.balance_profile = true;
+  Engine profiled(world, owned, input.geometry.Policy({{10, input.height}}), options);
+  control.phase(Action::HEIGHT);
+  profiled.phase(Action::HEIGHT);
+  REQUIRE(profiled.stats.balance != nullptr);
+  CHECK(Snapshot(control.owned) == Snapshot(profiled.owned));
+  CHECK(control.stats.accepted == profiled.stats.accepted);
+  double wall = 0; uint64_t attempts = 0;
+  for (size_t i = 0; i < 8; ++i) {
+    const auto& op = profiled.stats.balance->operations[i];
+    wall += op.wall_seconds; attempts += op.attempts;
+    CHECK(op.committed == uint64_t(profiled.stats.accepted[i]));
+    CHECK(op.attempts <= op.selected);
+  }
+  CHECK(wall == Approx(profiled.stats.reconstruction_seconds));
+  CHECK(world.sum(int(attempts)) > 0);
+}
