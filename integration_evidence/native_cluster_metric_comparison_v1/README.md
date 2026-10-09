@@ -121,3 +121,5 @@ performance control for the new implementation. Neither this campaign nor the
 merge certifies native 3D remeshing or converged aerodynamic accuracy.
 
 The completed follow-up pilot 581943–581950 and all phase/hash evidence are in [pilot_581943_581950/README.md](pilot_581943_581950/README.md). All 32 execution/collection cases pass; independent numerical checks cover eight exactly repeated no-repartition cases, with the other 24 awaiting the reusable one-worker saved-output SGE audit described there. No CFD rerun or rebuild is needed for that postprocessing. Balance measurements and improved initial weights should precede a live-repartition prototype.
+
+Independent saved-result cluster audit581995 completes all32 cases, including allweighted M4/M3/M2 modes: 48 replacement meshes and64 histories PASS. See [cluster_audit_581995/README.md](cluster_audit_581995/README.md). This removes the numerical-review blocker for balance experiments; shared-node timing/scaling and composed-field gradation remain separate limitations.

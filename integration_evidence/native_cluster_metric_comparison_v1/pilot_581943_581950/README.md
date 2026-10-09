@@ -82,3 +82,7 @@ qsub integration_evidence/native_cluster_metric_comparison_v1/RunSavedMetricAudi
 Download `ClusterResults/saved_metric_audit_JOB_ID/` and `ClusterResults/jobs/JOB_ID_saved_audit_launcher/`. Require all 32 numerical reports and validation.json PASS before claiming weighted-mode robustness. No rebuild is needed for this saved-data audit helper. Future comparisons can use the same helper with a newly reviewed assessment/hash manifest.
 
 Actual candidate RANS grids are in `ClusterResults/cases/581948_actual_euler_to_bl_n4_m4_pNO_r1/mesh_00200.su2` and `mesh_00400.su2`; the weighted M4, M3 and M2 sibling folders contain their grids and histories. Corresponding Euler output is under job 581950, mesh steps 100/200. Their full local roots and all hashes are in assessment.json. Preserve both pilots. After numerical review, use repeated serialized shared-node controls before broader scaling or choosing M; the long-running goal tracker remains paused.
+
+## Subsequent numerical completion
+
+Cluster saved-output audit581995 now independently passes all32 cases (48 replacement meshes /64 histories), including the24 weighted cases previously pending above. Reviewed input/source/report hashes match; no CFD rerun or local heavy audit occurred. See [cluster_audit_581995/README.md](../cluster_audit_581995/README.md) and its preserved aggregate/review. The earlier pending notes describe the review state before that job and are superseded. Timing and composed-field-gradation limitations remain.
