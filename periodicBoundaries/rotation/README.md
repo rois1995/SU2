@@ -31,3 +31,7 @@ Final source: `fix_periodic_rotation` at `c39428c1da`, based on `6db10127d1`. Fr
 The plots and longer convergence/limiter comparisons were produced with the earlier version of the same three rotational fixes. Final changes preserve identity-rotation arithmetic for translations and apply review style; the rotational calculations are unchanged. The translational AD check now agrees with all 80 printed develop iterations. Rotational adjoint smoke runs are not a complete sensitivity validation; default solver settings also fail to converge on develop.
 
 Earlier combined-branch standard units passed 44 cases / 74913 assertions and AD units passed 4 cases / 29 assertions. The standalone OpenMP full unit driver aborts on the data-driven-fluid test when optional MLPCpp support is disabled; it is not counted as a passing suite.
+
+## Aachen turbine MG follow-up
+
+The completed 10,000-iteration develop/PR comparison and MG1/2/3 study, configs, input/restart bundle, raw histories and reproduction scripts are in [aachen-mg](aachen-mg/README.md). Remaining wall-function and convergence limits are documented there.

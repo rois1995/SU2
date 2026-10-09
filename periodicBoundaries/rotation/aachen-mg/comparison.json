@@ -1,0 +1,3161 @@
+{
+  "cases": {
+    "develop MG1": {
+      "folder": "MG_cluster_results/develop",
+      "build_info": "Expected build (update if compiling a newer revision):\nRepository: su2code/SU2\nBranch: develop\nCommit: f110e914b5fd0d31c889e2d4df5bb5683abc6fd6\nMPI enabled; same compiler, precision and build options for both binaries.\n",
+      "binary_sha256": "6ceb1aa3e8fac0c143ea7ce22f30dbb6a310018e5c14244a9176da6bf9618c0d",
+      "final_iteration": 9999,
+      "actual_MG_levels": [
+        1,
+        1,
+        1
+      ],
+      "hierarchy_tables_level_CVs_agglomeration_CFL": [
+        [
+          [
+            0,
+            59378,
+            1.0,
+            2.0
+          ],
+          [
+            1,
+            10864,
+            5.47,
+            0.5
+          ]
+        ],
+        [
+          [
+            0,
+            74976,
+            1.0,
+            2.0
+          ],
+          [
+            1,
+            13478,
+            5.56,
+            0.5
+          ]
+        ],
+        [
+          [
+            0,
+            57992,
+            1.0,
+            2.0
+          ],
+          [
+            1,
+            10608,
+            5.47,
+            0.5
+          ]
+        ]
+      ],
+      "energy_log10_RMS": [
+        -1.375109134,
+        -1.049024559,
+        -1.022390203
+      ],
+      "SA_log10_RMS": [
+        -10.53897387,
+        -9.131254127,
+        -8.548195869
+      ],
+      "efficiency_percent": 71.42338059,
+      "pressure_ratio": 1.216708634,
+      "mass_mismatch_percent": {
+        "whole": 0.6352774418491905,
+        "zones": [
+          0.06174251946363871,
+          0.022140631818290405,
+          0.08810501229685785
+        ],
+        "interfaces": [
+          0.19309463366784457,
+          0.31575579941105686
+        ]
+      },
+      "windows": {
+        "200": {
+          "iterations": [
+            9800,
+            9999
+          ],
+          "performance_relative_range_percent": {
+            "TotTotEff[2]": 0.018033583533675665,
+            "PRTT[2]": 0.0018255150889400476,
+            "MassFlowIn_1[2]": 0.004188968302142106,
+            "MassFlowOut_1[2]": 0.004141167226414325,
+            "MassFlowIn_2[2]": 0.004147258818681083,
+            "MassFlowOut_2[2]": 0.003936636130117287,
+            "MassFlowIn_3[2]": 0.004029188209977683,
+            "MassFlowOut_3[2]": 0.004198516492800677
+          },
+          "efficiency_range_percentage_points": 0.01288135000000068,
+          "residual_drop_orders_from_initial_200_peak": [
+            {
+              "rms[Rho]": 0.5303350889999994,
+              "rms[RhoU]": 1.037211708,
+              "rms[RhoV]": 1.0768366399999998,
+              "rms[RhoW]": 0.6808060549999997,
+              "rms[RhoE]": 0.4311250807999999,
+              "rms[nu]": 1.2076050289999998
+            },
+            {
+              "rms[Rho]": 0.25438823,
+              "rms[RhoU]": 0.95765704,
+              "rms[RhoV]": 0.45122598000000025,
+              "rms[RhoW]": 0.19744300199999998,
+              "rms[RhoE]": 0.1679544918999999,
+              "rms[nu]": 0.560567227
+            },
+            {
+              "rms[Rho]": 0.6540407220000004,
+              "rms[RhoU]": 0.052055258000000215,
+              "rms[RhoV]": 0.10337825300000025,
+              "rms[RhoW]": 1.2969213869999998,
+              "rms[RhoE]": 0.6040137632,
+              "rms[nu]": 0.002889226000000633
+            }
+          ],
+          "residual_log_range": [
+            {
+              "rms[Rho]": [
+                -6.948620439,
+                -6.948581962
+              ],
+              "rms[RhoU]": [
+                -3.779775097,
+                -3.779764037
+              ],
+              "rms[RhoV]": [
+                -4.927418292,
+                -4.927337465
+              ],
+              "rms[RhoW]": [
+                -5.221769097,
+                -5.221681943
+              ],
+              "rms[RhoE]": [
+                -1.375128003,
+                -1.375091629
+              ],
+              "rms[nu]": [
+                -10.53897387,
+                -10.51715915
+              ]
+            },
+            {
+              "rms[Rho]": [
+                -6.615816285,
+                -6.615796671
+              ],
+              "rms[RhoU]": [
+                -3.826802646,
+                -3.826798728
+              ],
+              "rms[RhoV]": [
+                -4.44133861,
+                -4.441283803
+              ],
+              "rms[RhoW]": [
+                -4.748897581,
+                -4.748840897
+              ],
+              "rms[RhoE]": [
+                -1.049037957,
+                -1.049019338
+              ],
+              "rms[nu]": [
+                -9.131254127,
+                -9.112352313
+              ]
+            },
+            {
+              "rms[Rho]": [
+                -6.517526607,
+                -6.517449496
+              ],
+              "rms[RhoU]": [
+                -2.769314903,
+                -2.769256818
+              ],
+              "rms[RhoV]": [
+                -3.709514346,
+                -3.709461387
+              ],
+              "rms[RhoW]": [
+                -4.719423286,
+                -4.719223403
+              ],
+              "rms[RhoE]": [
+                -1.022398384,
+                -1.022313357
+              ],
+              "rms[nu]": [
+                -8.548195869,
+                -8.538852275
+              ]
+            }
+          ],
+          "residual_log_slope_per_1000": [
+            {
+              "rms[Rho]": -9.718928298236315e-05,
+              "rms[RhoU]": -5.440615314968394e-05,
+              "rms[RhoV]": -0.0002841171356762682,
+              "rms[RhoW]": -0.0002829104635102573,
+              "rms[RhoE]": -0.00010379643366126454,
+              "rms[nu]": -0.1096092570314246
+            },
+            {
+              "rms[Rho]": 5.9213756845044024e-05,
+              "rms[RhoU]": -1.683155253856011e-05,
+              "rms[RhoV]": -1.4712773570675838e-05,
+              "rms[RhoW]": 7.501127953119556e-05,
+              "rms[RhoE]": 6.146046201124892e-05,
+              "rms[nu]": -0.09498775407484805
+            },
+            {
+              "rms[Rho]": -0.00038260756169060915,
+              "rms[RhoU]": 0.0002926057668937757,
+              "rms[RhoV]": 0.00020405318982994502,
+              "rms[RhoW]": 0.00014604489387338494,
+              "rms[RhoE]": -0.0004404419245481113,
+              "rms[nu]": -0.04695018929498176
+            }
+          ],
+          "max_any_mass_mismatch_percent": 0.6353544107880998,
+          "gates": {
+            "all_residuals_four_order_reduction": false,
+            "performance_stability": false,
+            "mass_balance": false
+          }
+        },
+        "1000": {
+          "iterations": [
+            9000,
+            9999
+          ],
+          "performance_relative_range_percent": {
+            "TotTotEff[2]": 0.09481262649452127,
+            "PRTT[2]": 0.00957094315412226,
+            "MassFlowIn_1[2]": 0.021495570205294214,
+            "MassFlowOut_1[2]": 0.021300788971016685,
+            "MassFlowIn_2[2]": 0.02131276037004543,
+            "MassFlowOut_2[2]": 0.021018390176583066,
+            "MassFlowIn_3[2]": 0.021313610905681755,
+            "MassFlowOut_3[2]": 0.02183374356534367
+          },
+          "efficiency_range_percentage_points": 0.06774966000000404,
+          "residual_drop_orders_from_initial_200_peak": [
+            {
+              "rms[Rho]": 0.530277699,
+              "rms[RhoU]": 1.037164217,
+              "rms[RhoV]": 1.0765631610000002,
+              "rms[RhoW]": 0.6805540349999992,
+              "rms[RhoE]": 0.43106748380000004,
+              "rms[nu]": 1.1228436290000001
+            },
+            {
+              "rms[Rho]": 0.25438823,
+              "rms[RhoU]": 0.9576445740000001,
+              "rms[RhoV]": 0.4512172630000002,
+              "rms[RhoW]": 0.19740631099999995,
+              "rms[RhoE]": 0.1679544918999999,
+              "rms[nu]": 0.48852262099999955
+            },
+            {
+              "rms[Rho]": 0.6537412500000004,
+              "rms[RhoU]": 0.052055258000000215,
+              "rms[RhoV]": 0.10337825300000025,
+              "rms[RhoW]": 1.2968798859999997,
+              "rms[RhoE]": 0.6036639401999999,
+              "rms[nu]": -0.03166463599999858
+            }
+          ],
+          "residual_log_range": [
+            {
+              "rms[Rho]": [
+                -6.948620439,
+                -6.948524572
+              ],
+              "rms[RhoU]": [
+                -3.779775097,
+                -3.779716546
+              ],
+              "rms[RhoV]": [
+                -4.927418292,
+                -4.927063986
+              ],
+              "rms[RhoW]": [
+                -5.221769097,
+                -5.221429923
+              ],
+              "rms[RhoE]": [
+                -1.375128003,
+                -1.375034032
+              ],
+              "rms[nu]": [
+                -10.53897387,
+                -10.43239775
+              ]
+            },
+            {
+              "rms[Rho]": [
+                -6.615854145,
+                -6.615796671
+              ],
+              "rms[RhoU]": [
+                -3.826802646,
+                -3.826786262
+              ],
+              "rms[RhoV]": [
+                -4.441345664,
+                -4.441275086
+              ],
+              "rms[RhoW]": [
+                -4.748897581,
+                -4.748804206
+              ],
+              "rms[RhoE]": [
+                -1.049079735,
+                -1.049019338
+              ],
+              "rms[nu]": [
+                -9.131254127,
+                -9.040307707
+              ]
+            },
+            {
+              "rms[Rho]": [
+                -6.517526607,
+                -6.517150024
+              ],
+              "rms[RhoU]": [
+                -2.76955732,
+                -2.769256818
+              ],
+              "rms[RhoV]": [
+                -3.709703933,
+                -3.709461387
+              ],
+              "rms[RhoW]": [
+                -4.71945937,
+                -4.719181902
+              ],
+              "rms[RhoE]": [
+                -1.022398384,
+                -1.021963534
+              ],
+              "rms[nu]": [
+                -8.548195869,
+                -8.504298413
+              ]
+            }
+          ],
+          "residual_log_slope_per_1000": [
+            {
+              "rms[Rho]": -8.03215708260216e-05,
+              "rms[RhoU]": -5.862088972307831e-05,
+              "rms[RhoV]": -0.00034213945618966605,
+              "rms[RhoW]": -0.00029448746439149175,
+              "rms[RhoE]": -8.07262833443166e-05,
+              "rms[nu]": -0.10677108852492898
+            },
+            {
+              "rms[Rho]": 5.046788643771533e-05,
+              "rms[RhoU]": -1.562413786238071e-05,
+              "rms[RhoV]": 7.4545087043757275e-06,
+              "rms[RhoW]": -3.685757094572031e-05,
+              "rms[RhoE]": 5.481617622619648e-05,
+              "rms[nu]": -0.09100328454258722
+            },
+            {
+              "rms[Rho]": -0.000371145267129867,
+              "rms[RhoU]": 0.0003006255290294539,
+              "rms[RhoV]": 0.00023753236093000346,
+              "rms[RhoW]": -1.1806169290324308e-05,
+              "rms[RhoE]": -0.00043122821071425813,
+              "rms[nu]": -0.043971859674974634
+            }
+          ],
+          "max_any_mass_mismatch_percent": 0.6353544107880998,
+          "gates": {
+            "all_residuals_four_order_reduction": false,
+            "performance_stability": false,
+            "mass_balance": false
+          }
+        }
+      },
+      "warnings": {
+        "wall_solve_calls": 90003,
+        "point_evaluation_failure_count_sum": 6941602,
+        "points_per_call_range": [
+          21,
+          154
+        ],
+        "temperature_rejection_messages": 90003,
+        "last_200_iterations_wall_solve_calls": 1800,
+        "last_200_iterations_failure_sum": 138022,
+        "last_200_iterations_points_per_call_range": [
+          26,
+          146
+        ],
+        "last_200_iterations_temperature_messages": 1800
+      },
+      "all_static_temperature_history_fields_zero": true,
+      "job_err": "",
+      "spatial_snapshots": [
+        {
+          "points": 59378,
+          "fields": [
+            "Density",
+            "Momentum",
+            "Energy",
+            "Nu_Tilde",
+            "Grid_Velocity",
+            "Pressure",
+            "Temperature",
+            "Mach",
+            "Pressure_Coefficient",
+            "Velocity",
+            "Laminar_Viscosity",
+            "Skin_Friction_Coefficient",
+            "Heat_Flux",
+            "Y_Plus",
+            "Eddy_Viscosity",
+            "Residual_Density",
+            "Residual_Momentum",
+            "Residual_Energy",
+            "Residual_Nu_Tilde",
+            "Vorticity",
+            "Q_Criterion"
+          ],
+          "all_required_fields_finite": true,
+          "min_density": 1.43435537815094,
+          "min_pressure": 126637.328125,
+          "min_temperature": 293.1238098144531,
+          "EOS_relative_error_max": 0.0019399509681881089,
+          "EOS_relative_error_over_1e-4_count": 4201,
+          "EOS_worst_global_output_point": 719,
+          "pressure_vs_conservative_relative_error_max": 1.0516784276770608e-07,
+          "nu_tilde_range": [
+            1.1658493349386845e-05,
+            0.0023511936888098717
+          ],
+          "wall_diagnostic_fields": [
+            "Skin_Friction_Coefficient",
+            "Heat_Flux",
+            "Y_Plus"
+          ],
+          "EOS_bad_with_positive_yplus": 4201,
+          "EOS_bad_with_yplus_ge_5": 4201,
+          "EOS_bad_without_positive_yplus": 0,
+          "non_wall_EOS_relative_error_max": 1.3901982220954068e-07,
+          "active_wall_count": 7371,
+          "worst_EOS_point": {
+            "local_VTK_index": 719,
+            "coordinates": [
+              0.24418522417545319,
+              -0.048866454511880875,
+              0.036187876015901566
+            ],
+            "y_plus": 27.93168830871582,
+            "temperature_output_K": 305.1242980957031,
+            "temperature_from_pressure_density_K": 304.53237191819466,
+            "pressure_Pa": 134345.671875,
+            "density_kg_m3": 1.536811351776123,
+            "grid_velocity": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "points": 74976,
+          "fields": [
+            "Density",
+            "Momentum",
+            "Energy",
+            "Nu_Tilde",
+            "Grid_Velocity",
+            "Pressure",
+            "Temperature",
+            "Mach",
+            "Pressure_Coefficient",
+            "Velocity",
+            "Laminar_Viscosity",
+            "Skin_Friction_Coefficient",
+            "Heat_Flux",
+            "Y_Plus",
+            "Eddy_Viscosity",
+            "Residual_Density",
+            "Residual_Momentum",
+            "Residual_Energy",
+            "Residual_Nu_Tilde",
+            "Vorticity",
+            "Q_Criterion"
+          ],
+          "all_required_fields_finite": true,
+          "min_density": 1.2162487506866455,
+          "min_pressure": 114412.359375,
+          "min_temperature": 286.6327209472656,
+          "EOS_relative_error_max": 0.05689143884988268,
+          "EOS_relative_error_over_1e-4_count": 8817,
+          "EOS_worst_global_output_point": 8534,
+          "pressure_vs_conservative_relative_error_max": 1.0703705699555144e-07,
+          "nu_tilde_range": [
+            2.3233460524352267e-05,
+            0.0031291937921196222
+          ],
+          "wall_diagnostic_fields": [
+            "Skin_Friction_Coefficient",
+            "Heat_Flux",
+            "Y_Plus"
+          ],
+          "EOS_bad_with_positive_yplus": 8817,
+          "EOS_bad_with_yplus_ge_5": 8806,
+          "EOS_bad_without_positive_yplus": 0,
+          "non_wall_EOS_relative_error_max": 1.4606941378669802e-07,
+          "active_wall_count": 8955,
+          "worst_EOS_point": {
+            "local_VTK_index": 8534,
+            "coordinates": [
+              0.32440465688705444,
+              -0.01899087242782116,
+              0.07591930031776428
+            ],
+            "y_plus": 15.226593971252441,
+            "temperature_output_K": 362.7555847167969,
+            "temperature_from_pressure_density_K": 383.39327188216595,
+            "pressure_Pa": 149180.0,
+            "density_kg_m3": 1.3554904460906982,
+            "grid_velocity": [
+              -6.960534572601318,
+              -118.90079498291016,
+              0.0
+            ],
+            "velocity": [
+              -6.960534572601318,
+              -118.90078735351562,
+              0.0
+            ]
+          }
+        },
+        {
+          "points": 57992,
+          "fields": [
+            "Density",
+            "Momentum",
+            "Energy",
+            "Nu_Tilde",
+            "Grid_Velocity",
+            "Pressure",
+            "Temperature",
+            "Mach",
+            "Pressure_Coefficient",
+            "Velocity",
+            "Laminar_Viscosity",
+            "Skin_Friction_Coefficient",
+            "Heat_Flux",
+            "Y_Plus",
+            "Eddy_Viscosity",
+            "Residual_Density",
+            "Residual_Momentum",
+            "Residual_Energy",
+            "Residual_Nu_Tilde",
+            "Vorticity",
+            "Q_Criterion"
+          ],
+          "all_required_fields_finite": true,
+          "min_density": 1.1423927545547485,
+          "min_pressure": 96774.7421875,
+          "min_temperature": 275.1834411621094,
+          "EOS_relative_error_max": 0.001265946002158902,
+          "EOS_relative_error_over_1e-4_count": 5162,
+          "EOS_worst_global_output_point": 3277,
+          "pressure_vs_conservative_relative_error_max": 1.0549387885472328e-07,
+          "nu_tilde_range": [
+            1.1691883628373034e-05,
+            0.0028969754930585623
+          ],
+          "wall_diagnostic_fields": [
+            "Skin_Friction_Coefficient",
+            "Heat_Flux",
+            "Y_Plus"
+          ],
+          "EOS_bad_with_positive_yplus": 5162,
+          "EOS_bad_with_yplus_ge_5": 5162,
+          "EOS_bad_without_positive_yplus": 0,
+          "non_wall_EOS_relative_error_max": 1.3922082353623466e-07,
+          "active_wall_count": 7183,
+          "worst_EOS_point": {
+            "local_VTK_index": 3277,
+            "coordinates": [
+              0.3249790668487549,
+              -0.004691382870078087,
+              0.1718563288450241
+            ],
+            "y_plus": 23.570358276367188,
+            "temperature_output_K": 294.89984130859375,
+            "temperature_from_pressure_density_K": 294.52651403345186,
+            "pressure_Pa": 117362.4921875,
+            "density_kg_m3": 1.3881464004516602,
+            "grid_velocity": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        }
+      ]
+    },
+    "PR MG1": {
+      "folder": "MG_cluster_results/pr2961-new",
+      "build_info": "Expected build (update if compiling a newer revision):\nRepository: rois1995/SU2\nBranch: fix_periodic_rotation\nCommit: 6280ff1741ecb49cdb66c5ac82aa328b1988d44b\nMPI enabled; same compiler, precision and build options for both binaries.\n",
+      "binary_sha256": "002c71d116976fb077f5aad8078f8ff17a970bfede0107b6e2ad043727097402",
+      "final_iteration": 9999,
+      "actual_MG_levels": [
+        1,
+        1,
+        1
+      ],
+      "hierarchy_tables_level_CVs_agglomeration_CFL": [
+        [
+          [
+            0,
+            59378,
+            1.0,
+            2.0
+          ],
+          [
+            1,
+            10864,
+            5.47,
+            0.5
+          ]
+        ],
+        [
+          [
+            0,
+            74976,
+            1.0,
+            2.0
+          ],
+          [
+            1,
+            13478,
+            5.56,
+            0.5
+          ]
+        ],
+        [
+          [
+            0,
+            57992,
+            1.0,
+            2.0
+          ],
+          [
+            1,
+            10608,
+            5.47,
+            0.5
+          ]
+        ]
+      ],
+      "energy_log10_RMS": [
+        -4.13811064,
+        -3.884758085,
+        -3.852343254
+      ],
+      "SA_log10_RMS": [
+        -10.53194973,
+        -9.127217736,
+        -8.59538159
+      ],
+      "efficiency_percent": 72.59382818,
+      "pressure_ratio": 1.21478228,
+      "mass_mismatch_percent": {
+        "whole": 0.5474510077609838,
+        "zones": [
+          0.0704094788613236,
+          0.0807345440330196,
+          0.07141179808137908
+        ],
+        "interfaces": [
+          0.18708254563877266,
+          0.3000765013744259
+        ]
+      },
+      "windows": {
+        "200": {
+          "iterations": [
+            9800,
+            9999
+          ],
+          "performance_relative_range_percent": {
+            "TotTotEff[2]": 0.017694994977810352,
+            "PRTT[2]": 0.0017143146688283826,
+            "MassFlowIn_1[2]": 0.0029342517620411976,
+            "MassFlowOut_1[2]": 0.004464217749435396,
+            "MassFlowIn_2[2]": 0.004421119241295329,
+            "MassFlowOut_2[2]": 0.0050584286809745825,
+            "MassFlowIn_3[2]": 0.005090204528842204,
+            "MassFlowOut_3[2]": 0.003939945499376783
+          },
+          "efficiency_range_percentage_points": 0.012846679999995558,
+          "residual_drop_orders_from_initial_200_peak": [
+            {
+              "rms[Rho]": 2.051244264000001,
+              "rms[RhoU]": 1.289963385,
+              "rms[RhoV]": 0.9893217840000004,
+              "rms[RhoW]": 1.2247265050000005,
+              "rms[RhoE]": 2.1060618,
+              "rms[nu]": 1.1381689640000001
+            },
+            {
+              "rms[Rho]": 1.9348632930000003,
+              "rms[RhoU]": 1.490096618,
+              "rms[RhoV]": 1.0957273830000007,
+              "rms[RhoW]": 1.2100473269999998,
+              "rms[RhoE]": 1.8635281300000002,
+              "rms[nu]": 0.555274193999999
+            },
+            {
+              "rms[Rho]": 3.4677887320000007,
+              "rms[RhoU]": 2.656460506,
+              "rms[RhoV]": 2.3240510000000003,
+              "rms[RhoW]": 2.829637465,
+              "rms[RhoE]": 3.4159121373000003,
+              "rms[nu]": 0.03889342699999965
+            }
+          ],
+          "residual_log_range": [
+            {
+              "rms[Rho]": [
+                -9.675215667,
+                -9.546786107
+              ],
+              "rms[RhoU]": [
+                -7.558250532,
+                -6.983327242
+              ],
+              "rms[RhoV]": [
+                -6.657038464,
+                -6.163511297
+              ],
+              "rms[RhoW]": [
+                -6.838710914,
+                -6.345098325
+              ],
+              "rms[RhoE]": [
+                -4.238715169,
+                -4.107239121
+              ],
+              "rms[nu]": [
+                -10.53194973,
+                -10.51016122
+              ]
+            },
+            {
+              "rms[Rho]": [
+                -9.438335217,
+                -9.37689639
+              ],
+              "rms[RhoU]": [
+                -7.167338307,
+                -6.979717928
+              ],
+              "rms[RhoV]": [
+                -6.554676203,
+                -6.299737741
+              ],
+              "rms[RhoW]": [
+                -6.634124462,
+                -6.274533386
+              ],
+              "rms[RhoE]": [
+                -3.946379331,
+                -3.837894952
+              ],
+              "rms[nu]": [
+                -9.127217736,
+                -9.109438632
+              ]
+            },
+            {
+              "rms[Rho]": [
+                -9.400018454,
+                -9.331197505
+              ],
+              "rms[RhoU]": [
+                -7.102765114,
+                -6.871656853
+              ],
+              "rms[RhoV]": [
+                -6.320293443,
+                -5.9876253
+              ],
+              "rms[RhoW]": [
+                -6.518213703,
+                -6.251939477
+              ],
+              "rms[RhoE]": [
+                -3.921512085,
+                -3.8364345
+              ],
+              "rms[nu]": [
+                -8.59538159,
+                -8.58595708
+              ]
+            }
+          ],
+          "residual_log_slope_per_1000": [
+            {
+              "rms[Rho]": 0.534609596232655,
+              "rms[RhoU]": -2.110474919776497,
+              "rms[RhoV]": -1.94341581338109,
+              "rms[RhoW]": -2.0108817625395687,
+              "rms[RhoE]": 0.09782538555164015,
+              "rms[nu]": -0.10909720166504167
+            },
+            {
+              "rms[Rho]": 0.12080482452111498,
+              "rms[RhoU]": -0.35288377463736637,
+              "rms[RhoV]": -0.5306108795364892,
+              "rms[RhoW]": -0.5397730821375532,
+              "rms[RhoE]": -0.029173768031198914,
+              "rms[nu]": -0.08936227135078546
+            },
+            {
+              "rms[Rho]": -0.34467606457436595,
+              "rms[RhoU]": 0.8178346484609632,
+              "rms[RhoV]": 0.8644500657593986,
+              "rms[RhoW]": 0.8128494909495283,
+              "rms[RhoE]": -0.3619507954151358,
+              "rms[nu]": -0.04736191181429523
+            }
+          ],
+          "max_any_mass_mismatch_percent": 0.5474510077609838,
+          "gates": {
+            "all_residuals_four_order_reduction": false,
+            "performance_stability": false,
+            "mass_balance": false
+          }
+        },
+        "1000": {
+          "iterations": [
+            9000,
+            9999
+          ],
+          "performance_relative_range_percent": {
+            "TotTotEff[2]": 0.09194398939233014,
+            "PRTT[2]": 0.009054763726125377,
+            "MassFlowIn_1[2]": 0.02062202273718316,
+            "MassFlowOut_1[2]": 0.02067404320909084,
+            "MassFlowIn_2[2]": 0.020663474832032087,
+            "MassFlowOut_2[2]": 0.020734664238416804,
+            "MassFlowIn_3[2]": 0.021030462095523172,
+            "MassFlowOut_3[2]": 0.021586519403571005
+          },
+          "efficiency_range_percentage_points": 0.06677433999999494,
+          "residual_drop_orders_from_initial_200_peak": [
+            {
+              "rms[Rho]": 1.9260079589999997,
+              "rms[RhoU]": 1.2767277560000005,
+              "rms[RhoV]": 0.9233784979999999,
+              "rms[RhoW]": 1.1682171290000003,
+              "rms[RhoE]": 1.998832233,
+              "rms[nu]": 1.0522027139999999
+            },
+            {
+              "rms[Rho]": 1.8413990339999993,
+              "rms[RhoU]": 1.490096618,
+              "rms[RhoV]": 1.0957273830000007,
+              "rms[RhoW]": 1.2100473269999998,
+              "rms[RhoE]": 1.799613099,
+              "rms[nu]": 0.48799588599999844
+            },
+            {
+              "rms[Rho]": 3.4547913799999996,
+              "rms[RhoU]": 2.620130926,
+              "rms[RhoV]": 2.2847204270000003,
+              "rms[RhoW]": 2.7960183860000005,
+              "rms[RhoE]": 3.3988918833,
+              "rms[nu]": 0.003485218999999873
+            }
+          ],
+          "residual_log_range": [
+            {
+              "rms[Rho]": [
+                -9.717644624,
+                -9.421549802
+              ],
+              "rms[RhoU]": [
+                -7.792457433,
+                -6.970091613
+              ],
+              "rms[RhoV]": [
+                -6.826158573,
+                -6.097568011
+              ],
+              "rms[RhoW]": [
+                -6.990939166,
+                -6.288588949
+              ],
+              "rms[RhoE]": [
+                -4.254555312,
+                -4.000009554
+              ],
+              "rms[nu]": [
+                -10.53194973,
+                -10.42419497
+              ]
+            },
+            {
+              "rms[Rho]": [
+                -9.438335217,
+                -9.283432131
+              ],
+              "rms[RhoU]": [
+                -7.190845906,
+                -6.979717928
+              ],
+              "rms[RhoV]": [
+                -6.604142178,
+                -6.299737741
+              ],
+              "rms[RhoW]": [
+                -6.711349622,
+                -6.274533386
+              ],
+              "rms[RhoE]": [
+                -3.946379331,
+                -3.773979921
+              ],
+              "rms[nu]": [
+                -9.127217736,
+                -9.042160324
+              ]
+            },
+            {
+              "rms[Rho]": [
+                -9.410858494,
+                -9.318200153
+              ],
+              "rms[RhoU]": [
+                -7.10472058,
+                -6.835327273
+              ],
+              "rms[RhoV]": [
+                -6.320293443,
+                -5.948294727
+              ],
+              "rms[RhoW]": [
+                -6.530253486,
+                -6.218320398
+              ],
+              "rms[RhoE]": [
+                -3.922330795,
+                -3.819414246
+              ],
+              "rms[nu]": [
+                -8.59538159,
+                -8.550548872
+              ]
+            }
+          ],
+          "residual_log_slope_per_1000": [
+            {
+              "rms[Rho]": -0.1926524693023076,
+              "rms[RhoU]": 0.6643548918467654,
+              "rms[RhoV]": 0.6228729402776677,
+              "rms[RhoW]": 0.5573293534213881,
+              "rms[RhoE]": -0.13585309281345687,
+              "rms[nu]": -0.10829976785592879
+            },
+            {
+              "rms[Rho]": -0.12272726076129267,
+              "rms[RhoU]": 0.021167056486035896,
+              "rms[RhoV]": 0.10804175364979098,
+              "rms[RhoW]": 0.11903180719299267,
+              "rms[RhoE]": -0.09271733715746729,
+              "rms[nu]": -0.08509177872462133
+            },
+            {
+              "rms[Rho]": 0.03634808740543462,
+              "rms[RhoU]": -0.11000972882058542,
+              "rms[RhoV]": -0.15854606904216506,
+              "rms[RhoW]": -0.1486838362528343,
+              "rms[RhoE]": 0.03112141978871547,
+              "rms[nu]": -0.044904774672163056
+            }
+          ],
+          "max_any_mass_mismatch_percent": 0.5501875565567194,
+          "gates": {
+            "all_residuals_four_order_reduction": false,
+            "performance_stability": false,
+            "mass_balance": false
+          }
+        }
+      },
+      "warnings": {
+        "wall_solve_calls": 90003,
+        "point_evaluation_failure_count_sum": 6738582,
+        "points_per_call_range": [
+          21,
+          154
+        ],
+        "temperature_rejection_messages": 90003,
+        "last_200_iterations_wall_solve_calls": 1800,
+        "last_200_iterations_failure_sum": 133228,
+        "last_200_iterations_points_per_call_range": [
+          26,
+          140
+        ],
+        "last_200_iterations_temperature_messages": 1800
+      },
+      "all_static_temperature_history_fields_zero": true,
+      "job_err": "",
+      "spatial_snapshots": [
+        {
+          "points": 59378,
+          "fields": [
+            "Density",
+            "Momentum",
+            "Energy",
+            "Nu_Tilde",
+            "Grid_Velocity",
+            "Pressure",
+            "Temperature",
+            "Mach",
+            "Pressure_Coefficient",
+            "Velocity",
+            "Laminar_Viscosity",
+            "Skin_Friction_Coefficient",
+            "Heat_Flux",
+            "Y_Plus",
+            "Eddy_Viscosity",
+            "Residual_Density",
+            "Residual_Momentum",
+            "Residual_Energy",
+            "Residual_Nu_Tilde",
+            "Vorticity",
+            "Q_Criterion"
+          ],
+          "all_required_fields_finite": true,
+          "min_density": 1.435672402381897,
+          "min_pressure": 126758.125,
+          "min_temperature": 293.24493408203125,
+          "EOS_relative_error_max": 0.00039477426471612453,
+          "EOS_relative_error_over_1e-4_count": 4011,
+          "EOS_worst_global_output_point": 3023,
+          "pressure_vs_conservative_relative_error_max": 1.0598291355634615e-07,
+          "nu_tilde_range": [
+            1.166076344816247e-05,
+            0.0023471175227314234
+          ],
+          "wall_diagnostic_fields": [
+            "Skin_Friction_Coefficient",
+            "Heat_Flux",
+            "Y_Plus"
+          ],
+          "EOS_bad_with_positive_yplus": 4011,
+          "EOS_bad_with_yplus_ge_5": 4011,
+          "EOS_bad_without_positive_yplus": 0,
+          "non_wall_EOS_relative_error_max": 1.4149252480777363e-07,
+          "active_wall_count": 7369,
+          "worst_EOS_point": {
+            "local_VTK_index": 3023,
+            "coordinates": [
+              0.24844996631145477,
+              -0.016940152272582054,
+              0.03408119082450867
+            ],
+            "y_plus": 23.96959686279297,
+            "temperature_output_K": 307.3842468261719,
+            "temperature_from_pressure_density_K": 307.26289943614574,
+            "pressure_Pa": 131975.640625,
+            "density_kg_m3": 1.4962838888168335,
+            "grid_velocity": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "points": 74976,
+          "fields": [
+            "Density",
+            "Momentum",
+            "Energy",
+            "Nu_Tilde",
+            "Grid_Velocity",
+            "Pressure",
+            "Temperature",
+            "Mach",
+            "Pressure_Coefficient",
+            "Velocity",
+            "Laminar_Viscosity",
+            "Skin_Friction_Coefficient",
+            "Heat_Flux",
+            "Y_Plus",
+            "Eddy_Viscosity",
+            "Residual_Density",
+            "Residual_Momentum",
+            "Residual_Energy",
+            "Residual_Nu_Tilde",
+            "Vorticity",
+            "Q_Criterion"
+          ],
+          "all_required_fields_finite": true,
+          "min_density": 1.2139921188354492,
+          "min_pressure": 114157.421875,
+          "min_temperature": 287.28118896484375,
+          "EOS_relative_error_max": 0.05680950976774457,
+          "EOS_relative_error_over_1e-4_count": 8807,
+          "EOS_worst_global_output_point": 8534,
+          "pressure_vs_conservative_relative_error_max": 1.0761217006383106e-07,
+          "nu_tilde_range": [
+            2.3998225515242666e-05,
+            0.003186820773407817
+          ],
+          "wall_diagnostic_fields": [
+            "Skin_Friction_Coefficient",
+            "Heat_Flux",
+            "Y_Plus"
+          ],
+          "EOS_bad_with_positive_yplus": 8807,
+          "EOS_bad_with_yplus_ge_5": 8793,
+          "EOS_bad_without_positive_yplus": 0,
+          "non_wall_EOS_relative_error_max": 1.4226939137884642e-07,
+          "active_wall_count": 8938,
+          "worst_EOS_point": {
+            "local_VTK_index": 8534,
+            "coordinates": [
+              0.32440465688705444,
+              -0.01899087242782116,
+              0.07591930031776428
+            ],
+            "y_plus": 15.26436996459961,
+            "temperature_output_K": 360.95904541015625,
+            "temperature_from_pressure_density_K": 381.4649518261403,
+            "pressure_Pa": 148302.578125,
+            "density_kg_m3": 1.3543297052383423,
+            "grid_velocity": [
+              -6.960534572601318,
+              -118.90079498291016,
+              0.0
+            ],
+            "velocity": [
+              -6.960534572601318,
+              -118.90078735351562,
+              0.0
+            ]
+          }
+        },
+        {
+          "points": 57992,
+          "fields": [
+            "Density",
+            "Momentum",
+            "Energy",
+            "Nu_Tilde",
+            "Grid_Velocity",
+            "Pressure",
+            "Temperature",
+            "Mach",
+            "Pressure_Coefficient",
+            "Velocity",
+            "Laminar_Viscosity",
+            "Skin_Friction_Coefficient",
+            "Heat_Flux",
+            "Y_Plus",
+            "Eddy_Viscosity",
+            "Residual_Density",
+            "Residual_Momentum",
+            "Residual_Energy",
+            "Residual_Nu_Tilde",
+            "Vorticity",
+            "Q_Criterion"
+          ],
+          "all_required_fields_finite": true,
+          "min_density": 1.1486246585845947,
+          "min_pressure": 97271.4765625,
+          "min_temperature": 275.1896057128906,
+          "EOS_relative_error_max": 0.0005529464823383901,
+          "EOS_relative_error_over_1e-4_count": 4844,
+          "EOS_worst_global_output_point": 2962,
+          "pressure_vs_conservative_relative_error_max": 1.0584374177113887e-07,
+          "nu_tilde_range": [
+            1.1857754543598276e-05,
+            0.002889498369768262
+          ],
+          "wall_diagnostic_fields": [
+            "Skin_Friction_Coefficient",
+            "Heat_Flux",
+            "Y_Plus"
+          ],
+          "EOS_bad_with_positive_yplus": 4844,
+          "EOS_bad_with_yplus_ge_5": 4844,
+          "EOS_bad_without_positive_yplus": 0,
+          "non_wall_EOS_relative_error_max": 1.4570930462198817e-07,
+          "active_wall_count": 7169,
+          "worst_EOS_point": {
+            "local_VTK_index": 2962,
+            "coordinates": [
+              0.24830594658851624,
+              -0.018802961334586143,
+              0.17050567269325256
+            ],
+            "y_plus": 24.265216827392578,
+            "temperature_output_K": 294.9439392089844,
+            "temperature_from_pressure_density_K": 294.78085099531177,
+            "pressure_Pa": 102426.2578125,
+            "density_kg_m3": 1.210437536239624,
+            "grid_velocity": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        }
+      ]
+    },
+    "PR MG2": {
+      "folder": "MG_cluster_levels/pr2961_mg2",
+      "build_info": "Expected build: update if compiling another revision.\nRepository: rois1995/SU2\nBranch: fix_periodic_rotation\nCommit: ef373c97061843470911af6319e9c66b943b3a01\nDevelop base: f110e914b5fd0d31c889e2d4df5bb5683abc6fd6\nRequested coarse MG levels: 2; verify actual levels in each zone in solver.log.\nMPI ranks: 8; OpenMP threads/rank: 1.\n",
+      "binary_sha256": "002c71d116976fb077f5aad8078f8ff17a970bfede0107b6e2ad043727097402",
+      "final_iteration": 9999,
+      "actual_MG_levels": [
+        2,
+        2,
+        2
+      ],
+      "hierarchy_tables_level_CVs_agglomeration_CFL": [
+        [
+          [
+            0,
+            59378,
+            1.0,
+            2.0
+          ],
+          [
+            1,
+            10864,
+            5.47,
+            0.5
+          ],
+          [
+            2,
+            3936,
+            2.76,
+            0.125
+          ]
+        ],
+        [
+          [
+            0,
+            74976,
+            1.0,
+            2.0
+          ],
+          [
+            1,
+            13478,
+            5.56,
+            0.5
+          ],
+          [
+            2,
+            4700,
+            2.87,
+            0.125
+          ]
+        ],
+        [
+          [
+            0,
+            57992,
+            1.0,
+            2.0
+          ],
+          [
+            1,
+            10608,
+            5.47,
+            0.5
+          ],
+          [
+            2,
+            3861,
+            2.75,
+            0.125
+          ]
+        ]
+      ],
+      "energy_log10_RMS": [
+        -4.148527657,
+        -3.874973182,
+        -3.841775046
+      ],
+      "SA_log10_RMS": [
+        -10.53232506,
+        -9.127284442,
+        -8.595347778
+      ],
+      "efficiency_percent": 72.5968484,
+      "pressure_ratio": 1.214778099,
+      "mass_mismatch_percent": {
+        "whole": 0.549380734616843,
+        "zones": [
+          0.07073292330084985,
+          0.08017078208798273,
+          0.07225375232495201
+        ],
+        "interfaces": [
+          0.18729729762082237,
+          0.3000721866884803
+        ]
+      },
+      "windows": {
+        "200": {
+          "iterations": [
+            9800,
+            9999
+          ],
+          "performance_relative_range_percent": {
+            "TotTotEff[2]": 0.01779051784938087,
+            "PRTT[2]": 0.0017543275037765606,
+            "MassFlowIn_1[2]": 0.004070902506618717,
+            "MassFlowOut_1[2]": 0.004044562304595479,
+            "MassFlowIn_2[2]": 0.004053482706201992,
+            "MassFlowOut_2[2]": 0.004052034263110944,
+            "MassFlowIn_3[2]": 0.00409647276360502,
+            "MassFlowOut_3[2]": 0.004147403806099686
+          },
+          "efficiency_range_percentage_points": 0.012916500000002884,
+          "residual_drop_orders_from_initial_200_peak": [
+            {
+              "rms[Rho]": 2.0285678459999996,
+              "rms[RhoU]": 1.9063872240000004,
+              "rms[RhoV]": 1.4745533389999999,
+              "rms[RhoW]": 1.6846879489999997,
+              "rms[RhoE]": 2.1441393110000004,
+              "rms[nu]": 1.138510858
+            },
+            {
+              "rms[Rho]": 2.207678917999999,
+              "rms[RhoU]": 1.5595867239999999,
+              "rms[RhoV]": 1.2555044739999994,
+              "rms[RhoW]": 1.7174548089999995,
+              "rms[RhoE]": 2.176502709,
+              "rms[nu]": 0.5553599570000003
+            },
+            {
+              "rms[Rho]": 3.4550953050000004,
+              "rms[RhoU]": 2.859244649,
+              "rms[RhoV]": 2.556077348,
+              "rms[RhoW]": 3.033022458,
+              "rms[RhoE]": 3.4083437953,
+              "rms[nu]": 0.03833889299999882
+            }
+          ],
+          "residual_log_range": [
+            {
+              "rms[Rho]": [
+                -9.531292928,
+                -9.525369877
+              ],
+              "rms[RhoU]": [
+                -7.721550939,
+                -7.599751081
+              ],
+              "rms[RhoV]": [
+                -6.722312976,
+                -6.648742852
+              ],
+              "rms[RhoW]": [
+                -6.855575874,
+                -6.806853556
+              ],
+              "rms[RhoE]": [
+                -4.15475801,
+                -4.146625709
+              ],
+              "rms[nu]": [
+                -10.53232506,
+                -10.51050732
+              ]
+            },
+            {
+              "rms[Rho]": [
+                -9.362321047,
+                -9.352590386
+              ],
+              "rms[RhoU]": [
+                -7.196705099,
+                -7.049208071
+              ],
+              "rms[RhoV]": [
+                -6.60755927,
+                -6.459513947
+              ],
+              "rms[RhoW]": [
+                -6.709890299,
+                -6.523646936
+              ],
+              "rms[RhoE]": [
+                -3.878649859,
+                -3.850858097
+              ],
+              "rms[nu]": [
+                -9.127284442,
+                -9.109524305
+              ]
+            },
+            {
+              "rms[Rho]": [
+                -9.335569571,
+                -9.318504078
+              ],
+              "rms[RhoU]": [
+                -7.114805349,
+                -7.036632795
+              ],
+              "rms[RhoV]": [
+                -6.315509133,
+                -6.219651648
+              ],
+              "rms[RhoW]": [
+                -6.523161408,
+                -6.45532447
+              ],
+              "rms[RhoE]": [
+                -3.847387414,
+                -3.828866158
+              ],
+              "rms[nu]": [
+                -8.595347778,
+                -8.585940131
+              ]
+            }
+          ],
+          "residual_log_slope_per_1000": [
+            {
+              "rms[Rho]": -0.011407296307657659,
+              "rms[RhoU]": 0.12511980344108628,
+              "rms[RhoV]": 0.03645103489837304,
+              "rms[RhoW]": -0.013465960956274165,
+              "rms[RhoE]": -4.0195450384753916e-05,
+              "rms[nu]": -0.10976509441985946
+            },
+            {
+              "rms[Rho]": -0.019921978565967995,
+              "rms[RhoU]": -0.07436698519687872,
+              "rms[RhoV]": -0.11697507792919633,
+              "rms[RhoW]": -0.11747187444761005,
+              "rms[RhoE]": -0.042426017572941524,
+              "rms[nu]": -0.08924919606765247
+            },
+            {
+              "rms[Rho]": -0.01937334602940056,
+              "rms[RhoU]": -0.06840840842721169,
+              "rms[RhoV]": -0.020387929882993663,
+              "rms[RhoW]": -0.029730141999549594,
+              "rms[RhoE]": -0.012474168271956139,
+              "rms[nu]": -0.04727466218930472
+            }
+          ],
+          "max_any_mass_mismatch_percent": 0.5493919451849039,
+          "gates": {
+            "all_residuals_four_order_reduction": false,
+            "performance_stability": false,
+            "mass_balance": false
+          }
+        },
+        "1000": {
+          "iterations": [
+            9000,
+            9999
+          ],
+          "performance_relative_range_percent": {
+            "TotTotEff[2]": 0.09324697395359689,
+            "PRTT[2]": 0.009192460917561188,
+            "MassFlowIn_1[2]": 0.021099210805705367,
+            "MassFlowOut_1[2]": 0.02094685750339999,
+            "MassFlowIn_2[2]": 0.020942605170758525,
+            "MassFlowOut_2[2]": 0.020764855014683996,
+            "MassFlowIn_3[2]": 0.021038893593367265,
+            "MassFlowOut_3[2]": 0.021635168741312154
+          },
+          "efficiency_range_percentage_points": 0.06772510999999781,
+          "residual_drop_orders_from_initial_200_peak": [
+            {
+              "rms[Rho]": 2.0065212409999997,
+              "rms[RhoU]": 1.8914332420000006,
+              "rms[RhoV]": 1.45860653,
+              "rms[RhoW]": 1.6688867959999998,
+              "rms[RhoE]": 2.118789077,
+              "rms[nu]": 1.0536823579999997
+            },
+            {
+              "rms[Rho]": 2.1853763950000005,
+              "rms[RhoU]": 1.5595867239999999,
+              "rms[RhoV]": 1.235848292,
+              "rms[RhoW]": 1.654581457,
+              "rms[RhoE]": 2.11802765,
+              "rms[nu]": 0.4880484349999996
+            },
+            {
+              "rms[Rho]": 3.433586452,
+              "rms[RhoU]": 2.835060148,
+              "rms[RhoV]": 2.5270940139999998,
+              "rms[RhoW]": 3.00534756,
+              "rms[RhoE]": 3.3902422333,
+              "rms[nu]": 0.00292065000000008
+            }
+          ],
+          "residual_log_range": [
+            {
+              "rms[Rho]": [
+                -9.531292928,
+                -9.503323272
+              ],
+              "rms[RhoU]": [
+                -7.721550939,
+                -7.584797099
+              ],
+              "rms[RhoV]": [
+                -6.722312976,
+                -6.632796043
+              ],
+              "rms[RhoW]": [
+                -6.855575874,
+                -6.791052403
+              ],
+              "rms[RhoE]": [
+                -4.15475801,
+                -4.121275475
+              ],
+              "rms[nu]": [
+                -10.53232506,
+                -10.42567882
+              ]
+            },
+            {
+              "rms[Rho]": [
+                -9.362321047,
+                -9.330287863
+              ],
+              "rms[RhoU]": [
+                -7.196705099,
+                -7.049208071
+              ],
+              "rms[RhoV]": [
+                -6.60755927,
+                -6.439857765
+              ],
+              "rms[RhoW]": [
+                -6.709890299,
+                -6.460773584
+              ],
+              "rms[RhoE]": [
+                -3.878649859,
+                -3.792383038
+              ],
+              "rms[nu]": [
+                -9.127284442,
+                -9.042212783
+              ]
+            },
+            {
+              "rms[Rho]": [
+                -9.335569571,
+                -9.296995225
+              ],
+              "rms[RhoU]": [
+                -7.114805349,
+                -7.012448294
+              ],
+              "rms[RhoV]": [
+                -6.315509133,
+                -6.190668314
+              ],
+              "rms[RhoW]": [
+                -6.523161408,
+                -6.427649572
+              ],
+              "rms[RhoE]": [
+                -3.847387414,
+                -3.810764596
+              ],
+              "rms[nu]": [
+                -8.595347778,
+                -8.550521888
+              ]
+            }
+          ],
+          "residual_log_slope_per_1000": [
+            {
+              "rms[Rho]": -0.024901482435049645,
+              "rms[RhoU]": -0.023500523772762003,
+              "rms[RhoV]": -0.019262955957730418,
+              "rms[RhoW]": -0.01996380848466257,
+              "rms[RhoE]": -0.027115212388440498,
+              "rms[nu]": -0.10678631151413163
+            },
+            {
+              "rms[Rho]": -0.02349656461320729,
+              "rms[RhoU]": -0.0497118753069518,
+              "rms[RhoV]": -0.03377278599699477,
+              "rms[RhoW]": -0.02811943619276872,
+              "rms[RhoE]": -0.01957115470947684,
+              "rms[nu]": -0.08513713507091762
+            },
+            {
+              "rms[Rho]": -0.02486986481926545,
+              "rms[RhoU]": -0.030726182784627076,
+              "rms[RhoV]": -0.04273805165837207,
+              "rms[RhoW]": -0.04843759629061056,
+              "rms[RhoE]": -0.0218679293249934,
+              "rms[nu]": -0.04490807334004176
+            }
+          ],
+          "max_any_mass_mismatch_percent": 0.5493919451849039,
+          "gates": {
+            "all_residuals_four_order_reduction": false,
+            "performance_stability": false,
+            "mass_balance": false
+          }
+        }
+      },
+      "warnings": {
+        "wall_solve_calls": 210020,
+        "point_evaluation_failure_count_sum": 20254836,
+        "points_per_call_range": [
+          19,
+          179
+        ],
+        "temperature_rejection_messages": 330010,
+        "last_200_iterations_wall_solve_calls": 4200,
+        "last_200_iterations_failure_sum": 401884,
+        "last_200_iterations_points_per_call_range": [
+          21,
+          170
+        ],
+        "last_200_iterations_temperature_messages": 6600
+      },
+      "all_static_temperature_history_fields_zero": true,
+      "job_err": "",
+      "spatial_snapshots": [
+        {
+          "points": 59378,
+          "fields": [
+            "Density",
+            "Momentum",
+            "Energy",
+            "Nu_Tilde",
+            "Grid_Velocity",
+            "Pressure",
+            "Temperature",
+            "Mach",
+            "Pressure_Coefficient",
+            "Velocity",
+            "Laminar_Viscosity",
+            "Skin_Friction_Coefficient",
+            "Heat_Flux",
+            "Y_Plus",
+            "Eddy_Viscosity",
+            "Residual_Density",
+            "Residual_Momentum",
+            "Residual_Energy",
+            "Residual_Nu_Tilde",
+            "Vorticity",
+            "Q_Criterion"
+          ],
+          "all_required_fields_finite": true,
+          "min_density": 1.435658574104309,
+          "min_pressure": 126757.90625,
+          "min_temperature": 293.2445068359375,
+          "EOS_relative_error_max": 0.0003941743006141696,
+          "EOS_relative_error_over_1e-4_count": 4005,
+          "EOS_worst_global_output_point": 3023,
+          "pressure_vs_conservative_relative_error_max": 1.0492613622403724e-07,
+          "nu_tilde_range": [
+            1.166080983239226e-05,
+            0.0023471165914088488
+          ],
+          "wall_diagnostic_fields": [
+            "Skin_Friction_Coefficient",
+            "Heat_Flux",
+            "Y_Plus"
+          ],
+          "EOS_bad_with_positive_yplus": 4005,
+          "EOS_bad_with_yplus_ge_5": 4005,
+          "EOS_bad_without_positive_yplus": 0,
+          "non_wall_EOS_relative_error_max": 1.3896428674442518e-07,
+          "active_wall_count": 7369,
+          "worst_EOS_point": {
+            "local_VTK_index": 3023,
+            "coordinates": [
+              0.24844996631145477,
+              -0.016940152272582054,
+              0.03408119082450867
+            ],
+            "y_plus": 23.969970703125,
+            "temperature_output_K": 307.385498046875,
+            "temperature_from_pressure_density_K": 307.2643345831634,
+            "pressure_Pa": 131975.5,
+            "density_kg_m3": 1.4962753057479858,
+            "grid_velocity": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "points": 74976,
+          "fields": [
+            "Density",
+            "Momentum",
+            "Energy",
+            "Nu_Tilde",
+            "Grid_Velocity",
+            "Pressure",
+            "Temperature",
+            "Mach",
+            "Pressure_Coefficient",
+            "Velocity",
+            "Laminar_Viscosity",
+            "Skin_Friction_Coefficient",
+            "Heat_Flux",
+            "Y_Plus",
+            "Eddy_Viscosity",
+            "Residual_Density",
+            "Residual_Momentum",
+            "Residual_Energy",
+            "Residual_Nu_Tilde",
+            "Vorticity",
+            "Q_Criterion"
+          ],
+          "all_required_fields_finite": true,
+          "min_density": 1.2139935493469238,
+          "min_pressure": 114157.4140625,
+          "min_temperature": 287.2801818847656,
+          "EOS_relative_error_max": 0.0568093012225841,
+          "EOS_relative_error_over_1e-4_count": 8805,
+          "EOS_worst_global_output_point": 8534,
+          "pressure_vs_conservative_relative_error_max": 1.0642008851924345e-07,
+          "nu_tilde_range": [
+            2.3999373297556303e-05,
+            0.0031868761871010065
+          ],
+          "wall_diagnostic_fields": [
+            "Skin_Friction_Coefficient",
+            "Heat_Flux",
+            "Y_Plus"
+          ],
+          "EOS_bad_with_positive_yplus": 8805,
+          "EOS_bad_with_yplus_ge_5": 8791,
+          "EOS_bad_without_positive_yplus": 0,
+          "non_wall_EOS_relative_error_max": 1.4543371862352217e-07,
+          "active_wall_count": 8940,
+          "worst_EOS_point": {
+            "local_VTK_index": 8534,
+            "coordinates": [
+              0.32440465688705444,
+              -0.01899087242782116,
+              0.07591930031776428
+            ],
+            "y_plus": 15.264372825622559,
+            "temperature_output_K": 360.9591979980469,
+            "temperature_from_pressure_density_K": 381.46503780618025,
+            "pressure_Pa": 148302.78125,
+            "density_kg_m3": 1.3543312549591064,
+            "grid_velocity": [
+              -6.960534572601318,
+              -118.90079498291016,
+              0.0
+            ],
+            "velocity": [
+              -6.960534572601318,
+              -118.90078735351562,
+              0.0
+            ]
+          }
+        },
+        {
+          "points": 57992,
+          "fields": [
+            "Density",
+            "Momentum",
+            "Energy",
+            "Nu_Tilde",
+            "Grid_Velocity",
+            "Pressure",
+            "Temperature",
+            "Mach",
+            "Pressure_Coefficient",
+            "Velocity",
+            "Laminar_Viscosity",
+            "Skin_Friction_Coefficient",
+            "Heat_Flux",
+            "Y_Plus",
+            "Eddy_Viscosity",
+            "Residual_Density",
+            "Residual_Momentum",
+            "Residual_Energy",
+            "Residual_Nu_Tilde",
+            "Vorticity",
+            "Q_Criterion"
+          ],
+          "all_required_fields_finite": true,
+          "min_density": 1.1486223936080933,
+          "min_pressure": 97271.4453125,
+          "min_temperature": 275.18927001953125,
+          "EOS_relative_error_max": 0.0005544343279321184,
+          "EOS_relative_error_over_1e-4_count": 4842,
+          "EOS_worst_global_output_point": 2962,
+          "pressure_vs_conservative_relative_error_max": 1.032550487334305e-07,
+          "nu_tilde_range": [
+            1.1858399375341833e-05,
+            0.0028894785791635513
+          ],
+          "wall_diagnostic_fields": [
+            "Skin_Friction_Coefficient",
+            "Heat_Flux",
+            "Y_Plus"
+          ],
+          "EOS_bad_with_positive_yplus": 4842,
+          "EOS_bad_with_yplus_ge_5": 4842,
+          "EOS_bad_without_positive_yplus": 0,
+          "non_wall_EOS_relative_error_max": 1.4382160284931444e-07,
+          "active_wall_count": 7169,
+          "worst_EOS_point": {
+            "local_VTK_index": 2962,
+            "coordinates": [
+              0.24830594658851624,
+              -0.018802961334586143,
+              0.17050567269325256
+            ],
+            "y_plus": 24.266254425048828,
+            "temperature_output_K": 294.9418640136719,
+            "temperature_from_pressure_density_K": 294.7783381195184,
+            "pressure_Pa": 102426.0,
+            "density_kg_m3": 1.2104448080062866,
+            "grid_velocity": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        }
+      ]
+    },
+    "PR MG3": {
+      "folder": "MG_cluster_levels/pr2961_mg3",
+      "build_info": "Expected build: update if compiling another revision.\nRepository: rois1995/SU2\nBranch: fix_periodic_rotation\nCommit: ef373c97061843470911af6319e9c66b943b3a01\nDevelop base: f110e914b5fd0d31c889e2d4df5bb5683abc6fd6\nRequested coarse MG levels: 3; verify actual levels in each zone in solver.log.\nMPI ranks: 8; OpenMP threads/rank: 1.\n",
+      "binary_sha256": "002c71d116976fb077f5aad8078f8ff17a970bfede0107b6e2ad043727097402",
+      "final_iteration": 9999,
+      "actual_MG_levels": [
+        3,
+        3,
+        3
+      ],
+      "hierarchy_tables_level_CVs_agglomeration_CFL": [
+        [
+          [
+            0,
+            59378,
+            1.0,
+            2.0
+          ],
+          [
+            1,
+            10864,
+            5.47,
+            0.5
+          ],
+          [
+            2,
+            3936,
+            2.76,
+            0.125
+          ],
+          [
+            3,
+            2865,
+            1.37,
+            0.03125
+          ]
+        ],
+        [
+          [
+            0,
+            74976,
+            1.0,
+            2.0
+          ],
+          [
+            1,
+            13478,
+            5.56,
+            0.5
+          ],
+          [
+            2,
+            4700,
+            2.87,
+            0.125
+          ],
+          [
+            3,
+            3334,
+            1.41,
+            0.03125
+          ]
+        ],
+        [
+          [
+            0,
+            57992,
+            1.0,
+            2.0
+          ],
+          [
+            1,
+            10608,
+            5.47,
+            0.5
+          ],
+          [
+            2,
+            3861,
+            2.75,
+            0.125
+          ],
+          [
+            3,
+            2802,
+            1.38,
+            0.03125
+          ]
+        ]
+      ],
+      "energy_log10_RMS": [
+        -4.163768868,
+        -3.858142339,
+        -3.847945012
+      ],
+      "SA_log10_RMS": [
+        -10.5314551,
+        -9.127297601,
+        -8.595345411
+      ],
+      "efficiency_percent": 72.59587569,
+      "pressure_ratio": 1.214778597,
+      "mass_mismatch_percent": {
+        "whole": 0.5494013016591616,
+        "zones": [
+          0.07068885272709063,
+          0.0801257444089401,
+          0.07226788486294261
+        ],
+        "interfaces": [
+          0.18729522281277156,
+          0.3000798802835556
+        ]
+      },
+      "windows": {
+        "200": {
+          "iterations": [
+            9800,
+            9999
+          ],
+          "performance_relative_range_percent": {
+            "TotTotEff[2]": 0.017751671117227072,
+            "PRTT[2]": 0.0017569610758936326,
+            "MassFlowIn_1[2]": 0.004047326010729047,
+            "MassFlowOut_1[2]": 0.003958305953349497,
+            "MassFlowIn_2[2]": 0.003961271246580092,
+            "MassFlowOut_2[2]": 0.003963184436613761,
+            "MassFlowIn_3[2]": 0.0040173189974253955,
+            "MassFlowOut_3[2]": 0.004125151622626455
+          },
+          "efficiency_range_percentage_points": 0.012888119999999503,
+          "residual_drop_orders_from_initial_200_peak": [
+            {
+              "rms[Rho]": 2.0225998490000006,
+              "rms[RhoU]": 1.871478572,
+              "rms[RhoV]": 1.4691327789999997,
+              "rms[RhoW]": 1.681328776,
+              "rms[RhoE]": 2.1368118059999994,
+              "rms[nu]": 1.1375742209999995
+            },
+            {
+              "rms[Rho]": 2.263855309,
+              "rms[RhoU]": 1.5805435809999997,
+              "rms[RhoV]": 1.3013645509999998,
+              "rms[RhoW]": 1.7118625979999997,
+              "rms[RhoE]": 2.2343051330000003,
+              "rms[nu]": 0.5553716959999999
+            },
+            {
+              "rms[Rho]": 3.46003434,
+              "rms[RhoU]": 2.820194096,
+              "rms[RhoV]": 2.49370236,
+              "rms[RhoW]": 2.997618134,
+              "rms[RhoE]": 3.4122732113,
+              "rms[nu]": 0.038209619999999944
+            }
+          ],
+          "residual_log_range": [
+            {
+              "rms[Rho]": [
+                -9.540194245,
+                -9.519567626
+              ],
+              "rms[RhoU]": [
+                -7.70958347,
+                -7.564842429
+              ],
+              "rms[RhoV]": [
+                -6.714195829,
+                -6.643322292
+              ],
+              "rms[RhoW]": [
+                -6.858071126,
+                -6.803634613
+              ],
+              "rms[RhoE]": [
+                -4.165042841,
+                -4.139466869
+              ],
+              "rms[nu]": [
+                -10.5314551,
+                -10.50957069
+              ]
+            },
+            {
+              "rms[Rho]": [
+                -9.362522802,
+                -9.347249413
+              ],
+              "rms[RhoU]": [
+                -7.199591447,
+                -7.07016493
+              ],
+              "rms[RhoV]": [
+                -6.604284354,
+                -6.46001914
+              ],
+              "rms[RhoW]": [
+                -6.721005985,
+                -6.476808139
+              ],
+              "rms[RhoE]": [
+                -3.878068967,
+                -3.845280014
+              ],
+              "rms[nu]": [
+                -9.127297601,
+                -9.109535735
+              ]
+            },
+            {
+              "rms[Rho]": [
+                -9.344431237,
+                -9.323443113
+              ],
+              "rms[RhoU]": [
+                -7.090723293,
+                -6.993626754
+              ],
+              "rms[RhoV]": [
+                -6.305874152,
+                -6.15727666
+              ],
+              "rms[RhoW]": [
+                -6.518824427,
+                -6.419920146
+              ],
+              "rms[RhoE]": [
+                -3.85693669,
+                -3.832795574
+              ],
+              "rms[nu]": [
+                -8.595345411,
+                -8.585938165
+              ]
+            }
+          ],
+          "residual_log_slope_per_1000": [
+            {
+              "rms[Rho]": -0.06882483734268241,
+              "rms[RhoU]": -0.1137192206330149,
+              "rms[RhoV]": 0.004570076681918867,
+              "rms[RhoW]": -0.029520429923496187,
+              "rms[RhoE]": -0.07694918063901457,
+              "rms[nu]": -0.11014919981999452
+            },
+            {
+              "rms[Rho]": -0.009265023045831232,
+              "rms[RhoU]": 0.004445672534313087,
+              "rms[RhoV]": 0.01917904091652651,
+              "rms[RhoW]": -0.006505702707566056,
+              "rms[RhoE]": 0.005946840992274917,
+              "rms[nu]": -0.08925424314407675
+            },
+            {
+              "rms[Rho]": -0.0303635713275343,
+              "rms[RhoU]": -0.040767620783020674,
+              "rms[RhoV]": -0.007553548114453775,
+              "rms[RhoW]": -0.023767578352961154,
+              "rms[RhoE]": -0.032416113468085705,
+              "rms[nu]": -0.047271655916898664
+            }
+          ],
+          "max_any_mass_mismatch_percent": 0.5494119752813194,
+          "gates": {
+            "all_residuals_four_order_reduction": false,
+            "performance_stability": false,
+            "mass_balance": false
+          }
+        },
+        "1000": {
+          "iterations": [
+            9000,
+            9999
+          ],
+          "performance_relative_range_percent": {
+            "TotTotEff[2]": 0.09301843722767299,
+            "PRTT[2]": 0.009171052471309475,
+            "MassFlowIn_1[2]": 0.021030798711555495,
+            "MassFlowOut_1[2]": 0.02084523357199254,
+            "MassFlowIn_2[2]": 0.02083601447290548,
+            "MassFlowOut_2[2]": 0.020780708513891792,
+            "MassFlowIn_3[2]": 0.021051147859070266,
+            "MassFlowOut_3[2]": 0.02168369895393105
+          },
+          "efficiency_range_percentage_points": 0.06755812999999478,
+          "residual_drop_orders_from_initial_200_peak": [
+            {
+              "rms[Rho]": 2.0033220739999997,
+              "rms[RhoU]": 1.8631746310000006,
+              "rms[RhoV]": 1.4513700610000004,
+              "rms[RhoW]": 1.6696450250000003,
+              "rms[RhoE]": 2.11428315,
+              "rms[nu]": 1.052598991
+            },
+            {
+              "rms[Rho]": 2.2455704759999993,
+              "rms[RhoU]": 1.5805435809999997,
+              "rms[RhoV]": 1.299595728,
+              "rms[RhoW]": 1.6937875399999998,
+              "rms[RhoE]": 2.191813712,
+              "rms[nu]": 0.4880547360000005
+            },
+            {
+              "rms[Rho]": 3.4453538530000003,
+              "rms[RhoU]": 2.8173185919999995,
+              "rms[RhoV]": 2.4894509680000003,
+              "rms[RhoW]": 2.986263756,
+              "rms[RhoE]": 3.4015794693,
+              "rms[nu]": 0.0027938980000001834
+            }
+          ],
+          "residual_log_range": [
+            {
+              "rms[Rho]": [
+                -9.540194245,
+                -9.500289851
+              ],
+              "rms[RhoU]": [
+                -7.70958347,
+                -7.556538488
+              ],
+              "rms[RhoV]": [
+                -6.717442621,
+                -6.625559574
+              ],
+              "rms[RhoW]": [
+                -6.858071126,
+                -6.791950862
+              ],
+              "rms[RhoE]": [
+                -4.165042841,
+                -4.116938213
+              ],
+              "rms[nu]": [
+                -10.5314551,
+                -10.42459546
+              ]
+            },
+            {
+              "rms[Rho]": [
+                -9.362522802,
+                -9.32896458
+              ],
+              "rms[RhoU]": [
+                -7.199591447,
+                -7.07016493
+              ],
+              "rms[RhoV]": [
+                -6.604284354,
+                -6.458250317
+              ],
+              "rms[RhoW]": [
+                -6.721005985,
+                -6.458733081
+              ],
+              "rms[RhoE]": [
+                -3.878683233,
+                -3.802788593
+              ],
+              "rms[nu]": [
+                -9.127297601,
+                -9.042218775
+              ]
+            },
+            {
+              "rms[Rho]": [
+                -9.344431237,
+                -9.308762626
+              ],
+              "rms[RhoU]": [
+                -7.110938226,
+                -6.99075125
+              ],
+              "rms[RhoV]": [
+                -6.305874152,
+                -6.153025268
+              ],
+              "rms[RhoW]": [
+                -6.518824427,
+                -6.408565768
+              ],
+              "rms[RhoE]": [
+                -3.85693669,
+                -3.822101832
+              ],
+              "rms[nu]": [
+                -8.595345411,
+                -8.550522443
+              ]
+            }
+          ],
+          "residual_log_slope_per_1000": [
+            {
+              "rms[Rho]": -0.023680166891841423,
+              "rms[RhoU]": -0.025611595500811588,
+              "rms[RhoV]": -0.026634332828378873,
+              "rms[RhoW]": -0.026524906079956768,
+              "rms[RhoE]": -0.02451349350003164,
+              "rms[nu]": -0.10695031781863883
+            },
+            {
+              "rms[Rho]": -0.015961375289953637,
+              "rms[RhoU]": -0.04181131096439929,
+              "rms[RhoV]": -0.03455620627263446,
+              "rms[RhoW]": -0.02558606965103408,
+              "rms[RhoE]": -0.010689163489621761,
+              "rms[nu]": -0.08514442432557286
+            },
+            {
+              "rms[Rho]": -0.01814377848570064,
+              "rms[RhoU]": -0.006061070847045233,
+              "rms[RhoV]": -0.02620418945898615,
+              "rms[RhoW]": -0.03752831644464305,
+              "rms[RhoE]": -0.015119750629604883,
+              "rms[nu]": -0.0449037825456469
+            }
+          ],
+          "max_any_mass_mismatch_percent": 0.5494119752813194,
+          "gates": {
+            "all_residuals_four_order_reduction": false,
+            "performance_stability": false,
+            "mass_balance": false
+          }
+        }
+      },
+      "warnings": {
+        "wall_solve_calls": 330080,
+        "point_evaluation_failure_count_sum": 40452264,
+        "points_per_call_range": [
+          21,
+          229
+        ],
+        "temperature_rejection_messages": 866549,
+        "last_200_iterations_wall_solve_calls": 6600,
+        "last_200_iterations_failure_sum": 804801,
+        "last_200_iterations_points_per_call_range": [
+          24,
+          223
+        ],
+        "last_200_iterations_temperature_messages": 17000
+      },
+      "all_static_temperature_history_fields_zero": true,
+      "job_err": "",
+      "spatial_snapshots": [
+        {
+          "points": 59378,
+          "fields": [
+            "Density",
+            "Momentum",
+            "Energy",
+            "Nu_Tilde",
+            "Grid_Velocity",
+            "Pressure",
+            "Temperature",
+            "Mach",
+            "Pressure_Coefficient",
+            "Velocity",
+            "Laminar_Viscosity",
+            "Skin_Friction_Coefficient",
+            "Heat_Flux",
+            "Y_Plus",
+            "Eddy_Viscosity",
+            "Residual_Density",
+            "Residual_Momentum",
+            "Residual_Energy",
+            "Residual_Nu_Tilde",
+            "Vorticity",
+            "Q_Criterion"
+          ],
+          "all_required_fields_finite": true,
+          "min_density": 1.435658574104309,
+          "min_pressure": 126757.9453125,
+          "min_temperature": 293.2445068359375,
+          "EOS_relative_error_max": 0.00039411871373673524,
+          "EOS_relative_error_over_1e-4_count": 4002,
+          "EOS_worst_global_output_point": 3023,
+          "pressure_vs_conservative_relative_error_max": 1.0793084515015039e-07,
+          "nu_tilde_range": [
+            1.1660821655823383e-05,
+            0.0023471121676266193
+          ],
+          "wall_diagnostic_fields": [
+            "Skin_Friction_Coefficient",
+            "Heat_Flux",
+            "Y_Plus"
+          ],
+          "EOS_bad_with_positive_yplus": 4002,
+          "EOS_bad_with_yplus_ge_5": 4002,
+          "EOS_bad_without_positive_yplus": 0,
+          "non_wall_EOS_relative_error_max": 1.428173075357364e-07,
+          "active_wall_count": 7369,
+          "worst_EOS_point": {
+            "local_VTK_index": 3023,
+            "coordinates": [
+              0.24844996631145477,
+              -0.016940152272582054,
+              0.03408119082450867
+            ],
+            "y_plus": 23.969953536987305,
+            "temperature_output_K": 307.3855285644531,
+            "temperature_from_pressure_density_K": 307.26438217531404,
+            "pressure_Pa": 131975.5625,
+            "density_kg_m3": 1.496275782585144,
+            "grid_velocity": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "points": 74976,
+          "fields": [
+            "Density",
+            "Momentum",
+            "Energy",
+            "Nu_Tilde",
+            "Grid_Velocity",
+            "Pressure",
+            "Temperature",
+            "Mach",
+            "Pressure_Coefficient",
+            "Velocity",
+            "Laminar_Viscosity",
+            "Skin_Friction_Coefficient",
+            "Heat_Flux",
+            "Y_Plus",
+            "Eddy_Viscosity",
+            "Residual_Density",
+            "Residual_Momentum",
+            "Residual_Energy",
+            "Residual_Nu_Tilde",
+            "Vorticity",
+            "Q_Criterion"
+          ],
+          "all_required_fields_finite": true,
+          "min_density": 1.2139941453933716,
+          "min_pressure": 114157.453125,
+          "min_temperature": 287.2820129394531,
+          "EOS_relative_error_max": 0.056809394243768185,
+          "EOS_relative_error_over_1e-4_count": 8805,
+          "EOS_worst_global_output_point": 8534,
+          "pressure_vs_conservative_relative_error_max": 1.0999671240519149e-07,
+          "nu_tilde_range": [
+            2.3999809855013154e-05,
+            0.0031868843361735344
+          ],
+          "wall_diagnostic_fields": [
+            "Skin_Friction_Coefficient",
+            "Heat_Flux",
+            "Y_Plus"
+          ],
+          "EOS_bad_with_positive_yplus": 8805,
+          "EOS_bad_with_yplus_ge_5": 8791,
+          "EOS_bad_without_positive_yplus": 0,
+          "non_wall_EOS_relative_error_max": 1.4374172918607542e-07,
+          "active_wall_count": 8940,
+          "worst_EOS_point": {
+            "local_VTK_index": 8534,
+            "coordinates": [
+              0.32440465688705444,
+              -0.01899087242782116,
+              0.07591930031776428
+            ],
+            "y_plus": 15.264371871948242,
+            "temperature_output_K": 360.9591979980469,
+            "temperature_from_pressure_density_K": 381.4650713830323,
+            "pressure_Pa": 148302.78125,
+            "density_kg_m3": 1.354331135749817,
+            "grid_velocity": [
+              -6.960534572601318,
+              -118.90079498291016,
+              0.0
+            ],
+            "velocity": [
+              -6.960534572601318,
+              -118.90078735351562,
+              0.0
+            ]
+          }
+        },
+        {
+          "points": 57992,
+          "fields": [
+            "Density",
+            "Momentum",
+            "Energy",
+            "Nu_Tilde",
+            "Grid_Velocity",
+            "Pressure",
+            "Temperature",
+            "Mach",
+            "Pressure_Coefficient",
+            "Velocity",
+            "Laminar_Viscosity",
+            "Skin_Friction_Coefficient",
+            "Heat_Flux",
+            "Y_Plus",
+            "Eddy_Viscosity",
+            "Residual_Density",
+            "Residual_Momentum",
+            "Residual_Energy",
+            "Residual_Nu_Tilde",
+            "Vorticity",
+            "Q_Criterion"
+          ],
+          "all_required_fields_finite": true,
+          "min_density": 1.148621678352356,
+          "min_pressure": 97271.53125,
+          "min_temperature": 275.18939208984375,
+          "EOS_relative_error_max": 0.0005538620006747541,
+          "EOS_relative_error_over_1e-4_count": 4837,
+          "EOS_worst_global_output_point": 2962,
+          "pressure_vs_conservative_relative_error_max": 1.0655868543096858e-07,
+          "nu_tilde_range": [
+            1.1858385732921306e-05,
+            0.00288948742672801
+          ],
+          "wall_diagnostic_fields": [
+            "Skin_Friction_Coefficient",
+            "Heat_Flux",
+            "Y_Plus"
+          ],
+          "EOS_bad_with_positive_yplus": 4837,
+          "EOS_bad_with_yplus_ge_5": 4837,
+          "EOS_bad_without_positive_yplus": 0,
+          "non_wall_EOS_relative_error_max": 1.426160252115949e-07,
+          "active_wall_count": 7169,
+          "worst_EOS_point": {
+            "local_VTK_index": 2962,
+            "coordinates": [
+              0.24830594658851624,
+              -0.018802961334586143,
+              0.17050567269325256
+            ],
+            "y_plus": 24.265703201293945,
+            "temperature_output_K": 294.9431457519531,
+            "temperature_from_pressure_density_K": 294.7797879511616,
+            "pressure_Pa": 102426.140625,
+            "density_kg_m3": 1.2104405164718628,
+            "grid_velocity": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "controls": {
+    "develop MG1": {
+      "aachen_3D_MP_restart.cfg": {
+        "SOLVER": "RANS",
+        "KIND_TURB_MODEL": "SA",
+        "MATH_PROBLEM": "DIRECT",
+        "RESTART_SOL": "YES",
+        "MULTIZONE": "YES",
+        "CONFIG_LIST": "(stator1.cfg, rotor.cfg, stator2.cfg)",
+        "MACH_NUMBER": "0.05",
+        "AOA": "0.0",
+        "FREESTREAM_PRESSURE": "140000.0",
+        "FREESTREAM_TEMPERATURE": "300.0",
+        "FREESTREAM_DENSITY": "1.7418",
+        "FREESTREAM_OPTION": "TEMPERATURE_FS",
+        "FREESTREAM_TURBULENCEINTENSITY": "0.025",
+        "FREESTREAM_TURB2LAMVISCRATIO": "100.0",
+        "INIT_OPTION": "TD_CONDITIONS",
+        "REF_ORIGIN_MOMENT_X": "0.00",
+        "REF_ORIGIN_MOMENT_Y": "0.00",
+        "REF_ORIGIN_MOMENT_Z": "0.00",
+        "REF_AREA": "1.0",
+        "REF_DIMENSIONALIZATION": "DIMENSIONAL",
+        "FLUID_MODEL": "IDEAL_GAS",
+        "GAMMA_VALUE": "1.4",
+        "GAS_CONSTANT": "287.058",
+        "CRITICAL_TEMPERATURE": "273.15",
+        "CRITICAL_PRESSURE": "101325.0",
+        "ACENTRIC_FACTOR": "0.035",
+        "VISCOSITY_MODEL": "SUTHERLAND",
+        "MU_CONSTANT": "1.716E-5",
+        "MU_REF": "1.716E-5",
+        "MU_T_REF": "273.15",
+        "SUTHERLAND_CONSTANT": "110.4",
+        "CONDUCTIVITY_MODEL": "CONSTANT_PRANDTL",
+        "MARKER_HEATFLUX": "(BLADE1, 0.0, BLADE2, 0.0, BLADE3, 0.0, HUB1, 0.0, SHROUD1, 0.0, HUB2, 0.0, SHROUD2, 0.0, HUB3, 0.0, SHROUD3, 0.0)",
+        "MARKER_WALL_FUNCTIONS": "( BLADE1, STANDARD_WALL_FUNCTION , BLADE2, STANDARD_WALL_FUNCTION , BLADE3, STANDARD_WALL_FUNCTION , HUB1, STANDARD_WALL_FUNCTION , SHROUD1, STANDARD_WALL_FUNCTION , HUB2, STANDARD_WALL_FUNCTION , SHROUD2, STANDARD_WALL_FUNCTION , HUB3, STANDARD_WALL_FUNCTION , SHROUD3, STANDARD_WALL_FUNCTION )",
+        "WALLMODEL_KAPPA": "0.41",
+        "WALLMODEL_B": "5.5",
+        "WALLMODEL_MINYPLUS": "5.0",
+        "WALLMODEL_MAXITER": "200",
+        "WALLMODEL_RELFAC": "0.5",
+        "MARKER_PERIODIC": "(PER1_STATOR1, PER2_STATOR1, 0.0, 0.0, 0.0, 0.0, 0.0, 8.7804878, 0.0, 0.0, 0.0, PER1_ROTOR, PER2_ROTOR, 0.0, 0.0, 0.0, 0.0, 0.0, 8.7804878, 0.0, 0.0, 0.0, PER1_STATOR2, PER2_STATOR2, 0.0, 0.0, 0.0, 0.0, 0.0, 8.7804878, 0.0, 0.0, 0.0)",
+        "MARKER_TURBOMACHINERY": "(INFLOW_STATOR1, OUTFLOW_STATOR1, INFLOW_ROTOR, OUTFLOW_ROTOR, INFLOW_STATOR2, OUTFLOW_STATOR2)",
+        "MARKER_ANALYZE": "(INFLOW_STATOR1, OUTFLOW_STATOR2)",
+        "MARKER_MIXINGPLANE_INTERFACE": "(OUTFLOW_STATOR1, INFLOW_ROTOR, OUTFLOW_ROTOR, INFLOW_STATOR2)",
+        "MARKER_ZONE_INTERFACE": "(OUTFLOW_STATOR1, INFLOW_ROTOR, OUTFLOW_ROTOR, INFLOW_STATOR2)",
+        "MARKER_GILES": "(INFLOW_STATOR1, TOTAL_CONDITIONS_PT, 158245.38, 308.26, 1.0, 0.0, 0.0, 0.3, 0.0, OUTFLOW_STATOR1, MIXING_OUT, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.0, INFLOW_ROTOR, MIXING_IN, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.0, OUTFLOW_ROTOR, MIXING_OUT, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.0, INFLOW_STATOR2, MIXING_IN, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.0, OUTFLOW_STATOR2, STATIC_PRESSURE_1D, 110050.96, 0.0, 0.0, 0.0, 0.0 , 1.0, 0.0)",
+        "SPATIAL_FOURIER": "NO",
+        "GILES_EXTRA_RELAXFACTOR": "(0.05, 0.05)",
+        "MARKER_SHROUD": "(SHROUD1, SHROUD2, SHROUD3)",
+        "TURBOMACHINERY_KIND": "AXIAL AXIAL AXIAL",
+        "TURBO_PERF_KIND": "(TURBINE, TURBINE, TURBINE)",
+        "MIXINGPLANE_INTERFACE_KIND": "LINEAR_INTERPOLATION",
+        "TURBULENT_MIXINGPLANE": "YES",
+        "RAMP_OUTLET": "NO",
+        "RAMP_OUTLET_COEFF": "(140000.0, 150.0, 2000)",
+        "AVERAGE_PROCESS_KIND": "MIXEDOUT",
+        "PERFORMANCE_AVERAGE_PROCESS_KIND": "MIXEDOUT",
+        "MIXEDOUT_COEFF": "(1.0, 1.0E-05, 15)",
+        "AVERAGE_MACH_LIMIT": "0.03",
+        "MARKER_PLOTTING": "(BLADE1, BLADE2, BLADE3)",
+        "MARKER_MONITORING": "(BLADE1, BLADE2, BLADE3)",
+        "NUM_METHOD_GRAD": "WEIGHTED_LEAST_SQUARES",
+        "CFL_NUMBER": "2",
+        "CFL_ADAPT": "NO",
+        "CFL_ADAPT_PARAM": "( 1.3, 1.2, 1.0, 10.0)",
+        "LINEAR_SOLVER": "FGMRES",
+        "LINEAR_SOLVER_PREC": "LU_SGS",
+        "LINEAR_SOLVER_ERROR": "1E-4",
+        "LINEAR_SOLVER_ITER": "15",
+        "MGLEVEL": "1",
+        "VENKAT_LIMITER_COEFF": "0.01",
+        "LIMITER_ITER": "999999",
+        "CONV_NUM_METHOD_FLOW": "JST",
+        "ENTROPY_FIX_COEFF": "0.3",
+        "JST_SENSOR_COEFF": "( 0.5, 0.25 )",
+        "MUSCL_FLOW": "NO",
+        "SLOPE_LIMITER_FLOW": "VENKATAKRISHNAN",
+        "TIME_DISCRE_FLOW": "EULER_IMPLICIT",
+        "CONV_NUM_METHOD_TURB": "SCALAR_UPWIND",
+        "MUSCL_TURB": "NO",
+        "SLOPE_LIMITER_TURB": "VENKATAKRISHNAN",
+        "TIME_DISCRE_TURB": "EULER_IMPLICIT",
+        "CFL_REDUCTION_TURB": "0.1",
+        "DV_KIND": "NO_DEFORMATION",
+        "DV_MARKER": "(BLADE1, BLADE2, BLADE3)",
+        "DV_PARAM": "( 1, 0.5)",
+        "DV_VALUE": "0.01",
+        "OUTER_ITER": "10000",
+        "CONV_FIELD": "RMS_ENERGY[0]",
+        "CONV_RESIDUAL_MINVAL": "-20",
+        "CONV_STARTITER": "10",
+        "SCREEN_OUTPUT": "(OUTER_ITER, RMS_DENSITY[0], RMS_DENSITY[1], RMS_DENSITY[2], RMS_MOMENTUM-X[0], RMS_MOMENTUM-X[1], RMS_MOMENTUM-X[2], RMS_MOMENTUM-Y[0], RMS_MOMENTUM-Y[1], RMS_MOMENTUM-Y[2], RMS_MOMENTUM-Z[0], RMS_MOMENTUM-Z[1], RMS_MOMENTUM-Z[2], RMS_ENERGY[0], RMS_ENERGY[1], RMS_ENERGY[2])",
+        "HISTORY_OUTPUT": "(ITER, RMS_RES, TURBO_PERF, LINSOL, CFL_NUMBER)",
+        "VOLUME_OUTPUT": "(COORDINATES, SOLUTION, PRIMITIVE, TURBOMACHINERY, RESIDUAL, LIMITER, VORTEX_IDENTIFICATION)",
+        "OUTPUT_FILES": "(RESTART, PARAVIEW)",
+        "MESH_FILENAME": "Aachen_3D_41_blade_coarse.su2",
+        "MESH_FORMAT": "SU2",
+        "MESH_OUT_FILENAME": "mesh_out",
+        "SOLUTION_FILENAME": "solution_flow",
+        "SOLUTION_ADJ_FILENAME": "solution_adj",
+        "TABULAR_FORMAT": "CSV",
+        "CONV_FILENAME": "history",
+        "RESTART_FILENAME": "restart_flow",
+        "RESTART_ADJ_FILENAME": "restart_adj",
+        "VOLUME_FILENAME": "flow",
+        "VOLUME_ADJ_FILENAME": "adjoint",
+        "GRAD_OBJFUNC_FILENAME": "of_grad",
+        "SURFACE_FILENAME": "surface_flow",
+        "SURFACE_ADJ_FILENAME": "surface_adjoint",
+        "OUTPUT_WRT_FREQ": "250",
+        "HISTORY_WRT_FREQ_OUTER": "1",
+        "WRT_ZONE_HIST": "YES"
+      },
+      "stator1.cfg": {
+        "GRID_MOVEMENT": "ROTATING_FRAME",
+        "HISTORY_OUTPUT": "(ITER, RMS_RES, LINSOL, CFL_NUMBER)"
+      },
+      "rotor.cfg": {
+        "GRID_MOVEMENT": "ROTATING_FRAME",
+        "MACH_MOTION": "0.35",
+        "MOTION_ORIGIN": "0.0 0.0 0.0",
+        "ROTATION_RATE": "0.0 0.0 -366.52",
+        "RAMP_MOTION_FRAME": "NO",
+        "RAMP_MOTION_FRAME_COEFF": "(0.0, 39.0, 500)",
+        "HISTORY_OUTPUT": "(ITER, RMS_RES, LINSOL, CFL_NUMBER)"
+      },
+      "stator2.cfg": {
+        "GRID_MOVEMENT": "ROTATING_FRAME",
+        "HISTORY_OUTPUT": "(ITER, RMS_RES, LINSOL, CFL_NUMBER)"
+      }
+    },
+    "PR MG1": {
+      "aachen_3D_MP_restart.cfg": {
+        "SOLVER": "RANS",
+        "KIND_TURB_MODEL": "SA",
+        "MATH_PROBLEM": "DIRECT",
+        "RESTART_SOL": "YES",
+        "MULTIZONE": "YES",
+        "CONFIG_LIST": "(stator1.cfg, rotor.cfg, stator2.cfg)",
+        "MACH_NUMBER": "0.05",
+        "AOA": "0.0",
+        "FREESTREAM_PRESSURE": "140000.0",
+        "FREESTREAM_TEMPERATURE": "300.0",
+        "FREESTREAM_DENSITY": "1.7418",
+        "FREESTREAM_OPTION": "TEMPERATURE_FS",
+        "FREESTREAM_TURBULENCEINTENSITY": "0.025",
+        "FREESTREAM_TURB2LAMVISCRATIO": "100.0",
+        "INIT_OPTION": "TD_CONDITIONS",
+        "REF_ORIGIN_MOMENT_X": "0.00",
+        "REF_ORIGIN_MOMENT_Y": "0.00",
+        "REF_ORIGIN_MOMENT_Z": "0.00",
+        "REF_AREA": "1.0",
+        "REF_DIMENSIONALIZATION": "DIMENSIONAL",
+        "FLUID_MODEL": "IDEAL_GAS",
+        "GAMMA_VALUE": "1.4",
+        "GAS_CONSTANT": "287.058",
+        "CRITICAL_TEMPERATURE": "273.15",
+        "CRITICAL_PRESSURE": "101325.0",
+        "ACENTRIC_FACTOR": "0.035",
+        "VISCOSITY_MODEL": "SUTHERLAND",
+        "MU_CONSTANT": "1.716E-5",
+        "MU_REF": "1.716E-5",
+        "MU_T_REF": "273.15",
+        "SUTHERLAND_CONSTANT": "110.4",
+        "CONDUCTIVITY_MODEL": "CONSTANT_PRANDTL",
+        "MARKER_HEATFLUX": "(BLADE1, 0.0, BLADE2, 0.0, BLADE3, 0.0, HUB1, 0.0, SHROUD1, 0.0, HUB2, 0.0, SHROUD2, 0.0, HUB3, 0.0, SHROUD3, 0.0)",
+        "MARKER_WALL_FUNCTIONS": "( BLADE1, STANDARD_WALL_FUNCTION , BLADE2, STANDARD_WALL_FUNCTION , BLADE3, STANDARD_WALL_FUNCTION , HUB1, STANDARD_WALL_FUNCTION , SHROUD1, STANDARD_WALL_FUNCTION , HUB2, STANDARD_WALL_FUNCTION , SHROUD2, STANDARD_WALL_FUNCTION , HUB3, STANDARD_WALL_FUNCTION , SHROUD3, STANDARD_WALL_FUNCTION )",
+        "WALLMODEL_KAPPA": "0.41",
+        "WALLMODEL_B": "5.5",
+        "WALLMODEL_MINYPLUS": "5.0",
+        "WALLMODEL_MAXITER": "200",
+        "WALLMODEL_RELFAC": "0.5",
+        "MARKER_PERIODIC": "(PER1_STATOR1, PER2_STATOR1, 0.0, 0.0, 0.0, 0.0, 0.0, 8.7804878, 0.0, 0.0, 0.0, PER1_ROTOR, PER2_ROTOR, 0.0, 0.0, 0.0, 0.0, 0.0, 8.7804878, 0.0, 0.0, 0.0, PER1_STATOR2, PER2_STATOR2, 0.0, 0.0, 0.0, 0.0, 0.0, 8.7804878, 0.0, 0.0, 0.0)",
+        "MARKER_TURBOMACHINERY": "(INFLOW_STATOR1, OUTFLOW_STATOR1, INFLOW_ROTOR, OUTFLOW_ROTOR, INFLOW_STATOR2, OUTFLOW_STATOR2)",
+        "MARKER_ANALYZE": "(INFLOW_STATOR1, OUTFLOW_STATOR2)",
+        "MARKER_MIXINGPLANE_INTERFACE": "(OUTFLOW_STATOR1, INFLOW_ROTOR, OUTFLOW_ROTOR, INFLOW_STATOR2)",
+        "MARKER_ZONE_INTERFACE": "(OUTFLOW_STATOR1, INFLOW_ROTOR, OUTFLOW_ROTOR, INFLOW_STATOR2)",
+        "MARKER_GILES": "(INFLOW_STATOR1, TOTAL_CONDITIONS_PT, 158245.38, 308.26, 1.0, 0.0, 0.0, 0.3, 0.0, OUTFLOW_STATOR1, MIXING_OUT, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.0, INFLOW_ROTOR, MIXING_IN, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.0, OUTFLOW_ROTOR, MIXING_OUT, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.0, INFLOW_STATOR2, MIXING_IN, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.0, OUTFLOW_STATOR2, STATIC_PRESSURE_1D, 110050.96, 0.0, 0.0, 0.0, 0.0 , 1.0, 0.0)",
+        "SPATIAL_FOURIER": "NO",
+        "GILES_EXTRA_RELAXFACTOR": "(0.05, 0.05)",
+        "MARKER_SHROUD": "(SHROUD1, SHROUD2, SHROUD3)",
+        "TURBOMACHINERY_KIND": "AXIAL AXIAL AXIAL",
+        "TURBO_PERF_KIND": "(TURBINE, TURBINE, TURBINE)",
+        "MIXINGPLANE_INTERFACE_KIND": "LINEAR_INTERPOLATION",
+        "TURBULENT_MIXINGPLANE": "YES",
+        "RAMP_OUTLET": "NO",
+        "RAMP_OUTLET_COEFF": "(140000.0, 150.0, 2000)",
+        "AVERAGE_PROCESS_KIND": "MIXEDOUT",
+        "PERFORMANCE_AVERAGE_PROCESS_KIND": "MIXEDOUT",
+        "MIXEDOUT_COEFF": "(1.0, 1.0E-05, 15)",
+        "AVERAGE_MACH_LIMIT": "0.03",
+        "MARKER_PLOTTING": "(BLADE1, BLADE2, BLADE3)",
+        "MARKER_MONITORING": "(BLADE1, BLADE2, BLADE3)",
+        "NUM_METHOD_GRAD": "WEIGHTED_LEAST_SQUARES",
+        "CFL_NUMBER": "2",
+        "CFL_ADAPT": "NO",
+        "CFL_ADAPT_PARAM": "( 1.3, 1.2, 1.0, 10.0)",
+        "LINEAR_SOLVER": "FGMRES",
+        "LINEAR_SOLVER_PREC": "LU_SGS",
+        "LINEAR_SOLVER_ERROR": "1E-4",
+        "LINEAR_SOLVER_ITER": "15",
+        "MGLEVEL": "1",
+        "VENKAT_LIMITER_COEFF": "0.01",
+        "LIMITER_ITER": "999999",
+        "CONV_NUM_METHOD_FLOW": "JST",
+        "ENTROPY_FIX_COEFF": "0.3",
+        "JST_SENSOR_COEFF": "( 0.5, 0.25 )",
+        "MUSCL_FLOW": "NO",
+        "SLOPE_LIMITER_FLOW": "VENKATAKRISHNAN",
+        "TIME_DISCRE_FLOW": "EULER_IMPLICIT",
+        "CONV_NUM_METHOD_TURB": "SCALAR_UPWIND",
+        "MUSCL_TURB": "NO",
+        "SLOPE_LIMITER_TURB": "VENKATAKRISHNAN",
+        "TIME_DISCRE_TURB": "EULER_IMPLICIT",
+        "CFL_REDUCTION_TURB": "0.1",
+        "DV_KIND": "NO_DEFORMATION",
+        "DV_MARKER": "(BLADE1, BLADE2, BLADE3)",
+        "DV_PARAM": "( 1, 0.5)",
+        "DV_VALUE": "0.01",
+        "OUTER_ITER": "10000",
+        "CONV_FIELD": "RMS_ENERGY[0]",
+        "CONV_RESIDUAL_MINVAL": "-20",
+        "CONV_STARTITER": "10",
+        "SCREEN_OUTPUT": "(OUTER_ITER, RMS_DENSITY[0], RMS_DENSITY[1], RMS_DENSITY[2], RMS_MOMENTUM-X[0], RMS_MOMENTUM-X[1], RMS_MOMENTUM-X[2], RMS_MOMENTUM-Y[0], RMS_MOMENTUM-Y[1], RMS_MOMENTUM-Y[2], RMS_MOMENTUM-Z[0], RMS_MOMENTUM-Z[1], RMS_MOMENTUM-Z[2], RMS_ENERGY[0], RMS_ENERGY[1], RMS_ENERGY[2])",
+        "HISTORY_OUTPUT": "(ITER, RMS_RES, TURBO_PERF, LINSOL, CFL_NUMBER)",
+        "VOLUME_OUTPUT": "(COORDINATES, SOLUTION, PRIMITIVE, TURBOMACHINERY, RESIDUAL, LIMITER, VORTEX_IDENTIFICATION)",
+        "OUTPUT_FILES": "(RESTART, PARAVIEW)",
+        "MESH_FILENAME": "Aachen_3D_41_blade_coarse.su2",
+        "MESH_FORMAT": "SU2",
+        "MESH_OUT_FILENAME": "mesh_out",
+        "SOLUTION_FILENAME": "solution_flow",
+        "SOLUTION_ADJ_FILENAME": "solution_adj",
+        "TABULAR_FORMAT": "CSV",
+        "CONV_FILENAME": "history",
+        "RESTART_FILENAME": "restart_flow",
+        "RESTART_ADJ_FILENAME": "restart_adj",
+        "VOLUME_FILENAME": "flow",
+        "VOLUME_ADJ_FILENAME": "adjoint",
+        "GRAD_OBJFUNC_FILENAME": "of_grad",
+        "SURFACE_FILENAME": "surface_flow",
+        "SURFACE_ADJ_FILENAME": "surface_adjoint",
+        "OUTPUT_WRT_FREQ": "250",
+        "HISTORY_WRT_FREQ_OUTER": "1",
+        "WRT_ZONE_HIST": "YES"
+      },
+      "stator1.cfg": {
+        "GRID_MOVEMENT": "ROTATING_FRAME",
+        "HISTORY_OUTPUT": "(ITER, RMS_RES, LINSOL, CFL_NUMBER)"
+      },
+      "rotor.cfg": {
+        "GRID_MOVEMENT": "ROTATING_FRAME",
+        "MACH_MOTION": "0.35",
+        "MOTION_ORIGIN": "0.0 0.0 0.0",
+        "ROTATION_RATE": "0.0 0.0 -366.52",
+        "RAMP_MOTION_FRAME": "NO",
+        "RAMP_MOTION_FRAME_COEFF": "(0.0, 39.0, 500)",
+        "HISTORY_OUTPUT": "(ITER, RMS_RES, LINSOL, CFL_NUMBER)"
+      },
+      "stator2.cfg": {
+        "GRID_MOVEMENT": "ROTATING_FRAME",
+        "HISTORY_OUTPUT": "(ITER, RMS_RES, LINSOL, CFL_NUMBER)"
+      }
+    },
+    "PR MG2": {
+      "aachen_3D_MP_restart.cfg": {
+        "SOLVER": "RANS",
+        "KIND_TURB_MODEL": "SA",
+        "MATH_PROBLEM": "DIRECT",
+        "RESTART_SOL": "YES",
+        "MULTIZONE": "YES",
+        "CONFIG_LIST": "(stator1.cfg, rotor.cfg, stator2.cfg)",
+        "MACH_NUMBER": "0.05",
+        "AOA": "0.0",
+        "FREESTREAM_PRESSURE": "140000.0",
+        "FREESTREAM_TEMPERATURE": "300.0",
+        "FREESTREAM_DENSITY": "1.7418",
+        "FREESTREAM_OPTION": "TEMPERATURE_FS",
+        "FREESTREAM_TURBULENCEINTENSITY": "0.025",
+        "FREESTREAM_TURB2LAMVISCRATIO": "100.0",
+        "INIT_OPTION": "TD_CONDITIONS",
+        "REF_ORIGIN_MOMENT_X": "0.00",
+        "REF_ORIGIN_MOMENT_Y": "0.00",
+        "REF_ORIGIN_MOMENT_Z": "0.00",
+        "REF_AREA": "1.0",
+        "REF_DIMENSIONALIZATION": "DIMENSIONAL",
+        "FLUID_MODEL": "IDEAL_GAS",
+        "GAMMA_VALUE": "1.4",
+        "GAS_CONSTANT": "287.058",
+        "CRITICAL_TEMPERATURE": "273.15",
+        "CRITICAL_PRESSURE": "101325.0",
+        "ACENTRIC_FACTOR": "0.035",
+        "VISCOSITY_MODEL": "SUTHERLAND",
+        "MU_CONSTANT": "1.716E-5",
+        "MU_REF": "1.716E-5",
+        "MU_T_REF": "273.15",
+        "SUTHERLAND_CONSTANT": "110.4",
+        "CONDUCTIVITY_MODEL": "CONSTANT_PRANDTL",
+        "MARKER_HEATFLUX": "(BLADE1, 0.0, BLADE2, 0.0, BLADE3, 0.0, HUB1, 0.0, SHROUD1, 0.0, HUB2, 0.0, SHROUD2, 0.0, HUB3, 0.0, SHROUD3, 0.0)",
+        "MARKER_WALL_FUNCTIONS": "( BLADE1, STANDARD_WALL_FUNCTION , BLADE2, STANDARD_WALL_FUNCTION , BLADE3, STANDARD_WALL_FUNCTION , HUB1, STANDARD_WALL_FUNCTION , SHROUD1, STANDARD_WALL_FUNCTION , HUB2, STANDARD_WALL_FUNCTION , SHROUD2, STANDARD_WALL_FUNCTION , HUB3, STANDARD_WALL_FUNCTION , SHROUD3, STANDARD_WALL_FUNCTION )",
+        "WALLMODEL_KAPPA": "0.41",
+        "WALLMODEL_B": "5.5",
+        "WALLMODEL_MINYPLUS": "5.0",
+        "WALLMODEL_MAXITER": "200",
+        "WALLMODEL_RELFAC": "0.5",
+        "MARKER_PERIODIC": "(PER1_STATOR1, PER2_STATOR1, 0.0, 0.0, 0.0, 0.0, 0.0, 8.7804878, 0.0, 0.0, 0.0, PER1_ROTOR, PER2_ROTOR, 0.0, 0.0, 0.0, 0.0, 0.0, 8.7804878, 0.0, 0.0, 0.0, PER1_STATOR2, PER2_STATOR2, 0.0, 0.0, 0.0, 0.0, 0.0, 8.7804878, 0.0, 0.0, 0.0)",
+        "MARKER_TURBOMACHINERY": "(INFLOW_STATOR1, OUTFLOW_STATOR1, INFLOW_ROTOR, OUTFLOW_ROTOR, INFLOW_STATOR2, OUTFLOW_STATOR2)",
+        "MARKER_ANALYZE": "(INFLOW_STATOR1, OUTFLOW_STATOR2)",
+        "MARKER_MIXINGPLANE_INTERFACE": "(OUTFLOW_STATOR1, INFLOW_ROTOR, OUTFLOW_ROTOR, INFLOW_STATOR2)",
+        "MARKER_ZONE_INTERFACE": "(OUTFLOW_STATOR1, INFLOW_ROTOR, OUTFLOW_ROTOR, INFLOW_STATOR2)",
+        "MARKER_GILES": "(INFLOW_STATOR1, TOTAL_CONDITIONS_PT, 158245.38, 308.26, 1.0, 0.0, 0.0, 0.3, 0.0, OUTFLOW_STATOR1, MIXING_OUT, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.0, INFLOW_ROTOR, MIXING_IN, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.0, OUTFLOW_ROTOR, MIXING_OUT, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.0, INFLOW_STATOR2, MIXING_IN, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.0, OUTFLOW_STATOR2, STATIC_PRESSURE_1D, 110050.96, 0.0, 0.0, 0.0, 0.0 , 1.0, 0.0)",
+        "SPATIAL_FOURIER": "NO",
+        "GILES_EXTRA_RELAXFACTOR": "(0.05, 0.05)",
+        "MARKER_SHROUD": "(SHROUD1, SHROUD2, SHROUD3)",
+        "TURBOMACHINERY_KIND": "AXIAL AXIAL AXIAL",
+        "TURBO_PERF_KIND": "(TURBINE, TURBINE, TURBINE)",
+        "MIXINGPLANE_INTERFACE_KIND": "LINEAR_INTERPOLATION",
+        "TURBULENT_MIXINGPLANE": "YES",
+        "RAMP_OUTLET": "NO",
+        "RAMP_OUTLET_COEFF": "(140000.0, 150.0, 2000)",
+        "AVERAGE_PROCESS_KIND": "MIXEDOUT",
+        "PERFORMANCE_AVERAGE_PROCESS_KIND": "MIXEDOUT",
+        "MIXEDOUT_COEFF": "(1.0, 1.0E-05, 15)",
+        "AVERAGE_MACH_LIMIT": "0.03",
+        "MARKER_PLOTTING": "(BLADE1, BLADE2, BLADE3)",
+        "MARKER_MONITORING": "(BLADE1, BLADE2, BLADE3)",
+        "NUM_METHOD_GRAD": "WEIGHTED_LEAST_SQUARES",
+        "CFL_NUMBER": "2",
+        "CFL_ADAPT": "NO",
+        "CFL_ADAPT_PARAM": "( 1.3, 1.2, 1.0, 10.0)",
+        "LINEAR_SOLVER": "FGMRES",
+        "LINEAR_SOLVER_PREC": "LU_SGS",
+        "LINEAR_SOLVER_ERROR": "1E-4",
+        "LINEAR_SOLVER_ITER": "15",
+        "MGLEVEL": "2",
+        "VENKAT_LIMITER_COEFF": "0.01",
+        "LIMITER_ITER": "999999",
+        "CONV_NUM_METHOD_FLOW": "JST",
+        "ENTROPY_FIX_COEFF": "0.3",
+        "JST_SENSOR_COEFF": "( 0.5, 0.25 )",
+        "MUSCL_FLOW": "NO",
+        "SLOPE_LIMITER_FLOW": "VENKATAKRISHNAN",
+        "TIME_DISCRE_FLOW": "EULER_IMPLICIT",
+        "CONV_NUM_METHOD_TURB": "SCALAR_UPWIND",
+        "MUSCL_TURB": "NO",
+        "SLOPE_LIMITER_TURB": "VENKATAKRISHNAN",
+        "TIME_DISCRE_TURB": "EULER_IMPLICIT",
+        "CFL_REDUCTION_TURB": "0.1",
+        "DV_KIND": "NO_DEFORMATION",
+        "DV_MARKER": "(BLADE1, BLADE2, BLADE3)",
+        "DV_PARAM": "( 1, 0.5)",
+        "DV_VALUE": "0.01",
+        "OUTER_ITER": "10000",
+        "CONV_FIELD": "RMS_ENERGY[0]",
+        "CONV_RESIDUAL_MINVAL": "-20",
+        "CONV_STARTITER": "10",
+        "SCREEN_OUTPUT": "(OUTER_ITER, RMS_DENSITY[0], RMS_DENSITY[1], RMS_DENSITY[2], RMS_MOMENTUM-X[0], RMS_MOMENTUM-X[1], RMS_MOMENTUM-X[2], RMS_MOMENTUM-Y[0], RMS_MOMENTUM-Y[1], RMS_MOMENTUM-Y[2], RMS_MOMENTUM-Z[0], RMS_MOMENTUM-Z[1], RMS_MOMENTUM-Z[2], RMS_ENERGY[0], RMS_ENERGY[1], RMS_ENERGY[2])",
+        "HISTORY_OUTPUT": "(ITER, RMS_RES, TURBO_PERF, LINSOL, CFL_NUMBER)",
+        "VOLUME_OUTPUT": "(COORDINATES, SOLUTION, PRIMITIVE, TURBOMACHINERY, RESIDUAL, LIMITER, VORTEX_IDENTIFICATION)",
+        "OUTPUT_FILES": "(RESTART, PARAVIEW)",
+        "MESH_FILENAME": "Aachen_3D_41_blade_coarse.su2",
+        "MESH_FORMAT": "SU2",
+        "MESH_OUT_FILENAME": "mesh_out",
+        "SOLUTION_FILENAME": "solution_flow",
+        "SOLUTION_ADJ_FILENAME": "solution_adj",
+        "TABULAR_FORMAT": "CSV",
+        "CONV_FILENAME": "history",
+        "RESTART_FILENAME": "restart_flow",
+        "RESTART_ADJ_FILENAME": "restart_adj",
+        "VOLUME_FILENAME": "flow",
+        "VOLUME_ADJ_FILENAME": "adjoint",
+        "GRAD_OBJFUNC_FILENAME": "of_grad",
+        "SURFACE_FILENAME": "surface_flow",
+        "SURFACE_ADJ_FILENAME": "surface_adjoint",
+        "OUTPUT_WRT_FREQ": "250",
+        "HISTORY_WRT_FREQ_OUTER": "1",
+        "WRT_ZONE_HIST": "YES"
+      },
+      "stator1.cfg": {
+        "GRID_MOVEMENT": "ROTATING_FRAME",
+        "HISTORY_OUTPUT": "(ITER, RMS_RES, LINSOL, CFL_NUMBER)"
+      },
+      "rotor.cfg": {
+        "GRID_MOVEMENT": "ROTATING_FRAME",
+        "MACH_MOTION": "0.35",
+        "MOTION_ORIGIN": "0.0 0.0 0.0",
+        "ROTATION_RATE": "0.0 0.0 -366.52",
+        "RAMP_MOTION_FRAME": "NO",
+        "RAMP_MOTION_FRAME_COEFF": "(0.0, 39.0, 500)",
+        "HISTORY_OUTPUT": "(ITER, RMS_RES, LINSOL, CFL_NUMBER)"
+      },
+      "stator2.cfg": {
+        "GRID_MOVEMENT": "ROTATING_FRAME",
+        "HISTORY_OUTPUT": "(ITER, RMS_RES, LINSOL, CFL_NUMBER)"
+      }
+    },
+    "PR MG3": {
+      "aachen_3D_MP_restart.cfg": {
+        "SOLVER": "RANS",
+        "KIND_TURB_MODEL": "SA",
+        "MATH_PROBLEM": "DIRECT",
+        "RESTART_SOL": "YES",
+        "MULTIZONE": "YES",
+        "CONFIG_LIST": "(stator1.cfg, rotor.cfg, stator2.cfg)",
+        "MACH_NUMBER": "0.05",
+        "AOA": "0.0",
+        "FREESTREAM_PRESSURE": "140000.0",
+        "FREESTREAM_TEMPERATURE": "300.0",
+        "FREESTREAM_DENSITY": "1.7418",
+        "FREESTREAM_OPTION": "TEMPERATURE_FS",
+        "FREESTREAM_TURBULENCEINTENSITY": "0.025",
+        "FREESTREAM_TURB2LAMVISCRATIO": "100.0",
+        "INIT_OPTION": "TD_CONDITIONS",
+        "REF_ORIGIN_MOMENT_X": "0.00",
+        "REF_ORIGIN_MOMENT_Y": "0.00",
+        "REF_ORIGIN_MOMENT_Z": "0.00",
+        "REF_AREA": "1.0",
+        "REF_DIMENSIONALIZATION": "DIMENSIONAL",
+        "FLUID_MODEL": "IDEAL_GAS",
+        "GAMMA_VALUE": "1.4",
+        "GAS_CONSTANT": "287.058",
+        "CRITICAL_TEMPERATURE": "273.15",
+        "CRITICAL_PRESSURE": "101325.0",
+        "ACENTRIC_FACTOR": "0.035",
+        "VISCOSITY_MODEL": "SUTHERLAND",
+        "MU_CONSTANT": "1.716E-5",
+        "MU_REF": "1.716E-5",
+        "MU_T_REF": "273.15",
+        "SUTHERLAND_CONSTANT": "110.4",
+        "CONDUCTIVITY_MODEL": "CONSTANT_PRANDTL",
+        "MARKER_HEATFLUX": "(BLADE1, 0.0, BLADE2, 0.0, BLADE3, 0.0, HUB1, 0.0, SHROUD1, 0.0, HUB2, 0.0, SHROUD2, 0.0, HUB3, 0.0, SHROUD3, 0.0)",
+        "MARKER_WALL_FUNCTIONS": "( BLADE1, STANDARD_WALL_FUNCTION , BLADE2, STANDARD_WALL_FUNCTION , BLADE3, STANDARD_WALL_FUNCTION , HUB1, STANDARD_WALL_FUNCTION , SHROUD1, STANDARD_WALL_FUNCTION , HUB2, STANDARD_WALL_FUNCTION , SHROUD2, STANDARD_WALL_FUNCTION , HUB3, STANDARD_WALL_FUNCTION , SHROUD3, STANDARD_WALL_FUNCTION )",
+        "WALLMODEL_KAPPA": "0.41",
+        "WALLMODEL_B": "5.5",
+        "WALLMODEL_MINYPLUS": "5.0",
+        "WALLMODEL_MAXITER": "200",
+        "WALLMODEL_RELFAC": "0.5",
+        "MARKER_PERIODIC": "(PER1_STATOR1, PER2_STATOR1, 0.0, 0.0, 0.0, 0.0, 0.0, 8.7804878, 0.0, 0.0, 0.0, PER1_ROTOR, PER2_ROTOR, 0.0, 0.0, 0.0, 0.0, 0.0, 8.7804878, 0.0, 0.0, 0.0, PER1_STATOR2, PER2_STATOR2, 0.0, 0.0, 0.0, 0.0, 0.0, 8.7804878, 0.0, 0.0, 0.0)",
+        "MARKER_TURBOMACHINERY": "(INFLOW_STATOR1, OUTFLOW_STATOR1, INFLOW_ROTOR, OUTFLOW_ROTOR, INFLOW_STATOR2, OUTFLOW_STATOR2)",
+        "MARKER_ANALYZE": "(INFLOW_STATOR1, OUTFLOW_STATOR2)",
+        "MARKER_MIXINGPLANE_INTERFACE": "(OUTFLOW_STATOR1, INFLOW_ROTOR, OUTFLOW_ROTOR, INFLOW_STATOR2)",
+        "MARKER_ZONE_INTERFACE": "(OUTFLOW_STATOR1, INFLOW_ROTOR, OUTFLOW_ROTOR, INFLOW_STATOR2)",
+        "MARKER_GILES": "(INFLOW_STATOR1, TOTAL_CONDITIONS_PT, 158245.38, 308.26, 1.0, 0.0, 0.0, 0.3, 0.0, OUTFLOW_STATOR1, MIXING_OUT, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.0, INFLOW_ROTOR, MIXING_IN, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.0, OUTFLOW_ROTOR, MIXING_OUT, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.0, INFLOW_STATOR2, MIXING_IN, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.0, OUTFLOW_STATOR2, STATIC_PRESSURE_1D, 110050.96, 0.0, 0.0, 0.0, 0.0 , 1.0, 0.0)",
+        "SPATIAL_FOURIER": "NO",
+        "GILES_EXTRA_RELAXFACTOR": "(0.05, 0.05)",
+        "MARKER_SHROUD": "(SHROUD1, SHROUD2, SHROUD3)",
+        "TURBOMACHINERY_KIND": "AXIAL AXIAL AXIAL",
+        "TURBO_PERF_KIND": "(TURBINE, TURBINE, TURBINE)",
+        "MIXINGPLANE_INTERFACE_KIND": "LINEAR_INTERPOLATION",
+        "TURBULENT_MIXINGPLANE": "YES",
+        "RAMP_OUTLET": "NO",
+        "RAMP_OUTLET_COEFF": "(140000.0, 150.0, 2000)",
+        "AVERAGE_PROCESS_KIND": "MIXEDOUT",
+        "PERFORMANCE_AVERAGE_PROCESS_KIND": "MIXEDOUT",
+        "MIXEDOUT_COEFF": "(1.0, 1.0E-05, 15)",
+        "AVERAGE_MACH_LIMIT": "0.03",
+        "MARKER_PLOTTING": "(BLADE1, BLADE2, BLADE3)",
+        "MARKER_MONITORING": "(BLADE1, BLADE2, BLADE3)",
+        "NUM_METHOD_GRAD": "WEIGHTED_LEAST_SQUARES",
+        "CFL_NUMBER": "2",
+        "CFL_ADAPT": "NO",
+        "CFL_ADAPT_PARAM": "( 1.3, 1.2, 1.0, 10.0)",
+        "LINEAR_SOLVER": "FGMRES",
+        "LINEAR_SOLVER_PREC": "LU_SGS",
+        "LINEAR_SOLVER_ERROR": "1E-4",
+        "LINEAR_SOLVER_ITER": "15",
+        "MGLEVEL": "3",
+        "VENKAT_LIMITER_COEFF": "0.01",
+        "LIMITER_ITER": "999999",
+        "CONV_NUM_METHOD_FLOW": "JST",
+        "ENTROPY_FIX_COEFF": "0.3",
+        "JST_SENSOR_COEFF": "( 0.5, 0.25 )",
+        "MUSCL_FLOW": "NO",
+        "SLOPE_LIMITER_FLOW": "VENKATAKRISHNAN",
+        "TIME_DISCRE_FLOW": "EULER_IMPLICIT",
+        "CONV_NUM_METHOD_TURB": "SCALAR_UPWIND",
+        "MUSCL_TURB": "NO",
+        "SLOPE_LIMITER_TURB": "VENKATAKRISHNAN",
+        "TIME_DISCRE_TURB": "EULER_IMPLICIT",
+        "CFL_REDUCTION_TURB": "0.1",
+        "DV_KIND": "NO_DEFORMATION",
+        "DV_MARKER": "(BLADE1, BLADE2, BLADE3)",
+        "DV_PARAM": "( 1, 0.5)",
+        "DV_VALUE": "0.01",
+        "OUTER_ITER": "10000",
+        "CONV_FIELD": "RMS_ENERGY[0]",
+        "CONV_RESIDUAL_MINVAL": "-20",
+        "CONV_STARTITER": "10",
+        "SCREEN_OUTPUT": "(OUTER_ITER, RMS_DENSITY[0], RMS_DENSITY[1], RMS_DENSITY[2], RMS_MOMENTUM-X[0], RMS_MOMENTUM-X[1], RMS_MOMENTUM-X[2], RMS_MOMENTUM-Y[0], RMS_MOMENTUM-Y[1], RMS_MOMENTUM-Y[2], RMS_MOMENTUM-Z[0], RMS_MOMENTUM-Z[1], RMS_MOMENTUM-Z[2], RMS_ENERGY[0], RMS_ENERGY[1], RMS_ENERGY[2])",
+        "HISTORY_OUTPUT": "(ITER, RMS_RES, TURBO_PERF, LINSOL, CFL_NUMBER)",
+        "VOLUME_OUTPUT": "(COORDINATES, SOLUTION, PRIMITIVE, TURBOMACHINERY, RESIDUAL, LIMITER, VORTEX_IDENTIFICATION)",
+        "OUTPUT_FILES": "(RESTART, PARAVIEW)",
+        "MESH_FILENAME": "Aachen_3D_41_blade_coarse.su2",
+        "MESH_FORMAT": "SU2",
+        "MESH_OUT_FILENAME": "mesh_out",
+        "SOLUTION_FILENAME": "solution_flow",
+        "SOLUTION_ADJ_FILENAME": "solution_adj",
+        "TABULAR_FORMAT": "CSV",
+        "CONV_FILENAME": "history",
+        "RESTART_FILENAME": "restart_flow",
+        "RESTART_ADJ_FILENAME": "restart_adj",
+        "VOLUME_FILENAME": "flow",
+        "VOLUME_ADJ_FILENAME": "adjoint",
+        "GRAD_OBJFUNC_FILENAME": "of_grad",
+        "SURFACE_FILENAME": "surface_flow",
+        "SURFACE_ADJ_FILENAME": "surface_adjoint",
+        "OUTPUT_WRT_FREQ": "250",
+        "HISTORY_WRT_FREQ_OUTER": "1",
+        "WRT_ZONE_HIST": "YES"
+      },
+      "stator1.cfg": {
+        "GRID_MOVEMENT": "ROTATING_FRAME",
+        "HISTORY_OUTPUT": "(ITER, RMS_RES, LINSOL, CFL_NUMBER)"
+      },
+      "rotor.cfg": {
+        "GRID_MOVEMENT": "ROTATING_FRAME",
+        "MACH_MOTION": "0.35",
+        "MOTION_ORIGIN": "0.0 0.0 0.0",
+        "ROTATION_RATE": "0.0 0.0 -366.52",
+        "RAMP_MOTION_FRAME": "NO",
+        "RAMP_MOTION_FRAME_COEFF": "(0.0, 39.0, 500)",
+        "HISTORY_OUTPUT": "(ITER, RMS_RES, LINSOL, CFL_NUMBER)"
+      },
+      "stator2.cfg": {
+        "GRID_MOVEMENT": "ROTATING_FRAME",
+        "HISTORY_OUTPUT": "(ITER, RMS_RES, LINSOL, CFL_NUMBER)"
+      }
+    }
+  },
+  "same_PR_binary_at_all_levels": true,
+  "configs_equal_except_MGLEVEL": true,
+  "snapshot_sha256": {
+    "MG_cluster_results/develop/aachen_3D_MP_restart.cfg": "b0367bde427e1eadf9e6a32988fd56f6e5f6f74f0f53eb4424d4b46e3bdeb87f",
+    "MG_cluster_results/develop/stator1.cfg": "cbb81d495bdd65b2fa70e2f0cd705c4e6eb78ba637f501276529d09f8af8c9d8",
+    "MG_cluster_results/develop/rotor.cfg": "50f72ab3618d5fc362b10653a4144ced09b7f4872cea190a297acb3056f82f5a",
+    "MG_cluster_results/develop/stator2.cfg": "cbb81d495bdd65b2fa70e2f0cd705c4e6eb78ba637f501276529d09f8af8c9d8",
+    "MG_cluster_results/develop/history_0.csv": "02507d8677756b9bb5f49f47174f9d58cfff2aedb183b2a95fd431d2af485131",
+    "MG_cluster_results/develop/history_1.csv": "0b626af862e8ec219f9048ccacb808d22916d720eb29f09842bd587612b0fa94",
+    "MG_cluster_results/develop/history_2.csv": "81043ab4f2f4c4454de0acdb424a3678f32fef6044f616115c0d335e230aa188",
+    "MG_cluster_results/develop/aachen_3D_MP_restart.csv": "5a39d547c6c7f3b042cb57eeb5aeece0ec006e6bf7bdcf08580925f05374a7ca",
+    "MG_cluster_results/develop/solver.log": "293e8733979925a47e2014e58bbe2f5a117b28b5c8317f9e5cc2d980e389fb88",
+    "MG_cluster_results/develop/job.out": "a67899e5287ddac17a30ffcd309f1cd65149d0711f733ed1d2fe2cf2d19968b3",
+    "MG_cluster_results/develop/flow_0.vtu": "9531d95b4e9334753e53df9b9305e6c5cbd497f13ff418c9044884b0eaf979d7",
+    "MG_cluster_results/develop/flow_1.vtu": "c08a5cd8bb0aa0577d5c6078db7c9dca022a211086754cda5e0679830dc8e758",
+    "MG_cluster_results/develop/flow_2.vtu": "3585881bea1fff3b41bf5348855f8efc5472add513c88244b7f4b88ef422963d",
+    "MG_cluster_results/develop/build-info.txt": "ddd9cb279d5ecda92fb418aff4b199b0e5758bb86032bba2b1ac4f8406c9f7a4",
+    "MG_cluster_results/develop/binary.sha256": "1a95afd694c9313dad4e3ee85fcc5440febd97041b31d14c40b6fa76fea36b85",
+    "MG_cluster_results/develop/job.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "MG_cluster_results/pr2961-new/aachen_3D_MP_restart.cfg": "241d54955fb9eec1004ec22c4f19b69af35564cde4ab14f96cac740018d4badb",
+    "MG_cluster_results/pr2961-new/stator1.cfg": "cbb81d495bdd65b2fa70e2f0cd705c4e6eb78ba637f501276529d09f8af8c9d8",
+    "MG_cluster_results/pr2961-new/rotor.cfg": "50f72ab3618d5fc362b10653a4144ced09b7f4872cea190a297acb3056f82f5a",
+    "MG_cluster_results/pr2961-new/stator2.cfg": "cbb81d495bdd65b2fa70e2f0cd705c4e6eb78ba637f501276529d09f8af8c9d8",
+    "MG_cluster_results/pr2961-new/history_0.csv": "d8a2da1103ea78b11755b1769a4eba364e8fc7e3348b31b33f3395d1538f5c7b",
+    "MG_cluster_results/pr2961-new/history_1.csv": "40a2737c8f2e8b2c75b7c06400feafc3454345d34c06fd7b5df253f774d42dd0",
+    "MG_cluster_results/pr2961-new/history_2.csv": "86bdd63af5bb0dfd9d9f80f11967706841a186e23609a37a8c78be6122d79067",
+    "MG_cluster_results/pr2961-new/aachen_3D_MP_restart.csv": "b27a7589ccbf87c803f1add8a864d30ee0a7dc71b431215d530f720451962f43",
+    "MG_cluster_results/pr2961-new/solver.log": "cb572571f1bb6e8b216f53cdb523049648cd3c706888f33a0be72069e53abd32",
+    "MG_cluster_results/pr2961-new/job.out": "d185d452cf12b9c34d0f7a7254ac9a950480d1a041bb88e87d13f0c7fd6de9c8",
+    "MG_cluster_results/pr2961-new/flow_0.vtu": "7c605c00f504ee4055bb34b1dc85b08bde15afa21eead8657b9a25920eef4822",
+    "MG_cluster_results/pr2961-new/flow_1.vtu": "137e7d5d66358cf356ad4c8d84891ec64676300cfe5203120e37601337ce7407",
+    "MG_cluster_results/pr2961-new/flow_2.vtu": "e9d28893ddcc90574aed9ce83a11fc8cc92142cabf440bca6cc3dbfbe9405b9e",
+    "MG_cluster_results/pr2961-new/build-info.txt": "4593bedef3c36f024f73c39acbbf72ba6739bdd458c41f26be89624719037ab0",
+    "MG_cluster_results/pr2961-new/binary.sha256": "6b725e5affb99b934fe372fffa075f9fca70c91b3c35683da9f1e9e2e557cde9",
+    "MG_cluster_results/pr2961-new/job.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "MG_cluster_levels/pr2961_mg2/aachen_3D_MP_restart.cfg": "a91f91f43f927ef858904c8ea229d4ee7b5186c16820de5fb1a91642acba68ef",
+    "MG_cluster_levels/pr2961_mg2/stator1.cfg": "cbb81d495bdd65b2fa70e2f0cd705c4e6eb78ba637f501276529d09f8af8c9d8",
+    "MG_cluster_levels/pr2961_mg2/rotor.cfg": "50f72ab3618d5fc362b10653a4144ced09b7f4872cea190a297acb3056f82f5a",
+    "MG_cluster_levels/pr2961_mg2/stator2.cfg": "cbb81d495bdd65b2fa70e2f0cd705c4e6eb78ba637f501276529d09f8af8c9d8",
+    "MG_cluster_levels/pr2961_mg2/history_0.csv": "b0683fca90f2751180431f49dda704341f269a14b6a045460d162138aa458814",
+    "MG_cluster_levels/pr2961_mg2/history_1.csv": "691e847407211d5605bdc66a645095721465f38323e35ef5e83a0672cefd3853",
+    "MG_cluster_levels/pr2961_mg2/history_2.csv": "f6b149a3bdfdcb3d8409e69be3d1e936e7b0f0c1971e58d1eb2a23c7694a45ec",
+    "MG_cluster_levels/pr2961_mg2/aachen_3D_MP_restart.csv": "f37ec78f85631ed353b2081bc0ebb2d2b64d269fcfea259361e694734380f70e",
+    "MG_cluster_levels/pr2961_mg2/solver.log": "d4aa096aa1a42b44615daaafd0d4f1af9df04cf8a90dc379b23dfbe3c0dbf9da",
+    "MG_cluster_levels/pr2961_mg2/job.out": "0a848889d9955b6d6a34afc3ff4753e87db76c1c29ef3a85a01506490ff6be1f",
+    "MG_cluster_levels/pr2961_mg2/flow_0.vtu": "974b7129ebacebc0d41cc056ffc84996f7dbbb2c573aba4915cd98c5226fabc8",
+    "MG_cluster_levels/pr2961_mg2/flow_1.vtu": "2abf340e3a270597e826b8a272a8bbfa6c8aed89e3355ef6fb0dab66d7f8a314",
+    "MG_cluster_levels/pr2961_mg2/flow_2.vtu": "c74332d54f3261df2379dc70ca3dc548709162fbb65442300180b5db9b7a53a5",
+    "MG_cluster_levels/pr2961_mg2/build-info.txt": "23b19f0bb438b10b00c4541dc7658e330804047cad51a1b3cc476e48becc10a4",
+    "MG_cluster_levels/pr2961_mg2/binary.sha256": "6b725e5affb99b934fe372fffa075f9fca70c91b3c35683da9f1e9e2e557cde9",
+    "MG_cluster_levels/pr2961_mg2/job.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "MG_cluster_levels/pr2961_mg3/aachen_3D_MP_restart.cfg": "e023068008149c9353dc78f919b7f3daba16f8710b657a328d793fcd3a205fcc",
+    "MG_cluster_levels/pr2961_mg3/stator1.cfg": "cbb81d495bdd65b2fa70e2f0cd705c4e6eb78ba637f501276529d09f8af8c9d8",
+    "MG_cluster_levels/pr2961_mg3/rotor.cfg": "50f72ab3618d5fc362b10653a4144ced09b7f4872cea190a297acb3056f82f5a",
+    "MG_cluster_levels/pr2961_mg3/stator2.cfg": "cbb81d495bdd65b2fa70e2f0cd705c4e6eb78ba637f501276529d09f8af8c9d8",
+    "MG_cluster_levels/pr2961_mg3/history_0.csv": "156354f625731e3d8f712574fddd57a71b959586c0f026d88dffe76d78ea3870",
+    "MG_cluster_levels/pr2961_mg3/history_1.csv": "821028aaebce2c951c37be6c48cf53a9c2d15401ca5f16a6f4617125927b7fa3",
+    "MG_cluster_levels/pr2961_mg3/history_2.csv": "b5043b345610950da7b66d96e8863c65d95415d09cae976c3a4763f1d9837bd9",
+    "MG_cluster_levels/pr2961_mg3/aachen_3D_MP_restart.csv": "c7988c29d05c2793fa6fec8a464975da90326d24910514e430f3c38eff0c8d7f",
+    "MG_cluster_levels/pr2961_mg3/solver.log": "1b130301be2b94d6e5d778a0998aee6f79bfdaa15f15084a870cc4bba7926f8e",
+    "MG_cluster_levels/pr2961_mg3/job.out": "440db065fbdaa64b4cc63e7342dce7cea2a71f7939e6b209986bb5debf258d47",
+    "MG_cluster_levels/pr2961_mg3/flow_0.vtu": "b65549b479ba2cbd2afc4bec390e5950577fe1ae98e84db28cf0c1c9d84f3777",
+    "MG_cluster_levels/pr2961_mg3/flow_1.vtu": "e70cd61921afb905cddfa51e4394f82239e25011364515673e79434fc6e82fe9",
+    "MG_cluster_levels/pr2961_mg3/flow_2.vtu": "c5566fa919b1c4ec6bb6ac7d53e12696371ab3b151e5dec8b93d5d87974debc7",
+    "MG_cluster_levels/pr2961_mg3/build-info.txt": "adade52e02cc72fd2b8d26cbe1310d978598f8bb52c4608ce615b1ecb9a4dc4a",
+    "MG_cluster_levels/pr2961_mg3/binary.sha256": "6b725e5affb99b934fe372fffa075f9fca70c91b3c35683da9f1e9e2e557cde9",
+    "MG_cluster_levels/pr2961_mg3/job.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "limits": [
+    "Build-info are expected revision labels, not independently proven source identity. Updated MG1 label remains stale, but its binary hash matches MG2/MG3 labelled ef373c9706.",
+    "No returned input-restart fingerprints to independently prove matching initial bytes.",
+    "Warning counts refer to repeated point evaluations across markers/zones/grids, not unique points.",
+    "Performance-history mass flow mismatch is not a direct discrete conservation audit.",
+    "Logs have no usable elapsed solver timings; no speedup claim.",
+    "ParaView state is an output snapshot; consistency here does not establish consistency of all states passed to fluxes.",
+    "Completed cluster data publication; no additional CFD run. Large output VTU and solver logs are not bundled; spatial diagnostics are summarized only."
+  ]
+}
