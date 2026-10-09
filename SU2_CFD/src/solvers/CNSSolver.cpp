@@ -820,6 +820,11 @@ void CNSSolver::SetTau_Wall_WF(CGeometry *geometry, CSolver **solver_container, 
   const su2double kappa = config->GetwallModel_Kappa();
   const su2double B = config->GetwallModel_B();
 
+  /*--- Clear once per node: an inactive vertex must not erase another marker's active shear. ---*/
+  SU2_OMP_FOR_STAT(OMP_MIN_SIZE)
+  for (auto iPoint = 0ul; iPoint < nPoint; ++iPoint) nodes->SetTau_Wall(iPoint, 0.0);
+  END_SU2_OMP_FOR
+
   for (auto iMarker = 0u; iMarker < config->GetnMarker_All(); iMarker++) {
 
     if (!config->GetViscous_Wall(iMarker)) continue;
@@ -931,6 +936,9 @@ void CNSSolver::SetTau_Wall_WF(CGeometry *geometry, CSolver **solver_container, 
       /*--- Automatic switch off when y+ < "limit" according to Nichols & Nelson (2004) ---*/
 
       if (Y_Plus_Start < config->GetwallModel_MinYPlus()) {
+        YPlus[iMarker][iVertex] = Y_Plus_Start;
+        EddyViscWall[iMarker][iVertex] = 0.0;
+        UTau[iMarker][iVertex] = 0.0;
         smallYPlusCounter++;
         continue;
       }
