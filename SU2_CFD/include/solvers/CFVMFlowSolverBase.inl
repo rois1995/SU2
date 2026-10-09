@@ -432,8 +432,24 @@ void CFVMFlowSolverBase<V, R>::SetPrimitive_Limiter(CGeometry* geometry, const C
   auto& primMax = nodes->GetSolution_Max();
   auto& limiter = nodes->GetLimiter_Primitive();
 
+  su2double reference[MAXNVAR] = {};
+  const su2double* refValue = nullptr;
+  // shortcut: ordinary compressible primitives only; other regimes need model-specific reference tests.
+  if (R == ENUM_REGIME::COMPRESSIBLE && prim_idx.NSpecies() == 0) {
+    reference[prim_idx.Temperature()] = Temperature_Inf;
+    reference[prim_idx.Pressure()] = Pressure_Inf;
+    reference[prim_idx.Density()] = Density_Inf;
+    const su2double thermalVelocity2 = Density_Inf > 0.0 ? fabs(Pressure_Inf / Density_Inf) : 0.0;
+    reference[prim_idx.Enthalpy()] = Energy_Inf + thermalVelocity2;
+    // A common thermal/flow speed avoids unit-dependent floors for zero velocity components.
+    const su2double velocity = sqrt(max(GeometryToolbox::SquaredNorm(nDim, Velocity_Inf), thermalVelocity2));
+    for (unsigned short dim = 0; dim < nDim; ++dim) reference[prim_idx.Velocity() + dim] = velocity;
+    refValue = reference;
+  }
+
   computeLimiters(kindLimiter, this, MPI_QUANTITIES::PRIMITIVE_LIMITER, PERIODIC_LIM_PRIM_1, PERIODIC_LIM_PRIM_2,
-                  *geometry, *config, 0, nPrimVarGrad, umusclKappa, primitives, gradient, primMin, primMax, limiter);
+                  *geometry, *config, 0, nPrimVarGrad, umusclKappa, primitives, gradient, primMin, primMax, limiter,
+                  refValue);
 }
 
 template <class V, ENUM_REGIME R>

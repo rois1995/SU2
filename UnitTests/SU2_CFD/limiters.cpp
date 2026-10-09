@@ -167,6 +167,59 @@ TEST_CASE("Local limiter length and relative scaling in 2D and 3D", "[Limiters][
   }
 }
 
+TEST_CASE("Flow limiters preserve the physical result across reference units", "[Limiters][FlowLimiterScaling]") {
+  for (const unsigned short nDim : {2, 3}) {
+    const CEulerVariable::CIndices<unsigned short> indices(nDim, 0);
+    for (const std::string flux : {"ROE", "HLLC"}) {
+      for (const std::string kind : {"VENKATAKRISHNAN", "NISHIKAWA_R3", "NISHIKAWA_R4", "NISHIKAWA_R5"}) {
+        su2activematrix reference;
+        for (const std::string units : {"DIMENSIONAL", "FREESTREAM_VEL_EQ_MACH", "FREESTREAM_VEL_EQ_ONE"}) {
+          CAPTURE(nDim, flux, kind, units);
+          auto config = transfer_test::MakeConfig(nDim, "SOLVER= EULER\nMUSCL_FLOW= YES\n"
+              "CONV_NUM_METHOD_FLOW= " + flux + "\nSLOPE_LIMITER_FLOW= " + kind +
+              "\nREF_DIMENSIONALIZATION= " + units + "\n");
+          transfer_test::MeshSolution domain(config.get(), transfer_test::BoxMesh(nDim, 2, false), 0);
+          auto& geometry = domain.Fine();
+          auto* flow = static_cast<CEulerSolver*>(domain.solver[0][FLOW_SOL]);
+          auto* nodes = flow->GetNodes();
+          auto& gradient = nodes->GetGradient_Reconstruction();
+          const auto nPrim = flow->GetnPrimVarGrad();
+          if (units == "DIMENSIONAL") reference.resize(geometry.GetnPointDomain(), nPrim);
+          su2double scale[CEulerVariable::MAXNVAR] = {};
+          scale[indices.Temperature()] = 1.0 / config->GetTemperature_Ref();
+          scale[indices.Pressure()] = 1.0 / config->GetPressure_Ref();
+          scale[indices.Density()] = 1.0 / config->GetDensity_Ref();
+          scale[indices.Enthalpy()] = 1.0 / config->GetEnergy_Ref();
+          for (unsigned short dim = 0; dim < nDim; ++dim) {
+            scale[indices.Velocity() + dim] = 1.0 / config->GetVelocity_Ref();
+            // Stagnant freestream exercises zero component references without a dimensional constant floor.
+            flow->GetVelocity_Inf()[dim] = 0.0;
+          }
+          for (auto point = 0ul; point < geometry.GetnPoint(); ++point) {
+            const auto x = geometry.nodes->GetCoord(point, 0);
+            for (unsigned short var = 0; var < nPrim; ++var) {
+              const bool velocity = var >= indices.Velocity() && var < indices.Velocity() + nDim;
+              nodes->GetPrimitive(point)[var] = scale[var] * (velocity ? 200.0 * (x - 0.5) : 2.0 + x * x);
+              for (unsigned short dim = 0; dim < nDim; ++dim)
+                gradient(point, var, dim) = dim == 0 ? scale[var] * (velocity ? 800.0 : 4.0 + 2.0 * x) : 0.0;
+            }
+          }
+          SU2_OMP_PARALLEL { flow->SetPrimitive_Limiter(&geometry, config.get()); }
+          for (auto point = 0ul; point < geometry.GetnPointDomain(); ++point)
+            for (unsigned short var = 0; var < nPrim; ++var) {
+              const auto value = nodes->GetLimiter_Primitive(point, var);
+              CHECK(std::isfinite(value));
+              CHECK(value >= 0.0);
+              CHECK(value <= 1.0);
+              if (units == "DIMENSIONAL") reference(point, var) = value;
+              else CHECK(value == Approx(reference(point, var)).margin(1e-12));
+            }
+        }
+      }
+    }
+  }
+}
+
 TEST_CASE("Compressible update relaxation uses internal energy density", "[Limiters][UnderRelaxation]") {
   UnitQuadTestCase domain;
   domain.AddOption("MGLEVEL= 0");
