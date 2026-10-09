@@ -50,6 +50,13 @@ Use the usual shared-node allocation, as requested; do not add an exclusive-node
 resource. The helper's dependencies serialize our jobs while other users may
 share the node. Treat timings as approximate shared-node measurements.
 
+The submission helper also supports older cluster Bash: its qsub argument array
+is always nonempty under `set -u`. If an earlier version failed with
+`hold[@]: unbound variable`, pull the current branch and repeat the submission
+command. That first-job expansion error occurs before qsub; no jobs were
+submitted by that failed attempt. No binary rebuild or correctness rerun is
+needed for this submission-script-only fix.
+
 First run one comparison repetition with the same two adaptation events as the
 downloaded baseline. From the candidate checkout root:
 

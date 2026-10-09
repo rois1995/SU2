@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "scope": "Fake-qsub submission regression and Bash syntax check only; no scheduler, compiler, MPI or CFD execution.",
+  "reported_error": "hold[@]: unbound variable on the first submission",
+  "fix": "Keep the qsub argument array nonempty under set -u; append dependency arguments when present.",
+  "checks": [
+    "24 fake submissions without an initial HOLD_JID, serialized dependencies and alternating version order",
+    "8 fake submissions with an explicit initial HOLD_JID, followed by chained dependencies",
+    "Invalid ranks, shared checkouts, source changes and escaping source/binary paths rejected before fake submission",
+    "bash -n submission helper"
+  ],
+  "local_bash": "5.0.17",
+  "limitation": "The cluster legacy Bash executable is unavailable locally; its exact interpreter version was not tested.",
+  "source_sha256": {
+    "SubmitMetricComparison.sh": "3b2e7fbb3de3ffb8ccc65c2b6db738c534abceb205f214a87e6aef016acae591",
+    "check_submission.py": "091b17b910443b0ee3cb0f537d98bb8dcac3d969a66a866c9090f2cc13c6c538"
+  }
+}

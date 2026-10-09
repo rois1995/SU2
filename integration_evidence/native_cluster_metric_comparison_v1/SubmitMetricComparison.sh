@@ -48,11 +48,12 @@ for (( rep=1; rep<=repeats; rep++ )); do
     for version in "${versions[@]}"; do
       checkout=$candidate_root
       if [[ "$version" == baseline ]]; then checkout=$baseline_root; fi
-      hold=()
-      if [[ -n "$previous" ]]; then hold=(-hold_jid "$previous"); fi
+      # Older Bash treats an empty array expansion as unset under nounset.
+      qsub_args=(-terse -pe mpi "$ranks" -N "Metric_${version}")
+      if [[ -n "$previous" ]]; then qsub_args+=(-hold_jid "$previous"); fi
       variables="BENCH_KIND=$kind,REPEATS=1,ADAPT_EVENTS=$events"
       if [[ -n "${ADAP_WORKERS:-}" ]]; then variables+=",ADAP_WORKERS=$ADAP_WORKERS"; fi
-      job=$(cd "$checkout" && qsub -terse -pe mpi "$ranks" -N "Metric_${version}" "${hold[@]}" \
+      job=$(cd "$checkout" && qsub "${qsub_args[@]}" \
         -v "$variables" \
         integration_evidence/native_cluster_campaign_v1/RunNativeSGE.sh)
       [[ "$job" =~ ^[0-9]+$ ]] || { echo "Unexpected qsub job ID: $job; preceding jobs remain submitted." >&2; exit 2; }

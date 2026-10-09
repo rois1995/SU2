@@ -68,4 +68,13 @@ print(rows[-1]['id'])
     outside=root/'outside';outside.write_text('outside');binary.symlink_to(outside)
     bad=subprocess.run(command,env=env,capture_output=True,text=True)
     assert bad.returncode!=0 and len(json.loads(log.read_text()))==24
-print('PASS: 24 fake submissions; chained holds/order/receipts; invalid ranks, sources, shared root and escaping source/binary reject before submission. No SGE jobs submitted.')
+    binary.unlink();binary.write_text('fake binary')
+    held_log=root/'qsub-held.json'
+    held=subprocess.run(['bash',str(script),str(baseline),'4','1','2'],
+                        env=dict(env,HOLD_JID='9999',FAKE_QSUB_LOG=str(held_log)),capture_output=True,text=True)
+    assert held.returncode==0,(held.stdout,held.stderr)
+    held_rows=json.loads(held_log.read_text());assert len(held_rows)==8
+    for index,row in enumerate(held_rows):
+        args=row['args'];assert all(args)
+        assert args[args.index('-hold_jid')+1]==('9999' if index==0 else held_rows[index-1]['id'])
+print('PASS: 32 fake submissions; no initial hold and explicit initial hold; chained holds/order/receipts; invalid ranks, sources, shared root and escaping source/binary reject before submission. No SGE jobs submitted.')
