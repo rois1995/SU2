@@ -51,6 +51,12 @@ if get_option('enable-tests')
         cpp_args: ['-fPIC', default_warning_flags, su2_cpp_args]
     )
     test('Catch2 test driver', test_driver)
+    # These heated-wall reference cases are validated in double precision.
+    if not get_option('enable-singleprec')
+      wall_model_test = executable('wall_function_model_test', 'SU2_CFD/wall_function_model.cpp',
+          dependencies: su2_deps, cpp_args: su2_cpp_args)
+      test('Wall-function model roots', wall_model_test)
+    endif
     test('NEMO convergence field migration', python,
          args: files('SU2_CFD/output/check_nemo_convergence_migration.py') + [test_driver.full_path()],
          timeout: 300)
@@ -67,6 +73,12 @@ if get_option('enable-tests')
         cpp_args: ['-fPIC', default_warning_flags, su2_cpp_args, codi_rev_args]
     )
     test('Catch2 test driver (AD)', test_driver_AD)
+    # The standalone tape test does not initialize OpDiLib.
+    if not omp
+      wall_model_test_ad = executable('wall_function_model_test_AD', 'SU2_CFD/wall_function_model.cpp',
+          dependencies: [su2_deps, codi_dep], cpp_args: [su2_cpp_args, codi_rev_args])
+      test('Wall-function model roots and adjoints', wall_model_test_ad)
+    endif
   endif
 
   if get_option('enable-directdiff')
@@ -80,5 +92,8 @@ if get_option('enable-tests')
         cpp_args: ['-fPIC', default_warning_flags, su2_cpp_args, codi_for_args]
     )
     test('Catch2 test driver (DD)', test_driver_DD)
+    wall_model_test_dd = executable('wall_function_model_test_DD', 'SU2_CFD/wall_function_model.cpp',
+        dependencies: [su2_deps, codi_dep], cpp_args: [su2_cpp_args, codi_for_args])
+    test('Wall-function model roots and sensitivities', wall_model_test_dd)
   endif
 endif
