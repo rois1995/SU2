@@ -38,7 +38,7 @@ class CBarycentricLocator;
 
 /*!
  * \class CMetricPredictor
- * \brief Predicts the metric of the next time window from two metric snapshots of the current window, on the current
+ * \brief Predicts the metric of the next time window from metric snapshots of the current window, on the current
  *        mesh (simplices, serial: with MPI the driver gathers the mesh and the snapshots on one rank). Mesh-native
  *        counterpart of the user's PredictMetric_Aniso_Numba.py (PIV on a raster):
  *        1. Motion field W (displacement per time step) of the scalar invariant s = 0.5 log10(det M) between the
@@ -47,6 +47,8 @@ class CBarycentricLocator;
  *           (semi-Lagrangian: the backward trajectory of each point) and, where it is anisotropic, reoriented and
  *           stretched by the deformation of the motion, M_t = F^-T M_k F^-1 (congruence); its sizes are limited to
  *           [hmin, hmax]; the instants are intersected (Predict).
+ *        Three or more snapshots fit temporally filtered feature velocity and acceleration (MotionHistory).
+ *        Accelerating transport traces each future endpoint back independently.
  *        The caller scales the result to the target complexity and applies the bounds (CSolver::ComputeMetric).
  * \note Optical flow (MotionField): brightness constancy s_j(x - D) = s_k(x) for the displacement D = W x separation,
  *       solved as a variational (Horn-Schunck type) problem with a normalized data term,
@@ -96,6 +98,13 @@ class CMetricPredictor {
     bool converged = true;          /*!< \brief All linear solves reached their tolerance. */
   };
 
+  /*! \brief Diagnostics of the temporally filtered feature motion. */
+  struct HistoryReport {
+    std::vector<MotionReport> pairs;
+    su2double constantMismatch = 0, fittedMismatch = 0, maxAcceleration = 0;
+    bool accelerationKept = false;
+  };
+
   /*!
    * \brief Diagnostics of the transport.
    */
@@ -141,6 +150,17 @@ class CMetricPredictor {
                                      su2double regularization, MotionReport& report,
                                      const std::vector<bool>* fixed = nullptr);
 
+  /*! \brief Fit final feature velocity and acceleration from earlier-to-final optical flows. Times increase,
+   *         all invariants share one mesh. Temporal ridge filtering and a history-mismatch fallback reject
+   *         acceleration that fails to improve the saved history; two snapshots preserve MotionField exactly.
+   *         This is an in-sample safeguard, not a guarantee of future acceleration. Units are time steps.
+   */
+  std::vector<su2double> MotionHistory(const std::vector<std::vector<su2double>>& snapshots,
+                                     const std::vector<su2double>& times, const std::vector<su2double>* guess,
+                                     su2double regularization, su2double temporalFilter,
+                                     std::vector<su2double>& acceleration, HistoryReport& report,
+                                     const std::vector<bool>* fixed = nullptr);
+
   /*!
    * \brief Metric of snapshot k moved (and reoriented) along the motion to each instant, limited to the size bounds,
    *        intersected over the instants.
@@ -150,11 +170,15 @@ class CMetricPredictor {
    * \param[in] options - Threshold and size bounds.
    * \param[out] report - Diagnostics.
    * \param[out] perInstant - If given: the metric of each instant (before the intersection).
+   * \param[in] acceleration - Optional feature acceleration, nPoint x nDim. Nonzero acceleration traces each
+   *            future endpoint back independently with W(x,t)=motion(x)+t acceleration(x); this costs more than
+   *            autonomous transport. Convex metric interpolation and exponential deformation retain SPD.
    * \return The predicted metric (nPoint rows of the upper triangle).
    */
   std::vector<su2double> Predict(const std::vector<su2double>& metricK, const std::vector<su2double>& motion,
                                  const std::vector<su2double>& instants, const Options& options,
-                                 PredictionReport& report, std::vector<std::vector<su2double>>* perInstant = nullptr);
+                                 PredictionReport& report, std::vector<std::vector<su2double>>* perInstant = nullptr,
+                                 const std::vector<su2double>* acceleration = nullptr);
 
   /*!
    * \brief Nodal gradient of a P1 field (volume-weighted mean of the element gradients), nPoint x nDim.

@@ -599,13 +599,99 @@ std::vector<su2double> CMetricPredictor::MotionField(const std::vector<su2double
   return motion;
 }
 
+std::vector<su2double> CMetricPredictor::MotionHistory(
+    const std::vector<std::vector<su2double>>& snapshots, const std::vector<su2double>& times,
+    const std::vector<su2double>* guess, su2double regularization, su2double temporalFilter,
+    std::vector<su2double>& acceleration, HistoryReport& report, const std::vector<bool>* fixed) {
+  report = HistoryReport();
+  const auto count = snapshots.size();
+  if (count < 2 || times.size() != count || !(temporalFilter >= 0.0) ||
+      !std::isfinite(SU2_TYPE::GetValue(temporalFilter)))
+    SU2_MPI::Error("Invalid temporal metric-prediction history or filter.", CURRENT_FUNCTION);
+  for (size_t j = 0; j < count; ++j)
+    if (snapshots[j].size() != nPoint || !std::isfinite(SU2_TYPE::GetValue(times[j])) ||
+        (j && !(times[j] > times[j - 1])))
+      SU2_MPI::Error("Metric-prediction snapshots require matching points and increasing finite times.", CURRENT_FUNCTION);
+
+  acceleration.assign(nPoint * nDim, 0.0);
+  std::vector<std::vector<su2double>> velocity;
+  std::vector<su2double> midpoint;
+  for (size_t j = 0; j + 1 < count; ++j) {
+    report.pairs.emplace_back();
+    const auto separation = times.back() - times[j];
+    midpoint.push_back(-0.5 * separation);
+    velocity.push_back(MotionField(snapshots[j], snapshots.back(), separation, guess, regularization,
+                                   report.pairs.back(), fixed));
+  }
+  if (count == 2) return velocity.back();
+
+  /*--- Pair velocities sample the interval midpoint for constant feature acceleration. A centered linear fit
+   *    averages temporal noise; the dimensionless ridge penalty shrinks acceleration without changing the mean. ---*/
+  const su2double meanTime = std::accumulate(midpoint.begin(), midpoint.end(), su2double(0)) / midpoint.size();
+  su2double variance = 0;
+  for (const auto t : midpoint) variance += pow(t - meanTime, 2);
+  if (!(variance > 0) || !std::isfinite(SU2_TYPE::GetValue(variance)))
+    SU2_MPI::Error("Metric-prediction history has an invalid temporal span.", CURRENT_FUNCTION);
+  std::vector<su2double> mean(nPoint * nDim, 0), fitted(mean);
+  for (auto k = 0ul; k < mean.size(); ++k) {
+    for (const auto& field : velocity) mean[k] += field[k] / velocity.size();
+    for (size_t j = 0; j < velocity.size(); ++j)
+      acceleration[k] += (midpoint[j] - meanTime) * (velocity[j][k] - mean[k]);
+    acceleration[k] /= variance * (1 + temporalFilter);
+    fitted[k] = mean[k] - acceleration[k] * meanTime;
+  }
+
+  /*--- Validate against the original, offset-corrected invariants. Keep the best constant model if acceleration
+   *    does not explain the saved history better; also retain zero motion as a safe candidate. ---*/
+  auto mismatch = [&](const std::vector<su2double>& motion, const std::vector<su2double>* accel) {
+    su2double error = 0;
+    std::vector<su2double> earlier(nPoint), displacement(nPoint * nDim);
+    for (size_t j = 0; j + 1 < count; ++j) {
+      const auto separation = times.back() - times[j];
+      for (auto p = 0ul; p < nPoint; ++p) earlier[p] = snapshots[j][p] + report.pairs[j].offset;
+      for (auto k = 0ul; k < displacement.size(); ++k)
+        displacement[k] = separation * (motion[k] - (accel ? 0.5 * separation * (*accel)[k] : su2double(0)));
+      const auto value = Mismatch(earlier, snapshots.back(), displacement);
+      error += value * value;
+    }
+    return sqrt(error / (count - 1));
+  };
+  std::vector<su2double> constant = velocity.back(), zero(nPoint * nDim, 0);
+  report.constantMismatch = mismatch(constant, nullptr);
+  for (const auto* candidate : {&mean, &zero}) {
+    const auto error = mismatch(*candidate, nullptr);
+    if (error < report.constantMismatch) { constant = *candidate; report.constantMismatch = error; }
+  }
+  report.fittedMismatch = mismatch(fitted, &acceleration);
+  report.accelerationKept = std::isfinite(SU2_TYPE::GetValue(report.fittedMismatch)) &&
+                            report.fittedMismatch < report.constantMismatch;
+  if (!report.accelerationKept) {
+    std::fill(acceleration.begin(), acceleration.end(), 0);
+    report.fittedMismatch = report.constantMismatch;
+    return constant;
+  }
+  for (auto p = 0ul; p < nPoint; ++p) {
+    su2double norm = 0;
+    for (unsigned short a = 0; a < nDim; ++a) norm += pow(acceleration[p * nDim + a], 2);
+    report.maxAcceleration = fmax(report.maxAcceleration, sqrt(norm));
+  }
+  return fitted;
+}
+
 std::vector<su2double> CMetricPredictor::Predict(const std::vector<su2double>& metricK,
                                                  const std::vector<su2double>& motion,
                                                  const std::vector<su2double>& instants, const Options& options,
                                                  PredictionReport& report,
-                                                 std::vector<std::vector<su2double>>* perInstant) {
+                                                 std::vector<std::vector<su2double>>* perInstant,
+                                                 const std::vector<su2double>* acceleration) {
   report = PredictionReport();
   const unsigned short nMet = nDim * (nDim + 1) / 2;
+  if (instants.empty() || metricK.size() != nPoint * nMet || motion.size() != nPoint * nDim)
+    SU2_MPI::Error("Metric prediction requires matching metric and motion fields.", CURRENT_FUNCTION);
+  for (size_t j = 0; j < instants.size(); ++j)
+    if (!std::isfinite(SU2_TYPE::GetValue(instants[j])) || instants[j] < 0 ||
+        (j && !(instants[j] > instants[j - 1])))
+      SU2_MPI::Error("Metric-prediction instants must be finite, nonnegative and increasing.", CURRENT_FUNCTION);
   const su2double eigMin = options.hmax > 0.0 ? su2double(1.0 / pow(options.hmax, 2)) : su2double(0.0);
   const su2double eigMax = options.hmin > 0.0 ? su2double(1.0 / pow(options.hmin, 2))
                                               : su2double(std::numeric_limits<passivedouble>::max());
@@ -616,6 +702,23 @@ std::vector<su2double> CMetricPredictor::Predict(const std::vector<su2double>& m
     const auto g = Gradient(motion, nDim, a);
     for (auto i = 0ul; i < nPoint; ++i)
       for (unsigned short b = 0; b < nDim; ++b) gradMotion[(i * nDim + a) * nDim + b] = g[i * nDim + b];
+  }
+
+  const bool accelerating = acceleration && acceleration->size() == motion.size() &&
+      std::any_of(acceleration->begin(), acceleration->end(), [](su2double a) { return a != 0; });
+  if (acceleration && acceleration->size() != motion.size())
+    SU2_MPI::Error("Metric-prediction acceleration must match the motion field.", CURRENT_FUNCTION);
+  std::vector<su2double> gradAcceleration;
+  su2double integrationStep = 0;
+  if (accelerating) {
+    gradAcceleration.resize(gradMotion.size());
+    for (unsigned short a = 0; a < nDim; ++a) {
+      const auto g = Gradient(*acceleration, nDim, a);
+      for (auto i = 0ul; i < nPoint; ++i)
+        for (unsigned short b = 0; b < nDim; ++b) gradAcceleration[(i * nDim + a) * nDim + b] = g[i * nDim + b];
+    }
+    for (size_t j = 1; j < instants.size(); ++j) integrationStep = fmax(integrationStep, instants[j] - instants[j - 1]);
+    if (!instants.empty()) integrationStep = fmax(integrationStep, instants.front());
   }
 
   /*--- Backward trajectories: position y of the source of each point, the motion there, F^-1 = dy/dx. ---*/
@@ -629,7 +732,50 @@ std::vector<su2double> CMetricPredictor::Predict(const std::vector<su2double>& m
 
   for (const auto instant : instants) {
     const su2double dt = instant - time;
-    if (dt > 0.0) {
+    if (accelerating) {
+      /*--- A time-dependent field cannot reuse the autonomous backward flow from the previous instant.
+       *    Trace each future endpoint back to zero, evaluating W(x,t)=W(x,0)+t A(x) at the physical midpoint. ---*/
+      y = coord;
+      std::fill(Finv.begin(), Finv.end(), 0);
+      for (auto i = 0ul; i < nPoint; ++i)
+        for (unsigned short a = 0; a < nDim; ++a) Finv[i * 9 + a * 3 + a] = 1;
+      const auto substeps = instant > 0 ? static_cast<unsigned long>(ceil(instant / integrationStep)) : 0ul;
+      for (auto substep = 0ul; substep < substeps; ++substep) {
+        const su2double h = instant / substeps, physicalTime = instant - substep * h;
+        for (auto i = 0ul; i < nPoint; ++i) {
+          const auto atStart = Locate(&y[i * nDim]);
+          su2double startVelocity[3] = {}, xm[3] = {};
+          for (unsigned short k = 0; k < atStart.nPoint; ++k)
+            for (unsigned short a = 0; a < nDim; ++a) {
+              const auto index = atStart.point[k] * nDim + a;
+              startVelocity[a] += atStart.weight[k] * (motion[index] + physicalTime * (*acceleration)[index]);
+            }
+          for (unsigned short a = 0; a < nDim; ++a) xm[a] = y[i * nDim + a] - 0.5 * h * startVelocity[a];
+          const auto sample = Locate(xm);
+          Mat3 G = {{0}}, E = {{0}}, F = {{0}};
+          su2double midpointVelocity[3] = {};
+          for (unsigned short k = 0; k < sample.nPoint; ++k) {
+            const auto j = sample.point[k];
+            for (unsigned short a = 0; a < nDim; ++a) {
+              midpointVelocity[a] += sample.weight[k] *
+                  (motion[j * nDim + a] + (physicalTime - 0.5 * h) * (*acceleration)[j * nDim + a]);
+              for (unsigned short b = 0; b < nDim; ++b) {
+                const auto index = (j * nDim + a) * nDim + b;
+                G[a][b] -= h * sample.weight[k] *
+                    (gradMotion[index] + (physicalTime - 0.5 * h) * gradAcceleration[index]);
+              }
+            }
+          }
+          for (unsigned short a = 0; a < nDim; ++a) y[i * nDim + a] -= h * midpointVelocity[a];
+          Exponential(nDim, G, E);
+          for (unsigned short a = 0; a < nDim; ++a)
+            for (unsigned short b = 0; b < nDim; ++b) F[a][b] = Finv[i * 9 + a * 3 + b];
+          MatMul(nDim, E, F, F);
+          for (unsigned short a = 0; a < nDim; ++a)
+            for (unsigned short b = 0; b < nDim; ++b) Finv[i * 9 + a * 3 + b] = F[a][b];
+        }
+      }
+    } else if (dt > 0.0) {
       for (auto i = 0ul; i < nPoint; ++i) {
         su2double xm[3] = {0.0, 0.0, 0.0};
         for (unsigned short a = 0; a < nDim; ++a) xm[a] = y[i * nDim + a] - 0.5 * dt * motionY[i * nDim + a];

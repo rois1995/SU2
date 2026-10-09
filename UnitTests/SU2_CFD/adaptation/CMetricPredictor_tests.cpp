@@ -27,12 +27,14 @@
 
 #include "catch.hpp"
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <functional>
 #include <memory>
 
 #include "../../../Common/include/CConfig.hpp"
+#include "../../../Common/include/adaptation/CMeshGather.hpp"
 #include "../../../Common/include/geometry/CPhysicalGeometry.hpp"
 #include "../../../Common/include/geometry/meshreader/CMemoryMeshReaderFVM.hpp"
 #include "../../../Common/include/linear_algebra/blas_structure.hpp"
@@ -540,4 +542,197 @@ TEST_CASE("Metric prediction: invariant of rotated anisotropic metrics", "[Adapt
     maxError = max(maxError, sqrt(e2));
   }
   CHECK(maxError < 0.08 * normW);
+}
+
+TEST_CASE("Metric prediction: filtered history and constant-motion fallback", "[Adaptation][MetricPredictionHistory]") {
+  PredictorTest test(2, 24);
+  CMetricPredictor predictor(test.Geometry());
+  const su2double centre[3] = {1.0, 0.5, 0};
+  const std::vector<su2double> times = {-3, -2, -1, 0};
+  std::vector<std::vector<su2double>> snapshots;
+  for (const auto t : times) {
+    const su2double c[3] = {centre[0] + 0.025 * t + 0.5 * 0.006 * t * t,
+                          centre[1] + 0.01 * t, 0};
+    snapshots.push_back(test.Field([&](const su2double* x) { return Bump(2, x, c, 0.2); }));
+  }
+  CMetricPredictor::HistoryReport unfiltered, filtered;
+  std::vector<su2double> a, af;
+  const auto motion = predictor.MotionHistory(snapshots, times, nullptr, 0.5, 0, a, unfiltered);
+  const auto smooth = predictor.MotionHistory(snapshots, times, nullptr, 0.5, 1, af, filtered);
+  CHECK(unfiltered.pairs.size() == 3);
+  CHECK(unfiltered.accelerationKept);
+  CHECK(unfiltered.fittedMismatch < unfiltered.constantMismatch);
+  CHECK(filtered.fittedMismatch <= filtered.constantMismatch);
+  su2double weight = 0, velocity = 0, acceleration = 0, filteredAcceleration = 0;
+  for (auto p = 0ul; p < test.nPoint(); ++p) {
+    const auto* x = test.Coord(p);
+    if (pow(x[0] - centre[0], 2) + pow(x[1] - centre[1], 2) > 0.2 * 0.2) continue;
+    weight += predictor.GetMass()[p];
+    velocity += predictor.GetMass()[p] * motion[p * 2];
+    acceleration += predictor.GetMass()[p] * a[p * 2];
+    filteredAcceleration += predictor.GetMass()[p] * af[p * 2];
+  }
+  CHECK(velocity / weight == Approx(0.025).margin(0.003));
+  CHECK(acceleration / weight == Approx(0.006).margin(0.002));
+  CHECK(std::abs(filteredAcceleration) < std::abs(acceleration));
+  CHECK(smooth.size() == motion.size());
+
+  CMetricPredictor::MotionReport pairReport;
+  const auto pair = predictor.MotionField(snapshots[2], snapshots[3], 1, nullptr, 0.5, pairReport);
+  CMetricPredictor::HistoryReport pairHistory;
+  std::vector<su2double> pairAcceleration;
+  const auto fromHistory = predictor.MotionHistory({snapshots[2], snapshots[3]}, {-1, 0}, nullptr, 0.5, 1,
+                                                  pairAcceleration, pairHistory);
+  CHECK(pair == fromHistory);
+  for (const auto v : pairAcceleration) CHECK(v == 0);
+
+  const auto stationary = test.Field([&](const su2double* x) { return Bump(2, x, centre, 0.2); });
+  CMetricPredictor::HistoryReport staticReport;
+  std::vector<su2double> staticAcceleration;
+  const auto noMotion = predictor.MotionHistory({stationary, stationary, stationary}, {-2, -1, 0}, nullptr, 0.5,
+                                                1, staticAcceleration, staticReport);
+  CHECK_FALSE(staticReport.accelerationKept);
+  for (const auto v : noMotion) CHECK(v == 0);
+  for (const auto v : staticAcceleration) CHECK(v == 0);
+}
+
+TEST_CASE("Metric prediction: accelerating transport preserves SPD and has the correct trajectory",
+          "[Adaptation][MetricPredictionHistory]") {
+  for (const auto dim : {2, 3}) {
+    PredictorTest test(dim, dim == 2 ? 12 : 6);
+    CMetricPredictor predictor(test.Geometry());
+    const auto metric = test.Metric([&](const su2double* x, su2double (&M)[3][3]) {
+      M[0][0] = 10 + x[0]; M[1][1] = 2; if (dim == 3) M[2][2] = 3;
+    });
+    std::vector<su2double> velocity(test.nPoint() * dim, 0), acceleration(velocity);
+    for (auto p = 0ul; p < test.nPoint(); ++p) {
+      velocity[p * dim] = 0.01; acceleration[p * dim] = 0.004;
+    }
+    CMetricPredictor::Options options;
+    CMetricPredictor::PredictionReport report;
+    std::vector<std::vector<su2double>> instants;
+    const auto prediction = predictor.Predict(metric, velocity, {0, 1, 2, 3}, options, report, &instants, &acceleration);
+    CHECK(report.nInstant == 4);
+    for (auto p = 0ul; p < test.nPoint(); ++p) {
+      if (test.Coord(p)[0] < 0.2) continue;
+      su2double M[3][3], final[3][3], eigen[3], vectors[3][3], work[3];
+      test.Unpack(instants.back(), p, M);test.Unpack(prediction, p, final);
+      CHECK(M[0][0] == Approx(10 + test.Coord(p)[0] - (3 * 0.01 + 0.5 * 9 * 0.004)).margin(1e-11));
+      CBlasStructure::EigenDecomposition(final, vectors, eigen, dim, work);
+      for (unsigned short a = 0; a < dim; ++a) CHECK(eigen[a] > 0);
+      CHECK(OrderGap(dim, final, M) >= -1e-12);
+    }
+    std::vector<su2double> zero(velocity.size(), 0);
+    CMetricPredictor::PredictionReport first, second;
+    const auto original = predictor.Predict(metric, velocity, {0, 1, 2}, options, first);
+    const auto zeroAcceleration = predictor.Predict(metric, velocity, {0, 1, 2}, options, second, nullptr, &zero);
+    CHECK(original == zeroAcceleration);
+
+    const auto uniform = test.Metric([&](const su2double*, su2double (&M)[3][3]) {
+      M[0][0] = 100; M[1][1] = 2; if (dim == 3) M[2][2] = 3;
+    });
+    for (auto p = 0ul; p < test.nPoint(); ++p)
+      acceleration[p * dim] = -0.02 * (test.Coord(p)[0] - (dim == 2 ? 1 : 0.5));
+    std::vector<std::vector<su2double>> strainInstants;
+    predictor.Predict(uniform, zero, {0, 1, 2, 3}, options, report, &strainInstants, &acceleration);
+    CHECK(report.nCongruence > 0);
+    for (auto p = 0ul; p < test.nPoint(); ++p) {
+      if (std::abs(test.Coord(p)[0] - (dim == 2 ? 1 : 0.5)) > 0.2) continue;
+      su2double M[3][3];
+      test.Unpack(strainInstants.back(), p, M);
+      CHECK(M[0][0] == Approx(100 * exp(0.02 * 9)).margin(1e-8));
+      CHECK(M[1][1] == Approx(2).margin(1e-10));
+    }
+  }
+}
+
+TEST_CASE("Metric prediction: temporal filtering damps jitter in a moving feature",
+          "[Adaptation][MetricPredictionHistory]") {
+  PredictorTest test(2, 24);
+  CMetricPredictor predictor(test.Geometry());
+  const std::vector<su2double> times = {-4, -3, -2, -1, 0};
+  const su2double jitter[] = {0.008, -0.004, 0.006, -0.003, 0};
+  std::vector<std::vector<su2double>> snapshots;
+  for (size_t j = 0; j < times.size(); ++j) {
+    const su2double centre[3] = {1 + 0.025 * times[j] + jitter[j], 0.5, 0};
+    snapshots.push_back(test.Field([&](const su2double* x) { return Bump(2, x, centre, 0.2); }));
+  }
+  CMetricPredictor::HistoryReport raw, filtered;
+  std::vector<su2double> a, af;
+  predictor.MotionHistory(snapshots, times, nullptr, 0.5, 0, a, raw);
+  predictor.MotionHistory(snapshots, times, nullptr, 0.5, 1, af, filtered);
+  su2double rawEnergy = 0, filteredEnergy = 0;
+  for (auto p = 0ul; p < test.nPoint(); ++p) {
+    const auto* x = test.Coord(p);
+    if (pow(x[0] - 1, 2) + pow(x[1] - 0.5, 2) > 0.04) continue;
+    for (unsigned short d = 0; d < 2; ++d) {
+      rawEnergy += predictor.GetMass()[p] * pow(a[p * 2 + d], 2);
+      filteredEnergy += predictor.GetMass()[p] * pow(af[p * 2 + d], 2);
+    }
+  }
+  CHECK(rawEnergy > 0);
+  CHECK(filteredEnergy < rawEnergy);
+  CHECK(filtered.fittedMismatch <= filtered.constantMismatch);
+}
+
+TEST_CASE("Metric prediction: history gather and prediction scatter match the complete mesh",
+          "[Adaptation][MetricPredictionMPI]") {
+  PredictorTest test(2, 12);
+  const auto& geometry = test.Geometry();
+  CMeshGather gather(geometry);
+  std::vector<std::string> tags;
+  for (auto m = 0u; m < geometry.GetnMarker(); ++m) tags.push_back(test.config->GetMarker_All_TagBound(m));
+  const auto whole = gather.GatherMesh(*test.config, tags, false);
+  auto reference = simplex_test::MakeSimplexMesh(2, 12, simplex_test::Marker2D);
+  std::vector<std::array<unsigned long, 3>> cells;
+  for (auto e = 0ul; e < reference.GetnElem(); ++e)
+    cells.push_back({reference.elem[e * 3], reference.elem[e * 3 + 1], reference.elem[e * 3 + 2]});
+  std::sort(cells.begin(), cells.end(), [](auto a, auto b) {
+    std::sort(a.begin(), a.end()); std::sort(b.begin(), b.end()); return a < b;
+  });
+  for (size_t e = 0; e < cells.size(); ++e)
+    for (unsigned k = 0; k < 3; ++k) reference.elem[e * 3 + k] = cells[e][k];
+  const std::vector<su2double> times = {-3, -2, -1, 0};
+  auto invariant = [](const su2double* x, su2double t) {
+    const su2double centre[3] = {1 + 0.025 * t + 0.003 * t * t, 0.5, 0};
+    return Bump(2, x, centre, 0.2);
+  };
+  std::vector<std::vector<su2double>> history, referenceHistory;
+  for (const auto t : times) {
+    const auto local = test.Field([&](const su2double* x) { return invariant(x, t); });
+    history.push_back(gather.Gather(local.data(), 1));
+    referenceHistory.emplace_back(reference.GetnPoint());
+    for (auto p = 0ul; p < reference.GetnPoint(); ++p) {
+      su2double x[2] = {reference.coord[p * 2], reference.coord[p * 2 + 1]};
+      referenceHistory.back()[p] = invariant(x, t);
+    }
+  }
+  std::vector<su2double> metric(reference.GetnPoint() * 3, 0);
+  for (auto p = 0ul; p < reference.GetnPoint(); ++p) {
+    metric[p * 3] = 10 + referenceHistory.back()[p]; metric[p * 3 + 2] = 2;
+  }
+  CMetricPredictor serial(reference);
+  CMetricPredictor::HistoryReport expectedFit;
+  CMetricPredictor::PredictionReport expectedReport;
+  std::vector<su2double> expectedAcceleration;
+  const auto expectedMotion = serial.MotionHistory(referenceHistory, times, nullptr, 0.5, 1,
+                                                    expectedAcceleration, expectedFit);
+  const auto expected = serial.Predict(metric, expectedMotion, {0, 1, 2}, {}, expectedReport, nullptr,
+                                        &expectedAcceleration);
+  std::vector<su2double> predicted;
+  if (gather.IsRoot()) {
+    CHECK(whole.coord == reference.coord);
+    CHECK(whole.elem == reference.elem);
+    CMetricPredictor predictor(whole);
+    CMetricPredictor::HistoryReport fit;
+    CMetricPredictor::PredictionReport report;
+    std::vector<su2double> acceleration;
+    const auto motion = predictor.MotionHistory(history, times, nullptr, 0.5, 1, acceleration, fit);
+    predicted = predictor.Predict(metric, motion, {0, 1, 2}, {}, report, nullptr, &acceleration);
+  }
+  std::vector<su2double> local(geometry.GetnPointDomain() * 3);
+  gather.Scatter(predicted, 3, local.data());
+  for (auto p = 0ul; p < geometry.GetnPointDomain(); ++p)
+    for (unsigned m = 0; m < 3; ++m)
+      CHECK(local[p * 3 + m] == Approx(expected[geometry.nodes->GetGlobalIndex(p) * 3 + m]).margin(1e-9));
 }

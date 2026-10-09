@@ -1,8 +1,9 @@
 # SGE native adaptation campaign
 
-Compile `codex/native-unsteady-performance`. Validated production C++ checkpoint:
-`99aa0d7f725b0c872f969d6bd64c6ee9f8414165`; campaign-only commits retain those C++
-source pins. The branch is published in `rois1995/SU2`. In a checkout of that fork:
+Compile `codex/native-unsteady-performance` from `rois1995/SU2`. The exact
+built production sources are recorded in `source_pins.json`; rebuild both
+executables after pulling C++ changes. For the matched old/new comparison, use
+`../native_cluster_metric_comparison_v1/README.md`. In a checkout of the fork:
 
 ```bash
 git fetch origin codex/native-unsteady-performance
@@ -30,7 +31,7 @@ Load the same GCC/MPI environment as your jobs before configuring. MMG is not
 required for this native-only campaign. Build `SU2_CFD` and `test_driver`; use `build-native` as build directory or
 set `SU2_CFD_BIN`/`SU2_TEST_BIN` to their paths inside the checkout. Keep the build
 log/options and run the native MPI regressions before scaling. The campaign
-checks all 762 validated C++ source pins and input hashes before running; it
+checks all 762 built C++ source pins and input hashes before running; it
 records binary hashes, linked libraries, compiler-host hardware and revision.
 Git is optional on compute nodes: an unavailable revision is recorded as such;
 source/input/binary hashes remain checked and the source-pin manifest hash is
@@ -69,9 +70,10 @@ adaptation events with `ADAPT_EVENTS=10`: RANS runs 2200 steps, Euler 1100.
 Later try 64,96,192 only where the previous size merits it. This small RAE mesh
 will expose an overdecomposition limit; it is not representative of a large
 production mesh. Multi-node testing needs adequate work per rank. Jobs at
-competing worker counts should use comparable node allocations; ask for your
-site's supported exclusive-node resource for clean timing. The template cannot
-guess that site-specific resource. Numerical threads=1. No broad scaling claim
+competing worker counts should use comparable node allocations and the
+usual shared-node allocation, as requested. Serialize our jobs with SGE
+dependencies; other users may still share the nodes, so timings are approximate.
+Numerical threads=1. No broad scaling claim
 follows from merely completing a high-rank run.
 
 `ClusterRaw/<job>_<kind>/` retains every original output. Nothing is deleted.

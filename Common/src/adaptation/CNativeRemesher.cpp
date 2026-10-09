@@ -47,8 +47,9 @@ void CNativeRemesher::CheckSupport(const CConfig& config, const CGeometry& geome
     const auto marching = config.GetTime_Marching();
     if (marching != TIME_MARCHING::DT_STEPPING_1ST && marching != TIME_MARCHING::DT_STEPPING_2ND)
       failure.Set(1, 0, "Native time-domain adaptation requires first- or second-order dual time stepping.");
-    if (config.GetKind_Adap_Unsteady_Metric() != ADAP_UNSTEADY_METRIC::WINDOW_AVERAGE)
-      failure.Set(1, 0, "Native time-domain adaptation currently supports WINDOW_AVERAGE only.");
+    const auto method = config.GetKind_Adap_Unsteady_Metric();
+    if (method != ADAP_UNSTEADY_METRIC::WINDOW_AVERAGE && method != ADAP_UNSTEADY_METRIC::PREDICT)
+      failure.Set(1, 0, "Native time-domain adaptation supports WINDOW_AVERAGE and PREDICT; FIXED_POINT remains unsupported.");
   }
   for (unsigned long e = 0; e < geometry.GetnElem(); ++e)
     if (geometry.elem[e]->GetVTK_Type() != TRIANGLE)

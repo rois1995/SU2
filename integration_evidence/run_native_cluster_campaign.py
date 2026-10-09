@@ -48,7 +48,7 @@ def main():
     # Scheduler host allocation is copied, so no runtime data path escapes the repository.
     machinefile=raw/'machinefile';shutil.copy2(args.machinefile,machinefile)
     pins=json.loads((pack/'source_pins.json').read_text())
-    assert all(sha(ROOT/name)==digest for name,digest in pins.items()),'Source differs from validated C++ checkpoint'
+    assert all(sha(ROOT/name)==digest for name,digest in pins.items()),'Source differs from built C++ checkpoint'
     binary_sha=sha(binary)
     environment=dict(os.environ,OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1')
     try:

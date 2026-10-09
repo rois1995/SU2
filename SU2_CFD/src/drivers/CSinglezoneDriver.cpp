@@ -547,9 +547,8 @@ void CSinglezoneDriver::PredictWindowMetric() {
 
   const auto freq = config->GetAdap_Freq();
   const auto windowEnd = (TimeIter / freq + 1) * freq - 1;
-  const auto snapshotStep = max(windowEnd - config->GetAdap_Predict_Separation(), windowFirstStep);
   const bool last = (TimeIter == windowEnd);
-  if (TimeIter != snapshotStep && !last) return;
+  if (!config->GetAdap_Predict_SnapshotStep(TimeIter)) return;
 
   const unsigned short nMet = nDim * (nDim + 1) / 2;
   const auto nPointDomain = geometry->GetnPointDomain();
@@ -571,20 +570,19 @@ void CSinglezoneDriver::PredictWindowMetric() {
     for (unsigned short iMet = 0; iMet < nMet; ++iMet) snapshot[iPoint * nMet + iMet] = nodes->GetMetric(iPoint, iMet);
 
   if (!last) {
-    predictSnapshot = std::move(snapshot);
-    predictSnapshotStep = TimeIter;
-    predictSnapshotValid = true;
+    predictSnapshots.push_back(std::move(snapshot));
+    predictSnapshotSteps.push_back(TimeIter);
     return;
   }
 
-  /*--- End of the window: motion of the features between the two snapshots, metric moved over the horizon. The mesh,
+  /*--- End of the window: motion of the features from the saved snapshots, metric moved over the horizon. The mesh,
    *    the snapshots, the flow velocity and the no-slip wall points are gathered on the master rank (global numbering
    *    of the mesh, CMeshGather), where the serial predictor runs; the predicted metric and the motion go back to the
    *    ranks that own the points. ---*/
 
   const auto startTime = SU2_MPI::Wtime();
-  const bool twoSnapshots = predictSnapshotValid && predictSnapshotStep < TimeIter;
-  const su2double separation = twoSnapshots ? su2double(TimeIter - predictSnapshotStep) : su2double(0.0);
+  const bool twoSnapshots = !predictSnapshots.empty();
+  const su2double separation = twoSnapshots ? su2double(TimeIter - predictSnapshotSteps.back()) : su2double(0.0);
   const su2double dt = config->GetDelta_UnstTimeND();
 
   vector<string> markerTags;
@@ -600,7 +598,7 @@ void CSinglezoneDriver::PredictWindowMetric() {
   for (auto iPoint = 0ul; iPoint < nPointDomain; ++iPoint) {
     auto* row = &local[iPoint * nIn];
     for (unsigned short iMet = 0; iMet < nMet; ++iMet) {
-      row[iMet] = twoSnapshots ? predictSnapshot[iPoint * nMet + iMet] : snapshot[iPoint * nMet + iMet];
+      row[iMet] = twoSnapshots ? predictSnapshots.back()[iPoint * nMet + iMet] : snapshot[iPoint * nMet + iMet];
       row[nMet + iMet] = snapshot[iPoint * nMet + iMet];
     }
     for (unsigned short iDim = 0; iDim < nDim; ++iDim) row[2 * nMet + iDim] = nodes->GetVelocity(iPoint, iDim) * dt;
@@ -614,7 +612,20 @@ void CSinglezoneDriver::PredictWindowMetric() {
   }
   const auto global = gather.Gather(local.data(), nIn);
 
+  /*--- Gather older invariants one snapshot at a time; retain only scalars on the root. The final pair keeps the
+   *    old two-snapshot payload and arithmetic. ---*/
+  vector<vector<su2double>> history;
+  for (size_t j = 0; j + 1 < predictSnapshots.size(); ++j) {
+    const auto older = gather.Gather(predictSnapshots[j].data(), nMet);
+    if (gather.IsRoot()) {
+      history.emplace_back(gather.GetnPointGlobal());
+      for (auto p = 0ul; p < gather.GetnPointGlobal(); ++p)
+        history.back()[p] = CMetricPredictor::Invariant(nDim, &older[p * nMet]);
+    }
+  }
+
   CMetricPredictor::MotionReport motionReport;
+  CMetricPredictor::HistoryReport historyReport;
   CMetricPredictor::PredictionReport predictionReport;
   CMetricPredictor::Options options;
   options.anisoThreshold = config->GetAdap_Predict_Aniso();
@@ -634,7 +645,7 @@ void CSinglezoneDriver::PredictWindowMetric() {
     const auto nPointGlobal = gather.GetnPointGlobal();
     CMetricPredictor predictor(mesh);
 
-    vector<su2double> metricK(nPointGlobal * nMet), motion(nPointGlobal * nDim, 0.0);
+    vector<su2double> metricK(nPointGlobal * nMet), motion(nPointGlobal * nDim, 0.0), acceleration;
     for (auto iPoint = 0ul; iPoint < nPointGlobal; ++iPoint)
       for (unsigned short iMet = 0; iMet < nMet; ++iMet)
         metricK[iPoint * nMet + iMet] = global[iPoint * nIn + nMet + iMet];
@@ -649,12 +660,24 @@ void CSinglezoneDriver::PredictWindowMetric() {
         for (unsigned short iDim = 0; iDim < nDim; ++iDim) guess[iPoint * nDim + iDim] = row[2 * nMet + iDim];
         wall[iPoint] = row[nIn - 1] > 0.5;
       }
-      motion = predictor.MotionField(sj, sk, separation, &guess, config->GetAdap_Predict_Regularization(),
-                                     motionReport, &wall);
+      if (history.empty()) {
+        motion = predictor.MotionField(sj, sk, separation, &guess, config->GetAdap_Predict_Regularization(),
+                                       motionReport, &wall);
+      } else {
+        history.push_back(std::move(sj));
+        history.push_back(std::move(sk));
+        vector<su2double> times;
+        for (const auto t : predictSnapshotSteps) times.push_back(-su2double(TimeIter - t));
+        times.push_back(0.0);
+        motion = predictor.MotionHistory(history, times, &guess, config->GetAdap_Predict_Regularization(),
+                                         config->GetAdap_Predict_Temporal_Filter(), acceleration, historyReport, &wall);
+        motionReport = historyReport.pairs.back();
+      }
     }
     motionTime = SU2_TYPE::GetValue(SU2_MPI::Wtime() - startTime);
 
-    const auto predicted = predictor.Predict(metricK, motion, instants, options, predictionReport);
+    const auto predicted = predictor.Predict(metricK, motion, instants, options, predictionReport, nullptr,
+                                              acceleration.empty() ? nullptr : &acceleration);
     result.resize(nPointGlobal * nOut);
     for (auto iPoint = 0ul; iPoint < nPointGlobal; ++iPoint) {
       for (unsigned short iMet = 0; iMet < nMet; ++iMet) result[iPoint * nOut + iMet] = predicted[iPoint * nMet + iMet];
@@ -678,7 +701,8 @@ void CSinglezoneDriver::PredictWindowMetric() {
   if (rank == MASTER_NODE) {
     cout << endl << "----------------------------- Compute Metric ----------------------------" << endl;
     if (twoSnapshots) {
-      cout << "Predicted metric: motion of the metric features from time step " << predictSnapshotStep << " to "
+      cout << (historyReport.pairs.empty() ? "Predicted metric: motion of the metric features from time step "
+                                           : "Last-pair optical-flow diagnostic from time step ") << predictSnapshotSteps.back() << " to "
            << TimeIter << " (optical flow on the mesh): feature width " << motionReport.featureLength
            << ", smoothing length " << motionReport.smoothLength << ", mismatch " << motionReport.mismatchBefore
            << " -> " << motionReport.mismatchAfter << " (started from "
@@ -690,13 +714,20 @@ void CSinglezoneDriver::PredictWindowMetric() {
       cout << "), speed of the features " << motionReport.meanSpeed << " per time step (largest "
            << motionReport.maxSpeed << "), " << motionReport.linearIterations << " CG iterations"
            << (motionReport.converged ? "" : " (some solves did not converge)") << "." << endl;
-      if (motionReport.noMotion) {
+      if (motionReport.noMotion && historyReport.pairs.empty()) {
         cout << "No motion found that matches the snapshots better than none: the metric of time step " << TimeIter
              << " is kept over the horizon." << endl;
       }
     } else {
-      cout << "Predicted metric: only one time step of the window on this mesh, no motion (the metric of time step "
+      cout << "Predicted metric: only one available snapshot on this mesh, no motion (the metric of time step "
            << TimeIter << " is kept over the horizon)." << endl;
+    }
+    if (!historyReport.pairs.empty()) {
+      cout << "Temporal feature fit: " << predictSnapshotSteps.size() + 1 << " snapshots, filter "
+           << config->GetAdap_Predict_Temporal_Filter() << ", history mismatch " << historyReport.constantMismatch
+           << " -> " << historyReport.fittedMismatch << ", "
+           << (historyReport.accelerationKept ? "accelerating" : "constant-velocity") << " prediction, max acceleration "
+           << historyReport.maxAcceleration << " per time step squared." << endl;
     }
     cout << "Metric of time step " << TimeIter << " moved over the next " << horizon << " time steps ("
          << predictionReport.nInstant << " instants, every " << step << "), reoriented where its anisotropy ratio > "
@@ -708,7 +739,8 @@ void CSinglezoneDriver::PredictWindowMetric() {
   /*--- Complexity, bounds, corner and boundary-layer metrics. ---*/
   solver_flow->ComputeMetric(geometry, config, &predicted,
                              config->GetKind_Adap_BL_Method() != ADAP_BL_METHOD::TWO_PASS, nativeReference.get());
-  predictSnapshotValid = false;
+  predictSnapshots.clear();
+  predictSnapshotSteps.clear();
 }
 
 void CSinglezoneDriver::PrepareTimeAdaptationRestart() {
@@ -869,7 +901,8 @@ void CSinglezoneDriver::RunTimeAdaptationLoop() {
          << config->GetAdap_Hmax() << ", norm " << config->GetAdap_Norm() << ", aspect ratio up to "
          << config->GetAdap_ARmax() << "." << endl;
     if (predict) {
-      cout << "Prediction: snapshots " << config->GetAdap_Predict_Separation() << " time steps apart (the second at "
+      cout << "Prediction: " << config->GetAdap_Predict_Snapshots() << " snapshots "
+           << config->GetAdap_Predict_Separation() << " time steps apart (the last at "
            << "the end of the window), horizon " << config->GetAdap_Predict_Horizon() << " time steps every "
            << config->GetAdap_Predict_Step() << ", reoriented where the anisotropy ratio > "
            << config->GetAdap_Predict_Aniso() << ", regularization " << config->GetAdap_Predict_Regularization()
@@ -908,7 +941,8 @@ void CSinglezoneDriver::RunTimeAdaptationLoop() {
   windowSamples = 0;
   windowMetricTime = 0.0;
   windowFirstStep = firstTimeIter;
-  predictSnapshotValid = false;
+  predictSnapshots.clear();
+  predictSnapshotSteps.clear();
   auto cycleStart = SU2_MPI::Wtime();
 
   /*--- The time loop of RunTimeLoop, with the adaptation after the steps that end a time window. ---*/
@@ -986,7 +1020,8 @@ void CSinglezoneDriver::RunTimeAdaptationLoop() {
       windowSamples = 0;
       windowMetricTime = 0.0;
       windowFirstStep = TimeIter + 1;
-      predictSnapshotValid = false;
+      predictSnapshots.clear();
+      predictSnapshotSteps.clear();
       cycleStart = SU2_MPI::Wtime();
 
       /*--- The adaptation is not part of the compute time of the next time step. ---*/

@@ -65,10 +65,9 @@ protected:
   su2double windowMetricTime = 0.0; /*!< \brief Time spent on the window metric (sensors, Hessians, metric). */
   su2double lastReplaceTime = 0.0, lastTransferTime = 0.0; /*!< \brief Times of the last ReplaceMesh. */
 
-  /*--- ADAP_UNSTEADY_METRIC= PREDICT: first metric snapshot of the window (on the mesh of the window). ---*/
-  vector<su2double> predictSnapshot;       /*!< \brief Metric of snapshot j (nPointDomain rows, upper triangle). */
-  unsigned long predictSnapshotStep = 0;   /*!< \brief Time step of snapshot j. */
-  bool predictSnapshotValid = false;       /*!< \brief Snapshot j exists on the current mesh. */
+  /*--- PREDICT snapshots remain sensor-only on the unchanged mesh of this window. ---*/
+  vector<vector<su2double>> predictSnapshots; /*!< \brief Owned metric snapshots, upper-triangle rows. */
+  vector<unsigned long> predictSnapshotSteps; /*!< \brief Their fixed-cadence time steps. */
   unsigned long windowFirstStep = 0;       /*!< \brief First time step solved on the current mesh. */
 
   /*--- ADAP_UNSTEADY_METRIC= FIXED_POINT: the window metric ends at the last step of the window being solved. ---*/
@@ -150,12 +149,12 @@ protected:
 
   /*!
    * \brief ADAP_UNSTEADY_METRIC= PREDICT, called by SampleTimeWindowMetric after each time step: the metric of the
-   *        time steps of the two snapshots of the window (step end - ADAP_PREDICT_SEPARATION, or the first step on the
-   *        current mesh if later, and the last step of the window) is computed without the boundary-layer metric;
+   *        fixed-cadence samples counted backward from the window end are computed without the BL metric;
    *        at the end of the window the motion of its features (optical flow of the invariant 0.5 log10 det M between
    *        the snapshots, CMetricPredictor) moves the last snapshot over ADAP_PREDICT_HORIZON time steps, the instants
    *        are intersected, and CSolver::ComputeMetric scales the result to the complexity, applies the bounds and the
-   *        boundary-layer metric. Both snapshots are on the mesh of the window. With MPI the mesh, the snapshots, the
+   *        boundary-layer metric. Samples share the window mesh; extra samples fit filtered feature acceleration.
+   *        With MPI the mesh, the snapshots, the
    *        flow velocity and the no-slip wall points are gathered on the master rank (CMeshGather), the predictor runs
    *        there, and the predicted metric and the motion are sent back to the ranks of their points.
    */

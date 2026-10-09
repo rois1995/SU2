@@ -1,0 +1,39 @@
+{
+  "status": "STOPPED_BY_USER",
+  "scope": "Local prediction validation interrupted at user request; first serial suite incomplete, no prediction CFD cases run; continue correctness validation on SGE",
+  "build_receipt_sha256": "12e06f0a4f84a91b1b40bd4f72bde348d12bca4a267a596cd3ba17c8b494e156",
+  "stages": [
+    {
+      "label": "metric",
+      "command": [
+        "mpirun",
+        "--bind-to",
+        "none",
+        "--host",
+        "localhost:4",
+        "-np",
+        "1",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_post_rebase_metric_v1/build_predict_v1/test_driver",
+        "[Adaptation],[Gradients],[HessianReliability],[Hessian3DStress],[RestartReliability],[MetricRobustness],[NativeComposite2D]",
+        "--use-colour",
+        "no"
+      ],
+      "working_directory": "integration_evidence/native_post_rebase_metric_v1/predict_history_v1/units-mpi1",
+      "status": "INTERRUPTED_BY_USER",
+      "exit_code": 1,
+      "log_sha256": "a8d83bdba685d50a9eb4094734ce74a63e8013cb23a72620746903d8f5a0c891",
+      "test_summaries": [],
+      "reason": "Owned MPI process group terminated following explicit user request; this is not a completed numerical failure"
+    }
+  ],
+  "test_source_sha256": {
+    "UnitTests/Common/adaptation/AdaptationLoopOptions_tests.cpp": "3f78755c68cb5da93a1e4c228f441c24b2558db60c1fbbba09e81ae44348067c",
+    "UnitTests/SU2_CFD/adaptation/CMetricPredictor_tests.cpp": "f77461e8332165d6190ab698e4e9582f416caa251a0a45f89f2aeef16486d937",
+    "UnitTests/SU2_CFD/adaptation/CNativeSupport2D_tests.cpp": "fa6f39b0cf1be4a381bbc609fbdb6eee2f0c608cb334f2465f07f59762b36c58"
+  },
+  "configuration_template_sha256": "e72462cfa45d58c2a273dbca2faf8c080b4b680bab8480f923f4da0337245d8f",
+  "phase": "terminal",
+  "error": "('metric', 1)",
+  "original_controller_sha256": "649b504fc2fd705d0ff21eaf5ea23727aa60b50e55c8c9bcff3b299a9a62d384",
+  "original_controller": "complete_predict_history_validation_local_interrupted.py"
+}

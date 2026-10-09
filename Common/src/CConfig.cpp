@@ -3436,10 +3436,16 @@ void CConfig::SetConfig_Options() {
   /*!\brief ADAP_PREDICT_STEP \n DESCRIPTION: PREDICT: time steps between the instants of the horizon (the last
    * instant is the horizon) \n DEFAULT: ADAP_PREDICT_HORIZON / 10, rounded up \ingroup Config */
   addUnsignedLongOption("ADAP_PREDICT_STEP", Adap_Predict_Step, 0);
-  /*!\brief ADAP_PREDICT_SEPARATION \n DESCRIPTION: PREDICT: time steps between the two metric snapshots of a window
-   * (the second one is the last step of the window; both are on the mesh of the window), 1 to ADAP_FREQ - 1 \n
-   * DEFAULT: ADAP_FREQ - 1 (the first and the last step of the window) \ingroup Config */
+  /*!\brief ADAP_PREDICT_SEPARATION \n DESCRIPTION: PREDICT: fixed snapshot cadence backward from the last step of the window
+   * (all snapshots on its mesh) \n
+   * DEFAULT: floor((ADAP_FREQ - 1) / (ADAP_PREDICT_SNAPSHOTS - 1)) \ingroup Config */
   addUnsignedLongOption("ADAP_PREDICT_SEPARATION", Adap_Predict_Separation, 0);
+  /*!\brief ADAP_PREDICT_SNAPSHOTS \n DESCRIPTION: PREDICT: number of metric snapshots ending at the window boundary
+   * (>= 2; three or more permit a feature-acceleration fit) \n DEFAULT: 2 \ingroup Config */
+  addUnsignedLongOption("ADAP_PREDICT_SNAPSHOTS", Adap_Predict_Snapshots, 2);
+  /*!\brief ADAP_PREDICT_TEMPORAL_FILTER \n DESCRIPTION: PREDICT: nonnegative ridge penalty on temporal feature
+   * acceleration (0: unfiltered fit); does not affect the two-snapshot method \n DEFAULT: 1 \ingroup Config */
+  addDoubleOption("ADAP_PREDICT_TEMPORAL_FILTER", Adap_Predict_Temporal_Filter, 1.0);
   /*!\brief ADAP_PREDICT_ANISO \n DESCRIPTION: PREDICT: the metric is reoriented and stretched by the deformation of
    * the motion (congruence) where its anisotropy ratio sqrt(lambda_max/lambda_min) is above this value, elsewhere it
    * is only moved (1: everywhere) \n DEFAULT: 1.5 \ingroup Config */
@@ -6489,12 +6495,20 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
         }
         if (Adap_Predict_Horizon == 0) Adap_Predict_Horizon = Adap_Freq;
         if (Adap_Predict_Step == 0) Adap_Predict_Step = (Adap_Predict_Horizon + 9) / 10;
-        if (Adap_Predict_Separation == 0) Adap_Predict_Separation = Adap_Freq - 1;
+        if (Adap_Predict_Snapshots < 2 || Adap_Predict_Snapshots > Adap_Freq) {
+          SU2_MPI::Error("ADAP_PREDICT_SNAPSHOTS must be between 2 and ADAP_FREQ.", CURRENT_FUNCTION);
+        }
+        if (Adap_Predict_Separation == 0)
+          Adap_Predict_Separation = (Adap_Freq - 1) / (Adap_Predict_Snapshots - 1);
+        if (!(Adap_Predict_Temporal_Filter >= 0.0) ||
+            !std::isfinite(SU2_TYPE::GetValue(Adap_Predict_Temporal_Filter))) {
+          SU2_MPI::Error("ADAP_PREDICT_TEMPORAL_FILTER must be finite and >= 0.", CURRENT_FUNCTION);
+        }
         if (Adap_Predict_Step > Adap_Predict_Horizon) {
           SU2_MPI::Error("ADAP_PREDICT_STEP must not exceed ADAP_PREDICT_HORIZON.", CURRENT_FUNCTION);
         }
-        if (Adap_Predict_Separation >= Adap_Freq) {
-          SU2_MPI::Error("ADAP_PREDICT_SEPARATION must be between 1 and ADAP_FREQ - 1 (both snapshots in the window).",
+        if (Adap_Predict_Separation > (Adap_Freq - 1) / (Adap_Predict_Snapshots - 1)) {
+          SU2_MPI::Error("ADAP_PREDICT_SEPARATION * (ADAP_PREDICT_SNAPSHOTS - 1) must be <= ADAP_FREQ - 1.",
                          CURRENT_FUNCTION);
         }
         if (!(Adap_Predict_Aniso >= 1.0) || !std::isfinite(SU2_TYPE::GetValue(Adap_Predict_Aniso))) {
@@ -6531,7 +6545,8 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
     }
     if (!(Time_Domain && Kind_Adap_Unsteady_Metric == ADAP_UNSTEADY_METRIC::PREDICT)) {
       for (const auto* name : {"ADAP_PREDICT_HORIZON", "ADAP_PREDICT_STEP", "ADAP_PREDICT_SEPARATION",
-                               "ADAP_PREDICT_ANISO", "ADAP_PREDICT_REGULARIZATION"}) {
+                               "ADAP_PREDICT_ANISO", "ADAP_PREDICT_REGULARIZATION", "ADAP_PREDICT_SNAPSHOTS",
+                               "ADAP_PREDICT_TEMPORAL_FILTER"}) {
         if (OptionIsSet(name)) {
           SU2_MPI::Error(string(name) + " is only used with ADAP_UNSTEADY_METRIC= PREDICT (time-domain loop).",
                          CURRENT_FUNCTION);

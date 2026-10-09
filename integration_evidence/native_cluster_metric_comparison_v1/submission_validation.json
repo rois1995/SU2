@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "scope": "Fake qsub and preflight self-check only; no SGE jobs submitted",
+  "checks": [
+    "24 serialized fake submissions",
+    "reverse old/new order in even repetitions",
+    "invalid/shared checkouts and source/binary path escapes reject before submission"
+  ],
+  "source_sha256": {
+    "SubmitMetricComparison.sh": "d002ed4706d84ae943c7b883d5e76d0d5334018f4764293632eb1ad0be0150fd",
+    "check_submission.py": "a38789e0618c6eab0a857d27ec685f5af9e0313b8e4c9914fec742e18e11e869"
+  }
+}

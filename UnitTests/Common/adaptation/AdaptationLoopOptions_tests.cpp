@@ -287,6 +287,8 @@ TEST_CASE("Adaptation loop options, time domain", "[Adaptation]") {
     CHECK(config->GetAdap_Predict_Horizon() == 10ul);
     CHECK(config->GetAdap_Predict_Step() == 1ul);
     CHECK(config->GetAdap_Predict_Separation() == 9ul);
+    CHECK(config->GetAdap_Predict_Snapshots() == 2ul);
+    CHECK(config->GetAdap_Predict_Temporal_Filter() == 1.0);
     CHECK(config->GetAdap_Predict_Aniso() == 1.5);
     CHECK(config->GetAdap_Predict_Regularization() == 0.5);
     config = MakeTimeConfig(timeOptions + "ADAP_UNSTEADY_METRIC= PREDICT\nADAP_PREDICT_HORIZON= 25\n");
@@ -300,6 +302,23 @@ TEST_CASE("Adaptation loop options, time domain", "[Adaptation]") {
     CHECK(config->GetAdap_Predict_Separation() == 4ul);
     CHECK(config->GetAdap_Predict_Aniso() == 1.0);
     CHECK(config->GetAdap_Predict_Regularization() == 2.0);
+
+    config = MakeTimeConfig(timeOptions + "ADAP_UNSTEADY_METRIC= PREDICT\nADAP_PREDICT_SNAPSHOTS= 4\n");
+    CHECK(config->GetAdap_Predict_Snapshots() == 4ul);
+    CHECK(config->GetAdap_Predict_Separation() == 3ul);
+    config = MakeTimeConfig(timeOptions + "ADAP_UNSTEADY_METRIC= PREDICT\nADAP_PREDICT_SNAPSHOTS= 5\n"
+                            "ADAP_PREDICT_SEPARATION= 2\nADAP_PREDICT_TEMPORAL_FILTER= 0.25\n");
+    CHECK(config->GetAdap_Predict_Snapshots() == 5ul);
+    CHECK(config->GetAdap_Predict_Separation() == 2ul);
+    CHECK(config->GetAdap_Predict_Temporal_Filter() == 0.25);
+    std::vector<unsigned long> sampled;
+    for (auto step = 0ul; step < 20; ++step)
+      if (config->GetAdap_Predict_SnapshotStep(step)) sampled.push_back(step);
+    CHECK((sampled == std::vector<unsigned long>{1, 3, 5, 7, 9, 11, 13, 15, 17, 19}));
+    sampled.clear();
+    for (auto step = 6ul; step < 10; ++step)
+      if (config->GetAdap_Predict_SnapshotStep(step)) sampled.push_back(step);
+    CHECK((sampled == std::vector<unsigned long>{7, 9}));
 
     /*--- FIXED_POINT: two remeshes per window and the tolerance of the metric change by default, explicit values kept,
      *    also with one time step per window. ---*/

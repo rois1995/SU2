@@ -47,10 +47,11 @@ TEST_CASE("Native restart failure: missing original reference cannot be silently
   FAIL("Native restart silently constructed a new original reference.");
 }
 
-TEST_CASE("Native support: static window-average dual time stepping is admitted", "[NativeSupport2D][NativeUnsteady2D]") {
+TEST_CASE("Native support: static window-average and predicted dual time stepping are admitted", "[NativeSupport2D][NativeUnsteady2D]") {
+  for (const auto* method : {"WINDOW_AVERAGE", "PREDICT"})
   for (const auto* order : {"DUAL_TIME_STEPPING-1ST_ORDER", "DUAL_TIME_STEPPING-2ND_ORDER"}) {
     auto config = MakeConfig(2, string("SOLVER= EULER\nTIME_DOMAIN= YES\nTIME_STEP= 1e-3\nTIME_ITER= 10\nTIME_MARCHING= ") + order +
-                                "\nADAP_UNSTEADY_METRIC= WINDOW_AVERAGE\n");
+                                "\nADAP_UNSTEADY_METRIC= " + method + "\n");
     MeshSolution mesh(config.get(), BoxMesh(2, 2, true), 0);
     REQUIRE(config->GetTime_Domain());
     CNativeRemesher::CheckSupport(*config, mesh.Fine());
@@ -58,13 +59,13 @@ TEST_CASE("Native support: static window-average dual time stepping is admitted"
 }
 
 // Unsupported window strategies must fail collectively before a native remesh.
-TEST_CASE("Native support failure: unvalidated predicted windows remain disabled", "[NativeUnsupportedWindowMetric][.]") {
+TEST_CASE("Native support failure: unvalidated fixed-point windows remain disabled", "[NativeUnsupportedWindowMetric][.]") {
   auto config = MakeConfig(2, "SOLVER= EULER\nTIME_DOMAIN= YES\nTIME_STEP= 1e-3\nTIME_ITER= 10\n"
                               "TIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\n"
-                              "ADAP_UNSTEADY_METRIC= PREDICT\n");
+                              "ADAP_UNSTEADY_METRIC= FIXED_POINT\n");
   MeshSolution mesh(config.get(), BoxMesh(2, 2, true), 0);
   CNativeRemesher::CheckSupport(*config, mesh.Fine());
-  FAIL("Unvalidated native predicted-window strategy passed the support check.");
+  FAIL("Unvalidated native fixed-point strategy passed the support check.");
 }
 
 TEST_CASE("Native config failure: worker count exceeds CFD communicator", "[NativeInvalidWorkerCount][.]") {

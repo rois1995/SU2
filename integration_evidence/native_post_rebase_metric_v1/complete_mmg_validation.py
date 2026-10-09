@@ -65,7 +65,7 @@ for row in json.loads((out/'prepared_smokes.json').read_text()):
         (case/'run_evidence.json').write_text(json.dumps(dict(phase='terminal',solver_exit=0,ranks=4,
                binary_sha256=receipt['binary_sha256'],scope='Bounded unsteady correctness smoke; no timing assessment'),indent=2)+'\n')
     if row['kind']!='FIXED_POINT':
-        run('independent_mmg_unsteady_v2',['python3','/tmp/check_mmg_unsteady.py',str(case)],case)
+        run('independent_mmg_unsteady_v2',['python3',str(out/'check_mmg_unsteady.py'),str(case)],case)
     if row['kind']=='PREDICT':
         assert re.findall(r'Metric snapshot of time step (\d+)',text)==['0','2','3','5','6','8']
     elif row['kind']=='FIXED_POINT':

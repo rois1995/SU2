@@ -1,3 +1,17 @@
+# Current handoff — 2026-10-09
+
+Working repository: `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`; AdapNoExt remains untouched. Current integration work is on `codex/native-post-rebase-metric-candidate`, to fast-forward and publish `codex/native-unsteady-performance`.
+
+**User preference: no further local MPI/CFD correctness or performance runs. Run correctness on the cluster.** The local correctness controller was stopped explicitly at the user request, during its first serial metric suite. No new prediction CFD case ran, and there is no completed new-suite PASS. Preserve the stop receipt/logs. Only lightweight source, syntax, manifest and Git checks remain local.
+
+The metric merge checkpoint `5cb87667c20f7c590fab00aa373c7c056a2daca1` has its completed 41-stage validation. The new configurable PREDICT history/filter, acceleration transport and native PREDICT support build successfully (302-step ABI rebuild), but their runtime checks are **pending cluster validation**. Native FIXED_POINT remains unsupported. Noise remains zero, and sensor-only donor interpolation plus geometric BL queries, finer demands and fade are preserved. No communicator fix was needed for the earlier MPI timeout; four ranks had been confined to two CPUs.
+
+Next user action after rebuilding both binaries: submit `qsub -pe mpi 4 integration_evidence/native_cluster_metric_comparison_v1/RunPredictCorrectnessSGE.sh`. It runs MPI1/2/4 and native Euler/RANS/CGNS/partial-restart checks sequentially with closed source-pinned inputs. Compute nodes need no Git. Download `ClusterResults/predict_correctness_JOB_ID/` and `ClusterResults/jobs/JOB_ID_predict_launcher/`. Require the validation JSON PASS, then review results before launching the separate serialized old/new performance comparison. See `integration_evidence/native_cluster_metric_comparison_v1/CORRECTNESS_README.md` and its README. Timings are still approximate on shared nodes; no exclusive allocation is requested.
+
+The long-running goal tracker remains paused. Cluster runs are user-owned. Do not resume local solver checks or claim prediction validation/performance success before reviewing the cluster results. Earlier notes below are chronological history and may describe superseded pending work.
+
+---
+
 # Codex handoff — native integration
 
 Updated 2026-10-08. Previous native integration and RAE repair goals COMPLETE.
@@ -1552,3 +1566,19 @@ sidecar/event checks to MMG) remain preserved with their corrected controls.
 No mesh/transfer/metric numerical gate relaxed. Native audit defaults are intact;
 only an explicitly selected MMG Euler control can omit native-sidecar/event checks.
 Prediction extension is still unapplied and uncompiled.
+
+## Prediction extension applied; full rebuild pending
+
+Validated metric merge checkpoint5cb87667c20f7c590fab00aa373c7c056a2daca1
+is committed locally, not pushed. Eleven reviewed files now extend PREDICT with
+count/cadence, temporally filtered feature acceleration and time-dependent
+transport. Native CheckSupport admits PREDICT; native FIXED_POINT still rejected
+and its expected-failure test retained. Manufactured acceleration/SPD/jitter,
+legacy two-frame equality, config schedules and MPI gather/scatter tests added.
+Full j1 ABI rebuild (CConfig layout changed) is running in build_predict_v1.
+Correctness cases prepared in predict_history_v1, including legacy MMG control,
+native default-two, four-frame N1/M1 N2/M1 N4/M3 (CGNS) and a no-remesh donor
+fixture for partial-window restarts. No new tests executed against the old ABI.
+Cluster comparison drafts still pending final-source pins and final validation.
+
+Prediction correctness preparation: `predict_history_v1/four_fixture_n1m1` now has ten steps (one actual native replacement at step 5), providing its real immutable reference sidecar and matching BDF restart states. Partial-window restarts will start at steps 7, 8, and 9 to exercise three-/two-/one-snapshot fallbacks without fabricating reference bindings. The sequential controller is saved as `integration_evidence/native_post_rebase_metric_v1/complete_predict_history_validation.py`. Invalid count/cadence/filter configurations and the retained native fixed-point guard are negative checks. Full ABI build remains in progress; no prediction smoke has run yet.

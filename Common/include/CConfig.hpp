@@ -1345,9 +1345,11 @@ private:
   ADAP_UNSTEADY_METRIC Kind_Adap_Unsteady_Metric; /*!< \brief Metric of the next mesh of the time-domain loop. */
   unsigned long Adap_Predict_Horizon = 0,   /*!< \brief PREDICT: time steps over which the metric is predicted. */
                 Adap_Predict_Step = 0,      /*!< \brief PREDICT: time steps between the instants of the horizon. */
-                Adap_Predict_Separation = 0; /*!< \brief PREDICT: time steps between the two metric snapshots. */
+                Adap_Predict_Separation = 0, /*!< \brief PREDICT: fixed cadence of metric snapshots. */
+                Adap_Predict_Snapshots = 2; /*!< \brief PREDICT: snapshots ending at the window boundary. */
   su2double Adap_Predict_Aniso = 1.5,       /*!< \brief PREDICT: anisotropy ratio above which the metric is reoriented. */
-            Adap_Predict_Regularization = 0.5; /*!< \brief PREDICT: smoothness weight of the motion field. */
+            Adap_Predict_Regularization = 0.5, /*!< \brief PREDICT: spatial smoothness weight of the motion field. */
+            Adap_Predict_Temporal_Filter = 1.0; /*!< \brief PREDICT: temporal acceleration penalty (0: unfiltered). */
   unsigned long Adap_FP_Iter = 2;           /*!< \brief FIXED_POINT: remeshes (and re-solves) of each window. */
   su2double Adap_FP_Tol = 0.1;              /*!< \brief FIXED_POINT: metric change that ends the iterations. */
   unsigned short nAdap_Sizes = 0, nAdap_SubIter = 0, nAdap_Hmaxs = 0, nAdap_Hmins = 0, nAdap_Norms = 0,
@@ -10635,10 +10637,24 @@ public:
   unsigned long GetAdap_Predict_Step(void) const { return Adap_Predict_Step; }
 
   /*!
-   * \brief PREDICT: time steps between the two metric snapshots of a window (ADAP_PREDICT_SEPARATION, default
-   *        ADAP_FREQ - 1: the first and the last time step of the window).
+   * \brief PREDICT: fixed snapshot cadence backward from the window end (ADAP_PREDICT_SEPARATION, default
+   *        floor((ADAP_FREQ - 1) / (ADAP_PREDICT_SNAPSHOTS - 1))).
    */
   unsigned long GetAdap_Predict_Separation(void) const { return Adap_Predict_Separation; }
+
+  /*! \brief PREDICT: requested snapshot count, including the final step (default 2). */
+  unsigned long GetAdap_Predict_Snapshots(void) const { return Adap_Predict_Snapshots; }
+
+  /*! \brief PREDICT: fixed-cadence sample, counted backward from the nominal window end. */
+  bool GetAdap_Predict_SnapshotStep(unsigned long timeIter) const {
+    if (Kind_Adap_Unsteady_Metric != ADAP_UNSTEADY_METRIC::PREDICT || !Adap_Freq || !Adap_Predict_Separation)
+      return false;
+    const auto distance = Adap_Freq - 1 - timeIter % Adap_Freq;
+    return distance % Adap_Predict_Separation == 0 && distance / Adap_Predict_Separation < Adap_Predict_Snapshots;
+  }
+
+  /*! \brief PREDICT: nonnegative temporal acceleration penalty (default 1; 0: unfiltered fit). */
+  su2double GetAdap_Predict_Temporal_Filter(void) const { return Adap_Predict_Temporal_Filter; }
 
   /*!
    * \brief PREDICT: the metric is reoriented by the deformation of the motion where its anisotropy ratio
