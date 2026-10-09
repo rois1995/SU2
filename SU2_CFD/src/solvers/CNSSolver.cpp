@@ -957,7 +957,6 @@ void CNSSolver::SetTau_Wall_WF(CGeometry *geometry, CSolver **solver_container, 
           const su2double denum = (1.0 + Beta*U_Plus - Gam*U_Plus*U_Plus);
           if (denum > EPS){
             T_Wall = T_Normal / denum;
-            nodes->SetTemperature(iPoint,T_Wall);
           }
           else {
             SU2_OMP_CRITICAL
