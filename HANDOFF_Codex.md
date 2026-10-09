@@ -1,6 +1,6 @@
 # Current handoff — 2026-10-09
 
-Working repository: `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`; AdapNoExt remains untouched. Current integration work is on `codex/native-post-rebase-metric-candidate`, to fast-forward and publish `codex/native-unsteady-performance`.
+Working repository: `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`; AdapNoExt remains untouched. Active branch: `codex/native-unsteady-performance`, fast-forwarded from `codex/native-post-rebase-metric-candidate`. Implementation checkpoint: `e8f0a237362f7fb060eb1272f2d174c5081b944c`; a subsequent handoff-only commit does not change the built source or suite pins. The final publication SHA is reported after remote verification.
 
 **User preference: no further local MPI/CFD correctness or performance runs. Run correctness on the cluster.** The local correctness controller was stopped explicitly at the user request, during its first serial metric suite. No new prediction CFD case ran, and there is no completed new-suite PASS. Preserve the stop receipt/logs. Only lightweight source, syntax, manifest and Git checks remain local.
 
