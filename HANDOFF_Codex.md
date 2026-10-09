@@ -93,6 +93,22 @@ No SU2/MPI/qsub/build was executed locally. New C++ tests and real cluster audit
 are deliberately pending. Historical performance source pins remain unchanged;
 use the new package rather than the old frozen source-pinned submission helper.
 
+Cluster job582197 compatibility failure: scratch refused os.link with EPERM
+while staging first frozen input (run.cfg), BEFORE all MPI/SU2 gates. This is an
+export/filesystem issue, not a remeshing failure. Both staging and compact export
+now use one link-or-exclusive-copy helper; known unsupported/refused/cross-device
+link errors fall back to copying, while EEXIST/I/O/disk-full failures propagate.
+SHA checks and verification-before-cleanup are preserved. Manifests record storage
+method; validation records copy/hardlink counts. Fallback saves only selected files
+but cannot provide inode deduplication savings on that filesystem. No C++ changes,
+rebuild or original-control replacement needed. Pull, move old checkpoint with
+mv -n to balance_profile_checkpoint_582197.json, rerun prepare.py and qsub the same
+RunBalanceProfileSGE.sh. Preserve previous failed folders/launcher. README contains
+the exact recovery commands. Original preparation receipt remains historical;
+new link_fallback_checks.json records this fix's lightweight checks. Tests include
+complete16-case simulated pilots with/without hardlinks, guarded existing output
+and copy-failure retention; no local solver/MPI/build/qsub run.
+
 The long-running goal tracker remains paused. Cluster runs are user-owned. Do not resume local solver checks or claim prediction validation/performance success before reviewing the cluster results. Earlier notes below are chronological history and may describe superseded pending work.
 
 ---

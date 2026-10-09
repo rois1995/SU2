@@ -1,0 +1,30 @@
+{
+  "status": "LOCAL_LINK_FALLBACK_CHECKS_PASS_NOT_CLUSTER_VALIDATED",
+  "timestamp_utc": "2026-10-09T19:33:44.942410+00:00",
+  "reported_failed_job": "582197",
+  "reported_errno": "EPERM",
+  "failed_stage": "fixture staging before MPI/SU2 gate",
+  "checks": {
+    "fake_file_tests": 8,
+    "simulated_pilot_cases_per_storage_mode": 16,
+    "simulated_storage_modes": [
+      "hardlink",
+      "EPERM_copy_fallback"
+    ],
+    "existing_exports_preserved": "PASS",
+    "copy_failure_retains_work": "PASS",
+    "fatal_link_errors_propagated": "PASS",
+    "resource_warnings_as_errors": "PASS",
+    "package_ast": "PASS",
+    "sge_bash_syntax": "PASS",
+    "git_diff_check": "PASS",
+    "compiled_sources_equal_fbe13c5ea9": "PASS"
+  },
+  "files_sha256": {
+    "HANDOFF_Codex.md": "aa8d36a606c785445d1416c36d21b46819dac1f06f1c971045b1e9e02098dd7e",
+    "integration_evidence/native_cluster_balance_profile_v1/README.md": "92bdc8b0933e8c5f767677178f63d9d31ffc41b0decf2be7e585a4e930cc4d61",
+    "integration_evidence/native_cluster_balance_profile_v1/check_package.py": "97e41396ad52999bf67fa2058966502cf7d46dd6f5df67e6fb177979179dc620",
+    "integration_evidence/native_cluster_balance_profile_v1/run.py": "8645a9c8ff94ef9c8af4480dbf6860df95bb17177ad6ff8f486f6410408759e8"
+  },
+  "scope": "Only package scripts/docs changed; no solver rebuild needed. Original preparation_checks.json preserved as historical evidence. No local SU2/MPI/build/qsub execution; actual scratch-filesystem run remains pending user resubmission."
+}

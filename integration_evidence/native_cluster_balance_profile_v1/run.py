@@ -1,6 +1,7 @@
 """One-allocation serial frozen control/profile pilot with verified compact exports."""
 import argparse
 import csv
+import errno
 import json
 import math
 import os
@@ -59,6 +60,19 @@ def retained(case):
              or 'reject' in p.name or p.name.endswith('.native_ref'))]
 
 
+def link_or_copy(source, target):
+    try:
+        os.link(source, target)
+        return 'hardlink'
+    except OSError as error:
+        if error.errno not in (errno.EPERM, errno.EACCES, errno.EOPNOTSUPP, errno.ENOTSUP, errno.EXDEV, errno.EMLINK):
+            raise
+    # Exclusive creation preserves existing exports even when linking is unavailable.
+    with source.open('rb') as incoming, target.open('xb') as outgoing:
+        shutil.copyfileobj(incoming, outgoing)
+    return 'copy'
+
+
 def compact(case, destination, fixture, objects):
     destination.mkdir()
     for name in ('input.su2', 'frozen_sensor.csv', 'frozen_sensor_source_flow.vtu'):
@@ -71,11 +85,11 @@ def compact(case, destination, fixture, objects):
         if not shared.exists():shutil.copy2(source, shared)
         assert sha(shared) == digest
         target = destination / source.name
-        os.link(shared, target)
+        storage=link_or_copy(shared, target)
         assert sha(target) == digest
-        hashes[target.name] = dict(sha256=digest, bytes=target.stat().st_size)
+        hashes[target.name] = dict(sha256=digest, bytes=target.stat().st_size, storage=storage)
     manifest = dict(status='VERIFIED_COMPACT_EXPORT', files=hashes,
-                    scope='Self-contained case files; repeated content hardlinked only within this job export. Temporary work removed after verification. Audit tools shared once at job root.')
+                    scope='Self-contained case files; repeated content hardlinked within this job when supported, otherwise copied. Temporary work removed after verification. Audit tools shared once at job root.')
     (destination / 'collection_manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
     return hashes
 
@@ -108,7 +122,7 @@ def main():
     for command in (['lscpu'], ['gcc', '--version'], ['mpicxx', '--version'], ['mpirun', '--version']):
         result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         (out / (command[0] + '.txt')).write_text(result.stdout + result.stderr)
-    fixtures = {}
+    fixtures = {};storage_counts=dict(hardlink=0,copy=0)
     for kind in KINDS:
         source = ROOT / 'integration_evidence/native_cluster_campaign_v1/inputs' / kind
         dest = out / 'inputs' / kind;dest.mkdir(parents=True)
@@ -116,9 +130,14 @@ def main():
             p=closed(p); shared=objects/sha(p)
             if not shared.exists():shutil.copy2(p, shared)
             assert sha(shared)==sha(p)
-            os.link(shared, dest/p.name)
+            target=dest/p.name
+            storage_counts[link_or_copy(shared,target)]+=1
+            assert sha(target)==sha(p)
         fixtures[kind] = dest
+    if storage_counts['copy']:
+        print('Hardlinks unavailable for some inputs: using hash-verified copies; exports may occupy more disk space.', flush=True)
     records = dict(status='RUNNING', cases=[], unit_stages=[], checkpoint_sha256=sha(CHECKPOINT),
+                   export_storage_counts=storage_counts,
                    scheduler={k:os.environ.get(k) for k in ('JOB_ID', 'NSLOTS', 'QUEUE', 'PE')},
                    scope='Frozen-only same-allocation paired instrumentation experiment. No time-marching CFD. Numerical PASS and byte identity precede performance interpretation.')
     def save(): (out / 'validation.json').write_text(json.dumps(records, indent=2) + '\n')
@@ -213,6 +232,7 @@ def main():
                         except Exception as error:row['error']=str(error)
                         copied=export_and_clean(case, out/'cases'/name, fixtures[kind], objects)
                         records.pop('pending_work_folder',None)
+                        for info in copied.values():storage_counts[info['storage']]+=1
                         row['output_sha256']={k:v['sha256'] for k,v in copied.items()}
                         row['retained_bytes_if_expanded']=sum(v['bytes'] for v in copied.values())
                         records['cases'].append(row);save()

@@ -1,6 +1,7 @@
 """Fast fake-file checks; never compiles or invokes SU2/MPI/qsub."""
 import contextlib
 import csv
+import errno
 import importlib.util
 import io
 import json
@@ -110,9 +111,33 @@ class PackageChecks(unittest.TestCase):
         with patch.object(runner,'compact',side_effect=OSError('disk full')):
             rejects(lambda:runner.export_and_clean(case,self.root/'broken',fixture,objects),(OSError,))
         self.assertTrue(case.exists())
+        with patch.object(runner.os,'link',side_effect=OSError(errno.EPERM,'no links')), \
+             patch.object(runner.shutil,'copyfileobj',side_effect=OSError(errno.ENOSPC,'disk full')):
+            rejects(lambda:runner.export_and_clean(case,self.root/'failed_fallback',fixture,objects),(OSError,))
+        self.assertTrue(case.exists())
+        self.assertFalse((self.root/'failed_fallback/collection_manifest.json').exists())
         (case/'input.su2').write_text('changed donor')
         rejects(lambda:runner.export_and_clean(case,self.root/'altered',fixture,objects))
         self.assertTrue(case.exists());self.assertFalse(any(p.is_symlink() for p in dest.iterdir()))
+
+    def test_link_fallback_preserves_existing_files_and_propagates_copy_errors(self):
+        source=self.root/'source';source.write_bytes(b'verified input')
+        for error in (errno.EPERM,errno.EACCES,errno.EOPNOTSUPP,errno.EXDEV,errno.EMLINK):
+            target=self.root/str(error)
+            with patch.object(runner.os,'link',side_effect=OSError(error,'no links')):
+                self.assertEqual(runner.link_or_copy(source,target),'copy')
+                self.assertEqual(prepare.sha(source),prepare.sha(target))
+                rejects(lambda:runner.link_or_copy(source,target))
+                self.assertEqual(target.read_bytes(),source.read_bytes())
+        for error in (errno.ENOSPC,errno.EIO,errno.ENOENT):
+            target=self.root/('fatal_'+str(error))
+            with patch.object(runner.os,'link',side_effect=OSError(error,'fatal link error')):
+                rejects(lambda:runner.link_or_copy(source,target),(OSError,))
+            self.assertFalse(target.exists())
+        with patch.object(runner.os,'link',side_effect=OSError(errno.EPERM,'no links')), \
+             patch.object(runner.shutil,'copyfileobj',side_effect=OSError(errno.ENOSPC,'disk full')):
+            rejects(lambda:runner.link_or_copy(source,self.root/'partial'),(OSError,))
+        self.assertEqual(source.read_bytes(),b'verified input')
 
     def fake_campaign(self, mode='pass'):
         root=self.root;pack=root/'integration_evidence/native_cluster_balance_profile_v1';pack.mkdir(parents=True)
@@ -154,23 +179,30 @@ class PackageChecks(unittest.TestCase):
             if command[0]==sys.executable:
                 case=Path(command[2]);(case/'independent_frozen_metric_audit.json').write_text('{"status":"PASS"}')
             return subprocess.CompletedProcess(command,0,stdout='fake evidence',stderr='')
-        with patch.multiple(runner,ROOT=root,PACK=pack,CHECKPOINT=checkpoint),patch.object(prepare,'ROOT',root),\
-             patch.object(runner,'verify'),patch.object(runner,'execute',side_effect=execute),\
-             patch.object(runner.subprocess,'run',side_effect=external),\
-             patch.dict(os.environ,NSLOTS='4',JOB_ID='123'),\
-             patch.object(sys,'argv',['run.py','--machinefile',str(machine)]),contextlib.redirect_stdout(io.StringIO()):
-            code=runner.main()
+        with contextlib.ExitStack() as fallback:
+            if mode=='no_links':fallback.enter_context(patch.object(runner.os,'link',side_effect=PermissionError(errno.EPERM,'cluster disallows hardlinks')))
+            with patch.multiple(runner,ROOT=root,PACK=pack,CHECKPOINT=checkpoint),patch.object(prepare,'ROOT',root),\
+                 patch.object(runner,'verify'),patch.object(runner,'execute',side_effect=execute),\
+                 patch.object(runner.subprocess,'run',side_effect=external),\
+                 patch.dict(os.environ,NSLOTS='4',JOB_ID='123'),\
+                 patch.object(sys,'argv',['run.py','--machinefile',str(machine)]),contextlib.redirect_stdout(io.StringIO()):
+                code=runner.main()
         out=root/'ClusterResults/balance_profile_123';record=json.loads((out/'validation.json').read_text())
         self.assertFalse((out/'objects').exists())
         self.assertFalse(any(p.is_symlink() for p in out.rglob('*')))
-        if mode=='pass':
+        if mode in ('pass','no_links'):
             self.assertEqual(code,0);self.assertEqual(len(record['cases']),16);self.assertEqual(len(record['pairs']),8)
             self.assertEqual([n for n,tag in executed[:3]],[1,2,4])
             self.assertFalse(list(out.rglob('unneeded_geometry.vtk')))
-            self.assertLess(record['retained_unique_file_bytes'],record['retained_logical_bytes'])
+            if mode=='pass':self.assertLess(record['retained_unique_file_bytes'],record['retained_logical_bytes'])
+            else:
+                self.assertEqual(record['retained_unique_file_bytes'],record['retained_logical_bytes'])
+                self.assertEqual(record['export_storage_counts']['hardlink'],0)
+                self.assertGreater(record['export_storage_counts']['copy'],0)
             for row in record['cases']:
                 case=out/'cases'/row['case'];manifest=json.loads((case/'collection_manifest.json').read_text())
                 self.assertTrue(all(prepare.sha(case/name)==info['sha256'] for name,info in manifest['files'].items()))
+                if mode=='no_links':self.assertTrue(all(info['storage']=='copy' for info in manifest['files'].values()))
                 self.assertTrue((case/'independent_profile_accounting.json').is_file())
             self.assertEqual(record['status'],'PASS')
         else:
@@ -180,6 +212,7 @@ class PackageChecks(unittest.TestCase):
         return record
 
     def test_full_fake_campaign(self):self.fake_campaign()
+    def test_full_fake_campaign_without_hardlinks(self):self.fake_campaign('no_links')
     def test_gate_failure_stops_cases(self):self.fake_campaign('unit_fail')
     def test_changed_pair_stops_campaign(self):self.fake_campaign('changed')
 

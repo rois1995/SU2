@@ -41,6 +41,31 @@ one job, all cases sequentially on the same allocation. Compute nodes need no
 Git. `machinefile.$JOB_ID` must be inside this checkout; `MACHINEFILE_PATH` can
 select another closed path. No exclusive-node reservation is requested.
 
+## Rerun after the job 582197 hardlink error
+
+The cluster scratch filesystem refused `os.link` with EPERM while staging the
+first fixture, before any MPI/SU2 test. The exporter now falls back to an
+exclusively created, hash-verified copy when links are unsupported or refused.
+Both fixture staging and case exports use it. Existing files are never
+silently overwritten, and copy/hash failures retain unverified working files.
+No C++ source or solver binary changed in this compatibility fix.
+
+After pulling, preserve the failed job's checkpoint and prepare again because
+package hashes changed. **No rebuild or control replacement is needed**:
+
+```bash
+git pull --ff-only origin codex/native-unsteady-performance
+mv -n build-native/balance_profile_checkpoint.json build-native/balance_profile_checkpoint_582197.json
+python3 integration_evidence/native_cluster_balance_profile_v1/prepare.py
+qsub integration_evidence/native_cluster_balance_profile_v1/RunBalanceProfileSGE.sh
+```
+
+Previous failed output/launcher folders remain untouched; the new SGE ID creates
+a fresh results directory. Successful copy fallbacks retain the same selected
+files and audits, but cannot provide hardlink disk savings. Per-file manifests
+record `storage` and `validation.json` records `export_storage_counts` plus
+logical/unique-file byte totals.
+
 ## What runs
 
 The candidate first runs focused native/profile/passive-communication unit tests
@@ -104,10 +129,11 @@ The runner prints every actual working folder and retained case folder.
 Only configs, immutable input mesh/raw sensor/source-flow provenance, adapted
 or rejected meshes/reference sidecars, transported tensors, timing/profile CSV,
 logs, receipts and audit reports are retained. Tools are saved **once per job**.
-Identical inputs and numerical outputs are **hardlinked within that job** after
-SHA256 verification. All paths are closed; no export symlinks refer to another
+Identical inputs and numerical outputs are **hardlinked within that job when
+supported**, otherwise copied, with SHA256 verification in either case. All paths are closed; no export symlinks refer to another
 checkout. Use `rsync -aH` when downloading if possible to preserve hardlink savings;
-ordinary copies may expand them. Each case has the physical files needed for
+ordinary downloads may expand existing hardlinks. If the cluster filesystem
+requires copy fallback, there are no corresponding hardlinks to preserve. Each case has the physical files needed for
 re-audit using the shared `tools/integration_evidence/audit_native_frozen_case.py`.
 
 Task-owned temporary outputs are removed only after a verified compact export.
