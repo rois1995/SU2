@@ -1,0 +1,1628 @@
+{
+  "status": "PASS_WITH_RECORDED_LIMITATIONS",
+  "job": 581856,
+  "validated_source_commit": "d4416246224aebee506bb1b5601c553cb8af0dc0",
+  "scope": "Review of the complete native 2D PREDICT cluster correctness gate and independent saved-data re-audit. No local MPI/CFD or performance runs.",
+  "validation": {
+    "status": "PASS",
+    "scope": "Sequential correctness checks for selectable PREDICT history; never a timing benchmark.",
+    "stages": [
+      {
+        "label": "metric",
+        "command": [
+          "mpirun",
+          "-machinefile",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581856/machinefile",
+          "-np",
+          "1",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/UnitTests/test_driver",
+          "[Adaptation],[Gradients],[HessianReliability],[Hessian3DStress],[RestartReliability],[MetricRobustness],[NativeComposite2D]",
+          "--use-colour",
+          "no"
+        ],
+        "working_directory": "ClusterResults/predict_correctness_581856/units-mpi1",
+        "status": "PASS",
+        "exit_code": 0,
+        "log_sha256": "0ea7f396fcb94bedfaadec9daef5838b936f4bd9b8b67c4789ba6bfa9e5e4d0c",
+        "test_summaries": [
+          "420831 assertions in 161 test cases"
+        ]
+      },
+      {
+        "label": "native",
+        "command": [
+          "mpirun",
+          "-machinefile",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581856/machinefile",
+          "-np",
+          "1",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/UnitTests/test_driver",
+          "[NativeDistributed2D],[NativeField2D],[NativeEngine2D],[NativeSupport2D],[DistributedTransfer],[NativeCGNS2D],[NativeRejectedOutput],[NativeBL2D],[NativeProducedBL2D],[NativeRemesher],[MetricRobustness],[NativeComposite2D],[PassiveComm],[DistributedSearch]",
+          "--use-colour",
+          "no"
+        ],
+        "working_directory": "ClusterResults/predict_correctness_581856/units-mpi1",
+        "status": "PASS",
+        "exit_code": 0,
+        "log_sha256": "9896122101ab5062502c291fb55070c8370c2f8116b3e3313d147f25a878c38f",
+        "test_summaries": [
+          "50070 assertions in 87 test cases"
+        ]
+      },
+      {
+        "label": "metric",
+        "command": [
+          "mpirun",
+          "-machinefile",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581856/machinefile",
+          "-np",
+          "2",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/UnitTests/test_driver",
+          "[HessianReliability],[Hessian3DStress],[RestartReliability],[MetricRobustness],[NativeComposite2D],[CustomSensorsMPI],[GoalMPI],Metric intersection,[SteadyMetricReuse],[MetricPredictionMPI]",
+          "--use-colour",
+          "no"
+        ],
+        "working_directory": "ClusterResults/predict_correctness_581856/units-mpi2",
+        "status": "PASS",
+        "exit_code": 0,
+        "log_sha256": "47986da34d7d9dc37a1dccca9f49e70f647630d6a52db03d220e0f680b291ded",
+        "test_summaries": [
+          "173614 assertions in 39 test cases",
+          "174963 assertions in 39 test cases"
+        ]
+      },
+      {
+        "label": "native",
+        "command": [
+          "mpirun",
+          "-machinefile",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581856/machinefile",
+          "-np",
+          "2",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/UnitTests/test_driver",
+          "[NativeDistributed2D],[NativeField2D],[NativeEngine2D],[NativeSupport2D],[DistributedTransfer],[NativeCGNS2D],[NativeRejectedOutput],[NativeBL2D],[NativeProducedBL2D],[NativeRemesher],[MetricRobustness],[NativeComposite2D],[PassiveComm],[DistributedSearch]",
+          "--use-colour",
+          "no"
+        ],
+        "working_directory": "ClusterResults/predict_correctness_581856/units-mpi2",
+        "status": "PASS",
+        "exit_code": 0,
+        "log_sha256": "c7bcc0a1d8d79fb8fc5260aaf16ae24fccd82c42aeccd0d99d91d2a541c27874",
+        "test_summaries": [
+          "34597 assertions in 87 test cases",
+          "37706 assertions in 87 test cases"
+        ]
+      },
+      {
+        "label": "metric",
+        "command": [
+          "mpirun",
+          "-machinefile",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581856/machinefile",
+          "-np",
+          "4",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/UnitTests/test_driver",
+          "[HessianReliability],[Hessian3DStress],[RestartReliability],[MetricRobustness],[NativeComposite2D],[CustomSensorsMPI],[GoalMPI],Metric intersection,[SteadyMetricReuse],[MetricPredictionMPI]",
+          "--use-colour",
+          "no"
+        ],
+        "working_directory": "ClusterResults/predict_correctness_581856/units-mpi4",
+        "status": "PASS",
+        "exit_code": 0,
+        "log_sha256": "ba4cf3ec1dcac89caeb825714df307a5c0f20ca6eac39223f80b3a0cfa68d3ee",
+        "test_summaries": [
+          "114146 assertions in 39 test cases",
+          "112115 assertions in 39 test cases",
+          "113188 assertions in 39 test cases",
+          "113968 assertions in 39 test cases"
+        ]
+      },
+      {
+        "label": "native",
+        "command": [
+          "mpirun",
+          "-machinefile",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581856/machinefile",
+          "-np",
+          "4",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/UnitTests/test_driver",
+          "[NativeDistributed2D],[NativeField2D],[NativeEngine2D],[NativeSupport2D],[DistributedTransfer],[NativeCGNS2D],[NativeRejectedOutput],[NativeBL2D],[NativeProducedBL2D],[NativeRemesher],[MetricRobustness],[NativeComposite2D],[PassiveComm],[DistributedSearch]",
+          "--use-colour",
+          "no"
+        ],
+        "working_directory": "ClusterResults/predict_correctness_581856/units-mpi4",
+        "status": "PASS",
+        "exit_code": 0,
+        "log_sha256": "113a62b9872feb5742648668f9d6f39220cc7c569ce31c8fcf607b79d2b19887",
+        "test_summaries": [
+          "27424 assertions in 87 test cases",
+          "27798 assertions in 87 test cases",
+          "27761 assertions in 87 test cases",
+          "30077 assertions in 87 test cases"
+        ]
+      },
+      {
+        "label": "fixed_point_guard",
+        "command": [
+          "mpirun",
+          "-machinefile",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581856/machinefile",
+          "-np",
+          "4",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/UnitTests/test_driver",
+          "[NativeUnsupportedWindowMetric]",
+          "--use-colour",
+          "no"
+        ],
+        "working_directory": "ClusterResults/predict_correctness_581856/native-fixed-point-guard",
+        "status": "PASS",
+        "exit_code": 1,
+        "log_sha256": "353183cefe3bc33405d2193abcd480be9d0e66a417a20d84831b61dd5dc7a0d2",
+        "test_summaries": []
+      },
+      {
+        "label": "solver",
+        "command": [
+          "mpirun",
+          "-machinefile",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581856/machinefile",
+          "-np",
+          "1",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/SU2_CFD/src/SU2_CFD",
+          "run.cfg"
+        ],
+        "working_directory": "ClusterResults/predict_correctness_581856/invalid_count_low",
+        "status": "PASS",
+        "exit_code": 1,
+        "log_sha256": "ce36678385da9c99a4dd9cfb9147a6c735b6b7c05dfe7872cc7f97e021eea3d7",
+        "test_summaries": []
+      },
+      {
+        "label": "solver",
+        "command": [
+          "mpirun",
+          "-machinefile",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581856/machinefile",
+          "-np",
+          "1",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/SU2_CFD/src/SU2_CFD",
+          "run.cfg"
+        ],
+        "working_directory": "ClusterResults/predict_correctness_581856/invalid_count_high",
+        "status": "PASS",
+        "exit_code": 1,
+        "log_sha256": "0de2e672e31a5a7274de82353592991aca1a87a7100d7e3ffad472cdd2e9726f",
+        "test_summaries": []
+      },
+      {
+        "label": "solver",
+        "command": [
+          "mpirun",
+          "-machinefile",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581856/machinefile",
+          "-np",
+          "1",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/SU2_CFD/src/SU2_CFD",
+          "run.cfg"
+        ],
+        "working_directory": "ClusterResults/predict_correctness_581856/invalid_cadence_span",
+        "status": "PASS",
+        "exit_code": 1,
+        "log_sha256": "4263220850a7999106d54c64d14e15b9bdf69ec6d3ee5db38d6a74ca74c1b6e9",
+        "test_summaries": []
+      },
+      {
+        "label": "solver",
+        "command": [
+          "mpirun",
+          "-machinefile",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581856/machinefile",
+          "-np",
+          "1",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/SU2_CFD/src/SU2_CFD",
+          "run.cfg"
+        ],
+        "working_directory": "ClusterResults/predict_correctness_581856/invalid_negative_filter",
+        "status": "PASS",
+        "exit_code": 1,
+        "log_sha256": "0e05bb21949d7d5b8680ef86bb2ef97cacd4ad0b00c915b34810fc749fa3662c",
+        "test_summaries": []
+      },
+      {
+        "label": "solver",
+        "command": [
+          "mpirun",
+          "-machinefile",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581856/machinefile",
+          "-np",
+          "4",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/SU2_CFD/src/SU2_CFD",
+          "run.cfg"
+        ],
+        "working_directory": "ClusterResults/predict_correctness_581856/default_two_n4m3",
+        "status": "PASS",
+        "exit_code": 0,
+        "log_sha256": "5adfb220457129b9e2f4ff6edadbef52ced0f011693b4d9debe40d9487eee0a3",
+        "test_summaries": []
+      },
+      {
+        "label": "solver",
+        "command": [
+          "mpirun",
+          "-machinefile",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581856/machinefile",
+          "-np",
+          "1",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/SU2_CFD/src/SU2_CFD",
+          "run.cfg"
+        ],
+        "working_directory": "ClusterResults/predict_correctness_581856/four_fixture_n1m1",
+        "status": "PASS",
+        "exit_code": 0,
+        "log_sha256": "4dc3bd35ed886d3e27c35477efcff3b0b0e75edc2d3576e0fa8fd48f8324c5d6",
+        "test_summaries": []
+      },
+      {
+        "label": "solver",
+        "command": [
+          "mpirun",
+          "-machinefile",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581856/machinefile",
+          "-np",
+          "1",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/SU2_CFD/src/SU2_CFD",
+          "run.cfg"
+        ],
+        "working_directory": "ClusterResults/predict_correctness_581856/four_n1m1",
+        "status": "PASS",
+        "exit_code": 0,
+        "log_sha256": "d36732aa14cf3ba0c96e3dafc3ba5e4335b5fc4a5162f637dd4251ee5152befd",
+        "test_summaries": []
+      },
+      {
+        "label": "solver",
+        "command": [
+          "mpirun",
+          "-machinefile",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581856/machinefile",
+          "-np",
+          "2",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/SU2_CFD/src/SU2_CFD",
+          "run.cfg"
+        ],
+        "working_directory": "ClusterResults/predict_correctness_581856/four_n2m1",
+        "status": "PASS",
+        "exit_code": 0,
+        "log_sha256": "e04e048ead9710053bd61c3e30702e9fc32a2d1ba11e056d8fb16a7231704241",
+        "test_summaries": []
+      },
+      {
+        "label": "solver",
+        "command": [
+          "mpirun",
+          "-machinefile",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581856/machinefile",
+          "-np",
+          "4",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/SU2_CFD/src/SU2_CFD",
+          "run.cfg"
+        ],
+        "working_directory": "ClusterResults/predict_correctness_581856/four_cgns_n4m3",
+        "status": "PASS",
+        "exit_code": 0,
+        "log_sha256": "3165d5745fc4cef3e8ec1634ac38494af86f24410fcf47fce3f91d10152a9641",
+        "test_summaries": []
+      },
+      {
+        "label": "solver",
+        "command": [
+          "mpirun",
+          "-machinefile",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581856/machinefile",
+          "-np",
+          "4",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/SU2_CFD/src/SU2_CFD",
+          "run.cfg"
+        ],
+        "working_directory": "ClusterResults/predict_correctness_581856/plate_sa_four_n4m3",
+        "status": "PASS",
+        "exit_code": 0,
+        "log_sha256": "0b360ded014a6225a0186391eb65b807ee2f6d6f0de66c09c9fac7c0b0bc5c7e",
+        "test_summaries": []
+      },
+      {
+        "label": "solver",
+        "command": [
+          "mpirun",
+          "-machinefile",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581856/machinefile",
+          "-np",
+          "1",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/SU2_CFD/src/SU2_CFD",
+          "run.cfg"
+        ],
+        "working_directory": "ClusterResults/predict_correctness_581856/partial_restart_7_n1m1",
+        "status": "PASS",
+        "exit_code": 0,
+        "log_sha256": "fd727600e9030a788ac61a122f324fe5aef243bedc1d2a03b792b7256afbee9d",
+        "test_summaries": []
+      },
+      {
+        "label": "solver",
+        "command": [
+          "mpirun",
+          "-machinefile",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581856/machinefile",
+          "-np",
+          "1",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/SU2_CFD/src/SU2_CFD",
+          "run.cfg"
+        ],
+        "working_directory": "ClusterResults/predict_correctness_581856/partial_restart_8_n1m1",
+        "status": "PASS",
+        "exit_code": 0,
+        "log_sha256": "69b7a25a86c0e9c3044b943536247df24faac14507829908b2545f59718b7679",
+        "test_summaries": []
+      },
+      {
+        "label": "solver",
+        "command": [
+          "mpirun",
+          "-machinefile",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/ClusterResults/predict_correctness_581856/machinefile",
+          "-np",
+          "1",
+          "/global-scratch/bulk_pool/arausa/SU2_Native/build-native/SU2_CFD/src/SU2_CFD",
+          "run.cfg"
+        ],
+        "working_directory": "ClusterResults/predict_correctness_581856/partial_restart_9_n1m1",
+        "status": "PASS",
+        "exit_code": 0,
+        "log_sha256": "2180ed692cff078024fb2cbd933fade35907269503a61d52f57b474b6d04bff2",
+        "test_summaries": []
+      }
+    ],
+    "binary_sha256": "dddc3df010ea47152bd8e14ac07038e15fd5e883c86147e58717fa422680649c",
+    "test_binary_sha256": "b8bb7bc0bf3ba701232513d0c4d0e812e3483cac605da6ecd13e1a4845b7971e",
+    "checkpoint_sha256": "a997ba8c79bd72d7500b61ff74113deba311458cd8b73c2e51c9367986625278",
+    "source_and_suite_files": 837,
+    "scheduler": {
+      "JOB_ID": "581856",
+      "NSLOTS": "4",
+      "QUEUE": "aero-ags.q",
+      "PE": "mpi"
+    },
+    "skipped": "MMG controls and archived workstation bitwise-output comparison; native-only cluster build",
+    "phase": "terminal",
+    "cases": [
+      {
+        "name": "default_two_n4m3",
+        "ranks": 4,
+        "workers": 3,
+        "case": "ClusterResults/predict_correctness_581856/default_two_n4m3",
+        "snapshots": [
+          0,
+          2,
+          3,
+          5,
+          6,
+          8
+        ],
+        "adaptations": 2,
+        "count": 2,
+        "audit_sha256": "c176947c4101c7576a60d2e995eeb82eb1158cae45c5bc77a3b39bde12748e22"
+      },
+      {
+        "name": "four_fixture_n1m1",
+        "ranks": 1,
+        "workers": 1,
+        "case": "ClusterResults/predict_correctness_581856/four_fixture_n1m1",
+        "snapshots": [
+          1,
+          2,
+          3,
+          4,
+          6,
+          7,
+          8,
+          9
+        ],
+        "adaptations": 1,
+        "count": 4,
+        "audit_sha256": "4dbcf4f934c55de1d38ac23e7307ac3dfed1b2533525b55bfd80ae1cf8d8d729"
+      },
+      {
+        "name": "four_n1m1",
+        "ranks": 1,
+        "workers": 1,
+        "case": "ClusterResults/predict_correctness_581856/four_n1m1",
+        "snapshots": [
+          1,
+          2,
+          3,
+          4,
+          6,
+          7,
+          8,
+          9,
+          11,
+          12,
+          13,
+          14
+        ],
+        "adaptations": 2,
+        "count": 4,
+        "audit_sha256": "12c7f6aff1e5b7b6070ccfb1ae80232d8d83aac308b0f24ee6e6d537de78c125"
+      },
+      {
+        "name": "four_n2m1",
+        "ranks": 2,
+        "workers": 1,
+        "case": "ClusterResults/predict_correctness_581856/four_n2m1",
+        "snapshots": [
+          1,
+          2,
+          3,
+          4,
+          6,
+          7,
+          8,
+          9,
+          11,
+          12,
+          13,
+          14
+        ],
+        "adaptations": 2,
+        "count": 4,
+        "audit_sha256": "c165db0d11cd88798715f4655eef2314f5697ac2ba49b9861e92fffc7957a8cc"
+      },
+      {
+        "name": "four_cgns_n4m3",
+        "ranks": 4,
+        "workers": 3,
+        "case": "ClusterResults/predict_correctness_581856/four_cgns_n4m3",
+        "snapshots": [
+          1,
+          2,
+          3,
+          4,
+          6,
+          7,
+          8,
+          9,
+          11,
+          12,
+          13,
+          14
+        ],
+        "adaptations": 2,
+        "count": 4,
+        "audit_sha256": "35630d363e7cc1787d9d47dd4e6ade3e14d71aaeda4a4cfe9722abcd21e22414"
+      },
+      {
+        "name": "plate_sa_four_n4m3",
+        "ranks": 4,
+        "workers": 3,
+        "case": "ClusterResults/predict_correctness_581856/plate_sa_four_n4m3",
+        "snapshots": [
+          1,
+          2,
+          3,
+          4,
+          6,
+          7,
+          8,
+          9,
+          11,
+          12,
+          13,
+          14
+        ],
+        "adaptations": 2,
+        "count": 4,
+        "audit_sha256": "7811941c48f8241dedc5fb2373938afc83a479ebfa00d994b17b84f27b894cc5"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "name": "default_two_n4m3",
+      "snapshots": [
+        0,
+        2,
+        3,
+        5,
+        6,
+        8
+      ],
+      "audit": {
+        "status": "PASS",
+        "restart_step": null,
+        "scope": "2D ideal-gas Euler or constant-span straight-wall RANS, shared fade and geometric BL composition when present, double saved metrics, original-connectivity P1 target, current/history conservation, final positivity and restart pairing; not a flow-accuracy or cost certificate",
+        "windows": [
+          {
+            "first_step": 3,
+            "points": 778,
+            "triangles": 1513,
+            "min_quality": 0.5143406278988786,
+            "max_simpson_length": 1.731293010115501,
+            "donor_metric": "flow_00002.vtu",
+            "history": [
+              {
+                "step": 1,
+                "relative_integral_defect": 1.912503256352283e-15,
+                "donor_snapshot_available": true,
+                "min_density": 0.9904458156091595,
+                "min_pressure": 0.9867832434253332
+              },
+              {
+                "step": 2,
+                "relative_integral_defect": 1.9895344864435147e-15,
+                "donor_snapshot_available": true,
+                "min_density": 0.9892592340324762,
+                "min_pressure": 0.9851476748133495
+              }
+            ],
+            "relative_first_height_error": null
+          },
+          {
+            "first_step": 6,
+            "points": 742,
+            "triangles": 1441,
+            "min_quality": 0.6246977229518975,
+            "max_simpson_length": 1.7950970958367776,
+            "donor_metric": "flow_00005.vtu",
+            "history": [
+              {
+                "step": 4,
+                "relative_integral_defect": 2.2737536987832606e-15,
+                "donor_snapshot_available": true,
+                "min_density": 0.9917934189171864,
+                "min_pressure": 0.9887488802570401
+              },
+              {
+                "step": 5,
+                "relative_integral_defect": 2.1250036183810702e-15,
+                "donor_snapshot_available": true,
+                "min_density": 0.9940238806026652,
+                "min_pressure": 0.9917058268779032
+              }
+            ],
+            "relative_first_height_error": null
+          }
+        ],
+        "final_admissibility": {
+          "min_density": 0.9957265833640763,
+          "min_pressure": 0.9940256028695589
+        },
+        "checker_sha256": "fcfbd4c2a40d9b017d99379ff0a62dfe4d97751c16bfbcb1e8a06a3eb79c37b5",
+        "input_sha256": {
+          "flow_00001.vtu": "6fd52099c0540fdaefcdf7e3ccc2ff52f4e3c659ca31abf57a17a1629f33f344",
+          "solution_00001.dat": "a960d6370e9583dfe49f377e4e16c1d401eea79d521501fbf62b690220c031a7",
+          "input.su2": "25e9956af7f4387435b2a366beb1c45c3624e66accbfed29308fedf8a3c3adb5",
+          "mesh_00006.su2": "957a4ffceba8e85ae09a400a6daa5a92901913ad5132e4cb6ab3d18d1e202b50",
+          "mesh_00003.su2": "3962e797b22784236cabf663042bdc6075907387743023ccedceaba0e150da04",
+          "solution_00002.dat": "e049408e37fcddebb57bad093af661cd70c3f7671aff05b8c3b0910f63619702",
+          "flow_00005.vtu": "af02905b67f6e186da283f88ddb1d8102cae747f636ec1fd3a79f893ee4cddbf",
+          "solution_00000.dat": "bdb36717b7bd6cbb98d6bb607f6fb02dc6399b12182098b2922705e5da049e61",
+          "solution_00003.dat": "8f1db2908aa1edbd5675a76694b605e8e3453b395182fc1d62bd20deeda07e4b",
+          "solution_00005.dat": "31c9e526356918509095bed8a95c9e53624bbabdcacd02167b4bf5308cbfa953",
+          "flow_00002.vtu": "51ab2dfbb20089ee71f6a1a797bf5c829852829c765e2cb53bd8e5cd267b8143",
+          "flow_00003.vtu": "61f02a73bdbb3faab26347eda98ac9b8de677de427b7edb3b3da9c3f0ed887ec",
+          "run.cfg": "0745f7a28eb40613cd47353738e0a586f3107c8eb513eaac1c15972787cd701a",
+          "flow_00000.vtu": "d942cbf2e049a6f5ed7c65da93e32c0d39b1c621fa63ad5bc97449732e926daa",
+          "flow_00008.vtu": "12ca92df5a9e34d4e76202aaf22b20f8c69ddff6d7103124b96fd3edf8fd42c3",
+          "solution_00007.dat": "0ba9662954b8a6b93c0b80eaa03ad64b859496c5c0265e798d6c4fbfb15d5a76",
+          "flow_00007.vtu": "c1c1dd17f4ee326cb9fa9a9aca90c213a2e27f85e8b148024ce9e6a8873301da",
+          "solution_00008.dat": "bc959e8f5142dfcc72a25984371aaad306716e41d3d2846bdbfb2330a847bd7f",
+          "flow_00004.vtu": "60a338174b5af8895fec7eab78fe46749eedd339403d1ebd06228785ccb0b94e",
+          "solution_00004.dat": "62a1c3206f94aff0f25eed3da89cb758e9ee00b3e28644f9555b25c77aa37fca",
+          "solution_00006.dat": "82f172303204f82ef1fa8121eaaee7dd319d838fc885cc34cc530690f1ce2e93",
+          "flow_00006.vtu": "96f750985ed4f33c208335dbbeff66cb509d7821a3a5aac8ed12d7d7df129a24"
+        }
+      },
+      "supplemental_geometry_topology": [
+        {
+          "first_step": 3,
+          "checks": {
+            "positive_volumes": [
+              "PASS",
+              "min 1.660e-03 mean 6.609e-02 non-positive 0"
+            ],
+            "conformity": [
+              "PASS",
+              "faces in >2 elements 0, boundary faces without marker 0, marker faces: interior 0, not an element face 0, repeated 0"
+            ],
+            "points_elements": [
+              "PASS",
+              "unused points 0, duplicate points 0, duplicate elements 0"
+            ],
+            "markers": [
+              "PASS",
+              "['left', 'right', 'lower', 'upper']"
+            ],
+            "free_boundary_geometry": [
+              "PASS",
+              "lower (flat): 0.0e+00 <= 1e-11; right (flat): 0.0e+00 <= 1e-11; upper (flat): 0.0e+00 <= 1e-11; left (flat): 0.0e+00 <= 1e-11"
+            ]
+          }
+        },
+        {
+          "first_step": 6,
+          "checks": {
+            "positive_volumes": [
+              "PASS",
+              "min 1.161e-03 mean 6.940e-02 non-positive 0"
+            ],
+            "conformity": [
+              "PASS",
+              "faces in >2 elements 0, boundary faces without marker 0, marker faces: interior 0, not an element face 0, repeated 0"
+            ],
+            "points_elements": [
+              "PASS",
+              "unused points 0, duplicate points 0, duplicate elements 0"
+            ],
+            "markers": [
+              "PASS",
+              "['left', 'right', 'lower', 'upper']"
+            ],
+            "free_boundary_geometry": [
+              "PASS",
+              "lower (flat): 0.0e+00 <= 1e-11; right (flat): 0.0e+00 <= 1e-11; upper (flat): 0.0e+00 <= 1e-11; left (flat): 0.0e+00 <= 1e-11"
+            ]
+          }
+        }
+      ],
+      "transported_metric_diagnostics": {
+        "sensor": {
+          "max_logged_ratio": 1.0,
+          "maximum_edges_above_tolerance": 0,
+          "observations": 9
+        },
+        "composed": {
+          "max_logged_ratio": 1.0,
+          "maximum_edges_above_tolerance": 0,
+          "observations": 9
+        }
+      },
+      "temporal_models": []
+    },
+    {
+      "name": "four_fixture_n1m1",
+      "snapshots": [
+        1,
+        2,
+        3,
+        4,
+        6,
+        7,
+        8,
+        9
+      ],
+      "audit": {
+        "status": "PASS",
+        "restart_step": null,
+        "scope": "2D ideal-gas Euler or constant-span straight-wall RANS, shared fade and geometric BL composition when present, double saved metrics, original-connectivity P1 target, current/history conservation, final positivity and restart pairing; not a flow-accuracy or cost certificate",
+        "windows": [
+          {
+            "first_step": 5,
+            "points": 699,
+            "triangles": 1357,
+            "min_quality": 0.5829019512829569,
+            "max_simpson_length": 1.7886896037140911,
+            "donor_metric": "flow_00004.vtu",
+            "history": [
+              {
+                "step": 3,
+                "relative_integral_defect": 2.7625047036375344e-15,
+                "donor_snapshot_available": true,
+                "min_density": 0.9899967032841547,
+                "min_pressure": 0.9861761587996721
+              },
+              {
+                "step": 4,
+                "relative_integral_defect": 1.8015680745282972e-15,
+                "donor_snapshot_available": true,
+                "min_density": 0.9918878869790143,
+                "min_pressure": 0.9888186873055078
+              }
+            ],
+            "relative_first_height_error": null
+          }
+        ],
+        "final_admissibility": {
+          "min_density": 0.9966445196300074,
+          "min_pressure": 0.9953051978348452
+        },
+        "checker_sha256": "fcfbd4c2a40d9b017d99379ff0a62dfe4d97751c16bfbcb1e8a06a3eb79c37b5",
+        "input_sha256": {
+          "flow_00001.vtu": "1c39b8e2bf82232a52bf27cea8eab66e480d8007f1fe717f885b9bf7fbed41f6",
+          "solution_00001.dat": "a7fc157f1c2d5b121a242ec6eeda80f3f48c02b735ec4444c169379da9105fd6",
+          "input.su2": "25e9956af7f4387435b2a366beb1c45c3624e66accbfed29308fedf8a3c3adb5",
+          "mesh_00005.su2": "db30ddb696eaa2c59935099fa7611b9805a33f2e55a698bf699ed59b2be38548",
+          "solution_00002.dat": "996badb3433000ea30a209b5e5014ce080a81c8c6248ac93a4f3001af775ff2f",
+          "flow_00005.vtu": "3146eb92d923ee1e1a0d146386bcf4f16a3f61bc46925933d13a62edf9cb87cf",
+          "solution_00000.dat": "21193774e93b14503bae8e8753a4f04101cf641192b676da9dbcabeb6a611d06",
+          "solution_00009.dat": "55c3ee64a4a1cd26fe9d119965f1e0153e09734f7a5f36a1267f023c9fd5631e",
+          "solution_00003.dat": "e060c1f99922fcd12f033b9b9844be585c9f34691fd6e9ec8636ddf2f566532e",
+          "solution_00005.dat": "9f3ba4ce5ef57bd001317bc75faa965ee26338e6df6913ad7cb2a526b0a09f52",
+          "flow_00002.vtu": "8781d43947b9b2502cb6e510523660de71dca6d5309c9cd8d55f3b611311f077",
+          "flow_00009.vtu": "e79868c9d5f23845e1e52210ed56231c70f257710dad336b14b30953c20c3743",
+          "flow_00003.vtu": "3592f0da31c19199ceab9f37611d4a702cf00edfd98cf530ed089eb3fc9d75e9",
+          "run.cfg": "f2a25e47905360ad07df8a652444ecc93a6e2b3697511865320b06385cbb0c01",
+          "flow_00000.vtu": "e39b9743bb705bf531db72eca1699ca5dbe95242d454a35eecddafa7148e5d98",
+          "flow_00008.vtu": "e918d029d975c5ca76b025127924ac69f2d49c75de02231e2558f99551780848",
+          "solution_00007.dat": "0c111fe618b52b304e8f641a10b923b96cd37abd8d0dfe19387e6ea24202ecd1",
+          "flow_00007.vtu": "0d9fdd7204a0fe689e0702e13dfc2e462f91bbcbe130572a23c7c959e850ede9",
+          "solution_00008.dat": "3c02b30b7e601a20dffd091a33636974dbd95445b311d823f084fee14a90852a",
+          "flow_00004.vtu": "ca80d6637816b4c15b5ad4adb06491c8ade8e7b298a7568cced2c319a3b16ea6",
+          "solution_00004.dat": "27807b6e8fbba4c1d02a713f9b631d2d32eb049f7645f02ce74e775586f35bfb",
+          "solution_00006.dat": "0b45892ccb64c9adba25e7d9d4c7dbe2e2dba5302da75f70323b9cc4e24395da",
+          "flow_00006.vtu": "fa5b6ccdd7bdacbf32f96e960901aff93d9114bb94ac3f004c47b2bc0719e7ee"
+        }
+      },
+      "supplemental_geometry_topology": [
+        {
+          "first_step": 5,
+          "checks": {
+            "positive_volumes": [
+              "PASS",
+              "min 3.058e-03 mean 7.369e-02 non-positive 0"
+            ],
+            "conformity": [
+              "PASS",
+              "faces in >2 elements 0, boundary faces without marker 0, marker faces: interior 0, not an element face 0, repeated 0"
+            ],
+            "points_elements": [
+              "PASS",
+              "unused points 0, duplicate points 0, duplicate elements 0"
+            ],
+            "markers": [
+              "PASS",
+              "['left', 'right', 'lower', 'upper']"
+            ],
+            "free_boundary_geometry": [
+              "PASS",
+              "lower (flat): 0.0e+00 <= 1e-11; right (flat): 0.0e+00 <= 1e-11; upper (flat): 0.0e+00 <= 1e-11; left (flat): 0.0e+00 <= 1e-11"
+            ]
+          }
+        }
+      ],
+      "transported_metric_diagnostics": {
+        "sensor": {
+          "max_logged_ratio": 1.0,
+          "maximum_edges_above_tolerance": 0,
+          "observations": 10
+        },
+        "composed": {
+          "max_logged_ratio": 1.0,
+          "maximum_edges_above_tolerance": 0,
+          "observations": 10
+        }
+      },
+      "temporal_models": [
+        "Temporal feature fit: 4 snapshots, filter 1, history mismatch 0.0518555 -> 0.0511684, accelerating prediction, max acceleration 0.0446923 per time step squared.",
+        "Temporal feature fit: 4 snapshots, filter 1, history mismatch 0.0390598 -> 0.0380706, accelerating prediction, max acceleration 0.0516975 per time step squared."
+      ]
+    },
+    {
+      "name": "four_n1m1",
+      "snapshots": [
+        1,
+        2,
+        3,
+        4,
+        6,
+        7,
+        8,
+        9,
+        11,
+        12,
+        13,
+        14
+      ],
+      "audit": {
+        "status": "PASS",
+        "restart_step": null,
+        "scope": "2D ideal-gas Euler or constant-span straight-wall RANS, shared fade and geometric BL composition when present, double saved metrics, original-connectivity P1 target, current/history conservation, final positivity and restart pairing; not a flow-accuracy or cost certificate",
+        "windows": [
+          {
+            "first_step": 5,
+            "points": 699,
+            "triangles": 1357,
+            "min_quality": 0.5829019512829569,
+            "max_simpson_length": 1.7886896037140911,
+            "donor_metric": "flow_00004.vtu",
+            "history": [
+              {
+                "step": 3,
+                "relative_integral_defect": 2.7625047036375344e-15,
+                "donor_snapshot_available": true,
+                "min_density": 0.9899967032841547,
+                "min_pressure": 0.9861761587996721
+              },
+              {
+                "step": 4,
+                "relative_integral_defect": 1.8015680745282972e-15,
+                "donor_snapshot_available": true,
+                "min_density": 0.9918878869790143,
+                "min_pressure": 0.9888186873055078
+              }
+            ],
+            "relative_first_height_error": null
+          },
+          {
+            "first_step": 10,
+            "points": 788,
+            "triangles": 1534,
+            "min_quality": 0.5867740028961373,
+            "max_simpson_length": 1.7516435148985383,
+            "donor_metric": "flow_00009.vtu",
+            "history": [
+              {
+                "step": 8,
+                "relative_integral_defect": 8.407317689704104e-16,
+                "donor_snapshot_available": true,
+                "min_density": 0.9963749511765821,
+                "min_pressure": 0.9949303485363432
+              },
+              {
+                "step": 9,
+                "relative_integral_defect": 2.6510507039098556e-15,
+                "donor_snapshot_available": true,
+                "min_density": 0.9966522659522659,
+                "min_pressure": 0.9953161778540199
+              }
+            ],
+            "relative_first_height_error": null
+          }
+        ],
+        "final_admissibility": {
+          "min_density": 0.9975278846510968,
+          "min_pressure": 0.9965410414624479
+        },
+        "checker_sha256": "fcfbd4c2a40d9b017d99379ff0a62dfe4d97751c16bfbcb1e8a06a3eb79c37b5",
+        "input_sha256": {
+          "solution_00014.dat": "7764606b350cac811c53c4af279d131ea8361cfdcbfc8eee273738ee9102df62",
+          "flow_00001.vtu": "1c39b8e2bf82232a52bf27cea8eab66e480d8007f1fe717f885b9bf7fbed41f6",
+          "solution_00013.dat": "add2e5fb927bf612a0333636c08e656050400bcf00bbcc8802ced65271503887",
+          "solution_00001.dat": "a7fc157f1c2d5b121a242ec6eeda80f3f48c02b735ec4444c169379da9105fd6",
+          "input.su2": "25e9956af7f4387435b2a366beb1c45c3624e66accbfed29308fedf8a3c3adb5",
+          "flow_00012.vtu": "335cb2f4c30b139ded4777e76685392fb0c1d634094d91f9c9cb7e9288c2f399",
+          "mesh_00005.su2": "db30ddb696eaa2c59935099fa7611b9805a33f2e55a698bf699ed59b2be38548",
+          "solution_00002.dat": "996badb3433000ea30a209b5e5014ce080a81c8c6248ac93a4f3001af775ff2f",
+          "flow_00011.vtu": "3bb43d869de1d2b8c88f7d96b9df4c76029f0e852ca60b98d9d4f639b7578782",
+          "flow_00005.vtu": "3146eb92d923ee1e1a0d146386bcf4f16a3f61bc46925933d13a62edf9cb87cf",
+          "solution_00000.dat": "21193774e93b14503bae8e8753a4f04101cf641192b676da9dbcabeb6a611d06",
+          "solution_00009.dat": "cc7ec101d9db8798264e1de4d7ccd5112306ab8b517dcfba933360f0e1642e63",
+          "solution_00003.dat": "e060c1f99922fcd12f033b9b9844be585c9f34691fd6e9ec8636ddf2f566532e",
+          "solution_00005.dat": "9f3ba4ce5ef57bd001317bc75faa965ee26338e6df6913ad7cb2a526b0a09f52",
+          "flow_00013.vtu": "43b4ef158af207b2c8c83265af49c3c0240525d91b11bd7b52444f36f5a9c448",
+          "solution_00012.dat": "cf3dc210a2634d60669383ff3662ec75d4bc0b83b54109b173fc87ea75cf1ea6",
+          "flow_00002.vtu": "8781d43947b9b2502cb6e510523660de71dca6d5309c9cd8d55f3b611311f077",
+          "flow_00009.vtu": "e79868c9d5f23845e1e52210ed56231c70f257710dad336b14b30953c20c3743",
+          "solution_00011.dat": "79095162895d16d8f2edbe3ee11d4e7a27cf30d3921fc5d0c6747f20ae27a469",
+          "flow_00003.vtu": "3592f0da31c19199ceab9f37611d4a702cf00edfd98cf530ed089eb3fc9d75e9",
+          "run.cfg": "8c0be7b7bd351ff4e30c798357cefe1f78a29d09e3bbc3a4a69fed213ade7e15",
+          "flow_00000.vtu": "e39b9743bb705bf531db72eca1699ca5dbe95242d454a35eecddafa7148e5d98",
+          "flow_00008.vtu": "e918d029d975c5ca76b025127924ac69f2d49c75de02231e2558f99551780848",
+          "flow_00010.vtu": "7f5568d44fe12d29bc22237ed3af0b3d3a0b74655564218193e368576b85ba49",
+          "solution_00007.dat": "0c111fe618b52b304e8f641a10b923b96cd37abd8d0dfe19387e6ea24202ecd1",
+          "flow_00014.vtu": "0d1246e39dcee8b1984878369305fd7a5a0041e0febb52fd329d6ed7f4a75ba5",
+          "flow_00007.vtu": "0d9fdd7204a0fe689e0702e13dfc2e462f91bbcbe130572a23c7c959e850ede9",
+          "solution_00010.dat": "6e21326ff47fb0691a1395b6c1affe4abcc3dcca17d97cc60f5a1b34a31986b6",
+          "solution_00008.dat": "484a490f6cdf2a4e209ab0bcc2a1ad53ddd78b4fa31c857f5f844364bdd7d19b",
+          "flow_00004.vtu": "ca80d6637816b4c15b5ad4adb06491c8ade8e7b298a7568cced2c319a3b16ea6",
+          "solution_00004.dat": "27807b6e8fbba4c1d02a713f9b631d2d32eb049f7645f02ce74e775586f35bfb",
+          "mesh_00010.su2": "b51928e24452a0b132380c5b39dc51d2884bb5236efedef93f920edbb8a85985",
+          "solution_00006.dat": "0b45892ccb64c9adba25e7d9d4c7dbe2e2dba5302da75f70323b9cc4e24395da",
+          "flow_00006.vtu": "fa5b6ccdd7bdacbf32f96e960901aff93d9114bb94ac3f004c47b2bc0719e7ee"
+        }
+      },
+      "supplemental_geometry_topology": [
+        {
+          "first_step": 5,
+          "checks": {
+            "positive_volumes": [
+              "PASS",
+              "min 3.058e-03 mean 7.369e-02 non-positive 0"
+            ],
+            "conformity": [
+              "PASS",
+              "faces in >2 elements 0, boundary faces without marker 0, marker faces: interior 0, not an element face 0, repeated 0"
+            ],
+            "points_elements": [
+              "PASS",
+              "unused points 0, duplicate points 0, duplicate elements 0"
+            ],
+            "markers": [
+              "PASS",
+              "['left', 'right', 'lower', 'upper']"
+            ],
+            "free_boundary_geometry": [
+              "PASS",
+              "lower (flat): 0.0e+00 <= 1e-11; right (flat): 0.0e+00 <= 1e-11; upper (flat): 0.0e+00 <= 1e-11; left (flat): 0.0e+00 <= 1e-11"
+            ]
+          }
+        },
+        {
+          "first_step": 10,
+          "checks": {
+            "positive_volumes": [
+              "PASS",
+              "min 3.057e-03 mean 6.519e-02 non-positive 0"
+            ],
+            "conformity": [
+              "PASS",
+              "faces in >2 elements 0, boundary faces without marker 0, marker faces: interior 0, not an element face 0, repeated 0"
+            ],
+            "points_elements": [
+              "PASS",
+              "unused points 0, duplicate points 0, duplicate elements 0"
+            ],
+            "markers": [
+              "PASS",
+              "['left', 'right', 'lower', 'upper']"
+            ],
+            "free_boundary_geometry": [
+              "PASS",
+              "lower (flat): 0.0e+00 <= 1e-11; right (flat): 0.0e+00 <= 1e-11; upper (flat): 0.0e+00 <= 1e-11; left (flat): 0.0e+00 <= 1e-11"
+            ]
+          }
+        }
+      ],
+      "transported_metric_diagnostics": {
+        "sensor": {
+          "max_logged_ratio": 1.0,
+          "maximum_edges_above_tolerance": 0,
+          "observations": 15
+        },
+        "composed": {
+          "max_logged_ratio": 1.0,
+          "maximum_edges_above_tolerance": 0,
+          "observations": 15
+        }
+      },
+      "temporal_models": [
+        "Temporal feature fit: 4 snapshots, filter 1, history mismatch 0.0518555 -> 0.0511684, accelerating prediction, max acceleration 0.0446923 per time step squared.",
+        "Temporal feature fit: 4 snapshots, filter 1, history mismatch 0.0390598 -> 0.0380706, accelerating prediction, max acceleration 0.0516975 per time step squared.",
+        "Temporal feature fit: 4 snapshots, filter 1, history mismatch 0.0412055 -> 0.0400601, accelerating prediction, max acceleration 0.0600229 per time step squared."
+      ]
+    },
+    {
+      "name": "four_n2m1",
+      "snapshots": [
+        1,
+        2,
+        3,
+        4,
+        6,
+        7,
+        8,
+        9,
+        11,
+        12,
+        13,
+        14
+      ],
+      "audit": {
+        "status": "PASS",
+        "restart_step": null,
+        "scope": "2D ideal-gas Euler or constant-span straight-wall RANS, shared fade and geometric BL composition when present, double saved metrics, original-connectivity P1 target, current/history conservation, final positivity and restart pairing; not a flow-accuracy or cost certificate",
+        "windows": [
+          {
+            "first_step": 5,
+            "points": 699,
+            "triangles": 1357,
+            "min_quality": 0.5829019511877843,
+            "max_simpson_length": 1.788689603047272,
+            "donor_metric": "flow_00004.vtu",
+            "history": [
+              {
+                "step": 3,
+                "relative_integral_defect": 1.6814635361646189e-15,
+                "donor_snapshot_available": true,
+                "min_density": 0.9899967032841498,
+                "min_pressure": 0.9861761587996665
+              },
+              {
+                "step": 4,
+                "relative_integral_defect": 1.5632056679531288e-15,
+                "donor_snapshot_available": true,
+                "min_density": 0.9918878869790121,
+                "min_pressure": 0.9888186873055054
+              }
+            ],
+            "relative_first_height_error": null
+          },
+          {
+            "first_step": 10,
+            "points": 786,
+            "triangles": 1530,
+            "min_quality": 0.6595095839414422,
+            "max_simpson_length": 1.6953767549786865,
+            "donor_metric": "flow_00009.vtu",
+            "history": [
+              {
+                "step": 8,
+                "relative_integral_defect": 2.700082518481626e-15,
+                "donor_snapshot_available": true,
+                "min_density": 0.9963762283628197,
+                "min_pressure": 0.9949322183656673
+              },
+              {
+                "step": 9,
+                "relative_integral_defect": 3.0026134612728052e-15,
+                "donor_snapshot_available": true,
+                "min_density": 0.9966440914917645,
+                "min_pressure": 0.9953047013751579
+              }
+            ],
+            "relative_first_height_error": null
+          }
+        ],
+        "final_admissibility": {
+          "min_density": 0.9975222784121436,
+          "min_pressure": 0.9965331239422017
+        },
+        "checker_sha256": "fcfbd4c2a40d9b017d99379ff0a62dfe4d97751c16bfbcb1e8a06a3eb79c37b5",
+        "input_sha256": {
+          "solution_00014.dat": "8eaeda8194d268b5ae79b3078d4f3796558557b973a4268b1d6ef90eeae088a7",
+          "flow_00001.vtu": "d59cf51b00940eb7c8214c133d4cadfd4b40e84ae12807e0f80686eda7f7e616",
+          "solution_00013.dat": "792ca15d95549bdff0a474ebaf6fd30c4619e2976083dd97dc8cb1540491a47c",
+          "solution_00001.dat": "328a62b3ff4f8d27ff280cd78efff284590d7225c2978ebffee570bd2d0c8c11",
+          "input.su2": "25e9956af7f4387435b2a366beb1c45c3624e66accbfed29308fedf8a3c3adb5",
+          "flow_00012.vtu": "e0d52d835730b04cb7e16c50f90481528f3636d77b5e2b7faf297bc88469411f",
+          "mesh_00005.su2": "bf6f917707e39eb7ba7643902cc7b350cf964badcbc8df85fada8f950780fa1a",
+          "solution_00002.dat": "da1f80d39b820d49f544a988f4c8dcea8c2bad03ee4016a36f80ac231181889d",
+          "flow_00011.vtu": "6c3659d0d2650c16f260a52b6087f63d6f2caa16d088b6890c6ddc47313d2df8",
+          "flow_00005.vtu": "1943e3eab156850b0cc9da95af39957dcbaf6669313b3fa94fd9748cd1e5e52a",
+          "solution_00000.dat": "1a936e1e47e90ed1d4ce9d15d353a5771cbdfad97787448e675e6a7b3da5c427",
+          "solution_00009.dat": "8a3c28a26ee1b0ff353cbd204abab4443565fc15ab93d598f68855f3ab5e7b96",
+          "solution_00003.dat": "5d0dd42855e2a36093b16a9a101c17e15e7f645513b8027fc2c180cfb6a4082c",
+          "solution_00005.dat": "0919352d3dcc2a942b67d73adee77083433ca84a059b16ebdd244a2dd8e5c6e3",
+          "flow_00013.vtu": "7fb5d1df97cfb9b5c8f635895399d3b38b40b703db7f1918d4c68fb59168210a",
+          "solution_00012.dat": "f43d09134d75e46c8b2ea6da43d50ad4bed3bc3f05e62ac5ee9eff70f2be9a61",
+          "flow_00002.vtu": "ed61fd2795a4d96a7b8a2cd22dfc89bec252530ee6e5f6acc3f311d19beba543",
+          "flow_00009.vtu": "7fa4a15b09d91c360e57337e29d71f8cc5c43c3f5ffd374274d210677289df71",
+          "solution_00011.dat": "a603d8642c80c268945c0bab4dcd8d497618515e14e8069675c153c8592f8273",
+          "flow_00003.vtu": "dcdd6b91991f1e464b023fdce38fc9d8d1f88a341fb03c0f81092ee96c384542",
+          "run.cfg": "8c0be7b7bd351ff4e30c798357cefe1f78a29d09e3bbc3a4a69fed213ade7e15",
+          "flow_00000.vtu": "9d0e490ed5d96b78e02522265c99c1661547eb559f61aba23262defeca386adb",
+          "flow_00008.vtu": "384eca0ab6e2ad60358ca55d55ef3e590a7b11b747635e1ddfd32be3439d7d3d",
+          "flow_00010.vtu": "7b071e77dd314d4d0251c53cb230dcbbc2d8903a92cd7bb67c1cef9698bd78b8",
+          "solution_00007.dat": "12c1f8cae2ca3fde00ef349d5ee7371be87739478aa6b84d98ebc815bb473428",
+          "flow_00014.vtu": "fb45eb7f7604f2bc4a64de50454042faccb411a9b3aeb0af491c8be9a4ba5a02",
+          "flow_00007.vtu": "ce2e711a5841456fb6b8a1525254b2bbb3672580085a5b946c94b1ab09f3b6a2",
+          "solution_00010.dat": "715161837f7962b34ea543f471898f49fa77a819f95d5e61269bbb03ea470b64",
+          "solution_00008.dat": "78a21c2f1c0e458c557616407d2d1f44b45ad3b1dfa8cbe3fb18ade171d656a3",
+          "flow_00004.vtu": "bd7c9d816ae18521b84ac8dc3e091936852cf2e470f3dd80c1857bb7f1582f94",
+          "solution_00004.dat": "1dcc0d6bd6ccda2aff9715e48d2e4acef5803177c0b997d8e380c1a102efebbb",
+          "mesh_00010.su2": "0ccd13841b8ec2cf689522e119844c268978510e01f5604303c1bd8c8fac0ed1",
+          "solution_00006.dat": "bb6f3eaa0e3e0b63fea7f6db0a6a46cb91b09a40c768b1aa62408a6a1d80bb36",
+          "flow_00006.vtu": "99a5ba020539de6e12a05c31b55e7fc97a4ddf4bfab5623bf9852d613bb55340"
+        }
+      },
+      "supplemental_geometry_topology": [
+        {
+          "first_step": 5,
+          "checks": {
+            "positive_volumes": [
+              "PASS",
+              "min 3.058e-03 mean 7.369e-02 non-positive 0"
+            ],
+            "conformity": [
+              "PASS",
+              "faces in >2 elements 0, boundary faces without marker 0, marker faces: interior 0, not an element face 0, repeated 0"
+            ],
+            "points_elements": [
+              "PASS",
+              "unused points 0, duplicate points 0, duplicate elements 0"
+            ],
+            "markers": [
+              "PASS",
+              "['left', 'right', 'lower', 'upper']"
+            ],
+            "free_boundary_geometry": [
+              "PASS",
+              "lower (flat): 0.0e+00 <= 1e-11; right (flat): 0.0e+00 <= 1e-11; upper (flat): 0.0e+00 <= 1e-11; left (flat): 0.0e+00 <= 1e-11"
+            ]
+          }
+        },
+        {
+          "first_step": 10,
+          "checks": {
+            "positive_volumes": [
+              "PASS",
+              "min 3.735e-03 mean 6.536e-02 non-positive 0"
+            ],
+            "conformity": [
+              "PASS",
+              "faces in >2 elements 0, boundary faces without marker 0, marker faces: interior 0, not an element face 0, repeated 0"
+            ],
+            "points_elements": [
+              "PASS",
+              "unused points 0, duplicate points 0, duplicate elements 0"
+            ],
+            "markers": [
+              "PASS",
+              "['left', 'right', 'lower', 'upper']"
+            ],
+            "free_boundary_geometry": [
+              "PASS",
+              "lower (flat): 0.0e+00 <= 1e-11; right (flat): 0.0e+00 <= 1e-11; upper (flat): 0.0e+00 <= 1e-11; left (flat): 0.0e+00 <= 1e-11"
+            ]
+          }
+        }
+      ],
+      "transported_metric_diagnostics": {
+        "sensor": {
+          "max_logged_ratio": 1.0,
+          "maximum_edges_above_tolerance": 0,
+          "observations": 15
+        },
+        "composed": {
+          "max_logged_ratio": 1.0,
+          "maximum_edges_above_tolerance": 0,
+          "observations": 15
+        }
+      },
+      "temporal_models": [
+        "Temporal feature fit: 4 snapshots, filter 1, history mismatch 0.0518555 -> 0.0511684, accelerating prediction, max acceleration 0.0446923 per time step squared.",
+        "Temporal feature fit: 4 snapshots, filter 1, history mismatch 0.0387258 -> 0.0376929, accelerating prediction, max acceleration 0.047399 per time step squared.",
+        "Temporal feature fit: 4 snapshots, filter 1, history mismatch 0.0454646 -> 0.0446419, accelerating prediction, max acceleration 0.0439103 per time step squared."
+      ]
+    },
+    {
+      "name": "four_cgns_n4m3",
+      "snapshots": [
+        1,
+        2,
+        3,
+        4,
+        6,
+        7,
+        8,
+        9,
+        11,
+        12,
+        13,
+        14
+      ],
+      "audit": {
+        "status": "PASS",
+        "restart_step": null,
+        "scope": "2D ideal-gas Euler or constant-span straight-wall RANS, shared fade and geometric BL composition when present, double saved metrics, original-connectivity P1 target, current/history conservation, final positivity and restart pairing; not a flow-accuracy or cost certificate",
+        "windows": [
+          {
+            "first_step": 5,
+            "points": 776,
+            "triangles": 1511,
+            "min_quality": 0.5440420826234813,
+            "max_simpson_length": 1.697132151647083,
+            "donor_metric": "flow_00004.vtu",
+            "history": [
+              {
+                "step": 3,
+                "relative_integral_defect": 1.8474248802761177e-15,
+                "donor_snapshot_available": true,
+                "min_density": 0.9900102614792915,
+                "min_pressure": 0.9861993364306113
+              },
+              {
+                "step": 4,
+                "relative_integral_defect": 2.434117911741608e-15,
+                "donor_snapshot_available": true,
+                "min_density": 0.9919030945406729,
+                "min_pressure": 0.9888429824344082
+              }
+            ],
+            "relative_first_height_error": null
+          },
+          {
+            "first_step": 10,
+            "points": 765,
+            "triangles": 1489,
+            "min_quality": 0.6242435440965862,
+            "max_simpson_length": 1.7863959946367884,
+            "donor_metric": "flow_00009.vtu",
+            "history": [
+              {
+                "step": 8,
+                "relative_integral_defect": 2.0417771512995264e-15,
+                "donor_snapshot_available": true,
+                "min_density": 0.9963723397141641,
+                "min_pressure": 0.9949268522118001
+              },
+              {
+                "step": 9,
+                "relative_integral_defect": 3.9790689696701634e-15,
+                "donor_snapshot_available": true,
+                "min_density": 0.9966376744193262,
+                "min_pressure": 0.9952954905701579
+              }
+            ],
+            "relative_first_height_error": null
+          }
+        ],
+        "final_admissibility": {
+          "min_density": 0.9975230998103342,
+          "min_pressure": 0.9965340685116175
+        },
+        "checker_sha256": "fcfbd4c2a40d9b017d99379ff0a62dfe4d97751c16bfbcb1e8a06a3eb79c37b5",
+        "input_sha256": {
+          "solution_00014.dat": "83aa77bcbf69a71c2ed9b3c39e54e689dd35441930edea0f8816c7d5547b889e",
+          "flow_00001.vtu": "40e81a36a06c6417fa379268ba8febd756764ac16aa5f12da6a31cb758ed29b3",
+          "solution_00013.dat": "de0460704d8c8eae6b12cc44c26504ea4dca0610d8b3ea3f7553a6fec923406a",
+          "solution_00001.dat": "b69c5614b1074b7ca8c1ecdef8f7304456de8cf14a26307840c92ece12c13ce2",
+          "input.su2": "25e9956af7f4387435b2a366beb1c45c3624e66accbfed29308fedf8a3c3adb5",
+          "flow_00012.vtu": "728d16482185d1ee77cc67dfbf16d4fd3ad97311d4c4cb543cf1c3299bf405c7",
+          "solution_00002.dat": "69048ddfc1c681d64769f7f0bf8d044e3f2d9a983f370122c86da80db78c4a11",
+          "flow_00011.vtu": "cc847e3a9da578bc1022e7b421fe90125dbcb8e3dd0d7f792ebf2a848eae3271",
+          "flow_00005.vtu": "41c2dc4cc7ea88a16fc3e1eefff332688eced9636fec40b6ee6d5efa590ca2d2",
+          "solution_00000.dat": "3967cb60cc381d62a51b97768ef82cf7522b208681c9d94b7b9d6adaf0031da8",
+          "solution_00009.dat": "03334bfb47cc9ce15de8abc18d1de0bb090c47167e50479e0eafb2264e843e00",
+          "solution_00003.dat": "eb3f9c6e56e3c54c9ebb4d44f63ee353cda21512a767bb7f090314c3f861a47d",
+          "solution_00005.dat": "fa3d977bd01c65d7e112b731533cb30827a6ee83ebfad3da4f536de362c6b1a8",
+          "flow_00013.vtu": "24b0eef088490fe6496c3e41f530b2d221560c65dc87242dfd4b7da32a477548",
+          "solution_00012.dat": "7eb315950dff9a6cab5b7441bc522465ee65e46fac5bfef75846c96db9c93c5a",
+          "flow_00002.vtu": "7cb2581ee52dda43b93d1be71ce9b9da0f37ce206f96749ac6762c41511d663c",
+          "flow_00009.vtu": "5c63964b5494c9140ef5ac8759a7a106f1617b2f04f832a7fabdb84badea63f6",
+          "solution_00011.dat": "ccb68b0351dd632e1c3609b09bbd2fbb61563e9c9cb8f794a81844eb78add388",
+          "flow_00003.vtu": "8bffffc825328c82f9183705f66da5a31f1b0b078964a963f59aa8da97f742c7",
+          "run.cfg": "8f689c0c4d1d10878ec767a032c9b1029da17dda9d854cd1f5380f4c02870557",
+          "flow_00000.vtu": "5ea7885b2b1d63d9264eab86eb429cf0a5609e4a8b9d228e7c6c71fbe5ad3da7",
+          "flow_00008.vtu": "023155b289402cd0c6b457c6527d0d6f7df597723489cf6a849f420e2a768cae",
+          "flow_00010.vtu": "3d773e719ccaba4dffae7169b3b4b4b0cac6e57979a5f726ff1d9127d53d58a2",
+          "solution_00007.dat": "6788213dd5cdf8e9821d4111894759ae9e8f2529d0524927f7514d2a4167115f",
+          "flow_00014.vtu": "2aaebe57fa5264da258c7e6874000a2d4812d1f624ec2902dbee268643c7c04c",
+          "flow_00007.vtu": "986a8b3c5fb39c97bf4125174f11a812bbc04823b6022bcfecc1b6ee02edc528",
+          "solution_00010.dat": "f8d574ed35fc1e362546fd73bd9e835764bcba233fe079666a4641362e20ee28",
+          "solution_00008.dat": "df7dfd10b3033ab9e211c777cc77028e1efd4149cfcde5bb653a2fce0c9064de",
+          "flow_00004.vtu": "4b4abc55474885523e4ebecd216bcaf52038f3df8bb592ffafba7f514fd4dbd8",
+          "solution_00004.dat": "3a80b11769218a8c5081fccd9fd6268654b241686bd1dbdc2767195c64a2d876",
+          "solution_00006.dat": "ec0e1f2a91bfcf5eca22b18b0145b4312efdcf7691d78af9d62461a082a8c175",
+          "flow_00006.vtu": "b355b45f09bd7edb7c1cfd6b206d56a64c2c09682ea6aa61885519d4d580abe4"
+        }
+      },
+      "supplemental_geometry_topology": [
+        {
+          "first_step": 5,
+          "checks": {
+            "positive_volumes": [
+              "PASS",
+              "min 2.260e-03 mean 6.618e-02 non-positive 0"
+            ],
+            "conformity": [
+              "PASS",
+              "faces in >2 elements 0, boundary faces without marker 0, marker faces: interior 0, not an element face 0, repeated 0"
+            ],
+            "points_elements": [
+              "PASS",
+              "unused points 0, duplicate points 0, duplicate elements 0"
+            ],
+            "markers": [
+              "PASS",
+              "['left', 'right', 'lower', 'upper']"
+            ],
+            "free_boundary_geometry": [
+              "PASS",
+              "lower (flat): 0.0e+00 <= 1e-11; right (flat): 0.0e+00 <= 1e-11; upper (flat): 0.0e+00 <= 1e-11; left (flat): 0.0e+00 <= 1e-11"
+            ]
+          }
+        },
+        {
+          "first_step": 10,
+          "checks": {
+            "positive_volumes": [
+              "PASS",
+              "min 3.611e-03 mean 6.716e-02 non-positive 0"
+            ],
+            "conformity": [
+              "PASS",
+              "faces in >2 elements 0, boundary faces without marker 0, marker faces: interior 0, not an element face 0, repeated 0"
+            ],
+            "points_elements": [
+              "PASS",
+              "unused points 0, duplicate points 0, duplicate elements 0"
+            ],
+            "markers": [
+              "PASS",
+              "['left', 'right', 'lower', 'upper']"
+            ],
+            "free_boundary_geometry": [
+              "PASS",
+              "lower (flat): 0.0e+00 <= 1e-11; right (flat): 0.0e+00 <= 1e-11; upper (flat): 0.0e+00 <= 1e-11; left (flat): 0.0e+00 <= 1e-11"
+            ]
+          }
+        }
+      ],
+      "transported_metric_diagnostics": {
+        "sensor": {
+          "max_logged_ratio": 1.0,
+          "maximum_edges_above_tolerance": 0,
+          "observations": 15
+        },
+        "composed": {
+          "max_logged_ratio": 1.0,
+          "maximum_edges_above_tolerance": 0,
+          "observations": 15
+        }
+      },
+      "temporal_models": [
+        "Temporal feature fit: 4 snapshots, filter 1, history mismatch 0.0518555 -> 0.0511684, accelerating prediction, max acceleration 0.0446923 per time step squared.",
+        "Temporal feature fit: 4 snapshots, filter 1, history mismatch 0.0394239 -> 0.0388885, accelerating prediction, max acceleration 0.0574783 per time step squared.",
+        "Temporal feature fit: 4 snapshots, filter 1, history mismatch 0.0468461 -> 0.0463267, accelerating prediction, max acceleration 0.0271868 per time step squared."
+      ]
+    },
+    {
+      "name": "plate_sa_four_n4m3",
+      "snapshots": [
+        1,
+        2,
+        3,
+        4,
+        6,
+        7,
+        8,
+        9,
+        11,
+        12,
+        13,
+        14
+      ],
+      "audit": {
+        "status": "PASS",
+        "restart_step": null,
+        "scope": "2D ideal-gas Euler or constant-span straight-wall RANS, shared fade and geometric BL composition when present, double saved metrics, original-connectivity P1 target, current/history conservation, final positivity and restart pairing; not a flow-accuracy or cost certificate",
+        "windows": [
+          {
+            "first_step": 5,
+            "points": 738,
+            "triangles": 1384,
+            "min_quality": 0.623258810479003,
+            "max_simpson_length": 1.7184094066068265,
+            "donor_metric": "flow_00004.vtu",
+            "history": [
+              {
+                "step": 3,
+                "relative_integral_defect": 1.8550141966223447e-15,
+                "donor_snapshot_available": true,
+                "min_density": 0.000831420226473921,
+                "min_pressure": 73.64328176629424
+              },
+              {
+                "step": 4,
+                "relative_integral_defect": 2.577882692682439e-15,
+                "donor_snapshot_available": true,
+                "min_density": 0.0008013543861736067,
+                "min_pressure": 71.64055432218449
+              }
+            ],
+            "relative_first_height_error": 4.440892098500626e-16
+          },
+          {
+            "first_step": 10,
+            "points": 784,
+            "triangles": 1474,
+            "min_quality": 0.5955013829700574,
+            "max_simpson_length": 1.5898851514223409,
+            "donor_metric": "flow_00009.vtu",
+            "history": [
+              {
+                "step": 8,
+                "relative_integral_defect": 2.039179723133676e-15,
+                "donor_snapshot_available": true,
+                "min_density": 0.0006267955959833595,
+                "min_pressure": 59.18521889764506
+              },
+              {
+                "step": 9,
+                "relative_integral_defect": 2.0508846347503755e-15,
+                "donor_snapshot_available": true,
+                "min_density": 0.000633509229234922,
+                "min_pressure": 60.81402087756926
+              }
+            ],
+            "relative_first_height_error": 2.220446049250313e-16
+          }
+        ],
+        "final_admissibility": {
+          "min_density": 0.0006665871727507165,
+          "min_pressure": 65.32737515765511
+        },
+        "checker_sha256": "fcfbd4c2a40d9b017d99379ff0a62dfe4d97751c16bfbcb1e8a06a3eb79c37b5",
+        "input_sha256": {
+          "solution_00014.dat": "1995e43bff12d31540859af27162878316466e56bfb6b6958bd6aab69459b1c0",
+          "flow_00001.vtu": "d574d35386f6b3665c3880d650671ae0fe93904bf766648e90e169b895a65a1f",
+          "solution_00013.dat": "5635989297342e9d40e1f71681ac2fff513ea9fb45af224c7964af1183f8307e",
+          "solution_00001.dat": "0377aa9e3e31b5caab8956f1aa9011b687029261515f6a008885a55d2048cbd6",
+          "input.su2": "d1acc964ac75df7e0224c11c88b1a44bc682bbf7529487133854bcae9b64be6b",
+          "flow_00012.vtu": "f340470e963ac7b83f21a29084e4cce56cab2bdfc69a2c4b031e91aa460a023c",
+          "mesh_00005.su2": "1f48c61c02879d5819b2498b53cee3cd59a44e6c97ef1e4b8b3392c37bddcc71",
+          "solution_00002.dat": "05bb78709ee04964c3689b48f8b1d30a88451228bd1e30b6f69fcc2b6ba229cf",
+          "flow_00011.vtu": "bea4bacd9b21330948ba82de1415560879279d7198f73dbccc2b2c2e62e1c1b1",
+          "flow_00005.vtu": "c86ff7c5f480441d5d83f9e60de14d714f2feeafb902c6423ccbf1a44fcb8937",
+          "solution_00000.dat": "124cb7c225f0dbb223e2bb2b8bbb31ab69abd71a188739c7044a47ca86282507",
+          "solution_00009.dat": "2491104ddf692c43be81aa60e78ad0cf6114448d84e7fe770849c975a3d7fc10",
+          "solution_00003.dat": "85a0d51d4cead7acd5a7c39d97c9337343b8942592e4d505816311965df7d10f",
+          "solution_00005.dat": "80b176b0c725cb76dc4cc4f8910018705915348066dd74a62865910fb620c509",
+          "flow_00013.vtu": "5790a7ac39c417ce189dc0925e9e37f54bfc1a2829f4bb3c9ee5bd67fff269b0",
+          "solution_00012.dat": "37d995080271ca80a445805468e352be4530b0c2b97b795ff4e997408c28430d",
+          "flow_00002.vtu": "283063476852a047d823604dbb5025133e07a5b329edf7ee0e4aeea2df74be99",
+          "flow_00009.vtu": "db9dbac6fafb23eb3cfff1cea3832d8ebf23d0d4256fe4e96186ca350fee6e61",
+          "solution_00011.dat": "b8c57c6d0cc67342fd6de3cddf7e52f523567f6c2995f13f35beca0488210dd7",
+          "flow_00003.vtu": "2b7a37ff0e3509d8b6b54d7722bb514fed67a0f6a8dcd51fe55da7e2a22517b8",
+          "run.cfg": "c7d849850e13c030acd43585152ad079460e5b9e4407412677778211e52616cb",
+          "flow_00000.vtu": "079c5617174e39d7d7e3e2f954304580a7a89ad6fe357239021a003338a66f85",
+          "flow_00008.vtu": "d22ab74636ea091d7d0cd79925605caa634aa1f7ab58291c4ad808ee07349582",
+          "flow_00010.vtu": "a5c4e254b23b28d8872f0aee97abc276b75e53b40e03e20060c484474d58957e",
+          "solution_00007.dat": "e6ff697eb984756223046fee0b1ef32054c1ac521f63cb01b7c20b8f8c653e22",
+          "flow_00014.vtu": "8768e73baf7762dc50d8e196abab6a6a511b164f29e50e1385486b032e88ab0d",
+          "flow_00007.vtu": "fd90649602e73902d99f424f4a9e42f7880f251fd36597025b0ee81f504616e8",
+          "solution_00010.dat": "756741a7999d059d82142a070703d2ff956405b2aecf24853f0c996f6bf70956",
+          "solution_00008.dat": "a98d1a6bdc9bf52fe1a4c850dab036fc0e90dc22880c222b253a2920c8c520e6",
+          "flow_00004.vtu": "47ea7dd27778d8fb51ad216e5449d103417889a2e85bbca8a744453102e8def6",
+          "solution_00004.dat": "87bfbfcb0c095d3331bb4dd3a9d521a449fbf2d758ffd9908e162011dc6d0723",
+          "mesh_00010.su2": "757ed1b2b98c35197557a8876652e88c441fc0f774b8a6b3ef5f293cb26a5e58",
+          "solution_00006.dat": "e57ae50d16c0fd94bc3b60e314cfa0785f604b1b9a846dc93282329edb084668",
+          "flow_00006.vtu": "ad9ee2ea16d366e697c737273b3e84f847ea0a020431d97fc28db138dbcd0fdd"
+        }
+      },
+      "supplemental_geometry_topology": [
+        {
+          "first_step": 5,
+          "checks": {
+            "positive_volumes": [
+              "PASS",
+              "min 2.970e-05 mean 1.445e-03 non-positive 0"
+            ],
+            "conformity": [
+              "PASS",
+              "faces in >2 elements 0, boundary faces without marker 0, marker faces: interior 0, not an element face 0, repeated 0"
+            ],
+            "points_elements": [
+              "PASS",
+              "unused points 0, duplicate points 0, duplicate elements 0"
+            ],
+            "markers": [
+              "PASS",
+              "['left', 'right', 'upper', 'lower']"
+            ],
+            "free_boundary_geometry": [
+              "PASS",
+              "lower (flat): 0.0e+00 <= 2e-12; right (flat): 0.0e+00 <= 2e-12; upper (flat): 0.0e+00 <= 2e-12; left (flat): 0.0e+00 <= 2e-12"
+            ]
+          }
+        },
+        {
+          "first_step": 10,
+          "checks": {
+            "positive_volumes": [
+              "PASS",
+              "min 6.265e-06 mean 1.357e-03 non-positive 0"
+            ],
+            "conformity": [
+              "PASS",
+              "faces in >2 elements 0, boundary faces without marker 0, marker faces: interior 0, not an element face 0, repeated 0"
+            ],
+            "points_elements": [
+              "PASS",
+              "unused points 0, duplicate points 0, duplicate elements 0"
+            ],
+            "markers": [
+              "PASS",
+              "['left', 'right', 'upper', 'lower']"
+            ],
+            "free_boundary_geometry": [
+              "PASS",
+              "lower (flat): 0.0e+00 <= 2e-12; right (flat): 0.0e+00 <= 2e-12; upper (flat): 0.0e+00 <= 2e-12; left (flat): 0.0e+00 <= 2e-12"
+            ]
+          }
+        }
+      ],
+      "transported_metric_diagnostics": {
+        "sensor": {
+          "max_logged_ratio": 1.0,
+          "maximum_edges_above_tolerance": 0,
+          "observations": 15
+        },
+        "composed": {
+          "max_logged_ratio": 2.73259,
+          "maximum_edges_above_tolerance": 76,
+          "observations": 15
+        }
+      },
+      "temporal_models": [
+        "Temporal feature fit: 4 snapshots, filter 1, history mismatch 0.101927 -> 0.101927, constant-velocity prediction, max acceleration 0 per time step squared.",
+        "Temporal feature fit: 4 snapshots, filter 1, history mismatch 0.0460287 -> 0.0457445, accelerating prediction, max acceleration 0.00643535 per time step squared.",
+        "Temporal feature fit: 4 snapshots, filter 1, history mismatch 0.0587994 -> 0.0587994, constant-velocity prediction, max acceleration 0 per time step squared."
+      ]
+    }
+  ],
+  "partial_restarts": [
+    {
+      "name": "partial_restart_7_n1m1",
+      "audit": {
+        "status": "PASS",
+        "scope": "Partial-window snapshot selection and matching restart geometry/state; no new remesh or history transfer in these short restarts",
+        "samples": [
+          7,
+          8,
+          9
+        ],
+        "final_admissibility": {
+          "min_density": 0.9966445196300074,
+          "min_pressure": 0.9953051978348452
+        },
+        "min_metric_eigenvalue": 0.9999999999999994,
+        "input_sha256": {
+          "input.su2.native_ref": "5fb1960534d86844ea557fb12f5cdc011c71ffeb0eac602411fa9e0dbc02fbf2",
+          "run.cfg": "8fc43099e41e87a3dafdeb6a2336bdd8859a5c3906a58d744efe5a9dd91af2da",
+          "input.su2": "db30ddb696eaa2c59935099fa7611b9805a33f2e55a698bf699ed59b2be38548"
+        }
+      },
+      "offline_reproduced": true
+    },
+    {
+      "name": "partial_restart_8_n1m1",
+      "audit": {
+        "status": "PASS",
+        "scope": "Partial-window snapshot selection and matching restart geometry/state; no new remesh or history transfer in these short restarts",
+        "samples": [
+          8,
+          9
+        ],
+        "final_admissibility": {
+          "min_density": 0.9966445196300074,
+          "min_pressure": 0.9953051978348452
+        },
+        "min_metric_eigenvalue": 0.9999999999999998,
+        "input_sha256": {
+          "input.su2.native_ref": "5fb1960534d86844ea557fb12f5cdc011c71ffeb0eac602411fa9e0dbc02fbf2",
+          "run.cfg": "9dfb7bb8f4884ccd54380fc63d8b4635ea3b4a0077cd6a493ed73a317ac20178",
+          "input.su2": "db30ddb696eaa2c59935099fa7611b9805a33f2e55a698bf699ed59b2be38548"
+        }
+      },
+      "offline_reproduced": true
+    },
+    {
+      "name": "partial_restart_9_n1m1",
+      "audit": {
+        "status": "PASS",
+        "scope": "Partial-window snapshot selection and matching restart geometry/state; no new remesh or history transfer in these short restarts",
+        "samples": [
+          9
+        ],
+        "final_admissibility": {
+          "min_density": 0.9966445196300074,
+          "min_pressure": 0.9953051978348452
+        },
+        "min_metric_eigenvalue": 1.0,
+        "input_sha256": {
+          "input.su2.native_ref": "5fb1960534d86844ea557fb12f5cdc011c71ffeb0eac602411fa9e0dbc02fbf2",
+          "run.cfg": "3f5268197ffc653656e4288b436676463d95d1a38ab1fe1fc5d160a58a4ad6f2",
+          "input.su2": "db30ddb696eaa2c59935099fa7611b9805a33f2e55a698bf699ed59b2be38548"
+        }
+      },
+      "offline_reproduced": true
+    }
+  ],
+  "source_and_stage_hashes_verified": true,
+  "limitations": [
+    "RANS composed sensor-plus-BL nodal gradation is not certified: max logged ratio 2.73259, up to 76 directed edges above 1+1e-5. All sensor residual counts are zero.",
+    "No matched old/new performance or scaling measurements in this correctness job.",
+    "No native 3D remeshing, native FIXED_POINT, converged aerodynamic validation or MMG-control CFD runs in this gate.",
+    "Whole adapted CFD trajectories are not required to be bitwise identical across MPI decompositions."
+  ],
+  "preserved_artifact_sha256": {
+    "checkpoint.json": "a997ba8c79bd72d7500b61ff74113deba311458cd8b73c2e51c9367986625278",
+    "launcher.out": "6e660c79a03a897cef22026879ff5e37e88199cc78c96b6b9f20345ab6dd417d",
+    "launcher.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "exit_code.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "validation.json": "841a7e3848fe25aae14e9dc931e9fd16c8d840fa2fe655ea5b0854174ab51cf9",
+    "plate_sa_four_n4m3/run.cfg": "c7d849850e13c030acd43585152ad079460e5b9e4407412677778211e52616cb",
+    "plate_sa_four_n4m3/solver.log": "0b360ded014a6225a0186391eb65b807ee2f6d6f0de66c09c9fac7c0b0bc5c7e"
+  }
+}

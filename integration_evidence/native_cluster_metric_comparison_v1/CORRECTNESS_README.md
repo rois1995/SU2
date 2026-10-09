@@ -2,8 +2,8 @@
 
 Use this gate after implementation changes. Heavy correctness and performance
 checks belong on the cluster; local work is limited to source/script checks and
-small fake-file harness tests. Full PREDICT history/filter runtime validation
-is still pending completion of the user-run cluster gate. A successful build or prepared
+small fake-file harness tests. The native 2D PREDICT history/filter gate
+passes completely in user-run cluster job 581856. A successful build or prepared
 checkpoint does not replace that PASS. Run this gate before performance jobs.
 
 The first cluster job (581847) passed 160/161 serial metric tests. Its sole failure
@@ -24,6 +24,17 @@ Later MPI CFD/CGNS/RANS/partial-restart cases are still pending. Preserve the
 original results; pull and prepare a new checkpoint before rerunning the same
 job. This fixture-only correction needs no production rebuild (ninja may be a
 no-op). Evidence: `../native_post_rebase_metric_v1/cluster_correctness_581852/`.
+
+The next rerun (581856) completes all 20 stages. All metric/native MPI1/2/4
+suites, five guards, six Euler/CGNS/straight-wall SA RANS cases and three partial
+restarts PASS and have been reviewed from saved outputs. Independent audits and
+supplemental topology/marker/free-boundary geometry checks pass on all 11 mesh
+replacements. The RANS composed-field nodal gradation diagnostic still reaches
+ratio 2.73259 with 76 residual directed edges; sensor gradation alone passes.
+This is a recorded limitation, not a combined-field certificate or performance
+result. Reviewed evidence: `../native_post_rebase_metric_v1/cluster_correctness_581856/`.
+Proceed to the separate serialized old/new pilot in README.md for performance;
+repeat this correctness gate after future implementation changes.
 
 From a complete checkout of `rois1995/SU2:codex/native-unsteady-performance`,
 update and rebuild both executables on the login/build host using the native-only

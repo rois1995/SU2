@@ -12,6 +12,14 @@ first; its new runtime checks were moved to SGE at the user's request. Git 1.8 w
 no Git. Both repositories contain their own complete inputs, initialized
 dependencies and binaries, with no runtime links into the other checkout.
 
+The candidate at d4416246224aebee506bb1b5601c553cb8af0dc0 has completed the
+20-stage correctness gate in cluster job 581856, with saved-output audits reviewed.
+The prepared source/input pins still match. The N=4 pilot below is ready for the
+user to submit; no repeat correctness run is needed for this evidence/docs update.
+RANS composed nodal gradation remains a separate recorded limitation (max ratio
+2.73259), even though mesh quality, height and both-history transfer pass. Neither
+this correctness PASS nor the small-case timings establish a performance gain.
+
 If a baseline checkout is needed, clone the fork on the login host and run
 `git checkout e6995fbff565955a5677ffcbcc66af9acf96a8f1` before initializing its
 submodules and building. A detached baseline checkout is intentional. Preserve

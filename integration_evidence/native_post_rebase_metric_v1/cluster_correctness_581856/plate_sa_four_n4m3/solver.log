@@ -1,0 +1,1569 @@
+[node-a-ag2:1407021] mca_base_component_repository_open: unable to open mca_btl_openib: libosmcomp.so.3: cannot open shared object file: No such file or directory (ignored)
+[node-a-ag2:1407022] mca_base_component_repository_open: unable to open mca_btl_openib: libosmcomp.so.3: cannot open shared object file: No such file or directory (ignored)
+[node-a-ag2:1407020] mca_base_component_repository_open: unable to open mca_btl_openib: libosmcomp.so.3: cannot open shared object file: No such file or directory (ignored)
+[node-a-ag2:1407019] mca_base_component_repository_open: unable to open mca_btl_openib: libosmcomp.so.3: cannot open shared object file: No such file or directory (ignored)
+WARNING: Setting WINDOW_START_ITER = RESTART_ITER for meaningful running average.
+
+-------------------------------------------------------------------------
+|    ___ _   _ ___                                                      |
+|   / __| | | |_  )   Release 8.5.0 "Harrier"                           |
+|   \__ \ |_| |/ /                                                      |
+|   |___/\___//___|   Suite (Computational Fluid Dynamics Code)         |
+|                                                                       |
+-------------------------------------------------------------------------
+| SU2 Project Website: https://su2code.github.io                        |
+|                                                                       |
+| The SU2 Project is maintained by the SU2 Foundation                   |
+| (http://su2foundation.org)                                            |
+-------------------------------------------------------------------------
+| Copyright 2012-2026, SU2 Contributors                                 |
+|                                                                       |
+| SU2 is free software; you can redistribute it and/or                  |
+| modify it under the terms of the GNU Lesser General Public            |
+| License as published by the Free Software Foundation; either          |
+| version 2.1 of the License, or (at your option) any later version.    |
+|                                                                       |
+| SU2 is distributed in the hope that it will be useful,                |
+| but WITHOUT ANY WARRANTY; without even the implied warranty of        |
+| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
+| Lesser General Public License for more details.                       |
+|                                                                       |
+| You should have received a copy of the GNU Lesser General Public      |
+| License along with SU2. If not, see <http://www.gnu.org/licenses/>.   |
+-------------------------------------------------------------------------
+WARNING: Setting WINDOW_START_ITER = RESTART_ITER for meaningful running average.
+
+Parsing config file for zone 0
+WARNING: Setting WINDOW_START_ITER = RESTART_ITER for meaningful running average.
+
+----------------- Physical Case Definition ( Zone 0 ) -------------------
+Compressible RANS equations.
+Turbulence model: Spalart-Allmaras-noft2
+Hybrid RANS/LES: No Hybrid RANS/LES
+Mach number: 0.5.
+Angle of attack (AoA): 0 deg, and angle of sideslip (AoS): 0 deg.
+Reynolds number: 10000. Reference length 1.
+No restart solution, use the values at infinity (freestream).
+Dimensional simulation.
+The reference area is 1 m^2.
+The semi-span will be computed using the max y(3D) value.
+The reference length is 1 m.
+Input mesh file name: input.su2
+
+--------------- Space Numerical Integration ( Zone 0 ) ------------------
+Roe (with entropy fix = 0.001) solver for the flow inviscid terms.
+Standard Roe without low-dissipation function.
+First order integration in space.
+Scalar upwind solver for the turbulence model.
+First order integration in space.
+Average of gradients with correction (viscous flow terms).
+Average of gradients with correction (viscous turbulence terms).
+Gradient for upwind reconstruction: Green-Gauss.
+Gradient for viscous and source terms: Green-Gauss.
+
+--------------- Time Numerical Integration  ( Zone 0 ) ------------------
+Unsteady simulation, dual time stepping strategy (second order in time).
+Unsteady time step provided by the user (s): 0.0001.
+Euler implicit method for the flow equations.
+FGMRES is used for solving the linear system.
+Using ILU(0) preconditioning.
+Convergence criteria of the linear solver: 1e-06.
+Max number of linear iterations: 10.
+No CFL adaptation.
+Courant-Friedrichs-Lewy number:        2
+Euler implicit time integration for the turbulence model.
+
+------------------ Convergence Criteria  ( Zone 0 ) ---------------------
+Maximum number of solver subiterations: 40.
+Maximum number of physical time-steps: 15.
+Begin convergence monitoring at iteration 5.
+Residual minimum value: 1e-8.
+Cauchy series min. value: 1e-10.
+Number of Cauchy elements: 100.
+Begin windowed time average at iteration 0.
+
+-------------------- Output Information ( Zone 0 ) ----------------------
+File writing frequency: 
++------------------------------------+
+|                     File| Frequency|
++------------------------------------+
+|                  RESTART|         1|
+|                 PARAVIEW|         1|
++------------------------------------+
+Writing the convergence history file every 0 inner iterations.
+Writing the convergence history file every 1 time iterations.
+Writing the screen convergence history every 1 inner iterations.
+Writing the screen convergence history every 1 time iterations.
+The tabular file format is CSV (.csv).
+Convergence history file name: history.
+Forces breakdown file name: forces_breakdown.dat.
+Surface file name: surface.
+Volume file name: flow.
+Restart file name: solution.
+
+------------- Config File Boundary Information ( Zone 0 ) ---------------
++-----------------------------------------------------------------------+
+|                        Marker Type|                        Marker Name|
++-----------------------------------------------------------------------+
+|                          Far-field|                               left|
+|                                   |                              right|
+|                                   |                              upper|
++-----------------------------------------------------------------------+
+|                     Heat flux wall|                              lower|
++-----------------------------------------------------------------------+
+
+-------------------- Output Preprocessing ( Zone 0 ) --------------------
+
+WARNING: SURFACE_PRESSURE_DROP can only be computed for at least 2 surfaces (outlet, inlet, ...)
+
+Screen output fields: TIME_ITER, INNER_ITER, RMS_DENSITY
+History output group(s): ITER, RMS_RES
+Convergence field(s): RMS_DENSITY
+Warning: No (valid) fields chosen for time convergence monitoring. Time convergence monitoring inactive.
+Volume output fields: COORDINATES, SOLUTION, PRIMITIVE, ADAP_SENSOR, HESSIAN, METRIC
+
+------------------- Geometry Preprocessing ( Zone 0 ) -------------------
+Two dimensional problem.
+153 grid points before partitioning.
+256 volume elements before partitioning.
+4 surface markers.
+16 boundary elements in index 0 (Marker = lower).
+8 boundary elements in index 1 (Marker = right).
+16 boundary elements in index 2 (Marker = upper).
+8 boundary elements in index 3 (Marker = left).
+Executing the partitioning functions.
+Building the graph adjacency structure.
+Calling ParMETIS... graph partitioning complete (50 edge cuts).
+Distributing ParMETIS coloring.
+Rebalancing vertices.
+Rebalancing volume element connectivity.
+Rebalancing markers and surface elements.
+207 vertices including ghost points. 
+304 interior elements including halo cells. 
+304 triangles.
+Establishing MPI communication patterns.
+Setting point connectivity.
+Renumbering points (Reverse Cuthill McKee Ordering).
+Recomputing point connectivity.
+Setting element connectivity.
+Checking the numerical grid orientation.
+All volume elements are correctly oriented.
+There has been a re-orientation of 53 LINE surface elements.
+Identifying edges and vertices.
+Setting the control volume structure.
+Area of the computational grid: 2.375.
+Searching for the closest normal neighbors to the surfaces.
+Storing a mapping from global to local point index.
+Compute the surface curvature.
+Max K: 11.3137. Mean K: 1.74057. Standard deviation K: 4.082.
+Computing mesh quality statistics for the dual control volumes.
++--------------------------------------------------------------+
+|           Mesh Quality Metric|        Minimum|        Maximum|
++--------------------------------------------------------------+
+|    Orthogonality Angle (deg.)|        63.4349|        73.7269|
+|     CV Face Area Aspect Ratio|        1.34164|        2.68328|
+|           CV Sub-Volume Ratio|              1|              1|
+|                     CV Volume|     0.00260417|       0.015625|
++--------------------------------------------------------------+
+Finding max control volume width.
+Communicating number of neighbors.
+CFD geometry seconds partition/migration/preprocess (maximum across ranks): 0.00132002 0.000597947 0.000475435
+Wetted area = 0 m.
+Area projection in the x-plane = 0 m, y-plane = 0 m.
+Max. coordinate in the x-direction = -1e+10 m, y-direction = -1e+10 m.
+Min. coordinate in the x-direction = 1e+10 m, y-direction = 1e+10 m.
+Computing wall distances.
+
+-------------------- Solver Preprocessing ( Zone 0 ) --------------------
+Viscous flow: Computing pressure using the ideal gas law
+based on the free-stream temperature and a density computed
+from the Reynolds number.
+Force coefficients computed using free-stream values.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|               SUTHERLAND|          CONSTANT_PRANDTL|             STANDARD_AIR|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|        Ref. Viscosity|     1.716e-05|             1|   N.s/m^2|     1.716e-05|
+|      Sutherland Temp.|        273.15|             1|         K|        273.15|
+|     Sutherland Const.|         110.4|             1|         K|         110.4|
++------------------------------------------------------------------------------+
+|        Prandtl (Lam.)|             -|             -|         -|          0.72|
+|       Prandtl (Turb.)|             -|             -|         -|           0.9|
++------------------------------------------------------------------------------+
+|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+|      Spec. Heat Ratio|             -|             -|         -|           1.4|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|       Static Pressure|       86.9847|             1|        Pa|       86.9847|
+|               Density|    0.00105161|             1|    kg/m^3|    0.00105161|
+|           Temperature|        288.15|             1|         K|        288.15|
+|          Total Energy|        221265|             1|   m^2/s^2|        221265|
+|            Velocity-X|       170.149|             1|       m/s|       170.149|
+|            Velocity-Y|             0|             1|       m/s|             0|
+|    Velocity Magnitude|       170.149|             1|       m/s|       170.149|
++------------------------------------------------------------------------------+
+|             Viscosity|    1.7893e-05|             1|   N.s/m^2|    1.7893e-05|
+|          Conductivity|             -|             1|   W/m^2.K|             -|
+|     Turb. Kin. Energy|       108.564|             1|   m^2/s^2|       108.564|
+|     Spec. Dissipation|       638.057|             1|       1/s|       638.057|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|           0.5|
+|       Reynolds Number|             -|             -|         -|         10000|
++------------------------------------------------------------------------------+
+-- Unsteady conditions
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|            Total Time|           100|             1|         s|           100|
+|             Time Step|        0.0001|             1|         s|        0.0001|
++------------------------------------------------------------------------------+
+Initialize Jacobian structure (Navier-Stokes). MG level: 0.
+Initialize Jacobian structure (SA model).
+
+------------------- Numerics Preprocessing ( Zone 0 ) -------------------
+
+----------------- Integration Preprocessing ( Zone 0 ) ------------------
+
+------------------- Iteration Preprocessing ( Zone 0 ) ------------------
+Euler/Navier-Stokes/RANS fluid iteration.
+
+------------------------------ Begin Solver -----------------------------
+
+Simulation Run using the Single-zone Driver, time-domain mesh adaptation
+The simulation will run for 15 time steps.
+The mesh is adapted after every 5 time steps (after the time steps n with (n+1) % 5 == 0), from the metric of the last step moved over the next time steps with the motion of its features (ADAP_UNSTEADY_METRIC= PREDICT): complexity 600, sizes 0.001 to 0.25, norm 2, aspect ratio up to 10000.
+Prediction: 4 snapshots 1 time steps apart (the last at the end of the window), horizon 5 time steps every 1, reoriented where the anisotropy ratio > 1.5, regularization 0.5.
+Solution transfer: conservative P1 projection of the solution and of its time history (the integrals of the conservative variables are kept).
++--------------------------------------+
+|   Time_Iter|  Inner_Iter|    rms[Rho]|
++--------------------------------------+
+|           0|           0|  -17.396174|
+|           0|           1|   -3.266434|
+|           0|           2|   -3.701215|
+|           0|           3|   -4.114474|
+|           0|           4|   -4.512652|
+|           0|           5|   -4.898533|
+|           0|           6|   -5.273590|
+|           0|           7|   -5.638955|
+|           0|           8|   -5.995706|
+|           0|           9|   -6.344919|
+|           0|          10|   -6.687648|
+|           0|          11|   -7.024888|
+|           0|          12|   -7.357560|
+|           0|          13|   -7.686485|
+|           0|          14|   -8.012376|
++-----------------------------------------------------------------------+
+|        File Writing Summary       |              Filename             |
++-----------------------------------------------------------------------+
+|SU2 binary restart                 |solution_00000.dat                 |
+|Paraview                           |flow_00000.vtu                     |
++-----------------------------------------------------------------------+
++--------------------------------------+
+|   Time_Iter|  Inner_Iter|    rms[Rho]|
++--------------------------------------+
+|           1|           0|   -3.263488|
+|           1|           1|   -3.676719|
+|           1|           2|   -4.080053|
+|           1|           3|   -4.473960|
+|           1|           4|   -4.857621|
+|           1|           5|   -5.230654|
+|           1|           6|   -5.593436|
+|           1|           7|   -5.946933|
+|           1|           8|   -6.292406|
+|           1|           9|   -6.631176|
+|           1|          10|   -6.964472|
+|           1|          11|   -7.293369|
+|           1|          12|   -7.618770|
+|           1|          13|   -7.941416|
+|           1|          14|   -8.261907|
+
+----------------------------- Compute Metric ----------------------------
+Metric snapshot of time step 1 for the prediction (ADAP_UNSTEADY_METRIC= PREDICT).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 0.5.
+Hessian recovery: 6.9811e-05 s (maximum rank time).
+Sensor-only donor metric statistics:
+Minimum density: 20.8498.
+Maximum density: 2631.07.
+Maximum cell AR: 23.6349.
+Mesh complexity after native constraints: 600 (ADAP_COMPLEXITY= 600).
+Sensor metric complexity before gradation: 483.085.
+Sensor-only donor complexity after gradation: 600.
+Native geometric integration: 0 points, preparation 3e-08 s.
+Native metric work: 6 complexity trials, 72 total gradation sweeps, 5445 owned-point visits; gradation 0.00104114 s, halo 0.000194443 s, sweep reductions 0.000370526 s (maximum accumulated rank times).
+Native gradation tensor updates: 2551 of 5445 owned-point visits.
+Native sensor gradation: 13 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Native composed nodal audit: maximum transported-metric ratio 1, directed edges above 1+1e-5: 0. Sensor gradation is not a combined-field certificate.
++-----------------------------------------------------------------------+
+|        File Writing Summary       |              Filename             |
++-----------------------------------------------------------------------+
+|SU2 binary restart                 |solution_00001.dat                 |
+|Paraview                           |flow_00001.vtu                     |
++-----------------------------------------------------------------------+
++--------------------------------------+
+|   Time_Iter|  Inner_Iter|    rms[Rho]|
++--------------------------------------+
+|           2|           0|   -3.311109|
+|           2|           1|   -3.717844|
+|           2|           2|   -4.121188|
+|           2|           3|   -4.516698|
+|           2|           4|   -4.901358|
+|           2|           5|   -5.273888|
+|           2|           6|   -5.634589|
+|           2|           7|   -5.984820|
+|           2|           8|   -6.326390|
+|           2|           9|   -6.661098|
+|           2|          10|   -6.990499|
+|           2|          11|   -7.315844|
+|           2|          12|   -7.638102|
+|           2|          13|   -7.958011|
+|           2|          14|   -8.276131|
+
+----------------------------- Compute Metric ----------------------------
+Metric snapshot of time step 2 for the prediction (ADAP_UNSTEADY_METRIC= PREDICT).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 0.5.
+Hessian recovery: 2.391e-05 s (maximum rank time).
+Sensor-only donor metric statistics:
+Minimum density: 22.106.
+Maximum density: 2942.91.
+Maximum cell AR: 17.668.
+Mesh complexity after native constraints: 600 (ADAP_COMPLEXITY= 600).
+Sensor metric complexity before gradation: 507.174.
+Sensor-only donor complexity after gradation: 600.
+Native geometric integration: 0 points, preparation 4e-08 s.
+Native metric work: 6 complexity trials, 55 total gradation sweeps, 4955 owned-point visits; gradation 0.00086649 s, halo 0.00013654 s, sweep reductions 0.000339031 s (maximum accumulated rank times).
+Native gradation tensor updates: 2287 of 4955 owned-point visits.
+Native sensor gradation: 8 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Native composed nodal audit: maximum transported-metric ratio 1, directed edges above 1+1e-5: 0. Sensor gradation is not a combined-field certificate.
++-----------------------------------------------------------------------+
+|        File Writing Summary       |              Filename             |
++-----------------------------------------------------------------------+
+|SU2 binary restart                 |solution_00002.dat                 |
+|Paraview                           |flow_00002.vtu                     |
++-----------------------------------------------------------------------+
++--------------------------------------+
+|   Time_Iter|  Inner_Iter|    rms[Rho]|
++--------------------------------------+
+|           3|           0|   -3.328630|
+|           3|           1|   -3.747459|
+|           3|           2|   -4.160788|
+|           3|           3|   -4.563903|
+|           3|           4|   -4.953540|
+|           3|           5|   -5.328391|
+|           3|           6|   -5.689142|
+|           3|           7|   -6.037852|
+|           3|           8|   -6.377061|
+|           3|           9|   -6.709141|
+|           3|          10|   -7.036001|
+|           3|          11|   -7.359071|
+|           3|          12|   -7.679381|
+|           3|          13|   -7.997665|
+|           3|          14|   -8.314450|
+
+----------------------------- Compute Metric ----------------------------
+Metric snapshot of time step 3 for the prediction (ADAP_UNSTEADY_METRIC= PREDICT).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 0.5.
+Hessian recovery: 2.535e-05 s (maximum rank time).
+Sensor-only donor metric statistics:
+Minimum density: 24.619.
+Maximum density: 3066.94.
+Maximum cell AR: 13.8004.
+Mesh complexity after native constraints: 600 (ADAP_COMPLEXITY= 600).
+Sensor metric complexity before gradation: 527.977.
+Sensor-only donor complexity after gradation: 600.
+Native geometric integration: 0 points, preparation 3e-08 s.
+Native metric work: 6 complexity trials, 58 total gradation sweeps, 4906 owned-point visits; gradation 0.000864359 s, halo 0.0001425 s, sweep reductions 0.000345454 s (maximum accumulated rank times).
+Native gradation tensor updates: 2150 of 4906 owned-point visits.
+Native sensor gradation: 9 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Native composed nodal audit: maximum transported-metric ratio 1, directed edges above 1+1e-5: 0. Sensor gradation is not a combined-field certificate.
++-----------------------------------------------------------------------+
+|        File Writing Summary       |              Filename             |
++-----------------------------------------------------------------------+
+|SU2 binary restart                 |solution_00003.dat                 |
+|Paraview                           |flow_00003.vtu                     |
++-----------------------------------------------------------------------+
++--------------------------------------+
+|   Time_Iter|  Inner_Iter|    rms[Rho]|
++--------------------------------------+
+|           4|           0|   -3.330614|
+|           4|           1|   -3.764684|
+|           4|           2|   -4.189873|
+|           4|           3|   -4.602202|
+|           4|           4|   -4.998554|
+|           4|           5|   -5.377669|
+|           4|           6|   -5.740541|
+|           4|           7|   -6.089801|
+|           4|           8|   -6.428624|
+|           4|           9|   -6.759886|
+|           4|          10|   -7.085820|
+|           4|          11|   -7.408026|
+|           4|          12|   -7.727608|
+|           4|          13|   -8.045321|
+
+----------------------------- Compute Metric ----------------------------
+Metric snapshot of time step 4 for the prediction (ADAP_UNSTEADY_METRIC= PREDICT).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 0.5.
+Hessian recovery: 2.4641e-05 s (maximum rank time).
+Sensor-only donor metric statistics:
+Minimum density: 26.1633.
+Maximum density: 3041.09.
+Maximum cell AR: 10.7193.
+Mesh complexity after native constraints: 600 (ADAP_COMPLEXITY= 600).
+Sensor metric complexity before gradation: 530.424.
+Sensor-only donor complexity after gradation: 600.
+Native geometric integration: 0 points, preparation 3e-08 s.
+Native metric work: 6 complexity trials, 49 total gradation sweeps, 4425 owned-point visits; gradation 0.00078963 s, halo 0.000121201 s, sweep reductions 0.000347883 s (maximum accumulated rank times).
+Native gradation tensor updates: 1906 of 4425 owned-point visits.
+Native sensor gradation: 7 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Native composed nodal audit: maximum transported-metric ratio 1, directed edges above 1+1e-5: 0. Sensor gradation is not a combined-field certificate.
+
+----------------------------- Compute Metric ----------------------------
+Last-pair optical-flow diagnostic from time step 3 to 4 (optical flow on the mesh): feature width 0.652795, smoothing length 0.326398, mismatch 0.0536673 -> 0.0467006 (started from the flow velocity; from zero motion: 0.0467006), speed of the features 0.0058473 per time step (largest 0.0136588), 708 CG iterations.
+Temporal feature fit: 4 snapshots, filter 1, history mismatch 0.101927 -> 0.101927, constant-velocity prediction, max acceleration 0 per time step squared.
+Metric of time step 4 moved over the next 5 time steps (6 instants, every 1), reoriented where its anisotropy ratio > 1.5 (793 point-instants), 7 points traced out of the domain; intersection of the instants. Time 0.0157668 s (motion 0.0147193 s).
+Sensor-only donor metric statistics:
+Minimum density: 22.0011.
+Maximum density: 1452.96.
+Maximum cell AR: 9.97545.
+Mesh complexity after native constraints: 600 (ADAP_COMPLEXITY= 600).
+Sensor metric complexity before gradation: 320.336.
+Sensor-only donor complexity after gradation: 344.7.
+Native geometric integration: 5760 points, preparation 0.00149503 s.
+Native metric work: 7 complexity trials, 66 total gradation sweeps, 5584 owned-point visits; gradation 0.000940381 s, halo 0.000173552 s, sweep reductions 0.000386614 s (maximum accumulated rank times).
+Native gradation tensor updates: 2513 of 5584 owned-point visits.
+Native sensor gradation: 10 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Native composed nodal audit: maximum transported-metric ratio 1.28988, directed edges above 1+1e-5: 2. Sensor gradation is not a combined-field certificate.
+WARNING: Composed geometric BL transport violations remain; no nodal wall correction is spread.
++-----------------------------------------------------------------------+
+|        File Writing Summary       |              Filename             |
++-----------------------------------------------------------------------+
+|SU2 binary restart                 |solution_00004.dat                 |
+|Paraview                           |flow_00004.vtu                     |
++-----------------------------------------------------------------------+
+
+------------------------- Mesh Adaptation Cycle -------------------------
+After time step 4: mesh of cycle 1 from the metric of the time steps 0 to 4 (cycle 0).
+Native contract: q>=0.18, frozen-target Simpson edge length<=1.8, reference deviation<=1e-08, requested wall altitude relative error<=1e-8; dependency budget=2097152 bytes per rank, original P1 sensor target + geometric BL constraints, boundary sampling adaptive.
+Native work allowance: 300 collective rounds per phase, 6 sweeps, for 256 input cells on 3 ranks; frozen P1 centroid complexity=353.118, estimated unit triangles=1167.49 (geometric BL row allowance=352).
+Native requested first altitude: lower = 0.005
+Native working partition: weighted, CFD ranks=4, adaptation ranks=3; moved cells=120, dual edge cuts=16, largest transport/staging estimate=120792
+Native working partition seconds estimate/graph/ParMETIS/migration (maximum across ranks): 0.000837819 0.000120531 0.00468097 0.000997881
+Native working rank 0 cells before/after=76/87, predicted work before/after=1275/1028
+Native working rank 1 cells before/after=56/85, predicted work before/after=727/1069
+Native working rank 2 cells before/after=68/84, predicted work before/after=856/1021
+Native working rank 3 cells before/after=56/0, predicted work before/after=260/0
+Native incoming residuals: shape=6, edge length=157
+Native adaptation: 2607 commits (355 across owners), qmin=0.623259, Lmax=1.71841, residual cells=0, height faces=0, reference faces=0. No remesher-side target floor.
+Native remaining residuals: shape=0, edge length=0
+Native coordinated repair: 0 commits, 0 seconds (maximum across ranks).
+Native private target requests/evaluations/dynamic evictions: 964301 282451 829
+Native donor search candidates/full-scan equivalent: 42928 1297408; local immutable index retained bytes (max rank): 27384
+Native operations (height/split/remove/redistribute/bulk remove/split/flip/move): 8 49 7 155 236 762 284 1106; conflicts=66, dependency-size rejects=0, memory rejects=0, stale rejects=0, engine encoded bytes=45181248, largest transport admission estimate=311432
+Native phase elapsed seconds (same action order, maximum across ranks): 0.068585 0.291483 0.00232439 0.167926 0.0511659 0.228871 0.120241 0.184898
+Native candidate selection seconds (same action order, maximum across ranks): 4.3001e-05 0.000342601 3.395e-05 0.00112521 0.000940997 0.00256875 0.00304061 0.00505558
+Native rank cost selection seconds min/mean/max: 0.00882205 0.011619 0.0130985
+Native rank cost private reconstruction seconds min/mean/max: 0.151905 0.304208 0.392746
+Native rank cost tracked collectives seconds min/mean/max: 0.152625 0.158682 0.166125
+Native rank cost largest private transaction seconds min/mean/max: 0.0185692 0.0295765 0.0432114
+Native rank cost round protocol seconds min/mean/max: 0.00495348 0.00498501 0.00502788
+Native rank cost round dependency import seconds min/mean/max: 0.134794 0.134843 0.134878
+Native rank cost round donor import and IDs seconds min/mean/max: 0.138794 0.139635 0.140179
+Native rank cost round reconstruction seconds min/mean/max: 0.152061 0.304376 0.392919
+Native rank cost round validation seconds min/mean/max: 0.381075 0.468826 0.620617
+Native rank cost round commit seconds min/mean/max: 0.0404574 0.0411249 0.0415369
+Native rank cost engine initialization seconds min/mean/max: 0.00100963 0.00101091 0.0010117
+Native rank cost incoming residual check seconds min/mean/max: 2.43e-06 3.76e-06 6.41e-06
+Native rank cost engine adapt seconds min/mean/max: 1.11556 1.11556 1.11556
+Native rank cost final contract check seconds min/mean/max: 2.469e-05 2.48033e-05 2.495e-05
+Native rank cost adapt unclassified seconds min/mean/max: 0.00830299 0.01015 0.0136755
+Native cost scopes: tracked collectives include waiting, exclude validation elections; round scopes are exclusive within each rank, include MPI waits, and exclude local temporary destruction after round return; rank maxima are not additive wall phases.
+Native cached selection full scans (same action order, sum across ranks): 0 0 0 0 126 180 17 27
+Native deferred/rejected candidate: boundary coarsening or movement misses geometry/metric target (8).
+Native deferred/rejected candidate: boundary coarsening or movement worsens bulk size (6).
+Native deferred/rejected candidate: coarsening misses target (217).
+Native deferred/rejected candidate: flip does not improve quality (1173).
+Native deferred/rejected candidate: no improving valid movement (663).
+Native deferred/rejected candidate: no representable tangential redistribution (4).
+Native deferred/rejected candidate: nonconvex quadrilateral (321).
+Native deferred/rejected candidate: not a complete interior edge star (7).
+Native deferred/rejected candidate: protected first layer (53).
+Native deferred/rejected candidate: surface reconstruction worsens sub-threshold shape (9).
+Native execution seconds workers/return-to-CFD/idle-wall/idle-CPU (maximum across ranks): 1.11692 0.00448978 1.11899 0.002034; CFD ranks=4, adaptation ranks=3
+Native setup seconds import-reference/target-policy/working-partition (maximum across ranks): 0.00199154 5.5581e-05 0.00669739
+
+---------------------------- Replace the Mesh ---------------------------
+Two dimensional problem.
+738 grid points before partitioning.
+1384 volume elements before partitioning.
+4 surface markers.
+25 boundary elements in index 0 (Marker = left).
+22 boundary elements in index 1 (Marker = right).
+9 boundary elements in index 2 (Marker = upper).
+34 boundary elements in index 3 (Marker = lower).
+Executing the partitioning functions.
+Building the graph adjacency structure.
+Calling ParMETIS... graph partitioning complete (108 edge cuts).
+Distributing ParMETIS coloring.
+Rebalancing vertices.
+Rebalancing volume element connectivity.
+Rebalancing markers and surface elements.
+851 vertices including ghost points. 
+1491 interior elements including halo cells. 
+1491 triangles.
+Establishing MPI communication patterns.
+Setting point connectivity.
+Renumbering points (Reverse Cuthill McKee Ordering).
+Recomputing point connectivity.
+Setting element connectivity.
+Checking the numerical grid orientation.
+All volume elements are correctly oriented.
+All surface elements are correctly oriented.
+Identifying edges and vertices.
+Setting the control volume structure.
+Area of the computational grid: 2.13112.
+Searching for the closest normal neighbors to the surfaces.
+Storing a mapping from global to local point index.
+Compute the surface curvature.
+Max K: 64.5828. Mean K: 3.04907. Standard deviation K: 12.9111.
+Computing mesh quality statistics for the dual control volumes.
++--------------------------------------------------------------+
+|           Mesh Quality Metric|        Minimum|        Maximum|
++--------------------------------------------------------------+
+|    Orthogonality Angle (deg.)|        6.83115|        88.3998|
+|     CV Face Area Aspect Ratio|        1.06534|        68.3854|
+|           CV Sub-Volume Ratio|              1|        6.21533|
+|                     CV Volume|    4.20698e-05|      0.0354423|
++--------------------------------------------------------------+
+Finding max control volume width.
+Communicating number of neighbors.
+CFD geometry seconds partition/migration/preprocess (maximum across ranks): 0.0011632 0.000722658 0.000811619
+Wetted area = 0 m.
+Area projection in the x-plane = 0 m, y-plane = 0 m.
+Max. coordinate in the x-direction = -1e+10 m, y-direction = -1e+10 m.
+Min. coordinate in the x-direction = 1e+10 m, y-direction = 1e+10 m.
+Computing wall distances.
+
+-------------------- Solver Preprocessing ( Zone 0 ) --------------------
+Viscous flow: Computing pressure using the ideal gas law
+based on the free-stream temperature and a density computed
+from the Reynolds number.
+Force coefficients computed using free-stream values.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|               SUTHERLAND|          CONSTANT_PRANDTL|             STANDARD_AIR|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|        Ref. Viscosity|     1.716e-05|             1|   N.s/m^2|     1.716e-05|
+|      Sutherland Temp.|        273.15|             1|         K|        273.15|
+|     Sutherland Const.|         110.4|             1|         K|         110.4|
++------------------------------------------------------------------------------+
+|        Prandtl (Lam.)|             -|             -|         -|          0.72|
+|       Prandtl (Turb.)|             -|             -|         -|           0.9|
++------------------------------------------------------------------------------+
+|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+|      Spec. Heat Ratio|             -|             -|         -|           1.4|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|       Static Pressure|       86.9847|             1|        Pa|       86.9847|
+|               Density|    0.00105161|             1|    kg/m^3|    0.00105161|
+|           Temperature|        288.15|             1|         K|        288.15|
+|          Total Energy|        221265|             1|   m^2/s^2|        221265|
+|            Velocity-X|       170.149|             1|       m/s|       170.149|
+|            Velocity-Y|             0|             1|       m/s|             0|
+|    Velocity Magnitude|       170.149|             1|       m/s|       170.149|
++------------------------------------------------------------------------------+
+|             Viscosity|    1.7893e-05|             1|   N.s/m^2|    1.7893e-05|
+|          Conductivity|             -|             1|   W/m^2.K|             -|
+|     Turb. Kin. Energy|       108.564|             1|   m^2/s^2|       108.564|
+|     Spec. Dissipation|       638.057|             1|       1/s|       638.057|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|           0.5|
+|       Reynolds Number|             -|             -|         -|         10000|
++------------------------------------------------------------------------------+
+-- Unsteady conditions
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|            Total Time|           100|             1|         s|           100|
+|             Time Step|        0.0001|             1|         s|        0.0001|
++------------------------------------------------------------------------------+
+Initialize Jacobian structure (Navier-Stokes). MG level: 0.
+Initialize Jacobian structure (SA model).
+
+------------------- Solution Transfer (conservative P1) -------------------
+Distributed conservative transfer on 4 rank(s): import groups 1, imported donor elements 352 (largest per rank / mean 2.59); planned memory per rank (largest): resident and coverage 0 MB, import 0 MB (ceiling 2048 MB).
+Supermesh of 1384 new and 256 donor elements: 3455 overlapping pairs (5628 clipped), measure 2.000e+00 of 2.000e+00 (new) and 2.000e+00 (donor).
+New domain outside the donor (S_n): 0 parts of control volumes at 0 points (0 of points on no marker), measure 0.000e+00, filled with the closest donor values (max distance 0.000e+00, 0.000e+00 of the face); new elements outside the donor: 0.
+Donor domain outside the new one (S_d): 0 donor elements, measure 0.000e+00, at walls and symmetry planes content kept (the difference to the S_n content there spread over the new domain by volume), at open boundaries the totals follow the domain.
+Largest uncovered fraction of a control-volume piece: 9.622e-15.
+Per field: S_n content and S_d content (relative to sum |u| V), correction spread over the domain, supermesh defect (round-off), CG iterations and true residual, values limited:
+             Density:  0.000e+00  0.000e+00  0.000e+00  0.000e+00   14  3.939e-14       0
+          Momentum-x:  0.000e+00  0.000e+00  0.000e+00  0.000e+00   15  8.840e-14       1
+          Momentum-y:  0.000e+00  0.000e+00  0.000e+00  0.000e+00   17  8.695e-14       1
+              Energy:  0.000e+00  0.000e+00  0.000e+00  0.000e+00   14  5.136e-14       0
+            Nu_Tilde:  0.000e+00  0.000e+00  0.000e+00  0.000e+00   16  2.285e-14       1
+       Density (n-1):  0.000e+00  0.000e+00  0.000e+00  0.000e+00   14  3.291e-14       0
+    Momentum-x (n-1):  0.000e+00  0.000e+00  0.000e+00  0.000e+00   15  8.893e-14       1
+    Momentum-y (n-1):  0.000e+00  0.000e+00 -1.245e-16 -1.245e-16   18  1.903e-14       1
+        Energy (n-1):  0.000e+00  0.000e+00  0.000e+00  0.000e+00   14  4.345e-14       0
+      Nu_Tilde (n-1):  0.000e+00  0.000e+00  0.000e+00  0.000e+00   16  2.358e-14       1
+No-slip wall points: 35, projected momentum set to zero (largest 2.220e-05), redistributed over the other points.
+States not admissible after the projection (stage 1 predicate, k_lo floor with SST): 0, U^(n-1): 0; recovered by blending 0 patch(es) towards their mean state (up to 0 neighbour rings), integrals kept.
+Turbulence values limited to the bounds of the solver: 32 (after the recovery: 0); turbulence integral change of the bounds steps: 1.117e-08 9.344e-09.
+Time history: Solution_time_n = the solution (U^n, projected once), Solution_time_n1 = U^(n-1) projected on the same supermesh.
+Domain volume: donor 2.000e+00, new 2.000e+00, relative change 0.000e+00.
+Change of the integrals (sum of value x control volume), relative to the donor integral (momentum: to the norm of the donor momentum integral):
+             Density: 0.000e+00
+          Momentum-x: 0.000e+00
+          Momentum-y: 0.000e+00
+              Energy: 0.000e+00
+            Nu_Tilde: 1.117e-08
+       Density (n-1): 0.000e+00
+    Momentum-x (n-1): 0.000e+00
+    Momentum-y (n-1): 0.000e+00
+        Energy (n-1): 0.000e+00
+      Nu_Tilde (n-1): 9.344e-09
+Time: setup 0.0003743 s, import 0.0002118 s, supermesh 0.0008195 s, coverage and slivers 3.03e-05 s, solve 0.001065 s, limiter 0.0002873 s, total 0.003182 s.
+
+------------------- Numerics Preprocessing ( Zone 0 ) -------------------
+
+----------------- Integration Preprocessing ( Zone 0 ) ------------------
+
+------------------- Iteration Preprocessing ( Zone 0 ) ------------------
+Euler/Navier-Stokes/RANS fluid iteration.
+The problem uses the new mesh: 738 points, 0 multigrid levels.
+Mesh replaced in 0.0067726 s (solution transfer 0.00329783 s).
+Mesh replacement seconds geometry-build/check-wall-distance/solver-init/transfer/finalize (maximum across ranks, exclusive scopes): 0.00288974 0.000135401 0.000367234 0.00329783 9.7362e-05
+Writing the adapted mesh of cycle 1: mesh_00005.su2.
++-----------------------------------------------------------------------+
+|        File Writing Summary       |              Filename             |
++-----------------------------------------------------------------------+
+|SU2 binary restart                 |solution_00004.dat                 |
++-----------------------------------------------------------------------+
++-----------------------------------------------------------------------+
+|        File Writing Summary       |              Filename             |
++-----------------------------------------------------------------------+
+|SU2 binary restart                 |solution_00003.dat                 |
++-----------------------------------------------------------------------+
++--------------------------------------+
+|   Time_Iter|  Inner_Iter|    rms[Rho]|
++--------------------------------------+
+|           5|           0|   -3.897969|
+|           5|           1|   -4.146861|
+|           5|           2|   -4.345356|
+|           5|           3|   -4.507941|
+|           5|           4|   -4.646838|
+|           5|           5|   -4.769673|
+|           5|           6|   -4.881375|
+|           5|           7|   -4.985722|
+|           5|           8|   -5.085795|
+|           5|           9|   -5.183980|
+|           5|          10|   -5.281940|
+|           5|          11|   -5.380701|
+|           5|          12|   -5.480792|
+|           5|          13|   -5.582398|
+|           5|          14|   -5.685495|
+|           5|          15|   -5.789937|
+|           5|          16|   -5.895516|
+|           5|          17|   -6.001988|
+|           5|          18|   -6.109078|
+|           5|          19|   -6.216472|
+|           5|          20|   -6.323788|
+|           5|          21|   -6.430554|
+|           5|          22|   -6.536182|
+|           5|          23|   -6.639960|
+|           5|          24|   -6.741069|
+|           5|          25|   -6.838631|
+|           5|          26|   -6.931799|
+|           5|          27|   -7.019884|
+|           5|          28|   -7.102466|
+|           5|          29|   -7.179472|
+|           5|          30|   -7.251180|
+|           5|          31|   -7.318140|
+|           5|          32|   -7.381066|
+|           5|          33|   -7.440711|
+|           5|          34|   -7.497787|
+|           5|          35|   -7.552905|
+|           5|          36|   -7.606565|
+|           5|          37|   -7.659151|
+|           5|          38|   -7.710955|
+|           5|          39|   -7.762187|
++-----------------------------------------------------------------------+
+|        File Writing Summary       |              Filename             |
++-----------------------------------------------------------------------+
+|SU2 binary restart                 |solution_00005.dat                 |
+|Paraview                           |flow_00005.vtu                     |
++-----------------------------------------------------------------------+
++--------------------------------------+
+|   Time_Iter|  Inner_Iter|    rms[Rho]|
++--------------------------------------+
+|           6|           0|   -3.928432|
+|           6|           1|   -4.169173|
+|           6|           2|   -4.361192|
+|           6|           3|   -4.517574|
+|           6|           4|   -4.649348|
+|           6|           5|   -4.764459|
+|           6|           6|   -4.868980|
+|           6|           7|   -4.967707|
+|           6|           8|   -5.064189|
+|           6|           9|   -5.160783|
+|           6|          10|   -5.258863|
+|           6|          11|   -5.359097|
+|           6|          12|   -5.461699|
+|           6|          13|   -5.566622|
+|           6|          14|   -5.673685|
+|           6|          15|   -5.782652|
+|           6|          16|   -5.893277|
+|           6|          17|   -6.005317|
+|           6|          18|   -6.118525|
+|           6|          19|   -6.232633|
+|           6|          20|   -6.347321|
+|           6|          21|   -6.462193|
+|           6|          22|   -6.576740|
+|           6|          23|   -6.690322|
+|           6|          24|   -6.802158|
+|           6|          25|   -6.911346|
+|           6|          26|   -7.016921|
+|           6|          27|   -7.117958|
+|           6|          28|   -7.213701|
+|           6|          29|   -7.303696|
+|           6|          30|   -7.387867|
+|           6|          31|   -7.466507|
+|           6|          32|   -7.540197|
+|           6|          33|   -7.609676|
+|           6|          34|   -7.675715|
+|           6|          35|   -7.739032|
+|           6|          36|   -7.800238|
+|           6|          37|   -7.859825|
+|           6|          38|   -7.918171|
+|           6|          39|   -7.975558|
+
+----------------------------- Compute Metric ----------------------------
+Metric snapshot of time step 6 for the prediction (ADAP_UNSTEADY_METRIC= PREDICT).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 0.323824.
+Hessian recovery: 7.3731e-05 s (maximum rank time).
+Sensor-only donor metric statistics:
+Minimum density: 23.4725.
+Maximum density: 13651.1.
+Maximum cell AR: 8.09586.
+Mesh complexity after native constraints: 600 (ADAP_COMPLEXITY= 600).
+Sensor metric complexity before gradation: 380.521.
+Sensor-only donor complexity after gradation: 600.
+Native geometric integration: 0 points, preparation 4e-08 s.
+Native metric work: 6 complexity trials, 96 total gradation sweeps, 34231 owned-point visits; gradation 0.00570824 s, halo 0.000317186 s, sweep reductions 0.00174593 s (maximum accumulated rank times).
+Native gradation tensor updates: 17618 of 34231 owned-point visits.
+Native sensor gradation: 14 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Native composed nodal audit: maximum transported-metric ratio 1, directed edges above 1+1e-5: 0. Sensor gradation is not a combined-field certificate.
++-----------------------------------------------------------------------+
+|        File Writing Summary       |              Filename             |
++-----------------------------------------------------------------------+
+|SU2 binary restart                 |solution_00006.dat                 |
+|Paraview                           |flow_00006.vtu                     |
++-----------------------------------------------------------------------+
++--------------------------------------+
+|   Time_Iter|  Inner_Iter|    rms[Rho]|
++--------------------------------------+
+|           7|           0|   -3.938308|
+|           7|           1|   -4.191513|
+|           7|           2|   -4.388323|
+|           7|           3|   -4.544181|
+|           7|           4|   -4.673848|
+|           7|           5|   -4.787671|
+|           7|           6|   -4.892651|
+|           7|           7|   -4.993572|
+|           7|           8|   -5.093549|
+|           7|           9|   -5.194418|
+|           7|          10|   -5.297118|
+|           7|          11|   -5.402006|
+|           7|          12|   -5.509105|
+|           7|          13|   -5.618269|
+|           7|          14|   -5.729278|
+|           7|          15|   -5.841898|
+|           7|          16|   -5.955896|
+|           7|          17|   -6.071040|
+|           7|          18|   -6.187080|
+|           7|          19|   -6.303722|
+|           7|          20|   -6.420610|
+|           7|          21|   -6.537296|
+|           7|          22|   -6.653228|
+|           7|          23|   -6.767762|
+|           7|          24|   -6.880146|
+|           7|          25|   -6.989587|
+|           7|          26|   -7.095312|
+|           7|          27|   -7.196656|
+|           7|          28|   -7.293147|
+|           7|          29|   -7.384565|
+|           7|          30|   -7.470955|
+|           7|          31|   -7.552588|
+|           7|          32|   -7.629891|
+|           7|          33|   -7.703361|
+|           7|          34|   -7.773503|
+|           7|          35|   -7.840775|
+|           7|          36|   -7.905573|
+|           7|          37|   -7.968224|
+|           7|          38|   -8.028991|
+
+----------------------------- Compute Metric ----------------------------
+Metric snapshot of time step 7 for the prediction (ADAP_UNSTEADY_METRIC= PREDICT).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 0.323824.
+Hessian recovery: 7.322e-05 s (maximum rank time).
+Sensor-only donor metric statistics:
+Minimum density: 24.5278.
+Maximum density: 13250.5.
+Maximum cell AR: 12.1575.
+Mesh complexity after native constraints: 600 (ADAP_COMPLEXITY= 600).
+Sensor metric complexity before gradation: 377.171.
+Sensor-only donor complexity after gradation: 600.
+Native geometric integration: 0 points, preparation 3e-08 s.
+Native metric work: 6 complexity trials, 103 total gradation sweeps, 33135 owned-point visits; gradation 0.00534098 s, halo 0.000330592 s, sweep reductions 0.00151303 s (maximum accumulated rank times).
+Native gradation tensor updates: 16796 of 33135 owned-point visits.
+Native sensor gradation: 16 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Native composed nodal audit: maximum transported-metric ratio 1, directed edges above 1+1e-5: 0. Sensor gradation is not a combined-field certificate.
++-----------------------------------------------------------------------+
+|        File Writing Summary       |              Filename             |
++-----------------------------------------------------------------------+
+|SU2 binary restart                 |solution_00007.dat                 |
+|Paraview                           |flow_00007.vtu                     |
++-----------------------------------------------------------------------+
++--------------------------------------+
+|   Time_Iter|  Inner_Iter|    rms[Rho]|
++--------------------------------------+
+|           8|           0|   -3.952690|
+|           8|           1|   -4.222250|
+|           8|           2|   -4.430621|
+|           8|           3|   -4.595435|
+|           8|           4|   -4.733738|
+|           8|           5|   -4.856587|
+|           8|           6|   -4.970759|
+|           8|           7|   -5.080569|
+|           8|           8|   -5.188733|
+|           8|           9|   -5.296837|
+|           8|          10|   -5.405695|
+|           8|          11|   -5.515640|
+|           8|          12|   -5.626734|
+|           8|          13|   -5.738908|
+|           8|          14|   -5.852027|
+|           8|          15|   -5.965930|
+|           8|          16|   -6.080427|
+|           8|          17|   -6.195286|
+|           8|          18|   -6.310217|
+|           8|          19|   -6.424853|
+|           8|          20|   -6.538744|
+|           8|          21|   -6.651352|
+|           8|          22|   -6.762073|
+|           8|          23|   -6.870261|
+|           8|          24|   -6.975274|
+|           8|          25|   -7.076535|
+|           8|          26|   -7.173579|
+|           8|          27|   -7.266103|
+|           8|          28|   -7.353978|
+|           8|          29|   -7.437241|
+|           8|          30|   -7.516062|
+|           8|          31|   -7.590700|
+|           8|          32|   -7.661461|
+|           8|          33|   -7.728666|
+|           8|          34|   -7.792626|
+|           8|          35|   -7.853639|
+|           8|          36|   -7.911981|
+|           8|          37|   -7.967913|
+|           8|          38|   -8.021681|
+
+----------------------------- Compute Metric ----------------------------
+Metric snapshot of time step 8 for the prediction (ADAP_UNSTEADY_METRIC= PREDICT).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 0.323824.
+Hessian recovery: 7.2761e-05 s (maximum rank time).
+Sensor-only donor metric statistics:
+Minimum density: 25.3205.
+Maximum density: 12112.
+Maximum cell AR: 14.3689.
+Mesh complexity after native constraints: 600 (ADAP_COMPLEXITY= 600).
+Sensor metric complexity before gradation: 355.8.
+Sensor-only donor complexity after gradation: 600.
+Native geometric integration: 0 points, preparation 4e-08 s.
+Native metric work: 6 complexity trials, 94 total gradation sweeps, 35661 owned-point visits; gradation 0.0054165 s, halo 0.000303542 s, sweep reductions 0.00160786 s (maximum accumulated rank times).
+Native gradation tensor updates: 18070 of 35661 owned-point visits.
+Native sensor gradation: 15 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Native composed nodal audit: maximum transported-metric ratio 1, directed edges above 1+1e-5: 0. Sensor gradation is not a combined-field certificate.
++-----------------------------------------------------------------------+
+|        File Writing Summary       |              Filename             |
++-----------------------------------------------------------------------+
+|SU2 binary restart                 |solution_00008.dat                 |
+|Paraview                           |flow_00008.vtu                     |
++-----------------------------------------------------------------------+
++--------------------------------------+
+|   Time_Iter|  Inner_Iter|    rms[Rho]|
++--------------------------------------+
+|           9|           0|   -3.963342|
+|           9|           1|   -4.254515|
+|           9|           2|   -4.484548|
+|           9|           3|   -4.670361|
+|           9|           4|   -4.828719|
+|           9|           5|   -4.970071|
+|           9|           6|   -5.100392|
+|           9|           7|   -5.223409|
+|           9|           8|   -5.341613|
+|           9|           9|   -5.456669|
+|           9|          10|   -5.569667|
+|           9|          11|   -5.681307|
+|           9|          12|   -5.792039|
+|           9|          13|   -5.902143|
+|           9|          14|   -6.011770|
+|           9|          15|   -6.120952|
+|           9|          16|   -6.229617|
+|           9|          17|   -6.337596|
+|           9|          18|   -6.444612|
+|           9|          19|   -6.550315|
+|           9|          20|   -6.654295|
+|           9|          21|   -6.756107|
+|           9|          22|   -6.855296|
+|           9|          23|   -6.951424|
+|           9|          24|   -7.044101|
+|           9|          25|   -7.133003|
+|           9|          26|   -7.217900|
+|           9|          27|   -7.298662|
+|           9|          28|   -7.375260|
+|           9|          29|   -7.447766|
+|           9|          30|   -7.516338|
+|           9|          31|   -7.581200|
+|           9|          32|   -7.642627|
+|           9|          33|   -7.700927|
+|           9|          34|   -7.756418|
+|           9|          35|   -7.809423|
+|           9|          36|   -7.860250|
+|           9|          37|   -7.909192|
+|           9|          38|   -7.956515|
+|           9|          39|   -8.002460|
+
+----------------------------- Compute Metric ----------------------------
+Metric snapshot of time step 9 for the prediction (ADAP_UNSTEADY_METRIC= PREDICT).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 0.323824.
+Hessian recovery: 7.2701e-05 s (maximum rank time).
+Sensor-only donor metric statistics:
+Minimum density: 26.9626.
+Maximum density: 12507.7.
+Maximum cell AR: 12.6304.
+Mesh complexity after native constraints: 600 (ADAP_COMPLEXITY= 600).
+Sensor metric complexity before gradation: 369.48.
+Sensor-only donor complexity after gradation: 600.
+Native geometric integration: 0 points, preparation 4e-08 s.
+Native metric work: 6 complexity trials, 99 total gradation sweeps, 34706 owned-point visits; gradation 0.00527352 s, halo 0.000319085 s, sweep reductions 0.00121687 s (maximum accumulated rank times).
+Native gradation tensor updates: 17479 of 34706 owned-point visits.
+Native sensor gradation: 15 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Native composed nodal audit: maximum transported-metric ratio 1, directed edges above 1+1e-5: 0. Sensor gradation is not a combined-field certificate.
+
+----------------------------- Compute Metric ----------------------------
+Last-pair optical-flow diagnostic from time step 8 to 9 (optical flow on the mesh): feature width 0.169302, smoothing length 0.0846508, mismatch 0.0422218 -> 0.0343682 (started from zero motion; from the flow velocity: 0.0343682), speed of the features 0.00439226 per time step (largest 0.0146452), 1571 CG iterations.
+Temporal feature fit: 4 snapshots, filter 1, history mismatch 0.0460287 -> 0.0457445, accelerating prediction, max acceleration 0.00643535 per time step squared.
+Metric of time step 9 moved over the next 5 time steps (6 instants, every 1), reoriented where its anisotropy ratio > 1.5 (3164 point-instants), 17 points traced out of the domain; intersection of the instants. Time 0.142377 s (motion 0.12632 s).
+Sensor-only donor metric statistics:
+Minimum density: 23.7108.
+Maximum density: 13424.2.
+Maximum cell AR: 22.4233.
+Mesh complexity after native constraints: 600 (ADAP_COMPLEXITY= 600).
+Sensor metric complexity before gradation: 452.868.
+Sensor-only donor complexity after gradation: 496.676.
+Native geometric integration: 14853 points, preparation 0.00365342 s.
+Native metric work: 7 complexity trials, 126 total gradation sweeps, 42555 owned-point visits; gradation 0.00643356 s, halo 0.000456208 s, sweep reductions 0.00186111 s (maximum accumulated rank times).
+Native gradation tensor updates: 22035 of 42555 owned-point visits.
+Native sensor gradation: 16 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Native composed nodal audit: maximum transported-metric ratio 1.94235, directed edges above 1+1e-5: 54. Sensor gradation is not a combined-field certificate.
+WARNING: Composed geometric BL transport violations remain; no nodal wall correction is spread.
++-----------------------------------------------------------------------+
+|        File Writing Summary       |              Filename             |
++-----------------------------------------------------------------------+
+|SU2 binary restart                 |solution_00009.dat                 |
+|Paraview                           |flow_00009.vtu                     |
++-----------------------------------------------------------------------+
+
+------------------------- Mesh Adaptation Cycle -------------------------
+After time step 9: mesh of cycle 2 from the metric of the time steps 5 to 9 (cycle 1).
+Native contract: q>=0.18, frozen-target Simpson edge length<=1.8, reference deviation<=1e-08, requested wall altitude relative error<=1e-8; dependency budget=2097152 bytes per rank, original P1 sensor target + geometric BL constraints, boundary sampling adaptive.
+Native work allowance: 300 collective rounds per phase, 6 sweeps, for 1384 input cells on 3 ranks; frozen P1 centroid complexity=502.421, estimated unit triangles=1512.29 (geometric BL row allowance=352).
+Native requested first altitude: lower = 0.005
+Native working partition: weighted, CFD ranks=4, adaptation ranks=3; moved cells=1292, dual edge cuts=42, largest transport/staging estimate=657736
+Native working partition seconds estimate/graph/ParMETIS/migration (maximum across ranks): 0.00438918 0.00464185 0.00473971 0.00418405
+Native working rank 0 cells before/after=335/469, predicted work before/after=793/1115
+Native working rank 1 cells before/after=343/442, predicted work before/after=865/1153
+Native working rank 2 cells before/after=351/473, predicted work before/after=956/1127
+Native working rank 3 cells before/after=355/0, predicted work before/after=781/0
+Native incoming residuals: shape=0, edge length=49
+Native adaptation: 850 commits (57 across owners), qmin=0.595501, Lmax=1.58989, residual cells=0, height faces=0, reference faces=0. No remesher-side target floor.
+Native remaining residuals: shape=0, edge length=0
+Native coordinated repair: 0 commits, 0 seconds (maximum across ranks).
+Native private target requests/evaluations/dynamic evictions: 255834 74444 0
+Native donor search candidates/full-scan equivalent: 39539 2841352; local immutable index retained bytes (max rank): 113848
+Native operations (height/split/remove/redistribute/bulk remove/split/flip/move): 0 2 0 85 29 74 106 554; conflicts=9, dependency-size rejects=0, memory rejects=0, stale rejects=0, engine encoded bytes=19559256, largest transport admission estimate=261928
+Native phase elapsed seconds (same action order, maximum across ranks): 2.319e-05 0.00514424 1.016e-05 0.0604853 0.014189 0.0251371 0.0769079 0.114485
+Native candidate selection seconds (same action order, maximum across ranks): 1.67e-05 6.6631e-05 9.51e-06 0.000571755 0.000266982 0.000297915 0.00148364 0.00262354
+Native rank cost selection seconds min/mean/max: 0.00497692 0.00501822 0.00503949
+Native rank cost private reconstruction seconds min/mean/max: 0.0267947 0.0390248 0.0456166
+Native rank cost tracked collectives seconds min/mean/max: 0.0587387 0.059875 0.0609096
+Native rank cost largest private transaction seconds min/mean/max: 0.000283964 0.00110427 0.00210539
+Native rank cost round protocol seconds min/mean/max: 0.00198037 0.00200919 0.00204198
+Native rank cost round dependency import seconds min/mean/max: 0.0506894 0.0507062 0.050718
+Native rank cost round donor import and IDs seconds min/mean/max: 0.0999037 0.100212 0.100391
+Native rank cost round reconstruction seconds min/mean/max: 0.0268684 0.0390998 0.0456939
+Native rank cost round validation seconds min/mean/max: 0.076051 0.0823325 0.0944534
+Native rank cost round commit seconds min/mean/max: 0.0136501 0.0136799 0.0137117
+Native rank cost engine initialization seconds min/mean/max: 0.00642519 0.00642659 0.00642893
+Native rank cost incoming residual check seconds min/mean/max: 7.8e-06 1.11267e-05 1.488e-05
+Native rank cost engine adapt seconds min/mean/max: 0.296406 0.296409 0.296411
+Native rank cost final contract check seconds min/mean/max: 2.1931e-05 2.19943e-05 2.2101e-05
+Native rank cost adapt unclassified seconds min/mean/max: 0.00333653 0.00335121 0.003376
+Native cost scopes: tracked collectives include waiting, exclude validation elections; round scopes are exclusive within each rank, include MPI waits, and exclude local temporary destruction after round return; rank maxima are not additive wall phases.
+Native cached selection full scans (same action order, sum across ranks): 0 0 0 0 55 49 7 9
+Native deferred/rejected candidate: boundary coarsening or movement worsens bulk size (4).
+Native deferred/rejected candidate: coarsening misses target (49).
+Native deferred/rejected candidate: flip does not improve quality (664).
+Native deferred/rejected candidate: no improving valid movement (343).
+Native deferred/rejected candidate: no representable tangential redistribution (2).
+Native deferred/rejected candidate: nonconvex quadrilateral (107).
+Native deferred/rejected candidate: not a complete interior edge star (7).
+Native deferred/rejected candidate: protected first layer (27).
+Native execution seconds workers/return-to-CFD/idle-wall/idle-CPU (maximum across ranks): 0.303144 0.00136167 0.304774 0.000546; CFD ranks=4, adaptation ranks=3
+Native setup seconds import-reference/target-policy/working-partition (maximum across ranks): 0.0070443 6.6231e-05 0.0180057
+
+---------------------------- Replace the Mesh ---------------------------
+Two dimensional problem.
+784 grid points before partitioning.
+1474 volume elements before partitioning.
+4 surface markers.
+25 boundary elements in index 0 (Marker = left).
+22 boundary elements in index 1 (Marker = right).
+9 boundary elements in index 2 (Marker = upper).
+36 boundary elements in index 3 (Marker = lower).
+Executing the partitioning functions.
+Building the graph adjacency structure.
+Calling ParMETIS... graph partitioning complete (114 edge cuts).
+Distributing ParMETIS coloring.
+Rebalancing vertices.
+Rebalancing volume element connectivity.
+Rebalancing markers and surface elements.
+903 vertices including ghost points. 
+1587 interior elements including halo cells. 
+1587 triangles.
+Establishing MPI communication patterns.
+Setting point connectivity.
+Renumbering points (Reverse Cuthill McKee Ordering).
+Recomputing point connectivity.
+Setting element connectivity.
+Checking the numerical grid orientation.
+All volume elements are correctly oriented.
+All surface elements are correctly oriented.
+Identifying edges and vertices.
+Setting the control volume structure.
+Area of the computational grid: 2.13622.
+Searching for the closest normal neighbors to the surfaces.
+Storing a mapping from global to local point index.
+Compute the surface curvature.
+Max K: 126.613. Mean K: 4.44948. Standard deviation K: 20.543.
+Computing mesh quality statistics for the dual control volumes.
++--------------------------------------------------------------+
+|           Mesh Quality Metric|        Minimum|        Maximum|
++--------------------------------------------------------------+
+|    Orthogonality Angle (deg.)|        6.47636|        87.8883|
+|     CV Face Area Aspect Ratio|        1.02567|        77.1479|
+|           CV Sub-Volume Ratio|              1|        5.88335|
+|                     CV Volume|    1.99654e-05|      0.0350534|
++--------------------------------------------------------------+
+Finding max control volume width.
+Communicating number of neighbors.
+CFD geometry seconds partition/migration/preprocess (maximum across ranks): 0.00115082 0.000719008 0.00084375
+Wetted area = 0 m.
+Area projection in the x-plane = 0 m, y-plane = 0 m.
+Max. coordinate in the x-direction = -1e+10 m, y-direction = -1e+10 m.
+Min. coordinate in the x-direction = 1e+10 m, y-direction = 1e+10 m.
+Computing wall distances.
+
+-------------------- Solver Preprocessing ( Zone 0 ) --------------------
+Viscous flow: Computing pressure using the ideal gas law
+based on the free-stream temperature and a density computed
+from the Reynolds number.
+Force coefficients computed using free-stream values.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|               SUTHERLAND|          CONSTANT_PRANDTL|             STANDARD_AIR|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|        Ref. Viscosity|     1.716e-05|             1|   N.s/m^2|     1.716e-05|
+|      Sutherland Temp.|        273.15|             1|         K|        273.15|
+|     Sutherland Const.|         110.4|             1|         K|         110.4|
++------------------------------------------------------------------------------+
+|        Prandtl (Lam.)|             -|             -|         -|          0.72|
+|       Prandtl (Turb.)|             -|             -|         -|           0.9|
++------------------------------------------------------------------------------+
+|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+|      Spec. Heat Ratio|             -|             -|         -|           1.4|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|       Static Pressure|       86.9847|             1|        Pa|       86.9847|
+|               Density|    0.00105161|             1|    kg/m^3|    0.00105161|
+|           Temperature|        288.15|             1|         K|        288.15|
+|          Total Energy|        221265|             1|   m^2/s^2|        221265|
+|            Velocity-X|       170.149|             1|       m/s|       170.149|
+|            Velocity-Y|             0|             1|       m/s|             0|
+|    Velocity Magnitude|       170.149|             1|       m/s|       170.149|
++------------------------------------------------------------------------------+
+|             Viscosity|    1.7893e-05|             1|   N.s/m^2|    1.7893e-05|
+|          Conductivity|             -|             1|   W/m^2.K|             -|
+|     Turb. Kin. Energy|       108.564|             1|   m^2/s^2|       108.564|
+|     Spec. Dissipation|       638.057|             1|       1/s|       638.057|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|           0.5|
+|       Reynolds Number|             -|             -|         -|         10000|
++------------------------------------------------------------------------------+
+-- Unsteady conditions
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|            Total Time|           100|             1|         s|           100|
+|             Time Step|        0.0001|             1|         s|        0.0001|
++------------------------------------------------------------------------------+
+Initialize Jacobian structure (Navier-Stokes). MG level: 0.
+Initialize Jacobian structure (SA model).
+
+------------------- Solution Transfer (conservative P1) -------------------
+Distributed conservative transfer on 4 rank(s): import groups 1, imported donor elements 1794 (largest per rank / mean 1.1); planned memory per rank (largest): resident and coverage 0 MB, import 0 MB (ceiling 2048 MB).
+Supermesh of 1474 new and 1384 donor elements: 5321 overlapping pairs (15356 clipped), measure 2.000e+00 of 2.000e+00 (new) and 2.000e+00 (donor).
+New domain outside the donor (S_n): 0 parts of control volumes at 0 points (0 of points on no marker), measure 0.000e+00, filled with the closest donor values (max distance 0.000e+00, 0.000e+00 of the face); new elements outside the donor: 0.
+Donor domain outside the new one (S_d): 0 donor elements, measure 0.000e+00, at walls and symmetry planes content kept (the difference to the S_n content there spread over the new domain by volume), at open boundaries the totals follow the domain.
+Largest uncovered fraction of a control-volume piece: 6.349e-15.
+Per field: S_n content and S_d content (relative to sum |u| V), correction spread over the domain, supermesh defect (round-off), CG iterations and true residual, values limited:
+             Density:  0.000e+00  0.000e+00  0.000e+00  0.000e+00   14  7.033e-14       1
+          Momentum-x:  0.000e+00  0.000e+00  0.000e+00  0.000e+00   15  9.010e-14       6
+          Momentum-y:  0.000e+00  0.000e+00  0.000e+00  0.000e+00   17  7.723e-14       4
+              Energy:  0.000e+00  0.000e+00  0.000e+00  0.000e+00   14  7.952e-14       0
+            Nu_Tilde:  0.000e+00  0.000e+00  1.448e-16  1.448e-16   16  1.930e-14       3
+       Density (n-1):  0.000e+00  0.000e+00  0.000e+00  0.000e+00   14  6.868e-14       1
+    Momentum-x (n-1):  0.000e+00  0.000e+00  0.000e+00  0.000e+00   15  8.979e-14       6
+    Momentum-y (n-1):  0.000e+00  0.000e+00  0.000e+00  0.000e+00   17  7.730e-14       4
+        Energy (n-1):  0.000e+00  0.000e+00  0.000e+00  0.000e+00   14  7.446e-14       0
+      Nu_Tilde (n-1):  0.000e+00  0.000e+00  0.000e+00  0.000e+00   16  2.040e-14       3
+No-slip wall points: 37, projected momentum set to zero (largest 2.854e-03), redistributed over the other points.
+States not admissible after the projection (stage 1 predicate, k_lo floor with SST): 0, U^(n-1): 0; recovered by blending 0 patch(es) towards their mean state (up to 0 neighbour rings), integrals kept.
+Turbulence values limited to the bounds of the solver: 31 (after the recovery: 0); turbulence integral change of the bounds steps: 2.130e-07 1.687e-07.
+Time history: Solution_time_n = the solution (U^n, projected once), Solution_time_n1 = U^(n-1) projected on the same supermesh.
+Domain volume: donor 2.000e+00, new 2.000e+00, relative change 0.000e+00.
+Change of the integrals (sum of value x control volume), relative to the donor integral (momentum: to the norm of the donor momentum integral):
+             Density: 0.000e+00
+          Momentum-x: 0.000e+00
+          Momentum-y: 0.000e+00
+              Energy: 0.000e+00
+            Nu_Tilde: 2.130e-07
+       Density (n-1): 0.000e+00
+    Momentum-x (n-1): 0.000e+00
+    Momentum-y (n-1): 0.000e+00
+        Energy (n-1): 0.000e+00
+      Nu_Tilde (n-1): 1.687e-07
+Time: setup 0.0004484 s, import 0.002259 s, supermesh 0.001262 s, coverage and slivers 4.325e-05 s, solve 0.001016 s, limiter 0.0003124 s, total 0.005741 s.
+
+------------------- Numerics Preprocessing ( Zone 0 ) -------------------
+
+----------------- Integration Preprocessing ( Zone 0 ) ------------------
+
+------------------- Iteration Preprocessing ( Zone 0 ) ------------------
+Euler/Navier-Stokes/RANS fluid iteration.
+The problem uses the new mesh: 784 points, 0 multigrid levels.
+Mesh replaced in 0.00936457 s (solution transfer 0.00584639 s).
+Mesh replacement seconds geometry-build/check-wall-distance/solver-init/transfer/finalize (maximum across ranks, exclusive scopes): 0.00290694 0.000130861 0.000381785 0.00584639 0.000115042
+Writing the adapted mesh of cycle 2: mesh_00010.su2.
++-----------------------------------------------------------------------+
+|        File Writing Summary       |              Filename             |
++-----------------------------------------------------------------------+
+|SU2 binary restart                 |solution_00009.dat                 |
++-----------------------------------------------------------------------+
++-----------------------------------------------------------------------+
+|        File Writing Summary       |              Filename             |
++-----------------------------------------------------------------------+
+|SU2 binary restart                 |solution_00008.dat                 |
++-----------------------------------------------------------------------+
++--------------------------------------+
+|   Time_Iter|  Inner_Iter|    rms[Rho]|
++--------------------------------------+
+|          10|           0|   -3.974721|
+|          10|           1|   -4.281812|
+|          10|           2|   -4.530954|
+|          10|           3|   -4.737334|
+|          10|           4|   -4.916035|
+|          10|           5|   -5.075897|
+|          10|           6|   -5.221185|
+|          10|           7|   -5.354329|
+|          10|           8|   -5.477411|
+|          10|           9|   -5.592598|
+|          10|          10|   -5.702025|
+|          10|          11|   -5.807563|
+|          10|          12|   -5.910653|
+|          10|          13|   -6.012281|
+|          10|          14|   -6.113020|
+|          10|          15|   -6.213120|
+|          10|          16|   -6.312585|
+|          10|          17|   -6.411245|
+|          10|          18|   -6.508810|
+|          10|          19|   -6.604904|
+|          10|          20|   -6.699103|
+|          10|          21|   -6.790955|
+|          10|          22|   -6.880016|
+|          10|          23|   -6.965880|
+|          10|          24|   -7.048214|
+|          10|          25|   -7.126786|
+|          10|          26|   -7.201486|
+|          10|          27|   -7.272332|
+|          10|          28|   -7.339457|
+|          10|          29|   -7.403088|
+|          10|          30|   -7.463514|
+|          10|          31|   -7.521059|
+|          10|          32|   -7.576051|
+|          10|          33|   -7.628810|
+|          10|          34|   -7.679630|
+|          10|          35|   -7.728778|
+|          10|          36|   -7.776490|
+|          10|          37|   -7.822970|
+|          10|          38|   -7.868397|
+|          10|          39|   -7.912926|
++-----------------------------------------------------------------------+
+|        File Writing Summary       |              Filename             |
++-----------------------------------------------------------------------+
+|SU2 binary restart                 |solution_00010.dat                 |
+|Paraview                           |flow_00010.vtu                     |
++-----------------------------------------------------------------------+
++--------------------------------------+
+|   Time_Iter|  Inner_Iter|    rms[Rho]|
++--------------------------------------+
+|          11|           0|   -3.965688|
+|          11|           1|   -4.284612|
+|          11|           2|   -4.546797|
+|          11|           3|   -4.766324|
+|          11|           4|   -4.956166|
+|          11|           5|   -5.123514|
+|          11|           6|   -5.271941|
+|          11|           7|   -5.404339|
+|          11|           8|   -5.524150|
+|          11|           9|   -5.635098|
+|          11|          10|   -5.740486|
+|          11|          11|   -5.842772|
+|          11|          12|   -5.943542|
+|          11|          13|   -6.043674|
+|          11|          14|   -6.143546|
+|          11|          15|   -6.243208|
+|          11|          16|   -6.342493|
+|          11|          17|   -6.441094|
+|          11|          18|   -6.538610|
+|          11|          19|   -6.634570|
+|          11|          20|   -6.728465|
+|          11|          21|   -6.819770|
+|          11|          22|   -6.907982|
+|          11|          23|   -6.992658|
+|          11|          24|   -7.073461|
+|          11|          25|   -7.150192|
+|          11|          26|   -7.222803|
+|          11|          27|   -7.291398|
+|          11|          28|   -7.356207|
+|          11|          29|   -7.417547|
+|          11|          30|   -7.475785|
+|          11|          31|   -7.531303|
+|          11|          32|   -7.584469|
+|          11|          33|   -7.635622|
+|          11|          34|   -7.685064|
+|          11|          35|   -7.733058|
+|          11|          36|   -7.779827|
+|          11|          37|   -7.825562|
+|          11|          38|   -7.870421|
+|          11|          39|   -7.914541|
+
+----------------------------- Compute Metric ----------------------------
+Metric snapshot of time step 11 for the prediction (ADAP_UNSTEADY_METRIC= PREDICT).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 0.174001.
+Hessian recovery: 8.0131e-05 s (maximum rank time).
+Sensor-only donor metric statistics:
+Minimum density: 30.349.
+Maximum density: 32952.1.
+Maximum cell AR: 8.70168.
+Mesh complexity after native constraints: 600 (ADAP_COMPLEXITY= 600).
+Sensor metric complexity before gradation: 377.746.
+Sensor-only donor complexity after gradation: 600.
+Native geometric integration: 0 points, preparation 4e-08 s.
+Native metric work: 6 complexity trials, 97 total gradation sweeps, 33388 owned-point visits; gradation 0.00544884 s, halo 0.000297972 s, sweep reductions 0.00143281 s (maximum accumulated rank times).
+Native gradation tensor updates: 17153 of 33388 owned-point visits.
+Native sensor gradation: 16 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Native composed nodal audit: maximum transported-metric ratio 1, directed edges above 1+1e-5: 0. Sensor gradation is not a combined-field certificate.
++-----------------------------------------------------------------------+
+|        File Writing Summary       |              Filename             |
++-----------------------------------------------------------------------+
+|SU2 binary restart                 |solution_00011.dat                 |
+|Paraview                           |flow_00011.vtu                     |
++-----------------------------------------------------------------------+
++--------------------------------------+
+|   Time_Iter|  Inner_Iter|    rms[Rho]|
++--------------------------------------+
+|          12|           0|   -3.949488|
+|          12|           1|   -4.280432|
+|          12|           2|   -4.554010|
+|          12|           3|   -4.783118|
+|          12|           4|   -4.979387|
+|          12|           5|   -5.149678|
+|          12|           6|   -5.298370|
+|          12|           7|   -5.429809|
+|          12|           8|   -5.548751|
+|          12|           9|   -5.659612|
+|          12|          10|   -5.765805|
+|          12|          11|   -5.869604|
+|          12|          12|   -5.972331|
+|          12|          13|   -6.074641|
+|          12|          14|   -6.176751|
+|          12|          15|   -6.278600|
+|          12|          16|   -6.379949|
+|          12|          17|   -6.480438|
+|          12|          18|   -6.579617|
+|          12|          19|   -6.676975|
+|          12|          20|   -6.771960|
+|          12|          21|   -6.864016|
+|          12|          22|   -6.952621|
+|          12|          23|   -7.037338|
+|          12|          24|   -7.117858|
+|          12|          25|   -7.194033|
+|          12|          26|   -7.265886|
+|          12|          27|   -7.333596|
+|          12|          28|   -7.397464|
+|          12|          29|   -7.457867|
+|          12|          30|   -7.515217|
+|          12|          31|   -7.569926|
+|          12|          32|   -7.622379|
+|          12|          33|   -7.672919|
+|          12|          34|   -7.721848|
+|          12|          35|   -7.769423|
+|          12|          36|   -7.815859|
+|          12|          37|   -7.861338|
+|          12|          38|   -7.906008|
+|          12|          39|   -7.949995|
+
+----------------------------- Compute Metric ----------------------------
+Metric snapshot of time step 12 for the prediction (ADAP_UNSTEADY_METRIC= PREDICT).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 0.174001.
+Hessian recovery: 7.8591e-05 s (maximum rank time).
+Sensor-only donor metric statistics:
+Minimum density: 31.1795.
+Maximum density: 32728.6.
+Maximum cell AR: 9.44107.
+Mesh complexity after native constraints: 600 (ADAP_COMPLEXITY= 600).
+Sensor metric complexity before gradation: 371.291.
+Sensor-only donor complexity after gradation: 600.
+Native geometric integration: 0 points, preparation 4e-08 s.
+Native metric work: 6 complexity trials, 107 total gradation sweeps, 36874 owned-point visits; gradation 0.00654877 s, halo 0.000327543 s, sweep reductions 0.00264904 s (maximum accumulated rank times).
+Native gradation tensor updates: 19104 of 36874 owned-point visits.
+Native sensor gradation: 16 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Native composed nodal audit: maximum transported-metric ratio 1, directed edges above 1+1e-5: 0. Sensor gradation is not a combined-field certificate.
++-----------------------------------------------------------------------+
+|        File Writing Summary       |              Filename             |
++-----------------------------------------------------------------------+
+|SU2 binary restart                 |solution_00012.dat                 |
+|Paraview                           |flow_00012.vtu                     |
++-----------------------------------------------------------------------+
++--------------------------------------+
+|   Time_Iter|  Inner_Iter|    rms[Rho]|
++--------------------------------------+
+|          13|           0|   -3.935139|
+|          13|           1|   -4.278945|
+|          13|           2|   -4.564008|
+|          13|           3|   -4.802947|
+|          13|           4|   -5.007046|
+|          13|           5|   -5.183239|
+|          13|           6|   -5.336344|
+|          13|           7|   -5.471246|
+|          13|           8|   -5.593101|
+|          13|           9|   -5.706525|
+|          13|          10|   -5.814994|
+|          13|          11|   -5.920785|
+|          13|          12|   -6.025223|
+|          13|          13|   -6.128967|
+|          13|          14|   -6.232244|
+|          13|          15|   -6.335009|
+|          13|          16|   -6.437034|
+|          13|          17|   -6.537970|
+|          13|          18|   -6.637377|
+|          13|          19|   -6.734754|
+|          13|          20|   -6.829568|
+|          13|          21|   -6.921285|
+|          13|          22|   -7.009420|
+|          13|          23|   -7.093577|
+|          13|          24|   -7.173497|
+|          13|          25|   -7.249079|
+|          13|          26|   -7.320384|
+|          13|          27|   -7.387621|
+|          13|          28|   -7.451108|
+|          13|          29|   -7.511229|
+|          13|          30|   -7.568394|
+|          13|          31|   -7.623006|
+|          13|          32|   -7.675441|
+|          13|          33|   -7.726034|
+|          13|          34|   -7.775075|
+|          13|          35|   -7.822813|
+|          13|          36|   -7.869455|
+|          13|          37|   -7.915175|
+|          13|          38|   -7.960118|
+|          13|          39|   -8.004402|
+
+----------------------------- Compute Metric ----------------------------
+Metric snapshot of time step 13 for the prediction (ADAP_UNSTEADY_METRIC= PREDICT).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 0.174001.
+Hessian recovery: 8.1211e-05 s (maximum rank time).
+Sensor-only donor metric statistics:
+Minimum density: 32.7764.
+Maximum density: 32129.4.
+Maximum cell AR: 9.45734.
+Mesh complexity after native constraints: 600 (ADAP_COMPLEXITY= 600).
+Sensor metric complexity before gradation: 364.906.
+Sensor-only donor complexity after gradation: 600.
+Native geometric integration: 0 points, preparation 5e-08 s.
+Native metric work: 6 complexity trials, 114 total gradation sweeps, 37833 owned-point visits; gradation 0.00653727 s, halo 0.000353155 s, sweep reductions 0.00217221 s (maximum accumulated rank times).
+Native gradation tensor updates: 19604 of 37833 owned-point visits.
+Native sensor gradation: 17 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Native composed nodal audit: maximum transported-metric ratio 1, directed edges above 1+1e-5: 0. Sensor gradation is not a combined-field certificate.
++-----------------------------------------------------------------------+
+|        File Writing Summary       |              Filename             |
++-----------------------------------------------------------------------+
+|SU2 binary restart                 |solution_00013.dat                 |
+|Paraview                           |flow_00013.vtu                     |
++-----------------------------------------------------------------------+
++--------------------------------------+
+|   Time_Iter|  Inner_Iter|    rms[Rho]|
++--------------------------------------+
+|          14|           0|   -3.925473|
+|          14|           1|   -4.282548|
+|          14|           2|   -4.579030|
+|          14|           3|   -4.828250|
+|          14|           4|   -5.041800|
+|          14|           5|   -5.226481|
+|          14|           6|   -5.386763|
+|          14|           7|   -5.527264|
+|          14|           8|   -5.653153|
+|          14|           9|   -5.769283|
+|          14|          10|   -5.879441|
+|          14|          11|   -5.986184|
+|          14|          12|   -6.091043|
+|          14|          13|   -6.194828|
+|          14|          14|   -6.297866|
+|          14|          15|   -6.400181|
+|          14|          16|   -6.501596|
+|          14|          17|   -6.601797|
+|          14|          18|   -6.700380|
+|          14|          19|   -6.796880|
+|          14|          20|   -6.890796|
+|          14|          21|   -6.981636|
+|          14|          22|   -7.068953|
+|          14|          23|   -7.152392|
+|          14|          24|   -7.231720|
+|          14|          25|   -7.306855|
+|          14|          26|   -7.377863|
+|          14|          27|   -7.444947|
+|          14|          28|   -7.508409|
+|          14|          29|   -7.568612|
+|          14|          30|   -7.625947|
+|          14|          31|   -7.680799|
+|          14|          32|   -7.733530|
+|          14|          33|   -7.784462|
+|          14|          34|   -7.833880|
+|          14|          35|   -7.882022|
+|          14|          36|   -7.929095|
+|          14|          37|   -7.975266|
+|          14|          38|   -8.020677|
+
+----------------------------- Compute Metric ----------------------------
+Metric snapshot of time step 14 for the prediction (ADAP_UNSTEADY_METRIC= PREDICT).
+Hessian WLS stencil statistics: 0 numerically deficient, 0 poorly conditioned owned points; minimum normalized reciprocal condition 0.174001.
+Hessian recovery: 7.8921e-05 s (maximum rank time).
+Sensor-only donor metric statistics:
+Minimum density: 34.4614.
+Maximum density: 32071.6.
+Maximum cell AR: 9.67744.
+Mesh complexity after native constraints: 600 (ADAP_COMPLEXITY= 600).
+Sensor metric complexity before gradation: 358.111.
+Sensor-only donor complexity after gradation: 600.
+Native geometric integration: 0 points, preparation 4e-08 s.
+Native metric work: 6 complexity trials, 104 total gradation sweeps, 36929 owned-point visits; gradation 0.00627802 s, halo 0.000318552 s, sweep reductions 0.00203681 s (maximum accumulated rank times).
+Native gradation tensor updates: 19016 of 36929 owned-point visits.
+Native sensor gradation: 14 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Native composed nodal audit: maximum transported-metric ratio 1, directed edges above 1+1e-5: 0. Sensor gradation is not a combined-field certificate.
+
+----------------------------- Compute Metric ----------------------------
+Last-pair optical-flow diagnostic from time step 13 to 14 (optical flow on the mesh): feature width 0.13322, smoothing length 0.0666101, mismatch 0.0540769 -> 0.0481248 (started from the flow velocity; from zero motion: 0.0481248), speed of the features 0.00292876 per time step (largest 0.0177109), 1432 CG iterations.
+Temporal feature fit: 4 snapshots, filter 1, history mismatch 0.0587994 -> 0.0587994, constant-velocity prediction, max acceleration 0 per time step squared.
+Metric of time step 14 moved over the next 5 time steps (6 instants, every 1), reoriented where its anisotropy ratio > 1.5 (3552 point-instants), 9 points traced out of the domain; intersection of the instants. Time 0.13062 s (motion 0.123924 s).
+Sensor-only donor metric statistics:
+Minimum density: 27.7402.
+Maximum density: 21112.
+Maximum cell AR: 12.3283.
+Mesh complexity after native constraints: 600 (ADAP_COMPLEXITY= 600).
+Sensor metric complexity before gradation: 400.868.
+Sensor-only donor complexity after gradation: 454.61.
+Native geometric integration: 15099 points, preparation 0.00303359 s.
+Native metric work: 7 complexity trials, 139 total gradation sweeps, 49563 owned-point visits; gradation 0.00812924 s, halo 0.000452613 s, sweep reductions 0.0028712 s (maximum accumulated rank times).
+Native gradation tensor updates: 27909 of 49563 owned-point visits.
+Native sensor gradation: 20 sweeps, fixed point reached, maximum transported-metric ratio 1, directed edges above 1+1e-5: 0.
+Native composed nodal audit: maximum transported-metric ratio 2.73259, directed edges above 1+1e-5: 76. Sensor gradation is not a combined-field certificate.
+WARNING: Composed geometric BL transport violations remain; no nodal wall correction is spread.
+
+----------------------------- Solver Exit -------------------------------
+Maximum number of time iterations reached (TIME_ITER = 15).
+-------------------------------------------------------------------------
++-----------------------------------------------------------------------+
+|        File Writing Summary       |              Filename             |
++-----------------------------------------------------------------------+
+|SU2 binary restart                 |solution_00014.dat                 |
+|Paraview                           |flow_00014.vtu                     |
++-----------------------------------------------------------------------+
+
+------------------------ Mesh Adaptation Summary ------------------------
++-------------------------------------------------------------------------------------------------------------------------------------+
+| Cycle|    Time steps|   Points| Solve [s]|Metric [s]|Remesh [s]|Replace [s]|Transfer [s]|Output [s]| Outside| Max dist.|Cons. defect|
++-------------------------------------------------------------------------------------------------------------------------------------+
+|     0|           0-4|      153|  0.177151| 0.0308181|   1.13331|  0.0067726|  0.00329783| 0.0319742|       0|         0|           0|
+|     1|           5-9|      738|  0.214709|  0.192551|  0.331703| 0.00936457|  0.00584639| 0.0333287|       0|         0|           0|
+|     2|         10-14|      784|   0.23025|  0.185604|         -|          -|           -|         -|       -|         -|           -|
++-------------------------------------------------------------------------------------------------------------------------------------+
+Total: solve 0.622111 s, metric 0.408973 s, remesh 1.46501 s, replace 0.0161372 s (transfer 0.00914422 s), adapted mesh and restart output 0.0653029 s.
+Solve: the time steps on the mesh of the cycle with their output, without the metric. Metric: sensors, Hessians and the window metric of every time step. Remesh: extraction, native cavities or MMG, and validation. Replace: new geometry and solvers with the solution transfer. Output: adapted mesh and restart files of the transferred steps. Outside: new points outside the donor mesh (closest donor boundary point used; conservative transfer: points whose control volume is partly outside), their largest distance. Cons. defect: largest relative change of the integrals of the conservative flow variables.
+
+--------------------------- Finalizing Solver ---------------------------
+Deleted CNumerics container.
+Deleted CIntegration container.
+Deleted CSolver container.
+Deleted CIteration container.
+Deleted CInterface container.
+Deleted CGeometry container.
+Deleted CFreeFormDefBox class.
+Deleted CSurfaceMovement class.
+Deleted CVolumetricMovement class.
+Deleted CConfig container.
+Deleted nInst container.
+Deleted COutput class.
+-------------------------------------------------------------------------
+
+------------------------- Exit Success (SU2_CFD) ------------------------
+
