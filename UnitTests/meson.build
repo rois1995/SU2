@@ -105,6 +105,12 @@ if get_option('enable-tests')
     )
     test('Catch2 test driver', test_driver)
 
+    gradient_operator_probe = executable('gradient_operator_probe',
+        '../TestCases/gradient_robustness/operator_probe.cpp',
+        install : false,
+        dependencies : [su2_cfd_dep, common_dep, su2_deps],
+        cpp_args : [default_warning_flags, su2_cpp_args])
+
     # Memory ceiling of the solution transfers: the allocation probe replaces the global operator new/delete, so
     # these tests have their own executable.
     test_memory = executable(

@@ -91,10 +91,10 @@ def main():
                     r"RMS Error\s*\[([^]]+)\]:\s*([\deE.+-]+)", (case / "run.log").read_text())}
                 history = list(csv.DictReader((case / "history.csv").open())) if (case / "history.csv").exists() else []
                 row = dict(shape=shape, n=n, aspect=aspect, label=label, exit_code=process.returncode,
-                           rms_error=errors, last_history=history[-1] if history else {})
+                           last_printed_rms_error=errors, last_history=history[-1] if history else {})
                 results.append(row)
                 (output / "results.json").write_text(json.dumps(results, indent=2) + "\n")
-                print(shape, n, label, "exit=", process.returncode, "RMS=", errors, flush=True)
+                print(shape, n, label, "exit=", process.returncode, "last printed RMS=", errors, flush=True)
                 if (process.returncode or set(errors) != {"Rho", "RhoU", "RhoV", "RhoE"} or
                         not all(math.isfinite(v) for v in errors.values())):
                     raise RuntimeError("CFD run failed; inspect " + str(case / "run.log"))

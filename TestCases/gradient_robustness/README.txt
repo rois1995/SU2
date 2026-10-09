@@ -1,5 +1,10 @@
 First CFD stencil-robustness experiment (2026-10-08)
 
+Reporting correction (2026-10-09): archived rms_error values were extracted
+from the last printed MMS block, which can precede the final state. They are
+not final discretization errors. The runner now calls them last_printed_rms_error;
+use assess_mms_restart.py on saved dimensional 2D fields for final errors.
+
 Branch: codex/cfd-mesh-robustness
 Starting commit: e49c545d700632bd9c68fc52535ef63d6ca8632d on codex/native-unsteady-performance.
 Worktree: /tmp/su2-cfd-mesh-robustness. Private build: /tmp/su2-cfd-mesh-build.

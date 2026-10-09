@@ -1,0 +1,40 @@
+diff --git a/SU2_CFD/include/numerics_simd/flow/diffusion/viscous_fluxes.hpp b/SU2_CFD/include/numerics_simd/flow/diffusion/viscous_fluxes.hpp
+index 1a8745b10b..54d9973565 100644
+--- a/SU2_CFD/include/numerics_simd/flow/diffusion/viscous_fluxes.hpp
++++ b/SU2_CFD/include/numerics_simd/flow/diffusion/viscous_fluxes.hpp
+@@ -147,6 +147,26 @@ protected:
+     auto avgGrad = averageGradient<nPrimVarGrad,nDim>(iPoint, jPoint, gradient);
+     if(correct) correctGradient(V, vector_ij, dist2_ij, avgGrad);
+
++    // Diagnostic: Thomas, Diskin & Nishikawa (2011), Eq.11 / Avg-LSQ(FT).
++    // shortcut: serial 2D flow probe; audit scalar/AD/boundary paths before production use.
++    Double viscousDistance = sqrt(dist2_ij);
++    if constexpr (nDim == 2) {
++      if (correct) {
++        auto tangentGrad = averageGradient<nPrimVarGrad,nDim>(iPoint, jPoint, gradient);
++        const auto projectedDistance = dot(vector_ij, unitNormal);
++        for (size_t lane = 0; lane < Double::Size; ++lane) {
++          if (!(projectedDistance[lane] > 64 * std::numeric_limits<passivedouble>::epsilon() * viscousDistance[lane])) continue;
++          for (size_t var = 0; var < nPrimVarGrad; ++var) {
++            const auto discrepancy = dot(tangentGrad[var], vector_ij) - V.j.all(var) + V.i.all(var);
++            for (size_t dim = 0; dim < nDim; ++dim)
++              avgGrad(var,dim)[lane] = tangentGrad(var,dim)[lane] -
++                  discrepancy[lane] * unitNormal(dim)[lane] / projectedDistance[lane];
++          }
++          viscousDistance[lane] = projectedDistance[lane];
++        }
++      }
++    }
++
+     /*--- Stress and heat flux tensors. ---*/
+
+     const Double eddyVisc = uq? Double(0.0) : avgV.eddyVisc();
+@@ -179,7 +199,7 @@ protected:
+
+     /*--- Flux Jacobians. ---*/
+
+-    Double dist_ij = sqrt(dist2_ij);
++    Double dist_ij = viscousDistance;
+     auto dtau = stressTensorJacobian<nVar>(avgV, unitNormal, dist_ij);
+
+     /*--- Energy flux Jacobian. ---*/

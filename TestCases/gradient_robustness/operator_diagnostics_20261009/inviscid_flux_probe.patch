@@ -1,0 +1,64 @@
+diff --git a/SU2_CFD/include/numerics_simd/flow/convection/upwind.hpp b/SU2_CFD/include/numerics_simd/flow/convection/upwind.hpp
+index 38ec02c902..3345302bc7 100644
+--- a/SU2_CFD/include/numerics_simd/flow/convection/upwind.hpp
++++ b/SU2_CFD/include/numerics_simd/flow/convection/upwind.hpp
+@@ -138,6 +138,59 @@ public:
+     derived->finalizeFlux(flux, jac_i, jac_j, implicit, area, unitNormal, normal,
+                           V, U, iPoint, jPoint, nonPhysical, solution, geometry);
+
++    // Diagnostic: Bellosta, Abergo & Nishikawa (2025), Eqs.10-11, A*S integrated form.
++    // shortcut: serial 2D MMS with strong exact Dirichlet data; weak boundary closure is not implemented here.
++    if constexpr (nDim == 2) {
++      if (muscl && !dynamicGrid && typeLimiter == LIMITER::NONE &&
++          config.GetVerification_Solution() == VERIFICATION_SOLUTION::MMS_NS_UNIT_QUAD) {
++        const auto& gradients = solution.GetGradient_Reconstruction();
++        for (size_t lane = 0; lane < Double::Size; ++lane) {
++          if (nonPhysical[lane] != 0) continue;
++          const auto p = iPoint[lane], q = jPoint[lane];
++          su2double moment[2][2] = {}, midpoint[2] = {};
++          const auto *x = geometry.nodes->GetCoord(p), *y = geometry.nodes->GetCoord(q);
++          for (size_t dim = 0; dim < 2; ++dim) midpoint[dim] = .5*(x[dim]+y[dim]);
++          for (const auto elemID : geometry.nodes->GetElems(p)) {
++            const auto* element = geometry.elem[elemID];
++            for (size_t face = 0; face < element->GetnFaces(); ++face) {
++              const auto a = element->GetNode(element->GetFaces(face,0));
++              const auto b = element->GetNode(element->GetFaces(face,1));
++              if (!((a == p && b == q) || (a == q && b == p))) continue;
++              const auto* cg = element->GetCG();
++              const su2double sign = a < b ? 1 : -1;
++              const su2double segmentNormal[2] = {sign*(cg[1]-midpoint[1]), -sign*(cg[0]-midpoint[0])};
++              for (size_t k = 0; k < 2; ++k)
++                for (size_t dim = 0; dim < 2; ++dim)
++                  moment[k][dim] += .5*segmentNormal[k]*(cg[dim]-midpoint[dim]);
++            }
++          }
++          const su2double temperature = .5*(V.i.temperature()[lane]+V.j.temperature()[lane]);
++          const su2double pressure = .5*(V.i.pressure()[lane]+V.j.pressure()[lane]);
++          const su2double rho = pressure/(gasConst*temperature);
++          const su2double velocity[2] = {.5*(V.i.velocity(0)[lane]+V.j.velocity(0)[lane]),
++                                        .5*(V.i.velocity(1)[lane]+V.j.velocity(1)[lane])};
++          const su2double velocity2 = velocity[0]*velocity[0]+velocity[1]*velocity[1];
++          for (size_t dim = 0; dim < 2; ++dim) {
++            const su2double dp = .5*(gradients(p,3,dim)+gradients(q,3,dim));
++            const su2double dT = .5*(gradients(p,0,dim)+gradients(q,0,dim));
++            // Evaluate the published chain rule in SU2's stored primitive variables (T,u,v,p).
++            const su2double drho = (dp/gasConst-rho*dT)/temperature;
++            const su2double dv[2] = {.5*(gradients(p,1,dim)+gradients(q,1,dim)),
++                                     .5*(gradients(p,2,dim)+gradients(q,2,dim))};
++            const su2double velocityDerivative = velocity[0]*dv[0]+velocity[1]*dv[1];
++            for (size_t k = 0; k < 2; ++k) {
++              const su2double massDerivative = drho*velocity[k]+rho*dv[k];
++              flux(0)[lane] += moment[k][dim]*massDerivative;
++              for (size_t m = 0; m < 2; ++m)
++                flux(m+1)[lane] += moment[k][dim]*(massDerivative*velocity[m]+rho*velocity[k]*dv[m]+(m == k ? dp : su2double(0)));
++              flux(3)[lane] += moment[k][dim]*(gamma/(gamma-1)*(dp*velocity[k]+pressure*dv[k])+
++                  .5*velocity2*massDerivative+rho*velocity[k]*velocityDerivative);
++            }
++          }
++        }
++      }
++    }
++
+     /*--- Add the contributions from the base class (static decorator). ---*/
+
+     Base::viscousTerms(iEdge, iPoint, jPoint, V1st, solution_, vector_ij, geometry,

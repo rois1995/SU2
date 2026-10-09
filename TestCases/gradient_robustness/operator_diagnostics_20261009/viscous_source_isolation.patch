@@ -1,0 +1,16 @@
+diff --git a/SU2_CFD/include/numerics_simd/flow/diffusion/viscous_fluxes.hpp b/SU2_CFD/include/numerics_simd/flow/diffusion/viscous_fluxes.hpp
+index 1a8745b10b..ebb29862fe 100644
+--- a/SU2_CFD/include/numerics_simd/flow/diffusion/viscous_fluxes.hpp
++++ b/SU2_CFD/include/numerics_simd/flow/diffusion/viscous_fluxes.hpp
+@@ -134,6 +134,10 @@ protected:
+     const auto derived = static_cast<const Derived*>(this);
+
+     const auto& solution = static_cast<const CNSVariable&>(solution_);
+-    const auto& gradient = solution.GetGradient_Primitive();
++    // Diagnostic: retain GG source/wall gradients, use fresh WLS reconstruction gradients only in interior viscous fluxes.
++    // shortcut: serial ordinary SA 2D isolation; do not use as a production gradient policy.
++    const bool probe = nDim == 2 && config.GetKind_Gradient_Method() == GREEN_GAUSS &&
++        config.GetKind_Gradient_Method_Recon() == WEIGHTED_LEAST_SQUARES && config.GetMUSCL_Flow();
++    const auto& gradient = probe ? solution.GetGradient_Reconstruction() : solution.GetGradient_Primitive();
+
+     /*--- Compute distance and handle zero without "ifs" by making it large. ---*/

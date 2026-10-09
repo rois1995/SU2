@@ -2,6 +2,15 @@
 
 Updated: 2026-10-09. This is the transferable record for the mesh-quality CFD work. Pending entries below are not measured results.
 
+## Completed literature-based operator assessment (2026-10-09)
+
+- Every new numerical trial is mapped to primary papers/equations; mathematical departures and missing integration are recorded in the final section. No blind Bellosta branch import or new stabilization formula. Published prototypes remain source-only diagnostic patches; production CFD is restored exactly to accepted SHA2566eb9a41dd591f1bb92fcae01b28d2a66cd6368ccecd421790030ae50b4472e94.
+- Added a native prescribed-field probe:12 controlled mixed/triangular geometries plus both actual RANS BL meshes. Published integrated flux correction restores affine convection consistency; it fixes a real mixed-mesh defect but does not by itself explain the adapted triangular instability.
+- Using the papers' unweighted linear LS convection/WLS viscosity choice, corrected curved mixed n24 manufactured NS final density error is~898times smaller and energy error~617times smaller than its settled no-correction control. Initial WLS convection trials failed on curved grids; native LS convection alone also stabilizes these manufactured cases. Two-level errors improve, but an asymptotic order study/full production method remain incomplete.
+- Neither published face-tangent viscosity nor LS-only convection stabilizes adapted Roe RANS. GG-SA-production/WLS-interior-viscous isolation runs away with zero interior SA floors, separating global failure from clipping. Fixed-CFL10/live-limiter saw-tooth remains unresolved; the current fixed-CFL3 comparison does not address it.
+- Conventional LS reconstruction reaches selected density/SA monitors7911 steps versus8088 (-2.19%), but drag changes+4.86%; provisional experimental Cp RMSE changes are small. FT reaches8055 (-0.41%) and fails adapted RANS. No general RANS convergence/accuracy improvement is accepted.
+- Corrected two diagnostic mistakes: missing density-gradient access in the first prototype (its CFD evidence discarded) and early printed MMS errors mistaken for final errors. Final-restart error helper agrees with native verification continuations; all7 Python tests pass. All owned CFD/build jobs finish; raw histories/states/plots remain local. Source, tests, reproduction patches and aggregate notes are pushed on codex/cfd-mesh-robustness. The original-workspace handbook is an identical discoverability copy.
+
 ## Completed flow-scaling follow-up (2026-10-09, 09:32 CEST)
 
 - Flow limiter reference scaling is implemented/pushed through numerical commit `843f19a13d`; later commits contain aggregate assessment notes. Branch remains `codex/cfd-mesh-robustness`, separate from native main. References cover ordinary compressible flow; no incompressible/NEMO default change.
@@ -30,6 +39,7 @@ Updated: 2026-10-09. This is the transferable record for the mesh-quality CFD wo
 - **Use `MGLEVEL=0` in every simulation.** Multigrid is outside this campaign.
 - **Do not use an Euler mesh for RANS convergence assessment.** Check provenance and actual boundary-layer suitability before interpreting residuals. Earlier native frozen/adapted stress cases below are excluded. The user explicitly identified a different mesh with adapted BL geometry, recorded at the end of this handbook; do not reject that selected mesh just because its folder names its original Euler seed.
 - Assess `feature_2ndOrderMixedGrids` critically; its existence is not evidence of correctness.
+- Every numerical method change must have a primary-literature basis. Record the equation, any departure from its assumptions and independent checks. Do not invent stabilization formulas or infer accuracy from convergence alone; diagnostic ablations are explicitly separate from proposed methods.
 - Watch machine contention: one build worker, one simulation thread, low priority, sequential cases. Use `uptime` to check load.
 - Report what changed, measured effects, and next steps. Retain negative results; do not equate finite residuals with convergence.
 - Keep this handbook current. Papers exist in the original workspace's `Papers/` and `/media/rausa/4TB/SU2_Versions/Prove/Papers`.
@@ -58,7 +68,7 @@ Commit `c78571bc5e`: common LS/WLS kernel retains the existing least-squares obj
 - Gradient/Hessian unit suite: 17 cases, 115630 assertions; focused MPI2 and OpenMP2 checks passed. Forward/reverse standalone AD probes passed field and geometry derivative checks.
 - Nonlinear fits tested against Eigen QR at aspect ratio 1e4. At 1e6 the fitted problem itself is sensitive (~9e-6); do not promise arbitrary nonlinear precision.
 - Kernel timing: ordinary LS +0.3%, WLS +0.9%; stretched LS QR path ~2.41 times kernel cost. This is not a whole-solver speed measurement.
-- Matched manufactured NS run: six meshes, both binaries, finite output; density errors unchanged. Only regular n=12 reached the target (iteration 192); others hit the 300-iteration cap. No CFD accuracy gain demonstrated there.
+- Matched manufactured NS run: six meshes, both binaries, finite output; early printed density errors unchanged (not final-state error evidence; see reporting correction in latest assessment). Only regular n=12 reached the target (iteration 192); others hit the 300-iteration cap. No CFD accuracy gain demonstrated there.
 - Reproducible runner and stored results: `TestCases/gradient_robustness/run_mms.py`, `results_20261008.json`, `README.txt`; raw output `/tmp/su2-cfd-mms-comparison-final`.
 
 ## Reviewed sources and rejected assumptions
@@ -481,9 +491,9 @@ Baseline paired configuration: Roe, MUSCL_FLOW=YES, **SLOPE_LIMITER_FLOW=NONE**,
 
 Matched lower-CFL0.01/cap20000 controls `/tmp/su2-visc-gradient-mms-lowcfl` also fail: six native divergence errors, two completed but runaway thin-layer states. Reducing CFL alone did not yield converged accuracy data. The completed thin/n24/WLS restart additionally has2 points with nonpositive recomputed internal-energy density (minimum-4.58e-5); cancellation in a runaway near-zero-pressure state is possible, but the saved state is not an admissible validation result. The regular and reconstruction-off control states are finite with positive density/internal energy. Preserve these failures; do not select the two exit-success records as successful validations.
 
-Setup/reconstruction controls `/tmp/su2-visc-gradient-mms-controls`: regular mixed n24 geometry/aspect1 with both gradient methods settles to roundoff-scale residuals (density≈-14.21, energy≈-8.85), identical printed solution-error vectors: Rho0.000171477,RhoU0.202567,RhoV0.186656,RhoE80.5342. The requested raw energy-10 threshold is stricter than the observed dimensional roundoff floor, so those regular runs cap5000 despite their settled fields. This is not an asymptotic refinement/order study. Curved n24/aspect1e4 with **MUSCL_FLOW=NO**, CFL0.1, remains bounded through5000: WLS density=-6.592484940,energy=-2.231361214; GG density=-6.587125026,energy=-2.224539377. Those first-order tests have not met the specified raw targets and do not establish second-order accuracy.
+Setup/reconstruction controls `/tmp/su2-visc-gradient-mms-controls`: regular mixed n24 geometry/aspect1 with both gradient methods settles to roundoff-scale residuals (density≈-14.21, energy≈-8.85), identical early-iteration printed solution-error vectors (these are not the settled-state errors): Rho0.000171477,RhoU0.202567,RhoV0.186656,RhoE80.5342. The requested raw energy-10 threshold is stricter than the observed dimensional roundoff floor, so those regular runs cap5000 despite their settled fields. This is not an asymptotic refinement/order study. Curved n24/aspect1e4 with **MUSCL_FLOW=NO**, CFL0.1, remains bounded through5000: WLS density=-6.592484940,energy=-2.231361214; GG density=-6.587125026,energy=-2.224539377. Those first-order tests have not met the specified raw targets and do not establish second-order accuracy.
 
-Preserved pre-fix gradient baseline binary SHA256b6647bae6335516dffe10fe687a036e397f11a7d4bbf89a99553ea021e9d5d23 (provenance in the first-phase manifest above) gives identical regular-WLS printed residuals/errors, but native divergence on curved n24 with WLS207 rows and GG291 rows. `/tmp/su2-visc-gradient-mms-baseline`. Thus the stretched unlimited-MUSCL failure is present in that preserved baseline too; it cannot be labelled a regression caused by the flow-scaling patch. Reconstruction-off control implicates the unlimited reconstruction path **for these manufactured cases**, whereas first-order flow still failed in the adapted RANS experiment. Do not assume a single cause covers both systems.
+Preserved pre-fix gradient baseline binary SHA256b6647bae6335516dffe10fe687a036e397f11a7d4bbf89a99553ea021e9d5d23 (provenance in the first-phase manifest above) gives identical regular-WLS printed residuals and early error blocks, but native divergence on curved n24 with WLS207 rows and GG291 rows. `/tmp/su2-visc-gradient-mms-baseline`. Thus the stretched unlimited-MUSCL failure is present in that preserved baseline too; it cannot be labelled a regression caused by the flow-scaling patch. Reconstruction-off control implicates the unlimited reconstruction path **for these manufactured cases**, whereas first-order flow still failed in the adapted RANS experiment. Do not assume a single cause covers both systems.
 
 ### Provisional experimental pressure and geometry checks
 
@@ -514,3 +524,125 @@ Current priorities supersede the old flow-scaling implementation todo:
 4. Continue only changes justified by the native-operator/accuracy evidence. Incompressible/NEMO references, full derivatives/adjoints, unsteady/moving/axisymmetric and broader BL-mesh validation remain outside this completed fixed-grid phase.
 
 Production solver rebuilt with one low-priority worker after removing the temporary probe; its SHA equals the immutable accepted candidate again. All owned CFD campaigns have completed; no solver is intentionally left running. Keep aggregate notes, harness tests and source-only diagnostic patch on codex/cfd-mesh-robustness; private raw output stays local. Original-workspace handbook is an identical discoverability copy; unrelated user changes remain unstaged.
+
+
+## Literature-based operator assessment (2026-10-09)
+
+This section supersedes earlier interpretation of printed MMS errors and older priorities. Numerical methods are tested against the supplied primary literature; branch implementations are not taken as correct. New changes in this phase are diagnostics, an optional normal-build probe target and error-reporting corrections. Published numerical prototypes are preserved as source-only patches under `TestCases/gradient_robustness/operator_diagnostics_20261009`, not installed as production defaults.
+
+### Method provenance and implementation scope
+
+| Method or experiment | Primary basis | Exact scope / departures |
+|---|---|---|
+| Prescribed-field native operator checks | Diskin & Thomas, AIAA2012-0609, sections III-IV; NIA2008-12 high-aspect-ratio gradient study | Actual SU2 LS/WLS/GG, MUSCL and edge-normal correction; separately measure gradient, face reconstruction, projected viscous gradient and affine assembled convection. Not a CFD solution/order test. |
+| Interior inviscid flux correction | Bellosta, Abergo & Nishikawa, AIAA2025-0072, Eqs10-11; Nishikawa JCP468(2022)111481, Eqs27-30 | Contract integrated A*S with Euler flux derivatives. Explicitly static2D, unlimited MUSCL, ideal-gas NS unit-quad MMS with strong exact boundary states. Chain rule evaluated in native T,u,v,p at their reconstructed arithmetic average; rho=p/(R*T). Paper examples use rho,u,v,p. No weak-boundary Eq12, limiter/positivity coupling or complete RANS integration. |
+| Face-tangent viscous correction | Thomas, Diskin & Nishikawa, Computers & Fluids41(2011)82-93, Eqs10-11 and14-15 | Only2D SIMD compressible interior viscous flux and matching projected-distance thin-layer Jacobian. No SA source/scalar-gradient change. Original EN retained for unusable projection; all measured test faces have positive projection. Full gradient-stencil Jacobian/boundary/scalar/AD/parallel integration is not established. |
+| GG-source/WLS-interior-viscous isolation | Causal ablation of existing operators, not a proposed method | Retain native flow GG vorticity/strain for SA production and boundary gradients plus SA GG scalar gradients; consume fresh WLS reconstruction gradients only in interior flow viscous fluxes. Test uses same adapted BL mesh, restart and Roe/CFL1/live-limiters settings as prior GG-all control. |
+| Final MMS error assessment | Existing CMMSNSUnitQuadSolution::GetSolution | Direct final-restart all-node conservative-variable RMS/max errors using exact native coefficients, dimensional2D/MGLEVEL0 only. Native short continuation checks and invalid-input tests independently validate this reporting path. |
+
+References: <https://ntrs.nasa.gov/api/citations/20120001451/downloads/20120001451.pdf>, <https://ntrs.nasa.gov/api/citations/20090007493/downloads/20090007493.pdf>, <https://fun3d.larc.nasa.gov/papers/jlt_cf_2010.pdf>, <https://doi.org/10.2514/6.2025-0072>, <https://doi.org/10.1016/j.jcp.2022.111481>. Full Bellosta paper is in Prove/Papers; the JCP2022 paper is original-workspace Papers/1-s2.0-S0021999122005435-main.pdf. Text extractions remain under /tmp/su2-operator-evidence. Do not replace the mathematical correction with a centroid shift alone: Nishikawa AIAA2020-1786 warns that changing edge-based centroids without the corresponding accuracy correction can destroy linear precision. All simulations have MGLEVEL0.
+
+### Native consistency checks
+
+`operator_probe.cpp` advances no CFD state. Fields are x+2y, x², xy, y², radius and sin(pi*(x-2y)). It uses the actual native kernels and requires interior points/edges. `run_operator_checks.py` builds n12/n24 regular, rotated straight-stretched and annular curved-stretched geometries, both alternating quad/triangle and triangular. Aspect parameter1e4 on stretched shapes. Final campaign `/tmp/su2-operator-checks-final` completed12 cases with self-checks for affine LS/WLS precision, exact quadratic viscous projection, independently integrated median-dual normals/divergence and the published correction's orientation/area/contraction. These are geometry and prescribed-field tests, not Euler-mesh RANS evidence.
+
+| n24 geometry | Original affine assembled convection max error | Published moment-corrected max error |
+|---|---|---|
+| Regular mixed |0.506559531|3.40e-14|
+| Regular triangular |4.41e-14|3.62e-14|
+| Straight-stretched mixed |1938.322904|1.05e-10|
+| Straight-stretched triangular |1.71e-10|1.39e-10|
+| Curved-stretched mixed |1318.972180|3.72e-10|
+| Curved-stretched triangular |3.29e-10|4.11e-10|
+
+Triangular per-edge quadrature error is nonzero but assembled affine cancellation recovers the correct divergence. Mixed-cell quadrature loses that cancellation. The paper's correction restores the independent segment integral to roundoff on all12 geometries. This does not establish nonlinear CFD convergence or an error order.
+
+On curved mixed n24, WLS affine nodal gradient max error5.32e-11; ordinary SU2 nodal GG affine relative error~315/max~1609, and sine-gradient relative error~1051 versus WLS~0.00548. Bounded GG RANS residuals are not gradient accuracy evidence. Paper element/Galerkin Green-Gauss is not this SU2 nodal operator. Existing adaptation `quadratic_sensor` gives Cartesian quadratic derivative errors~1e-12 and curved sine relative error~0.0002308, but regular sine error~0.0312 is worse than WLS~0.0241. Its weighted fit/stencil policy is not Diskin & Thomas's unweighted extended-stencil quadratic LS; do not treat it as the same method or a universal improvement.
+
+Earlier actual-mesh probes (before adding the moment-correction columns) find conventional affine assembled max error0.230653 and minimum edge/normal cosine0.865815; adapted triangular BL mesh affine max error6.54e-11 and minimum cosine0.00109002. All measured projections are positive. Thus mixed affine inconsistency is real but does not explain the adapted triangular failure by itself. Small positive projection makes FT damping extremely stiff; exact edge penalty ratios involve1/cos², whereas this approximate Jacobian's distance change involves1/cos. Keep those statements distinct.
+
+### Completed face-tangent trial
+
+Source patch `face_tangent_probe.patch`, immutable binary `/tmp/su2-operator-evidence/SU2_CFD_ft_probe`, SHA2566a98705ba9370530beea95452377395fa4f5420c927f21d9c68570a57fd26fc3. Campaign `/tmp/su2-ft-assessment`, plan `/tmp/su2-operator-evidence/ft_plan.json`:7 CFD entries, serial/OMP1/nice19/load-gated.
+
+Regular mixed n24 settles to roundoff through5000 (rho log-14.2436, energy-8.8703); the requested dimensional energy target-10 is below the observed floor. FT curved mixed n24 hits native divergence after324 history rows, straight mixed n24 after2265. Native EN curved triangular n24 fails371 rows; FT triangular fails230. These are negative outcomes, not truncation/order comparisons.
+
+Conventional SA/CFL3/live limiters reaches the same selected density/SA monitor stop after8055 continuation steps, versus accepted EN8088 (-0.408%). Final rho-8.00009938, SA-9.273327918, CL0.7354105584, CD0.01340147672; EN CL0.7354821736, CD0.01340366390. FT final state is finite/admissible, min density0.240454683/internal energy density53687.8922. The small iteration difference is not an important speed gain; host contention prevents timing claims and physical accuracy remains unchecked. Adapted Roe/WLS/CFL1 FT fails after1817 rows, with growing enormous residuals/forces. FT is not promoted.
+
+### Completed SA-production versus interior-viscous isolation
+
+Source `viscous_source_isolation.patch`, binary `/tmp/su2-operator-evidence/SU2_CFD_visc_wls_probe`, SHA25647ddcc7bfc2753515fa97351d99b34c5385db5207a9c7c57c2fb829c11114807. Campaign `/tmp/su2-visc-source-assessment`, plan `/tmp/su2-operator-evidence/visc_source_plan.json`. Same supplied adapted BL mesh SHA2564b805909cce30f825e8f01580b21bd06255944dd45905120ec9e959202322326 and restart SHA256f834d4205a082c09fb127a2d2cf6626581336c18ddf1e24b40c4e21d1f1ed1bd as GG-all control.
+
+At3000 the isolation run exits successfully but runs away: rho+4.611512704, energy+12.37763019, SA+1.392545006, CL-204140.6332/CD-28591.84286. Prior matching GG-all3000: rho-4.654599749, SA-5.633952527, CL0.75033047/CD0.018681754. Isolation state remains numerically finite/positive (min density0.005160925, min internal energy density1.37e-5) and has **zero interior physical SA floor-band points** (Nu_Tilde<=1e-15, walls excluded). These positive-state checks do not establish a stable or physical solution. Interior viscous-gradient/operator change alone suffices to lose convergence under these settings while retaining GG SA-production/wall/scalar gradients. This does not distinguish discretization accuracy from approximate-Jacobian/nonlinear stability, or prove SA has no coupled influence. Do not use this split as a solver policy or lower SA floors to explain away the global failure.
+
+### Flux-prototype implementation error and reporting correction
+
+The first flux prototype incorrectly read gradient row4 as density. `EulerNPrimVarGrad` deliberately stores only T,u,v,p (four variables) for ideal-gas optimized2D Roe. Bounds-disabled access read unrelated memory. All fc_* CFD records in `/tmp/su2-fc-assessment` and binary SHA256c9d7556da1fcd669ae14aa272a2a374d9114958d0e4f3089ba4668daffe4e055 are **invalid method evidence**; /tmp/su2-operator-evidence/INVALID_fc_v1.txt marks this. The last owned invalid trial was explicitly stopped. Its native baseline `en_curved24_nk` used the accepted binary and is valid separately (native failure842 rows). Prescribed-field checks used their own correctly sized six-field matrices and are unaffected.
+
+Corrected prototype evaluates the chain rule directly in stored T,u,v,p: d(rho)=(dp/R-rho*dT)/T at averaged reconstructed T,p. No missing gradient row is read. Binary `/tmp/su2-operator-evidence/SU2_CFD_fc_v2_probe`, SHA256eb5b38c099ec08155d085c8eac76c071575ce4453b110c362e455a5e4c8fe7d2. Final probe `/tmp/su2-operator-evidence/gradient_operator_probe_v2`, SHA2561665be8968103110b0a2c41d603f4681310fc978be0375daddcb393f4e899f3b. Patch reproduces only this corrected implementation.
+
+A separate reporting bug: `CFVMFlowSolverBase::ComputeVerificationError` computes/prints only at inner iteration1 and each40 screen intervals. With screen frequency1000/cap5000, the only printed block precedes final convergence. Prior archived `rms_error` and quoted vector Rho0.000171477/momenta0.202567,0.186656/E80.5342 were early-update errors, not settled-state discretization errors. They cannot support a final accuracy comparison. Do not infer improved accuracy from the corrected prototype's smaller early block either. `run_mms.py` now labels these `last_printed_rms_error`; archived files remain historical. `assess_mms_restart.py` computes final errors from the actual saved physical state; tests cover known origin state, perturbation, invalid/empty states, unsupported units/dimensions. All7 Python diagnostic/harness tests pass.
+
+
+### Corrected flux prototype: CFD outcomes and final error measurements
+
+Campaigns `/tmp/su2-fc-v2-regular-assessment` and `/tmp/su2-fc-v2-assessment`, plans `/tmp/su2-operator-evidence/fc_v2_*_plan.json`:7 corrected trials. Roe/unlimited MUSCL, WLS reconstruction/WLS viscosity, CFL0.5, FGMRES/ILU50/error1e-9, cap5000, dimensional raw rho/energy target-10. Regular mixed n24 settles to rho-14.21049666/E-8.875971528. Straight mixed n24 now remains stable and settles near rho-11.98916479/E-6.570257139; native WLS-reconstruction control had diverged1251 rows. The raw energy threshold is not met. However curved mixed n12/n24 still fail91/125 rows, straight mixed n12 fails385 and curved triangular n24 fails264. This is a limited success, not general high-AR robustness.
+
+Corrected curved n24 native Newton-Krylov trial caps5000 at rho-3.339977611/E+2.028509675, with100 linear iterations and relative linear residual~0.5 every step. It is stalled, not converged. This trial uses explicit full reconstruction relaxation1, no startup and no automatic ramping: NEWTON_KRYLOV_IPARAM=(0,3,2), DPARAM=(0,0.1,-6,1e-5,1), LINEAR_SOLVER_ITER100/error1e-4. The matching native no-correction control failed842. This one trial does not disprove Newton methods or establish that the correction has no steady solution; its linear solve is ineffective and native CNewtonIntegration still has an unimplemented backtracking/globalization TODO. No claimed Jacobian or globalization improvement was invented here.
+
+`/tmp/su2-regular-refinement-assessment` adds paired regular n12 controls and native2-step verification continuations of accepted regular n24, corrected regular n24 and corrected straight n24. `assess_mms_restart.py` final errors agree with all3 native continuation RMS blocks within5e-6 relative (native screen rounding). The small continuation updates preserve the settled states. All7 Python tests pass. All-node final RMS errors (not the early printed blocks):
+
+| WLS reconstruction, regular mixed | rho | rho*u | rho*v | rho*E |
+|---|---|---|---|---|
+| Native EN n12 |0.004971793|1.56844305|1.96124282|505.241417|
+| Published FC n12 |0.002837308|0.688895279|1.32197745|412.184244|
+| Native EN n24 |0.002361779|0.818616826|0.839112911|207.701255|
+| Published FC n24 |0.0009915455|0.213597025|0.323519118|124.192755|
+
+n24 FC reduces final density error2.382times and energy error1.672times on this manufactured geometry. Two-level log2 error ratios: EN(1.074,0.938,1.225,1.282), FC(1.517,1.689,2.031,1.731). Two levels do not establish an asymptotic order; do not claim verified second-order convergence. All states are finite/admissible and residuals have settled to dimensional roundoff. No RANS or experimental accuracy claim follows.
+
+### Matching the papers' convection gradient choice
+
+The paper examples use unweighted linear LS for convection and WLS for viscosity. WLS-for-both was a deliberate initial departure, not a complete reproduction. Matched native/corrected n24 regular, curved and straight mixed trials now use NUM_METHOD_GRAD_RECON=LEAST_SQUARES, NUM_METHOD_GRAD=WEIGHTED_LEAST_SQUARES; all other physical and solver settings remain matched. All6 runs in `/tmp/su2-regular-refinement-assessment` remain finite/admissible and settle to roundoff at5000. Both native and corrected **curved** cases are now stable, unlike their WLS-reconstruction counterparts. Thus judging the published correction from the initial WLS reconstruction failures would have been unjustified.
+
+| Unweighted linear LS convection/WLS viscosity, n24 | Native final rho RMS | Corrected final rho RMS | Native final energy RMS | Corrected final energy RMS |
+|---|---|---|---|---|
+| Regular mixed |0.002462733|0.001270803|208.193609|111.842677|
+| Curved-stretched mixed |0.002287005|2.548099e-6|263.833936|0.427324877|
+| Straight-stretched mixed |0.002138589|0.0002368548|394.774340|131.727493|
+
+On this curved n24 manufactured case, the published correction reduces density error~898times and energy error~617times relative to the equally settled no-correction LS control. This is measured final-state accuracy on one controlled geometry; full method integration and an asymptotic order study are still missing. Local final error reports /tmp/su2-operator-evidence/final_error_assessment.json and linear_ls_mms_errors.json remain private.
+
+Do not infer that unweighted LS produces better nodal gradients. The prescribed curved n24 sine field has LS nodal relative error3.64 versus WLS0.00548, while midpoint-reconstruction relative errors are comparable (~0.00303 vs0.00308). Radial-field LS derivative error is nearly100% versus WLS0.000439. Convection reconstruction and viscous/source gradient requirements differ. Keep WLS viscous/source gradients and change only reconstruction when testing this published choice; do not replace the common gradient policy indiscriminately.
+
+
+The supplemental `/tmp/su2-linear-ls-refinement12-assessment` completes6 matched n12 LS-convection/WLS-viscosity cases. All finite/admissible, with fields/residuals settled at5000. Two-level rates in conservative order(rho,rho*u,rho*v,rho*E): regular EN(1.070,0.901,1.246,1.198), FC(1.459,1.571,1.938,1.757); curved EN(0.926,0.869,0.929,1.012), FC(2.740,2.742,1.755,2.075); straight EN(0.998,0.957,1.081,1.089), FC(1.870,1.751,1.917,1.825). Curved n12 FC final rho RMS1.702392e-5/energy1.800571 versus EN0.004343940/532.006031. These two levels support improved mixed-mesh errors; they are not proof of an asymptotic order or superconvergence. Raw assessment /tmp/su2-operator-evidence/linear_ls_refinement_errors.json.
+
+Final native probes on both actual RANS geometries also pass their consistency self-checks. Conventional affine assembled max0.230653 ->2.85e-11 with the published moment; adapted triangular6.54e-11 ->8.60e-11 (already consistent, no gain). Independent integrated affine divergence errors are2.20e-11 and4.81e-11 respectively. These are geometry/prescribed-field checks, not RANS convergence results. Source/probe binary artifacts are distinct from the immutable production control.
+
+### Published gradient-choice RANS assessment
+
+`/tmp/su2-linear-ls-rans-assessment`, `/tmp/su2-operator-evidence/linear_ls_rans_plan.json`: accepted production binary, no flux-correction or FT patch. Change only NUM_METHOD_GRAD_RECON=LEAST_SQUARES; keep WLS viscous/source/scalar gradients, Roe, live Venkat limiters, same physical mesh/restart/settings. Adapted CFL1 trial fails native divergence2725 history rows, rho+8.297664134/SA+8.197536537, energy+19.80005213 and enormous forces. No valid final state is available. The successful manufactured LS-convection stability does **not** establish adapted RANS robustness.
+
+Conventional fixed-CFL3 reaches the same selected rho/SA monitors after7911 continuation steps vs accepted WLS-reconstruction8088 (-2.188%). Final rho-8.000101744, SA-9.953659608, CL0.7354312415, CD0.01405569116. Accepted control CL0.7354821736/CD0.01340366390: lift changes-0.0069%, drag+4.8645%. State is finite/admissible, min density0.240337381/internal energy density53706.7897, zero interior SA floor-band points. This selected-monitor stop is not proof that every equation has converged: final energy RHS log-3.2814. No timing claim on the shared host; small iteration-count gains alone do not justify changing a default.
+
+Same provisional NASA Case6 pressure procedure, sign/reference conventions,37 upper/33 lower taps and exclusions as earlier, applied to the final selected stops:
+
+| Conventional final selected stop | Upper Cp RMSE | Lower Cp RMSE |
+|---|---|---|
+| Accepted WLS convection, CFL3 |0.03065047239|0.02015383657|
+| Unweighted LS convection, CFL3 |0.03027899710|0.01917478977|
+| FT viscosity, CFL3 |0.03069644367|0.02013903115|
+
+These differences are small and provisional. Iterative error of other equations, model/trip/reference-temperature and mesh-refinement uncertainties remain; no verified pressure/drag accuracy improvement is claimed. Aggregate comparison supports reporting the force sensitivity, not accepting the new setting as universally better. Local /tmp/su2-operator-evidence/pressure_comparison.json/.png and linear_ls_rans_state.json remain private. Do not upload these raw-derived outputs. Stale Euler/no-BL comments inherited in the copied adapted template are not mesh provenance: the actual MESH_FILENAME/hash is the user-selected mesh_00400.su2 with BL geometry, as explicitly verified earlier.
+
+### Restored production and next priorities
+
+All owned campaigns completed. Both temporary numerical headers match their saved production bytes, and the one-worker low-priority rebuild restores the exact accepted solver SHA2566eb9a41dd591f1bb92fcae01b28d2a66cd6368ccecd421790030ae50b4472e94. Optional normal-build `gradient_operator_probe` also builds. Final12 controlled and2 actual native self-checks,7 Python tests, syntax checks and all3 diagnostic patches' `git apply --check` pass. The last restored build is /tmp/su2-operator-evidence/production_restore_build.log. No simulation/build is intentionally left running; leave other users' processes untouched.
+
+Next work must preserve these distinctions:
+
+1. Complete the **published** flux-correction method before any RANS promotion: consistently limited/ramped gradients, positivity/reconstruction fallback, weak boundary closure, conservative mass-flux coupling to turbulence and appropriate implicit/AD/parallel integration. The prototype's strong-MMS guard is intentional. Validate refinement with converged fields; retain ordinary-grid accuracy/performance controls. Temperature-based primitive implementation is disclosed rather than silently equated to a density-based paper implementation.
+2. Treat adapted-grid viscous discretization and implicit coupling as the priority for robustness: interior viscosity can cause global breakdown without SA floors. Published FT alone failed; native NK with ineffective linear solves also failed/stalled. Assess a consistent viscous-gradient linearization/stencil and documented nonlinear globalization/preconditioning, with a cited method before code changes. Do not infer that nodal LS gradients are superior because LS convection stabilizes MMS, or replace accurate WLS viscosity with LS indiscriminately. Do not retune SA floors as a global fix.
+3. Keep fixed-CFL10 limiter saw-tooth separate. Prior limiter-freezing/live restoration isolated that loop, while CFL3 reaches selected monitors; this phase's small FT/LS CFL3 gains do not resolve CFL10. Controlled tests of the already implemented published smooth R4/R5 limiters and proper limiter/Jacobian coupling remain candidates; compare Cp, shear and forces, not residuals alone.
+4. Full RANS correction,3D, weak/general boundaries, moving/unsteady/axisymmetric, production adjoints/AD/parallel and broad BL-mesh physical validation remain unchecked for these prototypes. No multigrid. Source/tests/aggregate notes only are eligible for push; the prior rejection of raw derived-data upload remains in force.
