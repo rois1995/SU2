@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "integration_evidence/run_native_cluster_campaign.py", line 129, in <module>
+    if __name__=='__main__':raise SystemExit(main())
+  File "integration_evidence/run_native_cluster_campaign.py", line 120, in main
+    result=collect(case,ROOT/'ClusterResults'/'cases'/tag)
+  File "/global-scratch/bulk_pool/arausa/SU2_Native/integration_evidence/collect_native_cluster_results.py", line 64, in collect
+    if target.exists():assert target.read_bytes() == source.read_bytes(), 'Do not mix audit versions in one export'
+AssertionError: Do not mix audit versions in one export

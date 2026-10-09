@@ -71,6 +71,14 @@ and closed binary paths before submitting anything. An existing external job can
 be added as the first dependency with `HOLD_JID=JOB_ID`. A submission failure does
 not cancel preceding jobs; IDs and order remain in the TSV receipt.
 
+The first candidate pilot (581887/581889/581891/581893) completed the first
+no-repartition case in each job, then stopped exporting because the old shared
+tools bundle differed. The collector now keeps tools inside each exported case,
+so future campaigns can coexist with earlier evidence. Pull the current candidate
+and repeat the pilot; no binary rebuild is needed. Keep failed jobs and their raw
+cases unchanged. The remaining M4/M3/M2 repartition modes were not run in those
+candidate jobs, so that partial pilot cannot establish the complete comparison.
+
 After independently auditing the pilot, use the same command with `4 3 2` for
 three repetitions (24 jobs). Baseline/candidate order reverses in even repetitions.
 The resulting repeat identifier is in the submission TSV: each independent job
@@ -81,9 +89,11 @@ numerical gates; choose `ADAP_WORKERS=8:4:2` / `16:8:4` for those trials. The sm
 RAE mesh cannot establish scaling of a large production problem.
 
 Download only `ClusterResults` from each checkout, into separate directories
-`baseline/ClusterResults` and `candidate/ClusterResults`. Keep their respective
-`tools/` folders: the original-wall audit was updated in this integration. Use
-each export's own auditors, as in the original campaign README. No raw output is
+`baseline/ClusterResults` and `candidate/ClusterResults`. Keep the audit tools
+with the exported data: new candidate cases have their own `cases/CASE/tools/`
+folder and recorded tool hashes; the historical baseline uses its root `tools/`
+bundle. Use each export's own auditors, as in the original campaign README.
+Do not replace older tool bundles. No raw output is
 deleted; `ClusterRaw` remains on the cluster. Adapted grids, original-reference
 sidecars, original donor states, both transported BDF histories and logs are in
 the collected cases, so the grids remain directly inspectable.

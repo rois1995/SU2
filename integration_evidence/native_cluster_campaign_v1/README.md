@@ -83,15 +83,25 @@ configuration, complete solver logs, timing/metric CSVs and provenance.
 `ClusterResults/jobs/` records allocation/hardware/binary/campaign summaries;
 each `${JOB_ID}_launcher/` also retains the SGE wrapper stdout/stderr, source
 revision and exit code, including failures before any solver case is created;
-`ClusterResults/tools/` contains the matching audit code. Download only
-`ClusterResults`, then audit from any working directory (Python + NumPy):
+new exports retain matching audit code inside `ClusterResults/cases/CASE/tools/`,
+with its hashes in that case's collection manifest. Earlier root-level
+`ClusterResults/tools/` bundles remain unchanged. Different source versions can
+coexist without overwriting earlier evidence. Download only `ClusterResults`,
+then use each new case's own tools (Python + NumPy):
 
 ```bash
-python3 ClusterResults/tools/integration_evidence/audit_native_frozen_case.py ClusterResults/cases/CASE rae_euler_to_bl --self-contained
-python3 ClusterResults/tools/integration_evidence/audit_native_frozen_case.py ClusterResults/cases/CASE rae_bl_to_euler --self-contained
-python3 ClusterResults/tools/integration_evidence/audit_rae_unsteady.py ClusterResults/cases/CASE
-python3 ClusterResults/tools/integration_evidence/audit_native_profile_accounting.py ClusterResults/cases/CASE
+CASE_DIR=ClusterResults/cases/CASE
+python3 "$CASE_DIR/tools/integration_evidence/audit_native_frozen_case.py" "$CASE_DIR" rae_euler_to_bl --self-contained
+python3 "$CASE_DIR/tools/integration_evidence/audit_native_frozen_case.py" "$CASE_DIR" rae_bl_to_euler --self-contained
+python3 "$CASE_DIR/tools/integration_evidence/audit_rae_unsteady.py" "$CASE_DIR"
+python3 "$CASE_DIR/tools/integration_evidence/audit_native_profile_accounting.py" "$CASE_DIR"
 ```
+
+Use the root-level bundle for historical exports that lack a case-local tools
+folder, provided it matches the version used for those cases. Never replace an
+older bundle with another version. The baseline checkout at e6995fbff5 keeps its
+original export layout; this collection-only fix does not require rebuilding or
+changing that baseline.
 
 Choose the matching frozen command or the actual command, followed by profiling
 accounting. Execution/collection PASS is not an independent mesh validation.

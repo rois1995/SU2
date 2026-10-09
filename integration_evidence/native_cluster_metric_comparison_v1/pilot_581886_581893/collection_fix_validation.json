@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "scope": "Fake-file collection version isolation and syntax only; no scheduler, compiler, MPI or CFD execution.",
+  "checks": [
+    "Older shared bundle remains unchanged",
+    "Two differently versioned case-local bundles coexist and retain recorded hashes",
+    "Existing destination rejects without overwriting evidence",
+    "Missing output is reported as incomplete",
+    "Missing audit tool cannot leave a premature complete manifest"
+  ],
+  "source_sha256": {
+    "collect_native_cluster_results.py": "476a3a5e88ed13df65bf442095cbc2f9aa9da0bc15d578647dda2cdf994e22b1",
+    "check_native_cluster_collection.py": "cfe215260718469ec00fbfb05f6b02d241d9a35340b32c43deaed33de191b349"
+  }
+}

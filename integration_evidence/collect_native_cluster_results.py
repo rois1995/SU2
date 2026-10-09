@@ -56,13 +56,17 @@ def collect(case, destination):
     result = dict(status='COMPLETE_SELECTED_EVIDENCE' if not missing else 'INCOMPLETE_SELECTED_EVIDENCE',
                   source=str(case), collector_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(), missing=missing, files=copied,
                   scope='Original donor snapshots at each adaptation and both transported histories, all adapted/rejected meshes and references, final state, logs/config/provenance. Raw intermediate outputs remain at source; nothing deleted.')
-    (destination / 'collection_manifest.json').write_text(json.dumps(result, indent=2) + '\n')
-    tools = destination.parent.parent / 'tools'
+    # Each case keeps its own audit version when the checkout changes between campaigns.
+    tools = destination / 'tools'
+    audit_files = {}
     for name in TOOLS:
         target = tools / name; target.parent.mkdir(parents=True, exist_ok=True)
         source = ROOT / name
         if target.exists():assert target.read_bytes() == source.read_bytes(), 'Do not mix audit versions in one export'
         else:shutil.copy2(source, target)
+        audit_files[name] = dict(bytes=target.stat().st_size, sha256=hashlib.sha256(target.read_bytes()).hexdigest())
+    result['audit_tools'] = dict(root='tools', files=audit_files)
+    (destination / 'collection_manifest.json').write_text(json.dumps(result, indent=2) + '\n')
     return result
 
 
