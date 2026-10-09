@@ -119,3 +119,5 @@ The original sixteen pilots prove N=4 numerical feasibility but have one repeat
 and overlapping jobs. They are preserved descriptive evidence, not an isolated
 performance control for the new implementation. Neither this campaign nor the
 merge certifies native 3D remeshing or converged aerodynamic accuracy.
+
+The completed follow-up pilot 581943–581950 and all phase/hash evidence are in [pilot_581943_581950/README.md](pilot_581943_581950/README.md). All 32 execution/collection cases pass; independent numerical checks cover eight exactly repeated no-repartition cases, with the other 24 awaiting the reusable one-worker saved-output SGE audit described there. No CFD rerun or rebuild is needed for that postprocessing. Balance measurements and improved initial weights should precede a live-repartition prototype.

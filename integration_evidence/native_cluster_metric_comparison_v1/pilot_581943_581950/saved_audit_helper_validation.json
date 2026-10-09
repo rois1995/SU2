@@ -1,0 +1,22 @@
+{
+  "status": "PASS_LIGHTWEIGHT_FAKE_FILE_AND_SYNTAX_CHECKS",
+  "scope": "No real CFD, MPI, mesh audit, scheduler job or rebuild. Actual saved-output SGE audit remains unrun.",
+  "checks": [
+    "Version-specific frozen/actual dispatch and --self-contained arguments",
+    "Serial fake reports and aggregate PASS",
+    "Original exports unchanged",
+    "Duplicate report directory rejected",
+    "Changed input hash rejected before output creation",
+    "Nonzero fake audit failure retained alongside successful case",
+    "Python AST syntax",
+    "bash -n",
+    "git diff --check",
+    "32 case / 16 pair / 8 repeated proof report consistency"
+  ],
+  "source_sha256": {
+    "audit_metric_comparison.py": "e3b48f7d3604d55be55d81406de003e1326ec6f5eccd5cf1460fbe12f0738e32",
+    "check_metric_saved_audit.py": "4e693eff520853e46366b99d3ddf01f7573a006451b0578fb64da375a0c246db",
+    "RunSavedMetricAuditSGE.sh": "b80733cec5f8c68cb418f7f46c0b1ca9a6ef483619e61521a6d250b9c93f75df"
+  },
+  "assessment_sha256": "e1c813407f757f2165851ca9ae4cf69f8c5eefc1947d1f29ac09e20b96037f05"
+}
