@@ -439,7 +439,8 @@ void CFVMFlowSolverBase<V, R>::SetPrimitive_Limiter(CGeometry* geometry, const C
     reference[prim_idx.Temperature()] = Temperature_Inf;
     reference[prim_idx.Pressure()] = Pressure_Inf;
     reference[prim_idx.Density()] = Density_Inf;
-    const su2double thermalVelocity2 = Density_Inf > 0.0 ? fabs(Pressure_Inf / Density_Inf) : 0.0;
+    su2double thermalVelocity2 = 0.0;
+    if (Density_Inf > 0.0) thermalVelocity2 = fabs(Pressure_Inf / Density_Inf);
     reference[prim_idx.Enthalpy()] = Energy_Inf + thermalVelocity2;
     // A common thermal/flow speed avoids unit-dependent floors for zero velocity components.
     const su2double velocity = sqrt(max(GeometryToolbox::SquaredNorm(nDim, Velocity_Inf), thermalVelocity2));
