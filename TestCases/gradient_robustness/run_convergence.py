@@ -17,6 +17,30 @@ def read_options(text):
     return dict(re.findall(r"^\s*([A-Z][A-Z0-9_]*)\s*=\s*([^%\n]*)", text, re.MULTILINE))
 
 
+def affinity_cpu_activity():
+    """Measure assigned CPU activity; global load also includes other CPU sets."""
+    assigned = {f"cpu{cpu}" for cpu in os.sched_getaffinity(0)}
+    samples = []
+    try:
+        for sample in range(2):
+            if sample:
+                time.sleep(1)
+            counters = {}
+            for line in Path("/proc/stat").read_text().splitlines():
+                fields = line.split()
+                if fields and fields[0] in assigned:
+                    values = list(map(int, fields[1:9]))
+                    counters[fields[0]] = (sum(values), values[3] + values[4])
+            if set(counters) != assigned:
+                return 1.0
+            samples.append(counters)
+    except (OSError, ValueError, IndexError):
+        return 1.0
+    total = sum(samples[1][cpu][0] - samples[0][cpu][0] for cpu in assigned)
+    idle = sum(samples[1][cpu][1] - samples[0][cpu][1] for cpu in assigned)
+    return 1.0 if total <= 0 or not 0 <= idle <= total else 1.0 - idle / total
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("plan", type=Path, help="JSON list: name, binary, config, options")
@@ -54,6 +78,8 @@ def main():
     env = dict(os.environ, OMP_NUM_THREADS="1", OPENBLAS_NUM_THREADS="1")
     for case, binary, text, inputs in prepared:
         while os.getloadavg()[0] > len(os.sched_getaffinity(0)):
+            if affinity_cpu_activity() < 0.75:
+                break
             print("Waiting for host contention before", case["name"], flush=True)
             time.sleep(30)
         directory = output / case["name"]

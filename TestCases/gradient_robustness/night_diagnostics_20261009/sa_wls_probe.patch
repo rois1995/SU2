@@ -1,0 +1,22 @@
+diff --git a/SU2_CFD/src/solvers/CTurbSASolver.cpp b/SU2_CFD/src/solvers/CTurbSASolver.cpp
+index 2b2a2d3e18..34b5fdc207 100644
+--- a/SU2_CFD/src/solvers/CTurbSASolver.cpp
++++ b/SU2_CFD/src/solvers/CTurbSASolver.cpp
+@@ -214,6 +214,17 @@ void CTurbSASolver::Preprocessing(CGeometry *geometry, CSolver **solver_containe
+   /*--- Clear Residual and Jacobian. Upwind second order reconstruction and gradients ---*/
+   CommonPreprocessing(geometry, config, Output);
+
++  // Diagnostic binary only: keep flow GG but restore the separately computed WLS SA gradient.
++  if (!config->GetReconstructionGradientRequired() ||
++      config->GetKind_Gradient_Method() != GREEN_GAUSS ||
++      config->GetKind_Gradient_Method_Recon() != WEIGHTED_LEAST_SQUARES || !config->GetMUSCL())
++    SU2_MPI::Error("SA WLS isolation requires separate GG/WLS gradients and turbulence MUSCL", CURRENT_FUNCTION);
++  SU2_OMP_FOR_STAT(omp_chunk_size)
++  for (unsigned long point = 0; point < nPoint; ++point)
++    for (unsigned short dim = 0; dim < nDim; ++dim)
++      nodes->GetGradient()(point, 0, dim) = nodes->GetGradient_Reconstruction()(point, 0, dim);
++  END_SU2_OMP_FOR
++
+   if (kind_hybridRANSLES != NO_HYBRIDRANSLES) {
+
+     /*--- Set the vortex tilting coefficient at every node if required ---*/
