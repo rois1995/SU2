@@ -1,5 +1,29 @@
 # Mesh adaptation findings and follow-up work
 
+## 2026-10-10: bounded same-executable reuse diagnostic prepared
+
+Existing reviewed meshes pass the numerical audits; roundoff/compiler causality
+remains unproved. New package `integration_evidence/native_cluster_reuse_diagnostic_v1`
+preserves both tested executables and compares archived control/candidate with
+same-binary OFF, SCORES, METRIC, BOTH and sampled fresh-hit AUDIT on the first
+failing frozen Euler-to-BL N4/M4 NO workload. MPI1/2/4 units precede seven sequential
+cluster remeshes. Numerical audits remain mandatory; identity/count differences
+are diagnostic observations. DIAGNOSTIC_COMPLETE is not byte identity, a mesh
+correctness certificate beyond the recorded checks, or a speedup claim. Ordinary
+comparison gate and all numerical/BL policies unchanged.
+
+Audit excludes authoritative seed values, compares identical ordered-coordinate
+metric/scalar/star samples with fresh evaluations, reports bounded first mismatch
+locations and collective counts, and returns cached values unchanged. Eight hits
+per private cache/configuration are sampled, so zero mismatches is not exhaustive
+proof. Extra recomputations can change residency/roundoff and add admitted scratch;
+audited timings are not used for performance. Historical control vs rebuilt OFF,
+and previous candidate vs rebuilt BOTH, expose code/build-context differences.
+Source changes still require cluster build/tests; fake-file package4, prior reuse10
+and balance8 checks pass locally without solver/MPI/build runs. Failed evidence
+and previous reports preserved. Resume the original strict full matrix only after
+this discrepancy is explained or fixed; BL-to-Euler/weighted cases remain untested.
+
 ## 2026-10-10: reconstruction reuse passes numerics, fails frozen byte identity
 
 Cluster582331 passes the20-stage MPI1/2/4/unsteady Euler/RANS/CGNS/restart gate.

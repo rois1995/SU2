@@ -408,3 +408,45 @@ TEST_CASE("Native MPI: score scratch is admitted before donor payload", "[Native
   CHECK(patch->cells.empty());
   CHECK(rejected == (world.rank == 0 ? 1 : 0));
 }
+
+TEST_CASE("Native reuse diagnostic: FIFO, seeded authority and bounded fresh dynamic queries", "[NativeField2D]") {
+  FieldPatch patch;
+  patch.second_chance = false;
+  for (const auto& cell : Square()) {
+    DonorCell donor;
+    donor.triangle = cell.t;
+    donor.metric = cell.nodal_target;
+    patch.cells.push_back(donor);
+  }
+  patch.Sort();
+  patch.composition = [](Point p, Tensor sensor) { sensor.yy += 1 / (1e-10 + p.y * p.y); return sensor; };
+  const Point hot{.125, .125};
+  const auto expected = patch.evaluate(hot);
+  for (size_t i = 1; i < QUERY_CACHE_LIMIT; ++i) patch.evaluate({double(i) / (QUERY_CACHE_LIMIT + 1), .25});
+  patch.evaluate(hot);
+  patch.evaluate({.5, .375});
+  CHECK(patch.cache.count({hot.x, hot.y}) == 0);  // FIFO ignores the prior hit.
+  CHECK(patch.evaluate(hot).yy == expected.yy);
+  ReuseAudit audit;
+  patch.audit = &audit;
+  const Point anchor{.375, .125};
+  const Tensor authority{1, 0, 1};
+  patch.cache.erase(patch.recent.front());
+  patch.recent.pop_front();
+  patch.cache.emplace(std::array<double, 2>{anchor.x, anchor.y}, authority);
+  CHECK(patch.evaluate(anchor).yy == 1);
+  CHECK(audit.counts[0] == 0);  // An authoritative vertex may intentionally differ from a fresh projection.
+  const auto samples = patch.samples, queries = patch.queries;
+  for (int i = 0; i < 32; ++i) CHECK(patch.evaluate(hot).yy == expected.yy);
+  CHECK(patch.samples == samples);
+  CHECK(patch.queries == queries + 32);
+  CHECK(audit.counts[0] == 8);
+  CHECK(audit.counts[1] == 0);
+  CHECK(patch.cache.size() <= QUERY_CACHE_LIMIT);
+  patch.cache.at({hot.x, hot.y}).value.yy *= 2;
+  patch.checks = 0;
+  CHECK(patch.evaluate(hot).yy == expected.yy * 2);
+  CHECK(audit.counts[1] == 1);
+  CHECK(audit.first_kind == 1);
+  CHECK(audit.first_coordinates[0] == hot.x);
+}

@@ -647,3 +647,27 @@ TEST_CASE("Native scores: exact ordered geometry reuse and bounded collision rep
   CHECK(next_target.Quality(cell) == quality(cell, different));
   CHECK(next_target.Length(a, b) == length(a, b, different));
 }
+
+TEST_CASE("Native reuse diagnostic: disabled scores and bounded fresh hit checks", "[NativeMesh2D]") {
+  size_t queries = 0;
+  const Metric target = [&](Point p) { ++queries; return Tensor{4 + p.x * p.x, .1, 8 + p.y * p.y}; };
+  const Node a{1, {.1, .2}, 0}, b{2, {1.3, .4}, 0};
+  PatchScores disabled(target, false);
+  const auto expected = disabled.Length(a, b);
+  CHECK(disabled.Length(a, b) == expected);
+  CHECK(queries == 6);
+  ReuseAudit audit;
+  PatchScores checked(target, true, &audit);
+  const auto value = checked.Length(a, b);
+  const auto before = queries;
+  for (int i = 0; i < 32; ++i) CHECK(checked.Length(a, b) == value);
+  CHECK(queries == before + 8 * 3);
+  CHECK(audit.counts[2] == 8);
+  CHECK(audit.counts[3] == 0);
+  // Deliberately inconsistent values prove that the check detects drift without changing the returned score.
+  audit.Check(2, {a.p.x, a.p.y, b.p.x, b.p.y}, {value}, {std::nextafter(value, 1e100)}, 1);
+  CHECK(audit.counts[3] == 1);
+  CHECK(audit.first_kind == 2);
+  CHECK(audit.first_coordinates[0] == a.p.x);
+  CHECK(audit.maximum_relative[1] > 0);
+}

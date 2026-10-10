@@ -208,7 +208,7 @@ inline void relax_wall_apices(std::vector<Triangle>& cells, const Metric& metric
 inline bool reconstruct_step(Operation op, const std::vector<Cell>& old, const Reference& reference, const Metric& metric,
                         Id next, std::vector<Cell>& fresh, std::string& reason,
                         double geometry_tolerance = std::numeric_limits<double>::infinity(), bool coordinated = false,
-                        bool private_surface = false) {
+                        bool private_surface = false, bool reuse_scores = true, ReuseAudit* audit = nullptr) {
   if (old.empty() || old.size() > PATCH_LIMIT) {
     reason = "dependency cap";
     return false;
@@ -221,7 +221,7 @@ inline bool reconstruct_step(Operation op, const std::vector<Cell>& old, const R
     std::vector<Triangle> output;
     Request request{(Kind)((int)op.action - 4), op.a, op.b, 1};
     if (coordinated) {
-      if (!JointSplitPatch(request, triangles(old), metric, next, output, reason)) return false;
+      if (!JointSplitPatch(request, triangles(old), metric, next, output, reason, reuse_scores, audit)) return false;
     } else if (op.action == Action::BULK_MOVE) {
       auto input = triangles(old);
       auto all = nodes(input);
@@ -584,9 +584,11 @@ inline bool reconstruct_step(Operation op, const std::vector<Cell>& old, const R
  * only a complete replacement satisfying the final contracts can be published. */
 inline bool reconstruct(Operation op, const std::vector<Cell>& old, const Reference& reference, const Metric& metric,
                         Id next, std::vector<Cell>& fresh, std::string& reason,
-                        double geometry_tolerance = std::numeric_limits<double>::infinity(), bool coordinated = false) {
+                        double geometry_tolerance = std::numeric_limits<double>::infinity(), bool coordinated = false,
+                        bool reuse_scores = true, ReuseAudit* audit = nullptr) {
   if (!coordinated || op.action != Action::SPLIT)
-    return reconstruct_step(op, old, reference, metric, next, fresh, reason, geometry_tolerance, coordinated);
+    return reconstruct_step(op, old, reference, metric, next, fresh, reason, geometry_tolerance, coordinated, false,
+                            reuse_scores, audit);
   fresh.clear();
   if (old.empty() || old.size() > PATCH_LIMIT) {
     reason = "dependency cap";

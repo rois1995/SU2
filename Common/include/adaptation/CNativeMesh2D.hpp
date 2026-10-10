@@ -32,6 +32,7 @@
 #include <array>
 #include <cmath>
 #include <cstdint>
+#include <cstring>
 #include <functional>
 #include <limits>
 #include <map>
@@ -837,10 +838,40 @@ constexpr std::size_t MAX_JOINT_CAVITY = 128;
 // ponytail: bounded coordinate descent with two insertions; profile before adding a general optimizer.
 // Scoped to one immutable target and one private search. Ordered coordinates retain
 // the original arithmetic; changed coordinates or collisions require fresh evaluation.
+// Diagnostic checks sample eight hits per private cache; counters do not alter returned values.
+struct ReuseAudit {
+  std::array<uint64_t, 4> counts{};  // metric checks/mismatches, score checks/mismatches
+  std::array<double, 2> maximum_relative{};
+  std::array<double, 6> first_coordinates{}, first_cached{}, first_fresh{};
+  int first_kind = 0;  // 1 metric, 2 length, 3 quality, 4 complete current-star score.
+  void Check(int kind, const std::array<double, 6>& coordinates, const std::array<double, 6>& cached,
+             const std::array<double, 6>& fresh, size_t entries) {
+    const size_t slot = kind == 1 ? 0 : 1;
+    ++counts[2 * slot];
+    bool different = false;
+    double scale = 0, difference = 0;
+    for (size_t k = 0; k < entries; ++k) {
+      different |= std::memcmp(&cached[k], &fresh[k], sizeof(double)) != 0;
+      scale = std::max({scale, std::abs(cached[k]), std::abs(fresh[k])});
+      difference = std::max(difference, std::abs(cached[k] - fresh[k]));
+    }
+    maximum_relative[slot] = std::max(maximum_relative[slot], difference / std::max(scale, 1e-300));
+    if (different) {
+      ++counts[2 * slot + 1];
+      if (!first_kind) {
+        first_kind = kind;
+        first_coordinates = coordinates;
+        first_cached = cached;
+        first_fresh = fresh;
+      }
+    }
+  }
+};
 class PatchScores {
  public:
   static constexpr size_t LIMIT = 1024;
-  explicit PatchScores(const Metric& target) : metric(target) {}
+  explicit PatchScores(const Metric& target, bool reuse = true, ReuseAudit* check = nullptr)
+      : metric(target), enabled(reuse), audit(check) {}
   double Length(Node a, Node b) {
     return Get({a.p.x, a.p.y, b.p.x, b.p.y, 0, 0}, 1, [&] { return length(a, b, metric); });
   }
@@ -857,13 +888,20 @@ class PatchScores {
   };
   std::array<Entry, LIMIT> cache{};
   const Metric& metric;
+  bool enabled;
+  ReuseAudit* audit;
+  size_t checks = 0;
   template <class Evaluate>
   double Get(const std::array<double, 6>& coordinates, int kind, Evaluate evaluate) {
+    if (!enabled) return evaluate();
     size_t hash = kind;
     for (const auto x : coordinates)
       hash ^= std::hash<double>{}(x) + size_t(0x9e3779b9) + (hash << 6) + (hash >> 2);
     auto& entry = cache[hash % LIMIT];
-    if (entry.kind == kind && entry.coordinates == coordinates) return entry.value;
+    if (entry.kind == kind && entry.coordinates == coordinates) {
+      if (audit && checks++ < 8) audit->Check(kind + 1, coordinates, {entry.value}, {evaluate()}, 1);
+      return entry.value;
+    }
     const auto value = evaluate();
     entry = {coordinates, value, kind};
     return value;
@@ -884,7 +922,8 @@ inline double SizeDeficit(const std::vector<Triangle>& cells, const Metric& metr
     }
   return value;
 }
-inline Point SplitSeed(const std::vector<Triangle>& old, const Metric& metric, Edge request, Id id) {
+inline Point SplitSeed(const std::vector<Triangle>& old, const Metric& metric, Edge request, Id id,
+                       bool reuse_scores = true, ReuseAudit* audit = nullptr) {
   std::vector<Triangle> pair;
   for (const auto& t : old)
     if (affected(t, {Kind::SPLIT, request.first, request.second, 1})) pair.push_back(t);
@@ -893,7 +932,7 @@ inline Point SplitSeed(const std::vector<Triangle>& old, const Metric& metric, E
   Point chosen = (all.at(request.first).p + all.at(request.second).p) * .5;
   const auto perimeter = boundary(pair);
   double best = 1e100;
-  PatchScores scores(metric);
+  PatchScores scores(metric, reuse_scores, audit);
   auto consider = [&](Point p) {
     std::vector<Triangle> fan;
     for (const auto& e : perimeter) {
@@ -916,7 +955,7 @@ inline Point SplitSeed(const std::vector<Triangle>& old, const Metric& metric, E
   return chosen;
 }
 inline std::vector<Triangle> JointPatch(const std::vector<Triangle>& old, const Metric& metric, Id first, Point seed,
-                                        Edge forbidden) {
+                                        Edge forbidden, bool reuse_scores = true, ReuseAudit* audit = nullptr) {
   if (old.empty() || old.size() > MAX_JOINT_CAVITY) return {};
   std::vector<Triangle> pair, rest;
   for (const auto& t : old) {
@@ -942,7 +981,7 @@ inline std::vector<Triangle> JointPatch(const std::vector<Triangle>& old, const 
     if (orient(face.second.first.p, face.second.second.p, seed) <= 0) return {};
     fan.push_back({0, {{face.second.first, face.second.second, {first, seed, 0}}}, 0});
   }
-  PatchScores scores(metric);
+  PatchScores scores(metric, reuse_scores, audit);
   const auto sizeCost = [&](const std::vector<Triangle>& ts) { return SizeDeficit(ts, metric, &scores); };
   const double oldCost = sizeCost(old), oldMax = max_length(old, metric);
   std::vector<Triangle> best;
@@ -956,10 +995,10 @@ inline std::vector<Triangle> JointPatch(const std::vector<Triangle>& old, const 
         state[slot] = triangle(parent.v[0], parent.v[1], inserted);
         state.push_back(triangle(parent.v[1], parent.v[2], inserted));
         state.push_back(triangle(parent.v[2], parent.v[0], inserted));
-        auto score = [&](const std::vector<Triangle>& ts) {
-          double value = sizeCost(ts);
+        auto score = [&](const std::vector<Triangle>& ts, bool cached = true) {
+          double value = SizeDeficit(ts, metric, cached ? &scores : nullptr);
           for (const auto& t : ts) {
-            const auto q = scores.Quality(t);
+            const auto q = cached ? scores.Quality(t) : quality(t, metric);
             if (!(q > 0)) return 1e100;
             value += weight * std::max(0., .2 - q) + 1e-4 * (1 - q) * (1 - q);
           }
@@ -969,6 +1008,7 @@ inline std::vector<Triangle> JointPatch(const std::vector<Triangle>& old, const 
         size_t scored_count = 0;
         double previous_score = 0;
         bool previous_valid = false;
+        size_t star_checks = 0;
         auto consider = [&](const std::vector<size_t>& indices, std::vector<Triangle> trial) {
           if (indices.size() > scored_indices.size()) throw std::runtime_error("joint score dependency cap");
           std::vector<Triangle> previous;
@@ -978,13 +1018,18 @@ inline std::vector<Triangle> JointPatch(const std::vector<Triangle>& old, const 
           // Unchanged cell and edge terms cancel. The complete point star or flip
           // pair contains every changed term; its unchanged perimeter also cancels.
           const double trial_score = score(trial);
-          if (!previous_valid || scored_count != indices.size() ||
+          if (!reuse_scores || !previous_valid || scored_count != indices.size() ||
               !std::equal(indices.begin(), indices.end(), scored_indices.begin())) {
             previous_score = score(previous);
             std::copy(indices.begin(), indices.end(), scored_indices.begin());
             scored_count = indices.size();
             previous_valid = true;
           }
+          if (reuse_scores && audit && star_checks++ < 8)
+            audit->Check(4, {previous.front().v[0].p.x, previous.front().v[0].p.y,
+                            previous.front().v[1].p.x, previous.front().v[1].p.y,
+                            previous.front().v[2].p.x, previous.front().v[2].p.y},
+                         {previous_score}, {score(previous, false)}, 1);
           if (!(trial_score < previous_score - 1e-10)) return false;
           for (size_t k = 0; k < indices.size(); ++k) state[indices[k]] = trial[k];
           previous_valid = false;
@@ -1072,7 +1117,8 @@ inline std::vector<Triangle> JointPatch(const std::vector<Triangle>& old, const 
 }
 
 inline bool JointSplitPatch(Request request, const std::vector<Triangle>& old, const Metric& metric, Id first,
-                            std::vector<Triangle>& fresh, std::string& reason) {
+                            std::vector<Triangle>& fresh, std::string& reason, bool reuse_scores = true,
+                            ReuseAudit* audit = nullptr) {
   fresh.clear();
   if (request.kind != Kind::SPLIT || old.empty() || old.size() > MAX_JOINT_CAVITY) {
     reason = "joint dependency cap or unsupported action";
@@ -1087,8 +1133,8 @@ inline bool JointSplitPatch(Request request, const std::vector<Triangle>& old, c
       max_length(fresh, metric) <= maximum * (1 + 1e-12) && SizeDeficit(fresh, metric) < before * (1 - 1e-8) &&
       strict_cells(fresh, reason) && validate_replacement(old, fresh, reason))
     return true;
-  fresh = JointPatch(old, metric, first, SplitSeed(old, metric, edge(request.a, request.b), first),
-                     edge(request.a, request.b));
+  fresh = JointPatch(old, metric, first, SplitSeed(old, metric, edge(request.a, request.b), first, reuse_scores, audit),
+                     edge(request.a, request.b), reuse_scores, audit);
   if (fresh.empty()) {
     reason = "joint reconstruction misses shape or size progress";
     return false;

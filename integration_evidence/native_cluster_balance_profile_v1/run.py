@@ -1,6 +1,7 @@
 """One-allocation serial frozen control/profile pilot with verified compact exports."""
 import argparse
 import csv
+import datetime
 import errno
 import json
 import math
@@ -25,10 +26,18 @@ PROFILE_CONTROL = False
 RESULT_PREFIX = 'balance_profile'
 SCOPE = 'Frozen-only same-allocation paired instrumentation experiment. No time-marching CFD. Numerical PASS and byte identity precede performance interpretation.'
 UNITS = '[NativeBalanceProfile2D],[NativeEngine2D],[NativeDistributed2D],[NativeField2D],[PassiveComm]'
+ROLES = ('control', 'profile')
+ROLE_BINARIES = {}
+ROLE_ENVIRONMENTS = {}
+MPI_EXPORTS = ()
+REQUIRE_IDENTITY = True
+BASE_ENVIRONMENT = {}
+CASE_DETAILS = None
 
 
 def execute(command, case, environment, timeout):
     samples = []
+    utc_started = datetime.datetime.now(datetime.timezone.utc).isoformat()
     started = time.monotonic()
     with (case / 'solver.log').open('x') as log:
         child = subprocess.Popen(command, cwd=case, env=environment, stdout=log,
@@ -53,7 +62,8 @@ def execute(command, case, environment, timeout):
                     except subprocess.TimeoutExpired:os.killpg(child.pid, signal.SIGKILL);child.wait()
                     code = 124
                     break
-    return dict(exit_code=code, wall_seconds=time.monotonic()-started, command=command, machine_samples=samples)
+    return dict(exit_code=code, wall_seconds=time.monotonic()-started, command=command, machine_samples=samples,
+                utc_started=utc_started, utc_finished=datetime.datetime.now(datetime.timezone.utc).isoformat())
 
 
 def retained(case):
@@ -147,9 +157,11 @@ def main():
     def save(): (out / 'validation.json').write_text(json.dumps(records, indent=2) + '\n')
     base_env = dict(os.environ, OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1',
                     PYTHONDONTWRITEBYTECODE='1', SU2_NATIVE_BALANCE_PROFILE='NO')
+    base_env.update(BASE_ENVIRONMENT)
     binaries = {role:closed(ROOT / v['path']) for role,v in checkpoint['binaries'].items()}
     def mpi(binary, ranks, tail, frozen=False):
         exports=['-x', 'SU2_NATIVE_BALANCE_PROFILE']
+        for name in MPI_EXPORTS: exports+=['-x', name]
         if frozen:
             exports+=['-x', 'SU2_NATIVE_AIRFOIL_CONFIG', '-x', 'SU2_NATIVE_FROZEN_METRIC']
         return ['mpirun', '-n', str(ranks), '-machinefile', str(out/'machinefile')] + exports + [str(binary)] + tail
@@ -174,7 +186,7 @@ def main():
             variants=VARIANTS[(rep-1)%4:]+VARIANTS[:(rep-1)%4]
             for kind in kinds:
                 for workers, repartition in variants:
-                    roles=('control', 'profile') if rep % 2 else ('profile', 'control')
+                    roles=ROLES if rep % 2 else ROLES[::-1]
                     for role in roles:
                         verify(checkpoint)
                         name=f'{kind}_n4_m{workers}_p{repartition}_r{rep}_{role}'
@@ -191,9 +203,12 @@ def main():
                         env=dict(base_env, SU2_NATIVE_AIRFOIL_CONFIG=str(case/'run.cfg'),
                                  SU2_NATIVE_FROZEN_METRIC=str(case/'frozen_sensor.csv'),
                                  SU2_NATIVE_BALANCE_PROFILE='YES' if role=='profile' or PROFILE_CONTROL else 'NO')
-                        command=mpi(binaries[role], 4, ['[NativeFrozenAirfoil2D]', '--use-colour', 'no'], frozen=True)
+                        env.update(ROLE_ENVIRONMENTS.get(role, {}))
+                        binary_role = ROLE_BINARIES.get(role, role)
+                        command=mpi(binaries[binary_role], 4, ['[NativeFrozenAirfoil2D]', '--use-colour', 'no'], frozen=True)
                         evidence=dict(phase='preparing', command=command, inputs_sha256={p.name:sha(p) for p in case.iterdir()},
-                                      binary_sha256=checkpoint['binaries'][role]['sha256'])
+                                      binary_sha256=checkpoint['binaries'][binary_role]['sha256'],
+                                      diagnostic_environment=ROLE_ENVIRONMENTS.get(role, {}))
                         (case/'run_evidence.json').write_text(json.dumps(evidence, indent=2)+'\n')
                         outcome=execute(command, case, env, args.timeout)
                         evidence.update(outcome, phase='terminal');(case/'run_evidence.json').write_text(json.dumps(evidence, indent=2)+'\n')
@@ -232,6 +247,7 @@ def main():
                                 row['balance_summary']=dict(private_wall_max_mean=max(totals)/(sum(totals)/workers) if sum(totals) else 0,
                                     longest_private_seconds=max(r['longest_private_seconds'] for r in row['balance']))
                             else:assert not list(case.glob('native_balance_*.csv')), 'Control unexpectedly emitted profiling files'
+                            if CASE_DETAILS: row['diagnostic'] = CASE_DETAILS(case, row)
                             row['status']='PASS'
                         except Exception as error:row['error']=str(error)
                         copied=export_and_clean(case, out/'cases'/name, fixtures[kind], objects)
@@ -241,13 +257,15 @@ def main():
                         row['retained_bytes_if_expanded']=sum(v['bytes'] for v in copied.values())
                         records['cases'].append(row);save()
                         assert row['status']=='PASS', row.get('error')
-                        if len(records['cases'])%2==0:
+                        if len(records['cases'])%len(ROLES)==0:
                             records['pairs']=compare(records['cases']);save()
-                            assert all(p['numerical_outputs_identical'] for p in records['pairs']), 'Candidate changed frozen numerical outputs; campaign stopped'
+                            if REQUIRE_IDENTITY:
+                                assert all(p['numerical_outputs_identical'] for p in records['pairs']), 'Candidate changed frozen numerical outputs; campaign stopped'
         pairs=compare(records['cases']);records['pairs']=pairs
-        assert all(p['numerical_outputs_identical'] for p in pairs), 'Candidate changed frozen grid/transport output; do not compare timings'
+        if REQUIRE_IDENTITY:
+            assert all(p['numerical_outputs_identical'] for p in pairs), 'Candidate changed frozen grid/transport output; do not compare timings'
         verify(checkpoint)
-        records['status']='PASS'
+        records['status']='PASS' if REQUIRE_IDENTITY else 'DIAGNOSTIC_COMPLETE'
     except Exception as error:
         records.update(status='FAIL', error=str(error))
         if 'pending_work_folder' in records:
@@ -263,7 +281,7 @@ def main():
     records['retained_unique_file_bytes']=size
     save()
     print(records['status'], len(records['cases']), 'cases;', out, flush=True)
-    return 0 if records['status']=='PASS' else 1
+    return 0 if records['status'] in ('PASS', 'DIAGNOSTIC_COMPLETE') else 1
 
 
 if __name__=='__main__':sys.exit(main())

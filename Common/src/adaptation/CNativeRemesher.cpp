@@ -350,7 +350,24 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
   const int profileMin = CPassiveComm::Allreduce(int(control.balance_profile), CPassiveComm::Op::MIN);
   const int profileMax = CPassiveComm::Allreduce(int(control.balance_profile), CPassiveComm::Op::MAX);
   if (profileMin != profileMax) failure.Set(1, 0, "Native balance profiling differs across CFD ranks.");
+  const char* reuse = std::getenv("SU2_NATIVE_REUSE");
+  if (!reuse) reuse = "BOTH";
+  if (std::strcmp(reuse, "BOTH") && std::strcmp(reuse, "OFF") && std::strcmp(reuse, "SCORES") && std::strcmp(reuse, "METRIC"))
+    failure.Set(1, 0, "SU2_NATIVE_REUSE must be BOTH, OFF, SCORES or METRIC.");
+  control.reuse_scores = !std::strcmp(reuse, "BOTH") || !std::strcmp(reuse, "SCORES");
+  control.metric_second_chance = !std::strcmp(reuse, "BOTH") || !std::strcmp(reuse, "METRIC");
+  const char* audit = std::getenv("SU2_NATIVE_REUSE_AUDIT");
+  if (audit && std::strcmp(audit, "YES") && std::strcmp(audit, "NO"))
+    failure.Set(1, 0, "SU2_NATIVE_REUSE_AUDIT must be YES or NO.");
+  control.reuse_audit = audit && !std::strcmp(audit, "YES");
+  const int reuseFlags = int(control.reuse_scores) + 2 * int(control.metric_second_chance) + 4 * int(control.reuse_audit);
+  const int reuseMin = CPassiveComm::Allreduce(reuseFlags, CPassiveComm::Op::MIN);
+  const int reuseMax = CPassiveComm::Allreduce(reuseFlags, CPassiveComm::Op::MAX);
+  if (reuseMin != reuseMax)
+    failure.Set(1, 0, "Native reconstruction reuse diagnostics differ across CFD ranks.");
   CollectiveFailure(failure, CURRENT_FUNCTION);
+  if (world.rank == 0 && (std::getenv("SU2_NATIVE_REUSE") || audit))
+    std::cout << "Native reuse diagnostic mode: " << reuse << "; audit=" << (control.reuse_audit ? "YES" : "NO") << '\n';
   if (compositionFactory) control.metric_composition = compositionFactory(config, geometry, metric);
   // Account for refinement demand as well as input size. Original frozen P1
   // tensors are averaged at donor centroids; no tensor/target is altered.
@@ -520,6 +537,31 @@ CRemeshResult CNativeRemesher::Remesh(const CConfig& config, const CGeometry& ge
       std::array<uint64_t, 3> fieldQueries;
       CPassiveComm::Allreduce(engine.stats.field_queries.data(), fieldQueries.data(), fieldQueries.size(),
                              CPassiveComm::Op::SUM, workers.comm);
+      if (control.reuse_audit) {
+        std::array<uint64_t, 4> checks{};
+        std::array<double, 2> relative{};
+        CPassiveComm::Allreduce(engine.stats.reuse_audit.counts.data(), checks.data(), checks.size(),
+                               CPassiveComm::Op::SUM, workers.comm);
+        CPassiveComm::Allreduce(engine.stats.reuse_audit.maximum_relative.data(), relative.data(), relative.size(),
+                               CPassiveComm::Op::MAX, workers.comm);
+        if (workers.rank == 0)
+          std::cout << "Native reuse audit metric checks/mismatches score checks/mismatches: " << checks[0] << ' '
+                    << checks[1] << ' ' << checks[2] << ' ' << checks[3] << "; maximum relative: " << relative[0] << ' '
+                    << relative[1] << '\n';
+        const auto& check = engine.stats.reuse_audit;
+        if (check.first_kind) {
+          // One bounded record per worker; the complete accepted numerical outputs are retained independently.
+          std::ostringstream detail;
+          detail << std::setprecision(17) << "Native reuse first mismatch worker=" << workers.rank
+                 << " kind=" << check.first_kind << " coordinates:";
+          for (const auto v : check.first_coordinates) detail << ' ' << v;
+          detail << "; cached:";
+          for (const auto v : check.first_cached) detail << ' ' << v;
+          detail << "; fresh:";
+          for (const auto v : check.first_fresh) detail << ' ' << v;
+          std::cout << detail.str() << '\n';
+        }
+      }
       const std::array<uint64_t, 2> localSearch{engine.donor.search_candidates, engine.donor.full_scan_equivalent};
       std::array<uint64_t, 2> donorSearch{};
       CPassiveComm::Allreduce(localSearch.data(), donorSearch.data(), localSearch.size(), CPassiveComm::Op::SUM, workers.comm);

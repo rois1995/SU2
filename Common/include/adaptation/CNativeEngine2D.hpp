@@ -59,12 +59,14 @@ struct EngineOptions {
   double geometry_tolerance = 0;
   int phase_rounds = 300, sweeps = 6;
   bool ordered = false, fixed_boundary = false, balance_profile = false;
+  bool reuse_scores = true, metric_second_chance = true, reuse_audit = false;
   MetricComposition metric_composition;
 };
 struct EngineStats {
   int rounds = 0, commits = 0, cross_rank = 0, conflicts = 0, size_rejected = 0, memory_rejected = 0,
       stale_rejected = 0;
   size_t max_patch = 0, max_donors = 0;
+  ReuseAudit reuse_audit;
   std::array<uint64_t, 3> field_queries{};  // requests, evaluated samples, dynamic evictions
   int joint_commits = 0;
   double joint_seconds = 0;
@@ -105,6 +107,8 @@ class Engine {
     if (!(std::isfinite(options.geometry_tolerance) && options.geometry_tolerance > 0) || !options.dependency_bytes ||
         options.phase_rounds < 1 || options.sweeps < 1)
       failure.Set(1, 0, "Invalid native transaction controls.");
+    if (options.reuse_audit)
+      donor.diagnostic_scratch = FIELD_LIMIT * sizeof(DonorCell) + 16 * QUERY_CACHE_BYTES + sizeof(FieldPatch);
     Id largestPoint = 0, largestCell = 0;
     std::vector<Cell> added;
     added.reserve(owned.size());
@@ -115,6 +119,7 @@ class Engine {
         if (entry.first != cell.t.id) throw std::runtime_error("Native owner map/cell identity mismatch.");
         FieldPatch patch;
         patch.composition = donor.composition;
+        patch.second_chance = options.metric_second_chance;
         patch.cells.push_back(donor.owned.at(entry.first));
         for (const auto marker : cell.marker)
           if (marker) patch.extension_components.insert(marker);
@@ -386,6 +391,8 @@ class Engine {
     finishStage(1);  // Dependency closure/import and reservations.
     auto field = donor.import(old, active, options.dependency_bytes, options.geometry_tolerance, stats.max_donors,
                               stats.memory_rejected);
+    field->second_chance = options.metric_second_chance;
+    field->audit = options.reuse_audit ? &stats.reuse_audit : nullptr;
     const Metric target = checked([field](Point p) { return field->evaluate(p); });
     const Id pointBase = Allocate(nextPoint, active ? 3 * PATCH_LIMIT + 1 : 0);
     const Id cellBase = Allocate(nextCell, active ? 3 * PATCH_LIMIT : 0);
@@ -408,7 +415,7 @@ class Engine {
               field->cache.emplace(std::array<double, 2>{p.x, p.y}, cell.nodal_target[k]);
           }
         approved = reconstruct(choice.op, old, reference, target, pointBase, fresh, reason, options.geometry_tolerance,
-                               coordinated);
+                               coordinated, options.reuse_scores, options.reuse_audit ? &stats.reuse_audit : nullptr);
         if (approved && fresh.size() > 3 * PATCH_LIMIT) {
           approved = false;
           reason = "replacement cell cap";

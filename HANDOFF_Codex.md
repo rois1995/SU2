@@ -1,5 +1,42 @@
 # Current handoff — 2026-10-10
 
+## Frozen reuse diagnostic prepared — 2026-10-10
+
+User asks whether audited meshes are correct and differences are roundoff. Answer:
+reviewed meshes pass numerical contracts; root cause remains unproved. Prepared
+integration_evidence/native_cluster_reuse_diagnostic_v1 on the existing performance
+branch. Seven sequential frozen Euler-to-BL N4/M4 NO runs: validated archived
+control, preserved previous candidate, same new executable OFF/SCORES/METRIC/BOTH,
+and separate bounded fresh-hit AUDIT. Focused MPI1/2/4 units precede remeshes.
+Numerical failures still stop; DIAGNOSTIC_COMPLETE is never byte-identity PASS.
+Ordinary comparison identity/operation gate remains strict. Actual-query geometric
+BL, sensor-only donors, finer demand/fade, candidates and thresholds remain intact.
+
+Runtime diagnostic environment flags collectively validated; default BOTH/NO.
+OFF disables scalar and unchanged-star reuse, metric cache remains original FIFO.
+Audit checks eight dynamic metric hits per imported patch (authoritative vertex
+seeds excluded), eight scalar hits per score cache and eight complete star checks
+per joint configuration. It recomputes with identical ordered coordinates/donors,
+reports collective counts/errors and first mismatch values/coordinates per worker,
+and returns original cached values. Sampling is bounded, not exhaustive; extra
+queries/admission/call context can affect audited outputs and timing. Additional
+bounded fresh-patch scratch is admitted. All non-audit modes have the same scratch
+reservation. OFF vs historical control and BOTH vs previous candidate expose build/
+code-context differences; four flags alone cannot prove compiler causality.
+
+Preserve both actual tested binaries BEFORE rebuilding via new prepare.py
+--preserve-previous. It requires control1a092865535502a3cf42a4f4d16c481c3cdc45dc6feff1a9844afa22c181634f
+and previous candidate13751201942dfcf9731bc377e45a69b0793ce82f0e2abe0b72edfbcee0902626.
+Previous candidate copied exclusively to build-native/reconstruction-previous;
+new checkpoint build-native/reuse_diagnostic_checkpoint.json. Build test_driver
+on cluster login host, prepare, qsub new RunReuseDiagnosticSGE.sh. No local C++
+compilation/CFD/MPI/performance or actual scheduler submission. Four new fake-file
+checks pass; original reuse10 and balance8 checks pass. Focused new C++ regressions
+await cluster compilation/execution. Existing failed results/review/findings kept.
+Absolute UTC case timestamps added to shared compact runner. Download only new
+ClusterResults/reuse_diagnostic_JOB and its jobs/JOB_reuse_diagnostic_launcher.
+Goal tracker remains PAUSED; separately authorized diagnostic only. AdapNoExt untouched.
+
 ## Downloaded reuse results reviewed — 2026-10-10
 
 Implementation d0dc9822fc6c3c1a84fcb1ec0907c869822d3580 is published on
