@@ -1,5 +1,40 @@
 # Mesh adaptation findings and follow-up work
 
+## 2026-10-10: runtime reuse preserves outputs in diagnostic582344
+
+All7 frozen Euler-to-BL N4/M4 NO numerical audits PASS; focused native MPI1/2/4
+63 tests/rank PASS. Same executable OFF, SCORES, METRIC, BOTH and AUDIT yields
+byte-identical mesh and four transported-tensor files. Fresh sampled metric
+checks540894 and scalar/star checks424 find zero bit mismatches. Operation/
+selection counts equal across all7 roles. Historical control still differs from
+new OFF, while archived reuse candidate equals new BOTH. Runtime caching does
+not explain the historical discrepancy on this case. Arithmetic/build/source
+context strongly implicated; a specific compiler transformation is unproved.
+
+Existing41 low-bit coordinate/43 tensor changes have no demonstrated practical
+consequence: maxpoint displacement3.145e-15, all shape/height/reference/transport
+contracts pass. Do not spend another campaign pursuing historical byte identity
+as accuracy. Keep that failed comparison in evidence and use same-executable
+OFF/BOTH for strict operator-invariance validation; numerical tolerances remain
+unchanged. No production correction is justified by this diagnostic alone.
+
+OFF->BOTH remesh28.9314->27.5512s(-4.77%), privateCPU24.0507->22.7048s(-5.60%).
+Score-only27.5769s, metric-only28.8401s. Most reduction is avoided cache hits;
+new-query work and max/mean private imbalance~2.23 remain. Zero other visible
+compute processes in samples and verified serial UTC intervals do not establish
+exclusive hardware; one frozen workload is not a speedup/scaling certificate.
+
+Review verifies1045 unique saved source/tool/data/log hashes and records scopes,
+counts, audits and historical differences in
+integration_evidence/native_cluster_reuse_diagnostic_v1/cluster_review_582344.
+Original data unchanged; no local solver/build/MPI/heavy audit. Next strict
+16-case same-binary matrix covers both coarse Euler-to-BL and BL-to-Euler with
+M4NO/M4YES/M3YES/M2YES; package prepared and fake-file tested, not yet executed.
+No rebuild needed: orchestration/docs only; prepare guards the tested binary,
+unchanged diagnostic C++/build pins/options, and uses a separate exclusive
+checkpoint. Full unsteady lifecycle at this source, larger-scale efficiency,
+converged viscous quantities and composed-field gradation remain separate work.
+
 ## 2026-10-10: bounded same-executable reuse diagnostic prepared
 
 Existing reviewed meshes pass the numerical audits; roundoff/compiler causality

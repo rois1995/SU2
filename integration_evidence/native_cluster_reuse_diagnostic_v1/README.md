@@ -126,3 +126,13 @@ Local package checks use fake files only:
 ```bash
 PYTHONDONTWRITEBYTECODE=1 python3 integration_evidence/native_cluster_reuse_diagnostic_v1/check_package.py
 ```
+
+## Downloaded diagnostic reviewed
+
+Job582344 completed all7 numerical audits. OFF/SCORES/METRIC/BOTH/AUDIT outputs
+are byte-identical;540894 metric/424 score fresh checks find zero bit mismatches.
+The historical discrepancy remains with reuse disabled in the new binary, so
+runtime reuse does not explain it on this case. See
+[the saved review](cluster_review_582344/REVIEW.md). Stop historical roundoff-only
+campaigns; the next run is the [strict same-executable matrix](MATRIX_README.md).
+It needs **no rebuild** and preserves both old checkpoints/binaries/results.

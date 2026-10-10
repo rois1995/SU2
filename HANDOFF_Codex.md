@@ -1,5 +1,52 @@
 # Current handoff — 2026-10-10
 
+## Diagnostic582344 reviewed; strict same-binary matrix ready — 2026-10-10
+
+User confirms diagnostic downloaded, and asks whether tiny differences matter.
+Answer: no demonstrated practical accuracy issue here; stop historical byte-
+identity chasing. All7 numerical audits PASS, MPI1/2/4 focused63 tests per rank
+PASS. New executable OFF/SCORES/METRIC/BOTH/AUDIT produces byte-identical mesh
+and all4 tensor CSVs. Sampled fresh checks540894 metrics/424 scores, zero bit
+mismatches. All operation/selection counts identical, including historicalcontrol.
+Historical control differs even from new OFF; archived candidate equals new BOTH.
+This rules against runtime reuse policies as the explanation on this workload;
+arithmetic/source/build context strongly implicated, precise compiler cause not
+proved. No production arithmetic fix, tolerance widening or target change.
+
+Lightweight saved-output review verifies1045 unique source/tool/data/log hashes,
+receipts/manifests/audit reports and profile/timing/count closure. Report/reproducer
+and detailed JSON: integration_evidence/native_cluster_reuse_diagnostic_v1/cluster_review_582344.
+Old differences unchanged41points(max3.1447e-15),43tensors(entry-scaled1.0304e-13),
+4tensors at unchanged coords. All meshes12235points/24078triangles; qmin.189608758,
+Lmax1.799999529, height error3.81295e-12, transported-directional defect7.04577e-11.
+Do not treat entry-scaled differences as directional tensor errors. NativeBL
+composed-gradation limitation and unsteady/new-source lifecycle checks remain.
+
+Same-binary OFF28.9314s/BOTH27.5512s(-4.77%); privateCPU24.0507/22.7048s(-5.60%).
+Score-only27.5769s; metric-only28.8401s. Requests-33.20%, evaluations-2.81%; most
+saved requests hits. No other visible compute processes in recorded samples and
+UTC verifies serial cases, but no exclusivity/general speedup/scaling claim.
+Private imbalance BOTHmax/mean2.2275; expensive new-query work remains.
+
+Next prepared16-case frozen same-binary OFF/BOTH matrix (two directions, N4/M4NO,
+M4YES/M3YES/M2YES). Numerical audits, exact accepted output hashes and identical
+operation/selection counts mandatory; first failure stops. Original historical
+comparison remains strict/unchanged with its failure preserved. Matrix README
+and matrix_prepare.py/matrix_run.py/RunReuseMatrixSGE.sh are in same package.
+No rebuild needed: known job582344 profile SHA5827ffbe8b7ac9dd0336d000a33a8d649975579f1cd57f623a440a00fb87019e.
+Preparation verifies old diagnostic C++/build-source pins, unchanged buildoptions
+and that binary; creates build-native/reuse_matrix_checkpoint.json exclusively.
+Only orchestration/docs changed this turn. Preserve build-native/reuse_diagnostic_checkpoint.json.
+Results: ClusterResults/reuse_matrix_JOB/cases; jobs/JOB_reuse_matrix_launcher.
+One ordinary4-slot sequential job, no CFDsteps/ClusterRaw/flowseries; closed compact
+exports and copy fallback kept. Package7 fake checks PASS, including16-case flow,
+stop-on-difference, work counts and binary/source/build-option drift guards.
+
+No local SU2/C++build/MPI/performance or heavy mesh-audit rerun; no qsub submission.
+Goal tracker remains PAUSED. AdapNoExt and original downloads untouched. Pending:
+user's new matrix job; broader workload/scaling/interpolation optimization after
+its results. Current publication commit will be reported after push verification.
+
 ## Frozen reuse diagnostic prepared — 2026-10-10
 
 User asks whether audited meshes are correct and differences are roundoff. Answer:
