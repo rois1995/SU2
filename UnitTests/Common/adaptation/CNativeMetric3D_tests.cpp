@@ -194,3 +194,14 @@ TEST_CASE("Native general wall collapse retains fine demands through the frozen 
   CHECK_FALSE(ValidateMetricPatch(fresh.cells,fine,measured,reason));
   CHECK(reason.find("oversized")!=std::string::npos);
 }
+
+TEST_CASE("Native private shape rejection avoids edge tracing while preserving actual composition", "[NativeMesh3D]") {
+  std::vector<Cell> fresh;std::string reason;PatchMetric metric;MetricStats stats;
+  REQUIRE(Cone({Single()},{4,{.03125,.03125,.03125}},100,fresh,reason));
+  size_t compositions=0;
+  FrozenField target({Donor({})},[&](Point,Tensor sensor){++compositions;return sensor;});
+  CHECK_FALSE(ValidateMetricChange({Single()},fresh,MetricChange::Repair,target,metric,reason,&stats));
+  CHECK(reason.find("shape/sliver")!=std::string::npos);
+  CHECK(stats.cells==4);CHECK(stats.edge_evaluations==0);CHECK(target.Statistics().edge_requests==0);
+  CHECK(compositions==4);CHECK(target.Statistics().requests==4);
+}

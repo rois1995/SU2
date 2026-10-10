@@ -700,7 +700,8 @@ void EngineReport(const EngineResult& result, World& world, const std::string& l
        << " update_s=" << s.update_seconds << " completion_s=" << s.completion_seconds << " other_s=" << s.other_seconds
        << " process_cpu_s=" << s.process_cpu_seconds << " reconstruction_cpu_s=" << s.reconstruction_cpu_seconds
        << " metric_cpu_s=" << s.metric_cpu_seconds << " measurement_cpu_s=" << s.measurement_cpu_seconds
-       << " repair_proposals=" << s.repair_proposals << " moved=" << s.moved << " reconnected=" << s.reconnected
+       << " repair_fallbacks=" << s.repair_fallbacks << " fallback_accepted=" << s.fallback_accepted
+       << " recovery_starts=" << s.recovery_starts << " repair_proposals=" << s.repair_proposals << " moved=" << s.moved << " reconnected=" << s.reconnected
        << " batches=" << s.donor_batches << " batch_retries=" << s.batch_retries
        << " field_build_nested_s=" << s.field_build_seconds << " field_query_nested_s=" << s.field_query_seconds
        << " cache_nested_s=" << s.field_cache_seconds << " search_nested_s=" << s.field_search_seconds
@@ -1033,8 +1034,8 @@ TEST_CASE("Native MPI general coarsening supports repeated planar refine coarsen
           CHECK(Bytes(owned)==worker_saved);
           CHECK(result.stats.edge_evaluations+result.stats.edge_reused==6*(result.stats.initial_cells+result.stats.updated_cells));
           CHECK(result.stats.other_seconds>=-1e-12);
-          if(coarsening) { CHECK(result.splits.empty()); CHECK(result.collapses.size()==result.stats.accepted); }
-          else { CHECK(result.collapses.empty()); CHECK(result.splits.size()==result.stats.accepted); }
+          if(coarsening) { CHECK(result.splits.empty()); CHECK(result.collapses.size()+result.stats.moved+result.stats.reconnected==result.stats.accepted); }
+          else { CHECK(result.collapses.empty()); CHECK(result.splits.size()+result.stats.moved+result.stats.reconnected==result.stats.accepted); }
           if(!valid) std::cerr<<"CYCLE_FAILURE "<<label<<" rank="<<worker.rank<<" "<<result.reason<<'\n';
           EngineReport(result,worker,label);adapted.swap(result.cells);
           MPI_Comm_free(&subset);
@@ -1267,11 +1268,12 @@ TEST_CASE("Native MPI planar movement and face edge reconnection publish full pr
 TEST_CASE("Native automatic MPI repair selects complete failing features and restores frozen gates", "[NativeDistributed3D][NativeAutomaticRepair3D]") {
   World parent;using Clock=std::chrono::steady_clock;
   auto elapsed=[](Clock::time_point start){return std::chrono::duration<double>(Clock::now()-start).count();};
+  for(const std::string mode:{"auto","restoreR","restoreC"})
   for(const auto spec:std::array<AnisotropicCase,3>{{{"unit",1,false,0},{"thin8",1e-8,false,0},{"shear4",1e-4,true,0}}})
     for(const std::string kind:{"face","edge4","wall","interior"}) {
       auto fixture=RepairGeometry(kind,spec.height,spec.shear,.03125);const PlanarReference geometry(fixture.facets);
       if(kind=="face") { Patch next;std::string reason;REQUIRE(Reconnect(fixture.patch,3,0,geometry,next,reason));fixture.patch=std::move(next); }
-      const std::string name="auto_"+kind+"_"+spec.name;
+      const std::string name=mode+"_"+kind+"_"+spec.name;
       const auto input=Partition(Rows(fixture.patch),parent);const auto saved=Bytes(input);
       Tensor tensor{1,spec.shear ? -1. : 0,0,spec.shear ? 2. : 1.,0,(kind=="face" ? 16. : 1.)/(spec.height*spec.height)};
       if(kind=="edge4") tensor={.04,spec.shear ? -.04 : 0,0,spec.shear ? .08 : .04,0,1./(spec.height*spec.height)};
@@ -1295,14 +1297,24 @@ TEST_CASE("Native automatic MPI repair selects complete failing features and res
         if(subset!=MPI_COMM_NULL) {
           World worker(subset);Owned owned;for(auto row:migrated)owned.emplace(row.cell.id,row);
           const auto owned_saved=Bytes(owned);EngineOptions options;options.timings=true;
-          auto result=Repair(worker,owned,source_rows,geometry,{},options);
+          auto result=mode=="restoreR" ? Refine(worker,owned,source_rows,geometry,{},options) :
+              (mode=="restoreC" ? Coarsen(worker,owned,source_rows,geometry,{},options) : Repair(worker,owned,source_rows,geometry,{},options));
           if(!result.valid)std::cerr<<"AUTO_REPAIR_FAILURE "<<label<<" rank="<<worker.rank<<" "<<result.reason<<'\n';
           valid=result.valid;CHECK(valid);CHECK(Bytes(owned)==owned_saved);CHECK(result.stats.other_seconds>=-1e-12);
           CHECK(worker.sum(int(result.stats.accepted))>0);
-          CHECK(worker.sum(int(kind=="wall" || kind=="interior" ? result.stats.moved : result.stats.reconnected))>0);
-          CHECK(result.splits.empty());CHECK(result.collapses.empty());
+          CHECK(result.stats.recovery_starts<=1);
+          CHECK(result.stats.rounds<=options.maximum_rounds);
+          CHECK(result.stats.initial_cells==owned.size());
+          CHECK(result.splits.size()+result.collapses.size()+result.stats.moved+result.stats.reconnected==result.stats.accepted);
+          if(mode=="auto") {
+            CHECK(worker.sum(int(kind=="wall" || kind=="interior" ? result.stats.moved : result.stats.reconnected))>0);
+            CHECK(result.splits.empty());CHECK(result.collapses.empty());
+          }
+          if(mode=="restoreR" && kind!="face") CHECK(result.stats.recovery_starts==1);
+          if(mode=="restoreC") CHECK(result.splits.empty());
+          if(mode=="restoreC" && kind=="edge4") CHECK(worker.sum(int(result.stats.fallback_accepted))>0);
           EngineReport(result,worker,label);repaired.swap(result.cells);
-          if(spec.name==std::string("unit") && kind=="interior") {
+          if(mode=="auto" && spec.name==std::string("unit") && kind=="interior") {
             options.maximum_rounds=1;const auto rejected=Repair(worker,owned,source_rows,geometry,{},options);
             CHECK_FALSE(rejected.valid);CHECK(Bytes(owned)==owned_saved);
             options.maximum_rounds=512;options.memory_ceiling=1;
@@ -1317,7 +1329,8 @@ TEST_CASE("Native automatic MPI repair selects complete failing features and res
         const auto returned=parent.exchange(to);Owned output;for(auto row:returned)output.emplace(row.cell.id,row);
         const auto return_s=elapsed(returning);const auto audit_start=Clock::now();
         const auto count=CPassiveComm::Allreduce(output.size(),CPassiveComm::Op::SUM,parent.comm);
-        CHECK(count==(kind=="face" ? 2u : fixture.patch.cells.size()));
+        if(mode=="auto") CHECK(count==(kind=="face" ? 2u : fixture.patch.cells.size()));
+        else { CHECK(count>0);CHECK(count<=12);if(mode=="restoreC") CHECK(count<=fixture.patch.cells.size()); }
         CHECK(Audit(parent,output,fixture,count));CHECK(Bytes(input)==saved);
         const auto all=Gather(parent,output),all_source=Gather(parent,input);
         if(!parent.rank) {
@@ -1335,7 +1348,7 @@ TEST_CASE("Native automatic MPI repair selects complete failing features and res
         MeshRecords(label+(failed ? "_rejected" : ""),parent,output);const auto export_s=elapsed(exporting),total_s=elapsed(started);
         const auto other_s=total_s-migration_s-comm_s-worker_s-return_s-audit_s-export_s;CHECK(other_s>=-1e-12);
         std::ostringstream report;report<<std::setprecision(17)<<"AUTO_EVENT case="<<label<<" rank="<<parent.rank
-            <<" ranks="<<parent.size<<" workers="<<m<<" valid="<<!failed<<" final="<<count<<" parent_s="<<total_s
+            <<" ranks="<<parent.size<<" workers="<<m<<" mode="<<mode<<" valid="<<!failed<<" final="<<count<<" parent_s="<<total_s
             <<" migration_s="<<migration_s<<" worker_comm_s="<<comm_s<<" worker_s="<<worker_s<<" return_s="<<return_s
             <<" test_audit_s="<<audit_s<<" record_export_s="<<export_s<<" other_s="<<other_s
             <<" inactive_worker_wait_s="<<(parent.rank>=m ? worker_s : 0)<<'\n';Log(parent,report.str());

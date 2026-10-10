@@ -161,6 +161,13 @@ int main() {
   assert(automatic.valid && automatic.cells.size()==2 && automatic.stats.reconnected==1 && Bytes(bad)==bad_saved);
   std::vector<Cell> repaired_cells;for(auto row:automatic.cells)repaired_cells.push_back(row.second.cell);
   FrozenField automatic_field(repair_source);assert(ValidateMetricPatch(repaired_cells,automatic_field,measured,reason));
+  const auto restored_refine=Refine(world,bad,repair_source,planes);
+  assert(restored_refine.valid && Bytes(bad)==bad_saved);
+  const auto restored_coarsen=Coarsen(world,bad,repair_source,planes);
+  assert(restored_coarsen.valid && restored_coarsen.stats.recovery_starts==1 && Bytes(bad)==bad_saved);
+  EngineOptions limited_recovery;limited_recovery.maximum_rounds=1;
+  const auto recovery_limit=Coarsen(world,bad,repair_source,planes,{},limited_recovery);
+  assert(!recovery_limit.valid && recovery_limit.stats.rounds==1 && Bytes(bad)==bad_saved);
   for(int trial=0;trial<3;++trial) for(int order=0;order<2;++order) {
     EngineOptions profile;profile.timings=bool(order^(trial%2));const auto start=std::chrono::steady_clock::now();
     const auto repeated=Repair(world,bad,repair_source,planes,{},profile);

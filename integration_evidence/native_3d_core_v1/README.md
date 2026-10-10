@@ -1,3 +1,9 @@
+Latest checkpoint: in-event bounded repair fallback/recovery through Refine and
+Coarsen, with invalid-field escalation, exact independent audits and preserved
+prior mesh trajectories. See [RECOVERY_INTEGRATION_CHECKPOINT.md](RECOVERY_INTEGRATION_CHECKPOINT.md).
+New grids: `recovery_integration_v2/mpi{1,2,4}_automatic_repairs/restore{R,C}_*`.
+Goal1 remains active; runtime/partition/CFD/CGNS and full performance remain unfinished.
+
 Latest checkpoint: automatic bounded MPI repair on failing face/edge/vertex
 features, independent exact mesh/P1 audits and actual non-MPI instrumentation
 controls. See [AUTOMATIC_REPAIR_CHECKPOINT.md](AUTOMATIC_REPAIR_CHECKPOINT.md).

@@ -23,8 +23,9 @@ Point Center(const Cell& c) {
   }
   return {double(x), double(y), double(z)};
 }
+void Shape(const PatchMetric& m);
 PatchMetric MeasurePatch(const std::vector<Cell>& cells, FrozenField& target, MetricStats* stats,
-                         const std::map<Edge, EdgeMeasure>* reuse = nullptr) {
+                         const std::map<Edge, EdgeMeasure>* reuse = nullptr, bool require_shape = false) {
   if (cells.empty() || cells.size() > MaximumReplacementCells)
     throw std::invalid_argument("Native 3D metric patch exceeds budget or is empty.");
   if (stats) {
@@ -67,6 +68,8 @@ PatchMetric MeasurePatch(const std::vector<Cell>& cells, FrozenField& target, Me
     for (size_t i = 0; i < 4; ++i)
       for (size_t j = i + 1; j < 4; ++j) result.edges.emplace(Edge{key[i], key[j]}, EdgeMeasure{});
   }
+  // Reject inadmissible private shapes before spending source-resolved edge integration work.
+  if (require_shape) Shape(result);
   if (stats) {
     stats->maximum_nodes = std::max(stats->maximum_nodes, nodes.size());
     stats->maximum_edges = std::max(stats->maximum_edges, result.edges.size());
@@ -145,7 +148,7 @@ bool ValidateMetricChange(const std::vector<Cell>& old, const std::vector<Cell>&
     if (stats) ++stats->changes;
     if (kind != MetricChange::Refine && kind != MetricChange::Coarsen && kind != MetricChange::Repair)
       throw std::invalid_argument("Unknown native 3D metric-change intent.");
-    measured = MeasurePatch(fresh, target, stats, frozen_reuse);
+    measured = MeasurePatch(fresh, target, stats, frozen_reuse, true);
     Shape(measured);
     const auto before = MeasurePatch(old, target, stats, &measured.edges);
     long double removed = 0, added = 0;

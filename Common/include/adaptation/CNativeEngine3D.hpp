@@ -23,6 +23,7 @@ struct EngineStats {
   uint64_t field_requests = 0, field_hits = 0, field_compositions = 0, field_edges = 0;
   uint64_t donor_batches = 0, batch_retries = 0;
   uint64_t repair_proposals = 0, moved = 0, reconnected = 0;
+  uint64_t repair_fallbacks = 0, fallback_accepted = 0, recovery_starts = 0;
   double process_cpu_seconds = 0, reconstruction_cpu_seconds = 0, metric_cpu_seconds = 0, measurement_cpu_seconds = 0;
   // Nested query detail; never add to the exclusive engine phases below.
   double field_build_seconds = 0, field_query_seconds = 0, field_cache_seconds = 0, field_search_seconds = 0;
@@ -42,7 +43,8 @@ struct EngineResult {
   std::string reason;
   EngineStats stats;
 };
-/*! Complete metric refinement; Repair is a separate bounded shape/size restoration event.
+/*! Complete metric refinement with bounded private reconnection after rejection and one repair-queue recovery.
+ * Recovery shares the same frozen source/indexes, round budget and strict completion gates.
  * All world ranks call together; accepted and original source remain unchanged. Same options/immutable geometry
  * authority and frozen composition policy on every worker; source must cover the original accepted domain.
  * AABB donor/dependency limits can reject the whole event. Planar split geometry is an exact subdivision of
@@ -55,7 +57,9 @@ EngineResult Refine(World& world, const Owned& accepted, const std::vector<Donor
 /*! General directed vertex-star coarsening on the same frozen-target transaction path. A successful event
  * passes all final metric/shape gates and exhausts admitted short-edge proposals; it need not reach a minimal
  * mesh. Blocked directions are retried only after adjacent topology changes. Complete vertex dependencies
- * and immutable incident finite facets protect geometry; no inverse-split history is required. */
+ * and immutable incident finite facets protect geometry; no inverse-split history is required. Rejected
+ * removal in an invalid field can try movement/reconnection; a stalled invalid mesh admits one repair queue.
+ * Already-admissible meshes retain the cheaper removal path; coarsening need not minimize cell count. */
 EngineResult Coarsen(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
                     const PlanarReference& geometry, MetricComposition composition = {}, EngineOptions options = {});
 /*! Automatically reconnects admitted face/edge cavities or moves complete vertex stars of failing cells.

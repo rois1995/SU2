@@ -1,3 +1,42 @@
+## In-event native 3D repair recovery checkpoint — 2026-10-11
+
+Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
+Branch codex/native-3d-core; predecessor2bd703c513577fb0f9a7ea6d8e8c8b73c6d61303.
+Goal1 ACTIVE/full scope. Refine rejects can try reconnection; invalid-field
+Coarsen rejects can try movement/reconnection. One shared-index/frozen-source
+repair queue handles invalid-field stagnation. Normal edge queues stay current;
+coarsening resumes afterward. Primary/recovery edits share the original round
+budget and atomic path. Target/q>=.20/J>=.05/finalL<=1.8 remain strict.
+
+Exact facet preflight avoids futile movement reconstruction; private bad shape
+rejects before edge tracing while actual centroid composition remains mandatory.
+Scalar dirty-state reduction reuses one collective. Valid-field coarsening skips
+quality-only fallbacks; V1 correctness-passing broad policy rejected for cost.
+V1 pilot/source snapshots/logs/audits and V2 work comparison retained.
+
+recovery_integration_v2 PASS MPI1 (65 cases/4493 assertions), MPI2/4 (20 cases/rank)
+and actual non-MPI recovery/exhaustion plus existing operator/cycle controls.
+216 successful events/324 independent meshes/612 closed parent profiles;
+18 needed private fallback acceptances. All918 earlier JSON/SU2 artifacts exact.
+Nine adversaries reject. Worst finalq.372093/J.095473/L1.483240. At most35 rounds,
+2,166,904 modeled bytes for these fixtures. Regular serial coarsening again has
+zero fallbacks and original accepted counts. No general scaling/RSS claim.
+
+Inspect integration_evidence/native_3d_core_v1/recovery_integration_v2/
+mpi{1,2,4}_automatic_repairs/restore{R,C}_*_initial.su2 and *_m*.su2/.json.
+RECOVERY_INTEGRATION_CHECKPOINT.md/recovery_summary.json describe evidence/limits.
+Matched non-MPI instrumentation triples preserve grid/work; source pins stable.
+MPI70490/non-MPI10749 terminalPASS; no owned job live. Foreign FSI/interpolation/
+mesh-motion jobs were left untouched; local timings are contended.
+
+Next: multiple/partial cavities/larger sources, measured costs, coplanar geometry
+patches; then weighted partition/runtime/CFD/CGNS/full lifecycle and cluster
+qualification. Finite original coplanar seams remain protected. No new per-private
+candidate donor observer; shared field transport/query controls rerun. Manufactured
+source preparation is outside subset timing. Actual ParMETIS, CFD rebuild/transfer/
+history, full wait/RSS remain unfinished. Production3D guard/2D/MMG/BL/fade/noise
+remain unchanged. Do not call Goal1 complete from these manufactured tests.
+
 ## Automatic native 3D repair checkpoint — 2026-10-11
 
 Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
