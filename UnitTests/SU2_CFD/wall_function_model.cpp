@@ -45,6 +45,39 @@ int main() {
   try {
     int checks=0;
     const double accuracy = std::max(1e-8, 128.0*std::numeric_limits<passivedouble>::epsilon());
+    {
+      const su2double normal[3] = {0,1,0}, zero[3] = {0,0,0}, flow[3] = {10,2,0};
+      const su2double translated_flow[3] = {110,52,-20}, translation[3] = {100,50,-20};
+      Require(std::abs(SU2_TYPE::GetValue(WallFunctionModel::TangentialSpeed(3,flow,zero,normal))-10)<accuracy,
+              "stationary wall tangential speed");
+      Require(std::abs(SU2_TYPE::GetValue(WallFunctionModel::TangentialSpeed(3,translated_flow,translation,normal))-10)<accuracy,
+              "uniform translation preserves relative tangential speed");
+      const su2double rotated_flow[3] = {-2,10,0}, rotated_normal[3] = {-1,0,0};
+      Require(std::abs(SU2_TYPE::GetValue(WallFunctionModel::TangentialSpeed(3,rotated_flow,zero,rotated_normal))-10)<accuracy,
+              "rotation preserves tangential speed");
+      const su2double sample_frame[3] = {0,100,0}, sample_flow[3] = {0,110,0}, radial_normal[3] = {1,0,0};
+      Require(std::abs(SU2_TYPE::GetValue(WallFunctionModel::TangentialSpeed(2,sample_flow,sample_frame,radial_normal))-10)<accuracy,
+              "rigid rotation uses the frame velocity at the sample");
+      Require(WallFunctionModel::TangentialSpeed(3,translation,translation,normal)==0,
+              "co-moving fluid has zero relative speed");
+#if defined(CODI_FORWARD_TYPE) || defined(CODI_REVERSE_TYPE)
+      su2double co_moving[3] = {100,50,-20};
+#ifdef CODI_REVERSE_TYPE
+      auto& tape = su2double::getTape();
+      tape.reset(); tape.setActive(); tape.registerInput(co_moving[0]);
+#else
+      co_moving[0].setGradient(1);
+#endif
+      su2double speed = WallFunctionModel::TangentialSpeed(3,co_moving,translation,normal);
+#ifdef CODI_REVERSE_TYPE
+      tape.registerOutput(speed); tape.setPassive(); speed.setGradient(1); tape.evaluate();
+      Require(co_moving[0].getGradient()==0,"inactive zero-speed adjoint remains finite and zero");
+      tape.reset();
+#else
+      Require(speed.getGradient()==0,"inactive zero-speed derivative remains finite and zero");
+#endif
+#endif
+    }
     for (bool isothermal : {false,true}) for (double heat : {-1000.,0.,1000.})
       for (double velocity : {10.,150.,500.}) for (double seed : {1e-12,1.,1000.}) {
         Input p{150000,300,320,1.8e-5,1.9e-5,.026,.001,velocity,heat,287.058,1004.703,.89,.41,5.5,isothermal};

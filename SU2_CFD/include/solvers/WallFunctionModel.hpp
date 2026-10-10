@@ -26,6 +26,22 @@ struct State {
 
 inline bool Finite(const su2double& value) { return std::isfinite(SU2_TYPE::GetValue(value)); }
 
+inline su2double TangentialSpeed(unsigned short nDim, const su2double* velocity,
+                                const su2double* reference_velocity, const su2double* normal) {
+  su2double relative[3] = {0.0}, projection = 0.0, squared = 0.0;
+  for (auto dim = 0u; dim < nDim; ++dim) {
+    relative[dim] = velocity[dim] - reference_velocity[dim];
+    projection += relative[dim]*normal[dim];
+  }
+  for (auto dim = 0u; dim < nDim; ++dim) {
+    const auto tangent = relative[dim] - projection*normal[dim];
+    squared += tangent*tangent;
+  }
+  /* Resolved zero-speed states must not record the singular AD derivative of sqrt(0). */
+  if (SU2_TYPE::GetValue(squared) == 0.0) return 0.0;
+  return sqrt(squared);
+}
+
 inline su2double ExpMinusOne(const su2double& x) {
   using std::exp;
   if (std::abs(SU2_TYPE::GetValue(x)) < 1e-3)

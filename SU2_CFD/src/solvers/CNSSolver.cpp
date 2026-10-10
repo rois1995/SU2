@@ -878,13 +878,31 @@ void CNSSolver::SetTau_Wall_WF(CGeometry *geometry, CSolver **solver_container, 
 
       /*--- Compute the wall-parallel velocity at first point off the wall ---*/
 
-      const su2double VelNormal = GeometryToolbox::DotProduct(int(MAXNDIM), Vel, UnitNormal);
-
-      su2double VelTang[MAXNDIM] = {0.0};
-      for (auto iDim = 0u; iDim < nDim; iDim++)
-        VelTang[iDim] = Vel[iDim] - VelNormal*UnitNormal[iDim];
-
-      const su2double VelTangMod = GeometryToolbox::Norm(int(MAXNDIM), VelTang);
+      su2double reference_velocity[MAXNDIM] = {0.0};
+      if (dynamic_grid) {
+        const auto motion = config->GetKind_GridMovement();
+        bool stationary_shroud = false;
+        if (motion == ROTATING_FRAME)
+          for (auto shroud = 0u; shroud < config->GetnMarker_Shroud(); ++shroud)
+            stationary_shroud |= config->GetMarker_Shroud(shroud) == Marker_Tag;
+        if (!stationary_shroud) {
+          /* Rigid-frame velocity belongs at the sample; deforming ALE velocity does not. */
+          const bool rigid_frame = motion == ROTATING_FRAME || motion == RIGID_MOTION || motion == STEADY_TRANSLATION;
+          const auto reference_point = rigid_frame ? Point_Normal : iPoint;
+          std::copy_n(geometry->nodes->GetGridVel(reference_point), nDim, reference_velocity);
+          if (motion == MOVING_WALL && config->GetMarker_All_Moving(iMarker) == YES) {
+            const auto moving_marker = config->GetMarker_Moving(Marker_Tag);
+            su2double omega[MAXNDIM], displacement[MAXNDIM] = {0.0}, rotation[MAXNDIM];
+            for (auto dim = 0u; dim < MAXNDIM; ++dim)
+              omega[dim] = config->GetMarkerRotationRate(moving_marker, dim)/config->GetOmega_Ref();
+            for (auto dim = 0u; dim < nDim; ++dim)
+              displacement[dim] = (Coord_Normal[dim]-Coord[dim])/config->GetLength_Ref();
+            GeometryToolbox::CrossProduct(omega, displacement, rotation);
+            for (auto dim = 0u; dim < nDim; ++dim) reference_velocity[dim] += rotation[dim];
+          }
+        }
+      }
+      const auto VelTangMod = WallFunctionModel::TangentialSpeed(nDim, Vel, reference_velocity, UnitNormal);
 
       /*--- Compute normal distance of the interior point from the wall ---*/
       const su2double WallDistMod = GeometryToolbox::Distance(nDim, Coord, Coord_Normal);
