@@ -1,0 +1,111 @@
+{
+  "status": "PASS",
+  "stages": [
+    {
+      "stage": "compile_probe",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "g++",
+        "-std=c++17",
+        "-O2",
+        "-fno-fast-math",
+        "-fno-unsafe-math-optimizations",
+        "-ffp-contract=off",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-I.",
+        "Common/src/adaptation/CNativePredicates3D.cpp",
+        "Common/src/adaptation/CNativeTopology3D.cpp",
+        "Common/src/adaptation/CNativeCavity3D.cpp",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/cavity_probe.cpp",
+        "-o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/cavity_meshes_v2/cavity_probe"
+      ],
+      "exit_code": 0,
+      "seconds": 3.7414464770117775
+    },
+    {
+      "stage": "probe",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/cavity_meshes_v2/cavity_probe",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/cavity_meshes_v2"
+      ],
+      "exit_code": 0,
+      "seconds": 0.004765418998431414
+    },
+    {
+      "stage": "independent_audit",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_cavities.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/cavity_meshes_v2"
+      ],
+      "exit_code": 0,
+      "seconds": 0.10627694905269891
+    }
+  ],
+  "source_sha256": {
+    "Common/include/adaptation/CNativeMesh3D.hpp": "43057e5bb16c4ed600b5ab7127ad263784322f9840af3055e4b863b276d0c13b",
+    "Common/src/adaptation/CNativePredicates3D.cpp": "81afb223c29364623c3443af4b19a89cbb9eb89b333bae70fdc91073ca54b61f",
+    "Common/include/adaptation/CNativeTopology3D.hpp": "8e60e17bae7a2b682f9431514ed88aa33994b8f98a199605ae641df9f633ddaa",
+    "Common/src/adaptation/CNativeTopology3D.cpp": "d8a099542448936e7cccc06907ae8db12db3df30f73a90843ff11627734d8048",
+    "Common/include/adaptation/CNativeCavity3D.hpp": "0cc13945e765f8c65f2f2e89f022370d5eac441ed1869625c63523f2d0cb1ac4",
+    "Common/src/adaptation/CNativeCavity3D.cpp": "ef776c279ad94617e76b0248a875e7169ae18cd60bd6b6fdc6ceede1703fd388",
+    "integration_evidence/native_3d_core_v1/cavity_probe.cpp": "2b00065048be8cb0101fa14b0287a82d9c5f2ba1e867d086e342e71c3c17310b",
+    "integration_evidence/native_3d_core_v1/audit_cavities.py": "26079385c071c3ad1b9c06ab3b862b4ff293367dc3c8d291acf0487089d062c5",
+    "integration_evidence/native_3d_core_v1/run_cavities.py": "e719dbe4101ad9fa140ebdc9386362a8f230f7ac929eba02aeba4781a5dff843"
+  },
+  "scope": "Eight tiny geometric private-cavity controls (five metric-gated, three geometry-only); one sequential low-priority process. Observed times are not a performance/scaling benchmark; no CFD, physical-surface edits, spatial donor queries or MPI.",
+  "artifact_sha256": {
+    "geometry_aspect1e8_initial.json": "1642df65644a4134489409fa2bc83134af8e8f6bac428e04e422f7366d0aa729",
+    "insert_candidate.su2": "92b0491cf6180888cd67b3e9a4d54d105a5dd3fc879fdaa497da42dcb1efe392",
+    "geometry_aspect1e10_initial.su2": "052a1539259537962334a326140c0ba6bf75090cd3209f494182440c475a6acf",
+    "remove_initial.su2": "92b0491cf6180888cd67b3e9a4d54d105a5dd3fc879fdaa497da42dcb1efe392",
+    "geometry_aspect1e6_initial.json": "0630e18507c150c87b7bd8cb50cde11a44833634826316c2caee1cc1aa42ffc9",
+    "geometry_aspect1e8_candidate.json": "fc3fb2341e6f447cbe57f150ed7203925204c9152f865c1fb6e7eefa379dade2",
+    "flip_2_to_3_candidate.su2": "e53a61470f665f5ddefc09fdc991f3f5a75824048fae335745d0c551c0b15a3a",
+    "compile_probe.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "probe.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "remove_initial.json": "d919f04820228c16c41603a6fa7d1559b3d969ecfcffc7143c7dd335861262d3",
+    "independent_audit.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rotated_aspect10000_insert_initial.su2": "94604b65dbc152cb0d141fc393325e49819e30f7d67c11f665350ee78119a986",
+    "flip_2_to_3_initial.json": "2886d1fb3ef093767b69c77ed741fb4aa8e5b1d12944605b85930b7f88c366cd",
+    "geometry_aspect1e6_candidate.su2": "b71a744b2bd22662ffd86a1fc563f4eba3ed1ba68eaeb6207f6682a89ce2726f",
+    "insert_candidate.json": "791586877391c803ff1596dd4cdaa36f5ca1a33d2e5528930cb25c9170b6c764",
+    "flip_2_to_3_initial.su2": "47cf891425511a328c2a523c1422f3125dc1600916fc7d092ccbedc55db7a080",
+    "rotated_aspect10000_insert_initial.json": "6273aaa4c5803dc4b391a60f13fbe7dd286efce4d18207024bb79c6ecaaf4eb9",
+    "independent_audit.json": "c0f3cac2c0ccfd83dbe41475099583305cf64d0c7a19772eaeb4b504948f5ebc",
+    "geometry_aspect1e8_initial.su2": "5795d91b4ab5f98dd440b5ebe0069ace76259daf5fc835186819cb6074ee9986",
+    "insert_initial.json": "17ce8221227204dc3099c9c4677b7a754c2e95d61aa78b2bc2534fa90ed619c7",
+    "compile_probe.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cavity_probe": "ecab6dcbe2b5ba6f7ee386cace291a4f0676d177cd0d5aec94958d6273ed46d8",
+    "move_initial.su2": "92b0491cf6180888cd67b3e9a4d54d105a5dd3fc879fdaa497da42dcb1efe392",
+    "insert_initial.su2": "75957388f99d0e7c3e8c5edfcb1ab06e013feb36343729671d0fd33157bc23a7",
+    "geometry_aspect1e10_candidate.su2": "7387d1ceed5d4e8b1dab33b93a3e925e071ce6ae4b33d6d1503b422ae73a2b6c",
+    "rotated_aspect10000_insert_candidate.json": "cb5258f72b23e9c2329e1bc6244abfe1f42102a5bec51118fc1981c16820a446",
+    "geometry_aspect1e8_candidate.su2": "341d753032ee50cca5a72f03de531316bfcba7965a5a3ef660d4f388ab861ce0",
+    "geometry_aspect1e6_initial.su2": "294e51c8aa6d17e609c235a8e8dcace9397c18e446eb8ffca2a337b5a452ec14",
+    "probe.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "geometry_aspect1e10_initial.json": "a28f10002ab80ffec233810b375514cbe2b2135d721668c6f38e21298eb72f1f",
+    "remove_candidate.su2": "75957388f99d0e7c3e8c5edfcb1ab06e013feb36343729671d0fd33157bc23a7",
+    "probe_summary.json": "fe093a3b48eb5c63ee1a154491ef317e9ed9a86275c39b16204665a752dafd01",
+    "move_initial.json": "d919f04820228c16c41603a6fa7d1559b3d969ecfcffc7143c7dd335861262d3",
+    "move_candidate.json": "f8ec1d69401215d83b670a12c955b32e6f6fc7c0fa1f5a583b1fc9e4a1ea1d12",
+    "flip_2_to_3_candidate.json": "b11648814ffa06bb35e517999f9d78c91979d5f22dfb233042294a1e8975ac10",
+    "move_candidate.su2": "5c2d8e536a7f92ec2cc39a923b3234e44f6fda7b55d81175233f8be1e4246b52",
+    "remove_candidate.json": "74c56ae2c0387298afc3e5e44e23af28658b6c1edfb8e0178aba6e3df5832fbc",
+    "geometry_aspect1e6_candidate.json": "07811013131407375d5fb7e663f6116a661687496a87f93771917d416193d39d",
+    "geometry_aspect1e10_candidate.json": "85d726b0354ea759e4727db7cab477b2010c34e2a19ae9d8b2de065bdf6fc415",
+    "rotated_aspect10000_insert_candidate.su2": "68789fbf3dc5ae8787177a92d9cd46f6b4d25efd06eda5496155e4266586f59b",
+    "independent_audit.stdout": "c0f3cac2c0ccfd83dbe41475099583305cf64d0c7a19772eaeb4b504948f5ebc"
+  }
+}

@@ -90,18 +90,34 @@ Raw logs, commands and source/artifact hashes are retained in validation.json.
 The current runner includes geometry and incidence; reproduce in a NEW folder.
 Geometry-only v2 remains the immutable earlier checkpoint from191f35fd58.
 
+## Private-cavity reconstruction checkpoint
+
+See CAVITY_CHECKPOINT.md for implementation, preserved rejection and complete
+limits. A bounded private coning primitive supports interior insertion/movement/
+removal and some reconnections, with exact oriented interface/positive-cell and
+manifold-link guards. It leaves output unchanged on rejection. PASS16 focused
+cases/163 assertions and290 exact orientation references in cavity_controls_v3.
+A stronger test first reproduced cancellation-prone volume-closure rejection;
+failed v2 source/logs are retained, and closure now follows exact oriented faces.
+
+Inspectable *_initial.su2 and *_candidate.su2 grids are in cavity_meshes_v2.
+Independent Fraction volume/skin and pairwise tetrahedron SAT checks PASS8 probes:
+five constant-metric/shape-gated controls plus three extreme geometry-only controls.
+The latter intentionally fail isotropic shape limits and are explicitly labelled.
+No CFD state, physical surface edit, driver or MPI adaptation is implied.
+
 ## Next work and limits
 
-Implement complete cavity boundary/embedding validation, then bounded coupled split/collapse/move/reconnection including the
-useful edge-ring reconstruction from the script reference. Preserve immutable
+Extend geometric embedding validation and metric-gated coordinated proposals,
+including full edge-star split/removal and bounded face/edge-ring reconstruction. Preserve immutable
 original sensor queries; add indexed donor discovery and bounded query phase
 costs before larger meshes. Adapt planar physical surfaces as coupled volume
 proposals, then connect ownership/dependency/memory admission, MPI conflicts,
 N=M/M<N partitions and mesh return.
 
-No native 3D cavity operation, surface adaptation, BL construction, solution
-transfer lifecycle or performance envelope has been validated by this checkpoint.
+No native 3D runtime remeshing, physical surface adaptation, BL construction,
+solution transfer lifecycle or performance envelope has been validated.
 Full Meson build/link, MPI and refreshed 2D integration regressions are pending.
-No grids are produced by these geometric-kernel checks. Inspectable initial,
-adapted and rejected grids will accompany the first reconstruction cases.
+The geometry/incidence-only controls produce no grids; cavity_meshes_v2 now
+contains initial/private-candidate grids. Actual adapted CFD grids remain pending.
 Goal tracker remains ACTIVE.

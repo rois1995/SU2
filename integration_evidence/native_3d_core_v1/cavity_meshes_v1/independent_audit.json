@@ -1,0 +1,68 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "case": "flip_2_to_3",
+      "initial_cells": 2,
+      "candidate_cells": 3,
+      "exact_volume": "1/3",
+      "skin_faces": 6,
+      "qmin": 0.4535431577051998,
+      "minimum_scaled_jacobian": 0.2614881801842454,
+      "maximum_metric_edge": 1.4142135623730951
+    },
+    {
+      "case": "insert",
+      "initial_cells": 1,
+      "candidate_cells": 4,
+      "exact_volume": "1/6",
+      "skin_faces": 4,
+      "qmin": 0.37209302325581395,
+      "minimum_scaled_jacobian": 0.21320071635561041,
+      "maximum_metric_edge": 1.4142135623730951
+    },
+    {
+      "case": "move",
+      "initial_cells": 4,
+      "candidate_cells": 4,
+      "exact_volume": "1/6",
+      "skin_faces": 4,
+      "qmin": 0.34856605414959024,
+      "minimum_scaled_jacobian": 0.15617376188860607,
+      "maximum_metric_edge": 1.4142135623730951
+    },
+    {
+      "case": "remove",
+      "initial_cells": 4,
+      "candidate_cells": 1,
+      "exact_volume": "1/6",
+      "skin_faces": 4,
+      "qmin": 0.8399473665965821,
+      "minimum_scaled_jacobian": 0.7071067811865475,
+      "maximum_metric_edge": 1.4142135623730951
+    },
+    {
+      "case": "rotated_aspect10000_insert",
+      "initial_cells": 1,
+      "candidate_cells": 4,
+      "exact_volume": "132922799578491595770523222941073/7975367974709495237422842361682067456",
+      "skin_faces": 4,
+      "qmin": 0.3720930232558994,
+      "minimum_scaled_jacobian": 0.21320071614221117,
+      "maximum_metric_edge": 1.4142135623730951
+    }
+  ],
+  "scope": "Five private fixed-interface geometric candidates; exact positive volumes, pairwise SAT interior-disjointness, oriented skin/coordinate and exact volume equality. Constant tensor checks only; no full driver, physical surface adaptation, spatial metrics, donor transfer or MPI qualification.",
+  "mesh_sha256": {
+    "flip_2_to_3_candidate.su2": "e53a61470f665f5ddefc09fdc991f3f5a75824048fae335745d0c551c0b15a3a",
+    "flip_2_to_3_initial.su2": "47cf891425511a328c2a523c1422f3125dc1600916fc7d092ccbedc55db7a080",
+    "insert_candidate.su2": "92b0491cf6180888cd67b3e9a4d54d105a5dd3fc879fdaa497da42dcb1efe392",
+    "insert_initial.su2": "75957388f99d0e7c3e8c5edfcb1ab06e013feb36343729671d0fd33157bc23a7",
+    "move_candidate.su2": "5c2d8e536a7f92ec2cc39a923b3234e44f6fda7b55d81175233f8be1e4246b52",
+    "move_initial.su2": "92b0491cf6180888cd67b3e9a4d54d105a5dd3fc879fdaa497da42dcb1efe392",
+    "remove_candidate.su2": "75957388f99d0e7c3e8c5edfcb1ab06e013feb36343729671d0fd33157bc23a7",
+    "remove_initial.su2": "92b0491cf6180888cd67b3e9a4d54d105a5dd3fc879fdaa497da42dcb1efe392",
+    "rotated_aspect10000_insert_candidate.su2": "68789fbf3dc5ae8787177a92d9cd46f6b4d25efd06eda5496155e4266586f59b",
+    "rotated_aspect10000_insert_initial.su2": "94604b65dbc152cb0d141fc393325e49819e30f7d67c11f665350ee78119a986"
+  }
+}

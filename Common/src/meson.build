@@ -45,7 +45,8 @@ subdir('adaptation')
 # Pure doubles: the same library for every build type; retain its existing name.
 accurate_sum_lib = static_library('SU2AccurateSum',
                                   files(['adaptation/CAccurateSum.cpp', 'adaptation/CNativePredicates2D.cpp',
-                                         'adaptation/CNativePredicates3D.cpp', 'adaptation/CNativeTopology3D.cpp']),
+                                         'adaptation/CNativePredicates3D.cpp', 'adaptation/CNativeTopology3D.cpp',
+                                         'adaptation/CNativeCavity3D.cpp']),
                                   install : false,
                                   cpp_args: [default_warning_flags, su2_cpp_args,
                                              '-fno-fast-math', '-fno-unsafe-math-optimizations',

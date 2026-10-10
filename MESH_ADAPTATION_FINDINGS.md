@@ -1,3 +1,18 @@
+## Native 3D bounded cavity closure — 2026-10-10
+
+Private coning now handles insertion, interior movement/removal and some
+reconnections with fixed oriented interfaces and manifold sphere/disk links.
+A stronger rotated-thin test reproduced false rounded-volume closure rejection
+at1e6/1e8/1e10. Exact oriented-face/coordinate matching closes signed volume
+algebraically; replacing the rounded sum preserves strict positivity/topology.
+Failed v2 source/logs retained. PASS16cases/163assertions+290 exact Fraction signs
+in native_3d_core_v1/cavity_controls_v3. Independent8probe Fraction geometry/SAT
+checks and inspectable SU2 grids in cavity_meshes_v2. Five constant-metric controls
+pass .20/.05/1.8 gates; three extreme geometry-only cases deliberately fail
+isotropic shape gates. Same10 earlier SU2 files after correction. No full runtime,
+physical surface, spatial metric, MPI or performance envelope claim. Full details
+and legacy replay references in CAVITY_CHECKPOINT.md. Goal1 remains active.
+
 ## Native 3D incidence and local paper design — 2026-10-10
 
 On codex/native-3d-core, canonical indexed supplied-cell face/edge/vertex incidence

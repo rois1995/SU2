@@ -1,5 +1,37 @@
 # Current handoff — 2026-10-10
 
+## Native 3D private cavity reconstruction — 2026-10-10
+
+Previous goal turn made progress: incidence4be53587cc published. New bounded
+private Cone/ValidateFixedInterface support insertion/movement/removal and some
+reconnections with unchanged oriented interfaces, exact positive cells, full
+sphere/disk links and explicit64/128 source/replacement budgets. Rejection leaves
+output unchanged and reports obstructing face/apex IDs. This is geometric private
+closure on an embedded accepted source, not metric/embedding/MPI acceptance.
+Runtime support still rejects3D; physical planar surfaces remain adaptable in Goal1.
+
+Strong regression reproduced false rounded-volume closure rejection at rotated
+1e6/1e8/1e10 aspect (cavity_controls_v2). Preserve failed logs and old source/tests.
+Replaced redundant rounded determinant sum with exact oriented-face/coordinate
+closure, retaining positivity/topology guards. PASS16cases/163assertions plus290
+Fraction signs in cavity_controls_v3. Initial15cases155assertions also retained.
+
+Inspectable initial/private-candidate SU2 meshes+JSON in
+SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/cavity_meshes_v2.
+Independent Fraction geometry/volume/skin and pairwise tetrahedron SAT PASS8probes.
+Five actual constant-tensor controls enforce q>=.20, J>=.05, L<=1.8; qmin.348566,
+Jmin.156174, Lmax1.414214. Three very thin geometry-only controls explicitly fail
+isotropic shape gates; not accepted metric meshes. All10 earlier v1 SU2 files
+byte-identical. CAVITY_CHECKPOINT.md explains scopes/replay/legacy source pins.
+One owned small process at a time, nice19/single library thread, under foreign
+Python/MPI work; no full build/CFD/MPI. Timings observations only, no scaling claim.
+
+Next immutable sensor-only tetrahedral donor indexing/query composition and metric
+acceptance; then richer operators/targeted growth/physical surfaces and distributed
+admission/weighted M<=N partitions/return. All original correctness/performance
+requirements remain. Goal1 ACTIVE; AdapNoExt/external repair repo untouched.
+
+
 ## Native 3D local incidence and reference check — 2026-10-10
 
 Geometry checkpoint191f35fd58c0cd816b1e1f786cdbbf5441a3099b published and remote

@@ -1,0 +1,37 @@
+Filters: [NativeMesh3D]
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_kernel is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Native 3D cone closure survives rotated thin cavities
+-------------------------------------------------------------------------------
+UnitTests/Common/adaptation/CNativeCavity3D_tests.cpp:129
+...............................................................................
+
+UnitTests/Common/adaptation/CNativeCavity3D_tests.cpp:140: FAILED:
+  CHECK( result )
+with expansion:
+  false
+with message:
+  aspect=1e+06; rejection=Native 3D cavity volume does not close.
+
+UnitTests/Common/adaptation/CNativeCavity3D_tests.cpp:140: FAILED:
+  CHECK( result )
+with expansion:
+  false
+with message:
+  aspect=1e+08; rejection=Native 3D cavity volume does not close.
+
+UnitTests/Common/adaptation/CNativeCavity3D_tests.cpp:140: FAILED:
+  CHECK( result )
+with expansion:
+  false
+with message:
+  aspect=1e+10; rejection=Native 3D cavity volume does not close.
+
+===============================================================================
+test cases:  16 |  15 passed | 1 failed
+assertions: 160 | 157 passed | 3 failed
+
