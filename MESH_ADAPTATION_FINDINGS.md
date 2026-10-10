@@ -1,3 +1,42 @@
+## Native 3D distributed immutable donor checkpoint — 2026-10-10
+
+Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
+Branch: codex/native-3d-core; predecessor b18b5d8ecd91e5975b7a8973679ac80807cad749.
+Goal 1 remains ACTIVE with its full scope unchanged.
+
+CNativeDonor3D freezes original tetrahedra and sensor-only nodal tensors per
+worker communicator. Hash-routed authority checks reject inconsistent shared
+coordinates/sensors, duplicate cell IDs/canonical simplices, invalid SPD and
+nonpositive cells before freezing. The house local ADT and at most eight owner
+boxes per rank route bounded imports without replicating the original mesh or
+scanning every original cell per candidate. Complete conservative AABB unions
+above 256 donors reject; exact FrozenField containment/edge coverage remains
+mandatory. Empty owners and inactive requesters participate collectively.
+
+Final donor_import_controls_v2 PASS on MPI1/2/4: MPI1 50 cases/2841 assertions;
+MPI2/4 13 cases per rank. The distributed split/inverse fixture now validates
+with routed immutable donors. Independent Fraction audits verify all 42 actual
+transported donor records, 28 canonical P1 samples and manufactured thin-region
+composition samples: maximum residual zero. Source/cache-hit controls apply
+composition at every actual query. M=N and M<N, genuine empty owners, source
+retry/rejection, 257-cell owners and oversized-union rejection pass. All 30
+retained grid JSON/SU2 files match the previous checkpoint. Final non-MPI
+serial_donors passes; its tiny RSS is 3580 KiB, not a service memory certificate.
+Seven focused auditor controls detect tampered/missing/duplicate observations.
+
+DONOR_IMPORT_CHECKPOINT.md records scope, limits and replay. Parent Build/Import
+timers are exclusive, routing/search/exchange detail nested; house transport
+stats remain partial. No speedup, instrumentation overhead or scaling claim.
+The source must already be embedded/conforming. AABB import does not authorize
+outside-domain queries or certify candidate coverage. Modeled requested storage
+is conservative, not allocator/RSS certification; hard-OOM recovery untested.
+
+Next: incremental distributed candidate engine and repeated full metric
+completion, general planar operators, tetrahedral partition weights,
+runtime/CFD/history/CGNS integration and performance qualification.
+Production 3D remains rejected. 2D/MMG, finer sensor, BL/fade and noise policies
+are unchanged. No new papers are required for this checkpoint.
+
 ## Native 3D worker-communicator search checkpoint — 2026-10-10
 
 Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.

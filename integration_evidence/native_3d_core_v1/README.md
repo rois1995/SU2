@@ -1,5 +1,11 @@
 # Native 3D Goal 1 checkpoints
 
+Latest source-field work: [distributed immutable donor checkpoint](DONOR_IMPORT_CHECKPOINT.md).
+Actual MPI1/2/4, M<N and non-MPI controls pass. Distributed split/coarsen validation
+uses routed original sensors; independent rational donor/P1/composition audits
+and inspectable meshes are in `donor_import_controls_v2`. Goal 1 remains active;
+these are bounded operator controls, not a complete adaptation campaign.
+
 Latest routing work: [worker-communicator search checkpoint](WORKER_COMMUNICATOR_CHECKPOINT.md).
 Actual MPI1/2/4 and non-MPI controls pass; explicit M<N rank-box collectives
 leave inactive CFD ranks outside worker collectives. Existing default callers

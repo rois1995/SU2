@@ -1,0 +1,121 @@
+Filters: [NativeDistributed3D]
+Filters: [NativeDistributed3D]
+Filters: [NativeDistributed3D]
+Filters: [NativeDistributed3D]
+DIRECTORY discovery rank=2 ranks=4 builds=2 lookups=6 fetches=3 reservations=0 publications=0 rejected=4 scanned=0 payloads=0 elections=54 max_dependencies=0 resident_bytes=1104 max_directory_work_bytes=10064 max_exchange_work_bytes=3808 bytes_sent=952 collective_calls=45 build_s=0.000183289 lookup_s=0.000904769 fetch_s=0.00047594 reserve_s=0 publish_s=0 election_nested_s=0.000443803 world_transport_partial_s=0.000534661
+DIRECTORY discovery rank=1 ranks=4 builds=2 lookups=6 fetches=3 reservations=0 publications=0 rejected=4 scanned=0 payloads=0 elections=54 max_dependencies=0 resident_bytes=624 max_directory_work_bytes=9584 max_exchange_work_bytes=5512 bytes_sent=2120 collective_calls=45 build_s=0.000182553 lookup_s=0.000906472 fetch_s=0.00047593 reserve_s=0 publish_s=0 election_nested_s=0.000481047 world_transport_partial_s=0.000738873
+DIRECTORY discovery rank=0 ranks=4 builds=2 lookups=6 fetches=3 reservations=0 publications=0 rejected=4 scanned=18 payloads=14 elections=54 max_dependencies=6 resident_bytes=3696 max_directory_work_bytes=42856 max_exchange_work_bytes=8624 bytes_sent=3440 collective_calls=45 build_s=0.000171386 lookup_s=0.000863396 fetch_s=0.000490121 reserve_s=0 publish_s=0 election_nested_s=0.000397128 world_transport_partial_s=0.000508629
+DIRECTORY discovery rank=3 ranks=4 builds=2 lookups=6 fetches=3 reservations=0 publications=0 rejected=4 scanned=0 payloads=0 elections=54 max_dependencies=0 resident_bytes=240 max_directory_work_bytes=12952 max_exchange_work_bytes=3184 bytes_sent=992 collective_calls=45 build_s=0.000123636 lookup_s=0.00107076 fetch_s=0.000492846 reserve_s=0 publish_s=0 election_nested_s=0.000600481 world_transport_partial_s=0.000518056
+DIRECTORY conflict rank=1 ranks=4 builds=1 lookups=1 fetches=1 reservations=1 publications=0 rejected=1 scanned=0 payloads=6 elections=23 max_dependencies=6 resident_bytes=624 max_directory_work_bytes=9881 max_exchange_work_bytes=9632 bytes_sent=3160 collective_calls=22 build_s=0.000273786 lookup_s=0.000118196 fetch_s=0.000131544 reserve_s=8.0152e-05 publish_s=0 election_nested_s=0.000283686 world_transport_partial_s=0.000190336
+DIRECTORY conflict rank=2 ranks=4 builds=1 lookups=1 fetches=1 reservations=1 publications=0 rejected=1 scanned=0 payloads=6 elections=23 max_dependencies=6 resident_bytes=1104 max_directory_work_bytes=10361 max_exchange_work_bytes=7576 bytes_sent=1776 collective_calls=22 build_s=0.000274304 lookup_s=0.000117955 fetch_s=0.000131491 reserve_s=8.4864e-05 publish_s=0 election_nested_s=0.000293651 world_transport_partial_s=0.000179071
+DIRECTORY conflict rank=3 ranks=4 builds=1 lookups=1 fetches=1 reservations=1 publications=0 rejected=1 scanned=0 payloads=6 elections=23 max_dependencies=6 resident_bytes=240 max_directory_work_bytes=9497 max_exchange_work_bytes=6712 bytes_sent=1752 collective_calls=22 build_s=8.4362e-05 lookup_s=0.000121899 fetch_s=0.000131377 reserve_s=8.0099e-05 publish_s=0 election_nested_s=9.8856e-05 world_transport_partial_s=0.000196908
+DIRECTORY conflict rank=0 ranks=4 builds=1 lookups=1 fetches=1 reservations=1 publications=0 rejected=0 scanned=24 payloads=6 elections=23 max_dependencies=6 resident_bytes=3696 max_directory_work_bytes=35320 max_exchange_work_bytes=12704 bytes_sent=4400 collective_calls=22 build_s=0.000202737 lookup_s=0.000100886 fetch_s=0.000131355 reserve_s=8.1316e-05 publish_s=0 election_nested_s=0.000192888 world_transport_partial_s=0.000281613
+MESH coupled_initial 0 17 0 0 0 0 6 1 1 1 1 1 0 0 2 1 1 0 1 6 1 0 0 0 0 0
+MESH coupled_initial 1 18 0 0 0 0 6 1 1 1 2 1 1 0 3 0 1 0 1 8 1 2 0 0 0 0
+MESH coupled_initial 2 19 0 0 0 0 6 1 1 1 3 0 1 0 7 0 1 1 1 9 1 3 0 0 0 0
+MESH coupled_initial 3 20 0 0 0 0 6 1 1 1 7 0 1 1 4 0 0 1 1 11 1 5 0 0 0 0
+MESH coupled_initial 4 21 0 0 0 0 6 1 1 1 4 0 0 1 5 1 0 1 1 10 1 4 0 0 0 0
+MESH coupled_initial 5 22 0 0 0 0 6 1 1 1 5 1 0 1 1 1 0 0 1 7 1 1 0 0 0 0
+MESH coupled_refined 100 117 0 0 0 0 8 0.5 0.5 0.5 1 1 0 0 2 1 1 0 0 0 1 0 0 0 0 0
+MESH coupled_refined 101 118 8 0.5 0.5 0.5 6 1 1 1 1 1 0 0 2 1 1 0 1 6 0 0 0 0 0 0
+MESH coupled_refined 102 119 0 0 0 0 8 0.5 0.5 0.5 2 1 1 0 3 0 1 0 0 0 1 2 0 0 0 0
+MESH coupled_refined 103 120 8 0.5 0.5 0.5 6 1 1 1 2 1 1 0 3 0 1 0 1 8 0 0 0 0 0 0
+MESH coupled_refined 104 121 0 0 0 0 8 0.5 0.5 0.5 3 0 1 0 7 0 1 1 0 0 1 3 0 0 0 0
+MESH coupled_refined 105 122 8 0.5 0.5 0.5 6 1 1 1 3 0 1 0 7 0 1 1 1 9 0 0 0 0 0 0
+MESH coupled_refined 106 123 0 0 0 0 8 0.5 0.5 0.5 7 0 1 1 4 0 0 1 0 0 1 5 0 0 0 0
+MESH coupled_refined 107 124 8 0.5 0.5 0.5 6 1 1 1 7 0 1 1 4 0 0 1 1 11 0 0 0 0 0 0
+MESH coupled_refined 108 125 0 0 0 0 8 0.5 0.5 0.5 4 0 0 1 5 1 0 1 0 0 1 4 0 0 0 0
+MESH coupled_refined 109 126 8 0.5 0.5 0.5 6 1 1 1 4 0 0 1 5 1 0 1 1 10 0 0 0 0 0 0
+MESH coupled_refined 110 127 0 0 0 0 8 0.5 0.5 0.5 5 1 0 1 1 1 0 0 0 0 1 1 0 0 0 0
+MESH coupled_refined 111 128 8 0.5 0.5 0.5 6 1 1 1 5 1 0 1 1 1 0 0 1 7 0 0 0 0 0 0
+MESH coupled_coarsened 200 217 0 0 0 0 6 1 1 1 1 1 0 0 2 1 1 0 1 6 1 0 0 0 0 0
+MESH coupled_coarsened 201 218 6 1 1 1 0 0 0 0 1 1 0 0 5 1 0 1 1 1 1 7 0 0 0 0
+MESH coupled_coarsened 202 219 0 0 0 0 6 1 1 1 2 1 1 0 3 0 1 0 1 8 1 2 0 0 0 0
+MESH coupled_coarsened 203 220 0 0 0 0 6 1 1 1 3 0 1 0 7 0 1 1 1 9 1 3 0 0 0 0
+MESH coupled_coarsened 204 221 0 0 0 0 6 1 1 1 4 0 0 1 5 1 0 1 1 10 1 4 0 0 0 0
+MESH coupled_coarsened 205 222 6 1 1 1 0 0 0 0 4 0 0 1 7 0 1 1 1 5 1 11 0 0 0 0
+DIRECTORY coupled rank=0 ranks=4 builds=1 lookups=4 fetches=2 reservations=2 publications=2 rejected=1 scanned=30 payloads=18 elections=65 max_dependencies=12 resident_bytes=3936 max_directory_work_bytes=39264 max_exchange_work_bytes=31472 bytes_sent=16392 collective_calls=86 build_s=7.7824e-05 lookup_s=0.000517183 fetch_s=0.000200967 reserve_s=0.000142999 publish_s=0.000388052 election_nested_s=0.0003687 world_transport_partial_s=0.00210953
+DIRECTORY coupled rank=1 ranks=4 builds=1 lookups=4 fetches=2 reservations=2 publications=2 rejected=1 scanned=0 payloads=0 elections=65 max_dependencies=0 resident_bytes=1104 max_directory_work_bytes=12080 max_exchange_work_bytes=15440 bytes_sent=9816 collective_calls=86 build_s=0.00022698 lookup_s=0.00162605 fetch_s=0.000191119 reserve_s=0.00303861 publish_s=0.00040651 election_nested_s=0.00172051 world_transport_partial_s=0.00224503
+DIRECTORY coupled rank=2 ranks=4 builds=1 lookups=4 fetches=2 reservations=2 publications=2 rejected=1 scanned=0 payloads=0 elections=65 max_dependencies=0 resident_bytes=384 max_directory_work_bytes=11008 max_exchange_work_bytes=13104 bytes_sent=7416 collective_calls=86 build_s=0.000231072 lookup_s=0.00173495 fetch_s=0.000202701 reserve_s=0.000143061 publish_s=0.000378656 election_nested_s=0.00183118 world_transport_partial_s=0.00215295
+DIRECTORY coupled rank=3 ranks=4 builds=1 lookups=4 fetches=2 reservations=2 publications=2 rejected=1 scanned=0 payloads=0 elections=65 max_dependencies=0 resident_bytes=240 max_directory_work_bytes=10624 max_exchange_work_bytes=12528 bytes_sent=7416 collective_calls=86 build_s=0.000202488 lookup_s=0.00169938 fetch_s=0.000195236 reserve_s=0.0114825 publish_s=0.000423769 election_nested_s=0.00181854 world_transport_partial_s=0.00106089
+DIRECTORY rollback rank=1 ranks=4 builds=1 lookups=3 fetches=3 reservations=1 publications=0 rejected=10 scanned=0 payloads=0 elections=47 max_dependencies=0 resident_bytes=624 max_directory_work_bytes=9584 max_exchange_work_bytes=5512 bytes_sent=1904 collective_calls=27 build_s=0.00027744 lookup_s=0.000120668 fetch_s=0.000277115 reserve_s=1.0255e-05 publish_s=0.000282789 election_nested_s=0.000580169 world_transport_partial_s=0.000234797
+DIRECTORY rollback rank=2 ranks=4 builds=1 lookups=3 fetches=3 reservations=1 publications=0 rejected=10 scanned=0 payloads=0 elections=47 max_dependencies=0 resident_bytes=1104 max_directory_work_bytes=10064 max_exchange_work_bytes=3808 bytes_sent=952 collective_calls=27 build_s=0.000251518 lookup_s=0.000143274 fetch_s=0.000281253 reserve_s=1.0098e-05 publish_s=0.000282741 election_nested_s=0.000561838 world_transport_partial_s=0.000250285
+DIRECTORY rollback rank=3 ranks=4 builds=1 lookups=3 fetches=3 reservations=1 publications=0 rejected=10 scanned=0 payloads=0 elections=47 max_dependencies=0 resident_bytes=240 max_directory_work_bytes=9200 max_exchange_work_bytes=3184 bytes_sent=952 collective_calls=27 build_s=0.00021866 lookup_s=0.0001243 fetch_s=0.0002638 reserve_s=0.000103247 publish_s=0.000302315 election_nested_s=0.000602625 world_transport_partial_s=0.000255875
+DIRECTORY rollback rank=0 ranks=4 builds=1 lookups=3 fetches=3 reservations=1 publications=0 rejected=10 scanned=6 payloads=6 elections=47 max_dependencies=6 resident_bytes=3696 max_directory_work_bytes=18446744073709551615 max_exchange_work_bytes=9416 bytes_sent=4696 collective_calls=27 build_s=0.000114104 lookup_s=0.000128736 fetch_s=0.000266039 reserve_s=1.0057e-05 publish_s=0.000279925 election_nested_s=0.000319911 world_transport_partial_s=0.000218529
+DIRECTORY overbudget rank=2 ranks=4 builds=1 lookups=1 fetches=0 reservations=0 publications=0 rejected=1 scanned=0 payloads=0 elections=13 max_dependencies=0 resident_bytes=9168 max_directory_work_bytes=32600 max_exchange_work_bytes=41328 bytes_sent=8320 collective_calls=9 build_s=0.000377666 lookup_s=0.000260874 fetch_s=0 reserve_s=0 publish_s=0 election_nested_s=0.000266936 world_transport_partial_s=0.000236485
+DIRECTORY overbudget rank=1 ranks=4 builds=1 lookups=1 fetches=0 reservations=0 publications=0 rejected=1 scanned=0 payloads=0 elections=13 max_dependencies=0 resident_bytes=19344 max_directory_work_bytes=50104 max_exchange_work_bytes=52352 bytes_sent=8320 collective_calls=9 build_s=0.000502172 lookup_s=0.00013447 fetch_s=0 reserve_s=0 publish_s=0 election_nested_s=0.000258662 world_transport_partial_s=0.00023614
+DIRECTORY overbudget rank=3 ranks=4 builds=1 lookups=1 fetches=0 reservations=0 publications=0 rejected=1 scanned=0 payloads=0 elections=13 max_dependencies=0 resident_bytes=10848 max_directory_work_bytes=34576 max_exchange_work_bytes=41536 bytes_sent=8320 collective_calls=9 build_s=0.000508921 lookup_s=0.000282342 fetch_s=0 reserve_s=0 publish_s=0 election_nested_s=0.000425704 world_transport_partial_s=0.00024088
+DIRECTORY overbudget rank=0 ranks=4 builds=1 lookups=1 fetches=0 reservations=0 publications=0 rejected=1 scanned=65 payloads=0 elections=13 max_dependencies=0 resident_bytes=20112 max_directory_work_bytes=51840 max_exchange_work_bytes=54680 bytes_sent=8928 collective_calls=9 build_s=0.000360237 lookup_s=0.00021378 fetch_s=0 reserve_s=0 publish_s=0 election_nested_s=0.000173985 world_transport_partial_s=0.000236274
+DIRECTORY subset rank=1 ranks=2 builds=1 lookups=1 fetches=1 reservations=1 publications=1 rejected=0 scanned=0 payloads=0 elections=30 max_dependencies=0 resident_bytes=2112 max_directory_work_bytes=21120 max_exchange_work_bytes=25736 bytes_sent=8136 collective_calls=34 build_s=0.000160496 lookup_s=3.7074e-05 fetch_s=4.4478e-05 reserve_s=2.9663e-05 publish_s=0.000502945 election_nested_s=0.000250869 world_transport_partial_s=0.00153936
+DIRECTORY subset rank=0 ranks=2 builds=1 lookups=1 fetches=1 reservations=1 publications=1 rejected=0 scanned=6 payloads=6 elections=30 max_dependencies=6 resident_bytes=8544 max_directory_work_bytes=43736 max_exchange_work_bytes=39104 bytes_sent=11424 collective_calls=34 build_s=0.00590966 lookup_s=3.5701e-05 fetch_s=4.4785e-05 reserve_s=2.9312e-05 publish_s=0.000509553 election_nested_s=0.00593919 world_transport_partial_s=0.0004572
+SUBSET_RETURN N=4 M=2 rank=1 local_cells=3 valid=1
+MESH returned_m2 100 117 0 0 0 0 8 0.5 0.5 0.5 1 1 0 0 2 1 1 0 0 0 1 0 0 0 0 0
+MESH returned_m2 101 118 8 0.5 0.5 0.5 6 1 1 1 1 1 0 0 2 1 1 0 1 6 0 0 0 0 0 0
+MESH returned_m2 102 119 0 0 0 0 8 0.5 0.5 0.5 2 1 1 0 3 0 1 0 0 0 1 2 0 0 0 0
+SUBSET_RETURN N=4 M=2 rank=2 local_cells=3 valid=1
+SUBSET_RETURN N=4 M=2 rank=3 local_cells=3 valid=1
+MESH returned_m2 103 120 8 0.5 0.5 0.5 6 1 1 1 2 1 1 0 3 0 1 0 1 8 0 0 0 0 0 0
+MESH returned_m2 104 121 0 0 0 0 8 0.5 0.5 0.5 3 0 1 0 7 0 1 1 0 0 1 3 0 0 0 0
+MESH returned_m2 105 122 8 0.5 0.5 0.5 6 1 1 1 3 0 1 0 7 0 1 1 1 9 0 0 0 0 0 0
+MESH returned_m2 106 123 0 0 0 0 8 0.5 0.5 0.5 7 0 1 1 4 0 0 1 0 0 1 5 0 0 0 0
+MESH returned_m2 107 124 8 0.5 0.5 0.5 6 1 1 1 7 0 1 1 4 0 0 1 1 11 0 0 0 0 0 0
+MESH returned_m2 108 125 0 0 0 0 8 0.5 0.5 0.5 4 0 0 1 5 1 0 1 0 0 1 4 0 0 0 0
+MESH returned_m2 109 126 8 0.5 0.5 0.5 6 1 1 1 4 0 0 1 5 1 0 1 1 10 0 0 0 0 0 0
+MESH returned_m2 110 127 0 0 0 0 8 0.5 0.5 0.5 5 1 0 1 1 1 0 0 0 0 1 1 0 0 0 0
+MESH returned_m2 111 128 8 0.5 0.5 0.5 6 1 1 1 5 1 0 1 1 1 0 0 1 7 0 0 0 0 0 0
+SUBSET_RETURN N=4 M=2 rank=0 local_cells=3 valid=1
+DIRECTORY subset rank=2 ranks=3 builds=1 lookups=1 fetches=1 reservations=1 publications=1 rejected=0 scanned=0 payloads=0 elections=30 max_dependencies=0 resident_bytes=2304 max_directory_work_bytes=16560 max_exchange_work_bytes=19872 bytes_sent=5424 collective_calls=34 build_s=0.000272252 lookup_s=0.000115338 fetch_s=9.8927e-05 reserve_s=5.2065e-05 publish_s=0.000323206 election_nested_s=0.000291561 world_transport_partial_s=0.00212379
+DIRECTORY subset rank=1 ranks=3 builds=1 lookups=1 fetches=1 reservations=1 publications=1 rejected=0 scanned=0 payloads=0 elections=30 max_dependencies=0 resident_bytes=5760 max_directory_work_bytes=26456 max_exchange_work_bytes=24368 bytes_sent=5424 collective_calls=34 build_s=0.000271526 lookup_s=0.000115244 fetch_s=9.8549e-05 reserve_s=5.2469e-05 publish_s=0.000328248 election_nested_s=0.000145298 world_transport_partial_s=0.00211744
+DIRECTORY subset rank=0 ranks=3 builds=1 lookups=1 fetches=1 reservations=1 publications=1 rejected=0 scanned=6 payloads=6 elections=30 max_dependencies=6 resident_bytes=2592 max_directory_work_bytes=17176 max_exchange_work_bytes=19168 bytes_sent=8712 collective_calls=34 build_s=0.000273432 lookup_s=0.000104029 fetch_s=9.9176e-05 reserve_s=5.2147e-05 publish_s=0.000337429 election_nested_s=0.000296376 world_transport_partial_s=0.00184888
+SUBSET_RETURN N=4 M=3 rank=1 local_cells=3 valid=1
+SUBSET_RETURN N=4 M=3 rank=3 local_cells=3 valid=1
+SUBSET_RETURN N=4 M=3 rank=2 local_cells=3 valid=1
+MESH returned_m3 100 117 0 0 0 0 8 0.5 0.5 0.5 1 1 0 0 2 1 1 0 0 0 1 0 0 0 0 0
+MESH returned_m3 101 118 8 0.5 0.5 0.5 6 1 1 1 1 1 0 0 2 1 1 0 1 6 0 0 0 0 0 0
+MESH returned_m3 102 119 0 0 0 0 8 0.5 0.5 0.5 2 1 1 0 3 0 1 0 0 0 1 2 0 0 0 0
+MESH returned_m3 103 120 8 0.5 0.5 0.5 6 1 1 1 2 1 1 0 3 0 1 0 1 8 0 0 0 0 0 0
+MESH returned_m3 104 121 0 0 0 0 8 0.5 0.5 0.5 3 0 1 0 7 0 1 1 0 0 1 3 0 0 0 0
+MESH returned_m3 105 122 8 0.5 0.5 0.5 6 1 1 1 3 0 1 0 7 0 1 1 1 9 0 0 0 0 0 0
+MESH returned_m3 106 123 0 0 0 0 8 0.5 0.5 0.5 7 0 1 1 4 0 0 1 0 0 1 5 0 0 0 0
+MESH returned_m3 107 124 8 0.5 0.5 0.5 6 1 1 1 7 0 1 1 4 0 0 1 1 11 0 0 0 0 0 0
+MESH returned_m3 108 125 0 0 0 0 8 0.5 0.5 0.5 4 0 0 1 5 1 0 1 0 0 1 4 0 0 0 0
+MESH returned_m3 109 126 8 0.5 0.5 0.5 6 1 1 1 4 0 0 1 5 1 0 1 1 10 0 0 0 0 0 0
+MESH returned_m3 110 127 0 0 0 0 8 0.5 0.5 0.5 5 1 0 1 1 1 0 0 0 0 1 1 0 0 0 0
+MESH returned_m3 111 128 8 0.5 0.5 0.5 6 1 1 1 5 1 0 1 1 1 0 0 1 7 0 0 0 0 0 0
+SUBSET_RETURN N=4 M=3 rank=0 local_cells=3 valid=1
+DIRECTORY subset rank=1 ranks=4 builds=1 lookups=1 fetches=1 reservations=1 publications=1 rejected=0 scanned=0 payloads=0 elections=30 max_dependencies=0 resident_bytes=672 max_directory_work_bytes=11968 max_exchange_work_bytes=15328 bytes_sent=4696 collective_calls=34 build_s=0.000248109 lookup_s=9.3775e-05 fetch_s=7.359e-05 reserve_s=7.1417e-05 publish_s=0.000175161 election_nested_s=0.000200682 world_transport_partial_s=0.00374085
+DIRECTORY subset rank=0 ranks=4 builds=1 lookups=1 fetches=1 reservations=1 publications=1 rejected=0 scanned=6 payloads=6 elections=30 max_dependencies=6 resident_bytes=7152 max_directory_work_bytes=31976 max_exchange_work_bytes=27536 bytes_sent=7984 collective_calls=34 build_s=0.00097135 lookup_s=9.0419e-05 fetch_s=7.3837e-05 reserve_s=7.1416e-05 publish_s=0.000178469 election_nested_s=0.000816565 world_transport_partial_s=0.000565012
+DIRECTORY subset rank=2 ranks=4 builds=1 lookups=1 fetches=1 reservations=1 publications=1 rejected=0 scanned=0 payloads=0 elections=30 max_dependencies=0 resident_bytes=1392 max_directory_work_bytes=11008 max_exchange_work_bytes=13104 bytes_sent=3440 collective_calls=34 build_s=0.000971445 lookup_s=9.4097e-05 fetch_s=7.4035e-05 reserve_s=7.2228e-05 publish_s=0.000174935 election_nested_s=0.000928475 world_transport_partial_s=0.00380281
+DIRECTORY subset rank=3 ranks=4 builds=1 lookups=1 fetches=1 reservations=1 publications=1 rejected=0 scanned=0 payloads=0 elections=30 max_dependencies=0 resident_bytes=1440 max_directory_work_bytes=9296 max_exchange_work_bytes=11304 bytes_sent=3440 collective_calls=34 build_s=0.000851449 lookup_s=9.4496e-05 fetch_s=7.4431e-05 reserve_s=7.0998e-05 publish_s=0.000174801 election_nested_s=0.000841709 world_transport_partial_s=0.00397972
+SUBSET_RETURN N=4 M=4 rank=3 local_cells=3 valid=1
+SUBSET_RETURN N=4 M=4 rank=1 local_cells=3 valid=1
+SUBSET_RETURN N=4 M=4 rank=2 local_cells=3 valid=1
+MESH returned_m4 100 117 0 0 0 0 8 0.5 0.5 0.5 1 1 0 0 2 1 1 0 0 0 1 0 0 0 0 0
+MESH returned_m4 101 118 8 0.5 0.5 0.5 6 1 1 1 1 1 0 0 2 1 1 0 1 6 0 0 0 0 0 0
+MESH returned_m4 102 119 0 0 0 0 8 0.5 0.5 0.5 2 1 1 0 3 0 1 0 0 0 1 2 0 0 0 0
+MESH returned_m4 103 120 8 0.5 0.5 0.5 6 1 1 1 2 1 1 0 3 0 1 0 1 8 0 0 0 0 0 0
+MESH returned_m4 104 121 0 0 0 0 8 0.5 0.5 0.5 3 0 1 0 7 0 1 1 0 0 1 3 0 0 0 0
+MESH returned_m4 105 122 8 0.5 0.5 0.5 6 1 1 1 3 0 1 0 7 0 1 1 1 9 0 0 0 0 0 0
+MESH returned_m4 106 123 0 0 0 0 8 0.5 0.5 0.5 7 0 1 1 4 0 0 1 0 0 1 5 0 0 0 0
+MESH returned_m4 107 124 8 0.5 0.5 0.5 6 1 1 1 7 0 1 1 4 0 0 1 1 11 0 0 0 0 0 0
+MESH returned_m4 108 125 0 0 0 0 8 0.5 0.5 0.5 4 0 0 1 5 1 0 1 0 0 1 4 0 0 0 0
+MESH returned_m4 109 126 8 0.5 0.5 0.5 6 1 1 1 4 0 0 1 5 1 0 1 1 10 0 0 0 0 0 0
+MESH returned_m4 110 127 0 0 0 0 8 0.5 0.5 0.5 5 1 0 1 1 1 0 0 0 0 1 1 0 0 0 0
+MESH returned_m4 111 128 8 0.5 0.5 0.5 6 1 1 1 5 1 0 1 1 1 0 0 1 7 0 0 0 0 0 0
+SUBSET_RETURN N=4 M=4 rank=0 local_cells=3 valid=1
+DONOR rank=3 residual=0 requests=8 hits=4 compositions=8 imported=12 candidates=18 resident=17456 build_s=8.2328000000000002e-05 import_s=0.026830141000000002 routing_nested_s=6.6018999999999993e-05 search_nested_s=2.3482e-05 exchange_nested_s=0.00041006799999999998
+DONOR rank=1 residual=0 requests=8 hits=4 compositions=8 imported=12 candidates=36 resident=17968 build_s=8.1629999999999989e-05 import_s=0.026643663000000001 routing_nested_s=6.3602999999999994e-05 search_nested_s=2.7158e-05 exchange_nested_s=0.016706149999999999
+DONOR rank=0 residual=0 requests=8 hits=4 compositions=8 imported=18 candidates=36 resident=17968 build_s=8.1154999999999991e-05 import_s=0.027189252000000001 routing_nested_s=7.0847999999999997e-05 search_nested_s=2.6423000000000001e-05 exchange_nested_s=0.016669165
+DONOR rank=2 residual=0 requests=8 hits=4 compositions=8 imported=12 candidates=18 resident=17456 build_s=8.1662999999999994e-05 import_s=0.027082137999999995 routing_nested_s=6.3714000000000007e-05 search_nested_s=2.2234000000000001e-05 exchange_nested_s=0.016680184999999997
+===============================================================================
+All tests passed (195 assertions in 13 test cases)
+
+===============================================================================
+===============================================================================
+All tests passed (183 assertions in 13 test cases)
+
+===============================================================================
+All tests passed (182 assertions in 13 test cases)
+
+All tests passed (181 assertions in 13 test cases)
+
