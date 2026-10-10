@@ -346,3 +346,65 @@ TEST_CASE("Native MPI: indexed discovery agrees with exact donor cover", "[Nativ
     CHECK(field.SearchBytes() > 0);
   }
 }
+
+TEST_CASE("Native field: hot metric queries survive a stream of trial coordinates", "[NativeField2D]") {
+  FieldPatch patch;
+  for (const auto& cell : Square()) {
+    DonorCell donor;
+    donor.triangle = cell.t;
+    donor.metric = cell.nodal_target;
+    patch.cells.push_back(donor);
+  }
+  patch.Sort();
+  size_t compositions = 0;
+  patch.composition = [&](Point p, Tensor sensor) {
+    ++compositions;
+    sensor.yy += 1 / (1e-6 + p.y * p.y);
+    return sensor;
+  };
+  const Point hot{.125, .125};
+  const auto expected = patch.evaluate(hot);
+  for (size_t i = 1; i < QUERY_CACHE_LIMIT; ++i)
+    patch.evaluate({double(i) / (QUERY_CACHE_LIMIT + 1), .25});
+  REQUIRE(patch.cache.size() == QUERY_CACHE_LIMIT);
+  for (size_t i = 1; i <= 2 * QUERY_CACHE_LIMIT; ++i) {
+    const auto before = patch.samples;
+    const auto actual = patch.evaluate(hot);
+    CHECK(actual.xx == expected.xx);
+    CHECK(actual.xy == expected.xy);
+    CHECK(actual.yy == expected.yy);
+    REQUIRE(patch.samples == before);
+    patch.evaluate({double(i) / (2 * QUERY_CACHE_LIMIT + 1), .375});
+    REQUIRE(patch.cache.size() == QUERY_CACHE_LIMIT);
+    REQUIRE(patch.recent.size() == QUERY_CACHE_LIMIT);
+  }
+  const auto before = patch.samples;
+  CHECK(patch.evaluate(hot).yy == expected.yy);
+  CHECK(patch.samples == before);
+  CHECK(compositions == patch.samples);
+  CHECK(patch.evictions == 2 * QUERY_CACHE_LIMIT);
+  // Mark every dynamic entry: a full second-chance pass must still make space.
+  for (const auto& key : patch.recent) patch.evaluate({key[0], key[1]});
+  patch.evaluate({.5, .5});
+  CHECK(patch.cache.size() == QUERY_CACHE_LIMIT);
+  CHECK(patch.recent.size() == QUERY_CACHE_LIMIT);
+  CHECK(patch.evictions == 2 * QUERY_CACHE_LIMIT + 1);
+}
+
+TEST_CASE("Native MPI: score scratch is admitted before donor payload", "[NativeField2D]") {
+  World world;
+  const auto original = Square();
+  std::map<Id, Cell> owned;
+  for (size_t i = 0; i < original.size(); ++i)
+    if (int(i % world.size) == world.rank) owned.emplace(original[i].t.id, original[i]);
+  DonorField field(world, owned);
+  bool active = world.rank == 0;
+  size_t discovered = 0;
+  int rejected = 0;
+  const auto patch = field.import(active ? original : std::vector<Cell>{}, active,
+                                  QUERY_CACHE_LIMIT * QUERY_CACHE_BYTES + PATCH_SCORE_BYTES - 1,
+                                  0, discovered, rejected);
+  CHECK_FALSE(active);
+  CHECK(patch->cells.empty());
+  CHECK(rejected == (world.rank == 0 ? 1 : 0));
+}

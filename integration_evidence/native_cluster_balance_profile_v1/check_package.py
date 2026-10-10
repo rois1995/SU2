@@ -83,7 +83,7 @@ class PackageChecks(unittest.TestCase):
         rejects(lambda:analyze.profile(self.root,2))
         keys=('native_frozen_adapted.su2',)+tuple(f'native_frozen_target_rank_{i}.csv' for i in range(4))
         pair=[dict(case=role,role=role,kind='kind',workers=2,repartition='YES',repeat=1,status='PASS',
-                   remesh_seconds=2,output_sha256=dict.fromkeys(keys,'hash')) for role in ('control','profile')]
+                   remesh_seconds=2,output_sha256=dict.fromkeys(keys,'hash'),balance=rows) for role in ('control','profile')]
         self.assertTrue(analyze.compare(pair)[0]['numerical_outputs_identical'])
         pair[1]['output_sha256'][keys[0]]='different'
         self.assertFalse(analyze.compare(pair)[0]['numerical_outputs_identical'])
@@ -168,7 +168,7 @@ class PackageChecks(unittest.TestCase):
                 log+='Native rank cost engine adapt seconds min/mean/max: 8 8 8\n'
                 log+=f'Native operations (same order): {workers} 0 0 0 0 0 0 0; conflicts=0\n'
                 enabled=environment['SU2_NATIVE_BALANCE_PROFILE']=='YES'
-                (case/'native_frozen_adapted.su2').write_text('changed' if mode=='changed' and enabled else 'identical')
+                (case/'native_frozen_adapted.su2').write_text('changed' if mode=='changed' and '/profile/' in command[-4] else 'identical')
                 for rank in range(4):
                     (case/f'native_frozen_target_rank_{rank}.csv').write_text('tensor'+str(rank))
                     (case/f'native_frozen_timing_rank_{rank}.csv').write_text('remesh_max_seconds\n2\n')
@@ -187,7 +187,7 @@ class PackageChecks(unittest.TestCase):
                  patch.dict(os.environ,NSLOTS='4',JOB_ID='123'),\
                  patch.object(sys,'argv',['run.py','--machinefile',str(machine)]),contextlib.redirect_stdout(io.StringIO()):
                 code=runner.main()
-        out=root/'ClusterResults/balance_profile_123';record=json.loads((out/'validation.json').read_text())
+        out=root/'ClusterResults'/(runner.RESULT_PREFIX+'_123');record=json.loads((out/'validation.json').read_text())
         self.assertFalse((out/'objects').exists())
         self.assertFalse(any(p.is_symlink() for p in out.rglob('*')))
         if mode in ('pass','no_links'):

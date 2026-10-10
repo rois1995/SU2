@@ -596,3 +596,54 @@ TEST_CASE("Native reference tangential sizes use geometry tolerance and allow wa
   CHECK(reference.TangentialSize(1, arc, .5, 1, 1e-6, &conflict) == Approx(.5));
   CHECK(conflict);
 }
+
+TEST_CASE("Native scores: exact ordered geometry reuse and bounded collision replacement", "[NativeMesh2D]") {
+  size_t queries = 0;
+  const Metric target = [&](Point p) {
+    ++queries;
+    return Tensor{4 + p.x * p.x, .1, 8 + p.y * p.y};
+  };
+  PatchScores scores(target);
+  const Node a{1, {.1, .2}, 0}, b{2, {1.3, .4}, 0}, c{3, {.6, 1.7}, 0};
+  const auto cell = triangle(a, b, c);
+  const auto L = scores.Length(a, b);
+  CHECK(queries == 3);
+  CHECK(scores.Length(a, b) == L);
+  CHECK(queries == 3);
+  CHECK(L == length(a, b, target));
+  const auto q = scores.Quality(cell);
+  const auto evaluated = queries;
+  CHECK(scores.Quality(cell) == q);
+  CHECK(queries == evaluated);
+  CHECK(q == quality(cell, target));
+  // Vertex/triangle IDs are not the geometry. Moving an existing ID invalidates reuse.
+  auto renamed = cell;
+  renamed.id = 999;
+  renamed.v[0].id = 42;
+  const auto before = queries;
+  CHECK(scores.Quality(renamed) == q);
+  CHECK(queries == before);
+  auto moved = cell;
+  moved.v[0].p.x = std::nextafter(a.p.x, 1.);
+  CHECK(scores.Quality(moved) == quality(moved, target));
+  CHECK(queries == before + 2);
+  CHECK(scores.Length(moved.v[0], b) == length(moved.v[0], b, target));
+  CHECK(scores.Length(b, a) == length(b, a, target));
+  auto permuted = cell;
+  std::swap(permuted.v[0], permuted.v[1]);
+  CHECK(scores.Quality(permuted) == quality(permuted, target));
+  for (size_t i = 0; i < 4 * PatchScores::LIMIT; ++i) {
+    Node trial = c;
+    trial.p.x += double(i) / 1024;
+    const auto proposal = triangle(a, b, trial);
+    CHECK(scores.Length(a, trial) == length(a, trial, target));
+    CHECK(scores.Quality(proposal) == quality(proposal, target));
+  }
+  CHECK(sizeof(PatchScores) <= 80 * PatchScores::LIMIT);
+  CHECK(scores.Quality(cell) == quality(cell, target));
+  CHECK(SizeDeficit({cell, moved}, target, &scores) == SizeDeficit({cell, moved}, target));
+  const Metric different = [](Point) { return Tensor{100, 0, 100}; };
+  PatchScores next_target(different);
+  CHECK(next_target.Quality(cell) == quality(cell, different));
+  CHECK(next_target.Length(a, b) == length(a, b, different));
+}

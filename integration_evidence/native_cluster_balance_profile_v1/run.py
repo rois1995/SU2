@@ -21,6 +21,9 @@ from native_process_sampler import compute_processes
 
 KINDS = ('frozen_euler_to_bl', 'frozen_bl_to_euler')
 VARIANTS = ((4, 'NO'), (4, 'YES'), (3, 'YES'), (2, 'YES'))
+PROFILE_CONTROL = False
+RESULT_PREFIX = 'balance_profile'
+SCOPE = 'Frozen-only same-allocation paired instrumentation experiment. No time-marching CFD. Numerical PASS and byte identity precede performance interpretation.'
 UNITS = '[NativeBalanceProfile2D],[NativeEngine2D],[NativeDistributed2D],[NativeField2D],[PassiveComm]'
 
 
@@ -110,7 +113,8 @@ def main():
     assert args.repeat >= 1 and args.timeout > 0 and int(os.environ['NSLOTS']) == 4
     job = os.environ['JOB_ID'];assert re.fullmatch(r'[0-9]+', job)
     checkpoint = json.loads(closed(CHECKPOINT).read_text());verify(checkpoint)
-    out = ROOT / 'ClusterResults' / ('balance_profile_' + job)
+    out = ROOT / 'ClusterResults' / (RESULT_PREFIX + '_' + job)
+    out.resolve().relative_to(ROOT)
     out.mkdir(parents=True, exist_ok=False)
     (out / 'cases').mkdir();objects=out / 'objects';objects.mkdir()
     shutil.copy2(CHECKPOINT, out / 'checkpoint.json')
@@ -139,7 +143,7 @@ def main():
     records = dict(status='RUNNING', cases=[], unit_stages=[], checkpoint_sha256=sha(CHECKPOINT),
                    export_storage_counts=storage_counts,
                    scheduler={k:os.environ.get(k) for k in ('JOB_ID', 'NSLOTS', 'QUEUE', 'PE')},
-                   scope='Frozen-only same-allocation paired instrumentation experiment. No time-marching CFD. Numerical PASS and byte identity precede performance interpretation.')
+                   scope=SCOPE)
     def save(): (out / 'validation.json').write_text(json.dumps(records, indent=2) + '\n')
     base_env = dict(os.environ, OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1',
                     PYTHONDONTWRITEBYTECODE='1', SU2_NATIVE_BALANCE_PROFILE='NO')
@@ -186,7 +190,7 @@ def main():
                         (case/'run.cfg').write_text(cfg)
                         env=dict(base_env, SU2_NATIVE_AIRFOIL_CONFIG=str(case/'run.cfg'),
                                  SU2_NATIVE_FROZEN_METRIC=str(case/'frozen_sensor.csv'),
-                                 SU2_NATIVE_BALANCE_PROFILE='YES' if role=='profile' else 'NO')
+                                 SU2_NATIVE_BALANCE_PROFILE='YES' if role=='profile' or PROFILE_CONTROL else 'NO')
                         command=mpi(binaries[role], 4, ['[NativeFrozenAirfoil2D]', '--use-colour', 'no'], frozen=True)
                         evidence=dict(phase='preparing', command=command, inputs_sha256={p.name:sha(p) for p in case.iterdir()},
                                       binary_sha256=checkpoint['binaries'][role]['sha256'])
@@ -213,7 +217,7 @@ def main():
                             assert len(accounting['worker_profiles'])==1
                             (case/'independent_profile_accounting.json').write_text(json.dumps(accounting, indent=2)+'\n')
                             row['timing_scopes']=accounting
-                            if role=='profile':
+                            if role=='profile' or PROFILE_CONTROL:
                                 row['balance']=profile(case, workers)
                                 totals=[r['private_wall_seconds'] for r in row['balance']]
                                 printed=accounting['worker_profiles'][0]['private reconstruction']
@@ -239,9 +243,9 @@ def main():
                         assert row['status']=='PASS', row.get('error')
                         if len(records['cases'])%2==0:
                             records['pairs']=compare(records['cases']);save()
-                            assert all(p['numerical_outputs_identical'] for p in records['pairs']), 'Profiling changed frozen numerical outputs; campaign stopped'
+                            assert all(p['numerical_outputs_identical'] for p in records['pairs']), 'Candidate changed frozen numerical outputs; campaign stopped'
         pairs=compare(records['cases']);records['pairs']=pairs
-        assert all(p['numerical_outputs_identical'] for p in pairs), 'Instrumentation changed frozen grid/transport output; do not compare timings'
+        assert all(p['numerical_outputs_identical'] for p in pairs), 'Candidate changed frozen grid/transport output; do not compare timings'
         verify(checkpoint)
         records['status']='PASS'
     except Exception as error:

@@ -1,0 +1,46 @@
+{
+  "status": "PASS_LOCAL_PREPARATION_ONLY",
+  "created_utc": "2026-10-10T13:06:29.842398+00:00",
+  "branch": "codex/native-unsteady-performance",
+  "scope": "Fake-file controllers/checkpoints, source review, Python AST syntax, shell syntax, closed package files and baseline evidence identities only.",
+  "checks": {
+    "new_package_fake_tests": 10,
+    "shared_pilot_fake_tests": 8,
+    "reusable_correctness_checkpoint_selftest": "PASS",
+    "python_ast": "PASS",
+    "sge_shell_syntax": "PASS",
+    "git_diff_check": "PASS",
+    "preserved_baseline_source_pins": 810
+  },
+  "pending": [
+    "C++ compilation",
+    "MPI1/2/4 runtime and actual unsteady correctness",
+    "Frozen Euler-to-BL and BL-to-Euler numerical/operation identity",
+    "Measured sampling/time/performance effects"
+  ],
+  "not_run": [
+    "SU2",
+    "MPI",
+    "CFD",
+    "C++ builds",
+    "qsub submission",
+    "Local performance experiments"
+  ],
+  "files_sha256": {
+    "Common/include/adaptation/CNativeField2D.hpp": "289bb7c4d404a706b38206623652acd33f59ec86bbaa3a674303b2f3b56cc202",
+    "Common/include/adaptation/CNativeMesh2D.hpp": "1510a43833137495cdde1a9d3bd1f1f086b7508b4e90e1f21fa80ff60c7c01dc",
+    "UnitTests/Common/adaptation/CNativeField2D_tests.cpp": "c0d50175a9dcdc66dc8435b72b7000ae5ddf63c48d986b6214a9f2b944948fd0",
+    "UnitTests/Common/adaptation/CNativeMesh2D_tests.cpp": "0961d0ae6e9ab2e08c1af84346889121f245b55d25535bb68f80bf79566ca73d",
+    "integration_evidence/native_cluster_balance_profile_v1/check_package.py": "d747e1307945f7fc6e36ef8137e90156febc094bff95be45a9a8454bb47ce8c7",
+    "integration_evidence/native_cluster_balance_profile_v1/run.py": "f78bd8d0eabd92d8a1cbc1f797b748214adde071b318b5a0dec4e551175193b6",
+    "integration_evidence/native_cluster_reconstruction_reuse_v1/README.md": "7c66fea1a17f8ead29a1dfa9856afce77e0969f54add6e07373f92a2932891ab",
+    "integration_evidence/native_cluster_reconstruction_reuse_v1/RunReconstructionReuseSGE.sh": "9659df14d3fade5c03a6fae26bc62c981b8bdfe89a767da279ba1bf7412d7f48",
+    "integration_evidence/native_cluster_reconstruction_reuse_v1/analyze.py": "dfd3b3266b10d1f7f23a47f85f6b266e8dd5e78227388e9dc9fc11958e96d8e9",
+    "integration_evidence/native_cluster_reconstruction_reuse_v1/check_package.py": "bea18be98f3491afb1566d804eb178b9b40367ba8fbfdfaf8eea49f91d5adc91",
+    "integration_evidence/native_cluster_reconstruction_reuse_v1/control.json": "9b26e55beda2b3a188f891e47701bb1e1ed5159487040e34d668cf86956376dc",
+    "integration_evidence/native_cluster_reconstruction_reuse_v1/control_source_pins.json": "b92c036314583c0473a471a46cf7319baf7796db65572121c2a14f661c294c9a",
+    "integration_evidence/native_cluster_reconstruction_reuse_v1/prepare.py": "10d8117ca551ead8e7133a184147fb51dd131214a1e1edec424b6d04c8277896",
+    "integration_evidence/native_cluster_reconstruction_reuse_v1/run.py": "07a2143269cb8afec8bb82df433c9ad9e87044263b26e8c8d397000d653e0ec9",
+    "integration_evidence/native_post_rebase_metric_v1/complete_predict_history_validation.py": "5775a727afb991498938d0c3552454d3db46fb233657e67bfdf4d66937536b09"
+  }
+}

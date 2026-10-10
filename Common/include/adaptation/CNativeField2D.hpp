@@ -95,7 +95,12 @@ struct FieldPatch {
   mutable size_t samples = 0, extensions = 0, roundoff_queries = 0;
   mutable uint64_t queries = 0, evictions = 0;
   mutable double maximum_extension = 0;
-  mutable std::unordered_map<std::array<double, 2>, Tensor, CoordinateHash> cache;
+  struct Sample {
+    Tensor value;
+    bool referenced = false;
+    Sample(Tensor tensor) : value(tensor) {}
+  };
+  mutable std::unordered_map<std::array<double, 2>, Sample, CoordinateHash> cache;
   // Only evaluated samples enter this queue; authoritative unchanged-vertex
   // entries seeded by the engine must survive private reconstruction.
   mutable std::deque<std::array<double, 2>> recent;
@@ -116,13 +121,26 @@ struct FieldPatch {
     if (!(std::isfinite(p.x) && std::isfinite(p.y))) throw std::runtime_error("Nonfinite frozen-target query.");
     ++queries;
     const auto known = cache.find({p.x, p.y});
-    if (known != cache.end()) return known->second;
+    if (known != cache.end()) {
+      known->second.referenced = true;
+      return known->second.value;
+    }
     ++samples;
     auto retain = [&](Tensor value) {
       if (composition) value = composition(p, value);
       while (cache.size() >= QUERY_CACHE_LIMIT && !recent.empty()) {
-        evictions += cache.erase(recent.front());
+        const auto key = recent.front();
         recent.pop_front();
+        const auto entry = cache.find(key);
+        if (entry == cache.end()) continue;
+        // Give reused samples a second chance without allocating or scanning on a hit.
+        if (entry->second.referenced) {
+          entry->second.referenced = false;
+          recent.push_back(key);
+        } else {
+          cache.erase(entry);
+          ++evictions;
+        }
       }
       if (cache.size() < QUERY_CACHE_LIMIT) {
         const std::array<double, 2> key{p.x, p.y};
@@ -353,7 +371,7 @@ class DonorField {
     const size_t required = transfer_memory::Add(transfer_memory::Mul(old.size(), 4 * sizeof(Cell)),
                                                  transfer_memory::Mul(found.size(), 4 * sizeof(DonorCell)),
                                                  transfer_memory::Mul(QUERY_CACHE_LIMIT, QUERY_CACHE_BYTES),
-                                                 transfer_memory::Bytes(candidates));
+                                                 PATCH_SCORE_BYTES, transfer_memory::Bytes(candidates));
     if (active && (old.empty() || found.empty() || found.size() > FIELD_LIMIT || required > budget ||
                    std::any_of(found.begin(), found.end(), [](auto r) { return r.owner < 0; }))) {
       active = false;

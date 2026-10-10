@@ -1,5 +1,62 @@
 # Current handoff — 2026-10-10
 
+## Reconstruction reuse candidate and next cluster checks
+
+Latest user authorized BOTH unchanged-score reuse and improved metric-sample reuse.
+Implemented on `codex/native-unsteady-performance` in
+`/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`; AdapNoExt untouched.
+Publication SHA will be reported after push/remote verification. Goal tracker
+remains PAUSED; this concrete implementation/package work is separately authorized.
+
+SplitSeed/JointPatch now reuse exact ordered-coordinate edge/cell scores through
+1024 fixed slots; collisions and moved/reconnected geometry recompute. Joint
+search also retains the unchanged current-star score between rejected proposals,
+and invalidates it after EVERY accepted edit or different index sequence. Search
+order/arithmetic/penalties/thresholds/final geometry checks are unchanged. Added
+score scratch is admitted against dependency_bytes (about65KiB); tight budgets
+can reject earlier. FieldPatch replaces FIFO-only eviction with a bounded
+second-chance hit bit: no allocation/scan per hit, same2048 total entries, seeded
+authoritative samples remain pinned. Sensor-only donor/actual-query geometric BL,
+finer sensor demands and fade stay intact. No numerical policy or MPI partition
+strategy change; no measured speedup yet. Existing per-attempt profiler does not
+separate SplitPatch/SplitSeed/JointPatch substage costs or count distinct points.
+
+New meaningful C++ regressions cover exact primitive reuse, changed coordinates,
+IDs/order, collisions/target lifetime, hot-point retention, all-hot eviction and
+pre-payload score-memory admission. Tests will execute on the cluster. The full
+20-stage reusable correctness gate now selects NativeMesh2D/NativeBalanceProfile2D
+as well as its previous suites at MPI1/2/4, including actual unsteady Euler/RANS,
+CGNS and restart/history checks. No local compilation/SU2/MPI/CFD runs performed.
+
+New package: `integration_evidence/native_cluster_reconstruction_reuse_v1/README.md`.
+Preserve job582199's profiled test_driver BEFORE rebuilding BOTH CFD/test binaries;
+expected SHA2561a092865535502a3cf42a4f4d16c481c3cdc45dc6feff1a9844afa22c181634f.
+New control path build-native/reconstruction-control/test_driver, new checkpoint
+build-native/reconstruction_reuse_checkpoint.json. Original b8 control/checkpoints
+and historical evidence preserved. Prepare correctness and comparison checkpoints,
+run correctness first; only after validation PASS submit new comparison.
+
+Comparison reuses the audited compact runner: focused MPI1/2/4 gate then16
+sequential frozen RAE baseline/candidate cases N4/M4 NO and N4/M4/M3/M2 YES on one
+shared four-slot SGE allocation. BOTH roles profile. Independent numerical audits,
+byte-identical mesh+four tensors AND identical per-rank selected/attempt/reconstruct/
+commit/cell/selection-scan counts gate performance. Summaries compare queries,
+evaluations, evictions, private CPU/wall/longest and full remesh including working
+repartition. Sampling misses are not unique queries or Hessian recalculations.
+Baseline/profile labels retain shared runner convention (profile=new candidate).
+Download ClusterResults/reconstruction_reuse_JOB_ID and jobs/JOB_ID_reconstruction_reuse_launcher;
+actual case folders printed. Minimal verified exports/no new ClusterRaw/timestep
+series; hardlink refusal retains safe copy fallback. Original pilot defaults stay
+unchanged. Optional REPEATS3 reverses/rotates case order; run no owned jobs concurrently.
+
+Fake-file Python package suites (10 new/8 original checks), reusable checkpoint
+self-check, Python AST and shell syntax PASS locally. New C++ compilation, MPI numerical/runtime equivalence and speedup
+remain PENDING the user-run cluster jobs. No submission or exclusive allocation
+requested. Preserved reviewed job582199 evidence remains the performance baseline.
+
+
+## Earlier validated checkpoints and evidence
+
 Working repository: `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`; AdapNoExt remains untouched. Active branch: `codex/native-unsteady-performance`, fast-forwarded from `codex/native-post-rebase-metric-candidate`. Implementation checkpoint: `e8f0a237362f7fb060eb1272f2d174c5081b944c`; a subsequent handoff-only commit does not change the built source or suite pins. The final publication SHA is reported after remote verification.
 
 **User preference: no further local MPI/CFD correctness or performance runs. Run correctness on the cluster.** The local correctness controller was stopped explicitly at the user request, during its first serial metric suite. No new prediction CFD case ran locally; the subsequent user-run cluster gate 581856 now passes completely. Preserve the stop receipt/logs. Only lightweight source, syntax, manifest and Git checks remain local.

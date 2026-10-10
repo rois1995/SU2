@@ -83,6 +83,9 @@ through `qsub -v`; the job rejects binaries that differ from the checkpoint.
 
 Checks include:
 
+- Bounded score reuse with moved-coordinate/collision checks, hot-query retention,
+  memory admission, and profiling regressions on MPI1/2/4.
+
 - Metric and native regressions on MPI1/2/4, including manufactured feature
   acceleration, temporal jitter damping, 2D/3D accelerating metric transport,
   and gather/scatter agreement against a complete mesh.
