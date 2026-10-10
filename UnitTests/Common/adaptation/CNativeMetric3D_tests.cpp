@@ -8,6 +8,7 @@
 #include "../../../Common/include/adaptation/CNativeMetric3D.hpp"
 #include "../../../Common/include/adaptation/CNativeBoundary3D.hpp"
 #include <cmath>
+#include <limits>
 using namespace SU2Native3D;
 namespace {
 Cell Single() { return {0, {{{0, {0, 0, 0}}, {1, {1, 0, 0}}, {2, {0, 1, 0}}, {3, {0, 0, 1}}}}}; }
@@ -131,4 +132,34 @@ TEST_CASE("Native 3D metric repair couples face reconnection to actual frozen qu
   REQUIRE(Cone(fresh, a, 20, back, reason));
   REQUIRE(back.size() == 2);
   CHECK(ValidateMetricChange(fresh, back, MetricChange::Coarsen, target, measured, reason));
+}
+
+TEST_CASE("Native 3D frozen scalar reuse checks coordinates and preserves composed rejection", "[NativeMesh3D]") {
+  FrozenField target({Donor({})});
+  PatchMetric original, measured;
+  std::string reason;
+  REQUIRE(ValidateMetricPatch({Single()}, target, original, reason));
+  MetricStats identical;
+  CHECK(ValidateMetricPatch({Single()}, target, measured, reason, &identical, &original.edges));
+  CHECK(identical.edge_evaluations == 0);
+  CHECK(identical.edge_reused == 6);
+  CHECK(measured.maximum_length == original.maximum_length);
+  auto moved = Single();
+  moved.v[1].p.x = .5;
+  MetricStats changed;
+  CHECK(ValidateMetricPatch({moved}, target, measured, reason, &changed, &original.edges));
+  CHECK(changed.edge_evaluations == 3);
+  CHECK(changed.edge_reused == 3);
+  CHECK(measured.edges.at({0, 1}).length == .5L);
+  auto malformed = original.edges;
+  malformed.at({0, 1}).length = std::numeric_limits<long double>::quiet_NaN();
+  MetricStats invalid;
+  CHECK(ValidateMetricPatch({Single()}, target, measured, reason, &invalid, &malformed));
+  CHECK(invalid.edge_evaluations == 1);
+  CHECK(invalid.edge_reused == 5);
+  size_t compositions = 0;
+  FrozenField composed({Donor({})}, [&](Point, Tensor sensor) { ++compositions; return sensor; });
+  CHECK_FALSE(ValidateMetricPatch({Single()}, composed, measured, reason, nullptr, &original.edges));
+  CHECK(reason.find("geometry-resolved") != std::string::npos);
+  CHECK(compositions == 1);
 }

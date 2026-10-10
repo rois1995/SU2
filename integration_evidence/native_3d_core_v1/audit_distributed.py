@@ -31,11 +31,13 @@ for row in groups['coupled_initial']:
 assert len(facets) == 12
 records = []
 for label, rows in sorted(groups.items()):
-    assert len(rows) == (6 if label in ('coupled_initial', 'coupled_coarsened') else 12)
+    engine = label.startswith('engine_')
+    if engine: assert 6 < len(rows) <= 128
+    else: assert len(rows) == (6 if label in ('coupled_initial', 'coupled_coarsened') else 12)
     nodes = {}; cells = []; physical = []
     for row in rows:
         cells.append(dict(id=row['id'], nodes=[v[0] for v in row['vertices']]))
-        assert row['version'] == 17+row['id']
+        assert row['version'] == (0 if engine and row['id'] > 5 else 17+row['id'])
         for vertex in row['vertices']:
             if vertex[0] in nodes: assert nodes[vertex[0]] == vertex
             nodes[vertex[0]] = vertex
@@ -49,12 +51,12 @@ for label, rows in sorted(groups.items()):
                 original=[dict(vertices=[v+[tensor] for v in row['vertices']]) for row in original])
     path = destination/(label+'.json')
     path.write_text(json.dumps(data, indent=2)+'\n')
-    measured, _ = frame(path, coarse)
+    measured, _ = frame(path, coarse or (engine and label != 'engine_rejected'))
     assert measured['volume'] == '1'
     if label.startswith('returned_m'): assert rows == groups['coupled_refined'], 'Subset migration changed accepted cell records'
     records.append(measured)
 result = dict(status='PASS', frames=records, source_log_sha256=hashlib.sha256(log.read_bytes()).hexdigest(),
-    scope='Exact positive volumes, global no-overlap, finite reference facet coverage/marker/embedding/manifold checks and original-P1 metric shape/edge measurement of actual MPI records. Coarsened grid meets strict length gate; one-step refined/returned grids are private progress with oversized original-field edges. No complete adaptation sweep, CFD state, CGNS or scaling qualification.')
+    scope='Exact positive volumes, global no-overlap, finite reference facet coverage/marker/embedding/manifold checks and original-P1 metric shape/edge measurement of actual MPI records. Coarsened grid meets strict length gate; one-step refined/returned grids are private progress with oversized original-field edges. Incremental engine grids meet strict refinement gates; engine_rejected is one-round private progress. No coarsening engine, CFD state, CGNS or scaling qualification.')
 result['artifacts_sha256'] = {p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in destination.iterdir() if p.is_file()}
 (destination/'independent_audit.json').write_text(json.dumps(result, indent=2)+'\n')
 print('PASS', len(records), 'independently audited MPI mesh frames; SU2 grids retained', flush=True)

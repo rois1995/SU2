@@ -59,6 +59,7 @@ class FrozenField {
   /*! Actual-target edge audit. Composed fields reject until a geometry-resolved integrator is supplied;
    * never silently substitutes the sensor-only integral for a composed target. */
   long double TargetEdgeLength(Point a, Point b);
+  bool SensorOnly() const { return !composition; }
   const FieldStats& Statistics() const { return stats; }
 
  private:

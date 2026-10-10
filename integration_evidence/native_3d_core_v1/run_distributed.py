@@ -32,12 +32,12 @@ def host(name):
         output = subprocess.run(command, text=True, capture_output=True)
         (folder/(name+'_'+suffix+'.txt')).write_text(output.stdout if suffix != 'processes' else '\n'.join(output.stdout.splitlines()[:16])+'\n')
 
-units = ['Common/src/adaptation/CNative'+name+'3D.cpp' for name in ['Predicates', 'Topology', 'Cavity', 'Boundary', 'Field', 'Metric', 'Distributed', 'Donor']]
+units = ['Common/src/adaptation/CNative'+name+'3D.cpp' for name in ['Predicates', 'Topology', 'Cavity', 'Boundary', 'Field', 'Metric', 'Distributed', 'Donor', 'Engine']]
 house = ['Common/src/adt/CADTBaseClass.cpp', 'Common/src/adt/CADTElemClass.cpp',
          'Common/include/parallelization/mpi_structure.cpp', 'Common/src/parallelization/CPassiveComm.cpp',
          'Common/src/adaptation/CDistributedSearch.cpp', 'Common/src/adaptation/CTransferMemory.cpp']
 tests = ['UnitTests/Common/adaptation/CNative'+name+'3D_tests.cpp' for name in ['Mesh', 'Topology', 'Cavity', 'Boundary', 'Field', 'Metric', 'Distributed']]
-headers = ['Common/include/adaptation/CNative'+name+'3D.hpp' for name in ['Mesh', 'Topology', 'Cavity', 'Boundary', 'Field', 'Metric', 'Distributed', 'Donor']]
+headers = ['Common/include/adaptation/CNative'+name+'3D.hpp' for name in ['Mesh', 'Topology', 'Cavity', 'Boundary', 'Field', 'Metric', 'Distributed', 'Donor', 'Engine']]
 files = units+house+tests+headers+['Common/src/meson.build', 'UnitTests/meson.build', 'UnitTests/test_driver.cpp',
     'Common/include/adaptation/CNativeDistributed2D.hpp', 'Common/include/adaptation/CTransferMemory.hpp',
     'Common/include/adaptation/CDistributedSearch.hpp', 'Common/include/parallelization/CPassiveComm.hpp',
@@ -78,7 +78,7 @@ try:
         assert output.count('All tests passed') == ranks
         reports = []
         for line in output.splitlines():
-            if line.startswith('DIRECTORY ') or line.startswith('SUBSET_RETURN ') or line.startswith('DONOR '): reports.append(line)
+            if line.startswith('DIRECTORY ') or line.startswith('SUBSET_RETURN ') or line.startswith('DONOR ') or line.startswith('ENGINE '): reports.append(line)
         (folder/('mpi'+str(ranks)+'_profiles.json')).write_text(json.dumps(reports, indent=2)+'\n')
         run(['nice', '-n', '19', sys.executable, 'integration_evidence/native_3d_core_v1/audit_distributed.py',
              str(folder/('mpi'+str(ranks)+'.stdout')), str(folder/('mpi'+str(ranks)+'_meshes'))], 'audit_mpi'+str(ranks))
@@ -92,7 +92,7 @@ finally:
     if changed: status = 'FAIL'
     result = dict(status=status, stages=records, base_commit=base, source_sha256=initial,
         final_source_sha256=final, changed_during_run=changed, source_snapshot_sha256=snapshots,
-        scope='Actual SU2 passive MPI transport/failure election, complete bounded tetrahedral vertex/edge/face imports, coupled one-step refinement/inverse, version/storage rollback, subset mesh-record migration/return, indexed immutable original sensor donor imports with independent rational transported/P1/composition audit. MPI1 includes existing 3D kernel controls. No production remesher/runtime, ParMETIS, CFD solution/history transfer, CGNS output, full adaptation/runtime embedding or scaling qualification. Actual MPI one-step mesh records undergo an independent exact embedding/marker/P1 audit and produce inspectable SU2 files; refined grids remain oversized private progress.')
+        scope='Actual SU2 passive MPI transport/failure election, complete bounded tetrahedral vertex/edge/face imports, coupled one-step refinement/inverse and complete incremental frozen-target refinement with planar surface subdivision, version/storage/identity rollback, subset mesh-record migration/return, indexed immutable original sensor donor imports with independent rational transported/P1/composition audit. MPI1 includes existing 3D kernel controls. No production remesher/runtime, ParMETIS, CFD solution/history transfer, CGNS output, anisotropic refinement engine, coarsening engine, runtime embedding or scaling qualification. Actual MPI mesh records undergo an independent exact embedding/marker/P1 audit and produce inspectable SU2 files; engine_full and engine_m* grids meet the strict frozen metric gates; one-step and engine_rejected grids are private progress.')
     result['artifact_sha256'] = {str(p.relative_to(folder)): hashlib.sha256(p.read_bytes()).hexdigest()
         for p in folder.rglob('*') if p.is_file() and p.suffix != '.o' and p.name != 'test_distributed'}
     if (folder/'test_distributed').exists(): result['binary_sha256'] = hashlib.sha256((folder/'test_distributed').read_bytes()).hexdigest()

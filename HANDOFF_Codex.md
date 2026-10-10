@@ -7,6 +7,47 @@ small sequential local checks with real host-contention checks; push each
 validated checkpoint and verify the remote SHA. A terminal capacity failure
 cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
+## Native 3D incremental refinement and frozen scalar reuse — 2026-10-10
+
+Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
+Branch codex/native-3d-core; predecessor 0d09c431ea5b07099cf7d671c5c5f9169e4a2433.
+Goal 1 remains ACTIVE with its entire original scope.
+
+CNativeEngine3D now performs complete incremental frozen-target refinement on
+explicit MPI workers, with complete dependency imports, immutable original sensor
+queries, planar surface subdivision, private metric progress and atomic directory
+publication. Accepted input is untouched; failure discards the private event.
+Selection measures initial cells once and only published children afterward.
+Owner-preserving routing is not yet weighted ParMETIS; general coarsening/repair,
+anisotropic engine campaigns and production runtime integration remain unfinished.
+
+Final engine_controls_v3 PASS MPI1 (54 cases/2891 assertions), MPI2/4 (16 cases/rank),
+N=M and M<N plus actual non-MPI rebuild. Nine independently audited completed grids
+have 48 tetrahedra/27 nodes/48 physical triangles from the six-tet box; q_min=.756,
+J_min=.577, max metric length=1.732, all twelve original markers retained. View
+integration_evidence/native_3d_core_v1/engine_controls_v3/mpi{1,2,4}_meshes/engine_full.su2
+and engine_m*.su2; one-round rejected grids are retained as engine_rejected.su2.
+Accepted input is byte-preserved on round/storage/options/ID-range rejections.
+Donor transport/P1/composition residuals remain zero. No CFD state transfer claim.
+
+Measured dominant cost was exact original-source edge tracing, not interpolation.
+Same-target, unchanged-endpoint scalar reuse reduces MPI1 field edge integrations
+819->234, MPI2 819->306, MPI4 861->358. All 54 JSON/SU2 artifacts and accepted work
+match pre-reuse v2 byte-for-byte within each partition. No predicate/target relaxation.
+Composed targets cannot use this sensor-only shortcut; unsupported edge integration
+still rejects. Three paired MPI1 observations give engine medians .2080->.0763 s
+(~2.73 ratio) on identical accepted work; small contended box, not a CFD/scaling claim.
+Detail OFF/ON triples have identical work and unresolved overhead within variability.
+
+ENGINE_REFINEMENT_CHECKPOINT.md documents code, evidence, timing scope and limits.
+Engine timing excludes final object destruction; external controls include it.
+Private CPU and nested query subcosts are separated; total MPI wait/lifecycle,
+CFD rebuild/transfer, ParMETIS and CGNS remain unqualified. Conservative modeled
+storage is not allocator/RSS certification. V1/v2 logs/pins/snapshots are retained.
+Next: anisotropic/spatial engine qualification, repeated coarsening/repair, then
+partition/runtime/CGNS and closed performance/cluster envelope. Production 3D
+remains rejected; 2D/MMG and finer sensor/geometric BL/fade/noise policies preserved.
+
 ## Native 3D distributed immutable donor checkpoint — 2026-10-10
 
 Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.

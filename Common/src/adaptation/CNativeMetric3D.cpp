@@ -77,9 +77,10 @@ PatchMetric MeasurePatch(const std::vector<Cell>& cells, FrozenField& target, Me
     m.b = nodes.at(edge.first[1]).p;
     if (stats) ++stats->edges;
     bool reused = false;
-    if (reuse) {
+    if (reuse && target.SensorOnly()) {
       const auto prior = reuse->find(edge.first);
-      if (prior != reuse->end() && Same(prior->second.a, m.a) && Same(prior->second.b, m.b)) {
+      if (prior != reuse->end() && Same(prior->second.a, m.a) && Same(prior->second.b, m.b) &&
+          std::isfinite(prior->second.length) && prior->second.length > 0) {
         m.length = prior->second.length;
         reused = true;
         if (stats) ++stats->edge_reused;
@@ -120,9 +121,9 @@ bool Shared(const std::map<Edge, EdgeMeasure>& others, const std::pair<const Edg
 }
 }  // namespace
 bool ValidateMetricPatch(const std::vector<Cell>& cells, FrozenField& target, PatchMetric& measured,
-                         std::string& reason, MetricStats* stats) {
+                         std::string& reason, MetricStats* stats, const std::map<Edge, EdgeMeasure>* frozen_reuse) {
   try {
-    measured = MeasurePatch(cells, target, stats);
+    measured = MeasurePatch(cells, target, stats, frozen_reuse);
     Shape(measured);
     if (measured.maximum_length > MaximumMetricEdge) {
       std::ostringstream message;
@@ -139,12 +140,12 @@ bool ValidateMetricPatch(const std::vector<Cell>& cells, FrozenField& target, Pa
   }
 }
 bool ValidateMetricChange(const std::vector<Cell>& old, const std::vector<Cell>& fresh, MetricChange kind,
-                          FrozenField& target, PatchMetric& measured, std::string& reason, MetricStats* stats) {
+                          FrozenField& target, PatchMetric& measured, std::string& reason, MetricStats* stats, const std::map<Edge, EdgeMeasure>* frozen_reuse) {
   try {
     if (stats) ++stats->changes;
     if (kind != MetricChange::Refine && kind != MetricChange::Coarsen && kind != MetricChange::Repair)
       throw std::invalid_argument("Unknown native 3D metric-change intent.");
-    measured = MeasurePatch(fresh, target, stats);
+    measured = MeasurePatch(fresh, target, stats, frozen_reuse);
     Shape(measured);
     const auto before = MeasurePatch(old, target, stats, &measured.edges);
     long double removed = 0, added = 0;

@@ -28,9 +28,12 @@ struct MetricStats {
 };
 enum class MetricChange { Refine, Coarsen, Repair };
 /*! Requires separately validated geometry/topology/dependencies. Actual centroid target and source-resolved
- * target edge lengths; bounded128 cells. Final completion requires the strict gate on the whole mesh. */
+ * target edge lengths; bounded128 cells. Final completion requires the strict gate on the whole mesh.
+ * Optional reuse must come from the same frozen original sensor target; identity and coordinates are checked.
+ * Composed fields always perform actual-target integration, including when reuse is supplied. */
 bool ValidateMetricPatch(const std::vector<Cell>& cells, FrozenField& target, PatchMetric& measured,
-                         std::string& reason, MetricStats* stats = nullptr);
+                         std::string& reason, MetricStats* stats = nullptr,
+                         const std::map<Edge, EdgeMeasure>* frozen_reuse = nullptr);
 /*! Private progress may retain pre-existing oversized edges. Fresh shape/sliver gates are strict;
  * refinement must reduce changed-edge excess, coarsening must introduce no oversized edges and remove cells.
  * Common unchanged edges cancel exactly by identity+coordinates, not subtraction of large residual sums.
@@ -38,5 +41,6 @@ bool ValidateMetricPatch(const std::vector<Cell>& cells, FrozenField& target, Pa
  * This is not final acceptance. Unsupported composed integration rejects, never checks the sensor substitute. */
 bool ValidateMetricChange(const std::vector<Cell>& old, const std::vector<Cell>& fresh, MetricChange kind,
                           FrozenField& target, PatchMetric& measured, std::string& reason,
-                          MetricStats* stats = nullptr);
+                          MetricStats* stats = nullptr,
+                          const std::map<Edge, EdgeMeasure>* frozen_reuse = nullptr);
 }  // namespace SU2Native3D

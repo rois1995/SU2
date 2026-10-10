@@ -7,6 +7,7 @@
 #include "catch.hpp"
 #include "../../../Common/include/adaptation/CNativeDistributed3D.hpp"
 #include "../../../Common/include/adaptation/CNativeDonor3D.hpp"
+#include "../../../Common/include/adaptation/CNativeEngine3D.hpp"
 #include "../../../Common/include/adaptation/CNativeMetric3D.hpp"
 #include <cmath>
 #include <iostream>
@@ -660,6 +661,149 @@ TEST_CASE("Native immutable sensor import works with fewer workers than CFD rank
       MPI_Comm_free(&subset);
     }
     CHECK_FALSE(parent.maximum(!valid));
+  }
+}
+#endif
+
+#ifdef HAVE_MPI
+namespace {
+std::vector<DonorCell> Uniform(const Owned& owned, Tensor tensor) {
+  std::vector<DonorCell> source;
+  for (const auto& row : owned) { DonorCell donor; donor.cell=row.second.cell; donor.sensor.fill(tensor); source.push_back(donor); }
+  return source;
+}
+void EngineReport(const EngineResult& result, const World& world) {
+  const auto& s=result.stats;
+  std::ostringstream line;
+  line << std::setprecision(17) << "ENGINE rank=" << world.rank << " ranks=" << world.size << " valid=" << result.valid
+       << " initial=" << s.initial_cells << " updated=" << s.updated_cells << " final=" << result.cells.size()
+       << " rounds=" << s.rounds << " proposed=" << s.proposed << " attempts=" << s.attempted
+       << " accepted=" << s.accepted << " rejected=" << s.rejected << " conflicts=" << s.conflicts
+       << " selection_edge_evaluations=" << s.edge_evaluations << " selection_edge_reused=" << s.edge_reused
+       << " field_requests=" << s.field_requests
+       << " field_hits=" << s.field_hits << " field_edges=" << s.field_edges << " work_bytes=" << s.maximum_work_bytes
+       << " total_s=" << s.total_seconds << " init_s=" << s.initialization_seconds << " seed_s=" << s.seed_seconds
+       << " selection_s=" << s.selection_seconds << " dependency_s=" << s.dependency_seconds
+       << " reservation_s=" << s.reservation_seconds << " donor_s=" << s.donor_seconds
+       << " reconstruction_s=" << s.reconstruction_seconds << " metric_s=" << s.metric_seconds
+       << " routing_s=" << s.routing_seconds << " publication_s=" << s.publication_seconds
+       << " update_s=" << s.update_seconds << " completion_s=" << s.completion_seconds << " other_s=" << s.other_seconds
+       << " process_cpu_s=" << s.process_cpu_seconds << " reconstruction_cpu_s=" << s.reconstruction_cpu_seconds
+       << " metric_cpu_s=" << s.metric_cpu_seconds << " measurement_cpu_s=" << s.measurement_cpu_seconds
+       << " batches=" << s.donor_batches << " batch_retries=" << s.batch_retries
+       << " field_build_nested_s=" << s.field_build_seconds << " field_query_nested_s=" << s.field_query_seconds
+       << " cache_nested_s=" << s.field_cache_seconds << " search_nested_s=" << s.field_search_seconds
+       << " interpolation_nested_s=" << s.field_interpolation_seconds << " composition_nested_s=" << s.field_composition_seconds
+       << " edge_nested_s=" << s.edge_seconds << " edge_search_nested_s=" << s.edge_search_seconds
+       << " edge_trace_nested_s=" << s.edge_trace_seconds << " edge_integral_nested_s=" << s.edge_integral_seconds << '\n';
+  std::cout<<line.str()<<std::flush;
+}
+}
+TEST_CASE("Native incremental MPI refinement reaches complete frozen metric gates", "[NativeDistributed3D]") {
+  World world;
+  const auto fixture=Box();
+  const PlanarReference reference(fixture.facets);
+  const auto input=Partition(Rows(fixture.patch),world);
+  const auto saved=Bytes(input);
+  EngineOptions options; options.timings=true;
+  auto result=Refine(world,input,Uniform(input,{4,0,0,4,0,4}),reference,{},options);
+  if (!result.valid) std::cerr<<"Engine rejected rank "<<world.rank<<": "<<result.reason<<'\n';
+  REQUIRE(result.valid);
+  CHECK(Bytes(input)==saved);
+  CHECK(world.sum(int(result.splits.size()))>1);
+  CHECK(result.stats.initial_cells==input.size());
+  CHECK(result.stats.updated_cells>=result.cells.size()-input.size());
+  CHECK(result.stats.other_seconds>=-1e-12);
+  CHECK(result.stats.edge_evaluations+result.stats.edge_reused==6*(result.stats.initial_cells+result.stats.updated_cells));
+  CHECK(result.stats.edge_reused>0);
+  const auto total=CPassiveComm::Allreduce(result.cells.size(),CPassiveComm::Op::SUM,world.comm);
+  CHECK(total>6);
+  CHECK(total<=128);
+  CHECK(Audit(world,result.cells,fixture,total));
+  const auto final=Gather(world,result.cells);
+  if (!world.rank) {
+    auto cells=PatchOf(final).cells;
+    // Root needs the full original source for its independent final whole-mesh check.
+    std::vector<DonorCell> all;
+    for(auto cell:fixture.patch.cells){DonorCell d;d.cell=cell;d.sensor.fill({4,0,0,4,0,4});all.push_back(d);}
+    FrozenField target(all);
+    PatchMetric metric;std::string reason;
+    CHECK(ValidateMetricPatch(cells,target,metric,reason));
+  }
+  MeshRecords("engine_full",world,result.cells);
+  EngineReport(result,world);
+  if (world.size==1) {
+    options.timings=false;
+    auto untimed=Refine(world,input,Uniform(input,{4,0,0,4,0,4}),reference,{},options);
+    CHECK(untimed.valid);
+    CHECK(Bytes(untimed.cells)==Bytes(result.cells));
+    CHECK(untimed.stats.accepted==result.stats.accepted);
+    CHECK(untimed.stats.updated_cells==result.stats.updated_cells);
+    CHECK(untimed.stats.total_seconds==0);
+  }
+}
+TEST_CASE("Native MPI refinement preserves accepted input on incomplete or invalid events", "[NativeDistributed3D]") {
+  World world;
+  const auto fixture=Box();const PlanarReference reference(fixture.facets);
+  const auto input=Partition(Rows(fixture.patch),world);const auto saved=Bytes(input);
+  EngineOptions options;options.maximum_rounds=1;
+  auto limited=Refine(world,input,Uniform(input,{4,0,0,4,0,4}),reference,{},options);
+  CHECK_FALSE(limited.valid);
+  CHECK(limited.reason.find("round limit")!=std::string::npos);
+  CHECK(Bytes(input)==saved);
+  CHECK(Audit(world,limited.cells,fixture,12));
+  MeshRecords("engine_rejected",world,limited.cells);
+  options.maximum_rounds=512;options.memory_ceiling=1;
+  auto budget=Refine(world,input,Uniform(input,{4,0,0,4,0,4}),reference,{},options);
+  CHECK_FALSE(budget.valid);
+  CHECK(Bytes(input)==saved);
+  options.memory_ceiling=size_t(2)<<30;
+  options.maximum_rounds=world.rank ? 2 : 1;
+  if (world.size>1) CHECK_FALSE(Refine(world,input,Uniform(input,{4,0,0,4,0,4}),reference,{},options).valid);
+  options.maximum_rounds=512;
+  auto unchanged=Refine(world,input,Uniform(input,{}),reference,{},options);
+  CHECK(unchanged.valid);
+  CHECK(Bytes(unchanged.cells)==saved);
+  CHECK(unchanged.stats.accepted==0);
+  auto exhausted=input;
+  if (exhausted.count(0)) {
+    auto row=exhausted.at(0);exhausted.erase(0);
+    row.cell.id=UINT64_MAX-64;exhausted.emplace(row.cell.id,row);
+  }
+  const auto exhausted_bytes=Bytes(exhausted);
+  auto identity=Refine(world,exhausted,Uniform(exhausted,{4,0,0,4,0,4}),reference,{},options);
+  CHECK_FALSE(identity.valid);
+  CHECK(identity.reason.find("identity range")!=std::string::npos);
+  CHECK(identity.stats.accepted==0);
+  CHECK(Bytes(exhausted)==exhausted_bytes);
+}
+TEST_CASE("Native full MPI refinement returns from fewer workers with accepted input preserved", "[NativeDistributed3D]") {
+  World parent;const auto fixture=Box();const PlanarReference reference(fixture.facets);
+  const auto input=Partition(Rows(fixture.patch),parent);const auto saved=Bytes(input);
+  for(int m:std::set<int>{parent.size,std::max(1,parent.size-1),std::max(1,parent.size/2)}) {
+    std::vector<std::vector<OwnedCell>> to(parent.size);
+    for(const auto& row:input) to[row.first%m].push_back(row.second);
+    const auto migrated=parent.exchange(to);
+    MPI_Comm subset=MPI_COMM_NULL;
+    MPI_Comm_split(parent.comm,parent.rank<m ? 0 : MPI_UNDEFINED,parent.rank,&subset);
+    Owned refined;bool valid=true;
+    if(subset!=MPI_COMM_NULL) {
+      World worker(subset);Owned owned;
+      for(auto row:migrated) owned.emplace(row.cell.id,row);
+      auto result=Refine(worker,owned,Uniform(owned,{4,0,0,4,0,4}),reference);
+      valid=result.valid;refined.swap(result.cells);
+      MPI_Comm_free(&subset);
+    }
+    CHECK_FALSE(parent.maximum(!valid));
+    to.assign(parent.size,{});
+    for(const auto& row:refined) to[row.first%parent.size].push_back(row.second);
+    const auto returned=parent.exchange(to);Owned output;
+    for(auto row:returned) output.emplace(row.cell.id,row);
+    const auto count=CPassiveComm::Allreduce(output.size(),CPassiveComm::Op::SUM,parent.comm);
+    CHECK(count>6);CHECK(count<=128);
+    CHECK(Audit(parent,output,fixture,count));
+    CHECK(Bytes(input)==saved);
+    MeshRecords("engine_m"+std::to_string(m),parent,output);
   }
 }
 #endif

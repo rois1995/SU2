@@ -1,5 +1,14 @@
 # Native 3D Goal 1 checkpoints
 
+Latest engine work: [incremental full refinement and scalar reuse](ENGINE_REFINEMENT_CHECKPOINT.md).
+MPI1/2/4, N=M/M<N and actual non-MPI controls pass on the six-tet unit box.
+Nine completed grids have 48 tetrahedra with adapted planar surfaces and strict
+frozen metric gates; inspect `engine_controls_v3/mpi{1,2,4}_meshes/engine_full.su2`
+and `engine_m*.su2`. Rejected progress is `engine_rejected.su2`. Same-mesh scalar
+reuse reduces measured edge integrations; paired local timing medians .2080->.0763 s.
+Goal 1 remains ACTIVE: anisotropic/coarsening engine, partition/runtime/CGNS and
+complete performance/cluster qualification are unfinished. Production 3D stays guarded.
+
 Latest source-field work: [distributed immutable donor checkpoint](DONOR_IMPORT_CHECKPOINT.md).
 Actual MPI1/2/4, M<N and non-MPI controls pass. Distributed split/coarsen validation
 uses routed original sensors; independent rational donor/P1/composition audits
