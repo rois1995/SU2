@@ -14,7 +14,7 @@
 
 class CADTElemClass;
 namespace SU2Native3D {
-constexpr size_t MaximumDonors = 256, MaximumSensorSamples = 2048;
+constexpr size_t MaximumDonors = MaximumSegmentDonors, MaximumSensorSamples = 2048;
 using Metric = std::function<Tensor(Point)>;
 using MetricComposition = std::function<Tensor(Point, Tensor)>;
 struct DonorCell {
@@ -37,6 +37,10 @@ struct FieldStats {
   size_t maximum_candidates = 0, maximum_cache_entries = 0, index_bytes = 0;
   double build_seconds = 0, query_seconds = 0, cache_seconds = 0;
   double search_seconds = 0, interpolation_seconds = 0, composition_seconds = 0;
+  uint64_t edge_requests = 0, edge_failures = 0, edge_box_candidates = 0, edge_pieces = 0;
+  uint64_t edge_containment_tests = 0, edge_direct_intervals = 0;
+  size_t maximum_edge_candidates = 0, maximum_edge_pieces = 0;
+  double edge_seconds = 0, edge_search_seconds = 0, edge_trace_seconds = 0, edge_integral_seconds = 0;
   KernelStats kernel;
 };
 /*! Bounded imported original donor patch, not an evolving-mesh metric. One instance per private worker.
@@ -49,9 +53,13 @@ class FrozenField {
   ~FrozenField();
   FieldSample Query(Point point);
   Tensor evaluate(Point point) { return Query(point).target; }
+  /*! Integrates ORIGINAL SENSOR ONLY through exact source-cell intervals; composition is deliberately excluded.
+   * Composed-target acceptance requires separate geometric breakpoints/integration, never this sensor audit alone. */
+  long double SensorEdgeLength(Point a, Point b);
   const FieldStats& Statistics() const { return stats; }
 
  private:
+  void FindCandidates(Point lo, Point hi);
   struct Hash {
     size_t operator()(const std::array<double, 3>& point) const;
   };

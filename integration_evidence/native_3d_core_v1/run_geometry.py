@@ -24,6 +24,18 @@ def run(command,name,input_text=None):
     records.append(dict(stage=name,command=list(map(str,command)),exit_code=p.returncode,seconds=time.monotonic()-start))
     assert p.returncode==0, name+' failed; evidence retained in '+str(folder)
     return p.stdout
+files = ['Common/include/adaptation/CNativeMesh3D.hpp','Common/src/adaptation/CNativePredicates3D.cpp',
+             'UnitTests/Common/adaptation/CNativeMesh3D_tests.cpp',
+             'Common/include/adaptation/CNativeTopology3D.hpp','Common/src/adaptation/CNativeTopology3D.cpp',
+             'UnitTests/Common/adaptation/CNativeTopology3D_tests.cpp',
+             'Common/include/adaptation/CNativeCavity3D.hpp','Common/src/adaptation/CNativeCavity3D.cpp',
+             'UnitTests/Common/adaptation/CNativeCavity3D_tests.cpp',
+             'Common/include/adaptation/CNativeField3D.hpp','Common/src/adaptation/CNativeField3D.cpp',
+             'UnitTests/Common/adaptation/CNativeField3D_tests.cpp','Common/src/adt/CADTBaseClass.cpp',
+             'Common/src/adt/CADTElemClass.cpp','Common/include/parallelization/mpi_structure.cpp',
+             'Common/src/meson.build','UnitTests/meson.build',
+             str(Path(__file__).resolve().relative_to(root))]
+initial_sources = {p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in files}
 status = 'FAIL'
 try:
     (folder/'catch_main.cpp').write_text('#define CATCH_CONFIG_MAIN\n#include "catch.hpp"\n')
@@ -94,19 +106,13 @@ try:
     assert actual==expected and len(actual)==290
     status = 'PASS'
 finally:
-    files = ['Common/include/adaptation/CNativeMesh3D.hpp','Common/src/adaptation/CNativePredicates3D.cpp',
-             'UnitTests/Common/adaptation/CNativeMesh3D_tests.cpp',
-             'Common/include/adaptation/CNativeTopology3D.hpp','Common/src/adaptation/CNativeTopology3D.cpp',
-             'UnitTests/Common/adaptation/CNativeTopology3D_tests.cpp',
-             'Common/include/adaptation/CNativeCavity3D.hpp','Common/src/adaptation/CNativeCavity3D.cpp',
-             'UnitTests/Common/adaptation/CNativeCavity3D_tests.cpp',
-             'Common/include/adaptation/CNativeField3D.hpp','Common/src/adaptation/CNativeField3D.cpp',
-             'UnitTests/Common/adaptation/CNativeField3D_tests.cpp','Common/src/adt/CADTBaseClass.cpp',
-             'Common/src/adt/CADTElemClass.cpp','Common/include/parallelization/mpi_structure.cpp',
-             'Common/src/meson.build','UnitTests/meson.build',
-             str(Path(__file__).resolve().relative_to(root))]
-    result = dict(status=status,stages=records,source_sha256={p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in files},
+    final_sources = {p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in files}
+    changed = [p for p in files if initial_sources[p]!=final_sources[p]]
+    if changed:status='FAIL'
+    result = dict(status=status,stages=records,source_sha256=initial_sources,changed_during_run=changed,
+                  final_source_sha256=final_sources,
                   scope='Isolated geometry/incidence/cavity/field Catch controls and 290 binary64 tetrahedral signs against exact Fraction references. One-core sequential low-priority compilation; no full SU2 build, CFD, MPI, global embedding, complete distributed-star, surface/field or performance scaling qualification.')
     result['artifact_sha256'] = {str(p.relative_to(folder)):hashlib.sha256(p.read_bytes()).hexdigest() for p in folder.iterdir() if p.is_file()}
     (folder/'validation.json').write_text(json.dumps(result,indent=2)+'\n')
     print(status,folder,flush=True)
+    if changed:raise RuntimeError("Source changed during validation: "+", ".join(changed))

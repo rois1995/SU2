@@ -110,6 +110,72 @@ FrozenField::FrozenField(std::vector<DonorCell> original, MetricComposition comb
   }
 }
 FrozenField::~FrozenField() = default;
+void FrozenField::FindCandidates(Point lo, Point hi) {
+  if (search) {
+    const std::array<su2double, 3> lower{lo.x, lo.y, lo.z}, upper{hi.x, hi.y, hi.z};
+    search->DetermineIntersectingElements(lower.data(), upper.data(), candidates);
+  } else {
+    candidates.resize(donors.size());
+    for (size_t i = 0; i < donors.size(); ++i) candidates[i] = i;
+  }
+  std::sort(candidates.begin(), candidates.end());
+}
+long double FrozenField::SensorEdgeLength(Point a, Point b) {
+  Timer edge_time(stats.edge_seconds, timings);
+  ++stats.edge_requests;
+  try {
+    if (!(std::isfinite(a.x) && std::isfinite(a.y) && std::isfinite(a.z) && std::isfinite(b.x) && std::isfinite(b.y) &&
+          std::isfinite(b.z)))
+      throw std::invalid_argument("Nonfinite native 3D sensor edge.");
+    if (a.x == b.x && a.y == b.y && a.z == b.z) throw std::invalid_argument("Native 3D sensor edge must be nonzero.");
+    std::vector<const Cell*> cells;
+    {
+      Timer timer(stats.edge_search_seconds, timings);
+      FindCandidates({std::min(a.x, b.x), std::min(a.y, b.y), std::min(a.z, b.z)},
+                     {std::max(a.x, b.x), std::max(a.y, b.y), std::max(a.z, b.z)});
+      stats.edge_box_candidates += candidates.size();
+      stats.maximum_edge_candidates = std::max(stats.maximum_edge_candidates, candidates.size());
+      cells.reserve(candidates.size());
+      for (auto i : candidates) cells.push_back(&donors.at(i).cell);
+    }
+    std::vector<SegmentPiece> pieces;
+    {
+      Timer timer(stats.edge_trace_seconds, timings);
+      if (cells.size() == 1) {
+        const auto& v = cells.front()->v;
+        const Tetrahedron t{v[0].p, v[1].p, v[2].p, v[3].p};
+        SegmentPiece piece;
+        ++stats.edge_containment_tests;
+        const bool first = Barycentric(t, a, piece.begin_weights, &stats.kernel);
+        ++stats.edge_containment_tests;
+        const bool last = Barycentric(t, b, piece.end_weights, &stats.kernel);
+        if (!(first && last)) throw std::runtime_error("Uncovered native 3D singleton sensor edge.");
+        // A tetrahedron is convex: no internal source crossing exists between two contained endpoints.
+        pieces.push_back(piece);
+        ++stats.edge_direct_intervals;
+      } else
+        pieces = TraceSegment(cells, a, b, &stats.kernel);
+    }
+    stats.edge_pieces += pieces.size();
+    stats.maximum_edge_pieces = std::max(stats.maximum_edge_pieces, pieces.size());
+    Timer timer(stats.edge_integral_seconds, timings);
+    long double total = 0;
+    for (const auto& piece : pieces) {
+      const auto& donor = donors[candidates[piece.donor]];
+      const auto first = MetricNorm(a, b, Blend(donor, piece.begin_weights), &stats.kernel);
+      const auto last = MetricNorm(a, b, Blend(donor, piece.end_weights), &stats.kernel);
+      const auto largest = std::max(first, last), r = std::min(first, last) / largest;
+      // Integral of sqrt(affine quadratic form), avoiding subtraction of nearly equal cubes.
+      total += piece.width * largest * (2.L / 3) * (1 + r + r * r) / (1 + r);
+    }
+    if (!(total > 0 && std::isfinite(total)))
+      throw std::runtime_error("Unrepresentable native 3D original sensor edge length.");
+    return total;
+  } catch (...) {
+    ++stats.edge_failures;
+    throw;
+  }
+}
 FieldSample FrozenField::Query(Point point) {
   Timer query_time(stats.query_seconds, timings);
   ++stats.requests;
@@ -134,14 +200,7 @@ FieldSample FrozenField::Query(Point point) {
     if (!found) {
       {
         Timer timer(stats.search_seconds, timings);
-        if (search) {
-          const std::array<su2double, 3> query{point.x, point.y, point.z};
-          search->DetermineIntersectingElements(query.data(), query.data(), candidates);
-        } else {
-          candidates.resize(donors.size());
-          for (size_t i = 0; i < donors.size(); ++i) candidates[i] = i;
-        }
-        std::sort(candidates.begin(), candidates.end());
+        FindCandidates(point, point);
         stats.box_candidates += candidates.size();
         stats.maximum_candidates = std::max(stats.maximum_candidates, candidates.size());
         for (auto index : candidates) {

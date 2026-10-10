@@ -143,3 +143,105 @@ TEST_CASE("Native 3D original sensor rejects invalid admission, extrapolation an
   CHECK(bad.Statistics().failures == 2);
   CHECK(bad.Statistics().compositions == 2);
 }
+
+namespace {
+std::vector<DonorCell> Slabs(std::array<double, 5> x, double peak, double coarse = 1) {
+  const std::array<std::array<size_t, 4>, 6> tets{
+      {{0, 1, 2, 6}, {0, 2, 3, 6}, {0, 3, 7, 6}, {0, 7, 4, 6}, {0, 4, 5, 6}, {0, 5, 1, 6}}};
+  std::vector<DonorCell> result;
+  for (size_t plane = 0; plane + 1 < x.size(); ++plane) {
+    const std::array<Node, 8> cube{{{4 * plane, {x[plane], 0, 0}},
+                                    {4 * (plane + 1), {x[plane + 1], 0, 0}},
+                                    {4 * (plane + 1) + 1, {x[plane + 1], 1, 0}},
+                                    {4 * plane + 1, {x[plane], 1, 0}},
+                                    {4 * plane + 2, {x[plane], 0, 1}},
+                                    {4 * (plane + 1) + 2, {x[plane + 1], 0, 1}},
+                                    {4 * (plane + 1) + 3, {x[plane + 1], 1, 1}},
+                                    {4 * plane + 3, {x[plane], 1, 1}}}};
+    for (const auto& indices : tets) {
+      auto d = Donor(result.size(), {cube[indices[0]], cube[indices[1]], cube[indices[2]], cube[indices[3]]});
+      for (size_t i = 0; i < 4; ++i) d.sensor[i] = {d.cell.v[i].p.x == x[2] ? peak : coarse, 0, 0, 1, 0, 1};
+      result.push_back(d);
+    }
+  }
+  return result;
+}
+}  // namespace
+TEST_CASE("Native 3D sensor edge integration resolves thin source demand without coarse spreading", "[NativeMesh3D]") {
+  for (bool adjacent : {false, true}) {
+    const double middle = adjacent ? std::nextafter(.3, 1.) : .3000005;
+    const std::array<double, 5> x{0, .3, middle, adjacent ? std::nextafter(middle, 1.) : .300001, 1};
+    const double peak = adjacent ? 4e32 : 4e12;
+    auto donors = Slabs(x, peak);
+    size_t composed = 0;
+    FrozenField field(
+        donors,
+        [&](Point, Tensor sensor) {
+          ++composed;
+          sensor.xx += 10;
+          return sensor;
+        },
+        true);
+    const Point a{0, .25, .25}, b{1, .25, .25};
+    const auto length = field.SensorEdgeLength(a, b);
+    const auto height = std::sqrt(static_cast<long double>(peak));
+    const auto width = static_cast<long double>(x[3]) - x[1];
+    const auto expected = 1 - width + width * (2.L / 3) * (peak + height + 1) / (height + 1);
+    CHECK(double(length) == Approx(double(expected)).epsilon(1e-12));
+    CHECK(double(field.SensorEdgeLength(b, a)) == Approx(double(length)).epsilon(1e-14));
+    CHECK(composed == 0);  // Sensor audit must not be mistaken for a composed-target acceptance test.
+    const auto three_point =
+        (std::sqrt(field.Query(a).sensor.xx) + 4 * std::sqrt(field.Query({.5, .25, .25}).sensor.xx) +
+         std::sqrt(field.Query(b).sensor.xx)) /
+        6;
+    CHECK(three_point == 1);
+    CHECK(length > 1.8L);
+    std::reverse(donors.begin(), donors.end());
+    FrozenField reverse(donors);
+    CHECK(reverse.SensorEdgeLength(a, b) == length);
+    const auto& s = field.Statistics();
+    CHECK(s.edge_requests == 2);
+    CHECK(s.edge_failures == 0);
+    CHECK(s.maximum_edge_candidates <= 24);
+    CHECK(s.maximum_edge_pieces <= 24);
+    CHECK(s.maximum_edge_pieces >= 4);
+    CHECK(s.edge_seconds >= s.edge_search_seconds + s.edge_trace_seconds + s.edge_integral_seconds);
+    CHECK(s.edge_trace_seconds > 0);
+    CHECK(reverse.Statistics().edge_seconds == 0);
+  }
+}
+TEST_CASE("Native 3D sensor edge length integrates affine donors and rejects incomplete coverage", "[NativeMesh3D]") {
+  auto d = Single();
+  for (size_t i = 0; i < 4; ++i) d.sensor[i] = {1 + 3 * d.cell.v[i].p.x, 0, 0, 1, 0, 1};
+  FrozenField field({d});
+  CHECK(double(field.SensorEdgeLength({0, 0, 0}, {1, 0, 0})) == Approx(14. / 9).epsilon(1e-14));
+  CHECK_THROWS_AS(field.SensorEdgeLength({0, 0, 0}, {2, 0, 0}), std::runtime_error);
+  CHECK_THROWS_AS(field.SensorEdgeLength({0, 0, 0}, {0, 0, 0}), std::invalid_argument);
+  CHECK_THROWS_AS(field.SensorEdgeLength({0, 0, 0}, {std::numeric_limits<double>::quiet_NaN(), 0, 0}),
+                  std::invalid_argument);
+  CHECK(field.Statistics().edge_requests == 4);
+  CHECK(field.Statistics().edge_failures == 3);
+  CHECK(field.Statistics().requests == 0);
+  CHECK(field.Statistics().edge_pieces == 1);
+  CHECK(field.Statistics().edge_direct_intervals == 1);
+  CHECK(field.Statistics().edge_containment_tests == 4);
+}
+
+TEST_CASE("Native 3D sensor intervals retain nonzero width when rounded cuts coincide", "[NativeMesh3D]") {
+  auto donors = Slabs({-1e100, 0, .5, 1, 1e100}, 1e100, 1e-100);
+  FrozenField field(donors);
+  const auto length = field.SensorEdgeLength({-1e100, .25, .25}, {1e100, .25, .25});
+  const auto baseline = 2 * static_cast<long double>(1e100) * std::sqrt(static_cast<long double>(1e-100));
+  const auto expected = baseline + (2.L / 3) * std::sqrt(static_cast<long double>(1e100));
+  CHECK(double(length) == Approx(double(expected)).epsilon(1e-12));
+  std::vector<const Cell*> cells;
+  for (const auto& d : donors) cells.push_back(&d.cell);
+  const auto pieces = TraceSegment(cells, {-1e100, .25, .25}, {1e100, .25, .25});
+  size_t coincident = 0;
+  for (const auto& piece : pieces)
+    if (piece.begin == piece.end) {
+      CHECK(piece.width > 0);
+      ++coincident;
+    }
+  CHECK(coincident >= 2);
+}

@@ -90,3 +90,67 @@ TEST_CASE("Native 3D metric admission: singular indefinite and nonfinite tensors
   CHECK_THROWS_AS(Measure(tet,{1,0,0,1,0,-1}),std::invalid_argument);
   CHECK_THROWS_AS(Measure(tet,{1,0,0,1,0,std::numeric_limits<double>::quiet_NaN()}),std::invalid_argument);
 }
+
+TEST_CASE("Native 3D exact segment clipping covers cells and conformal ties", "[NativeMesh3D]") {
+  Cell up{0, {{{0, {0, 0, 0}}, {1, {1, 0, 0}}, {2, {0, 1, 0}}, {3, {0, 0, 1}}}}};
+  Cell down{1, {{{0, {0, 0, 0}}, {2, {0, 1, 0}}, {1, {1, 0, 0}}, {4, {0, 0, -1}}}}};
+  const Point a{.125, .125, -.25}, b{.125, .125, .25};
+  const auto pieces = TraceSegment({&up, &down}, a, b);
+  REQUIRE(pieces.size() == 2);
+  CHECK(pieces[0].donor == 1);
+  CHECK(pieces[1].donor == 0);
+  CHECK(pieces[0].begin == 0);
+  CHECK(pieces[0].end == .5L);
+  CHECK(pieces[0].width == .5L);
+  CHECK(pieces[1].end == 1);
+  CHECK(pieces[1].begin_weights[3] == 0);
+  CHECK(pieces[1].end_weights[3] == .25L);
+  const auto face = TraceSegment({&up, &down}, {.125, .125, 0}, {.5, .125, 0});
+  REQUIRE(face.size() == 1);
+  CHECK(face[0].donor == 0);
+  CHECK(face[0].width == 1);
+  const auto reverse = TraceSegment({&up, &down}, b, a);
+  REQUIRE(reverse.size() == 2);
+  CHECK(reverse[0].donor == 0);
+  CHECK(reverse[0].begin_weights == pieces[1].end_weights);
+  const auto edge = TraceSegment({&up, &down}, {0, 0, 0}, {1, 0, 0});
+  REQUIRE(edge.size() == 1);
+  CHECK(edge[0].begin_weights[0] == 1);
+  CHECK(edge[0].end_weights[1] == 1);
+  CHECK_THROWS_AS(TraceSegment({&up}, a, b), std::runtime_error);
+  CHECK_THROWS_AS(TraceSegment({&up, &up}, {.1, .1, .1}, {.2, .1, .1}), std::runtime_error);
+  Cell unrelated = down;
+  for (auto& n : unrelated.v) n.id += 10;
+  CHECK_THROWS_AS(TraceSegment({&up, &unrelated}, {.125, .125, 0}, {.5, .125, 0}), std::runtime_error);
+  CHECK_THROWS_AS(TraceSegment({}, a, b), std::runtime_error);
+  CHECK_THROWS_AS(TraceSegment({nullptr}, a, b), std::invalid_argument);
+  CHECK_THROWS_AS(TraceSegment({&up}, b, b), std::invalid_argument);
+  CHECK_THROWS_AS(TraceSegment(std::vector<const Cell*>(MaximumSegmentDonors + 1, &up), a, b), std::invalid_argument);
+  std::swap(up.v[0], up.v[1]);
+  CHECK_THROWS_AS(TraceSegment({&up}, b, {.2, .1, .1}), std::invalid_argument);
+}
+TEST_CASE("Native 3D chord norm preserves small positive cancellation and large components", "[NativeMesh3D]") {
+  KernelStats stats;
+  CHECK(MetricNorm({}, {1, 2, 2}, {}, &stats) == 3);
+  CHECK(stats.filtered_norms == 1);
+  const auto next = std::nextafter(1., 2.);
+  CHECK(double(MetricNorm({}, {1, -1, 0}, {1, 1, 0, next, 0, 1}, &stats)) ==
+        Approx(std::sqrt(next - 1)).epsilon(1e-14));
+  CHECK(stats.exact_norms == 1);
+  const Tensor large{1e308, 9e307, 0, 1e308, 0, 1};
+  CHECK(double(MetricNorm({}, {1, -1, 0}, large)) ==
+        Approx(std::sqrt(2e308L - 2 * static_cast<long double>(large.xy))).epsilon(1e-14));
+  CHECK(MetricNorm({}, {}, {}) == 0);
+  CHECK_THROWS_AS(MetricNorm({}, {1, 0, 0}, {1, 1, 0, 1, 0, 1}), std::invalid_argument);
+  CHECK_THROWS_AS(MetricNorm({}, {std::numeric_limits<double>::infinity(), 0, 0}, {}), std::invalid_argument);
+}
+TEST_CASE("Native 3D exact chord magnitude never substitutes an underflow sign sentinel", "[NativeMesh3D]") {
+  const auto tiny = std::numeric_limits<double>::denorm_min();
+  const Tensor metric{tiny, 0, 0, 1, 0, 1};
+  if (std::numeric_limits<long double>::min_exponent - std::numeric_limits<long double>::digits > -3222)
+    CHECK_THROWS_AS(MetricNorm({}, {tiny, 0, 0}, metric), std::runtime_error);
+  else {
+    const auto expected = static_cast<long double>(tiny) * std::sqrt(static_cast<long double>(tiny));
+    CHECK(double(MetricNorm({}, {tiny, 0, 0}, metric) / expected) == Approx(1).epsilon(1e-14));
+  }
+}

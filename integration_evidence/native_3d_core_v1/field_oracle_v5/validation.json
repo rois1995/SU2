@@ -1,0 +1,72 @@
+{
+  "status": "PASS",
+  "stages": [
+    {
+      "stage": "compile_oracle",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "g++",
+        "-std=c++17",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-I.",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/field_oracle.cpp",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/edge_controls_v4/predicates.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/edge_controls_v4/field.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/edge_controls_v4/CADTBaseClass.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/edge_controls_v4/CADTElemClass.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/edge_controls_v4/mpi_structure.o",
+        "-o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/field_oracle_v5/field_oracle"
+      ],
+      "exit_code": 0,
+      "seconds": 0.5818860660074279
+    },
+    {
+      "stage": "queries",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/field_oracle_v5/field_oracle"
+      ],
+      "exit_code": 0,
+      "seconds": 0.0074812129605561495
+    }
+  ],
+  "source_sha256": {
+    "Common/include/adaptation/CNativeMesh3D.hpp": "2b342e72ee8cf3af8d100e042f70c12b890abd87648ba1f092f33fc53117c889",
+    "Common/src/adaptation/CNativePredicates3D.cpp": "bc10e40bfc82f91baf75c7cde18289b07e656db57ba72fd4c8c5d5cedfbb9b13",
+    "Common/include/adaptation/CNativeField3D.hpp": "27bc4fd74a74f397f9ffba409a25954fa8f4ffbd368d0ad20b57cd328ca02353",
+    "Common/src/adaptation/CNativeField3D.cpp": "4e6f3b1dce1443dc8f57809fd13e3a9f79605c59290079dc66088484ca4615c3",
+    "Common/src/adt/CADTBaseClass.cpp": "1e9efb89a0338f231e08d44707290693b875344e902b1e5018c4e20c8fc8b1af",
+    "Common/src/adt/CADTElemClass.cpp": "d2fe9839408416e457b6d171cecc4748776f08b8eed198c7be801566e147ac52",
+    "Common/include/parallelization/mpi_structure.cpp": "30078341e15207039221f86538bf60345378ddc7f5dfd9399d12bf5284d8c9f5",
+    "integration_evidence/native_3d_core_v1/field_oracle.cpp": "95e43b5f4fac2c787ef8d0d6f29560669e8b63bab2851bd0fa3eb456347b77e5",
+    "integration_evidence/native_3d_core_v1/run_field_oracle.py": "ecf9e56c6071bce5ad6b1e7858b39b00ddc724dd91f313fcba7142ec1f042106"
+  },
+  "reused_object_sha256": {
+    "predicates.o": "c553d78de7eba87eac5beeda255b6b34e350c109ede3f3630f9e353b1c320e05",
+    "field.o": "f75a65bd8b2ad1eb568e66bf188097a3249b418b1d66d294089ae6150dc9f572",
+    "CADTBaseClass.o": "33eb2273241cd49ce2c456d03612934e3ae1947e7732acdbf382adcecc0135a8",
+    "CADTElemClass.o": "5e7cc02d11790860fc118589d53e1242443f460acd4dbd1ccbff7cabb5a8c6eb",
+    "mpi_structure.o": "1f19f823ac9df14d44a3262277d5e68d6595b1e86f1cbc943c11d7f9164fd668"
+  },
+  "artifact_sha256": {
+    "validated_objects_receipt.json": "ad37ccac46b5569a83ce8cb40caa874a5dd8a42340a6f21cd9404dc0b8774f2c",
+    "queries.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compile_oracle.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "samples.txt": "65a70892d77e0b8c88c2fc9acfd84d16046fc33b9b3eaa523bcacbdeb6fdff12",
+    "field_oracle": "d4533dd5b790ea63df2f6f0147d74a0f0b0c26b746de8a3cf743d8338e815d29",
+    "oracle_audit.json": "5c1f2e84ea9603981cd5d32fa373f7c630c01a03040433e1a6ac6c6ff0207f4b",
+    "compile_oracle.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "queries.stdout": "6537e327369b7061603952169e8031cf7a13534a1f0861780837675b5efacc09",
+    "exact_cases.json": "a64a3371ce995550c0851e2bd08be9c7235f6faed959be52aceb1fa45c8c31f8"
+  }
+}

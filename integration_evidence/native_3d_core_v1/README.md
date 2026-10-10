@@ -134,3 +134,13 @@ Full Meson build/link, MPI and refreshed 2D integration regressions are pending.
 The geometry/incidence-only controls produce no grids; cavity_meshes_v2 now
 contains initial/private-candidate grids. Actual adapted CFD grids remain pending.
 Goal tracker remains ACTIVE.
+
+## Original sensor-edge integration checkpoint
+
+See EDGE_CHECKPOINT.md for the source-resolved P1 integral, bounded exact crossing
+path, single-donor shortcut, performance scopes and preserved attempts. Final
+edge_controls_v4 PASS28cases2373assertions+290 signs; edge_oracle_v2 independently
+checks104edges and retains three inspectable SOURCE slab SU2 grids/metric data.
+field_oracle_v5 retains all210 original point responses byte-for-byte. Composed
+geometric BL/target integration, actual metric-gated replacements and MPI remain
+pending; Goal1 ACTIVE, runtime support still rejects3D.

@@ -1,5 +1,34 @@
 # Current handoff — 2026-10-10
 
+## Native 3D original-sensor edge checkpoint — 2026-10-10
+
+On codex/native-3d-core, new bounded TraceSegment uses exact rational original-tet
+crossings, ordering/coverage, per-donor endpoint weights and cancellation-free
+interval widths. FrozenField::SensorEdgeLength analytically integrates original
+P1 SENSOR only. One-donor contained edges bypass rational tracing; multi-donor
+edges keep the exact path. Thin source strips between3point samples and intervals
+whose crossing parameters both round to0.5 are retained without coarse spreading.
+Chord norms have magnitude/exact cancellation checks and reject underflow sentinel
+substitution. Existing point composition still runs at every actual query.
+Sensor audit is explicitly insufficient for composed BL/target acceptance.
+
+Final PASS28cases/2373assertions+290 Fraction signs in native_3d_core_v1/edge_controls_v4.
+Independent edge_oracle_v2 PASS104edges/37groups,71covered33rejected147intervals;
+lengtherror4.1162e-17, weighterror4.8867e-20, widtherror7.1193e-20.60direct intervals.
+Three source slab SU2 grids+sensor JSON/edge defects independently audited there.
+They are manufactured SOURCE grids, not adapted CFD outputs. Point field_oracle_v5
+PASS210queries and output byte-identical to v3. Preserved v1 fixture failure;
+v2 has explicit source-provenance caveat, final runners reject in-flight edits.
+
+Separate optional exclusive edge search/trace/integral timers, rejection/work counts
+and bounds added. Single contended control observes trace/containment dominating;
+no speedup/scaling/affordability claim. One low-priority job at a time under foreign
+Python/4rank FSI. No full SU2/MPI/CGNS/AD run. EDGE_CHECKPOINT.md gives full scope,
+receipts/replay, performance observations and unchanged original completion contract.
+Next actual geometric composition integration and metric-gated private proposals,
+then adaptable planar surface and full MPI admission/partition/transfer. Runtime
+still rejects3D;2D/MMG/fade/noise unchanged. Goal1 ACTIVE; no additional paper needed.
+
 ## Native 3D immutable sensor/query checkpoint — 2026-10-10
 
 Prior goal turn progressed with cavitye7f87ecf4a published. New strict Barycentric
