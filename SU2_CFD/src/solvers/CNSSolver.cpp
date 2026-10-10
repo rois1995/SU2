@@ -847,12 +847,12 @@ void CNSSolver::SetTau_Wall_WF(CGeometry *geometry, CSolver **solver_container, 
       const auto iPoint = geometry->vertex[iMarker][iVertex]->GetNode();
       const auto Point_Normal = geometry->vertex[iMarker][iVertex]->GetNormal_Neighbor();
 
-      /*--- On the finest mesh compute also on halo nodes to avoid communication of tau wall. ---*/
-      if ((!geometry->nodes->GetDomain(iPoint)) && !(MGLevel==MESH_0)) continue;
-
       YPlus[iMarker][iVertex] = 0.0;
       EddyViscWall[iMarker][iVertex] = 0.0;
       UTau[iMarker][iVertex] = 0.0;
+
+      /* Halo normals are partial; use the owner's wall model on every grid. */
+      if (!geometry->nodes->GetDomain(iPoint)) continue;
 
       /*--- Get coordinates of the current vertex and nearest normal point ---*/
 
@@ -968,6 +968,9 @@ void CNSSolver::SetTau_Wall_WF(CGeometry *geometry, CSolver **solver_container, 
     }
     END_SU2_OMP_FOR
   }
+
+  InitiateComms(geometry, config, MPI_QUANTITIES::WALL_FUNCTION);
+  CompleteComms(geometry, config, MPI_QUANTITIES::WALL_FUNCTION);
 
   if (config->GetComm_Level() == COMM_FULL) {
     static unsigned long globalCounter1, globalCounter2;

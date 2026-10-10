@@ -2467,6 +2467,12 @@ class CFVMFlowSolverBase : public CSolver {
     return EddyViscWall[val_marker][val_vertex];
   }
 
+  inline void SetWallFunctionState(unsigned short marker, unsigned long vertex, const su2double* state) final {
+    YPlus[marker][vertex] = state[0];
+    UTau[marker][vertex] = state[1];
+    EddyViscWall[marker][vertex] = state[2];
+  }
+
   /*!
    * \brief Get the mass fluxes across the edges (computed and stored during the discretization of convective fluxes).
    */

@@ -3105,6 +3105,9 @@ public:
    */
   inline virtual su2double GetEddyViscWall(unsigned short val_marker, unsigned long val_vertex) const { return 0; }
 
+  /*! \brief Unpack owner y+, friction velocity and eddy viscosity for a wall vertex. */
+  virtual void SetWallFunctionState(unsigned short marker, unsigned long vertex, const su2double* state) {}
+
   /*!
    * \brief A virtual member
    * \return The mass fluxes (from flow solvers) across the edges.

@@ -83,10 +83,11 @@ struct UnitQuadTestCase {
   /*!
    * \brief Initialize the geometry
    */
-  void InitGeometry() {
+  void InitGeometry(bool partition = false) {
     cout.rdbuf(nullptr);
     {
       auto aux_geometry = std::unique_ptr<CGeometry>(new CPhysicalGeometry(config.get(), 0, 1));
+      if (partition) aux_geometry->SetColorGrid_Parallel(config.get());
       geometry = std::unique_ptr<CGeometry>(new CPhysicalGeometry(aux_geometry.get(), config.get()));
     }
     geometry->SetSendReceive(config.get());

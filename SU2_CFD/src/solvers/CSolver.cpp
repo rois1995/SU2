@@ -1491,6 +1491,12 @@ void CSolver::GetCommCountAndType(const CConfig* config,
       COUNT_PER_POINT  = nVar+1;
       MPI_TYPE         = COMM_TYPE::DOUBLE;
       break;
+    case MPI_QUANTITIES::WALL_FUNCTION:
+      if (config->GetnMarker_CfgFile() > (std::numeric_limits<unsigned short>::max()-1)/3)
+        SU2_MPI::Error("Too many markers for wall-function communication.", CURRENT_FUNCTION);
+      COUNT_PER_POINT = 1 + 3*config->GetnMarker_CfgFile();
+      MPI_TYPE = COMM_TYPE::DOUBLE;
+      break;
     case MPI_QUANTITIES::STOCH_SOURCE_LANG:
       COUNT_PER_POINT  = nDim;
       MPI_TYPE         = COMM_TYPE::DOUBLE;
@@ -1638,6 +1644,22 @@ void CSolver::InitiateComms(CGeometry *geometry,
             for (iVar = 0; iVar < nVar; iVar++)
               bufDSend[buf_offset+iVar] = base_nodes->GetSolution(iPoint, iVar);
             bufDSend[buf_offset+nVar]   = base_nodes->GetmuT(iPoint);
+            break;
+          case MPI_QUANTITIES::WALL_FUNCTION:
+            std::fill_n(bufDSend+buf_offset, COUNT_PER_POINT, 0.0);
+            bufDSend[buf_offset] = base_nodes->GetTau_Wall(iPoint);
+            for (auto marker = 0u; marker < config->GetnMarker_All(); ++marker) {
+              const auto tag = config->GetMarker_All_TagBound(marker);
+              if (!config->GetViscous_Wall(marker) ||
+                  config->GetWallFunction_Treatment(tag) != WALL_FUNCTIONS::STANDARD_FUNCTION) continue;
+              const auto vertex = geometry->nodes->GetVertex(iPoint, marker);
+              if (vertex < 0) continue;
+              /* Local marker ordering can differ between MPI ranks. */
+              const auto offset = buf_offset + 1 + 3*config->GetMarker_CfgFile_TagBound(tag);
+              bufDSend[offset] = GetYPlus(marker, vertex);
+              bufDSend[offset+1] = GetUTau(marker, vertex);
+              bufDSend[offset+2] = GetEddyViscWall(marker, vertex);
+            }
             break;
           case MPI_QUANTITIES::STOCH_SOURCE_LANG:
             for (iDim = 0; iDim < nDim; iDim++)
@@ -1805,6 +1827,18 @@ void CSolver::CompleteComms(CGeometry *geometry,
             for (iVar = 0; iVar < nVar; iVar++)
               base_nodes->SetSolution(iPoint, iVar, bufDRecv[buf_offset+iVar]);
             base_nodes->SetmuT(iPoint,bufDRecv[buf_offset+nVar]);
+            break;
+          case MPI_QUANTITIES::WALL_FUNCTION:
+            base_nodes->SetTau_Wall(iPoint, bufDRecv[buf_offset]);
+            for (auto marker = 0u; marker < config->GetnMarker_All(); ++marker) {
+              const auto tag = config->GetMarker_All_TagBound(marker);
+              if (!config->GetViscous_Wall(marker) ||
+                  config->GetWallFunction_Treatment(tag) != WALL_FUNCTIONS::STANDARD_FUNCTION) continue;
+              const auto vertex = geometry->nodes->GetVertex(iPoint, marker);
+              if (vertex < 0) continue;
+              const auto offset = buf_offset + 1 + 3*config->GetMarker_CfgFile_TagBound(tag);
+              SetWallFunctionState(marker, vertex, bufDRecv+offset);
+            }
             break;
           case MPI_QUANTITIES::STOCH_SOURCE_LANG:
             for (iDim = 0; iDim < nDim; iDim++)

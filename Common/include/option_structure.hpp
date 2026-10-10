@@ -2889,6 +2889,7 @@ enum class MPI_QUANTITIES {
   MAX_LENGTH           ,  /*!< \brief Maximum length communication. */
   GRID_VELOCITY        ,  /*!< \brief Grid velocity communication. */
   SOLUTION_EDDY        ,  /*!< \brief Turbulent solution plus eddy viscosity communication. */
+  WALL_FUNCTION       ,  /*!< \brief Owner wall stress and per-marker wall-function state. */
   STOCH_SOURCE_LANG    ,  /*!< \brief Stochastic source term for Langevin equations communication. */
   DES_LENGTHSCALE      ,  /*!< \brief DES length scale communication. */
   SOLUTION_MATRIX      ,  /*!< \brief Matrix solution communication. */
