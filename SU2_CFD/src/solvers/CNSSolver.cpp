@@ -805,6 +805,7 @@ void CNSSolver::SetTau_Wall_WF(CGeometry *geometry, CSolver **solver_container, 
 
   unsigned long notConvergedCounter = 0;  /*--- counts the number of wall cells that are not converged ---*/
   unsigned long smallYPlusCounter = 0;    /*--- counts the number of wall cells where y+ < 5 ---*/
+  unsigned long resolvedSamplingCounter = 0;
 
   const su2double Gas_Constant = config->GetGas_ConstantND();
   const su2double Cp = (Gamma / Gamma_Minus_One) * Gas_Constant;
@@ -853,6 +854,12 @@ void CNSSolver::SetTau_Wall_WF(CGeometry *geometry, CSolver **solver_container, 
 
       /* Halo normals are partial; use the owner's wall model on every grid. */
       if (!geometry->nodes->GetDomain(iPoint)) continue;
+
+      /* Wall intersections do not provide an off-wall velocity sample. */
+      if (geometry->nodes->GetSolidBoundary(Point_Normal)) {
+        ++resolvedSamplingCounter;
+        continue;
+      }
 
       /*--- Get coordinates of the current vertex and nearest normal point ---*/
 
@@ -903,6 +910,11 @@ void CNSSolver::SetTau_Wall_WF(CGeometry *geometry, CSolver **solver_container, 
         }
       }
       const auto VelTangMod = WallFunctionModel::TangentialSpeed(nDim, Vel, reference_velocity, UnitNormal);
+
+      if (WallFunctionModel::Finite(VelTangMod) && VelTangMod <= EPS) {
+        ++resolvedSamplingCounter;
+        continue;
+      }
 
       /*--- Compute normal distance of the interior point from the wall ---*/
       const su2double WallDistMod = GeometryToolbox::Distance(nDim, Coord, Coord_Normal);
@@ -991,16 +1003,18 @@ void CNSSolver::SetTau_Wall_WF(CGeometry *geometry, CSolver **solver_container, 
   CompleteComms(geometry, config, MPI_QUANTITIES::WALL_FUNCTION);
 
   if (config->GetComm_Level() == COMM_FULL) {
-    static unsigned long globalCounter1, globalCounter2;
+    static unsigned long globalCounter1, globalCounter2, globalCounter3;
 
-    ompMasterAssignBarrier(globalCounter1,0, globalCounter2,0);
+    ompMasterAssignBarrier(globalCounter1,0, globalCounter2,0, globalCounter3,0);
 
     atomicAdd(notConvergedCounter, globalCounter1);
     atomicAdd(smallYPlusCounter, globalCounter2);
+    atomicAdd(resolvedSamplingCounter, globalCounter3);
 
     BEGIN_SU2_OMP_SAFE_GLOBAL_ACCESS {
       SU2_MPI::Allreduce(&globalCounter1, &notConvergedCounter, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
       SU2_MPI::Allreduce(&globalCounter2, &smallYPlusCounter, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
+      SU2_MPI::Allreduce(&globalCounter3, &resolvedSamplingCounter, 1, MPI_UNSIGNED_LONG, MPI_SUM, SU2_MPI::GetComm());
 
       const bool write_iter = (config->GetInnerIter() % config->GetVolumeOutputFrequency(0) == 0);
 
@@ -1012,6 +1026,9 @@ void CNSSolver::SetTau_Wall_WF(CGeometry *geometry, CSolver **solver_container, 
         if (smallYPlusCounter)
           cout << "y+ < " << config->GetwallModel_MinYPlus() << " in " << smallYPlusCounter
                << " points. No problem, but you can increase your near-wall mesh size." << endl;
+        if (resolvedSamplingCounter)
+          cout << "Wall-function resolved fallback in " << resolvedSamplingCounter
+               << " point evaluations (zero relative speed or solid-wall sample)." << endl;
       }
     }
     END_SU2_OMP_SAFE_GLOBAL_ACCESS
