@@ -1,5 +1,41 @@
 # Current handoff — 2026-10-10
 
+## Native 3D coupled planar boundary and metric checkpoint — 2026-10-10
+
+Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
+Branch codex/native-3d-core, predecessor5f46583e5b81b95aa4dba9f538f2ae0a9573bdca.
+Goal1 ACTIVE with full original scope. Coupled complete edge-star splits and paired
+inverse coarsening now adapt physical triangles with immutable finite facet/marker
+authority, exact orientation/skin and manifold links, atomic private output rollback.
+Actual-centroid target shape and source-resolved unique-edge gates separate private
+progress from final .20/.05/1.8 completion. Repair controls support quality/size
+progress for movement/reconnection. Combined-target edge integration rejects until
+geometrically resolved, never substitutes sensor length; point composition intact.
+
+Final strict-linked unit validation boundary_metric_controls_v3 PASS37cases /
+2651assertions plus290 Fraction signs, with Git absent and listed-source snapshots.
+Earlier runner metric recompilation corrected; all earlier evidence retained.
+Five full manufactured serial cycles in coupled_meshes_v2 independently PASS:
+182 edits, geometry/marker/embedding/P1/metric audit; box/thin1e4/thin1e8/sheared
+6->48->6 tets and12->48->12 wall triangles, rotated_spatial6->40->6 and12->40->12.
+Accepted grids at integration_evidence/native_3d_core_v1/coupled_meshes_v2/*_adapted.su2.
+These are adapted manufactured meshes with no CFD state, not source-only grids.
+Coarse event snapshots accepted adapted donors. All15SU2+15JSON unchanged fromv1.
+
+Single contended phase observation totals2.723354s: selection1.247643s/private
+metric1.337250s/geometry.064687s/other.073774s.8390edge evaluations/1556reuses.
+Source tracing and repeated full toy-mesh scans dominate; prioritize those before
+larger runs. Nested query costs are not added to parents. No scaling/speedup claim.
+BOUNDARY_METRIC_CHECKPOINT.md gives limits, receipts and sequential/no-Git replay.
+
+Exact on-edge planar proposals only; general facet coarsening/rounded-point
+association pending. Thin mapped cases are not Euler-to-BL construction. Local
+star authority/IDs/embedding remain preconditions, no distributed completeness.
+Runtime still rejects3D; no fullMeson/AD/CFD/MPI/CGNS/transfer/performance envelope.
+Next query/selection cost and general planar admissibility, then actual distributed
+admission/weighted M<=N/return/transfer and fullGoal1matrix.2D/MMG unchanged.
+Local papers remain sufficient; AdapNoExt/external repair project untouched.
+
 ## Native 3D original-sensor edge checkpoint — 2026-10-10
 
 On codex/native-3d-core, new bounded TraceSegment uses exact rational original-tet
