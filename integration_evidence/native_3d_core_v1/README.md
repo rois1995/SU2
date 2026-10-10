@@ -1,3 +1,9 @@
+Latest checkpoint: automatic bounded MPI repair on failing face/edge/vertex
+features, independent exact mesh/P1 audits and actual non-MPI instrumentation
+controls. See [AUTOMATIC_REPAIR_CHECKPOINT.md](AUTOMATIC_REPAIR_CHECKPOINT.md).
+Evidence/grids: `automatic_repairs_v2/mpi{1,2,4}_automatic_repairs/`.
+Goal1 remains active; production3D/runtime/partition/CFD/CGNS remain unfinished.
+
 # Native 3D Goal 1 checkpoints
 
 Latest operator work: [planar movement and face/edge reconnection](REPAIR_OPERATORS_CHECKPOINT.md).

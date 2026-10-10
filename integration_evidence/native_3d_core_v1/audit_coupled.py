@@ -102,7 +102,7 @@ def length(original,a,b):
             total+=dec(hi-lo)*value
         return float(total)
 
-def frame(path,strict):
+def frame(path,strict,validate_shape=True):
     data=json.loads(path.read_text());nodes={n[0]:tuple(F(float(x)) for x in n[1:]) for n in data['nodes']}
     assert len(nodes)==len(data['nodes']) and len(set(nodes.values()))==len(nodes)
     cells=[c['nodes'] for c in data['cells']];assert len({c['id'] for c in data['cells']})==len(cells)
@@ -146,7 +146,7 @@ def frame(path,strict):
         squared={(i,j):float(quad(m,sub(t[j],t[i]))) for i,j in itertools.combinations(range(4),2)}
         q=12*(v/2)**(2/3)/sum(squared.values())
         j=min(1.,min(math.sqrt(2)*v/math.prod(math.sqrt(squared[tuple(sorted((i,k)))]) for k in range(4) if k!=i) for i in range(4)))
-        assert q>=.20 and j>=.05
+        if validate_shape:assert q>=.20 and j>=.05
         minq=min(minq,q);minj=min(minj,j)
         unique_edges.update(tuple(sorted(pair)) for pair in itertools.combinations(c,2))
     maxl=0.;longest=None

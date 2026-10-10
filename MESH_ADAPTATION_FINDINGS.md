@@ -1,3 +1,40 @@
+## Automatic native 3D repair checkpoint — 2026-10-11
+
+Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
+Branch codex/native-3d-core; predecessor47071504dd6212828176a8e3f6627aa1d5e87a06.
+Goal1 remains ACTIVE/full scope. Repair automatically selects complete failing
+vertex/edge/face dependencies and bounded movement/reconnection proposals through
+the shared frozen-target MPI transaction engine. Accepted input is immutable;
+q>=.20/J>=.05/private progress/finalL<=1.8 remain strict. Repair-only storage is
+separate and incremental; ordinary cell state avoids an added vector/whole scan.
+
+automatic_repairs_v2 PASS MPI1 (64 cases/3969 assertions), MPI2/4 (20 cases/rank)
+and actual non-MPI automatic reconnection/private movement plus existing
+6->48->6->48 controls.72 automatic events (36 moves/36 reconnections),108 meshes
+including36 initial,204 closed parent profiles. Independent exact embedding/
+volume/facet/marker/original-P1 final audits pass; nine tampering controls reject.
+All702 prior JSON/SU2 artifacts unchanged. Source pins stable. V1 native MPI1
+passed; failed audit runner/parser evidence and successful re-audits retained.
+
+Inspect integration_evidence/native_3d_core_v1/automatic_repairs_v2/
+mpi{1,2,4}_automatic_repairs/auto_*_initial.su2 and auto_*_m*.su2/.json.
+AUTOMATIC_REPAIR_CHECKPOINT.md/automatic_repair_summary.json document evidence,
+performance and replay. Tiny events used at most19 rounds/2,134,136 modeled bytes;
+rejected geometry proposals dominate several cases. Three matched non-MPI
+instrumentation pairs per event pass (Repair OFF.014612s/ON.014918s medians),
+with identical grids/accepted/query work. No scaling/CFD affordability conclusion.
+
+MPI handle13448 and non-MPI49567 terminalPASS; no owned job live.
+Next: repair fallback in blocked refine/coarsen, multiple/partial cavities/larger
+sources, measured proposal/tracing cost, coplanar geometry authority; then
+weighted partition/runtime/CFD/CGNS/full lifecycle and cluster qualification.
+Finite coplanar seams remain protected. Automatic mode is separate from
+Refine/Coarsen fallback. Private transport/query controls rerun in the shared core,
+but this is not a new per-candidate donor-observation certificate. Manufactured
+metric preparation lies outside repeated subset-event profiles; actual ParMETIS,
+CFD rebuild/transfer/history, RSS and full wait qualification remain. Production
+3D guard/2D/MMG/finer sensor/geometric BL/fade/noise remain unchanged.
+
 ## Native 3D movement/reconnection checkpoint — 2026-10-10
 
 Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.

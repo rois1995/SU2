@@ -25,7 +25,7 @@ def parse(text,ranks):
             meshes[label][id]=dict(id=id,version=int(row[3]),
                 vertices=[[int(row[4+4*i])]+list(map(float,row[5+4*i:8+4*i])) for i in range(4)],
                 physical=[list(map(int,row[20+2*i:22+2*i])) for i in range(4)])
-        elif row[0]=='REPAIR_FACET':
+        elif row[0]=='REPAIR_FACET' and row[1].startswith('repair_'):
             assert len(row)==16
             label,id,marker=row[1],int(row[2]),int(row[3]);assert id not in facets[label] and marker==id+10
             facets[label][id]=dict(id=id,marker=marker,

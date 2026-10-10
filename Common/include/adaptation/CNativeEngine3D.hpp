@@ -22,6 +22,7 @@ struct EngineStats {
   uint64_t initial_cells = 0, updated_cells = 0, edge_evaluations = 0, edge_reused = 0, selections = 0;  // Edge evaluations here count selection-cache measurements only.
   uint64_t field_requests = 0, field_hits = 0, field_compositions = 0, field_edges = 0;
   uint64_t donor_batches = 0, batch_retries = 0;
+  uint64_t repair_proposals = 0, moved = 0, reconnected = 0;
   double process_cpu_seconds = 0, reconstruction_cpu_seconds = 0, metric_cpu_seconds = 0, measurement_cpu_seconds = 0;
   // Nested query detail; never add to the exclusive engine phases below.
   double field_build_seconds = 0, field_query_seconds = 0, field_cache_seconds = 0, field_search_seconds = 0;
@@ -41,7 +42,7 @@ struct EngineResult {
   std::string reason;
   EngineStats stats;
 };
-/*! Complete metric refinement; movement/reconnection remain separate required developments.
+/*! Complete metric refinement; Repair is a separate bounded shape/size restoration event.
  * All world ranks call together; accepted and original source remain unchanged. Same options/immutable geometry
  * authority and frozen composition policy on every worker; source must cover the original accepted domain.
  * AABB donor/dependency limits can reject the whole event. Planar split geometry is an exact subdivision of
@@ -56,5 +57,11 @@ EngineResult Refine(World& world, const Owned& accepted, const std::vector<Donor
  * mesh. Blocked directions are retried only after adjacent topology changes. Complete vertex dependencies
  * and immutable incident finite facets protect geometry; no inverse-split history is required. */
 EngineResult Coarsen(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
+                    const PlanarReference& geometry, MetricComposition composition = {}, EngineOptions options = {});
+/*! Automatically reconnects admitted face/edge cavities or moves complete vertex stars of failing cells.
+ * At most16 private proposals per cavity; strict fresh shape/sliver and original-field progress gates remain.
+ * Success requires every working cell to pass the full frozen target. Stagnation rejects the private event;
+ * finite reference facets protect planar motion and original seams. No refinement/coarsening target relaxation. */
+EngineResult Repair(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
                     const PlanarReference& geometry, MetricComposition composition = {}, EngineOptions options = {});
 }  // namespace SU2Native3D

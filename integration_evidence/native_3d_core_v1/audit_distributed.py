@@ -11,7 +11,7 @@ print('Case working and retained folder:', destination, flush=True)
 destination.mkdir(exist_ok=False)
 groups = defaultdict(list)
 for line in log.read_text().splitlines():
-    if not line.startswith('MESH ') or line.startswith(('MESH aniso_','MESH cycle_','MESH repair_')): continue
+    if not line.startswith('MESH ') or line.startswith(('MESH aniso_','MESH cycle_','MESH repair_','MESH auto_')): continue
     parts = line.split()
     assert len(parts) == 28, 'Partial MPI mesh record'
     _, label, id, version = parts[:4]

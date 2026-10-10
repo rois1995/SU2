@@ -154,6 +154,25 @@ int main() {
   FrozenField reconnect_field(reconnection_source);
   assert(ValidateMetricChange(bipyramid.cells,reconnected.cells,MetricChange::Repair,reconnect_field,measured,reason));
   assert(ValidateMetricPatch(reconnected.cells,reconnect_field,measured,reason));
+  Owned bad;std::vector<DonorCell> repair_source;
+  for(auto row:Rows(reconnected)) {bad.emplace(row.cell.id,row);DonorCell donor;donor.cell=row.cell;donor.sensor.fill({1,0,0,1,0,16});repair_source.push_back(donor);}
+  const auto bad_saved=Bytes(bad);const auto automatic=Repair(world,bad,repair_source,planes);
+  if(!automatic.valid)std::cerr<<automatic.reason<<'\n';
+  assert(automatic.valid && automatic.cells.size()==2 && automatic.stats.reconnected==1 && Bytes(bad)==bad_saved);
+  std::vector<Cell> repaired_cells;for(auto row:automatic.cells)repaired_cells.push_back(row.second.cell);
+  FrozenField automatic_field(repair_source);assert(ValidateMetricPatch(repaired_cells,automatic_field,measured,reason));
+  for(int trial=0;trial<3;++trial) for(int order=0;order<2;++order) {
+    EngineOptions profile;profile.timings=bool(order^(trial%2));const auto start=std::chrono::steady_clock::now();
+    const auto repeated=Repair(world,bad,repair_source,planes,{},profile);
+    const double elapsed=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
+    assert(repeated.valid && Bytes(repeated.cells)==Bytes(automatic.cells));
+    assert(repeated.stats.accepted==automatic.stats.accepted && repeated.stats.field_edges==automatic.stats.field_edges);
+    assert(profile.timings ? repeated.stats.other_seconds>=-1e-12 : repeated.stats.total_seconds==0);
+    std::cout<<std::setprecision(17)<<"REPAIR_PROFILE trial="<<trial<<" detail="<<profile.timings
+        <<" external_s="<<elapsed<<" engine_s="<<repeated.stats.total_seconds<<" accepted="<<repeated.stats.accepted
+        <<" rejected="<<repeated.stats.rejected<<" field_edges="<<repeated.stats.field_edges
+        <<" reconstruction_s="<<repeated.stats.reconstruction_seconds<<" metric_s="<<repeated.stats.metric_seconds<<'\n';
+  }
   for (int trial=0; trial<3; ++trial) for (int order=0; order<2; ++order) {
     EngineOptions profile;
     profile.timings = bool(order ^ (trial % 2));
@@ -181,5 +200,5 @@ int main() {
         <<" rejected="<<repeated.stats.rejected<<" field_edges="<<repeated.stats.field_edges
         <<" trace_nested_s="<<repeated.stats.edge_trace_seconds<<'\n';
   }
-  std::cout << "PASS actual non-MPI engine: 6->48->6->48 tetrahedra, general collapse, planar movement/reconnection, full frozen metric gates, rejection and composed-target refusal\n";
+  std::cout << "PASS actual non-MPI engine: 6->48->6->48 tetrahedra, general collapse, automatic and private movement/reconnection, full frozen metric gates, rejection and composed-target refusal\n";
 }

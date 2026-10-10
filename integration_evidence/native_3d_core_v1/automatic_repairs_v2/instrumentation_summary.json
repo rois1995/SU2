@@ -1,0 +1,234 @@
+{
+  "status": "PASS",
+  "scope": "Three alternating matched actual non-MPI trials each for refine, coarsen and automatic reconnection repair; identical grids/accepted counts/query work asserted. Small local instrumentation sanity checks, not a statistically resolved scaling/CFD affordability qualification.",
+  "reports": {
+    "PROFILE": {
+      "0": {
+        "median_external_seconds": 0.051964405,
+        "minimum_seconds": 0.051821056,
+        "maximum_seconds": 0.052648581,
+        "trials": [
+          {
+            "trial": "0",
+            "detail": "0",
+            "external_s": "0.051964404999999998",
+            "engine_s": "0",
+            "accepted": "19",
+            "field_edges": "234",
+            "trace_nested_s": "0"
+          },
+          {
+            "trial": "1",
+            "detail": "0",
+            "external_s": "0.052648581",
+            "engine_s": "0",
+            "accepted": "19",
+            "field_edges": "234",
+            "trace_nested_s": "0"
+          },
+          {
+            "trial": "2",
+            "detail": "0",
+            "external_s": "0.051821055999999997",
+            "engine_s": "0",
+            "accepted": "19",
+            "field_edges": "234",
+            "trace_nested_s": "0"
+          }
+        ]
+      },
+      "1": {
+        "median_external_seconds": 0.052384128,
+        "minimum_seconds": 0.052140257,
+        "maximum_seconds": 0.055263266,
+        "trials": [
+          {
+            "trial": "0",
+            "detail": "1",
+            "external_s": "0.052384128000000002",
+            "engine_s": "0.052364404000000003",
+            "accepted": "19",
+            "field_edges": "234",
+            "trace_nested_s": "0.041575825999999996"
+          },
+          {
+            "trial": "1",
+            "detail": "1",
+            "external_s": "0.052140257000000002",
+            "engine_s": "0.052119037",
+            "accepted": "19",
+            "field_edges": "234",
+            "trace_nested_s": "0.041867858000000001"
+          },
+          {
+            "trial": "2",
+            "detail": "1",
+            "external_s": "0.055263265999999998",
+            "engine_s": "0.055186206000000002",
+            "accepted": "19",
+            "field_edges": "234",
+            "trace_nested_s": "0.043163351000000003"
+          }
+        ]
+      }
+    },
+    "COARSEN_PROFILE": {
+      "0": {
+        "median_external_seconds": 0.20995158,
+        "minimum_seconds": 0.208873603,
+        "maximum_seconds": 0.211995018,
+        "trials": [
+          {
+            "trial": "0",
+            "detail": "0",
+            "external_s": "0.20887360299999999",
+            "engine_s": "0",
+            "accepted": "19",
+            "rejected": "9",
+            "field_edges": "270",
+            "trace_nested_s": "0"
+          },
+          {
+            "trial": "1",
+            "detail": "0",
+            "external_s": "0.21199501800000001",
+            "engine_s": "0",
+            "accepted": "19",
+            "rejected": "9",
+            "field_edges": "270",
+            "trace_nested_s": "0"
+          },
+          {
+            "trial": "2",
+            "detail": "0",
+            "external_s": "0.20995158",
+            "engine_s": "0",
+            "accepted": "19",
+            "rejected": "9",
+            "field_edges": "270",
+            "trace_nested_s": "0"
+          }
+        ]
+      },
+      "1": {
+        "median_external_seconds": 0.211742485,
+        "minimum_seconds": 0.211332766,
+        "maximum_seconds": 0.211913676,
+        "trials": [
+          {
+            "trial": "0",
+            "detail": "1",
+            "external_s": "0.21133276600000001",
+            "engine_s": "0.21132768099999999",
+            "accepted": "19",
+            "rejected": "9",
+            "field_edges": "270",
+            "trace_nested_s": "0.18524820599999994"
+          },
+          {
+            "trial": "1",
+            "detail": "1",
+            "external_s": "0.211913676",
+            "engine_s": "0.21190859500000001",
+            "accepted": "19",
+            "rejected": "9",
+            "field_edges": "270",
+            "trace_nested_s": "0.18699474899999996"
+          },
+          {
+            "trial": "2",
+            "detail": "1",
+            "external_s": "0.21174248500000001",
+            "engine_s": "0.211737021",
+            "accepted": "19",
+            "rejected": "9",
+            "field_edges": "270",
+            "trace_nested_s": "0.18628716799999998"
+          }
+        ]
+      }
+    },
+    "REPAIR_PROFILE": {
+      "0": {
+        "median_external_seconds": 0.014611688,
+        "minimum_seconds": 0.01451239,
+        "maximum_seconds": 0.014824711,
+        "trials": [
+          {
+            "trial": "0",
+            "detail": "0",
+            "external_s": "0.014611687999999999",
+            "engine_s": "0",
+            "accepted": "1",
+            "rejected": "14",
+            "field_edges": "11",
+            "reconstruction_s": "0",
+            "metric_s": "0"
+          },
+          {
+            "trial": "1",
+            "detail": "0",
+            "external_s": "0.014824711000000001",
+            "engine_s": "0",
+            "accepted": "1",
+            "rejected": "14",
+            "field_edges": "11",
+            "reconstruction_s": "0",
+            "metric_s": "0"
+          },
+          {
+            "trial": "2",
+            "detail": "0",
+            "external_s": "0.01451239",
+            "engine_s": "0",
+            "accepted": "1",
+            "rejected": "14",
+            "field_edges": "11",
+            "reconstruction_s": "0",
+            "metric_s": "0"
+          }
+        ]
+      },
+      "1": {
+        "median_external_seconds": 0.014917939,
+        "minimum_seconds": 0.014837669,
+        "maximum_seconds": 0.014941233,
+        "trials": [
+          {
+            "trial": "0",
+            "detail": "1",
+            "external_s": "0.014941233",
+            "engine_s": "0.014938867",
+            "accepted": "1",
+            "rejected": "14",
+            "field_edges": "11",
+            "reconstruction_s": "0.012302703000000003",
+            "metric_s": "0.00067604299999999738"
+          },
+          {
+            "trial": "1",
+            "detail": "1",
+            "external_s": "0.014837669",
+            "engine_s": "0.014835317000000001",
+            "accepted": "1",
+            "rejected": "14",
+            "field_edges": "11",
+            "reconstruction_s": "0.012165987000000001",
+            "metric_s": "0.00058605399999999948"
+          },
+          {
+            "trial": "2",
+            "detail": "1",
+            "external_s": "0.014917939",
+            "engine_s": "0.014915603",
+            "accepted": "1",
+            "rejected": "14",
+            "field_edges": "11",
+            "reconstruction_s": "0.012212488999999998",
+            "metric_s": "0.00066144200000000373"
+          }
+        ]
+      }
+    }
+  }
+}
