@@ -1,5 +1,39 @@
 # Current handoff — 2026-10-10
 
+## Native 3D distributed dependency/publication checkpoint — 2026-10-10
+
+Working folder /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated;
+branch codex/native-3d-core, predecessor32512ee03632c07c009b543d18f61feabf8b6dbe.
+Goal1 ACTIVE/full scope unchanged. New CNativeDistributed3D reuses house passive
+transport/election/wire fields on explicit worker communicators. Routed complete
+vertex/edge/face stars, authoritative versioned payloads, conflict claims, staged
+mesh+directory publication and common rejection. Global cell identity directory
+also rejects duplicate IDs with disjoint nodes. Cached resident accounting and
+caller/scratch admission avoid per-candidate global scans. Metadata protocol only:
+caller must approve complete geometry/embedding/markers/metric and reserve IDs.
+
+Final distributed_controls_v3 PASSMPI1/2/4 (8distributed cases/rank; MPI1 also37
+existing3D cases,45total/2749assertions). Actual house MPI/ADT objects rebuilt.
+Split+inverse publish across cyclic ownership, rejection preserves bothstores.
+N=M1/2/4,2->1->2,4->2/3->4 mesh/version/facet-record migration/return PASS.
+15actualMPIframes independently exact embedding/facet/marker/P1 audited, SU2
+files in distributed_controls_v3/mpi{1,2,4}_meshes. Private refined/returned maxL
+2.828 remainsoversized; coarsened maxL1.732 strictPASS. No complete sweep claim.
+v1preserves const-map-key test helper compilationfailure; no MPI run in v1.
+Firstpassingv2retained; finalv3adds repeated-build rejection, all30grid/JSON
+artifactsunchanged. Rebuild after migration requires a new directory.
+
+DISTRIBUTED_CHECKPOINT.md documents exact scope, limits, pins/replay/phasecaveats.
+Directory publicphase totals exclusive; electionnested. World transportpartial
+includes fixturecalls and omits internalfail-elections; not totalMPIwait/closure.
+Modeled requestedstorage notallocator/RSS certification; overflowprobe SIZE_MAX
+is attempted rejectedbound. Single tinycontendedruns notscaling/speedupevidence.
+
+Next distributedoriginalsensorqueries, incrementalMPIengine/repeatedcompletion,
+general planaroperators, tetrahedralParMETISweights, runtime/CGNS/CFDhistoryreturn
+and full performance/memory/imbalancequalification. Runtime3Dstillrejected;
+2D/MMG/finer-sensor/geometriccomposition/fade/noise unchanged. No newpaperneeded.
+
 ## Native 3D exact-arithmetic cost checkpoint — 2026-10-10
 
 Working folder /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated;

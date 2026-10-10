@@ -1,0 +1,133 @@
+{
+  "status": "PASS",
+  "frames": [
+    {
+      "file": "coupled_coarsened.json",
+      "cells": 6,
+      "points": 8,
+      "physical_faces": 12,
+      "volume": "1",
+      "minimum_mean_ratio": 0.7559526299369239,
+      "minimum_scaled_jacobian": 0.5773502691896257,
+      "maximum_length": 1.7320508075688772,
+      "longest_edge": [
+        0,
+        6
+      ],
+      "markers": {
+        "16": 1,
+        "10": 1,
+        "11": 1,
+        "17": 1,
+        "18": 1,
+        "12": 1,
+        "19": 1,
+        "13": 1,
+        "20": 1,
+        "14": 1,
+        "15": 1,
+        "21": 1
+      },
+      "strict_metric_gate": true
+    },
+    {
+      "file": "coupled_initial.json",
+      "cells": 6,
+      "points": 8,
+      "physical_faces": 12,
+      "volume": "1",
+      "minimum_mean_ratio": 0.7559526299369239,
+      "minimum_scaled_jacobian": 0.5773502691896257,
+      "maximum_length": 3.4641016151377544,
+      "longest_edge": [
+        0,
+        6
+      ],
+      "markers": {
+        "16": 1,
+        "10": 1,
+        "18": 1,
+        "12": 1,
+        "19": 1,
+        "13": 1,
+        "21": 1,
+        "15": 1,
+        "20": 1,
+        "14": 1,
+        "17": 1,
+        "11": 1
+      },
+      "strict_metric_gate": false
+    },
+    {
+      "file": "coupled_refined.json",
+      "cells": 12,
+      "points": 9,
+      "physical_faces": 12,
+      "volume": "1",
+      "minimum_mean_ratio": 0.7619525049447357,
+      "minimum_scaled_jacobian": 0.5773502691896257,
+      "maximum_length": 2.8284271247461903,
+      "longest_edge": [
+        0,
+        2
+      ],
+      "markers": {
+        "10": 1,
+        "16": 1,
+        "12": 1,
+        "18": 1,
+        "13": 1,
+        "19": 1,
+        "15": 1,
+        "21": 1,
+        "14": 1,
+        "20": 1,
+        "11": 1,
+        "17": 1
+      },
+      "strict_metric_gate": false
+    },
+    {
+      "file": "returned_m1.json",
+      "cells": 12,
+      "points": 9,
+      "physical_faces": 12,
+      "volume": "1",
+      "minimum_mean_ratio": 0.7619525049447357,
+      "minimum_scaled_jacobian": 0.5773502691896257,
+      "maximum_length": 2.8284271247461903,
+      "longest_edge": [
+        0,
+        2
+      ],
+      "markers": {
+        "10": 1,
+        "16": 1,
+        "12": 1,
+        "18": 1,
+        "13": 1,
+        "19": 1,
+        "15": 1,
+        "21": 1,
+        "14": 1,
+        "20": 1,
+        "11": 1,
+        "17": 1
+      },
+      "strict_metric_gate": false
+    }
+  ],
+  "source_log_sha256": "88d946aef225bb899664672b9c6b6e273e717e9e8ada31cd8b2175c0e3276dfd",
+  "scope": "Exact positive volumes, global no-overlap, finite reference facet coverage/marker/embedding/manifold checks and original-P1 metric shape/edge measurement of actual MPI records. Coarsened grid meets strict length gate; one-step refined/returned grids are private progress with oversized original-field edges. No complete adaptation sweep, CFD state, CGNS or scaling qualification.",
+  "artifacts_sha256": {
+    "coupled_coarsened.su2": "9e56f9b6c28140db5753d344fc13c2241ed096ca12504f55b594d5bc97f5cde6",
+    "returned_m1.json": "2c6630606fc19d77a1d8cc5fcaaa1d0fb7fb12ea00776aacfcd15c441b142fe3",
+    "coupled_initial.su2": "82d42cb51b148e9b262739b5d0e75a90bc042f2cb1d578091c9c2c41b5843187",
+    "coupled_refined.su2": "8548415fabf433fa229f37d2685a0b01adae42bf21918b91f11af04f394e297f",
+    "coupled_initial.json": "fce1c2fcb9f5c0baa4e5c35812c1ef106cb75e3c4956563299dbeae9630a2a51",
+    "returned_m1.su2": "8548415fabf433fa229f37d2685a0b01adae42bf21918b91f11af04f394e297f",
+    "coupled_coarsened.json": "4eee80329b7a2af9c4203f8df76a8175017f3a4ec780846ac9b4f98baf92926a",
+    "coupled_refined.json": "2c6630606fc19d77a1d8cc5fcaaa1d0fb7fb12ea00776aacfcd15c441b142fe3"
+  }
+}

@@ -1,0 +1,47 @@
+Filters: [NativeDistributed3D],[NativeMesh3D]
+DIRECTORY discovery rank=0 ranks=1 builds=1 lookups=6 fetches=3 reservations=0 publications=0 rejected=3 scanned=18 payloads=14 elections=53 max_dependencies=6 resident_bytes=5664 max_directory_work_bytes=44752 max_exchange_work_bytes=15504 bytes_sent=7504 collective_calls=45 build_s=6.4918e-05 lookup_s=4.7615e-05 fetch_s=5.3952e-05 reserve_s=0 publish_s=0 election_nested_s=4.512e-06 world_transport_partial_s=3.0103e-05
+DIRECTORY conflict rank=0 ranks=1 builds=1 lookups=1 fetches=1 reservations=1 publications=0 rejected=0 scanned=6 payloads=6 elections=23 max_dependencies=6 resident_bytes=5664 max_directory_work_bytes=18304 max_exchange_work_bytes=15504 bytes_sent=5064 collective_calls=22 build_s=3.7692e-05 lookup_s=8.844e-06 fetch_s=1.7766e-05 reserve_s=8.726e-06 publish_s=0 election_nested_s=1.375e-06 world_transport_partial_s=5.444e-06
+MESH coupled_initial 0 17 0 0 0 0 6 1 1 1 1 1 0 0 2 1 1 0 1 6 1 0 0 0 0 0
+MESH coupled_initial 1 18 0 0 0 0 6 1 1 1 2 1 1 0 3 0 1 0 1 8 1 2 0 0 0 0
+MESH coupled_initial 2 19 0 0 0 0 6 1 1 1 3 0 1 0 7 0 1 1 1 9 1 3 0 0 0 0
+MESH coupled_initial 3 20 0 0 0 0 6 1 1 1 7 0 1 1 4 0 0 1 1 11 1 5 0 0 0 0
+MESH coupled_initial 4 21 0 0 0 0 6 1 1 1 4 0 0 1 5 1 0 1 1 10 1 4 0 0 0 0
+MESH coupled_initial 5 22 0 0 0 0 6 1 1 1 5 1 0 1 1 1 0 0 1 7 1 1 0 0 0 0
+MESH coupled_refined 100 117 0 0 0 0 8 0.5 0.5 0.5 1 1 0 0 2 1 1 0 0 0 1 0 0 0 0 0
+MESH coupled_refined 101 118 8 0.5 0.5 0.5 6 1 1 1 1 1 0 0 2 1 1 0 1 6 0 0 0 0 0 0
+MESH coupled_refined 102 119 0 0 0 0 8 0.5 0.5 0.5 2 1 1 0 3 0 1 0 0 0 1 2 0 0 0 0
+MESH coupled_refined 103 120 8 0.5 0.5 0.5 6 1 1 1 2 1 1 0 3 0 1 0 1 8 0 0 0 0 0 0
+MESH coupled_refined 104 121 0 0 0 0 8 0.5 0.5 0.5 3 0 1 0 7 0 1 1 0 0 1 3 0 0 0 0
+MESH coupled_refined 105 122 8 0.5 0.5 0.5 6 1 1 1 3 0 1 0 7 0 1 1 1 9 0 0 0 0 0 0
+MESH coupled_refined 106 123 0 0 0 0 8 0.5 0.5 0.5 7 0 1 1 4 0 0 1 0 0 1 5 0 0 0 0
+MESH coupled_refined 107 124 8 0.5 0.5 0.5 6 1 1 1 7 0 1 1 4 0 0 1 1 11 0 0 0 0 0 0
+MESH coupled_refined 108 125 0 0 0 0 8 0.5 0.5 0.5 4 0 0 1 5 1 0 1 0 0 1 4 0 0 0 0
+MESH coupled_refined 109 126 8 0.5 0.5 0.5 6 1 1 1 4 0 0 1 5 1 0 1 1 10 0 0 0 0 0 0
+MESH coupled_refined 110 127 0 0 0 0 8 0.5 0.5 0.5 5 1 0 1 1 1 0 0 0 0 1 1 0 0 0 0
+MESH coupled_refined 111 128 8 0.5 0.5 0.5 6 1 1 1 5 1 0 1 1 1 0 0 1 7 0 0 0 0 0 0
+MESH coupled_coarsened 200 217 0 0 0 0 6 1 1 1 1 1 0 0 2 1 1 0 1 6 1 0 0 0 0 0
+MESH coupled_coarsened 201 218 6 1 1 1 0 0 0 0 1 1 0 0 5 1 0 1 1 1 1 7 0 0 0 0
+MESH coupled_coarsened 202 219 0 0 0 0 6 1 1 1 2 1 1 0 3 0 1 0 1 8 1 2 0 0 0 0
+MESH coupled_coarsened 203 220 0 0 0 0 6 1 1 1 3 0 1 0 7 0 1 1 1 9 1 3 0 0 0 0
+MESH coupled_coarsened 204 221 0 0 0 0 6 1 1 1 4 0 0 1 5 1 0 1 1 10 1 4 0 0 0 0
+MESH coupled_coarsened 205 222 6 1 1 1 0 0 0 0 4 0 0 1 7 0 1 1 1 5 1 11 0 0 0 0
+DIRECTORY coupled rank=0 ranks=1 builds=1 lookups=4 fetches=2 reservations=2 publications=2 rejected=1 scanned=30 payloads=18 elections=65 max_dependencies=12 resident_bytes=5664 max_directory_work_bytes=71584 max_exchange_work_bytes=64848 bytes_sent=41040 collective_calls=86 build_s=5.4903e-05 lookup_s=7.0711e-05 fetch_s=5.0154e-05 reserve_s=1.707e-05 publish_s=0.00022021 election_nested_s=5.588e-06 world_transport_partial_s=3.9616e-05
+DIRECTORY rollback rank=0 ranks=1 builds=1 lookups=3 fetches=3 reservations=1 publications=0 rejected=10 scanned=6 payloads=6 elections=47 max_dependencies=6 resident_bytes=5664 max_directory_work_bytes=18446744073709551615 max_exchange_work_bytes=15504 bytes_sent=8504 collective_calls=27 build_s=3.4899e-05 lookup_s=9.722e-06 fetch_s=4.5564e-05 reserve_s=5.22e-07 publish_s=4.5939e-05 election_nested_s=9.754e-06 world_transport_partial_s=6.21e-06
+DIRECTORY overbudget rank=0 ranks=1 builds=1 lookups=1 fetches=0 reservations=0 publications=0 rejected=1 scanned=65 payloads=0 elections=13 max_dependencies=0 resident_bytes=59472 max_directory_work_bytes=182544 max_exchange_work_bytes=184368 bytes_sent=33888 collective_calls=9 build_s=0.000301494 lookup_s=1.2505e-05 fetch_s=0 reserve_s=0 publish_s=0 election_nested_s=1.338e-06 world_transport_partial_s=4.82e-06
+DIRECTORY subset rank=0 ranks=1 builds=1 lookups=1 fetches=1 reservations=1 publications=1 rejected=0 scanned=6 payloads=6 elections=30 max_dependencies=6 resident_bytes=10656 max_directory_work_bytes=61888 max_exchange_work_bytes=59472 bytes_sent=19560 collective_calls=34 build_s=3.4234e-05 lookup_s=9.355e-06 fetch_s=1.7285e-05 reserve_s=7.759e-06 publish_s=0.000103697 election_nested_s=1.804e-06 world_transport_partial_s=1.1362e-05
+MESH returned_m1 100 117 0 0 0 0 8 0.5 0.5 0.5 1 1 0 0 2 1 1 0 0 0 1 0 0 0 0 0
+MESH returned_m1 101 118 8 0.5 0.5 0.5 6 1 1 1 1 1 0 0 2 1 1 0 1 6 0 0 0 0 0 0
+MESH returned_m1 102 119 0 0 0 0 8 0.5 0.5 0.5 2 1 1 0 3 0 1 0 0 0 1 2 0 0 0 0
+MESH returned_m1 103 120 8 0.5 0.5 0.5 6 1 1 1 2 1 1 0 3 0 1 0 1 8 0 0 0 0 0 0
+MESH returned_m1 104 121 0 0 0 0 8 0.5 0.5 0.5 3 0 1 0 7 0 1 1 0 0 1 3 0 0 0 0
+MESH returned_m1 105 122 8 0.5 0.5 0.5 6 1 1 1 3 0 1 0 7 0 1 1 1 9 0 0 0 0 0 0
+MESH returned_m1 106 123 0 0 0 0 8 0.5 0.5 0.5 7 0 1 1 4 0 0 1 0 0 1 5 0 0 0 0
+MESH returned_m1 107 124 8 0.5 0.5 0.5 6 1 1 1 7 0 1 1 4 0 0 1 1 11 0 0 0 0 0 0
+MESH returned_m1 108 125 0 0 0 0 8 0.5 0.5 0.5 4 0 0 1 5 1 0 1 0 0 1 4 0 0 0 0
+MESH returned_m1 109 126 8 0.5 0.5 0.5 6 1 1 1 4 0 0 1 5 1 0 1 1 10 0 0 0 0 0 0
+MESH returned_m1 110 127 0 0 0 0 8 0.5 0.5 0.5 5 1 0 1 1 1 0 0 0 0 1 1 0 0 0 0
+MESH returned_m1 111 128 8 0.5 0.5 0.5 6 1 1 1 5 1 0 1 1 1 0 0 1 7 0 0 0 0 0 0
+SUBSET_RETURN N=1 M=1 rank=0 local_cells=12 valid=1
+===============================================================================
+All tests passed (2747 assertions in 45 test cases)
+

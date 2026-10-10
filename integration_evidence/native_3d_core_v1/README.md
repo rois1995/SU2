@@ -1,5 +1,11 @@
 # Native 3D Goal 1 checkpoints
 
+Latest MPI work: [distributed dependency/publication checkpoint](DISTRIBUTED_CHECKPOINT.md).
+Actual MPI1/2/4 and explicit M<N mesh-record migration/return pass, with independent
+embedding/facet/marker/P1 audits and SU2 files in `distributed_controls_v3/mpi{1,2,4}_meshes`.
+One-step refined grids are private progress, still oversized; this does not complete
+Goal1 or enable the production 3D runtime. Failed v1 compile evidence is retained.
+
 Latest cost work: [exact-arithmetic checkpoint](ARITHMETIC_CHECKPOINT.md), with
 fixed-work three-repeat OFF/ON controls and unchanged accepted mesh hashes.
 

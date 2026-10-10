@@ -1,0 +1,16 @@
+    PID    PPID  NI %CPU COMMAND
+1552723 1552717   0 91.5 /usr/bin/python3 -m mpi4py FSI.py --parallel -f Unsteady_SecondOrder.cfg
+1552722 1552717   0 90.5 /usr/bin/python3 -m mpi4py FSI.py --parallel -f Unsteady_SecondOrder.cfg
+1552724 1552717   0 90.5 /usr/bin/python3 -m mpi4py FSI.py --parallel -f Unsteady_SecondOrder.cfg
+1552725 1552717   0 90.5 /usr/bin/python3 -m mpi4py FSI.py --parallel -f Unsteady_SecondOrder.cfg
+ 350820  350756   0 14.7 /usr/share/code/code --type=zygote
+ 350828  350756   0 11.9 /usr/share/code/code --type=zygote
+ 350786  350753   0  5.8 /usr/share/code/code --type=zygote --no-zygote-sandbox
+ 351252  350749   0  4.0 /proc/self/exe --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --js-flags=--nodecommit_pooled_pages --crashpad-handler-pid=350771 --enable-crash-reporter=b056c165-a836-45a2-bcb4-7c8225dfb985,no_channel --user-data-dir=/home/rausa/.config/Code --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,10439586669742760447,3338536617065741096,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EstablishGpuChannelAsync --disable-features=CalculateNativeWinOcclusion,LocalNetworkAccessChecks,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190708995682289984
+   1362    1328   0  3.8 /usr/lib/xorg/Xorg :0 vt07 -nolisten tcp -novtswitch -auth /var/run/lxdm/lxdm-:0.auth
+ 350621    2747   0  3.3 /usr/bin/gnome-shell
+ 350836  350756   0  2.8 /usr/share/code/code --type=zygote
+1552717 1525718   0  2.5 mpirun -n 4 /usr/bin/python3 -m mpi4py FSI.py --parallel -f Unsteady_SecondOrder.cfg
+ 435086    2747   0  2.4 /usr/lib/firefox/firefox -new-window
+   2754    2747   0  2.2 /usr/bin/pulseaudio --daemonize=no --log-target=journal
+ 351433  350749   0  2.0 /proc/self/exe --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --js-flags=--nodecommit_pooled_pages --crashpad-handler-pid=350771 --enable-crash-reporter=b056c165-a836-45a2-bcb4-7c8225dfb985,no_channel --user-data-dir=/home/rausa/.config/Code --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,10439586669742760447,3338536617065741096,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EstablishGpuChannelAsync --disable-features=CalculateNativeWinOcclusion,LocalNetworkAccessChecks,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190709002241582927

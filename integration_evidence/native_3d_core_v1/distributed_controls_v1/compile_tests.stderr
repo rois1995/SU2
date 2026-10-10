@@ -1,0 +1,8 @@
+In file included from UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeDistributed3D.hpp:9,
+                 from UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:8:
+UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeDistributed2D.hpp: In instantiation of ‘void SU2NativeBoundary2D::RecordStream::Field(T&) [with T = const long unsigned int]’:
+UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeDistributed2D.hpp:34:5:   required from ‘void SU2NativeBoundary2D::RecordStream::operator()(T& ...) [with T = {const long unsigned int, SU2Native3D::OwnedCell}]’
+UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:81:54:   required from here
+UnitTests/Common/adaptation/../../../Common/include/adaptation/CNativeDistributed2D.hpp:75:17: error: assignment of read-only reference ‘value’
+   75 |           value = static_cast<T>(bits);
+      |           ~~~~~~^~~~~~~~~~~~~~~~~~~~~~
