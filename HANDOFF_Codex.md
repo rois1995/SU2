@@ -1,5 +1,67 @@
 # Current handoff — 2026-10-10
 
+## Strict frozen matrix582358 reviewed — 2026-10-10
+
+All16 frozen Euler-to-BL/BL-to-Euler cases and8 strict OFF/BOTH pairs PASS,
+covering N4/M4 NO and M4/M3/M2 YES. Same tested diagnostic binary5827ffbe...,
+MPI1/2/4 focused63 tests/rank PASS. Every accepted mesh/all4 tensor CSVs and
+per-rank operation/selection counts are identical within each pair. Reviewer
+verifies1259 unique source/tool/data/log hashes, numerical reports, profile/count
+closure, matched input/config receipts, modes/binary and serial absolute UTC.
+Report/reproducer/JSON:
+integration_evidence/native_cluster_reuse_diagnostic_v1/cluster_review_582358/.
+
+Reuse Euler-to-BL total remesh improvement4.45% M4/NO,4.26% M4/YES,0.54% M3,
+1.71% M2; privateCPU5.44%/5.10% less at M4. BL-to-Euler request counts unchanged,
+evaluations only0.32-0.37% lower; times range2.76% slower to0.58% faster.
+One ordered repetition;48 other compute processes recorded onnode-a-ag1:
+small timing deltas are not reproducible speedup/regression proof.
+BOTH Euler-to-BL M4NO29.575s fastest, weightedM4/M3/M2=33.116/32.410/42.059s;
+BL-to-Euler weightedM4=10.292s fastest, M3/M2=12.465/15.317s.
+Lower M improves imbalance but not total wall time. Different partition modes
+produce different meshes/work; no fixed-work scaling claim. Working partition
+setup~0.05-0.11s; private imbalance~2.22 remains. Validation timings include
+MPI wait; no exclusive donor-search/interpolation/BL subtiming exists yet.
+
+Global qmin.1841786634, Lmax1.7999995295, BLheightmax4.62974e-12,
+transported directional defectmax7.04577e-11. PeakRSS159.84-176.78MiB.
+Exports103195291bytes case data,384 verified copies/no hardlinks. Grids in
+ClusterResults/reuse_matrix_582358/cases/frozen_*_n4_m*_p*_r1_profile/.
+No local solver/build/MPI/heavy geometric audit rerun; source unchanged.
+Frozen2D pre-development checkpoint complete; no new unsteady-history,
+composed-gradation, converged-CFD or3D certificate. Goal1 may now be activated
+by user; no activation this turn, existing tracker remains PAUSED.
+Local-first policy from previous turn retained. Planning goals updated to link
+completed checkpoint. AdapNoExt/raw downloads/historical failures untouched.
+
+## Native 3D staged goals prepared — 2026-10-10
+
+User requested four staged goals with performance central and then changed the
+execution preference to small local cases first, larger campaigns on the cluster.
+NATIVE_3D_DEVELOPMENT_GOALS.md contains individually activatable objectives for
+tetrahedral MPI/planar surface adaptation, curved geometry/Euler lifecycle,
+coarse-grid BL construction/removal, and repeated affordable unsteady 3D.
+Each includes correctness, profiling, scaling/memory and evidence gates.
+Surface connectivity can adapt from Goal 1; immutable reference geometry does
+not mean fixed boundaries. Tetrahedral reconstruction and BL transition repair
+are substantial new work; metrics/transfer/output and transaction patterns reuse
+existing infrastructure. No universal 3D readiness claim.
+
+Measure complete adaptation cost including metric sampling, partition/migration,
+remesh, validation, return/rebuild and solution/history transfer. Bounded query
+subtiming separates donor search/interpolation/geometric BL; aggregate counts,
+private CPU/wait, instrumentation overhead and accounting closure required.
+Proposed actual-CFD target R<=0.20, minimum affordability R<1 on the declared
+envelope; these are planning criteria, not observed results. Cadence/accuracy
+cannot be weakened to meet them. Local one-heavy-job/initial MPI<=4/-j2/single
+library thread and contention checks; cluster repeated/scaling jobs via SGE.
+Print full case folders before new cases. No case, solver, build or job started
+for this planning request. Pending strict 2D matrix remains the pre-change
+regression checkpoint. Goal tracker stays PAUSED; new goals are not activated.
+Planning repo/branch SU2_NativeIntegrated / codex/native-unsteady-performance;
+use a separate implementation branch when Goal 1 is activated. AdapNoExt,
+downloaded results and original evidence remain untouched.
+
 ## Diagnostic582344 reviewed; strict same-binary matrix ready — 2026-10-10
 
 User confirms diagnostic downloaded, and asks whether tiny differences matter.

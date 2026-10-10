@@ -1,5 +1,42 @@
 # Mesh adaptation findings and follow-up work
 
+## 2026-10-10: strict frozen matrix582358 closes the 2D reuse checkpoint
+
+All16 remeshes/eight same-binary OFF/BOTH pairs PASS across both workload
+directions and N4/M4NO/M4YES/M3YES/M2YES. Meshes/all4 transported tensor files
+and operation/selection counts match byte-for-byte within each pair. Independent
+audits PASS; focused native MPI1/2/4 suites63 tests/rank PASS. Saved-data reviewer
+checks1259 unique identities and profile/count/timing closure without CFD/MPI
+or heavy mesh-audit reruns. Report:
+integration_evidence/native_cluster_reuse_diagnostic_v1/cluster_review_582358/REVIEW.md.
+
+Euler-to-BL reuse improves remesh4.45%/4.26% atM4,0.54%/1.71% atM3/M2.
+BL-to-Euler evaluation savings0.32-0.37%, no convincing time benefit.
+BOTH Euler-to-BL M4NO29.575s is fastest; BL-to-Euler weightedM4=10.292s.
+Reduced M improves imbalance but increases total time on these workloads;
+partition trajectories/mesh sizes differ, so this is not fixed-work scaling.
+48 other compute processes in samples and one ordered repetition limit timing
+claims. Private imbalance and expensive actual queries remain; validation
+includes MPI wait and query subcosts are not isolated.
+Qualitymin.1841786634, lengthmax1.7999995295, BLheightmax4.62974e-12,
+transported directional defectmax7.04577e-11. The frozen2D pre-3D checkpoint
+is complete; actual unsteady/source-change lifecycle and composed-field
+gradation remain separate. Four prepared 3D goals and paused tracker unchanged.
+
+## 2026-10-10: four native 3D development goals prepared
+
+Planning only: NATIVE_3D_DEVELOPMENT_GOALS.md defines tetrahedral MPI/planar
+surface adaptation, curved-surface/Euler lifecycle, coarse Euler-to-BL and
+BL-to-Euler, then repeated unsteady 3D adaptation. Complete adaptation costs,
+query subcosts, partition/migration/return/transfer, memory, imbalance and measured
+practical limits are required at each stage. Proposed CFD overhead targets are
+R<=0.20 and minimum affordable R<1; no achievement is claimed.
+User now prefers small sequential local cases before cluster campaigns.
+Contention checks and resource limits remain; no execution or goal activation.
+Geometry remains adaptable from the first milestone. Existing 3D metric,
+transfer and output support does not establish native tetrahedral reconstruction.
+The pending strict 2D matrix remains the regression checkpoint.
+
 ## 2026-10-10: runtime reuse preserves outputs in diagnostic582344
 
 All7 frozen Euler-to-BL N4/M4 NO numerical audits PASS; focused native MPI1/2/4
