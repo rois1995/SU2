@@ -1,0 +1,96 @@
+{
+  "status": "PASS",
+  "stages": [
+    {
+      "stage": "compile_oracle",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "g++",
+        "-std=c++17",
+        "-O2",
+        "-fno-fast-math",
+        "-fno-unsafe-math-optimizations",
+        "-ffp-contract=off",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-I.",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/edge_oracle.cpp",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/arithmetic_controls_v1/predicates.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/arithmetic_controls_v1/field.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/arithmetic_controls_v1/CADTBaseClass.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/arithmetic_controls_v1/CADTElemClass.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/arithmetic_controls_v1/mpi_structure.o",
+        "-o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/arithmetic_edge_oracle_v1/edge_oracle"
+      ],
+      "exit_code": 0,
+      "seconds": 0.9108199680340476
+    },
+    {
+      "stage": "edges",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/arithmetic_edge_oracle_v1/edge_oracle"
+      ],
+      "exit_code": 0,
+      "seconds": 0.031032758997753263
+    }
+  ],
+  "source_sha256": {
+    "Common/include/adaptation/CNativeMesh3D.hpp": "2b342e72ee8cf3af8d100e042f70c12b890abd87648ba1f092f33fc53117c889",
+    "Common/src/adaptation/CNativePredicates3D.cpp": "1911e19cf8f996c3dced4edbe0fc27a2955087226f21a23b47836c092948406d",
+    "Common/include/adaptation/CNativeField3D.hpp": "4684caf979ad75cfb757580d7d0f9e4595e45e3c8548001335f343b86fdbb1d2",
+    "Common/src/adaptation/CNativeField3D.cpp": "e2247ff8c582b690a73e503058ef7430efaea467eccc69e5710e5d50b95b1e5b",
+    "Common/src/adt/CADTBaseClass.cpp": "1e9efb89a0338f231e08d44707290693b875344e902b1e5018c4e20c8fc8b1af",
+    "Common/src/adt/CADTElemClass.cpp": "d2fe9839408416e457b6d171cecc4748776f08b8eed198c7be801566e147ac52",
+    "Common/include/parallelization/mpi_structure.cpp": "30078341e15207039221f86538bf60345378ddc7f5dfd9399d12bf5284d8c9f5",
+    "integration_evidence/native_3d_core_v1/edge_oracle.cpp": "0e5c13f689c724fc52ce29f793ca9e9a07d949f2de7bb6ebcee0014ae8dc4e10",
+    "integration_evidence/native_3d_core_v1/audit_cavities.py": "26079385c071c3ad1b9c06ab3b862b4ff293367dc3c8d291acf0487089d062c5",
+    "integration_evidence/native_3d_core_v1/run_edge_oracle.py": "58784c157dfc180f2d6de85d46b74c424149424ab7f6ec9c90b7065dc71aa989"
+  },
+  "final_source_sha256": {
+    "Common/include/adaptation/CNativeMesh3D.hpp": "2b342e72ee8cf3af8d100e042f70c12b890abd87648ba1f092f33fc53117c889",
+    "Common/src/adaptation/CNativePredicates3D.cpp": "1911e19cf8f996c3dced4edbe0fc27a2955087226f21a23b47836c092948406d",
+    "Common/include/adaptation/CNativeField3D.hpp": "4684caf979ad75cfb757580d7d0f9e4595e45e3c8548001335f343b86fdbb1d2",
+    "Common/src/adaptation/CNativeField3D.cpp": "e2247ff8c582b690a73e503058ef7430efaea467eccc69e5710e5d50b95b1e5b",
+    "Common/src/adt/CADTBaseClass.cpp": "1e9efb89a0338f231e08d44707290693b875344e902b1e5018c4e20c8fc8b1af",
+    "Common/src/adt/CADTElemClass.cpp": "d2fe9839408416e457b6d171cecc4748776f08b8eed198c7be801566e147ac52",
+    "Common/include/parallelization/mpi_structure.cpp": "30078341e15207039221f86538bf60345378ddc7f5dfd9399d12bf5284d8c9f5",
+    "integration_evidence/native_3d_core_v1/edge_oracle.cpp": "0e5c13f689c724fc52ce29f793ca9e9a07d949f2de7bb6ebcee0014ae8dc4e10",
+    "integration_evidence/native_3d_core_v1/audit_cavities.py": "26079385c071c3ad1b9c06ab3b862b4ff293367dc3c8d291acf0487089d062c5",
+    "integration_evidence/native_3d_core_v1/run_edge_oracle.py": "58784c157dfc180f2d6de85d46b74c424149424ab7f6ec9c90b7065dc71aa989"
+  },
+  "changed_during_run": [],
+  "reused_object_sha256": {
+    "predicates.o": "b516d57feebcc5f08b2cd5575841c6ca7cb1056265521e9dbe1c76036e57103e",
+    "field.o": "31d6089b39ae6f0b9ca346b2e4cc37d9eed5df6a903e11a0cc61a3090930e18d",
+    "CADTBaseClass.o": "33eb2273241cd49ce2c456d03612934e3ae1947e7732acdbf382adcecc0135a8",
+    "CADTElemClass.o": "5e7cc02d11790860fc118589d53e1242443f460acd4dbd1ccbff7cabb5a8c6eb",
+    "mpi_structure.o": "1f19f823ac9df14d44a3262277d5e68d6595b1e86f1cbc943c11d7f9164fd668"
+  },
+  "artifact_sha256": {
+    "edges.stdout": "1e27cb1440e61ea0f9081f4e4d9489f935baf16a1decebfcb92be3dc2a743e09",
+    "validated_objects_receipt.json": "0e259c5e9cba754809714e5ea0e9c2cb4152eaf09779d598fcc2593d8bbd9780",
+    "compile_oracle.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "coincident_cuts_source.su2": "a5514dacc70edeced6de479eaecc2f797b18715c3dbd536567fc1da8d561504b",
+    "micron_sensor.json": "a0ce031e22e8bd5c9b5864cf7232a2c62f4df6970b237b771f2ee87cee437881",
+    "samples.txt": "b33757b471c4c2ed4d624fee971f7d47daa5efd47f4e8a1cb3f393a581b8548b",
+    "oracle_audit.json": "eb7566f0d5d265ec4e8eab8dbcecf57ab85fdab308c2b2e111f5fb74f772af10",
+    "micron_source.su2": "2d7ee1840bc397846c98e8ec5d2602c8125e4b37d708f60b0fd86f2e77171eb2",
+    "two_spacings_sensor.json": "46e015e5e2ceb3b9c6d74d9fb7093dbdd74a009b91e4d9702d13d166e7d4fd0c",
+    "edges.stderr": "4453a99698ef427de04f286bfd1f8b8f52a05fde0b70c015521789f7cc6a77ff",
+    "coincident_cuts_sensor.json": "dea510931dd5098fcb73da3c01f866bbce0ceeda58d96ba27628ee434717fc35",
+    "edge_defects.json": "151b21d0d08b3e473bfed664ae3f00fe16602bd56bbbeeb5561f311de65fbb64",
+    "compile_oracle.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "edge_oracle": "6666810b873c3e3b706193b50d94d6b884fab41984552f13ce7f01abaffc5b09",
+    "profiles.json": "c9173b2cab8be63feaf0dd5e8fdad8715f2861a5c89b3009e6c96905b4634c26",
+    "exact_cases.json": "da50824d3abd936c97561d8fbfe2d696010149f63f4ea34f607e264d8571e129",
+    "source_groups.json": "4f54ff0cea7f279c3803721f708466a86f0a07543eee27239c079aa1bae20219",
+    "two_spacings_source.su2": "89fd760581661e140c1b2a202f904b4b52c59c546699c99bf20b9fca91e5653e"
+  }
+}

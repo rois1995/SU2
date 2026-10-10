@@ -1,5 +1,8 @@
 # Native 3D Goal 1 checkpoints
 
+Latest cost work: [exact-arithmetic checkpoint](ARITHMETIC_CHECKPOINT.md), with
+fixed-work three-repeat OFF/ON controls and unchanged accepted mesh hashes.
+
 Latest: [coupled planar boundary and metric checkpoint](BOUNDARY_METRIC_CHECKPOINT.md).
 Accepted manufactured adapted grids and independent audit are in `coupled_meshes_v2`;
 final strict-linked unit receipt is `boundary_metric_controls_v3/validation.json`.

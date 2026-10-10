@@ -1,3 +1,33 @@
+## Native 3D exact-arithmetic cost checkpoint — 2026-10-10
+
+Working folder /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated;
+branch codex/native-3d-core, predecessor f5e94f46624c100520dcf0da59561059d1f7457a.
+Goal1 ACTIVE/full scope unchanged. Product/difference skip only redundant zero
+limb ranges; exact bit representation/sign/overflow/guards remain unchanged.
+No public API/metric target/2D changes. Product-only performance inconclusive(.3%);
+combined arithmetic retained after repeated fixed-work evidence.
+
+arithmetic_controls_v2 PASS37cases/2651assertions+290Fraction signs+6272bitwise
+product/difference/overflow controls. arithmetic_edge_oracle_v2 PASS104edges,
+71covered33rejected147intervals; numerical error bounds unchanged.
+arithmetic_optimized_v2 PASS5complete independently audited mesh cycles;
+all15SU2+15JSON byte-identical to prior accepted coupled_meshes_v2 grids.
+
+arithmetic_comparison_v2 PASS12sequential runs,3per binary/detail mode;
+all meshes/work/residuals identical,182edits/8390evaluations/1556reuses.
+OFF median2.577178->2.427019s (5.83%less,70.62->74.99edits/s), CPU2.57->2.42s.
+All3candidateOFF times below3baselineOFF; one-core tiny envelope only.
+TimerON wider ranges: overhead explicitly measured, primary claims useOFF.
+Phaseclosure/CPU/RSS/loads/binary/source pins retained. ARITHMETIC_CHECKPOINT.md
+explains strict scope/replay, inconclusive v1 and compact repeat-frame publication.
+
+Selection/source queries still dominant. Next distributed complete-star dependency
+and version/atomic admission using existing passive exchange/failure election;
+incremental selection is required in that engine, not toy full rescans. General
+planar association/coarsening and real composed integration remain pending.
+Runtime/MPI/CGNS/CFD/history transfer/scaling unqualified;2D/MMG/fade/noise unchanged.
+No newpaperneeded; AdapNoExt/external scripts/foreign processes untouched.
+
 ## Native 3D coupled planar boundary and metric checkpoint — 2026-10-10
 
 Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
