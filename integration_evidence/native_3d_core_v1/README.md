@@ -1,5 +1,14 @@
 # Native 3D Goal 1 checkpoints
 
+Latest operator work: [planar movement and face/edge reconnection](REPAIR_OPERATORS_CHECKPOINT.md).
+108 actual MPI repair proposals on ordinary/thin/sheared domains pass independent
+geometry/marker/frozen-P1 gates and atomic veto/storage tests on worker subsets.
+Inspect `repair_operators_v2/mpi{1,2,4}_repairs/repair_*_m*_s*.su2` and source JSON.
+Automatic repair selection remains pending; original coplanar triangle seams are
+still constrained. Goal1 remains active with partition/runtime/output and full
+performance work outstanding. Earlier sections retain their historical scopes.
+
+
 Latest implementation: [general coarsening and repeated MPI cycles](GENERAL_COARSENING_CHECKPOINT.md).
 Five ordinary/thin/sheared/spatial/turning targets complete two refine/coarsen
 cycles on MPI1/2/4, M=N/M<N. All120 completed meshes pass independent embedding,

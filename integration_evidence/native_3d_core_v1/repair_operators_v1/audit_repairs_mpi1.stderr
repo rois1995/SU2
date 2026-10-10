@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_core_v1/audit_repairs.py", line 135, in <module>
+    result=audit(log,Path(destination),ranks);print(result['status'],len(result['frames']),'repair frames;',result['query_audit'],flush=True)
+  File "integration_evidence/native_3d_core_v1/audit_repairs.py", line 104, in audit
+    meshes,inputs,facets,events,queries=parse(log.read_text(),ranks);destination.mkdir(exist_ok=False)
+  File "integration_evidence/native_3d_core_v1/audit_repairs.py", line 68, in parse
+    assert set(events[label])==set(range(ranks));metadata=events[label][0]
+AssertionError

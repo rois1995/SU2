@@ -1,5 +1,6 @@
 #include "Common/include/adaptation/CNativeEngine3D.hpp"
 #include <cassert>
+#include <cmath>
 #include <iostream>
 #include <chrono>
 #include <iomanip>
@@ -118,6 +119,41 @@ int main() {
   for(const auto& row:coarsened.cells) { DonorCell d;d.cell=row.second.cell;d.sensor.fill({4,0,0,4,0,4});repeated_source.push_back(d); }
   const auto rerefined=Refine(world,coarsened.cells,repeated_source,reference);
   assert(rerefined.valid && rerefined.cells.size()==48 && rerefined.splits.size()==19);
+  Patch edge;
+  for(auto cell:fixture.patch.cells) {
+    bool a=false,b=false;for(auto n:cell.v){a=a || n.id==0;b=b || n.id==1;}
+    if(a && b) edge.cells.push_back(cell);
+  }
+  const auto edge_skin=Incidence(edge.cells).Boundary();
+  for(auto f:fixture.patch.surface) if(std::find(edge_skin.begin(),edge_skin.end(),f.v)!=edge_skin.end()) edge.surface.push_back(f);
+  Patch distorted,moved;
+  assert(SplitEdge(edge,{0,1},{8,{.125,0,0}},1000,reference,distorted,reason));
+  assert(MoveVertex(distorted,8,{9,{.5,0,0}},2000,reference,moved,reason));
+  std::vector<DonorCell> motion_source;
+  for(auto cell:distorted.cells) {
+    DonorCell donor;donor.cell=cell;
+    for(size_t i=0;i<4;++i){const double factor=1+.1*cell.v[i].p.x;donor.sensor[i]={factor,0,0,factor,0,factor};}
+    motion_source.push_back(donor);
+  }
+  FrozenField motion_field(motion_source);
+  assert(ValidateMetricChange(distorted.cells,moved.cells,MetricChange::Repair,motion_field,measured,reason));
+  assert(ValidateMetricPatch(moved.cells,motion_field,measured,reason));
+  const Node a{0,{0,0,0}},b{1,{1,0,0}},c{2,{.5,std::sqrt(3.)/2,0}},
+      d{3,{.5,std::sqrt(3.)/6,.25}},e{4,{.5,std::sqrt(3.)/6,-.25}};
+  Patch bipyramid;bipyramid.cells={{0,{a,b,c,d}},{1,{a,c,b,e}}};
+  std::map<Id,Node> corners;for(auto cell:bipyramid.cells)for(auto n:cell.v)corners.emplace(n.id,n);
+  std::vector<Facet> authority;
+  for(auto face:Incidence(bipyramid.cells).Boundary()) {
+    const Id id=authority.size();authority.push_back({id,int(id)+10,{corners.at(face[0]),corners.at(face[1]),corners.at(face[2])}});
+    bipyramid.surface.push_back({face,id});
+  }
+  const PlanarReference planes(authority);Patch reconnected;
+  assert(Reconnect(bipyramid,3,100,planes,reconnected,reason));assert(reconnected.cells.size()==3);
+  std::vector<DonorCell> reconnection_source;
+  for(auto cell:bipyramid.cells){DonorCell donor;donor.cell=cell;donor.sensor.fill({});reconnection_source.push_back(donor);}
+  FrozenField reconnect_field(reconnection_source);
+  assert(ValidateMetricChange(bipyramid.cells,reconnected.cells,MetricChange::Repair,reconnect_field,measured,reason));
+  assert(ValidateMetricPatch(reconnected.cells,reconnect_field,measured,reason));
   for (int trial=0; trial<3; ++trial) for (int order=0; order<2; ++order) {
     EngineOptions profile;
     profile.timings = bool(order ^ (trial % 2));
@@ -145,5 +181,5 @@ int main() {
         <<" rejected="<<repeated.stats.rejected<<" field_edges="<<repeated.stats.field_edges
         <<" trace_nested_s="<<repeated.stats.edge_trace_seconds<<'\n';
   }
-  std::cout << "PASS actual non-MPI engine: 6->48->6->48 tetrahedra, general vertex collapse, planar skin, full frozen metric gates, rejection and composed-target refusal\n";
+  std::cout << "PASS actual non-MPI engine: 6->48->6->48 tetrahedra, general collapse, planar movement/reconnection, full frozen metric gates, rejection and composed-target refusal\n";
 }

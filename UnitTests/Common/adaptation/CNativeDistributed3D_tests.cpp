@@ -1071,4 +1071,195 @@ TEST_CASE("Native MPI general coarsening supports repeated planar refine coarsen
     }
   }
 }
+namespace {
+Fixture RepairGeometry(const std::string& kind,double height,bool shear) {
+  auto transform=[&](Point p){return Point{p.x+(shear ? p.y : 0),p.y,p.z*height};};
+  Fixture result;
+  if(kind=="face") {
+    const Node a{0,transform({0,0,0})},b{1,transform({1,0,0})},c{2,transform({.5,std::sqrt(3.)/2,0})},
+        d{3,transform({.5,std::sqrt(3.)/6,.25})},e{4,transform({.5,std::sqrt(3.)/6,-.25})};
+    result.patch.cells={{0,{a,b,c,d}},{1,{a,c,b,e}}};
+  } else if(kind=="edge4") {
+    const std::array<Node,6> n{{{0,transform({.5,0,0})},{1,transform({0,1,0})},
+        {2,transform({-.5,0,0})},{3,transform({0,-1,0})},{4,transform({0,0,-.75})},{5,transform({0,0,.75})}}};
+    for(size_t i=0;i<4;++i) {
+      Cell c{Id(i),{n[4],n[5],n[i],n[(i+1)%4]}};
+      if(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)<0) std::swap(c.v[0],c.v[1]);
+      result.patch.cells.push_back(c);
+    }
+  } else {
+    result.patch.cells={{0,{{{0,transform({0,0,0})},{1,transform({1,0,0})},
+        {2,transform({0,1,0})},{3,transform({0,0,1})}}}}};
+  }
+  std::map<Id,Node> nodes;
+  for(auto cell:result.patch.cells) for(auto node:cell.v) nodes.emplace(node.id,node);
+  for(auto face:Incidence(result.patch.cells).Boundary()) {
+    const Id id=result.facets.size();result.facets.push_back({id,int(id)+10,{nodes.at(face[0]),nodes.at(face[1]),nodes.at(face[2])}});
+    result.patch.surface.push_back({face,id});
+  }
+  if(kind=="wall" || kind=="interior") {
+    const auto cell=result.patch.cells.front();const PlanarReference reference(result.facets);
+    const Node p{4,transform({.0625,.0625,kind=="wall" ? 0 : .0625})};
+    if(kind=="wall") result.patch.cells={{0,{p,cell.v[1],cell.v[2],cell.v[3]}},
+        {1,{cell.v[0],p,cell.v[2],cell.v[3]}},{2,{cell.v[0],cell.v[1],p,cell.v[3]}}};
+    else {std::string reason;REQUIRE(Cone({cell},p,0,result.patch.cells,reason));}
+    result.patch.surface.clear();nodes.emplace(p.id,p);
+    for(auto face:Incidence(result.patch.cells).Boundary()) {
+      bool found=false;
+      for(auto facet:result.facets) {
+        bool contains=true;
+        for(auto id:face) contains=contains && reference.Contains(facet.id,nodes.at(id).p);
+        if(contains){result.patch.surface.push_back({face,facet.id});found=true;break;}
+      }
+      REQUIRE(found);
+    }
+  }
+  return result;
+}
+void RepairFacetRecords(const std::string& label,World& world,const std::vector<Facet>& facets) {
+  std::ostringstream text;
+  if(!world.rank) for(auto f:facets) {
+    text<<std::setprecision(17)<<"REPAIR_FACET "<<label<<' '<<f.id<<' '<<f.marker;
+    for(auto n:f.v) text<<' '<<n.id<<' '<<n.p.x<<' '<<n.p.y<<' '<<n.p.z;
+    text<<'\n';
+  }
+  Log(world,text.str());
+}
+}
+TEST_CASE("Native MPI planar movement and face edge reconnection publish full private metric repairs", "[NativeDistributed3D][NativeRepair3D]") {
+  World parent;using Clock=std::chrono::steady_clock;
+  auto elapsed=[](Clock::time_point start){return std::chrono::duration<double>(Clock::now()-start).count();};
+  for(const auto spec:std::array<AnisotropicCase,3>{{{"unit",1,false,0},{"thin8",1e-8,false,0},{"shear4",1e-4,true,0}}})
+    for(const std::string kind:{"face","edge4","wall","interior"}) {
+      const std::string name="repair_"+kind+"_"+spec.name;
+      const auto fixture=RepairGeometry(kind,spec.height,spec.shear);const PlanarReference geometry(fixture.facets);
+      const auto input=Partition(Rows(fixture.patch),parent);const auto initial_bytes=Bytes(input);
+      MeshRecords(name+"_initial",parent,input);RepairFacetRecords(name,parent,fixture.facets);
+      for(int m:std::set<int>{parent.size,std::max(1,parent.size-1),std::max(1,parent.size/2)}) {
+        Owned accepted=input;
+        for(unsigned step=0;step<(kind=="face" ? 3u : 1u);++step) {
+          const std::string label=name+"_m"+std::to_string(m)+"_s"+std::to_string(step);
+          const auto started=Clock::now();const auto preparation=Clock::now();const auto saved=Bytes(accepted);
+          Tensor tensor{1,spec.shear ? -1. : 0,0,spec.shear ? 2. : 1.,0,(step==1 ? 9. : 1.)/(spec.height*spec.height)};
+          auto original=Uniform(accepted,tensor);
+          for(auto& donor:original) for(size_t i=0;i<4;++i) {
+            const double scale=1+.1*donor.cell.v[i].p.x;
+            auto& t=donor.sensor[i];t={t.xx*scale,t.xy*scale,t.xz*scale,t.yy*scale,t.yz*scale,t.zz*scale};
+          }
+          const auto preparation_s=elapsed(preparation);
+          AnisotropicSourceRecords("REPAIR_INPUT",label,parent,original);
+          const auto migration=Clock::now();std::vector<std::vector<OwnedCell>> to(parent.size);
+          std::vector<std::vector<DonorCell>> sensor_to(parent.size);
+          for(const auto& row:accepted) to[row.first%m].push_back(row.second);
+          for(auto row:original) sensor_to[row.cell.id%m].push_back(row);
+          const auto migrated=parent.exchange(to);const auto source_rows=parent.exchange(sensor_to);
+          const auto migration_s=elapsed(migration);const auto comm_start=Clock::now();
+          MPI_Comm subset=MPI_COMM_NULL;MPI_Comm_split(parent.comm,parent.rank<m ? 0 : MPI_UNDEFINED,parent.rank,&subset);
+          const auto comm_s=elapsed(comm_start);const auto worker_start=Clock::now();
+          Owned repaired;bool valid=true;
+          if(subset!=MPI_COMM_NULL) {
+            World worker(subset);Owned owned;for(auto row:migrated) owned.emplace(row.cell.id,row);
+            const auto owned_bytes=Bytes(owned);Directory directory(worker);std::string reason;
+            valid=directory.Build(owned,reason);const auto directory_before=directory.Snapshot();
+            const Feature feature=(kind=="face" && step!=1) ? Feature{{0,1,2},3} :
+                (kind=="face" ? Feature{{3,4,0},2} : (kind=="edge4" ? Feature{{4,5,0},2} : Feature{{4,0,0},1}));
+            const auto dependencies=directory.Lookup(Query(worker,feature,true));
+            const auto imported=directory.Fetch(dependencies,owned);
+            valid=valid && dependencies.valid && imported.valid;
+            CHECK(valid);CHECK(imported.cells.size()==(kind=="face" ? (step==1 ? 3u : 2u) : fixture.patch.cells.size()));
+            const bool chosen=directory.Reserve(imported,true,reason);
+            CHECK(chosen==(!worker.rank));
+            DonorImport donors(worker,true);const bool source_built=donors.Build(source_rows,reason);valid=valid && source_built;
+            std::vector<DonorRegion> regions;
+            for(auto row:imported.cells) {
+              const auto p=row.cell.v[0].p;DonorRegion box{p.x,p.y,p.z,p.x,p.y,p.z};
+              for(auto node:row.cell.v) {
+                const double xyz[3]{node.p.x,node.p.y,node.p.z};
+                for(size_t a=0;a<3;++a){box[a]=std::min(box[a],xyz[a]);box[a+3]=std::max(box[a+3],xyz[a]);}
+              }
+              regions.push_back(box);
+            }
+            auto sensors=donors.Import(regions);valid=valid && sensors.valid;
+            AnisotropicSourceRecords("REPAIR_SOURCE",label,worker,sensors.cells);
+            FrozenField field(sensors.cells,{},true);
+            const auto& sample_cell=std::min_element(sensors.cells.begin(),sensors.cells.end(),
+                [](const DonorCell& a,const DonorCell& b){return a.Key()<b.Key();})->cell;
+            std::array<Point,4> queries;
+            queries[0]=sample_cell.v[0].p;
+            for(size_t sample=1;sample<4;++sample) {
+              long double x=0,y=0,z=0;
+              for(size_t i=0;i<4;++i) {
+                const long double w=sample==1 ? .25L : (sample==2 ? (i==0 ? .625L : .125L) : (i==1 ? .625L : .125L));
+                x+=w*sample_cell.v[i].p.x;y+=w*sample_cell.v[i].p.y;z+=w*sample_cell.v[i].p.z;
+              }
+              queries[sample]={double(x),double(y),double(z)};
+            }
+            for(auto point:queries) {
+              const auto value=field.Query(point);std::ostringstream line;
+              line<<std::setprecision(17)<<"REPAIR_SAMPLE "<<label<<' '<<worker.rank<<' '<<point.x<<' '<<point.y<<' '<<point.z;
+              for(auto x:TensorValues(value.sensor)) line<<' '<<x;
+              for(auto id:value.donor) line<<' '<<id;
+              Log(worker,line.str()+"\n");
+            }
+            const auto reconstruction_start=Clock::now();Patch old=PatchOf(imported.cells),fresh;
+            bool approved=!chosen;
+            if(chosen) {
+              if(kind=="wall" || kind=="interior") {
+                Point p{.25,.25,kind=="wall" ? 0 : .25*spec.height};if(spec.shear)p.x+=p.y;
+                approved=MoveVertex(old,4,{5,p},1000,geometry,fresh,reason);
+              } else approved=Reconnect(old,kind=="edge4" || step==1 ? 0 : 3,1000*(step+1),geometry,fresh,reason);
+            }
+            const auto reconstruction_s=elapsed(reconstruction_start);const auto metric_start=Clock::now();
+            PatchMetric measured;MetricStats metric_stats;
+            if(chosen && approved) approved=ValidateMetricChange(old.cells,fresh.cells,MetricChange::Repair,field,measured,reason,&metric_stats);
+            const auto metric_s=elapsed(metric_start);
+            if(!approved) std::cerr<<"REPAIR_FAILURE "<<label<<" rank="<<worker.rank<<" "<<reason<<'\n';
+            valid=valid && approved;CHECK(valid);
+            std::vector<std::vector<Dependency>> removes(worker.size);std::vector<std::vector<OwnedCell>> adds(worker.size);
+            if(chosen && approved) {
+              for(auto row:dependencies.cells) removes[row.owner].push_back(row);
+              for(auto row:Rows(fresh)) adds[row.cell.id%worker.size].push_back(row);
+            }
+            const auto removed=worker.exchange(removes);const auto added=worker.exchange(adds);
+            // Actual shared-coordinate motion/reconnection staged with new IDs; rank veto must preserve both stores.
+            CHECK_FALSE(directory.Publish(owned,removed,added,worker.rank!=0,reason));
+            CHECK(Bytes(owned)==owned_bytes);CHECK(directory.Snapshot()==directory_before);
+            CHECK_FALSE(directory.Publish(owned,removed,added,true,reason,1));
+            CHECK(Bytes(owned)==owned_bytes);CHECK(directory.Snapshot()==directory_before);
+            valid=directory.Publish(owned,removed,added,valid,reason) && valid;
+            repaired.swap(owned);const auto& f=field.Statistics();const auto& d=directory.Statistics();
+            std::ostringstream report;report<<std::setprecision(17)<<"REPAIR_WORK case="<<label<<" rank="<<worker.rank
+                <<" ranks="<<worker.size<<" valid="<<valid<<" chosen="<<chosen<<" metric_cells="<<metric_stats.cells
+                <<" metric_edges="<<metric_stats.edge_evaluations<<" reconstruction_s="<<reconstruction_s<<" metric_s="<<metric_s
+                <<" field_requests="<<f.requests<<" field_hits="<<f.hits<<" field_edges="<<f.edge_requests
+                <<" search_nested_s="<<f.search_seconds<<" interpolation_nested_s="<<f.interpolation_seconds
+                <<" trace_nested_s="<<f.edge_trace_seconds<<" directory_work_bytes="<<d.maximum_work_bytes
+                <<" donor_work_bytes="<<donors.Statistics().maximum_work_bytes<<" bytes_sent="<<worker.bytes_sent
+                <<" collective_calls="<<worker.collective_calls<<'\n';
+            Log(worker,report.str());MPI_Comm_free(&subset);
+          }
+          const bool failed=parent.maximum(!valid);const auto worker_s=elapsed(worker_start);CHECK_FALSE(failed);
+          const auto returning=Clock::now();to.assign(parent.size,{});
+          for(const auto& row:repaired) to[row.first%parent.size].push_back(row.second);
+          const auto returned=parent.exchange(to);Owned output;for(auto row:returned) output.emplace(row.cell.id,row);
+          const auto count=CPassiveComm::Allreduce(output.size(),CPassiveComm::Op::SUM,parent.comm);
+          const auto return_s=elapsed(returning);const auto audit_start=Clock::now();
+          CHECK(count==(kind=="face" ? (step==1 ? 2u : 3u) : fixture.patch.cells.size()));
+          CHECK(Audit(parent,output,fixture,count));CHECK(Bytes(accepted)==saved);CHECK(Bytes(input)==initial_bytes);
+          const auto audit_s=elapsed(audit_start);const auto exporting=Clock::now();
+          MeshRecords(label+(failed ? "_rejected" : ""),parent,output);
+          const auto export_s=elapsed(exporting),total_s=elapsed(started);
+          const auto other_s=total_s-preparation_s-migration_s-comm_s-worker_s-return_s-audit_s-export_s;
+          CHECK(other_s>=-1e-12);
+          std::ostringstream report;report<<std::setprecision(17)<<"REPAIR_EVENT case="<<label<<" rank="<<parent.rank
+              <<" ranks="<<parent.size<<" workers="<<m<<" step="<<step<<" valid="<<!failed<<" final="<<count
+              <<" parent_s="<<total_s<<" preparation_s="<<preparation_s<<" migration_s="<<migration_s
+              <<" worker_comm_s="<<comm_s<<" worker_s="<<worker_s<<" return_s="<<return_s
+              <<" test_audit_s="<<audit_s<<" record_export_s="<<export_s<<" other_s="<<other_s
+              <<" inactive_worker_wait_s="<<(parent.rank>=m ? worker_s : 0)<<'\n';
+          Log(parent,report.str());if(failed)break;accepted.swap(output);
+        }
+      }
+    }
+}
 #endif

@@ -56,4 +56,14 @@ bool UndoEdgeSplit(const Patch& old, Id point, Edge endpoints, Id first_cell, co
  * cell order excluding cells containing both endpoints. Rejection leaves both output vectors unchanged. */
 bool CollapseVertex(const Patch& old, Id point, Id neighbor, Id first_cell, const PlanarReference& reference,
                     Patch& fresh, std::string& reason, KernelStats* stats = nullptr);
+/*! Moves one complete vertex star, replacing its vertex by a caller-reserved distinct identity.
+ * Vertex/cell counts are unchanged. Exact facet-contained motion and positive endpoint determinants/faces
+ * preserve the embedded domain; interface-star omissions, corner drift and inversion reject atomically.
+ * New identity permits surface-coordinate changes without weakening fixed-interface coordinate checks. */
+bool MoveVertex(const Patch& old, Id vertex, Node point, Id first_cell, const PlanarReference& reference,
+                Patch& fresh, std::string& reason, KernelStats* stats = nullptr);
+/*! Fixed-skin reconnection to an existing admitted apex (including face2->3 and edge3->2/4->4).
+ * Geometry/topology only: frozen metric progress, complete dependencies and global IDs remain caller duties. */
+bool Reconnect(const Patch& old, Id vertex, Id first_cell, const PlanarReference& reference,
+               Patch& fresh, std::string& reason, KernelStats* stats = nullptr);
 }  // namespace SU2Native3D

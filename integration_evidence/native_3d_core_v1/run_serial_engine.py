@@ -62,7 +62,7 @@ finally:
     if changed: status='FAIL'
     result=dict(status=status,base_commit=receipt['base_commit'],source_sha256=initial,
                 final_source_sha256=final,changed_during_run=changed,stages=records,
-                scope='Actual non-MPI engine refine/general-coarsen/refine, planar skin, strict metric gates and accepted-input rejection preservation. No CFD, BL, CGNS or scaling claim.')
+                scope='Actual non-MPI engine refine/general-coarsen/refine plus private planar movement/face reconnection, strict metric gates and accepted-input rejection preservation. No CFD, BL, CGNS or scaling claim.')
     result['artifact_sha256']={str(p.relative_to(folder)):hashlib.sha256(p.read_bytes()).hexdigest()
         for p in folder.rglob('*') if p.is_file() and p.suffix!='.o' and p.name!='serial_engine'}
     if (folder/'serial_engine').exists(): result['binary_sha256']=hashlib.sha256((folder/'serial_engine').read_bytes()).hexdigest()

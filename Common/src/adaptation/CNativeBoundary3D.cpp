@@ -345,4 +345,73 @@ bool CollapseVertex(const Patch& old, Id point, Id neighbor, Id first, const Pla
     return true;
   } catch (const std::exception& e) { reason = e.what(); return false; }
 }
+bool MoveVertex(const Patch& old, Id vertex, Node point, Id first, const PlanarReference& reference,
+                Patch& fresh, std::string& reason, KernelStats* stats) {
+  try {
+    Bounds(old);
+    const Incidence index(old.cells, stats);
+    const auto before = SkinMap(index.Boundary());
+    const auto physical = CheckSurface(old, before, reference, stats);
+    const auto nodes = Nodes(old.cells);
+    const auto original = nodes.at(vertex);
+    if (nodes.count(point.id) || (original.p.x == point.p.x && original.p.y == point.p.y && original.p.z == point.p.z))
+      throw std::invalid_argument("Native 3D movement needs a new identity and a distinct position.");
+    for (const auto& face : before) if (Has(face.second, vertex)) {
+      const auto marked = physical.find(face.first);
+      if (marked == physical.end())
+        throw std::invalid_argument("Native 3D incomplete movement dependency at interface node " + std::to_string(vertex) + ".");
+      if (!reference.Contains(marked->second.facet, point.p, stats))
+        throw std::invalid_argument("Native 3D movement leaves incident reference facet " + std::to_string(marked->second.facet) + ".");
+    }
+    Patch proposal;
+    for (const auto& cell : old.cells) {
+      auto v = cell.v;
+      bool found = false;
+      for (auto& node : v) if (node.id == vertex) { found = true; node = point; }
+      if (!found) throw std::invalid_argument("Native 3D movement input is not a complete vertex star.");
+      if (!(Orientation(v[0].p, v[1].p, v[2].p, v[3].p, stats) > 0))
+        throw std::invalid_argument("Native 3D movement obstructed at cell " + std::to_string(cell.id) + ".");
+      Append(proposal.cells, v, first, stats);
+    }
+    auto moved_nodes = nodes;
+    moved_nodes.emplace(point.id, point);
+    Skin skin; Physical surface;
+    for (const auto& entry : before) {
+      auto face = entry.second;
+      const bool moving = Has(face, vertex);
+      if (moving) for (auto& id : face) if (id == vertex) id = point.id;
+      if (moving) for (size_t axis = 0; axis < 3; ++axis) {
+        const auto old_area = Projected(nodes.at(entry.second[0]).p, nodes.at(entry.second[1]).p,
+                                        nodes.at(entry.second[2]).p, axis, stats);
+        if (old_area == 0) continue;
+        const auto area = Projected(moved_nodes.at(face[0]).p, moved_nodes.at(face[1]).p, moved_nodes.at(face[2]).p, axis, stats);
+        if ((old_area > 0 && !(area > 0)) || (old_area < 0 && !(area < 0)))
+          throw std::invalid_argument("Native 3D movement folds physical face at node " + std::to_string(vertex) + ".");
+        break;
+      }
+      face = Oriented(face);
+      if (!skin.emplace(Key(face), face).second) throw std::invalid_argument("Native 3D movement repeats a skin face.");
+      const auto marked = physical.find(entry.first);
+      if (marked != physical.end()) surface.emplace(Key(face), SurfaceFace{face, marked->second.facet});
+    }
+    // Positive affine determinants/face areas along the facet-contained displacement preserve the old domain.
+    Finish(old, proposal, skin, surface, reference, stats);
+    fresh.cells.swap(proposal.cells); fresh.surface.swap(proposal.surface);
+    reason.clear(); return true;
+  } catch (const std::exception& e) { reason = e.what(); return false; }
+}
+bool Reconnect(const Patch& old, Id vertex, Id first, const PlanarReference& reference,
+               Patch& fresh, std::string& reason, KernelStats* stats) {
+  try {
+    Bounds(old);
+    const auto skin = SkinMap(Incidence(old.cells, stats).Boundary());
+    const auto physical = CheckSurface(old, skin, reference, stats);
+    const auto nodes = Nodes(old.cells);
+    Patch proposal;
+    if (!Cone(old.cells, nodes.at(vertex), first, proposal.cells, reason, stats)) return false;
+    Finish(old, proposal, skin, physical, reference, stats);
+    fresh.cells.swap(proposal.cells); fresh.surface.swap(proposal.surface);
+    reason.clear(); return true;
+  } catch (const std::exception& e) { reason = e.what(); return false; }
+}
 }  // namespace SU2Native3D

@@ -1,0 +1,16 @@
+    PID    PPID  NI %CPU COMMAND
+1961381 1961376   0 89.0 /usr/bin/python3 -m mpi4py FSI.py --parallel -f Unsteady_SecondOrder.cfg
+1961382 1961376   0 89.0 /usr/bin/python3 -m mpi4py FSI.py --parallel -f Unsteady_SecondOrder.cfg
+1961383 1961376   0 88.5 /usr/bin/python3 -m mpi4py FSI.py --parallel -f Unsteady_SecondOrder.cfg
+1961384 1961376   0 87.0 /usr/bin/python3 -m mpi4py FSI.py --parallel -f Unsteady_SecondOrder.cfg
+ 350820  350756   0 17.2 /usr/share/code/code --type=zygote
+1961426 2228232  19 15.0 python3 integration_evidence/native_3d_core_v1/run_distributed.py /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/repair_operators_v1
+ 350828  350756   0 12.4 /usr/share/code/code --type=zygote
+ 350786  350753   0  6.4 /usr/share/code/code --type=zygote --no-zygote-sandbox
+ 351252  350749   0  4.0 /proc/self/exe --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --js-flags=--nodecommit_pooled_pages --crashpad-handler-pid=350771 --enable-crash-reporter=b056c165-a836-45a2-bcb4-7c8225dfb985,no_channel --user-data-dir=/home/rausa/.config/Code --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,10439586669742760447,3338536617065741096,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EstablishGpuChannelAsync --disable-features=CalculateNativeWinOcclusion,LocalNetworkAccessChecks,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190708995682289984
+   1362    1328   0  3.9 /usr/lib/xorg/Xorg :0 vt07 -nolisten tcp -novtswitch -auth /var/run/lxdm/lxdm-:0.auth
+ 350621    2747   0  3.5 /usr/bin/gnome-shell
+ 350836  350756   0  3.0 /usr/share/code/code --type=zygote
+ 435086    2747   0  2.3 /usr/lib/firefox/firefox -new-window
+1961376 1860705   0  2.3 mpirun -n 4 /usr/bin/python3 -m mpi4py FSI.py --parallel -f Unsteady_SecondOrder.cfg
+ 351433  350749   0  2.2 /proc/self/exe --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --js-flags=--nodecommit_pooled_pages --crashpad-handler-pid=350771 --enable-crash-reporter=b056c165-a836-45a2-bcb4-7c8225dfb985,no_channel --user-data-dir=/home/rausa/.config/Code --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,10439586669742760447,3338536617065741096,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EstablishGpuChannelAsync --disable-features=CalculateNativeWinOcclusion,LocalNetworkAccessChecks,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190709002241582927

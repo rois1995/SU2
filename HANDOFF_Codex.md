@@ -7,6 +7,46 @@ small sequential local checks with real host-contention checks; push each
 validated checkpoint and verify the remote SHA. A terminal capacity failure
 cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
+## Native 3D movement/reconnection checkpoint — 2026-10-10
+
+Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
+Branch codex/native-3d-core; predecessor92bff69fc1442f0e84eddc81edee85432e5bfccf.
+Goal1 remains ACTIVE/full scope. MoveVertex replaces a point's complete star at an
+exact facet-contained new position with a reserved replacement ID; positive
+cell/face signs preserve the domain. Reconnect reuses fixed-skin Cone for2->3,
+3->2 and4->4. Generic coordinate/metric guards remain unchanged. Original finite
+triangle seams, including coplanar ones, remain protected; coplanar geometry-patch
+association is still required for full original planar-surface freedom.
+
+Final repair_operators_v2 PASS MPI1 (63 cases/3773 assertions), MPI2/4 (19 cases/rank),
+and actual non-MPI private metric-validated movement/reconnection plus existing
+refine/coarsen/rerefine controls. Ordinary/thin/sheared domains, M=N/M<N, actual
+complete face/edge/vertex imports, reservation conflicts, original-P1 sensors,
+private metric repair, rank-veto/storage rollback, publication/return all pass.
+108 prescribed proposals+36 initial meshes independently pass exact global
+embedding/volume/facet/marker/metric audits.702 imported donor records exact;
+936 canonical vertex/interior queries with max normalized residual1.10e-16 and
+byte-identical worker observations.216 intentional publication rejections preserve
+both mesh and directory bytes. Earlier414 JSON/SU2 artifacts unchanged.
+
+Inspect integration_evidence/native_3d_core_v1/repair_operators_v2/mpi{1,2,4}_repairs/
+repair_{face,edge4,wall,interior}_{unit,thin8,shear4}_m*_s*.su2 and donor/mesh JSON.
+All306 parent profiles close, including preparation/migration/communicator/worker/
+return/test audit/export. Private costs, query subcosts and communication counters
+are retained. Separate directory/donor byte models are not complete caller/RSS
+qualification; overlapping single-patch proposals are not a scaling/balance test.
+
+REPAIR_OPERATORS_CHECKPOINT.md and repair_summary.json give evidence/replay/limits.
+V1 native MPI1 passed; its independent parser variable-shadowing failure and
+30-frame saved-log re-audit are retained. V2 strengthens nodal sensors/interior
+queries. MPI handle30089/non-MPI80660 terminalPASS; no owned job live.
+
+Next: automatic bounded repair selection/fallback, actual shape/sliver stalls,
+partial cavities/larger sources and exact tracing cost; coplanar geometry patches;
+then weighted partition/runtime/CFD/CGNS and complete performance qualification.
+The existing Refine/Coarsen selectors do not yet invoke these new repair operators.
+Production3D remains rejected;2D/MMG/finer sensor/geometric BL/fade/noise intact.
+
 ## Native 3D general coarsening and repeated cycles — 2026-10-10
 
 Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.

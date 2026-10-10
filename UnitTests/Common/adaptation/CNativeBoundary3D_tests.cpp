@@ -234,3 +234,50 @@ TEST_CASE("Native general collapse removes an interior point and preserves corne
   CHECK_FALSE(CollapseVertex(star,4,999,200,reference,fresh,reason));
   CHECK(Connectivity(fresh)==saved);CHECK(fresh.surface.size()==faces);
 }
+TEST_CASE("Native planar movement keeps finite facets and rejects incomplete stars atomically", "[NativeMesh3D]") {
+  for(double height:{1.,1e-4,1e-8}) {
+    const auto original=Single(height);const PlanarReference reference(Facets(original));
+    const auto old=WallPoint(original,reference);Patch fresh;std::string reason;
+    REQUIRE(MoveVertex(old,4,{5,{.375,.125,0}},100,reference,fresh,reason));
+    CHECK(fresh.cells.size()==old.cells.size());CHECK(fresh.surface.size()==old.surface.size());
+    for(auto cell:fresh.cells) for(auto node:cell.v) CHECK(node.id!=4);
+    for(auto face:fresh.surface) CHECK(reference.Get(face.facet).marker==int(face.facet)+10);
+    const auto saved=Connectivity(fresh);const auto count=fresh.surface.size();
+    CHECK_FALSE(MoveVertex(old,4,{5,{.25,.25,.125*height}},200,reference,fresh,reason));
+    CHECK_FALSE(MoveVertex(old,4,{4,{.375,.125,0}},200,reference,fresh,reason));
+    CHECK_FALSE(MoveVertex(old,4,{5,{.25,.25,0}},200,reference,fresh,reason));
+    CHECK_FALSE(MoveVertex(old,4,{5,{0,0,0}},200,reference,fresh,reason));
+    CHECK_FALSE(MoveVertex(old,4,{5,{.375,.125,0}},UINT64_MAX,reference,fresh,reason));
+    auto incomplete=old;incomplete.cells.pop_back();
+    const auto skin=Incidence(incomplete.cells).Boundary();
+    incomplete.surface.erase(std::remove_if(incomplete.surface.begin(),incomplete.surface.end(),
+        [&](SurfaceFace f){return std::find(skin.begin(),skin.end(),f.v)==skin.end();}),incomplete.surface.end());
+    CHECK_FALSE(MoveVertex(incomplete,4,{5,{.375,.125,0}},200,reference,fresh,reason));
+    CHECK(reason.find("incomplete")!=std::string::npos);
+    CHECK(Connectivity(fresh)==saved);CHECK(fresh.surface.size()==count);
+  }
+}
+TEST_CASE("Native movement preserves the interior skin and protects original corners", "[NativeMesh3D]") {
+  const auto original=Single(1);const PlanarReference reference(Facets(original));Patch star,fresh;std::string reason;
+  REQUIRE(Cone(original.cells,{4,{.25,.25,.25}},10,star.cells,reason));star.surface=original.surface;
+  REQUIRE(MoveVertex(star,4,{5,{.125,.25,.25}},100,reference,fresh,reason));
+  CHECK(ValidateFixedInterface(original.cells,fresh.cells,reason));
+  CHECK(fresh.cells.size()==4);CHECK(fresh.surface.size()==4);
+  CHECK_FALSE(MoveVertex(original,0,{9,{.0625,0,0}},200,reference,fresh,reason));
+  CHECK(reason.find("incident reference facet")!=std::string::npos);
+  CHECK_FALSE(MoveVertex(star,999,{5,{.125,.25,.25}},200,reference,fresh,reason));
+  CHECK(fresh.cells.front().id==100);
+}
+TEST_CASE("Native boundary-aware reconnection preserves markers for face and edge swaps", "[NativeMesh3D]") {
+  const Node a{0,{0,0,0}},b{1,{1,0,0}},c{2,{.5,.75,0}},d{3,{.5,.25,.25}},e{4,{.5,.25,-.25}};
+  Patch old;old.cells={{0,{a,b,c,d}},{1,{a,c,b,e}}};
+  for(auto face:Incidence(old.cells).Boundary()) old.surface.push_back({face,Id(old.surface.size())});
+  const PlanarReference reference(Facets(old));Patch fresh,back;std::string reason;
+  REQUIRE(Reconnect(old,3,100,reference,fresh,reason));CHECK(fresh.cells.size()==3);
+  CHECK(fresh.surface.size()==old.surface.size());CHECK(ValidateFixedInterface(old.cells,fresh.cells,reason));
+  REQUIRE(Reconnect(fresh,0,200,reference,back,reason));CHECK(Connectivity(back)==Connectivity(old));
+  CHECK(back.surface.size()==old.surface.size());CHECK(ValidateFixedInterface(old.cells,back.cells,reason));
+  for(auto face:back.surface) CHECK(reference.Get(face.facet).marker==int(face.facet)+10);
+  const auto saved=Connectivity(back);
+  CHECK_FALSE(Reconnect(old,999,300,reference,back,reason));CHECK(Connectivity(back)==saved);
+}
