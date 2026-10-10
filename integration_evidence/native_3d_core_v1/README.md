@@ -1,5 +1,13 @@
 # Native 3D Goal 1 checkpoints
 
+Latest qualification: [full anisotropic MPI refinement matrix](ANISOTROPIC_ENGINE_CHECKPOINT.md).
+Thirty completed thin/sheared/spatial/changing-direction grids pass on MPI1/2/4
+with M=N/M<N and actual original sensor migration/query audits. Inspect
+`anisotropic_engine_v3/mpi{1,2,4}_anisotropic/aniso_*_m*.su2` and original-metric JSON.
+Parent profiles include migration and return; single pilots do not establish
+scaling. Goal1 remains active: coarsening/repair, partition/runtime/CGNS and full
+performance qualification remain unfinished. Production3D stays guarded.
+
 Latest engine work: [incremental full refinement and scalar reuse](ENGINE_REFINEMENT_CHECKPOINT.md).
 MPI1/2/4, N=M/M<N and actual non-MPI controls pass on the six-tet unit box.
 Nine completed grids have 48 tetrahedra with adapted planar surfaces and strict

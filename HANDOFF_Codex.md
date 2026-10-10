@@ -7,6 +7,46 @@ small sequential local checks with real host-contention checks; push each
 validated checkpoint and verify the remote SHA. A terminal capacity failure
 cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
+## Native 3D full anisotropic MPI refinement matrix — 2026-10-10
+
+Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
+Branch codex/native-3d-core; predecessor e920aedd2780c7daa8c47ce1efb3bc311ada9267.
+Goal 1 remains ACTIVE/full scope unchanged. Native production code is unchanged.
+
+Final anisotropic_engine_v3 PASS MPI1 (55 cases/2936 assertions), MPI2/4 (17 cases/rank).
+Five frozen targets: heights1e-4/1e-8, sheared thin domain, fixed-rotation spatial
+sizing and changing-direction nodal metrics. N=M and M<N migrate original sensors
+and mesh, refine completely, and return mesh to N. Thirty completed grids have
+40-48 tetrahedra; spatial/turning M4 yield42/46 vs40/44 with fewer workers.
+Each independently passes exact embedding/volume/facet/marker/metric audits.
+260 canonical P1 samples have max normalized residual9.02e-17; transported nodal
+sensors/coordinates are exact. Gates q>=.20/J>=.05/L<=1.8 remain unchanged.
+
+View integration_evidence/native_3d_core_v1/anisotropic_engine_v3/mpi{1,2,4}_anisotropic/
+aniso_{thin4,thin8,shear4,spatial,turning}_m*.su2 and *_initial.su2. All45 frames
+have retained original sensor JSON. Earlier one-round rejected grids remain in
+mpi{1,2,4}_meshes/engine_rejected.su2. Prior box grids are byte-unchanged.
+
+New parent fixture profiles include source+mesh migration, worker communicator,
+worker execution/wait, return, test audit/export and other. All85 cycle profiles
+close; engine/source observations nested. Synthetic metric preparation recorded
+once per case. No ParMETIS/CFD/rebuild/transfer costs or full active-rank MPI wait
+certificate. Single pilots not scaling evidence; do not compare changed workloads
+as fixed work. Bounded-memory models are not RSS/OOM certificates.
+
+Diagnostic fixes: canonical audit donor serialization; explicit-communicator,
+single-writer fixture logs after MPI4 interleaved two long v2 ENGINE lines. Final
+v3 profiles complete; raw v1/v2 and canonical re-audit provenance preserved.
+All90 canonical anisotropic artifacts match, with all54 earlier box artifacts
+unchanged. Runner rejects malformed profiles and retains/audits nonzero-command
+records; forced-exit7 helper control exports actual saved rejected SU2 mesh.
+
+ANISOTROPIC_MATRIX_PLAN.md and ANISOTROPIC_ENGINE_CHECKPOINT.md give scope/replay.
+Next: coarsening/general repair and larger-source controls, then partition/runtime/
+CGNS/CFD and closed performance/cluster envelope. These are already thin domains,
+not Euler-to-BL construction; production3D remains rejected. 2D/MMG and original
+sensor/finer demand/geometric BL/fade/noise policies remain intact.
+
 ## Native 3D incremental refinement and frozen scalar reuse — 2026-10-10
 
 Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.

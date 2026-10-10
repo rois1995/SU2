@@ -15,7 +15,7 @@ folder.mkdir(exist_ok=False)
 env = dict(os.environ, OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1',
            OMPI_MCA_mpi_yield_when_idle='1', OMPI_MCA_hwloc_base_binding_policy='none')
 records = []
-def run(command, name):
+def run(command, name, allow_failure=False):
     print('Starting', name, flush=True)
     start = time.monotonic()
     p = subprocess.run(command, cwd=root, env=env, text=True, capture_output=True)
@@ -23,7 +23,7 @@ def run(command, name):
     (folder/(name+'.stderr')).write_text(p.stderr)
     records.append(dict(stage=name, command=list(map(str, command)), exit_code=p.returncode,
                         seconds=time.monotonic()-start))
-    if p.returncode: raise RuntimeError(name+' failed; evidence retained in '+str(folder))
+    if p.returncode and not allow_failure: raise RuntimeError(name+' failed; evidence retained in '+str(folder))
     return p.stdout
 
 def host(name):
@@ -42,7 +42,7 @@ files = units+house+tests+headers+['Common/src/meson.build', 'UnitTests/meson.bu
     'Common/include/adaptation/CNativeDistributed2D.hpp', 'Common/include/adaptation/CTransferMemory.hpp',
     'Common/include/adaptation/CDistributedSearch.hpp', 'Common/include/parallelization/CPassiveComm.hpp',
     'Common/include/parallelization/mpi_structure.hpp', 'integration_evidence/native_3d_core_v1/audit_distributed.py',
-    'integration_evidence/native_3d_core_v1/audit_coupled.py', 'integration_evidence/native_3d_core_v1/audit_donors.py', 'integration_evidence/native_3d_core_v1/audit_cavities.py',
+    'integration_evidence/native_3d_core_v1/audit_coupled.py', 'integration_evidence/native_3d_core_v1/audit_donors.py', 'integration_evidence/native_3d_core_v1/audit_cavities.py', 'integration_evidence/native_3d_core_v1/audit_anisotropic.py',
     str(Path(__file__).resolve().relative_to(root))]
 initial = {p: hashlib.sha256((root/p).read_bytes()).hexdigest() for p in files}
 git = shutil.which('git') is not None and (root/'.git').exists()
@@ -74,17 +74,31 @@ try:
         host('before_mpi'+str(ranks))
         tag = '[NativeDistributed3D],[NativeMesh3D]' if ranks == 1 else '[NativeDistributed3D]'
         output = run(['nice', '-n', '19', 'mpirun', '--oversubscribe', '--bind-to', 'none', '-np', str(ranks),
-                      str(folder/'test_distributed'), tag, '--use-colour', 'no'], 'mpi'+str(ranks))
-        assert output.count('All tests passed') == ranks
+                      str(folder/'test_distributed'), tag, '--use-colour', 'no'], 'mpi'+str(ranks), allow_failure=True)
+        mpi_status=records[-1]['exit_code']
         reports = []
         for line in output.splitlines():
-            if line.startswith('DIRECTORY ') or line.startswith('SUBSET_RETURN ') or line.startswith('DONOR ') or line.startswith('ENGINE '): reports.append(line)
+            if line.startswith('DIRECTORY ') or line.startswith('SUBSET_RETURN ') or line.startswith('DONOR ') or line.startswith('ENGINE ') or line.startswith('ANISO_PREP ') or line.startswith('ANISO_CYCLE '):
+                if line.startswith(('ENGINE ','ANISO_PREP ','ANISO_CYCLE ')):
+                    assert all('=' in x for x in line.split()[1:]), 'Interleaved/truncated profile record'
+                    parsed=dict(x.split('=',1) for x in line.split()[1:])
+                    required={'rank','ranks','case'}
+                    if line.startswith('ENGINE '): required.update({'edge_integral_nested_s','total_s','accepted'})
+                    if line.startswith('ANISO_CYCLE '): required.update({'workers','parent_s','other_s','engine_external_nested_s'})
+                    assert required<=parsed.keys(), 'Incomplete profile record'
+                reports.append(line)
         (folder/('mpi'+str(ranks)+'_profiles.json')).write_text(json.dumps(reports, indent=2)+'\n')
         run(['nice', '-n', '19', sys.executable, 'integration_evidence/native_3d_core_v1/audit_distributed.py',
              str(folder/('mpi'+str(ranks)+'.stdout')), str(folder/('mpi'+str(ranks)+'_meshes'))], 'audit_mpi'+str(ranks))
         run(['nice', '-n', '19', sys.executable, 'integration_evidence/native_3d_core_v1/audit_donors.py',
              str(folder/('mpi'+str(ranks)+'.stdout')), str(folder/('mpi'+str(ranks)+'_meshes')/'coupled_initial.json'),
              str(ranks), str(folder/('mpi'+str(ranks)+'_donor_audit.json'))], 'audit_donors_mpi'+str(ranks))
+        if 'ANISO_INPUT ' in output:
+            run(['nice','-n','19',sys.executable,'integration_evidence/native_3d_core_v1/audit_anisotropic.py',
+                 str(folder/('mpi'+str(ranks)+'.stdout')),str(folder/('mpi'+str(ranks)+'_anisotropic')),str(ranks)],
+                 'audit_anisotropic_mpi'+str(ranks))
+        if mpi_status or output.count('All tests passed') != ranks:
+            raise RuntimeError('MPI'+str(ranks)+' failed; rejected records/audits retained in '+str(folder))
     status = 'PASS'
 finally:
     final = {p: hashlib.sha256((root/p).read_bytes()).hexdigest() for p in files}
@@ -92,7 +106,7 @@ finally:
     if changed: status = 'FAIL'
     result = dict(status=status, stages=records, base_commit=base, source_sha256=initial,
         final_source_sha256=final, changed_during_run=changed, source_snapshot_sha256=snapshots,
-        scope='Actual SU2 passive MPI transport/failure election, complete bounded tetrahedral vertex/edge/face imports, coupled one-step refinement/inverse and complete incremental frozen-target refinement with planar surface subdivision, version/storage/identity rollback, subset mesh-record migration/return, indexed immutable original sensor donor imports with independent rational transported/P1/composition audit. MPI1 includes existing 3D kernel controls. No production remesher/runtime, ParMETIS, CFD solution/history transfer, CGNS output, anisotropic refinement engine, coarsening engine, runtime embedding or scaling qualification. Actual MPI mesh records undergo an independent exact embedding/marker/P1 audit and produce inspectable SU2 files; engine_full and engine_m* grids meet the strict frozen metric gates; one-step and engine_rejected grids are private progress.')
+        scope='Actual SU2 passive MPI transport/failure election, complete bounded tetrahedral vertex/edge/face imports, coupled one-step refinement/inverse and complete incremental frozen-target refinement with planar surface subdivision, version/storage/identity rollback, subset mesh-record migration/return, indexed immutable original sensor donor imports with independent rational transported/P1/composition audit. MPI1 includes existing 3D kernel controls. Frozen thin/sheared/spatial anisotropic refinement matrix on worker subsets includes migrated original sensors and independent canonical/P1/mesh audits. No production remesher/runtime, ParMETIS, CFD solution/history transfer, CGNS output, coarsening engine, runtime embedding or scaling qualification. Actual MPI mesh records undergo an independent exact embedding/marker/P1 audit and produce inspectable SU2 files; engine_full and engine_m* grids meet the strict frozen metric gates; one-step and engine_rejected grids are private progress.')
     result['artifact_sha256'] = {str(p.relative_to(folder)): hashlib.sha256(p.read_bytes()).hexdigest()
         for p in folder.rglob('*') if p.is_file() and p.suffix != '.o' and p.name != 'test_distributed'}
     if (folder/'test_distributed').exists(): result['binary_sha256'] = hashlib.sha256((folder/'test_distributed').read_bytes()).hexdigest()

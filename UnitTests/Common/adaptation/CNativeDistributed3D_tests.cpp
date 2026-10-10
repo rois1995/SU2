@@ -10,12 +10,21 @@
 #include "../../../Common/include/adaptation/CNativeEngine3D.hpp"
 #include "../../../Common/include/adaptation/CNativeMetric3D.hpp"
 #include <cmath>
+#include <chrono>
+#include <ctime>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <set>
 using namespace SU2Native3D;
 namespace {
+void Log(World& world, const std::string& text) {
+  // One writer avoids MPI stdout packet interleaving; this is fixture output, outside engine timings.
+  std::cout<<std::flush;
+  const std::vector<char> send(text.begin(),text.end());
+  const auto rows=CPassiveComm::Allgatherv(send,nullptr,world.comm);
+  if (!world.rank && !rows.empty()) std::cout.write(rows.data(),rows.size())<<std::flush;
+}
 Face Key(Face face) { std::sort(face.begin(), face.end()); return face; }
 std::array<Face, 4> Faces(const Cell& c) {
   const auto& v = c.v;
@@ -23,9 +32,10 @@ std::array<Face, 4> Faces(const Cell& c) {
            {v[0].id, v[1].id, v[3].id}, {v[0].id, v[2].id, v[1].id}}};
 }
 struct Fixture { Patch patch; std::vector<Facet> facets; };
-Fixture Box() {
-  const std::array<Node, 8> nodes{{{0, {0, 0, 0}}, {1, {1, 0, 0}}, {2, {1, 1, 0}}, {3, {0, 1, 0}},
-                                 {4, {0, 0, 1}}, {5, {1, 0, 1}}, {6, {1, 1, 1}}, {7, {0, 1, 1}}}};
+Fixture Box(double height=1, bool shear=false) {
+  std::array<Node, 8> nodes{{{0, {0, 0, 0}}, {1, {1, 0, 0}}, {2, {1, 1, 0}}, {3, {0, 1, 0}},
+                                 {4, {0, 0, height}}, {5, {1, 0, height}}, {6, {1, 1, height}}, {7, {0, 1, height}}}};
+  if (shear) for (auto& node : nodes) node.p.x += node.p.y;
   Fixture result;
   const std::array<Id, 6> ring{1, 2, 3, 7, 4, 5};
   for (size_t i = 0; i < ring.size(); ++i) {
@@ -672,11 +682,11 @@ std::vector<DonorCell> Uniform(const Owned& owned, Tensor tensor) {
   for (const auto& row : owned) { DonorCell donor; donor.cell=row.second.cell; donor.sensor.fill(tensor); source.push_back(donor); }
   return source;
 }
-void EngineReport(const EngineResult& result, const World& world) {
+void EngineReport(const EngineResult& result, World& world, const std::string& label="box") {
   const auto& s=result.stats;
   std::ostringstream line;
   line << std::setprecision(17) << "ENGINE rank=" << world.rank << " ranks=" << world.size << " valid=" << result.valid
-       << " initial=" << s.initial_cells << " updated=" << s.updated_cells << " final=" << result.cells.size()
+       << " case=" << label << " initial=" << s.initial_cells << " updated=" << s.updated_cells << " final=" << result.cells.size()
        << " rounds=" << s.rounds << " proposed=" << s.proposed << " attempts=" << s.attempted
        << " accepted=" << s.accepted << " rejected=" << s.rejected << " conflicts=" << s.conflicts
        << " selection_edge_evaluations=" << s.edge_evaluations << " selection_edge_reused=" << s.edge_reused
@@ -696,7 +706,7 @@ void EngineReport(const EngineResult& result, const World& world) {
        << " interpolation_nested_s=" << s.field_interpolation_seconds << " composition_nested_s=" << s.field_composition_seconds
        << " edge_nested_s=" << s.edge_seconds << " edge_search_nested_s=" << s.edge_search_seconds
        << " edge_trace_nested_s=" << s.edge_trace_seconds << " edge_integral_nested_s=" << s.edge_integral_seconds << '\n';
-  std::cout<<line.str()<<std::flush;
+  Log(world,line.str());
 }
 }
 TEST_CASE("Native incremental MPI refinement reaches complete frozen metric gates", "[NativeDistributed3D]") {
@@ -804,6 +814,133 @@ TEST_CASE("Native full MPI refinement returns from fewer workers with accepted i
     CHECK(Audit(parent,output,fixture,count));
     CHECK(Bytes(input)==saved);
     MeshRecords("engine_m"+std::to_string(m),parent,output);
+  }
+}
+
+namespace {
+struct AnisotropicCase { const char* name; double height; bool shear; unsigned spatial; };
+Tensor AnisotropicSensor(Point p, const AnisotropicCase& spec) {
+  if (spec.shear) return {4,-4,0,8,0,4/(spec.height*spec.height)};
+  if (!spec.spatial) return {4,0,0,4,0,4/(spec.height*spec.height)};
+  const double angle=spec.spatial==2 ? .2+.6*p.x : .37;
+  const double c=std::cos(angle),s=std::sin(angle),x=4+.4*p.x,y=2+.4*p.y,z=4+.4*p.z;
+  return {x*c*c+y*s*s,(x-y)*c*s,0,x*s*s+y*c*c,0,z};
+}
+void AnisotropicSourceRecords(const char* kind,const std::string& label,World& world,const std::vector<DonorCell>& source) {
+  std::ostringstream output;
+  for (const auto& donor:source) {
+    std::ostringstream line;
+    line<<std::setprecision(17)<<kind<<' '<<label<<' '<<world.rank<<' '<<donor.cell.id;
+    for(size_t i=0;i<4;++i) {
+      const auto n=donor.cell.v[i];line<<' '<<n.id<<' '<<n.p.x<<' '<<n.p.y<<' '<<n.p.z;
+      for(auto value:TensorValues(donor.sensor[i])) line<<' '<<value;
+    }
+    output<<line.str()<<'\n';
+  }
+  Log(world,output.str());
+}
+}
+TEST_CASE("Native full MPI refinement handles thin sheared and spatial anisotropic targets", "[NativeDistributed3D]") {
+  World parent;
+  using Clock=std::chrono::steady_clock;
+  auto elapsed=[](Clock::time_point start){return std::chrono::duration<double>(Clock::now()-start).count();};
+  // Frozen local-first matrix; no geometry association/metric/quality relaxation on failure.
+  for(const auto spec:std::array<AnisotropicCase,5>{{{"thin4",1e-4,false,false},
+      {"thin8",1e-8,false,false},{"shear4",1e-4,true,false},{"spatial",1,false,1},{"turning",1,false,2}}}) {
+    const std::string name="aniso_"+std::string(spec.name);
+    const auto fixture=Box(spec.height,spec.shear);const PlanarReference geometry(fixture.facets);
+    const auto input=Partition(Rows(fixture.patch),parent);const auto saved=Bytes(input);
+    const auto preparation_start=Clock::now();
+    std::vector<DonorCell> original;
+    for(const auto& row:input) {
+      DonorCell d;d.cell=row.second.cell;
+      for(size_t i=0;i<4;++i) d.sensor[i]=AnisotropicSensor(d.cell.v[i].p,spec);
+      original.push_back(d);
+    }
+    const auto preparation_seconds=elapsed(preparation_start);
+    std::ostringstream prep;prep<<std::setprecision(17)<<"ANISO_PREP case="<<name<<" rank="<<parent.rank
+        <<" ranks="<<parent.size<<" synthetic_metric_s="<<preparation_seconds<<" cells="<<original.size()<<'\n';
+    Log(parent,prep.str());
+    MeshRecords(name+"_initial",parent,input);
+    AnisotropicSourceRecords("ANISO_INPUT",name,parent,original);
+    for(int m:std::set<int>{parent.size,std::max(1,parent.size-1),std::max(1,parent.size/2)}) {
+      const auto label=name+"_m"+std::to_string(m);
+      const auto cycle_start=Clock::now(),migration_start=cycle_start;const auto cpu_start=std::clock();
+      std::vector<std::vector<OwnedCell>> to(parent.size);
+      std::vector<std::vector<DonorCell>> sensors(parent.size);
+      for(const auto& row:input) to[row.first%m].push_back(row.second);
+      for(auto d:original) sensors[d.cell.id%m].push_back(d);
+      const auto migrated=parent.exchange(to);const auto sensor_rows=parent.exchange(sensors);
+      const auto migration_seconds=elapsed(migration_start);const auto split_start=Clock::now();
+      MPI_Comm subset=MPI_COMM_NULL;
+      MPI_Comm_split(parent.comm,parent.rank<m ? 0 : MPI_UNDEFINED,parent.rank,&subset);
+      const auto split_seconds=elapsed(split_start);const auto worker_start=Clock::now();
+      double source_audit_seconds=0,engine_external_seconds=0;
+      Owned refined;bool valid=true;
+      if(subset!=MPI_COMM_NULL) {
+        World worker(subset);Owned owned;
+        for(auto row:migrated) owned.emplace(row.cell.id,row);
+        const auto source_audit_start=Clock::now();
+        // Audit actual transported records and canonical P1 samples before the event.
+        DonorImport service(worker);std::string reason;
+        bool imported=service.Build(sensor_rows,reason);
+        if(imported) {
+          auto patch=service.Import({{0,0,0,spec.shear ? 2. : 1.,1.,spec.height}});
+          imported=patch.valid && patch.cells.size()==6;
+          if(imported) {
+            AnisotropicSourceRecords("ANISO_SOURCE",label,worker,patch.cells);
+            FrozenField field(patch.cells);
+            for(auto p:std::array<Point,4>{{{.125,.25,.375*spec.height},{.5,.5,.5*spec.height},
+                {0,0,0},{.25,.375,.03125*spec.height}}}) {
+              if(spec.shear) p.x+=p.y;
+              const auto sample=field.Query(p);
+              std::ostringstream line;line<<std::setprecision(17)<<"ANISO_SAMPLE "<<label<<' '<<worker.rank
+                  <<' '<<p.x<<' '<<p.y<<' '<<p.z;
+              for(auto value:TensorValues(sample.sensor)) line<<' '<<value;
+              for(auto id:sample.donor) line<<' '<<id;
+              Log(worker,line.str()+"\n");
+            }
+          }
+        }
+        source_audit_seconds=elapsed(source_audit_start);
+        CHECK(imported);
+        EngineOptions options;options.timings=true;
+        const auto engine_start=Clock::now();
+        auto result=Refine(worker,owned,sensor_rows,geometry,{},options);
+        engine_external_seconds=elapsed(engine_start);
+        valid=imported && result.valid;
+        if(!valid) std::cerr<<"ANISO_FAILURE "<<label<<" rank="<<worker.rank<<" "<<result.reason<<'\n';
+        CHECK(result.stats.edge_evaluations+result.stats.edge_reused==6*(result.stats.initial_cells+result.stats.updated_cells));
+        CHECK(result.stats.other_seconds>=-1e-12);
+        EngineReport(result,worker,label);refined.swap(result.cells);
+        MPI_Comm_free(&subset);
+      }
+      const bool failed=parent.maximum(!valid);const auto worker_seconds=elapsed(worker_start);
+      const auto return_start=Clock::now();
+      CHECK_FALSE(failed);
+      to.assign(parent.size,{});
+      for(const auto& row:refined) to[row.first%parent.size].push_back(row.second);
+      const auto returned=parent.exchange(to);Owned output;
+      for(auto row:returned) output.emplace(row.cell.id,row);
+      const auto count=CPassiveComm::Allreduce(output.size(),CPassiveComm::Op::SUM,parent.comm);
+      const auto return_seconds=elapsed(return_start);const auto audit_start=Clock::now();
+      CHECK(count>6);CHECK(count<=128);CHECK(Audit(parent,output,fixture,count));
+      CHECK(Bytes(input)==saved);
+      const auto audit_seconds=elapsed(audit_start);const auto export_start=Clock::now();
+      MeshRecords(label+(failed ? "_rejected" : ""),parent,output);
+      const auto export_seconds=elapsed(export_start),total_seconds=elapsed(cycle_start);
+      const auto other_seconds=total_seconds-migration_seconds-split_seconds-worker_seconds-return_seconds-audit_seconds-export_seconds;
+      CHECK(other_seconds>=-1e-12);
+      std::ostringstream cycle;
+      cycle<<std::setprecision(17)<<"ANISO_CYCLE case="<<label<<" rank="<<parent.rank<<" ranks="<<parent.size
+           <<" workers="<<m<<" parent_s="<<total_seconds<<" migration_s="<<migration_seconds
+           <<" worker_comm_s="<<split_seconds<<" worker_s="<<worker_seconds<<" return_s="<<return_seconds
+           <<" test_audit_s="<<audit_seconds<<" record_export_s="<<export_seconds<<" other_s="<<other_seconds
+           <<" process_cpu_s="<<double(std::clock()-cpu_start)/CLOCKS_PER_SEC
+           <<" inactive_worker_wait_s="<<(parent.rank>=m ? worker_seconds : 0)
+           <<" source_audit_nested_s="<<source_audit_seconds<<" engine_external_nested_s="<<engine_external_seconds<<'\n';
+      Log(parent,cycle.str());
+    }
   }
 }
 #endif

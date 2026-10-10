@@ -1,0 +1,61 @@
+{
+  "status": "PASS",
+  "source_sha256": {
+    "integration_evidence/native_3d_core_v1/run_distributed.py": "0752e452ade652c9e0c3804001c6561c3e4a6ca60069c1577947180b11e46a77"
+  },
+  "original_log_sha256": "900564efcc8d85f879e40f1c21b40350fa3e655150094879d16a76f12d9dc6b8",
+  "stages": [
+    {
+      "stage": "rejected_mpi",
+      "command": [
+        "/usr/bin/python3",
+        "-c",
+        "import pathlib,sys;sys.stdout.write(pathlib.Path(sys.argv[1]).read_text());sys.stderr.write('forced runner command failure\\n');sys.exit(7)",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/anisotropic_engine_v2/runner_rejection_control/native_rejected_records.txt"
+      ],
+      "exit_code": 7,
+      "seconds": 0.05676021397812292
+    },
+    {
+      "stage": "audit_rejected",
+      "command": [
+        "/usr/bin/python3",
+        "integration_evidence/native_3d_core_v1/audit_distributed.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/anisotropic_engine_v2/runner_rejection_control/rejected_mpi.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/anisotropic_engine_v2/runner_rejection_control/meshes"
+      ],
+      "exit_code": 0,
+      "seconds": 0.2617059139884077
+    },
+    {
+      "stage": "required_failure",
+      "command": [
+        "/usr/bin/python3",
+        "-c",
+        "import sys;print('retained failure');sys.exit(7)"
+      ],
+      "exit_code": 7,
+      "seconds": 0.01563834899570793
+    }
+  ],
+  "scope": "Actual runner helper exercised with forced command exit7 and saved real native one-round rejected mesh records: failure retained, subsequent independent audit/SU2 export succeeds; default required failure still raises. This is not an MPI process-failure recovery test.",
+  "artifact_sha256": {
+    "audit_rejected.stdout": "9979be469534391a7574ef991bd4160f6837a7c25add3b02be717a1886bcdfc1",
+    "audit_rejected.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rejected_mpi.stderr": "734fd7e612e843978d738d5982a7e71648fd4dc243744a14a6dd820575b03834",
+    "rejected_mpi.stdout": "814c9f77bc06c406ab09f405b6139e46b317a0c7c78929206551ee456a541574",
+    "required_failure.stdout": "3123d875dba9a1c041ec1d38bf4bab8e70ed17f6bd02ea3cf44e905e22645452",
+    "native_rejected_records.txt": "814c9f77bc06c406ab09f405b6139e46b317a0c7c78929206551ee456a541574",
+    "required_failure.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "check.py": "eb531d66dbe65280c62114c83dbfba88f0ef5b321a311082f58370135639bd34",
+    "meshes/engine_rejected.su2": "8548415fabf433fa229f37d2685a0b01adae42bf21918b91f11af04f394e297f",
+    "meshes/coupled_coarsened.su2": "9e56f9b6c28140db5753d344fc13c2241ed096ca12504f55b594d5bc97f5cde6",
+    "meshes/coupled_initial.su2": "82d42cb51b148e9b262739b5d0e75a90bc042f2cb1d578091c9c2c41b5843187",
+    "meshes/coupled_refined.su2": "8548415fabf433fa229f37d2685a0b01adae42bf21918b91f11af04f394e297f",
+    "meshes/coupled_initial.json": "fce1c2fcb9f5c0baa4e5c35812c1ef106cb75e3c4956563299dbeae9630a2a51",
+    "meshes/independent_audit.json": "cd3d283d8a826e8db2b05766b9c45d00be17ad026d4a01b280f71ffdd4d60c9f",
+    "meshes/coupled_coarsened.json": "4eee80329b7a2af9c4203f8df76a8175017f3a4ec780846ac9b4f98baf92926a",
+    "meshes/coupled_refined.json": "2c6630606fc19d77a1d8cc5fcaaa1d0fb7fb12ea00776aacfcd15c441b142fe3",
+    "meshes/engine_rejected.json": "62688f3d0a52f7c81244974010ea2c5e0cf679d59444f3d0b8319b6f296387db"
+  }
+}
