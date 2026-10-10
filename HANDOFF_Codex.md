@@ -1,4 +1,4 @@
-# Current handoff — 2026-10-09
+# Current handoff — 2026-10-10
 
 Working repository: `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`; AdapNoExt remains untouched. Active branch: `codex/native-unsteady-performance`, fast-forwarded from `codex/native-post-rebase-metric-candidate`. Implementation checkpoint: `e8f0a237362f7fb060eb1272f2d174c5081b944c`; a subsequent handoff-only commit does not change the built source or suite pins. The final publication SHA is reported after remote verification.
 
@@ -108,6 +108,54 @@ the exact recovery commands. Original preparation receipt remains historical;
 new link_fallback_checks.json records this fix's lightweight checks. Tests include
 complete16-case simulated pilots with/without hardlinks, guarded existing output
 and copy-failure retention; no local solver/MPI/build/qsub run.
+
+Cluster balance pilot582199 reviewed (2026-10-10): allfocused MPI1/2/4 gates
+(39 cases per rank, including both new profile tests), all16 frozen remesh/audit
+cases and all8 byte-identical grid/tensor pairs PASS. Fresh review verifies324
+selected case files, eight fixture files, ten matching audit tools, four archived
+package scripts and810 local published compiled-source/Meson pins; logs/CSV
+accounting, committed counters, saved geometry/height/tensor audit reports close.
+Control stays validated b8bb7bc0...; candidate binary identity recorded. Runtime
+profiling gate is now complete for these supported frozen2D cases. This does not
+establish independent build provenance, unsteady CFD/transfer or3D/scaling proof.
+
+Main hotspot is costly successful coordinated BULK_SPLIT near trailing edge,
+not initial ParMETIS cost. Euler-to-BL M4NO private rank wall13.749/0.490/4.419/
+5.464s (max/mean2.280), largest46-cell proposal2.253s wall/2.244sCPU and1,329,104
+metric evaluations at x0.98330..1.00273,y-0.001678..0.003848. Retained11 joint
+attempts allcommitted, total7.214s (bounded top32, not complete joint census).
+WeightedM4 worsens private max/mean2.546 with19.605s busiest rank and8.626s
+retained joint cost. JointPatch/SplitSeed repeated score/metric work and bounded
+query cache deserve focused aggregate profiling/reuse; counts are not exclusive
+interpolation CPU timings. ProcessCPU/private-wall~0.995. Round validation mean
+13.675s includes MPI waiting, not pure validation computation. Working partition
+only0.048..0.058s Euler-to-BL /0.101..0.107s BL-to-Euler. Preserve successful
+reconstruction freedom and allraw-sensor/geometric-BL/height/geometry guards;
+blindly limiting expensive proposals risks renewed TE stalls.
+
+Control remesh times M4NO/M4YES/M3YES/M2YES: Euler-to-BL30.159/33.881/32.889/
+41.914s; BL-to-Euler10.426/10.560/12.747/15.659s. BL-to-Euler weightedM4 improves
+private imbalance1.510->1.225, showing workload-specific weights; its retained
+hotspots are ordinary splits <=~7ms. One shared192-core node, fourrank pilot,
+48 visible other compute processes. Changes in output/connectivity across modes
+exclude fixed-work strong-scaling claims. Paired profile/control change-3.08%
+to+1.28%, file output2.0..2.7ms; no isolated small instrumentation-overhead bound.
+Optimize coordinated objective/query reuse before live migration, then remeasure
+remaining movable imbalance. No further run needed solely to identify this hot
+path; repeats required for quantitative performance claims after code changes.
+
+Copy fallback succeeds332files; downloaded entirejob102,152,559bytes (~97.42MiB),
+no staging objects/tempcase dirs, noClusterRaw/timestep solution history. Original
+exports/failed582197 untouched. Evidence and reproducible lightweight review:
+integration_evidence/native_cluster_balance_profile_v1/cluster_review_582199/.
+Full logged coordinated phases: M4NO7.326s/45commits, M4YES8.684s/25,
+M3YES2.108s/22, M2YES5.410s/23; those wall phases include allround scopes and
+must not be equated with retained top32 private samples. BL-to-Euler logs zero
+coordinated phase/commits.
+Original grids under ClusterResults/balance_profile_582199/cases/.../
+native_frozen_adapted.su2 (Euler-to-BL and BL-to-Euler, allworker modes). No local
+solver/MPI/build/qsub or numerical mesh-audit recomputation, no production change
+and no tracker resume. Previous pending profile-runtime notes are now historical.
 
 The long-running goal tracker remains paused. Cluster runs are user-owned. Do not resume local solver checks or claim prediction validation/performance success before reviewing the cluster results. Earlier notes below are chronological history and may describe superseded pending work.
 
