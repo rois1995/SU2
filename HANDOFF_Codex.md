@@ -1,5 +1,48 @@
 # Current handoff — 2026-10-10
 
+## Downloaded reuse results reviewed — 2026-10-10
+
+Implementation d0dc9822fc6c3c1a84fcb1ec0907c869822d3580 is published on
+codex/native-unsteady-performance. Correctness582331 PASS(all20 stages); reuse
+comparison582333 and582334 FAIL at the first frozen Euler-to-BL N4/M4 NO pair.
+Both baseline/candidate remeshes return COMPLETE and all numerical mesh/height/
+transported-metric audits pass; selected/attempt/reconstruct/commit/cell/scan
+counts and connectivity/markers are identical. Repeatable low-bit differences:
+41 point rows(max displacement3.144727846e-15),43 tensors(max normalized entry
+change1.030423515e-13),45 total tensor CSV rows. Both jobs reproduce identical
+per-role hashes. Four tensors differ at unchanged coordinates, so geometry
+motion alone is insufficient. The byte-identity gate remains FAIL/intact;14
+later cases in each matrix never ran. This is not an invalid-mesh failure.
+
+Fresh lightweight review verifies1247 unique source/suite/tool/data/log hashes,
+job receipts, saved audit reports, timing CSV/log and operation/counter closure.
+Evidence/report/reproducer in integration_evidence/native_cluster_reconstruction_reuse_v1/cluster_review_582331_582334.
+Original ClusterResults and compiled sources unchanged; no local solver/build/
+MPI or heavy numerical mesh-audit rerun. Correctness11 replacements: qmin.51434,
+Lmax1.79510, BDF-history defect3.9791e-15, height error4.4409e-16. Native111 tests
+per rank, focused61 per rank on MPI1/2/4 pass. Expected guard exit1 is normal. Known composed RANS gradation remains
+ratio2.73259/76 residual edges despite sensor-zero residuals; no new certificate.
+
+Requests70.1076M->46.8351M(-33.20%), evaluations15.4894M->15.0544M(-2.81%),
+evictions4.4630M->4.0281M(-9.75%). Most removed calls were hits. Private CPU
+reduces3.09%/4.78%; remesh30.6468->29.6013s and32.3679->29.3249s. Shared ag1
+contention(broad24-core masks, up to64 other visible processes), possible job
+overlap not verifiable without absolute timestamps, failed bitwise gate and
+missing other modes prevent a general speedup/scaling claim. Private max/mean
+still~2.21. Worst46-cell TE attempt evaluations1.3291M->1.2957M, requests
+10.5634M->3.3373M, wall2.2618->2.0115s; expensive new-query work remains.
+
+Root cause NOT established. Global fast-math plus changed inline/call/storage/
+cache-residency contexts is plausible; an actual cache-hit/recompute discrepancy
+must be separated from compiler arithmetic. Next recommended narrow cluster
+diagnostic: same binary BOTH/OFF/score-only/eviction-only plus exact cached/fresh
+metric and score checks at identical coordinates, and rebuilt OFF vs archived
+baseline. Controls are NOT implemented/prepared by this review. Preserve current
+candidate13751201942dfcf9731bc377e45a69b0793ce82f0e2abe0b72edfbcee0902626 and
+validated control1a092865535502a3cf42a4f4d16c481c3cdc45dc6feff1a9844afa22c181634f
+before any rebuild. No speculative production fix or threshold/gate relaxation.
+Goal tracker remains PAUSED. All raw failure evidence retained.
+
 ## Reconstruction reuse candidate and next cluster checks
 
 Latest user authorized BOTH unchanged-score reuse and improved metric-sample reuse.

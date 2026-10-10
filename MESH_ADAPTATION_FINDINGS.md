@@ -1,5 +1,26 @@
 # Mesh adaptation findings and follow-up work
 
+## 2026-10-10: reconstruction reuse passes numerics, fails frozen byte identity
+
+Cluster582331 passes the20-stage MPI1/2/4/unsteady Euler/RANS/CGNS/restart gate.
+Frozen paired campaigns582333/582334 stop after the first Euler-to-BL pair:
+all numerical audits and operation counts pass, connectivity/markers identical,
+but41 coordinate rows and43 tensors differ by reproducible low bits(maximum
+coordinate displacement3.15e-15; maximum tensor-entry difference over tensor
+scale1.04e-13). Four tensors differ even at unchanged coordinates. The byte
+comparison remains FAIL; later14 cases per matrix were not reached.
+
+Requests decrease33.2%, actual evaluations only2.8%, private CPU3.1-4.8%; most
+removed calls were hits and the expensive new-query work remains. Shared-node
+timings and incomplete matrices do not establish a speedup/scaling result.
+Global fast-math/inlining is a plausible arithmetic explanation, not a proved
+root cause. Separate runtime score/eviction reuse and cached/fresh evaluation
+with the same executable before further scaling or production fixes. Original
+reports, meshes, failures and strict gate are retained; no guard relaxed.
+
+Review/evidence: `integration_evidence/native_cluster_reconstruction_reuse_v1/cluster_review_582331_582334/REVIEW.md`.
+
+
 ## 2026-10-08: matched RAE2822 recovery adaptation cycle
 
 One matched native RANS cycle passed mesh, geometric BL/frozen-metric, transfer
