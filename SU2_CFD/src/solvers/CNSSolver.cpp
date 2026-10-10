@@ -125,7 +125,7 @@ void CNSSolver::Preprocessing(CGeometry *geometry, CSolver **solver_container, C
   /*--- Compute the TauWall from the wall functions ---*/
 
   if (wall_functions) {
-    SetTau_Wall_WF(geometry, solver_container, config);
+    SetTau_Wall_WF(geometry, solver_container, config, iRKStep, Output);
   }
 
 }
@@ -797,11 +797,15 @@ void CNSSolver::BC_ConjugateHeat_Interface(CGeometry *geometry, CSolver **solver
   BC_Isothermal_Wall_Generic(geometry, solver_container, conv_numerics, nullptr, config, val_marker, true);
 }
 
-void CNSSolver::SetTau_Wall_WF(CGeometry *geometry, CSolver **solver_container, const CConfig *config) {
+void CNSSolver::SetTau_Wall_WF(CGeometry *geometry, CSolver **solver_container, const CConfig *config, unsigned short step, bool output) {
   SU2_ZONE_SCOPED
   /*---
    The wall function implemented herein is based on Nichols and Nelson, AIAA J. v32 n6 2004.
    ---*/
+
+  if (wallStudy.Enabled() && omp_get_num_threads()!=1)
+    SU2_MPI::Error("Wall diagnostics require one OpenMP thread", CURRENT_FUNCTION);
+  wallStudy.BeginWall(config->GetiZone(), MGLevel, rank, config->GetOuterIter(), config->GetInnerIter(), step, output);
 
   unsigned long notConvergedCounter = 0;  /*--- counts the number of wall cells that are not converged ---*/
   unsigned long smallYPlusCounter = 0;    /*--- counts the number of wall cells where y+ < 5 ---*/
@@ -855,9 +859,17 @@ void CNSSolver::SetTau_Wall_WF(CGeometry *geometry, CSolver **solver_container, 
       /* Halo normals are partial; use the owner's wall model on every grid. */
       if (!geometry->nodes->GetDomain(iPoint)) continue;
 
+      double diagnostic_seed = std::numeric_limits<double>::quiet_NaN();
+      const auto record = [&](WallStudyDiagnostics::Reason reason) {
+        wallStudy.RecordWall(Marker_Tag, iVertex, geometry->nodes->GetGlobalIndex(iPoint), reason,
+                             diagnostic_seed, SU2_TYPE::GetValue(YPlus[iMarker][iVertex]),
+                             SU2_TYPE::GetValue(config->GetwallModel_MinYPlus()));
+      };
+
       /* Wall intersections do not provide an off-wall velocity sample. */
       if (geometry->nodes->GetSolidBoundary(Point_Normal)) {
         ++resolvedSamplingCounter;
+        record(WallStudyDiagnostics::SOLID_SAMPLE);
         continue;
       }
 
@@ -913,6 +925,7 @@ void CNSSolver::SetTau_Wall_WF(CGeometry *geometry, CSolver **solver_container, 
 
       if (WallFunctionModel::Finite(VelTangMod) && VelTangMod <= EPS) {
         ++resolvedSamplingCounter;
+        record(WallStudyDiagnostics::ZERO_SPEED);
         continue;
       }
 
@@ -963,6 +976,8 @@ void CNSSolver::SetTau_Wall_WF(CGeometry *geometry, CSolver **solver_container, 
 
       const su2double Y_Plus_Start = Density_Wall * U_Tau * WallDistMod / Lam_Visc_Wall;
 
+      diagnostic_seed = SU2_TYPE::GetValue(Y_Plus_Start);
+
       /*--- Automatic switch off when y+ < "limit" according to Nichols & Nelson (2004) ---*/
 
       if (Y_Plus_Start < config->GetwallModel_MinYPlus()) {
@@ -970,6 +985,7 @@ void CNSSolver::SetTau_Wall_WF(CGeometry *geometry, CSolver **solver_container, 
         EddyViscWall[iMarker][iVertex] = 0.0;
         UTau[iMarker][iVertex] = 0.0;
         smallYPlusCounter++;
+        record(WallStudyDiagnostics::LOW_SEED);
         continue;
       }
 
@@ -979,25 +995,31 @@ void CNSSolver::SetTau_Wall_WF(CGeometry *geometry, CSolver **solver_container, 
       WallFunctionModel::State state;
       if (!WallFunctionModel::Solve(model, U_Tau, max_iter, relax, state)) {
         ++notConvergedCounter;
+        record(WallStudyDiagnostics::SOLVE_FAILURE);
         continue;
       }
       const su2double Tau_Wall = state.density * state.u_tau * state.u_tau;
       if (!WallFunctionModel::Finite(Tau_Wall) || Tau_Wall <= 0) {
         ++notConvergedCounter;
+        record(WallStudyDiagnostics::SOLVE_FAILURE);
         continue;
       }
       YPlus[iMarker][iVertex] = state.y_plus;
       if (state.y_plus < config->GetwallModel_MinYPlus()) {
         ++smallYPlusCounter;
+        record(WallStudyDiagnostics::LOW_SOLVED);
         continue;
       }
       EddyViscWall[iMarker][iVertex] = state.eddy_viscosity;
       UTau[iMarker][iVertex] = state.u_tau;
       nodes->SetTau_Wall(iPoint, Tau_Wall);
+      record(WallStudyDiagnostics::ACTIVE);
 
     }
     END_SU2_OMP_FOR
   }
+
+  wallStudy.WriteWall();
 
   InitiateComms(geometry, config, MPI_QUANTITIES::WALL_FUNCTION);
   CompleteComms(geometry, config, MPI_QUANTITIES::WALL_FUNCTION);

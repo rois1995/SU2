@@ -30,6 +30,7 @@
 #include "CFVMFlowSolverBase.hpp"
 #include "../variables/CEulerVariable.hpp"
 #include "../output/CTurboOutput.hpp"
+#include "WallStudyDiagnostics.hpp"
 
 /*!
  * \class CEulerSolver
@@ -39,6 +40,7 @@
  */
 class CEulerSolver : public CFVMFlowSolverBase<CEulerVariable, ENUM_REGIME::COMPRESSIBLE> {
 protected:
+  WallStudyDiagnostics wallStudy;
   using BaseClass = CFVMFlowSolverBase<CEulerVariable, ENUM_REGIME::COMPRESSIBLE>;
 
   su2double
@@ -344,6 +346,8 @@ protected:
   void SetReferenceValues(const CConfig& config) final;
 
 public:
+  void WriteBoundaryDiagnostics(const CConfig* config, unsigned short step) override;
+
   CEulerSolver() = delete;
 
   /*!

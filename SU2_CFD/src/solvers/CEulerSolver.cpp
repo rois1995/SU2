@@ -6381,6 +6381,10 @@ void CEulerSolver::PreprocessBC_Giles(CGeometry *geometry, CConfig *config, CNum
 
 }
 
+void CEulerSolver::WriteBoundaryDiagnostics(const CConfig* config, unsigned short step) {
+  wallStudy.WriteFlux(config->GetiZone(), MGLevel, rank, config->GetOuterIter(), config->GetInnerIter(), step);
+}
+
 void CEulerSolver::BC_Giles(CGeometry *geometry, CSolver **solver_container, CNumerics *conv_numerics,
                             CNumerics *visc_numerics, CConfig *config, unsigned short val_marker) {
   SU2_ZONE_SCOPED
@@ -7046,6 +7050,14 @@ void CEulerSolver::BC_Giles(CGeometry *geometry, CSolver **solver_container, CNu
       /*--- Compute the residual using an upwind scheme ---*/
 
       auto residual = conv_numerics->ComputeResidual(config);
+      if (wallStudy.Enabled() && geometry->nodes->GetDomain(iPoint)) {
+        if (omp_get_num_threads() != 1) SU2_MPI::Error("Wall diagnostics require one OpenMP thread", CURRENT_FUNCTION);
+        double values[5] = {0.0}, coord[3] = {0.0};
+        for (unsigned v=0; v<nVar; ++v) values[v]=SU2_TYPE::GetValue(residual[v]);
+        for (unsigned d=0; d<nDim; ++d) coord[d]=SU2_TYPE::GetValue(geometry->nodes->GetCoord(iPoint,d));
+        wallStudy.AddFlux(Marker_Tag, iSpan, false, nDim, values, coord,
+                          SU2_TYPE::GetValue(GeometryToolbox::Norm(nDim, Normal)));
+      }
 
       /*--- Update residual value ---*/
       LinSysRes.AddBlock(iPoint, residual);
@@ -7106,6 +7118,14 @@ void CEulerSolver::BC_Giles(CGeometry *geometry, CSolver **solver_container, CNu
         /*--- Compute and update residual ---*/
 
         auto residual = visc_numerics->ComputeResidual(config);
+        if (wallStudy.Enabled() && geometry->nodes->GetDomain(iPoint)) {
+          if (omp_get_num_threads() != 1) SU2_MPI::Error("Wall diagnostics require one OpenMP thread", CURRENT_FUNCTION);
+          double values[5] = {0.0}, coord[3] = {0.0};
+          for (unsigned v=0; v<nVar; ++v) values[v]=SU2_TYPE::GetValue(residual[v]);
+          for (unsigned d=0; d<nDim; ++d) coord[d]=SU2_TYPE::GetValue(geometry->nodes->GetCoord(iPoint,d));
+          wallStudy.AddFlux(Marker_Tag, iSpan, true, nDim, values, coord,
+                            SU2_TYPE::GetValue(GeometryToolbox::Norm(nDim, Normal)));
+        }
         LinSysRes.SubtractBlock(iPoint, residual);
 
         /*--- Jacobian contribution for implicit integration ---*/

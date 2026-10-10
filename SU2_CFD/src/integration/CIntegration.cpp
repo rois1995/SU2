@@ -194,6 +194,7 @@ void CIntegration::Space_Integration(CGeometry *geometry,
     else if (config->GetMarker_All_KindBC(iMarker)==EULER_WALL)
         solver_container[MainSolver]->BC_Euler_Wall(geometry, solver_container, conv_bound_numerics, visc_bound_numerics, config, iMarker);
   }
+  solver_container[MainSolver]->WriteBoundaryDiagnostics(config, iRKStep);
   //AD::ResumePreaccumulation(pausePreacc);
 
 }

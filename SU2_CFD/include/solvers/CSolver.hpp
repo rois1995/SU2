@@ -196,6 +196,8 @@ private:
 
 public:
 
+  virtual void WriteBoundaryDiagnostics(const CConfig*, unsigned short) {}
+
   CSysVector<su2double> LinSysSol;    /*!< \brief vector to store iterative solution of implicit linear system. */
   CSysVector<su2double> LinSysRes;    /*!< \brief vector to store iterative residual of implicit linear system. */
   CSysMatrix<su2mixedfloat> Jacobian; /*!< \brief Complete sparse Jacobian structure for implicit computations. */
