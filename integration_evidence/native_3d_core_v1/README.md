@@ -1,5 +1,11 @@
 # Native 3D Goal 1 checkpoints
 
+Latest routing work: [worker-communicator search checkpoint](WORKER_COMMUNICATOR_CHECKPOINT.md).
+Actual MPI1/2/4 and non-MPI controls pass; explicit M<N rank-box collectives
+leave inactive CFD ranks outside worker collectives. Existing default callers
+are preserved. Final evidence: `worker_field_controls_v2/validation.json` and
+`worker_field_controls_v2/serial_transport/validation.json`.
+
 Latest MPI work: [distributed dependency/publication checkpoint](DISTRIBUTED_CHECKPOINT.md).
 Actual MPI1/2/4 and explicit M<N mesh-record migration/return pass, with independent
 embedding/facet/marker/P1 audits and SU2 files in `distributed_controls_v3/mpi{1,2,4}_meshes`.

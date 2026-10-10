@@ -1,0 +1,151 @@
+{
+  "status": "PASS",
+  "base_commit": "f13a08be3eefa2db8e547c10c52569d552f92ad2",
+  "source_sha256": {
+    "Common/include/parallelization/CPassiveComm.hpp": "3069c912c03297a7c494eb679baf97cb5a038f0e3aefc98c92dd03f819b6cb87",
+    "Common/src/parallelization/CPassiveComm.cpp": "e3c5aa247515d7ee48cf1dcd8505b28102bb664df800c7cf8767c3f52a9679d0",
+    "Common/include/adaptation/CDistributedSearch.hpp": "b30ee04824f1c858ab6b48bf0b40d71577fcf47c53e6ab2583a6f50a87ea8ce7",
+    "Common/src/adaptation/CDistributedSearch.cpp": "cd13b7ff7864be86ad9181b8285b267209107b3409d7dc984b10f1c86c8f88fd",
+    "Common/include/parallelization/mpi_structure.hpp": "4d6a312284d5b2b61891e220e1d1a3a45143060d9187f3df69f6699d576d2b4a",
+    "Common/include/parallelization/mpi_structure.cpp": "30078341e15207039221f86538bf60345378ddc7f5dfd9399d12bf5284d8c9f5"
+  },
+  "final_source_sha256": {
+    "Common/include/parallelization/CPassiveComm.hpp": "3069c912c03297a7c494eb679baf97cb5a038f0e3aefc98c92dd03f819b6cb87",
+    "Common/src/parallelization/CPassiveComm.cpp": "e3c5aa247515d7ee48cf1dcd8505b28102bb664df800c7cf8767c3f52a9679d0",
+    "Common/include/adaptation/CDistributedSearch.hpp": "b30ee04824f1c858ab6b48bf0b40d71577fcf47c53e6ab2583a6f50a87ea8ce7",
+    "Common/src/adaptation/CDistributedSearch.cpp": "cd13b7ff7864be86ad9181b8285b267209107b3409d7dc984b10f1c86c8f88fd",
+    "Common/include/parallelization/mpi_structure.hpp": "4d6a312284d5b2b61891e220e1d1a3a45143060d9187f3df69f6699d576d2b4a",
+    "Common/include/parallelization/mpi_structure.cpp": "30078341e15207039221f86538bf60345378ddc7f5dfd9399d12bf5284d8c9f5"
+  },
+  "changed_during_run": [],
+  "stages": [
+    {
+      "stage": "compile_CPassiveComm",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "g++",
+        "-std=c++17",
+        "-O2",
+        "-I.",
+        "-Iexternals/eigen",
+        "-fno-fast-math",
+        "-fno-unsafe-math-optimizations",
+        "-ffp-contract=off",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-c",
+        "Common/src/parallelization/CPassiveComm.cpp",
+        "-o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/worker_field_controls_v2/serial_transport/CPassiveComm.o"
+      ],
+      "exit_code": 0,
+      "seconds": 2.7165179990115575
+    },
+    {
+      "stage": "compile_CDistributedSearch",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "g++",
+        "-std=c++17",
+        "-O2",
+        "-I.",
+        "-Iexternals/eigen",
+        "-fno-fast-math",
+        "-fno-unsafe-math-optimizations",
+        "-ffp-contract=off",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-c",
+        "Common/src/adaptation/CDistributedSearch.cpp",
+        "-o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/worker_field_controls_v2/serial_transport/CDistributedSearch.o"
+      ],
+      "exit_code": 0,
+      "seconds": 3.1348107309895568
+    },
+    {
+      "stage": "compile_mpi_structure",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "g++",
+        "-std=c++17",
+        "-O2",
+        "-I.",
+        "-Iexternals/eigen",
+        "-fno-fast-math",
+        "-fno-unsafe-math-optimizations",
+        "-ffp-contract=off",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-c",
+        "Common/include/parallelization/mpi_structure.cpp",
+        "-o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/worker_field_controls_v2/serial_transport/mpi_structure.o"
+      ],
+      "exit_code": 0,
+      "seconds": 0.5301047770190053
+    },
+    {
+      "stage": "link",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "g++",
+        "-std=c++17",
+        "-O2",
+        "-I.",
+        "-Iexternals/eigen",
+        "-fno-fast-math",
+        "-fno-unsafe-math-optimizations",
+        "-ffp-contract=off",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/worker_field_controls_v2/serial_transport/serial_transport.cpp",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/worker_field_controls_v2/serial_transport/CPassiveComm.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/worker_field_controls_v2/serial_transport/CDistributedSearch.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/worker_field_controls_v2/serial_transport/mpi_structure.o",
+        "-Wl,--gc-sections",
+        "-o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/worker_field_controls_v2/serial_transport/serial_transport"
+      ],
+      "exit_code": 0,
+      "seconds": 0.7587455079774372
+    },
+    {
+      "stage": "run",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/worker_field_controls_v2/serial_transport/serial_transport"
+      ],
+      "exit_code": 0,
+      "seconds": 0.0038745179772377014
+    }
+  ],
+  "scope": "Actual non-MPI house passive gather and rank-box objects, default/explicit communicator, empty sends and 2D/3D controls; no full SU2 CFD regression.",
+  "artifact_sha256": {
+    "compile_CPassiveComm.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "link.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "before_processes.txt": "73b247e152c65f1d4ca4dce41854b29d37fc8d479a62d6744fa58d9ad1e4958a",
+    "compile_mpi_structure.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compile_mpi_structure.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "before_memory.txt": "d9616ac47cb6eee2c46126253bfab9642cda9cfae940adeadef55b82c24de32a",
+    "link.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "serial_transport.cpp": "aab4d32012ab801b52a383cd114ec813d522367830c46a9332406a4ef6b1ef5c",
+    "run.stdout": "dda60129df8f07043f7765e24e748c038d57428051cf2a44eb178f30f0a515cc",
+    "before_load.txt": "b55b432fab1d317589dd67fae70c112c5ffa863c6c072f8625380e404921f754",
+    "compile_CDistributedSearch.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compile_CPassiveComm.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compile_CDistributedSearch.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "binary_sha256": "062b8e8158f451c35af7a9e97bcfa274c3f86f64f7a973682e7898c7ffb939d4"
+}

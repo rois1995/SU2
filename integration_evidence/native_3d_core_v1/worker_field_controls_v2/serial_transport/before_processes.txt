@@ -1,0 +1,448 @@
+    PID    PPID %CPU %MEM COMMAND         COMMAND
+1615422 1615408 31.0  0.0 python3         /usr/bin/python3 -m mpi4py FSI.py --parallel -f Unsteady_SecondOrder.cfg
+1615423 1615408 31.0  0.0 python3         /usr/bin/python3 -m mpi4py FSI.py --parallel -f Unsteady_SecondOrder.cfg
+1615424 1615408 31.0  0.0 python3         /usr/bin/python3 -m mpi4py FSI.py --parallel -f Unsteady_SecondOrder.cfg
+1615425 1615408 30.0  0.0 python3         /usr/bin/python3 -m mpi4py FSI.py --parallel -f Unsteady_SecondOrder.cfg
+ 350820  350756 15.1  0.7 code            /usr/share/code/code --type=zygote
+ 350828  350756 11.8  0.7 code            /usr/share/code/code --type=zygote
+ 350786  350753  5.8  0.2 code            /usr/share/code/code --type=zygote --no-zygote-sandbox
+ 351252  350749  4.0  0.2 code            /proc/self/exe --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --js-flags=--nodecommit_pooled_pages --crashpad-handler-pid=350771 --enable-crash-reporter=b056c165-a836-45a2-bcb4-7c8225dfb985,no_channel --user-data-dir=/home/rausa/.config/Code --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,10439586669742760447,3338536617065741096,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EstablishGpuChannelAsync --disable-features=CalculateNativeWinOcclusion,LocalNetworkAccessChecks,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190708995682289984
+   1362    1328  3.9  0.2 Xorg            /usr/lib/xorg/Xorg :0 vt07 -nolisten tcp -novtswitch -auth /var/run/lxdm/lxdm-:0.auth
+ 350621    2747  3.3  0.5 gnome-shell     /usr/bin/gnome-shell
+ 350836  350756  2.8  0.3 code            /usr/share/code/code --type=zygote
+ 435086    2747  2.3  1.0 firefox         /usr/lib/firefox/firefox -new-window
+   2754    2747  2.2  0.0 pulseaudio      /usr/bin/pulseaudio --daemonize=no --log-target=journal
+ 351433  350749  2.1  0.2 code            /proc/self/exe --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --js-flags=--nodecommit_pooled_pages --crashpad-handler-pid=350771 --enable-crash-reporter=b056c165-a836-45a2-bcb4-7c8225dfb985,no_channel --user-data-dir=/home/rausa/.config/Code --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,10439586669742760447,3338536617065741096,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EstablishGpuChannelAsync --disable-features=CalculateNativeWinOcclusion,LocalNetworkAccessChecks,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190709002241582927
+1615408 1525718  2.0  0.0 mpirun          mpirun -n 4 /usr/bin/python3 -m mpi4py FSI.py --parallel -f Unsteady_SecondOrder.cfg
+ 351316  350749  1.7  0.9 code            /proc/self/exe --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --dns-result-order=ipv4first --experimental-network-inspection --inspect-port=0 --js-flags=--nodecommit_pooled_pages --crashpad-handler-pid=350771 --enable-crash-reporter=b056c165-a836-45a2-bcb4-7c8225dfb985,no_channel --user-data-dir=/home/rausa/.config/Code --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,10439586669742760447,3338536617065741096,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EstablishGpuChannelAsync --disable-features=CalculateNativeWinOcclusion,LocalNetworkAccessChecks,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190708998493415531
+ 440883  435086  1.6  1.0 Isolated Web Co /usr/lib/firefox/firefox -contentproc -isForBrowser -prefsHandle 0 -prefsLen 41302 -prefMapHandle 1 -prefMapSize 270593 -jsInitHandle 2 -jsInitLen 247456 -parentBuildID 20250227124745 -sandboxReporter 3 -chrootClient 4 -ipcHandle 5 -initialChannelId {c8cbd849-ec94-4ecd-a930-3e327633feca} -parentPid 435086 -crashReporter 6 -greomni /usr/lib/firefox/omni.ja -appomni /usr/lib/firefox/browser/omni.ja -appDir /usr/lib/firefox/browser 11 tab
+ 350844  350756  1.5  0.3 code            /usr/share/code/code --type=zygote
+ 578687  350756  1.2  0.3 code            /usr/share/code/code --type=zygote
+ 579097  578758  1.0  0.5 kilo            /home/rausa/.vscode/extensions/kilocode.kilo-code-7.8.8-linux-x64/bin/kilo serve --port 0
+1615441 2228232  1.0  0.0 bash            /bin/bash -lc python3 - <<'PY' import pathlib,subprocess,json,hashlib,time,os root=pathlib.Path.cwd();out=root/'integration_evidence/native_3d_core_v1/worker_field_controls_v2/serial_transport';out.mkdir() print('Case working and retained folder:',out,flush=True) files=['Common/include/parallelization/CPassiveComm.hpp','Common/src/parallelization/CPassiveComm.cpp','Common/include/adaptation/CDistributedSearch.hpp','Common/src/adaptation/CDistributedSearch.cpp','Common/include/parallelization/mpi_structure.hpp','Common/include/parallelization/mpi_structure.cpp'] sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest() initial={f:sha(root/f) for f in files};stages=[] (out/'serial_transport.cpp').write_bytes((out.parent.parent/'worker_field_controls_v1/serial_transport/serial_transport.cpp').read_bytes()) env=dict(os.environ,OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1') for name,cmd in [('before_load',['uptime']),('before_memory',['free','-m']),('before_processes',['ps','-eo','pid,ppid,pcpu,pmem,comm,args','--sort=-pcpu'])]:  (out/(name+'.txt')).write_bytes(subprocess.check_output(cmd)) flags=['nice','-n','19','g++','-std=c++17','-O2','-I.','-Iexternals/eigen','-fno-fast-math','-fno-unsafe-math-optimizations','-ffp-contract=off','-ffunction-sections','-fdata-sections'] commands=[('compile_'+pathlib.Path(f).stem,flags+['-c',f,'-o',str(out/(pathlib.Path(f).stem+'.o'))]) for f in files if f.endswith('.cpp')] commands.append(('link',flags+[str(out/'serial_transport.cpp')]+[str(out/(pathlib.Path(f).stem+'.o')) for f in files if f.endswith('.cpp')]+['-Wl,--gc-sections','-o',str(out/'serial_transport')])) commands.append(('run',['nice','-n','19',str(out/'serial_transport')])) status='PASS' try:  for name,cmd in commands:   print('Starting',name,flush=True);t=time.monotonic()   with (out/(name+'.stdout')).open('wb') as stdout,(out/(name+'.stderr')).open('wb') as stderr:    r=subprocess.run(cmd,stdout=stdout,stderr=stderr,env=env)   stages.append({'stage':name,'command':cmd,'exit_code':r.returncode,'seconds':time.monotonic()-t})   if r.returncode: status='FAIL';break finally:  final={f:sha(root/f) for f in files};changed=[f for f in files if initial[f]!=final[f]]  if changed:status='FAIL'  receipt={'status':status,'base_commit':subprocess.check_output(['git','rev-parse','HEAD']).decode().strip(),'source_sha256':initial,'final_source_sha256':final,'changed_during_run':changed,'stages':stages,'scope':'Actual non-MPI house passive gather and rank-box objects, default/explicit communicator, empty sends and 2D/3D controls; no full SU2 CFD regression.','artifact_sha256':{p.name:sha(p) for p in out.iterdir() if p.suffix in ['.cpp','.txt','.stdout','.stderr']},'binary_sha256':sha(out/'serial_transport') if (out/'serial_transport').exists() else None}  (out/'validation.json').write_text(json.dumps(receipt,indent=2)+'\n') print(status,flush=True) raise SystemExit(0 if status=='PASS' else 1) PY
+ 350749  350621  0.9  0.9 code            /usr/share/code/code
+ 351317  350749  0.9  0.8 code            /proc/self/exe --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --dns-result-order=ipv4first --experimental-network-inspection --inspect-port=0 --js-flags=--nodecommit_pooled_pages --crashpad-handler-pid=350771 --enable-crash-reporter=b056c165-a836-45a2-bcb4-7c8225dfb985,no_channel --user-data-dir=/home/rausa/.config/Code --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,10439586669742760447,3338536617065741096,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EstablishGpuChannelAsync --disable-features=CalculateNativeWinOcclusion,LocalNetworkAccessChecks,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190708999430457380
+ 357242  357231  0.9  0.3 codex           /home/rausa/.nvm/versions/node/v22.22.2/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/bin/codex
+   1920    1919  0.7  0.1 x11vnc          /usr/bin/x11vnc -localhost -nevershared -forever -nolookup -loop -nopw -no6 -auth guess -display :0 -xkb
+ 350721  350621  0.7  0.0 lxtask          lxtask
+ 351349  350749  0.7  0.8 code            /proc/self/exe --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --dns-result-order=ipv4first --experimental-network-inspection --inspect-port=0 --js-flags=--nodecommit_pooled_pages --crashpad-handler-pid=350771 --enable-crash-reporter=b056c165-a836-45a2-bcb4-7c8225dfb985,no_channel --user-data-dir=/home/rausa/.config/Code --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,10439586669742760447,3338536617065741096,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EstablishGpuChannelAsync --disable-features=CalculateNativeWinOcclusion,LocalNetworkAccessChecks,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190709001304541078
+ 364523  364512  0.7  0.4 codex           /home/rausa/.nvm/versions/node/v22.22.2/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/bin/codex
+ 386113  353882  0.7  0.5 claude          claude
+2228232    6032  0.7  0.7 codex           /home/rausa/.codex/packages/app-server-daemon/releases/0.162.1-x86_64-unknown-linux-musl/bin/codex app-server --listen unix:// --analytics-default-enabled --managed-daemon
+1606248       2  0.6  0.0 kworker/3:0-eve [kworker/3:0-events]
+   7663    2747  0.4  0.1 gnome-terminal- /usr/libexec/gnome-terminal-server
+ 479209  435086  0.4  1.0 Isolated Web Co /usr/lib/firefox/firefox -contentproc -isForBrowser -prefsHandle 0 -prefsLen 41354 -prefMapHandle 1 -prefMapSize 270593 -jsInitHandle 2 -jsInitLen 247456 -parentBuildID 20250227124745 -sandboxReporter 3 -chrootClient 4 -ipcHandle 5 -initialChannelId {462d9f2c-c3e9-4862-be60-8328027eadfd} -parentPid 435086 -crashReporter 6 -greomni /usr/lib/firefox/omni.ja -appomni /usr/lib/firefox/browser/omni.ja -appDir /usr/lib/firefox/browser 16 tab
+ 492768  435086  0.4  0.9 Isolated Web Co /usr/lib/firefox/firefox -contentproc -isForBrowser -prefsHandle 0 -prefsLen 41354 -prefMapHandle 1 -prefMapSize 270593 -jsInitHandle 2 -jsInitLen 247456 -parentBuildID 20250227124745 -sandboxReporter 3 -chrootClient 4 -ipcHandle 5 -initialChannelId {b8bc92af-7886-4345-94a2-aca37d13a362} -parentPid 435086 -crashReporter 6 -greomni /usr/lib/firefox/omni.ja -appomni /usr/lib/firefox/browser/omni.ja -appDir /usr/lib/firefox/browser 18 tab
+ 351334  350749  0.3  1.0 code            /proc/self/exe --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --dns-result-order=ipv4first --experimental-network-inspection --inspect-port=0 --js-flags=--nodecommit_pooled_pages --crashpad-handler-pid=350771 --enable-crash-reporter=b056c165-a836-45a2-bcb4-7c8225dfb985,no_channel --user-data-dir=/home/rausa/.config/Code --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,10439586669742760447,3338536617065741096,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EstablishGpuChannelAsync --disable-features=CalculateNativeWinOcclusion,LocalNetworkAccessChecks,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190709000367499229
+ 460577  435086  0.3  1.1 Isolated Web Co /usr/lib/firefox/firefox -contentproc -isForBrowser -prefsHandle 0 -prefsLen 41302 -prefMapHandle 1 -prefMapSize 270593 -jsInitHandle 2 -jsInitLen 247456 -parentBuildID 20250227124745 -sandboxReporter 3 -chrootClient 4 -ipcHandle 5 -initialChannelId {57dac479-2257-470d-83c7-b86ca46325a6} -parentPid 435086 -crashReporter 6 -greomni /usr/lib/firefox/omni.ja -appomni /usr/lib/firefox/browser/omni.ja -appDir /usr/lib/firefox/browser 14 tab
+ 479201  435086  0.3  1.0 Isolated Web Co /usr/lib/firefox/firefox -contentproc -isForBrowser -prefsHandle 0 -prefsLen 41354 -prefMapHandle 1 -prefMapSize 270593 -jsInitHandle 2 -jsInitLen 247456 -parentBuildID 20250227124745 -sandboxReporter 3 -chrootClient 4 -ipcHandle 5 -initialChannelId {6d4bae94-0f16-4aea-b8c0-38d49e03250a} -parentPid 435086 -crashReporter 6 -greomni /usr/lib/firefox/omni.ja -appomni /usr/lib/firefox/browser/omni.ja -appDir /usr/lib/firefox/browser 15 tab
+ 578758  350749  0.3  0.7 code            /proc/self/exe --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --dns-result-order=ipv4first --experimental-network-inspection --inspect-port=0 --js-flags=--nodecommit_pooled_pages --crashpad-handler-pid=350771 --enable-crash-reporter=b056c165-a836-45a2-bcb4-7c8225dfb985,no_channel --user-data-dir=/home/rausa/.config/Code --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,10439586669742760447,3338536617065741096,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EstablishGpuChannelAsync --disable-features=CalculateNativeWinOcclusion,LocalNetworkAccessChecks,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190709005052708474
+1590671       2  0.3  0.0 kworker/3:1-eve [kworker/3:1-events]
+ 351268  350749  0.2  0.1 code            /proc/self/exe --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --js-flags=--nodecommit_pooled_pages --crashpad-handler-pid=350771 --enable-crash-reporter=b056c165-a836-45a2-bcb4-7c8225dfb985,no_channel --user-data-dir=/home/rausa/.config/Code --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,10439586669742760447,3338536617065741096,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EstablishGpuChannelAsync --disable-features=CalculateNativeWinOcclusion,LocalNetworkAccessChecks,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190708997556373682
+ 353782  353774  0.2  0.2 codex           /home/rausa/.nvm/versions/node/v22.22.2/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/bin/codex
+ 435336  435086  0.2  0.8 WebExtensions   /usr/lib/firefox/firefox -contentproc -isForBrowser -prefsHandle 0 -prefsLen 52742 -prefMapHandle 1 -prefMapSize 270593 -jsInitHandle 2 -jsInitLen 247456 -parentBuildID 20250227124745 -sandboxReporter 3 -chrootClient 4 -ipcHandle 5 -initialChannelId {d746b503-a2ce-437a-861c-4cb497df617d} -parentPid 435086 -crashReporter 6 -greomni /usr/lib/firefox/omni.ja -appomni /usr/lib/firefox/browser/omni.ja -appDir /usr/lib/firefox/browser 4 tab
+ 479533  435086  0.2  1.0 Isolated Web Co /usr/lib/firefox/firefox -contentproc -isForBrowser -prefsHandle 0 -prefsLen 41354 -prefMapHandle 1 -prefMapSize 270593 -jsInitHandle 2 -jsInitLen 247456 -parentBuildID 20250227124745 -sandboxReporter 3 -chrootClient 4 -ipcHandle 5 -initialChannelId {80582cda-5c03-4d1b-a11f-7472c0a561db} -parentPid 435086 -crashReporter 6 -greomni /usr/lib/firefox/omni.ja -appomni /usr/lib/firefox/browser/omni.ja -appDir /usr/lib/firefox/browser 17 tab
+ 953268  953261  0.2  0.1 codex           /home/rausa/.nvm/versions/node/v22.22.2/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/bin/codex
+1575481       2  0.2  0.0 kworker/3:2-eve [kworker/3:2-events]
+     58       2  0.1  0.0 ksoftirqd/7     [ksoftirqd/7]
+     67       2  0.1  0.0 kcompactd0      [kcompactd0]
+   3249    2965  0.1  0.0 MathWorksServic /home/rausa/.MathWorks/ServiceHost/-mw_shared_installs/v2026.10.1.1/bin/glnxa64/MathWorksServiceHost service --realm-id companion@prod@production
+   3698    3249  0.1  0.0 MathWorksServic /home/rausa/.MathWorks/ServiceHost/-mw_shared_installs/v2026.10.1.1/bin/glnxa64/MathWorksServiceHost-Monitor --client-id 3249 --realm-id companion@prod@production --lifetime-token 53 -1
+ 351247  350749  0.1  0.3 code            /proc/self/exe --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --js-flags=--nodecommit_pooled_pages --crashpad-handler-pid=350771 --enable-crash-reporter=b056c165-a836-45a2-bcb4-7c8225dfb985,no_channel --user-data-dir=/home/rausa/.config/Code --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,10439586669742760447,3338536617065741096,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EstablishGpuChannelAsync --disable-features=CalculateNativeWinOcclusion,LocalNetworkAccessChecks,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190708994745248135
+ 435219  435086  0.1  0.3 Privileged Cont /usr/lib/firefox/firefox -contentproc -isForBrowser -prefsHandle 0 -prefsLen 44816 -prefMapHandle 1 -prefMapSize 270593 -jsInitHandle 2 -jsInitLen 247456 -parentBuildID 20250227124745 -sandboxReporter 3 -chrootClient 4 -ipcHandle 5 -initialChannelId {bde30ae1-e0fe-4c2e-b60f-41c902371afe} -parentPid 435086 -crashReporter 6 -greomni /usr/lib/firefox/omni.ja -appomni /usr/lib/firefox/browser/omni.ja -appDir /usr/lib/firefox/browser 2 tab
+ 435533  435086  0.1  0.4 Isolated Web Co /usr/lib/firefox/firefox -contentproc -isForBrowser -prefsHandle 0 -prefsLen 41145 -prefMapHandle 1 -prefMapSize 270593 -jsInitHandle 2 -jsInitLen 247456 -parentBuildID 20250227124745 -sandboxReporter 3 -chrootClient 4 -ipcHandle 5 -initialChannelId {29274beb-2c1e-486c-a858-dd76601db770} -parentPid 435086 -crashReporter 6 -greomni /usr/lib/firefox/omni.ja -appomni /usr/lib/firefox/browser/omni.ja -appDir /usr/lib/firefox/browser 7 tab
+ 943908  350756  0.1  0.1 code            /usr/share/code/code --type=zygote
+1525718  444879  0.1  0.0 RunCase_Unstead /bin/bash ./RunCase_UnsteadyAdaptation.sh
+      1       0  0.0  0.0 systemd         /sbin/init
+      2       0  0.0  0.0 kthreadd        [kthreadd]
+      3       2  0.0  0.0 rcu_gp          [rcu_gp]
+      4       2  0.0  0.0 rcu_par_gp      [rcu_par_gp]
+      5       2  0.0  0.0 slub_flushwq    [slub_flushwq]
+      6       2  0.0  0.0 netns           [netns]
+      8       2  0.0  0.0 kworker/0:0H-ev [kworker/0:0H-events_highpri]
+     10       2  0.0  0.0 mm_percpu_wq    [mm_percpu_wq]
+     11       2  0.0  0.0 rcu_tasks_rude_ [rcu_tasks_rude_]
+     12       2  0.0  0.0 rcu_tasks_trace [rcu_tasks_trace]
+     13       2  0.0  0.0 ksoftirqd/0     [ksoftirqd/0]
+     14       2  0.0  0.0 rcu_sched       [rcu_sched]
+     15       2  0.0  0.0 migration/0     [migration/0]
+     16       2  0.0  0.0 idle_inject/0   [idle_inject/0]
+     18       2  0.0  0.0 cpuhp/0         [cpuhp/0]
+     19       2  0.0  0.0 cpuhp/1         [cpuhp/1]
+     20       2  0.0  0.0 idle_inject/1   [idle_inject/1]
+     21       2  0.0  0.0 migration/1     [migration/1]
+     22       2  0.0  0.0 ksoftirqd/1     [ksoftirqd/1]
+     24       2  0.0  0.0 kworker/1:0H-ev [kworker/1:0H-events_highpri]
+     25       2  0.0  0.0 cpuhp/2         [cpuhp/2]
+     26       2  0.0  0.0 idle_inject/2   [idle_inject/2]
+     27       2  0.0  0.0 migration/2     [migration/2]
+     28       2  0.0  0.0 ksoftirqd/2     [ksoftirqd/2]
+     30       2  0.0  0.0 kworker/2:0H-ev [kworker/2:0H-events_highpri]
+     31       2  0.0  0.0 cpuhp/3         [cpuhp/3]
+     32       2  0.0  0.0 idle_inject/3   [idle_inject/3]
+     33       2  0.0  0.0 migration/3     [migration/3]
+     34       2  0.0  0.0 ksoftirqd/3     [ksoftirqd/3]
+     36       2  0.0  0.0 kworker/3:0H-ev [kworker/3:0H-events_highpri]
+     37       2  0.0  0.0 cpuhp/4         [cpuhp/4]
+     38       2  0.0  0.0 idle_inject/4   [idle_inject/4]
+     39       2  0.0  0.0 migration/4     [migration/4]
+     40       2  0.0  0.0 ksoftirqd/4     [ksoftirqd/4]
+     42       2  0.0  0.0 kworker/4:0H-ev [kworker/4:0H-events_highpri]
+     43       2  0.0  0.0 cpuhp/5         [cpuhp/5]
+     44       2  0.0  0.0 idle_inject/5   [idle_inject/5]
+     45       2  0.0  0.0 migration/5     [migration/5]
+     46       2  0.0  0.0 ksoftirqd/5     [ksoftirqd/5]
+     48       2  0.0  0.0 kworker/5:0H-ev [kworker/5:0H-events_highpri]
+     49       2  0.0  0.0 cpuhp/6         [cpuhp/6]
+     50       2  0.0  0.0 idle_inject/6   [idle_inject/6]
+     51       2  0.0  0.0 migration/6     [migration/6]
+     52       2  0.0  0.0 ksoftirqd/6     [ksoftirqd/6]
+     54       2  0.0  0.0 kworker/6:0H-ev [kworker/6:0H-events_highpri]
+     55       2  0.0  0.0 cpuhp/7         [cpuhp/7]
+     56       2  0.0  0.0 idle_inject/7   [idle_inject/7]
+     57       2  0.0  0.0 migration/7     [migration/7]
+     60       2  0.0  0.0 kworker/7:0H-ev [kworker/7:0H-events_highpri]
+     61       2  0.0  0.0 kdevtmpfs       [kdevtmpfs]
+     62       2  0.0  0.0 inet_frag_wq    [inet_frag_wq]
+     63       2  0.0  0.0 kauditd         [kauditd]
+     64       2  0.0  0.0 khungtaskd      [khungtaskd]
+     65       2  0.0  0.0 oom_reaper      [oom_reaper]
+     66       2  0.0  0.0 writeback       [writeback]
+     68       2  0.0  0.0 ksmd            [ksmd]
+     69       2  0.0  0.0 khugepaged      [khugepaged]
+    116       2  0.0  0.0 kintegrityd     [kintegrityd]
+    117       2  0.0  0.0 kblockd         [kblockd]
+    118       2  0.0  0.0 blkcg_punt_bio  [blkcg_punt_bio]
+    119       2  0.0  0.0 tpm_dev_wq      [tpm_dev_wq]
+    120       2  0.0  0.0 ata_sff         [ata_sff]
+    121       2  0.0  0.0 md              [md]
+    122       2  0.0  0.0 edac-poller     [edac-poller]
+    123       2  0.0  0.0 devfreq_wq      [devfreq_wq]
+    124       2  0.0  0.0 watchdogd       [watchdogd]
+    127       2  0.0  0.0 kworker/0:1H-ev [kworker/0:1H-events_highpri]
+    129       2  0.0  0.0 kswapd0         [kswapd0]
+    130       2  0.0  0.0 ecryptfs-kthrea [ecryptfs-kthrea]
+    133       2  0.0  0.0 kthrotld        [kthrotld]
+    134       2  0.0  0.0 irq/122-aerdrv  [irq/122-aerdrv]
+    135       2  0.0  0.0 irq/122-pcie-dp [irq/122-pcie-dp]
+    140       2  0.0  0.0 acpi_thermal_pm [acpi_thermal_pm]
+    142       2  0.0  0.0 vfio-irqfd-clea [vfio-irqfd-clea]
+    143       2  0.0  0.0 mld             [mld]
+    144       2  0.0  0.0 kworker/1:1H-ev [kworker/1:1H-events_highpri]
+    145       2  0.0  0.0 ipv6_addrconf   [ipv6_addrconf]
+    155       2  0.0  0.0 kstrp           [kstrp]
+    158       2  0.0  0.0 zswap-shrink    [zswap-shrink]
+    159       2  0.0  0.0 kworker/u17:0+i [kworker/u17:0+i915_flip]
+    166       2  0.0  0.0 charger_manager [charger_manager]
+    188       2  0.0  0.0 kworker/5:1H-ev [kworker/5:1H-events_highpri]
+    224       2  0.0  0.0 nvme-wq         [nvme-wq]
+    225       2  0.0  0.0 nvme-reset-wq   [nvme-reset-wq]
+    226       2  0.0  0.0 nvme-delete-wq  [nvme-delete-wq]
+    230       2  0.0  0.0 kworker/6:1H-ev [kworker/6:1H-events_highpri]
+    232       2  0.0  0.0 kworker/7:1H-ev [kworker/7:1H-events_highpri]
+    237       2  0.0  0.0 kworker/4:1H-ev [kworker/4:1H-events_highpri]
+    254       2  0.0  0.0 scsi_eh_0       [scsi_eh_0]
+    255       2  0.0  0.0 scsi_tmf_0      [scsi_tmf_0]
+    256       2  0.0  0.0 scsi_eh_1       [scsi_eh_1]
+    257       2  0.0  0.0 scsi_tmf_1      [scsi_tmf_1]
+    258       2  0.0  0.0 scsi_eh_2       [scsi_eh_2]
+    259       2  0.0  0.0 scsi_tmf_2      [scsi_tmf_2]
+    260       2  0.0  0.0 scsi_eh_3       [scsi_eh_3]
+    261       2  0.0  0.0 scsi_tmf_3      [scsi_tmf_3]
+    267       2  0.0  0.0 kworker/2:1H-ev [kworker/2:1H-events_highpri]
+    269       2  0.0  0.0 kworker/3:1H-ev [kworker/3:1H-events_highpri]
+    303       2  0.0  0.0 scsi_eh_4       [scsi_eh_4]
+    304       2  0.0  0.0 scsi_tmf_4      [scsi_tmf_4]
+    305       2  0.0  0.0 usb-storage     [usb-storage]
+    306       2  0.0  0.0 uas             [uas]
+    307       2  0.0  0.0 scsi_eh_5       [scsi_eh_5]
+    308       2  0.0  0.0 scsi_tmf_5      [scsi_tmf_5]
+    358       2  0.0  0.0 jbd2/nvme0n1p6- [jbd2/nvme0n1p6-]
+    359       2  0.0  0.0 ext4-rsv-conver [ext4-rsv-conver]
+    400       1  0.0  0.1 systemd-journal /lib/systemd/systemd-journald
+    490       1  0.0  0.0 systemd-udevd   /lib/systemd/systemd-udevd
+    545       2  0.0  0.0 irq/135-mei_me  [irq/135-mei_me]
+    603       2  0.0  0.0 cryptd          [cryptd]
+    665       2  0.0  0.0 USBC000:00-con0 [USBC000:00-con0]
+    706       2  0.0  0.0 USBC000:00-con0 [USBC000:00-con0]
+    707       2  0.0  0.0 card0-crtc0     [card0-crtc0]
+    708       2  0.0  0.0 card0-crtc1     [card0-crtc1]
+    709       2  0.0  0.0 card0-crtc2     [card0-crtc2]
+   1038       2  0.0  0.0 jbd2/nvme0n1p7- [jbd2/nvme0n1p7-]
+   1039       2  0.0  0.0 ext4-rsv-conver [ext4-rsv-conver]
+   1138       1  0.0  0.0 systemd-resolve /lib/systemd/systemd-resolved
+   1139       1  0.0  0.0 systemd-timesyn /lib/systemd/systemd-timesyncd
+   1144       1  0.0  0.0 accounts-daemon /usr/lib/accountsservice/accounts-daemon
+   1145       1  0.0  0.0 acpid           /usr/sbin/acpid
+   1152       1  0.0  0.0 avahi-daemon    avahi-daemon: running [pc-rausa.local]
+   1154       1  0.0  0.0 cron            /usr/sbin/cron -f
+   1156       1  0.0  0.0 dbus-daemon     /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only
+   1157       1  0.0  0.0 NetworkManager  /usr/sbin/NetworkManager --no-daemon
+   1165       1  0.0  0.0 irqbalance      /usr/sbin/irqbalance --foreground
+   1171       1  0.0  0.0 networkd-dispat /usr/bin/python3 /usr/bin/networkd-dispatcher --run-startup-triggers
+   1178       1  0.0  0.0 polkitd         /usr/lib/policykit-1/polkitd --no-debug
+   1184       1  0.0  0.0 rsyslogd        /usr/sbin/rsyslogd -n -iNONE
+   1189       1  0.0  0.0 smartd          /usr/sbin/smartd -n
+   1193       1  0.0  0.0 snapd           /usr/lib/snapd/snapd
+   1201       1  0.0  0.0 switcheroo-cont /usr/libexec/switcheroo-control
+   1202       1  0.0  0.0 systemd-logind  /lib/systemd/systemd-logind
+   1203       1  0.0  0.0 thermald        /usr/sbin/thermald --systemd --dbus-enable --adaptive
+   1204       1  0.0  0.0 udisksd         /usr/lib/udisks2/udisksd
+   1210       1  0.0  0.0 wpa_supplicant  /sbin/wpa_supplicant -u -s -O /run/wpa_supplicant
+   1222       1  0.0  0.0 atd             /usr/sbin/atd -f
+   1230    1152  0.0  0.0 avahi-daemon    avahi-daemon: chroot helper
+   1243       1  0.0  0.0 ModemManager    /usr/sbin/ModemManager
+   1269       1  0.0  0.0 colord          /usr/libexec/colord
+   1292       1  0.0  0.0 rlm             /opt/SolidSQUAD_License_Servers/Bin/rlm -c /opt/SolidSQUAD_License_Servers/Licenses/rlm_SSQ.lic -dlog /opt/SolidSQUAD_License_Servers/Logs/rlm.log -nows -noudp
+   1293       1  0.0  0.0 run-cups-browse /bin/sh /snap/cups/1262/scripts/run-cups-browsed
+   1294       1  0.0  0.0 run-cupsd       /bin/sh /snap/cups/1262/scripts/run-cupsd
+   1308       1  0.0  0.0 winbindd        /usr/sbin/winbindd --foreground --no-process-group
+   1314       1  0.0  0.0 containerd      /usr/bin/containerd
+   1324    1292  0.0  0.0 rlm             /opt/SolidSQUAD_License_Servers/Bin/rlm -g pwid /opt/SolidSQUAD_License_Servers/Bin/pwid.set -s 4 -p "/opt/SolidSQUAD_License_Servers/Bin"
+   1328       1  0.0  0.0 lxdm-binary     /usr/sbin/lxdm-binary
+   1344       1  0.0  0.0 sshd            sshd: /usr/sbin/sshd -D [listener] 0 of 10-100 startups
+   1369       1  0.0  0.0 agetty          /sbin/agetty -o -p -- \u --noclear tty1 linux
+   1390    1308  0.0  0.0 winbindd        winbindd: domain child [PC-RAUSA]
+   1477       1  0.0  0.0 unattended-upgr /usr/bin/python3 /usr/share/unattended-upgrades/unattended-upgrade-shutdown --wait-for-signal
+   1577    1294  0.0  0.0 cupsd           cupsd -f -s /var/snap/cups/common/etc/cups/cups-files.conf -c /var/snap/cups/common/etc/cups/cupsd.conf
+   1578    1294  0.0  0.0 cups-proxyd     cups-proxyd /var/snap/cups/common/run/cups.sock /run/cups/cups.sock -l --logdir /var/snap/cups/1262/var/log
+   1585    1293  0.0  0.0 run-cups-browse /bin/sh /snap/cups/1262/scripts/run-cups-browsed
+   1616       1  0.0  0.0 dockerd         /usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
+   1620       1  0.0  0.0 whoopsie        /usr/bin/whoopsie -f
+   1629       1  0.0  0.0 kerneloops      /usr/sbin/kerneloops --test
+   1638       1  0.0  0.0 kerneloops      /usr/sbin/kerneloops
+   1644       1  0.0  0.0 xfstt           /usr/bin/xfstt --daemon --notcp
+   1680       2  0.0  0.0 bpfilter_umh    bpfilter_umh
+   1919       1  0.0  0.0 x11vnc          /usr/bin/x11vnc -localhost -nevershared -forever -nolookup -loop -nopw -no6 -auth guess -display :0 -xkb
+   2747       1  0.0  0.0 systemd         /lib/systemd/systemd --user
+   2748    2747  0.0  0.0 (sd-pam)        (sd-pam)
+   2757    2747  0.0  0.0 ctxcwalogd      /home/rausa/ICAClient/linuxx64/util/ctxcwalogd
+   2775       1  0.0  0.0 rtkit-daemon    /usr/libexec/rtkit-daemon
+   2855    2747  0.0  0.0 dbus-daemon     /usr/bin/dbus-daemon --session --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only
+   2866    1328  0.0  0.0 lxdm-session    /usr/lib/lxdm/lxdm-session
+   2869       1  0.0  0.0 gnome-keyring-d /usr/bin/gnome-keyring-daemon --daemonize --login
+   2872    2866  0.0  0.0 gnome-session-b /usr/libexec/gnome-session-binary --systemd --systemd --session=ubuntu
+   2926    2872  0.0  0.0 ssh-agent       /usr/bin/ssh-agent /usr/bin/im-launch env GNOME_SHELL_SESSION_MODE=ubuntu /usr/bin/gnome-session --systemd --session=ubuntu
+   2945    2747  0.0  0.0 at-spi-bus-laun /usr/libexec/at-spi-bus-launcher
+   2950    2945  0.0  0.0 dbus-daemon     /usr/bin/dbus-daemon --config-file=/usr/share/defaults/at-spi2/accessibility.conf --nofork --print-address 3
+   2958    2747  0.0  0.0 gnome-session-c /usr/libexec/gnome-session-ctl --monitor
+   2965    2747  0.0  0.0 gnome-session-b /usr/libexec/gnome-session-binary --systemd-service --session=ubuntu
+   2997    2747  0.0  0.0 gvfsd           /usr/libexec/gvfsd
+   3002    2747  0.0  0.0 gvfsd-fuse      /usr/libexec/gvfsd-fuse /run/user/1000/gvfs -f -o big_writes
+   3041    2747  0.0  0.0 at-spi2-registr /usr/libexec/at-spi2-registryd --use-gnome-session
+   3045    2747  0.0  0.0 xdg-permission- /usr/libexec/xdg-permission-store
+   3047    2747  0.0  0.0 gnome-shell-cal /usr/libexec/gnome-shell-calendar-server
+   3056    2747  0.0  0.0 evolution-sourc /usr/libexec/evolution-source-registry
+   3064    2747  0.0  0.0 goa-daemon      /usr/libexec/goa-daemon
+   3065       1  0.0  0.0 upowerd         /usr/lib/upower/upowerd
+   3069    2747  0.0  0.0 evolution-calen /usr/libexec/evolution-calendar-factory
+   3080    2747  0.0  0.0 goa-identity-se /usr/libexec/goa-identity-service
+   3082    2747  0.0  0.0 dconf-service   /usr/libexec/dconf-service
+   3101    2747  0.0  0.0 gvfs-udisks2-vo /usr/libexec/gvfs-udisks2-volume-monitor
+   3115    2747  0.0  0.0 evolution-addre /usr/libexec/evolution-addressbook-factory
+   3134    2747  0.0  0.0 gvfs-mtp-volume /usr/libexec/gvfs-mtp-volume-monitor
+   3138    2747  0.0  0.0 gvfs-goa-volume /usr/libexec/gvfs-goa-volume-monitor
+   3142    2747  0.0  0.0 gvfs-afc-volume /usr/libexec/gvfs-afc-volume-monitor
+   3147    2747  0.0  0.0 gvfs-gphoto2-vo /usr/libexec/gvfs-gphoto2-volume-monitor
+   3171    2997  0.0  0.0 gvfsd-trash     /usr/libexec/gvfsd-trash --spawner :1.25 /org/gtk/gvfs/exec_spaw/0
+   3181    2747  0.0  0.0 gsd-a11y-settin /usr/libexec/gsd-a11y-settings
+   3183    2747  0.0  0.0 gsd-color       /usr/libexec/gsd-color
+   3186    2747  0.0  0.0 gsd-datetime    /usr/libexec/gsd-datetime
+   3187    2747  0.0  0.0 gsd-housekeepin /usr/libexec/gsd-housekeeping
+   3189    2747  0.0  0.0 gsd-keyboard    /usr/libexec/gsd-keyboard
+   3191    2747  0.0  0.0 gsd-media-keys  /usr/libexec/gsd-media-keys
+   3193    2747  0.0  0.0 gsd-power       /usr/libexec/gsd-power
+   3194    2747  0.0  0.0 gsd-print-notif /usr/libexec/gsd-print-notifications
+   3195    2747  0.0  0.0 gsd-rfkill      /usr/libexec/gsd-rfkill
+   3196    2747  0.0  0.0 gsd-screensaver /usr/libexec/gsd-screensaver-proxy
+   3199    2747  0.0  0.0 gsd-sharing     /usr/libexec/gsd-sharing
+   3200    2747  0.0  0.0 gsd-smartcard   /usr/libexec/gsd-smartcard
+   3203    2747  0.0  0.0 gsd-sound       /usr/libexec/gsd-sound
+   3204    2747  0.0  0.0 gsd-usb-protect /usr/libexec/gsd-usb-protection
+   3205    2747  0.0  0.0 gsd-wacom       /usr/libexec/gsd-wacom
+   3206    2747  0.0  0.0 gsd-wwan        /usr/libexec/gsd-wwan
+   3209    2747  0.0  0.0 gsd-xsettings   /usr/libexec/gsd-xsettings
+   3217    2965  0.0  0.0 gsd-disk-utilit /usr/libexec/gsd-disk-utility-notify
+   3223    2965  0.0  0.0 xscreensaver    xscreensaver -nosplash
+   3234    2965  0.0  0.0 evolution-alarm /usr/libexec/evolution-data-server/evolution-alarm-notify
+   3250    2965  0.0  0.0 kdeconnectd     /usr/lib/x86_64-linux-gnu/libexec/kdeconnectd
+   3262    2965  0.0  0.0 indicator-messa /usr/lib/x86_64-linux-gnu/indicator-messages/indicator-messages-service
+   3312    2747  0.0  0.0 gsd-printer     /usr/libexec/gsd-printer
+   3442    2747  0.0  0.0 MathWorksCrashR /home/rausa/.MathWorks/ServiceHost/-mw_shared_installs/v2026.10.1.1/bin/glnxa64/MathWorksCrashReporter --no-rate-limit --monitor-explicit --sanitize --database=/home/rausa/.MathWorks/ServiceHost/crash_reports --annotation=crash.handler.uuid=222d2a73-1ff3-4ed4-850f-0b6f583dd137 --annotation=crash.mode=default;allowNativeArtifacts=0;createBugReport=1;explicit=1;hasValidDisplay=1;indirectMemoryLimit=0;sanitize=1 --annotation=format=minidump --initial-client-fd=7 --shared-client-connection
+   3461    2747  0.0  0.0 tracker-miner-f /usr/libexec/tracker-miner-fs
+   3513       2  0.0  0.0 kworker/u17:1-i [kworker/u17:1-i915_flip]
+   3665       1  0.0  0.0 mount.ntfs      /sbin/mount.ntfs /dev/sdb1 /media/rausa/Elements2 -o rw,nodev,nosuid,windows_names,uid=1000,gid=1000,uhelper=udisks2
+   3840    2747  0.0  0.0 xdg-desktop-por /usr/libexec/xdg-desktop-portal
+   3846    2747  0.0  0.0 xdg-document-po /usr/libexec/xdg-document-portal
+   3856    2747  0.0  0.0 xdg-desktop-por /usr/libexec/xdg-desktop-portal-gtk
+   4317       2  0.0  0.0 jbd2/sda1-8     [jbd2/sda1-8]
+   4323       2  0.0  0.0 ext4-rsv-conver [ext4-rsv-conver]
+   4981    2747  0.0  0.0 gvfsd-metadata  /usr/libexec/gvfsd-metadata
+   5109    2997  0.0  0.0 gvfsd-network   /usr/libexec/gvfsd-network --spawner :1.25 /org/gtk/gvfs/exec_spaw/1
+   5123    2997  0.0  0.0 gvfsd-dnssd     /usr/libexec/gvfsd-dnssd --spawner :1.25 /org/gtk/gvfs/exec_spaw/3
+   6032    2747  0.0  0.1 codex           /home/rausa/.codex/packages/app-server-daemon/releases/0.162.1-x86_64-unknown-linux-musl/bin/codex app-server daemon pid-update-loop
+   6450    2965  0.0  0.0 update-notifier update-notifier
+   7671    7663  0.0  0.0 bash            bash
+   9736       2  0.0  0.0 ib-comp-wq      [ib-comp-wq]
+   9737       2  0.0  0.0 ib-comp-unb-wq  [ib-comp-unb-wq]
+   9738       2  0.0  0.0 ib_mcast        [ib_mcast]
+   9739       2  0.0  0.0 ib_nl_sa_wq     [ib_nl_sa_wq]
+ 197599 2228232  0.0  0.0 codex-code-mode /home/rausa/.codex/packages/app-server-daemon/releases/0.162.1-x86_64-unknown-linux-musl/bin/codex-code-mode-host
+ 241594    7663  0.0  0.0 bash            bash
+ 242070  241594  0.0  0.0 ssh             ssh -X arausa@nodevg-a-1_
+ 242071  242070  0.0  0.0 ssh             ssh -W [nodevg-a-1]:22 cluster_
+ 242077  242071  0.0  0.0 ssh             ssh -W [131.175.56.199]:22 rainbow_
+ 293791    7663  0.0  0.0 bash            bash
+ 294249  293791  0.0  0.0 ssh             ssh -X arausa@nodevg-a-1_
+ 294250  294249  0.0  0.0 ssh             ssh -W [nodevg-a-1]:22 cluster_
+ 294254  294250  0.0  0.0 ssh             ssh -W [131.175.56.199]:22 rainbow_
+ 304895    7663  0.0  0.0 bash            bash
+ 305877    7663  0.0  0.0 bash            bash
+ 306281  305877  0.0  0.0 ssh             ssh -X arausa@nodevg-a-1_
+ 306282  306281  0.0  0.0 ssh             ssh -W [nodevg-a-1]:22 cluster_
+ 306286  306282  0.0  0.0 ssh             ssh -W [131.175.56.199]:22 rainbow_
+ 350644  350621  0.0  0.0 ibus-daemon     ibus-daemon --panel disable --xim
+ 350648  350644  0.0  0.0 ibus-dconf      /usr/libexec/ibus-dconf
+ 350649  350644  0.0  0.0 ibus-extension- /usr/libexec/ibus-extension-gtk3
+ 350651    2747  0.0  0.0 ibus-x11        /usr/libexec/ibus-x11 --kill-daemon
+ 350655    2747  0.0  0.0 ibus-portal     /usr/libexec/ibus-portal
+ 350681    2747  0.0  0.0 gjs             /usr/bin/gjs /usr/share/gnome-shell/org.gnome.Shell.Notifications
+ 350698  350644  0.0  0.0 ibus-engine-sim /usr/libexec/ibus-engine-simple
+ 350753  350749  0.0  0.0 code            /usr/share/code/code --type=zygote --no-zygote-sandbox
+ 350754  350749  0.0  0.0 code            /usr/share/code/code --type=zygote
+ 350756  350754  0.0  0.0 code            /usr/share/code/code --type=zygote
+ 350771    2747  0.0  0.0 chrome_crashpad /usr/share/code/chrome_crashpad_handler --monitor-self-annotation=ptype=crashpad-handler --no-rate-limit --database=/home/rausa/.config/Code/Crashpad --url=appcenter://code?aid=fba07a4d-84bd-4fc8-a125-9640fc8ce171&uid=44bc80a5-a464-464a-ad78-5dd94c9ae5c1&iid=44bc80a5-a464-464a-ad78-5dd94c9ae5c1&sid=44bc80a5-a464-464a-ad78-5dd94c9ae5c1 --annotation=_companyName=Microsoft --annotation=_productName=VSCode --annotation=_version=1.112.0 --annotation=lsb-release=Ubuntu 20.04.6 LTS --annotation=plat=Linux --annotation=prod=Electron --annotation=ver=39.8.0 --initial-client-fd=50 --shared-client-connection
+ 350792  350749  0.0  0.1 code            /proc/self/exe --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-US --service-sandbox-type=none --crashpad-handler-pid=350771 --enable-crash-reporter=b056c165-a836-45a2-bcb4-7c8225dfb985,no_channel --user-data-dir=/home/rausa/.config/Code --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,10439586669742760447,3338536617065741096,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EstablishGpuChannelAsync --disable-features=CalculateNativeWinOcclusion,LocalNetworkAccessChecks,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190708989122997041
+ 351246  350749  0.0  0.1 code            /proc/self/exe --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --js-flags=--nodecommit_pooled_pages --crashpad-handler-pid=350771 --enable-crash-reporter=b056c165-a836-45a2-bcb4-7c8225dfb985,no_channel --user-data-dir=/home/rausa/.config/Code --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,10439586669742760447,3338536617065741096,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EstablishGpuChannelAsync --disable-features=CalculateNativeWinOcclusion,LocalNetworkAccessChecks,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190708993808206286
+ 351261  350749  0.0  0.2 code            /proc/self/exe --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --js-flags=--nodecommit_pooled_pages --crashpad-handler-pid=350771 --enable-crash-reporter=b056c165-a836-45a2-bcb4-7c8225dfb985,no_channel --user-data-dir=/home/rausa/.config/Code --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,10439586669742760447,3338536617065741096,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EstablishGpuChannelAsync --disable-features=CalculateNativeWinOcclusion,LocalNetworkAccessChecks,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190708996619331833
+ 351605  351433  0.0  0.0 bash            /usr/bin/bash --init-file /usr/share/code/resources/app/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-bash.sh
+ 352749  351316  0.0  0.1 codex           /home/rausa/.vscode/extensions/openai.chatgpt-26.1007.21434-linux-x64/bin/linux-x86_64/codex -c features.code_mode_host=true app-server --analytics-default-enabled
+ 352750  351349  0.0  0.2 codex           /home/rausa/.vscode/extensions/openai.chatgpt-26.1007.21434-linux-x64/bin/linux-x86_64/codex -c features.code_mode_host=true app-server --analytics-default-enabled
+ 353075  351317  0.0  0.1 codex           /home/rausa/.vscode/extensions/openai.chatgpt-26.1007.21434-linux-x64/bin/linux-x86_64/codex -c features.code_mode_host=true app-server --analytics-default-enabled
+ 353121  351334  0.0  0.1 codex           /home/rausa/.vscode/extensions/openai.chatgpt-26.1007.21434-linux-x64/bin/linux-x86_64/codex -c features.code_mode_host=true app-server --analytics-default-enabled
+ 353595  351334  0.0  0.0 pet             /home/rausa/.vscode/extensions/ms-python.vscode-python-envs-1.38.0-linux-x64/python-env-tools/bin/pet server
+ 353774  351605  0.0  0.0 node            node /home/rausa/.nvm/versions/node/v22.22.2/bin/codex
+ 353882  351433  0.0  0.0 bash            /usr/bin/bash --init-file /usr/share/code/resources/app/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-bash.sh
+ 354589  351433  0.0  0.0 bash            /usr/bin/bash --init-file /usr/share/code/resources/app/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-bash.sh
+ 355516  351433  0.0  0.0 bash            /usr/bin/bash --init-file /usr/share/code/resources/app/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-bash.sh
+ 355688  351433  0.0  0.0 bash            /usr/bin/bash --init-file /usr/share/code/resources/app/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-bash.sh
+ 356439  351334  0.0  4.4 code            /usr/share/code/code /home/rausa/.vscode/extensions/ms-python.vscode-pylance-2026.4.1/dist/server.bundle.js --cancellationReceive=file:7ef21080e5e7ae9a5ecac26c267f7525a1c210c0ff --node-ipc --clientProcessId=351334
+ 356595  351433  0.0  0.0 bash            /usr/bin/bash --init-file /usr/share/code/resources/app/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-bash.sh
+ 357231  356595  0.0  0.0 node            node /home/rausa/.nvm/versions/node/v22.22.2/bin/codex
+ 359117  351433  0.0  0.0 bash            /usr/bin/bash --init-file /usr/share/code/resources/app/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-bash.sh
+ 359619  359117  0.0  0.0 node            node /home/rausa/.nvm/versions/node/v22.22.2/bin/codex
+ 359649  359619  0.0  0.2 codex           /home/rausa/.nvm/versions/node/v22.22.2/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/bin/codex
+ 361954  355688  0.0  0.0 node            node /home/rausa/.nvm/versions/node/v22.22.2/bin/codex
+ 361979  361954  0.0  0.2 codex           /home/rausa/.nvm/versions/node/v22.22.2/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/bin/codex
+ 364512  355516  0.0  0.0 node            node /home/rausa/.nvm/versions/node/v22.22.2/bin/codex
+ 396975    7663  0.0  0.0 bash            bash
+ 398246    7663  0.0  0.0 bash            bash
+ 398653  398246  0.0  0.0 ssh             ssh -X arausa@nodevg-a-1_
+ 398654  398653  0.0  0.0 ssh             ssh -W [nodevg-a-1]:22 cluster_
+ 398659  398654  0.0  0.0 ssh             ssh -W [131.175.56.199]:22 rainbow_
+ 398670    2869  0.0  0.0 ssh-agent       /usr/bin/ssh-agent -D -a /run/user/1000/keyring/.ssh
+ 400560    7663  0.0  0.0 bash            bash
+ 408513    7663  0.0  0.0 bash            bash
+ 408907  408513  0.0  0.0 ssh             ssh -X rausa@10.72.68.90
+ 409948    7663  0.0  0.0 bash            bash
+ 410408  409948  0.0  0.0 ssh             ssh -X arausa@nodevg-a-1_
+ 410409  410408  0.0  0.0 ssh             ssh -W [nodevg-a-1]:22 cluster_
+ 410413  410409  0.0  0.0 ssh             ssh -W [131.175.56.199]:22 rainbow_
+ 435177  435086  0.0  0.0 Socket Process  /usr/lib/firefox/firefox -contentproc -parentBuildID 20250227124745 -prefsHandle 0 -prefsLen 44751 -prefMapHandle 1 -prefMapSize 270593 -sandboxReporter 2 -chrootClient 3 -ipcHandle 4 -initialChannelId {4daaebac-27b3-47a3-a507-41b6e221fc0f} -parentPid 435086 -crashReporter 5 -appDir /usr/lib/firefox/browser 1 socket
+ 435223  435086  0.0  0.0 RDD Process     /usr/lib/firefox/firefox -contentproc -parentBuildID 20250227124745 -prefsHandle 0 -prefsLen 44816 -prefMapHandle 1 -prefMapSize 270593 -sandboxReporter 2 -chrootClient 3 -ipcHandle 4 -initialChannelId {8396763d-999a-464e-acb8-d077b678408e} -parentPid 435086 -crashReporter 5 -appDir /usr/lib/firefox/browser 3 rdd
+ 435521  435086  0.0  0.0 Utility Process /usr/lib/firefox/firefox -contentproc -parentBuildID 20250227124745 -sandboxingKind 0 -prefsHandle 0 -prefsLen 52876 -prefMapHandle 1 -prefMapSize 270593 -sandboxReporter 2 -chrootClient 3 -ipcHandle 4 -initialChannelId {6afaf238-4258-43d0-9bb9-b80a0392a206} -parentPid 435086 -crashReporter 5 -appDir /usr/lib/firefox/browser 5 utility
+ 435548  435086  0.0  0.2 Isolated Web Co /usr/lib/firefox/firefox -contentproc -isForBrowser -prefsHandle 0 -prefsLen 41145 -prefMapHandle 1 -prefMapSize 270593 -jsInitHandle 2 -jsInitLen 247456 -parentBuildID 20250227124745 -sandboxReporter 3 -chrootClient 4 -ipcHandle 5 -initialChannelId {d4f7e702-5354-4100-bd5d-2d641f49e6eb} -parentPid 435086 -crashReporter 6 -greomni /usr/lib/firefox/omni.ja -appomni /usr/lib/firefox/browser/omni.ja -appDir /usr/lib/firefox/browser 8 tab
+ 440179    7663  0.0  0.0 bash            bash
+ 444877    2747  0.0  0.0 bash            /bin/bash -c source /home/rausa/.claude/shell-snapshots/snapshot-bash-1791533118085-0js0bo.sh 2>/dev/null || true && export CODEX_COMPANION_SESSION_ID='0e6a71a5-8e02-400a-9a82-5fcb05f609e7' export CODEX_COMPANION_TRANSCRIPT_PATH='/home/rausa/.claude/projects/-media-rausa-4TB-Validation-MeshAdaptationScript-LatestValidations/0e6a71a5-8e02-400a-9a82-5fcb05f609e7.jsonl' export CLAUDE_PLUGIN_DATA='/home/rausa/.claude/plugins/data/codex-openai-codex' export CODEX_COMPANION_SESSION_ID='0e6a71a5-8e02-400a-9a82-5fcb05f609e7' export CODEX_COMPANION_TRANSCRIPT_PATH='/home/rausa/.claude/projects/-media-rausa-4TB-Validation-MeshAdaptationScript-LatestValidations/0e6a71a5-8e02-400a-9a82-5fcb05f609e7.jsonl' export CLAUDE_PLUGIN_DATA='/home/rausa/.claude/plugins/data/codex-openai-codex' export CODEX_COMPANION_SESSION_ID='0e6a71a5-8e02-400a-9a82-5fcb05f609e7' export CODEX_COMPANION_TRANSCRIPT_PATH='/home/rausa/.claude/projects/-media-rausa-4TB-Validation-MeshAdaptationScript-LatestValidations/0e6a71a5-8e02-400a-9a82-5fcb05f609e7.jsonl' export CLAUDE_PLUGIN_DATA='/home/rausa/.claude/plugins/data/codex-openai-codex' export CODEX_COMPANION_SESSION_ID='0e6a71a5-8e02-400a-9a82-5fcb05f609e7' export CODEX_COMPANION_TRANSCRIPT_PATH='/home/rausa/.claude/projects/-media-rausa-4TB-Validation-MeshAdaptationScript-LatestValidations/0e6a71a5-8e02-400a-9a82-5fcb05f609e7.jsonl' export CLAUDE_PLUGIN_DATA='/home/rausa/.claude/plugins/data/codex-openai-codex' export CODEX_COMPANION_SESSION_ID='0e6a71a5-8e02-400a-9a82-5fcb05f609e7' export CODEX_COMPANION_TRANSCRIPT_PATH='/home/rausa/.claude/projects/-media-rausa-4TB-Validation-MeshAdaptationScript-LatestValidations/0e6a71a5-8e02-400a-9a82-5fcb05f609e7.jsonl' export CLAUDE_PLUGIN_DATA='/home/rausa/.claude/plugins/data/codex-openai-codex' export CODEX_COMPANION_SESSION_ID='0e6a71a5-8e02-400a-9a82-5fcb05f609e7' export CODEX_COMPANION_TRANSCRIPT_PATH='/home/rausa/.claude/projects/-media-rausa-4TB-Validation-MeshAdaptationScript-LatestValidations/0e6a71a5-8e02-400a-9a82-5fcb05f609e7.jsonl' export CLAUDE_PLUGIN_DATA='/home/rausa/.claude/plugins/data/codex-openai-codex' : && shopt -u extglob 2>/dev/null || true && { \builtin unalias -- 'unsetenv'; \builtin unset -f -- 'unsetenv'; } >/dev/null 2>&1 || true && eval 'sed -i '"'"'5,6d'"'"' RunCases_static.sh && sed -n 1,8p RunCases_static.sh && rm -rf SteadyNACA/Smoke_Euler 2D_Riemann/Smoke_Riemann && ls CV_Campaign/failures.txt 2>/dev/null; cd CV_Campaign && setsid nohup ./run_campaign.sh > campaign.log 2>&1 < /dev/null & sleep 5; pgrep -f run_campaign.sh | head -1 > /media/rausa/4TB/Validation/MeshAdaptationScript_LatestValidations/TestInterp/CV_Campaign/campaign.pid; cat /media/rausa/4TB/Validation/MeshAdaptationScript_LatestValidations/TestInterp/CV_Campaign/campaign.pid; cat /media/rausa/4TB/Validation/MeshAdaptationScript_LatestValidations/TestInterp/CV_Campaign/campaign.log' && pwd -P >| /tmp/claude-9e38-cwd
+ 444879  444877  0.0  0.0 run_campaign.sh /bin/bash ./run_campaign.sh
+ 453866    7663  0.0  0.0 bash            bash
+ 454359  453866  0.0  0.0 ssh             ssh -X arausa@nodevg-a-1_
+ 454360  454359  0.0  0.0 ssh             ssh -W [nodevg-a-1]:22 cluster_
+ 454364  454360  0.0  0.0 ssh             ssh -W [131.175.56.199]:22 rainbow_
+ 476044    2747  0.0  0.0 gnome-calendar  /usr/bin/gnome-calendar --gapplication-service
+ 476199  350621  0.0  0.2 slack           /snap/slack/263/usr/lib/slack/slack --no-sandbox --ozone-platform=x11 --executed-from=/home/rausa --pid=476199
+ 476316  476199  0.0  0.0 slack           /snap/slack/263/usr/lib/slack/slack --type=zygote --no-zygote-sandbox --no-sandbox
+ 476317  476199  0.0  0.0 slack           /snap/slack/263/usr/lib/slack/slack --type=zygote --no-sandbox
+ 476375    2747  0.0  0.0 chrome_crashpad /snap/slack/263/usr/lib/slack/chrome_crashpad_handler --monitor-self-annotation=ptype=crashpad-handler --no-upload-gzip --database=/home/rausa/snap/slack/263/.config/Slack/Crashpad --url=https://slack.com/apps/sentryproxy/api/5277886/minidump/?sentry_key=fd30fe469dbf4aec9db40548e5acf91e --annotation=_productName=Slack --annotation=_version=4.52.178 --annotation=lsb-release=Ubuntu Core 24 --annotation=plat=Linux --annotation=prod=Electron --annotation=sentry___initialScope={"release":"Slack@4.52.178","environment":"production","user":{"id":"309c9c2c-3730-4e3e-8c9b-590f966cd64e"},"tags":{"uuid":"309c9c2c-3730-4e3e-8c9b-590f966cd64e"},"extra":{"sessionId":"MzA5YzljMmMtMzczMC00ZTNlLThjOWItNTkwZjk2NmNkNjRlXzE3OTE1MzQ3MDU5OTQ="}} --annotation=ver=44.4.5 --initial-client-fd=38 --shared-client-connection
+ 476414  476199  0.0  0.0 slack           /snap/slack/263/usr/lib/slack/slack --type=utility --utility-sub-type=network.mojom.NetworkService --lang=it --service-sandbox-type=none --no-sandbox --crashpad-handler-pid=476375 --enable-crash-reporter=16a53bd0-5464-421f-bcb9-5aa6e0bf9fb4,no_channel --user-data-dir=/home/rausa/snap/slack/263/.config/Slack --standard-schemes=app,slack-webapp-dev --secure-schemes=app,slack-webapp-dev,sentry-ipc --bypasscsp-schemes=slack-webapp-dev,sentry-ipc --cors-schemes=slack-webapp-dev,sentry-ipc --fetch-schemes=slack-webapp-dev,sentry-ipc --service-worker-schemes=slack-webapp-dev --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,4180626738584860512,6819285976929547691,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,PdfUseShowSaveFilePicker,WebRTCPipeWireCapturer --disable-features=AllowAggressiveThrottlingWithWebSocket,CalculateNativeWinOcclusion,DropInputEventsWhilePaintHolding,EnableWatermarkView,EnumerateDevicesRelaxedCache,HardwareMediaKeyHandling,IntensiveWakeUpThrottling,LocalNetworkAccessChecks,LogJsConsoleMessages,PostQuantumKyber,RequestInitiatorSiteLockEnfocement,ScreenAIOCREnabled,SkipEmptyDisplayHotplugEvent,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation,WebRtcHideLocalIpsWithMdns,WinRetrieveSuggestionsOnlyOnDemand --variations-seed-version --pseudonymization-salt-handle=7,i,8939672557725336911,9643963421987140099,4 --trace-process-track-uuid=3190708989122997041
+ 476450  476317  0.0  0.5 slack           /snap/slack/263/usr/lib/slack/slack --type=renderer --crashpad-handler-pid=476375 --enable-crash-reporter=16a53bd0-5464-421f-bcb9-5aa6e0bf9fb4,no_channel --user-data-dir=/home/rausa/snap/slack/263/.config/Slack --standard-schemes=app,slack-webapp-dev --secure-schemes=app,slack-webapp-dev,sentry-ipc --bypasscsp-schemes=slack-webapp-dev,sentry-ipc --cors-schemes=slack-webapp-dev,sentry-ipc --fetch-schemes=slack-webapp-dev,sentry-ipc --service-worker-schemes=slack-webapp-dev --app-path=/snap/slack/263/usr/lib/slack/resources/app.asar --enable-sandbox --enable-blink-features=ExperimentalJSProfiler --disable-blink-features=CustomizableSelect --no-sandbox --ozone-platform=x11 --lang=it --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=6 --launch-time-ticks=178381401650 --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,4180626738584860512,6819285976929547691,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,PdfUseShowSaveFilePicker,WebRTCPipeWireCapturer --disable-features=AllowAggressiveThrottlingWithWebSocket,CalculateNativeWinOcclusion,DropInputEventsWhilePaintHolding,EnableWatermarkView,EnumerateDevicesRelaxedCache,HardwareMediaKeyHandling,IntensiveWakeUpThrottling,LocalNetworkAccessChecks,LogJsConsoleMessages,PostQuantumKyber,RequestInitiatorSiteLockEnfocement,ScreenAIOCREnabled,SkipEmptyDisplayHotplugEvent,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation,WebRtcHideLocalIpsWithMdns,WinRetrieveSuggestionsOnlyOnDemand --variations-seed-version --pseudonymization-salt-handle=7,i,8939672557725336911,9643963421987140099,4 --trace-process-track-uuid=3190708991934122588 --window-type=main
+ 476466  476316  0.0  0.1 slack           /snap/slack/263/usr/lib/slack/slack --type=gpu-process --no-sandbox --ozone-platform=x11 --crashpad-handler-pid=476375 --enable-crash-reporter=16a53bd0-5464-421f-bcb9-5aa6e0bf9fb4,no_channel --user-data-dir=/home/rausa/snap/slack/263/.config/Slack --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAKAAAAAAAAAAoAAAAAAAAAAEAAAAAAAAACAAAAAAAAAAIAAAAAAAAAAgAAAAAAAAACAAAAAAAAAA= --use-gl=disabled --shared-files --field-trial-handle=3,i,4180626738584860512,6819285976929547691,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,PdfUseShowSaveFilePicker,WebRTCPipeWireCapturer --disable-features=AllowAggressiveThrottlingWithWebSocket,CalculateNativeWinOcclusion,DropInputEventsWhilePaintHolding,EnableWatermarkView,EnumerateDevicesRelaxedCache,HardwareMediaKeyHandling,IntensiveWakeUpThrottling,LocalNetworkAccessChecks,LogJsConsoleMessages,PostQuantumKyber,RequestInitiatorSiteLockEnfocement,ScreenAIOCREnabled,SkipEmptyDisplayHotplugEvent,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation,WebRtcHideLocalIpsWithMdns,WinRetrieveSuggestionsOnlyOnDemand --variations-seed-version --pseudonymization-salt-handle=7,i,8939672557725336911,9643963421987140099,4 --trace-process-track-uuid=3190708993808206286
+ 476649  476199  0.0  0.0 slack           /snap/slack/263/usr/lib/slack/slack --type=utility --utility-sub-type=audio.mojom.AudioService --lang=it --service-sandbox-type=none --no-sandbox --crashpad-handler-pid=476375 --enable-crash-reporter=16a53bd0-5464-421f-bcb9-5aa6e0bf9fb4,no_channel --user-data-dir=/home/rausa/snap/slack/263/.config/Slack --standard-schemes=app,slack-webapp-dev --secure-schemes=app,slack-webapp-dev,sentry-ipc --bypasscsp-schemes=slack-webapp-dev,sentry-ipc --cors-schemes=slack-webapp-dev,sentry-ipc --fetch-schemes=slack-webapp-dev,sentry-ipc --service-worker-schemes=slack-webapp-dev --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,4180626738584860512,6819285976929547691,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,PdfUseShowSaveFilePicker,WebRTCPipeWireCapturer --disable-features=AllowAggressiveThrottlingWithWebSocket,CalculateNativeWinOcclusion,DropInputEventsWhilePaintHolding,EnableWatermarkView,EnumerateDevicesRelaxedCache,HardwareMediaKeyHandling,IntensiveWakeUpThrottling,LocalNetworkAccessChecks,LogJsConsoleMessages,PostQuantumKyber,RequestInitiatorSiteLockEnfocement,ScreenAIOCREnabled,SkipEmptyDisplayHotplugEvent,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation,WebRtcHideLocalIpsWithMdns,WinRetrieveSuggestionsOnlyOnDemand --variations-seed-version --pseudonymization-salt-handle=7,i,8939672557725336911,9643963421987140099,4 --trace-process-track-uuid=3190708994745248135
+ 513006  435086  0.0  0.3 Isolated Web Co /usr/lib/firefox/firefox -contentproc -isForBrowser -prefsHandle 0 -prefsLen 41354 -prefMapHandle 1 -prefMapSize 270593 -jsInitHandle 2 -jsInitLen 247456 -parentBuildID 20250227124745 -sandboxReporter 3 -chrootClient 4 -ipcHandle 5 -initialChannelId {d7136721-21ca-43cc-b1d5-6fcc4c212488} -parentPid 435086 -crashReporter 6 -greomni /usr/lib/firefox/omni.ja -appomni /usr/lib/firefox/browser/omni.ja -appDir /usr/lib/firefox/browser 19 tab
+ 543871  351317  0.0  0.1 code            /usr/share/code/code /usr/share/code/resources/app/extensions/markdown-language-features/dist/serverWorkerMain --node-ipc --clientProcessId=351317
+ 578743  350749  0.0  0.1 code            /proc/self/exe --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --js-flags=--nodecommit_pooled_pages --crashpad-handler-pid=350771 --enable-crash-reporter=b056c165-a836-45a2-bcb4-7c8225dfb985,no_channel --user-data-dir=/home/rausa/.config/Code --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,10439586669742760447,3338536617065741096,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EstablishGpuChannelAsync --disable-features=CalculateNativeWinOcclusion,LocalNetworkAccessChecks,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190709004115666625
+ 578946  578758  0.0  0.2 codex           /home/rausa/.vscode/extensions/openai.chatgpt-26.1007.21434-linux-x64/bin/linux-x86_64/codex -c features.code_mode_host=true app-server --analytics-default-enabled
+ 579510  351433  0.0  0.0 bash            /usr/bin/bash --init-file /usr/share/code/resources/app/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-bash.sh
+ 579992  579510  0.0  0.0 node            node /home/rausa/.nvm/versions/node/v22.22.2/bin/codex
+ 580000  579992  0.0  0.2 codex           /home/rausa/.nvm/versions/node/v22.22.2/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/bin/codex
+ 647251  350621  0.0  0.0 xscreensaver-de xscreensaver-demo
+ 650329  351433  0.0  0.0 bash            /usr/bin/bash --init-file /usr/share/code/resources/app/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-bash.sh
+ 655140    2747  0.0  0.1 gedit           /usr/bin/gedit --gapplication-service
+ 719826  351316  0.0  0.1 code            /usr/share/code/code /usr/share/code/resources/app/extensions/markdown-language-features/dist/serverWorkerMain --node-ipc --clientProcessId=351316
+ 729938    7663  0.0  0.0 bash            bash
+ 730383  729938  0.0  0.0 ssh             ssh -X arausa@nodevg-a-1_
+ 730384  730383  0.0  0.0 ssh             ssh -W [nodevg-a-1]:22 cluster_
+ 730388  730384  0.0  0.0 ssh             ssh -W [131.175.56.199]:22 rainbow_
+ 756063    7663  0.0  0.0 bash            bash
+ 950743  351433  0.0  0.0 bash            /usr/bin/bash --init-file /usr/share/code/resources/app/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-bash.sh
+ 953261  950743  0.0  0.0 node            node /home/rausa/.nvm/versions/node/v22.22.2/bin/codex
+1039000    7663  0.0  0.0 bash            bash
+1039439 1039000  0.0  0.0 ssh             ssh -X arausa@nodevg-a-1_
+1039440 1039439  0.0  0.0 ssh             ssh -W [nodevg-a-1]:22 cluster_
+1039444 1039440  0.0  0.0 ssh             ssh -W [131.175.56.199]:22 rainbow_
+1224136    1344  0.0  0.0 sshd            sshd: rausa [priv]
+1224406 1224136  0.0  0.0 sshd            sshd: rausa
+1351958  386113  0.0  0.0 bash            /bin/bash -c source /home/rausa/.claude/shell-snapshots/snapshot-bash-1791533118085-0js0bo.sh 2>/dev/null || true && export CODEX_COMPANION_SESSION_ID='0e6a71a5-8e02-400a-9a82-5fcb05f609e7' export CODEX_COMPANION_TRANSCRIPT_PATH='/home/rausa/.claude/projects/-media-rausa-4TB-Validation-MeshAdaptationScript-LatestValidations/0e6a71a5-8e02-400a-9a82-5fcb05f609e7.jsonl' export CLAUDE_PLUGIN_DATA='/home/rausa/.claude/plugins/data/codex-openai-codex' export CODEX_COMPANION_SESSION_ID='0e6a71a5-8e02-400a-9a82-5fcb05f609e7' export CODEX_COMPANION_TRANSCRIPT_PATH='/home/rausa/.claude/projects/-media-rausa-4TB-Validation-MeshAdaptationScript-LatestValidations/0e6a71a5-8e02-400a-9a82-5fcb05f609e7.jsonl' export CLAUDE_PLUGIN_DATA='/home/rausa/.claude/plugins/data/codex-openai-codex' export CODEX_COMPANION_SESSION_ID='0e6a71a5-8e02-400a-9a82-5fcb05f609e7' export CODEX_COMPANION_TRANSCRIPT_PATH='/home/rausa/.claude/projects/-media-rausa-4TB-Validation-MeshAdaptationScript-LatestValidations/0e6a71a5-8e02-400a-9a82-5fcb05f609e7.jsonl' export CLAUDE_PLUGIN_DATA='/home/rausa/.claude/plugins/data/codex-openai-codex' export CODEX_COMPANION_SESSION_ID='0e6a71a5-8e02-400a-9a82-5fcb05f609e7' export CODEX_COMPANION_TRANSCRIPT_PATH='/home/rausa/.claude/projects/-media-rausa-4TB-Validation-MeshAdaptationScript-LatestValidations/0e6a71a5-8e02-400a-9a82-5fcb05f609e7.jsonl' export CLAUDE_PLUGIN_DATA='/home/rausa/.claude/plugins/data/codex-openai-codex' export CODEX_COMPANION_SESSION_ID='0e6a71a5-8e02-400a-9a82-5fcb05f609e7' export CODEX_COMPANION_TRANSCRIPT_PATH='/home/rausa/.claude/projects/-media-rausa-4TB-Validation-MeshAdaptationScript-LatestValidations/0e6a71a5-8e02-400a-9a82-5fcb05f609e7.jsonl' export CLAUDE_PLUGIN_DATA='/home/rausa/.claude/plugins/data/codex-openai-codex' export CODEX_COMPANION_SESSION_ID='0e6a71a5-8e02-400a-9a82-5fcb05f609e7' export CODEX_COMPANION_TRANSCRIPT_PATH='/home/rausa/.claude/projects/-media-rausa-4TB-Validation-MeshAdaptationScript-LatestValidations/0e6a71a5-8e02-400a-9a82-5fcb05f609e7.jsonl' export CLAUDE_PLUGIN_DATA='/home/rausa/.claude/plugins/data/codex-openai-codex' export CODEX_COMPANION_SESSION_ID='0e6a71a5-8e02-400a-9a82-5fcb05f609e7' export CODEX_COMPANION_TRANSCRIPT_PATH='/home/rausa/.claude/projects/-media-rausa-4TB-Validation-MeshAdaptationScript-LatestValidations/0e6a71a5-8e02-400a-9a82-5fcb05f609e7.jsonl' export CLAUDE_PLUGIN_DATA='/home/rausa/.claude/plugins/data/codex-openai-codex' : && shopt -u extglob 2>/dev/null || true && { \builtin unalias -- 'unsetenv'; \builtin unset -f -- 'unsetenv'; } >/dev/null 2>&1 || true && eval 'cd /media/rausa/4TB/Validation/MeshAdaptationScript_LatestValidations/TestInterp/CV_Campaign && until grep -q '"'"'\[riemann_tests\]'"'"' campaign.log || [ -s failures.txt ] || ! kill -0 444879 2>/dev/null; do sleep 300; done; date; (kill -0 444879 2>/dev/null && echo alive || echo DEAD); grep -v archived campaign.log | grep -c '"'"'\[riemann\] end'"'"'; grep -v archived campaign.log | tail -6; echo --- fail; cat failures.txt 2>/dev/null; df -h /media/rausa/4TB | tail -1' < /dev/null && pwd -P >| /tmp/claude-cf80-cwd
+1468250       2  0.0  0.0 kworker/0:1-eve [kworker/0:1-events]
+1493077       2  0.0  0.0 kworker/u16:0-i [kworker/u16:0-i915]
+1523076       2  0.0  0.0 kworker/u16:4-e [kworker/u16:4-events_unbound]
+1532393    1585  0.0  0.0 sleep           sleep 3600
+1532975       2  0.0  0.0 kworker/5:2-eve [kworker/5:2-events]
+1535595       2  0.0  0.0 kworker/1:2-eve [kworker/1:2-events]
+1549971       2  0.0  0.0 kworker/7:0-ine [kworker/7:0-inet_frag_wq]
+1564460       2  0.0  0.0 kworker/u16:1-e [kworker/u16:1-events_unbound]
+1571394       2  0.0  0.0 kworker/6:2-ine [kworker/6:2-inet_frag_wq]
+1573865       2  0.0  0.0 kworker/1:0-eve [kworker/1:0-events]
+1574263       2  0.0  0.0 kworker/2:0-eve [kworker/2:0-events]
+1574264       2  0.0  0.0 kworker/0:0-ine [kworker/0:0-inet_frag_wq]
+1575505       2  0.0  0.0 kworker/4:2-eve [kworker/4:2-events]
+1579567       2  0.0  0.0 kworker/u16:2-e [kworker/u16:2-events_unbound]
+1584011       2  0.0  0.0 kworker/7:2-eve [kworker/7:2-events]
+1592448       2  0.0  0.0 kworker/6:0-eve [kworker/6:0-events]
+1592469       2  0.0  0.0 kworker/5:1-mm_ [kworker/5:1-mm_percpu_wq]
+1599941       2  0.0  0.0 kworker/2:2-ine [kworker/2:2-inet_frag_wq]
+1599947       2  0.0  0.0 kworker/4:0-mm_ [kworker/4:0-mm_percpu_wq]
+1605193 1351958  0.0  0.0 sleep           sleep 300
+1606283       2  0.0  0.0 kworker/1:1-eve [kworker/1:1-events]
+1606296       2  0.0  0.0 kworker/7:1-eve [kworker/7:1-events]
+1611424       2  0.0  0.0 kworker/u17:2   [kworker/u17:2]
+1612926       2  0.0  0.0 kworker/u16:3-e [kworker/u16:3-events_unbound]
+1612927       2  0.0  0.0 kworker/u16:5   [kworker/u16:5]
+1613489       2  0.0  0.0 kworker/6:1-eve [kworker/6:1-events]
+1613988       2  0.0  0.0 kworker/0:2-eve [kworker/0:2-events]
+1614002       2  0.0  0.0 kworker/5:0-eve [kworker/5:0-events]
+1614451       2  0.0  0.0 kworker/2:1-eve [kworker/2:1-events]
+1615409 1525718  0.0  0.0 tee             tee Logs/logUnsteady_00237.log
+1615451 1615441  0.0  0.0 python3         python3 -
+1615454 1615451  0.0  0.0 ps              ps -eo pid,ppid,pcpu,pmem,comm,args --sort=-pcpu
+1964491  435086  0.0  0.1 Web Content     /usr/lib/firefox/firefox -contentproc -isForBrowser -prefsHandle 0 -prefsLen 42707 -prefMapHandle 1 -prefMapSize 270593 -jsInitHandle 2 -jsInitLen 247456 -parentBuildID 20250227124745 -sandboxReporter 3 -chrootClient 4 -ipcHandle 5 -initialChannelId {7a0d32fa-d85c-495f-bab7-c9bdbc75257c} -parentPid 435086 -crashReporter 6 -greomni /usr/lib/firefox/omni.ja -appomni /usr/lib/firefox/browser/omni.ja -appDir /usr/lib/firefox/browser 27 tab
+2022829  435086  0.0  0.1 Web Content     /usr/lib/firefox/firefox -contentproc -isForBrowser -prefsHandle 0 -prefsLen 42999 -prefMapHandle 1 -prefMapSize 270593 -jsInitHandle 2 -jsInitLen 247456 -parentBuildID 20250227124745 -sandboxReporter 3 -chrootClient 4 -ipcHandle 5 -initialChannelId {f77d0d0e-8045-4ac5-a2c6-8626e3cae5e3} -parentPid 435086 -crashReporter 6 -greomni /usr/lib/firefox/omni.ja -appomni /usr/lib/firefox/browser/omni.ja -appDir /usr/lib/firefox/browser 28 tab
+2023491  435086  0.0  0.1 Web Content     /usr/lib/firefox/firefox -contentproc -isForBrowser -prefsHandle 0 -prefsLen 42999 -prefMapHandle 1 -prefMapSize 270593 -jsInitHandle 2 -jsInitLen 247456 -parentBuildID 20250227124745 -sandboxReporter 3 -chrootClient 4 -ipcHandle 5 -initialChannelId {df331a0c-911b-4131-a690-4f7897183c6b} -parentPid 435086 -crashReporter 6 -greomni /usr/lib/firefox/omni.ja -appomni /usr/lib/firefox/browser/omni.ja -appDir /usr/lib/firefox/browser 29 tab
+2367277    7663  0.0  0.0 bash            bash
+2367682 2367277  0.0  0.0 ssh             ssh -X arausa@nodevg-a-1_
+2367683 2367682  0.0  0.0 ssh             ssh -W [nodevg-a-1]:22 cluster_
+2367687 2367683  0.0  0.0 ssh             ssh -W [131.175.56.199]:22 rainbow_
+2467784    2997  0.0  0.0 gvfsd-http      /usr/libexec/gvfsd-http --spawner :1.25 /org/gtk/gvfs/exec_spaw/4
+2468853    2747  0.0  0.3 nautilus        /usr/bin/nautilus --gapplication-service
+2476203       1  0.0  0.0 cupsd           /usr/sbin/cupsd -l
+2476205       1  0.0  0.0 cups-browsed    /usr/sbin/cups-browsed
+2476214 2476203  0.0  0.0 dbus            /usr/lib/cups/notifier/dbus dbus://
+2862135    7663  0.0  0.0 bash            bash
+2862579 2862135  0.0  0.0 ssh             ssh -X arausa@nodevg-a-1_
+2862580 2862579  0.0  0.0 ssh             ssh -W [nodevg-a-1]:22 cluster_
+2862584 2862580  0.0  0.0 ssh             ssh -W [131.175.56.199]:22 rainbow_
+2875229    7663  0.0  0.0 bash            bash
+3170860    7663  0.0  0.0 bash            bash
+3171237 3170860  0.0  0.0 ssh             ssh -X arausa@nodevg-a-1_
+3171238 3171237  0.0  0.0 ssh             ssh -W [nodevg-a-1]:22 cluster_
+3171242 3171238  0.0  0.0 ssh             ssh -W [131.175.56.199]:22 rainbow_

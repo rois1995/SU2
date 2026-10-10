@@ -1,5 +1,33 @@
 # Current handoff — 2026-10-10
 
+## Native 3D worker-communicator search checkpoint — 2026-10-10
+
+Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
+Branch: codex/native-3d-core; predecessor f13a08be3eefa2db8e547c10c52569d552f92ad2.
+Goal 1 remains ACTIVE with its full scope unchanged.
+
+House CPassiveComm Allgatherv and CRankBoxTree now accept an explicit communicator.
+Existing callers retain the default SU2 communicator. This removes the global
+collective from rank-box construction when only M of N CFD ranks are workers.
+Empty send buffers avoid null-pointer arithmetic; populated buffers keep a
+single range copy, without an extra zero-fill. No measured speedup is claimed.
+
+Final worker_field_controls_v2 passes actual MPI1/2/4: MPI1 has 46 cases and
+2752 assertions, including all 37 existing 3D kernel cases; MPI2/4 have nine
+cases per rank. Subset controls cover M=N, M=N-1 and M=N/2, empty partitions,
+127-byte rounds, and both 2D and 3D boxes while inactive ranks wait on the parent.
+The final non-MPI serial_transport control also passes. Source and artifact
+hashes were verified; all 15 mesh JSON and 15 SU2 files match the published
+checkpoint. Independent audit results match too; their source-log hashes
+necessarily differ. Earlier worker_field_controls_v1 evidence is retained.
+
+WORKER_COMMUNICATOR_CHECKPOINT.md records scope and replay. This is a shared
+routing prerequisite, not a distributed original-sensor service or an enabled
+3D remesher. No full SU2/AD build, CFD regression or scaling campaign was run.
+Next: immutable distributed sensor donor import/query, incremental MPI engine,
+full metric completion, planar operators, tetrahedral partition weights,
+runtime/CFD/history/CGNS integration and performance qualification.
+
 ## Native 3D distributed dependency/publication checkpoint — 2026-10-10
 
 Working folder /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated;
