@@ -106,6 +106,19 @@ five constant-metric/shape-gated controls plus three extreme geometry-only contr
 The latter intentionally fail isotropic shape limits and are explicitly labelled.
 No CFD state, physical surface edit, driver or MPI adaptation is implied.
 
+## Original P1 sensor field checkpoint
+
+FIELD_CHECKPOINT.md records the immutable tetrahedral sensor field, magnitude-
+controlled weights, actual-point composition, bounded sensor-only reuse and
+exclusive local query timers. Multiple donors reuse SU2's ADT; singleton donors
+need no tree. PASS22 focused cases/2294 assertions plus290 exact orientation signs
+in field_controls_v4. Independent field_oracle_v3 verifies210 indexed queries
+against exact actual-binary64 weights/tensors: max weight error8.1262e-17 and max
+directional tensor defect1.5378e-16. All earlier oracle responses remain identical.
+Initial compile failure and prior versions/source snapshots retained.
+No full driver, physical-boundary extension, production3D BL/fade, metric-edge
+integration, MPI or full-event performance claim. Goal1 remains active.
+
 ## Next work and limits
 
 Extend geometric embedding validation and metric-gated coordinated proposals,

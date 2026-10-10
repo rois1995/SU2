@@ -1,0 +1,119 @@
+In file included from Common/src/adaptation/../../include/adt/./../basic_types/datatype_structure.hpp:35,
+                 from Common/src/adaptation/../../include/adt/./CADTBaseClass.hpp:33,
+                 from Common/src/adaptation/../../include/adt/CADTElemClass.hpp:30,
+                 from Common/src/adaptation/CNativeField3D.cpp:8:
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp: In function ‘void AD::RegisterInput(su2double&)’:
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp:101:38: error: unused parameter ‘data’ [-Werror=unused-parameter]
+  101 | inline void RegisterInput(su2double& data) {}
+      |                           ~~~~~~~~~~~^~~~
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp: In function ‘void AD::RegisterOutput(su2double&)’:
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp:107:39: error: unused parameter ‘data’ [-Werror=unused-parameter]
+  107 | inline void RegisterOutput(su2double& data) {}
+      |                            ~~~~~~~~~~~^~~~
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp: In function ‘void AD::SetDerivative(AD::Identifier, double)’:
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp:132:38: error: unused parameter ‘index’ [-Werror=unused-parameter]
+  132 | inline void SetDerivative(Identifier index, const double val) {}
+      |                           ~~~~~~~~~~~^~~~~
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp:132:58: error: unused parameter ‘val’ [-Werror=unused-parameter]
+  132 | inline void SetDerivative(Identifier index, const double val) {}
+      |                                             ~~~~~~~~~~~~~^~~
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp: In function ‘double AD::GetDerivative(AD::Identifier)’:
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp:139:40: error: unused parameter ‘index’ [-Werror=unused-parameter]
+  139 | inline double GetDerivative(Identifier index) { return 0.0; }
+      |                             ~~~~~~~~~~~^~~~~
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp: In function ‘void AD::ComputeAdjoint(short unsigned int, short unsigned int)’:
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp:162:43: error: unused parameter ‘enter’ [-Werror=unused-parameter]
+  162 | inline void ComputeAdjoint(unsigned short enter, unsigned short leave) {}
+      |                            ~~~~~~~~~~~~~~~^~~~~
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp:162:65: error: unused parameter ‘leave’ [-Werror=unused-parameter]
+  162 | inline void ComputeAdjoint(unsigned short enter, unsigned short leave) {}
+      |                                                  ~~~~~~~~~~~~~~~^~~~~
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp: In function ‘void AD::ResetInput(su2double&)’:
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp:179:35: error: unused parameter ‘data’ [-Werror=unused-parameter]
+  179 | inline void ResetInput(su2double& data) {}
+      |                        ~~~~~~~~~~~^~~~
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp: In function ‘void AD::SetExtFuncIn(su2double&)’:
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp:249:37: error: unused parameter ‘data’ [-Werror=unused-parameter]
+  249 | inline void SetExtFuncIn(su2double& data) {}
+      |                          ~~~~~~~~~~~^~~~
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp: In function ‘void AD::SetExtFuncOut(su2double&)’:
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp:272:38: error: unused parameter ‘data’ [-Werror=unused-parameter]
+  272 | inline void SetExtFuncOut(su2double& data) {}
+      |                           ~~~~~~~~~~~^~~~
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp: In function ‘void AD::SetIndex(AD::Identifier&, const su2double&)’:
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp:296:34: error: unused parameter ‘index’ [-Werror=unused-parameter]
+  296 | inline void SetIndex(Identifier& index, const su2double& data) {}
+      |                      ~~~~~~~~~~~~^~~~~
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp:296:58: error: unused parameter ‘data’ [-Werror=unused-parameter]
+  296 | inline void SetIndex(Identifier& index, const su2double& data) {}
+      |                                         ~~~~~~~~~~~~~~~~~^~~~
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp: In function ‘void AD::SetTag(int)’:
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp:302:24: error: unused parameter ‘tag’ [-Werror=unused-parameter]
+  302 | inline void SetTag(int tag) {}
+      |                    ~~~~^~~
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp: In function ‘int AD::ComputeTag(short unsigned int)’:
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp:315:38: error: unused parameter ‘iZone’ [-Werror=unused-parameter]
+  315 | inline int ComputeTag(unsigned short iZone) { return 0; }
+      |                       ~~~~~~~~~~~~~~~^~~~~
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp: In function ‘void AD::ClearTagOnVariable(su2double&)’:
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp:321:43: error: unused parameter ‘v’ [-Werror=unused-parameter]
+  321 | inline void ClearTagOnVariable(su2double& v) {}
+      |                                ~~~~~~~~~~~^
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp: In function ‘void AD::SetTagOnVariable(su2double&, int, int)’:
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp:327:41: error: unused parameter ‘v’ [-Werror=unused-parameter]
+  327 | inline void SetTagOnVariable(su2double& v, int zone_tag = 0, int run_tag = 0) {}
+      |                              ~~~~~~~~~~~^
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp:327:48: error: unused parameter ‘zone_tag’ [-Werror=unused-parameter]
+  327 | inline void SetTagOnVariable(su2double& v, int zone_tag = 0, int run_tag = 0) {}
+      |                                            ~~~~^~~~~~~~~~~~
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp:327:66: error: unused parameter ‘run_tag’ [-Werror=unused-parameter]
+  327 | inline void SetTagOnVariable(su2double& v, int zone_tag = 0, int run_tag = 0) {}
+      |                                                              ~~~~^~~~~~~~~~~
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp: In function ‘void AD::SetDebugControl(AD::DebugControl*)’:
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp:338:43: error: unused parameter ‘control’ [-Werror=unused-parameter]
+  338 | inline void SetDebugControl(DebugControl* control) {}
+      |                             ~~~~~~~~~~~~~~^~~~~~~
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp: In function ‘void AD::SetTapeDebugOption(AD::TAPE_DEBUG_OPTION, short unsigned int)’:
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp:345:50: error: unused parameter ‘option’ [-Werror=unused-parameter]
+  345 | inline void SetTapeDebugOption(TAPE_DEBUG_OPTION option, unsigned short izone = 0) {}
+      |                                ~~~~~~~~~~~~~~~~~~^~~~~~
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp:345:73: error: unused parameter ‘izone’ [-Werror=unused-parameter]
+  345 | inline void SetTapeDebugOption(TAPE_DEBUG_OPTION option, unsigned short izone = 0) {}
+      |                                                          ~~~~~~~~~~~~~~~^~~~~~~~~
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp: In function ‘void AD::SetDebugReportFile(AD::DebugControl&, std::ostream*)’:
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp:357:46: error: unused parameter ‘control’ [-Werror=unused-parameter]
+  357 | inline void SetDebugReportFile(DebugControl& control, std::ostream* output_file) {}
+      |                                ~~~~~~~~~~~~~~^~~~~~~
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp:357:69: error: unused parameter ‘output_file’ [-Werror=unused-parameter]
+  357 | inline void SetDebugReportFile(DebugControl& control, std::ostream* output_file) {}
+      |                                                       ~~~~~~~~~~~~~~^~~~~~~~~~~
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp: In function ‘void AD::ResetErrorCounter(AD::DebugControl&)’:
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp:363:45: error: unused parameter ‘control’ [-Werror=unused-parameter]
+  363 | inline void ResetErrorCounter(DebugControl& control) {}
+      |                               ~~~~~~~~~~~~~~^~~~~~~
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp: In function ‘long unsigned int AD::GetErrorCount(const AD::DebugControl&)’:
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp:370:56: error: unused parameter ‘control’ [-Werror=unused-parameter]
+  370 | inline unsigned long GetErrorCount(const DebugControl& control) { return 0; }
+      |                                    ~~~~~~~~~~~~~~~~~~~~^~~~~~~
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp: In function ‘void AD::EndPassive(bool)’:
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp:387:29: error: unused parameter ‘wasActive’ [-Werror=unused-parameter]
+  387 | inline void EndPassive(bool wasActive) {}
+      |                        ~~~~~^~~~~~~~~
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp: In function ‘void AD::ResumePreaccumulation(bool)’:
+Common/src/adaptation/../../include/adt/./../basic_types/ad_structure.hpp:399:40: error: unused parameter ‘wasActive’ [-Werror=unused-parameter]
+  399 | inline void ResumePreaccumulation(bool wasActive) {}
+      |                                   ~~~~~^~~~~~~~~
+In file included from Common/src/adaptation/CNativeField3D.cpp:9:
+Common/src/adaptation/../../include/option_structure.hpp: In function ‘SST_ParsedOptions ParseSSTOptions(const SST_OPTIONS*, short unsigned int, int)’:
+Common/src/adaptation/../../include/option_structure.hpp:1157:107: error: unused parameter ‘rank’ [-Werror=unused-parameter]
+ 1157 | inline SST_ParsedOptions ParseSSTOptions(const SST_OPTIONS *SST_Options, unsigned short nSST_Options, int rank) {
+      |                                                                                                       ~~~~^~~~
+Common/src/adaptation/../../include/option_structure.hpp: In function ‘SA_ParsedOptions ParseSAOptions(const SA_OPTIONS*, short unsigned int, int)’:
+Common/src/adaptation/../../include/option_structure.hpp:1386:102: error: unused parameter ‘rank’ [-Werror=unused-parameter]
+ 1386 | inline SA_ParsedOptions ParseSAOptions(const SA_OPTIONS *SA_Options, unsigned short nSA_Options, int rank) {
+      |                                                                                                  ~~~~^~~~
+Common/src/adaptation/../../include/option_structure.hpp: In function ‘LM_ParsedOptions ParseLMOptions(const LM_OPTIONS*, short unsigned int, int, TURB_MODEL)’:
+Common/src/adaptation/../../include/option_structure.hpp:1510:102: error: unused parameter ‘rank’ [-Werror=unused-parameter]
+ 1510 | inline LM_ParsedOptions ParseLMOptions(const LM_OPTIONS *LM_Options, unsigned short nLM_Options, int rank, TURB_MODEL Kind_Turb_Model) {
+      |                                                                                                  ~~~~^~~~
+cc1plus: all warnings being treated as errors

@@ -1,3 +1,19 @@
+## Native 3D original sensor/query foundation — 2026-10-10
+
+FrozenField now evaluates immutable original tetrahedral SENSOR-only P1 tensors,
+with magnitude-controlled barycentric fallback, canonical donor keys, actual-query
+composition on cache hits, bounded FIFO and existing ADT pruning. No composed-wall
+interpolation, tensor reset or target clipping. PASS22cases/2294assertions+290 signs
+in native_3d_core_v1/field_controls_v4.210 independent actual-binary64 Fraction
+queries across rotation/aspect/scales/translations PASS in field_oracle_v3:
+weighterror8.1262e-17, directional tensordefect1.5378e-16. Oracle versions byte-identical.
+Profile counters include rejected composition work; query child scopes exclusive.
+No tree for a singleton donor, one candidate among256 separated donors, no speedup
+claim. Exact-only containment and local patches: physical extension, integration
+breakpoints, real3D BL provider, metric-gated remeshing, MPI and full-event cost
+remain pending. FIELD_CHECKPOINT.md explains source/failure retention and scopes.
+Goal1 active; native support still rejects3D.
+
 ## Native 3D bounded cavity closure — 2026-10-10
 
 Private coning now handles insertion, interior movement/removal and some

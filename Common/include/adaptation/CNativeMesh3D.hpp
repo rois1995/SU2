@@ -35,6 +35,11 @@ struct KernelStats {
 };
 /*! Exact sign for finite binary64 inputs; magnitude rounded to long double. */
 long double Orientation(Point a, Point b, Point c, Point d, KernelStats* stats = nullptr);
+/*! Positive donor, exact containment signs and magnitude-controlled P1 weights; outside leaves weights unchanged. */
+bool Barycentric(const Tetrahedron& donor, Point point, std::array<long double, 4>& weights,
+                 KernelStats* stats = nullptr);
+/*! Finite components and exact Sylvester signs; no tensor repair or condition-number clipping. */
+void ValidateTensor(const Tensor& tensor, KernelStats* stats = nullptr);
 struct MetricMeasures {
   double mean_ratio = 0, minimum_scaled_jacobian = 0, rms_edge = 0, maximum_edge = 0;
 };

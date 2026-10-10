@@ -1,5 +1,43 @@
 # Current handoff — 2026-10-10
 
+## Native 3D immutable sensor/query checkpoint — 2026-10-10
+
+Prior goal turn progressed with cavitye7f87ecf4a published. New strict Barycentric
+uses exact signs and1e-13 magnitude admission, falling back to bounded exact
+integer arithmetic for thin rotated ratio accuracy. Exact tensor admission shared
+with Measure. New FrozenField snapshots sensor-only original tetrahedra, sorts
+canonical node keys, validates shared values, reuses SU2 ADT for multiple donors
+and bypasses an unnecessary singleton tree. Bound256donors/2048FIFO sensor samples.
+Every query recomposes at the actual point including cache hits; composed BL
+nodal tensors are never interpolated/cached. Actual-query semantics and finer
+sensor demand tested with a manufactured thin floor, not a real3D BL provider.
+Exact containment only: associated physical roundoff/extension remains pending.
+
+PASS22cases/2294assertions+290 exact signs in announced
+SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/field_controls_v4.
+Actual house ADT/base and serial MPI-wrapper compiled/linked, no stubs/full solver.
+PASS210 independent Fraction indexed queries in field_oracle_v3,150inside60outside,
+aspect1..1e10/scales1e-50..1e50/translations0/1000. Maxweight8.1262e-17,
+directional tensor defect1.5378e-16 tolerance1e-12; fine nodalzz1e10..4e10.
+Oracle v1/v2/v3 result lines byte-identical. Initial Werror unused-header-parameter
+failure retained; runner matches project Wno-unused-parameter. Earlier field
+source/test snapshots and failed runner match receipt hashes for replay.
+
+FieldStats records queries/hits/misses/failures, actual interpolation/composition
+attempts including rejection, candidates/containment/cache bounds/index bytes and
+optional exclusive query child timers under query parent.256 separated donors
+produce1candidate/1test. Build/caller-copy scopes documented; memory ceiling and
+full MPI/event closure/instrumentation overhead/scaling still pending. One owned
+low-priority process at a time under foreign Python/MPI; no full Meson/CFD/MPI/AD
+run or speedup claim. FIELD_CHECKPOINT.md is the current detailed scope/replay.
+
+Next actual metric/shape/edge acceptance with source/geometric integration
+breakpoints, physical-boundary roundoff/extension and coupled planar surface
+operators, then MPI admission/weighted partitions/return/transfer/full validation.
+Native runtime support still rejects3D.2D/MMG source/fade/noise untouched.
+Goal1 ACTIVE and full original scope unchanged.
+
+
 ## Native 3D private cavity reconstruction — 2026-10-10
 
 Previous goal turn made progress: incidence4be53587cc published. New bounded

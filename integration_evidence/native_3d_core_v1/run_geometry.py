@@ -43,10 +43,19 @@ try:
     run(compiler+strict+['-c','Common/src/adaptation/CNativeTopology3D.cpp','-o',str(topology_obj)],'compile_topology')
     cavity_obj = folder/'cavity.o'
     run(compiler+strict+['-c','Common/src/adaptation/CNativeCavity3D.cpp','-o',str(cavity_obj)],'compile_cavity')
+    field_obj = folder/'field.o'
+    run(compiler+strict+['-Wno-unused-parameter','-c','Common/src/adaptation/CNativeField3D.cpp','-o',str(field_obj)],'compile_field')
+    house_objects = []
+    for source in ['Common/src/adt/CADTBaseClass.cpp','Common/src/adt/CADTElemClass.cpp',
+                   'Common/include/parallelization/mpi_structure.cpp']:
+        output_obj = folder/(Path(source).stem+'.o')
+        run(compiler+['-O2','-fno-fast-math','-ffp-contract=off','-c',source,'-o',str(output_obj)],'compile_'+Path(source).stem)
+        house_objects.append(str(output_obj))
     run(compiler+['-O0','-Iexternals/catch2',str(folder/'catch_main.cpp'),
                  'UnitTests/Common/adaptation/CNativeMesh3D_tests.cpp',
                  'UnitTests/Common/adaptation/CNativeTopology3D_tests.cpp',
-                 'UnitTests/Common/adaptation/CNativeCavity3D_tests.cpp',str(obj),str(topology_obj),str(cavity_obj),'-o',str(folder/'test_kernel')],'compile_tests')
+                 'UnitTests/Common/adaptation/CNativeCavity3D_tests.cpp',
+                 'UnitTests/Common/adaptation/CNativeField3D_tests.cpp',str(obj),str(topology_obj),str(cavity_obj),str(field_obj)]+house_objects+['-o',str(folder/'test_kernel')],'compile_tests')
     output = run(['nice','-n','19',str(folder/'test_kernel'),'[NativeMesh3D]','--use-colour','no'],'unit_tests')
     assert 'All tests passed' in output
     run(compiler+strict+['-I.',str(folder/'orientation_driver.cpp'),str(obj),'-o',str(folder/'orientation_driver')],'compile_orientation_driver')
@@ -90,10 +99,14 @@ finally:
              'Common/include/adaptation/CNativeTopology3D.hpp','Common/src/adaptation/CNativeTopology3D.cpp',
              'UnitTests/Common/adaptation/CNativeTopology3D_tests.cpp',
              'Common/include/adaptation/CNativeCavity3D.hpp','Common/src/adaptation/CNativeCavity3D.cpp',
-             'UnitTests/Common/adaptation/CNativeCavity3D_tests.cpp','Common/src/meson.build','UnitTests/meson.build',
+             'UnitTests/Common/adaptation/CNativeCavity3D_tests.cpp',
+             'Common/include/adaptation/CNativeField3D.hpp','Common/src/adaptation/CNativeField3D.cpp',
+             'UnitTests/Common/adaptation/CNativeField3D_tests.cpp','Common/src/adt/CADTBaseClass.cpp',
+             'Common/src/adt/CADTElemClass.cpp','Common/include/parallelization/mpi_structure.cpp',
+             'Common/src/meson.build','UnitTests/meson.build',
              str(Path(__file__).resolve().relative_to(root))]
     result = dict(status=status,stages=records,source_sha256={p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in files},
-                  scope='Isolated geometry/incidence/cavity Catch controls and 290 binary64 tetrahedral signs against exact Fraction references. One-core sequential low-priority compilation; no full SU2 build, CFD, MPI, global embedding, complete distributed-star, surface/field or performance scaling qualification.')
+                  scope='Isolated geometry/incidence/cavity/field Catch controls and 290 binary64 tetrahedral signs against exact Fraction references. One-core sequential low-priority compilation; no full SU2 build, CFD, MPI, global embedding, complete distributed-star, surface/field or performance scaling qualification.')
     result['artifact_sha256'] = {str(p.relative_to(folder)):hashlib.sha256(p.read_bytes()).hexdigest() for p in folder.iterdir() if p.is_file()}
     (folder/'validation.json').write_text(json.dumps(result,indent=2)+'\n')
     print(status,folder,flush=True)
