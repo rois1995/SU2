@@ -1,4 +1,4 @@
-"""Small sequential native 3D geometry checks; no SU2/CFD build or MPI launch."""
+"""Small sequential native 3D geometry/incidence checks; no SU2/CFD build or MPI launch."""
 import fractions
 import hashlib
 import json
@@ -39,8 +39,11 @@ try:
     strict = ['-O2','-fno-fast-math','-fno-unsafe-math-optimizations','-ffp-contract=off','-Wall','-Wextra','-Werror']
     obj = folder/'predicates.o'
     run(compiler+strict+['-c','Common/src/adaptation/CNativePredicates3D.cpp','-o',str(obj)],'compile_predicates')
+    topology_obj = folder/'topology.o'
+    run(compiler+strict+['-c','Common/src/adaptation/CNativeTopology3D.cpp','-o',str(topology_obj)],'compile_topology')
     run(compiler+['-O0','-Iexternals/catch2',str(folder/'catch_main.cpp'),
-                 'UnitTests/Common/adaptation/CNativeMesh3D_tests.cpp',str(obj),'-o',str(folder/'test_kernel')],'compile_tests')
+                 'UnitTests/Common/adaptation/CNativeMesh3D_tests.cpp',
+                 'UnitTests/Common/adaptation/CNativeTopology3D_tests.cpp',str(obj),str(topology_obj),'-o',str(folder/'test_kernel')],'compile_tests')
     output = run(['nice','-n','19',str(folder/'test_kernel'),'[NativeMesh3D]','--use-colour','no'],'unit_tests')
     assert 'All tests passed' in output
     run(compiler+strict+['-I.',str(folder/'orientation_driver.cpp'),str(obj),'-o',str(folder/'orientation_driver')],'compile_orientation_driver')
@@ -80,10 +83,12 @@ try:
     status = 'PASS'
 finally:
     files = ['Common/include/adaptation/CNativeMesh3D.hpp','Common/src/adaptation/CNativePredicates3D.cpp',
-             'UnitTests/Common/adaptation/CNativeMesh3D_tests.cpp','Common/src/meson.build','UnitTests/meson.build',
+             'UnitTests/Common/adaptation/CNativeMesh3D_tests.cpp',
+             'Common/include/adaptation/CNativeTopology3D.hpp','Common/src/adaptation/CNativeTopology3D.cpp',
+             'UnitTests/Common/adaptation/CNativeTopology3D_tests.cpp','Common/src/meson.build','UnitTests/meson.build',
              str(Path(__file__).resolve().relative_to(root))]
     result = dict(status=status,stages=records,source_sha256={p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in files},
-                  scope='Six isolated kernel cases and 290 binary64 tetrahedral signs against exact Fraction references. One-core sequential low-priority compilation; no full SU2 build, CFD, MPI, topology/surface/field or performance scaling qualification.')
+                  scope='Isolated geometry/incidence Catch controls and 290 binary64 tetrahedral signs against exact Fraction references. One-core sequential low-priority compilation; no full SU2 build, CFD, MPI, global embedding, complete distributed-star, surface/field or performance scaling qualification.')
     result['artifact_sha256'] = {str(p.relative_to(folder)):hashlib.sha256(p.read_bytes()).hexdigest() for p in folder.iterdir() if p.is_file()}
     (folder/'validation.json').write_text(json.dumps(result,indent=2)+'\n')
     print(status,folder,flush=True)

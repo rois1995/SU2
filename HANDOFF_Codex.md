@@ -1,5 +1,28 @@
 # Current handoff — 2026-10-10
 
+## Native 3D local incidence and reference check — 2026-10-10
+
+Geometry checkpoint191f35fd58c0cd816b1e1f786cdbbf5441a3099b published and remote
+verified on codex/native-3d-core. User asks independent robust/efficient design,
+using repair scripts and existing papers as evidence rather than prescriptions.
+Local Loseille2017 cavity, Tsolakis2021 parallel and Galbraith2020 verification
+sections reviewed; reading scope/paths/hashes in native_3d_core_v1/papers_reference.json,
+design decisions/limits in DESIGN_REFERENCES.md. No new paper requested yet.
+
+New Node/Cell records and immutable sorted face/edge/vertex index reject invalid
+identity/coordinates/volume/face cancellation and provide oriented boundary and
+face-component diagnostics. Queries cover supplied cells only: no MPI-complete
+star, vertex-link or geometric embedding certificate. Build O(k log k), memory
+O(k), query O(log k + star size); private bounded-patch use intended. No cavity
+replacement or full driver support yet; native2D implementation untouched.
+
+PASS10Catch cases/93assertions plus290 exact Fraction signs in announced folder
+SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/topology_controls_v1.
+One sequential nice19 single-core check under host load~3.8 and one foreign
+Python job; no fullSU2build/CFD/MPI. Sources/tests wired into Meson; full link
+pending. No adapted grid produced. Goal1 ACTIVE, remaining full scope unchanged.
+
+
 ## Goal 1 activated: native 3D core — 2026-10-10
 
 User requested final push of 2D work, then activation/pursuit of first3D goal.

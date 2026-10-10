@@ -66,10 +66,33 @@ nice -n 19 python3 integration_evidence/native_3d_core_v1/run_geometry.py \
 integration_evidence/native_3d_core_v1/geometry_controls_NEW
 ```
 
+## Incidence checkpoint
+
+Common/include/adaptation/CNativeTopology3D.hpp and its strict source add canonical
+face/edge/vertex records and immutable indexed supplied-cell stars. Construction
+rejects nonpositive/duplicate cells, duplicate vertex IDs within a cell,
+inconsistent coordinates, nonmanifold face incidence and uncancelled internal
+face orientations. It reports oriented boundary triangles and face-connected
+components. This does not establish globally complete MPI stars, manifold vertex
+links, embedding or a valid arbitrary replacement. See DESIGN_REFERENCES.md and
+papers_reference.json for the local primary-paper assessment.
+
+Actual check folder:
+`/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/topology_controls_v1`.
+PASS: all10 Catch cases/93 assertions and the290 exact Fraction orientation
+references. A six-tet cube verifies that a complete six-cell edge/vertex star
+exceeds a two-cell face pair, orientation-preserving permutations leave incidence
+unchanged and all12 exterior triangles point outward. Malformed record,
+same-side/nonmanifold shared-face, disconnected and vertex-pinched controls are
+included. Face connectivity is a diagnostic, not a full skin/link audit.
+One sequential low-priority check only; no full SU2 build, CFD or MPI run.
+Raw logs, commands and source/artifact hashes are retained in validation.json.
+The current runner includes geometry and incidence; reproduce in a NEW folder.
+Geometry-only v2 remains the immutable earlier checkpoint from191f35fd58.
+
 ## Next work and limits
 
-Implement canonical tetrahedral IDs/incidence and complete cavity boundary
-validation, then bounded coupled split/collapse/move/reconnection including the
+Implement complete cavity boundary/embedding validation, then bounded coupled split/collapse/move/reconnection including the
 useful edge-ring reconstruction from the script reference. Preserve immutable
 original sensor queries; add indexed donor discovery and bounded query phase
 costs before larger meshes. Adapt planar physical surfaces as coupled volume

@@ -1,3 +1,16 @@
+## Native 3D incidence and local paper design — 2026-10-10
+
+On codex/native-3d-core, canonical indexed supplied-cell face/edge/vertex incidence
+now rejects malformed identity/coordinates, nonpositive cells and incompatible
+shared faces. Six-cell cube star tests demonstrate why face adjacency alone is
+insufficient for edge/vertex dependencies. PASS10 cases/93 assertions and290 exact
+orientation signs in native_3d_core_v1/topology_controls_v1. These are isolated
+controls; MPI completeness, vertex links, embedding, replacements and adaptable
+physical surfaces remain pending. Exact provenance and local Loseille2017,
+Tsolakis2021 and Galbraith2020 reading scopes retained with design references.
+Build O(k log k), storage O(k), lookups O(log k + star); do not rebuild global
+incidence per proposal. No full driver/MPI test or performance claim. Goal1 active.
+
 # Mesh adaptation findings and follow-up work
 
 ## 2026-10-10: native3D geometric foundation starts Goal1

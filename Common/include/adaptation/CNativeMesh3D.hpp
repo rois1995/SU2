@@ -18,6 +18,17 @@ struct Tensor {
   double xx = 1, xy = 0, xz = 0, yy = 1, yz = 0, zz = 1;
   template <class Stream> void Fields(Stream& s) { s(xx, xy, xz, yy, yz, zz); }
 };
+using Id = uint64_t;
+struct Node {
+  Id id = 0;
+  Point p;
+  template <class Stream> void Fields(Stream& s) { s(id, p); }
+};
+struct Cell {
+  Id id = 0;
+  std::array<Node, 4> v;
+  template <class Stream> void Fields(Stream& s) { s(id, v); }
+};
 using Tetrahedron = std::array<Point, 4>;
 struct KernelStats {
   uint64_t filtered_orientations = 0, exact_orientations = 0, measured_cells = 0;

@@ -1,0 +1,155 @@
+{
+  "status": "PASS",
+  "stages": [
+    {
+      "stage": "compile_predicates",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "g++",
+        "-std=c++17",
+        "-O2",
+        "-fno-fast-math",
+        "-fno-unsafe-math-optimizations",
+        "-ffp-contract=off",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-c",
+        "Common/src/adaptation/CNativePredicates3D.cpp",
+        "-o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/topology_controls_v1/predicates.o"
+      ],
+      "exit_code": 0,
+      "seconds": 0.6148377889767289
+    },
+    {
+      "stage": "compile_topology",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "g++",
+        "-std=c++17",
+        "-O2",
+        "-fno-fast-math",
+        "-fno-unsafe-math-optimizations",
+        "-ffp-contract=off",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-c",
+        "Common/src/adaptation/CNativeTopology3D.cpp",
+        "-o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/topology_controls_v1/topology.o"
+      ],
+      "exit_code": 0,
+      "seconds": 1.427137904043775
+    },
+    {
+      "stage": "compile_tests",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "g++",
+        "-std=c++17",
+        "-O0",
+        "-Iexternals/catch2",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/topology_controls_v1/catch_main.cpp",
+        "UnitTests/Common/adaptation/CNativeMesh3D_tests.cpp",
+        "UnitTests/Common/adaptation/CNativeTopology3D_tests.cpp",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/topology_controls_v1/predicates.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/topology_controls_v1/topology.o",
+        "-o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/topology_controls_v1/test_kernel"
+      ],
+      "exit_code": 0,
+      "seconds": 12.250946427986491
+    },
+    {
+      "stage": "unit_tests",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/topology_controls_v1/test_kernel",
+        "[NativeMesh3D]",
+        "--use-colour",
+        "no"
+      ],
+      "exit_code": 0,
+      "seconds": 0.005032838031183928
+    },
+    {
+      "stage": "compile_orientation_driver",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "g++",
+        "-std=c++17",
+        "-O2",
+        "-fno-fast-math",
+        "-fno-unsafe-math-optimizations",
+        "-ffp-contract=off",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-I.",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/topology_controls_v1/orientation_driver.cpp",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/topology_controls_v1/predicates.o",
+        "-o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/topology_controls_v1/orientation_driver"
+      ],
+      "exit_code": 0,
+      "seconds": 0.34531720803352073
+    },
+    {
+      "stage": "exact_orientation_oracle",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/topology_controls_v1/orientation_driver"
+      ],
+      "exit_code": 0,
+      "seconds": 0.005183973000384867
+    }
+  ],
+  "source_sha256": {
+    "Common/include/adaptation/CNativeMesh3D.hpp": "43057e5bb16c4ed600b5ab7127ad263784322f9840af3055e4b863b276d0c13b",
+    "Common/src/adaptation/CNativePredicates3D.cpp": "81afb223c29364623c3443af4b19a89cbb9eb89b333bae70fdc91073ca54b61f",
+    "UnitTests/Common/adaptation/CNativeMesh3D_tests.cpp": "03ac26b589aefec18d5be67188de6d83534efef000bd3c302b365367c9246fb9",
+    "Common/include/adaptation/CNativeTopology3D.hpp": "8e60e17bae7a2b682f9431514ed88aa33994b8f98a199605ae641df9f633ddaa",
+    "Common/src/adaptation/CNativeTopology3D.cpp": "d8a099542448936e7cccc06907ae8db12db3df30f73a90843ff11627734d8048",
+    "UnitTests/Common/adaptation/CNativeTopology3D_tests.cpp": "817099bb89ba83d4caf733dfc9b9fd3c13716d7c0c5a2d968de7feb47a43f575",
+    "Common/src/meson.build": "a4e8e39fa37b30f52de1c5b5c092d02dc4d78d6974cb19e08cce704e8ecbeeb8",
+    "UnitTests/meson.build": "7b96a8467d622f63417cea4fc5b7f1c8bacee762e9b5e05fe9ea179af296c519",
+    "integration_evidence/native_3d_core_v1/run_geometry.py": "0e06e59a67f7801a2b757e6331b1a4361c67ba8bc3ebe267c3634362e57d18f2"
+  },
+  "scope": "Isolated geometry/incidence Catch controls and 290 binary64 tetrahedral signs against exact Fraction references. One-core sequential low-priority compilation; no full SU2 build, CFD, MPI, global embedding, complete distributed-star, surface/field or performance scaling qualification.",
+  "artifact_sha256": {
+    "compile_orientation_driver.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "unit_tests.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "predicates.o": "dd11a53e67546b7c6aa60c59d4f6d597ab038d9cb3c2561a18c66eb4e58fd2aa",
+    "orientation_driver": "7cf67899f05a6cc2c52516af1ee6f8766ef5ffbe3ef89f46e99b0438f0534a64",
+    "topology.o": "801e6f9f29432a7667d6c1dba687448b8ddf1951e036c5c722561bd10c100da9",
+    "test_kernel": "f244c5e8bc0bedf89d5c9f284bde46971a7e9fa79e010a48be30ae66414ba524",
+    "compile_orientation_driver.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compile_topology.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "exact_orientation_oracle.stderr": "cf5ed39904ede42941f68f85e31be4ececd1027403691df3b61590060f0ef9cf",
+    "compile_topology.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "exact_orientation_oracle.stdout": "54eccb79938f384a4d43373cea49a54bc723770d26eede7f589b2f05f0c0239b",
+    "catch_main.cpp": "5847fda35c1320d94f8d088aaf34229d689f66f1da235f885cbb28c8f17e4260",
+    "orientation_driver.cpp": "29119cfa5ee94836340b2e54ee9b344a9de54965b5dba763c0c2808dbb569dbd",
+    "orientation_expected.json": "b65f355714744aec35aa1e910e5cb084c160e89b5f30dccc25f62436e6ac34ae",
+    "compile_tests.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "orientation_samples.txt": "d2e65e4d79b7c534aaeb3a350edfd5e92f6201ce052fbfffa1572e59c777fc8a",
+    "compile_tests.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compile_predicates.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compile_predicates.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "unit_tests.stdout": "65cddb4c076668be32f6c0d2b7fb18a9465dd4b18b19209c31490567b29f996c"
+  }
+}
