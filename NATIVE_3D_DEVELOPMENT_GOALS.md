@@ -1,8 +1,10 @@
 # Native 3D development goals
 
-Prepared 2026-10-10 at the user's request. These are four sequential goals,
-ready for individual activation; preparation does not activate any of them.
-The existing partition/performance tracker remains paused.
+Prepared 2026-10-10 at the user's request. Goal 1 was explicitly activated
+on 2026-10-10 after publishing the completed 2D reuse checkpoint. Goals 2–4
+remain prepared for later activation; the old partition goal was cleared.
+Active implementation branch: codex/native-3d-core, based on
+038fdfa5786fb3f6af392d97257bfbb2bb29f036.
 
 Working repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
 Planning branch: codex/native-unsteady-performance, publication checkpoint

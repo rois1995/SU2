@@ -1,5 +1,43 @@
 # Current handoff — 2026-10-10
 
+## Goal 1 activated: native 3D core — 2026-10-10
+
+User requested final push of 2D work, then activation/pursuit of first3D goal.
+2D reuse checkpoint038fdfa5786fb3f6af392d97257bfbb2bb29f036 verified on remote;
+all source/docs/review evidence already pushed. Downloaded ClusterResults remain
+local user data. Goal tracker now ACTIVE with Goal1+shared contract, no budget.
+Implementation branch codex/native-3d-core created from that checkpoint in
+SU2_NativeIntegrated; performance branch retained, AdapNoExt untouched.
+
+User suggested /media/rausa/4TB/MeshAdaptation/Scripts. Source review finds useful
+3D coupled metric-space coordinate optimization, 2->3 and edge-ring (3..7)
+reconnection, interior edge-star insertion, manifold/feasibility closure and
+embedding checks. Full controller is fixed-boundary/MMG3D/serial and metric field
+uses deformation transport/log interpolation; these do not replace native P1,
+actual-query geometric BL, strict guards or adaptable MPI surface transactions.
+Reference note and source hashes in integration_evidence/native_3d_core_v1.
+
+First source increment adds isolated native3D predicate/metric-measure kernel
+and focused unit tests, leaving native2D source and support checks intact.
+Existing strict passive library builds the new unit without fast math/contraction.
+Exact binary64 sign uses bounded integer fallback; quality combines regular-tet
+mean ratio with normalized minimum vertex Jacobian and separate edge sizes.
+Initial 3D shape gates .20/.05 frozen for first campaign; not CFD accuracy claims.
+No 3D driver support, cavity edit, surface adaptation or MPI remeshing claimed yet.
+
+Initial host check showed foreign Python/MPI work; heavier builds deferred.
+Later MPI run ended, leaving one busy Python process, so a small one-core nice19
+kernel check ran in integration_evidence/native_3d_core_v1/geometry_controls_v2.
+PASS6Catch cases/40assertions and290 exact Fraction orientation references
+(118filtered/172exact). No fullSU2build/CFD/MPI; .65s predicate compile,9.86s
+Catch compile, .0045s tests observed, not performance claims. Failed v1 retained:
+Python3.8 math.ulp and relative __file__ provenance errors corrected in runner.
+Source/artifact pins and commands retained; native3D core README explains limits.
+No grids yet: geometry-only tests, not mesh adaptation. Next canonical incidence,
+bounded cavities/reconnection, actual-query field/indexing, planar surface
+transactions and MPI admission/partition/return. No existing full build folder.
+Goal ACTIVE; local-first/resource policy holds. Case folder announced before run.
+
 ## Strict frozen matrix582358 reviewed — 2026-10-10
 
 All16 frozen Euler-to-BL/BL-to-Euler cases and8 strict OFF/BOTH pairs PASS,

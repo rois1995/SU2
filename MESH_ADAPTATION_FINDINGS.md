@@ -1,5 +1,23 @@
 # Mesh adaptation findings and follow-up work
 
+## 2026-10-10: native3D geometric foundation starts Goal1
+
+User activated first3D goal after the published2D checkpoint. Separate branch
+codex/native-3d-core. Isolated strict kernel adds exact tetrahedral sign, stable
+SPD admission/metric measures and initial mean-ratio/sliver gates .20/.05.
+SixCatch cases40assertions and290 independent Fraction signs PASS locally;
+172exact fallback/118filtered cases. No fullSU2build/CFD/MPI/3D remeshing;
+no affordable mesh-generation or boundary/BL capability claim.2D sources and
+backend support guards unchanged. Initial Python3.8 runner failure retained.
+
+User-provided MeshAdaptation/Scripts contains useful coupled metric-coordinate
+movement,2->3/edge-ring reconnection, edge-star insertion and embedding/closure
+checks. Full3D repair controller requires fixed boundaries/MMG3D; its transported
+log-interpolated donors and source quality exceptions are not native contracts.
+Source review/pins: integration_evidence/native_3d_core_v1/SCRIPTS_REFERENCE.md.
+Actual geometry test folder: integration_evidence/native_3d_core_v1/geometry_controls_v2.
+Goal1 remains ACTIVE; complete MPI/remeshing/performance gates remain ahead.
+
 ## 2026-10-10: strict frozen matrix582358 closes the 2D reuse checkpoint
 
 All16 remeshes/eight same-binary OFF/BOTH pairs PASS across both workload

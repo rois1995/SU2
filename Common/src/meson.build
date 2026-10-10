@@ -44,7 +44,8 @@ subdir('adaptation')
 # Compile without fast math or contraction (options appended after the SU2 flags win).
 # Pure doubles: the same library for every build type; retain its existing name.
 accurate_sum_lib = static_library('SU2AccurateSum',
-                                  files(['adaptation/CAccurateSum.cpp', 'adaptation/CNativePredicates2D.cpp']),
+                                  files(['adaptation/CAccurateSum.cpp', 'adaptation/CNativePredicates2D.cpp',
+                                         'adaptation/CNativePredicates3D.cpp']),
                                   install : false,
                                   cpp_args: [default_warning_flags, su2_cpp_args,
                                              '-fno-fast-math', '-fno-unsafe-math-optimizations',
