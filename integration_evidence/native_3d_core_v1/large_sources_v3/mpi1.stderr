@@ -1,0 +1,51 @@
+terminate called after throwing an instance of 'std::runtime_error'
+  what():  Truncated native record.
+[pc-rausa:2206218] *** Process received signal ***
+[pc-rausa:2206218] Signal: Aborted (6)
+[pc-rausa:2206218] Signal code:  (-6)
+[pc-rausa:2206218] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x43090)[0x7fe48233c090]
+[pc-rausa:2206218] [ 1] /lib/x86_64-linux-gnu/libc.so.6(gsignal+0xcb)[0x7fe48233c00b]
+[pc-rausa:2206218] [ 2] /lib/x86_64-linux-gnu/libc.so.6(abort+0x12b)[0x7fe48231b859]
+[pc-rausa:2206218] [ 3] /lib/x86_64-linux-gnu/libstdc++.so.6(+0x9e8d1)[0x7fe4826f38d1]
+[pc-rausa:2206218] [ 4] /lib/x86_64-linux-gnu/libstdc++.so.6(+0xaa37c)[0x7fe4826ff37c]
+[pc-rausa:2206218] [ 5] /lib/x86_64-linux-gnu/libstdc++.so.6(+0xaa3e7)[0x7fe4826ff3e7]
+[pc-rausa:2206218] [ 6] /lib/x86_64-linux-gnu/libstdc++.so.6(+0xaa699)[0x7fe4826ff699]
+[pc-rausa:2206218] [ 7] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/large_sources_v3/large_source_probe(+0xbe0c)[0x55db9119ce0c]
+[pc-rausa:2206218] [ 8] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/large_sources_v3/large_source_probe(+0x519c9)[0x55db911e29c9]
+[pc-rausa:2206218] [ 9] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/large_sources_v3/large_source_probe(+0x5284f)[0x55db911e384f]
+[pc-rausa:2206218] [10] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/large_sources_v3/large_source_probe(+0x53c2b)[0x55db911e4c2b]
+[pc-rausa:2206218] [11] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/large_sources_v3/large_source_probe(+0xf213)[0x55db911a0213]
+[pc-rausa:2206218] [12] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0xf3)[0x7fe48231d083]
+[pc-rausa:2206218] [13] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/large_sources_v3/large_source_probe(+0x14e1e)[0x55db911a5e1e]
+[pc-rausa:2206218] *** End of error message ***
+--------------------------------------------------------------------------
+Primary job  terminated normally, but 1 process returned
+a non-zero exit code. Per user-direction, the job has been aborted.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+mpirun noticed that process rank 0 with PID 0 on node pc-rausa exited on signal 6 (Aborted).
+--------------------------------------------------------------------------
+Command exited with non-zero status 134
+	Command being timed: "mpirun --oversubscribe --bind-to none -np 1 /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/large_sources_v3/large_source_probe /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/large_sources_v3/mpi1_meshes"
+	User time (seconds): 0.02
+	System time (seconds): 0.02
+	Percent of CPU this job got: 2%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:02.47
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 22616
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2063
+	Minor (reclaiming a frame) page faults: 4398
+	Voluntary context switches: 1089
+	Involuntary context switches: 17
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 16488
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 134

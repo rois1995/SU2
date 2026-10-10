@@ -703,6 +703,9 @@ void EngineReport(const EngineResult& result, World& world, const std::string& l
        << " repair_fallbacks=" << s.repair_fallbacks << " fallback_accepted=" << s.fallback_accepted
        << " recovery_starts=" << s.recovery_starts << " repair_proposals=" << s.repair_proposals << " moved=" << s.moved << " reconnected=" << s.reconnected
        << " batches=" << s.donor_batches << " batch_retries=" << s.batch_retries
+       << " donor_candidates=" << s.donor_candidates << " donor_filtered=" << s.donor_filtered
+       << " donor_payloads=" << s.donor_payloads << " donor_maximum_patch=" << s.donor_maximum_patch
+       << " donor_search_nested_s=" << s.donor_search_seconds << " donor_filter_nested_s=" << s.donor_filter_seconds
        << " field_build_nested_s=" << s.field_build_seconds << " field_query_nested_s=" << s.field_query_seconds
        << " cache_nested_s=" << s.field_cache_seconds << " search_nested_s=" << s.field_search_seconds
        << " interpolation_nested_s=" << s.field_interpolation_seconds << " composition_nested_s=" << s.field_composition_seconds
@@ -1356,3 +1359,34 @@ TEST_CASE("Native automatic MPI repair selects complete failing features and res
     }
 }
 #endif
+
+TEST_CASE("Native exact cell donor filters retain closed boundaries and reject invalid requests atomically", "[NativeDistributed3D]") {
+  World world; const auto geometry=Box();
+  DonorImport service(world); std::string reason;
+  std::vector<DonorCell> original;
+  for(auto cell:geometry.patch.cells) if(cell.id%world.size==unsigned(world.rank)) {
+    DonorCell donor; donor.cell=cell;
+    for(size_t i=0;i<4;++i) donor.sensor[i].xx=2+cell.v[i].p.x;
+    original.push_back(donor);
+  }
+  REQUIRE(service.Build(original,reason));
+  const auto resident=service.ResidentBytes();
+  auto cell=geometry.patch.cells.front();
+  auto imported=service.ImportCells(world.rank ? std::vector<Cell>{} : std::vector<Cell>{cell});
+  REQUIRE(imported.valid);
+  if (!world.rank) {
+    FrozenField field(imported.cells);
+    for(auto node:cell.v) CHECK(field.Query(node.p).sensor.xx==Approx(2+node.p.x));
+    CHECK(field.SensorEdgeLength(cell.v[0].p,cell.v[1].p)>0);
+  } else CHECK(imported.cells.empty());
+  std::swap(cell.v[0],cell.v[1]);
+  CHECK_FALSE(service.ImportCells(world.rank ? std::vector<Cell>{} : std::vector<Cell>{cell}).valid);
+  CHECK(service.ResidentBytes()==resident);
+  std::swap(cell.v[0],cell.v[1]); cell.v[0].p.x=NAN;
+  CHECK_FALSE(service.ImportCells(world.rank ? std::vector<Cell>{} : std::vector<Cell>{cell}).valid);
+  CHECK_FALSE(service.ImportCells(std::vector<Cell>(MaximumCavityCells+1)).valid);
+  CHECK_FALSE(service.ImportCells(geometry.patch.cells,1).valid);
+  CHECK(service.ImportCells({}).valid);
+  CHECK(service.ImportCells({geometry.patch.cells.front()}).valid);
+  CHECK(service.Statistics().filter_candidates==0);
+}

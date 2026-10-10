@@ -54,6 +54,11 @@ try:
         objects.append(str(obj))
     binary=folder/'serial_engine'
     run(compiler+[control]+objects+['-Wl,--gc-sections','-o',str(binary)],'link')
+    passive=folder/'passive_tests'
+    run(compiler+['-O0','-Iexternals/catch2','UnitTests/test_driver.cpp',
+        'UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp']+objects+
+        ['-Wl,--gc-sections','-o',str(passive)],'link_passive_tests')
+    assert 'All tests passed' in run(['nice','-n','19',str(passive),'[NativeDistributed3D]','--use-colour','no'],'passive_tests')
     assert 'PASS actual non-MPI engine' in run(['nice','-n','19','/usr/bin/time','-v',str(binary)],'run')
     status='PASS'
 finally:
@@ -64,7 +69,8 @@ finally:
                 final_source_sha256=final,changed_during_run=changed,stages=records,
                 scope='Actual non-MPI engine refine/general-coarsen/refine plus automatic and private planar movement/face reconnection, strict metric gates and accepted-input rejection preservation. No CFD, BL, CGNS or scaling claim.')
     result['artifact_sha256']={str(p.relative_to(folder)):hashlib.sha256(p.read_bytes()).hexdigest()
-        for p in folder.rglob('*') if p.is_file() and p.suffix!='.o' and p.name!='serial_engine'}
+        for p in folder.rglob('*') if p.is_file() and p.suffix!='.o' and p.name not in ('serial_engine','passive_tests')}
     if (folder/'serial_engine').exists(): result['binary_sha256']=hashlib.sha256((folder/'serial_engine').read_bytes()).hexdigest()
+    if (folder/'passive_tests').exists(): result['passive_test_binary_sha256']=hashlib.sha256((folder/'passive_tests').read_bytes()).hexdigest()
     (folder/'validation.json').write_text(json.dumps(result,indent=2)+'\n')
     print(status,folder,flush=True)

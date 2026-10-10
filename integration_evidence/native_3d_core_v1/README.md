@@ -1,3 +1,10 @@
+Latest checkpoint: strict cell-shaped imports for larger original sensor sources,
+with small-source cost protection and complete original mesh identity. See
+[LARGE_SOURCE_CHECKPOINT.md](LARGE_SOURCE_CHECKPOINT.md).
+New grids and rejected input: `large_sources_v4/mpi{1,2,4}_meshes/`.
+Goal1 remains active; source750 whole-cell cap, coplanar authority, runtime/
+partition/CFD/CGNS and full lifecycle/performance are unfinished.
+
 Latest checkpoint: in-event bounded repair fallback/recovery through Refine and
 Coarsen, with invalid-field escalation, exact independent audits and preserved
 prior mesh trajectories. See [RECOVERY_INTEGRATION_CHECKPOINT.md](RECOVERY_INTEGRATION_CHECKPOINT.md).

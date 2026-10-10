@@ -22,6 +22,9 @@ struct EngineStats {
   uint64_t initial_cells = 0, updated_cells = 0, edge_evaluations = 0, edge_reused = 0, selections = 0;  // Edge evaluations here count selection-cache measurements only.
   uint64_t field_requests = 0, field_hits = 0, field_compositions = 0, field_edges = 0;
   uint64_t donor_batches = 0, batch_retries = 0;
+  uint64_t donor_candidates = 0, donor_filtered = 0, donor_payloads = 0;
+  size_t donor_maximum_patch = 0;
+  double donor_search_seconds = 0, donor_filter_seconds = 0;  // Nested in import/search.
   uint64_t repair_proposals = 0, moved = 0, reconnected = 0;
   uint64_t repair_fallbacks = 0, fallback_accepted = 0, recovery_starts = 0;
   double process_cpu_seconds = 0, reconstruction_cpu_seconds = 0, metric_cpu_seconds = 0, measurement_cpu_seconds = 0;

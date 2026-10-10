@@ -49,15 +49,6 @@ Patch GeometryPatch(const Imported& imported) {
   }
   return patch;
 }
-DonorRegion Region(const Cell& c) {
-  const auto p = c.v[0].p;
-  DonorRegion b{p.x,p.y,p.z,p.x,p.y,p.z};
-  for (auto node : c.v) {
-    const double x[3]{node.p.x,node.p.y,node.p.z};
-    for (size_t a = 0; a < 3; ++a) { b[a] = std::min(b[a],x[a]); b[a+3] = std::max(b[a+3],x[a]); }
-  }
-  return b;
-}
 bool Same(Point a, Point b) { return a.x==b.x && a.y==b.y && a.z==b.z; }
 using RepairFeature = std::pair<unsigned,std::array<Id,3>>;
 struct Choice { Edge edge{}; EdgeMeasure measure; bool active = false; Feature feature; };
@@ -214,6 +205,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   };
   std::string last_rejection;
   auto finish=[&]() {
+    const auto& donor = source.Statistics();
+    stats.donor_candidates = donor.index_candidates; stats.donor_filtered = donor.filtered;
+    stats.donor_payloads = donor.payloads; stats.donor_maximum_patch = donor.maximum_patch;
+    stats.donor_search_seconds = donor.search_seconds; stats.donor_filter_seconds = donor.filter_seconds;
+    stats.maximum_work_bytes = std::max(stats.maximum_work_bytes, donor.maximum_work_bytes);
     result.cells.swap(working);
     if (!result.valid && !last_rejection.empty()) result.reason += " Last local rejection: " + last_rejection;
     if (options.timings) {
@@ -271,14 +267,14 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       DonorPatch imported;
       CLocalFailure failure;
       for (;;) {
-        std::vector<DonorRegion> regions;
+        std::vector<Cell> regions;
         try {
           for (size_t i=slot;i<std::min(slot+batch,ids.size());++i)
-            regions.push_back(Region(working.at(ids[i]).cell));
+            regions.push_back(working.at(ids[i]).cell);
         } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
         if (!vote(failure)) return false;
         ++stats.donor_batches;
-        imported=source.Import(regions,options.memory_ceiling,
+        imported=source.ImportCells(regions,options.memory_ceiling,
             transfer_memory::Add(bytes(),directory.ResidentBytes()));
         if (imported.valid) break;
         if (batch==1) { result.reason=imported.reason; return false; }
@@ -373,14 +369,14 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }
     if (!ready) return finish();
     DonorPatch sensors;
-    std::vector<DonorRegion> regions;
+    std::vector<Cell> regions;
     CLocalFailure failure;
     {
       Timer timer(stats.donor_seconds,options.timings);
-      if (chosen) try { for (const auto& row : imported.cells) regions.push_back(Region(row.cell)); }
+      if (chosen) try { for (const auto& row : imported.cells) regions.push_back(row.cell); }
       catch (const std::exception& e) { failure.Set(2,0,e.what()); }
       ready=vote(failure);
-      if (ready) sensors=source.Import(regions,options.memory_ceiling,
+      if (ready) sensors=source.ImportCells(regions,options.memory_ceiling,
           transfer_memory::Add(bytes(),directory.ResidentBytes(),transfer_memory::Bytes(imported.cells)));
     }
     if (!ready || !sensors.valid) { if (ready) result.reason=sensors.reason; return finish(); }

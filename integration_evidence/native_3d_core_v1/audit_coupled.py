@@ -56,7 +56,9 @@ def sources(data):
             spd(m)
             if node in nodes:assert nodes[node]==(p,m)
             nodes[node]=(p,m)
-        result.append(dict(key=tuple(sorted(ids)),points=points,metrics=metrics))
+        result.append(dict(key=tuple(sorted(ids)),points=points,metrics=metrics,
+            lo=tuple(min(p[i] for p in points) for i in range(3)),
+            hi=tuple(max(p[i] for p in points) for i in range(3))))
     result.sort(key=lambda p:p['key'])
     return result,nodes
 
@@ -67,6 +69,7 @@ def weights(t,p):
 
 def metric(original,p):
     for cell in original:
+        if any(p[i]<cell['lo'][i] or p[i]>cell['hi'][i] for i in range(3)):continue
         w=weights(cell['points'],p)
         if min(w)>=0:return [sum(w[i]*cell['metrics'][i][j] for i in range(4)) for j in range(6)]
     raise AssertionError('Metric sample outside original donor')
@@ -77,6 +80,7 @@ def length(original,a,b):
     if all(m==nodal[0] for m in nodal):return math.sqrt(float(quad(nodal[0],chord)))
     intervals=[]
     for c in original:
+        if any(max(a[i],b[i])<c['lo'][i] or min(a[i],b[i])>c['hi'][i] for i in range(3)):continue
         va,vb=weights(c['points'],a),weights(c['points'],b);lo,hi=F(0),F(1)
         for x,y in zip(va,vb):
             if x<0 and y<0:hi=F(-1);break
@@ -109,7 +113,9 @@ def frame(path,strict,validate_shape=True):
     assert len({tuple(sorted(c)) for c in cells})==len(cells)
     geometries=[[nodes[i] for i in c] for c in cells]
     volumes=[determinant(t)/6 for t in geometries];assert min(volumes)>0
-    for a,b in itertools.combinations(geometries,2):assert not overlap(a,b),'Positive-volume overlap'
+    for a,b in itertools.combinations(geometries,2):
+        if any(max(p[i] for p in a)<=min(p[i] for p in b) or max(p[i] for p in b)<=min(p[i] for p in a) for i in range(3)):continue
+        assert not overlap(a,b),'Positive-volume overlap'
     uses=defaultdict(list);links=defaultdict(list)
     for a,b,c,d in cells:
         for face in [(b,c,d),(a,d,c),(a,b,d),(a,c,b)]:uses[tuple(sorted(face))].append(parity(face))

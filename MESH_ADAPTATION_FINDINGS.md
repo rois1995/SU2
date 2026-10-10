@@ -1,3 +1,42 @@
+## Native 3D larger-source checkpoint — 2026-10-11
+
+Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
+Branch codex/native-3d-core; predecessor7bf0eaa1c2b49edeeb3ea2d17daec1c513f743d4.
+Goal1 ACTIVE/full scope. Strict cell-shaped imports exclude exactly separated
+face planes only when the global original source can exceed256 donors. Smaller
+sources retain cheaper boxes. Original sensor-only P1/canonical source coverage,
+actual-point composition, strict q/J/L, atomic caller-input preservation and all
+2D/MMG/BL/fade/noise paths remain unchanged. Fixed-size wire records remain mandatory.
+
+large_sources_v4 PASS MPI1/2/4 and M<N: source384 imports170 per coarse tetrahedron;
+12 successful events include six wedge1->8 refinements/six splits each. Source750
+fails six events at the unchanged donor cap, despite admissible input meshes.
+27 initial/accepted/rejected grids pass exact independent geometry/marker/P1
+metrics;9828 closed SAT pairs/144 P1-composition observations/three oracle
+adversaries pass. Inspect large_sources_v4/mpi{1,2,4}_meshes/*initial.su2,
+wedge_m*.su2 and oversized_m*_rejected.su2 plus corresponding original/source JSON.
+
+Full regression_v3 MPI1:66 cases4508 assertions; MPI2/4:21 cases/rank. Actual
+non-MPI cycles/repair/recovery/rejection and matched timer controls PASS. All1350
+prior mesh/source JSON/SU2 artifacts are byte-identical; mesh_identity.json proves it.
+Unconditional filtering was correct but cost~.36s small coarsening; v1/v2 evidence
+preserved, policy rejected. v3 fixed-record assumption failure preserved. Final
+three alternating old/new binary pairs have matched work and coarsen ON medians
+.1941285/.1951316s with overlapping ranges; no general performance claim.
+
+Sources384 wedge event maxima .10-.13s include migration/worker comm/core/return,
+with measured tracing/filtering costs. Frozen source preparation and diagnostic
+export/audits are separate; actual partition/CFD/rebuild/history/CGNS absent.
+Reported modeled wedge work bound<=3,149,784bytes is not RSS. Host contention
+recorded; one owned heavy job at a time, nice19/MPI<=4/library threads1.
+LARGE_SOURCE_CHECKPOINT.md and final receipts/summary give exact scope/replay.
+
+Next: transformed larger-source/multiple/partial cavities, measured query-footprint
+imports to remove the coarse/source750 cap limit, and coplanar finite geometry
+patch association; then weighted partition/runtime/CFD/CGNS/full lifecycle and
+cluster qualification. Original coplanar seams and production3D guard persist.
+Do not complete Goal1 from these frozen manufactured probes.
+
 ## In-event native 3D repair recovery checkpoint — 2026-10-11
 
 Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
