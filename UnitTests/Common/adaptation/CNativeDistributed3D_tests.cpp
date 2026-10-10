@@ -943,4 +943,132 @@ TEST_CASE("Native full MPI refinement handles thin sheared and spatial anisotrop
     }
   }
 }
+TEST_CASE("Native MPI general coarsening supports repeated planar refine coarsen cycles", "[NativeDistributed3D][NativeCycles3D]") {
+  World parent;
+  using Clock=std::chrono::steady_clock;
+  auto elapsed=[](Clock::time_point start){return std::chrono::duration<double>(Clock::now()-start).count();};
+  for(const auto spec:std::array<AnisotropicCase,5>{{{"box",1,false,0},{"thin8",1e-8,false,0},{"shear4",1e-4,true,0},
+      {"spatial",1,false,1},{"turning",1,false,2}}}) {
+    const std::string name="cycle_"+std::string(spec.name);
+    const auto fixture=Box(spec.height,spec.shear);const PlanarReference reference(fixture.facets);
+    const auto initial=Partition(Rows(fixture.patch),parent);
+    MeshRecords(name+"_initial",parent,initial);
+    for(int m:std::set<int>{parent.size,std::max(1,parent.size-1),std::max(1,parent.size/2)}) {
+      Owned accepted=initial;
+      for(unsigned step=0;step<4;++step) {
+        const bool coarsening=step%2;
+        const std::string label=name+"_m"+std::to_string(m)+"_s"+std::to_string(step);
+        const auto started=Clock::now();const auto cpu=std::clock();
+        const auto saved=Bytes(accepted);
+        const auto old_count=CPassiveComm::Allreduce(accepted.size(),CPassiveComm::Op::SUM,parent.comm);
+        const auto preparation=Clock::now();
+        auto original=Uniform(accepted,{});
+        for(auto& donor:original) for(size_t i=0;i<4;++i) {
+          const auto tensor=AnisotropicSensor(donor.cell.v[i].p,spec);
+          donor.sensor[i]=coarsening ? Tensor{tensor.xx/4,tensor.xy/4,tensor.xz/4,tensor.yy/4,tensor.yz/4,tensor.zz/4} : tensor;
+        }
+        const double preparation_s=elapsed(preparation);
+        AnisotropicSourceRecords("CYCLE_INPUT",label,parent,original);
+        const auto migration=Clock::now();
+        std::vector<std::vector<OwnedCell>> to(parent.size);
+        std::vector<std::vector<DonorCell>> sensors(parent.size);
+        for(const auto& row:accepted) to[row.first%m].push_back(row.second);
+        for(const auto& row:original) sensors[row.cell.id%m].push_back(row);
+        const auto migrated=parent.exchange(to);const auto sensor_rows=parent.exchange(sensors);
+        const double migration_s=elapsed(migration);const auto comm_start=Clock::now();
+        MPI_Comm subset=MPI_COMM_NULL;
+        MPI_Comm_split(parent.comm,parent.rank<m ? 0 : MPI_UNDEFINED,parent.rank,&subset);
+        const double comm_s=elapsed(comm_start);const auto worker_start=Clock::now();
+        Owned adapted;bool valid=true;double source_s=0,engine_s=0,control_s=0;
+        if(subset!=MPI_COMM_NULL) {
+          World worker(subset);Owned owned;
+          for(auto row:migrated) owned.emplace(row.cell.id,row);
+          const auto worker_saved=Bytes(owned);const auto source_start=Clock::now();
+          DonorImport donors(worker);std::string reason;
+          bool imported=donors.Build(sensor_rows,reason);
+          if(imported) {
+            auto patch=donors.Import({{0,0,0,spec.shear ? 2. : 1.,1.,spec.height}});
+            imported=patch.valid && patch.cells.size()==old_count;
+            if(imported) {
+              AnisotropicSourceRecords("CYCLE_SOURCE",label,worker,patch.cells);
+              FrozenField field(patch.cells);
+              for(auto p:std::array<Point,4>{{{.125,.25,.375*spec.height},{.5,.5,.5*spec.height},
+                  {0,0,0},{.25,.375,.03125*spec.height}}}) {
+                if(spec.shear) p.x+=p.y;
+                const auto sample=field.Query(p);
+                std::ostringstream line;line<<std::setprecision(17)<<"CYCLE_SAMPLE "<<label<<' '<<worker.rank
+                    <<' '<<p.x<<' '<<p.y<<' '<<p.z;
+                for(auto value:TensorValues(sample.sensor)) line<<' '<<value;
+                for(auto id:sample.donor) line<<' '<<id;
+                Log(worker,line.str()+"\n");
+              }
+            }
+          }
+          source_s=elapsed(source_start);CHECK(imported);
+          if(std::string(spec.name)=="box" && step==1 && m==parent.size) {
+            const auto control_start=Clock::now();
+            EngineOptions control;control.maximum_rounds=1;
+            const auto limited=Coarsen(worker,owned,sensor_rows,reference,{},control);
+            CHECK_FALSE(limited.valid);
+            CHECK(limited.reason.find("round limit")!=std::string::npos);
+            CHECK(Bytes(owned)==worker_saved);
+            control.maximum_rounds=512;control.memory_ceiling=1;
+            CHECK_FALSE(Coarsen(worker,owned,sensor_rows,reference,{},control).valid);
+            CHECK(Bytes(owned)==worker_saved);
+            if(worker.size>1) {
+              const auto mixed=worker.rank ? Coarsen(worker,owned,sensor_rows,reference) :
+                                            Refine(worker,owned,sensor_rows,reference);
+              CHECK_FALSE(mixed.valid);
+              CHECK(mixed.reason.find("intent")!=std::string::npos);
+              CHECK(Bytes(owned)==worker_saved);
+            }
+            control_s=elapsed(control_start);
+          }
+          EngineOptions options;options.timings=true;
+          const auto engine_start=Clock::now();
+          auto result=coarsening ? Coarsen(worker,owned,sensor_rows,reference,{},options) :
+                                  Refine(worker,owned,sensor_rows,reference,{},options);
+          engine_s=elapsed(engine_start);valid=imported && result.valid;
+          CHECK(Bytes(owned)==worker_saved);
+          CHECK(result.stats.edge_evaluations+result.stats.edge_reused==6*(result.stats.initial_cells+result.stats.updated_cells));
+          CHECK(result.stats.other_seconds>=-1e-12);
+          if(coarsening) { CHECK(result.splits.empty()); CHECK(result.collapses.size()==result.stats.accepted); }
+          else { CHECK(result.collapses.empty()); CHECK(result.splits.size()==result.stats.accepted); }
+          if(!valid) std::cerr<<"CYCLE_FAILURE "<<label<<" rank="<<worker.rank<<" "<<result.reason<<'\n';
+          EngineReport(result,worker,label);adapted.swap(result.cells);
+          MPI_Comm_free(&subset);
+        }
+        const bool failed=parent.maximum(!valid);const double worker_s=elapsed(worker_start);
+        CHECK_FALSE(failed);const auto returning=Clock::now();
+        to.assign(parent.size,{});
+        for(const auto& row:adapted) to[row.first%parent.size].push_back(row.second);
+        const auto returned=parent.exchange(to);Owned output;
+        for(auto row:returned) output.emplace(row.cell.id,row);
+        const auto count=CPassiveComm::Allreduce(output.size(),CPassiveComm::Op::SUM,parent.comm);
+        const double return_s=elapsed(returning);const auto audit_start=Clock::now();
+        CHECK(count>=6);CHECK(count<=128);CHECK(Audit(parent,output,fixture,count));
+        CHECK(Bytes(accepted)==saved);
+        if(!failed) { CHECK((coarsening ? count<old_count : count>old_count)); }
+        const double audit_s=elapsed(audit_start);const auto exporting=Clock::now();
+        MeshRecords(label+(failed ? "_rejected" : ""),parent,output);
+        const double export_s=elapsed(exporting);const double total_s=elapsed(started);
+        // Input observation output is intentionally charged to other, not to metric preparation.
+        const double other_s=total_s-preparation_s-migration_s-comm_s-worker_s-return_s-audit_s-export_s;
+        CHECK(other_s>=-1e-12);
+        std::ostringstream profile;
+        profile<<std::setprecision(17)<<"CYCLE_EVENT case="<<label<<" rank="<<parent.rank<<" ranks="<<parent.size
+            <<" workers="<<m<<" step="<<step<<" coarsening="<<coarsening<<" valid="<<!failed
+            <<" initial="<<old_count<<" final="<<count<<" parent_s="<<total_s<<" preparation_s="<<preparation_s
+            <<" migration_s="<<migration_s<<" worker_comm_s="<<comm_s<<" worker_s="<<worker_s
+            <<" return_s="<<return_s<<" test_audit_s="<<audit_s<<" record_export_s="<<export_s<<" other_s="<<other_s
+            <<" process_cpu_s="<<double(std::clock()-cpu)/CLOCKS_PER_SEC
+            <<" inactive_worker_wait_s="<<(parent.rank>=m ? worker_s : 0)
+            <<" source_audit_nested_s="<<source_s<<" rejection_control_nested_s="<<control_s<<" engine_external_nested_s="<<engine_s<<'\n';
+        Log(parent,profile.str());
+        if(failed) break;
+        accepted.swap(output);
+      }
+    }
+  }
+}
 #endif

@@ -97,6 +97,27 @@ int main() {
   assert(!rejected.valid && rejected.cells.size() == 12 && Bytes(input) == before);
   const auto composed = Refine(world, input, original, reference, [](Point, Tensor m){ return m; });
   assert(!composed.valid && composed.stats.accepted == 0 && Bytes(input) == before);
+  std::vector<DonorCell> coarse_source;
+  for(const auto& row:refined.cells) { DonorCell d;d.cell=row.second.cell;d.sensor.fill({});coarse_source.push_back(d); }
+  const auto saved_refined=Bytes(refined.cells);
+  const auto coarsened=Coarsen(world,refined.cells,coarse_source,reference);
+  if(!coarsened.valid) std::cerr<<coarsened.reason<<'\n';
+  assert(coarsened.valid && coarsened.cells.size()==6 && coarsened.collapses.size()==19 && coarsened.splits.empty());
+  assert(Bytes(refined.cells)==saved_refined);
+  cells.clear();for(const auto& row:coarsened.cells) cells.push_back(row.second.cell);
+  FrozenField coarse_field(coarse_source);
+  assert(ValidateMetricPatch(cells,coarse_field,measured,reason));
+  options.maximum_rounds=1;
+  const auto limited_coarsening=Coarsen(world,refined.cells,coarse_source,reference,{},options);
+  assert(!limited_coarsening.valid && Bytes(refined.cells)==saved_refined);
+  const auto recoarsen=Coarsen(world,input, [&](){
+    auto source=original;for(auto& d:source)d.sensor.fill({});return source;
+  }(),reference);
+  assert(recoarsen.valid && Bytes(recoarsen.cells)==before && recoarsen.collapses.empty());
+  std::vector<DonorCell> repeated_source;
+  for(const auto& row:coarsened.cells) { DonorCell d;d.cell=row.second.cell;d.sensor.fill({4,0,0,4,0,4});repeated_source.push_back(d); }
+  const auto rerefined=Refine(world,coarsened.cells,repeated_source,reference);
+  assert(rerefined.valid && rerefined.cells.size()==48 && rerefined.splits.size()==19);
   for (int trial=0; trial<3; ++trial) for (int order=0; order<2; ++order) {
     EngineOptions profile;
     profile.timings = bool(order ^ (trial % 2));
@@ -111,5 +132,18 @@ int main() {
               << " accepted=" << repeated.stats.accepted << " field_edges=" << repeated.stats.field_edges
               << " trace_nested_s=" << repeated.stats.edge_trace_seconds << '\n';
   }
-  std::cout << "PASS actual non-MPI engine: 6->48 tetrahedra, 19 edits, planar skin, full frozen metric gate, rejection and composed-target refusal\n";
+  for(int trial=0;trial<3;++trial) for(int order=0;order<2;++order) {
+    EngineOptions profile;profile.timings=bool(order^(trial%2));
+    const auto start=std::chrono::steady_clock::now();
+    const auto repeated=Coarsen(world,refined.cells,coarse_source,reference,{},profile);
+    const double elapsed=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
+    assert(repeated.valid && Bytes(repeated.cells)==Bytes(coarsened.cells));
+    assert(repeated.stats.accepted==coarsened.stats.accepted && repeated.stats.field_edges==coarsened.stats.field_edges);
+    assert(profile.timings ? repeated.stats.other_seconds>=-1e-12 : repeated.stats.total_seconds==0);
+    std::cout<<std::setprecision(17)<<"COARSEN_PROFILE trial="<<trial<<" detail="<<profile.timings
+        <<" external_s="<<elapsed<<" engine_s="<<repeated.stats.total_seconds<<" accepted="<<repeated.stats.accepted
+        <<" rejected="<<repeated.stats.rejected<<" field_edges="<<repeated.stats.field_edges
+        <<" trace_nested_s="<<repeated.stats.edge_trace_seconds<<'\n';
+  }
+  std::cout << "PASS actual non-MPI engine: 6->48->6->48 tetrahedra, general vertex collapse, planar skin, full frozen metric gates, rejection and composed-target refusal\n";
 }

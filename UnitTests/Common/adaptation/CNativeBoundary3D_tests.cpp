@@ -167,3 +167,70 @@ TEST_CASE("Native 3D immutable planar facet authority checks exact membership an
   CHECK_THROWS_AS(PlanarReference(facets), std::invalid_argument);
   CHECK_THROWS_AS(PlanarReference(std::vector<Facet>(4 * MaximumCavityCells + 1, f)), std::invalid_argument);
 }
+
+namespace {
+Patch Single(double height) {
+  Patch patch;
+  patch.cells.push_back({0, {{{0,{0,0,0}},{1,{1,0,0}},{2,{0,1,0}},{3,{0,0,height}}}}});
+  const auto skin=Incidence(patch.cells).Boundary();
+  for(size_t i=0;i<skin.size();++i) patch.surface.push_back({skin[i],Id(i)});
+  return patch;
+}
+Patch WallPoint(const Patch& original,const PlanarReference& geometry) {
+  const auto v=original.cells.front().v;const Node p{4,{.25,.25,0}};
+  Patch star;
+  star.cells={{10,{p,v[1],v[2],v[3]}},{11,{v[0],p,v[2],v[3]}},{12,{v[0],v[1],p,v[3]}}};
+  std::map<Id,Point> nodes;
+  for(auto cell:star.cells) for(auto node:cell.v) nodes.emplace(node.id,node.p);
+  for(auto face:Incidence(star.cells).Boundary()) {
+    bool found=false;
+    for(auto facet:original.surface) {
+      bool contains=true;
+      for(auto id:face) contains=contains && geometry.Contains(facet.facet,nodes.at(id));
+      if(contains) {star.surface.push_back({face,facet.facet});found=true;break;}
+    }
+    REQUIRE(found);
+  }
+  return star;
+}
+}
+TEST_CASE("Native general collapse removes a boundary point without bisection history", "[NativeMesh3D]") {
+  for(double height:{1.,1e-4,1e-8}) {
+    const auto original=Single(height);const PlanarReference reference(Facets(original));
+    const auto star=WallPoint(original,reference);
+    for(Id neighbor:{0,1,2}) {
+      Patch fresh;std::string reason;
+      REQUIRE(CollapseVertex(star,4,neighbor,100,reference,fresh,reason));
+      CHECK(Connectivity(fresh)==Connectivity(original));
+      CHECK(fresh.surface.size()==original.surface.size());
+      CHECK(fresh.cells.size()==1);
+      for(const auto& f:fresh.surface) CHECK(reference.Get(f.facet).marker==int(f.facet+10));
+    }
+    Patch retained=star;std::string reason;
+    CHECK_FALSE(CollapseVertex(star,4,3,100,reference,retained,reason));
+    CHECK(reason.find("incident reference facet")!=std::string::npos);
+    CHECK(Connectivity(retained)==Connectivity(star));
+    CHECK(retained.surface.size()==star.surface.size());
+  }
+}
+TEST_CASE("Native general collapse removes an interior point and preserves corner and interface constraints", "[NativeMesh3D]") {
+  const auto original=Single(1);const PlanarReference reference(Facets(original));
+  Patch star;std::string reason;
+  REQUIRE(Cone(original.cells,{4,{.25,.25,.25}},10,star.cells,reason));
+  star.surface=original.surface;
+  Patch fresh;
+  REQUIRE(CollapseVertex(star,4,0,100,reference,fresh,reason));
+  CHECK(Connectivity(fresh)==Connectivity(original));
+  CHECK(ValidateFixedInterface(star.cells,fresh.cells,reason));
+  auto incomplete=star;incomplete.cells.pop_back();
+  const auto skin=Incidence(incomplete.cells).Boundary();
+  incomplete.surface.erase(std::remove_if(incomplete.surface.begin(),incomplete.surface.end(),
+      [&](SurfaceFace f){return std::find(skin.begin(),skin.end(),f.v)==skin.end();}),incomplete.surface.end());
+  const auto saved=Connectivity(fresh);const auto faces=fresh.surface.size();
+  CHECK_FALSE(CollapseVertex(incomplete,4,0,200,reference,fresh,reason));
+  CHECK(reason.find("incomplete")!=std::string::npos);
+  CHECK_FALSE(CollapseVertex(original,0,1,200,reference,fresh,reason));
+  CHECK_FALSE(CollapseVertex(star,4,4,200,reference,fresh,reason));
+  CHECK_FALSE(CollapseVertex(star,4,999,200,reference,fresh,reason));
+  CHECK(Connectivity(fresh)==saved);CHECK(fresh.surface.size()==faces);
+}

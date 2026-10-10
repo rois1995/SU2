@@ -1,6 +1,6 @@
 /*!
  * \file CNativeEngine3D.cpp
- * \brief Incremental frozen-target selection and distributed private planar edge refinement.
+ * \brief Incremental frozen-target selection and distributed private planar refinement/coarsening.
  * Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md).
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
@@ -62,6 +62,19 @@ bool Same(Point a, Point b) { return a.x==b.x && a.y==b.y && a.z==b.z; }
 struct Choice { Edge edge{}; EdgeMeasure measure; bool active = false; };
 class Selection {
  public:
+  explicit Selection(bool coarsening) : coarsening(coarsening) {}
+  bool coarsening;
+  long double Priority(long double length) const { return coarsening ? length : -length; }
+  bool Candidate(long double length) const {
+    return coarsening ? length < CoarseningMetricEdge : length > MaximumMetricEdge;
+  }
+  void Queue(Edge edge, long double length, bool insert) {
+    if (!Candidate(length)) return;
+    for (unsigned i=0; i<(coarsening ? 2u : 1u); ++i) {
+      if (insert) queue.insert({Priority(length),edge}); else queue.erase({Priority(length),edge});
+      std::swap(edge[0],edge[1]);
+    }
+  }
   size_t invalid = 0;
   struct EdgeState { EdgeMeasure measure; size_t users = 0; };
   struct CellState { std::array<Edge, 6> edges{}; bool valid = false; };
@@ -72,7 +85,8 @@ class Selection {
   Choice Best() const {
     if (queue.empty()) return {};
     const auto key = queue.begin()->second;
-    return {key,edges.at(key).measure,true};
+    Edge canonical=key; std::sort(canonical.begin(),canonical.end());
+    return {key,edges.at(canonical).measure,true};
   }
   void Cached(const Cell& cell, std::map<Edge,EdgeMeasure>& values) const {
     for (size_t i=0; i<4; ++i) for (size_t j=i+1; j<4; ++j) {
@@ -82,9 +96,10 @@ class Selection {
     }
   }
   void Block(Edge edge) {
-    const auto it = edges.find(edge);
+    Edge canonical=edge; std::sort(canonical.begin(),canonical.end());
+    const auto it = edges.find(canonical);
     if (it==edges.end()) return;
-    queue.erase({-it->second.measure.length,edge});
+    queue.erase({Priority(it->second.measure.length),edge});
   }
   void Drop(Id id) {
     const auto found = cells.find(id);
@@ -92,9 +107,9 @@ class Selection {
     invalid -= !found->second.valid;
     for (auto key : found->second.edges) {
       auto& state = edges.at(key);
-      queue.erase({-state.measure.length,key});
+      Queue(key,state.measure.length,false);
       if (--state.users==0) edges.erase(key);
-      else { if (state.measure.length>MaximumMetricEdge) queue.insert({-state.measure.length,key}); }
+      else Queue(key,state.measure.length,true);
     }
     cells.erase(found);
   }
@@ -111,7 +126,7 @@ class Selection {
           state.measure.length!=measured.second.length)
         throw std::logic_error("Inconsistent native 3D frozen edge measurement.");
       ++state.users; row.edges[slot++]=key;
-      if (state.measure.length>MaximumMetricEdge) queue.insert({-state.measure.length,key});
+      Queue(key,state.measure.length,true);
     }
     if (!cells.emplace(cell.id,row).second) throw std::logic_error("Duplicate native 3D cached cell.");
     invalid += !valid;
@@ -131,15 +146,14 @@ void FieldCounts(EngineStats& stats, const FrozenField& field) {
   stats.edge_seconds+=f.edge_seconds; stats.edge_search_seconds+=f.edge_search_seconds;
   stats.edge_trace_seconds+=f.edge_trace_seconds; stats.edge_integral_seconds+=f.edge_integral_seconds;
 }
-}  // namespace
-EngineResult Refine(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
-                    const PlanarReference& geometry, MetricComposition composition, EngineOptions options) {
+EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
+                   const PlanarReference& geometry, MetricComposition composition, EngineOptions options, bool coarsening) {
   const auto started=Clock::now();
   const auto started_cpu=options.timings ? std::clock() : std::clock_t{};
   EngineResult result;
   auto& stats=result.stats;
   Owned working;
-  Selection selection;
+  Selection selection(coarsening);
   std::map<Edge,EdgeMeasure> retired_edges;
   Directory directory(world);
   DonorImport source(world,options.timings);
@@ -150,14 +164,14 @@ EngineResult Refine(World& world, const Owned& accepted, const std::vector<Donor
   };
   auto bytes=[&]() {
     return transfer_memory::Add(options.caller_bytes,accepted_bytes,MapBytes(working),
-        transfer_memory::Bytes(original),transfer_memory::Bytes(initial),transfer_memory::Bytes(result.splits),
+        transfer_memory::Bytes(original),transfer_memory::Bytes(initial),transfer_memory::Bytes(result.splits),transfer_memory::Bytes(result.collapses),
         selection.Bytes(),MapBytes(retired_edges));
   };
   auto admit=[&](size_t extra) {
     const auto peak=transfer_memory::Add(bytes(),source.ResidentBytes(),directory.ResidentBytes(),extra);
     stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,peak);
     CLocalFailure failure;
-    if (peak==SIZE_MAX || peak>options.memory_ceiling) failure.Set(3,0,"Native 3D refinement working storage exceeds budget.");
+    if (peak==SIZE_MAX || peak>options.memory_ceiling) failure.Set(3,0,"Native 3D adaptation working storage exceeds budget.");
     return vote(failure);
   };
   std::string last_rejection;
@@ -182,13 +196,16 @@ EngineResult Refine(World& world, const Owned& accepted, const std::vector<Donor
     const auto lo=CPassiveComm::Allreduce(options.maximum_rounds,CPassiveComm::Op::MIN,world.comm);
     const auto hi=CPassiveComm::Allreduce(options.maximum_rounds,CPassiveComm::Op::MAX,world.comm);
     if (lo!=hi || !hi) failure.Set(1,0,"Native 3D round limit must be positive and equal across workers.");
+    const auto mode=world.sum(coarsening);
+    if (mode!=0 && mode!=world.size) failure.Set(1,0,"Native 3D adaptation intent differs across workers.");
     ready=vote(failure);
     if (ready) ready=admit(transfer_memory::Add(accepted_bytes,
-        transfer_memory::Mul(options.maximum_rounds,sizeof(SplitRecord)),transfer_memory::Mul(accepted.size(),2048)));
+        transfer_memory::Mul(options.maximum_rounds,(coarsening ? sizeof(Edge) : sizeof(SplitRecord))),transfer_memory::Mul(accepted.size(),2048)));
     if (ready) try {
       working=accepted;
       stats.maximum_owned=working.size();
-      result.splits.reserve(options.maximum_rounds);
+      if (coarsening) result.collapses.reserve(options.maximum_rounds);
+      else result.splits.reserve(options.maximum_rounds);
       initial.reserve(working.size());
       for (const auto& row : working) {
         initial.push_back(row.first); maximum_cell=std::max(maximum_cell,row.first);
@@ -196,7 +213,7 @@ EngineResult Refine(World& world, const Owned& accepted, const std::vector<Donor
       }
     } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
     if (ready) ready=vote(failure);
-    if (ready && !world.maximum(!working.empty())) { failure.Set(1,0,"Native 3D refinement input is empty."); ready=vote(failure); }
+    if (ready && !world.maximum(!working.empty())) { failure.Set(1,0,"Native 3D adaptation input is empty."); ready=vote(failure); }
     if (ready) {
       maximum_node=CPassiveComm::Allreduce(maximum_node,CPassiveComm::Op::MAX,world.comm);
       maximum_cell=CPassiveComm::Allreduce(maximum_cell,CPassiveComm::Op::MAX,world.comm);
@@ -268,13 +285,14 @@ EngineResult Refine(World& world, const Owned& accepted, const std::vector<Donor
     {
       Timer timer(stats.selection_seconds,options.timings);
       ++stats.selections;
-      complete=!world.maximum(selection.invalid!=0 || selection.cells.size()!=working.size());
+      complete=!world.maximum(selection.invalid!=0 || selection.cells.size()!=working.size() ||
+          (coarsening && !selection.queue.empty()));
       choice=selection.Best(); any=world.maximum(choice.active);
     }
     if (complete) { result.valid=true; result.reason.clear(); return finish(); }
     if (!any) {
       CLocalFailure failure;
-      if (selection.invalid) failure.Set(1,0,"Native 3D refinement stagnates: blocked oversized edges or unsupported shape-only repair.");
+      if (selection.invalid) failure.Set(1,0,"Native 3D adaptation stagnates: blocked oversized edges or unsupported shape-only repair.");
       vote(failure); return finish();
     }
     ++stats.rounds; stats.proposed+=choice.active;
@@ -282,8 +300,9 @@ EngineResult Refine(World& world, const Owned& accepted, const std::vector<Donor
     Imported imported;
     {
       Timer timer(stats.dependency_seconds,options.timings);
-      dependencies=directory.Lookup(choice.active ? std::vector<Feature>{{{choice.edge[0],choice.edge[1],0},2}} :
-          std::vector<Feature>{},options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes()));
+      const Feature feature=coarsening ? Feature{{choice.edge[1],0,0},1} : Feature{{choice.edge[0],choice.edge[1],0},2};
+      dependencies=directory.Lookup(choice.active ? std::vector<Feature>{feature} : std::vector<Feature>{},
+          options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes()));
       if (dependencies.valid) imported=directory.Fetch(dependencies,working,options.memory_ceiling,
           transfer_memory::Add(bytes(),source.ResidentBytes()));
     }
@@ -322,15 +341,19 @@ EngineResult Refine(World& world, const Owned& accepted, const std::vector<Donor
       if (chosen) {
         CpuTimer private_cpu(stats.reconstruction_cpu_seconds,options.timings);
         ++stats.attempted;
-        if (maximum_node==UINT64_MAX || token>=UINT64_MAX-maximum_node ||
+        if ((!coarsening && (maximum_node==UINT64_MAX || token>=UINT64_MAX-maximum_node)) ||
             maximum_cell>UINT64_MAX-MaximumReplacementCells || offset>UINT64_MAX-maximum_cell-MaximumReplacementCells) {
           failure.Set(1,0,"Native 3D reserved identity range overflows.");
         } else try {
           old=GeometryPatch(imported);
           const auto a=choice.measure.a,b=choice.measure.b;
-          point={maximum_node+1+token,{double((static_cast<long double>(a.x)+b.x)/2),
-              double((static_cast<long double>(a.y)+b.y)/2),double((static_cast<long double>(a.z)+b.z)/2)}};
-          approved=SplitEdge(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason);
+          if (coarsening) approved=CollapseVertex(old,choice.edge[1],choice.edge[0],maximum_cell+1+offset,
+              geometry,fresh,result.reason);
+          else {
+            point={maximum_node+1+token,{double((static_cast<long double>(a.x)+b.x)/2),
+                double((static_cast<long double>(a.y)+b.y)/2),double((static_cast<long double>(a.z)+b.z)/2)}};
+            approved=SplitEdge(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason);
+          }
         } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
       }
       ready=vote(failure);
@@ -344,7 +367,7 @@ EngineResult Refine(World& world, const Owned& accepted, const std::vector<Donor
         PatchMetric metric;
         std::map<Edge,EdgeMeasure> reuse;
         for (const auto& cell : old.cells) selection.Cached(cell,reuse);
-        approved=ValidateMetricChange(old.cells,fresh.cells,MetricChange::Refine,*field,metric,result.reason,nullptr,&reuse);
+        approved=ValidateMetricChange(old.cells,fresh.cells,(coarsening ? MetricChange::Coarsen : MetricChange::Refine),*field,metric,result.reason,nullptr,&reuse);
         FieldCounts(stats,*field);
       } catch (const std::exception& e) { approved=false; result.reason=e.what(); }
     }
@@ -361,7 +384,14 @@ EngineResult Refine(World& world, const Owned& accepted, const std::vector<Donor
       if (chosen && !approved) ++stats.rejected;
       try {
         if (approved) {
-          if (fresh.cells.size()!=2*old.cells.size()) throw std::logic_error("Unexpected native tetrahedral split layout.");
+          std::vector<Id> parents;
+          for (const auto& cell:old.cells) {
+            bool keep=false;
+            for (auto node:cell.v) keep=keep || node.id==choice.edge[0];
+            if (!coarsening || !keep) parents.push_back(cell.id);
+            if (!coarsening) parents.push_back(cell.id);
+          }
+          if (fresh.cells.size()!=parents.size()) throw std::logic_error("Unexpected native tetrahedral edit layout.");
           std::map<Id,int> owners;
           for (const auto& row : dependencies.cells) { owners.emplace(row.cell,row.owner); removals[row.owner].push_back(row); }
           std::map<Face,Id> physical;
@@ -373,7 +403,7 @@ EngineResult Refine(World& world, const Owned& accepted, const std::vector<Donor
               const auto found=physical.find(Key(faces[f]));
               if (found!=physical.end()) row.physical[f]={true,found->second};
             }
-            additions[owners.at(old.cells[i/2].id)].push_back(row);
+            additions[owners.at(parents[i])].push_back(row);
           }
         } else if (chosen) {
           std::set<int> owners;
@@ -415,7 +445,10 @@ EngineResult Refine(World& world, const Owned& accepted, const std::vector<Donor
         for (const auto& row : removed) selection.Drop(row.cell);
         for (const auto& row : added) changed.push_back(row.cell.id);
         for (auto row : failures) selection.Block(row.edge);
-        if (approved) { ++stats.accepted; result.splits.push_back({choice.edge,point}); }
+        if (approved) {
+          ++stats.accepted;
+          if (coarsening) result.collapses.push_back(choice.edge); else result.splits.push_back({choice.edge,point});
+        }
         stats.maximum_owned=std::max(stats.maximum_owned,working.size());
       } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
       if (ready) ready=vote(failure);
@@ -426,10 +459,20 @@ EngineResult Refine(World& world, const Owned& accepted, const std::vector<Donor
   }
   {
     Timer timer(stats.completion_seconds,options.timings);
-    result.valid=!world.maximum(selection.invalid!=0 || selection.cells.size()!=working.size());
-    if (!result.valid) result.reason="Native 3D refinement round limit reached before strict metric completion.";
+    result.valid=!world.maximum(selection.invalid!=0 || selection.cells.size()!=working.size() ||
+        (coarsening && !selection.queue.empty()));
+    if (!result.valid) result.reason="Native 3D adaptation round limit reached before strict metric completion.";
     else result.reason.clear();
   }
   return finish();
+}
+}  // namespace
+EngineResult Refine(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
+                    const PlanarReference& geometry, MetricComposition composition, EngineOptions options) {
+  return Adapt(world,accepted,original,geometry,std::move(composition),options,false);
+}
+EngineResult Coarsen(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
+                    const PlanarReference& geometry, MetricComposition composition, EngineOptions options) {
+  return Adapt(world,accepted,original,geometry,std::move(composition),options,true);
 }
 }  // namespace SU2Native3D

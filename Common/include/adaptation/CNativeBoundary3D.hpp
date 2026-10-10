@@ -49,4 +49,11 @@ bool SplitEdge(const Patch& old, Edge edge, Node point, Id first_cell, const Pla
  * Preserves original facets/markers and feature edges; this is not general boundary-vertex collapse. */
 bool UndoEdgeSplit(const Patch& old, Id point, Edge endpoints, Id first_cell, const PlanarReference& reference,
                    Patch& fresh, std::string& reason, KernelStats* stats = nullptr);
+/*! Contracts a vertex to an existing neighbor in its complete admitted vertex star, without split history.
+ * Boundary motion must lie on every incident finite reference facet; corners/junctions cannot drift.
+ * Positive cells and oriented physical faces preserve the embedded domain through the contraction homotopy.
+ * Metric/quality gates and global dependency admission remain caller requirements. Fresh cells follow old
+ * cell order excluding cells containing both endpoints. Rejection leaves both output vectors unchanged. */
+bool CollapseVertex(const Patch& old, Id point, Id neighbor, Id first_cell, const PlanarReference& reference,
+                    Patch& fresh, std::string& reason, KernelStats* stats = nullptr);
 }  // namespace SU2Native3D

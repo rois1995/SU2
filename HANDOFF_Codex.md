@@ -7,6 +7,47 @@ small sequential local checks with real host-contention checks; push each
 validated checkpoint and verify the remote SHA. A terminal capacity failure
 cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
+## Native 3D general coarsening and repeated cycles — 2026-10-10
+
+Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
+Branch codex/native-3d-core; predecessor badd73ba3a9261c4e9aa69d152a6f7ee3d6282c0.
+Goal 1 remains ACTIVE/full scope. General vertex-star collapse now shares the
+incremental MPI engine; no split-history requirement. Both short-edge directions
+(<0.9), complete vertex dependencies, original-P1 sensors, unchanged q/J/L gates,
+immutable incident finite facets, parent-owner routing and atomic rejection remain.
+Movement/reconnection, larger sources, partition/runtime/CFD/CGNS remain unfinished.
+
+Final general_coarsening_v2 PASS MPI1 (59 cases/3319 assertions), MPI2/4 (18 cases/rank),
+and actual non-MPI 6->48->6->48 controls. Five ordinary/thin/sheared/spatial/turning
+cases complete two refine/coarsen cycles per M=N/M<N subset. All120 event grids
+plus15 initial grids pass independent global embedding/volume/facet/marker/metric
+audits. 6746 imported donor records exact;1040 canonical P1 query samples with
+max normalized residual9.02e-17. Every coarsening event returns6 cells; refinements
+have40-48 cells. Prior54 box+90 anisotropic artifacts remain byte-identical.
+
+Inspect integration_evidence/native_3d_core_v1/general_coarsening_v2/mpi{1,2,4}_cycles/
+cycle_{box,thin8,shear4,spatial,turning}_m*_s*.su2 and original-sensor JSON.
+s0/s2 refine, s1/s3 coarsen. Coarsening starts from the actual accepted fine mesh's
+frozen original-P1 source, not the earlier six-cell source. Target changes only
+between manufactured events (coarse sensors are one-quarter of fine tensors).
+
+All340 parent profiles close including preparation, migration/worker communicator,
+worker execution, return and test audit/export. Nested source/rejection controls
+are labelled. Local private metric cost remains dominated by exact source-edge
+tracing, not interpolation: box coarsening .1751/.2181 s nested trace;19 accepted,
+9 rejected edits. Three OFF/ON non-MPI controls preserve geometry/work, with
+coarsening medians .2149/.2096 s and unresolved timing overhead within variability.
+Maximum observed rounds79/modeled bytes2374600, not size/RSS/scaling certificates.
+
+GENERAL_COARSENING_CHECKPOINT.md and cycle_summary.json give evidence/replay/limits.
+Earlier general_collapse_v1 wrong test expectation and general_coarsening_v1
+wrapper-argument failure are retained with source pins/logs; v1 independent
+constant-target re-audit passes15 frames. No owned jobs remain live after final
+validation (MPI handle90541/non-MPI42734 terminalPASS).
+Next: bounded movement/reconnection and exact source-trace cost, then larger source
+controls/partition/runtime/output and full performance qualification. Production3D
+remains rejected; 2D/MMG and geometric BL/finer-demand/fade/noise policies intact.
+
 ## Native 3D full anisotropic MPI refinement matrix — 2026-10-10
 
 Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.

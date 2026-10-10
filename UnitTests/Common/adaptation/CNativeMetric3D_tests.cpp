@@ -163,3 +163,34 @@ TEST_CASE("Native 3D frozen scalar reuse checks coordinates and preserves compos
   CHECK(reason.find("geometry-resolved") != std::string::npos);
   CHECK(compositions == 1);
 }
+
+TEST_CASE("Native general wall collapse retains fine demands through the frozen metric gate", "[NativeMesh3D]") {
+  const auto tetra=Single();
+  Patch original;original.cells={tetra};
+  std::vector<Facet> facets;
+  for(auto face:Incidence(original.cells).Boundary()) {
+    std::array<Node,3> nodes;
+    for(size_t i=0;i<3;++i) for(auto n:tetra.v) if(n.id==face[i]) nodes[i]=n;
+    const Id id=facets.size();facets.push_back({id,int(id)+10,nodes});original.surface.push_back({face,id});
+  }
+  const PlanarReference geometry(facets);const Node point{4,{.25,.25,0}};
+  Patch old;old.cells={{10,{point,tetra.v[1],tetra.v[2],tetra.v[3]}},
+      {11,{tetra.v[0],point,tetra.v[2],tetra.v[3]}},{12,{tetra.v[0],tetra.v[1],point,tetra.v[3]}}};
+  for(auto face:Incidence(old.cells).Boundary()) for(auto facet:facets) {
+    bool contains=true;
+    for(auto id:face) {
+      const auto p=id==point.id ? point.p : tetra.v[id].p;
+      contains=contains && geometry.Contains(facet.id,p);
+    }
+    if(contains){old.surface.push_back({face,facet.id});break;}
+  }
+  Patch fresh;std::string reason;
+  REQUIRE(CollapseVertex(old,4,0,100,geometry,fresh,reason));
+  PatchMetric measured;
+  FrozenField coarse({Donor({})});
+  CHECK(ValidateMetricChange(old.cells,fresh.cells,MetricChange::Coarsen,coarse,measured,reason));
+  FrozenField fine({Donor({4,0,0,4,0,4})});
+  CHECK(ValidateMetricChange(old.cells,fresh.cells,MetricChange::Coarsen,fine,measured,reason));
+  CHECK_FALSE(ValidateMetricPatch(fresh.cells,fine,measured,reason));
+  CHECK(reason.find("oversized")!=std::string::npos);
+}

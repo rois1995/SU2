@@ -1,6 +1,6 @@
 /*!
  * \file CNativeEngine3D.hpp
- * \brief Incremental synchronous tetrahedral refinement on explicit worker communicators.
+ * \brief Incremental synchronous tetrahedral refinement/coarsening on explicit worker communicators.
  * Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md).
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
@@ -8,6 +8,7 @@
 #include "CNativeDonor3D.hpp"
 #include "CNativeMetric3D.hpp"
 namespace SU2Native3D {
+constexpr double CoarseningMetricEdge = .9;  // Frozen candidate hysteresis; final upper/shape gates remain strict.
 struct EngineOptions {
   size_t maximum_rounds = 512, memory_ceiling = size_t(2) << 30, caller_bytes = 0;
   bool timings = false;
@@ -35,11 +36,12 @@ struct EngineStats {
 struct EngineResult {
   Owned cells;  // Private result; on failure this is rejected progress, never an accepted CFD replacement.
   std::vector<SplitRecord> splits;
+  std::vector<Edge> collapses;  // Directed {retained, removed}; no split-history requirement.
   bool valid = false;
   std::string reason;
   EngineStats stats;
 };
-/*! Complete metric refinement only; coarsening/movement/reconnection are separate required developments.
+/*! Complete metric refinement; movement/reconnection remain separate required developments.
  * All world ranks call together; accepted and original source remain unchanged. Same options/immutable geometry
  * authority and frozen composition policy on every worker; source must cover the original accepted domain.
  * AABB donor/dependency limits can reject the whole event. Planar split geometry is an exact subdivision of
@@ -48,5 +50,11 @@ struct EngineResult {
  * Each instance/call runs on one thread per worker. Byte models describe requested storage, not allocator/RSS.
  */
 EngineResult Refine(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
+                    const PlanarReference& geometry, MetricComposition composition = {}, EngineOptions options = {});
+/*! General directed vertex-star coarsening on the same frozen-target transaction path. A successful event
+ * passes all final metric/shape gates and exhausts admitted short-edge proposals; it need not reach a minimal
+ * mesh. Blocked directions are retried only after adjacent topology changes. Complete vertex dependencies
+ * and immutable incident finite facets protect geometry; no inverse-split history is required. */
+EngineResult Coarsen(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
                     const PlanarReference& geometry, MetricComposition composition = {}, EngineOptions options = {});
 }  // namespace SU2Native3D

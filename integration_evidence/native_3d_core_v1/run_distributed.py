@@ -42,7 +42,7 @@ files = units+house+tests+headers+['Common/src/meson.build', 'UnitTests/meson.bu
     'Common/include/adaptation/CNativeDistributed2D.hpp', 'Common/include/adaptation/CTransferMemory.hpp',
     'Common/include/adaptation/CDistributedSearch.hpp', 'Common/include/parallelization/CPassiveComm.hpp',
     'Common/include/parallelization/mpi_structure.hpp', 'integration_evidence/native_3d_core_v1/audit_distributed.py',
-    'integration_evidence/native_3d_core_v1/audit_coupled.py', 'integration_evidence/native_3d_core_v1/audit_donors.py', 'integration_evidence/native_3d_core_v1/audit_cavities.py', 'integration_evidence/native_3d_core_v1/audit_anisotropic.py',
+    'integration_evidence/native_3d_core_v1/audit_coupled.py', 'integration_evidence/native_3d_core_v1/audit_donors.py', 'integration_evidence/native_3d_core_v1/audit_cavities.py', 'integration_evidence/native_3d_core_v1/audit_anisotropic.py', 'integration_evidence/native_3d_core_v1/audit_cycles.py',
     str(Path(__file__).resolve().relative_to(root))]
 initial = {p: hashlib.sha256((root/p).read_bytes()).hexdigest() for p in files}
 git = shutil.which('git') is not None and (root/'.git').exists()
@@ -78,13 +78,13 @@ try:
         mpi_status=records[-1]['exit_code']
         reports = []
         for line in output.splitlines():
-            if line.startswith('DIRECTORY ') or line.startswith('SUBSET_RETURN ') or line.startswith('DONOR ') or line.startswith('ENGINE ') or line.startswith('ANISO_PREP ') or line.startswith('ANISO_CYCLE '):
-                if line.startswith(('ENGINE ','ANISO_PREP ','ANISO_CYCLE ')):
+            if line.startswith('DIRECTORY ') or line.startswith('SUBSET_RETURN ') or line.startswith('DONOR ') or line.startswith('ENGINE ') or line.startswith('ANISO_PREP ') or line.startswith('ANISO_CYCLE ') or line.startswith('CYCLE_EVENT '):
+                if line.startswith(('ENGINE ','ANISO_PREP ','ANISO_CYCLE ','CYCLE_EVENT ')):
                     assert all('=' in x for x in line.split()[1:]), 'Interleaved/truncated profile record'
                     parsed=dict(x.split('=',1) for x in line.split()[1:])
                     required={'rank','ranks','case'}
                     if line.startswith('ENGINE '): required.update({'edge_integral_nested_s','total_s','accepted'})
-                    if line.startswith('ANISO_CYCLE '): required.update({'workers','parent_s','other_s','engine_external_nested_s'})
+                    if line.startswith(('ANISO_CYCLE ','CYCLE_EVENT ')): required.update({'workers','parent_s','other_s','engine_external_nested_s'})
                     assert required<=parsed.keys(), 'Incomplete profile record'
                 reports.append(line)
         (folder/('mpi'+str(ranks)+'_profiles.json')).write_text(json.dumps(reports, indent=2)+'\n')
@@ -97,6 +97,10 @@ try:
             run(['nice','-n','19',sys.executable,'integration_evidence/native_3d_core_v1/audit_anisotropic.py',
                  str(folder/('mpi'+str(ranks)+'.stdout')),str(folder/('mpi'+str(ranks)+'_anisotropic')),str(ranks)],
                  'audit_anisotropic_mpi'+str(ranks))
+        if 'CYCLE_INPUT ' in output:
+            run(['nice','-n','19',sys.executable,'integration_evidence/native_3d_core_v1/audit_cycles.py',
+                 str(folder/('mpi'+str(ranks)+'.stdout')),str(folder/('mpi'+str(ranks)+'_cycles')),str(ranks)],
+                 'audit_cycles_mpi'+str(ranks))
         if mpi_status or output.count('All tests passed') != ranks:
             raise RuntimeError('MPI'+str(ranks)+' failed; rejected records/audits retained in '+str(folder))
     status = 'PASS'
@@ -106,7 +110,7 @@ finally:
     if changed: status = 'FAIL'
     result = dict(status=status, stages=records, base_commit=base, source_sha256=initial,
         final_source_sha256=final, changed_during_run=changed, source_snapshot_sha256=snapshots,
-        scope='Actual SU2 passive MPI transport/failure election, complete bounded tetrahedral vertex/edge/face imports, coupled one-step refinement/inverse and complete incremental frozen-target refinement with planar surface subdivision, version/storage/identity rollback, subset mesh-record migration/return, indexed immutable original sensor donor imports with independent rational transported/P1/composition audit. MPI1 includes existing 3D kernel controls. Frozen thin/sheared/spatial anisotropic refinement matrix on worker subsets includes migrated original sensors and independent canonical/P1/mesh audits. No production remesher/runtime, ParMETIS, CFD solution/history transfer, CGNS output, coarsening engine, runtime embedding or scaling qualification. Actual MPI mesh records undergo an independent exact embedding/marker/P1 audit and produce inspectable SU2 files; engine_full and engine_m* grids meet the strict frozen metric gates; one-step and engine_rejected grids are private progress.')
+        scope='Actual SU2 passive MPI transport/failure election, complete bounded tetrahedral vertex/edge/face imports, coupled one-step refinement/inverse and complete incremental frozen-target refinement with planar surface subdivision, version/storage/identity rollback, subset mesh-record migration/return, indexed immutable original sensor donor imports with independent rational transported/P1/composition audit. MPI1 includes existing 3D kernel controls. Frozen thin/sheared/spatial anisotropic refinement matrix on worker subsets includes migrated original sensors and independent canonical/P1/mesh audits. No production remesher/runtime, ParMETIS, CFD solution/history transfer, CGNS output, runtime embedding or scaling qualification. Two repeated refine/general-coarsen cycles on ordinary/thin/sheared/spatial/turning faceted domains with accepted-input sensor observations and independent global audits. Actual MPI mesh records undergo an independent exact embedding/marker/P1 audit and produce inspectable SU2 files; engine_full and engine_m* grids meet the strict frozen metric gates; one-step and engine_rejected grids are private progress.')
     result['artifact_sha256'] = {str(p.relative_to(folder)): hashlib.sha256(p.read_bytes()).hexdigest()
         for p in folder.rglob('*') if p.is_file() and p.suffix != '.o' and p.name != 'test_distributed'}
     if (folder/'test_distributed').exists(): result['binary_sha256'] = hashlib.sha256((folder/'test_distributed').read_bytes()).hexdigest()

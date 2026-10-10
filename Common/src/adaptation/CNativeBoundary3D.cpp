@@ -281,4 +281,68 @@ bool UndoEdgeSplit(const Patch& old, Id point, Edge edge, Id first, const Planar
     return false;
   }
 }
+bool CollapseVertex(const Patch& old, Id point, Id neighbor, Id first, const PlanarReference& reference,
+                    Patch& fresh, std::string& reason, KernelStats* stats) {
+  try {
+    Bounds(old);
+    if (point == neighbor) throw std::invalid_argument("Native 3D collapse repeats its endpoint.");
+    const Incidence index(old.cells, stats);
+    auto skin = SkinMap(index.Boundary());
+    auto physical = CheckSurface(old, skin, reference, stats);
+    const auto nodes = Nodes(old.cells);
+    const auto apex = nodes.at(neighbor);
+    nodes.at(point);
+    for (const auto& f : skin) if (Has(f.second, point)) {
+      const auto marked = physical.find(f.first);
+      if (marked == physical.end())
+        throw std::invalid_argument("Native 3D incomplete collapse dependency at interface node " + std::to_string(point) + ".");
+      if (!reference.Contains(marked->second.facet, apex.p, stats))
+        throw std::invalid_argument("Native 3D collapse leaves incident reference facet " +
+                                    std::to_string(marked->second.facet) + ".");
+    }
+    Patch proposal;
+    size_t removed = 0;
+    for (const auto& cell : old.cells) {
+      auto v = cell.v;
+      bool has_point = false, has_neighbor = false;
+      for (auto& n : v) {
+        has_neighbor = has_neighbor || n.id == neighbor;
+        if (n.id == point) { has_point = true; n = apex; }
+      }
+      if (!has_point) throw std::invalid_argument("Native 3D collapse input is not a complete vertex star.");
+      if (has_neighbor) { ++removed; continue; }
+      if (!(Orientation(v[0].p, v[1].p, v[2].p, v[3].p, stats) > 0))
+        throw std::invalid_argument("Native 3D collapse obstructed at cell " + std::to_string(cell.id) + ".");
+      Append(proposal.cells, v, first, stats);
+    }
+    if (!removed || proposal.cells.empty())
+      throw std::invalid_argument("Native 3D collapse removes no cells or the entire volume patch.");
+    const auto before = skin;
+    for (const auto& entry : before) if (Has(entry.second, point)) {
+      auto found = physical.find(entry.first);
+      const auto facet = found->second.facet;
+      physical.erase(found); skin.erase(entry.first);
+      if (Has(entry.second, neighbor)) continue;
+      auto face = entry.second;
+      for (auto& id : face) if (id == point) id = neighbor;
+      // All intermediate face areas are affine in the moved point; positive endpoint orientation prevents folding.
+      for (size_t axis = 0; axis < 3; ++axis) {
+        const auto old_area = Projected(nodes.at(entry.second[0]).p, nodes.at(entry.second[1]).p,
+                                        nodes.at(entry.second[2]).p, axis, stats);
+        if (old_area == 0) continue;
+        const auto area = Projected(nodes.at(face[0]).p, nodes.at(face[1]).p, nodes.at(face[2]).p, axis, stats);
+        if ((old_area > 0 && !(area > 0)) || (old_area < 0 && !(area < 0)))
+          throw std::invalid_argument("Native 3D collapse folds physical facet " + std::to_string(facet) + ".");
+        break;
+      }
+      face = Oriented(face);
+      if (!skin.emplace(Key(face), face).second || !physical.emplace(Key(face), SurfaceFace{face, facet}).second)
+        throw std::invalid_argument("Native 3D collapse repeats a physical face.");
+    }
+    Finish(old, proposal, skin, physical, reference, stats);
+    fresh.cells.swap(proposal.cells); fresh.surface.swap(proposal.surface);
+    reason.clear();
+    return true;
+  } catch (const std::exception& e) { reason = e.what(); return false; }
+}
 }  // namespace SU2Native3D

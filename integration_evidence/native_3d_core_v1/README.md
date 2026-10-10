@@ -1,5 +1,15 @@
 # Native 3D Goal 1 checkpoints
 
+Latest implementation: [general coarsening and repeated MPI cycles](GENERAL_COARSENING_CHECKPOINT.md).
+Five ordinary/thin/sheared/spatial/turning targets complete two refine/coarsen
+cycles on MPI1/2/4, M=N/M<N. All120 completed meshes pass independent embedding,
+facet/marker/metric and actual original-P1 audits. Inspect
+`general_coarsening_v2/mpi{1,2,4}_cycles/cycle_*_m*_s*.su2` and donor/mesh JSON.
+Actual non-MPI and rejection/overhead controls pass; exact source-edge tracing
+still dominates. Goal1 remains active: movement/reconnection, larger sources,
+partition/runtime/CGNS and complete performance qualification remain unfinished.
+
+
 Latest qualification: [full anisotropic MPI refinement matrix](ANISOTROPIC_ENGINE_CHECKPOINT.md).
 Thirty completed thin/sheared/spatial/changing-direction grids pass on MPI1/2/4
 with M=N/M<N and actual original sensor migration/query audits. Inspect
