@@ -47,7 +47,8 @@ struct EngineResult {
   EngineStats stats;
 };
 /*! Complete metric refinement with bounded private reconnection after rejection and one repair-queue recovery.
- * Recovery shares the same frozen source/indexes, round budget and strict completion gates.
+ * Recovery retains one dependency-tracked repair queue and retries newly unblocked splits after edits.
+ * It shares the same frozen source/indexes, round budget and strict completion gates.
  * All world ranks call together; accepted and original source remain unchanged. Same options/immutable geometry
  * authority and frozen composition policy on every worker; source must cover the original accepted domain.
  * Donor/dependency limits can reject the whole event. Planar split geometry is an exact subdivision of

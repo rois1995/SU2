@@ -50,6 +50,11 @@ try:
    for member in subprocess.check_output(['ar','t',library],cwd=root,text=True).splitlines():
     p=Path(member);p=p if p.is_absolute() else root/p;members[str(p)]=sha(p)
  objects={p:sha(build/p) for p in targets}
+ if options.replay_rounds:
+  recipe=json.loads((folder/'replay_recipe.json').read_text());original=json.loads((where/'envelope_size3_v1/validation.json').read_text())
+  recipe['production_equal_to_rejection']=libs==original['library_sha256'] and members==original['thin_archive_member_sha256']
+  recipe['library_sha256']=libs;recipe['thin_archive_member_sha256']=members
+  (folder/'replay_recipe.json').write_text(json.dumps(recipe,indent=2)+'\n')
  if options.binary_from:
   start=time.monotonic();previous=options.binary_from.resolve();qualified=json.loads((previous/'validation.json').read_text())
   if qualified['status']!='PASS':

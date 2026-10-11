@@ -57,8 +57,8 @@ using RepairFeature = std::pair<unsigned,std::array<Id,3>>;
 struct Choice { Edge edge{}; EdgeMeasure measure; bool active = false; Feature feature; };
 class Selection {
  public:
-  explicit Selection(bool coarsening, bool repairing) : coarsening(coarsening), repairing(repairing), repair_event(repairing) {}
-  bool coarsening, repairing, repair_event;
+  explicit Selection(bool coarsening, bool repairing) : coarsening(coarsening), track_repairs(repairing), repair_event(repairing) {}
+  bool coarsening, track_repairs, repair_event;
   long double Priority(long double length) const { return coarsening ? length : -length; }
   bool Candidate(long double length) const {
     return coarsening ? length < CoarseningMetricEdge : length > MaximumMetricEdge;
@@ -82,7 +82,7 @@ class Selection {
   size_t Bytes() const {
     return transfer_memory::Add(MapBytes(cells),MapBytes(edges),MapBytes(queue),MapBytes(cell_repairs),MapBytes(repair_users),MapBytes(repair_queue),repair_bytes);
   }
-  Choice Best() const {
+  Choice Best(bool repairing) const {
     if (repairing) {
       if (repair_queue.empty()) return {};
       const auto& key=*repair_queue.begin();
@@ -100,7 +100,7 @@ class Selection {
       if (found!=edges.end()) values.emplace(key,found->second.measure);
     }
   }
-  void Block(Edge edge, Feature feature) {
+  void Block(Edge edge, Feature feature, bool repairing) {
     if (repairing) { repair_queue.erase({feature.count,feature.vertices}); return; }
     Edge canonical=edge; std::sort(canonical.begin(),canonical.end());
     const auto it = edges.find(canonical);
@@ -146,7 +146,7 @@ class Selection {
     const auto inserted=cells.emplace(cell.id,std::move(row));
     if (!inserted.second) throw std::logic_error("Duplicate native 3D cached cell.");
     invalid += !valid;
-    if (repairing && !valid) AddRepairs(cell);
+    if (track_repairs && !valid) AddRepairs(cell);
   }
   void AddRepairs(const Cell& cell) {
     auto& repairs=cell_repairs[cell.id];
@@ -158,7 +158,7 @@ class Selection {
     repair_bytes=transfer_memory::Add(repair_bytes,transfer_memory::Bytes(repairs));
   }
   void Recover(const Owned& working) {
-    repairing=true;
+    track_repairs=true;
     for (const auto& row:working) if (!cells.at(row.first).valid) AddRepairs(row.second.cell);
   }
 };
@@ -291,7 +291,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         batch=(batch+1)/2; ++stats.batch_retries;
       }
       if (!admit(transfer_memory::Add(transfer_memory::Bytes(imported.cells),
-          transfer_memory::Mul(MaximumDonors,8192),transfer_memory::Mul(working.size(),repairing ? 4096 : 2048)))) return false;
+          transfer_memory::Mul(MaximumDonors,8192),transfer_memory::Mul(working.size(),selection.track_repairs ? 4096 : 2048)))) return false;
       if (slot<ids.size()) try {
         CpuTimer private_cpu(stats.measurement_cpu_seconds,options.timings);
         FrozenField field(std::move(imported.cells),composition,options.timings);
@@ -333,10 +333,13 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       const int dirty=world.maximum(selection.invalid ? 2 :
           (selection.cells.size()!=working.size() || (coarsening && !selection.queue.empty()) ? 1 : 0));
       bad_field=dirty==2; complete=dirty==0;
-      if (repairing && intent!=MetricChange::Repair && !bad_field) {
-        repairing=false; selection.repairing=false;
+      if (recovered && intent==MetricChange::Refine && !complete) {
+        // Recovery edits can unblock splits; retain the seeded repair dependencies while retrying them.
+        repairing=!world.maximum(!selection.queue.empty());
+      } else if (repairing && intent!=MetricChange::Repair && !bad_field) {
+        repairing=false; selection.track_repairs=false;
       }
-      choice=selection.Best(); any=world.maximum(choice.active);
+      choice=selection.Best(repairing); any=world.maximum(choice.active);
       if (!complete && !any && !repairing && !recovered) {
         ready=admit(transfer_memory::Mul(working.size(),4096));
         CLocalFailure failure;
@@ -344,7 +347,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if (ready) ready=vote(failure);
         if (ready) {
           repairing=true; recovered=true; ++stats.recovery_starts;
-          choice=selection.Best(); any=world.maximum(choice.active);
+          choice=selection.Best(repairing); any=world.maximum(choice.active);
         }
       }
     }
@@ -701,7 +704,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     std::vector<Id> changed;
     {
       Timer timer(stats.update_seconds,options.timings);
-      ready=admit(transfer_memory::Add(transfer_memory::Mul(working.size(),repairing ? 4096 : 2048),
+      ready=admit(transfer_memory::Add(transfer_memory::Mul(working.size(),selection.track_repairs ? 4096 : 2048),
           transfer_memory::Mul(6*MaximumCavityCells,sizeof(std::pair<const Edge,EdgeMeasure>)+4*sizeof(void*))));
       if (ready) try {
         // Retain retired scalars until all children are measured against this event's immutable source.
@@ -712,7 +715,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           throw std::runtime_error("Native 3D retired edge reuse exceeds cavity budget.");
         for (const auto& row : removed) selection.Drop(row.cell);
         for (const auto& row : added) changed.push_back(row.cell.id);
-        for (auto row : failures) selection.Block(row.edge,row.feature);
+        for (auto row : failures) selection.Block(row.edge,row.feature,repairing);
         if (approved) {
           ++stats.accepted;
           if (repair_approved) { if (moved) ++stats.moved; else ++stats.reconnected; }

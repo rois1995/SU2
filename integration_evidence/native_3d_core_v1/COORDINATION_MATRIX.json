@@ -1,0 +1,18 @@
+{
+  "status": "FROZEN_FOCUSED_MATRIX",
+  "hypothesis": "Keep the single recovery queue tracked while collectively preferring newly unblocked splits after accepted recovery edits; unchanged512 budget and target",
+  "first": "N1 direct n3 replay,512 rounds; independent unchanged input/source/geometry/quality/length diagnostics",
+  "next": [
+    "N1 n3 actual backend refine/coarsen/refine,return,ReplaceMesh,BDF2,SU2/CGNS",
+    "N1 n2 previously passing control",
+    "MPI1/2/4 pureRepair,Coarsen,Refine,<=1recovery,budget/refusal/conflict/state-preservation regressions",
+    "N2M1/M2 andN4M1/M2/M4 actual-driver anisotropic controls"
+  ],
+  "criteria": {
+    "mean_ratio": 0.2,
+    "scaled_jacobian": 0.05,
+    "maximum_metric_edge": 1.8
+  },
+  "policy": "One owned heavy job,low priority,j1,one numerical thread. Stop and diagnose failures. Identical production-library comparison labels the replay baseline; changed trajectory cannot support fixed-work timing claims. Preserve all failures; no defaultbudget/target relaxation or fullGoal1 claim.",
+  "bounded_continuation": "If512 rejects with independently improved residuals, compare1024 on the samequalifiedbinary against the frozen pre-change1024 replay; productiondefault512 unchanged."
+}

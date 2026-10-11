@@ -1,3 +1,42 @@
+## Native3D recovery coordination and placement diagnosis — 2026-10-11
+
+NativeIntegrated / codex/native-3d-core, predecessor a410dad7a47bee500d9ccc2d32d8d08250937470.
+Implementation/evidence checkpoint: pending publication. COORDINATION_REPORT.md,
+COORDINATION_CHECKPOINT_VALIDATION.json and coordination_rank_phases.csv bind
+six N/M actual driver controls (18 refine/coarsen/refine events, original-P1
+current/BDF2 transfer and SU2/CGNS output/readback) plus configured68-object
+MPI1/2/4 automatic repair/coarsening/single-recovery/budget/default/2D/MMG checks.
+All PASS; source/object/archive identities stable. 578 exclusive/nested rows.
+qmin0.258663/Jmin0.062176/Lmax1.785100; tensor error0/state3.84415e-16.
+
+Production Refine now collectively retries unblocked splits while retaining its
+single dependency-tracked recovery queue; retained repair storage is charged
+in split rounds. One extra scalar collective per incomplete recovered round.
+Default512, source/geometry/quality/metric and 2D/MMG policies unchanged.
+
+Original n3 still rejects:512 rounds64 privateaccepted/448 rejected;1024 allowance
+stagnates at631 with64 accepted/567 rejected. Same private240tets/81points,
+qmin0.201655/Jmin0.091521,22longedges/53cells/Lmax2.464292. Geometry/volume1
+independent checks and accepted CFD state preservation PASS. Inspect rejected
+meshes in coordination_replay_r512_v1 and coordination_replay_r1024_v1.
+
+placement_certificate_v2 proves14 remaining edges have no binary64 interior
+point; all22 rounded midpoints are off-edge. Original marker junction9–14
+(facets30/31, z_minus_b/z_minus_a) is one certified edge, L2.18657>1.8.
+Strict exact junction preservation and length completion are incompatible for
+that segment. Interior certificates only establish an operator-placement limit;
+retriangulation can remove interior edges. No silent geometry tolerance change.
+Nonconvex same-marker raw seams are a separate geometry limitation.
+
+Next: preserve originaln3 as feasibility/rejection evidence, add an aligned
+physical marker fixture and bounded representable cavity insertion/reconnection
+using existing Cone/fixed-skin certification, including MPI routing and coupled
+surface checks. Full Goal1 ACTIVE: larger/direction-changing/thin/wedge/restart,
+full wait/traffic/memory calibration, overhead/repeated timings and closed SGE
+remain. Single contended pilots/different trajectories prove no speedup or CFD
+affordability. No owned case live after finalN4M4 terminalPASS; no overnight
+cluster launch questions. Foreign FSI/AdapNoExt/submodules/ClusterResults untouched.
+
 ## Native3D exact rejected-private replay — 2026-10-11
 
 NativeIntegrated / codex/native-3d-core; predecessorce942b5d6fba97985577b2416e1d4256018b6e7c.

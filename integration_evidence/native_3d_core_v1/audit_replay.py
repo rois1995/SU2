@@ -22,7 +22,7 @@ def main(folder):
     stem='replay_accepted' if result['complete'] else 'replay_rejected'
     final,b=frame(folder/(stem+'.json'),result['complete'],validate_shape=result['complete'])
     assert initial['volume']==final['volume']=='1' and a['facets']==b['facets'] and a['original']==b['original']
-    if rounds==512:
+    if rounds==512 and recipe.get('production_equal_to_rejection',True):
         assert not result['complete'] and (result['rounds'],result['accepted'],result['rejected'],result['moved'],result['reconnected'])==(512,59,453,18,26),'Replay differs from original backend'
     nodes={row[0]:tuple(F(float(v)) for v in row[1:]) for row in b['nodes']};original,_=sources(b)
     edges={tuple(sorted(edge)) for c in b['cells'] for edge in itertools.combinations(c['nodes'],2)}
@@ -51,7 +51,7 @@ def main(folder):
     audit=dict(status='PASS',parameters=params,replay_result=result,initial=initial,private_progress=final,
                oversized_edges=long_edges,oversized_cells=len({c for e in long_edges for c in e['cells']}),
                exported_private_mesh=output.name,export_sha256=sha(output),auditor_sha256=sha(Path(__file__)),
-               scope='Exact original n3 driver import/source match, independent positivity/incidence/embedding/finite-facet coverage/volume and actual frozen residuals, accepted-state preservation checks and diagnostic SU2 signature. Rejected private progress may violate length/shape targets and is never published to CFD. A successful direct Refine replay does not qualify backend coarsen/return/replace or alter production default.')
+               production_equal_to_rejection=recipe.get('production_equal_to_rejection',True),scope='Exact original n3 driver import/source match, independent positivity/incidence/embedding/finite-facet coverage/volume and actual frozen residuals, accepted-state preservation checks and diagnostic SU2 signature. Rejected private progress may violate length/shape targets and is never published to CFD. A successful direct Refine replay does not qualify backend coarsen/return/replace or alter production default.')
     (folder/'independent_audit.json').write_text(json.dumps(audit,indent=2)+'\n')
     print('PASS private replay audit; complete=',result['complete'],'cells=',final['cells'],'oversized edges=',len(long_edges),'saved',output)
 if __name__=='__main__':main(Path(sys.argv[1]).resolve())

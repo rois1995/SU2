@@ -1,0 +1,1181 @@
+{
+  "status": "PASS",
+  "source_folder": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coordination_replay_r1024_v1",
+  "source_audit_sha256": "08753f8906bf1bc58bca850a146999ddb71c0299400f0683becca382df0ff5dc",
+  "source_private_mesh_sha256": "fd9445ba74bb505276e309687abd20993c37f1949eee7f4df6619ec33d85a35d",
+  "auditor_sha256": "b6160cf11c24c51eb12b137f3633e1738306b83a9ca5fd2696a30daafec1e48c",
+  "oversized_edges": 22,
+  "off_edge_midpoints": 22,
+  "certified_no_binary64_interior": 14,
+  "source_initial_mesh_sha256": "88e3fd3ea3e12d06e43715fc02342d7b1cf6e619317f193ac922a128f75a3e9e",
+  "certified_oversized_original_junctions": [
+    [
+      9,
+      14
+    ]
+  ],
+  "edges": [
+    {
+      "vertices": [
+        6,
+        27
+      ],
+      "points": [
+        [
+          0.6666666666666666,
+          0.3333333333333333,
+          0.0
+        ],
+        [
+          1.0,
+          0.6666666666666666,
+          0.3333333333333333
+        ]
+      ],
+      "metric_length": 2.4642922905982254,
+      "cells": [
+        30,
+        31,
+        32,
+        32034,
+        32042
+      ],
+      "rounded_midpoint": [
+        0.8333333333333333,
+        0.5,
+        0.16666666666666666
+      ],
+      "exact_cross_residuals": [
+        "1/36028797018963968",
+        "6004799503160661/324518553658426726783156020576256",
+        "-6004799503160661/649037107316853453566312041152512"
+      ],
+      "midpoint_on_exact_edge": false,
+      "no_binary64_interior_certificate": {
+        "axis": 0,
+        "binade": [
+          "1/2",
+          "1"
+        ],
+        "spacing": "1/9007199254740992",
+        "grid_intervals": 3002399751580331,
+        "odd_intervals": 3002399751580331,
+        "necessary_index_multiple": 3002399751580331,
+        "other_coordinate_constraints": [
+          {
+            "axis": 1,
+            "direction": "6004799503160661/18014398509481984",
+            "necessary_index_divisor": 3002399751580331
+          },
+          {
+            "axis": 2,
+            "direction": "6004799503160661/18014398509481984",
+            "necessary_index_divisor": 3002399751580331
+          }
+        ],
+        "proof": "All binary64 interior points need an integer grid index 0<k<grid_intervals. Dyadicity of every other coordinate requires k divisible by necessary_index_multiple. No such k exists."
+      },
+      "original_marker_junction": []
+    },
+    {
+      "vertices": [
+        9,
+        30
+      ],
+      "points": [
+        [
+          0.3333333333333333,
+          0.6666666666666666,
+          0.0
+        ],
+        [
+          0.6666666666666666,
+          1.0,
+          0.3333333333333333
+        ]
+      ],
+      "metric_length": 2.417346222685585,
+      "cells": [
+        42,
+        44,
+        45,
+        32035,
+        32044
+      ],
+      "rounded_midpoint": [
+        0.5,
+        0.8333333333333333,
+        0.16666666666666666
+      ],
+      "exact_cross_residuals": [
+        "-1/36028797018963968",
+        "-6004799503160661/649037107316853453566312041152512",
+        "6004799503160661/324518553658426726783156020576256"
+      ],
+      "midpoint_on_exact_edge": false,
+      "no_binary64_interior_certificate": {
+        "axis": 1,
+        "binade": [
+          "1/2",
+          "1"
+        ],
+        "spacing": "1/9007199254740992",
+        "grid_intervals": 3002399751580331,
+        "odd_intervals": 3002399751580331,
+        "necessary_index_multiple": 3002399751580331,
+        "other_coordinate_constraints": [
+          {
+            "axis": 0,
+            "direction": "6004799503160661/18014398509481984",
+            "necessary_index_divisor": 3002399751580331
+          },
+          {
+            "axis": 2,
+            "direction": "6004799503160661/18014398509481984",
+            "necessary_index_divisor": 3002399751580331
+          }
+        ],
+        "proof": "All binary64 interior points need an integer grid index 0<k<grid_intervals. Dyadicity of every other coordinate requires k divisible by necessary_index_multiple. No such k exists."
+      },
+      "original_marker_junction": []
+    },
+    {
+      "vertices": [
+        33,
+        250
+      ],
+      "points": [
+        [
+          0.3333333333333333,
+          0.0,
+          0.6666666666666666
+        ],
+        [
+          0.6547619047619048,
+          0.34523809523809523,
+          1.0
+        ]
+      ],
+      "metric_length": 2.4170626787318605,
+      "cells": [
+        23970,
+        23972,
+        25020,
+        26152,
+        26158
+      ],
+      "rounded_midpoint": [
+        0.49404761904761907,
+        0.17261904761904762,
+        0.8333333333333333
+      ],
+      "exact_cross_residuals": [
+        "-3109628314136771/324518553658426726783156020576256",
+        "-549546383101757/20282409603651670423947251286016",
+        "-3109628314136771/162259276829213363391578010288128"
+      ],
+      "midpoint_on_exact_edge": false,
+      "no_binary64_interior_certificate": {
+        "axis": 2,
+        "binade": [
+          "1/2",
+          "1"
+        ],
+        "spacing": "1/9007199254740992",
+        "grid_intervals": 3002399751580331,
+        "odd_intervals": 3002399751580331,
+        "necessary_index_multiple": 3002399751580331,
+        "other_coordinate_constraints": [
+          {
+            "axis": 0,
+            "direction": "5790342378047781/18014398509481984",
+            "necessary_index_divisor": 3002399751580331
+          },
+          {
+            "axis": 1,
+            "direction": "3109628314136771/9007199254740992",
+            "necessary_index_divisor": 3002399751580331
+          }
+        ],
+        "proof": "All binary64 interior points need an integer grid index 0<k<grid_intervals. Dyadicity of every other coordinate requires k divisible by necessary_index_multiple. No such k exists."
+      },
+      "original_marker_junction": []
+    },
+    {
+      "vertices": [
+        36,
+        57
+      ],
+      "points": [
+        [
+          0.0,
+          0.3333333333333333,
+          0.6666666666666666
+        ],
+        [
+          0.3333333333333333,
+          0.6666666666666666,
+          1.0
+        ]
+      ],
+      "metric_length": 2.3694700779266515,
+      "cells": [
+        129,
+        131,
+        25008,
+        26146,
+        26154
+      ],
+      "rounded_midpoint": [
+        0.16666666666666666,
+        0.5,
+        0.8333333333333333
+      ],
+      "exact_cross_residuals": [
+        "6004799503160661/649037107316853453566312041152512",
+        "-6004799503160661/324518553658426726783156020576256",
+        "-1/36028797018963968"
+      ],
+      "midpoint_on_exact_edge": false,
+      "no_binary64_interior_certificate": {
+        "axis": 2,
+        "binade": [
+          "1/2",
+          "1"
+        ],
+        "spacing": "1/9007199254740992",
+        "grid_intervals": 3002399751580331,
+        "odd_intervals": 3002399751580331,
+        "necessary_index_multiple": 3002399751580331,
+        "other_coordinate_constraints": [
+          {
+            "axis": 0,
+            "direction": "6004799503160661/18014398509481984",
+            "necessary_index_divisor": 3002399751580331
+          },
+          {
+            "axis": 1,
+            "direction": "6004799503160661/18014398509481984",
+            "necessary_index_divisor": 3002399751580331
+          }
+        ],
+        "proof": "All binary64 interior points need an integer grid index 0<k<grid_intervals. Dyadicity of every other coordinate requires k divisible by necessary_index_multiple. No such k exists."
+      },
+      "original_marker_junction": []
+    },
+    {
+      "vertices": [
+        40,
+        61
+      ],
+      "points": [
+        [
+          0.0,
+          0.6666666666666666,
+          0.6666666666666666
+        ],
+        [
+          0.3333333333333333,
+          1.0,
+          1.0
+        ]
+      ],
+      "metric_length": 2.3694700779266515,
+      "cells": [
+        147,
+        148,
+        149,
+        39586,
+        39592
+      ],
+      "rounded_midpoint": [
+        0.16666666666666666,
+        0.8333333333333333,
+        0.8333333333333333
+      ],
+      "exact_cross_residuals": [
+        "-6004799503160661/324518553658426726783156020576256",
+        "-6004799503160661/324518553658426726783156020576256",
+        "0"
+      ],
+      "midpoint_on_exact_edge": false,
+      "no_binary64_interior_certificate": {
+        "axis": 1,
+        "binade": [
+          "1/2",
+          "1"
+        ],
+        "spacing": "1/9007199254740992",
+        "grid_intervals": 3002399751580331,
+        "odd_intervals": 3002399751580331,
+        "necessary_index_multiple": 3002399751580331,
+        "other_coordinate_constraints": [
+          {
+            "axis": 0,
+            "direction": "6004799503160661/18014398509481984",
+            "necessary_index_divisor": 3002399751580331
+          },
+          {
+            "axis": 2,
+            "direction": "3002399751580331/9007199254740992",
+            "necessary_index_divisor": 1
+          }
+        ],
+        "proof": "All binary64 interior points need an integer grid index 0<k<grid_intervals. Dyadicity of every other coordinate requires k divisible by necessary_index_multiple. No such k exists."
+      },
+      "original_marker_junction": []
+    },
+    {
+      "vertices": [
+        59,
+        213
+      ],
+      "points": [
+        [
+          1.0,
+          0.6666666666666666,
+          1.0
+        ],
+        [
+          0.7235294117647059,
+          0.3522875816993464,
+          0.615686274509804
+        ]
+      ],
+      "metric_length": 2.322702209916068,
+      "cells": [
+        19235,
+        23978,
+        23979,
+        36013,
+        36014
+      ],
+      "rounded_midpoint": [
+        0.861764705882353,
+        0.5094771241830065,
+        0.807843137254902
+      ],
+      "exact_cross_residuals": [
+        "1415837529911901/81129638414606681695789005144064",
+        "865397575455507/40564819207303340847894502572032",
+        "0"
+      ],
+      "midpoint_on_exact_edge": false,
+      "no_binary64_interior_certificate": null,
+      "original_marker_junction": []
+    },
+    {
+      "vertices": [
+        62,
+        372
+      ],
+      "points": [
+        [
+          0.6666666666666666,
+          1.0,
+          1.0
+        ],
+        [
+          0.37099775438848903,
+          0.6995124517738761,
+          0.6394655848221337
+        ]
+      ],
+      "metric_length": 2.2533407370613143,
+      "cells": [
+        39587,
+        39588,
+        39589,
+        39602,
+        39603
+      ],
+      "rounded_midpoint": [
+        0.5188322105275778,
+        0.849756225886938,
+        0.8197327924110669
+      ],
+      "exact_cross_residuals": [
+        "-21701207059605/81129638414606681695789005144064",
+        "-2955277061010319/81129638414606681695789005144064",
+        "-744244567017481/20282409603651670423947251286016"
+      ],
+      "midpoint_on_exact_edge": false,
+      "no_binary64_interior_certificate": {
+        "axis": 1,
+        "binade": [
+          "1/2",
+          "1"
+        ],
+        "spacing": "1/9007199254740992",
+        "grid_intervals": 2706551220441291,
+        "odd_intervals": 2706551220441291,
+        "necessary_index_multiple": 2706551220441291,
+        "other_coordinate_constraints": [
+          {
+            "axis": 0,
+            "direction": "-2663148806322081/9007199254740992",
+            "necessary_index_divisor": 902183740147097
+          },
+          {
+            "axis": 2,
+            "direction": "-3247405315698557/9007199254740992",
+            "necessary_index_divisor": 2706551220441291
+          }
+        ],
+        "proof": "All binary64 interior points need an integer grid index 0<k<grid_intervals. Dyadicity of every other coordinate requires k divisible by necessary_index_multiple. No such k exists."
+      },
+      "original_marker_junction": []
+    },
+    {
+      "vertices": [
+        2,
+        7
+      ],
+      "points": [
+        [
+          0.6666666666666666,
+          0.0,
+          0.0
+        ],
+        [
+          1.0,
+          0.3333333333333333,
+          0.0
+        ]
+      ],
+      "metric_length": 2.229036245912664,
+      "cells": [
+        28450,
+        28452
+      ],
+      "rounded_midpoint": [
+        0.8333333333333333,
+        0.16666666666666666,
+        0.0
+      ],
+      "exact_cross_residuals": [
+        "6004799503160661/324518553658426726783156020576256",
+        "0",
+        "0"
+      ],
+      "midpoint_on_exact_edge": false,
+      "no_binary64_interior_certificate": {
+        "axis": 0,
+        "binade": [
+          "1/2",
+          "1"
+        ],
+        "spacing": "1/9007199254740992",
+        "grid_intervals": 3002399751580331,
+        "odd_intervals": 3002399751580331,
+        "necessary_index_multiple": 3002399751580331,
+        "other_coordinate_constraints": [
+          {
+            "axis": 1,
+            "direction": "6004799503160661/18014398509481984",
+            "necessary_index_divisor": 3002399751580331
+          },
+          {
+            "axis": 2,
+            "direction": "0",
+            "necessary_index_divisor": 1
+          }
+        ],
+        "proof": "All binary64 interior points need an integer grid index 0<k<grid_intervals. Dyadicity of every other coordinate requires k divisible by necessary_index_multiple. No such k exists."
+      },
+      "original_marker_junction": []
+    },
+    {
+      "vertices": [
+        6,
+        11
+      ],
+      "points": [
+        [
+          0.6666666666666666,
+          0.3333333333333333,
+          0.0
+        ],
+        [
+          1.0,
+          0.6666666666666666,
+          0.0
+        ]
+      ],
+      "metric_length": 2.229036245912664,
+      "cells": [
+        30,
+        32
+      ],
+      "rounded_midpoint": [
+        0.8333333333333333,
+        0.5,
+        0.0
+      ],
+      "exact_cross_residuals": [
+        "1/36028797018963968",
+        "0",
+        "0"
+      ],
+      "midpoint_on_exact_edge": false,
+      "no_binary64_interior_certificate": {
+        "axis": 0,
+        "binade": [
+          "1/2",
+          "1"
+        ],
+        "spacing": "1/9007199254740992",
+        "grid_intervals": 3002399751580331,
+        "odd_intervals": 3002399751580331,
+        "necessary_index_multiple": 3002399751580331,
+        "other_coordinate_constraints": [
+          {
+            "axis": 1,
+            "direction": "6004799503160661/18014398509481984",
+            "necessary_index_divisor": 3002399751580331
+          },
+          {
+            "axis": 2,
+            "direction": "0",
+            "necessary_index_divisor": 1
+          }
+        ],
+        "proof": "All binary64 interior points need an integer grid index 0<k<grid_intervals. Dyadicity of every other coordinate requires k divisible by necessary_index_multiple. No such k exists."
+      },
+      "original_marker_junction": []
+    },
+    {
+      "vertices": [
+        50,
+        55
+      ],
+      "points": [
+        [
+          0.6666666666666666,
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          0.3333333333333333,
+          1.0
+        ]
+      ],
+      "metric_length": 2.229036245912664,
+      "cells": [
+        33955,
+        33962
+      ],
+      "rounded_midpoint": [
+        0.8333333333333333,
+        0.16666666666666666,
+        1.0
+      ],
+      "exact_cross_residuals": [
+        "6004799503160661/324518553658426726783156020576256",
+        "0",
+        "0"
+      ],
+      "midpoint_on_exact_edge": false,
+      "no_binary64_interior_certificate": {
+        "axis": 0,
+        "binade": [
+          "1/2",
+          "1"
+        ],
+        "spacing": "1/9007199254740992",
+        "grid_intervals": 3002399751580331,
+        "odd_intervals": 3002399751580331,
+        "necessary_index_multiple": 3002399751580331,
+        "other_coordinate_constraints": [
+          {
+            "axis": 1,
+            "direction": "6004799503160661/18014398509481984",
+            "necessary_index_divisor": 3002399751580331
+          },
+          {
+            "axis": 2,
+            "direction": "0",
+            "necessary_index_divisor": 1
+          }
+        ],
+        "proof": "All binary64 interior points need an integer grid index 0<k<grid_intervals. Dyadicity of every other coordinate requires k divisible by necessary_index_multiple. No such k exists."
+      },
+      "original_marker_junction": []
+    },
+    {
+      "vertices": [
+        59,
+        250
+      ],
+      "points": [
+        [
+          1.0,
+          0.6666666666666666,
+          1.0
+        ],
+        [
+          0.6547619047619048,
+          0.34523809523809523,
+          1.0
+        ]
+      ],
+      "metric_length": 2.2289141549791855,
+      "cells": [
+        23978,
+        23979
+      ],
+      "rounded_midpoint": [
+        0.8273809523809523,
+        0.5059523809523809,
+        1.0
+      ],
+      "exact_cross_residuals": [
+        "-1447585594511945/81129638414606681695789005144064",
+        "0",
+        "0"
+      ],
+      "midpoint_on_exact_edge": false,
+      "no_binary64_interior_certificate": null,
+      "original_marker_junction": []
+    },
+    {
+      "vertices": [
+        1,
+        6
+      ],
+      "points": [
+        [
+          0.3333333333333333,
+          0.0,
+          0.0
+        ],
+        [
+          0.6666666666666666,
+          0.3333333333333333,
+          0.0
+        ]
+      ],
+      "metric_length": 2.186571929735726,
+      "cells": [
+        28322,
+        28324
+      ],
+      "rounded_midpoint": [
+        0.5,
+        0.16666666666666666,
+        0.0
+      ],
+      "exact_cross_residuals": [
+        "-6004799503160661/649037107316853453566312041152512",
+        "0",
+        "0"
+      ],
+      "midpoint_on_exact_edge": false,
+      "no_binary64_interior_certificate": null,
+      "original_marker_junction": [
+        {
+          "facet": 6,
+          "marker": 6
+        },
+        {
+          "facet": 8,
+          "marker": 5
+        }
+      ]
+    },
+    {
+      "vertices": [
+        9,
+        14
+      ],
+      "points": [
+        [
+          0.3333333333333333,
+          0.6666666666666666,
+          0.0
+        ],
+        [
+          0.6666666666666666,
+          1.0,
+          0.0
+        ]
+      ],
+      "metric_length": 2.186571929735726,
+      "cells": [
+        42,
+        44
+      ],
+      "rounded_midpoint": [
+        0.5,
+        0.8333333333333333,
+        0.0
+      ],
+      "exact_cross_residuals": [
+        "-1/36028797018963968",
+        "0",
+        "0"
+      ],
+      "midpoint_on_exact_edge": false,
+      "no_binary64_interior_certificate": {
+        "axis": 1,
+        "binade": [
+          "1/2",
+          "1"
+        ],
+        "spacing": "1/9007199254740992",
+        "grid_intervals": 3002399751580331,
+        "odd_intervals": 3002399751580331,
+        "necessary_index_multiple": 3002399751580331,
+        "other_coordinate_constraints": [
+          {
+            "axis": 0,
+            "direction": "6004799503160661/18014398509481984",
+            "necessary_index_divisor": 3002399751580331
+          },
+          {
+            "axis": 2,
+            "direction": "0",
+            "necessary_index_divisor": 1
+          }
+        ],
+        "proof": "All binary64 interior points need an integer grid index 0<k<grid_intervals. Dyadicity of every other coordinate requires k divisible by necessary_index_multiple. No such k exists."
+      },
+      "original_marker_junction": [
+        {
+          "facet": 30,
+          "marker": 6
+        },
+        {
+          "facet": 31,
+          "marker": 5
+        }
+      ]
+    },
+    {
+      "vertices": [
+        57,
+        62
+      ],
+      "points": [
+        [
+          0.3333333333333333,
+          0.6666666666666666,
+          1.0
+        ],
+        [
+          0.6666666666666666,
+          1.0,
+          1.0
+        ]
+      ],
+      "metric_length": 2.186571929735726,
+      "cells": [
+        39588,
+        39589
+      ],
+      "rounded_midpoint": [
+        0.5,
+        0.8333333333333333,
+        1.0
+      ],
+      "exact_cross_residuals": [
+        "-1/36028797018963968",
+        "0",
+        "0"
+      ],
+      "midpoint_on_exact_edge": false,
+      "no_binary64_interior_certificate": {
+        "axis": 1,
+        "binade": [
+          "1/2",
+          "1"
+        ],
+        "spacing": "1/9007199254740992",
+        "grid_intervals": 3002399751580331,
+        "odd_intervals": 3002399751580331,
+        "necessary_index_multiple": 3002399751580331,
+        "other_coordinate_constraints": [
+          {
+            "axis": 0,
+            "direction": "6004799503160661/18014398509481984",
+            "necessary_index_divisor": 3002399751580331
+          },
+          {
+            "axis": 2,
+            "direction": "0",
+            "necessary_index_divisor": 1
+          }
+        ],
+        "proof": "All binary64 interior points need an integer grid index 0<k<grid_intervals. Dyadicity of every other coordinate requires k divisible by necessary_index_multiple. No such k exists."
+      },
+      "original_marker_junction": []
+    },
+    {
+      "vertices": [
+        49,
+        250
+      ],
+      "points": [
+        [
+          0.3333333333333333,
+          0.0,
+          1.0
+        ],
+        [
+          0.6547619047619048,
+          0.34523809523809523,
+          1.0
+        ]
+      ],
+      "metric_length": 2.186428072884106,
+      "cells": [
+        23972,
+        26152
+      ],
+      "rounded_midpoint": [
+        0.49404761904761907,
+        0.17261904761904762,
+        1.0
+      ],
+      "exact_cross_residuals": [
+        "-3109628314136771/324518553658426726783156020576256",
+        "0",
+        "0"
+      ],
+      "midpoint_on_exact_edge": false,
+      "no_binary64_interior_certificate": null,
+      "original_marker_junction": []
+    },
+    {
+      "vertices": [
+        8,
+        13
+      ],
+      "points": [
+        [
+          0.0,
+          0.6666666666666666,
+          0.0
+        ],
+        [
+          0.3333333333333333,
+          1.0,
+          0.0
+        ]
+      ],
+      "metric_length": 2.1432663273973294,
+      "cells": [
+        37805,
+        37806
+      ],
+      "rounded_midpoint": [
+        0.16666666666666666,
+        0.8333333333333333,
+        0.0
+      ],
+      "exact_cross_residuals": [
+        "-6004799503160661/324518553658426726783156020576256",
+        "0",
+        "0"
+      ],
+      "midpoint_on_exact_edge": false,
+      "no_binary64_interior_certificate": {
+        "axis": 1,
+        "binade": [
+          "1/2",
+          "1"
+        ],
+        "spacing": "1/9007199254740992",
+        "grid_intervals": 3002399751580331,
+        "odd_intervals": 3002399751580331,
+        "necessary_index_multiple": 3002399751580331,
+        "other_coordinate_constraints": [
+          {
+            "axis": 0,
+            "direction": "6004799503160661/18014398509481984",
+            "necessary_index_divisor": 3002399751580331
+          },
+          {
+            "axis": 2,
+            "direction": "0",
+            "necessary_index_divisor": 1
+          }
+        ],
+        "proof": "All binary64 interior points need an integer grid index 0<k<grid_intervals. Dyadicity of every other coordinate requires k divisible by necessary_index_multiple. No such k exists."
+      },
+      "original_marker_junction": []
+    },
+    {
+      "vertices": [
+        56,
+        61
+      ],
+      "points": [
+        [
+          0.0,
+          0.6666666666666666,
+          1.0
+        ],
+        [
+          0.3333333333333333,
+          1.0,
+          1.0
+        ]
+      ],
+      "metric_length": 2.1432663273973294,
+      "cells": [
+        148,
+        149
+      ],
+      "rounded_midpoint": [
+        0.16666666666666666,
+        0.8333333333333333,
+        1.0
+      ],
+      "exact_cross_residuals": [
+        "-6004799503160661/324518553658426726783156020576256",
+        "0",
+        "0"
+      ],
+      "midpoint_on_exact_edge": false,
+      "no_binary64_interior_certificate": {
+        "axis": 1,
+        "binade": [
+          "1/2",
+          "1"
+        ],
+        "spacing": "1/9007199254740992",
+        "grid_intervals": 3002399751580331,
+        "odd_intervals": 3002399751580331,
+        "necessary_index_multiple": 3002399751580331,
+        "other_coordinate_constraints": [
+          {
+            "axis": 0,
+            "direction": "6004799503160661/18014398509481984",
+            "necessary_index_divisor": 3002399751580331
+          },
+          {
+            "axis": 2,
+            "direction": "0",
+            "necessary_index_divisor": 1
+          }
+        ],
+        "proof": "All binary64 interior points need an integer grid index 0<k<grid_intervals. Dyadicity of every other coordinate requires k divisible by necessary_index_multiple. No such k exists."
+      },
+      "original_marker_junction": []
+    },
+    {
+      "vertices": [
+        4,
+        9
+      ],
+      "points": [
+        [
+          0.0,
+          0.3333333333333333,
+          0.0
+        ],
+        [
+          0.3333333333333333,
+          0.6666666666666666,
+          0.0
+        ]
+      ],
+      "metric_length": 2.143266327397329,
+      "cells": [
+        37794,
+        37796
+      ],
+      "rounded_midpoint": [
+        0.16666666666666666,
+        0.5,
+        0.0
+      ],
+      "exact_cross_residuals": [
+        "6004799503160661/649037107316853453566312041152512",
+        "0",
+        "0"
+      ],
+      "midpoint_on_exact_edge": false,
+      "no_binary64_interior_certificate": null,
+      "original_marker_junction": []
+    },
+    {
+      "vertices": [
+        52,
+        57
+      ],
+      "points": [
+        [
+          0.0,
+          0.3333333333333333,
+          1.0
+        ],
+        [
+          0.3333333333333333,
+          0.6666666666666666,
+          1.0
+        ]
+      ],
+      "metric_length": 2.143266327397329,
+      "cells": [
+        131,
+        26146
+      ],
+      "rounded_midpoint": [
+        0.16666666666666666,
+        0.5,
+        1.0
+      ],
+      "exact_cross_residuals": [
+        "6004799503160661/649037107316853453566312041152512",
+        "0",
+        "0"
+      ],
+      "midpoint_on_exact_edge": false,
+      "no_binary64_interior_certificate": null,
+      "original_marker_junction": []
+    },
+    {
+      "vertices": [
+        4,
+        358
+      ],
+      "points": [
+        [
+          0.0,
+          0.3333333333333333,
+          0.0
+        ],
+        [
+          0.2635008592760991,
+          0.6877644269860652,
+          0.2531825836694126
+        ]
+      ],
+      "metric_length": 2.1339948125562533,
+      "cells": [
+        37794,
+        37795,
+        37796,
+        37797,
+        37804
+      ],
+      "rounded_midpoint": [
+        0.13175042963804956,
+        0.5105488801596992,
+        0.1265912918347063
+      ],
+      "exact_cross_residuals": [
+        "-2373404743295291/324518553658426726783156020576256",
+        "0",
+        "570116494735133/81129638414606681695789005144064"
+      ],
+      "midpoint_on_exact_edge": false,
+      "no_binary64_interior_certificate": null,
+      "original_marker_junction": []
+    },
+    {
+      "vertices": [
+        1,
+        284
+      ],
+      "points": [
+        [
+          0.3333333333333333,
+          0.0,
+          0.0
+        ],
+        [
+          0.6069381598793363,
+          0.2963298139768728,
+          0.2396681749622926
+        ]
+      ],
+      "metric_length": 2.007948033116477,
+      "cells": [
+        28322,
+        28323,
+        28324,
+        28325,
+        28333
+      ],
+      "rounded_midpoint": [
+        0.47013574660633484,
+        0.1481649069884364,
+        0.1198340874811463
+      ],
+      "exact_cross_residuals": [
+        "-5338203359220051/649037107316853453566312041152512",
+        "-4317478013810991/649037107316853453566312041152512",
+        "0"
+      ],
+      "midpoint_on_exact_edge": false,
+      "no_binary64_interior_certificate": null,
+      "original_marker_junction": []
+    },
+    {
+      "vertices": [
+        7,
+        284
+      ],
+      "points": [
+        [
+          1.0,
+          0.3333333333333333,
+          0.0
+        ],
+        [
+          0.6069381598793363,
+          0.2963298139768728,
+          0.2396681749622926
+        ]
+      ],
+      "metric_length": 1.8048022535447876,
+      "cells": [
+        28450,
+        28452,
+        28453,
+        28455
+      ],
+      "rounded_midpoint": [
+        0.8034690799396682,
+        0.31483157365510306,
+        0.1198340874811463
+      ],
+      "exact_cross_residuals": [
+        "333298071970305/162259276829213363391578010288128",
+        "-4317478013810991/324518553658426726783156020576256",
+        "0"
+      ],
+      "midpoint_on_exact_edge": false,
+      "no_binary64_interior_certificate": {
+        "axis": 0,
+        "binade": [
+          "1/2",
+          "1"
+        ],
+        "spacing": "1/9007199254740992",
+        "grid_intervals": 3540386313401965,
+        "odd_intervals": 3540386313401965,
+        "necessary_index_multiple": 3540386313401965,
+        "other_coordinate_constraints": [
+          {
+            "axis": 1,
+            "direction": "-333298071970305/9007199254740992",
+            "necessary_index_divisor": 708077262680393
+          },
+          {
+            "axis": 2,
+            "direction": "4317478013810991/18014398509481984",
+            "necessary_index_divisor": 3540386313401965
+          }
+        ],
+        "proof": "All binary64 interior points need an integer grid index 0<k<grid_intervals. Dyadicity of every other coordinate requires k divisible by necessary_index_multiple. No such k exists."
+      },
+      "original_marker_junction": []
+    }
+  ],
+  "scope": "Exact arithmetic necessary-condition certificates for these retained edges. Absence of a certificate does not prove placement possible. Only an oversized, immutable original marker-junction segment with no binary64 interior coordinate establishes a geometry/length incompatibility for that segment. Interior-edge certificates do not prove target infeasibility or justify moving physical geometry. Private retriangulation can remove an obstructing interior edge while preserving the cavity skin."
+}
