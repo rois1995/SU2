@@ -21,7 +21,9 @@ ownership and refusal-after-private-edits regressions PASS MPI1/2/4; raw default
 mesh/reference audits PASS.336 runtime rank rows include modeled bytes and
 process-lifetime peak RSS; largest model8MiB vs matrixRSS38,666,240bytes,
 separate quantities, not an allocation certificate. No source/archive/object
-changes during checks. Publication pending; push and verify full remote SHA.
+changes during checks. Implementation checkpoint
+7f004951f080013d82c9fda5d8cd8bc4043f58d4 committed; push this checkpoint and
+its handoff update, then verify full remote SHA before reporting publication.
 
 Full Goal1 remains ACTIVE. Initial import/caller-held storage gates now cover
 point directory, face exchange, original authority and retained runtime buffers;
