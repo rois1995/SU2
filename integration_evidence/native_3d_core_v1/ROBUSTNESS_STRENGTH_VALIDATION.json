@@ -1,0 +1,101 @@
+{
+  "status": "PASS",
+  "matrix_sha256": "0dc77b85589b9d13d3c3cef387920218eeeb4b226dc91fa8d6a6ccbff129c929",
+  "analyzer_sha256": "e6f8959ee7240409ceb95ce6df7f15bdfc63ca1ba8a439b1834872c39e7c384f",
+  "dependencies_sha256": {
+    "analyze_insertion.py": "da413800f19c4892717ef607a5868d473c61390fd8f0e427b4bed0e2edb2cd2c",
+    "audit_lifecycle.py": "eaa6e005ece099af2f40ae7857bef51f22a207f70331dcdc10936d23c574e820"
+  },
+  "regression_validation_sha256": "1d197272cb9944c90fc496290700ce8065e9adb169be43ac0b2bef393a0256fa",
+  "cases": [
+    {
+      "folder": "robustness_a2_n2_n1_v1",
+      "cells": [
+        128,
+        17,
+        79
+      ],
+      "minimum_q": 0.24684167508144456,
+      "minimum_J": 0.08704945478064512,
+      "maximum_L": 1.79843682124227,
+      "state_error": 3.8121801932001883e-16,
+      "tensor_error": 0.0,
+      "validation_sha256": "8304032a7071d5863f7844c6b645b17ab65cedd2a8fb9d0f48cfb2168e94bdd8",
+      "audit_sha256": "00571c11e12824779794d1342763a7fbfed43ad8a3f2ccd4315bea1030115146",
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 0.81520584,
+          "remesh_max_seconds": 0.7861753020000001,
+          "accepted_edits": 63.0,
+          "accepted_edits_per_parent_second": 77.28109504220431,
+          "native_bound": 8388608.0,
+          "lifetime_rss": 29102080.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 0.9700134600000001,
+          "remesh_max_seconds": 0.9391031790000001,
+          "accepted_edits": 39.0,
+          "accepted_edits_per_parent_second": 40.20562766211512,
+          "native_bound": 2867352.0,
+          "lifetime_rss": 31002624.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 0.3283940519999997,
+          "remesh_max_seconds": 0.311976308,
+          "accepted_edits": 60.0,
+          "accepted_edits_per_parent_second": 182.70732869424825,
+          "native_bound": 2746756.0,
+          "lifetime_rss": 31096832.0
+        }
+      ]
+    },
+    {
+      "folder": "robustness_a2_n2_n4_m2_v1",
+      "cells": [
+        128,
+        16,
+        109
+      ],
+      "minimum_q": 0.26666666666666666,
+      "minimum_J": 0.13442056254198992,
+      "maximum_L": 1.7858892457404123,
+      "state_error": 3.8121801932001883e-16,
+      "tensor_error": 0.0,
+      "validation_sha256": "09149ec373417ff835283416a84c9a565e12ea889676ea5f1e2aae88effb57a7",
+      "audit_sha256": "226e82dc62bc0a2aff2381ffe6e28d135320f13e447bcd7ebf9cf51445c92063",
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 0.978312186,
+          "remesh_max_seconds": 0.925347103,
+          "accepted_edits": 63.0,
+          "accepted_edits_per_parent_second": 64.3966219592812,
+          "native_bound": 8388608.0,
+          "lifetime_rss": 28975104.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 1.442031482,
+          "remesh_max_seconds": 1.404147432,
+          "accepted_edits": 38.0,
+          "accepted_edits_per_parent_second": 26.351713172930577,
+          "native_bound": 2515248.0,
+          "lifetime_rss": 30875648.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 0.376798462,
+          "remesh_max_seconds": 0.3434373810000002,
+          "accepted_edits": 52.0,
+          "accepted_edits_per_parent_second": 138.00480958438732,
+          "native_bound": 2464696.0,
+          "lifetime_rss": 30916608.0
+        }
+      ]
+    }
+  ],
+  "scope": "Two actual default512 manufactured box lifecycles, aspect2 constant rotated eigenframe with spatial strength variation; MPI1/M1 and MPI4/M2, independent geometry/original-P1/current+BDF2/SU2CGNS audits and closed accounting. Single contended pilots, no spatial direction-change, thin/wedge/restart/fullGoal1/scaling/CFD affordability claim."
+}

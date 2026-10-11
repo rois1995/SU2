@@ -1,0 +1,37 @@
+{
+  "base": "157750a75bece663540c36e1ee6d68fbed07ce06",
+  "guards": {
+    "q": 0.2,
+    "J": 0.05,
+    "L": 1.8,
+    "rounds": 512,
+    "noise": 0
+  },
+  "execution": "One sequential nice19 case after real host checks; MPI<=4, numerical threads1; no local repetition/scaling campaign.",
+  "first_stage": [
+    {
+      "folder": "robustness_a2_n2_n1_v1",
+      "ranks": 1,
+      "workers": 1,
+      "size": 2,
+      "anisotropy_index": 2,
+      "aspect_ratio": 2.0,
+      "varying_strength": 0.125,
+      "aligned_markers": true
+    },
+    {
+      "folder": "robustness_a2_n2_n4_m2_v1",
+      "ranks": 4,
+      "workers": 2,
+      "size": 2,
+      "anisotropy_index": 2,
+      "aspect_ratio": 2.0,
+      "varying_strength": 0.125,
+      "aligned_markers": true,
+      "admission": "After serial qualifies or its diagnosed failure motivates MPI comparison; preserve serial failure."
+    }
+  ],
+  "acceptance": "Actual three-event refinement/coarsening/refinement, immutable original P1, geometry/markers/embedding/metric/residuals, current+BDF2 transfer, SU2/CGNS output/readback, source/archive/binary pins and closed phase accounting. No guard/metric/budget relaxation after rejection. Retain all terminal failures.",
+  "next_stages": "Add separately frozen spatial direction-change, thin/wedge and restart fixtures; expand size only after bounded correctness and cost review. Current first stage changes tensor strength with a constant rotated eigenframe; it is not spatial direction variation. FullGoal1 remains active.",
+  "timing_scope": "Single contended diagnostics only; cluster repeated/OFFON/scaling campaigns pending; no CFD affordability claim."
+}

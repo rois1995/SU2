@@ -7,6 +7,35 @@ small sequential local checks with real host-contention checks; push each
 validated checkpoint and verify the remote SHA. A terminal capacity failure
 cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
+## Stronger anisotropy envelope — 2026-10-11
+
+NativeIntegrated / codex/native-3d-core; tested production unchanged from donor
+implementation a406a1281a7d7bd16d45c88070737c82b1347897, prior remote tip verified
+157750a75bece663540c36e1ee6d68fbed07ce06. ROBUSTNESS_EXPANSION_MATRIX.json was frozen
+before runs. ROBUSTNESS_STRENGTH_REPORT.md/VALIDATION.json qualify actual default512
+aspect2, n2 box, fixed45-degree eigenframe and1+0.125x strength, three events:
+robustness_a2_n2_n1_v1 PASS128/17/79tets;
+robustness_a2_n2_n4_m2_v1 PASS128/16/109tets including return to four CFD ranks.
+Independent geometry/marker/embedding/P1/current+BDF2/SU2CGNS audits PASS;
+qmin.246842/Jmin.0870495/Lmax1.798437, tensorerror0/state<=3.81218e-16.
+Source/object/archive identities stable, exclusive phases close. VTU/SU2/CGNS
+and states in both named folders. No owned heavy job live after final audits.
+
+Parent pilot secondsN1 .815206/.970013/.328394, N4M2 .978312/1.442031/.376798;
+useful rates77.28/40.21/182.71 and64.40/26.35/138.00edits/s. Different trajectories,
+one nice19/thread1 pilot each with foreignFSI; no scaling/speedup/affordability
+claim. Maximum bound8MiB/lifetimeRSS31.1MB distinct, not fullmemory calibration.
+Initial analyzer dictionary equality failed because full driver lists three
+additional system archive aliases; runtime production archives/thin members match.
+Corrected using existing donor verifier rule, retained originalscript/failure.
+No run/receipt/guard/production edit.
+
+Next: add frozen genuinely spatial direction-change fixture (currentvarying means
+strength only), thin/wedge/restart and size limits, then complete wait/traffic/
+memory calibration and closedSGE overhead/repeated/scaling packages. FullGoal1
+ACTIVE; no physicalCFD/fullBL3D qualification or overnight clusterlaunch request.
+Foreignwork/AdapNoExt/submodules/ClusterResults unchanged.
+
 ## Native3D donor reuse and certified segment filter checkpoint — 2026-10-11
 
 NativeIntegrated / codex/native-3d-core, predecessor89225cf0cbc9215fd92080638274c602c5bd9005.

@@ -1,0 +1,7 @@
+{
+  "status": "FAIL",
+  "stage": "post_run_analysis",
+  "reason": "Initial analyzer required identical full-driver and six-object runtime library dictionaries. Full configured driver additionally lists libm.a/libdl.a/librt.a; all actual runtime archives and all thin members match.",
+  "original_analyzer_sha256": "9e563fcdf11358899fec45f83924b6df6ce1d00d215ab3266f43071acda64bd5",
+  "correction": "Require every actual runtime archive to match its configured full-driver counterpart, plus exact thin-member dictionaries and shared source pins, as the existing donor analyzer does. Runtime evidence and production are unchanged."
+}
