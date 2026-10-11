@@ -9,6 +9,8 @@ cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
 ## Isolated native3D transport accounting — 2026-10-11; built and serial checked
 
+Implementation/evidence checkpoint475820f366366f471e0cdb50e362d7c5e572c328 pushed to origin/codex/native-3d-transport-accounting; full remote SHA verified. origin/codex/native-3d-core remains6b3fefd039bfc3d1937b8add7d21d0ea41344bc9. Subsequent publication-note commit changes documentation only.
+
 Working branch codex/native-3d-transport-accounting starts at pushed core
 6b3fefd039bfc3d1937b8add7d21d0ea41344bc9. codex/native-3d-core remains the user's
 cluster checkpoint. Three disjoint import/parent/worker World-wrapper totals

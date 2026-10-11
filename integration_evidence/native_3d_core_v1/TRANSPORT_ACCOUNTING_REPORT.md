@@ -6,6 +6,9 @@ Branch: codex/native-3d-transport-accounting, based on pushed core checkpoint
 Status: configured C++ build and serial regression/audit PASS; MPI qualification pending. Goal 1 remains ACTIVE.
 The cluster checkpoint on codex/native-3d-core is unchanged.
 
+Implementation/evidence checkpoint475820f366366f471e0cdb50e362d7c5e572c328 pushed to origin/codex/native-3d-transport-accounting; full remote SHA verified. origin/codex/native-3d-core remains6b3fefd039bfc3d1937b8add7d21d0ea41344bc9. Subsequent publication-note commit changes documentation only.
+
+
 ## What was missing
 
 The runtime exported only World-wrapper bytes from its parent and worker Worlds.
