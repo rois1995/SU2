@@ -307,6 +307,72 @@ bool SplitEdge(const Patch& old, Edge edge, Node point, Id first, const PlanarRe
     return false;
   }
 }
+bool InsertEdgeCavity(const Patch& old, Edge edge, Node point, Id first, const PlanarReference& reference,
+                      Patch& fresh, std::string& reason, KernelStats* stats) {
+  try {
+    Bounds(old);
+    Endpoints(edge);
+    const Incidence index(old.cells, stats);
+    const auto before = SkinMap(index.Boundary());
+    auto skin = before;
+    auto physical = CheckSurface(old, skin, reference, stats);
+    const auto nodes = Nodes(old.cells);
+    if (nodes.count(point.id)) throw std::invalid_argument("Native 3D cavity insertion reuses a vertex identity.");
+    for (const auto& cell : old.cells) {
+      unsigned endpoints = 0;
+      for (auto node : cell.v) endpoints += node.id == edge[0] || node.id == edge[1];
+      if (endpoints != 2) throw std::invalid_argument("Native 3D insertion input is not a complete edge star.");
+    }
+    std::vector<Face> wall;
+    Id facet = 0;
+    for (const auto& row : before) if (Has(row.second, edge[0]) && Has(row.second, edge[1])) {
+      const auto found = physical.find(row.first);
+      if (found == physical.end()) throw std::invalid_argument("Native 3D incomplete insertion dependency at interface face.");
+      if (!wall.empty() && facet != found->second.facet)
+        throw std::invalid_argument("Native 3D insertion cannot change an immutable facet or marker junction.");
+      facet = found->second.facet;
+      wall.push_back(row.second);
+    }
+    Patch proposal;
+    if (wall.empty()) {
+      if (!Cone(old.cells, point, first, proposal.cells, reason, stats)) throw std::invalid_argument(reason);
+      for (const auto& row : physical) proposal.surface.push_back(row.second);
+    } else {
+      if (wall.size() != 2 || !reference.Contains(facet, point.p, stats))
+        throw std::invalid_argument("Native 3D surface insertion needs two coplanar same-facet triangles.");
+      for (auto face : wall) {
+        physical.erase(Key(face));
+        skin.erase(Key(face));
+        for (size_t i = 0; i < 3; ++i) {
+          const Id a = face[i], b = face[(i + 1) % 3];
+          if ((a == edge[0] && b == edge[1]) || (a == edge[1] && b == edge[0])) continue;
+          auto child = Oriented(Face{a, b, point.id});
+          if (!reference.ContainsFace(facet, {nodes.at(a).p, nodes.at(b).p, point.p}, stats))
+            throw std::invalid_argument("Native 3D surface insertion leaves or reverses its planar fan.");
+          skin.emplace(Key(child), child);
+          physical.emplace(Key(child), SurfaceFace{child, facet});
+        }
+      }
+      // Positive planar fan children retain the old oriented outer border; exact coplanarity closes volume.
+      for (const auto& row : before) {
+        if (std::find(wall.begin(), wall.end(), row.second) != wall.end()) continue;
+        const auto f = row.second;
+        const std::array<Node, 4> v{point, nodes.at(f[0]), nodes.at(f[1]), nodes.at(f[2])};
+        if (!(Orientation(v[0].p, v[1].p, v[2].p, v[3].p, stats) > 0))
+          throw std::invalid_argument("Native 3D insertion cannot see its retained cavity skin.");
+        Append(proposal.cells, v, first, stats);
+      }
+      Finish(old, proposal, skin, physical, reference, stats);
+    }
+    fresh.cells.swap(proposal.cells);
+    fresh.surface.swap(proposal.surface);
+    reason.clear();
+    return true;
+  } catch (const std::exception& e) {
+    reason = e.what();
+    return false;
+  }
+}
 bool UndoEdgeSplit(const Patch& old, Id point, Edge edge, Id first, const PlanarReference& reference, Patch& fresh,
                    std::string& reason, KernelStats* stats) {
   try {

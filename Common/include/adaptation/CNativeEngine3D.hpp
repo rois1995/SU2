@@ -25,7 +25,7 @@ struct EngineStats {
   uint64_t donor_candidates = 0, donor_filtered = 0, donor_payloads = 0;
   size_t donor_maximum_patch = 0;
   double donor_search_seconds = 0, donor_filter_seconds = 0;  // Nested in import/search.
-  uint64_t repair_proposals = 0, moved = 0, reconnected = 0;
+  uint64_t repair_proposals = 0, moved = 0, reconnected = 0, inserted = 0;
   uint64_t repair_fallbacks = 0, fallback_accepted = 0, recovery_starts = 0;
   double process_cpu_seconds = 0, reconstruction_cpu_seconds = 0, metric_cpu_seconds = 0, measurement_cpu_seconds = 0;
   // Nested query detail; never add to the exclusive engine phases below.
@@ -51,8 +51,8 @@ struct EngineResult {
  * It shares the same frozen source/indexes, round budget and strict completion gates.
  * All world ranks call together; accepted and original source remain unchanged. Same options/immutable geometry
  * authority and frozen composition policy on every worker; source must cover the original accepted domain.
- * Donor/dependency limits can reject the whole event. Planar split geometry is an exact subdivision of
- * admitted old cells, preserving the domain; caller supplies embedded conforming accepted input and facet authority.
+ * Donor/dependency limits can reject the whole event. Exact edge splits or certified edge-cavity insertion
+ * preserve the admitted cavity and physical planar domain; caller supplies embedded conforming accepted input and facet authority.
  * Success means all working cells satisfy the frozen metric gates, not CFD/CGNS/partition qualification.
  * Each instance/call runs on one thread per worker. Byte models describe requested storage, not allocator/RSS.
  */

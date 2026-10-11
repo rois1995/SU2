@@ -1,0 +1,708 @@
+{
+  "status": "PASS",
+  "analyzer_sha256": "da413800f19c4892717ef607a5868d473c61390fd8f0e427b4bed0e2edb2cd2c",
+  "matrix_sha256": "165084120c75ce585ccd7e1e87c8767e44222b4b4bab5f94f20e060a07926a51",
+  "cases": [
+    {
+      "folder": "insertion_driver_n1_v1",
+      "parameters": {
+        "folder": "integration_evidence/native_3d_core_v1/insertion_driver_n1_v1",
+        "ranks": 1,
+        "binary_from": "integration_evidence/native_3d_core_v1/insertion_aligned_n3_n1_r1024_v1",
+        "workers": 1,
+        "size": 2,
+        "anisotropy": 1,
+        "varying": 1,
+        "diagnostic_rounds": 512,
+        "aligned_markers": false,
+        "replay_rounds": null,
+        "repeat": 0,
+        "detail": 1
+      },
+      "accepted_cells": [
+        88,
+        36,
+        94
+      ],
+      "minimum_mean_ratio": 0.2586632733328793,
+      "minimum_scaled_jacobian": 0.062176374454612146,
+      "maximum_metric_edge": 1.770097719377689,
+      "maximum_state_error": 3.8121801932001883e-16,
+      "maximum_transported_tensor_error": 0.0,
+      "validation_sha256": "152bf0d55bca5821c4cb0a5703474b956064f67076e4586b4256fec263b67c1f",
+      "audit_sha256": "45680234ce4e4b431f35eb5aff51571fc301f3ec82f4733b4e6d58a8ddc0c8fb",
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 0.696476474,
+          "remesh_max_seconds": 0.664165221,
+          "parent_max_over_mean": 1.0,
+          "useful_accepted_operations": 32.0,
+          "useful_operations_per_parent_second": 45.945557667178285,
+          "maximum_native_bound": 8388608.0,
+          "maximum_lifetime_rss": 28717056.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 0.6863703609999999,
+          "remesh_max_seconds": 0.65910136,
+          "parent_max_over_mean": 1.0,
+          "useful_accepted_operations": 18.0,
+          "useful_operations_per_parent_second": 26.224908624805845,
+          "maximum_native_bound": 2630216.0,
+          "maximum_lifetime_rss": 30048256.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 0.587773823,
+          "remesh_max_seconds": 0.5698644459999997,
+          "parent_max_over_mean": 1.0,
+          "useful_accepted_operations": 49.0,
+          "useful_operations_per_parent_second": 83.36540023151048,
+          "maximum_native_bound": 2793784.0,
+          "maximum_lifetime_rss": 30064640.0
+        }
+      ]
+    },
+    {
+      "folder": "insertion_driver_n2_m1_v1",
+      "parameters": {
+        "folder": "integration_evidence/native_3d_core_v1/insertion_driver_n2_m1_v1",
+        "ranks": 2,
+        "binary_from": "integration_evidence/native_3d_core_v1/insertion_aligned_n3_n1_r1024_v1",
+        "workers": 1,
+        "size": 2,
+        "anisotropy": 1,
+        "varying": 1,
+        "diagnostic_rounds": 512,
+        "aligned_markers": false,
+        "replay_rounds": null,
+        "repeat": 0,
+        "detail": 1
+      },
+      "accepted_cells": [
+        88,
+        36,
+        95
+      ],
+      "minimum_mean_ratio": 0.2586632733328793,
+      "minimum_scaled_jacobian": 0.062176374454612146,
+      "maximum_metric_edge": 1.7571761420219614,
+      "maximum_state_error": 3.8121801932001883e-16,
+      "maximum_transported_tensor_error": 0.0,
+      "validation_sha256": "4b45e53b88a856c7c3929d1031a6a9e44c8ca606cabcc53ff8bb8491c66bf741",
+      "audit_sha256": "3a21db5a1180c4a225b1660087485f2a778bf858dc3ce051b5587a6c197cdb1d",
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 0.46579570200000003,
+          "remesh_max_seconds": 0.444698593,
+          "parent_max_over_mean": 1.0000073122720776,
+          "useful_accepted_operations": 32.0,
+          "useful_operations_per_parent_second": 68.6996463526836,
+          "maximum_native_bound": 8388608.0,
+          "maximum_lifetime_rss": 29581312.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 0.544267105,
+          "remesh_max_seconds": 0.528809855,
+          "parent_max_over_mean": 1.000003735312267,
+          "useful_accepted_operations": 18.0,
+          "useful_operations_per_parent_second": 33.07199688285406,
+          "maximum_native_bound": 2621008.0,
+          "maximum_lifetime_rss": 30855168.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 0.5523294409999999,
+          "remesh_max_seconds": 0.5396742859999999,
+          "parent_max_over_mean": 1.0000060362889924,
+          "useful_accepted_operations": 49.0,
+          "useful_operations_per_parent_second": 88.71516953955023,
+          "maximum_native_bound": 2789160.0,
+          "maximum_lifetime_rss": 30855168.0
+        }
+      ]
+    },
+    {
+      "folder": "insertion_driver_n2_m2_v1",
+      "parameters": {
+        "folder": "integration_evidence/native_3d_core_v1/insertion_driver_n2_m2_v1",
+        "ranks": 2,
+        "binary_from": "integration_evidence/native_3d_core_v1/insertion_aligned_n3_n1_r1024_v1",
+        "workers": 2,
+        "size": 2,
+        "anisotropy": 1,
+        "varying": 1,
+        "diagnostic_rounds": 512,
+        "aligned_markers": false,
+        "replay_rounds": null,
+        "repeat": 0,
+        "detail": 1
+      },
+      "accepted_cells": [
+        88,
+        36,
+        95
+      ],
+      "minimum_mean_ratio": 0.2586632733328793,
+      "minimum_scaled_jacobian": 0.062176374454612146,
+      "maximum_metric_edge": 1.7571761420219614,
+      "maximum_state_error": 3.8121801932001883e-16,
+      "maximum_transported_tensor_error": 0.0,
+      "validation_sha256": "8900dba94fd07f34d818567f37065a7b86e0651c872ac210570a9338316fdda0",
+      "audit_sha256": "782126b4a038482dcab7b7bb782a0adce74563783de73fa0dc92b8fa35b91540",
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 0.457463459,
+          "remesh_max_seconds": 0.419566793,
+          "parent_max_over_mean": 1.0002667470795228,
+          "useful_accepted_operations": 32.0,
+          "useful_operations_per_parent_second": 69.95094224564065,
+          "maximum_native_bound": 8388608.0,
+          "maximum_lifetime_rss": 28782592.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 0.704716377,
+          "remesh_max_seconds": 0.6850887560000001,
+          "parent_max_over_mean": 1.0000155980076695,
+          "useful_accepted_operations": 18.0,
+          "useful_operations_per_parent_second": 25.542190571228915,
+          "maximum_native_bound": 2413832.0,
+          "maximum_lifetime_rss": 30597120.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 0.643590484,
+          "remesh_max_seconds": 0.625203248,
+          "parent_max_over_mean": 1.000008860526482,
+          "useful_accepted_operations": 49.0,
+          "useful_operations_per_parent_second": 76.13537057828842,
+          "maximum_native_bound": 2478592.0,
+          "maximum_lifetime_rss": 30597120.0
+        }
+      ]
+    },
+    {
+      "folder": "insertion_driver_n4_m1_v1",
+      "parameters": {
+        "folder": "integration_evidence/native_3d_core_v1/insertion_driver_n4_m1_v1",
+        "ranks": 4,
+        "binary_from": "integration_evidence/native_3d_core_v1/insertion_aligned_n3_n1_r1024_v1",
+        "workers": 1,
+        "size": 2,
+        "anisotropy": 1,
+        "varying": 1,
+        "diagnostic_rounds": 512,
+        "aligned_markers": false,
+        "replay_rounds": null,
+        "repeat": 0,
+        "detail": 1
+      },
+      "accepted_cells": [
+        88,
+        8,
+        70
+      ],
+      "minimum_mean_ratio": 0.4733606281167527,
+      "minimum_scaled_jacobian": 0.24365796154926905,
+      "maximum_metric_edge": 1.7828333262622882,
+      "maximum_state_error": 3.8121801932001883e-16,
+      "maximum_transported_tensor_error": 0.0,
+      "validation_sha256": "383512326f66d5bff5fd0bfc19032f0bf4c002514e4942bae86e37b11eefae36",
+      "audit_sha256": "b0bfe30d4f0966dc8f27040804e9bb5942f54bc6efe0d64237eae04a323c54a5",
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 0.581270689,
+          "remesh_max_seconds": 0.52026236,
+          "parent_max_over_mean": 1.000488196334864,
+          "useful_accepted_operations": 32.0,
+          "useful_operations_per_parent_second": 55.05180392813511,
+          "maximum_native_bound": 8388608.0,
+          "maximum_lifetime_rss": 29831168.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 0.702204431,
+          "remesh_max_seconds": 0.680231306,
+          "parent_max_over_mean": 1.0003297969089398,
+          "useful_accepted_operations": 25.0,
+          "useful_operations_per_parent_second": 35.60216782511303,
+          "maximum_native_bound": 2616288.0,
+          "maximum_lifetime_rss": 31145984.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 0.35096665000000016,
+          "remesh_max_seconds": 0.30241434700000003,
+          "parent_max_over_mean": 1.0002531935547596,
+          "useful_accepted_operations": 40.0,
+          "useful_operations_per_parent_second": 113.97094282319982,
+          "maximum_native_bound": 2532572.0,
+          "maximum_lifetime_rss": 31281152.0
+        }
+      ]
+    },
+    {
+      "folder": "insertion_driver_n4_m2_v1",
+      "parameters": {
+        "folder": "integration_evidence/native_3d_core_v1/insertion_driver_n4_m2_v1",
+        "ranks": 4,
+        "binary_from": "integration_evidence/native_3d_core_v1/insertion_aligned_n3_n1_r1024_v1",
+        "workers": 2,
+        "size": 2,
+        "anisotropy": 1,
+        "varying": 1,
+        "diagnostic_rounds": 512,
+        "aligned_markers": false,
+        "replay_rounds": null,
+        "repeat": 0,
+        "detail": 1
+      },
+      "accepted_cells": [
+        88,
+        9,
+        69
+      ],
+      "minimum_mean_ratio": 0.5960837224268143,
+      "minimum_scaled_jacobian": 0.27914526311954124,
+      "maximum_metric_edge": 1.7850995354902892,
+      "maximum_state_error": 3.844148161277339e-16,
+      "maximum_transported_tensor_error": 0.0,
+      "validation_sha256": "b3af45849e5428868f93b8d17acfaf909df41b1eef364ed7ea3eba52dc8a11c0",
+      "audit_sha256": "35a50825d8d4260da5ba26af630d0b475066c7fd589b66cd4ae31a4e7aafd710",
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 0.641292504,
+          "remesh_max_seconds": 0.528923266,
+          "parent_max_over_mean": 1.0002532761988265,
+          "useful_accepted_operations": 32.0,
+          "useful_operations_per_parent_second": 49.89922664057835,
+          "maximum_native_bound": 8388608.0,
+          "maximum_lifetime_rss": 29437952.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 0.942448492,
+          "remesh_max_seconds": 0.9114076790000001,
+          "parent_max_over_mean": 1.0000963219676104,
+          "useful_accepted_operations": 25.0,
+          "useful_operations_per_parent_second": 26.52664863089409,
+          "maximum_native_bound": 2407220.0,
+          "maximum_lifetime_rss": 30814208.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 0.37091484499999994,
+          "remesh_max_seconds": 0.31614867199999996,
+          "parent_max_over_mean": 1.0001926109425754,
+          "useful_accepted_operations": 45.0,
+          "useful_operations_per_parent_second": 121.32164729076834,
+          "maximum_native_bound": 2368944.0,
+          "maximum_lifetime_rss": 30937088.0
+        }
+      ]
+    },
+    {
+      "folder": "insertion_driver_n4_m4_v1",
+      "parameters": {
+        "folder": "integration_evidence/native_3d_core_v1/insertion_driver_n4_m4_v1",
+        "ranks": 4,
+        "binary_from": "integration_evidence/native_3d_core_v1/insertion_aligned_n3_n1_r1024_v1",
+        "workers": 4,
+        "size": 2,
+        "anisotropy": 1,
+        "varying": 1,
+        "diagnostic_rounds": 512,
+        "aligned_markers": false,
+        "replay_rounds": null,
+        "repeat": 0,
+        "detail": 1
+      },
+      "accepted_cells": [
+        77,
+        12,
+        70
+      ],
+      "minimum_mean_ratio": 0.4641903576458562,
+      "minimum_scaled_jacobian": 0.17229219690157924,
+      "maximum_metric_edge": 1.7588386001367171,
+      "maximum_state_error": 1.975925294104839e-16,
+      "maximum_transported_tensor_error": 0.0,
+      "validation_sha256": "358ff7c5b6f2bc9289cfa02a85895f07566c2403a002ff6b3278499f2069ac86",
+      "audit_sha256": "545d706082f2fe935bdf213bdbd2d568e20d5b547b8c1343e3f1ccf5ac3ce867",
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 0.8920690689999999,
+          "remesh_max_seconds": 0.8291455229999999,
+          "parent_max_over_mean": 1.0000361972182459,
+          "useful_accepted_operations": 34.0,
+          "useful_operations_per_parent_second": 38.113640727520846,
+          "maximum_native_bound": 8388608.0,
+          "maximum_lifetime_rss": 28520448.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 1.14933323,
+          "remesh_max_seconds": 1.093461675,
+          "parent_max_over_mean": 1.0001658231863308,
+          "useful_accepted_operations": 22.0,
+          "useful_operations_per_parent_second": 19.141533043467298,
+          "maximum_native_bound": 2296520.0,
+          "maximum_lifetime_rss": 30920704.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 0.799178629,
+          "remesh_max_seconds": 0.7760153879999998,
+          "parent_max_over_mean": 1.0001595126254055,
+          "useful_accepted_operations": 38.0,
+          "useful_operations_per_parent_second": 47.54881902629055,
+          "maximum_native_bound": 2271836.0,
+          "maximum_lifetime_rss": 31031296.0
+        }
+      ]
+    },
+    {
+      "folder": "insertion_aligned_n3_n1_r1024_v1",
+      "parameters": {
+        "folder": "integration_evidence/native_3d_core_v1/insertion_aligned_n3_n1_r1024_v1",
+        "ranks": 1,
+        "binary_from": null,
+        "workers": 1,
+        "size": 3,
+        "anisotropy": 1,
+        "varying": 1,
+        "diagnostic_rounds": 1024,
+        "aligned_markers": true,
+        "replay_rounds": null,
+        "repeat": 0,
+        "detail": 1
+      },
+      "accepted_cells": [
+        288,
+        50,
+        312
+      ],
+      "minimum_mean_ratio": 0.3148801027290349,
+      "minimum_scaled_jacobian": 0.12375775020921,
+      "maximum_metric_edge": 1.7853285045817604,
+      "maximum_state_error": 5.806800864308098e-16,
+      "maximum_transported_tensor_error": 0.0,
+      "validation_sha256": "3e95be819b65b6d3c30bdab9934267c720d995c465bbe01b3eaefbad45399ff2",
+      "audit_sha256": "cc56535e167b8c345c48a15f5f41365172e09c81316388c422c6f16024d56817",
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 1.923358537,
+          "remesh_max_seconds": 1.81206753,
+          "parent_max_over_mean": 1.0,
+          "useful_accepted_operations": 99.0,
+          "useful_operations_per_parent_second": 51.4724624117235,
+          "maximum_native_bound": 8388608.0,
+          "maximum_lifetime_rss": 30728192.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 5.1284273,
+          "remesh_max_seconds": 5.003613978000001,
+          "parent_max_over_mean": 1.0,
+          "useful_accepted_operations": 66.0,
+          "useful_operations_per_parent_second": 12.869442450709986,
+          "maximum_native_bound": 3733392.0,
+          "maximum_lifetime_rss": 32227328.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 1.8059663500000003,
+          "remesh_max_seconds": 1.7456095869999997,
+          "parent_max_over_mean": 1.0,
+          "useful_accepted_operations": 128.0,
+          "useful_operations_per_parent_second": 70.87618216142288,
+          "maximum_native_bound": 3891992.0,
+          "maximum_lifetime_rss": 32309248.0
+        }
+      ]
+    },
+    {
+      "folder": "insertion_aligned_n3_n4_m4_v1",
+      "parameters": {
+        "folder": "integration_evidence/native_3d_core_v1/insertion_aligned_n3_n4_m4_v1",
+        "ranks": 4,
+        "binary_from": "integration_evidence/native_3d_core_v1/insertion_aligned_n3_n1_r1024_v1",
+        "workers": 4,
+        "size": 3,
+        "anisotropy": 1,
+        "varying": 1,
+        "diagnostic_rounds": 512,
+        "aligned_markers": true,
+        "replay_rounds": null,
+        "repeat": 0,
+        "detail": 1
+      },
+      "accepted_cells": [
+        288,
+        61,
+        308
+      ],
+      "minimum_mean_ratio": 0.27985600574099273,
+      "minimum_scaled_jacobian": 0.08183879206379707,
+      "maximum_metric_edge": 1.7997872748503447,
+      "maximum_state_error": 5.806800864308098e-16,
+      "maximum_transported_tensor_error": 0.0,
+      "validation_sha256": "075b7cd9682e58d00dbaf9f4a34489e0e731abfd4ccce57bff9e5c684ed95d93",
+      "audit_sha256": "84c869424e1e018dda3ea5abf4424a303f7d3197b3a47a38a9169ff81a8a6932",
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 2.29380153,
+          "remesh_max_seconds": 2.212891843,
+          "parent_max_over_mean": 1.0000623837435068,
+          "useful_accepted_operations": 99.0,
+          "useful_operations_per_parent_second": 43.15979334096965,
+          "maximum_native_bound": 8388608.0,
+          "maximum_lifetime_rss": 29650944.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 7.098417844,
+          "remesh_max_seconds": 6.938251361000001,
+          "parent_max_over_mean": 1.0000038904595427,
+          "useful_accepted_operations": 65.0,
+          "useful_operations_per_parent_second": 9.156970106365579,
+          "maximum_native_bound": 2617652.0,
+          "maximum_lifetime_rss": 31354880.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 4.097907218,
+          "remesh_max_seconds": 3.8468902220000007,
+          "parent_max_over_mean": 1.0000400826140665,
+          "useful_accepted_operations": 133.0,
+          "useful_operations_per_parent_second": 32.45559084788435,
+          "maximum_native_bound": 2664888.0,
+          "maximum_lifetime_rss": 31395840.0
+        }
+      ]
+    },
+    {
+      "folder": "insertion_aligned_n3_n4_m2_v1",
+      "parameters": {
+        "folder": "integration_evidence/native_3d_core_v1/insertion_aligned_n3_n4_m2_v1",
+        "ranks": 4,
+        "binary_from": "integration_evidence/native_3d_core_v1/insertion_aligned_n3_n1_r1024_v1",
+        "workers": 2,
+        "size": 3,
+        "anisotropy": 1,
+        "varying": 1,
+        "diagnostic_rounds": 512,
+        "aligned_markers": true,
+        "replay_rounds": null,
+        "repeat": 0,
+        "detail": 1
+      },
+      "accepted_cells": [
+        288,
+        47,
+        281
+      ],
+      "minimum_mean_ratio": 0.21425756117272823,
+      "minimum_scaled_jacobian": 0.0784653181781999,
+      "maximum_metric_edge": 1.7997872748503445,
+      "maximum_state_error": 4.151680014179526e-16,
+      "maximum_transported_tensor_error": 0.0,
+      "validation_sha256": "fc3b02cdab34438b52ab73c324bd97d481dcdc130688209f0a06853cded585ca",
+      "audit_sha256": "21c67378aac2631441558f578031b9be4e3d25236c786786444b6c8dd04af3a7",
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 1.698343191,
+          "remesh_max_seconds": 1.5117737,
+          "parent_max_over_mean": 1.000086468063538,
+          "useful_accepted_operations": 99.0,
+          "useful_operations_per_parent_second": 58.29210522621632,
+          "maximum_native_bound": 8388608.0,
+          "maximum_lifetime_rss": 30420992.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 4.595512358000001,
+          "remesh_max_seconds": 4.481911246000001,
+          "parent_max_over_mean": 1.0000370910920828,
+          "useful_accepted_operations": 67.0,
+          "useful_operations_per_parent_second": 14.579440719676112,
+          "maximum_native_bound": 2976908.0,
+          "maximum_lifetime_rss": 31875072.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 2.123446922000001,
+          "remesh_max_seconds": 1.9731882559999994,
+          "parent_max_over_mean": 1.0000040392036913,
+          "useful_accepted_operations": 126.0,
+          "useful_operations_per_parent_second": 59.337485055348104,
+          "maximum_native_bound": 3028400.0,
+          "maximum_lifetime_rss": 31875072.0
+        }
+      ]
+    }
+  ],
+  "rejected_private_replays": [
+    {
+      "folder": "insertion_replay_original_n3_v1",
+      "result": {
+        "complete": false,
+        "reason": "Native 3D adaptation stagnates: admitted operators cannot satisfy the frozen size/shape gates. Last local rejection: feature 3:13: Native 3D repair improves neither frozen size excess nor quality/sliver bounds.",
+        "maximum_rounds": 512,
+        "rounds": 175,
+        "attempted": 175,
+        "accepted": 57,
+        "rejected": 118,
+        "moved": 0,
+        "reconnected": 0,
+        "inserted": 42,
+        "repair_proposals": 598,
+        "recovery_starts": 1,
+        "private_cells": 420,
+        "total_seconds": 1.25382269,
+        "metric_seconds": 0.47209472600000046,
+        "reconstruction_seconds": 0.2447753159999998,
+        "edge_trace_seconds": 0.8767989600000002,
+        "native_bound": 3807656,
+        "process_cpu_seconds": 1.16556,
+        "accepted_state_preserved": true
+      },
+      "private_progress": {
+        "file": "replay_rejected.json",
+        "cells": 420,
+        "points": 121,
+        "physical_faces": 132,
+        "volume": "1",
+        "minimum_mean_ratio": 0.5546890194805078,
+        "minimum_scaled_jacobian": 0.334496804002836,
+        "maximum_length": 2.229036245912664,
+        "longest_edge": [
+          2,
+          7
+        ],
+        "markers": {
+          "1": 18,
+          "3": 18,
+          "2": 18,
+          "6": 12,
+          "5": 12,
+          "0": 18,
+          "4": 36
+        },
+        "strict_metric_gate": false
+      },
+      "oversized_edges": 6,
+      "oversized_cells": 12,
+      "validation_sha256": "c1927c319555598f6dd61c24a7840b3b71ea63f6962109ac9d7281f9fd8a1e9a",
+      "audit_sha256": "96dc587a36dd521f58e25a0cd38ca26f4e3f470c7cb4ab2cd3751b5a9c34da94"
+    }
+  ],
+  "regression_validation_sha256": "37af5bc754fd84c49d67e9e93dda5cd8c7217f450171ec8f3e355cc34c9edf27",
+  "retained_compile_failure_sha256": "42c972130f53bb0ed23dc0de50f09666b6bde33cbb1cf23814f9380e34c96509",
+  "retained_default_n3_failure_sha256": "929f61634f49f1ed44cbdf1e9b120e84cb81140a3de76364d4813a6fdc08504e",
+  "qualified_default_first_event_equal_to_1024": {
+    "envelope_input.su2": "d442b3e10f16b45ce55a0ddc759baf5a3229cc900e353ccab1a3d0132b9b8f4e",
+    "envelope_s0_initial.json": "6864ea6983b1342cbef30e4a75ae0bb5db642f6596df539709ab9bd4eddb1418",
+    "envelope_s0.json": "9818e95f2837beb3512eb56a21091208d87548fb5d6e432faffffaccdded33da",
+    "envelope_s0_states.json": "8ea1f4bc9c55a1aad6ba7729262a2d598c586f2c2d7e0cbffce7ae49a5e7c753",
+    "envelope_s1_initial.json": "db9095e16c0106f3cfd11ef0237932a8493070f0957b6411a5eb8cf13ca727e7",
+    "envelope_mesh_00001.su2": "81755b5891f623754b75bd4c5eb316d9040a4d951a0f37f07555dcbad82618a8",
+    "envelope_mesh_00001.su2.native_ref": "60a4c369303736540c9388384879132ea0ae3b244d468fb620d71eeb155c909f"
+  },
+  "legacy_unchanged_data_files": {
+    "insertion_driver_n1_v1": [
+      "envelope_s0_initial.json",
+      "envelope_s0.json",
+      "envelope_s1_initial.json",
+      "envelope_s1.json",
+      "envelope_s2_initial.json",
+      "envelope_s2.json",
+      "envelope_s2_written_SU2_reload.json",
+      "envelope_s2_written_CGNS_reload.json",
+      "envelope_s0_states.json",
+      "envelope_s1_states.json",
+      "envelope_s2_states.json"
+    ],
+    "insertion_driver_n2_m1_v1": [
+      "envelope_s0_initial.json",
+      "envelope_s0.json",
+      "envelope_s1_initial.json",
+      "envelope_s1.json",
+      "envelope_s2_initial.json",
+      "envelope_s2.json",
+      "envelope_s2_written_SU2_reload.json",
+      "envelope_s2_written_CGNS_reload.json",
+      "envelope_s0_states.json",
+      "envelope_s1_states.json",
+      "envelope_s2_states.json"
+    ],
+    "insertion_driver_n2_m2_v1": [
+      "envelope_s0_initial.json",
+      "envelope_s0.json",
+      "envelope_s1_initial.json",
+      "envelope_s1.json",
+      "envelope_s2_initial.json",
+      "envelope_s2.json",
+      "envelope_s2_written_SU2_reload.json",
+      "envelope_s2_written_CGNS_reload.json",
+      "envelope_s0_states.json",
+      "envelope_s1_states.json",
+      "envelope_s2_states.json"
+    ],
+    "insertion_driver_n4_m1_v1": [
+      "envelope_s0_initial.json",
+      "envelope_s0.json",
+      "envelope_s1_initial.json",
+      "envelope_s1.json",
+      "envelope_s2_initial.json",
+      "envelope_s2.json",
+      "envelope_s2_written_SU2_reload.json",
+      "envelope_s2_written_CGNS_reload.json",
+      "envelope_s0_states.json",
+      "envelope_s1_states.json",
+      "envelope_s2_states.json"
+    ],
+    "insertion_driver_n4_m2_v1": [
+      "envelope_s0_initial.json",
+      "envelope_s0.json",
+      "envelope_s1_initial.json",
+      "envelope_s1.json",
+      "envelope_s2_initial.json",
+      "envelope_s2.json",
+      "envelope_s2_written_SU2_reload.json",
+      "envelope_s2_written_CGNS_reload.json",
+      "envelope_s0_states.json",
+      "envelope_s1_states.json",
+      "envelope_s2_states.json"
+    ],
+    "insertion_driver_n4_m4_v1": [
+      "envelope_s0_initial.json",
+      "envelope_s0.json",
+      "envelope_s1_initial.json",
+      "envelope_s1.json",
+      "envelope_s2_initial.json",
+      "envelope_s2.json",
+      "envelope_s2_written_SU2_reload.json",
+      "envelope_s2_written_CGNS_reload.json",
+      "envelope_s0_states.json",
+      "envelope_s1_states.json",
+      "envelope_s2_states.json"
+    ]
+  },
+  "automatic_independent_frames": 324,
+  "automatic_audit_validation_sha256": "3f480bf06d52e7a1f921a8e406d9a16605a5b34257031e400f5270f67e403e9a",
+  "accounting_rows": 884,
+  "csv_sha256": "5496985ee88b850dadce63e1236926bec7282f23875e4412692e0827a744f33f",
+  "scope": "Six original n2 default-budget N/M manufactured lifecycle controls with66 byte-identical geometry/state data files; three larger aligned n3 lifecycle controls: default N4M4/N4M2, diagnostic explicit-adapter1024 N1. Actual return/replacement/current+BDF2/SU2+CGNS, frozen geometry/residual checks; configured MPI1/2/4 insertion/thin/junction/rollback/repair/budget/default/native2D/MMG and324 independently audited automatic repair frames. Same production identities. Original n3 rejection preserved; default aligned N1 fails second coarsening at512, first accepted event independently qualified by byte identity with the passed1024 case. Single contended pilots/different trajectories are not scaling or speedup evidence. Full Goal1 remains active."
+}

@@ -1,6 +1,7 @@
 """Exact geometry/original-P1, actual BDF transfer/output and exclusive-phase audit of one envelope case."""
 from pathlib import Path
 from collections import Counter
+from fractions import Fraction as F
 import json,math,sys
 from audit_coupled import frame
 from audit_geometry_bridge import states,signature,su2_signature,cgns_signature,reject
@@ -23,6 +24,15 @@ def main(folder):
         if previous is not None:
             assert signature(a)==signature(previous),'Next event lost the last accepted mesh'
             assert a['facets']==previous['facets'] and a['facet_groups']==previous['facet_groups']
+        if cycle==0 and p.get('aligned_markers',False):
+            seam=F(float((p['size']//2)/p['size']))
+            assert len(a['facet_groups'])==7,'Aligned fixture must have seven finite canonical marker patches'
+            for facet in a['facets']:
+                marker=a['marker_names'][facet['marker']]
+                if marker not in ('z_minus_a','z_minus_b'):continue
+                xs=[F(float(v[1])) for v in facet['vertices']]
+                assert all(F(float(v[3]))==0 for v in facet['vertices'])
+                assert max(xs)<=seam if marker=='z_minus_a' else min(xs)>=seam
         state=json.loads((folder/(name+'_states.json')).read_text())
         assert state['sensor_scale']==p['size']**2*(.25 if cycle==1 else 1.)
         transport.append(dict(file=name+'_states.json',**states(b,state,sensor_at)))

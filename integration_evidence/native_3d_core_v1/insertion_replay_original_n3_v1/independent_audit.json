@@ -1,0 +1,232 @@
+{
+  "status": "PASS",
+  "parameters": {
+    "folder": "integration_evidence/native_3d_core_v1/insertion_replay_original_n3_v1",
+    "ranks": 1,
+    "binary_from": null,
+    "workers": 1,
+    "size": 3,
+    "anisotropy": 1,
+    "varying": 1,
+    "aligned_markers": false,
+    "replay_rounds": 512,
+    "repeat": 0,
+    "detail": 1
+  },
+  "replay_result": {
+    "complete": false,
+    "reason": "Native 3D adaptation stagnates: admitted operators cannot satisfy the frozen size/shape gates. Last local rejection: feature 3:13: Native 3D repair improves neither frozen size excess nor quality/sliver bounds.",
+    "maximum_rounds": 512,
+    "rounds": 175,
+    "attempted": 175,
+    "accepted": 57,
+    "rejected": 118,
+    "moved": 0,
+    "reconnected": 0,
+    "inserted": 42,
+    "repair_proposals": 598,
+    "recovery_starts": 1,
+    "private_cells": 420,
+    "total_seconds": 1.25382269,
+    "metric_seconds": 0.47209472600000046,
+    "reconstruction_seconds": 0.2447753159999998,
+    "edge_trace_seconds": 0.8767989600000002,
+    "native_bound": 3807656,
+    "process_cpu_seconds": 1.16556,
+    "accepted_state_preserved": true
+  },
+  "initial": {
+    "file": "replay_initial.json",
+    "cells": 162,
+    "points": 64,
+    "physical_faces": 108,
+    "volume": "1",
+    "minimum_mean_ratio": 0.5870092886923779,
+    "minimum_scaled_jacobian": 0.3344968040028362,
+    "maximum_length": 2.4642922905982254,
+    "longest_edge": [
+      2,
+      23
+    ],
+    "markers": {
+      "5": 9,
+      "2": 18,
+      "0": 18,
+      "6": 9,
+      "1": 18,
+      "3": 18,
+      "4": 18
+    },
+    "strict_metric_gate": false
+  },
+  "private_progress": {
+    "file": "replay_rejected.json",
+    "cells": 420,
+    "points": 121,
+    "physical_faces": 132,
+    "volume": "1",
+    "minimum_mean_ratio": 0.5546890194805078,
+    "minimum_scaled_jacobian": 0.334496804002836,
+    "maximum_length": 2.229036245912664,
+    "longest_edge": [
+      2,
+      7
+    ],
+    "markers": {
+      "1": 18,
+      "3": 18,
+      "2": 18,
+      "6": 12,
+      "5": 12,
+      "0": 18,
+      "4": 36
+    },
+    "strict_metric_gate": false
+  },
+  "oversized_edges": [
+    {
+      "vertices": [
+        2,
+        7
+      ],
+      "points": [
+        [
+          0.6666666666666666,
+          0.0,
+          0.0
+        ],
+        [
+          1.0,
+          0.3333333333333333,
+          0.0
+        ]
+      ],
+      "metric_length": 2.229036245912664,
+      "cells": [
+        802,
+        804
+      ]
+    },
+    {
+      "vertices": [
+        6,
+        11
+      ],
+      "points": [
+        [
+          0.6666666666666666,
+          0.3333333333333333,
+          0.0
+        ],
+        [
+          1.0,
+          0.6666666666666666,
+          0.0
+        ]
+      ],
+      "metric_length": 2.229036245912664,
+      "cells": [
+        930,
+        932
+      ]
+    },
+    {
+      "vertices": [
+        1,
+        6
+      ],
+      "points": [
+        [
+          0.3333333333333333,
+          0.0,
+          0.0
+        ],
+        [
+          0.6666666666666666,
+          0.3333333333333333,
+          0.0
+        ]
+      ],
+      "metric_length": 2.186571929735726,
+      "cells": [
+        1954,
+        1956
+      ]
+    },
+    {
+      "vertices": [
+        9,
+        14
+      ],
+      "points": [
+        [
+          0.3333333333333333,
+          0.6666666666666666,
+          0.0
+        ],
+        [
+          0.6666666666666666,
+          1.0,
+          0.0
+        ]
+      ],
+      "metric_length": 2.186571929735726,
+      "cells": [
+        1442,
+        1444
+      ]
+    },
+    {
+      "vertices": [
+        8,
+        13
+      ],
+      "points": [
+        [
+          0.0,
+          0.6666666666666666,
+          0.0
+        ],
+        [
+          0.3333333333333333,
+          1.0,
+          0.0
+        ]
+      ],
+      "metric_length": 2.1432663273973294,
+      "cells": [
+        2594,
+        2596
+      ]
+    },
+    {
+      "vertices": [
+        4,
+        9
+      ],
+      "points": [
+        [
+          0.0,
+          0.3333333333333333,
+          0.0
+        ],
+        [
+          0.3333333333333333,
+          0.6666666666666666,
+          0.0
+        ]
+      ],
+      "metric_length": 2.143266327397329,
+      "cells": [
+        3234,
+        3236
+      ]
+    }
+  ],
+  "oversized_cells": 12,
+  "exported_private_mesh": "replay_rejected.su2",
+  "export_sha256": "bccaa211c23003fb7e09d68f0e01b99f2cea474f163c2b6adde285005cdcc94f",
+  "auditor_sha256": "7ad72e2e5989d1a873dfdca54120b9397693688ebae4014e3f431a7c0ee90cc9",
+  "production_equal_to_rejection": false,
+  "scope": "Exact original n3 driver import/source match, independent positivity/incidence/embedding/finite-facet coverage/volume and actual frozen residuals, accepted-state preservation checks and diagnostic SU2 signature. Rejected private progress may violate length/shape targets and is never published to CFD. A successful direct Refine replay does not qualify backend coarsen/return/replace or alter production default."
+}

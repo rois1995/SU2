@@ -1,3 +1,46 @@
+## Native3D cavity insertion checkpoint — 2026-10-11
+
+NativeIntegrated / codex/native-3d-core, predecessor16029e00cba59c54a05c71eb320c4833845762a2.
+Implementation/evidence publication pending. INSERTION_REPORT.md and
+INSERTION_CHECKPOINT_VALIDATION.json qualify nine actual manufactured driver
+cases (27 events), 884 accounting rows, complete configured68-object MPI1/2/4
+regression and324 independent automatic repair frames plus9 negative controls.
+Six originaln2 N/M controls preserve66 predecessor geometry/source/state files
+byte-for-byte. Source/object/archive/artifact identities verified.
+
+Bounded InsertEdgeCavity removes exact-placement obstacles by positive coning
+with unchanged interior skin or a coupled same-canonical-planar-facet surface
+fan. Marker junctions/incomplete stars reject. MPI ownership routing and inserted
+statistics reconcile arbitrary fans; existing metric/quality/geometry/atomic
+checks, default512 and all2D/MMG/BL/sensor/fade/noise policies stay unchanged.
+Direct unit/thin1e-8 insertion/junction/rollback tests pass. Automatic324-frame
+audit covers existing repair paths, not insertion itself.
+
+Larger alignedn3 defaultN4M4 passes288/61/308tets; defaultN4M2 passes288/47/281.
+Serialdefault accepts first288tets then rejects second coarsening at512;
+diagnostic explicit1024adapter passes288/50/312 after619 coarsening rounds
+(66accepted/553rejected). Seven common input/first accepted mesh/state/sidecar/
+secondinput files identical; full default serial3events still fail.
+Originaln3 replay remains rejected:175rounds,57privateaccepted/42insertions,
+118rejected,420tets121points,qmin0.554689/Jmin0.334497,6longedges12cells,
+Lmax2.229036; geometryvolume1 and accepted CFD state preservation pass.
+Historical infeasible original marker junction remains intact.
+
+Inspectable accepted grids: integration_evidence/native_3d_core_v1/
+insertion_aligned_n3_n4_m2_v1/envelope_s0.vtu through envelope_s2.vtu,
+SU2 meshes/reference sidecars and finalCGNS alongside. Rejected original grid:
+insertion_replay_original_n3_v1/replay_rejected.su2. No CFD iterations run.
+Single contended pilots/different trajectories establish no speedup/scaling;
+serial coarsening candidate failures dominate the next optimization question.
+
+Next: geometry counterexamples can prune impossible directed boundary collapses
+only when the current frozen field is globally admissible, preserving useful
+invalid-field repair fallback and strict/default completion. Fix successful
+vote clearing local rejection reason separately. Both are unimplemented designs.
+FullGoal1 ACTIVE: complete wait/traffic/memory/overhead/repeated scaling,
+stronger/direction-varying/thin/wedge/restart/practical limits and closedSGE remain.
+No owned case live; no overnight clusterlaunch request. Foreignwork unchanged.
+
 ## Native3D recovery coordination and placement diagnosis — 2026-10-11
 
 NativeIntegrated / codex/native-3d-core, predecessor a410dad7a47bee500d9ccc2d32d8d08250937470.

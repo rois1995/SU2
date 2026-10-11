@@ -384,7 +384,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     CLocalFailure failure;
     Patch old,fresh;
     Node point;
-    bool approved=false, moved=false, repair_approved=false;
+    bool approved=false, moved=false, repair_approved=false, cavity_inserted=false;
     std::unique_ptr<FrozenField> field;
     const auto token=transfer_memory::Add(transfer_memory::Mul(round,world.size),world.rank);
     const auto offset=transfer_memory::Mul(token,MaximumReplacementCells);
@@ -405,6 +405,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             point={maximum_node+1+token,{double((static_cast<long double>(a.x)+b.x)/2),
                 double((static_cast<long double>(a.y)+b.y)/2),double((static_cast<long double>(a.z)+b.z)/2)}};
             approved=SplitEdge(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason);
+            if (!approved) {
+              approved=InsertEdgeCavity(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason);
+              cavity_inserted=approved;
+            }
           }
         } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
       }
@@ -442,6 +446,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         std::map<Edge,EdgeMeasure> reuse;
         for (const auto& cell : old.cells) selection.Cached(cell,reuse);
         if (approved) approved=ValidateMetricChange(old.cells,fresh.cells,intent,*field,metric,result.reason,nullptr,&reuse);
+        if (!approved) cavity_inserted=false;
         // An already-admissible coarsening mesh needs removal, not repeated quality-only rearrangement.
         if (repairing || (!approved && (!coarsening || bad_field))) {
           if (!repairing) ++stats.repair_fallbacks;
@@ -584,6 +589,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         return valid;
       };
       approved=validate_private(metric_needed && old_measured && approved,intent);
+      if (!approved) cavity_inserted=false;
       if (!ready) return finish();
       const bool fallback=metric_needed && old_measured && (repairing || (!approved && (!coarsening || bad_field)));
       if (fallback && !repairing) ++stats.repair_fallbacks;
@@ -654,7 +660,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       try {
         if (approved) {
           std::vector<Id> parents;
-          if (repair_approved) {
+          if (repair_approved || cavity_inserted) {
             for (size_t i=0;i<fresh.cells.size();++i) parents.push_back(old.cells[i%old.cells.size()].id);
           } else for (const auto& cell:old.cells) {
             bool keep=false;
@@ -718,7 +724,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         for (auto row : failures) selection.Block(row.edge,row.feature,repairing);
         if (approved) {
           ++stats.accepted;
-          if (repair_approved) { if (moved) ++stats.moved; else ++stats.reconnected; }
+          if (cavity_inserted) ++stats.inserted;
+          else if (repair_approved) { if (moved) ++stats.moved; else ++stats.reconnected; }
           else if (coarsening) result.collapses.push_back(choice.edge); else result.splits.push_back({choice.edge,point});
         }
         stats.maximum_owned=std::max(stats.maximum_owned,working.size());

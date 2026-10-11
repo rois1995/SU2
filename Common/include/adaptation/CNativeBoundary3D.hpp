@@ -54,6 +54,13 @@ class PlanarReference {
  * Both mesh and physical-face output remain unchanged on rejection. */
 bool SplitEdge(const Patch& old, Edge edge, Node point, Id first_cell, const PlanarReference& reference, Patch& fresh,
                std::string& reason, KernelStats* stats = nullptr);
+/*! Inserts a representable point by coning a complete edge-star cavity, without exact on-edge placement.
+ * Interior skin is unchanged. A planar surface seam can be rebuilt only when its two physical triangles
+ * share one canonical facet; marker junctions and unadmitted interface faces reject. The point must see
+ * every retained oriented skin face and lie in the original surface fan. Metric gates are separate.
+ * Fresh output is unchanged on rejection; callers reserve identities and admit complete dependencies. */
+bool InsertEdgeCavity(const Patch& old, Edge edge, Node point, Id first_cell, const PlanarReference& reference,
+                      Patch& fresh, std::string& reason, KernelStats* stats = nullptr);
 /*! Inverse edge bisection: all removed-vertex incident cells must form paired children of the supplied endpoints.
  * Preserves original facets/markers and feature edges; this is not general boundary-vertex collapse. */
 bool UndoEdgeSplit(const Patch& old, Id point, Edge endpoints, Id first_cell, const PlanarReference& reference,

@@ -14,7 +14,7 @@ for p in changed+[str(Path(__file__).resolve().relative_to(root))]:
 env=dict(os.environ,OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1',OMPI_MCA_mpi_yield_when_idle='1',PYTHONDONTWRITEBYTECODE='1')
 status='FAIL';stages=[];objects={};libraries={};members={}
 def run(command,label,cwd=folder):
- print('Starting',label,flush=True);command=['timeout','--signal=TERM','--kill-after=10s','900s']+list(map(str,command));start=time.monotonic()
+ print('Starting',label,flush=True);command=['timeout','--signal=TERM','--kill-after=10s',('1800s' if label=='compile_full_configured_driver' else '900s')]+list(map(str,command));start=time.monotonic()
  p=subprocess.run(command,cwd=cwd,env=env,capture_output=True,text=True)
  (folder/(label+'.stdout')).write_text(p.stdout);(folder/(label+'.stderr')).write_text(p.stderr)
  stages.append(dict(stage=label,command=command,cwd=str(cwd),seconds=time.monotonic()-start,exit_code=p.returncode))
@@ -34,7 +34,7 @@ try:
    for member in subprocess.check_output(['ar','t',path],cwd=root,text=True).splitlines():
     q=Path(member);q=q if q.is_absolute() else root/q;members[str(q)]=sha(q)
  binary=build/'UnitTests/test_driver';binary_pin=sha(binary)
- selection='[NativeAutomaticRepair3D],[NativeBudget3D],[NativeDefault3D],[NativeBridge2D],[MMGRoundTrip]'
+ selection='[NativeInsertion3D],[NativeAutomaticRepair3D],[NativeBudget3D],[NativeDefault3D],[NativeBridge2D],[MMGRoundTrip]'
  for ranks in (1,2,4):
   work=folder/f'mpi{ranks}';work.mkdir()
   run(['uptime'],f'before_mpi{ranks}_load')
@@ -49,7 +49,7 @@ finally:
  if drift or object_drift or archive_drift:status='FAIL'
  result=dict(status=status,source_sha256=pins,source_drift=drift,object_drift=object_drift,archive_drift=archive_drift,
              actual_objects_sha256=objects,library_sha256=libraries,thin_archive_member_sha256=members,build_ninja_sha256=sha(build/'build.ninja'),stages=stages,
-             scope='Configured complete68-object UnitTests/test_driver, actual production archives, native3D automatic Repair/Refine/Coarsen <=1recovery/strict-final/atomic input preservation, budget/refusal/retry/default rejection and native2D/MMG controls at MPI1/2/4. Test assertions, not an independent physical-flow/scaling or fullGoal1 certificate.')
+             scope='Configured complete68-object UnitTests/test_driver, actual production archives, native3D certified interior/coupled planar insertion with thin/junction/incomplete-star/rollback controls, automatic Repair/Refine/Coarsen <=1recovery/strict-final/atomic input preservation, budget/refusal/retry/default rejection and native2D/MMG controls at MPI1/2/4. Test assertions, not an independent physical-flow/scaling or fullGoal1 certificate.')
  if 'binary_pin' in locals():result['binary_sha256']=binary_pin
  result['artifact_sha256']={str(p.relative_to(folder)):sha(p) for p in folder.rglob('*') if p.is_file() and p.suffix not in ('.o','.pyc')}
  (folder/'validation.json').write_text(json.dumps(result,indent=2)+'\n');print(status,folder,flush=True)

@@ -384,7 +384,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
              << " rounds=" << e.rounds << " attempted=" << e.attempted << " accepted=" << e.accepted
              << " rejected=" << e.rejected << " conflicts=" << e.conflicts << " requests=" << e.field_requests
              << " hits=" << e.field_hits << " compositions=" << e.field_compositions << " edge_evaluations=" << e.edge_evaluations
-             << " edge_reused=" << e.edge_reused << " moved=" << e.moved << " reconnected=" << e.reconnected
+             << " edge_reused=" << e.edge_reused << " moved=" << e.moved << " reconnected=" << e.reconnected << " inserted=" << e.inserted
              << " maximum_donor_patch=" << e.donor_maximum_patch << " maximum_owned=" << e.maximum_owned
              << " nested_field_build=" << e.field_build_seconds << " nested_field_query=" << e.field_query_seconds
              << " nested_cache=" << e.field_cache_seconds << " nested_search=" << e.field_search_seconds

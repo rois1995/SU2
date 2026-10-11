@@ -387,6 +387,10 @@ TEST_CASE("Native3D manufactured anisotropic driver envelope", "[NativeEnvelope3
   const int n=parameter("SU2_NATIVE3D_ENVELOPE_SIZE",2), mode=parameter("SU2_NATIVE3D_ENVELOPE_ANISOTROPY",1);
   const int varying=parameter("SU2_NATIVE3D_ENVELOPE_VARYING",0), workers=parameter("SU2_NATIVE3D_ENVELOPE_WORKERS",1);
   const int repeat=parameter("SU2_NATIVE3D_ENVELOPE_REPEAT",0), detail=parameter("SU2_NATIVE3D_ENVELOPE_DETAIL",1);
+  const bool aligned=parameter("SU2_NATIVE3D_ENVELOPE_ALIGNED",0)!=0;
+  const int rounds=parameter("SU2_NATIVE3D_ENVELOPE_ROUNDS",512);
+  REQUIRE((rounds==512 || rounds==1024));
+  REQUIRE((!aligned || n>=2));
   REQUIRE(n>=1);REQUIRE(n<=4);REQUIRE(mode>=0);REQUIRE(mode<=2);REQUIRE(varying>=0);REQUIRE(varying<=1);
   REQUIRE(workers>=1);REQUIRE(workers<=world.size);REQUIRE(repeat>=0);REQUIRE(repeat<3);REQUIRE(detail>=0);REQUIRE(detail<=1);
   const double anisotropy=std::array<double,3>{1.,1.5,2.}[mode], variation=varying?.125:0.;
@@ -396,7 +400,12 @@ TEST_CASE("Native3D manufactured anisotropic driver envelope", "[NativeEnvelope3
     return Tensor{q*diagonal,q*off_diagonal,0.,q*diagonal,0.,q};
   };
   if(!world.rank) {
-    simplex_test::WriteSU2Mesh(BoxMesh(3,n,false),"envelope_input.su2");
+    const double junction=double(n/2)/n;
+    auto mesh=aligned ? simplex_test::MakeSimplexMesh(3,n,[=](const passivedouble* p) {
+      if(p[2]<1e-12)return std::string(p[0]<junction ? "z_minus_a" : "z_minus_b");
+      return simplex_test::Marker3D(p);
+    }) : BoxMesh(3,n,false);
+    simplex_test::WriteSU2Mesh(mesh,"envelope_input.su2");
     std::ofstream cfg("envelope.cfg");
     cfg<<"% Manufactured target: n="<<n<<" anisotropy="<<anisotropy<<" variation="<<variation<<" repeat="<<repeat<<"\n"
        <<"SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nAOA= 0\nMESH_FORMAT= SU2\nMESH_FILENAME= envelope_input.su2\n"
@@ -415,7 +424,12 @@ TEST_CASE("Native3D manufactured anisotropic driver envelope", "[NativeEnvelope3
     su2double values[MAXVAR]{};field(driver->Geometry().nodes->GetCoord(p),values);
     for(unsigned short k=0;k<5;++k){initial->SetSolution(p,k,values[k]);initial->GetSolution_time_n()(p,k)=values[k];initial->GetSolution_time_n1()(p,k)=values[k]*.96875;}
   }
-  auto backend=driver->Backend();auto* native=dynamic_cast<CNativeRemesher3D*>(backend.get());REQUIRE(native);
+  auto backend=driver->Backend();
+  if(rounds!=512) {
+    EngineOptions diagnostic;diagnostic.maximum_rounds=rounds;
+    backend=std::make_unique<CNativeRemesher3D>(driver->Reference(),diagnostic);
+  }
+  auto* native=dynamic_cast<CNativeRemesher3D*>(backend.get());REQUIRE(native);
   CBarycentricTransfer transfer;std::string authority;std::vector<unsigned long> counts;
   for(int cycle=0;cycle<3;++cycle) {
     const double scale=n*n*(cycle==1?.25:1.);const auto name="envelope_s"+std::to_string(cycle);
@@ -494,7 +508,7 @@ TEST_CASE("Native3D size-limit replay retains private progress and accepted CFD 
     <<"{\"complete\":"<<(replay.valid?"true":"false")<<",\"reason\":"<<std::quoted(replay.reason)
     <<",\"maximum_rounds\":"<<rounds<<",\"rounds\":"<<s.rounds<<",\"attempted\":"<<s.attempted
     <<",\"accepted\":"<<s.accepted<<",\"rejected\":"<<s.rejected<<",\"moved\":"<<s.moved<<",\"reconnected\":"<<s.reconnected
-    <<",\"repair_proposals\":"<<s.repair_proposals<<",\"recovery_starts\":"<<s.recovery_starts
+    <<",\"inserted\":"<<s.inserted<<",\"repair_proposals\":"<<s.repair_proposals<<",\"recovery_starts\":"<<s.recovery_starts
     <<",\"private_cells\":"<<replay.cells.size()<<",\"total_seconds\":"<<s.total_seconds
     <<",\"metric_seconds\":"<<s.metric_seconds<<",\"reconstruction_seconds\":"<<s.reconstruction_seconds
     <<",\"edge_trace_seconds\":"<<s.edge_trace_seconds<<",\"native_bound\":"<<s.maximum_work_bytes

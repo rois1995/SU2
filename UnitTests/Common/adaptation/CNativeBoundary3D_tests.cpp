@@ -370,3 +370,52 @@ TEST_CASE("Native finite patch certification preserves marker creases disconnect
   const PlanarReference annulus(hole);
   for (auto f:hole) { CHECK(annulus.Canonical(f.id)==f.id);CHECK_FALSE(annulus.Contains(f.id,{1.5,1.5,0})); }
 }
+
+TEST_CASE("Native insertion removes an exact-placement obstacle with certified cavity skin", "[NativeMesh3D][NativeInsertion3D]") {
+  for (double height : {1., 1e-8}) {
+    const auto old=Cube(height);const PlanarReference reference(Facets(old));
+    const Node point{8,{.5,std::nextafter(.5,1.),.5*height}};
+    Patch fresh;std::string reason;
+    CHECK_FALSE(SplitEdge(old,{0,6},point,100,reference,fresh,reason));
+    REQUIRE(InsertEdgeCavity(old,{0,6},point,100,reference,fresh,reason));
+    CHECK(fresh.cells.size()==2*old.cells.size());
+    CHECK(fresh.surface.size()==old.surface.size());
+    CHECK(ValidateFixedInterface(old.cells,fresh.cells,reason));
+    for (const auto& cell:fresh.cells) CHECK(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)>0);
+    const auto saved=Connectivity(fresh);const auto faces=fresh.surface.size();
+    CHECK_FALSE(InsertEdgeCavity(old,{0,6},{8,{1.5,.5,.5*height}},200,reference,fresh,reason));
+    CHECK_FALSE(InsertEdgeCavity(old,{0,6},{0,point.p},200,reference,fresh,reason));
+    CHECK_FALSE(InsertEdgeCavity(old,{0,6},point,UINT64_MAX,reference,fresh,reason));
+    auto incomplete=old;incomplete.cells.pop_back();
+    CHECK_FALSE(InsertEdgeCavity(incomplete,{0,6},point,200,reference,fresh,reason));
+    CHECK(Connectivity(fresh)==saved);CHECK(fresh.surface.size()==faces);
+  }
+}
+TEST_CASE("Native insertion coordinates a planar surface fan and volume without moving marker junctions", "[NativeMesh3D][NativeInsertion3D]") {
+  for (double height : {1.,1e-8}) {
+    const auto cube=Cube(height);const auto old=EdgeStar(cube,{0,2});auto facets=Facets(cube);
+    for (auto& facet:facets) if (facet.v[0].p.z==0 && facet.v[1].p.z==0 && facet.v[2].p.z==0) facet.marker=70;
+    const PlanarReference reference(facets);
+    const Node point{8,{.5,std::nextafter(.5,1.),0}};Patch fresh;std::string reason;
+    CHECK_FALSE(SplitEdge(old,{0,2},point,100,reference,fresh,reason));
+    REQUIRE(InsertEdgeCavity(old,{0,2},point,100,reference,fresh,reason));
+    CHECK(fresh.cells.size()==2*old.cells.size());CHECK(fresh.surface.size()==old.surface.size()+2);
+    unsigned wall=0;
+    std::map<Id,Point> nodes;
+    for (const auto& cell:fresh.cells) for (auto node:cell.v) nodes.emplace(node.id,node.p);
+    for (const auto& face:fresh.surface) {
+      CHECK(reference.ContainsFace(face.facet,{nodes.at(face.v[0]),nodes.at(face.v[1]),nodes.at(face.v[2])}));
+      if(reference.Get(face.facet).marker==70)++wall;
+    }
+    CHECK(wall==4);
+    const auto saved=Connectivity(fresh);const auto faces=fresh.surface.size();
+    const PlanarReference junction(Facets(cube));
+    CHECK_FALSE(InsertEdgeCavity(old,{0,2},point,200,junction,fresh,reason));
+    CHECK(reason.find("junction")!=std::string::npos);
+    CHECK_FALSE(InsertEdgeCavity(old,{0,2},{8,{1.25,.5,0}},200,reference,fresh,reason));
+    CHECK_FALSE(InsertEdgeCavity(old,{0,2},{8,{.5,.5,1e-16*height}},200,reference,fresh,reason));
+    auto incomplete=old;incomplete.cells.pop_back();
+    CHECK_FALSE(InsertEdgeCavity(incomplete,{0,2},point,200,reference,fresh,reason));
+    CHECK(Connectivity(fresh)==saved);CHECK(fresh.surface.size()==faces);
+  }
+}

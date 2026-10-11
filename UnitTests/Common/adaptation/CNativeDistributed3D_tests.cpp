@@ -701,7 +701,7 @@ void EngineReport(const EngineResult& result, World& world, const std::string& l
        << " process_cpu_s=" << s.process_cpu_seconds << " reconstruction_cpu_s=" << s.reconstruction_cpu_seconds
        << " metric_cpu_s=" << s.metric_cpu_seconds << " measurement_cpu_s=" << s.measurement_cpu_seconds
        << " repair_fallbacks=" << s.repair_fallbacks << " fallback_accepted=" << s.fallback_accepted
-       << " recovery_starts=" << s.recovery_starts << " repair_proposals=" << s.repair_proposals << " moved=" << s.moved << " reconnected=" << s.reconnected
+       << " recovery_starts=" << s.recovery_starts << " repair_proposals=" << s.repair_proposals << " moved=" << s.moved << " reconnected=" << s.reconnected << " inserted=" << s.inserted
        << " batches=" << s.donor_batches << " batch_retries=" << s.batch_retries
        << " query_import_retries=" << s.query_import_retries << " private_query_retries=" << s.private_query_retries
        << " donor_candidates=" << s.donor_candidates << " donor_filtered=" << s.donor_filtered
@@ -1038,8 +1038,8 @@ TEST_CASE("Native MPI general coarsening supports repeated planar refine coarsen
           CHECK(Bytes(owned)==worker_saved);
           CHECK(result.stats.edge_evaluations+result.stats.edge_reused==6*(result.stats.initial_cells+result.stats.updated_cells));
           CHECK(result.stats.other_seconds>=-1e-12);
-          if(coarsening) { CHECK(result.splits.empty()); CHECK(result.collapses.size()+result.stats.moved+result.stats.reconnected==result.stats.accepted); }
-          else { CHECK(result.collapses.empty()); CHECK(result.splits.size()+result.stats.moved+result.stats.reconnected==result.stats.accepted); }
+          if(coarsening) { CHECK(result.splits.empty()); CHECK(result.collapses.size()+result.stats.moved+result.stats.reconnected+result.stats.inserted==result.stats.accepted); }
+          else { CHECK(result.collapses.empty()); CHECK(result.splits.size()+result.stats.moved+result.stats.reconnected+result.stats.inserted==result.stats.accepted); }
           if(!valid) std::cerr<<"CYCLE_FAILURE "<<label<<" rank="<<worker.rank<<" "<<result.reason<<'\n';
           EngineReport(result,worker,label);adapted.swap(result.cells);
           MPI_Comm_free(&subset);
@@ -1309,7 +1309,7 @@ TEST_CASE("Native automatic MPI repair selects complete failing features and res
           CHECK(result.stats.recovery_starts<=1);
           CHECK(result.stats.rounds<=options.maximum_rounds);
           CHECK(result.stats.initial_cells==owned.size());
-          CHECK(result.splits.size()+result.collapses.size()+result.stats.moved+result.stats.reconnected==result.stats.accepted);
+          CHECK(result.splits.size()+result.collapses.size()+result.stats.moved+result.stats.reconnected+result.stats.inserted==result.stats.accepted);
           if(mode=="auto") {
             CHECK(worker.sum(int(kind=="wall" || kind=="interior" ? result.stats.moved : result.stats.reconnected))>0);
             CHECK(result.splits.empty());CHECK(result.collapses.empty());
