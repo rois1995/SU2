@@ -2,6 +2,7 @@
 
 Repository: `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`.
 Branch: `codex/native-3d-core`; predecessor `8acadb1bf67bba237cf245acc4f2d7774cf3c65f`.
+Implementation/evidence checkpoint: `413f02c899031a216fb3ca64eaa9983938950704`, pushed and verified against the full remote branch SHA.
 
 Four wedge cases pass three actual native backend/driver refinement, coarsening and refinement events each. A fifth box control reproduces13 raw geometry/source/state/SU2CGNS nodal/frozen-readback files byte-for-byte. Production archives and all thin members match the published thin-domain checkpoint. Full Goal1 remains active.
 

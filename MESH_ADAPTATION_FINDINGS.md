@@ -1,6 +1,8 @@
 ## Oblique wedge checkpoint — 2026-10-11
 
 NativeIntegrated / codex/native-3d-core, predecessor8acadb1bf67bba237cf245acc4f2d7774cf3c65f.
+Implementation/evidence checkpoint `413f02c899031a216fb3ca64eaa9983938950704` pushed to
+origin/codex/native-3d-core; full remote SHA verified.
 WEDGE_REPORT.md/WEDGE_CHECKPOINT_VALIDATION.json qualify four actual default512
 n2 triangular-prism three-event cases N1M1,N2M2,N4M2,N4M4, plus13 byte-identical
 box-control files. Input18points/24tets/32triangles, exact volume1/2 and oblique
