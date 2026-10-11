@@ -18,6 +18,9 @@ def main():
     script=bundle/'integration_evidence/native_cluster_3d_core_v1/RunNative3DSGE.sh'
     for mode,ranks in [('correctness',4)]+[(kind,n) for kind in ('lifecycle','timing') for n in (1,2,4)]+([('limits',4)] if args.limits else []):
         cmd=['qsub','-terse','-N','Native3D_'+mode+'_'+str(ranks),'-pe','mpi',str(ranks)]
+        # SGE does not inherit the login compiler/MPI/library search paths by default.
+        inherited=['PATH']+(['LD_LIBRARY_PATH'] if 'LD_LIBRARY_PATH' in os.environ else [])
+        cmd+=['-v',','.join(inherited)]
         if previous:cmd+=['-hold_jid',previous]
         cmd += [str(script),str(bundle),mode]
         if correctness:cmd+=['--gate',str(correctness)]

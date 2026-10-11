@@ -10,11 +10,23 @@ are separate from those numerical checks.
 Do not treat preparation or submission as a numerical PASS.
 
 Use the cluster's existing GCC/MPI/MMG/CGNS build environment on the login host.
+Earlier downloaded cluster checkpoints had enable-mmg=false. This suite also
+checks the retained serial MMG2D/3D path and therefore needs its library/header
+installation. The user-provided cluster prefix is
+/home/aero/arausa/global/Libs/mmg-5.8.0/install. Set mmg_root explicitly and retain
+your compiler/MPI environment. The prefix must contain include/mmg/libmmg.h and
+lib/libmmg.so or lib/libmmg.a; MMG executables alone are insufficient. For a shared
+installation include its lib directory in LD_LIBRARY_PATH before submission.
+If MMG was linked against a separately installed SCOTCH, retain/add that prefix
+with -Dmmg_scotch_root and its shared-library search path too.
+
 Build the complete normal-mode test driver with MPI, MMG, CGNS and tests enabled:
 
 ```sh
+NATIVE3D_MMG_ROOT=/home/aero/arausa/global/Libs/mmg-5.8.0/install
+export LD_LIBRARY_PATH="$NATIVE3D_MMG_ROOT/lib:${LD_LIBRARY_PATH:-}"
 ./meson.py configure build-native -Denable-tests=true -Denable-normal=true \
-  -Denable-mmg=true -Denable-cgns=true -Dwith-mpi=enabled
+  -Denable-mmg=true -Denable-cgns=true -Dwith-mpi=enabled -Dmmg_root="$NATIVE3D_MMG_ROOT"
 ninja -C build-native UnitTests/test_driver
 PYTHONDONTWRITEBYTECODE=1 python3 integration_evidence/native_cluster_3d_core_v1/prepare.py \
   --build-dir build-native --output integration_evidence/native_cluster_3d_core_v1/prepared_v1
@@ -48,6 +60,13 @@ require the identical frozen bundle. Partial submissions retain job IDs, command
 and the pending scheduler acknowledgement in `ClusterResults`. Inspect that
 receipt/queue before retrying a failed submission; the script never resubmits
 an existing campaign automatically.
+
+Submission exports only PATH and, when defined, LD_LIBRARY_PATH by name through
+qsub -v. This preserves login MPI/Python and external shared-library search paths
+without exporting the full environment. The SGE script prepends its declared GCC
+paths while retaining those inherited paths. A bundle prepared before this fix
+retains its old submit.py: prepare a fresh output after updating when a corrected
+submission recipe is needed.
 
 Compute nodes need no Git or compiler. The SGE script uses `MACHINEFILE_PATH` or
 `machinefile.$JOB_ID`, one numerical-library thread, and the frozen executable.

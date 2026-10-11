@@ -54,9 +54,11 @@ class PackageChecks(unittest.TestCase):
     def test_serial_scheduler_chain_and_result_gates(self):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d);bundle=self.bundle(root)
-            with patch.object(submit,'ROOT',root),patch.object(Path,'cwd',return_value=root),patch.object(sys,'argv',['submit.py',str(bundle)]),patch.object(subprocess,'check_output',side_effect=[str(100+i)+'\n' for i in range(7)]) as qsub,contextlib.redirect_stdout(io.StringIO()):submit.main()
+            with patch.dict(os.environ,{'PATH':'/fake/compiler/bin:/usr/bin','LD_LIBRARY_PATH':'/fake/mmg/lib:/fake/mpi/lib'}),patch.object(submit,'ROOT',root),patch.object(Path,'cwd',return_value=root),patch.object(sys,'argv',['submit.py',str(bundle)]),patch.object(subprocess,'check_output',side_effect=[str(100+i)+'\n' for i in range(7)]) as qsub,contextlib.redirect_stdout(io.StringIO()):submit.main()
             commands=[c.args[0] for c in qsub.call_args_list]
             self.assertNotIn('-hold_jid',commands[0])
+            self.assertTrue(all(cmd[cmd.index('-v')+1]=='PATH,LD_LIBRARY_PATH' for cmd in commands))
+            self.assertTrue(all('-V' not in cmd for cmd in commands))
             for i,cmd in enumerate(commands[1:],1):self.assertEqual(cmd[cmd.index('-hold_jid')+1],str(99+i))
             self.assertTrue(all(cmd.count('--gate')==2 for cmd in commands[4:]))
             receipt=json.loads(next((root/'ClusterResults').glob('native3d_submission_*.json')).read_text())
@@ -104,6 +106,31 @@ class PackageChecks(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'Artifact drift'):analyze.main([folder])
             record['artifact_sha256'][str(last.relative_to(folder))]=run.sha(last);(folder/'result.json').write_text(json.dumps(record))
             with self.assertRaisesRegex(ValueError,'Accepted work changed'):analyze.main([folder])
+    def test_sge_launcher_preserves_inherited_search_paths(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);bundle=root/'bundle';script=bundle/'integration_evidence/native_cluster_3d_core_v1/run.py'
+            script.parent.mkdir(parents=True)
+            script.write_text('import json,os,sys\nfrom pathlib import Path\np=Path(sys.argv[sys.argv.index("--results")+1]);p.mkdir(parents=True)\n(p/"probe.json").write_text(json.dumps({k:os.environ[k] for k in ("PATH","LD_LIBRARY_PATH")}))\n')
+            machine=root/'machinefile';machine.write_text('mock-node slots=4\n')
+            env=dict(os.environ,SGE_O_WORKDIR=str(root),JOB_ID='73',NSLOTS='4',
+                     MACHINEFILE_PATH=str(machine),PATH_GCC='/fake/compiler/bin',
+                     LD_LIBRARY_PATH_GCC='/fake/compiler/lib',
+                     LD_LIBRARY_PATH='/fake/mmg/lib:/fake/mpi/lib')
+            launch=subprocess.run(['bash',str(Path(__file__).resolve().parent/'RunNative3DSGE.sh'),str(bundle),'correctness'],
+                                  cwd=root,env=env,capture_output=True,text=True,timeout=10)
+            self.assertEqual(launch.returncode,0,launch.stderr)
+            data=json.loads((root/'ClusterResults/native3d_73_correctness_n4/probe.json').read_text())
+            self.assertEqual(data['PATH'],'/fake/compiler/bin:'+env['PATH'])
+            self.assertEqual(data['LD_LIBRARY_PATH'],'/fake/compiler/lib:/fake/mmg/lib:/fake/mpi/lib')
+            self.assertEqual((root/'ClusterResults/launcher/native3d_73/exit_code.txt').read_text(),'0\n')
+
+    def test_submission_without_library_path_exports_only_path(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);bundle=self.bundle(root)
+            with patch.dict(os.environ,{'PATH':'/fake/compiler/bin:/usr/bin'},clear=True),patch.object(submit,'ROOT',root),patch.object(Path,'cwd',return_value=root),patch.object(sys,'argv',['submit.py',str(bundle)]),patch.object(subprocess,'check_output',side_effect=[str(i)+'\n' for i in range(100,107)]) as qsub,contextlib.redirect_stdout(io.StringIO()):
+                submit.main()
+            self.assertTrue(all(c.args[0][c.args[0].index('-v')+1]=='PATH' for c in qsub.call_args_list))
+
     def test_partial_submission_receipt_is_retained(self):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d);bundle=self.bundle(root)

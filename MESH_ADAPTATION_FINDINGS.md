@@ -1,3 +1,28 @@
+## Cluster MMG prefix and SGE runtime search paths — 2026-10-11; package checked
+
+NativeIntegrated / codex/native-3d-core, predecessor1ba501f9dfc97b17688186cf56cca0c49f152818.
+User build-native failed locating libmmg with default mmg_root=/usr/local. Older
+downloaded582358/581950 metadata has enable-mmg=false. User supplied cluster
+prefix /home/aero/arausa/global/Libs/mmg-5.8.0/install; README now configures it
+explicitly and exports its lib search path. submit.py now sends PATH and defined
+LD_LIBRARY_PATH via qsub -v names, preserving compiler/MPI/Python/shared-library
+paths into the existing GCC-prepending SGE script without full environment export.
+Freeze a new bundle after updating if the previous one contains old submission code.
+
+package_checks_v10 passes18 lightweight checks, including actual Bash launcher
+with a fake Python probe, mocked scheduler env/serialization/gates/partial receipt,
+plus syntax/diff/source/artifact checks. No build/MPI/CFD/qsub launched; remote
+MMG install/header/library/dependencies/link/load unverified. Production C++,
+configured driver, targets/guards and auditors unchanged. Report:
+integration_evidence/native_cluster_3d_core_v1/CLUSTER_MMG_SETUP_REPORT.md.
+
+Goal1 ACTIVE; actual MPI/reference-admission qualification, repeated cluster
+performance/n8 limits and full traffic/wait/memory calibration remain. Communication
+coverage tracing is incomplete: World statistics omit failure elections/direct
+passive/ADT/communicator/vendor calls. Do not infer MPI waiting from wall-minus-CPU.
+No owned jobs live; AdapNoExt, foreign submodule work/results and prior evidence
+untouched. No MMG-disable workaround or numerical PASS claimed.
+
 ## Native3D offline phase/rank analysis — 2026-10-11; checked, analysis only
 
 Published analysis/evidence checkpoint 3e55caee966eef795f60b317a24ba7d948a999a9 on origin/codex/native-3d-core; full remote SHA verified. No executable or run-recipe change.

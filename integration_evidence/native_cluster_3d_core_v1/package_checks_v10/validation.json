@@ -1,0 +1,52 @@
+{
+  "status": "PASS",
+  "scope": "Lightweight package/mock qsub tests and actual Bash launcher with a fake Python probe; no build, MPI, CFD, real scheduler or actual cluster-library link/load validation.",
+  "source_sha256": {
+    "integration_evidence/native_cluster_3d_core_v1/submit.py": "938927971f7272998a726d13f180d54fa53529452cf14cad190a350a0b06b6b8",
+    "integration_evidence/native_cluster_3d_core_v1/check_package.py": "4c5eb5dde6bf06e0e73fe51e37dcd4ad6d73ffe9d44b7a31a79dfd0e686be931",
+    "integration_evidence/native_cluster_3d_core_v1/RunNative3DSGE.sh": "306ec6a1d4eff5d728962d193a3bbf215f7cbb1bb224abcb1ebe4bc09c73a73d",
+    "integration_evidence/native_cluster_3d_core_v1/README.md": "20d5e7d5f16cbc0e4a95a8de210feb9a957a7bd9cee864d62606ff363990c94f",
+    "integration_evidence/native_cluster_3d_core_v1/prepare.py": "e31f4f464e7cc194db940d156eca4d7a15e3793e0aa1cd6c2f1def94fec334bb",
+    "integration_evidence/native_cluster_3d_core_v1/run.py": "af02211cf47ba26800d43e7717b683114ee6e1509454c762d5b1739d3ebb42ac"
+  },
+  "stages": [
+    {
+      "label": "checks",
+      "command": [
+        "python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_core_v1/check_package.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.0874338310095482
+    },
+    {
+      "label": "shell_syntax",
+      "command": [
+        "bash",
+        "-n",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_core_v1/RunNative3DSGE.sh"
+      ],
+      "exit_code": 0,
+      "seconds": 0.014991973992437124
+    },
+    {
+      "label": "diff_check",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "--ignore-submodules=all"
+      ],
+      "exit_code": 0,
+      "seconds": 0.0710362660465762
+    }
+  ],
+  "artifact_sha256": {
+    "checks.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "shell_syntax.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "shell_syntax.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "diff_check.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "checks.stderr": "77a8fd086817ce57172e6bfa4f8536cdd8c05333706499c26835dbb4378025d6",
+    "diff_check.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}
