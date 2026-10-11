@@ -7,6 +7,17 @@ small sequential local checks with real host-contention checks; push each
 validated checkpoint and verify the remote SHA. A terminal capacity failure
 cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
+## Initial native3D SGE package — 2026-10-11; orchestration checked only
+
+NativeIntegrated / codex/native-3d-core, predecessorb441f55b412ff30dbd997890746c6aff62480bdf.
+integration_evidence/native_cluster_3d_core_v1/README.md and PACKAGE_PREPARATION_REPORT.md describe a closed initial MPI1/2/4 correctness/lifecycle/repeated OFFON timing package. No new C++ build/mesh run/real qsub was performed; reference-admission draft still pending validation, last validated production1fafe9e83c. Nine lightweight fake-file/synthetic-timing/process/mocked-scheduler checks pass in package_checks_v3, with source/artifact pins; priorv1/v2 preserved. Actual configured Ninja dry-run finds19 pending steps and preparation_refusal_v1 proves the stale executable is refused without binary mutation/output bundle.
+
+Preparation requires the current complete68-object normal MPI/MMG/CGNS/test driver and records source/object/archive/thin-member/build-option pins with drift checks. Bundles are closed regular files; no Git/compiler on nodes. Seven serialized SGE jobs: correctness4slots (serialMMG/native/ref/2D3Dbridge MPI1/2/4 and persisted SU2N1M1/CGNSN4M2), actual metric/Hessian lifecycle N1/2/4, then manufactured n4 timing N1/2/4. Jobs gate same-package correctness; timings also gate same-rank lifecycle. Partial submission receipts preserve IDs/pending acknowledgements; no automatic retry or real submission here.
+
+Timing uses N=M/M=max(1,N/2), warm-up plus3 paired repetitions with alternating detailOFFON;13 raw data files must match within each fixed N/M. Raw logs/SU2CGNS/sidecars/BDF remain inspectable; audited large JSON gzip is verified reversible, with no-overwrite restore. Results retain code/pins/audits and exclude ELF/object/build trees. Download native3d_* result and launcher folders only. Reviewer separates exclusive/nested phases, reports median/spread/useful edit rates/RSS/bounds/imbalance and refuses changed artifacts/work.
+
+CPU remained saturated by foreign FSI after the foreign build ended (load~19 ->~10, sampled idle4–7%); no owned heavy job started. Root filesystem transient ENOSPC prevented one heredoc before execution; retry using python-c succeeded. Workspace~77GiB free, root~1GiB. Only small owned /tmp scratch; no foreign cleanup. NEXT remains contention-gated reference_admission_regression_v1 and frozen fixed-work/restart matrix, then actual package freeze/cluster launch only when requested. Detailed cache-miss/traffic/privateCPU/wait/memory calibration, larger sizes/ranks/practical limits remain. FullGoal1 ACTIVE; orchestration PASS is not numerical/3DBL/curved/fullunsteady/PDE/affordability completion.
+
 ## Reference admission draft — 2026-10-11; NOT VALIDATED
 
 Draft checkpoint `d0d3fdaa1ecccd88c981fc770a69729449804444` pushed to

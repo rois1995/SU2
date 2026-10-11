@@ -1,0 +1,80 @@
+{
+  "status": "PASS",
+  "source_sha256": {
+    "integration_evidence/native_cluster_3d_core_v1/check_package.py": "45dc7013e7be9c1f7710678221c633ee1a24692a1a1366cdf593d5b561781f56",
+    "integration_evidence/native_cluster_3d_core_v1/analyze.py": "73fa616fd744845d41e91df9fe24d0d6611913eee9544b45a6a422c485729cf5",
+    "integration_evidence/native_cluster_3d_core_v1/prepare.py": "e659191b8b29483dfb064962864ce6e917b5fc15f54ffabdd6a87b5888827b79",
+    "integration_evidence/native_cluster_3d_core_v1/README.md": "8608126b235c80f044876796cbe3b407450878adaa81288218a47953ec60ccf3",
+    "integration_evidence/native_cluster_3d_core_v1/RunNative3DSGE.sh": "6e6862427c97c7560d69cd242d11835099b1cc3be24e18c90ac73067506c4124",
+    "integration_evidence/native_cluster_3d_core_v1/submit.py": "11a356568fb9eaecd8a90b6c0d6f995abd582c415fa71caee6345c6f76247fb3",
+    "integration_evidence/native_cluster_3d_core_v1/run.py": "b00fd314e1e9f1f82e7560d77b891e8e49699d6812feae3976d90bce3f028919",
+    "integration_evidence/native_cluster_3d_core_v1/restore.py": "b9a32c4dd7bdd99e84aec755acccd32841038f6f1c27735cd70277b658dcabbb"
+  },
+  "source_drift": [],
+  "stages": [
+    {
+      "label": "host_load",
+      "command": [
+        "uptime"
+      ],
+      "exit_code": 0,
+      "seconds": 0.012174624018371105
+    },
+    {
+      "label": "host_memory",
+      "command": [
+        "free",
+        "-m"
+      ],
+      "exit_code": 0,
+      "seconds": 0.005657786037772894
+    },
+    {
+      "label": "host_processes",
+      "command": [
+        "ps",
+        "-eo",
+        "pid,ppid,ni,pcpu,etime,comm",
+        "--sort=-pcpu"
+      ],
+      "exit_code": 0,
+      "seconds": 0.050448976980987936
+    },
+    {
+      "label": "shell_syntax",
+      "command": [
+        "bash",
+        "-n",
+        "integration_evidence/native_cluster_3d_core_v1/RunNative3DSGE.sh"
+      ],
+      "exit_code": 0,
+      "seconds": 0.008478706993628293
+    },
+    {
+      "label": "fake_package_checks",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "python3",
+        "integration_evidence/native_cluster_3d_core_v1/check_package.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "seconds": 0.7142006760113873
+    }
+  ],
+  "scope": "Package orchestration only: fake files, short owned Python processes and mocked qsub. No build, MPI, CFD, adaptation, real scheduler submission, native3D runtime or cluster validation claim.",
+  "artifact_sha256": {
+    "host_processes.stdout": "55eaff38da5082eeb935d623f978c6d39881932e3de20ab1d63905817a5ae105",
+    "fake_package_checks.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host_load.stdout": "451ad8b7256e199fd50885816e516b0749cb3c77108aa9ffed836045f64e0c22",
+    "host_memory.stdout": "e7cc31802544acc92885733ca60a69dbf05ba36127f6d23e853f13aac3215ffb",
+    "shell_syntax.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "shell_syntax.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host_load.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host_processes.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "fake_package_checks.stderr": "fa8c354143b3f6f24f9f1bb296603b9780cca66874d7cbe83e886ff8fb976107",
+    "host_memory.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

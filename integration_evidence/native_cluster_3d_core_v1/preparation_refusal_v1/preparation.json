@@ -1,0 +1,35 @@
+{
+  "status": "EXPECTED_REFUSAL",
+  "command": [
+    "nice",
+    "-n",
+    "19",
+    "python3",
+    "integration_evidence/native_cluster_3d_core_v1/prepare.py",
+    "--build-dir",
+    "integration_evidence/build-integrated-v2",
+    "--ninja",
+    "/tmp/native-build-tools/ninja",
+    "--output",
+    "integration_evidence/native_cluster_3d_core_v1/must_not_prepare_stale_driver"
+  ],
+  "exit_code": 1,
+  "seconds": 4.549946915998589,
+  "binary_sha256": "0ca660b6478defc600b55c44d29cc1b77c6688b52835beb30ee9ebe1ffe32607",
+  "output_created": false,
+  "scope": "Actual configured Ninja dry-run only; stale draft target refused before packaging. No build, MPI, solver, numerical audit or qsub.",
+  "source_sha256": {
+    "integration_evidence/native_cluster_3d_core_v1/check_package.py": "45dc7013e7be9c1f7710678221c633ee1a24692a1a1366cdf593d5b561781f56",
+    "integration_evidence/native_cluster_3d_core_v1/analyze.py": "73fa616fd744845d41e91df9fe24d0d6611913eee9544b45a6a422c485729cf5",
+    "integration_evidence/native_cluster_3d_core_v1/prepare.py": "e659191b8b29483dfb064962864ce6e917b5fc15f54ffabdd6a87b5888827b79",
+    "integration_evidence/native_cluster_3d_core_v1/README.md": "8608126b235c80f044876796cbe3b407450878adaa81288218a47953ec60ccf3",
+    "integration_evidence/native_cluster_3d_core_v1/RunNative3DSGE.sh": "6e6862427c97c7560d69cd242d11835099b1cc3be24e18c90ac73067506c4124",
+    "integration_evidence/native_cluster_3d_core_v1/submit.py": "11a356568fb9eaecd8a90b6c0d6f995abd582c415fa71caee6345c6f76247fb3",
+    "integration_evidence/native_cluster_3d_core_v1/run.py": "b00fd314e1e9f1f82e7560d77b891e8e49699d6812feae3976d90bce3f028919",
+    "integration_evidence/native_cluster_3d_core_v1/restore.py": "b9a32c4dd7bdd99e84aec755acccd32841038f6f1c27735cd70277b658dcabbb"
+  },
+  "artifact_sha256": {
+    "prepare.stderr": "92c1518676d3431b0102fd1126b3598d2db09a136fa3525ee63a1aedfee78b99",
+    "prepare.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}
