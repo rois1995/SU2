@@ -1,9 +1,9 @@
 # Native 3D closed SGE validation and timing package
 
 Working repository: `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
-`codex/native-3d-core`. This is an initial MPI1/2/4 correctness, repeated timing
+`codex/native-3d-transport-accounting`. This is the updated MPI1/2/4 correctness, repeated timing
 and instrumentation-overhead package. Larger sizes/ranks, full traffic/wait and
-allocator calibration remain Goal1 work. The current reference-admission/query-accounting code builds and passes the serial
+allocator calibration remain Goal1 work. The current reference-admission/query/transport-accounting code builds and passes the serial
 69-case native/reference/2D+3Dbridge suite and serialMMG checks. MPI2/4 and
 independent fixed-work/restart qualification remain pending; package self-checks
 are separate from those numerical checks.
@@ -27,7 +27,7 @@ NATIVE3D_MMG_ROOT=/home/aero/arausa/global/Libs/mmg-5.8.0/install
 export LD_LIBRARY_PATH="$NATIVE3D_MMG_ROOT/lib:${LD_LIBRARY_PATH:-}"
 ./meson.py configure build-native -Denable-tests=true -Denable-normal=true \
   -Denable-mmg=true -Denable-cgns=true -Dwith-mpi=enabled -Dmmg_root="$NATIVE3D_MMG_ROOT"
-ninja -C build-native UnitTests/test_driver
+ninja -C build-native -j2 UnitTests/test_driver
 PYTHONDONTWRITEBYTECODE=1 python3 integration_evidence/native_cluster_3d_core_v1/prepare.py \
   --build-dir build-native --output integration_evidence/native_cluster_3d_core_v1/prepared_v1
 ```

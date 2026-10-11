@@ -1,0 +1,65 @@
+{
+  "status": "FAIL",
+  "reason": "One-CPU resource gate refused before MPI launch.",
+  "stages": [
+    {
+      "command": [
+        "uptime"
+      ],
+      "label": "host_load",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/transport_mpi2_onecpu_v1",
+      "exit_code": 0,
+      "seconds": 0.01390881894621998
+    },
+    {
+      "command": [
+        "free",
+        "-m"
+      ],
+      "label": "host_memory",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/transport_mpi2_onecpu_v1",
+      "exit_code": 0,
+      "seconds": 0.009847377019468695
+    },
+    {
+      "command": [
+        "ps",
+        "-eo",
+        "pid,ppid,ni,pcpu,comm",
+        "--sort=-pcpu"
+      ],
+      "label": "host_processes",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/transport_mpi2_onecpu_v1",
+      "exit_code": 0,
+      "seconds": 0.04392239899607375
+    }
+  ],
+  "binary_sha256": "9290ba83549ac3e1c86792443f27fab0ef2aefe9bfcd057494a4b069636e2a61",
+  "build_validation_sha256": "f727193adb0f44a9783931b2246b23b94477d20e42bf7295536e5a6a865ddb02",
+  "source_drift": [],
+  "object_drift": [],
+  "archive_drift": [],
+  "tool_drift": [],
+  "tools_sha256": {
+    "audit_geometry_bridge.py": "d8d5e8a18a0fce8f54f8407e9f0027dcea12d90bf64c5ab20c4dedb7194430e2",
+    "audit_lifecycle.py": "2b56b6062d93e23d04c3eeb804f81b378f0051d071e9717ec69af635163c0f12",
+    "audit_coupled.py": "67a12c5c39c6c3e021473f49c1f14301f037d7883268b98d7afc9edc2b00f63b",
+    "audit_cavities.py": "26079385c071c3ad1b9c06ab3b862b4ff293367dc3c8d291acf0487089d062c5"
+  },
+  "package_tools_sha256": {
+    "run.py": "149a78f0f0c06ef36316baf043ce788abce0a1b881cf8611dd1050eee2e8f24c",
+    "mpi_profile.py": "11e46f3d01289c1d050221d5264cf00a62e4da29385705a4ca7bff003ee9651b",
+    "profile_summary.py": "d56de9a2a50451f98b624359a71423a9112e509f900928a787dbd8227f52e0af"
+  },
+  "scope": "Full configured68-object driver; actual MPI2 selected69 cases per rank, originalP1/private-query/surface/complete-dependency/transaction/refusal controls, default accepted/rejected transport closure. Independent exact bridge geometry/markers/metric/current+BDF/SU2CGNS checks at N2M1 and N2M2. Reuses source/binary/774 archive members from serial transport build. Single one-CPU contended correctness run with taskset/nice19/yield/thread1; MPI rank count is two but CPU allocation one. No instrumentation overhead/scaling claim, not MPI4/n4/persisted-restart/repeated timing/scaling/fullGoal1.",
+  "artifact_sha256": {
+    "host_processes.stdout": "5285d421efd35de6edbcd97fcbe66184ab7b4d240aa80f7bfd028c8738b28438",
+    "host_load.stdout": "cd5805343ea5966537ccd9f554aa27c0bcbb233e2ddc961e79056b34dd5b4041",
+    "host_memory.stdout": "79376ef747d5ea45ec407e6fbe006dd9a20e627c1e00ab8c5b7b3a6c65ff5caa",
+    "host_load.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host_gate.json": "e53bfd118fc0096cae17c25e4d8d28187a11502dcb4d1fdae27ccb7194c081f2",
+    "host_processes.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runner.py": "62f53797e33a123ca4a1b705c671932d5fc9b2e6524c308f8658aeb126912d84",
+    "host_memory.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}
