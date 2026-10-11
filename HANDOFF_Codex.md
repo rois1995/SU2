@@ -9,6 +9,8 @@ cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
 ## MPI coverage lower bound and actual serial lifecycle — 2026-10-11; checked
 
+Evidence/tools checkpoint a2f8b2f1c7c13b9b45b3221d3ee6bb87b364b6ea pushed to origin/codex/native-3d-transport-accounting; remote SHA verified. Production remains475820f366. Core remote remains6b3fefd039bfc3d1937b8add7d21d0ea41344bc9.
+
 NativeIntegrated / codex/native-3d-transport-accounting; predecessor7398f47f076e19c7ff80f57f4044a3ea4a14bb06.
 No production/test-fixture/target/run-package change. Core remains6b3fefd039b.
 Source-pinned coverage audit of40 logged engine invocations proves at least

@@ -3,6 +3,8 @@
 Repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
 Branch: codex/native-3d-transport-accounting; predecessor
 7398f47f076e19c7ff80f57f4044a3ea4a14bb06.
+Evidence/tools checkpoint a2f8b2f1c7c13b9b45b3221d3ee6bb87b364b6ea pushed to origin/codex/native-3d-transport-accounting; remote SHA verified. Production remains475820f366. Core remote remains6b3fefd039bfc3d1937b8add7d21d0ea41344bc9.
+
 No production C++, test fixture, target, guard or run-package change.
 codex/native-3d-core remains at6b3fefd039bfc3d1937b8add7d21d0ea41344bc9.
 
@@ -90,3 +92,5 @@ Goal1 remains ACTIVE. Before merging into core, complete its frozen MPI and
 independent geometry/metric/state/output/restart gates. Continue to actual repeated
 cluster costs and practical limits, and then calibrate full traffic/wait/memory.
 No curved geometry, robust3DBL, full unsteady3D or affordability claim.
+
+Publication whitespace checks: the initial check flagged six generated solver CSV headers. Code/docs and remaining artifacts pass the scoped check; preserve those raw CSV headers and the raw Catch stdout extra EOF newline unchanged. No original artifact was normalized or overwritten.
