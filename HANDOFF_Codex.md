@@ -10,7 +10,7 @@ cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 ## Native3D donor reuse and certified segment filter checkpoint — 2026-10-11
 
 NativeIntegrated / codex/native-3d-core, predecessor89225cf0cbc9215fd92080638274c602c5bd9005.
-Implementation/evidence publication pending. DONOR_REUSE_REPORT.md and
+Implementation/evidence checkpoint `a406a1281a7d7bd16d45c88070737c82b1347897` pushed to origin/codex/native-3d-core; full remote SHA verified. DONOR_REUSE_REPORT.md and
 DONOR_REUSE_CHECKPOINT_VALIDATION.json qualify four actual default512 driver
 cases (12 events),44 byte-identical geometry/source/state/readback files,
 four unchanged rejected-replay files,340 closed phase rows,324 independently
