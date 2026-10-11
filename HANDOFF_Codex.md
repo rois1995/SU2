@@ -34,8 +34,9 @@ scratch calibration and practical envelope remain. Goal1 ACTIVE: next complete
 wait/communication accounting, larger/rotated/thin/restart and rank/size pilots,
 then closed SGE campaigns without overnight launch requests. Unsteady sampling
 detail also open. Inspect reader_runtime_v2/lifecycle_mpi4 and mpi4 SU2/CGNS plus
-metric/current/BDF/source JSON. Publication is pending at this handoff write;
-verify remote checkpoint before replacing this sentence. Foreign submodules,
+metric/current/BDF/source JSON. Implementation/evidence checkpoint
+c8c6ffaf9121b19463cd8ca8e6f528e3f269d9bf pushed to origin; full remote SHA
+verified with git ls-remote. This handoff confirmation follows that publication. Foreign submodules,
 FSI/AdapNoExt/ClusterResults untouched.
 
 ## Native 3D lifecycle profiling validated — 2026-10-11
