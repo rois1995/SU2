@@ -14,10 +14,11 @@ int main() {
   double conv[5]={2,3,4,5,6}, visc[5]={0,1,2,3,4}, coord[3]={2,3,0};
   diagnostic.AddFlux("outlet",0,false,3,conv,coord,0.5);
   diagnostic.AddFlux("outlet",0,true,3,visc,coord,0.5);
+  diagnostic.AddCorrection("outlet",0,conv,coord);
   diagnostic.WriteFlux(0,0,0,7,0,0);
   std::ifstream file("wall_diagnostics/giles_z0_mg0_rank0.csv");
   std::string line; std::getline(file,line); std::getline(file,line);
-  assert(line=="0,7,0,0,outlet,0,1,0.5,2,3,4,5,6,-1,0,1,2,3,4,1");
+  assert(line=="0,7,0,0,outlet,0,1,0.5,2,3,4,5,6,-1,0,1,2,3,4,1,2,3,4,5,6,-1");
   diagnostic.BeginWall(0,0,0,7,0,0,false);
   diagnostic.RecordWall("wall",2,42,D::LOW_SEED,4,4,5); diagnostic.WriteWall();
   diagnostic.BeginWall(0,0,0,8,0,0,false);

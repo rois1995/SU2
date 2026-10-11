@@ -26,6 +26,7 @@
  */
 
 #include "../../include/solvers/GilesRelaxation.hpp"
+#include "../../include/solvers/MixingMeanFlux.hpp"
 #include "../../include/solvers/CEulerSolver.hpp"
 #include "../../include/variables/CNSVariable.hpp"
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
@@ -131,6 +132,20 @@ CEulerSolver::CEulerSolver(CGeometry *geometry, CConfig *config,
   nMarker      = config->GetnMarker_All();
   nPoint       = geometry->GetnPoint();
   nPointDomain = geometry->GetnPointDomain();
+  if (mixingConservation && iMesh == MESH_0) {
+#if defined(CODI_REVERSE_TYPE) || defined(CODI_FORWARD_TYPE)
+    SU2_MPI::Error("Conservative mixing experiment is not differentiated", CURRENT_FUNCTION);
+#endif
+    // shortcut: axial z-axis direct-flow study only; generalize and validate before public use.
+    if (!config->GetMultizone_Problem() || !config->GetBoolTurbomachinery() || nDim != 3 ||
+        config->GetKind_TurboMachinery(config->GetiZone()) != TURBOMACHINERY_TYPE::AXIAL ||
+        config->GetDiscrete_Adjoint() || config->GetContinuous_Adjoint() ||
+        config->GetTime_Marching() != TIME_MARCHING::STEADY || omp_get_max_threads() != 1 ||
+        config->GetRotation_Rate(0) != 0 || config->GetRotation_Rate(1) != 0 ||
+        config->GetMotion_Origin(0) != 0 || config->GetMotion_Origin(1) != 0)
+      SU2_MPI::Error("Conservative mixing experiment requires direct axial z-axis multizone flow and one OpenMP thread", CURRENT_FUNCTION);
+
+  }
   if (iMesh == MESH_0) {
     for (auto field = 0u; field < config->GetnVolumeOutput(); ++field) {
       const auto name = config->GetVolumeOutput_Field(field);
@@ -406,6 +421,18 @@ void CEulerSolver::InitTurboContainers(CGeometry *geometry, CConfig **config_con
 
   /*--- Initialize quantities for the average process for internal flow ---*/
   const auto nSpanWiseSections = config->GetnSpanWiseSections();
+
+  if (mixingConservation) {
+    MixingRawFlux.resize(nMarker); MixingCommonFlux.resize(nMarker);
+    for (auto marker=0u;marker<nMarker;++marker) {
+      if (!config->GetMarker_All_MixingPlaneInterface(marker)) continue;
+      if (config->GetMarker_All_KindBC(marker) != GILES_BOUNDARY)
+        SU2_MPI::Error("Conservative mixing experiment requires Giles mixing boundaries", CURRENT_FUNCTION);
+      const auto spans=config->GetnSpanWiseSections();
+      MixingRawFlux[marker].resize(spans,6) = su2double(0);
+      MixingCommonFlux[marker].resize(spans,6) = su2double(0);
+    }
+  }
 
   AverageVelocity.resize(nMarker);
   AverageTurboVelocity.resize(nMarker);
@@ -6395,6 +6422,39 @@ void CEulerSolver::WriteBoundaryDiagnostics(const CConfig* config, unsigned shor
   wallStudy.WriteFlux(config->GetiZone(), MGLevel, rank, config->GetOuterIter(), config->GetInnerIter(), step);
 }
 
+void CEulerSolver::ApplyMixingConservation(CGeometry* geometry, const CConfig* config) {
+  if (!mixingConservation) return;
+  for (auto interface=1u;interface<=config->GetnMarker_MixingPlaneInterface()/2;++interface) {
+    const auto marker=config->FindMixingPlaneInterfaceMarker(geometry->GetnMarker(),interface);
+    const auto spans=config->GetnSpanWiseSections();
+    su2activevector local(spans*6), global(spans*6); local.setConstant(0.0);
+    if (marker>=0) for(auto span=0u;span<spans;++span)
+      for(auto v=0u;v<6;++v)local[span*6+v]=MixingRawFlux[marker](span,v);
+    SU2_MPI::Allreduce(local.data(),global.data(),spans*6,MPI_DOUBLE,MPI_SUM,SU2_MPI::GetComm());
+    if (marker<0) continue;
+    for(auto span=0u;span<spans;++span) {
+      if (MixingCommonFlux[marker](span,0)==0) continue; // Both raw sides must first be assembled.
+      if (global[span*6]<=0) SU2_MPI::Error("Empty conservative mixing span",CURRENT_FUNCTION);
+      MixingMeanFlux::Flux difference;
+      for(auto v=0u;v<5;++v)difference[v]=SU2_TYPE::GetValue(MixingCommonFlux[marker](span,v+1)-global[span*6+v+1]);
+      for(auto vertex=0ul;vertex<geometry->GetnVertexSpan(marker,span);++vertex) {
+        const auto* turbo=geometry->turbovertex[marker][span][vertex]; const auto point=turbo->GetNode();
+        if (!geometry->nodes->GetDomain(point)) continue;
+        const auto* normal=geometry->vertex[marker][turbo->GetOldVertex()]->GetNormal();
+        const auto* coord=geometry->nodes->GetCoord(point);
+        const double weight=SU2_TYPE::GetValue(GeometryToolbox::Norm(nDim,normal)/global[span*6]);
+        const auto correction=MixingMeanFlux::CartesianCorrection(difference,weight,SU2_TYPE::GetValue(coord[0]),SU2_TYPE::GetValue(coord[1]));
+        for(auto v=0u;v<5;++v)LinSysRes(point,v)+=correction[v];
+        if (wallStudy.Enabled()) {
+          double xyz[3]; for(auto d=0u;d<3;++d)xyz[d]=SU2_TYPE::GetValue(coord[d]);
+          wallStudy.AddCorrection(config->GetMarker_All_TagBound(marker),span,correction.data(),xyz);
+        }
+      }
+    }
+  }
+  // The existing local boundary Jacobian remains a quasi-Newton approximation to this nonlocal mean correction.
+}
+
 void CEulerSolver::SavePhysicalResidual() {
   if (PhysicalResidual.empty()) return;
   SU2_OMP_FOR_STAT(omp_chunk_size)
@@ -6472,6 +6532,22 @@ void CEulerSolver::BC_Giles(CGeometry *geometry, CSolver **solver_container, CNu
 
   complex<su2double> I, c2ks, c2js, c3ks, c3js, cOutks, cOutjs, Beta_inf;
   I = complex<su2double>(0.0,1.0);
+
+  const bool conservativeMarker = mixingConservation && !MixingRawFlux[val_marker].empty();
+  if (conservativeMarker) MixingRawFlux[val_marker].setConstant(0.0);
+  auto accumulateFlux = [&](const auto& residual, double sign, bool convective) {
+    if (!conservativeMarker || !geometry->nodes->GetDomain(iPoint)) return;
+    const auto x=geometry->nodes->GetCoord(iPoint,0), y=geometry->nodes->GetCoord(iPoint,1);
+    const su2double radius=sqrt(x*x+y*y), area=GeometryToolbox::Norm(nDim,Normal);
+    if (radius <= 0 || fabs(Normal[0])+fabs(Normal[1]) > 1e-5*area ||
+        (dynamic_grid && fabs(GeometryToolbox::DotProduct(nDim,Normal,geometry->nodes->GetGridVel(iPoint))) > 1e-10*area))
+      SU2_MPI::Error("Conservative mixing experiment requires axial planes with zero normal grid speed", CURRENT_FUNCTION);
+    auto* flux=MixingRawFlux[val_marker][iSpan];
+    if (convective) flux[0]+=area;
+    flux[1]+=sign*residual[0]; flux[2]+=sign*residual[3];
+    flux[3]+=sign*(x*residual[2]-y*residual[1]);
+    flux[4]+=sign*(x*residual[1]+y*residual[2])/radius; flux[5]+=sign*residual[4];
+  };
 
   /*--- Compute coeff for under relaxation of Avg and Fourier Coefficient for hub and shroud---*/
   if (nDim == 3){
@@ -7054,6 +7130,7 @@ void CEulerSolver::BC_Giles(CGeometry *geometry, CSolver **solver_container, CNu
       /*--- Compute the residual using an upwind scheme ---*/
 
       auto residual = conv_numerics->ComputeResidual(config);
+      accumulateFlux(residual, 1.0, true);
       if (wallStudy.Enabled() && geometry->nodes->GetDomain(iPoint)) {
         if (omp_get_num_threads() != 1) SU2_MPI::Error("Wall diagnostics require one OpenMP thread", CURRENT_FUNCTION);
         double values[5] = {0.0}, coord[3] = {0.0};
@@ -7130,6 +7207,7 @@ void CEulerSolver::BC_Giles(CGeometry *geometry, CSolver **solver_container, CNu
           wallStudy.AddFlux(Marker_Tag, iSpan, true, nDim, values, coord,
                             SU2_TYPE::GetValue(GeometryToolbox::Norm(nDim, Normal)));
         }
+        accumulateFlux(residual, -1.0, false);
         LinSysRes.SubtractBlock(iPoint, residual);
 
         /*--- Jacobian contribution for implicit integration ---*/

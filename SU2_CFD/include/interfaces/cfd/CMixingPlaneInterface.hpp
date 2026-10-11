@@ -38,6 +38,7 @@
 class CMixingPlaneInterface : public CInterface {
 public:
   unsigned short nMixingVars;
+  void TransferConservativeFlux(CSolver*, CSolver*, CGeometry*, CGeometry*, const CConfig*, const CConfig*, short, short);
   /*!
    * \overload
    * \param[in] val_nVar - Number of variables that need to be transferred.

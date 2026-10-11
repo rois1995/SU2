@@ -198,6 +198,9 @@ public:
 
   virtual void WriteBoundaryDiagnostics(const CConfig*, unsigned short) {}
   virtual void SavePhysicalResidual() {}
+  virtual const su2double* GetMixingNumericalFlux(unsigned short, unsigned short) const { return nullptr; }
+  virtual void SetConservativeMixingFlux(unsigned short, unsigned short, const double*) {}
+  virtual void ApplyMixingConservation(CGeometry*, const CConfig*) {}
   virtual su2double GetPhysicalResidual(unsigned long point, unsigned short var) const {
     return LinSysRes(point, var);
   }

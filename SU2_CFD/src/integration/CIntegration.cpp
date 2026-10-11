@@ -142,6 +142,8 @@ void CIntegration::Space_Integration(CGeometry *geometry,
     }
   }
 
+  if (iMesh == MESH_0) solver_container[MainSolver]->ApplyMixingConservation(geometry, config);
+
   /*--- Modification of the system on the whole domain, like for a strong BC. ---*/
   solver_container[MainSolver]->Impose_Fixed_Values(geometry, config);
 

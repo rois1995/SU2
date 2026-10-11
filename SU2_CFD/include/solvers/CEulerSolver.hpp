@@ -41,6 +41,11 @@
 class CEulerSolver : public CFVMFlowSolverBase<CEulerVariable, ENUM_REGIME::COMPRESSIBLE> {
 protected:
   WallStudyDiagnostics wallStudy;
+  const bool mixingConservation = [] {
+    const auto* value = std::getenv("SU2_MIXING_CONSERVATION");
+    return value && std::string(value) == "1";
+  }();
+  vector<su2activematrix> MixingRawFlux, MixingCommonFlux;
   su2activematrix PhysicalResidual;  /*!< Last finest-grid assembly, before FAS/time updates. */
   using BaseClass = CFVMFlowSolverBase<CEulerVariable, ENUM_REGIME::COMPRESSIBLE>;
 
@@ -349,6 +354,14 @@ protected:
 public:
   void WriteBoundaryDiagnostics(const CConfig* config, unsigned short step) override;
   void SavePhysicalResidual() override;
+  const su2double* GetMixingNumericalFlux(unsigned short marker, unsigned short span) const override {
+    return MixingRawFlux.empty() || MixingRawFlux[marker].empty() ? nullptr : MixingRawFlux[marker][span];
+  }
+  void SetConservativeMixingFlux(unsigned short marker, unsigned short span, const double* flux) override {
+    MixingCommonFlux[marker](span,0) = flux ? 1 : 0;
+    if (flux) for (auto var=0u;var<5;++var) MixingCommonFlux[marker](span,var+1)=flux[var];
+  }
+  void ApplyMixingConservation(CGeometry* geometry, const CConfig* config) override;
   su2double GetPhysicalResidual(unsigned long point, unsigned short var) const override {
     return PhysicalResidual.empty() ? su2double(0) : PhysicalResidual(point, var);
   }

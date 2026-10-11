@@ -17,7 +17,7 @@ class WallStudyDiagnostics {
  private:
   const bool enabled = [] { const auto* value = std::getenv("SU2_WALL_DIAGNOSTICS");
                             return value && std::string(value) == "1"; }();
-  std::map<std::pair<std::string, unsigned>, std::array<double,14>> fluxes;
+  std::map<std::pair<std::string, unsigned>, std::array<double,20>> fluxes;
   std::map<std::string, std::vector<Reason>> previous;
   std::map<std::string, std::array<unsigned long,10>> walls;
   std::ofstream flux_file, wall_file, event_file;
@@ -47,11 +47,17 @@ class WallStudyDiagnostics {
     sum[offset+4] += residual[dim+1];
     sum[offset+5] += coord[0]*residual[2]-coord[1]*residual[1];
   }
+  void AddCorrection(const std::string& marker, unsigned span, const double* values, const double* coord) {
+    if (!enabled) return;
+    auto& sum=fluxes[{marker,span}];
+    for(unsigned v=0;v<5;++v)sum[14+v]+=values[v];
+    sum[19]+=coord[0]*values[2]-coord[1]*values[1];
+  }
   void WriteFlux(unsigned zone, unsigned mg, unsigned rank, unsigned long outer_iter,
                  unsigned long inner_iter, unsigned step) {
     if (!enabled || fluxes.empty()) return;
     Open(flux_file, Name("giles",zone,mg,rank),
-         "sample,outer,inner,rk,marker,span,owners,area,conv_mass,conv_mx,conv_my,conv_mz,conv_energy,conv_torque_z,visc_mass,visc_mx,visc_my,visc_mz,visc_energy,visc_torque_z");
+         "sample,outer,inner,rk,marker,span,owners,area,conv_mass,conv_mx,conv_my,conv_mz,conv_energy,conv_torque_z,visc_mass,visc_mx,visc_my,visc_mz,visc_energy,visc_torque_z,coupling_mass,coupling_mx,coupling_my,coupling_mz,coupling_energy,coupling_torque_z");
     for (const auto& row : fluxes) {
       flux_file << flux_sample << ',' << outer_iter << ',' << inner_iter << ',' << step << ','
                 << row.first.first << ',' << row.first.second;

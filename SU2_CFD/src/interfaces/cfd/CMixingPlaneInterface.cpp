@@ -27,6 +27,8 @@
  */
 
 #include "../../../include/interfaces/cfd/CMixingPlaneInterface.hpp"
+#include "../../../include/solvers/MixingMeanFlux.hpp"
+#include <cstdlib>
 #include "../../../Common/include/interface_interpolation/CInterpolator.hpp"
 #include "../../../../Common/include/CConfig.hpp"
 #include "../../../../Common/include/geometry/CGeometry.hpp"
@@ -72,6 +74,11 @@ void CMixingPlaneInterface::BroadcastData_MixingPlane(const CInterpolator& inter
 
     /*--- Check if this interface connects the two zones, if not continue. ---*/
     if(!CInterpolator::CheckInterfaceBoundary(markDonor, markTarget)) continue;
+
+    const auto* conservative = std::getenv("SU2_MIXING_CONSERVATION");
+    if (conservative && std::string(conservative)=="1")
+      TransferConservativeFlux(donor_solution,target_solution,donor_geometry,target_geometry,
+                               donor_config,target_config,markDonor,markTarget);
 
     // The number of spans is available on every rank
     const auto nSpanDonor = donor_config->GetnSpanWiseSections();
@@ -184,4 +191,54 @@ void CMixingPlaneInterface::SetTarget_Variable(CSolver *target_solution, CGeomet
   for (unsigned short iVar = 0; iVar < nMixingVars; iVar++) {
     target_solution->SetMixingState(Marker_Target, Span_Target, iVar, Target_Variable[iVar]);
   }
+}
+
+void CMixingPlaneInterface::TransferConservativeFlux(CSolver* donor, CSolver* target,
+    CGeometry* dg, CGeometry* tg, const CConfig* dc, const CConfig* tc, short dm, short tm) {
+  // Freeze both sides before the lower-numbered zone solves; both multizone drivers visit targets in ascending order.
+  if (dc->GetiZone() < tc->GetiZone()) return;
+  auto gather = [](CSolver* solver, const CConfig* config, short marker) {
+    const auto spans=config->GetnSpanWiseSections();
+    su2activevector local(spans*6), global(spans*6); local.setConstant(0.0);
+    if (marker>=0) for(auto span=0u;span<spans;++span) {
+      const auto* flux=solver->GetMixingNumericalFlux(marker,span);
+      if (flux) for(auto v=0u;v<6;++v)local[span*6+v]=flux[v];
+    }
+    SU2_MPI::Allreduce(local.data(),global.data(),spans*6,MPI_DOUBLE,MPI_SUM,SU2_MPI::GetComm());
+    return global;
+  };
+  const auto donor_flux=gather(donor,dc,dm), local=gather(target,tc,tm);
+  const auto nd=dc->GetnSpanWiseSections(), nt=tc->GetnSpanWiseSections();
+  bool ready=true;
+  for(auto span=0u;span<nd;++span)ready=ready && donor_flux[span*6]>0;
+  for(auto span=0u;span<nt;++span)ready=ready && local[span*6]>0;
+  if (!ready) {
+    if (tm>=0)for(auto span=0u;span<nt;++span)target->SetConservativeMixingFlux(tm,span,nullptr);
+    if (dm>=0)for(auto span=0u;span<nd;++span)donor->SetConservativeMixingFlux(dm,span,nullptr);
+    return;
+  }
+  unsigned short df=dm>=0?dc->GetMarker_All_TurbomachineryFlag(dm):0;
+  unsigned short tf=tm>=0?tc->GetMarker_All_TurbomachineryFlag(tm):0, dflag=0,tflag=0;
+  SU2_MPI::Allreduce(&df,&dflag,1,MPI_UNSIGNED_SHORT,MPI_MAX,SU2_MPI::GetComm());
+  SU2_MPI::Allreduce(&tf,&tflag,1,MPI_UNSIGNED_SHORT,MPI_MAX,SU2_MPI::GetComm());
+  if (dflag==tflag || !dflag || !tflag || dc->GetDensity_Ref()!=tc->GetDensity_Ref() ||
+      dc->GetVelocity_Ref()!=tc->GetVelocity_Ref() || dc->GetPressure_Ref()!=tc->GetPressure_Ref())
+    SU2_MPI::Error("Conservative mixing requires opposite sides and common nondimensional references",CURRENT_FUNCTION);
+  std::vector<double> rd(nd),rt(nt);std::vector<MixingMeanFlux::Flux> fd(nd),ft(nt);
+  for(auto i=0u;i<nd;++i) {
+    rd[i]=SU2_TYPE::GetValue(dg->GetSpanWiseValue(dflag)[i]);
+    for(auto v=0u;v<5;++v)fd[i][v]=SU2_TYPE::GetValue(donor_flux[i*6+v+1]);
+  }
+  for(auto i=0u;i<nt;++i) {
+    rt[i]=SU2_TYPE::GetValue(tg->GetSpanWiseValue(tflag)[i]);
+    for(auto v=0u;v<5;++v)ft[i][v]=SU2_TYPE::GetValue(local[i*6+v+1]);
+  }
+  try {
+    const auto common=MixingMeanFlux::Common(rt,ft,SU2_TYPE::GetValue(tc->GetnBlades(tc->GetiZone())),
+                                           rd,fd,SU2_TYPE::GetValue(dc->GetnBlades(dc->GetiZone())));
+    const auto opposite=MixingMeanFlux::Common(rd,fd,SU2_TYPE::GetValue(dc->GetnBlades(dc->GetiZone())),
+                                             rt,ft,SU2_TYPE::GetValue(tc->GetnBlades(tc->GetiZone())));
+    if (tm>=0)for(auto span=0u;span<nt;++span)target->SetConservativeMixingFlux(tm,span,common[span].data());
+    if (dm>=0)for(auto span=0u;span<nd;++span)donor->SetConservativeMixingFlux(dm,span,opposite[span].data());
+  } catch (const std::exception& error) { SU2_MPI::Error(error.what(),CURRENT_FUNCTION); }
 }
