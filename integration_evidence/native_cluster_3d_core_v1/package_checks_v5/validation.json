@@ -1,0 +1,60 @@
+{
+  "status": "PASS",
+  "source_sha256": {
+    "integration_evidence/native_cluster_3d_core_v1/check_package.py": "e696473b7fe8d777d7e8fbd8c13e8f2afe4d48b998f966bb0b5eafbb31906d69",
+    "integration_evidence/native_cluster_3d_core_v1/analyze.py": "c83895bec361839e23e901204de95892cf40ac76dbb1f6c83f29a9f6ab64deb8",
+    "integration_evidence/native_cluster_3d_core_v1/prepare.py": "e659191b8b29483dfb064962864ce6e917b5fc15f54ffabdd6a87b5888827b79",
+    "integration_evidence/native_cluster_3d_core_v1/submit.py": "9ad2e67ab82203e89c910b3d4b886156b5d65276675fcbb3b5f0b953a5e4a2a7",
+    "integration_evidence/native_cluster_3d_core_v1/run.py": "af02211cf47ba26800d43e7717b683114ee6e1509454c762d5b1739d3ebb42ac",
+    "integration_evidence/native_cluster_3d_core_v1/restore.py": "b9a32c4dd7bdd99e84aec755acccd32841038f6f1c27735cd70277b658dcabbb",
+    "integration_evidence/native_cluster_3d_core_v1/RunNative3DSGE.sh": "306ec6a1d4eff5d728962d193a3bbf215f7cbb1bb224abcb1ebe4bc09c73a73d",
+    "integration_evidence/native_cluster_3d_core_v1/README.md": "aed52098d84b552bdf2a32d4562b8ba6a3b8f96c9ed149de5df3f6bd59e7f4ee",
+    "integration_evidence/native_3d_core_v1/run_envelope.py": "07cb862b72aa6b59592995a1f6056e6fa3e09a409ef9bea326785f3318572720",
+    "UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp": "e11f8e00f75d30f83188635ee1445126846c42a40e1306560d44a03aa9b8fe1f"
+  },
+  "source_drift": [],
+  "stages": [
+    {
+      "stage": "shell_syntax",
+      "command": [
+        "bash",
+        "-n",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_core_v1/RunNative3DSGE.sh"
+      ],
+      "seconds": 0.006459174968767911,
+      "exit_code": 0
+    },
+    {
+      "stage": "checks",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_core_v1/check_package.py"
+      ],
+      "seconds": 1.1038833929924294,
+      "exit_code": 0
+    },
+    {
+      "stage": "diff_check",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "--ignore-submodules=all"
+      ],
+      "seconds": 0.032998655980918556,
+      "exit_code": 0
+    }
+  ],
+  "scope": "Syntax and11 lightweight fake-file/synthetic-summary/mock-process/mock-qsub checks only. No C++ build, MPI, CFD, numerical adaptation or actual scheduler launch. n8 fixture remains uncompiled; earlier fixture failure retained in package_checks_v4.",
+  "artifact_sha256": {
+    "checks.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "shell_syntax.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "shell_syntax.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "diff_check.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "checks.stderr": "f07c42413c0b153a36ea2d67515589186433db76dbc32ece6e05512c45e56baa",
+    "diff_check.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

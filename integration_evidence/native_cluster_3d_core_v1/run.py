@@ -54,12 +54,12 @@ def compress_json(folder):
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--package',type=Path,required=True);parser.add_argument('--results',type=Path,required=True)
-    parser.add_argument('--mode',choices=('correctness','lifecycle','timing'),required=True)
+    parser.add_argument('--mode',choices=('correctness','lifecycle','timing','limits'),required=True)
     parser.add_argument('--ranks',type=int,choices=(1,2,4),required=True)
     parser.add_argument('--gate',type=Path,action='append',default=[]);parser.add_argument('--machinefile',type=Path,required=True);parser.add_argument('--timeout',type=int,default=7200)
     options=parser.parse_args();bundle=options.package.resolve();manifest=verify_package(bundle)
     if not options.machinefile.is_file() or options.timeout<1:raise ValueError('Missing machinefile or invalid timeout')
-    if options.mode=='correctness' and options.ranks!=4:raise ValueError('Correctness allocation requires four slots')
+    if options.mode in ('correctness','limits') and options.ranks!=4:raise ValueError('Correctness/limits allocation requires four slots')
     result=options.results.resolve();result.mkdir(exist_ok=False,parents=True)
     print('Working and retained result folder:',result,flush=True)
     # Retain code/inputs/provenance once, excluding the executable and build tree.
@@ -74,8 +74,11 @@ def main():
         if key.startswith('SU2_NATIVE3D_ENVELOPE_'):del env[key]
     tools=bundle/'integration_evidence/native_3d_core_v1'
     def mpi(ranks,selection):return ['mpirun','-n',str(ranks),'-machinefile',str(options.machinefile.resolve()),str(bundle/'bin/test_driver'),selection,'--use-colour','no']
-    def run(work,ranks,selection,local_env=env):
-        work.mkdir();print('Case working and retained folder:',work,flush=True)
+    def run(work,ranks,selection,local_env=env,parameters=None):
+        work.mkdir()
+        if parameters is not None:(work/'parameters.json').write_text(json.dumps(parameters,indent=2)+'\n')
+        (work/'case_environment.json').write_text(json.dumps({k:v for k,v in local_env.items() if k.startswith('SU2_NATIVE3D_ENVELOPE_') or k in ('OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS')},indent=2)+'\n')
+        print('Case working and retained folder:',work,flush=True)
         stages=[command(mpi(ranks,selection),work,'case',local_env,options.timeout)]
         (work/'stages.json').write_text(json.dumps(stages,indent=2)+'\n')
         out=(work/'case.stdout').read_text()
@@ -113,12 +116,20 @@ def main():
                 work=result/f'restart_n{ranks}_m{workers}_{fmt}'
                 p=dict(ranks=ranks,workers=workers,size=2,anisotropy=1,varying=1,direction=1,height_power=0,wedge=True,aligned_markers=True,diagnostic_rounds=512,repeat=0,detail=1,restart_format=fmt)
                 local=dict(env,**{f'SU2_NATIVE3D_ENVELOPE_{k.upper()}':str(v) for k,v in dict(size=2,workers=workers,anisotropy=1,varying=1,direction=1,height_power=0,wedge=1,aligned=1,rounds=512,repeat=0,detail=1,restart=(1 if fmt=='su2' else 2)).items()})
-                s=run(work,ranks,'[NativeEnvelope3D]',local);(work/'parameters.json').write_text(json.dumps(p,indent=2)+'\n');s.append(audit(work,'audit_envelope.py'))
+                s=run(work,ranks,'[NativeEnvelope3D]',local,p);s.append(audit(work,'audit_envelope.py'))
                 cases.append(dict(folder=work.name,parameters=p,stages=s,packed=compress_json(work)))
         elif options.mode=='lifecycle':
             work=result/f'lifecycle_n{options.ranks}';s=run(work,options.ranks,'[NativeLifecycle3D]')
             s.append(audit(work,'audit_lifecycle.py',options.ranks,work/'case.stdout'))
             cases.append(dict(folder=work.name,stages=s,packed=compress_json(work)))
+        elif options.mode=='limits':
+            # A single pilot per N/M, stopping on the first failure; do not turn this into a speedup claim.
+            for ranks,workers in ((1,1),(2,2),(4,2),(4,4)):
+                work=result/f'limit_size8_n{ranks}_m{workers}'
+                p=dict(ranks=ranks,workers=workers,size=8,anisotropy=1,varying=1,direction=1,height_power=0,wedge=True,aligned_markers=True,diagnostic_rounds=512,repeat=0,detail=1,restart_format='none')
+                local=dict(env,**{f'SU2_NATIVE3D_ENVELOPE_{k.upper()}':str(v) for k,v in dict(size=8,workers=workers,anisotropy=1,varying=1,direction=1,height_power=0,wedge=1,aligned=1,rounds=512,repeat=0,detail=1,restart=0).items()})
+                s=run(work,ranks,'[NativeEnvelope3D]',local,p);s.append(audit(work,'audit_envelope.py'))
+                cases.append(dict(folder=work.name,parameters=p,warmup=False,stages=s,fixed_work_sha256={name:sha(work/name) for name in RAW},packed=compress_json(work)))
         else:
             # One warm-up, then three paired repetitions. OFF/ON order alternates; each starts from the same input.
             for workers in sorted({options.ranks,max(1,options.ranks//2)}):
@@ -128,7 +139,7 @@ def main():
                         work=result/f'n{options.ranks}_m{workers}_r{repeat}_d{detail}'
                         p=dict(ranks=options.ranks,workers=workers,size=4,anisotropy=1,varying=1,direction=1,height_power=0,wedge=True,aligned_markers=True,diagnostic_rounds=512,repeat=max(0,repeat),detail=detail,restart_format='none')
                         local=dict(env,**{f'SU2_NATIVE3D_ENVELOPE_{k.upper()}':str(v) for k,v in dict(size=4,workers=workers,anisotropy=1,varying=1,direction=1,height_power=0,wedge=1,aligned=1,rounds=512,repeat=max(0,repeat),detail=detail,restart=0).items()})
-                        s=run(work,options.ranks,'[NativeEnvelope3D]',local);(work/'parameters.json').write_text(json.dumps(p,indent=2)+'\n');s.append(audit(work,'audit_envelope.py'))
+                        s=run(work,options.ranks,'[NativeEnvelope3D]',local,p);s.append(audit(work,'audit_envelope.py'))
                         data={name:sha(work/name) for name in RAW}
                         if reference is None:reference=data
                         elif data!=reference:raise RuntimeError('Fixed-work grid/source/state/readback differs; retained '+str(work))

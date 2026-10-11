@@ -17,14 +17,15 @@ def main(paths):
         key=(record['binary_sha256'],record['package_manifest_sha256'])
         if identity is None:identity=key
         elif identity!=key:raise ValueError('Different binary/package; report as separate campaigns')
-        if record['mode']!='timing':
+        if record['mode'] not in ('timing','limits'):
             summaries.append(dict(folder=str(folder),mode=record['mode'],ranks=record['ranks'],status='PASS'));continue
         groups={};fixed={}
         for case in record['cases']:
             (folder/case['folder']).resolve().relative_to(folder)
             p=case['parameters'];workers=p['workers']
-            if workers in fixed and fixed[workers]!=case['fixed_work_sha256']:raise ValueError('Unmatched fixed work')
-            fixed[workers]=case['fixed_work_sha256']
+            if record['mode']=='timing':
+                if workers in fixed and fixed[workers]!=case['fixed_work_sha256']:raise ValueError('Unmatched fixed work')
+                fixed[workers]=case['fixed_work_sha256']
             audit=json.loads((folder/case['folder']/'independent_audit.json').read_text())
             if audit['status']!='PASS':raise ValueError('Failed independent audit')
             for row in audit['rank_stages']:rows.append(dict(campaign=folder.name,case=case['folder'],record='exclusive',**row))
@@ -42,7 +43,9 @@ def main(paths):
                 native=[[r for r in audit['native_rows'] if r['rank']==rank][cycle] for rank in range(p['ranks'])]
                 edits=sum(r['refine_accepted']+r['coarsen_accepted'] for r in native)
                 elapsed=max(r['parent_wall'] for r in parent)
-                groups.setdefault((workers,p['detail'],cycle),[]).append(dict(repeat=p['repeat'],seconds=elapsed,accepted=edits,accepted_per_second=edits/elapsed,max_over_mean=elapsed/statistics.mean(r['parent_wall'] for r in parent),bound=max(r['native_bound'] for r in native),lifetime_rss=max(r['process_peak_rss'] for r in native)))
+                sample=dict(repeat=p['repeat'],seconds=elapsed,accepted=edits,accepted_per_second=edits/elapsed,max_over_mean=elapsed/statistics.mean(r['parent_wall'] for r in parent),bound=max(r['native_bound'] for r in native),lifetime_rss=max(r['process_peak_rss'] for r in native))
+                if record['mode']=='limits':summaries.append(dict(folder=str(folder),mode='limits',ranks=p['ranks'],workers=workers,size=p['size'],cycle=cycle,sample=sample,scope='Single practical-limit pilot; no repeated timing or fixed-work cross-partition speedup'))
+                else:groups.setdefault((workers,p['detail'],cycle),[]).append(sample)
         for workers in fixed:
             for cycle in range(3):
                 off=groups[workers,0,cycle];on=groups[workers,1,cycle]
@@ -52,7 +55,7 @@ def main(paths):
                 summaries.append(dict(folder=str(folder),mode='timing',ranks=record['ranks'],workers=workers,cycle=cycle,off=off,on=on,off_median=median(off),on_median=median(on),on_off_ratio=median(on)/median(off)))
     destination=Path(paths[0]).resolve().parent/'native3d_summary.json'
     if destination.exists():raise FileExistsError('Keep previous summary; rename it before reanalysis')
-    destination.write_text(json.dumps(dict(status='PASS',binary_package_identity=identity,campaigns=summaries,scope='Three paired fixed-work samples per N/M/event. Max parent wall is elapsed; nested phases and rank-work seconds are separate. Changed N/M trajectories must be independently audited; no cross-rank fixed-work speedup, full MPI-wait/traffic/memory calibration or CFD affordability claim.'),indent=2)+'\n')
+    destination.write_text(json.dumps(dict(status='PASS',binary_package_identity=identity,campaigns=summaries,scope='Timing campaigns require three paired fixed-work samples per N/M/event; limits campaigns report single independently audited pilots without speedup claims. Max parent wall is elapsed; nested phases and rank-work seconds are separate. Changed N/M trajectories must be independently audited; no cross-rank fixed-work speedup, full MPI-wait/traffic/memory calibration or CFD affordability claim.'),indent=2)+'\n')
     if rows:
         keys=['campaign','case','record','stage','rank','ranks']+sorted({k for row in rows for k in row}-{'campaign','case','record','stage','rank','ranks'})
         with destination.with_suffix('.csv').open('w',newline='') as f:

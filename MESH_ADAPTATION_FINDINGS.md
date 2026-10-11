@@ -1,3 +1,29 @@
+## Larger native3D practical-limit preparation — 2026-10-11; not a numerical result
+
+NativeIntegrated / codex/native-3d-core, predecessor6db495a38bc. Prepared optional
+n8 wedge first-limit campaign:405 points/1536 tets/512 surface triangles, dyadic
+coordinates, unchanged rotated/spatial original-P1 target64/16/64 and guards.
+Only existing test fixture/runner/package/docs change; no production source change.
+submit.py --limits appends one gated four-slot job after the default seven jobs,
+with sequential N1M1,N2M2,N4M2,N4M4 and stop on first failure. Case parameters and
+relevant environment are now retained before launch, including rejected runs.
+Single-pilot summaries retain elapsed/accepted work/imbalance/bounds/RSS, without
+fixed-work cross-partition or repeated-timing claims.
+
+PRACTICAL_LIMIT_PREPARATION_REPORT.md and package_checks_v5 retain11 passing
+lightweight orchestration checks plus Python/shell syntax; initial mock-recipe
+failure is preserved in package_checks_v4. No C++ build, MPI/CFD, freeze or qsub.
+Real host sampled0-1% idle, foreign FSI/conservation workers active; no owned heavy
+job started. Scratch stayed on4TB. Measured /tmp/native*9MB;9.3GiB metric build is
+the other agent's worktree,2.2GiB wall build another session; no foreign cleanup.
+
+NEXT: when host permits, run reference_admission_regression_v1 and the unchanged
+REFERENCE_ADMISSION_MATRIX fixed-work/restart cases, qualify and publish actual
+numerical evidence; then current bundle freeze and user-authorized cluster launch.
+C++ reference-admission/n8 fixture remain uncompiled. Last validated production
+1fafe9e83c; fullGoal1 ACTIVE. Larger adaptation, detailed traffic/cache/privateCPU/
+wait/memory calibration and disabled-detail overhead remain unproven.
+
 ## Initial native3D SGE package — 2026-10-11; orchestration checked only
 
 Package implementation/evidence checkpoint b8add069d4009706fa297a48125bcb52b65522d8 pushed to origin/codex/native-3d-core; full remote SHA verified. Numerical validation still pending.

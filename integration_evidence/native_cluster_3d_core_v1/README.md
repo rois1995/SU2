@@ -72,7 +72,25 @@ PYTHONDONTWRITEBYTECODE=1 python3 integration_evidence/native_cluster_3d_core_v1
   ClusterResults/native3d_<job>_timing_n1
 ```
 
-Use all seven actual folders for the full comparison. The summary reports three
+Use all seven actual folders for the initial comparison. For the first larger
+practical-limit campaign, append `--limits` to the submission command. This adds
+one serialized four-slot job after timing, gated by same-bundle correctness and
+the N4 lifecycle result. It runs n8 wedge N1M1, N2M2, N4M2 and N4M4 sequentially,
+stopping at the first test/audit failure. The initial mesh has405 vertices,
+1536 tetrahedra and512 boundary triangles, exceeding the former256-facet cap.
+Dyadic coordinates keep the planar marker junction representable. The unchanged
+target sequence is64/16/64, aspect1.5 with spatial rotation and variation0.125;
+quality0.20, sliver0.05, length1.8,512 rounds and noise0 remain fixed.
+
+These are single practical-limit pilots, not repeated timing comparisons.
+`analyze.py` reports per-event parent elapsed time, useful accepted work, imbalance,
+native bound and lifetime RSS for successful limits. It refuses failed campaigns;
+inspect their `result.json`, failing case `parameters.json`,
+`case_environment.json`, stages and raw logs/mesh/source/state files. Parameters
+and the relevant test environment are saved before MPI launch, including on
+failure. Failed-case files stay uncompressed. Failure stops later size/rank cases
+inside that job; qsub hold ordering alone never counts as success. Do not rerun
+with looser guards or more rounds to turn a practical limit into a PASS. The summary reports three
 paired samples, medians/spread, accepted edits per parent-second, memory/RSS and
 rank imbalance; exclusive and nested phase rows are labelled separately.
 Analysis refuses an existing `native3d_summary.json`: preserve/rename the prior

@@ -105,4 +105,64 @@ class PackageChecks(unittest.TestCase):
             receipt=json.loads(next((root/'ClusterResults').glob('native3d_submission_*.json')).read_text())
             self.assertEqual(receipt['status'],'FAIL');self.assertEqual(receipt['jobs'][0]['job'],'200')
             self.assertIsNotNone(receipt['pending']);self.assertIn('scheduler unavailable',receipt['failure'])
+
+    def test_optional_limit_submission_is_serialized_and_gated(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);bundle=self.bundle(root)
+            with patch.object(submit,'ROOT',root),patch.object(Path,'cwd',return_value=root),patch.object(sys,'argv',['submit.py',str(bundle),'--limits']),patch.object(subprocess,'check_output',side_effect=[str(i)+'\n' for i in range(100,108)]) as qsub,contextlib.redirect_stdout(io.StringIO()):
+                submit.main()
+            commands=[c.args[0] for c in qsub.call_args_list]
+            self.assertEqual(len(commands),8)
+            self.assertEqual(commands[-1][commands[-1].index('-hold_jid')+1],'106')
+            self.assertEqual(commands[-1][-4:],['--gate',str(root/'ClusterResults/native3d_100_correctness_n4'),'--gate',str(root/'ClusterResults/native3d_103_lifecycle_n4')])
+            self.assertIn('limits',commands[-1])
+    def test_limit_matrix_summary_and_failure_evidence(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);bundle=self.bundle(root)
+            recipe=bundle/'README.md';recipe.write_text('fake frozen recipe')
+            manifest=json.loads((bundle/'manifest.json').read_text());manifest['files_sha256']['README.md']=run.sha(recipe)
+            (bundle/'manifest.json').write_text(json.dumps(manifest))
+            machine=root/'machinefile';machine.write_text('fake-node slots=4\n')
+            calls=[]
+            def fake(args,cwd,label,env,seconds):
+                out='';exit_code=0
+                if label=='case':
+                    ranks=int(args[args.index('-n')+1]);workers=int(env['SU2_NATIVE3D_ENVELOPE_WORKERS'])
+                    calls.append((ranks,workers))
+                    self.assertEqual(env['SU2_NATIVE3D_ENVELOPE_SIZE'],'8')
+                    self.assertEqual(env['SU2_NATIVE3D_ENVELOPE_ROUNDS'],'512')
+                    self.assertEqual(env['OMP_NUM_THREADS'],'1')
+                    self.assertTrue((cwd/'parameters.json').is_file())
+                    out='\n'.join('All tests passed (1 assertion in 1 test case)' for _ in range(ranks))
+                    for name in run.RAW:(cwd/name).write_text(json.dumps(dict(ranks=ranks,workers=workers)))
+                    if cwd.parent.name=='failed' and ranks==2:exit_code=7;out='synthetic rejected case'
+                elif label=='audit':
+                    p=json.loads((cwd/'parameters.json').read_text())
+                    parents=[dict(rank=r,cycle=c,parent_wall=float(c+1+r)) for c in range(3) for r in range(p['ranks'])]
+                    native=[dict(rank=r,refine_accepted=2,coarsen_accepted=0,native_bound=4096,process_peak_rss=8192) for r in range(p['ranks']) for c in range(3)]
+                    (cwd/'independent_audit.json').write_text(json.dumps(dict(status='PASS',rank_rows=parents,native_rows=native,rank_stages=[])))
+                (cwd/(label+'.stdout')).write_text(out);(cwd/(label+'.stderr')).write_text('')
+                return dict(exit_code=exit_code,seconds=.001,label=label,command=list(map(str,args)))
+            def invoke(name):
+                with patch.object(sys,'argv',['run.py','--package',str(bundle),'--results',str(root/name),'--mode','limits','--ranks','4','--machinefile',str(machine)]),patch.object(run,'command',side_effect=fake),contextlib.redirect_stdout(io.StringIO()):run.main()
+            invoke('passed')
+            self.assertEqual(calls,[(1,1),(2,2),(4,2),(4,4)])
+            passed=root/'passed';receipt=json.loads((passed/'result.json').read_text())
+            self.assertEqual(receipt['status'],'PASS');self.assertEqual(len(receipt['cases']),4)
+            with contextlib.redirect_stdout(io.StringIO()):analyze.main([passed])
+            summary=json.loads((root/'native3d_summary.json').read_text())
+            self.assertEqual(len(summary['campaigns']),12)
+            self.assertTrue(all(row['mode']=='limits' and row['size']==8 and 'off_median' not in row for row in summary['campaigns']))
+            calls.clear()
+            with self.assertRaises(RuntimeError):invoke('failed')
+            self.assertEqual(calls,[(1,1),(2,2)])
+            failed=root/'failed';receipt=json.loads((failed/'result.json').read_text())
+            self.assertEqual(receipt['status'],'FAIL');self.assertEqual(len(receipt['cases']),1)
+            work=failed/'limit_size8_n2_m2'
+            self.assertEqual(json.loads((work/'parameters.json').read_text())['size'],8)
+            self.assertEqual(json.loads((work/'case_environment.json').read_text())['SU2_NATIVE3D_ENVELOPE_WORKERS'],'2')
+            self.assertEqual(json.loads((work/'stages.json').read_text())[0]['exit_code'],7)
+            self.assertTrue((work/run.RAW[0]).is_file());self.assertFalse(list(work.glob('*.gz')))
+            self.assertFalse((failed/'limit_size8_n4_m2').exists())
+
 if __name__=='__main__':unittest.main()

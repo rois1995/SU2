@@ -27,7 +27,7 @@ Tensor Sensor(const su2double* p,double scale) {
           scale+.125*SU2_TYPE::GetValue(p[1]),0,scale+.125*SU2_TYPE::GetValue(p[2])};
 }
 CSimplexMesh WedgeMesh(int n) {
-  REQUIRE((n==2 || n==4));
+  REQUIRE((n==2 || n==4 || n==8));
   CSimplexMesh mesh;mesh.nDim=3;
   std::map<std::array<int,3>,unsigned long> ids;
   for(int k=0;k<=n;++k)for(int j=0;j<=n;++j)for(int i=0;i+j<=n;++i) {
@@ -486,10 +486,10 @@ TEST_CASE("Native3D manufactured anisotropic driver envelope", "[NativeEnvelope3
   const int rounds=parameter("SU2_NATIVE3D_ENVELOPE_ROUNDS",512);
   REQUIRE((rounds==512 || rounds==1024));
   REQUIRE((!aligned || n>=2));
-  REQUIRE(n>=1);REQUIRE(n<=4);REQUIRE(mode>=0);REQUIRE(mode<=2);REQUIRE(varying>=0);REQUIRE(varying<=1);
+  REQUIRE(n>=1);REQUIRE((n<=4 || n==8));REQUIRE(mode>=0);REQUIRE(mode<=2);REQUIRE(varying>=0);REQUIRE(varying<=1);
   REQUIRE(direction>=0);REQUIRE(direction<=1);
   REQUIRE((height_power==0 || height_power==10 || height_power==20));
-  REQUIRE((wedge==0 || wedge==1));REQUIRE((!wedge || (aligned && (n==2 || n==4))));
+  REQUIRE((wedge==0 || wedge==1));REQUIRE((!wedge || (aligned && (n==2 || n==4 || n==8))));
   REQUIRE(workers>=1);REQUIRE(workers<=world.size);REQUIRE(repeat>=0);REQUIRE(repeat<3);REQUIRE(detail>=0);REQUIRE(detail<=1);
   const double anisotropy=std::array<double,3>{1.,1.5,2.}[mode], variation=varying?.125:0.;
   auto reference_sensor=[=](const su2double* p,double scale) {

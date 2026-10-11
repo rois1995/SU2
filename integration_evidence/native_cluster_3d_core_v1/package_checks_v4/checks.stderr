@@ -1,0 +1,19 @@
+.....E.....
+======================================================================
+ERROR: test_limit_matrix_summary_and_failure_evidence (__main__.PackageChecks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_core_v1/check_package.py", line 144, in test_limit_matrix_summary_and_failure_evidence
+    invoke('passed')
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_core_v1/check_package.py", line 143, in invoke
+    with patch.object(sys,'argv',['run.py','--package',str(bundle),'--results',str(root/name),'--mode','limits','--ranks','4','--machinefile',str(machine)]),patch.object(run,'command',side_effect=fake),contextlib.redirect_stdout(io.StringIO()):run.main()
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_core_v1/run.py", line 70, in main
+    shutil.copyfile(bundle/'manifest.json',result/'package/manifest.json')
+  File "/usr/lib/python3.8/shutil.py", line 264, in copyfile
+    with open(src, 'rb') as fsrc, open(dst, 'wb') as fdst:
+FileNotFoundError: [Errno 2] No such file or directory: '/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_core_v1/package_checks_v4/scratch/tmppkawl6en/passed/package/manifest.json'
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.278s
+
+FAILED (errors=1)

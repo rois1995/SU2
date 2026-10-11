@@ -5,7 +5,7 @@ root=Path(__file__).resolve().parents[2];where=Path(__file__).resolve().parent
 import argparse,shutil
 parser=argparse.ArgumentParser(description='One sequential manufactured native3D envelope case using actual configured archives.')
 parser.add_argument('folder');parser.add_argument('--ranks',type=int,choices=(1,2,4),default=1)
-parser.add_argument('--binary-from',type=Path);parser.add_argument('--workers',type=int,default=1);parser.add_argument('--size',type=int,choices=(1,2,3,4),default=2)
+parser.add_argument('--binary-from',type=Path);parser.add_argument('--workers',type=int,default=1);parser.add_argument('--size',type=int,choices=(1,2,3,4,8),default=2)
 parser.add_argument('--anisotropy',type=int,choices=(0,1,2),default=1);parser.add_argument('--varying',type=int,choices=(0,1),default=0)
 parser.add_argument('--restart-format',choices=('none','su2','cgns'),default='none',help='Test-only persistent mesh/reference plus actual two-file BDF2 restart after the first accepted event')
 parser.add_argument('--wedge',action='store_true',help='Test-only triangular-prism domain x+y<=1 with adaptable oblique face')
@@ -16,7 +16,7 @@ parser.add_argument('--aligned-markers',action='store_true',help='Test-only alig
 parser.add_argument('--replay-rounds',type=int,choices=(512,1024));parser.add_argument('--repeat',type=int,choices=(0,1,2),default=0);parser.add_argument('--detail',type=int,choices=(0,1),default=1)
 options=parser.parse_args();assert 1<=options.workers<=options.ranks
 assert not options.aligned_markers or options.size>=2
-assert not options.wedge or (options.aligned_markers and options.size in (2,4))
+assert not options.wedge or (options.aligned_markers and options.size in (2,4,8))
 if options.replay_rounds:assert options.restart_format=='none'
 if options.replay_rounds:assert not options.aligned_markers and options.diagnostic_rounds==512 and options.direction==0 and options.height_power==0 and not options.wedge
 if options.replay_rounds:assert (options.ranks,options.workers,options.size,options.anisotropy,options.varying,options.detail)==(1,1,3,1,1,1)
