@@ -1,0 +1,35 @@
+{
+  "status": "PASS",
+  "campaign_status": "FAIL",
+  "cycles_audited": [
+    0
+  ],
+  "cells": 2489,
+  "points": 590,
+  "transport": {
+    "maximum_state_relative_error": 3.899327321487061e-16,
+    "maximum_transported_tensor_absolute_error": 0.0,
+    "donor_points": 405,
+    "accepted_points": 590
+  },
+  "recovered_geometry_receipt_sha256": "d0e50d10298dad02061b122ccff41f6a2c2aa1dfe56f864b8ac2d142374dc682",
+  "recovered_geometry_stage_sha256": "1e8d11c4f088baed8604d724517bbca5838d8491cfc1e0c9f73359ef766e818b",
+  "recovered_geometry_stdout_sha256": "b1462c89542ac258f7b1edfdf1e448536ca2d29bd98400f0fd2997e2c8a6fc3f",
+  "recovered_geometry_stderr_sha256": "448f754a9b4c93efac2b5ea5ba37c3a2cc746d6d8f0d37396bdb5538d9bbaa04",
+  "input_sha256": {
+    "envelope_s0_initial.json": "8363150d7aed7f28d362e23fc9471b858818a200d2f857766afc6dbef2767c3d",
+    "envelope_s0.json": "51314d0325f4f664b94dafc9fc0cff3751afe965f338be41b472fe0b9005a3e7",
+    "envelope_s0_states.json": "eaea497afe9cc38b2676af804ac3895a47ef493ac1c00851592c79e210faa9ee",
+    "envelope_mesh_00001.su2": "a83cb29df9df609f5bea1f37729f0889e1bbb664e914a0b14b1ca5bfd659f676",
+    "case.stdout": "e820a6659f8d51a115e8367a0b981b1c2a1d819eef35042d4302328e7c0263bb"
+  },
+  "tools_sha256": {
+    "audit_coupled.py": "67a12c5c39c6c3e021473f49c1f14301f037d7883268b98d7afc9edc2b00f63b",
+    "audit_geometry_bridge.py": "d8d5e8a18a0fce8f54f8407e9f0027dcea12d90bf64c5ab20c4dedb7194430e2",
+    "audit_envelope.py": "601f82a12c2eb04778484ec647c4590e92fb5b6d7f0092a2f7b4941bbb01cc0c",
+    "audit_lifecycle.py": "b4204e8aea4653ac46942e79e0dad68c7087945a5687a851fd5036b1bdfdfa2f",
+    "audit_cavities.py": "26079385c071c3ad1b9c06ab3b862b4ff293367dc3c8d291acf0487089d062c5"
+  },
+  "script_sha256": "7c7389ebb0cb4bbb9e024de9302f52c1b704b83cbd7413758eb980925a6d777b",
+  "scope": "Recovered completed exact initial/accepted geometry/original-P1 q/J/edge frame audits from pinned v1 execution before its wrong-default-sensor metadata assertion. Correct rotating sensor callback, transported original-P1/current+BDF states, unchanged reference, actual SU2 and phase/notification/transport checks now complete. Original v1 failure retained. First cycle only; whole campaign remains FAIL at cycle1. No relaxed checks, numerical rerun, private cycle1 mesh certificate or performance/scaling/fullGoal1 claim."
+}

@@ -1,3 +1,44 @@
+## Current-source second-coarsening trace and independent first-event audit — 2026-10-11
+
+Code checkpoint c743c12784e6cd09452874887e8b7b3d10c4e837 is pushed on
+codex/native-3d-transport-accounting. Working repository:
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated. Goal1 remains ACTIVE; Goal2
+has not started. The first n8 event is now accepted and independently audited
+(first_cycle_audit_v2.json, including recovered pinned completed geometry/field
+stages from v1 before its wrong-sensor metadata assertion). Actual transported
+original-P1 tensor error0,current/BDF residual3.899327321487061e-16. Its actual
+SU2 and envelope_s0.vtu mesh/state export are retained. The v1 wrapper FAIL and
+exporter missing-argument failure are preserved; no tolerance or CFD rerun.
+The full campaign still FAILS at second coarsening; no successful-case audit is
+fabricated from this partial result.
+
+coarsen_changes_trace_n8_v1 is TERMINAL: isolated engine with exactly three
+hooks, all68actual configured test objects and unchanged production code/build.
+Its expected adaptation FAIL byte-matches eight input/accepted/state snapshots
+and364integer work/communication/queue counters. Second event:512attempts,
+429accepted/83rejected;49size/length,23finite reference-facet,11shape/sliver
+rejections. No identical complete-star repeat rejections;42after changed
+complete dependencies. Saved545-cell private grid coarsen_rejected_s1.su2 is
+inspectable diagnostic output, not accepted CFD or independently certified field.
+
+Exact rational authoritative planar-group containment confirms all23facet
+rejections have witnesses in the complete removed-vertex star but NONE in the
+candidate edge cells. Selection's cached Forbidden check only reaches edge cells;
+private CollapseVertex correctly checks the full star and rejects. This is a
+specific incomplete EARLY FILTER, not a bad committed mesh. NEXT: reuse the same
+exact facet predicate across the indexed local removed-star cells, retaining
+complete dependencies, remote-owner fallback, atomic rejection and invalid-field
+repair. Add an adversarial MPI check before rebuilding/retesting; do not infer
+that23saved attempts alone complete the remaining323directions. No new production
+change for this second finding yet. Classify length/quality obstructions separately.
+
+Own isolated trace object/executable removed after terminal successful replay/
+comparison/witness audits; disposable_cleanup.json records hashes and actual
+bytes. Production build retained. All owned numerical/audit/trace sessions are
+terminal, no owned heavy process remains. Cluster jobs were not requested or
+launched tonight. Rebuild/prepare a fresh71-case bundle on the cluster after
+updating the branch; repeated performance/calibration remain Goal1 gates.
+
 ## Complete-star retry notifications and exact collapse filtering — 2026-10-11
 
 Working repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
@@ -32,9 +73,15 @@ Cycle0 now completes: refine457accepted; coarsen428attempts/272accepted/156rejec
 295exact orientation exclusions,120reactivations;2489cells/590points, no pending
 edges or cached invalid cells. Coordinate connectivity and marker comparison
 confirms its accepted actual SU2 grid equals the old rejected private grid,
-ignoring numbering. A full independent cycle0 audit is running (session56560,
-owned audit_first_cycle.py); check its live process/terminal receipt before any
-new heavy run. Never call the full campaign PASS from this partial result.
+ignoring numbering. Independent cycle0 geometry/original-P1 q/J/integrated-edge
+and actual SU2 checks completed; the v1 wrapper failed at the wrong default
+sensor metadata comparison. first_cycle_audit_v2.json recovers those pinned
+completed stages and passes the correct rotating-sensor/transported metric/BDF
+checks: tensor error0,maximum state relative residual3.899327321487061e-16.
+The v1 failure and recipe remain intact; no tolerance changed or CFD rerun.
+The full campaign remains FAIL. Subsequent coarsen_changes_trace_n8_v1 was an isolated current-source trace with
+three engine hooks, separate epochs/private exports and no production mutation;
+see the terminal result above before launching further work. Published code checkpoint c743c12784e6cd09452874887e8b7b3d10c4e837.
 
 Cycle1 coarsening exhausts512rounds:429accepted/83rejected,545private cells, all
 545cached valid,323pending directions;1883orientation exclusions/988reactivations.

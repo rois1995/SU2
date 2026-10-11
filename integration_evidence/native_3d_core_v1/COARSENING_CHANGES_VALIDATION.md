@@ -31,7 +31,7 @@ allow review of the exact compiled change. No modified2D or MMG implementation.
 | coarsen_changes_restart_su2_n2_n1_m1_v1 | PASS persistent SU2 reference/current+BDF restart and later adaptation |
 | coarsen_changes_restart_cgns_n2_n4_m2_v1 | PASS persistent CGNS restart with M<N and later adaptation |
 | coarsen_changes_package_checks_v1 | PASS31lightweight orchestration/parser tests and recorded new counter/notification closure; two collector failures retained |
-| coarsen_changes_n8_n1_m1_v1 | FAIL full campaign at second adaptation; first now accepted, independent first-cycle audit pending |
+| coarsen_changes_n8_n1_m1_v1 | FAIL full campaign at second adaptation; first accepted and independently audited; v1 wrapper failure and scoped v2 recovery retained |
 
 All numerical runs were sequential, nice19, one library thread, MPI<=4 on one CPU,
 after host/load/memory/affinity inspection. These are contended correctness runs.
@@ -65,11 +65,19 @@ witness, not the classification of all rejections. The accepted first CFD mesh,
 current/BDF state and original reference remain protected by rejection. The
 545cell private result is not published or independently certified/exported yet.
 
-The running audit_first_cycle.py separately checks exact embedding, original-P1
-q/J/integrated edges, transported metrics/current+BDF states and actual SU2 output
-for cycle0. Its first_cycle_audit.json, when terminal, is scoped only to cycle0;
-the campaign validation.json remains FAIL. Do not conflate partial acceptance
-with three-event success. No independent_audit.json is fabricated for this case.
+The exact audit_first_cycle.py geometry/field stages completed before a v1
+wrapper error: the state helper compared the rotating sensor with its different
+default formula. The original failure, script/progress/stderr/input/tool pins and
+stage receipt are preserved. audit_first_cycle_v2.py validates that completed
+execution, then finishes the correct rotating-sensor metadata, original-P1
+transported metric/current+BDF, actual SU2 and phase/notification/transport checks.
+first_cycle_audit_v2.json is PASS for cycle0 only (tensor error0,state relative
+residual3.899327321487061e-16). No tolerance changed or CFD rerun. The full campaign
+validation.json remains FAIL. The first accepted mesh/state VTU is a scoped
+inspectable artifact, not a successful three-event campaign. No complete-case
+independent_audit.json is fabricated. Code checkpoint pushed as
+c743c12784e6cd09452874887e8b7b3d10c4e837. Next is the isolated current-source
+coarsen_changes_trace_n8_v1 diagnostic, not a production operator modification.
 
 ## Remaining work
 
@@ -82,3 +90,29 @@ limits after the next fix. Prepare fresh cluster bundles for repeated n4 timing,
 instrumentation OFF/ON, worker subsets and optional profiler campaigns. Measure
 complete cost, not reconstruction alone. Practical larger completion and repeated
 cluster performance/calibration remain Goal1 gates; Goal2 has not started.
+
+## Terminal current-source second-event trace
+
+coarsen_changes_trace_n8_v1 passes source-matched replay/comparison, while its
+actual adaptation remains FAIL at cycle1. All68actual configured test objects,
+current production source/library/member pins and exactly three diagnostic hooks
+are recorded. Eight input/accepted/state files and364integer work/communication/
+queue counts match the ordinary driver. Each immutable coarsening event has no
+identical full-star repeat rejection; the second has42retries after changed
+supports. Its83rejections split into49size/length,23finite reference-facet and
+11shape/sliver. Trace/per-epoch analysis and private545-cell rejected grid are
+retained. No full second-event geometry/field certificate is claimed.
+
+The exact independent facet_witness_audit.json finds full-star witnesses for all
+23finite-patch failures and none in the corresponding candidate edge cells. The
+cached facet prefilter therefore misses these dependencies. The private operator
+correctly rejects them; its validation must remain. The next small change is to
+reuse that exact predicate over the indexed local removed-vertex star, with a
+specific MPI adversary, no invalid-field pruning and normal full-star import
+when a local witness is absent. This has not been implemented/tested yet; it is
+not proof that saving23attempts completes all remaining directions.
+
+Disposed only the terminal isolated diagnostic object/executable, retaining their
+hashes/recipes and all compact evidence; see disposable_cleanup.json. No owned
+heavy process remains. Code/current metrics/acceptance/budget are unchanged from
+the pushed c743 checkpoint; later evidence does not make the full Goal1 complete.

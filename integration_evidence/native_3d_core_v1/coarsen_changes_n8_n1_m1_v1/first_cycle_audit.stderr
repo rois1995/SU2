@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coarsen_changes_n8_n1_m1_v1/audit_first_cycle.py", line 25, in <module>
+    transferred=states(b,json.loads((folder/'envelope_s0_states.json').read_text()))
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_geometry_bridge.py", line 109, in states
+    assert max(abs(a-b) for a,b in zip(expected,v[4]))<1e-13
+AssertionError
