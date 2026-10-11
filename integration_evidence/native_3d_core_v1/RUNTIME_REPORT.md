@@ -2,6 +2,8 @@
 
 Working repository: `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`.
 Branch: `codex/native-3d-core`, predecessor `5d83dcda7958f5af81ddeb3235b1a0a56f686a01`.
+Published implementation commit: `28bb42edc7e191b07699ea6eac9090968aa93eb5`,
+full origin branch SHA verified after push.
 This is a validated, limited runtime checkpoint. **Full Goal 1 remains active.**
 The combined qualification is `RUNTIME_CHECKPOINT_VALIDATION.json`; historical
 failed receipts remain failed.

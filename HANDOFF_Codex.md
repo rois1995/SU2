@@ -11,7 +11,9 @@ cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
 Repository `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`; branch
 `codex/native-3d-core`; predecessor `5d83dcda7958f5af81ddeb3235b1a0a56f686a01`.
-Validated checkpoint being published: `native_3d_core_v1/RUNTIME_REPORT.md` and
+Published runtime implementation commit `28bb42edc7e191b07699ea6eac9090968aa93eb5`,
+pushed to origin and full remote SHA verified. Checkpoint report:
+`native_3d_core_v1/RUNTIME_REPORT.md` and
 `RUNTIME_CHECKPOINT_VALIDATION.json`. Actual factory/ReplaceMesh/accepted-reference
 notification, durable original faceted sidecars, M1..N on MPI1/2/4: 84 accepted
 driver events,42 exact OFF/ON controls,42 SU2/CGNS output/readbacks, sensor error0,
