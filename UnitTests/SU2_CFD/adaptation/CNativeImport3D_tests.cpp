@@ -396,6 +396,7 @@ TEST_CASE("Native3D manufactured anisotropic driver envelope", "[NativeEnvelope3
   const int n=parameter("SU2_NATIVE3D_ENVELOPE_SIZE",2), mode=parameter("SU2_NATIVE3D_ENVELOPE_ANISOTROPY",1);
   const int varying=parameter("SU2_NATIVE3D_ENVELOPE_VARYING",0), workers=parameter("SU2_NATIVE3D_ENVELOPE_WORKERS",1);
   const int direction=parameter("SU2_NATIVE3D_ENVELOPE_DIRECTION",0);
+  const int height_power=parameter("SU2_NATIVE3D_ENVELOPE_HEIGHT_POWER",0);
   const int repeat=parameter("SU2_NATIVE3D_ENVELOPE_REPEAT",0), detail=parameter("SU2_NATIVE3D_ENVELOPE_DETAIL",1);
   const bool aligned=parameter("SU2_NATIVE3D_ENVELOPE_ALIGNED",0)!=0;
   const int rounds=parameter("SU2_NATIVE3D_ENVELOPE_ROUNDS",512);
@@ -403,9 +404,10 @@ TEST_CASE("Native3D manufactured anisotropic driver envelope", "[NativeEnvelope3
   REQUIRE((!aligned || n>=2));
   REQUIRE(n>=1);REQUIRE(n<=4);REQUIRE(mode>=0);REQUIRE(mode<=2);REQUIRE(varying>=0);REQUIRE(varying<=1);
   REQUIRE(direction>=0);REQUIRE(direction<=1);
+  REQUIRE((height_power==0 || height_power==10 || height_power==20));
   REQUIRE(workers>=1);REQUIRE(workers<=world.size);REQUIRE(repeat>=0);REQUIRE(repeat<3);REQUIRE(detail>=0);REQUIRE(detail<=1);
   const double anisotropy=std::array<double,3>{1.,1.5,2.}[mode], variation=varying?.125:0.;
-  auto sensor=[=](const su2double* p,double scale) {
+  auto reference_sensor=[=](const su2double* p,double scale) {
     const double q=scale*(1.+variation*SU2_TYPE::GetValue(p[0]));
     if(direction) {
       const double pi=std::acos(-1.),phi=pi*(.25+.25*SU2_TYPE::GetValue(p[0]));
@@ -417,15 +419,24 @@ TEST_CASE("Native3D manufactured anisotropic driver envelope", "[NativeEnvelope3
     const double diagonal=.5*(anisotropy*anisotropy+1.),off_diagonal=.5*(anisotropy*anisotropy-1.);
     return Tensor{q*diagonal,q*off_diagonal,0.,q*diagonal,0.,q};
   };
+  auto sensor=[=](const su2double* p,double scale) {
+    auto tensor=reference_sensor(p,scale);
+    if(height_power) {
+      tensor.xz=std::ldexp(tensor.xz,height_power);tensor.yz=std::ldexp(tensor.yz,height_power);
+      tensor.zz=std::ldexp(tensor.zz,2*height_power);
+    }
+    return tensor;
+  };
   if(!world.rank) {
     const double junction=double(n/2)/n;
     auto mesh=aligned ? simplex_test::MakeSimplexMesh(3,n,[=](const passivedouble* p) {
       if(p[2]<1e-12)return std::string(p[0]<junction ? "z_minus_a" : "z_minus_b");
       return simplex_test::Marker3D(p);
     }) : BoxMesh(3,n,false);
+    if(height_power)for(size_t p=2;p<mesh.coord.size();p+=3)mesh.coord[p]=std::ldexp(mesh.coord[p],-height_power);
     simplex_test::WriteSU2Mesh(mesh,"envelope_input.su2");
     std::ofstream cfg("envelope.cfg");
-    cfg<<"% Manufactured target: n="<<n<<" anisotropy="<<anisotropy<<" variation="<<variation<<" direction="<<direction<<" repeat="<<repeat<<"\n"
+    cfg<<"% Manufactured target: n="<<n<<" anisotropy="<<anisotropy<<" variation="<<variation<<" direction="<<direction<<" height_power="<<height_power<<" repeat="<<repeat<<"\n"
        <<"SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nAOA= 0\nMESH_FORMAT= SU2\nMESH_FILENAME= envelope_input.su2\n"
        <<"MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus, z_minus_a, z_minus_b)\n"
        <<"COMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
@@ -484,10 +495,10 @@ TEST_CASE("Native3D manufactured anisotropic driver envelope", "[NativeEnvelope3
     for(unsigned long p=0;p<accepted_metric.rows();++p)for(size_t k=0;k<6;++k)accepted_metric(p,k)=transported[6*p+k];
     auto retained=*driver->Reference();auto accepted=ImportGeometry(driver->Config(),driver->Geometry(),&accepted_metric,retained);
     Save(world,name,accepted.cells,donor.original,retained);driver->WriteAdaptedMesh(cycle+1,cycle+1);
-    if(cycle==2)OutputRoundTrip(world,name,result.slices,accepted.cells,retained,scale,sensor,direction?&donor.original:nullptr);
+    if(cycle==2)OutputRoundTrip(world,name,result.slices,accepted.cells,retained,scale,sensor,(direction || height_power)?&donor.original:nullptr);
     counts.push_back(result.slices.nElemGlobal);
     std::ostringstream row;row<<std::setprecision(17)<<"ENVELOPE rank="<<world.rank<<" ranks="<<world.size<<" workers="<<workers
-      <<" size="<<n<<" anisotropy="<<anisotropy<<" variation="<<variation<<" direction="<<direction<<" repeat="<<repeat<<" detailed="<<detail<<" cycle="<<cycle
+      <<" size="<<n<<" anisotropy="<<anisotropy<<" variation="<<variation<<" direction="<<direction<<" height_power="<<height_power<<" repeat="<<repeat<<" detailed="<<detail<<" cycle="<<cycle
       <<" cells="<<counts.back()<<" points="<<result.slices.nPointGlobal<<" state_error="<<error<<" parent_wall="<<parent_wall<<" parent_cpu="<<parent_cpu<<'\n';ProfileRow3D(row.str(),world.comm);
   }
   REQUIRE(counts.size()==3);CHECK(counts[1]<counts[0]);CHECK(counts[2]>counts[1]);

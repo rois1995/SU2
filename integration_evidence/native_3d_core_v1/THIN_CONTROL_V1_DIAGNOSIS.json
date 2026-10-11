@@ -1,0 +1,8 @@
+{
+  "status": "CONTROL_COMPARISON_FAIL",
+  "control": "thin_control_h0_n1_v1",
+  "validation_sha256": "3778e258aeef1a13aa6402a001d6456960b184de0076dd898a0544112766d0b3",
+  "independent_audit": "PASS",
+  "cause": "Extra multiply-by-one in prescribed test-only sensor expression altered compiler floating-point association; inspected yz entry at x=y=1 differs 4.44e-16. No production change or mesh gate relaxation.",
+  "action": "Preserve original reference sensor expression and apply std::ldexp to finished tensors only for nonzero height. Repeat zero-height byte-identity control as v2 before thin cases."
+}

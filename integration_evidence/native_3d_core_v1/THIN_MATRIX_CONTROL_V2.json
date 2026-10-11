@@ -1,0 +1,56 @@
+{
+  "base": "58b6b40fb046f130be4eef1fa03c4b9104763f47",
+  "transform": "Physical coordinates x=A*x_ref, A=diag(1,1,h), h=2^-height_power; physical sensor M=A^-T*M_ref*A^-1. Powers of two preserve coordinate/tensor scaling exactly in binary64.",
+  "target": "Spatially changing reference metric from DIRECTION_MATRIX, aspect1.5, strength1+.125x, original sensor-only P1 frozen at each event; scales4/1/4.",
+  "guards": {
+    "q": 0.2,
+    "J": 0.05,
+    "L": 1.8,
+    "rounds": 512,
+    "noise": 0
+  },
+  "residual": "Mesh q/J/L tested with original physical metric. Tensor residuals are also checked after A^T*M*A transformation into reference units, using the existing1e-13 absolute bound there; scalar-flow/state guards unchanged. Report physical and reference errors, reject1% normal tensor corruption. No source/target/guard smoothing.",
+  "cases": [
+    {
+      "folder": "thin_control_h0_n1_v2",
+      "height_power": 0,
+      "ranks": 1,
+      "workers": 1,
+      "require": "13 initial/accepted/source/state/SU2CGNS nodal+frozen readback files identical to direction_a15_n2_n1_v2"
+    },
+    {
+      "folder": "thin_h10_n1_v1",
+      "height_power": 10,
+      "ranks": 1,
+      "workers": 1
+    },
+    {
+      "folder": "thin_h10_n2_m2_v1",
+      "height_power": 10,
+      "ranks": 2,
+      "workers": 2
+    },
+    {
+      "folder": "thin_h10_n4_m2_v1",
+      "height_power": 10,
+      "ranks": 4,
+      "workers": 2
+    },
+    {
+      "folder": "thin_h10_n4_m4_v1",
+      "height_power": 10,
+      "ranks": 4,
+      "workers": 4
+    },
+    {
+      "folder": "thin_h20_n1_v1",
+      "height_power": 20,
+      "ranks": 1,
+      "workers": 1,
+      "admission": "After h10 correctness and cost qualify; retain and diagnose first failure before expanding further."
+    }
+  ],
+  "execution": "One sequential nice19/j1/MPI<=4/thread1 job after authoritative host checks. No local repetition/scaling. Prepare cluster campaigns later; no overnight launch request.",
+  "acceptance": "Three actual default512 refine/coarsen/refine replacements on adaptable planar slab; exact embedding/positive volume/incidence/facets/markers and physical metric gates; originalP1/current+BDF2 and SU2CGNS nodal/frozen target readback; source/object/archive pins and closed cost accounting. No relinearized-source interior/restart/BL-generation/CFD affordability/fullGoal1 claim.",
+  "control_revision": "v1 passed independent audits but failed exact baseline byte identity; retain original matrix and THIN_CONTROL_V1_DIAGNOSIS. v2 applies ldexp after unchanged reference tensor evaluation."
+}

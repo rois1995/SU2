@@ -2,27 +2,55 @@
 from pathlib import Path
 from collections import Counter
 from fractions import Fraction as F
-import json,math,sys
+import copy,json,math,sys
 from audit_coupled import frame,sources,metric
 from audit_geometry_bridge import states,signature,su2_signature,cgns_signature,reject
 from audit_lifecycle import parse,stage,closes,STAGES
 STAGES['envelope']=('metric','observation','remesh','replace')
 
-def reload_metric(nodal,target):
-    original,_=sources(target);current,nodes=sources(nodal)
+def reference_tensors(data,height):
+    if height==1:return data
+    result=copy.deepcopy(data);factors=(1.,1.,height,1.,height,height*height)
+    for cell in result['original']:
+        for v in cell['vertices']:
+            assert len(v[4])==6 and all(math.isfinite(value) for value in v[4])
+            v[4]=[value*factor for value,factor in zip(v[4],factors)]
+    return result
+
+def reference_states(data,state,sensor_at,height):
+    if height==1:return states(data,state,sensor_at)
+    normalized=copy.deepcopy(state);factors=(1.,1.,height,1.,height,height*height)
+    for row in normalized['accepted']:
+        assert len(row['metric'])==6 and all(math.isfinite(value) for value in row['metric'])
+        row['metric']=[value*factor for value,factor in zip(row['metric'],factors)]
+    result=states(reference_tensors(data,height),normalized,sensor_at)
+    source,_=sources(data);physical_error=0.
+    for row in state['accepted']:
+        expected=metric(source,tuple(F(float(x)) for x in row['point']))
+        physical_error=max(physical_error,max(abs(float(a)-b) for a,b in zip(expected,row['metric'])))
+    result['maximum_transported_tensor_physical_error']=physical_error
+    return result
+
+def reload_metric(nodal,target,height=1.):
+    original,_=sources(reference_tensors(target,height));current,nodes=sources(reference_tensors(nodal,height))
+    physical_source,_=sources(target);_,physical_nodes=sources(nodal)
     assert sorted(c['key'] for c in current)==sorted(tuple(sorted(c['nodes'])) for c in nodal['cells'])
     assert {p for p,m in nodes.values()}=={tuple(F(float(x)) for x in n[1:]) for n in nodal['nodes']}
-    error=0.
-    for point,tensor in nodes.values():
+    error=physical_error=0.
+    for id,(point,tensor) in nodes.items():
         wanted=metric(original,point)
         error=max(error,max(abs(float(a)-float(b)) for a,b in zip(wanted,tensor)))
+        physical_wanted=metric(physical_source,point)
+        physical_error=max(physical_error,max(abs(float(a)-float(b)) for a,b in zip(physical_wanted,physical_nodes[id][1])))
     assert error<1e-13,'Reload lost transported original-P1 nodal metric'
-    return error
+    return dict(maximum_transported_tensor_absolute_error=error,maximum_transported_tensor_physical_error=physical_error)
 
 def main(folder):
     p=json.loads((folder/'parameters.json').read_text());ranks=p['ranks'];anisotropy=(1.,1.5,2.)[p['anisotropy']]
     variation=.125 if p['varying'] else 0.;direction=p.get('direction',0)
     assert direction in (0,1)
+    height_power=p.get('height_power',0);assert height_power in (0,10,20)
+    height=math.ldexp(1.,-height_power);keep_target=direction or height_power
     def sensor_at(x,scale):
         q=scale*(1.+variation*x[0])
         if direction:
@@ -37,7 +65,7 @@ def main(folder):
         name=f'envelope_s{cycle}'
         initial,a=frame(folder/(name+'_initial.json'),False)
         accepted,b=frame(folder/(name+'.json'),True)
-        assert initial['volume']==accepted['volume']=='1'
+        assert initial['volume']==accepted['volume']==str(F(1,2**height_power))
         assert a['marker_names']==b['marker_names']
         if previous is not None:
             assert signature(a)==signature(previous),'Next event lost the last accepted mesh'
@@ -53,7 +81,7 @@ def main(folder):
                 assert max(xs)<=seam if marker=='z_minus_a' else min(xs)>=seam
         state=json.loads((folder/(name+'_states.json')).read_text())
         assert state['sensor_scale']==p['size']**2*(.25 if cycle==1 else 1.)
-        transport.append(dict(file=name+'_states.json',**states(b,state,sensor_at)))
+        transport.append(dict(file=name+'_states.json',**reference_states(b,state,sensor_at,height)))
         actual=folder/f'envelope_mesh_{cycle+1:05d}.su2'
         assert su2_signature(actual)==signature(b)
         sidecar=actual.with_suffix('.su2.native_ref')
@@ -66,13 +94,12 @@ def main(folder):
         actual=folder/('envelope_s2_written_'+fmt+('.cgns' if fmt=='CGNS' else '.su2'))
         assert (cgns_signature(actual) if fmt=='CGNS' else su2_signature(actual))==signature(previous)
         stem=f'envelope_s2_written_{fmt}'
-        record,loaded=frame(folder/(stem+('_reload_target.json' if direction else '_reload.json')),True)
+        record,loaded=frame(folder/(stem+('_reload_target.json' if keep_target else '_reload.json')),True)
         assert signature(loaded)==signature(previous);records.append(record)
-        if direction:
+        if keep_target:
             nodal=json.loads((folder/(stem+'_reload.json')).read_text())
             assert signature(nodal)==signature(loaded)
-            error=reload_metric(nodal,loaded)
-            reload_metrics.append(dict(format=fmt,maximum_transported_tensor_absolute_error=error))
+            reload_metrics.append(dict(format=fmt,**reload_metric(nodal,loaded,height)))
     rank_rows=[];stages=[];native=[]
     for line in (folder/'case.stdout').read_text().splitlines():
         if line.startswith(('ENVELOPE ','NATIVE3D ')):
@@ -82,7 +109,7 @@ def main(folder):
             assert row['ranks']==ranks and 0<=row['rank']<ranks and row['workers']==p['workers']
             if line.startswith('ENVELOPE '):
                 assert row['size']==p['size'] and row['anisotropy']==anisotropy and row['variation']==variation
-                assert row.get('direction',0)==direction
+                assert row.get('direction',0)==direction and row.get('height_power',0)==height_power
                 assert row['repeat']==p['repeat'] and row['detailed']==p['detail'] and 0<=row['cycle']<3
                 assert row['state_error']<2e-10;rank_rows.append(row)
             else:
@@ -103,13 +130,17 @@ def main(folder):
                 remesh=[r for r in native if r['rank']==rank][cycle]
                 assert row['total']<=parent['parent_wall']+1e-12 and row['remesh']>=remesh['total']-1e-12
     source=json.loads((folder/'envelope_s2.json').read_text());state=json.loads((folder/'envelope_s2_states.json').read_text())
-    import copy
-    bad=copy.deepcopy(state);bad['accepted'][0]['metric'][0]+=.1;reject(lambda:states(source,bad,sensor_at))
-    bad=copy.deepcopy(state);bad['accepted'][0]['states'][10]+=.1;reject(lambda:states(source,bad,sensor_at))
-    if direction:
-        bad=copy.deepcopy(nodal);bad['original']=[];reject(lambda:reload_metric(bad,loaded))
-        bad=copy.deepcopy(nodal);bad['original'][0]['vertices'][0][4][0]+=.1;reject(lambda:reload_metric(bad,loaded))
-    summary=dict(status='PASS',parameters=p,frames=records,states=transport,reload_metrics=reload_metrics,rank_rows=rank_rows,rank_stages=stages,native_rows=native,adversaries_rejected=4 if direction else 2,
+    bad=copy.deepcopy(state);bad['accepted'][0]['metric'][0]+=.1;reject(lambda:reference_states(source,bad,sensor_at,height))
+    bad=copy.deepcopy(state);bad['accepted'][0]['states'][10]+=.1;reject(lambda:reference_states(source,bad,sensor_at,height))
+    if keep_target:
+        bad=copy.deepcopy(nodal);bad['original']=[];reject(lambda:reload_metric(bad,loaded,height))
+        bad=copy.deepcopy(nodal);bad['original'][0]['vertices'][0][4][0]+=.1;reject(lambda:reload_metric(bad,loaded,height))
+    if height_power:
+        bad=copy.deepcopy(state);bad['accepted'][0]['metric'][5]*=1.01;reject(lambda:reference_states(source,bad,sensor_at,height))
+        bad=copy.deepcopy(state);bad['accepted'][0]['metric'].append(0.);reject(lambda:reference_states(source,bad,sensor_at,height))
+        bad=copy.deepcopy(nodal);bad['original'][0]['vertices'][0][4].append(0.);reject(lambda:reload_metric(bad,loaded,height))
+    summary=dict(status='PASS',parameters=p,frames=records,states=transport,reload_metrics=reload_metrics,rank_rows=rank_rows,rank_stages=stages,native_rows=native,adversaries_rejected=2+2*bool(keep_target)+3*bool(height_power),
+                 metric_residual_units="reference-box tensor components; coordinates physical" if height_power else "physical tensor components",
                  scope='Three actual native3D backend/driver replacement events on a manufactured rotated anisotropic target. Exact embedding/incidence/finite-facet coverage/markers/volume, original-P1 metric and current/BDF2 audits; actual SU2/CGNS output and readback. Timed manual metric/observer/remesh/replace phases: observer is diagnostic work, not CFD. One repetition is a correctness/diagnostic pilot, not scaling, instrument-overhead, physical-solver or full-Goal1 qualification.')
     (folder/'independent_audit.json').write_text(json.dumps(summary,indent=2)+'\n')
     print('PASS',len(records),'strict/input/readback frames;',len(transport),'state frames;',len(stages),'closed rank-stage rows')

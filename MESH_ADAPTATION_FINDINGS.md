@@ -1,3 +1,31 @@
+## Affine thin-domain checkpoint — 2026-10-11
+
+NativeIntegrated / codex/native-3d-core, predecessor58b6b40fb046f130be4eef1fa03c4b9104763f47.
+THIN_REPORT.md and THIN_CHECKPOINT_VALIDATION.json qualify six actual default512
+three-event cases: zero-height-change control13files byte-identical to direction
+baseline; h=2^-10 on N1M1,N2M2,N4M2,N4M4 and h=2^-20 serial. Production archives/
+thin members unchanged. Test-only affine tensor pullback preserves physical q/J/L
+.20/.05/1.8 checks; tensor residuals in physical and reference units both0.
+Current/BDF2 residual<=3.861e-16, qmin.345975/Jmin.150717/Lmax1.799380104.
+Thin cases reject7 corruptions each, including1% normal tensor/schema controls.
+Accepted cells86/14/85 serial; N2M2 86/13/91; N4M2 86/12/79; N4M4 86/8/73.
+Actual SU2CGNS output/readback plus exact geometry/marker/embedding pass.
+
+thin_regression_v1 actual68-object driver PASS64native/2D+3Dbridge tests at
+MPI1/2/4 and serialMMG2D/3D48assertions. All pins stable; no unmatchedselectors.
+Retain controlv1 independentPASS/exactcomparisonFAIL (multiply-by-one fast-math
+association), controlv2 compileFAIL (Tensor named members), finalcontrolv3PASS;
+original/revised matrices and diagnoses preserved. No gate or production change.
+442closed rows and per-event useful rates in thin_rank_phases.csv/validation;
+one contended pilot each, different N/M trajectories, no speedup/scaling claim.
+Requested native bound8MiB/lifetime RSS29.74MiB distinct; calibration still open.
+Grids/states in thin_h10_* and thin_h20_n1_v1; no ownedjob after regression.
+
+FullGoal1 ACTIVE: wedge/persistent manufactured restart/larger limits,
+communication/wait/private CPU/memory calibration, overhead and closedSGE
+repeated/scaling packages remain. No BL-generation/curved/unsteady/affordability
+claim or overnight clusterlaunch request. Foreignwork/AdapNoExt untouched.
+
 ## Spatial metric-direction envelope — 2026-10-11
 
 NativeIntegrated / codex/native-3d-core, predecessor8b64fe7dba33b62612065009981f1cae660952e1.
