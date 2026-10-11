@@ -274,6 +274,7 @@ class TetraDriver : public CSinglezoneDriver {
  public:
   using CSinglezoneDriver::CSinglezoneDriver;
   using CSinglezoneDriver::WriteAdaptedMesh;
+  using CSinglezoneDriver::WriteTimeHistoryRestarts;
   using CSinglezoneDriver::AdaptedMeshName;
   CConfig& Config(){return *config_container[ZONE_0];}
   CGeometry& Geometry(){return *geometry_container[ZONE_0][INST_0][MESH_0];}
@@ -449,6 +450,8 @@ TEST_CASE("Native3D manufactured anisotropic driver envelope", "[NativeEnvelope3
   const int direction=parameter("SU2_NATIVE3D_ENVELOPE_DIRECTION",0);
   const int height_power=parameter("SU2_NATIVE3D_ENVELOPE_HEIGHT_POWER",0);
   const int wedge=parameter("SU2_NATIVE3D_ENVELOPE_WEDGE",0);
+  const int restart=parameter("SU2_NATIVE3D_ENVELOPE_RESTART",0);
+  REQUIRE(restart>=0);REQUIRE(restart<=2);
   const int repeat=parameter("SU2_NATIVE3D_ENVELOPE_REPEAT",0), detail=parameter("SU2_NATIVE3D_ENVELOPE_DETAIL",1);
   const bool aligned=parameter("SU2_NATIVE3D_ENVELOPE_ALIGNED",0)!=0;
   const int rounds=parameter("SU2_NATIVE3D_ENVELOPE_ROUNDS",512);
@@ -496,7 +499,8 @@ TEST_CASE("Native3D manufactured anisotropic driver envelope", "[NativeEnvelope3
        <<"ADAP_NATIVE_REPARTITION= YES\nADAP_NATIVE_RANKS= "<<workers<<"\nWRT_PERFORMANCE= "<<(detail?"YES":"NO")<<"\n"
        <<"MGLEVEL= 0\nNUM_METHOD_GRAD= GREEN_GAUSS\nCONV_NUM_METHOD_FLOW= ROE\nMUSCL_FLOW= NO\n"
        <<"TIME_DOMAIN= YES\nTIME_STEP= 1e-3\nTIME_ITER= 10\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\nINNER_ITER= 2\n"
-       <<"OUTPUT_FILES= (RESTART)\nWRT_ADAP_MESH= NO\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= envelope_mesh\nCONV_FILENAME= envelope_history\n";
+       <<"OUTPUT_FILES= (RESTART)\nWRT_ADAP_MESH= NO\nMESH_OUT_FORMAT= "<<(restart==2?"CGNS":"SU2")<<"\nMESH_OUT_FILENAME= envelope_mesh\nCONV_FILENAME= envelope_history\n";
+    if(restart)cfg<<"RESTART_FILENAME= envelope_restart\nSOLUTION_FILENAME= envelope_restart\nWRT_RESTART_COMPACT= YES\n";
   }
   SU2_MPI::Barrier(SU2_MPI::GetComm());
   char cfg[]="envelope.cfg";
@@ -522,13 +526,14 @@ TEST_CASE("Native3D manufactured anisotropic driver envelope", "[NativeEnvelope3
     for(unsigned long p=0;p<target.rows();++p){auto t=sensor(driver->Geometry().nodes->GetCoord(p),scale);std::array<double,6> a{t.xx,t.xy,t.xz,t.yy,t.yz,t.zz};for(size_t k=0;k<6;++k)target(p,k)=a[k];}
     profile.Mark(0);
     ReferenceState observed;if(driver->Reference()->original)observed=*driver->Reference();
+    else if(driver->Config().GetRestart())REQUIRE(LoadReference(driver->Config().GetMesh_FileName()+".native_ref",observed));
     auto donor=ImportGeometry(driver->Config(),driver->Geometry(),&target,observed);
     Save(world,name+"_initial",donor.cells,donor.original,observed);
     profile.Mark(1);
     const auto result=backend->Remesh(driver->Config(),driver->Geometry(),target);
     profile.Mark(2);
     CHECK(State(driver->Geometry(),driver->Solver())==before);
-    if(cycle==0)CHECK_FALSE(driver->Reference()->original);else CHECK(EncodeReference(*driver->Reference())==authority);
+    if(cycle==0 || (restart && cycle==1))CHECK_FALSE(driver->Reference()->original);else CHECK(EncodeReference(*driver->Reference())==authority);
     if(result.status!=CRemeshResult::Status::COMPLETE) {
       CHECK_FALSE(result.onAccepted);
       profile.Mark(3);profile.Report(cycle,{{"metric","observation","remesh","replace"}});
@@ -549,6 +554,42 @@ TEST_CASE("Native3D manufactured anisotropic driver envelope", "[NativeEnvelope3
     auto retained=*driver->Reference();auto accepted=ImportGeometry(driver->Config(),driver->Geometry(),&accepted_metric,retained);
     Save(world,name,accepted.cells,donor.original,retained);driver->WriteAdaptedMesh(cycle+1,cycle+1);
     if(cycle==2)OutputRoundTrip(world,name,result.slices,accepted.cells,retained,scale,sensor,(direction || height_power)?&donor.original:nullptr);
+    if(restart && cycle==0) {
+      RuntimeProfile3D<3> checkpoint(detail,"envelope_restart");
+      driver->Config().SetTimeIter(2);
+      const auto checkpoint_mesh=driver->AdaptedMeshName(1,1)+driver->Config().GetMesh_Out_FileExtension();
+      const auto written_state=State(driver->Geometry(),driver->Solver());
+      driver->WriteTimeHistoryRestarts();CHECK(State(driver->Geometry(),driver->Solver())==written_state);
+      checkpoint.Mark(0);
+      if(!world.rank) {
+        std::ifstream input("envelope.cfg");std::string text((std::istreambuf_iterator<char>(input)),{});
+        const std::string old_mesh="MESH_FILENAME= envelope_input.su2";
+        const auto at=text.find(old_mesh);REQUIRE(at!=std::string::npos);
+        text.replace(at,old_mesh.size(),"MESH_FILENAME= "+checkpoint_mesh);
+        if(restart==2) {
+          const std::string old_format="MESH_FORMAT= SU2";const auto format=text.find(old_format);REQUIRE(format!=std::string::npos);
+          text.replace(format,old_format.size(),"MESH_FORMAT= CGNS");
+        }
+        std::ofstream output("envelope_restart.cfg");output<<text<<"RESTART_SOL= YES\nRESTART_ITER= 3\n";REQUIRE(output.good());
+      }
+      backend.reset();{Mute mute;driver->Finalize();driver.reset();}
+      checkpoint.Mark(1);
+      SU2_MPI::Barrier(world.comm);char restart_cfg[]="envelope_restart.cfg";
+      driver=std::make_unique<TetraDriver>(restart_cfg,1,world.comm);
+      driver->Preprocess(3);backend=driver->Backend();native=dynamic_cast<CNativeRemesher3D*>(backend.get());REQUIRE(native);
+      REQUIRE_FALSE(driver->Reference()->original);
+      checkpoint.Mark(2);checkpoint.Report(3,{{"write","teardown","reload"}});
+      const auto reloaded=Flow(world,driver->Geometry(),driver->Solver());
+      SaveStates(world,"envelope_restart",fresh,reloaded,scale);
+      std::map<std::array<double,3>,std::array<double,15>> wanted;
+      for(const auto& r:fresh)REQUIRE(wanted.emplace(std::array<double,3>{r.point.x,r.point.y,r.point.z},r.values).second);
+      REQUIRE(reloaded.size()==wanted.size());double restart_error=0;
+      for(const auto& r:reloaded) {
+        const auto& values=wanted.at({r.point.x,r.point.y,r.point.z});
+        for(size_t k=0;k<15;++k)restart_error=std::max(restart_error,RelDiff(r.values[k],values[k]));
+      }
+      CHECK(restart_error<2e-10);
+    }
     counts.push_back(result.slices.nElemGlobal);
     std::ostringstream row;row<<std::setprecision(17)<<"ENVELOPE rank="<<world.rank<<" ranks="<<world.size<<" workers="<<workers
       <<" size="<<n<<" anisotropy="<<anisotropy<<" variation="<<variation<<" direction="<<direction<<" height_power="<<height_power<<" wedge="<<wedge<<" repeat="<<repeat<<" detailed="<<detail<<" cycle="<<cycle

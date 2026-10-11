@@ -7,6 +7,7 @@ parser=argparse.ArgumentParser(description='One sequential manufactured native3D
 parser.add_argument('folder');parser.add_argument('--ranks',type=int,choices=(1,2,4),default=1)
 parser.add_argument('--binary-from',type=Path);parser.add_argument('--workers',type=int,default=1);parser.add_argument('--size',type=int,choices=(1,2,3,4),default=2)
 parser.add_argument('--anisotropy',type=int,choices=(0,1,2),default=1);parser.add_argument('--varying',type=int,choices=(0,1),default=0)
+parser.add_argument('--restart-format',choices=('none','su2','cgns'),default='none',help='Test-only persistent mesh/reference plus actual two-file BDF2 restart after the first accepted event')
 parser.add_argument('--wedge',action='store_true',help='Test-only triangular-prism domain x+y<=1 with adaptable oblique face')
 parser.add_argument('--height-power',type=int,choices=(0,10,20),default=0,help='Test-only slab height2^-power with covariance-preserving tensor pullback')
 parser.add_argument('--direction',type=int,choices=(0,1),default=0,help='Test-only spatially rotating principal direction; default preserves original sensor')
@@ -16,6 +17,7 @@ parser.add_argument('--replay-rounds',type=int,choices=(512,1024));parser.add_ar
 options=parser.parse_args();assert 1<=options.workers<=options.ranks
 assert not options.aligned_markers or options.size>=2
 assert not options.wedge or (options.aligned_markers and options.size in (2,4))
+if options.replay_rounds:assert options.restart_format=='none'
 if options.replay_rounds:assert not options.aligned_markers and options.diagnostic_rounds==512 and options.direction==0 and options.height_power==0 and not options.wedge
 if options.replay_rounds:assert (options.ranks,options.workers,options.size,options.anisotropy,options.varying,options.detail)==(1,1,3,1,1,1)
 folder=Path(options.folder).resolve();build=root/'integration_evidence/build-integrated-v2'
@@ -23,7 +25,7 @@ print('Case working and retained folder:',folder,flush=True);folder.mkdir(exist_
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 paths=subprocess.check_output(['git','ls-files','Common','SU2_CFD','UnitTests','meson.build','meson_options.txt'],cwd=root,text=True).splitlines()
 extras=['Common/include/adaptation/CNativeRuntimeProfile3D.hpp','integration_evidence/native_3d_core_v1/audit_lifecycle.py','Common/include/adaptation/CNativeReferenceIO3D.hpp','Common/include/adaptation/CNativeRemesher3D.hpp','Common/src/adaptation/CNativeReferenceIO3D.cpp','Common/src/adaptation/CNativeRemesher3D.cpp',str(Path(__file__).resolve().relative_to(root)),'integration_evidence/native_3d_core_v1/audit_runtime.py','integration_evidence/native_3d_core_v1/audit_geometry_bridge.py','integration_evidence/native_3d_core_v1/audit_coupled.py','integration_evidence/native_3d_core_v1/audit_cavities.py','UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp','integration_evidence/native_3d_core_v1/audit_defaults.py']
-extras+=['integration_evidence/native_3d_core_v1/audit_envelope.py','integration_evidence/native_3d_core_v1/export_envelope_vtu.py','integration_evidence/native_3d_core_v1/audit_replay.py'];paths+=extras
+extras+=['TestCases/adaptation/capability/capcheck.py','integration_evidence/native_3d_core_v1/audit_restart.py','integration_evidence/native_3d_core_v1/audit_envelope.py','integration_evidence/native_3d_core_v1/export_envelope_vtu.py','integration_evidence/native_3d_core_v1/audit_replay.py'];paths+=extras
 pins={p:sha(root/p) for p in paths if (root/p).is_file() and (p.endswith(('.cpp','.hpp','.h','.txt','.py')) or p.endswith('meson.build'))}
 owned=subprocess.check_output(['git','diff','--name-only'],cwd=root,text=True).splitlines()+extras
 for p in set(owned):
@@ -36,6 +38,7 @@ env=dict(os.environ,PATH='/tmp/native-build-tools:'+os.environ['PATH'],OMP_NUM_T
 env['SU2_NATIVE3D_ENVELOPE_ROUNDS']=str(options.diagnostic_rounds)
 env['SU2_NATIVE3D_ENVELOPE_ALIGNED']=str(int(options.aligned_markers))
 env['SU2_NATIVE3D_ENVELOPE_WEDGE']=str(int(options.wedge))
+env['SU2_NATIVE3D_ENVELOPE_RESTART']=str(('none','su2','cgns').index(options.restart_format))
 env.update({f'SU2_NATIVE3D_ENVELOPE_{key.upper()}':str(getattr(options,key)) for key in ('size','anisotropy','varying','workers','repeat','detail','direction','height_power')})
 (folder/'parameters.json').write_text(json.dumps(vars(options),indent=2,default=str)+'\n')
 if options.replay_rounds:

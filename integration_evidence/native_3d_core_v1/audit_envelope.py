@@ -7,6 +7,7 @@ from audit_coupled import frame,sources,metric
 from audit_geometry_bridge import MARKERS,states,signature,su2_signature,cgns_signature,reject
 from audit_lifecycle import parse,stage,closes,STAGES
 STAGES['envelope']=('metric','observation','remesh','replace')
+STAGES['envelope_restart']=('write','teardown','reload')
 
 def reference_tensors(data,height):
     if height==1:return data
@@ -67,6 +68,9 @@ def main(folder):
     height=math.ldexp(1.,-height_power);keep_target=direction or height_power
     wedge=p.get('wedge',False);assert wedge in (False,True)
     markers=WEDGE_MARKERS if wedge else MARKERS
+    restart_format=p.get('restart_format','none');assert restart_format in ('none','su2','cgns')
+    extension='.cgns' if restart_format=='cgns' else '.su2'
+    checkpoint=None
     def sensor_at(x,scale):
         q=scale*(1.+variation*x[0])
         if direction:
@@ -99,12 +103,13 @@ def main(folder):
         state=json.loads((folder/(name+'_states.json')).read_text())
         assert state['sensor_scale']==p['size']**2*(.25 if cycle==1 else 1.)
         transport.append(dict(file=name+'_states.json',**reference_states(b,state,sensor_at,height)))
-        actual=folder/f'envelope_mesh_{cycle+1:05d}.su2'
-        assert su2_signature(actual,markers)==signature(b,markers)
-        sidecar=actual.with_suffix('.su2.native_ref')
+        actual=folder/f'envelope_mesh_{cycle+1:05d}{extension}'
+        assert (cgns_signature(actual,markers) if extension=='.cgns' else su2_signature(actual,markers))==signature(b,markers)
+        sidecar=Path(str(actual)+'.native_ref')
         assert sidecar.is_file()
-        if cycle:assert sidecar.read_bytes()==(folder/'envelope_mesh_00001.su2.native_ref').read_bytes()
+        if cycle:assert sidecar.read_bytes()==(folder/('envelope_mesh_00001'+extension+'.native_ref')).read_bytes()
         records.extend([initial,accepted]);previous=b
+        if cycle==0:checkpoint=b
     assert records[0]['cells']==(3 if wedge else 6)*p['size']**3
     assert records[3]['cells']<records[1]['cells'] and records[5]['cells']>records[3]['cells']
     for fmt in ('SU2','CGNS'):
@@ -146,6 +151,17 @@ def main(folder):
                 parent=next(r for r in rank_rows if r['rank']==rank and r['cycle']==cycle)
                 remesh=[r for r in native if r['rank']==rank][cycle]
                 assert row['total']<=parent['parent_wall']+1e-12 and row['remesh']>=remesh['total']-1e-12
+    restart_check=None
+    restart_phases=[row for row in stages if row['stage']=='envelope_restart']
+    assert len(restart_phases)==(ranks if p['detail'] and restart_format!='none' else 0)
+    if restart_format!='none':
+        from audit_restart import audit
+        restarted=json.loads((folder/'envelope_restart_states.json').read_text())
+        initial_states=json.loads((folder/'envelope_s0_states.json').read_text())
+        assert restarted['donor']==[{k:v for k,v in row.items() if k!='metric'} for row in initial_states['accepted']]
+        restart_check=audit(folder,restarted,checkpoint)
+        cfg=(folder/'envelope_restart.cfg').read_text()
+        for line in ('RESTART_SOL= YES','RESTART_ITER= 3','SOLUTION_FILENAME= envelope_restart','MESH_FILENAME= envelope_mesh_00001'+extension):assert line in cfg.splitlines()
     source=json.loads((folder/'envelope_s2.json').read_text());state=json.loads((folder/'envelope_s2_states.json').read_text())
     bad=copy.deepcopy(state);bad['accepted'][0]['metric'][0]+=.1;reject(lambda:reference_states(source,bad,sensor_at,height))
     bad=copy.deepcopy(state);bad['accepted'][0]['states'][10]+=.1;reject(lambda:reference_states(source,bad,sensor_at,height))
@@ -159,7 +175,7 @@ def main(folder):
     if wedge:
         bad=copy.deepcopy(source);node=next(n for n in bad['nodes'] if F(float(n[1]))+F(float(n[2]))==1);node[1]+=1.;reject(lambda:wedge_domain(bad,height))
         bad=copy.deepcopy(source);bad['marker_names'][bad['marker_names'].index('wedge_oblique')]='invalid';reject(lambda:signature(bad,markers))
-    summary=dict(status='PASS',parameters=p,frames=records,states=transport,reload_metrics=reload_metrics,rank_rows=rank_rows,rank_stages=stages,native_rows=native,adversaries_rejected=2+2*bool(keep_target)+3*bool(height_power)+2*bool(wedge),
+    summary=dict(status='PASS',parameters=p,restart=restart_check,frames=records,states=transport,reload_metrics=reload_metrics,rank_rows=rank_rows,rank_stages=stages,native_rows=native,adversaries_rejected=2+2*bool(keep_target)+3*bool(height_power)+2*bool(wedge),
                  metric_residual_units="reference-box tensor components; coordinates physical" if height_power else "physical tensor components",
                  scope='Three actual native3D backend/driver replacement events on a manufactured rotated anisotropic target. Exact embedding/incidence/finite-facet coverage/markers/volume, original-P1 metric and current/BDF2 audits; actual SU2/CGNS output and readback. Timed manual metric/observer/remesh/replace phases: observer is diagnostic work, not CFD. One repetition is a correctness/diagnostic pilot, not scaling, instrument-overhead, physical-solver or full-Goal1 qualification.')
     (folder/'independent_audit.json').write_text(json.dumps(summary,indent=2)+'\n')

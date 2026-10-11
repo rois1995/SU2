@@ -7,6 +7,36 @@ small sequential local checks with real host-contention checks; push each
 validated checkpoint and verify the remote SHA. A terminal capacity failure
 cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
+## Persistent manufactured restart checkpoint — 2026-10-11
+
+NativeIntegrated / codex/native-3d-core, predecessorb936b29e160905e070cab5ca86ff7618bea135a4.
+RESTART_REPORT.md / RESTART_CHECKPOINT_VALIDATION.json qualify eight real SU2/CGNS
+mesh/reference/two-file BDF2 restart cases N1M1,N2M2,N4M2,N4M4. Refine, write
+currentstep2/olderstep1, destroy driver, actual RESTART_ITER3 constructor and
+Preprocess(3), then coarsen/refine; no manual restarted-history initialization.
+Original sidecars stay byte-identical, pending authority publishes only on accepted
+replacement. Fresh sensor-only originalP1 source per next event; complete frozen
+sensor-source persistence is still unproven. Wedge target/guards/default512 unchanged.
+Binary checkpoint state residual0, current/BDF manufactured residual<=3.845e-16,
+transported/reloadedtensor0; exact geometry/marker/incidence/q/J/L passes all events.
+Each restart checker rejects4 state/file corruptions, plus existing6 wedge controls.
+No new runtime missing-sidecar fault injection claimed. Disabled control13rawfiles
+byte-identical to wedge control. Complete68-object configured regression passes
+65native/reference/2D+3Dbridge cases per MPI1/2/4 rank plus serialMMG48assertions.
+Production archives/thin members unchanged, all pins stable; no numerical failures.
+826closed phase rows; restart write/teardown/reload separate from event parent.
+Fixture write includes bounded state checks, teardown includes config serialization.
+Single contended pilots/different resumed trajectories, no speedup/scaling/private
+balance claim. Requested native bound8MiB, lifetimeRSS34.77MiB distinct/uncalibrated.
+Inspectable VTU, adapted SU2/CGNS/sidecars, actual binary histories and states in
+integration_evidence/native_3d_core_v1/restart_{su2,cgns}_n2_n{1,2,4}_m{1,2,4}_v1.
+
+FullGoal1 ACTIVE: larger first-failure/size-rank limits, complete traffic/wait/private
+CPU/memory calibration, overhead and closedSGE repeated/scaling remain. No PDE
+iteration/curved/3DBL/fullunsteady/affordability claim. No owned job remains after
+regression. Foreign FSI, AdapNoExt, ClusterResults and historical failures untouched.
+Publication SHA will be recorded after commit/push and remote verification.
+
 ## Oblique wedge checkpoint — 2026-10-11
 
 NativeIntegrated / codex/native-3d-core, predecessor8acadb1bf67bba237cf245acc4f2d7774cf3c65f.

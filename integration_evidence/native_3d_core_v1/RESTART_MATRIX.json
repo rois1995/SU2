@@ -1,0 +1,80 @@
+{
+  "base": "b936b29e160905e070cab5ca86ff7618bea135a4",
+  "guards": {
+    "q": 0.2,
+    "J": 0.05,
+    "L": 1.8,
+    "rounds": 512,
+    "noise": 0
+  },
+  "target": "Unchanged n2 wedge direction1/aspect1.5/strength1+.125x; each event freezes sensor-only original P1, scales4/1/4. Original geometry authority persists; a complete frozen sensor-source restart is not claimed.",
+  "restart": "After event0 write real compact binary U^n at step2 and U^(n-1) at step1, destroy driver, read adapted SU2/CGNS plus original sidecar with RESTART_SOL YES / RESTART_ITER3; call actual Preprocess(3), then continue coarsening/refinement. No manual restarted-state initialization.",
+  "cases": [
+    {
+      "folder": "restart_control_box_n1_v1",
+      "wedge": false,
+      "ranks": 1,
+      "workers": 1,
+      "restart_format": "none",
+      "require": "13 byte-identical geometry/source/state/readback files to wedge_control_box_n1_v1"
+    },
+    {
+      "folder": "restart_su2_n2_n1_m1_v1",
+      "wedge": true,
+      "ranks": 1,
+      "workers": 1,
+      "restart_format": "su2"
+    },
+    {
+      "folder": "restart_su2_n2_n2_m2_v1",
+      "wedge": true,
+      "ranks": 2,
+      "workers": 2,
+      "restart_format": "su2"
+    },
+    {
+      "folder": "restart_su2_n2_n4_m2_v1",
+      "wedge": true,
+      "ranks": 4,
+      "workers": 2,
+      "restart_format": "su2"
+    },
+    {
+      "folder": "restart_su2_n2_n4_m4_v1",
+      "wedge": true,
+      "ranks": 4,
+      "workers": 4,
+      "restart_format": "su2"
+    },
+    {
+      "folder": "restart_cgns_n2_n1_m1_v1",
+      "wedge": true,
+      "ranks": 1,
+      "workers": 1,
+      "restart_format": "cgns"
+    },
+    {
+      "folder": "restart_cgns_n2_n2_m2_v1",
+      "wedge": true,
+      "ranks": 2,
+      "workers": 2,
+      "restart_format": "cgns"
+    },
+    {
+      "folder": "restart_cgns_n2_n4_m2_v1",
+      "wedge": true,
+      "ranks": 4,
+      "workers": 2,
+      "restart_format": "cgns"
+    },
+    {
+      "folder": "restart_cgns_n2_n4_m4_v1",
+      "wedge": true,
+      "ranks": 4,
+      "workers": 4,
+      "restart_format": "cgns"
+    }
+  ],
+  "execution": "One nice19/j1/thread1/MPI<=4 job after authoritative contention checks. Qualify serial before expansion; retain first failures; no overnight cluster requests.",
+  "acceptance": "Independent exact geometry/marker/incidence/volume/q/J/L/P1 checks on all three events, actual binary restart parser and current/BDF2 coordinate coverage/state comparison with corruption controls, unchanged authority across restart and resumed events, SU2CGNS output/readback, full actual configured regression and stable production pins. Closed restart output/teardown/reload phases kept outside normal event parent; no numerical CFD iteration or affordability claim."
+}
