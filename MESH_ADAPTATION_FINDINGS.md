@@ -1774,3 +1774,24 @@ Next implementation work belongs to Hessian/sensor metrics: stable multi-sensor
 combination, skewed/curved one-sided recovery and QR boundary support. The other
 agent continues to own BL composition, complexity and gradation; our branch
 validates against that shared contract.
+
+
+## 2026-10-11 — actual native3D bridge preparation and independent auditors
+
+Native runtime3D remains guarded. Pending CNativeImport3D/test-only bridge code now
+imports actual CFD-owner sensors/halos/tetrahedra/marker incidence and prepares
+M<=N worker migration, distributed P1 reader return, real geometry/solver rebuild,
+barycentric/conservative current/BDF2 transfer and actual SU2/CGNS round trips.
+Standalone bridge v1..v5 stopped during compilation/link setup; no actual test or
+adaptation run has passed yet. V5 demonstrates stale pre-communicator ABI in the
+existing full SU2 archives, requiring a real Common/strict/CFD rebuild rather than
+compatibility aliases or relaxed linking. geometry_build_v1 records that one-job
+nice19/j1/thread1 build and all source/command/host evidence.
+
+Independent audit tool and geometry_audit_v3 self-check PASS cover original-P1
+transported sensors, current/two histories, exact SU2 ASCII/HDF5 CGNS coordinates/
+connectivity/physical sections/BC ranges/closed links, with five corruptions vetoed.
+Serialized checker fixtures are not actual native-output or CFD proof. V1 synthetic
+label-type failure and V2 receipt-variable failure retained. Production driver
+wiring, actual bridge matrix, shared 2D regression, full phases/CPU/wait/RSS and
+scaling/affordability remain open; full Goal1 stays active.

@@ -7,6 +7,50 @@ small sequential local checks with real host-contention checks; push each
 validated checkpoint and verify the remote SHA. A terminal capacity failure
 cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
+## Native 3D actual geometry bridge in progress — 2026-10-11
+
+Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
+codex/native-3d-core; predecessor e19af2b2f22654d6ba95862761663a385d4b15ca.
+Goal1 ACTIVE/full scope. New uncommitted CNativeImport3D imports actual CFD-owned
+sensor-only tetrahedra, halo coordinates and oriented physical incidence. It
+retains bounded immutable faceted authority, rebinds finite triangles after reader
+renumbering, queries original P1 in bounded batches for weights and returned reader
+metrics, and preserves output on elected failures. No production driver factory
+has been wired; native runtime3D guard remains.
+
+Geometry bridge v1..v5 failed during standalone build setup/linking, BEFORE TESTS:
+v1 METIS include; v2 public matrix include; v3 MEL include; v4 reduced standalone
+house-helper duplicates; v5 actual SU2 archives retain pre-communicator ABI. Do not
+claim adaptation/state/output validation from these receipts. All failures remain.
+
+Actual 268-step current-ABI Common/strict/CFD-core rebuild live in
+integration_evidence/native_3d_core_v1/geometry_build_v1, runner PID2673220 and
+ninja PID2673256 at launch; unified exec session1777. Confirm live process/session,
+actual compiler and terminal validation.json before any follow-up or restart.
+Runner snapshot, source pins, planned/actual commands and build/host logs retained.
+One nice19 compiler, -j1, numerical threads1. Foreign4-rank FSI left untouched.
+Production source pins cover Common/SU2_CFD; only test/tool/docs changed alongside
+this build. Avoid editing pinned production source until the build ends.
+
+Test-only bridge additions now prepare retained donor/accepted BDF2 states, both
+barycentric/conservative transfers, actual SU2/CGNS output and file reader return.
+Output builds matching config/geometry marker bindings. Independent auditor parses
+raw SU2 and raw HDF5 CGNS and checks exact geometry/markers, positive output tets,
+closed links, embedding/manifold/shape/integrated edges, transported P1 sensors,
+current+two histories, and changed-target repeated coarsen/refine provenance.
+No new actual bridge run yet: wait for actual library rebuild, then announce a
+fresh geometry_bridge_v6 folder and run updated run_geometry_bridge.py sequentially
+on MPI1/2/4 (subject to actual contention). Relevant shared transfer-fixture2D
+regression and actual Meson test compilation remain necessary.
+
+geometry_audit_v3 PASS: lightweight independent-auditor self-check, valid serialized
+box/state/SU2/HDF5 fixtures and five rejected corruptions. It is not actual native
+output or CFD integration proof. v1/v2 self-check failures retained. Report
+geometry_audit_v3/AUDIT_SELF_CHECK.md explains exact scope and pending work.
+Publish validated auditor checkpoint; keep unvalidated bridge implementation
+unstaged until actual campaign passes. No cluster questions tonight. Full configured
+native3D, lifecycle/CGNS/rejection, performance/RSS/scaling goal is not complete.
+
 ## Native 3D weighted partition checkpoint — 2026-10-11
 
 Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch

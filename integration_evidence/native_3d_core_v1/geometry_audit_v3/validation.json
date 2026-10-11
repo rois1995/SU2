@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "auditor_sha256": {
+    "audit_geometry_bridge.py": "924df459a939dab3fb9d3bf599e622e4e15f2c28adf9201a14a9191fcd22ab53",
+    "audit_coupled.py": "67a12c5c39c6c3e021473f49c1f14301f037d7883268b98d7afc9edc2b00f63b",
+    "audit_cavities.py": "26079385c071c3ad1b9c06ab3b862b4ff293367dc3c8d291acf0487089d062c5"
+  },
+  "baseline_sha256": "401f576cac969b9bb9c1d3cf8bbbe8fde521638e8a4f5e20467decb3a7324cc6",
+  "valid_cases": [
+    "original-P1 metric/current/BDF2 states",
+    "actual SU2 parse",
+    "independent CGNS HDF5 parse"
+  ],
+  "adversaries_rejected": 5,
+  "metric_checks": {
+    "maximum_state_relative_error": 0.0,
+    "maximum_transported_tensor_absolute_error": 0.0,
+    "donor_points": 8,
+    "accepted_points": 8
+  },
+  "scope": "Auditor self-checks on manufactured serialized box/state fixtures only; no actual SU2 bridge run. Corruption is applied and tested privately; the retained CGNS fixture is restored and closed."
+}
