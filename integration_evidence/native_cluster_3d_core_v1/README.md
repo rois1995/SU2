@@ -12,6 +12,10 @@ The unchanged-target n8 N1M1 pilot passes its first adaptation, but still reject
 the second at512rounds:437accepted/75rejected attempts,266pending candidates and
 517valid cached private cells. See
 `integration_evidence/native_3d_core_v1/FULL_STAR_FACET_VALIDATION.md`.
+A separate existing1024-round n8 fixture passes all three events and strict
+independent checks:2489/457/2245tets,615second-event coarsening attempts and
+1002third-event coarsening attempts. This demonstrates feasibility with more
+work; production512default remains unchanged. See the longer-budget REVIEW.md.
 Repeated cluster timing, instrumentation overhead, full traffic/wait and allocator
 calibration remain Goal1 work. Local checks are contended correctness evidence.
 Do not treat package preparation/submission or a partially accepted campaign as

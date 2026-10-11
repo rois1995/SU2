@@ -70,3 +70,12 @@ remains active: repeated cluster timing, full traffic/wait and allocator
 calibration, practical limits and further larger-case diagnosis remain. The
 reusable closed SGE package now expects72cases; rebuild and prepare a fresh
 bundle after updating the pushed branch. No cluster job was launched tonight.
+
+## Separate larger-budget feasibility result
+
+The unchanged production512default still rejects n8 at its second event. A
+separate existing1024-round fixture now passes all three events and its complete
+independent audit. Accepted meshes2489/457/2245tets; second coarsening615attempts,
+third coarsening1002attempts. See
+full_star_facet_n8_n1_m1_rounds1024_v1/REVIEW.md. This establishes feasibility
+with more work, not a production budget change or performance/scaling result.

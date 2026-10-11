@@ -1,3 +1,33 @@
+## Larger1024-round diagnostic independently PASS — 2026-10-12
+
+Working repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated, branch
+codex/native-3d-transport-accounting. Production filter source is pushed at
+bb87e97fe1d89ee69ae8deac8fb447d0996f2d5e; its rejection diagnosis atff9f47ae41.
+Goal1 ACTIVE; Goal2 not started. full_star_facet_n8_n1_m1_rounds1024_v1 is now
+TERMINAL PASS: all three numerical events plus8strict/input/readback frames,
+3current+BDF state frames,13closed rank-stage rows and actualSU2/CGNS checks.
+Meshes2489/457/2245tets,590/133/542points; second coarsening615attempts,
+457accepted/158rejected, third refinement790attempts and coarsening1002attempts
+(379accepted/623rejected). No invalid cached cells/pending queues/repairs.
+Independent q/J minima .511339/.288666, .204335/.082768, .239746/.090104;
+maximum lengths1.799855/1.794632/1.799088, all exact domain volumes1/2.
+Current/BDF residual<=3.899327321487061e-16, transported tensor error0 including
+SU2/CGNS readbacks. Actual meshes and envelope_s0/s1/s2.vtu retained.
+
+ONLY the separate fixture budget changed; production512default remains and its
+matched n8 event1 FAIL is retained. Config/input/first sensor bytes match. This
+proves feasibility of the frozen case with more work, not a production budget
+fix, speedup, scaling or fullGoal1. Large third-event rejection cost remains.
+Numerical fixture165.837s, independent external audit898.664s, VTU export.220s;
+no timeout. Audit is external verification, not adaptation cost. All owned
+numerical/audit/trace sessions are terminal. Next: implement/equivalence-check
+narrower actual-query donor routing after reviewing the documented memory/MPI/
+closed-contact constraints; keep full-cell imports for unknown future queries.
+Preserve matched512failure and1024success as both correctness/control fixtures.
+Repeated cluster performance, overhead and memory/wait/traffic calibration remain
+open. No cluster job requested/launched tonight. See longer-budget REVIEW.md and
+DONOR_QUERY_ROUTING_INVESTIGATION.md. Rebuild a fresh72-case bundle after updating.
+
 ## Published filter and source-matched remaining rejection diagnosis — 2026-10-12
 
 Pushed production checkpoint bb87e97fe1d89ee69ae8deac8fb447d0996f2d5e on

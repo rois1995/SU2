@@ -10,7 +10,10 @@ parent. There were121private-query fallbacks,2572donor batches,4545418ADT donor
 candidates,1698110filtered candidates and2053383reused donor candidates. Point
 search0.14378s/interpolation0.00566s are nested query subcosts across measurement,
 validation and update, not exclusive phases to add again. Edge trace9.92633s is
-another nested geometry subcost. These numbers locate work; do not claim a
+another nested geometry subcost. Owner search72.83671s and geometric filter
+70.14941s span all imports, including seed/update; they must not be added to the
+exclusive67.84491s private donor phase. This attributes the main work to geometric
+filtering rather than point-tensor interpolation. These numbers locate work; do not claim a
 speedup or cluster scalability from them.
 
 Common/src/adaptation/CNativeDonor3D.cpp ImportMetricCells presently sends a
