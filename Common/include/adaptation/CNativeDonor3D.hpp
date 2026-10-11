@@ -29,7 +29,8 @@ struct DonorImportStats {
  * Box imports include all original AABB intersections. Cell imports additionally reject strictly separated
  * face planes with exact signs when the original source exceeds the patch cap; smaller sources keep the
  * cheaper box path. Touching donors remain eligible. Neither is a geometric coverage certificate.
- * Metric-cell imports retain every closed centroid/edge intersection when filtering is required.
+ * Metric-cell imports route actual centroid/edge boxes separately when filtering is required,
+ * retaining every closed intersection. Expanded requests are admitted before allocation.
  * Exact FrozenField queries/edge coverage remain authoritative. Compose locally at actual queries, never on wire.
  * Regions <= MaximumCavityCells and donor union <= MaximumDonors; oversized imports reject as a whole.
  * Source IDs, canonical simplices, shared coordinates/sensors and SPD are checked across ranks at Build.

@@ -1,0 +1,89 @@
+{
+  "status": "PASS",
+  "lightweight_checks": 31,
+  "accounting_audits": [
+    {
+      "folder": "query_routing_mpi1_v1",
+      "log_sha256": "b9754841cd839cedb0b0c8f8bca512922c7fb4ffdc5fb227aa0c6f95cd9f5d65",
+      "engine_rows": 42,
+      "change_sent": 166.0,
+      "change_received": 166.0
+    },
+    {
+      "folder": "query_routing_mpi2_v1",
+      "log_sha256": "1a09bc3d018c620c10e2dfc2ca0256b360ee95f92cf2cf7c6ac70dbfd17f3374",
+      "engine_rows": 123,
+      "change_sent": 480.0,
+      "change_received": 480.0
+    },
+    {
+      "folder": "query_routing_mpi4_v1",
+      "log_sha256": "00d6cdcae6c8bd810c9cac8dbb86728d85bbb0580004ae774e508a3a75187fe8",
+      "engine_rows": 363,
+      "change_sent": 1182.0,
+      "change_received": 1182.0
+    },
+    {
+      "folder": "query_routing_n8_n1_m1_v1",
+      "log_sha256": "d3cf90b8669f4b8ab87949151d4cd5cd3e3d687a95be50e1b1a15621cfde2b47",
+      "engine_rows": 4,
+      "change_sent": 6936.0,
+      "change_received": 6936.0
+    },
+    {
+      "folder": "query_routing_lifecycle_mpi1_v1",
+      "log_sha256": "87ffee1feb1be52e0f7ec6016b3869ec7866596ae6fa206b41287dee29768913",
+      "engine_rows": 6,
+      "change_sent": 0.0,
+      "change_received": 0.0
+    },
+    {
+      "folder": "query_routing_n4_n4_m2_v1",
+      "log_sha256": "60bc6a652f8e81edc8bc1b513d52f89ff36aeed400e5b2e79b4c127a9dfd98a6",
+      "engine_rows": 24,
+      "change_sent": 1754.0,
+      "change_received": 1754.0
+    },
+    {
+      "folder": "query_routing_restart_su2_n2_n1_m1_v1",
+      "log_sha256": "5f817883042da74c67f9dd9e40fa4c3681698439d22942b1729c71f5cef18727",
+      "engine_rows": 6,
+      "change_sent": 220.0,
+      "change_received": 220.0
+    },
+    {
+      "folder": "query_routing_restart_cgns_n2_n4_m2_v1",
+      "log_sha256": "bb4a2b29d93b83ad3b28147f935b1351b4567c02e437aeffcd32ba7fe8b8d89e",
+      "engine_rows": 24,
+      "change_sent": 327.0,
+      "change_received": 327.0
+    },
+    {
+      "folder": "query_routing_n8_n1_m1_rounds1024_v1",
+      "log_sha256": "479348b0ee66473cca6f09532b21568850efac2a9f68a64a0dbef7abfac47d17",
+      "engine_rows": 6,
+      "change_sent": 10404.0,
+      "change_received": 10404.0
+    }
+  ],
+  "summary_recovery": [],
+  "tools_sha256": {
+    "integration_evidence/native_3d_core_v1/query_routing_package_checks_v1/collect.py": "20ca47d5df98448dff9f7bffc8f8a43a4a4801210bb3372f712b1fee9b32b3b3",
+    "integration_evidence/native_3d_core_v1/audit_lifecycle.py": "b4204e8aea4653ac46942e79e0dad68c7087945a5687a851fd5036b1bdfdfa2f",
+    "integration_evidence/native_cluster_3d_core_v1/check_package.py": "8f0ae9e37ae1771fc7e845f5ba291962937544de2b701d8538990e315e99aa1f",
+    "integration_evidence/native_cluster_3d_core_v1/run.py": "1242957d5e3b34905df6aeb0e06388866d97b5355a7fbcfb9d81dee8727183e5"
+  },
+  "scope": "Actual saved 31 parser/mocked orchestration tests pass. Collector audits actual ENGINE and detailed runtime rows after explicit exact Catch-summary removal where needed, retaining the original failed collector/logs for finite integral counters, nested parent costs and global notification record closure. Each case retains its own numerical verdict; this checks accounting, not n8 completion or performance/scaling.",
+  "artifact_sha256": {
+    "certificate_corruption.stdout": "6dd7c25035797ba9ccbaacd34de89e0367088962682050e1e6d0879d09c3cd0c",
+    "check_equivalence_corruption.py": "62627bfead9a3590cd4c5b43f8abdc1622ab1532d525c7546f0d14f718f43d4d",
+    "equivalence_corruption_checks.json": "af925b89ea9b2349a1c5e6d3ec6aca1e425f9ed6972a3e28f08894e4d21a3bf2",
+    "package_checks.stderr": "55c6118f7360da07cc031d3cc7ccc8b856d211d40e2d1eae8af1a2e99fef0abb",
+    "run_audits.py": "b6bac777fb78be08b0f6c6ca794e088aed4a8eaf41a8c6a1b54b17174c6a2983",
+    "certificate_corruption.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "accounting.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "accounting.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "package_checks.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "collect.py": "20ca47d5df98448dff9f7bffc8f8a43a4a4801210bb3372f712b1fee9b32b3b3"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "case": "state",
+      "rejected": true,
+      "reason": "Current numerical artifact differs: envelope_s0_states.json"
+    },
+    {
+      "case": "actual_orientation",
+      "rejected": true,
+      "reason": "Nonpositive actual SU2 tetrahedron"
+    }
+  ],
+  "script_sha256": "62627bfead9a3590cd4c5b43f8abdc1622ab1532d525c7546f0d14f718f43d4d",
+  "auditor_sha256": "946bb5c7fd70ce486d4ac3e1601fe30d35993a7d65e80eec568b2ecd8952ff33",
+  "current_certificate_sha256": "10ed36c528fbc7256a46a3f683ead8622d40fcb9d6497e8fac5afd32f11ddf6d",
+  "reference_certificate_sha256": "5937003c2c0f58c59298fce4c02bf8e7c5797254dc77907eaa51a5a7801fdb70",
+  "scope": "Fresh negative controls against the actual equivalence auditor; regular disposable copies only, no original artifacts modified. Changed current/BDF data and reversed actual SU2 cell orientation must reject. No repeated expensive geometry audit or performance claim."
+}

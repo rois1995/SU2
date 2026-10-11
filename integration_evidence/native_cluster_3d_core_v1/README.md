@@ -1,11 +1,11 @@
 # Native 3D closed SGE validation and timing package
 
 Working repository: `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
-`codex/native-3d-transport-accounting`. Full local-star facet/orientation filtering
-and complete-star retries pass the configured **72-case** selection on MPI1/2/4,
+`codex/native-3d-transport-accounting`. Narrow actual-query donor routing, full local-star facet/orientation filtering
+and complete-star retries pass the configured **73-case** selection on MPI1/2/4,
 independent mesh/current+BDF/SU2/CGNS checks, serial MMG, n4 N4M2 adaptation and
 persistent SU2N1M1/CGNSN4M2 restart checks. The actual metric/Hessian lifecycle
-OFF/ON controls pass. The reusable package expects72cases and passes31lightweight
+OFF/ON controls pass. The reusable package expects73cases and passes31lightweight
 parser/mocked orchestration checks. All qualification used the exact new binary.
 
 The unchanged-target n8 N1M1 pilot passes its first adaptation, but still rejects
@@ -16,6 +16,10 @@ A separate existing1024-round n8 fixture passes all three events and strict
 independent checks:2489/457/2245tets,615second-event coarsening attempts and
 1002third-event coarsening attempts. This demonstrates feasibility with more
 work; production512default remains unchanged. See the longer-budget REVIEW.md.
+The routing update keeps frozen512/1024mesh/state/work trajectories unchanged;
+see `integration_evidence/native_3d_core_v1/QUERY_ROUTING_VALIDATION.md`. More query
+requests increase tracked bytes; single contended diagnostic timings do not
+establish speedup/scaling.
 Repeated cluster timing, instrumentation overhead, full traffic/wait and allocator
 calibration remain Goal1 work. Local checks are contended correctness evidence.
 Do not treat package preparation/submission or a partially accepted campaign as

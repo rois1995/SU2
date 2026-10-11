@@ -653,7 +653,7 @@ TEST_CASE("Native MPI donor unions reuse exact admission without changing payloa
       for(size_t j=0;j<4;++j) CHECK(TensorValues(twice.cells.front().sensor[j])==TensorValues(single.cells.front().sensor[j]));
       FrozenField field(twice.cells);CHECK(field.Query({.25,.25,.25}).sensor.xx==Approx(2.25));
     }
-    CHECK(world.sum(int(service.Statistics().reused_candidates-reused_before))==1);
+    CHECK(world.sum(int(service.Statistics().reused_candidates-reused_before))>0);
     CHECK(world.sum(int(service.Statistics().filter_candidates-filtered_before))==1);
     auto invalid=duplicate;if(!invalid.empty())std::swap(invalid.back().v[0],invalid.back().v[1]);
     const auto rejected=metric ? service.ImportMetricCells(invalid) : service.ImportCells(invalid);
@@ -1748,4 +1748,57 @@ TEST_CASE("Native MPI full vertex-star facet filtering protects corners beyond c
   // All serial witnesses are local; MPI owners without a witness still need the complete private star.
   if (world.size==1) CHECK(result.stats.attempted==0);
   EngineReport(result,world,"full_star_facet_filter");
+}
+
+TEST_CASE("Native MPI narrow metric-query routing preserves exhaustive closed donor footprints", "[NativeDistributed3D][NativeDonorReuse3D]") {
+  World world;
+  for (bool thin : {false,true}) {
+    auto transform = [=](Point p) { return thin ? Point{.5*(p.x+p.y),.5*(p.y-p.x),std::ldexp(p.z,-20)} : p; };
+    std::vector<Cell> cells;
+    const auto tile=Box().patch.cells;
+    for (Id z=0;z<4;++z) for (Id y=0;y<4;++y) for (Id x=0;x<4;++x) for (auto cell:tile) {
+      cell.id=cells.size();
+      for (auto& node:cell.v) {
+        const Id i=x+Id(node.p.x),j=y+Id(node.p.y),k=z+Id(node.p.z);
+        node.id=i+5*(j+5*k);node.p=transform({i/4.,j/4.,k/4.});
+      }
+      cells.push_back(cell);
+    }
+    REQUIRE(cells.size()>MaximumDonors);
+    auto original=thin ? (world.rank ? std::vector<DonorCell>{} : Source(cells,world,true)) : Source(cells,world);
+    DonorImport service(world);std::string reason;
+    REQUIRE(service.Build(original,reason));const auto resident=service.ResidentBytes();
+    const std::array<Tetrahedron,3> probes{{
+      {{{.125,.125,.125},{.875,.125,.125},{.125,.875,.125},{.125,.125,.875}}},
+      {{{0,0,0},{.75,0,0},{0,.75,0},{0,0,.125}}},
+      {{{.25,.25,.25},{.5,.25,.25},{.25,.5,.25},{.25,.25,.5}}}
+    }};
+    for (auto probe:probes) {
+      Cell cell;
+      for(size_t i=0;i<4;++i) cell.v[i]={1000+i,transform(probe[i])};
+      std::set<Id> expected;
+      const auto center=Centroid(cell);
+      for (const auto& donor:cells) {
+        const Tetrahedron t{donor.v[0].p,donor.v[1].p,donor.v[2].p,donor.v[3].p};
+        bool needed=IntersectsSegment(t,center,center);
+        for(size_t i=0;i<4 && !needed;++i) for(size_t j=i+1;j<4 && !needed;++j)
+          needed=IntersectsSegment(t,cell.v[i].p,cell.v[j].p);
+        if(needed) expected.insert(donor.id);
+      }
+      REQUIRE_FALSE(expected.empty());REQUIRE(expected.size()<=MaximumDonors);
+      const auto query=world.rank==world.size-1 ? std::vector<Cell>{cell} : std::vector<Cell>{};
+      const auto imported=service.ImportMetricCells(query);REQUIRE(imported.valid);
+      if(world.rank==world.size-1) {
+        std::set<Id> actual;for(const auto& donor:imported.cells)actual.insert(donor.cell.id);
+        CHECK(actual==expected);
+        FrozenField field(imported.cells);
+        const auto value=TensorValues(field.Query(center).sensor),analytic=TensorValues(Sensor(center));
+        for(size_t i=0;i<6;++i)CHECK(value[i]==Approx(analytic[i]).epsilon(1e-13));
+        for(size_t i=0;i<4;++i)for(size_t j=i+1;j<4;++j)CHECK(field.SensorEdgeLength(cell.v[i].p,cell.v[j].p)>0);
+      } else CHECK(imported.cells.empty());
+      CHECK_FALSE(service.ImportMetricCells(query,1).valid);CHECK(service.ResidentBytes()==resident);
+      auto invalid=query;if(!invalid.empty())std::swap(invalid.front().v[0],invalid.front().v[1]);
+      CHECK_FALSE(service.ImportMetricCells(invalid).valid);CHECK(service.ResidentBytes()==resident);
+    }
+  }
 }

@@ -110,7 +110,7 @@ def main():
         if stages[0]['exit_code'] or stages[0].get('timeout') or 'No test cases matched' in out or out.count('All tests passed')!=ranks:
             (work/'stages.json').write_text(json.dumps(stages,indent=2)+'\n')
             raise RuntimeError('Test failure; original files retained in '+str(work))
-        if selection==SELECTION and len(re.findall(r'All tests passed \(\d+ assertions in 72 test cases\)',out))!=ranks:
+        if selection==SELECTION and len(re.findall(r'All tests passed \(\d+ assertions in 73 test cases\)',out))!=ranks:
             raise RuntimeError('Unexpected configured regression selection/count')
         if selection.startswith('MMG interface:') and '48 assertions in 2 test cases' not in out:
             raise RuntimeError('Incomplete MMG regression')

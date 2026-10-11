@@ -1,5 +1,56 @@
 # Current handoff — 2026-10-12
 
+## Narrow actual-query donor routing — qualified checkpoint, 2026-10-12
+
+Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated, branch
+codex/native-3d-transport-accounting, source changes based on2d3ac1e3a552a1b90a87dfa3595fc1b372783ceb.
+Goal1 ACTIVE; Goal2 not started. Known-query imports on sources above256donors
+now route actual centroid/closed-edge boxes separately and exact-test only the
+specified query. Sender's rounded centroid is transmitted in the point box;
+full-cell/unknown-query imports and all original-P1/BL/target/q/J/geometry/512
+contracts unchanged. Existing fixed-size Request uses a checked one-byte kind;
+no extra source index/collectives. Saturated admission covers7requests per cell.
+No2D/MMG/config change. Geometry-timer comment covers selection/seed/update.
+
+Actual full68-object/774-member build PASS; binarySHA256
+bb5a7664dda805daac6bbcc4b16e3da3ee3759f33475937beedd6a177c35955e.
+query_routing_mpi1_v1/mpi2_v1/mpi4_v1 PASS73cases per rank, including exhaustive
+384tet conforming closed-footprint reference, cube/rotatedthin, distributed/empty
+owners, remote query, P1/full-edge and atomic invalid/memory rejection. Independent
+12/24/48frames,6/12/24state pairs and6/12/24actualSU2CGNS round trips; serialMMG
+PASS48assertions/two cases. Fresh lifecycle six actual OFF/ON controls, n4N4M2
+three-event adaptation and persisted SU2N1M1/CGNSN4M2 restart checks PASS with
+fresh independent audits.31lightweight package checks and all actual counter/
+notification/nested phase audits PASS. All owned runners are TERMINAL.
+
+query_routing_n8_n1_m1_v1 stays FAIL at512, identical437accepted/75rejected,
+517valid cached cells/266pending directions. Its first accepted mesh/state/
+next-input matches baseline bytes and has a scoped cycle0 certificate/VTU.
+query_routing_n8_n1_m1_rounds1024_v1 PASS all three events,2489/457/2245tets,
+615second-event coarsening attempts and1002third-event attempts. Exactly18current
+frames/states/reference/input artifacts match the fully independently certified
+prior case; five actualSU2CGNS files and current phase/rank/work counters checked
+fresh.22physical/query-work fields match. This reuses the existing full geometry/
+metric/state certificate, not a new899s geometry run. New equivalence auditor's
+negative controls reject altered BDF data and a reversed actual SU2 tetrahedron.
+No relaxed threshold or target. Reference certificate's adversarial/math evidence
+is retained; current fresh corruption controls are separately recorded.
+
+One-CPU contended diagnostic: second failed coarsening donor phase67.845->37.963s;
+ADT candidates4545418->8472788, filtered1698110->2862395, same347287payloads,
+2572batches/121fallbacks/34040tracked calls. Tracked worker bytes130179440->141355136.
+One query per candidate replaces testing up to seven; request/candidate work and
+traffic grow. These are pilot diagnostics, not repeated speedup/scaling or MPI
+wire-byte claims. Current1024fixture113.328s vs previous165.837s also remains a
+single contended comparison. No local profiling campaign was launched.
+
+NEXT: publish checkpoint, prepare a fresh closed73-case SGE bundle and matched
+baseline/candidate repeated controls for donor CPU versus extra traffic, total
+remesh/return/rebuild/transfer, detailOFF/ON, M=N/M<N, memory/wait/API calibration
+and practical size/rank limits. Do not advance Goal2 before fullGoal1 performance
+and completion audit. Production512default remains the larger-case limit. No
+cluster job requested/launched tonight. See QUERY_ROUTING_VALIDATION.md.
+
 ## Larger1024-round diagnostic independently PASS — 2026-10-12
 
 Working repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated, branch

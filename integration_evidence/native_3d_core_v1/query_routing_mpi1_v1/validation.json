@@ -1,0 +1,181 @@
+{
+  "status": "PASS",
+  "reason": "",
+  "stages": [
+    {
+      "command": [
+        "uptime"
+      ],
+      "label": "host_load",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/query_routing_mpi1_v1",
+      "exit_code": 0,
+      "seconds": 0.006828735989984125
+    },
+    {
+      "command": [
+        "free",
+        "-m"
+      ],
+      "label": "host_memory",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/query_routing_mpi1_v1",
+      "exit_code": 0,
+      "seconds": 0.003154375997837633
+    },
+    {
+      "command": [
+        "ps",
+        "-eo",
+        "pid,ppid,ni,pcpu,comm",
+        "--sort=-pcpu"
+      ],
+      "label": "host_processes",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/query_routing_mpi1_v1",
+      "exit_code": 0,
+      "seconds": 0.01742328202817589
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "nice",
+        "-n",
+        "19",
+        "mpirun",
+        "--oversubscribe",
+        "--bind-to",
+        "none",
+        "-np",
+        "1",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+        "[NativeReference3D],[NativeMesh3D],[NativeDonorReuse3D],[NativeCollapseFilter3D],[NativeCoplanar3D],[NativeInsertion3D],[NativeAutomaticRepair3D],[NativeBudget3D],[NativeDefault3D],[NativeBridge2D],[NativeBridge3D]",
+        "--use-colour",
+        "no"
+      ],
+      "label": "case",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/query_routing_mpi1_v1",
+      "exit_code": 0,
+      "seconds": 2.685279490018729
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_geometry_bridge.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/query_routing_mpi1_v1",
+        "1",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/query_routing_mpi1_v1/case.stdout"
+      ],
+      "label": "independent_bridge",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/query_routing_mpi1_v1",
+      "exit_code": 0,
+      "seconds": 8.965715419966727
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "nice",
+        "-n",
+        "19",
+        "mpirun",
+        "--oversubscribe",
+        "--bind-to",
+        "none",
+        "-np",
+        "1",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+        "MMG interface: 2D round trip,MMG interface: 3D round trip",
+        "--use-colour",
+        "no"
+      ],
+      "label": "mmg_serial",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/query_routing_mpi1_v1",
+      "exit_code": 0,
+      "seconds": 0.6206672450061888
+    }
+  ],
+  "binary_sha256": "bb5a7664dda805daac6bbcc4b16e3da3ee3759f33475937beedd6a177c35955e",
+  "build_validation_sha256": "eb5b5ea141a4b97219a59e01ccc844071a45022131551c7d8753d1abc5e03edc",
+  "source_drift": [],
+  "object_drift": [],
+  "archive_drift": [],
+  "tool_drift": [],
+  "tools_sha256": {
+    "audit_geometry_bridge.py": "d8d5e8a18a0fce8f54f8407e9f0027dcea12d90bf64c5ab20c4dedb7194430e2",
+    "audit_lifecycle.py": "b4204e8aea4653ac46942e79e0dad68c7087945a5687a851fd5036b1bdfdfa2f",
+    "audit_coupled.py": "67a12c5c39c6c3e021473f49c1f14301f037d7883268b98d7afc9edc2b00f63b",
+    "audit_cavities.py": "26079385c071c3ad1b9c06ab3b862b4ff293367dc3c8d291acf0487089d062c5"
+  },
+  "package_tools_sha256": {
+    "run.py": "1242957d5e3b34905df6aeb0e06388866d97b5355a7fbcfb9d81dee8727183e5",
+    "mpi_profile.py": "11e46f3d01289c1d050221d5264cf00a62e4da29385705a4ca7bff003ee9651b",
+    "profile_summary.py": "d56de9a2a50451f98b624359a71423a9112e509f900928a787dbd8227f52e0af"
+  },
+  "scope": "Full configured68-object driver with dependency-correct coarsening notifications and full local-star exact facet/orientation filtering and bounded narrow actual-query donor routing; actual MPI1 selected73 cases per rank, originalP1/private-query/surface/complete-dependency/transaction/refusal controls, default accepted/rejected transport closure. Independent exact bridge geometry/markers/metric/current+BDF/SU2CGNS checks over the supported worker subsets. Uses newly configured query_routing_build_v1 binary/source/object/archive pins. User-authorized one-CPU contended correctness run with taskset/nice19/yield/thread1; MPI rank count is 1 but CPU allocation one. No instrumentation overhead/scaling claim, not larger n4/persisted-restart/repeated timing/scaling/fullGoal1.",
+  "artifact_sha256": {
+    "host_processes.stdout": "cc2e319a1321b0ef282ec16eaf0ffa487e763b09a4a63ce5fcaa9729a9c3f3c1",
+    "large.native_ref": "5cfc60da85cf5ba9f495ea2c6ea92566bf9f83505f164690775868040fade9c5",
+    "bridge_conservative_m1_s2.su2": "fc1c6cfa7d2fa02130d38cc069af043913e31364fe9534ee11f38cc8e0fbd813",
+    "mmg_serial.stdout": "e123dcfb8c3b03c12bf1e783c50f32354b94a4534cdb2e4f710f90c9444b3b52",
+    "bridge_barycentric_m1_s2_written_SU2_reload.json": "5b014a1bb506bd572e90de4bf581cce988d89889fe507db1f88a7c8dc5a6e681",
+    "bridge_conservative_m1_s0.su2": "fc1c6cfa7d2fa02130d38cc069af043913e31364fe9534ee11f38cc8e0fbd813",
+    "bridge_conservative_m1_s2.json": "18d59e8f9c2e82edc0f6fef2496397406466eb1875eee5acb484088e52dd3a28",
+    "bridge_barycentric_m1_s1_written_SU2_reload.json": "31254a9fc021724a5b54acac6fb8c2756c06b4e8631c4566073eee75d9a5b17a",
+    "bridge_barycentric_m1_s0.json": "18d59e8f9c2e82edc0f6fef2496397406466eb1875eee5acb484088e52dd3a28",
+    "bridge_barycentric_m1_s1_states.json": "7a0d5ac7cec1c9b2c0c2e721a8e520e7e9c5e5a185539253eaf45953eab2e866",
+    "host_load.stdout": "2bd45f84da96e87b3b18a8a0e5903269107df33d3dd7a7ab5e5e358fe9aa6ce3",
+    "transport_rows.json": "c54cece94cf861eae559cc0051ffa6ee6cf6cb671a500ec5df0cdc4bb36b2b6d",
+    "mmg_serial.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bridge_barycentric_m1_s0.su2": "fc1c6cfa7d2fa02130d38cc069af043913e31364fe9534ee11f38cc8e0fbd813",
+    "host_memory.stdout": "715f16f923556b35d68cab7ee4882de3df2679bf6dc8381c13259f09fa8cca15",
+    "default_native3d.su2.native_ref": "cd48010598c1c1e3617aa75767c8dff8a14236092fc5cc097be8e5de211e7806",
+    "bridge_barycentric_m1_s0_written_SU2_reload.su2": "fc1c6cfa7d2fa02130d38cc069af043913e31364fe9534ee11f38cc8e0fbd813",
+    "case.stdout": "b9754841cd839cedb0b0c8f8bca512922c7fb4ffdc5fb227aa0c6f95cd9f5d65",
+    "host_load.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bridge_barycentric_m1_s2_written_SU2_reload.su2": "fc1c6cfa7d2fa02130d38cc069af043913e31364fe9534ee11f38cc8e0fbd813",
+    "host_gate.json": "d553baffb9001e1e83307ef14b0c23aaf05729cef9e820d17366972dc7f80caf",
+    "bridge_barycentric_m1_s0_written_CGNS.cgns": "303ff7c4a61661e7ce0d5b9b747360ecc1797c537024d05122d10c3e8b014675",
+    "bridge_barycentric_m1_s1_written_CGNS_reload.json": "31254a9fc021724a5b54acac6fb8c2756c06b4e8631c4566073eee75d9a5b17a",
+    "bridge_barycentric_m1_s2_written_CGNS_reload.su2": "fc1c6cfa7d2fa02130d38cc069af043913e31364fe9534ee11f38cc8e0fbd813",
+    "bridge_barycentric_m1_s0_written_SU2_reload.json": "5b014a1bb506bd572e90de4bf581cce988d89889fe507db1f88a7c8dc5a6e681",
+    "case.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host_processes.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bridge_barycentric_m1_s2.su2": "fc1c6cfa7d2fa02130d38cc069af043913e31364fe9534ee11f38cc8e0fbd813",
+    "bridge_conservative_m1_s2_states.json": "a3ec0b17eea6ceb4e9a011e664cf01c46ef384183f961da658078c81719478a8",
+    "independent_bridge.stdout": "931eeef4014d5ba4529002e1395fa47789ebbfdab35fc69cb4338b047ef1d4f6",
+    "independent_audit.json": "fbcfaa0107b0779899cc6705251b77ee9b89c070781df67da70ebe67e2d89ef0",
+    "bridge_barycentric_m1_s0_written_SU2.su2": "d941c4718546230300aa2a2263a84329134009e20d9d73e6ca6bcbd82058b1cd",
+    "bridge_barycentric_m1_s2_states.json": "8a7a5aa3c8aaaf421439a0e2218242539fd3f11c63a545d6a03d3cf284f86bcd",
+    "bridge_barycentric_m1_s1_written_CGNS.cgns": "49308d9956905c89988e65deac07193ff6fea20fe33f43fa0c16b01d7034f07a",
+    "bridge_barycentric_m1_s1.su2": "af250e30df9f9df8215a7e6de760e4aff226ebf9015db28ed8bc056235629723",
+    "bridge_barycentric_m1_s0_written_CGNS_reload.su2": "fc1c6cfa7d2fa02130d38cc069af043913e31364fe9534ee11f38cc8e0fbd813",
+    "runner.py": "80690756e5168056247bfccc8782c84867c36c3a3625cd9d8639c7e372cae491",
+    "independent_bridge.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bridge_barycentric_m1_s0_written_CGNS_reload.json": "5b014a1bb506bd572e90de4bf581cce988d89889fe507db1f88a7c8dc5a6e681",
+    "bridge_barycentric_m1_s1_written_SU2.su2": "4a03ff46653f4a4317fda003df2767d96ea5881b708feb18ae6cbfc50e66641c",
+    "original.native_ref": "cd48010598c1c1e3617aa75767c8dff8a14236092fc5cc097be8e5de211e7806",
+    "bridge_barycentric_m1_s2_written_CGNS_reload.json": "5b014a1bb506bd572e90de4bf581cce988d89889fe507db1f88a7c8dc5a6e681",
+    "bridge_barycentric_m1_s1_written_SU2_reload.su2": "af250e30df9f9df8215a7e6de760e4aff226ebf9015db28ed8bc056235629723",
+    "bridge_conservative_m1_s1_states.json": "8872243b52ab0a3c380ed7b55b7ac79adffc86816f8e3c0affe8b7cde8530207",
+    "bridge_barycentric_m1_s2_written_SU2.su2": "d941c4718546230300aa2a2263a84329134009e20d9d73e6ca6bcbd82058b1cd",
+    "bridge_barycentric_m1_s1.json": "51997925908cfd4b0d36ea7c11c6077d49838b90fe24da7368a5a9f165501c74",
+    "large_reference_input.su2": "584a2163db9147b5ee843d2fedf7efe7237258ca580736ed55a202d9c11be271",
+    "default_native3d.su2": "036e5747fe0448e0ae7ca8843d7af21f05aa087d07afe62285dc15e0db122a26",
+    "bridge_conservative_m1_s1.json": "51997925908cfd4b0d36ea7c11c6077d49838b90fe24da7368a5a9f165501c74",
+    "bridge_barycentric_m1_s1_written_CGNS_reload.su2": "af250e30df9f9df8215a7e6de760e4aff226ebf9015db28ed8bc056235629723",
+    "bridge_barycentric_m1_s2_written_CGNS.cgns": "2391662076594f1f7319b3b098ec56d9f2c7fbafa9507ac6143c250c7b58d0d9",
+    "host_memory.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bridge_barycentric_m1_s0_states.json": "8a7a5aa3c8aaaf421439a0e2218242539fd3f11c63a545d6a03d3cf284f86bcd",
+    "bridge_conservative_m1_s1.su2": "af250e30df9f9df8215a7e6de760e4aff226ebf9015db28ed8bc056235629723",
+    "bridge_conservative_m1_s0_states.json": "f5320c50e0ac283e293d5c798f02e439528cddc299990d2902bc7579c2c88164",
+    "bridge_conservative_m1_s0.json": "18d59e8f9c2e82edc0f6fef2496397406466eb1875eee5acb484088e52dd3a28",
+    "bridge_barycentric_m1_s2.json": "18d59e8f9c2e82edc0f6fef2496397406466eb1875eee5acb484088e52dd3a28"
+  }
+}

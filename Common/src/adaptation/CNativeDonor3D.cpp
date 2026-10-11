@@ -39,10 +39,12 @@ int Server(const Authority& row, int size) {
 struct Request {
   DonorRegion region{};
   int caller = 0;
-  bool tetrahedral = false, metric_queries = false;
+  bool tetrahedral = false;
+  unsigned char query = 0;  // 0 full cell, 1 actual centroid point, 2..7 closed edge segments.
   Tetrahedron tetra{};
-  template <class S> void Fields(S& s) { s(region, caller, tetrahedral, metric_queries, tetra); }
+  template <class S> void Fields(S& s) { s(region, caller, tetrahedral, query, tetra); }
 };
+constexpr std::array<std::array<size_t, 2>, 6> QueryEdges{{{0,1},{0,2},{0,3},{1,2},{1,3},{2,3}}};
 DonorRegion Bounds(const Cell& cell) {
   const auto p = cell.v[0].p;
   DonorRegion result{p.x, p.y, p.z, p.x, p.y, p.z};
@@ -207,30 +209,44 @@ DonorPatch DonorImport::ImportRegions(const std::vector<DonorRegion>& regions, c
   if (count > MaximumCavityCells) failure.Set(1, 0, "Too many original donor import regions.");
   if (!Vote(failure, result.reason)) { ++stats.rejected; return result; }
   const auto baseline = transfer_memory::Add(caller_bytes, ResidentBytes(), cells ? transfer_memory::Bytes(*cells) : transfer_memory::Bytes(regions));
+  const auto request_count = transfer_memory::Mul(count, cells && filter_cells && metric_queries ? 7 : 1);
   const auto route_peak = transfer_memory::Add(baseline, ranks->QueryBytes(),
       transfer_memory::Mul(world.size, sizeof(std::vector<Request>)),
-      transfer_memory::GrowthBound(transfer_memory::Mul(count, world.size), sizeof(Request)));
+      transfer_memory::GrowthBound(transfer_memory::Mul(request_count, world.size), sizeof(Request)));
   if (!Admit(route_peak, ceiling, result.reason)) { ++stats.rejected; return result; }
   std::vector<std::vector<Request>> to;
   try {
     Timer routing(stats.routing_seconds, timings);
     to.resize(world.size);
     std::vector<int> owners;
-    for (size_t i = 0; i < count; ++i) {
-      const auto region = cells ? Bounds(cells->at(i)) : regions[i];
-      Request request; request.region = region; request.caller = world.rank;
-      if (cells) {
-        request.tetrahedral = filter_cells;
-        request.metric_queries = filter_cells && metric_queries;
-        for (size_t j = 0; j < 4; ++j) request.tetra[j] = cells->at(i).v[j].p;
-        const auto& t = request.tetra;
-        if (!(Orientation(t[0], t[1], t[2], t[3]) > 0)) throw std::invalid_argument("Nonpositive donor import cell.");
-      }
+    auto send = [&](const Request& request) {
+      const auto& region = request.region;
       for (size_t a = 0; a < 3; ++a)
         if (!(std::isfinite(region[a]) && std::isfinite(region[a + 3]) && region[a] <= region[a + 3]))
           throw std::invalid_argument("Invalid original donor import region.");
       ranks->RanksIntersecting(region.data(), region.data() + 3, owners);
       for (auto owner : owners) to[owner].push_back(request);
+    };
+    for (size_t i = 0; i < count; ++i) {
+      Request request; request.region = cells ? Bounds(cells->at(i)) : regions[i]; request.caller = world.rank;
+      if (cells) {
+        request.tetrahedral = filter_cells;
+        for (size_t j = 0; j < 4; ++j) request.tetra[j] = cells->at(i).v[j].p;
+        const auto& t = request.tetra;
+        if (!(Orientation(t[0], t[1], t[2], t[3]) > 0)) throw std::invalid_argument("Nonpositive donor import cell.");
+      }
+      if (cells && filter_cells && metric_queries) {
+        auto segment = [&](unsigned char query, Point a, Point b) {
+          request.query = query;
+          request.region = {std::min(a.x,b.x),std::min(a.y,b.y),std::min(a.z,b.z),
+                            std::max(a.x,b.x),std::max(a.y,b.y),std::max(a.z,b.z)};
+          send(request);
+        };
+        const auto center = Centroid(cells->at(i));
+        segment(1, center, center);
+        for (size_t edge = 0; edge < QueryEdges.size(); ++edge)
+          segment(edge + 2, request.tetra[QueryEdges[edge][0]], request.tetra[QueryEdges[edge][1]]);
+      } else send(request);
     }
   } catch (const std::exception& e) { failure.Set(2, 0, e.what()); }
   if (!Vote(failure, result.reason)) { ++stats.rejected; return result; }
@@ -256,6 +272,8 @@ DonorPatch DonorImport::ImportRegions(const std::vector<DonorRegion>& regions, c
     for (const auto& request : requests) {
       ++stats.owner_requests;
       if (request.caller < 0 || request.caller >= world.size) throw std::invalid_argument("Invalid donor request owner.");
+      if (request.query > 7 || (request.query && !request.tetrahedral))
+        throw std::invalid_argument("Invalid donor metric-query kind.");
       if (!index) continue;
       const auto& b = request.region;
       const su2double lo[3]{b[0], b[1], b[2]}, hi[3]{b[3], b[4], b[5]};
@@ -272,13 +290,11 @@ DonorPatch DonorImport::ImportRegions(const std::vector<DonorRegion>& regions, c
           const auto& v = donors.at(i).cell.v;
           const Tetrahedron donor{v[0].p, v[1].p, v[2].p, v[3].p};
           bool needed = true;
-          if (request.metric_queries) {
-            Cell query; for (size_t j = 0; j < 4; ++j) query.v[j].p = request.tetra[j];
-            const auto center = Centroid(query);
-            needed = IntersectsSegment(donor, center, center, &stats.filter_kernel);
-            for (size_t a = 0; a < 4 && !needed; ++a)
-              for (size_t b = a + 1; b < 4 && !needed; ++b)
-                needed = IntersectsSegment(donor, request.tetra[a], request.tetra[b], &stats.filter_kernel);
+          if (request.query) {
+            // The point box carries the sender's actual rounded centroid, not a recomputed approximation.
+            const Point a = request.query == 1 ? Point{b[0],b[1],b[2]} : request.tetra[QueryEdges[request.query - 2][0]];
+            const Point end = request.query == 1 ? a : request.tetra[QueryEdges[request.query - 2][1]];
+            needed = IntersectsSegment(donor, a, end, &stats.filter_kernel);
           } else needed = !(Outside(request.tetra, donor, &stats.filter_kernel) ||
                             Outside(donor, request.tetra, &stats.filter_kernel));
           if (!needed) { ++stats.filtered; continue; }

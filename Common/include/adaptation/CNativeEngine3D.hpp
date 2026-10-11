@@ -38,7 +38,7 @@ struct EngineStats {
   uint64_t collapse_orientation_checks = 0, collapse_orientation_filtered = 0, collapse_reactivated = 0;
   uint64_t changed_star_scans = 0, changed_vertices_sent = 0, changed_vertices_received = 0;
   double collapse_orientation_seconds = 0, change_notification_seconds = 0;  // Nested in selection/publication.
-  double collapse_geometry_seconds = 0;  // Nested in selection-cache seed/update, not metric queries.
+  double collapse_geometry_seconds = 0;  // Nested in selection, seed and update, not metric queries.
   double process_cpu_seconds = 0, reconstruction_cpu_seconds = 0, metric_cpu_seconds = 0, measurement_cpu_seconds = 0;
   // Nested query detail; never add to the exclusive engine phases below.
   double field_build_seconds = 0, field_query_seconds = 0, field_cache_seconds = 0, field_search_seconds = 0;

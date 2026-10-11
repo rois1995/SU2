@@ -1,0 +1,77 @@
+{
+  "status": "PASS",
+  "reason": "",
+  "stages": [
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "6",
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_query_routing_equivalence.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/query_routing_n8_n1_m1_v1",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/full_star_facet_n8_n1_m1_rounds1024_v1",
+        "--partial",
+        "--work-reference",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/full_star_facet_n8_n1_m1_v1"
+      ],
+      "label": "first_cycle_equivalence",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/query_routing_n8_n1_m1_v1",
+      "exit_code": 0,
+      "seconds": 0.31738637399394065
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "6",
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/query_routing_n8_n1_m1_v1/export_first_cycle.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/query_routing_n8_n1_m1_v1"
+      ],
+      "label": "first_cycle_export",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/query_routing_n8_n1_m1_v1",
+      "exit_code": 0,
+      "seconds": 0.1209782239748165
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "6",
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/query_routing_package_checks_v1/check_equivalence_corruption.py"
+      ],
+      "label": "certificate_corruption",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/query_routing_package_checks_v1",
+      "exit_code": 0,
+      "seconds": 0.27171393600292504
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "6",
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/query_routing_package_checks_v1/collect.py"
+      ],
+      "label": "accounting",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/query_routing_package_checks_v1",
+      "exit_code": 0,
+      "seconds": 0.2261758289532736
+    }
+  ],
+  "scope": "Sequential one-CPU first-event certificate/transfer equivalence, current VTU export, fresh negative controls and actual routing-counter accounting.512campaign stays FAIL;1024campaign is separately PASS."
+}
