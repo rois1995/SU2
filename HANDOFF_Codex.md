@@ -9,6 +9,8 @@ cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
 ## Native3D offline phase/rank analysis — 2026-10-11; checked, analysis only
 
+Published analysis/evidence checkpoint 3e55caee966eef795f60b317a24ba7d948a999a9 on origin/codex/native-3d-core; full remote SHA verified. No executable or run-recipe change.
+
 NativeIntegrated / codex/native-3d-core; predecessor ffeeac545762fb95b116fe47c797f3747e8c0d6f.
 The analyzer now retains lifecycle OFF/ON timings and wall/CPU stage rows, plus
 closed critical-rank phase breakdowns, active-worker CPU/work/query imbalance

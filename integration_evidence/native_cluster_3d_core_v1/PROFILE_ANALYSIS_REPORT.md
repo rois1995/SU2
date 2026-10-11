@@ -4,6 +4,8 @@ Repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
 Branch: codex/native-3d-core; predecessor ffeeac545762fb95b116fe47c797f3747e8c0d6f.
 Status: analysis-only checks PASS; Goal 1 remains ACTIVE.
 
+Published analysis/evidence checkpoint 3e55caee966eef795f60b317a24ba7d948a999a9 on origin/codex/native-3d-core; full remote SHA verified. No executable or run-recipe change.
+
 The previous cluster analyzer retained only outer wall/accepted-work samples for
 timing and limits, raw CSV detail, and a status entry for lifecycle campaigns.
 It therefore discarded lifecycle paired timings and required manual interpretation
