@@ -10,6 +10,8 @@ cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 ## Affine thin-domain checkpoint — 2026-10-11
 
 NativeIntegrated / codex/native-3d-core, predecessor58b6b40fb046f130be4eef1fa03c4b9104763f47.
+Implementation/evidence checkpoint `df5bcf48e758c9845ffea6bcf0dc7e17ab2dc355` pushed to
+origin/codex/native-3d-core; full remote SHA verified.
 THIN_REPORT.md and THIN_CHECKPOINT_VALIDATION.json qualify six actual default512
 three-event cases: zero-height-change control13files byte-identical to direction
 baseline; h=2^-10 on N1M1,N2M2,N4M2,N4M4 and h=2^-20 serial. Production archives/

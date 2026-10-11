@@ -2,6 +2,7 @@
 
 Repository: `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`.
 Branch: `codex/native-3d-core`; predecessor `58b6b40fb046f130be4eef1fa03c4b9104763f47`.
+Implementation/evidence checkpoint: `df5bcf48e758c9845ffea6bcf0dc7e17ab2dc355`, pushed and verified against the full remote branch SHA.
 
 Six qualified cases complete 18 actual native backend/driver refinement, coarsening and refinement events. Production archives and every thin archive member are identical to the pushed direction checkpoint. Only the manufactured fixture, runner and independent auditor changed. Full Goal 1 remains active.
 
