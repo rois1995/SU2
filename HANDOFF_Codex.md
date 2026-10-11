@@ -9,6 +9,8 @@ cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
 ## Native3D query accounting — 2026-10-11; built and serial checked
 
+Implementation/evidence checkpoint 542ba6375219cb84ddc4c7b8ab1bc02e42fe4a3b pushed to origin/codex/native-3d-core; full remote SHA verified. Serial checks pass; MPI and broader cluster qualification remain pending.
+
 NativeIntegrated / codex/native-3d-core, predecessor9fddd081a8435e83a7f069043608d2b1f68ac437.
 FIELD_ACCOUNTING_DRAFT_REPORT.md supersedes the initial uncompiled status below.
 reference_admission_build_v2 passed its measured host gate (idle27.33%,load1=6.76)

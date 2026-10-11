@@ -4,6 +4,8 @@ Repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
 Branch: codex/native-3d-core; predecessor9fddd081a8435e83a7f069043608d2b1f68ac437.
 Status: C++ BUILT and SERIAL_CHECKED; MPI2/4 and fixed-work envelope/restart qualification remain pending.
 
+Implementation/evidence checkpoint 542ba6375219cb84ddc4c7b8ab1bc02e42fe4a3b pushed to origin/codex/native-3d-core; full remote SHA verified. Serial checks pass; MPI and broader cluster qualification remain pending.
+
 The original FrozenField already counts true cache requests/hits/misses,
 invalid queries, query failures and FIFO evictions. EngineStats/export omitted
 misses and invalid/failure/eviction counts. Engine measurement and bridge sampling
@@ -77,3 +79,5 @@ a current on-cluster build/freeze and user launch; no cluster job was submitted.
 last validated production1fafe9e83c. Complete actual instrumentation overhead,
 privateCPU/wait/traffic/allocator calibration and larger practical-limit/scaling
 runs remain open. No new complete3DBL/curved/fullunsteady/PDE/affordability claim.
+
+Publication checks: source/docs pass Git whitespace checks. Two retained raw stdout files have trailing blank lines; these hash-pinned logs are preserved unchanged.
