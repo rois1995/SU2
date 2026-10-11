@@ -1,3 +1,32 @@
+## Oblique wedge checkpoint — 2026-10-11
+
+NativeIntegrated / codex/native-3d-core, predecessor8acadb1bf67bba237cf245acc4f2d7774cf3c65f.
+WEDGE_REPORT.md/WEDGE_CHECKPOINT_VALIDATION.json qualify four actual default512
+n2 triangular-prism three-event cases N1M1,N2M2,N4M2,N4M4, plus13 byte-identical
+box-control files. Input18points/24tets/32triangles, exact volume1/2 and oblique
+x+y=1; six finite marker patches, bottom junction x=.5. OriginalP1 rotated/
+spatial-direction sensor unchanged; physicalq/J/L guards.20/.05/1.8 unchanged.
+Wedge qmin.321433/Jmin.152513/Lmax1.793063, sensor/loadedtensor0,
+current/BDF2<=3.845e-16. Each audit rejects6 corruptions incl oblique vertex/name.
+Accepted tets N1 46/9/38,N2M2 46/9/36,N4M2 46/14/53,N4M4 46/14/46.
+Oblique triangles input8 ->16 ->4 ->10 (N1/N2), ->16 ->6 ->14 (N4);
+adapted boundary connectivity preserved exact facets and marker junctions.
+Actual SU2CGNS output/readback independently passes; fullsensor persistence open.
+
+wedge_regression_v1 complete68-object actual driver passes64native/2D+3Dbridge
+cases MPI1/2/4 and serialMMG2D/3D48assertions. All pins stable, production archives
+and thin members unchanged from thin checkpoint. Default seven-marker helpers
+also pass six retained thin/box SU2CGNS pairs and reject mismatched wedge markers.
+No production/2D/MMG edits. Wedge helper n4 supported but not qualified here.
+408closed phase rows/useful edit rates retained. One contended sample per changed
+trajectory; no speedup/scaling/private balance claim. Native requested bound8MiB,
+lifetimeRSS28.96MiB distinct, calibration incomplete. No ownedjob after regression.
+
+FullGoal1 ACTIVE: persistent manufactured restart/larger first-failure limits,
+complete traffic/wait/private CPU/memory calibration, overhead and closedSGE
+repeated/scaling packages remain. No 3DBL/curved/fullunsteady/CFD affordability
+claim or overnight clusterlaunch request. Foreignwork/AdapNoExt untouched.
+
 ## Affine thin-domain checkpoint — 2026-10-11
 
 NativeIntegrated / codex/native-3d-core, predecessor58b6b40fb046f130be4eef1fa03c4b9104763f47.

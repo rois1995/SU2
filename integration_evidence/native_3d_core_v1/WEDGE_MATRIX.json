@@ -1,0 +1,47 @@
+{
+  "base": "8acadb1bf67bba237cf245acc4f2d7774cf3c65f",
+  "domain": "Triangular prism x>=0,y>=0,x+y<=1,0<=z<=1,volume1/2; structured triangular base extruded with three sorted-ID tetrahedra per prism; dyadic n2. Oblique face and bottom x=.5 marker junction adaptable.",
+  "guards": {
+    "q": 0.2,
+    "J": 0.05,
+    "L": 1.8,
+    "rounds": 512,
+    "noise": 0
+  },
+  "target": "Unchanged direction1/aspect1.5/strength1+.125x frozen sensor-only P1 per event; scales4/1/4. No metric or geometry simplification.",
+  "cases": [
+    {
+      "folder": "wedge_control_box_n1_v1",
+      "wedge": false,
+      "ranks": 1,
+      "workers": 1,
+      "require": "13 byte-identical raw geometry/source/state/SU2CGNS nodal+frozen readback files to thin_control_h0_n1_v3"
+    },
+    {
+      "folder": "wedge_n2_n1_v1",
+      "wedge": true,
+      "ranks": 1,
+      "workers": 1
+    },
+    {
+      "folder": "wedge_n2_n2_m2_v1",
+      "wedge": true,
+      "ranks": 2,
+      "workers": 2
+    },
+    {
+      "folder": "wedge_n2_n4_m2_v1",
+      "wedge": true,
+      "ranks": 4,
+      "workers": 2
+    },
+    {
+      "folder": "wedge_n2_n4_m4_v1",
+      "wedge": true,
+      "ranks": 4,
+      "workers": 4
+    }
+  ],
+  "execution": "One nice19/j1/thread1/MPI<=4 job after authoritative host checks; retain and diagnose first rejection before expansion. No overnight cluster request.",
+  "acceptance": "Three actual default512 driver replacements, exact embedding/facet/marker/domain audits including oblique plane, physical q/J/L, originalP1/currentBDF2 and actualSU2CGNS nodal/frozen readback. Pinned actual archives and regression; closed exclusive/nested accounting. No physical solver, curved geometry, BL generation, repeated timing/scaling/fullGoal1 claim."
+}

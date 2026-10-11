@@ -1,0 +1,560 @@
+{
+  "status": "PASS",
+  "analyzer_sha256": "d71a71b4111659c9fa17f49e9f54600a004a62936b9c3e2e0a4315695c2b26b5",
+  "dependencies_sha256": {
+    "analyze_insertion.py": "da413800f19c4892717ef607a5868d473c61390fd8f0e427b4bed0e2edb2cd2c",
+    "analyze_donor_reuse.py": "30c5a374451da840c392f499d098fb6996d9205f92783fb3aef133e06382da67",
+    "audit_lifecycle.py": "eaa6e005ece099af2f40ae7857bef51f22a207f70331dcdc10936d23c574e820",
+    "audit_geometry_bridge.py": "d8d5e8a18a0fce8f54f8407e9f0027dcea12d90bf64c5ab20c4dedb7194430e2",
+    "audit_envelope.py": "2c20656ad2c7225ceeeec9bf674a338558cd6101f65d2ad16363a8662b89dfe0"
+  },
+  "matrix_sha256": "e52f13f7b770d879374b3822277f3d95b796586caeda95dbf7a64691dc821124",
+  "cases": [
+    {
+      "folder": "wedge_control_box_n1_v1",
+      "parameters": {
+        "folder": "integration_evidence/native_3d_core_v1/wedge_control_box_n1_v1",
+        "ranks": 1,
+        "binary_from": null,
+        "workers": 1,
+        "size": 2,
+        "anisotropy": 1,
+        "varying": 1,
+        "wedge": false,
+        "height_power": 0,
+        "direction": 1,
+        "diagnostic_rounds": 512,
+        "aligned_markers": true,
+        "replay_rounds": null,
+        "repeat": 0,
+        "detail": 1
+      },
+      "cells": [
+        86,
+        14,
+        85
+      ],
+      "surface_triangles": [
+        {
+          "x_minus": 8,
+          "x_plus": 8,
+          "y_minus": 8,
+          "y_plus": 8,
+          "z_minus_a": 4,
+          "z_minus_b": 4,
+          "z_plus": 8
+        },
+        {
+          "x_minus": 8,
+          "x_plus": 16,
+          "y_minus": 8,
+          "y_plus": 8,
+          "z_minus_a": 8,
+          "z_minus_b": 6,
+          "z_plus": 8
+        },
+        {
+          "x_minus": 3,
+          "x_plus": 3,
+          "y_minus": 3,
+          "y_plus": 3,
+          "z_minus_a": 3,
+          "z_minus_b": 2,
+          "z_plus": 3
+        },
+        {
+          "x_minus": 10,
+          "x_plus": 10,
+          "y_minus": 8,
+          "y_plus": 8,
+          "z_minus_a": 6,
+          "z_minus_b": 6,
+          "z_plus": 10
+        }
+      ],
+      "minimum_q": 0.3803975174341169,
+      "minimum_J": 0.15071701782306968,
+      "maximum_L": 1.7993801038078512,
+      "state_error": 3.8121801932001883e-16,
+      "tensor_error": 0.0,
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 0.49970222200000003,
+          "remesh_max_seconds": 0.47358315599999995,
+          "parent_max_over_mean": 1.0,
+          "accepted_edits": 55.0,
+          "accepted_edits_per_parent_second": 110.0655501988142,
+          "native_bound": 8388608.0,
+          "lifetime_rss": 29007872.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 0.5434268210000002,
+          "remesh_max_seconds": 0.5202694859999999,
+          "parent_max_over_mean": 1.0,
+          "accepted_edits": 24.0,
+          "accepted_edits_per_parent_second": 44.16418011138245,
+          "native_bound": 2629312.0,
+          "lifetime_rss": 30367744.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 0.33779563199999996,
+          "remesh_max_seconds": 0.3199931360000001,
+          "parent_max_over_mean": 1.0,
+          "accepted_edits": 56.0,
+          "accepted_edits_per_parent_second": 165.78071086484624,
+          "native_bound": 2713832.0,
+          "lifetime_rss": 30367744.0
+        }
+      ],
+      "validation_sha256": "7534d53387f9ddcd35f23af96c871162851b262c0d688ea483c2c30992933dca",
+      "audit_sha256": "2dd491096200d07e78458c5fa84f1b5f89ee67ccd158616171bf017999d1551f"
+    },
+    {
+      "folder": "wedge_n2_n1_v1",
+      "parameters": {
+        "folder": "integration_evidence/native_3d_core_v1/wedge_n2_n1_v1",
+        "ranks": 1,
+        "binary_from": "integration_evidence/native_3d_core_v1/wedge_control_box_n1_v1",
+        "workers": 1,
+        "size": 2,
+        "anisotropy": 1,
+        "varying": 1,
+        "wedge": true,
+        "height_power": 0,
+        "direction": 1,
+        "diagnostic_rounds": 512,
+        "aligned_markers": true,
+        "replay_rounds": null,
+        "repeat": 0,
+        "detail": 1
+      },
+      "cells": [
+        46,
+        9,
+        38
+      ],
+      "surface_triangles": [
+        {
+          "wedge_oblique": 8,
+          "x_minus": 8,
+          "y_minus": 8,
+          "z_minus_a": 3,
+          "z_minus_b": 1,
+          "z_plus": 4
+        },
+        {
+          "wedge_oblique": 16,
+          "x_minus": 8,
+          "y_minus": 8,
+          "z_minus_a": 3,
+          "z_minus_b": 1,
+          "z_plus": 4
+        },
+        {
+          "wedge_oblique": 4,
+          "x_minus": 2,
+          "y_minus": 4,
+          "z_minus_a": 2,
+          "z_minus_b": 1,
+          "z_plus": 3
+        },
+        {
+          "wedge_oblique": 10,
+          "x_minus": 8,
+          "y_minus": 8,
+          "z_minus_a": 5,
+          "z_minus_b": 1,
+          "z_plus": 4
+        }
+      ],
+      "minimum_q": 0.4334807410650636,
+      "minimum_J": 0.20342422085754785,
+      "maximum_L": 1.7930625852913402,
+      "state_error": 3.844148161277339e-16,
+      "tensor_error": 0.0,
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 0.14136384100000002,
+          "remesh_max_seconds": 0.124660469,
+          "parent_max_over_mean": 1.0,
+          "accepted_edits": 14.0,
+          "accepted_edits_per_parent_second": 99.03522641267223,
+          "native_bound": 8388608.0,
+          "lifetime_rss": 28274688.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 0.222507186,
+          "remesh_max_seconds": 0.20912854700000003,
+          "parent_max_over_mean": 1.0,
+          "accepted_edits": 14.0,
+          "accepted_edits_per_parent_second": 62.919316232780005,
+          "native_bound": 2403312.0,
+          "lifetime_rss": 29396992.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 0.16231749299999998,
+          "remesh_max_seconds": 0.15292001,
+          "parent_max_over_mean": 1.0,
+          "accepted_edits": 29.0,
+          "accepted_edits_per_parent_second": 178.66219754884955,
+          "native_bound": 2410916.0,
+          "lifetime_rss": 29503488.0
+        }
+      ],
+      "validation_sha256": "cc4220d1355e6492945d4d23e6e16fb30311f516afadfbafb5f675c391965e7e",
+      "audit_sha256": "ffa0cbc491835cde0bc714d466246fdfe2dc6c2366973d4a8a0ae3f81e9ccf2e"
+    },
+    {
+      "folder": "wedge_n2_n2_m2_v1",
+      "parameters": {
+        "folder": "integration_evidence/native_3d_core_v1/wedge_n2_n2_m2_v1",
+        "ranks": 2,
+        "binary_from": "integration_evidence/native_3d_core_v1/wedge_control_box_n1_v1",
+        "workers": 2,
+        "size": 2,
+        "anisotropy": 1,
+        "varying": 1,
+        "wedge": true,
+        "height_power": 0,
+        "direction": 1,
+        "diagnostic_rounds": 512,
+        "aligned_markers": true,
+        "replay_rounds": null,
+        "repeat": 0,
+        "detail": 1
+      },
+      "cells": [
+        46,
+        9,
+        36
+      ],
+      "surface_triangles": [
+        {
+          "wedge_oblique": 8,
+          "x_minus": 8,
+          "y_minus": 8,
+          "z_minus_a": 3,
+          "z_minus_b": 1,
+          "z_plus": 4
+        },
+        {
+          "wedge_oblique": 16,
+          "x_minus": 8,
+          "y_minus": 8,
+          "z_minus_a": 3,
+          "z_minus_b": 1,
+          "z_plus": 4
+        },
+        {
+          "wedge_oblique": 4,
+          "x_minus": 3,
+          "y_minus": 3,
+          "z_minus_a": 2,
+          "z_minus_b": 1,
+          "z_plus": 3
+        },
+        {
+          "wedge_oblique": 10,
+          "x_minus": 10,
+          "y_minus": 8,
+          "z_minus_a": 3,
+          "z_minus_b": 1,
+          "z_plus": 4
+        }
+      ],
+      "minimum_q": 0.4632912734032819,
+      "minimum_J": 0.2526826043051684,
+      "maximum_L": 1.7930625852913402,
+      "state_error": 3.844148161277339e-16,
+      "tensor_error": 0.0,
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 0.154362224,
+          "remesh_max_seconds": 0.139865772,
+          "parent_max_over_mean": 1.0008434299102638,
+          "accepted_edits": 14.0,
+          "accepted_edits_per_parent_second": 90.6957650467643,
+          "native_bound": 8388608.0,
+          "lifetime_rss": 28196864.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 0.25828323,
+          "remesh_max_seconds": 0.245001786,
+          "parent_max_over_mean": 1.0000141397164586,
+          "accepted_edits": 14.0,
+          "accepted_edits_per_parent_second": 54.20406117733622,
+          "native_bound": 2288324.0,
+          "lifetime_rss": 29937664.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 0.17591613600000006,
+          "remesh_max_seconds": 0.16135314599999995,
+          "parent_max_over_mean": 1.0000905513426115,
+          "accepted_edits": 31.0,
+          "accepted_edits_per_parent_second": 176.22033262485934,
+          "native_bound": 2302564.0,
+          "lifetime_rss": 30027776.0
+        }
+      ],
+      "validation_sha256": "06c4100e623c1a13f948688ca78699ea9eeb0abaab5c770a69de5d1fa59f6afa",
+      "audit_sha256": "7e30bbafd71f20c41db51ee062c4b9bc67e4a4cc86d1ea7907dc3322c8965e43"
+    },
+    {
+      "folder": "wedge_n2_n4_m2_v1",
+      "parameters": {
+        "folder": "integration_evidence/native_3d_core_v1/wedge_n2_n4_m2_v1",
+        "ranks": 4,
+        "binary_from": "integration_evidence/native_3d_core_v1/wedge_control_box_n1_v1",
+        "workers": 2,
+        "size": 2,
+        "anisotropy": 1,
+        "varying": 1,
+        "wedge": true,
+        "height_power": 0,
+        "direction": 1,
+        "diagnostic_rounds": 512,
+        "aligned_markers": true,
+        "replay_rounds": null,
+        "repeat": 0,
+        "detail": 1
+      },
+      "cells": [
+        46,
+        14,
+        53
+      ],
+      "surface_triangles": [
+        {
+          "wedge_oblique": 8,
+          "x_minus": 8,
+          "y_minus": 8,
+          "z_minus_a": 3,
+          "z_minus_b": 1,
+          "z_plus": 4
+        },
+        {
+          "wedge_oblique": 16,
+          "x_minus": 8,
+          "y_minus": 8,
+          "z_minus_a": 3,
+          "z_minus_b": 1,
+          "z_plus": 4
+        },
+        {
+          "wedge_oblique": 6,
+          "x_minus": 4,
+          "y_minus": 3,
+          "z_minus_a": 3,
+          "z_minus_b": 1,
+          "z_plus": 3
+        },
+        {
+          "wedge_oblique": 14,
+          "x_minus": 10,
+          "y_minus": 8,
+          "z_minus_a": 3,
+          "z_minus_b": 1,
+          "z_plus": 6
+        }
+      ],
+      "minimum_q": 0.32143343610597647,
+      "minimum_J": 0.1525128859027149,
+      "maximum_L": 1.7930625852913402,
+      "state_error": 3.844148161277339e-16,
+      "tensor_error": 0.0,
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 0.227830123,
+          "remesh_max_seconds": 0.17000331,
+          "parent_max_over_mean": 1.000324404945963,
+          "accepted_edits": 14.0,
+          "accepted_edits_per_parent_second": 61.44929307701774,
+          "native_bound": 8388608.0,
+          "lifetime_rss": 28278784.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 0.28320222400000006,
+          "remesh_max_seconds": 0.2520277,
+          "parent_max_over_mean": 1.0002516194070605,
+          "accepted_edits": 12.0,
+          "accepted_edits_per_parent_second": 42.372548599759575,
+          "native_bound": 2283568.0,
+          "lifetime_rss": 30105600.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 0.17480467300000002,
+          "remesh_max_seconds": 0.153370385,
+          "parent_max_over_mean": 1.0003407190726126,
+          "accepted_edits": 26.0,
+          "accepted_edits_per_parent_second": 148.73744250532707,
+          "native_bound": 2326216.0,
+          "lifetime_rss": 30322688.0
+        }
+      ],
+      "validation_sha256": "839af1121eddccf4220e1b097be345419ca5cebf69ebc6ccdba3e3f487685979",
+      "audit_sha256": "86906d43fe92c7427eb9b0aa3cade43132be602101c55849a1dd6216ea1a5541"
+    },
+    {
+      "folder": "wedge_n2_n4_m4_v1",
+      "parameters": {
+        "folder": "integration_evidence/native_3d_core_v1/wedge_n2_n4_m4_v1",
+        "ranks": 4,
+        "binary_from": "integration_evidence/native_3d_core_v1/wedge_control_box_n1_v1",
+        "workers": 4,
+        "size": 2,
+        "anisotropy": 1,
+        "varying": 1,
+        "wedge": true,
+        "height_power": 0,
+        "direction": 1,
+        "diagnostic_rounds": 512,
+        "aligned_markers": true,
+        "replay_rounds": null,
+        "repeat": 0,
+        "detail": 1
+      },
+      "cells": [
+        46,
+        14,
+        46
+      ],
+      "surface_triangles": [
+        {
+          "wedge_oblique": 8,
+          "x_minus": 8,
+          "y_minus": 8,
+          "z_minus_a": 3,
+          "z_minus_b": 1,
+          "z_plus": 4
+        },
+        {
+          "wedge_oblique": 16,
+          "x_minus": 8,
+          "y_minus": 8,
+          "z_minus_a": 3,
+          "z_minus_b": 1,
+          "z_plus": 4
+        },
+        {
+          "wedge_oblique": 6,
+          "x_minus": 4,
+          "y_minus": 3,
+          "z_minus_a": 3,
+          "z_minus_b": 1,
+          "z_plus": 3
+        },
+        {
+          "wedge_oblique": 14,
+          "x_minus": 10,
+          "y_minus": 8,
+          "z_minus_a": 3,
+          "z_minus_b": 1,
+          "z_plus": 6
+        }
+      ],
+      "minimum_q": 0.32143343610597647,
+      "minimum_J": 0.1525128859027149,
+      "maximum_L": 1.7930625852913402,
+      "state_error": 3.844148161277339e-16,
+      "tensor_error": 0.0,
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 0.140997802,
+          "remesh_max_seconds": 0.129289945,
+          "parent_max_over_mean": 1.0000543495455836,
+          "accepted_edits": 14.0,
+          "accepted_edits_per_parent_second": 99.29232797543894,
+          "native_bound": 8388608.0,
+          "lifetime_rss": 28594176.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 0.192050413,
+          "remesh_max_seconds": 0.18175446400000003,
+          "parent_max_over_mean": 1.000354587304915,
+          "accepted_edits": 12.0,
+          "accepted_edits_per_parent_second": 62.48359382596069,
+          "native_bound": 2229184.0,
+          "lifetime_rss": 29958144.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 0.24710884200000005,
+          "remesh_max_seconds": 0.22209895599999996,
+          "parent_max_over_mean": 1.000116645408456,
+          "accepted_edits": 29.0,
+          "accepted_edits_per_parent_second": 117.35719274666826,
+          "native_bound": 2264884.0,
+          "lifetime_rss": 29958144.0
+        }
+      ],
+      "validation_sha256": "2757ace3d1ebf2483381f3018d0a22e625bea3da5729916a14f1a9e649904420",
+      "audit_sha256": "84dbcc28ae67e78186eebf8ebc7d8184f97c7cce236ce742cf6b36faaf49e4df"
+    }
+  ],
+  "accounting_rows": 408,
+  "csv_sha256": "eaece26f64a2759ff9ed289df1c991d10c04088f2e70b7f05d8464a6ee535c00",
+  "regression_validation_sha256": "6d5e699b1b8a855c4c95d341e24ff901b0926e73e982580ce8236f4104ffc74a",
+  "unchanged_control_files": {
+    "envelope_s0_initial.json": "b00d582852136bfe4aa00136b7ce75bb5c99ea051e2adc506fa155b425008ac2",
+    "envelope_s0.json": "9f8895df3a29a82c6d437a1e38bddd9a4a34a93876032eb6cc8b8b138e6eb1a3",
+    "envelope_s1_initial.json": "48e576605b63a87faf585b08f7fee28b07a162360f14b660ebe13403f319d3e6",
+    "envelope_s1.json": "708fab7fee17fdc579e077f6e76b6ff1b7239b65dbe1d8a76a19c1339d681522",
+    "envelope_s2_initial.json": "e2111db7fbda8cb5653f1f4055d66a772ed935ea09fc8486528dfe6ad85e4aff",
+    "envelope_s2.json": "b4119720501c56749c8b56e5d4e0d2cc8bdee4e6708f7f4114f2d813d9f669ce",
+    "envelope_s2_written_SU2_reload.json": "29d6dd1a81fde8768d9a5842fba13165966720724ef2d780db33de48b9119036",
+    "envelope_s2_written_CGNS_reload.json": "29d6dd1a81fde8768d9a5842fba13165966720724ef2d780db33de48b9119036",
+    "envelope_s0_states.json": "90e9ce0ecc7aa2130a597b1867a29a8f14f0d82cd4bf12fad25fb2f0491bab05",
+    "envelope_s1_states.json": "bd12e418b7598ae4bdd725feacaecd46bc6581103dba44456915295490d669bd",
+    "envelope_s2_states.json": "bcf2b5a3566e76058525b744db7be745f4db9601ac3cb6a15be3f6563f86a3f7",
+    "envelope_s2_written_SU2_reload_target.json": "b4119720501c56749c8b56e5d4e0d2cc8bdee4e6708f7f4114f2d813d9f669ce",
+    "envelope_s2_written_CGNS_reload_target.json": "b4119720501c56749c8b56e5d4e0d2cc8bdee4e6708f7f4114f2d813d9f669ce"
+  },
+  "legacy_default_signature_checks": [
+    {
+      "folder": "thin_control_h0_n1_v3",
+      "su2_sha256": "f98d55a7cc8731098828b9191565706caa788a63ea195a57721fab34b2d96f0d",
+      "cgns_sha256": "96f26048b8fea5b0a8921475294bb31685341538d8e365b2632312164c0a3858"
+    },
+    {
+      "folder": "thin_h10_n1_v1",
+      "su2_sha256": "8ac044674a713154612d3e9623eab6a6ccc2561125d6fdde7344bc910dff8449",
+      "cgns_sha256": "49dbcc8aeabb4a3662b5424e6842294e42e7c13da81b462310003255b562294f"
+    },
+    {
+      "folder": "thin_h10_n2_m2_v1",
+      "su2_sha256": "ba4fd0d5b0c944c3ebfc90d347c8207f34bee24e66c4719f293cd6b41c54189b",
+      "cgns_sha256": "fcfd37e260db5163f7360d1fb52c117f8a92934f3531af2e783700e57d84536e"
+    },
+    {
+      "folder": "thin_h10_n4_m2_v1",
+      "su2_sha256": "b27d0253908d2e9c86e971b06af45dd02235f0b965e3b86fdab35d6535514eb2",
+      "cgns_sha256": "2d6ed147275fcede0efa623f6234f714f11e06d742757ff8e5b78b1f8ad4e44a"
+    },
+    {
+      "folder": "thin_h10_n4_m4_v1",
+      "su2_sha256": "849eead7fcf5f36afa37b4977527a1dfec16fa5997d2a55eb5fdbf41e34f764e",
+      "cgns_sha256": "ce40db6db33022edc784612aa3f0b666b3f666968def861434692827f21a2366"
+    },
+    {
+      "folder": "thin_h20_n1_v1",
+      "su2_sha256": "8cead7ba212a6434cb70a1d0e9ed97bed528cf8c11132c68497d647c0c255211",
+      "cgns_sha256": "90132a8610c486c248405bd7e4274a73b3ad4790f83a2a50b629a5b0e0f9aa11"
+    }
+  ],
+  "production_unchanged_from_thin": true,
+  "scope": "Four oblique triangular-prism lifecycles N1M1,N2M2,N4M2,N4M4 plus13 byte-identical box-control files. Exact domain/oblique plane/marker/positive volume/conformity and physical q/J/L, originalP1/currentBDF2 and SU2CGNS nodal/frozen target readback. Adaptable oblique triangles and two-sided marker junction; default512. Actual configured68-object regression native/bridges MPI1/2/4 and serialMMG. Legacy default seven-marker signature validation retained on six published thin/box outputs. Closed accounting and useful rates from single contended changed-work pilots only; no physicalCFD, restart, 3DBL, larger-domain, repeated scaling or fullGoal1 claim."
+}

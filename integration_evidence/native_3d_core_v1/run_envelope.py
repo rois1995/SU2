@@ -7,6 +7,7 @@ parser=argparse.ArgumentParser(description='One sequential manufactured native3D
 parser.add_argument('folder');parser.add_argument('--ranks',type=int,choices=(1,2,4),default=1)
 parser.add_argument('--binary-from',type=Path);parser.add_argument('--workers',type=int,default=1);parser.add_argument('--size',type=int,choices=(1,2,3,4),default=2)
 parser.add_argument('--anisotropy',type=int,choices=(0,1,2),default=1);parser.add_argument('--varying',type=int,choices=(0,1),default=0)
+parser.add_argument('--wedge',action='store_true',help='Test-only triangular-prism domain x+y<=1 with adaptable oblique face')
 parser.add_argument('--height-power',type=int,choices=(0,10,20),default=0,help='Test-only slab height2^-power with covariance-preserving tensor pullback')
 parser.add_argument('--direction',type=int,choices=(0,1),default=0,help='Test-only spatially rotating principal direction; default preserves original sensor')
 parser.add_argument('--diagnostic-rounds',type=int,choices=(512,1024),default=512,help='Test-only explicit adapter budget; production factory/default remain unchanged')
@@ -14,7 +15,8 @@ parser.add_argument('--aligned-markers',action='store_true',help='Test-only alig
 parser.add_argument('--replay-rounds',type=int,choices=(512,1024));parser.add_argument('--repeat',type=int,choices=(0,1,2),default=0);parser.add_argument('--detail',type=int,choices=(0,1),default=1)
 options=parser.parse_args();assert 1<=options.workers<=options.ranks
 assert not options.aligned_markers or options.size>=2
-if options.replay_rounds:assert not options.aligned_markers and options.diagnostic_rounds==512 and options.direction==0 and options.height_power==0
+assert not options.wedge or (options.aligned_markers and options.size in (2,4))
+if options.replay_rounds:assert not options.aligned_markers and options.diagnostic_rounds==512 and options.direction==0 and options.height_power==0 and not options.wedge
 if options.replay_rounds:assert (options.ranks,options.workers,options.size,options.anisotropy,options.varying,options.detail)==(1,1,3,1,1,1)
 folder=Path(options.folder).resolve();build=root/'integration_evidence/build-integrated-v2'
 print('Case working and retained folder:',folder,flush=True);folder.mkdir(exist_ok=False)
@@ -33,6 +35,7 @@ targets=['UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeImport3D_tests.cpp.o
 env=dict(os.environ,PATH='/tmp/native-build-tools:'+os.environ['PATH'],OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1',OMPI_MCA_mpi_yield_when_idle='1',OMPI_MCA_hwloc_base_binding_policy='none',PYTHONDONTWRITEBYTECODE='1')
 env['SU2_NATIVE3D_ENVELOPE_ROUNDS']=str(options.diagnostic_rounds)
 env['SU2_NATIVE3D_ENVELOPE_ALIGNED']=str(int(options.aligned_markers))
+env['SU2_NATIVE3D_ENVELOPE_WEDGE']=str(int(options.wedge))
 env.update({f'SU2_NATIVE3D_ENVELOPE_{key.upper()}':str(getattr(options,key)) for key in ('size','anisotropy','varying','workers','repeat','detail','direction','height_power')})
 (folder/'parameters.json').write_text(json.dumps(vars(options),indent=2,default=str)+'\n')
 if options.replay_rounds:

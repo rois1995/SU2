@@ -8,15 +8,15 @@ from audit_cavities import determinant
 
 MARKERS={'x_minus','x_plus','y_minus','y_plus','z_plus','z_minus_a','z_minus_b'}
 
-def signature(data):
+def signature(data,markers=MARKERS):
     points={n[0]:tuple(n[1:]) for n in data['nodes']}
-    names=data['marker_names'];assert set(names)==MARKERS and len(names)==len(MARKERS)
+    names=data['marker_names'];assert set(names)==markers and len(names)==len(markers)
     facets={f['id']:names[f['marker']] for f in data['facets']}
     cells=Counter(tuple(sorted(points[i] for i in c['nodes'])) for c in data['cells'])
     boundary=Counter((facets[f['facet']],tuple(sorted(points[i] for i in f['nodes']))) for f in data['surface'])
     return cells,boundary
 
-def su2_signature(path):
+def su2_signature(path,markers=MARKERS):
     rows=[s.strip() for s in path.read_text().splitlines() if s.strip() and not s.lstrip().startswith(('%','#'))]
     def header(key,start=0):
         i=next(i for i in range(start,len(rows)) if rows[i].split('=',1)[0].strip()==key)
@@ -34,7 +34,7 @@ def su2_signature(path):
     i,count=header('NMARK');boundary=Counter()
     for _ in range(int(count)):
         i,name=header('MARKER_TAG',i+1);i,n=header('MARKER_ELEMS',i+1)
-        assert name in MARKERS
+        assert name in markers
         for row in rows[i+1:i+1+int(n)]:
             r=list(map(int,row.split()));assert r[0]==5
             boundary[name,tuple(sorted(points[k] for k in r[1:4]))]+=1
@@ -42,7 +42,7 @@ def su2_signature(path):
     assert all(determinant([tuple(F(x) for x in points[i]) for i in c])>0 for c in cells),'Nonpositive actual SU2 tetrahedron'
     return Counter(tuple(sorted(points[i] for i in c)) for c in cells),boundary
 
-def cgns_signature(path):
+def cgns_signature(path,markers=MARKERS):
     import h5py
     with h5py.File(path,'r') as file:
         def labelled(parent,label):
@@ -61,7 +61,7 @@ def cgns_signature(path):
             ids=set(range(first,last+1));assert not ids&seen;seen|=ids
             width=4 if kind==10 else 3;rows=section['ElementConnectivity'][' data'][...].reshape(-1).tolist();assert len(rows)==width*len(ids)
             name=section.name.rsplit('/',1)[-1]
-            if kind==5:assert name in MARKERS;ranges[name]=(first,last)
+            if kind==5:assert name in markers;ranges[name]=(first,last)
             for i in range(0,len(rows),width):
                 nodes=rows[i:i+width];assert len(set(nodes))==width and all(n in points for n in nodes)
                 if kind==10:
@@ -70,7 +70,7 @@ def cgns_signature(path):
                 else:boundary[name,tuple(sorted(points[n] for n in nodes))]+=1
         assert sum(cells.values())==volume_count
         skins=labelled(zone,'ZoneBC_t');assert len(skins)==1
-        bcs=labelled(skins[0],'BC_t');assert {b.name.rsplit('/',1)[-1] for b in bcs}==set(ranges)==MARKERS
+        bcs=labelled(skins[0],'BC_t');assert {b.name.rsplit('/',1)[-1] for b in bcs}==set(ranges)==markers
         for bc in bcs:
             name=bc.name.rsplit('/',1)[-1];assert tuple(map(int,bc['PointRange'][' data'][...].reshape(-1)))==ranges[name]
         def closed(name,obj):

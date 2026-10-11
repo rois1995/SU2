@@ -26,6 +26,57 @@ Tensor Sensor(const su2double* p,double scale) {
   return {scale+.125*SU2_TYPE::GetValue(p[0]),.03125*SU2_TYPE::GetValue(p[0]),0,
           scale+.125*SU2_TYPE::GetValue(p[1]),0,scale+.125*SU2_TYPE::GetValue(p[2])};
 }
+CSimplexMesh WedgeMesh(int n) {
+  REQUIRE((n==2 || n==4));
+  CSimplexMesh mesh;mesh.nDim=3;
+  std::map<std::array<int,3>,unsigned long> ids;
+  for(int k=0;k<=n;++k)for(int j=0;j<=n;++j)for(int i=0;i+j<=n;++i) {
+    ids[{i,j,k}]=mesh.GetnPoint();
+    mesh.coord.insert(mesh.coord.end(),{double(i)/n,double(j)/n,double(k)/n});
+  }
+  const unsigned long stride=(n+1)*(n+2)/2;
+  std::vector<std::array<unsigned long,3>> base;
+  for(int j=0;j<n;++j)for(int i=0;i+j<n;++i) {
+    base.push_back({ids.at({i,j,0}),ids.at({i+1,j,0}),ids.at({i,j+1,0})});
+    if(i+j+1<n)base.push_back({ids.at({i+1,j,0}),ids.at({i+1,j+1,0}),ids.at({i,j+1,0})});
+  }
+  auto point=[&](unsigned long id){return Point{mesh.coord[3*id],mesh.coord[3*id+1],mesh.coord[3*id+2]};};
+  std::map<std::array<unsigned long,3>,unsigned> faces;
+  for(int k=0;k<n;++k)for(auto triangle:base) {
+    // Sorted base IDs choose the same diagonal on both sides of every shared prism face.
+    std::sort(triangle.begin(),triangle.end());
+    const auto a=triangle[0]+k*stride,b=triangle[1]+k*stride,c=triangle[2]+k*stride;
+    const std::array<std::array<unsigned long,4>,3> tets{{{a,b,c,c+stride},{a,b,b+stride,c+stride},{a,b+stride,a+stride,c+stride}}};
+    for(auto tet:tets) {
+      const auto volume=Orientation(point(tet[0]),point(tet[1]),point(tet[2]),point(tet[3]));
+      REQUIRE(volume!=0);if(volume<0)std::swap(tet[0],tet[1]);
+      mesh.elem.insert(mesh.elem.end(),tet.begin(),tet.end());
+      for(size_t omit=0;omit<4;++omit) {
+        std::array<unsigned long,3> face;size_t at=0;
+        for(size_t v=0;v<4;++v)if(v!=omit)face[at++]=tet[v];
+        std::sort(face.begin(),face.end());++faces[face];
+      }
+    }
+  }
+  CHECK(mesh.GetnElem()==3*n*n*n);mesh.elemRef.assign(mesh.GetnElem(),0);
+  std::map<std::string,std::vector<unsigned long>> boundary;
+  for(const auto& row:faces) {
+    REQUIRE((row.second==1 || row.second==2));if(row.second!=1)continue;
+    auto on=[&](auto predicate){return std::all_of(row.first.begin(),row.first.end(),[&](unsigned long id){return predicate(point(id));});};
+    std::string marker;
+    if(on([](Point p){return p.z==0;})) {
+      marker=on([](Point p){return p.x<=.5;})?"z_minus_a":"z_minus_b";
+      if(marker=="z_minus_b")REQUIRE(on([](Point p){return p.x>=.5;}));
+    } else if(on([](Point p){return p.z==1;}))marker="z_plus";
+    else if(on([](Point p){return p.x==0;}))marker="x_minus";
+    else if(on([](Point p){return p.y==0;}))marker="y_minus";
+    else {REQUIRE(on([](Point p){return p.x+p.y==1;}));marker="wedge_oblique";}
+    auto& nodes=boundary[marker];nodes.insert(nodes.end(),row.first.begin(),row.first.end());
+  }
+  REQUIRE(boundary.size()==6);
+  for(auto& row:boundary){CSimplexMesh::Marker marker;marker.name=row.first;marker.elem=std::move(row.second);mesh.markers.push_back(std::move(marker));}
+  return mesh;
+}
 std::vector<char> State(const CGeometry& geometry,const CSolver& solver) {
   std::vector<char> bytes;RecordStream encode(bytes);const auto* n=solver.GetNodes();
   for(unsigned long p=0;p<geometry.GetnPoint();++p)for(unsigned short k=0;k<solver.GetnVar();++k) {
@@ -397,6 +448,7 @@ TEST_CASE("Native3D manufactured anisotropic driver envelope", "[NativeEnvelope3
   const int varying=parameter("SU2_NATIVE3D_ENVELOPE_VARYING",0), workers=parameter("SU2_NATIVE3D_ENVELOPE_WORKERS",1);
   const int direction=parameter("SU2_NATIVE3D_ENVELOPE_DIRECTION",0);
   const int height_power=parameter("SU2_NATIVE3D_ENVELOPE_HEIGHT_POWER",0);
+  const int wedge=parameter("SU2_NATIVE3D_ENVELOPE_WEDGE",0);
   const int repeat=parameter("SU2_NATIVE3D_ENVELOPE_REPEAT",0), detail=parameter("SU2_NATIVE3D_ENVELOPE_DETAIL",1);
   const bool aligned=parameter("SU2_NATIVE3D_ENVELOPE_ALIGNED",0)!=0;
   const int rounds=parameter("SU2_NATIVE3D_ENVELOPE_ROUNDS",512);
@@ -405,6 +457,7 @@ TEST_CASE("Native3D manufactured anisotropic driver envelope", "[NativeEnvelope3
   REQUIRE(n>=1);REQUIRE(n<=4);REQUIRE(mode>=0);REQUIRE(mode<=2);REQUIRE(varying>=0);REQUIRE(varying<=1);
   REQUIRE(direction>=0);REQUIRE(direction<=1);
   REQUIRE((height_power==0 || height_power==10 || height_power==20));
+  REQUIRE((wedge==0 || wedge==1));REQUIRE((!wedge || (aligned && (n==2 || n==4))));
   REQUIRE(workers>=1);REQUIRE(workers<=world.size);REQUIRE(repeat>=0);REQUIRE(repeat<3);REQUIRE(detail>=0);REQUIRE(detail<=1);
   const double anisotropy=std::array<double,3>{1.,1.5,2.}[mode], variation=varying?.125:0.;
   auto reference_sensor=[=](const su2double* p,double scale) {
@@ -429,16 +482,16 @@ TEST_CASE("Native3D manufactured anisotropic driver envelope", "[NativeEnvelope3
   };
   if(!world.rank) {
     const double junction=double(n/2)/n;
-    auto mesh=aligned ? simplex_test::MakeSimplexMesh(3,n,[=](const passivedouble* p) {
+    auto mesh=wedge ? WedgeMesh(n) : aligned ? simplex_test::MakeSimplexMesh(3,n,[=](const passivedouble* p) {
       if(p[2]<1e-12)return std::string(p[0]<junction ? "z_minus_a" : "z_minus_b");
       return simplex_test::Marker3D(p);
     }) : BoxMesh(3,n,false);
     if(height_power)for(size_t p=2;p<mesh.coord.size();p+=3)mesh.coord[p]=std::ldexp(mesh.coord[p],-height_power);
     simplex_test::WriteSU2Mesh(mesh,"envelope_input.su2");
     std::ofstream cfg("envelope.cfg");
-    cfg<<"% Manufactured target: n="<<n<<" anisotropy="<<anisotropy<<" variation="<<variation<<" direction="<<direction<<" height_power="<<height_power<<" repeat="<<repeat<<"\n"
+    cfg<<"% Manufactured target: n="<<n<<" anisotropy="<<anisotropy<<" variation="<<variation<<" direction="<<direction<<" height_power="<<height_power<<" wedge="<<wedge<<" repeat="<<repeat<<"\n"
        <<"SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nAOA= 0\nMESH_FORMAT= SU2\nMESH_FILENAME= envelope_input.su2\n"
-       <<"MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus, z_minus_a, z_minus_b)\n"
+       <<(wedge?"MARKER_FAR= (x_minus, y_minus, wedge_oblique, z_plus, z_minus_a, z_minus_b)\n":"MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus, z_minus_a, z_minus_b)\n")
        <<"COMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
        <<"ADAP_NATIVE_REPARTITION= YES\nADAP_NATIVE_RANKS= "<<workers<<"\nWRT_PERFORMANCE= "<<(detail?"YES":"NO")<<"\n"
        <<"MGLEVEL= 0\nNUM_METHOD_GRAD= GREEN_GAUSS\nCONV_NUM_METHOD_FLOW= ROE\nMUSCL_FLOW= NO\n"
@@ -498,7 +551,7 @@ TEST_CASE("Native3D manufactured anisotropic driver envelope", "[NativeEnvelope3
     if(cycle==2)OutputRoundTrip(world,name,result.slices,accepted.cells,retained,scale,sensor,(direction || height_power)?&donor.original:nullptr);
     counts.push_back(result.slices.nElemGlobal);
     std::ostringstream row;row<<std::setprecision(17)<<"ENVELOPE rank="<<world.rank<<" ranks="<<world.size<<" workers="<<workers
-      <<" size="<<n<<" anisotropy="<<anisotropy<<" variation="<<variation<<" direction="<<direction<<" height_power="<<height_power<<" repeat="<<repeat<<" detailed="<<detail<<" cycle="<<cycle
+      <<" size="<<n<<" anisotropy="<<anisotropy<<" variation="<<variation<<" direction="<<direction<<" height_power="<<height_power<<" wedge="<<wedge<<" repeat="<<repeat<<" detailed="<<detail<<" cycle="<<cycle
       <<" cells="<<counts.back()<<" points="<<result.slices.nPointGlobal<<" state_error="<<error<<" parent_wall="<<parent_wall<<" parent_cpu="<<parent_cpu<<'\n';ProfileRow3D(row.str(),world.comm);
   }
   REQUIRE(counts.size()==3);CHECK(counts[1]<counts[0]);CHECK(counts[2]>counts[1]);
