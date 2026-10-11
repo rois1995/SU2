@@ -7,11 +7,31 @@ small sequential local checks with real host-contention checks; push each
 validated checkpoint and verify the remote SHA. A terminal capacity failure
 cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
-## Native 3D actual geometry bridge in progress — 2026-10-11
+## Native 3D actual geometry/solution bridge validated — 2026-10-11
+
+Latest checkpoint preparation: geometry_bridge_v10 and geometry_meson_v1 both
+terminal PASS, all source/archive/thin-member pins unchanged. No owned build/test
+is running after session68185 returned terminal PASS. New CNativeImport3D and
+finite oriented ContainsFace are validated against actual CFD geometry, weighted
+M<=N core, returned readers, geometry/solver reconstruction, current/BDF2 transfer,
+SU2/CGNS writers/readers and independent audits on MPI1/2/4, M1..N. Each matrix:
+42 events,84 audited frames,42 state pairs,42 raw output roundtrips; minq.367927,
+minJ.146382,maxL1.793742,transported sensor residual0,maxstate8.471971e-13.
+Shared 2D fixture regression passes. See native_3d_core_v1/GEOMETRY_BRIDGE_REPORT.md.
+
+Production native3D factory remains guarded. Full Goal1 ACTIVE: wire the opt-in
+runtime and durable planar authority, then close complete lifecycle phases/CPU/
+wait/RSS/memory and OFF/ON/repeated practical envelope before claiming completion.
+Current one-shot timings include tests/output and changed trajectories; no scaling
+or affordability claim. Existing underfilled CFD ranks remain a documented limit.
+No cluster requests tonight. Leave AdapNoExt/foreign submodules/ClusterResults alone.
+
+### Earlier bridge setup and fixture diagnosis (retained)
+
 
 Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
 codex/native-3d-core; predecessor e19af2b2f22654d6ba95862761663a385d4b15ca.
-Goal1 ACTIVE/full scope. New uncommitted CNativeImport3D imports actual CFD-owned
+Goal1 ACTIVE/full scope. CNativeImport3D imports actual CFD-owned
 sensor-only tetrahedra, halo coordinates and oriented physical incidence. It
 retains bounded immutable faceted authority, rebinds finite triangles after reader
 renumbering, queries original P1 in bounded batches for weights and returned reader
@@ -23,32 +43,51 @@ v1 METIS include; v2 public matrix include; v3 MEL include; v4 reduced standalon
 house-helper duplicates; v5 actual SU2 archives retain pre-communicator ABI. Do not
 claim adaptation/state/output validation from these receipts. All failures remain.
 
-Actual 268-step current-ABI Common/strict/CFD-core rebuild live in
-integration_evidence/native_3d_core_v1/geometry_build_v1, runner PID2673220 and
-ninja PID2673256 at launch; unified exec session1777. Confirm live process/session,
-actual compiler and terminal validation.json before any follow-up or restart.
-Runner snapshot, source pins, planned/actual commands and build/host logs retained.
-One nice19 compiler, -j1, numerical threads1. Foreign4-rank FSI left untouched.
-Production source pins cover Common/SU2_CFD; only test/tool/docs changed alongside
-this build. Avoid editing pinned production source until the build ends.
+Actual 268-step current-ABI Common/strict/CFD-core rebuild geometry_build_v1
+is terminal PASS, exit0, no production source changes during the build. The
+follow-up geometry_followup_v1 is terminal FAIL: it launched v6, whose test helper
+incorrectly encoded a vector as one record. Fixed by encoding individual records.
+V7 compiled/linked but aborted in CConfig before adaptation: COMPUTE_METRIC=YES
+requires ADAP_SENSOR. geometry_bridge_abort_v1 captures the existing v7 binary's
+one-rank debugger stack proving this cause. The fixture now supplies PRESSURE.
+No production config guard or numerical contract changed.
 
-Test-only bridge additions now prepare retained donor/accepted BDF2 states, both
-barycentric/conservative transfers, actual SU2/CGNS output and file reader return.
-Output builds matching config/geometry marker bindings. Independent auditor parses
-raw SU2 and raw HDF5 CGNS and checks exact geometry/markers, positive output tets,
-closed links, embedding/manifold/shape/integrated edges, transported P1 sensors,
-current+two histories, and changed-target repeated coarsen/refine provenance.
-No new actual bridge run yet: wait for actual library rebuild, then announce a
-fresh geometry_bridge_v6 folder and run updated run_geometry_bridge.py sequentially
-on MPI1/2/4 (subject to actual contention). Relevant shared transfer-fixture2D
-regression and actual Meson test compilation remain necessary.
+Validated auditor checkpoint pushed/remote-verified:
+a4806f8e796d564d6afae0e36b593d8aae7c23b8. Actual bridge is now validated for checkpoint publication.
+V8 reached adaptation/reader return but stopped at the existing end-step history
+contract: current solution must equal time_n after the dual-time update.
+geometry_bridge_abort_v2 proves that cause. Fixtures/checker now use identical
+current/time_n and distinct time_n1; no transfer contract changed. New lightweight
+geometry_audit_v4 PASS includes six adversaries, adding mismatched time_n.
+Historical v3 fixture used a synthetic independently scaled time_n; its old
+checker source pins remain, but it is not an admissible production transfer input.
+
+V9 terminal FAIL: MPI1/2 tests and independent audits PASS (12/24 frames,6/12
+state pairs and6/12 real SU2/CGNS roundtrips). MPI4 completed all 3D worker choices
+M1..4 and both methods, then the added six-point 2D MG fixture crashed in
+CPoint::SetPoints/BuildGeometryFVM with an empty sparse graph on two ranks.
+No 3D adaptation/transfer numerical failure was observed. The supplemental
+four-rank independent audit is terminal PASS (48 frames,24
+state pairs,24 actual roundtrips); the whole v9 receipt remains FAIL.
+The shared 2D fixture now uses the existing transfer tests' n4->n6 meshes, avoiding
+underfilled CFD partitions without changing production geometry handling.
+The corrected geometry_bridge_v10 matrix subsequently passed in full.
+Original complete v9 receipt stays FAIL, including the 2D crash.
+
+Test-only bridge includes bounded actual owner/halo geometry and sensor import,
+retained planar marker authority, weighted explicit M<=N worker communicators,
+returned distributed original-P1 metric readers, actual geometry/solver rebuild,
+barycentric/conservative current/BDF2 transfer, SU2/CGNS write/readback, atomic
+reader-budget vetoes, and a manufactured cached/remote thin query-composition
+control. That control is not composed3D edge integration or BL generation.
+No configured driver/CFD iteration, full phase/CPU/wait/RSS closure or performance
+qualification yet. Actual Meson bridge test compilation and archive-linked checks now PASS.
 
 geometry_audit_v3 PASS: lightweight independent-auditor self-check, valid serialized
 box/state/SU2/HDF5 fixtures and five rejected corruptions. It is not actual native
 output or CFD integration proof. v1/v2 self-check failures retained. Report
 geometry_audit_v3/AUDIT_SELF_CHECK.md explains exact scope and pending work.
-Publish validated auditor checkpoint; keep unvalidated bridge implementation
-unstaged until actual campaign passes. No cluster questions tonight. Full configured
+Auditor checkpoint is already published; both actual bridge campaigns now pass. No cluster questions tonight. Full configured
 native3D, lifecycle/CGNS/rejection, performance/RSS/scaling goal is not complete.
 
 ## Native 3D weighted partition checkpoint — 2026-10-11

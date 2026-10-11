@@ -1,0 +1,30 @@
+{
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=5s",
+    "60s",
+    "nice",
+    "-n",
+    "19",
+    "gdb",
+    "-batch",
+    "-ex",
+    "set pagination off",
+    "-ex",
+    "break MPI_Abort",
+    "-ex",
+    "run",
+    "-ex",
+    "bt",
+    "--args",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/geometry_bridge_v7/test_geometry_bridge",
+    "[NativeBridge3D]",
+    "--use-colour",
+    "no"
+  ],
+  "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/geometry_bridge_abort_v1",
+  "exit_code": 0,
+  "seconds": 18.268967773008626,
+  "binary_sha256": "735d1b9ea1624ef0b16e5f6094d84be6143a73c2d47bba954ea38fa9342ffbd4"
+}

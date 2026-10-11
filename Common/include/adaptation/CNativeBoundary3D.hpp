@@ -36,6 +36,8 @@ class PlanarReference {
   const Facet& Get(Id id) const;
   bool Contains(Id facet, Point p, KernelStats* stats = nullptr) const;
   Id Canonical(Id facet) const;
+  /*! Finite complete triangle containment and exact orientation relative to the original physical facet. */
+  bool ContainsFace(Id facet, const std::array<Point, 3>& triangle, KernelStats* stats = nullptr) const;
 
  private:
   std::map<Id, Facet> facets;

@@ -1,0 +1,24 @@
+Breakpoint 1 at 0x1094a0
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+[New Thread 0x7ffff763a700 (LWP 2754983)]
+[New Thread 0x7ffff6c85700 (LWP 2755018)]
+
+Thread 1 "test_geometry_b" hit Breakpoint 1, 0x00007ffff7ebdd60 in PMPI_Abort () from /lib/x86_64-linux-gnu/libmpi.so.40
+#0  0x00007ffff7ebdd60 in PMPI_Abort () from /lib/x86_64-linux-gnu/libmpi.so.40
+#1  0x000055555635cc7c in CBaseMPIWrapper::Abort (error=1, comm=<optimized out>) at ../../Common/include/parallelization/mpi_structure.hpp:172
+#2  CBaseMPIWrapper::Error (ErrorMsg="In the time domain the solution is transferred at the end of a time step (after the dual-time update), where the solution and Solution_time_n are the same state U^n; they differ here.", FunctionName="static CSolutionTransfer::TransferArrays CSolutionTransfer::CheckProblem(const string&, CConfig*, const CMeshDonor&, CGeometry**, CSolver***)") at ../../Common/include/parallelization/mpi_structure.cpp:111
+#3  0x0000555556550925 in CollectiveFailure (local=..., function="static CSolutionTransfer::TransferArrays CSolutionTransfer::CheckProblem(const string&, CConfig*, const CMeshDonor&, CGeometry**, CSolver***)") at ../../Common/src/adaptation/CDistributedSearch.cpp:462
+#4  0x0000555555e1111b in CSolutionTransfer::CheckProblem (name="barycentric", config=config@entry=0x555556d64bb0, donor=..., geometry=geometry@entry=0x555556dde8a0, solver=solver@entry=0x555556de78f0) at /usr/include/c++/9/bits/char_traits.h:300
+#5  0x0000555555c6b7a8 in CBarycentricTransfer::Transfer (this=0x555556ce1f90, config=0x555556d64bb0, donor=..., geometry=0x555556dde8a0, solver=0x555556de78f0) at /usr/include/c++/9/bits/basic_string.h:267
+#6  0x00005555557d305c in C_A_T_C_H_T_E_S_T_0() () at ../../SU2_CFD/src/adaptation/../../include/adaptation/../../../Common/include/containers/C2DContainer.hpp:492
+#7  0x000055555571bcd0 in Catch::TestInvokerAsFunction::invoke() const () at ../../SU2_CFD/src/adaptation/../../include/adaptation/../../../Common/include/containers/C2DContainer.hpp:492
+#8  0x000055555571add1 in Catch::TestCase::invoke() const () at ../../SU2_CFD/src/adaptation/../../include/adaptation/../../../Common/include/containers/C2DContainer.hpp:492
+#9  0x0000555555714ca6 in Catch::RunContext::invokeActiveTestCase() () at ../../SU2_CFD/src/adaptation/../../include/adaptation/../../../Common/include/containers/C2DContainer.hpp:492
+#10 0x00005555557149cd in Catch::RunContext::runCurrentTest(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) () at ../../SU2_CFD/src/adaptation/../../include/adaptation/../../../Common/include/containers/C2DContainer.hpp:492
+#11 0x000055555571345b in Catch::RunContext::runTest(Catch::TestCase const&) () at ../../SU2_CFD/src/adaptation/../../include/adaptation/../../../Common/include/containers/C2DContainer.hpp:492
+#12 0x00005555557165c4 in Catch::(anonymous namespace)::TestGroup::execute() () at ../../SU2_CFD/src/adaptation/../../include/adaptation/../../../Common/include/containers/C2DContainer.hpp:492
+#13 0x0000555555717db7 in Catch::Session::runInternal() () at ../../SU2_CFD/src/adaptation/../../include/adaptation/../../../Common/include/containers/C2DContainer.hpp:492
+#14 0x0000555555717b07 in Catch::Session::run() () at ../../SU2_CFD/src/adaptation/../../include/adaptation/../../../Common/include/containers/C2DContainer.hpp:492
+#15 0x00005555557410b7 in int Catch::Session::run<char>(int, char const* const*) () at ../../SU2_CFD/src/adaptation/../../include/adaptation/../../../Common/include/containers/C2DContainer.hpp:492
+#16 0x000055555572e7b8 in main () at ../../SU2_CFD/src/adaptation/../../include/adaptation/../../../Common/include/containers/C2DContainer.hpp:492

@@ -1,0 +1,11 @@
+In file included from UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CNativeDistributed3D.hpp:9,
+                 from UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CNativeDonor3D.hpp:8,
+                 from UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CNativeImport3D.hpp:8,
+                 from UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:8:
+UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CNativeDistributed2D.hpp: In instantiation of ‘void SU2NativeBoundary2D::RecordStream::Field(T&) [with T = std::vector<SU2Native3D::DonorCell>]’:
+UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CNativeDistributed2D.hpp:34:5:   required from ‘void SU2NativeBoundary2D::RecordStream::operator()(T& ...) [with T = {std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> >}]’
+UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:31:62:   required from ‘std::vector<char> {anonymous}::Bytes(Records) [with Records = std::vector<SU2Native3D::DonorCell>]’
+UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:126:119:   required from here
+UnitTests/SU2_CFD/adaptation/../../../Common/include/adaptation/CNativeDistributed2D.hpp:80:13: error: ‘class std::vector<SU2Native3D::DonorCell>’ has no member named ‘Fields’
+   80 |       value.Fields(*this);
+      |       ~~~~~~^~~~~~

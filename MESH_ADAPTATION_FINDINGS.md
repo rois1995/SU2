@@ -1795,3 +1795,56 @@ Serialized checker fixtures are not actual native-output or CFD proof. V1 synthe
 label-type failure and V2 receipt-variable failure retained. Production driver
 wiring, actual bridge matrix, shared 2D regression, full phases/CPU/wait/RSS and
 scaling/affordability remain open; full Goal1 stays active.
+
+
+## 2026-10-11 — bridge library rebuilt; invalid test configuration diagnosed
+
+geometry_build_v1 is PASS (268 actual incremental Common/strict/CFD-core steps,
+exit0, no source drift). No compatibility alias or numerical relaxation.
+geometry_followup_v1/v6 failed at test compilation because its serializer helper
+encoded a vector rather than its records; corrected. V7 built/linked and aborted
+before adaptation. One-rank debugger evidence geometry_bridge_abort_v1 identifies
+CConfig's existing "COMPUTE_METRIC = YES requires ADAP_SENSOR" check. Test config
+now includes PRESSURE. V8 is running sequential MPI1/2/4 with source/library/member
+pins; no actual bridge mesh/state/output validation is claimed before its terminal
+receipt and independent audits. Production native3D guard remains unchanged.
+
+
+## 2026-10-11 — first actual bridge results and timestep fixture correction
+
+V8 reached mesh adaptation and reader reconstruction before transfer rejected
+incompatible end-step data: SU2 requires current U^n == time_n after its dual-time
+update. Diagnostic abort_v2 proves this guard; test input/checker corrected, no
+production transfer changes. New auditor self-check v4 adds a time_n corruption
+and passes six adversaries. Historical v3's synthetic time_n scaling does not
+represent an admissible actual end-step transfer input.
+
+V9 MPI1/2 tests plus independent mesh/metric/current/BDF2/raw SU2/HDF5 CGNS audits
+PASS; MPI4 finishes all 3D M1..4/both-method cycles but fails the extra six-point
+2D geometry fixture with an empty sparse graph on two ranks. Its whole receipt
+remains FAIL. This identifies an existing underfilled-CFD-partition limitation,
+not a native3D metric failure or proof that arbitrary empty CFD ranks are supported.
+The shared 2D regression now uses the existing n4->n6 transfer fixture sizes.
+Four-rank 3D outputs are being independently audited separately. Native runtime3D
+still guarded, and full Goal1 correctness/performance/lifecycle scope remains open.
+
+
+## 2026-10-11 — actual native3D bridge and production-archive validation PASS
+
+geometry_bridge_v10 and geometry_meson_v1 PASS on MPI1/2/4/M1..N, both transfer
+methods, three changed-target events. Each independent audit checks84 mesh frames,
+42 current/BDF2 state pairs and42 real SU2/CGNS output/readback roundtrips; volume1,
+minq.367927/minJ.146382/maxL1.793742,original-P1 transported residual0 and maximum
+state error8.471971e-13. Original donor sensors/current/history remain unchanged;
+atomic reader budget vetoes and actual cached/remote thin composition hooks pass.
+Shared 2D transfer history regression passes after using established n4/n6 sizes.
+The actual Meson test objects link complete current SU2 archives without standalone
+native/house overrides; source/library/thin-member pins unchanged. V9 supplemental
+3D-only audit passes while its original whole receipt remains FAIL.
+
+GEOMETRY_BRIDGE_REPORT.md lists inspectable actual grids/state files, all retained
+failure causes, input authority/dependency/donor/storage limits and pending work.
+Production3D driver guard stays. Full lifecycle accounting, runtime/ref restart,
+bounded allocator/RSS, instrumentation overhead and repeat scaling remain open.
+Single contended matrix durations include test/output and distinct M trajectories;
+no speedup/affordability claim. Full Goal1 stays active.

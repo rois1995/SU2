@@ -93,7 +93,8 @@ def states(data,state):
         assert {tuple(r['point']) for r in rows}==points and len(rows)==len(points)
         for row in rows:
             values=row['states'];assert len(values)==15 and all(math.isfinite(x) for x in values)
-            base=affine(row['point']);expected=[factor*v for factor in (1.,1.03125,.96875) for v in base]
+            assert values[:5]==values[5:10],'End-step current/time_n states differ'
+            base=affine(row['point']);expected=[factor*v for factor in (1.,1.,.96875) for v in base]
             maximum=max(maximum,max(abs(a-b)/max(abs(a),abs(b),1e-8) for a,b in zip(values,expected)))
             if label=='accepted':
                 tensors=row['metric'];assert len(tensors)==6 and all(math.isfinite(x) for x in tensors)
@@ -149,11 +150,12 @@ def main(folder,ranks,log):
     assert len(phases)==ranks*ranks*6
     data=meshes['bridge_barycentric_m1_s0'];state=json.loads((folder/'bridge_barycentric_m1_s0_states.json').read_text())
     bad=copy.deepcopy(state);bad['accepted'][0]['states'][0]+=.01;reject(lambda:states(data,bad))
+    bad=copy.deepcopy(state);bad['accepted'][0]['states'][5]+=.01;reject(lambda:states(data,bad))
     bad=copy.deepcopy(state);bad['accepted'][0]['metric'][0]+=1.;reject(lambda:states(data,bad))
     bad=copy.deepcopy(state);bad['donor'].pop();reject(lambda:states(data,bad))
     bad=copy.deepcopy(data);bad['facets'][0]['marker']=(bad['facets'][0]['marker']+1)%7
     reject(lambda:assert_same(signature(bad),signature(data)))
-    result=dict(status='PASS',frames=records,states=state_records,actual_output_roundtrips=roundtrips,adversaries_rejected=4,rank_samples=phases,
+    result=dict(status='PASS',frames=records,states=state_records,actual_output_roundtrips=roundtrips,adversaries_rejected=5,rank_samples=phases,
       scope='Bounded actual-SU2 manufactured bridge: exact embedding/markers/volume and strict original-P1 shape/edge audits, transported sensors, current and BDF2 affine state checks, actual SU2 ASCII and independent HDF5 CGNS parse (positive tetrahedra, physical sections/BCs, closed links), plus actual SU2/CGNS reader round-trip signatures. No configured native3D driver, CFD iterations, curved geometry, 3D BL construction or performance scaling claim.')
     (folder/'independent_audit.json').write_text(json.dumps(result,indent=2)+'\n')
     print('PASS',len(records),'frames',len(state_records),'state pairs',roundtrips,'actual output round trips',flush=True)

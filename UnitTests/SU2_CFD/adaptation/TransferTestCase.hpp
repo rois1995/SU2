@@ -35,6 +35,7 @@
 #include "../../../Common/include/CConfig.hpp"
 #include "../../../Common/include/geometry/CPhysicalGeometry.hpp"
 #include "../../../Common/include/geometry/meshreader/CMemoryMeshReaderFVM.hpp"
+#include "../../../Common/include/geometry/meshreader/CDistributedMemoryMeshReaderFVM.hpp"
 #include "../../../SU2_CFD/include/adaptation/CSolutionTransfer.hpp"
 #include "../../../SU2_CFD/include/drivers/CDriver.hpp"
 #include "../../../SU2_CFD/include/solvers/CSolver.hpp"
@@ -88,7 +89,24 @@ struct MeshSolution {
     Mute mute;
     config->SetMGLevels(requestedMGLevels);
     CMemoryMeshReaderFVM reader(config, mesh, 0, 1);
-    CDriver::BuildGeometryFVM(config, new CPhysicalGeometry(config, reader, 1), geometry, true);
+    Initialize(config, new CPhysicalGeometry(config, reader, 1));
+  }
+
+  MeshSolution(CConfig* config, const CReaderSlices& slices, unsigned short requestedMGLevels) {
+    Mute mute;
+    config->SetMGLevels(requestedMGLevels);
+    CDistributedMemoryMeshReaderFVM reader(config, slices, 0, 1);
+    Initialize(config, new CPhysicalGeometry(config, reader, 1));
+  }
+
+  MeshSolution(CConfig* config, CMeshReaderBase& reader, unsigned short requestedMGLevels) {
+    Mute mute;
+    config->SetMGLevels(requestedMGLevels);
+    Initialize(config, new CPhysicalGeometry(config, reader, 1));
+  }
+
+  void Initialize(CConfig* config, CPhysicalGeometry* fine) {
+    CDriver::BuildGeometryFVM(config, fine, geometry, true);
     geometry[MESH_0]->SetPositive_ZArea(config);
     CGeometry** instances[] = {geometry};
     CGeometry*** zones[] = {instances};

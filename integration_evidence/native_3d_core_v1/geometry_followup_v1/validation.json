@@ -1,0 +1,16 @@
+{
+  "status": "FAIL",
+  "reason": "Bridge campaign completed; inspect its validation and independent audit receipts.",
+  "exit_code": 1,
+  "source_sha256": {
+    "Common/src/adaptation/CNativeImport3D.cpp": "07d3ee7ff6ef7e32a580525009f918726e1cd88213852cd9c3eca3d0f52bdd04",
+    "Common/include/adaptation/CNativeImport3D.hpp": "2c53499fd1c720cb81958d4211756fb8b00637eec94d5d9dd48d01b17a2ba982",
+    "Common/src/adaptation/CNativeBoundary3D.cpp": "ba2e54b673035d1bc69ef0ad21de3310cd91e9956042125614922b8207ea349f",
+    "Common/include/adaptation/CNativeBoundary3D.hpp": "9bf59f5ed8a03c9cc34f2e872b103d0082a5bfa94a30315d842ccbfdb54ac97c",
+    "UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp": "019a2d0a28ea8c92b6873878c9516e74fae54460cb952f8efc521c07f5536b21",
+    "UnitTests/SU2_CFD/adaptation/TransferTestCase.hpp": "15b8aca47cf65b18c47148510c69c9c4e4a9b9c934cd7860a5d8b81e316df891",
+    "integration_evidence/native_3d_core_v1/run_geometry_bridge.py": "9cb663efeb6a2d76e212f275fd9802ae65563d3a5f963419a2e4e17a8450d6ed",
+    "integration_evidence/native_3d_core_v1/audit_geometry_bridge.py": "924df459a939dab3fb9d3bf599e622e4e15f2c28adf9201a14a9191fcd22ab53"
+  },
+  "scope": "One bounded local geometry bridge campaign queued after the actual owned rebuild and host admission. No automatic retries, cluster launches, configured driver or performance claim."
+}

@@ -212,6 +212,18 @@ bool PlanarReference::Contains(Id id, Point p, KernelStats* stats) const {
   }
   throw std::logic_error("Degenerate admitted native 3D reference facet.");
 }
+bool PlanarReference::ContainsFace(Id id, const std::array<Point, 3>& triangle, KernelStats* stats) const {
+  for (auto p : triangle) if (!Contains(id, p, stats)) return false;
+  const auto& f = Get(Canonical(id));
+  for (size_t axis = 0; axis < 3; ++axis) {
+    const auto old = Projected(f.v[0].p, f.v[1].p, f.v[2].p, axis, stats);
+    if (old != 0) {
+      const auto fresh = Projected(triangle[0], triangle[1], triangle[2], axis, stats);
+      return (old > 0 && fresh > 0) || (old < 0 && fresh < 0);
+    }
+  }
+  return false;
+}
 bool SplitEdge(const Patch& old, Edge edge, Node point, Id first, const PlanarReference& reference, Patch& fresh,
                std::string& reason, KernelStats* stats) {
   try {
