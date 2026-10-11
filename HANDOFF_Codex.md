@@ -7,6 +7,43 @@ small sequential local checks with real host-contention checks; push each
 validated checkpoint and verify the remote SHA. A terminal capacity failure
 cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
+## Optional calibrated MPI campaign preparation — 2026-10-11
+
+NativeIntegrated / codex/native-3d-transport-accounting; predecessor
+78f6800a153812c05fbf239cdac5a1d4271faebd. No production C++, numerical fixture,
+target or guard change. Core remains the user's6b3fefd039bfc3d1937b8add7d21d0ea41344bc9
+cluster checkpoint. Do not merge the transport branch before MPI qualification.
+
+transport_mpi2_v1 was refused BEFORE MPI launch: three idle samples included
+0.2993068683 below the frozen0.30 gate, load1=6.41. No rank started. This is
+resource-admission evidence, not a numerical failure or a live wait. A later
+host sample remained busy; no repeat/local timing/cluster job was launched.
+Original refusal validation and host evidence are retained.
+
+Optional mpiP support freezes a shared library plus matching complete license
+inside a new closed bundle. Three appended SGE campaigns are serialized and
+gated by same-package correctness and N1/2/4 lifecycle PASS. Application-only
+preload leaves the launcher/auditors untouched. Native detail remains ON; each
+M=N/M<N choice has a warm-up and three alternating profiler OFF/ON pairs and
+unchanged exact mesh/source/current+BDF/readback hashes. Missing/incomplete
+all-rank reports fail and preserve uncompressed evidence. Offline analysis
+distinguishes parent overhead from process overhead including report finalization.
+
+package_checks_v13 preserves the initial mocked collector failure (empty recipe
+directory); v14 passed22 checks after correction. Final-source package_checks_v15
+passes23 checks (0.962s unittest,1.290s wrapper), AST/Bash/whitespace and
+production/fixture/build-option equality to475820. Actual mpiP library
+loading, dependency compatibility, callsite attribution and overhead remain
+unverified; this host lacks libunwind/BFD development files. No dependency was
+installed, no binary rebuilt, no profiler/MPI/CFD/qsub launched.
+mpiP API statistics do not measure pure waiting, wire traffic or chronological
+phase windows; full traffic/wait/vendor/allocator calibration remains open.
+
+Goal1 ACTIVE. Pending current MPI2/4, frozen n4 and persisted-restart qualification,
+n8 practical limits and repeated cluster evidence. No curved geometry/3DBL/full
+unsteady/CFD affordability claim. New package README has deferred commands; keep
+the user's existing core checkout and frozen/submitted bundles unchanged.
+
 ## MPI coverage lower bound and actual serial lifecycle — 2026-10-11; checked
 
 Evidence/tools checkpoint a2f8b2f1c7c13b9b45b3221d3ee6bb87b364b6ea pushed to origin/codex/native-3d-transport-accounting; remote SHA verified. Production remains475820f366. Core remote remains6b3fefd039bfc3d1937b8add7d21d0ea41344bc9.

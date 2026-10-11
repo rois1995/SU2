@@ -1,0 +1,60 @@
+{
+  "status": "FAIL",
+  "reason": "Resource gate refused before MPI launch.",
+  "stages": [
+    {
+      "command": [
+        "uptime"
+      ],
+      "label": "host_load",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/transport_mpi2_v1",
+      "exit_code": 0,
+      "seconds": 0.005552435992285609
+    },
+    {
+      "command": [
+        "free",
+        "-m"
+      ],
+      "label": "host_memory",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/transport_mpi2_v1",
+      "exit_code": 0,
+      "seconds": 0.010655635967850685
+    },
+    {
+      "command": [
+        "ps",
+        "-eo",
+        "pid,ppid,ni,pcpu,comm",
+        "--sort=-pcpu"
+      ],
+      "label": "host_processes",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/transport_mpi2_v1",
+      "exit_code": 0,
+      "seconds": 0.05814633297268301
+    }
+  ],
+  "binary_sha256": "9290ba83549ac3e1c86792443f27fab0ef2aefe9bfcd057494a4b069636e2a61",
+  "build_validation_sha256": "f727193adb0f44a9783931b2246b23b94477d20e42bf7295536e5a6a865ddb02",
+  "source_drift": [],
+  "object_drift": [],
+  "archive_drift": [],
+  "tool_drift": [],
+  "tools_sha256": {
+    "audit_geometry_bridge.py": "d8d5e8a18a0fce8f54f8407e9f0027dcea12d90bf64c5ab20c4dedb7194430e2",
+    "audit_lifecycle.py": "2b56b6062d93e23d04c3eeb804f81b378f0051d071e9717ec69af635163c0f12",
+    "audit_coupled.py": "67a12c5c39c6c3e021473f49c1f14301f037d7883268b98d7afc9edc2b00f63b",
+    "audit_cavities.py": "26079385c071c3ad1b9c06ab3b862b4ff293367dc3c8d291acf0487089d062c5"
+  },
+  "scope": "Full configured68-object driver; actual MPI2 selected69 cases per rank, originalP1/private-query/surface/complete-dependency/transaction/refusal controls, default accepted/rejected transport closure. Independent exact bridge geometry/markers/metric/current+BDF/SU2CGNS checks at N2M1 and N2M2. Reuses source/binary/774 archive members from serial transport build. Single contended correctness run, not MPI4/n4/persisted-restart/repeated timing/scaling/fullGoal1.",
+  "artifact_sha256": {
+    "host_processes.stdout": "ab7f4df8b44788847c0beb19770f816e9ad8c9f4df96398f84654d2795d4ae61",
+    "host_load.stdout": "230d3214e07b506b9c834deee37e60903732d0518d5d3681c8f9745c2d5e6bb9",
+    "host_memory.stdout": "a7870f207a4b78b60ad8a34469ab32f891f932a6ef6cda2ddc4f1ebed801a301",
+    "host_load.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host_gate.json": "b5d3268effcc21901b66d6819b6764efd888777e09351a28b00585c45497d4a2",
+    "host_processes.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runner.py": "45399e7d36ece47e241546dafe7de6b49a336b9c7003c2c9da0d3926cbc7da2f",
+    "host_memory.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

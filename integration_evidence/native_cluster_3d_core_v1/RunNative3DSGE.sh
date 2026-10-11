@@ -9,7 +9,7 @@
 set -euo pipefail
 cd "${SGE_O_WORKDIR:?Submit from repository root}"
 bundle=${1:?Frozen package required}
-mode=${2:?correctness, lifecycle, timing or limits required}
+mode=${2:?correctness, lifecycle, timing, limits or mpi-profile required}
 shift 2
 launcher="ClusterResults/launcher/native3d_${JOB_ID:?}"
 mkdir -p ClusterResults/launcher

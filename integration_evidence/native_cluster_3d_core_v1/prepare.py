@@ -15,7 +15,11 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--build-dir',type=Path,default=ROOT/'build-native')
     parser.add_argument('--output',type=Path,default=PACK/'prepared_v1');parser.add_argument('--ninja',default='ninja')
-    options=parser.parse_args();build=options.build_dir.resolve();build.relative_to(ROOT)
+    parser.add_argument('--mpip-library',type=Path,help='Optional MPI-compatible shared mpiP library; copied and pinned inside the bundle')
+    parser.add_argument('--mpip-license',type=Path,help='Complete license/notices from the same mpiP installation')
+    options=parser.parse_args()
+    if bool(options.mpip_library)!=bool(options.mpip_license):raise ValueError('Supply both --mpip-library and --mpip-license')
+    build=options.build_dir.resolve();build.relative_to(ROOT)
     destination=options.output.resolve();destination.relative_to(ROOT)
     if destination.exists():raise FileExistsError('Keep the previous bundle; choose a new --output')
     binary=closed(build/'UnitTests/test_driver');ninja=closed(build/'build.ninja')
@@ -53,10 +57,20 @@ def main():
     names += [str(p.relative_to(ROOT)) for directory in ('Common/include/adaptation','Common/src/adaptation') for p in (ROOT/directory).glob('*3D*') if p.is_file() and p.suffix in ('.cpp','.hpp')]
     names += ['UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp','UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp',
               'UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp','UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp']
+    if options.mpip_library:
+        with options.mpip_library.open('rb') as f:
+            if f.read(4)!=b'\x7fELF':raise ValueError('mpiP library must be an ELF shared library')
+        mpip_digest=sha(options.mpip_library)
+        license_digest=sha(options.mpip_license)
     destination.mkdir(parents=True)
     for name in sorted(set(names)):
         source=closed(ROOT/name);target=destination/name;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,target)
     (destination/'bin').mkdir();shutil.copyfile(binary,destination/'bin/test_driver');(destination/'bin/test_driver').chmod(0o755)
+    if options.mpip_library:
+        shutil.copyfile(options.mpip_library,destination/'bin/libmpiP.so')
+        shutil.copyfile(options.mpip_license,destination/'mpiP-LICENSE.txt')
+        if sha(destination/'bin/libmpiP.so')!=mpip_digest or sha(options.mpip_library)!=mpip_digest or sha(destination/'mpiP-LICENSE.txt')!=license_digest or sha(options.mpip_license)!=license_digest:
+            raise ValueError('mpiP library changed during preparation')
     record=dict(status='PREPARED_NOT_VALIDATED',source_sha256=sources,actual_objects_sha256={str(p.relative_to(build)):sha(p) for p in objects},library_sha256=libraries,thin_archive_member_sha256=members,build_ninja_sha256=sha(ninja),build_dry_run=dry.stdout,
                 build_options=build_options,scope='Current configured build dependencies and source/binary/member pins. Preparation is not any C++/MPI/numerical PASS. Dynamic MPI/CGNS/MMG libraries must be available on cluster nodes.')
     if sha(binary)!=sha(destination/'bin/test_driver') or any(sha(ROOT/name)!=digest for name,digest in sources.items()) or any(sha(p)!=digest for p,digest in {**libraries,**members}.items()) or any(sha(build/name)!=digest for name,digest in record['actual_objects_sha256'].items()):

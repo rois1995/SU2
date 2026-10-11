@@ -25,6 +25,25 @@ def verify_package(folder):
             raise ValueError('Frozen bundle changed: '+name)
     return record
 
+def mpi_command(ranks,machinefile,bundle,selection,profile=False):
+    args=['mpirun','-n',str(ranks),'-machinefile',str(Path(machinefile).resolve())]
+    if profile:
+        # Preload only the application, never mpirun or the independent auditor.
+        args+=['env','LD_PRELOAD='+str(bundle/'bin/libmpiP.so'),'MPIP=-k 4 -y -p -n']
+    return args+[str(bundle/'bin/test_driver'),selection,'--use-colour','no']
+
+def mpip_report(work,ranks):
+    reports=list(work.glob('*.mpiP'))
+    if len(reports)!=1:raise ValueError('Expected one full mpiP report; preloading may have failed')
+    report=reports[0];text=report.read_text()
+    tasks=re.findall(r'^@ MPI Task Assignment\s*:\s*(\d+)\s',text,re.M)
+    if sorted(map(int,tasks))!=list(range(ranks)):
+        raise ValueError('mpiP report does not cover all CFD ranks')
+    if not all(label in text for label in ('@ Version','MPI Time (seconds)','Callsites:','Allreduce')):
+        raise ValueError('Incomplete mpiP report')
+    return dict(file=report.name,sha256=sha(report),
+                scope='Whole-process MPI API/callsite statistics, including assertions/output. API elapsed is not pure wait or physical wire traffic.')
+
 def command(args,cwd,label,env,seconds):
     start=time.monotonic();record=dict(command=list(map(str,args)),label=label,cwd=str(cwd))
     with (cwd/(label+'.stdout')).open('w') as out,(cwd/(label+'.stderr')).open('w') as err:
@@ -54,17 +73,23 @@ def compress_json(folder):
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--package',type=Path,required=True);parser.add_argument('--results',type=Path,required=True)
-    parser.add_argument('--mode',choices=('correctness','lifecycle','timing','limits'),required=True)
+    parser.add_argument('--mode',choices=('correctness','lifecycle','timing','limits','mpi-profile'),required=True)
     parser.add_argument('--ranks',type=int,choices=(1,2,4),required=True)
     parser.add_argument('--gate',type=Path,action='append',default=[]);parser.add_argument('--machinefile',type=Path,required=True);parser.add_argument('--timeout',type=int,default=7200)
     options=parser.parse_args();bundle=options.package.resolve();manifest=verify_package(bundle)
     if not options.machinefile.is_file() or options.timeout<1:raise ValueError('Missing machinefile or invalid timeout')
     if options.mode in ('correctness','limits') and options.ranks!=4:raise ValueError('Correctness/limits allocation requires four slots')
+    if options.mode=='mpi-profile':
+        if 'bin/libmpiP.so' not in manifest['files_sha256']:
+            raise ValueError('Prepare a new bundle with --mpip-library first')
+        if os.environ.get('LD_PRELOAD') or os.environ.get('MPIP'):
+            raise ValueError('Unset inherited LD_PRELOAD and MPIP for paired profiling controls')
     result=options.results.resolve();result.mkdir(exist_ok=False,parents=True)
     print('Working and retained result folder:',result,flush=True)
-    # Retain code/inputs/provenance once, excluding the executable and build tree.
+    # Retain code/inputs/provenance once, excluding binaries and the build tree.
+    (result/'package').mkdir()
     for name in manifest['files_sha256']:
-        if name=='bin/test_driver':continue
+        if name.startswith('bin/'):continue
         source=bundle/name;destination=result/'package'/name;destination.parent.mkdir(parents=True,exist_ok=True)
         shutil.copyfile(source,destination)
     shutil.copyfile(bundle/'manifest.json',result/'package/manifest.json')
@@ -73,13 +98,12 @@ def main():
     for key in tuple(env):
         if key.startswith('SU2_NATIVE3D_ENVELOPE_'):del env[key]
     tools=bundle/'integration_evidence/native_3d_core_v1'
-    def mpi(ranks,selection):return ['mpirun','-n',str(ranks),'-machinefile',str(options.machinefile.resolve()),str(bundle/'bin/test_driver'),selection,'--use-colour','no']
     def run(work,ranks,selection,local_env=env,parameters=None):
         work.mkdir()
         if parameters is not None:(work/'parameters.json').write_text(json.dumps(parameters,indent=2)+'\n')
         (work/'case_environment.json').write_text(json.dumps({k:v for k,v in local_env.items() if k.startswith('SU2_NATIVE3D_ENVELOPE_') or k in ('OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS')},indent=2)+'\n')
         print('Case working and retained folder:',work,flush=True)
-        stages=[command(mpi(ranks,selection),work,'case',local_env,options.timeout)]
+        stages=[command(mpi_command(ranks,options.machinefile,bundle,selection,bool((parameters or {}).get('mpi_profile'))),work,'case',local_env,options.timeout)]
         (work/'stages.json').write_text(json.dumps(stages,indent=2)+'\n')
         out=(work/'case.stdout').read_text()
         if stages[0]['exit_code'] or stages[0].get('timeout') or 'No test cases matched' in out or out.count('All tests passed')!=ranks:
@@ -135,20 +159,26 @@ def main():
             for workers in sorted({options.ranks,max(1,options.ranks//2)}):
                 reference=None
                 for repeat in (-1,0,1,2):
-                    for detail in ((1,) if repeat<0 else ((0,1) if repeat%2==0 else (1,0))):
-                        work=result/f'n{options.ranks}_m{workers}_r{repeat}_d{detail}'
+                    for switch in ((1,) if repeat<0 else ((0,1) if repeat%2==0 else (1,0))):
+                        profiling=options.mode=='mpi-profile'
+                        detail=1 if profiling else switch
+                        work=result/f'n{options.ranks}_m{workers}_r{repeat}_{"p" if profiling else "d"}{switch}'
                         p=dict(ranks=options.ranks,workers=workers,size=4,anisotropy=1,varying=1,direction=1,height_power=0,wedge=True,aligned_markers=True,diagnostic_rounds=512,repeat=max(0,repeat),detail=detail,restart_format='none')
+                        if profiling:p['mpi_profile']=switch
                         local=dict(env,**{f'SU2_NATIVE3D_ENVELOPE_{k.upper()}':str(v) for k,v in dict(size=4,workers=workers,anisotropy=1,varying=1,direction=1,height_power=0,wedge=1,aligned=1,rounds=512,repeat=max(0,repeat),detail=detail,restart=0).items()})
                         s=run(work,options.ranks,'[NativeEnvelope3D]',local,p);s.append(audit(work,'audit_envelope.py'))
+                        report=mpip_report(work,options.ranks) if profiling and switch else None
+                        if profiling and not switch and list(work.glob('*.mpiP')):
+                            raise ValueError('Profiler output appeared in the disabled control')
                         data={name:sha(work/name) for name in RAW}
                         if reference is None:reference=data
                         elif data!=reference:raise RuntimeError('Fixed-work grid/source/state/readback differs; retained '+str(work))
-                        cases.append(dict(folder=work.name,parameters=p,warmup=repeat<0,stages=s,fixed_work_sha256=data,packed=compress_json(work)))
+                        cases.append(dict(folder=work.name,parameters=p,warmup=repeat<0,stages=s,fixed_work_sha256=data,mpi_profile_report=report,packed=compress_json(work)))
         verify_package(bundle);status='PASS'
     except Exception as error:
         failure=str(error);raise
     finally:
-        record=dict(status=status,failure=failure,mode=options.mode,ranks=options.ranks,package_manifest_sha256=sha(bundle/'manifest.json'),binary_sha256=manifest['files_sha256']['bin/test_driver'],cases=cases,stages=stages,
+        record=dict(status=status,failure=failure,mode=options.mode,ranks=options.ranks,package_manifest_sha256=sha(bundle/'manifest.json'),binary_sha256=manifest['files_sha256']['bin/test_driver'],mpi_profile_library_sha256=manifest['files_sha256'].get('bin/libmpiP.so'),cases=cases,stages=stages,
                     scope='Actual native3D configured test driver and independent existing exact audits. Case wall includes test assertions/output; remesh parents and phases are retained in raw logs. Audit/compression/collection outside adaptation. Frozen manufactured envelope timings are distinct from actual metric/Hessian lifecycle. No complete traffic/wait/allocator calibration, larger-rank/scaling/fullGoal1 or physical-unsteady affordability certificate.')
         record['artifact_sha256']={str(p.relative_to(result)):sha(p) for p in result.rglob('*') if p.is_file()}
         (result/'result.json').write_text(json.dumps(record,indent=2)+'\n');print(status,result,flush=True)

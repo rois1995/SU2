@@ -106,6 +106,92 @@ class PackageChecks(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'Artifact drift'):analyze.main([folder])
             record['artifact_sha256'][str(last.relative_to(folder))]=run.sha(last);(folder/'result.json').write_text(json.dumps(record))
             with self.assertRaisesRegex(ValueError,'Accepted work changed'):analyze.main([folder])
+    def mpip_text(self,ranks):
+        return '@ Version : test\nMPI Time (seconds)\nCallsites: 1\nAllreduce\n'+''.join(
+            f'@ MPI Task Assignment : {rank} mock-node\n' for rank in range(ranks))
+
+    def test_mpip_report_and_application_only_preload(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);bundle=root/'bundle';machine=root/'machinefile'
+            off=run.mpi_command(2,machine,bundle,'[NativeEnvelope3D]')
+            on=run.mpi_command(2,machine,bundle,'[NativeEnvelope3D]',True)
+            self.assertNotIn('env',off);self.assertEqual(on[0],'mpirun')
+            self.assertEqual(on[on.index('env')+1],'LD_PRELOAD='+str(bundle/'bin/libmpiP.so'))
+            self.assertIn('MPIP=-k 4 -y -p -n',on)
+            with self.assertRaises(ValueError):run.mpip_report(root,2)
+            report=root/'test_driver.2.123.mpiP';report.write_text(self.mpip_text(2))
+            self.assertEqual(run.mpip_report(root,2)['sha256'],run.sha(report))
+            report.write_text(self.mpip_text(1))
+            with self.assertRaisesRegex(ValueError,'all CFD ranks'):run.mpip_report(root,2)
+            report.write_text(self.mpip_text(2).replace('Allreduce',''))
+            with self.assertRaisesRegex(ValueError,'Incomplete'):run.mpip_report(root,2)
+
+    def test_mpip_pairing_summary_and_failed_preload_evidence(self):
+        with tempfile.TemporaryDirectory() as d,patch.dict(os.environ,{'LD_PRELOAD':'','MPIP':''}):
+            root=Path(d);bundle=self.bundle(root);machine=root/'machinefile';machine.write_text('mock-node slots=2\n')
+            library=bundle/'bin/libmpiP.so';library.write_bytes(b'fake, never loaded')
+            info=json.loads((bundle/'manifest.json').read_text());info['files_sha256']['bin/libmpiP.so']=run.sha(library)
+            (bundle/'manifest.json').write_text(json.dumps(info));calls=[]
+            def fake(args,cwd,label,env,seconds):
+                out=''
+                if label=='case':
+                    p=json.loads((cwd/'parameters.json').read_text());on=p['mpi_profile'];calls.append((p['workers'],p['repeat'],on))
+                    self.assertEqual(p['detail'],1);self.assertEqual(env['SU2_NATIVE3D_ENVELOPE_DETAIL'],'1')
+                    self.assertEqual(env.get('LD_PRELOAD',''),'');self.assertEqual('env' in args,bool(on))
+                    for name in run.RAW:(cwd/name).write_text(json.dumps({'workers':p['workers']}))
+                    out='\n'.join('All tests passed (1 assertion in 1 test case)' for _ in range(2))
+                    if on and cwd.parent.name!='failed':(cwd/'test_driver.2.123.mpiP').write_text(self.mpip_text(2))
+                elif label=='audit':
+                    p=json.loads((cwd/'parameters.json').read_text());scale=1+.1*p['mpi_profile']+.01*p['repeat']
+                    parents=[dict(rank=r,cycle=c,parent_wall=scale*(c+1)) for c in range(3) for r in range(2)]
+                    (cwd/'independent_audit.json').write_text(json.dumps(dict(status='PASS',rank_rows=parents,native_rows=self.native(2,p['workers']),rank_stages=[])))
+                (cwd/(label+'.stdout')).write_text(out);(cwd/(label+'.stderr')).write_text('')
+                return dict(exit_code=0,seconds=.001,label=label,command=list(map(str,args)))
+            def invoke(name):
+                with patch.object(sys,'argv',['run.py','--package',str(bundle),'--results',str(root/name),'--mode','mpi-profile','--ranks','2','--machinefile',str(machine)]),patch.object(run,'command',side_effect=fake),contextlib.redirect_stdout(io.StringIO()):run.main()
+            invoke('passed');passed=root/'passed';receipt=json.loads((passed/'result.json').read_text())
+            self.assertEqual(receipt['status'],'PASS');self.assertEqual(len(receipt['cases']),14)
+            self.assertEqual(calls[:7],[(1,0,1),(1,0,0),(1,0,1),(1,1,1),(1,1,0),(1,2,0),(1,2,1)])
+            self.assertEqual(receipt['mpi_profile_library_sha256'],run.sha(library))
+            self.assertFalse((passed/'package/bin').exists())
+            with contextlib.redirect_stdout(io.StringIO()):analyze.main([passed])
+            summary=json.loads((root/'native3d_summary.json').read_text())
+            self.assertEqual(len(summary['campaigns']),6)
+            self.assertTrue(all(row['mode']=='mpi-profile' for row in summary['campaigns']))
+            self.assertAlmostEqual(summary['campaigns'][0]['on_off_ratio'],1.11/1.01)
+            self.assertEqual(summary['campaigns'][0]['process_on_off_ratio'],1)
+            (root/'native3d_summary.json').unlink()
+            changed=receipt['cases'][1];changed['fixed_work_sha256']={'mesh':'changed'}
+            (passed/'result.json').write_text(json.dumps(receipt))
+            with self.assertRaisesRegex(ValueError,'Unmatched fixed work'):analyze.main([passed])
+            calls.clear()
+            with self.assertRaisesRegex(ValueError,'Expected one full mpiP report'):invoke('failed')
+            failed=root/'failed';failure=json.loads((failed/'result.json').read_text())
+            self.assertEqual(failure['status'],'FAIL');self.assertEqual(len(calls),1)
+            self.assertEqual(len(failure['cases']),0)
+            self.assertTrue((failed/'n2_m1_r-1_p1'/run.RAW[0]).is_file())
+            self.assertFalse(list((failed/'n2_m1_r-1_p1').glob('*.gz')))
+
+    def test_mpip_preparation_requires_license(self):
+        with patch.object(sys,'argv',['prepare.py','--mpip-library','/unloaded/libmpiP.so']):
+            with self.assertRaisesRegex(ValueError,'both --mpip-library and --mpip-license'):prepare.main()
+
+    def test_mpip_submission_requires_frozen_library_and_is_gated(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);bundle=self.bundle(root)
+            with patch.object(submit,'ROOT',root),patch.object(Path,'cwd',return_value=root),patch.object(sys,'argv',['submit.py',str(bundle),'--mpi-profile']),patch.object(subprocess,'check_output') as qsub:
+                with self.assertRaisesRegex(ValueError,'mpip-library'):submit.main()
+                qsub.assert_not_called()
+            library=bundle/'bin/libmpiP.so';library.write_bytes(b'fake, never loaded')
+            info=json.loads((bundle/'manifest.json').read_text());info['files_sha256']['bin/libmpiP.so']=run.sha(library)
+            (bundle/'manifest.json').write_text(json.dumps(info))
+            with patch.object(submit,'ROOT',root),patch.object(Path,'cwd',return_value=root),patch.object(sys,'argv',['submit.py',str(bundle),'--mpi-profile']),patch.object(subprocess,'check_output',side_effect=[str(100+i)+'\n' for i in range(10)]) as qsub,contextlib.redirect_stdout(io.StringIO()):submit.main()
+            commands=[c.args[0] for c in qsub.call_args_list];self.assertEqual(len(commands),10)
+            for i,cmd in enumerate(commands[7:],7):
+                self.assertIn('mpi-profile',cmd);self.assertEqual(cmd[cmd.index('-hold_jid')+1],str(99+i))
+                self.assertEqual(cmd.count('--gate'),2)
+            self.assertEqual(commands[-1][-1],str(root/'ClusterResults/native3d_103_lifecycle_n4'))
+
     def test_sge_launcher_preserves_inherited_search_paths(self):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d);bundle=root/'bundle';script=bundle/'integration_evidence/native_cluster_3d_core_v1/run.py'

@@ -1,0 +1,19 @@
+..........E...........
+======================================================================
+ERROR: test_mpip_pairing_summary_and_failed_preload_evidence (__main__.PackageChecks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_core_v1/check_package.py", line 152, in test_mpip_pairing_summary_and_failed_preload_evidence
+    invoke('passed');passed=root/'passed';receipt=json.loads((passed/'result.json').read_text())
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_core_v1/check_package.py", line 151, in invoke
+    with patch.object(sys,'argv',['run.py','--package',str(bundle),'--results',str(root/name),'--mode','mpi-profile','--ranks','2','--machinefile',str(machine)]),patch.object(run,'command',side_effect=fake),contextlib.redirect_stdout(io.StringIO()):run.main()
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_core_v1/run.py", line 94, in main
+    shutil.copyfile(bundle/'manifest.json',result/'package/manifest.json')
+  File "/usr/lib/python3.8/shutil.py", line 264, in copyfile
+    with open(src, 'rb') as fsrc, open(dst, 'wb') as fdst:
+FileNotFoundError: [Errno 2] No such file or directory: '/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/package_checks_v13/tmp2ywxzm75/passed/package/manifest.json'
+
+----------------------------------------------------------------------
+Ran 22 tests in 0.948s
+
+FAILED (errors=1)

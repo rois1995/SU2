@@ -146,3 +146,44 @@ checkpoint, keep that bundle unchanged and run the updated checkout's analyzer
 when results arrive. No executable rebuild or new campaign is required for this
 analysis change alone. Different frozen bundle identities still cannot be merged
 into one paired campaign. Checked scope/evidence: PROFILE_ANALYSIS_REPORT.md.
+
+### Optional deep MPI profiling (isolated transport branch)
+
+This addition is on codex/native-3d-transport-accounting, not the currently
+published codex/native-3d-core campaign. Keep existing prepared/submitted
+bundles unchanged. Its orchestration has lightweight mocked checks; actual mpiP
+loading, numerical qualification and profiling overhead are still unverified.
+
+A shared mpiP library built with the same MPI as the test driver can be frozen
+with its complete matching license/notices. Its runtime dependencies, like the
+existing MPI/MMG/CGNS dependencies, must be installed on the compute nodes.
+mpiP is optional and never needed by normal correctness/lifecycle/timing runs.
+Do not use a library built for another MPI implementation.
+
+For a future approved campaign, prepare a new bundle on the login host:
+
+    python3 integration_evidence/native_cluster_3d_core_v1/prepare.py --build-dir build-native --output integration_evidence/native_cluster_3d_core_v1/prepared_mpip_v1 --mpip-library /absolute/path/to/libmpiP.so --mpip-license /absolute/path/to/matching-complete-license-and-notices.txt
+    python3 integration_evidence/native_cluster_3d_core_v1/submit.py integration_evidence/native_cluster_3d_core_v1/prepared_mpip_v1 --mpi-profile
+
+The flag appends three serialized N1/2/4 profiling jobs after the ordinary
+seven-job campaign, with same-package correctness and matching lifecycle PASS
+gates. M=N and M<N choices use the existing frozen n4 targets/guards. Each choice
+has a warm-up and three alternating profiler OFF/ON pairs, with native detail ON
+in both controls. Every mesh/source/current+BDF/readback hash must match.
+Inherited LD_PRELOAD/MPIP are refused for this comparison. Preloading applies
+only to the MPI application; neither mpirun nor auditors load the profiler.
+An absent/incomplete/all-ranks-mismatched report fails the campaign and keeps
+raw files uncompressed. The library is copied and pinned inside the bundle;
+downloaded results retain its identity/license and reports but omit binaries.
+
+The [mpiP documentation](https://software.llnl.gov/mpiP/) defines callsite
+statistics and communicator/message-size histograms. Full .mpiP reports retain
+per-rank data with four-frame callsites, collective and point-to-point histograms.
+analyze.py reports paired adaptation-parent overhead and whole-process overhead;
+the latter also includes the test fixture, output and final report generation.
+MPI API elapsed is not pure wait or physical wire traffic. Statistical callsites
+do not establish chronological phase windows, exact communicator identity,
+allocator peaks or complete coverage of a particular MPI/vendor build. Inspect
+the actual reports and calibrate before using them to identify a bottleneck.
+Source lines require usable debug symbols. No time/speedup claim follows from
+the mocked checks or the serial coverage lower bound.
