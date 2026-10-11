@@ -1,0 +1,18 @@
+{
+  "base": "f05ca3a8828d56619bdcafc763cbe4c8facae1d0",
+  "scope": "Exact necessary-condition boundary collapse filter on globally admissible frozen fields; preserve invalid-field repair and strict completion; retain local geometric rejection reasons on successful votes.",
+  "cases": [
+    "configured MPI1/2/4 insertion/filter/coplanar/automatic repair/budget/default/2D/MMG",
+    "aligned n3 default N1 full three-event lifecycle",
+    "original n2 N1 control",
+    "aligned n3 default N4M2 and N4M4"
+  ],
+  "guards": {
+    "q": 0.2,
+    "J": 0.05,
+    "L": 1.8,
+    "rounds": 512,
+    "noise": 0
+  },
+  "execution": "One owned heavy job, nice19, buildj1, MPI<=4, threads1 after real host checks. Single contended pilots cannot prove speedup; retain all failures. Expand only after first controls pass."
+}

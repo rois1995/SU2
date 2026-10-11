@@ -1,3 +1,44 @@
+## Native3D exact coarsening filter checkpoint — 2026-10-11
+
+NativeIntegrated / codex/native-3d-core, predecessorf05ca3a8828d56619bdcafc763cbe4c8facae1d0.
+Implementation/evidence publication pending. COARSEN_FILTER_REPORT.md and
+COARSEN_FILTER_CHECKPOINT_VALIDATION.json qualify four actual default512 driver
+cases (12 events),340 closed phase rows, complete68-object MPI1/2/4 filter/
+coplanar/insertion/automatic repair/budget/default/native2D/MMG regression,
+324 independent automatic frames and9 negative controls. Source/library/object/
+artifact pins agree. No owned process live after the final audit.
+
+Directed boundary collapse counterexamples use exact immutable finite-facet
+Contains, cached in per-cell bits/per-edge counts, updated with mesh edits.
+Filter enables only once globallyadmissible; invalid-field collapse repair is
+preserved. Counters report facet checks and queued directions actually removed,
+not all suppressed future enqueues. Extra storage charged by mapmodels; nested
+geometry timer belongs to seed/update. Local witnesses can miss remote-only
+obstructions (safe underfilter), full imported validation remains authoritative.
+Successful vote preserves local rejection reason; v2 tests invalid-field no-prune
+and nonblank exact geometry reason, failure timing return moved outside scope.
+
+Serial alignedn3 full default512 nowpasses288/50/312tets. Second coarsen482
+rounds66accepted416rejected versus old diagnostic619/66/553, seven initial/first
+accepted/state/sidecar/secondinput files byte-identical to faileddefaultbaseline.
+Exactpredicate2933, queuedpruned443, nestedgeometry0.03144s. Fieldrequests2717/
+hits10 unchanged. Singlecontended enginewalls4.18517old/4.10262new do NOT prove
+speedup. Nestededgetrace2.14006 and donorfilter1.41236 remain dominantquestions.
+N4M2 defaultpasses288/47/277; N4M4 passes288/51/264. Originaln2 N1 passes88/36/94.
+Qualifiedqmin0.202935/Jmin0.062176/Lmax1.799641, tensorerror0/state<=5.80681e-16.
+
+Inspectable grids: integration_evidence/native_3d_core_v1/
+coarsen_filter_aligned_n3_n1_v1/envelope_s0.vtu through envelope_s2.vtu,
+plus N4M2/M4 folders, SU2/eventsidecars/finalCGNS. All historic failures retained.
+No CFDiterations run. Current reusable runtimebinary lives in this newN1folder.
+
+Next: address measured exact donor clipping/edge tracing without compromising
+source coverage/P1/metric/geometry guards. Continue stronger/direction-varying/
+thin/wedge/restart/larger practical limits, full wait/traffic/memory/calibration,
+instrumentationOFFON/repeated scaling and closed SGE packages. FullGoal1 ACTIVE;
+no overnight clusterlaunch question, no speedup/CFDaffordability/full3D claim.
+Foreignwork/AdapNoExt/submodules/ClusterResults remain untouched.
+
 ## Native3D cavity insertion checkpoint — 2026-10-11
 
 NativeIntegrated / codex/native-3d-core, predecessor16029e00cba59c54a05c71eb320c4833845762a2.

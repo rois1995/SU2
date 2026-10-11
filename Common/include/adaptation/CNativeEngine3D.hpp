@@ -27,6 +27,8 @@ struct EngineStats {
   double donor_search_seconds = 0, donor_filter_seconds = 0;  // Nested in import/search.
   uint64_t repair_proposals = 0, moved = 0, reconnected = 0, inserted = 0;
   uint64_t repair_fallbacks = 0, fallback_accepted = 0, recovery_starts = 0;
+  uint64_t collapse_geometry_checks = 0, collapse_filtered = 0;
+  double collapse_geometry_seconds = 0;  // Nested in selection-cache seed/update, not metric queries.
   double process_cpu_seconds = 0, reconstruction_cpu_seconds = 0, metric_cpu_seconds = 0, measurement_cpu_seconds = 0;
   // Nested query detail; never add to the exclusive engine phases below.
   double field_build_seconds = 0, field_query_seconds = 0, field_cache_seconds = 0, field_search_seconds = 0;

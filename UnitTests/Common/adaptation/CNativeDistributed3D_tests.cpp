@@ -689,6 +689,8 @@ void EngineReport(const EngineResult& result, World& world, const std::string& l
        << " case=" << label << " initial=" << s.initial_cells << " updated=" << s.updated_cells << " final=" << result.cells.size()
        << " rounds=" << s.rounds << " proposed=" << s.proposed << " attempts=" << s.attempted
        << " accepted=" << s.accepted << " rejected=" << s.rejected << " conflicts=" << s.conflicts
+       << " collapse_geometry_checks=" << s.collapse_geometry_checks << " collapse_filtered=" << s.collapse_filtered
+       << " collapse_geometry_nested_s=" << s.collapse_geometry_seconds
        << " selection_edge_evaluations=" << s.edge_evaluations << " selection_edge_reused=" << s.edge_reused
        << " field_requests=" << s.field_requests
        << " field_hits=" << s.field_hits << " field_edges=" << s.field_edges << " work_bytes=" << s.maximum_work_bytes
@@ -1267,6 +1269,27 @@ TEST_CASE("Native MPI planar movement and face edge reconnection publish full pr
         }
       }
     }
+}
+
+TEST_CASE("Native MPI admissible coarsening prunes exact immutable-facet counterexamples", "[NativeDistributed3D][NativeCollapseFilter3D]") {
+  World world;
+  const auto fixture=RepairGeometry("corner",1.,false);
+  const PlanarReference reference(fixture.facets);
+  const auto input=Partition(Rows(fixture.patch),world);const auto saved=Bytes(input);
+  const auto original=Uniform(input,Tensor{.25,0,0,.25,0,.25});
+  EngineOptions options;options.timings=true;
+  const auto result=Coarsen(world,input,original,reference,{},options);
+  CHECK(result.valid);CHECK(result.reason.empty());CHECK(result.stats.rounds==0);
+  CHECK(world.sum(int(result.stats.collapse_filtered))>0);
+  CHECK(world.sum(int(result.stats.collapse_geometry_checks))>0);
+  CHECK(result.stats.collapse_geometry_seconds>=0);CHECK(result.stats.other_seconds>=-1e-12);
+  CHECK(Bytes(result.cells)==saved);CHECK(Bytes(input)==saved);
+  EngineReport(result,world,"immutable_corner_filter");
+  options.maximum_rounds=1;
+  const auto rejected=Coarsen(world,input,Uniform(input,Tensor{16,0,0,16,0,16}),reference,{},options);
+  CHECK_FALSE(rejected.valid);CHECK(rejected.stats.collapse_filtered==0);
+  if (rejected.stats.attempted) CHECK(rejected.reason.find(": Native 3D movement proposal leaves an incident immutable facet.")!=std::string::npos);
+  CHECK(Bytes(input)==saved);CHECK(rejected.stats.other_seconds>=-1e-12);
 }
 
 TEST_CASE("Native automatic MPI repair selects complete failing features and restores frozen gates", "[NativeDistributed3D][NativeAutomaticRepair3D]") {

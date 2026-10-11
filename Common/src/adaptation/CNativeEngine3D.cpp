@@ -57,8 +57,12 @@ using RepairFeature = std::pair<unsigned,std::array<Id,3>>;
 struct Choice { Edge edge{}; EdgeMeasure measure; bool active = false; Feature feature; };
 class Selection {
  public:
-  explicit Selection(bool coarsening, bool repairing) : coarsening(coarsening), track_repairs(repairing), repair_event(repairing) {}
-  bool coarsening, track_repairs, repair_event;
+  Selection(bool coarsening, bool repairing, const PlanarReference& geometry, EngineStats& stats, bool timings)
+      : coarsening(coarsening), track_repairs(repairing), repair_event(repairing), geometry(geometry), stats(stats), timings(timings) {}
+  bool coarsening, track_repairs, repair_event, prune_collapses = false;
+  const PlanarReference& geometry;
+  EngineStats& stats;
+  bool timings;
   long double Priority(long double length) const { return coarsening ? length : -length; }
   bool Candidate(long double length) const {
     return coarsening ? length < CoarseningMetricEdge : length > MaximumMetricEdge;
@@ -66,13 +70,16 @@ class Selection {
   void Queue(Edge edge, long double length, bool insert) {
     if (repair_event || !Candidate(length)) return;
     for (unsigned i=0; i<(coarsening ? 2u : 1u); ++i) {
-      if (insert) queue.insert({Priority(length),edge}); else queue.erase({Priority(length),edge});
+      Edge key=edge; std::sort(key.begin(),key.end());
+      if (insert && prune_collapses && edges.at(key).forbidden[i])
+        stats.collapse_filtered += queue.erase({Priority(length),edge});
+      else if (insert) queue.insert({Priority(length),edge}); else queue.erase({Priority(length),edge});
       std::swap(edge[0],edge[1]);
     }
   }
   size_t invalid = 0, repair_bytes = 0;
-  struct EdgeState { EdgeMeasure measure; size_t users = 0; };
-  struct CellState { std::array<Edge, 6> edges{}; bool valid = false; };
+  struct EdgeState { EdgeMeasure measure; size_t users = 0; std::array<size_t,2> forbidden{}; };
+  struct CellState { std::array<Edge, 6> edges{}; std::array<unsigned char,6> forbidden{}; bool valid = false; };
   std::map<Id,CellState> cells;
   std::map<Edge,EdgeState> edges;
   std::set<std::pair<long double,Edge>> queue;
@@ -120,15 +127,39 @@ class Selection {
       }
       cell_repairs.erase(repairs);
     }
-    for (auto key : found->second.edges) {
+    for (size_t slot=0;slot<found->second.edges.size();++slot) {
+      const auto key=found->second.edges[slot];
       auto& state = edges.at(key);
       Queue(key,state.measure.length,false);
+      for (unsigned direction=0;direction<2;++direction)
+        state.forbidden[direction]-=bool(found->second.forbidden[slot] & (1u<<direction));
       if (--state.users==0) edges.erase(key);
       else Queue(key,state.measure.length,true);
     }
     cells.erase(found);
   }
-  void Add(const Cell& cell, const PatchMetric& metric, bool valid) {
+  void EnableCollapseFilter() {
+    prune_collapses=true;
+    for (const auto& row:edges) Queue(row.first,row.second.measure.length,true);
+  }
+  unsigned char Forbidden(const OwnedCell& owned, Edge edge) {
+    if (!coarsening) return 0;
+    Timer timer(stats.collapse_geometry_seconds,timings);
+    unsigned char blocked=0;
+    for (unsigned direction=0;direction<2;++direction) {
+      const Id retained=edge[direction], removed=edge[1-direction];
+      Point point{};
+      for (auto node:owned.cell.v) if (node.id==retained) point=node.p;
+      for (size_t face=0;face<4;++face) {
+        if (!owned.physical[face].present || owned.cell.v[face].id==removed) continue;
+        ++stats.collapse_geometry_checks;
+        if (!geometry.Contains(owned.physical[face].facet,point)) { blocked|=1u<<direction; break; }
+      }
+    }
+    return blocked;
+  }
+  void Add(const OwnedCell& owned, const PatchMetric& metric, bool valid) {
+    const auto& cell=owned.cell;
     if (metric.edges.size()!=6 || !std::isfinite(metric.maximum_length))
       throw std::runtime_error("Incomplete native 3D initial/updated metric measurement.");
     CellState row; row.valid=valid;
@@ -140,6 +171,9 @@ class Selection {
       if (!Same(state.measure.a,measured.second.a) || !Same(state.measure.b,measured.second.b) ||
           state.measure.length!=measured.second.length)
         throw std::logic_error("Inconsistent native 3D frozen edge measurement.");
+      row.forbidden[slot]=Candidate(measured.second.length) ? Forbidden(owned,key) : 0;
+      for (unsigned direction=0;direction<2;++direction)
+        state.forbidden[direction]+=bool(row.forbidden[slot] & (1u<<direction));
       ++state.users; row.edges[slot++]=key;
       Queue(key,state.measure.length,true);
     }
@@ -185,14 +219,16 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   EngineResult result;
   auto& stats=result.stats;
   Owned working;
-  Selection selection(coarsening,repairing);
+  Selection selection(coarsening,repairing,geometry,stats,options.timings);
   std::map<Edge,EdgeMeasure> retired_edges;
   Directory directory(world);
   DonorImport source(world,options.timings);
   size_t accepted_bytes=MapBytes(accepted);
   std::vector<Id> initial;
   auto vote=[&](const CLocalFailure& local) {
-    const auto elected=world.elect(local); result.reason=elected.message; return !elected.any;
+    const auto elected=world.elect(local);
+    if (elected.any) result.reason=elected.message;
+    return !elected.any;
   };
   auto bytes=[&]() {
     return transfer_memory::Add(options.caller_bytes,accepted_bytes,MapBytes(working),
@@ -308,7 +344,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             if (prior!=retired_edges.end()) reuse.emplace(key,prior->second);
           }
           const bool strict=ValidateMetricPatch({cell},field,metric,reason,&counted,&reuse);
-          selection.Add(cell,metric,strict);
+          selection.Add(working.at(ids[i]),metric,strict);
           stats.edge_evaluations+=counted.edge_evaluations;
           stats.edge_reused+=counted.edge_reused;
           if (seed) ++stats.initial_cells; else ++stats.updated_cells;
@@ -330,24 +366,34 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     {
       Timer timer(stats.selection_seconds,options.timings);
       ++stats.selections;
-      const int dirty=world.maximum(selection.invalid ? 2 :
+      int dirty=world.maximum(selection.invalid ? 2 :
           (selection.cells.size()!=working.size() || (coarsening && !selection.queue.empty()) ? 1 : 0));
-      bad_field=dirty==2; complete=dirty==0;
-      if (recovered && intent==MetricChange::Refine && !complete) {
-        // Recovery edits can unblock splits; retain the seeded repair dependencies while retrying them.
-        repairing=!world.maximum(!selection.queue.empty());
-      } else if (repairing && intent!=MetricChange::Repair && !bad_field) {
-        repairing=false; selection.track_repairs=false;
-      }
-      choice=selection.Best(repairing); any=world.maximum(choice.active);
-      if (!complete && !any && !repairing && !recovered) {
-        ready=admit(transfer_memory::Mul(working.size(),4096));
+      bad_field=dirty==2;
+      if (coarsening && !bad_field && !selection.prune_collapses) {
+        // Invalid fields still need rejected-collapse repair; a local facet counterexample suffices only afterward.
         CLocalFailure failure;
-        if (ready) try { selection.Recover(working); } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
-        if (ready) ready=vote(failure);
-        if (ready) {
-          repairing=true; recovered=true; ++stats.recovery_starts;
-          choice=selection.Best(repairing); any=world.maximum(choice.active);
+        try { selection.EnableCollapseFilter(); } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
+        ready=vote(failure);
+        if (ready) dirty=world.maximum(selection.cells.size()!=working.size() || !selection.queue.empty());
+      }
+      if (ready) {
+        complete=dirty==0;
+        if (recovered && intent==MetricChange::Refine && !complete) {
+          // Recovery edits can unblock splits; retain the seeded repair dependencies while retrying them.
+          repairing=!world.maximum(!selection.queue.empty());
+        } else if (repairing && intent!=MetricChange::Repair && !bad_field) {
+          repairing=false; selection.track_repairs=false;
+        }
+        choice=selection.Best(repairing); any=world.maximum(choice.active);
+        if (!complete && !any && !repairing && !recovered) {
+          ready=admit(transfer_memory::Mul(working.size(),4096));
+          CLocalFailure failure;
+          if (ready) try { selection.Recover(working); } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
+          if (ready) ready=vote(failure);
+          if (ready) {
+            repairing=true; recovered=true; ++stats.recovery_starts;
+            choice=selection.Best(repairing); any=world.maximum(choice.active);
+          }
         }
       }
     }
