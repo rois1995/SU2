@@ -22,8 +22,9 @@ mesh/reference audits PASS.336 runtime rank rows include modeled bytes and
 process-lifetime peak RSS; largest model8MiB vs matrixRSS38,666,240bytes,
 separate quantities, not an allocation certificate. No source/archive/object
 changes during checks. Implementation checkpoint
-7f004951f080013d82c9fda5d8cd8bc4043f58d4 committed; push this checkpoint and
-its handoff update, then verify full remote SHA before reporting publication.
+7f004951f080013d82c9fda5d8cd8bc4043f58d4 pushed to origin. Publication tip
+64b13aa2f0ff0006e9b134cf29b55b2abfa16f4b verified with git ls-remote; this
+handoff confirmation follows that published implementation/evidence.
 
 Full Goal1 remains ACTIVE. Initial import/caller-held storage gates now cover
 point directory, face exchange, original authority and retained runtime buffers;

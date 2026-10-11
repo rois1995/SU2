@@ -29,7 +29,7 @@ traffic remains outside this counter.
 
 `MEMORY_CHECKPOINT_VALIDATION.json` links the terminal receipts and their hashes.
 `memory_build_v1` built actual configured production archives, CFD executable and
-affected Meson unit objects (nice19, j1). `memory_runtime_v1` passed all33 stages
+affected Meson unit objects (nice19, j1). `memory_runtime_v1` passed all 33 stages
 using those complete actual archives, with unchanged source/library/object pins:
 
 - New budget tests passed MPI1/2/4: one-rank elected early/late refusal, preservation
@@ -41,9 +41,9 @@ using those complete actual archives, with unchanged source/library/object pins:
   current/BDF2 state checks passed: qmin0.6280684264164493,
   Jmin0.3973691568036606, Lmax1.793741946119929, transported tensor error0,
   maximum affine state relative error1.1196825653302053e-12.
--126 accepted/output-reloaded mesh frames exactly match the published runtime_v3
+- 126 accepted/output-reloaded mesh frames exactly match the published runtime_v3
   signatures and original sensor samples; normalized transported states also match.
--336 runtime rank rows close their remesher phases and report memory/RSS. The
+- 336 runtime rank rows close their remesher phases and report memory/RSS. The
   largest modeled bound is8MiB (the conservative reference-setup allowance); the
   largest process-lifetime RSS in this runtime matrix is38,666,240bytes. These
   numbers cover different quantities and must not be compared as a heap certificate.
