@@ -63,6 +63,39 @@ The bundle has regular files only and contains its executable; it has no input
 links outside itself. MPI and other dynamic system libraries remain platform
 requirements. Prepare again in a new folder after any code or binary change.
 
+If compilation stops with `Disk quota exceeded`/`Quota disco superata` while
+writing `.o.d` or `.o`, this is a filesystem write failure, separate from compiler
+warnings and the earlier MMG/SCOTCH link failure. Preserve that build and its log;
+creating another full build wastes space and does not fix quota enforcement.
+The user reported this on2026-10-11 at21:47:56CEST during step672/926: user
+252.88/300GiB and aero group5.15/10TiB in Default, with unlimited chunk-file
+quotas. Checkout and build directories both assign new files to Default.
+The aero flash pool is799.87/800GiB, but is not established as the cause of these
+Default writes. Target capacity/inodes, underlying target quotas and stale
+quota-enforcement state need separate checks. The `.o` and `.o.d` paths localize
+this failure to the build; redirecting TMPDIR alone does not move those outputs.
+
+Read-only checks from the cluster checkout, using the actual failed build name:
+
+```sh
+NATIVE3D_FAILED_BUILD=build-native-3d-20261011_212000
+beegfs-ctl --getentryinfo "$NATIVE3D_FAILED_BUILD/SU2_CFD/src/libSU2core.a.p"
+beegfs-df
+beegfs-ctl --listtargets --longnodes --state
+```
+
+If a partial failed object remains, inspect it with --getentryinfo as well: file
+placement need not match the current directory default. Give administrators the
+failing paths,21:47:56CEST timestamp, UID1050/GID520 and the simultaneous quota
+output. Ask them to check the relevant storage targets' cached exceeded-quota
+state, backend block/inode capacity and underlying user/group limits. BeeGFS7
+[quota enforcement](https://doc.beegfs.io/7.4.7/advanced_topics/quota.html)
+refreshes periodically; its
+[write handler](https://github.com/ThinkParQ/beegfs/blob/7.4.7/storage/source/net/message/session/rw/WriteLocalFileMsgEx.cpp)
+checks a target-specific cached exceeded-quota store. The installed version and
+server state remain unverified. After storage access recovers, resume Ninja in
+the same build directory; package preparation still requires a completed build.
+
 When launch is authorized, from the repository root:
 
 ```sh

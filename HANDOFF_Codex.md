@@ -1,5 +1,30 @@
 # Current handoff — 2026-10-11
 
+## Cluster compilation storage failure localized — 2026-10-11
+
+Branch codex/native-3d-transport-accounting, predecessor
+d509e41870c0f5c67ed7747fac68d738403652e8. Production/test/build/tool code unchanged.
+Cluster Ninja reached step672/926 before EDQUOT writing output_CAdjHeatOutput.cpp.o.d
+and EDQUOT/ENOSPC writing that object and output_CBaselineOutput.cpp.o. Timestamp
+21:47:56CEST. User Default quota252.88/300GiB, aero Default5.15/10TiB, chunk-file
+limits unlimited. Both checkout and build directory patterns use Default(pool1),
+so the aero flash799.87/800GiB observation is not a proven cause. No full cluster
+build/link/numerical run is qualified. Preserve partial build/logs; resume the
+same Ninja build after storage recovery. README includes target-level read-only
+checks and an administrator diagnosis request, without deletion/migration or
+new builds. Server enforcement lists, target capacity and installed BeeGFS
+version are unverified; no cluster command/job was launched by this session.
+
+Coarsening source inspection: rejected directions are erased from the queue;
+cell Drop/Add can requeue incident edges after edits. There is no demonstrated
+unchanged-proposal retry defect. A directed collapse admits the complete removed
+vertex star, while retry invalidation currently follows incident edge changes;
+changes elsewhere in that star need a specific adversarial MPI test before a
+cache/queue fix. Any new early orientation filter must use exact counterexamples,
+track complete dependencies and charge index/communication memory and cost.
+Do not replace full-star checks with edge-only admission or weaken frozen gates.
+Goal1 remains active; n8 bounded completion and measured performance remain open.
+
 ## Termination diagnostics and first n8 size limit — 2026-10-11
 
 Working repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
