@@ -1,0 +1,43 @@
+EFEF......
+======================================================================
+ERROR: test_analyze_pairs_and_overhead (__main__.Checks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "integration_evidence/native_cluster_3d_query_comparison_v1/check_package.py", line 124, in test_analyze_pairs_and_overhead
+    with patch.object(sys,'argv',['analyze',str(results),'--output',str(out)]),contextlib.redirect_stdout(io.StringIO()):analyze.main()
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_query_comparison_v1/analyze.py", line 15, in main
+    if record['status']!='PASS' or record['mode']!='timing':raise ValueError('Need successful timing result')
+ValueError: Need successful timing result
+
+======================================================================
+ERROR: test_changed_target_preserved_and_rejected (__main__.Checks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "integration_evidence/native_cluster_3d_query_comparison_v1/check_package.py", line 119, in test_changed_target_preserved_and_rejected
+    failed=next(f for f in results.iterdir() if f.is_dir() and 'candidate' in f.name and '_r' in f.name)
+StopIteration
+
+======================================================================
+FAIL: test_analyze_rejects_artifact_drift (__main__.Checks)
+----------------------------------------------------------------------
+ValueError: Need successful timing result
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "integration_evidence/native_cluster_3d_query_comparison_v1/check_package.py", line 132, in test_analyze_rejects_artifact_drift
+    with self.assertRaisesRegex(ValueError,'drift'):analyze.main()
+AssertionError: "drift" does not match "Need successful timing result"
+
+======================================================================
+FAIL: test_compact_success_uses_one_reference (__main__.Checks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "integration_evidence/native_cluster_3d_query_comparison_v1/check_package.py", line 107, in test_compact_success_uses_one_reference
+    results,code=self.fake_campaign(Path(t));self.assertEqual(code,0)
+AssertionError: True != 0
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.094s
+
+FAILED (failures=2, errors=2)

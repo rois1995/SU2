@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "integration_evidence/native_cluster_3d_query_comparison_v1/selfcheck_v1/check_saved_runtime.py", line 9, in <module>
+    d=m.runtime(case,json.loads((case/'parameters.json').read_text()))
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_query_comparison_v1/campaign.py", line 25, in runtime
+    for row in stages:stage(row)
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_lifecycle.py", line 92, in stage
+    phases=STAGES[row['stage']];closes(row,phases)
+KeyError: 'envelope'

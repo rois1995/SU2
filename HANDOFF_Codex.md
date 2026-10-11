@@ -1,5 +1,47 @@
 # Current handoff — 2026-10-12
 
+## SGE query-routing comparison prepared — 2026-10-12
+
+Working repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
+codex/native-3d-transport-accounting. Production routing checkpoint7b4e0d767fbda42ff17064ed93960316d794d5ab
+is pushed. Goal1 ACTIVE, Goal2 not started. New reusable tools in
+integration_evidence/native_cluster_3d_query_comparison_v1 prepare regular closed
+copies of existing baseline/candidate core bundles, then serialize both-source
+correctness and N1/2/4 paired timing jobs with M=N/M=max(1,N/2). Baseline is
+2d3ac1e3a552a1b90a87dfa3595fc1b372783ceb, not old2D e6995fb. Preparation enforces
+expected donor-source hashes, exact four-file compiled source difference and
+matching build options except prefix. Do not replace baseline/candidate binaries
+or edit frozen tools. Existing core bundles keep their own72/73-case recipes.
+
+Default hotspot: size8/diagnostic1024, production512 unchanged; optional size4/
+512control. One warm-up per side and three paired detailOFF/ON repetitions,
+alternating order. Actual metric/Hessian/CFD/BDF lifecycle controls precede each
+rank campaign. First N/M reference gets a full independent audit; later exact
+frame/state equality plus fresh output/accounting checks permits reuse. A changed
+trajectory stops fixed-work claims and retains evidence. One compressed full
+reference per N/M; matching repetitions keep logs/configs/environment/rank profiles/
+checksums/provenance and remove duplicate meshes/states only after validation.
+Failure outputs remain. No ClusterRaw/binaries needed for downloaded analysis.
+
+Optional --mpi-profile appends separate three-rank-choice profilerOFF/ON jobs,
+detail alwaysON; both bundles need the same MPI-compatible mpiP library/license.
+Existing MPI API/report parser is reused, raw reports retained and verified.
+API elapsed and wrapper bytes are not pure wait/wire traffic. Normal detail
+and profiler overhead are separate. Analyst re-parses actual current logs and
+requires3paired samples, constant accepted work, artifact identities and spread.
+Different N/M trajectories remain separately certified, not fixed-work scaling.
+
+selfcheck_v1 PASS12mocked/lightweight checks, real saved n8N1M1/n4N4M2 runtime
+log parsing and actual pre/post source-pair receipts. Original harness import/path,
+profile-mock and standalone stage-initialization failures retained with source/logs;
+fixed before publication. Shell syntax PASS. These are TOOL checks, not new solver
+or performance evidence. No actual baseline/candidate comparison bundle prepared,
+cluster job submitted or local timing campaign launched. All owned numerical
+jobs remain terminal. FullGoal1 performance/traffic/wait/allocator/rank-limit
+calibration and the production512larger-case limit remain open. Use the new
+README's explicit baseline/candidate preparation and launch commands when the
+user can run on cluster. Do not ask for submissions while user is away.
+
 ## Narrow actual-query donor routing — qualified checkpoint, 2026-10-12
 
 Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated, branch

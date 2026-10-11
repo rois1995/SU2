@@ -1,0 +1,40 @@
+{
+  "status": "PASS",
+  "mocked_tests": 12,
+  "actual_saved_runtime_cases": [
+    "query_routing_n8_n1_m1_rounds1024_v1",
+    "query_routing_n4_n4_m2_v1"
+  ],
+  "actual_source_pair_check": "Published actual pre/post build source pins match the exact declared donor hashes and four-file difference. The same local configured options were used to exercise source comparison; this does not verify two cluster builds.",
+  "source_receipts_sha256": {
+    "full_star_facet_build_v1": "f2f180d8dcfaf3578e36345da5bf9ecfe35e16ef72e5a533c1844f23fdc417e1",
+    "query_routing_build_v1": "eb5b5ea141a4b97219a59e01ccc844071a45022131551c7d8753d1abc5e03edc"
+  },
+  "scripts_sha256": {
+    "campaign.py": "bd36a98305c6989606ff4661a76dee4b9e98ca6f71ec64bae89c4a8091962a63",
+    "check_package.py": "d3da8e40b690f4c94802f3f17b1461cd5b7c7ed97ffbc8a6f69d99586aec1ad5",
+    "analyze.py": "a7668d54592900e5c707dd69e17495154690fe3f03f3a86690f7dce5ed56867a",
+    "prepare.py": "1ce6d276112d8698ab9d931dd1a38f5306afdb81741971187357f7b7a1391e2f",
+    "submit.py": "f7a8be6ede69bc440d65cc73347556c1bbe97351515a31cecbaeb08135577385",
+    "common.py": "3728031f1d748e0f37ae56800250327d70fdc480c2d7614aef78c92f3c79968a"
+  },
+  "shell_sha256": "d484b5478dc28675fc3b8de0e4c8daff3748919dbbd8cfb15812fa0a7bdbac8a",
+  "scope": "Twelve lightweight package/scheduling/compact-retention/source/build/failure/paired-analysis/profiler-control checks, actual saved-log parser and source-pair validation only. Original mocked import/path/profiler and standalone parser failures retained. No new C++/MPI/CFD, performance, prepared binary bundle or scheduler execution.",
+  "artifacts_sha256": {
+    "check_package_failed_v1.py": "e6dbaf6cf0bab62c83e087cdf276132d0467213b7fc13673c94f3c8d452b9dde",
+    "failed_v1.stderr": "f9271be388028e92c71e668e051b29440b8967f76c318473bcb8cda9aed736aa",
+    "runtime_current.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "profile_mock_failed_v2.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime_failed_v1.stderr": "abe5c1cd39928c6e4a92d713b1117ef5c6d4960c1625f4ff4e6e6c348c8b6885",
+    "profile_mock_failed_v2.stderr": "2139280037ca3b0725a6eaf3e4f3e584384b759bb27aab442cedccc023c3f632",
+    "check_package_profile_mock_v2.py": "1731eedaf8b1bc7834d8c792a02e021ca2c1a337b5fd176b3d7a5e4143a2fe16",
+    "runtime_current.stdout": "1fc9889f927dc97d8a2683062f10a00be8ba69c90237084e300fcd91f5ad4595",
+    "current.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "campaign_runtime_v1.py": "e9c3c8c38fecd26beeb506594511e4ea6df4e1c630001fac6f3fa43954d263aa",
+    "failed_v1.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "current.stderr": "7d67e15965dadf02413c4f4db692e3da74597c009fa3500825c648bf563f06fa",
+    "runtime_failed_v1.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "check_saved_runtime.py": "3d8fa8ef554a27f02ecec0b955d17bbe533915ef982c28933247772061e8ecde"
+  },
+  "readme_sha256": "e84175ed68f24f47883bab80cdba6f6ee5a22e3a6fdf4fc063f7fe50a8afaade"
+}
