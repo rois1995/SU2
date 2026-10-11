@@ -1,3 +1,11 @@
+Latest checkpoint: finite convex coplanar same-marker wall patches permit
+coarsening/movement across original seams, with exact geometry and marker coverage.
+[COPLANAR_GEOMETRY_CHECKPOINT.md](COPLANAR_GEOMETRY_CHECKPOINT.md).
+Grids/states: `coplanar_regression_v2/mpi{1,2,4}_coplanar/`.
+Goal1 ACTIVE/full scope; actual runtime/ParMETIS/CFD/CGNS and complete performance
+remain unfinished. Fixed-work nonMPI controls6-7% slower; cause not isolated.
+Earlier checkpoint sections retain their historical scopes.
+
 Latest checkpoint: bounded private centroid/edge streaming and geometry-first coarsening.
 [PRIVATE_QUERY_CHECKPOINT.md](PRIVATE_QUERY_CHECKPOINT.md). Grids and frozen states:
 `private_query_sources_v3/mpi{1,2,4}_meshes/`. Goal1 remains ACTIVE/full scope.

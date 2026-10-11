@@ -42,7 +42,7 @@ files = units+house+tests+headers+['Common/src/meson.build', 'UnitTests/meson.bu
     'Common/include/adaptation/CNativeDistributed2D.hpp', 'Common/include/adaptation/CTransferMemory.hpp',
     'Common/include/adaptation/CDistributedSearch.hpp', 'Common/include/parallelization/CPassiveComm.hpp',
     'Common/include/parallelization/mpi_structure.hpp', 'integration_evidence/native_3d_core_v1/audit_distributed.py',
-    'integration_evidence/native_3d_core_v1/audit_coupled.py', 'integration_evidence/native_3d_core_v1/audit_donors.py', 'integration_evidence/native_3d_core_v1/audit_cavities.py', 'integration_evidence/native_3d_core_v1/audit_anisotropic.py', 'integration_evidence/native_3d_core_v1/audit_cycles.py', 'integration_evidence/native_3d_core_v1/audit_repairs.py', 'integration_evidence/native_3d_core_v1/audit_engine_repairs.py',
+    'integration_evidence/native_3d_core_v1/audit_coupled.py', 'integration_evidence/native_3d_core_v1/audit_donors.py', 'integration_evidence/native_3d_core_v1/audit_cavities.py', 'integration_evidence/native_3d_core_v1/audit_anisotropic.py', 'integration_evidence/native_3d_core_v1/audit_cycles.py', 'integration_evidence/native_3d_core_v1/audit_repairs.py', 'integration_evidence/native_3d_core_v1/audit_engine_repairs.py', 'integration_evidence/native_3d_core_v1/audit_coplanar.py',
     str(Path(__file__).resolve().relative_to(root))]
 initial = {p: hashlib.sha256((root/p).read_bytes()).hexdigest() for p in files}
 git = shutil.which('git') is not None and (root/'.git').exists()
@@ -78,7 +78,7 @@ try:
         mpi_status=records[-1]['exit_code']
         reports = []
         for line in output.splitlines():
-            if line.startswith('DIRECTORY ') or line.startswith('SUBSET_RETURN ') or line.startswith('DONOR ') or line.startswith('ENGINE ') or line.startswith('ANISO_PREP ') or line.startswith('ANISO_CYCLE ') or line.startswith('CYCLE_EVENT ') or line.startswith(('REPAIR_EVENT ','REPAIR_WORK ','AUTO_EVENT ')):
+            if line.startswith('DIRECTORY ') or line.startswith('SUBSET_RETURN ') or line.startswith('DONOR ') or line.startswith('ENGINE ') or line.startswith('ANISO_PREP ') or line.startswith('ANISO_CYCLE ') or line.startswith('CYCLE_EVENT ') or line.startswith(('REPAIR_EVENT ','REPAIR_WORK ','AUTO_EVENT ','COPLANAR_EVENT ','COPLANAR_GEOMETRY ')):
                 if line.startswith(('ENGINE ','ANISO_PREP ','ANISO_CYCLE ','CYCLE_EVENT ','REPAIR_EVENT ','REPAIR_WORK ','AUTO_EVENT ')):
                     assert all('=' in x for x in line.split()[1:]), 'Interleaved/truncated profile record'
                     parsed=dict(x.split('=',1) for x in line.split()[1:])
@@ -114,6 +114,10 @@ try:
             run(['nice','-n','19',sys.executable,'integration_evidence/native_3d_core_v1/audit_engine_repairs.py',
                  str(folder/('mpi'+str(ranks)+'.stdout')),str(folder/('mpi'+str(ranks)+'_automatic_repairs')),str(ranks)],
                  'audit_engine_repairs_mpi'+str(ranks))
+        if 'COPLANAR_SOURCE ' in output:
+            run(['nice','-n','19',sys.executable,'integration_evidence/native_3d_core_v1/audit_coplanar.py',
+                 str(folder/('mpi'+str(ranks)+'.stdout')),str(folder/('mpi'+str(ranks)+'_coplanar')),str(ranks)],
+                 'audit_coplanar_mpi'+str(ranks))
         if mpi_status or output.count('All tests passed') != ranks:
             raise RuntimeError('MPI'+str(ranks)+' failed; rejected records/audits retained in '+str(folder))
     status = 'PASS'

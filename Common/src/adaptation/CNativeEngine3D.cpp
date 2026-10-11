@@ -600,8 +600,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             (move_trial || trial-3<nodes.size());
         if (!world.maximum(participating)) continue;
         bool candidate=false;
-        { Timer timer(stats.reconstruction_seconds,options.timings); CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
+        { Timer timer(stats.reconstruction_seconds,options.timings);
           if (participating) try {
+            CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
             ++stats.repair_proposals;
             const Id first=maximum_cell+1+offset;
             if (move_trial && maximum_node!=UINT64_MAX && token<UINT64_MAX-maximum_node) {

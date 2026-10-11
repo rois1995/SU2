@@ -1,0 +1,1021 @@
+{
+  "status": "PASS",
+  "source_validation_sha256": "6f27150d519f1711bad0620e284b634d9a11b0c2e330c80b19aea1b642491927",
+  "binary_sha256": "0ff2cb439917a51d30bf1dfde60065075dc2f9e8a84f7ff72988584664fab729",
+  "runner_sha256": "34fdf42499f3e267d040eff6d2447f3b5c62eef2f40f6f2a9b8096337de1d27a",
+  "source_sha256": {
+    "Common/src/adaptation/CNativePredicates3D.cpp": "ce744608ef84f37c61d7d1edc38a8ec4a1d1d3bd79335607ab997318887674d9",
+    "Common/src/adaptation/CNativeTopology3D.cpp": "d8a099542448936e7cccc06907ae8db12db3df30f73a90843ff11627734d8048",
+    "Common/src/adaptation/CNativeCavity3D.cpp": "1b0b78569a3111c1602f90d7160f4e4b80a9c2c8e021938053e0f2eb47a8fdcb",
+    "Common/src/adaptation/CNativeBoundary3D.cpp": "1616ba5835e94ec8e2aa554ee02ec5b2f0d43a7e9258707bb2a7c73f472f7119",
+    "Common/src/adaptation/CNativeField3D.cpp": "e2247ff8c582b690a73e503058ef7430efaea467eccc69e5710e5d50b95b1e5b",
+    "Common/src/adaptation/CNativeMetric3D.cpp": "7c8e5c34849fa1613d2cbf86aa7d7ebbabf32226cafcfd2ffe12b28d4ba9a2cd",
+    "Common/src/adaptation/CNativeDistributed3D.cpp": "13c9caad32705bd26c14ac2ba2c38df7fce903fdf67c2f549509956330e3cc5e",
+    "Common/src/adaptation/CNativeDonor3D.cpp": "90310e2fa43cf5a36a3542ec9e8b10391b3c9631d314502825b54a9b2e53f12c",
+    "Common/src/adaptation/CNativeEngine3D.cpp": "f948dc29809bb55714b3f6673ebecbea6c36aa887f7b3b3d5af25af7c94935a6",
+    "Common/src/adt/CADTBaseClass.cpp": "1e9efb89a0338f231e08d44707290693b875344e902b1e5018c4e20c8fc8b1af",
+    "Common/src/adt/CADTElemClass.cpp": "d2fe9839408416e457b6d171cecc4748776f08b8eed198c7be801566e147ac52",
+    "Common/include/parallelization/mpi_structure.cpp": "30078341e15207039221f86538bf60345378ddc7f5dfd9399d12bf5284d8c9f5",
+    "Common/src/parallelization/CPassiveComm.cpp": "e3c5aa247515d7ee48cf1dcd8505b28102bb664df800c7cf8767c3f52a9679d0",
+    "Common/src/adaptation/CDistributedSearch.cpp": "cd13b7ff7864be86ad9181b8285b267209107b3409d7dc984b10f1c86c8f88fd",
+    "Common/src/adaptation/CTransferMemory.cpp": "b5ec2cf817d1bba837c37f2d4d2ef2df4d18cff1289ddc8e2cc217d2d52ffb37",
+    "UnitTests/Common/adaptation/CNativeMesh3D_tests.cpp": "574fc4a63168e809d489294e12e2a3a6fdac7df6626d756be4836b29abf4edd8",
+    "UnitTests/Common/adaptation/CNativeTopology3D_tests.cpp": "817099bb89ba83d4caf733dfc9b9fd3c13716d7c0c5a2d968de7feb47a43f575",
+    "UnitTests/Common/adaptation/CNativeCavity3D_tests.cpp": "873b0f98533e6dd8152ae2a7a08a04bb1ef82cc7d3dd9179e26ff73d58ee695b",
+    "UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp": "89bc0919e4160e42f380b3ad049220d571c133d535efdd3ae0f6095352f74b64",
+    "UnitTests/Common/adaptation/CNativeField3D_tests.cpp": "05c3d78707b53ad8f350fe1e17d7c7b761e915934ff2cb9cfc476ac34d8b956c",
+    "UnitTests/Common/adaptation/CNativeMetric3D_tests.cpp": "007835605ec7632ea001192cfcb2d4869ef0216dc18182fb436df816d5afcaa0",
+    "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp": "ae7158b1325a23bd3e6cb486da8bdd4c91666936b0f6985256d395aef23654f6",
+    "Common/include/adaptation/CNativeMesh3D.hpp": "1acdd284229a9718a89395a7b2003c29dc9dd80a7a8669721e839aa907f23c9a",
+    "Common/include/adaptation/CNativeTopology3D.hpp": "8e60e17bae7a2b682f9431514ed88aa33994b8f98a199605ae641df9f633ddaa",
+    "Common/include/adaptation/CNativeCavity3D.hpp": "cb03cb6bb457857f3b701daa1708327e470ce31e38eddca9113c24bb7866be19",
+    "Common/include/adaptation/CNativeBoundary3D.hpp": "43d24c685ab12f5a301cf0962c60618ad63a9073a34ec525bfac0a46e421d97c",
+    "Common/include/adaptation/CNativeField3D.hpp": "c62739802aa0ef4298fda18f3817773f81e66383421a94e188740360168e21f3",
+    "Common/include/adaptation/CNativeMetric3D.hpp": "3fd99063b5de5a75e8ed2f2b6635a0697e5b21dcba546128ad5bea0ceaf0ac9d",
+    "Common/include/adaptation/CNativeDistributed3D.hpp": "22bbfc2f0b8169d97cd90a3d34b0177aab981621387fd7efbb524e2ce0b48d78",
+    "Common/include/adaptation/CNativeDonor3D.hpp": "308ceef864a319f20b07fd4f9a6fff3518469836418ef4c427ff7bf81dd6f223",
+    "Common/include/adaptation/CNativeEngine3D.hpp": "3c66f8252447b4713577e3c6f03dadea05c5c12fff04cd357a98f5fdc75f36d5",
+    "Common/src/meson.build": "d48c5ff083e1515d8f9050c10824b689c520d58b84de295972100f56945b5333",
+    "UnitTests/meson.build": "8e1b5b2afbf5273c6d5eb19a09e7da0db0549f409647576dd3926f16ceb7ef4f",
+    "UnitTests/test_driver.cpp": "8b8624361288fe85c1f839eb16c64c04eaae2de08043ae145d8c354f7a6a83e5",
+    "Common/include/adaptation/CNativeDistributed2D.hpp": "419aaf7b27e34f1c0bdb19f819de2cc1c430d451b6a94cc8b34d42a79de2e4b2",
+    "Common/include/adaptation/CTransferMemory.hpp": "c73a9f79fdffa170f0a486578fa7a39f2317d0576d371c38f952f37c87842a93",
+    "Common/include/adaptation/CDistributedSearch.hpp": "b30ee04824f1c858ab6b48bf0b40d71577fcf47c53e6ab2583a6f50a87ea8ce7",
+    "Common/include/parallelization/CPassiveComm.hpp": "3069c912c03297a7c494eb679baf97cb5a038f0e3aefc98c92dd03f819b6cb87",
+    "Common/include/parallelization/mpi_structure.hpp": "4d6a312284d5b2b61891e220e1d1a3a45143060d9187f3df69f6699d576d2b4a",
+    "integration_evidence/native_3d_core_v1/audit_distributed.py": "bc580915603b1a4558bbbdc3441603ef30d7a01a7e663155d65789563a5254db",
+    "integration_evidence/native_3d_core_v1/audit_coupled.py": "67a12c5c39c6c3e021473f49c1f14301f037d7883268b98d7afc9edc2b00f63b",
+    "integration_evidence/native_3d_core_v1/audit_donors.py": "0e17561cddb4e859ef9aa55448df385b7caa7369ae3345d9b3ef0f02d3f708ec",
+    "integration_evidence/native_3d_core_v1/audit_cavities.py": "26079385c071c3ad1b9c06ab3b862b4ff293367dc3c8d291acf0487089d062c5",
+    "integration_evidence/native_3d_core_v1/audit_anisotropic.py": "ac8a677100d1f425763bdf6537579746762dd24ca67b721e3a7b02e147a41b9e",
+    "integration_evidence/native_3d_core_v1/audit_cycles.py": "ef0ba64ba6ad53bb04379683f729a4223f71ae1a5243c59d9f48db3307e9b208",
+    "integration_evidence/native_3d_core_v1/audit_repairs.py": "79392b17efca317fa700aef269ef4c98ee4cd8a9406fda89cd3355476a5a5eca",
+    "integration_evidence/native_3d_core_v1/audit_engine_repairs.py": "769711625307ddf1c2ab81205ade1589f5d66cdd213a45ba0efcb8d0f8eaf5ed",
+    "integration_evidence/native_3d_core_v1/audit_coplanar.py": "f2be4b42c9a5b955d47b6c707a01ecfc8e0b5f9014dc4d1390809e7a08f28687",
+    "integration_evidence/native_3d_core_v1/run_distributed.py": "e6149fb78b8004436f03699c0e8698e066bbc4a23a180c9e7a843dc633d49ed6"
+  },
+  "changed_during_run": [],
+  "repetitions": 3,
+  "stages": [
+    {
+      "stage": "repeat1_mpi1",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "mpirun",
+        "--oversubscribe",
+        "--bind-to",
+        "none",
+        "-np",
+        "1",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coplanar_regression_v2/test_distributed",
+        "[NativeCoplanar3D]",
+        "--use-colour",
+        "no"
+      ],
+      "exit_code": 0,
+      "seconds": 0.4257185480091721
+    },
+    {
+      "stage": "audit_repeat1_mpi1",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/python3",
+        "integration_evidence/native_3d_core_v1/audit_coplanar.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coplanar_repeats_v1/repeat1_mpi1.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coplanar_repeats_v1/repeat1_mpi1_meshes",
+        "1"
+      ],
+      "exit_code": 0,
+      "seconds": 0.23944795998977497
+    },
+    {
+      "stage": "repeat1_mpi2",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "mpirun",
+        "--oversubscribe",
+        "--bind-to",
+        "none",
+        "-np",
+        "2",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coplanar_regression_v2/test_distributed",
+        "[NativeCoplanar3D]",
+        "--use-colour",
+        "no"
+      ],
+      "exit_code": 0,
+      "seconds": 0.5234170339535922
+    },
+    {
+      "stage": "audit_repeat1_mpi2",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/python3",
+        "integration_evidence/native_3d_core_v1/audit_coplanar.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coplanar_repeats_v1/repeat1_mpi2.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coplanar_repeats_v1/repeat1_mpi2_meshes",
+        "2"
+      ],
+      "exit_code": 0,
+      "seconds": 0.43038744397927076
+    },
+    {
+      "stage": "repeat1_mpi4",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "mpirun",
+        "--oversubscribe",
+        "--bind-to",
+        "none",
+        "-np",
+        "4",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coplanar_regression_v2/test_distributed",
+        "[NativeCoplanar3D]",
+        "--use-colour",
+        "no"
+      ],
+      "exit_code": 0,
+      "seconds": 0.6353630449739285
+    },
+    {
+      "stage": "audit_repeat1_mpi4",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/python3",
+        "integration_evidence/native_3d_core_v1/audit_coplanar.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coplanar_repeats_v1/repeat1_mpi4.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coplanar_repeats_v1/repeat1_mpi4_meshes",
+        "4"
+      ],
+      "exit_code": 0,
+      "seconds": 0.637392035976518
+    },
+    {
+      "stage": "repeat2_mpi1",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "mpirun",
+        "--oversubscribe",
+        "--bind-to",
+        "none",
+        "-np",
+        "1",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coplanar_regression_v2/test_distributed",
+        "[NativeCoplanar3D]",
+        "--use-colour",
+        "no"
+      ],
+      "exit_code": 0,
+      "seconds": 0.40742526500253007
+    },
+    {
+      "stage": "audit_repeat2_mpi1",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/python3",
+        "integration_evidence/native_3d_core_v1/audit_coplanar.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coplanar_repeats_v1/repeat2_mpi1.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coplanar_repeats_v1/repeat2_mpi1_meshes",
+        "1"
+      ],
+      "exit_code": 0,
+      "seconds": 0.2481020830455236
+    },
+    {
+      "stage": "repeat2_mpi2",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "mpirun",
+        "--oversubscribe",
+        "--bind-to",
+        "none",
+        "-np",
+        "2",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coplanar_regression_v2/test_distributed",
+        "[NativeCoplanar3D]",
+        "--use-colour",
+        "no"
+      ],
+      "exit_code": 0,
+      "seconds": 0.49373311299132183
+    },
+    {
+      "stage": "audit_repeat2_mpi2",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/python3",
+        "integration_evidence/native_3d_core_v1/audit_coplanar.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coplanar_repeats_v1/repeat2_mpi2.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coplanar_repeats_v1/repeat2_mpi2_meshes",
+        "2"
+      ],
+      "exit_code": 0,
+      "seconds": 0.4244820149615407
+    },
+    {
+      "stage": "repeat2_mpi4",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "mpirun",
+        "--oversubscribe",
+        "--bind-to",
+        "none",
+        "-np",
+        "4",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coplanar_regression_v2/test_distributed",
+        "[NativeCoplanar3D]",
+        "--use-colour",
+        "no"
+      ],
+      "exit_code": 0,
+      "seconds": 0.6303734069806524
+    },
+    {
+      "stage": "audit_repeat2_mpi4",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/python3",
+        "integration_evidence/native_3d_core_v1/audit_coplanar.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coplanar_repeats_v1/repeat2_mpi4.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coplanar_repeats_v1/repeat2_mpi4_meshes",
+        "4"
+      ],
+      "exit_code": 0,
+      "seconds": 0.6367423679912463
+    },
+    {
+      "stage": "repeat3_mpi1",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "mpirun",
+        "--oversubscribe",
+        "--bind-to",
+        "none",
+        "-np",
+        "1",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coplanar_regression_v2/test_distributed",
+        "[NativeCoplanar3D]",
+        "--use-colour",
+        "no"
+      ],
+      "exit_code": 0,
+      "seconds": 0.455155702016782
+    },
+    {
+      "stage": "audit_repeat3_mpi1",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/python3",
+        "integration_evidence/native_3d_core_v1/audit_coplanar.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coplanar_repeats_v1/repeat3_mpi1.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coplanar_repeats_v1/repeat3_mpi1_meshes",
+        "1"
+      ],
+      "exit_code": 0,
+      "seconds": 0.24310579698067158
+    },
+    {
+      "stage": "repeat3_mpi2",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "mpirun",
+        "--oversubscribe",
+        "--bind-to",
+        "none",
+        "-np",
+        "2",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coplanar_regression_v2/test_distributed",
+        "[NativeCoplanar3D]",
+        "--use-colour",
+        "no"
+      ],
+      "exit_code": 0,
+      "seconds": 0.47894096694653854
+    },
+    {
+      "stage": "audit_repeat3_mpi2",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/python3",
+        "integration_evidence/native_3d_core_v1/audit_coplanar.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coplanar_repeats_v1/repeat3_mpi2.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coplanar_repeats_v1/repeat3_mpi2_meshes",
+        "2"
+      ],
+      "exit_code": 0,
+      "seconds": 0.43218906002584845
+    },
+    {
+      "stage": "repeat3_mpi4",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "mpirun",
+        "--oversubscribe",
+        "--bind-to",
+        "none",
+        "-np",
+        "4",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coplanar_regression_v2/test_distributed",
+        "[NativeCoplanar3D]",
+        "--use-colour",
+        "no"
+      ],
+      "exit_code": 0,
+      "seconds": 0.6292315419996157
+    },
+    {
+      "stage": "audit_repeat3_mpi4",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/python3",
+        "integration_evidence/native_3d_core_v1/audit_coplanar.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coplanar_repeats_v1/repeat3_mpi4.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coplanar_repeats_v1/repeat3_mpi4_meshes",
+        "4"
+      ],
+      "exit_code": 0,
+      "seconds": 0.6408005790435709
+    }
+  ],
+  "summary": [
+    {
+      "ranks": 1,
+      "case": "coplanar_m1_s0",
+      "parent_rank_max_seconds": [
+        0.007646759,
+        0.007931251,
+        0.008739215
+      ],
+      "median": 0.007931251,
+      "minimum": 0.007646759,
+      "maximum": 0.008739215,
+      "accepted": [
+        1,
+        1,
+        1
+      ],
+      "useful_edits_per_second": [
+        130.77435813002606,
+        126.08351444179486,
+        114.42675343265957
+      ],
+      "maximum_engine_requested_work_bytes": 2136776
+    },
+    {
+      "ranks": 1,
+      "case": "coplanar_m1_s1",
+      "parent_rank_max_seconds": [
+        0.022885155,
+        0.023182209,
+        0.028997246
+      ],
+      "median": 0.023182209,
+      "minimum": 0.022885155,
+      "maximum": 0.028997246,
+      "accepted": [
+        14,
+        14,
+        14
+      ],
+      "useful_edits_per_second": [
+        611.7502809135442,
+        603.9113873919435,
+        482.8044704659194
+      ],
+      "maximum_engine_requested_work_bytes": 2232024
+    },
+    {
+      "ranks": 1,
+      "case": "coplanar_m1_s2",
+      "parent_rank_max_seconds": [
+        0.036093838,
+        0.035180871,
+        0.039050929
+      ],
+      "median": 0.036093838,
+      "minimum": 0.035180871,
+      "maximum": 0.039050929,
+      "accepted": [
+        14,
+        14,
+        14
+      ],
+      "useful_edits_per_second": [
+        387.8778421956678,
+        397.94353016444643,
+        358.50619584491835
+      ],
+      "maximum_engine_requested_work_bytes": 2231912
+    },
+    {
+      "ranks": 2,
+      "case": "coplanar_m1_s0",
+      "parent_rank_max_seconds": [
+        0.007692748,
+        0.008170241,
+        0.00879118
+      ],
+      "median": 0.008170241,
+      "minimum": 0.007692748,
+      "maximum": 0.00879118,
+      "accepted": [
+        1,
+        1,
+        1
+      ],
+      "useful_edits_per_second": [
+        129.9925592259099,
+        122.39541036794385,
+        113.75037253247005
+      ],
+      "maximum_engine_requested_work_bytes": 2136776
+    },
+    {
+      "ranks": 2,
+      "case": "coplanar_m1_s1",
+      "parent_rank_max_seconds": [
+        0.022970162,
+        0.023300204,
+        0.023262377
+      ],
+      "median": 0.023262377,
+      "minimum": 0.022970162,
+      "maximum": 0.023300204,
+      "accepted": [
+        14,
+        14,
+        14
+      ],
+      "useful_edits_per_second": [
+        609.4863414546228,
+        600.853108410553,
+        601.8301569095884
+      ],
+      "maximum_engine_requested_work_bytes": 2232024
+    },
+    {
+      "ranks": 2,
+      "case": "coplanar_m1_s2",
+      "parent_rank_max_seconds": [
+        0.068743988,
+        0.035569575,
+        0.036582674
+      ],
+      "median": 0.036582674,
+      "minimum": 0.035569575,
+      "maximum": 0.068743988,
+      "accepted": [
+        14,
+        14,
+        14
+      ],
+      "useful_edits_per_second": [
+        203.65417263834038,
+        393.59480679766347,
+        382.6948243313214
+      ],
+      "maximum_engine_requested_work_bytes": 2231912
+    },
+    {
+      "ranks": 2,
+      "case": "coplanar_m2_s0",
+      "parent_rank_max_seconds": [
+        0.010323033,
+        0.008611215,
+        0.009787568
+      ],
+      "median": 0.009787568,
+      "minimum": 0.008611215,
+      "maximum": 0.010323033,
+      "accepted": [
+        1,
+        1,
+        1
+      ],
+      "useful_edits_per_second": [
+        96.87075494188578,
+        116.12763123438447,
+        102.17042681082778
+      ],
+      "maximum_engine_requested_work_bytes": 2128848
+    },
+    {
+      "ranks": 2,
+      "case": "coplanar_m2_s1",
+      "parent_rank_max_seconds": [
+        0.027342271,
+        0.025454783,
+        0.025446758
+      ],
+      "median": 0.025454783,
+      "minimum": 0.025446758,
+      "maximum": 0.027342271,
+      "accepted": [
+        14,
+        14,
+        14
+      ],
+      "useful_edits_per_second": [
+        512.0276951391492,
+        549.9948673693269,
+        550.1683161367747
+      ],
+      "maximum_engine_requested_work_bytes": 2183392
+    },
+    {
+      "ranks": 2,
+      "case": "coplanar_m2_s2",
+      "parent_rank_max_seconds": [
+        0.054445388,
+        0.053454748,
+        0.053140472
+      ],
+      "median": 0.053454748,
+      "minimum": 0.053140472,
+      "maximum": 0.054445388,
+      "accepted": [
+        14,
+        14,
+        14
+      ],
+      "useful_edits_per_second": [
+        257.13840077694005,
+        261.90376952109096,
+        263.45268442478266
+      ],
+      "maximum_engine_requested_work_bytes": 2190040
+    },
+    {
+      "ranks": 4,
+      "case": "coplanar_m2_s0",
+      "parent_rank_max_seconds": [
+        0.009193216,
+        0.011530047,
+        0.009439123
+      ],
+      "median": 0.009439123,
+      "minimum": 0.009193216,
+      "maximum": 0.011530047,
+      "accepted": [
+        1,
+        1,
+        1
+      ],
+      "useful_edits_per_second": [
+        108.77586254907966,
+        86.72991532471637,
+        105.94204567521791
+      ],
+      "maximum_engine_requested_work_bytes": 2128848
+    },
+    {
+      "ranks": 4,
+      "case": "coplanar_m2_s1",
+      "parent_rank_max_seconds": [
+        0.026090294,
+        0.027385737,
+        0.028258834
+      ],
+      "median": 0.027385737,
+      "minimum": 0.026090294,
+      "maximum": 0.028258834,
+      "accepted": [
+        14,
+        14,
+        14
+      ],
+      "useful_edits_per_second": [
+        536.5980161051463,
+        511.21501678045036,
+        495.4202993655011
+      ],
+      "maximum_engine_requested_work_bytes": 2183392
+    },
+    {
+      "ranks": 4,
+      "case": "coplanar_m2_s2",
+      "parent_rank_max_seconds": [
+        0.054641155,
+        0.056763945,
+        0.055561115
+      ],
+      "median": 0.055561115,
+      "minimum": 0.054641155,
+      "maximum": 0.056763945,
+      "accepted": [
+        14,
+        14,
+        14
+      ],
+      "useful_edits_per_second": [
+        256.217131574177,
+        246.6354302894205,
+        251.97478488327673
+      ],
+      "maximum_engine_requested_work_bytes": 2190040
+    },
+    {
+      "ranks": 4,
+      "case": "coplanar_m3_s0",
+      "parent_rank_max_seconds": [
+        0.010012958,
+        0.010487437,
+        0.010405819
+      ],
+      "median": 0.010405819,
+      "minimum": 0.010012958,
+      "maximum": 0.010487437,
+      "accepted": [
+        1,
+        1,
+        1
+      ],
+      "useful_edits_per_second": [
+        99.87058769246809,
+        95.35218185339278,
+        96.1000763130706
+      ],
+      "maximum_engine_requested_work_bytes": 2126936
+    },
+    {
+      "ranks": 4,
+      "case": "coplanar_m3_s1",
+      "parent_rank_max_seconds": [
+        0.0273648,
+        0.027728611,
+        0.027115524
+      ],
+      "median": 0.0273648,
+      "minimum": 0.027115524,
+      "maximum": 0.027728611,
+      "accepted": [
+        14,
+        14,
+        14
+      ],
+      "useful_edits_per_second": [
+        511.60615096766645,
+        504.8936638045086,
+        516.3094026875527
+      ],
+      "maximum_engine_requested_work_bytes": 2180208
+    },
+    {
+      "ranks": 4,
+      "case": "coplanar_m3_s2",
+      "parent_rank_max_seconds": [
+        0.06957766,
+        0.071686507,
+        0.072227137
+      ],
+      "median": 0.071686507,
+      "minimum": 0.06957766,
+      "maximum": 0.072227137,
+      "accepted": [
+        14,
+        14,
+        14
+      ],
+      "useful_edits_per_second": [
+        201.21401035907215,
+        195.29477144143738,
+        193.83296336389466
+      ],
+      "maximum_engine_requested_work_bytes": 2172832
+    },
+    {
+      "ranks": 4,
+      "case": "coplanar_m4_s0",
+      "parent_rank_max_seconds": [
+        0.011186961,
+        0.011019626,
+        0.010979519
+      ],
+      "median": 0.011019626,
+      "minimum": 0.010979519,
+      "maximum": 0.011186961,
+      "accepted": [
+        1,
+        1,
+        1
+      ],
+      "useful_edits_per_second": [
+        89.38978155014574,
+        90.74718143791813,
+        91.07867111482753
+      ],
+      "maximum_engine_requested_work_bytes": 2124848
+    },
+    {
+      "ranks": 4,
+      "case": "coplanar_m4_s1",
+      "parent_rank_max_seconds": [
+        0.028200233,
+        0.032711287,
+        0.027738513
+      ],
+      "median": 0.028200233,
+      "minimum": 0.027738513,
+      "maximum": 0.032711287,
+      "accepted": [
+        14,
+        14,
+        14
+      ],
+      "useful_edits_per_second": [
+        496.4497988367684,
+        427.98682913332027,
+        504.7134285821306
+      ],
+      "maximum_engine_requested_work_bytes": 2179064
+    },
+    {
+      "ranks": 4,
+      "case": "coplanar_m4_s2",
+      "parent_rank_max_seconds": [
+        0.053735483,
+        0.053289113,
+        0.053547384
+      ],
+      "median": 0.053547384,
+      "minimum": 0.053289113,
+      "maximum": 0.053735483,
+      "accepted": [
+        14,
+        14,
+        14
+      ],
+      "useful_edits_per_second": [
+        260.53548267166406,
+        262.71782756076277,
+        261.4506807652826
+      ],
+      "maximum_engine_requested_work_bytes": 2164296
+    }
+  ],
+  "scope": "Three sequential MPI1/2/4 fixed-binary repeats with exact mesh/edit/query-work identity within each rank choice, N=M/M<N strict independent audits and closed per-rank fixture phases including migration/worker communicator/return. Parent values are per-rank maxima, not sums of phase maxima. This host is shared; changed partition trajectories across rank choices are not fixed-work scaling. Engine requested bytes are not RSS. Geometry construction is separately reported; no ParMETIS/CFD transfer/CGNS/production affordability qualification.",
+  "artifact_sha256": {
+    "audit_repeat2_mpi1.stdout": "0a8072374e347bdfd5f2867fc479d615f320fb9e40b9160b49f93e9b7e952e9a",
+    "before_repeat2_mpi4_processes.txt": "a4d37e78934dc86a47844ae899db6afbc8fd5f828505096ca21fe5b65e129b12",
+    "before_repeat1_mpi2_load.txt": "710a64d7e78cb57d5a3a9a60e781eb78f5992a3d1c56467be0ac20c2f29fcbe3",
+    "audit_repeat2_mpi2.stdout": "373850af672cd64b7ae327779c0a06accc713c1f99518964bb11dc9898a82584",
+    "audit_repeat3_mpi2.stdout": "ca231769a7460cbb042f6f6b616db573a8d21a0ff4aac28c53d30f9d08f5222e",
+    "before_repeat1_mpi4_load.txt": "e1e70310d0e18cbc483a7ab5755408bbef753aade4513083069b87f6e432b0ae",
+    "before_repeat3_mpi1_load.txt": "7d89c22cab3e08a244a84c6270236e60f73d58e31230ec91b349fd3a295f609f",
+    "before_repeat3_mpi1_processes.txt": "3f1f4c2dd6835a9a2380cd2e970b1c2f861e143b2d97287476986c957331c526",
+    "audit_repeat2_mpi4.stdout": "1555170eaeb81092342f4739c44ecad99618b434f9db5eb6c1524ed6d9abc4d5",
+    "before_repeat2_mpi1_processes.txt": "b7314d97e064e9b82109091629bcba5bdf7bc909a383783c7e5b42fda1eb1407",
+    "before_repeat1_mpi2_processes.txt": "641c9f7b4d8633a2c0504392d760f09702dfaf2c1517556f9fa8d5745f951e49",
+    "before_repeat2_mpi2_memory.txt": "79e19e40358301e74d2e10a360e21137a074d5764e3c54d3a053e5cde7816d45",
+    "repeat3_mpi4.stdout": "ebb3727942c98a1110297f900c43c84044545a6817e6e91db331c8403a491a25",
+    "repeat2_mpi2.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "before_repeat1_mpi4_memory.txt": "38c087ab8e5e21a11c17c8c5677a1695ac03ece6cb8a46f6f7bccb5d8dc7ecb9",
+    "repeat1_mpi2.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "repeat1_mpi4.stdout": "20fdd8fb3558fe908835b89b32d19244928d36db77412bbd60d3052c461588bd",
+    "before_repeat1_mpi1_memory.txt": "6dbbb5b61f65f2b78b8d569ddc9cae3123dcec1e02b310a0d3c6abd8faff45f4",
+    "repeat2_mpi1.stdout": "283a91cf939653b97ce0a70fd020ffa271a4c6de612874e02d943f419139e6a4",
+    "audit_repeat3_mpi4.stdout": "bb0860a34ef6f03eafe7ee9a1e4e6def9750dedf20c0317d4e99e52bbcd22334",
+    "before_repeat2_mpi1_load.txt": "45e7f122a0c4fde6c75759b6b4ceaff99f8b95029a4152decb821edef226a823",
+    "audit_repeat1_mpi1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "before_repeat2_mpi1_memory.txt": "01e58d8741cf37fb931300ae079c735f071f076b6b6f8c54f3746dc7f86102ed",
+    "repeat2_mpi2.stdout": "cfff45bb8af211f360f706798110eb3ca486e479c55b35b85c5548bd3a59c6d8",
+    "audit_repeat2_mpi4.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "audit_repeat2_mpi2.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "before_repeat3_mpi1_memory.txt": "d7843da0409c8f5162e1e5e2fb4db385ae84644a132deab77a26968a73a952c0",
+    "audit_repeat3_mpi1.stdout": "fe3e20d011625c467238a9496b9f308545593d73f9e1ef246d5e6f1f123ddbd1",
+    "before_repeat3_mpi2_processes.txt": "3f1f4c2dd6835a9a2380cd2e970b1c2f861e143b2d97287476986c957331c526",
+    "before_repeat2_mpi2_load.txt": "45e7f122a0c4fde6c75759b6b4ceaff99f8b95029a4152decb821edef226a823",
+    "audit_repeat1_mpi4.stdout": "2ccad4be16a7b6b669818361019adad59f40edb5c7b065a5aa5e1ec9a946d5ae",
+    "repeat2_mpi4.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "audit_repeat1_mpi2.stdout": "2b1325a5c307bc2242922f1f1cb10da0be1e4d5228cb832099a8c6fd005ef3fb",
+    "repeat1_mpi2.stdout": "e4b39290f62e4a59419f3fc4021a6525d82d0792c6538f694a6f5c85d1bc6176",
+    "before_repeat1_mpi4_processes.txt": "6591e1ba3ebfc114a1243023dd9e1773fec9753d4f59f06b25ce39353adf37c5",
+    "audit_repeat3_mpi1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "before_repeat2_mpi4_load.txt": "99d5b1686024bccd07d15d7f9ad244bbd6418dc75ef1ea2e8a2dddb84e66f5e8",
+    "before_repeat3_mpi4_processes.txt": "bb830a7d725ee1624408eee2e4e5d0f992abfd6c8d571db35a7908568e561a45",
+    "before_repeat1_mpi1_load.txt": "710a64d7e78cb57d5a3a9a60e781eb78f5992a3d1c56467be0ac20c2f29fcbe3",
+    "before_repeat1_mpi1_processes.txt": "641c9f7b4d8633a2c0504392d760f09702dfaf2c1517556f9fa8d5745f951e49",
+    "runner_snapshot.py": "34fdf42499f3e267d040eff6d2447f3b5c62eef2f40f6f2a9b8096337de1d27a",
+    "audit_repeat2_mpi1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "audit_repeat1_mpi1.stdout": "ae2eb0505bba3081a6ce5fea7eb225c49ab93685c11c07ebb164637253d08d11",
+    "audit_repeat1_mpi2.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "repeat3_mpi1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "before_repeat1_mpi2_memory.txt": "9df249c3e8b4d5b9d886884671e9ba6edd7e40b6c3de5970dabfea054b4a6cc2",
+    "before_repeat3_mpi2_load.txt": "7d89c22cab3e08a244a84c6270236e60f73d58e31230ec91b349fd3a295f609f",
+    "audit_repeat3_mpi2.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "repeat2_mpi4.stdout": "4cfb83f3775b1ec8a78dd06f3ec330571387af5c3f7398f523a87208fb480d65",
+    "repeat2_mpi1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "before_repeat2_mpi2_processes.txt": "8c31f2e5e5cd778656f09b2cc78e6f989887f5bc0b5ec3b22af204d6ea244d19",
+    "repeat3_mpi2.stdout": "5e2012d999935b7c15efc12b3cd706e5044f3f37cc7906056b47c8826f707dbe",
+    "before_repeat3_mpi4_memory.txt": "7ada54b3681bebc8487e3620706802aa6188d43a7489e157c9355d79833ffca3",
+    "audit_repeat3_mpi4.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "repeat3_mpi2.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "repeat1_mpi4.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "repeat3_mpi1.stdout": "a8bfe36a2bb438a90abe1aa1bcc5a2b876d6a8d4e001913e3b68c8b64172c648",
+    "audit_repeat1_mpi4.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "before_repeat3_mpi2_memory.txt": "ba5822b1485ed51b363161ae0e564debd8fef2f4694a716c9eb2df053bc47fae",
+    "repeat1_mpi1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "repeat3_mpi4.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "before_repeat3_mpi4_load.txt": "b2b1b917c1b97f8c4f4aae5d6adeb35d51bea70e89ebbf91921c0ffada0d351e",
+    "before_repeat2_mpi4_memory.txt": "c2fcd98cc0386ba99ec18283dac78425e0c729b491b10a18a0a0229ec45af781",
+    "repeat1_mpi1.stdout": "76b950cf1ac3811d5b6e8c554e36d94c7411eeb5564145a190f22ec3ebf66134",
+    "repeat3_mpi4_meshes/coplanar_initial.su2": "78a3aa73133d3b31c23b2c43394463978a0078c5d84925a9df749743a5051688",
+    "repeat3_mpi4_meshes/coplanar_m4_s1.su2": "591eab83d890c235e04a69f518f471de4a6bb1ae2847da40e5c997f598b879f1",
+    "repeat3_mpi4_meshes/coplanar_m4_s0.su2": "23869066bdaeb97c00fd296c1e2d6ff5122f89cf510626bb95407adf6c6c2377",
+    "repeat3_mpi4_meshes/coplanar_m2_s2.json": "6c572ac689132c0522468974bf592a5b7538289a47c113c11b5acf45ad4d5d81",
+    "repeat3_mpi4_meshes/coplanar_m3_s2.json": "ead3337859d2c4a15b759cccb84e11de2306961ea279d19e1664e91d6cb598eb",
+    "repeat3_mpi4_meshes/coplanar_m4_s2.json": "204faa9532f35a4570b02e9683982950f37b1330c0990bacf2c12371f853915e",
+    "repeat3_mpi4_meshes/cross_marker_group_rejected.json": "27b5ac9c32d57655729f7c7d75f4bb2489ae2eebdab2b38bee778c86000655ab",
+    "repeat3_mpi4_meshes/coplanar_m4_s0.json": "a5e9384e7f435c178beb707e9ae41a81ec17823653a517ccef2df51aadd8e4be",
+    "repeat3_mpi4_meshes/coplanar_m3_s1.json": "5b5be57cc9dceba4bdff546be3b338756a857b2212b0f9da568e228bf895c219",
+    "repeat3_mpi4_meshes/independent_audit.json": "cb663752c44df47423a45c18006dd425b7b852b145b9a857e39ee44252857e84",
+    "repeat3_mpi4_meshes/coplanar_m4_s2.su2": "eb0c229a6785eb8b0605b2a2b3d6ce63184589e85cfd781b6c19ea4631033a01",
+    "repeat3_mpi4_meshes/coplanar_m2_s1.su2": "591eab83d890c235e04a69f518f471de4a6bb1ae2847da40e5c997f598b879f1",
+    "repeat3_mpi4_meshes/coplanar_m2_s0.su2": "23869066bdaeb97c00fd296c1e2d6ff5122f89cf510626bb95407adf6c6c2377",
+    "repeat3_mpi4_meshes/wrong_facet_binding_rejected.json": "884746dc6c30f0307633e014e00328273ec07d13afa7443cbaf7d6fa1ffa37be",
+    "repeat3_mpi4_meshes/coplanar_m3_s0.json": "a5e9384e7f435c178beb707e9ae41a81ec17823653a517ccef2df51aadd8e4be",
+    "repeat3_mpi4_meshes/coplanar_m3_s1.su2": "591eab83d890c235e04a69f518f471de4a6bb1ae2847da40e5c997f598b879f1",
+    "repeat3_mpi4_meshes/coplanar_m2_s2.su2": "4d5d9bb77922d34a74f72acaa9b692e02328e74015f880a468ab26e108a07270",
+    "repeat3_mpi4_meshes/coplanar_m4_s1.json": "a700664dae339ff65ae9937ff84e8ed49397f11163152d29f858ab79798f5652",
+    "repeat3_mpi4_meshes/coplanar_m3_s0.su2": "23869066bdaeb97c00fd296c1e2d6ff5122f89cf510626bb95407adf6c6c2377",
+    "repeat3_mpi4_meshes/coplanar_m3_s2.su2": "c6ead41b13c05c1193e17ee4a6f9d62febf2cc99a212fc70260e8079b04d6875",
+    "repeat3_mpi4_meshes/original_seam_constraint_rejected.json": "05e79040567da56b4179a70ab709d9087a25e3eabb44069545fa60718502bbbf",
+    "repeat3_mpi4_meshes/coplanar_initial.json": "bb97092205d2139a96336f1236629d50d3a36a95714cf8c24f1671a26e895ffe",
+    "repeat3_mpi4_meshes/coplanar_m2_s1.json": "c26a3f30a7ec5f29bd5d2b1aedbf2a21b0a748010d2bf9e51a779f9e025023d2",
+    "repeat3_mpi4_meshes/coplanar_m2_s0.json": "a5e9384e7f435c178beb707e9ae41a81ec17823653a517ccef2df51aadd8e4be",
+    "repeat1_mpi1_meshes/coplanar_m1_s2.su2": "23869066bdaeb97c00fd296c1e2d6ff5122f89cf510626bb95407adf6c6c2377",
+    "repeat1_mpi1_meshes/coplanar_initial.su2": "78a3aa73133d3b31c23b2c43394463978a0078c5d84925a9df749743a5051688",
+    "repeat1_mpi1_meshes/coplanar_m1_s2.json": "01906bde4389d46c00691998894990e808d55d328b35d0d5ce0403f7ca4402c7",
+    "repeat1_mpi1_meshes/coplanar_m1_s0.json": "a5e9384e7f435c178beb707e9ae41a81ec17823653a517ccef2df51aadd8e4be",
+    "repeat1_mpi1_meshes/cross_marker_group_rejected.json": "27b5ac9c32d57655729f7c7d75f4bb2489ae2eebdab2b38bee778c86000655ab",
+    "repeat1_mpi1_meshes/independent_audit.json": "c84f55e9600c510d5db64359b356606486fe08a6d96adbc97cbc2951f177cba4",
+    "repeat1_mpi1_meshes/coplanar_m1_s1.su2": "8064acaba83d6559fcf2e526d1406010d0eceae91d9be2e0a02c8526c1f7a2eb",
+    "repeat1_mpi1_meshes/coplanar_m1_s1.json": "39c4498865f2aea30a8f002826e00cec2775e6f08a9c1c769f611bb403843129",
+    "repeat1_mpi1_meshes/wrong_facet_binding_rejected.json": "884746dc6c30f0307633e014e00328273ec07d13afa7443cbaf7d6fa1ffa37be",
+    "repeat1_mpi1_meshes/coplanar_m1_s0.su2": "23869066bdaeb97c00fd296c1e2d6ff5122f89cf510626bb95407adf6c6c2377",
+    "repeat1_mpi1_meshes/original_seam_constraint_rejected.json": "05e79040567da56b4179a70ab709d9087a25e3eabb44069545fa60718502bbbf",
+    "repeat1_mpi1_meshes/coplanar_initial.json": "bb97092205d2139a96336f1236629d50d3a36a95714cf8c24f1671a26e895ffe",
+    "repeat2_mpi4_meshes/coplanar_initial.su2": "78a3aa73133d3b31c23b2c43394463978a0078c5d84925a9df749743a5051688",
+    "repeat2_mpi4_meshes/coplanar_m4_s1.su2": "591eab83d890c235e04a69f518f471de4a6bb1ae2847da40e5c997f598b879f1",
+    "repeat2_mpi4_meshes/coplanar_m4_s0.su2": "23869066bdaeb97c00fd296c1e2d6ff5122f89cf510626bb95407adf6c6c2377",
+    "repeat2_mpi4_meshes/coplanar_m2_s2.json": "6c572ac689132c0522468974bf592a5b7538289a47c113c11b5acf45ad4d5d81",
+    "repeat2_mpi4_meshes/coplanar_m3_s2.json": "ead3337859d2c4a15b759cccb84e11de2306961ea279d19e1664e91d6cb598eb",
+    "repeat2_mpi4_meshes/coplanar_m4_s2.json": "204faa9532f35a4570b02e9683982950f37b1330c0990bacf2c12371f853915e",
+    "repeat2_mpi4_meshes/cross_marker_group_rejected.json": "27b5ac9c32d57655729f7c7d75f4bb2489ae2eebdab2b38bee778c86000655ab",
+    "repeat2_mpi4_meshes/coplanar_m4_s0.json": "a5e9384e7f435c178beb707e9ae41a81ec17823653a517ccef2df51aadd8e4be",
+    "repeat2_mpi4_meshes/coplanar_m3_s1.json": "5b5be57cc9dceba4bdff546be3b338756a857b2212b0f9da568e228bf895c219",
+    "repeat2_mpi4_meshes/independent_audit.json": "7c7f96f07bb66ffc458ae05c991d59896e92f33eece822ffac3b088f7d748e36",
+    "repeat2_mpi4_meshes/coplanar_m4_s2.su2": "eb0c229a6785eb8b0605b2a2b3d6ce63184589e85cfd781b6c19ea4631033a01",
+    "repeat2_mpi4_meshes/coplanar_m2_s1.su2": "591eab83d890c235e04a69f518f471de4a6bb1ae2847da40e5c997f598b879f1",
+    "repeat2_mpi4_meshes/coplanar_m2_s0.su2": "23869066bdaeb97c00fd296c1e2d6ff5122f89cf510626bb95407adf6c6c2377",
+    "repeat2_mpi4_meshes/wrong_facet_binding_rejected.json": "884746dc6c30f0307633e014e00328273ec07d13afa7443cbaf7d6fa1ffa37be",
+    "repeat2_mpi4_meshes/coplanar_m3_s0.json": "a5e9384e7f435c178beb707e9ae41a81ec17823653a517ccef2df51aadd8e4be",
+    "repeat2_mpi4_meshes/coplanar_m3_s1.su2": "591eab83d890c235e04a69f518f471de4a6bb1ae2847da40e5c997f598b879f1",
+    "repeat2_mpi4_meshes/coplanar_m2_s2.su2": "4d5d9bb77922d34a74f72acaa9b692e02328e74015f880a468ab26e108a07270",
+    "repeat2_mpi4_meshes/coplanar_m4_s1.json": "a700664dae339ff65ae9937ff84e8ed49397f11163152d29f858ab79798f5652",
+    "repeat2_mpi4_meshes/coplanar_m3_s0.su2": "23869066bdaeb97c00fd296c1e2d6ff5122f89cf510626bb95407adf6c6c2377",
+    "repeat2_mpi4_meshes/coplanar_m3_s2.su2": "c6ead41b13c05c1193e17ee4a6f9d62febf2cc99a212fc70260e8079b04d6875",
+    "repeat2_mpi4_meshes/original_seam_constraint_rejected.json": "05e79040567da56b4179a70ab709d9087a25e3eabb44069545fa60718502bbbf",
+    "repeat2_mpi4_meshes/coplanar_initial.json": "bb97092205d2139a96336f1236629d50d3a36a95714cf8c24f1671a26e895ffe",
+    "repeat2_mpi4_meshes/coplanar_m2_s1.json": "c26a3f30a7ec5f29bd5d2b1aedbf2a21b0a748010d2bf9e51a779f9e025023d2",
+    "repeat2_mpi4_meshes/coplanar_m2_s0.json": "a5e9384e7f435c178beb707e9ae41a81ec17823653a517ccef2df51aadd8e4be",
+    "repeat3_mpi1_meshes/coplanar_m1_s2.su2": "23869066bdaeb97c00fd296c1e2d6ff5122f89cf510626bb95407adf6c6c2377",
+    "repeat3_mpi1_meshes/coplanar_initial.su2": "78a3aa73133d3b31c23b2c43394463978a0078c5d84925a9df749743a5051688",
+    "repeat3_mpi1_meshes/coplanar_m1_s2.json": "01906bde4389d46c00691998894990e808d55d328b35d0d5ce0403f7ca4402c7",
+    "repeat3_mpi1_meshes/coplanar_m1_s0.json": "a5e9384e7f435c178beb707e9ae41a81ec17823653a517ccef2df51aadd8e4be",
+    "repeat3_mpi1_meshes/cross_marker_group_rejected.json": "27b5ac9c32d57655729f7c7d75f4bb2489ae2eebdab2b38bee778c86000655ab",
+    "repeat3_mpi1_meshes/independent_audit.json": "3a1b0ce723c0494624f85ee8d39ee71968b0ffd8251953cf2ac2426f1fc47366",
+    "repeat3_mpi1_meshes/coplanar_m1_s1.su2": "8064acaba83d6559fcf2e526d1406010d0eceae91d9be2e0a02c8526c1f7a2eb",
+    "repeat3_mpi1_meshes/coplanar_m1_s1.json": "39c4498865f2aea30a8f002826e00cec2775e6f08a9c1c769f611bb403843129",
+    "repeat3_mpi1_meshes/wrong_facet_binding_rejected.json": "884746dc6c30f0307633e014e00328273ec07d13afa7443cbaf7d6fa1ffa37be",
+    "repeat3_mpi1_meshes/coplanar_m1_s0.su2": "23869066bdaeb97c00fd296c1e2d6ff5122f89cf510626bb95407adf6c6c2377",
+    "repeat3_mpi1_meshes/original_seam_constraint_rejected.json": "05e79040567da56b4179a70ab709d9087a25e3eabb44069545fa60718502bbbf",
+    "repeat3_mpi1_meshes/coplanar_initial.json": "bb97092205d2139a96336f1236629d50d3a36a95714cf8c24f1671a26e895ffe",
+    "repeat1_mpi4_meshes/coplanar_initial.su2": "78a3aa73133d3b31c23b2c43394463978a0078c5d84925a9df749743a5051688",
+    "repeat1_mpi4_meshes/coplanar_m4_s1.su2": "591eab83d890c235e04a69f518f471de4a6bb1ae2847da40e5c997f598b879f1",
+    "repeat1_mpi4_meshes/coplanar_m4_s0.su2": "23869066bdaeb97c00fd296c1e2d6ff5122f89cf510626bb95407adf6c6c2377",
+    "repeat1_mpi4_meshes/coplanar_m2_s2.json": "6c572ac689132c0522468974bf592a5b7538289a47c113c11b5acf45ad4d5d81",
+    "repeat1_mpi4_meshes/coplanar_m3_s2.json": "ead3337859d2c4a15b759cccb84e11de2306961ea279d19e1664e91d6cb598eb",
+    "repeat1_mpi4_meshes/coplanar_m4_s2.json": "204faa9532f35a4570b02e9683982950f37b1330c0990bacf2c12371f853915e",
+    "repeat1_mpi4_meshes/cross_marker_group_rejected.json": "27b5ac9c32d57655729f7c7d75f4bb2489ae2eebdab2b38bee778c86000655ab",
+    "repeat1_mpi4_meshes/coplanar_m4_s0.json": "a5e9384e7f435c178beb707e9ae41a81ec17823653a517ccef2df51aadd8e4be",
+    "repeat1_mpi4_meshes/coplanar_m3_s1.json": "5b5be57cc9dceba4bdff546be3b338756a857b2212b0f9da568e228bf895c219",
+    "repeat1_mpi4_meshes/independent_audit.json": "9be9c986a2f2b0c332b5967560a3c77f731543fc6af37a800b58a5a52df2daae",
+    "repeat1_mpi4_meshes/coplanar_m4_s2.su2": "eb0c229a6785eb8b0605b2a2b3d6ce63184589e85cfd781b6c19ea4631033a01",
+    "repeat1_mpi4_meshes/coplanar_m2_s1.su2": "591eab83d890c235e04a69f518f471de4a6bb1ae2847da40e5c997f598b879f1",
+    "repeat1_mpi4_meshes/coplanar_m2_s0.su2": "23869066bdaeb97c00fd296c1e2d6ff5122f89cf510626bb95407adf6c6c2377",
+    "repeat1_mpi4_meshes/wrong_facet_binding_rejected.json": "884746dc6c30f0307633e014e00328273ec07d13afa7443cbaf7d6fa1ffa37be",
+    "repeat1_mpi4_meshes/coplanar_m3_s0.json": "a5e9384e7f435c178beb707e9ae41a81ec17823653a517ccef2df51aadd8e4be",
+    "repeat1_mpi4_meshes/coplanar_m3_s1.su2": "591eab83d890c235e04a69f518f471de4a6bb1ae2847da40e5c997f598b879f1",
+    "repeat1_mpi4_meshes/coplanar_m2_s2.su2": "4d5d9bb77922d34a74f72acaa9b692e02328e74015f880a468ab26e108a07270",
+    "repeat1_mpi4_meshes/coplanar_m4_s1.json": "a700664dae339ff65ae9937ff84e8ed49397f11163152d29f858ab79798f5652",
+    "repeat1_mpi4_meshes/coplanar_m3_s0.su2": "23869066bdaeb97c00fd296c1e2d6ff5122f89cf510626bb95407adf6c6c2377",
+    "repeat1_mpi4_meshes/coplanar_m3_s2.su2": "c6ead41b13c05c1193e17ee4a6f9d62febf2cc99a212fc70260e8079b04d6875",
+    "repeat1_mpi4_meshes/original_seam_constraint_rejected.json": "05e79040567da56b4179a70ab709d9087a25e3eabb44069545fa60718502bbbf",
+    "repeat1_mpi4_meshes/coplanar_initial.json": "bb97092205d2139a96336f1236629d50d3a36a95714cf8c24f1671a26e895ffe",
+    "repeat1_mpi4_meshes/coplanar_m2_s1.json": "c26a3f30a7ec5f29bd5d2b1aedbf2a21b0a748010d2bf9e51a779f9e025023d2",
+    "repeat1_mpi4_meshes/coplanar_m2_s0.json": "a5e9384e7f435c178beb707e9ae41a81ec17823653a517ccef2df51aadd8e4be",
+    "repeat1_mpi2_meshes/coplanar_m1_s2.su2": "23869066bdaeb97c00fd296c1e2d6ff5122f89cf510626bb95407adf6c6c2377",
+    "repeat1_mpi2_meshes/coplanar_initial.su2": "78a3aa73133d3b31c23b2c43394463978a0078c5d84925a9df749743a5051688",
+    "repeat1_mpi2_meshes/coplanar_m1_s2.json": "8455f48e4f736eae8edadb069c516e011b0e2c660930d9eb8d04b2aecd528c7a",
+    "repeat1_mpi2_meshes/coplanar_m2_s2.json": "fbf5d30991464806508de8efbcc9ff60ebc6348833965ac2c0b04a6713f08911",
+    "repeat1_mpi2_meshes/coplanar_m1_s0.json": "084993ccd8e367be1af57f08c68d0351732fb10604b81ce93324c5a6defbe0c8",
+    "repeat1_mpi2_meshes/cross_marker_group_rejected.json": "bf751091bdc7e29d67cdd7998029de071c7ee8c592150bdfb5b6a313bd3696da",
+    "repeat1_mpi2_meshes/independent_audit.json": "bbe170c7773da5a22c8b831eed0def1476ed1eefaeefaec62216f7361dc1146e",
+    "repeat1_mpi2_meshes/coplanar_m1_s1.su2": "8064acaba83d6559fcf2e526d1406010d0eceae91d9be2e0a02c8526c1f7a2eb",
+    "repeat1_mpi2_meshes/coplanar_m1_s1.json": "748c4605445e100192d70976732ce0cda94984b41ed35b239a3506a225a8a9bf",
+    "repeat1_mpi2_meshes/coplanar_m2_s1.su2": "591eab83d890c235e04a69f518f471de4a6bb1ae2847da40e5c997f598b879f1",
+    "repeat1_mpi2_meshes/coplanar_m2_s0.su2": "23869066bdaeb97c00fd296c1e2d6ff5122f89cf510626bb95407adf6c6c2377",
+    "repeat1_mpi2_meshes/wrong_facet_binding_rejected.json": "25cef67793e7b4cc6b68a508b5f2c2926322ff08c620173c016ba91afa16d0ab",
+    "repeat1_mpi2_meshes/coplanar_m1_s0.su2": "23869066bdaeb97c00fd296c1e2d6ff5122f89cf510626bb95407adf6c6c2377",
+    "repeat1_mpi2_meshes/coplanar_m2_s2.su2": "4d5d9bb77922d34a74f72acaa9b692e02328e74015f880a468ab26e108a07270",
+    "repeat1_mpi2_meshes/original_seam_constraint_rejected.json": "6d77226dba377627aece0c50549f89fc624ebd61bd69053c4e70ab19e42ccc47",
+    "repeat1_mpi2_meshes/coplanar_initial.json": "de4573dfcbf9dce274edb57995eaf5f7113067b6da0f6009496be81089ea0c55",
+    "repeat1_mpi2_meshes/coplanar_m2_s1.json": "580cfb4592a800602317bf73f062c9db45b6c35cb444d691348cab778e9727c9",
+    "repeat1_mpi2_meshes/coplanar_m2_s0.json": "084993ccd8e367be1af57f08c68d0351732fb10604b81ce93324c5a6defbe0c8",
+    "repeat3_mpi2_meshes/coplanar_m1_s2.su2": "23869066bdaeb97c00fd296c1e2d6ff5122f89cf510626bb95407adf6c6c2377",
+    "repeat3_mpi2_meshes/coplanar_initial.su2": "78a3aa73133d3b31c23b2c43394463978a0078c5d84925a9df749743a5051688",
+    "repeat3_mpi2_meshes/coplanar_m1_s2.json": "8455f48e4f736eae8edadb069c516e011b0e2c660930d9eb8d04b2aecd528c7a",
+    "repeat3_mpi2_meshes/coplanar_m2_s2.json": "fbf5d30991464806508de8efbcc9ff60ebc6348833965ac2c0b04a6713f08911",
+    "repeat3_mpi2_meshes/coplanar_m1_s0.json": "084993ccd8e367be1af57f08c68d0351732fb10604b81ce93324c5a6defbe0c8",
+    "repeat3_mpi2_meshes/cross_marker_group_rejected.json": "bf751091bdc7e29d67cdd7998029de071c7ee8c592150bdfb5b6a313bd3696da",
+    "repeat3_mpi2_meshes/independent_audit.json": "5f54e41771e99b398d556ff50f90c2420361c17b7021d7ff63b5b68eee4c1329",
+    "repeat3_mpi2_meshes/coplanar_m1_s1.su2": "8064acaba83d6559fcf2e526d1406010d0eceae91d9be2e0a02c8526c1f7a2eb",
+    "repeat3_mpi2_meshes/coplanar_m1_s1.json": "748c4605445e100192d70976732ce0cda94984b41ed35b239a3506a225a8a9bf",
+    "repeat3_mpi2_meshes/coplanar_m2_s1.su2": "591eab83d890c235e04a69f518f471de4a6bb1ae2847da40e5c997f598b879f1",
+    "repeat3_mpi2_meshes/coplanar_m2_s0.su2": "23869066bdaeb97c00fd296c1e2d6ff5122f89cf510626bb95407adf6c6c2377",
+    "repeat3_mpi2_meshes/wrong_facet_binding_rejected.json": "25cef67793e7b4cc6b68a508b5f2c2926322ff08c620173c016ba91afa16d0ab",
+    "repeat3_mpi2_meshes/coplanar_m1_s0.su2": "23869066bdaeb97c00fd296c1e2d6ff5122f89cf510626bb95407adf6c6c2377",
+    "repeat3_mpi2_meshes/coplanar_m2_s2.su2": "4d5d9bb77922d34a74f72acaa9b692e02328e74015f880a468ab26e108a07270",
+    "repeat3_mpi2_meshes/original_seam_constraint_rejected.json": "6d77226dba377627aece0c50549f89fc624ebd61bd69053c4e70ab19e42ccc47",
+    "repeat3_mpi2_meshes/coplanar_initial.json": "de4573dfcbf9dce274edb57995eaf5f7113067b6da0f6009496be81089ea0c55",
+    "repeat3_mpi2_meshes/coplanar_m2_s1.json": "580cfb4592a800602317bf73f062c9db45b6c35cb444d691348cab778e9727c9",
+    "repeat3_mpi2_meshes/coplanar_m2_s0.json": "084993ccd8e367be1af57f08c68d0351732fb10604b81ce93324c5a6defbe0c8",
+    "repeat2_mpi1_meshes/coplanar_m1_s2.su2": "23869066bdaeb97c00fd296c1e2d6ff5122f89cf510626bb95407adf6c6c2377",
+    "repeat2_mpi1_meshes/coplanar_initial.su2": "78a3aa73133d3b31c23b2c43394463978a0078c5d84925a9df749743a5051688",
+    "repeat2_mpi1_meshes/coplanar_m1_s2.json": "01906bde4389d46c00691998894990e808d55d328b35d0d5ce0403f7ca4402c7",
+    "repeat2_mpi1_meshes/coplanar_m1_s0.json": "a5e9384e7f435c178beb707e9ae41a81ec17823653a517ccef2df51aadd8e4be",
+    "repeat2_mpi1_meshes/cross_marker_group_rejected.json": "27b5ac9c32d57655729f7c7d75f4bb2489ae2eebdab2b38bee778c86000655ab",
+    "repeat2_mpi1_meshes/independent_audit.json": "38c51c7c1b334608b5876cbe87500c04c6f0a78656997e61e54f4571eaae0f83",
+    "repeat2_mpi1_meshes/coplanar_m1_s1.su2": "8064acaba83d6559fcf2e526d1406010d0eceae91d9be2e0a02c8526c1f7a2eb",
+    "repeat2_mpi1_meshes/coplanar_m1_s1.json": "39c4498865f2aea30a8f002826e00cec2775e6f08a9c1c769f611bb403843129",
+    "repeat2_mpi1_meshes/wrong_facet_binding_rejected.json": "884746dc6c30f0307633e014e00328273ec07d13afa7443cbaf7d6fa1ffa37be",
+    "repeat2_mpi1_meshes/coplanar_m1_s0.su2": "23869066bdaeb97c00fd296c1e2d6ff5122f89cf510626bb95407adf6c6c2377",
+    "repeat2_mpi1_meshes/original_seam_constraint_rejected.json": "05e79040567da56b4179a70ab709d9087a25e3eabb44069545fa60718502bbbf",
+    "repeat2_mpi1_meshes/coplanar_initial.json": "bb97092205d2139a96336f1236629d50d3a36a95714cf8c24f1671a26e895ffe",
+    "repeat2_mpi2_meshes/coplanar_m1_s2.su2": "23869066bdaeb97c00fd296c1e2d6ff5122f89cf510626bb95407adf6c6c2377",
+    "repeat2_mpi2_meshes/coplanar_initial.su2": "78a3aa73133d3b31c23b2c43394463978a0078c5d84925a9df749743a5051688",
+    "repeat2_mpi2_meshes/coplanar_m1_s2.json": "8455f48e4f736eae8edadb069c516e011b0e2c660930d9eb8d04b2aecd528c7a",
+    "repeat2_mpi2_meshes/coplanar_m2_s2.json": "fbf5d30991464806508de8efbcc9ff60ebc6348833965ac2c0b04a6713f08911",
+    "repeat2_mpi2_meshes/coplanar_m1_s0.json": "084993ccd8e367be1af57f08c68d0351732fb10604b81ce93324c5a6defbe0c8",
+    "repeat2_mpi2_meshes/cross_marker_group_rejected.json": "bf751091bdc7e29d67cdd7998029de071c7ee8c592150bdfb5b6a313bd3696da",
+    "repeat2_mpi2_meshes/independent_audit.json": "ece17a3a955574156633c816beb9f71ccd6357bb7cd3d82fdd8c710296eaaa93",
+    "repeat2_mpi2_meshes/coplanar_m1_s1.su2": "8064acaba83d6559fcf2e526d1406010d0eceae91d9be2e0a02c8526c1f7a2eb",
+    "repeat2_mpi2_meshes/coplanar_m1_s1.json": "748c4605445e100192d70976732ce0cda94984b41ed35b239a3506a225a8a9bf",
+    "repeat2_mpi2_meshes/coplanar_m2_s1.su2": "591eab83d890c235e04a69f518f471de4a6bb1ae2847da40e5c997f598b879f1",
+    "repeat2_mpi2_meshes/coplanar_m2_s0.su2": "23869066bdaeb97c00fd296c1e2d6ff5122f89cf510626bb95407adf6c6c2377",
+    "repeat2_mpi2_meshes/wrong_facet_binding_rejected.json": "25cef67793e7b4cc6b68a508b5f2c2926322ff08c620173c016ba91afa16d0ab",
+    "repeat2_mpi2_meshes/coplanar_m1_s0.su2": "23869066bdaeb97c00fd296c1e2d6ff5122f89cf510626bb95407adf6c6c2377",
+    "repeat2_mpi2_meshes/coplanar_m2_s2.su2": "4d5d9bb77922d34a74f72acaa9b692e02328e74015f880a468ab26e108a07270",
+    "repeat2_mpi2_meshes/original_seam_constraint_rejected.json": "6d77226dba377627aece0c50549f89fc624ebd61bd69053c4e70ab19e42ccc47",
+    "repeat2_mpi2_meshes/coplanar_initial.json": "de4573dfcbf9dce274edb57995eaf5f7113067b6da0f6009496be81089ea0c55",
+    "repeat2_mpi2_meshes/coplanar_m2_s1.json": "580cfb4592a800602317bf73f062c9db45b6c35cb444d691348cab778e9727c9",
+    "repeat2_mpi2_meshes/coplanar_m2_s0.json": "084993ccd8e367be1af57f08c68d0351732fb10604b81ce93324c5a6defbe0c8"
+  }
+}

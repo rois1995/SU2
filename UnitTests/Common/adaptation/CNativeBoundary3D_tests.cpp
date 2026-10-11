@@ -7,6 +7,7 @@
 #include "catch.hpp"
 #include "../../../Common/include/adaptation/CNativeBoundary3D.hpp"
 #include <algorithm>
+#include <cmath>
 #include <limits>
 #include <set>
 #include <stdexcept>
@@ -280,4 +281,92 @@ TEST_CASE("Native boundary-aware reconnection preserves markers for face and edg
   for(auto face:back.surface) CHECK(reference.Get(face.facet).marker==int(face.facet)+10);
   const auto saved=Connectivity(back);
   CHECK_FALSE(Reconnect(old,999,300,reference,back,reason));CHECK(Connectivity(back)==saved);
+}
+
+namespace {
+Patch Pyramid() {
+  const std::array<Node, 6> v{{{0,{0,0,0}}, {1,{1,0,0}}, {2,{1,1,0}}, {3,{0,1,0}},
+                              {4,{.5,.5,0}}, {5,{.5,.5,1}}}};
+  Patch result;
+  for (size_t i=0;i<4;++i) {
+    Cell cell{Id(i),{v[i],v[(i+1)%4],v[4],v[5]}};
+    if (Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)<0) std::swap(cell.v[0],cell.v[1]);
+    result.cells.push_back(cell);
+  }
+  for (auto f:Incidence(result.cells).Boundary()) result.surface.push_back({f,Id(result.surface.size())});
+  return result;
+}
+std::vector<Facet> PyramidFacets(const Patch& patch) {
+  auto result=Facets(patch);
+  for (auto& f:result) if (f.v[0].p.z==0 && f.v[1].p.z==0 && f.v[2].p.z==0) f.marker=70;
+  return result;
+}
+}
+TEST_CASE("Native coplanar same-marker wall seams allow finite patch movement and collapse", "[NativeMesh3D]") {
+  const auto old=Pyramid();const auto facets=PyramidFacets(old);const PlanarReference reference(facets);
+  Id root=UINT64_MAX;
+  for (auto f:facets) if (f.marker==70) root=std::min(root,f.id);
+  for (auto f:facets) if (f.marker==70) {
+    CHECK(reference.Canonical(f.id)==root);
+    CHECK(reference.Contains(f.id,{.875,.875,0}));
+    CHECK(reference.Contains(f.id,{0,0,0}));
+    CHECK_FALSE(reference.Contains(f.id,{1.01,.5,0}));
+    CHECK_FALSE(reference.Contains(f.id,{.5,.5,std::numeric_limits<double>::denorm_min()}));
+  }
+  Patch moved,coarse;std::string reason;
+  REQUIRE(MoveVertex(old,4,{8,{.75,.5,0}},100,reference,moved,reason));
+  REQUIRE(CollapseVertex(old,4,0,200,reference,coarse,reason));
+  CHECK(coarse.cells.size()==2);CHECK(coarse.surface.size()==6);
+  Patch inverse;
+  REQUIRE(UndoEdgeSplit(old,4,{0,2},250,reference,inverse,reason));
+  CHECK(inverse.cells.size()==2);CHECK(inverse.surface.size()==6);
+  for (auto f:coarse.surface) if (reference.Get(f.facet).marker==70) CHECK(f.facet==root);
+  const auto saved=Connectivity(coarse);
+  CHECK_FALSE(MoveVertex(old,4,{9,{1.25,.5,0}},300,reference,coarse,reason));
+  CHECK(Connectivity(coarse)==saved);CHECK(coarse.surface.size()==6);
+  auto junction=facets;
+  for (auto& f:junction) if (f.marker==70) f.marker=int(f.id)+100;
+  CHECK_FALSE(CollapseVertex(old,4,0,300,PlanarReference(junction),coarse,reason));
+  CHECK(Connectivity(coarse)==saved);
+}
+TEST_CASE("Native finite patch certification preserves marker creases disconnected and nonconvex surfaces", "[NativeMesh3D]") {
+  const std::array<Node,6> v{{{0,{0,0,0}}, {1,{2,0,0}}, {2,{2,1,0}}, {3,{1,1,0}},
+                             {4,{1,2,0}}, {5,{0,2,0}}}};
+  const std::vector<Facet> concave{{0,7,{v[0],v[1],v[3]}},{1,7,{v[1],v[2],v[3]}},
+                                  {2,7,{v[0],v[3],v[5]}},{3,7,{v[3],v[4],v[5]}}};
+  const PlanarReference retained(concave);
+  for (auto f:concave) {
+    CHECK(retained.Canonical(f.id)==f.id);
+    CHECK_FALSE(retained.Contains(f.id,{1.5,1.5,0}));
+  }
+  const Node a{10,{0,0,0}},b{11,{1,0,0}},c{12,{1,1,0}},d{13,{0,1,0}};
+  const Facet first{10,9,{a,b,c}},second{20,9,{a,c,d}};
+  const PlanarReference square({second,first});
+  CHECK(square.Canonical(20)==10);CHECK(square.Contains(10,{.125,.875,0}));
+  auto changed=second;changed.marker=10;
+  CHECK(PlanarReference({first,changed}).Canonical(20)==20);
+  changed=second;changed.v[2].p.z=std::numeric_limits<double>::denorm_min();
+  CHECK(PlanarReference({first,changed}).Canonical(20)==20);
+  changed=second;std::swap(changed.v[1],changed.v[2]);
+  CHECK(PlanarReference({first,changed}).Canonical(20)==20);
+  changed=second;for (auto& n:changed.v) { n.id+=100;n.p.x+=3; }
+  CHECK(PlanarReference({first,changed}).Canonical(20)==20);
+  auto tilted=std::vector<Facet>{first,second};
+  for (auto& f:tilted) for (auto& n:f.v) n.p.z=n.p.x+n.p.y;
+  const PlanarReference oblique(tilted);
+  CHECK(oblique.Canonical(20)==10);CHECK(oblique.Contains(10,{.125,.875,1}));
+  CHECK_FALSE(oblique.Contains(10,{.125,.875,std::nextafter(1.,2.)}));
+  auto reordered=std::vector<Facet>{second,first};std::reverse(reordered.begin(),reordered.end());
+  CHECK(PlanarReference(reordered).Canonical(20)==10);
+  // A triangulated annulus cannot be certified as a filled square.
+  const std::array<Node,8> ring{{{0,{0,0,0}}, {1,{3,0,0}}, {2,{3,3,0}}, {3,{0,3,0}},
+                                {4,{1,1,0}}, {5,{2,1,0}}, {6,{2,2,0}}, {7,{1,2,0}}}};
+  std::vector<Facet> hole;
+  for (size_t i=0;i<4;++i) {
+    const size_t j=(i+1)%4;
+    hole.push_back({Id(2*i),9,{ring[i],ring[j],ring[4+j]}});
+    hole.push_back({Id(2*i+1),9,{ring[i],ring[4+j],ring[4+i]}});
+  }
+  const PlanarReference annulus(hole);
+  for (auto f:hole) { CHECK(annulus.Canonical(f.id)==f.id);CHECK_FALSE(annulus.Contains(f.id,{1.5,1.5,0})); }
 }

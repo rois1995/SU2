@@ -1,0 +1,29 @@
+{
+  "baseline": {
+    "binary_sha256": "e97dd49d01cbfbe182c754665b9cc9302e5adc7809bd5e433ab2503b3583a72f",
+    "addresses": {
+      "SU2Native3D::IntersectsSegment(std::array<SU2Native3D::Point, 4ul> const&, SU2Native3D::Point, SU2Native3D::Point, SU2Native3D::KernelStats*)": "0000000000018d10",
+      "SU2Native3D::TraceSegment(std::vector<SU2Native3D::Cell const*, std::allocator<SU2Native3D::Cell const*> > const&, SU2Native3D::Point, SU2Native3D::Point, SU2Native3D::KernelStats*)": "000000000001b0b0",
+      "SU2Native3D::FrozenField::SensorEdgeLength(SU2Native3D::Point, SU2Native3D::Point)": "000000000002dad0"
+    },
+    "unchanged_object_sha256": {
+      "Predicates": "fe9d84711a50c9524b669f315155a6796c43fd9c2491942e660eb43dc9c5cc46",
+      "Field": "35030bb977a4fefba7121a5a9255e711fe8d834829c127985472c013d381e51c",
+      "Metric": "5b2dab27a702cba84f05885d0a1b61f4672b492b34059418cc12444697729638"
+    }
+  },
+  "candidate": {
+    "binary_sha256": "2ad3310188683b9804dd372a6040beac0d8bf148057fa6c00724d234a07f0e66",
+    "addresses": {
+      "SU2Native3D::IntersectsSegment(std::array<SU2Native3D::Point, 4ul> const&, SU2Native3D::Point, SU2Native3D::Point, SU2Native3D::KernelStats*)": "0000000000018f80",
+      "SU2Native3D::TraceSegment(std::vector<SU2Native3D::Cell const*, std::allocator<SU2Native3D::Cell const*> > const&, SU2Native3D::Point, SU2Native3D::Point, SU2Native3D::KernelStats*)": "000000000001b320",
+      "SU2Native3D::FrozenField::SensorEdgeLength(SU2Native3D::Point, SU2Native3D::Point)": "00000000000303b0"
+    },
+    "unchanged_object_sha256": {
+      "Predicates": "fe9d84711a50c9524b669f315155a6796c43fd9c2491942e660eb43dc9c5cc46",
+      "Field": "35030bb977a4fefba7121a5a9255e711fe8d834829c127985472c013d381e51c",
+      "Metric": "5b2dab27a702cba84f05885d0a1b61f4672b492b34059418cc12444697729638"
+    }
+  },
+  "scope": "Unchanged donor tracing/field/metric compiled objects, shifted final addresses. The 6-7% fixed-work non-MPI slowdown is measured; its cause has not been isolated in this checkpoint. No layout fix or production linker flag."
+}

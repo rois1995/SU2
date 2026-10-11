@@ -29,15 +29,19 @@ struct Patch {
   std::vector<Cell> cells;
   std::vector<SurfaceFace> surface;
 };
-/*! Bounded immutable imported facet authority. Exact planar containment; no unassociated projection/tolerance. */
+/*! Bounded immutable imported facet authority. Exact finite planar containment; certified convex coplanar same-marker seams are removable. */
 class PlanarReference {
  public:
   explicit PlanarReference(std::vector<Facet> facets);
   const Facet& Get(Id id) const;
   bool Contains(Id facet, Point p, KernelStats* stats = nullptr) const;
+  Id Canonical(Id facet) const;
 
  private:
   std::map<Id, Facet> facets;
+  std::map<Id, Id> canonical;
+  std::map<Id, std::vector<Edge>> boundaries;
+  std::map<Id, Node> nodes;
 };
 /*! Geometric private proposals only. Require the globally admitted complete edge/vertex star and authoritative
  * physical skin. Exact on-edge binary64 point; unrepresentable planar proposals reject, never snap silently.
@@ -50,7 +54,7 @@ bool SplitEdge(const Patch& old, Edge edge, Node point, Id first_cell, const Pla
 bool UndoEdgeSplit(const Patch& old, Id point, Edge endpoints, Id first_cell, const PlanarReference& reference,
                    Patch& fresh, std::string& reason, KernelStats* stats = nullptr);
 /*! Contracts a vertex to an existing neighbor in its complete admitted vertex star, without split history.
- * Boundary motion must lie on every incident finite reference facet; corners/junctions cannot drift.
+ * Boundary motion must lie on every incident finite reference patch; corners/junctions cannot drift.
  * Positive cells and oriented physical faces preserve the embedded domain through the contraction homotopy.
  * Metric/quality gates and global dependency admission remain caller requirements. Fresh cells follow old
  * cell order excluding cells containing both endpoints. Rejection leaves both output vectors unchanged. */

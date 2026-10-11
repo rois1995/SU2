@@ -1418,3 +1418,91 @@ TEST_CASE("Native metric-query imports cover centroids and complete edges with a
   CHECK(service.ResidentBytes()==resident);
   CHECK(service.Statistics().filter_candidates==0);
 }
+
+#ifdef HAVE_MPI
+TEST_CASE("Native MPI coarsens across original planar seams and repeats refinement on worker subsets", "[NativeDistributed3D][NativeCoplanar3D]") {
+  World parent;
+  using Clock=std::chrono::steady_clock;
+  auto elapsed=[](Clock::time_point start){return std::chrono::duration<double>(Clock::now()-start).count();};
+  const std::array<Node,6> v{{{0,{0,0,0}}, {1,{1,0,0}}, {2,{1,1,0}}, {3,{0,1,0}},
+                             {4,{.5,.5,0}}, {5,{.5,.5,1}}}};
+  Fixture fixture;
+  for (size_t i=0;i<4;++i) {
+    Cell cell{Id(i),{v[i],v[(i+1)%4],v[4],v[5]}};
+    if (Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)<0) std::swap(cell.v[0],cell.v[1]);
+    fixture.patch.cells.push_back(cell);
+  }
+  for (auto face:Incidence(fixture.patch.cells).Boundary()) {
+    const Id id=fixture.facets.size();
+    const bool base=v[face[0]].p.z==0 && v[face[1]].p.z==0 && v[face[2]].p.z==0;
+    fixture.facets.push_back({id,base ? 70 : int(id)+10,{v[face[0]],v[face[1]],v[face[2]]}});
+    fixture.patch.surface.push_back({face,id});
+  }
+  const auto geometry_start=Clock::now();
+  const PlanarReference reference(fixture.facets);
+  const double geometry_s=elapsed(geometry_start);
+  std::ostringstream geometry_profile;
+  geometry_profile<<std::setprecision(17)<<"COPLANAR_GEOMETRY rank="<<parent.rank<<" ranks="<<parent.size
+      <<" facets="<<fixture.facets.size()<<" build_s="<<geometry_s<<'\n';
+  Log(parent,geometry_profile.str());
+  const auto input=Partition(Rows(fixture.patch),parent);const auto input_bytes=Bytes(input);
+  MeshRecords("coplanar_initial",parent,input);
+  for (int m:std::set<int>{parent.size,std::max(1,parent.size-1),std::max(1,parent.size/2)}) {
+    Owned accepted=input;
+    for (unsigned step=0;step<3;++step) {
+      const bool coarsen=step!=1;
+      const std::string label="coplanar_m"+std::to_string(m)+"_s"+std::to_string(step);
+      const auto started=Clock::now();const auto saved=Bytes(accepted);
+      const auto preparation=Clock::now();
+      auto sensors=Uniform(input,coarsen ? Tensor{.25,0,0,.25,0,.25} : Tensor{4,0,0,4,0,4});
+      const double preparation_s=elapsed(preparation);
+      AnisotropicSourceRecords("COPLANAR_SOURCE",label,parent,sensors);
+      const auto migration=Clock::now();
+      std::vector<std::vector<OwnedCell>> to(parent.size);
+      std::vector<std::vector<DonorCell>> sources(parent.size);
+      for (const auto& row:accepted) to[row.first%m].push_back(row.second);
+      for (auto donor:sensors) sources[donor.cell.id%m].push_back(donor);
+      const auto migrated=parent.exchange(to);const auto original=parent.exchange(sources);
+      const double migration_s=elapsed(migration);const auto communicator=Clock::now();
+      MPI_Comm subset=MPI_COMM_NULL;
+      MPI_Comm_split(parent.comm,parent.rank<m ? 0 : MPI_UNDEFINED,parent.rank,&subset);
+      const double communicator_s=elapsed(communicator);const auto worker_start=Clock::now();
+      Owned updated;bool valid=true;
+      if (subset!=MPI_COMM_NULL) {
+        World worker(subset);Owned owned;
+        for (auto row:migrated) owned.emplace(row.cell.id,row);
+        EngineOptions options;options.maximum_rounds=256;options.timings=true;
+        auto result=coarsen ? Coarsen(worker,owned,original,reference,{},options) :
+                             Refine(worker,owned,original,reference,{},options);
+        EngineReport(result,worker,label);
+        valid=result.valid;updated.swap(result.cells);
+        MPI_Comm_free(&subset);
+      }
+      const bool failed=parent.maximum(!valid);CHECK_FALSE(failed);
+      const double worker_s=elapsed(worker_start);const auto returning=Clock::now();
+      to.assign(parent.size,{});
+      for (const auto& row:updated) to[row.first%parent.size].push_back(row.second);
+      const auto returned=parent.exchange(to);Owned output;
+      for (auto row:returned) output.emplace(row.cell.id,row);
+      const auto count=CPassiveComm::Allreduce(output.size(),CPassiveComm::Op::SUM,parent.comm);
+      const double return_s=elapsed(returning);const auto exporting=Clock::now();
+      if (step==0) CHECK(count==2);
+      CHECK(count>=2);CHECK(count<=128);
+      CHECK(Bytes(accepted)==saved);CHECK(Bytes(input)==input_bytes);
+      MeshRecords(label+(failed ? "_rejected" : ""),parent,output);
+      const double export_s=elapsed(exporting),total_s=elapsed(started);
+      const double other_s=total_s-preparation_s-migration_s-communicator_s-worker_s-return_s-export_s;
+      CHECK(other_s>=-1e-12);
+      std::ostringstream profile;
+      profile<<std::setprecision(17)<<"COPLANAR_EVENT case="<<label<<" rank="<<parent.rank<<" ranks="<<parent.size
+          <<" workers="<<m<<" step="<<step<<" valid="<<!failed<<" final="<<count<<" parent_s="<<total_s
+          <<" preparation_s="<<preparation_s<<" migration_s="<<migration_s<<" worker_comm_s="<<communicator_s
+          <<" worker_s="<<worker_s<<" return_s="<<return_s<<" record_export_s="<<export_s<<" other_s="<<other_s
+          <<" inactive_worker_wait_s="<<(parent.rank>=m ? worker_s : 0)<<'\n';
+      Log(parent,profile.str());
+      if (failed) break;
+      accepted.swap(output);
+    }
+  }
+}
+#endif

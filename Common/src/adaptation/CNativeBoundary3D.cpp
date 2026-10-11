@@ -58,6 +58,7 @@ Physical CheckSurface(const Patch& patch, const Skin& skin, const PlanarReferenc
   Physical faces;
   for (auto f : patch.surface) {
     f.v = Oriented(f.v);
+    f.facet = reference.Canonical(f.facet);
     const auto key = Key(f.v);
     const auto found = skin.find(key);
     if (found == skin.end() || found->second != f.v || !faces.emplace(key, f).second)
@@ -96,7 +97,6 @@ void Endpoints(Edge& edge) {
 }  // namespace
 PlanarReference::PlanarReference(std::vector<Facet> input) {
   if (input.size() > 4 * MaximumCavityCells) throw std::invalid_argument("Native 3D reference facet budget exceeded.");
-  std::map<Id, Node> nodes;
   for (const auto& f : input) {
     std::set<Id> ids;
     for (auto n : f.v) {
@@ -111,16 +111,101 @@ PlanarReference::PlanarReference(std::vector<Facet> input) {
     if (ids.size() != 3 || !area || !facets.emplace(f.id, f).second)
       throw std::invalid_argument("Native 3D reference has a duplicate or degenerate facet.");
   }
+  std::map<Edge, std::vector<Id>> owners;
+  for (const auto& row : facets) {
+    canonical.emplace(row.first, row.first);
+    for (size_t i = 0; i < 3; ++i) {
+      Edge edge{row.second.v[i].id, row.second.v[(i + 1) % 3].id};
+      std::sort(edge.begin(), edge.end());
+      owners[edge].push_back(row.first);
+    }
+  }
+  std::set<Id> seen;
+  for (const auto& root : facets) {
+    if (seen.count(root.first)) continue;
+    const auto& reference = root.second;
+    size_t axis = 0;
+    while (Projected(reference.v[0].p, reference.v[1].p, reference.v[2].p, axis, nullptr) == 0) ++axis;
+    const auto sign = Projected(reference.v[0].p, reference.v[1].p, reference.v[2].p, axis, nullptr);
+    std::vector<Id> component{root.first};
+    seen.insert(root.first);
+    for (size_t j = 0; j < component.size(); ++j) {
+      const auto& f = Get(component[j]);
+      for (size_t i = 0; i < 3; ++i) {
+        Edge edge{f.v[i].id, f.v[(i + 1) % 3].id};
+        std::sort(edge.begin(), edge.end());
+        const auto& adjacent = owners.at(edge);
+        if (adjacent.size() != 2) continue;
+        for (Id id : adjacent) {
+          if (seen.count(id)) continue;
+          const auto& next = Get(id);
+          if (next.marker != reference.marker) continue;
+          bool coplanar = true;
+          for (auto n : next.v)
+            coplanar = coplanar && Orientation(reference.v[0].p, reference.v[1].p, reference.v[2].p, n.p) == 0;
+          const auto area = Projected(next.v[0].p, next.v[1].p, next.v[2].p, axis, nullptr);
+          if (coplanar && ((sign > 0 && area > 0) || (sign < 0 && area < 0))) {
+            component.push_back(id);
+            seen.insert(id);
+          }
+        }
+      }
+    }
+    if (component.size() == 1) continue;
+    std::vector<Face> triangles;
+    std::map<Edge, std::vector<Edge>> edges;
+    std::set<Id> vertices;
+    for (Id id : component) {
+      const auto& f = Get(id);
+      triangles.push_back({f.v[0].id, f.v[1].id, f.v[2].id});
+      for (size_t i = 0; i < 3; ++i) {
+        vertices.insert(f.v[i].id);
+        const Edge oriented{f.v[i].id, f.v[(i + 1) % 3].id};
+        auto key = oriented; std::sort(key.begin(), key.end());
+        edges[key].push_back(oriented);
+      }
+    }
+    bool valid = true;
+    try { ValidateSurfaceTopology(triangles, false); }
+    catch (const std::invalid_argument&) { valid = false; }
+    std::set<std::array<double, 3>> coordinates;
+    for (Id id : vertices) {
+      const auto p = nodes.at(id).p;
+      valid = coordinates.insert({p.x, p.y, p.z}).second && valid;
+    }
+    std::vector<Edge> border;
+    for (const auto& entry : edges) {
+      const auto& uses = entry.second;
+      if (uses.size() == 1) border.push_back(uses[0]);
+      else if (uses.size() != 2 || uses[0][0] != uses[1][1] || uses[0][1] != uses[1][0]) valid = false;
+    }
+    for (auto edge : border) for (Id id : vertices) {
+      const auto side = Projected(nodes.at(edge[0]).p, nodes.at(edge[1]).p, nodes.at(id).p, axis, nullptr);
+      if ((sign > 0 && side < 0) || (sign < 0 && side > 0)) valid = false;
+    }
+    // shortcut: retain raw constraints on nonconvex patches until finite-union triangle/path coverage is available.
+    if (!valid) continue;
+    boundaries.emplace(root.first, std::move(border));
+    for (Id id : component) canonical.at(id) = root.first;
+  }
 }
+Id PlanarReference::Canonical(Id id) const { return canonical.at(id); }
 const Facet& PlanarReference::Get(Id id) const { return facets.at(id); }
 bool PlanarReference::Contains(Id id, Point p, KernelStats* stats) const {
+  id = Canonical(id);
   const auto& v = Get(id).v;
   if (Orientation(v[0].p, v[1].p, v[2].p, p, stats) != 0) return false;
   for (size_t axis = 0; axis < 3; ++axis) {
     const auto area = Projected(v[0].p, v[1].p, v[2].p, axis, stats);
     if (area == 0) continue;
-    for (size_t i = 0; i < 3; ++i) {
-      const auto side = Projected(v[i].p, v[(i + 1) % 3].p, p, axis, stats);
+    const auto group = boundaries.find(id);
+    if (group == boundaries.end()) {
+      for (size_t i = 0; i < 3; ++i) {
+        const auto side = Projected(v[i].p, v[(i + 1) % 3].p, p, axis, stats);
+        if ((area > 0 && side < 0) || (area < 0 && side > 0)) return false;
+      }
+    } else for (auto edge : group->second) {
+      const auto side = Projected(nodes.at(edge[0]).p, nodes.at(edge[1]).p, p, axis, stats);
       if ((area > 0 && side < 0) || (area < 0 && side > 0)) return false;
     }
     return true;

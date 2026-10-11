@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_core_v1/audit_coplanar.py", line 73, in <module>
+    adversaries.append(expect_rejected('wrong_facet_binding',bad))
+  File "integration_evidence/native_3d_core_v1/audit_coplanar.py", line 66, in expect_rejected
+    raise AssertionError('Audit admitted adversary '+name)
+AssertionError: Audit admitted adversary wrong_facet_binding

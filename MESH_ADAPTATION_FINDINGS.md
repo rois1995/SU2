@@ -1,3 +1,45 @@
+## Native 3D finite coplanar wall checkpoint — 2026-10-11
+
+Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
+codex/native-3d-core; predecessor9557213b3bbc8b1036464bc98a5030a84d449261.
+Goal1 ACTIVE/full scope. Exact certified connected convex coplanar same-marker
+finite disks remove artificial original facet seams. Canonical minimum facet IDs
+allow wall movement/general collapse/inverse sibling pairing across those seams.
+Concave/holed/uncertified components retain raw triangles; creases/markers stay.
+Core source/target/BL/fade/noise/2D/MMG policies and strict q/J/L gates unchanged.
+
+coplanar_regression_v2 PASS MPI1/2/4 (MPI1:73 cases4652 assertions;23 cases/rank
+MPI2/4),1350 prior mesh/source artifacts identical. New21 independent frames/
+18 events with N=M/M<N: pyramid4->2->28/30->2; finite area/marker/embedding/
+original-P1 audits and4 adversaries. Grids and donor states:
+integration_evidence/native_3d_core_v1/coplanar_regression_v2/mpi{1,2,4}_coplanar/.
+actual_nonmpi PASS9 passive cases115 assertions and repeated cycles/repair/
+rejection/composed-edge refusal; RSS5288KiB only for this small control.
+coplanar_sources_v1 PASS63 frames/36 successful events/six exhausted rejections;
+126 prior source750 mesh/state artifacts identical. Failed v1 adversary retained;
+it accidentally reused its existing facet binding; actual meshes had passed.
+
+Three sequential MPI1/2/4 pilots PASS with fixed mesh/edit/query work within each
+rank choice and closed migration/worker/return phases. MPI1 parent medians:
+coarsen4->2 .007931s; refine2->28 .023182s; coarsen28->2 .036094s. Geometry build
+8facets .000136s; requested engine work~2.23MB is not RSS. More workers worsen
+this tiny case and may change mesh trajectory. Three alternating actual nonMPI
+checkpoint pairs match work but candidate is6-7% slower. Shared tracing/field/
+metric objects identical, final addresses shifted; cause not isolated, no layout
+flags. COPLANAR_GEOMETRY_CHECKPOINT.md retains all receipts and limits.
+Streamed reconstruction CPU scope now excludes failure election; full private
+CPU/wait qualification remains pending.
+
+Next: tetrahedral cost-weighted partition/actual runtime/CFD/CGNS integration;
+general finite-union authority and measured regression remain gaps. Production3D
+guard,256-facet/256-donor budgets and composed3D edge-integrator refusal persist.
+Same complete immutable geometry authority required on each worker. Do not
+complete Goal1 from frozen pilots or claim BL/unsteady3D/CFD affordability.
+Continue one owned job,nice19/thread1/MPI<=4; real host checks, announce full case
+folders, leave foreign processes/submodules/ClusterResults and AdapNoExt alone.
+No cluster launches requested tonight. Push every validated checkpoint and
+verify remote full SHA; keep all failures and compact verified evidence aliases.
+
 ## Native 3D private-query checkpoint — 2026-10-11
 
 Cap-only known-query batching now completes source750 refinement/coarsening/repair;

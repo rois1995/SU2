@@ -127,6 +127,11 @@ void Validate(const std::vector<Cell>& old, const Incidence& before, const std::
 }
 }  // namespace
 
+void ValidateSurfaceTopology(const std::vector<Face>& triangles, bool closed) {
+  if (triangles.size() > 4 * MaximumReplacementCells)
+    throw std::invalid_argument("Native 3D surface topology exceeds budget.");
+  Surface(triangles, closed);
+}
 bool ValidateFixedInterface(const std::vector<Cell>& old, const std::vector<Cell>& fresh, std::string& reason,
                             KernelStats* stats) {
   try {

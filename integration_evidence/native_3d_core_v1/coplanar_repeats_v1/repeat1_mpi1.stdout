@@ -1,0 +1,59 @@
+Filters: [NativeCoplanar3D]
+COPLANAR_GEOMETRY rank=0 ranks=1 facets=8 build_s=0.00013466699999999999
+MESH coplanar_initial 0 17 0 0 0 0 1 1 0 0 4 0.5 0.5 0 5 0.5 0.5 1 0 0 0 0 1 1 1 0
+MESH coplanar_initial 1 18 1 1 0 0 2 1 1 0 4 0.5 0.5 0 5 0.5 0.5 1 0 0 0 0 1 5 1 4
+MESH coplanar_initial 2 19 2 1 1 0 3 0 1 0 4 0.5 0.5 0 5 0.5 0.5 1 0 0 0 0 1 7 1 6
+MESH coplanar_initial 3 20 3 0 1 0 0 0 0 0 4 0.5 0.5 0 5 0.5 0.5 1 0 0 0 0 1 3 1 2
+COPLANAR_SOURCE coplanar_m1_s0 0 0 0 0 0 0 0.25 0 0 0.25 0 0.25 1 1 0 0 0.25 0 0 0.25 0 0.25 4 0.5 0.5 0 0.25 0 0 0.25 0 0.25 5 0.5 0.5 1 0.25 0 0 0.25 0 0.25
+COPLANAR_SOURCE coplanar_m1_s0 0 1 1 1 0 0 0.25 0 0 0.25 0 0.25 2 1 1 0 0.25 0 0 0.25 0 0.25 4 0.5 0.5 0 0.25 0 0 0.25 0 0.25 5 0.5 0.5 1 0.25 0 0 0.25 0 0.25
+COPLANAR_SOURCE coplanar_m1_s0 0 2 2 1 1 0 0.25 0 0 0.25 0 0.25 3 0 1 0 0.25 0 0 0.25 0 0.25 4 0.5 0.5 0 0.25 0 0 0.25 0 0.25 5 0.5 0.5 1 0.25 0 0 0.25 0 0.25
+COPLANAR_SOURCE coplanar_m1_s0 0 3 3 0 1 0 0.25 0 0 0.25 0 0.25 0 0 0 0 0.25 0 0 0.25 0 0.25 4 0.5 0.5 0 0.25 0 0 0.25 0 0.25 5 0.5 0.5 1 0.25 0 0 0.25 0 0.25
+ENGINE rank=0 ranks=1 valid=1 case=coplanar_m1_s0 initial=4 updated=2 final=2 rounds=19 proposed=19 attempts=19 accepted=1 rejected=18 conflicts=0 selection_edge_evaluations=14 selection_edge_reused=22 field_requests=12 field_hits=0 field_edges=20 work_bytes=2136776 total_s=0.0074010639999999997 init_s=6.9332000000000006e-05 seed_s=0.0014099589999999999 selection_s=7.2500000000000009e-06 dependency_s=0.00025246900000000001 reservation_s=8.5147000000000017e-05 donor_s=4.5716000000000007e-05 reconstruction_s=0.004100358000000001 metric_s=0.00084610699999999991 routing_s=0.00019502799999999998 publication_s=8.1971000000000005e-05 update_s=0.00028433599999999994 completion_s=0 other_s=2.3390999999999343e-05 process_cpu_s=0.0074000000000000003 reconstruction_cpu_s=0.0040879999999999996 metric_cpu_s=0.00084400000000000002 measurement_cpu_s=0.001588 repair_fallbacks=0 fallback_accepted=0 recovery_starts=0 repair_proposals=0 moved=0 reconnected=0 batches=2 batch_retries=0 query_import_retries=0 private_query_retries=0 donor_candidates=40 donor_filtered=0 donor_payloads=12 donor_maximum_patch=4 donor_search_nested_s=1.3952000000000001e-05 donor_filter_nested_s=0 field_build_nested_s=1.9097999999999999e-05 field_query_nested_s=2.7184999999999998e-05 cache_nested_s=3.9389999999999999e-06 search_nested_s=1.8925999999999998e-05 interpolation_nested_s=1.9780000000000004e-06 composition_nested_s=0 edge_nested_s=0.0022859190000000004 edge_search_nested_s=3.0799999999999997e-06 edge_trace_nested_s=0.0022723940000000001 edge_integral_nested_s=7.9230000000000019e-06
+MESH coplanar_m1_s0 4 0 1 1 0 0 2 1 1 0 0 0 0 0 5 0.5 0.5 1 0 0 1 1 1 5 1 0
+MESH coplanar_m1_s0 5 0 2 1 1 0 3 0 1 0 0 0 0 0 5 0.5 0.5 1 1 3 0 0 1 7 1 0
+COPLANAR_EVENT case=coplanar_m1_s0 rank=0 ranks=1 workers=1 step=0 valid=1 final=2 parent_s=0.0076467590000000004 preparation_s=7.3520000000000001e-06 migration_s=3.4926999999999999e-05 worker_comm_s=1.0373999999999999e-05 worker_s=0.0074738970000000002 return_s=1.1904e-05 record_export_s=4.5333000000000001e-05 other_s=6.2972000000000467e-05 inactive_worker_wait_s=0
+COPLANAR_SOURCE coplanar_m1_s1 0 0 0 0 0 0 4 0 0 4 0 4 1 1 0 0 4 0 0 4 0 4 4 0.5 0.5 0 4 0 0 4 0 4 5 0.5 0.5 1 4 0 0 4 0 4
+COPLANAR_SOURCE coplanar_m1_s1 0 1 1 1 0 0 4 0 0 4 0 4 2 1 1 0 4 0 0 4 0 4 4 0.5 0.5 0 4 0 0 4 0 4 5 0.5 0.5 1 4 0 0 4 0 4
+COPLANAR_SOURCE coplanar_m1_s1 0 2 2 1 1 0 4 0 0 4 0 4 3 0 1 0 4 0 0 4 0 4 4 0.5 0.5 0 4 0 0 4 0 4 5 0.5 0.5 1 4 0 0 4 0 4
+COPLANAR_SOURCE coplanar_m1_s1 0 3 3 0 1 0 4 0 0 4 0 4 0 0 0 0 4 0 0 4 0 4 4 0.5 0.5 0 4 0 0 4 0 4 5 0.5 0.5 1 4 0 0 4 0 4
+ENGINE rank=0 ranks=1 valid=1 case=coplanar_m1_s1 initial=2 updated=52 final=28 rounds=14 proposed=14 attempts=14 accepted=14 rejected=0 conflicts=0 selection_edge_evaluations=76 selection_edge_reused=248 field_requests=132 field_hits=0 field_edges=157 work_bytes=2232024 total_s=0.022364023 init_s=5.6109000000000001e-05 seed_s=0.00096015800000000002 selection_s=7.9160000000000018e-06 dependency_s=0.00024655900000000004 reservation_s=7.6408000000000004e-05 donor_s=0.0004932449999999999 reconstruction_s=0.0051731349999999997 metric_s=0.007376723 routing_s=0.00044552399999999999 publication_s=0.000608962 update_s=0.0068828630000000003 completion_s=0 other_s=3.6421000000001758e-05 process_cpu_s=0.022363000000000001 reconstruction_cpu_s=0.0051620000000000008 metric_cpu_s=0.0073640000000000008 measurement_cpu_s=0.0072049999999999996 repair_fallbacks=0 fallback_accepted=0 recovery_starts=0 repair_proposals=0 moved=0 reconnected=0 batches=15 batch_retries=0 query_import_retries=0 private_query_retries=0 donor_candidates=320 donor_filtered=0 donor_payloads=116 donor_maximum_patch=4 donor_search_nested_s=0.00012606300000000002 donor_filter_nested_s=0 field_build_nested_s=0.00017214399999999997 field_query_nested_s=0.00015767 cache_nested_s=2.8312000000000003e-05 search_nested_s=8.4031000000000009e-05 interpolation_nested_s=2.0847999999999998e-05 composition_nested_s=0 edge_nested_s=0.013170663000000003 edge_search_nested_s=2.9808999999999995e-05 edge_trace_nested_s=0.013063112 edge_integral_nested_s=5.9785000000000004e-05
+MESH coplanar_m1_s1 646 0 11 0.5 0 0 6 0.5 0.5 0 0 0 0 0 7 0.25 0.25 0.5 0 0 1 1 0 0 1 0
+MESH coplanar_m1_s1 774 0 6 0.5 0.5 0 12 0 0.5 0 0 0 0 0 7 0.25 0.25 0.5 1 3 0 0 0 0 1 0
+MESH coplanar_m1_s1 902 0 1 1 0 0 13 1 0.5 0 6 0.5 0.5 0 8 0.75 0.25 0.5 0 0 0 0 1 5 1 0
+MESH coplanar_m1_s1 1030 0 2 1 1 0 14 0.5 1 0 6 0.5 0.5 0 9 0.75 0.75 0.5 0 0 0 0 1 7 1 0
+MESH coplanar_m1_s1 1158 0 8 0.75 0.25 0.5 15 0.5 0.5 0.5 7 0.25 0.25 0.5 5 0.5 0.5 1 0 0 1 1 0 0 0 0
+MESH coplanar_m1_s1 1159 0 8 0.75 0.25 0.5 6 0.5 0.5 0 7 0.25 0.25 0.5 15 0.5 0.5 0.5 0 0 0 0 0 0 0 0
+MESH coplanar_m1_s1 1160 0 8 0.75 0.25 0.5 9 0.75 0.75 0.5 15 0.5 0.5 0.5 5 0.5 0.5 1 0 0 0 0 1 5 0 0
+MESH coplanar_m1_s1 1161 0 8 0.75 0.25 0.5 9 0.75 0.75 0.5 6 0.5 0.5 0 15 0.5 0.5 0.5 0 0 0 0 0 0 0 0
+MESH coplanar_m1_s1 1162 0 15 0.5 0.5 0.5 10 0.25 0.75 0.5 7 0.25 0.25 0.5 5 0.5 0.5 1 1 3 0 0 0 0 0 0
+MESH coplanar_m1_s1 1163 0 6 0.5 0.5 0 10 0.25 0.75 0.5 7 0.25 0.25 0.5 15 0.5 0.5 0.5 0 0 0 0 0 0 0 0
+MESH coplanar_m1_s1 1164 0 9 0.75 0.75 0.5 10 0.25 0.75 0.5 15 0.5 0.5 0.5 5 0.5 0.5 1 0 0 0 0 1 7 0 0
+MESH coplanar_m1_s1 1165 0 9 0.75 0.75 0.5 10 0.25 0.75 0.5 6 0.5 0.5 0 15 0.5 0.5 0.5 0 0 0 0 0 0 0 0
+MESH coplanar_m1_s1 1286 0 1 1 0 0 6 0.5 0.5 0 16 0.625 0.125 0.25 8 0.75 0.25 0.5 0 0 1 1 0 0 0 0
+MESH coplanar_m1_s1 1287 0 16 0.625 0.125 0.25 6 0.5 0.5 0 7 0.25 0.25 0.5 8 0.75 0.25 0.5 0 0 1 1 0 0 0 0
+MESH coplanar_m1_s1 1288 0 1 1 0 0 6 0.5 0.5 0 11 0.5 0 0 16 0.625 0.125 0.25 0 0 1 1 0 0 1 0
+MESH coplanar_m1_s1 1289 0 16 0.625 0.125 0.25 6 0.5 0.5 0 11 0.5 0 0 7 0.25 0.25 0.5 0 0 1 1 0 0 0 0
+MESH coplanar_m1_s1 1414 0 17 0.875 0.625 0.25 2 1 1 0 6 0.5 0.5 0 9 0.75 0.75 0.5 0 0 0 0 1 5 0 0
+MESH coplanar_m1_s1 1415 0 8 0.75 0.25 0.5 17 0.875 0.625 0.25 6 0.5 0.5 0 9 0.75 0.75 0.5 0 0 0 0 1 5 0 0
+MESH coplanar_m1_s1 1416 0 13 1 0.5 0 2 1 1 0 6 0.5 0.5 0 17 0.875 0.625 0.25 0 0 0 0 1 5 1 0
+MESH coplanar_m1_s1 1417 0 13 1 0.5 0 17 0.875 0.625 0.25 6 0.5 0.5 0 8 0.75 0.25 0.5 0 0 0 0 1 5 0 0
+MESH coplanar_m1_s1 1542 0 6 0.5 0.5 0 3 0 1 0 18 0.125 0.625 0.25 10 0.25 0.75 0.5 1 3 0 0 0 0 0 0
+MESH coplanar_m1_s1 1543 0 6 0.5 0.5 0 18 0.125 0.625 0.25 7 0.25 0.25 0.5 10 0.25 0.75 0.5 1 3 0 0 0 0 0 0
+MESH coplanar_m1_s1 1544 0 6 0.5 0.5 0 3 0 1 0 12 0 0.5 0 18 0.125 0.625 0.25 1 3 0 0 0 0 1 0
+MESH coplanar_m1_s1 1545 0 6 0.5 0.5 0 18 0.125 0.625 0.25 12 0 0.5 0 7 0.25 0.25 0.5 1 3 0 0 0 0 0 0
+MESH coplanar_m1_s1 1670 0 19 0.375 0.875 0.25 3 0 1 0 6 0.5 0.5 0 10 0.25 0.75 0.5 0 0 0 0 1 7 0 0
+MESH coplanar_m1_s1 1671 0 9 0.75 0.75 0.5 19 0.375 0.875 0.25 6 0.5 0.5 0 10 0.25 0.75 0.5 0 0 0 0 1 7 0 0
+MESH coplanar_m1_s1 1672 0 14 0.5 1 0 3 0 1 0 6 0.5 0.5 0 19 0.375 0.875 0.25 0 0 0 0 1 7 1 0
+MESH coplanar_m1_s1 1673 0 14 0.5 1 0 19 0.375 0.875 0.25 6 0.5 0.5 0 9 0.75 0.75 0.5 0 0 0 0 1 7 0 0
+COPLANAR_EVENT case=coplanar_m1_s1 rank=0 ranks=1 workers=1 step=1 valid=1 final=28 parent_s=0.022885155000000001 preparation_s=3.692e-06 migration_s=2.9124000000000001e-05 worker_comm_s=2.425e-05 worker_s=0.022444624999999999 return_s=7.9962000000000005e-05 record_export_s=0.00024768199999999999 other_s=5.5820000000003514e-05 inactive_worker_wait_s=0
+COPLANAR_SOURCE coplanar_m1_s2 0 0 0 0 0 0 0.25 0 0 0.25 0 0.25 1 1 0 0 0.25 0 0 0.25 0 0.25 4 0.5 0.5 0 0.25 0 0 0.25 0 0.25 5 0.5 0.5 1 0.25 0 0 0.25 0 0.25
+COPLANAR_SOURCE coplanar_m1_s2 0 1 1 1 0 0 0.25 0 0 0.25 0 0.25 2 1 1 0 0.25 0 0 0.25 0 0.25 4 0.5 0.5 0 0.25 0 0 0.25 0 0.25 5 0.5 0.5 1 0.25 0 0 0.25 0 0.25
+COPLANAR_SOURCE coplanar_m1_s2 0 2 2 1 1 0 0.25 0 0 0.25 0 0.25 3 0 1 0 0.25 0 0 0.25 0 0.25 4 0.5 0.5 0 0.25 0 0 0.25 0 0.25 5 0.5 0.5 1 0.25 0 0 0.25 0 0.25
+COPLANAR_SOURCE coplanar_m1_s2 0 3 3 0 1 0 0.25 0 0 0.25 0 0.25 0 0 0 0 0.25 0 0 0.25 0 0.25 4 0.5 0.5 0 0.25 0 0 0.25 0 0.25 5 0.5 0.5 1 0.25 0 0 0.25 0 0.25
+ENGINE rank=0 ranks=1 valid=1 case=coplanar_m1_s2 initial=28 updated=35 final=2 rounds=46 proposed=46 attempts=46 accepted=14 rejected=32 conflicts=0 selection_edge_evaluations=83 selection_edge_reused=295 field_requests=159 field_hits=0 field_edges=178 work_bytes=2231912 total_s=0.035498755999999999 init_s=0.00019446599999999999 seed_s=0.0053816480000000002 selection_s=1.9561000000000001e-05 dependency_s=0.00095852100000000016 reservation_s=0.00025756900000000014 donor_s=0.000624882 reconstruction_s=0.013579488000000002 metric_s=0.0092472639999999981 routing_s=0.00078622799999999982 publication_s=0.00084383500000000014 update_s=0.0035267649999999994 completion_s=0 other_s=7.8528999999993854e-05 process_cpu_s=0.035498000000000002 reconstruction_cpu_s=0.013533999999999996 metric_cpu_s=0.0092350000000000002 measurement_cpu_s=0.0078219999999999991 repair_fallbacks=0 fallback_accepted=0 recovery_starts=0 repair_proposals=0 moved=0 reconnected=0 batches=16 batch_retries=0 query_import_retries=0 private_query_retries=0 donor_candidates=496 donor_filtered=0 donor_payloads=120 donor_maximum_patch=4 donor_search_nested_s=0.00016443299999999999 donor_filter_nested_s=0 field_build_nested_s=0.000221265 field_query_nested_s=0.00023026599999999997 cache_nested_s=3.7752000000000007e-05 search_nested_s=0.00013031100000000003 interpolation_nested_s=2.8983e-05 composition_nested_s=0 edge_nested_s=0.015337884999999997 edge_search_nested_s=3.7561000000000015e-05 edge_trace_nested_s=0.015180619000000001 edge_integral_nested_s=9.4659999999999964e-05
+MESH coplanar_m1_s2 5130 0 1 1 0 0 2 1 1 0 0 0 0 0 5 0.5 0.5 1 0 0 1 1 1 5 1 0
+MESH coplanar_m1_s2 5131 0 2 1 1 0 3 0 1 0 0 0 0 0 5 0.5 0.5 1 1 3 0 0 1 7 1 0
+COPLANAR_EVENT case=coplanar_m1_s2 rank=0 ranks=1 workers=1 step=2 valid=1 final=2 parent_s=0.036093838000000003 preparation_s=2.3080000000000002e-06 migration_s=8.8239000000000007e-05 worker_comm_s=3.9918e-05 worker_s=0.035728823 return_s=1.9074999999999999e-05 record_export_s=0.00010980300000000001 other_s=0.00010567200000000698 inactive_worker_wait_s=0
+===============================================================================
+All tests passed (19 assertions in 1 test case)
+

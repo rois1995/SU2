@@ -106,6 +106,36 @@ def length(original,a,b):
             total+=dec(hi-lo)*value
         return float(total)
 
+def reference_patches(facets,groups):
+    assert sorted(i for g in groups for i in g)==sorted(facets), 'Reference groups must partition original facets'
+    patches={};membership={}
+    for group in groups:
+        assert group and len(group)==len(set(group))
+        root=min(group);ref=facets[root];normal=ref['normal'];axis=ref['axis'];points={};edges=defaultdict(list);triangles=[]
+        for id in group:
+            f=facets[id];assert f['marker']==ref['marker']
+            assert f['normal'][axis]*normal[axis]>0
+            assert all(dot(normal,sub(p,ref['points'][0]))==0 for p in f['points'])
+            triangle=[v[0] for v in f['vertices']];triangles.append(triangle)
+            for node,p in zip(triangle,f['points']):
+                if node in points:assert points[node]==p
+                points[node]=p
+            for a,b in zip(triangle,triangle[1:]+triangle[:1]):edges[tuple(sorted((a,b)))].append((a,b))
+            membership[id]=root
+        assert len(set(points.values()))==len(points)
+        surface(triangles,False)
+        border=[]
+        for uses in edges.values():
+            assert len(uses) in (1,2)
+            if len(uses)==2:assert uses[0]==uses[1][::-1]
+            else:border.append(uses[0])
+        for a,b in border:
+            assert all(dot(cross(sub(points[b],points[a]),sub(p,points[a])),normal)>=0 for p in points.values()), 'Nonconvex group'
+        patches[root]=dict(normal=normal,axis=axis,origin=ref['points'][0],
+            border=[(points[a],points[b]) for a,b in border],
+            area=sum(facets[id]['normal'][axis] for id in group))
+    return patches,membership
+
 def frame(path,strict,validate_shape=True):
     data=json.loads(path.read_text());nodes={n[0]:tuple(F(float(x)) for x in n[1:]) for n in data['nodes']}
     assert len(nodes)==len(data['nodes']) and len(set(nodes.values()))==len(nodes)
@@ -133,16 +163,17 @@ def frame(path,strict,validate_shape=True):
         normal=cross(sub(points[1],points[0]),sub(points[2],points[0]));assert any(normal)
         for p in nodes.values():assert dot(normal,sub(p,points[0]))<=0,'Vertex outside convex reference domain'
         f['points']=points;f['normal']=normal;f['axis']=next(i for i,x in enumerate(normal) if x)
+    patches,membership=reference_patches(facets,data.get('facet_groups',[[id] for id in facets]))
     for key,f in physical.items():
         assert parity(f['nodes'])==boundary[key]
-        ref=facets[f['facet']];a,b,c=ref['points'];normal=ref['normal'];axis=ref['axis']
+        root=membership[f['facet']];ref=patches[root];normal=ref['normal'];axis=ref['axis']
         for id in f['nodes']:
-            p=nodes[id];assert dot(normal,sub(p,a))==0
-            for v,w in [(a,b),(b,c),(c,a)]:assert dot(cross(sub(w,v),sub(p,v)),normal)>=0
+            p=nodes[id];assert dot(normal,sub(p,ref['origin']))==0
+            for v,w in ref['border']:assert dot(cross(sub(w,v),sub(p,v)),normal)>=0
         a0,b0,c0=[nodes[i] for i in f['nodes']];child=cross(sub(b0,a0),sub(c0,a0))[axis]
-        assert child*normal[axis]>0;areas[f['facet']]+=child
-    assert set(areas)==set(facets)
-    for id,f in facets.items():assert areas[id]==f['normal'][f['axis']]
+        assert child*normal[axis]>0;areas[root]+=child
+    assert set(areas)==set(patches)
+    for id,f in patches.items():assert areas[id]==f['area']
     original,source_nodes=sources(data)
     minq=minj=1.;unique_edges=set()
     for t,c in zip(geometries,cells):
