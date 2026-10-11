@@ -3,22 +3,29 @@
 Working repository: `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 `codex/native-3d-core`. This is an initial MPI1/2/4 correctness, repeated timing
 and instrumentation-overhead package. Larger sizes/ranks, full traffic/wait and
-allocator calibration remain Goal1 work. The reference-admission C++ draft is
-not yet validated locally; package self-checks do not validate that implementation.
+allocator calibration remain Goal1 work. The current reference-admission/query-accounting code builds and passes the serial
+69-case native/reference/2D+3Dbridge suite and serialMMG checks. MPI2/4 and
+independent fixed-work/restart qualification remain pending; package self-checks
+are separate from those numerical checks.
 Do not treat preparation or submission as a numerical PASS.
 
 Use the cluster's existing GCC/MPI/MMG/CGNS build environment on the login host.
 Build the complete normal-mode test driver with MPI, MMG, CGNS and tests enabled:
 
 ```sh
-./meson.py configure build-native -Denable-tests=true
+./meson.py configure build-native -Denable-tests=true -Denable-normal=true \
+  -Denable-mmg=true -Denable-cgns=true -Dwith-mpi=enabled
 ninja -C build-native UnitTests/test_driver
 PYTHONDONTWRITEBYTECODE=1 python3 integration_evidence/native_cluster_3d_core_v1/prepare.py \
   --build-dir build-native --output integration_evidence/native_cluster_3d_core_v1/prepared_v1
 ```
 
-If Ninja is `./ninja`, use that for the build and pass `--ninja ./ninja` to
-preparation. Preparation refuses a stale driver, missing MPI or disabled required build options before copying it,
+`build-native` denotes your existing configured normal build directory; substitute
+its actual name and retain your cluster compiler/MMG library options. If creating
+a fresh directory, use `./meson.py setup build-native` with the same options
+instead of `configure`. If Ninja is `./ninja`, use that for the build and pass
+`--ninja ./ninja` to preparation. Use a new prepared output folder if `prepared_v1`
+already exists; preparation deliberately preserves previous bundles. Preparation refuses a stale driver, missing MPI or disabled required build options before copying it,
 pins all68 objects and actual archives/thin members, records sources/build options
 and copies native3D implementation/test recipes and independent auditors.
 The bundle has regular files only and contains its executable; it has no input

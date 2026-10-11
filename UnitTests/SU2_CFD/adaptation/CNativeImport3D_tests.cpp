@@ -202,6 +202,8 @@ TEST_CASE("Native3D CFD bridge returns adapted readers and preserves affine BDF2
     DonorImport source(parent,true);std::string reason;REQUIRE(source.Build(imported.original,reason));
     std::vector<uint32_t> weights;BridgeStats weight_stats;REQUIRE(WorkingWeights(parent,imported.cells,source,weights,reason,weight_stats));
     CHECK(weight_stats.requests==5*imported.cells.size());
+    CHECK(weight_stats.requests==weight_stats.hits+weight_stats.misses+weight_stats.invalid_queries);
+    CHECK(weight_stats.failures==0);CHECK(weight_stats.evictions<=weight_stats.misses);
     auto working=imported.cells;PartitionStats partition;REQUIRE(Repartition(parent,working,weights,m,partition,reason));
     std::vector<std::vector<DonorCell>> send(parent.size);
     for(size_t i=0;i<imported.original.size();++i)send[partition.destinations[i]].push_back(imported.original[i]);
@@ -234,6 +236,26 @@ TEST_CASE("Native3D CFD bridge returns adapted readers and preserves affine BDF2
       const auto tensors=composed.FetchPointMetric(fresh->Fine());REQUIRE(tensors.size()==transported.size());
       for(unsigned long p=0;p<fresh->Fine().GetnPoint();++p){const auto* x=fresh->Fine().nodes->GetCoord(p);auto tensor=Sensor(x,scale);tensor.zz=std::max(tensor.zz,4.+60.*std::max(0.,1.-8.*SU2_TYPE::GetValue(x[2])));std::array<double,6> expected{tensor.xx,tensor.xy,tensor.xz,tensor.yy,tensor.yz,tensor.zz};for(size_t k=0;k<6;++k)CHECK(tensors[6*p+k]==Approx(expected[k]).margin(1e-13));}
       CHECK(Bytes(imported.original)==original_bytes);CHECK(State(*current)==saved);
+      for(bool detail : {false,true}) {
+        uint64_t attempted=0;
+        MetricComposition failing=[&](Point,Tensor)->Tensor {
+          ++attempted;throw std::runtime_error("Injected bridge query composition failure.");
+        };
+        std::vector<uint32_t> preserved{123};BridgeStats failed_weights;
+        CHECK_FALSE(WorkingWeights(parent,adapted,source,preserved,reason,failed_weights,failing,SIZE_MAX,0,detail));
+        CHECK(preserved==std::vector<uint32_t>{123});CHECK_FALSE(reason.empty());
+        CHECK(failed_weights.requests==failed_weights.hits+failed_weights.misses+failed_weights.invalid_queries);
+        CHECK(failed_weights.failures==attempted);CHECK(failed_weights.compositions==attempted);
+        CHECK(failed_weights.requests==attempted);CHECK(parent.sum(int(attempted))>0);
+        CReaderSlices preserved_slices;preserved_slices.nDim=99;BridgeStats failed_return;
+        attempted=0;
+        CHECK_FALSE(ReaderSlices(parent,adapted,imported.original,reference,preserved_slices,reason,failed_return,failing,SIZE_MAX,0,detail));
+        CHECK(preserved_slices.nDim==99);CHECK_FALSE(reason.empty());
+        CHECK(failed_return.requests==failed_return.hits+failed_return.misses+failed_return.invalid_queries);
+        CHECK(failed_return.failures==attempted);CHECK(failed_return.compositions==attempted);
+        CHECK(failed_return.requests==attempted);CHECK(parent.sum(int(attempted))>0);
+        CHECK(Bytes(imported.original)==original_bytes);CHECK(State(*current)==saved);
+      }
     }
     std::unique_ptr<CSolutionTransfer> transfer;if(conservative)transfer=std::make_unique<CConservativeTransfer>();else transfer=std::make_unique<CBarycentricTransfer>();
     {Mute mute;transfer->Transfer(config.get(),current->Donor(),fresh->geometry,fresh->solver);}

@@ -5,7 +5,7 @@ from fractions import Fraction as F
 import copy,json,math,sys
 from audit_coupled import frame,sources,metric
 from audit_geometry_bridge import MARKERS,states,signature,su2_signature,cgns_signature,reject
-from audit_lifecycle import parse,stage,closes,STAGES
+from audit_lifecycle import parse,stage,closes,STAGES,nested_stage
 STAGES['envelope']=('metric','observation','remesh','replace')
 STAGES['envelope_restart']=('write','teardown','reload')
 
@@ -138,6 +138,10 @@ def main(folder):
                 phases=('support','reference','import','source','weights','partition','donor_migration','communicator','refine','coarsen','wait','return')
                 closes(row,phases)
                 assert row['complete']==1 and row['detailed']==p['detail'];native.append(row)
+        elif line.startswith('NATIVE3D_DETAIL '):
+            row=parse(line)
+            assert row['ranks']==ranks and 0<=row['rank']<ranks and row['workers']==p['workers'] and row['complete']==1
+            nested_stage(row)
         elif line.startswith('NATIVE3D_STAGE '):
             row=parse(line);stage(row)
             assert row['ranks']==ranks and 0<=row['rank']<ranks

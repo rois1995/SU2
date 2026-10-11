@@ -38,5 +38,24 @@
     }
   ],
   "acceptance": "Actual configured full68-object regression at MPI1/2/4 plus serialMMG; constructor512facets, CFD import300facets and elected early/late reload budget refusal without publication;26 fixed-work raw geometry/state/readback files; independent actual three-event SU2/CGNS persisted-restart audits; pin all sources/binaries/archives, preserve failed runs.",
-  "execution": "One nice19/j1/thread1 job only after real host availability. Single pilots give correctness/phase diagnostics, not repeated timing/scaling."
+  "execution": "One nice19/j1/thread1 job only after real host availability. Single pilots give correctness/phase diagnostics, not repeated timing/scaling.",
+  "expected_source_changes": [
+    "Common/include/adaptation/CNativeBoundary3D.hpp",
+    "Common/include/adaptation/CNativeEngine3D.hpp",
+    "Common/include/adaptation/CNativeImport3D.hpp",
+    "Common/include/adaptation/CNativeReferenceIO3D.hpp",
+    "Common/src/adaptation/CNativeBoundary3D.cpp",
+    "Common/src/adaptation/CNativeEngine3D.cpp",
+    "Common/src/adaptation/CNativeImport3D.cpp",
+    "Common/src/adaptation/CNativeReferenceIO3D.cpp",
+    "Common/src/adaptation/CNativeRemesher3D.cpp",
+    "UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp",
+    "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp",
+    "UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp",
+    "integration_evidence/native_3d_core_v1/audit_envelope.py",
+    "integration_evidence/native_3d_core_v1/audit_lifecycle.py",
+    "integration_evidence/native_3d_core_v1/run_envelope.py"
+  ],
+  "profiling_scope": "Also validate real query-counter closure and retained failed attempts: requests=hits+misses+invalid, invalid<=failures<=requests, evictions<=misses and compositions<=requests-invalid. New injected rejection checks remain within existing69 selected cases; no target/guard/operator change.",
+  "test_fixture_scope": "Existing n4/restart cases unchanged; n8 fixture is prepared for separate512-facet cluster practical-limit pilots, not included in fixed-work reference admission."
 }

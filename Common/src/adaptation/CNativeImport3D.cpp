@@ -73,12 +73,21 @@ void Add(BridgeStats& stats, const FieldStats& field) {
   stats.requests += field.requests;
   stats.hits += field.hits;
   stats.misses += field.misses;
+  stats.invalid_queries += field.invalid_queries;
+  stats.failures += field.failures;
+  stats.evictions += field.evictions;
   stats.compositions += field.compositions;
   stats.field_build_seconds += field.build_seconds;
   stats.field_search_seconds += field.search_seconds;
   stats.interpolation_seconds += field.interpolation_seconds;
   stats.composition_seconds += field.composition_seconds;
 }
+struct FieldAccounting {
+  BridgeStats& stats;
+  const FrozenField& field;
+  // A rejected batch still incurred every query made before its exception.
+  ~FieldAccounting() { Add(stats, field.Statistics()); }
+};
 struct FaceRecord {
   Face face{};
   Id cell = 0;
@@ -432,8 +441,8 @@ bool Samples(World& parent, size_t count, DonorImport& source, MetricComposition
     try {
       if (!regions.empty()) {
         FrozenField field(std::move(imported.cells), composition, query_timings);
+        FieldAccounting accounting{stats,field};
         for (size_t i = next; i < std::min(count, next + batch); ++i) use(i, field);
-        Add(stats, field.Statistics());
       }
     } catch (const std::exception& e) {
       failure.Set(2, 0, e.what());

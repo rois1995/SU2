@@ -721,7 +721,9 @@ void EngineReport(const EngineResult& result, World& world, const std::string& l
        << " collapse_geometry_nested_s=" << s.collapse_geometry_seconds
        << " selection_edge_evaluations=" << s.edge_evaluations << " selection_edge_reused=" << s.edge_reused
        << " field_requests=" << s.field_requests
-       << " field_hits=" << s.field_hits << " field_edges=" << s.field_edges << " work_bytes=" << s.maximum_work_bytes
+       << " field_hits=" << s.field_hits << " field_misses=" << s.field_misses
+       << " field_invalid_queries=" << s.field_invalid_queries << " field_failures=" << s.field_failures
+       << " field_evictions=" << s.field_evictions << " field_edges=" << s.field_edges << " work_bytes=" << s.maximum_work_bytes
        << " total_s=" << s.total_seconds << " init_s=" << s.initialization_seconds << " seed_s=" << s.seed_seconds
        << " selection_s=" << s.selection_seconds << " dependency_s=" << s.dependency_seconds
        << " reservation_s=" << s.reservation_seconds << " donor_s=" << s.donor_seconds
@@ -1324,6 +1326,24 @@ TEST_CASE("Native MPI admissible coarsening prunes exact immutable-facet counter
 TEST_CASE("Native automatic MPI repair selects complete failing features and restores frozen gates", "[NativeDistributed3D][NativeAutomaticRepair3D]") {
   World parent;using Clock=std::chrono::steady_clock;
   auto elapsed=[](Clock::time_point start){return std::chrono::duration<double>(Clock::now()-start).count();};
+  {
+    const auto fixture=Box();const PlanarReference geometry(fixture.facets);
+    const auto input=Partition(Rows(fixture.patch),parent);const auto saved=Bytes(input);
+    const auto original=Uniform(input,{4,0,0,4,0,4});
+    for(bool detail : {false,true}) {
+      EngineOptions options;options.timings=detail;options.maximum_rounds=1;
+      uint64_t calls=0;
+      auto rejected=Refine(parent,input,original,geometry,[&](Point,Tensor)->Tensor {
+        ++calls;throw std::runtime_error("Injected query composition failure.");
+      },options);
+      CHECK_FALSE(rejected.valid);CHECK(rejected.stats.accepted==0);CHECK(Bytes(input)==saved);
+      CHECK(Bytes(rejected.cells)==saved);
+      CHECK(rejected.stats.field_requests==rejected.stats.field_hits+rejected.stats.field_misses+rejected.stats.field_invalid_queries);
+      CHECK(rejected.stats.field_invalid_queries==0);CHECK(rejected.stats.field_failures==calls);
+      CHECK(rejected.stats.field_compositions==calls);CHECK(rejected.stats.field_requests==calls);
+      CHECK(parent.sum(int(calls))>0);
+    }
+  }
   for(const std::string mode:{"auto","restoreR","restoreC"})
   for(const auto spec:std::array<AnisotropicCase,3>{{{"unit",1,false,0},{"thin8",1e-8,false,0},{"shear4",1e-4,true,0}}})
     for(const std::string kind:{"face","edge4","wall","interior"}) {
@@ -1361,6 +1381,9 @@ TEST_CASE("Native automatic MPI repair selects complete failing features and res
           CHECK(result.stats.recovery_starts<=1);
           CHECK(result.stats.rounds<=options.maximum_rounds);
           CHECK(result.stats.initial_cells==owned.size());
+          CHECK(result.stats.field_requests==result.stats.field_hits+result.stats.field_misses+result.stats.field_invalid_queries);
+          CHECK(result.stats.field_failures<=result.stats.field_requests);
+          CHECK(result.stats.field_evictions<=result.stats.field_misses);
           CHECK(result.splits.size()+result.collapses.size()+result.stats.moved+result.stats.reconnected+result.stats.inserted==result.stats.accepted);
           if(mode=="auto") {
             CHECK(worker.sum(int(kind=="wall" || kind=="interior" ? result.stats.moved : result.stats.reconnected))>0);

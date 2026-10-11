@@ -7,6 +7,70 @@ small sequential local checks with real host-contention checks; push each
 validated checkpoint and verify the remote SHA. A terminal capacity failure
 cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
+## Native3D query accounting — 2026-10-11; built and serial checked
+
+NativeIntegrated / codex/native-3d-core, predecessor9fddd081a8435e83a7f069043608d2b1f68ac437.
+FIELD_ACCOUNTING_DRAFT_REPORT.md supersedes the initial uncompiled status below.
+reference_admission_build_v2 passed its measured host gate (idle27.33%,load1=6.76)
+and completed19 nice19/j1 build steps, complete68-object configured driver with
+source/binary/object pins. reference_admission_serial_v1 passes serialMMG48 plus
+all69 selected native/reference/2D+3Dbridge cases and9996 assertions, including
+512-facet reference/300-facet CFD import/reload/budget refusal and retained failed
+engine/weight/reader queries with timingOFFON and accepted/output preservation.
+One owned job/rank at a time, threads1, scratch on4TB; both jobs terminal.
+
+Native engine/bridge detail now exports actual cache misses, invalid queries,
+failures and evictions. Local guards/after-catch aggregation preserve rejected
+query work, without changing original-P1 interpolation, geometric composition,
+mesh operators/targets/guards or2D/MMG implementations. Shared current auditors
+check complete request closure and bounds; historical incomplete logs use their
+saved original tools. package_checks_v6 passes12 lightweight checks and syntax;
+source/artifact pins verified. initial resource refusal preserved in build_v1.
+
+MPI2/4 and independent fixed-work n4/persisted-restart qualification remain
+pending; last FULL MPI-qualified production is1fafe9e83c. REFERENCE_ADMISSION_MATRIX
+freezes15 exact source changes and the original69/full68/26-byte-identical gates.
+FullGoal1 ACTIVE, no larger/3DBL/curved/fullunsteady/PDE/affordability claim.
+
+The user asked about cluster work: package is ready for their existing on-cluster
+normal MPI/MMG/CGNS build of current branch, then prepare.py and submit.py
+--limits. Default7 serialized correctness/lifecycle/timing jobs; optional eighth
+n8 (405points/1536tets/512facets) first-limit job covers N1M1,N2M2,N4M2,N4M4 and
+stops on first failure. Nodes need no Git; retain/download native3d_* and launcher
+only. No actual bundle or qsub was launched here. See package README for commands.
+
+## Native3D field accounting draft — 2026-10-11; C++ NOT VALIDATED
+
+NativeIntegrated / codex/native-3d-core, predecessor9fddd081a8435e83a7f069043608d2b1f68ac437.
+FIELD_ACCOUNTING_DRAFT_REPORT.md records missing engine misses/invalid/failure/
+eviction exports and lost query work on thrown selection/bridge/private checks.
+The draft aggregates actual FrozenField counters on failure via local stack
+guards/after-catch collection, preserving the existing interpolation/composition,
+mesh operators, targets/guards and2D/MMG sources. No new queries/cache allocations/
+collectives. Existing selected tests now inject engine/weight/reader composition
+failures with detailOFFON and verify counters plus accepted/output preservation;
+these C++ assertions remain uncompiled and NOT RUN.
+
+Shared current lifecycle/envelope/cluster audits now require complete counter
+closure/bounds; old logs use their saved original auditors. package_checks_v6
+passes12 lightweight fake/mock/synthetic-counter checks plus Python/shell syntax
+in0.303s. Source/artifact hashes verified; no native numerical PASS claim.
+
+REFERENCE_ADMISSION_MATRIX now freezes15 exact intended source differences against
+both retained reference-lookup baselines, including accounting/auditors and prior
+n8 fixture/runner. Its n4 fixed-work/n2 actual persisted-restart targets,69 selected
+cases/rank,full68 objects and26 byte-identical output gates remain unchanged.
+
+reference_admission_build_v1 retains source snapshots and a terminal preflight
+FAIL due resource refusal, not a C++ compile error: idle27.33% but one-minute load
+above8; no compiler PID or compile stage, sources/artifacts verified unchanged.
+No owned numerical/build job remains. Scratch stayed on4TB. NEXT new contention-
+checked build folder, then configured reference_admission_regression_v1 and
+frozen fixed-work/restart qualification. Last validated production1fafe9e83c;
+fullGoal1 ACTIVE, actual overhead/traffic/privateCPU/wait/memory/larger-size and
+cluster limits remain. Foreign workers/results,AdapNoExt and earlier evidence
+untouched; do not treat draft publication as numerical validation.
+
 ## Larger native3D practical-limit preparation — 2026-10-11; not a numerical result
 
 Implementation/evidence checkpoint 6565e5575e5b4e00f4f938434d05040227a1d4a7 pushed to origin/codex/native-3d-core; full remote SHA verified. C++/MPI validation remains pending.

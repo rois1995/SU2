@@ -26,6 +26,21 @@ def closes(row,phases):
  assert all(row[k]>=0 for k in phases)
  assert abs(sum(row[k] for k in phases)+row['other']-row['total'])<=1e-10*max(1,row['total'])
 
+def field_counters(row):
+ keys=('requests','hits','misses','invalid_queries','failures','evictions','compositions')
+ assert all(k in row for k in keys),'Incomplete native3D field counters'
+ assert all(math.isfinite(row[k]) and row[k]>=0 and int(row[k])==row[k] for k in keys)
+ assert row['requests']==row['hits']+row['misses']+row['invalid_queries'],'Native3D cache request closure'
+ assert row['invalid_queries']<=row['failures']<=row['requests']
+ assert row['evictions']<=row['misses']
+ assert row['compositions']<=row['requests']-row['invalid_queries']
+
+def nested_stage(row):
+ if row['stage'] in ('refine','coarsen'):closes(row,ENGINE);field_counters(row)
+ elif row['stage'] in ('import','weights','return'):closes(row,('points','cells','faces','source','query','reader'));field_counters(row)
+ elif row['stage']=='partition':closes(row,('graph','parmetis','migration'))
+ else:assert row['stage']=='source'
+
 def stage(row):
  phases=STAGES[row['stage']];closes(row,phases)
  assert row['total']>0 and row['process_peak_rss']>0
@@ -62,10 +77,7 @@ def main(folder,ranks,log):
   assert row['ranks']==ranks and 0<=row['rank']<ranks;stage(row);grouped[row['stage'],int(row['rank'])].append(row)
  for row in details:
   assert row['ranks']==ranks and row['complete']==1
-  if row['stage'] in ('refine','coarsen'):closes(row,ENGINE);assert row['hits']<=row['requests']
-  elif row['stage'] in ('import','weights','return'):closes(row,('points','cells','faces','source','query','reader'));assert row['hits']<=row['requests']
-  elif row['stage']=='partition':closes(row,('graph','parmetis','migration'))
-  else:assert row['stage']=='source'
+  nested_stage(row)
   nested[row['stage'],int(row['rank'])].append(row)
  assert Counter(r['stage'] for r in details)==Counter({k:expected for k in ('import','weights','return','source','partition','refine','coarsen')})
  for rank in range(ranks):
@@ -92,7 +104,10 @@ def main(folder,ranks,log):
  bad=copy.deepcopy(rows[0]);bad[STAGES[bad['stage']][0]]+=1;reject(lambda:stage(bad))
  bad=copy.deepcopy(rows[0]);bad['cpu']+=1;reject(lambda:stage(bad))
  bad=copy.deepcopy(rows[0]);bad['total']=float('nan');reject(lambda:stage(bad))
- result=dict(status='PASS',frames=records,fixed_work_controls=pairs,rank_stages=rows,nested_rank_details=details,outer_case_rows=cases,fixed_work_timings=summaries,adversaries_rejected=3,
+ for key in ('misses','invalid_queries','failures','evictions','compositions'):
+  bad=copy.deepcopy(next(r for r in details if r['stage']=='weights' and r['requests']>0))
+  bad[key]=bad['requests']+1;reject(lambda:field_counters(bad))
+ result=dict(status='PASS',field_counter_adversaries_rejected=5,frames=records,fixed_work_controls=pairs,rank_stages=rows,nested_rank_details=details,outer_case_rows=cases,fixed_work_timings=summaries,adversaries_rejected=3,
   scope='Actual metric/Hessian construction, weighted remesh and CFD repartition/rebuild/BDF transfer/output on small forced-size faceted cubes. Closed per-rank exclusive wall/CPU scopes and nested query/partition/engine counters; process-lifetime RSS. Three fresh same-work repeats per N/M/OFFON. Outer testcase timers include its computed-metric assertions/observation; cycle excludes requested output, which has a separate stage. Each stage excludes its own diagnostic emission while parents include nested emissions. No CFD iterations, private CPU inference from elapsed-minus-CPU, complete MPI wait/traffic or allocator/reader/ParMETIS memory certificate, practical scaling or affordability claim.')
  (folder/'lifecycle_audit.json').write_text(json.dumps(result,indent=2)+'\n')
  print('PASS',len(records),'strict lifecycle frames;',len(rows),'closed rank-stage records;',len(details),'nested rank records')

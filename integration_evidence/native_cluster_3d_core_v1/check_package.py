@@ -165,4 +165,26 @@ class PackageChecks(unittest.TestCase):
             self.assertTrue((work/run.RAW[0]).is_file());self.assertFalse(list(work.glob('*.gz')))
             self.assertFalse((failed/'limit_size8_n4_m2').exists())
 
+    def test_cache_counters_close_and_reject_corruption(self):
+        from audit_lifecycle import field_counters,nested_stage
+        good=dict(requests=10,hits=3,misses=5,invalid_queries=2,failures=3,evictions=1,compositions=7)
+        field_counters(good)
+        for key in good:
+            bad=dict(good);bad[key]=-1
+            with self.assertRaises(AssertionError):field_counters(bad)
+        for key in good:
+            bad=dict(good);bad[key]=float('nan')
+            with self.assertRaises(AssertionError):field_counters(bad)
+        for key in ('misses','invalid_queries','failures','evictions','compositions'):
+            bad=dict(good);bad[key]=11
+            with self.assertRaises(AssertionError):field_counters(bad)
+        bad=dict(good);del bad['misses']
+        with self.assertRaises(AssertionError):field_counters(bad)
+        bad=dict(good);bad.update(invalid_queries=2,failures=1)
+        with self.assertRaises(AssertionError):field_counters(bad)
+        for label in ('refine','coarsen','import','weights','return'):
+            phases=analyze.ENGINE if label in ('refine','coarsen') else ('points','cells','faces','source','query','reader')
+            row=dict(good,stage=label,total=0,other=0,**{p:0 for p in phases})
+            nested_stage(row);row['hits']=11
+            with self.assertRaises(AssertionError):nested_stage(row)
 if __name__=='__main__':unittest.main()

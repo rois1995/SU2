@@ -1,0 +1,75 @@
+{
+  "status": "PASS",
+  "source_sha256": {
+    "Common/include/adaptation/CNativeBoundary3D.hpp": "8c7aa16257297c436102febf0a5fa1e4901d63ed5bbf210b3028b434e66859e4",
+    "Common/include/adaptation/CNativeEngine3D.hpp": "fafa15ca031221f237019ad67cedd13abe11a0bc076401656e0900f0bb51bfa7",
+    "Common/include/adaptation/CNativeImport3D.hpp": "7c713ebf2807c9526cb981200f737cafb91e618b9da1802d5f74a61c0793c707",
+    "Common/include/adaptation/CNativeReferenceIO3D.hpp": "51f37e5a3ee35693edb1d0983dcc0e1e4941f4aa915f74de6b766d2217e90227",
+    "Common/src/adaptation/CNativeBoundary3D.cpp": "a08716c19aeae7bf5497684b1966f99e21fe9ffa2e5b7b0c7d1a8927c0ff67b0",
+    "Common/src/adaptation/CNativeEngine3D.cpp": "e707b71bb09e007778b9f1a46470086a769bbcb957ed9c7d2253ad2864ea64aa",
+    "Common/src/adaptation/CNativeImport3D.cpp": "4f170550edaf2d78b8ed86c96c10a4002dd0da2e48c27c8f0d260ffb1cfdcb49",
+    "Common/src/adaptation/CNativeReferenceIO3D.cpp": "b63a942e0721da744d41aca986712580e3db95fd1428ad44200e0cb839aec96c",
+    "Common/src/adaptation/CNativeRemesher3D.cpp": "358be1dda94b283466a801b8f75c49f0768e22fdece0828da4f99e9f4feec139",
+    "UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp": "f35ac50d639cb694f819336c94fb3ec1dc6af79c89681f12410ea35b8e632e77",
+    "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp": "bf188f0d616773ee267e0e9e2c7d5ab95abf53a4a4c3e0292c81c80f4e824dd6",
+    "UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp": "9b6a6072dcf58c0a1f96cd6e90513dce31d434a09f78aad3f47e5aebc4e41f42",
+    "integration_evidence/native_3d_core_v1/REFERENCE_ADMISSION_MATRIX.json": "f0c04cf0c8c18e657e96c8a22d9dc09ba040ed1e516e6f7fa9655cb5fecb93da",
+    "integration_evidence/native_3d_core_v1/analyze_reference_admission.py": "71a3720e37cb57c53c412cd87bf4a99a618c02dac4f060502590145b6e583ae8",
+    "integration_evidence/native_3d_core_v1/audit_envelope.py": "c360cd86709c83d28c660916c7142742ba1e190e79d7fa6d51c7e7527f80d638",
+    "integration_evidence/native_3d_core_v1/audit_lifecycle.py": "e1cd98a26250b472d92c7e0d9a885865b2d52449cafdfbf313ba73b261b9dd00",
+    "integration_evidence/native_3d_core_v1/run_envelope.py": "07cb862b72aa6b59592995a1f6056e6fa3e09a409ef9bea326785f3318572720",
+    "integration_evidence/native_cluster_3d_core_v1/README.md": "aed52098d84b552bdf2a32d4562b8ba6a3b8f96c9ed149de5df3f6bd59e7f4ee",
+    "integration_evidence/native_cluster_3d_core_v1/RunNative3DSGE.sh": "306ec6a1d4eff5d728962d193a3bbf215f7cbb1bb224abcb1ebe4bc09c73a73d",
+    "integration_evidence/native_cluster_3d_core_v1/analyze.py": "f8e1301ad2b121c0dcc0fedb106dba90d69e365cc55d4e0734fc22caa0d3f3fb",
+    "integration_evidence/native_cluster_3d_core_v1/check_package.py": "4c13ef9910057c0d3ea46c1cb29ed9c9d2d1e01873623ace97e5baea061df162",
+    "integration_evidence/native_cluster_3d_core_v1/prepare.py": "e659191b8b29483dfb064962864ce6e917b5fc15f54ffabdd6a87b5888827b79",
+    "integration_evidence/native_cluster_3d_core_v1/restore.py": "b9a32c4dd7bdd99e84aec755acccd32841038f6f1c27735cd70277b658dcabbb",
+    "integration_evidence/native_cluster_3d_core_v1/run.py": "af02211cf47ba26800d43e7717b683114ee6e1509454c762d5b1739d3ebb42ac",
+    "integration_evidence/native_cluster_3d_core_v1/submit.py": "9ad2e67ab82203e89c910b3d4b886156b5d65276675fcbb3b5f0b953a5e4a2a7"
+  },
+  "source_drift": [],
+  "stages": [
+    {
+      "stage": "shell_syntax",
+      "command": [
+        "bash",
+        "-n",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_core_v1/RunNative3DSGE.sh"
+      ],
+      "seconds": 0.007008593995124102,
+      "exit_code": 0
+    },
+    {
+      "stage": "checks",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_core_v1/check_package.py"
+      ],
+      "seconds": 0.47264249698491767,
+      "exit_code": 0
+    },
+    {
+      "stage": "diff_check",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "--ignore-submodules=all"
+      ],
+      "seconds": 0.051943003956694156,
+      "exit_code": 0
+    }
+  ],
+  "scope": "Syntax and12 lightweight fake-file/mock-process/mock-qsub/synthetic-summary/adversarial-cache-arithmetic checks only. Native C++ field accounting and injected-failure tests not executed by this check.",
+  "artifact_sha256": {
+    "checks.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "shell_syntax.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "shell_syntax.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "diff_check.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "checks.stderr": "3b70273f02294ccc856fc15e249de91dc528b185d311730324403dff24a1057b",
+    "diff_check.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

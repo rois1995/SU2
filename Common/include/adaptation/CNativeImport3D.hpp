@@ -21,6 +21,7 @@ struct BridgeStats {
   double total_seconds = 0, points_seconds = 0, cells_seconds = 0, faces_seconds = 0;
   double source_seconds = 0, query_seconds = 0, reader_seconds = 0, other_seconds = 0;
   uint64_t batches = 0, batch_retries = 0, requests = 0, hits = 0, misses = 0, compositions = 0;
+  uint64_t invalid_queries = 0, failures = 0, evictions = 0;
   double field_build_seconds = 0, field_search_seconds = 0, interpolation_seconds = 0, composition_seconds = 0;
   size_t maximum_native_bytes = 0;
 };

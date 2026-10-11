@@ -3,7 +3,7 @@ from pathlib import Path
 import csv,json,statistics,sys
 from run import sha
 sys.path.insert(0,str(Path(__file__).resolve().parents[2]/"integration_evidence/native_3d_core_v1"))
-from audit_lifecycle import parse,closes,ENGINE
+from audit_lifecycle import parse,closes,ENGINE,nested_stage
 
 def main(paths):
     if not paths:raise ValueError('Give at least one result folder')
@@ -32,10 +32,7 @@ def main(paths):
             for line in (folder/case['folder']/'case.stdout').read_text().splitlines():
                 if not line.startswith('NATIVE3D_DETAIL '):continue
                 row=parse(line)
-                if row['stage'] in ('refine','coarsen'):closes(row,ENGINE)
-                elif row['stage'] in ('import','weights','return'):closes(row,('points','cells','faces','source','query','reader'))
-                elif row['stage']=='partition':closes(row,('graph','parmetis','migration'))
-                elif row['stage']!='source':raise ValueError('Unknown nested detail stage')
+                nested_stage(row)
                 rows.append(dict(campaign=folder.name,case=case['folder'],record='nested',**row))
             if case['warmup']:continue
             for cycle in range(3):

@@ -202,7 +202,9 @@ struct BlockedEdge {
 };
 void FieldCounts(EngineStats& stats, const FrozenField& field) {
   const auto& f=field.Statistics();
-  stats.field_requests+=f.requests; stats.field_hits+=f.hits; stats.field_compositions+=f.compositions;
+  stats.field_requests+=f.requests; stats.field_hits+=f.hits; stats.field_misses+=f.misses;
+  stats.field_invalid_queries+=f.invalid_queries; stats.field_failures+=f.failures; stats.field_evictions+=f.evictions;
+  stats.field_compositions+=f.compositions;
   stats.field_edges+=f.edge_requests;
   stats.edge_separated+=f.kernel.segment_separated;
   stats.field_build_seconds+=f.build_seconds; stats.field_query_seconds+=f.query_seconds;
@@ -211,6 +213,12 @@ void FieldCounts(EngineStats& stats, const FrozenField& field) {
   stats.edge_seconds+=f.edge_seconds; stats.edge_search_seconds+=f.edge_search_seconds;
   stats.edge_trace_seconds+=f.edge_trace_seconds; stats.edge_integral_seconds+=f.edge_integral_seconds;
 }
+struct FieldAccounting {
+  EngineStats& stats;
+  const FrozenField& field;
+  // Keep attempted queries when surrounding metric/topology checks throw.
+  ~FieldAccounting() { FieldCounts(stats,field); }
+};
 EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
                    const PlanarReference& geometry, MetricComposition composition, EngineOptions options, MetricChange intent) {
   const bool coarsening=intent==MetricChange::Coarsen;
@@ -332,6 +340,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if (slot<ids.size()) try {
         CpuTimer private_cpu(stats.measurement_cpu_seconds,options.timings);
         FrozenField field(std::move(imported.cells),composition,options.timings);
+        FieldAccounting accounting{stats,field};
         for (size_t i=slot;i<std::min(slot+batch,ids.size());++i) {
           PatchMetric metric;
           std::string reason;
@@ -350,7 +359,6 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           stats.edge_reused+=counted.edge_reused;
           if (seed) ++stats.initial_cells; else ++stats.updated_cells;
         }
-        FieldCounts(stats,field);
       } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
       if (!vote(failure)) return false;
       slot+=batch;
@@ -544,8 +552,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           repair_approved=approved;
           if (approved && !repairing) ++stats.fallback_accepted;
         }
-        FieldCounts(stats,*field);
       } catch (const std::exception& e) { approved=false; result.reason=e.what(); }
+      if (field) FieldCounts(stats,*field);
       stats.metric_seconds-=stats.reconstruction_seconds-reconstruction_before;
       stats.metric_cpu_seconds-=stats.reconstruction_cpu_seconds-reconstruction_cpu_before;
     }

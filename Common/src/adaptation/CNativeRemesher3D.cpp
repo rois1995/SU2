@@ -357,6 +357,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
              << " faces=" << b.faces_seconds << " source=" << b.source_seconds << " query=" << b.query_seconds
              << " reader=" << b.reader_seconds << " other=" << b.other_seconds
              << " requests=" << b.requests << " hits=" << b.hits << " misses=" << b.misses
+             << " invalid_queries=" << b.invalid_queries << " failures=" << b.failures << " evictions=" << b.evictions
              << " compositions=" << b.compositions << " batches=" << b.batches << " retries=" << b.batch_retries
              << " nested_field_build=" << b.field_build_seconds << " nested_search=" << b.field_search_seconds
              << " nested_interpolation=" << b.interpolation_seconds << " nested_composition=" << b.composition_seconds
@@ -388,7 +389,9 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
              << " private_metric_cpu=" << e.metric_cpu_seconds << " private_measurement_cpu=" << e.measurement_cpu_seconds
              << " rounds=" << e.rounds << " attempted=" << e.attempted << " accepted=" << e.accepted
              << " rejected=" << e.rejected << " conflicts=" << e.conflicts << " requests=" << e.field_requests
-             << " hits=" << e.field_hits << " compositions=" << e.field_compositions << " edge_evaluations=" << e.edge_evaluations
+             << " hits=" << e.field_hits << " misses=" << e.field_misses << " invalid_queries=" << e.field_invalid_queries
+             << " failures=" << e.field_failures << " evictions=" << e.field_evictions
+             << " compositions=" << e.field_compositions << " edge_evaluations=" << e.edge_evaluations
              << " collapse_geometry_checks=" << e.collapse_geometry_checks << " collapse_filtered=" << e.collapse_filtered
              << " nested_collapse_geometry=" << e.collapse_geometry_seconds
              << " edge_reused=" << e.edge_reused << " moved=" << e.moved << " reconnected=" << e.reconnected << " inserted=" << e.inserted

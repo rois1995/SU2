@@ -3,6 +3,7 @@ from pathlib import Path
 import csv,json,re,statistics
 from analyze_insertion import HERE,qualify,sha,parse,closes,ENGINE
 from analyze_donor_reuse import FILES
+from audit_lifecycle import nested_stage
 
 def main():
     matrix=json.loads((HERE/'REFERENCE_ADMISSION_MATRIX.json').read_text())
@@ -20,7 +21,7 @@ def main():
         old=qualify(entry['baseline'],('changed_during_run','archive_changes','object_changes'))
         assert set(receipt['source_sha256'])==set(old['source_sha256'])
         changed=[k for k,v in old['source_sha256'].items() if receipt['source_sha256'][k]!=v]
-        assert set(changed)=={'Common/include/adaptation/CNativeBoundary3D.hpp','Common/include/adaptation/CNativeReferenceIO3D.hpp','Common/src/adaptation/CNativeBoundary3D.cpp','Common/src/adaptation/CNativeImport3D.cpp','Common/src/adaptation/CNativeReferenceIO3D.cpp','Common/src/adaptation/CNativeRemesher3D.cpp','UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp','UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp'}
+        assert set(changed)==set(matrix['expected_source_changes']),(name,changed)
         assert set(receipt['thin_archive_member_sha256'])==set(old['thin_archive_member_sha256'])
         members=[k for k,v in old['thin_archive_member_sha256'].items() if receipt['thin_archive_member_sha256'][k]!=v]
         assert members and all('Native' in Path(k).name and '3D' in Path(k).name or Path(k).name=='drivers_CSinglezoneDriver.cpp.o' for k in members),members
@@ -44,10 +45,7 @@ def main():
         for line in (HERE/name/'case.stdout').read_text().splitlines():
             if not line.startswith('NATIVE3D_DETAIL '):continue
             row=parse(line)
-            if row['stage'] in ('refine','coarsen'):closes(row,ENGINE)
-            elif row['stage'] in ('import','weights','return'):closes(row,('points','cells','faces','source','query','reader'))
-            elif row['stage']=='partition':closes(row,('graph','parmetis','migration'))
-            else:assert row['stage']=='source'
+            nested_stage(row)
             details.append(row)
         rows.extend(dict(case=name,record='exclusive',**r) for r in a['rank_stages'])
         rows.extend(dict(case=name,record='nested',**r) for r in details)
@@ -86,7 +84,7 @@ def main():
     out=dict(status='PASS',analyzer_sha256=sha(Path(__file__)),dependencies_sha256={n:sha(HERE/n) for n in ('analyze_insertion.py','analyze_donor_reuse.py','audit_lifecycle.py')},
         matrix_sha256=sha(HERE/'REFERENCE_ADMISSION_MATRIX.json'),regression_sha256=sha(HERE/matrix['regression']/'validation.json'),cases=cases,restarts=restarts,
         accounting_rows=len(rows),csv_sha256=sha(HERE/'reference_admission_rank_phases.csv'),
-        scope='Global reference facet count replaced by conservative requested-memory admission across constructor/import/decode/restart; independent1MiB sidecar/private64cavity/256donor limits remain. Exact forward-collinear border reduction preserves oriented finite half-planes and hole/nonconvex fallback. Full configured MPI1/2/4 regression includes512-facet constructor and300-facet CFD import/reload, early/late elected budget refusal and unchanged state; two fixed-work actual n4 cases preserve26 raw mesh/source/state/SU2CGNS readbacks. Single contended diagnostics; no sustained speedup, large-mesh adaptation, exact memory calibration or fullGoal1 certificate.')
+        scope='Field counters now export true misses/invalid/failures/evictions and retain rejected attempts; new composed-query failure controls preserve accepted state with detailOFFON. Global reference facet count replaced by conservative requested-memory admission across constructor/import/decode/restart; independent1MiB sidecar/private64cavity/256donor limits remain. Exact forward-collinear border reduction preserves oriented finite half-planes and hole/nonconvex fallback. Full configured MPI1/2/4 regression includes512-facet constructor and300-facet CFD import/reload, early/late elected budget refusal and unchanged state; two fixed-work actual n4 cases preserve26 raw mesh/source/state/SU2CGNS readbacks. Single contended diagnostics; no sustained speedup, large-mesh adaptation, exact memory calibration or fullGoal1 certificate.')
     (HERE/'REFERENCE_ADMISSION_VALIDATION.json').write_text(json.dumps(out,indent=2)+'\n')
     print('PASS',len(cases),'fixed-work cases;',len(cases)*len(files),'byte-identical files;',len(rows),'closed phase rows')
 if __name__=='__main__':main()
