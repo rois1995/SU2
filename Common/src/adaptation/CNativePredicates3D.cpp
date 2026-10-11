@@ -287,6 +287,19 @@ Point Centroid(const Cell& cell) {
 }
 bool IntersectsSegment(const Tetrahedron& donor, Point a, Point b, KernelStats* stats) {
   if (!(Finite(a) && Finite(b))) throw std::invalid_argument("Nonfinite native 3D query segment.");
+  if (!(Orientation(donor[0], donor[1], donor[2], donor[3], stats) > 0))
+    throw std::invalid_argument("Nonpositive native 3D segment donor.");
+  bool inside_a = true, inside_b = true;
+  const bool point = a.x == b.x && a.y == b.y && a.z == b.z;
+  for (size_t i = 0; i < 4; ++i) {
+    auto ta = donor, tb = donor; ta[i] = a; tb[i] = b;
+    const auto va = Orientation(ta[0], ta[1], ta[2], ta[3], stats);
+    const auto vb = point ? va : Orientation(tb[0], tb[1], tb[2], tb[3], stats);
+    if (va < 0 && vb < 0) return false;
+    inside_a = inside_a && va >= 0; inside_b = inside_b && vb >= 0;
+  }
+  if (inside_a || inside_b) return true;
+  // Exact signs settle separation/endpoint containment; unresolved crossing still needs rational roots.
   Integer<198> volume;
   std::array<Integer<198>, 4> va, vb;
   Root lo(false), hi(true);

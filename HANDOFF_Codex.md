@@ -7,6 +7,33 @@ small sequential local checks with real host-contention checks; push each
 validated checkpoint and verify the remote SHA. A terminal capacity failure
 cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
+## Native 3D closed-query filter checkpoint — 2026-10-11
+
+Branch codex/native-3d-core; predecessor fcda83cb2b3378c55124c474e25da3aeb33f3d20.
+Goal1 ACTIVE/full scope. Exact-sign Orientation settles plane separation and
+endpoint containment before rational clipping; unresolved outside-endpoint
+crossings retain exact roots. No target/cap/trace/BL/fade/noise/2D/MMG changes.
+query_filter_regression_v1 PASS MPI1/2/4 and all independent audits (MPI1:69
+cases/4542 assertions;22 cases/rank MPI2/4). All1350 preceding mesh/source files
+match. query_filter_sources_v1 PASS MPI1/2/4/M<N: all72 larger-source grid/source
+artifacts match prior;36 frames/18 successful events/six private cap failures;
+box/thin/shear P1/closed coverage and six adversaries pass. Non-MPI build not
+repeated for this MPI-independent predicate; preceding evidence stays retained.
+
+Three alternating pinned MPI1 source binary pairs PASS with identical query,
+donor/edit and mesh work. Source750 valid measurement median .617780 -> .210759s
+(ranges .617252-.620717/.208175-.212063), about2.93x in this no-edit fixture.
+Six-split wedge median .121119 -> .113765s; rejection .110705 -> .042506s is not
+successful adaptation. QUERY_FILTER_CHECKPOINT.md and receipts/manifest give
+full scope and retained hashes. No owned campaign remains live. No cluster
+launch request; nice19/thread1/single job policy and real host logs retained.
+
+Next: staged known private queries/bounded streaming to remove the whole-cavity
+cap, finite coplanar geometry patches, then weighted partition/runtime/CFD/CGNS/
+full lifecycle/cluster qualification. Original seams and production3D guard
+persist. Do not complete Goal1 from frozen manufactured cases or claim general
+scaling/BL/unsteady3D/CFD affordability from this measured local improvement.
+
 ## Native 3D query-support checkpoint — 2026-10-11
 
 Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch

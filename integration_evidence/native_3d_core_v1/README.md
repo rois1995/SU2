@@ -1,3 +1,6 @@
+Latest checkpoint: exact-sign closed-query filtering and matched source-control repetitions.
+[QUERY_FILTER_CHECKPOINT.md](QUERY_FILTER_CHECKPOINT.md). Goal1 remains ACTIVE.
+
 Latest checkpoint: cap-only exact centroid/edge donor import, restored legacy trace cost,
 MPI1/2/4/M<N source matrix and paired baseline controls.
 [QUERY_SUPPORT_CHECKPOINT.md](QUERY_SUPPORT_CHECKPOINT.md).

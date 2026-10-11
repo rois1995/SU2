@@ -170,3 +170,16 @@ TEST_CASE("Native 3D donor footprint uses exact closed segments including point-
   CHECK_THROWS_AS(IntersectsSegment(negative, {}, {1,0,0}), std::invalid_argument);
   CHECK_THROWS_AS(IntersectsSegment(t, {NAN,0,0}, {}), std::invalid_argument);
 }
+
+TEST_CASE("Native closed-query filters settle containment without weakening crossing or tiny signs", "[NativeMesh3D]") {
+  const Tetrahedron t{{{0,0,0},{1,0,0},{0,1,0},{0,0,1}}};KernelStats stats;
+  CHECK(IntersectsSegment(t,{.2,.2,.2},{.2,.2,.2},&stats));
+  CHECK(stats.exact_orientations==0);
+  CHECK(IntersectsSegment(t,{.2,.2,-1},{.2,.2,1}));
+  CHECK(IntersectsSegment(t,{.2,.2,1},{.2,.2,-1}));
+  const double tiny=std::numeric_limits<double>::denorm_min();
+  const Tetrahedron small{{{0,0,0},{tiny,0,0},{0,tiny,0},{0,0,tiny}}};
+  CHECK(IntersectsSegment(small,{},{}));
+  CHECK_FALSE(IntersectsSegment(small,{-tiny,0,0},{-tiny,0,0}));
+  CHECK_FALSE(IntersectsSegment(t,{-1,.2,.2},{.2,-1,.2}));
+}
