@@ -1,3 +1,10 @@
+Latest checkpoint: weighted tetrahedral dual graphs, atomic migration and explicit
+worker-subset repartition/return. [PARTITION_CHECKPOINT.md](PARTITION_CHECKPOINT.md).
+Grids/frozen states: `partition_controls_v2/mpi{1,2,4}_repeat1_meshes/`.
+Three sequential MPI1/2/4 and actual nonMPI controls, independent audits and
+actual SU2 Meson/2D geometry tests PASS. Goal1 remains ACTIVE/full scope;
+production3D/CFD/CGNS/full performance unfinished, timings contended diagnostics.
+
 Latest checkpoint: finite convex coplanar same-marker wall patches permit
 coarsening/movement across original seams, with exact geometry and marker coverage.
 [COPLANAR_GEOMETRY_CHECKPOINT.md](COPLANAR_GEOMETRY_CHECKPOINT.md).

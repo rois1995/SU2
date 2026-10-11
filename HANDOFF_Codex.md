@@ -7,6 +7,48 @@ small sequential local checks with real host-contention checks; push each
 validated checkpoint and verify the remote SHA. A terminal capacity failure
 cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
+## Native 3D weighted partition checkpoint — 2026-10-11
+
+Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
+codex/native-3d-core; predecessor32dfde2bd01f81a9c90bbd1452bbdfbd307a7d02.
+Goal1 ACTIVE/full scope. New tetrahedral triangular-face dual graph uses sparse
+64-bit IDs with separate contiguous graph ordinals, two work/storage constraints,
+empty-rank graph exclusion, explicit parent/subset communicators and staged atomic
+migration. Tetrahedral work uses sensor-only centroid volume plus actual composed
+centroid/vertex operation demands; no wall tensor is spread over coarse volumes.
+Weights1..1024/batches<=128 are an uncalibrated static proxy. Original CFD/sensor
+stores are separate; accepted CFD solution/history transfer is not established.
+
+partition_controls_v2 PASS: three sequential MPI1/2/4 repeats,63 partition cases,
+21 weighted M=N/M<N adaptation-and-return events/42 independent frames; actual
+nonMPI3 cases/1236 assertions. Exact cube tiling/graph/wire/cut/load/strictP1/
+geometry/embedding/markers pass, four audit adversaries plus atomic bad-input/
+storage vetoes. Within each rank choice ownership/mesh/source hashes are identical
+across repeats. 6->48 cells,27 points,q.755953/J.577350/L1.732051/volume1.
+Named grids and original frozen sensors:
+integration_evidence/native_3d_core_v1/partition_controls_v2/mpi{1,2,4}_repeat1_meshes/.
+Initial v1 PASS preserved; V2 fixes memory-control array and helper-source pins.
+
+partition_meson_v1 PASS actual SU2 Meson strict library and actual partition/2D
+geometry test objects, MPI1/2/4 independent audits; MPI1:25 cases9820 assertions.
+Strict arithmetic appended after fastmath; MPI/ParMETIS dependency wiring verified.
+PARTITION_CHECKPOINT.md and repeat_summary.json retain scope/phase samples.
+N1/M1 one-owner partition parent median .005042s; N4/M4 .034161s with large spread;
+foreign4-rank CFD was active. This is contended diagnostic evidence, no speedup/
+scaling/CPU calibration claim. Requested bound~1.09MB excludes allocator/RSS and
+internal(Par)METIS workspace. Private CPU/wait/full lifecycle costs unfinished.
+
+Next: actual opt-in native3D geometry import/reader-slice return/CFD state/history
+rebuild and SU2/CGNS output qualification, using existing driver transfer/lifecycle.
+Production3D guard remains until connected and validated; same immutable reference
+on workers,256facet/donor caps/composed3D integration/nonconvex reference limits
+and preceding unisolated6-7% regression remain. No numerical 2D/MMG algorithm or
+target changed; only relevant 2D geometry build checks repeated here, not full CFD.
+No owned process remains live after checkpoint. Continue nice19/thread1/singlejob,
+real host checks and announced full case folders. No cluster launch questions.
+Publish validated checkpoints, verify full remoteSHA, preserve historical failures,
+leave AdapNoExt/foreign jobs/submodules/ClusterResults alone. Goal1 is incomplete.
+
 ## Native 3D finite coplanar wall checkpoint — 2026-10-11
 
 Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
