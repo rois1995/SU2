@@ -1,0 +1,56 @@
+{
+  "status": "PASS",
+  "reason": "",
+  "stages": [
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/full_star_facet_n8_n1_m1_v1/audit_first_cycle_equivalence.py"
+      ],
+      "label": "first_cycle_equivalence",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/full_star_facet_n8_n1_m1_v1",
+      "exit_code": 0,
+      "seconds": 2.6309053889708593
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/full_star_facet_n8_n1_m1_v1/export_first_cycle.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/full_star_facet_n8_n1_m1_v1"
+      ],
+      "label": "first_cycle_export",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/full_star_facet_n8_n1_m1_v1",
+      "exit_code": 0,
+      "seconds": 0.11882469599368051
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/full_star_facet_package_checks_v1/collect.py"
+      ],
+      "label": "accounting",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/full_star_facet_package_checks_v1",
+      "exit_code": 0,
+      "seconds": 0.1677894379827194
+    }
+  ],
+  "scope": "Sequential one-CPU first-event certificate equivalence, current state transfer/VTU export and actual full-filter counter accounting. Whole n8 campaign remains FAIL."
+}

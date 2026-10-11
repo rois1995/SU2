@@ -1,0 +1,110 @@
+{
+  "status": "PASS",
+  "lightweight_checks": 31,
+  "accounting_audits": [
+    {
+      "folder": "full_star_facet_mpi1_v1",
+      "log_sha256": "8b98b2a697c69700ec45759a95278573982258ec9584bc9ee2efc08beac1aa15",
+      "engine_rows": 42,
+      "change_sent": 166.0,
+      "change_received": 166.0
+    },
+    {
+      "folder": "full_star_facet_mpi2_v1",
+      "log_sha256": "116cb190cf7db336d32b88cf1e686df7cdb63216b0ad97939d0993d6180238d9",
+      "engine_rows": 123,
+      "change_sent": 480.0,
+      "change_received": 480.0
+    },
+    {
+      "folder": "full_star_facet_mpi4_v1",
+      "log_sha256": "62cf00c3312369703bd51251417ce288ffd3185617e518502dc7571513183eef",
+      "engine_rows": 363,
+      "change_sent": 1182.0,
+      "change_received": 1182.0
+    },
+    {
+      "folder": "full_star_facet_n8_n1_m1_v1",
+      "log_sha256": "c6d9d4defed189a29575dccb5bb3efd594bba12c71f7522ea0d4f3894303dd2b",
+      "engine_rows": 4,
+      "change_sent": 6936.0,
+      "change_received": 6936.0
+    },
+    {
+      "folder": "full_star_facet_lifecycle_mpi1_v1",
+      "log_sha256": "32e2cedb7847549e7a76481e45edbf4ece7c0d05dca6b980860f71f5c2deae13",
+      "engine_rows": 6,
+      "change_sent": 0.0,
+      "change_received": 0.0
+    },
+    {
+      "folder": "full_star_facet_n4_n4_m2_v1",
+      "log_sha256": "aec06003e02bd4300cd628207056ae84058199d9edf14dc0df091b739724cb5a",
+      "engine_rows": 24,
+      "change_sent": 1754.0,
+      "change_received": 1754.0
+    },
+    {
+      "folder": "full_star_facet_restart_su2_n2_n1_m1_v1",
+      "log_sha256": "ecc31bcf8e196775d13b5f7f675ac77c815ce8103a170f7400a116a45bc3b93d",
+      "engine_rows": 6,
+      "change_sent": 220.0,
+      "change_received": 220.0
+    },
+    {
+      "folder": "full_star_facet_restart_cgns_n2_n4_m2_v1",
+      "log_sha256": "2e756f210c00de645ebda4bbc43ac6f4e8951e6ebbea8499fa13e4f6af378ad4",
+      "engine_rows": 24,
+      "change_sent": 327.0,
+      "change_received": 327.0
+    }
+  ],
+  "summary_recovery": [
+    {
+      "folder": "full_star_facet_mpi4_v1",
+      "raw_sha256": "62cf00c3312369703bd51251417ce288ffd3185617e518502dc7571513183eef",
+      "recovered_sha256": "9c6f42d085500f1e2434aa9329be3a2784df7a6e36a4370c24247db29050a181",
+      "removed_exact_summary_blocks": [
+        {
+          "start": 1091412,
+          "end": 1091546,
+          "text": "===============================================================================\nAll tests passed (13684 assertions in 72 test cases)\n\n"
+        },
+        {
+          "start": 1094363,
+          "end": 1094497,
+          "text": "===============================================================================\nAll tests passed (12104 assertions in 72 test cases)\n\n"
+        },
+        {
+          "start": 1096185,
+          "end": 1096319,
+          "text": "===============================================================================\nAll tests passed (13963 assertions in 72 test cases)\n\n"
+        }
+      ],
+      "interleaved_summary_count": 2
+    }
+  ],
+  "tools_sha256": {
+    "integration_evidence/native_3d_core_v1/full_star_facet_package_checks_v1/collect.py": "58b1ab48ee02487cf3fa581bdc3f4d87c73f9528cf01b48f355914298cd7fabb",
+    "integration_evidence/native_3d_core_v1/audit_lifecycle.py": "b4204e8aea4653ac46942e79e0dad68c7087945a5687a851fd5036b1bdfdfa2f",
+    "integration_evidence/native_cluster_3d_core_v1/check_package.py": "fd91b56b45b4914c00577dd37b205dcacd982c3c1593ce7fb3afd1c7d1491511",
+    "integration_evidence/native_cluster_3d_core_v1/run.py": "8a99cbbc197311f42509337e6eb39f5310c424b4a49ea4a68307e7082aeaea5b"
+  },
+  "scope": "Actual saved 31 parser/mocked orchestration tests pass. Collector audits actual ENGINE and detailed runtime rows after explicit exact Catch-summary removal where needed, retaining the original failed collector/logs for finite integral counters, nested parent costs and global notification record closure. Each case retains its own numerical verdict; this checks accounting, not n8 completion or performance/scaling.",
+  "artifact_sha256": {
+    "full_star_facet_mpi4_v1_engine_recovered.stdout": "9c6f42d085500f1e2434aa9329be3a2784df7a6e36a4370c24247db29050a181",
+    "package_checks.stderr": "f2d79a1e784e3e1df22c6f9f28e39d30f22fcb7b2b06bb3d571a62c1c3637a40",
+    "accounting_failed_v1.stderr": "26c3d246f02b3f84bf82817e246af1be1f07e8069902c346663a835fe624d936",
+    "run_audits.py": "64b6a36573650c089f2842c1ffd527e05a7c8b48ec4430019ef4c251e32a1fb5",
+    "accounting.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "accounting.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "accounting_v2.stdout": "c5088bf50317dad3fbbc7c38226ac6579993f5bf3130160bacf97aa439cbb734",
+    "accounting_failed_v1.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "audit_execution.json": "dc55e1c8f3881e0eeb068a35782e6d1fb2a4c70fb41561b9147e5f4b17c364f6",
+    "package_checks.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "collect_failed_v1.py": "93d52d2b292ca5a0b0279cd4a1db80f936b04de9c5dc2703f8004cc86c5052ff",
+    "audit_execution_failed_v1.json": "dc55e1c8f3881e0eeb068a35782e6d1fb2a4c70fb41561b9147e5f4b17c364f6",
+    "accounting_v2.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "collect.py": "58b1ab48ee02487cf3fa581bdc3f4d87c73f9528cf01b48f355914298cd7fabb"
+  }
+}

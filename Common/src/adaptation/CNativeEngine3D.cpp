@@ -137,12 +137,24 @@ class Selection {
     }
     blocked_links-=found->second.size(); blocked_collapses.erase(found);
   }
-  bool FilterOrientation(const Choice& choice, const Owned& working) {
+  bool FilterCollapse(const Choice& choice, const Owned& working) {
     if (!coarsening || !prune_collapses || !choice.active) return false;
-    Timer timer(stats.collapse_orientation_seconds,timings);
     const auto star=vertex_cells.find(choice.edge[1]);
     if (star==vertex_cells.end()) throw std::logic_error("Missing native 3D local collapse star.");
     const Point apex=choice.edge[0]<choice.edge[1] ? choice.measure.a : choice.measure.b;
+    {
+      Timer timer(stats.collapse_geometry_seconds,timings);
+      size_t scanned=0;
+      for (Id id:star->second) {
+        if (++scanned>MaximumDirectoryScan) break;
+        const auto& row=working.at(id);
+        if (std::any_of(row.cell.v.begin(),row.cell.v.end(),[&](Node n){return n.id==choice.edge[0];})) continue;
+        if (LeavesFacet(row,choice.edge[1],apex)) {
+          Block(choice.edge,{},false); ++stats.collapse_filtered; return true;
+        }
+      }
+    }
+    Timer timer(stats.collapse_orientation_seconds,timings);
     size_t scanned=0;
     for (Id id:star->second) {
       if (++scanned>MaximumDirectoryScan) break;
@@ -189,6 +201,14 @@ class Selection {
     prune_collapses=true;
     for (const auto& row:edges) Queue(row.first,row.second.measure.length,true);
   }
+  bool LeavesFacet(const OwnedCell& owned, Id removed, Point retained) {
+    for (size_t face=0;face<4;++face) {
+      if (!owned.physical[face].present || owned.cell.v[face].id==removed) continue;
+      ++stats.collapse_geometry_checks;
+      if (!geometry.Contains(owned.physical[face].facet,retained)) return true;
+    }
+    return false;
+  }
   unsigned char Forbidden(const OwnedCell& owned, Edge edge) {
     if (!coarsening) return 0;
     Timer timer(stats.collapse_geometry_seconds,timings);
@@ -197,11 +217,7 @@ class Selection {
       const Id retained=edge[direction], removed=edge[1-direction];
       Point point{};
       for (auto node:owned.cell.v) if (node.id==retained) point=node.p;
-      for (size_t face=0;face<4;++face) {
-        if (!owned.physical[face].present || owned.cell.v[face].id==removed) continue;
-        ++stats.collapse_geometry_checks;
-        if (!geometry.Contains(owned.physical[face].facet,point)) { blocked|=1u<<direction; break; }
-      }
+      if (LeavesFacet(owned,removed,point)) blocked|=1u<<direction;
     }
     return blocked;
   }
@@ -447,7 +463,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       CLocalFailure failure;
       try {
         choice=selection.Best(repairing);
-        while (!repairing && !bad_field && selection.FilterOrientation(choice,working)) choice=selection.Best(false);
+        while (!repairing && !bad_field && selection.FilterCollapse(choice,working)) choice=selection.Best(false);
       } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
       if (!(ready=vote(failure))) return false;
       any=world.maximum(choice.active); return true;

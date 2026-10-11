@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/full_star_facet_package_checks_v1/collect.py", line 17, in <module>
+    row={k:v if k=='case' else float(v) for k,v in (item.split('=',1) for item in line.split()[1:])}
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/full_star_facet_package_checks_v1/collect.py", line 17, in <dictcomp>
+    row={k:v if k=='case' else float(v) for k,v in (item.split('=',1) for item in line.split()[1:])}
+ValueError: could not convert string to float: '=============================================================================='

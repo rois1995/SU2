@@ -1,0 +1,34 @@
+{
+  "status": "PASS",
+  "campaign_status": "FAIL",
+  "cycles_audited": [
+    0
+  ],
+  "cells": 2489,
+  "points": 590,
+  "transport": {
+    "maximum_state_relative_error": 3.899327321487061e-16,
+    "maximum_transported_tensor_absolute_error": 0.0,
+    "donor_points": 405,
+    "accepted_points": 590
+  },
+  "identical_actual_artifacts_sha256": {
+    "envelope_s0_initial.json": "8363150d7aed7f28d362e23fc9471b858818a200d2f857766afc6dbef2767c3d",
+    "envelope_s0.json": "51314d0325f4f664b94dafc9fc0cff3751afe965f338be41b472fe0b9005a3e7",
+    "envelope_s0_states.json": "eaea497afe9cc38b2676af804ac3895a47ef493ac1c00851592c79e210faa9ee",
+    "envelope_mesh_00001.su2": "a83cb29df9df609f5bea1f37729f0889e1bbb664e914a0b14b1ca5bfd659f676",
+    "envelope_mesh_00001.su2.native_ref": "91dabe9179b98742c5a8983e260fbf38f636c384d49f8938e60bbefb9fa0862a",
+    "envelope_s1_initial.json": "2ea31c8d723eedf9bb1df803f575bdecb212b451b939288056eb74d9c5c1bbb5"
+  },
+  "prior_certificate_sha256": "1cc577c83cc072bedc9f3436b276e8a25ac4591b1e0282de899058c56dd3385b",
+  "current_validation_sha256": "411b51a09ebbe66ead49fda161d615a265ca5738bd5e8e972fddbb14332e462a",
+  "script_sha256": "52c6efadd21607ce7f4d58ee8ba311900f7ba6160ed57de273036d639b82c88c",
+  "tools_sha256": {
+    "audit_coupled.py": "67a12c5c39c6c3e021473f49c1f14301f037d7883268b98d7afc9edc2b00f63b",
+    "audit_geometry_bridge.py": "d8d5e8a18a0fce8f54f8407e9f0027dcea12d90bf64c5ab20c4dedb7194430e2",
+    "audit_envelope.py": "601f82a12c2eb04778484ec647c4590e92fb5b6d7f0092a2f7b4941bbb01cc0c",
+    "audit_lifecycle.py": "b4204e8aea4653ac46942e79e0dad68c7087945a5687a851fd5036b1bdfdfa2f",
+    "audit_cavities.py": "26079385c071c3ad1b9c06ab3b862b4ff293367dc3c8d291acf0487089d062c5"
+  },
+  "scope": "Exact first-event geometry/original-P1 q/J/integrated-length certification reused from pinned prior execution solely for six byte-identical current actual mesh/state/reference/next-donor artifacts. Correct sensor, current+BDF transfer and actual SU2 signature rechecked here; current runtime nested accounting checked. No new full geometry audit run, second-event private-grid certificate, whole-campaign success, speedup or fullGoal1 claim."
+}

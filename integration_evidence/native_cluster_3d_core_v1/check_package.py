@@ -102,7 +102,7 @@ class PackageChecks(unittest.TestCase):
                 if label=='case':
                     ranks=int(args[args.index('-n')+1]);selection=args[-3]
                     result='48 assertions in 2 test cases' if selection.startswith('MMG interface:') else '1 assertion in 1 test case'
-                    if selection==run.SELECTION:result='10255 assertions in 71 test cases'
+                    if selection==run.SELECTION:result='10255 assertions in 72 test cases'
                     out='\n'.join('All tests passed ('+result+')' for _ in range(ranks))
                 elif label=='audit':
                     if cwd.name.startswith('unit_mpi'):

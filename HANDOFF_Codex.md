@@ -1,4 +1,58 @@
-# Current handoff — 2026-10-11
+# Current handoff — 2026-10-12
+
+## Full local-star facet filtering — qualified checkpoint, 2026-10-12
+
+Working repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
+Branch: codex/native-3d-transport-accounting; changes based on pushed8807b27d8d.
+Goal1 remains ACTIVE; Goal2 has not started. Production/source/test changes are
+qualified for publication. The shared LeavesFacet predicate now checks cached
+edge cells and surviving indexed local removed-star cells before exact orientation
+filtering. Invalid fields retain private repair; missing local witnesses retain
+complete distributed import/private validation. No extra index/collective,
+metric/geometry/q/J/length change or512-round budget change. No2D/MMG change.
+
+full_star_facet_build_v1 PASS actual68-object/774-member MPI/MMG/CGNS driver;
+binary SHA256 d99ccd8e4e4d0477b8badc1e3453a6ac063f579b0d65f1a92950420820dde0c5.
+full_star_facet_mpi1_v1/mpi2_v1/mpi4_v1 PASS72cases per rank and independent
+12/24/48mesh frames,6/12/24current+BDF pairs and6/12/24SU2/CGNS round trips.
+SerialMMG PASS48assertions/two cases. Fresh actual lifecycle six OFF/ON controls,
+n4N4M2 three-event adaptation and persisted SU2N1M1/CGNSN4M2 restart campaigns
+PASS with independent audits. All owned numerical/audit runners are TERMINAL.
+Only one low-priority numerical job at a time, MPI<=4 on one CPU; these are
+contended correctness checks, not performance/scaling evidence.
+
+Unchanged frozen full_star_facet_n8_n1_m1_v1 remains FAIL at cycle1. All five
+baseline files match. First adaptation:428collapse attempts/272accepted/
+156rejected,2489tets/590points. Six actual first-mesh/state/reference/next-input
+artifacts are byte-identical to the prior independently certified first event;
+first_cycle_equivalence_audit.json verifies that certificate and reruns correct
+sensor/current+BDF/actualSU2/accounting checks, without repeating full geometry.
+Transported tensor error0,state relative residual3.899327321487061e-16. Actual
+SU2 and envelope_s0.vtu retained. This is a cycle0-only certificate.
+
+Second coarsening:512attempts,437accepted/75rejected,517valid cached private
+cells,266pending directions,0repairs,1890orientation exclusions/1007reactivations.
+Previously429accepted/83rejected/545cells/323pending. The last failure is edge
+180,181: no cell removal or oversized edge. It does not classify all75rejections.
+First accepted CFD mesh/current+BDF/reference protected; new private cycle1
+mesh not yet exported or independently certified. No full-campaign success.
+
+full_star_facet_package_checks_v1 PASS31lightweight checks plus actual42/123/363
+unit ENGINE rows and six lifecycle/24n4/sixSU2restart/24CGNSrestart/fourfailed-n8
+runtime rows. Finite integer geometry/orientation/change counters, parent-bounded
+nested costs and globally closed change records pass. Original collector FAIL
+is retained: nonroot Catch summaries interrupted two final MPI4 ENGINE rows.
+Explicit exact summary-text removal restores every numeric byte; raw/recovered
+logs, removed spans, failed recipe/execution and a recovery self-check retained.
+Numerical PASS/audits were unaffected. Do not hide or skip malformed rows.
+
+NEXT: publish this checkpoint, then source-matched trace of the new75rejections/
+266pending directions and export its private rejected grid. Keep original target,
+quality/geometry/rejection guarantees and512rounds for matched diagnosis. Repeated
+cluster timings/scaling, instrumentation overhead, allocator/wait/traffic
+calibration and practical limits remain Goal1 gates. No cluster job requested or
+launched tonight. Rebuild/prepare a fresh72-case bundle from the pushed branch.
+See integration_evidence/native_3d_core_v1/FULL_STAR_FACET_VALIDATION.md.
 
 ## Current-source second-coarsening trace and independent first-event audit — 2026-10-11
 

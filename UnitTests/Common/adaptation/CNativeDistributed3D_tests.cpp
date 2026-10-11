@@ -1723,3 +1723,29 @@ TEST_CASE("Native MPI early collapse filtering rejects exact zero-volume witness
   const auto rejected=Coarsen(world,input,Uniform(input,{16,0,0,16,0,16}),geometry,{},options);
   CHECK_FALSE(rejected.valid);CHECK(rejected.stats.collapse_orientation_filtered==0);CHECK(Bytes(input)==saved);
 }
+
+TEST_CASE("Native MPI full vertex-star facet filtering protects corners beyond candidate edge cells", "[NativeDistributed3D][NativeCollapseFilter3D]") {
+  World world;
+  const auto fixture=Box();const PlanarReference geometry(fixture.facets);
+  const auto input=Partition(Rows(fixture.patch),world);const auto saved=Bytes(input);
+  Directory directory(world);std::string reason;
+  REQUIRE(directory.Build(input,reason));
+  const auto dependencies=directory.Lookup(Query(world,{{0,0,0},1}));
+  REQUIRE(dependencies.valid);
+  const auto imported=directory.Fetch(dependencies,input);
+  REQUIRE(imported.valid);
+  if (!world.rank) {
+    Patch proposal;
+    CHECK_FALSE(CollapseVertex(PatchOf(imported.cells),0,1,100,geometry,proposal,reason));
+    CHECK(reason.find("incident reference facet")!=std::string::npos);
+  }
+  EngineOptions options;options.timings=true;
+  const auto result=Coarsen(world,input,Uniform(input,{.25,0,0,.25,0,.25}),geometry,{},options);
+  CHECK(result.valid);CHECK(result.reason.empty());CHECK(result.stats.accepted==0);
+  CHECK(result.stats.cached_invalid_cells==0);CHECK(result.stats.remaining_edges==0);
+  CHECK(Audit(world,result.cells,fixture,6));CHECK(Bytes(input)==saved);
+  CHECK(world.sum(int(result.stats.collapse_filtered))>0);
+  // All serial witnesses are local; MPI owners without a witness still need the complete private star.
+  if (world.size==1) CHECK(result.stats.attempted==0);
+  EngineReport(result,world,"full_star_facet_filter");
+}
