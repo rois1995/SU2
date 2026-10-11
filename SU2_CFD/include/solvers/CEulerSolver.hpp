@@ -41,6 +41,7 @@
 class CEulerSolver : public CFVMFlowSolverBase<CEulerVariable, ENUM_REGIME::COMPRESSIBLE> {
 protected:
   WallStudyDiagnostics wallStudy;
+  su2activematrix PhysicalResidual;  /*!< Last finest-grid assembly, before FAS/time updates. */
   using BaseClass = CFVMFlowSolverBase<CEulerVariable, ENUM_REGIME::COMPRESSIBLE>;
 
   su2double
@@ -347,6 +348,10 @@ protected:
 
 public:
   void WriteBoundaryDiagnostics(const CConfig* config, unsigned short step) override;
+  void SavePhysicalResidual() override;
+  su2double GetPhysicalResidual(unsigned long point, unsigned short var) const override {
+    return PhysicalResidual.empty() ? su2double(0) : PhysicalResidual(point, var);
+  }
 
   CEulerSolver() = delete;
 

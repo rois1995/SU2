@@ -197,6 +197,10 @@ private:
 public:
 
   virtual void WriteBoundaryDiagnostics(const CConfig*, unsigned short) {}
+  virtual void SavePhysicalResidual() {}
+  virtual su2double GetPhysicalResidual(unsigned long point, unsigned short var) const {
+    return LinSysRes(point, var);
+  }
 
   CSysVector<su2double> LinSysSol;    /*!< \brief vector to store iterative solution of implicit linear system. */
   CSysVector<su2double> LinSysRes;    /*!< \brief vector to store iterative residual of implicit linear system. */

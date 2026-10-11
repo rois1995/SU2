@@ -25,6 +25,7 @@
  * License along with SU2. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "../../include/solvers/GilesRelaxation.hpp"
 #include "../../include/solvers/CEulerSolver.hpp"
 #include "../../include/variables/CNSVariable.hpp"
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
@@ -130,6 +131,15 @@ CEulerSolver::CEulerSolver(CGeometry *geometry, CConfig *config,
   nMarker      = config->GetnMarker_All();
   nPoint       = geometry->GetnPoint();
   nPointDomain = geometry->GetnPointDomain();
+  if (iMesh == MESH_0) {
+    for (auto field = 0u; field < config->GetnVolumeOutput(); ++field) {
+      const auto name = config->GetVolumeOutput_Field(field);
+      if (name == "RESIDUAL" || name.compare(0, 4, "RES_") == 0) {
+        PhysicalResidual.resize(nPoint, nVar) = su2double(0);
+        break;
+      }
+    }
+  }
 
   /*--- Store the number of vertices on each marker for deallocation later ---*/
 
@@ -6385,6 +6395,14 @@ void CEulerSolver::WriteBoundaryDiagnostics(const CConfig* config, unsigned shor
   wallStudy.WriteFlux(config->GetiZone(), MGLevel, rank, config->GetOuterIter(), config->GetInnerIter(), step);
 }
 
+void CEulerSolver::SavePhysicalResidual() {
+  if (PhysicalResidual.empty()) return;
+  SU2_OMP_FOR_STAT(omp_chunk_size)
+  for (auto point = 0ul; point < nPointDomain; ++point)
+    for (auto var = 0u; var < nVar; ++var) PhysicalResidual(point, var) = LinSysRes(point, var);
+  END_SU2_OMP_FOR
+}
+
 void CEulerSolver::BC_Giles(CGeometry *geometry, CSolver **solver_container, CNumerics *conv_numerics,
                             CNumerics *visc_numerics, CConfig *config, unsigned short val_marker) {
   SU2_ZONE_SCOPED
@@ -6409,7 +6427,7 @@ void CEulerSolver::BC_Giles(CGeometry *geometry, CSolver **solver_container, CNu
   su2double *Normal;
   su2double TwoPiThetaFreq_Pitch, pitch,theta;
   const su2double *SpanWiseValues = nullptr, *FlowDir;
-  su2double spanPercent, extrarelfacAvg = 0.0, deltaSpan = 0.0, relfacAvg, relfacFou, coeffrelfacAvg = 0.0;
+  su2double spanPercent = 0.0, extrarelfacAvg = 0.0, relfacAvg, relfacFou;
   unsigned short Turbo_Flag;
 
   Normal                = new su2double[nDim];
@@ -6461,30 +6479,16 @@ void CEulerSolver::BC_Giles(CGeometry *geometry, CSolver **solver_container, CNu
     spanPercent     = config->GetExtraRelFacGiles(1);
     Turbo_Flag      = config->GetMarker_All_TurbomachineryFlag(val_marker);
     SpanWiseValues  = geometry->GetSpanWiseValue(Turbo_Flag);
-    deltaSpan       = SpanWiseValues[nSpanWiseSections-1]*spanPercent;
-    coeffrelfacAvg  = (relfacAvgCfg - extrarelfacAvg)/deltaSpan;
+
   }
   for (iSpan= 0; iSpan < nSpanWiseSections ; iSpan++){
-    /*--- Compute under relaxation for the Hub and Shroud Avg and Fourier Coefficient---*/
-    if(nDim == 3){
-      if(SpanWiseValues[iSpan] <= SpanWiseValues[0] + deltaSpan){
-        relfacAvg = extrarelfacAvg + coeffrelfacAvg*(SpanWiseValues[iSpan] - SpanWiseValues[0]);
-        relfacFou = 0.0;
-      }
-      else if(SpanWiseValues[iSpan] >= SpanWiseValues[nSpanWiseSections -1] - deltaSpan){
-        relfacAvg = extrarelfacAvg - coeffrelfacAvg*(SpanWiseValues[iSpan] - SpanWiseValues[nSpanWiseSections -1]);
-        relfacFou = 0.0;
-      }
-      else{
-        relfacAvg = relfacAvgCfg;
-        relfacFou = relfacFouCfg;
-      }
-    }
-    else{
-      {
-        relfacAvg = relfacAvgCfg;
-        relfacFou = relfacFouCfg;
-      }
+    relfacAvg = relfacAvgCfg;
+    relfacFou = relfacFouCfg;
+    if (nDim == 3) {
+      const auto relaxation = GilesRelaxation(SpanWiseValues[iSpan], SpanWiseValues[0],
+          SpanWiseValues[nSpanWiseSections-1], spanPercent, relfacAvgCfg, relfacFouCfg, extrarelfacAvg);
+      relfacAvg = relaxation.first;
+      relfacFou = relaxation.second;
     }
 
     GetFluidModel()->SetTDState_Prho(AveragePressure[val_marker][iSpan], AverageDensity[val_marker][iSpan]);
@@ -9276,7 +9280,6 @@ void CEulerSolver::TurboAverageProcess(CSolver **solver, CGeometry *geometry, CC
   SU2_ZONE_SCOPED
 
   const auto average_process = config->GetKind_AverageProcess();
-  const auto performance_average_process = config->GetKind_PerformanceAverageProcess();
   const auto iZone     = config->GetiZone();
   const bool turbulent = (config->GetKind_Turb_Model() != TURB_MODEL::NONE);
   const bool spalart_allmaras = (config->GetKind_Turb_Model() == TURB_MODEL::SA);
@@ -9641,7 +9644,7 @@ void CEulerSolver::TurboAverageProcess(CSolver **solver, CGeometry *geometry, CC
 
             auto TurboVel = (marker_flag == INFLOW) ? TurboVelocityIn[iMarkerTP - 1][iSpan] : TurboVelocityOut[iMarkerTP - 1][iSpan];
 
-            if (performance_average_process == MIXEDOUT) {
+            if ((average_process == MIXEDOUT) && !belowMachLimit) {
               for (auto iDim = 0u; iDim < nDim; iDim++) TurboVel[iDim] = avgVelocity[iDim];
             } else {
               ComputeTurboVelocity(avgVelocity, AverageTurboNormal , TurboVel, marker_flag, config->GetKind_TurboMachinery(iZone));
