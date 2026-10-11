@@ -3,6 +3,7 @@
 Working repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
 Branch: codex/native-3d-core; predecessor6db495a38bc01a2f13e9e51881a8802d110be3b0.
 Status: orchestration CHECKED; C++ fixture and numerical adaptation NOT VALIDATED.
+Published implementation/evidence: 6565e5575e5b4e00f4f938434d05040227a1d4a7; remote branch SHA verified.
 
 The existing envelope fixture and local runner now admit dyadic n8. This wedge
 has405 points,1536 tetrahedra and512 original surface triangles, above the former

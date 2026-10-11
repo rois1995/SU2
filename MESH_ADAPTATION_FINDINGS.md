@@ -1,5 +1,7 @@
 ## Larger native3D practical-limit preparation — 2026-10-11; not a numerical result
 
+Implementation/evidence checkpoint 6565e5575e5b4e00f4f938434d05040227a1d4a7 pushed to origin/codex/native-3d-core; full remote SHA verified. C++/MPI validation remains pending.
+
 NativeIntegrated / codex/native-3d-core, predecessor6db495a38bc. Prepared optional
 n8 wedge first-limit campaign:405 points/1536 tets/512 surface triangles, dyadic
 coordinates, unchanged rotated/spatial original-P1 target64/16/64 and guards.
