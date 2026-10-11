@@ -7,6 +7,8 @@
 #pragma once
 #include "CNativeCavity3D.hpp"
 #include <map>
+#include <memory>
+class CADTElemClass;
 namespace SU2Native3D {
 struct Facet {
   Id id = 0;
@@ -37,16 +39,26 @@ class PlanarReference {
   const Facet& Get(Id id) const;
   /*! Requested resident map/vector storage; allocator metadata and constructor scratch are separate. */
   size_t ResidentBytes() const;
+  /*! Conservative reference construction peak, including the house local box index. */
+  static size_t ConstructionBytes(size_t facets);
   bool Contains(Id facet, Point p, KernelStats* stats = nullptr) const;
   Id Canonical(Id facet) const;
   /*! Finite complete triangle containment and exact orientation relative to the original physical facet. */
   bool ContainsFace(Id facet, const std::array<Point, 3>& triangle, KernelStats* stats = nullptr) const;
+  /*! Lowest canonical same-marker patch containing the complete oriented triangle. Broad phase never admits geometry.
+   * Missing/invalid geometry leaves facet unchanged; nonfinite query coordinates throw. */
+  bool FindFace(int marker, const std::array<Point, 3>& triangle, Id& facet, KernelStats* stats = nullptr) const;
+  /*! Additional candidate/traversal storage bound for the serial per-rank binding query. */
+  size_t SearchWorkspaceBytes() const;
 
  private:
   std::map<Id, Facet> facets;
   std::map<Id, Id> canonical;
   std::map<Id, std::vector<Edge>> boundaries;
   std::map<Id, Node> nodes;
+  std::map<int, std::vector<Id>> marker_facets;
+  std::vector<Id> indexed;
+  std::shared_ptr<CADTElemClass> search;
 };
 /*! Geometric private proposals only. Require the globally admitted complete edge/vertex star and authoritative
  * physical skin. Exact on-edge binary64 point; unrepresentable planar proposals reject, never snap silently.

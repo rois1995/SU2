@@ -6,6 +6,9 @@
  */
 #include "../../include/adaptation/CNativeBoundary3D.hpp"
 #include "../../include/adaptation/CTransferMemory.hpp"
+#include "../../include/adt/CADTElemClass.hpp"
+#include "../../include/option_structure.hpp"
+#include <cmath>
 #include <type_traits>
 #include <algorithm>
 #include <limits>
@@ -197,6 +200,48 @@ PlanarReference::PlanarReference(std::vector<Facet> input) {
     boundaries.emplace(root.first, std::move(border));
     for (Id id : component) canonical.at(id) = root.first;
   }
+  std::map<Id, std::array<Point, 2>> boxes;
+  for (const auto& row : facets) {
+    const auto id = Canonical(row.first);
+    auto& box = boxes.emplace(id, std::array<Point, 2>{row.second.v[0].p, row.second.v[0].p}).first->second;
+    for (auto n : row.second.v) {
+      box[0] = {std::min(box[0].x, n.p.x), std::min(box[0].y, n.p.y), std::min(box[0].z, n.p.z)};
+      box[1] = {std::max(box[1].x, n.p.x), std::max(box[1].y, n.p.y), std::max(box[1].z, n.p.z)};
+    }
+  }
+  bool multiple = false;
+  for (const auto& row : boxes) {
+    auto& ids = marker_facets[Get(row.first).marker];
+    ids.push_back(row.first);
+    multiple = multiple || ids.size() > 1;
+    indexed.push_back(row.first);
+  }
+  if constexpr (std::is_same<su2double, double>::value) {
+    if (multiple) {
+      std::vector<su2double> coordinates;
+      std::vector<unsigned long> connectivity, ids;
+      std::vector<unsigned short> types(indexed.size(), LINE), markers(indexed.size(), 0);
+      coordinates.reserve(6 * indexed.size());
+      connectivity.reserve(2 * indexed.size());
+      ids.reserve(indexed.size());
+      for (Id id : indexed) {
+        for (auto p : boxes.at(id)) {
+          coordinates.push_back(p.x);coordinates.push_back(p.y);coordinates.push_back(p.z);
+        }
+        connectivity.push_back(connectivity.size());connectivity.push_back(connectivity.size());
+        ids.push_back(ids.size());
+      }
+      search = std::make_shared<CADTElemClass>(3, coordinates, connectivity, types, markers, ids, false);
+    }
+  }
+}
+size_t PlanarReference::ConstructionBytes(size_t count) {
+  if (count > std::numeric_limits<unsigned long>::max() / 2) return SIZE_MAX;
+  size_t retained = 0, peak = 0;
+  if (count) CADTElemClass::PredictBytes(3, 2 * count, count, 2 * count, &retained, &peak);
+  // shortcut: conservative map/component scratch; calibrate allocator requests before larger reference campaigns.
+  return transfer_memory::Add(transfer_memory::Mul(count, 4096), retained, peak,
+                             transfer_memory::Mul(count, 6 * sizeof(su2double) + 3 * sizeof(unsigned long) + 4 * sizeof(unsigned short)));
 }
 size_t PlanarReference::ResidentBytes() const {
   auto map = [](const auto& m) {
@@ -204,7 +249,44 @@ size_t PlanarReference::ResidentBytes() const {
   };
   size_t result = transfer_memory::Add(sizeof(*this), map(facets), map(canonical), map(boundaries), map(nodes));
   for (const auto& entry : boundaries) result = transfer_memory::Add(result, transfer_memory::Bytes(entry.second));
+  result = transfer_memory::Add(result, map(marker_facets), transfer_memory::Bytes(indexed),
+                                search ? search->GetAllocatedBytes() : 0);
+  for (const auto& entry : marker_facets) result = transfer_memory::Add(result, transfer_memory::Bytes(entry.second));
   return result;
+}
+size_t PlanarReference::SearchWorkspaceBytes() const {
+  return search ? transfer_memory::Add(transfer_memory::Mul(indexed.size(), 2 * sizeof(unsigned long)),
+                                       search->RetainedWorkspaceBound(1)) : 0;
+}
+bool PlanarReference::FindFace(int marker, const std::array<Point, 3>& triangle, Id& facet, KernelStats* stats) const {
+  for (auto p : triangle)
+    if (!std::isfinite(p.x) || !std::isfinite(p.y) || !std::isfinite(p.z))
+      throw std::invalid_argument("Nonfinite native 3D physical binding query.");
+  const auto group = marker_facets.find(marker);
+  if (group == marker_facets.end()) return false;
+  if (group->second.size() == 1 || !search) {
+    for (Id id : group->second)
+      if (ContainsFace(id, triangle, stats)) {facet = id;return true;}
+    return false;
+  }
+  Point lo = triangle[0], hi = triangle[0];
+  for (auto p : triangle) {
+    lo = {std::min(lo.x, p.x), std::min(lo.y, p.y), std::min(lo.z, p.z)};
+    hi = {std::max(hi.x, p.x), std::max(hi.y, p.y), std::max(hi.z, p.z)};
+  }
+  const std::array<su2double, 3> lower{lo.x, lo.y, lo.z}, upper{hi.x, hi.y, hi.z};
+  std::vector<unsigned long> candidates;
+  search->DetermineIntersectingElements(lower.data(), upper.data(), candidates);
+  bool found = false;
+  Id chosen = 0;
+  for (auto index : candidates) {
+    const auto id = indexed.at(index);
+    if (Get(id).marker == marker && ContainsFace(id, triangle, stats) && (!found || id < chosen)) {
+      chosen = id;found = true;
+    }
+  }
+  if (found) facet = chosen;
+  return found;
 }
 Id PlanarReference::Canonical(Id id) const { return canonical.at(id); }
 const Facet& PlanarReference::Get(Id id) const { return facets.at(id); }

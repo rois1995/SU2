@@ -7,6 +7,15 @@ small sequential local checks with real host-contention checks; push each
 validated checkpoint and verify the remote SHA. A terminal capacity failure
 cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
+## Canonical planar reference lookup checkpoint — 2026-10-11
+
+NativeIntegrated / codex/native-3d-core, predecessore99dee967611ec960a4e9368bcd7df8b7aba1b3d.
+REFERENCE_LOOKUP_REPORT.md/REFERENCE_LOOKUP_VALIDATION.json qualify canonical same-marker physical binding: direct singleton lookup, house local CADT box broad phase for multiple patches and unchanged exact finite containment/orientation/lowest-ID checks. Resident/construction/query-workspace admission updated; conservative component scratch still needs allocation calibration. No geometry certification, sensor,BL,operator,guard or cap changes. Global256-facet/1MiB-sidecar limits remain; next work reduces collinear certification cost and replaces the global count cap with memory admission across import/decode/restart, then larger first-limit cases including closed same-marker multiple patches.
+
+Actual complete68-object configured regression passes67 native/reference/2D+3Dbridge cases per MPI1/2/4 rank plus serialMMG48 assertions. New lookup test compares against exhaustive containment for tiled/disconnected/marker/plane/gap/reversed/nextafter/nonfinite and output-preservation cases. Two actual n4 wedge three-event N1M1/N4M2 cases pass independent exact geometry/q/J/L/P1/currentBDF/SU2CGNS and6corruption controls;26 raw mesh/source/state/readback files and rank-local accepted edits match vertex_clip baselines byte-for-byte. Only boundary header/implementation, import caller and targeted test sources change;9 native3D/factory production members rebuild, external/MMG/2D members pinned.
+
+Single contended serial import-face samples135/128/55ms ->9/6/2ms; no sustained speedup/scaling claim. Closed phase CSV/useful edit rates retained, nested costs separate; packed bytes include self traffic and collective elapsed is not purewait. Complete communication/cache/private-wait/memory calibration,detail overhead and closedSGE campaigns remain. No fullAD/PDE/curved/robust3DBL/fullunsteady/affordability claim. FullGoal1 ACTIVE. All owned campaigns terminal; foreign FSI,AdapNoExt,ClusterResults and prior evidence untouched.
+
 ## Larger wedge and exact-vertex clipping checkpoint — 2026-10-11
 
 NativeIntegrated / codex/native-3d-core, baseline7bc3869babb19171fe402fdfb0e96f745b769703.

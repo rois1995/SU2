@@ -1,0 +1,144 @@
+{
+  "status": "PASS",
+  "analyzer_sha256": "283905e7645c5a8ca924534aed81b6aa169fb4bcc6f89fe2b0a02cc0645c5746",
+  "dependencies_sha256": {
+    "analyze_insertion.py": "da413800f19c4892717ef607a5868d473c61390fd8f0e427b4bed0e2edb2cd2c",
+    "analyze_donor_reuse.py": "30c5a374451da840c392f499d098fb6996d9205f92783fb3aef133e06382da67",
+    "audit_lifecycle.py": "eaa6e005ece099af2f40ae7857bef51f22a207f70331dcdc10936d23c574e820"
+  },
+  "matrix_sha256": "11a7f96efa6eaf89f7e255fb32cbdcfce797530a009e72bc19abc73d6be773e0",
+  "regression_sha256": "90d5991c2ecebeb68343429b33f7b342fd95d254549745b7bb3338e2ade48f34",
+  "cases": [
+    {
+      "folder": "reference_lookup_n4_n1_m1_v1",
+      "baseline": "vertex_clip_n4_n1_m1_v1",
+      "unchanged": {
+        "envelope_s0_initial.json": "77b792f58978c6101715e81729c63780952448c2123afed141922484289f2b34",
+        "envelope_s0.json": "5314066bcd894bd35d8d9f0280b7c2d1fbf8e26056efe938bf81bdbf0baa8d23",
+        "envelope_s1_initial.json": "46eec4ca18cfeaafe7ec52b0faf2a3a60c056c0d8c8e0039b9916675c41dd5f9",
+        "envelope_s1.json": "59ee5a79b0d0aa376541d00eb6d039e237d440f043db4f35ee70c62f49d88263",
+        "envelope_s2_initial.json": "4ca900bc6ac37306f124d303c4b48264de6db2a75471ec125196691b121d0e12",
+        "envelope_s2.json": "8871e8dfe94ad225d58d7ca2851919d70bf921212d5b9501e08a2d666469ab0e",
+        "envelope_s2_written_SU2_reload.json": "0a3a82467ccc94a1197b6d97a72e936e802bacd00991338a04b0038e8289c68c",
+        "envelope_s2_written_CGNS_reload.json": "0a3a82467ccc94a1197b6d97a72e936e802bacd00991338a04b0038e8289c68c",
+        "envelope_s0_states.json": "c84ab0e508eefd71124312881d5bfe1071ee049205dc0eca74d79b9b342c7ec4",
+        "envelope_s1_states.json": "37fca0bf09777d316209b4285b462d11983ba48b3e16c959f7c4e57b12e66690",
+        "envelope_s2_states.json": "89dcd41c4f7f961543a7c4ffb50ce854049c781bdeec94f04b6f7d87129d3f04",
+        "envelope_s2_written_SU2_reload_target.json": "8871e8dfe94ad225d58d7ca2851919d70bf921212d5b9501e08a2d666469ab0e",
+        "envelope_s2_written_CGNS_reload_target.json": "8871e8dfe94ad225d58d7ca2851919d70bf921212d5b9501e08a2d666469ab0e"
+      },
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 1.09391073,
+          "baseline_parent_max_seconds": 1.280672638,
+          "accepted_edits": 101.0,
+          "accepted_edits_per_parent_second": 92.32928906365147,
+          "parent_max_over_mean": 1.0,
+          "native_bound": 8388608.0,
+          "lifetime_rss": 30347264.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 2.404416566,
+          "baseline_parent_max_seconds": 2.694162668,
+          "accepted_edits": 71.0,
+          "accepted_edits_per_parent_second": 29.528993022251534,
+          "parent_max_over_mean": 1.0,
+          "native_bound": 4079956.0,
+          "lifetime_rss": 31846400.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 1.1712250790000005,
+          "baseline_parent_max_seconds": 1.196626664,
+          "accepted_edits": 165.0,
+          "accepted_edits_per_parent_second": 140.8781309062115,
+          "parent_max_over_mean": 1.0,
+          "native_bound": 4079224.0,
+          "lifetime_rss": 31911936.0
+        }
+      ],
+      "production_members_changed": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/libSU2core.a.p/drivers_CSinglezoneDriver.cpp.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2Common.a.p/adaptation_CNativeImport3D.cpp.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2Common.a.p/adaptation_CNativeReferenceIO3D.cpp.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2Common.a.p/adaptation_CNativeRemesher3D.cpp.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundary3D.cpp.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2AccurateSum.a.p/adaptation_CNativeDistributed3D.cpp.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2AccurateSum.a.p/adaptation_CNativeDonor3D.cpp.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2AccurateSum.a.p/adaptation_CNativeEngine3D.cpp.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2AccurateSum.a.p/adaptation_CNativePartition3D.cpp.o"
+      ],
+      "validation_sha256": "a63f7f097e9963b581c3e7257b4a05f58ff92fba6837d030d185ef940c04045f",
+      "audit_sha256": "2e89dae34605d620705e87ef9b861602998bcba62b1bfbca86b03a702206e10e"
+    },
+    {
+      "folder": "reference_lookup_n4_n4_m2_v1",
+      "baseline": "vertex_clip_n4_n4_m2_v1",
+      "unchanged": {
+        "envelope_s0_initial.json": "8993d68bf53d0dda5b37c172764de677c7c74c86ddee5b31a9f467d172f8f0ec",
+        "envelope_s0.json": "9a423f2a9e1039d42c8b8d9e96e3af5f2339fba2b7feb24e27d2c4b765355f80",
+        "envelope_s1_initial.json": "de6e266e1f9ad289c6f617ff836f4147132a50b44c0568bb26264edc9c6b3e85",
+        "envelope_s1.json": "ea9b4ea121eb7a3b56ecb02b8c33d2d2694b6bad234930810ba450be63d90705",
+        "envelope_s2_initial.json": "caf77ab2236919badcd2665b4d842f61ceda62cc348b24eeed95fdbbb03f9aeb",
+        "envelope_s2.json": "c4a7a02453fa0df64805a47411d94ba060adedf7ddf7def2b1f8606649018c40",
+        "envelope_s2_written_SU2_reload.json": "5c076d9b3bfb5e38a6a20d2d780e267d874a3a63dd9d1ba29dd9ffc28683b433",
+        "envelope_s2_written_CGNS_reload.json": "e84af6ef4253e5056658b2aa0ea32941f9dec3c41cf42450a741a7d1c1980b0e",
+        "envelope_s0_states.json": "40f245f63c8635b36739f9cb6ced3206347320e4c1e846e990779e725c1ba7f9",
+        "envelope_s1_states.json": "6d6ccfcdad663cd17c8e7248ed20adf6417c37ca01374c84a709351719d47b59",
+        "envelope_s2_states.json": "89edf106ca571b36cb4d17f438e4b9c0c35df5cdf23f4292a658c5b75c7091d3",
+        "envelope_s2_written_SU2_reload_target.json": "c4a7a02453fa0df64805a47411d94ba060adedf7ddf7def2b1f8606649018c40",
+        "envelope_s2_written_CGNS_reload_target.json": "e6ba87f542275941b0b712b4aeb336de68c533f68882555c0c0c824273e9302b"
+      },
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 4.178616765,
+          "baseline_parent_max_seconds": 1.193570964,
+          "accepted_edits": 101.0,
+          "accepted_edits_per_parent_second": 24.17067792528229,
+          "parent_max_over_mean": 1.0007863394557788,
+          "native_bound": 8388608.0,
+          "lifetime_rss": 30486528.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 8.702100199,
+          "baseline_parent_max_seconds": 2.694953915,
+          "accepted_edits": 71.0,
+          "accepted_edits_per_parent_second": 8.158949951893101,
+          "parent_max_over_mean": 1.000001744380797,
+          "native_bound": 2995960.0,
+          "lifetime_rss": 31924224.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 3.2081810550000007,
+          "baseline_parent_max_seconds": 1.0829251009999998,
+          "accepted_edits": 156.0,
+          "accepted_edits_per_parent_second": 48.62568456255657,
+          "parent_max_over_mean": 1.0001016009097625,
+          "native_bound": 3116692.0,
+          "lifetime_rss": 32014336.0
+        }
+      ],
+      "production_members_changed": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/libSU2core.a.p/drivers_CSinglezoneDriver.cpp.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2Common.a.p/adaptation_CNativeImport3D.cpp.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2Common.a.p/adaptation_CNativeReferenceIO3D.cpp.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2Common.a.p/adaptation_CNativeRemesher3D.cpp.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundary3D.cpp.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2AccurateSum.a.p/adaptation_CNativeDistributed3D.cpp.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2AccurateSum.a.p/adaptation_CNativeDonor3D.cpp.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2AccurateSum.a.p/adaptation_CNativeEngine3D.cpp.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2AccurateSum.a.p/adaptation_CNativePartition3D.cpp.o"
+      ],
+      "validation_sha256": "19dd86a3f3d67323530dc0e92d9e2b57bc0e1a46f677990203dabe659ee90c4b",
+      "audit_sha256": "3c95a8f3781f052d98eae1a716e0ec472a3a1d7658e4cb3a942061f369bcf15d"
+    }
+  ],
+  "accounting_rows": 170,
+  "csv_sha256": "9109cb3fa6281791d0046120d59f62e33bc2f9812ba91e1c1c91d06902f03d17",
+  "scope": "Canonical finite oriented physical binding only. Same-marker singleton direct lookup; multiple patches use existing local ADT conservative boxes and exact final checks. Exhaustive equivalence/gap/marker/orientation/nextafter/nonfinite/rejection and conservative storage controls in actual full68-object configured MPI1/2/4 and serialMMG regression. Two fixed-work actual cases preserve26 raw geometry/source/state/SU2CGNS readback files and accepted rank-local edits. Single contended timing pilots; no full-cycle speedup, exact allocator calibration or global-size completion claim. Global256-facet and1MiB-sidecar limits still enforced; scalable certification/count admission, complete profiling/overhead/SGE campaigns remain open. FullGoal1 ACTIVE."
+}

@@ -320,7 +320,7 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
         failure.Set(1, 0, "Native3D immutable facet authority exceeds the 256-face limit.");
       CollectiveFailure(failure, CURRENT_FUNCTION);
       // Reference construction is bounded by 256 facets: maps/links, vector growth and replicated wire copies.
-      const size_t reference_scratch = transfer_memory::Mul(count, 4096);
+      const size_t reference_scratch = PlanarReference::ConstructionBytes(count);
       if (!Admit(parent,
                  transfer_memory::Add(reference_base, reference_scratch,
                                       transfer_memory::Mul(parent.size, 3 * count * sizeof(Facet))),
@@ -354,6 +354,9 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
     const auto& authority = state.original ? state : pending;
     if (authority.marker_names != names) failure.Set(1, 0, "Native3D immutable physical marker names changed.");
     CollectiveFailure(failure, CURRENT_FUNCTION);
+    if (!Admit(parent, transfer_memory::Add(reference_base,
+                   state.original ? 0 : ReferenceStorageBytes(pending), authority.original->SearchWorkspaceBytes()),
+               ceiling, stats, reason)) return false;
     try {
       for (auto b : bindings) {
         auto& cell = result.cells.at(b.cell);
@@ -362,15 +365,8 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
         for (size_t k = 0; k < 3; ++k)
           for (auto n : cell.cell.v)
             if (n.id == face[k]) p[k] = n.p;
-        bool found = false;
         Id chosen = 0;
-        for (auto f : authority.facets)
-          if (f.marker == b.marker && authority.original->ContainsFace(f.id, p)) {
-            const auto id = authority.original->Canonical(f.id);
-            if (!found || id < chosen) chosen = id;
-            found = true;
-          }
-        if (!found)
+        if (!authority.original->FindFace(b.marker, p, chosen))
           throw std::invalid_argument("Native3D physical triangle leaves its immutable oriented marker facets.");
         cell.physical[b.slot] = {true, chosen};
       }

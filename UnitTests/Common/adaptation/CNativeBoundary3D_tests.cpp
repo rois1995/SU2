@@ -419,3 +419,42 @@ TEST_CASE("Native insertion coordinates a planar surface fan and volume without 
     CHECK(Connectivity(fresh)==saved);CHECK(fresh.surface.size()==faces);
   }
 }
+
+TEST_CASE("Native indexed reference binding matches exhaustive finite oriented canonical patches", "[NativeMesh3D][NativeReferenceSearch3D]") {
+  std::vector<Facet> facets;
+  constexpr size_t n=8;
+  auto node=[](size_t i,size_t j){return Node{Id(j*(n+1)+i),{double(i)/n,double(j)/n,0}};};
+  for(size_t j=0;j<n;++j)for(size_t i=0;i<n;++i) {
+    const auto a=node(i,j),b=node(i+1,j),c=node(i+1,j+1),d=node(i,j+1);
+    facets.push_back({Id(facets.size()),7,{a,b,c}});facets.push_back({Id(facets.size()),7,{a,c,d}});
+  }
+  const Node a{1000,{3,0,0}},b{1001,{4,0,0}},c{1002,{4,1,0}},d{1003,{3,1,0}};
+  facets.push_back({1000,7,{a,b,c}});facets.push_back({1001,7,{a,c,d}});
+  auto upper=facets.back();upper.id=1100;upper.marker=8;
+  for(auto& v:upper.v){v.id+=100;v.p.z=1;}facets.push_back(upper);
+  std::reverse(facets.begin(),facets.end());
+  const PlanarReference reference(facets);
+  CHECK(reference.Canonical(127)==0);CHECK(reference.Canonical(1001)==1000);
+  CHECK(reference.ResidentBytes()>0);CHECK(reference.SearchWorkspaceBytes()>0);
+  CHECK(PlanarReference::ConstructionBytes(facets.size())>=reference.ResidentBytes()+reference.SearchWorkspaceBytes());
+  CHECK(PlanarReference::ConstructionBytes(SIZE_MAX)==SIZE_MAX);
+  std::vector<std::array<Point,3>> queries;
+  for(const auto& f:facets)queries.push_back({f.v[0].p,f.v[1].p,f.v[2].p});
+  queries.push_back({{{.125,.125,0},{.875,.125,0},{.125,.875,0}}});
+  queries.push_back({{{.5,.25,0},{3.5,.25,0},{.5,.75,0}}});
+  queries.push_back({{{1.25,.25,0},{1.75,.25,0},{1.25,.75,0}}});
+  auto off=queries.front();for(auto& v:off)v.z=std::nextafter(v.z,2.);queries.push_back(off);
+  auto reverse=queries[1];std::swap(reverse[0],reverse[1]);queries.push_back(reverse);
+  for(int marker:{7,8,999})for(const auto& triangle:queries) {
+    Id expected=UINT64_MAX;
+    for(const auto& f:facets)if(f.marker==marker && reference.ContainsFace(f.id,triangle))expected=std::min(expected,reference.Canonical(f.id));
+    Id actual=UINT64_MAX-1;
+    const bool found=reference.FindFace(marker,triangle,actual);
+    REQUIRE(found==(expected!=UINT64_MAX));CHECK(actual==(found?expected:UINT64_MAX-1));
+  }
+  auto nonfinite=queries.front();nonfinite[0].x=std::numeric_limits<double>::infinity();Id saved=42;
+  CHECK_THROWS_AS(reference.FindFace(7,nonfinite,saved),std::invalid_argument);CHECK(saved==42);
+  const PlanarReference single({facets.front()});
+  CHECK(single.SearchWorkspaceBytes()==0);
+  Id id=42;CHECK(single.FindFace(facets.front().marker,queries.front(),id));CHECK(id==facets.front().id);
+}

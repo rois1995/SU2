@@ -1,0 +1,28 @@
+{
+  "base": "e99dee967611ec960a4e9368bcd7df8b7aba1b3d",
+  "change": "Bind oriented physical triangles against canonical same-marker finite patches; direct singleton lookup, house local ADT broad phase for multiple patches. Exact containment/orientation and lowest canonical identity retained. Resident, construction and query workspace modeled/admitted. Global256-facet/private64-cavity/256-donor/1MiB-sidecar limits unchanged.",
+  "guards": {
+    "q": 0.2,
+    "J": 0.05,
+    "L": 1.8,
+    "rounds": 512,
+    "noise": 0
+  },
+  "cases": [
+    {
+      "folder": "reference_lookup_n4_n1_m1_v1",
+      "baseline": "vertex_clip_n4_n1_m1_v1",
+      "ranks": 1,
+      "workers": 1
+    },
+    {
+      "folder": "reference_lookup_n4_n4_m2_v1",
+      "baseline": "vertex_clip_n4_n4_m2_v1",
+      "ranks": 4,
+      "workers": 2
+    }
+  ],
+  "regression": "reference_lookup_regression_v1",
+  "acceptance": "26 raw geometry/source/state/nodal/frozen readback files byte-identical; independent exact geometry/metric/P1/BDF/SU2CGNS audits and actual full68-object configured regression MPI1/2/4 plus serialMMG. New reference search test compares indexed/direct results to exhaustive existing containment across tiled/disconnected/oriented/marker/off-plane/gap and nonfinite cases; memory bounds remain conservative, not allocation calibrated.",
+  "timing": "Single sequential contended pilots only; no full-cycle speedup/scaling claim. This removes repeated raw-facet binding scans as a prerequisite to scalable authority, not completion of global-size work."
+}
