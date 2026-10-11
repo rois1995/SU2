@@ -5,9 +5,9 @@ Working repository: `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 and instrumentation-overhead package. Larger sizes/ranks, full traffic/wait and
 allocator calibration remain Goal1 work. The current reference-admission/query/transport-accounting code builds and passes the serial
 69-case native/reference/2D+3Dbridge suite and serialMMG checks. The 69-case
-selection and independent bridge audit now pass on MPI1/2/4. Larger fixed-work/
-persisted-restart qualification remains pending; package self-checks are separate
-from those numerical checks.
+selection and independent bridge audit now pass on MPI1/2/4. The n4 frozen-work N1M1/N4M2 and persisted SU2/CGNS restart checks also pass locally.
+Repeated cluster performance and n8 limits remain pending; package self-checks
+are separate from numerical checks.
 Do not treat preparation or submission as a numerical PASS.
 
 Use the cluster's existing GCC/MPI/MMG/CGNS build environment on the login host.
@@ -16,8 +16,11 @@ checks the retained serial MMG2D/3D path and therefore needs its library/header
 installation. The user-provided cluster prefix is
 /home/aero/arausa/global/Libs/mmg-5.8.0/install. Set mmg_root explicitly and retain
 your compiler/MPI environment. The prefix must contain include/mmg/libmmg.h and
-lib/libmmg.so or lib/libmmg.a; MMG executables alone are insufficient. For a shared
-installation include its lib directory in LD_LIBRARY_PATH before submission.
+libmmg.so or libmmg.a under lib or lib64; both directories are searched. MMG
+executables alone are insufficient. The cluster prefix has lib64/libmmg.a, so
+retain the prefix above rather than appending lib64 to mmg_root. For a shared
+installation include its actual library directory in LD_LIBRARY_PATH before
+submission; LD_LIBRARY_PATH does not repair static-library discovery.
 If MMG was linked against a separately installed SCOTCH, retain/add that prefix
 with -Dmmg_scotch_root and its shared-library search path too.
 
@@ -25,7 +28,7 @@ Build the complete normal-mode test driver with MPI, MMG, CGNS and tests enabled
 
 ```sh
 NATIVE3D_MMG_ROOT=/home/aero/arausa/global/Libs/mmg-5.8.0/install
-export LD_LIBRARY_PATH="$NATIVE3D_MMG_ROOT/lib:${LD_LIBRARY_PATH:-}"
+export LD_LIBRARY_PATH="$NATIVE3D_MMG_ROOT/lib:$NATIVE3D_MMG_ROOT/lib64:${LD_LIBRARY_PATH:-}"
 ./meson.py configure build-native -Denable-tests=true -Denable-normal=true \
   -Denable-mmg=true -Denable-cgns=true -Dwith-mpi=enabled -Dmmg_root="$NATIVE3D_MMG_ROOT"
 ninja -C build-native -j2 UnitTests/test_driver
@@ -36,7 +39,11 @@ PYTHONDONTWRITEBYTECODE=1 python3 integration_evidence/native_cluster_3d_core_v1
 `build-native` denotes your existing configured normal build directory; substitute
 its actual name and retain your cluster compiler/MMG library options. If creating
 a fresh directory, use `./meson.py setup build-native` with the same options
-instead of `configure`. You can retain `--prefix="$(pwd)"`: it controls the
+instead of `configure`. If configure fails with KeyError for options, the saved
+meson-private/cmd_line.txt is missing its options section. Keep the old build
+intact and use setup with a fresh build-directory name, retaining your compiler/
+MPI environment and additional options; pass that name to --build-dir below.
+You can retain `--prefix="$(pwd)"`: it controls the
 installation destination, while this package copies the test driver directly from
 the build directory and requires no installation or local `/tmp` files.
 If Ninja is `./ninja`, use that for the build and pass

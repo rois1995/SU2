@@ -1,0 +1,3 @@
+option('enable-mmg', type : 'boolean', value : false, description: 'enable MMG support (in-memory mesh adaptation)')
+option('mmg_root', type : 'string', value : '/usr/local', description: 'MMG installation prefix (with include/mmg and lib/libmmg)')
+option('mmg_scotch_root', type : 'string', value : '', description: 'SCOTCH installation prefix, if MMG was built with SCOTCH outside the default library paths')

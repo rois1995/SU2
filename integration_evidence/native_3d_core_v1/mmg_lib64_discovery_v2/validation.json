@@ -1,0 +1,95 @@
+{
+  "status": "PASS",
+  "reason": "",
+  "cases": [
+    {
+      "name": "lib",
+      "directory": "lib",
+      "broken": false,
+      "exit_code": 0,
+      "seconds": 1.2342808860121295,
+      "command": [
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/externals/meson/meson.py",
+        "setup",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/mmg_lib64_discovery_v2/lib/build",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/mmg_lib64_discovery_v2/project",
+        "-Denable-mmg=true",
+        "-Dmmg_root=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/mmg_lib64_discovery_v2/lib/prefix",
+        "-Dmmg_scotch_root=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/mmg_lib64_discovery_v2/lib/scotch"
+      ],
+      "link_commands": [
+        "Command line: `c++ -I/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/mmg_lib64_discovery_v2/lib/prefix/include /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/mmg_lib64_discovery_v2/lib/build/meson-private/tmpxygzsz9m/testfile.cpp -o /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/mmg_lib64_discovery_v2/lib/build/meson-private/tmpxygzsz9m/output.exe -pthread -D_FILE_OFFSET_BITS=64 -O0 -fpermissive -std=c++17 -Wl,--start-group /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/mmg_lib64_discovery_v2/lib/prefix/lib/libmmg.a /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/mmg_lib64_discovery_v2/lib/scotch/lib/libscotch.a /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/mmg_lib64_discovery_v2/lib/scotch/lib/libscotcherrexit.a /usr/lib/x86_64-linux-gnu/libz.so -lm -lrt -Wl,--end-group` -> 0"
+      ],
+      "mmg_sha256": "d3e6ba5554afb08baac52b17c670248a3ab3229cd5ee57b3a80f043bcd1fe8dd"
+    },
+    {
+      "name": "lib64",
+      "directory": "lib64",
+      "broken": false,
+      "exit_code": 0,
+      "seconds": 1.014477085962426,
+      "command": [
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/externals/meson/meson.py",
+        "setup",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/mmg_lib64_discovery_v2/lib64/build",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/mmg_lib64_discovery_v2/project",
+        "-Denable-mmg=true",
+        "-Dmmg_root=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/mmg_lib64_discovery_v2/lib64/prefix",
+        "-Dmmg_scotch_root=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/mmg_lib64_discovery_v2/lib64/scotch"
+      ],
+      "link_commands": [
+        "Command line: `c++ -I/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/mmg_lib64_discovery_v2/lib64/prefix/include /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/mmg_lib64_discovery_v2/lib64/build/meson-private/tmpnx7cdp5z/testfile.cpp -o /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/mmg_lib64_discovery_v2/lib64/build/meson-private/tmpnx7cdp5z/output.exe -pthread -D_FILE_OFFSET_BITS=64 -O0 -fpermissive -std=c++17 -Wl,--start-group /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/mmg_lib64_discovery_v2/lib64/prefix/lib64/libmmg.a /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/mmg_lib64_discovery_v2/lib64/scotch/lib64/libscotch.a /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/mmg_lib64_discovery_v2/lib64/scotch/lib64/libscotcherrexit.a /usr/lib/x86_64-linux-gnu/libz.so -lm -lrt -Wl,--end-group` -> 0"
+      ],
+      "mmg_sha256": "d3e6ba5554afb08baac52b17c670248a3ab3229cd5ee57b3a80f043bcd1fe8dd"
+    },
+    {
+      "name": "broken_lib64",
+      "directory": "lib64",
+      "broken": true,
+      "exit_code": 1,
+      "seconds": 0.8659355569980107,
+      "command": [
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/externals/meson/meson.py",
+        "setup",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/mmg_lib64_discovery_v2/broken_lib64/build",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/mmg_lib64_discovery_v2/project",
+        "-Denable-mmg=true",
+        "-Dmmg_root=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/mmg_lib64_discovery_v2/broken_lib64/prefix",
+        "-Dmmg_scotch_root=/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/mmg_lib64_discovery_v2/broken_lib64/scotch"
+      ],
+      "link_commands": [
+        "Command line: `c++ -I/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/mmg_lib64_discovery_v2/broken_lib64/prefix/include /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/mmg_lib64_discovery_v2/broken_lib64/build/meson-private/tmptxorw2rb/testfile.cpp -o /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/mmg_lib64_discovery_v2/broken_lib64/build/meson-private/tmptxorw2rb/output.exe -pthread -D_FILE_OFFSET_BITS=64 -O0 -fpermissive -std=c++17 -Wl,--start-group /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/mmg_lib64_discovery_v2/broken_lib64/prefix/lib64/libmmg.a /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/mmg_lib64_discovery_v2/broken_lib64/scotch/lib64/libscotch.a /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/mmg_lib64_discovery_v2/broken_lib64/scotch/lib64/libscotcherrexit.a /usr/lib/x86_64-linux-gnu/libz.so -lm -lrt -Wl,--end-group` -> 1"
+      ],
+      "mmg_sha256": "f0a17a43c74d2fe5474fa2fd29c8f14799e777d7d75a2cc4d11c20a6e7b161c5"
+    }
+  ],
+  "source_sha256": {
+    "meson.build": "5123109a117a61d89ae5d64be5a396361a6e9a1aaddfd00b57eaf12494345ae9",
+    "meson_options.txt": "d5e6c66286a857afd21eaae2ffe0651d444130469b102c9ee95d885deafa0b0e",
+    "externals/meson/meson.py": "0250933d2cc51857a23f55bb156c1a49c0e1812e143bf9f51a80e6ce37012ff0",
+    "externals/meson/mesonbuild/coredata.py": "73067b19700e6f6a96b6a4184d804b1a0fe7bbf0a9b1db0621f3693f43e89371"
+  },
+  "input_sha256": {
+    "/usr/local/lib/libmmg.a": "d3e6ba5554afb08baac52b17c670248a3ab3229cd5ee57b3a80f043bcd1fe8dd",
+    "/home/rausa/Software/scotch/lib/libscotch.a": "0b18f443e9ef6b1fa30cfc4074b61523c326c29d0b22fe2bc11680c3fe0b5ad0",
+    "/home/rausa/Software/scotch/lib/libscotcherrexit.a": "7b62e18e468ddc8b4f1b90c6cf31b6b822c76a194392636722250dece96699b5"
+  },
+  "scope": "Actual Meson configure/compiler-link checks of the exact production MMG dependency block. Both lib and lib64 select the copied real combined static MMG and explicit SCOTCH archives; empty lib64 archive must fail the MMG2D/3D link guard. No SU2 rebuild, MPI, remeshing, cluster execution or performance claim.",
+  "artifact_sha256": {
+    "runner.py": "34c25276e177b035d0f447b1a13fb491559a6dd04f4dc44053e705de8d49b7a0",
+    "project/meson.build": "883afdde04643d8aaf078bec171a348933662bd44a33dd17e1a07e0c22fed3d1",
+    "project/meson_options.txt": "5ac98571905b2832a2aa8719bd514107d76ce566e0852c3e4558d3b808916ca2",
+    "lib/meson-log.txt": "b071613272fd8b8c78a1e7303c2b6986c66667b67c364483d83013fd95614143",
+    "lib64/meson-log.txt": "efc9585e41432726cccf5fb3c7ac4416f0e6901a51461f66457264609a5f8033",
+    "broken_lib64/meson-log.txt": "726c62a12576e03e40c341f0921e2abc680a6f678cdf0a18754c363a5f488a68",
+    "lib/configure.stdout": "a20327baadc5692201d4f011a15af74dd06b91c429f3f754a5489a0418fc4a27",
+    "lib/configure.stderr": "73bba1bce25f7b09a5bffd97db42d99a6c12295a13a95399465a4b652115cb88",
+    "lib64/configure.stdout": "386e109ed070dd31c275a194876d7ed0ea4affa51334317ee786f9dfddde87db",
+    "lib64/configure.stderr": "73bba1bce25f7b09a5bffd97db42d99a6c12295a13a95399465a4b652115cb88",
+    "broken_lib64/configure.stdout": "67b31295c8d0458bfcf3f2a97c4d386e941ec6d65f0d68d438a6258f4fcec8df",
+    "broken_lib64/configure.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

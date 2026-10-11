@@ -1,0 +1,1 @@
+The lib configure linked MMG successfully but failed later because Ninja was absent from PATH. The runner then failed while collecting relative __file__ against an absolute folder, so no validation.json was published. Retained original runner and logs; mmg_lib64_discovery_v2 uses the existing real Ninja executable and resolves __file__.

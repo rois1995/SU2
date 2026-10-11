@@ -1,3 +1,54 @@
+## Larger frozen-work/restart qualification and MMG lib64 fix — 2026-10-11
+
+Working repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
+Branch: codex/native-3d-transport-accounting; predecessor
+5a258c8325383eda1fd7e96d2235dba365c42277. AdapNoExt is untouched. Production
+C++/test fixtures remain identical to475820f366366f471e0cdb50e362d7c5e572c328;
+core branch remains6b3fefd039bfc3d1937b8add7d21d0ea41344bc9.
+
+Two actual n4 frozen-work cases (N1M1 and N4M2) and persisted SU2 N1M1/CGNS N4M2
+restart cases now PASS. Strict unchanged analyze_reference_admission.py verifies
+26 byte-identical mesh/source/current+BDF/readback JSON files against the
+same-rank baselines and245 closed phase rows. Independent geometry, original-P1,
+current/BDF, output/reload and corruption controls pass. Targets and q/J/L guards
+are unchanged. These sequential one-CPU contended correctness runs qualify the
+larger/restart gates; they do not establish scaling or sustained speedup.
+
+Evidence in integration_evidence/native_3d_core_v1:
+- reference_admission_n4_n1_m1_v1 and reference_admission_n4_n4_m2_v1
+- reference_admission_restart_su2_n2_n1_m1_v1
+- reference_admission_restart_cgns_n2_n4_m2_v1
+- reference_admission_regression_v1 (aggregates actual configured MPI1/2/4 and
+  serialMMG logs/pins, without rerunning; retains original serial collector FAIL
+  and the separately verified successful postprocessing receipt)
+- REFERENCE_ADMISSION_VALIDATION.json and reference_admission_rank_phases.csv
+
+Those numerical checks completed before the following build-discovery-only
+change. The cluster MMG prefix contains include/mmg/libmmg.h and lib64/libmmg.a;
+SU2 previously searched only lib. meson.build now searches lib and lib64 for
+combined MMG and explicit SCOTCH prefixes. Required-library checks and the
+existing MMG2D/3D compile/link guard are retained. No numerical code/option change.
+mmg_lib64_discovery_v2 PASS: exact production dependency block, real static MMG
+and SCOTCH copies under lib and lib64, plus empty-MMG-archive rejection. v1 logs
+retain the missing-Ninja/collector-path failure; v2 uses the existing actual
+local Ninja and resolves the collector path. No full SU2 rebuild or cluster
+execution is claimed for this discovery patch.
+
+Cluster: pull this checkpoint on codex/native-3d-transport-accounting. Keep
+mmg_root=/home/aero/arausa/global/Libs/mmg-5.8.0/install (do not append lib64).
+The old Meson KeyError for options comes from a saved cmd_line.txt missing its
+options section: preserve that directory and setup a fresh timestamped build
+with existing compiler/MPI/additional flags and --prefix="$(pwd)" if desired.
+Build UnitTests/test_driver, then freeze a fresh prepared bundle using that build
+directory. README contains preparation/submission commands. Actual cluster
+compile/link and campaigns remain unverified; no qsub was submitted here.
+
+Goal1 remains ACTIVE. Current MPI1/2/4 and larger frozen-work/persisted-restart
+numerical gates are qualified. Remaining: repeated cluster performance and
+instrumentation overhead, n8 practical limits, full MPI wait/traffic/vendor and
+allocator calibration. No curved geometry, robust3D BL, full unsteady CFD or
+CFD affordability claim. No owned numerical/probe process remains live.
+
 ## Contention-authorized MPI correctness and cluster audit gate — 2026-10-11
 
 Working branch: codex/native-3d-transport-accounting, predecessor

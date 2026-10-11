@@ -1,0 +1,670 @@
+{
+  "status": "PASS",
+  "analyzer_sha256": "c817c33f6ede3ee360cfc3a5e9417952d7a4da6e10fbe145caad5c94f2690680",
+  "dependencies_sha256": {
+    "analyze_insertion.py": "da413800f19c4892717ef607a5868d473c61390fd8f0e427b4bed0e2edb2cd2c",
+    "analyze_donor_reuse.py": "30c5a374451da840c392f499d098fb6996d9205f92783fb3aef133e06382da67",
+    "audit_lifecycle.py": "2b56b6062d93e23d04c3eeb804f81b378f0051d071e9717ec69af635163c0f12"
+  },
+  "matrix_sha256": "e9ea52a0a02fec68b292c1a1b874a963a42584d58b8386b3abfb0233d0e24c86",
+  "regression_sha256": "fcbb72ecf3cb54245ca0b10d55b87fe5d5debacced5ecf56853e5976f53af79a",
+  "cases": [
+    {
+      "folder": "reference_admission_n4_n1_m1_v1",
+      "baseline": "reference_lookup_n4_n1_m1_v1",
+      "unchanged": {
+        "envelope_s0_initial.json": "77b792f58978c6101715e81729c63780952448c2123afed141922484289f2b34",
+        "envelope_s0.json": "5314066bcd894bd35d8d9f0280b7c2d1fbf8e26056efe938bf81bdbf0baa8d23",
+        "envelope_s1_initial.json": "46eec4ca18cfeaafe7ec52b0faf2a3a60c056c0d8c8e0039b9916675c41dd5f9",
+        "envelope_s1.json": "59ee5a79b0d0aa376541d00eb6d039e237d440f043db4f35ee70c62f49d88263",
+        "envelope_s2_initial.json": "4ca900bc6ac37306f124d303c4b48264de6db2a75471ec125196691b121d0e12",
+        "envelope_s2.json": "8871e8dfe94ad225d58d7ca2851919d70bf921212d5b9501e08a2d666469ab0e",
+        "envelope_s2_written_SU2_reload.json": "0a3a82467ccc94a1197b6d97a72e936e802bacd00991338a04b0038e8289c68c",
+        "envelope_s2_written_CGNS_reload.json": "0a3a82467ccc94a1197b6d97a72e936e802bacd00991338a04b0038e8289c68c",
+        "envelope_s0_states.json": "c84ab0e508eefd71124312881d5bfe1071ee049205dc0eca74d79b9b342c7ec4",
+        "envelope_s1_states.json": "37fca0bf09777d316209b4285b462d11983ba48b3e16c959f7c4e57b12e66690",
+        "envelope_s2_states.json": "89dcd41c4f7f961543a7c4ffb50ce854049c781bdeec94f04b6f7d87129d3f04",
+        "envelope_s2_written_SU2_reload_target.json": "8871e8dfe94ad225d58d7ca2851919d70bf921212d5b9501e08a2d666469ab0e",
+        "envelope_s2_written_CGNS_reload_target.json": "8871e8dfe94ad225d58d7ca2851919d70bf921212d5b9501e08a2d666469ab0e"
+      },
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 1.142209831,
+          "baseline_parent_max_seconds": 1.09391073,
+          "accepted_edits": 101.0,
+          "accepted_edits_per_parent_second": 88.42508377954944,
+          "parent_max_over_mean": 1.0,
+          "native_bound": 4080704.0,
+          "lifetime_rss": 30830592.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 2.569945327,
+          "baseline_parent_max_seconds": 2.404416566,
+          "accepted_edits": 71.0,
+          "accepted_edits_per_parent_second": 27.62704686907917,
+          "parent_max_over_mean": 1.0,
+          "native_bound": 4078900.0,
+          "lifetime_rss": 32514048.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 1.1179711769999998,
+          "baseline_parent_max_seconds": 1.1712250790000005,
+          "accepted_edits": 165.0,
+          "accepted_edits_per_parent_second": 147.58877813179976,
+          "parent_max_over_mean": 1.0,
+          "native_bound": 4078168.0,
+          "lifetime_rss": 32514048.0
+        }
+      ],
+      "production_members_changed": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/libSU2core.a.p/drivers_CSinglezoneDriver.cpp.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2Common.a.p/adaptation_CNativeImport3D.cpp.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2Common.a.p/adaptation_CNativeReferenceIO3D.cpp.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2Common.a.p/adaptation_CNativeRemesher3D.cpp.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundary3D.cpp.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2AccurateSum.a.p/adaptation_CNativeDistributed3D.cpp.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2AccurateSum.a.p/adaptation_CNativeDonor3D.cpp.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2AccurateSum.a.p/adaptation_CNativeEngine3D.cpp.o"
+      ],
+      "validation_sha256": "c8ff00c97f1e7daf9faa6f4b70284e0f67d5e7ff0fccc2405014f787c04cc695",
+      "audit_sha256": "415a3c633ad90e11b216dda5ad3cfe83141a54b06b2cf7f4e8de6e25ac8eb94f"
+    },
+    {
+      "folder": "reference_admission_n4_n4_m2_v1",
+      "baseline": "reference_lookup_n4_n4_m2_v1",
+      "unchanged": {
+        "envelope_s0_initial.json": "8993d68bf53d0dda5b37c172764de677c7c74c86ddee5b31a9f467d172f8f0ec",
+        "envelope_s0.json": "9a423f2a9e1039d42c8b8d9e96e3af5f2339fba2b7feb24e27d2c4b765355f80",
+        "envelope_s1_initial.json": "de6e266e1f9ad289c6f617ff836f4147132a50b44c0568bb26264edc9c6b3e85",
+        "envelope_s1.json": "ea9b4ea121eb7a3b56ecb02b8c33d2d2694b6bad234930810ba450be63d90705",
+        "envelope_s2_initial.json": "caf77ab2236919badcd2665b4d842f61ceda62cc348b24eeed95fdbbb03f9aeb",
+        "envelope_s2.json": "c4a7a02453fa0df64805a47411d94ba060adedf7ddf7def2b1f8606649018c40",
+        "envelope_s2_written_SU2_reload.json": "5c076d9b3bfb5e38a6a20d2d780e267d874a3a63dd9d1ba29dd9ffc28683b433",
+        "envelope_s2_written_CGNS_reload.json": "e84af6ef4253e5056658b2aa0ea32941f9dec3c41cf42450a741a7d1c1980b0e",
+        "envelope_s0_states.json": "40f245f63c8635b36739f9cb6ced3206347320e4c1e846e990779e725c1ba7f9",
+        "envelope_s1_states.json": "6d6ccfcdad663cd17c8e7248ed20adf6417c37ca01374c84a709351719d47b59",
+        "envelope_s2_states.json": "89edf106ca571b36cb4d17f438e4b9c0c35df5cdf23f4292a658c5b75c7091d3",
+        "envelope_s2_written_SU2_reload_target.json": "c4a7a02453fa0df64805a47411d94ba060adedf7ddf7def2b1f8606649018c40",
+        "envelope_s2_written_CGNS_reload_target.json": "e6ba87f542275941b0b712b4aeb336de68c533f68882555c0c0c824273e9302b"
+      },
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 2.304418509,
+          "baseline_parent_max_seconds": 4.178616765,
+          "accepted_edits": 101.0,
+          "accepted_edits_per_parent_second": 43.828844285680056,
+          "parent_max_over_mean": 1.0001481424985978,
+          "native_bound": 3166816.0,
+          "lifetime_rss": 30478336.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 5.344752476,
+          "baseline_parent_max_seconds": 8.702100199,
+          "accepted_edits": 71.0,
+          "accepted_edits_per_parent_second": 13.28405764697568,
+          "parent_max_over_mean": 1.0000652383337794,
+          "native_bound": 2994904.0,
+          "lifetime_rss": 31817728.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 2.209606709999999,
+          "baseline_parent_max_seconds": 3.2081810550000007,
+          "accepted_edits": 156.0,
+          "accepted_edits_per_parent_second": 70.6007993612583,
+          "parent_max_over_mean": 1.0001808952200641,
+          "native_bound": 3115636.0,
+          "lifetime_rss": 31817728.0
+        }
+      ],
+      "production_members_changed": [
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/SU2_CFD/src/libSU2core.a.p/drivers_CSinglezoneDriver.cpp.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2Common.a.p/adaptation_CNativeImport3D.cpp.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2Common.a.p/adaptation_CNativeReferenceIO3D.cpp.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2Common.a.p/adaptation_CNativeRemesher3D.cpp.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundary3D.cpp.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2AccurateSum.a.p/adaptation_CNativeDistributed3D.cpp.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2AccurateSum.a.p/adaptation_CNativeDonor3D.cpp.o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2AccurateSum.a.p/adaptation_CNativeEngine3D.cpp.o"
+      ],
+      "validation_sha256": "4a717feeab1dbf7edac9b2e3db15d8e38302bcf05173091dba56430854f26e8a",
+      "audit_sha256": "8bb84be45d247565b8522ebeddef36114ae7fe6c27e1919d054c265e264423d3"
+    }
+  ],
+  "restarts": [
+    {
+      "folder": "reference_admission_restart_su2_n2_n1_m1_v1",
+      "restart": {
+        "points": 24,
+        "maximum_state_relative_error": 3.844148161277339e-16,
+        "files": [
+          {
+            "file": "envelope_restart_00002.dat",
+            "points": 24,
+            "fields": [
+              "x",
+              "y",
+              "z",
+              "Density",
+              "Momentum_x",
+              "Momentum_y",
+              "Momentum_z",
+              "Energy"
+            ],
+            "maximum_state_relative_error": 0.0
+          },
+          {
+            "file": "envelope_restart_00001.dat",
+            "points": 24,
+            "fields": [
+              "x",
+              "y",
+              "z",
+              "Density",
+              "Momentum_x",
+              "Momentum_y",
+              "Momentum_z",
+              "Energy"
+            ],
+            "maximum_state_relative_error": 0.0
+          }
+        ],
+        "adversaries_rejected": 4,
+        "scope": "Actual two-file binary BDF2 write and real driver construction/Preprocess reload, matched by physical coordinates. Frozen sensor source is freshly constructed at the next event; no tensor-source persistence or PDE iteration claim."
+      },
+      "frames": [
+        {
+          "file": "envelope_s0_initial.json",
+          "cells": 24,
+          "points": 18,
+          "physical_faces": 32,
+          "volume": "1/2",
+          "minimum_mean_ratio": 0.6881079372649187,
+          "minimum_scaled_jacobian": 0.3572621255798903,
+          "maximum_length": 2.094543841741562,
+          "longest_edge": [
+            2,
+            10
+          ],
+          "markers": {
+            "0": 8,
+            "4": 3,
+            "1": 8,
+            "2": 8,
+            "5": 1,
+            "3": 4
+          },
+          "strict_metric_gate": false
+        },
+        {
+          "file": "envelope_s0.json",
+          "cells": 46,
+          "points": 24,
+          "physical_faces": 40,
+          "volume": "1/2",
+          "minimum_mean_ratio": 0.528522593525256,
+          "minimum_scaled_jacobian": 0.3011450046967278,
+          "maximum_length": 1.7930625852913402,
+          "longest_edge": [
+            3,
+            18
+          ],
+          "markers": {
+            "0": 8,
+            "1": 8,
+            "3": 4,
+            "2": 16,
+            "5": 1,
+            "4": 3
+          },
+          "strict_metric_gate": true
+        },
+        {
+          "file": "envelope_s1_initial.json",
+          "cells": 46,
+          "points": 24,
+          "physical_faces": 40,
+          "volume": "1/2",
+          "minimum_mean_ratio": 0.5226588404297977,
+          "minimum_scaled_jacobian": 0.2948789990425914,
+          "maximum_length": 0.9084675543763079,
+          "longest_edge": [
+            3,
+            18
+          ],
+          "markers": {
+            "0": 8,
+            "1": 8,
+            "3": 4,
+            "2": 16,
+            "5": 1,
+            "4": 3
+          },
+          "strict_metric_gate": false
+        },
+        {
+          "file": "envelope_s1.json",
+          "cells": 9,
+          "points": 10,
+          "physical_faces": 16,
+          "volume": "1/2",
+          "minimum_mean_ratio": 0.4334807410650636,
+          "minimum_scaled_jacobian": 0.20342422085754785,
+          "maximum_length": 1.7582883810790146,
+          "longest_edge": [
+            0,
+            9
+          ],
+          "markers": {
+            "3": 3,
+            "1": 4,
+            "2": 4,
+            "5": 1,
+            "4": 2,
+            "0": 2
+          },
+          "strict_metric_gate": true
+        },
+        {
+          "file": "envelope_s2_initial.json",
+          "cells": 9,
+          "points": 10,
+          "physical_faces": 16,
+          "volume": "1/2",
+          "minimum_mean_ratio": 0.4255068729386817,
+          "minimum_scaled_jacobian": 0.19557101110296773,
+          "maximum_length": 3.5100431334666973,
+          "longest_edge": [
+            0,
+            9
+          ],
+          "markers": {
+            "3": 3,
+            "1": 4,
+            "2": 4,
+            "5": 1,
+            "4": 2,
+            "0": 2
+          },
+          "strict_metric_gate": false
+        },
+        {
+          "file": "envelope_s2.json",
+          "cells": 38,
+          "points": 21,
+          "physical_faces": 36,
+          "volume": "1/2",
+          "minimum_mean_ratio": 0.46533278428755065,
+          "minimum_scaled_jacobian": 0.20628299532502756,
+          "maximum_length": 1.758717292650543,
+          "longest_edge": [
+            1,
+            11
+          ],
+          "markers": {
+            "2": 10,
+            "5": 1,
+            "0": 8,
+            "4": 5,
+            "1": 8,
+            "3": 4
+          },
+          "strict_metric_gate": true
+        },
+        {
+          "file": "envelope_s2_written_SU2_reload_target.json",
+          "cells": 38,
+          "points": 21,
+          "physical_faces": 36,
+          "volume": "1/2",
+          "minimum_mean_ratio": 0.46533278428755065,
+          "minimum_scaled_jacobian": 0.20628299532502756,
+          "maximum_length": 1.758717292650543,
+          "longest_edge": [
+            1,
+            11
+          ],
+          "markers": {
+            "2": 10,
+            "5": 1,
+            "0": 8,
+            "4": 5,
+            "1": 8,
+            "3": 4
+          },
+          "strict_metric_gate": true
+        },
+        {
+          "file": "envelope_s2_written_CGNS_reload_target.json",
+          "cells": 38,
+          "points": 21,
+          "physical_faces": 36,
+          "volume": "1/2",
+          "minimum_mean_ratio": 0.46533278428755065,
+          "minimum_scaled_jacobian": 0.20628299532502756,
+          "maximum_length": 1.758717292650543,
+          "longest_edge": [
+            1,
+            11
+          ],
+          "markers": {
+            "2": 10,
+            "5": 1,
+            "0": 8,
+            "4": 5,
+            "1": 8,
+            "3": 4
+          },
+          "strict_metric_gate": true
+        }
+      ],
+      "states": [
+        {
+          "file": "envelope_s0_states.json",
+          "maximum_state_relative_error": 3.844148161277339e-16,
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "donor_points": 18,
+          "accepted_points": 24
+        },
+        {
+          "file": "envelope_s1_states.json",
+          "maximum_state_relative_error": 3.844148161277339e-16,
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "donor_points": 24,
+          "accepted_points": 10
+        },
+        {
+          "file": "envelope_s2_states.json",
+          "maximum_state_relative_error": 1.975925294104839e-16,
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "donor_points": 10,
+          "accepted_points": 21
+        }
+      ],
+      "reload_metrics": [
+        {
+          "format": "SU2",
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "maximum_transported_tensor_physical_error": 0.0
+        },
+        {
+          "format": "CGNS",
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "maximum_transported_tensor_physical_error": 0.0
+        }
+      ],
+      "validation_sha256": "301b0a21e5de59aedf9e622deee08a7e50c0f1e90a9b666afaa81fe6779daaac"
+    },
+    {
+      "folder": "reference_admission_restart_cgns_n2_n4_m2_v1",
+      "restart": {
+        "points": 24,
+        "maximum_state_relative_error": 3.844148161277339e-16,
+        "files": [
+          {
+            "file": "envelope_restart_00002.dat",
+            "points": 24,
+            "fields": [
+              "x",
+              "y",
+              "z",
+              "Density",
+              "Momentum_x",
+              "Momentum_y",
+              "Momentum_z",
+              "Energy"
+            ],
+            "maximum_state_relative_error": 0.0
+          },
+          {
+            "file": "envelope_restart_00001.dat",
+            "points": 24,
+            "fields": [
+              "x",
+              "y",
+              "z",
+              "Density",
+              "Momentum_x",
+              "Momentum_y",
+              "Momentum_z",
+              "Energy"
+            ],
+            "maximum_state_relative_error": 0.0
+          }
+        ],
+        "adversaries_rejected": 4,
+        "scope": "Actual two-file binary BDF2 write and real driver construction/Preprocess reload, matched by physical coordinates. Frozen sensor source is freshly constructed at the next event; no tensor-source persistence or PDE iteration claim."
+      },
+      "frames": [
+        {
+          "file": "envelope_s0_initial.json",
+          "cells": 24,
+          "points": 18,
+          "physical_faces": 32,
+          "volume": "1/2",
+          "minimum_mean_ratio": 0.6881079372649187,
+          "minimum_scaled_jacobian": 0.3572621255798903,
+          "maximum_length": 2.094543841741562,
+          "longest_edge": [
+            2,
+            10
+          ],
+          "markers": {
+            "0": 8,
+            "4": 3,
+            "1": 8,
+            "2": 8,
+            "5": 1,
+            "3": 4
+          },
+          "strict_metric_gate": false
+        },
+        {
+          "file": "envelope_s0.json",
+          "cells": 46,
+          "points": 24,
+          "physical_faces": 40,
+          "volume": "1/2",
+          "minimum_mean_ratio": 0.528522593525256,
+          "minimum_scaled_jacobian": 0.3011450046967278,
+          "maximum_length": 1.7930625852913402,
+          "longest_edge": [
+            8,
+            11
+          ],
+          "markers": {
+            "2": 16,
+            "5": 1,
+            "4": 3,
+            "0": 8,
+            "1": 8,
+            "3": 4
+          },
+          "strict_metric_gate": true
+        },
+        {
+          "file": "envelope_s1_initial.json",
+          "cells": 46,
+          "points": 24,
+          "physical_faces": 40,
+          "volume": "1/2",
+          "minimum_mean_ratio": 0.5226588404297977,
+          "minimum_scaled_jacobian": 0.2948789990425914,
+          "maximum_length": 0.9084675543763079,
+          "longest_edge": [
+            8,
+            11
+          ],
+          "markers": {
+            "2": 16,
+            "4": 3,
+            "5": 1,
+            "1": 8,
+            "0": 8,
+            "3": 4
+          },
+          "strict_metric_gate": false
+        },
+        {
+          "file": "envelope_s1.json",
+          "cells": 9,
+          "points": 10,
+          "physical_faces": 16,
+          "volume": "1/2",
+          "minimum_mean_ratio": 0.4632912734032819,
+          "minimum_scaled_jacobian": 0.25838413712093844,
+          "maximum_length": 1.5418064648975187,
+          "longest_edge": [
+            0,
+            2
+          ],
+          "markers": {
+            "0": 3,
+            "3": 3,
+            "1": 3,
+            "4": 2,
+            "2": 4,
+            "5": 1
+          },
+          "strict_metric_gate": true
+        },
+        {
+          "file": "envelope_s2_initial.json",
+          "cells": 9,
+          "points": 10,
+          "physical_faces": 16,
+          "volume": "1/2",
+          "minimum_mean_ratio": 0.45796864486502864,
+          "minimum_scaled_jacobian": 0.2486340029129044,
+          "maximum_length": 3.1217282962850073,
+          "longest_edge": [
+            0,
+            2
+          ],
+          "markers": {
+            "0": 3,
+            "3": 3,
+            "1": 3,
+            "4": 2,
+            "2": 4,
+            "5": 1
+          },
+          "strict_metric_gate": false
+        },
+        {
+          "file": "envelope_s2.json",
+          "cells": 36,
+          "points": 21,
+          "physical_faces": 36,
+          "volume": "1/2",
+          "minimum_mean_ratio": 0.512731911814576,
+          "minimum_scaled_jacobian": 0.2526826043051684,
+          "maximum_length": 1.7500807171892443,
+          "longest_edge": [
+            1,
+            17
+          ],
+          "markers": {
+            "0": 10,
+            "1": 8,
+            "4": 3,
+            "2": 10,
+            "3": 4,
+            "5": 1
+          },
+          "strict_metric_gate": true
+        },
+        {
+          "file": "envelope_s2_written_SU2_reload_target.json",
+          "cells": 36,
+          "points": 21,
+          "physical_faces": 36,
+          "volume": "1/2",
+          "minimum_mean_ratio": 0.512731911814576,
+          "minimum_scaled_jacobian": 0.2526826043051684,
+          "maximum_length": 1.7500807171892443,
+          "longest_edge": [
+            1,
+            17
+          ],
+          "markers": {
+            "0": 10,
+            "1": 8,
+            "4": 3,
+            "2": 10,
+            "3": 4,
+            "5": 1
+          },
+          "strict_metric_gate": true
+        },
+        {
+          "file": "envelope_s2_written_CGNS_reload_target.json",
+          "cells": 36,
+          "points": 21,
+          "physical_faces": 36,
+          "volume": "1/2",
+          "minimum_mean_ratio": 0.512731911814576,
+          "minimum_scaled_jacobian": 0.2526826043051684,
+          "maximum_length": 1.7500807171892443,
+          "longest_edge": [
+            1,
+            17
+          ],
+          "markers": {
+            "0": 10,
+            "2": 10,
+            "4": 3,
+            "1": 8,
+            "3": 4,
+            "5": 1
+          },
+          "strict_metric_gate": true
+        }
+      ],
+      "states": [
+        {
+          "file": "envelope_s0_states.json",
+          "maximum_state_relative_error": 3.844148161277339e-16,
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "donor_points": 18,
+          "accepted_points": 24
+        },
+        {
+          "file": "envelope_s1_states.json",
+          "maximum_state_relative_error": 3.844148161277339e-16,
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "donor_points": 24,
+          "accepted_points": 10
+        },
+        {
+          "file": "envelope_s2_states.json",
+          "maximum_state_relative_error": 1.975925294104839e-16,
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "donor_points": 10,
+          "accepted_points": 21
+        }
+      ],
+      "reload_metrics": [
+        {
+          "format": "SU2",
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "maximum_transported_tensor_physical_error": 0.0
+        },
+        {
+          "format": "CGNS",
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "maximum_transported_tensor_physical_error": 0.0
+        }
+      ],
+      "validation_sha256": "527ef7ab81d8422ea3790e8f99139356c4f38c53ed60587b2dc037d2cadb8bd8"
+    }
+  ],
+  "accounting_rows": 245,
+  "csv_sha256": "25eea14d728c6aad453045d4ca16ddf10e7cfb2c25c9195d19c913db93c4d668",
+  "scope": "Field counters now export true misses/invalid/failures/evictions and retain rejected attempts; new composed-query failure controls preserve accepted state with detailOFFON. Global reference facet count replaced by conservative requested-memory admission across constructor/import/decode/restart; independent1MiB sidecar/private64cavity/256donor limits remain. Exact forward-collinear border reduction preserves oriented finite half-planes and hole/nonconvex fallback. Full configured MPI1/2/4 regression includes512-facet constructor and300-facet CFD import/reload, early/late elected budget refusal and unchanged state; two fixed-work actual n4 cases preserve26 raw mesh/source/state/SU2CGNS readbacks. Single contended diagnostics; no sustained speedup, large-mesh adaptation, exact memory calibration or fullGoal1 certificate."
+}

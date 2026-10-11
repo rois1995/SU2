@@ -320,10 +320,10 @@ endif
 if get_option('enable-mmg')
   cpp = meson.get_compiler('cpp')
   mmg_root = get_option('mmg_root')
-  mmg_deps = [cpp.find_library('mmg', dirs: [mmg_root / 'lib'], required: true)]
+  mmg_deps = [cpp.find_library('mmg', dirs: [mmg_root / 'lib', mmg_root / 'lib64'], required: true)]
 
   scotch_root = get_option('mmg_scotch_root')
-  scotch_dirs = scotch_root != '' ? [scotch_root / 'lib'] : []
+  scotch_dirs = scotch_root != '' ? [scotch_root / 'lib', scotch_root / 'lib64'] : []
   scotch_required = scotch_root != ''
   scotch_lib = cpp.find_library('scotch', dirs: scotch_dirs, required: scotch_required)
   if scotch_lib.found()
