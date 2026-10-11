@@ -1,7 +1,7 @@
 ## Spatial metric-direction envelope — 2026-10-11
 
 NativeIntegrated / codex/native-3d-core, predecessor8b64fe7dba33b62612065009981f1cae660952e1.
-Implementation/evidence publication pending. Test-only --direction1 prescribed
+Implementation/evidence checkpoint `ed79f20caf9708809722db5d0b871c71a495000f` pushed to origin/codex/native-3d-core; full remote SHA verified. Test-only --direction1 prescribed
 spatially rotating SPD tensor with azimuth45–90deg/elevation0–30deg, strength1+.125x,
 aspect1.5, scales4/1/4; freeze original sensor P1 per event. Production unchanged.
 DIRECTION_REPORT.md/VALIDATION.json qualify five actual default512 driver cases,
