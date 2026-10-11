@@ -1,5 +1,7 @@
 # Initial native3D SGE package preparation — 2026-10-11
 
+Package implementation/evidence checkpoint: `b8add069d4009706fa297a48125bcb52b65522d8`, pushed to origin/codex/native-3d-core; full remote SHA verified. This qualifies orchestration only.
+
 Repository NativeIntegrated, branch codex/native-3d-core, predecessor
 b441f55b412ff30dbd997890746c6aff62480bdf. FullGoal1 remains ACTIVE.
 

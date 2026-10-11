@@ -9,6 +9,8 @@ cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
 ## Initial native3D SGE package — 2026-10-11; orchestration checked only
 
+Package implementation/evidence checkpoint b8add069d4009706fa297a48125bcb52b65522d8 pushed to origin/codex/native-3d-core; full remote SHA verified. Numerical validation still pending.
+
 NativeIntegrated / codex/native-3d-core, predecessorb441f55b412ff30dbd997890746c6aff62480bdf.
 integration_evidence/native_cluster_3d_core_v1/README.md and PACKAGE_PREPARATION_REPORT.md describe a closed initial MPI1/2/4 correctness/lifecycle/repeated OFFON timing package. No new C++ build/mesh run/real qsub was performed; reference-admission draft still pending validation, last validated production1fafe9e83c. Nine lightweight fake-file/synthetic-timing/process/mocked-scheduler checks pass in package_checks_v3, with source/artifact pins; priorv1/v2 preserved. Actual configured Ninja dry-run finds19 pending steps and preparation_refusal_v1 proves the stale executable is refused without binary mutation/output bundle.
 
