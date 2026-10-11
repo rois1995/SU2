@@ -1,0 +1,32 @@
+{
+  "status": "PASS",
+  "branch": "codex/native-3d-transport-accounting",
+  "predecessor_sha": "5b9e453c28d42806e012aae54beda324b67c3513",
+  "owned_changes": [
+    "Common/include/adaptation/CNativeEngine3D.hpp",
+    "Common/src/adaptation/CNativeEngine3D.cpp",
+    "Common/src/adaptation/CNativeRemesher3D.cpp",
+    "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp",
+    "UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp",
+    "integration_evidence/native_3d_core_v1/audit_lifecycle.py",
+    "integration_evidence/native_cluster_3d_core_v1/check_package.py",
+    "integration_evidence/native_cluster_3d_core_v1/README.md",
+    "HANDOFF_Codex.md",
+    "MESH_ADAPTATION_FINDINGS.md"
+  ],
+  "python38_files": [
+    "integration_evidence/native_3d_core_v1/audit_lifecycle.py",
+    "integration_evidence/native_cluster_3d_core_v1/check_package.py",
+    "integration_evidence/native_3d_core_v1/termination_build_v1/runner.py",
+    "integration_evidence/native_3d_core_v1/termination_mpi1_v1/runner.py",
+    "integration_evidence/native_3d_core_v1/termination_mpi2_v1/runner.py",
+    "integration_evidence/native_3d_core_v1/termination_mpi4_v1/runner.py",
+    "integration_evidence/native_3d_core_v1/termination_lifecycle_mpi1_v1/runner.py",
+    "integration_evidence/native_3d_core_v1/transport_limit_n8_n1_m1_v1/runner.py",
+    "integration_evidence/native_3d_core_v1/transport_limit_n8_n1_m1_v2/runner.py",
+    "integration_evidence/native_3d_core_v1/termination_limit_review_v1/review.py"
+  ],
+  "evidence_files": 429,
+  "evidence_bytes": 8497550,
+  "scope": "Scoped whitespace, exact 26-line additive native3D-only production/test diff, Python3.8 AST, bounded regular evidence without binaries/external links. No new adaptation acceptance or timing claim."
+}

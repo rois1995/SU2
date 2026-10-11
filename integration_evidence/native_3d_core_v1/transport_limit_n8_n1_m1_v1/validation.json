@@ -1,0 +1,103 @@
+{
+  "status": "FAIL",
+  "reason": "case failed; original logs retained.",
+  "stages": [
+    {
+      "command": [
+        "uptime"
+      ],
+      "label": "host_load",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/transport_limit_n8_n1_m1_v1",
+      "exit_code": 0,
+      "seconds": 0.0062684479635208845
+    },
+    {
+      "command": [
+        "free",
+        "-m"
+      ],
+      "label": "host_memory",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/transport_limit_n8_n1_m1_v1",
+      "exit_code": 0,
+      "seconds": 0.006367872992996126
+    },
+    {
+      "command": [
+        "ps",
+        "-eo",
+        "pid,ppid,ni,pcpu,comm",
+        "--sort=-pcpu"
+      ],
+      "label": "host_processes",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/transport_limit_n8_n1_m1_v1",
+      "exit_code": 0,
+      "seconds": 0.01857256196672097
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "7",
+        "nice",
+        "-n",
+        "19",
+        "mpirun",
+        "--oversubscribe",
+        "--bind-to",
+        "none",
+        "-np",
+        "1",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+        "[NativeEnvelope3D]",
+        "--use-colour",
+        "no"
+      ],
+      "label": "case",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/transport_limit_n8_n1_m1_v1",
+      "exit_code": 1,
+      "seconds": 17.113289927016012
+    }
+  ],
+  "binary_sha256": "9290ba83549ac3e1c86792443f27fab0ef2aefe9bfcd057494a4b069636e2a61",
+  "build_validation_sha256": "f727193adb0f44a9783931b2246b23b94477d20e42bf7295536e5a6a865ddb02",
+  "source_drift": [],
+  "object_drift": [],
+  "archive_drift": [],
+  "tool_drift": [],
+  "tools_sha256": {
+    "audit_envelope.py": "601f82a12c2eb04778484ec647c4590e92fb5b6d7f0092a2f7b4941bbb01cc0c",
+    "audit_geometry_bridge.py": "d8d5e8a18a0fce8f54f8407e9f0027dcea12d90bf64c5ab20c4dedb7194430e2",
+    "audit_lifecycle.py": "2b56b6062d93e23d04c3eeb804f81b378f0051d071e9717ec69af635163c0f12",
+    "audit_coupled.py": "67a12c5c39c6c3e021473f49c1f14301f037d7883268b98d7afc9edc2b00f63b",
+    "audit_cavities.py": "26079385c071c3ad1b9c06ab3b862b4ff293367dc3c8d291acf0487089d062c5",
+    "audit_restart.py": "cfee19e22d2b27e77836a5949181d5f4779289f77a0053ef4addc4445bd2ad69",
+    "export_envelope_vtu.py": "2d606bd453882c7f395233c568d70fbdab1499b3576571b92e49194a70795ed3"
+  },
+  "package_tools_sha256": {
+    "run.py": "59ecdb9f53dacea6d1bf600e95a9908a82cb5c01bfa3f54ac8a3b2a708ac3546",
+    "mpi_profile.py": "11e46f3d01289c1d050221d5264cf00a62e4da29385705a4ca7bff003ee9651b",
+    "profile_summary.py": "d56de9a2a50451f98b624359a71423a9112e509f900928a787dbd8227f52e0af"
+  },
+  "source_boundary_sha256": "ee74062e084f2a4f060e88818438b08e6f4d24ea5937e41310aa5e2a71c376b6",
+  "scope": "Actual previously qualified full68-object binary; frozen n8 wedge N1M1 pilot, rotated spatial original-P1 metric, three refine/coarsen/refine events, q>=.20 J>=.05 L<=1.8 rounds512 noise0. Independent exact geometry/markers/metric/current+BDF/SU2CGNS audits. One-CPU contended correctness only; no sustained speedup/scaling/allocator calibration or full Goal1 certificate. No rebuild after the documented MMG lib64 discovery-only source change.",
+  "artifact_sha256": {
+    "host_processes.stdout": "93cc1b7ef93d166cf78a83ebaf1ae9530fcecdc0613b30c6547d9c032cf43eec",
+    "build_discovery_only.diff": "a9a4e84498c1df6b40a129033add0990c767971f3292881623c5cb19a92c4d4c",
+    "host_load.stdout": "8b7848907d38d268bba62e4e1d007ebcbe34fc24c9de48976c3ae1843f8d81c8",
+    "case_environment.json": "0ff4a535a52443081c3cd135dbcd42ede49835c057f686c6110fc6a6afb00b23",
+    "host_memory.stdout": "07323b282fe9ce8d9d850b21d9e0f0703302e4249ef36b9d06dfa58ccc3da22f",
+    "parameters.json": "7dd63250338e9664ea38b250bd0cd678c543bffd5f9d5b32e80aa5836eaf866d",
+    "case.stdout": "a211e3b880c24c9053aff26fe6d69aa9ba6c27b8332f09d74bbbbe990a1ff5fc",
+    "envelope.cfg": "66ae8092c3347485c4e11bfd56f721a41150210bc8dac4b924ca56e192cfe18b",
+    "host_load.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host_gate.json": "9923bf7a74e4d265f5024fba5ff42ff177348895625121dbaf47e4498d78e5a5",
+    "case.stderr": "25807d06fd4d1009b449a03585af14ad8ddad6dc93ee88488f928bd6032a5555",
+    "envelope_s0_initial.json": "8363150d7aed7f28d362e23fc9471b858818a200d2f857766afc6dbef2767c3d",
+    "host_processes.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_boundary.json": "ee74062e084f2a4f060e88818438b08e6f4d24ea5937e41310aa5e2a71c376b6",
+    "runner.py": "adf4f761e22576fa2a9d299fbea1a5f8208292d2b82688e0f4f44da8b8a2663e",
+    "envelope_input.su2": "a7d44056cfc6dcaecfb0927783bd57d3df9efaf44caeb24d22edcf92dca5cdb7",
+    "envelope_history.csv": "89d6ac0e0c2f46370e44a3f111a8511db608b660f50097096b83d5b19a54554c",
+    "host_memory.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

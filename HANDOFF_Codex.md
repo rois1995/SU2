@@ -1,5 +1,65 @@
 # Current handoff — 2026-10-11
 
+## Termination diagnostics and first n8 size limit — 2026-10-11
+
+Working repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
+Branch: codex/native-3d-transport-accounting; predecessor
+5b9e453c28d42806e012aae54beda324b67c3513. Core remains
+6b3fefd039bfc3d1937b8add7d21d0ea41344bc9; AdapNoExt is untouched.
+
+Five constant-cost local counters now distinguish cached invalid cells from
+unfinished candidate work on every engine exit. They are emitted in existing
+NATIVE3D_DETAIL rows. No operator, guard, target, budget or queue policy changed;
+no production loop/collective was added. C++ tests and the independent lifecycle
+parser cover successful/rejected exits and corrupted counters. Historical rows
+without these fields remain readable but provide no termination-state evidence.
+
+Actual full68-object/774-member configured MPI/MMG/CGNS build PASS:
+termination_build_v1, binary SHA256
+29b583f1bdd17a54051c0c66f997683b7f20f3c410042dfb5402b640bfe34a76.
+termination_mpi1_v1, termination_mpi2_v1 and termination_mpi4_v1 each PASS69 cases
+per rank. Independent bridge audits PASS12/24/48 frames,6/12/24 current+BDF state
+pairs and6/12/24 actual SU2/CGNS output/readback checks. Serial MMG2D/3D PASS48
+assertions/two cases. package_checks_v19 PASS30 lightweight parser/mocked tests,
+Python3.8 AST and Bash syntax. All source/object/archive/tool pins remain stable.
+termination_lifecycle_mpi1_v1 also PASS: six actual metric/Hessian OFF/ON
+controls remesh/replace geometry/solver/BDF and write meshes. Its independent
+audit checks six successful engine rows with all new counters. Larger accepted
+restart and MPI2/4 lifecycle evidence remain from the preceding checkpoint.
+
+First n8 wedge N1M1 practical-limit pilot and diagnostic rerun both FAIL in
+cycle0. Input405 vertices/1536 tetrahedra/512 boundary triangles; frozen targets
+64/16/64, aspect1.5/spatial variation0.125, q>=0.20/J>=0.05/L<=1.8,512 rounds and
+noise0 unchanged. Refinement457 accepted edits ->3552 private tetrahedra.
+Coarsening512 attempts/272 accepted/240 rejected ->2489 private tetrahedra,
+2489 cached measurements, zero cached invalid cells,91 queued candidates and
+zero pending repairs. Last obstruction: edge642,297, cell74251. The queue is
+required to be empty for completion, so the whole event rejects at the budget.
+C++ current/BDF/reference/no-callback preservation checks pass before the single
+failing COMPLETE assertion. No independent accepted-mesh audit/later cycle ran,
+and no rejected private mesh was exported. Cached validity is not certification.
+
+Preserved original FAIL folders transport_limit_n8_n1_m1_v1/v2 and PASS diagnostic
+review termination_limit_review_v1 under integration_evidence/native_3d_core_v1.
+The review checks receipts/hashes, identical input/config/source fields and 160
+equal integer work/communication counters. Input envelope_input.su2 and
+envelope_s0_initial.json are inspectable. Do not soften guards or increase rounds
+to relabel these campaigns. Next: bounded/scalable coarsening completion and
+blocked-proposal handling, followed by independent workload validation.
+
+Cluster MMG lib64 discovery now works in the supplied log. Its static archive
+needs SCOTCH from /global-scratch/bulk_pool/aero/utils_gcc10/SCOTCH_INSTALL;
+README now includes mmg_scotch_root and runtime lib64. Cluster SU2 compile/link
+and campaigns remain unverified; no qsub was submitted. User quota output shows
+47.94GiB free, while shared aero flash-pool headroom is only about133MiB;
+a transient group exceedance plus enforcement refresh is a plausible explanation,
+not a confirmed Meson-caused quota incident.
+
+Goal1 remains ACTIVE. Repeated cluster performance/instrumentation overhead,
+larger accepted envelope, full MPI wait/traffic/vendor/allocator calibration
+remain open. Sequential one-CPU nice19/thread1 checks are correctness evidence,
+not sustained speedup/scaling/affordability. No owned numerical/build job is live.
+
 ## Larger frozen-work/restart qualification and MMG lib64 fix — 2026-10-11
 
 Working repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.

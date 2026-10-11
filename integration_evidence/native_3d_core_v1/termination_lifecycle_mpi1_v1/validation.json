@@ -1,0 +1,139 @@
+{
+  "status": "PASS",
+  "reason": "",
+  "stages": [
+    {
+      "command": [
+        "uptime"
+      ],
+      "label": "host_load",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/termination_lifecycle_mpi1_v1",
+      "exit_code": 0,
+      "seconds": 0.00759332999587059
+    },
+    {
+      "command": [
+        "free",
+        "-m"
+      ],
+      "label": "host_memory",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/termination_lifecycle_mpi1_v1",
+      "exit_code": 0,
+      "seconds": 0.012980289990082383
+    },
+    {
+      "command": [
+        "ps",
+        "-eo",
+        "pid,ppid,ni,pcpu,comm",
+        "--sort=-pcpu"
+      ],
+      "label": "host_processes",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/termination_lifecycle_mpi1_v1",
+      "exit_code": 0,
+      "seconds": 0.025261882052291185
+    },
+    {
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "mpirun",
+        "--bind-to",
+        "none",
+        "-np",
+        "1",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+        "[NativeLifecycle3D]",
+        "--use-colour",
+        "no"
+      ],
+      "label": "case",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/termination_lifecycle_mpi1_v1",
+      "exit_code": 0,
+      "seconds": 0.9246299230144359
+    },
+    {
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_lifecycle.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/termination_lifecycle_mpi1_v1",
+        "1",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/termination_lifecycle_mpi1_v1/case.stdout"
+      ],
+      "label": "independent_lifecycle",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/termination_lifecycle_mpi1_v1",
+      "exit_code": 0,
+      "seconds": 1.8326194439432584
+    }
+  ],
+  "binary_sha256": "29b583f1bdd17a54051c0c66f997683b7f20f3c410042dfb5402b640bfe34a76",
+  "build_validation_sha256": "86df0c460b80d5630690c50d3e5561a8195e717495f5256ea63686f1377985ca",
+  "source_drift": [],
+  "object_drift": [],
+  "archive_drift": [],
+  "tool_drift": [],
+  "tools_sha256": {
+    "audit_lifecycle.py": "3edbaf78ccfda1234f2ee9d184b5110cc87a6c8fed1f04ac1226109e6f1049ee",
+    "audit_geometry_bridge.py": "d8d5e8a18a0fce8f54f8407e9f0027dcea12d90bf64c5ab20c4dedb7194430e2",
+    "audit_coupled.py": "67a12c5c39c6c3e021473f49c1f14301f037d7883268b98d7afc9edc2b00f63b",
+    "audit_cavities.py": "26079385c071c3ad1b9c06ab3b862b4ff293367dc3c8d291acf0487089d062c5"
+  },
+  "profile_summary_sha256": "d56de9a2a50451f98b624359a71423a9112e509f900928a787dbd8227f52e0af",
+  "scope": "One MPI rank, existing forced-size faceted lifecycle fixture: six fresh OFF/ON controls use actual metric/Hessian construction, weighted native remesh and CFD geometry/solver/BDF replacement, mesh output and independent audits. Validates the new complete termination counters on six successful engine rows, serialized wrapper totals and closed wall/CPU/rank/query profiles. Contended correctness only: repetitions are built into the fixture and do not certify local timing/scaling/affordability, MPI2/4, n4/persisted restart or fullGoal1.",
+  "artifact_sha256": {
+    "host_processes.stdout": "f4cbd402c08f58bc21b57c7d841940d626b5851ce67400ff906febbedcef2152",
+    "lifecycle_m1_d1_r1_mesh_00001.su2": "036e5747fe0448e0ae7ca8843d7af21f05aa087d07afe62285dc15e0db122a26",
+    "lifecycle_m1_d0_r1_history.csv": "89d6ac0e0c2f46370e44a3f111a8511db608b660f50097096b83d5b19a54554c",
+    "independent_lifecycle.stdout": "ba74bcff65242953bc87c71fce47a3305c73f5fced46be6f9691a3a4c5c9d44d",
+    "lifecycle_m1_d1_r0_history.csv": "89d6ac0e0c2f46370e44a3f111a8511db608b660f50097096b83d5b19a54554c",
+    "lifecycle_m1_d0_r0.json": "4f60a2ac91d7d1c952a56fd622ec2c8d8b481d16212c63b167cd3192a50c09e7",
+    "lifecycle_m1_d0_r2.cfg": "3b4a7e8af662dadf7ea8c4717f424d86ff216b9bf0cd353a7e4dcbce9cd74d09",
+    "lifecycle_m1_d1_r0.su2": "670aece322f5b9c1741f5a802b1aea0437b08f631311a336065b2543c9e3e86e",
+    "lifecycle_m1_d0_r0.su2": "670aece322f5b9c1741f5a802b1aea0437b08f631311a336065b2543c9e3e86e",
+    "lifecycle_m1_d0_r2.json": "4f60a2ac91d7d1c952a56fd622ec2c8d8b481d16212c63b167cd3192a50c09e7",
+    "lifecycle_m1_d1_r2.cfg": "b913eacddb42c4a83f1786f9a1b6c812f7074d9416515af8b5b4bf96e611dfff",
+    "lifecycle_audit.json": "28a4f0f39ba6ee2ae35bccf7c90cc0b2c05749ef24333877acbe4d036bab4d94",
+    "lifecycle_m1_d1_r0_mesh_00001.su2.native_ref": "cd48010598c1c1e3617aa75767c8dff8a14236092fc5cc097be8e5de211e7806",
+    "lifecycle_m1_d0_r2_history.csv": "89d6ac0e0c2f46370e44a3f111a8511db608b660f50097096b83d5b19a54554c",
+    "lifecycle_m1_d0_r0_mesh_00001.su2.native_ref": "cd48010598c1c1e3617aa75767c8dff8a14236092fc5cc097be8e5de211e7806",
+    "host_load.stdout": "57e5f061dac04db432b28f47934feb6ef3331bf0773529b26720c2b2f20ceb91",
+    "lifecycle_m1_d0_r2.su2": "670aece322f5b9c1741f5a802b1aea0437b08f631311a336065b2543c9e3e86e",
+    "lifecycle_m1_d0_r1_mesh_00001.su2.native_ref": "cd48010598c1c1e3617aa75767c8dff8a14236092fc5cc097be8e5de211e7806",
+    "host_memory.stdout": "f7f838bb30966302f0f1aefa029334b34d0bb775d2c935e8e9e9559d387faee4",
+    "lifecycle_m1_d0_r2_mesh_00001.su2": "036e5747fe0448e0ae7ca8843d7af21f05aa087d07afe62285dc15e0db122a26",
+    "lifecycle_m1_d1_r2_mesh_00001.su2": "036e5747fe0448e0ae7ca8843d7af21f05aa087d07afe62285dc15e0db122a26",
+    "lifecycle_m1_d1_r1_mesh_00001.su2.native_ref": "cd48010598c1c1e3617aa75767c8dff8a14236092fc5cc097be8e5de211e7806",
+    "case.stdout": "3622e45de2fc9b73c15df6324ac7141f82e415ff8025ede2db515a6d78bd7c50",
+    "host_load.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host_gate.json": "2d748009079ca91e5127c7932e7e301f3812d986e690f718a6c012f11917020d",
+    "independent_lifecycle.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "case.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host_processes.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lifecycle_m1_d1_r1.json": "4f60a2ac91d7d1c952a56fd622ec2c8d8b481d16212c63b167cd3192a50c09e7",
+    "lifecycle_m1_d0_r0_mesh_00001.su2": "036e5747fe0448e0ae7ca8843d7af21f05aa087d07afe62285dc15e0db122a26",
+    "lifecycle_m1_d1_r2_mesh_00001.su2.native_ref": "cd48010598c1c1e3617aa75767c8dff8a14236092fc5cc097be8e5de211e7806",
+    "lifecycle_m1_d0_r1.su2": "670aece322f5b9c1741f5a802b1aea0437b08f631311a336065b2543c9e3e86e",
+    "lifecycle_m1_d0_r2_mesh_00001.su2.native_ref": "cd48010598c1c1e3617aa75767c8dff8a14236092fc5cc097be8e5de211e7806",
+    "lifecycle_m1_d1_r2.su2": "670aece322f5b9c1741f5a802b1aea0437b08f631311a336065b2543c9e3e86e",
+    "lifecycle_m1_d1_r0_mesh_00001.su2": "036e5747fe0448e0ae7ca8843d7af21f05aa087d07afe62285dc15e0db122a26",
+    "lifecycle_m1_d1_r2.json": "4f60a2ac91d7d1c952a56fd622ec2c8d8b481d16212c63b167cd3192a50c09e7",
+    "runner.py": "401b8443efaaf724458c5d6e1836b8124595ddae3d6fe0b48713e29887b53f9b",
+    "lifecycle_m1_d0_r1_mesh_00001.su2": "036e5747fe0448e0ae7ca8843d7af21f05aa087d07afe62285dc15e0db122a26",
+    "lifecycle_m1_d1_r2_history.csv": "89d6ac0e0c2f46370e44a3f111a8511db608b660f50097096b83d5b19a54554c",
+    "lifecycle_m1_d0_r0.cfg": "32eaa9251c927814c534acd59187370f335b8751f662787e5b064ac5c470f5d9",
+    "lifecycle_m1_d1_r1_history.csv": "89d6ac0e0c2f46370e44a3f111a8511db608b660f50097096b83d5b19a54554c",
+    "lifecycle_m1_d0_r0_history.csv": "89d6ac0e0c2f46370e44a3f111a8511db608b660f50097096b83d5b19a54554c",
+    "lifecycle_m1_d1_r1.cfg": "b781b9b13edb9dc6750218113b6acb03752b0cb62b35bc0d316e20a9721b3784",
+    "lifecycle_m1_d0_r1.json": "4f60a2ac91d7d1c952a56fd622ec2c8d8b481d16212c63b167cd3192a50c09e7",
+    "rank_profiles.json": "04693d55544c6aa9ea1831e8efe1d6c8d25db74f36223a6d19ea2e3951a9d229",
+    "lifecycle_m1_d1_r0.json": "4f60a2ac91d7d1c952a56fd622ec2c8d8b481d16212c63b167cd3192a50c09e7",
+    "lifecycle_m1_d1_r1.su2": "670aece322f5b9c1741f5a802b1aea0437b08f631311a336065b2543c9e3e86e",
+    "lifecycle_m1_d1_r0.cfg": "4e491a097d6d0d3c2a455dda80c489a4b488c3d45b4ce63febf70809f80ee15a",
+    "host_memory.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lifecycle_m1_d0_r1.cfg": "6950e845c273db8d99410c73b52e2e7399e90f2af29f68486b42c72e549c9e83"
+  }
+}

@@ -6,6 +6,21 @@ import run,restore,submit,prepare,analyze,profile_summary,mpi_profile
 from types import SimpleNamespace
 
 class PackageChecks(unittest.TestCase):
+    def test_termination_counters_distinguish_pending_queue_from_cached_violations(self):
+        from audit_lifecycle import termination_counters
+        self.assertFalse(termination_counters(dict(complete=1)))
+        row=dict(complete=0,final_owned_cells=1536,cached_measured_cells=1536,
+                 cached_invalid_cells=0,remaining_edges=500,remaining_repairs=0)
+        self.assertTrue(termination_counters(row))
+        self.assertTrue(termination_counters(dict(row,cached_measured_cells=100)))
+        complete=dict(row,complete=1,remaining_edges=0)
+        self.assertTrue(termination_counters(complete))
+        bad=dict(row);del bad['remaining_repairs']
+        for corrupted in (bad,dict(row,remaining_edges=-1),dict(row,remaining_edges=.5),
+                          dict(row,cached_invalid_cells=1537),dict(row,remaining_repairs=float('nan')),
+                          dict(complete,cached_invalid_cells=1),dict(complete,cached_measured_cells=1535),
+                          dict(complete,remaining_edges=1),dict(complete,remaining_repairs=1)):
+            with self.assertRaises(AssertionError):termination_counters(corrupted)
     def native(self,ranks,workers,detail=1):
         return [dict(rank=r,ranks=ranks,workers=workers,complete=1,detailed=detail,total=1,other=0,
                      cpu=.5,idle_cpu=0,**{k:float(k=='refine') for k in profile_summary.NATIVE},

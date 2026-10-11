@@ -256,6 +256,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   };
   std::string last_rejection;
   auto finish=[&]() {
+    stats.final_owned_cells=working.size();
+    stats.cached_measured_cells=selection.cells.size();
+    stats.cached_invalid_cells=selection.invalid;
+    stats.remaining_edges=selection.queue.size();
+    stats.remaining_repairs=selection.repair_queue.size();
     stats.tracked_bytes=world.bytes_sent-tracked_bytes_begin;
     stats.tracked_calls=world.collective_calls-tracked_calls_begin;
     stats.tracked_collective_seconds=world.collective_seconds-tracked_seconds_begin;

@@ -1314,6 +1314,10 @@ TEST_CASE("Native MPI admissible coarsening prunes exact immutable-facet counter
   EngineOptions options;options.timings=true;
   const auto result=Coarsen(world,input,original,reference,{},options);
   CHECK(result.valid);CHECK(result.reason.empty());CHECK(result.stats.rounds==0);
+  CHECK(result.stats.final_owned_cells==result.cells.size());
+  CHECK(result.stats.cached_measured_cells==result.cells.size());
+  CHECK(result.stats.cached_invalid_cells==0);
+  CHECK(result.stats.remaining_edges==0);CHECK(result.stats.remaining_repairs==0);
   CHECK(world.sum(int(result.stats.collapse_filtered))>0);
   CHECK(world.sum(int(result.stats.collapse_geometry_checks))>0);
   CHECK(result.stats.collapse_geometry_seconds>=0);CHECK(result.stats.other_seconds>=-1e-12);
@@ -1322,6 +1326,9 @@ TEST_CASE("Native MPI admissible coarsening prunes exact immutable-facet counter
   options.maximum_rounds=1;
   const auto rejected=Coarsen(world,input,Uniform(input,Tensor{16,0,0,16,0,16}),reference,{},options);
   CHECK_FALSE(rejected.valid);CHECK(rejected.stats.collapse_filtered==0);
+  CHECK(rejected.stats.final_owned_cells==rejected.cells.size());
+  CHECK(rejected.stats.cached_measured_cells==rejected.cells.size());
+  CHECK(world.sum(int(rejected.stats.cached_invalid_cells))>0);
   if (rejected.stats.attempted) CHECK(rejected.reason.find(": Native 3D movement proposal leaves an incident immutable facet.")!=std::string::npos);
   CHECK(Bytes(input)==saved);CHECK(rejected.stats.other_seconds>=-1e-12);
 }

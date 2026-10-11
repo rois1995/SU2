@@ -35,6 +35,14 @@ void CheckTransport(const RemeshStats& s) {
   CHECK(s.worker_transport_seconds == Approx(s.refine.tracked_collective_seconds + s.coarsen.tracked_collective_seconds).margin(1e-12));
   CHECK(s.parent_transport_bytes >= s.weights.tracked_bytes + s.returned.tracked_bytes);
   CHECK(s.parent_transport_calls >= s.weights.tracked_calls + s.returned.tracked_calls);
+  for (const auto* engine : {&s.refine, &s.coarsen}) {
+    CHECK(engine->cached_invalid_cells <= engine->cached_measured_cells);
+    if (s.complete) {
+      CHECK(engine->cached_invalid_cells == 0);
+      CHECK(engine->cached_measured_cells == engine->final_owned_cells);
+      CHECK(engine->remaining_edges == 0);
+    }
+  }
   CHECK(s.imported.tracked_calls > 0);
   CHECK(s.communication_calls > 0);
 }

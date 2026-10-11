@@ -57,9 +57,20 @@ def transport_counters(row):
   assert int(row[elections[0]])==row[elections[0]]
  return True
 
+def termination_counters(row):
+ keys=('final_owned_cells','cached_measured_cells','cached_invalid_cells','remaining_edges','remaining_repairs')
+ if not set(row)&set(keys):return False  # Historical records contain no termination-state evidence.
+ assert all(k in row for k in keys),'Incomplete native3D termination counters'
+ assert all(math.isfinite(row[k]) and row[k]>=0 and int(row[k])==row[k] for k in keys)
+ assert row['cached_invalid_cells']<=row['cached_measured_cells']
+ if row['complete']:
+  assert row['cached_invalid_cells']==0 and row['cached_measured_cells']==row['final_owned_cells']
+  assert row['remaining_edges']==0 and row['remaining_repairs']==0
+ return True
+
 def nested_stage(row):
  transport_counters(row)
- if row['stage'] in ('refine','coarsen'):closes(row,ENGINE);field_counters(row)
+ if row['stage'] in ('refine','coarsen'):closes(row,ENGINE);field_counters(row);termination_counters(row)
  elif row['stage'] in ('import','weights','return'):closes(row,('points','cells','faces','source','query','reader'));field_counters(row)
  elif row['stage']=='partition':closes(row,('graph','parmetis','migration'))
  else:assert row['stage']=='source'

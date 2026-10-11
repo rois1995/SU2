@@ -1,0 +1,30 @@
+{
+  "status": "PASS",
+  "command": [
+    "taskset",
+    "-c",
+    "7",
+    "nice",
+    "-n",
+    "19",
+    "python3",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_core_v1/check_package.py"
+  ],
+  "exit_code": 0,
+  "seconds": 1.7258368650218472,
+  "bash_exit_code": 0,
+  "source_sha256": {
+    "integration_evidence/native_3d_core_v1/audit_lifecycle.py": "3edbaf78ccfda1234f2ee9d184b5110cc87a6c8fed1f04ac1226109e6f1049ee",
+    "integration_evidence/native_cluster_3d_core_v1/check_package.py": "57a9ec9be2ff873e212e7886c5ed699d4327bb590a6ba61afc9a265e8fa50a2d",
+    "integration_evidence/native_cluster_3d_core_v1/run.py": "59ecdb9f53dacea6d1bf600e95a9908a82cb5c01bfa3f54ac8a3b2a708ac3546",
+    "integration_evidence/native_cluster_3d_core_v1/profile_summary.py": "d56de9a2a50451f98b624359a71423a9112e509f900928a787dbd8227f52e0af",
+    "integration_evidence/native_cluster_3d_core_v1/prepare.py": "2d1b953f35453fd7eedf6090df36886109f585e83853dbdcb91a4a6e333580db"
+  },
+  "scope": "Python3.8 AST, 30 lightweight mocked/parser tests including new termination-state corruption controls, Bash syntax; no additional solver/MPI/qsub or timing claim.",
+  "artifact_sha256": {
+    "bash.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "checks.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "checks.stderr": "7ec4543fa541736542ba78abbb822570439d0316e68f8287877638558a787daf",
+    "bash.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

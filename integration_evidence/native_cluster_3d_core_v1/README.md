@@ -6,8 +6,9 @@ and instrumentation-overhead package. Larger sizes/ranks, full traffic/wait and
 allocator calibration remain Goal1 work. The current reference-admission/query/transport-accounting code builds and passes the serial
 69-case native/reference/2D+3Dbridge suite and serialMMG checks. The 69-case
 selection and independent bridge audit now pass on MPI1/2/4. The n4 frozen-work N1M1/N4M2 and persisted SU2/CGNS restart checks also pass locally.
-Repeated cluster performance and n8 limits remain pending; package self-checks
-are separate from numerical checks.
+Repeated cluster performance remains pending. The first local n8 N1M1 pilot
+now rejects at the fixed coarsening attempt budget; see the practical-limit
+section below. Package self-checks are separate from numerical checks.
 Do not treat preparation or submission as a numerical PASS.
 
 Use the cluster's existing GCC/MPI/MMG/CGNS build environment on the login host.
@@ -21,16 +22,23 @@ executables alone are insufficient. The cluster prefix has lib64/libmmg.a, so
 retain the prefix above rather than appending lib64 to mmg_root. For a shared
 installation include its actual library directory in LD_LIBRARY_PATH before
 submission; LD_LIBRARY_PATH does not repair static-library discovery.
-If MMG was linked against a separately installed SCOTCH, retain/add that prefix
-with -Dmmg_scotch_root and its shared-library search path too.
+The cluster static MMG archive references SCOTCH. The user confirmed the working
+MMG executable loads libscotch.so.7.0 and libscotcherrexit.so.7.0 from
+/global-scratch/bulk_pool/aero/utils_gcc10/SCOTCH_INSTALL/lib64. Supply the
+SCOTCH_INSTALL prefix with -Dmmg_scotch_root and retain lib64 in LD_LIBRARY_PATH
+on the login and compute nodes. This path observation does not itself verify
+the SU2 cluster compile/link or runtime. For another installation, substitute
+the SCOTCH prefix used to build its MMG library.
 
 Build the complete normal-mode test driver with MPI, MMG, CGNS and tests enabled:
 
 ```sh
 NATIVE3D_MMG_ROOT=/home/aero/arausa/global/Libs/mmg-5.8.0/install
-export LD_LIBRARY_PATH="$NATIVE3D_MMG_ROOT/lib:$NATIVE3D_MMG_ROOT/lib64:${LD_LIBRARY_PATH:-}"
+NATIVE3D_SCOTCH_ROOT=/global-scratch/bulk_pool/aero/utils_gcc10/SCOTCH_INSTALL
+export LD_LIBRARY_PATH="$NATIVE3D_SCOTCH_ROOT/lib64:$NATIVE3D_MMG_ROOT/lib64:$NATIVE3D_MMG_ROOT/lib:${LD_LIBRARY_PATH:-}"
 ./meson.py configure build-native -Denable-tests=true -Denable-normal=true \
-  -Denable-mmg=true -Denable-cgns=true -Dwith-mpi=enabled -Dmmg_root="$NATIVE3D_MMG_ROOT"
+  -Denable-mmg=true -Denable-cgns=true -Dwith-mpi=enabled \
+  -Dmmg_root="$NATIVE3D_MMG_ROOT" -Dmmg_scotch_root="$NATIVE3D_SCOTCH_ROOT"
 ninja -C build-native -j2 UnitTests/test_driver
 PYTHONDONTWRITEBYTECODE=1 python3 integration_evidence/native_cluster_3d_core_v1/prepare.py \
   --build-dir build-native --output integration_evidence/native_cluster_3d_core_v1/prepared_v1
@@ -119,6 +127,19 @@ stopping at the first test/audit failure. The initial mesh has405 vertices,
 Dyadic coordinates keep the planar marker junction representable. The unchanged
 target sequence is64/16/64, aspect1.5 with spatial rotation and variation0.125;
 quality0.20, sliver0.05, length1.8,512 rounds and noise0 remain fixed.
+
+The local n8 N1M1 pilot and diagnostic rerun reject in cycle0: refinement uses
+457 accepted edits, then coarsening reaches512 attempts (272 accepted/240
+rejected) with91 candidates still queued. The private cache covers2489 cells
+and records zero invalid cells, but completion requires the queue to be empty.
+Evidence: integration_evidence/native_3d_core_v1/termination_limit_review_v1;
+original FAIL folders transport_limit_n8_n1_m1_v1/v2 retain input grids/logs.
+No accepted/rejected private grid or later cycle is available. The --limits job
+will stop at this first case if the failure reproduces on the cluster.
+New detailed engine rows report final_owned_cells, cached_measured_cells,
+cached_invalid_cells, remaining_edges and remaining_repairs. These are local
+termination diagnostics, not an independent mesh audit. Older logs without them
+remain readable but cannot certify termination state. Acceptance is unchanged.
 
 These are single practical-limit pilots, not repeated timing comparisons.
 `analyze.py` reports per-event parent elapsed time, useful accepted work, imbalance,
