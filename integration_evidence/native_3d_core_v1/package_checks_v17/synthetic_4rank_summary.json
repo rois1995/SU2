@@ -1,0 +1,69 @@
+{
+  "scope": "Synthetic offline parser control only; no actual MPI/profiler/remesher measurement",
+  "summary": {
+    "per_rank": [
+      {
+        "rank": 0,
+        "application_seconds": 10.0,
+        "mpi_seconds": 1.0,
+        "observed_api_calls": 100,
+        "estimated_api_seconds": 1.0,
+        "printed_time_error": 0.0005
+      },
+      {
+        "rank": 1,
+        "application_seconds": 10.0,
+        "mpi_seconds": 2.0,
+        "observed_api_calls": 100,
+        "estimated_api_seconds": 2.0,
+        "printed_time_error": 0.0005
+      },
+      {
+        "rank": 2,
+        "application_seconds": 10.0,
+        "mpi_seconds": 3.0,
+        "observed_api_calls": 100,
+        "estimated_api_seconds": 3.0,
+        "printed_time_error": 0.0005
+      },
+      {
+        "rank": 3,
+        "application_seconds": 10.0,
+        "mpi_seconds": 4.0,
+        "observed_api_calls": 100,
+        "estimated_api_seconds": 4.0,
+        "printed_time_error": 0.0005
+      }
+    ],
+    "observed_api_calls": 400,
+    "reported_rank_work_mpi_seconds": 10.0,
+    "mpi_time_maximum_over_mean": 1.6,
+    "per_function": {
+      "Allreduce": {
+        "observed_api_calls": 400,
+        "estimated_rank_work_seconds": 10.0,
+        "printed_time_error": 0.002
+      }
+    },
+    "callsites": [
+      {
+        "call": "Allreduce",
+        "site": 1,
+        "observed_api_calls": 400,
+        "estimated_rank_work_seconds": 10.0,
+        "printed_time_error": 0.002,
+        "stack": [
+          {
+            "level": 0,
+            "frame": "native.cpp 1 test Allreduce"
+          },
+          {
+            "level": 1,
+            "frame": "driver.cpp 2 main"
+          }
+        ]
+      }
+    ],
+    "scope": "Whole-process wrapped MPI API statistics. Callsite seconds are count times printed mean milliseconds; rounding bounds are explicit. Rank sums are work, not elapsed. No pure wait, physical wire traffic, chronological phase or complete MPI/vendor coverage claim."
+  }
+}

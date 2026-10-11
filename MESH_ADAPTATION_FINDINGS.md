@@ -1,3 +1,42 @@
+## Checked verbose MPI report analysis — 2026-10-11
+
+NativeIntegrated / codex/native-3d-transport-accounting; predecessor
+7b3c607b111ad1472acfe08137277c5af5457e79. No production C++/fixture/target/guard
+change. Core remains6b3fefd039bfc3d1937b8add7d21d0ea41344bc9.
+
+Fresh actual-host idle samples0.1607031/0.1132666/0.0343965 and load1=7.33
+refused any numerical MPI launch this turn. Four foreign Python ranks each
+used approximately99% CPU. No owned heavy process or qsub was started; do not
+interpret intent/state files as a live cluster wait.
+
+The optional profiler runner now requires a complete verbose report. Shared
+mpi_profile.py checks all rank assignments and times, declared stack/rank-record
+counts, exact callsite API-count closure and reported time closure with explicit
+display-precision bounds. The top-twenty table is never used as a total.
+Legitimate M<N callsites on only the worker ranks are accepted. Source stacks
+stay attached; no inferred phase/window/communicator identity. Analysis exports
+mpi_api_profiles, whole-process per-rank totals, per-function/callsite rank work,
+observed wrapped-API counts and MPI-time max/mean. These are not pure wait,
+wire traffic, MPI work inside a particular remesh window or complete API coverage.
+The print threshold is explicitly0; report generation and parent overhead remain
+separate paired measurements. Normal campaigns remain unchanged.
+
+package_checks_v16 passes26 preliminary lightweight checks. Review caught a
+generator-consumption issue in accumulated display bounds; corrected before
+publication with a dedicated control. Final package_checks_v17 passes28
+mocked/parser controls (1.499s unittest,2.074s wrapper), AST/Bash/diff and
+production/fixture/build-option equality to475820. It retains a labeled synthetic
+four-rank report/summary and pinned upstream format source identity8a2ae9e9458.
+No actual mpiP sample is available in that upstream tree. These checks do not
+validate actual loading, MPI2/4 numerical behavior or profiling cost.
+
+Goal1 remains ACTIVE: current MPI2/4, n4/persisted-restart qualification, repeated
+cluster overhead/accepted-work/scaling, n8 practical limits and full wait/vendor/
+allocator calibration remain open. Retain original resource/collector failures.
+Do not merge the isolated transport branch into core before MPI qualification.
+User core checkout, AdapNoExt, foreign submodules/results and old frozen bundles
+are untouched.
+
 ## Optional calibrated MPI campaign preparation — 2026-10-11
 
 NativeIntegrated / codex/native-3d-transport-accounting; predecessor

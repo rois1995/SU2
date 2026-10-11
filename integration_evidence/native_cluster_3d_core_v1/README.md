@@ -187,3 +187,18 @@ allocator peaks or complete coverage of a particular MPI/vendor build. Inspect
 the actual reports and calibrate before using them to identify a bottleneck.
 Source lines require usable debug symbols. No time/speedup claim follows from
 the mocked checks or the serial coverage lower bound.
+
+The analyzer now includes mpi_api_profiles for every profiler-ON case (warm-up
+explicitly marked). It uses the complete verbose callsite table, checks declared
+stack/rank-record counts, exact per-callsite aggregate counts and per-rank time
+closure within accumulated printed precision. API counts exclude aggregate rows
+to avoid double counting. Per-function and callsite seconds are explicitly rank
+work, not wall time. Callsite stacks remain attached; four-rank reports may
+legitimately contain a callsite on only the two adaptation workers. Nonfinite,
+negative, duplicate and incomplete records fail. The launcher fixes the print
+threshold to zero; partial or concise reports cannot qualify these checks.
+
+Format reference: [upstream report.c at 8a2ae9e](https://github.com/LLNL/mpiP/blob/8a2ae9e9458af16f6271b3280b1d5dbe4f121388/report.c).
+The format source hash and a clearly synthetic four-rank report/summary are
+retained in package_checks_v17. They validate parsing, not actual profiler
+loading, MPI/vendor coverage, wall-clock overhead or a remeshing speedup.

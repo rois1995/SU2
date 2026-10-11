@@ -2,7 +2,7 @@
 from pathlib import Path
 import contextlib,gzip,io,json,os,subprocess,sys,tempfile,unittest
 from unittest.mock import patch
-import run,restore,submit,prepare,analyze,profile_summary
+import run,restore,submit,prepare,analyze,profile_summary,mpi_profile
 from types import SimpleNamespace
 
 class PackageChecks(unittest.TestCase):
@@ -107,8 +107,15 @@ class PackageChecks(unittest.TestCase):
             record['artifact_sha256'][str(last.relative_to(folder))]=run.sha(last);(folder/'result.json').write_text(json.dumps(record))
             with self.assertRaisesRegex(ValueError,'Accepted work changed'):analyze.main([folder])
     def mpip_text(self,ranks):
-        return '@ Version : test\nMPI Time (seconds)\nCallsites: 1\nAllreduce\n'+''.join(
-            f'@ MPI Task Assignment : {rank} mock-node\n' for rank in range(ranks))
+        text='@ Version : test\n'+''.join(f'@ MPI Task Assignment : {r} mock-node\n' for r in range(ranks))
+        text+='@--- MPI Time (seconds) ---\nTask AppTime MPITime MPI%\n'
+        text+=''.join(f'{r} 10.00 {r+1}.000 10\n' for r in range(ranks))
+        text+=f'* {10*ranks}.00 {ranks*(ranks+1)/2:.3f} 10\n'
+        text+='@--- Callsites: 1 ---\nID Lev File/Address Line Parent_Funct MPI_Call\n'
+        text+='1 0 native.cpp 1 test Allreduce\n1 1 driver.cpp 2 main\n'
+        text+=f'@--- Callsite Time statistics (all, milliseconds): {ranks} ---\nName Site Rank Count Max Mean Min App% MPI%\n'
+        text+=''.join(f'Allreduce 1 {r} 100 {10*(r+1)}.00 {10*(r+1)}.00 {10*(r+1)}.00 10 100\n' for r in range(ranks))
+        return text+f'Allreduce 1 * {100*ranks} {10*ranks}.00 {5*(ranks+1)}.00 10.00 10 100\n'
 
     def test_mpip_report_and_application_only_preload(self):
         with tempfile.TemporaryDirectory() as d:
@@ -117,7 +124,7 @@ class PackageChecks(unittest.TestCase):
             on=run.mpi_command(2,machine,bundle,'[NativeEnvelope3D]',True)
             self.assertNotIn('env',off);self.assertEqual(on[0],'mpirun')
             self.assertEqual(on[on.index('env')+1],'LD_PRELOAD='+str(bundle/'bin/libmpiP.so'))
-            self.assertIn('MPIP=-k 4 -y -p -n',on)
+            self.assertIn('MPIP=-k 4 -y -p -n -t 0',on)
             with self.assertRaises(ValueError):run.mpip_report(root,2)
             report=root/'test_driver.2.123.mpiP';report.write_text(self.mpip_text(2))
             self.assertEqual(run.mpip_report(root,2)['sha256'],run.sha(report))
@@ -157,6 +164,8 @@ class PackageChecks(unittest.TestCase):
             with contextlib.redirect_stdout(io.StringIO()):analyze.main([passed])
             summary=json.loads((root/'native3d_summary.json').read_text())
             self.assertEqual(len(summary['campaigns']),6)
+            self.assertEqual(len(summary['mpi_api_profiles']),8)
+            self.assertTrue(all(r['summary']['observed_api_calls']==200 for r in summary['mpi_api_profiles']))
             self.assertTrue(all(row['mode']=='mpi-profile' for row in summary['campaigns']))
             self.assertAlmostEqual(summary['campaigns'][0]['on_off_ratio'],1.11/1.01)
             self.assertEqual(summary['campaigns'][0]['process_on_off_ratio'],1)
@@ -171,6 +180,54 @@ class PackageChecks(unittest.TestCase):
             self.assertEqual(len(failure['cases']),0)
             self.assertTrue((failed/'n2_m1_r-1_p1'/run.RAW[0]).is_file())
             self.assertFalse(list((failed/'n2_m1_r-1_p1').glob('*.gz')))
+
+    def test_mpip_full_count_time_and_stack_summary(self):
+        result=mpi_profile.summary(self.mpip_text(4),4)
+        self.assertEqual(result['observed_api_calls'],400)
+        self.assertEqual(result['reported_rank_work_mpi_seconds'],10)
+        self.assertEqual(result['per_function']['Allreduce']['estimated_rank_work_seconds'],10)
+        self.assertEqual(result['mpi_time_maximum_over_mean'],1.6)
+        self.assertEqual(len(result['callsites'][0]['stack']),2)
+        self.assertEqual(result['per_rank'][3]['estimated_api_seconds'],4)
+
+    def test_mpip_worker_subset_calls_are_admitted(self):
+        text=self.mpip_text(4).replace('0 10.00 1.000','0 10.00 2.000').replace('1 10.00 2.000','1 10.00 3.000').replace('* 40.00 10.000','* 40.00 12.000')
+        text=text.replace('Callsites: 1','Callsites: 2')
+        text=text.replace('@--- Callsite Time','2 0 worker.cpp 7 exchange Waitall\n@--- Callsite Time')
+        text=text.replace('(all, milliseconds): 4','(all, milliseconds): 6')
+        text+='Waitall 2 0 2 500.00 500.00 500.00 10 100\nWaitall 2 1 2 500.00 500.00 500.00 10 100\nWaitall 2 * 4 500.00 500.00 500.00 10 100\n'
+        result=mpi_profile.summary(text,4)
+        self.assertEqual(result['observed_api_calls'],404)
+        self.assertEqual(result['per_function']['Waitall']['observed_api_calls'],4)
+        self.assertEqual([r['observed_api_calls'] for r in result['per_rank']],[102,102,100,100])
+        with self.assertRaisesRegex(ValueError,'declared callsite'):mpi_profile.summary(text.replace('Callsites: 2','Callsites: 3'),4)
+
+    def test_mpip_numeric_and_incomplete_corruptions(self):
+        text=self.mpip_text(2)
+        for old,new in [('Allreduce 1 * 200','Allreduce 1 * 201'),
+                        ('Allreduce 1 0 100 10.00','Allreduce 1 0 100 nan'),
+                        ('Allreduce 1 0 100 10.00','Allreduce 1 0 100 -1'),
+                        ('0 10.00 1.000 10','0 10.00 8.000 10'),
+                        ('1 0 native.cpp 1 test Allreduce','2 0 native.cpp 1 test Allreduce')]:
+            with self.subTest(old=old),self.assertRaises(ValueError):mpi_profile.summary(text.replace(old,new),2)
+        row='Allreduce 1 1 100 20.00 20.00 20.00 10 100\n'
+        with self.assertRaisesRegex(ValueError,'rank-record count'):mpi_profile.summary(text.replace(row,''),2)
+        with self.assertRaisesRegex(ValueError,'Duplicate mpiP callsite rank'):mpi_profile.summary(text+row,2)
+
+    def test_mpip_rounding_accumulates_and_top_twenty_is_not_total(self):
+        value,error=mpi_profile.total(iter([(1,.1),(2,.2)]))
+        self.assertEqual(value,3);self.assertAlmostEqual(error,.3)
+        for a,b in [((float('inf'),0),(1,0)),((1,float('nan')),(1,0))]:
+            with self.assertRaisesRegex(ValueError,'derived total'):mpi_profile.closes(a,b)
+        text=self.mpip_text(4)+'@--- Aggregate Time (top twenty, descending, milliseconds) ---\nAllreduce 1 99999 100 100 99999 0\n'
+        self.assertEqual(mpi_profile.summary(text,4)['observed_api_calls'],400)
+
+    def test_mpip_printed_rounding_is_explicit(self):
+        text=self.mpip_text(1).replace('1.000','0.3333').replace('10.00 10.00 10.00 10 100','3.33 3.33 3.33 10 100')
+        result=mpi_profile.summary(text,1)
+        self.assertAlmostEqual(result['per_rank'][0]['estimated_api_seconds'],.333)
+        self.assertGreater(result['per_rank'][0]['printed_time_error'],.0003)
+        with self.assertRaisesRegex(ValueError,'time totals'):mpi_profile.summary(text.replace('0.3333','0.3350'),1)
 
     def test_mpip_preparation_requires_license(self):
         with patch.object(sys,'argv',['prepare.py','--mpip-library','/unloaded/libmpiP.so']):

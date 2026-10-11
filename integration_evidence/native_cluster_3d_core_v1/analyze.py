@@ -8,7 +8,7 @@ from profile_summary import profiles
 
 def main(paths):
     if not paths:raise ValueError('Give at least one result folder')
-    summaries=[];rows=[];rank_profiles=[];identity=None
+    summaries=[];rows=[];rank_profiles=[];mpi_profiles=[];identity=None
     for folder in map(lambda p:Path(p).resolve(),paths):
         record=json.loads((folder/'result.json').read_text())
         if record['status']!='PASS':raise ValueError('Failed campaign: '+str(folder))
@@ -46,6 +46,7 @@ def main(paths):
                     raise ValueError('Invalid paired MPI profiling controls')
                 if p['mpi_profile'] and mpip_report(folder/case['folder'],p['ranks'])!=case.get('mpi_profile_report'):
                     raise ValueError('mpiP report identity changed')
+                if p['mpi_profile']:mpi_profiles.append(dict(campaign=folder.name,case=case['folder'],parameters=p,warmup=case['warmup'],**case['mpi_profile_report']))
             audit=json.loads((folder/case['folder']/'independent_audit.json').read_text())
             if audit['status']!='PASS':raise ValueError('Failed independent audit')
             for row in audit['rank_stages']:rows.append(dict(campaign=folder.name,case=case['folder'],record='exclusive',**row))
@@ -80,7 +81,7 @@ def main(paths):
                         profiling_scope='Parent ratios cover adaptation; process ratios also include fixture/output/report finalization. MPI API elapsed is not pure wait; callsite/histogram data remain in the full mpiP reports.')
     destination=Path(paths[0]).resolve().parent/'native3d_summary.json'
     if destination.exists():raise FileExistsError('Keep previous summary; rename it before reanalysis')
-    destination.write_text(json.dumps(dict(status='PASS',binary_package_identity=identity,campaigns=summaries,rank_profiles=rank_profiles,scope='Timing campaigns require three paired fixed-work samples per N/M/event; limits campaigns report single independently audited pilots without speedup claims. Max parent wall is elapsed; nested phases and rank-work seconds are separate. Changed N/M trajectories must be independently audited; no cross-rank fixed-work speedup, full MPI-wait/traffic/memory calibration or CFD affordability claim.'),indent=2)+'\n')
+    destination.write_text(json.dumps(dict(status='PASS',binary_package_identity=identity,campaigns=summaries,rank_profiles=rank_profiles,mpi_api_profiles=mpi_profiles,scope='Timing campaigns require three paired fixed-work samples per N/M/event; limits campaigns report single independently audited pilots without speedup claims. Max parent wall is elapsed; nested phases and rank-work seconds are separate. Changed N/M trajectories must be independently audited; no cross-rank fixed-work speedup, full MPI-wait/traffic/memory calibration or CFD affordability claim.'),indent=2)+'\n')
     if rows:
         keys=['campaign','case','record','stage','rank','ranks']+sorted({k for row in rows for k in row}-{'campaign','case','record','stage','rank','ranks'})
         with destination.with_suffix('.csv').open('w',newline='') as f:

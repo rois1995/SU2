@@ -1,5 +1,6 @@
 """Run a frozen native3D bundle sequentially; no Git, build or external input links."""
 from pathlib import Path
+from mpi_profile import summary as mpi_summary
 import argparse,gzip,hashlib,json,os,re,shutil,signal,subprocess,sys,time
 
 SELECTION='[NativeReference3D],[NativeMesh3D],[NativeDonorReuse3D],[NativeCollapseFilter3D],[NativeCoplanar3D],[NativeInsertion3D],[NativeAutomaticRepair3D],[NativeBudget3D],[NativeDefault3D],[NativeBridge2D],[NativeBridge3D]'
@@ -29,7 +30,7 @@ def mpi_command(ranks,machinefile,bundle,selection,profile=False):
     args=['mpirun','-n',str(ranks),'-machinefile',str(Path(machinefile).resolve())]
     if profile:
         # Preload only the application, never mpirun or the independent auditor.
-        args+=['env','LD_PRELOAD='+str(bundle/'bin/libmpiP.so'),'MPIP=-k 4 -y -p -n']
+        args+=['env','LD_PRELOAD='+str(bundle/'bin/libmpiP.so'),'MPIP=-k 4 -y -p -n -t 0']
     return args+[str(bundle/'bin/test_driver'),selection,'--use-colour','no']
 
 def mpip_report(work,ranks):
@@ -41,7 +42,7 @@ def mpip_report(work,ranks):
         raise ValueError('mpiP report does not cover all CFD ranks')
     if not all(label in text for label in ('@ Version','MPI Time (seconds)','Callsites:','Allreduce')):
         raise ValueError('Incomplete mpiP report')
-    return dict(file=report.name,sha256=sha(report),
+    return dict(file=report.name,sha256=sha(report),summary=mpi_summary(text,ranks),
                 scope='Whole-process MPI API/callsite statistics, including assertions/output. API elapsed is not pure wait or physical wire traffic.')
 
 def command(args,cwd,label,env,seconds):

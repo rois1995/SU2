@@ -1,0 +1,81 @@
+{
+  "status": "PASS",
+  "stages": [
+    {
+      "label": "checks",
+      "command": [
+        "python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_core_v1/check_package.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.6718515290413052
+    },
+    {
+      "label": "bash_syntax",
+      "command": [
+        "bash",
+        "-n",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_core_v1/RunNative3DSGE.sh"
+      ],
+      "exit_code": 0,
+      "seconds": 0.009421346010640264
+    },
+    {
+      "label": "diff",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        "integration_evidence/native_cluster_3d_core_v1"
+      ],
+      "exit_code": 0,
+      "seconds": 0.030927200976293534
+    },
+    {
+      "label": "production_unchanged",
+      "command": [
+        "git",
+        "diff",
+        "--exit-code",
+        "475820f366366f471e0cdb50e362d7c5e572c328",
+        "--",
+        "Common",
+        "SU2_CFD",
+        "UnitTests",
+        "meson.build",
+        "meson_options.txt"
+      ],
+      "exit_code": 0,
+      "seconds": 0.02515715401386842
+    }
+  ],
+  "seconds": 2.0740578480181284,
+  "scope": "28 mocked orchestration/parser controls and AST/Bash/diff/production-equality checks. Retained synthetic four-rank report and output. No MPI processes, CFD, actual profiler loading or scheduler.",
+  "upstream_format": {
+    "url": "https://raw.githubusercontent.com/LLNL/mpiP/8a2ae9e9458af16f6271b3280b1d5dbe4f121388/report.c",
+    "sha256": "67549beb647fe20894cb0be909e19cba7ba6d61ef203df8081450efb6862dd3a"
+  },
+  "tools_sha256": {
+    "integration_evidence/native_cluster_3d_core_v1/check_package.py": "38e6849f72e43051241db4dad7050a312d7e0ac60729b062b513d2908dc04c4f",
+    "integration_evidence/native_cluster_3d_core_v1/analyze.py": "651fc2fea07b4afbfaa8b3ecf2bce47e77b67d17b3348ea8c620d5268ddd824e",
+    "integration_evidence/native_cluster_3d_core_v1/prepare.py": "2d1b953f35453fd7eedf6090df36886109f585e83853dbdcb91a4a6e333580db",
+    "integration_evidence/native_cluster_3d_core_v1/profile_summary.py": "d56de9a2a50451f98b624359a71423a9112e509f900928a787dbd8227f52e0af",
+    "integration_evidence/native_cluster_3d_core_v1/submit.py": "76ba5bbc2f9e91d1d0d8567175b2515a2e48657ebae4808e07e7b13e8dabf1d0",
+    "integration_evidence/native_cluster_3d_core_v1/run.py": "149a78f0f0c06ef36316baf043ce788abce0a1b881cf8611dd1050eee2e8f24c",
+    "integration_evidence/native_cluster_3d_core_v1/mpi_profile.py": "11e46f3d01289c1d050221d5264cf00a62e4da29385705a4ca7bff003ee9651b",
+    "integration_evidence/native_cluster_3d_core_v1/restore.py": "b9a32c4dd7bdd99e84aec755acccd32841038f6f1c27735cd70277b658dcabbb"
+  },
+  "artifact_sha256": {
+    "diff.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "checks.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bash_syntax.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "production_unchanged.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bash_syntax.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "synthetic_4rank.mpiP": "fc85eac1d51070380b07113192c2bdff59543fe8060892b9c77d27981fd8fee0",
+    "checks.stderr": "e6d40d36977c23bfed98bfd420fae88e6808c924747bd6381090d66145d84325",
+    "production_unchanged.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "synthetic_4rank_summary.json": "62ddf9a51cae2d251831b82b39e92224fcc72ca3e9135bfb964aa6393012ab77",
+    "diff.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}
