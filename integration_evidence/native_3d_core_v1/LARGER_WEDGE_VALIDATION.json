@@ -1,0 +1,667 @@
+{
+  "status": "PASS",
+  "analyzer_sha256": "d9e406fff60dfebff8097295dd1dff6c12da0ec700fea9e7e82fcdc0121c4f15",
+  "dependencies_sha256": {
+    "analyze_insertion.py": "da413800f19c4892717ef607a5868d473c61390fd8f0e427b4bed0e2edb2cd2c",
+    "audit_lifecycle.py": "eaa6e005ece099af2f40ae7857bef51f22a207f70331dcdc10936d23c574e820"
+  },
+  "matrix_sha256": "c95b4a86a2d383aedbcd24b7e216dc23c6dc83ab2717e9791a5c2c20e1fd7ab3",
+  "cases": [
+    {
+      "folder": "larger_wedge_n4_n1_m1_v1",
+      "parameters": {
+        "folder": "integration_evidence/native_3d_core_v1/larger_wedge_n4_n1_m1_v1",
+        "ranks": 1,
+        "binary_from": "integration_evidence/native_3d_core_v1/restart_control_box_n1_v1",
+        "workers": 1,
+        "size": 4,
+        "anisotropy": 1,
+        "varying": 1,
+        "restart_format": "none",
+        "wedge": true,
+        "height_power": 0,
+        "direction": 1,
+        "diagnostic_rounds": 512,
+        "aligned_markers": true,
+        "replay_rounds": null,
+        "repeat": 0,
+        "detail": 1
+      },
+      "cells": [
+        289,
+        52,
+        308
+      ],
+      "points": [
+        96,
+        25,
+        103
+      ],
+      "minimum_q": 0.2571004139967783,
+      "minimum_J": 0.14640173837890275,
+      "maximum_L": 1.7957781168258844,
+      "state_error": 3.8644018396823826e-16,
+      "tensor_error": 0.0,
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 1.594655423,
+          "remesh_max_seconds": 1.4194115630000002,
+          "parent_max_over_mean": 1.0,
+          "accepted_edits": 101.0,
+          "accepted_edits_per_parent_second": 63.3365669744441,
+          "native_bound": 8388608.0,
+          "lifetime_rss": 30965760.0,
+          "packed_record_bytes": 10105288.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 3.114147311,
+          "remesh_max_seconds": 2.9600431140000003,
+          "parent_max_over_mean": 1.0,
+          "accepted_edits": 71.0,
+          "accepted_edits_per_parent_second": 22.799178365522092,
+          "native_bound": 4079372.0,
+          "lifetime_rss": 32530432.0,
+          "packed_record_bytes": 13386816.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 1.2967507349999998,
+          "remesh_max_seconds": 1.2220533189999996,
+          "parent_max_over_mean": 1.0,
+          "accepted_edits": 165.0,
+          "accepted_edits_per_parent_second": 127.2411077522929,
+          "native_bound": 4078640.0,
+          "lifetime_rss": 32567296.0,
+          "packed_record_bytes": 8314680.0
+        }
+      ],
+      "costs": {
+        "refine": {
+          "rank_event_work_seconds": {
+            "initialization": 0.0026884050000000005,
+            "seed": 0.6945133979999999,
+            "selection": 0.0004044350000000001,
+            "dependency": 0.008486388000000001,
+            "reservation": 0.002323339,
+            "donor": 0.020323243000000005,
+            "reconstruction": 0.07695440999999997,
+            "metric": 0.3890092619999999,
+            "routing": 0.007186938,
+            "publication": 0.022844138999999992,
+            "update": 0.33727933499999985,
+            "completion": 0.0
+          },
+          "measured_private_cpu_seconds": {
+            "private_reconstruction_cpu": 0.07394,
+            "private_metric_cpu": 0.37394200000000005,
+            "private_measurement_cpu": 0.8189850000000001
+          },
+          "query_detail_work_seconds": {
+            "nested_field_build": 0.023260157,
+            "nested_field_query": 0.013180825999999998,
+            "nested_cache": 0.003628251999999998,
+            "nested_search": 0.007684089000000001,
+            "nested_interpolation": 0.0008381469999999996,
+            "nested_edge": 1.221688294,
+            "nested_edge_trace": 1.208583956,
+            "nested_edge_integral": 0.002544949000000001
+          },
+          "counters": {
+            "rounds": 183.0,
+            "attempted": 183.0,
+            "accepted": 183.0,
+            "rejected": 0.0,
+            "requests": 3878.0,
+            "hits": 0.0,
+            "edge_evaluations": 2012.0,
+            "edge_reused": 9190.0,
+            "private_query_retries": 0.0,
+            "query_retries": 0.0
+          }
+        },
+        "coarsen": {
+          "rank_event_work_seconds": {
+            "initialization": 0.005036918,
+            "seed": 0.8339446949999999,
+            "selection": 0.0015631259999999993,
+            "dependency": 0.030072792,
+            "reservation": 0.007216894000000005,
+            "donor": 0.38514017300000003,
+            "reconstruction": 0.23547380499999995,
+            "metric": 1.5731606030000003,
+            "routing": 0.012530948,
+            "publication": 0.02779029999999999,
+            "update": 0.5514593950000001,
+            "completion": 0.0
+          },
+          "measured_private_cpu_seconds": {
+            "private_reconstruction_cpu": 0.23298399999999997,
+            "private_metric_cpu": 1.559921,
+            "private_measurement_cpu": 1.115233
+          },
+          "query_detail_work_seconds": {
+            "nested_field_build": 0.04367471500000001,
+            "nested_field_query": 0.036096263,
+            "nested_cache": 0.005208107999999999,
+            "nested_search": 0.027212085000000004,
+            "nested_interpolation": 0.0017433700000000002,
+            "nested_edge": 2.5151430709999993,
+            "nested_edge_trace": 2.4829237999999996,
+            "nested_edge_integral": 0.006308251999999999
+          },
+          "counters": {
+            "rounds": 528.0,
+            "attempted": 528.0,
+            "accepted": 154.0,
+            "rejected": 374.0,
+            "requests": 7414.0,
+            "hits": 0.0,
+            "edge_evaluations": 2272.0,
+            "edge_reused": 11204.0,
+            "private_query_retries": 1.0,
+            "query_retries": 0.0
+          }
+        }
+      },
+      "validation_sha256": "5510bf3fea227c46ff69b3deae68a30157fac6def3d9d94f7dfee310717dcb9b",
+      "audit_sha256": "2ebb3d138088a74086be32d599fe5779295766ad3385d8114bf5808ae6e1493d"
+    },
+    {
+      "folder": "larger_wedge_n4_n2_m2_v1",
+      "parameters": {
+        "folder": "integration_evidence/native_3d_core_v1/larger_wedge_n4_n2_m2_v1",
+        "ranks": 2,
+        "binary_from": "integration_evidence/native_3d_core_v1/restart_control_box_n1_v1",
+        "workers": 2,
+        "size": 4,
+        "anisotropy": 1,
+        "varying": 1,
+        "restart_format": "none",
+        "wedge": true,
+        "height_power": 0,
+        "direction": 1,
+        "diagnostic_rounds": 512,
+        "aligned_markers": true,
+        "replay_rounds": null,
+        "repeat": 0,
+        "detail": 1
+      },
+      "cells": [
+        289,
+        42,
+        309
+      ],
+      "points": [
+        96,
+        24,
+        103
+      ],
+      "minimum_q": 0.3222445329804117,
+      "minimum_J": 0.13212813577585866,
+      "maximum_L": 1.7957781168258844,
+      "state_error": 3.844148161277339e-16,
+      "tensor_error": 0.0,
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 1.1222999470000001,
+          "remesh_max_seconds": 1.027235722,
+          "parent_max_over_mean": 1.0000737424097494,
+          "accepted_edits": 101.0,
+          "accepted_edits_per_parent_second": 89.99376705842434,
+          "native_bound": 8388608.0,
+          "lifetime_rss": 30216192.0,
+          "packed_record_bytes": 10543048.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 3.4577254789999996,
+          "remesh_max_seconds": 3.3589680129999997,
+          "parent_max_over_mean": 1.0000180908322531,
+          "accepted_edits": 72.0,
+          "accepted_edits_per_parent_second": 20.822937054222983,
+          "native_bound": 4073872.0,
+          "lifetime_rss": 31756288.0,
+          "packed_record_bytes": 15312200.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 1.0948547589999995,
+          "remesh_max_seconds": 1.0373921810000004,
+          "parent_max_over_mean": 1.0000592734751717,
+          "accepted_edits": 155.0,
+          "accepted_edits_per_parent_second": 141.57128945721655,
+          "native_bound": 3109224.0,
+          "lifetime_rss": 31854592.0,
+          "packed_record_bytes": 7619888.0
+        }
+      ],
+      "costs": {
+        "refine": {
+          "rank_event_work_seconds": {
+            "initialization": 0.004698119000000001,
+            "seed": 1.0353626460000003,
+            "selection": 0.001768005,
+            "dependency": 0.019292455999999996,
+            "reservation": 0.00775433,
+            "donor": 0.030047406999999998,
+            "reconstruction": 0.09792572100000002,
+            "metric": 0.39248415000000003,
+            "routing": 0.15468386399999995,
+            "publication": 0.02573855,
+            "update": 0.42959081600000004,
+            "completion": 0.0
+          },
+          "measured_private_cpu_seconds": {
+            "private_reconstruction_cpu": 0.07199699999999999,
+            "private_metric_cpu": 0.379165,
+            "private_measurement_cpu": 0.8773299999999999
+          },
+          "query_detail_work_seconds": {
+            "nested_field_build": 0.021754644000000007,
+            "nested_field_query": 0.012595497000000004,
+            "nested_cache": 0.0031013729999999993,
+            "nested_search": 0.007735220000000001,
+            "nested_interpolation": 0.0008336999999999999,
+            "nested_edge": 1.380446038,
+            "nested_edge_trace": 1.3674880850000004,
+            "nested_edge_integral": 0.002424233
+          },
+          "counters": {
+            "rounds": 202.0,
+            "attempted": 178.0,
+            "accepted": 178.0,
+            "rejected": 0.0,
+            "requests": 3808.0,
+            "hits": 0.0,
+            "edge_evaluations": 2131.0,
+            "edge_reused": 8891.0,
+            "private_query_retries": 0.0,
+            "query_retries": 0.0
+          }
+        },
+        "coarsen": {
+          "rank_event_work_seconds": {
+            "initialization": 0.007440634999999999,
+            "seed": 1.026752337,
+            "selection": 0.06955174300000001,
+            "dependency": 0.281484343,
+            "reservation": 0.022986150999999996,
+            "donor": 0.607488291,
+            "reconstruction": 0.5444335079999998,
+            "metric": 2.122528728000001,
+            "routing": 1.9996604839999994,
+            "publication": 0.053130506000000015,
+            "update": 1.3721933099999999,
+            "completion": 0.0
+          },
+          "measured_private_cpu_seconds": {
+            "private_reconstruction_cpu": 0.24981299999999995,
+            "private_metric_cpu": 1.959158,
+            "private_measurement_cpu": 1.2253870000000002
+          },
+          "query_detail_work_seconds": {
+            "nested_field_build": 0.056655911,
+            "nested_field_query": 0.03965263100000001,
+            "nested_cache": 0.005836133,
+            "nested_search": 0.03021512,
+            "nested_interpolation": 0.001825118,
+            "nested_edge": 3.2682076800000006,
+            "nested_edge_trace": 3.227666832999999,
+            "nested_edge_integral": 0.007025698
+          },
+          "counters": {
+            "rounds": 784.0,
+            "attempted": 500.0,
+            "accepted": 150.0,
+            "rejected": 350.0,
+            "requests": 7141.0,
+            "hits": 0.0,
+            "edge_evaluations": 2422.0,
+            "edge_reused": 10706.0,
+            "private_query_retries": 2.0,
+            "query_retries": 0.0
+          }
+        }
+      },
+      "validation_sha256": "4f17260eedfecc834465bd8ae086563dadc0829f20ee71ee408d7c0ace510172",
+      "audit_sha256": "adeb77948c7592453ffc50013120e5a7b4c67c6df635186db6f51ebb172731de"
+    },
+    {
+      "folder": "larger_wedge_n4_n4_m2_v1",
+      "parameters": {
+        "folder": "integration_evidence/native_3d_core_v1/larger_wedge_n4_n4_m2_v1",
+        "ranks": 4,
+        "binary_from": "integration_evidence/native_3d_core_v1/restart_control_box_n1_v1",
+        "workers": 2,
+        "size": 4,
+        "anisotropy": 1,
+        "varying": 1,
+        "restart_format": "none",
+        "wedge": true,
+        "height_power": 0,
+        "direction": 1,
+        "diagnostic_rounds": 512,
+        "aligned_markers": true,
+        "replay_rounds": null,
+        "repeat": 0,
+        "detail": 1
+      },
+      "cells": [
+        289,
+        42,
+        309
+      ],
+      "points": [
+        96,
+        25,
+        100
+      ],
+      "minimum_q": 0.24740030615502576,
+      "minimum_J": 0.07957138226842538,
+      "maximum_L": 1.7957781168258844,
+      "state_error": 3.7156204112042362e-16,
+      "tensor_error": 0.0,
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 1.371933499,
+          "remesh_max_seconds": 1.2574249000000002,
+          "parent_max_over_mean": 1.0001121236894825,
+          "accepted_edits": 101.0,
+          "accepted_edits_per_parent_second": 73.61872865821756,
+          "native_bound": 8388608.0,
+          "lifetime_rss": 30371840.0,
+          "packed_record_bytes": 11464352.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 3.199143126,
+          "remesh_max_seconds": 2.96329919,
+          "parent_max_over_mean": 1.0019864147343136,
+          "accepted_edits": 71.0,
+          "accepted_edits_per_parent_second": 22.19344280753508,
+          "native_bound": 2995376.0,
+          "lifetime_rss": 31903744.0,
+          "packed_record_bytes": 15426184.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 1.1961650240000008,
+          "remesh_max_seconds": 1.0942423130000005,
+          "parent_max_over_mean": 1.0000355657556859,
+          "accepted_edits": 156.0,
+          "accepted_edits_per_parent_second": 130.416787709051,
+          "native_bound": 3116108.0,
+          "lifetime_rss": 31903744.0,
+          "packed_record_bytes": 7971608.0
+        }
+      ],
+      "costs": {
+        "refine": {
+          "rank_event_work_seconds": {
+            "initialization": 0.005095266999999999,
+            "seed": 0.84998177,
+            "selection": 0.07455351400000002,
+            "dependency": 0.020582153000000002,
+            "reservation": 0.007289716999999999,
+            "donor": 0.035463370999999994,
+            "reconstruction": 0.14828507599999996,
+            "metric": 0.4688913319999999,
+            "routing": 0.239494392,
+            "publication": 0.029474977,
+            "update": 0.5495344100000001,
+            "completion": 0.0
+          },
+          "measured_private_cpu_seconds": {
+            "private_reconstruction_cpu": 0.074694,
+            "private_metric_cpu": 0.4334660000000001,
+            "private_measurement_cpu": 0.8988580000000002
+          },
+          "query_detail_work_seconds": {
+            "nested_field_build": 0.022689843,
+            "nested_field_query": 0.013099578,
+            "nested_cache": 0.0036885520000000003,
+            "nested_search": 0.007417394,
+            "nested_interpolation": 0.0008177940000000002,
+            "nested_edge": 1.3585704960000002,
+            "nested_edge_trace": 1.3436808519999999,
+            "nested_edge_integral": 0.0024983709999999997
+          },
+          "counters": {
+            "rounds": 210.0,
+            "attempted": 177.0,
+            "accepted": 177.0,
+            "rejected": 0.0,
+            "requests": 3866.0,
+            "hits": 36.0,
+            "edge_evaluations": 2180.0,
+            "edge_reused": 8842.0,
+            "private_query_retries": 0.0,
+            "query_retries": 0.0
+          }
+        },
+        "coarsen": {
+          "rank_event_work_seconds": {
+            "initialization": 0.006550446999999999,
+            "seed": 1.153103176,
+            "selection": 0.007932496,
+            "dependency": 0.09226391999999999,
+            "reservation": 0.021332928,
+            "donor": 0.4454776300000001,
+            "reconstruction": 0.511690875,
+            "metric": 2.144890654,
+            "routing": 1.9605737320000003,
+            "publication": 0.052286552999999986,
+            "update": 1.1905096120000003,
+            "completion": 0.0
+          },
+          "measured_private_cpu_seconds": {
+            "private_reconstruction_cpu": 0.234697,
+            "private_metric_cpu": 1.9814409999999998,
+            "private_measurement_cpu": 1.2745240000000002
+          },
+          "query_detail_work_seconds": {
+            "nested_field_build": 0.05031793500000001,
+            "nested_field_query": 0.04042349799999998,
+            "nested_cache": 0.005610960000000001,
+            "nested_search": 0.030394084,
+            "nested_interpolation": 0.0017275129999999995,
+            "nested_edge": 3.331314461,
+            "nested_edge_trace": 3.2916635359999993,
+            "nested_edge_integral": 0.007194139
+          },
+          "counters": {
+            "rounds": 732.0,
+            "attempted": 476.0,
+            "accepted": 151.0,
+            "rejected": 325.0,
+            "requests": 7465.0,
+            "hits": 0.0,
+            "edge_evaluations": 2542.0,
+            "edge_reused": 10934.0,
+            "private_query_retries": 0.0,
+            "query_retries": 0.0
+          }
+        }
+      },
+      "validation_sha256": "510afc796ad450d48ef973d4a416ecb4fc036632722a656135968d2c8d8c5f8b",
+      "audit_sha256": "01689ce47d22dcc367528b3628942a950e192bd9da3bcf47caea1d7aa388037c"
+    },
+    {
+      "folder": "larger_wedge_n4_n4_m4_v1",
+      "parameters": {
+        "folder": "integration_evidence/native_3d_core_v1/larger_wedge_n4_n4_m4_v1",
+        "ranks": 4,
+        "binary_from": "integration_evidence/native_3d_core_v1/restart_control_box_n1_v1",
+        "workers": 4,
+        "size": 4,
+        "anisotropy": 1,
+        "varying": 1,
+        "restart_format": "none",
+        "wedge": true,
+        "height_power": 0,
+        "direction": 1,
+        "diagnostic_rounds": 512,
+        "aligned_markers": true,
+        "replay_rounds": null,
+        "repeat": 0,
+        "detail": 1
+      },
+      "cells": [
+        301,
+        46,
+        291
+      ],
+      "points": [
+        99,
+        25,
+        95
+      ],
+      "minimum_q": 0.3349812810085725,
+      "minimum_J": 0.08863993040466166,
+      "maximum_L": 1.7987750917934346,
+      "state_error": 3.8201222352693554e-16,
+      "tensor_error": 0.0,
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 1.836336003,
+          "remesh_max_seconds": 1.734096904,
+          "parent_max_over_mean": 1.000052648774354,
+          "accepted_edits": 98.0,
+          "accepted_edits_per_parent_second": 53.36713969551246,
+          "native_bound": 8388608.0,
+          "lifetime_rss": 30310400.0,
+          "packed_record_bytes": 12207328.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 5.207393762000001,
+          "remesh_max_seconds": 5.065069432,
+          "parent_max_over_mean": 1.0000218508512064,
+          "accepted_edits": 74.0,
+          "accepted_edits_per_parent_second": 14.210563552923807,
+          "native_bound": 2654656.0,
+          "lifetime_rss": 31858688.0,
+          "packed_record_bytes": 20012384.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 3.0237444779999993,
+          "remesh_max_seconds": 2.957604989,
+          "parent_max_over_mean": 1.000034190483143,
+          "accepted_edits": 168.0,
+          "accepted_edits_per_parent_second": 55.56025028646618,
+          "native_bound": 2735336.0,
+          "lifetime_rss": 32178176.0,
+          "packed_record_bytes": 11046224.0
+        }
+      ],
+      "costs": {
+        "refine": {
+          "rank_event_work_seconds": {
+            "initialization": 0.009891871,
+            "seed": 1.946500814,
+            "selection": 0.5200785,
+            "dependency": 0.218411168,
+            "reservation": 0.580213532,
+            "donor": 0.488536219,
+            "reconstruction": 0.27874143100000004,
+            "metric": 0.817002683,
+            "routing": 3.9326293670000005,
+            "publication": 0.139712729,
+            "update": 1.618169848,
+            "completion": 0.0
+          },
+          "measured_private_cpu_seconds": {
+            "private_reconstruction_cpu": 0.089832,
+            "private_metric_cpu": 0.5871139999999999,
+            "private_measurement_cpu": 1.1078139999999999
+          },
+          "query_detail_work_seconds": {
+            "nested_field_build": 0.027986632,
+            "nested_field_query": 0.032229288,
+            "nested_cache": 0.0030147,
+            "nested_search": 0.027349860000000004,
+            "nested_interpolation": 0.000882295,
+            "nested_edge": 2.327078154,
+            "nested_edge_trace": 2.308496496,
+            "nested_edge_integral": 0.0040156609999999985
+          },
+          "counters": {
+            "rounds": 404.0,
+            "attempted": 187.0,
+            "accepted": 181.0,
+            "rejected": 6.0,
+            "requests": 4194.0,
+            "hits": 175.0,
+            "edge_evaluations": 2496.0,
+            "edge_reused": 8790.0,
+            "private_query_retries": 0.0,
+            "query_retries": 0.0
+          }
+        },
+        "coarsen": {
+          "rank_event_work_seconds": {
+            "initialization": 0.050442289999999994,
+            "seed": 2.233051487,
+            "selection": 1.0113214780000004,
+            "dependency": 0.8779423580000001,
+            "reservation": 0.22253438499999995,
+            "donor": 2.384785559,
+            "reconstruction": 1.4223463779999999,
+            "metric": 3.1969484429999993,
+            "routing": 11.264728305000002,
+            "publication": 0.15068747699999996,
+            "update": 3.1667992120000004,
+            "completion": 0.0
+          },
+          "measured_private_cpu_seconds": {
+            "private_reconstruction_cpu": 0.289028,
+            "private_metric_cpu": 2.4949839999999996,
+            "private_measurement_cpu": 1.5685859999999998
+          },
+          "query_detail_work_seconds": {
+            "nested_field_build": 0.056668031,
+            "nested_field_query": 0.06349654199999999,
+            "nested_cache": 0.019332372000000007,
+            "nested_search": 0.037986368,
+            "nested_interpolation": 0.0018560309999999997,
+            "nested_edge": 4.820480366999999,
+            "nested_edge_trace": 4.761747670000001,
+            "nested_edge_integral": 0.011135680999999998
+          },
+          "counters": {
+            "rounds": 1756.0,
+            "attempted": 588.0,
+            "accepted": 159.0,
+            "rejected": 429.0,
+            "requests": 8006.0,
+            "hits": 0.0,
+            "edge_evaluations": 2937.0,
+            "edge_reused": 10899.0,
+            "private_query_retries": 0.0,
+            "query_retries": 0.0
+          }
+        }
+      },
+      "validation_sha256": "7a7a4e41ebcd4695f6345f50d440c51bd06a470b2bffe4824a1a573f6ec6cad5",
+      "audit_sha256": "641204558c9c87031ced429cfdd4d0ffbf38e7293ce4bcf3b12c9cf16b274bfd"
+    }
+  ],
+  "accounting_rows": 374,
+  "csv_sha256": "3292aafe7e7bc8ffb7796508a2bcdce9ddae5e5ae4faf91fae4649748c05ce52",
+  "unchanged_binary_sha256": "501276a21518c5d63c8f7fdf13d77223d86e1b634bb91f121f64f2b8fa4a64a1",
+  "regression_validation_sha256": "10fe513683b1dfd7d9fab1ae25fe52df4200a4e540836174c78f7daccf9057c8",
+  "limits": {
+    "original_reference_faces": 256,
+    "original_reference_file_bytes": 1048576,
+    "private_cavity_cells": 64,
+    "private_donor_cells": 256,
+    "default_rounds": 512
+  },
+  "scope": "Four actual n4 wedge three-event MPI1/2/4 M=N/M<N cases, unchanged qualified binary/production archives/source and retained full configured regression. Independent exact geometry/q/J/L/originalP1/BDF/output/readback checks. Per-event elapsed maxima and accepted-work rates are separate from summed rank-event phase work; packed records include self traffic and are not MPI network bytes. Single contended changed-work pilots, not measured speedup/scaling or whole-goal completion. Global reference facet bound is explicit and not an operator cavity bound; complete communication/private-wait/memory calibration and SGE repetitions remain open."
+}

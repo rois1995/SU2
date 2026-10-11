@@ -230,12 +230,19 @@ bool ClipInterval(const Tetrahedron& t, Point a, Point b, Integer<198>& volume,
                   Root& lo, Root& hi, bool closed, KernelStats* stats) {
   volume = ExactVolume(t, stats);
   if (Sign(volume) <= 0) throw std::invalid_argument("Nonpositive native 3D segment donor.");
+  // Exact donor vertices have unit barycentric numerators; crossing endpoints retain exact determinants.
+  auto vertex = [&](Point p) {
+    for (size_t i = 0; i < 4; ++i)
+      if (p.x == t[i].x && p.y == t[i].y && p.z == t[i].z) return i;
+    return size_t(4);
+  };
+  const auto first = vertex(a), last = vertex(b);
   for (size_t i = 0; i < 4; ++i) {
     auto ta = t, tb = t;
     ta[i] = a;
     tb[i] = b;
-    va[i] = ExactVolume(ta, stats);
-    vb[i] = ExactVolume(tb, stats);
+    va[i] = first < 4 ? (first == i ? volume : Integer<198>{}) : ExactVolume(ta, stats);
+    vb[i] = last < 4 ? (last == i ? volume : Integer<198>{}) : ExactVolume(tb, stats);
     const auto sa = Sign(va[i]), sb = Sign(vb[i]);
     if (sa < 0 && sb < 0) return false;
     if (sa < 0) {

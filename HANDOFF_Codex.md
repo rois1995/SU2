@@ -7,6 +7,17 @@ small sequential local checks with real host-contention checks; push each
 validated checkpoint and verify the remote SHA. A terminal capacity failure
 cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
+## Larger wedge and exact-vertex clipping checkpoint — 2026-10-11
+
+NativeIntegrated / codex/native-3d-core, baseline7bc3869babb19171fe402fdfb0e96f745b769703.
+LARGER_WEDGE_REPORT.md and VERTEX_CLIP_REPORT.md under integration_evidence/native_3d_core_v1 qualify four n4 wedge cases each:N1M1,N2M2,N4M2,N4M4. Input75points/192tets/128triangles; oblique and marker-junction geometry; three rotated/spatial originalP1 events16/4/16; guards.20/.05/1.8/default512/noise0 unchanged. All exact geometry/q/J/L/P1/currentBDF/SU2CGNS audits pass:minq.2474003062/minJ.07957138227/maxL1.7987750917934346; states<=3.865e-16,tensors0. Larger baseline uses unchanged previously qualified production.
+
+The measured local hotspot is exact edge trace (~99% of metric-edge work). Production now reuses validated exact-volume/zero barycentric numerators at exactly matching donor vertices, retaining all other exact arithmetic and rejection checks. Only CNativePredicates3D.cpp.o changes in production archives; one targeted NativeMesh3D test added. All52 fixed-work geometry/source/state/readback files and accepted rank-local edits match baselines byte-for-byte. Full configured68-object regression passes66 native/reference/2D+3Dbridge test cases per MPI1/2/4 rank, plus serial MMG2D/3D48 assertions; passive predicate scalar/DD/AD macro syntax passes, no active AD run claim.
+
+Isolated1622-chord probe compares exact returned data,3 alternating O2 samples/event:kernel median lower31.24%,38.20%,20.72%. Actual full-cycle pilots are single contended samples; MPI4/M4 is slower in two events. No end-to-end speedup claim. Both matrices retain374 closed phase rows each, elapsed event maxima and useful edit rates; nested work is labelled separately. Packed bytes include self traffic, wrapper collective time is not purewait. Native requested bound8MiB vs observed lifetimeRSS baseline31.06MiB/candidate30.74MiB distinct/uncalibrated.
+
+Hard global reference limit256 original triangles remains (separate from64-cell cavity/256-cell donor bounds and1MiB sidecar). Next implement scalable authority storage/search/admission, complete traffic/cache/private-wait/memory calibration and detail-OFF overhead, then prepare closed SGE correctness/repetition/scaling package. User permits studying/reusing existing MMG/refine/Omega_h/ParMmg/Tucanos operators where helpful, with file-specific license and matched-contract tests. No dependency/operator imported here. No owned job remains after terminal regressions/syntax; foreign FSI,AdapNoExt,ClusterResults and historic failures untouched. FullGoal1 ACTIVE, no curved/robust3DBL/physicalunsteady/affordability claim.
+
 ## Persistent manufactured restart checkpoint — 2026-10-11
 
 NativeIntegrated / codex/native-3d-core, predecessorb936b29e160905e070cab5ca86ff7618bea135a4.

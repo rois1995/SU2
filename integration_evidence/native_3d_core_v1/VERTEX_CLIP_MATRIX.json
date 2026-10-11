@@ -1,0 +1,41 @@
+{
+  "base": "7bc3869babb19171fe402fdfb0e96f745b769703",
+  "prototype": "vertex_clip_probe_v1",
+  "change": "ClipInterval recognizes exact binary64 donor-vertex identity and reuses its already validated exact volume or zero numerator. Unmatched endpoints, clipping/order/ties/gap/overlap/invalid-donor checks unchanged. No cache, target, tolerances, cap or 2D/MMG changes.",
+  "guards": {
+    "q": 0.2,
+    "J": 0.05,
+    "L": 1.8,
+    "rounds": 512,
+    "noise": 0
+  },
+  "target": "Same frozen n4 wedge aspect1.5/direction1/strength1+.125x, scales16/4/16.",
+  "cases": [
+    {
+      "folder": "vertex_clip_n4_n1_m1_v1",
+      "baseline": "larger_wedge_n4_n1_m1_v1",
+      "ranks": 1,
+      "workers": 1
+    },
+    {
+      "folder": "vertex_clip_n4_n2_m2_v1",
+      "baseline": "larger_wedge_n4_n2_m2_v1",
+      "ranks": 2,
+      "workers": 2
+    },
+    {
+      "folder": "vertex_clip_n4_n4_m2_v1",
+      "baseline": "larger_wedge_n4_n4_m2_v1",
+      "ranks": 4,
+      "workers": 2
+    },
+    {
+      "folder": "vertex_clip_n4_n4_m4_v1",
+      "baseline": "larger_wedge_n4_n4_m4_v1",
+      "ranks": 4,
+      "workers": 4
+    }
+  ],
+  "acceptance": "Independent exact geometry/q/J/L/P1/currentBDF and SU2CGNS readback;13 raw geometry/source/state/nodal/frozen readback files byte-identical to each matched unchanged-binary baseline. One production object changed; actual configured full regression and scalar/DD/AD syntax checks where available. Preserve first discrepancy/failure; no gate relaxation.",
+  "timing": "One contended actual pilot per case gives fixed-work diagnostics only. Three alternating isolated kernel samples qualify kernel timing only; cluster full-cycle repetitions/overhead/private-wait/traffic calibration still needed."
+}

@@ -143,6 +143,22 @@ TEST_CASE("Native 3D exact segment clipping covers cells and conformal ties", "[
   std::swap(up.v[0], up.v[1]);
   CHECK_THROWS_AS(TraceSegment({&up}, b, {.2, .1, .1}), std::invalid_argument);
 }
+TEST_CASE("Native exact segment vertices reuse unit weights without snapping nearby points or hiding invalid donors", "[NativeMesh3D]") {
+  for(int power:{-20,0,300}) {
+    const double scale=std::ldexp(1.,power);
+    Cell cell{0, {{{0,{0,0,0}},{1,{scale,0,0}},{2,{0,scale,0}},{3,{0,0,scale}}}}};
+    for(size_t a=0;a<4;++a)for(size_t b=0;b<4;++b)if(a!=b) {
+      const auto pieces=TraceSegment({&cell},cell.v[a].p,cell.v[b].p);
+      REQUIRE(pieces.size()==1);CHECK(pieces[0].begin==0);CHECK(pieces[0].end==1);CHECK(pieces[0].width==1);
+      for(size_t i=0;i<4;++i){CHECK(pieces[0].begin_weights[i]==(i==a?1.L:0.L));CHECK(pieces[0].end_weights[i]==(i==b?1.L:0.L));}
+    }
+    const auto near=std::nextafter(scale,0.);
+    const auto pieces=TraceSegment({&cell},{0,0,0},{near,0,0});REQUIRE(pieces.size()==1);
+    CHECK(pieces[0].end_weights[1]==static_cast<long double>(near)/scale);CHECK(pieces[0].end_weights[0]>0);
+    auto invalid=cell;std::swap(invalid.v[0],invalid.v[1]);
+    CHECK_THROWS_AS(TraceSegment({&cell,&invalid},cell.v[0].p,cell.v[1].p),std::invalid_argument);
+  }
+}
 TEST_CASE("Native 3D chord norm preserves small positive cancellation and large components", "[NativeMesh3D]") {
   KernelStats stats;
   CHECK(MetricNorm({}, {1, 2, 2}, {}, &stats) == 3);

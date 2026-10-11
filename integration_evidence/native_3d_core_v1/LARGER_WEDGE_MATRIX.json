@@ -1,0 +1,36 @@
+{
+  "base": "7bc3869babb19171fe402fdfb0e96f745b769703",
+  "domain": "Unchanged faceted wedge x+y<=1, volume1/2, bottom marker junction x=.5; dyadic n4:75points/192tetrahedra/128original boundary triangles. Existing authority cap256 unchanged.",
+  "guards": {
+    "q": 0.2,
+    "J": 0.05,
+    "L": 1.8,
+    "rounds": 512,
+    "noise": 0
+  },
+  "target": "Unchanged aspect1.5, spatially changing direction/strength1+.125x, sensor-only frozen original-P1 per event, event scales16/4/16. No restart and no target or boundary simplification.",
+  "cases": [
+    {
+      "folder": "larger_wedge_n4_n1_m1_v1",
+      "ranks": 1,
+      "workers": 1
+    },
+    {
+      "folder": "larger_wedge_n4_n2_m2_v1",
+      "ranks": 2,
+      "workers": 2
+    },
+    {
+      "folder": "larger_wedge_n4_n4_m2_v1",
+      "ranks": 4,
+      "workers": 2
+    },
+    {
+      "folder": "larger_wedge_n4_n4_m4_v1",
+      "ranks": 4,
+      "workers": 4
+    }
+  ],
+  "execution": "First actual serial case, then expand only after independent acceptance. One nice19/j1/thread1 job, MPI<=4; real host checks. Retain/diagnose first failure before expansion. No overnight cluster request.",
+  "acceptance": "Three actual default512 driver replacement events, exact independent geometry/marker/incidence/volume/q/J/L and original-P1 current/BDF audits, SU2CGNS output/readback. Pinned unchanged production archives, complete phase records/useful work counts. If rejected, retain exact source/state/logs and investigate operator/budget/numeric/authority limit, without increasing budget or relaxing guards. Single contended pilots are not scaling or affordability evidence."
+}

@@ -1,0 +1,297 @@
+{
+  "status": "PASS",
+  "analyzer_sha256": "df6abced4641673594a7e4675efa22813e64670b791c5db9d85b980c4855e449",
+  "dependencies_sha256": {
+    "analyze_insertion.py": "da413800f19c4892717ef607a5868d473c61390fd8f0e427b4bed0e2edb2cd2c",
+    "analyze_donor_reuse.py": "30c5a374451da840c392f499d098fb6996d9205f92783fb3aef133e06382da67",
+    "audit_lifecycle.py": "eaa6e005ece099af2f40ae7857bef51f22a207f70331dcdc10936d23c574e820"
+  },
+  "matrix_sha256": "8aebaf082726c56bf4182fc8bab2cf031782e8aebf20f8f3c7b5b8f6e40dba81",
+  "larger_validation_sha256": "f3dd03eda432e94813d4fa25138cb4bb9cac2c4d2b674a89778e7b8d5a614830",
+  "regression_sha256": "fb921256f213a70ee86fb81a0898c6f0e9124e316713fbf06e4ba9e657428864",
+  "syntax_sha256": "9c854a1660dc32c028043a64268bebcbfc8109355dc25be33ac91e32e055a751",
+  "probe_sha256": "ea6c36dd7fb839c7ba784f12b61922c4d666109b13236cdd3bb08cf66ccbeb59",
+  "kernels": [
+    {
+      "cycle": 0.0,
+      "chords": 518.0,
+      "candidates": 19014.0,
+      "pieces": 587.0,
+      "separated": 7374.0,
+      "baseline_exact": 70206.0,
+      "candidate_exact": 40343.0,
+      "baseline_seconds": [
+        0.27854408,
+        0.277266053,
+        0.282478976
+      ],
+      "candidate_seconds": [
+        0.191513942,
+        0.190980766,
+        0.195876295
+      ],
+      "median_reduction_fraction": 0.3124465542401764
+    },
+    {
+      "cycle": 1.0,
+      "chords": 538.0,
+      "candidates": 24916.0,
+      "pieces": 689.0,
+      "separated": 7871.0,
+      "baseline_exact": 103819.0,
+      "candidate_exact": 62509.0,
+      "baseline_seconds": [
+        0.472514254,
+        0.467936041,
+        0.400153603
+      ],
+      "candidate_seconds": [
+        0.289672736,
+        0.288928327,
+        0.289173172
+      ],
+      "median_reduction_fraction": 0.38202415145876745
+    },
+    {
+      "cycle": 2.0,
+      "chords": 566.0,
+      "candidates": 10479.0,
+      "pieces": 621.0,
+      "separated": 4830.0,
+      "baseline_exact": 35921.0,
+      "candidate_exact": 24200.0,
+      "baseline_seconds": [
+        0.144467436,
+        0.144265037,
+        0.143264709
+      ],
+      "candidate_seconds": [
+        0.120416948,
+        0.114374237,
+        0.113190738
+      ],
+      "median_reduction_fraction": 0.20719365288763625
+    }
+  ],
+  "cases": [
+    {
+      "folder": "vertex_clip_n4_n1_m1_v1",
+      "baseline": "larger_wedge_n4_n1_m1_v1",
+      "unchanged": {
+        "envelope_s0_initial.json": "77b792f58978c6101715e81729c63780952448c2123afed141922484289f2b34",
+        "envelope_s0.json": "5314066bcd894bd35d8d9f0280b7c2d1fbf8e26056efe938bf81bdbf0baa8d23",
+        "envelope_s1_initial.json": "46eec4ca18cfeaafe7ec52b0faf2a3a60c056c0d8c8e0039b9916675c41dd5f9",
+        "envelope_s1.json": "59ee5a79b0d0aa376541d00eb6d039e237d440f043db4f35ee70c62f49d88263",
+        "envelope_s2_initial.json": "4ca900bc6ac37306f124d303c4b48264de6db2a75471ec125196691b121d0e12",
+        "envelope_s2.json": "8871e8dfe94ad225d58d7ca2851919d70bf921212d5b9501e08a2d666469ab0e",
+        "envelope_s2_written_SU2_reload.json": "0a3a82467ccc94a1197b6d97a72e936e802bacd00991338a04b0038e8289c68c",
+        "envelope_s2_written_CGNS_reload.json": "0a3a82467ccc94a1197b6d97a72e936e802bacd00991338a04b0038e8289c68c",
+        "envelope_s0_states.json": "c84ab0e508eefd71124312881d5bfe1071ee049205dc0eca74d79b9b342c7ec4",
+        "envelope_s1_states.json": "37fca0bf09777d316209b4285b462d11983ba48b3e16c959f7c4e57b12e66690",
+        "envelope_s2_states.json": "89dcd41c4f7f961543a7c4ffb50ce854049c781bdeec94f04b6f7d87129d3f04",
+        "envelope_s2_written_SU2_reload_target.json": "8871e8dfe94ad225d58d7ca2851919d70bf921212d5b9501e08a2d666469ab0e",
+        "envelope_s2_written_CGNS_reload_target.json": "8871e8dfe94ad225d58d7ca2851919d70bf921212d5b9501e08a2d666469ab0e"
+      },
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 1.280672638,
+          "baseline_parent_max_seconds": 1.594655423,
+          "accepted_edits": 101.0,
+          "accepted_edits_per_parent_second": 78.86480666732258,
+          "parent_max_over_mean": 1.0,
+          "native_bound": 8388608.0,
+          "lifetime_rss": 30212096.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 2.694162668,
+          "baseline_parent_max_seconds": 3.114147311,
+          "accepted_edits": 71.0,
+          "accepted_edits_per_parent_second": 26.35327140536267,
+          "parent_max_over_mean": 1.0,
+          "native_bound": 4079372.0,
+          "lifetime_rss": 31834112.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 1.196626664,
+          "baseline_parent_max_seconds": 1.2967507349999998,
+          "accepted_edits": 165.0,
+          "accepted_edits_per_parent_second": 137.88761772067616,
+          "parent_max_over_mean": 1.0,
+          "native_bound": 4078640.0,
+          "lifetime_rss": 31834112.0
+        }
+      ],
+      "production_member_changed": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2AccurateSum.a.p/adaptation_CNativePredicates3D.cpp.o",
+      "validation_sha256": "004efdf54ac984885d50da641e738285a8ce2c2c35615abce3df89db563c69f4",
+      "audit_sha256": "a8d3cb88411937493300d15a1085fd80869e858cd7c7304734103e21a293596c"
+    },
+    {
+      "folder": "vertex_clip_n4_n2_m2_v1",
+      "baseline": "larger_wedge_n4_n2_m2_v1",
+      "unchanged": {
+        "envelope_s0_initial.json": "f44b36afa635918738559921317a5243603c3ac1b807efef82d008acf1816108",
+        "envelope_s0.json": "5d71696f0c236e8f12377f5559eb75e968c090d2b7a2325bf1c5c3469a346ec3",
+        "envelope_s1_initial.json": "ed82c7c5f2764fd8bc7e4c0e94eaebfe4432e56f4b2b6381a226f728811bd545",
+        "envelope_s1.json": "e80e13853569c84f407231330b46ec12479a3c4b05d97281cab2e2995ed5d466",
+        "envelope_s2_initial.json": "1d06455e4adbc6fd1d3a89dec1c5d858f1b533abb28cda2130220c6f94298ea0",
+        "envelope_s2.json": "c85ad8b844b738fd200ab083a6221353a88dbdcfa8f070f902abb6946cd7eb84",
+        "envelope_s2_written_SU2_reload.json": "bb044f676810839898e8426d2084bc31f8273603ab9ee0dd27d4c88c583f3b9b",
+        "envelope_s2_written_CGNS_reload.json": "cafbe2351805ca2852a35c592a4aacfc32099abb20ed3bfe4020c92b51bcd7e6",
+        "envelope_s0_states.json": "a33cd1f949efadb76eeb4997f5e3469e1e676fe31333fc35aecec37fe2ffe10c",
+        "envelope_s1_states.json": "dbfea8c10c26de825ee11af830e810e80706d86fa40207c898acab0e5ebfa476",
+        "envelope_s2_states.json": "8eac1a3844f17465958d8a5a243438b0baac3d5a59df44769eff5ac76fc355ae",
+        "envelope_s2_written_SU2_reload_target.json": "c85ad8b844b738fd200ab083a6221353a88dbdcfa8f070f902abb6946cd7eb84",
+        "envelope_s2_written_CGNS_reload_target.json": "43e4d50b2617a1294cd30c596de616dbe1019d716bb8ed904e05b7aeae222cf1"
+      },
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 0.9835338170000001,
+          "baseline_parent_max_seconds": 1.1222999470000001,
+          "accepted_edits": 101.0,
+          "accepted_edits_per_parent_second": 102.69092760640685,
+          "parent_max_over_mean": 1.0001302224430597,
+          "native_bound": 8388608.0,
+          "lifetime_rss": 30474240.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 2.5821765660000002,
+          "baseline_parent_max_seconds": 3.4577254789999996,
+          "accepted_edits": 72.0,
+          "accepted_edits_per_parent_second": 27.883453419892895,
+          "parent_max_over_mean": 1.000020278846358,
+          "native_bound": 4073872.0,
+          "lifetime_rss": 32071680.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 0.889527126,
+          "baseline_parent_max_seconds": 1.0948547589999995,
+          "accepted_edits": 155.0,
+          "accepted_edits_per_parent_second": 174.2498856634081,
+          "parent_max_over_mean": 1.0002049345607706,
+          "native_bound": 3109224.0,
+          "lifetime_rss": 32198656.0
+        }
+      ],
+      "production_member_changed": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2AccurateSum.a.p/adaptation_CNativePredicates3D.cpp.o",
+      "validation_sha256": "d719d74ce626da8717c808327c723f64fc570762b2a9e0f8d2aaceb5e4705234",
+      "audit_sha256": "21c471f8d0395d25b0dceb462d985cf22570426eac42c24e010cffdbfc3f47fd"
+    },
+    {
+      "folder": "vertex_clip_n4_n4_m2_v1",
+      "baseline": "larger_wedge_n4_n4_m2_v1",
+      "unchanged": {
+        "envelope_s0_initial.json": "8993d68bf53d0dda5b37c172764de677c7c74c86ddee5b31a9f467d172f8f0ec",
+        "envelope_s0.json": "9a423f2a9e1039d42c8b8d9e96e3af5f2339fba2b7feb24e27d2c4b765355f80",
+        "envelope_s1_initial.json": "de6e266e1f9ad289c6f617ff836f4147132a50b44c0568bb26264edc9c6b3e85",
+        "envelope_s1.json": "ea9b4ea121eb7a3b56ecb02b8c33d2d2694b6bad234930810ba450be63d90705",
+        "envelope_s2_initial.json": "caf77ab2236919badcd2665b4d842f61ceda62cc348b24eeed95fdbbb03f9aeb",
+        "envelope_s2.json": "c4a7a02453fa0df64805a47411d94ba060adedf7ddf7def2b1f8606649018c40",
+        "envelope_s2_written_SU2_reload.json": "5c076d9b3bfb5e38a6a20d2d780e267d874a3a63dd9d1ba29dd9ffc28683b433",
+        "envelope_s2_written_CGNS_reload.json": "e84af6ef4253e5056658b2aa0ea32941f9dec3c41cf42450a741a7d1c1980b0e",
+        "envelope_s0_states.json": "40f245f63c8635b36739f9cb6ced3206347320e4c1e846e990779e725c1ba7f9",
+        "envelope_s1_states.json": "6d6ccfcdad663cd17c8e7248ed20adf6417c37ca01374c84a709351719d47b59",
+        "envelope_s2_states.json": "89edf106ca571b36cb4d17f438e4b9c0c35df5cdf23f4292a658c5b75c7091d3",
+        "envelope_s2_written_SU2_reload_target.json": "c4a7a02453fa0df64805a47411d94ba060adedf7ddf7def2b1f8606649018c40",
+        "envelope_s2_written_CGNS_reload_target.json": "e6ba87f542275941b0b712b4aeb336de68c533f68882555c0c0c824273e9302b"
+      },
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 1.193570964,
+          "baseline_parent_max_seconds": 1.371933499,
+          "accepted_edits": 101.0,
+          "accepted_edits_per_parent_second": 84.62002096760122,
+          "parent_max_over_mean": 1.0000495703100196,
+          "native_bound": 8388608.0,
+          "lifetime_rss": 30613504.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 2.694953915,
+          "baseline_parent_max_seconds": 3.199143126,
+          "accepted_edits": 71.0,
+          "accepted_edits_per_parent_second": 26.34553400145991,
+          "parent_max_over_mean": 1.000015433526221,
+          "native_bound": 2995376.0,
+          "lifetime_rss": 32096256.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 1.0829251009999998,
+          "baseline_parent_max_seconds": 1.1961650240000008,
+          "accepted_edits": 156.0,
+          "accepted_edits_per_parent_second": 144.05428395366008,
+          "parent_max_over_mean": 1.0000281504769912,
+          "native_bound": 3116108.0,
+          "lifetime_rss": 32235520.0
+        }
+      ],
+      "production_member_changed": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2AccurateSum.a.p/adaptation_CNativePredicates3D.cpp.o",
+      "validation_sha256": "e8153e59e866398bfabca17b60c3c7a549cd8e4a81c778f618b4e0802ecb3668",
+      "audit_sha256": "e34b9be986a6eb787a9a5d527be545906ad509ad10049ae6e3b0f7aa2c9b16b6"
+    },
+    {
+      "folder": "vertex_clip_n4_n4_m4_v1",
+      "baseline": "larger_wedge_n4_n4_m4_v1",
+      "unchanged": {
+        "envelope_s0_initial.json": "8993d68bf53d0dda5b37c172764de677c7c74c86ddee5b31a9f467d172f8f0ec",
+        "envelope_s0.json": "35af868320dd070bb7401a1f879edb9d27a65143d733553318138ffa7402c0ce",
+        "envelope_s1_initial.json": "0fb2ebdc69658118c3f5ec004ae6e7d767494065bad177451831e1a231f7a4f8",
+        "envelope_s1.json": "784efa7eb20f092c8fca21fa786a8e0370c532338535199e96432268fc86dbc3",
+        "envelope_s2_initial.json": "7e603bb77c45477f0353340f3dc9c8d5f390058be09ad6fb303e820e328a9329",
+        "envelope_s2.json": "7440eabbfec15a6257ec53f586dbab22beb5b0ea4f682fa1df227a4fd1a3e1aa",
+        "envelope_s2_written_SU2_reload.json": "5671a5ec834ff9730e3d42dc4f37ef3ac47b2fbcfe183f02954bc6950740a071",
+        "envelope_s2_written_CGNS_reload.json": "aecaa555dd53a8a4589584bfd120fd9cb56e9bd70fdba1497c58387c929ae066",
+        "envelope_s0_states.json": "b94dcd898e561c9da74b3446bb35543a91ff85076e6423d19e1148005f676f0c",
+        "envelope_s1_states.json": "90fe614b58f0add363ad188fb813c1723f17a4ff226491318c3445ac7373af24",
+        "envelope_s2_states.json": "5e63a07a8791afa5c93b7c496c23e6899b2c3d694ce7595f6270839ac72613b0",
+        "envelope_s2_written_SU2_reload_target.json": "7440eabbfec15a6257ec53f586dbab22beb5b0ea4f682fa1df227a4fd1a3e1aa",
+        "envelope_s2_written_CGNS_reload_target.json": "564ec7a54ba14d5143404b9a530ec6f8160c479a0a66508564beaf3dd1e5f392"
+      },
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 5.147926258999999,
+          "baseline_parent_max_seconds": 1.836336003,
+          "accepted_edits": 98.0,
+          "accepted_edits_per_parent_second": 19.036791723399084,
+          "parent_max_over_mean": 1.0000727726062542,
+          "native_bound": 8388608.0,
+          "lifetime_rss": 30089216.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 5.869953033999999,
+          "baseline_parent_max_seconds": 5.207393762000001,
+          "accepted_edits": 74.0,
+          "accepted_edits_per_parent_second": 12.60657446003,
+          "parent_max_over_mean": 1.0000069067895059,
+          "native_bound": 2654656.0,
+          "lifetime_rss": 31571968.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 2.645046498000001,
+          "baseline_parent_max_seconds": 3.0237444779999993,
+          "accepted_edits": 168.0,
+          "accepted_edits_per_parent_second": 63.51495148649744,
+          "parent_max_over_mean": 1.00047975848993,
+          "native_bound": 2735336.0,
+          "lifetime_rss": 31846400.0
+        }
+      ],
+      "production_member_changed": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/Common/src/libSU2AccurateSum.a.p/adaptation_CNativePredicates3D.cpp.o",
+      "validation_sha256": "f470dfbf42e32af1270d5cd8604d9ca4a41f2c6ca20292b15fa73057716e9663",
+      "audit_sha256": "dbbdd4ea068bc79ef1a3b72e40257ab9508d2bb776f73d94a4dfcc73e0e0a34a"
+    }
+  ],
+  "accounting_rows": 374,
+  "csv_sha256": "5cae8482d3233abb68d22fa71c800bdbda39deaea673689d27947acf6baeddce",
+  "scope": "Exact-vertex numerator reuse only. Four fixed-work MPI1/2/4 M=N/M<N cases:52 raw geometry/source/state/readback files byte-identical, one production archive member changed, full68-object configured native/2D+3D bridge and serialMMG regression. Passive TU scalar/DD-macro/AD-macro syntax only, no active AD solver link/run claim. Three alternating isolated kernel samples; single contended actual pilots establish no full-cycle speedup/scaling. Global reference256-face limit, communication/private-wait/memory calibration, detail overhead and SGE repetitions remain open; fullGoal1 ACTIVE."
+}
