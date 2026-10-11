@@ -37,7 +37,9 @@ separate; preserve tiny/tied/overlap/invalidsource checks if filtering is improv
 FullGoal1 ACTIVE; noownedcase live after ordinarycontrol terminalPASS. Full MPI
 wait/traffic, memory calibration, stronger/directionchanging/thin/wedge/restart
 and practicalrank/size limits, repeatedOFFON and closedSGE remain. Noovernight
-clusterlaunchquestions; foreignwork untouched. Publication confirmation pending.
+clusterlaunchquestions; foreignwork untouched. Implementation/evidence checkpoint 2463e523c2827a5182139fcdd4a71ff7083053fe pushed
+to origin/codex/native-3d-core; full remote SHA verified. This confirmation
+follows that publication.
 
 ## Native 3D anisotropic driver envelope and first size limit — 2026-10-11
 

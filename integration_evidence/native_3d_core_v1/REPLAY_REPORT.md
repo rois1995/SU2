@@ -2,7 +2,8 @@
 
 Working repository `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 `codex/native-3d-core`, predecessor `ce942b5d6fba97985577b2416e1d4256018b6e7c`.
-Full Goal1 stays active. This checkpoint changes tests/audits/runner only;
+Implementation/evidence checkpoint `2463e523c2827a5182139fcdd4a71ff7083053fe` is pushed and
+remote-verified. Full Goal1 stays active. This checkpoint changes tests/audits/runner only;
 production operators, target, criteria and default512-round budget are unchanged.
 
 ## Qualified evidence
