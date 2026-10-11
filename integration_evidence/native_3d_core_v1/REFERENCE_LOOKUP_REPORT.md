@@ -1,5 +1,7 @@
 # Canonical planar reference lookup — 2026-10-11
 
+Published implementation/evidence checkpoint: `31df202a90d549fc834fa8d9b16a38edef4c7f36`, origin/codex/native-3d-core; full remote SHA verified.
+
 Branch codex/native-3d-core, predecessor e99dee967611ec960a4e9368bcd7df8b7aba1b3d. Physical binding previously scanned every original facet and repeatedly tested the same certified canonical patch. FindFace now searches canonical same-marker patches: singleton markers use direct exact containment; multiple-patch markers use SU2's existing local CADTElemClass with conservative two-corner LINE boxes, followed by unchanged exact finite containment and orientation. Lowest canonical identity remains deterministic. A missing patch leaves the caller's output unchanged; nonfinite query coordinates throw before output mutation.
 
 Geometry certification and every q/J/L/default512/noise0/target/operator guard remain unchanged. Nonconvex patches retain original triangle constraints; the index cannot admit a triangle across a gap or fill a hole. Search does not modify original sensors or geometric BL composition. The global256-original-triangle, private64-cavity/256-donor and1MiB-sidecar limits remain enforced: this checkpoint removes an expensive binding scan as a prerequisite to lifting the global limit, not a claim that larger meshes are admitted yet.
