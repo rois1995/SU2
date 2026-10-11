@@ -1,7 +1,7 @@
 ## Native3D cavity insertion checkpoint — 2026-10-11
 
 NativeIntegrated / codex/native-3d-core, predecessor16029e00cba59c54a05c71eb320c4833845762a2.
-Implementation/evidence publication pending. INSERTION_REPORT.md and
+Implementation/evidence checkpoint `128c9e58e267462b2761804df44708048f359216` pushed to origin/codex/native-3d-core; full remote SHA verified. INSERTION_REPORT.md and
 INSERTION_CHECKPOINT_VALIDATION.json qualify nine actual manufactured driver
 cases (27 events), 884 accounting rows, complete configured68-object MPI1/2/4
 regression and324 independent automatic repair frames plus9 negative controls.
