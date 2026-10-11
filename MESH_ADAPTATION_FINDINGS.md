@@ -1,3 +1,48 @@
+## Native 3D query-support checkpoint — 2026-10-11
+
+Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
+codex/native-3d-core, predecessor a1a23b12c4c9ccd174c8147a0d5620a9c9ade32f.
+Goal1 ACTIVE/full scope. Exact closed centroid/six-edge donor imports admit
+coarse measurements that exceeded whole-cell volume imports. Shared Centroid,
+canonical original sensor-only P1 and actual composition/cache-hit policy are
+preserved. Donor cap256/q>=.20/J>=.05/L<=1.8 stay fixed. Whole-cell imports remain
+the fast path; only a one-cell cap failure gets one query-support retry. Full
+private reconstruction still uses whole-cell coverage; fixed wire records remain.
+
+query_support_regression_v3 PASS MPI1/2/4 and independent audits;68 cases/4535
+assertions on MPI1 and22 cases/rank on MPI2/4. All1350 previous mesh/source artifacts
+are byte-identical. Actual non-MPI9 cases/115 assertions plus cycles/repair/
+recovery/exhaustion/rejection/composed-edge-refusal PASS. Final three paired
+baseline/new process runs have matching work and coarsen ON medians .194757913/
+.194757800s with overlapping ranges; no general speedup/scaling guarantee.
+
+query_support_sources_v3 PASS MPI1/2/4/M<N. Sources162/384/750/1296 use162/150/
+188/242 donors per coarse tetrahedron;384-source thin8/shear4 also pass. Source2058
+needs294 and rejects at256. 18 successful events include12 valid coarse no-ops
+and six wedge1->8/six-split refinements; six source750 private-cavity cap failures
+preserve input. All36 initial/accepted/rejected frames pass independent audits;
+9828 closed SAT pairs,60480 exact query-support comparisons,252 canonical/P1/
+composition observations and648 analytic edge observations; six oracle adversaries.
+All72 larger-source mesh/source artifacts match earlier policies. Inspect
+query_support_sources_v3/mpi{1,2,4}_meshes/*initial.su2, wedge_m*.su2, dense_m*.su2,
+dense_wedge_m*_rejected.su2 and matching original/source JSON.
+
+Two rejected performance policies are retained: always-query imports (~.42s wedge
+vs~.13s prior) and delayed zero-width trace rejection (.2371s coarsen vs.1951s).
+Final positive-width tracing restores original early rejection while donor import
+keeps closed contact. QUERY_SUPPORT_CHECKPOINT.md, receipts, identities, summaries
+and query_support_checkpoint_artifacts.json give replay/provenance/deduplication.
+No binaries/objects/cache or duplicate historical grids are published. One owned
+heavy job, nice19/thread1/MPI<=4; actual host contention recorded. No jobs remain
+from this campaign. No cluster launch requests overnight.
+
+Next: bound and stage actual private queries where full-cavity imports exceed256,
+then finite coplanar geometry-patch authority and weighted partition/runtime/CFD/
+CGNS/full lifecycle and cluster qualification. Original planar seams and production
+3D guard persist; reported work bounds are not RSS. Source2058 query-cap failure
+also needs smaller query batching/streaming. Goal1 is not complete; do not treat
+manufactured frozen probes as production/BL/unsteady3D/affordability validation.
+
 ## Native 3D larger-source checkpoint — 2026-10-11
 
 Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.

@@ -1,0 +1,1427 @@
+{
+  "status": "PASS",
+  "stages": [
+    {
+      "trial": 0,
+      "checkpoint": "baseline",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/large_source_regression_v3/actual_nonmpi/serial_engine"
+      ],
+      "seconds": 1.9652792789856903,
+      "profiles": [
+        {
+          "trial": "0",
+          "detail": "0",
+          "external_s": "0.011508419000000001",
+          "engine_s": "0",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0",
+          "metric_s": "0",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "0",
+          "detail": "1",
+          "external_s": "0.011570699",
+          "engine_s": "0.011568345000000001",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0.0091951219999999965",
+          "metric_s": "0.00055958000000000299",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "1",
+          "external_s": "0.011607668",
+          "engine_s": "0.01160536",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0.0092471069999999975",
+          "metric_s": "0.00055666800000000105",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "0",
+          "external_s": "0.011598861",
+          "engine_s": "0",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0",
+          "metric_s": "0",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "0",
+          "external_s": "0.011515637",
+          "engine_s": "0",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0",
+          "metric_s": "0",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "1",
+          "external_s": "0.011549556000000001",
+          "engine_s": "0.011547274999999999",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0.0092367779999999993",
+          "metric_s": "0.00054631400000000033",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "0",
+          "detail": "0",
+          "external_s": "0.048424760999999997",
+          "engine_s": "0",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "0",
+          "detail": "1",
+          "external_s": "0.048505647999999998",
+          "engine_s": "0.048488467",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0.03902154",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "1",
+          "external_s": "0.050001868999999997",
+          "engine_s": "0.049975841999999999",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0.039806444000000003",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "0",
+          "external_s": "0.049294888000000002",
+          "engine_s": "0",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "0",
+          "external_s": "0.048437276000000001",
+          "engine_s": "0",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "1",
+          "external_s": "0.050676349000000002",
+          "engine_s": "0.050656155000000001",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0.040044098",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "0",
+          "detail": "0",
+          "external_s": "0.193641748",
+          "engine_s": "0",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0",
+          "kind": "COARSEN_PROFILE"
+        },
+        {
+          "trial": "0",
+          "detail": "1",
+          "external_s": "0.19853738600000001",
+          "engine_s": "0.19853278999999999",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0.173385542",
+          "kind": "COARSEN_PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "1",
+          "external_s": "0.19523574099999999",
+          "engine_s": "0.19522994900000001",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0.17141992300000003",
+          "kind": "COARSEN_PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "0",
+          "external_s": "0.193679719",
+          "engine_s": "0",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0",
+          "kind": "COARSEN_PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "0",
+          "external_s": "0.195473914",
+          "engine_s": "0",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0",
+          "kind": "COARSEN_PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "1",
+          "external_s": "0.192634377",
+          "engine_s": "0.19262934700000001",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0.16949644300000005",
+          "kind": "COARSEN_PROFILE"
+        }
+      ]
+    },
+    {
+      "trial": 0,
+      "checkpoint": "candidate",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/query_support_regression_v3/actual_nonmpi/serial_engine"
+      ],
+      "seconds": 1.9716836890438572,
+      "profiles": [
+        {
+          "trial": "0",
+          "detail": "0",
+          "external_s": "0.011474130000000001",
+          "engine_s": "0",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0",
+          "metric_s": "0",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "0",
+          "detail": "1",
+          "external_s": "0.011433848999999999",
+          "engine_s": "0.011431620999999999",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0.0091188020000000022",
+          "metric_s": "0.00055544799999999713",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "1",
+          "external_s": "0.011678354",
+          "engine_s": "0.011676086",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0.0092996930000000012",
+          "metric_s": "0.0005459119999999979",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "0",
+          "external_s": "0.011439311000000001",
+          "engine_s": "0",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0",
+          "metric_s": "0",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "0",
+          "external_s": "0.011463116000000001",
+          "engine_s": "0",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0",
+          "metric_s": "0",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "1",
+          "external_s": "0.0116083",
+          "engine_s": "0.01160538",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0.0091988669999999977",
+          "metric_s": "0.00057021800000000124",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "0",
+          "detail": "0",
+          "external_s": "0.048141309",
+          "engine_s": "0",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "0",
+          "detail": "1",
+          "external_s": "0.048988566999999997",
+          "engine_s": "0.048970643000000001",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0.039047934999999992",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "1",
+          "external_s": "0.049073946",
+          "engine_s": "0.049038735",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0.039147723000000002",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "0",
+          "external_s": "0.048798800000000003",
+          "engine_s": "0",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "0",
+          "external_s": "0.048651892000000002",
+          "engine_s": "0",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "1",
+          "external_s": "0.049985605000000002",
+          "engine_s": "0.049958383000000002",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0.039363600000000006",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "0",
+          "detail": "0",
+          "external_s": "0.193946443",
+          "engine_s": "0",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0",
+          "kind": "COARSEN_PROFILE"
+        },
+        {
+          "trial": "0",
+          "detail": "1",
+          "external_s": "0.19638571699999999",
+          "engine_s": "0.196377572",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0.17193491900000005",
+          "kind": "COARSEN_PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "1",
+          "external_s": "0.19449140400000001",
+          "engine_s": "0.19448713400000001",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0.17116799899999993",
+          "kind": "COARSEN_PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "0",
+          "external_s": "0.195890385",
+          "engine_s": "0",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0",
+          "kind": "COARSEN_PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "0",
+          "external_s": "0.19557096099999999",
+          "engine_s": "0",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0",
+          "kind": "COARSEN_PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "1",
+          "external_s": "0.19290696600000001",
+          "engine_s": "0.19288498200000001",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0.16992044000000003",
+          "kind": "COARSEN_PROFILE"
+        }
+      ]
+    },
+    {
+      "trial": 1,
+      "checkpoint": "candidate",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/query_support_regression_v3/actual_nonmpi/serial_engine"
+      ],
+      "seconds": 1.9728875309810974,
+      "profiles": [
+        {
+          "trial": "0",
+          "detail": "0",
+          "external_s": "0.011782368",
+          "engine_s": "0",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0",
+          "metric_s": "0",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "0",
+          "detail": "1",
+          "external_s": "0.011529876",
+          "engine_s": "0.01152741",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0.009206545",
+          "metric_s": "0.00054401100000000071",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "1",
+          "external_s": "0.011667004999999999",
+          "engine_s": "0.01166448",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0.0092073880000000056",
+          "metric_s": "0.00055376099999999648",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "0",
+          "external_s": "0.012035239999999999",
+          "engine_s": "0",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0",
+          "metric_s": "0",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "0",
+          "external_s": "0.011657384999999999",
+          "engine_s": "0",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0",
+          "metric_s": "0",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "1",
+          "external_s": "0.011564046999999999",
+          "engine_s": "0.01156152",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0.0091948780000000001",
+          "metric_s": "0.00054011099999999915",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "0",
+          "detail": "0",
+          "external_s": "0.049030075999999999",
+          "engine_s": "0",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "0",
+          "detail": "1",
+          "external_s": "0.051186093000000002",
+          "engine_s": "0.051159206999999998",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0.039479223999999993",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "1",
+          "external_s": "0.052008905000000001",
+          "engine_s": "0.051959855999999999",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0.040695702000000007",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "0",
+          "external_s": "0.051054029000000001",
+          "engine_s": "0",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "0",
+          "external_s": "0.048223851999999998",
+          "engine_s": "0",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "1",
+          "external_s": "0.048826230999999998",
+          "engine_s": "0.048808042000000003",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0.039014323000000004",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "0",
+          "detail": "0",
+          "external_s": "0.19563013500000001",
+          "engine_s": "0",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0",
+          "kind": "COARSEN_PROFILE"
+        },
+        {
+          "trial": "0",
+          "detail": "1",
+          "external_s": "0.196010145",
+          "engine_s": "0.19600487",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0.17144097899999997",
+          "kind": "COARSEN_PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "1",
+          "external_s": "0.193430142",
+          "engine_s": "0.19342489700000001",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0.17055225299999996",
+          "kind": "COARSEN_PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "0",
+          "external_s": "0.19644267300000001",
+          "engine_s": "0",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0",
+          "kind": "COARSEN_PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "0",
+          "external_s": "0.193751968",
+          "engine_s": "0",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0",
+          "kind": "COARSEN_PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "1",
+          "external_s": "0.19475780000000001",
+          "engine_s": "0.19475110600000001",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0.17093775",
+          "kind": "COARSEN_PROFILE"
+        }
+      ]
+    },
+    {
+      "trial": 1,
+      "checkpoint": "baseline",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/large_source_regression_v3/actual_nonmpi/serial_engine"
+      ],
+      "seconds": 1.9648612739983946,
+      "profiles": [
+        {
+          "trial": "0",
+          "detail": "0",
+          "external_s": "0.011698322000000001",
+          "engine_s": "0",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0",
+          "metric_s": "0",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "0",
+          "detail": "1",
+          "external_s": "0.011891864",
+          "engine_s": "0.011889143",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0.0094165130000000014",
+          "metric_s": "0.00059742499999999898",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "1",
+          "external_s": "0.011794753999999999",
+          "engine_s": "0.011791784",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0.0093018010000000019",
+          "metric_s": "0.0006129599999999992",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "0",
+          "external_s": "0.011731610999999999",
+          "engine_s": "0",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0",
+          "metric_s": "0",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "0",
+          "external_s": "0.011567562",
+          "engine_s": "0",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0",
+          "metric_s": "0",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "1",
+          "external_s": "0.011627696999999999",
+          "engine_s": "0.011625234",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0.0092882550000000022",
+          "metric_s": "0.00057481999999999813",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "0",
+          "detail": "0",
+          "external_s": "0.048546229000000003",
+          "engine_s": "0",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "0",
+          "detail": "1",
+          "external_s": "0.048134481",
+          "engine_s": "0.048117755999999998",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0.038707829999999999",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "1",
+          "external_s": "0.048996919999999999",
+          "engine_s": "0.048976143999999999",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0.039286333000000014",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "0",
+          "external_s": "0.047818606999999999",
+          "engine_s": "0",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "0",
+          "external_s": "0.048292216999999998",
+          "engine_s": "0",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "1",
+          "external_s": "0.048203779000000002",
+          "engine_s": "0.048186436999999999",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0.038571774999999996",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "0",
+          "detail": "0",
+          "external_s": "0.196332381",
+          "engine_s": "0",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0",
+          "kind": "COARSEN_PROFILE"
+        },
+        {
+          "trial": "0",
+          "detail": "1",
+          "external_s": "0.19872786200000001",
+          "engine_s": "0.19872260899999999",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0.17375416999999999",
+          "kind": "COARSEN_PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "1",
+          "external_s": "0.194757913",
+          "engine_s": "0.19474825800000001",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0.17136143499999998",
+          "kind": "COARSEN_PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "0",
+          "external_s": "0.19271795799999999",
+          "engine_s": "0",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0",
+          "kind": "COARSEN_PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "0",
+          "external_s": "0.194517418",
+          "engine_s": "0",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0",
+          "kind": "COARSEN_PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "1",
+          "external_s": "0.19365212000000001",
+          "engine_s": "0.193642177",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0.17013192099999996",
+          "kind": "COARSEN_PROFILE"
+        }
+      ]
+    },
+    {
+      "trial": 2,
+      "checkpoint": "baseline",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/large_source_regression_v3/actual_nonmpi/serial_engine"
+      ],
+      "seconds": 1.990888022002764,
+      "profiles": [
+        {
+          "trial": "0",
+          "detail": "0",
+          "external_s": "0.011492717",
+          "engine_s": "0",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0",
+          "metric_s": "0",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "0",
+          "detail": "1",
+          "external_s": "0.011795345",
+          "engine_s": "0.011792494000000001",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0.0093571590000000003",
+          "metric_s": "0.00058796599999999999",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "1",
+          "external_s": "0.011585395",
+          "engine_s": "0.011583092999999999",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0.0092309029999999969",
+          "metric_s": "0.00057405900000000317",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "0",
+          "external_s": "0.019835331000000001",
+          "engine_s": "0",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0",
+          "metric_s": "0",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "0",
+          "external_s": "0.011668814",
+          "engine_s": "0",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0",
+          "metric_s": "0",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "1",
+          "external_s": "0.014268408999999999",
+          "engine_s": "0.014265788999999999",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0.0099554740000000006",
+          "metric_s": "0.0006696309999999992",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "0",
+          "detail": "0",
+          "external_s": "0.049623784999999997",
+          "engine_s": "0",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "0",
+          "detail": "1",
+          "external_s": "0.049105629999999997",
+          "engine_s": "0.049082865000000003",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0.038940967999999992",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "1",
+          "external_s": "0.048740434999999999",
+          "engine_s": "0.048720898999999998",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0.038864142000000011",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "0",
+          "external_s": "0.050312163999999999",
+          "engine_s": "0",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "0",
+          "external_s": "0.048983974999999999",
+          "engine_s": "0",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "1",
+          "external_s": "0.049109853000000002",
+          "engine_s": "0.049083069999999999",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0.038853821999999989",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "0",
+          "detail": "0",
+          "external_s": "0.19475308699999999",
+          "engine_s": "0",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0",
+          "kind": "COARSEN_PROFILE"
+        },
+        {
+          "trial": "0",
+          "detail": "1",
+          "external_s": "0.19521370499999999",
+          "engine_s": "0.195207771",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0.17143762099999996",
+          "kind": "COARSEN_PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "1",
+          "external_s": "0.19369894900000001",
+          "engine_s": "0.193693858",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0.169733307",
+          "kind": "COARSEN_PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "0",
+          "external_s": "0.208555453",
+          "engine_s": "0",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0",
+          "kind": "COARSEN_PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "0",
+          "external_s": "0.19797293099999999",
+          "engine_s": "0",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0",
+          "kind": "COARSEN_PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "1",
+          "external_s": "0.19195889899999999",
+          "engine_s": "0.19195278299999999",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0.16944796300000001",
+          "kind": "COARSEN_PROFILE"
+        }
+      ]
+    },
+    {
+      "trial": 2,
+      "checkpoint": "candidate",
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/query_support_regression_v3/actual_nonmpi/serial_engine"
+      ],
+      "seconds": 1.9654833020176739,
+      "profiles": [
+        {
+          "trial": "0",
+          "detail": "0",
+          "external_s": "0.011391768",
+          "engine_s": "0",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0",
+          "metric_s": "0",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "0",
+          "detail": "1",
+          "external_s": "0.011587161",
+          "engine_s": "0.011584664",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0.0091395560000000001",
+          "metric_s": "0.00055580399999999829",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "1",
+          "external_s": "0.011563057999999999",
+          "engine_s": "0.011560539999999999",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0.009160393000000001",
+          "metric_s": "0.00057054599999999838",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "0",
+          "external_s": "0.011579948",
+          "engine_s": "0",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0",
+          "metric_s": "0",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "0",
+          "external_s": "0.011560539",
+          "engine_s": "0",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0",
+          "metric_s": "0",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "1",
+          "external_s": "0.011492377999999999",
+          "engine_s": "0.011489766",
+          "accepted": "1",
+          "rejected": "14",
+          "field_edges": "11",
+          "reconstruction_s": "0.009176868999999999",
+          "metric_s": "0.00054775100000000159",
+          "kind": "REPAIR_PROFILE"
+        },
+        {
+          "trial": "0",
+          "detail": "0",
+          "external_s": "0.048919741000000003",
+          "engine_s": "0",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "0",
+          "detail": "1",
+          "external_s": "0.048745576999999998",
+          "engine_s": "0.048718078999999997",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0.038931788000000002",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "1",
+          "external_s": "0.049515323999999999",
+          "engine_s": "0.049490813000000002",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0.039059310999999985",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "0",
+          "external_s": "0.050259275999999999",
+          "engine_s": "0",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "0",
+          "external_s": "0.048660040000000002",
+          "engine_s": "0",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "1",
+          "external_s": "0.048058818000000003",
+          "engine_s": "0.048042516",
+          "accepted": "19",
+          "field_edges": "234",
+          "trace_nested_s": "0.038497094999999995",
+          "kind": "PROFILE"
+        },
+        {
+          "trial": "0",
+          "detail": "0",
+          "external_s": "0.19482153399999999",
+          "engine_s": "0",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0",
+          "kind": "COARSEN_PROFILE"
+        },
+        {
+          "trial": "0",
+          "detail": "1",
+          "external_s": "0.19627494600000001",
+          "engine_s": "0.19625172799999999",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0.17208445600000002",
+          "kind": "COARSEN_PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "1",
+          "external_s": "0.19570733500000001",
+          "engine_s": "0.19569694500000001",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0.17227376999999996",
+          "kind": "COARSEN_PROFILE"
+        },
+        {
+          "trial": "1",
+          "detail": "0",
+          "external_s": "0.19428694799999999",
+          "engine_s": "0",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0",
+          "kind": "COARSEN_PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "0",
+          "external_s": "0.194401781",
+          "engine_s": "0",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0",
+          "kind": "COARSEN_PROFILE"
+        },
+        {
+          "trial": "2",
+          "detail": "1",
+          "external_s": "0.193901927",
+          "engine_s": "0.193895497",
+          "accepted": "19",
+          "rejected": "9",
+          "field_edges": "270",
+          "trace_nested_s": "0.17068687399999999",
+          "kind": "COARSEN_PROFILE"
+        }
+      ]
+    }
+  ],
+  "summary": [
+    {
+      "kind": "PROFILE",
+      "checkpoint": "baseline",
+      "detail": 0,
+      "count": 9,
+      "median": 0.048546229,
+      "minimum": 0.047818607,
+      "maximum": 0.050312164
+    },
+    {
+      "kind": "PROFILE",
+      "checkpoint": "baseline",
+      "detail": 1,
+      "count": 9,
+      "median": 0.04899692,
+      "minimum": 0.048134481,
+      "maximum": 0.050676349
+    },
+    {
+      "kind": "PROFILE",
+      "checkpoint": "candidate",
+      "detail": 0,
+      "count": 9,
+      "median": 0.0487988,
+      "minimum": 0.048141309,
+      "maximum": 0.051054029
+    },
+    {
+      "kind": "PROFILE",
+      "checkpoint": "candidate",
+      "detail": 1,
+      "count": 9,
+      "median": 0.049073946,
+      "minimum": 0.048058818,
+      "maximum": 0.052008905
+    },
+    {
+      "kind": "COARSEN_PROFILE",
+      "checkpoint": "baseline",
+      "detail": 0,
+      "count": 9,
+      "median": 0.194753087,
+      "minimum": 0.192717958,
+      "maximum": 0.208555453
+    },
+    {
+      "kind": "COARSEN_PROFILE",
+      "checkpoint": "baseline",
+      "detail": 1,
+      "count": 9,
+      "median": 0.194757913,
+      "minimum": 0.191958899,
+      "maximum": 0.198727862
+    },
+    {
+      "kind": "COARSEN_PROFILE",
+      "checkpoint": "candidate",
+      "detail": 0,
+      "count": 9,
+      "median": 0.194821534,
+      "minimum": 0.193751968,
+      "maximum": 0.196442673
+    },
+    {
+      "kind": "COARSEN_PROFILE",
+      "checkpoint": "candidate",
+      "detail": 1,
+      "count": 9,
+      "median": 0.1947578,
+      "minimum": 0.192906966,
+      "maximum": 0.196385717
+    },
+    {
+      "kind": "REPAIR_PROFILE",
+      "checkpoint": "baseline",
+      "detail": 0,
+      "count": 9,
+      "median": 0.011598861,
+      "minimum": 0.011492717,
+      "maximum": 0.019835331
+    },
+    {
+      "kind": "REPAIR_PROFILE",
+      "checkpoint": "baseline",
+      "detail": 1,
+      "count": 9,
+      "median": 0.011627697,
+      "minimum": 0.011549556,
+      "maximum": 0.014268409
+    },
+    {
+      "kind": "REPAIR_PROFILE",
+      "checkpoint": "candidate",
+      "detail": 0,
+      "count": 9,
+      "median": 0.011560539,
+      "minimum": 0.011391768,
+      "maximum": 0.01203524
+    },
+    {
+      "kind": "REPAIR_PROFILE",
+      "checkpoint": "candidate",
+      "detail": 1,
+      "count": 9,
+      "median": 0.011564047,
+      "minimum": 0.011433849,
+      "maximum": 0.011678354
+    }
+  ],
+  "receipts": {
+    "baseline": {
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/large_source_regression_v3/actual_nonmpi",
+      "sha256": "ef20463b5afac3a3b213ffec8ba24c344889c0772cb8bc680952abbc3719b68d",
+      "binary_sha256": "83ea92fd711167fadce726aa895f4c90445ae168361cec37e2f29ae4dd7324d2"
+    },
+    "candidate": {
+      "path": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/query_support_regression_v3/actual_nonmpi",
+      "sha256": "b8f35daf5195a55e07388b927886dd25b7c5201866b0e517fe0464c5ac8a9730",
+      "binary_sha256": "6ed788fe24eb89b937204b11808b207883cd3099849ba00b2761f466ec0a8a88"
+    }
+  },
+  "scope": "Three alternating process pairs; each process includes three matched OFF/ON controls. Same control source, verified source/binary receipts and matching recorded accepted/edge work. Independent preceding MPI matrix confirms complete prior mesh identity. Local contention; no general performance, scaling or CFD affordability claim.",
+  "runner_sha256": "ed218eb97b1c856c1253f825bad21b837b7c4203ca0d6652bddee8268a88a4ad",
+  "artifact_sha256": {
+    "1_candidate.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "2_baseline.stdout": "bad4f6f92d3ad56337cfa0d3d7c220f7260668fe7472bae85b2a3e2b18779517",
+    "1_baseline.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "2_candidate_load.txt": "5693acdeba705a48c3f53090b82c73be3d3974bd3bd91fc6277cc854be5040b4",
+    "2_baseline_load.txt": "57783e0e4c8fca1a1d8deedcfa2388b8d6185fa26960070942f1c1e13b1ec696",
+    "1_candidate_processes.txt": "9ac34bce0104777c6d82b83bdc98ce6dc7189ced79b48176700d2380d24e83e2",
+    "1_candidate_memory.txt": "c3874c1732793295d392d174c083b4d35210c1f5e2be9324792096062a03c29b",
+    "2_baseline_memory.txt": "d7bbfa0b71eeef2a33087a4e0b630d138bde4a5162fd9bdefe8399826ffde3e6",
+    "0_candidate_load.txt": "a35d54ecfde78826fca73186dbc9b88fa3ad3c8faaad6bb24761c321fcf444b8",
+    "0_baseline.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "0_candidate.stdout": "1020ee21e91e91792ed43bd984ce1e2df8f954f6c8d44f5c7f39aa8183f73a29",
+    "1_baseline.stdout": "f289815522e0a5dd828d4a4376f488f8a692d1cc05c3bb3a760079bf85663f52",
+    "0_candidate_memory.txt": "a7f7e1222c87c5dcec216be01bd6522e321a86609ef3cf8962a69bb97d33544b",
+    "1_candidate.stdout": "282ac2413cfa7288d4c19cc2a9329ecdb4f5d0a37f7d9356ee88fc86c8ad1557",
+    "2_candidate_processes.txt": "9ac34bce0104777c6d82b83bdc98ce6dc7189ced79b48176700d2380d24e83e2",
+    "2_candidate.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "1_baseline_processes.txt": "9ac34bce0104777c6d82b83bdc98ce6dc7189ced79b48176700d2380d24e83e2",
+    "0_baseline_memory.txt": "8f5930682ea92d08eeccbe2f120c7914eadd29e430ba12a8a55b9b93288f8d3d",
+    "2_baseline.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "1_candidate_load.txt": "f44d5a4d3d9076c6117e0e12695960bcbd82768fbadce508c1905b2ccd93f29d",
+    "0_baseline_processes.txt": "9ac34bce0104777c6d82b83bdc98ce6dc7189ced79b48176700d2380d24e83e2",
+    "1_baseline_memory.txt": "92edd2620cfe4b4e0d46c690bd07f1d696645f0d9a1d38c63dc797c4eed11c5b",
+    "0_candidate.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "2_candidate_memory.txt": "bfe7f7bea552d6a20caad0f6ac813d83d8fbaa588dc2acea3dc0b0294c875b7a",
+    "1_baseline_load.txt": "97e204a8381cc3ecbaad3249f03fccca833d9fa1774e52b8949e6b142cc1a7ea",
+    "0_candidate_processes.txt": "9ac34bce0104777c6d82b83bdc98ce6dc7189ced79b48176700d2380d24e83e2",
+    "0_baseline.stdout": "7b0d9ac8d455c96dd7862720fe41059b3238ddfa6cc5078ac8aae95ebf11070a",
+    "0_baseline_load.txt": "014b3725d47418d745427c7d9dc87f10216835c0cfbb035498457062f0ca889f",
+    "2_candidate.stdout": "971a32d9e996b123621e8c861b54f67565ff3532ee9d497119d796241a368b1b",
+    "2_baseline_processes.txt": "9ac34bce0104777c6d82b83bdc98ce6dc7189ced79b48176700d2380d24e83e2"
+  }
+}

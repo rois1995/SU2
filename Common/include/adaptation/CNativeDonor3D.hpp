@@ -29,6 +29,7 @@ struct DonorImportStats {
  * Box imports include all original AABB intersections. Cell imports additionally reject strictly separated
  * face planes with exact signs when the original source exceeds the patch cap; smaller sources keep the
  * cheaper box path. Touching donors remain eligible. Neither is a geometric coverage certificate.
+ * Metric-cell imports retain every closed centroid/edge intersection when filtering is required.
  * Exact FrozenField queries/edge coverage remain authoritative. Compose locally at actual queries, never on wire.
  * Regions <= MaximumCavityCells and donor union <= MaximumDonors; oversized imports reject as a whole.
  * Source IDs, canonical simplices, shared coordinates/sensors and SPD are checked across ranks at Build.
@@ -42,6 +43,9 @@ class DonorImport {
              size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
   DonorPatch Import(const std::vector<DonorRegion>& regions, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
   DonorPatch ImportCells(const std::vector<Cell>& cells, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
+  /*! Only covers these cells' actual centroids and six closed edge segments; not arbitrary interior queries.
+   * Reconstruction callers must retain full-cell imports until every private query is known. */
+  DonorPatch ImportMetricCells(const std::vector<Cell>& cells, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
   size_t ResidentBytes() const;
   const DonorImportStats& Statistics() const { return stats; }
  private:
@@ -54,7 +58,7 @@ class DonorImport {
   std::unique_ptr<CRankBoxTree> ranks;
   DonorImportStats stats;
   DonorPatch ImportRegions(const std::vector<DonorRegion>& regions, const std::vector<Cell>* cells,
-                          size_t ceiling, size_t caller_bytes);
+                          size_t ceiling, size_t caller_bytes, bool metric_queries = false);
   bool Vote(const CLocalFailure& failure, std::string& reason);
   bool Admit(size_t bytes, size_t ceiling, std::string& reason);
 };

@@ -39,9 +39,9 @@ int Server(const Authority& row, int size) {
 struct Request {
   DonorRegion region{};
   int caller = 0;
-  bool tetrahedral = false;
+  bool tetrahedral = false, metric_queries = false;
   Tetrahedron tetra{};
-  template <class S> void Fields(S& s) { s(region, caller, tetrahedral, tetra); }
+  template <class S> void Fields(S& s) { s(region, caller, tetrahedral, metric_queries, tetra); }
 };
 DonorRegion Bounds(const Cell& cell) {
   const auto p = cell.v[0].p;
@@ -193,8 +193,11 @@ DonorPatch DonorImport::Import(const std::vector<DonorRegion>& regions, size_t c
 DonorPatch DonorImport::ImportCells(const std::vector<Cell>& cells, size_t ceiling, size_t caller_bytes) {
   return ImportRegions({}, &cells, ceiling, caller_bytes);
 }
+DonorPatch DonorImport::ImportMetricCells(const std::vector<Cell>& cells, size_t ceiling, size_t caller_bytes) {
+  return ImportRegions({}, &cells, ceiling, caller_bytes, true);
+}
 DonorPatch DonorImport::ImportRegions(const std::vector<DonorRegion>& regions, const std::vector<Cell>* cells,
-                                    size_t ceiling, size_t caller_bytes) {
+                                    size_t ceiling, size_t caller_bytes, bool metric_queries) {
   Timer timer(stats.import_seconds, timings);
   ++stats.imports;
   DonorPatch result;
@@ -218,6 +221,7 @@ DonorPatch DonorImport::ImportRegions(const std::vector<DonorRegion>& regions, c
       Request request; request.region = region; request.caller = world.rank;
       if (cells) {
         request.tetrahedral = filter_cells;
+        request.metric_queries = filter_cells && metric_queries;
         for (size_t j = 0; j < 4; ++j) request.tetra[j] = cells->at(i).v[j].p;
         const auto& t = request.tetra;
         if (!(Orientation(t[0], t[1], t[2], t[3]) > 0)) throw std::invalid_argument("Nonpositive donor import cell.");
@@ -264,10 +268,17 @@ DonorPatch DonorImport::ImportRegions(const std::vector<DonorRegion>& regions, c
           ++stats.filter_candidates;
           const auto& v = donors.at(i).cell.v;
           const Tetrahedron donor{v[0].p, v[1].p, v[2].p, v[3].p};
-          if (Outside(request.tetra, donor, &stats.filter_kernel) || Outside(donor, request.tetra, &stats.filter_kernel)) {
-            ++stats.filtered;
-            continue;
-          }
+          bool needed = true;
+          if (request.metric_queries) {
+            Cell query; for (size_t j = 0; j < 4; ++j) query.v[j].p = request.tetra[j];
+            const auto center = Centroid(query);
+            needed = IntersectsSegment(donor, center, center, &stats.filter_kernel);
+            for (size_t a = 0; a < 4 && !needed; ++a)
+              for (size_t b = a + 1; b < 4 && !needed; ++b)
+                needed = IntersectsSegment(donor, request.tetra[a], request.tetra[b], &stats.filter_kernel);
+          } else needed = !(Outside(request.tetra, donor, &stats.filter_kernel) ||
+                            Outside(donor, request.tetra, &stats.filter_kernel));
+          if (!needed) { ++stats.filtered; continue; }
         }
         auto& set = selected[request.caller];
         set.emplace(donors.at(i).cell.id, i);

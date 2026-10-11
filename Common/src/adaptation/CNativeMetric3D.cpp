@@ -14,15 +14,6 @@
 namespace SU2Native3D {
 namespace {
 bool Same(Point a, Point b) { return a.x == b.x && a.y == b.y && a.z == b.z; }
-Point Center(const Cell& c) {
-  long double x = 0, y = 0, z = 0;
-  for (auto n : c.v) {
-    x += static_cast<long double>(n.p.x) / 4;
-    y += static_cast<long double>(n.p.y) / 4;
-    z += static_cast<long double>(n.p.z) / 4;
-  }
-  return {double(x), double(y), double(z)};
-}
 void Shape(const PatchMetric& m);
 PatchMetric MeasurePatch(const std::vector<Cell>& cells, FrozenField& target, MetricStats* stats,
                          const std::map<Edge, EdgeMeasure>* reuse = nullptr, bool require_shape = false) {
@@ -53,7 +44,7 @@ PatchMetric MeasurePatch(const std::vector<Cell>& cells, FrozenField& target, Me
     if (stats) ++stats->cells;
     MetricMeasures m;
     try {
-      m = Measure({cell.v[0].p, cell.v[1].p, cell.v[2].p, cell.v[3].p}, target.Query(Center(cell)).target);
+      m = Measure({cell.v[0].p, cell.v[1].p, cell.v[2].p, cell.v[3].p}, target.Query(Centroid(cell)).target);
     } catch (const std::exception& e) {
       throw std::runtime_error(std::string(e.what()) + " at native 3D metric cell " + std::to_string(cell.id) + ".");
     }

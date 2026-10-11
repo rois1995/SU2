@@ -224,12 +224,11 @@ std::array<long double, 4> AtRoot(const Root& root, const std::array<Integer<198
   for (auto& w : weights) w /= sum;
   return weights;
 }
-bool Clip(const Cell& cell, Point a, Point b, WorkPiece& result, KernelStats* stats) {
-  const Tetrahedron t{cell.v[0].p, cell.v[1].p, cell.v[2].p, cell.v[3].p};
-  const auto volume = ExactVolume(t, stats);
+bool ClipInterval(const Tetrahedron& t, Point a, Point b, Integer<198>& volume,
+                  std::array<Integer<198>, 4>& va, std::array<Integer<198>, 4>& vb,
+                  Root& lo, Root& hi, bool closed, KernelStats* stats) {
+  volume = ExactVolume(t, stats);
   if (Sign(volume) <= 0) throw std::invalid_argument("Nonpositive native 3D segment donor.");
-  std::array<Integer<198>, 4> va, vb;
-  Root lo(false), hi(true);
   for (size_t i = 0; i < 4; ++i) {
     auto ta = t, tb = t;
     ta[i] = a;
@@ -246,8 +245,17 @@ bool Clip(const Cell& cell, Point a, Point b, WorkPiece& result, KernelStats* st
       Root cut(va[i], Difference(va[i], vb[i]));
       if (CompareRoot(cut, hi) < 0) hi = cut;
     }
-    if (CompareRoot(lo, hi) >= 0) return false;
+    const auto order = CompareRoot(lo, hi);
+    if (order > 0 || (!closed && order == 0)) return false;
   }
+  return true;
+}
+bool Clip(const Cell& cell, Point a, Point b, WorkPiece& result, KernelStats* stats) {
+  const Tetrahedron t{cell.v[0].p, cell.v[1].p, cell.v[2].p, cell.v[3].p};
+  Integer<198> volume;
+  std::array<Integer<198>, 4> va, vb;
+  Root lo(false), hi(true);
+  if (!ClipInterval(t, a, b, volume, va, vb, lo, hi, false, stats)) return false;
   result.begin = lo;
   result.end = hi;
   result.piece.begin = Ratio(lo.numerator, lo.denominator);
@@ -267,6 +275,22 @@ bool Clip(const Cell& cell, Point a, Point b, WorkPiece& result, KernelStats* st
 
 long double Orientation(Point a, Point b, Point c, Point d, KernelStats* stats) {
   return Determinant(a, b, c, d, stats, 1);
+}
+Point Centroid(const Cell& cell) {
+  long double x = 0, y = 0, z = 0;
+  for (auto n : cell.v) {
+    x += static_cast<long double>(n.p.x) / 4;
+    y += static_cast<long double>(n.p.y) / 4;
+    z += static_cast<long double>(n.p.z) / 4;
+  }
+  return {double(x), double(y), double(z)};
+}
+bool IntersectsSegment(const Tetrahedron& donor, Point a, Point b, KernelStats* stats) {
+  if (!(Finite(a) && Finite(b))) throw std::invalid_argument("Nonfinite native 3D query segment.");
+  Integer<198> volume;
+  std::array<Integer<198>, 4> va, vb;
+  Root lo(false), hi(true);
+  return ClipInterval(donor, a, b, volume, va, vb, lo, hi, true, stats);
 }
 bool Barycentric(const Tetrahedron& donor, Point point, std::array<long double, 4>& weights, KernelStats* stats) {
   if (!(Orientation(donor[0], donor[1], donor[2], donor[3], stats) > 0))

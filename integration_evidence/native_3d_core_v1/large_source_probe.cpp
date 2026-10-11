@@ -32,6 +32,12 @@ std::vector<Cell> Grid(unsigned n) {
  }
  return cells;
 }
+void Transform(std::vector<Cell>& cells,const std::string& mode) {
+ for(auto& c:cells)for(auto& n:c.v) {
+  if(mode=="thin8")n.p.z/=8;
+  if(mode=="shear4")n.p.x+=4*n.p.z;
+ }
+}
 std::vector<char> Bytes(const Owned& owned) {
  std::vector<char> bytes;RecordStream stream(bytes);
  for(auto row:owned){auto id=row.first;stream(id,row.second);}return bytes;
@@ -96,7 +102,7 @@ int main(int argc,char** argv) {
  SU2_MPI::Init(&argc,&argv);
  {
   World parent;assert(argc==2);const std::string folder=argv[1];
-  for(unsigned n:{3u,4u,5u}) {
+  for(unsigned n:{3u,4u,5u,6u}) {
    const auto grid=Grid(n);const auto source=Source(parent,grid,1.);
    DonorImport service(parent,true);std::string reason;assert(service.Build(source,reason));
    auto box=service.Import({{0,0,0,1,1,1}});assert(box.valid==(n==3));
@@ -124,6 +130,35 @@ int main(int argc,char** argv) {
      for(unsigned q=0;q<4;++q)Ordered(parent,"");
     }
    }
+   for(const std::string mode:{"box","thin8","shear4"}) {
+    if(n!=4 && mode!="box")continue;
+    auto query_grid=grid;Transform(query_grid,mode);auto coarse_grid=Grid(1);Transform(coarse_grid,mode);
+    DonorImport query_service(parent,true);assert(query_service.Build(Source(parent,query_grid,1),reason));
+    const auto query_resident=query_service.ResidentBytes();
+    for(unsigned i=0;i<6;++i) {
+     const auto coarse=coarse_grid[i];auto imported=query_service.ImportMetricCells(parent.rank ? std::vector<Cell>{} : std::vector<Cell>{coarse});
+     assert(imported.valid && query_service.ResidentBytes()==query_resident);
+     std::ostringstream line;line<<"LARGE_SUPPORT n="<<n<<" cell="<<i<<" rank="<<parent.rank
+      <<" ranks="<<parent.size<<" mode="<<mode<<" count="<<imported.cells.size()<<" ids=";
+     for(auto d:imported.cells){line<<d.cell.id<<',';}line<<'\n';Ordered(parent,line.str());
+     std::ostringstream query;
+     if(!parent.rank) {
+      uint64_t compositions=0;FrozenField field(imported.cells,[&](Point p,Tensor m){++compositions;m.xx+=p.z;return m;},true);
+      const auto center=Centroid(coarse);const auto value=field.Query(center);field.Query(center);assert(compositions==2);
+      FrozenField sensor(imported.cells);query<<std::setprecision(20)<<"LARGE_SUPPORT_QUERY n="<<n<<" cell="<<i<<" mode="<<mode
+       <<" x="<<center.x<<" y="<<center.y<<" z="<<center.z<<" sensor="<<value.sensor.xx<<" target="<<value.target.xx<<" donor=";
+      for(auto id:value.donor){query<<id<<',';}query<<" lengths=";
+      for(unsigned a=0;a<4;++a)for(unsigned b=a+1;b<4;++b)query<<sensor.SensorEdgeLength(coarse.v[a].p,coarse.v[b].p)<<',';
+      query<<'\n';
+     }
+     Ordered(parent,query.str());
+    }
+    const auto& q=query_service.Statistics();std::ostringstream cost;cost<<std::setprecision(17)
+     <<"LARGE_SUPPORT_COST n="<<n<<" mode="<<mode<<" rank="<<parent.rank<<" ranks="<<parent.size
+     <<" candidates="<<q.index_candidates<<" filtered="<<q.filtered<<" payloads="<<q.payloads<<" max_patch="<<q.maximum_patch
+     <<" build_s="<<q.build_seconds<<" import_s="<<q.import_seconds<<" search_nested_s="<<q.search_seconds
+     <<" filter_nested_s="<<q.filter_seconds<<" work_bytes="<<q.maximum_work_bytes<<'\n';Ordered(parent,cost.str());
+   }
    const auto& st=service.Statistics();assert((st.filter_candidates>0)==(n>3));std::ostringstream report;report<<std::setprecision(17)
     <<"LARGE_IMPORT_COST n="<<n<<" rank="<<parent.rank<<" ranks="<<parent.size<<" candidates="<<st.index_candidates
     <<" filtered="<<st.filtered<<" payloads="<<st.payloads<<" max_patch="<<st.maximum_patch
@@ -131,10 +166,18 @@ int main(int argc,char** argv) {
     <<" search_nested_s="<<st.search_seconds<<" filter_nested_s="<<st.filter_seconds<<" work_bytes="<<st.maximum_work_bytes<<'\n';
    Ordered(parent,report.str());
   }
-  for(const std::string kind:{"coarse","wedge","oversized"}) {
-   const unsigned n=kind=="oversized" ? 5 : 4;const double strength=kind=="wedge" ? 4. : 1.;
+  {
+   const auto grid=Grid(7);DonorImport service(parent,true);std::string reason;
+   assert(service.Build(Source(parent,grid,1),reason));const auto resident=service.ResidentBytes();
+   const auto imported=service.ImportMetricCells(parent.rank ? std::vector<Cell>{} : std::vector<Cell>{Grid(1)[0]});
+   assert(!imported.valid && imported.reason.find("patch budget")!=std::string::npos && service.ResidentBytes()==resident);
+   if(!parent.rank)std::cout<<"LARGE_SUPPORT_LIMIT n=7 valid=0 source=2058\n";
+  }
+  for(const std::string kind:{"coarse","wedge","dense","dense_wedge"}) {
+   const bool wedge=kind=="wedge" || kind=="dense_wedge";
+   const unsigned n=kind=="dense" || kind=="dense_wedge" ? 5 : 4;const double strength=wedge ? 4. : 1.;
    const auto grid=Grid(n);const auto source=Source(parent,grid,strength);
-   std::vector<Facet> facets;const auto input=Coarse(parent,n,facets,kind=="wedge");const auto saved=Bytes(input);
+   std::vector<Facet> facets;const auto input=Coarse(parent,n,facets,wedge);const auto saved=Bytes(input);
    std::vector<std::vector<OwnedCell>> initial_to(parent.size);
    for(auto row:input)initial_to[0].push_back(row.second);
    const auto initial=parent.exchange(initial_to);
@@ -154,14 +197,15 @@ int main(int argc,char** argv) {
      World worker(subset);Owned owned;for(auto row:migrated)owned.emplace(row.cell.id,row);
      const auto before=Bytes(owned);EngineOptions options;options.timings=true;
      const auto result=Refine(worker,owned,source_rows,PlanarReference(facets),{},options);const auto& s=result.stats;
-     valid=result.valid;assert(valid==(kind!="oversized"));assert(Bytes(owned)==before);assert(s.other_seconds>=-1e-12);
-     if(kind=="coarse")assert(Bytes(result.cells)==before && s.accepted==0);
-     if(kind=="oversized")assert(s.accepted==0 && result.reason.find("patch budget")!=std::string::npos);
+     valid=result.valid;assert(valid==(kind!="dense_wedge"));
+     assert((s.query_import_retries>0)==(n==5));assert(Bytes(owned)==before);assert(s.other_seconds>=-1e-12);
+     if(!wedge)assert(Bytes(result.cells)==before && s.accepted==0);
+     if(kind=="dense_wedge")assert(s.accepted==0 && s.initial_cells==owned.size() && result.reason.find("patch budget")!=std::string::npos);
      if(kind=="wedge")assert(worker.sum(int(s.accepted))>0);
      std::ostringstream report;report<<std::setprecision(17)<<"LARGE_ENGINE case="<<label<<" rank="<<worker.rank
       <<" workers="<<m<<" valid="<<valid<<" source="<<grid.size()<<" initial="<<s.initial_cells
       <<" final_local="<<result.cells.size()<<" rounds="<<s.rounds<<" accepted="<<s.accepted<<" rejected="<<s.rejected
-      <<" batches="<<s.donor_batches<<" retries="<<s.batch_retries<<" candidates="<<s.donor_candidates
+      <<" batches="<<s.donor_batches<<" retries="<<s.batch_retries<<" query_import_retries="<<s.query_import_retries<<" candidates="<<s.donor_candidates
       <<" filtered="<<s.donor_filtered<<" payloads="<<s.donor_payloads<<" max_patch="<<s.donor_maximum_patch
       <<" total_s="<<s.total_seconds<<" init_s="<<s.initialization_seconds<<" seed_s="<<s.seed_seconds
       <<" selection_s="<<s.selection_seconds<<" dependency_s="<<s.dependency_seconds<<" reservation_s="<<s.reservation_seconds
@@ -172,7 +216,7 @@ int main(int argc,char** argv) {
       <<" trace_nested_s="<<s.edge_trace_seconds<<" work_bytes="<<s.maximum_work_bytes<<'\n';Ordered(worker,report.str());
      adapted=result.cells;MPI_Comm_free(&subset);
     }
-    const auto failed=parent.maximum(!valid);const double worker_s=elapsed(phase);assert(failed==(kind=="oversized"));
+    const auto failed=parent.maximum(!valid);const double worker_s=elapsed(phase);assert(failed==(kind=="dense_wedge"));
     phase=std::chrono::steady_clock::now();to.assign(parent.size,{});
     for(auto row:adapted)to[row.first%parent.size].push_back(row.second);
     const auto returned=parent.exchange(to);Owned output;for(auto row:returned)output.emplace(row.cell.id,row);

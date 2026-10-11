@@ -1,3 +1,8 @@
+Latest checkpoint: cap-only exact centroid/edge donor import, restored legacy trace cost,
+MPI1/2/4/M<N source matrix and paired baseline controls.
+[QUERY_SUPPORT_CHECKPOINT.md](QUERY_SUPPORT_CHECKPOINT.md).
+Grids: `query_support_sources_v3/mpi{1,2,4}_meshes/`. Goal1 remains ACTIVE.
+
 Latest checkpoint: strict cell-shaped imports for larger original sensor sources,
 with small-source cost protection and complete original mesh identity. See
 [LARGE_SOURCE_CHECKPOINT.md](LARGE_SOURCE_CHECKPOINT.md).

@@ -1,0 +1,296 @@
+{
+  "status": "PASS",
+  "baseline": "integration_evidence/native_3d_core_v1/query_support_sources_v1",
+  "candidate": "integration_evidence/native_3d_core_v1/query_support_sources_v2",
+  "matched_files": 72,
+  "files": [
+    {
+      "path": "mpi1_meshes/coarse_initial.json",
+      "sha256": "041af6ad610d8cc72439d81843a6ffab2aca698a05a1a00058fe3438a76a77b5"
+    },
+    {
+      "path": "mpi1_meshes/coarse_initial.su2",
+      "sha256": "186c8a294d8294ec3a8e16653aaa8917cfa5c63a9e8d03a96abcc6caa6057fb6"
+    },
+    {
+      "path": "mpi1_meshes/coarse_m1.json",
+      "sha256": "041af6ad610d8cc72439d81843a6ffab2aca698a05a1a00058fe3438a76a77b5"
+    },
+    {
+      "path": "mpi1_meshes/coarse_m1.su2",
+      "sha256": "186c8a294d8294ec3a8e16653aaa8917cfa5c63a9e8d03a96abcc6caa6057fb6"
+    },
+    {
+      "path": "mpi1_meshes/dense_initial.json",
+      "sha256": "d9fd222fc71ad94abd0441503635680302f441e08e20b37be0940f000d900ef1"
+    },
+    {
+      "path": "mpi1_meshes/dense_initial.su2",
+      "sha256": "186c8a294d8294ec3a8e16653aaa8917cfa5c63a9e8d03a96abcc6caa6057fb6"
+    },
+    {
+      "path": "mpi1_meshes/dense_m1.json",
+      "sha256": "d9fd222fc71ad94abd0441503635680302f441e08e20b37be0940f000d900ef1"
+    },
+    {
+      "path": "mpi1_meshes/dense_m1.su2",
+      "sha256": "186c8a294d8294ec3a8e16653aaa8917cfa5c63a9e8d03a96abcc6caa6057fb6"
+    },
+    {
+      "path": "mpi1_meshes/dense_wedge_initial.json",
+      "sha256": "001760644835a00aa0ef95ba29ef19da9557a96f899ec5ff36f3abd2d06f7691"
+    },
+    {
+      "path": "mpi1_meshes/dense_wedge_initial.su2",
+      "sha256": "0df357911ecec020579eac92064081d110da508fc4127189aae35de08b3b9881"
+    },
+    {
+      "path": "mpi1_meshes/dense_wedge_m1_rejected.json",
+      "sha256": "001760644835a00aa0ef95ba29ef19da9557a96f899ec5ff36f3abd2d06f7691"
+    },
+    {
+      "path": "mpi1_meshes/dense_wedge_m1_rejected.su2",
+      "sha256": "0df357911ecec020579eac92064081d110da508fc4127189aae35de08b3b9881"
+    },
+    {
+      "path": "mpi1_meshes/wedge_initial.json",
+      "sha256": "082e8f8b3a880ea09a0e941f854590d9f82319d7b709ac0da5d33cb79876bc0f"
+    },
+    {
+      "path": "mpi1_meshes/wedge_initial.su2",
+      "sha256": "0df357911ecec020579eac92064081d110da508fc4127189aae35de08b3b9881"
+    },
+    {
+      "path": "mpi1_meshes/wedge_m1.json",
+      "sha256": "e68f1f28c5609b72c76ae9250a213369e65f956e62c46e2a283b4f9a753f0462"
+    },
+    {
+      "path": "mpi1_meshes/wedge_m1.su2",
+      "sha256": "b3b0116a20fbfd2deea441ad3182188a56e33e6cfd1bccb8e127d604bc3677d2"
+    },
+    {
+      "path": "mpi2_meshes/coarse_initial.json",
+      "sha256": "cea3eb03e7ab2e648ae821154f4a9c865d3e222cd5cd237bbd9a65f03f44ab3c"
+    },
+    {
+      "path": "mpi2_meshes/coarse_initial.su2",
+      "sha256": "f1a3b671463cc745b96edf0c1b5eec8b3f4904d7f9573899717c557c0b0958a1"
+    },
+    {
+      "path": "mpi2_meshes/coarse_m1.json",
+      "sha256": "cea3eb03e7ab2e648ae821154f4a9c865d3e222cd5cd237bbd9a65f03f44ab3c"
+    },
+    {
+      "path": "mpi2_meshes/coarse_m1.su2",
+      "sha256": "f1a3b671463cc745b96edf0c1b5eec8b3f4904d7f9573899717c557c0b0958a1"
+    },
+    {
+      "path": "mpi2_meshes/coarse_m2.json",
+      "sha256": "cea3eb03e7ab2e648ae821154f4a9c865d3e222cd5cd237bbd9a65f03f44ab3c"
+    },
+    {
+      "path": "mpi2_meshes/coarse_m2.su2",
+      "sha256": "f1a3b671463cc745b96edf0c1b5eec8b3f4904d7f9573899717c557c0b0958a1"
+    },
+    {
+      "path": "mpi2_meshes/dense_initial.json",
+      "sha256": "8c85e5a423c3e9590c843da3ad6f23c04ea4fd832aec11f421aa0b7be7060799"
+    },
+    {
+      "path": "mpi2_meshes/dense_initial.su2",
+      "sha256": "f1a3b671463cc745b96edf0c1b5eec8b3f4904d7f9573899717c557c0b0958a1"
+    },
+    {
+      "path": "mpi2_meshes/dense_m1.json",
+      "sha256": "8c85e5a423c3e9590c843da3ad6f23c04ea4fd832aec11f421aa0b7be7060799"
+    },
+    {
+      "path": "mpi2_meshes/dense_m1.su2",
+      "sha256": "f1a3b671463cc745b96edf0c1b5eec8b3f4904d7f9573899717c557c0b0958a1"
+    },
+    {
+      "path": "mpi2_meshes/dense_m2.json",
+      "sha256": "8c85e5a423c3e9590c843da3ad6f23c04ea4fd832aec11f421aa0b7be7060799"
+    },
+    {
+      "path": "mpi2_meshes/dense_m2.su2",
+      "sha256": "f1a3b671463cc745b96edf0c1b5eec8b3f4904d7f9573899717c557c0b0958a1"
+    },
+    {
+      "path": "mpi2_meshes/dense_wedge_initial.json",
+      "sha256": "001760644835a00aa0ef95ba29ef19da9557a96f899ec5ff36f3abd2d06f7691"
+    },
+    {
+      "path": "mpi2_meshes/dense_wedge_initial.su2",
+      "sha256": "0df357911ecec020579eac92064081d110da508fc4127189aae35de08b3b9881"
+    },
+    {
+      "path": "mpi2_meshes/dense_wedge_m1_rejected.json",
+      "sha256": "001760644835a00aa0ef95ba29ef19da9557a96f899ec5ff36f3abd2d06f7691"
+    },
+    {
+      "path": "mpi2_meshes/dense_wedge_m1_rejected.su2",
+      "sha256": "0df357911ecec020579eac92064081d110da508fc4127189aae35de08b3b9881"
+    },
+    {
+      "path": "mpi2_meshes/dense_wedge_m2_rejected.json",
+      "sha256": "001760644835a00aa0ef95ba29ef19da9557a96f899ec5ff36f3abd2d06f7691"
+    },
+    {
+      "path": "mpi2_meshes/dense_wedge_m2_rejected.su2",
+      "sha256": "0df357911ecec020579eac92064081d110da508fc4127189aae35de08b3b9881"
+    },
+    {
+      "path": "mpi2_meshes/wedge_initial.json",
+      "sha256": "082e8f8b3a880ea09a0e941f854590d9f82319d7b709ac0da5d33cb79876bc0f"
+    },
+    {
+      "path": "mpi2_meshes/wedge_initial.su2",
+      "sha256": "0df357911ecec020579eac92064081d110da508fc4127189aae35de08b3b9881"
+    },
+    {
+      "path": "mpi2_meshes/wedge_m1.json",
+      "sha256": "6a685226ee3854b341e1b598e6b2339d32f5edb7fb76023b7c39778087012306"
+    },
+    {
+      "path": "mpi2_meshes/wedge_m1.su2",
+      "sha256": "0bce7ae1f1d96481536698379145b4d4e59117a559712c6c2c052ce51b6c10c6"
+    },
+    {
+      "path": "mpi2_meshes/wedge_m2.json",
+      "sha256": "1ad5edb5b4dc9fc03ee1b3c365f1c40369495637f0ed665c277bb948588a7f08"
+    },
+    {
+      "path": "mpi2_meshes/wedge_m2.su2",
+      "sha256": "0bce7ae1f1d96481536698379145b4d4e59117a559712c6c2c052ce51b6c10c6"
+    },
+    {
+      "path": "mpi4_meshes/coarse_initial.json",
+      "sha256": "d0323d01391b7b9f12128d032dcc3fee69739f3e89656ad9bd118a4d028f0994"
+    },
+    {
+      "path": "mpi4_meshes/coarse_initial.su2",
+      "sha256": "c1600e627559e46b9a52cc514d2101346836891c03e7db4d75f117cc44050e4b"
+    },
+    {
+      "path": "mpi4_meshes/coarse_m2.json",
+      "sha256": "d0323d01391b7b9f12128d032dcc3fee69739f3e89656ad9bd118a4d028f0994"
+    },
+    {
+      "path": "mpi4_meshes/coarse_m2.su2",
+      "sha256": "c1600e627559e46b9a52cc514d2101346836891c03e7db4d75f117cc44050e4b"
+    },
+    {
+      "path": "mpi4_meshes/coarse_m3.json",
+      "sha256": "d0323d01391b7b9f12128d032dcc3fee69739f3e89656ad9bd118a4d028f0994"
+    },
+    {
+      "path": "mpi4_meshes/coarse_m3.su2",
+      "sha256": "c1600e627559e46b9a52cc514d2101346836891c03e7db4d75f117cc44050e4b"
+    },
+    {
+      "path": "mpi4_meshes/coarse_m4.json",
+      "sha256": "d0323d01391b7b9f12128d032dcc3fee69739f3e89656ad9bd118a4d028f0994"
+    },
+    {
+      "path": "mpi4_meshes/coarse_m4.su2",
+      "sha256": "c1600e627559e46b9a52cc514d2101346836891c03e7db4d75f117cc44050e4b"
+    },
+    {
+      "path": "mpi4_meshes/dense_initial.json",
+      "sha256": "8c1c6b0aa24160644e46dd43ff948a2348032beddc7884e5ed0b07980ec85ad5"
+    },
+    {
+      "path": "mpi4_meshes/dense_initial.su2",
+      "sha256": "c1600e627559e46b9a52cc514d2101346836891c03e7db4d75f117cc44050e4b"
+    },
+    {
+      "path": "mpi4_meshes/dense_m2.json",
+      "sha256": "8c1c6b0aa24160644e46dd43ff948a2348032beddc7884e5ed0b07980ec85ad5"
+    },
+    {
+      "path": "mpi4_meshes/dense_m2.su2",
+      "sha256": "c1600e627559e46b9a52cc514d2101346836891c03e7db4d75f117cc44050e4b"
+    },
+    {
+      "path": "mpi4_meshes/dense_m3.json",
+      "sha256": "8c1c6b0aa24160644e46dd43ff948a2348032beddc7884e5ed0b07980ec85ad5"
+    },
+    {
+      "path": "mpi4_meshes/dense_m3.su2",
+      "sha256": "c1600e627559e46b9a52cc514d2101346836891c03e7db4d75f117cc44050e4b"
+    },
+    {
+      "path": "mpi4_meshes/dense_m4.json",
+      "sha256": "8c1c6b0aa24160644e46dd43ff948a2348032beddc7884e5ed0b07980ec85ad5"
+    },
+    {
+      "path": "mpi4_meshes/dense_m4.su2",
+      "sha256": "c1600e627559e46b9a52cc514d2101346836891c03e7db4d75f117cc44050e4b"
+    },
+    {
+      "path": "mpi4_meshes/dense_wedge_initial.json",
+      "sha256": "001760644835a00aa0ef95ba29ef19da9557a96f899ec5ff36f3abd2d06f7691"
+    },
+    {
+      "path": "mpi4_meshes/dense_wedge_initial.su2",
+      "sha256": "0df357911ecec020579eac92064081d110da508fc4127189aae35de08b3b9881"
+    },
+    {
+      "path": "mpi4_meshes/dense_wedge_m2_rejected.json",
+      "sha256": "001760644835a00aa0ef95ba29ef19da9557a96f899ec5ff36f3abd2d06f7691"
+    },
+    {
+      "path": "mpi4_meshes/dense_wedge_m2_rejected.su2",
+      "sha256": "0df357911ecec020579eac92064081d110da508fc4127189aae35de08b3b9881"
+    },
+    {
+      "path": "mpi4_meshes/dense_wedge_m3_rejected.json",
+      "sha256": "001760644835a00aa0ef95ba29ef19da9557a96f899ec5ff36f3abd2d06f7691"
+    },
+    {
+      "path": "mpi4_meshes/dense_wedge_m3_rejected.su2",
+      "sha256": "0df357911ecec020579eac92064081d110da508fc4127189aae35de08b3b9881"
+    },
+    {
+      "path": "mpi4_meshes/dense_wedge_m4_rejected.json",
+      "sha256": "001760644835a00aa0ef95ba29ef19da9557a96f899ec5ff36f3abd2d06f7691"
+    },
+    {
+      "path": "mpi4_meshes/dense_wedge_m4_rejected.su2",
+      "sha256": "0df357911ecec020579eac92064081d110da508fc4127189aae35de08b3b9881"
+    },
+    {
+      "path": "mpi4_meshes/wedge_initial.json",
+      "sha256": "082e8f8b3a880ea09a0e941f854590d9f82319d7b709ac0da5d33cb79876bc0f"
+    },
+    {
+      "path": "mpi4_meshes/wedge_initial.su2",
+      "sha256": "0df357911ecec020579eac92064081d110da508fc4127189aae35de08b3b9881"
+    },
+    {
+      "path": "mpi4_meshes/wedge_m2.json",
+      "sha256": "91c822b65eff4204fdc62659ba820889aa36d0610c126707cb80e5734218ed6a"
+    },
+    {
+      "path": "mpi4_meshes/wedge_m2.su2",
+      "sha256": "eb1c79bd9d81b16bd57b030f357ad30145f3cb664362d8187a6d4aa13486b0be"
+    },
+    {
+      "path": "mpi4_meshes/wedge_m3.json",
+      "sha256": "fef6d64d1d7a552ffa72b5289282091637a5b72bb40028345b1a0b6194344c67"
+    },
+    {
+      "path": "mpi4_meshes/wedge_m3.su2",
+      "sha256": "eb1c79bd9d81b16bd57b030f357ad30145f3cb664362d8187a6d4aa13486b0be"
+    },
+    {
+      "path": "mpi4_meshes/wedge_m4.json",
+      "sha256": "c01f5260d0fd601d89012178dc5fa9f60f4e25c9e5567dfc4adc07a4f30c0a7f"
+    },
+    {
+      "path": "mpi4_meshes/wedge_m4.su2",
+      "sha256": "eb1c79bd9d81b16bd57b030f357ad30145f3cb664362d8187a6d4aa13486b0be"
+    }
+  ]
+}

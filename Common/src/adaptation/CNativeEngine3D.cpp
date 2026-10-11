@@ -276,6 +276,14 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         ++stats.donor_batches;
         imported=source.ImportCells(regions,options.memory_ceiling,
             transfer_memory::Add(bytes(),directory.ResidentBytes()));
+        // Narrow only a one-cell cap failure; private reconstruction still needs whole-cell coverage.
+        if (!imported.valid && batch==1 &&
+            (imported.reason=="Original donor import exceeds patch budget." ||
+             imported.reason=="Original donor union exceeds patch budget.")) {
+          ++stats.donor_batches; ++stats.query_import_retries;
+          imported=source.ImportMetricCells(regions,options.memory_ceiling,
+              transfer_memory::Add(bytes(),directory.ResidentBytes()));
+        }
         if (imported.valid) break;
         if (batch==1) { result.reason=imported.reason; return false; }
         batch=(batch+1)/2; ++stats.batch_retries;

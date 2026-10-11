@@ -154,3 +154,19 @@ TEST_CASE("Native 3D exact chord magnitude never substitutes an underflow sign s
     CHECK(double(MetricNorm({}, {tiny, 0, 0}, metric) / expected) == Approx(1).epsilon(1e-14));
   }
 }
+
+TEST_CASE("Native 3D donor footprint uses exact closed segments including point-only contact", "[NativeMesh3D]") {
+  const Tetrahedron t{{{0,0,0},{1,0,0},{0,1,0},{0,0,1}}};
+  CHECK(IntersectsSegment(t, {-.5,.5,0}, {.5,-.5,0}));
+  CHECK(IntersectsSegment(t, {-1,0,0}, {}));
+  CHECK(IntersectsSegment(t, {}, {}));
+  CHECK(IntersectsSegment(t, {.25,.25,.25}, {.25,.25,.25}));
+  CHECK_FALSE(IntersectsSegment(t, {-1,.2,.2}, {.2,-1,.2}));
+  CHECK_FALSE(IntersectsSegment(t, {0,0,-std::numeric_limits<double>::denorm_min()}, {0,0,-1}));
+  CHECK_FALSE(IntersectsSegment(t, {1,1,1}, {1,1,1}));
+  CHECK(IntersectsSegment(t, {-1e100,.25,.25}, {1e100,.25,.25}));
+  CHECK_FALSE(IntersectsSegment(t, {-1e100,1,1}, {1e100,1,1}));
+  auto negative=t;std::swap(negative[0],negative[1]);
+  CHECK_THROWS_AS(IntersectsSegment(negative, {}, {1,0,0}), std::invalid_argument);
+  CHECK_THROWS_AS(IntersectsSegment(t, {NAN,0,0}, {}), std::invalid_argument);
+}

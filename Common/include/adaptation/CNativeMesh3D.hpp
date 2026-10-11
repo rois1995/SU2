@@ -43,6 +43,8 @@ struct Cell {
   }
 };
 using Tetrahedron = std::array<Point, 4>;
+/*! Actual binary64 centroid used by metric checks and their donor footprint. */
+Point Centroid(const Cell& cell);
 struct KernelStats {
   uint64_t filtered_orientations = 0, exact_orientations = 0, measured_cells = 0;
   uint64_t filtered_norms = 0, exact_norms = 0;
@@ -52,6 +54,9 @@ long double Orientation(Point a, Point b, Point c, Point d, KernelStats* stats =
 /*! Positive donor, exact containment signs and magnitude-controlled P1 weights; outside leaves weights unchanged. */
 bool Barycentric(const Tetrahedron& donor, Point point, std::array<long double, 4>& weights,
                  KernelStats* stats = nullptr);
+/*! Exact closed segment/tetrahedron intersection, including endpoint-only and zero-length point queries.
+ * Positive finite donor required; no rounded interval roots or containment tolerance. */
+bool IntersectsSegment(const Tetrahedron& donor, Point a, Point b, KernelStats* stats = nullptr);
 /*! Finite components and exact Sylvester signs; no tensor repair or condition-number clipping. */
 void ValidateTensor(const Tensor& tensor, KernelStats* stats = nullptr);
 constexpr size_t MaximumSegmentDonors = 256;
