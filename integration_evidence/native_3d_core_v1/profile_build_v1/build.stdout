@@ -1,0 +1,16 @@
+ninja: Entering directory `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2'
+[1/9] Compiling C++ object Common/src/libSU2Common.a.p/adaptation_CNativeRemesher3D.cpp.o
+[2/9] Compiling C++ object SU2_CFD/src/libSU2core.a.p/solvers_CSolver.cpp.o
+[3/9] Compiling C++ object SU2_CFD/src/libSU2core.a.p/drivers_CDriver.cpp.o
+FAILED: [code=1] SU2_CFD/src/libSU2core.a.p/drivers_CDriver.cpp.o 
+c++ -ISU2_CFD/src/libSU2core.a.p -ISU2_CFD/src -I../../SU2_CFD/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -ICommon/src -I../../Common/src -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -I/usr/lib/x86_64-linux-gnu/openmpi/include -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -fPIC -pthread -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -MD -MQ SU2_CFD/src/libSU2core.a.p/drivers_CDriver.cpp.o -MF SU2_CFD/src/libSU2core.a.p/drivers_CDriver.cpp.o.d -o SU2_CFD/src/libSU2core.a.p/drivers_CDriver.cpp.o -c ../../SU2_CFD/src/drivers/CDriver.cpp
+../../SU2_CFD/src/drivers/CDriver.cpp: In static member function ‘static void CDriver::BuildGeometryFVM(CConfig*, CGeometry*, CGeometry**&, bool)’:
+../../SU2_CFD/src/drivers/CDriver.cpp:736:76: error: invalid use of member ‘CDriverBase::nDim’ in static member function
+  736 |   SU2Native3D::RuntimeProfile3D<3> profile(config->GetWrt_Performance() && nDim == 3 &&
+      |                                                                            ^~~~
+In file included from ../../SU2_CFD/src/drivers/../../include/drivers/CDriver.hpp:36,
+                 from ../../SU2_CFD/src/drivers/CDriver.cpp:29:
+../../SU2_CFD/src/drivers/../../include/drivers/CDriverBase.hpp:61:7: note: declared here
+   61 |       nDim,              /*!< \brief Number of dimensions. */
+      |       ^~~~
+ninja: build stopped: subcommand failed.

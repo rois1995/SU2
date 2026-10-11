@@ -13,6 +13,7 @@
 #include "../../../Common/include/geometry/meshreader/CSU2ASCIIMeshReaderFVM.hpp"
 #include "../../../Common/include/geometry/meshreader/CCGNSMeshReaderFVM.hpp"
 #include "../../../Common/include/adaptation/CNativeRemesher3D.hpp"
+#include "../../../Common/include/adaptation/CNativeRuntimeProfile3D.hpp"
 #include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
 #include "../../../SU2_CFD/include/drivers/CSinglezoneDriver.hpp"
 #include <iomanip>
@@ -287,4 +288,93 @@ TEST_CASE("Native3D driver publishes only accepted mesh and transfers affine BDF
   }
   REQUIRE(counts.size()==3);CHECK(counts[1]<counts[0]);CHECK(counts[2]>counts[1]);
   {Mute mute;driver->Finalize();driver.reset();}
+}
+
+TEST_CASE("Native3D actual metric-to-replacement lifecycle profiling preserves fixed work", "[NativeLifecycle3D]") {
+  World world;
+  const int workers = GENERATE(1, 2, 4);
+  if (workers > world.size) return;
+  const bool detail = GENERATE(false, true);
+  // Identical fresh initial mesh/field per repetition; later events of a changing mesh are a different workload.
+  for (int repeat = 0; repeat < 3; ++repeat) {
+    const auto name = "lifecycle_m" + std::to_string(workers) + "_d" + std::to_string(detail) + "_r" + std::to_string(repeat);
+    if (!world.rank) {
+      simplex_test::WriteSU2Mesh(BoxMesh(3, 1, false), name + ".su2");
+      std::ofstream cfg(name + ".cfg");
+      cfg << "SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nAOA= 0\nMESH_FORMAT= SU2\nMESH_FILENAME= " << name << ".su2\n"
+          << "MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus, z_minus_a, z_minus_b)\n"
+          << "COMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
+          << "ADAP_HMIN= 0.5\nADAP_HMAX= 0.5000000000000001\nADAP_COMPLEXITY= 8\nADAP_NATIVE_REPARTITION= YES\nADAP_NATIVE_RANKS= " << workers << "\n"
+          << "WRT_PERFORMANCE= " << (detail ? "YES" : "NO") << "\nMGLEVEL= 0\nNUM_METHOD_GRAD= GREEN_GAUSS\nCONV_NUM_METHOD_FLOW= ROE\nMUSCL_FLOW= NO\n"
+          << "TIME_DOMAIN= YES\nTIME_STEP= 1e-3\nTIME_ITER= 10\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\nINNER_ITER= 2\n"
+          << "OUTPUT_FILES= (RESTART)\nWRT_ADAP_MESH= NO\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= " << name << "_mesh\nCONV_FILENAME= " << name << "_history\n";
+    }
+    SU2_MPI::Barrier(SU2_MPI::GetComm());
+    const auto cfg = name + ".cfg";
+    class ProfileDriver : public TetraDriver {
+     public:
+      using TetraDriver::TetraDriver;
+      std::vector<DonorCell>* observed_source = nullptr;
+      void ComputeMetric() override {
+        CSinglezoneDriver::ComputeMetric();
+        const auto& metric = Solver().GetNodes()->GetMetric();
+        for (unsigned long p = 0; p < Geometry().GetnPointDomain(); ++p)
+          for (size_t k = 0; k < 6; ++k) CHECK(metric(p,k) == Approx((k==0 || k==3 || k==5) ? 4. : 0.).margin(1e-12));
+        REQUIRE(observed_source);
+        // Small-fixture observation only: record actual computed owner/halo tensors for the independent audit.
+        for (auto& donor : *observed_source)
+          for (size_t k=0;k<4;++k) {
+            unsigned long p=0;
+            while (p<Geometry().GetnPoint() && Geometry().nodes->GetGlobalIndex(p)!=donor.cell.v[k].id) ++p;
+            REQUIRE(p<Geometry().GetnPoint());
+            donor.sensor[k]={metric(p,0),metric(p,1),metric(p,2),metric(p,3),metric(p,4),metric(p,5)};
+          }
+      }
+    };
+    auto driver = std::make_unique<ProfileDriver>(const_cast<char*>(cfg.c_str()), 1, SU2_MPI::GetComm());
+    const auto field = AffineFlow(3);
+    auto* initial = driver->Solver().GetNodes();
+    for (unsigned long p = 0; p < driver->Geometry().GetnPoint(); ++p) {
+      su2double values[MAXVAR]{};
+      field(driver->Geometry().nodes->GetCoord(p), values);
+      for (size_t k = 0; k < 5; ++k) {
+        initial->SetSolution(p,k,values[k]); initial->GetSolution_time_n()(p,k)=values[k];
+        initial->GetSolution_time_n1()(p,k)=values[k]*.96875;
+      }
+    }
+    su2activematrix prescribed(driver->Geometry().GetnPointDomain(), 6);
+    for (unsigned long p=0;p<prescribed.rows();++p)
+      for (size_t k=0;k<6;++k) prescribed(p,k)=(k==0 || k==3 || k==5) ? 4. : 0.;
+    ReferenceState original;
+    auto donor=ImportGeometry(driver->Config(),driver->Geometry(),&prescribed,original);
+    driver->observed_source=&donor.original;
+    CBarycentricTransfer transfer;
+    const auto started=SU2_MPI::Wtime(); const auto started_cpu=std::clock();
+    driver->AdaptMesh(transfer);
+    const auto elapsed=SU2_MPI::Wtime()-started;
+    const auto elapsed_cpu=double(std::clock()-started_cpu)/CLOCKS_PER_SEC;
+    std::ostringstream timing;
+    timing<<std::setprecision(17)<<"LIFECYCLECASE rank="<<world.rank<<" ranks="<<world.size
+          <<" workers="<<workers<<" detailed="<<detail<<" repeat="<<repeat<<" wall="<<elapsed<<" cpu="<<elapsed_cpu<<'\n';
+    ProfileRow3D(timing.str(),world.comm);
+    REQUIRE(driver->Reference()->original);
+    double error=0;
+    for (const auto& row : Flow(world,driver->Geometry(),driver->Solver())) {
+      su2double x[3]{row.point.x,row.point.y,row.point.z},expected[MAXVAR]{};field(x,expected);
+      for(size_t k=0;k<5;++k) {
+        error=std::max(error,RelDiff(row.values[k],expected[k]));
+        error=std::max(error,RelDiff(row.values[5+k],expected[k]));
+        error=std::max(error,RelDiff(row.values[10+k],expected[k]*.96875));
+      }
+    }
+    CHECK(error<2e-10);
+    su2activematrix accepted_metric(driver->Geometry().GetnPointDomain(),6);
+    for(unsigned long p=0;p<accepted_metric.rows();++p)
+      for(size_t k=0;k<6;++k) accepted_metric(p,k)=(k==0 || k==3 || k==5) ? 4. : 0.;
+    auto retained=*driver->Reference();
+    auto accepted=ImportGeometry(driver->Config(),driver->Geometry(),&accepted_metric,retained);
+    Save(world,name,accepted.cells,donor.original,retained);
+    driver->WriteAdaptedMesh(1,1);
+    {Mute mute;driver->Finalize();driver.reset();}
+  }
 }

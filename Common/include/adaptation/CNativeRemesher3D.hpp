@@ -18,6 +18,7 @@ struct RemeshStats {
   std::array<double, 12> phases{};
   double total_seconds = 0, other_seconds = 0, report_seconds = 0, process_cpu_seconds = 0, idle_cpu_seconds = 0;
   BridgeStats imported, weights, returned;
+  DonorImportStats source;
   PartitionStats partition;
   EngineStats refine, coarsen;
   uint64_t communication_bytes = 0, initial_cells = 0, final_cells = 0;

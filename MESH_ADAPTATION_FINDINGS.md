@@ -1,3 +1,28 @@
+## Native 3D per-rank lifecycle profiling — 2026-10-11
+
+NativeIntegrated / codex/native-3d-core, predecessord5df2785676e610b2dcaec2c5aee7ea93ceb9670.
+WRT_PERFORMANCE native3D records actual metric/Hessian construction, CFD return
+ParMETIS/migration/geometry, solver/current-BDF replacement and mesh/reference
+output. Per-rank wall/processCPU closure and nested source/partition/query/engine
+counters; private CPU labelled separately from processCPU, lifetimeRSS separate
+from native buffer model. Stage own emission excluded, parent includes nested
+emission; no maxima summation or elapsed-minus-CPU MPI wait inference.
+PROFILE_REPORT.md / PROFILE_CHECKPOINT_VALIDATION.json: actual42-stage MPI1/2/4
+PASS,84 main+36 fresh computed-sensor lifecycle accepted events.126 predecessor-
+identical main frames/states;36 strict new frames,357 closed rank-stage rows and
+357 nested rows. Three OFFON repeats per M1/2/4<=N; native2D/MMG/default/budget/
+private-progress rollback pass. Compile static-dimension and invalid equal-size
+fixture failures retained and fixed, no production numerical contract relaxed.
+
+Serial ON sample refinement45.48ms/coarsen14.83ms, metric17.49/reconstruction6.80
+inside refinement. N4/M4 OFF0.175–0.466s, ON0.178–0.431s on contended host; no
+scaling/speedup/affordability or reliable distributed instrumentation-cost claim.
+Goal1 ACTIVE: MPI wait/house traffic/internal memory, practical larger/rotated/
+thin/restart/rank-size envelope and closed SGE work remain. Scheduled unsteady
+metric sampling detail incomplete. Inspect profile_runtime_v2/lifecycle_mpi4
+actual computed sensor/mesh JSON+SU2 sidecar, and mpi4 donor/accepted BDF/metric
+JSON+CGNS. No overnight cluster-launch requests or foreign work touched.
+
 ## Native 3D runtime memory admission — 2026-10-11
 
 NativeIntegrated / codex/native-3d-core; predecessor0864f56e60f0f7d66e5db6cf8779cb8aaa1703c7.

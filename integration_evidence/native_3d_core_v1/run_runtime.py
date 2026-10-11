@@ -6,7 +6,7 @@ folder=Path(sys.argv[1]).resolve();build=root/'integration_evidence/build-integr
 print('Case working and retained folder:',folder,flush=True);folder.mkdir(exist_ok=False)
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 paths=subprocess.check_output(['git','ls-files','Common','SU2_CFD','UnitTests','meson.build','meson_options.txt'],cwd=root,text=True).splitlines()
-extras=['Common/include/adaptation/CNativeReferenceIO3D.hpp','Common/include/adaptation/CNativeRemesher3D.hpp','Common/src/adaptation/CNativeReferenceIO3D.cpp','Common/src/adaptation/CNativeRemesher3D.cpp',str(Path(__file__).resolve().relative_to(root)),'integration_evidence/native_3d_core_v1/audit_runtime.py','integration_evidence/native_3d_core_v1/audit_geometry_bridge.py','integration_evidence/native_3d_core_v1/audit_coupled.py','integration_evidence/native_3d_core_v1/audit_cavities.py','UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp','integration_evidence/native_3d_core_v1/audit_defaults.py']
+extras=['Common/include/adaptation/CNativeRuntimeProfile3D.hpp','integration_evidence/native_3d_core_v1/audit_lifecycle.py','Common/include/adaptation/CNativeReferenceIO3D.hpp','Common/include/adaptation/CNativeRemesher3D.hpp','Common/src/adaptation/CNativeReferenceIO3D.cpp','Common/src/adaptation/CNativeRemesher3D.cpp',str(Path(__file__).resolve().relative_to(root)),'integration_evidence/native_3d_core_v1/audit_runtime.py','integration_evidence/native_3d_core_v1/audit_geometry_bridge.py','integration_evidence/native_3d_core_v1/audit_coupled.py','integration_evidence/native_3d_core_v1/audit_cavities.py','UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp','integration_evidence/native_3d_core_v1/audit_defaults.py']
 paths+=extras
 pins={p:sha(root/p) for p in paths if (root/p).is_file() and (p.endswith(('.cpp','.hpp','.h','.txt','.py')) or p.endswith('meson.build'))}
 owned=subprocess.check_output(['git','diff','--name-only'],cwd=root,text=True).splitlines()+extras
@@ -46,6 +46,12 @@ try:
   out=run(['nice','-n','19','mpirun','--oversubscribe','--bind-to','none','-np',str(n),binary,'[NativeRuntime3D],[NativeReference3D],[NativeBridge2D]','--use-colour','no'],'mpi'+str(n),work)
   assert out.count('All tests passed')==n
   run(['nice','-n','19',sys.executable,where/'audit_runtime.py',work,str(n),folder/('mpi'+str(n)+'.stdout')],'audit_mpi'+str(n))
+ for n in (1,2,4):
+  work=folder/('lifecycle_mpi'+str(n));work.mkdir();print('Case working and retained folder:',work,flush=True)
+  run(['uptime'],'before_lifecycle_mpi'+str(n)+'_load')
+  out=run(['nice','-n','19','mpirun','--oversubscribe','--bind-to','none','-np',str(n),binary,'[NativeLifecycle3D]','--use-colour','no'],'lifecycle_mpi'+str(n),work)
+  assert out.count('All tests passed')==n
+  run(['nice','-n','19',sys.executable,where/'audit_lifecycle.py',work,str(n),folder/('lifecycle_mpi'+str(n)+'.stdout')],'audit_lifecycle_mpi'+str(n))
  # Relevant actual native2D driver and MMG interface checks use the same rebuilt libraries.
  for n in (1,2,4):
   work=folder/('regression_mpi'+str(n));work.mkdir();print('Case working and retained folder:',work,flush=True)

@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "branch": "codex/native-3d-core",
+  "parent_commit": "d5df2785676e610b2dcaec2c5aee7ea93ceb9670",
+  "evidence_sha256": {
+    "profile_build_v1/validation.json": "e7dab3777abbc865df82159fd6384ff5c90fbe37f8a0530f1d38558e042250af",
+    "profile_build_v2/validation.json": "49db3cc1f1f096e1822638e95aa7dc89a846480e49d1b24aa22728d6fc611ff5",
+    "profile_runtime_v1/validation.json": "fd046056aef151a83b37f49ee9fe6b2be5b827b609094602b1b1bf54cd1178cb",
+    "profile_runtime_v2/validation.json": "cdc7189ef1fcec5b413bbf5f586ebe973a99b10ecd17584215fdbb4a90f7dd94",
+    "profile_runtime_v2/lifecycle_phase_summary.json": "e50b896dcb0149003284e937e43fe7ce417f3f0e4330c935471c4f23ef4de15a",
+    "profile_runtime_v2/lifecycle_rank_phases.csv": "b473e8162b420781f0542ea03fb139a3d52152d65f980494369fcffb15cae959",
+    "profile_runtime_v2/predecessor_comparison.json": "b1895aa2f8f324451134daff97905a945726663c2c5100e6a795e66d40c22d88"
+  },
+  "summary_source_sha256": "ef871dff607d521510566f6264f5e5eed301b981af3e7d74d1ed5ab2e5e97575",
+  "scope": "Per-rank exclusive CPU/wall stages for native3D actual metric, CFD return partition/geometry/solver/history replacement and mesh output; nested query/source/partition/engine details. Actual complete-archive 42-stage MPI1/2/4 validation,120 accepted driver events, main126 predecessor-identical mesh/readback frames,36 new fresh-input actual metric lifecycle frames,357 closed detailed rank-stage records and357 nested records,three OFF/ON repetitions per M1/2/4<=N. No full Goal1 completion: MPI wait/house traffic/internal workspace bounds/practical envelope/restart remain open."
+}

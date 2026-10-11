@@ -6,6 +6,7 @@
  */
 
 #include "../../include/adaptation/CNativeRemesher3D.hpp"
+#include "../../include/adaptation/CNativeRuntimeProfile3D.hpp"
 #include "../../include/adaptation/CNativeReferenceIO3D.hpp"
 #include "../../include/CConfig.hpp"
 #include "../../include/geometry/CGeometry.hpp"
@@ -209,6 +210,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
       stats.maximum_native_bytes = std::max({stats.maximum_native_bytes, source.Statistics().maximum_work_bytes,
                                              stats.weights.maximum_native_bytes, stats.partition.maximum_native_bytes,
                                              parent.max_exchange_work_bytes});
+      stats.source = source.Statistics();
     }
     // Index/weights teardown belongs to source preparation, not communicator construction.
     phase(3);
@@ -336,6 +338,67 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     std::cout.write(all.data(), all.size());
     if (!stats.complete)
       std::cout << "Native3D rejected event: " << reason << "; accepted CFD mesh/solution retained.\n";
+  }
+  if (control.timings) {
+    std::ostringstream detail;
+    detail << std::setprecision(17);
+    auto prefix = [&](const char* stage) {
+      detail << "NATIVE3D_DETAIL stage=" << stage << " rank=" << parent.rank << " ranks=" << parent.size
+             << " workers=" << stats.workers << " complete=" << stats.complete;
+    };
+    auto bridge = [&](const char* stage, const BridgeStats& b) {
+      prefix(stage);
+      detail << " total=" << b.total_seconds << " points=" << b.points_seconds << " cells=" << b.cells_seconds
+             << " faces=" << b.faces_seconds << " source=" << b.source_seconds << " query=" << b.query_seconds
+             << " reader=" << b.reader_seconds << " other=" << b.other_seconds
+             << " requests=" << b.requests << " hits=" << b.hits << " misses=" << b.misses
+             << " compositions=" << b.compositions << " batches=" << b.batches << " retries=" << b.batch_retries
+             << " nested_field_build=" << b.field_build_seconds << " nested_search=" << b.field_search_seconds
+             << " nested_interpolation=" << b.interpolation_seconds << " nested_composition=" << b.composition_seconds
+             << " native_bound=" << b.maximum_native_bytes << '\n';
+    };
+    bridge("import", stats.imported); bridge("weights", stats.weights); bridge("return", stats.returned);
+    prefix("source");
+    const auto& d = stats.source;
+    detail << " build=" << d.build_seconds << " imports=" << d.import_seconds << " requests=" << d.owner_requests
+           << " candidates=" << d.index_candidates << " payloads=" << d.payloads << " maximum_patch=" << d.maximum_patch
+           << " nested_routing=" << d.routing_seconds << " nested_search=" << d.search_seconds
+           << " nested_filter=" << d.filter_seconds << " nested_exchange=" << d.exchange_seconds << '\n';
+    prefix("partition"); const auto& p = stats.partition;
+    auto at_rank = [&](const std::vector<uint64_t>& v) { return v.empty() ? uint64_t(0) : v.at(parent.rank); };
+    detail << " total=" << p.total_seconds << " graph=" << p.graph_seconds << " parmetis=" << p.partition_seconds
+           << " migration=" << p.migration_seconds << " other=" << p.other_seconds
+           << " nested_directory=" << p.directory_seconds << " moved=" << p.moved_cells << " arcs=" << p.graph_arcs
+           << " cells_before=" << at_rank(p.cells_before) << " cells_after=" << at_rank(p.cells_after)
+           << " work_before=" << at_rank(p.work_before) << " work_after=" << at_rank(p.work_after) << '\n';
+    auto engine = [&](const char* stage, const EngineStats& e) {
+      prefix(stage);
+      detail << " total=" << e.total_seconds << " initialization=" << e.initialization_seconds << " seed=" << e.seed_seconds
+             << " selection=" << e.selection_seconds << " dependency=" << e.dependency_seconds
+             << " reservation=" << e.reservation_seconds << " donor=" << e.donor_seconds
+             << " reconstruction=" << e.reconstruction_seconds << " metric=" << e.metric_seconds
+             << " routing=" << e.routing_seconds << " publication=" << e.publication_seconds
+             << " update=" << e.update_seconds << " completion=" << e.completion_seconds << " other=" << e.other_seconds
+             << " process_cpu=" << e.process_cpu_seconds << " private_reconstruction_cpu=" << e.reconstruction_cpu_seconds
+             << " private_metric_cpu=" << e.metric_cpu_seconds << " private_measurement_cpu=" << e.measurement_cpu_seconds
+             << " rounds=" << e.rounds << " attempted=" << e.attempted << " accepted=" << e.accepted
+             << " rejected=" << e.rejected << " conflicts=" << e.conflicts << " requests=" << e.field_requests
+             << " hits=" << e.field_hits << " compositions=" << e.field_compositions << " edge_evaluations=" << e.edge_evaluations
+             << " edge_reused=" << e.edge_reused << " moved=" << e.moved << " reconnected=" << e.reconnected
+             << " maximum_donor_patch=" << e.donor_maximum_patch << " maximum_owned=" << e.maximum_owned
+             << " nested_field_build=" << e.field_build_seconds << " nested_field_query=" << e.field_query_seconds
+             << " nested_cache=" << e.field_cache_seconds << " nested_search=" << e.field_search_seconds
+             << " nested_interpolation=" << e.field_interpolation_seconds << " nested_composition=" << e.field_composition_seconds
+             << " nested_edge=" << e.edge_seconds << " nested_edge_search=" << e.edge_search_seconds
+             << " nested_edge_trace=" << e.edge_trace_seconds << " nested_edge_integral=" << e.edge_integral_seconds
+             << " donor_batches=" << e.donor_batches << " donor_candidates=" << e.donor_candidates
+             << " donor_filtered=" << e.donor_filtered << " donor_payloads=" << e.donor_payloads
+             << " nested_donor_search=" << e.donor_search_seconds << " nested_donor_filter=" << e.donor_filter_seconds
+             << " batch_retries=" << e.batch_retries << " query_retries=" << e.query_import_retries
+             << " private_query_retries=" << e.private_query_retries << " native_bound=" << e.maximum_work_bytes << '\n';
+    };
+    engine("refine",stats.refine); engine("coarsen",stats.coarsen);
+    SU2Native3D::ProfileRow3D(detail.str(), parent.comm);
   }
   stats.report_seconds = parent.seconds() - report;
   return result;

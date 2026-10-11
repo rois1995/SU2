@@ -48,6 +48,7 @@
 #include "../../../Common/include/geometry/meshreader/CDistributedMemoryMeshReaderFVM.hpp"
 #include "../../../Common/include/linear_algebra/blas_structure.hpp"
 
+#include "../../../Common/include/adaptation/CNativeRuntimeProfile3D.hpp"
 #include <fstream>
 #include <iomanip>
 #include <memory>
@@ -244,16 +245,23 @@ void CSinglezoneDriver::ComputeMetric() {
   /*--- Sensors, their gradients and Hessians, then the metric. The results are kept in the flow
    *    variables (also on halo points) until the next call. ---*/
 
+  SU2Native3D::RuntimeProfile3D<4> profile(config->GetWrt_Performance() && nDim == 3 &&
+      config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY, "metric");
   const auto startTime = SU2_MPI::Wtime();
   if (config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY &&
       config->GetnAdap_BL() && (!nativeReference || !nativeReference->original)) {
     auto remesher = MakeRemesher(); // Initializes the retained immutable reference, including restart associations.
   }
+  profile.Mark(0);
   solver_flow->SetAuxVar_Adapt(geometry, config, solver_container[ZONE_0][INST_0][MESH_0]);
+  profile.Mark(1);
   solver_flow->SetHessian_Adapt(geometry, config);
+  profile.Mark(2);
   /*--- ADAP_BL_METHOD= TWO_PASS: the remesher builds the boundary-layer metric itself, on its pass-A mesh. ---*/
   const bool boundaryLayer = config->GetKind_Adap_BL_Method() != ADAP_BL_METHOD::TWO_PASS;
   solver_flow->ComputeMetric(geometry, config, nullptr, boundaryLayer, nativeReference.get());
+  profile.Mark(3);
+  profile.Report(config->GetTimeIter(), {{"setup", "sensors", "hessian", "construction"}});
   if (rank == MASTER_NODE) cout << "Metric computed in " << SU2_MPI::Wtime() - startTime << " s." << endl;
 }
 
@@ -1615,16 +1623,21 @@ void CSinglezoneDriver::WriteAdaptedMesh(unsigned long iCycle, unsigned long fir
 
   auto* config = config_container[ZONE_0];
   const auto fileName = AdaptedMeshName(iCycle, firstTimeIter);
+  SU2Native3D::RuntimeProfile3D<2> profile(config->GetWrt_Performance() && nDim == 3 &&
+      config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY, "mesh_output");
 
   if (rank == MASTER_NODE) {
     cout << "Writing the adapted mesh of cycle " << iCycle << ": " << fileName + config->GetMesh_Out_FileExtension()
          << "." << endl;
   }
   CMeshOutput::WriteMesh(config, geometry_container[ZONE_0][INST_0][MESH_0], fileName);
+  profile.Mark(0);
   if (config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY) {
     if(geometry_container[ZONE_0][INST_0][MESH_0]->GetnDim()==3){
       if(!nativeReference3D || !nativeReference3D->original)SU2_MPI::Error("Native3D mesh output requires its retained geometry reference.",CURRENT_FUNCTION);
       SU2Native3D::WriteReference(fileName+config->GetMesh_Out_FileExtension()+".native_ref",*nativeReference3D);
+      profile.Mark(1);
+      profile.Report(config->GetTimeIter(), {{"mesh", "reference"}});
       return;
     }
     if (!nativeReference || !nativeReference->original)
@@ -1656,6 +1669,9 @@ void CSinglezoneDriver::ReleaseMesh(CMeshDonor& mesh) {
 void CSinglezoneDriver::ReplaceMesh(const CRemeshResult& remeshed, CSolutionTransfer& transfer,
                                     const CMeshDonor* keptDonor, CMeshDonor* keepCurrent) {
   SU2_ZONE_SCOPED
+
+  SU2Native3D::RuntimeProfile3D<5> profile(config_container[ZONE_0]->GetWrt_Performance() && nDim == 3 &&
+      config_container[ZONE_0]->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY, "replace");
 
   CLocalFailure acceptance;
   if (remeshed.status!=CRemeshResult::Status::COMPLETE)
@@ -1702,6 +1718,7 @@ void CSinglezoneDriver::ReplaceMesh(const CRemeshResult& remeshed, CSolutionTran
     BuildGeometryFVM(config, new CPhysicalGeometry(config, reader, nZone), geometry, true);
   }
   const auto geometryBuiltAt = SU2_MPI::Wtime();
+  profile.Mark(0);
   const auto nMGLevels = config->GetnMGLevels();
 
   /*--- Every marker of the new mesh with boundary elements is held, under its name, by some rank. Each rank holds the
@@ -1734,6 +1751,7 @@ void CSinglezoneDriver::ReplaceMesh(const CRemeshResult& remeshed, CSolutionTran
   }
 
   const auto geometryCheckedAt = SU2_MPI::Wtime();
+  profile.Mark(1);
 
   /*--- Solvers in the free-stream state (the restart files belong to the first mesh), then the solution from
    *    the donor, then the objects that depend on the solvers. ---*/
@@ -1748,9 +1766,11 @@ void CSinglezoneDriver::ReplaceMesh(const CRemeshResult& remeshed, CSolutionTran
   InitializeSolver(config, geometry, solver, false);
   if (timeDomain) config->SetDelta_UnstTimeND(timeStepND);
 
+  profile.Mark(2);
   const auto transferStart = SU2_MPI::Wtime();
   transfer.Transfer(config, donor, geometry, solver);
   const auto transferTime = SU2_MPI::Wtime() - transferStart;
+  profile.Mark(3);
 
   CNumerics**** numerics = nullptr;
   InitializeNumerics(config, geometry, solver, numerics);
@@ -1805,6 +1825,7 @@ void CSinglezoneDriver::ReplaceMesh(const CRemeshResult& remeshed, CSolutionTran
   MDOFsDomain = DOFsPerPoint * MpointsDomain;
 
   const auto replacementFinishedAt = SU2_MPI::Wtime();
+  profile.Mark(4);
   const su2double replaceTime = replacementFinishedAt - startTime;
   const std::array<double, 5> localReplaceCost{SU2_TYPE::GetValue(geometryBuiltAt - startTime),
       geometryCheckedAt - geometryBuiltAt, transferStart - geometryCheckedAt, transferTime,
@@ -1827,13 +1848,19 @@ void CSinglezoneDriver::ReplaceMesh(const CRemeshResult& remeshed, CSolutionTran
       cout << endl;
     }
   }
+  profile.Report(config->GetTimeIter(), {{"geometry", "geometry_checks", "solver", "transfer", "finalize"}});
 }
 
 void CSinglezoneDriver::AdaptMesh(CSolutionTransfer& transfer) {
   SU2_ZONE_SCOPED
 
+  SU2Native3D::RuntimeProfile3D<2> profile(config_container[ZONE_0]->GetWrt_Performance() && nDim == 3 &&
+      config_container[ZONE_0]->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY, "cycle");
   const auto mesh = RemeshFromMetric();
+  profile.Mark(0);
   ReplaceMesh(mesh, transfer);
+  profile.Mark(1);
+  profile.Report(config_container[ZONE_0]->GetTimeIter(), {{"metric_remesh", "replace"}});
 }
 
 void CSinglezoneDriver::Update() {

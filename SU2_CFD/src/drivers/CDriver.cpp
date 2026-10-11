@@ -25,6 +25,7 @@
  * License along with SU2. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "../../../Common/include/adaptation/CNativeRuntimeProfile3D.hpp"
 #include "../../include/drivers/CDriver.hpp"
 #include "../../include/definition_structure.hpp"
 
@@ -732,9 +733,13 @@ void CDriver::BuildGeometryFVM(CConfig *config, CGeometry *geometry_aux, CGeomet
 
   /*--- Color the initial grid and set the send-receive domains (ParMETIS) ---*/
 
+  SU2Native3D::RuntimeProfile3D<3> profile(config->GetWrt_Performance() && geometry_aux->GetnDim() == 3 &&
+      config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY,
+      checkOrientation ? "cfd_geometry_return" : "cfd_geometry_initial");
   const auto partitionStarted = SU2_MPI::Wtime();
   geometry_aux->SetColorGrid_Parallel(config);
   const auto partitionedAt = SU2_MPI::Wtime();
+  profile.Mark(0);
 
   /*--- Allocate the memory of the current domain, and divide the grid
      between the ranks. ---*/
@@ -745,6 +750,7 @@ void CDriver::BuildGeometryFVM(CConfig *config, CGeometry *geometry_aux, CGeomet
 
   geometry[MESH_0] = new CPhysicalGeometry(geometry_aux, config);
   const auto migratedAt = SU2_MPI::Wtime();
+  profile.Mark(1);
 
   /*--- Deallocate the memory of geometry_aux and solver_aux ---*/
 
@@ -992,6 +998,8 @@ void CDriver::BuildGeometryFVM(CConfig *config, CGeometry *geometry_aux, CGeomet
     geometry[iMGlevel]->CompleteComms(geometry[iMGlevel], config, MPI_QUANTITIES::NEIGHBORS);
   }
 
+  profile.Mark(2);
+  profile.Report(config->GetTimeIter(), {{"partition", "migration", "preprocess"}});
   if (config->GetAdap_Loop() && config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY) {
     const std::array<double, 3> localGeometryCost{partitionedAt - partitionStarted, migratedAt - partitionedAt,
                                                SU2_MPI::Wtime() - migratedAt};

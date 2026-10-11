@@ -26,6 +26,7 @@
  */
 
 
+#include "../../../Common/include/adaptation/CNativeRuntimeProfile3D.hpp"
 #include "../../include/solvers/CSolver.hpp"
 #include "../../../Common/include/adaptation/CMeshGather.hpp"
 #include "../../../Common/include/adaptation/CDistributedSearch.hpp"
@@ -2629,6 +2630,9 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
                             bool boundaryLayer, const SU2NativeBoundary2D::ReferenceState* nativeReference) {
   SU2_ZONE_SCOPED
 
+  SU2Native3D::RuntimeProfile3D<5> profile(config->GetWrt_Performance() && nDim == 3 &&
+      config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY, "metric_build");
+
   const auto nSensor = config->GetnAdap_Sensor();
   const su2double p = config->GetAdap_Norm();
   const su2double eigMax = 1.0 / pow(config->GetAdap_Hmin(), 2);
@@ -2842,6 +2846,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
 
   /*--- The donor remains a sensor-only P1 field. Complexity samples compose original geometry
    *    at actual quadrature positions, using the same ApplySample/ApplyPoint policy as private queries. ---*/
+  profile.Mark(0);
   const auto geometryStart = SU2_MPI::Wtime();
   std::shared_ptr<CBoundaryLayerMetric> nativeLayers;
   struct CellRule {
@@ -2875,6 +2880,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     CPassiveComm::Allreduce(&localGeometryTime,&geometryTime,1,CPassiveComm::Op::MAX);
     CPassiveComm::Allreduce(&localQuadraturePoints,&quadraturePoints,1,CPassiveComm::Op::SUM);
   }
+  profile.Mark(1);
   su2double frozenCore = eigMin, integratedComplexity = 0;
   auto syncSensor = [&]() {
     for (auto point = 0ul; point < nPointDomain; ++point) base_nodes->SetMetricMat(point, blMetric[point].m);
@@ -3319,6 +3325,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   }
 
 
+  profile.Mark(2);
   const su2double scale = exp(logScale);
   su2double localMinDensity = std::numeric_limits<passivedouble>::max(), localMaxDensity = 0.0;
   su2double localMaxAR = 0.0, localComplexity = 0.0, localCoreComplexity = 0.0;
@@ -3487,6 +3494,7 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     }
   }
 
+  profile.Mark(3);
   /*--- Same metric on both sides of periodic boundaries, then on halo points. ---*/
 
   for (unsigned short iPeriodic = 1; iPeriodic <= config->GetnMarker_Periodic() / 2; ++iPeriodic) {
@@ -3496,6 +3504,16 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
 
   InitiateComms(geometry, config, MPI_QUANTITIES::METRIC);
   CompleteComms(geometry, config, MPI_QUANTITIES::METRIC);
+  profile.Mark(4);
+  std::string detail;
+  if (config->GetWrt_Performance() && nDim == 3 && nativeMetric) {
+    std::ostringstream counters;
+    counters << std::setprecision(17) << " nested_gradation=" << gradationSeconds
+             << " nested_gradation_halo=" << haloSeconds << " nested_gradation_reduction=" << reductionSeconds
+             << " complexity=" << metricComplexityFinal << " bracketed=" << metricComplexityBracketed;
+    detail = counters.str();
+  }
+  profile.Report(config->GetTimeIter(), {{"sensor_frames", "geometry_rule", "complexity_gradation_audit", "publication", "halo"}}, detail);
 }
 
 void CSolver::SetSolution_Gradient_GG(CGeometry *geometry, const CConfig *config, short idxVel, bool reconstruction) {

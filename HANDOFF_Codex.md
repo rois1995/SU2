@@ -7,6 +7,42 @@ small sequential local checks with real host-contention checks; push each
 validated checkpoint and verify the remote SHA. A terminal capacity failure
 cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
+## Native 3D lifecycle profiling validated — 2026-10-11
+
+Working NativeIntegrated / codex/native-3d-core; predecessor
+ d5df2785676e610b2dcaec2c5aee7ea93ceb9670. PROFILE_REPORT.md and
+PROFILE_CHECKPOINT_VALIDATION.json retain exact scope/provenance. Opt-in3D
+per-rank exclusive wall/process CPU/lifetimeRSS records cover actual metric/
+Hessian build, CFD ParMETIS/return migration/geometry preprocessing, solver/BDF
+replacement and requested mesh/reference output. Nested source/partition/engine/
+query counters exported. No targets or operators changed; 2D/MMG gate disabled.
+profile_build_v1 compile failure and profile_runtime_v1 invalid equal-size CFG
+failure preserved; corrected profile_build_v2 and final42-stage profile_runtime_v2
+PASS. Final actual test objects recompiled for outer timing/config correction.
+Session25990 terminal0, no owned job live. Source/archive/object pins unchanged.
+Main84 accepted events/42 OFFON controls/42 SU2CGNS roundtrips;126 predecessor-
+identical mesh/source/transported-state frames. New actual-computed-sensor fixture
+adds36 accepted events, three fresh repeats per M1/2/4<=N/OFFON;36 strict frames,
+357 closed rank-stage rows and357 nested rows, parent containment/adversary checks.
+Native2D/MMG/default ownership/private-progress rollback/budget regressions PASS.
+Phase CSV and lifecycle_phase_summary.json retained; summarize_lifecycle.py
+regenerates them. New fixture C++ affine current/BDF checks; no CFD iteration.
+
+N1/M1 ON sample remesher62.54ms: refine45.48/coarsen14.83; within refinement
+metric17.49/reconstruction6.80ms. N4M4 high contention/spread; ON/OFF ratio1.177
+cannot establish instrumentation penalty or scaling. Stage own emission excluded,
+parent includes nested emission; outer testcase includes test metric observation,
+output separately timed. Do not sum stage maxima or infer MPI wait from wall-CPU.
+
+Full Goal1 ACTIVE. Next: complete MPI wait/house traffic and reader/ParMETIS
+memory calibration; practical larger/rotated/thin lifecycle/restart and rank/size
+limits; then closed SGE campaigns. WINDOW_AVERAGE/PREDICT sampling detail also
+not fully covered. No full-memory/scaling/BL/unsteady affordability claim. New
+cases profile_runtime_v2/lifecycle_mpi4; transported metrics/states and CGNS in
+profile_runtime_v2/mpi4. Publication pending; push qualified checkpoint and verify
+full remote SHA. No cluster-launch questions tonight; foreign FSI/AdapNoExt/
+submodules/ClusterResults untouched.
+
 ## Native 3D memory checkpoint validated — 2026-10-11
 
 Repository NativeIntegrated; branch codex/native-3d-core; remote predecessor
