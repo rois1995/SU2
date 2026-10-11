@@ -7,6 +7,31 @@ small sequential local checks with real host-contention checks; push each
 validated checkpoint and verify the remote SHA. A terminal capacity failure
 cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
+## Native3D offline phase/rank analysis — 2026-10-11; checked, analysis only
+
+NativeIntegrated / codex/native-3d-core; predecessor ffeeac545762fb95b116fe47c797f3747e8c0d6f.
+The analyzer now retains lifecycle OFF/ON timings and wall/CPU stage rows, plus
+closed critical-rank phase breakdowns, active-worker CPU/work/query imbalance
+and separately labelled nested detail for timing/limits/lifecycle. M<N reports a
+separate closed active-worker row so inactive subset waiting is not mistaken for
+the expensive worker phase. Unknown worker count stays null; no CPU-derived MPI
+waiting estimate. Preparation includes the helper; C++/driver/runner/auditors and
+targets unchanged, no rebuild/new cluster submission needed for analysis alone.
+
+package_checks_v9 passes16 lightweight checks plus syntax/diff checks;
+profile_analysis_replay_v2 verifies two pinned historical binaries/logs and
+summarizes21 native,76 exclusive stage and84 nested events, preserving old audits.
+Historical N4M2 coarsening:8.5271s native versus7.3171s active-worker coarsening;
+private metric CPU max/mean1.2571. Contended pilot, no current speedup or wait-cause
+claim. Report: integration_evidence/native_cluster_3d_core_v1/PROFILE_ANALYSIS_REPORT.md.
+
+Goal1 ACTIVE. MPI2/4/reference-admission fixed-work/restart qualification, repeated
+SGE timings/n8 limits and full privateCPU/wait/traffic/allocator/vendor calibration
+remain. User received the seven-job plus optional eighth --limits launch commands.
+No owned build/MPI/CFD/qsub jobs live; foreign ClusterResults/submodule work and
+AdapNoExt untouched. Preserve already frozen packages and use current checkout
+for offline analysis rather than changing a running package.
+
 ## Native3D query accounting — 2026-10-11; built and serial checked
 
 Implementation/evidence checkpoint 542ba6375219cb84ddc4c7b8ab1bc02e42fe4a3b pushed to origin/codex/native-3d-core; full remote SHA verified. Serial checks pass; MPI and broader cluster qualification remain pending.

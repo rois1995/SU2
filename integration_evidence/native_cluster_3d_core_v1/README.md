@@ -111,3 +111,19 @@ Lightweight package checks, using fake files/subprocesses/mocked qsub only:
 ```sh
 PYTHONDONTWRITEBYTECODE=1 python3 integration_evidence/native_cluster_3d_core_v1/check_package.py
 ```
+
+Offline summaries now include `rank_profiles`: closed phase fractions on the
+rank with the largest parent wall time, separate active-worker breakdowns for
+M<N, private CPU/work/query imbalance over active engine ranks, nested query/
+partition/engine costs and lifecycle OFF/ON samples. Each phase's rank maximum
+is a diagnostic; never sum those maxima or add nested detail to a parent.
+Event indices are ordinals within each stage's log stream, not shared cycle IDs.
+A worker count absent from a CFD stage is unknown. Process CPU includes MPI
+progress; elapsed-minus-CPU is not waiting time. Full MPI traffic/wait and memory
+calibration still remain open.
+
+This is offline analysis only: if you already prepared or submitted the previous
+checkpoint, keep that bundle unchanged and run the updated checkout's analyzer
+when results arrive. No executable rebuild or new campaign is required for this
+analysis change alone. Different frozen bundle identities still cannot be merged
+into one paired campaign. Checked scope/evidence: PROFILE_ANALYSIS_REPORT.md.

@@ -1,0 +1,49 @@
+{
+  "status": "PASS",
+  "scope": "Lightweight synthetic/offline analysis tests only; no build, MPI, CFD, scheduler or new numerical qualification.",
+  "source_sha256": {
+    "integration_evidence/native_cluster_3d_core_v1/profile_summary.py": "18135570908895bf4eded1e9b6e8b925aa10cab3075de81c80e48a261b8037e7",
+    "integration_evidence/native_cluster_3d_core_v1/analyze.py": "57cbbd25264316095c8c7b2b7a591ae3eb0910a484e354f914cea92336598822",
+    "integration_evidence/native_cluster_3d_core_v1/prepare.py": "e31f4f464e7cc194db940d156eca4d7a15e3793e0aa1cd6c2f1def94fec334bb",
+    "integration_evidence/native_cluster_3d_core_v1/check_package.py": "387dd7f7690a6ac87a72ce2e3d1cc390021b4ae7596d282342160987f2edd44a"
+  },
+  "stages": [
+    {
+      "label": "checks",
+      "command": [
+        "python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_core_v1/check_package.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.9285802629892714
+    },
+    {
+      "label": "shell_syntax",
+      "command": [
+        "bash",
+        "-n",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_core_v1/RunNative3DSGE.sh"
+      ],
+      "exit_code": 0,
+      "seconds": 0.014955719991121441
+    },
+    {
+      "label": "diff_check",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.07153847999870777
+    }
+  ],
+  "artifact_sha256": {
+    "checks.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "shell_syntax.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "shell_syntax.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "diff_check.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "checks.stderr": "23772ec1d1039468d0709d339185111f5774c7568cd3b515ceecc2f31be61ec5",
+    "diff_check.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

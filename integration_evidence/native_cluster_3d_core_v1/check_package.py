@@ -2,10 +2,15 @@
 from pathlib import Path
 import contextlib,gzip,io,json,os,subprocess,sys,tempfile,unittest
 from unittest.mock import patch
-import run,restore,submit,prepare,analyze
+import run,restore,submit,prepare,analyze,profile_summary
 from types import SimpleNamespace
 
 class PackageChecks(unittest.TestCase):
+    def native(self,ranks,workers,detail=1):
+        return [dict(rank=r,ranks=ranks,workers=workers,complete=1,detailed=detail,total=1,other=0,
+                     cpu=.5,idle_cpu=0,**{k:float(k=='refine') for k in profile_summary.NATIVE},
+                     refine_accepted=2,coarsen_accepted=0,native_bound=4096,process_peak_rss=8192)
+                for r in range(ranks) for _ in range(3)]
     def bundle(self,root):
         p=root/'bundle';(p/'bin').mkdir(parents=True);(p/'bin/test_driver').write_bytes(b'fake, never executed')
         info=dict(status='PREPARED_NOT_VALIDATED',files_sha256={'bin/test_driver':run.sha(p/'bin/test_driver')})
@@ -82,7 +87,7 @@ class PackageChecks(unittest.TestCase):
                 for detail in (0,1):
                     work=folder/('r'+str(repeat)+'d'+str(detail));work.mkdir()
                     parent=[dict(rank=0,cycle=c,parent_wall=(1+.1*detail+.01*repeat)*(c+1)) for c in range(3)]
-                    native=[dict(rank=0,refine_accepted=2,coarsen_accepted=0,native_bound=4096,process_peak_rss=8192) for c in range(3)]
+                    native=self.native(1,1,detail)
                     (work/'independent_audit.json').write_text(json.dumps(dict(status='PASS',rank_rows=parent,native_rows=native,rank_stages=[])))
                     (work/'case.stdout').write_text('')
                     cases.append(dict(folder=work.name,parameters=dict(ranks=1,workers=1,repeat=repeat,detail=detail),warmup=False,fixed_work_sha256={'mesh':'same'}))
@@ -93,6 +98,8 @@ class PackageChecks(unittest.TestCase):
             summary=json.loads((root/'native3d_summary.json').read_text())
             self.assertAlmostEqual(summary['campaigns'][0]['off_median'],1.01)
             self.assertAlmostEqual(summary['campaigns'][0]['on_median'],1.11)
+            self.assertEqual(len(summary['rank_profiles']),6)
+            self.assertEqual(summary['rank_profiles'][0]['native_events'][0]['profile']['dominant_exclusive_phase'],'refine')
             last=folder/cases[-1]['folder']/'independent_audit.json';changed=json.loads(last.read_text());changed['native_rows'][0]['refine_accepted']=3;last.write_text(json.dumps(changed))
             with self.assertRaisesRegex(ValueError,'Artifact drift'):analyze.main([folder])
             record['artifact_sha256'][str(last.relative_to(folder))]=run.sha(last);(folder/'result.json').write_text(json.dumps(record))
@@ -139,7 +146,7 @@ class PackageChecks(unittest.TestCase):
                 elif label=='audit':
                     p=json.loads((cwd/'parameters.json').read_text())
                     parents=[dict(rank=r,cycle=c,parent_wall=float(c+1+r)) for c in range(3) for r in range(p['ranks'])]
-                    native=[dict(rank=r,refine_accepted=2,coarsen_accepted=0,native_bound=4096,process_peak_rss=8192) for r in range(p['ranks']) for c in range(3)]
+                    native=self.native(p['ranks'],p['workers'])
                     (cwd/'independent_audit.json').write_text(json.dumps(dict(status='PASS',rank_rows=parents,native_rows=native,rank_stages=[])))
                 (cwd/(label+'.stdout')).write_text(out);(cwd/(label+'.stderr')).write_text('')
                 return dict(exit_code=exit_code,seconds=.001,label=label,command=list(map(str,args)))
@@ -187,4 +194,84 @@ class PackageChecks(unittest.TestCase):
             row=dict(good,stage=label,total=0,other=0,**{p:0 for p in phases})
             nested_stage(row);row['hits']=11
             with self.assertRaises(AssertionError):nested_stage(row)
+
+    def test_critical_rank_phases_do_not_sum_rank_maxima(self):
+        rows=[dict(rank=0,ranks=2,total=5,other=0,left=4,right=1,cpu=3),
+              dict(rank=1,ranks=2,total=4,other=0,left=1,right=3,cpu=2)]
+        result=profile_summary.summarize(rows,('left','right'))
+        self.assertEqual(result['critical_rank'],0)
+        self.assertEqual(result['elapsed_seconds'],5)
+        self.assertEqual(sum(result['exclusive_seconds'].values()),5)
+        self.assertEqual(result['measures']['left']['maximum']+result['measures']['right']['maximum'],7)
+        self.assertEqual(result['measures']['cpu']['rank_sum'],5)
+        self.assertNotIn('mpi_wait',result)
+        for bad in (rows[:1],[rows[0],rows[0]],[rows[0],dict(rows[1],ranks=3)]):
+            with self.assertRaises(ValueError):profile_summary.summarize(bad,('left','right'))
+        with self.assertRaises(ValueError):profile_summary.summarize([rows[0],dict(rows[1],cpu=float('nan'))],('left','right'))
+        with self.assertRaises(AssertionError):profile_summary.summarize([rows[0],dict(rows[1],left=2)],('left','right'))
+        with self.assertRaises(ValueError):profile_summary.events([dict(r,stage='unknown') for r in rows],{})
+
+    def test_subset_wait_is_separate_from_active_worker_cost(self):
+        rows=self.native(4,2)[::3]
+        for r in rows:
+            r['total']=4 if r['rank']==0 else 3 if r['rank']==1 else 5
+            r['refine']=0;r['coarsen']=r['total'] if r['rank']<2 else 0
+            r['wait']=r['total'] if r['rank']>=2 else 0
+        result=profile_summary.summarize(rows,profile_summary.NATIVE)
+        self.assertEqual(result['critical_rank'],2)
+        self.assertEqual(result['dominant_exclusive_phase'],'wait')
+        self.assertEqual(sum(result['exclusive_seconds'].values()),5)
+        worker=result['active_worker_exclusive']
+        self.assertEqual(worker['rank'],0)
+        self.assertEqual(worker['dominant_phase'],'coarsen')
+        self.assertEqual(sum(worker['seconds'].values()),4)
+        self.assertEqual(worker['rank_wall_seconds'],4)
+
+    def test_engine_work_imbalance_uses_only_active_workers(self):
+        rows=[]
+        for rank in range(4):
+            active=rank<2
+            rows.append(dict(stage='refine',rank=rank,ranks=4,workers=2,complete=1,
+                total=(4 if rank==0 else 2) if active else 0,other=0,
+                **{k:((4 if rank==0 else 2) if active else 0) if k=='reconstruction' else 0 for k in analyze.ENGINE},
+                private_reconstruction_cpu=((3 if rank==0 else 1) if active else 0),
+                accepted=((4 if rank==0 else 2) if active else 0),
+                requests=10 if active else 0,hits=5 if active else 0,
+                nested_search=.1 if active else 0))
+        result=profile_summary.events(rows,profile_summary.DETAIL,('refine','coarsen'))[0]['profile']
+        self.assertEqual(result['measured_ranks'],[0,1])
+        self.assertEqual(result['measures']['private_reconstruction_cpu']['maximum_over_mean'],1.5)
+        self.assertEqual(result['accepted_per_second'],1.5)
+        self.assertEqual(result['cache_hit_fraction'],.5)
+        self.assertAlmostEqual(result['measures']['nested_search']['rank_sum'],.2)
+        self.assertEqual(sum(result['exclusive_seconds'].values()),4)
+        rows[-1]['accepted']=1
+        with self.assertRaises(ValueError):profile_summary.events(rows,profile_summary.DETAIL,('refine','coarsen'))
+
+    def test_lifecycle_analysis_keeps_closed_cpu_and_paired_timings(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);folder=root/'lifecycle';work=folder/'case';work.mkdir(parents=True)
+            cycle=dict(stage='cycle',rank=0,ranks=1,time_iter=0,total=5,other=0,cpu=3,cpu_other=0,
+                       metric_remesh=3,metric_remesh_cpu=2,replace=2,replace_cpu=1,process_peak_rss=8192)
+            audit=dict(status='PASS',rank_stages=[cycle],nested_rank_details=[],
+                       fixed_work_timings=[dict(workers=1,off_seconds=[1,2,3],on_seconds=[2,3,4],
+                                               off_median=2,on_median=3,on_off_median_ratio=1.5)])
+            (work/'lifecycle_audit.json').write_text(json.dumps(audit))
+            native=self.native(1,1)[0]
+            (work/'case.stdout').write_text('NATIVE3D '+' '.join(str(k)+'='+str(v) for k,v in native.items())+'\n')
+            record=dict(status='PASS',mode='lifecycle',ranks=1,binary_sha256='same',package_manifest_sha256='same',cases=[dict(folder='case')])
+            record['artifact_sha256']={str(p.relative_to(folder)):run.sha(p) for p in folder.rglob('*') if p.is_file()}
+            (folder/'result.json').write_text(json.dumps(record))
+            with contextlib.redirect_stdout(io.StringIO()):analyze.main([folder])
+            summary=json.loads((root/'native3d_summary.json').read_text())
+            self.assertEqual(summary['campaigns'][0]['fixed_work_timings'][0]['on_off_median_ratio'],1.5)
+            result=summary['rank_profiles'][0]['exclusive_stage_events'][0]['profile']
+            self.assertEqual(result['exclusive_seconds'],dict(metric_remesh=3,replace=2,other=0))
+            self.assertEqual(result['measures']['metric_remesh_cpu']['rank_sum'],2)
+            self.assertEqual(result['measures']['replace_cpu']['rank_sum'],1)
+            self.assertIsNone(result['workers'])
+            bad=dict(cycle,metric_remesh_cpu=3)
+            with self.assertRaises(AssertionError):profile_summary.summarize([bad],('metric_remesh','replace'))
+            with self.assertRaises(FileExistsError):analyze.main([folder])
+
 if __name__=='__main__':unittest.main()

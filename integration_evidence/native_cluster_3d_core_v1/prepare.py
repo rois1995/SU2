@@ -46,7 +46,7 @@ def main():
     for directory in ('Common','SU2_CFD','UnitTests'):
         for p in (ROOT/directory).rglob('*'):
             if p.is_file() and p.suffix in ('.cpp','.hpp','.h','.inl','.tpp'):sources[str(p.relative_to(ROOT))]=sha(closed(p))
-    names=['integration_evidence/native_cluster_3d_core_v1/'+n for n in ('run.py','RunNative3DSGE.sh','restore.py','analyze.py','submit.py','check_package.py','README.md')]
+    names=['integration_evidence/native_cluster_3d_core_v1/'+n for n in ('run.py','RunNative3DSGE.sh','restore.py','analyze.py','profile_summary.py','submit.py','check_package.py','README.md')]
     names+=['integration_evidence/native_3d_core_v1/'+n for n in TOOLS]
     names+=['TestCases/adaptation/capability/capcheck.py']
     # Keep the active native3D implementation and real driver-fixture recipe inspectable with the compact results.

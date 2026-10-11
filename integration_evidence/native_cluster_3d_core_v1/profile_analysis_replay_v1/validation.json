@@ -1,0 +1,49 @@
+{
+  "status": "PROFILE_REPLAY_PASS",
+  "historical_inputs": [
+    {
+      "label": "n4_wedge_n4_m2",
+      "receipt": "integration_evidence/native_3d_core_v1/reference_lookup_n4_n4_m2_v1/validation.json",
+      "receipt_sha256": "19dd86a3f3d67323530dc0e92d9e2b57bc0e1a46f677990203dabe659ee90c4b",
+      "historical_binary_sha256": "77cb3fbbce6dfb167c1f0549b247d0eaedc3054e319ee931148e698839b981a0",
+      "inputs_sha256": {
+        "integration_evidence/native_3d_core_v1/reference_lookup_n4_n4_m2_v1/independent_audit.json": "3c95a8f3781f052d98eae1a716e0ec472a3a1d7658e4cb3a942061f369bcf15d",
+        "integration_evidence/native_3d_core_v1/reference_lookup_n4_n4_m2_v1/case.stdout": "fbada4220cb222fd0cfa28c89c80ccbff0dd86eaa65edeca068610b92db2607d"
+      },
+      "native_events": 3,
+      "stage_events": 13,
+      "nested_events": 21
+    },
+    {
+      "label": "lifecycle_n4",
+      "receipt": "integration_evidence/native_3d_core_v1/profile_runtime_v2/validation.json",
+      "receipt_sha256": "cdc7189ef1fcec5b413bbf5f586ebe973a99b10ecd17584215fdbb4a90f7dd94",
+      "historical_binary_sha256": "ba1eee9205affbb1563feefad5d64eb12ad3692857433b22ad6451511357dc39",
+      "inputs_sha256": {
+        "integration_evidence/native_3d_core_v1/profile_runtime_v2/lifecycle_mpi4/lifecycle_audit.json": "9eff4715d0d1b10aa019aa3bf8c669774115a01a51e09fd00ec4fb1479524c60",
+        "integration_evidence/native_3d_core_v1/profile_runtime_v2/lifecycle_mpi4.stdout": "569a390b224d4305a3306f520380d4b01e7affe5361b24c1007f8fcd38d06b7d"
+      },
+      "native_events": 18,
+      "stage_events": 63,
+      "nested_events": 63
+    }
+  ],
+  "outputs": [
+    {
+      "file": "n4_wedge_n4_m2.json",
+      "sha256": "6f9511742c6753196328c0eaeaea6a420a00acc3d59f7bec84375af771cadddf"
+    },
+    {
+      "file": "lifecycle_n4.json",
+      "sha256": "2bf1eb95dea8822101731ecafb7034163dcdcf31c3d3395a3579fb44830abb5e"
+    }
+  ],
+  "source_sha256": {
+    "integration_evidence/native_cluster_3d_core_v1/profile_summary.py": "3a4b978393905bf9dcd440692e5c256bf65a678d538fe3e607fb848762dd43bd",
+    "integration_evidence/native_cluster_3d_core_v1/analyze.py": "57cbbd25264316095c8c7b2b7a591ae3eb0910a484e354f914cea92336598822",
+    "integration_evidence/native_cluster_3d_core_v1/prepare.py": "e31f4f464e7cc194db940d156eca4d7a15e3793e0aa1cd6c2f1def94fec334bb",
+    "integration_evidence/native_cluster_3d_core_v1/check_package.py": "fa1bdb86ceefe842c7f087a061660c302ee208d68d12507f5662937fc7dd5cd4"
+  },
+  "replay_sha256": "534a6e8606afdf49ea296161f930e0477e667938bc291aacd480b0e567892532",
+  "scope": "Verified pinned historical PASS logs and summarized their measured rows only. Original audits and evidence untouched; current stricter cache schema is not retroactively applied to old logs. No build, MPI, CFD, scheduler, new metric/mesh qualification, current performance result or speedup claim."
+}

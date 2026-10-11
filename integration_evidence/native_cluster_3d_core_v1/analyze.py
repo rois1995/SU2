@@ -4,10 +4,11 @@ import csv,json,statistics,sys
 from run import sha
 sys.path.insert(0,str(Path(__file__).resolve().parents[2]/"integration_evidence/native_3d_core_v1"))
 from audit_lifecycle import parse,closes,ENGINE,nested_stage
+from profile_summary import profiles
 
 def main(paths):
     if not paths:raise ValueError('Give at least one result folder')
-    summaries=[];rows=[];identity=None
+    summaries=[];rows=[];rank_profiles=[];identity=None
     for folder in map(lambda p:Path(p).resolve(),paths):
         record=json.loads((folder/'result.json').read_text())
         if record['status']!='PASS':raise ValueError('Failed campaign: '+str(folder))
@@ -17,6 +18,20 @@ def main(paths):
         key=(record['binary_sha256'],record['package_manifest_sha256'])
         if identity is None:identity=key
         elif identity!=key:raise ValueError('Different binary/package; report as separate campaigns')
+        if record['mode']=='lifecycle':
+            for case in record['cases']:
+                work=folder/case['folder'];work.resolve().relative_to(folder)
+                audit=json.loads((work/'lifecycle_audit.json').read_text())
+                if audit['status']!='PASS':raise ValueError('Failed lifecycle audit')
+                native=[parse(line) for line in (work/'case.stdout').read_text().splitlines() if line.startswith('NATIVE3D ')]
+                for row in audit['nested_rank_details']:nested_stage(row)
+                rank_profiles.append(dict(campaign=folder.name,case=case['folder'],
+                    **profiles(native,audit['rank_stages'],audit['nested_rank_details'])))
+                rows.extend(dict(campaign=folder.name,case=case['folder'],record='exclusive',**row) for row in audit['rank_stages'])
+                rows.extend(dict(campaign=folder.name,case=case['folder'],record='nested',**row) for row in audit['nested_rank_details'])
+                summaries.append(dict(folder=str(folder),mode='lifecycle',ranks=record['ranks'],
+                                      fixed_work_timings=audit['fixed_work_timings'],status='PASS'))
+            continue
         if record['mode'] not in ('timing','limits'):
             summaries.append(dict(folder=str(folder),mode=record['mode'],ranks=record['ranks'],status='PASS'));continue
         groups={};fixed={}
@@ -29,11 +44,14 @@ def main(paths):
             audit=json.loads((folder/case['folder']/'independent_audit.json').read_text())
             if audit['status']!='PASS':raise ValueError('Failed independent audit')
             for row in audit['rank_stages']:rows.append(dict(campaign=folder.name,case=case['folder'],record='exclusive',**row))
+            details=[]
             for line in (folder/case['folder']/'case.stdout').read_text().splitlines():
                 if not line.startswith('NATIVE3D_DETAIL '):continue
                 row=parse(line)
-                nested_stage(row)
+                nested_stage(row);details.append(row)
                 rows.append(dict(campaign=folder.name,case=case['folder'],record='nested',**row))
+            rank_profiles.append(dict(campaign=folder.name,case=case['folder'],warmup=case['warmup'],
+                parameters=p,**profiles(audit['native_rows'],audit['rank_stages'],details)))
             if case['warmup']:continue
             for cycle in range(3):
                 parent=[r for r in audit['rank_rows'] if r['cycle']==cycle]
@@ -52,7 +70,7 @@ def main(paths):
                 summaries.append(dict(folder=str(folder),mode='timing',ranks=record['ranks'],workers=workers,cycle=cycle,off=off,on=on,off_median=median(off),on_median=median(on),on_off_ratio=median(on)/median(off)))
     destination=Path(paths[0]).resolve().parent/'native3d_summary.json'
     if destination.exists():raise FileExistsError('Keep previous summary; rename it before reanalysis')
-    destination.write_text(json.dumps(dict(status='PASS',binary_package_identity=identity,campaigns=summaries,scope='Timing campaigns require three paired fixed-work samples per N/M/event; limits campaigns report single independently audited pilots without speedup claims. Max parent wall is elapsed; nested phases and rank-work seconds are separate. Changed N/M trajectories must be independently audited; no cross-rank fixed-work speedup, full MPI-wait/traffic/memory calibration or CFD affordability claim.'),indent=2)+'\n')
+    destination.write_text(json.dumps(dict(status='PASS',binary_package_identity=identity,campaigns=summaries,rank_profiles=rank_profiles,scope='Timing campaigns require three paired fixed-work samples per N/M/event; limits campaigns report single independently audited pilots without speedup claims. Max parent wall is elapsed; nested phases and rank-work seconds are separate. Changed N/M trajectories must be independently audited; no cross-rank fixed-work speedup, full MPI-wait/traffic/memory calibration or CFD affordability claim.'),indent=2)+'\n')
     if rows:
         keys=['campaign','case','record','stage','rank','ranks']+sorted({k for row in rows for k in row}-{'campaign','case','record','stage','rank','ranks'})
         with destination.with_suffix('.csv').open('w',newline='') as f:

@@ -1,0 +1,50 @@
+{
+  "status": "PASS",
+  "scope": "Lightweight synthetic/offline analysis tests only; no build, MPI, CFD, scheduler or new numerical qualification.",
+  "source_sha256": {
+    "integration_evidence/native_cluster_3d_core_v1/profile_summary.py": "668a07aab694877e2957bf2937149e6ad2a2f7345db416efc4f3ce7e23e524bc",
+    "integration_evidence/native_cluster_3d_core_v1/analyze.py": "57cbbd25264316095c8c7b2b7a591ae3eb0910a484e354f914cea92336598822",
+    "integration_evidence/native_cluster_3d_core_v1/prepare.py": "e31f4f464e7cc194db940d156eca4d7a15e3793e0aa1cd6c2f1def94fec334bb",
+    "integration_evidence/native_cluster_3d_core_v1/check_package.py": "26bd2e5e3f5f395ae4b06ff8eb6f10f81eaa5724e16cbfa9a0415c58c6bdc94d"
+  },
+  "stages": [
+    {
+      "label": "checks",
+      "command": [
+        "python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_core_v1/check_package.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.7869444000534713
+    },
+    {
+      "label": "shell_syntax",
+      "command": [
+        "bash",
+        "-n",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_core_v1/RunNative3DSGE.sh"
+      ],
+      "exit_code": 0,
+      "seconds": 0.007777821971103549
+    },
+    {
+      "label": "diff_check",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "--ignore-submodules=all"
+      ],
+      "exit_code": 0,
+      "seconds": 0.057813799008727074
+    }
+  ],
+  "artifact_sha256": {
+    "checks.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "shell_syntax.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "shell_syntax.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "diff_check.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "checks.stderr": "e4623e589567e145b9a1ecc43edae98751bf1b52a246e0fba123ce39e4979cb9",
+    "diff_check.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

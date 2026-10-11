@@ -1,0 +1,50 @@
+{
+  "status": "PASS",
+  "scope": "Lightweight synthetic/offline analysis tests only; no build, MPI, CFD, scheduler or new numerical qualification.",
+  "source_sha256": {
+    "integration_evidence/native_cluster_3d_core_v1/profile_summary.py": "3a4b978393905bf9dcd440692e5c256bf65a678d538fe3e607fb848762dd43bd",
+    "integration_evidence/native_cluster_3d_core_v1/analyze.py": "57cbbd25264316095c8c7b2b7a591ae3eb0910a484e354f914cea92336598822",
+    "integration_evidence/native_cluster_3d_core_v1/prepare.py": "e31f4f464e7cc194db940d156eca4d7a15e3793e0aa1cd6c2f1def94fec334bb",
+    "integration_evidence/native_cluster_3d_core_v1/check_package.py": "fa1bdb86ceefe842c7f087a061660c302ee208d68d12507f5662937fc7dd5cd4"
+  },
+  "stages": [
+    {
+      "label": "checks",
+      "command": [
+        "python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_core_v1/check_package.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.7257419389788993
+    },
+    {
+      "label": "shell_syntax",
+      "command": [
+        "bash",
+        "-n",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_core_v1/RunNative3DSGE.sh"
+      ],
+      "exit_code": 0,
+      "seconds": 0.01943877898156643
+    },
+    {
+      "label": "diff_check",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "--ignore-submodules=all"
+      ],
+      "exit_code": 0,
+      "seconds": 0.06905403500422835
+    }
+  ],
+  "artifact_sha256": {
+    "checks.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "shell_syntax.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "shell_syntax.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "diff_check.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "checks.stderr": "93edb7ae0c5a4a170c8b2c4842c904f23962805ff3fa6b692ed76755f55bc856",
+    "diff_check.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}
