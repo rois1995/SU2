@@ -7,6 +7,33 @@ small sequential local checks with real host-contention checks; push each
 validated checkpoint and verify the remote SHA. A terminal capacity failure
 cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
+## Native 3D memory checkpoint validated — 2026-10-11
+
+Repository NativeIntegrated; branch codex/native-3d-core; remote predecessor
+0864f56e60f0f7d66e5db6cf8779cb8aaa1703c7. MEMORY_REPORT.md and
+MEMORY_CHECKPOINT_VALIDATION.json retain scope/pins. memory_build_v1 and
+memory_runtime_v1 terminal PASS; session95453 finished, no owned job live.
+New budget refusal/retry tests PASS MPI1/2/4. Actual driver matrix:84 accepted
+events,42 OFF/ON pairs,42 SU2/CGNS roundtrips;126 mesh/readback signatures and
+transported states identical to predecessor. Sensor error0; max affine BDF2
+error1.119683e-12; qmin.628068/Jmin.397369/Lmax1.793742. Native2D/MMG/default
+ownership and refusal-after-private-edits regressions PASS MPI1/2/4; raw default
+mesh/reference audits PASS.336 runtime rank rows include modeled bytes and
+process-lifetime peak RSS; largest model8MiB vs matrixRSS38,666,240bytes,
+separate quantities, not an allocation certificate. No source/archive/object
+changes during checks. Publication pending; push and verify full remote SHA.
+
+Full Goal1 remains ACTIVE. Initial import/caller-held storage gates now cover
+point directory, face exchange, original authority and retained runtime buffers;
+redundant working maps/source/operation records released. Reader/partitioner
+internal memory and existing reader/cache model calibration remain open. Next:
+close metric/import/query/partition/return/rebuild/transfer per-rank lifecycle
+profiling, then restart/larger/rotated cases and repeated practical envelope.
+No speedup, full memory or affordability claim; no cluster-launch questions tonight.
+Inspectable memory_runtime_v1/mpi4/runtime_barycentric_m4_d0_mesh_00003.su2,
+adjacent sidecar, s2_written_CGNS.cgns and s2_states.json. Foreign FSI,
+AdapNoExt, submodules and ClusterResults untouched.
+
 ## Native 3D production runtime checkpoint — 2026-10-11
 
 Repository `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`; branch

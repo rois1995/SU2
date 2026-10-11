@@ -24,6 +24,9 @@ struct BridgeStats {
   double field_build_seconds = 0, field_search_seconds = 0, interpolation_seconds = 0, composition_seconds = 0;
   size_t maximum_native_bytes = 0;
 };
+/*! Native requested-storage models, including map nodes and immutable reference buffers. */
+size_t OwnedStorageBytes(const Owned& cells);
+size_t ReferenceStorageBytes(const ReferenceState& reference, bool include_authority = true);
 struct ImportedGeometry {
   Owned cells;
   std::vector<DonorCell> original;  // Frozen owner-sourced sensors; never changed with working connectivity.
@@ -36,6 +39,12 @@ struct ImportedGeometry {
  * Source embedding is an accepted-CFD-mesh precondition; independent overlap audits remain necessary. */
 ImportedGeometry ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2activematrix* metric,
                                 ReferenceState& reference);
+/*! Recoverable collective storage admission. Output and reference remain unchanged on rejection.
+ * stats describes the attempted import. Bounds cover house point directory/face exchange payloads and
+ * construction scratch; CFD, allocator/RSS and MPI-internal storage are separate. */
+bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2activematrix* metric,
+                    ReferenceState& reference, ImportedGeometry& output, std::string& reason, BridgeStats& stats,
+                    size_t ceiling, size_t caller_bytes = 0);
 /*! Bounded point-support batches on parent (M<=N return uses empty inputs on inactive ranks).
  * Weight and reader functions leave their output unchanged on elected failures. Each cache hit composes
  * at the actual query. No nodal geometric BL tensor is spread into the original source.
@@ -46,5 +55,6 @@ bool WorkingWeights(World& parent, const Owned& cells, DonorImport& source, std:
                     size_t ceiling = size_t(2) << 30, size_t caller_bytes = 0, bool query_timings = true);
 bool ReaderSlices(World& parent, const Owned& cells, const std::vector<DonorCell>& original,
                   const ReferenceState& reference, CReaderSlices& slices, std::string& reason, BridgeStats& stats,
-                  MetricComposition composition = {}, size_t ceiling = size_t(2) << 30, size_t caller_bytes = 0, bool query_timings = true);
+                  MetricComposition composition = {}, size_t ceiling = size_t(2) << 30, size_t caller_bytes = 0,
+                  bool query_timings = true);
 }  // namespace SU2Native3D

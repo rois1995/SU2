@@ -5,6 +5,8 @@
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
 #include "../../include/adaptation/CNativeBoundary3D.hpp"
+#include "../../include/adaptation/CTransferMemory.hpp"
+#include <type_traits>
 #include <algorithm>
 #include <limits>
 #include <set>
@@ -161,13 +163,17 @@ PlanarReference::PlanarReference(std::vector<Facet> input) {
       for (size_t i = 0; i < 3; ++i) {
         vertices.insert(f.v[i].id);
         const Edge oriented{f.v[i].id, f.v[(i + 1) % 3].id};
-        auto key = oriented; std::sort(key.begin(), key.end());
+        auto key = oriented;
+        std::sort(key.begin(), key.end());
         edges[key].push_back(oriented);
       }
     }
     bool valid = true;
-    try { ValidateSurfaceTopology(triangles, false); }
-    catch (const std::invalid_argument&) { valid = false; }
+    try {
+      ValidateSurfaceTopology(triangles, false);
+    } catch (const std::invalid_argument&) {
+      valid = false;
+    }
     std::set<std::array<double, 3>> coordinates;
     for (Id id : vertices) {
       const auto p = nodes.at(id).p;
@@ -176,18 +182,29 @@ PlanarReference::PlanarReference(std::vector<Facet> input) {
     std::vector<Edge> border;
     for (const auto& entry : edges) {
       const auto& uses = entry.second;
-      if (uses.size() == 1) border.push_back(uses[0]);
-      else if (uses.size() != 2 || uses[0][0] != uses[1][1] || uses[0][1] != uses[1][0]) valid = false;
+      if (uses.size() == 1)
+        border.push_back(uses[0]);
+      else if (uses.size() != 2 || uses[0][0] != uses[1][1] || uses[0][1] != uses[1][0])
+        valid = false;
     }
-    for (auto edge : border) for (Id id : vertices) {
-      const auto side = Projected(nodes.at(edge[0]).p, nodes.at(edge[1]).p, nodes.at(id).p, axis, nullptr);
-      if ((sign > 0 && side < 0) || (sign < 0 && side > 0)) valid = false;
-    }
+    for (auto edge : border)
+      for (Id id : vertices) {
+        const auto side = Projected(nodes.at(edge[0]).p, nodes.at(edge[1]).p, nodes.at(id).p, axis, nullptr);
+        if ((sign > 0 && side < 0) || (sign < 0 && side > 0)) valid = false;
+      }
     // shortcut: retain raw constraints on nonconvex patches until finite-union triangle/path coverage is available.
     if (!valid) continue;
     boundaries.emplace(root.first, std::move(border));
     for (Id id : component) canonical.at(id) = root.first;
   }
+}
+size_t PlanarReference::ResidentBytes() const {
+  auto map = [](const auto& m) {
+    return transfer_memory::Mul(m.size(), sizeof(typename std::decay_t<decltype(m)>::value_type) + 4 * sizeof(void*));
+  };
+  size_t result = transfer_memory::Add(sizeof(*this), map(facets), map(canonical), map(boundaries), map(nodes));
+  for (const auto& entry : boundaries) result = transfer_memory::Add(result, transfer_memory::Bytes(entry.second));
+  return result;
 }
 Id PlanarReference::Canonical(Id id) const { return canonical.at(id); }
 const Facet& PlanarReference::Get(Id id) const { return facets.at(id); }
@@ -204,16 +221,18 @@ bool PlanarReference::Contains(Id id, Point p, KernelStats* stats) const {
         const auto side = Projected(v[i].p, v[(i + 1) % 3].p, p, axis, stats);
         if ((area > 0 && side < 0) || (area < 0 && side > 0)) return false;
       }
-    } else for (auto edge : group->second) {
-      const auto side = Projected(nodes.at(edge[0]).p, nodes.at(edge[1]).p, p, axis, stats);
-      if ((area > 0 && side < 0) || (area < 0 && side > 0)) return false;
-    }
+    } else
+      for (auto edge : group->second) {
+        const auto side = Projected(nodes.at(edge[0]).p, nodes.at(edge[1]).p, p, axis, stats);
+        if ((area > 0 && side < 0) || (area < 0 && side > 0)) return false;
+      }
     return true;
   }
   throw std::logic_error("Degenerate admitted native 3D reference facet.");
 }
 bool PlanarReference::ContainsFace(Id id, const std::array<Point, 3>& triangle, KernelStats* stats) const {
-  for (auto p : triangle) if (!Contains(id, p, stats)) return false;
+  for (auto p : triangle)
+    if (!Contains(id, p, stats)) return false;
   const auto& f = Get(Canonical(id));
   for (size_t axis = 0; axis < 3; ++axis) {
     const auto old = Projected(f.v[0].p, f.v[1].p, f.v[2].p, axis, stats);
@@ -378,8 +397,8 @@ bool UndoEdgeSplit(const Patch& old, Id point, Edge edge, Id first, const Planar
     return false;
   }
 }
-bool CollapseVertex(const Patch& old, Id point, Id neighbor, Id first, const PlanarReference& reference,
-                    Patch& fresh, std::string& reason, KernelStats* stats) {
+bool CollapseVertex(const Patch& old, Id point, Id neighbor, Id first, const PlanarReference& reference, Patch& fresh,
+                    std::string& reason, KernelStats* stats) {
   try {
     Bounds(old);
     if (point == neighbor) throw std::invalid_argument("Native 3D collapse repeats its endpoint.");
@@ -389,14 +408,16 @@ bool CollapseVertex(const Patch& old, Id point, Id neighbor, Id first, const Pla
     const auto nodes = Nodes(old.cells);
     const auto apex = nodes.at(neighbor);
     nodes.at(point);
-    for (const auto& f : skin) if (Has(f.second, point)) {
-      const auto marked = physical.find(f.first);
-      if (marked == physical.end())
-        throw std::invalid_argument("Native 3D incomplete collapse dependency at interface node " + std::to_string(point) + ".");
-      if (!reference.Contains(marked->second.facet, apex.p, stats))
-        throw std::invalid_argument("Native 3D collapse leaves incident reference facet " +
-                                    std::to_string(marked->second.facet) + ".");
-    }
+    for (const auto& f : skin)
+      if (Has(f.second, point)) {
+        const auto marked = physical.find(f.first);
+        if (marked == physical.end())
+          throw std::invalid_argument("Native 3D incomplete collapse dependency at interface node " +
+                                      std::to_string(point) + ".");
+        if (!reference.Contains(marked->second.facet, apex.p, stats))
+          throw std::invalid_argument("Native 3D collapse leaves incident reference facet " +
+                                      std::to_string(marked->second.facet) + ".");
+      }
     Patch proposal;
     size_t removed = 0;
     for (const auto& cell : old.cells) {
@@ -404,10 +425,16 @@ bool CollapseVertex(const Patch& old, Id point, Id neighbor, Id first, const Pla
       bool has_point = false, has_neighbor = false;
       for (auto& n : v) {
         has_neighbor = has_neighbor || n.id == neighbor;
-        if (n.id == point) { has_point = true; n = apex; }
+        if (n.id == point) {
+          has_point = true;
+          n = apex;
+        }
       }
       if (!has_point) throw std::invalid_argument("Native 3D collapse input is not a complete vertex star.");
-      if (has_neighbor) { ++removed; continue; }
+      if (has_neighbor) {
+        ++removed;
+        continue;
+      }
       if (!(Orientation(v[0].p, v[1].p, v[2].p, v[3].p, stats) > 0))
         throw std::invalid_argument("Native 3D collapse obstructed at cell " + std::to_string(cell.id) + ".");
       Append(proposal.cells, v, first, stats);
@@ -415,35 +442,42 @@ bool CollapseVertex(const Patch& old, Id point, Id neighbor, Id first, const Pla
     if (!removed || proposal.cells.empty())
       throw std::invalid_argument("Native 3D collapse removes no cells or the entire volume patch.");
     const auto before = skin;
-    for (const auto& entry : before) if (Has(entry.second, point)) {
-      auto found = physical.find(entry.first);
-      const auto facet = found->second.facet;
-      physical.erase(found); skin.erase(entry.first);
-      if (Has(entry.second, neighbor)) continue;
-      auto face = entry.second;
-      for (auto& id : face) if (id == point) id = neighbor;
-      // All intermediate face areas are affine in the moved point; positive endpoint orientation prevents folding.
-      for (size_t axis = 0; axis < 3; ++axis) {
-        const auto old_area = Projected(nodes.at(entry.second[0]).p, nodes.at(entry.second[1]).p,
-                                        nodes.at(entry.second[2]).p, axis, stats);
-        if (old_area == 0) continue;
-        const auto area = Projected(nodes.at(face[0]).p, nodes.at(face[1]).p, nodes.at(face[2]).p, axis, stats);
-        if ((old_area > 0 && !(area > 0)) || (old_area < 0 && !(area < 0)))
-          throw std::invalid_argument("Native 3D collapse folds physical facet " + std::to_string(facet) + ".");
-        break;
+    for (const auto& entry : before)
+      if (Has(entry.second, point)) {
+        auto found = physical.find(entry.first);
+        const auto facet = found->second.facet;
+        physical.erase(found);
+        skin.erase(entry.first);
+        if (Has(entry.second, neighbor)) continue;
+        auto face = entry.second;
+        for (auto& id : face)
+          if (id == point) id = neighbor;
+        // All intermediate face areas are affine in the moved point; positive endpoint orientation prevents folding.
+        for (size_t axis = 0; axis < 3; ++axis) {
+          const auto old_area = Projected(nodes.at(entry.second[0]).p, nodes.at(entry.second[1]).p,
+                                          nodes.at(entry.second[2]).p, axis, stats);
+          if (old_area == 0) continue;
+          const auto area = Projected(nodes.at(face[0]).p, nodes.at(face[1]).p, nodes.at(face[2]).p, axis, stats);
+          if ((old_area > 0 && !(area > 0)) || (old_area < 0 && !(area < 0)))
+            throw std::invalid_argument("Native 3D collapse folds physical facet " + std::to_string(facet) + ".");
+          break;
+        }
+        face = Oriented(face);
+        if (!skin.emplace(Key(face), face).second || !physical.emplace(Key(face), SurfaceFace{face, facet}).second)
+          throw std::invalid_argument("Native 3D collapse repeats a physical face.");
       }
-      face = Oriented(face);
-      if (!skin.emplace(Key(face), face).second || !physical.emplace(Key(face), SurfaceFace{face, facet}).second)
-        throw std::invalid_argument("Native 3D collapse repeats a physical face.");
-    }
     Finish(old, proposal, skin, physical, reference, stats);
-    fresh.cells.swap(proposal.cells); fresh.surface.swap(proposal.surface);
+    fresh.cells.swap(proposal.cells);
+    fresh.surface.swap(proposal.surface);
     reason.clear();
     return true;
-  } catch (const std::exception& e) { reason = e.what(); return false; }
+  } catch (const std::exception& e) {
+    reason = e.what();
+    return false;
+  }
 }
-bool MoveVertex(const Patch& old, Id vertex, Node point, Id first, const PlanarReference& reference,
-                Patch& fresh, std::string& reason, KernelStats* stats) {
+bool MoveVertex(const Patch& old, Id vertex, Node point, Id first, const PlanarReference& reference, Patch& fresh,
+                std::string& reason, KernelStats* stats) {
   try {
     Bounds(old);
     const Incidence index(old.cells, stats);
@@ -453,18 +487,25 @@ bool MoveVertex(const Patch& old, Id vertex, Node point, Id first, const PlanarR
     const auto original = nodes.at(vertex);
     if (nodes.count(point.id) || (original.p.x == point.p.x && original.p.y == point.p.y && original.p.z == point.p.z))
       throw std::invalid_argument("Native 3D movement needs a new identity and a distinct position.");
-    for (const auto& face : before) if (Has(face.second, vertex)) {
-      const auto marked = physical.find(face.first);
-      if (marked == physical.end())
-        throw std::invalid_argument("Native 3D incomplete movement dependency at interface node " + std::to_string(vertex) + ".");
-      if (!reference.Contains(marked->second.facet, point.p, stats))
-        throw std::invalid_argument("Native 3D movement leaves incident reference facet " + std::to_string(marked->second.facet) + ".");
-    }
+    for (const auto& face : before)
+      if (Has(face.second, vertex)) {
+        const auto marked = physical.find(face.first);
+        if (marked == physical.end())
+          throw std::invalid_argument("Native 3D incomplete movement dependency at interface node " +
+                                      std::to_string(vertex) + ".");
+        if (!reference.Contains(marked->second.facet, point.p, stats))
+          throw std::invalid_argument("Native 3D movement leaves incident reference facet " +
+                                      std::to_string(marked->second.facet) + ".");
+      }
     Patch proposal;
     for (const auto& cell : old.cells) {
       auto v = cell.v;
       bool found = false;
-      for (auto& node : v) if (node.id == vertex) { found = true; node = point; }
+      for (auto& node : v)
+        if (node.id == vertex) {
+          found = true;
+          node = point;
+        }
       if (!found) throw std::invalid_argument("Native 3D movement input is not a complete vertex star.");
       if (!(Orientation(v[0].p, v[1].p, v[2].p, v[3].p, stats) > 0))
         throw std::invalid_argument("Native 3D movement obstructed at cell " + std::to_string(cell.id) + ".");
@@ -472,20 +513,26 @@ bool MoveVertex(const Patch& old, Id vertex, Node point, Id first, const PlanarR
     }
     auto moved_nodes = nodes;
     moved_nodes.emplace(point.id, point);
-    Skin skin; Physical surface;
+    Skin skin;
+    Physical surface;
     for (const auto& entry : before) {
       auto face = entry.second;
       const bool moving = Has(face, vertex);
-      if (moving) for (auto& id : face) if (id == vertex) id = point.id;
-      if (moving) for (size_t axis = 0; axis < 3; ++axis) {
-        const auto old_area = Projected(nodes.at(entry.second[0]).p, nodes.at(entry.second[1]).p,
-                                        nodes.at(entry.second[2]).p, axis, stats);
-        if (old_area == 0) continue;
-        const auto area = Projected(moved_nodes.at(face[0]).p, moved_nodes.at(face[1]).p, moved_nodes.at(face[2]).p, axis, stats);
-        if ((old_area > 0 && !(area > 0)) || (old_area < 0 && !(area < 0)))
-          throw std::invalid_argument("Native 3D movement folds physical face at node " + std::to_string(vertex) + ".");
-        break;
-      }
+      if (moving)
+        for (auto& id : face)
+          if (id == vertex) id = point.id;
+      if (moving)
+        for (size_t axis = 0; axis < 3; ++axis) {
+          const auto old_area = Projected(nodes.at(entry.second[0]).p, nodes.at(entry.second[1]).p,
+                                          nodes.at(entry.second[2]).p, axis, stats);
+          if (old_area == 0) continue;
+          const auto area =
+              Projected(moved_nodes.at(face[0]).p, moved_nodes.at(face[1]).p, moved_nodes.at(face[2]).p, axis, stats);
+          if ((old_area > 0 && !(area > 0)) || (old_area < 0 && !(area < 0)))
+            throw std::invalid_argument("Native 3D movement folds physical face at node " + std::to_string(vertex) +
+                                        ".");
+          break;
+        }
       face = Oriented(face);
       if (!skin.emplace(Key(face), face).second) throw std::invalid_argument("Native 3D movement repeats a skin face.");
       const auto marked = physical.find(entry.first);
@@ -493,12 +540,17 @@ bool MoveVertex(const Patch& old, Id vertex, Node point, Id first, const PlanarR
     }
     // Positive affine determinants/face areas along the facet-contained displacement preserve the old domain.
     Finish(old, proposal, skin, surface, reference, stats);
-    fresh.cells.swap(proposal.cells); fresh.surface.swap(proposal.surface);
-    reason.clear(); return true;
-  } catch (const std::exception& e) { reason = e.what(); return false; }
+    fresh.cells.swap(proposal.cells);
+    fresh.surface.swap(proposal.surface);
+    reason.clear();
+    return true;
+  } catch (const std::exception& e) {
+    reason = e.what();
+    return false;
+  }
 }
-bool Reconnect(const Patch& old, Id vertex, Id first, const PlanarReference& reference,
-               Patch& fresh, std::string& reason, KernelStats* stats) {
+bool Reconnect(const Patch& old, Id vertex, Id first, const PlanarReference& reference, Patch& fresh,
+               std::string& reason, KernelStats* stats) {
   try {
     Bounds(old);
     const auto skin = SkinMap(Incidence(old.cells, stats).Boundary());
@@ -507,8 +559,13 @@ bool Reconnect(const Patch& old, Id vertex, Id first, const PlanarReference& ref
     Patch proposal;
     if (!Cone(old.cells, nodes.at(vertex), first, proposal.cells, reason, stats)) return false;
     Finish(old, proposal, skin, physical, reference, stats);
-    fresh.cells.swap(proposal.cells); fresh.surface.swap(proposal.surface);
-    reason.clear(); return true;
-  } catch (const std::exception& e) { reason = e.what(); return false; }
+    fresh.cells.swap(proposal.cells);
+    fresh.surface.swap(proposal.surface);
+    reason.clear();
+    return true;
+  } catch (const std::exception& e) {
+    reason = e.what();
+    return false;
+  }
 }
 }  // namespace SU2Native3D

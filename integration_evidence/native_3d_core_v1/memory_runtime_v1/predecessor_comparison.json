@@ -1,0 +1,28 @@
+{
+  "status": "PASS",
+  "unchanged_mesh_frames": 126,
+  "rank_rows": 336,
+  "matrix": [
+    {
+      "ranks": 1,
+      "frames": 12,
+      "off_on_pairs": 6,
+      "output_roundtrips": 6
+    },
+    {
+      "ranks": 2,
+      "frames": 24,
+      "off_on_pairs": 12,
+      "output_roundtrips": 12
+    },
+    {
+      "ranks": 4,
+      "frames": 48,
+      "off_on_pairs": 24,
+      "output_roundtrips": 24
+    }
+  ],
+  "maximum_modeled_requested_bytes": 8388608.0,
+  "maximum_process_lifetime_rss_bytes": 38666240.0,
+  "scope": "Exact geometry/connectivity/original sensor and normalized current/BDF history/transported metric comparison against published runtime_v3 at each fixed N/M/transfer/detail/cycle. Memory values are modeled buffers versus process-lifetime RSS, not an event-peak allocation certificate; reader and partitioner internals remain outside the model."
+}

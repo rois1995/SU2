@@ -79,3 +79,67 @@ TEST_CASE("Native3D default ownership survives rejection after private accepted 
   CHECK(LoadReference("default_native3d.su2.native_ref", reloaded));
   CHECK(EncodeReference(reloaded) == encoded);
 }
+
+TEST_CASE("Native3D budgeted import preserves both outputs and reference on elected refusal", "[NativeBudget3D]") {
+  World world;
+  auto config = MakeConfig(3, "SOLVER= EULER\n");
+  MeshSolution donor(config.get(), BoxMesh(3, 1, false), 0);
+  const auto saved = Snapshot(donor);
+  ReferenceState reference;
+  ImportedGeometry baseline;
+  BridgeStats measured;
+  std::string reason;
+  REQUIRE(ImportGeometry(*config, donor.Fine(), nullptr, reference, baseline, reason, measured, SIZE_MAX));
+  REQUIRE(reference.original);
+  CHECK(measured.maximum_native_bytes > 0);
+  CHECK(reference.original->ResidentBytes() > 0);
+  CHECK(ReferenceStorageBytes(reference) >= reference.original->ResidentBytes());
+  const auto immutable = EncodeReference(reference);
+  const auto original = reference.original;
+  ImportedGeometry loaded;
+  BridgeStats loaded_stats;
+  REQUIRE(ImportGeometry(*config, donor.Fine(), nullptr, reference, loaded, reason, loaded_stats, SIZE_MAX));
+  for (const size_t ceiling : {size_t(1), loaded_stats.maximum_native_bytes / 2}) {
+    ImportedGeometry sentinel;
+    sentinel.cells.emplace(999, OwnedCell{});
+    sentinel.stats.requests = 123;
+    BridgeStats refused;
+    CHECK_FALSE(ImportGeometry(*config, donor.Fine(), nullptr, reference, sentinel, reason, refused,
+                               world.rank == 0 ? ceiling : SIZE_MAX));
+    CHECK_FALSE(reason.empty());
+    CHECK(sentinel.cells.size() == 1);
+    CHECK(sentinel.cells.count(999) == 1);
+    CHECK(sentinel.original.empty());
+    CHECK(sentinel.stats.requests == 123);
+    CHECK(reference.original == original);
+    CHECK(EncodeReference(reference) == immutable);
+    CHECK(Snapshot(donor) == saved);
+  }
+  ReferenceState fresh;
+  fresh.marker_names = {"sentinel"};
+  ImportedGeometry no_output;
+  BridgeStats rejected;
+  CHECK_FALSE(ImportGeometry(*config, donor.Fine(), nullptr, fresh, no_output, reason, rejected,
+                             world.rank == 0 ? 1 : SIZE_MAX));
+  CHECK_FALSE(fresh.original);
+  CHECK(fresh.marker_names == std::vector<std::string>{"sentinel"});
+  CHECK(no_output.cells.empty());
+  BridgeStats late;
+  CHECK_FALSE(ImportGeometry(*config, donor.Fine(), nullptr, fresh, no_output, reason, late,
+                             world.rank == 0 ? measured.maximum_native_bytes / 2 : SIZE_MAX));
+  CHECK(late.points_seconds > 0);
+  CHECK(late.cells_seconds > 0);
+  CHECK_FALSE(fresh.original);
+  CHECK(fresh.marker_names == std::vector<std::string>{"sentinel"});
+  CHECK(no_output.cells.empty());
+  ImportedGeometry retry;
+  BridgeStats retry_stats;
+  REQUIRE(ImportGeometry(*config, donor.Fine(), nullptr, reference, retry, reason, retry_stats, SIZE_MAX));
+  CHECK(reference.original == original);
+  CHECK(retry.original.size() == baseline.original.size());
+  CHECK(Snapshot(donor) == saved);
+  // Saturated caller storage must refuse before adding source buffers, without overflow or publication.
+  CHECK_FALSE(ImportGeometry(*config, donor.Fine(), nullptr, reference, retry, reason, rejected, SIZE_MAX, SIZE_MAX));
+  CHECK(retry.original.size() == baseline.original.size());
+  CHECK(reference.original == original);
+}

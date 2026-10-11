@@ -17,6 +17,9 @@
 #include <sstream>
 #include <thread>
 #include <type_traits>
+#if defined(__unix__)
+#include <sys/resource.h>
+#endif
 using namespace SU2Native3D;
 CNativeRemesher3D::CNativeRemesher3D(std::shared_ptr<ReferenceState> retained, EngineOptions control)
     : reference(std::move(retained)), options(control) {
@@ -85,23 +88,60 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
   CRemeshResult result;
   result.status = CRemeshResult::Status::INCOMPLETE_QUALITY;
   stats = {};
+  stats.workers = config.GetAdap_Native_Ranks() ? int(config.GetAdap_Native_Ranks()) : parent.size;
+  auto control = options;
+  control.timings = options.timings || config.GetWrt_Performance();
+  stats.detailed_timings = control.timings;
   const auto start = parent.seconds();
   const auto cpu = std::clock();
-  CLocalFailure failure;
-  std::string reason;
   auto now = start;
+  std::string reason;
   auto phase = [&](size_t i) {
     const auto end = parent.seconds();
     stats.phases[i] += end - now;
     now = end;
   };
+  auto vote = [&](bool valid, const std::string& message) {
+    CLocalFailure local;
+    if (!valid) local.Set(2, 0, message);
+    const auto elected = parent.elect(local);
+    reason = elected.message;
+    return !elected.any;
+  };
+  auto admit = [&](size_t bytes) {
+    stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, bytes);
+    return vote(bytes != SIZE_MAX && bytes <= control.memory_ceiling,
+                "Native3D runtime retained/working storage exceeds budget.");
+  };
+  auto partition_bytes = [&]() {
+    return transfer_memory::Add(
+        transfer_memory::Bytes(stats.partition.destinations), transfer_memory::Bytes(stats.partition.cells_before),
+        transfer_memory::Bytes(stats.partition.cells_after), transfer_memory::Bytes(stats.partition.work_before),
+        transfer_memory::Bytes(stats.partition.work_after));
+  };
   struct Publication {
     ReferenceState state;
     bool published = false;
   };
-  {
+  do {
     CheckSupport(config, geometry);
     phase(0);
+    const int worker_low = CPassiveComm::Allreduce(stats.workers, CPassiveComm::Op::MIN, parent.comm),
+              worker_high = CPassiveComm::Allreduce(stats.workers, CPassiveComm::Op::MAX, parent.comm);
+    const int low = CPassiveComm::Allreduce(int(control.timings), CPassiveComm::Op::MIN, parent.comm),
+              high = CPassiveComm::Allreduce(int(control.timings), CPassiveComm::Op::MAX, parent.comm);
+    CLocalFailure failure;
+    if (low != high || worker_low != worker_high || stats.workers < 1 || stats.workers > parent.size)
+      failure.Set(1, 0, "Native3D profile/worker configuration differs or is invalid.");
+    CollectiveFailure(failure, CURRENT_FUNCTION);
+    // Bounded reference I/O/parse/construction scratch precedes private publication allocation.
+    const size_t reference_setup =
+        transfer_memory::Add(options.caller_bytes, ReferenceStorageBytes(*reference),
+                             reference->original ? ReferenceStorageBytes(*reference, false) : 8 * ReferenceFileLimit3D);
+    if (!admit(reference_setup)) {
+      phase(1);
+      break;
+    }
     auto pending = std::make_shared<Publication>();
     pending->state = *reference;
     if (!pending->state.original) {
@@ -111,34 +151,25 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     }
     CollectiveFailure(failure, CURRENT_FUNCTION);
     phase(1);
-    auto imported = ImportGeometry(config, geometry, &sensor, pending->state);
-    stats.imported = imported.stats;
-    phase(2);
-    stats.initial_cells = CPassiveComm::Allreduce(uint64_t(imported.cells.size()), CPassiveComm::Op::SUM, parent.comm);
-    stats.workers = config.GetAdap_Native_Ranks() ? int(config.GetAdap_Native_Ranks()) : parent.size;
-    auto control = options;
-    control.timings = options.timings || config.GetWrt_Performance();
-    stats.detailed_timings = control.timings;
-    const int worker_low = CPassiveComm::Allreduce(stats.workers, CPassiveComm::Op::MIN, parent.comm),
-              worker_high = CPassiveComm::Allreduce(stats.workers, CPassiveComm::Op::MAX, parent.comm);
-    const int low = CPassiveComm::Allreduce(int(control.timings), CPassiveComm::Op::MIN, parent.comm),
-              high = CPassiveComm::Allreduce(int(control.timings), CPassiveComm::Op::MAX, parent.comm);
-    if (low != high || worker_low != worker_high || stats.workers < 1 || stats.workers > parent.size)
-      failure.Set(1, 0, "Native3D profile/worker configuration differs or is invalid.");
-    CollectiveFailure(failure, CURRENT_FUNCTION);
-    auto vote = [&](bool valid, const std::string& message) {
-      CLocalFailure local;
-      if (!valid) local.Set(2, 0, message);
-      const auto elected = parent.elect(local);
-      reason = elected.message;
-      return !elected.any;
+    // Retained and pending state share the immutable authority: count its allocation once.
+    const size_t retained = transfer_memory::Add(options.caller_bytes, ReferenceStorageBytes(*reference, false));
+    auto held = [&]() {
+      return transfer_memory::Add(retained, ReferenceStorageBytes(pending->state), partition_bytes());
     };
-    bool ready = true;
-    Owned working = imported.cells;
+    ImportedGeometry imported;
+    bool ready = ImportGeometry(config, geometry, &sensor, pending->state, imported, reason, stats.imported,
+                                control.memory_ceiling, retained);
+    stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, stats.imported.maximum_native_bytes);
+    phase(2);
+    if (!ready) break;
+    stats.initial_cells = CPassiveComm::Allreduce(uint64_t(imported.cells.size()), CPassiveComm::Op::SUM, parent.comm);
+    Owned working = std::move(imported.cells);  // Private import already owns this map; no duplicate is needed.
     std::vector<DonorCell> migrated;
+    const std::vector<DonorCell>* worker_source = &imported.original;
     {
       DonorImport source(parent, control.timings);
-      ready = source.Build(imported.original, reason, control.memory_ceiling, control.caller_bytes);
+      ready = source.Build(imported.original, reason, control.memory_ceiling,
+                           transfer_memory::Add(held(), OwnedStorageBytes(working)));
       phase(3);
       std::vector<uint32_t> weights;
       const bool repartition = config.GetAdap_Native_Repartition() || stats.workers < parent.size;
@@ -146,33 +177,41 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
                 partition_high = CPassiveComm::Allreduce(int(repartition), CPassiveComm::Op::MAX, parent.comm);
       if (partition_low != partition_high) ready = vote(false, "Inconsistent native3D repartition controls.");
       if (ready)
-        ready = WorkingWeights(parent, working, source, weights, reason, stats.weights, {}, control.memory_ceiling,
-                               control.caller_bytes, control.timings);
+        ready =
+            WorkingWeights(parent, working, source, weights, reason, stats.weights, {}, control.memory_ceiling,
+                           transfer_memory::Add(held(), transfer_memory::Bytes(imported.original)), control.timings);
       phase(4);
       if (ready && repartition)
-        ready = Repartition(parent, working, weights, stats.workers, stats.partition, reason, control.memory_ceiling,
-                            control.caller_bytes);
+        ready = Repartition(
+            parent, working, weights, stats.workers, stats.partition, reason, control.memory_ceiling,
+            transfer_memory::Add(held(), transfer_memory::Bytes(imported.original), source.ResidentBytes()));
       phase(5);
-      if (ready) {
-        // A rank with no original donors must still enter the migration collective.
-        if (!repartition)
-          migrated = imported.original;
-        else {
+      if (ready && repartition) {
+        const size_t baseline =
+            transfer_memory::Add(held(), transfer_memory::Bytes(imported.original), OwnedStorageBytes(working),
+                                 source.ResidentBytes(), transfer_memory::Bytes(weights));
+        if (admit(transfer_memory::Add(baseline,
+                                       transfer_memory::GrowthBound(imported.original.size(), sizeof(DonorCell)),
+                                       transfer_memory::Mul(parent.size, sizeof(std::vector<DonorCell>))))) {
           std::vector<std::vector<DonorCell>> send(parent.size);
-          for (size_t i = 0; i < imported.original.size(); ++i)
-            send.at(stats.partition.destinations.at(i)).push_back(imported.original[i]);
+          for (size_t j = 0; j < imported.original.size(); ++j)
+            send.at(stats.partition.destinations.at(j)).push_back(imported.original[j]);
+          // Empty original owners still enter this same migration collective.
           bool admitted = false;
-          migrated = parent.exchange(
-              send, &admitted, control.memory_ceiling,
-              transfer_memory::Add(control.caller_bytes, transfer_memory::Bytes(imported.original),
-                                   transfer_memory::Mul(working.size() + imported.cells.size(),
-                                                        sizeof(Owned::value_type) + 4 * sizeof(void*))));
+          migrated = parent.exchange(send, &admitted, control.memory_ceiling, baseline);
           ready = admitted;
           if (!ready) reason = "Native3D original donor migration exceeds budget.";
-        }
+          worker_source = &migrated;
+        } else
+          ready = false;
       }
       phase(6);
+      stats.maximum_native_bytes = std::max({stats.maximum_native_bytes, source.Statistics().maximum_work_bytes,
+                                             stats.weights.maximum_native_bytes, stats.partition.maximum_native_bytes,
+                                             parent.max_exchange_work_bytes});
     }
+    // Index/weights teardown belongs to source preparation, not communicator construction.
+    phase(3);
     if (ready) {
       auto comm = parent.comm;
 #ifdef HAVE_MPI
@@ -184,23 +223,33 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
       uint64_t bytes = 0;
       if (parent.rank < stats.workers) {
         World workers(comm);
+        auto kernel = control;
+        // The engine charges its input map/source; caller_bytes covers only other live runtime buffers.
+        kernel.caller_bytes = transfer_memory::Add(
+            held(), worker_source == &imported.original ? 0 : transfer_memory::Bytes(imported.original));
         try {
           const auto begin = workers.seconds();
-          auto refined = Refine(workers, working, migrated, *pending->state.original, {}, control);
-          stats.phases[8] = workers.seconds() - begin;
+          auto refined = Refine(workers, working, *worker_source, *pending->state.original, {}, kernel);
           stats.refine = refined.stats;
           valid = refined.valid;
           detail = refined.reason;
+          working.swap(refined.cells);
+          Owned().swap(refined.cells);
+          std::vector<SplitRecord>().swap(refined.splits);
+          std::vector<Edge>().swap(refined.collapses);
+          stats.phases[8] = workers.seconds() - begin;
           if (valid) {
-            const auto coarsening = workers.seconds();
-            auto coarse = Coarsen(workers, refined.cells, migrated, *pending->state.original, {}, control);
-            stats.phases[9] = workers.seconds() - coarsening;
+            const auto begin_coarse = workers.seconds();
+            auto coarse = Coarsen(workers, working, *worker_source, *pending->state.original, {}, kernel);
             stats.coarsen = coarse.stats;
             valid = coarse.valid;
             detail = coarse.reason;
             working.swap(coarse.cells);
-          } else
-            working.swap(refined.cells);
+            Owned().swap(coarse.cells);
+            std::vector<SplitRecord>().swap(coarse.splits);
+            std::vector<Edge>().swap(coarse.collapses);
+            stats.phases[9] = workers.seconds() - begin_coarse;
+          }
         } catch (const CElectedFailure& e) {
           valid = false;
           detail = e.message;
@@ -209,16 +258,15 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
         }
         bytes = workers.bytes_sent;
       }
-      // Inactive CFD ranks park instead of burning a core while M workers adapt.
       now = parent.seconds();
       const auto idle_cpu = std::clock();
 #ifdef HAVE_MPI
 #if MPI_VERSION >= 3
-      MPI_Request ready_request;
-      MPI_Ibarrier(parent.comm, &ready_request);
+      MPI_Request request;
+      MPI_Ibarrier(parent.comm, &request);
       int complete = 0;
       while (!complete) {
-        MPI_Test(&ready_request, &complete, MPI_STATUS_IGNORE);
+        MPI_Test(&request, &complete, MPI_STATUS_IGNORE);
         if (!complete) std::this_thread::sleep_for(std::chrono::milliseconds(1));
       }
 #else
@@ -232,14 +280,19 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
       if (comm != MPI_COMM_NULL) MPI_Comm_free(&comm);
 #endif
       phase(7);
-      stats.communication_bytes = parent.bytes_sent + bytes;
+      stats.communication_bytes = bytes;
       ready = vote(valid, detail);
     }
     now = parent.seconds();
     if (ready)
       ready = ReaderSlices(parent, working, imported.original, pending->state, result.slices, reason, stats.returned,
-                           {}, control.memory_ceiling, control.caller_bytes, control.timings);
+                           {}, control.memory_ceiling, transfer_memory::Add(held(), transfer_memory::Bytes(migrated)),
+                           control.timings);
     phase(11);
+    stats.communication_bytes += parent.bytes_sent;
+    stats.maximum_native_bytes =
+        std::max({stats.maximum_native_bytes, stats.refine.maximum_work_bytes, stats.coarsen.maximum_work_bytes,
+                  stats.returned.maximum_native_bytes, parent.max_exchange_work_bytes});
     if (ready) {
       result.markers = result.slices.markersWithElements;
       result.status = CRemeshResult::Status::COMPLETE;
@@ -252,20 +305,31 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
       stats.final_cells = result.slices.nElemGlobal;
       stats.complete = true;
     }
-  }
+  } while (false);
   stats.process_cpu_seconds = double(std::clock() - cpu) / CLOCKS_PER_SEC;
   stats.total_seconds = parent.seconds() - start;
   stats.other_seconds = stats.total_seconds - std::accumulate(stats.phases.begin(), stats.phases.end(), 0.);
+#if defined(__unix__)
+  struct rusage usage {};
+  if (!getrusage(RUSAGE_SELF, &usage)) {
+#if defined(__APPLE__)
+    stats.process_peak_rss_bytes = usage.ru_maxrss;
+#else
+    stats.process_peak_rss_bytes = transfer_memory::Mul(usage.ru_maxrss, 1024);
+#endif
+  }
+#endif
   const auto report = parent.seconds();
   std::ostringstream row;
   row << std::setprecision(17) << "NATIVE3D rank=" << parent.rank << " ranks=" << parent.size
       << " workers=" << stats.workers << " complete=" << stats.complete << " detailed=" << stats.detailed_timings
       << " total=" << stats.total_seconds << " other=" << stats.other_seconds << " cpu=" << stats.process_cpu_seconds
       << " idle_cpu=" << stats.idle_cpu_seconds;
-  for (size_t i = 0; i < stats.names.size(); ++i) row << ' ' << stats.names[i] << '=' << stats.phases[i];
+  for (size_t j = 0; j < stats.names.size(); ++j) row << ' ' << stats.names[j] << '=' << stats.phases[j];
   row << " initial=" << stats.initial_cells << " final=" << stats.final_cells
       << " refine_accepted=" << stats.refine.accepted << " coarsen_accepted=" << stats.coarsen.accepted
-      << " tracked_bytes=" << stats.communication_bytes << '\n';
+      << " tracked_bytes=" << stats.communication_bytes << " native_bound=" << stats.maximum_native_bytes
+      << " process_peak_rss=" << stats.process_peak_rss_bytes << '\n';
   const auto text = row.str();
   const auto all = CPassiveComm::Allgatherv(std::vector<char>(text.begin(), text.end()), nullptr, parent.comm);
   if (!parent.rank) {

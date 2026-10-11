@@ -1,3 +1,25 @@
+## Native 3D runtime memory admission — 2026-10-11
+
+NativeIntegrated / codex/native-3d-core; predecessor0864f56e60f0f7d66e5db6cf8779cb8aaa1703c7.
+Recoverable initial point-directory/face/reference gates and caller-held native
+runtime storage now compose through existing requested-buffer helpers. Import
+refusal leaves output/reference unchanged. Move imported cells, borrow original
+source without repartition and release superseded maps/operation records before
+coarsening. NATIVE3D rows distinguish modeled requested bytes from lifetime RSS.
+MEMORY_REPORT.md / MEMORY_CHECKPOINT_VALIDATION.json: actual archive build and
+33-stage runtime PASS MPI1/2/4, allM1..N; budget elected refusal/retry;84 accepted
+events/42 OFFON pairs/42 output roundtrips,126 predecessor-identical mesh frames,
+transported tensor error0/max affine current-BDF2 error1.119683e-12. Native2D/MMG
+and default ownership/private-progress rollback also PASS. No target relaxed.
+
+Largest model8MiB (reference setup allowance), matrixRSS38,666,240bytes; different
+quantities. Reader/partitioner workspace, allocator/MPI/CFD storage and remaining
+reader/cache calibration are not fully covered. Full lifecycle profiling and
+size/rank/restart qualification remain open. Goal1 ACTIVE, no scaling/speedup or
+BL/unsteady affordability claim. Inspect memory_runtime_v1/mpi4 final SU2/CGNS,
+original reference and donor/accepted metric/current/BDF histories. All owned
+checks sequential nice19/thread1; foreign FSI untouched. Push qualified checkpoint.
+
 ## Native 3D weighted partition checkpoint — 2026-10-11
 
 Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch

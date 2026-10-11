@@ -36,6 +36,11 @@ try:
  objects={p:sha(build/p) for p in targets}
  run(['nice','-n','19','mpicxx','-pthread']+[build/p for p in targets]+args+['-o',binary],'link_actual_archives')
  for n in (1,2,4):
+  work=folder/('budget_mpi'+str(n));work.mkdir();print('Case working and retained folder:',work,flush=True)
+  run(['uptime'],'before_budget_mpi'+str(n)+'_load')
+  out=run(['nice','-n','19','mpirun','--oversubscribe','--bind-to','none','-np',str(n),binary,'[NativeBudget3D]','--use-colour','no'],'budget_mpi'+str(n),work)
+  assert out.count('All tests passed')==n
+ for n in (1,2,4):
   work=folder/('mpi'+str(n));work.mkdir();print('Case working and retained folder:',work,flush=True)
   for cmd,label in [(['uptime'],'load'),(['free','-m'],'memory'),(['ps','-eo','pid,ppid,ni,pcpu,etime,comm','--sort=-pcpu'],'processes')]:run(cmd,'before_mpi'+str(n)+'_'+label)
   out=run(['nice','-n','19','mpirun','--oversubscribe','--bind-to','none','-np',str(n),binary,'[NativeRuntime3D],[NativeReference3D],[NativeBridge2D]','--use-colour','no'],'mpi'+str(n),work)

@@ -29,11 +29,14 @@ struct Patch {
   std::vector<Cell> cells;
   std::vector<SurfaceFace> surface;
 };
-/*! Bounded immutable imported facet authority. Exact finite planar containment; certified convex coplanar same-marker seams are removable. */
+/*! Bounded immutable imported facet authority. Exact finite planar containment; certified convex coplanar same-marker
+ * seams are removable. */
 class PlanarReference {
  public:
   explicit PlanarReference(std::vector<Facet> facets);
   const Facet& Get(Id id) const;
+  /*! Requested resident map/vector storage; allocator metadata and constructor scratch are separate. */
+  size_t ResidentBytes() const;
   bool Contains(Id facet, Point p, KernelStats* stats = nullptr) const;
   Id Canonical(Id facet) const;
   /*! Finite complete triangle containment and exact orientation relative to the original physical facet. */
@@ -66,10 +69,10 @@ bool CollapseVertex(const Patch& old, Id point, Id neighbor, Id first_cell, cons
  * Vertex/cell counts are unchanged. Exact facet-contained motion and positive endpoint determinants/faces
  * preserve the embedded domain; interface-star omissions, corner drift and inversion reject atomically.
  * New identity permits surface-coordinate changes without weakening fixed-interface coordinate checks. */
-bool MoveVertex(const Patch& old, Id vertex, Node point, Id first_cell, const PlanarReference& reference,
-                Patch& fresh, std::string& reason, KernelStats* stats = nullptr);
+bool MoveVertex(const Patch& old, Id vertex, Node point, Id first_cell, const PlanarReference& reference, Patch& fresh,
+                std::string& reason, KernelStats* stats = nullptr);
 /*! Fixed-skin reconnection to an existing admitted apex (including face2->3 and edge3->2/4->4).
  * Geometry/topology only: frozen metric progress, complete dependencies and global IDs remain caller duties. */
-bool Reconnect(const Patch& old, Id vertex, Id first_cell, const PlanarReference& reference,
-               Patch& fresh, std::string& reason, KernelStats* stats = nullptr);
+bool Reconnect(const Patch& old, Id vertex, Id first_cell, const PlanarReference& reference, Patch& fresh,
+               std::string& reason, KernelStats* stats = nullptr);
 }  // namespace SU2Native3D

@@ -21,6 +21,7 @@ struct RemeshStats {
   PartitionStats partition;
   EngineStats refine, coarsen;
   uint64_t communication_bytes = 0, initial_cells = 0, final_cells = 0;
+  size_t maximum_native_bytes = 0, process_peak_rss_bytes = 0;
   int workers = 0;
   bool complete = false, detailed_timings = false;
 };
