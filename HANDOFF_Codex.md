@@ -7,6 +7,38 @@ small sequential local checks with real host-contention checks; push each
 validated checkpoint and verify the remote SHA. A terminal capacity failure
 cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
+## Native 3D anisotropic driver envelope and first size limit — 2026-10-11
+
+NativeIntegrated / codex/native-3d-core, predecessord41c49de169444c6053674860da0285b6347fe18.
+ENVELOPE_REPORT.md / ENVELOPE_CHECKPOINT_VALIDATION.json retain frozen initial
+matrix, actual complete-archive fixtures/pins, seven qualified cases, and first
+162-tetrahedron rejection. No production code changes; archives/members equal
+pushed reader checkpoint. N1M1/N2M1/M2/N4M1/M2/M4 varying-strength45deg metric
+passes three actual refine/coarsen/refine and ReplaceMesh/BDF events each; also
+constant metric control.56 geometry/readback and21 transported-state frames,
+234 exclusive+378 nested rows pass. Tensorerror0/stateerror3.84415e-16. Different
+partition trajectories independently qualified. Original N2M1 timing-only FAIL
+(-4.3368e-19 CPU remainder) kept with hash-bound existing-tolerance recovery.
+Legacy helper/default sensor/native2D/MMG MPI1 control passes;84 old stateframes
+re-audited. Actual SU2/CGNS/readback and inspectable VTUs with synthetic histories.
+
+Size3 N1M1 first event rejects after512 rounds/59 privateaccepted/453 rejected.
+Accepted CFD mesh/solution/reference preservation checks pass; source/input/logs
+and FAIL receipt kept. Remesh7.917s/refine7.823s, exclusivemetric6.234s and
+reconstruction0.806s; nestededge trace6.496s overlaps phases. No proved cycling
+or larger-budget fix. Stop size4/a2 expansion until exact rejected-private replay
+and feature/residual diagnostics explain budget versus operator blockage.
+Private rejected progress not exported yet. Passing grids:
+ integration_evidence/native_3d_core_v1/envelope_mpi4_m4_v1/envelope_s0.vtu
+ throughs2.vtu, actualdriverSU2/eventsidecars and finalCGNS nearby.
+
+Full Goal1 ACTIVE. No owned case live after legacy control terminal PASS.
+Next exact failure replay, direction-changing/thin/wedge/restart/practical limits,
+full wait/traffic and memory calibration; repeated OFFON and closed SGE package
+still required. One contended pilot is not scaling/overhead/affordability proof.
+Do not ask overnight cluster launches. ForeignFSI/submodules/AdapNoExt/
+ClusterResults untouched. Publication confirmation to follow validated push.
+
 ## Native 3D reader admission validated — 2026-10-11
 
 NativeIntegrated / codex/native-3d-core; predecessor

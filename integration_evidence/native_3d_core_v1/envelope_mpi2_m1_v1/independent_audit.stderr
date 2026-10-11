@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_envelope.py", line 79, in <module>
+    if __name__=='__main__':main(Path(sys.argv[1]).resolve())
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_envelope.py", line 56, in main
+    assert all(math.isfinite(v) and v>=0 for k,v in row.items() if k!='stage')
+AssertionError

@@ -83,7 +83,7 @@ def affine(p):
     x,y,z=p
     return (1.2+.1*x-.05*y+.02*z,400+20*x-10*y+5*z,-30+5*x+8*y-3*z,12-4*x+2*y+6*z,2.5e5+1e3*x-2e3*y+500*z)
 
-def states(data,state):
+def states(data,state,sensor_at=None):
     source,_=sources(data)
     wanted={'accepted':{tuple(n[1:]) for n in data['nodes']},'donor':{tuple(v[1:4]) for c in data['original'] for v in c['vertices']}}
     maximum=metric_error=0.
@@ -105,7 +105,7 @@ def states(data,state):
     scale=state['sensor_scale']
     for c in data['original']:
         for v in c['vertices']:
-            x,y,z=v[1:4];expected=(scale+.125*x,.03125*x,0.,scale+.125*y,0.,scale+.125*z)
+            x,y,z=v[1:4];expected=(scale+.125*x,.03125*x,0.,scale+.125*y,0.,scale+.125*z) if sensor_at is None else sensor_at((x,y,z),scale)
             assert max(abs(a-b) for a,b in zip(expected,v[4]))<1e-13
     return dict(maximum_state_relative_error=maximum,maximum_transported_tensor_absolute_error=metric_error,
                 donor_points=len(wanted['donor']),accepted_points=len(wanted['accepted']))

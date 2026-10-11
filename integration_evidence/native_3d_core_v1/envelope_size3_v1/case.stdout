@@ -1,0 +1,210 @@
+Filters: [NativeEnvelope3D]
+WARNING: Setting WINDOW_START_ITER = RESTART_ITER for meaningful running average.
+
+Parsing config file for zone 0
+WARNING: Setting WINDOW_START_ITER = RESTART_ITER for meaningful running average.
+
+----------------- Physical Case Definition ( Zone 0 ) -------------------
+Compressible Euler equations.
+Mach number: 0.5.
+Angle of attack (AoA): 0 deg, and angle of sideslip (AoS): 0 deg.
+No restart solution, use the values at infinity (freestream).
+Dimensional simulation.
+The reference area is 1 m^2.
+The semi-span will be computed using the max y(3D) value.
+The reference length is 1 m.
+Input mesh file name: envelope_input.su2
+
+--------------- Space Numerical Integration ( Zone 0 ) ------------------
+Roe (with entropy fix = 0.001) solver for the flow inviscid terms.
+Standard Roe without low-dissipation function.
+First order integration in space.
+Gradient for upwind reconstruction: Green-Gauss.
+Gradient for viscous and source terms: Green-Gauss.
+
+--------------- Time Numerical Integration  ( Zone 0 ) ------------------
+Unsteady simulation, dual time stepping strategy (second order in time).
+Unsteady time step provided by the user (s): 0.001.
+Euler implicit method for the flow equations.
+FGMRES is used for solving the linear system.
+Using ILU(0) preconditioning.
+Convergence criteria of the linear solver: 1e-06.
+Max number of linear iterations: 10.
+No CFL adaptation.
+Courant-Friedrichs-Lewy number:     1.25
+
+------------------ Convergence Criteria  ( Zone 0 ) ---------------------
+Maximum number of solver subiterations: 2.
+Maximum number of physical time-steps: 10.
+Begin convergence monitoring at iteration 5.
+Residual minimum value: 1e-14.
+Cauchy series min. value: 1e-10.
+Number of Cauchy elements: 100.
+Begin windowed time average at iteration 0.
+
+-------------------- Output Information ( Zone 0 ) ----------------------
+File writing frequency: 
++------------------------------------+
+|                     File| Frequency|
++------------------------------------+
+|                  RESTART|         1|
++------------------------------------+
+Writing the convergence history file every 0 inner iterations.
+Writing the convergence history file every 1 time iterations.
+Writing the screen convergence history every 1 inner iterations.
+Writing the screen convergence history every 1 time iterations.
+The tabular file format is CSV (.csv).
+Convergence history file name: envelope_history.
+Forces breakdown file name: forces_breakdown.dat.
+Surface file name: surface.
+Volume file name: vol_solution.
+Restart file name: restart.
+
+------------- Config File Boundary Information ( Zone 0 ) ---------------
++-----------------------------------------------------------------------+
+|                        Marker Type|                        Marker Name|
++-----------------------------------------------------------------------+
+|                          Far-field|                            x_minus|
+|                                   |                             x_plus|
+|                                   |                            y_minus|
+|                                   |                             y_plus|
+|                                   |                             z_plus|
+|                                   |                          z_minus_a|
+|                                   |                          z_minus_b|
++-----------------------------------------------------------------------+
+
+-------------------- Output Preprocessing ( Zone 0 ) --------------------
+
+WARNING: SURFACE_PRESSURE_DROP can only be computed for at least 2 surfaces (outlet, inlet, ...)
+
+Screen output fields: TIME_ITER, INNER_ITER, RMS_DENSITY, RMS_MOMENTUM-X, RMS_MOMENTUM-Y, RMS_ENERGY
+History output group(s): ITER, CUR_TIME, RMS_RES
+Convergence field(s): RMS_DENSITY
+Warning: No (valid) fields chosen for time convergence monitoring. Time convergence monitoring inactive.
+Volume output fields: COORDINATES, SOLUTION, PRIMITIVE
+
+------------------- Geometry Preprocessing ( Zone 0 ) -------------------
+Three dimensional problem.
+64 grid points.
+162 volume elements.
+7 surface markers.
+18 boundary elements in index 0 (Marker = x_minus).
+18 boundary elements in index 1 (Marker = x_plus).
+18 boundary elements in index 2 (Marker = y_minus).
+18 boundary elements in index 3 (Marker = y_plus).
+9 boundary elements in index 4 (Marker = z_minus_a).
+9 boundary elements in index 5 (Marker = z_minus_b).
+18 boundary elements in index 6 (Marker = z_plus).
+162 tetrahedra.
+Setting point connectivity.
+Renumbering points (Reverse Cuthill McKee Ordering).
+Recomputing point connectivity.
+Setting element connectivity.
+Checking the numerical grid orientation.
+There has been a re-orientation of 81 TETRAHEDRON volume elements.
+There has been a re-orientation of 54 TRIANGLE surface elements.
+Identifying edges and vertices.
+Setting the control volume structure.
+Volume of the computational grid: 1.
+Searching for the closest normal neighbors to the surfaces.
+Storing a mapping from global to local point index.
+Compute the surface curvature.
+Max K: 30.4812. Mean K: 14.8792. Standard deviation K: 10.3666.
+Computing mesh quality statistics for the dual control volumes.
++--------------------------------------------------------------+
+|           Mesh Quality Metric|        Minimum|        Maximum|
++--------------------------------------------------------------+
+|    Orthogonality Angle (deg.)|        60.0356|        69.5561|
+|     CV Face Area Aspect Ratio|        1.91485|         6.9282|
+|           CV Sub-Volume Ratio|              1|              1|
+|                     CV Volume|     0.00308642|       0.037037|
++--------------------------------------------------------------+
+Finding max control volume width.
+NATIVE3D_STAGE stage=cfd_geometry_initial rank=0 ranks=1 time_iter=0 total=0.006547121999999999 other=8.582000000000034e-06 cpu=0.0058309999999999994 cpu_other=3.9999999999992841e-06 process_peak_rss=24145920 partition=5.4269999999988217e-06 partition_cpu=3.0000000000000001e-06 migration=0.00032077600000000005 migration_cpu=0.000321 preprocess=0.0062123370000000001 preprocess_cpu=0.0055030000000000001
+Semi-span length = -1e+10 m.
+Wetted area = 0 m^2.
+Area projection in the x-plane = 0 m^2, y-plane = 0 m^2, z-plane = 0 m^2.
+Max. coordinate in the x-direction = -1e+10 m, y-direction = -1e+10 m, z-direction = -1e+10 m.
+Min. coordinate in the x-direction = 1e+10 m, y-direction = 1e+10 m, z-direction = 1e+10 m.
+Computing wall distances.
+
+-------------------- Solver Preprocessing ( Zone 0 ) --------------------
+Inviscid flow: Computing density based on free-stream
+temperature and pressure using the ideal gas law.
+Force coefficients computed using free-stream values.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|                        -|                         -|             STANDARD_AIR|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+|      Spec. Heat Ratio|             -|             -|         -|           1.4|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|       Static Pressure|        101325|             1|        Pa|        101325|
+|               Density|       1.22498|             1|    kg/m^3|       1.22498|
+|           Temperature|        288.15|             1|         K|        288.15|
+|          Total Energy|        221265|             1|   m^2/s^2|        221265|
+|            Velocity-X|       170.149|             1|       m/s|       170.149|
+|            Velocity-Y|             0|             1|       m/s|             0|
+|            Velocity-Z|             0|             1|       m/s|             0|
+|    Velocity Magnitude|       170.149|             1|       m/s|       170.149|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|           0.5|
++------------------------------------------------------------------------------+
+-- Unsteady conditions
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|            Total Time|             1|             1|         s|             1|
+|             Time Step|         0.001|             1|         s|         0.001|
++------------------------------------------------------------------------------+
+Initialize Jacobian structure (Euler). MG level: 0.
+
+------------------- Numerics Preprocessing ( Zone 0 ) -------------------
+
+----------------- Integration Preprocessing ( Zone 0 ) ------------------
+
+------------------- Iteration Preprocessing ( Zone 0 ) ------------------
+Euler/Navier-Stokes/RANS fluid iteration.
+NATIVE3D rank=0 ranks=1 workers=1 complete=0 detailed=1 total=7.9174640010000008 other=8.1735000001970093e-05 cpu=7.7262259999999996 idle_cpu=0 support=1.6655999999989901e-05 reference=5.6216000000011701e-05 import=0.083135157999999987 source=0.00068848600000001592 weights=0.0097137740000000083 partition=0.00073925399999999475 donor_migration=7.1613999999997624e-05 communicator=7.9838999999637394e-05 refine=7.8228504069999998 coarsen=0 wait=3.0628999999393614e-05 return=2.3299999973858121e-07 initial=162 final=0 refine_accepted=59 coarsen_accepted=0 tracked_bytes=22020896 native_bound=8388608 process_peak_rss=30093312
+Native3D rejected event: Native 3D adaptation round limit reached before strict metric completion. Last local rejection: feature 2:58: Native 3D repair improves neither frozen size excess nor quality/sliver bounds.; accepted CFD mesh/solution retained.
+NATIVE3D_DETAIL stage=import rank=0 ranks=1 workers=1 complete=0 total=0.083131962999999989 points=3.4153999999994578e-05 cells=3.1755000000008304e-05 faces=0.082996502999999999 source=0 query=0 reader=0 other=6.9550999999987151e-05 requests=0 hits=0 misses=0 compositions=0 batches=0 retries=0 nested_field_build=0 nested_search=0 nested_interpolation=0 nested_composition=0 native_bound=732640
+NATIVE3D_DETAIL stage=weights rank=0 ranks=1 workers=1 complete=0 total=0.0097117339999999996 points=0 cells=0 faces=0 source=0 query=0.0096829030000000482 reader=0 other=2.8830999999951423e-05 requests=810 hits=399 misses=411 compositions=0 batches=21 retries=0 nested_field_build=0.001635706 nested_search=0.0030848489999999998 nested_interpolation=6.6840999999999992e-05 nested_composition=0 native_bound=1522752
+NATIVE3D_DETAIL stage=return rank=0 ranks=1 workers=1 complete=0 total=0 points=0 cells=0 faces=0 source=0 query=0 reader=0 other=0 requests=0 hits=0 misses=0 compositions=0 batches=0 retries=0 nested_field_build=0 nested_search=0 nested_interpolation=0 nested_composition=0 native_bound=0
+NATIVE3D_DETAIL stage=source rank=0 ranks=1 workers=1 complete=0 build=0.00068351000000000002 imports=0.0038119679999999998 requests=810 candidates=18972 payloads=2082 maximum_patch=162 nested_routing=0.00020570599999999997 nested_search=0.0020615259999999997 nested_filter=0 nested_exchange=0.0011296489999999999
+NATIVE3D_DETAIL stage=partition rank=0 ranks=1 workers=1 complete=0 total=0.00072751799999998257 graph=0.00060456899999999925 parmetis=2.4900000000771527e-07 migration=8.1745999999993657e-05 other=4.0953999999981949e-05 nested_directory=0.00039859700000000053 moved=0 arcs=540 cells_before=162 cells_after=162 work_before=720 work_after=720
+NATIVE3D_DETAIL stage=refine rank=0 ranks=1 workers=1 complete=0 total=7.8223434049999998 initialization=0.00086783499999999996 seed=0.25090336400000002 selection=0.0018562280000000008 dependency=0.026604356999999999 reservation=0.0066852349999999942 donor=0.094651063999999965 reconstruction=0.8062891080000002 metric=6.2340113460000026 routing=0.012211454000000009 publication=0.014631802999999997 update=0.36251665799999994 completion=7.2500000000000005e-07 other=0.011114227999997617 process_cpu=7.6436640000000002 private_reconstruction_cpu=0.78508699999999731 private_metric_cpu=6.0956739999999936 private_measurement_cpu=0.56950999999999974 rounds=512 attempted=512 accepted=59 rejected=453 conflicts=0 requests=18992 hits=7822 compositions=0 edge_evaluations=686 edge_reused=4564 moved=18 reconnected=26 maximum_donor_patch=162 maximum_owned=229 nested_field_build=0.049364607000000019 nested_field_query=0.042475182999999986 nested_cache=0.011927679000000007 nested_search=0.024369679999999987 nested_interpolation=0.0028258110000000019 nested_composition=0 nested_edge=6.5726421320000012 nested_edge_search=0.052942273000000005 nested_edge_trace=6.4957417490000022 nested_edge_integral=0.019728190999999999 donor_batches=86 donor_candidates=359706 donor_filtered=0 donor_payloads=52716 nested_donor_search=0.062452969999999948 nested_donor_filter=0 batch_retries=0 query_retries=0 private_query_retries=0 native_bound=3848208
+NATIVE3D_DETAIL stage=coarsen rank=0 ranks=1 workers=1 complete=0 total=0 initialization=0 seed=0 selection=0 dependency=0 reservation=0 donor=0 reconstruction=0 metric=0 routing=0 publication=0 update=0 completion=0 other=0 process_cpu=0 private_reconstruction_cpu=0 private_metric_cpu=0 private_measurement_cpu=0 rounds=0 attempted=0 accepted=0 rejected=0 conflicts=0 requests=0 hits=0 compositions=0 edge_evaluations=0 edge_reused=0 moved=0 reconnected=0 maximum_donor_patch=0 maximum_owned=0 nested_field_build=0 nested_field_query=0 nested_cache=0 nested_search=0 nested_interpolation=0 nested_composition=0 nested_edge=0 nested_edge_search=0 nested_edge_trace=0 nested_edge_integral=0 donor_batches=0 donor_candidates=0 donor_filtered=0 donor_payloads=0 nested_donor_search=0 nested_donor_filter=0 batch_retries=0 query_retries=0 private_query_retries=0 native_bound=0
+NATIVE3D_STAGE stage=envelope rank=0 ranks=1 time_iter=0 total=7.9955817760000008 other=2.7930000001674671e-06 cpu=7.7995289999999997 cpu_other=3.0000000004193339e-06 process_peak_rss=30093312 metric=9.0599999999843583e-07 metric_cpu=9.9999999999999995e-07 observation=0.077432274000000009 observation_cpu=0.073008000000000003 remesh=7.9181080039999996 remesh_cpu=7.7264799999999996 replace=3.7799000001115246e-05 replace_cpu=3.6999999999999998e-05
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_runtime is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Native3D manufactured anisotropic driver envelope
+-------------------------------------------------------------------------------
+../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:384
+...............................................................................
+
+../../UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp:440: FAILED:
+  REQUIRE( result.status==CRemeshResult::Status::COMPLETE )
+with expansion:
+  2 == 0
+with message:
+  n=3 anisotropy=1.5 varying=1 N=1 M=1 cycle=0
+
+===============================================================================
+test cases:  1 |  0 passed | 1 failed
+assertions: 19 | 18 passed | 1 failed
+

@@ -1,0 +1,591 @@
+{
+  "status": "PASS",
+  "analyzer_sha256": "d2c6f46424607fcf832b69b47899449febc31add7d438bb9df18b7ff1d5e407d",
+  "matrix_sha256": "84daca701df17e143f1db049f901700d1637433d109ad26562613942e6e32442",
+  "qualified_cases": [
+    {
+      "folder": "envelope_pilot_v1",
+      "parameters": {
+        "folder": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/envelope_pilot_v1",
+        "ranks": 1,
+        "workers": 1,
+        "size": 2,
+        "anisotropy": 1,
+        "varying": 0,
+        "repeat": 0,
+        "detail": 1
+      },
+      "original_status": "PASS",
+      "qualified_status": "PASS",
+      "validation_sha256": "bf38a868a08c996b3ec8e0a38e7c5fceb86a0d815b6b23680a7ba7b0875b6ac7",
+      "independent_audit_sha256": "a4f1d0a681632fbd0a9b90624d615ab42749f1a54885ee42abc615e3b0f2c2b1",
+      "audit_frames": 8,
+      "state_frames": 3,
+      "rank_stage_count": 13,
+      "nested_detail_count": 21,
+      "initial_cells": 48,
+      "accepted_cells": [
+        88,
+        26,
+        68
+      ],
+      "minimum_mean_ratio": 0.36519011047682515,
+      "minimum_scaled_jacobian": 0.10251356592513196,
+      "maximum_metric_edge": 1.7320508075688772,
+      "maximum_state_relative_error": 3.8121801932001883e-16,
+      "maximum_transported_tensor_error": 0.0,
+      "cycles": [
+        {
+          "cycle": 0,
+          "accepted_edits": 32,
+          "parent_seconds": 0.66259192,
+          "accepted_edits_per_parent_second": 48.295185972083694,
+          "parent_max_over_mean": 1.0,
+          "remesh_max_seconds": 0.63660497,
+          "maximum_native_bound": 8388608.0,
+          "maximum_process_lifetime_rss": 28401664.0
+        },
+        {
+          "cycle": 1,
+          "accepted_edits": 21,
+          "parent_seconds": 0.63105342,
+          "accepted_edits_per_parent_second": 33.27768986657263,
+          "parent_max_over_mean": 1.0,
+          "remesh_max_seconds": 0.6078603499999999,
+          "maximum_native_bound": 2630216.0,
+          "maximum_process_lifetime_rss": 29990912.0
+        },
+        {
+          "cycle": 2,
+          "accepted_edits": 51,
+          "parent_seconds": 0.4540279949999999,
+          "accepted_edits_per_parent_second": 112.32787528883546,
+          "parent_max_over_mean": 1.0,
+          "remesh_max_seconds": 0.4377914460000001,
+          "maximum_native_bound": 2720648.0,
+          "maximum_process_lifetime_rss": 30130176.0
+        }
+      ]
+    },
+    {
+      "folder": "envelope_varying_v1",
+      "parameters": {
+        "folder": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/envelope_varying_v1",
+        "ranks": 1,
+        "workers": 1,
+        "size": 2,
+        "anisotropy": 1,
+        "varying": 1,
+        "repeat": 0,
+        "detail": 1
+      },
+      "original_status": "PASS",
+      "qualified_status": "PASS",
+      "validation_sha256": "89dcb046041f130358345bb7fb8b349dc973b4add4784545b6be174eed07793e",
+      "independent_audit_sha256": "b0525900e5f3efd9c7964b1463dad8447dcb7e621c73f090df5c2a582f909531",
+      "audit_frames": 8,
+      "state_frames": 3,
+      "rank_stage_count": 13,
+      "nested_detail_count": 21,
+      "initial_cells": 48,
+      "accepted_cells": [
+        88,
+        36,
+        94
+      ],
+      "minimum_mean_ratio": 0.2586632733328793,
+      "minimum_scaled_jacobian": 0.062176374454612146,
+      "maximum_metric_edge": 1.770097719377689,
+      "maximum_state_relative_error": 3.8121801932001883e-16,
+      "maximum_transported_tensor_error": 0.0,
+      "cycles": [
+        {
+          "cycle": 0,
+          "accepted_edits": 32,
+          "parent_seconds": 0.548341813,
+          "accepted_edits_per_parent_second": 58.35776014403629,
+          "parent_max_over_mean": 1.0,
+          "remesh_max_seconds": 0.5152162779999999,
+          "maximum_native_bound": 8388608.0,
+          "maximum_process_lifetime_rss": 28606464.0
+        },
+        {
+          "cycle": 1,
+          "accepted_edits": 18,
+          "parent_seconds": 0.592132207,
+          "accepted_edits_per_parent_second": 30.39861670621811,
+          "parent_max_over_mean": 1.0,
+          "remesh_max_seconds": 0.5680145729999999,
+          "maximum_native_bound": 2630216.0,
+          "maximum_process_lifetime_rss": 30048256.0
+        },
+        {
+          "cycle": 2,
+          "accepted_edits": 49,
+          "parent_seconds": 0.5841307769999999,
+          "accepted_edits_per_parent_second": 83.88532487819933,
+          "parent_max_over_mean": 1.0,
+          "remesh_max_seconds": 0.5659277809999999,
+          "maximum_native_bound": 2793784.0,
+          "maximum_process_lifetime_rss": 30052352.0
+        }
+      ]
+    },
+    {
+      "folder": "envelope_mpi2_m1_v1",
+      "parameters": {
+        "folder": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/envelope_mpi2_m1_v1",
+        "ranks": 2,
+        "workers": 1,
+        "size": 2,
+        "anisotropy": 1,
+        "varying": 1,
+        "repeat": 0,
+        "detail": 1
+      },
+      "original_status": "FAIL",
+      "qualified_status": "PASS",
+      "validation_sha256": "20e007b726f57df965b1909e9f5f824e80505c8562c6fa865987a422ed2d3eeb",
+      "independent_audit_sha256": "726381f919d632264483e67726d03d4f93db93caf4316ee4b89826d167ad7377",
+      "audit_frames": 8,
+      "state_frames": 3,
+      "rank_stage_count": 26,
+      "nested_detail_count": 42,
+      "initial_cells": 48,
+      "accepted_cells": [
+        88,
+        36,
+        95
+      ],
+      "minimum_mean_ratio": 0.2586632733328793,
+      "minimum_scaled_jacobian": 0.062176374454612146,
+      "maximum_metric_edge": 1.7571761420219614,
+      "maximum_state_relative_error": 3.8121801932001883e-16,
+      "maximum_transported_tensor_error": 0.0,
+      "cycles": [
+        {
+          "cycle": 0,
+          "accepted_edits": 32,
+          "parent_seconds": 0.5080010979999999,
+          "accepted_edits_per_parent_second": 62.99198983227395,
+          "parent_max_over_mean": 1.000098298819343,
+          "remesh_max_seconds": 0.46539928899999994,
+          "maximum_native_bound": 8388608.0,
+          "maximum_process_lifetime_rss": 28590080.0
+        },
+        {
+          "cycle": 1,
+          "accepted_edits": 18,
+          "parent_seconds": 0.6707323179999999,
+          "accepted_edits_per_parent_second": 26.8363392026087,
+          "parent_max_over_mean": 1.0000216991419955,
+          "remesh_max_seconds": 0.648296185,
+          "maximum_native_bound": 2621008.0,
+          "maximum_process_lifetime_rss": 30216192.0
+        },
+        {
+          "cycle": 2,
+          "accepted_edits": 49,
+          "parent_seconds": 0.6200063849999999,
+          "accepted_edits_per_parent_second": 79.03144416811128,
+          "parent_max_over_mean": 1.0000078072386156,
+          "remesh_max_seconds": 0.605325052,
+          "maximum_native_bound": 2789160.0,
+          "maximum_process_lifetime_rss": 30375936.0
+        }
+      ]
+    },
+    {
+      "folder": "envelope_mpi2_m2_v1",
+      "parameters": {
+        "folder": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/envelope_mpi2_m2_v1",
+        "ranks": 2,
+        "binary_from": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/envelope_mpi2_m1_v1",
+        "workers": 2,
+        "size": 2,
+        "anisotropy": 1,
+        "varying": 1,
+        "repeat": 0,
+        "detail": 1
+      },
+      "original_status": "PASS",
+      "qualified_status": "PASS",
+      "validation_sha256": "f9055a4d6e4bfb33bc562cb7647864178ee33dd59796c8bf0656b505308c2398",
+      "independent_audit_sha256": "e867f0f1fc93edf5982a2154d148271cd225b2a7d1e6ac13134441d92bb5a694",
+      "audit_frames": 8,
+      "state_frames": 3,
+      "rank_stage_count": 26,
+      "nested_detail_count": 42,
+      "initial_cells": 48,
+      "accepted_cells": [
+        88,
+        36,
+        95
+      ],
+      "minimum_mean_ratio": 0.2586632733328793,
+      "minimum_scaled_jacobian": 0.062176374454612146,
+      "maximum_metric_edge": 1.7571761420219614,
+      "maximum_state_relative_error": 3.8121801932001883e-16,
+      "maximum_transported_tensor_error": 0.0,
+      "cycles": [
+        {
+          "cycle": 0,
+          "accepted_edits": 32,
+          "parent_seconds": 0.6105742430000001,
+          "accepted_edits_per_parent_second": 52.40967886684994,
+          "parent_max_over_mean": 1.000141170656147,
+          "remesh_max_seconds": 0.584205785,
+          "maximum_native_bound": 8388608.0,
+          "maximum_process_lifetime_rss": 28430336.0
+        },
+        {
+          "cycle": 1,
+          "accepted_edits": 18,
+          "parent_seconds": 0.6187620220000001,
+          "accepted_edits_per_parent_second": 29.09034388021959,
+          "parent_max_over_mean": 1.0000281174159924,
+          "remesh_max_seconds": 0.600554432,
+          "maximum_native_bound": 2413832.0,
+          "maximum_process_lifetime_rss": 30294016.0
+        },
+        {
+          "cycle": 2,
+          "accepted_edits": 49,
+          "parent_seconds": 0.653532837,
+          "accepted_edits_per_parent_second": 74.97710478471336,
+          "parent_max_over_mean": 1.000034122632644,
+          "remesh_max_seconds": 0.6378499739999999,
+          "maximum_native_bound": 2478592.0,
+          "maximum_process_lifetime_rss": 30322688.0
+        }
+      ]
+    },
+    {
+      "folder": "envelope_mpi4_m1_v1",
+      "parameters": {
+        "folder": "integration_evidence/native_3d_core_v1/envelope_mpi4_m1_v1",
+        "ranks": 4,
+        "binary_from": "integration_evidence/native_3d_core_v1/envelope_mpi2_m2_v1",
+        "workers": 1,
+        "size": 2,
+        "anisotropy": 1,
+        "varying": 1,
+        "repeat": 0,
+        "detail": 1
+      },
+      "original_status": "PASS",
+      "qualified_status": "PASS",
+      "validation_sha256": "da08cf7816a906672108c2d1f8246f2843bec9e0cbf2d974d39cba30e8067bdc",
+      "independent_audit_sha256": "3a3a16b4cf08041d05c77dda5cc179caa2dc34904d4a1ffa3464cf5c19d4382d",
+      "audit_frames": 8,
+      "state_frames": 3,
+      "rank_stage_count": 52,
+      "nested_detail_count": 84,
+      "initial_cells": 48,
+      "accepted_cells": [
+        88,
+        8,
+        70
+      ],
+      "minimum_mean_ratio": 0.4733606281167527,
+      "minimum_scaled_jacobian": 0.24365796154926905,
+      "maximum_metric_edge": 1.7828333262622882,
+      "maximum_state_relative_error": 3.8121801932001883e-16,
+      "maximum_transported_tensor_error": 0.0,
+      "cycles": [
+        {
+          "cycle": 0,
+          "accepted_edits": 32,
+          "parent_seconds": 0.610756361,
+          "accepted_edits_per_parent_second": 52.39405111983762,
+          "parent_max_over_mean": 1.0004388780956275,
+          "remesh_max_seconds": 0.49045220600000006,
+          "maximum_native_bound": 8388608.0,
+          "maximum_process_lifetime_rss": 28930048.0
+        },
+        {
+          "cycle": 1,
+          "accepted_edits": 25,
+          "parent_seconds": 0.784715407,
+          "accepted_edits_per_parent_second": 31.858683768649392,
+          "parent_max_over_mean": 1.0001437122344667,
+          "remesh_max_seconds": 0.743010502,
+          "maximum_native_bound": 2616288.0,
+          "maximum_process_lifetime_rss": 30326784.0
+        },
+        {
+          "cycle": 2,
+          "accepted_edits": 40,
+          "parent_seconds": 0.34721878799999994,
+          "accepted_edits_per_parent_second": 115.20113940378135,
+          "parent_max_over_mean": 1.0003431233257511,
+          "remesh_max_seconds": 0.296768986,
+          "maximum_native_bound": 2532572.0,
+          "maximum_process_lifetime_rss": 30404608.0
+        }
+      ]
+    },
+    {
+      "folder": "envelope_mpi4_m2_v1",
+      "parameters": {
+        "folder": "integration_evidence/native_3d_core_v1/envelope_mpi4_m2_v1",
+        "ranks": 4,
+        "binary_from": "integration_evidence/native_3d_core_v1/envelope_mpi2_m2_v1",
+        "workers": 2,
+        "size": 2,
+        "anisotropy": 1,
+        "varying": 1,
+        "repeat": 0,
+        "detail": 1
+      },
+      "original_status": "PASS",
+      "qualified_status": "PASS",
+      "validation_sha256": "1323a5b4412c504fb7f6c0ef181fae5a8ccccb98202af89f41985acfd9b33b55",
+      "independent_audit_sha256": "6739ae9866863e1143768de1cb3863ecb62d5df6c5670cd3933fc89b7a2385ac",
+      "audit_frames": 8,
+      "state_frames": 3,
+      "rank_stage_count": 52,
+      "nested_detail_count": 84,
+      "initial_cells": 48,
+      "accepted_cells": [
+        88,
+        9,
+        69
+      ],
+      "minimum_mean_ratio": 0.5960837224268143,
+      "minimum_scaled_jacobian": 0.27914526311954124,
+      "maximum_metric_edge": 1.7850995354902892,
+      "maximum_state_relative_error": 3.844148161277339e-16,
+      "maximum_transported_tensor_error": 0.0,
+      "cycles": [
+        {
+          "cycle": 0,
+          "accepted_edits": 32,
+          "parent_seconds": 0.5456981459999999,
+          "accepted_edits_per_parent_second": 58.640477770653824,
+          "parent_max_over_mean": 1.000055335850208,
+          "remesh_max_seconds": 0.5084556100000001,
+          "maximum_native_bound": 8388608.0,
+          "maximum_process_lifetime_rss": 28467200.0
+        },
+        {
+          "cycle": 1,
+          "accepted_edits": 25,
+          "parent_seconds": 0.8029276780000001,
+          "accepted_edits_per_parent_second": 31.136054572526515,
+          "parent_max_over_mean": 1.0003215507436094,
+          "remesh_max_seconds": 0.7344276209999999,
+          "maximum_native_bound": 2407220.0,
+          "maximum_process_lifetime_rss": 30097408.0
+        },
+        {
+          "cycle": 2,
+          "accepted_edits": 45,
+          "parent_seconds": 0.34167319399999996,
+          "accepted_edits_per_parent_second": 131.70480093325673,
+          "parent_max_over_mean": 1.000383338351831,
+          "remesh_max_seconds": 0.3058458959999999,
+          "maximum_native_bound": 2368944.0,
+          "maximum_process_lifetime_rss": 30187520.0
+        }
+      ]
+    },
+    {
+      "folder": "envelope_mpi4_m4_v1",
+      "parameters": {
+        "folder": "integration_evidence/native_3d_core_v1/envelope_mpi4_m4_v1",
+        "ranks": 4,
+        "binary_from": "integration_evidence/native_3d_core_v1/envelope_mpi2_m2_v1",
+        "workers": 4,
+        "size": 2,
+        "anisotropy": 1,
+        "varying": 1,
+        "repeat": 0,
+        "detail": 1
+      },
+      "original_status": "PASS",
+      "qualified_status": "PASS",
+      "validation_sha256": "bebd077f50b8f73c4703e33e08b03150812f8d1b1e66ddb20e7e3233eb974799",
+      "independent_audit_sha256": "303b184795771fd38df3e0adad8a190e5cbffaf5c9b20e6ea846fac57db4a8ea",
+      "audit_frames": 8,
+      "state_frames": 3,
+      "rank_stage_count": 52,
+      "nested_detail_count": 84,
+      "initial_cells": 48,
+      "accepted_cells": [
+        77,
+        12,
+        70
+      ],
+      "minimum_mean_ratio": 0.4641903576458562,
+      "minimum_scaled_jacobian": 0.17229219690157924,
+      "maximum_metric_edge": 1.7588386001367171,
+      "maximum_state_relative_error": 1.975925294104839e-16,
+      "maximum_transported_tensor_error": 0.0,
+      "cycles": [
+        {
+          "cycle": 0,
+          "accepted_edits": 34,
+          "parent_seconds": 0.9258360210000001,
+          "accepted_edits_per_parent_second": 36.72356575981612,
+          "parent_max_over_mean": 1.0000295457916606,
+          "remesh_max_seconds": 0.8827461270000001,
+          "maximum_native_bound": 8388608.0,
+          "maximum_process_lifetime_rss": 29106176.0
+        },
+        {
+          "cycle": 1,
+          "accepted_edits": 22,
+          "parent_seconds": 1.625601584,
+          "accepted_edits_per_parent_second": 13.533451379806234,
+          "parent_max_over_mean": 1.000042248298796,
+          "remesh_max_seconds": 1.5736357460000001,
+          "maximum_native_bound": 2296520.0,
+          "maximum_process_lifetime_rss": 30842880.0
+        },
+        {
+          "cycle": 2,
+          "accepted_edits": 38,
+          "parent_seconds": 0.9479805469999998,
+          "accepted_edits_per_parent_second": 40.08521073586968,
+          "parent_max_over_mean": 1.0000914284832934,
+          "remesh_max_seconds": 0.884267946,
+          "maximum_native_bound": 2271836.0,
+          "maximum_process_lifetime_rss": 30896128.0
+        }
+      ]
+    }
+  ],
+  "retained_rejections": [
+    {
+      "folder": "envelope_size3_v1",
+      "status": "RETAINED_REJECTION",
+      "validation_sha256": "f92ca9421d87ca06110af7576079cbeebe3d6af4cd44cb42bce0f247aec4eb33",
+      "initial": {
+        "file": "envelope_s0_initial.json",
+        "cells": 162,
+        "points": 64,
+        "physical_faces": 108,
+        "volume": "1",
+        "minimum_mean_ratio": 0.5870092886923779,
+        "minimum_scaled_jacobian": 0.3344968040028362,
+        "maximum_length": 2.4642922905982254,
+        "longest_edge": [
+          2,
+          23
+        ],
+        "markers": {
+          "5": 9,
+          "2": 18,
+          "0": 18,
+          "6": 9,
+          "1": 18,
+          "3": 18,
+          "4": 18
+        },
+        "strict_metric_gate": false
+      },
+      "refinement": {
+        "stage": "refine",
+        "rank": 0.0,
+        "ranks": 1.0,
+        "workers": 1.0,
+        "complete": 0.0,
+        "total": 7.822343405,
+        "initialization": 0.000867835,
+        "seed": 0.250903364,
+        "selection": 0.0018562280000000008,
+        "dependency": 0.026604357,
+        "reservation": 0.006685234999999994,
+        "donor": 0.09465106399999997,
+        "reconstruction": 0.8062891080000002,
+        "metric": 6.234011346000003,
+        "routing": 0.012211454000000009,
+        "publication": 0.014631802999999997,
+        "update": 0.36251665799999994,
+        "completion": 7.25e-07,
+        "other": 0.011114227999997617,
+        "process_cpu": 7.643664,
+        "private_reconstruction_cpu": 0.7850869999999973,
+        "private_metric_cpu": 6.095673999999994,
+        "private_measurement_cpu": 0.5695099999999997,
+        "rounds": 512.0,
+        "attempted": 512.0,
+        "accepted": 59.0,
+        "rejected": 453.0,
+        "conflicts": 0.0,
+        "requests": 18992.0,
+        "hits": 7822.0,
+        "compositions": 0.0,
+        "edge_evaluations": 686.0,
+        "edge_reused": 4564.0,
+        "moved": 18.0,
+        "reconnected": 26.0,
+        "maximum_donor_patch": 162.0,
+        "maximum_owned": 229.0,
+        "nested_field_build": 0.04936460700000002,
+        "nested_field_query": 0.042475182999999986,
+        "nested_cache": 0.011927679000000007,
+        "nested_search": 0.024369679999999987,
+        "nested_interpolation": 0.002825811000000002,
+        "nested_composition": 0.0,
+        "nested_edge": 6.572642132000001,
+        "nested_edge_search": 0.052942273000000005,
+        "nested_edge_trace": 6.495741749000002,
+        "nested_edge_integral": 0.019728191,
+        "donor_batches": 86.0,
+        "donor_candidates": 359706.0,
+        "donor_filtered": 0.0,
+        "donor_payloads": 52716.0,
+        "nested_donor_search": 0.06245296999999995,
+        "nested_donor_filter": 0.0,
+        "batch_retries": 0.0,
+        "query_retries": 0.0,
+        "private_query_retries": 0.0,
+        "native_bound": 3848208.0
+      },
+      "remesher": {
+        "rank": 0.0,
+        "ranks": 1.0,
+        "workers": 1.0,
+        "complete": 0.0,
+        "detailed": 1.0,
+        "total": 7.917464001000001,
+        "other": 8.173500000197009e-05,
+        "cpu": 7.726226,
+        "idle_cpu": 0.0,
+        "support": 1.66559999999899e-05,
+        "reference": 5.62160000000117e-05,
+        "import": 0.08313515799999999,
+        "source": 0.0006884860000000159,
+        "weights": 0.009713774000000008,
+        "partition": 0.0007392539999999947,
+        "donor_migration": 7.161399999999762e-05,
+        "communicator": 7.98389999996374e-05,
+        "refine": 7.822850407,
+        "coarsen": 0.0,
+        "wait": 3.0628999999393614e-05,
+        "return": 2.329999997385812e-07,
+        "initial": 162.0,
+        "final": 0.0,
+        "refine_accepted": 59.0,
+        "coarsen_accepted": 0.0,
+        "tracked_bytes": 22020896.0,
+        "native_bound": 8388608.0,
+        "process_peak_rss": 30093312.0
+      },
+      "diagnosis": "First size increase hits the fixed 512-round budget after 59 private accepted edits and 453 rejected attempts. This does not establish that repeated feature attempts caused the cap or that a larger budget would complete.",
+      "scope": "Default-backend rejection; Catch checks accepted mesh/state/reference preservation before the deliberate completion assertion fails. Initial grid and logs retained; private rejected mesh not yet exported. No accepted numerical output or useful accepted-work rate."
+    }
+  ],
+  "exclusive_and_nested_csv_rows": 612,
+  "legacy_default_sensor_state_frames": 84,
+  "legacy_maximum_state_error": 1.1196825653302053e-12,
+  "legacy_control_validation_sha256": "43bea99d62fc94e3443ec1c6a96f86f598b554ce889f52490f6f4122763a4fd3",
+  "production_equal_to_published_reader": true,
+  "remaining_initial_cases": [
+    "envelope_size4_v1",
+    "envelope_anisotropy2_v1"
+  ],
+  "scope": "Retained small manufactured actual-driver evidence, identical production archive/member identities, receipt artifact integrity, closed exclusive/nested accounting and default-sensor re-audit. Single contended pilots with different trajectories are not fixed-work scaling or instrumentation-overhead measurements. Parent includes diagnostic observation/reporting; requested output is separate. Lifetime RSS and modeled native bounds differ. Full Goal1 remains incomplete."
+}

@@ -1,0 +1,83 @@
+{
+  "status": "FROZEN_INITIAL_MATRIX",
+  "quality": {
+    "minimum_mean_ratio": 0.2,
+    "minimum_scaled_jacobian": 0.05,
+    "maximum_metric_edge": 1.8
+  },
+  "target": "Q diag(a^2,1,1) Q^T with Q a 45-degree xy rotation, times n^2*(1+variation*x); cycle scales 1,1/4,1; original sensor-only tetrahedral P1 per event",
+  "local_initial_cases": [
+    {
+      "size": 2,
+      "anisotropy": 1,
+      "varying": 0,
+      "ranks": 1,
+      "workers": 1
+    },
+    {
+      "size": 2,
+      "anisotropy": 1,
+      "varying": 1,
+      "ranks": 1,
+      "workers": 1
+    },
+    {
+      "size": 2,
+      "anisotropy": 1,
+      "varying": 1,
+      "ranks": 2,
+      "workers": 1
+    },
+    {
+      "size": 2,
+      "anisotropy": 1,
+      "varying": 1,
+      "ranks": 2,
+      "workers": 2
+    },
+    {
+      "size": 2,
+      "anisotropy": 1,
+      "varying": 1,
+      "ranks": 4,
+      "workers": 1
+    },
+    {
+      "size": 2,
+      "anisotropy": 1,
+      "varying": 1,
+      "ranks": 4,
+      "workers": 2
+    },
+    {
+      "size": 2,
+      "anisotropy": 1,
+      "varying": 1,
+      "ranks": 4,
+      "workers": 4
+    },
+    {
+      "size": 3,
+      "anisotropy": 1,
+      "varying": 1,
+      "ranks": 1,
+      "workers": 1
+    },
+    {
+      "size": 4,
+      "anisotropy": 1,
+      "varying": 1,
+      "ranks": 1,
+      "workers": 1
+    },
+    {
+      "size": 2,
+      "anisotropy": 2,
+      "varying": 1,
+      "ranks": 1,
+      "workers": 1
+    }
+  ],
+  "policy": "Sequential local correctness/short diagnostic pilots only after actual contention checks, then prepare SGE repeated OFF/ON and rank/size campaigns. Three fresh repeats required for timing claims. Stop and diagnose first failed case, preserve output. This initial size/aspect matrix does not redefine full Goal1 or establish practical limits; extend after measured behavior.",
+  "scope": "Manufactured target through actual native factory/driver import-remesh-return-replace-transfer/output. No CFD iteration, full unsteady/BL/curved capability or affordability claim."
+}

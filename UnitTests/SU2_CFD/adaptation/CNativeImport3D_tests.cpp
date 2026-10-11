@@ -17,6 +17,7 @@
 #include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
 #include "../../../SU2_CFD/include/drivers/CSinglezoneDriver.hpp"
 #include <iomanip>
+#include <cstdlib>
 #include <numeric>
 using namespace SU2Native3D;
 using namespace transfer_test;
@@ -97,7 +98,8 @@ auto Signature(World& world,const Owned& owned,const ReferenceState& reference) 
   std::sort(volume.begin(),volume.end());std::sort(boundary.begin(),boundary.end());return std::make_pair(volume,boundary);
 }
 void OutputRoundTrip(World& world,const std::string& name,const CReaderSlices& slices,const Owned& adapted,
-                     const ReferenceState& reference,double scale) {
+                     const ReferenceState& reference,double scale,
+                     std::function<Tensor(const su2double*,double)> sensor=Sensor) {
   const auto expected=Signature(world,adapted,reference);
   std::vector<std::string> formats{"SU2"};
 #ifdef HAVE_CGNS
@@ -116,7 +118,7 @@ void OutputRoundTrip(World& world,const std::string& name,const CReaderSlices& s
 #endif
     }
     MeshSolution loaded(config.get(),*reader,0);su2activematrix metric(loaded.Fine().GetnPointDomain(),6);
-    for(unsigned long p=0;p<metric.rows();++p){auto m=Sensor(loaded.Fine().nodes->GetCoord(p),scale);std::array<double,6> values{m.xx,m.xy,m.xz,m.yy,m.yz,m.zz};for(size_t k=0;k<6;++k)metric(p,k)=values[k];}
+    for(unsigned long p=0;p<metric.rows();++p){auto m=sensor(loaded.Fine().nodes->GetCoord(p),scale);std::array<double,6> values{m.xx,m.xy,m.xz,m.yy,m.yz,m.zz};for(size_t k=0;k<6;++k)metric(p,k)=values[k];}
     auto authority=reference;auto returned=ImportGeometry(*config,loaded.Fine(),&metric,authority);CHECK(authority.original==reference.original);
     CHECK(Signature(world,returned.cells,authority)==expected);Save(world,stem+"_reload",returned.cells,returned.original,authority);
   }
@@ -377,4 +379,85 @@ TEST_CASE("Native3D actual metric-to-replacement lifecycle profiling preserves f
     driver->WriteAdaptedMesh(1,1);
     {Mute mute;driver->Finalize();driver.reset();}
   }
+}
+
+TEST_CASE("Native3D manufactured anisotropic driver envelope", "[NativeEnvelope3D]") {
+  World world;
+  auto parameter=[](const char* key,int fallback){const auto* value=std::getenv(key);return value?std::stoi(value):fallback;};
+  const int n=parameter("SU2_NATIVE3D_ENVELOPE_SIZE",2), mode=parameter("SU2_NATIVE3D_ENVELOPE_ANISOTROPY",1);
+  const int varying=parameter("SU2_NATIVE3D_ENVELOPE_VARYING",0), workers=parameter("SU2_NATIVE3D_ENVELOPE_WORKERS",1);
+  const int repeat=parameter("SU2_NATIVE3D_ENVELOPE_REPEAT",0), detail=parameter("SU2_NATIVE3D_ENVELOPE_DETAIL",1);
+  REQUIRE(n>=1);REQUIRE(n<=4);REQUIRE(mode>=0);REQUIRE(mode<=2);REQUIRE(varying>=0);REQUIRE(varying<=1);
+  REQUIRE(workers>=1);REQUIRE(workers<=world.size);REQUIRE(repeat>=0);REQUIRE(repeat<3);REQUIRE(detail>=0);REQUIRE(detail<=1);
+  const double anisotropy=std::array<double,3>{1.,1.5,2.}[mode], variation=varying?.125:0.;
+  auto sensor=[=](const su2double* p,double scale) {
+    const double q=scale*(1.+variation*SU2_TYPE::GetValue(p[0]));
+    const double diagonal=.5*(anisotropy*anisotropy+1.),off_diagonal=.5*(anisotropy*anisotropy-1.);
+    return Tensor{q*diagonal,q*off_diagonal,0.,q*diagonal,0.,q};
+  };
+  if(!world.rank) {
+    simplex_test::WriteSU2Mesh(BoxMesh(3,n,false),"envelope_input.su2");
+    std::ofstream cfg("envelope.cfg");
+    cfg<<"% Manufactured target: n="<<n<<" anisotropy="<<anisotropy<<" variation="<<variation<<" repeat="<<repeat<<"\n"
+       <<"SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nAOA= 0\nMESH_FORMAT= SU2\nMESH_FILENAME= envelope_input.su2\n"
+       <<"MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus, z_minus_a, z_minus_b)\n"
+       <<"COMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
+       <<"ADAP_NATIVE_REPARTITION= YES\nADAP_NATIVE_RANKS= "<<workers<<"\nWRT_PERFORMANCE= "<<(detail?"YES":"NO")<<"\n"
+       <<"MGLEVEL= 0\nNUM_METHOD_GRAD= GREEN_GAUSS\nCONV_NUM_METHOD_FLOW= ROE\nMUSCL_FLOW= NO\n"
+       <<"TIME_DOMAIN= YES\nTIME_STEP= 1e-3\nTIME_ITER= 10\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\nINNER_ITER= 2\n"
+       <<"OUTPUT_FILES= (RESTART)\nWRT_ADAP_MESH= NO\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= envelope_mesh\nCONV_FILENAME= envelope_history\n";
+  }
+  SU2_MPI::Barrier(SU2_MPI::GetComm());
+  char cfg[]="envelope.cfg";
+  auto driver=std::make_unique<TetraDriver>(cfg,1,SU2_MPI::GetComm());
+  auto field=AffineFlow(3);auto* initial=driver->Solver().GetNodes();
+  for(unsigned long p=0;p<driver->Geometry().GetnPoint();++p) {
+    su2double values[MAXVAR]{};field(driver->Geometry().nodes->GetCoord(p),values);
+    for(unsigned short k=0;k<5;++k){initial->SetSolution(p,k,values[k]);initial->GetSolution_time_n()(p,k)=values[k];initial->GetSolution_time_n1()(p,k)=values[k]*.96875;}
+  }
+  auto backend=driver->Backend();auto* native=dynamic_cast<CNativeRemesher3D*>(backend.get());REQUIRE(native);
+  CBarycentricTransfer transfer;std::string authority;std::vector<unsigned long> counts;
+  for(int cycle=0;cycle<3;++cycle) {
+    const double scale=n*n*(cycle==1?.25:1.);const auto name="envelope_s"+std::to_string(cycle);
+    const auto before=State(driver->Geometry(),driver->Solver());const auto old=Flow(world,driver->Geometry(),driver->Solver());
+    const auto parent_start=SU2_MPI::Wtime();const auto parent_cpu_start=std::clock();
+    RuntimeProfile3D<4> profile(detail,"envelope");
+    su2activematrix target(driver->Geometry().GetnPointDomain(),6);
+    for(unsigned long p=0;p<target.rows();++p){auto t=sensor(driver->Geometry().nodes->GetCoord(p),scale);std::array<double,6> a{t.xx,t.xy,t.xz,t.yy,t.yz,t.zz};for(size_t k=0;k<6;++k)target(p,k)=a[k];}
+    profile.Mark(0);
+    ReferenceState observed;if(driver->Reference()->original)observed=*driver->Reference();
+    auto donor=ImportGeometry(driver->Config(),driver->Geometry(),&target,observed);
+    Save(world,name+"_initial",donor.cells,donor.original,observed);
+    profile.Mark(1);
+    const auto result=backend->Remesh(driver->Config(),driver->Geometry(),target);
+    profile.Mark(2);
+    CHECK(State(driver->Geometry(),driver->Solver())==before);
+    if(cycle==0)CHECK_FALSE(driver->Reference()->original);else CHECK(EncodeReference(*driver->Reference())==authority);
+    if(result.status!=CRemeshResult::Status::COMPLETE) {
+      CHECK_FALSE(result.onAccepted);
+      profile.Mark(3);profile.Report(cycle,{{"metric","observation","remesh","replace"}});
+      INFO("n="<<n<<" anisotropy="<<anisotropy<<" varying="<<varying<<" N="<<world.size<<" M="<<workers<<" cycle="<<cycle);
+      REQUIRE(result.status==CRemeshResult::Status::COMPLETE);
+    }
+    driver->ReplaceMesh(result,transfer);REQUIRE(driver->Reference()->original);
+    if(cycle==0)authority=EncodeReference(*driver->Reference());CHECK(EncodeReference(*driver->Reference())==authority);
+    profile.Mark(3);profile.Report(cycle,{{"metric","observation","remesh","replace"}});
+    const auto parent_wall=SU2_MPI::Wtime()-parent_start;const auto parent_cpu=double(std::clock()-parent_cpu_start)/CLOCKS_PER_SEC;
+    const auto transported=result.slices.FetchPointMetric(driver->Geometry());const auto fresh=Flow(world,driver->Geometry(),driver->Solver(),transported);
+    SaveStates(world,name,old,fresh,scale);double error=0;
+    for(auto row:fresh){su2double p[3]{row.point.x,row.point.y,row.point.z},expected[MAXVAR]{};field(p,expected);
+      for(size_t k=0;k<5;++k){error=std::max(error,RelDiff(row.values[k],expected[k]));error=std::max(error,RelDiff(row.values[5+k],expected[k]));error=std::max(error,RelDiff(row.values[10+k],expected[k]*.96875));}}
+    CHECK(error<2e-10);
+    su2activematrix accepted_metric(driver->Geometry().GetnPointDomain(),6);
+    for(unsigned long p=0;p<accepted_metric.rows();++p)for(size_t k=0;k<6;++k)accepted_metric(p,k)=transported[6*p+k];
+    auto retained=*driver->Reference();auto accepted=ImportGeometry(driver->Config(),driver->Geometry(),&accepted_metric,retained);
+    Save(world,name,accepted.cells,donor.original,retained);driver->WriteAdaptedMesh(cycle+1,cycle+1);
+    if(cycle==2)OutputRoundTrip(world,name,result.slices,accepted.cells,retained,scale,sensor);
+    counts.push_back(result.slices.nElemGlobal);
+    std::ostringstream row;row<<std::setprecision(17)<<"ENVELOPE rank="<<world.rank<<" ranks="<<world.size<<" workers="<<workers
+      <<" size="<<n<<" anisotropy="<<anisotropy<<" variation="<<variation<<" repeat="<<repeat<<" detailed="<<detail<<" cycle="<<cycle
+      <<" cells="<<counts.back()<<" points="<<result.slices.nPointGlobal<<" state_error="<<error<<" parent_wall="<<parent_wall<<" parent_cpu="<<parent_cpu<<'\n';ProfileRow3D(row.str(),world.comm);
+  }
+  REQUIRE(counts.size()==3);CHECK(counts[1]<counts[0]);CHECK(counts[2]>counts[1]);
+  {Mute mute;driver->Finalize();driver.reset();}
 }
