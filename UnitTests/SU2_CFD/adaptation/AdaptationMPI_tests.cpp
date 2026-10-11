@@ -34,6 +34,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <map>
+#include <iostream>
 #include <set>
 
 #include "TransferTestCase.hpp"
@@ -86,7 +87,59 @@ TEST_CASE("MPI adaptation: distributed reader rejects malformed ownership", "[.]
   FAIL("Malformed distributed reader input was accepted.");
 }
 
-TEST_CASE("MPI adaptation: distributed reader construction", "[AdaptationMPI][NativeReader]") {
+TEST_CASE("MPI reader budget admits skewed rendezvous and rejects late without publication",
+          "[NativeReaderSkew][NativeBudget3D]") {
+  const int rank = SU2_MPI::GetRank(), size = SU2_MPI::GetSize();
+  CSimplexMesh local;
+  local.nDim = 3;
+  const passivedouble x = 2 * rank;
+  local.coord = {x, 0, 0, x + 1, 0, 0, x, 1, 0, x, 0, 1};
+  local.elem = {0, 1, 2, 3};
+  for (size_t p = 0; p < 4; ++p) local.metric.insert(local.metric.end(), {1, 0, 0, 1, 0, 1});
+  std::vector<uint64_t> keys;
+  for (size_t p = 0; p < 4; ++p) keys.push_back(uint64_t(size) * ((uint64_t(1) << 32) + 4 * rank + p));
+  const auto previous_round = CPassiveComm::GetRoundBytes();
+  CPassiveComm::SetRoundBytes(127);
+  const auto legacy = CReaderSlices::FromDistributed(local, keys);
+  CReaderSlices bounded;
+  CReaderSliceStats admitted;
+  std::string reason;
+  REQUIRE(CReaderSlices::FromDistributed(local, keys, bounded, reason, admitted, SIZE_MAX));
+  CHECK(bounded.coord == legacy.coord);
+  CHECK(bounded.metric == legacy.metric);
+  CHECK(bounded.elemRows == legacy.elemRows);
+  CHECK(bounded.nPointGlobal == 4 * size);
+  CHECK(bounded.nElemGlobal == size);
+  CHECK(bounded.boundaryRows.empty());
+  const auto prior = *std::max_element(admitted.phase_bytes.begin(), admitted.phase_bytes.begin() + 3);
+  REQUIRE(CPassiveComm::AllreduceMax(rank == 0 && admitted.phase_bytes[3] <= prior ? 1 : 0) == 0);
+  CReaderSlices untouched;
+  untouched.nDim = 99;
+  CReaderSliceStats refused;
+  CHECK_FALSE(CReaderSlices::FromDistributed(local, keys, untouched, reason, refused,
+                                             rank == 0 ? prior : SIZE_MAX));
+  CHECK(reason.find("linear points") != std::string::npos);
+  CHECK(untouched.nDim == 99);
+  CHECK(untouched.coord.empty());
+  CHECK(untouched.metric.empty());
+  CHECK(untouched.elemRows.empty());
+  CHECK(untouched.boundaryRows.empty());
+  CHECK(refused.phase_bytes[4] == 0);
+  CHECK(refused.phase_bytes[5] == 0);
+  CReaderSlices retry;
+  CReaderSliceStats retried;
+  REQUIRE(CReaderSlices::FromDistributed(local, keys, retry, reason, retried, SIZE_MAX));
+  CHECK(retry.coord == legacy.coord);
+  CHECK(retry.metric == legacy.metric);
+  CHECK(retry.elemRows == legacy.elemRows);
+  std::cout << "READERBUDGET rank=" << rank << " ranks=" << size << " maximum=" << admitted.maximum_bytes;
+  for (size_t p = 0; p < admitted.phase_bytes.size(); ++p)
+    std::cout << " phase" << p << "=" << admitted.phase_bytes[p];
+  std::cout << std::endl;
+  CPassiveComm::SetRoundBytes(previous_round);
+}
+
+TEST_CASE("MPI adaptation: distributed reader construction", "[AdaptationMPI][NativeReader][NativeBudget3D]") {
   const int rank = SU2_MPI::GetRank(), size = SU2_MPI::GetSize();
   for (const unsigned short dim : {2, 3}) {
     for (const bool withMetric : {false, true}) {
@@ -134,6 +187,72 @@ TEST_CASE("MPI adaptation: distributed reader construction", "[AdaptationMPI][Na
         const auto previousRound = CPassiveComm::GetRoundBytes();
         CPassiveComm::SetRoundBytes(127);
         const auto slices = CReaderSlices::FromDistributed(local, keys);
+        CReaderSlices bounded;
+        bounded.nDim = 99;
+        CReaderSliceStats admitted;
+        std::string reason;
+        REQUIRE(CReaderSlices::FromDistributed(local, keys, bounded, reason, admitted, SIZE_MAX));
+        CHECK(reason.empty());
+        CHECK(bounded.nDim == slices.nDim);
+        CHECK(bounded.nPointGlobal == slices.nPointGlobal);
+        CHECK(bounded.nElemGlobal == slices.nElemGlobal);
+        CHECK(bounded.firstPoint == slices.firstPoint);
+        CHECK(bounded.nPointLocal == slices.nPointLocal);
+        CHECK(bounded.nMetric == slices.nMetric);
+        CHECK(bounded.coord == slices.coord);
+        CHECK(bounded.metric == slices.metric);
+        CHECK(bounded.elemRows == slices.elemRows);
+        CHECK(bounded.boundaryRows == slices.boundaryRows);
+        CHECK(bounded.markerNames == slices.markerNames);
+        CHECK(bounded.markersWithElements == slices.markersWithElements);
+        CHECK(admitted.maximum_bytes >= bounded.ResidentBytes());
+        const auto saved_coord = local.coord, saved_metric = local.metric;
+        const auto saved_keys = keys;
+        for (const size_t caller : {size_t(0), SIZE_MAX}) {
+          CReaderSliceStats refused;
+          bounded.nDim = 99;
+          CHECK_FALSE(CReaderSlices::FromDistributed(local, keys, bounded, reason, refused,
+                                                     rank == 0 && !caller ? 1 : SIZE_MAX, caller));
+          CHECK_FALSE(reason.empty());
+          CHECK(bounded.nDim == 99);
+          CHECK(bounded.coord == slices.coord);
+          CHECK(bounded.metric == slices.metric);
+          CHECK(bounded.elemRows == slices.elemRows);
+          CHECK(bounded.boundaryRows == slices.boundaryRows);
+          CHECK(bounded.markerNames == slices.markerNames);
+          CHECK(bounded.markersWithElements == slices.markersWithElements);
+        }
+        // Refuse at each later phase that establishes a new peak, including skewed/empty rendezvous owners.
+        for (int owner : {0, size - 1}) {
+          size_t prefix = 0;
+          for (size_t phase = 0; phase < admitted.phase_bytes.size(); ++phase) {
+            const bool new_peak = admitted.phase_bytes[phase] > prefix;
+            const auto reject = CPassiveComm::AllreduceMax(rank == owner && new_peak ? 1 : 0);
+            if (reject) {
+              CReaderSlices unchanged;
+              unchanged.nDim = 99;
+              CReaderSliceStats refused;
+              CHECK_FALSE(CReaderSlices::FromDistributed(local, keys, unchanged, reason, refused,
+                                                         rank == owner ? prefix : SIZE_MAX));
+              CHECK(unchanged.nDim == 99);
+              CHECK(unchanged.coord.empty());
+              CHECK(unchanged.elemRows.empty());
+              CHECK(unchanged.boundaryRows.empty());
+              if (rank == owner) CHECK(refused.phase_bytes[phase] > prefix);
+              for (size_t later = phase + 1; later < admitted.phase_bytes.size(); ++later)
+                CHECK(refused.phase_bytes[later] == 0);
+            }
+            prefix = std::max(prefix, admitted.phase_bytes[phase]);
+          }
+        }
+        CReaderSlices retry;
+        CReaderSliceStats retried;
+        REQUIRE(CReaderSlices::FromDistributed(local, keys, retry, reason, retried, SIZE_MAX));
+        CHECK(retry.elemRows == slices.elemRows);
+        CHECK(retry.boundaryRows == slices.boundaryRows);
+        CHECK(local.coord == saved_coord);
+        CHECK(local.metric == saved_metric);
+        CHECK(keys == saved_keys);
         CPassiveComm::SetRoundBytes(previousRound);
         REQUIRE(slices.nPointGlobal == input.GetnPoint());
         REQUIRE(slices.nElemGlobal == input.GetnElem());

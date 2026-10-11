@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "analysis_sha256": "644eb97cf4429522f39a91239d139bf8c45f6f1df35eca8f738397572ef67c26",
+  "branch": "codex/native-3d-core",
+  "parent_commit": "4c9f56b8c861433158e58459ee0d5c157742bb9b",
+  "source_sha256": {
+    "Common/include/adaptation/CReaderSlices.hpp": "a33279cd58dc9e53707d01d3063efa262fdf265aef1e66004f999cb0950c25d6",
+    "Common/src/adaptation/CReaderSlices.cpp": "3d9f05c393880f6984985e82036d74cceb83bc2b2adbc0095c656a677c578ac5",
+    "Common/src/adaptation/CNativeImport3D.cpp": "a8f1e844c658015e46c8626f5515fad0cad18b17b8b60a48728d51c7e66bf3d2",
+    "UnitTests/SU2_CFD/adaptation/AdaptationMPI_tests.cpp": "7cf958ff4b691a0c044f522991b41a39f87d569bb595238a8c30f566759ea1f6"
+  },
+  "evidence_sha256": {
+    "reader_runtime_v1/validation.json": "242e8ccca951feaad21760521adb680a6dac2a15f3c17050f718e28627bb0607",
+    "reader_runtime_v2/validation.json": "8c8df88a53a14e54c02559b828ea84a41e30c409eb6fa7a3e3a37f6f68fd034f",
+    "reader_skew_v1/validation.json": "a14fc90a07d6674b2410479c69cdbe9d5af9635d355d940a5e1198ce66e00f66",
+    "reader_runtime_v2/predecessor_comparison.json": "0ddbe7e9e3dfcd346e950cf2a80e0e1a692a751b29d4f847287cd1aa72c9f091",
+    "reader_runtime_v2/lifecycle_phase_summary.json": "526551fe7535128326c4fbde1a5f44c46dce5383ca8c774da6cf51eef3507643",
+    "reader_runtime_v2/lifecycle_rank_phases.csv": "323e47e2bad1027d0be2532c36dd8e164ae24d0a6b3febf63f5da0619c96273b",
+    "reader_runtime_v2/reader_phase_comparison.json": "46b84902b8b2b2a64070aafab0a7b6203c13d8c9e2a5a9628313cfd9f4609223",
+    "reader_skew_v1/phase_bounds.json": "aa347da0aeb7f479e22755541bf136b2354d735ed0e4f925068935c6fadbcaac"
+  },
+  "scope": "Native3D recoverable reader/assembly requested-storage admission; full42-stage actual-archive MPI1/2/4 qualification and11-stage reader-only follow-up with unchanged production archives. All126 mesh frames/84 transported-state frames/36 computed-metric lifecycle frames equal predecessor. Seven skew rank bounds. Full Goal1 remains active; allocator/MPI/ParMETIS internals, complete wait/traffic and practical envelope/cluster gates remain open."
+}

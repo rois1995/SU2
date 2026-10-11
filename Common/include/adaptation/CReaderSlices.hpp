@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <array>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -36,6 +37,12 @@
 #include "../parallelization/mpi_structure.hpp"
 
 class CGeometry;
+
+struct CReaderSliceStats {
+  size_t maximum_bytes = 0;
+  /* Validation, point rendezvous, ownership signatures, linear points, volume rows, boundary gather. */
+  std::array<size_t, 6> phase_bytes{};
+};
 
 /*!
  * \struct CReaderSlices
@@ -88,6 +95,17 @@ struct CReaderSlices {
    *       routine does not impose an allocator-inclusive working-memory ceiling.
    */
   static CReaderSlices FromDistributed(const CSimplexMesh& mesh, const std::vector<uint64_t>& pointKeys);
+
+  /*! \brief Collective recoverable memory admission; output is unchanged on refusal. Input/output storage is
+   *         charged here; caller_bytes covers other retained storage. Bounds include tree nodes, vector growth,
+   *         routing and transport scratch, but exclude allocator overhead and MPI-internal storage. */
+  static bool FromDistributed(const CSimplexMesh& mesh, const std::vector<uint64_t>& pointKeys,
+                              CReaderSlices& output, std::string& reason, CReaderSliceStats& stats,
+                              size_t ceiling, size_t caller_bytes = 0);
+
+  /*! \brief Requested heap storage retained by these slices, excluding allocator overhead. */
+  size_t ResidentBytes() const;
+
 
   /*!
    * \brief Collective: the metric at the local points (domain and halo) of a geometry built from these slices, fetched

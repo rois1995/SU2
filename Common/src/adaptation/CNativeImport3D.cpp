@@ -497,11 +497,23 @@ bool ReaderSlices(World& parent, const Owned& cells, const std::vector<DonorCell
 #endif
   if (!state.original || state.marker_names.empty()) failure.Set(1, 0, "Uninitialized native3D reader reference.");
   if (!Vote(parent, failure, reason)) return false;
-  const size_t live = transfer_memory::Add(
-      caller_bytes, OwnedBytes(cells), transfer_memory::Bytes(original),
-      transfer_memory::Mul(cells.size(),
-                           4 * (sizeof(Node) + sizeof(void*) * 5 + 9 * sizeof(double) + sizeof(unsigned long))),
-      transfer_memory::Mul(state.marker_names.size(), sizeof(CSimplexMesh::Marker)));
+  using transfer_memory::Add;
+  using transfer_memory::Bytes;
+  using transfer_memory::GrowthBound;
+  using transfer_memory::Mul;
+  const auto vertices = Mul(cells.size(), 4);
+  size_t physical_faces = 0, name_bytes = 0;
+  for (const auto& row : cells)
+    for (const auto& face : row.second.physical) physical_faces += face.present;
+  for (const auto& name : state.marker_names) name_bytes = Add(name_bytes, name.size(), 1);
+  const size_t live = Add(caller_bytes, OwnedBytes(cells), Bytes(original), output.ResidentBytes(),
+                         Mul(vertices, sizeof(std::pair<const Id, Node>) + sizeof(std::pair<const Id, unsigned long>) +
+                                           8 * sizeof(void*)),
+                         GrowthBound(vertices, sizeof(Node) + sizeof(uint64_t) + 3 * sizeof(passivedouble)),
+                         Mul(vertices, 6 * sizeof(passivedouble)),
+                         GrowthBound(cells.size(), 4 * sizeof(unsigned long) + sizeof(int)),
+                         GrowthBound(physical_faces, 3 * sizeof(unsigned long)),
+                         GrowthBound(state.marker_names.size(), sizeof(CSimplexMesh::Marker)), name_bytes);
   if (!Admit(parent, live, ceiling, stats, reason)) return false;
   DonorImport source(parent, query_timings);
   const double build = parent.seconds();
@@ -558,10 +570,14 @@ bool ReaderSlices(World& parent, const Owned& cells, const std::vector<DonorCell
                transfer_memory::Add(live, source.ResidentBytes()), 16, query_timings))
     return false;
   const double reader_start = parent.seconds();
-  auto pending = CReaderSlices::FromDistributed(mesh, keys);
-  static_assert(std::is_nothrow_move_assignable<CReaderSlices>::value, "Reader publication must not allocate.");
-  output = std::move(pending);
+  CReaderSliceStats reader_stats;
+  const size_t reader_caller = Add(caller_bytes, OwnedBytes(cells), Bytes(original), source.ResidentBytes(),
+                                  Mul(nodes.size(), sizeof(decltype(nodes)::value_type) + 4 * sizeof(void*)),
+                                  Mul(index.size(), sizeof(decltype(index)::value_type) + 4 * sizeof(void*)), Bytes(ordered));
+  const bool accepted = CReaderSlices::FromDistributed(mesh, keys, output, reason, reader_stats, ceiling, reader_caller);
   stats.reader_seconds = parent.seconds() - reader_start;
+  stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, reader_stats.maximum_bytes);
+  if (!accepted) return false;
   reason.clear();
   return true;
 }

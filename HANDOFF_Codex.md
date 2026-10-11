@@ -7,6 +7,37 @@ small sequential local checks with real host-contention checks; push each
 validated checkpoint and verify the remote SHA. A terminal capacity failure
 cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
+## Native 3D reader admission validated — 2026-10-11
+
+NativeIntegrated / codex/native-3d-core; predecessor
+4c9f56b8c861433158e58459ee0d5c157742bb9b. READER_REPORT.md /
+READER_CHECKPOINT_VALIDATION.json: new recoverable requested-storage reader gates
+cover validation/point/signature/linear/volume/root-boundary buffers; native
+assembly maps/vectors and old output included. Targets, original sensor-only P1,
+actual-query composition and legacy2D/MMG unbudgeted calls preserved. No new CFG.
+reader_runtime_v1 interrupted initial duplicate-block build retained; corrected
+reader_runtime_v2 terminal PASS42 stages/session79225exit0. All production/test
+pins unchanged during full check.84 main+36 computed-metric accepted events,
+42 OFFON/42 SU2CGNS;126 mesh frames/84 transported-state frames/36 computed-metric
+frames identical to predecessor.357 closed rank-stage and357 nested records.
+Native2D/MMG/default/rollback/refusal regressions pass. reader_skew_v1 terminal
+PASS11 stages/session1666exit0; only test source changed, all production archives/
+members equal full-run pins. All-key-to-root skew, late linear-point refusal/
+retry and seven rank bounds pass; N4 root18,258B vs others10,419B. No owned job live.
+
+Largest main model8MiB, main lifetimeRSS37,904,384B, separate quantities. Budget
+success adds three count Alltoalls/nine scalar Allreduces within existing reader
+stage; full house/vendor traffic/wait still open. Matched3-repeat phase timings
+saved but foreign FSI variability prevents isolated overhead/speedup claims.
+Native tree/vector bounds exclude allocator/MPI/ParMETIS/CFD internals; cache
+scratch calibration and practical envelope remain. Goal1 ACTIVE: next complete
+wait/communication accounting, larger/rotated/thin/restart and rank/size pilots,
+then closed SGE campaigns without overnight launch requests. Unsteady sampling
+detail also open. Inspect reader_runtime_v2/lifecycle_mpi4 and mpi4 SU2/CGNS plus
+metric/current/BDF/source JSON. Publication is pending at this handoff write;
+verify remote checkpoint before replacing this sentence. Foreign submodules,
+FSI/AdapNoExt/ClusterResults untouched.
+
 ## Native 3D lifecycle profiling validated — 2026-10-11
 
 Working NativeIntegrated / codex/native-3d-core; predecessor

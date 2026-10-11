@@ -35,6 +35,7 @@
 #include <set>
 
 #include "../../include/adaptation/CDistributedSearch.hpp"
+#include "../../include/adaptation/CTransferMemory.hpp"
 #include "../../include/geometry/CGeometry.hpp"
 #include "../../include/option_structure.hpp"
 #include "../../include/parallelization/CPassiveComm.hpp"
@@ -276,7 +277,31 @@ CReaderSlices CReaderSlices::FromComplete(const CSimplexMesh& mesh, int root) {
   return UnpackSlice(PackSlice(mesh, partitioner, root, elems.data() + offset[root], offset[root + 1] - offset[root]));
 }
 
-CReaderSlices CReaderSlices::FromDistributed(const CSimplexMesh& mesh, const std::vector<uint64_t>& pointKeys) {
+namespace {
+struct ReaderBudget {
+  size_t ceiling, caller;
+  CReaderSliceStats& stats;
+  std::string& reason;
+  bool refused = false;
+
+  bool Admit(size_t phase, size_t bytes) {
+    static const char* phases[] = {"validation", "point rendezvous", "ownership signatures", "linear points",
+                                   "volume rows", "boundary gather"};
+    stats.phase_bytes[phase] = std::max(stats.phase_bytes[phase], bytes);
+    stats.maximum_bytes = std::max(stats.maximum_bytes, bytes);
+    if (!CPassiveComm::AllreduceMax(bytes == SIZE_MAX || bytes > ceiling ? 1 : 0)) return true;
+    CLocalFailure failure;
+    if (bytes == SIZE_MAX || bytes > ceiling)
+      failure.Set(1, 0, std::string("Distributed reader slices memory admission: ") + phases[phase] +
+                            " requires " + std::to_string(bytes) + " bytes; ceiling " + std::to_string(ceiling));
+    reason = ElectFailure(failure).message;
+    refused = true;
+    return false;
+  }
+};
+
+CReaderSlices BuildDistributedSlices(const CSimplexMesh& mesh, const std::vector<uint64_t>& pointKeys,
+                                    ReaderBudget* budget) {
   const int rank = SU2_MPI::GetRank(), size = SU2_MPI::GetSize();
   CLocalFailure failure;
   auto fail = [&](uint64_t id, const std::string& reason) {
@@ -293,6 +318,25 @@ CReaderSlices CReaderSlices::FromDistributed(const CSimplexMesh& mesh, const std
       mesh.metric.size() != nPoint * nMetric) fail(0, "inconsistent local array sizes.");
   CollectiveFailure(failure, CURRENT_FUNCTION);
 
+  size_t baseline = 0;
+  if (budget) {
+    using namespace transfer_memory;
+    size_t input = Add(Bytes(mesh.coord), Bytes(mesh.metric), Bytes(mesh.volume), Bytes(mesh.elem), Bytes(mesh.elemRef),
+                       Bytes(mesh.markers), Bytes(pointKeys));
+    size_t name_bytes = sizeof(uint64_t), string_bytes = 0;
+    for (const auto& marker : mesh.markers) {
+      input = Add(input, Bytes(marker.elem), Bytes(marker.name));
+      name_bytes = Add(name_bytes, sizeof(uint64_t), marker.name.size());
+      string_bytes = Add(string_bytes, marker.name.size(), 1);
+    }
+    const auto root_name_bytes = CPassiveComm::AllreduceMax(name_bytes);
+    baseline = Add(budget->caller, input, GrowthBound(name_bytes, 1), root_name_bytes,
+                   Mul(mesh.markers.size(), sizeof(std::string) + 4 * sizeof(void*)), string_bytes,
+                   Mul(nPoint, sizeof(uint64_t) + 4 * sizeof(void*) + sizeof(uint8_t)),
+                   Mul(size, 1024), 4096);
+    // shortcut: standard-library tree nodes and doubling vector growth; calibrate allocator-inclusive limits separately.
+    if (!budget->Admit(0, baseline)) return {};
+  }
   Packer names;
   names.Put<uint64_t>(mesh.markers.size());
   std::set<std::string> uniqueNames;
@@ -343,6 +387,20 @@ CReaderSlices CReaderSlices::FromDistributed(const CSimplexMesh& mesh, const std
     bool used = false;
   };
   std::map<uint64_t, PointRecord> points;
+  size_t incoming_points = 0, point_storage = 0;
+  if (budget) {
+    using namespace transfer_memory;
+    std::vector<uint64_t> send(size, 0), recv(size);
+    for (auto key : pointKeys) ++send[key % size];
+    CPassiveComm::Alltoall(send.data(), recv.data(), sizeof(uint64_t));
+    for (auto count : recv) incoming_points = Add(incoming_points, count);
+    const size_t width = 3 * sizeof(uint64_t) + sizeof(uint8_t) + (nDim + nMetric) * sizeof(passivedouble);
+    const auto sent = Mul(nPoint, width), received = Mul(incoming_points, width);
+    point_storage = Add(Mul(incoming_points, sizeof(decltype(points)::value_type) + 4 * sizeof(void*)),
+                        GrowthBound(incoming_points, sizeof(std::pair<int, uint64_t>)));
+    if (!budget->Admit(1, Add(baseline, point_storage, GrowthBound(sent, 1), sent, received,
+                             Staging(CPassiveComm::GetRoundBytes(), sent, received)))) return {};
+  }
   {
     std::vector<Packer> to(size);
     for (unsigned long i = 0; i < nPoint; ++i) {
@@ -374,9 +432,36 @@ CReaderSlices CReaderSlices::FromDistributed(const CSimplexMesh& mesh, const std
     if (!entry.second.used) fail(entry.first, "point is not used by any volume element.");
   CollectiveFailure(failure, CURRENT_FUNCTION);
 
+  if (budget) {
+    point_storage = transfer_memory::Mul(points.size(), sizeof(decltype(points)::value_type) + 4 * sizeof(void*));
+    for (const auto& entry : points) point_storage = transfer_memory::Add(point_storage,
+                                                                         transfer_memory::Bytes(entry.second.requesters));
+  }
+
   /*--- Reject duplicate volume/physical-face ownership at distributed key owners. A physical face with two
    *    different markers is also a duplicate; marker identity is not part of the face's uniqueness key. ---*/
   {
+    if (budget) {
+      using namespace transfer_memory;
+      std::vector<uint64_t> send(size, 0), recv(size);
+      auto count = [&](const unsigned long* nodes, unsigned short n) {
+        uint64_t key = pointKeys[nodes[0]];
+        for (unsigned short k = 1; k < n; ++k) key = std::min(key, pointKeys[nodes[k]]);
+        ++send[key % size];
+      };
+      for (unsigned long e = 0; e < nElem; ++e) count(&mesh.elem[e * nNode], nNode);
+      for (const auto& marker : mesh.markers)
+        for (unsigned long e = 0; e < marker.GetnElem(nDim); ++e) count(&marker.elem[e * nDim], nDim);
+      CPassiveComm::Alltoall(send.data(), recv.data(), sizeof(uint64_t));
+      size_t sent = 0, received = 0;
+      for (auto n : send) sent = Add(sent, n);
+      for (auto n : recv) received = Add(received, n);
+      const auto seen = Mul(received, sizeof(std::pair<uint64_t, std::array<uint64_t, 4>>) + 4 * sizeof(void*));
+      sent = Mul(sent, 5 * sizeof(uint64_t));
+      received = Mul(received, 5 * sizeof(uint64_t));
+      if (!budget->Admit(2, Add(baseline, point_storage, seen, GrowthBound(sent, 1), sent, received,
+                               Staging(CPassiveComm::GetRoundBytes(), sent, received)))) return {};
+    }
     std::vector<Packer> to(size);
     auto signature = [&](const unsigned long* localNodes, unsigned short count) {
       std::array<uint64_t, 4> key{};
@@ -411,6 +496,22 @@ CReaderSlices CReaderSlices::FromDistributed(const CSimplexMesh& mesh, const std
   const CLinearPartitioner partitioner(slices.nPointGlobal, 0);
   slices.firstPoint = partitioner.GetFirstIndexOnRank(rank);
   slices.nPointLocal = partitioner.GetSizeOnRank(rank);
+  size_t linear_storage = 0;
+  if (budget) {
+    using namespace transfer_memory;
+    linear_storage = Add(Mul(slices.nPointLocal, (nDim + nMetric) * sizeof(passivedouble)),
+                         Mul(nDim, sizeof(std::vector<passivedouble>)), Mul(nPoint, sizeof(unsigned long)));
+    const auto reply_sent = Mul(incoming_points, 2 * sizeof(uint64_t));
+    const auto reply_recv = Mul(nPoint, 2 * sizeof(uint64_t));
+    const auto coord_width = sizeof(uint64_t) + (nDim + nMetric) * sizeof(passivedouble);
+    const auto coord_sent = Mul(points.size(), coord_width), coord_recv = Mul(slices.nPointLocal, coord_width);
+    if (!budget->Admit(3, Add(baseline, point_storage, linear_storage,
+                             Mul(slices.nPointLocal, sizeof(passivedouble)),
+                             GrowthBound(Add(reply_sent, coord_sent), 1), reply_recv, coord_recv,
+                             std::max(reply_sent, coord_sent), nPoint, slices.nPointLocal,
+                             Staging(CPassiveComm::GetRoundBytes(), std::max(reply_sent, coord_sent),
+                                     std::max(reply_recv, coord_recv))))) return {};
+  }
   slices.coord.assign(nDim, std::vector<passivedouble>(slices.nPointLocal));
   slices.metric.resize(slices.nPointLocal * nMetric);
   std::vector<unsigned long> dense(nPoint);
@@ -462,6 +563,9 @@ CReaderSlices CReaderSlices::FromDistributed(const CSimplexMesh& mesh, const std
 
   {
     std::vector<Packer> to(size);
+    if (budget && !budget->Admit(4, transfer_memory::Add(baseline, point_storage, linear_storage,
+                                  transfer_memory::GrowthBound(transfer_memory::Mul(nElem, nNode),
+                                                               SU2_CONN_SIZE * sizeof(unsigned long))))) return {};
     const auto firstElement = CPassiveComm::ExscanSum(nElem);
     for (unsigned long e = 0; e < nElem; ++e) {
       unsigned long row[SU2_CONN_SIZE] = {firstElement + e, nDim == 2 ? TRIANGLE : TETRAHEDRON};
@@ -472,12 +576,43 @@ CReaderSlices CReaderSlices::FromDistributed(const CSimplexMesh& mesh, const std
       }
       for (const int destination : destinations) to[destination].PutArray(row, SU2_CONN_SIZE);
     }
+    if (budget) {
+      using namespace transfer_memory;
+      std::vector<uint64_t> send(size), recv(size);
+      size_t packed = 0, sent = 0, received = 0;
+      for (int q = 0; q < size; ++q) {
+        send[q] = to[q].bytes.size();
+        sent = Add(sent, send[q]);
+        packed = Add(packed, Bytes(to[q].bytes));
+      }
+      CPassiveComm::Alltoall(send.data(), recv.data(), sizeof(uint64_t));
+      for (auto n : recv) received = Add(received, n);
+      if (!budget->Admit(4, Add(baseline, point_storage, linear_storage, packed, sent, Mul(2, received),
+                               Staging(CPassiveComm::GetRoundBytes(), sent, received)))) return {};
+    }
     const auto bytes = ExchangePacks(to);
     slices.elemRows = CPassiveComm::FromBytes<unsigned long>(bytes);
     slices.nElemLocal = slices.elemRows.size() / SU2_CONN_SIZE;
     /*--- Source-rank concatenation is already ordered by prefix-allocated element identity. ---*/
   }
 
+  if (budget) {
+    using namespace transfer_memory;
+    size_t local_faces = 0, name_bytes = 0;
+    for (const auto& marker : mesh.markers) {
+      local_faces = Add(local_faces, marker.GetnElem(nDim));
+      name_bytes = Add(name_bytes, marker.name.size(), 1);
+    }
+    const auto global_faces = CPassiveComm::AllreduceSum(local_faces);
+    const auto sent = Mul(local_faces, sizeof(uint64_t) + SU2_CONN_SIZE * sizeof(unsigned long));
+    const auto received = rank == MASTER_NODE ? Mul(global_faces, sizeof(uint64_t) + SU2_CONN_SIZE * sizeof(unsigned long)) : 0;
+    const auto rows = rank == MASTER_NODE ? GrowthBound(global_faces, SU2_CONN_SIZE * sizeof(unsigned long)) : 0;
+    if (!budget->Admit(5, Add(baseline, point_storage, linear_storage, Bytes(slices.elemRows),
+                             GrowthBound(sent, 1), received, rows,
+                             Staging(CPassiveComm::GetRoundBytes(), sent, received),
+                             Mul(mesh.markers.size(), 2 * sizeof(unsigned long) + sizeof(std::vector<unsigned long>) +
+                                                         6 * sizeof(std::string)), Mul(2, name_bytes)))) return {};
+  }
   std::vector<unsigned long> localBoundaryCounts(mesh.markers.size(), 0), boundaryCounts(mesh.markers.size(), 0);
   Packer boundary;
   for (size_t m = 0; m < mesh.markers.size(); ++m) {
@@ -506,6 +641,31 @@ CReaderSlices CReaderSlices::FromDistributed(const CSimplexMesh& mesh, const std
     }
   }
   return slices;
+}
+
+}  // namespace
+
+size_t CReaderSlices::ResidentBytes() const {
+  using namespace transfer_memory;
+  return Add(Bytes(coord), Bytes(metric), Bytes(elemRows), Bytes(markerNames), Bytes(boundaryRows),
+             Bytes(markersWithElements));
+}
+
+CReaderSlices CReaderSlices::FromDistributed(const CSimplexMesh& mesh, const std::vector<uint64_t>& pointKeys) {
+  return BuildDistributedSlices(mesh, pointKeys, nullptr);
+}
+
+bool CReaderSlices::FromDistributed(const CSimplexMesh& mesh, const std::vector<uint64_t>& pointKeys,
+                                   CReaderSlices& output, std::string& reason, CReaderSliceStats& stats,
+                                   size_t ceiling, size_t caller_bytes) {
+  stats = {};
+  ReaderBudget budget{ceiling, transfer_memory::Add(caller_bytes, output.ResidentBytes()), stats, reason};
+  auto pending = BuildDistributedSlices(mesh, pointKeys, &budget);
+  if (budget.refused) return false;
+  static_assert(std::is_nothrow_move_assignable<CReaderSlices>::value, "Reader publication must not allocate.");
+  output = std::move(pending);
+  reason.clear();
+  return true;
 }
 
 std::vector<passivedouble> CReaderSlices::FetchPointMetric(const CGeometry& geometry) const {

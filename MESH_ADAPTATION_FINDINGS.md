@@ -1,3 +1,32 @@
+## Native 3D reader return memory admission — 2026-10-11
+
+NativeIntegrated / codex/native-3d-core; predecessor4c9f56b8c861433158e58459ee0d5c157742bb9b.
+READER_REPORT.md / READER_CHECKPOINT_VALIDATION.json qualify recoverable native3D
+reader admission for point rendezvous, ownership signatures, linear points,
+replicated volume rows and complete root boundary gather. Native assembly maps/
+vectors now charged; old output and input capacities retained. Budget failure
+is collective and does not publish. Legacy2D/MMG reader calls remain unbudgeted
+with no added budget collectives; targets/interpolation/actual-query composition
+and frozen criteria unchanged. Bounds use current STL tree/growth assumptions,
+not allocator/MPI/ParMETIS/CFD internal physical memory.
+
+Actual42-stage full runtime PASS MPI1/2/4,84 main+36 computed-sensor accepted
+cycles,42 OFFON controls/42 SU2CGNS readbacks,357 closed/nested lifecycle rows.
+126 mesh frames/84 transported current-BDF-metric frames/36 computed-metric frames
+identical to predecessor. Native2D/MMG/default/refusal regressions pass. Initial
+interrupted build retained. Reader-only11-stage follow-up adds all-key-to-root
+routing and late linear-point refusal/retry; production archives identical, only
+test source changed. N4 root model18,258B vs10,419B other ranks; not a peak-RSS
+certificate. Main max model8MiB/lifetimeRSS37,904,384B. Reader admission adds
+three count Alltoalls/nine scalar Allreduces, timed within reader/return stages;
+full traffic counters incomplete. Matched three-repeat phase samples retained,
+but foreign FSI variability prevents isolated overhead/speedup/scaling claims.
+
+Goal1 ACTIVE: internal-memory/cache calibration, MPI wait/house traffic, practical
+larger/rotated/thin/restart/rank-size limits and closed SGE campaigns remain.
+Inspectable new cases reader_runtime_v2/lifecycle_mpi4 and mpi4; handoff/evidence
+kept. No overnight cluster-launch requests, foreign work untouched.
+
 ## Native 3D per-rank lifecycle profiling — 2026-10-11
 
 NativeIntegrated / codex/native-3d-core, predecessord5df2785676e610b2dcaec2c5aee7ea93ceb9670.
