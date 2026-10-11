@@ -99,7 +99,8 @@ auto Signature(World& world,const Owned& owned,const ReferenceState& reference) 
 }
 void OutputRoundTrip(World& world,const std::string& name,const CReaderSlices& slices,const Owned& adapted,
                      const ReferenceState& reference,double scale,
-                     std::function<Tensor(const su2double*,double)> sensor=Sensor) {
+                     std::function<Tensor(const su2double*,double)> sensor=Sensor,
+                     const std::vector<DonorCell>* target_source=nullptr) {
   const auto expected=Signature(world,adapted,reference);
   std::vector<std::string> formats{"SU2"};
 #ifdef HAVE_CGNS
@@ -118,9 +119,17 @@ void OutputRoundTrip(World& world,const std::string& name,const CReaderSlices& s
 #endif
     }
     MeshSolution loaded(config.get(),*reader,0);su2activematrix metric(loaded.Fine().GetnPointDomain(),6);
+    if(target_source) {
+      // A nonlinear sensor must retain its transported nodes and original P1 target across output checks.
+      const auto transported=slices.FetchPointMetric(loaded.Fine());
+      REQUIRE(transported.size()==6*loaded.Fine().GetnPoint());
+      for(unsigned long p=0;p<metric.rows();++p)for(size_t k=0;k<6;++k)metric(p,k)=transported[6*p+k];
+    } else {
     for(unsigned long p=0;p<metric.rows();++p){auto m=sensor(loaded.Fine().nodes->GetCoord(p),scale);std::array<double,6> values{m.xx,m.xy,m.xz,m.yy,m.yz,m.zz};for(size_t k=0;k<6;++k)metric(p,k)=values[k];}
+    }
     auto authority=reference;auto returned=ImportGeometry(*config,loaded.Fine(),&metric,authority);CHECK(authority.original==reference.original);
     CHECK(Signature(world,returned.cells,authority)==expected);Save(world,stem+"_reload",returned.cells,returned.original,authority);
+    if(target_source)Save(world,stem+"_reload_target",returned.cells,*target_source,authority);
   }
 }
 }
@@ -386,16 +395,25 @@ TEST_CASE("Native3D manufactured anisotropic driver envelope", "[NativeEnvelope3
   auto parameter=[](const char* key,int fallback){const auto* value=std::getenv(key);return value?std::stoi(value):fallback;};
   const int n=parameter("SU2_NATIVE3D_ENVELOPE_SIZE",2), mode=parameter("SU2_NATIVE3D_ENVELOPE_ANISOTROPY",1);
   const int varying=parameter("SU2_NATIVE3D_ENVELOPE_VARYING",0), workers=parameter("SU2_NATIVE3D_ENVELOPE_WORKERS",1);
+  const int direction=parameter("SU2_NATIVE3D_ENVELOPE_DIRECTION",0);
   const int repeat=parameter("SU2_NATIVE3D_ENVELOPE_REPEAT",0), detail=parameter("SU2_NATIVE3D_ENVELOPE_DETAIL",1);
   const bool aligned=parameter("SU2_NATIVE3D_ENVELOPE_ALIGNED",0)!=0;
   const int rounds=parameter("SU2_NATIVE3D_ENVELOPE_ROUNDS",512);
   REQUIRE((rounds==512 || rounds==1024));
   REQUIRE((!aligned || n>=2));
   REQUIRE(n>=1);REQUIRE(n<=4);REQUIRE(mode>=0);REQUIRE(mode<=2);REQUIRE(varying>=0);REQUIRE(varying<=1);
+  REQUIRE(direction>=0);REQUIRE(direction<=1);
   REQUIRE(workers>=1);REQUIRE(workers<=world.size);REQUIRE(repeat>=0);REQUIRE(repeat<3);REQUIRE(detail>=0);REQUIRE(detail<=1);
   const double anisotropy=std::array<double,3>{1.,1.5,2.}[mode], variation=varying?.125:0.;
   auto sensor=[=](const su2double* p,double scale) {
     const double q=scale*(1.+variation*SU2_TYPE::GetValue(p[0]));
+    if(direction) {
+      const double pi=std::acos(-1.),phi=pi*(.25+.25*SU2_TYPE::GetValue(p[0]));
+      const double theta=pi*(SU2_TYPE::GetValue(p[1])/6.);
+      const double x=std::cos(phi)*std::cos(theta),y=std::sin(phi)*std::cos(theta),z=std::sin(theta);
+      const double delta=anisotropy*anisotropy-1.;
+      return Tensor{q*(1.+delta*x*x),q*delta*x*y,q*delta*x*z,q*(1.+delta*y*y),q*delta*y*z,q*(1.+delta*z*z)};
+    }
     const double diagonal=.5*(anisotropy*anisotropy+1.),off_diagonal=.5*(anisotropy*anisotropy-1.);
     return Tensor{q*diagonal,q*off_diagonal,0.,q*diagonal,0.,q};
   };
@@ -407,7 +425,7 @@ TEST_CASE("Native3D manufactured anisotropic driver envelope", "[NativeEnvelope3
     }) : BoxMesh(3,n,false);
     simplex_test::WriteSU2Mesh(mesh,"envelope_input.su2");
     std::ofstream cfg("envelope.cfg");
-    cfg<<"% Manufactured target: n="<<n<<" anisotropy="<<anisotropy<<" variation="<<variation<<" repeat="<<repeat<<"\n"
+    cfg<<"% Manufactured target: n="<<n<<" anisotropy="<<anisotropy<<" variation="<<variation<<" direction="<<direction<<" repeat="<<repeat<<"\n"
        <<"SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nAOA= 0\nMESH_FORMAT= SU2\nMESH_FILENAME= envelope_input.su2\n"
        <<"MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus, z_minus_a, z_minus_b)\n"
        <<"COMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
@@ -466,10 +484,10 @@ TEST_CASE("Native3D manufactured anisotropic driver envelope", "[NativeEnvelope3
     for(unsigned long p=0;p<accepted_metric.rows();++p)for(size_t k=0;k<6;++k)accepted_metric(p,k)=transported[6*p+k];
     auto retained=*driver->Reference();auto accepted=ImportGeometry(driver->Config(),driver->Geometry(),&accepted_metric,retained);
     Save(world,name,accepted.cells,donor.original,retained);driver->WriteAdaptedMesh(cycle+1,cycle+1);
-    if(cycle==2)OutputRoundTrip(world,name,result.slices,accepted.cells,retained,scale,sensor);
+    if(cycle==2)OutputRoundTrip(world,name,result.slices,accepted.cells,retained,scale,sensor,direction?&donor.original:nullptr);
     counts.push_back(result.slices.nElemGlobal);
     std::ostringstream row;row<<std::setprecision(17)<<"ENVELOPE rank="<<world.rank<<" ranks="<<world.size<<" workers="<<workers
-      <<" size="<<n<<" anisotropy="<<anisotropy<<" variation="<<variation<<" repeat="<<repeat<<" detailed="<<detail<<" cycle="<<cycle
+      <<" size="<<n<<" anisotropy="<<anisotropy<<" variation="<<variation<<" direction="<<direction<<" repeat="<<repeat<<" detailed="<<detail<<" cycle="<<cycle
       <<" cells="<<counts.back()<<" points="<<result.slices.nPointGlobal<<" state_error="<<error<<" parent_wall="<<parent_wall<<" parent_cpu="<<parent_cpu<<'\n';ProfileRow3D(row.str(),world.comm);
   }
   REQUIRE(counts.size()==3);CHECK(counts[1]<counts[0]);CHECK(counts[2]>counts[1]);

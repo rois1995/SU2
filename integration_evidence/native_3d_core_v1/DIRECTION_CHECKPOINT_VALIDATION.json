@@ -1,0 +1,280 @@
+{
+  "status": "PASS",
+  "analyzer_sha256": "d1774efbb30e26bffb50ea3ac73e71c9064632ef9ddc0500d32ba20f46dbd87a",
+  "dependencies_sha256": {
+    "analyze_insertion.py": "da413800f19c4892717ef607a5868d473c61390fd8f0e427b4bed0e2edb2cd2c",
+    "analyze_donor_reuse.py": "30c5a374451da840c392f499d098fb6996d9205f92783fb3aef133e06382da67",
+    "audit_lifecycle.py": "eaa6e005ece099af2f40ae7857bef51f22a207f70331dcdc10936d23c574e820"
+  },
+  "matrix_sha256": "353a110b92ead708e0776052090dcdd845de18c61a7ce8dccbf8737674f15bae",
+  "cases": [
+    {
+      "folder": "direction_control_a2_n2_n1_v2",
+      "unchanged": {
+        "envelope_s0_initial.json": "7f553d816519c465eb64335ec078d92a5ea197b76434a188c8ffbbb5caf1d326",
+        "envelope_s0.json": "b020762a74c14253c968a4dd1056cc0a4b099a4594685d2ac88d42cbd5fe7bbb",
+        "envelope_s1_initial.json": "f754d99f5e3a830e9f83ff1548cd51ea82bbe8de4d782ff5c57dadf06b5c7137",
+        "envelope_s1.json": "3522a152f7717213a4f3133138aa0b764544897a89d0001c25f5e678695723ff",
+        "envelope_s2_initial.json": "b5bd23f99469771baf8bd46f8d851ee2650b518bddc4d01301fab4cb85fcf5f8",
+        "envelope_s2.json": "6ad2d01f870c116ac930c993d9de8aa67a0003aae1863944f32ad30b39862176",
+        "envelope_s2_written_SU2_reload.json": "e44eb9488b4e8787fea462ea25fd8df83444e5bc8ff9482dd34ad7a61b2ec97e",
+        "envelope_s2_written_CGNS_reload.json": "e44eb9488b4e8787fea462ea25fd8df83444e5bc8ff9482dd34ad7a61b2ec97e",
+        "envelope_s0_states.json": "721d0a8832fcfcd6a6fb7370f3c7580beeaa5e467fa15008ff20484c877aa033",
+        "envelope_s1_states.json": "8e6a699a5aeb8bab24d8880bfa9679e44c9039680c7f87045c7d4ebf869ed432",
+        "envelope_s2_states.json": "c63cb86992d211b9205a12a0b5f6d06622d52a263a65ddf79b211a29e21a80b0"
+      },
+      "cells": [
+        128,
+        17,
+        79
+      ],
+      "minimum_q": 0.24684167508144456,
+      "minimum_J": 0.08704945478064512,
+      "maximum_L": 1.79843682124227,
+      "state_error": 3.8121801932001883e-16,
+      "tensor_error": 0.0,
+      "reload_metric_error": 0,
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 0.688515315,
+          "remesh_max_seconds": 0.661731554,
+          "parent_max_over_mean": 1.0,
+          "accepted_edits": 63.0,
+          "accepted_edits_per_parent_second": 91.50123261964043,
+          "native_bound": 8388608.0,
+          "lifetime_rss": 29286400.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 0.8406913459999998,
+          "remesh_max_seconds": 0.811384945,
+          "parent_max_over_mean": 1.0,
+          "accepted_edits": 39.0,
+          "accepted_edits_per_parent_second": 46.39039070113136,
+          "native_bound": 2867352.0,
+          "lifetime_rss": 30961664.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 0.31896235100000014,
+          "remesh_max_seconds": 0.301782961,
+          "parent_max_over_mean": 1.0,
+          "accepted_edits": 60.0,
+          "accepted_edits_per_parent_second": 188.10997539957302,
+          "native_bound": 2746756.0,
+          "lifetime_rss": 31019008.0
+        }
+      ],
+      "validation_sha256": "b0cc490714f9e910bedb1c1a8763a6fa206b2f94bea79cfa46fac94b21bf658a"
+    },
+    {
+      "folder": "direction_a15_n2_n1_v2",
+      "unchanged": {},
+      "cells": [
+        86,
+        14,
+        85
+      ],
+      "minimum_q": 0.3803975174341169,
+      "minimum_J": 0.15071701782306968,
+      "maximum_L": 1.7993801038078512,
+      "state_error": 3.8121801932001883e-16,
+      "tensor_error": 0.0,
+      "reload_metric_error": 0.0,
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 0.509784635,
+          "remesh_max_seconds": 0.48385755599999997,
+          "parent_max_over_mean": 1.0,
+          "accepted_edits": 55.0,
+          "accepted_edits_per_parent_second": 107.88869695925612,
+          "native_bound": 8388608.0,
+          "lifetime_rss": 28803072.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 0.5494722969999999,
+          "remesh_max_seconds": 0.523731288,
+          "parent_max_over_mean": 1.0,
+          "accepted_edits": 24.0,
+          "accepted_edits_per_parent_second": 43.67827119044002,
+          "native_bound": 2629312.0,
+          "lifetime_rss": 30261248.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 0.44767464999999995,
+          "remesh_max_seconds": 0.4290978999999999,
+          "parent_max_over_mean": 1.0,
+          "accepted_edits": 56.0,
+          "accepted_edits_per_parent_second": 125.09084443356355,
+          "native_bound": 2713832.0,
+          "lifetime_rss": 30261248.0
+        }
+      ],
+      "validation_sha256": "e30e4ad12d4b97606ae234cc5a7a933b61cbae7b49a41007b0b6f138ff8069f9"
+    },
+    {
+      "folder": "direction_a15_n2_n2_m2_v2",
+      "unchanged": {},
+      "cells": [
+        86,
+        13,
+        91
+      ],
+      "minimum_q": 0.3459747108162762,
+      "minimum_J": 0.16319985124778164,
+      "maximum_L": 1.7993801038078512,
+      "state_error": 3.8121801932001883e-16,
+      "tensor_error": 0.0,
+      "reload_metric_error": 0.0,
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 0.534728209,
+          "remesh_max_seconds": 0.508552586,
+          "parent_max_over_mean": 1.0000153033355814,
+          "accepted_edits": 55.0,
+          "accepted_edits_per_parent_second": 102.85599127612137,
+          "native_bound": 8388608.0,
+          "lifetime_rss": 28893184.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 0.620855319,
+          "remesh_max_seconds": 0.6037013149999999,
+          "parent_max_over_mean": 1.0000839952212583,
+          "accepted_edits": 25.0,
+          "accepted_edits_per_parent_second": 40.26703039327589,
+          "native_bound": 2408944.0,
+          "lifetime_rss": 30294016.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 0.39862279899999997,
+          "remesh_max_seconds": 0.38341953100000015,
+          "parent_max_over_mean": 1.0001901394221815,
+          "accepted_edits": 55.0,
+          "accepted_edits_per_parent_second": 137.9750484367052,
+          "native_bound": 2445324.0,
+          "lifetime_rss": 30294016.0
+        }
+      ],
+      "validation_sha256": "03983f16a435804633c6bc186b2a1bc489a92f36969aa8de78cbdc5c4d8e4da1"
+    },
+    {
+      "folder": "direction_a15_n2_n4_m2_v1",
+      "unchanged": {},
+      "cells": [
+        86,
+        12,
+        79
+      ],
+      "minimum_q": 0.3762022938193577,
+      "minimum_J": 0.16319985124778164,
+      "maximum_L": 1.7993801038078512,
+      "state_error": 3.8121801932001883e-16,
+      "tensor_error": 0.0,
+      "reload_metric_error": 0.0,
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 0.542462233,
+          "remesh_max_seconds": 0.489876817,
+          "parent_max_over_mean": 1.0002660505710093,
+          "accepted_edits": 55.0,
+          "accepted_edits_per_parent_second": 101.38954687376366,
+          "native_bound": 8388608.0,
+          "lifetime_rss": 29057024.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 0.6165601949999999,
+          "remesh_max_seconds": 0.5404851339999999,
+          "parent_max_over_mean": 1.000033686004683,
+          "accepted_edits": 25.0,
+          "accepted_edits_per_parent_second": 40.54754134752407,
+          "native_bound": 2401292.0,
+          "lifetime_rss": 30797824.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 0.331290106,
+          "remesh_max_seconds": 0.3022108749999999,
+          "parent_max_over_mean": 1.0002969450385049,
+          "accepted_edits": 50.0,
+          "accepted_edits_per_parent_second": 150.92512300986135,
+          "native_bound": 2415980.0,
+          "lifetime_rss": 30973952.0
+        }
+      ],
+      "validation_sha256": "739ad10944b58ec5bc3d68f012c87c3c57d9dadfea03ca72f717a62478845013"
+    },
+    {
+      "folder": "direction_a15_n2_n4_m4_v1",
+      "unchanged": {},
+      "cells": [
+        86,
+        8,
+        73
+      ],
+      "minimum_q": 0.3780095048613828,
+      "minimum_J": 0.16422464518102212,
+      "maximum_L": 1.7993801038078512,
+      "state_error": 3.844148161277339e-16,
+      "tensor_error": 0.0,
+      "reload_metric_error": 0.0,
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 1.297876383,
+          "remesh_max_seconds": 1.2418205169999998,
+          "parent_max_over_mean": 1.0001237324060703,
+          "accepted_edits": 55.0,
+          "accepted_edits_per_parent_second": 42.376917185956685,
+          "native_bound": 8388608.0,
+          "lifetime_rss": 29790208.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 1.1486940310000002,
+          "remesh_max_seconds": 1.007734565,
+          "parent_max_over_mean": 1.0000895486158408,
+          "accepted_edits": 26.0,
+          "accepted_edits_per_parent_second": 22.634399847421157,
+          "native_bound": 2309996.0,
+          "lifetime_rss": 31252480.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 0.6989070499999999,
+          "remesh_max_seconds": 0.6661757109999997,
+          "parent_max_over_mean": 1.0001482305183642,
+          "accepted_edits": 51.0,
+          "accepted_edits_per_parent_second": 72.97107676907825,
+          "native_bound": 2298392.0,
+          "lifetime_rss": 31313920.0
+        }
+      ],
+      "validation_sha256": "199c467d607629d12003123021eba3923b999ac215b9f539a75f0f5c05fd221c"
+    }
+  ],
+  "accounting_rows": 408,
+  "csv_sha256": "f2080fe4d1b98b3ef90aa5ec8f05aa799c586c6778b57a6be137b62b13630e21",
+  "regression_validation_sha256": "3f216559461d33ba2d45155651ba5a08166dbd7db2e7e362c408b72048424880",
+  "unchanged_adaptation_data_before_reload_fix": {
+    "envelope_s0_initial.json": "47956bcc38cb4e97fb440679aa90cb7ca4c992cd7ccb6c6f2862a86c194526d4",
+    "envelope_s0.json": "6836d25a6190ddffd16719467361d07260baa70e802f07fc28d3a5b680925917",
+    "envelope_s1_initial.json": "43109d552143542f2c4cae15f9c4502ba3d68430b16a8dcfe40968db4564f7fc",
+    "envelope_s1.json": "056cb1f4488a235947e265c472b9dd09ae9d59ece7bb6e77517162ef424a6981",
+    "envelope_s2_initial.json": "2d8ad0f9939f653b48ad95d7eb0d594258747d918e8566aedc842f23b7dddb25",
+    "envelope_s2.json": "b68d6f0e88fb89af594aea3883b3a5c153098e9709ba9ca19786f52a6be2ff64",
+    "envelope_s0_states.json": "1e8919b753964a086f1d51a75cb3ac8fb12b7a17584f628cfec50dba86506271",
+    "envelope_s1_states.json": "9567b74b7980c5d6e79e507d65a94400e046863ec8691b4092e6d16b086b260b",
+    "envelope_s2_states.json": "0141b4efa842cd3e7595c5aac6d38a396bf5d85bb784794271e3774471f1a9d4"
+  },
+  "retained_reload_failure_sha256": "3f509fb499ac226538f1de8701d74b1a61f0002435d57cc74e2c0c0530359516",
+  "scope": "Four spatial 3D direction-changing box lifecycles MPI1/M1,MPI2/M2,MPI4/M2,MPI4/M4, plus eleven byte-identical legacy control datafiles. Frozen original-P1 metrics, actual geometry/marker/current+BDF2/SU2CGNS checks, loaded nodal transport checked separately from frozen-target geometry. Actual complete configured68-object regression. Test-only changes; no production change, analytic-target substitution, actual solver restart, new-source interior admissibility, scaling or fullGoal1 qualification."
+}

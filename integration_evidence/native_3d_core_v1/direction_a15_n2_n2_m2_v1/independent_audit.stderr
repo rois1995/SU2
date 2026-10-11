@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_envelope.py", line 96, in <module>
+    if __name__=='__main__':main(Path(sys.argv[1]).resolve())
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_envelope.py", line 57, in main
+    record,loaded=frame(folder/f'envelope_s2_written_{fmt}_reload.json',True)
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_coupled.py", line 193, in frame
+    if strict:assert maxl<=1.8+1e-12,'Oversized final original-field edge'
+AssertionError: Oversized final original-field edge

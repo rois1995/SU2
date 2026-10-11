@@ -7,6 +7,45 @@ small sequential local checks with real host-contention checks; push each
 validated checkpoint and verify the remote SHA. A terminal capacity failure
 cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
+## Spatial metric-direction envelope — 2026-10-11
+
+NativeIntegrated / codex/native-3d-core, predecessor8b64fe7dba33b62612065009981f1cae660952e1.
+Implementation/evidence publication pending. Test-only --direction1 prescribed
+spatially rotating SPD tensor with azimuth45–90deg/elevation0–30deg, strength1+.125x,
+aspect1.5, scales4/1/4; freeze original sensor P1 per event. Production unchanged.
+DIRECTION_REPORT.md/VALIDATION.json qualify five actual default512 driver cases,
+408closed accounting rows, current/BDF2/SU2CGNS and exact geometry/metric audits.
+DirectionN1/M1 86/14/85tets, N2/M2 86/13/91, N4/M2 86/12/79, N4/M4 86/8/73 PASS.
+qmin.345975/Jmin.150717/Lmax1.7993801; tensors/loadedtensors0, state<=3.84415e-16.
+Legacy control direction_control_a2_n2_n1_v2 retains11 byte-identical datafiles.
+Final direction_regression_v1 complete68objects passes64native/2D+3Dbridge tests
+at MPI1/2/4; MMG2D/3D round trips serially (48assertions), no unmatchedselectors.
+Existing324 independent automatic frames use unchanged production identities;
+not rerun for fixture-only edits. Source/object/archive/binary pins stable.
+
+Retained direction_a15_n2_n2_m2_v1 FAIL independentreload: final frozenP1
+Lmax1.7993801, analytic-resampled reloadtarget1.8146257. Rootcause oldhelper
+changed nonlinear target during reload; no productionmesh or guard error.
+Helper now fetches transported nodes from acceptedSlices and saves separate
+reload_nodal/reload_target records; independent nodal topology/SPD/P1+frozen-target
+geometry checks pass SU2CGNS, including missing/corrupt-source negatives.
+Actual filenames *_reload.json (nodal), *_reload_target.json (originalfield).
+This retains oldfield in memory, does not prove relinearized sensor interior
+admissibility or full frozenfield persistence in mesh files; actualrestart open.
+Initial serialv1 and both default controlv1/v2/failure kept; new serial/MPI2v2 pass.
+Allnine adaptation/source/state datafiles from failedMPI2v1 and passedv2 identical.
+
+Parent pilotsN1 .510/.549/.448s, N2 .535/.621/.399, N4M2 .542/.617/.331,
+N4M4 1.298/1.149/.699. Different trajectories/singlecontendedruns do not prove
+scaling. Parentmax/mean near1 does not prove private CPU balance or no MPI waits.
+Requestedbound8MiB/lifetimeRSS31.3MB distinct, full calibration incomplete.
+AcceptedVTU/SU2/CGNS/states in direction_a15_* folders, no ownedjob after audits.
+
+FullGoal1 ACTIVE: thin/wedge/restart/larger limits, complete wait/traffic/private
+CPU/memory calibration, overhead and closedSGE repetitions/scaling remain.
+No actualCFD/fullBL3D/unsteady/affordability claim or overnight cluster request.
+Foreignwork/AdapNoExt/submodules/ClusterResults unchanged.
+
 ## Stronger anisotropy envelope — 2026-10-11
 
 NativeIntegrated / codex/native-3d-core; tested production unchanged from donor

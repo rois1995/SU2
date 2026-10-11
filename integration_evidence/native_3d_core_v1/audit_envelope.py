@@ -3,18 +3,36 @@ from pathlib import Path
 from collections import Counter
 from fractions import Fraction as F
 import json,math,sys
-from audit_coupled import frame
+from audit_coupled import frame,sources,metric
 from audit_geometry_bridge import states,signature,su2_signature,cgns_signature,reject
 from audit_lifecycle import parse,stage,closes,STAGES
 STAGES['envelope']=('metric','observation','remesh','replace')
 
+def reload_metric(nodal,target):
+    original,_=sources(target);current,nodes=sources(nodal)
+    assert sorted(c['key'] for c in current)==sorted(tuple(sorted(c['nodes'])) for c in nodal['cells'])
+    assert {p for p,m in nodes.values()}=={tuple(F(float(x)) for x in n[1:]) for n in nodal['nodes']}
+    error=0.
+    for point,tensor in nodes.values():
+        wanted=metric(original,point)
+        error=max(error,max(abs(float(a)-float(b)) for a,b in zip(wanted,tensor)))
+    assert error<1e-13,'Reload lost transported original-P1 nodal metric'
+    return error
+
 def main(folder):
     p=json.loads((folder/'parameters.json').read_text());ranks=p['ranks'];anisotropy=(1.,1.5,2.)[p['anisotropy']]
-    variation=.125 if p['varying'] else 0.
+    variation=.125 if p['varying'] else 0.;direction=p.get('direction',0)
+    assert direction in (0,1)
     def sensor_at(x,scale):
-        q=scale*(1.+variation*x[0]);diag=.5*(anisotropy*anisotropy+1.);off=.5*(anisotropy*anisotropy-1.)
+        q=scale*(1.+variation*x[0])
+        if direction:
+            phi=math.pi*(.25+.25*x[0]);theta=math.pi*(x[1]/6.)
+            u,v,w=math.cos(phi)*math.cos(theta),math.sin(phi)*math.cos(theta),math.sin(theta)
+            delta=anisotropy*anisotropy-1.
+            return q*(1.+delta*u*u),q*delta*u*v,q*delta*u*w,q*(1.+delta*v*v),q*delta*v*w,q*(1.+delta*w*w)
+        diag=.5*(anisotropy*anisotropy+1.);off=.5*(anisotropy*anisotropy-1.)
         return q*diag,q*off,0.,q*diag,0.,q
-    records=[];transport=[];previous=None
+    records=[];transport=[];reload_metrics=[];previous=None
     for cycle in range(3):
         name=f'envelope_s{cycle}'
         initial,a=frame(folder/(name+'_initial.json'),False)
@@ -47,8 +65,14 @@ def main(folder):
     for fmt in ('SU2','CGNS'):
         actual=folder/('envelope_s2_written_'+fmt+('.cgns' if fmt=='CGNS' else '.su2'))
         assert (cgns_signature(actual) if fmt=='CGNS' else su2_signature(actual))==signature(previous)
-        record,loaded=frame(folder/f'envelope_s2_written_{fmt}_reload.json',True)
+        stem=f'envelope_s2_written_{fmt}'
+        record,loaded=frame(folder/(stem+('_reload_target.json' if direction else '_reload.json')),True)
         assert signature(loaded)==signature(previous);records.append(record)
+        if direction:
+            nodal=json.loads((folder/(stem+'_reload.json')).read_text())
+            assert signature(nodal)==signature(loaded)
+            error=reload_metric(nodal,loaded)
+            reload_metrics.append(dict(format=fmt,maximum_transported_tensor_absolute_error=error))
     rank_rows=[];stages=[];native=[]
     for line in (folder/'case.stdout').read_text().splitlines():
         if line.startswith(('ENVELOPE ','NATIVE3D ')):
@@ -58,6 +82,7 @@ def main(folder):
             assert row['ranks']==ranks and 0<=row['rank']<ranks and row['workers']==p['workers']
             if line.startswith('ENVELOPE '):
                 assert row['size']==p['size'] and row['anisotropy']==anisotropy and row['variation']==variation
+                assert row.get('direction',0)==direction
                 assert row['repeat']==p['repeat'] and row['detailed']==p['detail'] and 0<=row['cycle']<3
                 assert row['state_error']<2e-10;rank_rows.append(row)
             else:
@@ -81,7 +106,10 @@ def main(folder):
     import copy
     bad=copy.deepcopy(state);bad['accepted'][0]['metric'][0]+=.1;reject(lambda:states(source,bad,sensor_at))
     bad=copy.deepcopy(state);bad['accepted'][0]['states'][10]+=.1;reject(lambda:states(source,bad,sensor_at))
-    summary=dict(status='PASS',parameters=p,frames=records,states=transport,rank_rows=rank_rows,rank_stages=stages,native_rows=native,adversaries_rejected=2,
+    if direction:
+        bad=copy.deepcopy(nodal);bad['original']=[];reject(lambda:reload_metric(bad,loaded))
+        bad=copy.deepcopy(nodal);bad['original'][0]['vertices'][0][4][0]+=.1;reject(lambda:reload_metric(bad,loaded))
+    summary=dict(status='PASS',parameters=p,frames=records,states=transport,reload_metrics=reload_metrics,rank_rows=rank_rows,rank_stages=stages,native_rows=native,adversaries_rejected=4 if direction else 2,
                  scope='Three actual native3D backend/driver replacement events on a manufactured rotated anisotropic target. Exact embedding/incidence/finite-facet coverage/markers/volume, original-P1 metric and current/BDF2 audits; actual SU2/CGNS output and readback. Timed manual metric/observer/remesh/replace phases: observer is diagnostic work, not CFD. One repetition is a correctness/diagnostic pilot, not scaling, instrument-overhead, physical-solver or full-Goal1 qualification.')
     (folder/'independent_audit.json').write_text(json.dumps(summary,indent=2)+'\n')
     print('PASS',len(records),'strict/input/readback frames;',len(transport),'state frames;',len(stages),'closed rank-stage rows')

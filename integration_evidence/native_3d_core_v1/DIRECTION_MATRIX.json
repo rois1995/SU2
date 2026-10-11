@@ -1,0 +1,65 @@
+{
+  "base": "8b64fe7dba33b62612065009981f1cae660952e1",
+  "field": "At each source node M=q*(I+(a*a-1)*u*u^T), q=scale*(1+0.125*x), u=(cos(phi)*cos(theta),sin(phi)*cos(theta),sin(theta)); phi=pi*(0.25+0.25*x), theta=pi*y/6. Sensor-only original P1 frozen independently per event, not analytic reevaluation at remesher queries.",
+  "guards": {
+    "q": 0.2,
+    "J": 0.05,
+    "L": 1.8,
+    "rounds": 512,
+    "noise": 0
+  },
+  "cases": [
+    {
+      "folder": "direction_control_a2_n2_n1_v2",
+      "direction": 0,
+      "aspect": 2,
+      "size": 2,
+      "ranks": 1,
+      "workers": 1,
+      "require": "Eleven accepted/source/state/readback files identical to robustness_a2_n2_n1_v1"
+    },
+    {
+      "folder": "direction_a15_n2_n1_v2",
+      "direction": 1,
+      "aspect": 1.5,
+      "size": 2,
+      "ranks": 1,
+      "workers": 1
+    },
+    {
+      "folder": "direction_a15_n2_n2_m2_v2",
+      "direction": 1,
+      "aspect": 1.5,
+      "size": 2,
+      "ranks": 2,
+      "workers": 2
+    },
+    {
+      "folder": "direction_a15_n2_n4_m2_v1",
+      "direction": 1,
+      "aspect": 1.5,
+      "size": 2,
+      "ranks": 4,
+      "workers": 2
+    },
+    {
+      "folder": "direction_a15_n2_n4_m4_v1",
+      "direction": 1,
+      "aspect": 1.5,
+      "size": 2,
+      "ranks": 4,
+      "workers": 4
+    }
+  ],
+  "admission": "Run serial cases first, then one sequential MPI case at a time if serial qualifies; diagnose and retain any failure before adding campaigns. No target/guard/budget relaxation.",
+  "acceptance": "Actual default three-event refinement/coarsening/refinement and original-P1/current+BDF2 transfer, independent exact geometry/embedding/facets/markers/metric residuals and SU2CGNS output/readback. Closed parent/engine/import/partition accounting and useful edits/s, source/object/archive/binary pins, atomic rejection preservation. New test-only direction flag default0 keeps original metric arithmetic unchanged.",
+  "execution": "Initially one nice19/j1/MPI<=4/thread1 job after real host load/memory/process checks. Single pilots, no local repetition/scaling. Cluster overhead/repeated/scaling package remains needed.",
+  "scope": "Spatially changing 3D principal direction (azimuth varies with x, elevation with y) on a box with adaptable planar surface; no thin/wedge/restart/curved/fullBL/unsteadyCFD or fullGoal1 qualification.",
+  "diagnostic_addenda": [
+    {
+      "reason": "Initial MPI2 adaptation passes under frozen original P1 (Lmax1.7993801038); output-reload helper reevaluates nonlinear analytic field on accepted nodes and independent Lmax becomes1.8146257462. This is a different target, not an accepted-mesh violation under the adaptation target.",
+      "change": "For direction-changing fixture only, reload transported nodal metrics from accepted reader slices, retain original frozen donor source in a separate reload_target frame, validate output geometry against that exact source and validate loaded nodal tensors independently. Default direction0 reload behavior remains unchanged.",
+      "validation": "Retain initial serial v1 and failed MPI2 v1. Rebuild updated actual fixture and rerun control, serial direction and MPI2 in v2 folders, then MPI4/M2 and MPI4/M4 v1. No production/target/guard/budget changes."
+    }
+  ]
+}
