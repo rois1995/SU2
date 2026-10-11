@@ -1,5 +1,7 @@
 # Larger wedge envelope — 2026-10-11
 
+Published implementation/evidence checkpoint: `9dc21db012be53a1e723b3f01e7649c7cad2b5ab`, origin/codex/native-3d-core, full remote SHA verified.
+
 Branch codex/native-3d-core, baseline 7bc3869babb19171fe402fdfb0e96f745b769703. LARGER_WEDGE_MATRIX.json froze four n4 wedge cases before execution: MPI1/M1, MPI2/M2, MPI4/M2 and MPI4/M4. Input:75 points,192 tetrahedra,128 original boundary triangles, exact volume1/2, six marker patches including the oblique x+y=1 face and bottom x=.5 junction. Three events use scales16/4/16, aspect1.5, spatial strength1+.125x and rotating direction. Guards remain q>=.20,J>=.05,L<=1.8,512 rounds,noise0.
 
 All four actual configured-binary cases pass independent exact geometry, positive volume, incidence, overlap/gap, domain/marker, original-P1 tensor, manufactured current/BDF, SU2/CGNS write/readback and six corruption controls. They reuse the same qualified production source, binary, six runtime test objects, archives and all thin-archive members as restart_control_box_n1_v1. The retained complete68-object restart_regression_v1 covers that unchanged production; no redundant numerical regression was run for this size-only expansion. analyze_larger_wedge.py rechecks all receipts, artifact hashes and source/object/archive consistency.

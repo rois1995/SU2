@@ -1,6 +1,7 @@
 ## Larger wedge and exact-vertex clipping checkpoint — 2026-10-11
 
 NativeIntegrated / codex/native-3d-core, baseline7bc3869babb19171fe402fdfb0e96f745b769703.
+Implementation/evidence checkpoint `9dc21db012be53a1e723b3f01e7649c7cad2b5ab` pushed to origin/codex/native-3d-core; full remote SHA verified.
 LARGER_WEDGE_REPORT.md and VERTEX_CLIP_REPORT.md under integration_evidence/native_3d_core_v1 qualify four n4 wedge cases each:N1M1,N2M2,N4M2,N4M4. Input75points/192tets/128triangles; oblique and marker-junction geometry; three rotated/spatial originalP1 events16/4/16; guards.20/.05/1.8/default512/noise0 unchanged. All exact geometry/q/J/L/P1/currentBDF/SU2CGNS audits pass:minq.2474003062/minJ.07957138227/maxL1.7987750917934346; states<=3.865e-16,tensors0. Larger baseline uses unchanged previously qualified production.
 
 The measured local hotspot is exact edge trace (~99% of metric-edge work). Production now reuses validated exact-volume/zero barycentric numerators at exactly matching donor vertices, retaining all other exact arithmetic and rejection checks. Only CNativePredicates3D.cpp.o changes in production archives; one targeted NativeMesh3D test added. All52 fixed-work geometry/source/state/readback files and accepted rank-local edits match baselines byte-for-byte. Full configured68-object regression passes66 native/reference/2D+3Dbridge test cases per MPI1/2/4 rank, plus serial MMG2D/3D48 assertions; passive predicate scalar/DD/AD macro syntax passes, no active AD run claim.

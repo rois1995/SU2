@@ -1,5 +1,7 @@
 # Exact donor-vertex clipping checkpoint — 2026-10-11
 
+Published implementation/evidence checkpoint: `9dc21db012be53a1e723b3f01e7649c7cad2b5ab`, origin/codex/native-3d-core, full remote SHA verified.
+
 Branch codex/native-3d-core, baseline7bc3869babb19171fe402fdfb0e96f745b769703. The larger wedge profile identifies exact segment clipping as approximately99% of metric-edge evaluation work. CNativePredicates3D.cpp now recognizes an endpoint exactly equal in binary64 coordinates to a donor vertex and reuses the already validated exact donor volume or zero for its barycentric numerators. Other endpoints retain exact determinants. Positive donor validation, interval roots/order/coverage, overlap/gap checks and conformal ties remain unchanged. No tolerance, target, caching, geometry cap,2D or MMG change.
 
 VERTEX_CLIP_MATRIX.json froze MPI1/M1,MPI2/M2,MPI4/M2,MPI4/M4 against their larger_wedge baselines. Independent exact geometry/q/J/L/original-P1/current+BDF/SU2CGNS audits pass all four. All52 raw geometry/source/state/nodal-readback/frozen-readback files are byte-identical; accepted operation counts and rank-local trajectories also match. Provenance qualification finds exactly one changed production thin-archive member, adaptation_CNativePredicates3D.cpp.o; the six runtime test objects are unchanged. The only other source change is a targeted unit test, exercised by the full configured regression.
