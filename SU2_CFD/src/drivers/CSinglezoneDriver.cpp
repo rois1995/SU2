@@ -37,6 +37,8 @@
 #include "../../include/adaptation/CMetricPredictor.hpp"
 #include "../../../Common/include/adaptation/CMMGInterface.hpp"
 #include "../../../Common/include/adaptation/CNativeRemesher.hpp"
+#include "../../../Common/include/adaptation/CNativeRemesher3D.hpp"
+#include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
 #include "../../../Common/include/adaptation/CNativeImport2D.hpp"
 #include "../../../Common/include/adaptation/CNativeReferenceIO.hpp"
 #include "../../../Common/include/adaptation/CMeshGather.hpp"
@@ -274,13 +276,20 @@ void CSinglezoneDriver::CheckMeshAdaptation() const {
                      "DUAL_TIME_STEPPING-1ST_ORDER or DUAL_TIME_STEPPING-2ND_ORDER).", CURRENT_FUNCTION);
     }
   }
-  if (config->GetKind_Adap_Remesher()==ADAP_REMESHER::NATIVE_CAVITY)
-    CNativeRemesher::CheckSupport(*config,*geometry_container[ZONE_0][INST_0][MESH_0]);
+  if (config->GetKind_Adap_Remesher()==ADAP_REMESHER::NATIVE_CAVITY) {
+    const auto& geometry=*geometry_container[ZONE_0][INST_0][MESH_0];
+    if(geometry.GetnDim()==3)CNativeRemesher3D::CheckSupport(*config,geometry);
+    else CNativeRemesher::CheckSupport(*config,geometry);
+  }
   else CMMGInterface::CheckSupport(*config, *geometry_container[ZONE_0][INST_0][MESH_0]);
 }
 
 std::unique_ptr<CRemesher> CSinglezoneDriver::MakeRemesher() {
   if (config_container[ZONE_0]->GetKind_Adap_Remesher()==ADAP_REMESHER::NATIVE_CAVITY) {
+    if(geometry_container[ZONE_0][INST_0][MESH_0]->GetnDim()==3){
+      if(!nativeReference3D)nativeReference3D=std::make_shared<SU2Native3D::ReferenceState>();
+      return std::make_unique<CNativeRemesher3D>(nativeReference3D);
+    }
     if (!nativeReference) nativeReference=std::make_shared<SU2NativeBoundary2D::ReferenceState>();
     // Only the CFD sensor is frozen on the donor volume. Wall distances and
     // tangential sizes use the retained original geometry at EVERY query,
@@ -1613,6 +1622,11 @@ void CSinglezoneDriver::WriteAdaptedMesh(unsigned long iCycle, unsigned long fir
   }
   CMeshOutput::WriteMesh(config, geometry_container[ZONE_0][INST_0][MESH_0], fileName);
   if (config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY) {
+    if(geometry_container[ZONE_0][INST_0][MESH_0]->GetnDim()==3){
+      if(!nativeReference3D || !nativeReference3D->original)SU2_MPI::Error("Native3D mesh output requires its retained geometry reference.",CURRENT_FUNCTION);
+      SU2Native3D::WriteReference(fileName+config->GetMesh_Out_FileExtension()+".native_ref",*nativeReference3D);
+      return;
+    }
     if (!nativeReference || !nativeReference->original)
       SU2_MPI::Error("Native mesh output requires its retained geometry reference.", CURRENT_FUNCTION);
     SU2NativeBoundary2D::WriteReference(fileName + config->GetMesh_Out_FileExtension() + ".native_ref", *nativeReference);

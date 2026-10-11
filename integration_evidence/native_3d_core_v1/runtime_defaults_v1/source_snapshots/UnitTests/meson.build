@@ -1,0 +1,166 @@
+# Add any new test files here
+# -------------------------------------------------------------------------
+# Begin unit test listings
+# -------------------------------------------------------------------------
+
+# Direct-mode tests:
+su2_cfd_tests = files(['SU2_CFD/adaptation/CAdapSensors_tests.cpp',
+                       'SU2_CFD/adaptation/GoalMetric_tests.cpp',
+                       'Common/CConfig_tests.cpp',
+                       'Common/geometry/primal_grid/CPrimalGrid_tests.cpp',
+                       'Common/geometry/dual_grid/CDualGrid_tests.cpp',
+                       'Common/geometry/CGeometry_test.cpp',
+                       'Common/geometry/CMemoryMeshReaderFVM_tests.cpp',
+                       'Common/toolboxes/CQuasiNewtonInvLeastSquares_tests.cpp',
+                       'Common/toolboxes/C1DInterpolation_tests.cpp',
+                       'Common/vectorization.cpp',
+                       'Common/toolboxes/ndflattener_tests.cpp',
+                       'Common/containers/CLookupTable_tests.cpp',
+                       'Common/toolboxes/multilayer_perceptron/CLookUp_ANN_tests.cpp',
+                       'SU2_CFD/numerics/CNumerics_tests.cpp',
+                       'SU2_CFD/fluid/CFluidModel_tests.cpp',
+                       'SU2_CFD/output/CNEMOCompOutput_tests.cpp',
+                       'SU2_CFD/output/COutput_convergence_tests.cpp',
+                       'SU2_CFD/gradients.cpp',
+                       'SU2_CFD/solvers/CNEMOEulerSolver_tests.cpp',
+                       'SU2_CFD/nemo_viscous_assembly.cpp',
+                       'SU2_CFD/windowing.cpp',
+                       'SU2_CFD/drivers/CDriver_tests.cpp',
+                       'SU2_CFD/drivers/CSinglezoneDriver_tests.cpp',
+                       'SU2_CFD/adaptation/CBarycentricTransfer_tests.cpp',
+                       'SU2_CFD/adaptation/AdjointTransfer_tests.cpp',
+                       'SU2_CFD/adaptation/CConservativeTransfer_tests.cpp',
+                       'SU2_CFD/adaptation/CornerMetric_tests.cpp',
+                       'SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp',
+                       'SU2_CFD/adaptation/BoundaryLayerTwoPass_tests.cpp',
+                       'SU2_CFD/adaptation/CMetricPredictor_tests.cpp',
+                       'SU2_CFD/adaptation/AdaptationMPI_tests.cpp',
+                       'SU2_CFD/adaptation/CNativeImport2D_tests.cpp',
+                       'SU2_CFD/adaptation/CNativeImport3D_tests.cpp',
+                       'SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp',
+                       'SU2_CFD/adaptation/CNativeRemesher_tests.cpp',
+  'SU2_CFD/adaptation/CNativeBL2D_tests.cpp',
+  'SU2_CFD/adaptation/CNativeCGNS2D_tests.cpp',
+  'SU2_CFD/adaptation/CNativeAirfoil2D_tests.cpp',
+  'SU2_CFD/adaptation/CNativeSupport2D_tests.cpp',
+                       'SU2_CFD/adaptation/DistributedTransfer_tests.cpp',
+                       'SU2_CFD/output/CMeshOutput_tests.cpp',
+                       'Common/toolboxes/random_toolbox_tests.cpp',
+                       'Common/adaptation/CMMGInterface_tests.cpp',
+                       'Common/adaptation/CNativeMesh2D_tests.cpp',
+                       'Common/adaptation/CNativeMesh3D_tests.cpp',
+                       'Common/adaptation/CNativeTopology3D_tests.cpp',
+                       'Common/adaptation/CNativeCavity3D_tests.cpp',
+                       'Common/adaptation/CNativeField3D_tests.cpp',
+                       'Common/adaptation/CNativeBoundary3D_tests.cpp',
+                       'Common/adaptation/CNativeMetric3D_tests.cpp',
+                       'Common/adaptation/CNativeDistributed3D_tests.cpp',
+                       'Common/adaptation/CNativePartition3D_tests.cpp',
+                       'Common/adaptation/CNativeDistributed2D_tests.cpp',
+                       'Common/adaptation/CNativeField2D_tests.cpp',
+                       'Common/adaptation/CNativeEngine2D_tests.cpp',
+                       'Common/adaptation/CNativeScaling2D_tests.cpp',
+                       'Common/adaptation/CNativeGeometryValidation2D_tests.cpp',
+                       'Common/adaptation/CNativeReferenceIO_tests.cpp',
+                       'Common/adaptation/CNativeCollision2D_tests.cpp',
+                       'Common/adaptation/AdaptationLoopOptions_tests.cpp',
+                       'Common/parallelization/CPassiveComm_tests.cpp',
+                       'Common/parallelization/NativeDouble_order1.cpp',
+                       'Common/parallelization/NativeDouble_order2.cpp',
+                       'Common/parallelization/NativeDouble_order3.cpp',
+                       'Common/adaptation/DistributedSearch_tests.cpp',
+                       'Common/linear_algebra/quantization_tests.cpp',
+                       'Common/linear_algebra/edge_residual_blocks_tests.cpp'])
+
+# Reverse-mode (algorithmic differentiation) tests:
+su2_cfd_tests_ad = files(['SU2_CFD/adaptation/CAdapSensors_tests.cpp',
+                          'SU2_CFD/adaptation/GoalMetric_tests.cpp',
+                          'SU2_CFD/drivers/CDiscAdjSinglezoneDriver_tests.cpp',
+                          'Common/simple_ad_test.cpp',
+                          'SU2_CFD/fluid/CFluidModel_tests_AD.cpp',
+                          'Common/toolboxes/multilayer_perceptron/MLP_Jacobian_tests.cpp',
+                          'Common/parallelization/CPassiveComm_tests.cpp',
+                          'Common/parallelization/NativeDouble_order1.cpp',
+                          'Common/parallelization/NativeDouble_order2.cpp',
+                          'Common/parallelization/NativeDouble_order3.cpp',
+                          'Common/adaptation/DistributedSearch_tests.cpp'])
+
+# Forward-mode (direct differentiation) tests:
+su2_cfd_tests_dd = files(['SU2_CFD/adaptation/CAdapSensors_tests.cpp',
+                          'Common/simple_directdiff_test.cpp',
+                          'SU2_CFD/adaptation/CSolutionTransfer_directdiff_tests.cpp',
+                          'Common/parallelization/CPassiveComm_tests.cpp',
+                          'Common/parallelization/NativeDouble_order1.cpp',
+                          'Common/parallelization/NativeDouble_order2.cpp',
+                          'Common/parallelization/NativeDouble_order3.cpp',
+                          'Common/adaptation/DistributedSearch_tests.cpp'])
+
+# -------------------------------------------------------------------------
+# End of unit test listings
+# -------------------------------------------------------------------------
+
+if get_option('enable-tests')
+  if get_option('enable-normal')
+    unit_test_files = su2_cfd_tests + files(['test_driver.cpp'])
+    test_driver = executable(
+        'test_driver',
+        unit_test_files,
+        install : true,
+        install_rpath : '$ORIGIN/../lib',
+        dependencies : [su2_cfd_dep, common_dep, su2_deps, catch2_dep],
+        cpp_args: ['-fPIC', default_warning_flags, su2_cpp_args]
+    )
+    test('Catch2 test driver', test_driver)
+
+    # Memory ceiling of the solution transfers: the allocation probe replaces the global operator new/delete, so
+    # these tests have their own executable.
+    test_memory = executable(
+        'test_memory',
+        files(['SU2_CFD/adaptation/TransferMemory_tests.cpp', 'Common/adaptation/CNativeMemory2D_tests.cpp',
+               'Common/memory/AllocationProbe.cpp', 'test_driver.cpp']),
+        install : false,
+        dependencies : [su2_cfd_dep, common_dep, su2_deps, catch2_dep],
+        cpp_args: ['-fPIC', default_warning_flags, su2_cpp_args]
+    )
+    test('Catch2 memory tests', test_memory)
+    test('NEMO convergence field migration', python,
+         args: files('SU2_CFD/output/check_nemo_convergence_migration.py') + [test_driver.full_path()],
+         timeout: 300)
+  endif
+
+  if get_option('enable-autodiff')
+    unit_test_files_ad = su2_cfd_tests_ad + files(['test_driver.cpp'])
+    test_driver_AD = executable(
+        'test_driver_AD',
+        unit_test_files_ad,
+        install : true,
+        install_rpath : '$ORIGIN/../lib',
+        dependencies : [su2_cfd_dep_ad, commonAD_dep, su2_deps, codi_dep, catch2_dep],
+        cpp_args: ['-fPIC', default_warning_flags, su2_cpp_args, codi_rev_args]
+    )
+    test('Catch2 test driver (AD)', test_driver_AD)
+  endif
+
+  if get_option('enable-directdiff')
+    unit_test_files_dd = su2_cfd_tests_dd + files(['test_driver.cpp'])
+    test_driver_DD = executable(
+        'test_driver_DD',
+        unit_test_files_dd,
+        install : true,
+        install_rpath : '$ORIGIN/../lib',
+        dependencies : [su2_cfd_dep_dd, commonDD_dep, su2_deps, codi_dep, catch2_dep],
+        cpp_args: ['-fPIC', default_warning_flags, su2_cpp_args, codi_for_args]
+    )
+    test('Catch2 test driver (DD)', test_driver_DD)
+
+    # Memory ceiling of the solution transfers with forward-mode (active, 16-byte) values.
+    test_memory_DD = executable(
+        'test_memory_DD',
+        files(['SU2_CFD/adaptation/TransferMemory_tests.cpp', 'Common/memory/AllocationProbe.cpp', 'test_driver.cpp']),
+        install : false,
+        dependencies : [su2_cfd_dep_dd, commonDD_dep, su2_deps, codi_dep, catch2_dep],
+        cpp_args: ['-fPIC', default_warning_flags, su2_cpp_args, codi_for_args]
+    )
+    test('Catch2 memory tests (DD)', test_memory_DD)
+  endif
+endif

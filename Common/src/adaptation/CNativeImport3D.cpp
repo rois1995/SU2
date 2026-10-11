@@ -185,7 +185,7 @@ namespace {
 /*! Shared collective batch schedule. Only the original sensor is imported; composition remains query-local. */
 template<class Make,class Use>
 bool Samples(World& parent,size_t count,DonorImport& source,MetricComposition composition,Make make,Use use,
-             BridgeStats& stats,std::string& reason,size_t ceiling,size_t live,size_t initial) {
+             BridgeStats& stats,std::string& reason,size_t ceiling,size_t live,size_t initial,bool query_timings) {
   // shortcut: conservative bounded field/cache scratch; calibrate against the actual index/cache allocations.
   const size_t scratch=transfer_memory::Add(transfer_memory::Mul(MaximumDonors,2*sizeof(DonorCell)+64*sizeof(double)),
       transfer_memory::Mul(MaximumSensorSamples,32*sizeof(double)),transfer_memory::Mul(MaximumCavityCells,sizeof(DonorRegion)));
@@ -205,7 +205,7 @@ bool Samples(World& parent,size_t count,DonorImport& source,MetricComposition co
     }
     try {
       if(!regions.empty()) {
-        FrozenField field(std::move(imported.cells),composition,true);
+        FrozenField field(std::move(imported.cells),composition,query_timings);
         for(size_t i=next;i<std::min(count,next+batch);++i)use(i,field);
         Add(stats,field.Statistics());
       }
@@ -219,7 +219,7 @@ bool Samples(World& parent,size_t count,DonorImport& source,MetricComposition co
 void PointRegion(Point p,std::vector<DonorRegion>& regions) { regions.push_back({p.x,p.y,p.z,p.x,p.y,p.z}); }
 }
 bool WorkingWeights(World& parent,const Owned& cells,DonorImport& source,std::vector<uint32_t>& output,
-                    std::string& reason,BridgeStats& stats,MetricComposition composition,size_t ceiling,size_t caller_bytes) {
+                    std::string& reason,BridgeStats& stats,MetricComposition composition,size_t ceiling,size_t caller_bytes,bool query_timings) {
   Envelope envelope(parent,stats);const size_t live=transfer_memory::Add(caller_bytes,OwnedBytes(cells),source.ResidentBytes(),
       transfer_memory::Mul(cells.size(),sizeof(const Cell*)+sizeof(uint32_t)));
   if(!Admit(parent,live,ceiling,stats,reason))return false;
@@ -229,12 +229,12 @@ bool WorkingWeights(World& parent,const Owned& cells,DonorImport& source,std::ve
   if(!Vote(parent,failure,reason))return false;
   auto make=[&](size_t i,std::vector<DonorRegion>& regions) { const auto& cell=*ordered[i];PointRegion(Centroid(cell),regions);for(auto n:cell.v)PointRegion(n.p,regions); };
   auto use=[&](size_t i,FrozenField& field) { weights[i]=WorkWeights({*ordered[i]},field).front(); };
-  if(!Samples(parent,cells.size(),source,std::move(composition),make,use,stats,reason,ceiling,live,8))return false;
+  if(!Samples(parent,cells.size(),source,std::move(composition),make,use,stats,reason,ceiling,live,8,query_timings))return false;
   output.swap(weights);reason.clear();return true;
 }
 bool ReaderSlices(World& parent,const Owned& cells,const std::vector<DonorCell>& original,const ReferenceState& state,
                   CReaderSlices& output,std::string& reason,BridgeStats& stats,MetricComposition composition,
-                  size_t ceiling,size_t caller_bytes) {
+                  size_t ceiling,size_t caller_bytes,bool query_timings) {
   Envelope envelope(parent,stats);CLocalFailure failure;
 #ifdef HAVE_MPI
   int relation=MPI_UNEQUAL;MPI_Comm_compare(parent.comm,SU2_MPI::GetComm(),&relation);
@@ -246,7 +246,7 @@ bool ReaderSlices(World& parent,const Owned& cells,const std::vector<DonorCell>&
       transfer_memory::Mul(cells.size(),4*(sizeof(Node)+sizeof(void*)*5+9*sizeof(double)+sizeof(unsigned long))),
       transfer_memory::Mul(state.marker_names.size(),sizeof(CSimplexMesh::Marker)));
   if(!Admit(parent,live,ceiling,stats,reason))return false;
-  DonorImport source(parent,true);const double build=parent.seconds();
+  DonorImport source(parent,query_timings);const double build=parent.seconds();
   if(!source.Build(original,reason,ceiling,live)) { stats.source_seconds=parent.seconds()-build;return false; }
   stats.source_seconds=parent.seconds()-build;std::map<Id,Node> nodes;std::vector<Node> ordered;
   CSimplexMesh mesh;mesh.nDim=3;std::vector<uint64_t> keys;std::map<Id,unsigned long> index;
@@ -273,7 +273,7 @@ bool ReaderSlices(World& parent,const Owned& cells,const std::vector<DonorCell>&
   auto make=[&](size_t i,std::vector<DonorRegion>& regions){PointRegion(ordered[i].p,regions);};
   auto use=[&](size_t i,FrozenField& field){const auto m=field.Query(ordered[i].p).target;const std::array<double,6> values{m.xx,m.xy,m.xz,m.yy,m.yz,m.zz};std::copy(values.begin(),values.end(),mesh.metric.begin()+6*i);};
   if(!Samples(parent,ordered.size(),source,std::move(composition),make,use,stats,reason,ceiling,
-      transfer_memory::Add(live,source.ResidentBytes()),16))return false;
+      transfer_memory::Add(live,source.ResidentBytes()),16,query_timings))return false;
   const double reader_start=parent.seconds();auto pending=CReaderSlices::FromDistributed(mesh,keys);
   static_assert(std::is_nothrow_move_assignable<CReaderSlices>::value,"Reader publication must not allocate.");
   output=std::move(pending);stats.reader_seconds=parent.seconds()-reader_start;reason.clear();return true;

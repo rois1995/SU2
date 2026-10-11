@@ -1848,3 +1848,31 @@ Production3D driver guard stays. Full lifecycle accounting, runtime/ref restart,
 bounded allocator/RSS, instrumentation overhead and repeat scaling remain open.
 Single contended matrix durations include test/output and distinct M trajectories;
 no speedup/affordability claim. Full Goal1 stays active.
+
+
+## 2026-10-11 — Actual native tetrahedral production runtime checkpoint
+
+Native factory/ReplaceMesh now supports the opt-in simple faceted 3D path; retained
+original geometry is published only after accepted replacement and persisted in
+bounded, validated `.native_ref` sidecars. Reference marker ordinals follow config
+order, not alphabetical order. A common repartition decision prevents empty-owner
+ranks skipping donor migration. Original sensor-only P1 interpolation remains at
+private/remote/returned queries; no BL tensor spreading or sensor coarsening added.
+
+Runtime strict evidence: MPI1/2/4,all M1..N,84 accepted events,42 exact detail OFF/ON
+pairs,42 actual SU2/CGNS output/readback checks,current/BDF2 error<=1.119683e-12 and
+transported sensor error0. Default CFD ownership without native repartition and
+rejection after private accepted edits also pass with independent output audits.
+Actual native2D driver and MPI-aware 2D/3D MMG regressions PASS at MPI1/2/4 using
+the same production archives. The original combined runtime_v3 receipt remains
+FAIL because a serial-only MMG loader test was incorrectly selected on MPI2;
+follow-up regression proves the correct existing MPI path, not a fix to MMG.
+See `integration_evidence/native_3d_core_v1/RUNTIME_REPORT.md` and the composite
+`RUNTIME_CHECKPOINT_VALIDATION.json`; preserve all failed receipts.
+
+Full Goal1 remains active. Remesher phase rows close per rank, but full metric/
+rebuild/transfer/output accounting, aggregate initial-import/caller-copy memory
+admission, RSS, restart, broader actual anisotropy/size tests and repeated scaling
+are pending. Original authority256-triangle limit; no 3D BL/curved/full-unsteady/
+affordability claim. Current different N/M produce different valid workloads;
+fixed-work OFF/ON controls retain identical meshes and transported states.

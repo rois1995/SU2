@@ -37,6 +37,7 @@
 class CSolutionTransfer;
 class CMultiGridIntegration;
 namespace SU2NativeBoundary2D { struct ReferenceState; }
+namespace SU2Native3D { struct ReferenceState; }
 struct CMeshDonor;
 
 /*!
@@ -51,6 +52,7 @@ protected:
 
   unsigned long TimeIter;
   std::shared_ptr<SU2NativeBoundary2D::ReferenceState> nativeReference;
+  std::shared_ptr<SU2Native3D::ReferenceState> nativeReference3D;
   std::unique_ptr<CRemesher> MakeRemesher();
 
   /*!

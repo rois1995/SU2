@@ -7,6 +7,43 @@ small sequential local checks with real host-contention checks; push each
 validated checkpoint and verify the remote SHA. A terminal capacity failure
 cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
+## Native 3D production runtime checkpoint — 2026-10-11
+
+Repository `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`; branch
+`codex/native-3d-core`; predecessor `5d83dcda7958f5af81ddeb3235b1a0a56f686a01`.
+Validated checkpoint being published: `native_3d_core_v1/RUNTIME_REPORT.md` and
+`RUNTIME_CHECKPOINT_VALIDATION.json`. Actual factory/ReplaceMesh/accepted-reference
+notification, durable original faceted sidecars, M1..N on MPI1/2/4: 84 accepted
+driver events,42 exact OFF/ON controls,42 SU2/CGNS output/readbacks, sensor error0,
+maximum affine current/BDF2 error1.119683e-12; qmin.628068,Jmin.397369,Lmax1.793742.
+Separate actual native2D driver and MPI-aware 2D/3D MMG regression PASS MPI1/2/4.
+Default no-native-repartition path and rejection after private accepted edits,
+retry/state preservation/output audits also PASS MPI1/2/4. No owned build/test
+remains live: runtime regression session68072 and defaults24623 returned PASS.
+
+Historical `runtime_v3/validation.json` remains FAIL due to wrong serial-only MMG
+unit selection on MPI2 AFTER all 3D stages/audits passed. Follow-up correct
+MPI-aware regressions PASS with the same production sources/archives. Manifest
+links both; no failure rewritten. Earlier wrong build target/runner setup and
+lexical-marker-order encoder failures retained. No MMG implementation changed.
+
+Inspectable final meshes/states (manufactured cube, not real CFD):
+`integration_evidence/native_3d_core_v1/runtime_v3/mpi4/`
+`runtime_barycentric_m4_d0_mesh_00003.su2` and adjacent original `.native_ref`,
+`runtime_barycentric_m4_d0_s2_written_CGNS.cgns`,
+`runtime_barycentric_m4_d0_s2_states.json` and mesh `.json`.
+
+Full Goal1 ACTIVE. Next priorities: complete metric/index/query/repartition/
+return/rebuild/transfer per-rank exclusive lifecycle reporting and CPU/wait/RSS,
+aggregate live-buffer admission (initial import and caller-held copies currently
+not fully covered), actual driver reload/restart, larger/thinner/rotated lifecycle
+cases, repeated overhead and practical size/rank qualification, then closed SGE
+scripts. Current phase closure is remesher-only; no scaling/affordability claim.
+3D requires planar adapted boundaries/no BL/noise0; original reference limit256
+triangles remains. Future combined reusable runner assembled from qualified
+components has syntax checks but was not redundantly relaunched. No cluster-launch
+requests tonight; foreign FSI, AdapNoExt and ClusterResults left untouched.
+
 ## Native 3D actual geometry/solution bridge validated — 2026-10-11
 
 Latest checkpoint preparation: geometry_bridge_v10 and geometry_meson_v1 both
@@ -19,7 +56,7 @@ SU2/CGNS writers/readers and independent audits on MPI1/2/4, M1..N. Each matrix:
 minJ.146382,maxL1.793742,transported sensor residual0,maxstate8.471971e-13.
 Shared 2D fixture regression passes. See native_3d_core_v1/GEOMETRY_BRIDGE_REPORT.md.
 
-Production native3D factory remains guarded. Full Goal1 ACTIVE: wire the opt-in
+At published 5d83dcda, production native3D factory remained guarded. Full Goal1 ACTIVE: wire the opt-in
 runtime and durable planar authority, then close complete lifecycle phases/CPU/
 wait/RSS/memory and OFF/ON/repeated practical envelope before claiming completion.
 Current one-shot timings include tests/output and changed trajectories; no scaling

@@ -43,8 +43,8 @@ ImportedGeometry ImportGeometry(const CConfig& config, const CGeometry& geometry
  * ReaderSlices must run on the actual CFD communicator, since the house reader uses that communicator. */
 bool WorkingWeights(World& parent, const Owned& cells, DonorImport& source, std::vector<uint32_t>& weights,
                     std::string& reason, BridgeStats& stats, MetricComposition composition = {},
-                    size_t ceiling = size_t(2) << 30, size_t caller_bytes = 0);
+                    size_t ceiling = size_t(2) << 30, size_t caller_bytes = 0, bool query_timings = true);
 bool ReaderSlices(World& parent, const Owned& cells, const std::vector<DonorCell>& original,
                   const ReferenceState& reference, CReaderSlices& slices, std::string& reason, BridgeStats& stats,
-                  MetricComposition composition = {}, size_t ceiling = size_t(2) << 30, size_t caller_bytes = 0);
+                  MetricComposition composition = {}, size_t ceiling = size_t(2) << 30, size_t caller_bytes = 0, bool query_timings = true);
 }  // namespace SU2Native3D
