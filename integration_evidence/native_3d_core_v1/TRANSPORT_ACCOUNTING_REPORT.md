@@ -121,3 +121,10 @@ actual n8 size/rank pilots and full traffic/wait/memory calibration.
 No speedup, robust3DBL, curved geometry, full unsteady3D or affordability claim.
 
 Publication checks: code/docs and all retained files pass Git whitespace checks except the two original Catch stdout logs, which end in an extra blank line. Preserve these hash-pinned raw logs unchanged.
+
+Further verification: transport_lifecycle_mpi1_v1 subsequently passes the actual
+one-rank full lifecycle fixture (462 assertions,6 independently audited frames,
+21 closed wall/CPU stage records and21 nested records), including serialized
+transport fields. MPI_COVERAGE_REPORT.md and mpi_coverage_audit_v1 quantify a
+source-proven call-count lower bound and enumerate missing communication coverage.
+Neither result completes MPI2/4/scaling/fullGoal1 qualification.

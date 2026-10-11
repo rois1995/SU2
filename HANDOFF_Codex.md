@@ -7,6 +7,37 @@ small sequential local checks with real host-contention checks; push each
 validated checkpoint and verify the remote SHA. A terminal capacity failure
 cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
+## MPI coverage lower bound and actual serial lifecycle — 2026-10-11; checked
+
+NativeIntegrated / codex/native-3d-transport-accounting; predecessor7398f47f076e19c7ff80f57f4044a3ea4a14bb06.
+No production/test-fixture/target/run-package change. Core remains6b3fefd039b.
+Source-pinned coverage audit of40 logged engine invocations proves at least
+25984 collective API calls:16573 wrapper calls plus9411 directory elections.
+At least36.22% of known collective-call count is absent from the wrapper counter;
+this is not elapsed-time attribution, network traffic or a scaling result.
+Successful failure elections already have a one-reduction fast return.
+Three lightweight counter/schema/corruption controls pass. Ledger and limits:
+integration_evidence/native_3d_core_v1/MPI_COVERAGE_REPORT.md.
+
+transport_lifecycle_mpi1_v1 PASS:462 assertions in existing case; six actual
+metric/Hessian/remesh/repartition/rebuild/current+BDF/output controls, independently
+audited6frames/21closed wallCPU stage records/21nested records and complete
+current transport scopes. Same built binary/source as475820f366, all pins
+reverified. One nice19/thread1 MPI rank after fresh idle/load gate; no concurrent
+owned job. Existing fixture repetitions are correctness controls on this busy
+host, not a local performance certificate. No CFD time integration or MPI2/4.
+
+Actual case/result folder:
+integration_evidence/native_3d_core_v1/transport_lifecycle_mpi1_v1.
+Inspect lifecycle_m1_d{0,1}_r{0,1,2}_mesh_00001.su2 and matching .json/.cfg/
+.native_ref plus lifecycle_audit.json and rank_profiles.json.
+
+FullGoal1 ACTIVE. Still need MPI2/4/M<N/frozen n4/persisted restart, repeated
+cluster and n8 practical limits, plus calibrated full MPI/vendor/wait/memory
+coverage. No owned job live or qsub submitted. Never change a running core bundle
+or merge this separate feature into core before broader qualification.
+AdapNoExt, foreign submodules/ClusterResults and original failure evidence untouched.
+
 ## Isolated native3D transport accounting — 2026-10-11; built and serial checked
 
 Implementation/evidence checkpoint475820f366366f471e0cdb50e362d7c5e572c328 pushed to origin/codex/native-3d-transport-accounting; full remote SHA verified. origin/codex/native-3d-core remains6b3fefd039bfc3d1937b8add7d21d0ea41344bc9. Subsequent publication-note commit changes documentation only.

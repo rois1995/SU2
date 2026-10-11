@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "check_mpi_coverage"
+  ],
+  "seconds": 0.13001586799509823,
+  "source_sha256": {
+    "audit_mpi_coverage.py": "688ad87804daedf31ff423835e789e731b4aa848d4c409e82e27e6058d3ef677",
+    "check_mpi_coverage.py": "57a71b1fac5df94bf3b17729d667c501e19195d0923e1fd225447f7945df36c1"
+  },
+  "artifact_sha256": {
+    "checks.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "checks.stderr": "6c9199ca5fd3b67149deeac68071e6d6336bff76f7a3d6fc6df7e91cbf45eeef",
+    "validation.json": "4a9a9cd638c880d3e1864ebc3b53f3ae1542752a364c521c301eb7bff534d026"
+  },
+  "scope": "Three lightweight arithmetic/log-schema/corruption controls, no compiler/MPI/CFD or scheduler launch."
+}
