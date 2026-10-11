@@ -7,6 +7,49 @@ small sequential local checks with real host-contention checks; push each
 validated checkpoint and verify the remote SHA. A terminal capacity failure
 cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
+## Native3D donor reuse and certified segment filter checkpoint — 2026-10-11
+
+NativeIntegrated / codex/native-3d-core, predecessor89225cf0cbc9215fd92080638274c602c5bd9005.
+Implementation/evidence publication pending. DONOR_REUSE_REPORT.md and
+DONOR_REUSE_CHECKPOINT_VALIDATION.json qualify four actual default512 driver
+cases (12 events),44 byte-identical geometry/source/state/readback files,
+four unchanged rejected-replay files,340 closed phase rows,324 independently
+audited automatic frames and nine negative controls. All final receipts PASS;
+source/object/archive identities stable. No owned process live after final audit.
+
+DonorImport reuses an immutable donor already selected in this caller union,
+using the existing bounded map; no persistent cache/new heap or payload change.
+TraceSegment validates finite positive donors then rejects only certified strict
+same-face endpoint negatives. Unresolved/touching/crossing intervals retain exact
+rational roots/P1/coverage/overlap checks. New donor_reused/edge_separated counts.
+No target/geometry/operator/BL/sensor/fade/noise/2D/MMG production changes.
+
+Serial alignedn3 default288/50/312tets: secondcoarsen482/66/416,2717requests/10hits
+unchanged;125165 donor tests and21750 clips skipped. Singlecontended engine
+4.10262->2.61079s, donorfilter1.41236->0.31636, edgeTrace2.14006->1.76457.
+Isolated1547chord comparison preserves all exact interval/weight values;
+three alternating samples per3sets show lower medians29.5/21.9/36.4%, but exclude
+import/ADT/MPI/CFD. No repeat-qualified total-speedup/scaling/affordability claim.
+N4M2/N4M4 default288/47/277 and288/51/264; originaln2N1 88/36/94.
+qmin.202935/Jmin.062176/Lmax1.799641; tensorerror0/state<=5.80681e-16.
+Originaln3 replay175rounds57privateaccepted/42insertions,420tets remainsrejected;
+acceptedCFDstate and allfour original/rejected datafiles preserved.
+
+Verification correction: legacy [MMGRoundTrip] selector did not match registered
+[MMG] tests, so historical runner PASS does not prove MMG execution. Correctedv3
+passes serial but fails MPI2 because direct MMG fixtures call master-only SetMesh
+on empty nonmaster extraction. Failure retained, no production/fixture edit.
+Final regression_v4 actual68objects passes62native/2Dbridge tests at MPI1/2/4;
+actual2D/3D MMG round trips runserially (48assertions). Unmatched selectors fail.
+Probe preflightv1FAIL and superseded exact-signv2 mixed timings retained;
+latest production/qualified runtime matches probev3 and actualN1_v2.
+
+FullGoal1 ACTIVE: stronger/direction-changing/thin/wedge/restart/practicallimits,
+complete wait/traffic/memory calibration, overhead and closedSGE repetitions/
+scaling remain. AcceptedVTU/SU2/CGNS and states in donor_reuse_* casefolders;
+rejectedSU2 in donor_reuse_replay_original_n3_v1. No CFDiterations/fullBL3D claim.
+No overnight clusterlaunch request; foreignwork/AdapNoExt/submodules unchanged.
+
 ## Native3D exact coarsening filter checkpoint — 2026-10-11
 
 NativeIntegrated / codex/native-3d-core, predecessorf05ca3a8828d56619bdcafc763cbe4c8facae1d0.

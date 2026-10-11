@@ -105,6 +105,20 @@ TEST_CASE("Native 3D exact segment clipping covers cells and conformal ties", "[
   CHECK(pieces[1].end == 1);
   CHECK(pieces[1].begin_weights[3] == 0);
   CHECK(pieces[1].end_weights[3] == .25L);
+  Cell separated{2, {{{8,{1,1,0}},{2,{0,1,0}},{1,{1,0,0}},{9,{1,1,1}}}}};
+  KernelStats pruned;
+  const auto filtered=TraceSegment({&up,&down,&separated},a,b,&pruned);
+  REQUIRE(filtered.size()==pieces.size());CHECK(pruned.segment_separated==1);
+  for(size_t i=0;i<pieces.size();++i) {
+    CHECK(filtered[i].donor==pieces[i].donor);CHECK(filtered[i].begin==pieces[i].begin);
+    CHECK(filtered[i].end==pieces[i].end);CHECK(filtered[i].width==pieces[i].width);
+    CHECK(filtered[i].begin_weights==pieces[i].begin_weights);CHECK(filtered[i].end_weights==pieces[i].end_weights);
+  }
+  KernelStats touching;
+  CHECK(TraceSegment({&up,&down,&separated},{0,0,0},{1,0,0},&touching).size()==1);
+  CHECK(touching.segment_separated==0);
+  std::swap(separated.v[0],separated.v[1]);
+  CHECK_THROWS_AS(TraceSegment({&up,&down,&separated},a,b),std::invalid_argument);
   const auto face = TraceSegment({&up, &down}, {.125, .125, 0}, {.5, .125, 0});
   REQUIRE(face.size() == 1);
   CHECK(face[0].donor == 0);

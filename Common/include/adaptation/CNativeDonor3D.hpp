@@ -18,7 +18,7 @@ struct DonorPatch {
 };
 struct DonorImportStats {
   uint64_t builds = 0, imports = 0, rejected = 0, owner_requests = 0, index_candidates = 0, payloads = 0;
-  uint64_t filter_candidates = 0, filtered = 0;
+  uint64_t filter_candidates = 0, filtered = 0, reused_candidates = 0;
   KernelStats filter_kernel;
   size_t maximum_patch = 0, maximum_work_bytes = 0;
   double build_seconds = 0, import_seconds = 0, routing_seconds = 0, search_seconds = 0, exchange_seconds = 0;

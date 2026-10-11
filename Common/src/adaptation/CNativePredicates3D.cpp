@@ -133,7 +133,7 @@ Integer<198> ExactDeterminant(Point a, Point b, Point c, Point d) {
   negativeThird.negative = !negativeThird.negative;
   return Difference(Difference(first, second), negativeThird);
 }
-long double Determinant(Point a, Point b, Point c, Point d, KernelStats* stats, long double relative_error) {
+long double Determinant(Point a, Point b, Point c, Point d, KernelStats* stats, long double relative_error, bool exact = true) {
   if (!(Finite(a) && Finite(b) && Finite(c) && Finite(d)))
     throw std::invalid_argument("Native 3D orientation requires finite coordinates.");
   const auto u = Delta(b, a), v = Delta(c, a), w = Delta(d, a);
@@ -150,6 +150,7 @@ long double Determinant(Point a, Point b, Point c, Point d, KernelStats* stats, 
     if (stats) ++stats->filtered_orientations;
     return determinant;
   }
+  if (!exact) return 0;  // Unresolved filters defer to the caller's exact clip, without duplicating exact arithmetic.
   if (stats) ++stats->exact_orientations;
   return Rounded(ExactDeterminant(a, b, c, d));
 }
@@ -330,6 +331,19 @@ std::vector<SegmentPiece> TraceSegment(const std::vector<const Cell*>& donors, P
   work.reserve(donors.size());
   for (size_t i = 0; i < donors.size(); ++i) {
     if (!donors[i]) throw std::invalid_argument("Null native 3D segment donor.");
+    const auto& v = donors[i]->v;
+    const Tetrahedron t{v[0].p, v[1].p, v[2].p, v[3].p};
+    if (!(Orientation(t[0], t[1], t[2], t[3], stats) > 0))
+      throw std::invalid_argument("Nonpositive native 3D segment donor.");
+    bool separated = false;
+    // Certified strict negatives discard outside candidates; unresolved/touching/crossing intervals keep exact clipping.
+    for (size_t face = 0; face < 4; ++face) {
+      auto trial = t; trial[face] = a;
+      if (Determinant(trial[0], trial[1], trial[2], trial[3], stats, 1, false) >= 0) continue;
+      trial[face] = b;
+      if (Determinant(trial[0], trial[1], trial[2], trial[3], stats, 1, false) < 0) { separated = true; break; }
+    }
+    if (separated) { if (stats) ++stats->segment_separated; continue; }
     WorkPiece piece;
     if (Clip(*donors[i], a, b, piece, stats)) {
       piece.piece.donor = i;

@@ -48,6 +48,7 @@ Point Centroid(const Cell& cell);
 struct KernelStats {
   uint64_t filtered_orientations = 0, exact_orientations = 0, measured_cells = 0;
   uint64_t filtered_norms = 0, exact_norms = 0;
+  uint64_t segment_separated = 0;  // Strict face-plane rejects before rational interval construction.
 };
 /*! Exact sign for finite binary64 inputs; magnitude rounded to long double. */
 long double Orientation(Point a, Point b, Point c, Point d, KernelStats* stats = nullptr);

@@ -263,6 +263,9 @@ DonorPatch DonorImport::ImportRegions(const std::vector<DonorRegion>& regions, c
       stats.index_candidates += candidates.size();
       for (auto i : candidates) {
         if (!Intersects(b, boxes.data() + 6 * i)) continue;
+        auto& set = selected[request.caller];
+        // One import returns a caller union: a previously admitted immutable donor needs no second filter.
+        if (set.count(donors.at(i).cell.id)) { ++stats.reused_candidates; continue; }
         if (request.tetrahedral) {
           Timer filtering(stats.filter_seconds, timings);
           ++stats.filter_candidates;
@@ -280,7 +283,6 @@ DonorPatch DonorImport::ImportRegions(const std::vector<DonorRegion>& regions, c
                             Outside(donor, request.tetra, &stats.filter_kernel));
           if (!needed) { ++stats.filtered; continue; }
         }
-        auto& set = selected[request.caller];
         set.emplace(donors.at(i).cell.id, i);
         if (set.size() > MaximumDonors) throw std::runtime_error("Original donor import exceeds patch budget.");
       }

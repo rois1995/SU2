@@ -1,0 +1,150 @@
+{
+  "status": "PASS",
+  "baseline_revision": "89225cf0cbc9215fd92080638274c602c5bd9005",
+  "pins": {
+    "Common/include/adaptation/CNativeMesh3D.hpp": "033debc3c294c650037186bba3cdd06f8e392369485949215e61bc5c753ed826",
+    "Common/src/adaptation/CNativePredicates3D.cpp": "a42d957c555700afe7babdfe49e2ec63e21f7f3625d00a53922db2452ff90947",
+    "integration_evidence/native_3d_core_v1/probe_segment_prefilter.py": "f4c46a34cd429c8deeb770be5569fc2b24e8b79a6bce509ba20f7858f5046a2a"
+  },
+  "input_sha256": {
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/donor_reuse_aligned_n3_n1_v1/envelope_s0_initial.json": "6864ea6983b1342cbef30e4a75ae0bb5db642f6596df539709ab9bd4eddb1418",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/donor_reuse_aligned_n3_n1_v1/envelope_s0.json": "9818e95f2837beb3512eb56a21091208d87548fb5d6e432faffffaccdded33da",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/donor_reuse_aligned_n3_n1_v1/envelope_s1_initial.json": "db9095e16c0106f3cfd11ef0237932a8493070f0957b6411a5eb8cf13ca727e7",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/donor_reuse_aligned_n3_n1_v1/envelope_s1.json": "aff011deedca421d8557dbb1f8ed8ee5486d871e38e1481c29d414efb814c106",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/donor_reuse_aligned_n3_n1_v1/envelope_s2_initial.json": "db87823d0202b6f228856c4e6965c1f25df4f0b6289f62fd0d6755e592f2ebdb",
+    "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/donor_reuse_aligned_n3_n1_v1/envelope_s2.json": "eba9debf3543e34a57b943a9f499b235fc340c850a72e0b9f25f7cc77eb0dda4"
+  },
+  "stages": [
+    {
+      "stage": "host_load",
+      "seconds": 0.008108490030281246,
+      "exit_code": 0,
+      "command": [
+        "uptime"
+      ]
+    },
+    {
+      "stage": "host_processes",
+      "seconds": 0.02368327503791079,
+      "exit_code": 0,
+      "command": [
+        "ps",
+        "-eo",
+        "pid,ppid,ni,pcpu,comm",
+        "--sort=-pcpu"
+      ]
+    },
+    {
+      "stage": "compile_baseline",
+      "seconds": 1.9788222369970754,
+      "exit_code": 0,
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "g++",
+        "-std=c++17",
+        "-O2",
+        "-g",
+        "-c",
+        "baseline.cpp",
+        "-o",
+        "baseline.o"
+      ]
+    },
+    {
+      "stage": "compile_candidate",
+      "seconds": 1.9235323700122535,
+      "exit_code": 0,
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "g++",
+        "-std=c++17",
+        "-O2",
+        "-g",
+        "-c",
+        "candidate.cpp",
+        "-o",
+        "candidate.o"
+      ]
+    },
+    {
+      "stage": "link",
+      "seconds": 1.4500665619852953,
+      "exit_code": 0,
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "g++",
+        "-std=c++17",
+        "-O2",
+        "-g",
+        "driver.cpp",
+        "baseline.o",
+        "candidate.o",
+        "-o",
+        "probe"
+      ]
+    },
+    {
+      "stage": "probe",
+      "seconds": 7.645035015011672,
+      "exit_code": 0,
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "./probe",
+        "geometry.txt"
+      ]
+    }
+  ],
+  "sets": [
+    {
+      "cycle": 0,
+      "donors": 162,
+      "chords": 513,
+      "over256_candidate_chords_skipped": 0
+    },
+    {
+      "cycle": 1,
+      "donors": 288,
+      "chords": 522,
+      "over256_candidate_chords_skipped": 0
+    },
+    {
+      "cycle": 2,
+      "donors": 50,
+      "chords": 512,
+      "over256_candidate_chords_skipped": 0
+    }
+  ],
+  "scope": "Isolated saved baseline/current exact predicate sources compiled O2, namespace/include changes only; actual initial/final mesh chord unions and closed AABB candidates, skipping >256 candidates. All returned donor/interval/weight values compared exactly; three alternating baseline/candidate timing samples. No actual import/ADT/CFD/scaling timing or uniform speedup claim.",
+  "artifact_sha256": {
+    "host_processes.stdout": "cfef2085c1248445d58bafa1d720dd15d8f0bf111b2e0c8fde72afb11a4024b3",
+    "geometry.txt": "0f2d49fab55b7ab9fe504fad75b98414edfbf4e33cb4c748c5ca804c4996d41e",
+    "link.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compile_candidate.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "candidate_original.cpp": "a42d957c555700afe7babdfe49e2ec63e21f7f3625d00a53922db2452ff90947",
+    "host_load.stdout": "c6e974e770f0a710e6522de6520fcf747909ddd1fac493055c547a3e48449892",
+    "probe.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "baseline_original.cpp": "ce744608ef84f37c61d7d1edc38a8ec4a1d1d3bd79335607ab997318887674d9",
+    "candidate.cpp": "d7a0b60b828d76e7c165437349ae7985634d0a04b4053926d8755e14a330564a",
+    "host_load.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host_processes.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "candidate.hpp": "033debc3c294c650037186bba3cdd06f8e392369485949215e61bc5c753ed826",
+    "candidate_original.hpp": "033debc3c294c650037186bba3cdd06f8e392369485949215e61bc5c753ed826",
+    "link.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "probe.stdout": "3cbdd406df74ed05cd7fc2264a34d6fb77cfb1c9bb503da04ae68fb117aee837",
+    "baseline.hpp": "5503c4b2f734dc43e9f133bc0d48203d22f81b19c9d361043398b57d5dcb1cf4",
+    "baseline.cpp": "8eaa520b96312aa669275cfc6b605b7f765845228d57e5eb13dcdd2209b50830",
+    "compile_baseline.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compile_candidate.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "baseline_original.hpp": "1acdd284229a9718a89395a7b2003c29dc9dd80a7a8669721e839aa907f23c9a",
+    "compile_baseline.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "driver.cpp": "aae0dd6b9bf930627638029ed7efd3717ca1e9dffcf917205f6df5edb4b31fc7"
+  }
+}

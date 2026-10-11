@@ -204,6 +204,7 @@ void FieldCounts(EngineStats& stats, const FrozenField& field) {
   const auto& f=field.Statistics();
   stats.field_requests+=f.requests; stats.field_hits+=f.hits; stats.field_compositions+=f.compositions;
   stats.field_edges+=f.edge_requests;
+  stats.edge_separated+=f.kernel.segment_separated;
   stats.field_build_seconds+=f.build_seconds; stats.field_query_seconds+=f.query_seconds;
   stats.field_cache_seconds+=f.cache_seconds; stats.field_search_seconds+=f.search_seconds;
   stats.field_interpolation_seconds+=f.interpolation_seconds; stats.field_composition_seconds+=f.composition_seconds;
@@ -246,7 +247,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   auto finish=[&]() {
     const auto& donor = source.Statistics();
     stats.donor_candidates = donor.index_candidates; stats.donor_filtered = donor.filtered;
-    stats.donor_payloads = donor.payloads; stats.donor_maximum_patch = donor.maximum_patch;
+    stats.donor_payloads = donor.payloads; stats.donor_reused = donor.reused_candidates; stats.donor_maximum_patch = donor.maximum_patch;
     stats.donor_search_seconds = donor.search_seconds; stats.donor_filter_seconds = donor.filter_seconds;
     stats.maximum_work_bytes = std::max(stats.maximum_work_bytes, donor.maximum_work_bytes);
     result.cells.swap(working);

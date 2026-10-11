@@ -1,0 +1,37 @@
+Filters: [NativeMesh3D],[NativeDonorReuse3D],[NativeCollapseFilter3D],[NativeCoplanar3D],[NativeInsertion3D],[NativeAutomaticRepair3D],[NativeBudget3D],[NativeDefault3D],[NativeBridge2D],MMG interface: 2D round trip,MMG interface: 3D round trip
+Filters: [NativeMesh3D],[NativeDonorReuse3D],[NativeCollapseFilter3D],[NativeCoplanar3D],[NativeInsertion3D],[NativeAutomaticRepair3D],[NativeBudget3D],[NativeDefault3D],[NativeBridge2D],MMG interface: 2D round trip,MMG interface: 3D round trip
+READERBUDGET rank=0 ranks=2 maximum=11986 phase0=6692 phase1=10810 phase2=8476 phase3=11986 phase4=9324 phase5=8444
+READERBUDGET rank=1 ranks=2 maximum=8371 phase0=6692 phase1=8371 phase2=6892 phase3=7635 phase4=8044 phase5=7164
+NATIVE3D rank=0 ranks=2 workers=2 complete=0 detailed=0 total=0.015147346999999999 other=0.0010981319999999947 cpu=0.011972999999999999 idle_cpu=0 support=6.392000000000897e-06 reference=5.9119000000003308e-05 import=0.0017514209999999961 source=0.00099543800000000127 weights=0.00023292300000000293 partition=3.7999999993876266e-08 donor_migration=2.1099999999996122e-07 communicator=6.7748000000006359e-05 refine=0.010926142 coarsen=0 wait=9.4590000000033259e-06 return=3.2399999999599416e-07 initial=6 final=0 refine_accepted=1 coarsen_accepted=0 tracked_bytes=42072 native_bound=8388608 process_peak_rss=29519872
+NATIVE3D rank=1 ranks=2 workers=2 complete=0 detailed=0 total=0.015147238 other=3.3848999999988583e-05 cpu=0.013802 idle_cpu=0 support=6.161000000004524e-06 reference=5.8997999999997608e-05 import=0.0017520249999999973 source=0.0009951000000000057 weights=0.00023301099999999825 partition=4.3999999997657024e-08 donor_migration=4.5900000000126395e-07 communicator=6.3888999999997531e-05 refine=0.010913202000000004 coarsen=0 wait=0.0010903790000000024 return=1.2100000000569988e-07 initial=6 final=0 refine_accepted=0 coarsen_accepted=0 tracked_bytes=0 native_bound=8388608 process_peak_rss=29433856
+Native3D rejected event: Native 3D adaptation round limit reached before strict metric completion.; accepted CFD mesh/solution retained.
+NATIVE3D rank=0 ranks=2 workers=2 complete=1 detailed=0 total=0.065821406999999998 other=0.0011052980000000046 cpu=0.062375999999999994 idle_cpu=0 support=4.4120000000022475e-06 reference=4.2744999999996813e-05 import=0.0014188409999999971 source=0.00010560100000000378 weights=0.00023016399999999798 partition=2.699999999966618e-08 donor_migration=2.3200000000278553e-07 communicator=0.0001252870000000017 refine=0.047750453999999998 coarsen=0.014260253000000001 wait=2.282099999999232e-05 return=0.00075527200000000128 initial=6 final=48 refine_accepted=19 coarsen_accepted=0 tracked_bytes=271560 native_bound=8388608 process_peak_rss=29519872
+NATIVE3D rank=1 ranks=2 workers=2 complete=1 detailed=0 total=0.065811059000000005 other=1.5529000000014115e-05 cpu=0.063533999999999993 idle_cpu=0 support=5.3319999999967838e-06 reference=4.2217999999996647e-05 import=0.0014199429999999999 source=0.00010332200000000291 weights=0.00023038499999999962 partition=3.2000000003973295e-08 donor_migration=2.1699999999680308e-07 communicator=0.00013414199999998988 refine=0.047716699000000001 coarsen=0.014231917999999996 wait=0.0011628840000000029 return=0.00074843800000000404 initial=6 final=48 refine_accepted=0 coarsen_accepted=0 tracked_bytes=360 native_bound=8388608 process_peak_rss=29433856
+Mesh adaptation: reoriented 32 elements with negative volume.
+
+
+Error in "void CMMGInterface::SetMesh(const CSimplexMesh&)": 
+-------------------------------------------------------------------------
+Could not load the mesh and metric into MMG.
+------------------------------ Error Exit -------------------------------
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+MMG interface: 3D round trip
+-------------------------------------------------------------------------------
+../../UnitTests/Common/adaptation/CMMGInterface_tests.cpp:539
+...............................................................................
+
+../../UnitTests/Common/adaptation/CMMGInterface_tests.cpp:539: FAILED:
+due to a fatal error condition:
+  SIGTERM - Termination request signal
+
+===============================================================================
+test cases:    7 |    6 passed | 1 failed
+assertions: 3628 | 3627 passed | 1 failed
+

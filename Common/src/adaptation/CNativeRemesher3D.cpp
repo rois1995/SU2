@@ -393,6 +393,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
              << " nested_interpolation=" << e.field_interpolation_seconds << " nested_composition=" << e.field_composition_seconds
              << " nested_edge=" << e.edge_seconds << " nested_edge_search=" << e.edge_search_seconds
              << " nested_edge_trace=" << e.edge_trace_seconds << " nested_edge_integral=" << e.edge_integral_seconds
+             << " donor_reused=" << e.donor_reused << " edge_separated=" << e.edge_separated
              << " donor_batches=" << e.donor_batches << " donor_candidates=" << e.donor_candidates
              << " donor_filtered=" << e.donor_filtered << " donor_payloads=" << e.donor_payloads
              << " nested_donor_search=" << e.donor_search_seconds << " nested_donor_filter=" << e.donor_filter_seconds

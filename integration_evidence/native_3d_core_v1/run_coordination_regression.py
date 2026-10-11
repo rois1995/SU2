@@ -34,11 +34,17 @@ try:
    for member in subprocess.check_output(['ar','t',path],cwd=root,text=True).splitlines():
     q=Path(member);q=q if q.is_absolute() else root/q;members[str(q)]=sha(q)
  binary=build/'UnitTests/test_driver';binary_pin=sha(binary)
- selection='[NativeCollapseFilter3D],[NativeCoplanar3D],[NativeInsertion3D],[NativeAutomaticRepair3D],[NativeBudget3D],[NativeDefault3D],[NativeBridge2D],[MMGRoundTrip]'
+ # ExtractMesh gathers on rank0; legacy direct MMG round-trip fixtures are serial.
+ mmg=folder/'mmg_serial';mmg.mkdir()
+ out=run(['nice','-n','19','mpirun','--bind-to','none','-np','1',binary,
+          'MMG interface: 2D round trip,MMG interface: 3D round trip','--use-colour','no'],'mmg_serial',mmg)
+ assert 'No test cases matched' not in out and out.count('All tests passed')==1
+ selection='[NativeMesh3D],[NativeDonorReuse3D],[NativeCollapseFilter3D],[NativeCoplanar3D],[NativeInsertion3D],[NativeAutomaticRepair3D],[NativeBudget3D],[NativeDefault3D],[NativeBridge2D]'
  for ranks in (1,2,4):
   work=folder/f'mpi{ranks}';work.mkdir()
   run(['uptime'],f'before_mpi{ranks}_load')
   out=run(['nice','-n','19','mpirun','--oversubscribe','--bind-to','none','-np',ranks,binary,selection,'--use-colour','no'],f'mpi{ranks}',work)
+  assert 'No test cases matched' not in out, 'A regression selector matched no tests'
   assert out.count('All tests passed')==ranks
  assert sha(binary)==binary_pin
  status='PASS'
@@ -49,7 +55,7 @@ finally:
  if drift or object_drift or archive_drift:status='FAIL'
  result=dict(status=status,source_sha256=pins,source_drift=drift,object_drift=object_drift,archive_drift=archive_drift,
              actual_objects_sha256=objects,library_sha256=libraries,thin_archive_member_sha256=members,build_ninja_sha256=sha(build/'build.ninja'),stages=stages,
-             scope='Configured complete68-object UnitTests/test_driver, actual production archives, native3D exact immutable-facet coarsening filter, removable coplanar seams, certified interior/coupled planar insertion with thin/junction/incomplete-star/rollback controls, automatic Repair/Refine/Coarsen <=1recovery/strict-final/atomic input preservation, budget/refusal/retry/default rejection and native2D/MMG controls at MPI1/2/4. Test assertions, not an independent physical-flow/scaling or fullGoal1 certificate.')
+             scope='Configured complete68-object UnitTests/test_driver, actual production archives, native3D union donor reuse/invalid duplicate and all mesh arithmetic/segment/tensor/P1/gap/overlap/thin controls, exact immutable-facet coarsening filter, removable coplanar seams, certified interior/coupled planar insertion with thin/junction/incomplete-star/rollback controls, automatic Repair/Refine/Coarsen <=1recovery/strict-final/atomic input preservation, budget/refusal/retry/default rejection and native2D bridge controls at MPI1/2/4; actual MMG 2D/3D round trips serially (legacy fixtures call master-only MMG). Test assertions, not an independent physical-flow/scaling or fullGoal1 certificate.')
  if 'binary_pin' in locals():result['binary_sha256']=binary_pin
  result['artifact_sha256']={str(p.relative_to(folder)):sha(p) for p in folder.rglob('*') if p.is_file() and p.suffix not in ('.o','.pyc')}
  (folder/'validation.json').write_text(json.dumps(result,indent=2)+'\n');print(status,folder,flush=True)

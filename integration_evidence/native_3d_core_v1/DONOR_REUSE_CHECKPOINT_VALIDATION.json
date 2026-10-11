@@ -1,0 +1,295 @@
+{
+  "status": "PASS",
+  "analyzer_sha256": "30c5a374451da840c392f499d098fb6996d9205f92783fb3aef133e06382da67",
+  "dependencies_sha256": {
+    "analyze_insertion.py": "da413800f19c4892717ef607a5868d473c61390fd8f0e427b4bed0e2edb2cd2c",
+    "audit_lifecycle.py": "eaa6e005ece099af2f40ae7857bef51f22a207f70331dcdc10936d23c574e820"
+  },
+  "matrix_sha256": "624f8e43b859d778ee1353d5e002888da8eb2a7704e1857c5ef60625698a5a29",
+  "cases": [
+    {
+      "folder": "donor_reuse_aligned_n3_n1_v2",
+      "unchanged": {
+        "envelope_s0_initial.json": "6864ea6983b1342cbef30e4a75ae0bb5db642f6596df539709ab9bd4eddb1418",
+        "envelope_s0.json": "9818e95f2837beb3512eb56a21091208d87548fb5d6e432faffffaccdded33da",
+        "envelope_s1_initial.json": "db9095e16c0106f3cfd11ef0237932a8493070f0957b6411a5eb8cf13ca727e7",
+        "envelope_s1.json": "aff011deedca421d8557dbb1f8ed8ee5486d871e38e1481c29d414efb814c106",
+        "envelope_s2_initial.json": "db87823d0202b6f228856c4e6965c1f25df4f0b6289f62fd0d6755e592f2ebdb",
+        "envelope_s2.json": "eba9debf3543e34a57b943a9f499b235fc340c850a72e0b9f25f7cc77eb0dda4",
+        "envelope_s2_written_SU2_reload.json": "265034de75eb44e1f8fae844791f6b8388000c253d6e7c63d4ec37778e37853d",
+        "envelope_s2_written_CGNS_reload.json": "265034de75eb44e1f8fae844791f6b8388000c253d6e7c63d4ec37778e37853d",
+        "envelope_s0_states.json": "8ea1f4bc9c55a1aad6ba7729262a2d598c586f2c2d7e0cbffce7ae49a5e7c753",
+        "envelope_s1_states.json": "c84ba9d570b6b9dde49beed5cef887594098f0564caacdcf044e637afa100df6",
+        "envelope_s2_states.json": "1f3bec756d626942fb2242390c62aec8f3a4813c4ce72b4fd55b7936a284f04b"
+      },
+      "cells": [
+        288,
+        50,
+        312
+      ],
+      "minimum_q": 0.3148801027290349,
+      "minimum_J": 0.12375775020921,
+      "maximum_L": 1.7853285045817604,
+      "state_error": 5.806800864308098e-16,
+      "transported_metric_error": 0.0,
+      "donor_reused": 299883.0,
+      "edge_separated": 79757.0,
+      "validation_sha256": "13798913195f143edddac2738e58fe73c6cb4a93136bcbb94c351c3061fb9bf9",
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 1.575793246,
+          "remesh_max_seconds": 1.445017645,
+          "parent_max_over_mean": 1.0,
+          "accepted_operations": 99.0,
+          "accepted_operations_per_parent_second": 62.825500903308225,
+          "native_bound": 8388608.0,
+          "lifetime_rss": 30560256.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 3.2562648710000004,
+          "remesh_max_seconds": 3.110291178,
+          "parent_max_over_mean": 1.0,
+          "accepted_operations": 66.0,
+          "accepted_operations_per_parent_second": 20.268621446550622,
+          "native_bound": 3732208.0,
+          "lifetime_rss": 32202752.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 1.2396902130000003,
+          "remesh_max_seconds": 1.174390936,
+          "parent_max_over_mean": 1.0,
+          "accepted_operations": 128.0,
+          "accepted_operations_per_parent_second": 103.25160161605629,
+          "native_bound": 3893672.0,
+          "lifetime_rss": 32382976.0
+        }
+      ]
+    },
+    {
+      "folder": "donor_reuse_driver_n1_v1",
+      "unchanged": {
+        "envelope_s0_initial.json": "6e3fa258b2a23b96722868799e7d242b19ddf55d8cc82c286dea0e43951d0e8e",
+        "envelope_s0.json": "a3e9bad1e22c19b096c2bc306c7385eed1a3b003c023c5dc256be4059fdb00c8",
+        "envelope_s1_initial.json": "d2d1590ab5230854ed6c4c297fff5ad63377400f5e15b94583c4ac2efef7aee4",
+        "envelope_s1.json": "0a42eef7dbf3eb172fe6172dd3031d12f7ef3361ff2312f0a7d349e86215aa9e",
+        "envelope_s2_initial.json": "a851311dee0aa34239ab7a2fa52e4212d5422678ff11233552f16fba8a9155d9",
+        "envelope_s2.json": "e6fd40689b40ef33f1744b08811d8e877870fdd2a0bf22433ab35b3d47920d0b",
+        "envelope_s2_written_SU2_reload.json": "1fb775c046bbd5d993822cec1ee01d0168f21b4aacad141bac4dff92d6078cb1",
+        "envelope_s2_written_CGNS_reload.json": "1fb775c046bbd5d993822cec1ee01d0168f21b4aacad141bac4dff92d6078cb1",
+        "envelope_s0_states.json": "22d439b338908d6a7dfb07881f78acdce2bda44e34e06165a5d4926af43b0259",
+        "envelope_s1_states.json": "3389844145e5317dbacdf6a6e5e8df03ae783e0314c4672df0dae118810729dc",
+        "envelope_s2_states.json": "e3d374c0e336b30d6f4fcd3603e2134f623fee7c8fda82a6c532718b140ce4af"
+      },
+      "cells": [
+        88,
+        36,
+        94
+      ],
+      "minimum_q": 0.2586632733328793,
+      "minimum_J": 0.062176374454612146,
+      "maximum_L": 1.770097719377689,
+      "state_error": 3.8121801932001883e-16,
+      "transported_metric_error": 0.0,
+      "donor_reused": 62271.0,
+      "edge_separated": 16865.0,
+      "validation_sha256": "efe79628695eccda579364ef393d8d53ef92465815f05008d191096b32154162",
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 0.42834558600000006,
+          "remesh_max_seconds": 0.399402194,
+          "parent_max_over_mean": 1.0,
+          "accepted_operations": 32.0,
+          "accepted_operations_per_parent_second": 74.70603420668841,
+          "native_bound": 8388608.0,
+          "lifetime_rss": 28995584.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 0.5427389610000001,
+          "remesh_max_seconds": 0.513135472,
+          "parent_max_over_mean": 1.0,
+          "accepted_operations": 18.0,
+          "accepted_operations_per_parent_second": 33.165114895814526,
+          "native_bound": 2632312.0,
+          "lifetime_rss": 30212096.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 0.451790677,
+          "remesh_max_seconds": 0.43361391800000004,
+          "parent_max_over_mean": 1.0,
+          "accepted_operations": 49.0,
+          "accepted_operations_per_parent_second": 108.45730665664003,
+          "native_bound": 2797448.0,
+          "lifetime_rss": 30343168.0
+        }
+      ]
+    },
+    {
+      "folder": "donor_reuse_aligned_n3_n4_m2_v1",
+      "unchanged": {
+        "envelope_s0_initial.json": "28c8026333f5349b55d93ad6ba5726a49f72b9a73cb68669d2755a116c1036cb",
+        "envelope_s0.json": "27b48dac5b957f586a69b9ed49321dab814b0f6b6719945e23b22fbac9f027b7",
+        "envelope_s1_initial.json": "1c4fae99a27cd90c31537e564b16b2cd2c9e33f76f391b6ec5e7b7a12e4ea22b",
+        "envelope_s1.json": "4669f17898e1781eabe47523dd0b7cb69d5914e1e42d33e86dd5b5b733e52a36",
+        "envelope_s2_initial.json": "1eab5f3853df54b749cc0f7f7accdaa1b2c9ccc6da6d593c049aa20ef2c0d8b2",
+        "envelope_s2.json": "33694dacb949ea25da409a3afa28432a61fd5aa7b7ef5fd9b34bef8edc7ed256",
+        "envelope_s2_written_SU2_reload.json": "452756cafa33a2edac8a23f10519ae0e97be5727c381a1818cf85a3c1fe50522",
+        "envelope_s2_written_CGNS_reload.json": "17640bf06236d34dc59ea6e45bb97048200cbbba398239a834c07156da7c2141",
+        "envelope_s0_states.json": "4cdfe4898d5c1f345b9127dee894d16c5288d02db8af341393e9e4059f2c2525",
+        "envelope_s1_states.json": "0a8094b27c636adff9a52ea2e80f6e519a410725b95ebb25c2b3d1af7e4cb814",
+        "envelope_s2_states.json": "29020d0899046c0f9e3528964e120070cb794afaa5007eceb6c8437557079bcb"
+      },
+      "cells": [
+        288,
+        47,
+        277
+      ],
+      "minimum_q": 0.20293500712701518,
+      "minimum_J": 0.06614055333625078,
+      "maximum_L": 1.7996414656352433,
+      "state_error": 4.151680014179526e-16,
+      "transported_metric_error": 0.0,
+      "donor_reused": 290789.0,
+      "edge_separated": 97673.0,
+      "validation_sha256": "fdecb1e63e1064bd9beabac5a2d3ff694700dcbcac12f3ced8df1941b4025c9e",
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 1.523363707,
+          "remesh_max_seconds": 1.4112317540000001,
+          "parent_max_over_mean": 1.0001229312589803,
+          "accepted_operations": 99.0,
+          "accepted_operations_per_parent_second": 64.98776329322122,
+          "native_bound": 8388608.0,
+          "lifetime_rss": 30371840.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 2.9565235020000005,
+          "remesh_max_seconds": 2.8555535990000003,
+          "parent_max_over_mean": 1.000114650571216,
+          "accepted_operations": 69.0,
+          "accepted_operations_per_parent_second": 23.338221378359936,
+          "native_bound": 2980652.0,
+          "lifetime_rss": 31682560.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 1.4768629439999996,
+          "remesh_max_seconds": 1.2650129629999993,
+          "parent_max_over_mean": 1.0001525658637718,
+          "accepted_operations": 140.0,
+          "accepted_operations_per_parent_second": 94.79552626651864,
+          "native_bound": 3041992.0,
+          "lifetime_rss": 31821824.0
+        }
+      ]
+    },
+    {
+      "folder": "donor_reuse_aligned_n3_n4_m4_v1",
+      "unchanged": {
+        "envelope_s0_initial.json": "28c8026333f5349b55d93ad6ba5726a49f72b9a73cb68669d2755a116c1036cb",
+        "envelope_s0.json": "22be84c9b28cfc11aa3456fea73c98ec1274546d62b676f4a5f1fc40654b674a",
+        "envelope_s1_initial.json": "261f9b7d1b46f3e9bd921d5045e1702494f9cbccb43bd8aa73696b5b8721eadb",
+        "envelope_s1.json": "a2e7d351cbd0f2020504db7482bd19f73f43e4d29c0590633131affd2ed478f8",
+        "envelope_s2_initial.json": "0478a84c0235bfe8e46d771c55486c94991096dcaea1387a0cf0d78b8b841582",
+        "envelope_s2.json": "168e866aeb2c9dba2bb2c9aa681930ce978d0cf240922b5e0dc3c01ef20495b9",
+        "envelope_s2_written_SU2_reload.json": "1ac5d104032be91f2b482e0da3bec0a609808b1b0b34c596cd362b638e3245e8",
+        "envelope_s2_written_CGNS_reload.json": "adba486e53e3bd8d9fcc1fd951a84058b052720c45d91d6586dabf29267f11dc",
+        "envelope_s0_states.json": "f11d854b0800b3b4b79f08d1c783d6667a47d2905eb6ddf2c4524096ab7c1e74",
+        "envelope_s1_states.json": "a1644e3f12f3d1561f8f0323b9224814842d853ee5bbadac34f58c2114314db8",
+        "envelope_s2_states.json": "e9999de83cea3028e5989096302e55157f7312320d1f9bce4dd865c78851f821"
+      },
+      "cells": [
+        288,
+        51,
+        264
+      ],
+      "minimum_q": 0.27879069119954647,
+      "minimum_J": 0.1352246807565627,
+      "maximum_L": 1.7951071292691718,
+      "state_error": 4.151680014179526e-16,
+      "transported_metric_error": 0.0,
+      "donor_reused": 290337.0,
+      "edge_separated": 109653.0,
+      "validation_sha256": "79bd28c0a85b1c0f4d9909185b86861ebf395edfe66dfc8e3bfbc81462239089",
+      "cycles": [
+        {
+          "cycle": 0,
+          "parent_max_seconds": 1.790915287,
+          "remesh_max_seconds": 1.684807243,
+          "parent_max_over_mean": 1.0000649890111566,
+          "accepted_operations": 99.0,
+          "accepted_operations_per_parent_second": 55.278996565960966,
+          "native_bound": 8388608.0,
+          "lifetime_rss": 30044160.0
+        },
+        {
+          "cycle": 1,
+          "parent_max_seconds": 6.082601606,
+          "remesh_max_seconds": 5.999484187,
+          "parent_max_over_mean": 1.0000229592475847,
+          "accepted_operations": 66.0,
+          "accepted_operations_per_parent_second": 10.850620223901608,
+          "native_bound": 2623284.0,
+          "lifetime_rss": 31342592.0
+        },
+        {
+          "cycle": 2,
+          "parent_max_seconds": 2.2205936669999993,
+          "remesh_max_seconds": 2.126947648,
+          "parent_max_over_mean": 1.0000685592277203,
+          "accepted_operations": 135.0,
+          "accepted_operations_per_parent_second": 60.79455327925154,
+          "native_bound": 2652952.0,
+          "lifetime_rss": 31715328.0
+        }
+      ]
+    }
+  ],
+  "replay": {
+    "result": {
+      "complete": false,
+      "reason": "Native 3D adaptation stagnates: admitted operators cannot satisfy the frozen size/shape gates. Last local rejection: feature 3:13: Native 3D repair improves neither frozen size excess nor quality/sliver bounds.",
+      "maximum_rounds": 512,
+      "rounds": 175,
+      "attempted": 175,
+      "accepted": 57,
+      "rejected": 118,
+      "moved": 0,
+      "reconnected": 0,
+      "inserted": 42,
+      "repair_proposals": 598,
+      "recovery_starts": 1,
+      "private_cells": 420,
+      "total_seconds": 0.850024319,
+      "metric_seconds": 0.31521753200000013,
+      "reconstruction_seconds": 0.15840424300000006,
+      "edge_trace_seconds": 0.5788324080000004,
+      "native_bound": 3817272,
+      "process_cpu_seconds": 0.843737,
+      "accepted_state_preserved": true
+    },
+    "unchanged": {
+      "replay_initial.json": "88e3fd3ea3e12d06e43715fc02342d7b1cf6e619317f193ac922a128f75a3e9e",
+      "replay_rejected.json": "56a1ef17ae2d7ce1990692674fd1e0c7f91c266ad02c4bbcfa107f8df9b93e48",
+      "replay_initial.su2": "73f73e0a5adbe02dc2138af1b2565cab7216a2f0262d2881717d4e9e1be7344d",
+      "replay_rejected.su2": "bccaa211c23003fb7e09d68f0e01b99f2cea474f163c2b6adde285005cdcc94f"
+    },
+    "validation_sha256": "fa272bb67653af25844e0147014497839b035525db6c6a4cf3f890ae140a2a25"
+  },
+  "automatic_frames": 324,
+  "probe_validation_sha256": "7c260190a0272af70d7dbd55d19bba7a37233c68ed3554d0fc7bb7a7e1cdd657",
+  "regression_validation_sha256": "1d197272cb9944c90fc496290700ce8065e9adb169be43ac0b2bef393a0256fa",
+  "retained_mmg_fixture_failure_sha256": "c45032cfc10bca5818788762d5f5e9c83380dbd1ce2a55d18f15bc5f36c96ca8",
+  "superseded_exact_sign_probe_sha256": "307f48f593e263f22d53a3a5d8d1c8cd4e34a4f95063c216749658f1727bdb0b",
+  "auto_validation_sha256": "15bc107e02eb29cb5a30f68af81cb939c5f117d31d5f1121895a0d7b791ff785",
+  "accounting_rows": 340,
+  "csv_sha256": "e2098b50fb82799622beb47f166168453f70ed18f80b3362d43f50c6dbe4f41e",
+  "scope": "Four fixed-partition actual default512 manufactured lifecycles,44 byte-identical accepted/source/state/readback files,4 unchanged rejected-replay files, configuredMPI1/2/4 source/edge/gap/overlap/thin/invalid/filter/insertion/repair/budget/default/native2D bridge controls plus serial MMG2D/3D round trips and324 independent automatic frames. Counts prove skipped work; single contended timings do not prove speedup/scaling/CFD affordability. FullGoal1 active."
+}

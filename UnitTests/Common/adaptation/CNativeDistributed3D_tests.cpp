@@ -633,6 +633,34 @@ TEST_CASE("Native MPI donor import admits large immutable owners but rejects ove
   CHECK(service.ResidentBytes() == resident);
   CHECK(service.Import({{0, 0, 0, 1, 1, 1}}).valid);
 }
+TEST_CASE("Native MPI donor unions reuse exact admission without changing payload or rejecting invalid duplicates", "[NativeDistributed3D][NativeDonorReuse3D]") {
+  World world;std::vector<Cell> cells;
+  for (Id i=0;i<=MaximumDonors;++i) {
+    const double x=2*i;
+    cells.push_back({i,{{{4*i,{x,0,0}},{4*i+1,{x+1,0,0}},{4*i+2,{x,1,0}},{4*i+3,{x,0,1}}}}});
+  }
+  DonorImport service(world);std::string reason;
+  REQUIRE(service.Build(Source(cells,world),reason));const auto resident=service.ResidentBytes();
+  for (bool metric:{false,true}) {
+    const auto query=world.rank ? std::vector<Cell>{} : std::vector<Cell>{cells.front()};
+    const auto single=metric ? service.ImportMetricCells(query) : service.ImportCells(query);REQUIRE(single.valid);
+    const auto reused_before=service.Statistics().reused_candidates, filtered_before=service.Statistics().filter_candidates;
+    const auto duplicate=world.rank ? std::vector<Cell>{} : std::vector<Cell>{cells.front(),cells.front()};
+    const auto twice=metric ? service.ImportMetricCells(duplicate) : service.ImportCells(duplicate);REQUIRE(twice.valid);
+    REQUIRE(twice.cells.size()==single.cells.size());
+    if(!world.rank) {
+      REQUIRE(twice.cells.size()==1);CHECK(twice.cells.front().Key()==single.cells.front().Key());
+      for(size_t j=0;j<4;++j) CHECK(TensorValues(twice.cells.front().sensor[j])==TensorValues(single.cells.front().sensor[j]));
+      FrozenField field(twice.cells);CHECK(field.Query({.25,.25,.25}).sensor.xx==Approx(2.25));
+    }
+    CHECK(world.sum(int(service.Statistics().reused_candidates-reused_before))==1);
+    CHECK(world.sum(int(service.Statistics().filter_candidates-filtered_before))==1);
+    auto invalid=duplicate;if(!invalid.empty())std::swap(invalid.back().v[0],invalid.back().v[1]);
+    const auto rejected=metric ? service.ImportMetricCells(invalid) : service.ImportCells(invalid);
+    CHECK_FALSE(rejected.valid);CHECK(rejected.cells.empty());CHECK(service.ResidentBytes()==resident);
+  }
+}
+
 TEST_CASE("Native immutable sensor import works with fewer workers than CFD ranks", "[NativeDistributed3D]") {
   World parent;
   const auto geometry = Box();
@@ -706,6 +734,7 @@ void EngineReport(const EngineResult& result, World& world, const std::string& l
        << " recovery_starts=" << s.recovery_starts << " repair_proposals=" << s.repair_proposals << " moved=" << s.moved << " reconnected=" << s.reconnected << " inserted=" << s.inserted
        << " batches=" << s.donor_batches << " batch_retries=" << s.batch_retries
        << " query_import_retries=" << s.query_import_retries << " private_query_retries=" << s.private_query_retries
+       << " donor_reused=" << s.donor_reused << " edge_separated=" << s.edge_separated
        << " donor_candidates=" << s.donor_candidates << " donor_filtered=" << s.donor_filtered
        << " donor_payloads=" << s.donor_payloads << " donor_maximum_patch=" << s.donor_maximum_patch
        << " donor_search_nested_s=" << s.donor_search_seconds << " donor_filter_nested_s=" << s.donor_filter_seconds
