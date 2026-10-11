@@ -223,6 +223,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                    const PlanarReference& geometry, MetricComposition composition, EngineOptions options, MetricChange intent) {
   const bool coarsening=intent==MetricChange::Coarsen;
   bool repairing=intent==MetricChange::Repair, recovered=false;
+  const auto tracked_bytes_begin=world.bytes_sent;
+  const auto tracked_calls_begin=world.collective_calls;
+  const double tracked_seconds_begin=world.collective_seconds;
   const auto started=Clock::now();
   const auto started_cpu=options.timings ? std::clock() : std::clock_t{};
   EngineResult result;
@@ -253,6 +256,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   };
   std::string last_rejection;
   auto finish=[&]() {
+    stats.tracked_bytes=world.bytes_sent-tracked_bytes_begin;
+    stats.tracked_calls=world.collective_calls-tracked_calls_begin;
+    stats.tracked_collective_seconds=world.collective_seconds-tracked_seconds_begin;
+    stats.directory_elections=directory.Statistics().elections;
+    stats.directory_election_seconds=directory.Statistics().election_seconds;
     const auto& donor = source.Statistics();
     stats.donor_candidates = donor.index_candidates; stats.donor_filtered = donor.filtered;
     stats.donor_payloads = donor.payloads; stats.donor_reused = donor.reused_candidates; stats.donor_maximum_patch = donor.maximum_patch;

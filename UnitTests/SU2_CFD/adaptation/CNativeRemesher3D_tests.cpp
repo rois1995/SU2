@@ -25,6 +25,19 @@ std::vector<double> Snapshot(const MeshSolution& mesh) {
     for (size_t k = 0; k < 4; ++k) values.push_back(geometry.elem[e]->GetNode(k));
   return values;
 }
+void CheckTransport(const RemeshStats& s) {
+  CHECK(s.communication_bytes == s.imported.tracked_bytes + s.parent_transport_bytes + s.worker_transport_bytes);
+  CHECK(s.communication_calls == s.imported.tracked_calls + s.parent_transport_calls + s.worker_transport_calls);
+  CHECK(s.communication_seconds == Approx(s.imported.tracked_collective_seconds + s.parent_transport_seconds +
+                                          s.worker_transport_seconds).margin(1e-12));
+  CHECK(s.worker_transport_bytes == s.refine.tracked_bytes + s.coarsen.tracked_bytes);
+  CHECK(s.worker_transport_calls == s.refine.tracked_calls + s.coarsen.tracked_calls);
+  CHECK(s.worker_transport_seconds == Approx(s.refine.tracked_collective_seconds + s.coarsen.tracked_collective_seconds).margin(1e-12));
+  CHECK(s.parent_transport_bytes >= s.weights.tracked_bytes + s.returned.tracked_bytes);
+  CHECK(s.parent_transport_calls >= s.weights.tracked_calls + s.returned.tracked_calls);
+  CHECK(s.imported.tracked_calls > 0);
+  CHECK(s.communication_calls > 0);
+}
 }  // namespace
 
 TEST_CASE("Native3D default ownership survives rejection after private accepted edits", "[NativeDefault3D]") {
@@ -48,6 +61,7 @@ TEST_CASE("Native3D default ownership survives rejection after private accepted 
   CHECK_FALSE(reference->original);
   CHECK(Snapshot(donor) == before);
   CHECK(CPassiveComm::Allreduce(rejected.Statistics().refine.accepted, CPassiveComm::Op::SUM) > 0);
+  CheckTransport(rejected.Statistics());
   CHECK(rejected.Statistics().workers == world.size);
   CHECK(rejected.Statistics().partition.destinations.empty());
   // Retry the same accepted CFD mesh and unchanged frozen sensor, without partitioning it.
@@ -56,6 +70,7 @@ TEST_CASE("Native3D default ownership survives rejection after private accepted 
   REQUIRE(result.status == CRemeshResult::Status::COMPLETE);
   CHECK_FALSE(reference->original);
   CHECK(backend.Statistics().partition.destinations.empty());
+  CheckTransport(backend.Statistics());
   CHECK(backend.Statistics().workers == world.size);
   CHECK(Snapshot(donor) == before);
   for (unsigned long p = 0; p < sensor.rows(); ++p)
@@ -92,6 +107,11 @@ TEST_CASE("Native3D budgeted import preserves both outputs and reference on elec
   REQUIRE(ImportGeometry(*config, donor.Fine(), nullptr, reference, baseline, reason, measured, SIZE_MAX));
   REQUIRE(reference.original);
   CHECK(measured.maximum_native_bytes > 0);
+  CHECK(measured.tracked_calls > 0);
+  CHECK(baseline.stats.total_seconds == measured.total_seconds);
+  CHECK(baseline.stats.tracked_bytes == measured.tracked_bytes);
+  CHECK(baseline.stats.tracked_calls == measured.tracked_calls);
+  CHECK(baseline.stats.tracked_collective_seconds == measured.tracked_collective_seconds);
   CHECK(reference.original->ResidentBytes() > 0);
   CHECK(ReferenceStorageBytes(reference) >= reference.original->ResidentBytes());
   const auto immutable = EncodeReference(reference);
@@ -99,6 +119,8 @@ TEST_CASE("Native3D budgeted import preserves both outputs and reference on elec
   ImportedGeometry loaded;
   BridgeStats loaded_stats;
   REQUIRE(ImportGeometry(*config, donor.Fine(), nullptr, reference, loaded, reason, loaded_stats, SIZE_MAX));
+  CHECK(loaded.stats.tracked_calls == loaded_stats.tracked_calls);
+  CHECK(loaded.stats.tracked_collective_seconds == loaded_stats.tracked_collective_seconds);
   for (const size_t ceiling : {size_t(1), loaded_stats.maximum_native_bytes / 2}) {
     ImportedGeometry sentinel;
     sentinel.cells.emplace(999, OwnedCell{});

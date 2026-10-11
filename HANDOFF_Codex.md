@@ -7,6 +7,41 @@ small sequential local checks with real host-contention checks; push each
 validated checkpoint and verify the remote SHA. A terminal capacity failure
 cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
+## Isolated native3D transport accounting — 2026-10-11; built and serial checked
+
+Working branch codex/native-3d-transport-accounting starts at pushed core
+6b3fefd039bfc3d1937b8add7d21d0ea41344bc9. codex/native-3d-core remains the user's
+cluster checkpoint. Three disjoint import/parent/worker World-wrapper totals
+capture attempted work on ordinary rejection, including previously omitted
+separate-import traffic. Bridge/engine detail reports per-call deltas; directory-
+election API counters are separate nested data. No new runtime clock, MPI call,
+query or numerical operator change. Direct/vendor MPI and actual waiting still
+need calibration. Shared audits check closure and label legacy coverage.
+
+transport_build_v1 PASS:14 actual nice19/j1 configured build steps, full68 objects/
+774 thin members. transport_serial_v1 native10189assertions/69cases and serial
+MMG48/2cases PASS; independent bridge12frames/6states/6SU2CGNS round trips PASS.
+The collector then failed on a missing helper sys.path: preserve that FAIL receipt.
+transport_serial_audit_v2 recovers by checking the same retained results/pins
+without numerical rerun, SERIAL_AUDIT_PASS.26 non-CGNS fixtures byte-identical to
+prior serial evidence; CGNS binary containers differ but exact signatures/readers
+pass. Max state error2.7000623958883732e-15. package_checks_v12 is the final-source
+19-check lightweight repetition PASS (0.480s unittest /0.778s wrapper).
+Report: integration_evidence/native_3d_core_v1/TRANSPORT_ACCOUNTING_REPORT.md.
+
+Current native result folder:
+integration_evidence/native_3d_core_v1/transport_serial_v1/native_serial.
+Includes default_native3d.su2 and bridge_barycentric_m1_s*_written_SU2.su2 /
+_written_CGNS.cgns with corresponding original-P1/current+BDF audit data.
+These are small manufactured correctness cases, not practical CFD grids.
+
+The feature matrix preserves all original numerical guards/gates and requires
+current transport records. MPI2/4/n4/persisted-restart qualification and repeated
+cluster/n8/memory calibration remain pending. FullGoal1 ACTIVE. No owned job is
+live; no local timing campaign or cluster job was launched. AdapNoExt, foreign
+submodule/results and original failure evidence remain untouched.
+Do not merge this feature into core before broader MPI qualification.
+
 ## Cluster MMG prefix and SGE runtime search paths — 2026-10-11; package checked
 
 NativeIntegrated / codex/native-3d-core, predecessor1ba501f9dfc97b17688186cf56cca0c49f152818.

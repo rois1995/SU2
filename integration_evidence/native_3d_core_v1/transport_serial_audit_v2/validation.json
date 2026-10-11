@@ -1,0 +1,222 @@
+{
+  "status": "SERIAL_AUDIT_PASS",
+  "original_run_sha256": "d1cc16ff2d5535eb643fa4b8fdd983a48ea2584aed33fa93d3f78bbb887f8c6e",
+  "build_validation_sha256": "f727193adb0f44a9783931b2246b23b94477d20e42bf7295536e5a6a865ddb02",
+  "binary_sha256": "9290ba83549ac3e1c86792443f27fab0ef2aefe9bfcd057494a4b069636e2a61",
+  "original_wrapper_status": "FAIL",
+  "original_wrapper_failure": "No module named 'audit_lifecycle'",
+  "native_cases": 69,
+  "native_assertions": 10189,
+  "mmg_cases": 2,
+  "mmg_assertions": 48,
+  "independent_audit_sha256": "aabfaddaf32886fd745abb139667b8853b393931e0c67ef731cd638e1016e3f9",
+  "native_rows": [
+    {
+      "rank": 0.0,
+      "ranks": 1.0,
+      "workers": 1.0,
+      "complete": 0.0,
+      "detailed": 0.0,
+      "total": 0.009110602000000023,
+      "other": 2.9154999999780884e-05,
+      "cpu": 0.00903,
+      "idle_cpu": 0.0,
+      "support": 1.603699999996877e-05,
+      "reference": 5.333500000004321e-05,
+      "import": 0.0012012439999999902,
+      "source": 3.954000000006008e-05,
+      "weights": 0.0001835580000000281,
+      "partition": 9.000000000813912e-08,
+      "donor_migration": 1.559999999178885e-07,
+      "communicator": 7.185500000006506e-05,
+      "refine": 0.0074785980000000585,
+      "coarsen": 0.0,
+      "wait": 3.6601000000024975e-05,
+      "return": 4.3300000007739925e-07,
+      "initial": 6.0,
+      "final": 0.0,
+      "refine_accepted": 1.0,
+      "coarsen_accepted": 0.0,
+      "tracked_bytes": 46296.0,
+      "tracked_calls": 80.0,
+      "nested_tracked_collectives": 6.096500000063454e-05,
+      "tracked_import_bytes": 4224.0,
+      "tracked_import_calls": 9.0,
+      "nested_tracked_import": 5.950000000032318e-06,
+      "tracked_parent_bytes": 11040.0,
+      "tracked_parent_calls": 11.0,
+      "nested_tracked_parent": 3.2660000000017675e-06,
+      "tracked_worker_bytes": 31032.0,
+      "tracked_worker_calls": 60.0,
+      "nested_tracked_worker": 5.1749000000600454e-05,
+      "native_bound": 2169608.0,
+      "process_peak_rss": 40595456.0
+    },
+    {
+      "rank": 0.0,
+      "ranks": 1.0,
+      "workers": 1.0,
+      "complete": 1.0,
+      "detailed": 0.0,
+      "total": 0.05164984500000003,
+      "other": 8.892999999954299e-06,
+      "cpu": 0.050371,
+      "idle_cpu": 0.0,
+      "support": 1.172700000007243e-05,
+      "reference": 2.1348999999948326e-05,
+      "import": 0.0012944080000000246,
+      "source": 7.646299999986006e-05,
+      "weights": 0.00022624300000007036,
+      "partition": 7.80000000144554e-08,
+      "donor_migration": 2.239999999931186e-07,
+      "communicator": 8.431700000000042e-05,
+      "refine": 0.03791963399999998,
+      "coarsen": 0.01138882200000002,
+      "wait": 1.1089000000019666e-05,
+      "return": 0.0006065980000000692,
+      "initial": 6.0,
+      "final": 48.0,
+      "refine_accepted": 19.0,
+      "coarsen_accepted": 0.0,
+      "tracked_bytes": 276144.0,
+      "tracked_calls": 955.0,
+      "nested_tracked_collectives": 0.0003368300000007318,
+      "tracked_import_bytes": 4224.0,
+      "tracked_import_calls": 9.0,
+      "nested_tracked_import": 6.674999999956022e-06,
+      "tracked_parent_bytes": 23544.0,
+      "tracked_parent_calls": 29.0,
+      "nested_tracked_parent": 1.4300999999883324e-05,
+      "tracked_worker_bytes": 248376.0,
+      "tracked_worker_calls": 917.0,
+      "nested_tracked_worker": 0.0003158540000008925,
+      "native_bound": 2326504.0,
+      "process_peak_rss": 40595456.0
+    }
+  ],
+  "raw_identity": {
+    "large.native_ref": {
+      "baseline_sha256": "5cfc60da85cf5ba9f495ea2c6ea92566bf9f83505f164690775868040fade9c5",
+      "current_sha256": "5cfc60da85cf5ba9f495ea2c6ea92566bf9f83505f164690775868040fade9c5"
+    },
+    "bridge_barycentric_m1_s2_written_SU2_reload.json": {
+      "baseline_sha256": "5b014a1bb506bd572e90de4bf581cce988d89889fe507db1f88a7c8dc5a6e681",
+      "current_sha256": "5b014a1bb506bd572e90de4bf581cce988d89889fe507db1f88a7c8dc5a6e681"
+    },
+    "bridge_conservative_m1_s2.json": {
+      "baseline_sha256": "18d59e8f9c2e82edc0f6fef2496397406466eb1875eee5acb484088e52dd3a28",
+      "current_sha256": "18d59e8f9c2e82edc0f6fef2496397406466eb1875eee5acb484088e52dd3a28"
+    },
+    "bridge_barycentric_m1_s1_written_SU2_reload.json": {
+      "baseline_sha256": "31254a9fc021724a5b54acac6fb8c2756c06b4e8631c4566073eee75d9a5b17a",
+      "current_sha256": "31254a9fc021724a5b54acac6fb8c2756c06b4e8631c4566073eee75d9a5b17a"
+    },
+    "bridge_barycentric_m1_s0.json": {
+      "baseline_sha256": "18d59e8f9c2e82edc0f6fef2496397406466eb1875eee5acb484088e52dd3a28",
+      "current_sha256": "18d59e8f9c2e82edc0f6fef2496397406466eb1875eee5acb484088e52dd3a28"
+    },
+    "bridge_barycentric_m1_s1_states.json": {
+      "baseline_sha256": "7a0d5ac7cec1c9b2c0c2e721a8e520e7e9c5e5a185539253eaf45953eab2e866",
+      "current_sha256": "7a0d5ac7cec1c9b2c0c2e721a8e520e7e9c5e5a185539253eaf45953eab2e866"
+    },
+    "default_native3d.su2.native_ref": {
+      "baseline_sha256": "cd48010598c1c1e3617aa75767c8dff8a14236092fc5cc097be8e5de211e7806",
+      "current_sha256": "cd48010598c1c1e3617aa75767c8dff8a14236092fc5cc097be8e5de211e7806"
+    },
+    "bridge_barycentric_m1_s0_written_CGNS.cgns": {
+      "baseline_sha256": "c6b3d7442b5f11b4f60ded896944f623af3cf8a17dade1a8408b9f4c37b5ffbd",
+      "current_sha256": "cbddf43492dbada8add908b50aa5e343e621119280ba6197f1fbd4bb6f0fb400"
+    },
+    "bridge_barycentric_m1_s1_written_CGNS_reload.json": {
+      "baseline_sha256": "31254a9fc021724a5b54acac6fb8c2756c06b4e8631c4566073eee75d9a5b17a",
+      "current_sha256": "31254a9fc021724a5b54acac6fb8c2756c06b4e8631c4566073eee75d9a5b17a"
+    },
+    "bridge_barycentric_m1_s0_written_SU2_reload.json": {
+      "baseline_sha256": "5b014a1bb506bd572e90de4bf581cce988d89889fe507db1f88a7c8dc5a6e681",
+      "current_sha256": "5b014a1bb506bd572e90de4bf581cce988d89889fe507db1f88a7c8dc5a6e681"
+    },
+    "bridge_conservative_m1_s2_states.json": {
+      "baseline_sha256": "a3ec0b17eea6ceb4e9a011e664cf01c46ef384183f961da658078c81719478a8",
+      "current_sha256": "a3ec0b17eea6ceb4e9a011e664cf01c46ef384183f961da658078c81719478a8"
+    },
+    "bridge_barycentric_m1_s0_written_SU2.su2": {
+      "baseline_sha256": "d941c4718546230300aa2a2263a84329134009e20d9d73e6ca6bcbd82058b1cd",
+      "current_sha256": "d941c4718546230300aa2a2263a84329134009e20d9d73e6ca6bcbd82058b1cd"
+    },
+    "bridge_barycentric_m1_s2_states.json": {
+      "baseline_sha256": "8a7a5aa3c8aaaf421439a0e2218242539fd3f11c63a545d6a03d3cf284f86bcd",
+      "current_sha256": "8a7a5aa3c8aaaf421439a0e2218242539fd3f11c63a545d6a03d3cf284f86bcd"
+    },
+    "bridge_barycentric_m1_s1_written_CGNS.cgns": {
+      "baseline_sha256": "ff24c7853177db35c551931690c5d72652804799c062648aac36cd64919ee268",
+      "current_sha256": "8780d1b1c4c1199635b3885dc8eb7cbf484c39fd3d2693dc0632f00aac3d9265"
+    },
+    "bridge_barycentric_m1_s0_written_CGNS_reload.json": {
+      "baseline_sha256": "5b014a1bb506bd572e90de4bf581cce988d89889fe507db1f88a7c8dc5a6e681",
+      "current_sha256": "5b014a1bb506bd572e90de4bf581cce988d89889fe507db1f88a7c8dc5a6e681"
+    },
+    "bridge_barycentric_m1_s1_written_SU2.su2": {
+      "baseline_sha256": "4a03ff46653f4a4317fda003df2767d96ea5881b708feb18ae6cbfc50e66641c",
+      "current_sha256": "4a03ff46653f4a4317fda003df2767d96ea5881b708feb18ae6cbfc50e66641c"
+    },
+    "original.native_ref": {
+      "baseline_sha256": "cd48010598c1c1e3617aa75767c8dff8a14236092fc5cc097be8e5de211e7806",
+      "current_sha256": "cd48010598c1c1e3617aa75767c8dff8a14236092fc5cc097be8e5de211e7806"
+    },
+    "bridge_barycentric_m1_s2_written_CGNS_reload.json": {
+      "baseline_sha256": "5b014a1bb506bd572e90de4bf581cce988d89889fe507db1f88a7c8dc5a6e681",
+      "current_sha256": "5b014a1bb506bd572e90de4bf581cce988d89889fe507db1f88a7c8dc5a6e681"
+    },
+    "bridge_conservative_m1_s1_states.json": {
+      "baseline_sha256": "8872243b52ab0a3c380ed7b55b7ac79adffc86816f8e3c0affe8b7cde8530207",
+      "current_sha256": "8872243b52ab0a3c380ed7b55b7ac79adffc86816f8e3c0affe8b7cde8530207"
+    },
+    "bridge_barycentric_m1_s2_written_SU2.su2": {
+      "baseline_sha256": "d941c4718546230300aa2a2263a84329134009e20d9d73e6ca6bcbd82058b1cd",
+      "current_sha256": "d941c4718546230300aa2a2263a84329134009e20d9d73e6ca6bcbd82058b1cd"
+    },
+    "bridge_barycentric_m1_s1.json": {
+      "baseline_sha256": "51997925908cfd4b0d36ea7c11c6077d49838b90fe24da7368a5a9f165501c74",
+      "current_sha256": "51997925908cfd4b0d36ea7c11c6077d49838b90fe24da7368a5a9f165501c74"
+    },
+    "large_reference_input.su2": {
+      "baseline_sha256": "584a2163db9147b5ee843d2fedf7efe7237258ca580736ed55a202d9c11be271",
+      "current_sha256": "584a2163db9147b5ee843d2fedf7efe7237258ca580736ed55a202d9c11be271"
+    },
+    "default_native3d.su2": {
+      "baseline_sha256": "036e5747fe0448e0ae7ca8843d7af21f05aa087d07afe62285dc15e0db122a26",
+      "current_sha256": "036e5747fe0448e0ae7ca8843d7af21f05aa087d07afe62285dc15e0db122a26"
+    },
+    "bridge_conservative_m1_s1.json": {
+      "baseline_sha256": "51997925908cfd4b0d36ea7c11c6077d49838b90fe24da7368a5a9f165501c74",
+      "current_sha256": "51997925908cfd4b0d36ea7c11c6077d49838b90fe24da7368a5a9f165501c74"
+    },
+    "bridge_barycentric_m1_s2_written_CGNS.cgns": {
+      "baseline_sha256": "c2e07b14f48580d2aac1cbd3546ea58dcef5d764a1ddd892688d9e1706de17a6",
+      "current_sha256": "22f6f110251b219a40736117de3c30fe01d1e74646ce0a65259ca3bf28accb64"
+    },
+    "bridge_barycentric_m1_s0_states.json": {
+      "baseline_sha256": "8a7a5aa3c8aaaf421439a0e2218242539fd3f11c63a545d6a03d3cf284f86bcd",
+      "current_sha256": "8a7a5aa3c8aaaf421439a0e2218242539fd3f11c63a545d6a03d3cf284f86bcd"
+    },
+    "bridge_conservative_m1_s0_states.json": {
+      "baseline_sha256": "f5320c50e0ac283e293d5c798f02e439528cddc299990d2902bc7579c2c88164",
+      "current_sha256": "f5320c50e0ac283e293d5c798f02e439528cddc299990d2902bc7579c2c88164"
+    },
+    "bridge_conservative_m1_s0.json": {
+      "baseline_sha256": "18d59e8f9c2e82edc0f6fef2496397406466eb1875eee5acb484088e52dd3a28",
+      "current_sha256": "18d59e8f9c2e82edc0f6fef2496397406466eb1875eee5acb484088e52dd3a28"
+    },
+    "bridge_barycentric_m1_s2.json": {
+      "baseline_sha256": "18d59e8f9c2e82edc0f6fef2496397406466eb1875eee5acb484088e52dd3a28",
+      "current_sha256": "18d59e8f9c2e82edc0f6fef2496397406466eb1875eee5acb484088e52dd3a28"
+    }
+  },
+  "changed_raw_files": [
+    "bridge_barycentric_m1_s0_written_CGNS.cgns",
+    "bridge_barycentric_m1_s1_written_CGNS.cgns",
+    "bridge_barycentric_m1_s2_written_CGNS.cgns"
+  ],
+  "audit_source_sha256": "2b56b6062d93e23d04c3eeb804f81b378f0051d071e9717ec69af635163c0f12",
+  "scope": "Postprocessing-only recovery of a missing collector import path. Actual original native/MMG/independent bridge processes all exited0; original FAIL receipt retained unchanged. Reverified pinned logs/artifacts/full68-object binary/sources/774 archive members, new accepted/rejected transport closure and byte identity of non-CGNS fixtures versus prior serial source. CGNS checked independently. No numerical rerun, MPI2/4, n4/restart campaign, timing/scaling or fullGoal1 claim."
+}

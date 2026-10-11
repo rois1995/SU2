@@ -227,7 +227,6 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
       phase(7);
       bool valid = true;
       std::string detail;
-      uint64_t bytes = 0;
       if (parent.rank < stats.workers) {
         World workers(comm);
         auto kernel = control;
@@ -263,7 +262,9 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
         } catch (const std::exception& e) {
           SU2_MPI::Error(e.what(), CURRENT_FUNCTION);
         }
-        bytes = workers.bytes_sent;
+        stats.worker_transport_bytes = workers.bytes_sent;
+        stats.worker_transport_calls = workers.collective_calls;
+        stats.worker_transport_seconds = workers.collective_seconds;
       }
       now = parent.seconds();
       const auto idle_cpu = std::clock();
@@ -287,7 +288,6 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
       if (comm != MPI_COMM_NULL) MPI_Comm_free(&comm);
 #endif
       phase(7);
-      stats.communication_bytes = bytes;
       ready = vote(valid, detail);
     }
     now = parent.seconds();
@@ -296,7 +296,6 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
                            {}, control.memory_ceiling, transfer_memory::Add(held(), transfer_memory::Bytes(migrated)),
                            control.timings);
     phase(11);
-    stats.communication_bytes += parent.bytes_sent;
     stats.maximum_native_bytes =
         std::max({stats.maximum_native_bytes, stats.refine.maximum_work_bytes, stats.coarsen.maximum_work_bytes,
                   stats.returned.maximum_native_bytes, parent.max_exchange_work_bytes});
@@ -313,6 +312,14 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
       stats.complete = true;
     }
   } while (false);
+  // Capture attempted import/parent/worker work even when an earlier phase rejects the event.
+  stats.parent_transport_bytes = parent.bytes_sent;
+  stats.parent_transport_calls = parent.collective_calls;
+  stats.parent_transport_seconds = parent.collective_seconds;
+  stats.communication_bytes = stats.imported.tracked_bytes + stats.parent_transport_bytes + stats.worker_transport_bytes;
+  stats.communication_calls = stats.imported.tracked_calls + stats.parent_transport_calls + stats.worker_transport_calls;
+  stats.communication_seconds = stats.imported.tracked_collective_seconds + stats.parent_transport_seconds +
+                                stats.worker_transport_seconds;
   stats.process_cpu_seconds = double(std::clock() - cpu) / CLOCKS_PER_SEC;
   stats.total_seconds = parent.seconds() - start;
   stats.other_seconds = stats.total_seconds - std::accumulate(stats.phases.begin(), stats.phases.end(), 0.);
@@ -335,7 +342,14 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
   for (size_t j = 0; j < stats.names.size(); ++j) row << ' ' << stats.names[j] << '=' << stats.phases[j];
   row << " initial=" << stats.initial_cells << " final=" << stats.final_cells
       << " refine_accepted=" << stats.refine.accepted << " coarsen_accepted=" << stats.coarsen.accepted
-      << " tracked_bytes=" << stats.communication_bytes << " native_bound=" << stats.maximum_native_bytes
+      << " tracked_bytes=" << stats.communication_bytes << " tracked_calls=" << stats.communication_calls
+      << " nested_tracked_collectives=" << stats.communication_seconds
+      << " tracked_import_bytes=" << stats.imported.tracked_bytes << " tracked_import_calls=" << stats.imported.tracked_calls
+      << " nested_tracked_import=" << stats.imported.tracked_collective_seconds
+      << " tracked_parent_bytes=" << stats.parent_transport_bytes << " tracked_parent_calls=" << stats.parent_transport_calls
+      << " nested_tracked_parent=" << stats.parent_transport_seconds
+      << " tracked_worker_bytes=" << stats.worker_transport_bytes << " tracked_worker_calls=" << stats.worker_transport_calls
+      << " nested_tracked_worker=" << stats.worker_transport_seconds << " native_bound=" << stats.maximum_native_bytes
       << " process_peak_rss=" << stats.process_peak_rss_bytes << '\n';
   const auto text = row.str();
   const auto all = CPassiveComm::Allgatherv(std::vector<char>(text.begin(), text.end()), nullptr, parent.comm);
@@ -361,6 +375,8 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
              << " compositions=" << b.compositions << " batches=" << b.batches << " retries=" << b.batch_retries
              << " nested_field_build=" << b.field_build_seconds << " nested_search=" << b.field_search_seconds
              << " nested_interpolation=" << b.interpolation_seconds << " nested_composition=" << b.composition_seconds
+             << " tracked_bytes=" << b.tracked_bytes << " tracked_calls=" << b.tracked_calls
+             << " nested_tracked_collectives=" << b.tracked_collective_seconds
              << " native_bound=" << b.maximum_native_bytes << '\n';
     };
     bridge("import", stats.imported); bridge("weights", stats.weights); bridge("return", stats.returned);
@@ -385,6 +401,9 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
              << " reconstruction=" << e.reconstruction_seconds << " metric=" << e.metric_seconds
              << " routing=" << e.routing_seconds << " publication=" << e.publication_seconds
              << " update=" << e.update_seconds << " completion=" << e.completion_seconds << " other=" << e.other_seconds
+             << " tracked_bytes=" << e.tracked_bytes << " tracked_calls=" << e.tracked_calls
+             << " nested_tracked_collectives=" << e.tracked_collective_seconds
+             << " directory_elections=" << e.directory_elections << " nested_directory_election=" << e.directory_election_seconds
              << " process_cpu=" << e.process_cpu_seconds << " private_reconstruction_cpu=" << e.reconstruction_cpu_seconds
              << " private_metric_cpu=" << e.metric_cpu_seconds << " private_measurement_cpu=" << e.measurement_cpu_seconds
              << " rounds=" << e.rounds << " attempted=" << e.attempted << " accepted=" << e.accepted

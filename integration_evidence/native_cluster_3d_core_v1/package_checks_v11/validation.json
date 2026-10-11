@@ -1,0 +1,27 @@
+{
+  "status": "PASS",
+  "seconds": 0.6667573220329359,
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "check_package"
+  ],
+  "exit_code": 0,
+  "diff_exit_code": 0,
+  "source_sha256": {
+    "integration_evidence/native_3d_core_v1/audit_envelope.py": "601f82a12c2eb04778484ec647c4590e92fb5b6d7f0092a2f7b4941bbb01cc0c",
+    "integration_evidence/native_3d_core_v1/audit_lifecycle.py": "e55242044917364c5f2102d90389c10b1d9c5f97eaec1641422b010dcaecaafb",
+    "integration_evidence/native_cluster_3d_core_v1/check_package.py": "5cc7ec4eaa7d516b9277b7b2fe2a9cd9c0f430c91a45428748b6fd57e39d52dd",
+    "integration_evidence/native_cluster_3d_core_v1/profile_summary.py": "d56de9a2a50451f98b624359a71423a9112e509f900928a787dbd8227f52e0af"
+  },
+  "source_drift": [],
+  "scope": "Lightweight synthetic/mock orchestration and transport closure only; no C++ build, CFD, MPI or qsub.",
+  "artifact_sha256": {
+    "diff.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "checks.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "checks.stderr": "afb8c076a4762690a6d626189d8bcbf3a83c16ef8b5d67fd4ab9ca93d804c6f0",
+    "diff.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

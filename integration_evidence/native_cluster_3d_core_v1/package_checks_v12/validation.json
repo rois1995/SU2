@@ -1,0 +1,46 @@
+{
+  "status": "PASS",
+  "seconds": 0.778041391982697,
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "check_package"
+  ],
+  "exit_code": 0,
+  "diff_exit_code": 0,
+  "source_sha256": {
+    "integration_evidence/native_3d_core_v1/analyze_reference_admission.py": "c817c33f6ede3ee360cfc3a5e9417952d7a4da6e10fbe145caad5c94f2690680",
+    "integration_evidence/native_3d_core_v1/audit_envelope.py": "601f82a12c2eb04778484ec647c4590e92fb5b6d7f0092a2f7b4941bbb01cc0c",
+    "integration_evidence/native_3d_core_v1/audit_lifecycle.py": "2b56b6062d93e23d04c3eeb804f81b378f0051d071e9717ec69af635163c0f12",
+    "integration_evidence/native_cluster_3d_core_v1/check_package.py": "a23a20ad9b4b8176e530027b6b475b97db352bb94e757ccf32f2d7d44f0b05ca",
+    "integration_evidence/native_cluster_3d_core_v1/prepare.py": "2bdb3a4c412704c43f8e493cbd2387990f80afde84dfdafff5ffbafcd4ff7fec",
+    "integration_evidence/native_cluster_3d_core_v1/profile_summary.py": "d56de9a2a50451f98b624359a71423a9112e509f900928a787dbd8227f52e0af"
+  },
+  "source_drift": [],
+  "actual_production_test_matrix_footprint": [
+    "Common/include/adaptation/CNativeBoundary3D.hpp",
+    "Common/include/adaptation/CNativeEngine3D.hpp",
+    "Common/include/adaptation/CNativeImport3D.hpp",
+    "Common/include/adaptation/CNativeReferenceIO3D.hpp",
+    "Common/include/adaptation/CNativeRemesher3D.hpp",
+    "Common/src/adaptation/CNativeBoundary3D.cpp",
+    "Common/src/adaptation/CNativeEngine3D.cpp",
+    "Common/src/adaptation/CNativeImport3D.cpp",
+    "Common/src/adaptation/CNativeReferenceIO3D.cpp",
+    "Common/src/adaptation/CNativeRemesher3D.cpp",
+    "UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp",
+    "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp",
+    "UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp",
+    "UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp"
+  ],
+  "matrix_sha256": "e9ea52a0a02fec68b292c1a1b874a963a42584d58b8386b3abfb0233d0e24c86",
+  "scope": "Final-source19 lightweight package/profile/counter mock checks, Python AST and diff checks, exact production/test footprint match only; not a numerical or complete frozen-matrix PASS.",
+  "artifact_sha256": {
+    "diff.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "checks.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "checks.stderr": "1d18f065899b793764f164253e1ba3298c97b62d165e3c309f20ac3d6dce2b07",
+    "diff.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

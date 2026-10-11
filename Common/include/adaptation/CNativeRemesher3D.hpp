@@ -21,7 +21,11 @@ struct RemeshStats {
   DonorImportStats source;
   PartitionStats partition;
   EngineStats refine, coarsen;
-  uint64_t communication_bytes = 0, initial_cells = 0, final_cells = 0;
+  // Import owns a separate World; weight/return scopes are already inside the parent's totals.
+  uint64_t communication_bytes = 0, communication_calls = 0, initial_cells = 0, final_cells = 0;
+  uint64_t parent_transport_bytes = 0, parent_transport_calls = 0;
+  uint64_t worker_transport_bytes = 0, worker_transport_calls = 0;
+  double communication_seconds = 0, parent_transport_seconds = 0, worker_transport_seconds = 0;
   size_t maximum_native_bytes = 0, process_peak_rss_bytes = 0;
   int workers = 0;
   bool complete = false, detailed_timings = false;

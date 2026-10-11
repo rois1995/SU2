@@ -1,7 +1,7 @@
 """Summarize measured rank costs without adding nested phases or per-rank maxima."""
 from collections import defaultdict
 import math,statistics
-from audit_lifecycle import ENGINE,STAGES,closes
+from audit_lifecycle import ENGINE,STAGES,closes,transport_counters
 
 NATIVE=('support','reference','import','source','weights','partition','donor_migration',
         'communicator','refine','coarsen','wait','return')
@@ -16,7 +16,10 @@ SCOPE=('Exclusive fractions use the rank with the largest parent wall time; phas
        'separate diagnostics and never summed. Numeric measure sums are rank work, not elapsed '
        'time. Engine work imbalance uses active workers only. Process CPU includes MPI progress; '
        'elapsed minus CPU is not MPI wait. The native wait phase is subset completion only. '
-       'For M<N, active_worker_exclusive is a separately closed worker row; inactive subset waiting can dominate the global critical row. Tracked bytes include self traffic and omit some direct/vendor communication. RSS is '
+       'For M<N, active_worker_exclusive is a separately closed worker row; inactive subset waiting can dominate the global critical row. Tracked bytes include self traffic and omit direct/vendor communication. New wrapper totals '
+       'close import+parent+worker; nested bridge/engine details are subsets and are not added again. '
+       'Tracked collectives measure wrapper calls and elapsed packing/progress time, not all MPI calls or pure waiting. '
+       'Historical bytes-only rows remain legacy coverage. Directory elections are API calls, not MPI-call counts. RSS is '
        'a process lifetime high-water mark. Different stages/events remain separate; event_index is the within-stage log ordinal, not a shared cycle identifier.')
 
 def distribution(rows,key):
@@ -48,11 +51,13 @@ def summarize(rows,phases,active_workers=False):
             closes(r,phases)
             if 'cpu_other' in r:
                 closes(dict(total=r['cpu'],other=r['cpu_other'],**{k:r[k+'_cpu'] for k in phases}),phases)
+    tracked=[transport_counters(r) for r in rows]
     measured=rows[:int(workers)] if active_workers else rows
     if active_workers and any(r[k]!=0 for r in rows[int(workers):] for k in keys):
         raise ValueError('Inactive engine rank reported work')
     measures={k:distribution(measured,k) for k in sorted(keys)}
     result=dict(ranks=int(ranks),workers=int(workers) if 'workers' in rows[0] else None,measured_ranks=[int(r['rank']) for r in measured],measures=measures)
+    result['transport_accounting']='wrapper_totals' if all(tracked) else ('legacy_bytes_only' if 'tracked_bytes' in keys else 'not_measured')
     if phases is not None:
         critical=max(measured,key=lambda r:r['total'])
         labels=(*phases,'other')

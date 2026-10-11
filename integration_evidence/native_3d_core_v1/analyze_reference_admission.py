@@ -3,7 +3,7 @@ from pathlib import Path
 import csv,json,re,statistics
 from analyze_insertion import HERE,qualify,sha,parse,closes,ENGINE
 from analyze_donor_reuse import FILES
-from audit_lifecycle import nested_stage
+from audit_lifecycle import nested_stage,transport_counters
 
 def main():
     matrix=json.loads((HERE/'REFERENCE_ADMISSION_MATRIX.json').read_text())
@@ -46,7 +46,9 @@ def main():
             if not line.startswith('NATIVE3D_DETAIL '):continue
             row=parse(line)
             nested_stage(row)
+            if row['stage'] in ('import','weights','return','refine','coarsen'):assert transport_counters(row)
             details.append(row)
+        assert all(transport_counters(r) for r in a['native_rows'])
         rows.extend(dict(case=name,record='exclusive',**r) for r in a['rank_stages'])
         rows.extend(dict(case=name,record='nested',**r) for r in details)
         cycles=[]
@@ -76,6 +78,7 @@ def main():
         assert all(r['maximum_state_relative_error']==0. for r in a['restart']['files'])
         assert len(a['states'])==3 and len(a['reload_metrics'])==2
         assert all(r['maximum_state_relative_error']<=1e-12 and r['maximum_transported_tensor_absolute_error']==0 for r in a['states'])
+        assert all(transport_counters(r) for r in a['native_rows'])
         rows.extend(dict(case=name,record='exclusive',**r) for r in a['rank_stages'])
         restarts.append(dict(folder=name,restart=a['restart'],frames=a['frames'],states=a['states'],reload_metrics=a['reload_metrics'],validation_sha256=sha(HERE/name/'validation.json')))
     keys=['case','record','stage','rank','ranks']+sorted({k for r in rows for k in r}-{'case','record','stage','rank','ranks'})

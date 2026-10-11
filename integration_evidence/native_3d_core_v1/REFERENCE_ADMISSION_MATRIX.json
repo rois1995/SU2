@@ -54,8 +54,10 @@
     "UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp",
     "integration_evidence/native_3d_core_v1/audit_envelope.py",
     "integration_evidence/native_3d_core_v1/audit_lifecycle.py",
-    "integration_evidence/native_3d_core_v1/run_envelope.py"
+    "integration_evidence/native_3d_core_v1/run_envelope.py",
+    "Common/include/adaptation/CNativeRemesher3D.hpp",
+    "UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp"
   ],
-  "profiling_scope": "Also validate real query-counter closure and retained failed attempts: requests=hits+misses+invalid, invalid<=failures<=requests, evictions<=misses and compositions<=requests-invalid. New injected rejection checks remain within existing69 selected cases; no target/guard/operator change.",
+  "profiling_scope": "Also validate real query-counter closure and retained failed attempts: requests=hits+misses+invalid, invalid<=failures<=requests, evictions<=misses and compositions<=requests-invalid. New injected rejection checks remain within existing69 selected cases; no target/guard/operator change. On codex/native-3d-transport-accounting, require disjoint import/parent/worker World-wrapper byte/call/elapsed closure, per-call bridge/engine deltas and retained rejected work. All applicable current rows must include the new schema; legacy bytes-only coverage cannot qualify it. These are incomplete/self-inclusive MPI-wrapper measures, not full traffic or pure waiting.",
   "test_fixture_scope": "Existing n4/restart cases unchanged; n8 fixture is prepared for separate512-facet cluster practical-limit pilots, not included in fixed-work reference admission."
 }

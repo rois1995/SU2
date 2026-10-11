@@ -730,6 +730,9 @@ void EngineReport(const EngineResult& result, World& world, const std::string& l
        << " reconstruction_s=" << s.reconstruction_seconds << " metric_s=" << s.metric_seconds
        << " routing_s=" << s.routing_seconds << " publication_s=" << s.publication_seconds
        << " update_s=" << s.update_seconds << " completion_s=" << s.completion_seconds << " other_s=" << s.other_seconds
+       << " tracked_bytes=" << s.tracked_bytes << " tracked_calls=" << s.tracked_calls
+       << " tracked_collectives_nested_s=" << s.tracked_collective_seconds
+       << " directory_elections=" << s.directory_elections << " directory_election_nested_s=" << s.directory_election_seconds
        << " process_cpu_s=" << s.process_cpu_seconds << " reconstruction_cpu_s=" << s.reconstruction_cpu_seconds
        << " metric_cpu_s=" << s.metric_cpu_seconds << " measurement_cpu_s=" << s.measurement_cpu_seconds
        << " repair_fallbacks=" << s.repair_fallbacks << " fallback_accepted=" << s.fallback_accepted
@@ -1333,9 +1336,16 @@ TEST_CASE("Native automatic MPI repair selects complete failing features and res
     for(bool detail : {false,true}) {
       EngineOptions options;options.timings=detail;options.maximum_rounds=1;
       uint64_t calls=0;
+      const auto bytes_before=parent.bytes_sent;const auto calls_before=parent.collective_calls;
+      const double seconds_before=parent.collective_seconds;
       auto rejected=Refine(parent,input,original,geometry,[&](Point,Tensor)->Tensor {
         ++calls;throw std::runtime_error("Injected query composition failure.");
       },options);
+      CHECK(rejected.stats.tracked_bytes==parent.bytes_sent-bytes_before);
+      CHECK(rejected.stats.tracked_calls==parent.collective_calls-calls_before);
+      CHECK(rejected.stats.tracked_collective_seconds==Approx(parent.collective_seconds-seconds_before).margin(1e-12));
+      CHECK(rejected.stats.directory_elections>0);
+      CHECK(rejected.stats.directory_election_seconds>=0);
       CHECK_FALSE(rejected.valid);CHECK(rejected.stats.accepted==0);CHECK(Bytes(input)==saved);
       CHECK(Bytes(rejected.cells)==saved);
       CHECK(rejected.stats.field_requests==rejected.stats.field_hits+rejected.stats.field_misses+rejected.stats.field_invalid_queries);
@@ -1373,8 +1383,14 @@ TEST_CASE("Native automatic MPI repair selects complete failing features and res
         if(subset!=MPI_COMM_NULL) {
           World worker(subset);Owned owned;for(auto row:migrated)owned.emplace(row.cell.id,row);
           const auto owned_saved=Bytes(owned);EngineOptions options;options.timings=true;
+          const auto bytes_before=worker.bytes_sent;const auto calls_before=worker.collective_calls;
+          const double seconds_before=worker.collective_seconds;
           auto result=mode=="restoreR" ? Refine(worker,owned,source_rows,geometry,{},options) :
               (mode=="restoreC" ? Coarsen(worker,owned,source_rows,geometry,{},options) : Repair(worker,owned,source_rows,geometry,{},options));
+          CHECK(result.stats.tracked_bytes==worker.bytes_sent-bytes_before);
+          CHECK(result.stats.tracked_calls==worker.collective_calls-calls_before);
+          CHECK(result.stats.tracked_collective_seconds==Approx(worker.collective_seconds-seconds_before).margin(1e-12));
+          CHECK(result.stats.directory_elections>0);
           if(!result.valid)std::cerr<<"AUTO_REPAIR_FAILURE "<<label<<" rank="<<worker.rank<<" "<<result.reason<<'\n';
           valid=result.valid;CHECK(valid);CHECK(Bytes(owned)==owned_saved);CHECK(result.stats.other_seconds>=-1e-12);
           CHECK(worker.sum(int(result.stats.accepted))>0);

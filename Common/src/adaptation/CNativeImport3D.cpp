@@ -49,9 +49,15 @@ size_t OwnedBytes(const Owned& cells) { return OwnedStorageBytes(cells); }
 struct Envelope {
   World& world;
   BridgeStats& stats;
-  double start;
-  Envelope(World& world, BridgeStats& stats) : world(world), stats(stats), start(world.seconds()) { stats = {}; }
+  double start, collective_start;
+  uint64_t bytes_start, calls_start;
+  Envelope(World& world, BridgeStats& stats)
+      : world(world), stats(stats), start(world.seconds()), collective_start(world.collective_seconds),
+        bytes_start(world.bytes_sent), calls_start(world.collective_calls) { stats = {}; }
   ~Envelope() {
+    stats.tracked_bytes = world.bytes_sent - bytes_start;
+    stats.tracked_calls = world.collective_calls - calls_start;
+    stats.tracked_collective_seconds = world.collective_seconds - collective_start;
     stats.total_seconds = world.seconds() - start;
     stats.other_seconds =
         std::max(0., stats.total_seconds - stats.points_seconds - stats.cells_seconds - stats.faces_seconds -

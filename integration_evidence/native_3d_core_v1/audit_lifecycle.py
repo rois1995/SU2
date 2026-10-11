@@ -35,7 +35,30 @@ def field_counters(row):
  assert row['evictions']<=row['misses']
  assert row['compositions']<=row['requests']-row['invalid_queries']
 
+def transport_counters(row):
+ keys=('tracked_bytes','tracked_calls','nested_tracked_collectives')
+ scopes=('import','parent','worker')
+ parts=tuple(k for scope in scopes for k in ('tracked_'+scope+'_bytes','tracked_'+scope+'_calls','nested_tracked_'+scope))
+ elections=('directory_elections','nested_directory_election')
+ present=set(row)&set(keys[1:]+parts+elections)
+ if not present:return False  # Historical bytes-only logs do not certify current transport accounting.
+ assert all(k in row for k in keys),'Incomplete native3D transport counters'
+ runtime='refine_accepted' in row or bool(set(row)&set(parts))
+ checked=keys+parts if runtime else keys
+ assert all(k in row for k in checked),'Incomplete native3D transport scopes'
+ assert all(math.isfinite(row[k]) and row[k]>=0 for k in checked)
+ assert all(int(row[k])==row[k] for k in checked if k.endswith(('_bytes','_calls')))
+ if runtime:
+  for suffix,key in (('bytes','tracked_bytes'),('calls','tracked_calls'),('seconds','nested_tracked_collectives')):
+   total=sum(row['nested_tracked_'+scope if suffix=='seconds' else 'tracked_'+scope+'_'+suffix] for scope in scopes)
+   assert abs(total-row[key]) <= (1e-10*max(1,total) if suffix=='seconds' else 0),'Native3D transport scope closure'
+ if set(row)&set(elections):
+  assert all(k in row and math.isfinite(row[k]) and row[k]>=0 for k in elections)
+  assert int(row[elections[0]])==row[elections[0]]
+ return True
+
 def nested_stage(row):
+ transport_counters(row)
  if row['stage'] in ('refine','coarsen'):closes(row,ENGINE);field_counters(row)
  elif row['stage'] in ('import','weights','return'):closes(row,('points','cells','faces','source','query','reader'));field_counters(row)
  elif row['stage']=='partition':closes(row,('graph','parmetis','migration'))
@@ -88,6 +111,7 @@ def main(folder,ranks,log):
    assert get('replace')['total']<=get('cycle')['replace']+1e-10
    active=[r for r in native if r['rank']==rank and r['detailed']==1][index]
    assert get('metric')['total']+active['total']<=get('cycle')['metric_remesh']+1e-10
+ for row in native:transport_counters(row)
  summaries=[]
  for m in workers:
   totals={}

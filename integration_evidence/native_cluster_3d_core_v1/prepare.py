@@ -51,7 +51,8 @@ def main():
     names+=['TestCases/adaptation/capability/capcheck.py']
     # Keep the active native3D implementation and real driver-fixture recipe inspectable with the compact results.
     names += [str(p.relative_to(ROOT)) for directory in ('Common/include/adaptation','Common/src/adaptation') for p in (ROOT/directory).glob('*3D*') if p.is_file() and p.suffix in ('.cpp','.hpp')]
-    names += ['UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp','UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp']
+    names += ['UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp','UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp',
+              'UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp','UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp']
     destination.mkdir(parents=True)
     for name in sorted(set(names)):
         source=closed(ROOT/name);target=destination/name;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,target)

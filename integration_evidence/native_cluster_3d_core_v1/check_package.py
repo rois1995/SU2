@@ -222,6 +222,41 @@ class PackageChecks(unittest.TestCase):
             nested_stage(row);row['hits']=11
             with self.assertRaises(AssertionError):nested_stage(row)
 
+    def test_transport_scope_closure_and_legacy_coverage(self):
+        from audit_lifecycle import transport_counters
+        row=dict(tracked_bytes=60,tracked_calls=6,nested_tracked_collectives=.6,
+                 tracked_import_bytes=10,tracked_import_calls=1,nested_tracked_import=.1,
+                 tracked_parent_bytes=20,tracked_parent_calls=2,nested_tracked_parent=.2,
+                 tracked_worker_bytes=30,tracked_worker_calls=3,nested_tracked_worker=.3)
+        self.assertTrue(transport_counters(row))
+        for key in row:
+            bad=dict(row);bad[key]=-1
+            with self.assertRaises(AssertionError):transport_counters(bad)
+            bad=dict(row);bad[key]=float('nan')
+            with self.assertRaises(AssertionError):transport_counters(bad)
+            bad=dict(row);del bad[key]
+            with self.assertRaises(AssertionError):transport_counters(bad)
+        for key in ('tracked_bytes','tracked_calls','nested_tracked_collectives'):
+            bad=dict(row);bad[key]+=1
+            with self.assertRaises(AssertionError):transport_counters(bad)
+        bad=dict(row);bad['tracked_calls']=6.5
+        with self.assertRaises(AssertionError):transport_counters(bad)
+        incomplete=dict(tracked_bytes=60,tracked_calls=6,nested_tracked_collectives=.6,refine_accepted=0)
+        with self.assertRaises(AssertionError):transport_counters(incomplete)
+        self.assertFalse(transport_counters(dict(tracked_bytes=99)))
+        self.assertFalse(transport_counters({}))
+        current=dict(row,rank=0,ranks=1,total=1,other=0,work=1)
+        self.assertEqual(profile_summary.summarize([current],('work',))['transport_accounting'],'wrapper_totals')
+        legacy=dict(rank=0,ranks=1,total=1,other=0,work=1,tracked_bytes=99)
+        self.assertEqual(profile_summary.summarize([legacy],('work',))['transport_accounting'],'legacy_bytes_only')
+        for k in ('directory_elections','nested_directory_election'):
+            bad=dict(row);bad[k]=1
+            with self.assertRaises(AssertionError):transport_counters(bad)
+        engine=dict(tracked_bytes=10,tracked_calls=2,nested_tracked_collectives=.1,directory_elections=3,nested_directory_election=.2)
+        self.assertTrue(transport_counters(engine))
+        engine['directory_elections']=.5
+        with self.assertRaises(AssertionError):transport_counters(engine)
+
     def test_critical_rank_phases_do_not_sum_rank_maxima(self):
         rows=[dict(rank=0,ranks=2,total=5,other=0,left=4,right=1,cpu=3),
               dict(rank=1,ranks=2,total=4,other=0,left=1,right=3,cpu=2)]

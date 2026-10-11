@@ -23,6 +23,9 @@ struct BridgeStats {
   uint64_t batches = 0, batch_retries = 0, requests = 0, hits = 0, misses = 0, compositions = 0;
   uint64_t invalid_queries = 0, failures = 0, evictions = 0;
   double field_build_seconds = 0, field_search_seconds = 0, interpolation_seconds = 0, composition_seconds = 0;
+  // World-wrapper payload includes self traffic; calls/time omit direct MPI/vendor work and are not MPI wait.
+  uint64_t tracked_bytes = 0, tracked_calls = 0;
+  double tracked_collective_seconds = 0;
   size_t maximum_native_bytes = 0;
 };
 /*! Native requested-storage models, including map nodes and immutable reference buffers. */
