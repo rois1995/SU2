@@ -1,0 +1,149 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "folder": "replay_size3_r512_v2",
+      "original_status": "FAIL",
+      "qualified_status": "PASS",
+      "result": {
+        "complete": false,
+        "reason": "Native 3D adaptation round limit reached before strict metric completion. Last local rejection: feature 2:58: Native 3D repair improves neither frozen size excess nor quality/sliver bounds.",
+        "maximum_rounds": 512,
+        "rounds": 512,
+        "attempted": 512,
+        "accepted": 59,
+        "rejected": 453,
+        "moved": 18,
+        "reconnected": 26,
+        "repair_proposals": 2327,
+        "recovery_starts": 1,
+        "private_cells": 229,
+        "total_seconds": 8.046308416,
+        "metric_seconds": 6.425150806000003,
+        "reconstruction_seconds": 0.8125296439999998,
+        "edge_trace_seconds": 6.734453080000001,
+        "native_bound": 3754648,
+        "process_cpu_seconds": 7.851462,
+        "accepted_state_preserved": true
+      },
+      "private_progress": {
+        "file": "replay_rejected.json",
+        "cells": 229,
+        "points": 79,
+        "physical_faces": 120,
+        "volume": "1",
+        "minimum_mean_ratio": 0.26793331249127744,
+        "minimum_scaled_jacobian": 0.14670013922732558,
+        "maximum_length": 2.4642922905982254,
+        "longest_edge": [
+          2,
+          23
+        ],
+        "markers": {
+          "1": 18,
+          "6": 12,
+          "2": 18,
+          "5": 12,
+          "3": 18,
+          "0": 18,
+          "4": 24
+        },
+        "strict_metric_gate": false
+      },
+      "oversized_edges": 25,
+      "oversized_cells": 65,
+      "validation_sha256": "5b391bec6c2b956ce152bf03419c3f8eb1c7842357b3a666b84f04407764591c",
+      "audit_sha256": "0d45976f84aea68042a7e739ac20c805b6f2686d59dbda4f6684d9a339b0cd44",
+      "export_sha256": "effa80fc4d484b1cc0eae97c938b828e7ed8709e89ab5c78de164e73506f3faa"
+    },
+    {
+      "folder": "replay_size3_r1024_v1",
+      "original_status": "PASS",
+      "qualified_status": "PASS",
+      "result": {
+        "complete": false,
+        "reason": "Native 3D adaptation round limit reached before strict metric completion. Last local rejection: feature 3:40: Native 3D cone obstructed by interface face 36,40,226 at apex 606.",
+        "maximum_rounds": 1024,
+        "rounds": 1024,
+        "attempted": 1024,
+        "accepted": 79,
+        "rejected": 945,
+        "moved": 29,
+        "reconnected": 35,
+        "repair_proposals": 4905,
+        "recovery_starts": 1,
+        "private_cells": 231,
+        "total_seconds": 12.942994893,
+        "metric_seconds": 10.307920569999999,
+        "reconstruction_seconds": 1.570561833,
+        "edge_trace_seconds": 10.517806034,
+        "native_bound": 3779224,
+        "process_cpu_seconds": 12.630437,
+        "accepted_state_preserved": true
+      },
+      "private_progress": {
+        "file": "replay_rejected.json",
+        "cells": 231,
+        "points": 79,
+        "physical_faces": 120,
+        "volume": "1",
+        "minimum_mean_ratio": 0.21131662327758582,
+        "minimum_scaled_jacobian": 0.09859521453128225,
+        "maximum_length": 2.4642922905982254,
+        "longest_edge": [
+          6,
+          27
+        ],
+        "markers": {
+          "1": 18,
+          "6": 12,
+          "3": 18,
+          "5": 12,
+          "0": 18,
+          "4": 24,
+          "2": 18
+        },
+        "strict_metric_gate": false
+      },
+      "oversized_edges": 21,
+      "oversized_cells": 51,
+      "validation_sha256": "0a32ac41eb87b4a10a5f09c7b3fcbccc73143b108ea5422f22221b90064e0cde",
+      "audit_sha256": "fedf2adea837bc56e2c96944ae6498202f5b46b91819ff300d9170bbeab2ccd9",
+      "export_sha256": "9d82ab83f7100dd3bf6c458d084c63abfb5f07edb95a1649fa23c07bb158087a"
+    }
+  ],
+  "initial_recipe": "envelope_size3_v1 original imported/source JSON identical",
+  "matrix_sha256": "25c20aaebe1d505696d385418c2c8632a89353f024271c29f15dd8f68e517ffd",
+  "scope": "Two qualified direct-engine diagnostic replays; both reject strict completion and preserve accepted input/CFD state. No production changes or new acceptance claim. Preserved initial runner syntax failure, first fixture reference-initialization crash and audit-only failure/recovery. Next inspect mode coordination: repair phase suppresses newly unblocked refinement queue until all cells pass.",
+  "ordinary_runner_control": {
+    "status": "PASS",
+    "folder": "replay_runner_control_v1",
+    "validation_sha256": "cb4d57a05def8fa0cab239d99ef2e0b6efcaa8e39c9e5f135dc2a6f6acb1a1f3",
+    "matched_published_mesh_and_state_files": [
+      "envelope_s2_initial.json",
+      "envelope_s1_initial.json",
+      "envelope_s1_states.json",
+      "envelope_s2_written_SU2_reload.json",
+      "envelope_s1.json",
+      "envelope_s0_initial.json",
+      "envelope_s2_written_CGNS_reload.json",
+      "envelope_s2.json",
+      "envelope_s2_states.json",
+      "envelope_s0.json",
+      "envelope_s0_states.json"
+    ]
+  },
+  "production_equal_to_published_reader": true,
+  "artifact_integrity_checked_folders": [
+    "replay_size3_r512_v1",
+    "replay_size3_r512_v2",
+    "replay_size3_r1024_v1",
+    "replay_runner_control_v1"
+  ],
+  "source_sha256": {
+    "run_envelope.py": "62c508cf416ef24ed3f226cec9867c8153835b05b2b8bd12e7134426fab487bd",
+    "audit_replay.py": "ae5ee47c6649d26c59bafd64715ecc3d5b126b85a0fe610874fc53551422aa04",
+    "REPLAY_MATRIX.json": "25c20aaebe1d505696d385418c2c8632a89353f024271c29f15dd8f68e517ffd"
+  },
+  "test_source_sha256": "d855fb9282ff43a3a67b98c539265d52e956905f388160f3dc398b8cc0e660b3"
+}

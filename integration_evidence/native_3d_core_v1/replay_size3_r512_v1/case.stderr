@@ -1,0 +1,22 @@
+[pc-rausa:3126412] *** Process received signal ***
+[pc-rausa:3126412] Signal: Segmentation fault (11)
+[pc-rausa:3126412] Signal code:  (-6)
+[pc-rausa:3126412] Failing at address: 0x3e8002fb48c
+[pc-rausa:3126412] [ 0] /lib/x86_64-linux-gnu/libpthread.so.0(+0x14420)[0x7ff2019a5420]
+[pc-rausa:3126412] [ 1] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/replay_size3_r512_v1/test_runtime(+0x1dfd31)[0x559dd40a1d31]
+[pc-rausa:3126412] [ 2] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/replay_size3_r512_v1/test_runtime(+0x2125d3)[0x559dd40d45d3]
+[pc-rausa:3126412] [ 3] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/replay_size3_r512_v1/test_runtime(+0x224a6e)[0x559dd40e6a6e]
+[pc-rausa:3126412] [ 4] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/replay_size3_r512_v1/test_runtime(+0x23d55e)[0x559dd40ff55e]
+[pc-rausa:3126412] [ 5] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/replay_size3_r512_v1/test_runtime(+0x244ee0)[0x559dd4106ee0]
+[pc-rausa:3126412] [ 6] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/replay_size3_r512_v1/test_runtime(+0x2454b2)[0x559dd41074b2]
+[pc-rausa:3126412] [ 7] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/replay_size3_r512_v1/test_runtime(+0x19f427)[0x559dd4061427]
+[pc-rausa:3126412] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0xf3)[0x7ff2017c3083]
+[pc-rausa:3126412] [ 9] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/replay_size3_r512_v1/test_runtime(+0x1cf7ae)[0x559dd40917ae]
+[pc-rausa:3126412] *** End of error message ***
+--------------------------------------------------------------------------
+Primary job  terminated normally, but 1 process returned
+a non-zero exit code. Per user-direction, the job has been aborted.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+mpirun noticed that process rank 0 with PID 0 on node pc-rausa exited on signal 11 (Segmentation fault).
+--------------------------------------------------------------------------

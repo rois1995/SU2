@@ -1,0 +1,601 @@
+{
+  "status": "PASS",
+  "parameters": {
+    "folder": "integration_evidence/native_3d_core_v1/replay_size3_r1024_v1",
+    "ranks": 1,
+    "binary_from": "integration_evidence/native_3d_core_v1/replay_size3_r512_v2",
+    "workers": 1,
+    "size": 3,
+    "anisotropy": 1,
+    "varying": 1,
+    "replay_rounds": 1024,
+    "repeat": 0,
+    "detail": 1
+  },
+  "replay_result": {
+    "complete": false,
+    "reason": "Native 3D adaptation round limit reached before strict metric completion. Last local rejection: feature 3:40: Native 3D cone obstructed by interface face 36,40,226 at apex 606.",
+    "maximum_rounds": 1024,
+    "rounds": 1024,
+    "attempted": 1024,
+    "accepted": 79,
+    "rejected": 945,
+    "moved": 29,
+    "reconnected": 35,
+    "repair_proposals": 4905,
+    "recovery_starts": 1,
+    "private_cells": 231,
+    "total_seconds": 12.942994893,
+    "metric_seconds": 10.307920569999999,
+    "reconstruction_seconds": 1.570561833,
+    "edge_trace_seconds": 10.517806034,
+    "native_bound": 3779224,
+    "process_cpu_seconds": 12.630437,
+    "accepted_state_preserved": true
+  },
+  "initial": {
+    "file": "replay_initial.json",
+    "cells": 162,
+    "points": 64,
+    "physical_faces": 108,
+    "volume": "1",
+    "minimum_mean_ratio": 0.5870092886923779,
+    "minimum_scaled_jacobian": 0.3344968040028362,
+    "maximum_length": 2.4642922905982254,
+    "longest_edge": [
+      2,
+      23
+    ],
+    "markers": {
+      "5": 9,
+      "2": 18,
+      "0": 18,
+      "6": 9,
+      "1": 18,
+      "3": 18,
+      "4": 18
+    },
+    "strict_metric_gate": false
+  },
+  "private_progress": {
+    "file": "replay_rejected.json",
+    "cells": 231,
+    "points": 79,
+    "physical_faces": 120,
+    "volume": "1",
+    "minimum_mean_ratio": 0.21131662327758582,
+    "minimum_scaled_jacobian": 0.09859521453128225,
+    "maximum_length": 2.4642922905982254,
+    "longest_edge": [
+      6,
+      27
+    ],
+    "markers": {
+      "1": 18,
+      "6": 12,
+      "3": 18,
+      "5": 12,
+      "0": 18,
+      "4": 24,
+      "2": 18
+    },
+    "strict_metric_gate": false
+  },
+  "oversized_edges": [
+    {
+      "vertices": [
+        6,
+        27
+      ],
+      "points": [
+        [
+          0.6666666666666666,
+          0.3333333333333333,
+          0.0
+        ],
+        [
+          1.0,
+          0.6666666666666666,
+          0.3333333333333333
+        ]
+      ],
+      "metric_length": 2.4642922905982254,
+      "cells": [
+        30,
+        31,
+        32,
+        33,
+        5027
+      ]
+    },
+    {
+      "vertices": [
+        9,
+        30
+      ],
+      "points": [
+        [
+          0.3333333333333333,
+          0.6666666666666666,
+          0.0
+        ],
+        [
+          0.6666666666666666,
+          1.0,
+          0.3333333333333333
+        ]
+      ],
+      "metric_length": 2.417346222685585,
+      "cells": [
+        42,
+        43,
+        44,
+        45,
+        6563
+      ]
+    },
+    {
+      "vertices": [
+        33,
+        223
+      ],
+      "points": [
+        [
+          0.3333333333333333,
+          0.0,
+          0.6666666666666666
+        ],
+        [
+          0.6547619047619048,
+          0.34523809523809523,
+          1.0
+        ]
+      ],
+      "metric_length": 2.4170626787318605,
+      "cells": [
+        20514,
+        20516,
+        20924,
+        21800,
+        21806
+      ]
+    },
+    {
+      "vertices": [
+        36,
+        57
+      ],
+      "points": [
+        [
+          0.0,
+          0.3333333333333333,
+          0.6666666666666666
+        ],
+        [
+          0.3333333333333333,
+          0.6666666666666666,
+          1.0
+        ]
+      ],
+      "metric_length": 2.3694700779266515,
+      "cells": [
+        129,
+        131,
+        20912,
+        21794,
+        21802
+      ]
+    },
+    {
+      "vertices": [
+        40,
+        61
+      ],
+      "points": [
+        [
+          0.0,
+          0.6666666666666666,
+          0.6666666666666666
+        ],
+        [
+          0.3333333333333333,
+          1.0,
+          1.0
+        ]
+      ],
+      "metric_length": 2.3694700779266515,
+      "cells": [
+        147,
+        148,
+        149,
+        69538,
+        69544
+      ]
+    },
+    {
+      "vertices": [
+        62,
+        606
+      ],
+      "points": [
+        [
+          0.6666666666666666,
+          1.0,
+          1.0
+        ],
+        [
+          0.37631778988155695,
+          0.6873374946241593,
+          0.649813149014586
+        ]
+      ],
+      "metric_length": 2.25822091069605,
+      "cells": [
+        69539,
+        69540,
+        69541,
+        94897,
+        94898
+      ]
+    },
+    {
+      "vertices": [
+        2,
+        7
+      ],
+      "points": [
+        [
+          0.6666666666666666,
+          0.0,
+          0.0
+        ],
+        [
+          1.0,
+          0.3333333333333333,
+          0.0
+        ]
+      ],
+      "metric_length": 2.229036245912664,
+      "cells": [
+        97314,
+        97316
+      ]
+    },
+    {
+      "vertices": [
+        6,
+        11
+      ],
+      "points": [
+        [
+          0.6666666666666666,
+          0.3333333333333333,
+          0.0
+        ],
+        [
+          1.0,
+          0.6666666666666666,
+          0.0
+        ]
+      ],
+      "metric_length": 2.229036245912664,
+      "cells": [
+        30,
+        32
+      ]
+    },
+    {
+      "vertices": [
+        50,
+        55
+      ],
+      "points": [
+        [
+          0.6666666666666666,
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          0.3333333333333333,
+          1.0
+        ]
+      ],
+      "metric_length": 2.229036245912664,
+      "cells": [
+        113454,
+        113455
+      ]
+    },
+    {
+      "vertices": [
+        59,
+        223
+      ],
+      "points": [
+        [
+          1.0,
+          0.6666666666666666,
+          1.0
+        ],
+        [
+          0.6547619047619048,
+          0.34523809523809523,
+          1.0
+        ]
+      ],
+      "metric_length": 2.2289141549791855,
+      "cells": [
+        111266,
+        112674,
+        112676
+      ]
+    },
+    {
+      "vertices": [
+        1,
+        6
+      ],
+      "points": [
+        [
+          0.3333333333333333,
+          0.0,
+          0.0
+        ],
+        [
+          0.6666666666666666,
+          0.3333333333333333,
+          0.0
+        ]
+      ],
+      "metric_length": 2.186571929735726,
+      "cells": [
+        93602,
+        93604
+      ]
+    },
+    {
+      "vertices": [
+        9,
+        14
+      ],
+      "points": [
+        [
+          0.3333333333333333,
+          0.6666666666666666,
+          0.0
+        ],
+        [
+          0.6666666666666666,
+          1.0,
+          0.0
+        ]
+      ],
+      "metric_length": 2.186571929735726,
+      "cells": [
+        42,
+        44
+      ]
+    },
+    {
+      "vertices": [
+        57,
+        62
+      ],
+      "points": [
+        [
+          0.3333333333333333,
+          0.6666666666666666,
+          1.0
+        ],
+        [
+          0.6666666666666666,
+          1.0,
+          1.0
+        ]
+      ],
+      "metric_length": 2.186571929735726,
+      "cells": [
+        69540,
+        69541
+      ]
+    },
+    {
+      "vertices": [
+        49,
+        223
+      ],
+      "points": [
+        [
+          0.3333333333333333,
+          0.0,
+          1.0
+        ],
+        [
+          0.6547619047619048,
+          0.34523809523809523,
+          1.0
+        ]
+      ],
+      "metric_length": 2.186428072884106,
+      "cells": [
+        20516,
+        21800
+      ]
+    },
+    {
+      "vertices": [
+        8,
+        13
+      ],
+      "points": [
+        [
+          0.0,
+          0.6666666666666666,
+          0.0
+        ],
+        [
+          0.3333333333333333,
+          1.0,
+          0.0
+        ]
+      ],
+      "metric_length": 2.1432663273973294,
+      "cells": [
+        102060,
+        102061
+      ]
+    },
+    {
+      "vertices": [
+        56,
+        61
+      ],
+      "points": [
+        [
+          0.0,
+          0.6666666666666666,
+          1.0
+        ],
+        [
+          0.3333333333333333,
+          1.0,
+          1.0
+        ]
+      ],
+      "metric_length": 2.1432663273973294,
+      "cells": [
+        148,
+        149
+      ]
+    },
+    {
+      "vertices": [
+        4,
+        9
+      ],
+      "points": [
+        [
+          0.0,
+          0.3333333333333333,
+          0.0
+        ],
+        [
+          0.3333333333333333,
+          0.6666666666666666,
+          0.0
+        ]
+      ],
+      "metric_length": 2.143266327397329,
+      "cells": [
+        102050,
+        102051
+      ]
+    },
+    {
+      "vertices": [
+        52,
+        57
+      ],
+      "points": [
+        [
+          0.0,
+          0.3333333333333333,
+          1.0
+        ],
+        [
+          0.3333333333333333,
+          0.6666666666666666,
+          1.0
+        ]
+      ],
+      "metric_length": 2.143266327397329,
+      "cells": [
+        131,
+        21794
+      ]
+    },
+    {
+      "vertices": [
+        4,
+        860
+      ],
+      "points": [
+        [
+          0.0,
+          0.3333333333333333,
+          0.0
+        ],
+        [
+          0.2800915614852756,
+          0.6573911301265548,
+          0.20942213992430594
+        ]
+      ],
+      "metric_length": 2.0422192686017775,
+      "cells": [
+        102050,
+        102051,
+        102052,
+        102069,
+        102073
+      ]
+    },
+    {
+      "vertices": [
+        1,
+        794
+      ],
+      "points": [
+        [
+          0.3333333333333333,
+          0.0,
+          0.0
+        ],
+        [
+          0.6078233513912875,
+          0.29346390842278613,
+          0.24244141642555544
+        ]
+      ],
+      "metric_length": 2.004968554852541,
+      "cells": [
+        93602,
+        93603,
+        93604,
+        101177,
+        101179
+      ]
+    },
+    {
+      "vertices": [
+        7,
+        794
+      ],
+      "points": [
+        [
+          1.0,
+          0.3333333333333333,
+          0.0
+        ],
+        [
+          0.6078233513912875,
+          0.29346390842278613,
+          0.24244141642555544
+        ]
+      ],
+      "metric_length": 1.810133998513144,
+      "cells": [
+        97314,
+        97316,
+        97317,
+        97319
+      ]
+    }
+  ],
+  "oversized_cells": 51,
+  "exported_private_mesh": "replay_rejected.su2",
+  "export_sha256": "9d82ab83f7100dd3bf6c458d084c63abfb5f07edb95a1649fa23c07bb158087a",
+  "auditor_sha256": "ae5ee47c6649d26c59bafd64715ecc3d5b126b85a0fe610874fc53551422aa04",
+  "scope": "Exact original n3 driver import/source match, independent positivity/incidence/embedding/finite-facet coverage/volume and actual frozen residuals, accepted-state preservation checks and diagnostic SU2 signature. Rejected private progress may violate length/shape targets and is never published to CFD. A successful direct Refine replay does not qualify backend coarsen/return/replace or alter production default."
+}

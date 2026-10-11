@@ -461,3 +461,44 @@ TEST_CASE("Native3D manufactured anisotropic driver envelope", "[NativeEnvelope3
   REQUIRE(counts.size()==3);CHECK(counts[1]<counts[0]);CHECK(counts[2]>counts[1]);
   {Mute mute;driver->Finalize();driver.reset();}
 }
+
+TEST_CASE("Native3D size-limit replay retains private progress and accepted CFD state", "[NativeEnvelopeReplay3D]") {
+  World world;REQUIRE(world.size==1);
+  const auto* supplied=std::getenv("SU2_NATIVE3D_REPLAY_ROUNDS");
+  const int rounds=supplied?std::stoi(supplied):512;
+  REQUIRE((rounds==512 || rounds==1024 || rounds==2048));
+  char cfg[]="envelope.cfg";
+  auto driver=std::make_unique<TetraDriver>(cfg,1,SU2_MPI::GetComm());
+  REQUIRE(driver->Geometry().GetGlobal_nPointDomain()==64);
+  auto backend=driver->Backend();REQUIRE(dynamic_cast<CNativeRemesher3D*>(backend.get()));REQUIRE(driver->Reference());
+  const auto before=State(driver->Geometry(),driver->Solver());
+  su2activematrix metric(driver->Geometry().GetnPointDomain(),6);
+  for(unsigned long p=0;p<metric.rows();++p) {
+    const double q=9.*(1.+.125*SU2_TYPE::GetValue(driver->Geometry().nodes->GetCoord(p,0)));
+    const std::array<double,6> tensor{q*1.625,q*.625,0.,q*1.625,0.,q};
+    for(size_t k=0;k<6;++k)metric(p,k)=tensor[k];
+  }
+  ReferenceState reference;auto imported=ImportGeometry(driver->Config(),driver->Geometry(),&metric,reference);
+  REQUIRE(imported.cells.size()==162);const auto authority=EncodeReference(reference);
+  const auto old=Signature(world,imported.cells,reference);const auto sensors=Bytes(imported.original);
+  Save(world,"replay_initial",imported.cells,imported.original,reference);
+  EngineOptions options;options.maximum_rounds=rounds;options.timings=true;
+  const auto replay=Refine(world,imported.cells,imported.original,*reference.original,{},options);
+  CHECK(Signature(world,imported.cells,reference)==old);CHECK(Bytes(imported.original)==sensors);
+  CHECK(State(driver->Geometry(),driver->Solver())==before);CHECK_FALSE(driver->Reference()->original);
+  CHECK(EncodeReference(reference)==authority);REQUIRE_FALSE(replay.cells.empty());
+  CHECK(replay.stats.rounds<=static_cast<uint64_t>(rounds));CHECK(replay.stats.accepted+replay.stats.rejected==replay.stats.attempted);
+  Save(world,replay.valid?"replay_accepted":"replay_rejected",replay.cells,imported.original,reference);
+  const auto& s=replay.stats;
+  std::ofstream out("replay_result.json");out<<std::setprecision(17)
+    <<"{\"complete\":"<<(replay.valid?"true":"false")<<",\"reason\":"<<std::quoted(replay.reason)
+    <<",\"maximum_rounds\":"<<rounds<<",\"rounds\":"<<s.rounds<<",\"attempted\":"<<s.attempted
+    <<",\"accepted\":"<<s.accepted<<",\"rejected\":"<<s.rejected<<",\"moved\":"<<s.moved<<",\"reconnected\":"<<s.reconnected
+    <<",\"repair_proposals\":"<<s.repair_proposals<<",\"recovery_starts\":"<<s.recovery_starts
+    <<",\"private_cells\":"<<replay.cells.size()<<",\"total_seconds\":"<<s.total_seconds
+    <<",\"metric_seconds\":"<<s.metric_seconds<<",\"reconstruction_seconds\":"<<s.reconstruction_seconds
+    <<",\"edge_trace_seconds\":"<<s.edge_trace_seconds<<",\"native_bound\":"<<s.maximum_work_bytes
+    <<",\"process_cpu_seconds\":"<<s.process_cpu_seconds<<",\"accepted_state_preserved\":true}\n";
+  CHECK(out.good());out.close();
+  {Mute mute;driver->Finalize();driver.reset();}
+}

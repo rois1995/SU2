@@ -1,0 +1,9 @@
+{
+  "status": "FROZEN_DIAGNOSTIC_MATRIX",
+  "input": "envelope_size3_v1/envelope_input.su2 and envelope.cfg, copied byte-for-byte",
+  "sensor": "n=3, 45deg xy rotation, spacing ratio1.5, strength9*(1+0.125*x)",
+  "ranks": 1,
+  "round_limits": [512, 1024],
+  "policy": "Serial actual-archive direct Refine replay, accepted CFD state unchanged, private progress independently audited/exported. Verify512 matches original backend counts and imported/source geometry before extending to1024. Stop to diagnose geometry/target discrepancies. These diagnostic bounds do not change the production default or constitute a full replacement/CFD/scaling certificate.",
+  "frozen_quality": {"mean_ratio": 0.2, "scaled_jacobian": 0.05, "maximum_metric_edge": 1.8}
+}

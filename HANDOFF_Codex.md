@@ -7,6 +7,47 @@ small sequential local checks with real host-contention checks; push each
 validated checkpoint and verify the remote SHA. A terminal capacity failure
 cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
+## Native3D exact rejected-private replay — 2026-10-11
+
+NativeIntegrated / codex/native-3d-core; predecessorce942b5d6fba97985577b2416e1d4256018b6e7c.
+REPLAY_REPORT.md / REPLAY_CHECKPOINT_VALIDATION.json and frozenREPLAY_MATRIX.json
+retain exact original n3 input/import/sensor match and bounded512/1024 direct
+Refine probes. No production change.512 replay exactlymatches original backend:
+59 privateaccepted/453 rejected,18moves/26reconnections,229tets,79points,
+qmin0.267933/Jmin0.146700,25longedges/65cells, Lmax2.464292.1024 stillrejects:
+79accepted/945rejected,231tets,21longedges/51cells, qmin0.211317/Jmin0.098595,
+sameLmax. Both independentpositivevolume/nooverlap/incidence/finitefacet/marker/
+volume1 checks pass; accepted CFD mesh/solution/reference/source unchanged.
+
+Inspectable private diagnostics (never accepted CFD grids):
+ integration_evidence/native_3d_core_v1/replay_size3_r512_v2/replay_rejected.su2
+ and replay_size3_r1024_v1/replay_rejected.su2. Audits list everylongedge with
+coordinates and incidentcells.512 enginewall8.046s/exclusivemetric6.425s;
+1024wall12.943s/metric10.308s. Nestededge tracing overlapsmultiplephases;
+singlecontendedruns, no scaling claim/usefulaccepted CFD edits for rejectedevent.
+
+Initialrunner syntaxfailure retainedbeforebuild. Firstreplayfixturev1 crashed
+querying uninitialized driver native reference afterRefine: fixcreatesBackend
+before queryingReference, onlytestcode. v2 all17Cppassertionspass; initialPython
+raw/derivedfacetcomparisonfailure retainedwithhash-bound correctedwhole-raw-input
+comparison recovery, no remeshingrerun.1024 terminalPASS and ordinary runner
+controlPASS:11 mesh/source/state files identicalto published N1varyingcase.
+Allproduction archives/members equalreader checkpoint; compactlogs/grids/pins.
+
+Next: production Refine currentlylocksinto repairmode untilwholefieldpasses,
+suppressing newlyunblocked splits after acceptedrepairs. Test alternating available
+splits while retaining a single seeded/tracked repairqueue, dependency blocking,
+512/defaultstoragebounds and alltarget/geometry/atomicguards. Separate operation
+selection from repairtracking, keep globalMPIoperationchoice consistent. Coarsen/
+pureRepair/current<=1recovery tests must remain valid. This is a control-flow
+hypothesis, not yet an implemented/provedfix. Exact segmentclipping hotspot remains
+separate; preserve tiny/tied/overlap/invalidsource checks if filtering is improved.
+
+FullGoal1 ACTIVE; noownedcase live after ordinarycontrol terminalPASS. Full MPI
+wait/traffic, memory calibration, stronger/directionchanging/thin/wedge/restart
+and practicalrank/size limits, repeatedOFFON and closedSGE remain. Noovernight
+clusterlaunchquestions; foreignwork untouched. Publication confirmation pending.
+
 ## Native 3D anisotropic driver envelope and first size limit — 2026-10-11
 
 NativeIntegrated / codex/native-3d-core, predecessord41c49de169444c6053674860da0285b6347fe18.

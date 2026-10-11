@@ -7,14 +7,15 @@ parser=argparse.ArgumentParser(description='One sequential manufactured native3D
 parser.add_argument('folder');parser.add_argument('--ranks',type=int,choices=(1,2,4),default=1)
 parser.add_argument('--binary-from',type=Path);parser.add_argument('--workers',type=int,default=1);parser.add_argument('--size',type=int,choices=(1,2,3,4),default=2)
 parser.add_argument('--anisotropy',type=int,choices=(0,1,2),default=1);parser.add_argument('--varying',type=int,choices=(0,1),default=0)
-parser.add_argument('--repeat',type=int,choices=(0,1,2),default=0);parser.add_argument('--detail',type=int,choices=(0,1),default=1)
+parser.add_argument('--replay-rounds',type=int,choices=(512,1024));parser.add_argument('--repeat',type=int,choices=(0,1,2),default=0);parser.add_argument('--detail',type=int,choices=(0,1),default=1)
 options=parser.parse_args();assert 1<=options.workers<=options.ranks
+if options.replay_rounds:assert (options.ranks,options.workers,options.size,options.anisotropy,options.varying,options.detail)==(1,1,3,1,1,1)
 folder=Path(options.folder).resolve();build=root/'integration_evidence/build-integrated-v2'
 print('Case working and retained folder:',folder,flush=True);folder.mkdir(exist_ok=False)
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 paths=subprocess.check_output(['git','ls-files','Common','SU2_CFD','UnitTests','meson.build','meson_options.txt'],cwd=root,text=True).splitlines()
 extras=['Common/include/adaptation/CNativeRuntimeProfile3D.hpp','integration_evidence/native_3d_core_v1/audit_lifecycle.py','Common/include/adaptation/CNativeReferenceIO3D.hpp','Common/include/adaptation/CNativeRemesher3D.hpp','Common/src/adaptation/CNativeReferenceIO3D.cpp','Common/src/adaptation/CNativeRemesher3D.cpp',str(Path(__file__).resolve().relative_to(root)),'integration_evidence/native_3d_core_v1/audit_runtime.py','integration_evidence/native_3d_core_v1/audit_geometry_bridge.py','integration_evidence/native_3d_core_v1/audit_coupled.py','integration_evidence/native_3d_core_v1/audit_cavities.py','UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp','integration_evidence/native_3d_core_v1/audit_defaults.py']
-extras+=['integration_evidence/native_3d_core_v1/audit_envelope.py','integration_evidence/native_3d_core_v1/export_envelope_vtu.py'];paths+=extras
+extras+=['integration_evidence/native_3d_core_v1/audit_envelope.py','integration_evidence/native_3d_core_v1/export_envelope_vtu.py','integration_evidence/native_3d_core_v1/audit_replay.py'];paths+=extras
 pins={p:sha(root/p) for p in paths if (root/p).is_file() and (p.endswith(('.cpp','.hpp','.h','.txt','.py')) or p.endswith('meson.build'))}
 owned=subprocess.check_output(['git','diff','--name-only'],cwd=root,text=True).splitlines()+extras
 for p in set(owned):
@@ -26,6 +27,12 @@ targets=['UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeImport3D_tests.cpp.o
 env=dict(os.environ,PATH='/tmp/native-build-tools:'+os.environ['PATH'],OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1',OMPI_MCA_mpi_yield_when_idle='1',OMPI_MCA_hwloc_base_binding_policy='none',PYTHONDONTWRITEBYTECODE='1')
 env.update({f'SU2_NATIVE3D_ENVELOPE_{key.upper()}':str(getattr(options,key)) for key in ('size','anisotropy','varying','workers','repeat','detail')})
 (folder/'parameters.json').write_text(json.dumps(vars(options),indent=2,default=str)+'\n')
+if options.replay_rounds:
+ env['SU2_NATIVE3D_REPLAY_ROUNDS']=str(options.replay_rounds)
+ origin=where/'envelope_size3_v1';recipe={}
+ for name in ('envelope.cfg','envelope_input.su2'):
+  source=origin/name;destination=folder/name;destination.write_bytes(source.read_bytes());assert sha(source)==sha(destination);recipe[name]=sha(source)
+ (folder/'replay_recipe.json').write_text(json.dumps(dict(source_folder=str(origin),source_validation_sha256=sha(origin/'validation.json'),input_sha256=recipe,matrix_sha256=sha(where/'REPLAY_MATRIX.json')),indent=2)+'\n')
 status='FAIL';stages=[];libs={};members={};objects={};binary=folder/'test_runtime'
 def run(command,label,cwd=root):
  command=['timeout','--signal=TERM','--kill-after=10s','900s']+list(map(str,command));print('Starting',label,flush=True);start=time.monotonic();p=subprocess.run(command,cwd=cwd,env=env,capture_output=True,text=True)
@@ -61,10 +68,10 @@ try:
  else:
   run(['nice','-n','19','mpicxx','-pthread']+[build/p for p in targets]+args+['-o',binary],'link_actual_archives')
  run(['uptime'],'before_case_load')
- out=run(['nice','-n','19','mpirun','--oversubscribe','--bind-to','none','-np',str(options.ranks),binary,'[NativeEnvelope3D]','--use-colour','no'],'case',folder)
+ out=run(['nice','-n','19','mpirun','--oversubscribe','--bind-to','none','-np',str(options.ranks),binary,'[NativeEnvelopeReplay3D]' if options.replay_rounds else '[NativeEnvelope3D]','--use-colour','no'],'case',folder)
  assert out.count('All tests passed')==options.ranks
- run(['nice','-n','19',sys.executable,where/'audit_envelope.py',folder],'independent_audit',folder)
- run(['nice','-n','19',sys.executable,where/'export_envelope_vtu.py',folder],'vtu_export',folder)
+ run(['nice','-n','19',sys.executable,where/('audit_replay.py' if options.replay_rounds else 'audit_envelope.py'),folder],'independent_audit',folder)
+ if not options.replay_rounds:run(['nice','-n','19',sys.executable,where/'export_envelope_vtu.py',folder],'vtu_export',folder)
  status='PASS'
 finally:
  changed=[p for p,h in pins.items() if sha(root/p)!=h]
@@ -72,7 +79,7 @@ finally:
  object_changes=[p for p,h in objects.items() if sha(build/p)!=h]
  if changed or archive_changes or object_changes:status='FAIL'
  result=dict(status=status,source_sha256=pins,changed_during_run=changed,archive_changes=archive_changes,object_changes=object_changes,library_sha256=libs,thin_archive_member_sha256=members,actual_test_object_sha256=objects,build_ninja_sha256=sha(build/'build.ninja'),stages=stages,
-             scope='Actual configured complete-archive native3D manufactured anisotropic driver envelope: three refine/coarsen/refine events and original-P1/BDF2 audits at one fixed N/M/size/metric/detail/repeat. Manufactured metric preparation; no CFD iteration, measured scaling or full Goal1 completion.')
+             scope=('Actual complete-archive test-only direct Refine replay of a copied failed n3 driver import and sensor recipe, bounded diagnostic round allowance, no accepted replacement or changed production default.' if options.replay_rounds else 'Actual configured complete-archive native3D manufactured anisotropic driver envelope: three refine/coarsen/refine events and original-P1/BDF2 audits at one fixed N/M/size/metric/detail/repeat. Manufactured metric preparation; no CFD iteration, measured scaling or full Goal1 completion.'))
  if binary.exists():result['binary_sha256']=sha(binary)
  result['artifact_sha256']={str(p.relative_to(folder)):sha(p) for p in folder.rglob('*') if p.is_file() and p.suffix not in ('.o','.pyc') and p.name!='test_runtime'}
  (folder/'validation.json').write_text(json.dumps(result,indent=2)+'\n');print(status,folder,flush=True)
