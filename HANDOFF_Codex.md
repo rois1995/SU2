@@ -37,7 +37,11 @@ Next exact failure replay, direction-changing/thin/wedge/restart/practical limit
 full wait/traffic and memory calibration; repeated OFFON and closed SGE package
 still required. One contended pilot is not scaling/overhead/affordability proof.
 Do not ask overnight cluster launches. ForeignFSI/submodules/AdapNoExt/
-ClusterResults untouched. Publication confirmation to follow validated push.
+ClusterResults untouched. Implementation/evidence checkpoint dd673805245e4946bc995ba193a986f418299155
+pushed to origin/codex/native-3d-core; full remote SHA verified. Two redundant
+terminal-PASS test binaries removed after identical-hash verification, reclaiming
+1,217,722,368bytes; qualified shared binary remains in envelope_mpi2_m2_v1.
+ENVELOPE_DISK_COMPACTION.json preserves receipts; no numerical evidence removed.
 
 ## Native 3D reader admission validated — 2026-10-11
 

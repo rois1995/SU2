@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "utc": "2026-10-11T07:27:42.625473Z",
+  "implementation_checkpoint": "dd673805245e4946bc995ba193a986f418299155",
+  "removed_redundant_binaries": [
+    {
+      "file": "integration_evidence/native_3d_core_v1/envelope_pilot_v1/test_runtime",
+      "bytes": 608861184,
+      "sha256": "5119847b6f3484f46fe12cccc281841ae4eabbdc8dab719ccd63bfa145b4b4ae",
+      "validation_sha256": "bf38a868a08c996b3ec8e0a38e7c5fceb86a0d815b6b23680a7ba7b0875b6ac7"
+    },
+    {
+      "file": "integration_evidence/native_3d_core_v1/envelope_varying_v1/test_runtime",
+      "bytes": 608861184,
+      "sha256": "5119847b6f3484f46fe12cccc281841ae4eabbdc8dab719ccd63bfa145b4b4ae",
+      "validation_sha256": "89dcb046041f130358345bb7fb8b349dc973b4add4784545b6be174eed07793e"
+    }
+  ],
+  "retained_identical_binary": "integration_evidence/native_3d_core_v1/envelope_mpi2_m2_v1/test_runtime",
+  "retained_binary_sha256": "5119847b6f3484f46fe12cccc281841ae4eabbdc8dab719ccd63bfa145b4b4ae",
+  "reclaimed_bytes": 1217722368,
+  "scope": "Only two owned terminal-PASS singly-linked redundant test executables removed after hashing against retained qualified executable. Grids/states/logs/source snapshots/validation receipts unchanged; no foreign files or shared binary links removed."
+}

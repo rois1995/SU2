@@ -2,7 +2,8 @@
 
 Repository `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 `codex/native-3d-core`, predecessor `d41c49de169444c6053674860da0285b6347fe18`.
-Full Goal 1 remains active and incomplete. This checkpoint adds actual-driver
+Implementation/evidence checkpoint `dd673805245e4946bc995ba193a986f418299155`
+is pushed and remote-verified. Full Goal 1 remains active and incomplete. This checkpoint adds actual-driver
 fixtures, independent audits and inspectable grids; it changes no production code.
 All production archives and thin-archive members match the pushed reader checkpoint.
 
@@ -121,7 +122,10 @@ Use a fresh folder; the runner refuses overwrites. Actual complete configured
 archives, test objects, source snapshots and binary/build-plan identities are
 pinned. Optional `--binary-from <qualified case>` verifies archive/member/object/
 plan/binary identities before reuse, with a verified-copy fallback when links
-fail. ELF binaries, objects and Python caches are excluded from Git. Matrices
+fail. ELF binaries, objects and Python caches are excluded from Git. Two identical superseded test executable copies were removed after qualification,
+reclaiming1,217,722,368bytes. The qualified shared executable remains in
+`envelope_mpi2_m2_v1`; use it for local binary reuse. The disk-compaction receipt
+preserves identities; all numerical evidence remains. Matrices
 must be extended explicitly after diagnosing the retained failure.
 
 Still required for full Goal1: robust larger/stronger/direction-changing/thin/
