@@ -14,6 +14,24 @@
 #include <set>
 #include <sstream>
 namespace SU2Native3D {
+namespace {
+struct Header {
+  uint64_t markers = 0, facets = 0;
+};
+Header ReadHeader(std::istream& in, size_t bytes) {
+  std::string magic;
+  unsigned version = 0;
+  Header h;
+  // Each facet needs fourteen numeric tokens; file length bounds counts before allocating any facet storage.
+  if (!(in >> magic >> version >> h.markers >> h.facets) || magic != "SU2_NATIVE_REFERENCE_3D" || version != 1 ||
+      !h.facets || h.facets > bytes / 14 || !h.markers || h.markers > h.facets)
+    throw std::invalid_argument("Invalid native3D reference header/counts/version.");
+  return h;
+}
+size_t DecodeBytes(size_t bytes, size_t facets) {
+  return transfer_memory::Add(transfer_memory::Mul(bytes, 8), PlanarReference::ConstructionBytes(facets));
+}
+}  // namespace
 std::string EncodeReference(const ReferenceState& state) {
   if (!state.original || state.marker_names.empty() || state.facets.empty())
     throw std::invalid_argument("Cannot persist an uninitialized native3D reference.");
@@ -33,16 +51,17 @@ std::string EncodeReference(const ReferenceState& state) {
   DecodeReference(bytes);
   return bytes;
 }
-ReferenceState DecodeReference(const std::string& bytes) {
+ReferenceState DecodeReference(const std::string& bytes, size_t ceiling) {
   if (bytes.size() > ReferenceFileLimit3D) throw std::invalid_argument("Native3D reference exceeds file limit.");
+  if (transfer_memory::Mul(bytes.size(), 8) > ceiling)
+    throw std::invalid_argument("Native3D reference parsing exceeds storage budget.");
   std::istringstream in(bytes);
   in.imbue(std::locale::classic());
-  std::string magic;
-  unsigned version = 0;
-  uint64_t markers = 0, facets = 0;
-  if (!(in >> magic >> version >> markers >> facets) || magic != "SU2_NATIVE_REFERENCE_3D" || version != 1 || !facets ||
-      facets > 4 * MaximumCavityCells || !markers || markers > facets)
-    throw std::invalid_argument("Invalid native3D reference header/counts/version.");
+  const auto header = ReadHeader(in, bytes.size());
+  const auto markers = header.markers, facets = header.facets;
+  const size_t construction = PlanarReference::ConstructionBytes(facets), requested = DecodeBytes(bytes.size(), facets);
+  if (requested == SIZE_MAX || requested > ceiling)
+    throw std::invalid_argument("Native3D reference decoding exceeds storage budget.");
   ReferenceState result;
   std::set<std::string> names;
   std::set<int> used;
@@ -67,35 +86,80 @@ ReferenceState DecodeReference(const std::string& bytes) {
   in >> std::ws;
   if (!in.eof() || used.size() != markers) throw std::invalid_argument("Trailing data or unused native3D markers.");
   ValidateSurfaceTopology(skin, true);
-  result.original = std::make_shared<PlanarReference>(result.facets);
+  result.original = std::make_shared<PlanarReference>(result.facets, construction);
   return result;
 }
-bool LoadReference(const std::string& filename, ReferenceState& state) {
+bool LoadReference(const std::string& filename, ReferenceState& state, bool& loaded, std::string& reason,
+                   size_t ceiling, size_t caller_bytes, size_t& maximum_bytes) {
+  World world;
+  loaded = false;
+  reason.clear();
+  auto admit = [&](size_t requested) {
+    const auto total = transfer_memory::Add(caller_bytes, requested);
+    maximum_bytes = std::max(maximum_bytes, total);
+    CLocalFailure local;
+    if (total == SIZE_MAX || total > ceiling) local.Set(3, 0, "Native3D reference loading exceeds storage budget.");
+    const auto elected = world.elect(local);
+    reason = elected.message;
+    return !elected.any;
+  };
   CLocalFailure failure;
-  std::vector<char> bytes;
-  if (!SU2_MPI::GetRank()) try {
+  uint64_t n = 0;
+  if (!world.rank) try {
       if (std::filesystem::exists(filename)) {
-        const auto n = std::filesystem::file_size(filename);
+        n = std::filesystem::file_size(filename);
         if (!n || n > ReferenceFileLimit3D) throw std::runtime_error("Invalid native3D reference file size.");
-        bytes.resize(n);
-        std::ifstream input(filename, std::ios::binary);
-        if (!input.read(bytes.data(), bytes.size())) throw std::runtime_error("Cannot read native3D reference.");
       }
     } catch (const std::exception& e) {
       failure.Set(1, 0, filename + ": " + e.what());
     }
   CollectiveFailure(failure, CURRENT_FUNCTION);
+  n = CPassiveComm::Allreduce(n, CPassiveComm::Op::SUM, world.comm);
+  const size_t transport = transfer_memory::TransportBytes(world.size);
+  if (!admit(transfer_memory::Add(transfer_memory::Mul(n, 8), transport))) return false;
+  if (!n) return true;
+  std::vector<char> bytes;
+  if (!world.rank) try {
+      bytes.resize(n);
+      std::ifstream input(filename, std::ios::binary);
+      if (!input.read(bytes.data(), bytes.size()) || input.peek() != std::char_traits<char>::eof())
+        throw std::runtime_error("Cannot read native3D reference or file size changed.");
+    } catch (const std::exception& e) {
+      failure.Set(1, 0, filename + ": " + e.what());
+    }
+  CollectiveFailure(failure, CURRENT_FUNCTION);
   CPassiveComm::BcastRounds(bytes, 0);
-  if (bytes.empty()) return false;
+  const std::string text(bytes.begin(), bytes.end());
+  size_t requested = SIZE_MAX;
+  try {
+    std::istringstream in(text);
+    in.imbue(std::locale::classic());
+    requested = DecodeBytes(text.size(), ReadHeader(in, text.size()).facets);
+  } catch (const std::exception& e) {
+    failure.Set(1, 0, filename + ": " + e.what());
+  }
+  CollectiveFailure(failure, CURRENT_FUNCTION);
+  if (!admit(transfer_memory::Add(requested, transport))) return false;
   ReferenceState pending;
   try {
-    pending = DecodeReference(std::string(bytes.begin(), bytes.end()));
+    pending = DecodeReference(text, requested);
   } catch (const std::exception& e) {
     failure.Set(1, 0, filename + ": " + e.what());
   }
   CollectiveFailure(failure, CURRENT_FUNCTION);
   state = std::move(pending);
+  loaded = true;
   return true;
+}
+bool LoadReference(const std::string& filename, ReferenceState& state) {
+  bool loaded = false;
+  std::string reason;
+  size_t maximum = 0;
+  CLocalFailure failure;
+  if (!LoadReference(filename, state, loaded, reason, SIZE_MAX, ReferenceStorageBytes(state), maximum))
+    failure.Set(3, 0, reason);
+  CollectiveFailure(failure, CURRENT_FUNCTION);
+  return loaded;
 }
 void WriteReference(const std::string& filename, const ReferenceState& state) {
   CLocalFailure failure;

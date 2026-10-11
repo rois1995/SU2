@@ -37,6 +37,30 @@ bool OnEdge(Point a, Point b, Point p, KernelStats* stats) {
   return p.x >= std::min(a.x, b.x) && p.x <= std::max(a.x, b.x) && p.y >= std::min(a.y, b.y) &&
          p.y <= std::max(a.y, b.y) && p.z >= std::min(a.z, b.z) && p.z <= std::max(a.z, b.z);
 }
+std::vector<Edge> StraightBorders(const std::vector<Edge>& border, const std::map<Id, Node>& nodes) {
+  std::map<Id, Id> next, previous;
+  for (auto edge : border)
+    if (!next.emplace(edge[0], edge[1]).second || !previous.emplace(edge[1], edge[0]).second) return border;
+  std::set<Id> corners;
+  for (const auto& edge : next) {
+    const auto before = previous.find(edge.first);
+    if (before == previous.end()) return border;
+    if (!OnEdge(nodes.at(before->second).p, nodes.at(edge.second).p, nodes.at(edge.first).p, nullptr))
+      corners.insert(edge.first);
+  }
+  std::vector<Edge> result;
+  size_t walked = 0;
+  for (Id first : corners) {
+    Id last = first;
+    do {
+      if (++walked > border.size()) return border;
+      last = next.at(last);
+    } while (!corners.count(last));
+    result.push_back({first, last});
+  }
+  // Remove only forward-collinear subdivisions: identical oriented half-planes, including separate hole loops.
+  return walked == border.size() ? result : border;
+}
 std::map<Id, Node> Nodes(const std::vector<Cell>& cells) {
   std::map<Id, Node> result;
   for (const auto& c : cells)
@@ -100,8 +124,9 @@ void Endpoints(Edge& edge) {
   std::sort(edge.begin(), edge.end());
 }
 }  // namespace
-PlanarReference::PlanarReference(std::vector<Facet> input) {
-  if (input.size() > 4 * MaximumCavityCells) throw std::invalid_argument("Native 3D reference facet budget exceeded.");
+PlanarReference::PlanarReference(std::vector<Facet> input, size_t ceiling) {
+  const size_t bytes = ConstructionBytes(input.size());
+  if (bytes == SIZE_MAX || bytes > ceiling) throw std::invalid_argument("Native 3D reference construction exceeds storage budget.");
   for (const auto& f : input) {
     std::set<Id> ids;
     for (auto n : f.v) {
@@ -190,6 +215,7 @@ PlanarReference::PlanarReference(std::vector<Facet> input) {
       else if (uses.size() != 2 || uses[0][0] != uses[1][1] || uses[0][1] != uses[1][0])
         valid = false;
     }
+    if (valid) border = StraightBorders(border, nodes);
     for (auto edge : border)
       for (Id id : vertices) {
         const auto side = Projected(nodes.at(edge[0]).p, nodes.at(edge[1]).p, nodes.at(id).p, axis, nullptr);

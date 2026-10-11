@@ -1,0 +1,42 @@
+{
+  "base": "1fafe9e83c9c8d3f9518740c04dba25c15d8e8aa",
+  "regression": "reference_admission_regression_v1",
+  "guards": {
+    "q": 0.2,
+    "J": 0.05,
+    "L": 1.8,
+    "rounds": 512,
+    "noise": 0
+  },
+  "target": "Unchanged rotated spatial original-P1 wedge targets; n4 scales16/4/16. Reference memory and exact equivalent collinear border constraints change; operator and sensor contracts do not.",
+  "cases": [
+    {
+      "folder": "reference_admission_n4_n1_m1_v1",
+      "baseline": "reference_lookup_n4_n1_m1_v1",
+      "ranks": 1,
+      "workers": 1
+    },
+    {
+      "folder": "reference_admission_n4_n4_m2_v1",
+      "baseline": "reference_lookup_n4_n4_m2_v1",
+      "ranks": 4,
+      "workers": 2
+    }
+  ],
+  "restart_cases": [
+    {
+      "folder": "reference_admission_restart_su2_n2_n1_m1_v1",
+      "ranks": 1,
+      "workers": 1,
+      "restart_format": "su2"
+    },
+    {
+      "folder": "reference_admission_restart_cgns_n2_n4_m2_v1",
+      "ranks": 4,
+      "workers": 2,
+      "restart_format": "cgns"
+    }
+  ],
+  "acceptance": "Actual configured full68-object regression at MPI1/2/4 plus serialMMG; constructor512facets, CFD import300facets and elected early/late reload budget refusal without publication;26 fixed-work raw geometry/state/readback files; independent actual three-event SU2/CGNS persisted-restart audits; pin all sources/binaries/archives, preserve failed runs.",
+  "execution": "One nice19/j1/thread1 job only after real host availability. Single pilots give correctness/phase diagnostics, not repeated timing/scaling."
+}

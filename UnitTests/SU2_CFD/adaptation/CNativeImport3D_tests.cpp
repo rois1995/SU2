@@ -298,6 +298,35 @@ TEST_CASE("Native3D immutable reference encoding rejects malformed authority", "
   WriteReference("original.native_ref",original);ReferenceState loaded;CHECK(LoadReference("original.native_ref",loaded));CHECK(EncodeReference(loaded)==text);
   CHECK_FALSE(LoadReference("nonexistent.native_ref",loaded));CHECK(EncodeReference(loaded)==text);
 }
+TEST_CASE("Native3D large reference import and reload elect memory refusal without publication", "[NativeReference3D]") {
+  World world;auto config=MakeConfig(3,"SOLVER= EULER\n");const auto mesh=BoxMesh(3,5,false);
+  if(!world.rank)simplex_test::WriteSU2Mesh(mesh,"large_reference_input.su2");
+  MeshSolution cube(config.get(),mesh,0);
+  ReferenceState original;ImportGeometry(*config,cube.Fine(),nullptr,original);
+  REQUIRE(original.facets.size()==300);
+  const auto text=EncodeReference(original);
+  CHECK(EncodeReference(DecodeReference(text))==text);
+  CHECK_THROWS_AS(DecodeReference(text,0),std::invalid_argument);
+  CHECK_THROWS_AS(DecodeReference(text,8*text.size()),std::invalid_argument);
+  CHECK_THROWS_AS(DecodeReference("SU2_NATIVE_REFERENCE_3D 1\n1 18446744073709551615\n"),std::invalid_argument);
+  WriteReference("large.native_ref",original);
+  ReferenceState loaded=original;const auto saved=loaded.original;
+  const size_t caller=ReferenceStorageBytes(loaded),transport=transfer_memory::TransportBytes(world.size);
+  const size_t early=transfer_memory::Add(caller,8*text.size(),transport);
+  for(size_t limit : {size_t(0),early}) {
+    bool found=true;std::string reason;size_t maximum=0;
+    CHECK_FALSE(LoadReference("large.native_ref",loaded,found,reason,world.rank?SIZE_MAX:limit,caller,maximum));
+    CHECK_FALSE(found);CHECK_FALSE(reason.empty());CHECK(maximum>limit);
+    CHECK(loaded.original==saved);CHECK(EncodeReference(loaded)==text);
+  }
+  bool found=false;std::string reason;size_t maximum=0;
+  const size_t limit=transfer_memory::Add(early,PlanarReference::ConstructionBytes(original.facets.size()));
+  REQUIRE(LoadReference("large.native_ref",loaded,found,reason,limit,caller,maximum));
+  CHECK(found);CHECK(reason.empty());CHECK(maximum==limit);
+  CHECK(loaded.original!=saved);CHECK(EncodeReference(loaded)==text);
+  CHECK(LoadReference("missing_large.native_ref",loaded,found,reason,limit,ReferenceStorageBytes(loaded),maximum));
+  CHECK_FALSE(found);CHECK(reason.empty());CHECK(EncodeReference(loaded)==text);
+}
 TEST_CASE("Native3D driver publishes only accepted mesh and transfers affine BDF2 states", "[NativeRuntime3D]") {
   World world;const int m=GENERATE(1,2,3,4);if(m>world.size)return;
   const bool conservative=GENERATE(false,true),detail=GENERATE(false,true);

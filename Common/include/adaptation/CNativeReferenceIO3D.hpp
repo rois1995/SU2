@@ -10,8 +10,13 @@
 namespace SU2Native3D {
 constexpr size_t ReferenceFileLimit3D = 1024 * 1024;
 std::string EncodeReference(const ReferenceState& state);
-ReferenceState DecodeReference(const std::string& bytes);
+ReferenceState DecodeReference(const std::string& bytes, size_t ceiling = SIZE_MAX);
 /*! Collective root I/O and elected decoding. Missing file returns false; malformed files never rebase geometry. */
 bool LoadReference(const std::string& filename, ReferenceState& state);
+/*! Recoverable collective memory admission before byte transport and reference construction.
+ * Success with loaded=false means missing file; refusal leaves state unchanged and reports elected reason.
+ * maximum_bytes includes caller_bytes; malformed files remain fatal rather than rebasing geometry. */
+bool LoadReference(const std::string& filename, ReferenceState& state, bool& loaded, std::string& reason,
+                   size_t ceiling, size_t caller_bytes, size_t& maximum_bytes);
 void WriteReference(const std::string& filename, const ReferenceState& state);
 }  // namespace SU2Native3D

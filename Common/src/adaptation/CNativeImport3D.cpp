@@ -316,14 +316,14 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
         transfer_memory::Add(reply_base, transfer_memory::Bytes(reply), transfer_memory::Bytes(bindings));
     if (!state.original) {
       const auto count = CPassiveComm::Allreduce(uint64_t(bindings.size()), CPassiveComm::Op::SUM, parent.comm);
-      if (!count || count > 4 * MaximumCavityCells)
-        failure.Set(1, 0, "Native3D immutable facet authority exceeds the 256-face limit.");
+      if (!count || transfer_memory::Mul(count, sizeof(Facet)) == SIZE_MAX)
+        failure.Set(1, 0, "Native3D immutable facet authority is empty or exceeds addressable storage.");
       CollectiveFailure(failure, CURRENT_FUNCTION);
-      // Reference construction is bounded by 256 facets: maps/links, vector growth and replicated wire copies.
+      // Admit reference maps/index/component scratch and replicated wire copies before construction.
       const size_t reference_scratch = PlanarReference::ConstructionBytes(count);
       if (!Admit(parent,
                  transfer_memory::Add(reference_base, reference_scratch,
-                                      transfer_memory::Mul(parent.size, 3 * count * sizeof(Facet))),
+                                      transfer_memory::Mul(parent.size, transfer_memory::Mul(count, 3 * sizeof(Facet)))),
                  ceiling, stats, reason))
         return false;
       std::vector<Facet> local;
@@ -346,7 +346,7 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
         std::vector<Face> skin;
         for (auto f : pending.facets) skin.push_back({f.v[0].id, f.v[1].id, f.v[2].id});
         ValidateSurfaceTopology(skin, true);
-        pending.original = std::make_shared<PlanarReference>(pending.facets);
+        pending.original = std::make_shared<PlanarReference>(pending.facets, reference_scratch);
       } catch (const std::exception& e) {
         failure.Set(1, 0, e.what());
       }

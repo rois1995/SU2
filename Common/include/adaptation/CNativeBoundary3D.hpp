@@ -35,7 +35,7 @@ struct Patch {
  * seams are removable. */
 class PlanarReference {
  public:
-  explicit PlanarReference(std::vector<Facet> facets);
+  explicit PlanarReference(std::vector<Facet> facets, size_t ceiling = SIZE_MAX);
   const Facet& Get(Id id) const;
   /*! Requested resident map/vector storage; allocator metadata and constructor scratch are separate. */
   size_t ResidentBytes() const;

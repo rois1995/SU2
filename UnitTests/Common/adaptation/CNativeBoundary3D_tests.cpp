@@ -458,3 +458,32 @@ TEST_CASE("Native indexed reference binding matches exhaustive finite oriented c
   CHECK(single.SearchWorkspaceBytes()==0);
   Id id=42;CHECK(single.FindFace(facets.front().marker,queries.front(),id));CHECK(id==facets.front().id);
 }
+
+TEST_CASE("Native planar authority admits large tiled patches with constant border query work", "[NativeMesh3D][NativeReferenceSearch3D]") {
+  for (size_t n : {size_t(4), size_t(16)}) {
+    std::vector<Facet> facets;
+    auto node=[&](size_t i,size_t j){return Node{Id(j*(n+1)+i),{double(i)/n,double(j)/n,0}};};
+    for(size_t j=0;j<n;++j)for(size_t i=0;i<n;++i) {
+      const auto a=node(i,j),b=node(i+1,j),c=node(i+1,j+1),d=node(i,j+1);
+      facets.push_back({Id(facets.size()),7,{a,b,c}});facets.push_back({Id(facets.size()),7,{a,c,d}});
+    }
+    const auto budget=PlanarReference::ConstructionBytes(facets.size());
+    CHECK_THROWS_AS(PlanarReference(facets,budget-1),std::invalid_argument);
+    const PlanarReference reference(facets,budget);
+    CHECK(reference.Canonical(facets.back().id)==0);
+    KernelStats stats;
+    CHECK(reference.Contains(0,{.5,.5,0},&stats));
+    CHECK(stats.filtered_orientations+stats.exact_orientations==8);
+    for(Point point : {Point{0,0,0},Point{1,1,0},Point{.125,.875,0}})CHECK(reference.Contains(0,point));
+    CHECK_FALSE(reference.Contains(0,{std::nextafter(1.,2.),.5,0}));
+    CHECK_FALSE(reference.Contains(0,{.5,.5,std::numeric_limits<double>::denorm_min()}));
+    CHECK(reference.ContainsFace(0,{{{0,0,0},{1,0,0},{0,1,0}}}));
+    CHECK_FALSE(reference.ContainsFace(0,{{{0,0,0},{0,1,0},{1,0,0}}}));
+    auto tilted=facets;
+    for(auto& f:tilted)for(auto& v:f.v)v.p.z=v.p.x+v.p.y;
+    const PlanarReference oblique(tilted,budget);
+    CHECK(oblique.Canonical(tilted.back().id)==0);
+    CHECK(oblique.ContainsFace(0,{{{0,0,0},{1,0,1},{0,1,1}}}));
+    CHECK_FALSE(oblique.Contains(0,{.5,.5,std::nextafter(1.,2.)}));
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "status": "PREPARED_NOT_VALIDATED",
+  "predecessor": "1fafe9e83c9c8d3f9518740c04dba25c15d8e8aa",
+  "branch": "codex/native-3d-core",
+  "created_utc": "2026-10-11T14:38:37.419390+00:00",
+  "source_sha256": {
+    "Common/include/adaptation/CNativeBoundary3D.hpp": "8c7aa16257297c436102febf0a5fa1e4901d63ed5bbf210b3028b434e66859e4",
+    "Common/include/adaptation/CNativeReferenceIO3D.hpp": "51f37e5a3ee35693edb1d0983dcc0e1e4941f4aa915f74de6b766d2217e90227",
+    "Common/src/adaptation/CNativeBoundary3D.cpp": "a08716c19aeae7bf5497684b1966f99e21fe9ffa2e5b7b0c7d1a8927c0ff67b0",
+    "Common/src/adaptation/CNativeImport3D.cpp": "eb9e72428c950c09ad44c6123680565fadea18cb7956992dff3ac5a5ac189e8b",
+    "Common/src/adaptation/CNativeReferenceIO3D.cpp": "b63a942e0721da744d41aca986712580e3db95fd1428ad44200e0cb839aec96c",
+    "Common/src/adaptation/CNativeRemesher3D.cpp": "2c39e1a58a1c13c0d62db81aceba4b4fbda17eefebc61cfa44e227ba6444b754",
+    "UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp": "f35ac50d639cb694f819336c94fb3ec1dc6af79c89681f12410ea35b8e632e77",
+    "UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp": "80f0c7d2fbb3063b6ec0e690b3d69d988fdbef6e5c623420930027601d791fa0",
+    "integration_evidence/native_3d_core_v1/REFERENCE_ADMISSION_MATRIX.json": "a1138e52a85d5d17843c9cbb7bf8970361db3939e86ac33bffe75b0dbd1a9fe4",
+    "integration_evidence/native_3d_core_v1/analyze_reference_admission.py": "7984ce6925a6a28fa9b7d4e096e421fc723d6cc066cd5eb12eaf1b40e5eb5445"
+  },
+  "stages": [
+    {
+      "command": [
+        "uptime"
+      ],
+      "name": "host_load",
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "free",
+        "-m"
+      ],
+      "name": "host_memory",
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "ps",
+        "-eo",
+        "pid,ppid,ni,pcpu,etime,comm",
+        "--sort=-pcpu"
+      ],
+      "name": "host_processes",
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "vmstat",
+        "1",
+        "2"
+      ],
+      "name": "host_cpu_sample",
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "--ignore-submodules=all"
+      ],
+      "name": "diff_check",
+      "exit_code": 0
+    }
+  ],
+  "scope": "Diff whitespace and Python qualifier syntax checks only. Native C++ build, actual MPI/full configured regression, driver fixed-work and persistent restart cases NOT RUN. Host CPU saturated; foreign FSI and foreign two-job compiler remain untouched. Draft publication, not a validated production checkpoint.",
+  "artifact_sha256": {
+    "host_processes.stdout": "73961c6e6e8153cba9886a357c6675ffdc106ac3d04e10912b0fe706afdd9ea8",
+    "host_load.stdout": "be14a79f2629ce93391c86ea2c4ad8d9a439bed10bf8bf503870d723131b6ef4",
+    "host_memory.stdout": "941188f5f4dd4bdf8dd6d9184b7bcfa09de5cc405944be715ca6ed9618101504",
+    "host_cpu_sample.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host_load.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host_cpu_sample.stdout": "d5fa08ee4f38cfba37a5f8529e977160819c8fb0e7119195b530d4f4c0d7706a",
+    "diff_check.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host_processes.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "diff_check.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host_memory.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

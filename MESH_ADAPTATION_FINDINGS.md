@@ -1,3 +1,45 @@
+## Reference admission draft — 2026-10-11; NOT VALIDATED
+
+NativeIntegrated / codex/native-3d-core, based on pushed validated checkpoint
+`1fafe9e83c9c8d3f9518740c04dba25c15d8e8aa`. The draft replaces the global256-facet
+count guard with requested-memory admission in PlanarReference, ImportGeometry,
+DecodeReference and collective LoadReference/factory. It bounds declared sidecar
+counts by actual file bytes before facet allocation, keeps the independent1MiB
+file limit and private64-cell/256-donor bounds, and distinguishes missing sidecar
+from recoverable elected memory refusal without changing published authority.
+Reference I/O now admits actual byte/parse/construction demand rather than the
+old fixed8MiB placeholder. Construction scratch remains a conservative proxy,
+not calibrated allocator/RSS accounting.
+
+Exact forward-collinear border subdivisions are reduced to identical oriented
+half-planes before the existing all-vertex convex certificate. Separate hole
+loops and nonconvex fallback remain; no hull filling, tolerance or geometry
+projection is introduced. No sensor/BL/fade/noise/operator/quality defaults or
+2D/MMG sources change. New targeted tests cover512 tiled planar facets, constant
+rectangular border query work, oblique/nextafter/orientation controls, actual300
+facet CFD import/encode/reload, malformed oversized declared counts, and root-only
+early/late memory refusal preserving state. They are written but NOT RUN.
+
+`integration_evidence/native_3d_core_v1/REFERENCE_ADMISSION_MATRIX.json` freezes
+configured regression, two n4 fixed-work N1M1/N4M2 cases and actual persisted
+restart SU2N1M1/CGNSN4M2 cases. `analyze_reference_admission.py` is prepared,
+syntax checked, not executed against new results. `reference_admission_preflight_v1`
+retains source pins, clean diff check and real host logs: eight CPUs, load~17,
+zero sampled CPU idle, four foreign FSI ranks plus foreign nice19/j2 build
+(`/tmp/su2-wall-fixes-build`, PID3859854 at inspection). NO owned build/run/audit
+was launched. Do not treat draft publication as any C++/MPI/numerical PASS.
+
+Next: check actual host contention; once available run one nice19/j1 configured
+regression in `reference_admission_regression_v1`, preserve failures, then
+sequential actual fixed-work/restart cases from the frozen matrix and run the
+qualifier. Announce each full folder first; no source/pinned-helper changes while
+a campaign is live. Compare26 raw mesh/state/readback files and rank-local edits,
+verify production/member pins and independent exact audits, then publish a
+validated checkpoint. Global-cap removal does NOT yet certify larger adaptation;
+follow with closed larger-domain first-limit cases/SGE package. Complete detailed
+traffic/cache/privateCPU/wait/memory calibration and disabled-detail overhead
+remain open. FullGoal1 ACTIVE, no full3DBL/curved/unsteady/PDE/affordability claim.
+
 ## Canonical planar reference lookup checkpoint — 2026-10-11
 
 NativeIntegrated / codex/native-3d-core, predecessore99dee967611ec960a4e9368bcd7df8b7aba1b3d.

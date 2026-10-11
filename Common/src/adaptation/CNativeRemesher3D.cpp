@@ -135,10 +135,10 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     if (low != high || worker_low != worker_high || stats.workers < 1 || stats.workers > parent.size)
       failure.Set(1, 0, "Native3D profile/worker configuration differs or is invalid.");
     CollectiveFailure(failure, CURRENT_FUNCTION);
-    // Bounded reference I/O/parse/construction scratch precedes private publication allocation.
+    // Admit retained/publication state first; sidecar loading admits its actual byte and construction demand.
     const size_t reference_setup =
         transfer_memory::Add(options.caller_bytes, ReferenceStorageBytes(*reference),
-                             reference->original ? ReferenceStorageBytes(*reference, false) : 8 * ReferenceFileLimit3D);
+                             ReferenceStorageBytes(*reference, false));
     if (!admit(reference_setup)) {
       phase(1);
       break;
@@ -146,7 +146,12 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     auto pending = std::make_shared<Publication>();
     pending->state = *reference;
     if (!pending->state.original) {
-      const bool loaded = LoadReference(config.GetMesh_FileName() + ".native_ref", pending->state);
+      bool loaded = false;
+      if (!LoadReference(config.GetMesh_FileName() + ".native_ref", pending->state, loaded, reason,
+                         control.memory_ceiling, reference_setup, stats.maximum_native_bytes)) {
+        phase(1);
+        break;
+      }
       if (config.GetRestart() && !loaded)
         failure.Set(1, 0, "Native3D restart requires its original .native_ref sidecar; geometry cannot be rebased.");
     }
