@@ -1,0 +1,55 @@
+{
+  "status": "PASS",
+  "cases": {
+    "dependency_initial.json": {
+      "cells": 5,
+      "qmin": 0.22656982380996957,
+      "jmin": 0.05311862729532725,
+      "maximum_original_P1_edge": 1.3757239368091336
+    },
+    "dependency_candidate.json": {
+      "cells": 6,
+      "qmin": 0.2504664433284898,
+      "jmin": 0.0564416912371194,
+      "maximum_original_P1_edge": 1.3757239368091336
+    },
+    "dependency_collapsed.json": {
+      "cells": 3,
+      "qmin": 0.6872296635790217,
+      "jmin": 0.4082482904638631,
+      "maximum_original_P1_edge": 1.2321676141642892
+    },
+    "collapse_rejected_patch.json": {
+      "cells": 1,
+      "qmin": 0.25505749103631853,
+      "jmin": 0.048765984909417075,
+      "maximum_original_P1_edge": 0.7071067811865475
+    }
+  },
+  "exact_domain_volume": "1/2",
+  "edge_star_unchanged": true,
+  "removed_vertex_star_changed": true,
+  "rejected_sliver": 0.048765984909417075,
+  "negative_controls": [
+    "inverted determinants",
+    "positive-volume self-overlap",
+    "reject sliver under unchanged original-P1 field"
+  ],
+  "scope": "Independent exact rational small-mesh positive volume, incidence, pairwise SAT overlap, unchanged oriented skin/coordinates/physical bindings/volume, analytic spatial original-P1 edge integration and centroid quality/sliver audit. Local selector/kernel only; no distributed retry fix, whole engine completion, n8 causation, actual CGNS output or timing claim.",
+  "receipt_sha256": "921b9dd36c214e87aae8f5cfc45797395d1bb4d08a383ed7f4b0dfcebd150753",
+  "source_sha256": {
+    "audit.py": "9de444517840761c9229c9b68d606817afaa582aaef51c4e274c002c986ef958",
+    "../audit_cavities.py": "26079385c071c3ad1b9c06ab3b862b4ff293367dc3c8d291acf0487089d062c5"
+  },
+  "artifact_sha256": {
+    "dependency_initial.json": "212c44716a34db27d04f783db3dc916e67cba0be0c8907aa23857ec91fb477c2",
+    "dependency_candidate.json": "146dd8500f54444a75de4b6f020ecb10462c01834c71c229a500785b1061369a",
+    "dependency_collapsed.json": "5d7cac85fc4d0d35cf48b969c593a09209c41f604850985acaa5a145c7ad0202",
+    "collapse_rejected_patch.json": "66529a567cd038670a0fce4fd3041fc77175b9244d3e177403628eb0da6dff84",
+    "dependency_initial.su2": "6ac85fec2ae22b0ab299497cbb4fc8639de986bfabd304034d04600666bbe313",
+    "dependency_candidate.su2": "4e9f2994f6e556020b3946a7bd452b51d6c510c939540934a95e559eee509ef1",
+    "dependency_collapsed.su2": "c64481dcc1b449e2076b681637010b478a29b347a31cf7ad09733591bad62791",
+    "collapse_rejected_patch.su2": "75957388f99d0e7c3e8c5edfcb1ab06e013feb36343729671d0fd33157bc23a7",
+    "probe.stdout": "7b7d8ead818b5d9cd7e4cdc6da940f30e8142a1718ffb71ec5fbe5e72e326b4d"
+  }
+}

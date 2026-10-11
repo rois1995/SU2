@@ -1,5 +1,56 @@
 # Current handoff — 2026-10-11
 
+## Coarsening dependency gap and actual n8 rejection trace — 2026-10-11
+
+Working repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated;
+branch codex/native-3d-transport-accounting, predecessor06d0a859d9.
+Production/test/build/tool code and qualified driver remain unchanged from d509.
+Goal1 is ACTIVE. The user authorized starting Goal2 only after all Goal1 gates
+pass; cluster runs are deferred until tomorrow. Do not call Goal1 complete from
+these local experiments or proceed to Goal2 with missing performance evidence.
+
+A source-matched selector/kernel reproduction now confirms a real full-star
+retry gap. In coarsen_dependency_replay_v4, the original spatial P1 sensor has
+xx=7 at interior vertex4 and0.25 diagonal tensors at all other original nodes.
+Collapse4->0 fails the frozen J>=.05 gate withJ=.048765984909417068. A valid
+neighboring face2->3 reconnection changes the removed vertex's complete star
+while leaving the candidate edge star/coordinates/measurement unchanged. The
+same collapse then passes (global3-cell result q=.68723,J=.40825), but the current
+selector leaves it blocked. Independent exact geometry/overlap/skin/volume,
+centroid metric and analytic original-P1 edge checks PASS; the target and gates
+are unchanged. This is a local selection/kernel defect, not a distributed fix
+or an accepted whole-engine campaign. Small inspectable SU2 grids are retained.
+
+coarsen_trace_n8_v1 replays the actual frozen n8 failure using all68 configured
+test objects and exactly three diagnostic-only engine insertions in an isolated
+object. Production build stays untouched. All170 compared integer workload
+counters and five baseline input/config/state files match. Adaptation remains
+FAIL:512 attempts/272 accepted/240 rejected,2489 private cells/91 pending edges.
+There are231 unique rejected directions, zero identical full-star repeated
+rejections and nine repeats after changed dependencies. The trace shows120 missed
+reactivation events affecting53 blocked directions when their removed-vertex
+stars change without touching candidate edges; it does not prove any of those
+n8 directions became admissible or that fixing invalidation completes n8.
+
+Independent exact rational witnesses confirm183 geometric rejections:176 zero
+and seven negative replacement determinants; all183 interior-point positive
+controls pass.56 other rejections introduce oversized edges; one leaves an
+incident finite reference facet. This points to a safe early orientation filter
+in addition to complete dependency invalidation, not an unchanged-retry cache.
+Any filter must retain the invalid-field repair path, use current exact local
+counterexamples, and invalidate across all changed removed-vertex dependencies,
+including remote edits. Charge index/notification work and memory explicitly.
+A local absence of a counterexample cannot certify a complete distributed star.
+
+refine_private.su2 and coarsen_rejected.su2 are retained in coarsen_trace_n8_v1
+for inspection (3552/2489 tetrahedra). They are private diagnostic exports, not
+accepted CFD/CGNS outputs or independently certified full mesh/field results.
+The original failed campaign and accepted CFD/BDF rejection checks remain.
+Full study: integration_evidence/native_3d_core_v1/COARSENING_DEPENDENCY_REVIEW.md.
+Next: bounded full-star invalidation and conservative early geometry filtering,
+MPI1/2/4 atomic/stale/cross-rank tests, then unchanged-target larger campaigns
+and measured complete cost. No local performance/scaling claim.
+
 ## Disk-quota troubleshooting moved to a separate handoff — 2026-10-11
 
 See [BEEGFS_QUOTA_HANDBOOK.md](BEEGFS_QUOTA_HANDBOOK.md) for the full evidence,
