@@ -1,7 +1,7 @@
 # Persistent manufactured 3D restart checkpoint
 
 Branch: `codex/native-3d-core`. Base: `b936b29e160905e070cab5ca86ff7618bea135a4`.
-Implementation/evidence commit: recorded in the current handoff after publication.
+Implementation/evidence commit: `425c32f7480f989e4967c4dd79c1ee7e6e1f6c70`, pushed to origin/codex/native-3d-core with the full remote SHA verified.
 
 All eight actual restart cases and the disabled control pass. The existing native driver writes two compact binary BDF2 states on the adapted mesh, is destroyed, and is reconstructed through the real SU2/CGNS reader and `Preprocess(3)`. Coarsening and refinement then continue through the existing native backend and accepted replacement. There is no manual initialization of the restarted histories.
 

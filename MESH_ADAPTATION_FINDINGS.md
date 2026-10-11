@@ -26,7 +26,8 @@ FullGoal1 ACTIVE: larger first-failure/size-rank limits, complete traffic/wait/p
 CPU/memory calibration, overhead and closedSGE repeated/scaling remain. No PDE
 iteration/curved/3DBL/fullunsteady/affordability claim. No owned job remains after
 regression. Foreign FSI, AdapNoExt, ClusterResults and historical failures untouched.
-Publication SHA will be recorded after commit/push and remote verification.
+Implementation/evidence checkpoint `425c32f7480f989e4967c4dd79c1ee7e6e1f6c70` pushed to
+origin/codex/native-3d-core; full remote SHA verified.
 
 ## Oblique wedge checkpoint — 2026-10-11
 
