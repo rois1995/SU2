@@ -1,7 +1,7 @@
 ## Native3D exact coarsening filter checkpoint — 2026-10-11
 
 NativeIntegrated / codex/native-3d-core, predecessorf05ca3a8828d56619bdcafc763cbe4c8facae1d0.
-Implementation/evidence publication pending. COARSEN_FILTER_REPORT.md and
+Implementation/evidence checkpoint `80a4a153da2a3945666661c15c1f6fdb3381da8f` pushed to origin/codex/native-3d-core; full remote SHA verified. COARSEN_FILTER_REPORT.md and
 COARSEN_FILTER_CHECKPOINT_VALIDATION.json qualify four actual default512 driver
 cases (12 events),340 closed phase rows, complete68-object MPI1/2/4 filter/
 coplanar/insertion/automatic repair/budget/default/native2D/MMG regression,
