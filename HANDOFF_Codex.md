@@ -1,5 +1,38 @@
 # Current handoff — 2026-10-12
 
+## Published filter and source-matched remaining rejection diagnosis — 2026-10-12
+
+Pushed production checkpoint bb87e97fe1d89ee69ae8deac8fb447d0996f2d5e on
+codex/native-3d-transport-accounting. full_star_facet_trace_n8_v1 is terminal:
+reproduction/comparison PASS, actual adaptation FAIL. Eight identical input/
+accepted/state snapshots and364equal work/communication/cache/queue integers.
+Second event has60size/length and15shape/sliver rejections, zero facet failures;
+no identical complete-star repeat rejections,38after changed supports. Current
+private517tet grid coarsen_rejected_s1.su2 retained, without a second-event
+independent certificate. Only terminal owned diagnostic object/executable removed
+(808946688bytes); full pins, recipe, trace and grids remain. See TRACE_REVIEW.md.
+
+Live next case is full_star_facet_n8_n1_m1_rounds1024_v1: separate longer-budget
+diagnostic, production512default and matched512FAIL unchanged. Initial cfg/mesh/
+sensor and all numerical target/acceptance rules frozen; only the documented
+test budget changes. Poll actual session42396/runner/terminal receipt before
+restarting or making source changes. One owned nice19 one-CPU numerical job.
+
+The separate1024-round diagnostic has now completed all three numerical events:
+2489 ->457 ->2245accepted tetrahedra. Second-event coarsening took615attempts
+(457accepted/158rejected); third-event refinement790attempts and coarsening1002.
+No cached invalid cells/pending directions at these exits. Its strict independent
+whole-case audit is LIVE, so this is not yet a whole-case PASS. Production512
+remains unchanged and its failure retained. Keep source pins stable until the
+actual runner/audit is terminal; session42396 is still the authoritative handle.
+
+Existing failed-case counters locate donor import as67.84of85.10coarsening
+seconds, with121private-query fallbacks. Contended diagnostics, not performance
+comparison. DONOR_QUERY_ROUTING_INVESTIGATION.md describes narrower actual-query
+routing and required equivalence/admission tests; no optimization implemented yet.
+Source pins must stay stable during the live diagnostic. Goal1 ACTIVE, Goal2
+not started, no cluster launch/request tonight.
+
 ## Full local-star facet filtering — qualified checkpoint, 2026-10-12
 
 Working repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
