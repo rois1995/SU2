@@ -2,7 +2,7 @@
 
 Working repository `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 `codex/native-3d-core`, predecessor `a410dad7a47bee500d9ccc2d32d8d08250937470`.
-Implementation/evidence checkpoint: pending publication. Full Goal 1 stays active.
+Implementation/evidence checkpoint `3b84e6a3b9ba9ae1467da4f556dacab84e3ef073` pushed to origin/codex/native-3d-core; full remote SHA verified. Full Goal 1 stays active.
 
 ## Change and qualification
 

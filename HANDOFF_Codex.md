@@ -10,7 +10,7 @@ cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 ## Native3D recovery coordination and placement diagnosis — 2026-10-11
 
 NativeIntegrated / codex/native-3d-core, predecessor a410dad7a47bee500d9ccc2d32d8d08250937470.
-Implementation/evidence checkpoint: pending publication. COORDINATION_REPORT.md,
+Implementation/evidence checkpoint `3b84e6a3b9ba9ae1467da4f556dacab84e3ef073` pushed to origin/codex/native-3d-core; full remote SHA verified. COORDINATION_REPORT.md,
 COORDINATION_CHECKPOINT_VALIDATION.json and coordination_rank_phases.csv bind
 six N/M actual driver controls (18 refine/coarsen/refine events, original-P1
 current/BDF2 transfer and SU2/CGNS output/readback) plus configured68-object
