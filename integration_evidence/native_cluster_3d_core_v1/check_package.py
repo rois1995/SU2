@@ -6,6 +6,21 @@ import run,restore,submit,prepare,analyze,profile_summary,mpi_profile
 from types import SimpleNamespace
 
 class PackageChecks(unittest.TestCase):
+    def test_coarsening_counters_validate_nested_costs_and_integer_work(self):
+        from audit_lifecycle import coarsening_counters
+        self.assertFalse(coarsening_counters({}))
+        row=dict(collapse_orientation_checks=9,collapse_orientation_filtered=3,collapse_reactivated=2,
+                 changed_star_scans=20,changed_vertices_sent=4,changed_vertices_received=7,
+                 nested_change_notifications=.2,nested_collapse_orientation=.1,publication=.3,selection=.15)
+        self.assertTrue(coarsening_counters(row))
+        for key,value in [('collapse_orientation_checks',-1),('collapse_orientation_filtered',10),
+                          ('collapse_reactivated',.5),('changed_vertices_sent',21),
+                          ('changed_vertices_received',float('nan')),('nested_change_notifications',.31),
+                          ('nested_collapse_orientation',.16)]:
+            with self.subTest(key=key),self.assertRaises(AssertionError):coarsening_counters(dict(row,**{key:value}))
+        incomplete=dict(row);del incomplete['changed_star_scans']
+        with self.assertRaises(AssertionError):coarsening_counters(incomplete)
+
     def test_termination_counters_distinguish_pending_queue_from_cached_violations(self):
         from audit_lifecycle import termination_counters
         self.assertFalse(termination_counters(dict(complete=1)))
@@ -87,7 +102,7 @@ class PackageChecks(unittest.TestCase):
                 if label=='case':
                     ranks=int(args[args.index('-n')+1]);selection=args[-3]
                     result='48 assertions in 2 test cases' if selection.startswith('MMG interface:') else '1 assertion in 1 test case'
-                    if selection==run.SELECTION:result='10189 assertions in 69 test cases'
+                    if selection==run.SELECTION:result='10255 assertions in 71 test cases'
                     out='\n'.join('All tests passed ('+result+')' for _ in range(ranks))
                 elif label=='audit':
                     if cwd.name.startswith('unit_mpi'):

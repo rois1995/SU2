@@ -1,15 +1,21 @@
 # Native 3D closed SGE validation and timing package
 
 Working repository: `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
-`codex/native-3d-transport-accounting`. This is the updated MPI1/2/4 correctness, repeated timing
-and instrumentation-overhead package. Larger sizes/ranks, full traffic/wait and
-allocator calibration remain Goal1 work. The current reference-admission/query/transport-accounting code builds and passes the serial
-69-case native/reference/2D+3Dbridge suite and serialMMG checks. The 69-case
-selection and independent bridge audit now pass on MPI1/2/4. The n4 frozen-work N1M1/N4M2 and persisted SU2/CGNS restart checks also pass locally.
-Repeated cluster performance remains pending. The first local n8 N1M1 pilot
-now rejects at the fixed coarsening attempt budget; see the practical-limit
-section below. Package self-checks are separate from numerical checks.
-Do not treat preparation or submission as a numerical PASS.
+`codex/native-3d-transport-accounting`. The current complete-star coarsening retry
+and exact orientation-filter update passes the full configured **71-case**
+selection on MPI1/2/4, independent mesh/current+BDF/SU2/CGNS checks, serial MMG,
+n4 N4M2 adaptation and persistent SU2N1M1/CGNSN4M2 restart checks. The serial actual
+metric/Hessian lifecycle OFF/ON controls also pass. The reusable package expects
+71cases and passes31lightweight parser/mocked orchestration checks.
+
+The unchanged-target n8 N1M1 pilot now passes its first adaptation, but still
+rejects the second at512rounds with323pending candidates and545valid private
+cells. See `integration_evidence/native_3d_core_v1/COARSENING_CHANGES_VALIDATION.md`.
+Repeated cluster timing, instrumentation overhead, full traffic/wait and allocator
+calibration remain Goal1 work. Local checks are contended correctness evidence.
+Do not treat package preparation/submission or a partially accepted campaign as
+numerical PASS. Rebuild and prepare a **fresh bundle** after updating this branch;
+previous bundles contain their pinned prior implementation and69-case recipe.
 
 Use the cluster's existing GCC/MPI/MMG/CGNS build environment on the login host.
 Earlier downloaded cluster checkpoints had enable-mmg=false. This suite also

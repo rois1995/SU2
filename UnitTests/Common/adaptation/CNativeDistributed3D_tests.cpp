@@ -718,6 +718,10 @@ void EngineReport(const EngineResult& result, World& world, const std::string& l
        << " rounds=" << s.rounds << " proposed=" << s.proposed << " attempts=" << s.attempted
        << " accepted=" << s.accepted << " rejected=" << s.rejected << " conflicts=" << s.conflicts
        << " collapse_geometry_checks=" << s.collapse_geometry_checks << " collapse_filtered=" << s.collapse_filtered
+             << " collapse_orientation_checks=" << s.collapse_orientation_checks << " collapse_orientation_filtered=" << s.collapse_orientation_filtered
+             << " collapse_reactivated=" << s.collapse_reactivated << " changed_star_scans=" << s.changed_star_scans
+             << " changed_vertices_sent=" << s.changed_vertices_sent << " changed_vertices_received=" << s.changed_vertices_received
+             << " nested_change_notifications=" << s.change_notification_seconds << " nested_collapse_orientation=" << s.collapse_orientation_seconds
        << " collapse_geometry_nested_s=" << s.collapse_geometry_seconds
        << " selection_edge_evaluations=" << s.edge_evaluations << " selection_edge_reused=" << s.edge_reused
        << " field_requests=" << s.field_requests
@@ -1325,7 +1329,7 @@ TEST_CASE("Native MPI admissible coarsening prunes exact immutable-facet counter
   EngineReport(result,world,"immutable_corner_filter");
   options.maximum_rounds=1;
   const auto rejected=Coarsen(world,input,Uniform(input,Tensor{16,0,0,16,0,16}),reference,{},options);
-  CHECK_FALSE(rejected.valid);CHECK(rejected.stats.collapse_filtered==0);
+  CHECK_FALSE(rejected.valid);CHECK(rejected.stats.collapse_filtered==0);CHECK(rejected.stats.collapse_orientation_filtered==0);
   CHECK(rejected.stats.final_owned_cells==rejected.cells.size());
   CHECK(rejected.stats.cached_measured_cells==rejected.cells.size());
   CHECK(world.sum(int(rejected.stats.cached_invalid_cells))>0);
@@ -1604,3 +1608,118 @@ TEST_CASE("Native MPI coarsens across original planar seams and repeats refineme
   }
 }
 #endif
+
+TEST_CASE("Native MPI publication notifies complete changed stars beyond unchanged candidate edges", "[NativeDistributed3D][NativeCollapseFilter3D]") {
+  World world;
+  const std::array<Node,6> nodes{{{0,{0,0,0}},{1,{1,0,0}},{2,{0,1,0}},{3,{0,0,1}},{4,{.25,.25,.25}},{5,{1,1,1}}}};
+  const std::array<std::array<Id,4>,5> layout{{{4,0,1,2},{4,1,2,3},{4,0,2,3},{4,0,3,1},{5,1,2,3}}};
+  Fixture fixture;
+  for (size_t i=0;i<layout.size();++i) {
+    Cell cell; cell.id=10+i;
+    for (size_t j=0;j<4;++j) cell.v[j]=nodes[layout[i][j]];
+    if (Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)<0) std::swap(cell.v[0],cell.v[1]);
+    fixture.patch.cells.push_back(cell);
+  }
+  for (auto face:Incidence(fixture.patch.cells).Boundary()) {
+    const Id id=fixture.facets.size();
+    fixture.facets.push_back({id,int(id)+10,{nodes[face[0]],nodes[face[1]],nodes[face[2]]}});
+    fixture.patch.surface.push_back({face,id});
+  }
+  const PlanarReference geometry(fixture.facets);
+  const auto initial_rows=Rows(fixture.patch);
+  auto owned=Partition(initial_rows,world);
+  const auto saved=Bytes(owned);
+  Directory directory(world,true);
+  std::string reason;
+  REQUIRE(directory.Build(owned,reason));
+  const auto before_edge=directory.Lookup(Query(world,{{0,4,0},2}));
+  REQUIRE(before_edge.valid);
+  const auto dependencies=directory.Lookup(Query(world,{{1,2,3},3}));
+  REQUIRE(dependencies.valid);
+  const auto imported=directory.Fetch(dependencies,owned);
+  REQUIRE(imported.valid);
+  const bool reserved=directory.Reserve(imported,world.rank==0,reason);
+  Patch fresh;
+  bool approved=world.rank!=0;
+  if (!world.rank) {
+    approved=reserved && Reconnect(PatchOf(imported.cells),4,1000,geometry,fresh,reason);
+    Owned all; for (auto row:initial_rows) all.emplace(row.cell.id,row);
+    auto donor_rows=Uniform(all,{.25,0,0,.25,0,.25});
+    for (auto& donor:donor_rows) for (size_t i=0;i<4;++i) if (donor.cell.v[i].id==4) donor.sensor[i].xx=7;
+    FrozenField field(std::move(donor_rows));
+    PatchMetric measured;
+    approved=approved && ValidateMetricChange(PatchOf(imported.cells).cells,fresh.cells,MetricChange::Repair,field,measured,reason);
+  }
+  REQUIRE(!world.maximum(!approved));
+  std::vector<std::vector<Dependency>> removes(world.size);
+  std::vector<std::vector<OwnedCell>> adds(world.size);
+  if (!world.rank) {
+    for (auto row:dependencies.cells) removes[row.owner].push_back(row);
+    adds.back()=Rows(fresh);
+  }
+  const auto removed=world.exchange(removes);
+  const auto added=world.exchange(adds);
+  REQUIRE(directory.Publish(owned,removed,added,true,reason));
+  const auto changes=directory.ChangedVertices();
+  CHECK(std::is_sorted(changes.begin(),changes.end()));
+  CHECK(std::adjacent_find(changes.begin(),changes.end())==changes.end());
+  std::vector<Id> expected;
+  for (Id vertex:{1u,2u,3u,4u,5u}) {
+    bool owner=world.rank==world.size-1;
+    for (const auto& row:initial_rows) if (row.cell.id%world.size==unsigned(world.rank))
+      for (auto node:row.cell.v) owner=owner || node.id==vertex;
+    if (owner) expected.push_back(vertex);
+  }
+  CHECK(changes==expected);
+  CHECK(std::find(changes.begin(),changes.end(),0)==changes.end());
+  const auto after_edge=directory.Lookup(Query(world,{{0,4,0},2}));
+  REQUIRE(after_edge.valid);
+  CHECK(before_edge.cells.size()==after_edge.cells.size());
+  for (size_t i=0;i<before_edge.cells.size();++i) {
+    CHECK(before_edge.cells[i].cell==after_edge.cells[i].cell);
+    CHECK(before_edge.cells[i].version==after_edge.cells[i].version);
+    CHECK(before_edge.cells[i].owner==after_edge.cells[i].owner);
+  }
+  const auto after_vertex=directory.Lookup(Query(world,{{4,0,0},1}));
+  REQUIRE(after_vertex.valid);
+  if (!world.rank) CHECK(after_vertex.cells.size()==6);
+  if (world.size==4 && world.rank==0) CHECK(Bytes(owned)==saved);
+  const auto directory_saved=directory.Snapshot(), cells_saved=Bytes(owned);
+  CHECK_FALSE(directory.Publish(owned,{}, {},world.rank!=0,reason));
+  CHECK(directory.Snapshot()==directory_saved); CHECK(Bytes(owned)==cells_saved); CHECK(directory.ChangedVertices()==changes);
+  CHECK_FALSE(directory.Publish(owned,{}, {},true,reason,1));
+  CHECK(directory.Snapshot()==directory_saved); CHECK(Bytes(owned)==cells_saved); CHECK(directory.ChangedVertices()==changes);
+  CHECK(world.sum(int(directory.Statistics().change_sent))>0);
+  CHECK(directory.Statistics().change_seconds>=0);
+  Directory mismatched(world,world.rank==0);
+  if (world.size>1) {
+    CHECK_FALSE(mismatched.Build(owned,reason));
+    CHECK(reason.find("mode differs")!=std::string::npos); CHECK(mismatched.Snapshot().empty());
+  }
+}
+
+TEST_CASE("Native MPI early collapse filtering rejects exact zero-volume witnesses and preserves invalid-field repair", "[NativeDistributed3D][NativeCollapseFilter3D]") {
+  World world;
+  auto fixture=Box();
+  auto rename=[](Id id){return id==0 ? Id(1) : (id==1 ? Id(0) : id);};
+  for (auto& cell:fixture.patch.cells) for (auto& node:cell.v) node.id=rename(node.id);
+  for (auto& face:fixture.patch.surface) for (auto& id:face.v) id=rename(id);
+  for (auto& facet:fixture.facets) for (auto& node:facet.v) node.id=rename(node.id);
+  const PlanarReference geometry(fixture.facets);
+  Patch split; std::string reason;
+  REQUIRE(SplitEdge(fixture.patch,{1,6},{8,{.5,.5,.5}},100,geometry,split,reason));
+  auto input=Partition(Rows(split),world);const auto saved=Bytes(input);
+  EngineOptions options;options.timings=true;
+  const auto result=Coarsen(world,input,Uniform(input,{.25,0,0,.25,0,.25}),geometry,{},options);
+  CHECK(result.valid);CHECK(result.reason.empty());
+  CHECK(world.sum(int(result.stats.collapse_orientation_filtered))>0);
+  CHECK(world.sum(int(result.stats.collapse_orientation_checks))>0);
+  CHECK(result.stats.collapse_orientation_seconds>=0);
+  CHECK(result.stats.change_notification_seconds>=0);
+  CHECK(result.stats.cached_invalid_cells==0);CHECK(result.stats.remaining_edges==0);
+  CHECK(Audit(world,result.cells,fixture,6));CHECK(Bytes(input)==saved);
+  EngineReport(result,world,"exact_orientation_filter");
+  options.maximum_rounds=1;
+  const auto rejected=Coarsen(world,input,Uniform(input,{16,0,0,16,0,16}),geometry,{},options);
+  CHECK_FALSE(rejected.valid);CHECK(rejected.stats.collapse_orientation_filtered==0);CHECK(Bytes(input)==saved);
+}

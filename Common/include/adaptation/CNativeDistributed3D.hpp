@@ -48,6 +48,8 @@ struct Imported {
 struct DirectoryStats {
   uint64_t builds = 0, lookups = 0, fetches = 0, reservations = 0, publications = 0, rejected = 0;
   uint64_t metadata_scanned = 0, payloads = 0, elections = 0;
+  uint64_t change_scanned = 0, change_sent = 0, change_received = 0;
+  double change_seconds = 0;  // Nested in publication; only affected-star owner notifications.
   size_t maximum_dependencies = 0, maximum_work_bytes = 0;
   double build_seconds = 0, lookup_seconds = 0, fetch_seconds = 0, reservation_seconds = 0, publication_seconds = 0;
   double election_seconds = 0;  // Nested detail; not added to the exclusive public-call phases.
@@ -61,7 +63,7 @@ constexpr size_t MaximumDirectoryScan = 4096;
  * Geometry/embedding/marker/metric certificates and nonconflicting cavity selection remain caller duties. */
 class Directory {
  public:
-  explicit Directory(World& world) : world(world) {}
+  explicit Directory(World& world, bool track_changes = false) : world(world), track_changes(track_changes) {}
   // Initial construction only; create a new directory after ownership migration.
   bool Build(const Owned& owned, std::string& reason, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
   Dependencies Lookup(const std::vector<Feature>& features, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
@@ -72,6 +74,9 @@ class Directory {
    * Reused cell IDs must advance version. Caller reserves globally unique new IDs and validates complete geometry. */
   bool Publish(Owned& owned, const std::vector<Dependency>& removed, const std::vector<OwnedCell>& added,
                bool prevalidated, std::string& reason, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
+  /*! After successful tracked publication, sorted changed vertices for every old/new star owner.
+   * Staged before the final vote; rejection preserves both stores and this list. Mode must match across workers. */
+  const std::vector<Id>& ChangedVertices() const { return changed_vertices; }
   size_t ResidentBytes() const;
   const DirectoryStats& Statistics() const { return stats; }
   std::vector<char> Snapshot() const;
@@ -95,6 +100,8 @@ class Directory {
     std::string reason;
   };
   World& world;
+  const bool track_changes;
+  std::vector<Id> changed_vertices;
   Stars stars;
   DirectoryStats stats;
   size_t resident_payload_bytes = 0;
@@ -103,6 +110,8 @@ class Directory {
   bool Vote(const CLocalFailure& failure, std::string& reason);
   Prepared Prepare(const std::vector<OwnedCell>& removed, const std::vector<OwnedCell>& added,
                    size_t ceiling, size_t baseline);
+  bool NotifyChanges(const Prepared& prepared, std::vector<Id>& changed, std::string& reason,
+                     size_t ceiling, size_t baseline);
   void Commit(Prepared&& prepared) noexcept;
 };
 }  // namespace SU2Native3D

@@ -68,9 +68,22 @@ def termination_counters(row):
   assert row['remaining_edges']==0 and row['remaining_repairs']==0
  return True
 
+def coarsening_counters(row):
+ keys=('collapse_orientation_checks','collapse_orientation_filtered','collapse_reactivated',
+       'changed_star_scans','changed_vertices_sent','changed_vertices_received')
+ timers=('nested_change_notifications','nested_collapse_orientation')
+ if not set(row)&set(keys+timers):return False  # Historical logs do not certify changed-star accounting.
+ assert all(k in row for k in keys+timers),'Incomplete native3D coarsening counters'
+ assert all(math.isfinite(row[k]) and row[k]>=0 and int(row[k])==row[k] for k in keys)
+ assert row['collapse_orientation_filtered']<=row['collapse_orientation_checks']
+ assert row['changed_vertices_sent']<=row['changed_star_scans']
+ for timer,parent in zip(timers,('publication','selection')):
+  assert math.isfinite(row[timer]) and 0<=row[timer]<=row[parent]+1e-10*max(1,row[parent])
+ return True
+
 def nested_stage(row):
  transport_counters(row)
- if row['stage'] in ('refine','coarsen'):closes(row,ENGINE);field_counters(row);termination_counters(row)
+ if row['stage'] in ('refine','coarsen'):closes(row,ENGINE);field_counters(row);termination_counters(row);coarsening_counters(row)
  elif row['stage'] in ('import','weights','return'):closes(row,('points','cells','faces','source','query','reader'));field_counters(row)
  elif row['stage']=='partition':closes(row,('graph','parmetis','migration'))
  else:assert row['stage']=='source'

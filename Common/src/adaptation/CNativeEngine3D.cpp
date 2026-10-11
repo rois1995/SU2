@@ -79,15 +79,18 @@ class Selection {
   }
   size_t invalid = 0, repair_bytes = 0;
   struct EdgeState { EdgeMeasure measure; size_t users = 0; std::array<size_t,2> forbidden{}; };
-  struct CellState { std::array<Edge, 6> edges{}; std::array<unsigned char,6> forbidden{}; bool valid = false; };
+  struct CellState { std::array<Edge, 6> edges{}; std::array<unsigned char,6> forbidden{}; std::array<Id,4> vertices{}; bool valid = false; };
   std::map<Id,CellState> cells;
   std::map<Edge,EdgeState> edges;
   std::set<std::pair<long double,Edge>> queue;
+  std::map<Id,std::set<Id>> vertex_cells, blocked_collapses;
+  size_t vertex_links=0, blocked_links=0;
   std::map<Id,std::vector<RepairFeature>> cell_repairs;
   std::map<RepairFeature,size_t> repair_users;
   std::set<RepairFeature> repair_queue;
   size_t Bytes() const {
-    return transfer_memory::Add(MapBytes(cells),MapBytes(edges),MapBytes(queue),MapBytes(cell_repairs),MapBytes(repair_users),MapBytes(repair_queue),repair_bytes);
+    return transfer_memory::Add(MapBytes(cells),MapBytes(edges),MapBytes(queue),MapBytes(cell_repairs),MapBytes(repair_users),MapBytes(repair_queue),repair_bytes,
+        MapBytes(vertex_cells),MapBytes(blocked_collapses),transfer_memory::Mul(transfer_memory::Add(vertex_links,blocked_links),sizeof(Id)+4*sizeof(void*)));
   }
   Choice Best(bool repairing) const {
     if (repairing) {
@@ -113,11 +116,55 @@ class Selection {
     const auto it = edges.find(canonical);
     if (it==edges.end()) return;
     queue.erase({Priority(it->second.measure.length),edge});
+    if (coarsening) blocked_links+=blocked_collapses[edge[1]].insert(edge[0]).second;
+  }
+  void Forget(Edge edge) {
+    const auto found=blocked_collapses.find(edge[1]);
+    if (found==blocked_collapses.end()) return;
+    blocked_links-=found->second.erase(edge[0]);
+    if (found->second.empty()) blocked_collapses.erase(found);
+  }
+  void Touch(Id vertex) {
+    const auto found=blocked_collapses.find(vertex);
+    if (found==blocked_collapses.end()) return;
+    for (Id retained:found->second) {
+      Edge edge{retained,vertex}, key=edge; std::sort(key.begin(),key.end());
+      const auto measured=edges.find(key);
+      if (measured==edges.end() || !Candidate(measured->second.measure.length)) continue;
+      const auto direction=retained==key[0] ? 0u : 1u;
+      if (prune_collapses && measured->second.forbidden[direction]) continue;
+      stats.collapse_reactivated+=queue.insert({Priority(measured->second.measure.length),edge}).second;
+    }
+    blocked_links-=found->second.size(); blocked_collapses.erase(found);
+  }
+  bool FilterOrientation(const Choice& choice, const Owned& working) {
+    if (!coarsening || !prune_collapses || !choice.active) return false;
+    Timer timer(stats.collapse_orientation_seconds,timings);
+    const auto star=vertex_cells.find(choice.edge[1]);
+    if (star==vertex_cells.end()) throw std::logic_error("Missing native 3D local collapse star.");
+    const Point apex=choice.edge[0]<choice.edge[1] ? choice.measure.a : choice.measure.b;
+    size_t scanned=0;
+    for (Id id:star->second) {
+      if (++scanned>MaximumDirectoryScan) break;
+      auto v=working.at(id).cell.v;
+      if (std::any_of(v.begin(),v.end(),[&](Node n){return n.id==choice.edge[0];})) continue;
+      for (auto& node:v) if (node.id==choice.edge[1]) node={choice.edge[0],apex};
+      ++stats.collapse_orientation_checks;
+      if (!(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)>0)) {
+        Block(choice.edge,{},false); ++stats.collapse_orientation_filtered; return true;
+      }
+    }
+    return false;
   }
   void Drop(Id id) {
     const auto found = cells.find(id);
     if (found==cells.end()) throw std::logic_error("Missing native 3D cached cell removal.");
     invalid -= !found->second.valid;
+    if (coarsening) for (Id vertex:found->second.vertices) {
+      auto& star=vertex_cells.at(vertex);
+      vertex_links-=star.erase(id);
+      if (star.empty()) vertex_cells.erase(vertex);
+    }
     const auto repairs=cell_repairs.find(id);
     if (repairs!=cell_repairs.end()) {
       repair_bytes-=transfer_memory::Bytes(repairs->second);
@@ -133,7 +180,7 @@ class Selection {
       Queue(key,state.measure.length,false);
       for (unsigned direction=0;direction<2;++direction)
         state.forbidden[direction]-=bool(found->second.forbidden[slot] & (1u<<direction));
-      if (--state.users==0) edges.erase(key);
+      if (--state.users==0) { Forget(key); Forget({key[1],key[0]}); edges.erase(key); }
       else Queue(key,state.measure.length,true);
     }
     cells.erase(found);
@@ -163,6 +210,10 @@ class Selection {
     if (metric.edges.size()!=6 || !std::isfinite(metric.maximum_length))
       throw std::runtime_error("Incomplete native 3D initial/updated metric measurement.");
     CellState row; row.valid=valid;
+    if (coarsening) for (size_t i=0;i<4;++i) {
+      row.vertices[i]=cell.v[i].id;
+      vertex_links+=vertex_cells[row.vertices[i]].insert(cell.id).second;
+    }
     size_t slot=0;
     for (const auto& measured : metric.edges) {
       const auto key=measured.first;
@@ -233,9 +284,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   Owned working;
   Selection selection(coarsening,repairing,geometry,stats,options.timings);
   std::map<Edge,EdgeMeasure> retired_edges;
-  Directory directory(world);
+  Directory directory(world,coarsening);
   DonorImport source(world,options.timings);
   size_t accepted_bytes=MapBytes(accepted);
+  auto selection_bound=[&](bool repairs) { return coarsening ? (repairs ? 6144u : 4096u) : (repairs ? 4096u : 2048u); };
   std::vector<Id> initial;
   auto vote=[&](const CLocalFailure& local) {
     const auto elected=world.elect(local);
@@ -266,6 +318,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     stats.tracked_collective_seconds=world.collective_seconds-tracked_seconds_begin;
     stats.directory_elections=directory.Statistics().elections;
     stats.directory_election_seconds=directory.Statistics().election_seconds;
+    stats.changed_star_scans=directory.Statistics().change_scanned;
+    stats.changed_vertices_sent=directory.Statistics().change_sent;
+    stats.changed_vertices_received=directory.Statistics().change_received;
+    stats.change_notification_seconds=directory.Statistics().change_seconds;
+    stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,directory.Statistics().maximum_work_bytes);
     const auto& donor = source.Statistics();
     stats.donor_candidates = donor.index_candidates; stats.donor_filtered = donor.filtered;
     stats.donor_payloads = donor.payloads; stats.donor_reused = donor.reused_candidates; stats.donor_maximum_patch = donor.maximum_patch;
@@ -296,7 +353,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if (mode_lo!=mode_hi) failure.Set(1,0,"Native 3D adaptation intent differs across workers.");
     ready=vote(failure);
     if (ready) ready=admit(transfer_memory::Add(accepted_bytes,
-        transfer_memory::Mul(options.maximum_rounds,(coarsening ? sizeof(Edge) : sizeof(SplitRecord))),transfer_memory::Mul(accepted.size(),repairing ? 4096 : 2048)));
+        transfer_memory::Mul(options.maximum_rounds,(coarsening ? sizeof(Edge) : sizeof(SplitRecord))),transfer_memory::Mul(accepted.size(),selection_bound(repairing))));
     if (ready) try {
       working=accepted;
       stats.maximum_owned=working.size();
@@ -349,7 +406,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         batch=(batch+1)/2; ++stats.batch_retries;
       }
       if (!admit(transfer_memory::Add(transfer_memory::Bytes(imported.cells),
-          transfer_memory::Mul(MaximumDonors,8192),transfer_memory::Mul(working.size(),selection.track_repairs ? 4096 : 2048)))) return false;
+          transfer_memory::Mul(MaximumDonors,8192),transfer_memory::Mul(working.size(),selection_bound(selection.track_repairs))))) return false;
       if (slot<ids.size()) try {
         CpuTimer private_cpu(stats.measurement_cpu_seconds,options.timings);
         FrozenField field(std::move(imported.cells),composition,options.timings);
@@ -385,6 +442,16 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   for (size_t round=0; round<options.maximum_rounds; ++round) {
     Choice choice;
     bool complete=false,any=false,bad_field=false;
+    auto pick=[&]() {
+      if (!coarsening) { choice=selection.Best(repairing); any=world.maximum(choice.active); return true; }
+      CLocalFailure failure;
+      try {
+        choice=selection.Best(repairing);
+        while (!repairing && !bad_field && selection.FilterOrientation(choice,working)) choice=selection.Best(false);
+      } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
+      if (!(ready=vote(failure))) return false;
+      any=world.maximum(choice.active); return true;
+    };
     {
       Timer timer(stats.selection_seconds,options.timings);
       ++stats.selections;
@@ -406,15 +473,17 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         } else if (repairing && intent!=MetricChange::Repair && !bad_field) {
           repairing=false; selection.track_repairs=false;
         }
-        choice=selection.Best(repairing); any=world.maximum(choice.active);
-        if (!complete && !any && !repairing && !recovered) {
-          ready=admit(transfer_memory::Mul(working.size(),4096));
+        pick();
+        if (ready && coarsening && !repairing && !bad_field && !any)
+          complete=!world.maximum(selection.cells.size()!=working.size() || !selection.queue.empty());
+        if (ready && !complete && !any && !repairing && !recovered) {
+          ready=admit(transfer_memory::Mul(working.size(),selection_bound(true)));
           CLocalFailure failure;
           if (ready) try { selection.Recover(working); } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
           if (ready) ready=vote(failure);
           if (ready) {
             repairing=true; recovered=true; ++stats.recovery_starts;
-            choice=selection.Best(repairing); any=world.maximum(choice.active);
+            pick();
           }
         }
       }
@@ -778,7 +847,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     std::vector<Id> changed;
     {
       Timer timer(stats.update_seconds,options.timings);
-      ready=admit(transfer_memory::Add(transfer_memory::Mul(working.size(),selection.track_repairs ? 4096 : 2048),
+      ready=admit(transfer_memory::Add(transfer_memory::Mul(working.size(),selection_bound(selection.track_repairs)),
           transfer_memory::Mul(6*MaximumCavityCells,sizeof(std::pair<const Edge,EdgeMeasure>)+4*sizeof(void*))));
       if (ready) try {
         // Retain retired scalars until all children are measured against this event's immutable source.
@@ -800,6 +869,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
       if (ready) ready=vote(failure);
       if (ready) ready=measure(changed,false);
+      if (ready && coarsening) {
+        try { for (Id vertex:directory.ChangedVertices()) selection.Touch(vertex); }
+        catch (const std::exception& e) { failure.Set(2,0,e.what()); }
+        ready=vote(failure);
+      }
       retired_edges.clear();
     }
     if (!ready) return finish();

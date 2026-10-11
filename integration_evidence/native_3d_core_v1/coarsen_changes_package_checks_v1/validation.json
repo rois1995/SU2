@@ -1,0 +1,56 @@
+{
+  "status": "PASS",
+  "lightweight_checks": 31,
+  "accounting_audits": [
+    {
+      "folder": "coarsen_changes_mpi1_v1",
+      "log_sha256": "7c072433d7dfc60cb52b7ed31cc6b8daca03ca903cc22c4267db17a331386d18",
+      "engine_rows": 41,
+      "change_sent": 166.0,
+      "change_received": 166.0
+    },
+    {
+      "folder": "coarsen_changes_mpi2_v1",
+      "log_sha256": "da694f8ff23149be26867a6b8dc9273d0d3e856b616faa93c9b7e7f69ddc0a5b",
+      "engine_rows": 121,
+      "change_sent": 480.0,
+      "change_received": 480.0
+    },
+    {
+      "folder": "coarsen_changes_mpi4_v1",
+      "log_sha256": "ecf867281e39b107c207946af0fbc16d2b706fb45a8562027e2a634eb6dbbc3d",
+      "engine_rows": 359,
+      "change_sent": 1182.0,
+      "change_received": 1182.0
+    },
+    {
+      "folder": "coarsen_changes_lifecycle_mpi1_v1",
+      "log_sha256": "72929a3febdee9eed7d82ddcd8e1c0a6e681f6d4173ae3471068a940c4b9871e",
+      "engine_rows": 6,
+      "change_sent": 0.0,
+      "change_received": 0.0
+    },
+    {
+      "folder": "coarsen_changes_n8_n1_m1_v1",
+      "log_sha256": "e820a6659f8d51a115e8367a0b981b1c2a1d819eef35042d4302328e7c0263bb",
+      "engine_rows": 4,
+      "change_sent": 6851.0,
+      "change_received": 6851.0
+    }
+  ],
+  "tools_sha256": {
+    "integration_evidence/native_3d_core_v1/coarsen_changes_package_checks_v1/collect.py": "ecb87d8f370076956086e95ae0826ca35c23cf3d72640beef3b435ccd06751c9",
+    "integration_evidence/native_3d_core_v1/audit_lifecycle.py": "b4204e8aea4653ac46942e79e0dad68c7087945a5687a851fd5036b1bdfdfa2f",
+    "integration_evidence/native_cluster_3d_core_v1/check_package.py": "961d74f862dd1492c757bc6bb7b5ac2c9438a6884f703a87fc9488da293f0e14",
+    "integration_evidence/native_cluster_3d_core_v1/run.py": "5ee0442c675477f0eccb07891e2c6921d9c0762d17c5a3876c3fc5825e4f45af"
+  },
+  "scope": "Actual saved 31 parser/mocked orchestration tests pass. Corrected collector audits actual ENGINE and detailed runtime rows for finite integral counters, nested parent costs and global notification record closure. The original collector-only failure is preserved; no numerical rerun, n8 campaign PASS or performance/scaling claim.",
+  "artifact_sha256": {
+    "collect_failed_v2.py": "2d07cb5b1532f57cc199a7953c61e4d3431856dfaa47d5fe8bab785016b3d44d",
+    "package_checks.stderr": "7d23353afd42cf069f0a4a032e076a5671418c75683702ab9b4e2c178b9bc01c",
+    "collector_failure_v2.json": "788d66567e6b682ab0055df609d54484f327b36a943d30dff1dc45473d066516",
+    "package_checks.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "collector_failure.json": "858c37cb22b2a6feb475fe1f5bc874d7a6ac9e26ae16b537556189bc0a634053",
+    "collect.py": "ecb87d8f370076956086e95ae0826ca35c23cf3d72640beef3b435ccd06751c9"
+  }
+}

@@ -86,7 +86,9 @@ bool Directory::Vote(const CLocalFailure& failure, std::string& reason) {
   reason = elected.message;
   return !elected.any;
 }
-size_t Directory::ResidentBytes() const { return transfer_memory::Add(MapBytes<Stars>(stars.size()), resident_payload_bytes); }
+size_t Directory::ResidentBytes() const {
+  return transfer_memory::Add(MapBytes<Stars>(stars.size()), resident_payload_bytes, transfer_memory::Bytes(changed_vertices));
+}
 std::vector<char> Directory::Snapshot() const {
   std::vector<char> bytes;
   RecordStream stream(bytes);
@@ -205,6 +207,8 @@ bool Directory::Build(const Owned& owned, std::string& reason, size_t ceiling, s
   ++stats.builds;
   CLocalFailure failure;
   if (initialized) failure.Set(2, 0, "Native 3D directory is already initialized; rebuild after migration in a new directory.");
+  const bool any_tracking=world.maximum(track_changes), any_untracked=world.maximum(!track_changes);
+  if (any_tracking && any_untracked) failure.Set(1,0,"Native 3D change-notification mode differs across workers.");
   std::vector<OwnedCell> added;
   const auto baseline = transfer_memory::Add(caller_bytes, MapBytes<Owned>(owned.size()));
   const auto initial_peak = transfer_memory::Add(baseline, ResidentBytes(), transfer_memory::Mul(owned.size(), sizeof(OwnedCell)));
@@ -437,6 +441,54 @@ bool Directory::Reserve(const Imported& imported, bool active, std::string& reas
   reason.clear();
   return active;
 }
+bool Directory::NotifyChanges(const Prepared& prepared, std::vector<Id>& changed, std::string& reason,
+                              size_t ceiling, size_t baseline) {
+  Timer timer(stats.change_seconds);
+  CLocalFailure failure;
+  size_t staged_bytes=MapBytes<Stars>(prepared.changed.size()), records=0;
+  for (const auto& star:prepared.changed) {
+    staged_bytes=transfer_memory::Add(staged_bytes,MapBytes<Star>(star.second.size()));
+    if (star.first.first) continue;
+    const auto prior=stars.find(star.first);
+    const size_t old_size=prior==stars.end() ? 0 : prior->second.size();
+    if (old_size>MaximumDirectoryScan || star.second.size()>MaximumDirectoryScan)
+      failure.Set(3,star.first.second,"Native 3D changed-star notification exceeds scan budget.");
+    records=transfer_memory::Add(records,old_size,star.second.size());
+  }
+  const auto retained=transfer_memory::Add(baseline,ResidentBytes(),staged_bytes);
+  const auto peak=transfer_memory::Add(retained,transfer_memory::Mul(world.size,sizeof(std::vector<Id>)),
+      transfer_memory::GrowthBound(records,sizeof(Id)));
+  stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,peak);
+  if (peak==SIZE_MAX || peak>ceiling) failure.Set(3,0,"Native 3D change-notification packing exceeds budget.");
+  if (!Vote(failure,reason)) return false;
+  std::vector<std::vector<Id>> to;
+  try {
+    to.resize(world.size);
+    for (const auto& star:prepared.changed) {
+      if (star.first.first) continue;
+      const auto prior=stars.find(star.first);
+      if (prior!=stars.end()) for (const auto& entry:prior->second) {
+        to[entry.second.dependency.owner].push_back(star.first.second); ++stats.change_scanned;
+      }
+      for (const auto& entry:star.second) {
+        to[entry.second.dependency.owner].push_back(star.first.second); ++stats.change_scanned;
+      }
+    }
+    for (auto& bucket:to) {
+      std::sort(bucket.begin(),bucket.end()); bucket.erase(std::unique(bucket.begin(),bucket.end()),bucket.end());
+      stats.change_sent+=bucket.size();
+    }
+  } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
+  if (!Vote(failure,reason)) return false;
+  bool admitted=false;
+  changed=world.exchange(to,&admitted,ceiling,retained);
+  stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,world.max_exchange_work_bytes);
+  if (!admitted) failure.Set(3,0,"Native 3D change-notification transport exceeds budget.");
+  if (!Vote(failure,reason)) return false;
+  stats.change_received+=changed.size();
+  std::sort(changed.begin(),changed.end()); changed.erase(std::unique(changed.begin(),changed.end()),changed.end());
+  return true;
+}
 bool Directory::Publish(Owned& owned, const std::vector<Dependency>& removed, const std::vector<OwnedCell>& added,
                         bool prevalidated, std::string& reason, size_t ceiling, size_t caller_bytes) {
   Timer timer(stats.publication_seconds);
@@ -471,10 +523,13 @@ bool Directory::Publish(Owned& owned, const std::vector<Dependency>& removed, co
   auto prepared = Prepare(old, added, ceiling, baseline);
   reason = prepared.reason;
   if (!prepared.valid) { ++stats.rejected; return false; }
-  // Prepare's common vote is final: both stores already own every node needed by publication.
+  std::vector<Id> changed;
+  if (track_changes && !NotifyChanges(prepared,changed,reason,ceiling,baseline)) { ++stats.rejected; return false; }
+  // All stores and notifications are staged before the final common vote; publication allocates nothing.
   for (const auto& row : old) owned.erase(row.cell.id);
   while (!staged.empty()) owned.insert(staged.extract(staged.begin()));
   Commit(std::move(prepared));
+  changed_vertices.swap(changed);
   ++stats.publications;
   reason.clear();
   return true;

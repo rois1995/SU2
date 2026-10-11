@@ -412,6 +412,10 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
              << " failures=" << e.field_failures << " evictions=" << e.field_evictions
              << " compositions=" << e.field_compositions << " edge_evaluations=" << e.edge_evaluations
              << " collapse_geometry_checks=" << e.collapse_geometry_checks << " collapse_filtered=" << e.collapse_filtered
+             << " collapse_orientation_checks=" << e.collapse_orientation_checks << " collapse_orientation_filtered=" << e.collapse_orientation_filtered
+             << " collapse_reactivated=" << e.collapse_reactivated << " changed_star_scans=" << e.changed_star_scans
+             << " changed_vertices_sent=" << e.changed_vertices_sent << " changed_vertices_received=" << e.changed_vertices_received
+             << " nested_change_notifications=" << e.change_notification_seconds << " nested_collapse_orientation=" << e.collapse_orientation_seconds
              << " nested_collapse_geometry=" << e.collapse_geometry_seconds
              << " edge_reused=" << e.edge_reused << " moved=" << e.moved << " reconnected=" << e.reconnected << " inserted=" << e.inserted
              << " maximum_donor_patch=" << e.donor_maximum_patch << " maximum_owned=" << e.maximum_owned

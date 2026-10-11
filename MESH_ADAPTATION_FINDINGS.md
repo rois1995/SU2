@@ -1,3 +1,62 @@
+## Complete-star retry notifications and exact collapse filtering — 2026-10-11
+
+Working repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
+Branch: codex/native-3d-transport-accounting; source changes based on b49f089b43.
+Goal1 remains ACTIVE. Goal2 is not authorized to start before all Goal1 gates pass.
+
+Implemented bounded authoritative changed-vertex notifications to old/new star
+owners, a local owned-cell vertex index and directed blocked-collapse index, and
+exact zero/negative surviving-cell orientation filtering. After successful atomic
+publication, affected blocked directions are reactivated even when their edge
+cells did not change. Rejection preserves owned/directory state and notifications.
+The filter is disabled for invalid fields so private repair still runs. Missing
+local witnesses still require full distributed dependencies/private validation.
+No acceptance/metric/geometry/round-budget changes; no 2D/MMG/config changes.
+
+Actual complete68-object/774-member MPI/MMG/CGNS build PASS in
+coarsen_changes_build_v1. Binary SHA256:
+ed708d6b70e89e36e6403974009c36b0d9b00ec5456db0a52a314cb5cbc74907.
+coarsen_changes_mpi1_v1/mpi2_v1/mpi4_v1 PASS71cases per rank, with independent
+12/24/48 mesh frames,6/12/24 current+BDF pairs and actual SU2/CGNS round trips.
+Serial MMG2D/3D PASS48assertions/two cases. Complete remote-star, unchanged-edge,
+rank-veto/budget rejection/mode-mismatch and exact-zero-volume tests are included.
+coarsen_changes_lifecycle_mpi1_v1 PASS six actual OFF/ON metric/Hessian/CFD
+replacement controls, with original-P1/geometry/BDF/output/exclusive accounting.
+coarsen_changes_n4_n4_m2_v1 and both coarsen_changes_restart_* folders PASS three
+adaptation events with independent exact geometry, metric, state/output audits.
+Restarts are SU2N1M1 and CGNSN4M2. Contended one-CPU correctness, no speedup claim.
+
+Frozen n8 coarsen_changes_n8_n1_m1_v1 remains FAIL, now at cycle1. All five original
+parameter/environment/config/mesh/sensor snapshots match the previous rejection.
+Cycle0 now completes: refine457accepted; coarsen428attempts/272accepted/156rejected,
+295exact orientation exclusions,120reactivations;2489cells/590points, no pending
+edges or cached invalid cells. Coordinate connectivity and marker comparison
+confirms its accepted actual SU2 grid equals the old rejected private grid,
+ignoring numbering. A full independent cycle0 audit is running (session56560,
+owned audit_first_cycle.py); check its live process/terminal receipt before any
+new heavy run. Never call the full campaign PASS from this partial result.
+
+Cycle1 coarsening exhausts512rounds:429accepted/83rejected,545private cells, all
+545cached valid,323pending directions;1883orientation exclusions/988reactivations.
+The accepted cycle0 CFD mesh/solution is retained. Last proposal failed frozen
+q/J (.16126001018/.04295752091); this does not classify all83rejections. No new
+private cycle1 mesh export or whole-mesh certification yet. Goal1 still needs
+second-event larger completion/diagnosis, broader limits and repeated cluster
+performance, instrumentation overhead and allocator/wait/traffic calibration.
+
+Reusable SGE selection updated from69to71cases;31lightweight package/parser tests
+PASS. coarsen_changes_package_checks_v1 audits actual41/121/359 unit ENGINE rows,
+six lifecycle rows and four failed n8 runtime rows: finite integral new work
+counters, nested timers inside selection/publication, and globally closed sent/
+received notification records. Two collector-only failures (row-name assumption,
+relative-path serialization) are retained separately; C++/MPI tests did not fail.
+Old terminal receipts keep their original auditor pins; use this checkpoint's
+accounting collector for the added fields. Rebuild and prepare a NEW closed SGE
+bundle after updating; no cluster job launched and no request tonight.
+
+See integration_evidence/native_3d_core_v1/COARSENING_CHANGES_VALIDATION.md.
+The historical sections below describe their own earlier source checkpoints.
+
 ## Coarsening dependency gap and actual n8 rejection trace — 2026-10-11
 
 Working repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated;
