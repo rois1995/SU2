@@ -205,3 +205,48 @@ TEST_CASE("Native private shape rejection avoids edge tracing while preserving a
   CHECK(stats.cells==4);CHECK(stats.edge_evaluations==0);CHECK(target.Statistics().edge_requests==0);
   CHECK(compositions==4);CHECK(target.Statistics().requests==4);
 }
+
+TEST_CASE("Native 3D streamed metric measurements retain the full frozen progress gate", "[NativeMesh3D]") {
+  const auto donor=Donor({4,0,0,4,0,4});
+  Patch old; old.cells={Single()};
+  Patch fresh; std::string reason;
+  std::vector<Facet> facets;
+  for (auto face:Incidence(old.cells).Boundary()) {
+    std::array<Node,3> nodes;
+    for (size_t i=0;i<3;++i) nodes[i]=Single().v[face[i]];
+    const Id id=facets.size();facets.push_back({id,int(id),nodes});old.surface.push_back({face,id});
+  }
+  REQUIRE(SplitEdge(old,{1,2},{4,{.5,.5,0}},100,PlanarReference(facets),fresh,reason));
+  FrozenField target({donor});
+  const auto before=MeasureMetricCells(old.cells,target);
+  const auto together=MeasureMetricCells(fresh.cells,target);
+  PatchMetric streamed;
+  streamed.weakest_cell=streamed.sliver_cell=fresh.cells.front().id;
+  MetricStats stats;
+  for (const auto& cell:fresh.cells) {
+    const auto part=MeasureMetricCells({cell},target,&stats,&streamed.edges);
+    streamed.minimum_mean_ratio=std::min(streamed.minimum_mean_ratio,part.minimum_mean_ratio);
+    streamed.minimum_scaled_jacobian=std::min(streamed.minimum_scaled_jacobian,part.minimum_scaled_jacobian);
+    streamed.maximum_length=std::max(streamed.maximum_length,part.maximum_length);
+    streamed.edges.insert(part.edges.begin(),part.edges.end());
+  }
+  CHECK(streamed.minimum_mean_ratio==together.minimum_mean_ratio);
+  CHECK(streamed.minimum_scaled_jacobian==together.minimum_scaled_jacobian);
+  CHECK(streamed.maximum_length==together.maximum_length);
+  REQUIRE(streamed.edges.size()==together.edges.size());
+  for (const auto& edge:together.edges) CHECK(streamed.edges.at(edge.first).length==edge.second.length);
+  CHECK(stats.edge_reused>0);
+  const bool valid=ValidateMetricChange(old.cells.size(),before,fresh.cells.size(),streamed,MetricChange::Refine,reason);
+  REQUIRE(valid);
+  PatchMetric checked;std::string full_reason;
+  CHECK(valid==ValidateMetricChange(old.cells,fresh.cells,MetricChange::Refine,target,checked,full_reason));
+  CHECK(reason==full_reason);
+  CHECK_FALSE(ValidateMetricChange(0,before,fresh.cells.size(),streamed,MetricChange::Refine,reason));
+  CHECK_FALSE(ValidateMetricChange(old.cells.size(),before,fresh.cells.size(),{},MetricChange::Coarsen,reason));
+  streamed.edges.begin()->second.length=std::numeric_limits<long double>::quiet_NaN();
+  CHECK_FALSE(ValidateMetricChange(old.cells.size(),before,fresh.cells.size(),streamed,MetricChange::Coarsen,reason));
+  streamed=together;streamed.minimum_mean_ratio=std::numeric_limits<double>::quiet_NaN();
+  CHECK_FALSE(ValidateMetricChange(old.cells.size(),before,fresh.cells.size(),streamed,MetricChange::Repair,reason));
+  FrozenField composed({donor},[](Point,Tensor sensor){return sensor;});
+  CHECK_THROWS(MeasureMetricCells(fresh.cells,composed,nullptr,&together.edges));
+}

@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_core_v1/audit_large_sources.py", line 176, in <module>
+    folder=Path(sys.argv[1]);ranks=int(sys.argv[2]);r=audit(folder,ranks)
+  File "integration_evidence/native_3d_core_v1/audit_large_sources.py", line 116, in audit
+    result,_=frame(path,kind in ('coarse','dense','dense_coarsen'));result['accepted_event']=False;result['role']='initial'
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_coupled.py", line 155, in frame
+    if validate_shape:assert q>=.20 and j>=.05
+AssertionError

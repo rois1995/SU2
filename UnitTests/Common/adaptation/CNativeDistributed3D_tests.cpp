@@ -703,7 +703,7 @@ void EngineReport(const EngineResult& result, World& world, const std::string& l
        << " repair_fallbacks=" << s.repair_fallbacks << " fallback_accepted=" << s.fallback_accepted
        << " recovery_starts=" << s.recovery_starts << " repair_proposals=" << s.repair_proposals << " moved=" << s.moved << " reconnected=" << s.reconnected
        << " batches=" << s.donor_batches << " batch_retries=" << s.batch_retries
-       << " query_import_retries=" << s.query_import_retries
+       << " query_import_retries=" << s.query_import_retries << " private_query_retries=" << s.private_query_retries
        << " donor_candidates=" << s.donor_candidates << " donor_filtered=" << s.donor_filtered
        << " donor_payloads=" << s.donor_payloads << " donor_maximum_patch=" << s.donor_maximum_patch
        << " donor_search_nested_s=" << s.donor_search_seconds << " donor_filter_nested_s=" << s.donor_filter_seconds

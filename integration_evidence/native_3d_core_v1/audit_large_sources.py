@@ -1,5 +1,6 @@
 """Independent rational closed-intersection/coverage, actual P1 and mesh checks for large sources."""
 from fractions import Fraction as F
+from functools import lru_cache
 import hashlib,itertools,json,math,sys,tempfile
 from pathlib import Path
 from audit_cavities import determinant,cross,dot,sub
@@ -39,6 +40,18 @@ def query_hit(t,a,b):
   if lo>hi:return False
  return True
 
+# Cache only immutable fixture expectations; every changed observation is still checked on replay.
+@lru_cache(maxsize=12)
+def closed_donors(n,i):
+ t=grid(1)[i]['points']
+ return frozenset(j for j,c in enumerate(grid(n)) if closed_intersection(t,c['points']))
+
+@lru_cache(maxsize=36)
+def support_donors(n,i,mode):
+ t=grid(1,mode)[i]['points'];center=tuple(sum(p[j] for p in t)/4 for j in range(3))
+ return frozenset(j for j,c in enumerate(grid(n,mode)) if query_hit(c['points'],center,center) or
+  any(query_hit(c['points'],a,b) for a,b in itertools.combinations(t,2)))
+
 def audit(folder,ranks):
  log=folder/('mpi'+str(ranks)+'.stdout');imports={};queries=[];events={};work={};support={};support_queries=[];limits=[]
  for line in log.read_text().splitlines():
@@ -65,7 +78,7 @@ def audit(folder,ranks):
   ids=[int(x) for x in row['ids'].split(',') if x];assert len(ids)==len(set(ids))==int(row['count'])
   if r or n>=5:assert not ids;continue
   assert len(ids)==(162 if n==3 else 170)
-  needed={j for j,c in enumerate(originals[n]) if closed_intersection(coarse[i]['points'],c['points'])}
+  needed=closed_donors(n,i)
   assert needed<=set(ids),'Closed-intersecting source excluded'
   assert set(ids)<=set(range(len(originals[n])))
   required+=len(needed);overimports+=len(set(ids)-needed);closed_checks+=len(originals[n])
@@ -83,10 +96,8 @@ def audit(folder,ranks):
  for (n,i,mode,r),row in support.items():
   ids=[int(x) for x in row['ids'].split(',') if x];assert len(ids)==len(set(ids))==int(row['count'])
   if r:assert not ids;continue
-  t=grid(1,mode)[i]['points'];center=tuple(sum(p[j] for p in t)/4 for j in range(3))
   source=grid(n,mode)
-  needed={j for j,c in enumerate(source) if query_hit(c['points'],center,center) or
-   any(query_hit(c['points'],a,b) for a,b in itertools.combinations(t,2))}
+  needed=support_donors(n,i,mode)
   assert needed<=set(ids),'Closed query-support donor excluded'
   assert (set(ids)==needed if n>3 else len(ids)==162)
   support_checks+=len(source)
@@ -106,44 +117,50 @@ def audit(folder,ranks):
  assert sum(query_hit(c['points'],tuple(sum(p[j] for p in coarse[0]['points'])/4 for j in range(3)),
   tuple(sum(p[j] for p in coarse[0]['points'])/4 for j in range(3))) or
   any(query_hit(c['points'],a,b) for a,b in itertools.combinations(coarse[0]['points'],2)) for c in grid(7))>256
- kinds=('coarse','wedge','dense','dense_wedge')
+ kinds=('coarse','wedge','dense','dense_wedge','dense_coarsen','dense_repair','dense_reject')
  labels={kind+'_m'+str(m) for kind in kinds for m in expected_m}
  assert set(events)=={(label,r) for label in labels for r in range(ranks)}
  assert set(work)=={(label,r) for label in labels for r in range(int(label.rsplit('_m',1)[1]))}
  frames=[]
  for kind in kinds:
   path=folder/('mpi'+str(ranks)+'_meshes')/(kind+'_initial.json')
-  result,_=frame(path,'wedge' not in kind);result['accepted_event']=False;result['role']='initial'
-  assert result['cells']==(1 if 'wedge' in kind else 6)
-  assert result['volume']==('1/6' if 'wedge' in kind else '1')
+  result,_=frame(path,kind in ('coarse','dense','dense_coarsen'),validate_shape=kind!='dense_repair');result['accepted_event']=False;result['role']='initial'
+  if kind=='dense_repair':assert result['minimum_mean_ratio']<.20 or result['minimum_scaled_jacobian']<.05
+  assert result['cells']==dict(coarse=6,wedge=1,dense=6,dense_wedge=1,dense_coarsen=2,dense_repair=4,dense_reject=1)[kind]
+  assert result['volume']==('1' if kind in ('coarse','dense') else '1/6')
   if 'wedge' in kind:assert result['maximum_length']>1.8
   frames.append(result)
  for label in sorted(labels):
-  kind=label.rsplit('_m',1)[0];m=int(label.rsplit('_m',1)[1]);valid=kind!='dense_wedge'
+  kind=label.rsplit('_m',1)[0];m=int(label.rsplit('_m',1)[1]);valid=kind!='dense_reject'
   for r in range(ranks):
    v=events[(label,r)];assert int(v['ranks'])==ranks and int(v['workers'])==m and bool(int(v['valid']))==valid
    parts=sum(float(v[k]) for k in ('migration_s','worker_comm_s','worker_s','return_s','other_s'))
    assert float(v['other_s'])>=-1e-12 and abs(parts-float(v['parent_s']))<1e-10
   for r in range(m):
    v=work[(label,r)];assert bool(int(v['valid']))==valid and int(v['max_patch'])<=256
-   assert (int(v['query_import_retries'])>0)==(kind in ('dense','dense_wedge'))
+   if kind in ('dense','dense_wedge','dense_reject'):assert int(v['query_import_retries'])>0
+   assert (int(v['private_query_retries'])>0)==(kind.startswith('dense_'))
    parts=sum(float(v[k]) for k in ('init_s','seed_s','selection_s','dependency_s','reservation_s','donor_s',
    'reconstruction_s','metric_s','routing_s','publication_s','update_s','completion_s','other_s'))
    assert float(v['other_s'])>=-1e-12 and abs(parts-float(v['total_s']))<1e-10
    assert 0<=float(v['filter_nested_s'])<=float(v['search_nested_s'])+1e-10
   accepted=sum(int(work[(label,r)]['accepted']) for r in range(m))
-  assert (accepted>0)==(kind=='wedge')
+  assert (accepted>0)==(kind not in ('coarse','dense'))
   path=folder/('mpi'+str(ranks)+'_meshes')/(label+('' if valid else '_rejected')+'.json');result,_=frame(path,valid)
   result['accepted_event']=valid;result['role']='accepted' if valid else 'rejected'
-  assert result['volume']==('1/6' if 'wedge' in kind else '1')
+  assert result['volume']==('1' if kind in ('coarse','dense') else '1/6')
   assert result['cells']==int(events[(label,0)]['final'])
   frames.append(result)
  result=dict(status='PASS',closed_sat_checks=closed_checks,required_donor_intersections=required,
  conservative_extra_donors=overimports,query_support_checks=support_checks,support_queries=len(support_queries),queries=len(queries),frames=frames,events=list(events.values()),work=list(work.values()),
  source_log_sha256=hashlib.sha256(log.read_bytes()).hexdigest(),
- scope='Independent rational full closed-intersection SAT proves no donor omissions for the declared coarse tetrahedra; canonical original P1 queries and actual composition, source384 coarse/wedge engine events on explicit worker subsets, source750 admissible coarse no-op and whole-private-cavity bounded rejection; source2058 query-support cap rejection, exact accepted global geometry/marker/metric/SU2 audits. No runtime/CFD/CGNS/scaling qualification.')
+ scope='Independent rational full closed-intersection SAT proves no donor omissions for the declared coarse tetrahedra; canonical original P1 queries and actual composition, source384 coarse/wedge engine events on explicit worker subsets, source750 valid coarse no-op, known-query refine/coarsen/repair and round-exhaustion rejection; source2058 query-support cap rejection, exact accepted global geometry/marker/metric/SU2 audits. No runtime/CFD/CGNS/scaling qualification.')
  out=folder/('mpi'+str(ranks)+'_large_audit.json');out.write_text(json.dumps(result,indent=2)+'\n');return result
 def negative_controls(folder):
+ rejected=False
+ try:frame(folder/'mpi1_meshes'/'dense_repair_initial.json',True)
+ except AssertionError:rejected=True
+ assert rejected,'Deliberately distorted repair input accepted as a completed mesh'
  lines=(folder/'mpi1.stdout').read_text().splitlines()
  first=next(i for i,v in enumerate(lines) if v.startswith('LARGE_IMPORT n=3 cell=0 rank=0 '))
  variants=[lines[:first]+lines[first+1:]]
@@ -175,4 +192,4 @@ if __name__=='__main__':
  folder=Path(sys.argv[1]);ranks=int(sys.argv[2]);r=audit(folder,ranks)
  print('PASS',r['closed_sat_checks'],'closed SAT pairs;',len(r['frames']),'mesh frames')
  if ranks==1:
-  negative_controls(folder);print('PASS 6 full/query-support omission and P1/edge oracle adversaries')
+  negative_controls(folder);print('PASS 6 full/query-support omission and P1/edge adversaries; distorted accepted-mesh adversary')

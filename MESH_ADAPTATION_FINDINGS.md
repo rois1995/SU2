@@ -1,3 +1,16 @@
+## Native 3D private-query checkpoint — 2026-10-11
+
+Cap-only known-query batching now completes source750 refinement/coarsening/repair;
+geometry-first removes unnecessary donor work for impossible admissible collapses.
+PRIVATE_QUERY_CHECKPOINT.md and receipts retain the63-frame MPI1/2/4/M<N matrix,
+1350 prior mesh identities,126 optimization identities, actual non-MPI controls,
+three alternating timing pairs and executable-layout diagnostics. Default coarse
+removal median .443577->.136109s; other MPI1 binaries6-9% slower, attributed in
+part to layout by controlled identical-object relinking. No production linker
+flags; full performance/CFD/runtime/ParMETIS/CGNS qualification remains pending.
+Goal1 ACTIVE/full scope; source2058 cap, finite facet seams, production3D guard
+and composed edge-integrator refusal remain. Frozen targets and 2D/MMG untouched.
+
 ## Native 3D closed-query filter checkpoint — 2026-10-11
 
 Branch codex/native-3d-core; predecessor fcda83cb2b3378c55124c474e25da3aeb33f3d20.

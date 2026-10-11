@@ -21,7 +21,7 @@ struct EngineStats {
   uint64_t rounds = 0, proposed = 0, conflicts = 0, attempted = 0, accepted = 0, rejected = 0;
   uint64_t initial_cells = 0, updated_cells = 0, edge_evaluations = 0, edge_reused = 0, selections = 0;  // Edge evaluations here count selection-cache measurements only.
   uint64_t field_requests = 0, field_hits = 0, field_compositions = 0, field_edges = 0;
-  uint64_t donor_batches = 0, batch_retries = 0, query_import_retries = 0;
+  uint64_t donor_batches = 0, batch_retries = 0, query_import_retries = 0, private_query_retries = 0;
   uint64_t donor_candidates = 0, donor_filtered = 0, donor_payloads = 0;
   size_t donor_maximum_patch = 0;
   double donor_search_seconds = 0, donor_filter_seconds = 0;  // Nested in import/search.

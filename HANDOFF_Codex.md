@@ -7,6 +7,47 @@ small sequential local checks with real host-contention checks; push each
 validated checkpoint and verify the remote SHA. A terminal capacity failure
 cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
+## Native 3D private-query checkpoint — 2026-10-11
+
+Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
+codex/native-3d-core. Predecessor dfe841a4ceaa0e7d453960e9afa386e28d7271f4.
+Goal1 ACTIVE/full scope. Cap-only known-query private batches now complete the
+previously rejected source750 wedge, general wall coarsening and interior repair.
+Each proposal gets its own centroid/edge support. Geometry-first skips imports
+for impossible already-admissible coarsening; all frozen gates/source/policies
+remain. Full source/admission failures reject atomically; bounded query cap stays.
+
+private_query_regression_v4 PASS MPI1/2/4,70 cases/4565 assertions MPI1,22
+cases/rank MPI2/4;1350 prior mesh/source artifacts identical. actual_nonmpi
+PASS9 cases/115 assertions and repeated cycles/repair/rejection. sources_v3 PASS
+MPI1/2/4/M<N:63 frames/36 successful events/six exhausted private rejections;
+126 before/after optimization artifacts identical; exact independent audits
+and seven adversaries pass. Inspectable grids/frozen metric states in
+integration_evidence/native_3d_core_v1/private_query_sources_v3/mpi{1,2,4}_meshes/.
+Initial/accepted/rejected SU2 and .json included; no CFD solutions in these pilots.
+
+Three alternating pinned source pairs preserve target/mesh/edit work. Coarsening
+parent median .443577->.136109s (~3.26x) with13 rounds/one accepted/12 rejected;
+batches19->7, private retries13->1. Other default MPI1 cases6-9% slower; CPU6
+pairs reproduce this. A diagnostic-only relink restoring unchanged kernel
+addresses restores overlapping unchanged-case timings. All unbound/pinned/
+layout receipts retained, no production link flags added. Non-MPI OFF/ON pairs
+against prior checkpoint overlap. PRIVATE_QUERY_CHECKPOINT.md gives full figures.
+
+v1 unit fixture omitted facets; v2 wrongly used fixed-skin coning at a new
+boundary point; v1 source audit applied the
+accepted shape gate to deliberately distorted initial input. Failures retained;
+accepted gates remain strict. No owned process remains live after publication.
+Next: finite coplanar geometry authority, then actual runtime/weighted partition/
+CFD/CGNS and full performance qualification. Source2058 needs294 donors and
+still rejects; source1296 measurement is not an adaptation result. Streamed
+proposal CPU scopes include election CPU; narrow before private CPU/wait claims.
+Production3D guard, original seams and composed edge-integration refusal remain.
+Do not complete from frozen fixtures or claim BL/unsteady3D/CFD affordability.
+No cluster launches requested; user unavailable overnight. Keep one owned job,
+nice19/thread1/MPI<=4, real host checks, announced full folders, and push every
+validated checkpoint with a verified remote SHA.
+
 ## Native 3D closed-query filter checkpoint — 2026-10-11
 
 Branch codex/native-3d-core; predecessor fcda83cb2b3378c55124c474e25da3aeb33f3d20.

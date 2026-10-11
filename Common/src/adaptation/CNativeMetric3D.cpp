@@ -15,8 +15,9 @@ namespace SU2Native3D {
 namespace {
 bool Same(Point a, Point b) { return a.x == b.x && a.y == b.y && a.z == b.z; }
 void Shape(const PatchMetric& m);
-PatchMetric MeasurePatch(const std::vector<Cell>& cells, FrozenField& target, MetricStats* stats,
-                         const std::map<Edge, EdgeMeasure>* reuse = nullptr, bool require_shape = false) {
+}  // namespace
+PatchMetric MeasureMetricCells(const std::vector<Cell>& cells, FrozenField& target, MetricStats* stats,
+                               const std::map<Edge, EdgeMeasure>* reuse, bool require_shape) {
   if (cells.empty() || cells.size() > MaximumReplacementCells)
     throw std::invalid_argument("Native 3D metric patch exceeds budget or is empty.");
   if (stats) {
@@ -96,6 +97,7 @@ PatchMetric MeasurePatch(const std::vector<Cell>& cells, FrozenField& target, Me
   }
   return result;
 }
+namespace {
 void Shape(const PatchMetric& m) {
   if (m.minimum_mean_ratio < MinimumMeanRatio || m.minimum_scaled_jacobian < MinimumScaledJacobian) {
     std::ostringstream reason;
@@ -117,7 +119,7 @@ bool Shared(const std::map<Edge, EdgeMeasure>& others, const std::pair<const Edg
 bool ValidateMetricPatch(const std::vector<Cell>& cells, FrozenField& target, PatchMetric& measured,
                          std::string& reason, MetricStats* stats, const std::map<Edge, EdgeMeasure>* frozen_reuse) {
   try {
-    measured = MeasurePatch(cells, target, stats, frozen_reuse);
+    measured = MeasureMetricCells(cells, target, stats, frozen_reuse);
     Shape(measured);
     if (measured.maximum_length > MaximumMetricEdge) {
       std::ostringstream message;
@@ -133,25 +135,33 @@ bool ValidateMetricPatch(const std::vector<Cell>& cells, FrozenField& target, Pa
     return false;
   }
 }
-bool ValidateMetricChange(const std::vector<Cell>& old, const std::vector<Cell>& fresh, MetricChange kind,
-                          FrozenField& target, PatchMetric& measured, std::string& reason, MetricStats* stats, const std::map<Edge, EdgeMeasure>* frozen_reuse) {
+bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fresh_count,
+                          const PatchMetric& measured, MetricChange kind, std::string& reason) {
   try {
-    if (stats) ++stats->changes;
+    if (!old_count || !fresh_count || old_count > MaximumReplacementCells || fresh_count > MaximumReplacementCells)
+      throw std::invalid_argument("Native 3D metric-change cell count exceeds budget or is empty.");
     if (kind != MetricChange::Refine && kind != MetricChange::Coarsen && kind != MetricChange::Repair)
       throw std::invalid_argument("Unknown native 3D metric-change intent.");
-    measured = MeasurePatch(fresh, target, stats, frozen_reuse, true);
+    for (const auto* metric : {&before, &measured}) {
+      if (!std::isfinite(metric->minimum_mean_ratio) || !std::isfinite(metric->minimum_scaled_jacobian) ||
+          metric->minimum_mean_ratio < 0 || metric->minimum_scaled_jacobian < 0 || metric->edges.empty() ||
+          metric->edges.size() > 6 * MaximumReplacementCells)
+        throw std::invalid_argument("Invalid native 3D metric-change measurement.");
+      for (const auto& edge : metric->edges)
+        if (!std::isfinite(edge.second.length) || edge.second.length <= 0)
+          throw std::invalid_argument("Invalid native 3D metric-change edge measurement.");
+    }
     Shape(measured);
-    const auto before = MeasurePatch(old, target, stats, &measured.edges);
     long double removed = 0, added = 0;
     for (const auto& edge : before.edges)
       if (!Shared(measured.edges, edge)) removed += Excess(edge.second.length);
     for (const auto& edge : measured.edges)
       if (!Shared(before.edges, edge)) added += Excess(edge.second.length);
     if (kind == MetricChange::Refine) {
-      if (fresh.size() <= old.size() || !(removed > 0 && added < removed * (1 - 1e-12L)))
+      if (fresh_count <= old_count || !(removed > 0 && added < removed * (1 - 1e-12L)))
         throw std::invalid_argument("Native 3D refinement does not reduce frozen changed-edge excess.");
     } else if (kind == MetricChange::Coarsen) {
-      if (fresh.size() >= old.size() || added > 0)
+      if (fresh_count >= old_count || added > 0)
         throw std::invalid_argument("Native 3D coarsening does not remove cells or introduces an oversized edge.");
     } else {
       const bool size_progress = removed > 0 && added < removed * (1 - 1e-12L);
@@ -165,6 +175,23 @@ bool ValidateMetricChange(const std::vector<Cell>& old, const std::vector<Cell>&
     }
     reason.clear();
     return true;
+  } catch (const std::exception& e) {
+    reason = e.what();
+    return false;
+  }
+}
+bool ValidateMetricChange(const std::vector<Cell>& old, const std::vector<Cell>& fresh, MetricChange kind,
+                          FrozenField& target, PatchMetric& measured, std::string& reason, MetricStats* stats, const std::map<Edge, EdgeMeasure>* frozen_reuse) {
+  try {
+    if (stats) ++stats->changes;
+    if (kind != MetricChange::Refine && kind != MetricChange::Coarsen && kind != MetricChange::Repair)
+      throw std::invalid_argument("Unknown native 3D metric-change intent.");
+    measured = MeasureMetricCells(fresh, target, stats, frozen_reuse, true);
+    Shape(measured);
+    const auto before = MeasureMetricCells(old, target, stats, &measured.edges);
+    const bool valid = ValidateMetricChange(old.size(), before, fresh.size(), measured, kind, reason);
+    if (!valid && stats) ++stats->failures;
+    return valid;
   } catch (const std::exception& e) {
     if (stats) ++stats->failures;
     reason = e.what();

@@ -50,6 +50,9 @@ Patch GeometryPatch(const Imported& imported) {
   return patch;
 }
 bool Same(Point a, Point b) { return a.x==b.x && a.y==b.y && a.z==b.z; }
+bool DonorCap(const std::string& reason) {
+  return reason=="Original donor import exceeds patch budget." || reason=="Original donor union exceeds patch budget.";
+}
 using RepairFeature = std::pair<unsigned,std::array<Id,3>>;
 struct Choice { Edge edge{}; EdgeMeasure measure; bool active = false; Feature feature; };
 class Selection {
@@ -278,8 +281,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             transfer_memory::Add(bytes(),directory.ResidentBytes()));
         // Narrow only a one-cell cap failure; private reconstruction still needs whole-cell coverage.
         if (!imported.valid && batch==1 &&
-            (imported.reason=="Original donor import exceeds patch budget." ||
-             imported.reason=="Original donor union exceeds patch budget.")) {
+            DonorCap(imported.reason)) {
           ++stats.donor_batches; ++stats.query_import_retries;
           imported=source.ImportMetricCells(regions,options.memory_ceiling,
               transfer_memory::Add(bytes(),directory.ResidentBytes()));
@@ -376,18 +378,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if (!world.sum(chosen)) ready=false;
     }
     if (!ready) return finish();
-    DonorPatch sensors;
-    std::vector<Cell> regions;
     CLocalFailure failure;
-    {
-      Timer timer(stats.donor_seconds,options.timings);
-      if (chosen) try { for (const auto& row : imported.cells) regions.push_back(row.cell); }
-      catch (const std::exception& e) { failure.Set(2,0,e.what()); }
-      ready=vote(failure);
-      if (ready) sensors=source.ImportCells(regions,options.memory_ceiling,
-          transfer_memory::Add(bytes(),directory.ResidentBytes(),transfer_memory::Bytes(imported.cells)));
-    }
-    if (!ready || !sensors.valid) { if (ready) result.reason=sensors.reason; return finish(); }
     Patch old,fresh;
     Node point;
     bool approved=false, moved=false, repair_approved=false;
@@ -417,11 +408,31 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       ready=vote(failure);
     }
     if (!ready) return finish();
+    const bool metric_needed=chosen && (approved || repairing || !coarsening || bad_field);
+    DonorPatch sensors;
+    std::vector<Cell> regions;
+    {
+      Timer timer(stats.donor_seconds,options.timings);
+      if (metric_needed) try { for (const auto& row : imported.cells) regions.push_back(row.cell); }
+      catch (const std::exception& e) { failure.Set(2,0,e.what()); }
+      ready=vote(failure);
+      if (ready && world.maximum(metric_needed)) sensors=source.ImportCells(regions,options.memory_ceiling,
+          transfer_memory::Add(bytes(),directory.ResidentBytes(),transfer_memory::Bytes(imported.cells),
+              transfer_memory::Bytes(old.cells),transfer_memory::Bytes(old.surface),
+              transfer_memory::Bytes(fresh.cells),transfer_memory::Bytes(fresh.surface)));
+      else if (ready) sensors.valid=true;
+    }
+    const bool streamed=ready && !sensors.valid && DonorCap(sensors.reason);
+    if (!ready || (!sensors.valid && !streamed)) { if (ready) result.reason=sensors.reason; return finish(); }
+    const size_t private_scratch=transfer_memory::Add(transfer_memory::Bytes(imported.cells),
+        transfer_memory::Mul(MaximumReplacementCells,8192),transfer_memory::Mul(MaximumDonors,8192));
+    if (streamed && !admit(private_scratch)) return finish();
+    if (streamed) ++stats.private_query_retries;
     {
       Timer timer(stats.metric_seconds,options.timings);
       const double reconstruction_before=stats.reconstruction_seconds;
       const double reconstruction_cpu_before=stats.reconstruction_cpu_seconds;
-      if (chosen && (approved || repairing || !coarsening || bad_field)) try {
+      if (!streamed && metric_needed) try {
         CpuTimer private_cpu(stats.metric_cpu_seconds,options.timings);
         field=std::make_unique<FrozenField>(std::move(sensors.cells),composition,options.timings);
         PatchMetric metric;
@@ -482,6 +493,148 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       } catch (const std::exception& e) { approved=false; result.reason=e.what(); }
       stats.metric_seconds-=stats.reconstruction_seconds-reconstruction_before;
       stats.metric_cpu_seconds-=stats.reconstruction_cpu_seconds-reconstruction_cpu_before;
+    }
+    if (streamed) {
+      // Geometry is now known. Import only its actual metric queries, never reuse this support for another proposal.
+      auto measure_private=[&](const std::vector<Cell>& cells, PatchMetric& measured, bool shape,
+                               const std::map<Edge,EdgeMeasure>& frozen_reuse) {
+        CLocalFailure local;
+        bool usable=true;
+        std::string rejected;
+        std::map<Edge,EdgeMeasure> reuse;
+        try { reuse=frozen_reuse; } catch (const std::exception& e) { local.Set(2,0,e.what()); }
+        if (!(ready=vote(local))) return false;
+        size_t count=CPassiveComm::Allreduce(cells.size(),CPassiveComm::Op::MAX,world.comm);
+        measured={};
+        if (!cells.empty()) measured.weakest_cell=measured.sliver_cell=cells.front().id;
+        for (size_t slot=0;slot<count;) {
+          size_t batch=std::min<size_t>(16,count-slot);
+          DonorPatch donors;
+          for (;;) {
+            std::vector<Cell> query;
+            try {
+              if (usable) for (size_t i=slot;i<std::min(slot+batch,cells.size());++i) query.push_back(cells[i]);
+            } catch (const std::exception& e) { local.Set(2,0,e.what()); }
+            if (!(ready=vote(local))) return false;
+            {
+              Timer timer(stats.donor_seconds,options.timings);
+              ++stats.donor_batches;
+              donors=source.ImportMetricCells(query,options.memory_ceiling,
+                  transfer_memory::Add(bytes(),directory.ResidentBytes(),private_scratch));
+            }
+            if (donors.valid) break;
+            if (!DonorCap(donors.reason) || batch==1) { ready=false; result.reason=donors.reason; return false; }
+            batch=(batch+1)/2; ++stats.batch_retries;
+          }
+          if (usable && slot<cells.size()) {
+            Timer timer(stats.metric_seconds,options.timings);
+            CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
+            std::unique_ptr<FrozenField> target;
+            try {
+              target=std::make_unique<FrozenField>(std::move(donors.cells),composition,options.timings);
+              for (size_t i=slot;i<std::min(slot+batch,cells.size());++i) {
+                const auto part=MeasureMetricCells({cells[i]},*target,nullptr,&reuse,shape);
+                if (part.minimum_mean_ratio<measured.minimum_mean_ratio) {
+                  measured.minimum_mean_ratio=part.minimum_mean_ratio; measured.weakest_cell=part.weakest_cell;
+                }
+                if (part.minimum_scaled_jacobian<measured.minimum_scaled_jacobian) {
+                  measured.minimum_scaled_jacobian=part.minimum_scaled_jacobian; measured.sliver_cell=part.sliver_cell;
+                }
+                for (const auto& edge:part.edges) {
+                  measured.edges.emplace(edge); reuse[edge.first]=edge.second;
+                  if (edge.second.length>measured.maximum_length) {
+                    measured.maximum_length=edge.second.length; measured.longest_edge=edge.first;
+                  }
+                }
+              }
+            } catch (const std::exception& e) { usable=false; rejected=e.what(); }
+            if (target) FieldCounts(stats,*target);
+          }
+          slot+=batch;
+        }
+        if (!usable) result.reason=rejected;
+        return usable;
+      };
+      std::map<Edge,EdgeMeasure> reuse;
+      { Timer timer(stats.metric_seconds,options.timings);
+        try { for (const auto& cell:old.cells) selection.Cached(cell,reuse); }
+        catch (const std::exception& e) { failure.Set(2,0,e.what()); }
+        ready=vote(failure);
+      }
+      if (!ready) return finish();
+      PatchMetric before;
+      const std::vector<Cell> empty;
+      const bool old_measured=measure_private(metric_needed ? old.cells : empty,before,false,reuse);
+      // A failed measurement of unchanged accepted geometry invalidates the event on every worker.
+      if (!ready) return finish();
+      CLocalFailure old_failure;
+      if (metric_needed && !old_measured) old_failure.Set(1,0,result.reason);
+      if (!(ready=vote(old_failure))) return finish();
+      auto validate_private=[&](bool candidate,MetricChange kind) {
+        PatchMetric metric;
+        const std::vector<Cell> empty;
+        const bool measured=measure_private(candidate ? fresh.cells : empty,metric,true,before.edges);
+        bool valid=false;
+        { Timer timer(stats.metric_seconds,options.timings); CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
+          if (candidate && measured) valid=ValidateMetricChange(old.cells.size(),before,fresh.cells.size(),metric,kind,result.reason);
+        }
+        return valid;
+      };
+      approved=validate_private(metric_needed && old_measured && approved,intent);
+      if (!ready) return finish();
+      const bool fallback=metric_needed && old_measured && (repairing || (!approved && (!coarsening || bad_field)));
+      if (fallback && !repairing) ++stats.repair_fallbacks;
+      const bool move=repairing ? choice.feature.count==1 : coarsening;
+      const Id vertex=repairing ? choice.feature.vertices[0] : choice.edge[1];
+      std::map<Id,Node> nodes;
+      { Timer timer(stats.reconstruction_seconds,options.timings);
+        try { if (fallback) for (const auto& cell:old.cells) for (auto node:cell.v) nodes.emplace(node.id,node); }
+        catch (const std::exception& e) { failure.Set(2,0,e.what()); }
+        ready=vote(failure);
+      }
+      if (!ready) return finish();
+      for (unsigned trial=0;trial<19;++trial) {
+        if (!world.maximum(fallback && !approved)) break;
+        const bool move_trial=trial<3;
+        const bool participating=fallback && !approved && (move_trial ? move : (!move || (!repairing && coarsening))) &&
+            (move_trial || trial-3<nodes.size());
+        if (!world.maximum(participating)) continue;
+        bool candidate=false;
+        { Timer timer(stats.reconstruction_seconds,options.timings); CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
+          if (participating) try {
+            ++stats.repair_proposals;
+            const Id first=maximum_cell+1+offset;
+            if (move_trial && maximum_node!=UINT64_MAX && token<UINT64_MAX-maximum_node) {
+              std::set<Id> neighbors;
+              for (auto face:old.surface) if (std::find(face.v.begin(),face.v.end(),vertex)!=face.v.end())
+                neighbors.insert(face.v.begin(),face.v.end());
+              if (neighbors.empty()) for (const auto& row:nodes) neighbors.insert(row.first);
+              neighbors.erase(vertex);
+              long double x=0,y=0,z=0;
+              for (Id id:neighbors) { auto p=nodes.at(id).p; x+=p.x; y+=p.y; z+=p.z; }
+              if (!neighbors.empty()) {
+                const auto p=nodes.at(vertex).p; const long double step=trial==0 ? 1.L : (trial==1 ? .5L : .25L);
+                point={maximum_node+1+token,{double(p.x+step*(x/neighbors.size()-p.x)),
+                    double(p.y+step*(y/neighbors.size()-p.y)),double(p.z+step*(z/neighbors.size()-p.z))}};
+                bool contained=true;
+                for (auto face:old.surface) if (std::find(face.v.begin(),face.v.end(),vertex)!=face.v.end())
+                  contained=contained && geometry.Contains(face.facet,point.p);
+                if (!contained) result.reason="Native 3D movement proposal leaves an incident immutable facet.";
+                candidate=contained && MoveVertex(old,vertex,point,first,geometry,fresh,result.reason);
+              }
+            } else if (!move_trial) {
+              auto apex=nodes.begin(); std::advance(apex,trial-3);
+              candidate=Reconnect(old,apex->first,first,geometry,fresh,result.reason);
+            }
+          } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
+          ready=vote(failure);
+        }
+        if (!ready) return finish();
+        const bool valid=validate_private(candidate,MetricChange::Repair);
+        if (!ready) return finish();
+        if (valid) { approved=true; repair_approved=true; moved=move_trial; }
+      }
+      if (repair_approved && !repairing) ++stats.fallback_accepted;
     }
     if (chosen && !approved) last_rejection = (repairing ? "feature " + std::to_string(choice.feature.count) + ":" +
         std::to_string(choice.feature.vertices[0]) : "edge " + std::to_string(choice.edge[0]) + "," + std::to_string(choice.edge[1])) + ": " + result.reason;

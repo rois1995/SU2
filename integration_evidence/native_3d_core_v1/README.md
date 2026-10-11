@@ -1,3 +1,7 @@
+Latest checkpoint: bounded private centroid/edge streaming and geometry-first coarsening.
+[PRIVATE_QUERY_CHECKPOINT.md](PRIVATE_QUERY_CHECKPOINT.md). Grids and frozen states:
+`private_query_sources_v3/mpi{1,2,4}_meshes/`. Goal1 remains ACTIVE/full scope.
+
 Latest checkpoint: exact-sign closed-query filtering and matched source-control repetitions.
 [QUERY_FILTER_CHECKPOINT.md](QUERY_FILTER_CHECKPOINT.md). Goal1 remains ACTIVE.
 

@@ -27,6 +27,16 @@ struct MetricStats {
   size_t maximum_cells = 0, maximum_nodes = 0, maximum_edges = 0;
 };
 enum class MetricChange { Refine, Coarsen, Repair };
+/*! Measures only actual centroids and source-resolved edges of the supplied known cells; throws on
+ * invalid geometry/source coverage. A caller can merge bounded batches by cell minima and unique edges.
+ * The source must remain the same original frozen target throughout, including any scalar-edge reuse. */
+PatchMetric MeasureMetricCells(const std::vector<Cell>& cells, FrozenField& target, MetricStats* stats = nullptr,
+                              const std::map<Edge, EdgeMeasure>* frozen_reuse = nullptr,
+                              bool require_shape = false);
+/*! Same progress gate on complete measurements assembled from the same frozen target. The caller must
+ * retain all cells/edges and verify geometry/dependencies separately; this does not certify source coverage. */
+bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fresh_count,
+                          const PatchMetric& measured, MetricChange kind, std::string& reason);
 /*! Requires separately validated geometry/topology/dependencies. Actual centroid target and source-resolved
  * target edge lengths; bounded128 cells. Final completion requires the strict gate on the whole mesh.
  * Optional reuse must come from the same frozen original sensor target; identity and coordinates are checked.

@@ -50,6 +50,7 @@ try:
  ['-Wl,--gc-sections','-o',str(binary)],'link')
  for ranks in [1,2,4]:
   case=folder/('mpi'+str(ranks)+'_meshes');case.mkdir()
+  print('Case working and retained folder:',case,flush=True)
   host('before_mpi'+str(ranks));out=run(['nice','-n','19','/usr/bin/time','-v','mpirun','--oversubscribe',
   '--bind-to','none','-np',str(ranks),str(binary),str(case)],'mpi'+str(ranks))
   assert 'PASS large-source' in out

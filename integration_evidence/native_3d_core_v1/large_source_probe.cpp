@@ -173,11 +173,37 @@ int main(int argc,char** argv) {
    assert(!imported.valid && imported.reason.find("patch budget")!=std::string::npos && service.ResidentBytes()==resident);
    if(!parent.rank)std::cout<<"LARGE_SUPPORT_LIMIT n=7 valid=0 source=2058\n";
   }
-  for(const std::string kind:{"coarse","wedge","dense","dense_wedge"}) {
-   const bool wedge=kind=="wedge" || kind=="dense_wedge";
-   const unsigned n=kind=="dense" || kind=="dense_wedge" ? 5 : 4;const double strength=wedge ? 4. : 1.;
+  for(const std::string kind:{"coarse","wedge","dense","dense_wedge","dense_coarsen","dense_repair","dense_reject"}) {
+   const bool wedge=kind!="coarse" && kind!="dense";
+   const bool coarsen=kind=="dense_coarsen",repair=kind=="dense_repair",reject=kind=="dense_reject";
+   const unsigned n=kind.rfind("dense",0)==0 ? 5 : 4;
+   const double strength=coarsen ? .25 : (repair || !wedge ? 1. : 4.);
    const auto grid=Grid(n);const auto source=Source(parent,grid,strength);
-   std::vector<Facet> facets;const auto input=Coarse(parent,n,facets,wedge);const auto saved=Bytes(input);
+   std::vector<Facet> facets;auto input=Coarse(parent,n,facets,wedge);
+   if(coarsen || repair) {
+    std::vector<std::vector<OwnedCell>> distribute(parent.size);
+    for(const auto& row:input) {
+     Patch old,fresh;old.cells={row.second.cell};const auto faces=Faces(row.second.cell);
+     for(unsigned i=0;i<4;++i)if(row.second.physical[i].present)old.surface.push_back({faces[i],row.second.physical[i].facet});
+     std::string reason;const Id next=Id((n+1)*(n+1)*(n+1));
+     if(coarsen) {
+      const auto a=old.cells[0].v[0],b=old.cells[0].v[1];
+      assert(SplitEdge(old,{a.id,b.id},{next,{(a.p.x+b.p.x)/2,(a.p.y+b.p.y)/2,(a.p.z+b.p.z)/2}},
+          20000,PlanarReference(facets),fresh,reason));
+     } else {
+      Point p;for(unsigned i=1;i<4;++i){const auto v=old.cells[0].v[i].p;p.x+=v.x/32;p.y+=v.y/32;p.z+=v.z/32;}
+      assert(Cone(old.cells,{next,p},20000,fresh.cells,reason));fresh.surface=old.surface;
+     }
+     std::map<Face,Id> physical;for(auto face:fresh.surface)physical.emplace(Key(face.v),face.facet);
+     for(auto cell:fresh.cells) {
+      OwnedCell child;child.cell=cell;child.version=23;const auto ff=Faces(cell);
+      for(unsigned i=0;i<4;++i){auto f=physical.find(Key(ff[i]));if(f!=physical.end())child.physical[i]={true,f->second};}
+      distribute[cell.id%parent.size].push_back(child);
+     }
+    }
+    input.clear();for(auto row:parent.exchange(distribute))input.emplace(row.cell.id,row);
+   }
+   const auto saved=Bytes(input);
    std::vector<std::vector<OwnedCell>> initial_to(parent.size);
    for(auto row:input)initial_to[0].push_back(row.second);
    const auto initial=parent.exchange(initial_to);
@@ -195,17 +221,23 @@ int main(int argc,char** argv) {
     phase=std::chrono::steady_clock::now();Owned adapted;bool valid=true;
     if(subset!=MPI_COMM_NULL) {
      World worker(subset);Owned owned;for(auto row:migrated)owned.emplace(row.cell.id,row);
-     const auto before=Bytes(owned);EngineOptions options;options.timings=true;
-     const auto result=Refine(worker,owned,source_rows,PlanarReference(facets),{},options);const auto& s=result.stats;
-     valid=result.valid;assert(valid==(kind!="dense_wedge"));
-     assert((s.query_import_retries>0)==(n==5));assert(Bytes(owned)==before);assert(s.other_seconds>=-1e-12);
+     const auto before=Bytes(owned);EngineOptions options;options.timings=true;if(reject)options.maximum_rounds=1;
+     const auto result=coarsen ? Coarsen(worker,owned,source_rows,PlanarReference(facets),{},options) :
+         (repair ? Repair(worker,owned,source_rows,PlanarReference(facets),{},options) :
+         Refine(worker,owned,source_rows,PlanarReference(facets),{},options));const auto& s=result.stats;
+     valid=result.valid;assert(valid==!reject);
+     if(kind=="dense" || kind=="dense_wedge" || reject)assert(s.query_import_retries>0);
+     assert(Bytes(owned)==before);assert(s.other_seconds>=-1e-12);
      if(!wedge)assert(Bytes(result.cells)==before && s.accepted==0);
-     if(kind=="dense_wedge")assert(s.accepted==0 && s.initial_cells==owned.size() && result.reason.find("patch budget")!=std::string::npos);
-     if(kind=="wedge")assert(worker.sum(int(s.accepted))>0);
+     if(kind=="dense_wedge")assert(s.initial_cells==owned.size() && worker.sum(int(s.accepted))>0 && s.private_query_retries>0);
+     if(wedge)assert(worker.sum(int(s.accepted))>0);
+     if(n==5 && wedge)assert(s.private_query_retries>0);
+     if(n==4 || !wedge)assert(s.private_query_retries==0);
+     if(reject)assert(result.reason.find("round limit")!=std::string::npos);
      std::ostringstream report;report<<std::setprecision(17)<<"LARGE_ENGINE case="<<label<<" rank="<<worker.rank
       <<" workers="<<m<<" valid="<<valid<<" source="<<grid.size()<<" initial="<<s.initial_cells
-      <<" final_local="<<result.cells.size()<<" rounds="<<s.rounds<<" accepted="<<s.accepted<<" rejected="<<s.rejected
-      <<" batches="<<s.donor_batches<<" retries="<<s.batch_retries<<" query_import_retries="<<s.query_import_retries<<" candidates="<<s.donor_candidates
+      <<" final_local="<<result.cells.size()<<" moved="<<s.moved<<" reconnected="<<s.reconnected<<" rounds="<<s.rounds<<" accepted="<<s.accepted<<" rejected="<<s.rejected
+      <<" batches="<<s.donor_batches<<" retries="<<s.batch_retries<<" query_import_retries="<<s.query_import_retries<<" private_query_retries="<<s.private_query_retries<<" candidates="<<s.donor_candidates
       <<" filtered="<<s.donor_filtered<<" payloads="<<s.donor_payloads<<" max_patch="<<s.donor_maximum_patch
       <<" total_s="<<s.total_seconds<<" init_s="<<s.initialization_seconds<<" seed_s="<<s.seed_seconds
       <<" selection_s="<<s.selection_seconds<<" dependency_s="<<s.dependency_seconds<<" reservation_s="<<s.reservation_seconds
@@ -216,12 +248,12 @@ int main(int argc,char** argv) {
       <<" trace_nested_s="<<s.edge_trace_seconds<<" work_bytes="<<s.maximum_work_bytes<<'\n';Ordered(worker,report.str());
      adapted=result.cells;MPI_Comm_free(&subset);
     }
-    const auto failed=parent.maximum(!valid);const double worker_s=elapsed(phase);assert(failed==(kind=="dense_wedge"));
+    const auto failed=parent.maximum(!valid);const double worker_s=elapsed(phase);assert(bool(failed)==reject);
     phase=std::chrono::steady_clock::now();to.assign(parent.size,{});
     for(auto row:adapted)to[row.first%parent.size].push_back(row.second);
     const auto returned=parent.exchange(to);Owned output;for(auto row:returned)output.emplace(row.cell.id,row);
     const auto count=CPassiveComm::Allreduce(output.size(),CPassiveComm::Op::SUM,parent.comm);const double return_s=elapsed(phase);
-    assert(Bytes(input)==saved);if(kind=="wedge")assert(count>1 && count<=128);
+    assert(Bytes(input)==saved);if(coarsen)assert(count==1);else if(wedge)assert(count>1 && count<=128);
     const double total_s=elapsed(start),other_s=total_s-migration_s-comm_s-worker_s-return_s;assert(other_s>=-1e-12);
     std::ostringstream event;event<<std::setprecision(17)<<"LARGE_EVENT case="<<label<<" rank="<<parent.rank<<" ranks="<<parent.size
      <<" workers="<<m<<" valid="<<!failed<<" final="<<count<<" parent_s="<<total_s<<" migration_s="<<migration_s
