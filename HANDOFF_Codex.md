@@ -39,8 +39,10 @@ memory calibration; practical larger/rotated/thin lifecycle/restart and rank/siz
 limits; then closed SGE campaigns. WINDOW_AVERAGE/PREDICT sampling detail also
 not fully covered. No full-memory/scaling/BL/unsteady affordability claim. New
 cases profile_runtime_v2/lifecycle_mpi4; transported metrics/states and CGNS in
-profile_runtime_v2/mpi4. Publication pending; push qualified checkpoint and verify
-full remote SHA. No cluster-launch questions tonight; foreign FSI/AdapNoExt/
+profile_runtime_v2/mpi4. Implementation checkpoint
+ de21d8a462de57ac4f2ba5b96b9418922dbb7e79 pushed to origin and full remote SHA
+verified; this handoff update follows that publication. No cluster-launch
+questions tonight; foreign FSI/AdapNoExt/
 submodules/ClusterResults untouched.
 
 ## Native 3D memory checkpoint validated — 2026-10-11
