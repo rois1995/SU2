@@ -1,0 +1,77 @@
+{
+  "status": "PASS",
+  "reason": "",
+  "stages": [
+    {
+      "label": "checks",
+      "exit_code": 0,
+      "seconds": 1.2240137759945355,
+      "command": [
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_core_v1/check_package.py"
+      ]
+    },
+    {
+      "label": "bash_syntax",
+      "exit_code": 0,
+      "seconds": 0.01870508200954646,
+      "command": [
+        "bash",
+        "-n",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_core_v1/RunNative3DSGE.sh"
+      ]
+    },
+    {
+      "label": "diff",
+      "exit_code": 0,
+      "seconds": 0.07725711702369153,
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        "integration_evidence/native_cluster_3d_core_v1"
+      ]
+    },
+    {
+      "label": "production_unchanged",
+      "exit_code": 0,
+      "seconds": 0.06779222399927676,
+      "command": [
+        "git",
+        "diff",
+        "--exit-code",
+        "475820f366366f471e0cdb50e362d7c5e572c328",
+        "--",
+        "Common",
+        "SU2_CFD",
+        "UnitTests",
+        "meson.build",
+        "meson_options.txt"
+      ]
+    }
+  ],
+  "source_sha256": {
+    "integration_evidence/native_cluster_3d_core_v1/check_package.py": "20c1e1ed3d6fd975b258319fb9bd3c0ba2ee09db52429f803fd1f4d7e1830694",
+    "integration_evidence/native_cluster_3d_core_v1/analyze.py": "651fc2fea07b4afbfaa8b3ecf2bce47e77b67d17b3348ea8c620d5268ddd824e",
+    "integration_evidence/native_cluster_3d_core_v1/prepare.py": "2d1b953f35453fd7eedf6090df36886109f585e83853dbdcb91a4a6e333580db",
+    "integration_evidence/native_cluster_3d_core_v1/profile_summary.py": "d56de9a2a50451f98b624359a71423a9112e509f900928a787dbd8227f52e0af",
+    "integration_evidence/native_cluster_3d_core_v1/submit.py": "76ba5bbc2f9e91d1d0d8567175b2515a2e48657ebae4808e07e7b13e8dabf1d0",
+    "integration_evidence/native_cluster_3d_core_v1/run.py": "59ecdb9f53dacea6d1bf600e95a9908a82cb5c01bfa3f54ac8a3b2a708ac3546",
+    "integration_evidence/native_cluster_3d_core_v1/mpi_profile.py": "11e46f3d01289c1d050221d5264cf00a62e4da29385705a4ca7bff003ee9651b",
+    "integration_evidence/native_cluster_3d_core_v1/restore.py": "b9a32c4dd7bdd99e84aec755acccd32841038f6f1c27735cd70277b658dcabbb"
+  },
+  "source_drift": [],
+  "python38_ast": "PASS",
+  "scope": "29 lightweight mocked orchestration/parser checks, including correctness MPI1/2/4 independent bridge audit invocation and audit-failure stop/preservation. No actual build, solver, MPI, profiler or qsub; production C++/fixtures/build options identical to475820. Existing frozen bundles unchanged.",
+  "artifact_sha256": {
+    "diff.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "checks.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bash_syntax.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "production_unchanged.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bash_syntax.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "checks.stderr": "ae1f06f54b5accf216dcc67b7603cc2db81f0f5dc548487b6e6f0af8796b51b3",
+    "production_unchanged.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "diff.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

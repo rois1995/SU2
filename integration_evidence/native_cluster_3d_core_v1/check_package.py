@@ -63,6 +63,44 @@ class PackageChecks(unittest.TestCase):
             self.assertTrue(all(cmd.count('--gate')==2 for cmd in commands[4:]))
             receipt=json.loads(next((root/'ClusterResults').glob('native3d_submission_*.json')).read_text())
             self.assertEqual(receipt['status'],'SUBMITTED');self.assertEqual(len(receipt['jobs']),7)
+    def test_correctness_bridge_audits_gate_later_cases(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);bundle=self.bundle(root);machine=root/'machinefile'
+            machine.write_text('mock-node slots=4\n');calls=[]
+            def fake(args,cwd,label,env,seconds):
+                calls.append((cwd.name,label));out='';exit_code=0
+                if label=='case':
+                    ranks=int(args[args.index('-n')+1]);selection=args[-3]
+                    result='48 assertions in 2 test cases' if selection.startswith('MMG interface:') else '1 assertion in 1 test case'
+                    if selection==run.SELECTION:result='10189 assertions in 69 test cases'
+                    out='\n'.join('All tests passed ('+result+')' for _ in range(ranks))
+                elif label=='audit':
+                    if cwd.name.startswith('unit_mpi'):
+                        ranks=int(cwd.name[len('unit_mpi'):])
+                        self.assertEqual(Path(args[1]).name,'audit_geometry_bridge.py')
+                        self.assertEqual(args[2:],[str(cwd),str(ranks),str(cwd/'case.stdout')])
+                        exit_code=7 if cwd.parent.name=='failed' and ranks==2 else 0
+                    else:self.assertEqual(Path(args[1]).name,'audit_envelope.py')
+                    (cwd/'independent_audit.json').write_text(json.dumps(dict(status='FAIL' if exit_code else 'PASS')))
+                (cwd/(label+'.stdout')).write_text(out);(cwd/(label+'.stderr')).write_text('')
+                return dict(exit_code=exit_code,seconds=.001,label=label,command=list(map(str,args)))
+            def invoke(name):
+                with patch.object(sys,'argv',['run.py','--package',str(bundle),'--results',str(root/name),'--mode','correctness','--ranks','4','--machinefile',str(machine)]),patch.object(run,'command',side_effect=fake),contextlib.redirect_stdout(io.StringIO()):run.main()
+            invoke('passed');receipt=json.loads((root/'passed/result.json').read_text())
+            self.assertEqual(receipt['status'],'PASS');self.assertEqual(len(receipt['cases']),6)
+            for ranks in (1,2,4):
+                case=next(c for c in receipt['cases'] if c['folder']=='unit_mpi'+str(ranks))
+                self.assertEqual([s['label'] for s in case['stages']],['case','audit'])
+                self.assertIn(case['folder']+'/independent_audit.json',receipt['artifact_sha256'])
+            calls.clear()
+            with self.assertRaisesRegex(RuntimeError,'Audit failure'):invoke('failed')
+            failure=json.loads((root/'failed/result.json').read_text())
+            self.assertEqual(failure['status'],'FAIL');self.assertEqual(len(failure['cases']),2)
+            self.assertEqual(calls[-1],('unit_mpi2','audit'))
+            self.assertFalse((root/'failed/unit_mpi4').exists())
+            self.assertFalse(list((root/'failed').glob('restart_*')))
+            self.assertEqual(json.loads((root/'failed/unit_mpi2/audit_stage.json').read_text())['exit_code'],7)
+
     def test_stale_build_refuses_preparation_before_copy(self):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d);build=root/'build';(build/'UnitTests').mkdir(parents=True)

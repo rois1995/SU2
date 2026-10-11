@@ -4,9 +4,10 @@ Working repository: `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 `codex/native-3d-transport-accounting`. This is the updated MPI1/2/4 correctness, repeated timing
 and instrumentation-overhead package. Larger sizes/ranks, full traffic/wait and
 allocator calibration remain Goal1 work. The current reference-admission/query/transport-accounting code builds and passes the serial
-69-case native/reference/2D+3Dbridge suite and serialMMG checks. MPI2/4 and
-independent fixed-work/restart qualification remain pending; package self-checks
-are separate from those numerical checks.
+69-case native/reference/2D+3Dbridge suite and serialMMG checks. The 69-case
+selection and independent bridge audit now pass on MPI1/2/4. Larger fixed-work/
+persisted-restart qualification remains pending; package self-checks are separate
+from those numerical checks.
 Do not treat preparation or submission as a numerical PASS.
 
 Use the cluster's existing GCC/MPI/MMG/CGNS build environment on the login host.
@@ -35,7 +36,10 @@ PYTHONDONTWRITEBYTECODE=1 python3 integration_evidence/native_cluster_3d_core_v1
 `build-native` denotes your existing configured normal build directory; substitute
 its actual name and retain your cluster compiler/MMG library options. If creating
 a fresh directory, use `./meson.py setup build-native` with the same options
-instead of `configure`. If Ninja is `./ninja`, use that for the build and pass
+instead of `configure`. You can retain `--prefix="$(pwd)"`: it controls the
+installation destination, while this package copies the test driver directly from
+the build directory and requires no installation or local `/tmp` files.
+If Ninja is `./ninja`, use that for the build and pass
 `--ninja ./ninja` to preparation. Use a new prepared output folder if `prepared_v1`
 already exists; preparation deliberately preserves previous bundles. Preparation refuses a stale driver, missing MPI or disabled required build options before copying it,
 pins all68 objects and actual archives/thin members, records sources/build options
@@ -52,8 +56,9 @@ PYTHONDONTWRITEBYTECODE=1 python3 integration_evidence/native_cluster_3d_core_v1
 ```
 
 This submits seven serialized SGE jobs to `aero-ags.q`: correctness on four slots
-(serialMMG, native/reference/2D+3Dbridge tests on MPI1/2/4 and actual persisted
-SU2N1M1/CGNSN4M2 restarts), actual metric/Hessian lifecycle at N1/2/4, then
+(serialMMG, native/reference/2D+3Dbridge tests on MPI1/2/4, independent bridge
+geometry/markers/original-P1/current+BDF/SU2+CGNS audits at each rank count, and
+actual persisted SU2N1M1/CGNSN4M2 restarts), actual metric/Hessian lifecycle at N1/2/4, then
 manufactured n4 wedge timing at N1/2/4. Each later job checks the preceding
 correctness result; timing also checks its same-rank lifecycle result. All gates
 require the identical frozen bundle. Partial submissions retain job IDs, commands

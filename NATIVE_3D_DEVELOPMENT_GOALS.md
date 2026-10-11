@@ -17,9 +17,13 @@ other sessions' work untouched. Record the actual branch and source SHA.
 
 The user's latest policy is local-first: small correctness cases and short pilots
 locally, then larger correctness, repeated timing and scaling campaigns on the
-cluster. Before every local build/run inspect load, memory and competing jobs;
-defer if resources are busy. One owned heavy job at a time, initially MPI <= 4,
-build -j2, numerical-library threads = 1. Never terminate unrelated processes.
+cluster. Before every local build/run inspect load, memory and competing jobs.
+The user explicitly authorized correctness-only MPI checks under CPU contention
+on 2026-10-11: use bounded CPU affinity, low priority and sequential runs; retain
+contention observations without making timing claims. Defer local performance
+measurements when resources are busy; require available memory for correctness.
+One owned heavy job at a time, initially MPI <= 4, build -j2, numerical-library
+threads = 1. Never terminate unrelated processes.
 Cluster runs use existing SGE/qsub conventions; do not require Git on compute
 nodes or exclusive-node allocation. Announce the full working case folder before
 each new case, and print working and retained result folders in runners.

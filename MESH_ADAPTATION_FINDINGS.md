@@ -1,3 +1,55 @@
+## Contention-authorized MPI correctness and cluster audit gate — 2026-10-11
+
+Working branch: codex/native-3d-transport-accounting, predecessor
+ca700f7d686804cf7df7d8eaade73bfa65562e95. Production C++/test fixtures/build
+options remain identical to475820f366366f471e0cdb50e362d7c5e572c328; core branch
+remains6b3fefd039bfc3d1937b8add7d21d0ea41344bc9. No numerical guard/target change.
+
+The user explicitly authorizes correctness-only MPI runs despite CPU contention.
+Retain actual host observations, available-memory admission, one owned sequential
+job, bounded CPU affinity, nice19/yield/thread1; defer local performance claims.
+This instruction overrides the previous CPU-idle gate for correctness checks.
+Original resource-refusal evidence stays intact. The shared execution contract
+now records this distinction. No foreign process was stopped or modified.
+
+Full configured68-object native/reference/2D+3Dbridge selection PASS at MPI2 and
+MPI4,69 cases per rank, using the same pinned serial475820 production binary and
+774 archive members. Independent bridge audits PASS: MPI2,24frames/12statepairs/
+12actual SU2CGNS round trips; MPI4,48frames/24statepairs/24round trips. Both cover
+all M=1..N, two solution-transfer policies and three refine/coarsen/refine events,
+exact embedding/volume/markers, original-P1 metric gates and current/BDF states;
+each independent audit rejects its five corrupted controls. All source/object/
+archive/tool pins unchanged; rejected/accepted transport totals close on each
+rank. These are one-CPU contended correctness runs, not timing/scaling evidence.
+
+Retained case folders:
+integration_evidence/native_3d_core_v1/transport_mpi2_correctness_v2
+integration_evidence/native_3d_core_v1/transport_mpi4_correctness_v2
+Inspect bridge_barycentric_m*_s*_written_SU2.su2 and matching CGNS, source/state
+JSON, independent_audit.json, transport_rows.json and validation.json.
+
+The SGE correctness runner previously executed the bridge assertions but omitted
+the existing independent audit. It now requires audit_geometry_bridge.py to
+PASS after each MPI1/2/4 selection before progressing. Failed audits preserve
+logs and stop later cases/campaigns. Package checks_v18 PASS29 lightweight
+mocked/parser controls including the injected MPI2 audit failure. Python3.8 AST,
+Bash syntax, scoped whitespace and unchanged production/fixture/build options
+PASS. This script-only update needs no solver rebuild; prepare a fresh bundle
+after pulling. Never modify an already frozen/submitted bundle. Existing jobs
+remain useful, but their bridge outputs need separate independent review.
+The README also explains that --prefix controls installation; the bundle copies
+the build-directory test driver and requires no local /tmp files.
+
+Goal1 remains ACTIVE. Current small MPI1/2/4 regression is now qualified; larger
+n4 fixed-work/persisted-restart qualification, n8 practical limits, repeated
+cluster performance/instrumentation overhead and full wait/traffic/vendor/allocator
+calibration remain open. No curved geometry,3DBL/full unsteady or CFD affordability
+claim. No owned process is live after both terminal PASS results; no qsub was
+submitted by this session and no downloaded native3D campaign is present.
+Do not merge the isolated transport branch into core before the larger gates.
+
+MPI2 maximum current/BDF relative error: 6.0360605402784081e-13; MPI4: 8.471971137321857e-13. Transported-tensor maximum error:0 in both.
+
 ## Updated cluster batch authorized — 2026-10-11
 
 User can now launch cluster runs and asks for exact commands. Use updated branch

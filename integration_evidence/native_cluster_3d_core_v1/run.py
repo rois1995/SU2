@@ -136,6 +136,7 @@ def main():
             cases.append(dict(folder=work.name,stages=s))
             for ranks in (1,2,4):
                 work=result/f'unit_mpi{ranks}';s=run(work,ranks,SELECTION)
+                s.append(audit(work,'audit_geometry_bridge.py',ranks,work/'case.stdout'))
                 cases.append(dict(folder=work.name,stages=s))
             for ranks,workers,fmt in ((1,1,'su2'),(4,2,'cgns')):
                 work=result/f'restart_n{ranks}_m{workers}_{fmt}'
