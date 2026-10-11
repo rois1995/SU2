@@ -9,6 +9,10 @@ cannot be guaranteed to auto-resume; preserve the handoff for recovery.
 
 ## Reference admission draft — 2026-10-11; NOT VALIDATED
 
+Draft checkpoint `d0d3fdaa1ecccd88c981fc770a69729449804444` pushed to
+origin/codex/native-3d-core; full remote SHA verified. C++/MPI/runtime
+validation remains pending; the last validated production checkpoint is1fafe9e83c.
+
 NativeIntegrated / codex/native-3d-core, based on pushed validated checkpoint
 `1fafe9e83c9c8d3f9518740c04dba25c15d8e8aa`. The draft replaces the global256-facet
 count guard with requested-memory admission in PlanarReference, ImportGeometry,
