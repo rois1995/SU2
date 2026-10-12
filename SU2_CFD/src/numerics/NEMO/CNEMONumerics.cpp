@@ -317,38 +317,40 @@ void CNEMONumerics::GetViscousProjJacs(const su2double *val_Mean_PrimVar,
                                        su2double **val_Jac_i, su2double **val_Jac_j,
                                        const CConfig *config){
 
+  /*--- Use the static-size implementation for the common mixtures. Each of them
+   is selected by its number of variables and its number of species, because
+   two mixtures of different size can have the same number of variables
+   (for example 5 species in 3D and 6 species in 2D). ---*/
   switch (nVar) {
     case 5:
-      return COMPUTE_VISCOUS_JACS(5, 1);
-
+      if (nSpecies == 1) return COMPUTE_VISCOUS_JACS(5, 1);
+      break;
     case 6:
-      switch (nSpecies) {
-        case 1: return COMPUTE_VISCOUS_JACS(6, 1);
-
-        case 2: return COMPUTE_VISCOUS_JACS(6, 2);
-
-        default: SU2_MPI::Error("nVar and nSpecies mismatch.", CURRENT_FUNCTION);
-      }
-    break;
+      if (nSpecies == 1) return COMPUTE_VISCOUS_JACS(6, 1);
+      if (nSpecies == 2) return COMPUTE_VISCOUS_JACS(6, 2);
+      break;
     case 7:
-      return COMPUTE_VISCOUS_JACS(7, 2);
-
-     case 9:
-      return COMPUTE_VISCOUS_JACS(9, 5);
-
+      if (nSpecies == 2) return COMPUTE_VISCOUS_JACS(7, 2);
+      break;
+    case 9:
+      if (nSpecies == 5) return COMPUTE_VISCOUS_JACS(9, 5);
+      break;
     case 10:
-      return COMPUTE_VISCOUS_JACS(10, 5);
-
+      if (nSpecies == 5) return COMPUTE_VISCOUS_JACS(10, 5);
+      break;
     case 11:
-      return COMPUTE_VISCOUS_JACS(11, 7);
-
+      if (nSpecies == 7) return COMPUTE_VISCOUS_JACS(11, 7);
+      break;
     case 12:
-      return COMPUTE_VISCOUS_JACS(12, 7);
-
+      if (nSpecies == 7) return COMPUTE_VISCOUS_JACS(12, 7);
+      break;
     default:
-      return COMPUTE_VISCOUS_JACS(DynamicSize,DynamicSize);
-
+      break;
   }
+
+  /*--- Any other mixture uses the dynamic-size implementation. ---*/
+  return COMPUTE_VISCOUS_JACS(DynamicSize,DynamicSize);
+
 }
 #undef COMPUTE_VISCOUS_JACS
 
