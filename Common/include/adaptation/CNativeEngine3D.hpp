@@ -11,7 +11,10 @@ namespace SU2Native3D {
 constexpr double CoarseningMetricEdge = .9;  // Frozen candidate hysteresis; final upper/shape gates remain strict.
 constexpr size_t MaximumCandidateBatch = 8;
 struct EngineOptions {
-  size_t maximum_rounds = 512, memory_ceiling = size_t(2) << 30, caller_bytes = 0;
+  size_t maximum_rounds = 0, memory_ceiling = size_t(2) << 30, caller_bytes = 0;
+  // Zero rounds uses a work-bounded search; positive rounds remain an explicit diagnostic ceiling.
+  size_t maximum_work = SIZE_MAX, stagnation_window = 64;  // SIZE_MAX: max(4096,64*global input cells).
+  double maximum_seconds = 0;  // Optional kernel elapsed ceiling, checked at collective safe points.
   bool timings = false;
   size_t candidate_batch = MaximumCandidateBatch;  // Internal control for paired correctness/work comparisons.
 };
@@ -19,7 +22,21 @@ struct SplitRecord {
   Edge edge{};
   Node point;
 };
+enum class EngineStop { None, Complete, RoundBudget, WorkBudget, TimeBudget, OperatorStagnation, Failure };
+inline const char* EngineStopName(EngineStop stop) {
+  constexpr const char* names[]={"none","complete","round_budget","work_budget","time_budget","operator_stagnation","failure"};
+  const auto i=static_cast<unsigned>(stop); return i<7 ? names[i] : "failure";
+}
 struct EngineStats {
+  EngineStop stop = EngineStop::None;
+  uint64_t global_work = 0, work_limit = 0, progress_windows = 0, stagnant_windows = 0, search_windows = 0;
+  uint64_t size_progress = 0, quality_progress = 0, cell_removals = 0;
+  uint64_t geometry_trials = 0, geometry_rejected = 0, metric_trials = 0;
+  uint64_t metric_shape_rejected = 0, metric_progress_rejected = 0, metric_measurement_rejected = 0;
+  MetricDiagnosis last_metric_rejection;
+  Feature last_rejected_feature;
+  Point last_rejected_cavity_centroid{};  // Representative cavity location, not an infeasibility certificate.
+
   uint64_t rounds = 0, proposed = 0, conflicts = 0, attempted = 0, accepted = 0, rejected = 0;
   uint64_t batch_rounds = 0, batch_candidates = 0, batch_reserved = 0;
   uint64_t initial_cells = 0, updated_cells = 0, edge_evaluations = 0, edge_reused = 0, selections = 0;  // Edge evaluations here count selection-cache measurements only.

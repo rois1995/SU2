@@ -1313,6 +1313,8 @@ private:
   /*--- Mesh adaptation options ---*/
   bool Compute_Metric = false;              /*!< \brief Determines if the adaptation metric is computed. */
   bool Adap_Iso_Corner = true;              /*!< \brief Isotropic adaptation metric at sharp wall corners. */
+  unsigned long Adap_Native_Max_Work = 0;   /*!< \brief Global 3D proposal allowance; zero is automatic. */
+  su2double Adap_Native_Max_Time = 0;      /*!< \brief Optional native3D-to-replacement deadline in seconds. */
   unsigned long Adap_Native_Ranks = 0;       /*!< \brief Native adaptation ranks; zero uses all CFD ranks. */
   bool Adap_Native_Repartition = false;     /*!< \brief Cost-weighted native working partition, independent of CFD. */
   bool Adap_Surface = true;                 /*!< \brief The remesher may change the boundary (surface) mesh. */
@@ -10477,6 +10479,8 @@ public:
   ADAP_REMESHER GetKind_Adap_Remesher(void) const { return Kind_Adap_Remesher; }
   unsigned long GetAdap_Native_Ranks(void) const { return Adap_Native_Ranks; }
   bool GetAdap_Native_Repartition(void) const { return Adap_Native_Repartition; }
+  unsigned long GetAdap_Native_Max_Work(void) const { return Adap_Native_Max_Work; }
+  su2double GetAdap_Native_Max_Time(void) const { return Adap_Native_Max_Time; }
 
   /*!
    * \brief Get the number of wall markers of the boundary-layer metric (ADAP_BL_MARKER).

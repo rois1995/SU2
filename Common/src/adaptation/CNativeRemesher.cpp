@@ -33,6 +33,8 @@ CNativeRemesher::CNativeRemesher(std::shared_ptr<ReferenceState> retainedReferen
 
 void CNativeRemesher::CheckSupport(const CConfig& config, const CGeometry& geometry) {
   CLocalFailure failure;
+  if (config.GetAdap_Native_Max_Work() || config.GetAdap_Native_Max_Time()>0)
+    failure.Set(1,0,"ADAP_NATIVE_MAX_WORK/ADAP_NATIVE_MAX_TIME currently require native3D.");
   if (!std::is_same<su2double, double>::value || !std::is_same<passivedouble, double>::value)
     failure.Set(1, 0, "Native adaptation currently requires a primal double-precision build.");
   if (config.GetContinuous_Adjoint() || config.GetDiscrete_Adjoint())

@@ -1680,6 +1680,12 @@ void CSinglezoneDriver::ReplaceMesh(const CRemeshResult& remeshed, CSolutionTran
           "Remesher returned incomplete coverage. The accepted mesh and solution are retained.");
   CollectiveFailure(acceptance,CURRENT_FUNCTION);
 
+  if (remeshed.beforeAcceptance) {
+    if (!remeshed.beforeAcceptance())
+      acceptance.Set(1,0,"Native3D elapsed deadline exhausted before replacement; accepted mesh and solution retained.");
+    CollectiveFailure(acceptance,CURRENT_FUNCTION);
+  }
+
   const su2double startTime = SU2_MPI::Wtime();
 
   CheckMeshAdaptation();
@@ -1788,6 +1794,12 @@ void CSinglezoneDriver::ReplaceMesh(const CRemeshResult& remeshed, CSolutionTran
   auto* donorNumerics = numerics_container[ZONE_0][INST_0];
   auto* donorIntegration = integration_container[ZONE_0][INST_0];
   auto* donorIteration = iteration_container[ZONE_0][INST_0];
+
+  if (remeshed.beforeAcceptance) {
+    if (!remeshed.beforeAcceptance())
+      acceptance.Set(1,0,"Native3D elapsed deadline exhausted during rebuild/transfer; accepted mesh and solution retained.");
+    CollectiveFailure(acceptance,CURRENT_FUNCTION);
+  }
 
   geometry_container[ZONE_0][INST_0] = geometry;
   solver_container[ZONE_0][INST_0] = solver;

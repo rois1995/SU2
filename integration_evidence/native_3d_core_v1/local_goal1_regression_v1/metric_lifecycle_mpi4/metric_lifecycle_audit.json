@@ -1,0 +1,95 @@
+{
+  "status": "PASS",
+  "ranks": 4,
+  "frames": [
+    {
+      "workers": 1,
+      "mesh": {
+        "file": "lifecycle_m1_d0_r0.json",
+        "cells": 48,
+        "points": 27,
+        "physical_faces": 48,
+        "volume": "1",
+        "minimum_mean_ratio": 0.7559526299369239,
+        "minimum_scaled_jacobian": 0.5773502691896257,
+        "maximum_length": 1.7320508075688772,
+        "longest_edge": [
+          0,
+          2
+        ],
+        "markers": {
+          "2": 8,
+          "0": 8,
+          "4": 8,
+          "6": 4,
+          "5": 4,
+          "1": 8,
+          "3": 8
+        },
+        "strict_metric_gate": true
+      },
+      "maximum_computed_sensor_residual": 0.0,
+      "maximum_state_relative_error": 1.975925294104839e-16
+    },
+    {
+      "workers": 2,
+      "mesh": {
+        "file": "lifecycle_m2_d0_r0.json",
+        "cells": 48,
+        "points": 27,
+        "physical_faces": 48,
+        "volume": "1",
+        "minimum_mean_ratio": 0.7559526299369239,
+        "minimum_scaled_jacobian": 0.5773502691896257,
+        "maximum_length": 1.7320508075688772,
+        "longest_edge": [
+          0,
+          2
+        ],
+        "markers": {
+          "5": 4,
+          "0": 8,
+          "6": 4,
+          "2": 8,
+          "4": 8,
+          "1": 8,
+          "3": 8
+        },
+        "strict_metric_gate": true
+      },
+      "maximum_computed_sensor_residual": 0.0,
+      "maximum_state_relative_error": 1.975925294104839e-16
+    },
+    {
+      "workers": 4,
+      "mesh": {
+        "file": "lifecycle_m4_d0_r0.json",
+        "cells": 48,
+        "points": 27,
+        "physical_faces": 48,
+        "volume": "1",
+        "minimum_mean_ratio": 0.7559526299369239,
+        "minimum_scaled_jacobian": 0.5773502691896257,
+        "maximum_length": 1.7320508075688772,
+        "longest_edge": [
+          0,
+          2
+        ],
+        "markers": {
+          "6": 4,
+          "5": 4,
+          "2": 8,
+          "0": 8,
+          "4": 8,
+          "1": 8,
+          "3": 8
+        },
+        "strict_metric_gate": true
+      },
+      "maximum_computed_sensor_residual": 0.0,
+      "maximum_state_relative_error": 1.975925294104839e-16
+    }
+  ],
+  "adversaries_rejected": 9,
+  "scope": "One actual metric/Hessian/remesh/repartition/rebuild/transfer/output lifecycle per supported M on local N ranks. Exact finite-facet geometry, positive volume, conformity/no-gap/no-overlap, frozen original-P1 q/J/edge contracts, actual computed sensor, current/BDF2 fields and actual SU2 output. No timing, overhead, performance, scaling, PDE iteration, production BL or curved-geometry claim."
+}

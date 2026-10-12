@@ -353,7 +353,21 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     return vote(failure);
   };
   std::string last_rejection;
+  uint64_t progress_at_window=0, attempted_at_window=0;
+  auto geometry_trial=[&](bool valid) {
+    ++stats.geometry_trials; stats.geometry_rejected+=!valid; return valid;
+  };
+  auto metric_trial=[&](bool valid,const MetricDiagnosis& diagnosis) {
+    ++stats.metric_trials;
+    if (!valid) {
+      stats.metric_shape_rejected+=diagnosis.failure==MetricFailure::Shape;
+      stats.metric_progress_rejected+=diagnosis.failure==MetricFailure::Progress;
+      stats.metric_measurement_rejected+=diagnosis.failure==MetricFailure::Measurement;
+    }
+    return valid;
+  };
   auto finish=[&]() {
+    if (stats.stop==EngineStop::None) stats.stop=result.valid ? EngineStop::Complete : EngineStop::Failure;
     stats.final_owned_cells=working.size();
     stats.cached_measured_cells=selection.cells.size();
     stats.cached_invalid_cells=selection.invalid;
@@ -393,7 +407,19 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     CLocalFailure failure;
     const auto lo=CPassiveComm::Allreduce(options.maximum_rounds,CPassiveComm::Op::MIN,world.comm);
     const auto hi=CPassiveComm::Allreduce(options.maximum_rounds,CPassiveComm::Op::MAX,world.comm);
-    if (lo!=hi || !hi) failure.Set(1,0,"Native 3D round limit must be positive and equal across workers.");
+    if (lo!=hi) failure.Set(1,0,"Native 3D round limit must be equal across workers.");
+    const auto work_lo=CPassiveComm::Allreduce(options.maximum_work,CPassiveComm::Op::MIN,world.comm);
+    const auto work_hi=CPassiveComm::Allreduce(options.maximum_work,CPassiveComm::Op::MAX,world.comm);
+    const auto window_lo=CPassiveComm::Allreduce(options.stagnation_window,CPassiveComm::Op::MIN,world.comm);
+    const auto window_hi=CPassiveComm::Allreduce(options.stagnation_window,CPassiveComm::Op::MAX,world.comm);
+    const double time_lo=CPassiveComm::Allreduce(options.maximum_seconds,CPassiveComm::Op::MIN,world.comm);
+    const double time_hi=CPassiveComm::Allreduce(options.maximum_seconds,CPassiveComm::Op::MAX,world.comm);
+    if (work_lo!=work_hi || window_lo!=window_hi || !window_hi || !std::isfinite(time_lo) ||
+        !std::isfinite(time_hi) || time_lo!=time_hi || time_lo<0)
+      failure.Set(1,0,"Native 3D work/time/progress controls differ or are invalid.");
+    const auto global_cells=CPassiveComm::Allreduce(uint64_t(accepted.size()),CPassiveComm::Op::SUM,world.comm);
+    stats.work_limit=options.maximum_work==SIZE_MAX ? std::max<size_t>(4096,transfer_memory::Mul(global_cells,64)) : options.maximum_work;
+    if (stats.work_limit==SIZE_MAX) failure.Set(1,0,"Native 3D automatic work ceiling overflows.");
     const auto batch_lo=CPassiveComm::Allreduce(options.candidate_batch,CPassiveComm::Op::MIN,world.comm);
     const auto batch_hi=CPassiveComm::Allreduce(options.candidate_batch,CPassiveComm::Op::MAX,world.comm);
     if (batch_lo!=batch_hi || !batch_hi || batch_hi>MaximumCandidateBatch)
@@ -403,13 +429,13 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if (mode_lo!=mode_hi) failure.Set(1,0,"Native 3D adaptation intent differs across workers.");
     ready=vote(failure);
     if (ready) ready=admit(transfer_memory::Add(accepted_bytes,
-        transfer_memory::Mul(transfer_memory::Mul(options.maximum_rounds,options.candidate_batch),
+        transfer_memory::Mul(std::min<uint64_t>(stats.work_limit,4096),
             coarsening ? sizeof(Edge) : sizeof(SplitRecord)),transfer_memory::Mul(accepted.size(),selection_bound(repairing))));
     if (ready) try {
       working=accepted;
       stats.maximum_owned=working.size();
-      if (coarsening) result.collapses.reserve(transfer_memory::Mul(options.maximum_rounds,options.candidate_batch));
-      else if (!repairing) result.splits.reserve(transfer_memory::Mul(options.maximum_rounds,options.candidate_batch));
+      if (coarsening) result.collapses.reserve(std::min<uint64_t>(stats.work_limit,4096));
+      else if (!repairing) result.splits.reserve(std::min<uint64_t>(stats.work_limit,4096));
       initial.reserve(working.size());
       for (const auto& row : working) {
         initial.push_back(row.first); maximum_cell=std::max(maximum_cell,row.first);
@@ -490,7 +516,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     Timer timer(stats.seed_seconds,options.timings); ready=measure(initial,true);
   }
   if (!ready) return finish();
-  for (size_t round=0; round<options.maximum_rounds; ++round) {
+  for (size_t round=0; !options.maximum_rounds || round<options.maximum_rounds; ++round) {
     Choice choice;
     bool complete=false,any=false,bad_field=false;
     auto pick=[&]() {
@@ -540,11 +566,64 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }
     }
     if (!ready) return finish();
+    {
+      Timer timer(stats.selection_seconds,options.timings);
+      if (options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
+        stats.stop=EngineStop::TimeBudget; result.reason="Native 3D kernel elapsed-time budget exhausted; feasibility is undetermined.";
+        return finish();
+      }
+    }
     if (complete) { result.valid=true; result.reason.clear(); return finish(); }
+    {
+      Timer timer(stats.selection_seconds,options.timings);
+      if (round && round%options.stagnation_window==0) {
+        ++stats.progress_windows;
+        const uint64_t progress=stats.size_progress+stats.quality_progress+stats.cell_removals;
+        const bool mesh_progress=world.maximum(progress!=progress_at_window);
+        const bool search_progress=world.maximum(stats.attempted!=attempted_at_window);
+        progress_at_window=progress; attempted_at_window=stats.attempted;
+        // Valid coarsening may exhaust rejected directions without changing an already admissible mesh.
+        if (!mesh_progress) ++stats.stagnant_windows;
+        if (!mesh_progress && search_progress) ++stats.search_windows;
+        // Fresh rejected directions are finite search work even on invalid meshes; do not declare infeasibility early.
+        if (!mesh_progress && !search_progress) {
+          if (!recovered && !repairing) {
+            ready=admit(transfer_memory::Mul(working.size(),selection_bound(true)));
+            CLocalFailure blocked;
+            if (ready) try { selection.Recover(working); } catch (const std::exception& e) { blocked.Set(2,0,e.what()); }
+            if (ready) ready=vote(blocked);
+            if (!ready) return finish();
+            repairing=true; recovered=true; ++stats.recovery_starts; pick();
+          } else {
+            stats.stop=EngineStop::OperatorStagnation;
+            result.reason="Native 3D admitted operators made no certified progress over the observation window; feasibility is undetermined.";
+            return finish();
+          }
+        }
+      }
+    }
     if (!any) {
+      stats.stop=EngineStop::OperatorStagnation;
       CLocalFailure failure;
       if (selection.invalid || selection.cells.size()!=working.size()) failure.Set(1,0,"Native 3D adaptation stagnates: admitted operators cannot satisfy the frozen size/shape gates.");
       vote(failure); return finish();
+    }
+    {
+      Timer timer(stats.selection_seconds,options.timings);
+      const size_t used=coarsening ? result.collapses.size() : result.splits.size();
+      const size_t capacity=coarsening ? result.collapses.capacity() : result.splits.capacity();
+      const size_t needed=transfer_memory::Add(used,options.candidate_batch);
+      const size_t next=std::min<uint64_t>(stats.work_limit,std::max(needed,transfer_memory::Mul(capacity,2)));
+      CLocalFailure failure;
+      ready=admit(!repairing && next>capacity ? transfer_memory::Mul(next,coarsening ? sizeof(Edge) : sizeof(SplitRecord)) : 0);
+      if (ready && !repairing && next>capacity) {
+        if (ready) try {
+          if (coarsening) result.collapses.reserve(next); else result.splits.reserve(next);
+        } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
+      }
+      // Every worker votes even if its history already has room.
+      if (ready) ready=vote(failure);
+      if (!ready) return finish();
     }
     ++stats.rounds;
     const bool batched=!repairing && (!coarsening || !bad_field) && options.candidate_batch>1;
@@ -572,6 +651,15 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         ++stats.batch_rounds; stats.batch_candidates+=choices.size(); stats.proposed+=choices.size();
       }
       {
+        Timer timer(stats.selection_seconds,options.timings);
+        const uint64_t proposed=CPassiveComm::Allreduce(uint64_t(choices.size()),CPassiveComm::Op::SUM,world.comm);
+        if (proposed>stats.work_limit-stats.global_work) {
+          stats.stop=EngineStop::WorkBudget; result.reason="Native 3D global proposal budget exhausted before admission; feasibility is undetermined.";
+          return finish();
+        }
+        stats.global_work+=proposed;
+      }
+      {
         Timer timer(stats.dependency_seconds,options.timings);
         std::vector<Feature> features;
         try { for (const auto& candidate:choices) features.push_back(coarsening ? Feature{{candidate.edge[1],0,0},1} :
@@ -596,7 +684,16 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         stats.batch_reserved+=winners; stats.conflicts+=choices.size()-winners;
         if (!world.maximum(winners!=0)) { result.reason="Native 3D batch reservation made no progress."; return finish(); }
       }
-    } else stats.proposed+=choice.active;
+    } else {
+      Timer timer(stats.selection_seconds,options.timings);
+      stats.proposed+=choice.active;
+      const uint64_t proposed=CPassiveComm::Allreduce(uint64_t(choice.active),CPassiveComm::Op::SUM,world.comm);
+      if (proposed>stats.work_limit-stats.global_work) {
+        stats.stop=EngineStop::WorkBudget; result.reason="Native 3D global proposal budget exhausted before admission; feasibility is undetermined.";
+        return finish();
+      }
+      stats.global_work+=proposed;
+    }
     for (size_t slot=0;slot<slots;++slot) {
     Dependencies dependencies;
     Imported imported;
@@ -634,6 +731,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     Patch old,fresh;
     Node point;
     bool approved=false, moved=false, repair_approved=false, cavity_inserted=false;
+    MetricDiagnosis certified;
     std::unique_ptr<FrozenField> field;
     const auto epoch=transfer_memory::Add(transfer_memory::Mul(round,world.size),world.rank);
     const auto token=transfer_memory::Add(transfer_memory::Mul(epoch,options.candidate_batch),slot);
@@ -649,14 +747,14 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         } else try {
           old=GeometryPatch(imported);
           const auto a=choice.measure.a,b=choice.measure.b;
-          if (!repairing && coarsening) approved=CollapseVertex(old,choice.edge[1],choice.edge[0],maximum_cell+1+offset,
-              geometry,fresh,result.reason);
+          if (!repairing && coarsening) approved=geometry_trial(CollapseVertex(old,choice.edge[1],choice.edge[0],maximum_cell+1+offset,
+              geometry,fresh,result.reason));
           else if (!repairing) {
             point={maximum_node+1+token,{double((static_cast<long double>(a.x)+b.x)/2),
                 double((static_cast<long double>(a.y)+b.y)/2),double((static_cast<long double>(a.z)+b.z)/2)}};
-            approved=SplitEdge(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason);
+            approved=geometry_trial(SplitEdge(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason));
             if (!approved) {
-              approved=InsertEdgeCavity(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason);
+              approved=geometry_trial(InsertEdgeCavity(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason));
               cavity_inserted=approved;
             }
           }
@@ -695,7 +793,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         PatchMetric metric;
         std::map<Edge,EdgeMeasure> reuse;
         for (const auto& cell : old.cells) selection.Cached(cell,reuse);
-        if (approved) approved=ValidateMetricChange(old.cells,fresh.cells,intent,*field,metric,result.reason,nullptr,&reuse);
+        if (approved) approved=metric_trial(ValidateMetricChange(old.cells,fresh.cells,intent,*field,metric,result.reason,nullptr,&reuse,&certified),certified);
         if (!approved) cavity_inserted=false;
         // An already-admissible coarsening mesh needs removal, not repeated quality-only rearrangement.
         if (repairing || (!approved && (!coarsening || bad_field))) {
@@ -723,8 +821,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                   for (auto face:old.surface) if (std::find(face.v.begin(),face.v.end(),vertex)!=face.v.end())
                     contained=contained && geometry.Contains(face.facet,point.p);
                   if (!contained) result.reason="Native 3D movement proposal leaves an incident immutable facet.";
-                approved=contained && MoveVertex(old,vertex,point,first,geometry,fresh,result.reason); }
-                if (approved) approved=ValidateMetricChange(old.cells,fresh.cells,MetricChange::Repair,*field,metric,result.reason,nullptr,&reuse);
+                approved=contained ? geometry_trial(MoveVertex(old,vertex,point,first,geometry,fresh,result.reason)) : geometry_trial(false); }
+                if (approved) approved=metric_trial(ValidateMetricChange(old.cells,fresh.cells,MetricChange::Repair,*field,metric,result.reason,nullptr,&reuse,&certified),certified);
                 if (approved) { moved=true; break; }
               }
             } else {
@@ -733,8 +831,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                 if (++proposals>16) break;
                 ++stats.repair_proposals;
                 { Timer geometry_timer(stats.reconstruction_seconds,options.timings); CpuTimer geometry_cpu(stats.reconstruction_cpu_seconds,options.timings);
-                  approved=Reconnect(old,row.first,first,geometry,fresh,result.reason); }
-                if (approved) approved=ValidateMetricChange(old.cells,fresh.cells,MetricChange::Repair,*field,metric,result.reason,nullptr,&reuse);
+                  approved=geometry_trial(Reconnect(old,row.first,first,geometry,fresh,result.reason)); }
+                if (approved) approved=metric_trial(ValidateMetricChange(old.cells,fresh.cells,MetricChange::Repair,*field,metric,result.reason,nullptr,&reuse,&certified),certified);
                 if (approved) break;
               }
             }
@@ -791,7 +889,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             try {
               target=std::make_unique<FrozenField>(std::move(donors.cells),composition,options.timings);
               for (size_t i=slot;i<std::min(slot+batch,cells.size());++i) {
-                const auto part=MeasureMetricCells({cells[i]},*target,nullptr,&reuse,shape);
+                const auto part=MeasureMetricCells({cells[i]},*target,nullptr,&reuse,shape,shape ? &certified : nullptr);
                 if (part.minimum_mean_ratio<measured.minimum_mean_ratio) {
                   measured.minimum_mean_ratio=part.minimum_mean_ratio; measured.weakest_cell=part.weakest_cell;
                 }
@@ -834,7 +932,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         const bool measured=measure_private(candidate ? fresh.cells : empty,metric,true,before.edges);
         bool valid=false;
         { Timer timer(stats.metric_seconds,options.timings); CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
-          if (candidate && measured) valid=ValidateMetricChange(old.cells.size(),before,fresh.cells.size(),metric,kind,result.reason);
+          if (candidate) {
+            if (measured) valid=ValidateMetricChange(old.cells.size(),before,fresh.cells.size(),metric,kind,result.reason,&certified);
+            metric_trial(valid,certified);
+          }
         }
         return valid;
       };
@@ -880,11 +981,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                 for (auto face:old.surface) if (std::find(face.v.begin(),face.v.end(),vertex)!=face.v.end())
                   contained=contained && geometry.Contains(face.facet,point.p);
                 if (!contained) result.reason="Native 3D movement proposal leaves an incident immutable facet.";
-                candidate=contained && MoveVertex(old,vertex,point,first,geometry,fresh,result.reason);
+                candidate=contained ? geometry_trial(MoveVertex(old,vertex,point,first,geometry,fresh,result.reason)) : geometry_trial(false);
               }
             } else if (!move_trial) {
               auto apex=nodes.begin(); std::advance(apex,trial-3);
-              candidate=Reconnect(old,apex->first,first,geometry,fresh,result.reason);
+              candidate=geometry_trial(Reconnect(old,apex->first,first,geometry,fresh,result.reason));
             }
           } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
           ready=vote(failure);
@@ -895,6 +996,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if (valid) { approved=true; repair_approved=true; moved=move_trial; }
       }
       if (repair_approved && !repairing) ++stats.fallback_accepted;
+    }
+    if (chosen && !approved) {
+      // A sample belongs to this finally rejected cavity, not a failed trial later rescued elsewhere.
+      stats.last_metric_rejection=certified;
+      stats.last_rejected_feature=repairing ? choice.feature : Feature{{choice.edge[0],choice.edge[1],0},2};
+      if (!old.cells.empty()) stats.last_rejected_cavity_centroid=Centroid(old.cells.front());
     }
     if (chosen && !approved) last_rejection = (repairing ? "feature " + std::to_string(choice.feature.count) + ":" +
         std::to_string(choice.feature.vertices[0]) : "edge " + std::to_string(choice.edge[0]) + "," + std::to_string(choice.edge[1])) + ": " + result.reason;
@@ -972,6 +1079,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         for (auto row : failures) selection.Block(row.edge,row.feature,repairing);
         if (approved) {
           ++stats.accepted;
+          stats.size_progress+=certified.size_progress;
+          stats.quality_progress+=certified.quality_progress;
+          stats.cell_removals+=coarsening && !repair_approved && certified.cell_removal;
           if (cavity_inserted) ++stats.inserted;
           else if (repair_approved) { if (moved) ++stats.moved; else ++stats.reconnected; }
           else if (coarsening) result.collapses.push_back(choice.edge); else result.splits.push_back({choice.edge,point});
@@ -996,6 +1106,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     const int incomplete=world.maximum(selection.cells.size()!=working.size() ? 3 :
         (selection.invalid ? 2 : (coarsening && !selection.queue.empty() ? 1 : 0)));
     result.valid=incomplete==0;
+    stats.stop=result.valid ? EngineStop::Complete : EngineStop::RoundBudget;
     if (incomplete==1)
       result.reason="Native 3D coarsening round limit reached with valid cached metric cells and pending collapse candidates.";
     else if (incomplete==2)

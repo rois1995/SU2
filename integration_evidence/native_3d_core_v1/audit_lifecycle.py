@@ -22,7 +22,11 @@ def parse(line):
  if 'stop' in row:
   assert row['stop'] in ('none','complete','round_budget','work_budget','time_budget','operator_stagnation','failure')
   assert row['global_work'] <= row['work_limit']
-  assert bool(row['complete']) == (row['stop']=='complete')
+  if row['rank'] >= row['workers']:
+   assert row['stop']=='none' and all(row[k]==0 for k in ('global_work','work_limit','rounds','attempted','accepted'))
+  elif row['complete']:
+   assert row['stop']=='complete'  # Parent rejection can follow a successful worker phase.
+
  return row
 
 def closes(row,phases):

@@ -17,7 +17,8 @@ bool Same(Point a, Point b) { return a.x == b.x && a.y == b.y && a.z == b.z; }
 void Shape(const PatchMetric& m);
 }  // namespace
 PatchMetric MeasureMetricCells(const std::vector<Cell>& cells, FrozenField& target, MetricStats* stats,
-                               const std::map<Edge, EdgeMeasure>* reuse, bool require_shape) {
+                               const std::map<Edge, EdgeMeasure>* reuse, bool require_shape, MetricDiagnosis* diagnosis) {
+  if (diagnosis) { *diagnosis={}; diagnosis->failure=MetricFailure::Measurement; }
   if (cells.empty() || cells.size() > MaximumReplacementCells)
     throw std::invalid_argument("Native 3D metric patch exceeds budget or is empty.");
   if (stats) {
@@ -61,6 +62,13 @@ PatchMetric MeasureMetricCells(const std::vector<Cell>& cells, FrozenField& targ
       for (size_t j = i + 1; j < 4; ++j) result.edges.emplace(Edge{key[i], key[j]}, EdgeMeasure{});
   }
   // Reject inadmissible private shapes before spending source-resolved edge integration work.
+  if (diagnosis) {
+    diagnosis->minimum_mean_ratio=result.minimum_mean_ratio;
+    diagnosis->minimum_scaled_jacobian=result.minimum_scaled_jacobian;
+    diagnosis->weakest_cell=result.weakest_cell; diagnosis->sliver_cell=result.sliver_cell;
+    if (require_shape && (result.minimum_mean_ratio<MinimumMeanRatio || result.minimum_scaled_jacobian<MinimumScaledJacobian))
+      diagnosis->failure=MetricFailure::Shape;
+  }
   if (require_shape) Shape(result);
   if (stats) {
     stats->maximum_nodes = std::max(stats->maximum_nodes, nodes.size());
@@ -95,6 +103,7 @@ PatchMetric MeasureMetricCells(const std::vector<Cell>& cells, FrozenField& targ
       result.longest_edge = edge.first;
     }
   }
+  if (diagnosis) diagnosis->failure=MetricFailure::None;
   return result;
 }
 namespace {
@@ -136,7 +145,8 @@ bool ValidateMetricPatch(const std::vector<Cell>& cells, FrozenField& target, Pa
   }
 }
 bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fresh_count,
-                          const PatchMetric& measured, MetricChange kind, std::string& reason) {
+                          const PatchMetric& measured, MetricChange kind, std::string& reason, MetricDiagnosis* diagnosis) {
+  if (diagnosis) { *diagnosis={}; diagnosis->failure=MetricFailure::Measurement; }
   try {
     if (!old_count || !fresh_count || old_count > MaximumReplacementCells || fresh_count > MaximumReplacementCells)
       throw std::invalid_argument("Native 3D metric-change cell count exceeds budget or is empty.");
@@ -151,12 +161,31 @@ bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fr
         if (!std::isfinite(edge.second.length) || edge.second.length <= 0)
           throw std::invalid_argument("Invalid native 3D metric-change edge measurement.");
     }
+    if (diagnosis) {
+      diagnosis->minimum_mean_ratio=measured.minimum_mean_ratio;
+      diagnosis->minimum_scaled_jacobian=measured.minimum_scaled_jacobian;
+      diagnosis->weakest_cell=measured.weakest_cell; diagnosis->sliver_cell=measured.sliver_cell;
+      diagnosis->failure=MetricFailure::Shape;
+    }
     Shape(measured);
     long double removed = 0, added = 0;
     for (const auto& edge : before.edges)
       if (!Shared(measured.edges, edge)) removed += Excess(edge.second.length);
     for (const auto& edge : measured.edges)
       if (!Shared(before.edges, edge)) added += Excess(edge.second.length);
+    const bool size_progress = removed > 0 && added < removed * (1 - 1e-12L);
+    const bool quality_progress =
+        (measured.minimum_mean_ratio > before.minimum_mean_ratio + 1e-7 &&
+         measured.minimum_scaled_jacobian >= before.minimum_scaled_jacobian * (1 - 1e-12)) ||
+        (measured.minimum_scaled_jacobian > before.minimum_scaled_jacobian + 1e-7 &&
+         measured.minimum_mean_ratio >= before.minimum_mean_ratio * (1 - 1e-12));
+    if (diagnosis) {
+      diagnosis->failure=MetricFailure::Progress;
+      diagnosis->removed_excess=removed; diagnosis->added_excess=added;
+      diagnosis->size_progress=size_progress;
+      diagnosis->quality_progress=quality_progress && added<=removed;
+      diagnosis->cell_removal=fresh_count<old_count;
+    }
     if (kind == MetricChange::Refine) {
       if (fresh_count <= old_count || !(removed > 0 && added < removed * (1 - 1e-12L)))
         throw std::invalid_argument("Native 3D refinement does not reduce frozen changed-edge excess.");
@@ -164,15 +193,10 @@ bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fr
       if (fresh_count >= old_count || added > 0)
         throw std::invalid_argument("Native 3D coarsening does not remove cells or introduces an oversized edge.");
     } else {
-      const bool size_progress = removed > 0 && added < removed * (1 - 1e-12L);
-      const bool quality_progress =
-          (measured.minimum_mean_ratio > before.minimum_mean_ratio + 1e-7 &&
-           measured.minimum_scaled_jacobian >= before.minimum_scaled_jacobian * (1 - 1e-12)) ||
-          (measured.minimum_scaled_jacobian > before.minimum_scaled_jacobian + 1e-7 &&
-           measured.minimum_mean_ratio >= before.minimum_mean_ratio * (1 - 1e-12));
       if (!(size_progress || (quality_progress && added <= removed)))
         throw std::invalid_argument("Native 3D repair improves neither frozen size excess nor quality/sliver bounds.");
     }
+    if (diagnosis) diagnosis->failure=MetricFailure::None;
     reason.clear();
     return true;
   } catch (const std::exception& e) {
@@ -181,15 +205,17 @@ bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fr
   }
 }
 bool ValidateMetricChange(const std::vector<Cell>& old, const std::vector<Cell>& fresh, MetricChange kind,
-                          FrozenField& target, PatchMetric& measured, std::string& reason, MetricStats* stats, const std::map<Edge, EdgeMeasure>* frozen_reuse) {
+                          FrozenField& target, PatchMetric& measured, std::string& reason, MetricStats* stats, const std::map<Edge, EdgeMeasure>* frozen_reuse, MetricDiagnosis* diagnosis) {
+  if (diagnosis) { *diagnosis={}; diagnosis->failure=MetricFailure::Measurement; }
   try {
     if (stats) ++stats->changes;
     if (kind != MetricChange::Refine && kind != MetricChange::Coarsen && kind != MetricChange::Repair)
       throw std::invalid_argument("Unknown native 3D metric-change intent.");
-    measured = MeasureMetricCells(fresh, target, stats, frozen_reuse, true);
+    measured = MeasureMetricCells(fresh, target, stats, frozen_reuse, true, diagnosis);
     Shape(measured);
+    if (diagnosis) diagnosis->failure=MetricFailure::Measurement;
     const auto before = MeasureMetricCells(old, target, stats, &measured.edges);
-    const bool valid = ValidateMetricChange(old.size(), before, fresh.size(), measured, kind, reason);
+    const bool valid = ValidateMetricChange(old.size(), before, fresh.size(), measured, kind, reason, diagnosis);
     if (!valid && stats) ++stats->failures;
     return valid;
   } catch (const std::exception& e) {

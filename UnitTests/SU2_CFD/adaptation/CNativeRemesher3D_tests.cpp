@@ -176,3 +176,58 @@ TEST_CASE("Native3D budgeted import preserves both outputs and reference on elec
   CHECK(retry.original.size() == baseline.original.size());
   CHECK(reference.original == original);
 }
+
+TEST_CASE("Native3D configured work and time ceilings preserve CFD and BDF donor state", "[NativeDefault3D][NativePolicyRuntime3D]") {
+  World world;const int workers=world.size>1 ? world.size/2 : 1;
+  auto cfg=[&](unsigned long budget,double seconds) {
+    std::ostringstream options;
+    options<<"SOLVER= EULER\nTIME_DOMAIN= YES\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\n"
+      <<"TIME_STEP= 0.01\nMAX_TIME= 0.02\nCOMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\n"
+      <<"ADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
+      <<"ADAP_UNSTEADY_METRIC= WINDOW_AVERAGE\nADAP_NATIVE_RANKS= "<<workers
+      <<"\nADAP_NATIVE_MAX_WORK= "<<budget<<"\nADAP_NATIVE_MAX_TIME= "<<std::setprecision(17)<<seconds<<"\n";
+    return MakeConfig(3,options.str());
+  };
+  auto config=cfg(workers,0);
+  MeshSolution donor(config.get(),BoxMesh(3,1,false),0);
+  auto snapshot=[&](const MeshSolution& mesh) {
+    auto values=Snapshot(mesh);const auto* nodes=mesh.solver[MESH_0][FLOW_SOL]->GetNodes();
+    for(unsigned long p=0;p<mesh.Fine().GetnPoint();++p)for(unsigned short k=0;k<5;++k) {
+      values.push_back(SU2_TYPE::GetValue(nodes->GetSolution_time_n(p,k)));
+      values.push_back(SU2_TYPE::GetValue(nodes->GetSolution_time_n1(p,k)));
+    }
+    return values;
+  };
+  auto metric=[](const MeshSolution& mesh) {
+    su2activematrix values(mesh.Fine().GetnPointDomain(),6);
+    for(unsigned long p=0;p<values.rows();++p)for(unsigned short k=0;k<6;++k)
+      values(p,k)=(k==0 || k==3 || k==5) ? 4. : 0.;
+    return values;
+  };
+  const auto saved=snapshot(donor);auto sensor=metric(donor);
+  auto reference=std::make_shared<ReferenceState>();CNativeRemesher3D limited(reference);
+  const auto refused=limited.Remesh(*config,donor.Fine(),sensor);
+  CHECK(refused.status!=CRemeshResult::Status::COMPLETE);CHECK_FALSE(refused.onAccepted);
+  CHECK_FALSE(reference->original);CHECK(snapshot(donor)==saved);
+  const auto& failure=limited.Statistics();
+  CHECK(CPassiveComm::Allreduce(failure.refine.accepted,CPassiveComm::Op::SUM)>0);
+  if(world.rank<workers) { CHECK(failure.refine.stop==EngineStop::WorkBudget);CHECK(failure.refine.global_work<=uint64_t(workers)); }
+  auto expired=cfg(2048,1e-12);CNativeRemesher3D timed(reference);
+  MeshSolution timed_donor(expired.get(),BoxMesh(3,1,false),0);
+  const auto timed_saved=snapshot(timed_donor);const auto timed_sensor=metric(timed_donor);
+  const auto elapsed=timed.Remesh(*expired,timed_donor.Fine(),timed_sensor);
+  CHECK(elapsed.status!=CRemeshResult::Status::COMPLETE);CHECK_FALSE(elapsed.onAccepted);
+  CHECK_FALSE(reference->original);CHECK(snapshot(timed_donor)==timed_saved);
+  auto generous=cfg(2048,1000);CNativeRemesher3D complete(reference);
+  MeshSolution generous_donor(generous.get(),BoxMesh(3,1,false),0);
+  const auto generous_saved=snapshot(generous_donor);const auto generous_sensor=metric(generous_donor);
+  const auto good=complete.Remesh(*generous,generous_donor.Fine(),generous_sensor);
+  REQUIRE(good.status==CRemeshResult::Status::COMPLETE);
+  REQUIRE(good.beforeAcceptance);CHECK(good.beforeAcceptance());
+  CHECK_FALSE(reference->original);CHECK(snapshot(generous_donor)==generous_saved);
+  if(world.rank<workers) {
+    const auto& stats=complete.Statistics();
+    CHECK(stats.refine.global_work+stats.coarsen.global_work<=2048);
+    CHECK(stats.coarsen.work_limit==2048-stats.refine.global_work);
+  }
+}

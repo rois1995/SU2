@@ -748,6 +748,18 @@ void EngineReport(const EngineResult& result, World& world, const std::string& l
        << " donor_payloads=" << s.donor_payloads << " donor_maximum_patch=" << s.donor_maximum_patch
        << " donor_search_nested_s=" << s.donor_search_seconds << " donor_filter_nested_s=" << s.donor_filter_seconds
        << " batch_rounds=" << s.batch_rounds << " batch_candidates=" << s.batch_candidates
+             << " stop=" << EngineStopName(s.stop) << " global_work=" << s.global_work << " work_limit=" << s.work_limit
+             << " progress_windows=" << s.progress_windows << " stagnant_windows=" << s.stagnant_windows << " search_windows=" << s.search_windows
+             << " size_progress=" << s.size_progress << " quality_progress=" << s.quality_progress << " cell_removals=" << s.cell_removals
+             << " geometry_trials=" << s.geometry_trials << " geometry_rejected=" << s.geometry_rejected << " metric_trials=" << s.metric_trials
+             << " metric_shape_rejected=" << s.metric_shape_rejected << " metric_progress_rejected=" << s.metric_progress_rejected
+             << " metric_measurement_rejected=" << s.metric_measurement_rejected
+             << " sample_metric_present=" << (s.last_metric_rejection.failure!=MetricFailure::None)
+             << " sample_q=" << s.last_metric_rejection.minimum_mean_ratio << " sample_j=" << s.last_metric_rejection.minimum_scaled_jacobian
+             << " sample_cell=" << s.last_metric_rejection.weakest_cell << " sample_sliver=" << s.last_metric_rejection.sliver_cell
+             << " sample_feature=" << s.last_rejected_feature.count << " sample_v0=" << s.last_rejected_feature.vertices[0]
+             << " sample_v1=" << s.last_rejected_feature.vertices[1] << " sample_v2=" << s.last_rejected_feature.vertices[2]
+             << " sample_x=" << s.last_rejected_cavity_centroid.x << " sample_y=" << s.last_rejected_cavity_centroid.y << " sample_z=" << s.last_rejected_cavity_centroid.z
        << " batch_reserved=" << s.batch_reserved << " field_build_nested_s=" << s.field_build_seconds << " field_query_nested_s=" << s.field_query_seconds
        << " cache_nested_s=" << s.field_cache_seconds << " search_nested_s=" << s.field_search_seconds
        << " interpolation_nested_s=" << s.field_interpolation_seconds << " composition_nested_s=" << s.field_composition_seconds
@@ -1412,7 +1424,8 @@ TEST_CASE("Native automatic MPI repair selects complete failing features and res
           valid=result.valid;CHECK(valid);CHECK(Bytes(owned)==owned_saved);CHECK(result.stats.other_seconds>=-1e-12);
           CHECK(worker.sum(int(result.stats.accepted))>0);
           CHECK(result.stats.recovery_starts<=1);
-          CHECK(result.stats.rounds<=options.maximum_rounds);
+          CHECK((!options.maximum_rounds || result.stats.rounds<=options.maximum_rounds));
+          CHECK(result.stats.global_work<=result.stats.work_limit);
           CHECK(result.stats.initial_cells==owned.size());
           CHECK(result.stats.field_requests==result.stats.field_hits+result.stats.field_misses+result.stats.field_invalid_queries);
           CHECK(result.stats.field_failures<=result.stats.field_requests);
@@ -2078,4 +2091,36 @@ TEST_CASE("Native batched coarsening completes disjoint planar edits in one epoc
   MeshRecords("batched_refine_initial",world,coarse);
   MeshRecords("batched_refine_final",world,refined.cells);
   EngineReport(refined,world);
+}
+
+TEST_CASE("Native proposal and clock budgets reject collectively without publishing input", "[NativeDistributed3D][NativePolicy3D]") {
+  World world;const auto box=Box();const PlanarReference geometry(box.facets);
+  Patch split;std::string reason;
+  REQUIRE(SplitEdge(box.patch,{0,6},{8,{.5,.5,.5}},20,geometry,split,reason));
+  const auto input=Partition(Rows(split),world);const auto saved=Bytes(input);
+  const auto donors=Uniform(Partition(Rows(box.patch),world),{1,0,0,1,0,1});
+  EngineOptions options;options.maximum_work=0;
+  const auto refused=Coarsen(world,input,donors,geometry,{},options);
+  CHECK_FALSE(refused.valid);CHECK(refused.stats.stop==EngineStop::WorkBudget);
+  CHECK(refused.stats.global_work==0);CHECK(refused.stats.accepted==0);
+  CHECK_FALSE(world.maximum(refused.stats.cached_invalid_cells!=0));
+  CHECK(Bytes(refused.cells)==saved);CHECK(Bytes(input)==saved);
+  options.maximum_work=64;options.maximum_seconds=1e-12;
+  const auto timed=Coarsen(world,input,donors,geometry,{},options);
+  CHECK_FALSE(timed.valid);CHECK(timed.stats.stop==EngineStop::TimeBudget);
+  CHECK(timed.stats.global_work==0);CHECK(Bytes(timed.cells)==saved);CHECK(Bytes(input)==saved);
+  options.maximum_seconds=0;
+  const auto completed=Coarsen(world,input,donors,geometry,{},options);
+  INFO(completed.reason);REQUIRE(completed.valid);
+  CHECK(completed.stats.stop==EngineStop::Complete);
+  CHECK(completed.stats.global_work<=64);
+  CHECK(world.sum(int(completed.stats.cell_removals))==1);
+  CHECK(world.sum(int(completed.stats.metric_trials))>=world.sum(int(completed.stats.accepted)));
+  CHECK(Bytes(input)==saved);
+  if (world.size>1) {
+    options.maximum_work=world.rank ? 64 : 65;
+    const auto mismatch=Coarsen(world,input,donors,geometry,{},options);
+    CHECK_FALSE(mismatch.valid);CHECK(mismatch.stats.stop==EngineStop::Failure);
+    CHECK(Bytes(input)==saved);
+  }
 }

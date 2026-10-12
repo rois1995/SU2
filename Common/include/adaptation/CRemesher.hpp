@@ -49,6 +49,7 @@ struct CRemeshResult {
   CReaderSlices slices;              /*!< \brief This rank's part of the new mesh (with the metric of its points). */
   std::vector<std::string> markers;  /*!< \brief Markers of the new mesh with boundary elements (all ranks). */
   Status status = Status::COMPLETE;  /*!< \brief Status of the remesh. */
+  std::function<bool()> beforeAcceptance; /*!< \brief Optional deadline veto before publication; presence must match all ranks. */
   std::function<void()> onAccepted;  /*!< \brief Publish prepared reference bindings after successful replacement/transfer. */
 };
 

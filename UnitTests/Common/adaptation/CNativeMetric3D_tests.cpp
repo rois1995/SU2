@@ -250,3 +250,25 @@ TEST_CASE("Native 3D streamed metric measurements retain the full frozen progres
   FrozenField composed({donor},[](Point,Tensor sensor){return sensor;});
   CHECK_THROWS(MeasureMetricCells(fresh.cells,composed,nullptr,&together.edges));
 }
+
+TEST_CASE("Native metric diagnosis separates shape, measurement and frozen progress failures", "[NativeMesh3D][NativePolicy3D]") {
+  FrozenField target({Donor({})});
+  PatchMetric metric; MetricDiagnosis diagnosis; std::string reason;
+  const auto cell=Single();
+  const auto before=MeasureMetricCells({cell},target,nullptr,nullptr,false,&diagnosis);
+  CHECK(diagnosis.failure==MetricFailure::None);
+  CHECK_FALSE(ValidateMetricChange(1,before,1,before,MetricChange::Repair,reason,&diagnosis));
+  CHECK(diagnosis.failure==MetricFailure::Progress);
+  CHECK_FALSE(diagnosis.size_progress); CHECK_FALSE(diagnosis.quality_progress);
+  auto corrupt=before;corrupt.edges.begin()->second.length=-1;
+  CHECK_FALSE(ValidateMetricChange(1,before,1,corrupt,MetricChange::Repair,reason,&diagnosis));
+  CHECK(diagnosis.failure==MetricFailure::Measurement);
+  auto sliver=cell;sliver.id=100;sliver.v[3].p.z=1e-12;
+  CHECK_FALSE(ValidateMetricChange({cell},{sliver},MetricChange::Repair,target,metric,reason,nullptr,nullptr,&diagnosis));
+  CHECK(diagnosis.failure==MetricFailure::Shape);
+  CHECK(diagnosis.weakest_cell==100);CHECK(diagnosis.sliver_cell==100);
+  CHECK(diagnosis.minimum_mean_ratio<MinimumMeanRatio);
+  CHECK(diagnosis.minimum_scaled_jacobian<MinimumScaledJacobian);
+  // Diagnostics must not replace a failed shape query by an integrated sensor surrogate.
+  CHECK(target.Statistics().edge_requests==6);
+}

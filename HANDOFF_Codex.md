@@ -1,3 +1,49 @@
+# Goal 1 local qualification complete — 2026-10-12
+
+User scope: local implementation/correctness only; performance qualification and
+ALL cluster work excluded. Working repository
+/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated, branch
+codex/native-3d-transport-accounting. AdapNoExt and foreignClusterResults/dependencies
+are untouched. All seven LOCAL_GOAL1_COMPLETION_AUDIT.md/json deliverables PASS_LOCAL;
+mark goal complete only after the source/evidence commit successfully pushes.
+
+No owned controller remains live. execution_policy_whole_v3 session77385 PASS and
+local_goal1_regression_v1 session75299 PASS. Whole3cases: size8serialbatch1 (productive
+615/790/1002round phases), size8defaultbatch8, aspect2/rotated/varying/H20thinN4M2CGNS
+with actual persisted two-file BDF restart. Exact original-P1 metric/positivevolume/
+conformity/no-overlap/no-gap/finitefacet/marker/current-BDF/SU2CGNS readback contracts
+pass. Worst state residual1.13e-14; no target/shape/geometry tolerance weakening.
+Serial certificates reused only by exact artifacts/unchanged geometric-metric
+primitives plus fresh logs/output checks; MPI4/M2certificate fresh. Inspectable
+SU2/CGNS/VTU meshes and state JSON live under execution_policy_whole_v3/.
+
+Final configured68-object driver:106core and39native2D cases each MPI1/2/4, bridge
+and8distributed auditors per size, actualMMG2D/3D48assertions and6computed-metric/
+Hessian lifecycle frames (one per M, no timing repeats/instrumentation comparisons).
+Only the isolated lifecycle fixture changed after wholequalification; production
+archives and other67test objects remain byte-identical. Exact current source,
+objects,archives/members,binary and artifact hashes in final regression receipt.
+Actual cfg shared work/tiny/generous clock controls pass;6actual-driver one-rank
+vetoes before/after rebuild preserve original/current/BDF state exactly. Parser
+understands typedstop and parentevent versus inactive worker;126actualrows plus
+8corrupt controls pass. Historical fixture/parser/import failures remain FAIL.
+
+Native production no longer has an implicit512-round cutoff: default rounds0,
+finite global primary-proposal allowance max(4096,64*inputcells), shared across
+Refine/Coarsen, optional ADAP_NATIVE_MAX_WORK and ADAP_NATIVE_MAX_TIME. Exploration
+of new rejected directions is distinguished from certified size/quality/removal
+progress; bounded repair and unchanged frozenq/J/edge criteria remain. History4096
+covers observed789accepted splits; beyond4096growth code reviewed but unexercised
+experimentally. Deadline covers native entry through prepublication checks; earlier
+metric prep and postpublication finalization/output excluded, safe-point overrun
+possible. Refusal remains collective fatal, not automatic continuation/retry or
+configuration rollback/checkpoint. Simple embedded/conforming faceted tetrahedra;
+no CAD/curved, production3DBL, physical PDE/convergence/full unsteady3D or efficiency/
+scaling/affordability claim. See final audit for exact envelope and capability limits.
+Goals2–4 are prepared and not activated by this closure. No more Goal1 local work
+is required after successful publication; the next substantive scope is curved
+geometry and actual3DEuler lifecycle. Old notices below are historical/superseded.
+
 # Local Goal1 audit recovery — 2026-10-12
 
 Latest user instruction excludes performance and ALL cluster work from this goal.

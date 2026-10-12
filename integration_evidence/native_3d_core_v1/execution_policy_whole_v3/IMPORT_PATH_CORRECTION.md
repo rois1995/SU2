@@ -1,0 +1,1 @@
+The first v3 attempt failed before copying cases because it did not include the local audit directory on sys.path. Exact failed script/receipt/logs are retained in failed_import_attempt. The only correction adds that search path; production source, driver, archives and prior numerical outputs remain unchanged. No failed receipt is promoted.

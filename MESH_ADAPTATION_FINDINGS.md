@@ -1,3 +1,30 @@
+## Goal1 passes revised local-only qualification — 2026-10-12
+
+All7local requirements pass LOCAL_GOAL1_COMPLETION_AUDIT.md/json; completion follows
+source/evidence publication. Performance and ALL cluster work were explicitly
+excluded by the user; historical wider-resource gates below are superseded for
+this closure, not demonstrated. Actual106core/39native2D cases MPI1/2/4, bridge/eight
+distributed audits per size, MMG2D/3D,6actual metric/Hessian lifecycle frames and whole
+three-event driver/output/state/restart cases pass. Productive serialbatch1 phases
+615/790/1002rounds complete under the shared finite work policy, with no cached
+metric violations/pending edges. Defaultbatch8numeric mesh/state artifacts exactly
+match the qualified baseline. No quality/metric/geometry relaxation. Actual native
+clock/work refusal and one-rank acceptance veto retain current/BDF state; failure
+is collective fatal, without graceful retry or general configuration rollback.
+
+Native now distinguishes certified mesh progress from finite rejected-direction
+exploration, has typed geometry/metric/shape/progress/resource/work/time diagnosis,
+bounded representative cavity samples and optional cfg shared work/deadline caps.
+Source-only P1, finer requests,2Dactual-queryBL/fade andNOISE0 remain intact;
+3DBLexplicitly rejected. Local limits: manufactured faceted boxes/wedges, bounded
+operators/donors; no general-feasibility, curved/CAD, production3DBL, physicalCFD/
+unsteady, performance/scalability/affordability claim. History beyond4096growth
+was reviewed but not experimentally exercised; current789accepted splits fit4096.
+All original fixture/parser/import failed receipts preserved; reuse of complete
+serial certificates is by exact artifacts plus fresh current logs/output checks,
+with a fresh MPI4/M2thinCGNS/two-fileBDFrestart certificate. See final audit/handoff
+for exact source/build identities and inspectable grid folders. Goal2 not started.
+
 ## User scope revision: local-only Goal1 — 2026-10-12
 
 The user explicitly removed performance qualification and all cluster-related work

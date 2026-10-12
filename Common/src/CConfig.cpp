@@ -3306,6 +3306,8 @@ void CConfig::SetConfig_Options() {
   addEnumOption("ADAP_REMESHER",Kind_Adap_Remesher,Adap_Remesher_Map,ADAP_REMESHER::MMG);
   addBoolOption("ADAP_NATIVE_REPARTITION", Adap_Native_Repartition, false);
   addUnsignedLongOption("ADAP_NATIVE_RANKS", Adap_Native_Ranks, 0);
+  addUnsignedLongOption("ADAP_NATIVE_MAX_WORK", Adap_Native_Max_Work, 0);
+  addDoubleOption("ADAP_NATIVE_MAX_TIME", Adap_Native_Max_Time, 0.0);
 
   /*--- Boundary-layer metric: near each wall marker of ADAP_BL_MARKER, the metric is intersected with a wall metric
    *    whose wall-normal size grows from ADAP_BL_FIRST_HEIGHT with geometric rows of ratio ADAP_BL_GROWTH, and whose
@@ -6414,6 +6416,11 @@ void CConfig::SetPostprocessing(SU2_COMPONENT val_software, unsigned short val_i
 
   if (Adap_Native_Ranks > static_cast<unsigned long>(size))
     SU2_MPI::Error("ADAP_NATIVE_RANKS cannot exceed the CFD communicator size.", CURRENT_FUNCTION);
+
+  if (!std::isfinite(SU2_TYPE::GetValue(Adap_Native_Max_Time)) || Adap_Native_Max_Time<0)
+    SU2_MPI::Error("ADAP_NATIVE_MAX_TIME must be finite and nonnegative.", CURRENT_FUNCTION);
+  if ((Adap_Native_Max_Work || Adap_Native_Max_Time>0) && Kind_Adap_Remesher!=ADAP_REMESHER::NATIVE_CAVITY)
+    SU2_MPI::Error("ADAP_NATIVE_MAX_WORK/ADAP_NATIVE_MAX_TIME require the native3D remesher.", CURRENT_FUNCTION);
 
   /*--- Remesher parameters (also checked without COMPUTE_METRIC, they are plain values). ---*/
   if (!(Adap_Hgrad > 1.0) || !std::isfinite(SU2_TYPE::GetValue(Adap_Hgrad))) {

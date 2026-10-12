@@ -1,3 +1,11 @@
+## Superseding local-only closure — 2026-10-12
+
+The user removed performance and ALL cluster requirements from currentGoal1.
+LOCAL_GOAL1_COMPLETION_AUDIT.md/json now records PASS for all7local deliverables;
+completion follows the qualified source/evidence push. The older requirement
+matrix below is historical and cannot reintroduce the deferred performance gates.
+No scaling/affordability/general-size claim is made. Goals2–4 remain unactivated.
+
 ## User scope revision: local-only Goal1 — 2026-10-12
 
 The user explicitly removed performance qualification and all cluster-related work

@@ -28,11 +28,19 @@ def run(args,label,cwd,timeout=18000):
  if row['exit_code'] or row.get('timeout'):raise RuntimeError(label+' failed; logs retained')
  return (HERE/(label+'.stdout')).read_text()
 try:
- qualified=HERE.parent/'execution_policy_whole_v2'
+ qualified=HERE.parent/'execution_policy_whole_v3'
  control=json.loads((qualified/'validation.json').read_text())
  assert control['status']=='PASS' and not control['source_drift'] and not control['object_drift'] and not control['library_drift']
- assert all(sha(ROOT/n)==h for n,h in control['source_sha256'].items() if n.startswith(('Common/','SU2_CFD/','UnitTests/')) or n=='config_template.cfg')
+ fixture='UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp'
+ assert all(sha(ROOT/n)==h for n,h in control['source_sha256'].items() if (n.startswith(('Common/','SU2_CFD/','UnitTests/')) or n=='config_template.cfg') and n!=fixture)
+ assert sha(HERE/'lifecycle_fixture_before.cpp')==control['source_sha256'][fixture]
+ before=(HERE/'lifecycle_fixture_before.cpp').read_text();after=(ROOT/fixture).read_text()
+ begin='TEST_CASE("Native3D actual metric-to-replacement lifecycle';end='TEST_CASE("Native3D manufactured anisotropic driver envelope'
+ assert before[:before.index(begin)]==after[:after.index(begin)] and before[before.index(end):]==after[after.index(end):], 'Changes outside isolated lifecycle fixture'
+ (HERE/'lifecycle_fixture.patch').write_text(subprocess.check_output(['git','diff','--',fixture],cwd=ROOT,text=True))
  assert sha(binary)==control['binary_sha256']
+ run(['/tmp/native-build-tools/ninja','-C',BUILD,'-j1','UnitTests/test_driver'],'compile_correctness_fixture',HERE,3600)
+
  lines=(BUILD/'build.ninja').read_text().splitlines();link=next(l for l in lines if l.startswith('build UnitTests/test_driver: cpp_LINKER '))
  objects={n:sha(BUILD/n) for n in shlex.split(link.split('cpp_LINKER ',1)[1].split(' | ',1)[0]) if n.endswith('.o')};assert len(objects)==68
  args=shlex.split(next(l.split('=',1)[1] for l in lines[lines.index(link)+1:] if l.startswith(' LINK_ARGS =')))
@@ -44,8 +52,11 @@ try:
    for n in subprocess.check_output(['ar','t',p],cwd=ROOT,text=True).splitlines():
     q=Path(n);q=q if q.is_absolute() else ROOT/q;members[str(q)]=sha(q)
  binary_pin=sha(binary)
- assert objects==control['actual_objects_sha256']
+ changed_test_object='UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeImport3D_tests.cpp.o'
+ assert set(objects)==set(control['actual_objects_sha256'])
+ assert all(h==control['actual_objects_sha256'][n] for n,h in objects.items() if n!=changed_test_object)
  assert libraries==control['library_sha256'] and members==control['thin_archive_member_sha256']
+
  selection='[NativeMesh3D],[NativeDistributed3D],[NativeReference3D],[NativeBudget3D],[NativeDefault3D],[NativeBridge2D],[NativeBridge3D]'
  # Registration is read from the actual configured driver, rather than inferred from source grep.
  row=command(prefix+[str(binary),selection,'--list-test-names-only'],HERE,'registered_cases',env,60);stages.append(row)
@@ -73,12 +84,22 @@ try:
  mmg=HERE/'mmg_serial';mmg.mkdir();print('CASE_FOLDER='+str(mmg),flush=True)
  out=run(['mpirun','--bind-to','none','-np',1,binary,'MMG interface: 2D round trip,MMG interface: 3D round trip','--use-colour','no'],'mmg_serial',mmg,900)
  assert 'All tests passed (48 assertions in 2 test cases)' in out
+ for n in (1,2,4):
+  work=HERE/('metric_lifecycle_mpi'+str(n));work.mkdir();print('CASE_FOLDER='+str(work),flush=True)
+  local=dict(env,SU2_NATIVE3D_LIFECYCLE_CORRECTNESS='1')
+  args=prefix+['mpirun','--oversubscribe','--bind-to','none','-np',str(n),str(binary),'[NativeMetricLifecycle3D]','--use-colour','no']
+  row=command(args,work,'case',local,1800);stages.append(row)
+  raw=(work/'case.stdout').read_text()
+  assert row['exit_code']==0 and not row.get('timeout') and len(re.findall(r'All tests passed \(\d+ assertions in 1 test case\)',raw))==n
+  run(['python3',HERE.parent/'audit_metric_lifecycle.py',work,n],'metric_lifecycle_audit_mpi'+str(n),work,1800)
+  assert json.loads((work/'metric_lifecycle_audit.json').read_text())['status']=='PASS'
  assert sha(binary)==binary_pin;status='PASS'
+
 except Exception as e:reason=str(e);print(reason,flush=True)
 finally:
  drift=[n for n,h in pins.items() if sha(ROOT/n)!=h];object_drift=[n for n,h in objects.items() if sha(BUILD/n)!=h];library_drift=[n for n,h in {**libraries,**members}.items() if sha(Path(n))!=h]
  if drift or object_drift or library_drift:status='FAIL'
- receipt=dict(status=status,reason=reason,source_sha256=pins,source_drift=drift,object_drift=object_drift,library_drift=library_drift,actual_objects_sha256=objects,library_sha256=libraries,thin_archive_member_sha256=members,stages=stages,scope='Local-only integrated current-source correctness: actual106registered cases MPI1/2/4, separate exact bridge and eight distributed mesh/metric/state auditors per MPI size, actual2D native operators/engine/eight replacements/rejected-output and serialMMG2D/3D. Full configured68-object driver/archives/members/source pins. No profiling/timing/scaling campaigns or cluster work. Actual metric-Hessian lifecycle still requires its separate correctness receipt.')
+ receipt=dict(status=status,reason=reason,source_sha256=pins,source_drift=drift,object_drift=object_drift,library_drift=library_drift,actual_objects_sha256=objects,library_sha256=libraries,thin_archive_member_sha256=members,stages=stages,scope='Local-only integrated current-source correctness: actual106registered cases MPI1/2/4, separate exact bridge and eight distributed mesh/metric/state auditors per MPI size, actual2D native operators/engine/eight replacements/rejected-output and serialMMG2D/3D. Full configured68-object driver/archives/members/source pins. No profiling/timing/scaling campaigns or cluster work. Actual computed-metric/Hessian lifecycle correctness MPI1/2/4: one actual event per M, independent geometry/source/current-BDF/SU2 audit; no repeat or instrumentation comparison. Production archives and all other67test objects match whole-case qualification; only the isolated lifecycle fixture changed before this fresh configured-driver regression.')
  if binary.exists():receipt['binary_sha256']=sha(binary)
  receipt['artifact_sha256']={str(p.relative_to(HERE)):sha(p) for p in HERE.rglob('*') if p.is_file() and p.name!='validation.json'}
  (HERE/'validation.json').write_text(json.dumps(receipt,indent=2)+'\n');print(status,flush=True)

@@ -13,7 +13,8 @@ Implementation branch: codex/native-3d-transport-accounting.
 Qualified batching baseline:3345e2bc9d9561045e459f89ea046a3c7583fd5d.
 Pushed execution-policy snapshot/handoff:7dd0aff6d12d7213781f1e6ce6cca0d184ebd81f.
 Goals2–4 remain prepared, not activated. Preserve AdapNoExt, other workers and the
-existing2D/MMG implementation. Goal1 remains ACTIVE until the local audit below passes.
+existing2D/MMG implementation. Goal1 local checks have passed; completion is recorded
+after the source/evidence checkpoint is pushed. Goals2–4 remain unactivated.
 
 ## Current local-only execution contract
 
@@ -99,14 +100,18 @@ Deliver and audit locally:
    linked production archives/members and binary. Publish a requirement-by-requirement
    LOCAL_GOAL1_COMPLETION_AUDIT.md/json and a pushed source/evidence checkpoint.
 
-Current state: batching baseline has passed complete local manufactured-domain,
-MPI1/2/4, independent output/state and actual lifecycle/MMG checks. Execution-policy
-changes are UNQUALIFIED working source; controller33248 is building the actual full
-driver before focused2case policy MPI1/2/4 checks. Finish this live controller, fix
-substantive findings, then qualify actual shared limits/deadline/diagnostic locations,
-productive >512 operation, whole driver output/state cases and the broad regression.
-The provisional automatic work allowance is an explicit operational cap, not a
-feasibility proof or calibrated affordability envelope.
+Current state: all seven local deliverables pass the final
+integration_evidence/native_3d_core_v1/LOCAL_GOAL1_COMPLETION_AUDIT.md/json.
+Current-source106core and39native2D cases passed MPI1/2/4; bridge/eight distributed
+auditors per size, serialMMG2D/3D, sixactual computed-metric/Hessian lifecycles, whole
+size8batch1/defaultbatch8 and thinN4M2CGNS/BDF restart all pass. Productive615/790/1002
+round phases end with no cached-invalid cells/pending edges under the finite shared
+work policy. Actual-driver budget/deadline/refusal controls preserve current/BDF
+state; accepted source/geometry and reference publication safeguards remain.
+Complete68-object production driver/archives/source pins are recorded. Original
+collector/fixture failures stay failed and exact successful-artifact reuse is
+explicitly identified. No controller remains running; goal completion follows the
+qualified source/evidence push. Performance and all cluster work are deferred.
 
 Completion requires direct current evidence for all seven local deliverables. No
 curved geometry/CAD, robust production3DBL, full physical unsteady3D, convergence/

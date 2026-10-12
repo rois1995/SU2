@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_envelope.py", line 188, in <module>
+    if __name__=='__main__':main(Path(sys.argv[1]).resolve())
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_envelope.py", line 143, in main
+    row=parse(line)
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_lifecycle.py", line 25, in parse
+    assert bool(row['complete']) == (row['stop']=='complete')
+AssertionError

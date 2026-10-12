@@ -92,10 +92,17 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
   stats.workers = config.GetAdap_Native_Ranks() ? int(config.GetAdap_Native_Ranks()) : parent.size;
   auto control = options;
   control.timings = options.timings || config.GetWrt_Performance();
+  if (config.GetAdap_Native_Max_Work()) control.maximum_work=config.GetAdap_Native_Max_Work();
+  if (config.GetAdap_Native_Max_Time()>0) control.maximum_seconds=SU2_TYPE::GetValue(config.GetAdap_Native_Max_Time());
   stats.detailed_timings = control.timings;
   const auto start = parent.seconds();
   const auto cpu = std::clock();
   auto now = start;
+  const auto deadline_start=std::chrono::steady_clock::now();
+  auto remaining_time=[&]() {
+    const double elapsed=std::chrono::duration<double>(std::chrono::steady_clock::now()-deadline_start).count();
+    return CPassiveComm::Allreduce(control.maximum_seconds-elapsed,CPassiveComm::Op::MIN,parent.comm);
+  };
   std::string reason;
   auto phase = [&](size_t i) {
     const auto end = parent.seconds();
@@ -134,6 +141,12 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     CLocalFailure failure;
     if (low != high || worker_low != worker_high || stats.workers < 1 || stats.workers > parent.size)
       failure.Set(1, 0, "Native3D profile/worker configuration differs or is invalid.");
+    const auto work_lo=CPassiveComm::Allreduce(control.maximum_work,CPassiveComm::Op::MIN,parent.comm);
+    const auto work_hi=CPassiveComm::Allreduce(control.maximum_work,CPassiveComm::Op::MAX,parent.comm);
+    const auto time_lo=CPassiveComm::Allreduce(control.maximum_seconds,CPassiveComm::Op::MIN,parent.comm);
+    const auto time_hi=CPassiveComm::Allreduce(control.maximum_seconds,CPassiveComm::Op::MAX,parent.comm);
+    if (work_lo!=work_hi || time_lo!=time_hi || !std::isfinite(time_lo) || !std::isfinite(time_hi) || time_lo<0)
+      failure.Set(1,0,"Native3D work/time controls differ or are invalid.");
     CollectiveFailure(failure, CURRENT_FUNCTION);
     // Admit retained/publication state first; sidecar loading admits its actual byte and construction demand.
     const size_t reference_setup =
@@ -169,6 +182,9 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     phase(2);
     if (!ready) break;
     stats.initial_cells = CPassiveComm::Allreduce(uint64_t(imported.cells.size()), CPassiveComm::Op::SUM, parent.comm);
+    if (control.maximum_work==SIZE_MAX)
+      control.maximum_work=std::max<size_t>(4096,transfer_memory::Mul(stats.initial_cells,64));
+    if (!vote(control.maximum_work!=SIZE_MAX,"Native3D automatic global work ceiling overflows.")) break;
     Owned working = std::move(imported.cells);  // Private import already owns this map; no duplicate is needed.
     std::vector<DonorCell> migrated;
     const std::vector<DonorCell>* worker_source = &imported.original;
@@ -226,11 +242,18 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
       MPI_Comm_split(parent.comm, parent.rank < stats.workers ? 0 : MPI_UNDEFINED, parent.rank, &comm);
 #endif
       phase(7);
-      bool valid = true;
-      std::string detail;
-      if (parent.rank < stats.workers) {
+      double worker_seconds=0;
+      if (control.maximum_seconds) {
+        worker_seconds=remaining_time();
+        ready=vote(worker_seconds>0,"Native3D elapsed deadline exhausted before worker adaptation.");
+      }
+      bool valid = ready;
+      std::string detail=ready ? std::string{} : reason;
+      if (parent.rank < stats.workers && ready) {
         World workers(comm);
         auto kernel = control;
+        kernel.maximum_seconds=worker_seconds;
+        const auto worker_start=workers.seconds();
         // The engine charges its input map/source; caller_bytes covers only other live runtime buffers.
         kernel.caller_bytes = transfer_memory::Add(
             held(), worker_source == &imported.original ? 0 : transfer_memory::Bytes(imported.original));
@@ -245,6 +268,15 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
           std::vector<SplitRecord>().swap(refined.splits);
           std::vector<Edge>().swap(refined.collapses);
           stats.phases[8] = workers.seconds() - begin;
+          if (valid) {
+            kernel.maximum_work-=refined.stats.global_work;
+            if (control.maximum_seconds) {
+              kernel.maximum_seconds=CPassiveComm::Allreduce(worker_seconds-(workers.seconds()-worker_start),CPassiveComm::Op::MIN,workers.comm);
+              if (!(kernel.maximum_seconds>0)) {
+                valid=false; detail="Native3D elapsed deadline exhausted between refinement and coarsening.";
+              }
+            }
+          }
           if (valid) {
             const auto begin_coarse = workers.seconds();
             auto coarse = Coarsen(workers, working, *worker_source, *pending->state.original, {}, kernel);
@@ -300,8 +332,16 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     stats.maximum_native_bytes =
         std::max({stats.maximum_native_bytes, stats.refine.maximum_work_bytes, stats.coarsen.maximum_work_bytes,
                   stats.returned.maximum_native_bytes, parent.max_exchange_work_bytes});
+    if (ready && control.maximum_seconds)
+      ready=vote(remaining_time()>0,"Native3D elapsed deadline exhausted after return-to-CFD packing.");
     if (ready) {
       result.markers = result.slices.markersWithElements;
+      if (control.maximum_seconds) {
+        const auto duration=std::chrono::duration<double>(control.maximum_seconds);
+        result.beforeAcceptance=[deadline_start,duration]() {
+          return std::chrono::steady_clock::now()-deadline_start<duration;
+        };
+      }
       result.status = CRemeshResult::Status::COMPLETE;
       result.onAccepted = [state = reference, pending]() {
         if (!pending->published) {
@@ -408,6 +448,18 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
              << " process_cpu=" << e.process_cpu_seconds << " private_reconstruction_cpu=" << e.reconstruction_cpu_seconds
              << " private_metric_cpu=" << e.metric_cpu_seconds << " private_measurement_cpu=" << e.measurement_cpu_seconds
              << " batch_rounds=" << e.batch_rounds << " batch_candidates=" << e.batch_candidates
+             << " stop=" << EngineStopName(e.stop) << " global_work=" << e.global_work << " work_limit=" << e.work_limit
+             << " progress_windows=" << e.progress_windows << " stagnant_windows=" << e.stagnant_windows << " search_windows=" << e.search_windows
+             << " size_progress=" << e.size_progress << " quality_progress=" << e.quality_progress << " cell_removals=" << e.cell_removals
+             << " geometry_trials=" << e.geometry_trials << " geometry_rejected=" << e.geometry_rejected << " metric_trials=" << e.metric_trials
+             << " metric_shape_rejected=" << e.metric_shape_rejected << " metric_progress_rejected=" << e.metric_progress_rejected
+             << " metric_measurement_rejected=" << e.metric_measurement_rejected
+             << " sample_metric_present=" << (e.last_metric_rejection.failure!=MetricFailure::None)
+             << " sample_q=" << e.last_metric_rejection.minimum_mean_ratio << " sample_j=" << e.last_metric_rejection.minimum_scaled_jacobian
+             << " sample_cell=" << e.last_metric_rejection.weakest_cell << " sample_sliver=" << e.last_metric_rejection.sliver_cell
+             << " sample_feature=" << e.last_rejected_feature.count << " sample_v0=" << e.last_rejected_feature.vertices[0]
+             << " sample_v1=" << e.last_rejected_feature.vertices[1] << " sample_v2=" << e.last_rejected_feature.vertices[2]
+             << " sample_x=" << e.last_rejected_cavity_centroid.x << " sample_y=" << e.last_rejected_cavity_centroid.y << " sample_z=" << e.last_rejected_cavity_centroid.z
              << " batch_reserved=" << e.batch_reserved << " rounds=" << e.rounds << " attempted=" << e.attempted << " accepted=" << e.accepted
              << " rejected=" << e.rejected << " conflicts=" << e.conflicts << " requests=" << e.field_requests
              << " hits=" << e.field_hits << " misses=" << e.field_misses << " invalid_queries=" << e.field_invalid_queries

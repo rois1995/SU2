@@ -1,0 +1,116 @@
+diff --git a/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp b/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp
+index fc5046eb63..02361a19f7 100644
+--- a/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp
++++ b/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp
+@@ -414,13 +414,15 @@ TEST_CASE("Native3D driver publishes only accepted mesh and transfers affine BDF
+   {Mute mute;driver->Finalize();driver.reset();}
+ }
+ 
+-TEST_CASE("Native3D actual metric-to-replacement lifecycle profiling preserves fixed work", "[NativeLifecycle3D]") {
++TEST_CASE("Native3D actual metric-to-replacement lifecycle preserves CFD state", "[NativeLifecycle3D][NativeMetricLifecycle3D]") {
+   World world;
++  const bool correctness = std::getenv("SU2_NATIVE3D_LIFECYCLE_CORRECTNESS") != nullptr;
+   const int workers = GENERATE(1, 2, 4);
+   if (workers > world.size) return;
+   const bool detail = GENERATE(false, true);
+-  // Identical fresh initial mesh/field per repetition; later events of a changing mesh are a different workload.
+-  for (int repeat = 0; repeat < 3; ++repeat) {
++  if (correctness && detail) return;
++  // Local correctness uses one actual computed-metric lifecycle per worker count.
++  for (int repeat = 0; repeat < (correctness ? 1 : 3); ++repeat) {
+     const auto name = "lifecycle_m" + std::to_string(workers) + "_d" + std::to_string(detail) + "_r" + std::to_string(repeat);
+     if (!world.rank) {
+       simplex_test::WriteSU2Mesh(BoxMesh(3, 1, false), name + ".su2");
+@@ -473,6 +475,7 @@ TEST_CASE("Native3D actual metric-to-replacement lifecycle profiling preserves f
+     auto donor=ImportGeometry(driver->Config(),driver->Geometry(),&prescribed,original);
+     driver->observed_source=&donor.original;
+     CBarycentricTransfer transfer;
++    const auto original_states=correctness ? Flow(world,driver->Geometry(),driver->Solver()) : std::vector<FlowRecord>{};
+     const auto started=SU2_MPI::Wtime(); const auto started_cpu=std::clock();
+     driver->AdaptMesh(transfer);
+     const auto elapsed=SU2_MPI::Wtime()-started;
+@@ -483,7 +486,8 @@ TEST_CASE("Native3D actual metric-to-replacement lifecycle profiling preserves f
+     ProfileRow3D(timing.str(),world.comm);
+     REQUIRE(driver->Reference()->original);
+     double error=0;
+-    for (const auto& row : Flow(world,driver->Geometry(),driver->Solver())) {
++    const auto accepted_states=Flow(world,driver->Geometry(),driver->Solver());
++    for (const auto& row : accepted_states) {
+       su2double x[3]{row.point.x,row.point.y,row.point.z},expected[MAXVAR]{};field(x,expected);
+       for(size_t k=0;k<5;++k) {
+         error=std::max(error,RelDiff(row.values[k],expected[k]));
+@@ -492,6 +496,7 @@ TEST_CASE("Native3D actual metric-to-replacement lifecycle profiling preserves f
+       }
+     }
+     CHECK(error<2e-10);
++    if (correctness) SaveStates(world,name,original_states,accepted_states,4.);
+     su2activematrix accepted_metric(driver->Geometry().GetnPointDomain(),6);
+     for(unsigned long p=0;p<accepted_metric.rows();++p)
+       for(size_t k=0;k<6;++k) accepted_metric(p,k)=(k==0 || k==3 || k==5) ? 4. : 0.;
+@@ -518,7 +523,7 @@ TEST_CASE("Native3D manufactured anisotropic driver envelope", "[NativeEnvelope3
+   const int rounds=parameter("SU2_NATIVE3D_ENVELOPE_ROUNDS",512);
+   const int batch=parameter("SU2_NATIVE3D_ENVELOPE_BATCH",MaximumCandidateBatch);
+   REQUIRE(batch>=1);REQUIRE(batch<=int(MaximumCandidateBatch));
+-  REQUIRE((rounds==512 || rounds==1024));
++  REQUIRE((rounds==0 || rounds==512 || rounds==1024));
+   REQUIRE((!aligned || n>=2));
+   REQUIRE(n>=1);REQUIRE((n<=4 || n==8));REQUIRE(mode>=0);REQUIRE(mode<=2);REQUIRE(varying>=0);REQUIRE(varying<=1);
+   REQUIRE(direction>=0);REQUIRE(direction<=1);
+@@ -574,7 +579,7 @@ TEST_CASE("Native3D manufactured anisotropic driver envelope", "[NativeEnvelope3
+     for(unsigned short k=0;k<5;++k){initial->SetSolution(p,k,values[k]);initial->GetSolution_time_n()(p,k)=values[k];initial->GetSolution_time_n1()(p,k)=values[k]*.96875;}
+   }
+   auto backend=driver->Backend();
+-  if(rounds!=512 || batch!=int(MaximumCandidateBatch)) {
++  if(rounds || batch!=int(MaximumCandidateBatch)) {
+     EngineOptions diagnostic;diagnostic.maximum_rounds=rounds;diagnostic.candidate_batch=batch;
+     backend=std::make_unique<CNativeRemesher3D>(driver->Reference(),diagnostic);
+   }
+@@ -735,3 +740,48 @@ TEST_CASE("Native returned geometry accepts empty point connectivity", "[NativeB
+     for (unsigned long i=0;i<3;++i) CHECK(points.GetEdge(i,1)==-1);
+   }
+ }
++
++// Separate death-test tag: the external local runner expects collective rejection, never a successful Catch exit.
++TEST_CASE("Native3D acceptance veto retains current and BDF state before publication", "[NativePolicyVeto3D]") {
++  World world;const int veto=std::getenv("SU2_NATIVE3D_VETO_CALL") ? std::stoi(std::getenv("SU2_NATIVE3D_VETO_CALL")) : 2;
++  REQUIRE((veto==1 || veto==2));
++  if(!world.rank) {
++    simplex_test::WriteSU2Mesh(BoxMesh(3,1,false),"veto_input.su2");
++    std::ofstream cfg("veto.cfg");cfg<<"SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nCONV_NUM_METHOD_FLOW= ROE\nMUSCL_FLOW= NO\nMGLEVEL= 0\nMESH_FILENAME= veto_input.su2\n"
++      <<"MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_minus_a, z_minus_b, z_plus)\n"
++      <<"TIME_DOMAIN= YES\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\nTIME_STEP= 0.01\nMAX_TIME= 0.02\n"
++      <<"COMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\n"
++      <<"ADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\nADAP_UNSTEADY_METRIC= WINDOW_AVERAGE\n"
++      <<"ADAP_NATIVE_MAX_WORK= 2048\nADAP_NATIVE_MAX_TIME= 1000\n"
++      <<"ADAP_NATIVE_RANKS= "<<(world.size>1 ? world.size/2 : 1)<<"\nWRT_PERFORMANCE= NO\n";
++  }
++  SU2_MPI::Barrier(SU2_MPI::GetComm());
++  auto driver=std::make_unique<TetraDriver>(const_cast<char*>("veto.cfg"),1,SU2_MPI::GetComm());
++  const auto before=State(driver->Geometry(),driver->Solver());
++  const auto original=Flow(world,driver->Geometry(),driver->Solver());
++  SaveStates(world,"veto_initial",original,original,1);
++  su2activematrix sensor(driver->Geometry().GetnPointDomain(),6);
++  for(unsigned long p=0;p<sensor.rows();++p)for(unsigned short k=0;k<6;++k)
++    sensor(p,k)=(k==0 || k==3 || k==5) ? 4. : 0.;
++  auto backend=driver->Backend();auto remeshed=backend->Remesh(driver->Config(),driver->Geometry(),sensor);
++  REQUIRE(remeshed.status==CRemeshResult::Status::COMPLETE);REQUIRE(remeshed.beforeAcceptance);
++  const auto deadline=remeshed.beforeAcceptance;int calls=0;
++  remeshed.beforeAcceptance=[&]() {
++    ++calls;const bool in_time=deadline();const bool unchanged=State(driver->Geometry(),driver->Solver())==before;
++    const bool published=bool(driver->Reference()->original);
++    CHECK(in_time);CHECK(unchanged);CHECK_FALSE(published);
++    if(calls==veto) {
++      const auto retained=Flow(world,driver->Geometry(),driver->Solver());
++      SaveStates(world,"veto_retained",original,retained,1);
++      const int changed_any=world.maximum(!unchanged),published_any=world.maximum(published),late_any=world.maximum(!in_time);
++      if(!world.rank) {std::ofstream out("veto_evidence.json");out<<"{\"veto_call\":"<<calls
++        <<",\"state_unchanged\":"<<(changed_any ? "false" : "true")
++        <<",\"reference_published\":"<<(published_any ? "true" : "false")
++        <<",\"deadline_valid\":"<<(late_any ? "false" : "true")<<"}\n";}
++      return world.rank!=0;  // One-rank refusal must stop all ranks before the pointer/reference publication.
++    }
++    return true;
++  };
++  CBarycentricTransfer transfer;driver->ReplaceMesh(remeshed,transfer);
++  FAIL("Expected collective acceptance veto before publication");
++}
