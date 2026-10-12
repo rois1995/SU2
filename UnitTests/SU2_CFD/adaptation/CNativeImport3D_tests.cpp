@@ -785,3 +785,38 @@ TEST_CASE("Native3D acceptance veto retains current and BDF state before publica
   CBarycentricTransfer transfer;driver->ReplaceMesh(remeshed,transfer);
   FAIL("Expected collective acceptance veto before publication");
 }
+
+TEST_CASE("Analytic native3D reference persists explicit geometry and refuses unfinished runtime collectively",
+          "[NativeCurvedReference3D]") {
+  World world;
+  ReferenceState state;
+  state.marker_names={"sphere","plane"};
+  const std::array<Node,4> nodes{{{0,{0,0,0}},{1,{1,0,0}},{2,{0,1,0}},{3,{0,0,1}}}};
+  const Cell cell{0,nodes};
+  Id sphere=0;
+  for(auto face:Incidence({cell}).Boundary()) {
+    const bool curved=std::find(face.begin(),face.end(),0)==face.end();
+    const Id id=state.facets.size();if(curved)sphere=id;
+    state.facets.push_back({id,curved?0:1,{nodes[face[0]],nodes[face[1]],nodes[face[2]]}});
+  }
+  state.original=std::make_shared<PlanarReference>(state.facets,SIZE_MAX,std::map<Id,AnalyticSurface>{{sphere,{}}});
+  const auto text=EncodeReference(state);
+  CHECK(text.find("SU2_NATIVE_REFERENCE_3D 2\n")==0);
+  const auto decoded=DecodeReference(text);
+  CHECK(EncodeReference(decoded)==text);CHECK(decoded.original->Analytic().size()==1);
+  const auto p=decoded.original->Project(sphere,{.5,.5,0});
+  CHECK(p.x==Approx(std::sqrt(.5)).epsilon(1e-14));
+  CHECK_THROWS(DecodeReference(text,8*text.size()));
+  CHECK_THROWS(DecodeReference(text+"junk"));
+  auto stale=state;
+  for(auto& f:stale.facets)for(auto& n:f.v)if(n.id==1)n.p={0,1,0};
+  CHECK_THROWS(EncodeReference(stale));
+  auto bad=text;bad.replace(bad.find("3D 2"),4,"3D 3");CHECK_THROWS(DecodeReference(bad));
+  WriteReference("analytic.native_ref",state);
+  ReferenceState loaded;REQUIRE(LoadReference("analytic.native_ref",loaded));CHECK(EncodeReference(loaded)==text);
+  Owned accepted;std::vector<DonorCell> source;
+  if(!world.rank){accepted.emplace(0,Owned::mapped_type{});accepted.at(0).cell=cell;source.push_back({cell,{}});}
+  const auto result=Refine(world,accepted,source,*state.original,{},{});
+  CHECK_FALSE(result.valid);CHECK(result.reason.find("integrated donor coverage")!=std::string::npos);
+  CHECK(result.cells.empty());CHECK(result.stats.accepted==0);
+}

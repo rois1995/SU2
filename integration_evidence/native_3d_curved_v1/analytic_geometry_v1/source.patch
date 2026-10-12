@@ -1,0 +1,668 @@
+diff --git a/Common/include/adaptation/CNativeBoundary3D.hpp b/Common/include/adaptation/CNativeBoundary3D.hpp
+index c687c84958..5104776991 100644
+--- a/Common/include/adaptation/CNativeBoundary3D.hpp
++++ b/Common/include/adaptation/CNativeBoundary3D.hpp
+@@ -1,6 +1,6 @@
+ /*!
+  * \file CNativeBoundary3D.hpp
+- * \brief Coupled tetrahedral edge edits on immutable planar physical facets.
++ * \brief Coupled tetrahedral edge edits on immutable faceted or declared analytic physical references.
+  * Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md).
+  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
+  */
+@@ -31,16 +31,31 @@ struct Patch {
+   std::vector<Cell> cells;
+   std::vector<SurfaceFace> surface;
+ };
++/*! Analytic authority is declared per original finite facet, never inferred from its marker.
++ * Sphere: origin=center, extent.x=radius. Bump: z=origin.z+extent.z*u(1-u)*v(1-v),
++ * u=(x-origin.x)/extent.x, v=(y-origin.y)/extent.y in [0,1]. Tolerance is a frozen
++ * physical distance for representable projection and finite-chart boundary roundoff. */
++struct AnalyticSurface {
++  enum class Kind : unsigned { Sphere = 1, Bump = 2 };
++  Kind kind = Kind::Sphere;
++  Point origin, extent{1, 0, 0};
++  double tolerance = 1e-12;
++};
+ /*! Bounded immutable imported facet authority. Exact finite planar containment; certified convex coplanar same-marker
+  * seams are removable. */
+ class PlanarReference {
+  public:
+-  explicit PlanarReference(std::vector<Facet> facets, size_t ceiling = SIZE_MAX);
++  explicit PlanarReference(std::vector<Facet> facets, size_t ceiling = SIZE_MAX,
++                           std::map<Id, AnalyticSurface> analytic = {});
++  const std::map<Id, AnalyticSurface>& Analytic() const { return analytic; }
++  /*! Projection must remain in the original finite chart; unsupported feature intersections reject. */
++  Point Project(Id facet, Point p, KernelStats* stats = nullptr) const;
++  bool OnProjectedEdge(Id facet, Point a, Point b, Point p, KernelStats* stats = nullptr) const;
+   const Facet& Get(Id id) const;
+   /*! Requested resident map/vector storage; allocator metadata and constructor scratch are separate. */
+   size_t ResidentBytes() const;
+   /*! Conservative reference construction peak, including the house local box index. */
+-  static size_t ConstructionBytes(size_t facets);
++  static size_t ConstructionBytes(size_t facets, size_t analytic = 0);
+   bool Contains(Id facet, Point p, KernelStats* stats = nullptr) const;
+   Id Canonical(Id facet) const;
+   /*! Finite complete triangle containment and exact orientation relative to the original physical facet. */
+@@ -53,6 +68,7 @@ class PlanarReference {
+ 
+  private:
+   std::map<Id, Facet> facets;
++  const std::map<Id, AnalyticSurface> analytic;
+   std::map<Id, Id> canonical;
+   std::map<Id, std::vector<Edge>> boundaries;
+   std::map<Id, Node> nodes;
+@@ -61,7 +77,8 @@ class PlanarReference {
+   std::shared_ptr<CADTElemClass> search;
+ };
+ /*! Geometric private proposals only. Require the globally admitted complete edge/vertex star and authoritative
+- * physical skin. Exact on-edge binary64 point; unrepresentable planar proposals reject, never snap silently.
++ * physical skin. Input point is exact on-edge binary64; declared analytic physical facets project it before
++ * rebuilding all children. Inherited child connectivity must remain positive; planar points never snap.
+  * first_cell is a caller-reserved ID range. Distributed IDs, metric gates and external collision checks are separate.
+  * Both mesh and physical-face output remain unchanged on rejection. */
+ bool SplitEdge(const Patch& old, Edge edge, Node point, Id first_cell, const PlanarReference& reference, Patch& fresh,
+diff --git a/Common/src/adaptation/CNativeBoundary3D.cpp b/Common/src/adaptation/CNativeBoundary3D.cpp
+index 58d52288e9..d92ad90e30 100644
+--- a/Common/src/adaptation/CNativeBoundary3D.cpp
++++ b/Common/src/adaptation/CNativeBoundary3D.cpp
+@@ -16,6 +16,20 @@
+ #include <stdexcept>
+ namespace SU2Native3D {
+ namespace {
++using Vector = std::array<long double, 3>;
++Vector Delta(Point a, Point b) {
++  return {static_cast<long double>(a.x)-b.x, static_cast<long double>(a.y)-b.y, static_cast<long double>(a.z)-b.z};
++}
++Vector Cross(Vector a, Vector b) {
++  return {a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]};
++}
++long double Dot(Vector a, Vector b) { return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]; }
++long double Norm(Vector a) { return std::hypot(a[0], a[1], a[2]); }
++long double BumpHeight(const AnalyticSurface& g, Point p) {
++  const long double u=(static_cast<long double>(p.x)-g.origin.x)/g.extent.x;
++  const long double v=(static_cast<long double>(p.y)-g.origin.y)/g.extent.y;
++  return g.origin.z + static_cast<long double>(g.extent.z)*u*(1-u)*v*(1-v);
++}
+ bool Has(Face f, Id id) { return std::find(f.begin(), f.end(), id) != f.end(); }
+ Face Key(Face f) {
+   std::sort(f.begin(), f.end());
+@@ -92,10 +106,10 @@ Physical CheckSurface(const Patch& patch, const Skin& skin, const PlanarReferenc
+     const auto found = skin.find(key);
+     if (found == skin.end() || found->second != f.v || !faces.emplace(key, f).second)
+       throw std::invalid_argument("Native 3D physical face is duplicate or not the oriented patch skin.");
+-    for (auto id : f.v)
+-      if (!reference.Contains(f.facet, nodes.at(id).p, stats))
+-        throw std::invalid_argument("Native 3D physical face leaves original facet " + std::to_string(f.facet) +
+-                                    " at node " + std::to_string(id) + ".");
++    const std::array<Point,3> triangle{nodes.at(f.v[0]).p, nodes.at(f.v[1]).p, nodes.at(f.v[2]).p};
++    if (!reference.ContainsFace(f.facet, triangle, stats))
++      throw std::invalid_argument("Native 3D physical face leaves or reverses original facet " +
++                                  std::to_string(f.facet) + ".");
+   }
+   return faces;
+ }
+@@ -124,8 +138,9 @@ void Endpoints(Edge& edge) {
+   std::sort(edge.begin(), edge.end());
+ }
+ }  // namespace
+-PlanarReference::PlanarReference(std::vector<Facet> input, size_t ceiling) {
+-  const size_t bytes = ConstructionBytes(input.size());
++PlanarReference::PlanarReference(std::vector<Facet> input, size_t ceiling, std::map<Id, AnalyticSurface> curved)
++    : analytic(std::move(curved)) {
++  const size_t bytes = ConstructionBytes(input.size(), analytic.size());
+   if (bytes == SIZE_MAX || bytes > ceiling) throw std::invalid_argument("Native 3D reference construction exceeds storage budget.");
+   for (const auto& f : input) {
+     std::set<Id> ids;
+@@ -141,6 +156,32 @@ PlanarReference::PlanarReference(std::vector<Facet> input, size_t ceiling) {
+     if (ids.size() != 3 || !area || !facets.emplace(f.id, f).second)
+       throw std::invalid_argument("Native 3D reference has a duplicate or degenerate facet.");
+   }
++  for (const auto& row : analytic) {
++    if (!facets.count(row.first)) throw std::invalid_argument("Analytic native3D chart has no original facet.");
++    const auto& g=row.second;
++    for (double x : {g.origin.x,g.origin.y,g.origin.z,g.extent.x,g.extent.y,g.extent.z,g.tolerance})
++      if (!std::isfinite(x)) throw std::invalid_argument("Nonfinite native3D analytic authority.");
++    if (!(g.tolerance>0) || !(g.extent.x>0) ||
++        (g.kind!=AnalyticSurface::Kind::Sphere && g.kind!=AnalyticSurface::Kind::Bump) ||
++        (g.kind==AnalyticSurface::Kind::Bump && !(g.extent.y>0)))
++      throw std::invalid_argument("Invalid native3D analytic authority parameters.");
++    const auto& f=Get(row.first);
++    if (g.kind==AnalyticSurface::Kind::Sphere) {
++      if (Orientation(g.origin,f.v[0].p,f.v[1].p,f.v[2].p)==0)
++        throw std::invalid_argument("Native3D spherical chart crosses its radial horizon.");
++      for (auto n : f.v)
++        if (std::abs(Norm(Delta(n.p,g.origin))-g.extent.x)>g.tolerance)
++          throw std::invalid_argument("Original native3D vertex leaves declared sphere.");
++    } else {
++      if (Projected(f.v[0].p,f.v[1].p,f.v[2].p,2,nullptr)==0)
++        throw std::invalid_argument("Degenerate native3D bump chart.");
++      for (auto n : f.v)
++        if (n.p.x<g.origin.x || static_cast<long double>(n.p.x)-g.origin.x>g.extent.x ||
++            n.p.y<g.origin.y || static_cast<long double>(n.p.y)-g.origin.y>g.extent.y ||
++            std::abs(static_cast<long double>(n.p.z)-BumpHeight(g,n.p))>g.tolerance)
++          throw std::invalid_argument("Original native3D vertex leaves declared bump.");
++    }
++  }
+   std::map<Edge, std::vector<Id>> owners;
+   for (const auto& row : facets) {
+     canonical.emplace(row.first, row.first);
+@@ -152,7 +193,7 @@ PlanarReference::PlanarReference(std::vector<Facet> input, size_t ceiling) {
+   }
+   std::set<Id> seen;
+   for (const auto& root : facets) {
+-    if (seen.count(root.first)) continue;
++    if (seen.count(root.first) || analytic.count(root.first)) continue;
+     const auto& reference = root.second;
+     size_t axis = 0;
+     while (Projected(reference.v[0].p, reference.v[1].p, reference.v[2].p, axis, nullptr) == 0) ++axis;
+@@ -167,7 +208,7 @@ PlanarReference::PlanarReference(std::vector<Facet> input, size_t ceiling) {
+         const auto& adjacent = owners.at(edge);
+         if (adjacent.size() != 2) continue;
+         for (Id id : adjacent) {
+-          if (seen.count(id)) continue;
++          if (seen.count(id) || analytic.count(id)) continue;
+           const auto& next = Get(id);
+           if (next.marker != reference.marker) continue;
+           bool coplanar = true;
+@@ -235,6 +276,25 @@ PlanarReference::PlanarReference(std::vector<Facet> input, size_t ceiling) {
+       box[1] = {std::max(box[1].x, n.p.x), std::max(box[1].y, n.p.y), std::max(box[1].z, n.p.z)};
+     }
+   }
++  for (const auto& row : analytic) {
++    const auto& g=row.second;
++    auto& box=boxes.at(row.first);
++    if (g.kind==AnalyticSurface::Kind::Sphere) {
++      // Conservative for the entire tolerated radial cone; tighter spherical boxes are a later optimization.
++      box[0]={g.origin.x-g.extent.x,g.origin.y-g.extent.x,g.origin.z-g.extent.x};
++      box[1]={g.origin.x+g.extent.x,g.origin.y+g.extent.x,g.origin.z+g.extent.x};
++    } else {
++      box[0].z=double(g.origin.z+std::min(0.,g.extent.z)/16);
++      box[1].z=double(g.origin.z+std::max(0.,g.extent.z)/16);
++    }
++    box[0]={std::nextafter(box[0].x-g.tolerance,-INFINITY),std::nextafter(box[0].y-g.tolerance,-INFINITY),
++            std::nextafter(box[0].z-g.tolerance,-INFINITY)};
++    box[1]={std::nextafter(box[1].x+g.tolerance,INFINITY),std::nextafter(box[1].y+g.tolerance,INFINITY),
++            std::nextafter(box[1].z+g.tolerance,INFINITY)};
++    for (auto p : box)
++      if (!(std::isfinite(p.x)&&std::isfinite(p.y)&&std::isfinite(p.z)))
++        throw std::invalid_argument("Unrepresentable native3D analytic chart bounds.");
++  }
+   bool multiple = false;
+   for (const auto& row : boxes) {
+     auto& ids = marker_facets[Get(row.first).marker];
+@@ -261,19 +321,20 @@ PlanarReference::PlanarReference(std::vector<Facet> input, size_t ceiling) {
+     }
+   }
+ }
+-size_t PlanarReference::ConstructionBytes(size_t count) {
++size_t PlanarReference::ConstructionBytes(size_t count, size_t curves) {
+   if (count > std::numeric_limits<unsigned long>::max() / 2) return SIZE_MAX;
+   size_t retained = 0, peak = 0;
+   if (count) CADTElemClass::PredictBytes(3, 2 * count, count, 2 * count, &retained, &peak);
+   // shortcut: conservative map/component scratch; calibrate allocator requests before larger reference campaigns.
+-  return transfer_memory::Add(transfer_memory::Mul(count, 4096), retained, peak,
++  return transfer_memory::Add(transfer_memory::Mul(count, 4096),
++                             transfer_memory::Mul(curves, 2*(sizeof(std::pair<const Id,AnalyticSurface>)+4*sizeof(void*))), retained, peak,
+                              transfer_memory::Mul(count, 6 * sizeof(su2double) + 3 * sizeof(unsigned long) + 4 * sizeof(unsigned short)));
+ }
+ size_t PlanarReference::ResidentBytes() const {
+   auto map = [](const auto& m) {
+     return transfer_memory::Mul(m.size(), sizeof(typename std::decay_t<decltype(m)>::value_type) + 4 * sizeof(void*));
+   };
+-  size_t result = transfer_memory::Add(sizeof(*this), map(facets), map(canonical), map(boundaries), map(nodes));
++  size_t result = transfer_memory::Add(sizeof(*this), map(facets), map(canonical), map(boundaries), map(nodes), map(analytic));
+   for (const auto& entry : boundaries) result = transfer_memory::Add(result, transfer_memory::Bytes(entry.second));
+   result = transfer_memory::Add(result, map(marker_facets), transfer_memory::Bytes(indexed),
+                                 search ? search->GetAllocatedBytes() : 0);
+@@ -319,6 +380,31 @@ const Facet& PlanarReference::Get(Id id) const { return facets.at(id); }
+ bool PlanarReference::Contains(Id id, Point p, KernelStats* stats) const {
+   id = Canonical(id);
+   const auto& v = Get(id).v;
++  const auto curved=analytic.find(id);
++  if (curved!=analytic.end()) {
++    const auto& g=curved->second;
++    if (!(std::isfinite(p.x)&&std::isfinite(p.y)&&std::isfinite(p.z)))
++      throw std::invalid_argument("Nonfinite native3D analytic query.");
++    if (g.kind==AnalyticSurface::Kind::Sphere) {
++      if (std::abs(Norm(Delta(p,g.origin))-g.extent.x)>g.tolerance) return false;
++      const auto area=Orientation(g.origin,v[0].p,v[1].p,v[2].p,stats);
++      for (size_t i=0;i<3;++i) {
++        const auto side=Orientation(g.origin,v[i].p,v[(i+1)%3].p,p,stats);
++        const auto normal=Norm(Cross(Delta(v[i].p,g.origin),Delta(v[(i+1)%3].p,g.origin)));
++        if (!(normal>0) || (area>0 ? side : -side)<-g.tolerance*normal) return false;
++      }
++    } else {
++      if (std::abs(static_cast<long double>(p.z)-BumpHeight(g,p))>g.tolerance) return false;
++      const auto area=Projected(v[0].p,v[1].p,v[2].p,2,stats);
++      for (size_t i=0;i<3;++i) {
++        const auto a=v[i].p,b=v[(i+1)%3].p;
++        const auto side=Projected(a,b,p,2,stats);
++        const auto length=std::hypot(static_cast<long double>(b.x)-a.x,static_cast<long double>(b.y)-a.y);
++        if ((area>0 ? side : -side)<-g.tolerance*length) return false;
++      }
++    }
++    return true;
++  }
+   if (Orientation(v[0].p, v[1].p, v[2].p, p, stats) != 0) return false;
+   for (size_t axis = 0; axis < 3; ++axis) {
+     const auto area = Projected(v[0].p, v[1].p, v[2].p, axis, stats);
+@@ -342,6 +428,16 @@ bool PlanarReference::ContainsFace(Id id, const std::array<Point, 3>& triangle,
+   for (auto p : triangle)
+     if (!Contains(id, p, stats)) return false;
+   const auto& f = Get(Canonical(id));
++  const auto curved=analytic.find(Canonical(id));
++  if (curved!=analytic.end()) {
++    const auto& g=curved->second;
++    const auto old=g.kind==AnalyticSurface::Kind::Sphere ?
++        Orientation(g.origin,f.v[0].p,f.v[1].p,f.v[2].p,stats) : Projected(f.v[0].p,f.v[1].p,f.v[2].p,2,stats);
++    const auto fresh=g.kind==AnalyticSurface::Kind::Sphere ?
++        Orientation(g.origin,triangle[0],triangle[1],triangle[2],stats) : Projected(triangle[0],triangle[1],triangle[2],2,stats);
++    // Convex radial/XY footprints plus consistent orientation admit complete faces, not just their vertices.
++    return (old>0 && fresh>0) || (old<0 && fresh<0);
++  }
+   for (size_t axis = 0; axis < 3; ++axis) {
+     const auto old = Projected(f.v[0].p, f.v[1].p, f.v[2].p, axis, stats);
+     if (old != 0) {
+@@ -351,6 +447,35 @@ bool PlanarReference::ContainsFace(Id id, const std::array<Point, 3>& triangle,
+   }
+   return false;
+ }
++Point PlanarReference::Project(Id id, Point p, KernelStats* stats) const {
++  id=Canonical(id);
++  const auto curved=analytic.find(id);
++  if (curved!=analytic.end()) {
++    const auto& g=curved->second;
++    if (g.kind==AnalyticSurface::Kind::Sphere) {
++      const auto direction=Delta(p,g.origin);
++      const auto length=Norm(direction);
++      if (!(length>0 && std::isfinite(length))) throw std::invalid_argument("Invalid native3D radial projection.");
++      p={double(g.origin.x+g.extent.x*direction[0]/length),double(g.origin.y+g.extent.x*direction[1]/length),
++         double(g.origin.z+g.extent.x*direction[2]/length)};
++    } else p.z=double(BumpHeight(g,p));
++  }
++  if (!Contains(id,p,stats)) throw std::invalid_argument("Native3D projection leaves its finite original chart.");
++  return p;
++}
++bool PlanarReference::OnProjectedEdge(Id id, Point a, Point b, Point p, KernelStats* stats) const {
++  id=Canonical(id);
++  const auto curved=analytic.find(id);
++  if (curved==analytic.end()) return OnEdge(a,b,p,stats);
++  if (!Contains(id,a,stats) || !Contains(id,b,stats) || !Contains(id,p,stats)) return false;
++  const auto& g=curved->second;
++  if (g.kind==AnalyticSurface::Kind::Bump) return OnEdge({a.x,a.y,0},{b.x,b.y,0},{p.x,p.y,0},stats);
++  const auto u=Delta(a,g.origin),v=Delta(b,g.origin),w=Delta(p,g.origin),normal=Cross(u,v);
++  const auto length=Norm(normal);
++  if (!(length>0) || std::abs(Dot(normal,w))>g.tolerance*length) return false;
++  return Dot(normal,Cross(u,w))>=-g.tolerance*length*Norm(u) &&
++         Dot(normal,Cross(w,v))>=-g.tolerance*length*Norm(v);
++}
+ bool SplitEdge(const Patch& old, Edge edge, Node point, Id first, const PlanarReference& reference, Patch& fresh,
+                std::string& reason, KernelStats* stats) {
+   try {
+@@ -365,6 +490,16 @@ bool SplitEdge(const Patch& old, Edge edge, Node point, Id first, const PlanarRe
+         (point.p.x == a.p.x && point.p.y == a.p.y && point.p.z == a.p.z) ||
+         (point.p.x == b.p.x && point.p.y == b.p.y && point.p.z == b.p.z))
+       throw std::invalid_argument("Native 3D split point is not a distinct exact on-edge point.");
++    bool projected=false;
++    for (const auto& f : physical)
++      if (Has(f.second.v,edge[0]) && Has(f.second.v,edge[1]) && reference.Analytic().count(f.second.facet)) {
++        if (!projected) { point.p=reference.Project(f.second.facet,point.p,stats); projected=true; }
++        if (!reference.Contains(f.second.facet,point.p,stats))
++          throw std::invalid_argument("Native3D projected split leaves an incident curved feature.");
++      }
++    for (const auto& f : physical)
++      if (Has(f.second.v,edge[0]) && Has(f.second.v,edge[1]) && !reference.Contains(f.second.facet,point.p,stats))
++        throw std::invalid_argument("Native3D projected split leaves an incident physical feature.");
+     Patch proposal;
+     for (const auto& c : old.cells) {
+       auto left = c.v, right = c.v;
+@@ -380,6 +515,9 @@ bool SplitEdge(const Patch& old, Edge edge, Node point, Id first, const PlanarRe
+         }
+       }
+       if (!(has_a && has_b)) throw std::invalid_argument("Native 3D split input is not an edge star.");
++      if (!(Orientation(left[0].p,left[1].p,left[2].p,left[3].p,stats)>0 &&
++            Orientation(right[0].p,right[1].p,right[2].p,right[3].p,stats)>0))
++        throw std::invalid_argument("Native3D projected split inverts inherited child connectivity.");
+       Append(proposal.cells, left, first, stats);
+       Append(proposal.cells, right, first, stats);
+     }
+@@ -446,6 +584,8 @@ bool InsertEdgeCavity(const Patch& old, Edge edge, Node point, Id first, const P
+       if (!Cone(old.cells, point, first, proposal.cells, reason, stats)) throw std::invalid_argument(reason);
+       for (const auto& row : physical) proposal.surface.push_back(row.second);
+     } else {
++      if (reference.Analytic().count(facet))
++        throw std::invalid_argument("Native3D curved fan reconstruction needs complete chart-union admission.");
+       if (wall.size() != 2 || !reference.Contains(facet, point.p, stats))
+         throw std::invalid_argument("Native 3D surface insertion needs two coplanar same-facet triangles.");
+       for (auto face : wall) {
+@@ -493,8 +633,15 @@ bool UndoEdgeSplit(const Patch& old, Id point, Edge edge, Id first, const Planar
+     auto physical = CheckSurface(old, skin, reference, stats);
+     const auto nodes = Nodes(old.cells);
+     const auto a = nodes.at(edge[0]), b = nodes.at(edge[1]), p = nodes.at(point);
+-    if (!OnEdge(a.p, b.p, p.p, stats))
+-      throw std::invalid_argument("Native 3D inverse split point is off its original edge.");
++    if (!OnEdge(a.p,b.p,p.p,stats)) {
++      bool curved=false;
++      for (const auto& f : physical) if (Has(f.second.v,point) && reference.Analytic().count(f.second.facet)) {
++        curved=true;
++        if (!reference.OnProjectedEdge(f.second.facet,a.p,b.p,p.p,stats))
++          throw std::invalid_argument("Native3D inverse split leaves its original projected edge.");
++      }
++      if (!curved) throw std::invalid_argument("Native 3D inverse split point is off its original edge.");
++    }
+     std::map<Edge, std::array<bool, 2>> pairs;
+     for (const auto& c : old.cells) {
+       bool has_p = false, has_a = false, has_b = false;
+diff --git a/Common/src/adaptation/CNativeEngine3D.cpp b/Common/src/adaptation/CNativeEngine3D.cpp
+index 9c9d08d4eb..3ebc32e717 100644
+--- a/Common/src/adaptation/CNativeEngine3D.cpp
++++ b/Common/src/adaptation/CNativeEngine3D.cpp
+@@ -405,6 +405,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+   {
+     Timer timer(stats.initialization_seconds,options.timings);
+     CLocalFailure failure;
++    // shortcut: enable curved runtime only after donor extension and geometry completion gates are integrated.
++    if (!geometry.Analytic().empty())
++      failure.Set(1,0,"Native3D analytic runtime requires integrated donor coverage and geometry completion gates.");
+     const auto lo=CPassiveComm::Allreduce(options.maximum_rounds,CPassiveComm::Op::MIN,world.comm);
+     const auto hi=CPassiveComm::Allreduce(options.maximum_rounds,CPassiveComm::Op::MAX,world.comm);
+     if (lo!=hi) failure.Set(1,0,"Native 3D round limit must be equal across workers.");
+diff --git a/Common/src/adaptation/CNativeReferenceIO3D.cpp b/Common/src/adaptation/CNativeReferenceIO3D.cpp
+index ddea9d8f87..7e8474aeb0 100644
+--- a/Common/src/adaptation/CNativeReferenceIO3D.cpp
++++ b/Common/src/adaptation/CNativeReferenceIO3D.cpp
+@@ -16,20 +16,22 @@
+ namespace SU2Native3D {
+ namespace {
+ struct Header {
+-  uint64_t markers = 0, facets = 0;
++  uint64_t markers = 0, facets = 0, analytic = 0;
+ };
+ Header ReadHeader(std::istream& in, size_t bytes) {
+   std::string magic;
+   unsigned version = 0;
+   Header h;
+   // Each facet needs fourteen numeric tokens; file length bounds counts before allocating any facet storage.
+-  if (!(in >> magic >> version >> h.markers >> h.facets) || magic != "SU2_NATIVE_REFERENCE_3D" || version != 1 ||
++  if (!(in >> magic >> version >> h.markers >> h.facets) || magic != "SU2_NATIVE_REFERENCE_3D" || (version != 1 && version != 2) ||
+       !h.facets || h.facets > bytes / 14 || !h.markers || h.markers > h.facets)
+     throw std::invalid_argument("Invalid native3D reference header/counts/version.");
++  if (version==2 && (!(in>>h.analytic) || !h.analytic || h.analytic>h.facets || h.analytic>bytes/9))
++    throw std::invalid_argument("Invalid native3D analytic reference counts.");
+   return h;
+ }
+-size_t DecodeBytes(size_t bytes, size_t facets) {
+-  return transfer_memory::Add(transfer_memory::Mul(bytes, 8), PlanarReference::ConstructionBytes(facets));
++size_t DecodeBytes(size_t bytes, const Header& h) {
++  return transfer_memory::Add(transfer_memory::Mul(bytes, 8), PlanarReference::ConstructionBytes(h.facets,h.analytic));
+ }
+ }  // namespace
+ std::string EncodeReference(const ReferenceState& state) {
+@@ -38,13 +40,22 @@ std::string EncodeReference(const ReferenceState& state) {
+   std::ostringstream out;
+   out.imbue(std::locale::classic());
+   out << std::setprecision(17);
+-  out << "SU2_NATIVE_REFERENCE_3D 1\n" << state.marker_names.size() << ' ' << state.facets.size() << '\n';
++  const auto& analytic=state.original->Analytic();
++  out << "SU2_NATIVE_REFERENCE_3D " << (analytic.empty()?1:2) << '\n'
++      << state.marker_names.size() << ' ' << state.facets.size();
++  if (!analytic.empty()) out << ' ' << analytic.size();
++  out << '\n';
+   for (const auto& name : state.marker_names) out << std::quoted(name) << '\n';
+   for (const auto& f : state.facets) {
+     out << f.id << ' ' << f.marker;
+     for (auto n : f.v) out << ' ' << n.id << ' ' << n.p.x << ' ' << n.p.y << ' ' << n.p.z;
+     out << '\n';
+   }
++  for (const auto& row : analytic) {
++    const auto& g=row.second;
++    out << row.first << ' ' << unsigned(g.kind) << ' ' << g.origin.x << ' ' << g.origin.y << ' ' << g.origin.z
++        << ' ' << g.extent.x << ' ' << g.extent.y << ' ' << g.extent.z << ' ' << g.tolerance << '\n';
++  }
+   if (!out || out.tellp() > std::streamoff(ReferenceFileLimit3D))
+     throw std::runtime_error("Native3D reference exceeds file limit.");
+   auto bytes = out.str();
+@@ -59,7 +70,7 @@ ReferenceState DecodeReference(const std::string& bytes, size_t ceiling) {
+   in.imbue(std::locale::classic());
+   const auto header = ReadHeader(in, bytes.size());
+   const auto markers = header.markers, facets = header.facets;
+-  const size_t construction = PlanarReference::ConstructionBytes(facets), requested = DecodeBytes(bytes.size(), facets);
++  const size_t construction = PlanarReference::ConstructionBytes(facets,header.analytic), requested = DecodeBytes(bytes.size(), header);
+   if (requested == SIZE_MAX || requested > ceiling)
+     throw std::invalid_argument("Native3D reference decoding exceeds storage budget.");
+   ReferenceState result;
+@@ -83,10 +94,18 @@ ReferenceState DecodeReference(const std::string& bytes, size_t ceiling) {
+     skin.push_back({f.v[0].id, f.v[1].id, f.v[2].id});
+     result.facets.push_back(f);
+   }
++  std::map<Id,AnalyticSurface> analytic;
++  for (uint64_t i=0;i<header.analytic;++i) {
++    Id id; unsigned kind; AnalyticSurface g;
++    if (!(in>>id>>kind>>g.origin.x>>g.origin.y>>g.origin.z>>g.extent.x>>g.extent.y>>g.extent.z>>g.tolerance))
++      throw std::invalid_argument("Invalid native3D analytic reference record.");
++    g.kind=static_cast<AnalyticSurface::Kind>(kind);
++    if (!analytic.emplace(id,g).second) throw std::invalid_argument("Duplicate native3D analytic reference chart.");
++  }
+   in >> std::ws;
+   if (!in.eof() || used.size() != markers) throw std::invalid_argument("Trailing data or unused native3D markers.");
+   ValidateDomainSurfaceTopology(skin);
+-  result.original = std::make_shared<PlanarReference>(result.facets, construction);
++  result.original = std::make_shared<PlanarReference>(result.facets, construction, std::move(analytic));
+   return result;
+ }
+ bool LoadReference(const std::string& filename, ReferenceState& state, bool& loaded, std::string& reason,
+@@ -134,7 +153,7 @@ bool LoadReference(const std::string& filename, ReferenceState& state, bool& loa
+   try {
+     std::istringstream in(text);
+     in.imbue(std::locale::classic());
+-    requested = DecodeBytes(text.size(), ReadHeader(in, text.size()).facets);
++    requested = DecodeBytes(text.size(), ReadHeader(in, text.size()));
+   } catch (const std::exception& e) {
+     failure.Set(1, 0, filename + ": " + e.what());
+   }
+diff --git a/UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp b/UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp
+index 1198b29a6b..1567dd7abe 100644
+--- a/UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp
++++ b/UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp
+@@ -11,6 +11,10 @@
+ #include <limits>
+ #include <set>
+ #include <stdexcept>
++#include <fstream>
++#include <iomanip>
++#include <cstdlib>
++#include "../../../Common/include/parallelization/mpi_structure.hpp"
+ using namespace SU2Native3D;
+ namespace {
+ Patch Cube(double height = 1) {
+@@ -487,3 +491,149 @@ TEST_CASE("Native planar authority admits large tiled patches with constant bord
+     CHECK_FALSE(oblique.Contains(0,{.5,.5,std::nextafter(1.,2.)}));
+   }
+ }
++
++namespace {
++Patch CurvedSeed(bool sphere) {
++  Patch p;
++  std::array<Node,4> v=sphere ?
++      std::array<Node,4>{{{0,{0,0,0}},{1,{1,0,0}},{2,{0,1,0}},{3,{0,0,1}}}} :
++      std::array<Node,4>{{{0,{0,0,0}},{1,{1,0,0}},{2,{0,1,0}},{3,{0,0,-1}}}};
++  if (Orientation(v[0].p,v[1].p,v[2].p,v[3].p)<0) std::swap(v[0],v[1]);
++  p.cells.push_back({0,v});
++  const auto skin=Incidence(p.cells).Boundary();
++  for (size_t i=0;i<skin.size();++i) p.surface.push_back({skin[i],Id(i)});
++  return p;
++}
++Id CurvedRoof(const Patch& p,bool sphere) {
++  for (auto f:p.surface) {
++    const Id excluded=sphere ? 0 : 3;
++    if (std::find(f.v.begin(),f.v.end(),excluded)==f.v.end()) return f.facet;
++  }
++  throw std::logic_error("Missing curved fixture roof.");
++}
++Point Position(const Patch& p,Id id) {
++  for (auto c:p.cells) for (auto n:c.v) if (n.id==id) return n.p;
++  throw std::logic_error("Missing curved fixture vertex.");
++}
++void SaveCurved(const Patch& p,const PlanarReference& reference,const std::string& name) {
++  if (!std::getenv("SU2_NATIVE_CURVED_EVIDENCE") || SU2_MPI::GetRank()) return;
++  std::ofstream out(name+".json");
++  REQUIRE(out.good());
++  out<<std::setprecision(17)<<"{\"nodes\":[";
++  std::map<Id,Point> nodes;
++  for(auto c:p.cells)for(auto n:c.v)nodes.emplace(n.id,n.p);
++  bool comma=false;
++  for(auto n:nodes){if(comma)out<<',';comma=true;out<<'['<<n.first<<','<<n.second.x<<','<<n.second.y<<','<<n.second.z<<']';}
++  out<<"],\"cells\":[";comma=false;
++  for(auto c:p.cells){if(comma)out<<',';comma=true;out<<'['<<c.v[0].id<<','<<c.v[1].id<<','<<c.v[2].id<<','<<c.v[3].id<<']';}
++  out<<"],\"surface\":[";comma=false;
++  for(auto f:p.surface){if(comma)out<<',';comma=true;out<<'['<<f.v[0]<<','<<f.v[1]<<','<<f.v[2]<<','<<f.facet<<','<<reference.Get(f.facet).marker<<']';}
++  out<<"]}\n";out.close();REQUIRE(out.good());
++}
++long double Volume(const Patch& p) {
++  long double v=0;
++  for (auto c:p.cells) v+=Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)/6;
++  return v;
++}
++}
++TEST_CASE("Analytic sphere and bump splits rebuild positive edge stars and reverse changed volumes",
++          "[NativeCurvedGeometry3D]") {
++  for (bool sphere:{true,false}) {
++    const auto old=CurvedSeed(sphere);
++    AnalyticSurface g;
++    g.kind=sphere ? AnalyticSurface::Kind::Sphere : AnalyticSurface::Kind::Bump;
++    g.extent=sphere ? Point{1,0,0} : Point{1,1,1};
++    const auto roof=CurvedRoof(old,sphere);
++    const PlanarReference reference(Facets(old),SIZE_MAX,{{roof,g}});
++    Patch split,undone;
++    std::string reason;
++    REQUIRE(SplitEdge(old,{1,2},{4,{.5,.5,0}},100,reference,split,reason));
++    const auto p=Position(split,4);
++    if (sphere) {
++      CHECK(p.x==Approx(std::sqrt(.5)).epsilon(1e-14));
++      CHECK(p.y==Approx(std::sqrt(.5)).epsilon(1e-14));
++      CHECK(p.z==0);
++    } else { CHECK(p.x==.5);CHECK(p.y==.5);CHECK(p.z==1./16); }
++    CHECK(Volume(split)>Volume(old)); // Physical faceting changes; equal old/new volume is the wrong geometry gate.
++    SaveCurved(old,reference,sphere?"sphere_original":"bump_original");
++    SaveCurved(split,reference,sphere?"sphere_split":"bump_split");
++    CHECK(split.cells.size()==2);
++    CHECK(split.surface.size()==6);
++    for (auto c:split.cells) CHECK(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0);
++    for (auto c:old.cells) for (auto n:c.v) {
++      const auto kept=Position(split,n.id);
++      CHECK(kept.x==n.p.x);CHECK(kept.y==n.p.y);CHECK(kept.z==n.p.z);
++    }
++    for (auto f:split.surface)
++      CHECK(reference.ContainsFace(f.facet,{Position(split,f.v[0]),Position(split,f.v[1]),Position(split,f.v[2])}));
++    CHECK(reference.OnProjectedEdge(roof,{1,0,0},{0,1,0},p));
++    REQUIRE(UndoEdgeSplit(split,4,{1,2},200,reference,undone,reason));
++    SaveCurved(undone,reference,sphere?"sphere_coarsened":"bump_coarsened");
++    CHECK(Connectivity(undone)==Connectivity(old));
++    CHECK(Volume(undone)==Volume(old));
++    CHECK(undone.surface.size()==old.surface.size());
++    for (int cycle=0;cycle<3;++cycle) {
++      REQUIRE(SplitEdge(undone,{1,2},{4,{.5,.5,0}},300+20*cycle,reference,split,reason));
++      REQUIRE(UndoEdgeSplit(split,4,{1,2},310+20*cycle,reference,undone,reason));
++      CHECK(Volume(undone)==Volume(old));
++    }
++  }
++}
++TEST_CASE("Analytic reference binds complete finite oriented faces beyond original facet boxes",
++          "[NativeCurvedGeometry3D]") {
++  const auto old=CurvedSeed(true);
++  auto facets=Facets(old);
++  for (auto& f:facets) f.marker=7; // Multiple same-marker boxes exercise the existing indexed binding path.
++  const auto roof=CurvedRoof(old,true);
++  const PlanarReference reference(facets,SIZE_MAX,{{roof,AnalyticSurface{}}});
++  const auto p=reference.Project(roof,{.5,.5,0});
++  Id found=999;
++  const auto original=reference.Get(roof);
++  std::array<Point,3> face;
++  for (size_t i=0;i<3;++i) face[i]=original.v[i].id==2 ? p : original.v[i].p;
++  CHECK(reference.FindFace(7,face,found));CHECK(found==roof);
++  CHECK_FALSE(reference.FindFace(8,face,found));CHECK(found==roof);
++  std::swap(face[0],face[1]);CHECK_FALSE(reference.ContainsFace(roof,face));
++  CHECK_FALSE(reference.Contains(roof,{-1,0,0}));
++  CHECK_FALSE(reference.Contains(roof,{.5,.5,0}));
++  CHECK_THROWS(reference.Project(roof,{0,0,0}));
++  CHECK_THROWS(reference.Project(roof,{-1,0,0}));
++  CHECK_THROWS(reference.Project(roof,{INFINITY,0,0}));
++  CHECK_FALSE(reference.OnProjectedEdge(roof,{1,0,0},{0,1,0},{0,0,1}));
++  CHECK(reference.ResidentBytes()>PlanarReference(facets).ResidentBytes());
++  CHECK_THROWS(PlanarReference(facets,PlanarReference::ConstructionBytes(facets.size()),{{roof,AnalyticSurface{}}}));
++  auto bad=AnalyticSurface{};bad.extent.x=0;
++  CHECK_THROWS(PlanarReference(facets,SIZE_MAX,{{roof,bad}}));
++  bad=AnalyticSurface{};bad.kind=static_cast<AnalyticSurface::Kind>(99);
++  CHECK_THROWS(PlanarReference(facets,SIZE_MAX,{{roof,bad}}));
++  bad=AnalyticSurface{};bad.tolerance=0;
++  CHECK_THROWS(PlanarReference(facets,SIZE_MAX,{{roof,bad}}));
++  CHECK_THROWS(PlanarReference(facets,SIZE_MAX,{{999,AnalyticSurface{}}}));
++  auto wrong=facets;
++  for(auto& f:wrong) for(auto& n:f.v) if(n.id==1)n.p.x=1.01;
++  CHECK_THROWS(PlanarReference(wrong,SIZE_MAX,{{roof,AnalyticSurface{}}}));
++}
++TEST_CASE("Projected sphere split rejects inversion without reorienting children or changing outputs",
++          "[NativeCurvedGeometry3D]") {
++  const Node a{0,{1,0,0}},b{1,{0,1,0}},c{2,{0,0,1}},d{3,{0,0,-1}},tip{4,{.55,.55,0}};
++  Patch old;
++  for (auto v:{std::array<Node,4>{a,b,c,tip},std::array<Node,4>{a,b,d,tip}}) {
++    if(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)<0)std::swap(v[0],v[1]);
++    old.cells.push_back({Id(old.cells.size()),v});
++  }
++  for (auto f:Incidence(old.cells).Boundary())
++    if(std::find(f.begin(),f.end(),0)!=f.end()&&std::find(f.begin(),f.end(),1)!=f.end())
++      old.surface.push_back({f,Id(old.surface.size())});
++  REQUIRE(old.surface.size()==2);
++  std::map<Id,AnalyticSurface> curves;
++  for(auto f:old.surface)curves.emplace(f.facet,AnalyticSurface{});
++  const PlanarReference reference(Facets(old),SIZE_MAX,curves);
++  Patch retained=old;std::string reason;
++  CHECK_FALSE(SplitEdge(old,{0,1},{5,{.5,.5,0}},100,reference,retained,reason));
++  CHECK(reason.find("inverts inherited")!=std::string::npos);
++  CHECK(Connectivity(retained)==Connectivity(old));CHECK(Volume(retained)==Volume(old));
++  CHECK(retained.surface.size()==old.surface.size());
++  auto incomplete=old;incomplete.surface.pop_back();
++  CHECK_FALSE(SplitEdge(incomplete,{0,1},{5,{.5,.5,0}},100,reference,retained,reason));
++  CHECK(Connectivity(retained)==Connectivity(old));
++}
+diff --git a/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp b/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp
+index 02361a19f7..c8d422fd5a 100644
+--- a/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp
++++ b/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp
+@@ -785,3 +785,35 @@ TEST_CASE("Native3D acceptance veto retains current and BDF state before publica
+   CBarycentricTransfer transfer;driver->ReplaceMesh(remeshed,transfer);
+   FAIL("Expected collective acceptance veto before publication");
+ }
++
++TEST_CASE("Analytic native3D reference persists explicit geometry and refuses unfinished runtime collectively",
++          "[NativeCurvedReference3D]") {
++  World world;
++  ReferenceState state;
++  state.marker_names={"sphere","plane"};
++  const std::array<Node,4> nodes{{{0,{0,0,0}},{1,{1,0,0}},{2,{0,1,0}},{3,{0,0,1}}}};
++  const Cell cell{0,nodes};
++  Id sphere=0;
++  for(auto face:Incidence({cell}).Boundary()) {
++    const bool curved=std::find(face.begin(),face.end(),0)==face.end();
++    const Id id=state.facets.size();if(curved)sphere=id;
++    state.facets.push_back({id,curved?0:1,{nodes[face[0]],nodes[face[1]],nodes[face[2]]}});
++  }
++  state.original=std::make_shared<PlanarReference>(state.facets,SIZE_MAX,std::map<Id,AnalyticSurface>{{sphere,{}}});
++  const auto text=EncodeReference(state);
++  CHECK(text.find("SU2_NATIVE_REFERENCE_3D 2\n")==0);
++  const auto decoded=DecodeReference(text);
++  CHECK(EncodeReference(decoded)==text);CHECK(decoded.original->Analytic().size()==1);
++  const auto p=decoded.original->Project(sphere,{.5,.5,0});
++  CHECK(p.x==Approx(std::sqrt(.5)).epsilon(1e-14));
++  CHECK_THROWS(DecodeReference(text,8*text.size()));
++  CHECK_THROWS(DecodeReference(text+"junk"));
++  auto bad=text;bad.replace(bad.find("3D 2"),4,"3D 3");CHECK_THROWS(DecodeReference(bad));
++  WriteReference("analytic.native_ref",state);
++  ReferenceState loaded;REQUIRE(LoadReference("analytic.native_ref",loaded));CHECK(EncodeReference(loaded)==text);
++  Owned accepted;std::vector<DonorCell> source;
++  if(!world.rank){accepted.emplace(0,Owned::mapped_type{});accepted.at(0).cell=cell;source.push_back({cell,{}});}
++  const auto result=Refine(world,accepted,source,*state.original,{},{});
++  CHECK_FALSE(result.valid);CHECK(result.reason.find("integrated donor coverage")!=std::string::npos);
++  CHECK(result.cells.empty());CHECK(result.stats.accepted==0);
++}

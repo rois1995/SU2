@@ -25,7 +25,7 @@
       "status": "PENDING"
     }
   ],
-  "first_study_controller": null,
+  "first_study_controller": "coverage_study_v1/run.py",
   "scope": "Manual exterior metric-coverage experiment is not production padding or Goal2completion. No cluster/performance/large-wing/generalCAD/production3DBL/fullunsteady/affordability gate or claim.",
   "first_study_status": "PASS_LOCAL_MANUALLY_PRESCRIBED_COVERAGE_ONLY",
   "first_study_receipt_sha256": "9c0609ef04b244e08520642eca82b90e1d748ddabf30d5542812488fb9ada6fa",
@@ -55,5 +55,44 @@
         37568
       ]
     }
-  ]
+  ],
+  "analytic_geometry_checkpoint": {
+    "status": "PASS_LOCAL_PRIVATE_OPERATORS_AND_REFERENCE_ONLY",
+    "report": "ANALYTIC_GEOMETRY_CHECKPOINT.md",
+    "receipt": "analytic_geometry_v3/validation.json",
+    "receipt_sha256": "209d5df7fca4521de1903765d36a776e5d69881f6fbb0c562f1eea37801c3a9f",
+    "shape_audit": "analytic_geometry_v3/private_shape_validation.json",
+    "shape_audit_sha256": "4980359405c25b20f42c7411ce44b1b65e8fa084cf34350b56590066501231dd",
+    "counts": [
+      {
+        "ranks": 1,
+        "cases_per_rank": 86,
+        "assertions": [
+          39625
+        ]
+      },
+      {
+        "ranks": 2,
+        "cases_per_rank": 86,
+        "assertions": [
+          40831,
+          40443
+        ]
+      },
+      {
+        "ranks": 4,
+        "cases_per_rank": 86,
+        "assertions": [
+          42141,
+          42109,
+          42685,
+          42399
+        ]
+      }
+    ],
+    "curved_runtime_supported": false,
+    "cylinder_supported": false,
+    "mixed_curved_planar_expansion_supported": false,
+    "full_goal_gates_completed": 0
+  }
 }

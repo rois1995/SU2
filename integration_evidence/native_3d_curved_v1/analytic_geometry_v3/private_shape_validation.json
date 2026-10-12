@@ -1,0 +1,142 @@
+{
+  "status": "PASS",
+  "scope": "Independent identity-metric shape/sliver, exact rational tetrahedron separating-axis no-interior-overlap and signed-skin closure checks on actual private sphere/bump original/split/coarsened proposals. Complements controller skin/node/projection/inverse checks. Does not prove actual CFD target length, global geometry clearance, distributed curved adaptation or solution conservation.",
+  "controller_receipt_sha256": "209d5df7fca4521de1903765d36a776e5d69881f6fbb0c562f1eea37801c3a9f",
+  "script_sha256": "d0f45e35b22bf3542e560796f982abc986386bfdfa580588814a4a56765a574c",
+  "inputs_sha256": {
+    "mpi1/sphere_original.json": "987128fc61ab6bbb2ff97370f8960c8227724383f011d089ddc2c2129a5980ab",
+    "mpi1/sphere_split.json": "233868b0bc557f0b8ee9b0f0da058f7076598d20668279d8ba385ae20991e25a",
+    "mpi1/sphere_coarsened.json": "5cd3f293b183b997fa3af407ba70e7ab2597aaccfe4f0c6b37e31df80fe351dd",
+    "mpi1/bump_original.json": "e2ebbed1ae26fb2f4606344d3ddaf51b9ca0a4b1e381ec152939a199dc6ea80d",
+    "mpi1/bump_split.json": "06ade16801da369e6bdc58298e38ef1b02642c3acbfa97f3d4e8b46bb1965dbf",
+    "mpi1/bump_coarsened.json": "9e22d6a8fafc72fdb2469d21d480903e6c4e27f21eb9cce53d242722ab37e74b",
+    "mpi2/sphere_original.json": "987128fc61ab6bbb2ff97370f8960c8227724383f011d089ddc2c2129a5980ab",
+    "mpi2/sphere_split.json": "233868b0bc557f0b8ee9b0f0da058f7076598d20668279d8ba385ae20991e25a",
+    "mpi2/sphere_coarsened.json": "5cd3f293b183b997fa3af407ba70e7ab2597aaccfe4f0c6b37e31df80fe351dd",
+    "mpi2/bump_original.json": "e2ebbed1ae26fb2f4606344d3ddaf51b9ca0a4b1e381ec152939a199dc6ea80d",
+    "mpi2/bump_split.json": "06ade16801da369e6bdc58298e38ef1b02642c3acbfa97f3d4e8b46bb1965dbf",
+    "mpi2/bump_coarsened.json": "9e22d6a8fafc72fdb2469d21d480903e6c4e27f21eb9cce53d242722ab37e74b",
+    "mpi4/sphere_original.json": "987128fc61ab6bbb2ff97370f8960c8227724383f011d089ddc2c2129a5980ab",
+    "mpi4/sphere_split.json": "233868b0bc557f0b8ee9b0f0da058f7076598d20668279d8ba385ae20991e25a",
+    "mpi4/sphere_coarsened.json": "5cd3f293b183b997fa3af407ba70e7ab2597aaccfe4f0c6b37e31df80fe351dd",
+    "mpi4/bump_original.json": "e2ebbed1ae26fb2f4606344d3ddaf51b9ca0a4b1e381ec152939a199dc6ea80d",
+    "mpi4/bump_split.json": "06ade16801da369e6bdc58298e38ef1b02642c3acbfa97f3d4e8b46bb1965dbf",
+    "mpi4/bump_coarsened.json": "9e22d6a8fafc72fdb2469d21d480903e6c4e27f21eb9cce53d242722ab37e74b"
+  },
+  "results": {
+    "1": {
+      "sphere_original": {
+        "minimum_identity_mean_ratio": 1.0,
+        "minimum_identity_scaled_jacobian": 1.0,
+        "exact_rational_no_interior_overlap_pairs": 0,
+        "exact_signed_surface_volume_equals_cell_volume": true
+      },
+      "sphere_split": {
+        "minimum_identity_mean_ratio": 0.8188263511472244,
+        "minimum_identity_scaled_jacobian": 0.6279630301995545,
+        "exact_rational_no_interior_overlap_pairs": 1,
+        "exact_signed_surface_volume_equals_cell_volume": true
+      },
+      "sphere_coarsened": {
+        "minimum_identity_mean_ratio": 1.0,
+        "minimum_identity_scaled_jacobian": 1.0,
+        "exact_rational_no_interior_overlap_pairs": 0,
+        "exact_signed_surface_volume_equals_cell_volume": true
+      },
+      "bump_original": {
+        "minimum_identity_mean_ratio": 0.8893560352199105,
+        "minimum_identity_scaled_jacobian": 0.7698003589195013,
+        "exact_rational_no_interior_overlap_pairs": 1,
+        "exact_signed_surface_volume_equals_cell_volume": true
+      },
+      "bump_split": {
+        "minimum_identity_mean_ratio": 0.8080241193786922,
+        "minimum_identity_scaled_jacobian": 0.4714045207910318,
+        "exact_rational_no_interior_overlap_pairs": 6,
+        "exact_signed_surface_volume_equals_cell_volume": true
+      },
+      "bump_coarsened": {
+        "minimum_identity_mean_ratio": 0.8893560352199105,
+        "minimum_identity_scaled_jacobian": 0.7698003589195013,
+        "exact_rational_no_interior_overlap_pairs": 1,
+        "exact_signed_surface_volume_equals_cell_volume": true
+      }
+    },
+    "2": {
+      "sphere_original": {
+        "minimum_identity_mean_ratio": 1.0,
+        "minimum_identity_scaled_jacobian": 1.0,
+        "exact_rational_no_interior_overlap_pairs": 0,
+        "exact_signed_surface_volume_equals_cell_volume": true
+      },
+      "sphere_split": {
+        "minimum_identity_mean_ratio": 0.8188263511472244,
+        "minimum_identity_scaled_jacobian": 0.6279630301995545,
+        "exact_rational_no_interior_overlap_pairs": 1,
+        "exact_signed_surface_volume_equals_cell_volume": true
+      },
+      "sphere_coarsened": {
+        "minimum_identity_mean_ratio": 1.0,
+        "minimum_identity_scaled_jacobian": 1.0,
+        "exact_rational_no_interior_overlap_pairs": 0,
+        "exact_signed_surface_volume_equals_cell_volume": true
+      },
+      "bump_original": {
+        "minimum_identity_mean_ratio": 0.8893560352199105,
+        "minimum_identity_scaled_jacobian": 0.7698003589195013,
+        "exact_rational_no_interior_overlap_pairs": 1,
+        "exact_signed_surface_volume_equals_cell_volume": true
+      },
+      "bump_split": {
+        "minimum_identity_mean_ratio": 0.8080241193786922,
+        "minimum_identity_scaled_jacobian": 0.4714045207910318,
+        "exact_rational_no_interior_overlap_pairs": 6,
+        "exact_signed_surface_volume_equals_cell_volume": true
+      },
+      "bump_coarsened": {
+        "minimum_identity_mean_ratio": 0.8893560352199105,
+        "minimum_identity_scaled_jacobian": 0.7698003589195013,
+        "exact_rational_no_interior_overlap_pairs": 1,
+        "exact_signed_surface_volume_equals_cell_volume": true
+      }
+    },
+    "4": {
+      "sphere_original": {
+        "minimum_identity_mean_ratio": 1.0,
+        "minimum_identity_scaled_jacobian": 1.0,
+        "exact_rational_no_interior_overlap_pairs": 0,
+        "exact_signed_surface_volume_equals_cell_volume": true
+      },
+      "sphere_split": {
+        "minimum_identity_mean_ratio": 0.8188263511472244,
+        "minimum_identity_scaled_jacobian": 0.6279630301995545,
+        "exact_rational_no_interior_overlap_pairs": 1,
+        "exact_signed_surface_volume_equals_cell_volume": true
+      },
+      "sphere_coarsened": {
+        "minimum_identity_mean_ratio": 1.0,
+        "minimum_identity_scaled_jacobian": 1.0,
+        "exact_rational_no_interior_overlap_pairs": 0,
+        "exact_signed_surface_volume_equals_cell_volume": true
+      },
+      "bump_original": {
+        "minimum_identity_mean_ratio": 0.8893560352199105,
+        "minimum_identity_scaled_jacobian": 0.7698003589195013,
+        "exact_rational_no_interior_overlap_pairs": 1,
+        "exact_signed_surface_volume_equals_cell_volume": true
+      },
+      "bump_split": {
+        "minimum_identity_mean_ratio": 0.8080241193786922,
+        "minimum_identity_scaled_jacobian": 0.4714045207910318,
+        "exact_rational_no_interior_overlap_pairs": 6,
+        "exact_signed_surface_volume_equals_cell_volume": true
+      },
+      "bump_coarsened": {
+        "minimum_identity_mean_ratio": 0.8893560352199105,
+        "minimum_identity_scaled_jacobian": 0.7698003589195013,
+        "exact_rational_no_interior_overlap_pairs": 1,
+        "exact_signed_surface_volume_equals_cell_volume": true
+      }
+    }
+  }
+}

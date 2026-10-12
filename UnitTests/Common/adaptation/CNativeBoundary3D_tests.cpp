@@ -11,6 +11,10 @@
 #include <limits>
 #include <set>
 #include <stdexcept>
+#include <fstream>
+#include <iomanip>
+#include <cstdlib>
+#include "../../../Common/include/parallelization/mpi_structure.hpp"
 using namespace SU2Native3D;
 namespace {
 Patch Cube(double height = 1) {
@@ -486,4 +490,211 @@ TEST_CASE("Native planar authority admits large tiled patches with constant bord
     CHECK(oblique.ContainsFace(0,{{{0,0,0},{1,0,1},{0,1,1}}}));
     CHECK_FALSE(oblique.Contains(0,{.5,.5,std::nextafter(1.,2.)}));
   }
+}
+
+namespace {
+Patch CurvedSeed(bool sphere) {
+  Patch p;
+  std::array<Node,4> v=sphere ?
+      std::array<Node,4>{{{0,{0,0,0}},{1,{1,0,0}},{2,{0,1,0}},{3,{0,0,1}}}} :
+      std::array<Node,4>{{{0,{0,0,0}},{1,{1,0,0}},{2,{0,1,0}},{3,{0,0,-1}}}};
+  if (Orientation(v[0].p,v[1].p,v[2].p,v[3].p)<0) std::swap(v[0],v[1]);
+  p.cells.push_back({0,v});
+  const auto skin=Incidence(p.cells).Boundary();
+  for (size_t i=0;i<skin.size();++i) p.surface.push_back({skin[i],Id(i)});
+  return p;
+}
+Patch CurvedVolumeSeed(bool sphere) {
+  Patch p;
+  if (sphere) {
+    const double q=1/std::sqrt(3.);
+    std::array<Node,4> v{{{0,{q,q,q}},{1,{-q,-q,q}},{2,{-q,q,-q}},{3,{q,-q,-q}}}};
+    if (Orientation(v[0].p,v[1].p,v[2].p,v[3].p)<0) std::swap(v[0],v[1]);
+    p.cells.push_back({0,v});
+  } else {
+    const Node a{0,{0,0,0}},b{1,{1,0,0}},c{2,{0,1,0}},d{5,{1,1,0}},tip{3,{.5,.5,-1}};
+    for (auto v:{std::array<Node,4>{a,b,c,tip},std::array<Node,4>{b,d,c,tip}}) {
+      if (Orientation(v[0].p,v[1].p,v[2].p,v[3].p)<0) std::swap(v[0],v[1]);
+      p.cells.push_back({Id(p.cells.size()),v});
+    }
+  }
+  const auto skin=Incidence(p.cells).Boundary();
+  for(size_t i=0;i<skin.size();++i)p.surface.push_back({skin[i],Id(i)});
+  return p;
+}
+Id CurvedRoof(const Patch& p,bool sphere) {
+  for (auto f:p.surface) {
+    const Id excluded=sphere ? 0 : 3;
+    if (std::find(f.v.begin(),f.v.end(),excluded)==f.v.end()) return f.facet;
+  }
+  throw std::logic_error("Missing curved fixture roof.");
+}
+Point Position(const Patch& p,Id id) {
+  for (auto c:p.cells) for (auto n:c.v) if (n.id==id) return n.p;
+  throw std::logic_error("Missing curved fixture vertex.");
+}
+void SaveCurved(const Patch& p,const PlanarReference& reference,const std::string& name) {
+  if (!std::getenv("SU2_NATIVE_CURVED_EVIDENCE") || SU2_MPI::GetRank()) return;
+  std::ofstream out(name+".json");
+  REQUIRE(out.good());
+  out<<std::setprecision(17)<<"{\"nodes\":[";
+  std::map<Id,Point> nodes;
+  for(auto c:p.cells)for(auto n:c.v)nodes.emplace(n.id,n.p);
+  bool comma=false;
+  for(auto n:nodes){if(comma)out<<',';comma=true;out<<'['<<n.first<<','<<n.second.x<<','<<n.second.y<<','<<n.second.z<<']';}
+  out<<"],\"cells\":[";comma=false;
+  for(auto c:p.cells){if(comma)out<<',';comma=true;out<<'['<<c.v[0].id<<','<<c.v[1].id<<','<<c.v[2].id<<','<<c.v[3].id<<']';}
+  out<<"],\"surface\":[";comma=false;
+  for(auto f:p.surface){if(comma)out<<',';comma=true;out<<'['<<f.v[0]<<','<<f.v[1]<<','<<f.v[2]<<','<<f.facet<<','<<reference.Get(f.facet).marker<<']';}
+  out<<"]}\n";out.close();REQUIRE(out.good());
+}
+long double Volume(const Patch& p) {
+  long double v=0;
+  for (auto c:p.cells) v+=Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)/6;
+  return v;
+}
+}
+TEST_CASE("Analytic sphere and bump splits rebuild positive edge stars and reverse changed volumes",
+          "[NativeCurvedGeometry3D]") {
+  for (bool sphere:{true,false}) {
+    const auto old=CurvedVolumeSeed(sphere);
+    AnalyticSurface g;
+    g.kind=sphere ? AnalyticSurface::Kind::Sphere : AnalyticSurface::Kind::Bump;
+    g.extent=sphere ? Point{1,0,0} : Point{1,1,1};
+    std::map<Id,AnalyticSurface> curves;
+    for(auto f:old.surface)
+      if(sphere || std::find(f.v.begin(),f.v.end(),3)==f.v.end())curves.emplace(f.facet,g);
+    const auto roof=curves.begin()->first;
+    const PlanarReference reference(Facets(old),SIZE_MAX,curves);
+    const auto a=Position(old,1),b=Position(old,2);
+    const Point chord{(a.x+b.x)/2,(a.y+b.y)/2,(a.z+b.z)/2};
+    Patch split,undone;
+    std::string reason;
+    const bool valid=SplitEdge(old,{1,2},{4,chord},100,reference,split,reason);
+    INFO(reason);REQUIRE(valid);
+    const auto p=Position(split,4);
+    if (sphere) {
+      CHECK(p.x==-1);
+      CHECK(p.y==0);
+      CHECK(p.z==0);
+    } else { CHECK(p.x==.5);CHECK(p.y==.5);CHECK(p.z==1./16); }
+    CHECK(Volume(split)>Volume(old)); // Physical faceting changes; equal old/new volume is the wrong geometry gate.
+    SaveCurved(old,reference,sphere?"sphere_original":"bump_original");
+    SaveCurved(split,reference,sphere?"sphere_split":"bump_split");
+    CHECK(split.cells.size()==2*old.cells.size());
+    CHECK(split.surface.size()==old.surface.size()+2);
+    for (auto c:split.cells) CHECK(Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p)>0);
+    for (auto c:old.cells) for (auto n:c.v) {
+      const auto kept=Position(split,n.id);
+      CHECK(kept.x==n.p.x);CHECK(kept.y==n.p.y);CHECK(kept.z==n.p.z);
+    }
+    for (auto f:split.surface)
+      CHECK(reference.ContainsFace(f.facet,{Position(split,f.v[0]),Position(split,f.v[1]),Position(split,f.v[2])}));
+    for(auto f:old.surface)
+      if(curves.count(f.facet) && std::find(f.v.begin(),f.v.end(),1)!=f.v.end() && std::find(f.v.begin(),f.v.end(),2)!=f.v.end())
+        CHECK(reference.OnProjectedEdge(f.facet,a,b,p));
+    REQUIRE(UndoEdgeSplit(split,4,{1,2},200,reference,undone,reason));
+    SaveCurved(undone,reference,sphere?"sphere_coarsened":"bump_coarsened");
+    CHECK(Connectivity(undone)==Connectivity(old));
+    CHECK(Volume(undone)==Volume(old));
+    CHECK(undone.surface.size()==old.surface.size());
+    for (int cycle=0;cycle<3;++cycle) {
+      REQUIRE(SplitEdge(undone,{1,2},{4,chord},300+20*cycle,reference,split,reason));
+      REQUIRE(UndoEdgeSplit(split,4,{1,2},310+20*cycle,reference,undone,reason));
+      CHECK(Volume(undone)==Volume(old));
+    }
+  }
+}
+TEST_CASE("Analytic reference binds complete finite oriented faces beyond original facet boxes",
+          "[NativeCurvedGeometry3D]") {
+  const auto old=CurvedSeed(true);
+  auto facets=Facets(old);
+  for (auto& f:facets) f.marker=7; // Multiple same-marker boxes exercise the existing indexed binding path.
+  const auto roof=CurvedRoof(old,true);
+  const PlanarReference reference(facets,SIZE_MAX,{{roof,AnalyticSurface{}}});
+  const auto p=reference.Project(roof,{.5,.5,0});
+  Id found=999;
+  const auto original=reference.Get(roof);
+  std::array<Point,3> face;
+  for (size_t i=0;i<3;++i) face[i]=original.v[i].id==2 ? p : original.v[i].p;
+  CHECK(reference.FindFace(7,face,found));CHECK(found==roof);
+  CHECK_FALSE(reference.FindFace(8,face,found));CHECK(found==roof);
+  std::swap(face[0],face[1]);CHECK_FALSE(reference.ContainsFace(roof,face));
+  CHECK_FALSE(reference.Contains(roof,{-1,0,0}));
+  CHECK_FALSE(reference.Contains(roof,{.5,.5,0}));
+  CHECK_THROWS(reference.Project(roof,{0,0,0}));
+  CHECK_THROWS(reference.Project(roof,{-1,0,0}));
+  CHECK_THROWS(reference.Project(roof,{INFINITY,0,0}));
+  CHECK_FALSE(reference.OnProjectedEdge(roof,{1,0,0},{0,1,0},{0,0,1}));
+  CHECK(reference.ResidentBytes()>PlanarReference(facets).ResidentBytes());
+  CHECK_THROWS(PlanarReference(facets,PlanarReference::ConstructionBytes(facets.size()),{{roof,AnalyticSurface{}}}));
+  auto bad=AnalyticSurface{};bad.extent.x=0;
+  CHECK_THROWS(PlanarReference(facets,SIZE_MAX,{{roof,bad}}));
+  bad=AnalyticSurface{};bad.kind=static_cast<AnalyticSurface::Kind>(99);
+  CHECK_THROWS(PlanarReference(facets,SIZE_MAX,{{roof,bad}}));
+  bad=AnalyticSurface{};bad.tolerance=0;
+  CHECK_THROWS(PlanarReference(facets,SIZE_MAX,{{roof,bad}}));
+  CHECK_THROWS(PlanarReference(facets,SIZE_MAX,{{999,AnalyticSurface{}}}));
+  auto wrong=facets;
+  for(auto& f:wrong) for(auto& n:f.v) if(n.id==1)n.p.x=1.01;
+  CHECK_THROWS(PlanarReference(wrong,SIZE_MAX,{{roof,AnalyticSurface{}}}));
+}
+TEST_CASE("Projected sphere split rejects inversion without reorienting children or changing outputs",
+          "[NativeCurvedGeometry3D]") {
+  const Node a{0,{1,0,0}},b{1,{0,1,0}},c{2,{0,0,1}},d{3,{0,0,-1}},tip{4,{.55,.55,0}};
+  Patch old;
+  for (auto v:{std::array<Node,4>{a,b,c,tip},std::array<Node,4>{a,b,d,tip}}) {
+    if(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)<0)std::swap(v[0],v[1]);
+    old.cells.push_back({Id(old.cells.size()),v});
+  }
+  for (auto f:Incidence(old.cells).Boundary())
+    if(std::find(f.begin(),f.end(),0)!=f.end()&&std::find(f.begin(),f.end(),1)!=f.end())
+      old.surface.push_back({f,Id(old.surface.size())});
+  REQUIRE(old.surface.size()==2);
+  std::map<Id,AnalyticSurface> curves;
+  for(auto f:old.surface)curves.emplace(f.facet,AnalyticSurface{});
+  const PlanarReference reference(Facets(old),SIZE_MAX,curves);
+  Patch retained=old;std::string reason;
+  CHECK_FALSE(SplitEdge(old,{0,1},{5,{.5,.5,0}},100,reference,retained,reason));
+  CHECK(reason.find("inverts inherited")!=std::string::npos);
+  CHECK(Connectivity(retained)==Connectivity(old));CHECK(Volume(retained)==Volume(old));
+  CHECK(retained.surface.size()==old.surface.size());
+  auto incomplete=old;incomplete.surface.pop_back();
+  CHECK_FALSE(SplitEdge(incomplete,{0,1},{5,{.5,.5,0}},100,reference,retained,reason));
+  CHECK(Connectivity(retained)==Connectivity(old));
+}
+
+TEST_CASE("Curved projection cannot silently enlarge an adjoining finite planar reference patch",
+          "[NativeCurvedGeometry3D]") {
+  for(bool sphere:{true,false}) {
+    const auto old=CurvedSeed(sphere);
+    AnalyticSurface g;g.kind=sphere?AnalyticSurface::Kind::Sphere:AnalyticSurface::Kind::Bump;
+    g.extent=sphere?Point{1,0,0}:Point{1,1,1};
+    const auto roof=CurvedRoof(old,sphere);
+    const PlanarReference reference(Facets(old),SIZE_MAX,{{roof,g}});
+    Patch retained=old;std::string reason;
+    CHECK_FALSE(SplitEdge(old,{1,2},{4,{.5,.5,0}},100,reference,retained,reason));
+    CHECK(reason.find("incident physical feature")!=std::string::npos);
+    CHECK(Connectivity(retained)==Connectivity(old));CHECK(Volume(retained)==Volume(old));
+    CHECK(retained.surface.size()==old.surface.size());
+  }
+}
+
+TEST_CASE("Analytic finite chart tolerance cannot escape an acute corner along infinite edge planes",
+          "[NativeCurvedGeometry3D]") {
+  AnalyticSurface bump;
+  bump.kind=AnalyticSurface::Kind::Bump;bump.origin={-1,-1,0};bump.extent={2,2,1};
+  auto height=[](Point p){const double u=(p.x+1)/2,v=(p.y+1)/2;p.z=u*(1-u)*v*(1-v);return p;};
+  const Facet f{0,0,{{{0,height({0,0,0})},{1,height({.5,.5,0})},{2,height({.50000001,.5,0})}}}};
+  const PlanarReference graph({f},SIZE_MAX,{{0,bump}});
+  CHECK(graph.Contains(0,f.v[0].p));
+  CHECK_FALSE(graph.Contains(0,height({-1e-6,-1e-6,0})));
+  CHECK(graph.Contains(0,height({-1e-13,-1e-13,0})));
+  AnalyticSurface sphere;
+  auto unit=[](Point p){const auto r=std::hypot(p.x,p.y,p.z);return Point{p.x/r,p.y/r,p.z/r};};
+  const Facet cone{0,0,{{{0,unit({1,0,0})},{1,unit({1,1e-8,1e-8})},{2,unit({1,1e-8,1e-8+1e-16})}}}};
+  const PlanarReference radial({cone},SIZE_MAX,{{0,sphere}});
+  CHECK(radial.Contains(0,cone.v[0].p));
+  CHECK_FALSE(radial.Contains(0,unit({1,-1e-6,-1e-6})));
+  CHECK(radial.Contains(0,unit({1,-1e-13,-1e-13})));
 }

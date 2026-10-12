@@ -66,3 +66,14 @@ through admitted exterior regions; do not add a Query fallback while leaving exa
 original-source edge coverage unchanged. The manual exterior-tet study remains a
 useful admission/integration control, not a chosen production padding scheme.
 Existing barycentric/conservative transfer rules are a separate solution policy.
+
+## Qualified first analytic geometry implementation
+
+See ANALYTIC_GEOMETRY_CHECKPOINT.md and analytic_geometry_v3/validation.json.
+Sphere/bump finite references, projected complete-edge-star split/inverse,
+inversion rollback and bounded version2 persistence are implemented. Finite-corner
+admission uses actual finite arc/edge distance, not independently widened planes.
+Mixed curved/planar patch expansion, cylinder, chart-union reconnection, final
+geometry/error/clearance logic and source coverage remain pending. Runtime rejects
+analytic references until those contracts connect. This is partial progress toward
+steps1–2, not completion of any of the four integrated requirements.

@@ -1,0 +1,22 @@
+Filters: [NativeCurvedGeometry3D],[NativeCurvedReference3D],[NativeMesh3D],[NativeReference3D],[NativeCurvedCoverage3D]
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Analytic sphere and bump splits rebuild positive edge stars and reverse changed
+volumes
+-------------------------------------------------------------------------------
+../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:539
+...............................................................................
+
+../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:550: FAILED:
+  REQUIRE( SplitEdge(old,{1,2},{4,{.5,.5,0}},100,reference,split,reason) )
+with expansion:
+  false
+
+===============================================================================
+test cases:   66 |   65 passed | 1 failed
+assertions: 4588 | 4587 passed | 1 failed
+

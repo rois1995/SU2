@@ -405,6 +405,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   {
     Timer timer(stats.initialization_seconds,options.timings);
     CLocalFailure failure;
+    // shortcut: enable curved runtime only after donor extension and geometry completion gates are integrated.
+    if (!geometry.Analytic().empty())
+      failure.Set(1,0,"Native3D analytic runtime requires integrated donor coverage and geometry completion gates.");
     const auto lo=CPassiveComm::Allreduce(options.maximum_rounds,CPassiveComm::Op::MIN,world.comm);
     const auto hi=CPassiveComm::Allreduce(options.maximum_rounds,CPassiveComm::Op::MAX,world.comm);
     if (lo!=hi) failure.Set(1,0,"Native 3D round limit must be equal across workers.");

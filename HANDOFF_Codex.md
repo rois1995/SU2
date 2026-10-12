@@ -1,3 +1,35 @@
+# Goal2 analytic geometry checkpoint — 2026-10-12
+
+Working folder /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
+codex/native-3d-curved-local. GoalACTIVE, all4integrated completion gates pending.
+Analytic sphere/bump finite authority, coupled projected complete-edge-star split
+and inverse, inherited-connectivity inversion rejection and version2 persistence
+are implemented. Default planar rules/v1 references retained. Final local receipt
+native_3d_curved_v1/analytic_geometry_v3/validation.json PASS: full68-object driver,
+86cases/rank MPI1/2/4, connected planar bridge/runtime/default and2Dfield controls.
+Independent private_shape_validation.json PASS: identity shape/sliver gates,
+exact rational no-interior-overlap and signed-skin/cell-volume closure on actual
+saved original/split/coarsened sphere/bump private proposals. Inspectable SU2/JSON
+in analytic_geometry_v3/mpi1 (andmpi2/mpi4). These are not solved CFD grids.
+
+Mixed curved/planar finite-patch expansion remains unsupported and rejects;
+initial failed experiment/source retained in analytic_geometry_v1. V2 preliminary
+source/evidence also retained; V3 fixes acute-corner tolerance amplification by
+using finite arc/edge distances. No loosening of geometry/quality/field gates.
+Runtime explicitly refuses analytic authority pending integrated donor extension
+and geometry completion. Existing2D/3D sensors/BL/fade/NOISE0/MMG/transfer unchanged.
+No owned build/test controller remains live: v3session33629 and shapeaudit42293
+terminalPASS. AdapNoExt, foreignClusterResults and dependencies untouched.
+
+Full stage scope, evidence and remaining steps:
+integration_evidence/native_3d_curved_v1/ANALYTIC_GEOMETRY_CHECKPOINT.md.
+Next main step remains complete coupled geometry: chart unions/feature constraints,
+curved operations and geometry-driven completion/clearance, supported by explicit
+bounded triangular sensor extension and exterior edge integration. Point-query
+fallback alone is insufficient. Cylinder and actual curved MPI/CFD/restart gates
+remain pending. Keep one owned heavy job, announce folders, localMPI<=4, push
+checkpoints; no cluster/performance qualification. Earlier notices are historical.
+
 # Goal2 activated: local curved-boundary/Euler work
 
 User cleared Goal1 and explicitly activated the revised second goal. Active branch

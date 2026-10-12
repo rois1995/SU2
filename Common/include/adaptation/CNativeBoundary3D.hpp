@@ -1,6 +1,6 @@
 /*!
  * \file CNativeBoundary3D.hpp
- * \brief Coupled tetrahedral edge edits on immutable planar physical facets.
+ * \brief Coupled tetrahedral edge edits on immutable faceted or declared analytic physical references.
  * Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md).
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
@@ -31,16 +31,31 @@ struct Patch {
   std::vector<Cell> cells;
   std::vector<SurfaceFace> surface;
 };
+/*! Analytic authority is declared per original finite facet, never inferred from its marker.
+ * Sphere: origin=center, extent.x=radius. Bump: z=origin.z+extent.z*u(1-u)*v(1-v),
+ * u=(x-origin.x)/extent.x, v=(y-origin.y)/extent.y in [0,1]. Tolerance is a frozen
+ * physical distance for representable projection and finite-chart boundary roundoff. */
+struct AnalyticSurface {
+  enum class Kind : unsigned { Sphere = 1, Bump = 2 };
+  Kind kind = Kind::Sphere;
+  Point origin, extent{1, 0, 0};
+  double tolerance = 1e-12;
+};
 /*! Bounded immutable imported facet authority. Exact finite planar containment; certified convex coplanar same-marker
  * seams are removable. */
 class PlanarReference {
  public:
-  explicit PlanarReference(std::vector<Facet> facets, size_t ceiling = SIZE_MAX);
+  explicit PlanarReference(std::vector<Facet> facets, size_t ceiling = SIZE_MAX,
+                           std::map<Id, AnalyticSurface> analytic = {});
+  const std::map<Id, AnalyticSurface>& Analytic() const { return analytic; }
+  /*! Projection must remain in the original finite chart; unsupported feature intersections reject. */
+  Point Project(Id facet, Point p, KernelStats* stats = nullptr) const;
+  bool OnProjectedEdge(Id facet, Point a, Point b, Point p, KernelStats* stats = nullptr) const;
   const Facet& Get(Id id) const;
   /*! Requested resident map/vector storage; allocator metadata and constructor scratch are separate. */
   size_t ResidentBytes() const;
   /*! Conservative reference construction peak, including the house local box index. */
-  static size_t ConstructionBytes(size_t facets);
+  static size_t ConstructionBytes(size_t facets, size_t analytic = 0);
   bool Contains(Id facet, Point p, KernelStats* stats = nullptr) const;
   Id Canonical(Id facet) const;
   /*! Finite complete triangle containment and exact orientation relative to the original physical facet. */
@@ -53,6 +68,7 @@ class PlanarReference {
 
  private:
   std::map<Id, Facet> facets;
+  const std::map<Id, AnalyticSurface> analytic;
   std::map<Id, Id> canonical;
   std::map<Id, std::vector<Edge>> boundaries;
   std::map<Id, Node> nodes;
@@ -61,7 +77,8 @@ class PlanarReference {
   std::shared_ptr<CADTElemClass> search;
 };
 /*! Geometric private proposals only. Require the globally admitted complete edge/vertex star and authoritative
- * physical skin. Exact on-edge binary64 point; unrepresentable planar proposals reject, never snap silently.
+ * physical skin. Input point is exact on-edge binary64; declared analytic physical facets project it before
+ * rebuilding all children. Inherited child connectivity must remain positive; planar points never snap.
  * first_cell is a caller-reserved ID range. Distributed IDs, metric gates and external collision checks are separate.
  * Both mesh and physical-face output remain unchanged on rejection. */
 bool SplitEdge(const Patch& old, Edge edge, Node point, Id first_cell, const PlanarReference& reference, Patch& fresh,
