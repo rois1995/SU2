@@ -13,8 +13,9 @@ Implementation branch: codex/native-3d-transport-accounting.
 Qualified batching baseline:3345e2bc9d9561045e459f89ea046a3c7583fd5d.
 Pushed execution-policy snapshot/handoff:7dd0aff6d12d7213781f1e6ce6cca0d184ebd81f.
 Goals2–4 remain prepared, not activated. Preserve AdapNoExt, other workers and the
-existing2D/MMG implementation. Goal1 local checks have passed; completion is recorded
-after the source/evidence checkpoint is pushed. Goals2–4 remain unactivated.
+existing2D/MMG implementation. Goal1 is COMPLETE under the revised local-only scope.
+Qualified source/evidence pushedf782ddc4b20703461b3c3b06192126879639d55a.
+Goals2–4 remain prepared and unactivated.
 
 ## Current local-only execution contract
 
@@ -110,8 +111,9 @@ work policy. Actual-driver budget/deadline/refusal controls preserve current/BDF
 state; accepted source/geometry and reference publication safeguards remain.
 Complete68-object production driver/archives/source pins are recorded. Original
 collector/fixture failures stay failed and exact successful-artifact reuse is
-explicitly identified. No controller remains running; goal completion follows the
-qualified source/evidence push. Performance and all cluster work are deferred.
+explicitly identified. No controller remains running; qualified source/evidence is pushed at
+f782ddc4b20703461b3c3b06192126879639d55a. Goal1 local scope is complete;
+performance and all cluster work are deferred.
 
 Completion requires direct current evidence for all seven local deliverables. No
 curved geometry/CAD, robust production3DBL, full physical unsteady3D, convergence/

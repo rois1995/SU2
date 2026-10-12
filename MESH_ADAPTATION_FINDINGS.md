@@ -1,7 +1,7 @@
 ## Goal1 passes revised local-only qualification — 2026-10-12
 
-All7local requirements pass LOCAL_GOAL1_COMPLETION_AUDIT.md/json; completion follows
-source/evidence publication. Performance and ALL cluster work were explicitly
+All7local requirements pass LOCAL_GOAL1_COMPLETION_AUDIT.md/json; qualified source/evidence is pushed at
+f782ddc4b20703461b3c3b06192126879639d55a. Goal1 is complete under the revised scope. Performance and ALL cluster work were explicitly
 excluded by the user; historical wider-resource gates below are superseded for
 this closure, not demonstrated. Actual106core/39native2D cases MPI1/2/4, bridge/eight
 distributed audits per size, MMG2D/3D,6actual metric/Hessian lifecycle frames and whole

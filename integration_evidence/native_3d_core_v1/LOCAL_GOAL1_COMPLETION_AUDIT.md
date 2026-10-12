@@ -1,6 +1,6 @@
 # Goal 1 local completion audit
 
-**PASS — local implementation and correctness.** Performance qualification and all cluster work were removed by the user on2026-10-12. Goal-system completion follows publication of this source/evidence checkpoint.
+**PASS — local implementation and correctness.** Performance qualification and all cluster work were removed by the user on2026-10-12. Qualified source/evidence checkpoint `f782ddc4b20703461b3c3b06192126879639d55a` is pushed to `codex/native-3d-transport-accounting`; Goal1 is complete under the revised local-only scope.
 
 Branch: `codex/native-3d-transport-accounting`. Complete configured68-object driver and exact production archive/member/source/binary identities are in [the integrated receipt](local_goal1_regression_v1/validation.json). No prototype or partial relink is used.
 
