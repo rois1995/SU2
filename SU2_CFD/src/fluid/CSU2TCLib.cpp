@@ -2060,7 +2060,7 @@ void CSU2TCLib::ThermalConductivitiesGY(){
     for (jSpecies = 0; jSpecies < nSpecies; jSpecies++) {
       const su2double Mj    = (MolarMass[jSpecies] + EPS);
       const su2double mj    = Mj/Na;
-      const su2double gam_j = rhos[iSpecies] / (Density*Mj);
+      const su2double gam_j = rhos[jSpecies] / (Density*Mj);
       const su2double a_ij = 1.0 + (1.0 - mi/mj)*(0.45 - 2.54*mi/mj) / ((1.0 + mi/mj)*(1.0 + mi/mj));
 
       const su2double T_col = ((iSpecies == 0 && ionization) || (jSpecies == 0 && ionization)) ? Tve : T; 
