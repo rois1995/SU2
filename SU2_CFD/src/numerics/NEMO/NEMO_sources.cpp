@@ -185,7 +185,6 @@ CNumerics::ResidualType<> CSource_NEMO::ComputeAxisymmetric(const CConfig *confi
   const auto& hs = fluidmodel->ComputeSpeciesEnthalpy(V_i[T_INDEX], V_i[TVE_INDEX], eve_i );
 
   const bool viscous = config->GetViscous();
-  const bool rans = (config->GetKind_Turb_Model() != TURB_MODEL::NONE);
 
   /*--- Initialize residual and Jacobian arrays ---*/
   for (auto iVar = 0ul; iVar < nVar; iVar++) residual[iVar] = 0.0;
@@ -269,8 +268,6 @@ CNumerics::ResidualType<> CSource_NEMO::ComputeAxisymmetric(const CConfig *confi
 
   /*--- Compute residual for viscous portion of axisym flow ---*/
   if (viscous) {
-    if (!rans){ turb_ke_i = 0.0; }
-
     /*--- Radial (y) component of the species diffusion flux, as in the viscous flux:
      J_s = rho*D_s*dY_s/dy - Y_s*sum_k(rho*D_k*dY_k/dy). The gradient of the primitive
      variables holds the gradient of the species densities, so the gradient of the
@@ -314,7 +311,7 @@ CNumerics::ResidualType<> CSource_NEMO::ComputeAxisymmetric(const CConfig *confi
                                                              -TWO3*AuxVar_Grad_i[0][1]);
     residual[nSpecies+2] -= Volume*(yinv*(-sumJhs_y + total_viscosity_i*(u*(GV[nSpecies+3][0]+GV[nSpecies+2][1])
                                                                         +v*TWO3*(2*GV[nSpecies+3][1]-GV[nSpecies+2][0]
-                                                                        -v*yinv+rho*turb_ke_i))-qy_t)
+                                                                        -v*yinv))-qy_t)
                                                                         -TWO3*(AuxVar_Grad_i[1][1]+AuxVar_Grad_i[2][0]));
     residual[nSpecies+3] -= Volume*(yinv*(-sumJeve_y -qy_ve));
   }
