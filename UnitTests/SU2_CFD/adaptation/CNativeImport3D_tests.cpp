@@ -700,3 +700,18 @@ TEST_CASE("Native3D size-limit replay retains private progress and accepted CFD 
   CHECK(out.good());out.close();
   {Mute mute;driver->Finalize();driver.reset();}
 }
+
+TEST_CASE("Native3D initial boundary above cavity cap imports and reloads", "[NativeReference3D][NativeStaticFix3D]") {
+  auto config = MakeConfig(3,"SOLVER= EULER\n");
+  MeshSolution cube(config.get(),BoxMesh(3,8,false),0);
+  ReferenceState reference;
+  ImportGeometry(*config,cube.Fine(),nullptr,reference);
+  REQUIRE(reference.original);
+  REQUIRE(reference.facets.size()==768);
+  const auto text = EncodeReference(reference);
+  CHECK(EncodeReference(DecodeReference(text))==text);
+  WriteReference("above_cavity_cap.native_ref",reference);
+  ReferenceState loaded;
+  REQUIRE(LoadReference("above_cavity_cap.native_ref",loaded));
+  CHECK(EncodeReference(loaded)==text);
+}

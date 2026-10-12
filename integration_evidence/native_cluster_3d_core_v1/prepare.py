@@ -58,7 +58,7 @@ def main():
     names+=['TestCases/adaptation/capability/capcheck.py']
     # Keep the active native3D implementation and real driver-fixture recipe inspectable with the compact results.
     names += [str(p.relative_to(ROOT)) for directory in ('Common/include/adaptation','Common/src/adaptation') for p in (ROOT/directory).glob('*3D*') if p.is_file() and p.suffix in ('.cpp','.hpp')]
-    names += ['UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp','UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp',
+    names += ['UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp','UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp','UnitTests/Common/adaptation/CNativeCavity3D_tests.cpp',
               'UnitTests/SU2_CFD/adaptation/CNativeRemesher3D_tests.cpp','UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp']
     if options.mpip_library:
         with options.mpip_library.open('rb') as f:
@@ -74,7 +74,7 @@ def main():
         shutil.copyfile(options.mpip_license,destination/'mpiP-LICENSE.txt')
         if sha(destination/'bin/libmpiP.so')!=mpip_digest or sha(options.mpip_library)!=mpip_digest or sha(destination/'mpiP-LICENSE.txt')!=license_digest or sha(options.mpip_license)!=license_digest:
             raise ValueError('mpiP library changed during preparation')
-    record=dict(status='PREPARED_NOT_VALIDATED',source_sha256=sources,actual_objects_sha256={str(p.relative_to(build)):sha(p) for p in objects},library_sha256=libraries,thin_archive_member_sha256=members,build_ninja_sha256=sha(ninja),build_dry_run=dry.stdout,
+    record=dict(status='PREPARED_NOT_VALIDATED',regression_cases=100,source_sha256=sources,actual_objects_sha256={str(p.relative_to(build)):sha(p) for p in objects},library_sha256=libraries,thin_archive_member_sha256=members,build_ninja_sha256=sha(ninja),build_dry_run=dry.stdout,
                 build_options=build_options,scope='Current configured build dependencies and source/binary/member pins. Preparation is not any C++/MPI/numerical PASS. Dynamic MPI/CGNS/MMG libraries must be available on cluster nodes.')
     if sha(binary)!=sha(destination/'bin/test_driver') or any(sha(ROOT/name)!=digest for name,digest in sources.items()) or any(sha(p)!=digest for p,digest in {**libraries,**members}.items()) or any(sha(build/name)!=digest for name,digest in record['actual_objects_sha256'].items()):
         raise ValueError('Build/source changed during preparation; retain this incomplete folder and prepare a new bundle')

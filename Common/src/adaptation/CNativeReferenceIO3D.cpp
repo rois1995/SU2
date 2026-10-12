@@ -85,7 +85,7 @@ ReferenceState DecodeReference(const std::string& bytes, size_t ceiling) {
   }
   in >> std::ws;
   if (!in.eof() || used.size() != markers) throw std::invalid_argument("Trailing data or unused native3D markers.");
-  ValidateSurfaceTopology(skin, true);
+  ValidateDomainSurfaceTopology(skin);
   result.original = std::make_shared<PlanarReference>(result.facets, construction);
   return result;
 }

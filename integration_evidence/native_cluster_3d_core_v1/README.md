@@ -1,3 +1,5 @@
+Current static-assessment fixes add three cases to the frozen selection: newly prepared bundles declare100cases in their manifest. The runner uses that declared count; legacy bundles without the field retain the97-case guard. Preparation remains distinct from qualification. Historical scheduler/query comparison bundles remain pinned to their earlier sources and must be refreshed before comparing these fixes. See integration_evidence/native_3d_core_v1/STATIC_ASSESSMENT_FIXES.md.
+
 # Native 3D closed SGE validation and timing package
 
 Working repository: `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch

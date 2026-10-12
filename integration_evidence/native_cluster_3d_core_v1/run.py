@@ -15,6 +15,8 @@ def sha(path):
 def verify_package(folder):
     folder=Path(folder).resolve();record=json.loads((folder/'manifest.json').read_text())
     if record['status']!='PREPARED_NOT_VALIDATED':raise ValueError('Wrong bundle status')
+    expected=record.get('regression_cases',97)
+    if type(expected) is not int or expected<1:raise ValueError('Invalid regression case count')
     if any(p.is_symlink() for p in folder.rglob('*')):raise ValueError('Bundle contains a symbolic link')
     actual={str(p.relative_to(folder)) for p in folder.rglob('*') if p.is_file()}
     if 'bin/test_driver' not in record['files_sha256'] or actual!=set(record['files_sha256'])|{'manifest.json'}:
@@ -135,7 +137,7 @@ def main():
         if stages[0]['exit_code'] or stages[0].get('timeout') or 'No test cases matched' in out or out.count('All tests passed')!=ranks:
             (work/'stages.json').write_text(json.dumps(stages,indent=2)+'\n')
             raise RuntimeError('Test failure; original files retained in '+str(work))
-        if selection==SELECTION and len(re.findall(r'All tests passed \(\d+ assertions in 97 test cases\)',out))!=ranks:
+        if selection==SELECTION and len(re.findall(r'All tests passed \(\d+ assertions in '+str(manifest.get('regression_cases',97))+r' test cases\)',out))!=ranks:
             raise RuntimeError('Unexpected configured regression selection/count')
         if selection.startswith('MMG interface:') and '48 assertions in 2 test cases' not in out:
             raise RuntimeError('Incomplete MMG regression')

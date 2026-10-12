@@ -501,7 +501,8 @@ bool Directory::Publish(Owned& owned, const std::vector<Dependency>& removed, co
       MapBytes<std::set<Id>>(removed.size()));
   auto peak = transfer_memory::Add(baseline, ResidentBytes());
   stats.maximum_work_bytes = std::max(stats.maximum_work_bytes, peak);
-  if (removed.size() > MaximumCavityCells || added.size() > MaximumReplacementCells || peak == SIZE_MAX || peak > ceiling)
+  // Routed rows aggregate independent caller-validated cavities; bound their staging by bytes, not one cavity.
+  if (peak == SIZE_MAX || peak > ceiling)
     failure.Set(3, 0, "Native 3D publication staging exceeds budget.");
   if (!Vote(failure, reason)) { ++stats.rejected; return false; }
   try {

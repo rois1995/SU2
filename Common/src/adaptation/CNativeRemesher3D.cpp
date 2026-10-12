@@ -174,15 +174,16 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     const std::vector<DonorCell>* worker_source = &imported.original;
     {
       DonorImport source(parent, control.timings);
-      ready = source.Build(imported.original, reason, control.memory_ceiling,
-                           transfer_memory::Add(held(), OwnedStorageBytes(working)));
-      phase(3);
-      std::vector<uint32_t> weights;
       const bool repartition = config.GetAdap_Native_Repartition() || stats.workers < parent.size;
       const int partition_low = CPassiveComm::Allreduce(int(repartition), CPassiveComm::Op::MIN, parent.comm),
                 partition_high = CPassiveComm::Allreduce(int(repartition), CPassiveComm::Op::MAX, parent.comm);
       if (partition_low != partition_high) ready = vote(false, "Inconsistent native3D repartition controls.");
-      if (ready)
+      if (ready && repartition)
+        ready = source.Build(imported.original, reason, control.memory_ceiling,
+                             transfer_memory::Add(held(), OwnedStorageBytes(working)));
+      phase(3);
+      std::vector<uint32_t> weights;
+      if (ready && repartition)
         ready =
             WorkingWeights(parent, working, source, weights, reason, stats.weights, {}, control.memory_ceiling,
                            transfer_memory::Add(held(), transfer_memory::Bytes(imported.original)), control.timings);

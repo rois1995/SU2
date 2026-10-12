@@ -360,7 +360,7 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
       try {
         std::vector<Face> skin;
         for (auto f : pending.facets) skin.push_back({f.v[0].id, f.v[1].id, f.v[2].id});
-        ValidateSurfaceTopology(skin, true);
+        ValidateDomainSurfaceTopology(skin);
         pending.original = std::make_shared<PlanarReference>(pending.facets, reference_scratch);
       } catch (const std::exception& e) {
         failure.Set(1, 0, e.what());

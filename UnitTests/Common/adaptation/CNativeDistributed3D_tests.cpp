@@ -1820,3 +1820,34 @@ TEST_CASE("Native MPI narrow metric-query routing preserves exhaustive closed do
     else CHECK(rejected==0);
   }
 }
+
+TEST_CASE("Native MPI owner publication admits aggregated independent cavities", "[NativeDistributed3D][NativeStaticFix3D]") {
+  World world;
+  Owned owned;
+  std::vector<Dependency> removed;
+  std::vector<OwnedCell> added;
+  std::string reason;
+  if (world.rank == 0) for (Id i = 0; i <= MaximumCavityCells; ++i) {
+    const double x = 2.*i;
+    const Cell cell{i, {{{4*i,{x,0,0}}, {4*i+1,{x+1,0,0}}, {4*i+2,{x,1,0}}, {4*i+3,{x,0,1}}}}};
+    OwnedCell old; old.cell = cell;
+    owned.emplace(i,old);
+    removed.push_back({i,0,0});
+    std::vector<Cell> fresh;
+    REQUIRE(Cone({cell},{10000+i,{x+.25,.25,.25}},100000+4*i,fresh,reason));
+    for (auto c : fresh) { OwnedCell row; row.cell=c; added.push_back(row); }
+  }
+  Directory directory(world,true);
+  REQUIRE(directory.Build(owned,reason));
+  const auto before = Bytes(owned), metadata = directory.Snapshot();
+  CHECK_FALSE(directory.Publish(owned,removed,added,true,reason,world.rank == 0 ? 1 : SIZE_MAX));
+  CHECK(Bytes(owned)==before); CHECK(directory.Snapshot()==metadata);
+  CHECK_FALSE(directory.Publish(owned,removed,added,world.rank != 0,reason));
+  CHECK(Bytes(owned)==before); CHECK(directory.Snapshot()==metadata);
+  REQUIRE(directory.Publish(owned,removed,added,true,reason));
+  CHECK(owned.size()==(world.rank == 0 ? 4*(MaximumCavityCells+1) : 0));
+  const auto dependencies = directory.Lookup(Query(world,{{10000,0,0},1}));
+  REQUIRE(dependencies.valid);
+  CHECK(dependencies.cells.size()==(world.rank == 0 ? 4 : 0));
+  CHECK(directory.Statistics().publications==1);
+}

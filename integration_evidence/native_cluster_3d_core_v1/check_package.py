@@ -116,7 +116,7 @@ class PackageChecks(unittest.TestCase):
                 if label=='case':
                     ranks=int(args[args.index('-n')+1]);selection=args[-3]
                     result='48 assertions in 2 test cases' if selection.startswith('MMG interface:') else '1 assertion in 1 test case'
-                    if selection==run.SELECTION:result='10255 assertions in '+('73' if cwd.parent.name=='wrong_count' else '97')+' test cases'
+                    if selection==run.SELECTION:result='10255 assertions in '+('73' if cwd.parent.name=='wrong_count' else str(manifest.get('regression_cases',97)))+' test cases'
                     out='\n'.join('All tests passed ('+result+')' for _ in range(ranks))
                 elif label=='audit':
                     if cwd.name.startswith('unit_mpi'):
@@ -144,6 +144,10 @@ class PackageChecks(unittest.TestCase):
                 self.assertEqual([s['label'] for s in case['stages']],['case','audit','audit_distributed','audit_donors','audit_anisotropic','audit_cycles','audit_repairs','audit_engine_repairs','audit_coplanar'])
                 self.assertEqual(json.loads((root/'passed'/case['folder']/'distributed_audit.json').read_text())['status'],'PASS')
                 self.assertIn(case['folder']+'/independent_audit.json',receipt['artifact_sha256'])
+            manifest['regression_cases']=100
+            (bundle/'manifest.json').write_text(json.dumps(manifest))
+            invoke('passed_100')
+            self.assertEqual(json.loads((root/'passed_100/result.json').read_text())['status'],'PASS')
             calls.clear()
             with self.assertRaisesRegex(RuntimeError,'Audit failure'):invoke('failed')
             failure=json.loads((root/'failed/result.json').read_text())

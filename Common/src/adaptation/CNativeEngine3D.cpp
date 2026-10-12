@@ -864,14 +864,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     {
       Timer timer(stats.update_seconds,options.timings);
       ready=admit(transfer_memory::Add(transfer_memory::Mul(working.size(),selection_bound(selection.track_repairs)),
-          transfer_memory::Mul(6*MaximumCavityCells,sizeof(std::pair<const Edge,EdgeMeasure>)+4*sizeof(void*))));
+          transfer_memory::Mul(transfer_memory::Mul(6,removed.size()),sizeof(std::pair<const Edge,EdgeMeasure>)+4*sizeof(void*))));
       if (ready) try {
         // Retain retired scalars until all children are measured against this event's immutable source.
         for (const auto& row : removed)
           for (auto key : selection.cells.at(row.cell).edges)
             retired_edges.emplace(key,selection.edges.at(key).measure);
-        if (retired_edges.size()>6*MaximumCavityCells)
-          throw std::runtime_error("Native 3D retired edge reuse exceeds cavity budget.");
         for (const auto& row : removed) selection.Drop(row.cell);
         for (const auto& row : added) changed.push_back(row.cell.id);
         for (auto row : failures) selection.Block(row.edge,row.feature,repairing);

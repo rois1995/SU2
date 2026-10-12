@@ -31,7 +31,8 @@ performance advantage.
 | Barycentric and conservative transfer | Existing implementations reused | Both exercised on repeated controlled BL adaptation; conservative transfer and resumed CFD pass all three realistic-airfoil cycles at MPI1/2/4 |
 | Fixed physical sampling | `ADAP_SURFACE= NO` retains physical vertices/edges | Paired MPI controls demonstrate both a repairable fixed case and an incompatible retained-edge target |
 | Adaptive physical sampling | `ADAP_SURFACE= YES` permits reference-constrained split/remove/redistribution | Controlled MPI runs retain markers, components, feature vertices and first altitude |
-| 3D, mixed cells, periodic/paired interfaces, moving/deforming meshes, multizone, FEM, adjoint/derivative builds | Explicitly rejected | Guard implementation; selected collective failure subprocess controls. This is not exhaustive runtime coverage of every rejection. |
+| Static single-zone 3D tetrahedra with triangular faceted boundaries | Opt-in native core; `ADAP_SURFACE= YES`, no `ADAP_BL`, `ADAP_HESSIAN_NOISE= 0` | Controlled MPI1/2/4 adaptation, current/BDF transfer and SU2/CGNS checks; see NATIVE_3D_DEVELOPMENT_GOALS.md and the current handoff for practical limits and pending qualification |
+| Mixed cells, periodic/paired interfaces, moving/deforming meshes, multizone, FEM, adjoint/derivative builds | Explicitly rejected | Guard implementation; selected collective failure subprocess controls. This is not exhaustive runtime coverage of every rejection. |
 | Smooth CAD/reference projection | No native fitted/CAD reference input implemented | Original polyline is the production reference; analytic smooth-reference research controls do not establish native CAD integration |
 
 The native path retains the **original mesh polyline**, component association,
@@ -208,7 +209,9 @@ On `codex/native-unsteady-performance`, static2D triangular `WINDOW_AVERAGE`
 uses the existing dual-time adaptation driver. Set `TIME_DOMAIN=YES`, positive
 `TIME_STEP`, `TIME_MARCHING=DUAL_TIME_STEPPING-1ST_ORDER` or `-2ND_ORDER`,
 `ADAP_FREQ`, and `ADAP_UNSTEADY_METRIC=WINDOW_AVERAGE`. Existing solver settings,
-BL contracts and transfer choices still apply. Native3D remains unsupported.
+BL contracts and transfer choices still apply. Native3D has a separate opt-in
+tetrahedral core; 3D BL construction, curved projection and physical unsteady
+qualification remain pending.
 
 Mesh `mesh_<first-step>.su2` or `.cgns` and its `.native_ref` pair with the
 rewritten restart of step `first-step-1` (and `first-step-2` for BDF2). The donor

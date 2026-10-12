@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_runtime.py", line 73, in <module>
+    if __name__=='__main__':main(Path(sys.argv[1]).resolve(),int(sys.argv[2]),Path(sys.argv[3]).resolve())
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_runtime.py", line 59, in main
+    else:assert row['final']==0 and row['refine_accepted']==row['coarsen_accepted']==0
+AssertionError

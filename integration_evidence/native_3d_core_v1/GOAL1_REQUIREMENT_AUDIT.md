@@ -189,3 +189,25 @@ not an implemented rounding-safe/MPI cache,512completion or performance result.
 Full615/1002tails, changed real trajectories/ownership/cache cost remain unproved.
 Production/targets/guards/cluster packages unchanged and all complete Goal1
 performance/default-budget/practical-limit gates remain open.
+
+
+## Selected static findings fixed while Goal 1 is paused — 2026-10-12
+
+Working repository SU2_NativeIntegrated; branch codex/native-3d-transport-accounting;
+base 7746fd53fa2f. The user separately authorized fixes during the pause.
+Global boundary validation no longer inherits cavity sphere/512 restrictions;
+closed oriented manifold checks remain. Aggregate owner publication/retired-edge
+scratch use byte bounds. Unused parent source/weights are skipped when no
+repartition; collective controls are checked before conditional source calls.
+Native3D docs and new100/legacy97 cluster guards are corrected.
+101 mixed C++ cases per rank MPI1/2/4, fresh bridge and seven distributed audits,
+serial MMG and 34 package checks pass. Actual core registration is100.
+See integration_evidence/native_3d_core_v1/STATIC_ASSESSMENT_FIXES.md and
+STATIC_ASSESSMENT_FIXES_VALIDATION.json for pins, exact scope and retained failures.
+MPI1 v2 is reused; MPI2/4 v5. About53.5MB retained, no copied builds/binaries.
+Runtime-only audit did not certify mixed logs; driver C++ checks pass and no
+independent runtime certificate is claimed. All jobs terminal; oneCPU/nice19/j1/
+thread1/MPI<=4 correctness only. Goal1 remains PAUSED, Goal2 not started.
+No default512/high-rank/performance/curved/3DBL/physical-unsteady claim. Earlier
+comparison packages are frozen oldsource and need refresh. AdapNoExt and foreign
+ClusterResults untouched.

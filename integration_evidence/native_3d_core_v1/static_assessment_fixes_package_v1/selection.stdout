@@ -1,0 +1,256 @@
+Matching test cases:
+  MPI reader budget admits skewed rendezvous and rejects late without
+    publication
+      [NativeBudget3D][NativeReaderSkew]
+  MPI adaptation: distributed reader construction
+      [AdaptationMPI][NativeBudget3D][NativeReader]
+  Native3D CFD bridge returns adapted readers and preserves affine BDF2 states
+      [NativeBridge3D]
+  Native3D import binding checks finite oriented triangles
+      [NativeBridge3D]
+  Shared adaptation geometry fixture retains 2D transfer histories
+      [NativeBridge2D]
+  Native3D immutable reference encoding rejects malformed authority
+      [NativeReference3D]
+  Native3D large reference import and reload elect memory refusal without
+    publication
+      [NativeReference3D]
+  Native3D initial boundary above cavity cap imports and reloads
+      [NativeReference3D][NativeStaticFix3D]
+  Native3D default ownership survives rejection after private accepted edits
+      [NativeDefault3D]
+  Native3D budgeted import preserves both outputs and reference on elected
+    refusal
+      [NativeBudget3D]
+  Native 3D orientation: exact signs and bounded fallback
+      [NativeMesh3D]
+  Native 3D metric measures: regular shape and scaling
+      [NativeMesh3D]
+  Native 3D metric measures: aligned and rotated strong anisotropy
+      [NativeMesh3D]
+  Native 3D slivers: acceptable edge sizes do not imply acceptable shape
+      [NativeMesh3D]
+  Native 3D metric measures: permutation signs and degeneracy
+      [NativeMesh3D]
+  Native 3D metric admission: singular indefinite and nonfinite tensors
+      [NativeMesh3D]
+  Native 3D exact segment clipping covers cells and conformal ties
+      [NativeMesh3D]
+  Native exact segment vertices reuse unit weights without snapping nearby
+    points or hiding invalid donors
+      [NativeMesh3D]
+  Native 3D chord norm preserves small positive cancellation and large
+    components
+      [NativeMesh3D]
+  Native 3D exact chord magnitude never substitutes an underflow sign sentinel
+      [NativeMesh3D]
+  Native 3D donor footprint uses exact closed segments including point-only
+    contact
+      [NativeMesh3D]
+  Native closed-query filters settle containment without weakening crossing or
+    tiny signs
+      [NativeMesh3D]
+  Native 3D incidence: full edge and vertex stars exceed a face pair
+      [NativeMesh3D]
+  Native 3D incidence rejects duplicate and inconsistent records
+      [NativeMesh3D]
+  Native 3D incidence rejects same-side and nonmanifold shared faces
+      [NativeMesh3D]
+  Native 3D incidence reports disconnected and vertex-pinched patches
+      [NativeMesh3D]
+  Native 3D cone inserts, moves and removes an interior vertex privately
+      [NativeMesh3D]
+  Native 3D cone reconnects two tetrahedra to three
+      [NativeMesh3D]
+  Native 3D cone rejects obstruction, interface movement and budget without
+    changing output
+      [NativeMesh3D]
+  Native 3D fixed interface rejects changed skins, duplicates and disconnected
+    cavities
+      [NativeMesh3D]
+  Native 3D cavity rejects face-connected genus-one skin
+      [NativeMesh3D]
+  Native 3D cone closure survives rotated thin cavities
+      [NativeMesh3D]
+  Native 3D domain skin separates global topology from cavity bounds
+      [NativeMesh3D][NativeStaticFix3D]
+  Native 3D P1 weights are magnitude-controlled in rotated thin donors
+      [NativeMesh3D]
+  Native 3D original sensor cache recomposes thin geometric demand at every
+    query
+      [NativeMesh3D]
+  Native 3D original donor ties use original node keys independently of cell
+    IDs and delivery
+      [NativeMesh3D]
+  Native 3D ADT avoids scanning spatially separated original donors
+      [NativeMesh3D]
+  Native 3D sensor reuse is bounded and FIFO eviction does not change values
+      [NativeMesh3D]
+  Native 3D original sensor rejects invalid admission, extrapolation and
+    composition
+      [NativeMesh3D]
+  Native 3D sensor edge integration resolves thin source demand without coarse
+    spreading
+      [NativeMesh3D]
+  Native 3D sensor edge length integrates affine donors and rejects incomplete
+    coverage
+      [NativeMesh3D]
+  Native 3D sensor intervals retain nonzero width when rounded cuts coincide
+      [NativeMesh3D]
+  Native 3D complete internal edge star splits and reverses with fixed skin
+      [NativeMesh3D]
+  Native 3D planar physical edge edits retain facets and marker junctions
+      [NativeMesh3D]
+  Native 3D surface edits reject missing dependencies and preserve both outputs
+      [NativeMesh3D]
+  Native 3D immutable planar facet authority checks exact membership and
+    invalid input
+      [NativeMesh3D]
+  Native general collapse removes a boundary point without bisection history
+      [NativeMesh3D]
+  Native general collapse removes an interior point and preserves corner and
+    interface constraints
+      [NativeMesh3D]
+  Native planar movement keeps finite facets and rejects incomplete stars
+    atomically
+      [NativeMesh3D]
+  Native movement preserves the interior skin and protects original corners
+      [NativeMesh3D]
+  Native boundary-aware reconnection preserves markers for face and edge swaps
+      [NativeMesh3D]
+  Native coplanar same-marker wall seams allow finite patch movement and
+    collapse
+      [NativeMesh3D]
+  Native finite patch certification preserves marker creases disconnected and
+    nonconvex surfaces
+      [NativeMesh3D]
+  Native insertion removes an exact-placement obstacle with certified cavity
+    skin
+      [NativeInsertion3D][NativeMesh3D]
+  Native insertion coordinates a planar surface fan and volume without moving
+    marker junctions
+      [NativeInsertion3D][NativeMesh3D]
+  Native indexed reference binding matches exhaustive finite oriented canonical
+    patches
+      [NativeMesh3D][NativeReferenceSearch3D]
+  Native planar authority admits large tiled patches with constant border query
+    work
+      [NativeMesh3D][NativeReferenceSearch3D]
+  Native 3D final metric gate requires length, shape and sliver criteria
+      [NativeMesh3D]
+  Native 3D private refinement can progress before the final global size gate
+      [NativeMesh3D]
+  Native 3D metric gate never uses sensor integration to qualify a composed
+    target
+      [NativeMesh3D]
+  Native 3D metric repair accepts improving interior movement and rejects
+    regression
+      [NativeMesh3D]
+  Native 3D metric repair couples face reconnection to actual frozen quality
+      [NativeMesh3D]
+  Native 3D frozen scalar reuse checks coordinates and preserves composed
+    rejection
+      [NativeMesh3D]
+  Native general wall collapse retains fine demands through the frozen metric
+    gate
+      [NativeMesh3D]
+  Native private shape rejection avoids edge tracing while preserving actual
+    composition
+      [NativeMesh3D]
+  Native 3D streamed metric measurements retain the full frozen progress gate
+      [NativeMesh3D]
+  Native tetrahedral MPI scalar records preserve physical bindings and high IDs
+      [NativeDistributed3D]
+  Native tetrahedral MPI admits complete vertex edge face stars and fresh
+    authoritative payloads
+      [NativeDistributed3D]
+  Native tetrahedral MPI claims elect one nonconflicting proposal
+      [NativeDistributed3D]
+  Native tetrahedral MPI split and coarsening publish mesh and directory
+    together
+      [NativeDistributed3D]
+  Native tetrahedral MPI rejected versions rank veto budgets and shared
+    coordinates preserve both stores
+      [NativeDistributed3D]
+  Native tetrahedral MPI rejects duplicate global identities even with disjoint
+    node IDs
+      [NativeDistributed3D]
+  Native tetrahedral MPI never admits a partial over-budget star
+      [NativeDistributed3D]
+  Native tetrahedral MPI migrates to M workers and returns accepted records to
+    N ranks
+      [NativeDistributed3D]
+  Native worker rank boxes and passive gathers stay in their explicit
+    communicator
+      [NativeDistributed3D]
+  Native MPI donor imports preserve original P1 sensors and actual-query
+    composition
+      [NativeDistributed3D]
+  Native MPI donor authority rejects inconsistent or duplicate source without
+    freezing it
+      [NativeDistributed3D]
+  Native MPI donor import admits large immutable owners but rejects oversized
+    patch unions
+      [NativeDistributed3D]
+  Native MPI donor unions reuse exact admission without changing payload or
+    rejecting invalid duplicates
+      [NativeDistributed3D][NativeDonorReuse3D]
+  Native immutable sensor import works with fewer workers than CFD ranks
+      [NativeDistributed3D]
+  Native incremental MPI refinement reaches complete frozen metric gates
+      [NativeDistributed3D]
+  Native MPI refinement preserves accepted input on incomplete or invalid
+    events
+      [NativeDistributed3D]
+  Native full MPI refinement returns from fewer workers with accepted input
+    preserved
+      [NativeDistributed3D]
+  Native full MPI refinement handles thin sheared and spatial anisotropic
+    targets
+      [NativeDistributed3D]
+  Native MPI general coarsening supports repeated planar refine coarsen cycles
+      [NativeCycles3D][NativeDistributed3D]
+  Native MPI planar movement and face edge reconnection publish full private
+    metric repairs
+      [NativeDistributed3D][NativeRepair3D]
+  Native MPI admissible coarsening prunes exact immutable-facet counterexamples
+      [NativeCollapseFilter3D][NativeDistributed3D]
+  Native automatic MPI repair selects complete failing features and restores
+    frozen gates
+      [NativeAutomaticRepair3D][NativeDistributed3D]
+  Native exact cell donor filters retain closed boundaries and reject invalid
+    requests atomically
+      [NativeDistributed3D]
+  Native metric-query imports cover centroids and complete edges with atomic
+    invalid rejection
+      [NativeDistributed3D]
+  Native MPI coarsens across original planar seams and repeats refinement on
+    worker subsets
+      [NativeCoplanar3D][NativeDistributed3D]
+  Native MPI publication notifies complete changed stars beyond unchanged
+    candidate edges
+      [NativeCollapseFilter3D][NativeDistributed3D]
+  Native MPI early collapse filtering rejects exact zero-volume witnesses and
+    preserves invalid-field repair
+      [NativeCollapseFilter3D][NativeDistributed3D]
+  Native MPI full vertex-star facet filtering protects corners beyond candidate
+    edge cells
+      [NativeCollapseFilter3D][NativeDistributed3D]
+  Native MPI narrow metric-query routing preserves exhaustive closed donor
+    footprints
+      [NativeDistributed3D][NativeDonorReuse3D]
+  Native MPI owner publication admits aggregated independent cavities
+      [NativeDistributed3D][NativeStaticFix3D]
+  Native tetrahedral weights preserve sensor volume and compose every actual
+    sample
+      [NativeMesh3D][NativePartition3D]
+  Native tetrahedral partition migrates two constraints with atomic records and
+    explicit worlds
+      [NativeDistributed3D][NativePartition3D]
+  Native tetrahedral partition rejects invalid input without ownership changes
+      [NativeDistributed3D][NativePartition3D]
+  Native weighted tetrahedral worker migration preserves original sensors and
+    returns adapted records
+      [NativeDistributed3D][NativePartition3D]
+100 matching test cases
+

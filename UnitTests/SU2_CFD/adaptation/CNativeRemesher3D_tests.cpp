@@ -78,6 +78,9 @@ TEST_CASE("Native3D default ownership survives rejection after private accepted 
   REQUIRE(result.status == CRemeshResult::Status::COMPLETE);
   CHECK_FALSE(reference->original);
   CHECK(backend.Statistics().partition.destinations.empty());
+  CHECK(backend.Statistics().source.builds == 0);
+  CHECK(backend.Statistics().weights.requests == 0);
+  CHECK(backend.Statistics().weights.tracked_calls == 0);
   CheckTransport(backend.Statistics());
   CHECK(backend.Statistics().workers == world.size);
   CHECK(Snapshot(donor) == before);

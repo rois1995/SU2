@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <map>
 using namespace SU2Native3D;
 namespace {
 Cell Make(Id id, std::array<Node, 4> v) {
@@ -121,6 +122,7 @@ TEST_CASE("Native 3D cavity rejects face-connected genus-one skin", "[NativeMesh
         torus.push_back(Make(torus.size(), {v[0], v[6], v[ring[i]], v[ring[(i + 1) % 6]]}));
     }
   CHECK(Incidence(torus).FaceComponents() == 1);
+  CHECK_NOTHROW(ValidateDomainSurfaceTopology(Incidence(torus).Boundary()));
   std::string reason;
   CHECK_FALSE(ValidateFixedInterface(torus, torus, reason));
   CHECK(reason.find("sphere/disk") != std::string::npos);
@@ -140,4 +142,46 @@ TEST_CASE("Native 3D cone closure survives rotated thin cavities", "[NativeMesh3
     CHECK(result);
     if (result) CHECK(ValidateFixedInterface(old, fresh, reason));
   }
+}
+
+TEST_CASE("Native 3D domain skin separates global topology from cavity bounds", "[NativeMesh3D][NativeStaticFix3D]") {
+  auto skin = Incidence(Single()).Boundary();
+  REQUIRE_NOTHROW(ValidateDomainSurfaceTopology(skin));
+  auto components = skin;
+  for (auto face : skin) {
+    for (auto& id : face) id += 10;
+    components.push_back(face);
+  }
+  CHECK_NOTHROW(ValidateDomainSurfaceTopology(components));
+  CHECK_THROWS(ValidateSurfaceTopology(components, true));
+  auto bad = skin;
+  std::swap(bad.front()[0], bad.front()[1]);
+  CHECK_THROWS(ValidateDomainSurfaceTopology(bad));
+  bad = skin; bad.pop_back();
+  CHECK_THROWS(ValidateDomainSurfaceTopology(bad));
+  bad = skin; bad.push_back(skin.front());
+  CHECK_THROWS(ValidateDomainSurfaceTopology(bad));
+  bad = skin; bad.front()[0] = bad.front()[1];
+  CHECK_THROWS(ValidateDomainSurfaceTopology(bad));
+  bad = components;
+  for (size_t i = skin.size(); i < bad.size(); ++i)
+    for (auto& id : bad[i]) if (id == 10) id = 0;
+  CHECK_THROWS(ValidateDomainSurfaceTopology(bad));  // Two components pinched at one vertex.
+  Id next = 4;
+  for (int level = 0; level < 4; ++level) {
+    std::map<Edge, Id> midpoints;
+    std::vector<Face> refined;
+    auto middle = [&](Id a, Id b) {
+      Edge key{std::min(a,b),std::max(a,b)};
+      return midpoints.emplace(key,next).second ? next++ : midpoints.at(key);
+    };
+    for (auto f : skin) {
+      const Id a = middle(f[0],f[1]), b = middle(f[1],f[2]), c = middle(f[2],f[0]);
+      refined.insert(refined.end(), {{f[0],a,c},{a,f[1],b},{c,b,f[2]},{a,b,c}});
+    }
+    skin.swap(refined);
+  }
+  REQUIRE(skin.size() == 1024);
+  CHECK_NOTHROW(ValidateDomainSurfaceTopology(skin));
+  CHECK_THROWS(ValidateSurfaceTopology(skin,true));
 }

@@ -52,7 +52,7 @@ void Curve(const Graph& graph, bool closed) {
     throw std::invalid_argument("Native 3D cavity has a disconnected or unclosed link.");
 }
 /*! Connected triangular sphere/disk with manifold vertex links, not just an Euler-characteristic test. */
-void Surface(const std::vector<Face>& triangles, bool closed) {
+void Surface(const std::vector<Face>& triangles, bool closed, bool cavity = true) {
   if (triangles.empty()) throw std::invalid_argument("Native 3D cavity has an empty link.");
   std::map<Edge, std::vector<Id>> edges;
   std::map<Id, Graph> links;
@@ -75,9 +75,9 @@ void Surface(const std::vector<Face>& triangles, bool closed) {
     else
       throw std::invalid_argument("Native 3D cavity link has a nonmanifold edge.");
   }
-  if (!Connected(adjacency) || static_cast<int64_t>(links.size()) - static_cast<int64_t>(edges.size()) +
+  if (cavity && (!Connected(adjacency) || static_cast<int64_t>(links.size()) - static_cast<int64_t>(edges.size()) +
                                        static_cast<int64_t>(triangles.size()) !=
-                                   (closed ? 2 : 1))
+                                   (closed ? 2 : 1)))
     throw std::invalid_argument("Native 3D cavity link is not a connected sphere/disk.");
   if (closed) {
     if (!border.empty()) throw std::invalid_argument("Native 3D cavity sphere has a boundary.");
@@ -131,6 +131,29 @@ void ValidateSurfaceTopology(const std::vector<Face>& triangles, bool closed) {
   if (triangles.size() > 4 * MaximumReplacementCells)
     throw std::invalid_argument("Native 3D surface topology exceeds budget.");
   Surface(triangles, closed);
+}
+void ValidateDomainSurfaceTopology(const std::vector<Face>& triangles) {
+  std::set<Face> faces;
+  std::map<Edge, int> orientations;
+  for (auto face : triangles) {
+    auto key = face;
+    std::sort(key.begin(), key.end());
+    if (std::adjacent_find(key.begin(), key.end()) != key.end() || !faces.insert(key).second)
+      throw std::invalid_argument("Native 3D domain skin has a repeated node or duplicate face.");
+    for (size_t i = 0; i < 3; ++i) {
+      const Id a = face[i], b = face[(i + 1) % 3];
+      const int direction = a < b ? 1 : -1;
+      const auto entry = orientations.emplace(Edge{std::min(a,b),std::max(a,b)},direction);
+      if (!entry.second) {
+        if (entry.first->second != -direction)
+          throw std::invalid_argument("Native 3D domain skin has nonmanifold or inconsistently oriented edges.");
+        entry.first->second = 0;
+      }
+    }
+  }
+  Surface(triangles, true, false);
+  for (const auto& edge : orientations)
+    if (edge.second != 0) throw std::invalid_argument("Native 3D domain skin has inconsistent face orientation.");
 }
 bool ValidateFixedInterface(const std::vector<Cell>& old, const std::vector<Cell>& fresh, std::string& reason,
                             KernelStats* stats) {
