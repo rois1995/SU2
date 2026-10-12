@@ -271,32 +271,43 @@ CNumerics::ResidualType<> CSource_NEMO::ComputeAxisymmetric(const CConfig *confi
   if (viscous) {
     if (!rans){ turb_ke_i = 0.0; }
 
+    /*--- Radial (y) component of the species diffusion flux, as in the viscous flux:
+     J_s = rho*D_s*dY_s/dy - Y_s*sum_k(rho*D_k*dY_k/dy). The gradient of the primitive
+     variables holds the gradient of the species densities, so the gradient of the
+     mass fractions is dY_s/dy = (drho_s/dy - Y_s*drho/dy)/rho. ---*/
+    auto dYdy = [&](unsigned long iSpecies) {
+      return (GV[RHOS_INDEX+iSpecies][1] - Y[iSpecies]*GV[RHO_INDEX][1]) / rho;
+    };
+
     su2double Vector = 0.0;
-    for (auto iSpecies = 0ul; iSpecies < nHeavy; iSpecies++)
-      Vector += rho*Ds[iSpecies]*GV[RHOS_INDEX+iSpecies][1];
+    for (auto iSpecies = 0ul; iSpecies < nSpecies; iSpecies++)
+      Vector += rho*Ds[iSpecies]*dYdy(iSpecies);
 
-    su2double Mass = 0.0;
+    /*--- Gas constant of the mixture ---*/
+    su2double GasConstant = 0.0;
     for (auto iSpecies=0ul; iSpecies<nSpecies; iSpecies++)
-      Mass += V_i[iSpecies]/rho*Ms[iSpecies];
+      GasConstant += Y[iSpecies]*Ru/Ms[iSpecies];
 
-    const su2double heat_capacity_cp_i   = V_i[RHOCVTR_INDEX]/rho + Ru/Mass;
+    const su2double heat_capacity_cp_i   = V_i[RHOCVTR_INDEX]/rho + GasConstant;
     const su2double total_viscosity_i    = Laminar_Viscosity_i + Eddy_Viscosity_i;
-    const su2double total_conductivity_i = ktr + kve + heat_capacity_cp_i*Eddy_Viscosity_i/Prandtl_Turb;
+    const su2double conductivity_tr_i    = ktr + heat_capacity_cp_i*Eddy_Viscosity_i/Prandtl_Turb;
     const su2double u                    = V_i[VEL_INDEX];
     const su2double v                    = V_i[VEL_INDEX+1];
-    const su2double qy_t                 = -total_conductivity_i*GV[T_INDEX][1];
-    const su2double qy_ve                = -kve*GV[TVE_INDEX][1];
 
-    /*--- Enthalpy and vib-el energy transport due to y-direction diffusion---*/
+    /*--- Heat flux of the total energy (both temperatures) and of the vib.-el. energy ---*/
+    const su2double qy_ve                = -kve*GV[TVE_INDEX][1];
+    const su2double qy_t                 = -conductivity_tr_i*GV[T_INDEX][1] + qy_ve;
+
+    /*--- Species transport, and enthalpy and vib-el energy transport, due to y-direction diffusion ---*/
     su2double sumJhs_y, sumJeve_y;
     sumJhs_y = sumJeve_y = 0.0;
-    for (auto iSpecies = 0ul; iSpecies < nHeavy; iSpecies++) {
-      sumJhs_y  += -(rho*Ds[iSpecies]*GV[RHOS_INDEX+iSpecies][1] - V_i[RHOS_INDEX+iSpecies]*Vector) * hs[iSpecies];
-      sumJeve_y += -(rho*Ds[iSpecies]*GV[RHOS_INDEX+iSpecies][1] - V_i[RHOS_INDEX+iSpecies]*Vector) * eve_i[iSpecies];
+    for (auto iSpecies = 0ul; iSpecies < nSpecies; iSpecies++) {
+      const su2double Js_y = rho*Ds[iSpecies]*dYdy(iSpecies) - Y[iSpecies]*Vector;
+      sumJhs_y  += -Js_y * hs[iSpecies];
+      sumJeve_y += -Js_y * eve_i[iSpecies];
+      residual[iSpecies] -= Volume*yinv*Js_y;
     }
 
-    for (auto iSpecies = 0ul; iSpecies < nSpecies; iSpecies++)
-      residual[iSpecies] -= 0.0;
     residual[nSpecies] -= Volume*(yinv*total_viscosity_i*(GV[nSpecies+2][1]+GV[nSpecies+3][0])
                                                          -TWO3*AuxVar_Grad_i[0][0]);
     residual[nSpecies+1] -= Volume*(yinv*total_viscosity_i*2*(GV[nSpecies+3][1]-v*yinv)
