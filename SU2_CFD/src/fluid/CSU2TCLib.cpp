@@ -1592,11 +1592,11 @@ void CSU2TCLib::ComputeKeqConstants(unsigned short val_Reaction) {
   N = N*(1E-6);
 
   /*--- Determine table index based on mixture N ---*/
-  unsigned short tbl_offset = 14;
-  unsigned short pwr        = floor(log10(N));
+  const int tbl_offset = 14;
+  const int pwr        = static_cast<int>(floor(log10(SU2_TYPE::GetValue(N))));
 
   /*--- Bound the interpolation to table limit values ---*/
-  unsigned short iIndex = int(pwr) - tbl_offset;
+  const int iIndex = pwr - tbl_offset;
   if (iIndex <= 0) {
     for (ii = 0; ii < 5; ii++)
       A[ii] = RxnConstantTable(0,ii);
@@ -1610,7 +1610,7 @@ void CSU2TCLib::ComputeKeqConstants(unsigned short val_Reaction) {
   /*--- Calculate interpolation denominator terms avoiding pow() ---*/
   su2double tmp1 = 1.0;
   su2double tmp2 = 1.0;
-  for (ii = 0; ii < pwr; ii++) {
+  for (auto iPwr = 0; iPwr < pwr; iPwr++) {
     tmp1 *= 10.0;
     tmp2 *= 10.0;
   }
