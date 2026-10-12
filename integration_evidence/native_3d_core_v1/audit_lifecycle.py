@@ -17,8 +17,12 @@ STAGES={
 ENGINE=('initialization','seed','selection','dependency','reservation','donor','reconstruction','metric','routing','publication','update','completion')
 
 def parse(line):
- row={k:v if k=='stage' else float(v) for k,v in (item.split('=') for item in line.split()[1:])}
- assert all(math.isfinite(v) for k,v in row.items() if k!='stage')
+ row={k:v if k in ('stage','stop') else float(v) for k,v in (item.split('=') for item in line.split()[1:])}
+ assert all(math.isfinite(v) for k,v in row.items() if k not in ('stage','stop'))
+ if 'stop' in row:
+  assert row['stop'] in ('none','complete','round_budget','work_budget','time_budget','operator_stagnation','failure')
+  assert row['global_work'] <= row['work_limit']
+  assert bool(row['complete']) == (row['stop']=='complete')
  return row
 
 def closes(row,phases):

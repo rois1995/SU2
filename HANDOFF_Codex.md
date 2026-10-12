@@ -1,3 +1,26 @@
+# Local Goal1 audit recovery — 2026-10-12
+
+Latest user instruction excludes performance and ALL cluster work from this goal.
+Live sequential local correctness controller: session42728, execution_policy_whole_v2/run.py.
+Old session90843 is terminal FAIL solely from audit_lifecycle.parse converting the
+new string stop=complete to float, after its numerical driver passed and the audit
+reached log parsing. No old aggregate PASS or complete independent certificate is
+claimed. The shared parser now explicitly validates typed stop, finite numeric
+values, global work allowance and complete/stop agreement;21actual rows and6corrupt
+controls pass. Original failure preserved. V2 copies successful source/binary/object/
+archive-pinned B1driver artifacts by exact hashes and performs a fresh full audit;
+remaining batch8 and MPI4/M2CGNS cases are fresh. No CPP edits while v2 is live.
+
+Current source backup and completed policy/runtime/veto proofs pushed03e713341777.
+Prepared (NOTRUN) local_goal1_regression_v1/run.py checks actual106registered core
+cases on MPI1/2/4 plus bridge/eight distributed auditors each, relevant native2D
+operators/engine/eight driver replacements/rejected-output, serialMMG2D/3D; no
+scaling/performance tags selected. Actual computed metric/Hessian lifecycle still
+needs a correctness-only control, avoiding old repeated OFF/ON profiling campaign.
+Goal1 remains ACTIVE until LOCAL_GOAL1_COMPLETION_AUDIT all7deliverables are proven
+and the qualified production change/evidence is pushed. No Goal2 work yet.
+Previous notices below are historical; use this live handle and current local plan.
+
 # Local execution-policy verification: whole audits live — 2026-10-12
 
 User removed performance and ALL cluster work from current Goal1. Follow current
