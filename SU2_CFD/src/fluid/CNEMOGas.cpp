@@ -161,10 +161,6 @@ void CNEMOGas::ComputedPdU(const su2double *V, const vector<su2double>& val_eves
     SU2_MPI::Error("Array dPdU not allocated!", CURRENT_FUNCTION);
   }
 
-  /*--- Determine the electron density (if ionized) ---*/
-  su2double rho_el = 0.0;
-  if (ionization) { rho_el = rhos[0]; }
-
   /*--- Necessary indexes to assess primitive variables ---*/
   unsigned long RHOS_INDEX    = 0;
   unsigned long T_INDEX       = nSpecies;
@@ -175,6 +171,10 @@ void CNEMOGas::ComputedPdU(const su2double *V, const vector<su2double>& val_eves
   /*--- Extract variables ---*/
   for(iSpecies = 0; iSpecies < nSpecies; iSpecies++)
     rhos[iSpecies] = V[RHOS_INDEX+iSpecies];
+
+  /*--- Determine the electron density (if ionized) ---*/
+  su2double rho_el = 0.0;
+  if (ionization) { rho_el = rhos[0]; }
 
   Cvtrs              = GetSpeciesCvTraRot();
   Enthalpy_Formation = GetSpeciesFormationEnthalpy();
@@ -198,7 +198,7 @@ void CNEMOGas::ComputedPdU(const su2double *V, const vector<su2double>& val_eves
 
   /*--- Species density derivatives ---*/
   su2double ef = 0.0;
-  for (iSpecies = nEl; iSpecies < nHeavy; iSpecies++) {
+  for (iSpecies = nEl; iSpecies < nSpecies; iSpecies++) {
     ef = Enthalpy_Formation[iSpecies] - Ru/MolarMass[iSpecies]*Ref_Temperature[iSpecies];
     val_dPdU[iSpecies] = T*Ru/MolarMass[iSpecies] + Ru*conc/rhoCvtr *
                          (-Cvtrs[iSpecies]*(T-Ref_Temperature[iSpecies]) -
