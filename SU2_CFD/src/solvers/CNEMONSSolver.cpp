@@ -144,33 +144,6 @@ unsigned long CNEMONSSolver::SetPrimitive_Variables(CSolver **solver_container,C
   return nonPhysicalPoints;
 }
 
-void CNEMONSSolver::SetPrimitive_Gradient_GG(CGeometry *geometry, const CConfig *config, bool reconstruction) {
-  SU2_ZONE_SCOPED
-
-  auto& gradient = reconstruction ? nodes->GetGradient_Reconstruction() : nodes->GetGradient_Primitive();
-  const auto comm = reconstruction? MPI_QUANTITIES::PRIMITIVE_GRAD_REC : MPI_QUANTITIES::PRIMITIVE_GRADIENT;
-  const auto commPer = reconstruction? PERIODIC_PRIM_GG_R : PERIODIC_PRIM_GG;
-
-  /*--- Get indices of species & mixture density ---*/
-  const unsigned short RHOS_INDEX = nodes->GetRhosIndex();
-  const unsigned short RHO_INDEX  = nodes->GetRhoIndex();
-
-  /*--- Modify species density to mass concentration ---*/
-  for (auto iPoint = 0ul; iPoint < nPoint; iPoint++) {
-    su2double primitives_aux[MAXNVAR] = {0.0};
-    for (auto iVar = 0ul; iVar < nPrimVar; iVar++)
-      primitives_aux[iVar] = nodes->GetPrimitive(iPoint, iVar);
-    for (auto iSpecies = 0ul; iSpecies < nSpecies; iSpecies++)
-      primitives_aux[RHOS_INDEX+iSpecies] = primitives_aux[RHOS_INDEX+iSpecies]/primitives_aux[RHO_INDEX];
-    for (auto iVar = 0ul; iVar < nPrimVar; iVar++)
-      nodes->SetPrimitive_Aux(iPoint, iVar, primitives_aux[iVar] );
-  }
-
-  const auto& primitives = nodes->GetPrimitive_Aux();
-
-  computeGradientsGreenGauss(this, comm, commPer, *geometry, *config, primitives, 0, nPrimVarGrad, prim_idx.Velocity(), gradient);
-}
-
 void CNEMONSSolver::Viscous_Residual(CGeometry *geometry,
                                      CSolver **solver_container,
                                      CNumerics **numerics_container,

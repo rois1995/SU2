@@ -80,7 +80,6 @@ CNEMOEulerVariable::CNEMOEulerVariable(su2double val_pressure,
   }
 
   /*--- Primitive and secondary variables ---*/
-  Primitive_Aux.resize(nPoint,nPrimVar) = su2double(0.0);
   Secondary.resize(nPoint,nPrimVar) = su2double(0.0);
 
   dPdU.resize(nPoint, nVar)      = su2double(0.0);

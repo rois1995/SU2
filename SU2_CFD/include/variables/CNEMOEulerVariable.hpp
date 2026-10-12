@@ -75,9 +75,6 @@ class CNEMOEulerVariable : public CFlowVariable {
 
   MatrixType Precond_Beta;  /*!< \brief Low Mach number preconditioner value, Beta. */
 
-  /*--- Primitive variable definition ---*/
-  MatrixType Primitive_Aux;            /*!< \brief Primitive auxiliary variables (Y_s, T, Tve, ...) in compressible flows. */
-
   /*--- Secondary variable definition ---*/
   MatrixType Secondary;                /*!< \brief Primitive variables (T, vx, vy, vz, P, rho, h, c) in compressible flows. */
   CVectorOfMatrix Gradient_Secondary;  /*!< \brief Gradient of the primitive variables (T, vx, vy, vz, P, rho). */
@@ -157,20 +154,6 @@ class CNEMOEulerVariable : public CFlowVariable {
     for (unsigned long iVar = 0; iVar < nSecondaryVar; iVar++)
       Secondary(iPoint,iVar) = val_secondary[iVar];
   }
-
-  /*!
-   * \brief Set the value of the primitive auxiliary variables - with mass fractions.
-   * \param[in] iVar - Index of the variable.
-   * \param[in] iVar - Index of the variable.
-   * \return Set the value of the primitive variable for the index <i>iVar</i>.
-   */
-  inline void SetPrimitive_Aux(unsigned long iPoint, unsigned long iVar, su2double val_prim) { Primitive_Aux(iPoint,iVar) = val_prim; }
-
-  /*!
-   * \brief Get the primitive variables for all points.
-   * \return Reference to primitives.
-   */
-  inline const MatrixType& GetPrimitive_Aux() const { return Primitive_Aux; }
 
   /*!
    * \brief Get the primitive variables.

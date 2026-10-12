@@ -78,12 +78,6 @@ public:
                   unsigned long val_nPrimVarGrad, const CConfig *config, CNEMOGas *fluidmodel);
 
   /*!
-   * \brief Get the primitive variables for all points.
-   * \return Reference to primitives.
-   */
-  inline const MatrixType& GetPrimitive_Aux(void) const { return Primitive_Aux; }
-
-  /*!
    * \brief Set all the primitive variables for compressible flows.
    */
   bool SetPrimVar(unsigned long iPoint, CFluidModel *FluidModel) final;
