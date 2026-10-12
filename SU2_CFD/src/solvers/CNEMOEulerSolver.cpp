@@ -487,11 +487,7 @@ void CNEMOEulerSolver::Upwind_Residual(CGeometry *geometry, CSolver **solver_con
   /*--- Static arrays for MUSCL reconstructed variables ---*/
   su2double     Primitive_i[MAXNVAR] = {0.0},    Primitive_j[MAXNVAR] = {0.0};
   su2double     Conserved_i[MAXNVAR] = {0.0},    Conserved_j[MAXNVAR] = {0.0};
-  su2double          dPdU_i[MAXNVAR] = {0.0},         dPdU_j[MAXNVAR] = {0.0};
-  su2double          dTdU_i[MAXNVAR] = {0.0},         dTdU_j[MAXNVAR] = {0.0};
-  su2double        dTvedU_i[MAXNVAR] = {0.0},       dTvedU_j[MAXNVAR] = {0.0};
   su2double           Eve_i[MAXNVAR] = {0.0},          Eve_j[MAXNVAR] = {0.0};
-  su2double          Cvve_i[MAXNVAR] = {0.0},         Cvve_j[MAXNVAR] = {0.0};
   su2double  Project_Grad_i[MAXNVAR] = {0.0}, Project_Grad_j[MAXNVAR] = {0.0};
   su2double Gamma_i = 0.0, Gamma_j = 0.0;
 
@@ -583,8 +579,8 @@ void CNEMOEulerSolver::Upwind_Residual(CGeometry *geometry, CSolver **solver_con
       counter_local += chk_err_i + chk_err_j;
 
       /*--- Compute Secondary variables in a thermaodynamically consistent way. ---*/
-      if (!chk_err_i) Gamma_i = ComputeConsistentExtrapolation(GetFluidModel(), nSpecies, Primitive_i, dPdU_i, dTdU_i, dTvedU_i, Eve_i, Cvve_i);
-      if (!chk_err_j) Gamma_j = ComputeConsistentExtrapolation(GetFluidModel(), nSpecies, Primitive_j, dPdU_j, dTdU_j, dTvedU_j, Eve_j, Cvve_j);
+      if (!chk_err_i) Gamma_i = ComputeConsistentExtrapolation(GetFluidModel(), nSpecies, Primitive_i, Eve_i);
+      if (!chk_err_j) Gamma_j = ComputeConsistentExtrapolation(GetFluidModel(), nSpecies, Primitive_j, Eve_j);
 
       /*--- Recompute Conserved variables if Roe or MSW scheme ---*/
       if ((config->GetKind_Upwind_Flow() == UPWIND::ROE) || (config->GetKind_Upwind_Flow() == UPWIND::MSW)){
@@ -595,11 +591,14 @@ void CNEMOEulerSolver::Upwind_Residual(CGeometry *geometry, CSolver **solver_con
       /*--- If non-physical, revert to first order ---*/
       numerics->SetConservative(chk_err_i ? U_i : Conserved_i, chk_err_j ? U_j : Conserved_j);
       numerics->SetPrimitive   (chk_err_i ? V_i : Primitive_i, chk_err_j ? V_j : Primitive_j);
-      numerics->SetdPdU  (chk_err_i ? nodes->GetdPdU  (iPoint) : dPdU_i,    chk_err_j ? nodes->GetdPdU  (jPoint) : dPdU_j);
-      numerics->SetdTdU  (chk_err_i ? nodes->GetdTdU  (iPoint) : dTdU_i,    chk_err_j ? nodes->GetdTdU  (jPoint) : dTdU_j);
-      numerics->SetdTvedU(chk_err_i ? nodes->GetdTvedU(iPoint) : dTvedU_i,  chk_err_j ? nodes->GetdTvedU(jPoint) : dTvedU_j);
       numerics->SetEve   (chk_err_i ? nodes->GetEve   (iPoint) : Eve_i,     chk_err_j ? nodes->GetEve   (jPoint) : Eve_j);
-      numerics->SetCvve  (chk_err_i ? nodes->GetCvve  (iPoint) : Cvve_i,    chk_err_j ? nodes->GetCvve  (jPoint) : Cvve_j);
+
+      /*--- The thermodynamic derivatives and the vib.-el. heat capacities are only used by the
+       Jacobians. They are not reconstructed, the values of the two points are used. ---*/
+      numerics->SetdPdU  (nodes->GetdPdU  (iPoint), nodes->GetdPdU  (jPoint));
+      numerics->SetdTdU  (nodes->GetdTdU  (iPoint), nodes->GetdTdU  (jPoint));
+      numerics->SetdTvedU(nodes->GetdTvedU(iPoint), nodes->GetdTvedU(jPoint));
+      numerics->SetCvve  (nodes->GetCvve  (iPoint), nodes->GetCvve  (jPoint));
       numerics->SetGamma (chk_err_i ? nodes->GetGamma (iPoint) : Gamma_i,   chk_err_j ? nodes->GetGamma (jPoint) : Gamma_j);
 
     }
@@ -639,11 +638,8 @@ void CNEMOEulerSolver::Upwind_Residual(CGeometry *geometry, CSolver **solver_con
 }
 
 su2double CNEMOEulerSolver::ComputeConsistentExtrapolation(CNEMOGas *fluidmodel, unsigned short nSpecies, su2double *V,
-                                                           su2double* dPdU, su2double* dTdU, su2double* dTvedU,
-                                                           su2double* val_eves, su2double *val_Cvves) {
+                                                           su2double* val_eves) {
   SU2_ZONE_SCOPED
-
-  //NOTE: TODO - this doesnt compute Cvves/ dPdU,etc.yet
 
   /*--- Rename index information ---*/
   const unsigned short T_INDEX   = nSpecies;

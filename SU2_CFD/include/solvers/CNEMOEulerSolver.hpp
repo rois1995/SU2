@@ -178,17 +178,16 @@ public:
                        CConfig *config, unsigned short iMesh) final;
 
   /*!
-   * \brief Recompute the extrapolated quantities, after MUSCL reconstruction,
-   *        in a more thermodynamically consistent way.
-   * \param[in] V - primitve variables.
-   * \param[out] d*dU - reconstructed secondaryvariables.
-   * \param[out] val_eves - reconstructed eve per species.
-   * \param[out] val_cvves - reconstructed cvve per species.
-   * \param[out] Gamma - reconstructed gamma.
+   * \brief Recompute the vib.-el. energies and the ratio of specific heats of a state
+   *        after MUSCL reconstruction, in a thermodynamically consistent way.
+   * \param[in] fluidmodel - Fluid model.
+   * \param[in] nSpecies - Number of species.
+   * \param[in] V - Reconstructed primitive variables.
+   * \param[out] val_eves - Vib.-el. energy per species at the reconstructed state.
+   * \return Ratio of specific heats at the reconstructed state.
    */
   static su2double ComputeConsistentExtrapolation(CNEMOGas *fluidmodel, unsigned short nSpecies, su2double *V,
-                                                  su2double* dPdU, su2double* dTdU, su2double* dTvedU,
-                                                  su2double* val_eves, su2double* val_cvves);
+                                                  su2double* val_eves);
   /*!
    * \brief Source term integration.
    * \param[in] geometry - Geometrical definition of the problem.
