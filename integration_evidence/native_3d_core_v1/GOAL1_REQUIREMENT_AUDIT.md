@@ -176,3 +176,16 @@ after verification; retained smoke folder is not a runnable cluster bundle.
 No actual MPI/qsub/performance campaign or new numerical certificate. This closes
 cluster-tool preparation for the fairness hypothesis, not repeated performance,
 weight/wait/traffic/memory/default512or fullGoal1/promotion gates.
+
+## Persistent counterexample eligibility replay
+
+collapse_witness_replay_v2/REVIEW.md verifies bounded16/128-entry exact witness
+models on940historical source-matched proposals. Length-failure-only shared bad
+chord memo identifies7and20rejects with zero suppression of709accepted proposals;
+only2matches cross collapse directions. Earlier oracle's7/23benefit includes
+learning bounds unavailable after production's early shape check and is retained
+separately. Partial local-star negative evidence is a feasible future pattern,
+not an implemented rounding-safe/MPI cache,512completion or performance result.
+Full615/1002tails, changed real trajectories/ownership/cache cost remain unproved.
+Production/targets/guards/cluster packages unchanged and all complete Goal1
+performance/default-budget/practical-limit gates remain open.

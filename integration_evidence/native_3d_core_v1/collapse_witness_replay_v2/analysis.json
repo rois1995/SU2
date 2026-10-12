@@ -1,0 +1,4454 @@
+{
+  "status": "PASS_OFFLINE_ELIGIBILITY_NOT_NEW_TRAJECTORY",
+  "source_sha256": {
+    "integration_evidence/native_3d_core_v1/collapse_witness_replay_v2/analyze.py": "7009e4a5dfc87f88577b3b33feddbbf7617623d7e4e056ff97c87631318987ad",
+    "integration_evidence/native_3d_core_v1/full_star_facet_trace_n8_v1/analysis.json": "f79fd3aea267da31008a7aa58c9d132da123334c0a8d8305e7c5d189d6bb17e7",
+    "integration_evidence/native_3d_core_v1/full_star_facet_trace_n8_v1/attempts_rank0.jsonl": "038eff2ee0e57e0ada2942309ce67cad7f0b54971f9ade8b131d0b15e50b95a0",
+    "integration_evidence/native_3d_core_v1/collapse_bound_replay_v1/analysis.json": "d7ad55bae012f6f6fc052f6309a583b38086df907ae2857564d3ebf01c82e7c4",
+    "Common/src/adaptation/CNativeEngine3D.cpp": "506ada5a0876f8011d0db653a1b408dd0a453189901df5f259e358adc412de2d"
+  },
+  "epochs": [
+    {
+      "epoch": 0,
+      "cases": [
+        {
+          "capacity": 16,
+          "witness_limit": 1,
+          "mode": "cell",
+          "attempts": 428,
+          "counts": {
+            "accepted_retained": 272,
+            "rejected_retained": 149,
+            "witness_entries_learned": 69,
+            "certified_retry_suppressed": 7,
+            "capacity_evictions": 22
+          },
+          "maximum_entries": 16,
+          "maximum_witnesses": 16,
+          "retained_recorded_attempts": 421,
+          "suppressed_records": [
+            {
+              "round": 290,
+              "edge": [
+                727,
+                87
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 281,
+              "neighbor": 44,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 293,
+              "edge": [
+                728,
+                132
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 282,
+              "neighbor": 89,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 296,
+              "edge": [
+                729,
+                177
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 283,
+              "neighbor": 134,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 299,
+              "edge": [
+                730,
+                222
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 284,
+              "neighbor": 179,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 302,
+              "edge": [
+                731,
+                267
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 285,
+              "neighbor": 224,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 305,
+              "edge": [
+                732,
+                312
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 286,
+              "neighbor": 269,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 308,
+              "edge": [
+                733,
+                357
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 287,
+              "neighbor": 314,
+              "lower_squared": "20426143774746969/4503599627370496"
+            }
+          ],
+          "scope": "Eligibility on the unchanged saved proposal/mesh trajectory, not a new selection trajectory or measured round reduction."
+        },
+        {
+          "capacity": 16,
+          "witness_limit": 1,
+          "mode": "adjacency",
+          "attempts": 428,
+          "counts": {
+            "accepted_retained": 272,
+            "rejected_retained": 149,
+            "witness_entries_learned": 69,
+            "certified_retry_suppressed": 7,
+            "capacity_evictions": 22
+          },
+          "maximum_entries": 16,
+          "maximum_witnesses": 16,
+          "retained_recorded_attempts": 421,
+          "suppressed_records": [
+            {
+              "round": 290,
+              "edge": [
+                727,
+                87
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 281,
+              "neighbor": 44,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 293,
+              "edge": [
+                728,
+                132
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 282,
+              "neighbor": 89,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 296,
+              "edge": [
+                729,
+                177
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 283,
+              "neighbor": 134,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 299,
+              "edge": [
+                730,
+                222
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 284,
+              "neighbor": 179,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 302,
+              "edge": [
+                731,
+                267
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 285,
+              "neighbor": 224,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 305,
+              "edge": [
+                732,
+                312
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 286,
+              "neighbor": 269,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 308,
+              "edge": [
+                733,
+                357
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 287,
+              "neighbor": 314,
+              "lower_squared": "20426143774746969/4503599627370496"
+            }
+          ],
+          "scope": "Eligibility on the unchanged saved proposal/mesh trajectory, not a new selection trajectory or measured round reduction."
+        },
+        {
+          "capacity": 16,
+          "witness_limit": 4,
+          "mode": "cell",
+          "attempts": 428,
+          "counts": {
+            "accepted_retained": 272,
+            "rejected_retained": 149,
+            "witness_entries_learned": 69,
+            "certified_retry_suppressed": 7,
+            "capacity_evictions": 22
+          },
+          "maximum_entries": 16,
+          "maximum_witnesses": 44,
+          "retained_recorded_attempts": 421,
+          "suppressed_records": [
+            {
+              "round": 290,
+              "edge": [
+                727,
+                87
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 281,
+              "neighbor": 44,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 293,
+              "edge": [
+                728,
+                132
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 282,
+              "neighbor": 89,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 296,
+              "edge": [
+                729,
+                177
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 283,
+              "neighbor": 134,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 299,
+              "edge": [
+                730,
+                222
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 284,
+              "neighbor": 179,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 302,
+              "edge": [
+                731,
+                267
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 285,
+              "neighbor": 224,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 305,
+              "edge": [
+                732,
+                312
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 286,
+              "neighbor": 269,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 308,
+              "edge": [
+                733,
+                357
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 287,
+              "neighbor": 314,
+              "lower_squared": "20426143774746969/4503599627370496"
+            }
+          ],
+          "scope": "Eligibility on the unchanged saved proposal/mesh trajectory, not a new selection trajectory or measured round reduction."
+        },
+        {
+          "capacity": 16,
+          "witness_limit": 4,
+          "mode": "adjacency",
+          "attempts": 428,
+          "counts": {
+            "accepted_retained": 272,
+            "rejected_retained": 149,
+            "witness_entries_learned": 69,
+            "certified_retry_suppressed": 7,
+            "capacity_evictions": 22
+          },
+          "maximum_entries": 16,
+          "maximum_witnesses": 44,
+          "retained_recorded_attempts": 421,
+          "suppressed_records": [
+            {
+              "round": 290,
+              "edge": [
+                727,
+                87
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 281,
+              "neighbor": 44,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 293,
+              "edge": [
+                728,
+                132
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 282,
+              "neighbor": 89,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 296,
+              "edge": [
+                729,
+                177
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 283,
+              "neighbor": 134,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 299,
+              "edge": [
+                730,
+                222
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 284,
+              "neighbor": 179,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 302,
+              "edge": [
+                731,
+                267
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 285,
+              "neighbor": 224,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 305,
+              "edge": [
+                732,
+                312
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 286,
+              "neighbor": 269,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 308,
+              "edge": [
+                733,
+                357
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 287,
+              "neighbor": 314,
+              "lower_squared": "20426143774746969/4503599627370496"
+            }
+          ],
+          "scope": "Eligibility on the unchanged saved proposal/mesh trajectory, not a new selection trajectory or measured round reduction."
+        },
+        {
+          "capacity": 128,
+          "witness_limit": 1,
+          "mode": "cell",
+          "attempts": 428,
+          "counts": {
+            "accepted_retained": 272,
+            "rejected_retained": 149,
+            "witness_entries_learned": 69,
+            "certified_retry_suppressed": 7
+          },
+          "maximum_entries": 38,
+          "maximum_witnesses": 38,
+          "retained_recorded_attempts": 421,
+          "suppressed_records": [
+            {
+              "round": 290,
+              "edge": [
+                727,
+                87
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 281,
+              "neighbor": 44,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 293,
+              "edge": [
+                728,
+                132
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 282,
+              "neighbor": 89,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 296,
+              "edge": [
+                729,
+                177
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 283,
+              "neighbor": 134,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 299,
+              "edge": [
+                730,
+                222
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 284,
+              "neighbor": 179,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 302,
+              "edge": [
+                731,
+                267
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 285,
+              "neighbor": 224,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 305,
+              "edge": [
+                732,
+                312
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 286,
+              "neighbor": 269,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 308,
+              "edge": [
+                733,
+                357
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 287,
+              "neighbor": 314,
+              "lower_squared": "20426143774746969/4503599627370496"
+            }
+          ],
+          "scope": "Eligibility on the unchanged saved proposal/mesh trajectory, not a new selection trajectory or measured round reduction."
+        },
+        {
+          "capacity": 128,
+          "witness_limit": 1,
+          "mode": "adjacency",
+          "attempts": 428,
+          "counts": {
+            "accepted_retained": 272,
+            "rejected_retained": 149,
+            "witness_entries_learned": 69,
+            "certified_retry_suppressed": 7
+          },
+          "maximum_entries": 38,
+          "maximum_witnesses": 38,
+          "retained_recorded_attempts": 421,
+          "suppressed_records": [
+            {
+              "round": 290,
+              "edge": [
+                727,
+                87
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 281,
+              "neighbor": 44,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 293,
+              "edge": [
+                728,
+                132
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 282,
+              "neighbor": 89,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 296,
+              "edge": [
+                729,
+                177
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 283,
+              "neighbor": 134,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 299,
+              "edge": [
+                730,
+                222
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 284,
+              "neighbor": 179,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 302,
+              "edge": [
+                731,
+                267
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 285,
+              "neighbor": 224,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 305,
+              "edge": [
+                732,
+                312
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 286,
+              "neighbor": 269,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 308,
+              "edge": [
+                733,
+                357
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 287,
+              "neighbor": 314,
+              "lower_squared": "20426143774746969/4503599627370496"
+            }
+          ],
+          "scope": "Eligibility on the unchanged saved proposal/mesh trajectory, not a new selection trajectory or measured round reduction."
+        },
+        {
+          "capacity": 128,
+          "witness_limit": 4,
+          "mode": "cell",
+          "attempts": 428,
+          "counts": {
+            "accepted_retained": 272,
+            "rejected_retained": 149,
+            "witness_entries_learned": 69,
+            "certified_retry_suppressed": 7
+          },
+          "maximum_entries": 38,
+          "maximum_witnesses": 87,
+          "retained_recorded_attempts": 421,
+          "suppressed_records": [
+            {
+              "round": 290,
+              "edge": [
+                727,
+                87
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 281,
+              "neighbor": 44,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 293,
+              "edge": [
+                728,
+                132
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 282,
+              "neighbor": 89,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 296,
+              "edge": [
+                729,
+                177
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 283,
+              "neighbor": 134,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 299,
+              "edge": [
+                730,
+                222
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 284,
+              "neighbor": 179,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 302,
+              "edge": [
+                731,
+                267
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 285,
+              "neighbor": 224,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 305,
+              "edge": [
+                732,
+                312
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 286,
+              "neighbor": 269,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 308,
+              "edge": [
+                733,
+                357
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 287,
+              "neighbor": 314,
+              "lower_squared": "20426143774746969/4503599627370496"
+            }
+          ],
+          "scope": "Eligibility on the unchanged saved proposal/mesh trajectory, not a new selection trajectory or measured round reduction."
+        },
+        {
+          "capacity": 128,
+          "witness_limit": 4,
+          "mode": "adjacency",
+          "attempts": 428,
+          "counts": {
+            "accepted_retained": 272,
+            "rejected_retained": 149,
+            "witness_entries_learned": 69,
+            "certified_retry_suppressed": 7
+          },
+          "maximum_entries": 38,
+          "maximum_witnesses": 87,
+          "retained_recorded_attempts": 421,
+          "suppressed_records": [
+            {
+              "round": 290,
+              "edge": [
+                727,
+                87
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 281,
+              "neighbor": 44,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 293,
+              "edge": [
+                728,
+                132
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 282,
+              "neighbor": 89,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 296,
+              "edge": [
+                729,
+                177
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 283,
+              "neighbor": 134,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 299,
+              "edge": [
+                730,
+                222
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 284,
+              "neighbor": 179,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 302,
+              "edge": [
+                731,
+                267
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 285,
+              "neighbor": 224,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 305,
+              "edge": [
+                732,
+                312
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 286,
+              "neighbor": 269,
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 308,
+              "edge": [
+                733,
+                357
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 287,
+              "neighbor": 314,
+              "lower_squared": "20426143774746969/4503599627370496"
+            }
+          ],
+          "scope": "Eligibility on the unchanged saved proposal/mesh trajectory, not a new selection trajectory or measured round reduction."
+        }
+      ],
+      "chord_cases": [
+        {
+          "capacity": 16,
+          "learn_limit": 1,
+          "attempts": 428,
+          "counts": {
+            "accepted_retained": 272,
+            "rejected_retained": 149,
+            "learned_chords": 69,
+            "capacity_evictions": 22,
+            "certified_retry_suppressed": 7,
+            "suppressed_same_collapse_direction": 7
+          },
+          "maximum_entries": 16,
+          "retained_recorded_attempts": 421,
+          "suppressed_records": [
+            {
+              "round": 290,
+              "edge": [
+                727,
+                87
+              ],
+              "witness_chord": [
+                44,
+                727
+              ],
+              "learned_round": 281,
+              "learned_collapse": [
+                727,
+                87
+              ],
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 293,
+              "edge": [
+                728,
+                132
+              ],
+              "witness_chord": [
+                89,
+                728
+              ],
+              "learned_round": 282,
+              "learned_collapse": [
+                728,
+                132
+              ],
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 296,
+              "edge": [
+                729,
+                177
+              ],
+              "witness_chord": [
+                134,
+                729
+              ],
+              "learned_round": 283,
+              "learned_collapse": [
+                729,
+                177
+              ],
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 299,
+              "edge": [
+                730,
+                222
+              ],
+              "witness_chord": [
+                179,
+                730
+              ],
+              "learned_round": 284,
+              "learned_collapse": [
+                730,
+                222
+              ],
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 302,
+              "edge": [
+                731,
+                267
+              ],
+              "witness_chord": [
+                224,
+                731
+              ],
+              "learned_round": 285,
+              "learned_collapse": [
+                731,
+                267
+              ],
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 305,
+              "edge": [
+                732,
+                312
+              ],
+              "witness_chord": [
+                269,
+                732
+              ],
+              "learned_round": 286,
+              "learned_collapse": [
+                732,
+                312
+              ],
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 308,
+              "edge": [
+                733,
+                357
+              ],
+              "witness_chord": [
+                314,
+                733
+              ],
+              "learned_round": 287,
+              "learned_collapse": [
+                733,
+                357
+              ],
+              "lower_squared": "20426143774746969/4503599627370496"
+            }
+          ],
+          "scope": "Actual-length-failure-only learning; exact bounded bad-chord eligibility on unchanged historical geometry/proposals, not a CPP implementation, altered execution or performance forecast."
+        },
+        {
+          "capacity": 16,
+          "learn_limit": 4,
+          "attempts": 428,
+          "counts": {
+            "accepted_retained": 272,
+            "rejected_retained": 149,
+            "learned_chords": 125,
+            "capacity_evictions": 78,
+            "certified_retry_suppressed": 7,
+            "suppressed_same_collapse_direction": 7
+          },
+          "maximum_entries": 16,
+          "retained_recorded_attempts": 421,
+          "suppressed_records": [
+            {
+              "round": 290,
+              "edge": [
+                727,
+                87
+              ],
+              "witness_chord": [
+                43,
+                727
+              ],
+              "learned_round": 281,
+              "learned_collapse": [
+                727,
+                87
+              ],
+              "lower_squared": "31845088294752943/9007199254740992"
+            },
+            {
+              "round": 293,
+              "edge": [
+                728,
+                132
+              ],
+              "witness_chord": [
+                88,
+                728
+              ],
+              "learned_round": 282,
+              "learned_collapse": [
+                728,
+                132
+              ],
+              "lower_squared": "31845088294752943/9007199254740992"
+            },
+            {
+              "round": 296,
+              "edge": [
+                729,
+                177
+              ],
+              "witness_chord": [
+                133,
+                729
+              ],
+              "learned_round": 283,
+              "learned_collapse": [
+                729,
+                177
+              ],
+              "lower_squared": "31845088294752943/9007199254740992"
+            },
+            {
+              "round": 299,
+              "edge": [
+                730,
+                222
+              ],
+              "witness_chord": [
+                178,
+                730
+              ],
+              "learned_round": 284,
+              "learned_collapse": [
+                730,
+                222
+              ],
+              "lower_squared": "31845088294752943/9007199254740992"
+            },
+            {
+              "round": 302,
+              "edge": [
+                731,
+                267
+              ],
+              "witness_chord": [
+                223,
+                731
+              ],
+              "learned_round": 285,
+              "learned_collapse": [
+                731,
+                267
+              ],
+              "lower_squared": "31845088294752943/9007199254740992"
+            },
+            {
+              "round": 305,
+              "edge": [
+                732,
+                312
+              ],
+              "witness_chord": [
+                268,
+                732
+              ],
+              "learned_round": 286,
+              "learned_collapse": [
+                732,
+                312
+              ],
+              "lower_squared": "31845088294752943/9007199254740992"
+            },
+            {
+              "round": 308,
+              "edge": [
+                733,
+                357
+              ],
+              "witness_chord": [
+                313,
+                733
+              ],
+              "learned_round": 287,
+              "learned_collapse": [
+                733,
+                357
+              ],
+              "lower_squared": "31845088294752943/9007199254740992"
+            }
+          ],
+          "scope": "Actual-length-failure-only learning; exact bounded bad-chord eligibility on unchanged historical geometry/proposals, not a CPP implementation, altered execution or performance forecast."
+        },
+        {
+          "capacity": 128,
+          "learn_limit": 1,
+          "attempts": 428,
+          "counts": {
+            "accepted_retained": 272,
+            "rejected_retained": 149,
+            "learned_chords": 69,
+            "certified_retry_suppressed": 7,
+            "suppressed_same_collapse_direction": 7
+          },
+          "maximum_entries": 38,
+          "retained_recorded_attempts": 421,
+          "suppressed_records": [
+            {
+              "round": 290,
+              "edge": [
+                727,
+                87
+              ],
+              "witness_chord": [
+                44,
+                727
+              ],
+              "learned_round": 281,
+              "learned_collapse": [
+                727,
+                87
+              ],
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 293,
+              "edge": [
+                728,
+                132
+              ],
+              "witness_chord": [
+                89,
+                728
+              ],
+              "learned_round": 282,
+              "learned_collapse": [
+                728,
+                132
+              ],
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 296,
+              "edge": [
+                729,
+                177
+              ],
+              "witness_chord": [
+                134,
+                729
+              ],
+              "learned_round": 283,
+              "learned_collapse": [
+                729,
+                177
+              ],
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 299,
+              "edge": [
+                730,
+                222
+              ],
+              "witness_chord": [
+                179,
+                730
+              ],
+              "learned_round": 284,
+              "learned_collapse": [
+                730,
+                222
+              ],
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 302,
+              "edge": [
+                731,
+                267
+              ],
+              "witness_chord": [
+                224,
+                731
+              ],
+              "learned_round": 285,
+              "learned_collapse": [
+                731,
+                267
+              ],
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 305,
+              "edge": [
+                732,
+                312
+              ],
+              "witness_chord": [
+                269,
+                732
+              ],
+              "learned_round": 286,
+              "learned_collapse": [
+                732,
+                312
+              ],
+              "lower_squared": "20426143774746969/4503599627370496"
+            },
+            {
+              "round": 308,
+              "edge": [
+                733,
+                357
+              ],
+              "witness_chord": [
+                314,
+                733
+              ],
+              "learned_round": 287,
+              "learned_collapse": [
+                733,
+                357
+              ],
+              "lower_squared": "20426143774746969/4503599627370496"
+            }
+          ],
+          "scope": "Actual-length-failure-only learning; exact bounded bad-chord eligibility on unchanged historical geometry/proposals, not a CPP implementation, altered execution or performance forecast."
+        },
+        {
+          "capacity": 128,
+          "learn_limit": 4,
+          "attempts": 428,
+          "counts": {
+            "accepted_retained": 272,
+            "rejected_retained": 149,
+            "learned_chords": 125,
+            "certified_retry_suppressed": 7,
+            "suppressed_same_collapse_direction": 7
+          },
+          "maximum_entries": 87,
+          "retained_recorded_attempts": 421,
+          "suppressed_records": [
+            {
+              "round": 290,
+              "edge": [
+                727,
+                87
+              ],
+              "witness_chord": [
+                43,
+                727
+              ],
+              "learned_round": 281,
+              "learned_collapse": [
+                727,
+                87
+              ],
+              "lower_squared": "31845088294752943/9007199254740992"
+            },
+            {
+              "round": 293,
+              "edge": [
+                728,
+                132
+              ],
+              "witness_chord": [
+                88,
+                728
+              ],
+              "learned_round": 282,
+              "learned_collapse": [
+                728,
+                132
+              ],
+              "lower_squared": "31845088294752943/9007199254740992"
+            },
+            {
+              "round": 296,
+              "edge": [
+                729,
+                177
+              ],
+              "witness_chord": [
+                133,
+                729
+              ],
+              "learned_round": 283,
+              "learned_collapse": [
+                729,
+                177
+              ],
+              "lower_squared": "31845088294752943/9007199254740992"
+            },
+            {
+              "round": 299,
+              "edge": [
+                730,
+                222
+              ],
+              "witness_chord": [
+                178,
+                730
+              ],
+              "learned_round": 284,
+              "learned_collapse": [
+                730,
+                222
+              ],
+              "lower_squared": "31845088294752943/9007199254740992"
+            },
+            {
+              "round": 302,
+              "edge": [
+                731,
+                267
+              ],
+              "witness_chord": [
+                223,
+                731
+              ],
+              "learned_round": 285,
+              "learned_collapse": [
+                731,
+                267
+              ],
+              "lower_squared": "31845088294752943/9007199254740992"
+            },
+            {
+              "round": 305,
+              "edge": [
+                732,
+                312
+              ],
+              "witness_chord": [
+                268,
+                732
+              ],
+              "learned_round": 286,
+              "learned_collapse": [
+                732,
+                312
+              ],
+              "lower_squared": "31845088294752943/9007199254740992"
+            },
+            {
+              "round": 308,
+              "edge": [
+                733,
+                357
+              ],
+              "witness_chord": [
+                313,
+                733
+              ],
+              "learned_round": 287,
+              "learned_collapse": [
+                733,
+                357
+              ],
+              "lower_squared": "31845088294752943/9007199254740992"
+            }
+          ],
+          "scope": "Actual-length-failure-only learning; exact bounded bad-chord eligibility on unchanged historical geometry/proposals, not a CPP implementation, altered execution or performance forecast."
+        }
+      ]
+    },
+    {
+      "epoch": 1,
+      "cases": [
+        {
+          "capacity": 16,
+          "witness_limit": 1,
+          "mode": "cell",
+          "attempts": 512,
+          "counts": {
+            "accepted_retained": 437,
+            "rejected_retained": 59,
+            "witness_entries_learned": 24,
+            "certified_retry_suppressed": 16
+          },
+          "maximum_entries": 12,
+          "maximum_witnesses": 12,
+          "retained_recorded_attempts": 496,
+          "suppressed_records": [
+            {
+              "round": 342,
+              "edge": [
+                383,
+                338
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 338,
+              "neighbor": 504,
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 349,
+              "edge": [
+                252,
+                504
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 347,
+              "neighbor": 338,
+              "lower_squared": "67291622098636807/18014398509481984"
+            },
+            {
+              "round": 352,
+              "edge": [
+                203,
+                248
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 341,
+              "neighbor": 376,
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 353,
+              "edge": [
+                383,
+                338
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 338,
+              "neighbor": 504,
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 371,
+              "edge": [
+                383,
+                338
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 338,
+              "neighbor": 504,
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 387,
+              "edge": [
+                203,
+                248
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 341,
+              "neighbor": 376,
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 397,
+              "edge": [
+                28,
+                73
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 384,
+              "neighbor": 446,
+              "lower_squared": "107/32"
+            },
+            {
+              "round": 409,
+              "edge": [
+                372,
+                373
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 389,
+              "neighbor": 376,
+              "lower_squared": "5046491122660313/1125899906842624"
+            },
+            {
+              "round": 434,
+              "edge": [
+                28,
+                73
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 384,
+              "neighbor": 446,
+              "lower_squared": "107/32"
+            },
+            {
+              "round": 447,
+              "edge": [
+                347,
+                346
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 443,
+              "neighbor": 210,
+              "lower_squared": "8121618124971099/2251799813685248"
+            },
+            {
+              "round": 471,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 473,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 479,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 483,
+              "edge": [
+                347,
+                346
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 443,
+              "neighbor": 210,
+              "lower_squared": "8121618124971099/2251799813685248"
+            },
+            {
+              "round": 492,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 494,
+              "edge": [
+                347,
+                346
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 443,
+              "neighbor": 210,
+              "lower_squared": "8121618124971099/2251799813685248"
+            }
+          ],
+          "scope": "Eligibility on the unchanged saved proposal/mesh trajectory, not a new selection trajectory or measured round reduction."
+        },
+        {
+          "capacity": 16,
+          "witness_limit": 1,
+          "mode": "adjacency",
+          "attempts": 512,
+          "counts": {
+            "accepted_retained": 437,
+            "rejected_retained": 56,
+            "witness_entries_learned": 21,
+            "certified_retry_suppressed": 19
+          },
+          "maximum_entries": 12,
+          "maximum_witnesses": 12,
+          "retained_recorded_attempts": 493,
+          "suppressed_records": [
+            {
+              "round": 341,
+              "edge": [
+                203,
+                248
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 294,
+              "neighbor": 376,
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 342,
+              "edge": [
+                383,
+                338
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 338,
+              "neighbor": 504,
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 349,
+              "edge": [
+                252,
+                504
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 347,
+              "neighbor": 338,
+              "lower_squared": "67291622098636807/18014398509481984"
+            },
+            {
+              "round": 352,
+              "edge": [
+                203,
+                248
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 294,
+              "neighbor": 376,
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 353,
+              "edge": [
+                383,
+                338
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 338,
+              "neighbor": 504,
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 370,
+              "edge": [
+                504,
+                505
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 368,
+              "neighbor": 383,
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 371,
+              "edge": [
+                383,
+                338
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 338,
+              "neighbor": 504,
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 387,
+              "edge": [
+                203,
+                248
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 294,
+              "neighbor": 376,
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 397,
+              "edge": [
+                28,
+                73
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 384,
+              "neighbor": 446,
+              "lower_squared": "107/32"
+            },
+            {
+              "round": 409,
+              "edge": [
+                372,
+                373
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 389,
+              "neighbor": 376,
+              "lower_squared": "5046491122660313/1125899906842624"
+            },
+            {
+              "round": 434,
+              "edge": [
+                28,
+                73
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 384,
+              "neighbor": 446,
+              "lower_squared": "107/32"
+            },
+            {
+              "round": 447,
+              "edge": [
+                347,
+                346
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 443,
+              "neighbor": 210,
+              "lower_squared": "8121618124971099/2251799813685248"
+            },
+            {
+              "round": 471,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 473,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 479,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 483,
+              "edge": [
+                347,
+                346
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 443,
+              "neighbor": 210,
+              "lower_squared": "8121618124971099/2251799813685248"
+            },
+            {
+              "round": 492,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 494,
+              "edge": [
+                347,
+                346
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 443,
+              "neighbor": 210,
+              "lower_squared": "8121618124971099/2251799813685248"
+            },
+            {
+              "round": 505,
+              "edge": [
+                204,
+                205
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 503,
+              "neighbor": 346,
+              "lower_squared": "27/8"
+            }
+          ],
+          "scope": "Eligibility on the unchanged saved proposal/mesh trajectory, not a new selection trajectory or measured round reduction."
+        },
+        {
+          "capacity": 16,
+          "witness_limit": 4,
+          "mode": "cell",
+          "attempts": 512,
+          "counts": {
+            "accepted_retained": 437,
+            "rejected_retained": 59,
+            "witness_entries_learned": 24,
+            "certified_retry_suppressed": 16
+          },
+          "maximum_entries": 12,
+          "maximum_witnesses": 16,
+          "retained_recorded_attempts": 496,
+          "suppressed_records": [
+            {
+              "round": 342,
+              "edge": [
+                383,
+                338
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 338,
+              "neighbor": 504,
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 349,
+              "edge": [
+                252,
+                504
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 347,
+              "neighbor": 338,
+              "lower_squared": "67291622098636807/18014398509481984"
+            },
+            {
+              "round": 352,
+              "edge": [
+                203,
+                248
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 341,
+              "neighbor": 376,
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 353,
+              "edge": [
+                383,
+                338
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 338,
+              "neighbor": 504,
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 371,
+              "edge": [
+                383,
+                338
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 338,
+              "neighbor": 504,
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 387,
+              "edge": [
+                203,
+                248
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 341,
+              "neighbor": 376,
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 397,
+              "edge": [
+                28,
+                73
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 384,
+              "neighbor": 446,
+              "lower_squared": "107/32"
+            },
+            {
+              "round": 409,
+              "edge": [
+                372,
+                373
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 389,
+              "neighbor": 376,
+              "lower_squared": "5046491122660313/1125899906842624"
+            },
+            {
+              "round": 434,
+              "edge": [
+                28,
+                73
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 384,
+              "neighbor": 446,
+              "lower_squared": "107/32"
+            },
+            {
+              "round": 447,
+              "edge": [
+                347,
+                346
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 443,
+              "neighbor": 210,
+              "lower_squared": "8121618124971099/2251799813685248"
+            },
+            {
+              "round": 471,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 473,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 479,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 483,
+              "edge": [
+                347,
+                346
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 443,
+              "neighbor": 210,
+              "lower_squared": "8121618124971099/2251799813685248"
+            },
+            {
+              "round": 492,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 494,
+              "edge": [
+                347,
+                346
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 443,
+              "neighbor": 210,
+              "lower_squared": "8121618124971099/2251799813685248"
+            }
+          ],
+          "scope": "Eligibility on the unchanged saved proposal/mesh trajectory, not a new selection trajectory or measured round reduction."
+        },
+        {
+          "capacity": 16,
+          "witness_limit": 4,
+          "mode": "adjacency",
+          "attempts": 512,
+          "counts": {
+            "accepted_retained": 437,
+            "rejected_retained": 56,
+            "witness_entries_learned": 21,
+            "certified_retry_suppressed": 19
+          },
+          "maximum_entries": 12,
+          "maximum_witnesses": 16,
+          "retained_recorded_attempts": 493,
+          "suppressed_records": [
+            {
+              "round": 341,
+              "edge": [
+                203,
+                248
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 294,
+              "neighbor": 376,
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 342,
+              "edge": [
+                383,
+                338
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 338,
+              "neighbor": 504,
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 349,
+              "edge": [
+                252,
+                504
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 347,
+              "neighbor": 338,
+              "lower_squared": "67291622098636807/18014398509481984"
+            },
+            {
+              "round": 352,
+              "edge": [
+                203,
+                248
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 294,
+              "neighbor": 376,
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 353,
+              "edge": [
+                383,
+                338
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 338,
+              "neighbor": 504,
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 370,
+              "edge": [
+                504,
+                505
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 368,
+              "neighbor": 383,
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 371,
+              "edge": [
+                383,
+                338
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 338,
+              "neighbor": 504,
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 387,
+              "edge": [
+                203,
+                248
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 294,
+              "neighbor": 376,
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 397,
+              "edge": [
+                28,
+                73
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 384,
+              "neighbor": 446,
+              "lower_squared": "107/32"
+            },
+            {
+              "round": 409,
+              "edge": [
+                372,
+                373
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 389,
+              "neighbor": 376,
+              "lower_squared": "5046491122660313/1125899906842624"
+            },
+            {
+              "round": 434,
+              "edge": [
+                28,
+                73
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 384,
+              "neighbor": 446,
+              "lower_squared": "107/32"
+            },
+            {
+              "round": 447,
+              "edge": [
+                347,
+                346
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 443,
+              "neighbor": 210,
+              "lower_squared": "8121618124971099/2251799813685248"
+            },
+            {
+              "round": 471,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 473,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 479,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 483,
+              "edge": [
+                347,
+                346
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 443,
+              "neighbor": 210,
+              "lower_squared": "8121618124971099/2251799813685248"
+            },
+            {
+              "round": 492,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 494,
+              "edge": [
+                347,
+                346
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 443,
+              "neighbor": 210,
+              "lower_squared": "8121618124971099/2251799813685248"
+            },
+            {
+              "round": 505,
+              "edge": [
+                204,
+                205
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 503,
+              "neighbor": 346,
+              "lower_squared": "27/8"
+            }
+          ],
+          "scope": "Eligibility on the unchanged saved proposal/mesh trajectory, not a new selection trajectory or measured round reduction."
+        },
+        {
+          "capacity": 128,
+          "witness_limit": 1,
+          "mode": "cell",
+          "attempts": 512,
+          "counts": {
+            "accepted_retained": 437,
+            "rejected_retained": 59,
+            "witness_entries_learned": 24,
+            "certified_retry_suppressed": 16
+          },
+          "maximum_entries": 12,
+          "maximum_witnesses": 12,
+          "retained_recorded_attempts": 496,
+          "suppressed_records": [
+            {
+              "round": 342,
+              "edge": [
+                383,
+                338
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 338,
+              "neighbor": 504,
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 349,
+              "edge": [
+                252,
+                504
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 347,
+              "neighbor": 338,
+              "lower_squared": "67291622098636807/18014398509481984"
+            },
+            {
+              "round": 352,
+              "edge": [
+                203,
+                248
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 341,
+              "neighbor": 376,
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 353,
+              "edge": [
+                383,
+                338
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 338,
+              "neighbor": 504,
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 371,
+              "edge": [
+                383,
+                338
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 338,
+              "neighbor": 504,
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 387,
+              "edge": [
+                203,
+                248
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 341,
+              "neighbor": 376,
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 397,
+              "edge": [
+                28,
+                73
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 384,
+              "neighbor": 446,
+              "lower_squared": "107/32"
+            },
+            {
+              "round": 409,
+              "edge": [
+                372,
+                373
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 389,
+              "neighbor": 376,
+              "lower_squared": "5046491122660313/1125899906842624"
+            },
+            {
+              "round": 434,
+              "edge": [
+                28,
+                73
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 384,
+              "neighbor": 446,
+              "lower_squared": "107/32"
+            },
+            {
+              "round": 447,
+              "edge": [
+                347,
+                346
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 443,
+              "neighbor": 210,
+              "lower_squared": "8121618124971099/2251799813685248"
+            },
+            {
+              "round": 471,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 473,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 479,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 483,
+              "edge": [
+                347,
+                346
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 443,
+              "neighbor": 210,
+              "lower_squared": "8121618124971099/2251799813685248"
+            },
+            {
+              "round": 492,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 494,
+              "edge": [
+                347,
+                346
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 443,
+              "neighbor": 210,
+              "lower_squared": "8121618124971099/2251799813685248"
+            }
+          ],
+          "scope": "Eligibility on the unchanged saved proposal/mesh trajectory, not a new selection trajectory or measured round reduction."
+        },
+        {
+          "capacity": 128,
+          "witness_limit": 1,
+          "mode": "adjacency",
+          "attempts": 512,
+          "counts": {
+            "accepted_retained": 437,
+            "rejected_retained": 56,
+            "witness_entries_learned": 21,
+            "certified_retry_suppressed": 19
+          },
+          "maximum_entries": 12,
+          "maximum_witnesses": 12,
+          "retained_recorded_attempts": 493,
+          "suppressed_records": [
+            {
+              "round": 341,
+              "edge": [
+                203,
+                248
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 294,
+              "neighbor": 376,
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 342,
+              "edge": [
+                383,
+                338
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 338,
+              "neighbor": 504,
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 349,
+              "edge": [
+                252,
+                504
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 347,
+              "neighbor": 338,
+              "lower_squared": "67291622098636807/18014398509481984"
+            },
+            {
+              "round": 352,
+              "edge": [
+                203,
+                248
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 294,
+              "neighbor": 376,
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 353,
+              "edge": [
+                383,
+                338
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 338,
+              "neighbor": 504,
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 370,
+              "edge": [
+                504,
+                505
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 368,
+              "neighbor": 383,
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 371,
+              "edge": [
+                383,
+                338
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 338,
+              "neighbor": 504,
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 387,
+              "edge": [
+                203,
+                248
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 294,
+              "neighbor": 376,
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 397,
+              "edge": [
+                28,
+                73
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 384,
+              "neighbor": 446,
+              "lower_squared": "107/32"
+            },
+            {
+              "round": 409,
+              "edge": [
+                372,
+                373
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 389,
+              "neighbor": 376,
+              "lower_squared": "5046491122660313/1125899906842624"
+            },
+            {
+              "round": 434,
+              "edge": [
+                28,
+                73
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 384,
+              "neighbor": 446,
+              "lower_squared": "107/32"
+            },
+            {
+              "round": 447,
+              "edge": [
+                347,
+                346
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 443,
+              "neighbor": 210,
+              "lower_squared": "8121618124971099/2251799813685248"
+            },
+            {
+              "round": 471,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 473,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 479,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 483,
+              "edge": [
+                347,
+                346
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 443,
+              "neighbor": 210,
+              "lower_squared": "8121618124971099/2251799813685248"
+            },
+            {
+              "round": 492,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 494,
+              "edge": [
+                347,
+                346
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 443,
+              "neighbor": 210,
+              "lower_squared": "8121618124971099/2251799813685248"
+            },
+            {
+              "round": 505,
+              "edge": [
+                204,
+                205
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 503,
+              "neighbor": 346,
+              "lower_squared": "27/8"
+            }
+          ],
+          "scope": "Eligibility on the unchanged saved proposal/mesh trajectory, not a new selection trajectory or measured round reduction."
+        },
+        {
+          "capacity": 128,
+          "witness_limit": 4,
+          "mode": "cell",
+          "attempts": 512,
+          "counts": {
+            "accepted_retained": 437,
+            "rejected_retained": 59,
+            "witness_entries_learned": 24,
+            "certified_retry_suppressed": 16
+          },
+          "maximum_entries": 12,
+          "maximum_witnesses": 16,
+          "retained_recorded_attempts": 496,
+          "suppressed_records": [
+            {
+              "round": 342,
+              "edge": [
+                383,
+                338
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 338,
+              "neighbor": 504,
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 349,
+              "edge": [
+                252,
+                504
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 347,
+              "neighbor": 338,
+              "lower_squared": "67291622098636807/18014398509481984"
+            },
+            {
+              "round": 352,
+              "edge": [
+                203,
+                248
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 341,
+              "neighbor": 376,
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 353,
+              "edge": [
+                383,
+                338
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 338,
+              "neighbor": 504,
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 371,
+              "edge": [
+                383,
+                338
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 338,
+              "neighbor": 504,
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 387,
+              "edge": [
+                203,
+                248
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 341,
+              "neighbor": 376,
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 397,
+              "edge": [
+                28,
+                73
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 384,
+              "neighbor": 446,
+              "lower_squared": "107/32"
+            },
+            {
+              "round": 409,
+              "edge": [
+                372,
+                373
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 389,
+              "neighbor": 376,
+              "lower_squared": "5046491122660313/1125899906842624"
+            },
+            {
+              "round": 434,
+              "edge": [
+                28,
+                73
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 384,
+              "neighbor": 446,
+              "lower_squared": "107/32"
+            },
+            {
+              "round": 447,
+              "edge": [
+                347,
+                346
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 443,
+              "neighbor": 210,
+              "lower_squared": "8121618124971099/2251799813685248"
+            },
+            {
+              "round": 471,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 473,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 479,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 483,
+              "edge": [
+                347,
+                346
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 443,
+              "neighbor": 210,
+              "lower_squared": "8121618124971099/2251799813685248"
+            },
+            {
+              "round": 492,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 494,
+              "edge": [
+                347,
+                346
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 443,
+              "neighbor": 210,
+              "lower_squared": "8121618124971099/2251799813685248"
+            }
+          ],
+          "scope": "Eligibility on the unchanged saved proposal/mesh trajectory, not a new selection trajectory or measured round reduction."
+        },
+        {
+          "capacity": 128,
+          "witness_limit": 4,
+          "mode": "adjacency",
+          "attempts": 512,
+          "counts": {
+            "accepted_retained": 437,
+            "rejected_retained": 56,
+            "witness_entries_learned": 21,
+            "certified_retry_suppressed": 19
+          },
+          "maximum_entries": 12,
+          "maximum_witnesses": 16,
+          "retained_recorded_attempts": 493,
+          "suppressed_records": [
+            {
+              "round": 341,
+              "edge": [
+                203,
+                248
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 294,
+              "neighbor": 376,
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 342,
+              "edge": [
+                383,
+                338
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 338,
+              "neighbor": 504,
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 349,
+              "edge": [
+                252,
+                504
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 347,
+              "neighbor": 338,
+              "lower_squared": "67291622098636807/18014398509481984"
+            },
+            {
+              "round": 352,
+              "edge": [
+                203,
+                248
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 294,
+              "neighbor": 376,
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 353,
+              "edge": [
+                383,
+                338
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 338,
+              "neighbor": 504,
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 370,
+              "edge": [
+                504,
+                505
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 368,
+              "neighbor": 383,
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 371,
+              "edge": [
+                383,
+                338
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 338,
+              "neighbor": 504,
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 387,
+              "edge": [
+                203,
+                248
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 294,
+              "neighbor": 376,
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 397,
+              "edge": [
+                28,
+                73
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 384,
+              "neighbor": 446,
+              "lower_squared": "107/32"
+            },
+            {
+              "round": 409,
+              "edge": [
+                372,
+                373
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 389,
+              "neighbor": 376,
+              "lower_squared": "5046491122660313/1125899906842624"
+            },
+            {
+              "round": 434,
+              "edge": [
+                28,
+                73
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 384,
+              "neighbor": 446,
+              "lower_squared": "107/32"
+            },
+            {
+              "round": 447,
+              "edge": [
+                347,
+                346
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 443,
+              "neighbor": 210,
+              "lower_squared": "8121618124971099/2251799813685248"
+            },
+            {
+              "round": 471,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 473,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 479,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 483,
+              "edge": [
+                347,
+                346
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 443,
+              "neighbor": 210,
+              "lower_squared": "8121618124971099/2251799813685248"
+            },
+            {
+              "round": 492,
+              "edge": [
+                399,
+                354
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 469,
+              "neighbor": 223,
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 494,
+              "edge": [
+                347,
+                346
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 443,
+              "neighbor": 210,
+              "lower_squared": "8121618124971099/2251799813685248"
+            },
+            {
+              "round": 505,
+              "edge": [
+                204,
+                205
+              ],
+              "reason": "Native 3D coarsening does not remove cells or introduces an oversized edge.",
+              "learned_round": 503,
+              "neighbor": 346,
+              "lower_squared": "27/8"
+            }
+          ],
+          "scope": "Eligibility on the unchanged saved proposal/mesh trajectory, not a new selection trajectory or measured round reduction."
+        }
+      ],
+      "chord_cases": [
+        {
+          "capacity": 16,
+          "learn_limit": 1,
+          "attempts": 512,
+          "counts": {
+            "accepted_retained": 437,
+            "rejected_retained": 55,
+            "learned_chords": 20,
+            "certified_retry_suppressed": 20,
+            "suppressed_same_collapse_direction": 18,
+            "suppressed_other_collapse_direction": 2
+          },
+          "maximum_entries": 12,
+          "retained_recorded_attempts": 492,
+          "suppressed_records": [
+            {
+              "round": 341,
+              "edge": [
+                203,
+                248
+              ],
+              "witness_chord": [
+                203,
+                376
+              ],
+              "learned_round": 294,
+              "learned_collapse": [
+                203,
+                248
+              ],
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 342,
+              "edge": [
+                383,
+                338
+              ],
+              "witness_chord": [
+                383,
+                504
+              ],
+              "learned_round": 338,
+              "learned_collapse": [
+                383,
+                338
+              ],
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 349,
+              "edge": [
+                252,
+                504
+              ],
+              "witness_chord": [
+                252,
+                338
+              ],
+              "learned_round": 347,
+              "learned_collapse": [
+                252,
+                504
+              ],
+              "lower_squared": "67291622098636807/18014398509481984"
+            },
+            {
+              "round": 352,
+              "edge": [
+                203,
+                248
+              ],
+              "witness_chord": [
+                203,
+                376
+              ],
+              "learned_round": 294,
+              "learned_collapse": [
+                203,
+                248
+              ],
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 353,
+              "edge": [
+                383,
+                338
+              ],
+              "witness_chord": [
+                383,
+                504
+              ],
+              "learned_round": 338,
+              "learned_collapse": [
+                383,
+                338
+              ],
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 368,
+              "edge": [
+                504,
+                505
+              ],
+              "witness_chord": [
+                383,
+                504
+              ],
+              "learned_round": 338,
+              "learned_collapse": [
+                383,
+                338
+              ],
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 370,
+              "edge": [
+                504,
+                505
+              ],
+              "witness_chord": [
+                383,
+                504
+              ],
+              "learned_round": 338,
+              "learned_collapse": [
+                383,
+                338
+              ],
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 371,
+              "edge": [
+                383,
+                338
+              ],
+              "witness_chord": [
+                383,
+                504
+              ],
+              "learned_round": 338,
+              "learned_collapse": [
+                383,
+                338
+              ],
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 387,
+              "edge": [
+                203,
+                248
+              ],
+              "witness_chord": [
+                203,
+                376
+              ],
+              "learned_round": 294,
+              "learned_collapse": [
+                203,
+                248
+              ],
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 397,
+              "edge": [
+                28,
+                73
+              ],
+              "witness_chord": [
+                28,
+                446
+              ],
+              "learned_round": 384,
+              "learned_collapse": [
+                28,
+                73
+              ],
+              "lower_squared": "107/32"
+            },
+            {
+              "round": 409,
+              "edge": [
+                372,
+                373
+              ],
+              "witness_chord": [
+                372,
+                376
+              ],
+              "learned_round": 389,
+              "learned_collapse": [
+                372,
+                373
+              ],
+              "lower_squared": "5046491122660313/1125899906842624"
+            },
+            {
+              "round": 434,
+              "edge": [
+                28,
+                73
+              ],
+              "witness_chord": [
+                28,
+                446
+              ],
+              "learned_round": 384,
+              "learned_collapse": [
+                28,
+                73
+              ],
+              "lower_squared": "107/32"
+            },
+            {
+              "round": 447,
+              "edge": [
+                347,
+                346
+              ],
+              "witness_chord": [
+                210,
+                347
+              ],
+              "learned_round": 443,
+              "learned_collapse": [
+                347,
+                346
+              ],
+              "lower_squared": "8121618124971099/2251799813685248"
+            },
+            {
+              "round": 471,
+              "edge": [
+                399,
+                354
+              ],
+              "witness_chord": [
+                223,
+                399
+              ],
+              "learned_round": 469,
+              "learned_collapse": [
+                399,
+                354
+              ],
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 473,
+              "edge": [
+                399,
+                354
+              ],
+              "witness_chord": [
+                223,
+                399
+              ],
+              "learned_round": 469,
+              "learned_collapse": [
+                399,
+                354
+              ],
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 479,
+              "edge": [
+                399,
+                354
+              ],
+              "witness_chord": [
+                223,
+                399
+              ],
+              "learned_round": 469,
+              "learned_collapse": [
+                399,
+                354
+              ],
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 483,
+              "edge": [
+                347,
+                346
+              ],
+              "witness_chord": [
+                210,
+                347
+              ],
+              "learned_round": 443,
+              "learned_collapse": [
+                347,
+                346
+              ],
+              "lower_squared": "8121618124971099/2251799813685248"
+            },
+            {
+              "round": 492,
+              "edge": [
+                399,
+                354
+              ],
+              "witness_chord": [
+                223,
+                399
+              ],
+              "learned_round": 469,
+              "learned_collapse": [
+                399,
+                354
+              ],
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 494,
+              "edge": [
+                347,
+                346
+              ],
+              "witness_chord": [
+                210,
+                347
+              ],
+              "learned_round": 443,
+              "learned_collapse": [
+                347,
+                346
+              ],
+              "lower_squared": "8121618124971099/2251799813685248"
+            },
+            {
+              "round": 505,
+              "edge": [
+                204,
+                205
+              ],
+              "witness_chord": [
+                204,
+                346
+              ],
+              "learned_round": 503,
+              "learned_collapse": [
+                204,
+                205
+              ],
+              "lower_squared": "27/8"
+            }
+          ],
+          "scope": "Actual-length-failure-only learning; exact bounded bad-chord eligibility on unchanged historical geometry/proposals, not a CPP implementation, altered execution or performance forecast."
+        },
+        {
+          "capacity": 16,
+          "learn_limit": 4,
+          "attempts": 512,
+          "counts": {
+            "accepted_retained": 437,
+            "rejected_retained": 55,
+            "learned_chords": 27,
+            "certified_retry_suppressed": 20,
+            "suppressed_same_collapse_direction": 18,
+            "suppressed_other_collapse_direction": 2
+          },
+          "maximum_entries": 16,
+          "retained_recorded_attempts": 492,
+          "suppressed_records": [
+            {
+              "round": 341,
+              "edge": [
+                203,
+                248
+              ],
+              "witness_chord": [
+                203,
+                376
+              ],
+              "learned_round": 294,
+              "learned_collapse": [
+                203,
+                248
+              ],
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 342,
+              "edge": [
+                383,
+                338
+              ],
+              "witness_chord": [
+                383,
+                504
+              ],
+              "learned_round": 338,
+              "learned_collapse": [
+                383,
+                338
+              ],
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 349,
+              "edge": [
+                252,
+                504
+              ],
+              "witness_chord": [
+                252,
+                338
+              ],
+              "learned_round": 347,
+              "learned_collapse": [
+                252,
+                504
+              ],
+              "lower_squared": "67291622098636807/18014398509481984"
+            },
+            {
+              "round": 352,
+              "edge": [
+                203,
+                248
+              ],
+              "witness_chord": [
+                203,
+                376
+              ],
+              "learned_round": 294,
+              "learned_collapse": [
+                203,
+                248
+              ],
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 353,
+              "edge": [
+                383,
+                338
+              ],
+              "witness_chord": [
+                383,
+                504
+              ],
+              "learned_round": 338,
+              "learned_collapse": [
+                383,
+                338
+              ],
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 368,
+              "edge": [
+                504,
+                505
+              ],
+              "witness_chord": [
+                383,
+                504
+              ],
+              "learned_round": 338,
+              "learned_collapse": [
+                383,
+                338
+              ],
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 370,
+              "edge": [
+                504,
+                505
+              ],
+              "witness_chord": [
+                383,
+                504
+              ],
+              "learned_round": 338,
+              "learned_collapse": [
+                383,
+                338
+              ],
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 371,
+              "edge": [
+                383,
+                338
+              ],
+              "witness_chord": [
+                383,
+                504
+              ],
+              "learned_round": 338,
+              "learned_collapse": [
+                383,
+                338
+              ],
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 387,
+              "edge": [
+                203,
+                248
+              ],
+              "witness_chord": [
+                203,
+                376
+              ],
+              "learned_round": 294,
+              "learned_collapse": [
+                203,
+                248
+              ],
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 397,
+              "edge": [
+                28,
+                73
+              ],
+              "witness_chord": [
+                28,
+                446
+              ],
+              "learned_round": 384,
+              "learned_collapse": [
+                28,
+                73
+              ],
+              "lower_squared": "107/32"
+            },
+            {
+              "round": 409,
+              "edge": [
+                372,
+                373
+              ],
+              "witness_chord": [
+                338,
+                372
+              ],
+              "learned_round": 389,
+              "learned_collapse": [
+                372,
+                373
+              ],
+              "lower_squared": "279516957350324593508886744330783/81129638414606681695789005144064"
+            },
+            {
+              "round": 434,
+              "edge": [
+                28,
+                73
+              ],
+              "witness_chord": [
+                28,
+                446
+              ],
+              "learned_round": 384,
+              "learned_collapse": [
+                28,
+                73
+              ],
+              "lower_squared": "107/32"
+            },
+            {
+              "round": 447,
+              "edge": [
+                347,
+                346
+              ],
+              "witness_chord": [
+                205,
+                347
+              ],
+              "learned_round": 443,
+              "learned_collapse": [
+                347,
+                346
+              ],
+              "lower_squared": "27/8"
+            },
+            {
+              "round": 471,
+              "edge": [
+                399,
+                354
+              ],
+              "witness_chord": [
+                223,
+                399
+              ],
+              "learned_round": 469,
+              "learned_collapse": [
+                399,
+                354
+              ],
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 473,
+              "edge": [
+                399,
+                354
+              ],
+              "witness_chord": [
+                223,
+                399
+              ],
+              "learned_round": 469,
+              "learned_collapse": [
+                399,
+                354
+              ],
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 479,
+              "edge": [
+                399,
+                354
+              ],
+              "witness_chord": [
+                223,
+                399
+              ],
+              "learned_round": 469,
+              "learned_collapse": [
+                399,
+                354
+              ],
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 483,
+              "edge": [
+                347,
+                346
+              ],
+              "witness_chord": [
+                205,
+                347
+              ],
+              "learned_round": 443,
+              "learned_collapse": [
+                347,
+                346
+              ],
+              "lower_squared": "27/8"
+            },
+            {
+              "round": 492,
+              "edge": [
+                399,
+                354
+              ],
+              "witness_chord": [
+                223,
+                399
+              ],
+              "learned_round": 469,
+              "learned_collapse": [
+                399,
+                354
+              ],
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 494,
+              "edge": [
+                347,
+                346
+              ],
+              "witness_chord": [
+                205,
+                347
+              ],
+              "learned_round": 443,
+              "learned_collapse": [
+                347,
+                346
+              ],
+              "lower_squared": "27/8"
+            },
+            {
+              "round": 505,
+              "edge": [
+                204,
+                205
+              ],
+              "witness_chord": [
+                204,
+                346
+              ],
+              "learned_round": 503,
+              "learned_collapse": [
+                204,
+                205
+              ],
+              "lower_squared": "27/8"
+            }
+          ],
+          "scope": "Actual-length-failure-only learning; exact bounded bad-chord eligibility on unchanged historical geometry/proposals, not a CPP implementation, altered execution or performance forecast."
+        },
+        {
+          "capacity": 128,
+          "learn_limit": 1,
+          "attempts": 512,
+          "counts": {
+            "accepted_retained": 437,
+            "rejected_retained": 55,
+            "learned_chords": 20,
+            "certified_retry_suppressed": 20,
+            "suppressed_same_collapse_direction": 18,
+            "suppressed_other_collapse_direction": 2
+          },
+          "maximum_entries": 12,
+          "retained_recorded_attempts": 492,
+          "suppressed_records": [
+            {
+              "round": 341,
+              "edge": [
+                203,
+                248
+              ],
+              "witness_chord": [
+                203,
+                376
+              ],
+              "learned_round": 294,
+              "learned_collapse": [
+                203,
+                248
+              ],
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 342,
+              "edge": [
+                383,
+                338
+              ],
+              "witness_chord": [
+                383,
+                504
+              ],
+              "learned_round": 338,
+              "learned_collapse": [
+                383,
+                338
+              ],
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 349,
+              "edge": [
+                252,
+                504
+              ],
+              "witness_chord": [
+                252,
+                338
+              ],
+              "learned_round": 347,
+              "learned_collapse": [
+                252,
+                504
+              ],
+              "lower_squared": "67291622098636807/18014398509481984"
+            },
+            {
+              "round": 352,
+              "edge": [
+                203,
+                248
+              ],
+              "witness_chord": [
+                203,
+                376
+              ],
+              "learned_round": 294,
+              "learned_collapse": [
+                203,
+                248
+              ],
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 353,
+              "edge": [
+                383,
+                338
+              ],
+              "witness_chord": [
+                383,
+                504
+              ],
+              "learned_round": 338,
+              "learned_collapse": [
+                383,
+                338
+              ],
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 368,
+              "edge": [
+                504,
+                505
+              ],
+              "witness_chord": [
+                383,
+                504
+              ],
+              "learned_round": 338,
+              "learned_collapse": [
+                383,
+                338
+              ],
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 370,
+              "edge": [
+                504,
+                505
+              ],
+              "witness_chord": [
+                383,
+                504
+              ],
+              "learned_round": 338,
+              "learned_collapse": [
+                383,
+                338
+              ],
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 371,
+              "edge": [
+                383,
+                338
+              ],
+              "witness_chord": [
+                383,
+                504
+              ],
+              "learned_round": 338,
+              "learned_collapse": [
+                383,
+                338
+              ],
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 387,
+              "edge": [
+                203,
+                248
+              ],
+              "witness_chord": [
+                203,
+                376
+              ],
+              "learned_round": 294,
+              "learned_collapse": [
+                203,
+                248
+              ],
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 397,
+              "edge": [
+                28,
+                73
+              ],
+              "witness_chord": [
+                28,
+                446
+              ],
+              "learned_round": 384,
+              "learned_collapse": [
+                28,
+                73
+              ],
+              "lower_squared": "107/32"
+            },
+            {
+              "round": 409,
+              "edge": [
+                372,
+                373
+              ],
+              "witness_chord": [
+                372,
+                376
+              ],
+              "learned_round": 389,
+              "learned_collapse": [
+                372,
+                373
+              ],
+              "lower_squared": "5046491122660313/1125899906842624"
+            },
+            {
+              "round": 434,
+              "edge": [
+                28,
+                73
+              ],
+              "witness_chord": [
+                28,
+                446
+              ],
+              "learned_round": 384,
+              "learned_collapse": [
+                28,
+                73
+              ],
+              "lower_squared": "107/32"
+            },
+            {
+              "round": 447,
+              "edge": [
+                347,
+                346
+              ],
+              "witness_chord": [
+                210,
+                347
+              ],
+              "learned_round": 443,
+              "learned_collapse": [
+                347,
+                346
+              ],
+              "lower_squared": "8121618124971099/2251799813685248"
+            },
+            {
+              "round": 471,
+              "edge": [
+                399,
+                354
+              ],
+              "witness_chord": [
+                223,
+                399
+              ],
+              "learned_round": 469,
+              "learned_collapse": [
+                399,
+                354
+              ],
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 473,
+              "edge": [
+                399,
+                354
+              ],
+              "witness_chord": [
+                223,
+                399
+              ],
+              "learned_round": 469,
+              "learned_collapse": [
+                399,
+                354
+              ],
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 479,
+              "edge": [
+                399,
+                354
+              ],
+              "witness_chord": [
+                223,
+                399
+              ],
+              "learned_round": 469,
+              "learned_collapse": [
+                399,
+                354
+              ],
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 483,
+              "edge": [
+                347,
+                346
+              ],
+              "witness_chord": [
+                210,
+                347
+              ],
+              "learned_round": 443,
+              "learned_collapse": [
+                347,
+                346
+              ],
+              "lower_squared": "8121618124971099/2251799813685248"
+            },
+            {
+              "round": 492,
+              "edge": [
+                399,
+                354
+              ],
+              "witness_chord": [
+                223,
+                399
+              ],
+              "learned_round": 469,
+              "learned_collapse": [
+                399,
+                354
+              ],
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 494,
+              "edge": [
+                347,
+                346
+              ],
+              "witness_chord": [
+                210,
+                347
+              ],
+              "learned_round": 443,
+              "learned_collapse": [
+                347,
+                346
+              ],
+              "lower_squared": "8121618124971099/2251799813685248"
+            },
+            {
+              "round": 505,
+              "edge": [
+                204,
+                205
+              ],
+              "witness_chord": [
+                204,
+                346
+              ],
+              "learned_round": 503,
+              "learned_collapse": [
+                204,
+                205
+              ],
+              "lower_squared": "27/8"
+            }
+          ],
+          "scope": "Actual-length-failure-only learning; exact bounded bad-chord eligibility on unchanged historical geometry/proposals, not a CPP implementation, altered execution or performance forecast."
+        },
+        {
+          "capacity": 128,
+          "learn_limit": 4,
+          "attempts": 512,
+          "counts": {
+            "accepted_retained": 437,
+            "rejected_retained": 55,
+            "learned_chords": 27,
+            "certified_retry_suppressed": 20,
+            "suppressed_same_collapse_direction": 18,
+            "suppressed_other_collapse_direction": 2
+          },
+          "maximum_entries": 16,
+          "retained_recorded_attempts": 492,
+          "suppressed_records": [
+            {
+              "round": 341,
+              "edge": [
+                203,
+                248
+              ],
+              "witness_chord": [
+                203,
+                376
+              ],
+              "learned_round": 294,
+              "learned_collapse": [
+                203,
+                248
+              ],
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 342,
+              "edge": [
+                383,
+                338
+              ],
+              "witness_chord": [
+                383,
+                504
+              ],
+              "learned_round": 338,
+              "learned_collapse": [
+                383,
+                338
+              ],
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 349,
+              "edge": [
+                252,
+                504
+              ],
+              "witness_chord": [
+                252,
+                338
+              ],
+              "learned_round": 347,
+              "learned_collapse": [
+                252,
+                504
+              ],
+              "lower_squared": "67291622098636807/18014398509481984"
+            },
+            {
+              "round": 352,
+              "edge": [
+                203,
+                248
+              ],
+              "witness_chord": [
+                203,
+                376
+              ],
+              "learned_round": 294,
+              "learned_collapse": [
+                203,
+                248
+              ],
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 353,
+              "edge": [
+                383,
+                338
+              ],
+              "witness_chord": [
+                383,
+                504
+              ],
+              "learned_round": 338,
+              "learned_collapse": [
+                383,
+                338
+              ],
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 368,
+              "edge": [
+                504,
+                505
+              ],
+              "witness_chord": [
+                383,
+                504
+              ],
+              "learned_round": 338,
+              "learned_collapse": [
+                383,
+                338
+              ],
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 370,
+              "edge": [
+                504,
+                505
+              ],
+              "witness_chord": [
+                383,
+                504
+              ],
+              "learned_round": 338,
+              "learned_collapse": [
+                383,
+                338
+              ],
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 371,
+              "edge": [
+                383,
+                338
+              ],
+              "witness_chord": [
+                383,
+                504
+              ],
+              "learned_round": 338,
+              "learned_collapse": [
+                383,
+                338
+              ],
+              "lower_squared": "124555818746432129/36028797018963968"
+            },
+            {
+              "round": 387,
+              "edge": [
+                203,
+                248
+              ],
+              "witness_chord": [
+                203,
+                376
+              ],
+              "learned_round": 294,
+              "learned_collapse": [
+                203,
+                248
+              ],
+              "lower_squared": "9/2"
+            },
+            {
+              "round": 397,
+              "edge": [
+                28,
+                73
+              ],
+              "witness_chord": [
+                28,
+                446
+              ],
+              "learned_round": 384,
+              "learned_collapse": [
+                28,
+                73
+              ],
+              "lower_squared": "107/32"
+            },
+            {
+              "round": 409,
+              "edge": [
+                372,
+                373
+              ],
+              "witness_chord": [
+                338,
+                372
+              ],
+              "learned_round": 389,
+              "learned_collapse": [
+                372,
+                373
+              ],
+              "lower_squared": "279516957350324593508886744330783/81129638414606681695789005144064"
+            },
+            {
+              "round": 434,
+              "edge": [
+                28,
+                73
+              ],
+              "witness_chord": [
+                28,
+                446
+              ],
+              "learned_round": 384,
+              "learned_collapse": [
+                28,
+                73
+              ],
+              "lower_squared": "107/32"
+            },
+            {
+              "round": 447,
+              "edge": [
+                347,
+                346
+              ],
+              "witness_chord": [
+                205,
+                347
+              ],
+              "learned_round": 443,
+              "learned_collapse": [
+                347,
+                346
+              ],
+              "lower_squared": "27/8"
+            },
+            {
+              "round": 471,
+              "edge": [
+                399,
+                354
+              ],
+              "witness_chord": [
+                223,
+                399
+              ],
+              "learned_round": 469,
+              "learned_collapse": [
+                399,
+                354
+              ],
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 473,
+              "edge": [
+                399,
+                354
+              ],
+              "witness_chord": [
+                223,
+                399
+              ],
+              "learned_round": 469,
+              "learned_collapse": [
+                399,
+                354
+              ],
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 479,
+              "edge": [
+                399,
+                354
+              ],
+              "witness_chord": [
+                223,
+                399
+              ],
+              "learned_round": 469,
+              "learned_collapse": [
+                399,
+                354
+              ],
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 483,
+              "edge": [
+                347,
+                346
+              ],
+              "witness_chord": [
+                205,
+                347
+              ],
+              "learned_round": 443,
+              "learned_collapse": [
+                347,
+                346
+              ],
+              "lower_squared": "27/8"
+            },
+            {
+              "round": 492,
+              "edge": [
+                399,
+                354
+              ],
+              "witness_chord": [
+                223,
+                399
+              ],
+              "learned_round": 469,
+              "learned_collapse": [
+                399,
+                354
+              ],
+              "lower_squared": "20270212073787407/4503599627370496"
+            },
+            {
+              "round": 494,
+              "edge": [
+                347,
+                346
+              ],
+              "witness_chord": [
+                205,
+                347
+              ],
+              "learned_round": 443,
+              "learned_collapse": [
+                347,
+                346
+              ],
+              "lower_squared": "27/8"
+            },
+            {
+              "round": 505,
+              "edge": [
+                204,
+                205
+              ],
+              "witness_chord": [
+                204,
+                346
+              ],
+              "learned_round": 503,
+              "learned_collapse": [
+                204,
+                205
+              ],
+              "lower_squared": "27/8"
+            }
+          ],
+          "scope": "Actual-length-failure-only learning; exact bounded bad-chord eligibility on unchanged historical geometry/proposals, not a CPP implementation, altered execution or performance forecast."
+        }
+      ]
+    }
+  ],
+  "accepted_false_suppressions": 0,
+  "scope": "Actual-length-failure-only bounded16/128-entry,1/4-chord counterexample caches and cross-direction bad-chord caches replayed on940historical complete-star proposals. Exact original-P1 directional lower-bound witnesses remain invalid when fixed endpoints and a surviving drop-neighbor cell relation persist, even after other topology changes. No target interpolation/geometry change, actual metric-query replacement, new CPP/MPI run, forecast of production512completion or performance claim. Distributed witness life/ownership and outward floating bounds are not implemented."
+}

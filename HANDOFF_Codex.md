@@ -1,5 +1,29 @@
 # Current handoff — 2026-10-12
 
+## Bounded persistent coarsening-witness replay — 2026-10-12
+
+Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
+codex/native-3d-transport-accounting; starting tip1bfb136dbd. Production unchanged.
+collapse_witness_replay_v1/v2 replay940source-matched historical full-star proposals
+using prior exact original-P1 directional certificates. Full-star changes can
+leave a specific bad chord obstruction intact. Bounded16/128entry,1/4witness
+models preserve all709accepted proposals and test support/coordinate invalidation.
+V1oracle learns from all rejected categories and identifies7/23rejects. V2learns
+only recorded length failures because production rejects shape before integrating
+fresh edges: directed adjacency7/19; shared endpoint-chord memo7/20, with2second-
+event matches across different collapse directions. Cap16is sufficient for this
+observed effect; more entries/witnesses do not improve it. No predicted492round
+execution or512completion: historical geometry still266pending directions and
+full615/1002tails absent. Sparse partial local-star counterexamples could support
+future worker-local sensor-only memo, but conservative floating proof, bounded
+learning, MPI ownership/lifetime, actual new trajectory, memory/lookups and cost
+qualification remain. No CPP/cache/target/geometry/quality/budget/state/cluster
+package change, new SU2/MPI, local performance campaign or submission. Original
+trace and both oracle/stricter models/logs/source receipts retained in v2/REVIEW.md.
+All owned work TERMINAL, oneCPU/nice19/thread1 exact offline correctness only.
+Goal1 ACTIVE; repeated cluster/default512/performance/weight/wait/memory proof
+still open; Goal2 not started, no3DBL/physicalunsteady/affordability certificate.
+
 ## Reservation-scheduler cluster comparison prepared — 2026-10-12
 
 Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
