@@ -1837,8 +1837,11 @@ void CSU2TCLib::DiffusionCoeffWBE(){
       }
     }
 
+    /*--- If species i is the only one present, the ratio below is 0/0.
+     Its diffusion flux is zero, use the self-diffusion coefficient. ---*/
     if (nSpecies==1) DiffusionCoeff[0] = 0;
-    else DiffusionCoeff[iSpecies] = (1-MolarFracWBE[iSpecies])/denom;
+    else if (denom > 0.0) DiffusionCoeff[iSpecies] = (1-MolarFracWBE[iSpecies])/denom;
+    else DiffusionCoeff[iSpecies] = Dij(iSpecies,iSpecies);
   }
 }
 
@@ -1992,8 +1995,15 @@ void CSU2TCLib::DiffusionCoeffGY(){
         denom += gam_j/D_ij;
       }
     }
-    /*--- Calculate species diffusion coefficient ---*/
-    DiffusionCoeff[iSpecies] = (gam_t*gam_t*Mi*(1-Mi*gam_i) / denom);
+    /*--- Calculate species diffusion coefficient. If species i is the only one present,
+     the ratio is 0/0. Its diffusion flux is zero, use the self-diffusion coefficient. ---*/
+    if (denom > 0.0) {
+      DiffusionCoeff[iSpecies] = (gam_t*gam_t*Mi*(1-Mi*gam_i) / denom);
+    } else {
+      const su2double T_col = (iSpecies == 0 && ionization) ? Tve : T;
+      const su2double d1_ii = ComputeCollisionDelta(iSpecies, iSpecies, Mi, Mi, T_col, true);
+      DiffusionCoeff[iSpecies] = BOLTZMANN_CONSTANT*T_col/(Pressure*d1_ii);
+    }
   }
 }
 
