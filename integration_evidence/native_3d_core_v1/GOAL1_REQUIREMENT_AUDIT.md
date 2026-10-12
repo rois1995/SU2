@@ -145,3 +145,19 @@ This closes the full small regression gap for the prototype; stronger whole
 aspect/thin/restart/lifecycle/default512 and repeated matched-target cost/scaling/
 traffic/overhead qualification remain before promotion. No Goal1 completion or
 new fixed-work performance comparison follows.
+
+## Isolated stronger whole-case and actual lifecycle qualification
+
+ROTATING_RESERVATION_WHOLE_VALIDATION.md/json extends the isolated rotating-policy
+qualification with the predeclared aspect2 turning size4, H20 covariant thin size4
+and actual CGNS persisted-restart size2 N4M2 cases, plus six existing MPI1 actual
+metric/Hessian/CFD/BDF controls. All new trajectories pass exact independent
+geometry/metric/state/output audits under unchanged512/q/J/L/noise gates. Eight
+H20 normalized records match the same saved unscaled variant; six serial controls
+match standard geometry/metric records exactly. Strong-case reservation opportunities
+become more balanced, but small restart coarsening uses20rather than16rounds,
+so neither fixed-work speed nor universal reduction follows. Collector-only
+legacy missing counter failure retained/corrected explicitly; production unchanged.
+This closes these stronger whole/restart/lifecycle proof gaps for the prototype,
+not the large default512limit or repeated matched-target cost/scaling/overhead/
+traffic/wait/weight/memory gates needed before promotion/fullGoal1.

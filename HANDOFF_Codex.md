@@ -1,5 +1,35 @@
 # Current handoff — 2026-10-12
 
+## Isolated rotating-policy stronger whole cases and lifecycle PASS — 2026-10-12
+
+Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
+codex/native-3d-transport-accounting. Starting tip64fa4386409; standard production
+source/binary/objects/archives unchanged. One shared isolated rotating-directory
+build serves sequential aspect2 turning size4 N4M2, covariant H20 size4 N4M2,
+actual CGNS persisted restart size2 N4M2, and six existing MPI1 metric/Hessian/
+CFD/BDF OFFON lifecycle controls. All numerical and fresh exact independent
+audits PASS:24whole geometry/metric frames,9current+BDF transfers,actual SU2CGNS
+output/readback and CGNS driver/history restart. Sensor residuals0; maximum
+whole-state error1.1284049824188437e-14,restart3.844148161277339e-16.
+All accepted q>=.24666457/J>=.08654324/L<=1.799025804; strict L<=1.8 verified.
+Eight H20 frames normalize exactly to the same saved unscaled isolated variant;
+six serial lifecycle geometry/metric records equal standard controls exactly.
+Strong aspect2 second-coarse attempts82/80vs130/64 and vetoes37/38vs0/92; rounds
+119vs156. Changed accepted meshes are freshly audited, not fixed-work timing.
+Small CGNS second-coarse20vs16rounds shows no uniform operation-count benefit.
+check_rotating_whole.py and ROTATING_RESERVATION_WHOLE_MATRIX/VALIDATION records
+retain complete source/tool/build/case pins and all work observations. Collector-
+only legacy missing donor_box_filtered error retained; missing fields explicit,
+no zero fabrication, numerical rerun or relaxed guard. All owned jobs TERMINAL;
+oneCPU/nice19/thread1/MPI<=4 under actual host contention/resource checks. Shared
+terminal executable/object removed after full PASS:806641624bytes freed; hashes,
+recipes/linkmap/logs/meshes/states/VTUs/outputs/failure retained, receipts immutable.
+No local performance campaign or cluster submission. Not promoted to production.
+Still needed: default512large-case completion and repeated matched-target cost/
+scaling/traffic/overhead/practical-memory/weight/wait qualification. Existing
+fixed-work donor cluster campaign unchanged. Goal1 ACTIVE,Goal2 not started;
+no curved/3DBL/physicalunsteady/affordability certificate.
+
 ## Isolated rotating-policy full97 regression qualified — 2026-10-12
 
 Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch

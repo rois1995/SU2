@@ -1,0 +1,73 @@
+{
+  "status": "PREDECLARED_NOT_EXECUTED",
+  "qualified_build": "completion_diagnostic_build_v1/validation.json",
+  "qualified_build_sha256": "7e101b85a2a551b198042bb6de6ac35890b79b71eb23fac1417d24660b79e457",
+  "isolated_build": "rotating_reservation_whole_build_v1/validation.json",
+  "variant_source_sha256": "bc4035629b2d537bfb73a5fc781b319fab46de2d94599862d1d4e899f3e4c508",
+  "cases": [
+    {
+      "folder": "rotating_reservation_a2_n4_m2_v1",
+      "control": "box_filter_a2_direction_n4_n4_m2_v1",
+      "parameters": {
+        "ranks": 4,
+        "workers": 2,
+        "size": 4,
+        "anisotropy": 2,
+        "varying": 1,
+        "direction": 1,
+        "height_power": 0,
+        "wedge": true,
+        "aligned_markers": true,
+        "diagnostic_rounds": 512,
+        "repeat": 0,
+        "detail": 1,
+        "restart_format": "none"
+      },
+      "runner_sha256": "d8e17e318cfc4d55d0b572a59bbb71592435e4f38f06ede2288ca291933d961a",
+      "control_validation_sha256": "4368ffeb3afb6a582e8cfe97c97f472be86eae61e55ab1499a02ebdbcdfa464f"
+    },
+    {
+      "folder": "rotating_reservation_h20_n4_m2_v1",
+      "control": "box_filter_thin_h20_n4_n4_m2_v1",
+      "parameters": {
+        "ranks": 4,
+        "workers": 2,
+        "size": 4,
+        "anisotropy": 1,
+        "varying": 1,
+        "direction": 1,
+        "height_power": 20,
+        "wedge": true,
+        "aligned_markers": true,
+        "diagnostic_rounds": 512,
+        "repeat": 0,
+        "detail": 1,
+        "restart_format": "none"
+      },
+      "runner_sha256": "49a701e1b6924703cc46fbc91eb592a02c045b8ed798a1467f1d25c24df578ae",
+      "control_validation_sha256": "6c6e93c4aa60567770dfe8593a7957251eeb6c7677e3927f868dfd137e8bf542"
+    },
+    {
+      "folder": "rotating_reservation_restart_cgns_n2_n4_m2_v1",
+      "control": "query_routing_restart_cgns_n2_n4_m2_v1",
+      "parameters": {
+        "ranks": 4,
+        "workers": 2,
+        "size": 2,
+        "anisotropy": 1,
+        "varying": 1,
+        "direction": 1,
+        "height_power": 0,
+        "wedge": true,
+        "aligned_markers": true,
+        "diagnostic_rounds": 512,
+        "repeat": 0,
+        "detail": 1,
+        "restart_format": "cgns"
+      },
+      "runner_sha256": "419765ffff16b6fa60de7d74c4481b9f1fe52c90d2a167072757ba604a5241ad",
+      "control_validation_sha256": "10cf7a202c582f6e490be41354f71c9d4b9bcce21be04bb41dace4a0a74b7671"
+    }
+  ],
+  "scope": "Sequential whole-case stronger anisotropy, H20 thin affine covariance and actual CGNS persisted restart on N4M2. Defaults/targets unchanged. Changed trajectories require fresh audits; no timing ratios, local performance campaign or production scheduler change."
+}

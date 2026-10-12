@@ -1,0 +1,7 @@
+{
+  "status": "FAIL_COLLECTOR_ONLY",
+  "exception": "KeyError: 'donor_box_filtered'",
+  "location": "result(control): descriptive work-count dictionary",
+  "cause": "Historical CGNS control predates the box-prefilter counter. Its raw source-pinned log cannot report that later field. All four numerical and independent-audit receipts already PASS; no numerical rerun or guard change.",
+  "correction": "Retain missing counter names explicitly rather than inventing zero; require the current isolated cases to expose the counter."
+}

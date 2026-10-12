@@ -1,0 +1,179 @@
+{
+  "status": "PASS",
+  "reason": "",
+  "stages": [
+    {
+      "command": [
+        "uptime"
+      ],
+      "label": "host_load",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/rotating_reservation_a2_n4_m2_v1",
+      "exit_code": 0,
+      "seconds": 0.00611767201917246
+    },
+    {
+      "command": [
+        "free",
+        "-m"
+      ],
+      "label": "host_memory",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/rotating_reservation_a2_n4_m2_v1",
+      "exit_code": 0,
+      "seconds": 0.006337309023365378
+    },
+    {
+      "command": [
+        "ps",
+        "-eo",
+        "pid,ppid,ni,pcpu,comm",
+        "--sort=-pcpu"
+      ],
+      "label": "host_processes",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/rotating_reservation_a2_n4_m2_v1",
+      "exit_code": 0,
+      "seconds": 0.018406548944767565
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "4",
+        "nice",
+        "-n",
+        "19",
+        "mpirun",
+        "--oversubscribe",
+        "--bind-to",
+        "none",
+        "-np",
+        "4",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/rotating_reservation_whole_build_v1/test_driver_rotating",
+        "[NativeEnvelope3D]",
+        "--use-colour",
+        "no"
+      ],
+      "label": "case",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/rotating_reservation_a2_n4_m2_v1",
+      "exit_code": 0,
+      "seconds": 15.076421305944677
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "4",
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_envelope.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/rotating_reservation_a2_n4_m2_v1"
+      ],
+      "label": "independent_envelope",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/rotating_reservation_a2_n4_m2_v1",
+      "exit_code": 0,
+      "seconds": 85.84486000501784
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "4",
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/export_envelope_vtu.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/rotating_reservation_a2_n4_m2_v1"
+      ],
+      "label": "vtu_export",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/rotating_reservation_a2_n4_m2_v1",
+      "exit_code": 0,
+      "seconds": 0.12033862399403006
+    }
+  ],
+  "binary_sha256": "86274904578f8e2be7ccb8600e3f5e0f1bda7c02de2cc88b9984c40119765e2f",
+  "build_validation_sha256": "7e101b85a2a551b198042bb6de6ac35890b79b71eb23fac1417d24660b79e457",
+  "isolated_variant_receipt_sha256": "0d45ef6c0da4a2418a6c2e701982da468eb956419fa03cba7b7981d68569920a",
+  "isolated_variant_source_sha256": "bc4035629b2d537bfb73a5fc781b319fab46de2d94599862d1d4e899f3e4c508",
+  "variant_drift": [],
+  "production_binary_sha256": "9811747b59cbb64dc91a95a53d8f4bb06d281249d95e2f608705a5681b8076ec",
+  "source_drift": [],
+  "object_drift": [],
+  "archive_drift": [],
+  "tool_drift": [],
+  "tools_sha256": {
+    "audit_envelope.py": "601f82a12c2eb04778484ec647c4590e92fb5b6d7f0092a2f7b4941bbb01cc0c",
+    "audit_geometry_bridge.py": "d8d5e8a18a0fce8f54f8407e9f0027dcea12d90bf64c5ab20c4dedb7194430e2",
+    "audit_lifecycle.py": "b4204e8aea4653ac46942e79e0dad68c7087945a5687a851fd5036b1bdfdfa2f",
+    "audit_coupled.py": "67a12c5c39c6c3e021473f49c1f14301f037d7883268b98d7afc9edc2b00f63b",
+    "audit_cavities.py": "26079385c071c3ad1b9c06ab3b862b4ff293367dc3c8d291acf0487089d062c5",
+    "audit_restart.py": "cfee19e22d2b27e77836a5949181d5f4779289f77a0053ef4addc4445bd2ad69",
+    "export_envelope_vtu.py": "2d606bd453882c7f395233c568d70fbdab1499b3576571b92e49194a70795ed3"
+  },
+  "package_tools_sha256": {
+    "run.py": "b0a11c3095c3e85a4fe1226ee72bf4c587857ac274a48c31f5fedbc14cfd6c0f",
+    "mpi_profile.py": "11e46f3d01289c1d050221d5264cf00a62e4da29385705a4ca7bff003ee9651b",
+    "profile_summary.py": "3dd80f1911dfb17745e931deb5a04dd2a1e7bf5de823707a35a390a723e90879"
+  },
+  "source_boundary_sha256": "699fd9b5c11aa29c6c5f28d758e732c9052a455d3386646fd9ed979658faf62f",
+  "scope": "Isolated rotating-priority complete68-object driver on qualified normal completion-diagnostic objects. Actual three refine/coarsen/refine events with frozen original-P1 sensors, q>=.20 J>=.05 L<=1.8 rounds512 noise0. Fresh exact geometry/markers/metric/current+BDF/SU2CGNS audits. Changed mesh trajectory, not fixed-work speed evidence; one-CPU contended correctness only. Production source/binary/objects/archives unchanged; no fullGoal1/scaling/allocator qualification.",
+  "artifact_sha256": {
+    "envelope_s2_initial.json": "cca238d52f9ccb9b78679bab0ca1f39c1a89527399d95c857d6e5ddd52313867",
+    "host_processes.stdout": "349988d90a601e9e002e27efd8d7f3b8653612995018baf13b6d0df2833fff82",
+    "envelope_s0_initial.su2": "d3ffb65ef5b5f7237bf2e724fa24b11f291a6c9d25c1139e643d972113101afa",
+    "envelope_mesh_00003.su2": "606b7bf0c7ddffc680bbf0aacf8aa0e38c1f0d570dbca0238cafac7e0ccbad99",
+    "vtu_export.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "envelope_s1_initial.json": "da31975446a6c6df010348021c9cdf609828cb23dda080a22a11ebe628638998",
+    "envelope_s1_states.json": "422963eb707cd39c77d453ebf4c9a4d0fca0f13fd44127306dadb37cf219fb5a",
+    "envelope_mesh_00001.su2.native_ref": "b9a750c3259c811d5fd2de6a935d145016c8dae21ef2c74f45d917248ddf26fb",
+    "envelope_s1.vtu": "37a86fa383a0be6d3f28c172c13ec583b82444a0259a04024053d3122f2ca98b",
+    "envelope_s2_written_CGNS_reload_target.su2": "447ba2bdf6239b9495f2d18c737345a1f2d59c144c5169278068c753394129d3",
+    "envelope_s2_written_SU2_reload.json": "2ab53ed3e13994726f968ab5aeb0a163a91c5678027dc0e9204eeedc87fe5651",
+    "host_load.stdout": "26fd0d2b223204e296b2bf7345853e8497b7e0bbe26fe4d9574e5a9abbad2d43",
+    "envelope_mesh_00003.su2.native_ref": "b9a750c3259c811d5fd2de6a935d145016c8dae21ef2c74f45d917248ddf26fb",
+    "case_environment.json": "5731159ee5c99e136b5a9344272bf29ea4c79885bedeb8f0a66e96b3556aae28",
+    "host_memory.stdout": "99ea8f07966dded8d2dcc0c8e70d861a7b1f0efe120f783f620f979558dcdb21",
+    "envelope_s2_written_SU2_reload_target.json": "89d3da1c556dabb4354c602b64e80ee056fcb6c1d44360a2357e0d6c9ab73bb7",
+    "envelope_s1.json": "550880bf013f9741fa460a244378bf0ad3c6a6d977c2c9d7aa68e72526947ec9",
+    "parameters.json": "a7ed35033aa44f70577d60889b8e111f8ac3db2b832d40263178c7d7c0f9ec3d",
+    "case.stdout": "c4720fd4a61972a82686554299616f3b76ab660e1e651df75ddbaa2d9cb094e1",
+    "envelope.cfg": "261d40524fdb0938a57f50e1616d4603e70b1ae46c7b04ccce7ec06b040c2893",
+    "host_load.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host_gate.json": "a5c94efb4f8c8a510f806582a0ba19cb60060aefab801e077b8cc43154d11cba",
+    "vtu_export.stdout": "d1bfb6821ba5af2cf657d389bc7f3b3f4506b4fcfb0682efd7afb44c748729e8",
+    "independent_envelope.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "case.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "envelope_s0_initial.json": "70ea289f600934797838d0594890511e1f12eec96a7e67ce17ab0717f83846f8",
+    "host_processes.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "independent_audit.json": "4fe2ddeafa81cba483f4ae11ed9b4feadd56532593af50155016c105ff68267b",
+    "envelope_s2.su2": "ea7931231e71e25545d480f9cf2086f89fe9094df285dfa83e7a755e0b1f49d8",
+    "source_boundary.json": "699fd9b5c11aa29c6c5f28d758e732c9052a455d3386646fd9ed979658faf62f",
+    "envelope_s2_written_SU2.su2": "606b7bf0c7ddffc680bbf0aacf8aa0e38c1f0d570dbca0238cafac7e0ccbad99",
+    "vtu_export.json": "54d47e1b83ec16e5de8a65e08f940821624f3ca6017eecc42e16bd4beb809e04",
+    "envelope_s2_written_SU2_reload_target.su2": "ea7931231e71e25545d480f9cf2086f89fe9094df285dfa83e7a755e0b1f49d8",
+    "envelope_s2_written_CGNS_reload.json": "5e4a809e3b38a19f45bc6c7474a3f58899d9602226e738d05a0498c10fc60a98",
+    "envelope_s1_initial.su2": "5a981da3fb4ad54806f034f4450857d1455d84913fcaf83b3d9414bcb5e7f851",
+    "envelope_s1.su2": "1551a11b607e65c53b1906fb93c4c3e6e1f5fb8eaa49b0b3eb10da9e7e74bcba",
+    "envelope_s0.vtu": "2ad1bcccf7a90a14a212c972288075a3e1d982928f4a30aa475d87a34ffb96d7",
+    "envelope_s2.vtu": "f47ad6caad5ff6e35e2b5e537e4849200b9c8cf58057ffaa6a653abf63061ea2",
+    "envelope_mesh_00002.su2.native_ref": "b9a750c3259c811d5fd2de6a935d145016c8dae21ef2c74f45d917248ddf26fb",
+    "envelope_s2.json": "89d3da1c556dabb4354c602b64e80ee056fcb6c1d44360a2357e0d6c9ab73bb7",
+    "envelope_s2_initial.su2": "1551a11b607e65c53b1906fb93c4c3e6e1f5fb8eaa49b0b3eb10da9e7e74bcba",
+    "runner.py": "d8e17e318cfc4d55d0b572a59bbb71592435e4f38f06ede2288ca291933d961a",
+    "envelope_s2_written_CGNS_reload_target.json": "2e66f3909af5a060151b59f8f73ae082f5ffd73219ad68f00efe976161220ec7",
+    "envelope_mesh_00002.su2": "e665dd0430a2be491c7b15c5a17654761b3441639874ef2a1f1aa1289c2bf41c",
+    "envelope_input.su2": "3940abddb5ce704434b3147e1e4ca5c850c1716bc0aea8e429c746d20018c031",
+    "envelope_mesh_00001.su2": "04b4a5be8931efb6ac9069fe40d4e0ef1d8c21fecaf4ba50ba3cf8ca782a1684",
+    "envelope_s2_states.json": "226081e7fd437758385972ec834e489f69683dca9d643f21ad069f22946854e2",
+    "input_scope.json": "5a14c98e489e80f94d9cfed710dd5b59531cf97662111013f74296093cc68143",
+    "independent_envelope.stdout": "45e7a824b0e3716f08d126ce9dcd4a99340b31c8fb14e376f2738cc381139877",
+    "envelope_s0.json": "13c4702ef188002c196317b79ea87bf094c4004710d9de312ca06d1a7ee01bef",
+    "envelope_history.csv": "89d6ac0e0c2f46370e44a3f111a8511db608b660f50097096b83d5b19a54554c",
+    "host_memory.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "envelope_s2_written_CGNS.cgns": "a954b2c483efb8be804ff0d6e72c5c3fb24e9e3898caa781b7551c913ed1fcb7",
+    "seed_pins.json": "ee429e285bb61d2c98ec28f1929b846f7d14ba056510cda988f8a6a2caafd596",
+    "envelope_s0_states.json": "6ecaeed91b96f6830f2c5b3adf25c5c3f1575d7156cbb12ae97ca675bc959e18",
+    "envelope_s0.su2": "5a981da3fb4ad54806f034f4450857d1455d84913fcaf83b3d9414bcb5e7f851"
+  }
+}

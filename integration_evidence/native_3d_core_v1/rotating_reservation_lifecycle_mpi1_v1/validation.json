@@ -1,0 +1,145 @@
+{
+  "status": "PASS",
+  "reason": "",
+  "stages": [
+    {
+      "command": [
+        "uptime"
+      ],
+      "label": "host_load",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/rotating_reservation_lifecycle_mpi1_v1",
+      "exit_code": 0,
+      "seconds": 0.006136142008472234
+    },
+    {
+      "command": [
+        "free",
+        "-m"
+      ],
+      "label": "host_memory",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/rotating_reservation_lifecycle_mpi1_v1",
+      "exit_code": 0,
+      "seconds": 0.006316551996860653
+    },
+    {
+      "command": [
+        "ps",
+        "-eo",
+        "pid,ppid,ni,pcpu,comm",
+        "--sort=-pcpu"
+      ],
+      "label": "host_processes",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/rotating_reservation_lifecycle_mpi1_v1",
+      "exit_code": 0,
+      "seconds": 0.0351964239962399
+    },
+    {
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "mpirun",
+        "--bind-to",
+        "none",
+        "-np",
+        "1",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/rotating_reservation_whole_build_v1/test_driver_rotating",
+        "[NativeLifecycle3D]",
+        "--use-colour",
+        "no"
+      ],
+      "label": "case",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/rotating_reservation_lifecycle_mpi1_v1",
+      "exit_code": 0,
+      "seconds": 0.9207101069623604
+    },
+    {
+      "command": [
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_lifecycle.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/rotating_reservation_lifecycle_mpi1_v1",
+        "1",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/rotating_reservation_lifecycle_mpi1_v1/case.stdout"
+      ],
+      "label": "independent_lifecycle",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/rotating_reservation_lifecycle_mpi1_v1",
+      "exit_code": 0,
+      "seconds": 1.6332534740213305
+    }
+  ],
+  "binary_sha256": "86274904578f8e2be7ccb8600e3f5e0f1bda7c02de2cc88b9984c40119765e2f",
+  "build_validation_sha256": "7e101b85a2a551b198042bb6de6ac35890b79b71eb23fac1417d24660b79e457",
+  "isolated_variant_receipt_sha256": "0d45ef6c0da4a2418a6c2e701982da468eb956419fa03cba7b7981d68569920a",
+  "isolated_variant_source_sha256": "bc4035629b2d537bfb73a5fc781b319fab46de2d94599862d1d4e899f3e4c508",
+  "variant_drift": [],
+  "production_binary_sha256": "9811747b59cbb64dc91a95a53d8f4bb06d281249d95e2f608705a5681b8076ec",
+  "source_drift": [],
+  "object_drift": [],
+  "archive_drift": [],
+  "tool_drift": [],
+  "tools_sha256": {
+    "audit_lifecycle.py": "b4204e8aea4653ac46942e79e0dad68c7087945a5687a851fd5036b1bdfdfa2f",
+    "audit_geometry_bridge.py": "d8d5e8a18a0fce8f54f8407e9f0027dcea12d90bf64c5ab20c4dedb7194430e2",
+    "audit_coupled.py": "67a12c5c39c6c3e021473f49c1f14301f037d7883268b98d7afc9edc2b00f63b",
+    "audit_cavities.py": "26079385c071c3ad1b9c06ab3b862b4ff293367dc3c8d291acf0487089d062c5"
+  },
+  "profile_summary_sha256": "3dd80f1911dfb17745e931deb5a04dd2a1e7bf5de823707a35a390a723e90879",
+  "scope": "Isolated rotating-priority configured68-object driver with unchanged production. One MPI rank, existing forced-size faceted lifecycle fixture: six fresh OFF/ON controls use actual metric/Hessian construction, weighted native remesh and CFD geometry/solver/BDF replacement, mesh output and independent audits. Validates complete termination and changed-star/facet/orientation accounting on six successful engine rows, serialized wrapper totals and closed wall/CPU/rank/query profiles. Contended correctness only: repetitions are built into the fixture and do not certify local timing/scaling/affordability, MPI2/4, n4/persisted restart or fullGoal1.",
+  "artifact_sha256": {
+    "host_processes.stdout": "b1a15c1fd1d0388cdede3e53a42d165debdd856000a8345cc670af7c54c1c5f5",
+    "lifecycle_m1_d1_r1_mesh_00001.su2": "036e5747fe0448e0ae7ca8843d7af21f05aa087d07afe62285dc15e0db122a26",
+    "lifecycle_m1_d0_r1_history.csv": "89d6ac0e0c2f46370e44a3f111a8511db608b660f50097096b83d5b19a54554c",
+    "independent_lifecycle.stdout": "ba74bcff65242953bc87c71fce47a3305c73f5fced46be6f9691a3a4c5c9d44d",
+    "lifecycle_m1_d1_r0_history.csv": "89d6ac0e0c2f46370e44a3f111a8511db608b660f50097096b83d5b19a54554c",
+    "lifecycle_m1_d0_r0.json": "4f60a2ac91d7d1c952a56fd622ec2c8d8b481d16212c63b167cd3192a50c09e7",
+    "lifecycle_m1_d0_r2.cfg": "3b4a7e8af662dadf7ea8c4717f424d86ff216b9bf0cd353a7e4dcbce9cd74d09",
+    "lifecycle_m1_d1_r0.su2": "670aece322f5b9c1741f5a802b1aea0437b08f631311a336065b2543c9e3e86e",
+    "lifecycle_m1_d0_r0.su2": "670aece322f5b9c1741f5a802b1aea0437b08f631311a336065b2543c9e3e86e",
+    "lifecycle_m1_d0_r2.json": "4f60a2ac91d7d1c952a56fd622ec2c8d8b481d16212c63b167cd3192a50c09e7",
+    "lifecycle_m1_d1_r2.cfg": "b913eacddb42c4a83f1786f9a1b6c812f7074d9416515af8b5b4bf96e611dfff",
+    "lifecycle_audit.json": "ba6be8030500c7b25148a47fdf9e16afc8e5bb7e2a2e1a2da26b98f877a00301",
+    "lifecycle_m1_d1_r0_mesh_00001.su2.native_ref": "cd48010598c1c1e3617aa75767c8dff8a14236092fc5cc097be8e5de211e7806",
+    "lifecycle_m1_d0_r2_history.csv": "89d6ac0e0c2f46370e44a3f111a8511db608b660f50097096b83d5b19a54554c",
+    "lifecycle_m1_d0_r0_mesh_00001.su2.native_ref": "cd48010598c1c1e3617aa75767c8dff8a14236092fc5cc097be8e5de211e7806",
+    "host_load.stdout": "f9a580c508be6316eb7a5a4a2f092c8560654e037d086e020f38f9edd77d935a",
+    "lifecycle_m1_d0_r2.su2": "670aece322f5b9c1741f5a802b1aea0437b08f631311a336065b2543c9e3e86e",
+    "lifecycle_m1_d0_r1_mesh_00001.su2.native_ref": "cd48010598c1c1e3617aa75767c8dff8a14236092fc5cc097be8e5de211e7806",
+    "host_memory.stdout": "2287312fa1bdd881bca5ec114f04480e67d9f67756e14b82bbfc152c14da3a80",
+    "lifecycle_m1_d0_r2_mesh_00001.su2": "036e5747fe0448e0ae7ca8843d7af21f05aa087d07afe62285dc15e0db122a26",
+    "lifecycle_m1_d1_r2_mesh_00001.su2": "036e5747fe0448e0ae7ca8843d7af21f05aa087d07afe62285dc15e0db122a26",
+    "lifecycle_m1_d1_r1_mesh_00001.su2.native_ref": "cd48010598c1c1e3617aa75767c8dff8a14236092fc5cc097be8e5de211e7806",
+    "case.stdout": "cfb3cf96a7d6458ff0f9a02598f2cf0d0b88c39b7034f165615b0f24fc7d09df",
+    "host_load.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host_gate.json": "41ab92c39f2ce11f9aa8845b4ab1084a4d6b64e0e4c4f9a0f6d9228847638589",
+    "independent_lifecycle.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "case.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host_processes.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lifecycle_m1_d1_r1.json": "4f60a2ac91d7d1c952a56fd622ec2c8d8b481d16212c63b167cd3192a50c09e7",
+    "lifecycle_m1_d0_r0_mesh_00001.su2": "036e5747fe0448e0ae7ca8843d7af21f05aa087d07afe62285dc15e0db122a26",
+    "lifecycle_m1_d1_r2_mesh_00001.su2.native_ref": "cd48010598c1c1e3617aa75767c8dff8a14236092fc5cc097be8e5de211e7806",
+    "lifecycle_m1_d0_r1.su2": "670aece322f5b9c1741f5a802b1aea0437b08f631311a336065b2543c9e3e86e",
+    "lifecycle_m1_d0_r2_mesh_00001.su2.native_ref": "cd48010598c1c1e3617aa75767c8dff8a14236092fc5cc097be8e5de211e7806",
+    "lifecycle_m1_d1_r2.su2": "670aece322f5b9c1741f5a802b1aea0437b08f631311a336065b2543c9e3e86e",
+    "lifecycle_m1_d1_r0_mesh_00001.su2": "036e5747fe0448e0ae7ca8843d7af21f05aa087d07afe62285dc15e0db122a26",
+    "lifecycle_m1_d1_r2.json": "4f60a2ac91d7d1c952a56fd622ec2c8d8b481d16212c63b167cd3192a50c09e7",
+    "runner.py": "9e7ff9029e20864380c11e1d1daf0eaab26aea2565789ce6467358bb234105ef",
+    "lifecycle_m1_d0_r1_mesh_00001.su2": "036e5747fe0448e0ae7ca8843d7af21f05aa087d07afe62285dc15e0db122a26",
+    "lifecycle_m1_d1_r2_history.csv": "89d6ac0e0c2f46370e44a3f111a8511db608b660f50097096b83d5b19a54554c",
+    "lifecycle_m1_d0_r0.cfg": "32eaa9251c927814c534acd59187370f335b8751f662787e5b064ac5c470f5d9",
+    "matrix.json": "924d686d77a882fcee305b08e4023f182b673140bebab72278a8720b8bd74570",
+    "lifecycle_m1_d1_r1_history.csv": "89d6ac0e0c2f46370e44a3f111a8511db608b660f50097096b83d5b19a54554c",
+    "lifecycle_m1_d0_r0_history.csv": "89d6ac0e0c2f46370e44a3f111a8511db608b660f50097096b83d5b19a54554c",
+    "lifecycle_m1_d1_r1.cfg": "b781b9b13edb9dc6750218113b6acb03752b0cb62b35bc0d316e20a9721b3784",
+    "lifecycle_m1_d0_r1.json": "4f60a2ac91d7d1c952a56fd622ec2c8d8b481d16212c63b167cd3192a50c09e7",
+    "rank_profiles.json": "8786daa86517aaf05916718b1642e98be4710c80a32b634b6db96d99d1609ebb",
+    "lifecycle_m1_d1_r0.json": "4f60a2ac91d7d1c952a56fd622ec2c8d8b481d16212c63b167cd3192a50c09e7",
+    "lifecycle_m1_d1_r1.su2": "670aece322f5b9c1741f5a802b1aea0437b08f631311a336065b2543c9e3e86e",
+    "lifecycle_m1_d1_r0.cfg": "4e491a097d6d0d3c2a455dda80c489a4b488c3d45b4ce63febf70809f80ee15a",
+    "host_memory.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "seed_pins.json": "b0e5e0980fc262065dba445241ca7a6d30d7358679031a2d8251110610fdfdaf",
+    "lifecycle_m1_d0_r1.cfg": "6950e845c273db8d99410c73b52e2e7399e90f2af29f68486b42c72e549c9e83"
+  }
+}

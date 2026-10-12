@@ -1,0 +1,5422 @@
+{
+  "status": "PASS",
+  "matrix_sha256": "9bd5ca03bf490b17df446791531196d8c63fe7a09828392d44279ec70f8ba882",
+  "checker_sha256": "911e37a7be96852e5eabaa9594b1766eba95860d2cab45ec3518d212ce9e472f",
+  "profile_summary_sha256": "3dd80f1911dfb17745e931deb5a04dd2a1e7bf5de823707a35a390a723e90879",
+  "qualified_build_sha256": "7e101b85a2a551b198042bb6de6ac35890b79b71eb23fac1417d24660b79e457",
+  "isolated_build_sha256": "0d45ef6c0da4a2418a6c2e701982da468eb956419fa03cba7b7981d68569920a",
+  "cases": [
+    {
+      "parameters": {
+        "ranks": 4,
+        "workers": 2,
+        "size": 4,
+        "anisotropy": 2,
+        "varying": 1,
+        "direction": 1,
+        "height_power": 0,
+        "wedge": true,
+        "aligned_markers": true,
+        "diagnostic_rounds": 512,
+        "repeat": 0,
+        "detail": 1,
+        "restart_format": "none"
+      },
+      "initial_inputs_sha256": {
+        "envelope.cfg": "261d40524fdb0938a57f50e1616d4603e70b1ae46c7b04ccce7ec06b040c2893",
+        "envelope_input.su2": "3940abddb5ce704434b3147e1e4ca5c850c1716bc0aea8e429c746d20018c031",
+        "envelope_s0_initial.json": "70ea289f600934797838d0594890511e1f12eec96a7e67ce17ab0717f83846f8"
+      },
+      "accepted_mesh_byte_matches": {
+        "envelope_s0.json": false,
+        "envelope_s1.json": false,
+        "envelope_s2.json": false
+      },
+      "exact_affine_covariance_frames": [],
+      "isolated": {
+        "folder": "rotating_reservation_a2_n4_m2_v1",
+        "validation_sha256": "0741bce333dffa495a88219c1b0eddf825357a19c32cb3c99f4a69475855c2c0",
+        "audit_sha256": "4fe2ddeafa81cba483f4ae11ed9b4feadd56532593af50155016c105ff68267b",
+        "log_sha256": "c4720fd4a61972a82686554299616f3b76ab660e1e651df75ddbaa2d9cb094e1",
+        "binary_sha256": "86274904578f8e2be7ccb8600e3f5e0f1bda7c02de2cc88b9984c40119765e2f",
+        "accepted_frames": [
+          {
+            "file": "envelope_s0.json",
+            "cells": 404,
+            "points": 133,
+            "physical_faces": 208,
+            "volume": "1/2",
+            "minimum_mean_ratio": 0.4917013076917022,
+            "minimum_scaled_jacobian": 0.21327734558445957,
+            "maximum_length": 1.7956516149938975,
+            "longest_edge": [
+              9,
+              13
+            ],
+            "markers": {
+              "2": 64,
+              "1": 40,
+              "3": 22,
+              "0": 56,
+              "4": 14,
+              "5": 12
+            },
+            "strict_metric_gate": true
+          },
+          {
+            "file": "envelope_s1.json",
+            "cells": 56,
+            "points": 29,
+            "physical_faces": 52,
+            "volume": "1/2",
+            "minimum_mean_ratio": 0.41017983105619643,
+            "minimum_scaled_jacobian": 0.21662921689461498,
+            "maximum_length": 1.7851746421013508,
+            "longest_edge": [
+              11,
+              17
+            ],
+            "markers": {
+              "0": 11,
+              "1": 10,
+              "2": 15,
+              "4": 5,
+              "3": 8,
+              "5": 3
+            },
+            "strict_metric_gate": true
+          },
+          {
+            "file": "envelope_s2.json",
+            "cells": 433,
+            "points": 132,
+            "physical_faces": 192,
+            "volume": "1/2",
+            "minimum_mean_ratio": 0.38176800480945977,
+            "minimum_scaled_jacobian": 0.15651186386858854,
+            "maximum_length": 1.799025803373091,
+            "longest_edge": [
+              6,
+              79
+            ],
+            "markers": {
+              "2": 56,
+              "3": 28,
+              "0": 42,
+              "4": 18,
+              "1": 40,
+              "5": 8
+            },
+            "strict_metric_gate": true
+          }
+        ],
+        "states": [
+          {
+            "file": "envelope_s0_states.json",
+            "maximum_state_relative_error": 3.5228792947728926e-16,
+            "maximum_transported_tensor_absolute_error": 0.0,
+            "donor_points": 75,
+            "accepted_points": 133
+          },
+          {
+            "file": "envelope_s1_states.json",
+            "maximum_state_relative_error": 3.5228792947728926e-16,
+            "maximum_transported_tensor_absolute_error": 0.0,
+            "donor_points": 133,
+            "accepted_points": 29
+          },
+          {
+            "file": "envelope_s2_states.json",
+            "maximum_state_relative_error": 3.899327321487061e-16,
+            "maximum_transported_tensor_absolute_error": 0.0,
+            "donor_points": 29,
+            "accepted_points": 132
+          }
+        ],
+        "reload_metrics": [
+          {
+            "format": "SU2",
+            "maximum_transported_tensor_absolute_error": 0.0,
+            "maximum_transported_tensor_physical_error": 0.0
+          },
+          {
+            "format": "CGNS",
+            "maximum_transported_tensor_absolute_error": 0.0,
+            "maximum_transported_tensor_physical_error": 0.0
+          }
+        ],
+        "restart": null,
+        "work": [
+          {
+            "stage": "coarsen",
+            "cycle": 0,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 103,
+                "reservation_veto_fraction": 0.1553398058252427,
+                "accepted_fraction_of_attempts": 0.40229885057471265,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 94,
+                "reservation_veto_fraction": 0.20212765957446807,
+                "accepted_fraction_of_attempts": 0.44,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 103.0
+                },
+                {
+                  "rank": 1,
+                  "value": 103.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 87.0
+                },
+                {
+                  "rank": 1,
+                  "value": 75.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 35.0
+                },
+                {
+                  "rank": 1,
+                  "value": 33.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 52.0
+                },
+                {
+                  "rank": 1,
+                  "value": 42.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 16.0
+                },
+                {
+                  "rank": 1,
+                  "value": 19.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 70374.0
+                },
+                {
+                  "rank": 1,
+                  "value": 73470.0
+                }
+              ],
+              "donor_box_filtered": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 10785.0
+                },
+                {
+                  "rank": 1,
+                  "value": 9927.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 4891888.0
+                },
+                {
+                  "rank": 1,
+                  "value": 5001024.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 4886.0
+                },
+                {
+                  "rank": 1,
+                  "value": 4886.0
+                }
+              ]
+            },
+            "missing_count_fields": []
+          },
+          {
+            "stage": "coarsen",
+            "cycle": 1,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 119,
+                "reservation_veto_fraction": 0.31092436974789917,
+                "accepted_fraction_of_attempts": 0.6585365853658537,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 118,
+                "reservation_veto_fraction": 0.3220338983050847,
+                "accepted_fraction_of_attempts": 0.625,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 119.0
+                },
+                {
+                  "rank": 1,
+                  "value": 119.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 82.0
+                },
+                {
+                  "rank": 1,
+                  "value": 80.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 54.0
+                },
+                {
+                  "rank": 1,
+                  "value": 50.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 28.0
+                },
+                {
+                  "rank": 1,
+                  "value": 30.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 37.0
+                },
+                {
+                  "rank": 1,
+                  "value": 38.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 278611.0
+                },
+                {
+                  "rank": 1,
+                  "value": 232014.0
+                }
+              ],
+              "donor_box_filtered": [
+                {
+                  "rank": 0,
+                  "value": 16228.0
+                },
+                {
+                  "rank": 1,
+                  "value": 15714.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 19371.0
+                },
+                {
+                  "rank": 1,
+                  "value": 19842.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 9188864.0
+                },
+                {
+                  "rank": 1,
+                  "value": 8400864.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 5820.0
+                },
+                {
+                  "rank": 1,
+                  "value": 5820.0
+                }
+              ]
+            },
+            "missing_count_fields": []
+          },
+          {
+            "stage": "coarsen",
+            "cycle": 2,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 104,
+                "reservation_veto_fraction": 0.19230769230769232,
+                "accepted_fraction_of_attempts": 0.27380952380952384,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 103,
+                "reservation_veto_fraction": 0.17475728155339806,
+                "accepted_fraction_of_attempts": 0.32941176470588235,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 104.0
+                },
+                {
+                  "rank": 1,
+                  "value": 104.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 84.0
+                },
+                {
+                  "rank": 1,
+                  "value": 85.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 23.0
+                },
+                {
+                  "rank": 1,
+                  "value": 28.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 61.0
+                },
+                {
+                  "rank": 1,
+                  "value": 57.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 20.0
+                },
+                {
+                  "rank": 1,
+                  "value": 18.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 39488.0
+                },
+                {
+                  "rank": 1,
+                  "value": 34711.0
+                }
+              ],
+              "donor_box_filtered": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 4142.0
+                },
+                {
+                  "rank": 1,
+                  "value": 4192.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 3087256.0
+                },
+                {
+                  "rank": 1,
+                  "value": 2790488.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 4863.0
+                },
+                {
+                  "rank": 1,
+                  "value": 4863.0
+                }
+              ]
+            },
+            "missing_count_fields": []
+          },
+          {
+            "stage": "refine",
+            "cycle": 0,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 63,
+                "reservation_veto_fraction": 0.031746031746031744,
+                "accepted_fraction_of_attempts": 1.0,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 67,
+                "reservation_veto_fraction": 0.029850746268656716,
+                "accepted_fraction_of_attempts": 1.0,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 67.0
+                },
+                {
+                  "rank": 1,
+                  "value": 67.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 61.0
+                },
+                {
+                  "rank": 1,
+                  "value": 65.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 61.0
+                },
+                {
+                  "rank": 1,
+                  "value": 65.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 2.0
+                },
+                {
+                  "rank": 1,
+                  "value": 2.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 40981.0
+                },
+                {
+                  "rank": 1,
+                  "value": 46373.0
+                }
+              ],
+              "donor_box_filtered": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 8469.0
+                },
+                {
+                  "rank": 1,
+                  "value": 9321.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 3689272.0
+                },
+                {
+                  "rank": 1,
+                  "value": 4058440.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 3147.0
+                },
+                {
+                  "rank": 1,
+                  "value": 3147.0
+                }
+              ]
+            },
+            "missing_count_fields": []
+          },
+          {
+            "stage": "refine",
+            "cycle": 1,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 0,
+                "reservation_veto_fraction": null,
+                "accepted_fraction_of_attempts": null,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 0,
+                "reservation_veto_fraction": null,
+                "accepted_fraction_of_attempts": null,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 15808.0
+                },
+                {
+                  "rank": 1,
+                  "value": 16422.0
+                }
+              ],
+              "donor_box_filtered": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 1898.0
+                },
+                {
+                  "rank": 1,
+                  "value": 2055.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 918112.0
+                },
+                {
+                  "rank": 1,
+                  "value": 972768.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 89.0
+                },
+                {
+                  "rank": 1,
+                  "value": 89.0
+                }
+              ]
+            },
+            "missing_count_fields": []
+          },
+          {
+            "stage": "refine",
+            "cycle": 2,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 88,
+                "reservation_veto_fraction": 0.10227272727272728,
+                "accepted_fraction_of_attempts": 1.0,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 89,
+                "reservation_veto_fraction": 0.15730337078651685,
+                "accepted_fraction_of_attempts": 1.0,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 89.0
+                },
+                {
+                  "rank": 1,
+                  "value": 89.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 79.0
+                },
+                {
+                  "rank": 1,
+                  "value": 75.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 79.0
+                },
+                {
+                  "rank": 1,
+                  "value": 75.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 9.0
+                },
+                {
+                  "rank": 1,
+                  "value": 14.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 22548.0
+                },
+                {
+                  "rank": 1,
+                  "value": 22564.0
+                }
+              ],
+              "donor_box_filtered": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 4718.0
+                },
+                {
+                  "rank": 1,
+                  "value": 4735.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 2596872.0
+                },
+                {
+                  "rank": 1,
+                  "value": 2550448.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 4117.0
+                },
+                {
+                  "rank": 1,
+                  "value": 4117.0
+                }
+              ]
+            },
+            "missing_count_fields": []
+          }
+        ]
+      },
+      "control": {
+        "folder": "box_filter_a2_direction_n4_n4_m2_v1",
+        "validation_sha256": "4368ffeb3afb6a582e8cfe97c97f472be86eae61e55ab1499a02ebdbcdfa464f",
+        "audit_sha256": "72bee428d6e1eb029fb49434f0eba5c6feba4a49c3d9ff00e89b9b4afe72b4f6",
+        "log_sha256": "35dc3599ae0d9fbcb5ef53b8b8b8d0c41886d25ee572dcd7fe8d9c1bb6064657",
+        "binary_sha256": "c1bdef2a09d1e13bd1d137910db5713de32514f7a421369d6b1a177b48de54d6",
+        "accepted_frames": [
+          {
+            "file": "envelope_s0.json",
+            "cells": 402,
+            "points": 132,
+            "physical_faces": 206,
+            "volume": "1/2",
+            "minimum_mean_ratio": 0.4917013076917022,
+            "minimum_scaled_jacobian": 0.21327734558445957,
+            "maximum_length": 1.7956516149938975,
+            "longest_edge": [
+              9,
+              13
+            ],
+            "markers": {
+              "2": 62,
+              "0": 56,
+              "1": 40,
+              "3": 22,
+              "4": 14,
+              "5": 12
+            },
+            "strict_metric_gate": true
+          },
+          {
+            "file": "envelope_s1.json",
+            "cells": 71,
+            "points": 31,
+            "physical_faces": 52,
+            "volume": "1/2",
+            "minimum_mean_ratio": 0.2394146447478602,
+            "minimum_scaled_jacobian": 0.09173582033653473,
+            "maximum_length": 1.7702049587158384,
+            "longest_edge": [
+              1,
+              8
+            ],
+            "markers": {
+              "0": 11,
+              "4": 6,
+              "1": 8,
+              "3": 8,
+              "2": 16,
+              "5": 3
+            },
+            "strict_metric_gate": true
+          },
+          {
+            "file": "envelope_s2.json",
+            "cells": 435,
+            "points": 131,
+            "physical_faces": 188,
+            "volume": "1/2",
+            "minimum_mean_ratio": 0.20399740583061948,
+            "minimum_scaled_jacobian": 0.0589521939546055,
+            "maximum_length": 1.7948193415369798,
+            "longest_edge": [
+              2,
+              101
+            ],
+            "markers": {
+              "2": 57,
+              "1": 39,
+              "3": 26,
+              "4": 20,
+              "5": 8,
+              "0": 38
+            },
+            "strict_metric_gate": true
+          }
+        ],
+        "states": [
+          {
+            "file": "envelope_s0_states.json",
+            "maximum_state_relative_error": 3.5228792947728926e-16,
+            "maximum_transported_tensor_absolute_error": 0.0,
+            "donor_points": 75,
+            "accepted_points": 132
+          },
+          {
+            "file": "envelope_s1_states.json",
+            "maximum_state_relative_error": 3.5228792947728926e-16,
+            "maximum_transported_tensor_absolute_error": 0.0,
+            "donor_points": 132,
+            "accepted_points": 31
+          },
+          {
+            "file": "envelope_s2_states.json",
+            "maximum_state_relative_error": 3.7156204112042362e-16,
+            "maximum_transported_tensor_absolute_error": 0.0,
+            "donor_points": 31,
+            "accepted_points": 131
+          }
+        ],
+        "reload_metrics": [
+          {
+            "format": "SU2",
+            "maximum_transported_tensor_absolute_error": 0.0,
+            "maximum_transported_tensor_physical_error": 0.0
+          },
+          {
+            "format": "CGNS",
+            "maximum_transported_tensor_absolute_error": 0.0,
+            "maximum_transported_tensor_physical_error": 0.0
+          }
+        ],
+        "restart": null,
+        "work": [
+          {
+            "stage": "coarsen",
+            "cycle": 0,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 96,
+                "reservation_veto_fraction": 0.0,
+                "accepted_fraction_of_attempts": 0.4166666666666667,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 113,
+                "reservation_veto_fraction": 0.36283185840707965,
+                "accepted_fraction_of_attempts": 0.4027777777777778,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 113.0
+                },
+                {
+                  "rank": 1,
+                  "value": 113.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 96.0
+                },
+                {
+                  "rank": 1,
+                  "value": 72.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 40.0
+                },
+                {
+                  "rank": 1,
+                  "value": 29.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 56.0
+                },
+                {
+                  "rank": 1,
+                  "value": 43.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 41.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 71859.0
+                },
+                {
+                  "rank": 1,
+                  "value": 76746.0
+                }
+              ],
+              "donor_box_filtered": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 11232.0
+                },
+                {
+                  "rank": 1,
+                  "value": 9897.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 4928512.0
+                },
+                {
+                  "rank": 1,
+                  "value": 5211568.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 5304.0
+                },
+                {
+                  "rank": 1,
+                  "value": 5304.0
+                }
+              ]
+            },
+            "missing_count_fields": []
+          },
+          {
+            "stage": "coarsen",
+            "cycle": 1,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 130,
+                "reservation_veto_fraction": 0.0,
+                "accepted_fraction_of_attempts": 0.4230769230769231,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 156,
+                "reservation_veto_fraction": 0.5897435897435898,
+                "accepted_fraction_of_attempts": 0.71875,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 156.0
+                },
+                {
+                  "rank": 1,
+                  "value": 156.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 130.0
+                },
+                {
+                  "rank": 1,
+                  "value": 64.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 55.0
+                },
+                {
+                  "rank": 1,
+                  "value": 46.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 75.0
+                },
+                {
+                  "rank": 1,
+                  "value": 18.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 92.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 649111.0
+                },
+                {
+                  "rank": 1,
+                  "value": 644747.0
+                }
+              ],
+              "donor_box_filtered": [
+                {
+                  "rank": 0,
+                  "value": 69893.0
+                },
+                {
+                  "rank": 1,
+                  "value": 95287.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 39323.0
+                },
+                {
+                  "rank": 1,
+                  "value": 15163.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 13980296.0
+                },
+                {
+                  "rank": 1,
+                  "value": 12523792.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 7940.0
+                },
+                {
+                  "rank": 1,
+                  "value": 7940.0
+                }
+              ]
+            },
+            "missing_count_fields": []
+          },
+          {
+            "stage": "coarsen",
+            "cycle": 2,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 117,
+                "reservation_veto_fraction": 0.0,
+                "accepted_fraction_of_attempts": 0.3076923076923077,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 153,
+                "reservation_veto_fraction": 0.29411764705882354,
+                "accepted_fraction_of_attempts": 0.2222222222222222,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 153.0
+                },
+                {
+                  "rank": 1,
+                  "value": 153.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 117.0
+                },
+                {
+                  "rank": 1,
+                  "value": 108.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 36.0
+                },
+                {
+                  "rank": 1,
+                  "value": 24.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 81.0
+                },
+                {
+                  "rank": 1,
+                  "value": 84.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 45.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 54739.0
+                },
+                {
+                  "rank": 1,
+                  "value": 56769.0
+                }
+              ],
+              "donor_box_filtered": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 6556.0
+                },
+                {
+                  "rank": 1,
+                  "value": 6039.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 3928920.0
+                },
+                {
+                  "rank": 1,
+                  "value": 4209304.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 6934.0
+                },
+                {
+                  "rank": 1,
+                  "value": 6934.0
+                }
+              ]
+            },
+            "missing_count_fields": []
+          },
+          {
+            "stage": "refine",
+            "cycle": 0,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 63,
+                "reservation_veto_fraction": 0.0,
+                "accepted_fraction_of_attempts": 1.0,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 67,
+                "reservation_veto_fraction": 0.05970149253731343,
+                "accepted_fraction_of_attempts": 1.0,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 67.0
+                },
+                {
+                  "rank": 1,
+                  "value": 67.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 63.0
+                },
+                {
+                  "rank": 1,
+                  "value": 63.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 63.0
+                },
+                {
+                  "rank": 1,
+                  "value": 63.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 4.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 40981.0
+                },
+                {
+                  "rank": 1,
+                  "value": 46373.0
+                }
+              ],
+              "donor_box_filtered": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 8640.0
+                },
+                {
+                  "rank": 1,
+                  "value": 9150.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 3692376.0
+                },
+                {
+                  "rank": 1,
+                  "value": 4048792.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 3147.0
+                },
+                {
+                  "rank": 1,
+                  "value": 3147.0
+                }
+              ]
+            },
+            "missing_count_fields": []
+          },
+          {
+            "stage": "refine",
+            "cycle": 1,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 0,
+                "reservation_veto_fraction": null,
+                "accepted_fraction_of_attempts": null,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 0,
+                "reservation_veto_fraction": null,
+                "accepted_fraction_of_attempts": null,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 15596.0
+                },
+                {
+                  "rank": 1,
+                  "value": 16498.0
+                }
+              ],
+              "donor_box_filtered": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 1922.0
+                },
+                {
+                  "rank": 1,
+                  "value": 1937.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 918360.0
+                },
+                {
+                  "rank": 1,
+                  "value": 948712.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 89.0
+                },
+                {
+                  "rank": 1,
+                  "value": 89.0
+                }
+              ]
+            },
+            "missing_count_fields": []
+          },
+          {
+            "stage": "refine",
+            "cycle": 2,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 91,
+                "reservation_veto_fraction": 0.0,
+                "accepted_fraction_of_attempts": 1.0,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 92,
+                "reservation_veto_fraction": 0.25,
+                "accepted_fraction_of_attempts": 1.0,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 92.0
+                },
+                {
+                  "rank": 1,
+                  "value": 92.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 91.0
+                },
+                {
+                  "rank": 1,
+                  "value": 69.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 91.0
+                },
+                {
+                  "rank": 1,
+                  "value": 69.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 23.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 28975.0
+                },
+                {
+                  "rank": 1,
+                  "value": 27343.0
+                }
+              ],
+              "donor_box_filtered": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 6718.0
+                },
+                {
+                  "rank": 1,
+                  "value": 5475.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 3157400.0
+                },
+                {
+                  "rank": 1,
+                  "value": 3005360.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 4273.0
+                },
+                {
+                  "rank": 1,
+                  "value": 4273.0
+                }
+              ]
+            },
+            "missing_count_fields": []
+          }
+        ]
+      }
+    },
+    {
+      "parameters": {
+        "ranks": 4,
+        "workers": 2,
+        "size": 4,
+        "anisotropy": 1,
+        "varying": 1,
+        "direction": 1,
+        "height_power": 20,
+        "wedge": true,
+        "aligned_markers": true,
+        "diagnostic_rounds": 512,
+        "repeat": 0,
+        "detail": 1,
+        "restart_format": "none"
+      },
+      "initial_inputs_sha256": {
+        "envelope.cfg": "1c81737c3074b9554888213b248a38741ee4fa1324ab15dcf6b0a3b049eaf652",
+        "envelope_input.su2": "3e1a9648f1f731fe6bb87a279907e363eb978b98eba35199b47187f52ea16581",
+        "envelope_s0_initial.json": "214a236ab5933a1e0f7feb06473b728a1bf6b78d50dc0147d18b9dcbe3900aa2"
+      },
+      "accepted_mesh_byte_matches": {
+        "envelope_s0.json": false,
+        "envelope_s1.json": false,
+        "envelope_s2.json": false
+      },
+      "exact_affine_covariance_frames": [
+        "envelope_s0_initial.json",
+        "envelope_s0.json",
+        "envelope_s1_initial.json",
+        "envelope_s1.json",
+        "envelope_s2_initial.json",
+        "envelope_s2.json",
+        "envelope_s2_written_SU2_reload_target.json",
+        "envelope_s2_written_CGNS_reload_target.json"
+      ],
+      "isolated": {
+        "folder": "rotating_reservation_h20_n4_m2_v1",
+        "validation_sha256": "0d6d92a54ace22f444145e244e1606d265d1d9952e24fa271441c8847fdbc476",
+        "audit_sha256": "7887cb27c751194c9cbc8a58c14536e869cad8d5b2c7a381e5b43409cc7ecba9",
+        "log_sha256": "6c809080a526aeb2f4cad5327ae417e33d0a3b22c0ed94a24bf9fe19a0bd860f",
+        "binary_sha256": "86274904578f8e2be7ccb8600e3f5e0f1bda7c02de2cc88b9984c40119765e2f",
+        "accepted_frames": [
+          {
+            "file": "envelope_s0.json",
+            "cells": 289,
+            "points": 96,
+            "physical_faces": 146,
+            "volume": "1/2097152",
+            "minimum_mean_ratio": 0.5438424433693994,
+            "minimum_scaled_jacobian": 0.3236529989722618,
+            "maximum_length": 1.7957781168258844,
+            "longest_edge": [
+              6,
+              60
+            ],
+            "markers": {
+              "0": 32,
+              "1": 32,
+              "3": 17,
+              "2": 48,
+              "4": 12,
+              "5": 5
+            },
+            "strict_metric_gate": true
+          },
+          {
+            "file": "envelope_s1.json",
+            "cells": 51,
+            "points": 27,
+            "physical_faces": 48,
+            "volume": "1/2097152",
+            "minimum_mean_ratio": 0.24666457184881851,
+            "minimum_scaled_jacobian": 0.10836000031042523,
+            "maximum_length": 1.7860007348098366,
+            "longest_edge": [
+              4,
+              18
+            ],
+            "markers": {
+              "3": 7,
+              "1": 8,
+              "0": 11,
+              "2": 14,
+              "4": 6,
+              "5": 2
+            },
+            "strict_metric_gate": true
+          },
+          {
+            "file": "envelope_s2.json",
+            "cells": 287,
+            "points": 97,
+            "physical_faces": 152,
+            "volume": "1/2097152",
+            "minimum_mean_ratio": 0.27680484481382295,
+            "minimum_scaled_jacobian": 0.08654324081190538,
+            "maximum_length": 1.7949602588423905,
+            "longest_edge": [
+              27,
+              72
+            ],
+            "markers": {
+              "1": 32,
+              "2": 46,
+              "4": 16,
+              "5": 5,
+              "0": 34,
+              "3": 19
+            },
+            "strict_metric_gate": true
+          }
+        ],
+        "states": [
+          {
+            "file": "envelope_s0_states.json",
+            "maximum_state_relative_error": 3.577870528063034e-16,
+            "maximum_transported_tensor_absolute_error": 0.0,
+            "donor_points": 75,
+            "accepted_points": 96,
+            "maximum_transported_tensor_physical_error": 0.0
+          },
+          {
+            "file": "envelope_s1_states.json",
+            "maximum_state_relative_error": 3.577870528063034e-16,
+            "maximum_transported_tensor_absolute_error": 0.0,
+            "donor_points": 96,
+            "accepted_points": 27,
+            "maximum_transported_tensor_physical_error": 0.0
+          },
+          {
+            "file": "envelope_s2_states.json",
+            "maximum_state_relative_error": 1.1284049824188437e-14,
+            "maximum_transported_tensor_absolute_error": 0.0,
+            "donor_points": 27,
+            "accepted_points": 97,
+            "maximum_transported_tensor_physical_error": 0.0
+          }
+        ],
+        "reload_metrics": [
+          {
+            "format": "SU2",
+            "maximum_transported_tensor_absolute_error": 0.0,
+            "maximum_transported_tensor_physical_error": 0.0
+          },
+          {
+            "format": "CGNS",
+            "maximum_transported_tensor_absolute_error": 0.0,
+            "maximum_transported_tensor_physical_error": 0.0
+          }
+        ],
+        "restart": null,
+        "work": [
+          {
+            "stage": "coarsen",
+            "cycle": 0,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 40,
+                "reservation_veto_fraction": 0.1,
+                "accepted_fraction_of_attempts": 0.6388888888888888,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 34,
+                "reservation_veto_fraction": 0.17647058823529413,
+                "accepted_fraction_of_attempts": 0.6071428571428571,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 40.0
+                },
+                {
+                  "rank": 1,
+                  "value": 40.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 36.0
+                },
+                {
+                  "rank": 1,
+                  "value": 28.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 23.0
+                },
+                {
+                  "rank": 1,
+                  "value": 17.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 13.0
+                },
+                {
+                  "rank": 1,
+                  "value": 11.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 4.0
+                },
+                {
+                  "rank": 1,
+                  "value": 6.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 36468.0
+                },
+                {
+                  "rank": 1,
+                  "value": 32898.0
+                }
+              ],
+              "donor_box_filtered": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 5895.0
+                },
+                {
+                  "rank": 1,
+                  "value": 4728.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 2645120.0
+                },
+                {
+                  "rank": 1,
+                  "value": 2270312.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 1991.0
+                },
+                {
+                  "rank": 1,
+                  "value": 1991.0
+                }
+              ]
+            },
+            "missing_count_fields": []
+          },
+          {
+            "stage": "coarsen",
+            "cycle": 1,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 129,
+                "reservation_veto_fraction": 0.3953488372093023,
+                "accepted_fraction_of_attempts": 0.5,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 128,
+                "reservation_veto_fraction": 0.390625,
+                "accepted_fraction_of_attempts": 0.38461538461538464,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 129.0
+                },
+                {
+                  "rank": 1,
+                  "value": 129.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 78.0
+                },
+                {
+                  "rank": 1,
+                  "value": 78.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 39.0
+                },
+                {
+                  "rank": 1,
+                  "value": 30.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 39.0
+                },
+                {
+                  "rank": 1,
+                  "value": 48.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 51.0
+                },
+                {
+                  "rank": 1,
+                  "value": 50.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 125401.0
+                },
+                {
+                  "rank": 1,
+                  "value": 127190.0
+                }
+              ],
+              "donor_box_filtered": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 13523.0
+                },
+                {
+                  "rank": 1,
+                  "value": 14700.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 6262880.0
+                },
+                {
+                  "rank": 1,
+                  "value": 5951408.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 5872.0
+                },
+                {
+                  "rank": 1,
+                  "value": 5872.0
+                }
+              ]
+            },
+            "missing_count_fields": []
+          },
+          {
+            "stage": "coarsen",
+            "cycle": 2,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 69,
+                "reservation_veto_fraction": 0.18840579710144928,
+                "accepted_fraction_of_attempts": 0.4107142857142857,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 80,
+                "reservation_veto_fraction": 0.2,
+                "accepted_fraction_of_attempts": 0.296875,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 80.0
+                },
+                {
+                  "rank": 1,
+                  "value": 80.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 56.0
+                },
+                {
+                  "rank": 1,
+                  "value": 64.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 23.0
+                },
+                {
+                  "rank": 1,
+                  "value": 19.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 33.0
+                },
+                {
+                  "rank": 1,
+                  "value": 45.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 13.0
+                },
+                {
+                  "rank": 1,
+                  "value": 16.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 21966.0
+                },
+                {
+                  "rank": 1,
+                  "value": 24019.0
+                }
+              ],
+              "donor_box_filtered": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 2594.0
+                },
+                {
+                  "rank": 1,
+                  "value": 2982.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 1801464.0
+                },
+                {
+                  "rank": 1,
+                  "value": 2139752.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 3699.0
+                },
+                {
+                  "rank": 1,
+                  "value": 3699.0
+                }
+              ]
+            },
+            "missing_count_fields": []
+          },
+          {
+            "stage": "refine",
+            "cycle": 0,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 33,
+                "reservation_veto_fraction": 0.06060606060606061,
+                "accepted_fraction_of_attempts": 1.0,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 31,
+                "reservation_veto_fraction": 0.03225806451612903,
+                "accepted_fraction_of_attempts": 1.0,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 33.0
+                },
+                {
+                  "rank": 1,
+                  "value": 33.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 31.0
+                },
+                {
+                  "rank": 1,
+                  "value": 30.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 31.0
+                },
+                {
+                  "rank": 1,
+                  "value": 30.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 2.0
+                },
+                {
+                  "rank": 1,
+                  "value": 1.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 26859.0
+                },
+                {
+                  "rank": 1,
+                  "value": 25086.0
+                }
+              ],
+              "donor_box_filtered": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 5238.0
+                },
+                {
+                  "rank": 1,
+                  "value": 4848.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 2276704.0
+                },
+                {
+                  "rank": 1,
+                  "value": 2122184.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 1571.0
+                },
+                {
+                  "rank": 1,
+                  "value": 1571.0
+                }
+              ]
+            },
+            "missing_count_fields": []
+          },
+          {
+            "stage": "refine",
+            "cycle": 1,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 0,
+                "reservation_veto_fraction": null,
+                "accepted_fraction_of_attempts": null,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 0,
+                "reservation_veto_fraction": null,
+                "accepted_fraction_of_attempts": null,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 10917.0
+                },
+                {
+                  "rank": 1,
+                  "value": 10812.0
+                }
+              ],
+              "donor_box_filtered": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 1280.0
+                },
+                {
+                  "rank": 1,
+                  "value": 1282.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 641832.0
+                },
+                {
+                  "rank": 1,
+                  "value": 629680.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 71.0
+                },
+                {
+                  "rank": 1,
+                  "value": 71.0
+                }
+              ]
+            },
+            "missing_count_fields": []
+          },
+          {
+            "stage": "refine",
+            "cycle": 2,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 67,
+                "reservation_veto_fraction": 0.22388059701492538,
+                "accepted_fraction_of_attempts": 1.0,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 73,
+                "reservation_veto_fraction": 0.1643835616438356,
+                "accepted_fraction_of_attempts": 1.0,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 73.0
+                },
+                {
+                  "rank": 1,
+                  "value": 73.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 52.0
+                },
+                {
+                  "rank": 1,
+                  "value": 61.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 52.0
+                },
+                {
+                  "rank": 1,
+                  "value": 61.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 15.0
+                },
+                {
+                  "rank": 1,
+                  "value": 12.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 14095.0
+                },
+                {
+                  "rank": 1,
+                  "value": 15297.0
+                }
+              ],
+              "donor_box_filtered": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 3134.0
+                },
+                {
+                  "rank": 1,
+                  "value": 3556.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 1714200.0
+                },
+                {
+                  "rank": 1,
+                  "value": 1936360.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 3381.0
+                },
+                {
+                  "rank": 1,
+                  "value": 3381.0
+                }
+              ]
+            },
+            "missing_count_fields": []
+          }
+        ]
+      },
+      "control": {
+        "folder": "box_filter_thin_h20_n4_n4_m2_v1",
+        "validation_sha256": "6c6e93c4aa60567770dfe8593a7957251eeb6c7677e3927f868dfd137e8bf542",
+        "audit_sha256": "2b225f788cadf98adff951394c35c9afbc35aba56f48b0b82785150b71bdc38c",
+        "log_sha256": "d12da1517232a91b60443d8739167868da801f346fca9d6019762785d45b72ee",
+        "binary_sha256": "c1bdef2a09d1e13bd1d137910db5713de32514f7a421369d6b1a177b48de54d6",
+        "accepted_frames": [
+          {
+            "file": "envelope_s0.json",
+            "cells": 289,
+            "points": 96,
+            "physical_faces": 146,
+            "volume": "1/2097152",
+            "minimum_mean_ratio": 0.5438424433693994,
+            "minimum_scaled_jacobian": 0.3236529989722618,
+            "maximum_length": 1.7957781168258844,
+            "longest_edge": [
+              6,
+              60
+            ],
+            "markers": {
+              "0": 32,
+              "1": 32,
+              "3": 17,
+              "2": 48,
+              "4": 12,
+              "5": 5
+            },
+            "strict_metric_gate": true
+          },
+          {
+            "file": "envelope_s1.json",
+            "cells": 48,
+            "points": 27,
+            "physical_faces": 48,
+            "volume": "1/2097152",
+            "minimum_mean_ratio": 0.3633582476234516,
+            "minimum_scaled_jacobian": 0.14187391881476188,
+            "maximum_length": 1.7863967402467296,
+            "longest_edge": [
+              11,
+              21
+            ],
+            "markers": {
+              "2": 15,
+              "1": 8,
+              "5": 1,
+              "3": 7,
+              "4": 5,
+              "0": 12
+            },
+            "strict_metric_gate": true
+          },
+          {
+            "file": "envelope_s2.json",
+            "cells": 314,
+            "points": 102,
+            "physical_faces": 150,
+            "volume": "1/2097152",
+            "minimum_mean_ratio": 0.23883815837008673,
+            "minimum_scaled_jacobian": 0.10271873970549425,
+            "maximum_length": 1.799674941238158,
+            "longest_edge": [
+              7,
+              27
+            ],
+            "markers": {
+              "5": 5,
+              "2": 45,
+              "4": 14,
+              "0": 36,
+              "1": 32,
+              "3": 18
+            },
+            "strict_metric_gate": true
+          }
+        ],
+        "states": [
+          {
+            "file": "envelope_s0_states.json",
+            "maximum_state_relative_error": 3.577870528063034e-16,
+            "maximum_transported_tensor_absolute_error": 0.0,
+            "donor_points": 75,
+            "accepted_points": 96,
+            "maximum_transported_tensor_physical_error": 0.0
+          },
+          {
+            "file": "envelope_s1_states.json",
+            "maximum_state_relative_error": 3.577870528063034e-16,
+            "maximum_transported_tensor_absolute_error": 0.0,
+            "donor_points": 96,
+            "accepted_points": 27,
+            "maximum_transported_tensor_physical_error": 0.0
+          },
+          {
+            "file": "envelope_s2_states.json",
+            "maximum_state_relative_error": 4.606665037477689e-14,
+            "maximum_transported_tensor_absolute_error": 0.0,
+            "donor_points": 27,
+            "accepted_points": 102,
+            "maximum_transported_tensor_physical_error": 0.0
+          }
+        ],
+        "reload_metrics": [
+          {
+            "format": "SU2",
+            "maximum_transported_tensor_absolute_error": 0.0,
+            "maximum_transported_tensor_physical_error": 0.0
+          },
+          {
+            "format": "CGNS",
+            "maximum_transported_tensor_absolute_error": 0.0,
+            "maximum_transported_tensor_physical_error": 0.0
+          }
+        ],
+        "restart": null,
+        "work": [
+          {
+            "stage": "coarsen",
+            "cycle": 0,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 39,
+                "reservation_veto_fraction": 0.0,
+                "accepted_fraction_of_attempts": 0.6666666666666666,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 36,
+                "reservation_veto_fraction": 0.3055555555555556,
+                "accepted_fraction_of_attempts": 0.56,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 39.0
+                },
+                {
+                  "rank": 1,
+                  "value": 39.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 39.0
+                },
+                {
+                  "rank": 1,
+                  "value": 25.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 26.0
+                },
+                {
+                  "rank": 1,
+                  "value": 14.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 13.0
+                },
+                {
+                  "rank": 1,
+                  "value": 11.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 11.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 36428.0
+                },
+                {
+                  "rank": 1,
+                  "value": 32854.0
+                }
+              ],
+              "donor_box_filtered": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 6309.0
+                },
+                {
+                  "rank": 1,
+                  "value": 4521.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 2666272.0
+                },
+                {
+                  "rank": 1,
+                  "value": 2311056.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 1960.0
+                },
+                {
+                  "rank": 1,
+                  "value": 1960.0
+                }
+              ]
+            },
+            "missing_count_fields": []
+          },
+          {
+            "stage": "coarsen",
+            "cycle": 1,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 106,
+                "reservation_veto_fraction": 0.0,
+                "accepted_fraction_of_attempts": 0.37735849056603776,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 141,
+                "reservation_veto_fraction": 0.6170212765957447,
+                "accepted_fraction_of_attempts": 0.5370370370370371,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 141.0
+                },
+                {
+                  "rank": 1,
+                  "value": 141.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 106.0
+                },
+                {
+                  "rank": 1,
+                  "value": 54.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 40.0
+                },
+                {
+                  "rank": 1,
+                  "value": 29.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 66.0
+                },
+                {
+                  "rank": 1,
+                  "value": 25.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 87.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 334760.0
+                },
+                {
+                  "rank": 1,
+                  "value": 320241.0
+                }
+              ],
+              "donor_box_filtered": [
+                {
+                  "rank": 0,
+                  "value": 30282.0
+                },
+                {
+                  "rank": 1,
+                  "value": 31788.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 24850.0
+                },
+                {
+                  "rank": 1,
+                  "value": 13156.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 8678648.0
+                },
+                {
+                  "rank": 1,
+                  "value": 8513576.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 6716.0
+                },
+                {
+                  "rank": 1,
+                  "value": 6716.0
+                }
+              ]
+            },
+            "missing_count_fields": []
+          },
+          {
+            "stage": "coarsen",
+            "cycle": 2,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 73,
+                "reservation_veto_fraction": 0.0,
+                "accepted_fraction_of_attempts": 0.3013698630136986,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 116,
+                "reservation_veto_fraction": 0.31896551724137934,
+                "accepted_fraction_of_attempts": 0.26582278481012656,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 116.0
+                },
+                {
+                  "rank": 1,
+                  "value": 116.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 73.0
+                },
+                {
+                  "rank": 1,
+                  "value": 79.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 22.0
+                },
+                {
+                  "rank": 1,
+                  "value": 21.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 51.0
+                },
+                {
+                  "rank": 1,
+                  "value": 58.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 37.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 24243.0
+                },
+                {
+                  "rank": 1,
+                  "value": 30159.0
+                }
+              ],
+              "donor_box_filtered": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 2981.0
+                },
+                {
+                  "rank": 1,
+                  "value": 3252.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 2064168.0
+                },
+                {
+                  "rank": 1,
+                  "value": 2393144.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 5259.0
+                },
+                {
+                  "rank": 1,
+                  "value": 5259.0
+                }
+              ]
+            },
+            "missing_count_fields": []
+          },
+          {
+            "stage": "refine",
+            "cycle": 0,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 32,
+                "reservation_veto_fraction": 0.0,
+                "accepted_fraction_of_attempts": 1.0,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 33,
+                "reservation_veto_fraction": 0.12121212121212122,
+                "accepted_fraction_of_attempts": 1.0,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 33.0
+                },
+                {
+                  "rank": 1,
+                  "value": 33.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 32.0
+                },
+                {
+                  "rank": 1,
+                  "value": 29.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 32.0
+                },
+                {
+                  "rank": 1,
+                  "value": 29.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 4.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 26859.0
+                },
+                {
+                  "rank": 1,
+                  "value": 25086.0
+                }
+              ],
+              "donor_box_filtered": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 5391.0
+                },
+                {
+                  "rank": 1,
+                  "value": 4776.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 2291480.0
+                },
+                {
+                  "rank": 1,
+                  "value": 2133328.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 1577.0
+                },
+                {
+                  "rank": 1,
+                  "value": 1577.0
+                }
+              ]
+            },
+            "missing_count_fields": []
+          },
+          {
+            "stage": "refine",
+            "cycle": 1,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 0,
+                "reservation_veto_fraction": null,
+                "accepted_fraction_of_attempts": null,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 0,
+                "reservation_veto_fraction": null,
+                "accepted_fraction_of_attempts": null,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 10812.0
+                },
+                {
+                  "rank": 1,
+                  "value": 10917.0
+                }
+              ],
+              "donor_box_filtered": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 1283.0
+                },
+                {
+                  "rank": 1,
+                  "value": 1301.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 636240.0
+                },
+                {
+                  "rank": 1,
+                  "value": 642488.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 71.0
+                },
+                {
+                  "rank": 1,
+                  "value": 71.0
+                }
+              ]
+            },
+            "missing_count_fields": []
+          },
+          {
+            "stage": "refine",
+            "cycle": 2,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 68,
+                "reservation_veto_fraction": 0.0,
+                "accepted_fraction_of_attempts": 1.0,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 77,
+                "reservation_veto_fraction": 0.35064935064935066,
+                "accepted_fraction_of_attempts": 1.0,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 77.0
+                },
+                {
+                  "rank": 1,
+                  "value": 77.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 68.0
+                },
+                {
+                  "rank": 1,
+                  "value": 50.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 68.0
+                },
+                {
+                  "rank": 1,
+                  "value": 50.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 27.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 15324.0
+                },
+                {
+                  "rank": 1,
+                  "value": 15851.0
+                }
+              ],
+              "donor_box_filtered": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 3805.0
+                },
+                {
+                  "rank": 1,
+                  "value": 3129.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 1902504.0
+                },
+                {
+                  "rank": 1,
+                  "value": 1869256.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 3565.0
+                },
+                {
+                  "rank": 1,
+                  "value": 3565.0
+                }
+              ]
+            },
+            "missing_count_fields": []
+          }
+        ]
+      }
+    },
+    {
+      "parameters": {
+        "ranks": 4,
+        "workers": 2,
+        "size": 2,
+        "anisotropy": 1,
+        "varying": 1,
+        "direction": 1,
+        "height_power": 0,
+        "wedge": true,
+        "aligned_markers": true,
+        "diagnostic_rounds": 512,
+        "repeat": 0,
+        "detail": 1,
+        "restart_format": "cgns"
+      },
+      "initial_inputs_sha256": {
+        "envelope.cfg": "645f7a0b733601f08c2b0f4633a2656ea3366e9728ae24c3dd2bd14d9ba45b18",
+        "envelope_input.su2": "e9ee2160d30d6038763cedd58c21b7b0bcc436df731ab126bb9c3622a879e0f0",
+        "envelope_s0_initial.json": "9bd5b77c30588361b5f712d027b8af3a5f23221a38c2b33e828ee6176727d671"
+      },
+      "accepted_mesh_byte_matches": {
+        "envelope_s0.json": false,
+        "envelope_s1.json": false,
+        "envelope_s2.json": false
+      },
+      "exact_affine_covariance_frames": [],
+      "isolated": {
+        "folder": "rotating_reservation_restart_cgns_n2_n4_m2_v1",
+        "validation_sha256": "37f83cd8850e18d034c5a7178ac677d853ac4d33c5826f60b1f47c7b7cbe023d",
+        "audit_sha256": "f7b8ca8d54ebc91d69806b1b91fa478bc2dbe92593f54cbd32316c2d46cb162c",
+        "log_sha256": "ee5ac44d28e15b0dd081a132cf245f9a9a24a2b9a9490a00510d325125931c5b",
+        "binary_sha256": "86274904578f8e2be7ccb8600e3f5e0f1bda7c02de2cc88b9984c40119765e2f",
+        "accepted_frames": [
+          {
+            "file": "envelope_s0.json",
+            "cells": 46,
+            "points": 24,
+            "physical_faces": 40,
+            "volume": "1/2",
+            "minimum_mean_ratio": 0.528522593525256,
+            "minimum_scaled_jacobian": 0.3011450046967278,
+            "maximum_length": 1.7930625852913402,
+            "longest_edge": [
+              7,
+              10
+            ],
+            "markers": {
+              "2": 16,
+              "5": 1,
+              "4": 3,
+              "0": 8,
+              "1": 8,
+              "3": 4
+            },
+            "strict_metric_gate": true
+          },
+          {
+            "file": "envelope_s1.json",
+            "cells": 7,
+            "points": 9,
+            "physical_faces": 14,
+            "volume": "1/2",
+            "minimum_mean_ratio": 0.5643472984641079,
+            "minimum_scaled_jacobian": 0.24505011344045907,
+            "maximum_length": 1.5418064648975187,
+            "longest_edge": [
+              0,
+              2
+            ],
+            "markers": {
+              "2": 4,
+              "4": 2,
+              "0": 2,
+              "3": 2,
+              "1": 3,
+              "5": 1
+            },
+            "strict_metric_gate": true
+          },
+          {
+            "file": "envelope_s2.json",
+            "cells": 36,
+            "points": 20,
+            "physical_faces": 34,
+            "volume": "1/2",
+            "minimum_mean_ratio": 0.5943688970260981,
+            "minimum_scaled_jacobian": 0.316156927373101,
+            "maximum_length": 1.7500807171892443,
+            "longest_edge": [
+              6,
+              14
+            ],
+            "markers": {
+              "4": 3,
+              "2": 10,
+              "5": 1,
+              "1": 8,
+              "3": 4,
+              "0": 8
+            },
+            "strict_metric_gate": true
+          }
+        ],
+        "states": [
+          {
+            "file": "envelope_s0_states.json",
+            "maximum_state_relative_error": 3.844148161277339e-16,
+            "maximum_transported_tensor_absolute_error": 0.0,
+            "donor_points": 18,
+            "accepted_points": 24
+          },
+          {
+            "file": "envelope_s1_states.json",
+            "maximum_state_relative_error": 3.844148161277339e-16,
+            "maximum_transported_tensor_absolute_error": 0.0,
+            "donor_points": 24,
+            "accepted_points": 9
+          },
+          {
+            "file": "envelope_s2_states.json",
+            "maximum_state_relative_error": 1.975925294104839e-16,
+            "maximum_transported_tensor_absolute_error": 0.0,
+            "donor_points": 9,
+            "accepted_points": 20
+          }
+        ],
+        "reload_metrics": [
+          {
+            "format": "SU2",
+            "maximum_transported_tensor_absolute_error": 0.0,
+            "maximum_transported_tensor_physical_error": 0.0
+          },
+          {
+            "format": "CGNS",
+            "maximum_transported_tensor_absolute_error": 0.0,
+            "maximum_transported_tensor_physical_error": 0.0
+          }
+        ],
+        "restart": {
+          "points": 24,
+          "maximum_state_relative_error": 3.844148161277339e-16,
+          "files": [
+            {
+              "file": "envelope_restart_00002.dat",
+              "points": 24,
+              "fields": [
+                "x",
+                "y",
+                "z",
+                "Density",
+                "Momentum_x",
+                "Momentum_y",
+                "Momentum_z",
+                "Energy"
+              ],
+              "maximum_state_relative_error": 0.0
+            },
+            {
+              "file": "envelope_restart_00001.dat",
+              "points": 24,
+              "fields": [
+                "x",
+                "y",
+                "z",
+                "Density",
+                "Momentum_x",
+                "Momentum_y",
+                "Momentum_z",
+                "Energy"
+              ],
+              "maximum_state_relative_error": 0.0
+            }
+          ],
+          "adversaries_rejected": 4,
+          "scope": "Actual two-file binary BDF2 write and real driver construction/Preprocess reload, matched by physical coordinates. Frozen sensor source is freshly constructed at the next event; no tensor-source persistence or PDE iteration claim."
+        },
+        "work": [
+          {
+            "stage": "coarsen",
+            "cycle": 0,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 9,
+                "reservation_veto_fraction": 0.4444444444444444,
+                "accepted_fraction_of_attempts": 0.4,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 8,
+                "reservation_veto_fraction": 0.5,
+                "accepted_fraction_of_attempts": 0.5,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 9.0
+                },
+                {
+                  "rank": 1,
+                  "value": 9.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 5.0
+                },
+                {
+                  "rank": 1,
+                  "value": 4.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 2.0
+                },
+                {
+                  "rank": 1,
+                  "value": 2.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 3.0
+                },
+                {
+                  "rank": 1,
+                  "value": 2.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 4.0
+                },
+                {
+                  "rank": 1,
+                  "value": 4.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 1495.0
+                },
+                {
+                  "rank": 1,
+                  "value": 1559.0
+                }
+              ],
+              "donor_box_filtered": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 210.0
+                },
+                {
+                  "rank": 1,
+                  "value": 192.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 164384.0
+                },
+                {
+                  "rank": 1,
+                  "value": 155304.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 430.0
+                },
+                {
+                  "rank": 1,
+                  "value": 430.0
+                }
+              ]
+            },
+            "missing_count_fields": []
+          },
+          {
+            "stage": "coarsen",
+            "cycle": 1,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 20,
+                "reservation_veto_fraction": 0.45,
+                "accepted_fraction_of_attempts": 0.7272727272727273,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 17,
+                "reservation_veto_fraction": 0.47058823529411764,
+                "accepted_fraction_of_attempts": 0.7777777777777778,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 20.0
+                },
+                {
+                  "rank": 1,
+                  "value": 20.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 11.0
+                },
+                {
+                  "rank": 1,
+                  "value": 9.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 8.0
+                },
+                {
+                  "rank": 1,
+                  "value": 7.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 3.0
+                },
+                {
+                  "rank": 1,
+                  "value": 2.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 9.0
+                },
+                {
+                  "rank": 1,
+                  "value": 8.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 4369.0
+                },
+                {
+                  "rank": 1,
+                  "value": 4319.0
+                }
+              ],
+              "donor_box_filtered": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 972.0
+                },
+                {
+                  "rank": 1,
+                  "value": 754.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 461920.0
+                },
+                {
+                  "rank": 1,
+                  "value": 432456.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 951.0
+                },
+                {
+                  "rank": 1,
+                  "value": 951.0
+                }
+              ]
+            },
+            "missing_count_fields": []
+          },
+          {
+            "stage": "coarsen",
+            "cycle": 2,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 15,
+                "reservation_veto_fraction": 0.4,
+                "accepted_fraction_of_attempts": 0.3333333333333333,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 12,
+                "reservation_veto_fraction": 0.4166666666666667,
+                "accepted_fraction_of_attempts": 0.5714285714285714,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 15.0
+                },
+                {
+                  "rank": 1,
+                  "value": 15.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 9.0
+                },
+                {
+                  "rank": 1,
+                  "value": 7.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 3.0
+                },
+                {
+                  "rank": 1,
+                  "value": 4.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 6.0
+                },
+                {
+                  "rank": 1,
+                  "value": 3.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 6.0
+                },
+                {
+                  "rank": 1,
+                  "value": 5.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 906.0
+                },
+                {
+                  "rank": 1,
+                  "value": 1155.0
+                }
+              ],
+              "donor_box_filtered": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 112.0
+                },
+                {
+                  "rank": 1,
+                  "value": 91.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 186792.0
+                },
+                {
+                  "rank": 1,
+                  "value": 173936.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 706.0
+                },
+                {
+                  "rank": 1,
+                  "value": 706.0
+                }
+              ]
+            },
+            "missing_count_fields": []
+          },
+          {
+            "stage": "refine",
+            "cycle": 0,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 10,
+                "reservation_veto_fraction": 0.5,
+                "accepted_fraction_of_attempts": 1.0,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 10,
+                "reservation_veto_fraction": 0.5,
+                "accepted_fraction_of_attempts": 1.0,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 10.0
+                },
+                {
+                  "rank": 1,
+                  "value": 10.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 5.0
+                },
+                {
+                  "rank": 1,
+                  "value": 5.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 5.0
+                },
+                {
+                  "rank": 1,
+                  "value": 5.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 5.0
+                },
+                {
+                  "rank": 1,
+                  "value": 5.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 1359.0
+                },
+                {
+                  "rank": 1,
+                  "value": 1368.0
+                }
+              ],
+              "donor_box_filtered": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 306.0
+                },
+                {
+                  "rank": 1,
+                  "value": 264.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 179128.0
+                },
+                {
+                  "rank": 1,
+                  "value": 170296.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 477.0
+                },
+                {
+                  "rank": 1,
+                  "value": 477.0
+                }
+              ]
+            },
+            "missing_count_fields": []
+          },
+          {
+            "stage": "refine",
+            "cycle": 1,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 0,
+                "reservation_veto_fraction": null,
+                "accepted_fraction_of_attempts": null,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 0,
+                "reservation_veto_fraction": null,
+                "accepted_fraction_of_attempts": null,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 757.0
+                },
+                {
+                  "rank": 1,
+                  "value": 757.0
+                }
+              ],
+              "donor_box_filtered": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 82.0
+                },
+                {
+                  "rank": 1,
+                  "value": 84.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 62024.0
+                },
+                {
+                  "rank": 1,
+                  "value": 61200.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 23.0
+                },
+                {
+                  "rank": 1,
+                  "value": 23.0
+                }
+              ]
+            },
+            "missing_count_fields": []
+          },
+          {
+            "stage": "refine",
+            "cycle": 2,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 15,
+                "reservation_veto_fraction": 0.3333333333333333,
+                "accepted_fraction_of_attempts": 1.0,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 13,
+                "reservation_veto_fraction": 0.38461538461538464,
+                "accepted_fraction_of_attempts": 1.0,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 15.0
+                },
+                {
+                  "rank": 1,
+                  "value": 15.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 10.0
+                },
+                {
+                  "rank": 1,
+                  "value": 8.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 10.0
+                },
+                {
+                  "rank": 1,
+                  "value": 8.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 5.0
+                },
+                {
+                  "rank": 1,
+                  "value": 5.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 432.0
+                },
+                {
+                  "rank": 1,
+                  "value": 562.0
+                }
+              ],
+              "donor_box_filtered": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 152.0
+                },
+                {
+                  "rank": 1,
+                  "value": 134.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 132792.0
+                },
+                {
+                  "rank": 1,
+                  "value": 139360.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 707.0
+                },
+                {
+                  "rank": 1,
+                  "value": 707.0
+                }
+              ]
+            },
+            "missing_count_fields": []
+          }
+        ]
+      },
+      "control": {
+        "folder": "query_routing_restart_cgns_n2_n4_m2_v1",
+        "validation_sha256": "10cf7a202c582f6e490be41354f71c9d4b9bcce21be04bb41dace4a0a74b7671",
+        "audit_sha256": "5a835ed87bd2dce604fb3a151723d5e2950e125289cb2da833ac4041c3a66216",
+        "log_sha256": "bb4a2b29d93b83ad3b28147f935b1351b4567c02e437aeffcd32ba7fe8b8d89e",
+        "binary_sha256": "bb5a7664dda805daac6bbcc4b16e3da3ee3759f33475937beedd6a177c35955e",
+        "accepted_frames": [
+          {
+            "file": "envelope_s0.json",
+            "cells": 46,
+            "points": 24,
+            "physical_faces": 40,
+            "volume": "1/2",
+            "minimum_mean_ratio": 0.528522593525256,
+            "minimum_scaled_jacobian": 0.3011450046967278,
+            "maximum_length": 1.7930625852913402,
+            "longest_edge": [
+              8,
+              11
+            ],
+            "markers": {
+              "2": 16,
+              "5": 1,
+              "4": 3,
+              "0": 8,
+              "1": 8,
+              "3": 4
+            },
+            "strict_metric_gate": true
+          },
+          {
+            "file": "envelope_s1.json",
+            "cells": 9,
+            "points": 10,
+            "physical_faces": 16,
+            "volume": "1/2",
+            "minimum_mean_ratio": 0.4632912734032819,
+            "minimum_scaled_jacobian": 0.25838413712093844,
+            "maximum_length": 1.5418064648975187,
+            "longest_edge": [
+              0,
+              2
+            ],
+            "markers": {
+              "0": 3,
+              "3": 3,
+              "1": 3,
+              "4": 2,
+              "2": 4,
+              "5": 1
+            },
+            "strict_metric_gate": true
+          },
+          {
+            "file": "envelope_s2.json",
+            "cells": 36,
+            "points": 21,
+            "physical_faces": 36,
+            "volume": "1/2",
+            "minimum_mean_ratio": 0.512731911814576,
+            "minimum_scaled_jacobian": 0.2526826043051684,
+            "maximum_length": 1.7500807171892443,
+            "longest_edge": [
+              1,
+              17
+            ],
+            "markers": {
+              "0": 10,
+              "1": 8,
+              "4": 3,
+              "2": 10,
+              "3": 4,
+              "5": 1
+            },
+            "strict_metric_gate": true
+          }
+        ],
+        "states": [
+          {
+            "file": "envelope_s0_states.json",
+            "maximum_state_relative_error": 3.844148161277339e-16,
+            "maximum_transported_tensor_absolute_error": 0.0,
+            "donor_points": 18,
+            "accepted_points": 24
+          },
+          {
+            "file": "envelope_s1_states.json",
+            "maximum_state_relative_error": 3.844148161277339e-16,
+            "maximum_transported_tensor_absolute_error": 0.0,
+            "donor_points": 24,
+            "accepted_points": 10
+          },
+          {
+            "file": "envelope_s2_states.json",
+            "maximum_state_relative_error": 1.975925294104839e-16,
+            "maximum_transported_tensor_absolute_error": 0.0,
+            "donor_points": 10,
+            "accepted_points": 21
+          }
+        ],
+        "reload_metrics": [
+          {
+            "format": "SU2",
+            "maximum_transported_tensor_absolute_error": 0.0,
+            "maximum_transported_tensor_physical_error": 0.0
+          },
+          {
+            "format": "CGNS",
+            "maximum_transported_tensor_absolute_error": 0.0,
+            "maximum_transported_tensor_physical_error": 0.0
+          }
+        ],
+        "restart": {
+          "points": 24,
+          "maximum_state_relative_error": 3.844148161277339e-16,
+          "files": [
+            {
+              "file": "envelope_restart_00002.dat",
+              "points": 24,
+              "fields": [
+                "x",
+                "y",
+                "z",
+                "Density",
+                "Momentum_x",
+                "Momentum_y",
+                "Momentum_z",
+                "Energy"
+              ],
+              "maximum_state_relative_error": 0.0
+            },
+            {
+              "file": "envelope_restart_00001.dat",
+              "points": 24,
+              "fields": [
+                "x",
+                "y",
+                "z",
+                "Density",
+                "Momentum_x",
+                "Momentum_y",
+                "Momentum_z",
+                "Energy"
+              ],
+              "maximum_state_relative_error": 0.0
+            }
+          ],
+          "adversaries_rejected": 4,
+          "scope": "Actual two-file binary BDF2 write and real driver construction/Preprocess reload, matched by physical coordinates. Frozen sensor source is freshly constructed at the next event; no tensor-source persistence or PDE iteration claim."
+        },
+        "work": [
+          {
+            "stage": "coarsen",
+            "cycle": 0,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 8,
+                "reservation_veto_fraction": 0.0,
+                "accepted_fraction_of_attempts": 0.25,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 12,
+                "reservation_veto_fraction": 0.6666666666666666,
+                "accepted_fraction_of_attempts": 0.5,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 12.0
+                },
+                {
+                  "rank": 1,
+                  "value": 12.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 8.0
+                },
+                {
+                  "rank": 1,
+                  "value": 4.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 2.0
+                },
+                {
+                  "rank": 1,
+                  "value": 2.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 6.0
+                },
+                {
+                  "rank": 1,
+                  "value": 2.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 8.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 2056.0
+                },
+                {
+                  "rank": 1,
+                  "value": 2138.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 282.0
+                },
+                {
+                  "rank": 1,
+                  "value": 192.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 197984.0
+                },
+                {
+                  "rank": 1,
+                  "value": 189808.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 559.0
+                },
+                {
+                  "rank": 1,
+                  "value": 559.0
+                }
+              ]
+            },
+            "missing_count_fields": [
+              "donor_box_filtered"
+            ]
+          },
+          {
+            "stage": "coarsen",
+            "cycle": 1,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 9,
+                "reservation_veto_fraction": 0.0,
+                "accepted_fraction_of_attempts": 1.0,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 16,
+                "reservation_veto_fraction": 0.5625,
+                "accepted_fraction_of_attempts": 0.7142857142857143,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 16.0
+                },
+                {
+                  "rank": 1,
+                  "value": 16.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 9.0
+                },
+                {
+                  "rank": 1,
+                  "value": 7.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 9.0
+                },
+                {
+                  "rank": 1,
+                  "value": 5.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 2.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 9.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 4497.0
+                },
+                {
+                  "rank": 1,
+                  "value": 4361.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 692.0
+                },
+                {
+                  "rank": 1,
+                  "value": 880.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 388792.0
+                },
+                {
+                  "rank": 1,
+                  "value": 428616.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 797.0
+                },
+                {
+                  "rank": 1,
+                  "value": 797.0
+                }
+              ]
+            },
+            "missing_count_fields": [
+              "donor_box_filtered"
+            ]
+          },
+          {
+            "stage": "coarsen",
+            "cycle": 2,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 13,
+                "reservation_veto_fraction": 0.0,
+                "accepted_fraction_of_attempts": 0.6153846153846154,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 18,
+                "reservation_veto_fraction": 0.7222222222222222,
+                "accepted_fraction_of_attempts": 0.4,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 18.0
+                },
+                {
+                  "rank": 1,
+                  "value": 18.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 13.0
+                },
+                {
+                  "rank": 1,
+                  "value": 5.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 8.0
+                },
+                {
+                  "rank": 1,
+                  "value": 2.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 5.0
+                },
+                {
+                  "rank": 1,
+                  "value": 3.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 13.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 1421.0
+                },
+                {
+                  "rank": 1,
+                  "value": 1564.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 206.0
+                },
+                {
+                  "rank": 1,
+                  "value": 116.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 273960.0
+                },
+                {
+                  "rank": 1,
+                  "value": 210792.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 865.0
+                },
+                {
+                  "rank": 1,
+                  "value": 865.0
+                }
+              ]
+            },
+            "missing_count_fields": [
+              "donor_box_filtered"
+            ]
+          },
+          {
+            "stage": "refine",
+            "cycle": 0,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 7,
+                "reservation_veto_fraction": 0.0,
+                "accepted_fraction_of_attempts": 1.0,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 10,
+                "reservation_veto_fraction": 0.7,
+                "accepted_fraction_of_attempts": 1.0,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 10.0
+                },
+                {
+                  "rank": 1,
+                  "value": 10.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 7.0
+                },
+                {
+                  "rank": 1,
+                  "value": 3.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 7.0
+                },
+                {
+                  "rank": 1,
+                  "value": 3.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 7.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 1359.0
+                },
+                {
+                  "rank": 1,
+                  "value": 1368.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 354.0
+                },
+                {
+                  "rank": 1,
+                  "value": 216.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 178968.0
+                },
+                {
+                  "rank": 1,
+                  "value": 163864.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 477.0
+                },
+                {
+                  "rank": 1,
+                  "value": 477.0
+                }
+              ]
+            },
+            "missing_count_fields": [
+              "donor_box_filtered"
+            ]
+          },
+          {
+            "stage": "refine",
+            "cycle": 1,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 0,
+                "reservation_veto_fraction": null,
+                "accepted_fraction_of_attempts": null,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 0,
+                "reservation_veto_fraction": null,
+                "accepted_fraction_of_attempts": null,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 757.0
+                },
+                {
+                  "rank": 1,
+                  "value": 757.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 84.0
+                },
+                {
+                  "rank": 1,
+                  "value": 82.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 61200.0
+                },
+                {
+                  "rank": 1,
+                  "value": 62024.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 23.0
+                },
+                {
+                  "rank": 1,
+                  "value": 23.0
+                }
+              ]
+            },
+            "missing_count_fields": [
+              "donor_box_filtered"
+            ]
+          },
+          {
+            "stage": "refine",
+            "cycle": 2,
+            "proposal_outcomes": [
+              {
+                "rank": 0,
+                "reserved_or_vetoed_proposals": 15,
+                "reservation_veto_fraction": 0.0,
+                "accepted_fraction_of_attempts": 1.0,
+                "unfinished_attempts": 0
+              },
+              {
+                "rank": 1,
+                "reserved_or_vetoed_proposals": 15,
+                "reservation_veto_fraction": 0.6,
+                "accepted_fraction_of_attempts": 1.0,
+                "unfinished_attempts": 0
+              }
+            ],
+            "counts": {
+              "rounds": [
+                {
+                  "rank": 0,
+                  "value": 15.0
+                },
+                {
+                  "rank": 1,
+                  "value": 15.0
+                }
+              ],
+              "attempted": [
+                {
+                  "rank": 0,
+                  "value": 15.0
+                },
+                {
+                  "rank": 1,
+                  "value": 6.0
+                }
+              ],
+              "accepted": [
+                {
+                  "rank": 0,
+                  "value": 15.0
+                },
+                {
+                  "rank": 1,
+                  "value": 6.0
+                }
+              ],
+              "rejected": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 0.0
+                }
+              ],
+              "conflicts": [
+                {
+                  "rank": 0,
+                  "value": 0.0
+                },
+                {
+                  "rank": 1,
+                  "value": 9.0
+                }
+              ],
+              "donor_candidates": [
+                {
+                  "rank": 0,
+                  "value": 753.0
+                },
+                {
+                  "rank": 1,
+                  "value": 839.0
+                }
+              ],
+              "donor_payloads": [
+                {
+                  "rank": 0,
+                  "value": 259.0
+                },
+                {
+                  "rank": 1,
+                  "value": 158.0
+                }
+              ],
+              "tracked_bytes": [
+                {
+                  "rank": 0,
+                  "value": 195608.0
+                },
+                {
+                  "rank": 1,
+                  "value": 166576.0
+                }
+              ],
+              "tracked_calls": [
+                {
+                  "rank": 0,
+                  "value": 707.0
+                },
+                {
+                  "rank": 1,
+                  "value": 707.0
+                }
+              ]
+            },
+            "missing_count_fields": [
+              "donor_box_filtered"
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "lifecycle": {
+    "folder": "rotating_reservation_lifecycle_mpi1_v1",
+    "manifest_sha256": "924d686d77a882fcee305b08e4023f182b673140bebab72278a8720b8bd74570",
+    "validation_sha256": "1edb838ce69ca290f988c34c279fdb68abcc70849eb3d8aec35a7d3f46e60a83",
+    "audit_sha256": "ba6be8030500c7b25148a47fdf9e16afc8e5bb7e2a2e1a2da26b98f877a00301",
+    "frames": [
+      {
+        "file": "lifecycle_m1_d0_r0.json",
+        "cells": 48,
+        "points": 27,
+        "physical_faces": 48,
+        "volume": "1",
+        "minimum_mean_ratio": 0.7559526299369239,
+        "minimum_scaled_jacobian": 0.5773502691896257,
+        "maximum_length": 1.7320508075688772,
+        "longest_edge": [
+          0,
+          8
+        ],
+        "markers": {
+          "6": 4,
+          "2": 8,
+          "5": 4,
+          "0": 8,
+          "1": 8,
+          "3": 8,
+          "4": 8
+        },
+        "strict_metric_gate": true
+      },
+      {
+        "file": "lifecycle_m1_d0_r1.json",
+        "cells": 48,
+        "points": 27,
+        "physical_faces": 48,
+        "volume": "1",
+        "minimum_mean_ratio": 0.7559526299369239,
+        "minimum_scaled_jacobian": 0.5773502691896257,
+        "maximum_length": 1.7320508075688772,
+        "longest_edge": [
+          0,
+          8
+        ],
+        "markers": {
+          "6": 4,
+          "2": 8,
+          "5": 4,
+          "0": 8,
+          "1": 8,
+          "3": 8,
+          "4": 8
+        },
+        "strict_metric_gate": true
+      },
+      {
+        "file": "lifecycle_m1_d0_r2.json",
+        "cells": 48,
+        "points": 27,
+        "physical_faces": 48,
+        "volume": "1",
+        "minimum_mean_ratio": 0.7559526299369239,
+        "minimum_scaled_jacobian": 0.5773502691896257,
+        "maximum_length": 1.7320508075688772,
+        "longest_edge": [
+          0,
+          8
+        ],
+        "markers": {
+          "6": 4,
+          "2": 8,
+          "5": 4,
+          "0": 8,
+          "1": 8,
+          "3": 8,
+          "4": 8
+        },
+        "strict_metric_gate": true
+      },
+      {
+        "file": "lifecycle_m1_d1_r0.json",
+        "cells": 48,
+        "points": 27,
+        "physical_faces": 48,
+        "volume": "1",
+        "minimum_mean_ratio": 0.7559526299369239,
+        "minimum_scaled_jacobian": 0.5773502691896257,
+        "maximum_length": 1.7320508075688772,
+        "longest_edge": [
+          0,
+          8
+        ],
+        "markers": {
+          "6": 4,
+          "2": 8,
+          "5": 4,
+          "0": 8,
+          "1": 8,
+          "3": 8,
+          "4": 8
+        },
+        "strict_metric_gate": true
+      },
+      {
+        "file": "lifecycle_m1_d1_r1.json",
+        "cells": 48,
+        "points": 27,
+        "physical_faces": 48,
+        "volume": "1",
+        "minimum_mean_ratio": 0.7559526299369239,
+        "minimum_scaled_jacobian": 0.5773502691896257,
+        "maximum_length": 1.7320508075688772,
+        "longest_edge": [
+          0,
+          8
+        ],
+        "markers": {
+          "6": 4,
+          "2": 8,
+          "5": 4,
+          "0": 8,
+          "1": 8,
+          "3": 8,
+          "4": 8
+        },
+        "strict_metric_gate": true
+      },
+      {
+        "file": "lifecycle_m1_d1_r2.json",
+        "cells": 48,
+        "points": 27,
+        "physical_faces": 48,
+        "volume": "1",
+        "minimum_mean_ratio": 0.7559526299369239,
+        "minimum_scaled_jacobian": 0.5773502691896257,
+        "maximum_length": 1.7320508075688772,
+        "longest_edge": [
+          0,
+          8
+        ],
+        "markers": {
+          "6": 4,
+          "2": 8,
+          "5": 4,
+          "0": 8,
+          "1": 8,
+          "3": 8,
+          "4": 8
+        },
+        "strict_metric_gate": true
+      }
+    ],
+    "control_validation_sha256": "e425c7522b0c7ea7c49a119f5ff6af6deebebbe410dd1c42d6c2c24501cbe10b",
+    "control_frame_byte_matches": {
+      "lifecycle_m1_d0_r0.json": true,
+      "lifecycle_m1_d0_r1.json": true,
+      "lifecycle_m1_d0_r2.json": true,
+      "lifecycle_m1_d1_r0.json": true,
+      "lifecycle_m1_d1_r1.json": true,
+      "lifecycle_m1_d1_r2.json": true
+    },
+    "scope": "Six actual metric/Hessian/CFD/BDF OFF/ON controls on MPI1; no local timing claim."
+  },
+  "scope": "Three independently audited N4M2 whole cases: stronger turning anisotropy, H20 thin affine domain and actual CGNS persisted restart. Exact initial controls match; subsequent accepted meshes and frozen P1 references may differ. No fixed-work speed ratio, repeated cost/scaling, BL generation, production scheduling change or fullGoal1 qualification."
+}
