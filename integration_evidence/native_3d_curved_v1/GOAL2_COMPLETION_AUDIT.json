@@ -1,0 +1,59 @@
+{
+  "status": "INCOMPLETE",
+  "goal": "Goal2 local-only curved-boundary adaptation and genuine3DEuler cycles",
+  "branch": "codex/native-3d-curved-local",
+  "base_commit": "23197eba1715f44d61c9ad3a070f61441dfb0560",
+  "requirements": [
+    {
+      "id": "curved_coupled_geometry",
+      "requirement": "Analytic geometry/features/component authority, coupled boundary/volume operations and bounded persisted geometry proof.",
+      "status": "PENDING"
+    },
+    {
+      "id": "metric_solution_coverage",
+      "requirement": "Explicit bounded sensor extension before freeze, unchanged interior original-P1, consistent edge integrals and existing transfer new/lost-domain accounting.",
+      "status": "PENDING"
+    },
+    {
+      "id": "mpi_output_restart",
+      "requirement": "MPI1/2/4, M=N/M<N, complete atomic dependencies/geometry/source, independent mesh/field/state/SU2CGNS/reference/restart audits.",
+      "status": "PENDING"
+    },
+    {
+      "id": "actual_euler_cycles",
+      "requirement": "Small actual3DEuler CFD-derived-metric remesh/continue/restart plus manufactured and locally feasible resolved nonuniform/shock controls.",
+      "status": "PENDING"
+    }
+  ],
+  "first_study_controller": null,
+  "scope": "Manual exterior metric-coverage experiment is not production padding or Goal2completion. No cluster/performance/large-wing/generalCAD/production3DBL/fullunsteady/affordability gate or claim.",
+  "first_study_status": "PASS_LOCAL_MANUALLY_PRESCRIBED_COVERAGE_ONLY",
+  "first_study_receipt_sha256": "9c0609ef04b244e08520642eca82b90e1d748ddabf30d5542812488fb9ada6fa",
+  "first_study_test_counts": [
+    {
+      "ranks": 1,
+      "cases_per_rank": 71,
+      "assertions": [
+        37652
+      ]
+    },
+    {
+      "ranks": 2,
+      "cases_per_rank": 71,
+      "assertions": [
+        37652,
+        37568
+      ]
+    },
+    {
+      "ranks": 4,
+      "cases_per_rank": 71,
+      "assertions": [
+        37568,
+        37568,
+        37652,
+        37568
+      ]
+    }
+  ]
+}

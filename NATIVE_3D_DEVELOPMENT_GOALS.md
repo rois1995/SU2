@@ -15,7 +15,7 @@ Pushed execution-policy snapshot/handoff:7dd0aff6d12d7213781f1e6ce6cca0d184ebd81
 Goals2–4 remain prepared, not activated. Preserve AdapNoExt, other workers and the
 existing2D/MMG implementation. Goal1 is COMPLETE under the revised local-only scope.
 Qualified source/evidence pushedf782ddc4b20703461b3c3b06192126879639d55a.
-Goals2–4 remain prepared and unactivated.
+Goal2 is now active under the local-only scope below; Goals3–4 remain prepared.
 
 ## Current local-only execution contract
 
@@ -134,44 +134,64 @@ Prepared later goals below retain their earlier scope; they are not activated by
 this revision. Their historical shared performance contract is in the archived
 pre-local plan and can be reconsidered when the user activates them.
 
-## Goal 2 — Adaptable curved geometry and actual Euler lifecycle
+## Goal 2 — Local curved-boundary adaptation and genuine3D Euler cycles
 
-Activation objective: Extend the validated native tetrahedral core to
-geometry-conforming curved-surface adaptation with preserved features and marker
-junctions, and validate actual 3D Euler remesh/transfer/restart cycles. Profile
-projection, surface-volume reconstruction and transfer within total adaptation
-cost, including partition changes, under the shared contracts.
+ACTIVE by explicit user instruction after clearing the prior goal.
+Branch:codex/native-3d-curved-local, based on published Goal1
+23197eba1715f44d61c9ad3a070f61441dfb0560. Work only with local resources;
+no cluster work, timing/scaling/performance qualification or large-wing gate.
+Goal1 remains complete; its closed plan is archived unchanged in
+integration_evidence/native_3d_curved_v1/GOAL1_CLOSED_PLAN_23197eba17.md.
 
-Reuse: the Goal 1 core, distributed locators/projection, conservative transfer
-and driver lifecycle. Extend the native immutable reference from 2D curves to 3D
-surfaces and feature curves with stable provenance across adaptation and restart.
+Objective: couple curved boundary and tetrahedral volume adaptation, with stable
+geometry authority/features/components, admitted metric/solution coverage and
+atomic MPI handling; demonstrate actual small3DEuler CFD-derived-metric adaptation,
+solver continuation and restart. Keep original source-P1 wherever covered, finer
+sensor demands, actual-query composition where supported, fade andNOISE0. Retain
+Goal1 q>=.20/scaledJ>=.05/full target edge<=1.8 and explicit work/memory bounds;
+freeze problem-specific projection/geometry/volume/field tolerances before runs.
 
-Deliver:
-1. Surface split/collapse/movement and volume reconstruction as coupled proposals,
-   with projection, intersection/orientation and geometry-error validation.
-   Preserve feature curves and junctions; reject projection across components.
-2. Testable geometry authority: analytic surfaces for manufactured tests and
-   retained triangulated geometry for faceted input. Subdivision cannot recover
-   missing curvature. Define tolerances before running each campaign; CAD support
-   is a later extension unless an existing provider meets this milestone's needs.
-3. Actual steady Euler adaptation on stationary geometry with changing surface
-   discretization, distributed solution transfer, solver rebuild and adapted-mesh
-   restart.
-   Validate at least a smooth manufactured field and a resolved shock case.
+Four integrated completion gates:
+1. Analytic sphere/cylinder/bump authority and coupled surface split/collapse/move
+   with volume reconstruction; preserve feature curves, marker junctions and
+   component identity. Validate orientation, intersections/clearance and geometric
+   error. Retain faceted authority; general CAD integration is deferred.
+2. Explicit bounded field coverage in geometry-changed regions. Reuse original-P1
+   inside the old domain, declare any exterior extension before target freezing,
+   and integrate edge lengths consistently through it. Reuse existing2D associated
+   boundary-trace semantics and existing MPI barycentric/conservative transfer.
+   Measure domain/volume errors against the geometry authority, with newly covered
+   and lost regions accounted for; unchanged faceted volume is not a universal gate.
+3. Local MPI1/2/4, M=N and M<N, complete geometry/dependency/source admission and
+   private validation/atomic commit/rejection. Independent conformity/no-gap/
+   no-overlap/geometry/marker/metric/positivity/conservation/current-BDF audits;
+   repeated refinement/coarsening and interface edits, actualSU2CGNS/reference
+   persistence and real restart. Include a surface feature/junction case.
+4. One small actual3DEuler solution-derived-metric case with repeated remeshing,
+   CFD continuation and restart, plus smooth manufactured controls. Include a
+   resolved nonuniform/shock case feasible locally. Prescribed-metric prototypes
+   or API-only tests cannot close this goal. No force-convergence claim without
+   the corresponding evidence.
 
-Correctness gate: sphere/cylinder or equivalent analytic references, a surface
-feature/junction case, refinement/coarsening and partition-interface surface
-edits. Check geometric error, surface/volume conformity, markers, volume balance,
-metric contracts, flow conservation/positivity and restart. Include a practical
-3D wing Euler case after small cases pass. Compare CFD accuracy at a declared
-common stopping criterion; mesh contracts alone do not prove force accuracy.
+Execution: one owned heavy job, host contention/memory checks, oneCPU affinity/
+nice19, one numerical thread, MPI<=4, build-j1 initially. Announce full case folders;
+use indexed searches and bounded patches without local performance campaigns.
+Preserve compact reproducible inputs/source/build/binary/log/mesh/state/certificates
+and failures, update HANDOFF/findings/audit, push reviewable checkpoints regularly.
+Leave AdapNoExt, foreignClusterResults/dependencies and other workers untouched.
 
-Performance gate: separate surface search/projection, failed coupled proposals,
-volume repair and transfer costs; measure their growth with surface area/size and
-curvature. Compare complete Euler cycle cost, including donor indexing,
-repartition/return and reconstruction. Record R and its variability alongside
-accuracy and mesh/work counts. Optimize measured projection/query or rejection
-hotspots before proceeding to the BL campaign; retain the Goal 1 scaling controls.
+Current start: connected implementation inventory and first curved-coverage study
+under integration_evidence/native_3d_curved_v1/. The metric extension study manually
+admits exterior tetrahedra; it is not a chosen production padding algorithm.
+Existing2D already implements associated-edge trace withinADAP_HAUSD;3Dmust address
+triangular-face/component association AND consistent exterior edge integration.
+Existing solution transfer accounts for newly covered/lost domains and is reused.
+No production curved operators, MPI geometry integration or actualEuler proof yet.
+
+Deferred: performance/scaling/cluster/large aerodynamic campaigns, generalCAD,
+production3DBL/first-height generation, full physical unsteady3D and affordability.
+Goals3–4 remain prepared and unactivated. Close only when all4local gates have
+actual integrated proof and the implementation/evidence is pushed.
 
 ## Goal 3 — Robust 3D BL construction and removal from coarse grids
 

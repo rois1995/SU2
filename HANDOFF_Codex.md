@@ -1,3 +1,45 @@
+# Goal2 activated: local curved-boundary/Euler work
+
+User cleared Goal1 and explicitly activated the revised second goal. Active branch
+codex/native-3d-curved-local from23197eba1715f44d61c9ad3a070f61441dfb0560; working
+repo /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated. Goal1 complete on its previous
+branch. Goal2 excludes ALL cluster/performance qualification/large-wing campaigns.
+Full current objective/gates in NATIVE_3D_DEVELOPMENT_GOALS.md. ClosedGoal1 plan
+archived in native_3d_curved_v1/GOAL1_CLOSED_PLAN_23197eba17.md; its oldplan hash
+refers to that completion snapshot, not subsequentGoal2 revisions.
+
+First coverage study session86307 terminal PASS:
+integration_evidence/native_3d_curved_v1/coverage_study_v1/validation.json.
+OneCPU/nice19, threads1, full configured68-object driver; MPI1/2/4 selected
+NativeCurvedCoverage3D+NativeMesh3D+NativeField2D. Production archives/members and
+other67test objects unchanged. Manually prescribed three-tet exterior coverage
+supports sphere-octant projection and sensor edge integration while preserving
+original interior P1 exactly and rejecting uncovered queries. Existing2D bounded
+associated-edge extension and wrong-component/distance controls also pass.
+This is NOT production padding/curved remeshing/distributedgeometry/CFD or Goal2
+completion. No owned controller remains live; new unit regression is qualified.
+
+After user question traced existing2D: FieldPatch uses exact P1 first, separate
+roundoff envelope, then nearest associated original boundary-edge trace within
+ADAP_HAUSD; MPI import padding2*limit, query limit unchanged. Sensor interpolated
+on old edge, BL composed at actual queryp. Native2D retains original polyline,
+not unknown smooth curve.3Ddirection should reuse bounded associated-face trace
+semantics with consistent exterior edge lengths; Queryfallback alone is incomplete.
+Manual shell is a coverage control, not a commitment to productionghost tets.
+
+Connected map: native_3d_curved_v1/IMPLEMENTATION_MAP.md. Current PlanarReference
+and changed-skin checks protect exact faceted domains. Need explicit curved
+geometry/features/component/provenance, coupled volume edit/clearance proof,
+metric extension before freezing, MPI admission/persistence, existing3Dtransfer
+new/lost-domain handling, and real smallEuler metric/remesh/continue/restart proof.
+No delegation or extra heavy job; no source/quality/geometry relaxation, unsupported
+3DBL still rejects. ForeignClusterResults/dependencies/AdapNoExt untouched.
+Next: explicit bounded associated-face sensor trace and consistent exterior edge
+integration, analytic geometry/component authority and first coupled curved edit.
+Do not commit to ghost tets merely because the manually prescribed study passed.
+Push this qualified study plus active plan; all4Goal2 integrated gates remain pending.
+Previous Goal1 notices below are historical.
+
 # Goal 1 local qualification complete — 2026-10-12
 
 User scope: local implementation/correctness only; performance qualification and

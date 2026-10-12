@@ -245,3 +245,43 @@ TEST_CASE("Native 3D sensor intervals retain nonzero width when rounded cuts coi
     }
   CHECK(coincident >= 2);
 }
+
+TEST_CASE("Curved projection requires explicit frozen metric coverage outside the original mesh", "[NativeCurvedCoverage3D]") {
+  auto original = Single();
+  for (size_t i = 0; i < 4; ++i) {
+    const auto p = original.cell.v[i].p;
+    const double size = 1 + p.x + p.y + p.z;
+    original.sensor[i] = {size, 0, 0, size, 0, size};
+  }
+  FrozenField interior({original});
+  const Point chord{.5, .5, 0}, projected{std::sqrt(.5), std::sqrt(.5), 0};
+  CHECK(projected.x * projected.x + projected.y * projected.y == Approx(1).margin(1e-12));
+  CHECK(interior.Query(chord).sensor.xx == 2);
+  CHECK_THROWS_AS(interior.Query(projected), std::runtime_error);
+  CHECK_THROWS_AS(interior.SensorEdgeLength(chord, projected), std::runtime_error);
+
+  // Study only: three exterior tetrahedra fill the octant shell 1<=x+y+z<=2.
+  // Freeze the boundary trace (2I) there; the original P1 field remains authoritative inside.
+  const Node a{1, {1, 0, 0}}, b{2, {0, 1, 0}}, c{3, {0, 0, 1}};
+  const Node outer_a{4, {2, 0, 0}}, outer_b{5, {0, 2, 0}}, outer_c{6, {0, 0, 2}};
+  std::vector<DonorCell> admitted{original, Donor(1, {a, b, c, outer_c}),
+                                Donor(2, {a, b, outer_b, outer_c}), Donor(3, {a, outer_a, outer_b, outer_c})};
+  for (size_t i = 1; i < admitted.size(); ++i)
+    for (auto& sensor : admitted[i].sensor) sensor = {2, 0, 0, 2, 0, 2};
+  FrozenField extended(admitted);
+  const auto expected = interior.Query({.25, .25, .25}).sensor;
+  const auto retained = extended.Query({.25, .25, .25}).sensor;
+  CHECK(retained.xx == expected.xx);
+  CHECK(retained.yy == expected.yy);
+  CHECK(retained.zz == expected.zz);
+  CHECK(retained.xy == expected.xy);
+  CHECK(retained.xz == expected.xz);
+  CHECK(retained.yz == expected.yz);
+  CHECK(extended.Query(projected).sensor.xx == 2);
+  CHECK(extended.Query(projected).sensor.yy == 2);
+  CHECK(extended.Query(projected).sensor.zz == 2);
+  CHECK(double(extended.SensorEdgeLength(chord, projected)) == Approx(2 * (projected.x - .5)).epsilon(1e-12));
+  CHECK_THROWS_AS(extended.Query({2.1, 0, 0}), std::runtime_error);
+  admitted[1].sensor[0].xx = 99;
+  CHECK(extended.Query(projected).sensor.xx == 2);
+}

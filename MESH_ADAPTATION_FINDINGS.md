@@ -1,3 +1,26 @@
+## Goal2 local curved-boundary work activated — first coverage study
+
+Branch codex/native-3d-curved-local, base23197eba1715f44d61c9ad3a070f61441dfb0560.
+Goal2ACTIVE; no cluster/performance/large-wing qualification. Coverage_study_v1
+passes MPI1/2/4 with the actual68-object driver and unchanged production archives/
+other67test objects. Unit-sphere octant projection leaves original tetrahedral
+coverage; a manually prescribed three-tet exterior source admits it before freezing,
+keeps original interiorP1 unchanged, integrates the sensor edge consistently and
+still rejects outside its envelope. This is a coverage control, not a production
+padding scheme, curved geometry/MPIintegration or actualEuler capability.
+
+User correctly pointed to2D: existing FieldPatch already implements originalP1,
+separate roundoff admission, associated-boundary-edge trace withinADAP_HAUSD and
+actual-queryBLcomposition, with MPI donor padding and wrong-component/distance
+controls. These existing2Dtests pass in the new selection. Prefer reusing this
+bounded associated-trace principle for triangular faces, with consistent exterior
+edge integration and geometric provenance; Queryfallback alone is insufficient.
+Existing barycentric/conservative transfer handles nearest boundary stencils and
+newly covered/lost domains. Polyline2Dauthority does not recover unknown curvature.
+All4new integrated completion gates remain pending; see native_3d_curved_v1 maps/
+audit. Goal1 remains complete; original closedplan preserved. No tolerance weakening,
+new dependencies or production behavior change in this first study. No job remains.
+
 ## Goal1 passes revised local-only qualification — 2026-10-12
 
 All7local requirements pass LOCAL_GOAL1_COMPLETION_AUDIT.md/json; qualified source/evidence is pushed at
