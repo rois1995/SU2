@@ -9,6 +9,12 @@ Use matching compiler, MPI, external libraries and build options on both builds.
 Preparation enforces the two donor-source hashes, the exact four-file compiled
 source difference and equal build options except installation prefix.
 The old2D e6995fb baseline is not the baseline for this3D comparison.
+A fresh current candidate package uses the expanded97-case correctness selection
+and seven distributed-record audits. Existing baseline/candidate frozen packages
+retain their own earlier72/73-case recipes and declared evidence. Each side runs
+its own frozen correctness tool. This harness expansion does not change the
+compiled four-file routing comparison or timed target/budget. Prepare a fresh
+candidate bundle after pulling; do not edit already frozen package files.
 
 No submission has been made. No local timing campaign is required. The package
 uses the existing SGE queue/compiler/library conventions and no Git on compute

@@ -3,7 +3,7 @@ from pathlib import Path
 from mpi_profile import summary as mpi_summary
 import argparse,gzip,hashlib,json,os,re,shutil,signal,subprocess,sys,time
 
-SELECTION='[NativeReference3D],[NativeMesh3D],[NativeDonorReuse3D],[NativeCollapseFilter3D],[NativeCoplanar3D],[NativeInsertion3D],[NativeAutomaticRepair3D],[NativeBudget3D],[NativeDefault3D],[NativeBridge2D],[NativeBridge3D]'
+SELECTION='[NativeDistributed3D],[NativeReference3D],[NativeMesh3D],[NativeDonorReuse3D],[NativeCollapseFilter3D],[NativeCoplanar3D],[NativeInsertion3D],[NativeAutomaticRepair3D],[NativeBudget3D],[NativeDefault3D],[NativeBridge2D],[NativeBridge3D]'
 RAW=tuple(f'envelope_s{c}{suffix}.json' for c in range(3) for suffix in ('_initial','','_states'))+tuple(f'envelope_s2_written_{fmt}_reload{suffix}.json' for fmt in ('SU2','CGNS') for suffix in ('','_target'))
 
 def sha(path):
@@ -25,6 +25,31 @@ def verify_package(folder):
         if not p.is_file() or sha(p)!=digest:
             raise ValueError('Frozen bundle changed: '+name)
     return record
+
+def distributed_audits(work,ranks,tools,env,seconds):
+    """Reuse all existing exact MPI-record auditors; retain every failed stage."""
+    log=work/'case.stdout';meshes=work/'distributed_meshes'
+    recipes=[('audit_distributed.py',[log,meshes],meshes/'independent_audit.json'),
+             ('audit_donors.py',[log,meshes/'coupled_initial.json',ranks,work/'distributed_donors.json'],work/'distributed_donors.json')]
+    recipes += [(script,[log,work/name,ranks],work/name/'independent_audit.json') for script,name in
+                (('audit_anisotropic.py','distributed_anisotropic'),('audit_cycles.py','distributed_cycles'),
+                 ('audit_repairs.py','distributed_repairs'),('audit_engine_repairs.py','distributed_automatic'),
+                 ('audit_coplanar.py','distributed_coplanar'))]
+    stages=[];status='FAIL'
+    try:
+        for script,args,certificate in recipes:
+            row=command([sys.executable,str(tools/script),*map(str,args)],work,Path(script).stem,env,seconds)
+            stages.append(row)
+            if row['exit_code'] or row.get('timeout'):
+                raise RuntimeError(script+' failed; original distributed records retained in '+str(work))
+            if json.loads(certificate.read_text())['status']!='PASS':
+                raise RuntimeError(script+' did not certify the complete distributed fixture')
+        status='PASS'
+        return stages
+    finally:
+        (work/'distributed_audit.json').write_text(json.dumps(dict(status=status,ranks=ranks,
+            source_log_sha256=sha(log),tools_sha256={script:sha(tools/script) for script,_,_ in recipes},
+            stages=stages,scope='Exact complete-star/subset/immutable-P1/refine-coarsen/move/reconnect/automatic/coplanar MPI-record audits; no CFD/scaling certificate.'),indent=2)+'\n')
 
 def mpi_command(ranks,machinefile,bundle,selection,profile=False):
     args=['mpirun','-n',str(ranks),'-machinefile',str(Path(machinefile).resolve())]
@@ -110,7 +135,7 @@ def main():
         if stages[0]['exit_code'] or stages[0].get('timeout') or 'No test cases matched' in out or out.count('All tests passed')!=ranks:
             (work/'stages.json').write_text(json.dumps(stages,indent=2)+'\n')
             raise RuntimeError('Test failure; original files retained in '+str(work))
-        if selection==SELECTION and len(re.findall(r'All tests passed \(\d+ assertions in 73 test cases\)',out))!=ranks:
+        if selection==SELECTION and len(re.findall(r'All tests passed \(\d+ assertions in 97 test cases\)',out))!=ranks:
             raise RuntimeError('Unexpected configured regression selection/count')
         if selection.startswith('MMG interface:') and '48 assertions in 2 test cases' not in out:
             raise RuntimeError('Incomplete MMG regression')
@@ -137,6 +162,7 @@ def main():
             for ranks in (1,2,4):
                 work=result/f'unit_mpi{ranks}';s=run(work,ranks,SELECTION)
                 s.append(audit(work,'audit_geometry_bridge.py',ranks,work/'case.stdout'))
+                s.extend(distributed_audits(work,ranks,tools,env,options.timeout))
                 cases.append(dict(folder=work.name,stages=s))
             for ranks,workers,fmt in ((1,1,'su2'),(4,2,'cgns')):
                 work=result/f'restart_n{ranks}_m{workers}_{fmt}'

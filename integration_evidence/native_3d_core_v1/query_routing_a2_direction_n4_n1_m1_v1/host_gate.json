@@ -1,0 +1,58 @@
+{
+  "cpus": 8,
+  "allowed": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "idle_samples": [
+    {
+      "cpu": 0.3573216520650814,
+      "cpu0": 0.0,
+      "cpu1": 0.0,
+      "cpu2": 0.0,
+      "cpu3": 0.7889447236180904,
+      "cpu4": 0.7939698492462312,
+      "cpu5": 0.6517412935323383,
+      "cpu6": 0.0,
+      "cpu7": 0.6345177664974619
+    },
+    {
+      "cpu": 0.2579013906447535,
+      "cpu0": 0.36180904522613067,
+      "cpu1": 0.15577889447236182,
+      "cpu2": 0.0,
+      "cpu3": 0.5641025641025641,
+      "cpu4": 0.09595959595959595,
+      "cpu5": 0.12935323383084577,
+      "cpu6": 0.21608040201005024,
+      "cpu7": 0.5549738219895288
+    },
+    {
+      "cpu": 0.365792759051186,
+      "cpu0": 0.6633165829145728,
+      "cpu1": 0.0,
+      "cpu2": 0.0,
+      "cpu3": 0.7336683417085427,
+      "cpu4": 0.0,
+      "cpu5": 0.0,
+      "cpu6": 0.7939698492462312,
+      "cpu7": 0.7401960784313726
+    }
+  ],
+  "load1": 6.16,
+  "ranks": 1,
+  "affinity": [
+    3
+  ],
+  "owned_maximum_compute_cpus": 1,
+  "nice": 19,
+  "threads": 1,
+  "contention_authorized": true,
+  "scope": "User explicitly requests correctness runs even under CPU contention; one actual MPI rank on one CPU, no timing/scaling claim"
+}

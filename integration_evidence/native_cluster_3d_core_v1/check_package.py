@@ -96,13 +96,18 @@ class PackageChecks(unittest.TestCase):
     def test_correctness_bridge_audits_gate_later_cases(self):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d);bundle=self.bundle(root);machine=root/'machinefile'
+            tools=bundle/'integration_evidence/native_3d_core_v1';tools.mkdir(parents=True)
+            for name in prepare.TOOLS:(tools/name).write_text('mock auditor; never executed')
+            manifest=json.loads((bundle/'manifest.json').read_text())
+            manifest['files_sha256']={str(p.relative_to(bundle)):run.sha(p) for p in bundle.rglob('*') if p.is_file() and p.name!='manifest.json'}
+            (bundle/'manifest.json').write_text(json.dumps(manifest))
             machine.write_text('mock-node slots=4\n');calls=[]
             def fake(args,cwd,label,env,seconds):
                 calls.append((cwd.name,label));out='';exit_code=0
                 if label=='case':
                     ranks=int(args[args.index('-n')+1]);selection=args[-3]
                     result='48 assertions in 2 test cases' if selection.startswith('MMG interface:') else '1 assertion in 1 test case'
-                    if selection==run.SELECTION:result='10255 assertions in 73 test cases'
+                    if selection==run.SELECTION:result='10255 assertions in '+('73' if cwd.parent.name=='wrong_count' else '97')+' test cases'
                     out='\n'.join('All tests passed ('+result+')' for _ in range(ranks))
                 elif label=='audit':
                     if cwd.name.startswith('unit_mpi'):
@@ -112,6 +117,13 @@ class PackageChecks(unittest.TestCase):
                         exit_code=7 if cwd.parent.name=='failed' and ranks==2 else 0
                     else:self.assertEqual(Path(args[1]).name,'audit_envelope.py')
                     (cwd/'independent_audit.json').write_text(json.dumps(dict(status='FAIL' if exit_code else 'PASS')))
+                elif label in {'audit_distributed','audit_donors','audit_anisotropic','audit_cycles','audit_repairs','audit_engine_repairs','audit_coplanar'}:
+                    self.assertTrue(cwd.name.startswith('unit_mpi'))
+                    self.assertEqual(Path(args[1]).stem,label)
+                    certificate=Path(args[-1]) if label=='audit_donors' else Path(args[3])/'independent_audit.json'
+                    certificate.parent.mkdir(parents=True,exist_ok=True)
+                    exit_code=9 if cwd.parent.name=='failed_distributed' and cwd.name=='unit_mpi2' and label=='audit_donors' else 0
+                    certificate.write_text(json.dumps(dict(status='FAIL' if exit_code else 'PASS')))
                 (cwd/(label+'.stdout')).write_text(out);(cwd/(label+'.stderr')).write_text('')
                 return dict(exit_code=exit_code,seconds=.001,label=label,command=list(map(str,args)))
             def invoke(name):
@@ -120,7 +132,8 @@ class PackageChecks(unittest.TestCase):
             self.assertEqual(receipt['status'],'PASS');self.assertEqual(len(receipt['cases']),6)
             for ranks in (1,2,4):
                 case=next(c for c in receipt['cases'] if c['folder']=='unit_mpi'+str(ranks))
-                self.assertEqual([s['label'] for s in case['stages']],['case','audit'])
+                self.assertEqual([s['label'] for s in case['stages']],['case','audit','audit_distributed','audit_donors','audit_anisotropic','audit_cycles','audit_repairs','audit_engine_repairs','audit_coplanar'])
+                self.assertEqual(json.loads((root/'passed'/case['folder']/'distributed_audit.json').read_text())['status'],'PASS')
                 self.assertIn(case['folder']+'/independent_audit.json',receipt['artifact_sha256'])
             calls.clear()
             with self.assertRaisesRegex(RuntimeError,'Audit failure'):invoke('failed')
@@ -130,6 +143,21 @@ class PackageChecks(unittest.TestCase):
             self.assertFalse((root/'failed/unit_mpi4').exists())
             self.assertFalse(list((root/'failed').glob('restart_*')))
             self.assertEqual(json.loads((root/'failed/unit_mpi2/audit_stage.json').read_text())['exit_code'],7)
+            calls.clear()
+            with self.assertRaisesRegex(RuntimeError,'audit_donors.py failed'):invoke('failed_distributed')
+            failure=json.loads((root/'failed_distributed/result.json').read_text())
+            self.assertEqual(failure['status'],'FAIL')
+            self.assertFalse((root/'failed_distributed/unit_mpi4').exists())
+            failed=json.loads((root/'failed_distributed/unit_mpi2/distributed_audit.json').read_text())
+            self.assertEqual(failed['status'],'FAIL')
+            self.assertEqual([s['label'] for s in failed['stages']],['audit_distributed','audit_donors'])
+            self.assertEqual(failed['stages'][-1]['exit_code'],9)
+            calls.clear()
+            with self.assertRaisesRegex(RuntimeError,'Unexpected configured regression selection/count'):invoke('wrong_count')
+            self.assertFalse((root/'wrong_count/unit_mpi2').exists())
+            self.assertEqual(json.loads((root/'wrong_count/result.json').read_text())['status'],'FAIL')
+
+
 
     def test_stale_build_refuses_preparation_before_copy(self):
         with tempfile.TemporaryDirectory() as d:

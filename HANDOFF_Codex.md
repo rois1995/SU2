@@ -1,5 +1,41 @@
 # Current handoff — 2026-10-12
 
+## Expanded distributed correctness and stronger metric matrix — 2026-10-12
+
+Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
+codex/native-3d-transport-accounting. Goal1 ACTIVE; Goal2 not started.
+Current qualified query-routing binary unchanged. The reusable73-case selection
+omitted24existing NativeDistributed3D cases:21directory/donor/engine controls
+and3partition controls. New97-case selection PASS per rank on MPI1/2/4, with all
+seven reused exact distributed-record audits plus driver geometry/current+BDF/
+SU2CGNS bridge audits and serialMMG controls. Successful receipts:
+query_routing_complete_mpi1_v2, query_routing_complete_mpi2_v1,
+query_routing_complete_mpi4_v1. COMPLETE_SELECTION_VALIDATION.md/json document
+scope/pins; ~29.8MB successful case records retained, no copied binary/objects.
+Frame counts include initial/private rejected progress, explicitly not all strict
+accepted meshes. prepare.py closes the added existing auditors; run.py gates
+count97 and all seven audit PASS statuses.31core/12comparison checks PASS in
+complete_selection_package_checks_v3; original mock-label and94-vs97count
+failures/sources retained. All owned numerical jobs TERMINAL. No C++/binary/target/
+production512 changes, local timing campaign or cluster submission.
+
+Stronger predeclared size4 aspect2 spatial-strength/turning-direction wedge
+matrix also PASS: query_routing_a2_direction_n4_n1_m1_v1 and
+query_routing_a2_direction_n4_n4_m2_v1; three events plus eight geometry/metric/
+actual readback frames and three current/BDF pairs each. Serial402/54/424tets,
+MPI402/71/435tets; independent certificates, no cross-partition byte claim.
+MPI minimum q=.20399740583061948/J=.0589521939546055 are near unchanged .20/.05
+bounds; Lmax<1.8, tensor transport0, state residual<3.78e-16. Full report/pins and
+inspectable VTUs in QUERY_ROUTING_DIRECTION_A2_VALIDATION.md/json and named cases.
+
+Fresh candidate cluster bundles now use97cases; old frozen baseline72/73recipe
+counts remain their historical scope. Two-source compiled routing comparison
+remains the same four-file change; new shared tools/README preserve each side
+own frozen correctness runner. Size8 production512completion and repeated full
+performance/overhead/wait/traffic/allocator/RSS/rank-limit calibration stay open.
+Do not advance Goal2 from expanded correctness alone; no3DBL/curved/fullunsteady/
+affordability certificate.
+
 ## Current-source thin-domain matrix completed — 2026-10-12
 
 Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch

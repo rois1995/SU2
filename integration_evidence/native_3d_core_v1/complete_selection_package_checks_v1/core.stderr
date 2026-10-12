@@ -1,0 +1,25 @@
+...F...........................
+======================================================================
+FAIL: test_correctness_bridge_audits_gate_later_cases (__main__.PackageChecks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "check_package.py", line 131, in test_correctness_bridge_audits_gate_later_cases
+    invoke('passed');receipt=json.loads((root/'passed/result.json').read_text())
+  File "check_package.py", line 130, in invoke
+    with patch.object(sys,'argv',['run.py','--package',str(bundle),'--results',str(root/name),'--mode','correctness','--ranks','4','--machinefile',str(machine)]),patch.object(run,'command',side_effect=fake),contextlib.redirect_stdout(io.StringIO()):run.main()
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_core_v1/run.py", line 156, in main
+    versions=command([sys.executable,'-c','import numpy,h5py; print("numpy",numpy.__version__,"h5py",h5py.__version__)'],result,'audit_dependencies',env,30)
+  File "/usr/lib/python3.8/unittest/mock.py", line 1081, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/usr/lib/python3.8/unittest/mock.py", line 1085, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/usr/lib/python3.8/unittest/mock.py", line 1146, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "check_package.py", line 121, in fake
+    self.assertTrue(cwd.name.startswith('unit_mpi'))
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 31 tests in 0.678s
+
+FAILED (failures=1)

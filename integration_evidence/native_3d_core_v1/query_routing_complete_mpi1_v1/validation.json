@@ -1,0 +1,127 @@
+{
+  "status": "FAIL",
+  "reason": "",
+  "stages": [
+    {
+      "command": [
+        "uptime"
+      ],
+      "label": "host_load",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/query_routing_complete_mpi1_v1",
+      "exit_code": 0,
+      "seconds": 0.010906098992563784
+    },
+    {
+      "command": [
+        "free",
+        "-m"
+      ],
+      "label": "host_memory",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/query_routing_complete_mpi1_v1",
+      "exit_code": 0,
+      "seconds": 0.006521467003040016
+    },
+    {
+      "command": [
+        "ps",
+        "-eo",
+        "pid,ppid,ni,pcpu,comm",
+        "--sort=-pcpu"
+      ],
+      "label": "host_processes",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/query_routing_complete_mpi1_v1",
+      "exit_code": 0,
+      "seconds": 0.021183180040679872
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "6",
+        "nice",
+        "-n",
+        "19",
+        "mpirun",
+        "--oversubscribe",
+        "--bind-to",
+        "none",
+        "-np",
+        "1",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+        "[NativeDistributed3D],[NativeReference3D],[NativeMesh3D],[NativeDonorReuse3D],[NativeCollapseFilter3D],[NativeCoplanar3D],[NativeInsertion3D],[NativeAutomaticRepair3D],[NativeBudget3D],[NativeDefault3D],[NativeBridge2D],[NativeBridge3D]",
+        "--use-colour",
+        "no"
+      ],
+      "label": "case",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/query_routing_complete_mpi1_v1",
+      "exit_code": 0,
+      "seconds": 5.137196074007079
+    }
+  ],
+  "binary_sha256": "bb5a7664dda805daac6bbcc4b16e3da3ee3759f33475937beedd6a177c35955e",
+  "build_validation_sha256": "eb5b5ea141a4b97219a59e01ccc844071a45022131551c7d8753d1abc5e03edc",
+  "source_drift": [],
+  "object_drift": [],
+  "archive_drift": [],
+  "tool_drift": [],
+  "tools_sha256": {
+    "audit_geometry_bridge.py": "d8d5e8a18a0fce8f54f8407e9f0027dcea12d90bf64c5ab20c4dedb7194430e2",
+    "audit_lifecycle.py": "b4204e8aea4653ac46942e79e0dad68c7087945a5687a851fd5036b1bdfdfa2f",
+    "audit_coupled.py": "67a12c5c39c6c3e021473f49c1f14301f037d7883268b98d7afc9edc2b00f63b",
+    "audit_cavities.py": "26079385c071c3ad1b9c06ab3b862b4ff293367dc3c8d291acf0487089d062c5",
+    "audit_distributed.py": "bc580915603b1a4558bbbdc3441603ef30d7a01a7e663155d65789563a5254db",
+    "audit_donors.py": "0e17561cddb4e859ef9aa55448df385b7caa7369ae3345d9b3ef0f02d3f708ec",
+    "audit_anisotropic.py": "ac8a677100d1f425763bdf6537579746762dd24ca67b721e3a7b02e147a41b9e",
+    "audit_cycles.py": "ef0ba64ba6ad53bb04379683f729a4223f71ae1a5243c59d9f48db3307e9b208",
+    "audit_repairs.py": "79392b17efca317fa700aef269ef4c98ee4cd8a9406fda89cd3355476a5a5eca",
+    "audit_engine_repairs.py": "769711625307ddf1c2ab81205ade1589f5d66cdd213a45ba0efcb8d0f8eaf5ed",
+    "audit_coplanar.py": "f2be4b42c9a5b955d47b6c707a01ecfc8e0b5f9014dc4d1390809e7a08f28687"
+  },
+  "package_tools_sha256": {
+    "run.py": "861ce94809137e59d5a709ba590681fa86f6bd9e64d6a6e682f670cba4679636",
+    "mpi_profile.py": "11e46f3d01289c1d050221d5264cf00a62e4da29385705a4ca7bff003ee9651b",
+    "profile_summary.py": "d56de9a2a50451f98b624359a71423a9112e509f900928a787dbd8227f52e0af"
+  },
+  "scope": "Full configured68-object driver with dependency-correct coarsening notifications and full local-star exact facet/orientation filtering and bounded narrow actual-query donor routing; actual MPI1 selected94 cases per rank, originalP1/private-query/surface/complete-dependency/transaction/refusal controls, default accepted/rejected transport closure. Independent exact bridge geometry/markers/metric/current+BDF/SU2CGNS plus seven complete distributed-record suites over the supported worker subsets. All29 NativeDistributed3D declarations covered;21 were outside the prior73-case selection. Uses newly configured query_routing_build_v1 binary/source/object/archive pins. User-authorized one-CPU contended correctness run with taskset/nice19/yield/thread1; MPI rank count is 1 but CPU allocation one. No instrumentation overhead/scaling claim, not larger n4/persisted-restart/repeated timing/scaling/fullGoal1.",
+  "artifact_sha256": {
+    "host_processes.stdout": "85f16d4a870a3e5901e697b0473abf9a58999a46398d63a67a0b84b035d9686d",
+    "large.native_ref": "5cfc60da85cf5ba9f495ea2c6ea92566bf9f83505f164690775868040fade9c5",
+    "bridge_barycentric_m1_s2_written_SU2_reload.json": "5b014a1bb506bd572e90de4bf581cce988d89889fe507db1f88a7c8dc5a6e681",
+    "bridge_conservative_m1_s2.json": "18d59e8f9c2e82edc0f6fef2496397406466eb1875eee5acb484088e52dd3a28",
+    "bridge_barycentric_m1_s1_written_SU2_reload.json": "31254a9fc021724a5b54acac6fb8c2756c06b4e8631c4566073eee75d9a5b17a",
+    "bridge_barycentric_m1_s0.json": "18d59e8f9c2e82edc0f6fef2496397406466eb1875eee5acb484088e52dd3a28",
+    "bridge_barycentric_m1_s1_states.json": "7a0d5ac7cec1c9b2c0c2e721a8e520e7e9c5e5a185539253eaf45953eab2e866",
+    "host_load.stdout": "02c60f13bb6e683c7ad2302898a26c3d4b3b2cc5cbe1bd7c79b6add8761634f6",
+    "host_memory.stdout": "96eee85af7fa24e694e5a81f99e451e6cb656313a85906e1314847454109de62",
+    "default_native3d.su2.native_ref": "cd48010598c1c1e3617aa75767c8dff8a14236092fc5cc097be8e5de211e7806",
+    "case.stdout": "cfa40f7296b5d7091d1d7492e229f83be4ea47a0e79c12d373f64d84d65611aa",
+    "host_load.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host_gate.json": "90dd59a937c388e106f7980825f1b4216490633d87de6948f82d18fecbe9c2bb",
+    "bridge_barycentric_m1_s0_written_CGNS.cgns": "ff3f2249e06f6391387901503b358b7f808c112e09276bee63aa73beaa6096dc",
+    "bridge_barycentric_m1_s1_written_CGNS_reload.json": "31254a9fc021724a5b54acac6fb8c2756c06b4e8631c4566073eee75d9a5b17a",
+    "bridge_barycentric_m1_s0_written_SU2_reload.json": "5b014a1bb506bd572e90de4bf581cce988d89889fe507db1f88a7c8dc5a6e681",
+    "case.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host_processes.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bridge_conservative_m1_s2_states.json": "a3ec0b17eea6ceb4e9a011e664cf01c46ef384183f961da658078c81719478a8",
+    "bridge_barycentric_m1_s0_written_SU2.su2": "d941c4718546230300aa2a2263a84329134009e20d9d73e6ca6bcbd82058b1cd",
+    "bridge_barycentric_m1_s2_states.json": "8a7a5aa3c8aaaf421439a0e2218242539fd3f11c63a545d6a03d3cf284f86bcd",
+    "bridge_barycentric_m1_s1_written_CGNS.cgns": "8e52f24614f952d047684fbc6eb0b3170a2e3f16be836a6d2d5b7191ee36ccdc",
+    "runner.py": "b3d23665d9ffa1e1c70ad04f7de91f7f506aee4d6954460e1db4b94ac9a08a1b",
+    "bridge_barycentric_m1_s0_written_CGNS_reload.json": "5b014a1bb506bd572e90de4bf581cce988d89889fe507db1f88a7c8dc5a6e681",
+    "bridge_barycentric_m1_s1_written_SU2.su2": "4a03ff46653f4a4317fda003df2767d96ea5881b708feb18ae6cbfc50e66641c",
+    "original.native_ref": "cd48010598c1c1e3617aa75767c8dff8a14236092fc5cc097be8e5de211e7806",
+    "bridge_barycentric_m1_s2_written_CGNS_reload.json": "5b014a1bb506bd572e90de4bf581cce988d89889fe507db1f88a7c8dc5a6e681",
+    "bridge_conservative_m1_s1_states.json": "8872243b52ab0a3c380ed7b55b7ac79adffc86816f8e3c0affe8b7cde8530207",
+    "bridge_barycentric_m1_s2_written_SU2.su2": "d941c4718546230300aa2a2263a84329134009e20d9d73e6ca6bcbd82058b1cd",
+    "bridge_barycentric_m1_s1.json": "51997925908cfd4b0d36ea7c11c6077d49838b90fe24da7368a5a9f165501c74",
+    "large_reference_input.su2": "584a2163db9147b5ee843d2fedf7efe7237258ca580736ed55a202d9c11be271",
+    "default_native3d.su2": "036e5747fe0448e0ae7ca8843d7af21f05aa087d07afe62285dc15e0db122a26",
+    "bridge_conservative_m1_s1.json": "51997925908cfd4b0d36ea7c11c6077d49838b90fe24da7368a5a9f165501c74",
+    "bridge_barycentric_m1_s2_written_CGNS.cgns": "a829de993bf283ce43f7ee391b8aae46e3d75b22e5e5234fe165e9a95816a091",
+    "host_memory.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bridge_barycentric_m1_s0_states.json": "8a7a5aa3c8aaaf421439a0e2218242539fd3f11c63a545d6a03d3cf284f86bcd",
+    "bridge_conservative_m1_s0_states.json": "f5320c50e0ac283e293d5c798f02e439528cddc299990d2902bc7579c2c88164",
+    "bridge_conservative_m1_s0.json": "18d59e8f9c2e82edc0f6fef2496397406466eb1875eee5acb484088e52dd3a28",
+    "bridge_barycentric_m1_s2.json": "18d59e8f9c2e82edc0f6fef2496397406466eb1875eee5acb484088e52dd3a28"
+  }
+}

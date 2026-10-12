@@ -6,6 +6,9 @@ ROOT=Path(__file__).resolve().parents[2]
 PACK=Path(__file__).resolve().parent
 TOOLS=('audit_cavities.py','audit_coupled.py','audit_geometry_bridge.py','audit_lifecycle.py','audit_envelope.py','audit_restart.py','export_envelope_vtu.py')
 
+TOOLS += ('audit_distributed.py','audit_donors.py','audit_anisotropic.py','audit_cycles.py',
+          'audit_repairs.py','audit_engine_repairs.py','audit_coplanar.py')
+
 def closed(path):
     path=Path(path).resolve();path.relative_to(ROOT)
     if not path.is_file():raise FileNotFoundError(path)

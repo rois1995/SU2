@@ -1,0 +1,32 @@
+{
+  "cases": [
+    {
+      "folder": "query_routing_a2_direction_n4_n1_m1_v1",
+      "ranks": 1,
+      "workers": 1,
+      "size": 4,
+      "anisotropy": 2,
+      "varying": 1,
+      "direction": 1,
+      "height_power": 0,
+      "wedge": true,
+      "aligned_markers": true,
+      "diagnostic_rounds": 512
+    },
+    {
+      "folder": "query_routing_a2_direction_n4_n4_m2_v1",
+      "ranks": 4,
+      "workers": 2,
+      "size": 4,
+      "anisotropy": 2,
+      "varying": 1,
+      "direction": 1,
+      "height_power": 0,
+      "wedge": true,
+      "aligned_markers": true,
+      "diagnostic_rounds": 512
+    }
+  ],
+  "order": "Serial first; run N4M2 only after serial full independent PASS. Preserve and diagnose first failure.",
+  "scope": "Predeclared stronger metric correctness matrix, current full binary and production guards unchanged; no timing campaign."
+}

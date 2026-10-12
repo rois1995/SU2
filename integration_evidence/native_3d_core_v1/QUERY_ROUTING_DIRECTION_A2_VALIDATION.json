@@ -1,0 +1,260 @@
+{
+  "status": "PASS",
+  "matrix_sha256": "963580b8e02693cbff4d2a2a5dd0b1261fdcb9df2b591c87778a96bfe2720a21",
+  "binary_sha256": "bb5a7664dda805daac6bbcc4b16e3da3ee3759f33475937beedd6a177c35955e",
+  "cases": [
+    {
+      "case": "query_routing_a2_direction_n4_n1_m1_v1",
+      "validation_sha256": "7cdc94ac651c19d9f314b77563d23fe8ffbe4b1373ca19aecd022b1b65a599ac",
+      "audit_sha256": "6e03869a84e5980056694f42ff488d5ec972f632cee06b1f1c6966f53248d399",
+      "parameters": {
+        "ranks": 1,
+        "workers": 1,
+        "size": 4,
+        "anisotropy": 2,
+        "varying": 1,
+        "direction": 1,
+        "height_power": 0,
+        "wedge": true,
+        "aligned_markers": true,
+        "diagnostic_rounds": 512,
+        "repeat": 0,
+        "detail": 1,
+        "restart_format": "none"
+      },
+      "accepted_frames": [
+        {
+          "file": "envelope_s0.json",
+          "cells": 402,
+          "points": 132,
+          "physical_faces": 206,
+          "volume": "1/2",
+          "minimum_mean_ratio": 0.4917013076917022,
+          "minimum_scaled_jacobian": 0.21327734558445957,
+          "maximum_length": 1.7956516149938975,
+          "longest_edge": [
+            6,
+            22
+          ],
+          "markers": {
+            "2": 62,
+            "1": 40,
+            "4": 14,
+            "3": 22,
+            "0": 56,
+            "5": 12
+          },
+          "strict_metric_gate": true
+        },
+        {
+          "file": "envelope_s1.json",
+          "cells": 54,
+          "points": 29,
+          "physical_faces": 52,
+          "volume": "1/2",
+          "minimum_mean_ratio": 0.4399296281224713,
+          "minimum_scaled_jacobian": 0.20429614571857735,
+          "maximum_length": 1.7710277200578823,
+          "longest_edge": [
+            1,
+            16
+          ],
+          "markers": {
+            "3": 8,
+            "2": 13,
+            "1": 11,
+            "5": 3,
+            "4": 6,
+            "0": 11
+          },
+          "strict_metric_gate": true
+        },
+        {
+          "file": "envelope_s2.json",
+          "cells": 424,
+          "points": 129,
+          "physical_faces": 186,
+          "volume": "1/2",
+          "minimum_mean_ratio": 0.3605746963932114,
+          "minimum_scaled_jacobian": 0.1654876091129709,
+          "maximum_length": 1.796383465219314,
+          "longest_edge": [
+            65,
+            96
+          ],
+          "markers": {
+            "0": 40,
+            "4": 18,
+            "2": 52,
+            "3": 26,
+            "5": 10,
+            "1": 40
+          },
+          "strict_metric_gate": true
+        }
+      ],
+      "states": [
+        {
+          "file": "envelope_s0_states.json",
+          "maximum_state_relative_error": 3.5228792947728926e-16,
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "donor_points": 75,
+          "accepted_points": 132
+        },
+        {
+          "file": "envelope_s1_states.json",
+          "maximum_state_relative_error": 3.5228792947728926e-16,
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "donor_points": 132,
+          "accepted_points": 29
+        },
+        {
+          "file": "envelope_s2_states.json",
+          "maximum_state_relative_error": 3.772960232364795e-16,
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "donor_points": 29,
+          "accepted_points": 129
+        }
+      ],
+      "reload_metrics": [
+        {
+          "format": "SU2",
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "maximum_transported_tensor_physical_error": 0.0
+        },
+        {
+          "format": "CGNS",
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "maximum_transported_tensor_physical_error": 0.0
+        }
+      ]
+    },
+    {
+      "case": "query_routing_a2_direction_n4_n4_m2_v1",
+      "validation_sha256": "0297f1a2d58bb50ab577d8da739870459259a07d4c71d8fbc92d19333ea45f79",
+      "audit_sha256": "2c157f72611acb75f1a6693d25307a24459b3a8ce4ba6420fcdc869a022dd311",
+      "parameters": {
+        "ranks": 4,
+        "workers": 2,
+        "size": 4,
+        "anisotropy": 2,
+        "varying": 1,
+        "direction": 1,
+        "height_power": 0,
+        "wedge": true,
+        "aligned_markers": true,
+        "diagnostic_rounds": 512,
+        "repeat": 0,
+        "detail": 1,
+        "restart_format": "none"
+      },
+      "accepted_frames": [
+        {
+          "file": "envelope_s0.json",
+          "cells": 402,
+          "points": 132,
+          "physical_faces": 206,
+          "volume": "1/2",
+          "minimum_mean_ratio": 0.4917013076917022,
+          "minimum_scaled_jacobian": 0.21327734558445957,
+          "maximum_length": 1.7956516149938975,
+          "longest_edge": [
+            9,
+            13
+          ],
+          "markers": {
+            "2": 62,
+            "0": 56,
+            "1": 40,
+            "3": 22,
+            "4": 14,
+            "5": 12
+          },
+          "strict_metric_gate": true
+        },
+        {
+          "file": "envelope_s1.json",
+          "cells": 71,
+          "points": 31,
+          "physical_faces": 52,
+          "volume": "1/2",
+          "minimum_mean_ratio": 0.2394146447478602,
+          "minimum_scaled_jacobian": 0.09173582033653473,
+          "maximum_length": 1.7702049587158384,
+          "longest_edge": [
+            1,
+            8
+          ],
+          "markers": {
+            "0": 11,
+            "4": 6,
+            "1": 8,
+            "3": 8,
+            "2": 16,
+            "5": 3
+          },
+          "strict_metric_gate": true
+        },
+        {
+          "file": "envelope_s2.json",
+          "cells": 435,
+          "points": 131,
+          "physical_faces": 188,
+          "volume": "1/2",
+          "minimum_mean_ratio": 0.20399740583061948,
+          "minimum_scaled_jacobian": 0.0589521939546055,
+          "maximum_length": 1.7948193415369798,
+          "longest_edge": [
+            2,
+            101
+          ],
+          "markers": {
+            "2": 57,
+            "1": 39,
+            "3": 26,
+            "4": 20,
+            "5": 8,
+            "0": 38
+          },
+          "strict_metric_gate": true
+        }
+      ],
+      "states": [
+        {
+          "file": "envelope_s0_states.json",
+          "maximum_state_relative_error": 3.5228792947728926e-16,
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "donor_points": 75,
+          "accepted_points": 132
+        },
+        {
+          "file": "envelope_s1_states.json",
+          "maximum_state_relative_error": 3.5228792947728926e-16,
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "donor_points": 132,
+          "accepted_points": 31
+        },
+        {
+          "file": "envelope_s2_states.json",
+          "maximum_state_relative_error": 3.7156204112042362e-16,
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "donor_points": 31,
+          "accepted_points": 131
+        }
+      ],
+      "reload_metrics": [
+        {
+          "format": "SU2",
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "maximum_transported_tensor_physical_error": 0.0
+        },
+        {
+          "format": "CGNS",
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "maximum_transported_tensor_physical_error": 0.0
+        }
+      ]
+    }
+  ],
+  "scope": "Two newly independently audited size4 aspect2 turning-direction/spatial-strength wedge three-event MPI-driver cases, production512/q/J/L guards unchanged; no timing/scaling/BL/fullGoal1 certificate."
+}

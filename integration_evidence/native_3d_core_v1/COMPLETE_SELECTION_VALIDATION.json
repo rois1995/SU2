@@ -1,0 +1,62 @@
+{
+  "status": "PASS",
+  "binary_sha256": "bb5a7664dda805daac6bbcc4b16e3da3ee3759f33475937beedd6a177c35955e",
+  "cases": [
+    {
+      "folder": "query_routing_complete_mpi1_v2",
+      "ranks": 1,
+      "cases_per_rank": 97,
+      "validation_sha256": "f3fa2a1502579adc0a3ea8316379819e17be1c5333d13044c04a67a86c99e676",
+      "bridge_audit_sha256": "62af74d2f655fde0d76119cd812a86ec16321f8b9e812a1ee6673d22bf662efa",
+      "distributed_audit_sha256": "c2962daf3171496babd2d55a2d93fa5fc09bacd0171f968cb6c5703702638f35",
+      "distributed_frame_counts": {
+        "distributed_meshes": 7,
+        "distributed_anisotropic": 10,
+        "distributed_cycles": 25,
+        "distributed_repairs": 30,
+        "distributed_automatic": 72,
+        "distributed_coplanar": 4
+      },
+      "retained_bytes": 4424709,
+      "scope": "Independent frame counts include initial/private rejected progress, not only accepted strict-gate meshes."
+    },
+    {
+      "folder": "query_routing_complete_mpi2_v1",
+      "ranks": 2,
+      "cases_per_rank": 97,
+      "validation_sha256": "8a77226b251b793899bbb8d7b5cf1e293ec8d8ac4af51b126e72a2c0a1354b6a",
+      "bridge_audit_sha256": "2afb61e4bbfee2b100d879529382096702c0e739f09c7ff01256bff4c87736e1",
+      "distributed_audit_sha256": "aa83080aaa01d0055dcf91ec3c277d8377e04026d7f2c86c9f0054733d950522",
+      "distributed_frame_counts": {
+        "distributed_meshes": 9,
+        "distributed_anisotropic": 15,
+        "distributed_cycles": 45,
+        "distributed_repairs": 48,
+        "distributed_automatic": 108,
+        "distributed_coplanar": 7
+      },
+      "retained_bytes": 8702092,
+      "scope": "Independent frame counts include initial/private rejected progress, not only accepted strict-gate meshes."
+    },
+    {
+      "folder": "query_routing_complete_mpi4_v1",
+      "ranks": 4,
+      "cases_per_rank": 97,
+      "validation_sha256": "8f58912ff4f8f189748c831601a19c3e5c0dd2a60fd41e59901514e69451b142",
+      "bridge_audit_sha256": "d8bea670a96f2ed55531bf40761b14e8ca17b4ff7e0d4ae9ec01ecd29153348f",
+      "distributed_audit_sha256": "9c4145db9bde77ecd1ea7481c1410f5f4f5e7e83f192723d1b7da6ecd167e0a3",
+      "distributed_frame_counts": {
+        "distributed_meshes": 11,
+        "distributed_anisotropic": 20,
+        "distributed_cycles": 65,
+        "distributed_repairs": 66,
+        "distributed_automatic": 144,
+        "distributed_coplanar": 10
+      },
+      "retained_bytes": 16677884,
+      "scope": "Independent frame counts include initial/private rejected progress, not only accepted strict-gate meshes."
+    }
+  ],
+  "package_checks": "complete_selection_package_checks_v3",
+  "scope": "Expanded97-case MPI1/2/4 selection includes29 directory/donor/engine and3 partition declarations;24 previously unselected cases. Seven existing exact distributed-record auditors plus actual geometry/solver/current+BDF/SU2CGNS bridge audits; serial MMG controls. No C++/target/512budget change, performance/scaling/BL/fullGoal1 certificate."
+}

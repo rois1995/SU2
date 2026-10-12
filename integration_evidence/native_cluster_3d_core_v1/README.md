@@ -2,11 +2,17 @@
 
 Working repository: `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
 `codex/native-3d-transport-accounting`. Narrow actual-query donor routing, full local-star facet/orientation filtering
-and complete-star retries pass the configured **73-case** selection on MPI1/2/4,
-independent mesh/current+BDF/SU2/CGNS checks, serial MMG, n4 N4M2 adaptation and
-persistent SU2N1M1/CGNSN4M2 restart checks. The actual metric/Hessian lifecycle
-OFF/ON controls pass. The reusable package expects73cases and passes31lightweight
-parser/mocked orchestration checks. All qualification used the exact new binary.
+and complete-star retries pass the expanded **97-case** selection on MPI1/2/4.
+The generic NativeDistributed3D tag adds24existing directory/donor/engine/partition
+controls omitted from the earlier73-case selection. All seven existing exact
+MPI-record auditors now run alongside independent mesh/current+BDF/SU2/CGNS
+bridge checks. Serial MMG, n4N4M2 adaptation, persistent SU2N1M1/CGNSN4M2 restart,
+actual metric/Hessian OFF/ON lifecycle controls, whole thin H10/H20 cases and
+stronger aspect2 turning-direction n4N1M1/N4M2 cycles pass. The reusable package
+expects97cases and passes31lightweight parser/mocked orchestration checks.
+No C++/binary/target/default budget changed for this coverage correction.
+See integration_evidence/native_3d_core_v1/COMPLETE_SELECTION_VALIDATION.md
+and QUERY_ROUTING_DIRECTION_A2_VALIDATION.md for current receipts and limits.
 
 The unchanged-target n8 N1M1 pilot passes its first adaptation, but still rejects
 the second at512rounds:437accepted/75rejected attempts,266pending candidates and
