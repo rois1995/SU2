@@ -226,7 +226,7 @@ void CUpwAUSM_SLAU_Base_NEMO::ComputeJacobian(su2double** val_Jacobian_i, su2dou
           0.25 * (M_L + 1.0) *
           (dPdU_i[nSpecies + nDim + 1] * (M_L + 1.0) * (2.0 - M_L) +
            Pressure_i * (-ProjVelocity_i / (pow(SoundSpeed_i, 2)) * da_L[nSpecies + nDim + 1]) * (3.0 - 3.0 * M_L));
-    } else {
+    } else if (M_L > 1.0) {
       /*--- Mach number ---*/
       for (auto iSpecies = 0ul; iSpecies < nSpecies; iSpecies++)
         dM_LP[iSpecies] =
@@ -243,6 +243,12 @@ void CUpwAUSM_SLAU_Base_NEMO::ComputeJacobian(su2double** val_Jacobian_i, su2dou
         dP_LP[nSpecies + iDim] = (-Velocity_i[iDim] * dPdU_i[nSpecies + nDim]);
       dP_LP[nSpecies + nDim] = dPdU_i[nSpecies + nDim];
       dP_LP[nSpecies + nDim + 1] = dPdU_i[nSpecies + nDim + 1];
+    } else {
+      /*--- Supersonic flow towards the left state, the split Mach number and pressure are zero ---*/
+      for (auto iVar = 0ul; iVar < nVar; iVar++) {
+        dM_LP[iVar] = 0.0;
+        dP_LP[iVar] = 0.0;
+      }
     }
 
     /*--- dM contribution ---*/
@@ -328,7 +334,7 @@ void CUpwAUSM_SLAU_Base_NEMO::ComputeJacobian(su2double** val_Jacobian_i, su2dou
           (dPdU_j[nSpecies + nDim + 1] * (M_R - 1.0) * (2.0 + M_R) +
            Pressure_j * (-ProjVelocity_j / (pow(SoundSpeed_j, 2)) * da_R[nSpecies + nDim + 1]) * (3.0 + 3.0 * M_R));
 
-    } else {
+    } else if (M_R < -1.0) {
       /*--- Mach ---*/
       for (auto iSpecies = 0ul; iSpecies < nSpecies; iSpecies++)
         dM_RM[iSpecies] =
@@ -345,6 +351,12 @@ void CUpwAUSM_SLAU_Base_NEMO::ComputeJacobian(su2double** val_Jacobian_i, su2dou
         dP_RM[nSpecies + iDim] = -Velocity_j[iDim] * dPdU_j[nSpecies + nDim];
       dP_RM[nSpecies + nDim] = dPdU_j[nSpecies + nDim];
       dP_RM[nSpecies + nDim + 1] = dPdU_j[nSpecies + nDim + 1];
+    } else {
+      /*--- Supersonic flow towards the right state, the split Mach number and pressure are zero ---*/
+      for (auto iVar = 0ul; iVar < nVar; iVar++) {
+        dM_RM[iVar] = 0.0;
+        dP_RM[iVar] = 0.0;
+      }
     }
 
     /*--- Jacobian contribution: dM terms ---*/
