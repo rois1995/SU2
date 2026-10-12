@@ -1,3 +1,55 @@
+# Goal 2 primitive runtime WIP — 2026-10-12
+
+Working repository `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch
+`codex/native-3d-curved-local`; previous published commit `2d00b57ffabd78ce05f4350a71fb6b210d93c9a0`.
+Goal ACTIVE, all four full requirements PENDING. This connected batch adds finite
+arbitrary-axis cylinders, disk cap/rim authority, certified complete primitive
+components, shared cylindrical source/projection geometry and axis-aware v3
+reference persistence (v1/v2 retained). Geometry selection retains alternatives;
+finite-triangle sphere error is tighter where the plane foot is outside. Geometry-only
+repairs require actual geometry progress plus strict shape/sliver/nonincreasing
+metric excess. Oversized curved repair candidates are skipped using the existing
+batch dependency protocol; storage/protocol/missing-feature failures still abort.
+Cavity 64/replacement 128/work 4096 limits and accepted-state safeguards unchanged.
+
+Latest focused controller `primitive_runtime_v7/run.py`, session 52797, TERMINAL
+FAIL: build PASS, serial 3/4 cases PASS; primitive matrix fails on tilted cylinder.
+Sphere and axis-aligned cylinder complete both actual CFD replacement cycles,
+BDF/SU2 restart and SU2/CGNS readback. Tilted cylinder accepts 77 private edits,
+then operator-stagnates; rejected replay has 121 cells/62 nodes. MPI2/4 were NOTRUN
+because serial failed. No broader regression for this changed production batch.
+All v1-v7 failures/source/build/member/binary pins and relevant grids/states remain.
+The v5 estimated-gain rounding experiment did not fix rotation and was removed.
+
+Independent corrected auditor `primitive_audit_v1/audit_primitives_final.py`,
+session 80275 TERMINAL PASS, produces `primitive_runtime_v7_audit.json` with status
+PASS_COMPLETED_LIFECYCLES_ONLY, explicitly listing failed/unrun variants. Exact
+volume/closure/no interior overlap, geometry/source/metric, conservative actual
+current/BDF integrals, positivity, transported metric residual 0 and real restart/
+writer signatures pass for the two completed serial variants. Initial auditor
+used box marker defaults incorrectly; retained source/AUDIT_CORRECTION explain the
+existing marker-parameter fix. No runtime source or gate changed for that audit.
+No owned heavy job remains live. Foreign ClusterResults/dependencies/AdapNoExt untouched.
+
+Inspect cases in
+`integration_evidence/native_3d_curved_v1/primitive_runtime_v7/mpi1/`:
+`sphere_axis0_m1_mesh_00001.su2` (26 cells/18 nodes),
+`cylinder_axis0_m1_mesh_00001.su2` (42 cells/32 nodes), and both second-event files.
+Rejected tilted grid exported separately at
+`primitive_audit_v1/primitive_runtime_v7/mpi1/cylinder_axis1_m1_s0_rejected.su2`.
+Frozen geometry targets remain 0.22R sphere/0.04R cylinder, sensor0.5I, q>=0.20,
+J>=0.05, metric edge<=1.8. These are coarse prescribed-metric controls, not solved
+primitive CFD or tight-geometry proof. Current-source MPI/M<N, component/feature
+negative controls, broad regression and resolved nonuniform/shock remain pending.
+
+Next substantial step: exact replay of the saved obstruction and coordinated
+boundary/transition cavity reconstruction with off-edge/interior placement under
+unchanged dependency/replacement bounds. Do not continue rounding priorities or
+blindly increase caps. Then qualify the connected result, MPI and independent
+accepted-grid/state audits; retain full Goal 2 scope. Permanent cadence AGENTS.md:
+focused checks while developing, broad suite at meaningful integration milestones.
+Report PRIMITIVE_RUNTIME_INTEGRATION.md and full requirement audit remain incomplete.
+
 # Goal2 curved conservative and solvedEuler lifecycle — 2026-10-12
 
 Working repo /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch

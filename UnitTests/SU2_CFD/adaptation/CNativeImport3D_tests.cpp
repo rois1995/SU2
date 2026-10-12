@@ -1147,3 +1147,104 @@ TEST_CASE("Solved three-dimensional Euler pressure supplies repeated native curv
   }
   driver->Preprocess(5);driver->Run();driver->Postprocess();driver->Update();CheckPositiveFlow(Flow(world,driver->Geometry(),driver->Solver()));
 }
+
+namespace {
+CSimplexMesh PrimitiveMesh(bool sphere,bool tilted) {
+  CSimplexMesh mesh;mesh.nDim=3;
+  auto add=[&](Point p){const auto id=mesh.GetnPoint();mesh.coord.insert(mesh.coord.end(),{p.x,p.y,p.z});return id;};
+  if(sphere) {
+    add({0,0,0});for(Point p:std::array<Point,6>{{{1,0,0},{-1,0,0},{0,1,0},{0,-1,0},{0,0,1},{0,0,-1}}})add(p);
+    for(int x=0;x<2;++x)for(int y=0;y<2;++y)for(int z=0;z<2;++z)
+      mesh.elem.insert(mesh.elem.end(),{0,static_cast<unsigned long>(1+x),static_cast<unsigned long>(3+y),static_cast<unsigned long>(5+z)});
+  } else {
+    const double q=1/std::sqrt(3.),s=1/std::sqrt(2.);
+    const Point axis=tilted?Point{q,q,q}:Point{0,0,1},u=tilted?Point{0,-s,s}:Point{1,0,0},v=tilted?Point{2*s*q,-s*q,-s*q}:Point{0,1,0};
+    const Point origin=tilted?Point{2,-1,.5}:Point{0,0,0};
+    for(int level=0;level<2;++level) {
+      add({origin.x+level*axis.x,origin.y+level*axis.y,origin.z+level*axis.z});
+      for(int i=0;i<8;++i){const auto a=i*std::acos(-1.)/4;add({origin.x+std::cos(a)*u.x+std::sin(a)*v.x+level*axis.x,origin.y+std::cos(a)*u.y+std::sin(a)*v.y+level*axis.y,origin.z+std::cos(a)*u.z+std::sin(a)*v.z+level*axis.z});}
+    }
+    for(unsigned long i=1;i<=8;++i) {
+      std::array<unsigned long,3> triangle{0,i,i==8?1:i+1};std::sort(triangle.begin(),triangle.end());
+      const auto a=triangle[0],b=triangle[1],c=triangle[2];
+      for(auto tet:std::array<std::array<unsigned long,4>,3>{{{a,b,c,c+9},{a,b,b+9,c+9},{a,b+9,a+9,c+9}}})mesh.elem.insert(mesh.elem.end(),tet.begin(),tet.end());
+    }
+  }
+  auto node=[&](unsigned long i){return Node{i,{mesh.coord[3*i],mesh.coord[3*i+1],mesh.coord[3*i+2]}};};
+  std::vector<Cell> cells;
+  for(size_t e=0;e<mesh.elem.size();e+=4) {
+    auto& ids=mesh.elem;Cell cell{e/4,{node(ids[e]),node(ids[e+1]),node(ids[e+2]),node(ids[e+3])}};
+    if(Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)<0){std::swap(ids[e],ids[e+1]);std::swap(cell.v[0],cell.v[1]);}
+    cells.push_back(cell);
+  }
+  mesh.elemRef.assign(cells.size(),0);std::map<std::string,std::vector<unsigned long>> boundary;
+  for(auto face:Incidence(cells).Boundary()) {
+    const std::string name=sphere?"sphere":std::all_of(face.begin(),face.end(),[](Id id){return id<9;})?"cap0":std::all_of(face.begin(),face.end(),[](Id id){return id>=9;})?"cap1":"cylinder";
+    auto& ids=boundary[name];ids.insert(ids.end(),face.begin(),face.end());
+  }
+  for(auto row:boundary){CSimplexMesh::Marker marker;marker.name=row.first;marker.elem=row.second;mesh.markers.push_back(std::move(marker));}
+  return mesh;
+}
+void DeclarePrimitive(ReferenceState& state,bool sphere,bool tilted) {
+  AnalyticSurface g;g.kind=sphere?AnalyticSurface::Kind::Sphere:AnalyticSurface::Kind::Cylinder;g.extent=sphere?Point{1,0,0}:Point{1,1,0};
+  if(tilted && !sphere){g.origin={2,-1,.5};g.axis={1,1,1};}
+  std::map<Id,AnalyticSurface> curves;
+  for(auto f:state.facets) {
+    auto local=g;const auto name=state.marker_names.at(f.marker);
+    if(name=="cap0" || name=="cap1") {
+      local.kind=AnalyticSurface::Kind::Disk;local.extent.y=0;
+      if(name=="cap1") {const auto l=std::hypot(g.axis.x,g.axis.y,g.axis.z);local.origin={g.origin.x+g.axis.x/l,g.origin.y+g.axis.y/l,g.origin.z+g.axis.z/l};}
+    }
+    curves.emplace(f.id,local);
+  }
+  state.original=std::make_shared<PlanarReference>(state.facets,SIZE_MAX,curves);
+}
+}
+TEST_CASE("Native sphere cylinder and disk rims adapt through full distributed runtime and persistence", "[NativePrimitiveRuntime3D]") {
+  World world;const bool sphere=GENERATE(false,true);const bool tilted=GENERATE(false,true);if(sphere && tilted)return;
+  const int workers=GENERATE(1,2,3,4);if(workers>world.size)return;
+  const auto name=std::string(sphere?"sphere":"cylinder")+"_axis"+std::to_string(tilted)+"_m"+std::to_string(workers);
+  if(!world.rank) {
+    simplex_test::WriteSU2Mesh(PrimitiveMesh(sphere,tilted),name+".su2");std::ofstream cfg(name+".cfg");
+    cfg<<"SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nMESH_FORMAT= SU2\nMESH_FILENAME= "<<name<<".su2\n"
+       <<(sphere?"MARKER_FAR= (sphere)\n":"MARKER_FAR= (cylinder, cap0, cap1)\n")
+       <<"COMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
+       <<"ADAP_NATIVE_REPARTITION= YES\nADAP_NATIVE_RANKS= "<<workers<<"\nADAP_NATIVE_MAX_WORK= 4096\nADAP_HAUSD= "<<(sphere?.22:.04)<<"\n"
+       <<"MGLEVEL= 0\nNUM_METHOD_GRAD= GREEN_GAUSS\nCONV_NUM_METHOD_FLOW= ROE\nMUSCL_FLOW= NO\n"
+       <<"TIME_DOMAIN= YES\nTIME_STEP= 1e-3\nTIME_ITER= 8\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\nINNER_ITER= 2\n"
+       <<"OUTPUT_FILES= (RESTART)\nWRT_ADAP_MESH= NO\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= "<<name<<"_mesh\nCONV_FILENAME= "<<name<<"_history\n"
+       <<"RESTART_FILENAME= "<<name<<"_flow\nSOLUTION_FILENAME= "<<name<<"_flow\nWRT_RESTART_COMPACT= YES\n";
+  }
+  SU2_MPI::Barrier(world.comm);const auto cfg=name+".cfg";
+  auto driver=std::make_unique<TetraDriver>(const_cast<char*>(cfg.c_str()),1,world.comm);
+  ReferenceState declared;ImportGeometry(driver->Config(),driver->Geometry(),nullptr,declared);DeclarePrimitive(declared,sphere,tilted);
+  const auto authority=EncodeReference(declared);CHECK(authority.find(sphere?"3D 2\n":"3D 3\n")!=std::string::npos);
+  WriteReference(name+".su2.native_ref",declared);auto backend=driver->Backend();CConservativeTransfer transfer;
+  auto* nodes=driver->Solver().GetNodes();const std::array<su2double,5> constant{1,.2,.1,.05,3};
+  for(unsigned long p=0;p<driver->Geometry().GetnPoint();++p)for(size_t k=0;k<5;++k){nodes->SetSolution(p,k,constant[k]);nodes->GetSolution_time_n()(p,k)=constant[k];nodes->GetSolution_time_n1()(p,k)=constant[k]*.96875;}
+  for(int cycle=0;cycle<2;++cycle) {
+    const auto event=name+"_s"+std::to_string(cycle);su2activematrix metric(driver->Geometry().GetnPointDomain(),6);
+    for(unsigned long p=0;p<metric.rows();++p)for(size_t k=0;k<6;++k)metric(p,k)=(k==0 || k==3 || k==5)?.5:0.;
+    auto observed=declared;const auto donor=ImportGeometry(driver->Config(),driver->Geometry(),&metric,observed);
+    Save(world,event+"_initial",donor.cells,donor.original,observed);SaveCoverage(world,event,donor.original,observed);
+    const auto before=State(driver->Geometry(),driver->Solver());const auto old=Flow(world,driver->Geometry(),driver->Solver());
+    const auto result=backend->Remesh(driver->Config(),driver->Geometry(),metric);
+    CHECK(State(driver->Geometry(),driver->Solver())==before);
+    if(result.status!=CRemeshResult::Status::COMPLETE) {
+      EngineOptions diagnosis;diagnosis.maximum_work=4096;diagnosis.surface_tolerance=SU2_TYPE::GetValue(driver->Config().GetAdap_Hausd());
+      const auto rejected=Refine(world,donor.cells,donor.original,*observed.original,{},diagnosis);
+      Save(world,event+"_rejected",rejected.cells,donor.original,observed);
+      INFO("replay: "<<rejected.reason);
+    }
+    INFO(name<<" cycle="<<cycle);REQUIRE(result.status==CRemeshResult::Status::COMPLETE);
+    driver->ReplaceMesh(result,transfer);SaveProjection(world,event,transfer);CHECK(EncodeReference(*driver->Reference())==authority);
+    const auto transported=result.slices.FetchPointMetric(driver->Geometry());const auto fresh=Flow(world,driver->Geometry(),driver->Solver(),transported);
+    SaveStates(world,event,old,fresh,.5);CheckPositiveFlow(fresh);
+    su2activematrix accepted_metric(driver->Geometry().GetnPointDomain(),6);
+    for(unsigned long p=0;p<accepted_metric.rows();++p)for(size_t k=0;k<6;++k)accepted_metric(p,k)=transported[6*p+k];
+    auto retained=*driver->Reference();const auto accepted=ImportGeometry(driver->Config(),driver->Geometry(),&accepted_metric,retained);
+    Save(world,event+"_accepted",accepted.cells,donor.original,retained);driver->WriteAdaptedMesh(cycle+1,cycle+1);
+    if(cycle==0){const auto checkpoint=driver->AdaptedMeshName(1,1)+driver->Config().GetMesh_Out_FileExtension();backend.reset();driver=ReloadCurved(world,std::move(driver),name,checkpoint,"SU2");backend=driver->Backend();}
+    if(cycle==1)OutputRoundTrip(world,event,result.slices,accepted.cells,retained,.5,[](const su2double*,double){return Tensor{.5,0,0,.5,0,.5};},&donor.original);
+  }
+}

@@ -272,3 +272,18 @@ TEST_CASE("Native metric diagnosis separates shape, measurement and frozen progr
   // Diagnostics must not replace a failed shape query by an integrated sensor surrogate.
   CHECK(target.Statistics().edge_requests==6);
 }
+
+TEST_CASE("Geometry-only repairs retain strict shape and changed-edge excess gates", "[NativeSurfaceError3D]") {
+  FrozenField field({Donor({})});const auto cell=Single();
+  const auto before=MeasureMetricCells({cell},field);
+  std::string reason;
+  CHECK_FALSE(ValidateMetricChange(1,before,1,before,MetricChange::Repair,reason));
+  CHECK(ValidateMetricChange(1,before,1,before,MetricChange::GeometryRepair,reason));
+  CHECK_FALSE(ValidateMetricChange(1,before,1,before,MetricChange::GeometryRefine,reason));
+  auto bad=before;bad.minimum_mean_ratio=.19;
+  CHECK_FALSE(ValidateMetricChange(1,before,1,bad,MetricChange::GeometryRepair,reason));
+  bad=before;bad.minimum_scaled_jacobian=.04;
+  CHECK_FALSE(ValidateMetricChange(1,before,1,bad,MetricChange::GeometryRepair,reason));
+  bad=before;bad.edges.begin()->second.length=2;bad.edges.begin()->second.a.x-=1;
+  CHECK_FALSE(ValidateMetricChange(1,before,1,bad,MetricChange::GeometryRepair,reason));
+}

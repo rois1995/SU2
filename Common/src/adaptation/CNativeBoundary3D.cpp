@@ -55,6 +55,41 @@ long double ArcDistance(const AnalyticSurface& g, Point a, Point b, Point p) {
   }
   return distance;
 }
+Vector UnitAxis(const AnalyticSurface& g) {
+  Vector a{g.axis.x,g.axis.y,g.axis.z};const auto n=Norm(a);
+  if(!(n>0 && std::isfinite(n)))throw std::invalid_argument("Invalid native3D analytic axis.");
+  for(auto& v:a)v/=n;return a;
+}
+struct AxisFrame {
+  Vector axis,u,v;
+  explicit AxisFrame(const AnalyticSurface& g):axis(UnitAxis(g)) {
+    size_t k=0;for(size_t i=1;i<3;++i)if(std::abs(axis[i])<std::abs(axis[k]))k=i;
+    Vector seed{};seed[k]=1;u=Cross(seed,axis);const auto n=Norm(u);for(auto& x:u)x/=n;v=Cross(axis,u);
+  }
+  Point Coordinates(const AnalyticSurface& g,Point p) const {
+    const auto d=Delta(p,g.origin);return {double(Dot(d,u)),double(Dot(d,v)),double(Dot(d,axis))};
+  }
+};
+std::array<Point,3> CylinderChart(const AnalyticSurface& g,const std::array<Point,3>& p) {
+  const AxisFrame frame(g);std::array<Point,3> chart{};long double first=0;
+  for(size_t i=0;i<3;++i) {
+    const auto local=frame.Coordinates(g,p[i]);const auto angle=std::atan2(static_cast<long double>(local.y),local.x);
+    if(!i)first=angle;
+    chart[i]={double(g.extent.x*std::remainder(angle-first,2*std::acos(-1.L))),local.z,0};
+  }
+  const auto ends=std::minmax_element(chart.begin(),chart.end(),[](Point a,Point b){return a.x<b.x;});
+  if(ends.second->x-ends.first->x>=g.extent.x*std::acos(-1.L))
+    throw std::invalid_argument("Native3D cylinder face crosses its radial horizon.");
+  return chart;
+}
+std::array<Point,3> DiskChart(const AnalyticSurface& g,const std::array<Point,3>& p) {
+  const AxisFrame frame(g);std::array<Point,3> chart{};
+  for(size_t i=0;i<3;++i){chart[i]=frame.Coordinates(g,p[i]);chart[i].z=0;}return chart;
+}
+long double ParameterOrientation(const AnalyticSurface& g,const std::array<Point,3>& p) {
+  const auto chart=g.kind==AnalyticSurface::Kind::Cylinder ? CylinderChart(g,p) : DiskChart(g,p);
+  return Orientation(chart[0],chart[1],chart[2],{0,0,1});
+}
 bool Has(Face f, Id id) { return std::find(f.begin(), f.end(), id) != f.end(); }
 Face Key(Face f) {
   std::sort(f.begin(), f.end());
@@ -163,6 +198,31 @@ void Endpoints(Edge& edge) {
   std::sort(edge.begin(), edge.end());
 }
 }  // namespace
+Point ScaleCylinder(const AnalyticSurface& g,Point p,double factor) {
+  const auto a=UnitAxis(g),d=Delta(p,g.origin);const auto t=Dot(a,d);Vector q{};
+  for(size_t i=0;i<3;++i)q[i]=a[i]*t+factor*(d[i]-a[i]*t);
+  return {double(g.origin.x+q[0]),double(g.origin.y+q[1]),double(g.origin.z+q[2])};
+}
+double CylinderRadialFloor(const AnalyticSurface& g,const std::array<Point,3>& p) {
+  const auto chart=CylinderChart(g,p);const AxisFrame frame(g);
+  long double radius=INFINITY,lo=chart[0].x,hi=lo;
+  for(size_t i=0;i<3;++i){const auto q=frame.Coordinates(g,p[i]);radius=std::min(radius,std::hypot(static_cast<long double>(q.x),q.y));lo=std::min(lo,static_cast<long double>(chart[i].x));hi=std::max(hi,static_cast<long double>(chart[i].x));}
+  const auto lower=radius*std::cos((hi-lo)/(2*g.extent.x))-256*std::numeric_limits<double>::epsilon()*g.extent.x;
+  if(!(lower>0 && std::isfinite(lower)))throw std::invalid_argument("Unusable native3D cylindrical source face.");
+  return std::nextafter(double(lower),0.);
+}
+long double CylinderFacing(const AnalyticSurface& g,const std::array<Point,3>& p) {
+  const auto sign=ParameterOrientation(g,p);if(!sign)return 0;
+  const auto normal=Cross(Delta(p[1],p[0]),Delta(p[2],p[0]));const auto a=UnitAxis(g);
+  for(auto point:p) {
+    const auto d=Delta(point,g.origin);Vector radial{};const auto t=Dot(a,d);
+    for(size_t i=0;i<3;++i)radial[i]=d[i]-a[i]*t;
+    const auto value=Dot(normal,radial);
+    const auto error=256*std::numeric_limits<double>::epsilon()*Norm(normal)*Norm(radial);
+    if(sign>0 ? value<=error : value>=-error)throw std::invalid_argument("Folded native3D cylindrical face.");
+  }
+  return sign;
+}
 PlanarReference::PlanarReference(std::vector<Facet> input, size_t ceiling, std::map<Id, AnalyticSurface> curved)
     : analytic(std::move(curved)) {
   const size_t bytes = ConstructionBytes(input.size(), analytic.size());
@@ -184,20 +244,33 @@ PlanarReference::PlanarReference(std::vector<Facet> input, size_t ceiling, std::
   for (const auto& row : analytic) {
     if (!facets.count(row.first)) throw std::invalid_argument("Analytic native3D chart has no original facet.");
     const auto& g=row.second;
-    for (double x : {g.origin.x,g.origin.y,g.origin.z,g.extent.x,g.extent.y,g.extent.z,g.tolerance})
+    for (double x : {g.origin.x,g.origin.y,g.origin.z,g.extent.x,g.extent.y,g.extent.z,g.tolerance,g.axis.x,g.axis.y,g.axis.z})
       if (!std::isfinite(x)) throw std::invalid_argument("Nonfinite native3D analytic authority.");
     if (!(g.tolerance>0) || !(g.extent.x>0) ||
-        (g.kind!=AnalyticSurface::Kind::Sphere && g.kind!=AnalyticSurface::Kind::Bump) ||
-        (g.kind==AnalyticSurface::Kind::Bump && !(g.extent.y>0)))
+        (unsigned(g.kind)<1 || unsigned(g.kind)>4) ||
+        ((g.kind==AnalyticSurface::Kind::Bump || g.kind==AnalyticSurface::Kind::Cylinder) && !(g.extent.y>0)))
       throw std::invalid_argument("Invalid native3D analytic authority parameters.");
     const auto& f=Get(row.first);
     if (g.kind==AnalyticSurface::Kind::Sphere) {
+      if(g.axis.x!=0 || g.axis.y!=0 || g.axis.z!=1)throw std::invalid_argument("Sphere authority has no directional axis.");
       if (Orientation(g.origin,f.v[0].p,f.v[1].p,f.v[2].p)==0)
         throw std::invalid_argument("Native3D spherical chart crosses its radial horizon.");
       for (auto n : f.v)
         if (std::abs(Norm(Delta(n.p,g.origin))-g.extent.x)>g.tolerance)
           throw std::invalid_argument("Original native3D vertex leaves declared sphere.");
+    } else if(g.kind==AnalyticSurface::Kind::Cylinder || g.kind==AnalyticSurface::Kind::Disk) {
+      const AxisFrame frame(g);const std::array<Point,3> p{f.v[0].p,f.v[1].p,f.v[2].p};
+      if(!ParameterOrientation(g,p))throw std::invalid_argument("Degenerate native3D axis chart.");
+      if(g.kind==AnalyticSurface::Kind::Cylinder)CylinderFacing(g,p);
+      for(auto n:f.v) {
+        const auto q=frame.Coordinates(g,n.p);const auto r=std::hypot(static_cast<long double>(q.x),q.y);
+        if(g.kind==AnalyticSurface::Kind::Cylinder ?
+           (std::abs(r-g.extent.x)>g.tolerance || q.z<-g.tolerance || q.z>g.extent.y+g.tolerance) :
+           (std::abs(q.z)>g.tolerance || r>g.extent.x+g.tolerance))
+          throw std::invalid_argument("Original native3D vertex leaves its declared cylinder/disk.");
+      }
     } else {
+      if (g.axis.x!=0 || g.axis.y!=0 || g.axis.z!=1)throw std::invalid_argument("Bump authority uses Cartesian XY parameters.");
       if (Projected(f.v[0].p,f.v[1].p,f.v[2].p,2,nullptr)==0)
         throw std::invalid_argument("Degenerate native3D bump chart.");
       for (auto n : f.v)
@@ -309,6 +382,74 @@ PlanarReference::PlanarReference(std::vector<Facet> input, size_t ceiling, std::
       bump_charts.emplace(id,chart);
     }
   }
+  using CurveKey=std::tuple<int,unsigned,double,double,double,double,double,double,double,double,double,double>;
+  auto definition=[&](Id id) {const auto& g=analytic.at(id);return CurveKey{Get(id).marker,unsigned(g.kind),g.origin.x,g.origin.y,g.origin.z,g.extent.x,g.extent.y,g.extent.z,g.tolerance,g.axis.x,g.axis.y,g.axis.z};};
+  std::set<Id> curved_seen;
+  for(const auto& row:analytic) {
+    const Id root=row.first;const auto& g=row.second;
+    if(g.kind==AnalyticSurface::Kind::Bump || curved_seen.count(root))continue;
+    std::vector<Id> component{root};curved_seen.insert(root);
+    for(size_t j=0;j<component.size();++j) {
+      const auto& f=Get(component[j]);
+      for(size_t i=0;i<3;++i)for(Id id:owners.at(Edge{std::min(f.v[i].id,f.v[(i+1)%3].id),std::max(f.v[i].id,f.v[(i+1)%3].id)}))
+        if(!curved_seen.count(id) && analytic.count(id) && definition(id)==definition(root)) {component.push_back(id);curved_seen.insert(id);}
+    }
+    std::vector<Face> triangles;std::map<Edge,std::vector<Edge>> uses;std::set<Id> vertices;
+    bool valid=true;int direction=0;
+    for(Id id:component) {
+      const auto& f=Get(id);triangles.push_back({f.v[0].id,f.v[1].id,f.v[2].id});
+      const auto oriented=g.kind==AnalyticSurface::Kind::Sphere ? Orientation(g.origin,f.v[0].p,f.v[1].p,f.v[2].p) : ParameterOrientation(g,{f.v[0].p,f.v[1].p,f.v[2].p});
+      const int sign=oriented>0?1:-1;if(!direction)direction=sign;valid=valid && sign==direction;
+      for(size_t i=0;i<3;++i){vertices.insert(f.v[i].id);Edge edge{f.v[i].id,f.v[(i+1)%3].id};auto key=edge;std::sort(key.begin(),key.end());uses[key].push_back(edge);}
+    }
+    std::vector<Edge> border;
+    for(const auto& edge:uses) {
+      if(edge.second.size()==1)border.push_back(edge.second[0]);
+      else if(edge.second.size()!=2 || edge.second[0][0]!=edge.second[1][1] || edge.second[0][1]!=edge.second[1][0])valid=false;
+    }
+    try {
+      if(g.kind==AnalyticSurface::Kind::Sphere){if(!border.empty())valid=false;else ValidateSurfaceTopology(triangles,true);}
+      else if(g.kind==AnalyticSurface::Kind::Disk)ValidateSurfaceTopology(triangles,false);
+      else if(vertices.size()+component.size()!=uses.size())valid=false; // Cylinder annulus Euler characteristic.
+    }catch(const std::invalid_argument&){valid=false;}
+    if(g.kind==AnalyticSurface::Kind::Cylinder && valid) {
+      std::set<Id> border_nodes;for(auto edge:border){border_nodes.insert(edge[0]);border_nodes.insert(edge[1]);}
+      for(Id vertex:vertices) {
+        std::map<Id,std::set<Id>> link;
+        for(auto face:triangles)for(size_t i=0;i<3;++i)if(face[i]==vertex){link[face[(i+1)%3]].insert(face[(i+2)%3]);link[face[(i+2)%3]].insert(face[(i+1)%3]);}
+        std::set<Id> visited;std::vector<Id> pending{link.begin()->first};unsigned ends=0;
+        for(size_t i=0;i<pending.size();++i)if(visited.insert(pending[i]).second)for(Id next:link.at(pending[i]))pending.push_back(next);
+        for(const auto& neighbors:link){if(neighbors.second.size()==1)++ends;else if(neighbors.second.size()!=2)valid=false;}
+        valid=valid && visited.size()==link.size() && ends==(border_nodes.count(vertex)?2u:0u);
+      }
+    }
+    if(g.kind!=AnalyticSurface::Kind::Sphere && valid) {
+      const AxisFrame frame(g);std::map<Id,Id> next;std::set<Id> visited;unsigned loops=0;
+      for(auto edge:border)if(!next.emplace(edge[0],edge[1]).second)valid=false;
+      std::array<bool,2> ends{};
+      for(auto edge:border)if(!visited.count(edge[0])) {
+        ++loops;Id at=edge[0];long double winding=0;int end=-1;
+        do {
+          if(!visited.insert(at).second || !next.count(at)){valid=false;break;}
+          const auto p=frame.Coordinates(g,nodes.at(at).p),q=frame.Coordinates(g,nodes.at(next.at(at)).p);
+          const auto radius=std::hypot(static_cast<long double>(p.x),p.y);
+          valid=valid && std::abs(radius-g.extent.x)<=g.tolerance;
+          if(g.kind==AnalyticSurface::Kind::Cylinder) {
+            const int level=std::abs(p.z)<=g.tolerance?0:std::abs(p.z-g.extent.y)<=g.tolerance?1:-1;
+            if(level<0 || (end>=0 && end!=level))valid=false;else end=level;
+          }
+          const auto step=std::atan2(static_cast<long double>(p.x)*q.y-static_cast<long double>(p.y)*q.x,static_cast<long double>(p.x)*q.x+static_cast<long double>(p.y)*q.y);
+          if(std::abs(step)>=std::acos(-1.L))valid=false;winding+=step;at=next.at(at);
+        }while(at!=edge[0] && valid);
+        if(std::abs(std::abs(winding)-2*std::acos(-1.L))>1e-10L)valid=false;
+        if(end>=0){if(ends[end])valid=false;ends[end]=true;}
+      }
+      valid=valid && visited.size()==border.size() && loops==(g.kind==AnalyticSurface::Kind::Disk?1u:2u);
+      if(g.kind==AnalyticSurface::Kind::Cylinder)valid=valid && ends[0] && ends[1];
+    }
+    if(valid){complete_analytic.insert(root);for(Id id:component)canonical.at(id)=root;}
+    else if(g.kind==AnalyticSurface::Kind::Disk)throw std::invalid_argument("Disk authority requires its complete connected circular cap.");
+  }
   std::map<Id, std::array<Point, 2>> boxes;
   for (const auto& row : facets) {
     const auto id = Canonical(row.first);
@@ -326,6 +467,11 @@ PlanarReference::PlanarReference(std::vector<Facet> input, size_t ceiling, std::
       // Conservative for the entire tolerated radial cone; tighter spherical boxes are a later optimization.
       box[0]={g.origin.x-g.extent.x,g.origin.y-g.extent.x,g.origin.z-g.extent.x};
       box[1]={g.origin.x+g.extent.x,g.origin.y+g.extent.x,g.origin.z+g.extent.x};
+    } else if(g.kind==AnalyticSurface::Kind::Cylinder || g.kind==AnalyticSurface::Kind::Disk) {
+      const auto a=UnitAxis(g);const long double height=g.kind==AnalyticSurface::Kind::Cylinder?g.extent.y:0;
+      Point end{double(g.origin.x+a[0]*height),double(g.origin.y+a[1]*height),double(g.origin.z+a[2]*height)};
+      box[0]={std::min(g.origin.x,end.x)-g.extent.x,std::min(g.origin.y,end.y)-g.extent.x,std::min(g.origin.z,end.z)-g.extent.x};
+      box[1]={std::max(g.origin.x,end.x)+g.extent.x,std::max(g.origin.y,end.y)+g.extent.x,std::max(g.origin.z,end.z)+g.extent.x};
     } else {
       box[0].z=double(g.origin.z+std::min(0.,g.extent.z)/16);
       box[1].z=double(g.origin.z+std::max(0.,g.extent.z)/16);
@@ -377,7 +523,7 @@ size_t PlanarReference::ResidentBytes() const {
   auto map = [](const auto& m) {
     return transfer_memory::Mul(m.size(), sizeof(typename std::decay_t<decltype(m)>::value_type) + 4 * sizeof(void*));
   };
-  size_t result = transfer_memory::Add(sizeof(*this), map(facets), map(canonical), map(boundaries), map(nodes), map(analytic), map(bump_charts));
+  size_t result = transfer_memory::Add(sizeof(*this), map(facets), map(canonical), map(boundaries), map(nodes), map(analytic), map(bump_charts), map(complete_analytic));
   for (const auto& entry : boundaries) result = transfer_memory::Add(result, transfer_memory::Bytes(entry.second));
   for(const auto& entry:bump_charts)
     if(entry.first==entry.second->facets.begin()->first) result=transfer_memory::Add(result,entry.second->ResidentBytes());
@@ -432,6 +578,7 @@ bool PlanarReference::Contains(Id id, Point p, KernelStats* stats) const {
       throw std::invalid_argument("Nonfinite native3D analytic query.");
     if (g.kind==AnalyticSurface::Kind::Sphere) {
       if (std::abs(Norm(Delta(p,g.origin))-g.extent.x)>g.tolerance) return false;
+      if(complete_analytic.count(id))return true;
       const auto area=Orientation(g.origin,v[0].p,v[1].p,v[2].p,stats);
       bool inside=true;
       for (size_t i=0;i<3;++i) {
@@ -442,6 +589,23 @@ bool PlanarReference::Contains(Id id, Point p, KernelStats* stats) const {
         bool near=false;
         for (size_t i=0;i<3;++i) near=near || ArcDistance(g,v[i].p,v[(i+1)%3].p,p)<=g.tolerance;
         if (!near) return false;
+      }
+    } else if(g.kind==AnalyticSurface::Kind::Cylinder || g.kind==AnalyticSurface::Kind::Disk) {
+      const auto q=AxisFrame(g).Coordinates(g,p);const auto radius=std::hypot(static_cast<long double>(q.x),q.y);
+      if(g.kind==AnalyticSurface::Kind::Disk)return std::abs(q.z)<=g.tolerance && radius<=g.extent.x+g.tolerance;
+      if(std::abs(radius-g.extent.x)>g.tolerance || q.z<-g.tolerance || q.z>g.extent.y+g.tolerance)return false;
+      if(complete_analytic.count(id))return true;
+      const auto chart=CylinderChart(g,{v[0].p,v[1].p,v[2].p});
+      const auto first=AxisFrame(g).Coordinates(g,v[0].p);
+      const Point query{double(g.extent.x*std::remainder(std::atan2(static_cast<long double>(q.y),q.x)-std::atan2(static_cast<long double>(first.y),first.x),2*std::acos(-1.L))),q.z,0};
+      const auto area=Orientation(chart[0],chart[1],chart[2],{0,0,1},stats);
+      for(size_t i=0;i<3;++i) {
+        const auto side=Orientation(chart[i],chart[(i+1)%3],query,{0,0,1},stats);
+        if(area>0 ? side<0 : side>0) {
+          const auto a=chart[i],b=chart[(i+1)%3];const auto dx=static_cast<long double>(b.x)-a.x,dy=static_cast<long double>(b.y)-a.y;
+          const auto t=std::clamp(((query.x-a.x)*dx+(query.y-a.y)*dy)/(dx*dx+dy*dy),0.L,1.L);
+          if(std::hypot(static_cast<long double>(query.x)-a.x-t*dx,static_cast<long double>(query.y)-a.y-t*dy)>g.tolerance)return false;
+        }
       }
     } else {
       if (std::abs(static_cast<long double>(p.z)-BumpHeight(g,p))>g.tolerance) return false;
@@ -492,6 +656,11 @@ bool PlanarReference::ContainsFace(Id id, const std::array<Point, 3>& triangle, 
   const auto curved=analytic.find(Canonical(id));
   if (curved!=analytic.end()) {
     const auto& g=curved->second;
+    if(g.kind==AnalyticSurface::Kind::Cylinder || g.kind==AnalyticSurface::Kind::Disk) {
+      const auto old=ParameterOrientation(g,{f.v[0].p,f.v[1].p,f.v[2].p});
+      const auto fresh=g.kind==AnalyticSurface::Kind::Cylinder ? CylinderFacing(g,triangle) : ParameterOrientation(g,triangle);
+      return old>0 ? fresh>0 : fresh<0;
+    }
     const auto old=g.kind==AnalyticSurface::Kind::Sphere ?
         Orientation(g.origin,f.v[0].p,f.v[1].p,f.v[2].p,stats) : Projected(f.v[0].p,f.v[1].p,f.v[2].p,2,stats);
     const auto fresh=g.kind==AnalyticSurface::Kind::Sphere ?
@@ -515,14 +684,38 @@ double PlanarReference::SurfaceError(Id id,const std::array<Point,3>& triangle,K
   const auto& g=found->second;
   long double error=0,scale=std::max({std::abs(g.origin.x),std::abs(g.origin.y),std::abs(g.origin.z),
                                    std::abs(g.extent.x),std::abs(g.extent.y),std::abs(g.extent.z)});
-  if(g.kind==AnalyticSurface::Kind::Sphere) {
+  if(g.kind==AnalyticSurface::Kind::Disk)return g.tolerance;
+  if(g.kind==AnalyticSurface::Kind::Cylinder) {
+    error=std::max(0.L,static_cast<long double>(g.extent.x)-CylinderRadialFloor(g,triangle));
+  } else if(g.kind==AnalyticSurface::Kind::Sphere) {
     const auto a=Delta(triangle[1],triangle[0]),b=Delta(triangle[2],triangle[0]),c=Delta(triangle[0],g.origin);
     const auto normal=Cross(a,b);const auto length=Norm(normal);
     if(!(length>0 && std::isfinite(length)))throw std::invalid_argument("Degenerate native3D geometry triangle.");
     const auto uncertainty=64*std::numeric_limits<long double>::epsilon()*Norm(a)*Norm(b);
     const auto numerator=std::max(0.L,std::abs(Dot(normal,c))-uncertainty*Norm(c));
     const auto height=numerator/(length+uncertainty);
-    error=std::max(0.L,static_cast<long double>(g.extent.x)-height);
+    long double radius=height;
+    bool outside=false;
+    for(size_t i=0;i<3;++i) {
+      const auto edge=Delta(triangle[(i+1)%3],triangle[i]),vertex=Delta(g.origin,triangle[i]);
+      const auto side=Dot(Cross(edge,vertex),normal);
+      const auto envelope=128*std::numeric_limits<long double>::epsilon()*Norm(edge)*Norm(vertex)*length;
+      outside=outside || side < -envelope;
+    }
+    if(outside) {
+      // An exterior plane foot overstates the defect and rewards endless splits along the wrong edge.
+      radius=INFINITY;
+      for(size_t i=0;i<3;++i) {
+        const auto v=Delta(triangle[i],g.origin),e=Delta(triangle[(i+1)%3],triangle[i]);
+        const auto square=Dot(e,e);
+        if(!(square>0))throw std::invalid_argument("Degenerate native3D geometry edge.");
+        const auto t=std::clamp(-Dot(v,e)/square,0.L,1.L);
+        Vector closest{};for(size_t k=0;k<3;++k)closest[k]=v[k]+t*e[k];
+        const auto envelope=1024*std::numeric_limits<long double>::epsilon()*(Norm(v)+Norm(e));
+        radius=std::min(radius,std::max(0.L,Norm(closest)-envelope));
+      }
+    }
+    error=std::max(0.L,static_cast<long double>(g.extent.x)-radius);
     for(auto p:triangle)error=std::max(error,std::abs(Norm(Delta(p,g.origin))-g.extent.x));
   } else {
     long double diameter=0;
@@ -564,6 +757,12 @@ Point PlanarReference::Project(Id id, Point p, KernelStats* stats) const {
       if (!(length>0 && std::isfinite(length))) throw std::invalid_argument("Invalid native3D radial projection.");
       p={double(g.origin.x+g.extent.x*direction[0]/length),double(g.origin.y+g.extent.x*direction[1]/length),
          double(g.origin.z+g.extent.x*direction[2]/length)};
+    } else if(g.kind==AnalyticSurface::Kind::Cylinder) {
+      const auto q=AxisFrame(g).Coordinates(g,p);const auto r=std::hypot(static_cast<long double>(q.x),q.y);
+      if(!(r>0))throw std::invalid_argument("Cylinder projection reaches its axis.");p=ScaleCylinder(g,p,double(g.extent.x/r));
+    } else if(g.kind==AnalyticSurface::Kind::Disk) {
+      const auto a=UnitAxis(g),d=Delta(p,g.origin);const auto t=Dot(a,d);
+      p={double(static_cast<long double>(p.x)-a[0]*t),double(static_cast<long double>(p.y)-a[1]*t),double(static_cast<long double>(p.z)-a[2]*t)};
     } else p.z=double(BumpHeight(g,p));
   }
   if (!Contains(id,p,stats)) throw std::invalid_argument("Native3D projection leaves its finite original chart.");
@@ -575,6 +774,12 @@ bool PlanarReference::OnProjectedEdge(Id id, Point a, Point b, Point p, KernelSt
   if (curved==analytic.end()) return OnEdge(a,b,p,stats);
   if (!Contains(id,a,stats) || !Contains(id,b,stats) || !Contains(id,p,stats)) return false;
   const auto& g=curved->second;
+  if(g.kind==AnalyticSurface::Kind::Disk)return OnEdge(a,b,p,stats);
+  if(g.kind==AnalyticSurface::Kind::Cylinder) {
+    const auto chart=CylinderChart(g,{a,b,p});const auto x=static_cast<long double>(chart[1].x)-chart[0].x,y=static_cast<long double>(chart[1].y)-chart[0].y;
+    const auto t=std::clamp(((chart[2].x-chart[0].x)*x+(chart[2].y-chart[0].y)*y)/(x*x+y*y),0.L,1.L);
+    return std::hypot(static_cast<long double>(chart[2].x)-chart[0].x-t*x,static_cast<long double>(chart[2].y)-chart[0].y-t*y)<=g.tolerance;
+  }
   if (g.kind==AnalyticSurface::Kind::Bump) return OnEdge({a.x,a.y,0},{b.x,b.y,0},{p.x,p.y,0},stats);
   return ArcDistance(g,a,b,p)<=g.tolerance;
 }
@@ -588,17 +793,21 @@ bool SplitEdge(const Patch& old, Edge edge, Node point, Id first, const PlanarRe
     auto physical = CheckSurface(old, skin, reference, stats);
     const auto nodes = Nodes(old.cells);
     const auto a = nodes.at(edge[0]), b = nodes.at(edge[1]);
-    if (nodes.count(point.id) || !OnEdge(a.p, b.p, point.p, stats) ||
+    bool curved_edge=false;
+    for(const auto& face:physical)if(Has(face.second.v,edge[0]) && Has(face.second.v,edge[1])) {
+      const auto geometry=reference.Analytic().find(face.second.facet);
+      curved_edge=curved_edge || (geometry!=reference.Analytic().end() && geometry->second.kind!=AnalyticSurface::Kind::Disk);
+    }
+    const Point midpoint{double((static_cast<long double>(a.p.x)+b.p.x)/2),double((static_cast<long double>(a.p.y)+b.p.y)/2),double((static_cast<long double>(a.p.z)+b.p.z)/2)};
+    const bool rounded_midpoint=curved_edge && point.p.x==midpoint.x && point.p.y==midpoint.y && point.p.z==midpoint.z;
+    if (nodes.count(point.id) || (!rounded_midpoint && !OnEdge(a.p, b.p, point.p, stats)) ||
         (point.p.x == a.p.x && point.p.y == a.p.y && point.p.z == a.p.z) ||
         (point.p.x == b.p.x && point.p.y == b.p.y && point.p.z == b.p.z))
       throw std::invalid_argument("Native 3D split point is not a distinct exact on-edge point.");
-    bool projected=false;
-    for (const auto& f : physical)
-      if (Has(f.second.v,edge[0]) && Has(f.second.v,edge[1]) && reference.Analytic().count(f.second.facet)) {
-        if (!projected) { point.p=reference.Project(f.second.facet,point.p,stats); projected=true; }
-        if (!reference.Contains(f.second.facet,point.p,stats))
-          throw std::invalid_argument("Native3D projected split leaves an incident curved feature.");
-      }
+    for(unsigned pass=0;pass<2;++pass)for(const auto& f:physical)
+      if(Has(f.second.v,edge[0]) && Has(f.second.v,edge[1]) && reference.Analytic().count(f.second.facet) &&
+         (reference.Analytic().at(f.second.facet).kind==AnalyticSurface::Kind::Disk)==(pass==0))
+        point.p=reference.Project(f.second.facet,point.p,stats);
     for (const auto& f : physical)
       if (Has(f.second.v,edge[0]) && Has(f.second.v,edge[1]) && !reference.Contains(f.second.facet,point.p,stats))
         throw std::invalid_argument("Native3D projected split leaves an incident physical feature.");
@@ -911,11 +1120,10 @@ bool MoveVertex(const Patch& old, Id vertex, Node point, Id first, const PlanarR
     const auto original = nodes.at(vertex);
     if (nodes.count(point.id) || (original.p.x == point.p.x && original.p.y == point.p.y && original.p.z == point.p.z))
       throw std::invalid_argument("Native 3D movement needs a new identity and a distinct position.");
-    bool projected=false;
-    for(const auto& face:physical)
-      if(Has(face.second.v,vertex) && reference.Analytic().count(face.second.facet) && !projected) {
-        point.p=reference.Project(face.second.facet,point.p,stats);projected=true;
-      }
+    for(unsigned pass=0;pass<2;++pass)for(const auto& face:physical)
+      if(Has(face.second.v,vertex) && reference.Analytic().count(face.second.facet) &&
+         (reference.Analytic().at(face.second.facet).kind==AnalyticSurface::Kind::Disk)==(pass==0))
+        point.p=reference.Project(face.second.facet,point.p,stats);
     if (original.p.x==point.p.x && original.p.y==point.p.y && original.p.z==point.p.z)
       throw std::invalid_argument("Native3D movement projects back to its original position.");
     for (const auto& face : before)

@@ -8,6 +8,7 @@
 #include "CNativeCavity3D.hpp"
 #include <map>
 #include <memory>
+#include <set>
 class CADTElemClass;
 namespace SU2Native3D {
 struct Facet {
@@ -34,13 +35,19 @@ struct Patch {
 /*! Analytic authority is declared per original finite facet, never inferred from its marker.
  * Sphere: origin=center, extent.x=radius. Bump: z=origin.z+extent.z*u(1-u)*v(1-v),
  * u=(x-origin.x)/extent.x, v=(y-origin.y)/extent.y in [0,1]. Tolerance is a frozen
- * physical distance for representable projection and finite-chart boundary roundoff. */
+ * physical distance for representable projection and finite-chart boundary roundoff. Cylinder uses
+ * extent.x=radius, extent.y=height and axis; Disk uses extent.x=radius and axis normal. */
 struct AnalyticSurface {
-  enum class Kind : unsigned { Sphere = 1, Bump = 2 };
+  enum class Kind : unsigned { Sphere = 1, Bump = 2, Cylinder = 3, Disk = 4 };
   Kind kind = Kind::Sphere;
   Point origin, extent{1, 0, 0};
   double tolerance = 1e-12;
+  Point axis{0,0,1};  // Cylinder/Disk axis; origin is cylinder base or disk center.
 };
+/*! Shared radial geometry for cylinder projection and frozen exterior source construction. */
+Point ScaleCylinder(const AnalyticSurface& geometry, Point point, double factor);
+double CylinderRadialFloor(const AnalyticSurface& geometry, const std::array<Point,3>& triangle);
+long double CylinderFacing(const AnalyticSurface& geometry, const std::array<Point,3>& triangle);
 /*! Bounded immutable imported facet authority. Exact finite planar containment; certified convex coplanar same-marker
  * seams are removable. */
 class PlanarReference {
@@ -73,6 +80,7 @@ class PlanarReference {
   std::map<Id, Facet> facets;
   const std::map<Id, AnalyticSurface> analytic;
   std::map<Id, Id> canonical;
+  std::set<Id> complete_analytic;
   std::map<Id, std::vector<Edge>> boundaries;
   std::map<Id, std::shared_ptr<const PlanarReference>> bump_charts;
   std::map<Id, Node> nodes;
@@ -81,7 +89,8 @@ class PlanarReference {
   std::shared_ptr<CADTElemClass> search;
 };
 /*! Geometric private proposals only. Require the globally admitted complete edge/vertex star and authoritative
- * physical skin. Input point is exact on-edge binary64; declared analytic physical facets project it before
+ * physical skin. Input point is exact on-edge binary64, or the actual rounded midpoint of a curved edge;
+ * declared analytic physical facets project it before
  * rebuilding all children. Inherited child connectivity must remain positive; planar points never snap.
  * first_cell is a caller-reserved ID range. Distributed IDs, metric gates and external collision checks are separate.
  * Both mesh and physical-face output remain unchanged on rejection. */

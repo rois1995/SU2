@@ -298,5 +298,34 @@
     "runtime_sphere_cylinder_qualified": false,
     "resolved_nonuniform_shock_qualified": false,
     "full_goal_gates_completed": 0
+  },
+  "primitive_runtime_work_in_progress": {
+    "status": "SERIAL_PARTIAL_NOT_INTEGRATION_COMPLETE",
+    "report": "PRIMITIVE_RUNTIME_INTEGRATION.md",
+    "receipt": "primitive_runtime_v7/validation.json",
+    "receipt_sha256": "584f1a919855db2eeb3a98d382c6d0fd762be8b2120ebef9de0c36f61a1e4cdd",
+    "independent_audit": "primitive_audit_v1/primitive_runtime_v7_audit.json",
+    "independent_audit_sha256": "063290cccffb3c20b6ccfe3ed72a284c6964123012fd8d825b0d0c306cb1cb07",
+    "completed_variants": [
+      "serial axis-aligned capped cylinder",
+      "serial sphere"
+    ],
+    "not_qualified": [
+      "tilted cylinder operator stagnation",
+      "current-source MPI2/4 and M<N",
+      "full component/feature negative controls",
+      "broader current-source regression",
+      "resolved nonuniform/shock control"
+    ],
+    "frozen_limits": {
+      "sphere_error_R": 0.22,
+      "cylinder_error_R": 0.04,
+      "q": 0.2,
+      "J": 0.05,
+      "metric_edge": 1.8,
+      "global_work": 4096,
+      "cavity_cells": 64,
+      "replacement_cells": 128
+    }
   }
 }

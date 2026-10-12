@@ -861,3 +861,23 @@ TEST_CASE("Native3D analytic surface bounds cover complete face interiors", "[Na
     }
   }
 }
+
+TEST_CASE("Sphere surface error uses the finite triangle when the plane foot lies outside", "[NativeSurfaceError3D]") {
+  const double angle=.15;
+  const std::array<Point,3> points{{{1,0,0},{std::cos(angle),std::sin(angle),0},
+    {std::cos(.6)*std::cos(.2),std::sin(.6)*std::cos(.2),std::sin(.2)}}};
+  const Facet facet{0,0,{{{0,points[0]},{1,points[1]},{2,points[2]}}}};
+  AnalyticSurface sphere;
+  const PlanarReference geometry({facet},SIZE_MAX,{{0,sphere}});
+  const double error=geometry.SurfaceError(0,points);
+  const double expected=1-std::sqrt((1+points[2].x)/2);
+  CHECK(error>=expected-1e-16);
+  CHECK(error<expected+1e-12);
+  for(int i=0;i<=30;++i)for(int j=0;j<=30-i;++j) {
+    const double u=i/30.,v=j/30.;
+    const Point p{points[0].x*(1-u-v)+u*points[1].x+v*points[2].x,
+                  points[0].y*(1-u-v)+u*points[1].y+v*points[2].y,
+                  points[0].z*(1-u-v)+u*points[1].z+v*points[2].z};
+    CHECK(1-std::hypot(p.x,p.y,p.z)<=error);
+  }
+}

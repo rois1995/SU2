@@ -150,7 +150,7 @@ bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fr
   try {
     if (!old_count || !fresh_count || old_count > MaximumReplacementCells || fresh_count > MaximumReplacementCells)
       throw std::invalid_argument("Native 3D metric-change cell count exceeds budget or is empty.");
-    if (kind != MetricChange::Refine && kind != MetricChange::Coarsen && kind != MetricChange::Repair && kind != MetricChange::GeometryRefine)
+    if (kind != MetricChange::Refine && kind != MetricChange::Coarsen && kind != MetricChange::Repair && kind != MetricChange::GeometryRefine && kind != MetricChange::GeometryRepair)
       throw std::invalid_argument("Unknown native 3D metric-change intent.");
     for (const auto* metric : {&before, &measured}) {
       if (!std::isfinite(metric->minimum_mean_ratio) || !std::isfinite(metric->minimum_scaled_jacobian) ||
@@ -192,6 +192,9 @@ bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fr
     } else if (kind == MetricChange::GeometryRefine) {
       if (fresh_count <= old_count || added > removed)
         throw std::invalid_argument("Native3D geometric refinement adds frozen metric excess or removes no geometric freedom.");
+    } else if (kind == MetricChange::GeometryRepair) {
+      if (added>removed)
+        throw std::invalid_argument("Native3D geometric repair adds frozen metric excess.");
     } else if (kind == MetricChange::Coarsen) {
       if (fresh_count >= old_count || added > 0)
         throw std::invalid_argument("Native 3D coarsening does not remove cells or introduces an oversized edge.");
@@ -212,7 +215,7 @@ bool ValidateMetricChange(const std::vector<Cell>& old, const std::vector<Cell>&
   if (diagnosis) { *diagnosis={}; diagnosis->failure=MetricFailure::Measurement; }
   try {
     if (stats) ++stats->changes;
-    if (kind != MetricChange::Refine && kind != MetricChange::Coarsen && kind != MetricChange::Repair && kind != MetricChange::GeometryRefine)
+    if (kind != MetricChange::Refine && kind != MetricChange::Coarsen && kind != MetricChange::Repair && kind != MetricChange::GeometryRefine && kind != MetricChange::GeometryRepair)
       throw std::invalid_argument("Unknown native 3D metric-change intent.");
     measured = MeasureMetricCells(fresh, target, stats, frozen_reuse, true, diagnosis);
     Shape(measured);

@@ -26,7 +26,8 @@ struct MetricStats {
   uint64_t edge_evaluations = 0, edge_reused = 0;
   size_t maximum_cells = 0, maximum_nodes = 0, maximum_edges = 0;
 };
-enum class MetricChange { Refine, Coarsen, Repair, GeometryRefine };
+// Geometry intents require independently certified geometric progress at the engine caller.
+enum class MetricChange { Refine, Coarsen, Repair, GeometryRefine, GeometryRepair };
 enum class MetricFailure { None, Measurement, Shape, Progress };
 struct MetricDiagnosis {
   MetricFailure failure = MetricFailure::None;
@@ -43,7 +44,7 @@ PatchMetric MeasureMetricCells(const std::vector<Cell>& cells, FrozenField& targ
                               bool require_shape = false, MetricDiagnosis* diagnosis = nullptr);
 /*! Same progress gate on complete measurements assembled from the same frozen target. The caller must
  * retain all cells/edges and verify geometry/dependencies separately; this does not certify source coverage.
- * GeometryRefine needs caller-certified geometric-error progress; metric shape remains strict and changed
+ * GeometryRefine/GeometryRepair need caller-certified geometric-error progress; metric shape remains strict and changed
  * oversized-edge excess must not increase. It does not authorize geometric progress by itself. */
 bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fresh_count,
                           const PatchMetric& measured, MetricChange kind, std::string& reason,

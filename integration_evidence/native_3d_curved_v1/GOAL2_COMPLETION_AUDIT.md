@@ -54,3 +54,14 @@ geometry/source/metric/current+BDF integral/positivity/restart auditsPASS. Produ
 archives remain unchanged from prior100-case regression; new lifecycle test object
 only. See CURVED_EULER_LIFECYCLE.md and curved_lifecycle_v1. Full4gates stay pending:
 runtime sphere/cylinder/full geometry and resolved nonuniform/shock controls remain.
+
+
+Primitive runtime WIP: arbitrary-axis cylinder/disk authority and v3 reference
+persistence, alternate geometry-edge selection and geometry-aware bounded repair
+are implemented. primitive_runtime_v7 build passes, serial matrix fails on tilted
+cylinder (operator stagnation after 77 private edits); sphere and axis-aligned
+cylinder complete two events. Independent primitive_audit_v1 certificate passes
+ONLY those two completed serial lifecycles, including conservative current/BDF,
+real restart, source-resolved metric and geometry/writer checks. MPI2/4 were not
+run after serial failure; no broad current-source regression yet. Every full
+requirement remains PENDING. See PRIMITIVE_RUNTIME_INTEGRATION.md; preserve failures.

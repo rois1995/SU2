@@ -9,6 +9,7 @@
 #include <cmath>
 #include <ctime>
 #include <set>
+#include <tuple>
 #include <stdexcept>
 namespace SU2Native3D {
 namespace {
@@ -125,7 +126,7 @@ class Selection {
   EngineStats& stats;
   bool timings;
   double tolerance;
-  std::set<std::pair<Id,Edge>> geometry_queue;
+  std::set<std::tuple<long double,Id,Edge>> geometry_queue;
   long double Priority(long double length) const { return coarsening ? length : -length; }
   bool Candidate(long double length) const {
     return coarsening ? length < CoarseningMetricEdge : length > MaximumMetricEdge;
@@ -142,7 +143,7 @@ class Selection {
   }
   size_t invalid = 0, repair_bytes = 0;
   struct EdgeState { EdgeMeasure measure; size_t users = 0; std::array<size_t,2> forbidden{}; };
-  struct CellState { std::array<Edge, 6> edges{}; std::array<unsigned char,6> forbidden{}; std::array<Id,4> vertices{}; Edge geometry_edge{}; bool valid = false; };
+  struct CellState { std::array<Edge, 6> edges{}; std::array<unsigned char,6> forbidden{}; std::array<Id,4> vertices{}; std::array<long double,6> geometry_scores{}; bool valid = false; };
   std::map<Id,CellState> cells;
   std::map<Edge,EdgeState> edges;
   std::set<std::pair<long double,Edge>> queue;
@@ -162,7 +163,7 @@ class Selection {
       Choice choice; choice.active=true; choice.feature={key.second,key.first}; return choice;
     }
     if (!geometry_queue.empty()) {
-      const auto key=geometry_queue.begin()->second;
+      const auto key=std::get<2>(*geometry_queue.begin());
       return {key,edges.at(key).measure,true,{},true};
     }
     if (queue.empty()) return {};
@@ -210,7 +211,7 @@ class Selection {
     if (repairing) { repair_queue.erase({feature.count,feature.vertices}); return; }
     Edge canonical=edge;std::sort(canonical.begin(),canonical.end());
     for(auto it=geometry_queue.begin();it!=geometry_queue.end();) {
-      if(it->second==canonical)it=geometry_queue.erase(it);else ++it;
+      if(std::get<2>(*it)==canonical)it=geometry_queue.erase(it);else ++it;
     }
     const auto it = edges.find(canonical);
     if (it==edges.end()) return;
@@ -271,7 +272,7 @@ class Selection {
     const auto found = cells.find(id);
     if (found==cells.end()) throw std::logic_error("Missing native 3D cached cell removal.");
     invalid -= !found->second.valid;
-    geometry_queue.erase({id,found->second.geometry_edge});
+    for(size_t i=0;i<6;++i)geometry_queue.erase({-found->second.geometry_scores[i],id,found->second.edges[i]});
     for (Id vertex:found->second.vertices) {
       auto& star=vertex_cells.at(vertex);
       vertex_links-=star.erase(id);
@@ -326,22 +327,36 @@ class Selection {
     if (metric.edges.size()!=6 || !std::isfinite(metric.maximum_length))
       throw std::runtime_error("Incomplete native 3D initial/updated metric measurement.");
     CellState row; row.valid=valid;
+    std::map<Edge,long double> geometry_scores;
     if (!geometry.Analytic().empty()) {
-      const auto faces=Faces(cell);double worst=tolerance;
+      const auto faces=Faces(cell);
       for(size_t slot=0;slot<4;++slot)if(owned.physical[slot].present) {
         std::array<Point,3> triangle{};
         for(size_t i=0;i<3;++i)for(auto n:cell.v)if(n.id==faces[slot][i])triangle[i]=n.p;
         const double error=geometry.SurfaceError(owned.physical[slot].facet,triangle);
-        if(error<=worst)continue;
-        worst=error;row.valid=false;long double longest=-1;
+        if(error<=tolerance)continue;
+        row.valid=false;
         for(size_t i=0;i<3;++i)for(size_t j=i+1;j<3;++j) {
           const auto a=triangle[i],b=triangle[j];
-          const auto length=std::hypot(static_cast<long double>(a.x)-b.x,static_cast<long double>(a.y)-b.y,static_cast<long double>(a.z)-b.z);
           const Edge key{std::min(faces[slot][i],faces[slot][j]),std::max(faces[slot][i],faces[slot][j])};
-          if(length>longest || (length==longest && key<row.geometry_edge)){longest=length;row.geometry_edge=key;}
+          long double progress=-INFINITY;
+          try {
+            const Point middle{double((static_cast<long double>(a.x)+b.x)/2),double((static_cast<long double>(a.y)+b.y)/2),double((static_cast<long double>(a.z)+b.z)/2)};
+            const auto projected=geometry.Project(owned.physical[slot].facet,middle);
+            auto left=triangle,right=triangle;left[j]=projected;right[i]=projected;
+            const auto before=GeometryExcess(Patch{{cell},{{faces[slot],owned.physical[slot].facet}}},geometry,tolerance);
+            const double l=std::max(0.,geometry.SurfaceError(owned.physical[slot].facet,left)-tolerance);
+            const double r=std::max(0.,geometry.SurfaceError(owned.physical[slot].facet,right)-tolerance);
+            auto area=[](const std::array<Point,3>& t) {
+              const long double ax=static_cast<long double>(t[1].x)-t[0].x,ay=static_cast<long double>(t[1].y)-t[0].y,az=static_cast<long double>(t[1].z)-t[0].z;
+              const long double bx=static_cast<long double>(t[2].x)-t[0].x,by=static_cast<long double>(t[2].y)-t[0].y,bz=static_cast<long double>(t[2].z)-t[0].z;
+              return std::hypot(ay*bz-az*by,az*bx-ax*bz,ax*by-ay*bx);
+            };
+            progress=before-l*l*area(left)-r*r*area(right);
+          }catch(const std::exception&) {} // Complete-star reconstruction remains the authoritative feasibility check.
+          if(progress>0)geometry_scores[key]+=progress;
         }
       }
-      if(worst>tolerance && !coarsening)geometry_queue.insert({cell.id,row.geometry_edge});
     }
     for (size_t i=0;i<4;++i) {
       row.vertices[i]=cell.v[i].id;
@@ -350,6 +365,9 @@ class Selection {
     size_t slot=0;
     for (const auto& measured : metric.edges) {
       const auto key=measured.first;
+      row.geometry_scores[slot]=geometry_scores[key];
+      if(!coarsening && row.geometry_scores[slot]>0)
+        geometry_queue.insert({-row.geometry_scores[slot],cell.id,key});
       auto inserted=edges.emplace(key,EdgeState{measured.second,0});
       auto& state=inserted.first->second;
       if (!Same(state.measure.a,measured.second.a) || !Same(state.measure.b,measured.second.b) ||
@@ -816,8 +834,25 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       {
         Timer timer(stats.dependency_seconds,options.timings);
         const Feature feature=repairing ? choice.feature : (coarsening ? Feature{{choice.edge[1],0,0},1} : Feature{{choice.edge[0],choice.edge[1],0},2});
-        dependencies=directory.Lookup(choice.active ? std::vector<Feature>{feature} : std::vector<Feature>{},
-            options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes()));
+        const auto features=choice.active ? std::vector<Feature>{feature} : std::vector<Feature>{};
+        if(curved && repairing) {
+          auto batch=directory.LookupBatch(features,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes()));
+          if(!batch.valid) {result.reason=batch.reason;return finish();}
+          if(choice.active)dependencies=std::move(batch.candidates.at(0));else dependencies.valid=true;
+          const bool oversized=choice.active && !dependencies.valid && dependencies.reason=="Native 3D dependency star exceeds budget.";
+          CLocalFailure lookup_failure;
+          if(choice.active && !dependencies.valid && !oversized)lookup_failure.Set(1,0,dependencies.reason);
+          if(!vote(lookup_failure))return finish();
+          if(world.maximum(oversized)) {
+            // Reject this oversized repair star; other bounded repairs may still unlock the curved mesh.
+            if(oversized) {
+              selection.Block(choice.edge,choice.feature,true);++stats.attempted;++stats.rejected;
+              stats.last_rejected_feature=choice.feature;
+              last_rejection="feature "+std::to_string(choice.feature.count)+":"+std::to_string(choice.feature.vertices[0])+": "+dependencies.reason;
+            }
+            continue;
+          }
+        } else dependencies=directory.Lookup(features,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes()));
         if (dependencies.valid) imported=directory.Fetch(dependencies,working,options.memory_ceiling,
             transfer_memory::Add(bytes(),source.ResidentBytes()));
       }
@@ -1053,7 +1088,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         bool valid=false;
         { Timer timer(stats.metric_seconds,options.timings); CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
           if (candidate) {
-            if (measured) valid=ValidateMetricChange(old.cells.size(),before,fresh.cells.size(),metric,kind,result.reason,&certified);
+            const auto effective=(kind==MetricChange::Repair && geometric_progress) ? MetricChange::GeometryRepair : kind;
+            if (measured) valid=ValidateMetricChange(old.cells.size(),before,fresh.cells.size(),metric,effective,result.reason,&certified);
             metric_trial(valid,certified);
           }
         }

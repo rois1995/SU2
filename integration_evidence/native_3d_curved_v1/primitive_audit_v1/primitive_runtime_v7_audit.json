@@ -1,0 +1,131 @@
+{
+  "status": "PASS_COMPLETED_LIFECYCLES_ONLY",
+  "missing": [
+    {
+      "ranks": 1,
+      "case": "cylinder_axis1_m1",
+      "status": "NOT_COMPLETED"
+    },
+    {
+      "ranks": 2,
+      "status": "NOT_RUN"
+    },
+    {
+      "ranks": 4,
+      "status": "NOT_RUN"
+    }
+  ],
+  "runtime_receipt_status": "FAIL",
+  "runtime_folder": "primitive_runtime_v7",
+  "results": {
+    "1": {
+      "cylinder_axis0_m1": [
+        {
+          "cells": 42,
+          "points": 32,
+          "volume": 3.0614674589207183,
+          "analytic_domain_volume": 3.141592653589793,
+          "minimum_metric_mean_ratio": 0.20185139079789485,
+          "minimum_metric_scaled_jacobian": 0.06095258113291258,
+          "maximum_exact_source_metric_edge": 1.5811388300841895,
+          "transported_metric_relative_error": 0.0,
+          "exact_triangle_radial_error": 0.01921471959676957,
+          "maximum_nodal_error": 1.1102230246251565e-16,
+          "fill_volume": 0.23304033417452813,
+          "lost_volume": 0,
+          "conservative_actual_state_integrals_match_target": true,
+          "exact_positive_volume_conformity_no_overlap": true
+        },
+        {
+          "cells": 42,
+          "points": 32,
+          "volume": 3.0614674589207183,
+          "analytic_domain_volume": 3.141592653589793,
+          "minimum_metric_mean_ratio": 0.20185139079789485,
+          "minimum_metric_scaled_jacobian": 0.06095258113291258,
+          "maximum_exact_source_metric_edge": 1.5811388300841895,
+          "transported_metric_relative_error": 0.0,
+          "exact_triangle_radial_error": 0.01921471959676957,
+          "maximum_nodal_error": 1.1102230246251565e-16,
+          "fill_volume": 0,
+          "lost_volume": 0,
+          "conservative_actual_state_integrals_match_target": true,
+          "exact_positive_volume_conformity_no_overlap": true
+        }
+      ],
+      "sphere_axis0_m1": [
+        {
+          "cells": 26,
+          "points": 18,
+          "volume": 2.942809041582063,
+          "analytic_domain_volume": 4.1887902047863905,
+          "minimum_metric_mean_ratio": 0.42877382617575227,
+          "minimum_metric_scaled_jacobian": 0.20710678118654752,
+          "maximum_exact_source_metric_edge": 1.414213562373095,
+          "transported_metric_relative_error": 0.0,
+          "exact_triangle_radial_error": 0.18350341907227397,
+          "maximum_nodal_error": 1.1102230246251565e-16,
+          "fill_volume": 1.6094757082487299,
+          "lost_volume": 0,
+          "conservative_actual_state_integrals_match_target": true,
+          "exact_positive_volume_conformity_no_overlap": true
+        },
+        {
+          "cells": 26,
+          "points": 18,
+          "volume": 2.942809041582063,
+          "analytic_domain_volume": 4.1887902047863905,
+          "minimum_metric_mean_ratio": 0.42877382617575227,
+          "minimum_metric_scaled_jacobian": 0.20710678118654752,
+          "maximum_exact_source_metric_edge": 1.414213562373095,
+          "transported_metric_relative_error": 0.0,
+          "exact_triangle_radial_error": 0.18350341907227397,
+          "maximum_nodal_error": 1.1102230246251565e-16,
+          "fill_volume": 0,
+          "lost_volume": 0,
+          "conservative_actual_state_integrals_match_target": true,
+          "exact_positive_volume_conformity_no_overlap": true
+        }
+      ]
+    }
+  },
+  "input_sha256": {
+    "primitive_runtime_v7/validation.json": "584f1a919855db2eeb3a98d382c6d0fd762be8b2120ebef9de0c36f61a1e4cdd",
+    "primitive_runtime_v7/mpi1/cylinder_axis0_m1_s0_accepted.json": "5dcabff736965fcf98050540a55c7e1c38543d21e13c213d293a02de6ab4385d",
+    "primitive_runtime_v7/mpi1/cylinder_axis0_m1_s0_initial.json": "10bf239d26377be0dd4d8565cf2f0a217b7cc8dc0d387fae42ccbc4ad4737aaf",
+    "primitive_runtime_v7/mpi1/cylinder_axis0_m1_s0_source.json": "b4fd9611df9139a53dc711a116baa61fce016620413a7e6854e184447b2a0c54",
+    "primitive_runtime_v7/mpi1/cylinder_axis0_m1_s0_states.json": "b84100f440845f77d42a5031760d4d03c2dd728d753adc4c2333373c3a92ab19",
+    "primitive_runtime_v7/mpi1/cylinder_axis0_m1_s0_projection.json": "b400cae0754312a19695f16dfe879b11e72a3d6c4a0943898adc08303bd0fe08",
+    "primitive_runtime_v7/mpi1/cylinder_axis0_m1_mesh_00001.su2": "4785872e52c8b4fb449bf382a0821fdd2adf42d2a12a5b3579fb7a7530349c05",
+    "primitive_runtime_v7/mpi1/cylinder_axis0_m1_mesh_00001.su2.native_ref": "582de93f80f33ed7f9d90f6f26e533932b1290d0c8e7557dbacbdc0191d4141d",
+    "primitive_runtime_v7/mpi1/cylinder_axis0_m1_s1_accepted.json": "e52aed4f6a05903b0a3b05355706abdbb5b5027d4b08f000cc482febb6c1b052",
+    "primitive_runtime_v7/mpi1/cylinder_axis0_m1_s1_initial.json": "e52aed4f6a05903b0a3b05355706abdbb5b5027d4b08f000cc482febb6c1b052",
+    "primitive_runtime_v7/mpi1/cylinder_axis0_m1_s1_source.json": "08b071d0c83ec54bf46f47883ce29b870dbe419a99bd9c3894263acb1f877b02",
+    "primitive_runtime_v7/mpi1/cylinder_axis0_m1_s1_states.json": "616f793ba2e01171c540e4510f70071adde7da6d8bedc363a1661a7aeffc1042",
+    "primitive_runtime_v7/mpi1/cylinder_axis0_m1_s1_projection.json": "2b836ba546757e31ea316097755c8286de1657921dc119064ed0c812d60b4441",
+    "primitive_runtime_v7/mpi1/cylinder_axis0_m1_mesh_00002.su2": "4785872e52c8b4fb449bf382a0821fdd2adf42d2a12a5b3579fb7a7530349c05",
+    "primitive_runtime_v7/mpi1/cylinder_axis0_m1_mesh_00002.su2.native_ref": "582de93f80f33ed7f9d90f6f26e533932b1290d0c8e7557dbacbdc0191d4141d",
+    "primitive_runtime_v7/mpi1/cylinder_axis0_m1_restart_states.json": "6d712a5efdda68e4540383d9b7d1e65f44890794d75e0d98d68a41679d7decdb",
+    "primitive_runtime_v7/mpi1/cylinder_axis0_m1_s1_written_SU2.su2": "4785872e52c8b4fb449bf382a0821fdd2adf42d2a12a5b3579fb7a7530349c05",
+    "primitive_runtime_v7/mpi1/cylinder_axis0_m1_s1_written_CGNS.cgns": "6315169032329fde04da41ae8285f4b9488127bba0b1d29995080985d28dcbd2",
+    "primitive_runtime_v7/mpi1/sphere_axis0_m1_s0_accepted.json": "5705a700ace68b94df2d75c6db44f0649a39dbb773624e0e9c383bb31875d469",
+    "primitive_runtime_v7/mpi1/sphere_axis0_m1_s0_initial.json": "e55bb3eb06daece3d7d38db90cb39229738dcd0826554495a54ed5cfb10d5ebb",
+    "primitive_runtime_v7/mpi1/sphere_axis0_m1_s0_source.json": "0c9488dfb8ad20558b25170e607fb140ea9e5475b4fefddbcbd340446b73eb5c",
+    "primitive_runtime_v7/mpi1/sphere_axis0_m1_s0_states.json": "7189776023c20f195f8e9863a4f9d6497a555f09518d6ece5fd6e987904a1948",
+    "primitive_runtime_v7/mpi1/sphere_axis0_m1_s0_projection.json": "b216ee0d5a577ee89fb179ef678d7461db8388174459f7c9328f48ece51082d1",
+    "primitive_runtime_v7/mpi1/sphere_axis0_m1_mesh_00001.su2": "0498cb8785a9d86d0f0e80870c714e35a206ae7abf76670a21dd0c7bc0c5bb4d",
+    "primitive_runtime_v7/mpi1/sphere_axis0_m1_mesh_00001.su2.native_ref": "4a8264bddfdeb3337ea2e0b9478d555d22ebee0647125fcf281f4574c1b97dab",
+    "primitive_runtime_v7/mpi1/sphere_axis0_m1_s1_accepted.json": "3541d17a53a5b778e18c9b36e7e7c32ec02a43e4920202ebb0626e3debd117bd",
+    "primitive_runtime_v7/mpi1/sphere_axis0_m1_s1_initial.json": "3541d17a53a5b778e18c9b36e7e7c32ec02a43e4920202ebb0626e3debd117bd",
+    "primitive_runtime_v7/mpi1/sphere_axis0_m1_s1_source.json": "fd4a1eda538dc31878093ec2c6cd63027644084c0d55aaa84ea839ddc0e7f09c",
+    "primitive_runtime_v7/mpi1/sphere_axis0_m1_s1_states.json": "e0b48d8c72835639e873d72da711656a51a93bc01da756234ccf841f600e478d",
+    "primitive_runtime_v7/mpi1/sphere_axis0_m1_s1_projection.json": "5e96550d77d72cc08563e5bc16d4f27ff172de9991af081aa65893a30b53f51b",
+    "primitive_runtime_v7/mpi1/sphere_axis0_m1_mesh_00002.su2": "0498cb8785a9d86d0f0e80870c714e35a206ae7abf76670a21dd0c7bc0c5bb4d",
+    "primitive_runtime_v7/mpi1/sphere_axis0_m1_mesh_00002.su2.native_ref": "4a8264bddfdeb3337ea2e0b9478d555d22ebee0647125fcf281f4574c1b97dab",
+    "primitive_runtime_v7/mpi1/sphere_axis0_m1_restart_states.json": "47a00b35fe56805d669a4cc747455aafaa891a7b8d78baa2335899bda6cac5f9",
+    "primitive_runtime_v7/mpi1/sphere_axis0_m1_s1_written_SU2.su2": "0498cb8785a9d86d0f0e80870c714e35a206ae7abf76670a21dd0c7bc0c5bb4d",
+    "primitive_runtime_v7/mpi1/sphere_axis0_m1_s1_written_CGNS.cgns": "72a7620517bf5c6568ef9423b214015b55081507476998ecf0409329cd525b51"
+  },
+  "auditor_sha256": "af9a33e1d5d49f62cb8cf1ae687dace19c9f7706758202f870b8927636b9fdbb",
+  "scope": "Exact geometry, positive signed volumes, manifold skin, no interior overlap, original-priority declared metric coverage, metric length/shape, transported tensors, actual conservative current/BDF integrals, positivity, restart and SU2-CGNS readback for COMPLETED primitive lifecycles only. Missing/rejected variants are not qualified. No performance/cluster/full Goal2 claim."
+}

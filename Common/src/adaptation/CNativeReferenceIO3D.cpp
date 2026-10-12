@@ -7,6 +7,7 @@
 
 #include "../../include/adaptation/CNativeReferenceIO3D.hpp"
 #include <cstdio>
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
@@ -17,16 +18,18 @@ namespace SU2Native3D {
 namespace {
 struct Header {
   uint64_t markers = 0, facets = 0, analytic = 0;
+  unsigned version = 1;
 };
 Header ReadHeader(std::istream& in, size_t bytes) {
   std::string magic;
   unsigned version = 0;
   Header h;
   // Each facet needs fourteen numeric tokens; file length bounds counts before allocating any facet storage.
-  if (!(in >> magic >> version >> h.markers >> h.facets) || magic != "SU2_NATIVE_REFERENCE_3D" || (version != 1 && version != 2) ||
+  if (!(in >> magic >> version >> h.markers >> h.facets) || magic != "SU2_NATIVE_REFERENCE_3D" || (version < 1 || version > 3) ||
       !h.facets || h.facets > bytes / 14 || !h.markers || h.markers > h.facets)
     throw std::invalid_argument("Invalid native3D reference header/counts/version.");
-  if (version==2 && (!(in>>h.analytic) || !h.analytic || h.analytic>h.facets || h.analytic>bytes/9))
+  h.version=version;
+  if (version>=2 && (!(in>>h.analytic) || !h.analytic || h.analytic>h.facets || h.analytic>bytes/9))
     throw std::invalid_argument("Invalid native3D analytic reference counts.");
   return h;
 }
@@ -41,7 +44,8 @@ std::string EncodeReference(const ReferenceState& state) {
   out.imbue(std::locale::classic());
   out << std::setprecision(17);
   const auto& analytic=state.original->Analytic();
-  out << "SU2_NATIVE_REFERENCE_3D " << (analytic.empty()?1:2) << '\n'
+  const bool axis=std::any_of(analytic.begin(),analytic.end(),[](const auto& row){return unsigned(row.second.kind)>=3;});
+  out << "SU2_NATIVE_REFERENCE_3D " << (analytic.empty()?1:axis?3:2) << '\n'
       << state.marker_names.size() << ' ' << state.facets.size();
   if (!analytic.empty()) out << ' ' << analytic.size();
   out << '\n';
@@ -61,7 +65,9 @@ std::string EncodeReference(const ReferenceState& state) {
   for (const auto& row : analytic) {
     const auto& g=row.second;
     out << row.first << ' ' << unsigned(g.kind) << ' ' << g.origin.x << ' ' << g.origin.y << ' ' << g.origin.z
-        << ' ' << g.extent.x << ' ' << g.extent.y << ' ' << g.extent.z << ' ' << g.tolerance << '\n';
+        << ' ' << g.extent.x << ' ' << g.extent.y << ' ' << g.extent.z << ' ' << g.tolerance;
+    if(axis)out << ' ' << g.axis.x << ' ' << g.axis.y << ' ' << g.axis.z;
+    out << '\n';
   }
   if (!out || out.tellp() > std::streamoff(ReferenceFileLimit3D))
     throw std::runtime_error("Native3D reference exceeds file limit.");
@@ -106,6 +112,8 @@ ReferenceState DecodeReference(const std::string& bytes, size_t ceiling) {
     Id id; unsigned kind; AnalyticSurface g;
     if (!(in>>id>>kind>>g.origin.x>>g.origin.y>>g.origin.z>>g.extent.x>>g.extent.y>>g.extent.z>>g.tolerance))
       throw std::invalid_argument("Invalid native3D analytic reference record.");
+    if(header.version>=3 && !(in>>g.axis.x>>g.axis.y>>g.axis.z))throw std::invalid_argument("Invalid native3D analytic axis record.");
+    if(header.version<3 && kind>2)throw std::invalid_argument("Axis authority requires native3D version3.");
     g.kind=static_cast<AnalyticSurface::Kind>(kind);
     if (!analytic.emplace(id,g).second) throw std::invalid_argument("Duplicate native3D analytic reference chart.");
   }
