@@ -1,5 +1,36 @@
 # Current handoff — 2026-10-12
 
+## Isolated rotating-reservation prototype passes one complete case — 2026-10-12
+
+Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
+codex/native-3d-transport-accounting. Production remains86bd7f7824 unchanged.
+rotating_reservation_probe_v1 compiles only a private directory variant and links
+it ahead of the actual configured driver archives; link map proves original
+Dir member not extracted. All production sources/68objects/774members unchanged.
+Priority rotates with matching reservation-call epoch; claims carry/check one
+extra epoch word through existing common vote, no new collective. Traffic grows
+by that encoded word per vertex and must be accounted. This is not promoted.
+Actual N4M2 size4 standard wedge, default512, unchanged initial config/mesh/P1target
+and q/J/L/noise/facet/cap constraints:three replacements and fresh full exact
+geometry/metric/current+BDF/SU2CGNS audits PASS, accepted tets289/51/287. Minq
+.24666457185,J=.08654324081,Lmax=1.79577811683,state<=3.5936476e-16,tensor0.
+Second coarsening attempts78/78 versus standard106/54; vetoes51/50 versus0/87;
+rounds129versus141. Final51tets rather than48; later287rather than314. These
+changed trajectories are independently certified, not fixed-work timing evidence.
+comparison.json retains all work/communication counts and exact initial hashes.
+No runtime epoch-mismatch injection, full MPI1/2/4/admission/stale/general safety
+matrix or repeated cost/scaling qualification yet. Match lifecycle/common order
+must remain explicit before production promotion; fairer counts need not mean
+fewer seconds. CPPguard/weight/default/productionpriority unchanged. No cluster
+submission or local profiling campaign; oneCPU/nice19/j1/MPI4/thread1 correctness
+under actual host checks, all owned jobs TERMINAL. Reproducible isolated exe/object
+removed after hashes/recipes/audits retained:806641560bytes freed. Sources/linkmap/
+logs/initial+accepted grids/three VTUs/current+BDF states retained. Review and
+complete receipts in rotating_reservation_probe_v1/REVIEW.md and validation.json.
+Prepared fixed-work donor campaign remains isolated; prototype not substituted.
+Goal1 ACTIVE; repeated performance/default512/practical-limit qualification open,
+Goal2 not started. No general/curved/3DBL/fullunsteady/affordability certificate.
+
 ## Active partition balance and reservation bias — 2026-10-12
 
 Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch

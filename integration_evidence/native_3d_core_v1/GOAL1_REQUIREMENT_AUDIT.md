@@ -107,3 +107,17 @@ and legacy recorded runtime fields remain raw-log verified. This identifies a
 structural balance hypothesis, not calibrated rank CPU/wait cost or net benefit
 of rotating priority/repartitioning. No production scheduling/weight/default
 change or new numerical/profiling run. All full repeated performance gates remain.
+
+## Isolated reservation fairness feasibility
+
+rotating_reservation_probe_v1/REVIEW.md records one source-pinned isolated
+directory variant on the actual configured driver, with untouched production
+sources/objects/archives. Default512N4M2 wedge passes three actual replacements
+and fresh full independent mesh/metric/current+BDF/SU2CGNS audits. Second
+coarsening attempts78/78 and vetoes51/50 are more evenly distributed than the
+standard106/54 and0/87, but accepted meshes differ. One extra epoch word per
+vertex is carried and checked in existing votes. No fixed-work timing ratio,
+full epoch/admission/stale/MPI1/2/4/stronger-envelope or repeated scaling proof.
+The variant is not production and does not alter the prepared donor comparison.
+This is useful feasibility evidence, not completion of any outstanding full
+performance/calibration/production-limit requirement.
