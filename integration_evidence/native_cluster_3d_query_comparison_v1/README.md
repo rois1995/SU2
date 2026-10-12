@@ -3,7 +3,9 @@
 Repository: `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`.
 Compile candidate branch **codex/native-3d-transport-accounting** after updating it.
 Current candidate includes grouped requests and the qualified conservative donor
-box prefilter; see `integration_evidence/native_3d_core_v1/BOX_FILTER_VALIDATION.md`.
+box prefilter and clearer work-limit diagnostics; see
+`integration_evidence/native_3d_core_v1/BOX_FILTER_VALIDATION.md` and
+`integration_evidence/native_3d_core_v1/COMPLETION_DIAGNOSTIC_VALIDATION.md`.
 The earlier validated narrow routing checkpoint7b4e0d767fbda42ff17064ed93960316d794d5ab
 remains a supported frozen candidate or a baseline for isolating packing.
 Baseline is **2d3ac1e3a552a1b90a87dfa3595fc1b372783ceb**, including the full-star
@@ -12,8 +14,12 @@ Use matching compiler, MPI, external libraries and build options on both builds.
 Preparation pins all six relevant source files and checks the complete expected
 compiled source difference for each supported forward pair, plus equal build
 options except installation prefix. Allowed pairs: original->routing, original->
-packed, routing->packed and original/routing/packed->box; variants are recorded
-in comparison_manifest.json.
+packed, routing->packed, original/routing/packed->box, and
+original/routing/packed/box->box_diagnostics; variants are recorded in
+comparison_manifest.json. The box and box_diagnostics versions share donor code
+but differ in completion reasons and their regression assertions. Matching all
+six pins preserves older frozen packages and rejects mixed versions. No mesh
+acceptance, target or budget change accompanies the diagnostic update.
 The old2D e6995fb baseline is not the baseline for this3D comparison.
 For a prefilter-only comparison, use baseline checkpoint
 7f76fd9a279cf384a37f8ae137dc4dc26212ce82 with the same baseline commands below.

@@ -80,3 +80,17 @@ output and lacks new state transfer/CGNS/driver replacement certification. No
 completion-policy or guard change, current-source512rerun, performance evidence
 or Goal1 completion follows. Existing distributed queue-completion and repeated
 cluster performance/calibration requirements remain open.
+
+## Current failure classification qualification
+
+COMPLETION_DIAGNOSTIC_VALIDATION.md/json records current rebuilt97-case MPI1/2/4
+plus fresh exact distributed/driver/state/SU2CGNS/MMG audits. Final engine
+completion uses the same one integer maximum reduction and unchanged Boolean
+validity, while reporting valid-but-pending coarsening separately from invalid
+metric cells or missing measurements. Existing forced-budget fixtures verify
+the first two causes globally and preserve input.169/271/391raw numerical JSON
+records match the previous qualified binary;8336Boolean combinations preserve
+completion truth.32core+14comparison checks and full compiled-source matching
+retain older packages plus the new diagnostic-only source variant. This closes
+the misleading-message gap but does not resolve default512completion or supply
+cluster cost/scaling/overhead/weight/wait/memory calibration. No fullGoal1 completion.

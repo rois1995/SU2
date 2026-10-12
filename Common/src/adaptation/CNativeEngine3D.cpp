@@ -896,9 +896,15 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   }
   {
     Timer timer(stats.completion_seconds,options.timings);
-    result.valid=!world.maximum(selection.invalid!=0 || selection.cells.size()!=working.size() ||
-        (coarsening && !selection.queue.empty()));
-    if (!result.valid) result.reason="Native 3D adaptation round limit reached before strict metric completion.";
+    const int incomplete=world.maximum(selection.cells.size()!=working.size() ? 3 :
+        (selection.invalid ? 2 : (coarsening && !selection.queue.empty() ? 1 : 0)));
+    result.valid=incomplete==0;
+    if (incomplete==1)
+      result.reason="Native 3D coarsening round limit reached with valid cached metric cells and pending collapse candidates.";
+    else if (incomplete==2)
+      result.reason="Native 3D adaptation round limit reached before cached metric size/shape gates were satisfied.";
+    else if (incomplete==3)
+      result.reason="Native 3D adaptation round limit reached with incomplete metric-cell measurements.";
     else result.reason.clear();
   }
   return finish();

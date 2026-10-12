@@ -42,6 +42,9 @@ SOURCE_PINS={
     "Common/src/adaptation/CNativeRemesher3D.cpp": "be4cea094d700684856d9520441c33e9c7c84924be81fe0745985c52a507533f"
   }
 }
+SOURCE_PINS['box_diagnostics']={**SOURCE_PINS['box'],
+  'Common/src/adaptation/CNativeEngine3D.cpp':'506ada5a0876f8011d0db653a1b408dd0a453189901df5f259e358adc412de2d',
+  'UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp':'bda4de202e3ea51752deee77128b545bbdd0663b8d51b6b23f5ddc3431633ce6'}
 EXPECTED={'baseline':SOURCE_PINS['original'][DONOR],'candidate':SOURCE_PINS['routing'][DONOR]}
 CHANGED=set(SOURCE_PINS['original'])
 
@@ -49,11 +52,11 @@ def matched_sources(manifests):
     versions={}
     for side in ('baseline','candidate'):
         actual=manifests[side].get('source_sha256',{})
-        version=next((name for name,pins in SOURCE_PINS.items() if actual.get(DONOR)==pins[DONOR]),None)
-        if version is None or any(actual.get(name)!=digest for name,digest in SOURCE_PINS[version].items()):
+        version=next((name for name,pins in SOURCE_PINS.items() if all(actual.get(key)==digest for key,digest in pins.items())),None)
+        if version is None:
             raise ValueError('Wrong '+side+' source pins; use the documented checkpoints')
         versions[side]=version
-    if (versions['baseline'],versions['candidate']) not in (('original','routing'),('original','packed'),('routing','packed'),('original','box'),('routing','box'),('packed','box')):
+    if (versions['baseline'],versions['candidate']) not in (('original','routing'),('original','packed'),('routing','packed'),('original','box'),('routing','box'),('packed','box'),('original','box_diagnostics'),('routing','box_diagnostics'),('packed','box_diagnostics'),('box','box_diagnostics')):
         raise ValueError('Unsupported or reversed source comparison')
     old,new=(manifests[side]['source_sha256'] for side in ('baseline','candidate'))
     expected={name for name in CHANGED if SOURCE_PINS[versions['baseline']][name]!=SOURCE_PINS[versions['candidate']][name]}

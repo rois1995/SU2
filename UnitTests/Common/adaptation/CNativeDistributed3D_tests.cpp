@@ -806,6 +806,8 @@ TEST_CASE("Native MPI refinement preserves accepted input on incomplete or inval
   auto limited=Refine(world,input,Uniform(input,{4,0,0,4,0,4}),reference,{},options);
   CHECK_FALSE(limited.valid);
   CHECK(limited.reason.find("round limit")!=std::string::npos);
+  CHECK(limited.reason.find("cached metric size/shape gates")!=std::string::npos);
+  CHECK(world.maximum(limited.stats.cached_invalid_cells!=0));
   CHECK(Bytes(input)==saved);
   CHECK(Audit(world,limited.cells,fixture,12));
   MeshRecords("engine_rejected",world,limited.cells);
@@ -1057,6 +1059,9 @@ TEST_CASE("Native MPI general coarsening supports repeated planar refine coarsen
             const auto limited=Coarsen(worker,owned,sensor_rows,reference,{},control);
             CHECK_FALSE(limited.valid);
             CHECK(limited.reason.find("round limit")!=std::string::npos);
+            CHECK(limited.reason.find("valid cached metric cells and pending collapse candidates")!=std::string::npos);
+            CHECK_FALSE(worker.maximum(limited.stats.cached_invalid_cells!=0));
+            CHECK(worker.maximum(limited.stats.remaining_edges!=0));
             CHECK(Bytes(owned)==worker_saved);
             control.maximum_rounds=512;control.memory_ceiling=1;
             CHECK_FALSE(Coarsen(worker,owned,sensor_rows,reference,{},control).valid);

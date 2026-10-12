@@ -1,3 +1,31 @@
+## Native3D completion diagnostics qualified — 2026-10-12
+
+Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
+codex/native-3d-transport-accounting. Starting checkpoint85658a22f8. Goal1 ACTIVE;
+Goal2 not started. Engine final reduction now distinguishes complete, valid cached
+cells with pending coarsening, unsatisfied cached metric gates and missing cache
+coverage. Same single integer MAX and exact old zero/nonzero validity result;
+no budget/criteria/operator/source/BL/fade/noise/2D/MMG change or partial acceptance.
+Existing rejected-refine and rejected-coarsen fixtures assert distinct global
+causes and unchanged accepted inputs. completion_diagnostic_build_v1 PASS full
+68-object/774-member driver, binary9811747b59cbb64dc91a95a53d8f4bb06d281249d95e2f608705a5681b8076ec.
+completion_diagnostic_mpi1/2/4_v1 PASS97cases per rank, seven exact distributed
+audits, actual driver/current+BDF/SU2CGNS bridge and serialMMG. Raw geometry/donor/
+state JSON169/271/391files match prior box-filter controls exactly;8336Boolean
+rank/mode combinations preserve completion truth. check_completion_diagnostics.py
+and COMPLETION_DIAGNOSTIC_VALIDATION.md/json pin scope and all evidence.
+Frozen comparison retains old four source variants and adds box_diagnostics;
+full six-pin matching handles its shared donor hash and rejects mixed engine/test
+versions. Ten supported forward pairs include original/routing/packed/box->new.
+completion_diagnostic_package_checks_v1 PASS32core+14comparison checks. New current
+candidate needs fresh rebuild/freeze after pull; older bundles untouched/supported.
+All owned jobs TERMINAL, sequential oneCPU/nice19/j1/MPI<=4/thread1 under actual
+host checks/FSI contention. No cluster submission or local performance campaign.
+Default512 valid-but-pending coarsening still rejects; this explains that limit,
+not a fix. Whole stronger/thin/n8/restart/lifecycle campaigns retain their earlier
+source pins. Full repeated cluster cost/scaling/overhead/rank/weight/wait/memory
+qualification and practical completion limits remain open before Goal1 completion.
+
 ## Production512 private mesh independently passes physical gates — 2026-10-12
 
 Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch

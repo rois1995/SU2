@@ -45,11 +45,20 @@ class Checks(unittest.TestCase):
                 with self.assertRaises(ValueError):prepare.matched_sources(mutated)
     def test_known_source_pairs_and_reversed_comparison(self):
         options=[dict(name='enable-tests',value=True)]
-        for old,new in (('original','routing'),('original','packed'),('routing','packed'),('original','box'),('routing','box'),('packed','box')):
+        for old,new in (('original','routing'),('original','packed'),('routing','packed'),('original','box'),('routing','box'),('packed','box'),('original','box_diagnostics'),('routing','box_diagnostics'),('packed','box_diagnostics'),('box','box_diagnostics')):
             manifests={side:dict(source_sha256=dict(prepare.SOURCE_PINS[version]),build_options=options)
                        for side,version in [('baseline',old),('candidate',new)]}
             self.assertEqual(prepare.matched_sources(manifests),dict(baseline=old,candidate=new))
             with self.assertRaises(ValueError):prepare.matched_sources(dict(baseline=manifests['candidate'],candidate=manifests['baseline']))
+
+    def test_shared_donor_version_requires_complete_engine_and_test_pins(self):
+        self.assertEqual(prepare.SOURCE_PINS['box'][prepare.DONOR],prepare.SOURCE_PINS['box_diagnostics'][prepare.DONOR])
+        options=[dict(name='enable-tests',value=True)]
+        manifests={side:dict(source_sha256=dict(prepare.SOURCE_PINS[version]),build_options=options)
+                   for side,version in [('baseline','box'),('candidate','box_diagnostics')]}
+        self.assertEqual(prepare.matched_sources(manifests),dict(baseline='box',candidate='box_diagnostics'))
+        manifests['candidate']['source_sha256']['UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp']=prepare.SOURCE_PINS['box']['UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp']
+        with self.assertRaises(ValueError):prepare.matched_sources(manifests)
 
     def test_schedule_pairs(self):
         for ranks,count in ((1,14),(2,28),(4,28)):
