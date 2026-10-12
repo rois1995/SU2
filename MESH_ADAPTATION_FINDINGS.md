@@ -1,3 +1,35 @@
+# Goal2 curved conservative and solvedEuler lifecycle — 2026-10-12
+
+Working repo /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
+codex/native-3d-curved-local, previouspublished dbd44516cc. GoalACTIVE/all4fullgates
+pending. New single-file lifecycle controls pass actual curved growth/shrink,
+threeconservative refine/coarsen events, bothBDF histories through CGNS restart,
+actual SU2/CGNS readback, and twoactual solved3DEuler pressure-Hessian metric events
+with SU2/BDF restart and solver continuation. No production policy/gate changed.
+Source test changes oneobject; libraries/archive members unchanged from previous
+100case/rank MPI1/2/4 regression. Permanent cadence in AGENTS.md: no redundant broad
+rerun for unchanged production. Focused curved_lifecycle_v1 PASS2cases/rank
+MPI1/2/4; independent_lifecycle_validation.json PASS, source/build/binary/67other
+object/production member pins verified. Controller73168/auditor63150 terminalPASS;
+no owned heavyjob live. ForeignClusterResults/dependencies/AdapNoExt untouched.
+
+Inspect curved_lifecycle_v1/mpi1/solved_bump_m1_mesh_00001.su2 and_00002.su2,
+and curved_lifecycle_grow_m1_mesh_00001.cgns, plusMPI2/4/M<N. Serialgrowth8->48->8,
+shrink8->48->10; new/lostvolume~0.00020833. Actual accepted-state integrals match
+conservative targets, allthree stored states positive, all15restart values match.
+Solved subsonicMach0.5/slip-bump pressure yields nonuniform anisotropic changing
+tensors, actual event meshes37cells/21then22points. Minimum savedserialq~0.438688,
+maxedge~1.792384, metrictransport residual0. This is a small solved lifecycle, not
+resolvedshock/convergedphysicalunsteady/forces proof. Curvedcommits stillserialized.
+
+Report CURVED_EULER_LIFECYCLE.md; full completion auditINCOMPLETE. Initially prepared
+independent auditor hadoneunmatchedparenthesis; immutable original retained,
+audit_lifecycle_final.py corrected, noCFD/source/binary/gate changes. Actual cfgs,
+grids/refs/source/state/projection-ledger/restarts/logs retained. Next substantial
+work: sphere/cylinder runtime and fullmixed/feature geometry, then suitably resolved
+nonuniform/shock controls. Keep original fullGoal2scope; no cluster/performance/CAD/
+production3DBL/affordability claim. Earlier notices are historical.
+
 # Goal2 connected curved runtime integration — 2026-10-12
 
 Working folder /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch

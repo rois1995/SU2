@@ -863,12 +863,12 @@ void SaveCoverage(World& world,const std::string& name,const std::vector<DonorCe
   }
   out<<"]\n";CHECK(out.good());
 }
-void DeclareImportedCurve(ReferenceState& state,bool sphere) {
+void DeclareImportedCurve(ReferenceState& state,bool sphere,double amplitude=1) {
   AnalyticSurface g;g.kind=sphere?AnalyticSurface::Kind::Sphere:AnalyticSurface::Kind::Bump;
-  g.extent=sphere?Point{1,0,0}:Point{1,1,1};
+  g.extent=sphere?Point{1,0,0}:Point{1,1,amplitude};
   std::map<Id,AnalyticSurface> curves;
   for(auto f:state.facets) {
-    const bool bottom=std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;});
+    const bool bottom=state.marker_names.at(f.marker).rfind("z_minus",0)==0;
     if(sphere || bottom)curves.emplace(f.id,g);
   }
   state.original=std::make_shared<PlanarReference>(state.facets,SIZE_MAX,curves);
@@ -995,4 +995,155 @@ TEST_CASE("Curved native3D runtime refines geometry, publishes and transfers con
   Save(world,name+"_accepted",accepted.cells,donor.original,*reference);driver.WriteAdaptedMesh(1,1);
   WriteReference(name+"_accepted.native_ref",*reference);
   ReferenceState loaded;REQUIRE(LoadReference(name+"_accepted.native_ref",loaded));CHECK(EncodeReference(loaded)==authority);
+}
+
+namespace {
+void SaveProjection(World& world,const std::string& name,const CConservativeTransfer& transfer) {
+  const auto& s=transfer.GetSummary();const auto& p=s.projection;
+  REQUIRE(s.nTimeLevels==2);REQUIRE(s.interpolateTimeN1);
+  REQUIRE(p.targetTotal.size()==s.newIntegral.size());
+  CHECK(std::abs(p.targetVolume-p.donorVolume-p.fillVolume+p.sliverVolume)<1e-10);
+  for(size_t f=0;f<p.targetTotal.size();++f) {
+    CHECK(std::abs(s.newIntegral[f]-p.targetTotal[f])<=1e-10*std::max(1.,double(p.scale[f])));
+    CHECK(std::abs(p.targetTotal[f]-p.donorTotal[f]-p.fillOpen[f]+p.sliverOpen[f])<=1e-10*std::max(1.,double(p.scale[f])));
+  }
+  if(world.rank)return;
+  std::ofstream out(name+"_projection.json");out<<std::setprecision(17)
+    <<"{\"donor_volume\":"<<p.donorVolume<<",\"target_volume\":"<<p.targetVolume
+    <<",\"fill_volume\":"<<p.fillVolume<<",\"lost_volume\":"<<p.sliverVolume<<",\"time_levels\":"<<s.nTimeLevels;
+  auto values=[&](const char* key,const auto& v){out<<",\""<<key<<"\":[";for(size_t i=0;i<v.size();++i){if(i)out<<',';out<<v[i];}out<<']';};
+  values("donor_total",p.donorTotal);values("target_total",p.targetTotal);values("new_total",s.newIntegral);
+  values("fill",p.fill);values("lost",p.sliver);values("fill_open",p.fillOpen);values("lost_open",p.sliverOpen);
+  values("scale",p.scale);values("residual",p.residual);out<<"}\n";CHECK(out.good());
+}
+void CheckPositiveFlow(const std::vector<FlowRecord>& records) {
+  for(const auto& row:records)for(size_t level=0;level<3;++level) {
+    const auto* u=row.values.data()+5*level;CHECK(u[0]>0);
+    CHECK(u[4]-(u[1]*u[1]+u[2]*u[2]+u[3]*u[3])/(2*u[0])>0);
+  }
+}
+std::unique_ptr<TetraDriver> ReloadCurved(World& world,std::unique_ptr<TetraDriver> driver,
+                                        const std::string& name,const std::string& mesh,const std::string& format) {
+  driver->Config().SetTimeIter(2);const auto before=State(driver->Geometry(),driver->Solver());
+  const auto expected=Flow(world,driver->Geometry(),driver->Solver());driver->WriteTimeHistoryRestarts();
+  CHECK(State(driver->Geometry(),driver->Solver())==before);
+  if(!world.rank) {
+    std::ifstream input(name+".cfg");std::string text((std::istreambuf_iterator<char>(input)),{});
+    const std::string original="MESH_FILENAME= "+name+".su2";const auto at=text.find(original);REQUIRE(at!=std::string::npos);
+    text.replace(at,original.size(),"MESH_FILENAME= "+mesh);
+    const std::string oldformat="MESH_FORMAT= SU2";const auto f=text.find(oldformat);REQUIRE(f!=std::string::npos);
+    text.replace(f,oldformat.size(),"MESH_FORMAT= "+format);
+    std::ofstream output(name+"_restart.cfg");output<<text<<"RESTART_SOL= YES\nRESTART_ITER= 3\n";CHECK(output.good());
+  }
+  {Mute mute;driver->Finalize();driver.reset();}
+  SU2_MPI::Barrier(world.comm);const auto cfg=name+"_restart.cfg";
+  driver=std::make_unique<TetraDriver>(const_cast<char*>(cfg.c_str()),1,world.comm);driver->Preprocess(3);
+  const auto loaded=Flow(world,driver->Geometry(),driver->Solver());SaveStates(world,name+"_restart",expected,loaded,0);
+  std::map<std::array<double,3>,std::array<double,15>> wanted;
+  for(const auto& r:expected)REQUIRE(wanted.emplace(std::array<double,3>{r.point.x,r.point.y,r.point.z},r.values).second);
+  REQUIRE(loaded.size()==wanted.size());
+  for(const auto& r:loaded)for(size_t k=0;k<15;++k)CHECK(RelDiff(r.values[k],wanted.at({r.point.x,r.point.y,r.point.z})[k])<2e-10);
+  return driver;
+}
+}
+TEST_CASE("Curved native3D repeated conservative events preserve domain accounting and CGNS restart",
+          "[NativeCurvedLifecycle3D]") {
+  World world;const int workers=GENERATE(1,2,3,4);if(workers>world.size)return;
+  const bool growth=GENERATE(false,true);const double amplitude=growth?-.01:.01;
+#ifdef HAVE_CGNS
+  const std::string format="CGNS";
+#else
+  const std::string format="SU2";
+#endif
+  const auto name="curved_lifecycle_"+std::string(growth?"grow":"shrink")+"_m"+std::to_string(workers);
+  if(!world.rank) {
+    simplex_test::WriteSU2Mesh(BoxMesh(3,1,false),name+".su2");std::ofstream cfg(name+".cfg");
+    cfg<<"SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nAOA= 0\nMESH_FORMAT= SU2\nMESH_FILENAME= "<<name<<".su2\n"
+       <<"MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus, z_minus_a, z_minus_b)\n"
+       <<"COMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
+       <<"ADAP_NATIVE_REPARTITION= YES\nADAP_NATIVE_RANKS= "<<workers<<"\nADAP_NATIVE_MAX_WORK= 4096\nADAP_HAUSD= .003\n"
+       <<"MGLEVEL= 0\nNUM_METHOD_GRAD= GREEN_GAUSS\nCONV_NUM_METHOD_FLOW= ROE\nMUSCL_FLOW= NO\n"
+       <<"TIME_DOMAIN= YES\nTIME_STEP= 1e-3\nTIME_ITER= 10\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\nINNER_ITER= 2\n"
+       <<"OUTPUT_FILES= (RESTART)\nWRT_ADAP_MESH= NO\nMESH_OUT_FORMAT= "<<format<<"\nMESH_OUT_FILENAME= "<<name<<"_mesh\nCONV_FILENAME= "<<name<<"_history\n"
+       <<"RESTART_FILENAME= "<<name<<"_flow\nSOLUTION_FILENAME= "<<name<<"_flow\nWRT_RESTART_COMPACT= YES\n";
+  }
+  SU2_MPI::Barrier(world.comm);const auto cfg=name+".cfg";
+  auto driver=std::make_unique<TetraDriver>(const_cast<char*>(cfg.c_str()),1,world.comm);
+  ReferenceState declared;ImportGeometry(driver->Config(),driver->Geometry(),nullptr,declared);DeclareImportedCurve(declared,false,amplitude);
+  WriteReference(name+".su2.native_ref",declared);const auto authority=EncodeReference(declared);
+  auto field=AffineFlow(3);auto* nodes=driver->Solver().GetNodes();
+  for(unsigned long p=0;p<driver->Geometry().GetnPoint();++p) {
+    su2double u[MAXVAR]{};field(driver->Geometry().nodes->GetCoord(p),u);
+    for(size_t k=0;k<5;++k){nodes->SetSolution(p,k,u[k]);nodes->GetSolution_time_n()(p,k)=u[k];nodes->GetSolution_time_n1()(p,k)=u[k]*.96875;}
+  }
+  auto backend=driver->Backend();CConservativeTransfer transfer;std::vector<unsigned long> counts;
+  for(int cycle=0;cycle<3;++cycle) {
+    const double scale=cycle==1?4.:.5;const auto event=name+"_s"+std::to_string(cycle);
+    su2activematrix metric(driver->Geometry().GetnPointDomain(),6);
+    for(unsigned long p=0;p<metric.rows();++p)for(size_t k=0;k<6;++k)metric(p,k)=(k==0 || k==3 || k==5)?scale:0.;
+    auto observed=declared;const auto donor=ImportGeometry(driver->Config(),driver->Geometry(),&metric,observed);
+    Save(world,event+"_initial",donor.cells,donor.original,observed);SaveCoverage(world,event,donor.original,observed);
+    const auto before=State(driver->Geometry(),driver->Solver());const auto old=Flow(world,driver->Geometry(),driver->Solver());
+    const auto result=backend->Remesh(driver->Config(),driver->Geometry(),metric);
+    CHECK(State(driver->Geometry(),driver->Solver())==before);REQUIRE(result.status==CRemeshResult::Status::COMPLETE);
+    driver->ReplaceMesh(result,transfer);CHECK(EncodeReference(*driver->Reference())==authority);SaveProjection(world,event,transfer);
+    const auto transported=result.slices.FetchPointMetric(driver->Geometry());const auto fresh=Flow(world,driver->Geometry(),driver->Solver(),transported);
+    SaveStates(world,event,old,fresh,scale);CheckPositiveFlow(fresh);counts.push_back(result.slices.nElemGlobal);
+    auto accepted_metric=metric;accepted_metric.resize(driver->Geometry().GetnPointDomain(),6);
+    for(unsigned long p=0;p<accepted_metric.rows();++p)for(size_t k=0;k<6;++k)accepted_metric(p,k)=transported[6*p+k];
+    auto retained=*driver->Reference();const auto accepted=ImportGeometry(driver->Config(),driver->Geometry(),&accepted_metric,retained);
+    Save(world,event+"_accepted",accepted.cells,donor.original,retained);driver->WriteAdaptedMesh(cycle+1,cycle+1);
+    if(cycle==0) {
+      const auto checkpoint=driver->AdaptedMeshName(1,1)+driver->Config().GetMesh_Out_FileExtension();
+      backend.reset();driver=ReloadCurved(world,std::move(driver),name,checkpoint,format);backend=driver->Backend();
+      REQUIRE_FALSE(driver->Reference()->original);
+    }
+    if(cycle==2)OutputRoundTrip(world,event,result.slices,accepted.cells,retained,scale,
+      [](const su2double*,double s){return Tensor{s,0,0,s,0,s};},&donor.original);
+  }
+  REQUIRE(counts.size()==3);CHECK(counts[1]>counts[0]);CHECK(counts[2]<counts[1]);
+}
+TEST_CASE("Solved three-dimensional Euler pressure supplies repeated native curved metric events", "[NativeSolvedEuler3D]") {
+  World world;const int workers=GENERATE(1,2,4);if(workers>world.size)return;
+  const auto name="solved_bump_m"+std::to_string(workers);const double amplitude=-.01;
+  if(!world.rank) {
+    auto mesh=BoxMesh(3,2,false);
+    for(size_t p=0;p<mesh.coord.size();p+=3){const auto x=mesh.coord[p],y=mesh.coord[p+1],z=mesh.coord[p+2];mesh.coord[p+2]=z+(1-z)*amplitude*x*(1-x)*y*(1-y);}
+    simplex_test::WriteSU2Mesh(mesh,name+".su2");std::ofstream cfg(name+".cfg");
+    cfg<<"SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nAOA= 0\nMESH_FORMAT= SU2\nMESH_FILENAME= "<<name<<".su2\n"
+       <<"MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus)\nMARKER_EULER= (z_minus_a, z_minus_b)\n"
+       <<"COMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
+       <<"ADAP_COMPLEXITY= 6\nADAP_HMIN= .3\nADAP_HMAX= 2\nADAP_ARMAX= 2\n"
+       <<"ADAP_NATIVE_REPARTITION= YES\nADAP_NATIVE_RANKS= "<<workers<<"\nADAP_NATIVE_MAX_WORK= 4096\nADAP_HAUSD= .003\n"
+       <<"MGLEVEL= 0\nNUM_METHOD_GRAD= GREEN_GAUSS\nCONV_NUM_METHOD_FLOW= ROE\nMUSCL_FLOW= NO\nCFL_NUMBER= .5\n"
+       <<"TIME_DOMAIN= YES\nTIME_STEP= 1e-3\nTIME_ITER= 8\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\nINNER_ITER= 5\n"
+       <<"OUTPUT_FILES= (RESTART)\nWRT_ADAP_MESH= NO\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= "<<name<<"_mesh\nCONV_FILENAME= "<<name<<"_history\n"
+       <<"RESTART_FILENAME= "<<name<<"_flow\nSOLUTION_FILENAME= "<<name<<"_flow\nWRT_RESTART_COMPACT= YES\n";
+  }
+  SU2_MPI::Barrier(world.comm);const auto cfg=name+".cfg";
+  auto driver=std::make_unique<TetraDriver>(const_cast<char*>(cfg.c_str()),1,world.comm);
+  ReferenceState declared;ImportGeometry(driver->Config(),driver->Geometry(),nullptr,declared);DeclareImportedCurve(declared,false,amplitude);
+  WriteReference(name+".su2.native_ref",declared);const auto authority=EncodeReference(declared);CConservativeTransfer transfer;
+  auto backend=driver->Backend();
+  for(int cycle=0;cycle<2;++cycle) {
+    const auto initial=Flow(world,driver->Geometry(),driver->Solver());
+    for(unsigned long step=cycle?3:0;step<(cycle?5:2);++step){driver->Preprocess(step);driver->Run();driver->Postprocess();driver->Update();}
+    const auto solved=Flow(world,driver->Geometry(),driver->Solver());CheckPositiveFlow(solved);
+    double change=0;for(size_t p=0;p<initial.size();++p)for(size_t k=0;k<5;++k)change=std::max(change,std::abs(initial[p].values[k]-solved[p].values[k]));
+    CHECK(change>1e-10);driver->ComputeMetric();const auto& metric=driver->Solver().GetNodes()->GetMetric();
+    const auto event=name+"_s"+std::to_string(cycle);auto observed=declared;
+    const auto donor=ImportGeometry(driver->Config(),driver->Geometry(),&metric,observed);
+    Save(world,event+"_initial",donor.cells,donor.original,observed);SaveCoverage(world,event,donor.original,observed);
+    const auto result=backend->Remesh(driver->Config(),driver->Geometry(),metric);
+    INFO("actual Euler-derived metric workers="<<workers<<" cycle="<<cycle);
+    REQUIRE(result.status==CRemeshResult::Status::COMPLETE);driver->ReplaceMesh(result,transfer);SaveProjection(world,event,transfer);
+    CHECK(EncodeReference(*driver->Reference())==authority);const auto transported=result.slices.FetchPointMetric(driver->Geometry());
+    const auto fresh=Flow(world,driver->Geometry(),driver->Solver(),transported);SaveStates(world,event,solved,fresh,0);CheckPositiveFlow(fresh);
+    su2activematrix accepted_metric(driver->Geometry().GetnPointDomain(),6);
+    for(unsigned long p=0;p<accepted_metric.rows();++p)for(size_t k=0;k<6;++k)accepted_metric(p,k)=transported[6*p+k];
+    auto retained=*driver->Reference();const auto accepted=ImportGeometry(driver->Config(),driver->Geometry(),&accepted_metric,retained);
+    Save(world,event+"_accepted",accepted.cells,donor.original,retained);driver->WriteAdaptedMesh(cycle+1,cycle+1);
+    if(cycle==0){const auto checkpoint=driver->AdaptedMeshName(1,1)+driver->Config().GetMesh_Out_FileExtension();backend.reset();driver=ReloadCurved(world,std::move(driver),name,checkpoint,"SU2");backend=driver->Backend();}
+  }
+  driver->Preprocess(5);driver->Run();driver->Postprocess();driver->Update();CheckPositiveFlow(Flow(world,driver->Geometry(),driver->Solver()));
 }

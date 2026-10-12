@@ -256,5 +256,47 @@
     "conservative_restart_cgns_curved_cycles_qualified": false,
     "solved_euler_metric_cycles_qualified": false,
     "full_goal_gates_completed": 0
+  },
+  "curved_euler_lifecycle": {
+    "status": "PASS_LOCAL_MANUFACTURED_CONSERVATIVE_AND_SMALL_SOLVED_SUBSONIC_EULER",
+    "report": "CURVED_EULER_LIFECYCLE.md",
+    "receipt": "curved_lifecycle_v1/validation.json",
+    "receipt_sha256": "0766ee3f7e4a1feaa6f437f31207a28c8959b47544c2c8621c5d60b078643ce4",
+    "independent_audit": "curved_lifecycle_v1/independent_lifecycle_validation.json",
+    "independent_audit_sha256": "6e6f7e2c855583f8f64ec4581e5cacba0ed361dcb69fc1a938437946bdcf2e14",
+    "counts": [
+      {
+        "ranks": 1,
+        "cases_per_rank": 2,
+        "assertions": [
+          2169
+        ]
+      },
+      {
+        "ranks": 2,
+        "cases_per_rank": 2,
+        "assertions": [
+          4338,
+          4218
+        ]
+      },
+      {
+        "ranks": 4,
+        "cases_per_rank": 2,
+        "assertions": [
+          7477,
+          7703,
+          7477,
+          7477
+        ]
+      }
+    ],
+    "repeated_curved_refine_coarsen": true,
+    "conservative_growth_and_shrink_current_bdf": true,
+    "actual_cgns_and_su2_readback_restart": true,
+    "solved_euler_pressure_metric_events_restart_continue": true,
+    "runtime_sphere_cylinder_qualified": false,
+    "resolved_nonuniform_shock_qualified": false,
+    "full_goal_gates_completed": 0
   }
 }

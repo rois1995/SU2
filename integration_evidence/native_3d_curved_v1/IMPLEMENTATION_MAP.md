@@ -113,3 +113,12 @@ constant BDF transfer/SU2/reference preservation for a small outward bump. Runti
 no longer refuses every analytic reference. Curved commits are serialized; all
 four full Goal2 gates remain pending. Actual solved targets, repeated conservative/
 restart/CGNS and cylinder/full geometry cases are next substantial work.
+
+
+Curved lifecycle milestone: actual conservative growth/shrink/refine/coarsen with
+CGNS/BDF restart and SU2/CGNS readback, plus two actual solved Euler pressure-Hessian
+metric events/restart/continuation, pass localMPI1/2/4/M<N. Independent accepted
+geometry/source/metric/current+BDF integral/positivity/restart auditsPASS. Production
+archives remain unchanged from prior100-case regression; new lifecycle test object
+only. See CURVED_EULER_LIFECYCLE.md and curved_lifecycle_v1. Full4gates stay pending:
+runtime sphere/cylinder/full geometry and resolved nonuniform/shock controls remain.

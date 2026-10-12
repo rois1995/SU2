@@ -45,3 +45,12 @@ inspectable. This advances integrated requirements but completes none in full:
 sensor is prescribed, curved commits serialized, cylinder/general geometry,
 conservative/restart/CGNS/repeated events and solved Euler targets remain pending.
 See CURVED_RUNTIME_INTEGRATION.md and curved_runtime_regression_v2 receipts.
+
+
+Curved lifecycle milestone: actual conservative growth/shrink/refine/coarsen with
+CGNS/BDF restart and SU2/CGNS readback, plus two actual solved Euler pressure-Hessian
+metric events/restart/continuation, pass localMPI1/2/4/M<N. Independent accepted
+geometry/source/metric/current+BDF integral/positivity/restart auditsPASS. Production
+archives remain unchanged from prior100-case regression; new lifecycle test object
+only. See CURVED_EULER_LIFECYCLE.md and curved_lifecycle_v1. Full4gates stay pending:
+runtime sphere/cylinder/full geometry and resolved nonuniform/shock controls remain.
