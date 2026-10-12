@@ -1,0 +1,129 @@
+{
+  "status": "PASS",
+  "stages": [
+    {
+      "command": [
+        "uptime"
+      ],
+      "label": "host_load",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/segment_box_filter_experiment_v3",
+      "exit_code": 0,
+      "seconds": 0.007444442017003894
+    },
+    {
+      "command": [
+        "free",
+        "-m"
+      ],
+      "label": "host_memory",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/segment_box_filter_experiment_v3",
+      "exit_code": 0,
+      "seconds": 0.006666639004833996
+    },
+    {
+      "command": [
+        "c++",
+        "-std=c++17",
+        "-O2",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/segment_box_filter_experiment_v3/filter.cpp",
+        "-o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/segment_box_filter_experiment_v3/filter_strict"
+      ],
+      "label": "compile_strict",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/segment_box_filter_experiment_v3",
+      "exit_code": 0,
+      "seconds": 0.714234535000287
+    },
+    {
+      "command": [
+        "c++",
+        "-std=c++17",
+        "-O3",
+        "-march=native",
+        "-ffast-math",
+        "-fno-finite-math-only",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/segment_box_filter_experiment_v3/filter.cpp",
+        "-o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/segment_box_filter_experiment_v3/filter_native"
+      ],
+      "label": "compile_native",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/segment_box_filter_experiment_v3",
+      "exit_code": 0,
+      "seconds": 0.7578791549894959
+    },
+    {
+      "command": [
+        "c++",
+        "-std=c++17",
+        "-O2",
+        "-mlong-double-64",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/segment_box_filter_experiment_v3/filter.cpp",
+        "-o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/segment_box_filter_experiment_v3/filter_ld64"
+      ],
+      "label": "compile_ld64",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/segment_box_filter_experiment_v3",
+      "exit_code": 0,
+      "seconds": 0.7621660250006244
+    }
+  ],
+  "summary": [
+    {
+      "mode": "strict",
+      "cases": 3256,
+      "false_rejections": 0,
+      "certified_box_rejections": 2668,
+      "false_positives_retained": 0,
+      "actual_n8_box_candidates": 158,
+      "actual_n8_candidates_rejected": 28,
+      "binary_sha256": "c4a5d25c5dd30780535d1b02c50a48d72afa5dd4157351fd88ffd13ec278aa2a"
+    },
+    {
+      "mode": "native",
+      "cases": 3256,
+      "false_rejections": 0,
+      "certified_box_rejections": 2661,
+      "false_positives_retained": 7,
+      "actual_n8_box_candidates": 158,
+      "actual_n8_candidates_rejected": 28,
+      "binary_sha256": "8f9d52c5c71e9a0053736595bda285c6b4625272ebe505e5334df9013a60c3bf"
+    },
+    {
+      "mode": "ld64",
+      "cases": 3256,
+      "false_rejections": 0,
+      "certified_box_rejections": 2585,
+      "false_positives_retained": 83,
+      "actual_n8_box_candidates": 158,
+      "actual_n8_candidates_rejected": 28,
+      "binary_sha256": "76b03386d907d500ef6149576a865382db79c87a92ae7b889b52b153b26208c1"
+    }
+  ],
+  "source_sha256": "e6fcd935b989b743cf297157bfcf68d7e5a5c1c3ce0af18e950f47592dc7fbdb",
+  "runner_sha256": "e0c0fa516534d4db1cd86e782d766446497db13c328d6181faa1abf2012010f0",
+  "actual_mesh_sha256": "2ea31c8d723eedf9bb1df803f575bdecb212b451b939288056eb74d9c5c1bbb5",
+  "scope": "Standalone conservative projected-box prefilter correctness versus exact binary64 rational closed segment/box oracle. Three compiler modes including production fast-math and binary64 long double. Not a production integration, tetrahedral coverage, MPI or performance certificate.",
+  "artifact_sha256": {
+    "input.txt": "abd689c5bc2bf521cdc9744ae671e29cad0bfd7c5b7a4b64016f1323119ffb5c",
+    "compile_ld64.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "strict.stdout": "bb29773428f1b79f13eb44d15df3fcd8bb4a5335c3dfeab530801def6ab68503",
+    "host_load.stdout": "82116361f8650e061a8d8a2c5195a37c0886c60b68fedae7c4000f79cab267d7",
+    "host_memory.stdout": "295844dc79db70a6c8f298768fe0361660b74338f0965858f77acea9a7d573e1",
+    "compile_ld64.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ld64.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host_load.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host_gate.json": "f6bdba782b8c3acb40e20882c6de202ca56c9b201182e69b01024c0e2b049b64",
+    "cases.json": "e6cb7c7040912c4038a6a586b934903012b99f43373d8dc330b6321bba2c989e",
+    "compile_native.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "filter.cpp": "e6fcd935b989b743cf297157bfcf68d7e5a5c1c3ce0af18e950f47592dc7fbdb",
+    "strict.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native.stdout": "9b1917775b08dbd717a322a078a3471f5f6532ffe5aeccce60c7eb1322f0f16e",
+    "runner.py": "e0c0fa516534d4db1cd86e782d766446497db13c328d6181faa1abf2012010f0",
+    "compile_strict.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compile_native.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ld64.stdout": "e4c1b2d3a5cf33afde9b26650ffee5a583a3cc5d6661cad3fedf3ca10e547d46",
+    "host_memory.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compile_strict.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "status": "FAIL",
+  "stages": [
+    {
+      "command": [
+        "uptime"
+      ],
+      "label": "host_load",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/segment_box_filter_experiment_v2",
+      "exit_code": 0,
+      "seconds": 0.008795503003057092
+    },
+    {
+      "command": [
+        "free",
+        "-m"
+      ],
+      "label": "host_memory",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/segment_box_filter_experiment_v2",
+      "exit_code": 0,
+      "seconds": 0.007373684027697891
+    },
+    {
+      "command": [
+        "c++",
+        "-std=c++17",
+        "-O2",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/segment_box_filter_experiment_v2/filter.cpp",
+        "-o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/segment_box_filter_experiment_v2/filter_strict"
+      ],
+      "label": "compile_strict",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/segment_box_filter_experiment_v2",
+      "exit_code": 1,
+      "seconds": 0.6742757859756239
+    }
+  ],
+  "summary": [],
+  "source_sha256": "b222e65a6a2aac97cf66311d78619ac64c3a5131ad08ca262388e7c5d082cad3",
+  "runner_sha256": "e0c0fa516534d4db1cd86e782d766446497db13c328d6181faa1abf2012010f0",
+  "actual_mesh_sha256": "2ea31c8d723eedf9bb1df803f575bdecb212b451b939288056eb74d9c5c1bbb5",
+  "scope": "Standalone conservative projected-box prefilter correctness versus exact binary64 rational closed segment/box oracle. Three compiler modes including production fast-math and binary64 long double. Not a production integration, tetrahedral coverage, MPI or performance certificate.",
+  "artifact_sha256": {
+    "input.txt": "abd689c5bc2bf521cdc9744ae671e29cad0bfd7c5b7a4b64016f1323119ffb5c",
+    "host_load.stdout": "7be7ee3e7286be45d9f28250e3e933cc057328e4007da1a0e7b4dcca9b4e8a31",
+    "host_memory.stdout": "71c5420f978be91761ef3eddc4c447a228588910d6cd2cdb1e2cdc9d362de8e6",
+    "host_load.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host_gate.json": "f6bdba782b8c3acb40e20882c6de202ca56c9b201182e69b01024c0e2b049b64",
+    "cases.json": "e6cb7c7040912c4038a6a586b934903012b99f43373d8dc330b6321bba2c989e",
+    "filter.cpp": "b222e65a6a2aac97cf66311d78619ac64c3a5131ad08ca262388e7c5d082cad3",
+    "runner.py": "e0c0fa516534d4db1cd86e782d766446497db13c328d6181faa1abf2012010f0",
+    "compile_strict.stderr": "bcc5212165d74fa9b6bb26b2c4258175852501d94b4e01427b2999aece11d930",
+    "host_memory.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compile_strict.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

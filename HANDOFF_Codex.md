@@ -1,5 +1,29 @@
 # Current handoff — 2026-10-12
 
+## Donor broad-phase experiment and requirement audit — 2026-10-12
+
+Production checkpoint7f76fd9a279cf384a37f8ae137dc4dc26212ce82 unchanged;
+repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated, branch
+codex/native-3d-transport-accounting. Goal1 ACTIVE; Goal2 not started.
+Offline saved-phase review shows expensive donor predicates still dominate;
+byte-unchanged stages/edge tracing slowed too, so no isolated packing regression
+or speedup from two contended samples. PACKING_SAVED_PHASE_REVIEW.json pins logs.
+Standalone segment_box_filter_experiment_v3 PASS3256 exact-rational closed-box
+oracle cases in strict/productionfastmath/binary64-long-double modes,0false
+rejections.28/158sampled actual n8 candidate boxes can be excluded; finite-corpus
+and small sample, not full failed-cavity replay/production/MPI/speed proof.
+Unresolved signs and touching remain exact-predicate candidates. v1 Python3.8
+nextafter and v2 generated-newline compiler failures preserved. No production
+code/config/target/guard change, numericalSU2/MPI run or timing campaign here.
+SEGMENT_BOX_FILTER_EXPERIMENT.md has assumptions/next integration checks;
+GOAL1_REQUIREMENT_AUDIT.md maps complete original deliverables to current proof
+and explicit missing performance/weight/wait/memory calibration. BL composition
+hook is tested but production3DBL/composed-edge integration explicitly unsupported.
+All owned experiment jobs TERMINAL. Next meaningful local work is conservative
+prefilter sign review/coarse-cavity observations and actual production qualification;
+full repeated scaling/overhead/rank-cost/allocator calibration still needs cluster
+measurements. Do not advance Goal2 or lower original acceptance/cap contracts.
+
 ## Grouped donor query requests qualified — 2026-10-12
 
 Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
