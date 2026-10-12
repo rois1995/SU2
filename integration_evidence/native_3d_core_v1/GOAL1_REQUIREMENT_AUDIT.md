@@ -161,3 +161,18 @@ legacy missing counter failure retained/corrected explicitly; production unchang
 This closes these stronger whole/restart/lifecycle proof gaps for the prototype,
 not the large default512limit or repeated matched-target cost/scaling/overhead/
 traffic/wait/weight/memory gates needed before promotion/fullGoal1.
+
+## Separate changed-trajectory cost campaign prepared
+
+The new native_cluster_3d_reservation_comparison_v1 tooling prepares a same-build
+standard/isolated-rotating comparison with independent exact references per
+scheduler/N/M and paired operational-cost repeats. It does not weaken the donor
+fixed-work harness or pretend later meshes/P1fields match across schedulers.
+Actual login-preparer smoke verifies one private directory compile/link and
+closed regular-file packages with unchanged production artifacts;16synthetic
+orchestration checks and SGE syntax pass. The first Ninja-path failure and
+correction are retained. Disposable local copied binaries removed with hashes
+after verification; retained smoke folder is not a runnable cluster bundle.
+No actual MPI/qsub/performance campaign or new numerical certificate. This closes
+cluster-tool preparation for the fairness hypothesis, not repeated performance,
+weight/wait/traffic/memory/default512or fullGoal1/promotion gates.

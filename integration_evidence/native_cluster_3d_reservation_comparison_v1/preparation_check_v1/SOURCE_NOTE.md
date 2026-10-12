@@ -1,0 +1,1 @@
+The first wrapper source is reconstructed by reversing the only subsequent Ninja-path correction, rather than claimed as an original pre-run snapshot. Raw child stderr/commands/failure receipt remain original. The attempt stopped before source compilation.

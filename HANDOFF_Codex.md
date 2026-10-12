@@ -1,5 +1,33 @@
 # Current handoff — 2026-10-12
 
+## Reservation-scheduler cluster comparison prepared — 2026-10-12
+
+Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
+codex/native-3d-transport-accounting. Starting tip6b319ea519. New separate toolkit
+integration_evidence/native_cluster_3d_reservation_comparison_v1 compares standard
+and isolated rotating priority with fresh exact references per scheduler/N/M,
+exact repeatability within each group and exact initial geometry/frozen target
+across schedulers. Later P1 triangulations/accepted work may differ; operational
+costs, not fixed-work speed. Existing donor comparison/production CPP unchanged.
+SGE correctness then serializedN1/N2/N4 full/half workers, warm-up plus3paired
+OFFON repeats, actual Hessian/CFD/BDF controls, complete parent/phase/rank/work
+analysis and compact verified-repeat deduplication; optional mpiP stays separate.
+Actual current68-object preparer smoke PASS: one private directory compile/link,
+normal directory member excluded, unchanged source/options/objects/archives/bin,
+closed regular-file bundles verified. Include-only change from qualified prototype.
+No MPI/adaptation/performance/qsub run. First missing-relative-Ninja failure
+preserved; wrapper now validates/resolves caller-relative tool before child cwd
+changes/bundle creation.16synthetic orchestration checks and SGE syntax PASS.
+PREPARATION_REPORT.md,PREPARATION_SMOKE_VALIDATION.json,selfcheck_v1 pin evidence.
+Two terminal local binary copies removed after verification:1595519616bytes
+freed; original normal binary and compact link/source/log/manifest/failure data
+remain. Retained preparation_check_v2 is historical smoke evidence, NOT a
+runnable cluster bundle; prepare fresh prepared_v1 on cluster per README.
+All owned work TERMINAL, oneCPU/nice19/thread1 for compile/link after host checks.
+No cluster request or submission overnight. Goal1 ACTIVE; actual cluster cost/
+scaling/overhead/weight/wait/memory/default512proof still open. Prototype not
+promoted; Goal2 not started; no3DBL/physicalunsteady/affordability certificate.
+
 ## Isolated rotating-policy stronger whole cases and lifecycle PASS — 2026-10-12
 
 Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch

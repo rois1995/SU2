@@ -1,0 +1,45 @@
+{
+  "status": "PASS_TOOLING_CHECKS_NOT_CLUSTER_RUNS",
+  "checks": 16,
+  "stages": [
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_reservation_comparison_v1/check_package.py"
+      ],
+      "label": "checks",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_reservation_comparison_v1/selfcheck_v1",
+      "exit_code": 0,
+      "seconds": 0.7695426819846034
+    },
+    {
+      "command": [
+        "bash",
+        "-n",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_reservation_comparison_v1/RunReservationComparisonSGE.sh"
+      ],
+      "label": "sge_syntax",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_reservation_comparison_v1/selfcheck_v1",
+      "exit_code": 0,
+      "seconds": 0.005969582009129226
+    }
+  ],
+  "source_sha256": {
+    "integration_evidence/native_cluster_3d_reservation_comparison_v1/campaign.py": "a34051268f55a3ae5907df965d2d9b7ef34226583f6526ab5a6d7e46bd6ba491",
+    "integration_evidence/native_cluster_3d_reservation_comparison_v1/check_package.py": "df27a4df1b50e20fbafb6780608b1a410059c6cc98173f2ee115804b9da3d2f0",
+    "integration_evidence/native_cluster_3d_reservation_comparison_v1/analyze.py": "c6b1ad45485d1d26ce2837e6aa589b24e453cfb5ad1d915045f4eeecc62e30c2",
+    "integration_evidence/native_cluster_3d_reservation_comparison_v1/prepare.py": "1a43e2b0e1efadd7222e0507e66f8c7f47f24730bac03b9e887ecd3ae2cdbb33",
+    "integration_evidence/native_cluster_3d_reservation_comparison_v1/README.md": "31323ae86d04c217fad842a7b3c257dd306ad7b1cc7a34bfdb75ef0b7b3477e8",
+    "integration_evidence/native_cluster_3d_reservation_comparison_v1/submit.py": "e39c3621ba3a26a5a49955710f996a51bec7475630559c948e421e85e37ed4de",
+    "integration_evidence/native_cluster_3d_reservation_comparison_v1/RunReservationComparisonSGE.sh": "8bedddd0f9b8202242b3467941ecc3472ca2bea8bc1bca2211b5584618ed629d",
+    "integration_evidence/native_cluster_3d_reservation_comparison_v1/common.py": "3728031f1d748e0f37ae56800250327d70fdc480c2d7614aef78c92f3c79968a"
+  },
+  "preparation_smoke_sha256": "d9aaa23fe8e093155f7d20abdb410d7d938d91dd01adee76dd97434d48048fd0",
+  "scope": "Synthetic-record orchestration: schedule/paired changed-trajectory references, strict q/J/L and nonfinite gates, drift/initial-target/failure retention, source/binary file pins, mocked serialized qsub, analysis/overhead/profiler controls and recipe parsing; actual preparation compile/link separately verified. No MPI, qsub, CFD or performance campaign executed.",
+  "artifact_sha256": {
+    "checks.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "checks.stderr": "af72368d19bbe55fa6e36726393c792273bec2cd839ba6f4d7d0727c5b28abb3",
+    "sge_syntax.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sge_syntax.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}
