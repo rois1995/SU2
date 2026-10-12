@@ -486,7 +486,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         batch=(batch+1)/2; ++stats.batch_retries;
       }
       if (!admit(transfer_memory::Add(transfer_memory::Bytes(imported.cells),
-          transfer_memory::Mul(MaximumDonors,8192),transfer_memory::Mul(working.size(),selection_bound(selection.track_repairs))))) return false;
+          MaximumFrozenFieldBytes,transfer_memory::Mul(working.size(),selection_bound(selection.track_repairs))))) return false;
       if (slot<ids.size()) try {
         CpuTimer private_cpu(stats.measurement_cpu_seconds,options.timings);
         FrozenField field(std::move(imported.cells),composition,options.timings);
@@ -783,7 +783,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     const bool streamed=ready && !sensors.valid && DonorCap(sensors.reason);
     if (!ready || (!sensors.valid && !streamed)) { if (ready) result.reason=sensors.reason; return finish(); }
     const size_t private_scratch=transfer_memory::Add(transfer_memory::Bytes(imported.cells),
-        transfer_memory::Mul(MaximumReplacementCells,8192),transfer_memory::Mul(MaximumDonors,8192));
+        transfer_memory::Mul(MaximumReplacementCells,8192),MaximumFrozenFieldBytes);
     if (streamed && !admit(private_scratch)) return finish();
     if (streamed) ++stats.private_query_retries;
     {
@@ -1052,7 +1052,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if (ready) {
         bool admitted=false;
         const auto baseline=transfer_memory::Add(bytes(),source.ResidentBytes(),directory.ResidentBytes(),
-            transfer_memory::Bytes(imported.cells),transfer_memory::Mul(MaximumDonors,8192));
+            transfer_memory::Bytes(imported.cells),MaximumFrozenFieldBytes);
         removed=world.exchange(removals,&admitted,options.memory_ceiling,baseline);
         ready=admitted;
         if (ready) { added=world.exchange(additions,&admitted,options.memory_ceiling,baseline); ready=admitted; }
@@ -1064,7 +1064,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     {
       Timer timer(stats.publication_seconds,options.timings);
       ready=directory.Publish(working,removed,added,true,result.reason,options.memory_ceiling,
-          transfer_memory::Add(bytes(),source.ResidentBytes(),transfer_memory::Mul(MaximumDonors,8192)));
+          transfer_memory::Add(bytes(),source.ResidentBytes(),MaximumFrozenFieldBytes));
     }
     if (!ready) return finish();
     std::vector<Id> changed;

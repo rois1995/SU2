@@ -6,6 +6,7 @@
  */
 #include "catch.hpp"
 #include "../../../Common/include/adaptation/CNativeBoundary3D.hpp"
+#include "../../../Common/include/adaptation/CNativeField3D.hpp"
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -801,4 +802,43 @@ TEST_CASE("Bump chart unions retain distinct disconnected components and origina
   CHECK(reference.Get(f[1].id).v[0].p.x==f[1].v[0].p.x);
   CHECK_THROWS(PlanarReference(f,PlanarReference::ConstructionBytes(f.size()),curves));
   CHECK(reference.ResidentBytes()>PlanarReference(f).ResidentBytes());
+}
+
+TEST_CASE("Declared frozen sensor coverage evaluates actual curved replacement vertices centroids and edges",
+          "[NativeCurvedLayered3D]") {
+  const auto old=CurvedVolumeSeed(true);auto facets=Facets(old);std::map<Id,AnalyticSurface> curves;
+  std::vector<Id> components;for(auto f:facets){curves.emplace(f.id,AnalyticSurface{});components.push_back(f.id);}
+  const PlanarReference reference(facets,SIZE_MAX,curves);
+  std::vector<DonorCell> donors;DonorCell original;original.cell=old.cells[0];
+  for(auto& m:original.sensor)m={.5,0,0,.5,0,.5};donors.push_back(original);
+  auto add=[&](std::array<Node,4> v,Id component) {
+    if(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)<0)std::swap(v[0],v[1]);
+    DonorCell d;d.cell={Id(donors.size()),v};d.extension_component=component;
+    for(auto& m:d.sensor)m={.5,0,0,.5,0,.5};donors.push_back(d);
+  };
+  // Declared radial shell reaches factor4 before freezing; source target is sensor-only, never a nodal BL tensor.
+  for(auto f:facets) {
+    std::sort(f.v.begin(),f.v.end(),[](Node a,Node b){return a.id<b.id;});
+    const auto a=f.v[0],b=f.v[1],c=f.v[2];auto aa=a,bb=b,cc=c;
+    for(auto* n:{&aa,&bb,&cc}){n->id+=4;n->p.x*=4;n->p.y*=4;n->p.z*=4;}
+    add({a,b,c,cc},f.id);add({a,b,bb,cc},f.id);add({a,aa,bb,cc},f.id);
+  }
+  FrozenField field(donors,{},false,components),original_only({original});
+  Patch fresh;std::string reason;const auto a=Position(old,1),b=Position(old,2);
+  REQUIRE(SplitEdge(old,{1,2},{8,{(a.x+b.x)/2,(a.y+b.y)/2,(a.z+b.z)/2}},100,reference,fresh,reason));
+  const auto wall=Position(fresh,8);
+  CHECK_THROWS(original_only.Query(wall));CHECK(field.Query(wall).extension_component!=UINT64_MAX);
+  CHECK(field.Query({0,0,0}).sensor.xx==original_only.Query({0,0,0}).sensor.xx);
+  for(auto cell:fresh.cells) {
+    const auto m=field.Query(Centroid(cell));CHECK(m.sensor.xx==.5);
+    const auto q=Measure({cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p},m.target);
+    CHECK(q.mean_ratio>=MinimumMeanRatio);CHECK(q.minimum_scaled_jacobian>=MinimumScaledJacobian);
+    for(size_t i=0;i<4;++i)for(size_t j=i+1;j<4;++j) {
+      const auto length=field.TargetEdgeLength(cell.v[i].p,cell.v[j].p);
+      CHECK(double(length)==Approx(double(MetricNorm(cell.v[i].p,cell.v[j].p,{.5,0,0,.5,0,.5}))).epsilon(1e-12));
+      CHECK(length<=1.6L);
+    }
+  }
+  CHECK_THROWS(field.Query({10,0,0}));
+  SaveCurved(fresh,reference,"layered_sphere_split");
 }

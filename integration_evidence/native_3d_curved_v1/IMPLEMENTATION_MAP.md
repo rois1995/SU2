@@ -85,3 +85,11 @@ compatible connected-convex XY chart unions, off-edge projected cavity insertion
 projected movement and changed-diagonal collapse. Collective sidecar reload keeps
 canonical chart identities. This advances the coupled geometry implementation but
 all full integration gates remain pending. Runtime refusal is unchanged.
+
+## Declared exterior field checkpoint
+
+LAYERED_SENSOR_CHECKPOINT.md / layered_sensor_v2 receipts qualify tagged associated
+exterior cells, original P1 priority and exact layered edge intervals, realMPI
+source-tag transport and a coupled sphere split with manually prescribed coverage.
+Automatic producer, component/query-footprint routing and actual curved runtime
+remain missing; all four integrated gates stay pending.

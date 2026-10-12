@@ -131,5 +131,43 @@
     ],
     "curved_runtime_supported": false,
     "full_goal_gates_completed": 0
+  },
+  "layered_sensor_checkpoint": {
+    "status": "PASS_EXPLICIT_DECLARED_FIELD_AND_MPI_IMPORT_ONLY",
+    "report": "LAYERED_SENSOR_CHECKPOINT.md",
+    "receipt": "layered_sensor_v2/validation.json",
+    "receipt_sha256": "0dc060caa2117521269ce52e66c108d82c980d87b5b5890489beb4d28d3ab4e8",
+    "shape_audit": "layered_sensor_v2/private_shape_validation.json",
+    "shape_audit_sha256": "204698ba6bcdc6bc4ad965732f9c172e22a612964823097c869c6253e2f4aa1c",
+    "counts": [
+      {
+        "ranks": 1,
+        "cases_per_rank": 95,
+        "assertions": [
+          39880
+        ]
+      },
+      {
+        "ranks": 2,
+        "cases_per_rank": 95,
+        "assertions": [
+          41086,
+          40688
+        ]
+      },
+      {
+        "ranks": 4,
+        "cases_per_rank": 95,
+        "assertions": [
+          42354,
+          42386,
+          42644,
+          42940
+        ]
+      }
+    ],
+    "automatic_exterior_source_generation": false,
+    "curved_runtime_supported": false,
+    "full_goal_gates_completed": 0
   }
 }

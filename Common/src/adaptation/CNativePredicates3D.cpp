@@ -201,6 +201,8 @@ struct WorkPiece {
   std::array<Id, 4> support{};
   size_t support_size = 0;
 };
+static_assert(sizeof(WorkPiece)+2*sizeof(Root)+2*sizeof(SegmentPiece)<=8192,
+              "Native3D layered segment storage exceeds the frozen-field byte model.");
 Integer<198> ExactVolume(const Tetrahedron& t, KernelStats* stats) {
   for (auto p : t)
     if (!Finite(p)) throw std::invalid_argument("Nonfinite native 3D source segment.");
@@ -330,8 +332,10 @@ bool Barycentric(const Tetrahedron& donor, Point point, std::array<long double, 
   weights = values;
   return true;
 }
-std::vector<SegmentPiece> TraceSegment(const std::vector<const Cell*>& donors, Point a, Point b, KernelStats* stats) {
+std::vector<SegmentPiece> TraceSegment(const std::vector<const Cell*>& donors, Point a, Point b, KernelStats* stats,
+                                       size_t primary) {
   if (donors.size() > MaximumSegmentDonors) throw std::invalid_argument("Native 3D segment donor budget exceeded.");
+  if(primary!=SIZE_MAX && primary>donors.size())throw std::invalid_argument("Invalid native3D source priority prefix.");
   if (!(Finite(a) && Finite(b)) || (a.x == b.x && a.y == b.y && a.z == b.z))
     throw std::invalid_argument("Native 3D source segment must be finite and nonzero.");
   std::vector<WorkPiece> work;
@@ -356,6 +360,45 @@ std::vector<SegmentPiece> TraceSegment(const std::vector<const Cell*>& donors, P
       piece.piece.donor = i;
       work.push_back(std::move(piece));
     }
+  }
+  if (primary<donors.size()) {
+    // Original and extension meshes may overlap. Exact cuts select the original field, never a rounded midpoint.
+    std::vector<Root> cuts{Root(false),Root(true)};
+    cuts.reserve(2+2*work.size());
+    for(const auto& p:work){cuts.push_back(p.begin);cuts.push_back(p.end);}
+    std::sort(cuts.begin(),cuts.end(),[](const Root& a,const Root& b){return CompareRoot(a,b)<0;});
+    cuts.erase(std::unique(cuts.begin(),cuts.end(),[](const Root& a,const Root& b){return CompareRoot(a,b)==0;}),cuts.end());
+    std::vector<SegmentPiece> result;
+    result.reserve(cuts.size()-1);
+    for(size_t k=0;k+1<cuts.size();++k) {
+      const WorkPiece* chosen=nullptr;
+      for(const auto& p:work) {
+        if(CompareRoot(p.begin,cuts[k])>0 || CompareRoot(cuts[k+1],p.end)>0)continue;
+        const bool original=p.piece.donor<primary;
+        if(chosen && (chosen->piece.donor<primary)==original) {
+          if (chosen->support_size>=4 || chosen->support_size!=p.support_size || chosen->support!=p.support ||
+              CompareRoot(chosen->begin,p.begin)!=0 || CompareRoot(chosen->end,p.end)!=0)
+            throw std::runtime_error("Overlapping/nonconformal native3D same-priority source intervals.");
+          if(p.piece.donor<chosen->piece.donor)chosen=&p;
+        } else if (!chosen || original) chosen=&p;
+      }
+      if(!chosen)throw std::runtime_error("Uncovered native3D original/extension source interval.");
+      const auto& v=donors[chosen->piece.donor]->v;
+      Integer<198> volume;std::array<Integer<198>,4> va,vb;Root lo(false),hi(true);
+      if(!ClipInterval({v[0].p,v[1].p,v[2].p,v[3].p},a,b,volume,va,vb,lo,hi,false,stats))
+        throw std::logic_error("Selected native3D layered source disappeared.");
+      SegmentPiece p;
+      p.donor=chosen->piece.donor;
+      p.begin=Ratio(cuts[k].numerator,cuts[k].denominator);
+      p.end=Ratio(cuts[k+1].numerator,cuts[k+1].denominator);
+      p.width=Ratio(Difference(Product(cuts[k+1].numerator,cuts[k].denominator),
+                               Product(cuts[k].numerator,cuts[k+1].denominator)),
+                    Product(cuts[k+1].denominator,cuts[k].denominator));
+      p.begin_weights=AtRoot(cuts[k],va,vb,volume);
+      p.end_weights=AtRoot(cuts[k+1],va,vb,volume);
+      result.push_back(p);
+    }
+    return result;
   }
   std::sort(work.begin(), work.end(), [](const WorkPiece& a, const WorkPiece& b) {
     const int start = CompareRoot(a.begin, b.begin);

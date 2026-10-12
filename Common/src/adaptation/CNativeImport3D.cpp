@@ -415,7 +415,7 @@ bool Samples(World& parent, size_t count, DonorImport& source, MetricComposition
              BridgeStats& stats, std::string& reason, size_t ceiling, size_t live, size_t initial, bool query_timings) {
   // shortcut: conservative bounded field/cache scratch; calibrate against the actual index/cache allocations.
   const size_t scratch =
-      transfer_memory::Add(transfer_memory::Mul(MaximumDonors, 2 * sizeof(DonorCell) + 64 * sizeof(double)),
+      transfer_memory::Add(MaximumFrozenFieldBytes,
                            transfer_memory::Mul(MaximumSensorSamples, 32 * sizeof(double)),
                            transfer_memory::Mul(MaximumCavityCells, sizeof(DonorRegion)));
   live = transfer_memory::Add(live, scratch);

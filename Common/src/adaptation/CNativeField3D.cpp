@@ -58,10 +58,14 @@ size_t FrozenField::Hash::operator()(const std::array<double, 3>& point) const {
   for (auto x : point) value ^= std::hash<double>{}(x) + size_t(0x9e3779b9) + (value << 6) + (value >> 2);
   return value;
 }
-FrozenField::FrozenField(std::vector<DonorCell> original, MetricComposition combine, bool enabled)
+FrozenField::FrozenField(std::vector<DonorCell> original, MetricComposition combine, bool enabled,
+                         std::vector<Id> components)
     : donors(std::move(original)), composition(std::move(combine)), timings(enabled) {
   Timer timer(stats.build_seconds, timings);
   Canonical(donors);
+  std::sort(components.begin(),components.end());
+  if (std::binary_search(components.begin(),components.end(),UINT64_MAX))
+    throw std::invalid_argument("Original native3D source cannot be declared as an extension component.");
   std::map<Id, std::pair<Point, std::array<double, 6>>> nodes;
   for (const auto& donor : donors) {
     if (!(Orientation(donor.cell.v[0].p, donor.cell.v[1].p, donor.cell.v[2].p, donor.cell.v[3].p, &stats.kernel) > 0))
@@ -82,6 +86,12 @@ FrozenField::FrozenField(std::vector<DonorCell> original, MetricComposition comb
       }
     }
   }
+  donors.erase(std::remove_if(donors.begin(),donors.end(),[&](const DonorCell& d) {
+    return d.extension_component!=UINT64_MAX && !std::binary_search(components.begin(),components.end(),d.extension_component);
+  }),donors.end());
+  if (!components.empty()) std::stable_partition(donors.begin(),donors.end(),[](const DonorCell& d) {
+    return d.extension_component==UINT64_MAX;
+  });
   if (donors.size() <= 1) return;  // One donor needs no tree or spatial traversal buffers.
   if constexpr (std::is_same<su2double, double>::value) {
     std::vector<su2double> coordinates;
@@ -158,7 +168,10 @@ long double FrozenField::SensorEdgeLength(Point a, Point b) {
         pieces.push_back(piece);
         ++stats.edge_direct_intervals;
       } else
-        pieces = TraceSegment(cells, a, b, &stats.kernel);
+        pieces = TraceSegment(cells, a, b, &stats.kernel,
+            std::count_if(candidates.begin(),candidates.end(),[&](unsigned long i) {
+              return donors[i].extension_component==UINT64_MAX;
+            }));
     }
     stats.edge_pieces += pieces.size();
     stats.maximum_edge_pieces = std::max(stats.maximum_edge_pieces, pieces.size());
@@ -166,6 +179,7 @@ long double FrozenField::SensorEdgeLength(Point a, Point b) {
     long double total = 0;
     for (const auto& piece : pieces) {
       const auto& donor = donors[candidates[piece.donor]];
+      if (donor.extension_component!=UINT64_MAX) ++stats.extended_edge_pieces;
       const auto first = MetricNorm(a, b, Blend(donor, piece.begin_weights), &stats.kernel);
       const auto last = MetricNorm(a, b, Blend(donor, piece.end_weights), &stats.kernel);
       const auto largest = std::max(first, last), r = std::min(first, last) / largest;
@@ -252,7 +266,9 @@ FieldSample FrozenField::Query(Point point) {
         stats.maximum_cache_entries = std::max(stats.maximum_cache_entries, cache.size());
       }
     }
-    FieldSample sample{value.tensor, value.tensor, donors[value.donor].Key(), value.weights};
+    FieldSample sample{value.tensor, value.tensor, donors[value.donor].Key(), value.weights,
+                       donors[value.donor].extension_component};
+    if (sample.extension_component!=UINT64_MAX) ++stats.extended_queries;
     if (composition) {
       Timer timer(stats.composition_seconds, timings);
       ++stats.compositions;

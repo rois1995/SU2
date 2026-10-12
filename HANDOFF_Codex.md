@@ -1,3 +1,34 @@
+# Goal2 declared exterior sensor field checkpoint — 2026-10-12
+
+Working folder /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
+codex/native-3d-curved-local. GoalACTIVE; all4full integrated gates pending.
+Original physical P1 now has priority over explicitly associated frozen exterior
+cells at queries and exact rational edge intervals. Tags travel through MPI source
+imports; wrong components/gaps/ambiguous same-priority intervals reject. Original
+thin demands and coincident-cut nonzero widths are preserved. Composition still
+uses actual queries/cache hits; composed-target edge audits still reject without
+geometric integration. All records remain validated; native field scratch models
+include bounded layered trace/cache/index storage. No 2DBL/fade/noise/MMG/transfer
+policy change. Default callers exclude tagged exterior coverage.
+
+layered_sensor_v2/validation.json PASS:95cases/rank MPI1/2/4 with full68-object
+driver; independent shape/closure/no-overlap audit alsoPASS. New source-tag test
+is actual MPI import; curved split/field witness uses a manually prescribed finite
+shell. Inspect layered_sensor_v2/mpi1/layered_sphere_split.su2 and matchingJSON,
+plusMPI2/4. Not solvedCFD/curvedMPIpublication/history transport or production
+coverage-generation proof. Firstv1 failed on a real fixture segment gap; exact
+source/logs retained and gapped geometry remains a passing negative control.
+V2controller73422 terminalPASS; no owned heavy job remains live. Incidental planar
+payloads are hash-verified in archives. Source/proof pins and full limitations in
+LAYERED_SENSOR_CHECKPOINT.md. ForeignClusterResults/dependencies/AdapNoExt untouched.
+
+Next big integration: actual CFD-derived exterior coverage generation/admission
+before freeze and actual private/remote query footprint/component routing, then
+geometric error/clearance completion and actual curvedMPI/CFD/restart. Source layer
+is implemented, producer/integration remains missing. Cylinder/mixed geometry and
+nonconvex chart unions remain gaps. No cluster/performance gate or claim.
+Earlier notices below are historical; do not close Goal2 from these prototypes.
+
 # Goal2 joint curved geometry checkpoint — 2026-10-12
 
 Working folder /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch

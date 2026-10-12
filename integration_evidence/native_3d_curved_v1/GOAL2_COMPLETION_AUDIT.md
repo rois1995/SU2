@@ -18,3 +18,11 @@ per rank MPI1/2/4 and independent exact no-overlap/closure and identity shape pr
 pass. Collective reference persistence preserves chart identities. These remain
 private operator/reference proofs; no full integrated requirement is complete.
 See JOINT_BUMP_GEOMETRY_CHECKPOINT.md. Full four-gate scope remains unchanged.
+
+
+Declared exterior sensor layer:95cases/rank MPI1/2/4 and independent saved-grid
+shape/no-overlap/closure controls pass. Original P1 priority, exact layered edge
+coverage, thin-demand/coincident-cut preservation, actual-query composition and
+realMPI tag routing are established for explicitly supplied coverage. Producer
+and runtime admission/routing are missing. The curved split uses a manual shell;
+no full integrated gate is complete. See LAYERED_SENSOR_CHECKPOINT.md.

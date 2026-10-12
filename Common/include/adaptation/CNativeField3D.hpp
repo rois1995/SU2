@@ -15,14 +15,17 @@
 class CADTElemClass;
 namespace SU2Native3D {
 constexpr size_t MaximumDonors = MaximumSegmentDonors, MaximumSensorSamples = 2048;
+// Imported records/indexes, bounded sensor cache and exact layered segment scratch; excludes CFD/allocator/RSS.
+constexpr size_t MaximumFrozenFieldBytes = MaximumDonors * 12288 + MaximumSensorSamples * 256;
 using Metric = std::function<Tensor(Point)>;
 using MetricComposition = std::function<Tensor(Point, Tensor)>;
 struct DonorCell {
   Cell cell;
   std::array<Tensor, 4> sensor;
+  Id extension_component = UINT64_MAX; // Original source, or explicitly declared finite extension component.
   template <class Stream>
   void Fields(Stream& s) {
-    s(cell, sensor);
+    s(cell, sensor, extension_component);
   }
   std::array<Id, 4> Key() const;
 };
@@ -30,6 +33,7 @@ struct FieldSample {
   Tensor sensor, target;
   std::array<Id, 4> donor{};
   std::array<long double, 4> weights{};
+  Id extension_component = UINT64_MAX;
 };
 struct FieldStats {
   uint64_t requests = 0, invalid_queries = 0, hits = 0, misses = 0, failures = 0, evictions = 0;
@@ -39,6 +43,7 @@ struct FieldStats {
   double search_seconds = 0, interpolation_seconds = 0, composition_seconds = 0;
   uint64_t edge_requests = 0, edge_failures = 0, edge_box_candidates = 0, edge_pieces = 0;
   uint64_t edge_containment_tests = 0, edge_direct_intervals = 0;
+  uint64_t extended_queries = 0, extended_edge_pieces = 0;
   size_t maximum_edge_candidates = 0, maximum_edge_pieces = 0;
   double edge_seconds = 0, edge_search_seconds = 0, edge_trace_seconds = 0, edge_integral_seconds = 0;
   KernelStats kernel;
@@ -46,14 +51,18 @@ struct FieldStats {
 /*! Bounded imported original donor patch, not an evolving-mesh metric. One instance per private worker.
  * Canonical original-node keys resolve containment ties; ADT is only a conservative box broad phase.
  * Only sensor samples are cached. Composition runs at each actual query, including cache hits.
- * Exact containment only: physical-reference extension/roundoff admission belongs to the import layer. */
+ * Exact containment only. Original physical P1 wins over declared extension cells at every covered query.
+ * Extensions require an explicitly associated component before freezing; their generation/admission belongs
+ * to the import layer. No point-query fallback or original-target redefinition occurs during reconstruction. */
 class FrozenField {
  public:
-  explicit FrozenField(std::vector<DonorCell> original, MetricComposition composition = {}, bool timings = false);
+  explicit FrozenField(std::vector<DonorCell> original, MetricComposition composition = {}, bool timings = false,
+                       std::vector<Id> extension_components = {});
   ~FrozenField();
   FieldSample Query(Point point);
   Tensor evaluate(Point point) { return Query(point).target; }
-  /*! Integrates ORIGINAL SENSOR ONLY through exact source-cell intervals; composition is deliberately excluded.
+  /*! Integrates SENSOR ONLY through exact original/declared-extension intervals; original physical P1 takes priority.
+   * Composition is deliberately excluded.
    * Composed-target acceptance requires separate geometric breakpoints/integration, never this sensor audit alone. */
   long double SensorEdgeLength(Point a, Point b);
   /*! Actual-target edge audit. Composed fields reject until a geometry-resolved integrator is supplied;

@@ -285,3 +285,67 @@ TEST_CASE("Curved projection requires explicit frozen metric coverage outside th
   admitted[1].sensor[0].xx = 99;
   CHECK(extended.Query(projected).sensor.xx == 2);
 }
+
+namespace {
+std::vector<DonorCell> Layers() {
+  auto original=Single();original.cell.id=20;
+  for(size_t i=0;i<4;++i){original.cell.v[i].id+=100;original.sensor[i]={1+3*original.cell.v[i].p.x,0,0,1,0,1};}
+  auto extension=Single();extension.cell.id=21;extension.extension_component=42;
+  for(size_t i=0;i<4;++i){auto& p=extension.cell.v[i].p;p.x*=2;p.y*=2;p.z*=2;extension.sensor[i]={9,0,0,9,0,9};}
+  return {extension,original}; // Extension keys are lower; roles, not delivery/ID order, must choose original P1.
+}
+}
+TEST_CASE("Explicit frozen coverage keeps original P1 priority and consistent original exterior edge integrals",
+          "[NativeLayeredField3D]") {
+  auto input=Layers();std::vector<Id> scope{42};
+  FrozenField field(input,{},false,scope);scope[0]=43; // Association and source are frozen, not live mutable options.
+  const auto old=FrozenField({input[1]}).Query({.125,.125,.125});
+  const auto sample=field.Query({.125,.125,.125});
+  CHECK(sample.donor==old.donor);CHECK(sample.weights==old.weights);
+  CHECK(sample.sensor.xx==old.sensor.xx);CHECK(sample.extension_component==UINT64_MAX);
+  CHECK(field.Query({1,0,0}).sensor.xx==4);CHECK(field.Query({1.25,0,0}).sensor.xx==9);
+  CHECK(field.Query({1.25,0,0}).extension_component==42);
+  CHECK(double(field.SensorEdgeLength({0,0,0},{2,0,0}))==Approx(41./9).epsilon(1e-14));
+  CHECK(double(field.SensorEdgeLength({2,0,0},{0,0,0}))==Approx(41./9).epsilon(1e-14));
+  CHECK(double(field.SensorEdgeLength({0,0,0},{1,0,0}))==Approx(14./9).epsilon(1e-14));
+  CHECK(field.Statistics().extended_queries==2);CHECK(field.Statistics().extended_edge_pieces>=2);
+  input[0].sensor[0].xx=99;CHECK(field.Query({1.25,0,0}).sensor.xx==9);
+  FrozenField disabled(Layers()),wrong(Layers(),{},false,{43});
+  CHECK_THROWS(disabled.Query({1.25,0,0}));CHECK_THROWS(wrong.Query({1.25,0,0}));
+  CHECK_THROWS(disabled.SensorEdgeLength({0,0,0},{2,0,0}));
+  CHECK_THROWS(field.Query({2.01,0,0}));CHECK_THROWS(field.SensorEdgeLength({0,0,0},{2.01,0,0}));
+  size_t calls=0;
+  FrozenField composed(Layers(),[&](Point p,Tensor m){++calls;if(p.x>1)m.zz=std::max(m.zz,1e8);return m;},false,{42});
+  CHECK(composed.Query({1.25,0,0}).target.zz==1e8);CHECK(composed.Query({1.25,0,0}).target.zz==1e8);
+  CHECK(calls==2);CHECK(composed.Statistics().hits==1);
+  CHECK(double(composed.SensorEdgeLength({0,0,0},{2,0,0}))==Approx(41./9).epsilon(1e-14));
+  CHECK(calls==2);CHECK_THROWS(composed.TargetEdgeLength({0,0,0},{2,0,0}));
+}
+TEST_CASE("Layered exact coverage preserves thin original sensor demand and nonzero coincident-cut widths",
+          "[NativeLayeredField3D]") {
+  for(bool extreme:{false,true}) {
+    auto original=extreme ? Slabs({-1e100,0,.5,1,1e100},1e100,1e-100) : Slabs({0,.3,.3000005,.300001,1},4e12);
+    auto shell=Donor(1000,{{{1000,{-2e100,0,0}},{1001,{2e100,0,0}},{1002,{-2e100,4,0}},{1003,{-2e100,0,4}}}});
+    shell.extension_component=42;for(auto& m:shell.sensor)m={1,0,0,1,0,1};
+    FrozenField baseline(original);const Point a{extreme?-1e100:0,.25,.25},b{extreme?1e100:1,.25,.25};
+    const auto expected=baseline.SensorEdgeLength(a,b);original.push_back(shell);
+    FrozenField field(original,{},false,{42});
+    CHECK(double(field.SensorEdgeLength(a,b))==Approx(double(expected)).epsilon(1e-12));
+    CHECK(double(field.SensorEdgeLength(b,a))==Approx(double(expected)).epsilon(1e-12));
+    CHECK(field.Statistics().extended_edge_pieces==0); // Coarse exterior tensors cannot override covered original demand.
+    CHECK(field.Query({extreme?.5:.3000005,.25,.25}).sensor.xx>=1e12);
+  }
+}
+TEST_CASE("Declared layered fields reject invalid priority records and ambiguous exterior coverage",
+          "[NativeLayeredField3D]") {
+  auto input=Layers();auto duplicate=input[0];duplicate.cell.id=22;
+  for(auto& n:duplicate.cell.v)n.id+=1000;for(auto& m:duplicate.sensor)m.xx=16;
+  input.push_back(duplicate);FrozenField field(input,{},false,{42});
+  CHECK_THROWS(field.SensorEdgeLength({1.25,0,0},{1.5,0,0}));
+  auto invalid=Layers();invalid[0].sensor[0].zz=0;
+  CHECK_THROWS(FrozenField(invalid)); // Unassociated records still undergo admission validation.
+  CHECK_THROWS(FrozenField(Layers(),{},false,{UINT64_MAX}));
+  const auto c=Single().cell;
+  CHECK_THROWS(TraceSegment({&c},{0,0,0},{1,0,0},nullptr,2));
+  CHECK_THROWS(FrozenField(std::vector<DonorCell>(MaximumDonors+1,Layers()[0]),{},false,{42}));
+}

@@ -2124,3 +2124,32 @@ TEST_CASE("Native proposal and clock budgets reject collectively without publish
     CHECK(Bytes(input)==saved);
   }
 }
+
+TEST_CASE("MPI imports preserve declared exterior component and original source sensor semantics",
+          "[NativeLayeredDistributed3D]") {
+  World world;const auto geometry=Box();auto original=Source(geometry.patch.cells,world);
+  DonorCell extension;extension.cell={1000000,{{{1000000,{1,0,0}},{1000001,{0,0,0}},
+                                               {1000002,{0,1,0}},{1000003,{0,0,-.125}}}}};
+  extension.extension_component=77;for(auto& m:extension.sensor)m={9,0,0,9,0,9};
+  if(world.rank==world.size-1)original.push_back(extension);
+  DonorImport service(world);std::string reason;REQUIRE(service.Build(original,reason));
+  auto imported=service.Import({DonorRegion{0,0,-.125,1,1,1}});REQUIRE(imported.valid);
+  REQUIRE(imported.cells.size()==7);size_t count=0;
+  for(const auto& d:imported.cells)count+=d.extension_component==77;
+  CHECK(count==1);
+  auto complete=Source(geometry.patch.cells,world,true);complete.push_back(extension);
+  FrozenField oracle(complete,{},false,{77}),field(imported.cells,{},false,{77}),wrong(imported.cells,{},false,{78});
+  const Point outside{.1,.1,-.06},inside{.1,.1,.01};
+  CHECK(field.Query(outside).sensor.xx==9);CHECK(field.Query(outside).extension_component==77);
+  CHECK(field.Query(inside).sensor.xx==oracle.Query(inside).sensor.xx);
+  CHECK(field.Query(inside).extension_component==UINT64_MAX);CHECK_THROWS(wrong.Query(outside));
+  CHECK(field.SensorEdgeLength(inside,outside)==oracle.SensorEdgeLength(inside,outside));
+  CHECK_THROWS(wrong.SensorEdgeLength(inside,outside));
+  auto gap=extension;
+  gap.cell.v={{{1000000,{0,0,-.125}},{1000001,{1,0,-.125}},
+               {1000002,{0,1,-.125}},{1000003,{0,0,0}}}};
+  auto broken=Source(geometry.patch.cells,world,true);broken.push_back(gap);
+  FrozenField gapped(broken,{},false,{77});
+  CHECK(gapped.Query(outside).sensor.xx==9);
+  CHECK_THROWS(gapped.SensorEdgeLength(inside,outside)); // Covered vertices do not establish coverage between them.
+}

@@ -67,9 +67,11 @@ struct SegmentPiece {
   std::array<long double, 4> begin_weights{}, end_weights{};
 };
 /*! Exact rational original-cell clipping/order/coverage; canonical input order breaks conformal face/edge ties.
- * Requires an embedded conforming source. Endpoint weights and width avoid cancellation of near-equal cuts. */
+ * Requires an embedded conforming source in each priority group. With primary_donors<size, the prefix is
+ * authoritative wherever covered; the suffix fills uncovered intervals only. Ambiguous same-priority overlaps
+ * reject. Exact endpoint weights and width avoid cancellation of near-equal cuts. */
 std::vector<SegmentPiece> TraceSegment(const std::vector<const Cell*>& donors, Point a, Point b,
-                                       KernelStats* stats = nullptr);
+                                       KernelStats* stats = nullptr, size_t primary_donors = SIZE_MAX);
 /*! Magnitude-controlled metric norm of the actual binary64 chord; tensor must be SPD. */
 long double MetricNorm(Point a, Point b, const Tensor& metric, KernelStats* stats = nullptr);
 struct MetricMeasures {
