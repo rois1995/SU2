@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <limits>
 #include <set>
+#include <tuple>
 #include <stdexcept>
 namespace SU2Native3D {
 namespace {
@@ -291,6 +292,23 @@ PlanarReference::PlanarReference(std::vector<Facet> input, size_t ceiling, std::
     boundaries.emplace(root.first, std::move(border));
     for (Id id : component) canonical.at(id) = root.first;
   }
+  // Reuse the certified connected-convex planar union in graph parameter space; markers and definitions stay distinct.
+  using BumpKey=std::tuple<int,double,double,double,double,double,double,double>;
+  std::map<BumpKey,std::vector<Facet>> groups;
+  for (const auto& row : analytic) if (row.second.kind==AnalyticSurface::Kind::Bump) {
+    const auto& g=row.second;
+    auto f=Get(row.first);
+    for(auto& n:f.v)n.p.z=0;
+    groups[{f.marker,g.origin.x,g.origin.y,g.origin.z,g.extent.x,g.extent.y,g.extent.z,g.tolerance}].push_back(f);
+  }
+  for(const auto& group:groups) {
+    auto chart=std::make_shared<PlanarReference>(group.second,ConstructionBytes(group.second.size()));
+    for(const auto& f:group.second) {
+      const auto id=chart->Canonical(f.id);
+      canonical.at(f.id)=id;
+      bump_charts.emplace(id,chart);
+    }
+  }
   std::map<Id, std::array<Point, 2>> boxes;
   for (const auto& row : facets) {
     const auto id = Canonical(row.first);
@@ -301,6 +319,7 @@ PlanarReference::PlanarReference(std::vector<Facet> input, size_t ceiling, std::
     }
   }
   for (const auto& row : analytic) {
+    if (Canonical(row.first)!=row.first) continue;
     const auto& g=row.second;
     auto& box=boxes.at(row.first);
     if (g.kind==AnalyticSurface::Kind::Sphere) {
@@ -350,7 +369,7 @@ size_t PlanarReference::ConstructionBytes(size_t count, size_t curves) {
   size_t retained = 0, peak = 0;
   if (count) CADTElemClass::PredictBytes(3, 2 * count, count, 2 * count, &retained, &peak);
   // shortcut: conservative map/component scratch; calibrate allocator requests before larger reference campaigns.
-  return transfer_memory::Add(transfer_memory::Mul(count, 4096),
+  return transfer_memory::Add(transfer_memory::Mul(count, 4096), curves ? ConstructionBytes(curves) : 0,
                              transfer_memory::Mul(curves, 2*(sizeof(std::pair<const Id,AnalyticSurface>)+4*sizeof(void*))), retained, peak,
                              transfer_memory::Mul(count, 6 * sizeof(su2double) + 3 * sizeof(unsigned long) + 4 * sizeof(unsigned short)));
 }
@@ -358,8 +377,10 @@ size_t PlanarReference::ResidentBytes() const {
   auto map = [](const auto& m) {
     return transfer_memory::Mul(m.size(), sizeof(typename std::decay_t<decltype(m)>::value_type) + 4 * sizeof(void*));
   };
-  size_t result = transfer_memory::Add(sizeof(*this), map(facets), map(canonical), map(boundaries), map(nodes), map(analytic));
+  size_t result = transfer_memory::Add(sizeof(*this), map(facets), map(canonical), map(boundaries), map(nodes), map(analytic), map(bump_charts));
   for (const auto& entry : boundaries) result = transfer_memory::Add(result, transfer_memory::Bytes(entry.second));
+  for(const auto& entry:bump_charts)
+    if(entry.first==entry.second->facets.begin()->first) result=transfer_memory::Add(result,entry.second->ResidentBytes());
   result = transfer_memory::Add(result, map(marker_facets), transfer_memory::Bytes(indexed),
                                 search ? search->GetAllocatedBytes() : 0);
   for (const auto& entry : marker_facets) result = transfer_memory::Add(result, transfer_memory::Bytes(entry.second));
@@ -424,23 +445,23 @@ bool PlanarReference::Contains(Id id, Point p, KernelStats* stats) const {
       }
     } else {
       if (std::abs(static_cast<long double>(p.z)-BumpHeight(g,p))>g.tolerance) return false;
-      const auto area=Projected(v[0].p,v[1].p,v[2].p,2,stats);
-      bool inside=true;
-      for(size_t i=0;i<3;++i) {
-        const auto side=Projected(v[i].p,v[(i+1)%3].p,p,2,stats);
-        inside=inside && (area>0 ? side>=0 : side<=0);
-      }
-      if (!inside) {
+      const auto& chart=*bump_charts.at(id);
+      if (!chart.Contains(id,{p.x,p.y,0},stats)) {
         bool near=false;
-        for(size_t i=0;i<3;++i) {
-          const auto a=v[i].p,b=v[(i+1)%3].p;
+        auto edge_near=[&](Point a,Point b) {
           const long double x=static_cast<long double>(b.x)-a.x,y=static_cast<long double>(b.y)-a.y;
           const auto t=std::clamp(((static_cast<long double>(p.x)-a.x)*x+(static_cast<long double>(p.y)-a.y)*y)/(x*x+y*y),0.L,1.L);
           const long double qx=a.x+t*x,qy=a.y+t*y;
-          near=near || Norm({static_cast<long double>(p.x)-qx,static_cast<long double>(p.y)-qy,
-                             static_cast<long double>(p.z)-BumpHeight(g,qx,qy)})<=g.tolerance;
+          return Norm({static_cast<long double>(p.x)-qx,static_cast<long double>(p.y)-qy,
+                       static_cast<long double>(p.z)-BumpHeight(g,qx,qy)})<=g.tolerance;
+        };
+        const auto border=chart.boundaries.find(id);
+        if(border==chart.boundaries.end()) {
+          for(size_t i=0;i<3;++i)near=near || edge_near(v[i].p,v[(i+1)%3].p);
+        } else {
+          for(auto edge:border->second)near=near || edge_near(chart.nodes.at(edge[0]).p,chart.nodes.at(edge[1]).p);
         }
-        if (!near) return false;
+        if(!near)return false;
       }
     }
     return true;
@@ -620,10 +641,9 @@ bool InsertEdgeCavity(const Patch& old, Edge edge, Node point, Id first, const P
       if (!Cone(old.cells, point, first, proposal.cells, reason, stats)) throw std::invalid_argument(reason);
       for (const auto& row : physical) proposal.surface.push_back(row.second);
     } else {
-      if (reference.Analytic().count(facet))
-        throw std::invalid_argument("Native3D curved fan reconstruction needs complete chart-union admission.");
+      if (reference.Analytic().count(facet)) point.p=reference.Project(facet,point.p,stats);
       if (wall.size() != 2 || !reference.Contains(facet, point.p, stats))
-        throw std::invalid_argument("Native 3D surface insertion needs two coplanar same-facet triangles.");
+        throw std::invalid_argument("Native 3D surface insertion needs two same-chart triangles.");
       for (auto face : wall) {
         physical.erase(Key(face));
         skin.erase(Key(face));
@@ -632,12 +652,12 @@ bool InsertEdgeCavity(const Patch& old, Edge edge, Node point, Id first, const P
           if ((a == edge[0] && b == edge[1]) || (a == edge[1] && b == edge[0])) continue;
           auto child = Oriented(Face{a, b, point.id});
           if (!reference.ContainsFace(facet, {nodes.at(a).p, nodes.at(b).p, point.p}, stats))
-            throw std::invalid_argument("Native 3D surface insertion leaves or reverses its planar fan.");
+            throw std::invalid_argument("Native 3D surface insertion leaves or reverses its finite chart fan.");
           skin.emplace(Key(child), child);
           physical.emplace(Key(child), SurfaceFace{child, facet});
         }
       }
-      // Positive planar fan children retain the old oriented outer border; exact coplanarity closes volume.
+      // Oriented chart children retain the old parameter-space border; tetrahedra must see the retained interface.
       for (const auto& row : before) {
         if (std::find(wall.begin(), wall.end(), row.second) != wall.end()) continue;
         const auto f = row.second;
@@ -809,8 +829,10 @@ bool CollapseVertex(const Patch& old, Id point, Id neighbor, Id first, const Pla
         auto face = entry.second;
         for (auto& id : face)
           if (id == point) id = neighbor;
-        // All intermediate face areas are affine in the moved point; positive endpoint orientation prevents folding.
-        for (size_t axis = 0; axis < 3; ++axis) {
+        if (reference.Analytic().count(facet)) {
+          if (!reference.ContainsFace(facet,{nodes.at(face[0]).p,nodes.at(face[1]).p,nodes.at(face[2]).p},stats))
+            throw std::invalid_argument("Native3D collapse folds or leaves its finite curved chart.");
+        } else for (size_t axis = 0; axis < 3; ++axis) {
           const auto old_area = Projected(nodes.at(entry.second[0]).p, nodes.at(entry.second[1]).p,
                                           nodes.at(entry.second[2]).p, axis, stats);
           if (old_area == 0) continue;
@@ -844,6 +866,13 @@ bool MoveVertex(const Patch& old, Id vertex, Node point, Id first, const PlanarR
     const auto original = nodes.at(vertex);
     if (nodes.count(point.id) || (original.p.x == point.p.x && original.p.y == point.p.y && original.p.z == point.p.z))
       throw std::invalid_argument("Native 3D movement needs a new identity and a distinct position.");
+    bool projected=false;
+    for(const auto& face:physical)
+      if(Has(face.second.v,vertex) && reference.Analytic().count(face.second.facet) && !projected) {
+        point.p=reference.Project(face.second.facet,point.p,stats);projected=true;
+      }
+    if (original.p.x==point.p.x && original.p.y==point.p.y && original.p.z==point.p.z)
+      throw std::invalid_argument("Native3D movement projects back to its original position.");
     for (const auto& face : before)
       if (Has(face.second, vertex)) {
         const auto marked = physical.find(face.first);
@@ -878,7 +907,12 @@ bool MoveVertex(const Patch& old, Id vertex, Node point, Id first, const PlanarR
       if (moving)
         for (auto& id : face)
           if (id == vertex) id = point.id;
-      if (moving)
+      const auto marked = physical.find(entry.first);
+      if (moving && marked!=physical.end() && reference.Analytic().count(marked->second.facet)) {
+        if (!reference.ContainsFace(marked->second.facet,
+              {moved_nodes.at(face[0]).p,moved_nodes.at(face[1]).p,moved_nodes.at(face[2]).p},stats))
+          throw std::invalid_argument("Native3D movement folds or leaves its finite curved chart.");
+      } else if (moving)
         for (size_t axis = 0; axis < 3; ++axis) {
           const auto old_area = Projected(nodes.at(entry.second[0]).p, nodes.at(entry.second[1]).p,
                                           nodes.at(entry.second[2]).p, axis, stats);
@@ -892,10 +926,9 @@ bool MoveVertex(const Patch& old, Id vertex, Node point, Id first, const PlanarR
         }
       face = Oriented(face);
       if (!skin.emplace(Key(face), face).second) throw std::invalid_argument("Native 3D movement repeats a skin face.");
-      const auto marked = physical.find(entry.first);
       if (marked != physical.end()) surface.emplace(Key(face), SurfaceFace{face, marked->second.facet});
     }
-    // Positive affine determinants/face areas along the facet-contained displacement preserve the old domain.
+    // Check both prescribed interface and complete chart-oriented physical skin before publishing the private proposal.
     Finish(old, proposal, skin, surface, reference, stats);
     fresh.cells.swap(proposal.cells);
     fresh.surface.swap(proposal.surface);

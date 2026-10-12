@@ -698,3 +698,107 @@ TEST_CASE("Analytic finite chart tolerance cannot escape an acute corner along i
   CHECK_FALSE(radial.Contains(0,unit({1,-1e-6,-1e-6})));
   CHECK(radial.Contains(0,unit({1,-1e-13,-1e-13})));
 }
+
+namespace {
+PlanarReference BumpChart(const Patch& seed) {
+  auto facets=Facets(seed);std::map<Id,AnalyticSurface> curves;
+  AnalyticSurface g;g.kind=AnalyticSurface::Kind::Bump;g.extent={1,1,1};
+  for(auto& f:facets) {
+    const bool roof=std::none_of(f.v.begin(),f.v.end(),[](Node n){return n.id==3;});
+    if(roof){f.marker=7;curves.emplace(f.id,g);}
+  }
+  return PlanarReference(facets,SIZE_MAX,curves);
+}
+void CheckCurvedPatch(const Patch& patch,const PlanarReference& reference) {
+  for(auto c:patch.cells) {
+    const Tetrahedron t{c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p};
+    const auto m=Measure(t,{});
+    CHECK(m.mean_ratio>=MinimumMeanRatio);CHECK(m.minimum_scaled_jacobian>=MinimumScaledJacobian);
+  }
+  for(auto f:patch.surface)
+    CHECK(reference.ContainsFace(f.facet,{Position(patch,f.v[0]),Position(patch,f.v[1]),Position(patch,f.v[2])}));
+}
+}
+TEST_CASE("Bump reconstruction movement and collapse cross harmless original triangle seams as one finite chart",
+          "[NativeCurvedChart3D]") {
+  const auto old=CurvedVolumeSeed(false);const auto reference=BumpChart(old);
+  std::vector<Id> roof;
+  for(auto f:old.surface)if(reference.Analytic().count(f.facet))roof.push_back(f.facet);
+  REQUIRE(roof.size()==2);REQUIRE(reference.Canonical(roof[0])==reference.Canonical(roof[1]));
+  const auto root=reference.Canonical(roof[0]);
+  const auto p=reference.Project(root,{.8,.7,0});CHECK(p.z==Approx(.0336).epsilon(1e-14));
+  CHECK(reference.Contains(roof[0],p));CHECK(reference.Contains(roof[1],p));
+  Patch inserted,moved,collapsed;std::string reason;
+  auto valid=InsertEdgeCavity(old,{1,2},{4,{.6,.3,0}},100,reference,inserted,reason);INFO(reason);REQUIRE(valid);
+  CHECK(inserted.cells.size()==4);CHECK(Position(inserted,4).z==Approx(.0504).epsilon(1e-14));
+  CheckCurvedPatch(inserted,reference);
+  valid=MoveVertex(inserted,4,{7,{.8,.7,0}},200,reference,moved,reason);INFO(reason);REQUIRE(valid);
+  CHECK(Position(moved,7).z==Approx(.0336).epsilon(1e-14));CHECK(moved.cells.size()==4);
+  CheckCurvedPatch(moved,reference);
+  valid=CollapseVertex(moved,7,0,300,reference,collapsed,reason);INFO(reason);REQUIRE(valid);
+  CHECK(collapsed.cells.size()==2);CHECK(Volume(collapsed)==Volume(old));
+  CHECK(Connectivity(collapsed)!=Connectivity(old)); // A different coarse diagonal is permitted across the original seam.
+  CheckCurvedPatch(collapsed,reference);
+  for(auto cell:old.cells)for(auto node:cell.v) {
+    const auto kept=Position(moved,node.id);CHECK(kept.x==node.p.x);CHECK(kept.y==node.p.y);CHECK(kept.z==node.p.z);
+  }
+  SaveCurved(old,reference,"joint_bump_original");SaveCurved(inserted,reference,"joint_bump_inserted");
+  SaveCurved(moved,reference,"joint_bump_moved");SaveCurved(collapsed,reference,"joint_bump_collapsed");
+  for(int i=0;i<3;++i) {
+    const Edge diagonal=i%2 ? Edge{1,2} : Edge{0,5};
+    const auto next=EdgeStar(collapsed,diagonal);
+    valid=InsertEdgeCavity(next,diagonal,{8,{.35,.55,0}},400+30*i,reference,inserted,reason);INFO(reason);REQUIRE(valid);
+    valid=CollapseVertex(inserted,8,i%2 ? 0 : 1,410+30*i,reference,collapsed,reason);INFO(reason);REQUIRE(valid);
+    CHECK(collapsed.cells.size()==2);CheckCurvedPatch(collapsed,reference);
+  }
+}
+TEST_CASE("Curved joint proposals reject missing interfaces invalid projections and marker junction crossing atomically",
+          "[NativeCurvedChart3D]") {
+  const auto old=CurvedVolumeSeed(false);const auto reference=BumpChart(old);
+  Patch retained=old;std::string reason;
+  CHECK_FALSE(InsertEdgeCavity(old,{1,2},{4,{1.5,.3,0}},100,reference,retained,reason));
+  CHECK(Connectivity(retained)==Connectivity(old));CHECK(Volume(retained)==Volume(old));
+  auto incomplete=old;incomplete.surface.clear();
+  CHECK_FALSE(InsertEdgeCavity(incomplete,{1,2},{4,{.6,.3,0}},100,reference,retained,reason));
+  CHECK(Connectivity(retained)==Connectivity(old));
+  Patch inserted;REQUIRE(InsertEdgeCavity(old,{1,2},{4,{.6,.3,0}},100,reference,inserted,reason));
+  const auto saved=Connectivity(retained);
+  CHECK_FALSE(MoveVertex(inserted,4,{7,{.6,.3,1}},200,reference,retained,reason));
+  CHECK(reason.find("projects back")!=std::string::npos);CHECK(Connectivity(retained)==saved);
+  CHECK_FALSE(MoveVertex(inserted,4,{7,{INFINITY,.3,0}},200,reference,retained,reason));CHECK(Connectivity(retained)==saved);
+  CHECK_FALSE(CollapseVertex(inserted,4,3,200,reference,retained,reason));CHECK(Connectivity(retained)==saved);
+  auto f=Facets(old);std::map<Id,AnalyticSurface> curves;
+  AnalyticSurface g;g.kind=AnalyticSurface::Kind::Bump;g.extent={1,1,1};
+  std::vector<Id> roof;
+  for(auto& face:f)if(std::none_of(face.v.begin(),face.v.end(),[](Node n){return n.id==3;})){roof.push_back(face.id);face.marker=7;curves.emplace(face.id,g);}
+  f.at(roof[1]).marker=8;
+  const PlanarReference junction(f,SIZE_MAX,curves);
+  CHECK(junction.Canonical(roof[0])!=junction.Canonical(roof[1]));
+  CHECK_FALSE(InsertEdgeCavity(old,{1,2},{4,{.6,.3,0}},100,junction,retained,reason));CHECK(Connectivity(retained)==saved);
+  f.at(roof[1]).marker=7;curves.at(roof[1]).extent.z=2;
+  const PlanarReference different(f,SIZE_MAX,curves);
+  CHECK(different.Canonical(roof[0])!=different.Canonical(roof[1]));
+}
+TEST_CASE("Bump chart unions retain distinct disconnected components and original source authority",
+          "[NativeCurvedChart3D]") {
+  const auto old=CurvedVolumeSeed(false);auto f=Facets(old);
+  f.erase(std::remove_if(f.begin(),f.end(),[](const Facet& face){return std::any_of(face.v.begin(),face.v.end(),[](Node n){return n.id==3;});}),f.end());
+  REQUIRE(f.size()==2);
+  AnalyticSurface g;g.kind=AnalyticSurface::Kind::Bump;g.extent={4,4,1};
+  auto height=[](Point p){const double u=p.x/4,v=p.y/4;p.z=u*(1-u)*v*(1-v);return p;};
+  for(auto& face:f){face.marker=7;for(auto& n:face.v)n.p=height(n.p);}
+  const auto first=f;
+  for(auto face:first){face.id+=100;for(auto& n:face.v){n.id+=100;n.p.x+=2;n.p=height(n.p);}f.push_back(face);}
+  std::map<Id,AnalyticSurface> curves;for(auto face:f)curves.emplace(face.id,g);
+  const PlanarReference reference(f,SIZE_MAX,curves);
+  CHECK(reference.Canonical(f[0].id)==reference.Canonical(f[1].id));
+  CHECK(reference.Canonical(f[2].id)==reference.Canonical(f[3].id));
+  CHECK(reference.Canonical(f[0].id)!=reference.Canonical(f[2].id));
+  CHECK_FALSE(reference.Contains(f[0].id,height({1.5,.5,0})));
+  CHECK_FALSE(reference.Contains(f[2].id,height({1.5,.5,0})));
+  CHECK_FALSE(reference.Contains(f[0].id,height({2.5,.5,0})));
+  CHECK(reference.Contains(f[2].id,height({2.5,.5,0})));
+  CHECK(reference.Get(f[1].id).v[0].p.x==f[1].v[0].p.x);
+  CHECK_THROWS(PlanarReference(f,PlanarReference::ConstructionBytes(f.size()),curves));
+  CHECK(reference.ResidentBytes()>PlanarReference(f).ResidentBytes());
+}

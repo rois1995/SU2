@@ -1,3 +1,31 @@
+# Goal2 joint curved geometry checkpoint — 2026-10-12
+
+Working folder /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
+codex/native-3d-curved-local. GoalACTIVE, all4integrated gates still pending.
+Compatible supplied bump facets now share certified connected-convex XY charts;
+markers, primitive definitions and disconnected components remain distinct.
+Off-edge surface-cavity insertion, projected movement across original seams and
+changed-diagonal collapse are implemented with positive inherited cell orientation,
+whole-face chart checks and atomic rollback. Geometry metadata/v2 persistence
+reconstructs the canonical union. Original raw authority/default planar behavior
+and sensor/BL/fade/noise/MMG/transfer policies are preserved. Runtime curved
+adaptation still refuses pending coverage/final geometry checks.
+
+joint_bump_geometry_v1/validation.json PASS:90cases/rank MPI1/2/4 with full68-object
+driver; independent private_shape_validation.json also PASS. Actual saved inserted,
+moved and coarsened grids in joint_bump_geometry_v1/mpi1, mpi2 andmpi4. This is
+private operator and collective reference proof, not curved distributed adaptation,
+solution transport or actual solved3DEuler proof. Incidental planar regression
+payloads are hash-verified in an archive; current private grids remain inspectable.
+Controller31846 terminalPASS; no owned heavy job live. ForeignClusterResults,
+AdapNoExt and dependencies untouched. See JOINT_BUMP_GEOMETRY_CHECKPOINT.md.
+
+Next: integrate geometric completion/clearance and bounded frozen source coverage
+with consistent exterior edge integrals; then actual curved MPI/state/output/restart
+and small realEuler cycles. Cylinder, mixed curved/planar expansion and nonconvex
+chart unions remain gaps. Do not close Goal2 from these operator prototypes.
+Earlier notices below are historical; no cluster/performance qualification.
+
 # Goal2 analytic geometry checkpoint — 2026-10-12
 
 Working folder /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch

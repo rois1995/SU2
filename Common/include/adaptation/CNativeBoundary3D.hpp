@@ -71,6 +71,7 @@ class PlanarReference {
   const std::map<Id, AnalyticSurface> analytic;
   std::map<Id, Id> canonical;
   std::map<Id, std::vector<Edge>> boundaries;
+  std::map<Id, std::shared_ptr<const PlanarReference>> bump_charts;
   std::map<Id, Node> nodes;
   std::map<int, std::vector<Id>> marker_facets;
   std::vector<Id> indexed;
@@ -84,8 +85,8 @@ class PlanarReference {
 bool SplitEdge(const Patch& old, Edge edge, Node point, Id first_cell, const PlanarReference& reference, Patch& fresh,
                std::string& reason, KernelStats* stats = nullptr);
 /*! Inserts a representable point by coning a complete edge-star cavity, without exact on-edge placement.
- * Interior skin is unchanged. A planar surface seam can be rebuilt only when its two physical triangles
- * share one canonical facet; marker junctions and unadmitted interface faces reject. The point must see
+ * Interior interface skin is unchanged. A surface seam can be rebuilt only when its two physical triangles
+ * share one canonical finite chart; analytic surface points are projected before reconstruction; marker junctions and unadmitted interface faces reject. The point must see
  * every retained oriented skin face and lie in the original surface fan. Metric gates are separate.
  * Fresh output is unchanged on rejection; callers reserve identities and admit complete dependencies. */
 bool InsertEdgeCavity(const Patch& old, Edge edge, Node point, Id first_cell, const PlanarReference& reference,
@@ -102,8 +103,9 @@ bool UndoEdgeSplit(const Patch& old, Id point, Edge endpoints, Id first_cell, co
 bool CollapseVertex(const Patch& old, Id point, Id neighbor, Id first_cell, const PlanarReference& reference,
                     Patch& fresh, std::string& reason, KernelStats* stats = nullptr);
 /*! Moves one complete vertex star, replacing its vertex by a caller-reserved distinct identity.
- * Vertex/cell counts are unchanged. Exact facet-contained motion and positive endpoint determinants/faces
- * preserve the embedded domain; interface-star omissions, corner drift and inversion reject atomically.
+ * Vertex/cell counts are unchanged. Analytic boundary proposals are projected to their incident chart;
+ * positive endpoint determinants and chart-oriented faces are required; global clearance remains a caller duty;
+ * exact planar motion preserves its domain; interface-star omissions, corner drift and inversion reject atomically.
  * New identity permits surface-coordinate changes without weakening fixed-interface coordinate checks. */
 bool MoveVertex(const Patch& old, Id vertex, Node point, Id first_cell, const PlanarReference& reference, Patch& fresh,
                 std::string& reason, KernelStats* stats = nullptr);

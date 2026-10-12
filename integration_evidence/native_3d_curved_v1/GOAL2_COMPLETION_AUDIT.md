@@ -10,3 +10,11 @@ See ANALYTIC_GEOMETRY_CHECKPOINT.md for implemented behavior, retained failures,
 source-provenance pins and actual inspectable private grids. Curved runtime is
 still explicitly refused; no integrated gate is complete. All4requirements and
 actual curvedMPI/CFD/restart scope remain intact.
+
+
+Joint bump checkpoint: compatible convex parameter charts now support off-edge
+insertion, movement across original seams and changed-diagonal collapse.90cases
+per rank MPI1/2/4 and independent exact no-overlap/closure and identity shape proofs
+pass. Collective reference persistence preserves chart identities. These remain
+private operator/reference proofs; no full integrated requirement is complete.
+See JOINT_BUMP_GEOMETRY_CHECKPOINT.md. Full four-gate scope remains unchanged.

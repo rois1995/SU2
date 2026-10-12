@@ -77,3 +77,11 @@ Mixed curved/planar patch expansion, cylinder, chart-union reconnection, final
 geometry/error/clearance logic and source coverage remain pending. Runtime rejects
 analytic references until those contracts connect. This is partial progress toward
 steps1–2, not completion of any of the four integrated requirements.
+
+## Joint bump chart checkpoint
+
+JOINT_BUMP_GEOMETRY_CHECKPOINT.md and joint_bump_geometry_v1 receipts describe
+compatible connected-convex XY chart unions, off-edge projected cavity insertion,
+projected movement and changed-diagonal collapse. Collective sidecar reload keeps
+canonical chart identities. This advances the coupled geometry implementation but
+all full integration gates remain pending. Runtime refusal is unchanged.

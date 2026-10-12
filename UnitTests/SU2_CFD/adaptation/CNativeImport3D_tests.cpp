@@ -820,3 +820,30 @@ TEST_CASE("Analytic native3D reference persists explicit geometry and refuses un
   CHECK_FALSE(result.valid);CHECK(result.reason.find("integrated donor coverage")!=std::string::npos);
   CHECK(result.cells.empty());CHECK(result.stats.accepted==0);
 }
+
+TEST_CASE("Persisted analytic bump authority reconstructs canonical finite chart unions after reload",
+          "[NativeCurvedChart3D]") {
+  World world;ReferenceState state;state.marker_names={"bump","other"};
+  const std::array<Node,5> nodes{{{0,{0,0,0}},{1,{1,0,0}},{2,{0,1,0}},{3,{.5,.5,-1}},{4,{1,1,0}}}};
+  std::vector<Cell> cells;
+  for(auto v:{std::array<Node,4>{nodes[0],nodes[1],nodes[2],nodes[3]},std::array<Node,4>{nodes[1],nodes[4],nodes[2],nodes[3]}}){
+    if(Orientation(v[0].p,v[1].p,v[2].p,v[3].p)<0)std::swap(v[0],v[1]);cells.push_back({Id(cells.size()),v});}
+  std::map<Id,AnalyticSurface> curves;AnalyticSurface g;g.kind=AnalyticSurface::Kind::Bump;g.extent={1,1,1};
+  for(auto face:Incidence(cells).Boundary()) {
+    const bool bump=std::find(face.begin(),face.end(),3)==face.end();const Id id=state.facets.size();
+    state.facets.push_back({id,bump?0:1,{nodes[face[0]],nodes[face[1]],nodes[face[2]]}});if(bump)curves.emplace(id,g);
+  }
+  state.original=std::make_shared<PlanarReference>(state.facets,SIZE_MAX,curves);
+  const auto text=EncodeReference(state);
+  const auto root=state.original->Canonical(curves.begin()->first);
+  const auto decoded=DecodeReference(text);CHECK(EncodeReference(decoded)==text);
+  REQUIRE(curves.size()==2);
+  for(const auto& curve:curves)CHECK(decoded.original->Canonical(curve.first)==root);
+  WriteReference("bump_chart.native_ref",state);ReferenceState loaded;REQUIRE(LoadReference("bump_chart.native_ref",loaded));
+  CHECK(EncodeReference(loaded)==text);
+  const auto p=loaded.original->Project(curves.begin()->first,{.8,.7,0});CHECK(p.z==Approx(.0336).epsilon(1e-14));
+  Id rebound=999;
+  for(auto face:std::vector<std::array<Id,3>>{{0,1,4},{0,4,2}})
+    CHECK(loaded.original->FindFace(0,{nodes[face[0]].p,nodes[face[1]].p,nodes[face[2]].p},rebound));
+  CHECK(rebound==root);CHECK_THROWS(DecodeReference(text,8*text.size()));
+}

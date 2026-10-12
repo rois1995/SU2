@@ -94,5 +94,42 @@
     "cylinder_supported": false,
     "mixed_curved_planar_expansion_supported": false,
     "full_goal_gates_completed": 0
+  },
+  "joint_bump_checkpoint": {
+    "status": "PASS_LOCAL_PRIVATE_OPERATORS_AND_COLLECTIVE_REFERENCE_ONLY",
+    "report": "JOINT_BUMP_GEOMETRY_CHECKPOINT.md",
+    "receipt": "joint_bump_geometry_v1/validation.json",
+    "receipt_sha256": "10c2e6e76a1cb4770eee98ae7ef2e1a94c0481bb8010d18da40ab9ce6c1a0669",
+    "shape_audit": "joint_bump_geometry_v1/private_shape_validation.json",
+    "shape_audit_sha256": "f93010352626816eaba07d9f120648b6b2e3a29f87dc96adafd12b719a1ca390",
+    "counts": [
+      {
+        "ranks": 1,
+        "cases_per_rank": 90,
+        "assertions": [
+          39792
+        ]
+      },
+      {
+        "ranks": 2,
+        "cases_per_rank": 90,
+        "assertions": [
+          40602,
+          40998
+        ]
+      },
+      {
+        "ranks": 4,
+        "cases_per_rank": 90,
+        "assertions": [
+          42300,
+          42852,
+          42558,
+          42268
+        ]
+      }
+    ],
+    "curved_runtime_supported": false,
+    "full_goal_gates_completed": 0
   }
 }
