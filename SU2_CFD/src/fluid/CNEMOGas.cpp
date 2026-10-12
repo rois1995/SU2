@@ -229,9 +229,9 @@ void CNEMOGas::ComputedPdU(const su2double *V, const vector<su2double>& val_eves
   /*--- Total energy derivative ---*/
   val_dPdU[nSpecies+nDim]   = conc*Ru / rhoCvtr;
 
-  /*--- Vib.-el energy derivative ---*/
-  val_dPdU[nSpecies+nDim+1] = -val_dPdU[nSpecies+nDim] +
-                               rho_el*Ru/MolarMass[0]*1.0/rhoCvve;
+  /*--- Vib.-el energy derivative, the electron pressure term exists only with ionization ---*/
+  val_dPdU[nSpecies+nDim+1] = -val_dPdU[nSpecies+nDim];
+  if (ionization) val_dPdU[nSpecies+nDim+1] += rho_el*Ru/MolarMass[0]*1.0/rhoCvve;
 
 }
 
@@ -276,6 +276,13 @@ void CNEMOGas::ComputedTvedU(const su2double *V, const vector<su2double>& val_ev
 
   /*--- Rename for convenience ---*/
   su2double rhoCvve = V[RHOCVVE_INDEX];
+
+  /*--- A gas without vib.-el. heat capacity (a cold monoatomic gas) cannot store vib.-el.
+   energy, its vib.-el. temperature does not depend on the conservative variables. ---*/
+  if (rhoCvve <= 0.0) {
+    for (auto iVar = 0u; iVar < nSpecies+nDim+2; iVar++) val_dTvedU[iVar] = 0.0;
+    return;
+  }
 
   /*--- Species density derivatives ---*/
   for (iSpecies = 0; iSpecies < nSpecies; iSpecies++) {
