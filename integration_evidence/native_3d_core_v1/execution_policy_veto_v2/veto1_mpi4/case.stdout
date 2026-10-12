@@ -1,0 +1,208 @@
+Filters: [NativePolicyVeto3D]
+Filters: [NativePolicyVeto3D]
+Filters: [NativePolicyVeto3D]
+Filters: [NativePolicyVeto3D]
+WARNING: Setting WINDOW_START_ITER = RESTART_ITER for meaningful running average.
+
+Parsing config file for zone 0
+WARNING: Setting WINDOW_START_ITER = RESTART_ITER for meaningful running average.
+
+----------------- Physical Case Definition ( Zone 0 ) -------------------
+Compressible Euler equations.
+Mach number: 0.5.
+Angle of attack (AoA): 0 deg, and angle of sideslip (AoS): 0 deg.
+No restart solution, use the values at infinity (freestream).
+Dimensional simulation.
+The reference area is 1 m^2.
+The semi-span will be computed using the max y(3D) value.
+The reference length is 1 m.
+Input mesh file name: veto_input.su2
+
+--------------- Space Numerical Integration ( Zone 0 ) ------------------
+Roe (with entropy fix = 0.001) solver for the flow inviscid terms.
+Standard Roe without low-dissipation function.
+First order integration in space.
+Gradient for upwind reconstruction: inverse-distance weighted Least-Squares.
+Gradient for viscous and source terms: inverse-distance weighted Least-Squares.
+
+--------------- Time Numerical Integration  ( Zone 0 ) ------------------
+Unsteady simulation, dual time stepping strategy (second order in time).
+Unsteady time step provided by the user (s): 0.01.
+Euler implicit method for the flow equations.
+FGMRES is used for solving the linear system.
+Using ILU(0) preconditioning.
+Convergence criteria of the linear solver: 1e-06.
+Max number of linear iterations: 10.
+No CFL adaptation.
+Courant-Friedrichs-Lewy number:     1.25
+
+------------------ Convergence Criteria  ( Zone 0 ) ---------------------
+Maximum number of solver subiterations: 1.
+Maximum number of physical time-steps: 1.
+Begin convergence monitoring at iteration 5.
+Residual minimum value: 1e-14.
+Cauchy series min. value: 1e-10.
+Number of Cauchy elements: 100.
+Begin windowed time average at iteration 0.
+
+-------------------- Output Information ( Zone 0 ) ----------------------
+File writing frequency: 
++------------------------------------+
+|                     File| Frequency|
++------------------------------------+
+|                  RESTART|         1|
+|                 PARAVIEW|         1|
+|         SURFACE_PARAVIEW|         1|
++------------------------------------+
+Writing the convergence history file every 0 inner iterations.
+Writing the convergence history file every 1 time iterations.
+Writing the screen convergence history every 1 inner iterations.
+Writing the screen convergence history every 1 time iterations.
+The tabular file format is CSV (.csv).
+Convergence history file name: history.
+Forces breakdown file name: forces_breakdown.dat.
+Surface file name: surface.
+Volume file name: vol_solution.
+Restart file name: restart.
+
+------------- Config File Boundary Information ( Zone 0 ) ---------------
++-----------------------------------------------------------------------+
+|                        Marker Type|                        Marker Name|
++-----------------------------------------------------------------------+
+|                          Far-field|                            x_minus|
+|                                   |                             x_plus|
+|                                   |                            y_minus|
+|                                   |                             y_plus|
+|                                   |                          z_minus_a|
+|                                   |                          z_minus_b|
+|                                   |                             z_plus|
++-----------------------------------------------------------------------+
+
+-------------------- Output Preprocessing ( Zone 0 ) --------------------
+
+WARNING: SURFACE_PRESSURE_DROP can only be computed for at least 2 surfaces (outlet, inlet, ...)
+
+Screen output fields: TIME_ITER, INNER_ITER, RMS_DENSITY, RMS_MOMENTUM-X, RMS_MOMENTUM-Y, RMS_ENERGY
+History output group(s): ITER, CUR_TIME, RMS_RES
+Convergence field(s): RMS_DENSITY
+Warning: No (valid) fields chosen for time convergence monitoring. Time convergence monitoring inactive.
+Volume output fields: COORDINATES, SOLUTION, PRIMITIVE
+
+------------------- Geometry Preprocessing ( Zone 0 ) -------------------
+Three dimensional problem.
+8 grid points before partitioning.
+6 volume elements before partitioning.
+7 surface markers.
+2 boundary elements in index 0 (Marker = x_minus).
+2 boundary elements in index 1 (Marker = x_plus).
+2 boundary elements in index 2 (Marker = y_minus).
+2 boundary elements in index 3 (Marker = y_plus).
+1 boundary elements in index 4 (Marker = z_minus_a).
+1 boundary elements in index 5 (Marker = z_minus_b).
+2 boundary elements in index 6 (Marker = z_plus).
+Executing the partitioning functions.
+Building the graph adjacency structure.
+Calling ParMETIS... graph partitioning complete (15 edge cuts).
+Distributing ParMETIS coloring.
+Rebalancing vertices.
+Rebalancing volume element connectivity.
+Rebalancing markers and surface elements.
+28 vertices including ghost points. 
+18 interior elements including halo cells. 
+18 tetrahedra.
+Establishing MPI communication patterns.
+Setting point connectivity.
+Renumbering points (Reverse Cuthill McKee Ordering).
+Recomputing point connectivity.
+Setting element connectivity.
+Checking the numerical grid orientation.
+There has been a re-orientation of 9 TETRAHEDRON volume elements.
+There has been a re-orientation of 14 TRIANGLE surface elements.
+Identifying edges and vertices.
+Setting the control volume structure.
+Volume of the computational grid: 3.
+Searching for the closest normal neighbors to the surfaces.
+Storing a mapping from global to local point index.
+Compute the surface curvature.
+Max K: 10.1604. Mean K: 9.22702. Standard deviation K: 1.53777.
+Computing mesh quality statistics for the dual control volumes.
++--------------------------------------------------------------+
+|           Mesh Quality Metric|        Minimum|        Maximum|
++--------------------------------------------------------------+
+|    Orthogonality Angle (deg.)|         60.051|        69.5561|
+|     CV Face Area Aspect Ratio|        1.73205|        3.26599|
+|           CV Sub-Volume Ratio|              1|              1|
+|                     CV Volume|      0.0833333|           0.25|
++--------------------------------------------------------------+
+Finding max control volume width.
+Communicating number of neighbors.
+Semi-span length = -1e+10 m.
+Wetted area = 0 m^2.
+Area projection in the x-plane = 0 m^2, y-plane = 0 m^2, z-plane = 0 m^2.
+Max. coordinate in the x-direction = -1e+10 m, y-direction = -1e+10 m, z-direction = -1e+10 m.
+Min. coordinate in the x-direction = 1e+10 m, y-direction = 1e+10 m, z-direction = 1e+10 m.
+Computing wall distances.
+
+-------------------- Solver Preprocessing ( Zone 0 ) --------------------
+Inviscid flow: Computing density based on free-stream
+temperature and pressure using the ideal gas law.
+Force coefficients computed using free-stream values.
+
+-- Models:
++------------------------------------------------------------------------------+
+|          Viscosity Model|        Conductivity Model|              Fluid Model|
++------------------------------------------------------------------------------+
+|                        -|                         -|             STANDARD_AIR|
++------------------------------------------------------------------------------+
+-- Fluid properties:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|          Gas Constant|       287.058|             1|  N.m/kg.K|       287.058|
+|      Spec. Heat Ratio|             -|             -|         -|           1.4|
++------------------------------------------------------------------------------+
+-- Initial and free-stream conditions:
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|       Static Pressure|        101325|             1|        Pa|        101325|
+|               Density|       1.22498|             1|    kg/m^3|       1.22498|
+|           Temperature|        288.15|             1|         K|        288.15|
+|          Total Energy|        221265|             1|   m^2/s^2|        221265|
+|            Velocity-X|       170.149|             1|       m/s|       170.149|
+|            Velocity-Y|             0|             1|       m/s|             0|
+|            Velocity-Z|             0|             1|       m/s|             0|
+|    Velocity Magnitude|       170.149|             1|       m/s|       170.149|
++------------------------------------------------------------------------------+
+|           Mach Number|             -|             -|         -|           0.5|
++------------------------------------------------------------------------------+
+-- Unsteady conditions
++------------------------------------------------------------------------------+
+|                  Name|    Dim. value|    Ref. value|      Unit|Non-dim. value|
++------------------------------------------------------------------------------+
+|            Total Time|          0.02|             1|         s|          0.02|
+|             Time Step|          0.01|             1|         s|          0.01|
++------------------------------------------------------------------------------+
+Initialize Jacobian structure (Euler). MG level: 0.
+
+------------------- Numerics Preprocessing ( Zone 0 ) -------------------
+
+----------------- Integration Preprocessing ( Zone 0 ) ------------------
+
+------------------- Iteration Preprocessing ( Zone 0 ) ------------------
+Euler/Navier-Stokes/RANS fluid iteration.
+NATIVE3D rank=0 ranks=4 workers=2 complete=1 detailed=0 total=0.40336575900000005 other=0.036845633000000211 cpu=0.122308 idle_cpu=0 support=0.0014771100000000037 reference=0.00032172099999999704 import=0.0033614080000000102 source=0.0018275570000000352 weights=0.00059691500000000342 partition=0.15073016899999997 donor_migration=0.00020148700000000019 communicator=0.10355600700000001 refine=0.087018933999999937 coarsen=0.012853875999999986 wait=0.0011627429999998551 return=0.0034121990000000046 initial=6 final=48 refine_accepted=10 coarsen_accepted=0 tracked_bytes=160816 tracked_calls=1102 nested_tracked_collectives=0.011579389999999357 tracked_import_bytes=240 tracked_import_calls=9 nested_tracked_import=0.00023710599999998694 tracked_parent_bytes=3280 tracked_parent_calls=53 nested_tracked_parent=0.0019616260000001606 tracked_worker_bytes=157296 tracked_worker_calls=1040 nested_tracked_worker=0.009380657999999209 native_bound=2635160 process_peak_rss=31641600
+NATIVE3D rank=1 ranks=4 workers=2 complete=1 detailed=0 total=0.40324352299999999 other=0.024237876999999797 cpu=0.126337 idle_cpu=0 support=6.0906999999998934e-05 reference=0.0016794720000000152 import=0.0046785639999999962 source=0.00051946100000005435 weights=0.0010430129999999815 partition=0.15031345799999998 donor_migration=0.00016113299999997999 communicator=0.11558124400000003 refine=0.086940954999999986 coarsen=0.012888124000000056 wait=0.0017086680000000243 return=0.0034306470000000644 initial=6 final=48 refine_accepted=9 coarsen_accepted=0 tracked_bytes=196088 tracked_calls=1102 nested_tracked_collectives=0.014128046999997479 tracked_import_bytes=7584 tracked_import_calls=9 nested_tracked_import=0.00023298599999999059 tracked_parent_bytes=34112 tracked_parent_calls=53 nested_tracked_parent=0.002279621999999315 tracked_worker_bytes=154392 tracked_worker_calls=1040 nested_tracked_worker=0.011615438999998173 native_bound=2620448 process_peak_rss=31100928
+NATIVE3D rank=2 ranks=4 workers=2 complete=1 detailed=0 total=0.40320415300000001 other=0.031772663000000145 cpu=0.076247999999999996 idle_cpu=0.00078699999999999994 support=0.0014802989999999905 reference=0.00028882000000002295 import=0.0033551460000000033 source=0.0018467959999999839 weights=0.00057599199999999739 partition=0.15075776799999996 donor_migration=0.00018317300000003645 communicator=0.10746004699999989 refine=0 coarsen=0 wait=0.10205629199999999 return=0.0034271569999999585 initial=6 final=48 refine_accepted=0 coarsen_accepted=0 tracked_bytes=448 tracked_calls=62 nested_tracked_collectives=0.0021448219999997686 tracked_import_bytes=192 tracked_import_calls=9 nested_tracked_import=0.00022318600000004185 tracked_parent_bytes=256 tracked_parent_calls=53 nested_tracked_parent=0.0019216359999997268 tracked_worker_bytes=0 tracked_worker_calls=0 nested_tracked_worker=0 native_bound=1903733 process_peak_rss=28872704
+NATIVE3D rank=3 ranks=4 workers=2 complete=1 detailed=0 total=0.40322740400000001 other=0.0013607340000001411 cpu=0.076562999999999992 idle_cpu=0.001021 support=9.6420000000041473e-06 reference=0.0016788199999999975 import=0.004686941 source=0.00051789200000007529 weights=0.0010424219999999873 partition=0.15028220599999995 donor_migration=0.00018364900000000794 communicator=0.13905989699999999 refine=0 coarsen=0 wait=0.10098175399999998 return=0.0034234469999998574 initial=6 final=48 refine_accepted=0 coarsen_accepted=0 tracked_bytes=464 tracked_calls=62 nested_tracked_collectives=0.0024355220000002176 tracked_import_bytes=240 tracked_import_calls=9 nested_tracked_import=0.00021408900000000064 tracked_parent_bytes=224 tracked_parent_calls=53 nested_tracked_parent=0.0022214330000002169 tracked_worker_bytes=0 tracked_worker_calls=0 nested_tracked_worker=0 native_bound=1903733 process_peak_rss=28250112
+
+
+Error in "void CSinglezoneDriver::ReplaceMesh(const CRemeshResult&, CSolutionTransfer&, const CMeshDonor*, CMeshDonor*)": 
+-------------------------------------------------------------------------
+Native3D elapsed deadline exhausted before replacement; accepted mesh and solution retained.
+------------------------------ Error Exit -------------------------------
+
+
+Interrupt signal (15) received, saving files and exiting.
+Interrupt signal (15) received, saving files and exiting.
+Interrupt signal (15) received, saving files and exiting.

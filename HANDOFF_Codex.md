@@ -1,3 +1,77 @@
+# Local execution-policy verification: whole audits live — 2026-10-12
+
+User removed performance and ALL cluster work from current Goal1. Follow current
+NATIVE_3D_DEVELOPMENT_GOALS.md and LOCAL_GOAL1_COMPLETION_AUDIT; older goal-system
+objective text/archived performance gates are superseded by this explicit revision.
+Working repo /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated, branch
+codex/native-3d-transport-accounting. Latest pushed scope revision5ffc6ffa2303;
+qualified batching baseline3345e2bc9d. Goal1 ACTIVE, Goal2 not started.
+
+Terminal actual controllers:33248 execution_policy_focus_v1 PASS (full310step
+configured68-object driver rebuild +2focused policy cases MPI1/2/4);
+26548 execution_policy_runtime_v1 FAIL solely because its first separate veto
+fixture omitted CONV_NUM_METHOD_FLOW. Its3selected policy/runtime cases on MPI1/2/4
+passed and are preserved. 99225 execution_policy_veto_v2 PASS: only unselected
+veto-fixture numerics setup and truth-reporting changed; selected3objects and all
+production archives/members stayed byte-identical and were verified before reusing
+successful tests. Six fresh actual-driver veto cases on MPI1/2/4 validate one-rank
+refusal before replacement and after rebuild/transfer. Observed all-rank state/
+reference/deadline predicates plus exact original/current+BDF JSON equality are
+audited, not merely expected constants. Expected collective fatal exit is required;
+wrong initialization error, Catch failure or accidental success would fail the
+collector. Original failed runtime receipt remains FAIL. No numerical rerun of
+passed budget controls for this fixture-only correction.
+
+Source fixes already made: successful MeasureMetricCells optional diagnosis sets
+None; original-source remeasurement failures classify Measurement. Metric rejection
+sample is stored only for the finally rejected cavity, avoiding stale samples from
+rescued unrelated trials. Search windows and sample_metric_present are logged.
+Added actual cfg shared Refine/Coarsen limits, tiny-clock refusal, successful deadline
+callback and CFD/current/BDF donor preservation with M<N workers. Each configuration
+uses its own MeshSolution/configuration pair so MPI marker bookkeeping is valid.
+None of the old focus TODOs about these fixes remains unimplemented.
+
+Authoritative LIVE whole-case controller session90843:
+integration_evidence/native_3d_core_v1/execution_policy_whole_v1/run.py.
+OneCPU/nice19/threads1/MPI<=4 correctness only. Poll this handle; do not restart a
+quiet process or edit its pinned CPP/config_template while live. Actual serial n8
+wedge batch1 production rounds0 completed all3driver events:615coarsening,
+790refinement and1002final coarsening rounds, each complete/zero cached-invalid/
+zero pending edges. This proves productive operation beyond512 under the finite
+shared global work policy at the CPP/driver level. Fresh full exact independent
+audit is RUNNING, not yet PASS. Next controller cases: default batch8n8N1M1 and
+turning/varying aspect2H20N4M2CGNS restart, all rounds0 and fresh full mesh/original-P1/
+current-BDF/SU2CGNS/readback audit plus VTU export. No timing matrix, performance
+analysis, cluster package preparation/submission/analysis or cost calibration.
+
+Current scope remaining: finish these independent whole cases; then one broad local
+MPI1/2/4 core/default/budget/reference/bridge/operator regression, relevant2D/MMG,
+actual metric/Hessian lifecycle correctness, and requirement-by-requirement local
+completion audit/push. Verify actual registration counts: base103+3new core cases
+=>106core; Runtime profiling-only case is outside local correctness campaign;
+separate NativePolicyVeto3D tag is excluded from ordinary regression since it must
+abort. Never assume counts without the actual listing. Existing legacy
+run_envelope.py relinks a6-object partial driver; DO NOT use it for this closure.
+All new controllers use actual configured68-object binary/archives. Optional old
+instrumentation remains; no performance claim or performance gating.
+
+Keep declared limitations: simple faceted tetrahedral domains, immutable finite
+planar facet authority, bounded stars/donors/operators; no CAD/curved/production3DBL/
+physical unsteady3D or efficiency/scalability claim. Deadline covers native entry
+through prepublication checks, with safe-point overrun; earlier metric prep and
+postpublication finalization/output are outside its hard scope. Production refuses
+collectively before replacement, not automatic CFD continuation/retry/checkpoint.
+History grows under collective byte admission; current >512case fits initial4096
+history capacity. Actual capacity-growth branch still needs a meaningful local
+control if claimed in final audit. Do not claim calibrated automatic64-input-cell
+work factor; performance was deferred, functional bounds are still required.
+
+working_source.patch/WORK_IN_PROGRESS.json preserve current unqualified full source
+while whole audits run. Commit/push only these labelled backups/docs and compact
+completed receipts while source is pinned; production CPP qualification/publication
+follows the broad local audit. Foreign ClusterResults/dirtydependencies untouched,
+AdapNoExt unchanged. Old live-session notices below are historical and superseded.
+
 ## User scope revision: local-only Goal1 — 2026-10-12
 
 The user explicitly removed performance qualification and all cluster-related work

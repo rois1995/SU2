@@ -1,0 +1,21 @@
+{
+  "status": "WHOLE_AUDITS_RUNNING",
+  "base_commit": "5ffc6ffa23039494287c2680974ebb19c5a2533b",
+  "source_patch_sha256": "d71a9873cb83fdb8943827e23687c76add8208e9380fd84fd272bccd17897914",
+  "live_controller": 90843,
+  "focused_mpi_ranks": [
+    1,
+    2,
+    4
+  ],
+  "configured_runtime_cases_passed": true,
+  "driver_veto_cases_passed": 6,
+  "serial_batch1_driver_passed": true,
+  "productive_rounds_beyond512": [
+    615,
+    790,
+    1002
+  ],
+  "independent_whole_case_audit": "RUNNING, not yet certified",
+  "scope": "Local-only implementation/correctness; no performance or cluster work. Full broad local regression and final requirement audit remain."
+}
