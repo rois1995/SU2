@@ -1,3 +1,69 @@
+# Execution-policy implementation build live — 2026-10-12
+
+Working repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated;
+branch codex/native-3d-transport-accounting, qualified batching baseline pushed
+3345e2bc9d9561045e459f89ea046a3c7583fd5d. Goal1 ACTIVE. User authorized combined
+blockage diagnosis and progress-aware bounded execution; actual working source
+is now modified, not merely a plan. New source is UNQUALIFIED until checks finish.
+
+Authoritative live controller session33248:
+integration_evidence/native_3d_core_v1/execution_policy_focus_v1/run.py.
+Changed CNativeMetric3D/CNativeEngine3D objects compiled successfully; complete
+configured68-object driver rebuild is running with310steps because CConfig and
+CRemesher headers changed. OneCPU affinity5/nice19/j1/threads1; real host memory/
+load/idle gate retained. Then focused2case NativePolicy3D MPI1/2/4 sequential.
+Do not edit pinned CPP/config_template until this controller becomes terminal;
+poll the actual handle and never restart just because output is quiet. Logs live
+at repository-root complete_driver_build.stdout/stderr until controller moves them
+into evidence. No other owned heavy job, cluster submission or timing campaign.
+
+Implemented working source: EngineOptions maximum_rounds0 defaults to a finite
+size-scaled global proposal budget; positive rounds are explicit diagnostic caps.
+Automatic initial allowance max(4096,64*global input cells), provisional and not a
+feasibility/calibration bound. Runtime shares one allowance across Refine/Coarsen.
+CFG ADAP_NATIVE_MAX_WORK0 selects automatic; explicit values bound globally admitted
+primary proposals including later conflict/rejection, with separately bounded repair
+trials. ADAP_NATIVE_MAX_TIME0 disables the clock; enabled deadline starts at native
+remesh entry, checks workers/return and optional beforeAcceptance at actual driver
+entry and just before publishing rebuilt/transferred state. Earlier metric prep,
+postpublication finalization/output and safe-point overrun remain separate: not a
+complete hard CFD-ready deadline. Default2D/MMG do not set callbacks/add their votes;
+explicit new controls on2D/MMG are rejected rather than silently ignored.
+
+MetricDiagnosis separates measurement/shape/progress failures and records exact
+removed/added frozen-edge excess plus certified size/quality/removal progress.
+Private geometry and metric trial/refusal counters and one representative cavity
+feature/centroid plus weakest/sliver IDs are emitted. EngineStop distinguishes
+complete/forced-round/work/time/operator-stagnation/other failures. No candidate
+failure is called proof of infeasibility. Progress-window diagnostics distinguish
+certified mesh progress from finite fresh rejected-proposal search; such search
+continues under the work budget instead of being prematurely aborted. Existing
+bounded repair escalation and no-admitted-candidate rejection remain. History
+capacity grows only under collective byte admission before publication; ID bounds
+remain checked. Strict q/J/original-P1/full-final-geometry gates unchanged.
+
+Added focused real sliver/nonprogress/bad-measurement and work/time/mismatch/input-
+preservation cases. Current selection count will increase105core/106mixed (verify
+actual listing after build). Positive512/1024driver fixtures now force their stated
+round control; actual envelope supports rounds0 for the production work policy.
+Full default-policy >512 completion, runtime cfg/shared-phase caps/deadline callbacks,
+independent output/state audit and one broad regression still need qualification.
+Cluster comparison preparer intentionally remains source-guarded to the published
+batching baseline; do not claim it can freeze the new unqualified dirty source.
+
+Known review follow-ups before broad qualification: successful standalone
+MeasureMetricCells diagnosis should set failureNone (current engine validations
+reset verdict correctly, but optional standalone diagnostic success still shows
+Measurement); include search_windows in reports; independently exercise actual
+shared runtime budget and prepublication callback, and audit deadline/control
+matching. Do not patch these while the pinned build/controller is live. Preserve
+any failed focused receipts; only rebuild changed units after substantive fixes.
+Working source snapshot working_source.patch/WORK_IN_PROGRESS.json is a backup,
+not a qualified implementation checkpoint. No need to request cluster work while
+user unavailable. Keep original fullGoal1performance/scaling/overhead/weights/wait/
+memory requirements open; Goal2 not started. Foreign ClusterResults/dependencies
+untouched; leave AdapNoExt unchanged.
+
 # Current checkpoint: batching qualified, diagnosis next — 2026-10-12
 
 ## Integrated batched refinement/coarsening qualification — 2026-10-12
