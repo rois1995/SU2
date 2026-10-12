@@ -165,10 +165,12 @@ CNumerics::ResidualType<> CUpwMSW_NEMO::ComputeResidual(const CConfig *config) {
   const su2double ProjVelst_i = onemw*ProjVelocity_i + w*ProjVelocity_j;
   const su2double ProjVelst_j = onemw*ProjVelocity_j + w*ProjVelocity_i;
 
+  /*--- ComputeSpeciesEve returns a reference to a vector of the fluid model, which
+   the next call overwrites. Use the values of each state before the next call. ---*/
   const auto& eves_st_i = fluidmodel->ComputeSpeciesEve(Vst_i[TVE_INDEX]);
-  const auto& eves_st_j = fluidmodel->ComputeSpeciesEve(Vst_j[TVE_INDEX]);
-
   fluidmodel->ComputedPdU(Vst_i, eves_st_i, dPdUst_i);
+
+  const auto& eves_st_j = fluidmodel->ComputeSpeciesEve(Vst_j[TVE_INDEX]);
   fluidmodel->ComputedPdU(Vst_j, eves_st_j, dPdUst_j);
 
   /*--- Flow eigenvalues at i (Lambda+) ---*/
