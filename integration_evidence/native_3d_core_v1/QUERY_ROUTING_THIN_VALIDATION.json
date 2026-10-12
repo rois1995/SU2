@@ -1,0 +1,416 @@
+{
+  "status": "PASS",
+  "checker_sha256": "9386e2f7703b485a3261b92c2a5468fb6a38c086172eafa63e32a1a01a9abf36",
+  "binary_sha256": "bb5a7664dda805daac6bbcc4b16e3da3ee3759f33475937beedd6a177c35955e",
+  "cases": [
+    {
+      "case": "query_routing_thin_h10_n4_n4_m2_v1",
+      "validation_sha256": "15d2e22e4c0c1830c2fbece4d97047bef38744010d1ed4ff48c0cfb43f4acc78",
+      "audit_sha256": "62e40edbffc8589847c5bd1e03734185d49cb4e5ab9d60ae6748e4b20b37a7f5",
+      "parameters": {
+        "ranks": 4,
+        "workers": 2,
+        "size": 4,
+        "anisotropy": 1,
+        "varying": 1,
+        "direction": 1,
+        "height_power": 10,
+        "wedge": true,
+        "aligned_markers": true,
+        "diagnostic_rounds": 512,
+        "repeat": 0,
+        "detail": 1,
+        "restart_format": "none"
+      },
+      "accepted_frames": [
+        {
+          "file": "envelope_s0.json",
+          "cells": 289,
+          "points": 96,
+          "physical_faces": 146,
+          "volume": "1/2048",
+          "minimum_mean_ratio": 0.5438424433693994,
+          "minimum_scaled_jacobian": 0.3236529989722618,
+          "maximum_length": 1.7957781168258844,
+          "longest_edge": [
+            6,
+            60
+          ],
+          "markers": {
+            "0": 32,
+            "1": 32,
+            "3": 17,
+            "2": 48,
+            "4": 12,
+            "5": 5
+          },
+          "strict_metric_gate": true
+        },
+        {
+          "file": "envelope_s1.json",
+          "cells": 48,
+          "points": 27,
+          "physical_faces": 48,
+          "volume": "1/2048",
+          "minimum_mean_ratio": 0.3633582476234516,
+          "minimum_scaled_jacobian": 0.14187391881476188,
+          "maximum_length": 1.7863967402467296,
+          "longest_edge": [
+            11,
+            21
+          ],
+          "markers": {
+            "2": 15,
+            "1": 8,
+            "5": 1,
+            "3": 7,
+            "4": 5,
+            "0": 12
+          },
+          "strict_metric_gate": true
+        },
+        {
+          "file": "envelope_s2.json",
+          "cells": 314,
+          "points": 102,
+          "physical_faces": 150,
+          "volume": "1/2048",
+          "minimum_mean_ratio": 0.23883815837008673,
+          "minimum_scaled_jacobian": 0.10271873970549425,
+          "maximum_length": 1.799674941238158,
+          "longest_edge": [
+            7,
+            27
+          ],
+          "markers": {
+            "5": 5,
+            "2": 45,
+            "4": 14,
+            "0": 36,
+            "1": 32,
+            "3": 18
+          },
+          "strict_metric_gate": true
+        }
+      ],
+      "states": [
+        {
+          "file": "envelope_s0_states.json",
+          "maximum_state_relative_error": 3.649022345155429e-16,
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "donor_points": 75,
+          "accepted_points": 96,
+          "maximum_transported_tensor_physical_error": 0.0
+        },
+        {
+          "file": "envelope_s1_states.json",
+          "maximum_state_relative_error": 3.649022345155429e-16,
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "donor_points": 96,
+          "accepted_points": 27,
+          "maximum_transported_tensor_physical_error": 0.0
+        },
+        {
+          "file": "envelope_s2_states.json",
+          "maximum_state_relative_error": 3.8400679004505287e-16,
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "donor_points": 27,
+          "accepted_points": 102,
+          "maximum_transported_tensor_physical_error": 0.0
+        }
+      ],
+      "reload_metrics": [
+        {
+          "format": "SU2",
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "maximum_transported_tensor_physical_error": 0.0
+        },
+        {
+          "format": "CGNS",
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "maximum_transported_tensor_physical_error": 0.0
+        }
+      ],
+      "exact_normalized_geometry_and_donor_frames": [
+        "envelope_s0_initial.json",
+        "envelope_s0.json",
+        "envelope_s1_initial.json",
+        "envelope_s1.json",
+        "envelope_s2_initial.json",
+        "envelope_s2.json",
+        "envelope_s2_written_SU2_reload_target.json",
+        "envelope_s2_written_CGNS_reload_target.json"
+      ]
+    },
+    {
+      "case": "query_routing_thin_h20_n4_n1_m1_v1",
+      "validation_sha256": "bf54541db5a7c1cebc8e9895511b8e2a4d0418e44548341e8cd7f2561f031fc1",
+      "audit_sha256": "29bd24884a37bd3d8b1bc34638a2063ba5746820a94edac5370c21453c5bfbc3",
+      "parameters": {
+        "ranks": 1,
+        "workers": 1,
+        "size": 4,
+        "anisotropy": 1,
+        "varying": 1,
+        "direction": 1,
+        "height_power": 20,
+        "wedge": true,
+        "aligned_markers": true,
+        "diagnostic_rounds": 512,
+        "repeat": 0,
+        "detail": 1,
+        "restart_format": "none"
+      },
+      "accepted_frames": [
+        {
+          "file": "envelope_s0.json",
+          "cells": 289,
+          "points": 96,
+          "physical_faces": 146,
+          "volume": "1/2097152",
+          "minimum_mean_ratio": 0.5438424433693994,
+          "minimum_scaled_jacobian": 0.3236529989722618,
+          "maximum_length": 1.7957781168258844,
+          "longest_edge": [
+            9,
+            27
+          ],
+          "markers": {
+            "0": 32,
+            "4": 12,
+            "1": 32,
+            "3": 17,
+            "2": 48,
+            "5": 5
+          },
+          "strict_metric_gate": true
+        },
+        {
+          "file": "envelope_s1.json",
+          "cells": 52,
+          "points": 25,
+          "physical_faces": 42,
+          "volume": "1/2097152",
+          "minimum_mean_ratio": 0.2571004139967783,
+          "minimum_scaled_jacobian": 0.14640173837890275,
+          "maximum_length": 1.7903376738898944,
+          "longest_edge": [
+            5,
+            13
+          ],
+          "markers": {
+            "0": 10,
+            "1": 10,
+            "2": 13,
+            "4": 3,
+            "3": 5,
+            "5": 1
+          },
+          "strict_metric_gate": true
+        },
+        {
+          "file": "envelope_s2.json",
+          "cells": 308,
+          "points": 103,
+          "physical_faces": 158,
+          "volume": "1/2097152",
+          "minimum_mean_ratio": 0.3540236511277585,
+          "minimum_scaled_jacobian": 0.18533529939479212,
+          "maximum_length": 1.7948223679822013,
+          "longest_edge": [
+            9,
+            34
+          ],
+          "markers": {
+            "0": 34,
+            "1": 32,
+            "3": 21,
+            "4": 12,
+            "2": 52,
+            "5": 7
+          },
+          "strict_metric_gate": true
+        }
+      ],
+      "states": [
+        {
+          "file": "envelope_s0_states.json",
+          "maximum_state_relative_error": 3.577870528063034e-16,
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "donor_points": 75,
+          "accepted_points": 96,
+          "maximum_transported_tensor_physical_error": 0.0
+        },
+        {
+          "file": "envelope_s1_states.json",
+          "maximum_state_relative_error": 3.577870528063034e-16,
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "donor_points": 96,
+          "accepted_points": 25,
+          "maximum_transported_tensor_physical_error": 0.0
+        },
+        {
+          "file": "envelope_s2_states.json",
+          "maximum_state_relative_error": 3.880759080481122e-16,
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "donor_points": 25,
+          "accepted_points": 103,
+          "maximum_transported_tensor_physical_error": 0.0
+        }
+      ],
+      "reload_metrics": [
+        {
+          "format": "SU2",
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "maximum_transported_tensor_physical_error": 0.0
+        },
+        {
+          "format": "CGNS",
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "maximum_transported_tensor_physical_error": 0.0
+        }
+      ],
+      "exact_normalized_geometry_and_donor_frames": []
+    },
+    {
+      "case": "query_routing_thin_h20_n4_n4_m2_v1",
+      "validation_sha256": "a23d097c1dfe35c95691e5d4fc66d3fc696bfc61926fda9a2c514202370e378e",
+      "audit_sha256": "31e4167421d112d27aaea7c34532ee57aa493ccf1d89f71ef867fa56dd7bedaa",
+      "parameters": {
+        "ranks": 4,
+        "workers": 2,
+        "size": 4,
+        "anisotropy": 1,
+        "varying": 1,
+        "direction": 1,
+        "height_power": 20,
+        "wedge": true,
+        "aligned_markers": true,
+        "diagnostic_rounds": 512,
+        "repeat": 0,
+        "detail": 1,
+        "restart_format": "none"
+      },
+      "accepted_frames": [
+        {
+          "file": "envelope_s0.json",
+          "cells": 289,
+          "points": 96,
+          "physical_faces": 146,
+          "volume": "1/2097152",
+          "minimum_mean_ratio": 0.5438424433693994,
+          "minimum_scaled_jacobian": 0.3236529989722618,
+          "maximum_length": 1.7957781168258844,
+          "longest_edge": [
+            6,
+            60
+          ],
+          "markers": {
+            "0": 32,
+            "1": 32,
+            "3": 17,
+            "2": 48,
+            "4": 12,
+            "5": 5
+          },
+          "strict_metric_gate": true
+        },
+        {
+          "file": "envelope_s1.json",
+          "cells": 48,
+          "points": 27,
+          "physical_faces": 48,
+          "volume": "1/2097152",
+          "minimum_mean_ratio": 0.3633582476234516,
+          "minimum_scaled_jacobian": 0.14187391881476188,
+          "maximum_length": 1.7863967402467296,
+          "longest_edge": [
+            11,
+            21
+          ],
+          "markers": {
+            "2": 15,
+            "1": 8,
+            "5": 1,
+            "3": 7,
+            "4": 5,
+            "0": 12
+          },
+          "strict_metric_gate": true
+        },
+        {
+          "file": "envelope_s2.json",
+          "cells": 314,
+          "points": 102,
+          "physical_faces": 150,
+          "volume": "1/2097152",
+          "minimum_mean_ratio": 0.23883815837008673,
+          "minimum_scaled_jacobian": 0.10271873970549425,
+          "maximum_length": 1.799674941238158,
+          "longest_edge": [
+            7,
+            27
+          ],
+          "markers": {
+            "5": 5,
+            "2": 45,
+            "4": 14,
+            "0": 36,
+            "1": 32,
+            "3": 18
+          },
+          "strict_metric_gate": true
+        }
+      ],
+      "states": [
+        {
+          "file": "envelope_s0_states.json",
+          "maximum_state_relative_error": 3.577870528063034e-16,
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "donor_points": 75,
+          "accepted_points": 96,
+          "maximum_transported_tensor_physical_error": 0.0
+        },
+        {
+          "file": "envelope_s1_states.json",
+          "maximum_state_relative_error": 3.577870528063034e-16,
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "donor_points": 96,
+          "accepted_points": 27,
+          "maximum_transported_tensor_physical_error": 0.0
+        },
+        {
+          "file": "envelope_s2_states.json",
+          "maximum_state_relative_error": 4.606665037477689e-14,
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "donor_points": 27,
+          "accepted_points": 102,
+          "maximum_transported_tensor_physical_error": 0.0
+        }
+      ],
+      "reload_metrics": [
+        {
+          "format": "SU2",
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "maximum_transported_tensor_physical_error": 0.0
+        },
+        {
+          "format": "CGNS",
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "maximum_transported_tensor_physical_error": 0.0
+        }
+      ],
+      "exact_normalized_geometry_and_donor_frames": [
+        "envelope_s0_initial.json",
+        "envelope_s0.json",
+        "envelope_s1_initial.json",
+        "envelope_s1.json",
+        "envelope_s2_initial.json",
+        "envelope_s2.json",
+        "envelope_s2_written_SU2_reload_target.json",
+        "envelope_s2_written_CGNS_reload_target.json"
+      ]
+    }
+  ],
+  "scope": "Fresh full three-event thin-domain geometry/metric/state/readback correctness. N4M2 physical z and original-P1 tensor normalization match eight unscaled frames exactly. Physical affine solution states are audited independently, not equated across heights. This is manufactured thin-domain covariance, not BL construction or performance qualification."
+}

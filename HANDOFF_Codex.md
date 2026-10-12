@@ -1,5 +1,27 @@
 # Current handoff — 2026-10-12
 
+## Current-source thin-domain matrix completed — 2026-10-12
+
+Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
+codex/native-3d-transport-accounting. Goal1 ACTIVE, Goal2 not started.
+query_routing_thin_h10_n4_n4_m2_v1, query_routing_thin_h20_n4_n1_m1_v1
+and query_routing_thin_h20_n4_n4_m2_v1 all PASS three-event production512
+correctness with qualified query-routing binary bb5a7664dda805daac6bbcc4b16e3da3ee3759f33475937beedd6a177c35955e.
+Fresh full independent audits: eight frames and three current/BDF pairs per case,
+actual SU2/CGNS readbacks, exact domain/markers/no-overlap/conformity and unchanged
+q>=.20/J>=.05/L<=1.8. Tensor transport error0; maximum state relative error
+4.606665037477689e-14 in H20 N4M2, within the unchanged audit bound.
+Sixteen exact normalized geometry/donor comparisons match unscaled N4M2 control;
+physical affine states audited separately. Three inspectable VTUs per case.
+Full report/receipts/checker in native_3d_core_v1/QUERY_ROUTING_THIN_VALIDATION.md,
+QUERY_ROUTING_THIN_VALIDATION.json and check_query_routing_thin.py.
+New physical thin inputs are covariantly scaled, not unscaled byte-identical
+controls; no C++/target/round changes. All three owned jobs TERMINAL; about6.5MB
+case artifacts retained. No local timing/scaling campaign or cluster submission.
+Size8 production512 completion and full repeated performance/overhead/traffic/
+wait/allocator/rank-limit calibration remain open. Thin-domain covariance is not
+3DBL construction. Do not advance to Goal2 from this bounded correctness result.
+
 ## SGE query-routing comparison prepared — 2026-10-12
 
 Working repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
