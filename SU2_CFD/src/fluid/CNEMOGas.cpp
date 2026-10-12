@@ -117,11 +117,10 @@ su2double CNEMOGas::ComputePressure(){
 
 su2double CNEMOGas::ComputeGasConstant(){
 
-  su2double Mass = 0.0;
-
+  /*--- The gas constant of the mixture is the mass-fraction weighted sum of the species gas constants. ---*/
+  GasConstant = 0.0;
   for (iSpecies = 0; iSpecies < nSpecies; iSpecies++)
-    Mass += MassFrac[iSpecies] * MolarMass[iSpecies];
-  GasConstant = Ru / Mass;
+    GasConstant += MassFrac[iSpecies] * Ru / MolarMass[iSpecies];
 
   return GasConstant;
 }
