@@ -65,6 +65,11 @@ CMutationTCLib::CMutationTCLib(const CConfig* config, unsigned short val_nDim): 
   if (mix->hasElectrons()) { nHeavy = nSpecies-1; nEl = 1; }
   else { nHeavy = nSpecies; nEl = 0; }
 
+  /*--- The presence of electrons follows from the mixture, not from the config option. ---*/
+  if (config->GetIonization() && nEl == 0)
+    SU2_MPI::Error("IONIZATION= YES requires a mixture with electrons.", CURRENT_FUNCTION);
+  ionization = (nEl > 0);
+
   /*--- Set up catalytic recombination table. ---*/
   // Creation/Destruction (+1/-1), Index of monoatomic reactants
   // Monoatomic species (N,O) recombine into diaatomic (N2, O2) species

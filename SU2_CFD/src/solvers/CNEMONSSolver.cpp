@@ -387,11 +387,6 @@ void CNEMONSSolver::BC_IsothermalNonCatalytic_Wall(CGeometry *geometry,
   SU2_ZONE_SCOPED
 
   const bool implicit = (config->GetKind_TimeIntScheme() == EULER_IMPLICIT);
-  const bool ionization = config->GetIonization();
-
-  if (ionization) {
-    SU2_MPI::Error("NEED TO TAKE A CLOSER LOOK AT THE JACOBIAN W/ IONIZATION",CURRENT_FUNCTION);
-  }
 
   /*--- Define 'proportional control' constant ---*/
   const su2double C = 5;
@@ -663,12 +658,6 @@ void CNEMONSSolver::BC_Smoluchowski_Maxwell(CGeometry *geometry,
                                             unsigned short val_marker) {
   SU2_ZONE_SCOPED
 
-
-  const bool ionization = config->GetIonization();
-
-  if (ionization) {
-    SU2_MPI::Error("NEED TO TAKE A CLOSER LOOK AT THE JACOBIAN W/ IONIZATION", CURRENT_FUNCTION);
-  }
 
   /*--- Define 'proportional control' constant ---*/
   const su2double C = 1;

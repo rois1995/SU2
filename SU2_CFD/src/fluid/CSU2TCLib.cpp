@@ -1176,6 +1176,13 @@ CSU2TCLib::CSU2TCLib(const CConfig* config, unsigned short val_nDim, bool viscou
     }
   }
 
+  /*--- The presence of electrons follows from the gas model. The config option
+   can only confirm it, it cannot add electrons to a mixture that has none. ---*/
+  const bool has_electrons = (gas_model == "AIR-7");
+  if (config->GetIonization() && !has_electrons)
+    SU2_MPI::Error("IONIZATION= YES requires a gas model with electrons (AIR-7).", CURRENT_FUNCTION);
+  ionization = has_electrons;
+
   if (ionization) { nHeavy = nSpecies-1; nEl = 1; }
   else            { nHeavy = nSpecies;   nEl = 0; }
 }

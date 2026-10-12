@@ -232,6 +232,11 @@ public:
   inline void SetEves(vector<su2double>& val_eves) { eves = val_eves; }
 
   /*!
+   * \brief Whether the mixture has free electrons (species 0).
+   */
+  inline bool GetIonization() const { return ionization; }
+
+  /*!
    * \brief Compute rhoCvtr.
    */
   inline su2double ComputerhoCvtr() {
