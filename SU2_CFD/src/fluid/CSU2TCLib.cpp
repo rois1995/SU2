@@ -1725,12 +1725,14 @@ void CSU2TCLib::GetEveSourceTermJacobian(const su2double *V, const su2double *ev
 vector<su2double>& CSU2TCLib::ComputeSpeciesEnthalpy(su2double val_T, su2double val_Tve, su2double *val_eves){
 
   vector<su2double> cvtrs;
-  //TODO: ADD Electrons?
   cvtrs = GetSpeciesCvTraRot();
 
   for (iSpecies = 0; iSpecies < nSpecies; iSpecies++){
     eves[iSpecies] = val_eves[iSpecies];
-    hs[iSpecies] = Ru/MolarMass[iSpecies]*val_T + cvtrs[iSpecies]*val_T + Enthalpy_Formation[iSpecies] + eves[iSpecies];
+
+    /*--- The pressure of the electrons follows the vib.-el. temperature. ---*/
+    const su2double T_p = (iSpecies < nEl) ? val_Tve : val_T;
+    hs[iSpecies] = Ru/MolarMass[iSpecies]*T_p + cvtrs[iSpecies]*val_T + Enthalpy_Formation[iSpecies] + eves[iSpecies];
   }
 
   return hs;
