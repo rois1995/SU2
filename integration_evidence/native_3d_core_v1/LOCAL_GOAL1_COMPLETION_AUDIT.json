@@ -1,0 +1,65 @@
+{
+  "status": "INCOMPLETE",
+  "goal": "Goal1 local implementation/correctness",
+  "scope_revision": "User2026-10-12 removes all performance and cluster-related requirements/work from this goal.",
+  "qualified_baseline": "3345e2bc9d9561045e459f89ea046a3c7583fd5d",
+  "live_controller_session": 33248,
+  "build_status": "RUNNING at last verified poll; check actual session before action",
+  "plan_sha256": "0b3e717128f48ad138496fb53c49d83929b031af3bd1d5cae094f71200b069cc",
+  "requirements": [
+    {
+      "id": "robust_metric_core",
+      "requirement": "Robust orientation/tensor arithmetic, canonical incidence and bounded original-P1 queries; frozen q/J/L criteria.",
+      "status": "CURRENT_SOURCE_PROOF_PENDING",
+      "baseline_evidence": "ENGINE_BATCH_VALIDATION.md/json; older source version, not sufficient alone to certify new execution policy."
+    },
+    {
+      "id": "operators_and_planar_boundary",
+      "requirement": "Repeated bounded split/collapse/move/face-edge reconnection with adaptable planar markers and complete atomic cavities.",
+      "status": "CURRENT_SOURCE_PROOF_PENDING",
+      "baseline_evidence": "ENGINE_BATCH_VALIDATION.md/json; older source version, not sufficient alone to certify new execution policy."
+    },
+    {
+      "id": "mpi_partition_workers_return",
+      "requirement": "MPI1/2/4, M=N/M<N, stale/conflict/veto/empty-rank safety; functional weighted migration and return/rebuild.",
+      "status": "CURRENT_SOURCE_PROOF_PENDING",
+      "baseline_evidence": "ENGINE_BATCH_VALIDATION.md/json; older source version, not sufficient alone to certify new execution policy."
+    },
+    {
+      "id": "diagnosis_bounded_execution",
+      "requirement": "Typed blocking causes, coherent bounded locations/residuals, finite exploration versus certified mesh progress, productive operation beyond512 with bounded history/IDs.",
+      "status": "CURRENT_SOURCE_PROOF_PENDING",
+      "baseline_evidence": "ENGINE_BATCH_VALIDATION.md/json; older source version, not sufficient alone to certify new execution policy."
+    },
+    {
+      "id": "configured_budget_rejection",
+      "requirement": "Configured shared work/deadline behavior, collective decisions, source/accepted mesh/solution/current-BDF preservation, documented stop/deadline scope.",
+      "status": "CURRENT_SOURCE_PROOF_PENDING",
+      "baseline_evidence": "ENGINE_BATCH_VALIDATION.md/json; older source version, not sufficient alone to certify new execution policy."
+    },
+    {
+      "id": "independent_actual_outputs",
+      "requirement": "Current-source independent geometry/volume/no-overlap/no-gap/facet/marker/original-P1/quality audits plus SU2/CGNS/reload/reference/current-BDF/restart.",
+      "status": "CURRENT_SOURCE_PROOF_PENDING",
+      "baseline_evidence": "ENGINE_BATCH_VALIDATION.md/json; older source version, not sufficient alone to certify new execution policy."
+    },
+    {
+      "id": "actual_lifecycle_regression_publication",
+      "requirement": "Actual metric/Hessian and driver lifecycle, relevant2D/MMG, one integrated local regression, full68-object/archive/binary pins and pushed audited checkpoint.",
+      "status": "CURRENT_SOURCE_PROOF_PENDING",
+      "baseline_evidence": "ENGINE_BATCH_VALIDATION.md/json; older source version, not sufficient alone to certify new execution policy."
+    }
+  ],
+  "excluded_requirements": [
+    "Performance profiling/optimization qualification",
+    "Repeated timings/scaling/throughput/instrumentation-overhead campaigns",
+    "Cost-weight/balance/practical rank-size/RSS calibration",
+    "Cluster preparation/submission/execution/analysis",
+    "CFD affordability ratios"
+  ],
+  "limitations": [
+    "Simple faceted tetrahedral domains only",
+    "Curved/CAD and production3DBL unsupported",
+    "No full physical unsteady3D or efficiency/scalability/affordability claim"
+  ]
+}

@@ -1,203 +1,131 @@
 # Native 3D development goals
 
-Prepared 2026-10-10 at the user's request. Goal 1 was explicitly activated
-on 2026-10-10 after publishing the completed 2D reuse checkpoint. Goals 2–4
-remain prepared for later activation; the old partition goal was cleared.
-Active implementation branch: codex/native-3d-core, based on
-038fdfa5786fb3f6af392d97257bfbb2bb29f036.
+Goal1 was activated on2026-10-10 after the pushed2D reuse checkpoint
+038fdfa5786fb3f6af392d97257bfbb2bb29f036. **The user revised Goal1 on2026-10-12:
+remove performance qualification and all cluster-related work; implement and close
+Goal1 using only locally available resources.** This revision supersedes the earlier
+performance/cluster completion gates. Original evidence is preserved; the previous
+plan is archived in
+integration_evidence/native_3d_core_v1/GOAL1_PRE_LOCAL_SCOPE_PLAN_20261012.md.
 
 Working repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
-Planning branch: codex/native-unsteady-performance, publication checkpoint
-d44cc986c2880ac3bf7e975342efc257f55cd8a9.
-Create a separate implementation branch from the validated integration checkpoint
-when Goal 1 is activated; retain the performance branch and leave AdapNoExt and
-other sessions' work untouched. Record the actual branch and source SHA.
+Implementation branch: codex/native-3d-transport-accounting.
+Qualified batching baseline:3345e2bc9d9561045e459f89ea046a3c7583fd5d.
+Pushed execution-policy snapshot/handoff:7dd0aff6d12d7213781f1e6ce6cca0d184ebd81f.
+Goals2–4 remain prepared, not activated. Preserve AdapNoExt, other workers and the
+existing2D/MMG implementation. Goal1 remains ACTIVE until the local audit below passes.
 
-## Current execution milestone — integrated batched refinement/coarsening
+## Current local-only execution contract
 
-User steering on2026-10-12: prioritize complete large steps, using small changes
-to deliver them; defer further micro-optimizations. This does not replace or narrow
-Goal1. Current branch: codex/native-3d-transport-accounting, pushed basefa17b3ecee48.
+Use small sequential correctness builds/cases and the available local MPI1/2/4
+ranks, including N=M and M<N. Before each heavy job inspect host load, available
+memory and competing jobs. User permits correctness-only MPI under contention:
+one owned heavy job, bounded CPU affinity, low priority, initially MPI<=4/build-j2
+and one numerical-library thread. Never terminate unrelated processes. Keep the
+existing pinned build running; poll its actual handle rather than restarting a
+quiet process. Announce each new testcase folder with its full absolute path.
 
-The immediate milestone combines dependency lookup, deduplicated payload fetch,
-candidate-specific full-star reservation, strict private validation and existing
-atomic publication into the real refinement/coarsening engine. Qualify the known larger
-default512case through the actual driver and independent mesh/metric/current+BDF/
-SU2CGNS audits, plus MPI1/2/4 and N>M controls. Count actual edit work separately
-from batched epochs; completion within512epochs alone is not an efficiency claim.
-Use focused tests during development and one broad regression at the integrated
-milestone. Then prepare same-binary batch1/batch8 cluster comparisons with closed
-phase accounting, three repetitions, instrumentation controls and memory records.
-Retain independently audited changed trajectories and compare total operational
-cost and useful accepted edits per second. Reconstruction/scheduling work follows
-the integrated evidence if blocked; API-only checkpoints do not close this step.
-Further scalar query/cache tuning is deferred until this milestone is assessed.
+Do not perform performance campaigns, scaling/throughput/instrumentation-overhead
+qualification, cost-weight calibration, cluster preparation, scheduler submission
+or cluster analysis for Goal1. Existing timing instrumentation and archived cluster
+evidence are retained. Cheap counter/accounting assertions in functional regression
+may remain, but provide no efficiency claim and are not separate completion gates.
+Performance and larger-resource qualification are deferred work, not missing local
+Goal1 requirements. Do not claim speedup, scalability or CFD affordability.
 
-## Next integrated engine step — diagnosis and progress-aware stopping
+Functional safety remains mandatory: explicit finite work bounds, optional deadline
+semantics, memory admission, MPI-consistent controls and decisions, dependency/stale/
+conflict checks, atomic rejection/publication and bounded diagnostic output. Preserve
+original sensor-only P1 interpolation, geometric BL at actual queries where supported,
+finer sensor requests, fade and ADAP_HESSIAN_NOISE=0. Production3DBL/composed-edge
+integration remains explicitly unsupported in this goal; never silently validate a
+sensor substitute. No geometry/metric/quality tolerance weakening to obtain closure.
 
-User authorized this step on 2026-10-12 after discussing the arbitrary internal
-512-round cap. Complete and publish the batching qualification first; then change
-the execution policy as one integrated milestone, retaining that qualified baseline.
-This extends Goal 1's existing non-reconstructible/over-budget diagnosis requirement;
-it does not replace the full performance gate or weaken completion criteria.
+Retain compact source/build/binary/provenance, inputs/logs, independent certificates,
+inspectable accepted/rejected meshes and donor/accepted/current+BDF states needed for
+replay. Preserve historical failed receipts and annotate collector-only corrections;
+do not promote failed aggregates. Update HANDOFF_Codex.md, findings and requirement
+audit, review/commit/push qualified checkpoints, and keep unqualified work labelled.
 
-Distinguish terminal causes and proposal failures: outstanding frozen size/shape
-violations, valid-but-pending coarsening, missing measurements, exhausted admitted
-operators, complete-dependency or donor/storage limits, stale/conflicting proposals,
-geometric reconstruction rejection and metric shape/progress rejection. Include
-bounded representative feature/cell coordinates and affected-region residuals where
-available, not an unbounded per-query log. A local search failure is not a proof
-that no mesh exists. Physical incompatibility may only be asserted when independently
-established from the declared geometry/metric constraints.
+## Goal 1 — Locally validated MPI tetrahedral core and adaptable planar boundaries
 
-Use the actual frozen-field progress checks to diagnose useful size progress,
-quality repair and cell removal. Do not equate raw accepted edits, disappearing
-queue entries, a partition-dependent duplicated edge sum or an unchanged invalid-
-cell count with adequate global progress. Permit bounded repair escalation before
-reporting persistent blockage; record which available operators were exhausted.
+Objective: implement and locally validate an opt-in native tetrahedral adaptation
+core on simple faceted domains, with adaptable planar boundary triangles, bounded
+robust local operators, complete distributed dependencies and atomic state handling,
+cost-weighted partition functionality, explicit M<=N workers and return to N CFD
+ranks. This is an implementation/correctness goal, not performance qualification.
+Reuse existing remesh, distributed search, transfer/rebuild/output and transaction
+infrastructure. Do not complete from a single split, an API-only prototype or only
+frozen-metric arithmetic tests; include repeated actual driver replacement/restart
+and actual metric/Hessian construction controls.
 
-Replace the unexplained fixed-round production cutoff with explicit, bounded work
-and elapsed-time policies and collective MPI agreement. Preserve deterministic
-work-bounded qualification and separate clock-based operational stops from geometric
-failure. Include import/partition/return/rebuild/transfer in reported total overhead;
-do not call a kernel-only clock bound a complete adaptation ceiling. Existing
-small forced-round controls remain useful for rejection tests. Ensure history/ID
-allocation and admitted memory stay bounded when productive work exceeds 512 epochs.
-Final original-P1 length/quality/geometry/state gates stay unchanged. Decide retry or
-stop behavior explicitly: the current production driver stops collectively before
-replacement on incomplete remeshing; retained state is not automatic CFD continuation
-or a newly written recovery checkpoint.
+Deliver and audit locally:
 
-Qualify progress, stagnation, work/time/storage exits and rejection preservation on
-MPI1/2/4 including empty workers and M<N, then one broad integrated regression.
-Prepare reusable SGE comparison runs with practical useful-edit rates, exclusive
-parent phases, memory and instrumentation-overhead controls; avoid local timing
-campaigns under contention. Keep diagnosis cost bounded and measurable.
+1. Robust3D orientation/tensor arithmetic, canonical identities/incidence and
+   sensor-only original-P1 tetrahedral queries with bounded caches. Keep frozen
+   meaningful shape/sliver/length criteria: q>=.20, scaledJ>=.05, full original-P1
+   metric edge<=1.8. Test numerical/adversarial cases before relying on campaigns.
+2. Bounded split/collapse/movement/reconnection, including face/edge/vertex cavities
+   and coordinated planar surface/volume changes. Admit complete stars; validate
+   privately; preserve geometry, marker seams and atomic publication. Exercise
+   repeated refinement/coarsening and rotated/spatially varying anisotropy.
+3. MPI1/2/4 metadata/payload/reservation/commit, stale/conflict/common-veto/empty-rank
+   behavior; cost-weighted ParMETIS migration as a functional path, explicit M<=N
+   workers including M<N, return/rebuild on all N ranks, source authority and state
+   preservation. Weight quality, optimality and balance are not performance gates.
+4. Integrated blockage diagnosis and bounded execution: distinguish geometry,
+   measurement, shape/sliver, frozen-progress, resource/work/time and operator-search
+   failure; report bounded representative locations and residuals. Local operator
+   blockage is not proof that no valid mesh exists. Distinguish finite exploration
+   of rejected directions from certified size/quality/removal progress. Retain
+   bounded repair escalation; replace the unexplained production512-round cutoff
+   with a declared finite work policy and consistent MPI decisions. Verify history/
+   identity allocation and memory admission when productive work exceeds512epochs.
+5. Optional deadline and configured shared refinement/coarsening work controls:
+   verify both successful and exhausted cases without replacing accepted mesh,
+   sensor authority, solution or current/BDF history. Document safe-point overrun
+   and the exact clock scope; a native-entry/prepublication deadline is not a
+   hard metric-to-CFD-ready ceiling. Current rejection stops production collectively;
+   do not imply automatic retry/skip or a newly written recovery checkpoint.
+6. Independent local certificates on boxes/wedges and declared aspect/thin cases:
+   positive volumes, conformity/manifold boundaries, no overlaps/gaps, finite-facet
+   coverage and marker preservation; actual original-P1 metric residuals and shape/
+   sliver/length thresholds; actual SU2/CGNS output/reload/reference sidecars, solution/
+   current+BDF transfers and supported restart. Verify N=M/M<N and repeated events.
+   Different partitions may produce different meshes; independently audit each.
+7. Actual metric/Hessian and driver lifecycle controls, relevant unchanged2D/MMG
+   regression and one broad integrated local regression after the new policy
+   qualifies. Verify exact current sources, complete configured68-object driver,
+   linked production archives/members and binary. Publish a requirement-by-requirement
+   LOCAL_GOAL1_COMPLETION_AUDIT.md/json and a pushed source/evidence checkpoint.
 
-## Shared execution, correctness and performance contract
+Current state: batching baseline has passed complete local manufactured-domain,
+MPI1/2/4, independent output/state and actual lifecycle/MMG checks. Execution-policy
+changes are UNQUALIFIED working source; controller33248 is building the actual full
+driver before focused2case policy MPI1/2/4 checks. Finish this live controller, fix
+substantive findings, then qualify actual shared limits/deadline/diagnostic locations,
+productive >512 operation, whole driver output/state cases and the broad regression.
+The provisional automatic work allowance is an explicit operational cap, not a
+feasibility proof or calibrated affordability envelope.
 
-The user's latest policy is local-first: small correctness cases and short pilots
-locally, then larger correctness, repeated timing and scaling campaigns on the
-cluster. Before every local build/run inspect load, memory and competing jobs.
-The user explicitly authorized correctness-only MPI checks under CPU contention
-on 2026-10-11: use bounded CPU affinity, low priority and sequential runs; retain
-contention observations without making timing claims. Defer local performance
-measurements when resources are busy; require available memory for correctness.
-One owned heavy job at a time, initially MPI <= 4, build -j2, numerical-library
-threads = 1. Never terminate unrelated processes.
-Cluster runs use existing SGE/qsub conventions; do not require Git on compute
-nodes or exclusive-node allocation. Announce the full working case folder before
-each new case, and print working and retained result folders in runners.
+Completion requires direct current evidence for all seven local deliverables. No
+curved geometry/CAD, robust production3DBL, full physical unsteady3D, convergence/
+forces, performance/scaling or general affordability claim belongs to this closure.
+Historical wider-resource/performance gaps are deferred explicitly, not represented
+as proven. Larger or unsupported cavities/fields may reject under declared limits;
+state the demonstrated local correctness envelope and remaining capability limits.
 
-Use an opt-in native tetrahedral path alongside existing native 2D and MMG.
-Reuse existing mesh/transfer/output and transaction infrastructure where practical,
-without a preliminary rewrite of all 2D classes. Preserve rejection and accepted
-state atomically, original sensor-only P1 donor interpolation, geometric BL
-evaluation at actual queries including remote/private candidates, finer sensor
-demands, current fade and ADAP_HESSIAN_NOISE=0. Do not weaken frozen targets or
-guards to obtain completion. Different partitions can produce different meshes:
-audit each independently; byte identity across partitions is not a requirement.
+## Deferred qualification
 
-The frozen 2D pre-development regression checkpoint is complete: cluster job
-582358 passes all 16 remeshes/eight strict pairs. Review and evidence:
-integration_evidence/native_cluster_reuse_diagnostic_v1/cluster_review_582358/REVIEW.md.
-Keep the tested source/binary pins and failed historical evidence. New production
-changes still require the relevant 2D regression and actual lifecycle checks;
-this frozen matrix is not a new unsteady-CFD or composed-gradation certificate.
+Performance profiling/optimization, repeated timings, scaling, practical rank/size
+and RSS/allocator calibration, weight/balance calibration, true MPI wait/wire and
+instrumentation overhead, cluster tooling/runs and CFD/adaptation cost ratios are
+outside current Goal1. Preserve their existing code/reports for a later explicitly
+activated goal. Do not perform or wait for them to close local Goal1.
 
-For every goal, performance is a deliverable, not a later cleanup:
-
-- Measure complete adaptation wall time, starting with metric preparation and
-  ending with an accepted geometry/solution/history ready to resume CFD. Separately
-  record metric/Hessian/prediction/gradation/complexity, import and donor indexing,
-  work estimation, partition graph/ParMETIS/migration, candidate selection and
-  dependency exchange, private reconstruction, validation/commit, return to N CFD
-  ranks, geometry/solver reconstruction and solution/history transfer. Record
-  production mesh/state output separately and include it in operational overhead
-  when requested. External audits and collection are separately timed.
-- Make phase accounting explicit: exclusive phases close against the parent
-  wall time; nested detail and MPI wait are labelled, not added twice. Never sum
-  per-rank maxima and call that elapsed time. Distinguish private CPU from wait.
-- Break actual metric-query work into donor search, sensor interpolation and
-  geometric BL composition with bounded aggregate timers/counters. Measure cache
-  requests/hits/misses, reconstruction attempts/accepted edits/rejections, patch
-  sizes, communication bytes/collectives and per-rank max/mean work/time. Sample
-  detailed locations rather than logging every query. Measure instrumentation
-  overhead with a disabled-detail control before using it for timing claims.
-- Retain peak RSS and admitted working-buffer bounds, including migration and
-  private scratch. Report initial/final mesh sizes, anisotropy, target residuals
-  and accepted operation counts so different workloads remain distinguishable.
-- Use the same source/binary/config/input for fixed-work comparisons; also report
-  matched numerical-target comparisons when operators change the resulting mesh.
-  At least three sequential measured repetitions support timing claims; report
-  spread and contention. Single pilots provide diagnostics only. Report useful
-  accepted work per second as well as total seconds; fast rejection is not success.
-- Exercise N=M and M<N early. Increase cluster size/ranks progressively rather than
-  going directly to 192 cores. Include partition/migration and return/transfer in
-  every rank-choice comparison. Stop increasing ranks when total cost worsens.
-  Address the measured dominant cost before enlarging the next expensive campaign.
-- Preserve compact provenance, configs, logs, phase/rank summaries, independent
-  audits, representative initial/accepted meshes and corresponding donor/accepted
-  states needed for replay. Keep rejected meshes with reason/location when useful.
-  Deduplicate inputs with verified-copy fallback; retain failures. Avoid full flow
-  output series and per-candidate dumps by default. Close exported dependencies.
-  Update HANDOFF_Codex.md and findings with scope, limits and evidence.
-
-On real CFD workloads define R = total adaptation overhead / CFD computation
-between adaptation events, measured on the same N-rank allocation. Include
-scheduled metric sampling/prediction between events in the numerator, charge
-shared work once, and record diagnostic/output costs separately. The engineering
-target is R <= 0.20; the minimum affordability gate is R < 1 on the declared
-demonstrated envelope. These are proposed acceptance targets, not existing results
-or a reason to weaken accuracy or lengthen the cadence beyond physical needs.
-Early frozen-mesh stages establish costs and limits without claiming CFD
-affordability. No universal wall-second budget is invented before measuring cases.
-
-## Goal 1 — MPI-aware tetrahedral core and adaptable planar boundaries
-
-Activation objective: Implement and validate an opt-in native MPI tetrahedral
-adaptation core on simple faceted domains, including surface refinement/coarsening,
-bounded atomic distributed edits and complete cost profiling. Preserve the 2D
-checkpoint and all shared contracts; establish the practical correctness,
-memory and performance envelope before progressing to curved geometry.
-
-Reuse: CSimplexMesh, CRemesher, passive communication, distributed search,
-memory admission, mesh reconstruction/output and the existing transaction design.
-Extend triangle-specific donor/import/partition and ownership records for
-tetrahedra, triangular faces and edge stars. Keep full edge/vertex dependencies:
-face adjacency alone cannot establish a safe cavity edit.
-
-Deliver:
-1. Stable 3D orientation and metric arithmetic, canonical IDs and incidence,
-   sensor-only tetrahedral P1 queries and bounded caches. Define and freeze
-   meaningful tetrahedral quality/sliver acceptance tests before validation;
-   do not transplant the 2D q >= 0.18 threshold.
-2. Split, collapse, movement and bounded reconnection sufficient for repeated
-   refinement/coarsening, including the required face/edge reconnections. Admit
-   complete dependencies, validate privately and commit atomically. Diagnose
-   non-reconstructible or over-budget cavities rather than looping indefinitely.
-3. Adapt boundary triangles on immutable planar facets while preserving marker
-   junctions and feature edges geometrically. Rebuild neighboring volume cells
-   together; surface connectivity is allowed to change from the first milestone.
-4. Distributed conflict/stale-dependency/failure tests, weighted partitioning,
-   explicit worker communicator M <= N, and accepted mesh return/reconstruction.
-   Recompute work weights for tetrahedra rather than copying 2D coefficients.
-
-Correctness gate: manufactured constant and spatially varying rotated anisotropic
-metrics on boxes/wedges, sliver adversaries, partition-interface cavities and
-repeat refine/coarsen cycles on MPI 1/2/4. Require positive volumes, conforming
-incidence/manifold surface, no overlap/gaps, domain/marker preservation, frozen
-field residuals and declared length/quality bounds. Independently validate 3D
-mesh output in SU2 and CGNS, plus rejection without accepted-state mutation.
-Choose a small matrix of aspect ratios and sizes before running it, then expand
-to locate the first failure. Successful single edge splits do not complete this goal.
-
-Performance gate: closed phase/rank accounting, measured query subcosts and bounded
-memory; sequential size and M=N/M<N pilots followed by cluster repetitions.
-Publish total-cost and accepted-work rates, dominant phase, imbalance and first
-demonstrated size/rank limit. Retest that the existing 2D path retains its numerical
-contracts and investigate timing regressions against measured variability.
-Do not advance with an unexplained unbounded scan, memory growth or retry loop.
+Prepared later goals below retain their earlier scope; they are not activated by
+this revision. Their historical shared performance contract is in the archived
+pre-local plan and can be reconsidered when the user activates them.
 
 ## Goal 2 — Adaptable curved geometry and actual Euler lifecycle
 

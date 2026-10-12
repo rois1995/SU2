@@ -1,3 +1,19 @@
+## User scope revision: local-only Goal1 — 2026-10-12
+
+The user explicitly removed performance qualification and all cluster-related work
+from Goal1 and requested closure using only available local resources. The current
+NATIVE_3D_DEVELOPMENT_GOALS.md supersedes older performance completion gates. Original
+plan is archived unchanged in GOAL1_PRE_LOCAL_SCOPE_PLAN_20261012.md (SHA256 71a4207c973cb9cb4dcfd63a20d60a116126c9424127ef191de0dc41d6dc98db).
+No new cluster preparation/submission/analysis, timing/scaling/overhead/throughput/
+weight-cost calibration campaigns are authorized for this goal. Historical evidence
+and instrumentation stay intact. Functional work/time budgets, bounded memory,
+MPI1/2/4 and M<N consistency, metric/geometry/markers, source authority, current/BDF
+transfer/restart, rejection preservation, independent local audits and relevant2D/MMG
+regression remain mandatory. Current full build is still live under controller33248;
+do not edit pinned CPP while it runs. Goal1 ACTIVE until all seven revised local
+requirements are proven; this scope revision is not completion. No efficiency or
+scalability claim follows from local closure. Goal2 not started.
+
 # Execution-policy implementation build live — 2026-10-12
 
 Working repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated;
