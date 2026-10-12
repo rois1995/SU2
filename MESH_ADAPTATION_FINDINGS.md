@@ -1,3 +1,30 @@
+## Isolated rotating reservation protocol verified on MPI1/2/4 — 2026-10-12
+
+Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
+codex/native-3d-transport-accounting. Starting evidence tip2c20503dce; production
+still86bd7f7824 unchanged. rotating_reservation_protocol_v2 uses the exact prior
+whole-mesh audited directory variant and supplementary actual Catch/MPI tests.
+Three cases PASS per rank at MPI1/2/4:repeated shared complete stars rotate unique
+winner over2Mcalls; disjoint rank-local complete stars all remain selectable;
+priority-phase corruption on rank0 rejects all ranks and preserves both stores.
+One-rank memory veto also rejects with byte-identical mesh/directory. Assertion
+counts24(serial),45perrank(MPI2),77perrank(MPI4). Phase word checks modulo-M
+priority, not arbitrary full counter equality. MPI1 mismatch case explicit NA.
+Prototype test object replaces only original distributed-test object; original
+Dir archive member not extracted.67other test objects/774members unchanged.
+Production binary/config/source/header/objects untouched. v1 compiler error in
+fixture vector row access happened before MPI; exact failed source/log/receipt
+preserved. v2 fixesonly that access, protocol code same as v1 mesh probe.
+All owned work TERMINAL, oneCPU/nice19/j1/thread1/MPI<=4 correctness under actual
+host gates/FSI contention, no local profiling or cluster submission. Terminal
+isolated objects/exe removed with full hashes/recipes/linkmaps retained:840748520
+bytes freed. REVIEW.md and validation.json in v2 record scope/limitations.
+This strengthens shared/disjoint and collective-refusal proof, but not full97case
+rotating-policy, stale-publication/admission/worker-subset/strong/thin/restart/
+production-limit or repeated cost/scaling qualification. Not promoted; prepared
+fixed-work donor campaign stillisolated. Goal1 ACTIVE; Goal2 not started; full
+performance/default512/practical-envelope gates remain open.
+
 ## Isolated rotating-reservation prototype passes one complete case — 2026-10-12
 
 Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch

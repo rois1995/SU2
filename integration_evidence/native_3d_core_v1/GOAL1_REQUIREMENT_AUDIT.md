@@ -121,3 +121,15 @@ full epoch/admission/stale/MPI1/2/4/stronger-envelope or repeated scaling proof.
 The variant is not production and does not alter the prepared donor comparison.
 This is useful feasibility evidence, not completion of any outstanding full
 performance/calibration/production-limit requirement.
+
+## Isolated protocol safety follow-up
+
+rotating_reservation_protocol_v2/REVIEW.md supplies actual MPI1/2/4 compiled
+shared/disjoint complete-star and priority-phase/memory-veto tests using the
+exact earlier audited isolated directory variant. Unique winners rotate and
+nonconflicting proposals stay concurrently selectable; rejected mismatched phase
+or one-rank memory cases preserve both stores. Serial mismatch branch is NA.
+Original source/header/binary/objects remain unchanged; first pre-MPI fixture
+compile failure is retained. This closes targeted protocol gaps, not full97case
+rotating-policy/general safety/subset/stronger-envelope/repeated-performance
+qualification. The prototype remains isolated and no Goal1 completion follows.
