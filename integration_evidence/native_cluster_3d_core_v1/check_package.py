@@ -558,6 +558,29 @@ class PackageChecks(unittest.TestCase):
         rows[-1]['accepted']=1
         with self.assertRaises(ValueError):profile_summary.events(rows,profile_summary.DETAIL,('refine','coarsen'))
 
+    def test_partition_active_load_excludes_idle_cfd_ranks(self):
+        rows=[dict(rank=i,ranks=4,workers=2,cells_after=(197,205,0,0)[i],work_after=(959,979,0,0)[i]) for i in range(4)]
+        value=profile_summary.summarize(rows,None)
+        self.assertAlmostEqual(value['partition_active_load']['work_after']['maximum_over_mean'],979/969)
+        self.assertAlmostEqual(value['measures']['work_after']['maximum_over_mean'],979/484.5)
+        rows[-1]['work_after']=1
+        with self.assertRaisesRegex(ValueError,'Inactive partition'):profile_summary.summarize(rows,None)
+        zeros=[dict(r,cells_after=0,work_after=0) for r in rows]
+        self.assertNotIn('partition_active_load',profile_summary.summarize(zeros,None))
+
+    def test_proposal_outcomes_separate_conflicts_and_private_rejections(self):
+        rows=[dict(rank=i,ranks=4,workers=2,complete=1,rounds=(156,156,0,0)[i],
+            attempted=(130,64,0,0)[i],accepted=(55,46,0,0)[i],rejected=(75,18,0,0)[i],conflicts=(0,92,0,0)[i]) for i in range(4)]
+        value=profile_summary.summarize(rows,None,True)['proposal_outcomes']
+        self.assertEqual([r['rank'] for r in value],[0,1])
+        self.assertAlmostEqual(value[1]['reservation_veto_fraction'],92/156)
+        self.assertAlmostEqual(value[1]['accepted_fraction_of_attempts'],46/64)
+        for key,bad in [('accepted',131),('conflicts',93),('attempted',.5),('rejected',float('nan'))]:
+            altered=[dict(r) for r in rows];altered[1][key]=bad
+            with self.subTest(key=key),self.assertRaises(ValueError):profile_summary.summarize(altered,None,True)
+        rows[1].update(complete=0,rejected=17)
+        self.assertEqual(profile_summary.summarize(rows,None,True)['proposal_outcomes'][1]['unfinished_attempts'],1)
+
     def test_lifecycle_analysis_keeps_closed_cpu_and_paired_timings(self):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d);folder=root/'lifecycle';work=folder/'case';work.mkdir(parents=True)

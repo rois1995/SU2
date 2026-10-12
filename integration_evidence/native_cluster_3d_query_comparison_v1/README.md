@@ -167,3 +167,17 @@ MPI API elapsed is not pure wait and its bytes are not physical wire traffic.
 Inherited `LD_PRELOAD`/`MPIP` is rejected for these controls. The analyst keeps
 normal detail overhead separate from profiler overhead and verifies the retained
 full report identity. Runtime summaries are re-parsed from actual saved logs.
+
+Saved profiles now expose `partition_active_load` over M adaptation workers,
+separately from N-rank measures, and `proposal_outcomes` for reservation vetoes,
+private acceptance and unfinished attempts. Inspect these alongside source-owner
+`donor_candidates` and requester `donor_payloads`; similar weights or candidate
+counts do not establish equal CPU cost. Failed-stage reservation counters may
+include admission refusals. These fractions are not pure MPI waiting.
+
+Older downloaded runtime summaries may lack these two derived fields. Analysis
+verifies every recorded value against the raw log, tolerates only missing new
+derived keys and emits recomputed profiles. Wrong recorded ratios/counts or
+missing core measures still reject. Generic within-stage event indices are not
+a common cycle identifier. No new logging/instrumentation or timed workload is
+introduced; prepare a fresh bundle for current analysis, preserve old bundles.

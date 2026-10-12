@@ -1,0 +1,17 @@
+..E............
+======================================================================
+ERROR: test_analyze_rejects_false_runtime_summary (__main__.Checks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "check_package.py", line 186, in test_analyze_rejects_false_runtime_summary
+    with self.assertRaisesRegex(ValueError,'actual log'):analyze.main()
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_query_comparison_v1/analyze.py", line 37, in main
+    observed=verified_runtime(folder/case['folder'],q,case['runtime'])
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_query_comparison_v1/analyze.py", line 13, in verified_runtime
+    for current,old in zip(comparable['profiles'].get('nested_detail_events',[]),old_events):
+KeyError: 'profiles'
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.502s
+
+FAILED (errors=1)

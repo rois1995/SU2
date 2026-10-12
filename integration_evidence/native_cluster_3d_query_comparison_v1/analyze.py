@@ -1,10 +1,22 @@
 """Verify downloaded compact results and summarize paired fixed-work ratios, spread and overhead."""
 from pathlib import Path
-import argparse,json,statistics,sys
+import argparse,copy,json,statistics,sys
 from campaign import runtime
 from common import sha
 
 def spread(values):return dict(median=statistics.median(values),minimum=min(values),maximum=max(values),values=values)
+
+def verified_runtime(folder,parameters,stored):
+    observed=runtime(folder,parameters)
+    if any(not isinstance(value,dict) or not isinstance(value.get('profiles'),dict) for value in (observed,stored)):
+        raise ValueError('Stored runtime summary differs from actual log')
+    comparable=copy.deepcopy(observed)
+    old_events=stored['profiles'].get('nested_detail_events',[])
+    for current,old in zip(comparable['profiles'].get('nested_detail_events',[]),old_events):
+        for key in ('partition_active_load','proposal_outcomes'):
+            if key not in old['profile']:current['profile'].pop(key,None)
+    if comparable!=stored:raise ValueError('Stored runtime summary differs from actual log')
+    return observed
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('results',nargs='+',type=Path)
@@ -24,15 +36,15 @@ def main():
             if case.get('lifecycle'):continue
             q=case['parameters']
             sys.path[:0]=[str(folder/'provenance/shared/core'),str(folder/'provenance/shared/audits')]
-            if runtime(folder/case['folder'],q)!=case['runtime']:raise ValueError('Stored runtime summary differs from actual log')
+            observed=verified_runtime(folder/case['folder'],q,case['runtime'])
             if case['audit']['status']!='PASS':raise ValueError('Case not audited')
             if record.get('mpi_profile') and q['mpi_profile']:
                 from run import mpip_report
                 if mpip_report(folder/case['folder'],q['ranks'])!=case.get('mpi_profile_report'):raise ValueError('MPI API report identity changed')
                 api_profiles.append(dict(campaign=folder.name,case=case['folder'],parameters=q,report=case['mpi_profile_report']))
-            profiles.append(dict(campaign=folder.name,case=case['folder'],parameters=q,warmup=case['warmup'],profiles=case['runtime']['profiles']))
+            profiles.append(dict(campaign=folder.name,case=case['folder'],parameters=q,warmup=case['warmup'],profiles=observed['profiles']))
             if case['warmup']:continue
-            for sample in case['runtime']['samples']:
+            for sample in observed['samples']:
                 kind='mpi-profile' if record.get('mpi_profile') else 'detail'
                 key=(q['ranks'],q['workers'],q['size'],sample['cycle'],kind,q.get('mpi_profile',q['detail']),case['side'])
                 groups.setdefault(key,[]).append(dict(repeat=q['repeat'],process_seconds=case['stages'][0]['seconds'],**sample))

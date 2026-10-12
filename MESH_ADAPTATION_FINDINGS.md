@@ -1,3 +1,32 @@
+## Active partition balance and reservation bias — 2026-10-12
+
+Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
+codex/native-3d-transport-accounting. Production unchanged from c407d8b9a4.
+reservation_balance_review_v1 reparses three pinned box-prefilter N4M2 cases,
+18operation events, with full original artifact/audit hashes and current unchanged
+partition/directory/donor/remesher source hashes. Aspect2 cycle1 coarsening starts
+with proxy weights959/979 and owner ADT candidates649111/644747, but attempts
+130/64 and reservation vetoes0/92. Worker1 loses92of156rounds; source inspection
+confirms shared vertices always elect the lowest caller rank. Requester donor
+payloads39323/15163 differ from owner candidate scans. Counts do not establish
+CPU cost, pure wait or scaling; initial weight balance does not remove this bias.
+Profiler adds partition_active_load over M workers and proposal_outcomes with
+veto/acceptance/unfinished-attempt fractions. Original N-rank measures retained;
+zero inactive ranks cannot inflate apparent partition imbalance. No new C++ timer,
+collective, config, weight or reservation-policy change. Legacy scope retained;
+comparison validates raw logs and every old field, allowing only missing new
+derived keys and emitting recomputed fields. Tampered counts/ratios still reject.
+34core+15comparison checks PASS; actual saved logs pass full profile closure.
+Two simplified mock-schema failures/sources retained, then corrected; no numerical
+failure or new simulation. REVIEW.md,analysis.json,validation.json pin all evidence.
+All owned work TERMINAL, lightweight oneCPU/nice19; no local performance or cluster
+run. Fresh future bundles include this analysis; frozen older ones remain unchanged.
+Next benchmark should distinguish rank-priority losses, owner predicate cost and
+working-mesh imbalance before weight tuning or mid-remesh repartitioning. Rotating
+consistent reservation priority is a possible separate changed-trajectory experiment,
+not implemented here. Default512 completion and repeated cluster cost/scaling/
+overhead/weight/wait/memory qualification remain open. Goal1 ACTIVE; Goal2 not started.
+
 ## Native3D completion diagnostics qualified — 2026-10-12
 
 Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch

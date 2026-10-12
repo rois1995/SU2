@@ -65,6 +65,27 @@ def summarize(rows,phases,active_workers=False):
     measures={k:distribution(measured,k) for k in sorted(keys)}
     result=dict(ranks=int(ranks),workers=int(workers) if 'workers' in rows[0] else None,measured_ranks=[int(r['rank']) for r in measured],measures=measures)
     result['transport_accounting']='wrapper_totals' if all(tracked) else ('legacy_bytes_only' if 'tracked_bytes' in keys else 'not_measured')
+    if {'cells_after','work_after'} <= keys and any(r['cells_after'] for r in rows):
+        if any(r[k]!=0 for r in rows[int(workers):] for k in ('cells_after','work_after')):
+            raise ValueError('Inactive partition rank retained cells/work')
+        result['partition_active_load']={k:distribution(rows[:int(workers)],k) for k in ('cells_after','work_after')}
+    outcome_keys={'rounds','attempted','accepted','rejected','conflicts'}
+    if active_workers and outcome_keys <= keys:
+        outcomes=[]
+        for r in measured:
+            if any(not math.isfinite(r[k]) or r[k]<0 or int(r[k])!=r[k] for k in outcome_keys):
+                raise ValueError('Invalid proposal outcome counter')
+            attempted,accepted,rejected,conflicts,rounds=(r[k] for k in ('attempted','accepted','rejected','conflicts','rounds'))
+            if accepted+rejected>attempted or attempted+conflicts>rounds:
+                raise ValueError('Proposal outcomes exceed attempts/rounds')
+            if r.get('complete')==1 and accepted+rejected!=attempted:
+                raise ValueError('Completed engine has unfinished private attempts')
+            proposed=attempted+conflicts
+            outcomes.append(dict(rank=int(r['rank']),reserved_or_vetoed_proposals=int(proposed),
+                reservation_veto_fraction=conflicts/proposed if proposed else None,
+                accepted_fraction_of_attempts=accepted/attempted if attempted else None,
+                unfinished_attempts=int(attempted-accepted-rejected)))
+        result['proposal_outcomes']=outcomes
     if phases is not None:
         critical=max(measured,key=lambda r:r['total'])
         labels=(*phases,'other')

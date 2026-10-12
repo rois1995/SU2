@@ -94,3 +94,16 @@ completion truth.32core+14comparison checks and full compiled-source matching
 retain older packages plus the new diagnostic-only source variant. This closes
 the misleading-message gap but does not resolve default512completion or supply
 cluster cost/scaling/overhead/weight/wait/memory calibration. No fullGoal1 completion.
+
+## Saved active-load and reservation diagnosis
+
+reservation_balance_review_v1/REVIEW.md verifies three pinned successful N4M2
+logs (18operation events) and unchanged partition/directory/donor/remesher source.
+In the aspect2 second coarsening, proxy weights959/979 and owner candidate work
+649111/644747 are nearly balanced, while attempts130/64 and vetoes0/92 reveal
+lowest-rank reservation preference. Active partition/proposal-outcome summaries
+are now reusable in cluster analysis;34core+15comparison lightweight checks pass
+and legacy recorded runtime fields remain raw-log verified. This identifies a
+structural balance hypothesis, not calibrated rank CPU/wait cost or net benefit
+of rotating priority/repartitioning. No production scheduling/weight/default
+change or new numerical/profiling run. All full repeated performance gates remain.

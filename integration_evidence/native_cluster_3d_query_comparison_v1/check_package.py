@@ -1,6 +1,6 @@
 """Lightweight comparison orchestration checks; no actual MPI, CFD, build, qsub or performance measurements."""
 from pathlib import Path
-import contextlib,importlib.util,io,json,os,shutil,sys,tempfile,types,unittest
+import contextlib,copy,importlib.util,io,json,os,shutil,sys,tempfile,types,unittest
 from unittest.mock import patch
 from common import sha,verify
 def module(name):
@@ -59,6 +59,21 @@ class Checks(unittest.TestCase):
         self.assertEqual(prepare.matched_sources(manifests),dict(baseline='box',candidate='box_diagnostics'))
         manifests['candidate']['source_sha256']['UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp']=prepare.SOURCE_PINS['box']['UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp']
         with self.assertRaises(ValueError):prepare.matched_sources(manifests)
+
+    def test_old_runtime_preserves_verified_counts_and_accepts_only_new_derived_fields(self):
+        observed=dict(samples=[dict(accepted=5)],profiles=dict(nested_detail_events=[dict(stage='coarsen',event_index=0,
+            profile=dict(measures=dict(conflicts=dict(rank_sum=2)),proposal_outcomes=[dict(rank=0,reservation_veto_fraction=.5)]))],scope='unchanged'))
+        old=copy.deepcopy(observed);del old['profiles']['nested_detail_events'][0]['profile']['proposal_outcomes']
+        with patch.object(analyze,'runtime',return_value=observed):
+            self.assertEqual(analyze.verified_runtime(Path('.'),{},old),observed)
+            bad=copy.deepcopy(old);bad['samples'][0]['accepted']=6
+            with self.assertRaises(ValueError):analyze.verified_runtime(Path('.'),{},bad)
+            bad=copy.deepcopy(old);bad['profiles']['nested_detail_events'][0]['profile']['measures']['conflicts']['rank_sum']=3
+            with self.assertRaises(ValueError):analyze.verified_runtime(Path('.'),{},bad)
+            bad=copy.deepcopy(observed);bad['profiles']['nested_detail_events'][0]['profile']['proposal_outcomes'][0]['reservation_veto_fraction']=.7
+            with self.assertRaises(ValueError):analyze.verified_runtime(Path('.'),{},bad)
+            bad=copy.deepcopy(old);del bad['profiles']['nested_detail_events'][0]['profile']['measures']
+            with self.assertRaises(ValueError):analyze.verified_runtime(Path('.'),{},bad)
 
     def test_schedule_pairs(self):
         for ranks,count in ((1,14),(2,28),(4,28)):

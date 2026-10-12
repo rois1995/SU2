@@ -1,0 +1,3509 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "case": "box_filter_n4_n4_m2_v1",
+      "parameters": {
+        "ranks": 4,
+        "workers": 2,
+        "size": 4,
+        "anisotropy": 1,
+        "varying": 1,
+        "direction": 1,
+        "height_power": 0,
+        "wedge": true,
+        "aligned_markers": true,
+        "diagnostic_rounds": 512,
+        "repeat": 0,
+        "detail": 1,
+        "restart_format": "none"
+      },
+      "validation_sha256": "84aef75bdd9800e2b7c783dfca9716e70bba7d0266631fab105c840d5edbb928",
+      "independent_audit_sha256": "d30eef7e3627d7bf562b050f9a20821e45325c14927a7448b7cd67093fae7814",
+      "source_log_sha256": "8f23eaa995ba1eca317b6265874f09f1b2f8dcc91c516177bc93a18c0cc2ab3a",
+      "binary_sha256": "c1bdef2a09d1e13bd1d137910db5713de32514f7a421369d6b1a177b48de54d6",
+      "events": [
+        {
+          "cycle": 0,
+          "operation": "refine",
+          "initial_partition_active_load": {
+            "cells_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 99.0
+                },
+                {
+                  "rank": 1,
+                  "value": 93.0
+                }
+              ],
+              "rank_sum": 192.0,
+              "mean": 96.0,
+              "maximum": 99.0,
+              "maximum_over_mean": 1.03125
+            },
+            "work_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 396.0
+                },
+                {
+                  "rank": 1,
+                  "value": 372.0
+                }
+              ],
+              "rank_sum": 768.0,
+              "mean": 384.0,
+              "maximum": 396.0,
+              "maximum_over_mean": 1.03125
+            }
+          },
+          "proposal_outcomes": [
+            {
+              "rank": 0,
+              "reserved_or_vetoed_proposals": 32,
+              "reservation_veto_fraction": 0.0,
+              "accepted_fraction_of_attempts": 1.0,
+              "unfinished_attempts": 0
+            },
+            {
+              "rank": 1,
+              "reserved_or_vetoed_proposals": 33,
+              "reservation_veto_fraction": 0.12121212121212122,
+              "accepted_fraction_of_attempts": 1.0,
+              "unfinished_attempts": 0
+            }
+          ],
+          "rank_work_counters": {
+            "rounds": [
+              {
+                "rank": 0,
+                "value": 33.0
+              },
+              {
+                "rank": 1,
+                "value": 33.0
+              }
+            ],
+            "attempted": [
+              {
+                "rank": 0,
+                "value": 32.0
+              },
+              {
+                "rank": 1,
+                "value": 29.0
+              }
+            ],
+            "accepted": [
+              {
+                "rank": 0,
+                "value": 32.0
+              },
+              {
+                "rank": 1,
+                "value": 29.0
+              }
+            ],
+            "rejected": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "conflicts": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 4.0
+              }
+            ],
+            "requests": [
+              {
+                "rank": 0,
+                "value": 720.0
+              },
+              {
+                "rank": 1,
+                "value": 672.0
+              }
+            ],
+            "donor_candidates": [
+              {
+                "rank": 0,
+                "value": 26859.0
+              },
+              {
+                "rank": 1,
+                "value": 25086.0
+              }
+            ],
+            "donor_filtered": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "donor_box_filtered": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "donor_payloads": [
+              {
+                "rank": 0,
+                "value": 5391.0
+              },
+              {
+                "rank": 1,
+                "value": 4776.0
+              }
+            ],
+            "edge_evaluations": [
+              {
+                "rank": 0,
+                "value": 415.0
+              },
+              {
+                "rank": 1,
+                "value": 358.0
+              }
+            ],
+            "edge_reused": [
+              {
+                "rank": 0,
+                "value": 1763.0
+              },
+              {
+                "rank": 1,
+                "value": 1496.0
+              }
+            ]
+          },
+          "work_imbalance": {
+            "rounds": 1.0,
+            "attempted": 1.0491803278688525,
+            "accepted": 1.0491803278688525,
+            "rejected": null,
+            "conflicts": 2.0,
+            "requests": 1.0344827586206897,
+            "donor_candidates": 1.0341322552699972,
+            "donor_filtered": null,
+            "donor_box_filtered": null,
+            "donor_payloads": 1.0604898200059014,
+            "edge_evaluations": 1.073738680465718,
+            "edge_reused": 1.0819269714636393
+          }
+        },
+        {
+          "cycle": 0,
+          "operation": "coarsen",
+          "initial_partition_active_load": {
+            "cells_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 99.0
+                },
+                {
+                  "rank": 1,
+                  "value": 93.0
+                }
+              ],
+              "rank_sum": 192.0,
+              "mean": 96.0,
+              "maximum": 99.0,
+              "maximum_over_mean": 1.03125
+            },
+            "work_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 396.0
+                },
+                {
+                  "rank": 1,
+                  "value": 372.0
+                }
+              ],
+              "rank_sum": 768.0,
+              "mean": 384.0,
+              "maximum": 396.0,
+              "maximum_over_mean": 1.03125
+            }
+          },
+          "proposal_outcomes": [
+            {
+              "rank": 0,
+              "reserved_or_vetoed_proposals": 39,
+              "reservation_veto_fraction": 0.0,
+              "accepted_fraction_of_attempts": 0.6666666666666666,
+              "unfinished_attempts": 0
+            },
+            {
+              "rank": 1,
+              "reserved_or_vetoed_proposals": 36,
+              "reservation_veto_fraction": 0.3055555555555556,
+              "accepted_fraction_of_attempts": 0.56,
+              "unfinished_attempts": 0
+            }
+          ],
+          "rank_work_counters": {
+            "rounds": [
+              {
+                "rank": 0,
+                "value": 39.0
+              },
+              {
+                "rank": 1,
+                "value": 39.0
+              }
+            ],
+            "attempted": [
+              {
+                "rank": 0,
+                "value": 39.0
+              },
+              {
+                "rank": 1,
+                "value": 25.0
+              }
+            ],
+            "accepted": [
+              {
+                "rank": 0,
+                "value": 26.0
+              },
+              {
+                "rank": 1,
+                "value": 14.0
+              }
+            ],
+            "rejected": [
+              {
+                "rank": 0,
+                "value": 13.0
+              },
+              {
+                "rank": 1,
+                "value": 11.0
+              }
+            ],
+            "conflicts": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 11.0
+              }
+            ],
+            "requests": [
+              {
+                "rank": 0,
+                "value": 1051.0
+              },
+              {
+                "rank": 1,
+                "value": 808.0
+              }
+            ],
+            "donor_candidates": [
+              {
+                "rank": 0,
+                "value": 36428.0
+              },
+              {
+                "rank": 1,
+                "value": 32854.0
+              }
+            ],
+            "donor_filtered": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "donor_box_filtered": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "donor_payloads": [
+              {
+                "rank": 0,
+                "value": 6309.0
+              },
+              {
+                "rank": 1,
+                "value": 4521.0
+              }
+            ],
+            "edge_evaluations": [
+              {
+                "rank": 0,
+                "value": 436.0
+              },
+              {
+                "rank": 1,
+                "value": 372.0
+              }
+            ],
+            "edge_reused": [
+              {
+                "rank": 0,
+                "value": 1790.0
+              },
+              {
+                "rank": 1,
+                "value": 1428.0
+              }
+            ]
+          },
+          "work_imbalance": {
+            "rounds": 1.0,
+            "attempted": 1.21875,
+            "accepted": 1.3,
+            "rejected": 1.0833333333333333,
+            "conflicts": 2.0,
+            "requests": 1.130715438407746,
+            "donor_candidates": 1.0515862706041974,
+            "donor_filtered": null,
+            "donor_box_filtered": null,
+            "donor_payloads": 1.1650969529085873,
+            "edge_evaluations": 1.0792079207920793,
+            "edge_reused": 1.1124922311995027
+          }
+        },
+        {
+          "cycle": 1,
+          "operation": "refine",
+          "initial_partition_active_load": {
+            "cells_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 145.0
+                },
+                {
+                  "rank": 1,
+                  "value": 144.0
+                }
+              ],
+              "rank_sum": 289.0,
+              "mean": 144.5,
+              "maximum": 145.0,
+              "maximum_over_mean": 1.0034602076124568
+            },
+            "work_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 684.0
+                },
+                {
+                  "rank": 1,
+                  "value": 677.0
+                }
+              ],
+              "rank_sum": 1361.0,
+              "mean": 680.5,
+              "maximum": 684.0,
+              "maximum_over_mean": 1.0051432770022042
+            }
+          },
+          "proposal_outcomes": [
+            {
+              "rank": 0,
+              "reserved_or_vetoed_proposals": 0,
+              "reservation_veto_fraction": null,
+              "accepted_fraction_of_attempts": null,
+              "unfinished_attempts": 0
+            },
+            {
+              "rank": 1,
+              "reserved_or_vetoed_proposals": 0,
+              "reservation_veto_fraction": null,
+              "accepted_fraction_of_attempts": null,
+              "unfinished_attempts": 0
+            }
+          ],
+          "rank_work_counters": {
+            "rounds": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "attempted": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "accepted": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "rejected": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "conflicts": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "requests": [
+              {
+                "rank": 0,
+                "value": 145.0
+              },
+              {
+                "rank": 1,
+                "value": 144.0
+              }
+            ],
+            "donor_candidates": [
+              {
+                "rank": 0,
+                "value": 10812.0
+              },
+              {
+                "rank": 1,
+                "value": 10917.0
+              }
+            ],
+            "donor_filtered": [
+              {
+                "rank": 0,
+                "value": 1813.0
+              },
+              {
+                "rank": 1,
+                "value": 2108.0
+              }
+            ],
+            "donor_box_filtered": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "donor_payloads": [
+              {
+                "rank": 0,
+                "value": 1283.0
+              },
+              {
+                "rank": 1,
+                "value": 1301.0
+              }
+            ],
+            "edge_evaluations": [
+              {
+                "rank": 0,
+                "value": 243.0
+              },
+              {
+                "rank": 1,
+                "value": 246.0
+              }
+            ],
+            "edge_reused": [
+              {
+                "rank": 0,
+                "value": 627.0
+              },
+              {
+                "rank": 1,
+                "value": 618.0
+              }
+            ]
+          },
+          "work_imbalance": {
+            "rounds": null,
+            "attempted": null,
+            "accepted": null,
+            "rejected": null,
+            "conflicts": null,
+            "requests": 1.0034602076124568,
+            "donor_candidates": 1.0048322518293524,
+            "donor_filtered": 1.075235909206835,
+            "donor_box_filtered": null,
+            "donor_payloads": 1.006965944272446,
+            "edge_evaluations": 1.0061349693251533,
+            "edge_reused": 1.0072289156626506
+          }
+        },
+        {
+          "cycle": 1,
+          "operation": "coarsen",
+          "initial_partition_active_load": {
+            "cells_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 145.0
+                },
+                {
+                  "rank": 1,
+                  "value": 144.0
+                }
+              ],
+              "rank_sum": 289.0,
+              "mean": 144.5,
+              "maximum": 145.0,
+              "maximum_over_mean": 1.0034602076124568
+            },
+            "work_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 684.0
+                },
+                {
+                  "rank": 1,
+                  "value": 677.0
+                }
+              ],
+              "rank_sum": 1361.0,
+              "mean": 680.5,
+              "maximum": 684.0,
+              "maximum_over_mean": 1.0051432770022042
+            }
+          },
+          "proposal_outcomes": [
+            {
+              "rank": 0,
+              "reserved_or_vetoed_proposals": 106,
+              "reservation_veto_fraction": 0.0,
+              "accepted_fraction_of_attempts": 0.37735849056603776,
+              "unfinished_attempts": 0
+            },
+            {
+              "rank": 1,
+              "reserved_or_vetoed_proposals": 141,
+              "reservation_veto_fraction": 0.6170212765957447,
+              "accepted_fraction_of_attempts": 0.5370370370370371,
+              "unfinished_attempts": 0
+            }
+          ],
+          "rank_work_counters": {
+            "rounds": [
+              {
+                "rank": 0,
+                "value": 141.0
+              },
+              {
+                "rank": 1,
+                "value": 141.0
+              }
+            ],
+            "attempted": [
+              {
+                "rank": 0,
+                "value": 106.0
+              },
+              {
+                "rank": 1,
+                "value": 54.0
+              }
+            ],
+            "accepted": [
+              {
+                "rank": 0,
+                "value": 40.0
+              },
+              {
+                "rank": 1,
+                "value": 29.0
+              }
+            ],
+            "rejected": [
+              {
+                "rank": 0,
+                "value": 66.0
+              },
+              {
+                "rank": 1,
+                "value": 25.0
+              }
+            ],
+            "conflicts": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 87.0
+              }
+            ],
+            "requests": [
+              {
+                "rank": 0,
+                "value": 2481.0
+              },
+              {
+                "rank": 1,
+                "value": 1306.0
+              }
+            ],
+            "donor_candidates": [
+              {
+                "rank": 0,
+                "value": 334760.0
+              },
+              {
+                "rank": 1,
+                "value": 320241.0
+              }
+            ],
+            "donor_filtered": [
+              {
+                "rank": 0,
+                "value": 84278.0
+              },
+              {
+                "rank": 1,
+                "value": 79858.0
+              }
+            ],
+            "donor_box_filtered": [
+              {
+                "rank": 0,
+                "value": 30282.0
+              },
+              {
+                "rank": 1,
+                "value": 31788.0
+              }
+            ],
+            "donor_payloads": [
+              {
+                "rank": 0,
+                "value": 24850.0
+              },
+              {
+                "rank": 1,
+                "value": 13156.0
+              }
+            ],
+            "edge_evaluations": [
+              {
+                "rank": 0,
+                "value": 367.0
+              },
+              {
+                "rank": 1,
+                "value": 435.0
+              }
+            ],
+            "edge_reused": [
+              {
+                "rank": 0,
+                "value": 1919.0
+              },
+              {
+                "rank": 1,
+                "value": 2223.0
+              }
+            ]
+          },
+          "work_imbalance": {
+            "rounds": 1.0,
+            "attempted": 1.325,
+            "accepted": 1.1594202898550725,
+            "rejected": 1.4505494505494505,
+            "conflicts": 2.0,
+            "requests": 1.3102719831000793,
+            "donor_candidates": 1.0221663783719415,
+            "donor_filtered": 1.0269288882390213,
+            "donor_box_filtered": 1.0242629289511842,
+            "donor_payloads": 1.3076882597484607,
+            "edge_evaluations": 1.084788029925187,
+            "edge_reused": 1.073394495412844
+          }
+        },
+        {
+          "cycle": 2,
+          "operation": "refine",
+          "initial_partition_active_load": {
+            "cells_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 24.0
+                },
+                {
+                  "rank": 1,
+                  "value": 24.0
+                }
+              ],
+              "rank_sum": 48.0,
+              "mean": 24.0,
+              "maximum": 24.0,
+              "maximum_over_mean": 1.0
+            },
+            "work_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 330.0
+                },
+                {
+                  "rank": 1,
+                  "value": 311.0
+                }
+              ],
+              "rank_sum": 641.0,
+              "mean": 320.5,
+              "maximum": 330.0,
+              "maximum_over_mean": 1.029641185647426
+            }
+          },
+          "proposal_outcomes": [
+            {
+              "rank": 0,
+              "reserved_or_vetoed_proposals": 68,
+              "reservation_veto_fraction": 0.0,
+              "accepted_fraction_of_attempts": 1.0,
+              "unfinished_attempts": 0
+            },
+            {
+              "rank": 1,
+              "reserved_or_vetoed_proposals": 77,
+              "reservation_veto_fraction": 0.35064935064935066,
+              "accepted_fraction_of_attempts": 1.0,
+              "unfinished_attempts": 0
+            }
+          ],
+          "rank_work_counters": {
+            "rounds": [
+              {
+                "rank": 0,
+                "value": 77.0
+              },
+              {
+                "rank": 1,
+                "value": 77.0
+              }
+            ],
+            "attempted": [
+              {
+                "rank": 0,
+                "value": 68.0
+              },
+              {
+                "rank": 1,
+                "value": 50.0
+              }
+            ],
+            "accepted": [
+              {
+                "rank": 0,
+                "value": 68.0
+              },
+              {
+                "rank": 1,
+                "value": 50.0
+              }
+            ],
+            "rejected": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "conflicts": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 27.0
+              }
+            ],
+            "requests": [
+              {
+                "rank": 0,
+                "value": 1135.0
+              },
+              {
+                "rank": 1,
+                "value": 1028.0
+              }
+            ],
+            "donor_candidates": [
+              {
+                "rank": 0,
+                "value": 15324.0
+              },
+              {
+                "rank": 1,
+                "value": 15851.0
+              }
+            ],
+            "donor_filtered": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "donor_box_filtered": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "donor_payloads": [
+              {
+                "rank": 0,
+                "value": 3805.0
+              },
+              {
+                "rank": 1,
+                "value": 3129.0
+              }
+            ],
+            "edge_evaluations": [
+              {
+                "rank": 0,
+                "value": 444.0
+              },
+              {
+                "rank": 1,
+                "value": 447.0
+              }
+            ],
+            "edge_reused": [
+              {
+                "rank": 0,
+                "value": 2136.0
+              },
+              {
+                "rank": 1,
+                "value": 2337.0
+              }
+            ]
+          },
+          "work_imbalance": {
+            "rounds": 1.0,
+            "attempted": 1.152542372881356,
+            "accepted": 1.152542372881356,
+            "rejected": null,
+            "conflicts": 2.0,
+            "requests": 1.049468331021729,
+            "donor_candidates": 1.0169045709703288,
+            "donor_filtered": null,
+            "donor_box_filtered": null,
+            "donor_payloads": 1.0974906259013557,
+            "edge_evaluations": 1.0033670033670035,
+            "edge_reused": 1.0449362843729042
+          }
+        },
+        {
+          "cycle": 2,
+          "operation": "coarsen",
+          "initial_partition_active_load": {
+            "cells_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 24.0
+                },
+                {
+                  "rank": 1,
+                  "value": 24.0
+                }
+              ],
+              "rank_sum": 48.0,
+              "mean": 24.0,
+              "maximum": 24.0,
+              "maximum_over_mean": 1.0
+            },
+            "work_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 330.0
+                },
+                {
+                  "rank": 1,
+                  "value": 311.0
+                }
+              ],
+              "rank_sum": 641.0,
+              "mean": 320.5,
+              "maximum": 330.0,
+              "maximum_over_mean": 1.029641185647426
+            }
+          },
+          "proposal_outcomes": [
+            {
+              "rank": 0,
+              "reserved_or_vetoed_proposals": 73,
+              "reservation_veto_fraction": 0.0,
+              "accepted_fraction_of_attempts": 0.3013698630136986,
+              "unfinished_attempts": 0
+            },
+            {
+              "rank": 1,
+              "reserved_or_vetoed_proposals": 116,
+              "reservation_veto_fraction": 0.31896551724137934,
+              "accepted_fraction_of_attempts": 0.26582278481012656,
+              "unfinished_attempts": 0
+            }
+          ],
+          "rank_work_counters": {
+            "rounds": [
+              {
+                "rank": 0,
+                "value": 116.0
+              },
+              {
+                "rank": 1,
+                "value": 116.0
+              }
+            ],
+            "attempted": [
+              {
+                "rank": 0,
+                "value": 73.0
+              },
+              {
+                "rank": 1,
+                "value": 79.0
+              }
+            ],
+            "accepted": [
+              {
+                "rank": 0,
+                "value": 22.0
+              },
+              {
+                "rank": 1,
+                "value": 21.0
+              }
+            ],
+            "rejected": [
+              {
+                "rank": 0,
+                "value": 51.0
+              },
+              {
+                "rank": 1,
+                "value": 58.0
+              }
+            ],
+            "conflicts": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 37.0
+              }
+            ],
+            "requests": [
+              {
+                "rank": 0,
+                "value": 2069.0
+              },
+              {
+                "rank": 1,
+                "value": 1958.0
+              }
+            ],
+            "donor_candidates": [
+              {
+                "rank": 0,
+                "value": 24243.0
+              },
+              {
+                "rank": 1,
+                "value": 30159.0
+              }
+            ],
+            "donor_filtered": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "donor_box_filtered": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "donor_payloads": [
+              {
+                "rank": 0,
+                "value": 2981.0
+              },
+              {
+                "rank": 1,
+                "value": 3252.0
+              }
+            ],
+            "edge_evaluations": [
+              {
+                "rank": 0,
+                "value": 421.0
+              },
+              {
+                "rank": 1,
+                "value": 439.0
+              }
+            ],
+            "edge_reused": [
+              {
+                "rank": 0,
+                "value": 1583.0
+              },
+              {
+                "rank": 1,
+                "value": 1853.0
+              }
+            ]
+          },
+          "work_imbalance": {
+            "rounds": 1.0,
+            "attempted": 1.0394736842105263,
+            "accepted": 1.0232558139534884,
+            "rejected": 1.0642201834862386,
+            "conflicts": 2.0,
+            "requests": 1.0275639433821704,
+            "donor_candidates": 1.108746001985221,
+            "donor_filtered": null,
+            "donor_box_filtered": null,
+            "donor_payloads": 1.0434782608695652,
+            "edge_evaluations": 1.0209302325581395,
+            "edge_reused": 1.078579743888242
+          }
+        }
+      ]
+    },
+    {
+      "case": "box_filter_a2_direction_n4_n4_m2_v1",
+      "parameters": {
+        "ranks": 4,
+        "workers": 2,
+        "size": 4,
+        "anisotropy": 2,
+        "varying": 1,
+        "direction": 1,
+        "height_power": 0,
+        "wedge": true,
+        "aligned_markers": true,
+        "diagnostic_rounds": 512,
+        "repeat": 0,
+        "detail": 1,
+        "restart_format": "none"
+      },
+      "validation_sha256": "4368ffeb3afb6a582e8cfe97c97f472be86eae61e55ab1499a02ebdbcdfa464f",
+      "independent_audit_sha256": "72bee428d6e1eb029fb49434f0eba5c6feba4a49c3d9ff00e89b9b4afe72b4f6",
+      "source_log_sha256": "35dc3599ae0d9fbcb5ef53b8b8b8d0c41886d25ee572dcd7fe8d9c1bb6064657",
+      "binary_sha256": "c1bdef2a09d1e13bd1d137910db5713de32514f7a421369d6b1a177b48de54d6",
+      "events": [
+        {
+          "cycle": 0,
+          "operation": "refine",
+          "initial_partition_active_load": {
+            "cells_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 94.0
+                },
+                {
+                  "rank": 1,
+                  "value": 98.0
+                }
+              ],
+              "rank_sum": 192.0,
+              "mean": 96.0,
+              "maximum": 98.0,
+              "maximum_over_mean": 1.0208333333333333
+            },
+            "work_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 497.0
+                },
+                {
+                  "rank": 1,
+                  "value": 507.0
+                }
+              ],
+              "rank_sum": 1004.0,
+              "mean": 502.0,
+              "maximum": 507.0,
+              "maximum_over_mean": 1.0099601593625498
+            }
+          },
+          "proposal_outcomes": [
+            {
+              "rank": 0,
+              "reserved_or_vetoed_proposals": 63,
+              "reservation_veto_fraction": 0.0,
+              "accepted_fraction_of_attempts": 1.0,
+              "unfinished_attempts": 0
+            },
+            {
+              "rank": 1,
+              "reserved_or_vetoed_proposals": 67,
+              "reservation_veto_fraction": 0.05970149253731343,
+              "accepted_fraction_of_attempts": 1.0,
+              "unfinished_attempts": 0
+            }
+          ],
+          "rank_work_counters": {
+            "rounds": [
+              {
+                "rank": 0,
+                "value": 67.0
+              },
+              {
+                "rank": 1,
+                "value": 67.0
+              }
+            ],
+            "attempted": [
+              {
+                "rank": 0,
+                "value": 63.0
+              },
+              {
+                "rank": 1,
+                "value": 63.0
+              }
+            ],
+            "accepted": [
+              {
+                "rank": 0,
+                "value": 63.0
+              },
+              {
+                "rank": 1,
+                "value": 63.0
+              }
+            ],
+            "rejected": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "conflicts": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 4.0
+              }
+            ],
+            "requests": [
+              {
+                "rank": 0,
+                "value": 1299.0
+              },
+              {
+                "rank": 1,
+                "value": 1333.0
+              }
+            ],
+            "donor_candidates": [
+              {
+                "rank": 0,
+                "value": 40981.0
+              },
+              {
+                "rank": 1,
+                "value": 46373.0
+              }
+            ],
+            "donor_filtered": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "donor_box_filtered": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "donor_payloads": [
+              {
+                "rank": 0,
+                "value": 8640.0
+              },
+              {
+                "rank": 1,
+                "value": 9150.0
+              }
+            ],
+            "edge_evaluations": [
+              {
+                "rank": 0,
+                "value": 628.0
+              },
+              {
+                "rank": 1,
+                "value": 580.0
+              }
+            ],
+            "edge_reused": [
+              {
+                "rank": 0,
+                "value": 2972.0
+              },
+              {
+                "rank": 1,
+                "value": 2828.0
+              }
+            ]
+          },
+          "work_imbalance": {
+            "rounds": 1.0,
+            "attempted": 1.0,
+            "accepted": 1.0,
+            "rejected": null,
+            "conflicts": 2.0,
+            "requests": 1.012917933130699,
+            "donor_candidates": 1.0617258511344643,
+            "donor_filtered": null,
+            "donor_box_filtered": null,
+            "donor_payloads": 1.0286677908937605,
+            "edge_evaluations": 1.0397350993377483,
+            "edge_reused": 1.0248275862068965
+          }
+        },
+        {
+          "cycle": 0,
+          "operation": "coarsen",
+          "initial_partition_active_load": {
+            "cells_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 94.0
+                },
+                {
+                  "rank": 1,
+                  "value": 98.0
+                }
+              ],
+              "rank_sum": 192.0,
+              "mean": 96.0,
+              "maximum": 98.0,
+              "maximum_over_mean": 1.0208333333333333
+            },
+            "work_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 497.0
+                },
+                {
+                  "rank": 1,
+                  "value": 507.0
+                }
+              ],
+              "rank_sum": 1004.0,
+              "mean": 502.0,
+              "maximum": 507.0,
+              "maximum_over_mean": 1.0099601593625498
+            }
+          },
+          "proposal_outcomes": [
+            {
+              "rank": 0,
+              "reserved_or_vetoed_proposals": 96,
+              "reservation_veto_fraction": 0.0,
+              "accepted_fraction_of_attempts": 0.4166666666666667,
+              "unfinished_attempts": 0
+            },
+            {
+              "rank": 1,
+              "reserved_or_vetoed_proposals": 113,
+              "reservation_veto_fraction": 0.36283185840707965,
+              "accepted_fraction_of_attempts": 0.4027777777777778,
+              "unfinished_attempts": 0
+            }
+          ],
+          "rank_work_counters": {
+            "rounds": [
+              {
+                "rank": 0,
+                "value": 113.0
+              },
+              {
+                "rank": 1,
+                "value": 113.0
+              }
+            ],
+            "attempted": [
+              {
+                "rank": 0,
+                "value": 96.0
+              },
+              {
+                "rank": 1,
+                "value": 72.0
+              }
+            ],
+            "accepted": [
+              {
+                "rank": 0,
+                "value": 40.0
+              },
+              {
+                "rank": 1,
+                "value": 29.0
+              }
+            ],
+            "rejected": [
+              {
+                "rank": 0,
+                "value": 56.0
+              },
+              {
+                "rank": 1,
+                "value": 43.0
+              }
+            ],
+            "conflicts": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 41.0
+              }
+            ],
+            "requests": [
+              {
+                "rank": 0,
+                "value": 2829.0
+              },
+              {
+                "rank": 1,
+                "value": 2149.0
+              }
+            ],
+            "donor_candidates": [
+              {
+                "rank": 0,
+                "value": 71859.0
+              },
+              {
+                "rank": 1,
+                "value": 76746.0
+              }
+            ],
+            "donor_filtered": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "donor_box_filtered": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "donor_payloads": [
+              {
+                "rank": 0,
+                "value": 11232.0
+              },
+              {
+                "rank": 1,
+                "value": 9897.0
+              }
+            ],
+            "edge_evaluations": [
+              {
+                "rank": 0,
+                "value": 643.0
+              },
+              {
+                "rank": 1,
+                "value": 610.0
+              }
+            ],
+            "edge_reused": [
+              {
+                "rank": 0,
+                "value": 2837.0
+              },
+              {
+                "rank": 1,
+                "value": 2744.0
+              }
+            ]
+          },
+          "work_imbalance": {
+            "rounds": 1.0,
+            "attempted": 1.1428571428571428,
+            "accepted": 1.1594202898550725,
+            "rejected": 1.1313131313131313,
+            "conflicts": 2.0,
+            "requests": 1.1366010445962234,
+            "donor_candidates": 1.0328858382961543,
+            "donor_filtered": null,
+            "donor_box_filtered": null,
+            "donor_payloads": 1.0631833025699275,
+            "edge_evaluations": 1.0263367916999202,
+            "edge_reused": 1.0166636803440243
+          }
+        },
+        {
+          "cycle": 1,
+          "operation": "refine",
+          "initial_partition_active_load": {
+            "cells_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 197.0
+                },
+                {
+                  "rank": 1,
+                  "value": 205.0
+                }
+              ],
+              "rank_sum": 402.0,
+              "mean": 201.0,
+              "maximum": 205.0,
+              "maximum_over_mean": 1.0199004975124377
+            },
+            "work_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 959.0
+                },
+                {
+                  "rank": 1,
+                  "value": 979.0
+                }
+              ],
+              "rank_sum": 1938.0,
+              "mean": 969.0,
+              "maximum": 979.0,
+              "maximum_over_mean": 1.0103199174406605
+            }
+          },
+          "proposal_outcomes": [
+            {
+              "rank": 0,
+              "reserved_or_vetoed_proposals": 0,
+              "reservation_veto_fraction": null,
+              "accepted_fraction_of_attempts": null,
+              "unfinished_attempts": 0
+            },
+            {
+              "rank": 1,
+              "reserved_or_vetoed_proposals": 0,
+              "reservation_veto_fraction": null,
+              "accepted_fraction_of_attempts": null,
+              "unfinished_attempts": 0
+            }
+          ],
+          "rank_work_counters": {
+            "rounds": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "attempted": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "accepted": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "rejected": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "conflicts": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "requests": [
+              {
+                "rank": 0,
+                "value": 197.0
+              },
+              {
+                "rank": 1,
+                "value": 205.0
+              }
+            ],
+            "donor_candidates": [
+              {
+                "rank": 0,
+                "value": 15596.0
+              },
+              {
+                "rank": 1,
+                "value": 16498.0
+              }
+            ],
+            "donor_filtered": [
+              {
+                "rank": 0,
+                "value": 2876.0
+              },
+              {
+                "rank": 1,
+                "value": 3785.0
+              }
+            ],
+            "donor_box_filtered": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "donor_payloads": [
+              {
+                "rank": 0,
+                "value": 1922.0
+              },
+              {
+                "rank": 1,
+                "value": 1937.0
+              }
+            ],
+            "edge_evaluations": [
+              {
+                "rank": 0,
+                "value": 331.0
+              },
+              {
+                "rank": 1,
+                "value": 350.0
+              }
+            ],
+            "edge_reused": [
+              {
+                "rank": 0,
+                "value": 851.0
+              },
+              {
+                "rank": 1,
+                "value": 880.0
+              }
+            ]
+          },
+          "work_imbalance": {
+            "rounds": null,
+            "attempted": null,
+            "accepted": null,
+            "rejected": null,
+            "conflicts": null,
+            "requests": 1.0199004975124377,
+            "donor_candidates": 1.0281049417336574,
+            "donor_filtered": 1.136465996096682,
+            "donor_box_filtered": null,
+            "donor_payloads": 1.003887017362011,
+            "edge_evaluations": 1.0279001468428781,
+            "edge_reused": 1.0167533217793183
+          }
+        },
+        {
+          "cycle": 1,
+          "operation": "coarsen",
+          "initial_partition_active_load": {
+            "cells_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 197.0
+                },
+                {
+                  "rank": 1,
+                  "value": 205.0
+                }
+              ],
+              "rank_sum": 402.0,
+              "mean": 201.0,
+              "maximum": 205.0,
+              "maximum_over_mean": 1.0199004975124377
+            },
+            "work_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 959.0
+                },
+                {
+                  "rank": 1,
+                  "value": 979.0
+                }
+              ],
+              "rank_sum": 1938.0,
+              "mean": 969.0,
+              "maximum": 979.0,
+              "maximum_over_mean": 1.0103199174406605
+            }
+          },
+          "proposal_outcomes": [
+            {
+              "rank": 0,
+              "reserved_or_vetoed_proposals": 130,
+              "reservation_veto_fraction": 0.0,
+              "accepted_fraction_of_attempts": 0.4230769230769231,
+              "unfinished_attempts": 0
+            },
+            {
+              "rank": 1,
+              "reserved_or_vetoed_proposals": 156,
+              "reservation_veto_fraction": 0.5897435897435898,
+              "accepted_fraction_of_attempts": 0.71875,
+              "unfinished_attempts": 0
+            }
+          ],
+          "rank_work_counters": {
+            "rounds": [
+              {
+                "rank": 0,
+                "value": 156.0
+              },
+              {
+                "rank": 1,
+                "value": 156.0
+              }
+            ],
+            "attempted": [
+              {
+                "rank": 0,
+                "value": 130.0
+              },
+              {
+                "rank": 1,
+                "value": 64.0
+              }
+            ],
+            "accepted": [
+              {
+                "rank": 0,
+                "value": 55.0
+              },
+              {
+                "rank": 1,
+                "value": 46.0
+              }
+            ],
+            "rejected": [
+              {
+                "rank": 0,
+                "value": 75.0
+              },
+              {
+                "rank": 1,
+                "value": 18.0
+              }
+            ],
+            "conflicts": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 92.0
+              }
+            ],
+            "requests": [
+              {
+                "rank": 0,
+                "value": 3044.0
+              },
+              {
+                "rank": 1,
+                "value": 1638.0
+              }
+            ],
+            "donor_candidates": [
+              {
+                "rank": 0,
+                "value": 649111.0
+              },
+              {
+                "rank": 1,
+                "value": 644747.0
+              }
+            ],
+            "donor_filtered": [
+              {
+                "rank": 0,
+                "value": 159938.0
+              },
+              {
+                "rank": 1,
+                "value": 194847.0
+              }
+            ],
+            "donor_box_filtered": [
+              {
+                "rank": 0,
+                "value": 69893.0
+              },
+              {
+                "rank": 1,
+                "value": 95287.0
+              }
+            ],
+            "donor_payloads": [
+              {
+                "rank": 0,
+                "value": 39323.0
+              },
+              {
+                "rank": 1,
+                "value": 15163.0
+              }
+            ],
+            "edge_evaluations": [
+              {
+                "rank": 0,
+                "value": 513.0
+              },
+              {
+                "rank": 1,
+                "value": 583.0
+              }
+            ],
+            "edge_reused": [
+              {
+                "rank": 0,
+                "value": 2775.0
+              },
+              {
+                "rank": 1,
+                "value": 3095.0
+              }
+            ]
+          },
+          "work_imbalance": {
+            "rounds": 1.0,
+            "attempted": 1.3402061855670102,
+            "accepted": 1.0891089108910892,
+            "rejected": 1.6129032258064515,
+            "conflicts": 2.0,
+            "requests": 1.3002990175138829,
+            "donor_candidates": 1.0033728585362536,
+            "donor_filtered": 1.0983948024860126,
+            "donor_box_filtered": 1.1537353190458894,
+            "donor_payloads": 1.4434166574899974,
+            "edge_evaluations": 1.063868613138686,
+            "edge_reused": 1.0545144804088586
+          }
+        },
+        {
+          "cycle": 2,
+          "operation": "refine",
+          "initial_partition_active_load": {
+            "cells_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 36.0
+                },
+                {
+                  "rank": 1,
+                  "value": 35.0
+                }
+              ],
+              "rank_sum": 71.0,
+              "mean": 35.5,
+              "maximum": 36.0,
+              "maximum_over_mean": 1.0140845070422535
+            },
+            "work_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 430.0
+                },
+                {
+                  "rank": 1,
+                  "value": 464.0
+                }
+              ],
+              "rank_sum": 894.0,
+              "mean": 447.0,
+              "maximum": 464.0,
+              "maximum_over_mean": 1.0380313199105144
+            }
+          },
+          "proposal_outcomes": [
+            {
+              "rank": 0,
+              "reserved_or_vetoed_proposals": 91,
+              "reservation_veto_fraction": 0.0,
+              "accepted_fraction_of_attempts": 1.0,
+              "unfinished_attempts": 0
+            },
+            {
+              "rank": 1,
+              "reserved_or_vetoed_proposals": 92,
+              "reservation_veto_fraction": 0.25,
+              "accepted_fraction_of_attempts": 1.0,
+              "unfinished_attempts": 0
+            }
+          ],
+          "rank_work_counters": {
+            "rounds": [
+              {
+                "rank": 0,
+                "value": 92.0
+              },
+              {
+                "rank": 1,
+                "value": 92.0
+              }
+            ],
+            "attempted": [
+              {
+                "rank": 0,
+                "value": 91.0
+              },
+              {
+                "rank": 1,
+                "value": 69.0
+              }
+            ],
+            "accepted": [
+              {
+                "rank": 0,
+                "value": 91.0
+              },
+              {
+                "rank": 1,
+                "value": 69.0
+              }
+            ],
+            "rejected": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "conflicts": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 23.0
+              }
+            ],
+            "requests": [
+              {
+                "rank": 0,
+                "value": 1698.0
+              },
+              {
+                "rank": 1,
+                "value": 1403.0
+              }
+            ],
+            "donor_candidates": [
+              {
+                "rank": 0,
+                "value": 28975.0
+              },
+              {
+                "rank": 1,
+                "value": 27343.0
+              }
+            ],
+            "donor_filtered": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "donor_box_filtered": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "donor_payloads": [
+              {
+                "rank": 0,
+                "value": 6718.0
+              },
+              {
+                "rank": 1,
+                "value": 5475.0
+              }
+            ],
+            "edge_evaluations": [
+              {
+                "rank": 0,
+                "value": 630.0
+              },
+              {
+                "rank": 1,
+                "value": 618.0
+              }
+            ],
+            "edge_reused": [
+              {
+                "rank": 0,
+                "value": 3222.0
+              },
+              {
+                "rank": 1,
+                "value": 3228.0
+              }
+            ]
+          },
+          "work_imbalance": {
+            "rounds": 1.0,
+            "attempted": 1.1375,
+            "accepted": 1.1375,
+            "rejected": null,
+            "conflicts": 2.0,
+            "requests": 1.0951306030312802,
+            "donor_candidates": 1.028978301786285,
+            "donor_filtered": null,
+            "donor_box_filtered": null,
+            "donor_payloads": 1.1019437382104487,
+            "edge_evaluations": 1.0096153846153846,
+            "edge_reused": 1.0009302325581395
+          }
+        },
+        {
+          "cycle": 2,
+          "operation": "coarsen",
+          "initial_partition_active_load": {
+            "cells_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 36.0
+                },
+                {
+                  "rank": 1,
+                  "value": 35.0
+                }
+              ],
+              "rank_sum": 71.0,
+              "mean": 35.5,
+              "maximum": 36.0,
+              "maximum_over_mean": 1.0140845070422535
+            },
+            "work_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 430.0
+                },
+                {
+                  "rank": 1,
+                  "value": 464.0
+                }
+              ],
+              "rank_sum": 894.0,
+              "mean": 447.0,
+              "maximum": 464.0,
+              "maximum_over_mean": 1.0380313199105144
+            }
+          },
+          "proposal_outcomes": [
+            {
+              "rank": 0,
+              "reserved_or_vetoed_proposals": 117,
+              "reservation_veto_fraction": 0.0,
+              "accepted_fraction_of_attempts": 0.3076923076923077,
+              "unfinished_attempts": 0
+            },
+            {
+              "rank": 1,
+              "reserved_or_vetoed_proposals": 153,
+              "reservation_veto_fraction": 0.29411764705882354,
+              "accepted_fraction_of_attempts": 0.2222222222222222,
+              "unfinished_attempts": 0
+            }
+          ],
+          "rank_work_counters": {
+            "rounds": [
+              {
+                "rank": 0,
+                "value": 153.0
+              },
+              {
+                "rank": 1,
+                "value": 153.0
+              }
+            ],
+            "attempted": [
+              {
+                "rank": 0,
+                "value": 117.0
+              },
+              {
+                "rank": 1,
+                "value": 108.0
+              }
+            ],
+            "accepted": [
+              {
+                "rank": 0,
+                "value": 36.0
+              },
+              {
+                "rank": 1,
+                "value": 24.0
+              }
+            ],
+            "rejected": [
+              {
+                "rank": 0,
+                "value": 81.0
+              },
+              {
+                "rank": 1,
+                "value": 84.0
+              }
+            ],
+            "conflicts": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 45.0
+              }
+            ],
+            "requests": [
+              {
+                "rank": 0,
+                "value": 3173.0
+              },
+              {
+                "rank": 1,
+                "value": 3504.0
+              }
+            ],
+            "donor_candidates": [
+              {
+                "rank": 0,
+                "value": 54739.0
+              },
+              {
+                "rank": 1,
+                "value": 56769.0
+              }
+            ],
+            "donor_filtered": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "donor_box_filtered": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "donor_payloads": [
+              {
+                "rank": 0,
+                "value": 6556.0
+              },
+              {
+                "rank": 1,
+                "value": 6039.0
+              }
+            ],
+            "edge_evaluations": [
+              {
+                "rank": 0,
+                "value": 637.0
+              },
+              {
+                "rank": 1,
+                "value": 621.0
+              }
+            ],
+            "edge_reused": [
+              {
+                "rank": 0,
+                "value": 2735.0
+              },
+              {
+                "rank": 1,
+                "value": 2631.0
+              }
+            ]
+          },
+          "work_imbalance": {
+            "rounds": 1.0,
+            "attempted": 1.04,
+            "accepted": 1.2,
+            "rejected": 1.018181818181818,
+            "conflicts": 2.0,
+            "requests": 1.0495731615995207,
+            "donor_candidates": 1.0182049718405854,
+            "donor_filtered": null,
+            "donor_box_filtered": null,
+            "donor_payloads": 1.0410480349344977,
+            "edge_evaluations": 1.012718600953895,
+            "edge_reused": 1.0193812896011927
+          }
+        }
+      ]
+    },
+    {
+      "case": "box_filter_thin_h20_n4_n4_m2_v1",
+      "parameters": {
+        "ranks": 4,
+        "workers": 2,
+        "size": 4,
+        "anisotropy": 1,
+        "varying": 1,
+        "direction": 1,
+        "height_power": 20,
+        "wedge": true,
+        "aligned_markers": true,
+        "diagnostic_rounds": 512,
+        "repeat": 0,
+        "detail": 1,
+        "restart_format": "none"
+      },
+      "validation_sha256": "6c6e93c4aa60567770dfe8593a7957251eeb6c7677e3927f868dfd137e8bf542",
+      "independent_audit_sha256": "2b225f788cadf98adff951394c35c9afbc35aba56f48b0b82785150b71bdc38c",
+      "source_log_sha256": "d12da1517232a91b60443d8739167868da801f346fca9d6019762785d45b72ee",
+      "binary_sha256": "c1bdef2a09d1e13bd1d137910db5713de32514f7a421369d6b1a177b48de54d6",
+      "events": [
+        {
+          "cycle": 0,
+          "operation": "refine",
+          "initial_partition_active_load": {
+            "cells_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 99.0
+                },
+                {
+                  "rank": 1,
+                  "value": 93.0
+                }
+              ],
+              "rank_sum": 192.0,
+              "mean": 96.0,
+              "maximum": 99.0,
+              "maximum_over_mean": 1.03125
+            },
+            "work_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 396.0
+                },
+                {
+                  "rank": 1,
+                  "value": 372.0
+                }
+              ],
+              "rank_sum": 768.0,
+              "mean": 384.0,
+              "maximum": 396.0,
+              "maximum_over_mean": 1.03125
+            }
+          },
+          "proposal_outcomes": [
+            {
+              "rank": 0,
+              "reserved_or_vetoed_proposals": 32,
+              "reservation_veto_fraction": 0.0,
+              "accepted_fraction_of_attempts": 1.0,
+              "unfinished_attempts": 0
+            },
+            {
+              "rank": 1,
+              "reserved_or_vetoed_proposals": 33,
+              "reservation_veto_fraction": 0.12121212121212122,
+              "accepted_fraction_of_attempts": 1.0,
+              "unfinished_attempts": 0
+            }
+          ],
+          "rank_work_counters": {
+            "rounds": [
+              {
+                "rank": 0,
+                "value": 33.0
+              },
+              {
+                "rank": 1,
+                "value": 33.0
+              }
+            ],
+            "attempted": [
+              {
+                "rank": 0,
+                "value": 32.0
+              },
+              {
+                "rank": 1,
+                "value": 29.0
+              }
+            ],
+            "accepted": [
+              {
+                "rank": 0,
+                "value": 32.0
+              },
+              {
+                "rank": 1,
+                "value": 29.0
+              }
+            ],
+            "rejected": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "conflicts": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 4.0
+              }
+            ],
+            "requests": [
+              {
+                "rank": 0,
+                "value": 720.0
+              },
+              {
+                "rank": 1,
+                "value": 672.0
+              }
+            ],
+            "donor_candidates": [
+              {
+                "rank": 0,
+                "value": 26859.0
+              },
+              {
+                "rank": 1,
+                "value": 25086.0
+              }
+            ],
+            "donor_filtered": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "donor_box_filtered": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "donor_payloads": [
+              {
+                "rank": 0,
+                "value": 5391.0
+              },
+              {
+                "rank": 1,
+                "value": 4776.0
+              }
+            ],
+            "edge_evaluations": [
+              {
+                "rank": 0,
+                "value": 415.0
+              },
+              {
+                "rank": 1,
+                "value": 358.0
+              }
+            ],
+            "edge_reused": [
+              {
+                "rank": 0,
+                "value": 1763.0
+              },
+              {
+                "rank": 1,
+                "value": 1496.0
+              }
+            ]
+          },
+          "work_imbalance": {
+            "rounds": 1.0,
+            "attempted": 1.0491803278688525,
+            "accepted": 1.0491803278688525,
+            "rejected": null,
+            "conflicts": 2.0,
+            "requests": 1.0344827586206897,
+            "donor_candidates": 1.0341322552699972,
+            "donor_filtered": null,
+            "donor_box_filtered": null,
+            "donor_payloads": 1.0604898200059014,
+            "edge_evaluations": 1.073738680465718,
+            "edge_reused": 1.0819269714636393
+          }
+        },
+        {
+          "cycle": 0,
+          "operation": "coarsen",
+          "initial_partition_active_load": {
+            "cells_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 99.0
+                },
+                {
+                  "rank": 1,
+                  "value": 93.0
+                }
+              ],
+              "rank_sum": 192.0,
+              "mean": 96.0,
+              "maximum": 99.0,
+              "maximum_over_mean": 1.03125
+            },
+            "work_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 396.0
+                },
+                {
+                  "rank": 1,
+                  "value": 372.0
+                }
+              ],
+              "rank_sum": 768.0,
+              "mean": 384.0,
+              "maximum": 396.0,
+              "maximum_over_mean": 1.03125
+            }
+          },
+          "proposal_outcomes": [
+            {
+              "rank": 0,
+              "reserved_or_vetoed_proposals": 39,
+              "reservation_veto_fraction": 0.0,
+              "accepted_fraction_of_attempts": 0.6666666666666666,
+              "unfinished_attempts": 0
+            },
+            {
+              "rank": 1,
+              "reserved_or_vetoed_proposals": 36,
+              "reservation_veto_fraction": 0.3055555555555556,
+              "accepted_fraction_of_attempts": 0.56,
+              "unfinished_attempts": 0
+            }
+          ],
+          "rank_work_counters": {
+            "rounds": [
+              {
+                "rank": 0,
+                "value": 39.0
+              },
+              {
+                "rank": 1,
+                "value": 39.0
+              }
+            ],
+            "attempted": [
+              {
+                "rank": 0,
+                "value": 39.0
+              },
+              {
+                "rank": 1,
+                "value": 25.0
+              }
+            ],
+            "accepted": [
+              {
+                "rank": 0,
+                "value": 26.0
+              },
+              {
+                "rank": 1,
+                "value": 14.0
+              }
+            ],
+            "rejected": [
+              {
+                "rank": 0,
+                "value": 13.0
+              },
+              {
+                "rank": 1,
+                "value": 11.0
+              }
+            ],
+            "conflicts": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 11.0
+              }
+            ],
+            "requests": [
+              {
+                "rank": 0,
+                "value": 1051.0
+              },
+              {
+                "rank": 1,
+                "value": 808.0
+              }
+            ],
+            "donor_candidates": [
+              {
+                "rank": 0,
+                "value": 36428.0
+              },
+              {
+                "rank": 1,
+                "value": 32854.0
+              }
+            ],
+            "donor_filtered": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "donor_box_filtered": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "donor_payloads": [
+              {
+                "rank": 0,
+                "value": 6309.0
+              },
+              {
+                "rank": 1,
+                "value": 4521.0
+              }
+            ],
+            "edge_evaluations": [
+              {
+                "rank": 0,
+                "value": 436.0
+              },
+              {
+                "rank": 1,
+                "value": 372.0
+              }
+            ],
+            "edge_reused": [
+              {
+                "rank": 0,
+                "value": 1790.0
+              },
+              {
+                "rank": 1,
+                "value": 1428.0
+              }
+            ]
+          },
+          "work_imbalance": {
+            "rounds": 1.0,
+            "attempted": 1.21875,
+            "accepted": 1.3,
+            "rejected": 1.0833333333333333,
+            "conflicts": 2.0,
+            "requests": 1.130715438407746,
+            "donor_candidates": 1.0515862706041974,
+            "donor_filtered": null,
+            "donor_box_filtered": null,
+            "donor_payloads": 1.1650969529085873,
+            "edge_evaluations": 1.0792079207920793,
+            "edge_reused": 1.1124922311995027
+          }
+        },
+        {
+          "cycle": 1,
+          "operation": "refine",
+          "initial_partition_active_load": {
+            "cells_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 145.0
+                },
+                {
+                  "rank": 1,
+                  "value": 144.0
+                }
+              ],
+              "rank_sum": 289.0,
+              "mean": 144.5,
+              "maximum": 145.0,
+              "maximum_over_mean": 1.0034602076124568
+            },
+            "work_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 684.0
+                },
+                {
+                  "rank": 1,
+                  "value": 677.0
+                }
+              ],
+              "rank_sum": 1361.0,
+              "mean": 680.5,
+              "maximum": 684.0,
+              "maximum_over_mean": 1.0051432770022042
+            }
+          },
+          "proposal_outcomes": [
+            {
+              "rank": 0,
+              "reserved_or_vetoed_proposals": 0,
+              "reservation_veto_fraction": null,
+              "accepted_fraction_of_attempts": null,
+              "unfinished_attempts": 0
+            },
+            {
+              "rank": 1,
+              "reserved_or_vetoed_proposals": 0,
+              "reservation_veto_fraction": null,
+              "accepted_fraction_of_attempts": null,
+              "unfinished_attempts": 0
+            }
+          ],
+          "rank_work_counters": {
+            "rounds": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "attempted": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "accepted": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "rejected": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "conflicts": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "requests": [
+              {
+                "rank": 0,
+                "value": 145.0
+              },
+              {
+                "rank": 1,
+                "value": 144.0
+              }
+            ],
+            "donor_candidates": [
+              {
+                "rank": 0,
+                "value": 10812.0
+              },
+              {
+                "rank": 1,
+                "value": 10917.0
+              }
+            ],
+            "donor_filtered": [
+              {
+                "rank": 0,
+                "value": 1813.0
+              },
+              {
+                "rank": 1,
+                "value": 2108.0
+              }
+            ],
+            "donor_box_filtered": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "donor_payloads": [
+              {
+                "rank": 0,
+                "value": 1283.0
+              },
+              {
+                "rank": 1,
+                "value": 1301.0
+              }
+            ],
+            "edge_evaluations": [
+              {
+                "rank": 0,
+                "value": 243.0
+              },
+              {
+                "rank": 1,
+                "value": 246.0
+              }
+            ],
+            "edge_reused": [
+              {
+                "rank": 0,
+                "value": 627.0
+              },
+              {
+                "rank": 1,
+                "value": 618.0
+              }
+            ]
+          },
+          "work_imbalance": {
+            "rounds": null,
+            "attempted": null,
+            "accepted": null,
+            "rejected": null,
+            "conflicts": null,
+            "requests": 1.0034602076124568,
+            "donor_candidates": 1.0048322518293524,
+            "donor_filtered": 1.075235909206835,
+            "donor_box_filtered": null,
+            "donor_payloads": 1.006965944272446,
+            "edge_evaluations": 1.0061349693251533,
+            "edge_reused": 1.0072289156626506
+          }
+        },
+        {
+          "cycle": 1,
+          "operation": "coarsen",
+          "initial_partition_active_load": {
+            "cells_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 145.0
+                },
+                {
+                  "rank": 1,
+                  "value": 144.0
+                }
+              ],
+              "rank_sum": 289.0,
+              "mean": 144.5,
+              "maximum": 145.0,
+              "maximum_over_mean": 1.0034602076124568
+            },
+            "work_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 684.0
+                },
+                {
+                  "rank": 1,
+                  "value": 677.0
+                }
+              ],
+              "rank_sum": 1361.0,
+              "mean": 680.5,
+              "maximum": 684.0,
+              "maximum_over_mean": 1.0051432770022042
+            }
+          },
+          "proposal_outcomes": [
+            {
+              "rank": 0,
+              "reserved_or_vetoed_proposals": 106,
+              "reservation_veto_fraction": 0.0,
+              "accepted_fraction_of_attempts": 0.37735849056603776,
+              "unfinished_attempts": 0
+            },
+            {
+              "rank": 1,
+              "reserved_or_vetoed_proposals": 141,
+              "reservation_veto_fraction": 0.6170212765957447,
+              "accepted_fraction_of_attempts": 0.5370370370370371,
+              "unfinished_attempts": 0
+            }
+          ],
+          "rank_work_counters": {
+            "rounds": [
+              {
+                "rank": 0,
+                "value": 141.0
+              },
+              {
+                "rank": 1,
+                "value": 141.0
+              }
+            ],
+            "attempted": [
+              {
+                "rank": 0,
+                "value": 106.0
+              },
+              {
+                "rank": 1,
+                "value": 54.0
+              }
+            ],
+            "accepted": [
+              {
+                "rank": 0,
+                "value": 40.0
+              },
+              {
+                "rank": 1,
+                "value": 29.0
+              }
+            ],
+            "rejected": [
+              {
+                "rank": 0,
+                "value": 66.0
+              },
+              {
+                "rank": 1,
+                "value": 25.0
+              }
+            ],
+            "conflicts": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 87.0
+              }
+            ],
+            "requests": [
+              {
+                "rank": 0,
+                "value": 2481.0
+              },
+              {
+                "rank": 1,
+                "value": 1306.0
+              }
+            ],
+            "donor_candidates": [
+              {
+                "rank": 0,
+                "value": 334760.0
+              },
+              {
+                "rank": 1,
+                "value": 320241.0
+              }
+            ],
+            "donor_filtered": [
+              {
+                "rank": 0,
+                "value": 84278.0
+              },
+              {
+                "rank": 1,
+                "value": 79858.0
+              }
+            ],
+            "donor_box_filtered": [
+              {
+                "rank": 0,
+                "value": 30282.0
+              },
+              {
+                "rank": 1,
+                "value": 31788.0
+              }
+            ],
+            "donor_payloads": [
+              {
+                "rank": 0,
+                "value": 24850.0
+              },
+              {
+                "rank": 1,
+                "value": 13156.0
+              }
+            ],
+            "edge_evaluations": [
+              {
+                "rank": 0,
+                "value": 367.0
+              },
+              {
+                "rank": 1,
+                "value": 435.0
+              }
+            ],
+            "edge_reused": [
+              {
+                "rank": 0,
+                "value": 1919.0
+              },
+              {
+                "rank": 1,
+                "value": 2223.0
+              }
+            ]
+          },
+          "work_imbalance": {
+            "rounds": 1.0,
+            "attempted": 1.325,
+            "accepted": 1.1594202898550725,
+            "rejected": 1.4505494505494505,
+            "conflicts": 2.0,
+            "requests": 1.3102719831000793,
+            "donor_candidates": 1.0221663783719415,
+            "donor_filtered": 1.0269288882390213,
+            "donor_box_filtered": 1.0242629289511842,
+            "donor_payloads": 1.3076882597484607,
+            "edge_evaluations": 1.084788029925187,
+            "edge_reused": 1.073394495412844
+          }
+        },
+        {
+          "cycle": 2,
+          "operation": "refine",
+          "initial_partition_active_load": {
+            "cells_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 24.0
+                },
+                {
+                  "rank": 1,
+                  "value": 24.0
+                }
+              ],
+              "rank_sum": 48.0,
+              "mean": 24.0,
+              "maximum": 24.0,
+              "maximum_over_mean": 1.0
+            },
+            "work_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 330.0
+                },
+                {
+                  "rank": 1,
+                  "value": 311.0
+                }
+              ],
+              "rank_sum": 641.0,
+              "mean": 320.5,
+              "maximum": 330.0,
+              "maximum_over_mean": 1.029641185647426
+            }
+          },
+          "proposal_outcomes": [
+            {
+              "rank": 0,
+              "reserved_or_vetoed_proposals": 68,
+              "reservation_veto_fraction": 0.0,
+              "accepted_fraction_of_attempts": 1.0,
+              "unfinished_attempts": 0
+            },
+            {
+              "rank": 1,
+              "reserved_or_vetoed_proposals": 77,
+              "reservation_veto_fraction": 0.35064935064935066,
+              "accepted_fraction_of_attempts": 1.0,
+              "unfinished_attempts": 0
+            }
+          ],
+          "rank_work_counters": {
+            "rounds": [
+              {
+                "rank": 0,
+                "value": 77.0
+              },
+              {
+                "rank": 1,
+                "value": 77.0
+              }
+            ],
+            "attempted": [
+              {
+                "rank": 0,
+                "value": 68.0
+              },
+              {
+                "rank": 1,
+                "value": 50.0
+              }
+            ],
+            "accepted": [
+              {
+                "rank": 0,
+                "value": 68.0
+              },
+              {
+                "rank": 1,
+                "value": 50.0
+              }
+            ],
+            "rejected": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "conflicts": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 27.0
+              }
+            ],
+            "requests": [
+              {
+                "rank": 0,
+                "value": 1135.0
+              },
+              {
+                "rank": 1,
+                "value": 1028.0
+              }
+            ],
+            "donor_candidates": [
+              {
+                "rank": 0,
+                "value": 15324.0
+              },
+              {
+                "rank": 1,
+                "value": 15851.0
+              }
+            ],
+            "donor_filtered": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "donor_box_filtered": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "donor_payloads": [
+              {
+                "rank": 0,
+                "value": 3805.0
+              },
+              {
+                "rank": 1,
+                "value": 3129.0
+              }
+            ],
+            "edge_evaluations": [
+              {
+                "rank": 0,
+                "value": 444.0
+              },
+              {
+                "rank": 1,
+                "value": 447.0
+              }
+            ],
+            "edge_reused": [
+              {
+                "rank": 0,
+                "value": 2136.0
+              },
+              {
+                "rank": 1,
+                "value": 2337.0
+              }
+            ]
+          },
+          "work_imbalance": {
+            "rounds": 1.0,
+            "attempted": 1.152542372881356,
+            "accepted": 1.152542372881356,
+            "rejected": null,
+            "conflicts": 2.0,
+            "requests": 1.049468331021729,
+            "donor_candidates": 1.0169045709703288,
+            "donor_filtered": null,
+            "donor_box_filtered": null,
+            "donor_payloads": 1.0974906259013557,
+            "edge_evaluations": 1.0033670033670035,
+            "edge_reused": 1.0449362843729042
+          }
+        },
+        {
+          "cycle": 2,
+          "operation": "coarsen",
+          "initial_partition_active_load": {
+            "cells_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 24.0
+                },
+                {
+                  "rank": 1,
+                  "value": 24.0
+                }
+              ],
+              "rank_sum": 48.0,
+              "mean": 24.0,
+              "maximum": 24.0,
+              "maximum_over_mean": 1.0
+            },
+            "work_after": {
+              "rank_values": [
+                {
+                  "rank": 0,
+                  "value": 330.0
+                },
+                {
+                  "rank": 1,
+                  "value": 311.0
+                }
+              ],
+              "rank_sum": 641.0,
+              "mean": 320.5,
+              "maximum": 330.0,
+              "maximum_over_mean": 1.029641185647426
+            }
+          },
+          "proposal_outcomes": [
+            {
+              "rank": 0,
+              "reserved_or_vetoed_proposals": 73,
+              "reservation_veto_fraction": 0.0,
+              "accepted_fraction_of_attempts": 0.3013698630136986,
+              "unfinished_attempts": 0
+            },
+            {
+              "rank": 1,
+              "reserved_or_vetoed_proposals": 116,
+              "reservation_veto_fraction": 0.31896551724137934,
+              "accepted_fraction_of_attempts": 0.26582278481012656,
+              "unfinished_attempts": 0
+            }
+          ],
+          "rank_work_counters": {
+            "rounds": [
+              {
+                "rank": 0,
+                "value": 116.0
+              },
+              {
+                "rank": 1,
+                "value": 116.0
+              }
+            ],
+            "attempted": [
+              {
+                "rank": 0,
+                "value": 73.0
+              },
+              {
+                "rank": 1,
+                "value": 79.0
+              }
+            ],
+            "accepted": [
+              {
+                "rank": 0,
+                "value": 22.0
+              },
+              {
+                "rank": 1,
+                "value": 21.0
+              }
+            ],
+            "rejected": [
+              {
+                "rank": 0,
+                "value": 51.0
+              },
+              {
+                "rank": 1,
+                "value": 58.0
+              }
+            ],
+            "conflicts": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 37.0
+              }
+            ],
+            "requests": [
+              {
+                "rank": 0,
+                "value": 2069.0
+              },
+              {
+                "rank": 1,
+                "value": 1958.0
+              }
+            ],
+            "donor_candidates": [
+              {
+                "rank": 0,
+                "value": 24243.0
+              },
+              {
+                "rank": 1,
+                "value": 30159.0
+              }
+            ],
+            "donor_filtered": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "donor_box_filtered": [
+              {
+                "rank": 0,
+                "value": 0.0
+              },
+              {
+                "rank": 1,
+                "value": 0.0
+              }
+            ],
+            "donor_payloads": [
+              {
+                "rank": 0,
+                "value": 2981.0
+              },
+              {
+                "rank": 1,
+                "value": 3252.0
+              }
+            ],
+            "edge_evaluations": [
+              {
+                "rank": 0,
+                "value": 421.0
+              },
+              {
+                "rank": 1,
+                "value": 439.0
+              }
+            ],
+            "edge_reused": [
+              {
+                "rank": 0,
+                "value": 1583.0
+              },
+              {
+                "rank": 1,
+                "value": 1853.0
+              }
+            ]
+          },
+          "work_imbalance": {
+            "rounds": 1.0,
+            "attempted": 1.0394736842105263,
+            "accepted": 1.0232558139534884,
+            "rejected": 1.0642201834862386,
+            "conflicts": 2.0,
+            "requests": 1.0275639433821704,
+            "donor_candidates": 1.108746001985221,
+            "donor_filtered": null,
+            "donor_box_filtered": null,
+            "donor_payloads": 1.0434782608695652,
+            "edge_evaluations": 1.0209302325581395,
+            "edge_reused": 1.078579743888242
+          }
+        }
+      ]
+    }
+  ],
+  "source_sha256": {
+    "Common/src/adaptation/CNativePartition3D.cpp": "357ee6a67fda13cd9903f9286667bafeb1d6b88f2f2fb8d2925c364bede35f8b",
+    "Common/src/adaptation/CNativeDistributed3D.cpp": "badfc896715925aab415dfcea5777569e902f752a1a060a70d4f6a97aacdc7f3",
+    "Common/src/adaptation/CNativeDonor3D.cpp": "cddffde7fd65bf142665efd27d09c83f5d3354fc1e761844d2349f40e07a7813",
+    "Common/src/adaptation/CNativeRemesher3D.cpp": "be4cea094d700684856d9520441c33e9c7c84924be81fe0745985c52a507533f"
+  },
+  "analysis_tools_sha256": {
+    "integration_evidence/native_3d_core_v1/reservation_balance_review_v1/analyze.py": "6494d02003e444ff7e562176533e4e206ec49fc63c32f3c7c6ac420236567a62",
+    "integration_evidence/native_cluster_3d_core_v1/profile_summary.py": "3dd80f1911dfb17745e931deb5a04dd2a1e7bf5de823707a35a390a723e90879",
+    "integration_evidence/native_3d_core_v1/audit_lifecycle.py": "b4204e8aea4653ac46942e79e0dad68c7087945a5687a851fd5036b1bdfdfa2f"
+  },
+  "scope": "Reparse three pinned successful historical current-prefilter envelope logs using additive reusable active-load/reservation summaries. Envelope per-rank stage order and explicit cycle labels establish this specialized ordinal association; generic profiles do not assume shared cycle IDs. Counters are rank work, not elapsed/speed/wait evidence. Owner ADT candidate work and requester payload/private attempts are distinct. No new SU2/MPI/performance run, partition-weight calibration or reservation-policy change."
+}

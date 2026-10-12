@@ -1,0 +1,72 @@
+{
+  "status": "PASS",
+  "package_tests": {
+    "core": 34,
+    "comparison": 15
+  },
+  "cpp_changed": false,
+  "source_checkpoint": "c407d8b9a40e8aa6816b779968482d206a51cdea",
+  "commands": [
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "1",
+        "nice",
+        "-n",
+        "19",
+        "python3",
+        "check_package.py"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_core_v1",
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "1",
+        "nice",
+        "-n",
+        "19",
+        "python3",
+        "check_package.py"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_query_comparison_v1",
+      "exit_code": 0
+    }
+  ],
+  "tools_sha256": {
+    "integration_evidence/native_cluster_3d_core_v1/check_package.py": "0b202cc928b5f6c9ed1d5dc792014ddd82344449a9529fedf0b4170a1a29aa56",
+    "integration_evidence/native_cluster_3d_core_v1/analyze.py": "651fc2fea07b4afbfaa8b3ecf2bce47e77b67d17b3348ea8c620d5268ddd824e",
+    "integration_evidence/native_cluster_3d_core_v1/prepare.py": "e82324cc3b9e74bed15eaa15eb6be8c89ab8ffb4c90026dc42718c0796c5b412",
+    "integration_evidence/native_cluster_3d_core_v1/profile_summary.py": "3dd80f1911dfb17745e931deb5a04dd2a1e7bf5de823707a35a390a723e90879",
+    "integration_evidence/native_cluster_3d_core_v1/submit.py": "76ba5bbc2f9e91d1d0d8567175b2515a2e48657ebae4808e07e7b13e8dabf1d0",
+    "integration_evidence/native_cluster_3d_core_v1/run.py": "b0a11c3095c3e85a4fe1226ee72bf4c587857ac274a48c31f5fedbc14cfd6c0f",
+    "integration_evidence/native_cluster_3d_core_v1/mpi_profile.py": "11e46f3d01289c1d050221d5264cf00a62e4da29385705a4ca7bff003ee9651b",
+    "integration_evidence/native_cluster_3d_core_v1/restore.py": "b9a32c4dd7bdd99e84aec755acccd32841038f6f1c27735cd70277b658dcabbb",
+    "integration_evidence/native_cluster_3d_query_comparison_v1/campaign.py": "bd36a98305c6989606ff4661a76dee4b9e98ca6f71ec64bae89c4a8091962a63",
+    "integration_evidence/native_cluster_3d_query_comparison_v1/check_package.py": "3c6b472bd5775a8aa0c7cb9bc8d0df257b56e6facc4fe36ec29ca325e8a836e2",
+    "integration_evidence/native_cluster_3d_query_comparison_v1/analyze.py": "7ccecef25f0d3ef87dbb8c52e7a7ceeaae227540e2dd2d5abbc597e9b1c0401c",
+    "integration_evidence/native_cluster_3d_query_comparison_v1/prepare.py": "c90cb0b7118f42cd8d4fa0bd3a47831c8f6719da16ae97cae53e8591539f9d9d",
+    "integration_evidence/native_cluster_3d_query_comparison_v1/submit.py": "f7a8be6ede69bc440d65cc73347556c1bbe97351515a31cecbaeb08135577385",
+    "integration_evidence/native_cluster_3d_query_comparison_v1/common.py": "3728031f1d748e0f37ae56800250327d70fdc480c2d7614aef78c92f3c79968a"
+  },
+  "artifact_sha256": {
+    "REVIEW.md": "3d3f1eea641a15f2d00ccf0bf31e5eef808b988dee587015df04d8738d5e575b",
+    "comparison.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "core.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "analyze.py": "6494d02003e444ff7e562176533e4e206ec49fc63c32f3c7c6ac420236567a62",
+    "comparison.stderr": "be7911916cb29fd588e7725255b3d0cd5201ab0394722f2d534e56d81911ecc0",
+    "core.stderr": "5912cbb36cdb3e9b074721ec4156c0d0ae0d1563c0873ba65a8873ca994e2987",
+    "analysis.json": "c2d1a47ed1421e6ee24fff70ac8951523fefde5f094c7498898cbf07c0b26b9e",
+    "analysis.stdout": "739ed1a5180c47f75b476e4db6466494adbad02461d0d938c83b50b5237f2db9",
+    "analysis.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "failed_packaging_v2/analyze.py": "ae187e652733d1eab2a7dc98b678c6a1c29fb68936f53f58c18d470949e7ce66",
+    "failed_packaging_v2/comparison.stderr": "2669c43b4f00c18867af1fedc6973053c8918a5e41dcea89667dcbebb707d5f3",
+    "failed_packaging_v1/check_package.py": "3c6b472bd5775a8aa0c7cb9bc8d0df257b56e6facc4fe36ec29ca325e8a836e2",
+    "failed_packaging_v1/analyze.py": "ba767b5de0ed766fb48c4852ba61e60b160585c1fa268cc9d90b13d101a4e274",
+    "failed_packaging_v1/comparison.stderr": "8092c7eac1954306ced5aaba88dd190ed9d9575705112d89db166bd2792bdc43"
+  },
+  "scope": "Terminal lightweight saved-log and mock packaging checks only. All actual case/source pins and18operation event profiles verified; production untouched, no new MPI/CFD/profiling/cluster submission or calibrated cost claim."
+}
