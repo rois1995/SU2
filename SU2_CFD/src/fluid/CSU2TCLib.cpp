@@ -1708,14 +1708,24 @@ void CSU2TCLib::GetEveSourceTermJacobian(const su2double *V, const su2double *ev
   unsigned short nEv  = nSpecies+nDim+1;
   unsigned short nVar = nSpecies+nDim+2;
 
-  /*--- Compute Cvvs ---*/
-  const auto& cvve_eq = ComputeSpeciesCvVibEle(T);
+  /*--- The source term relaxes the vibrational energy only (see ComputeEveSourceTerm),
+   so its derivative uses the vibrational heat capacity (harmonic oscillator), not
+   the vib.-el. one. Species without vibration (atoms, electrons) do not contribute. ---*/
+  auto SpeciesCvVib = [&](unsigned short jSpecies, su2double val_T) {
+    if (CharVibTemp[jSpecies] == 0.0) return su2double(0.0);
+    const su2double thoT = CharVibTemp[jSpecies]/val_T;
+    const su2double expt = exp(thoT);
+    return su2double(Ru/MolarMass[jSpecies] * thoT*thoT * expt / ((expt-1.0)*(expt-1.0)));
+  };
 
   /*--- Loop through species ---*/
   for (iSpecies = 0; iSpecies < nSpecies; iSpecies++){
 
+    const su2double cvv_eq = SpeciesCvVib(iSpecies, T);
+    const su2double cvv    = SpeciesCvVib(iSpecies, Tve);
+
     for (iVar = 0; iVar < nVar; iVar++) {
-        val_jacobian[nEv][iVar] += rhos[iSpecies]/taus[iSpecies]*(cvve_eq[iSpecies]*dTdU[iVar]-cvve[iSpecies]*dTvedU[iVar]);//TODO*Volume;
+        val_jacobian[nEv][iVar] += rhos[iSpecies]/taus[iSpecies]*(cvv_eq*dTdU[iVar]-cvv*dTvedU[iVar]);//TODO*Volume;
     }
   }
 
