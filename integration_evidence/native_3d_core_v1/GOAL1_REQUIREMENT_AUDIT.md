@@ -133,3 +133,15 @@ Original source/header/binary/objects remain unchanged; first pre-MPI fixture
 compile failure is retained. This closes targeted protocol gaps, not full97case
 rotating-policy/general safety/subset/stronger-envelope/repeated-performance
 qualification. The prototype remains isolated and no Goal1 completion follows.
+
+## Full isolated rotating-policy small MPI regression
+
+ROTATING_RESERVATION_FULL_VALIDATION.md/json verifies the entire configured97case
+selection at MPI1/2/4 on the exact isolated directory variant, with fresh seven
+distributed-record and actual geometry/current+BDF/SU2CGNS audits. Driver frame/
+state/readback coverage12/24/48,6/12/24,6/12/24; original2D/MMG/default/atomic/stale/
+repair/subset controls pass. Production source/binary/objects stay unchanged.
+This closes the full small regression gap for the prototype; stronger whole
+aspect/thin/restart/lifecycle/default512 and repeated matched-target cost/scaling/
+traffic/overhead qualification remain before promotion. No Goal1 completion or
+new fixed-work performance comparison follows.

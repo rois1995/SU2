@@ -1,5 +1,33 @@
 # Current handoff — 2026-10-12
 
+## Isolated rotating-policy full97 regression qualified — 2026-10-12
+
+Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
+codex/native-3d-transport-accounting. Starting tip8a2c7cf0e4; production remains
+86bd7f7824 unchanged. rotating_reservation_full_build_v1 compiles only the exact
+previously audited private directory variant and links all actual68test objects/
+774members, with old directory member excluded. Shared isolated binary reused
+for sequential rotating_reservation_full_mpi1/2/4_v1:97cases per rank PASS, all
+seven distributed exact audits plus driver/current+BDF/SU2CGNS audit. Actual
+bridge coverage12/24/48frames,6/12/24state pairs and6/12/24round trips. Existing
+stale/version/veto/memory/identity/rollback/default, repeated cycles, movement/
+reconnection, coplanar/automatic repairs, donor/query composition and subsets
+pass. Native2D/MMG controls retained. Changed parallel trajectories freshly
+independently audited; no byte-identity or timing comparison claimed.
+check_rotating_full.py and ROTATING_RESERVATION_FULL_VALIDATION.md/json pin all
+source/build/case/tool/coverage records and verify untouched production driver.
+First collector-only len(integer round-trip count) error/source note retained;
+correct count handling passed, numerical runs/audits never failed. All owned
+work TERMINAL, oneCPU/nice19/j1/thread1/MPI<=4 after actual host/resource checks.
+No local profiling or cluster submission. Shared terminal exe/object removed
+only after full matrix:806641616bytes freed, immutable receipts/recipes/linkmap/
+accepted/rejected/control geometry/state/readback data retained. Not promoted;
+stronger aspect/thin/whole restart/lifecycle/default512 envelope and repeated
+matched-target cost/scaling/traffic/overhead needed before rotating policy moves
+into production. Prepared fixed-work donor campaign stillstandard unchanged.
+FullGoal1 performance/weight/wait/memory/practical limits remain open; Goal1 ACTIVE,
+Goal2 not started; no general/curved/3DBL/physicalunsteady/affordability certificate.
+
 ## Isolated rotating reservation protocol verified on MPI1/2/4 — 2026-10-12
 
 Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch

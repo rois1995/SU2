@@ -1,0 +1,51 @@
+{
+  "status": "PASS",
+  "checker_sha256": "320efcb90bd14124e47c724a49a37e34271405e6641ec005e765e048099367d1",
+  "build_validation_sha256": "5ccdcc86b33a895b4774fead0c7a2e7dffe13462e44b7865db9bd391b3838359",
+  "variant_source_sha256": "bc4035629b2d537bfb73a5fc781b319fab46de2d94599862d1d4e899f3e4c508",
+  "binary_sha256": "5de0a425a196bcda3eb9bd3a3c1718394c49fec690e73de77c9db4881f243cc3",
+  "production_binary_sha256": "9811747b59cbb64dc91a95a53d8f4bb06d281249d95e2f608705a5681b8076ec",
+  "cases": [
+    {
+      "ranks": 1,
+      "validation_sha256": "538bfe853a9dd0d441d91338e288a39ea6928625d2505e61b2f415ec9b652b6f",
+      "assertions": [
+        12566
+      ],
+      "audit_sha256": "dd7049c14b268b16cbeb68f9d0b2ed4068b8c0c38e3b33ebe1346a404f32e4b5",
+      "distributed_audit_sha256": "c5769a155e185b08bb908388397b8f21ca3ce8be4a1cf44c035d8d90bc3423a2",
+      "frames": 12,
+      "states": 6,
+      "output_roundtrips": 6
+    },
+    {
+      "ranks": 2,
+      "validation_sha256": "28a2c3ea17ded143f1146fc72edfc5ccab1710fd15c5b6a348a6ef1c7ff3ba2d",
+      "assertions": [
+        13232,
+        15499
+      ],
+      "audit_sha256": "fc946de83864c87cc783a901adc1724fcd2799e3e51c2c77acfb8fe4acf13ca3",
+      "distributed_audit_sha256": "814c3609b6434c8c552768d8adc7d9e7e1a3f79490ecab676f256b91f675aa3c",
+      "frames": 24,
+      "states": 12,
+      "output_roundtrips": 12
+    },
+    {
+      "ranks": 4,
+      "validation_sha256": "1e78a77ded1d41d0e18bec3afca7c6b0e3c1d499c0d1d8cd72e981697435037b",
+      "assertions": [
+        17116,
+        13996,
+        15618,
+        18758
+      ],
+      "audit_sha256": "09424a893a249e9d4eef2826901415d7ed5f13c1e7f1d4e77acde80967314a6b",
+      "distributed_audit_sha256": "2027d401396c315b0eacb5ec9f33d2351ff835c668a68f0d3f96c0dc13076385",
+      "frames": 48,
+      "states": 24,
+      "output_roundtrips": 24
+    }
+  ],
+  "scope": "Actual isolated rotating-directory full97-case MPI1/2/4 regression and fresh exact bridge/distributed/repair/coarsening/rollback/state/SU2CGNS/MMG checks. Original production source/binary/objects/archives unchanged. Different trajectories independently audited, not old byte-identity or speed/scaling claims. Stronger whole/restart/lifecycle/production-limit and repeated cluster costs remain needed before promotion; no fullGoal1 completion."
+}
