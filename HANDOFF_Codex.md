@@ -1,5 +1,30 @@
 # Current handoff — 2026-10-12
 
+## Production512 private mesh independently passes physical gates — 2026-10-12
+
+Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
+codex/native-3d-transport-accounting. Starting checkpoint b34877d709; production
+unchanged. coarsen512_private_audit_v1 independently audits the retained bb87
+second-event private rejection:517tetrahedra/153points/222physical faces, exact
+volume1/2, qmin=.20433538142016777,Jmin=.08825346092225352,Lmax=1.7946315664648058.
+All exact embedding/incidence/skin/vertex-link/domain/facet/marker and original-P1
+quality/full-edge gates pass. Actual input SU2 signature and frozen sensor/reference
+are preserved; negative marker-assignment self-check passes. The original result
+still FAILS queue completion:512attempts,437accepted/75rejected,0cached invalid
+cells,266pending coarsening directions. It was never installed in CFD and has no
+new solution/BDF/CGNS acceptance certificate. Do not relabel it as a completed run.
+REVIEW.md,independent_audit.json,validation.json pin untouched original trace,
+converter,existing auditors,source and inspectable *_rejected.su2/JSON files.
+This is fresh independent proof for historical private data, not new current-source
+512execution. Scope distinguishes physical validity from coarsening queue exhaustion.
+No completion-policy/default/guard change; explicit partial-progress policy would
+need separate specification and validation. Existing one-proposal/worker/round
+budget has a mesh-size limit; improve useful proposals or ordering within its
+contract rather than infer a failed geometry from this cap. OneCPU/nice19/thread1
+under actual host checks/FSI contention; all owned jobs TERMINAL. Goal1 ACTIVE,
+Goal2 not started; repeated cluster performance/weight/wait/memory/overhead and
+production completion qualification remain open. No SU2/MPI/cluster launch.
+
 ## Current donor-prefilter stronger envelope qualified — 2026-10-12
 
 Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch

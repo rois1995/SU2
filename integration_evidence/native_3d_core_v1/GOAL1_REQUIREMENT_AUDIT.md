@@ -66,3 +66,17 @@ the box filter is exercised. This closes the current-source proof gap for these
 three stronger cases; H10/serialH20/persistent-restart historical matrices remain
 separately pinned. Production512 large-case completion and all repeated cluster
 performance/calibration requirements above remain open.
+
+## Independent private-mesh proof at the production512 rejection
+
+coarsen512_private_audit_v1/REVIEW.md supplies a fresh full exact audit of the
+retained historical517-cell/153-point private coarsening export. It passes exact
+geometry/domain/markers/original-P1 quality/sliver/full-edge gates, including
+L<=1.8 without relying on an auditor tolerance. qmin=.20433538142016777,
+Jmin=.08825346092225352,Lmax=1.7946315664648058,volume=1/2. The rejection is
+queue exhaustion under512rounds with266pending directions, not failure of the
+measured physical criteria at that exit. This private grid is not accepted CFD
+output and lacks new state transfer/CGNS/driver replacement certification. No
+completion-policy or guard change, current-source512rerun, performance evidence
+or Goal1 completion follows. Existing distributed queue-completion and repeated
+cluster performance/calibration requirements remain open.

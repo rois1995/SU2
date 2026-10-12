@@ -1,0 +1,69 @@
+{
+  "status": "PASS",
+  "adaptation_status": "FAIL",
+  "accepted_by_CFD": false,
+  "frame": {
+    "file": "coarsen512_rejected.json",
+    "cells": 517,
+    "points": 153,
+    "physical_faces": 222,
+    "volume": "1/2",
+    "minimum_mean_ratio": 0.20433538142016777,
+    "minimum_scaled_jacobian": 0.08825346092225352,
+    "maximum_length": 1.7946315664648058,
+    "longest_edge": [
+      22,
+      48
+    ],
+    "markers": {
+      "0": 56,
+      "1": 39,
+      "2": 62,
+      "3": 33,
+      "4": 24,
+      "5": 8
+    },
+    "strict_metric_gate": true
+  },
+  "original_marker_names": [
+    "x_minus",
+    "y_minus",
+    "wedge_oblique",
+    "z_plus",
+    "z_minus_a",
+    "z_minus_b"
+  ],
+  "exact_input_signature_preserved": true,
+  "marker_corruption_rejected": true,
+  "cache_at_exit": {
+    "rounds": 512.0,
+    "attempted": 512.0,
+    "accepted": 437.0,
+    "rejected": 75.0,
+    "cached_invalid_cells": 0.0,
+    "remaining_edges": 266.0,
+    "final_owned_cells": 517.0,
+    "cached_measured_cells": 517.0
+  },
+  "historical_validation_sha256": "2629826ac0e4e7b691a8442c4750d80e3f7cdc431ec4f0d76dfbfbefe163ef16",
+  "historical_analysis_sha256": "f79fd3aea267da31008a7aa58c9d132da123334c0a8d8305e7c5d189d6bb17e7",
+  "input_sha256": {
+    "integration_evidence/native_3d_core_v1/full_star_facet_trace_n8_v1/coarsen_rejected_s1.su2": "6d5880c354e88954ef4a18799c4e22a021497ca71424227dc534783560b4e64c",
+    "integration_evidence/native_3d_core_v1/full_star_facet_trace_n8_v1/envelope_s1_initial.json": "2ea31c8d723eedf9bb1df803f575bdecb212b451b939288056eb74d9c5c1bbb5"
+  },
+  "tools_sha256": {
+    "integration_evidence/native_3d_core_v1/audit_coupled.py": "67a12c5c39c6c3e021473f49c1f14301f037d7883268b98d7afc9edc2b00f63b",
+    "integration_evidence/native_3d_core_v1/audit_cavities.py": "26079385c071c3ad1b9c06ab3b862b4ff293367dc3c8d291acf0487089d062c5",
+    "integration_evidence/native_3d_core_v1/audit_geometry_bridge.py": "d8d5e8a18a0fce8f54f8407e9f0027dcea12d90bf64c5ab20c4dedb7194430e2",
+    "integration_evidence/native_3d_core_v1/audit_envelope.py": "601f82a12c2eb04778484ec647c4590e92fb5b6d7f0092a2f7b4941bbb01cc0c",
+    "integration_evidence/native_3d_core_v1/audit_lifecycle.py": "b4204e8aea4653ac46942e79e0dad68c7087945a5687a851fd5036b1bdfdfa2f",
+    "TestCases/adaptation/capability/capcheck.py": "2721ed023a67fe1cdb05da4e9f3b521b36ee9339413c77e2b54ee25587bbdd2a",
+    "integration_evidence/native_3d_core_v1/coarsen512_private_audit_v1/audit.py": "54d8ba102612839780ff66623a081ab4e6d44cf9c8d61525d82f780d6b546d70"
+  },
+  "artifacts_sha256": {
+    "coarsen512_diagnostic_original_rejected.su2": "6d5880c354e88954ef4a18799c4e22a021497ca71424227dc534783560b4e64c",
+    "coarsen512_rejected.json": "878e28338ac1a71a474bbc072c069d612459ff1b3c7ef69d8241ddb913a18c8a",
+    "coarsen512_rejected.su2": "4014bc4c073d8be256938d3bf838d23d1c53b59d08adaeccfee24b94f5cd7c18"
+  },
+  "scope": "Fresh exact geometry/incidence/embedding/no-overlap/domain/facet/marker and original-P1 quality/sliver/full-edge audit of the retained bb87 serial 512-transaction private rejection. Only the local IDs and marker labels are reconstructed; original frozen tensors and reference are retained. No accepted CFD replacement, solution/BDF transfer, CGNS check, new MPI execution, budget/completion-policy change, performance or current-source trajectory claim."
+}

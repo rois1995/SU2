@@ -1,0 +1,74 @@
+{
+  "status": "PASS",
+  "reason": "",
+  "stages": [
+    {
+      "command": [
+        "uptime"
+      ],
+      "label": "host_load",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coarsen512_private_audit_v1",
+      "exit_code": 0,
+      "seconds": 0.005728377029299736
+    },
+    {
+      "command": [
+        "free",
+        "-m"
+      ],
+      "label": "host_memory",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coarsen512_private_audit_v1",
+      "exit_code": 0,
+      "seconds": 0.006987103959545493
+    },
+    {
+      "command": [
+        "ps",
+        "-eo",
+        "pid,ppid,ni,pcpu,comm",
+        "--sort=-pcpu"
+      ],
+      "label": "host_processes",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coarsen512_private_audit_v1",
+      "exit_code": 0,
+      "seconds": 0.03481206198921427
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "0",
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coarsen512_private_audit_v1/audit.py"
+      ],
+      "label": "audit",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/coarsen512_private_audit_v1",
+      "exit_code": 0,
+      "seconds": 56.540009371005
+    }
+  ],
+  "script_sha256": "f661ef9e68ac63a48e35e594db56a4786ceb81077352ac93dfad2f8f0959dc76",
+  "command_helper_sha256": "b0a11c3095c3e85a4fe1226ee72bf4c587857ac274a48c31f5fedbc14cfd6c0f",
+  "scope": "Terminal one-CPU/nice19/thread1 independent audit of retained historical private rejected mesh; no production change, new SU2/MPI or calibrated timing claim.",
+  "artifact_sha256": {
+    "audit.stdout": "29d8e98a9101ec4b850df9b502a2f993afac5a38165dce14efc3fe006d1fc4c0",
+    "host_processes.stdout": "be2fbe8e1a0f8daa91ff5ea106f5d6b4c5aef7b7d3922f3345d20ca3480daa2c",
+    "coarsen512_rejected.json": "878e28338ac1a71a474bbc072c069d612459ff1b3c7ef69d8241ddb913a18c8a",
+    "host_load.stdout": "9907264a2cbc118161c8aa533bd96f7f4ae48d668eac62ab24aa6076e39e0a7e",
+    "host_memory.stdout": "9ac3b74e056ca38e31efa8afc214d1a56f3c0dd31b80e8e7710505ebc0a23ae5",
+    "audit.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "coarsen512_rejected.su2": "4014bc4c073d8be256938d3bf838d23d1c53b59d08adaeccfee24b94f5cd7c18",
+    "host_load.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host_gate.json": "5d2bc4dbc2e3ded3c8b70c03e1dacb5d3e6a1c33c53b7c9b5253ade1aa001925",
+    "host_processes.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "coarsen512_diagnostic_original_rejected.su2": "6d5880c354e88954ef4a18799c4e22a021497ca71424227dc534783560b4e64c",
+    "independent_audit.json": "e3ce4b1493ccac38148d2d3663bf166a3d0e88d8a5ee1e2f0d94c70cab40ec15",
+    "audit.py": "54d8ba102612839780ff66623a081ab4e6d44cf9c8d61525d82f780d6b546d70",
+    "runner.py": "f661ef9e68ac63a48e35e594db56a4786ceb81077352ac93dfad2f8f0959dc76",
+    "host_memory.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "REVIEW.md": "ed974da119b2cc12dc20189cc152d85b3dc75b67bfe701b3fc8f2235bdc45212"
+  }
+}
