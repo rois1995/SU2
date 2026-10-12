@@ -41,3 +41,15 @@ replay/diagnosis if a genuine failure is found, and completion of missing
 calibration tooling. Goal2 cannot start while the complete performance gate lacks
 proof. R<1/R<=.20 physical-CFD affordability remains later physical workload work,
 not a manufactured frozen-grid claim.
+
+## Subsequent offline coarsening diagnosis
+
+collapse_bound_replay_v1/REVIEW.md verifies940historical full-star proposals against
+the retained source-matched trace, including709exact accepted topology matches.
+Every proposal removes cells, so216combined no-removal/oversized rejections mean
+oversized changed edges. Exact original-P1 directional bounds identify76and47
+doomed proposals in epochs0and1;12scalar component bounds identify35and24with no
+accepted false rejection. Five second-epoch shape failures have provably length-safe
+changed edges. The weaker envelope does not establish512completion or MPI payback
+and is not introduced into production. No new actual MPI/CFD or performance result;
+current qualified box-prefilter implementation and all open gates above remain.

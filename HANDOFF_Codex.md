@@ -1,5 +1,26 @@
 # Current handoff — 2026-10-12
 
+## Exact coarsening rejection classification — 2026-10-12
+
+Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
+codex/native-3d-transport-accounting. Production checkpoint8c3b40c9be unchanged.
+collapse_bound_replay_v1 verifies the retained bb87 trace and actual historical
+CollapseVertex/ValidateMetricChange compiled-source pins. All940 proposed stars
+remove cells;709accepted reconstructed topologies/coordinates match saved fresh
+patches. All216combined no-removal/oversized messages therefore mean oversized
+changed edges. Exact original-P1 directional tensor extrema certify76of156 and
+47of75doomed proposals, with0accepted false rejections. A bounded12scalar tensor
+component envelope certifies only35and24; negative/SPD-correlation adversary passes.
+Seven second-epoch shape failures also have oversized edges;five have provably
+length-safe changed edges and remain independently shape-blocked. Full exact
+witnesses and compact provenance retained in collapse_bound_replay_v1/REVIEW.md,
+analysis.json,component_analysis.json,validation.json.
+Do not implement the weaker envelope from this replay: it does not demonstrate
+512completion, MPI cost payback, safe rounded predicates or arbitrary composition.
+No new SU2/MPI execution, production/default/target/guard change, local timing
+campaign or cluster submission. Goal1 ACTIVE; repeated cluster performance/rank/
+weight/wait/memory/overhead calibration remains required; Goal2 not started.
+
 ## Conservative donor-box prefilter qualified — 2026-10-12
 
 Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch

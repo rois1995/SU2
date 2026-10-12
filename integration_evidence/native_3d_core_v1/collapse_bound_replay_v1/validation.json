@@ -1,0 +1,28 @@
+{
+  "status": "PASS",
+  "production_changed": false,
+  "source_checkpoint": "8c3b40c9be1cca3919d627c7b3851b65bc05312a",
+  "branch": "codex/native-3d-transport-accounting",
+  "working_directory": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated",
+  "python": "3.8.10 (default, Mar 18 2025, 20:04:55) \n[GCC 9.4.0]",
+  "commands": [
+    "env PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 taskset -c 1 nice -n 19 python3 integration_evidence/native_3d_core_v1/collapse_bound_replay_v1/analyze.py",
+    "env PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 taskset -c 1 nice -n 19 python3 integration_evidence/native_3d_core_v1/collapse_bound_replay_v1/component_bounds.py"
+  ],
+  "exit_codes": [
+    0,
+    0
+  ],
+  "artifact_sha256": {
+    "component_analysis.json": "9bf52aa7112c266e31c94a4a3b2f3e363e1ccd5217eb0bb16c64c2891daeacce",
+    "REVIEW.md": "3df0d8e668c5694f2f355358dfac023e91a3620182952f62587a0f684ddbb011",
+    "component.stdout": "718af4298906f68b6873a08a30f65cdfa1e9713316d70aabcdec39e9a8d1d235",
+    "analyze.py": "529841ca41545f63def0e06111726ada472a40590a7db2abbffaf70d045e8265",
+    "component.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run.stdout": "15c44e1dd5a3bf6c364b3e5a873b04ac0568771495052cff5de2bc08998b560f",
+    "component_bounds.py": "60a970d3aeb48e76e27e8c154320048769ad886dcf7b639b8b823cbaa9e0c9fe",
+    "analysis.json": "d7ad55bae012f6f6fc052f6309a583b38086df907ae2857564d3ebf01c82e7c4",
+    "run.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "scope": "Terminal one-CPU/nice19/thread1 exact-rational offline analysis of source-pinned retained historical failure records. Production unchanged; no new SU2/MPI/mesh certificate, timing or predicted new trajectory."
+}
