@@ -217,7 +217,7 @@ public:
     su2double rho_j = V_j[RHO_INDEX];
     su2double T   = val_Mean_PrimVar[T_INDEX];
     su2double Tve = val_Mean_PrimVar[TVE_INDEX];
-    su2double mu  = val_laminar_viscosity;
+    su2double mu  = val_laminar_viscosity + val_eddy_viscosity;
     su2double ktr = val_thermal_conductivity;
     su2double kve = val_thermal_conductivity_ve;
     su2double RuSI= UNIVERSAL_GAS_CONSTANT;
