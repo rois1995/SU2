@@ -1,3 +1,37 @@
+## Conservative donor-box prefilter qualified — 2026-10-12
+
+Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
+codex/native-3d-transport-accounting. Goal1 ACTIVE; Goal2 not started.
+Production known-query imports use strict projected-box separation before exact
+segment/tet tests. Volatile subtraction/product/direction rounding and64eps sign
+bound; wide long-double precision/exponent guard, otherwise retain exact path.
+Touching/unresolved/point/full unknown queries preserve original behavior. No
+metric/q/J/L/geometry/operator/cap/512default/index/collective change; stack-only.
+SEGMENT_BOX_SIGN_REVIEW.md documents bound/preconditions; safeguardedv4 standalone
+PASS7258rational oracle/reversal/coarse-grid/compiler-mode checks,0false rejections.
+Intermediate buildv1 preserved; final box_filter_build_v2 PASS68objects/774members,
+binarySHA256 c1bdef2a09d1e13bd1d137910db5713de32514f7a421369d6b1a177b48de54d6.
+box_filter_mpi1/2/4_v1 PASS97cases per rank with all exact distributed and actual
+bridge/state/SU2CGNS audits and serialMMG. Fresh box_filter_n4_n4_m2_v1 driver
+audit PASS; box_filter_lifecycle_mpi1_v1 six actual Hessian/CFD/BDF OFF/ON controls
+PASS. box_filter_n8_n1_m1_rounds1024_v1 PASS exact18artifact/22work-field equivalence
+to packed control, fresh outputs/accounting; no rerun of identical full geometry
+certificate.2344837exact donor tests avoided in second coarsening; totalcandidate/
+filtered/payload/batch/retry/call/byte/work counts unchanged. Single nested filter
+69.991->28.158s, engine89.308->44.339s; wholefixture126.659->78.545s diagnostic only,
+no repeated speedup/scaling/overhead/allocator/wait qualification. No local timing campaign or cluster submission.
+
+New donor_box_filtered counter flows source->engine->runtime/ENGINE logs; strict
+integral subset aggregation checked on actual rows. box_filter_package_checks_v1
+PASS32core+13comparison checks. SGE source pins now cover six files/four versions;
+original/routing/packed->box pairs supported and earlier pairs retained. Baseline
+7f76fd9a279cf384a37f8ae137dc4dc26212ce82 isolates the prefilter; fresh current
+candidate bundle needed after pulling. Existing frozen bundles remain immutable.
+BOX_FILTER_VALIDATION.md/json pins full evidence. All owned jobs TERMINAL.
+Source2D/MMG preserved; production3DBL/composed-edge integration still explicitly
+unsupported. Size8 production512limit and full repeated performance/rank-cost/
+wait/traffic/allocator/RSS/overhead calibration remain open; no Goal2 activation.
+
 ## Donor broad-phase experiment and requirement audit — 2026-10-12
 
 Production checkpoint7f76fd9a279cf384a37f8ae137dc4dc26212ce82 unchanged;

@@ -744,7 +744,7 @@ void EngineReport(const EngineResult& result, World& world, const std::string& l
        << " batches=" << s.donor_batches << " batch_retries=" << s.batch_retries
        << " query_import_retries=" << s.query_import_retries << " private_query_retries=" << s.private_query_retries
        << " donor_reused=" << s.donor_reused << " edge_separated=" << s.edge_separated
-       << " donor_candidates=" << s.donor_candidates << " donor_filtered=" << s.donor_filtered
+       << " donor_candidates=" << s.donor_candidates << " donor_filtered=" << s.donor_filtered << " donor_box_filtered=" << s.donor_box_filtered
        << " donor_payloads=" << s.donor_payloads << " donor_maximum_patch=" << s.donor_maximum_patch
        << " donor_search_nested_s=" << s.donor_search_seconds << " donor_filter_nested_s=" << s.donor_filter_seconds
        << " field_build_nested_s=" << s.field_build_seconds << " field_query_nested_s=" << s.field_query_seconds
@@ -1805,5 +1805,13 @@ TEST_CASE("Native MPI narrow metric-query routing preserves exhaustive closed do
       auto invalid=query;if(!invalid.empty())std::swap(invalid.front().v[0],invalid.front().v[1]);
       CHECK_FALSE(service.ImportMetricCells(invalid).valid);CHECK(service.ResidentBytes()==resident);
     }
+    const auto& counters=service.Statistics();
+    CHECK(counters.box_filtered<=counters.filtered);
+    const auto rejected=CPassiveComm::Allreduce(counters.box_filtered,CPassiveComm::Op::SUM,world.comm);
+    if constexpr (std::numeric_limits<long double>::digits>=std::numeric_limits<double>::digits &&
+                  std::numeric_limits<long double>::max_exponent>=2*std::numeric_limits<double>::max_exponent+4 &&
+                  std::numeric_limits<long double>::min_exponent<=2*(std::numeric_limits<double>::min_exponent-std::numeric_limits<double>::digits)-4)
+      CHECK(rejected>0);
+    else CHECK(rejected==0);
   }
 }

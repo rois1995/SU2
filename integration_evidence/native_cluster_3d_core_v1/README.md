@@ -12,6 +12,15 @@ thin H10/H20 cases and stronger aspect2 turning-direction n4N1M1/N4M2 cycles.
 Those historical receipts keep their original source/binary pins. The reusable package
 expects97cases and passes31lightweight parser/mocked orchestration checks.
 No C++/binary/target/default budget changed for this coverage correction.
+Current conservative donor-box prefilter build passes97cases on MPI1/2/4,
+all exact distributed/driver audits, actual metric/Hessian/CFD/BDF controls,
+fresh n4N4M2 and exact18artifact n8diagnostic equivalence. It avoids2344837exact
+donor tests in the matched second coarsening while preserving donor payload,
+communication and operation counts. Single contended elapsed improves here,
+but repeated/scaling/overhead qualification remains open. New donor_box_filtered
+counter is a validated subset of filtered/candidate counts. See BOX_FILTER_VALIDATION.md.
+A fresh current candidate includes this prefilter; earlier frozen packing/routing
+bundles retain their own implementations and receipts.
 Current grouped-request build also passes97cases on MPI1/2/4, all exact auditors,
 actual metric/Hessian/CFD/BDF controls, n4N4M2 and exact18artifact n8diagnostic
 trajectory/output/accounting checks. Second diagnostic coarsening saves9.70%

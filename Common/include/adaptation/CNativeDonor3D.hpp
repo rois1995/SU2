@@ -18,7 +18,7 @@ struct DonorPatch {
 };
 struct DonorImportStats {
   uint64_t builds = 0, imports = 0, rejected = 0, owner_requests = 0, index_candidates = 0, payloads = 0;
-  uint64_t filter_candidates = 0, filtered = 0, reused_candidates = 0;
+  uint64_t filter_candidates = 0, filtered = 0, reused_candidates = 0, box_filtered = 0;
   KernelStats filter_kernel;
   size_t maximum_patch = 0, maximum_work_bytes = 0;
   double build_seconds = 0, import_seconds = 0, routing_seconds = 0, search_seconds = 0, exchange_seconds = 0;
@@ -32,6 +32,7 @@ struct DonorImportStats {
  * Metric-cell imports search actual centroid/edge boxes separately when filtering is required,
  * retaining every closed intersection. Per-cell owner masks pack queries without repeating geometry;
  * the sender centroid is retained and grouped requests are admitted before allocation.
+ * Certified segment/box separation avoids exact tetrahedron tests; touching/unresolved cases retain them.
  * Exact FrozenField queries/edge coverage remain authoritative. Compose locally at actual queries, never on wire.
  * Regions <= MaximumCavityCells and donor union <= MaximumDonors; oversized imports reject as a whole.
  * Source IDs, canonical simplices, shared coordinates/sensors and SPD are checked across ranks at Build.

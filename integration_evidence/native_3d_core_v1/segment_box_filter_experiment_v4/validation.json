@@ -1,0 +1,135 @@
+{
+  "status": "PASS",
+  "stages": [
+    {
+      "command": [
+        "uptime"
+      ],
+      "label": "host_load",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/segment_box_filter_experiment_v4",
+      "exit_code": 0,
+      "seconds": 0.00643504096660763
+    },
+    {
+      "command": [
+        "free",
+        "-m"
+      ],
+      "label": "host_memory",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/segment_box_filter_experiment_v4",
+      "exit_code": 0,
+      "seconds": 0.010231635998934507
+    },
+    {
+      "command": [
+        "c++",
+        "-std=c++17",
+        "-O2",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/segment_box_filter_experiment_v4/filter.cpp",
+        "-o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/segment_box_filter_experiment_v4/filter_strict"
+      ],
+      "label": "compile_strict",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/segment_box_filter_experiment_v4",
+      "exit_code": 0,
+      "seconds": 0.7621435929904692
+    },
+    {
+      "command": [
+        "c++",
+        "-std=c++17",
+        "-O3",
+        "-march=native",
+        "-ffast-math",
+        "-fno-finite-math-only",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/segment_box_filter_experiment_v4/filter.cpp",
+        "-o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/segment_box_filter_experiment_v4/filter_native"
+      ],
+      "label": "compile_native",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/segment_box_filter_experiment_v4",
+      "exit_code": 0,
+      "seconds": 0.7604923500330187
+    },
+    {
+      "command": [
+        "c++",
+        "-std=c++17",
+        "-O2",
+        "-mlong-double-64",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/segment_box_filter_experiment_v4/filter.cpp",
+        "-o",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/segment_box_filter_experiment_v4/filter_ld64"
+      ],
+      "label": "compile_ld64",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/segment_box_filter_experiment_v4",
+      "exit_code": 0,
+      "seconds": 0.7148788340273313
+    }
+  ],
+  "summary": [
+    {
+      "mode": "strict",
+      "cases": 7258,
+      "false_rejections": 0,
+      "certified_box_rejections": 5568,
+      "false_positives_retained": 0,
+      "actual_n8_box_candidates": 532,
+      "actual_n8_candidates_rejected": 144,
+      "narrow_long_double_disabled": false,
+      "binary_sha256": "985d173ea768619b9aec2db93e057d46f3ce890e48f734a24e188df493310bed"
+    },
+    {
+      "mode": "native",
+      "cases": 7258,
+      "false_rejections": 0,
+      "certified_box_rejections": 5554,
+      "false_positives_retained": 14,
+      "actual_n8_box_candidates": 532,
+      "actual_n8_candidates_rejected": 144,
+      "narrow_long_double_disabled": false,
+      "binary_sha256": "5334d0571c34f53e132ffe8a9ea719b3a1d51ec6eed414f53f49d6853a90d667"
+    },
+    {
+      "mode": "ld64",
+      "cases": 7258,
+      "false_rejections": 0,
+      "certified_box_rejections": 0,
+      "false_positives_retained": 5568,
+      "actual_n8_box_candidates": 532,
+      "actual_n8_candidates_rejected": 0,
+      "narrow_long_double_disabled": true,
+      "binary_sha256": "8dc037c42961d72224e488906744a7f54b0591174afec67233559df2c8f17115"
+    }
+  ],
+  "source_sha256": "87169cb3cd54e8988425744c3f90798d43b22aae98a42068b61d6775484948ef",
+  "runner_sha256": "e366e9cdfcbaaf3db7292095a3280412dd935f6a7d0e402a0359c4567bce67c0",
+  "actual_mesh_sha256": {
+    "integration_evidence/native_3d_core_v1/query_packing_n8_n1_m1_rounds1024_v1/envelope_s1_initial.json": "2ea31c8d723eedf9bb1df803f575bdecb212b451b939288056eb74d9c5c1bbb5",
+    "integration_evidence/native_3d_core_v1/query_packing_n8_n1_m1_rounds1024_v1/envelope_s1.json": "7b44711f248b6a668ec159e3bf638f54992f4222d5074bd41830e225f5b91dcc"
+  },
+  "scope": "Standalone conservative projected-box prefilter correctness versus exact binary64 rational closed segment/box oracle. Three compiler modes including production fast-math and binary64 long double. Not a production integration, tetrahedral coverage, MPI or performance certificate.",
+  "artifact_sha256": {
+    "input.txt": "4122dadd7c790f5f73e8ada60c1bdc2ce3440f340750a3d8acbaab0f47505b33",
+    "compile_ld64.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "strict.stdout": "0ae34af54cd823b8bb9a12a4e6610d9b6a33c1d2e3056453e08fbcd45a105e88",
+    "host_load.stdout": "16d4878185ab4ee4ec10e98b29f53df07e27a1e3e65fe448cdb86e9d745e24ce",
+    "host_memory.stdout": "c53e9bd5d8f5bf4a1995cba7686ab83d9c1a715378f57e89e9f3699858055a4b",
+    "compile_ld64.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ld64.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host_load.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host_gate.json": "f6bdba782b8c3acb40e20882c6de202ca56c9b201182e69b01024c0e2b049b64",
+    "cases.json": "ffb5076a0987cf3d321c0867271e9a4f2361f925ed8462c9beae654491119279",
+    "compile_native.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "filter.cpp": "87169cb3cd54e8988425744c3f90798d43b22aae98a42068b61d6775484948ef",
+    "strict.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native.stdout": "61d7ff54b4414c83d34993be44a54884b89c575b2f50f659f92f1320ca570b60",
+    "runner.py": "e366e9cdfcbaaf3db7292095a3280412dd935f6a7d0e402a0359c4567bce67c0",
+    "compile_strict.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compile_native.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ld64.stdout": "8bda9d82a43494f2bbb6bb058a9ba3555165f85c6dd0a983208a7d24ceff4bf3",
+    "host_memory.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compile_strict.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

@@ -1,0 +1,215 @@
+{
+  "status": "PASS",
+  "build_sha256": "b790ab9b50cd3bb38e9dea0fc906d251627629c8bf9ee34d8e78f393adc5fe6a",
+  "binary_sha256": "c1bdef2a09d1e13bd1d137910db5713de32514f7a421369d6b1a177b48de54d6",
+  "cases": [
+    {
+      "case": "box_filter_mpi1_v1",
+      "validation_sha256": "1606e1679abd4960fcc662660335e6330150387806c0d6808b6c3f488e99ca7b",
+      "audits": {
+        "independent_audit.json": "5a34f9b154b395c8209a27c22d4af0d700ce46d45704f8bfe168f78882f13a12",
+        "distributed_audit.json": "0d157df8e77345ec54badfe4afc9b3add500c62cce2ced49556ab6ba75d35ad4",
+        "distributed_coplanar/independent_audit.json": "165baf7c6ef7b1a20f196c009f596082aa41cf1d3c74b47d7367f7dbd06cfdbb",
+        "distributed_anisotropic/independent_audit.json": "735f4fb52b29f662bc065bb7fcd729a09f60e03fa6ba312dfe513fdec7586b50",
+        "distributed_cycles/independent_audit.json": "9787970adb1742ebc24519b52b95f09cf30ce0546b1c21619b7dda03d633ed54",
+        "distributed_repairs/independent_audit.json": "764b23004ca16f99d776134acdcdfe6b107a8ab7062270d171aa97dbdd3ca626",
+        "distributed_meshes/independent_audit.json": "c8bf4e09a7e8c2b41dce7e9931a886a3ba4c1c9486ee6777b0a13faf5fc41caa",
+        "distributed_automatic/independent_audit.json": "3b6bde7b9f4dce34f54d866cf142821a557967d40987df847f59d8e1e1ffded8"
+      }
+    },
+    {
+      "case": "box_filter_mpi2_v1",
+      "validation_sha256": "25afc6771fc09a7d76978e436aba2ca1b0f32b8687f54ae8b0be1646f2af7ead",
+      "audits": {
+        "independent_audit.json": "87537f617f35f44a2b506dcc5aaab39ae18992f2b7af3f3abf955c62d79599e7",
+        "distributed_audit.json": "f60f7cc58bf7f49b25157de4f32519e7b0b90db03363dc3b25ee828010702278",
+        "distributed_coplanar/independent_audit.json": "f7a016da835dec7c083c248bf87d293bf34dfe38c2eddd0674e984e374516d6c",
+        "distributed_anisotropic/independent_audit.json": "c42ab41a4585eb632626d5272cd97e78a81cdc78881cbe61b8671ec0a0320235",
+        "distributed_cycles/independent_audit.json": "0407d133a72e93c16b971e01daa7f576b395bc3e548555b5b8d15bfb78779be7",
+        "distributed_repairs/independent_audit.json": "762a8b8697f74be243a9c37a58c633fe675d1f483266c3285f756b32572fdbcc",
+        "distributed_meshes/independent_audit.json": "39794c10d3e4ddfeef993e285ec1921c0200cff1b741d6589e3687fc71559f14",
+        "distributed_automatic/independent_audit.json": "ffb376ee424c8623d51b8625400f8b217b076a2ee396a68f9dcefc322f4e8b4b"
+      }
+    },
+    {
+      "case": "box_filter_mpi4_v1",
+      "validation_sha256": "b954fdd2dd606c763c77b551dd7eb5d1d7f3895b97fd17dcfa7aec5976f0ba2f",
+      "audits": {
+        "independent_audit.json": "492b11df8c85f63dce0e75a1609eaf2239c5342d3097d9ba168436f12caa0eed",
+        "distributed_audit.json": "e8eb5b4162731795d174ec11ffbc56e1e630771611d0dcab31f32c86ff5fb68c",
+        "distributed_coplanar/independent_audit.json": "4a0dcbf6c71f723e37c23d37ceb74df6ea53667fae841c8606270897340a97d5",
+        "distributed_anisotropic/independent_audit.json": "623b231bc964402fdbd835d2722bf75fdaea51dda2051339832558939279619b",
+        "distributed_cycles/independent_audit.json": "10aab957e449104c7b934b05f28218436fea80fccfeebb1fe84aba75ea9d4797",
+        "distributed_repairs/independent_audit.json": "1caf9b6ffebd26f635fbb042ce647a8e5e7bd56568c9c64e5230b0d9f5c04a2d",
+        "distributed_meshes/independent_audit.json": "5acfd73a6e9e619a851c88e7efceeafe796f951f7150a3291b1950a87fabc30d",
+        "distributed_automatic/independent_audit.json": "96651d0c9336b27a2bdd592f039d52d332cde17fd2f611f959e812fd2497e66a"
+      }
+    },
+    {
+      "case": "box_filter_n4_n4_m2_v1",
+      "validation_sha256": "84aef75bdd9800e2b7c783dfca9716e70bba7d0266631fab105c840d5edbb928",
+      "audits": {
+        "independent_audit.json": "d30eef7e3627d7bf562b050f9a20821e45325c14927a7448b7cd67093fae7814"
+      }
+    },
+    {
+      "case": "box_filter_n8_n1_m1_rounds1024_v1",
+      "validation_sha256": "cb53bfd93132b979b455bc524d4b819004bbeb2b589606650bb2f2493a32adcf",
+      "audits": {
+        "independent_audit.json": "876656b89de02b9ec66d9072411adb83f129dd17de9c31a221bb882db208ed0f"
+      }
+    },
+    {
+      "case": "box_filter_lifecycle_mpi1_v1",
+      "validation_sha256": "e425c7522b0c7ea7c49a119f5ff6af6deebebbe410dd1c42d6c2c24501cbe10b",
+      "audits": {
+        "lifecycle_audit.json": "59cae6180045ac364b6791c299899c411a276dcba47094edff3cc9606bba7cbe"
+      }
+    }
+  ],
+  "n8_matched_work": [
+    {
+      "event": 0,
+      "stage": "refine",
+      "box_filtered": 0,
+      "matched_counts": {
+        "rounds": 457,
+        "attempted": 457,
+        "accepted": 457,
+        "rejected": 0,
+        "conflicts": 0,
+        "donor_candidates": 674844,
+        "donor_filtered": 211101,
+        "donor_payloads": 82043,
+        "donor_batches": 553,
+        "private_query_retries": 0,
+        "tracked_bytes": 34716384,
+        "tracked_calls": 21609
+      },
+      "old_nested_filter_seconds": 2.1839469600000077,
+      "new_nested_filter_seconds": 1.9110795070000408,
+      "old_engine_seconds": 7.11352512,
+      "new_engine_seconds": 6.155489606
+    },
+    {
+      "event": 0,
+      "stage": "coarsen",
+      "box_filtered": 0,
+      "matched_counts": {
+        "rounds": 428,
+        "attempted": 428,
+        "accepted": 272,
+        "rejected": 156,
+        "conflicts": 0,
+        "donor_candidates": 762180,
+        "donor_filtered": 215041,
+        "donor_payloads": 81586,
+        "donor_batches": 494,
+        "private_query_retries": 0,
+        "tracked_bytes": 36007480,
+        "tracked_calls": 21381
+      },
+      "old_nested_filter_seconds": 2.215556484000118,
+      "new_nested_filter_seconds": 1.987997724000043,
+      "old_engine_seconds": 8.128281738,
+      "new_engine_seconds": 7.33643712
+    },
+    {
+      "event": 1,
+      "stage": "refine",
+      "box_filtered": 0,
+      "matched_counts": {
+        "rounds": 0,
+        "attempted": 0,
+        "accepted": 0,
+        "rejected": 0,
+        "conflicts": 0,
+        "donor_candidates": 430551,
+        "donor_filtered": 113464,
+        "donor_payloads": 40326,
+        "donor_batches": 313,
+        "private_query_retries": 0,
+        "tracked_bytes": 16886144,
+        "tracked_calls": 1571
+      },
+      "old_nested_filter_seconds": 1.4164512170000616,
+      "new_nested_filter_seconds": 1.2948397140000645,
+      "old_engine_seconds": 4.125053854,
+      "new_engine_seconds": 3.585299298
+    },
+    {
+      "event": 1,
+      "stage": "coarsen",
+      "box_filtered": 2344837,
+      "matched_counts": {
+        "rounds": 615,
+        "attempted": 615,
+        "accepted": 457,
+        "rejected": 158,
+        "conflicts": 0,
+        "donor_candidates": 11942125,
+        "donor_filtered": 4244927,
+        "donor_payloads": 441143,
+        "donor_batches": 3493,
+        "private_query_retries": 181,
+        "tracked_bytes": 162969840,
+        "tracked_calls": 42380
+      },
+      "old_nested_filter_seconds": 69.99120180296099,
+      "new_nested_filter_seconds": 28.158133197290425,
+      "old_engine_seconds": 89.308066943,
+      "new_engine_seconds": 44.339499023
+    },
+    {
+      "event": 2,
+      "stage": "refine",
+      "box_filtered": 0,
+      "matched_counts": {
+        "rounds": 790,
+        "attempted": 790,
+        "accepted": 789,
+        "rejected": 1,
+        "conflicts": 0,
+        "donor_candidates": 514158,
+        "donor_filtered": 143920,
+        "donor_payloads": 69007,
+        "donor_batches": 826,
+        "private_query_retries": 0,
+        "tracked_bytes": 32841912,
+        "tracked_calls": 36561
+      },
+      "old_nested_filter_seconds": 1.3214036440000243,
+      "new_nested_filter_seconds": 1.2822514700000753,
+      "old_engine_seconds": 5.893845981,
+      "new_engine_seconds": 5.640751756
+    },
+    {
+      "event": 2,
+      "stage": "coarsen",
+      "box_filtered": 0,
+      "matched_counts": {
+        "rounds": 1002,
+        "attempted": 1002,
+        "accepted": 379,
+        "rejected": 623,
+        "conflicts": 0,
+        "donor_candidates": 914884,
+        "donor_filtered": 223081,
+        "donor_payloads": 80262,
+        "donor_batches": 624,
+        "private_query_retries": 0,
+        "tracked_bytes": 41727920,
+        "tracked_calls": 46843
+      },
+      "old_nested_filter_seconds": 1.6986701050000896,
+      "new_nested_filter_seconds": 1.574729239000084,
+      "old_engine_seconds": 9.844070555,
+      "new_engine_seconds": 8.895598165
+    }
+  ],
+  "single_contended_fixture_seconds": {
+    "packed": 126.65927395102335,
+    "box": 78.54499899497023
+  },
+  "scope": "Safeguarded conservative donor-box integration, full97-case MPI1/2/4 plus exact audits/actual driver/metric-Hessian-CFD controls; n8exact18artifact equivalence with fresh outputs/current counters. No metric/geometry/budget relaxation or repeated performance/fullGoal1 certificate."
+}

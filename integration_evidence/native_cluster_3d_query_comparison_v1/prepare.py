@@ -13,19 +13,33 @@ SOURCE_PINS={
     "Common/src/adaptation/CNativeDonor3D.cpp": "a632198f977cedb9ec3a1da38059989a93ac9f1ee143a9ad7dcc692f262753af",
     "Common/include/adaptation/CNativeDonor3D.hpp": "e5f5c63617460388a0d13c189e879b2690f21184adf9888e2b528459b8b6374a",
     "Common/include/adaptation/CNativeEngine3D.hpp": "ae054867710f57dc5d1569b4b94995d37073f00b737423e97a0379f8e792c13c",
-    "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp": "d28d5e9d045326ece57af1e8392963c59ee614fbbcbe0a4b2e35a8e563aed73c"
+    "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp": "d28d5e9d045326ece57af1e8392963c59ee614fbbcbe0a4b2e35a8e563aed73c",
+    "Common/src/adaptation/CNativeEngine3D.cpp": "c4e9c8a49a2ba7c74529f57bf6cdc43382113db5d25628cbc8c88b1d4e8cdecc",
+    "Common/src/adaptation/CNativeRemesher3D.cpp": "125b51b38421c67a38373494fd93a80c30959c2ab014f635065704a5c629135b"
   },
   "routing": {
     "Common/src/adaptation/CNativeDonor3D.cpp": "af9787bd400f22bdd4942992d9a1d3ec8f043ed8c7ae73cfdf1ddd30f01f70f5",
     "Common/include/adaptation/CNativeDonor3D.hpp": "5550f94a78cc5005ab7b7baa2bb9645bdc906625463984082430dc2da7685943",
     "Common/include/adaptation/CNativeEngine3D.hpp": "524cae568ab3602d735a540702373ba5e1dc42e7ac6fff4a3b61d9d4bc4f4327",
-    "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp": "9799ae5adf7a80347b5bc0d8769dd7dd113c385c4cb36d78da956dba39b51b24"
+    "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp": "9799ae5adf7a80347b5bc0d8769dd7dd113c385c4cb36d78da956dba39b51b24",
+    "Common/src/adaptation/CNativeEngine3D.cpp": "c4e9c8a49a2ba7c74529f57bf6cdc43382113db5d25628cbc8c88b1d4e8cdecc",
+    "Common/src/adaptation/CNativeRemesher3D.cpp": "125b51b38421c67a38373494fd93a80c30959c2ab014f635065704a5c629135b"
   },
   "packed": {
     "Common/src/adaptation/CNativeDonor3D.cpp": "e475835ebbbff7656621b2c7405638e11930c5f2faafb2819f765356d362cf8a",
     "Common/include/adaptation/CNativeDonor3D.hpp": "5c978c7a20f5057ad6554aaab9f0447894228df72f940ce9490292bd0c6ced5c",
     "Common/include/adaptation/CNativeEngine3D.hpp": "524cae568ab3602d735a540702373ba5e1dc42e7ac6fff4a3b61d9d4bc4f4327",
-    "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp": "fcc3d7af4d8b55a6d5df5ec209116627d723824475261d1669984a53bf5f500b"
+    "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp": "fcc3d7af4d8b55a6d5df5ec209116627d723824475261d1669984a53bf5f500b",
+    "Common/src/adaptation/CNativeEngine3D.cpp": "c4e9c8a49a2ba7c74529f57bf6cdc43382113db5d25628cbc8c88b1d4e8cdecc",
+    "Common/src/adaptation/CNativeRemesher3D.cpp": "125b51b38421c67a38373494fd93a80c30959c2ab014f635065704a5c629135b"
+  },
+  "box": {
+    "Common/src/adaptation/CNativeDonor3D.cpp": "cddffde7fd65bf142665efd27d09c83f5d3354fc1e761844d2349f40e07a7813",
+    "Common/include/adaptation/CNativeDonor3D.hpp": "eb758657b4f3c8df93d5dff55ffb3bb7de8a4245438294d7a9904bb12f8ac3aa",
+    "Common/include/adaptation/CNativeEngine3D.hpp": "6ccdad9dcd1d89c26b6a4babe927132b5db07b41b4be9d69b898d9de2fd58eb2",
+    "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp": "1efc2932a389489f5383349f598163f1c10146450b9b73fb265fe4c8641062b1",
+    "Common/src/adaptation/CNativeEngine3D.cpp": "61be0d25a092d060d36d6d869986bd60e6ae11d288a9ecb844ac529bf8ee4477",
+    "Common/src/adaptation/CNativeRemesher3D.cpp": "be4cea094d700684856d9520441c33e9c7c84924be81fe0745985c52a507533f"
   }
 }
 EXPECTED={'baseline':SOURCE_PINS['original'][DONOR],'candidate':SOURCE_PINS['routing'][DONOR]}
@@ -39,7 +53,7 @@ def matched_sources(manifests):
         if version is None or any(actual.get(name)!=digest for name,digest in SOURCE_PINS[version].items()):
             raise ValueError('Wrong '+side+' source pins; use the documented checkpoints')
         versions[side]=version
-    if (versions['baseline'],versions['candidate']) not in (('original','routing'),('original','packed'),('routing','packed')):
+    if (versions['baseline'],versions['candidate']) not in (('original','routing'),('original','packed'),('routing','packed'),('original','box'),('routing','box'),('packed','box')):
         raise ValueError('Unsupported or reversed source comparison')
     old,new=(manifests[side]['source_sha256'] for side in ('baseline','candidate'))
     expected={name for name in CHANGED if SOURCE_PINS[versions['baseline']][name]!=SOURCE_PINS[versions['candidate']][name]}

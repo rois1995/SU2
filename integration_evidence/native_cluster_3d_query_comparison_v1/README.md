@@ -2,18 +2,23 @@
 
 Repository: `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`.
 Compile candidate branch **codex/native-3d-transport-accounting** after updating it.
-Current candidate includes qualified grouped requests; see
-`integration_evidence/native_3d_core_v1/QUERY_PACKING_VALIDATION.md`.
+Current candidate includes grouped requests and the qualified conservative donor
+box prefilter; see `integration_evidence/native_3d_core_v1/BOX_FILTER_VALIDATION.md`.
 The earlier validated narrow routing checkpoint7b4e0d767fbda42ff17064ed93960316d794d5ab
 remains a supported frozen candidate or a baseline for isolating packing.
 Baseline is **2d3ac1e3a552a1b90a87dfa3595fc1b372783ceb**, including the full-star
 facet fix and certified1024-round n8 capability, before narrow query routing.
 Use matching compiler, MPI, external libraries and build options on both builds.
-Preparation pins all four relevant source files and checks the complete expected
+Preparation pins all six relevant source files and checks the complete expected
 compiled source difference for each supported forward pair, plus equal build
 options except installation prefix. Allowed pairs: original->routing, original->
-packed and routing->packed; variants are recorded in comparison_manifest.json.
+packed, routing->packed and original/routing/packed->box; variants are recorded
+in comparison_manifest.json.
 The old2D e6995fb baseline is not the baseline for this3D comparison.
+For a prefilter-only comparison, use baseline checkpoint
+7f76fd9a279cf384a37f8ae137dc4dc26212ce82 with the same baseline commands below.
+That source retains packing without the prefilter. The six-source guards identify
+the pair automatically; a fresh current candidate includes the prefilter.
 For a packing-only comparison, use the same baseline preparation commands below
 but checkout7b4e0d767fbda42ff17064ed93960316d794d5ab instead of2d3ac1e3a552a1b90a87dfa3595fc1b372783ceb.
 No extra CLI option is needed: frozen source hashes identify the pair. Do not
@@ -141,8 +146,8 @@ The analyst verifies retained hashes, requires three paired repetitions and
 constant accepted work, reports spread, candidate/baseline ratios, accepted edits
 per second and detailON/OFF overhead. Detailed rank profiles retain query/import,
 partition/migration, reconstruction, return/rebuild/transfer and memory measures.
-Investigate extra request traffic and any changed M/N trajectory before declaring
-that the serial pilot benefit survives MPI. A successful matrix is evidence for
+Inspect donor_box_filtered, exact donor work, request traffic and any changed M/N
+trajectory before declaring that a serial diagnostic benefit survives MPI. A successful matrix is evidence for
 its declared envelope, not a universal affordability or Goal1 certificate.
 
 Optional MPI API profiling is separate from normal detail overhead. Prepare BOTH

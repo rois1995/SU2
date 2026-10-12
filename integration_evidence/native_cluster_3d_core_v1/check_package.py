@@ -6,6 +6,15 @@ import run,restore,submit,prepare,analyze,profile_summary,mpi_profile
 from types import SimpleNamespace
 
 class PackageChecks(unittest.TestCase):
+    def test_donor_box_filter_counters_bound_actual_rejection_work(self):
+        row=dict(rank=0,ranks=1,donor_box_filtered=3,donor_filtered=7,donor_candidates=10)
+        profile_summary.summarize([row],None)
+        for key,value in [('donor_box_filtered',8),('donor_box_filtered',-1),('donor_box_filtered',.5),
+                          ('donor_box_filtered',float('nan')),('donor_filtered',11)]:
+            with self.subTest(key=key),self.assertRaises(ValueError):profile_summary.summarize([dict(row,**{key:value})],None)
+        bad=dict(row);del bad['donor_filtered']
+        with self.assertRaises(ValueError):profile_summary.summarize([bad],None)
+
     def test_coarsening_counters_validate_nested_costs_and_integer_work(self):
         from audit_lifecycle import coarsening_counters
         self.assertFalse(coarsening_counters({}))

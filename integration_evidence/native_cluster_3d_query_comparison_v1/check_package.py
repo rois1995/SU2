@@ -45,7 +45,7 @@ class Checks(unittest.TestCase):
                 with self.assertRaises(ValueError):prepare.matched_sources(mutated)
     def test_known_source_pairs_and_reversed_comparison(self):
         options=[dict(name='enable-tests',value=True)]
-        for old,new in (('original','routing'),('original','packed'),('routing','packed')):
+        for old,new in (('original','routing'),('original','packed'),('routing','packed'),('original','box'),('routing','box'),('packed','box')):
             manifests={side:dict(source_sha256=dict(prepare.SOURCE_PINS[version]),build_options=options)
                        for side,version in [('baseline',old),('candidate',new)]}
             self.assertEqual(prepare.matched_sources(manifests),dict(baseline=old,candidate=new))

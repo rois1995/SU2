@@ -9,6 +9,7 @@
 #include "../../include/option_structure.hpp"
 #include <chrono>
 #include <cmath>
+#include <limits>
 #include <stdexcept>
 namespace SU2Native3D {
 namespace {
@@ -59,6 +60,35 @@ DonorRegion Bounds(const Cell& cell) {
 DonorRegion SegmentBounds(Point a, Point b) {
   return {std::min(a.x,b.x),std::min(a.y,b.y),std::min(a.z,b.z),
           std::max(a.x,b.x),std::max(a.y,b.y),std::max(a.z,b.z)};
+}
+bool SegmentMayIntersectBox(Point from, Point to, const double* box) {
+  // Binary64 differences/products stay normal and finite only with this wider exponent range.
+  if constexpr (std::numeric_limits<long double>::digits < std::numeric_limits<double>::digits ||
+                std::numeric_limits<long double>::max_exponent < 2*std::numeric_limits<double>::max_exponent+4 ||
+                std::numeric_limits<long double>::min_exponent >
+                    2*(std::numeric_limits<double>::min_exponent-std::numeric_limits<double>::digits)-4) return true;
+  const std::array<double,3> a{from.x,from.y,from.z}, b{to.x,to.y,to.z};
+  if (a==b) return true;  // The existing point box is already authoritative for this broad phase.
+  auto side = [&](double x, double y, size_t i, size_t j) {
+    // Preserve rounding points under solver fast-math; 64eps bounds these seven normal operations.
+    volatile long double u=static_cast<long double>(b[i])-a[i], v=static_cast<long double>(y)-a[j];
+    volatile long double w=static_cast<long double>(b[j])-a[j], z=static_cast<long double>(x)-a[i];
+    volatile long double p=u*v, q=w*z;
+    const auto determinant=p-q, permanent=std::abs(p)+std::abs(q);
+    const auto epsilon=std::numeric_limits<long double>::epsilon();
+    if (std::isfinite(determinant) && std::isfinite(permanent) &&
+        permanent>std::numeric_limits<long double>::min()/epsilon && std::abs(determinant)>64*epsilon*permanent)
+      return determinant>0 ? 1 : -1;
+    return 0;
+  };
+  for (size_t i=0;i<3;++i) for (size_t j=i+1;j<3;++j) {
+    volatile long double di=static_cast<long double>(b[i])-a[i], dj=static_cast<long double>(b[j])-a[j];
+    if (!std::isfinite(di) || !std::isfinite(dj)) return true;
+    const auto xmin=box[i+(dj<=0 ? 0 : 3)], ymin=box[j+(di>=0 ? 0 : 3)];
+    const auto xmax=box[i+(dj<=0 ? 3 : 0)], ymax=box[j+(di>=0 ? 3 : 0)];
+    if (side(xmin,ymin,i,j)>0 || side(xmax,ymax,i,j)<0) return false;
+  }
+  return true;  // Touching/unresolved projections still require the exact tetrahedron predicate.
 }
 bool Intersects(const DonorRegion& region, const double* box) {
   for (size_t a = 0; a < 3; ++a) if (region[a] > box[a + 3] || region[a + 3] < box[a]) return false;
@@ -303,7 +333,9 @@ DonorPatch DonorImport::ImportRegions(const std::vector<DonorRegion>& regions, c
               const auto& point = request.region;
               const Point a = query == 1 ? Point{point[0],point[1],point[2]} : request.tetra[QueryEdges[query - 2][0]];
               const Point end = query == 1 ? a : request.tetra[QueryEdges[query - 2][1]];
-              needed = IntersectsSegment(donor, a, end, &stats.filter_kernel);
+              needed = SegmentMayIntersectBox(a, end, boxes.data()+6*i);
+              if (!needed) ++stats.box_filtered;
+              else needed = IntersectsSegment(donor, a, end, &stats.filter_kernel);
             } else needed = !(Outside(request.tetra, donor, &stats.filter_kernel) ||
                               Outside(donor, request.tetra, &stats.filter_kernel));
             if (!needed) { ++stats.filtered; continue; }

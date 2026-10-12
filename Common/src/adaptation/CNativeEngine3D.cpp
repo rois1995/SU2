@@ -340,7 +340,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     stats.change_notification_seconds=directory.Statistics().change_seconds;
     stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,directory.Statistics().maximum_work_bytes);
     const auto& donor = source.Statistics();
-    stats.donor_candidates = donor.index_candidates; stats.donor_filtered = donor.filtered;
+    stats.donor_candidates = donor.index_candidates; stats.donor_filtered = donor.filtered; stats.donor_box_filtered = donor.box_filtered;
     stats.donor_payloads = donor.payloads; stats.donor_reused = donor.reused_candidates; stats.donor_maximum_patch = donor.maximum_patch;
     stats.donor_search_seconds = donor.search_seconds; stats.donor_filter_seconds = donor.filter_seconds;
     stats.maximum_work_bytes = std::max(stats.maximum_work_bytes, donor.maximum_work_bytes);

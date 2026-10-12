@@ -2,7 +2,12 @@
 
 Repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
 Current implementation branch: codex/native-3d-transport-accounting.
-Production checkpoint:7f76fd9a279cf384a37f8ae137dc4dc26212ce82.
+Audit baseline checkpoint:7f76fd9a279cf384a37f8ae137dc4dc26212ce82.
+Update: the current conservative donor prefilter is separately qualified in
+BOX_FILTER_VALIDATION.md/json, with complete source/binary/audit pins.
+It preserves exact mesh/state/work results and avoids2344837exact donor tests
+in the matched size8 diagnostic. All remaining performance/calibration gates
+below still apply; a single elapsed sample is not their completion.
 Goal1 ACTIVE. Goal2 not activated. This audit retains the complete original Goal1
 scope in NATIVE_3D_DEVELOPMENT_GOALS.md; it does not redefine it around passing tests.
 
@@ -20,7 +25,7 @@ scope in NATIVE_3D_DEVELOPMENT_GOALS.md; it does not redefine it around passing 
 | Cache/accepted/rejected/communication and per-rank work/imbalance | Current logs; immutable payload/collective/work comparison; core/comparison parsers | Counts verified. Tracked bytes include self and exclude vendor/direct MPI. MPI API elapsed and CPU/elapsed difference are not pure wait/wire. Need cluster rank-cost calibration. |
 | Peak RSS/admitted buffers, migration/private scratch and practical memory | Saturated admission/atomic refusal tests; runtime native_bound/process_peak_rss | Requested-storage bounds and lifetime RSS observed, not a calibrated allocator bound or practical large-size/rank envelope. |
 | Repeated timing, useful accepted work/sec, detail/profiler overhead, size/M/rank limits | Closed reusable SGE packages, fixed-source pairs, three paired repetitions and OFF/ON controls prepared;31core/13comparison checks | NOT achieved. No actual new cluster comparison submitted/results available. Local single samples are diagnostics. |
-| No unexplained unbounded scan/growth/retry | Donor ADT broad-phase candidate counts and exact filtering identified as dominant;512 transaction limit and1024diagnostic outcomes preserved | Known broad boxes can admit many original donors; mask packing reduces bytes, not candidate/predicate count. Standalone segment-box experiment investigates this with no production change. Larger practical costs need measurement. |
+| No unexplained unbounded scan/growth/retry | Donor ADT broad-phase candidate counts and exact filtering identified as dominant;512 transaction limit and1024diagnostic outcomes preserved | Known broad boxes can admit many original donors; Mask packing reduces bytes. The qualified projected-box filter avoids exact tetrahedron tests while retaining the same ADT candidate and final donor counts. Larger practical costs/scaling still need repeated measurement. |
 | Evidence/handoff/push and compact closed dependencies | Owned receipts/source/meshes/states/failures; strict four-file pins and closed regular-file cluster bundles; current pushed checkpoint | Retained. No cluster requests while user unavailable; no local performance campaigns. |
 
 The remaining performance measurements are required before Goal1 completion.
@@ -30,8 +35,8 @@ proved. It is not266 invalid cells and is not fixed by payload packing. Any
 algorithmic change must preserve the declared metric/geometry/height/state/cap
 contracts rather than relabel the diagnostic budget as production success.
 
-Available independent work: conservative donor broad-phase improvement and its
-production correctness qualification, stronger non-reconstructible-cavity
+Available independent work: deeper donor/cavity cost diagnosis within the preserved
+contracts, stronger non-reconstructible-cavity
 replay/diagnosis if a genuine failure is found, and completion of missing
 calibration tooling. Goal2 cannot start while the complete performance gate lacks
 proof. R<1/R<=.20 physical-CFD affordability remains later physical workload work,

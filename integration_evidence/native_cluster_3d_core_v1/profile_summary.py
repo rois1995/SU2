@@ -51,6 +51,13 @@ def summarize(rows,phases,active_workers=False):
             closes(r,phases)
             if 'cpu_other' in r:
                 closes(dict(total=r['cpu'],other=r['cpu_other'],**{k:r[k+'_cpu'] for k in phases}),phases)
+    for r in rows:
+        if 'donor_box_filtered' in r:
+            counts=('donor_box_filtered','donor_filtered','donor_candidates')
+            if any(k not in r or not math.isfinite(r[k]) or r[k]<0 or int(r[k])!=r[k] for k in counts):
+                raise ValueError('Invalid donor box-filter counters')
+            if not r['donor_box_filtered']<=r['donor_filtered']<=r['donor_candidates']:
+                raise ValueError('Donor box-filter count exceeds filtering/candidate work')
     tracked=[transport_counters(r) for r in rows]
     measured=rows[:int(workers)] if active_workers else rows
     if active_workers and any(r[k]!=0 for r in rows[int(workers):] for k in keys):

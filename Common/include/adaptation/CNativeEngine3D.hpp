@@ -26,7 +26,7 @@ struct EngineStats {
   uint64_t field_requests = 0, field_hits = 0, field_misses = 0, field_invalid_queries = 0;
   uint64_t field_failures = 0, field_evictions = 0, field_compositions = 0, field_edges = 0;
   uint64_t donor_batches = 0, batch_retries = 0, query_import_retries = 0, private_query_retries = 0;
-  uint64_t donor_candidates = 0, donor_filtered = 0, donor_payloads = 0, donor_reused = 0, edge_separated = 0;
+  uint64_t donor_candidates = 0, donor_filtered = 0, donor_box_filtered = 0, donor_payloads = 0, donor_reused = 0, edge_separated = 0;
   // Per-call deltas of existing World wrappers, not complete MPI/network/wait instrumentation.
   uint64_t tracked_bytes = 0, tracked_calls = 0, directory_elections = 0;
   double tracked_collective_seconds = 0, directory_election_seconds = 0;
