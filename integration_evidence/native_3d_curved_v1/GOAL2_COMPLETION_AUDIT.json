@@ -359,5 +359,24 @@
     "trials": 3074,
     "initial_failure": "two_apex_replay_v1/FAILURE.md",
     "scope": "Bounded constant0.5I floating-point partition family; no valid proposal, production change or global infeasibility proof."
+  },
+  "surface_recovery_investigation": {
+    "status": "INCOMPLETE_SERIAL_MATRIX_FAILURE",
+    "report": "SURFACE_RECOVERY_FINDINGS.md",
+    "receipt": "recovery_collapse_v1/validation.json",
+    "receipt_sha256": "bfa023620247166ce78293066cda303567da24d991d2b4c4ecc78aa8b17b9065",
+    "surface_probes": [
+      "surface_swap_replay_v1",
+      "surface_fan_replay_v1",
+      "frontal_fan_replay_v1",
+      "frontal_fan_replay_v2"
+    ],
+    "not_qualified": [
+      "tilted cylinder completion",
+      "current-source MPI and independent completed-state audits",
+      "broader regression",
+      "actual Euler refresh/resolved nonuniform control"
+    ],
+    "next": "Coordinated short surface strip plus volume transition reconstruction under unchanged immutable target and dependency/work bounds."
   }
 }

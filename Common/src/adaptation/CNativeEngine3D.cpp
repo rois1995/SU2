@@ -1198,7 +1198,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       for (unsigned trial=0;trial<19;++trial) {
         if (!world.maximum(fallback && !approved)) break;
         const bool move_trial=trial<3;
-        const bool participating=fallback && !approved && (move_trial ? move : (!move || (!repairing && coarsening))) &&
+        const bool participating=fallback && !approved && (move_trial ? move : (!move || (repairing && choice.feature.count==1) || (!repairing && coarsening))) &&
             (move_trial || trial-3<nodes.size());
         if (!world.maximum(participating)) continue;
         bool candidate=false;
@@ -1223,7 +1223,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               }
             } else if (!move_trial) {
               auto apex=nodes.begin(); std::advance(apex,trial-3);
-              candidate=geometry_trial(Reconnect(old,apex->first,first,geometry,fresh,result.reason));
+              if(move && repairing && choice.feature.count==1)
+                candidate=geometry_trial(CollapseVertex(old,vertex,apex->first,first,geometry,fresh,result.reason));
+              else candidate=geometry_trial(Reconnect(old,apex->first,first,geometry,fresh,result.reason));
             }
           } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
           ready=vote(failure);

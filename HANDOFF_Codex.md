@@ -1,3 +1,35 @@
+# Goal 2 surface/recovery investigation — 2026-10-13
+
+Repo SU2_NativeIntegrated, branch codex/native-3d-curved-local; previouspublished
+f6708bce5b2f7ce4d737af27cf7a05cb996449c5. Goal ACTIVE/all four full gates PENDING.
+New source changes only CNativeEngine3D.cpp: existing streamed complete-vertex-star
+recovery now tries existing CollapseVertex after movement, retaining all geometry/
+feature/actual-field/clearance/progress/atomic guards. Planar direct-field path
+unchanged. recovery_collapse_v1 handle95657 TERMINAL FAIL: build PASS,4/5serial
+cases PASS; tilted-cylinder still operator-stagnates, accepted state retained.
+Source/archive/member/binary pins and rejected working evidence retained. MPI and
+broader current-source regression for this new extension are NOTRUN; previous
+MPI2/4 observation was on f6708/b9e54 source and cannot qualify new code.
+
+Sequential surface probes: surface_swap_replay_v1 handle11235 terminal no immediate
+geometry-progress swaps/zero trials; surface_fan_replay_v1 handle30133 no proposal
+in10growing patches. frontal_fan_replay_v1 handle22300 local floating candidate
+q0.212375/J0.053244, but geometry reduction only~1e-12relative; do NOT qualify as
+robust/accepted/exact mesh. frontal_fan_replay_v2 handle66412 no proposal in560
+trials with stricter >=1% experimental geometry reduction, otherwise same frozen
+target/gates. Source/results/logs preserved; no production relaxation/metric change.
+All owned jobs terminal, no heavyjob live. Report SURFACE_RECOVERY_FINDINGS.md.
+
+NEXT substantial step: short coordinated physical surface strip and volume
+transition reconstruction, supporting several wall triangles together instead of
+more isolated-fan placement/search tweaks. Bound dependencies/work/memory, preserve
+features/marker/components and actual frozen originalP1/extension composition.
+Qualify accepted-state audits/MPI/broad integration milestone and actual solved
+Euler refresh/resolved nonuniform/shock control before full completion. No arbitrary
+feasibility claim from failed limited probes. Scope unchanged, AGENTS batching
+cadence and no cluster/performance/CAD/3DBL/fullphysicalunsteady/forces claims.
+ForeignClusterResults/dependencies/AdapNoExt untouched.
+
 # Goal 2 collected MPI and multi-apex experiment — 2026-10-13
 
 Repository SU2_NativeIntegrated; branch codex/native-3d-curved-local, previous
