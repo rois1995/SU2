@@ -511,8 +511,8 @@ void CUpwAUSMPLUSUP2_NEMO::ComputeInterfaceQuantities(const CConfig* config, su2
   const su2double aF = min(ChatL, ChatR);
   interface_soundspeed[0] = interface_soundspeed[1] = aF;
 
-  const su2double M_L = ProjVelocity_i / aF;
-  const su2double M_R = ProjVelocity_j / aF;
+  M_L = ProjVelocity_i / aF;
+  M_R = ProjVelocity_j / aF;
 
   const su2double rhoF = 0.5 * (Density_i + Density_j);
   const su2double MFsq = 0.5 * (M_L * M_L + M_R * M_R);
