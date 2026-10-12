@@ -1270,11 +1270,10 @@ vector<su2double>& CSU2TCLib::ComputeMixtureEnergies(){
   // Electrons
   for (iSpecies = 0; iSpecies < nEl; iSpecies++) {
 
-    // Species formation energy
-    Ef = Enthalpy_Formation[iSpecies] - Ru/MolarMass[iSpecies] * Ref_Temperature[iSpecies];
-
-    // Electron t-r mode contributes to mixture vib-el energy
-    rhoEve += rhos[iSpecies]*((3.0/2.0) * Ru/MolarMass[iSpecies] * (Tve - Ref_Temperature[iSpecies]));
+    // Electron t-r mode contributes to mixture vib-el energy, which is part of the total energy
+    const su2double rhoE_el = rhos[iSpecies]*((3.0/2.0) * Ru/MolarMass[iSpecies] * (Tve - Ref_Temperature[iSpecies]));
+    rhoEve  += rhoE_el;
+    rhoEmix += rhoE_el;
   }
 
   for (iSpecies = nEl; iSpecies < nSpecies; iSpecies++){
