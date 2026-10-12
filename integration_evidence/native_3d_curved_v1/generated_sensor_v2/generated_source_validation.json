@@ -1,0 +1,76 @@
+{
+  "status": "PASS",
+  "scope": "Actual CFD-generated source records: original/extension count, parent provenance, exact copied sensor values and shared-node coordinates/tensors, positive exact volumes, exact rational no-interior-overlap, finite transform and MPI1/2/4 geometry, marker/component footprint, parent provenance and value consistency; numeric transient IDs are checked within each run, not assumed invariant between partitionings. Coverage meshes are source envelopes, not accepted CFD replacements; mesh publication/solution/history/CFD/restart remain unqualified.",
+  "controller_receipt_sha256": "48d7cc6ec83ce69421d3263707b37a7b88afdddcaa306a7775c2ebc6ba23c8ad",
+  "script_sha256": "b991b37906a2fa68c9d9083040d333f70857b4b55c89775653102d8d671d011a",
+  "inputs_sha256": {
+    "mpi1/generated_bump_source.json": "ccd3fe34e6b433b3c27e2895c85a316750e8b6f30aa622a22623be3be4cd3285",
+    "mpi1/generated_bump.json": "4a315452698417ee1791b49c92b96e612b1cfe9bee47104cd5aff853716e56e1",
+    "mpi1/generated_sphere_source.json": "f5aebb386ccb9cef9d001866d7b5a55ea3dd6f1e08ab44fd04b0acfdde40e890",
+    "mpi1/generated_sphere.json": "094eb5d889c9078cc25be84def66351f73c651616c49bac74a26f825829ee4ab",
+    "mpi2/generated_bump_source.json": "cbe9aa095e064c50041f013eab38d89587b06b9b99d0bf9dddbae8712ab28fe4",
+    "mpi2/generated_bump.json": "c53378a522e82cb086680337123f3eae5ec2bae41345fe81bc40dfcd03360801",
+    "mpi2/generated_sphere_source.json": "168c576a273bee00725e430dfb1adc92f944d3ff26b55700c73a645dbb28e31b",
+    "mpi2/generated_sphere.json": "11388a90ca8b2481cc1d9479d2a4d4f03da072e6ff7c38232ea2b36f458cd090",
+    "mpi4/generated_bump_source.json": "41f3fcf88d22d7484dd6d978d1df2f1fd77a0f6f2915abbd30b78b3cd9abd2f5",
+    "mpi4/generated_bump.json": "d19dd44617aec1890eaecc1fe51840ae0e2ee2cbb63c7d934a16cc8424917091",
+    "mpi4/generated_sphere_source.json": "168c576a273bee00725e430dfb1adc92f944d3ff26b55700c73a645dbb28e31b",
+    "mpi4/generated_sphere.json": "11388a90ca8b2481cc1d9479d2a4d4f03da072e6ff7c38232ea2b36f458cd090"
+  },
+  "results": {
+    "1": {
+      "bump": {
+        "original_cells": 6,
+        "extension_cells": 6,
+        "exact_no_overlap_pairs": 66,
+        "parent_sensor_copies_exact": true,
+        "shared_source_id_coordinates_tensors_exact": true,
+        "finite_declared_transform_checked": true
+      },
+      "sphere": {
+        "original_cells": 1,
+        "extension_cells": 12,
+        "exact_no_overlap_pairs": 78,
+        "parent_sensor_copies_exact": true,
+        "shared_source_id_coordinates_tensors_exact": true,
+        "finite_declared_transform_checked": true
+      }
+    },
+    "2": {
+      "bump": {
+        "original_cells": 6,
+        "extension_cells": 6,
+        "exact_no_overlap_pairs": 66,
+        "parent_sensor_copies_exact": true,
+        "shared_source_id_coordinates_tensors_exact": true,
+        "finite_declared_transform_checked": true
+      },
+      "sphere": {
+        "original_cells": 1,
+        "extension_cells": 12,
+        "exact_no_overlap_pairs": 78,
+        "parent_sensor_copies_exact": true,
+        "shared_source_id_coordinates_tensors_exact": true,
+        "finite_declared_transform_checked": true
+      }
+    },
+    "4": {
+      "bump": {
+        "original_cells": 6,
+        "extension_cells": 6,
+        "exact_no_overlap_pairs": 66,
+        "parent_sensor_copies_exact": true,
+        "shared_source_id_coordinates_tensors_exact": true,
+        "finite_declared_transform_checked": true
+      },
+      "sphere": {
+        "original_cells": 1,
+        "extension_cells": 12,
+        "exact_no_overlap_pairs": 78,
+        "parent_sensor_copies_exact": true,
+        "shared_source_id_coordinates_tensors_exact": true,
+        "finite_declared_transform_checked": true
+      }
+    }
+  }
+}

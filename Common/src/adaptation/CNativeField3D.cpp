@@ -5,6 +5,7 @@
  * SU2 is free software under the GNU Lesser General Public License, version 2.1 or later.
  */
 #include "../../include/adaptation/CNativeField3D.hpp"
+#include "../../include/adaptation/CNativeBoundary3D.hpp"
 #include "../../include/adt/CADTElemClass.hpp"
 #include "../../include/option_structure.hpp"
 #include <algorithm>
@@ -52,6 +53,14 @@ std::array<Id, 4> DonorCell::Key() const {
   for (size_t i = 0; i < 4; ++i) key[i] = cell.v[i].id;
   std::sort(key.begin(), key.end());
   return key;
+}
+std::vector<Id> AssociatedExtensions(const std::vector<DonorCell>& source,const PlanarReference& reference) {
+  std::vector<Id> components;
+  for(const auto& donor:source)
+    if(donor.extension_component!=UINT64_MAX && reference.Analytic().count(donor.extension_component))
+      components.push_back(donor.extension_component);
+  std::sort(components.begin(),components.end());components.erase(std::unique(components.begin(),components.end()),components.end());
+  return components;
 }
 size_t FrozenField::Hash::operator()(const std::array<double, 3>& point) const {
   size_t value = 0;

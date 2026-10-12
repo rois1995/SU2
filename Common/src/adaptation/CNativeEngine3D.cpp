@@ -489,7 +489,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           MaximumFrozenFieldBytes,transfer_memory::Mul(working.size(),selection_bound(selection.track_repairs))))) return false;
       if (slot<ids.size()) try {
         CpuTimer private_cpu(stats.measurement_cpu_seconds,options.timings);
-        FrozenField field(std::move(imported.cells),composition,options.timings);
+        const auto components=AssociatedExtensions(imported.cells,geometry);
+        FrozenField field(std::move(imported.cells),composition,options.timings,components);
         FieldAccounting accounting{stats,field};
         for (size_t i=slot;i<std::min(slot+batch,ids.size());++i) {
           PatchMetric metric;
@@ -792,7 +793,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       const double reconstruction_cpu_before=stats.reconstruction_cpu_seconds;
       if (!streamed && metric_needed) try {
         CpuTimer private_cpu(stats.metric_cpu_seconds,options.timings);
-        field=std::make_unique<FrozenField>(std::move(sensors.cells),composition,options.timings);
+        const auto components=AssociatedExtensions(sensors.cells,geometry);
+        field=std::make_unique<FrozenField>(std::move(sensors.cells),composition,options.timings,components);
         PatchMetric metric;
         std::map<Edge,EdgeMeasure> reuse;
         for (const auto& cell : old.cells) selection.Cached(cell,reuse);
@@ -890,7 +892,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
             std::unique_ptr<FrozenField> target;
             try {
-              target=std::make_unique<FrozenField>(std::move(donors.cells),composition,options.timings);
+              const auto components=AssociatedExtensions(donors.cells,geometry);
+              target=std::make_unique<FrozenField>(std::move(donors.cells),composition,options.timings,components);
               for (size_t i=slot;i<std::min(slot+batch,cells.size());++i) {
                 const auto part=MeasureMetricCells({cells[i]},*target,nullptr,&reuse,shape,shape ? &certified : nullptr);
                 if (part.minimum_mean_ratio<measured.minimum_mean_ratio) {

@@ -1,3 +1,38 @@
+# Goal2 automatic curved sensor-source integration — 2026-10-12
+
+Working folder /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
+codex/native-3d-curved-local. GoalACTIVE; all4integrated gates pending. Actual CFD
+boundary import now produces bounded sensor-only bump columns/sphere frusta before
+freeze. Original physical P1 retains priority; original boundary tensors are copied
+exactly and new records migrate with their CFD parent for M=N/M<N. Engine/reader
+association is wired; private projected-query footprint/component handling and
+geometric completion/clearance still block curved runtime publication. Source
+fixtures use prescribed arrays on actual CFD geometry, not solved CFD-derived
+metrics. No 2DBL/fade/NOISE0/MMG/solution-transfer/acceptance policy changed.
+
+generated_sensor_v2 PASS:97cases/rank MPI1/2/4/full68-object driver. Independent
+source auditPASS: exact positive volumes/no-interior-overlap, shared coordinates/
+tensors, parent boundary-face provenance and physical MPI consistency. Private
+curved operator shape/closure auditsPASS. Source SU2 envelopes/JSON/native references
+are directly inspectable in generated_sensor_v2/mpi1 (andmpi2/4); these are not
+adapted CFD grids. V1 mistaken numeric facet-ID invariance assumption is preserved
+with source/log/receipt and corrected physical-provenance audit. V2 also corrects
+parent-routing map storage admission after moving the original cell container.
+Every original controller artifact is hash-verified directly or in a compact
+planar payload archive. Report GENERATED_SENSOR_CHECKPOINT.md; source/member/binary
+pins and publication_integrity.json retained. Controllers2538/91704 terminalPASS;
+no owned heavy job remains live. ForeignClusterResults/dependencies/AdapNoExt
+untouched. No cluster/performance qualification.
+
+Next substantial step: geometry-driven refinement/completion, actual projected-
+candidate source routing and nonlocal clearance together on one end-to-end curved
+runtime case, then accepted curvedMPI/solution/history/output/restart and actual
+Euler metric cycles. Cylinder/mixed geometry remain gaps. Do not close Goal2 from
+these import/operator controls. Permanent user cadence in AGENTS.md: group
+connected implementation work, focused development checks, broad regressions at
+meaningful integration milestones rather than every small edit/checkpoint.
+Earlier notices below are historical.
+
 # Goal2 declared exterior sensor field checkpoint — 2026-10-12
 
 Working folder /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch

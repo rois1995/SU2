@@ -169,5 +169,46 @@
     "automatic_exterior_source_generation": false,
     "curved_runtime_supported": false,
     "full_goal_gates_completed": 0
+  },
+  "generated_sensor_checkpoint": {
+    "status": "PASS_CFD_OWNED_IMPORT_AND_SOURCE_MIGRATION_ONLY",
+    "report": "GENERATED_SENSOR_CHECKPOINT.md",
+    "receipt": "generated_sensor_v2/validation.json",
+    "receipt_sha256": "48d7cc6ec83ce69421d3263707b37a7b88afdddcaa306a7775c2ebc6ba23c8ad",
+    "generated_source_audit": "generated_sensor_v2/generated_source_validation.json",
+    "generated_source_audit_sha256": "ef5dabc75925a62c97e31a6155da750eeff9189104a8cdf1f6e437491b226a73",
+    "private_shape_audit": "generated_sensor_v2/private_shape_validation.json",
+    "private_shape_audit_sha256": "eebc355127af8148a8458affc67a9e4e1284647faa5471e23b1e1b8c57bf0196",
+    "counts": [
+      {
+        "ranks": 1,
+        "cases_per_rank": 97,
+        "assertions": [
+          39923
+        ]
+      },
+      {
+        "ranks": 2,
+        "cases_per_rank": 97,
+        "assertions": [
+          41160,
+          40743
+        ]
+      },
+      {
+        "ranks": 4,
+        "cases_per_rank": 97,
+        "assertions": [
+          43052,
+          42486,
+          42479,
+          42743
+        ]
+      }
+    ],
+    "automatic_exterior_source_generation": true,
+    "curved_runtime_supported": false,
+    "solved_cfd_derived_metric_cycle_proven": false,
+    "full_goal_gates_completed": 0
   }
 }

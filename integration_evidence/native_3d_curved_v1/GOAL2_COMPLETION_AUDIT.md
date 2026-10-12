@@ -26,3 +26,12 @@ coverage, thin-demand/coincident-cut preservation, actual-query composition and
 realMPI tag routing are established for explicitly supplied coverage. Producer
 and runtime admission/routing are missing. The curved split uses a manual shell;
 no full integrated gate is complete. See LAYERED_SENSOR_CHECKPOINT.md.
+
+
+Automatic CFD-owned exterior source generation and parent-based M=N/M<N migration
+now pass97cases/rank MPI1/2/4 plus independent exact source geometry/provenance and
+private-grid shape audits. Arrays in these real CFD-geometry import tests are
+prescribed; no solved CFD-derived target or accepted curved runtime event is proven.
+All four integrated requirements remain PENDING. See GENERATED_SENSOR_CHECKPOINT.md
+and generated_sensor_v2 receipts/publication_integrity.json. The original failed
+cross-rank numeric-ID assumption is retained in v1 with its corrected audit.

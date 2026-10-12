@@ -11,6 +11,8 @@
 #include "../../include/geometry/CGeometry.hpp"
 #include <cmath>
 #include <type_traits>
+#include <tuple>
+#include <limits>
 namespace SU2Native3D {
 size_t OwnedStorageBytes(const Owned& cells) {
   return transfer_memory::Mul(cells.size(), sizeof(Owned::value_type) + 4 * sizeof(void*));
@@ -112,6 +114,132 @@ struct Binding {
     s(cell, slot, marker);
   }
 };
+
+using PrimitiveKey=std::tuple<unsigned,double,double,double,double,double,double,double>;
+PrimitiveKey Primitive(const AnalyticSurface& g) {
+  return {unsigned(g.kind),g.origin.x,g.origin.y,g.origin.z,g.extent.x,g.extent.y,g.extent.z,g.tolerance};
+}
+/*! Freeze a continuous piecewise-affine exterior sensor target from original boundary nodes.
+ * Bump columns copy nodal tensors vertically; spherical frusta copy them radially. Original P1 has priority.
+ * Sorted source IDs choose compatible prism diagonals; component tags still control later association. */
+bool Coverage(World& world,const Owned& cells,std::vector<DonorCell>& source,const PlanarReference& reference,
+              double geometry_tolerance,size_t live,size_t ceiling,BridgeStats& stats,std::string& reason) {
+  if(reference.Analytic().empty())return true;
+  CLocalFailure failure;
+  const size_t added=transfer_memory::Mul(cells.size(),12);
+  const size_t requested=transfer_memory::Add(live,transfer_memory::GrowthBound(transfer_memory::Add(source.size(),added),sizeof(DonorCell)),
+      transfer_memory::Mul(reference.Analytic().size(),1024));
+  if(!Admit(world,requested,ceiling,stats,reason))return false;
+  struct Rule {AnalyticSurface geometry;int lo=2,hi=-2;double height=std::numeric_limits<double>::infinity(),factor=0;};
+  std::map<PrimitiveKey,Rule> rules;
+  Id maximum_node=0,maximum_cell=0;
+  try {
+    if(!(std::isfinite(geometry_tolerance)&&geometry_tolerance>0))throw std::invalid_argument("Invalid exterior source geometry bound.");
+    for(const auto& row:reference.Analytic())rules.emplace(Primitive(row.second),Rule{row.second});
+    for(const auto& d:source) {
+      if(d.extension_component!=UINT64_MAX)throw std::invalid_argument("Exterior source already generated.");
+      maximum_cell=std::max(maximum_cell,d.cell.id);for(auto n:d.cell.v)maximum_node=std::max(maximum_node,n.id);
+      const auto& owned=cells.at(d.cell.id);
+      for(size_t slot=0;slot<4;++slot)if(owned.physical[slot].present) {
+        const auto id=owned.physical[slot].facet;
+        const auto entry=reference.Analytic().find(id);
+        if(entry==reference.Analytic().end())continue;
+        auto& rule=rules.at(Primitive(entry->second));const auto& g=rule.geometry;
+        const auto ids=Faces(d.cell)[slot];std::array<Point,3> p{};
+        for(size_t i=0;i<3;++i)for(auto n:d.cell.v)if(n.id==ids[i])p[i]=n.p;
+        int direction=0;
+        if(g.kind==AnalyticSurface::Kind::Bump) {
+          const auto area=Orientation({p[0].x,p[0].y,0},{p[1].x,p[1].y,0},{p[2].x,p[2].y,0},{0,0,1});
+          direction=area>0?1:area<0?-1:0;
+        } else {
+          const auto volume=Orientation(g.origin,p[0],p[1],p[2]);direction=volume>0?1:volume<0?-1:0;
+          std::array<long double,3> a{},b{},normal{};
+          for(size_t k=0;k<3;++k){const auto x=[](Point p,size_t k){return k==0?p.x:k==1?p.y:p.z;};
+            a[k]=static_cast<long double>(x(p[1],k))-x(p[0],k);b[k]=static_cast<long double>(x(p[2],k))-x(p[0],k);}
+          normal={a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]};
+          const auto length=std::hypot(normal[0],normal[1],normal[2]);
+          const auto height=std::abs(volume)/length;
+          if(!(height>0&&std::isfinite(height)))throw std::invalid_argument("Unusable radial exterior source face.");
+          rule.height=std::min(rule.height,static_cast<double>(height));
+        }
+        if(!direction)throw std::invalid_argument("Degenerate exterior source chart.");
+        rule.lo=std::min(rule.lo,direction);rule.hi=std::max(rule.hi,direction);
+      }
+    }
+  }catch(const std::exception& e){failure.Set(1,0,e.what());}
+  if(!Vote(world,failure,reason))return false;
+  const auto count_lo=CPassiveComm::Allreduce(uint64_t(rules.size()),CPassiveComm::Op::MIN,world.comm);
+  const auto count_hi=CPassiveComm::Allreduce(uint64_t(rules.size()),CPassiveComm::Op::MAX,world.comm);
+  if(count_lo!=count_hi)failure.Set(1,0,"Exterior primitive count differs across ranks.");
+  if(!Vote(world,failure,reason))return false;
+  maximum_node=CPassiveComm::Allreduce(maximum_node,CPassiveComm::Op::MAX,world.comm);
+  maximum_cell=CPassiveComm::Allreduce(maximum_cell,CPassiveComm::Op::MAX,world.comm);
+  for(auto& row:rules) {
+    auto& rule=row.second;const auto& g=rule.geometry;
+    for(double value:{double(unsigned(g.kind)),g.origin.x,g.origin.y,g.origin.z,g.extent.x,g.extent.y,g.extent.z,g.tolerance}) {
+      const auto low=CPassiveComm::Allreduce(value,CPassiveComm::Op::MIN,world.comm);
+      const auto high=CPassiveComm::Allreduce(value,CPassiveComm::Op::MAX,world.comm);
+      if(low!=high)failure.Set(1,0,"Exterior primitive parameters differ across ranks.");
+    }
+    rule.lo=CPassiveComm::Allreduce(rule.lo,CPassiveComm::Op::MIN,world.comm);
+    rule.hi=CPassiveComm::Allreduce(rule.hi,CPassiveComm::Op::MAX,world.comm);
+    rule.height=CPassiveComm::Allreduce(rule.height,CPassiveComm::Op::MIN,world.comm);
+    if(rule.lo==2&&rule.hi==-2)continue; // Authority may include a chart absent from this accepted surface.
+    if(rule.lo!=rule.hi)failure.Set(1,0,"Inconsistent exterior source orientation for one analytic primitive.");
+    if(g.kind==AnalyticSurface::Kind::Bump)
+      rule.factor=rule.lo*std::nextafter(std::abs(g.extent.z)/16+2*g.tolerance,INFINITY);
+    else if(rule.lo>0)
+      rule.factor=std::nextafter(double((static_cast<long double>(g.extent.x)+geometry_tolerance+2*g.tolerance)/rule.height),INFINITY);
+    else {
+      const long double radius=static_cast<long double>(g.extent.x)-geometry_tolerance-2*g.tolerance;
+      if(!(radius>0))failure.Set(1,0,"Inward source envelope reaches the sphere center.");
+      rule.factor=std::nextafter(double(radius/(static_cast<long double>(g.extent.x)+g.tolerance)),0.);
+    }
+    if(!std::isfinite(rule.factor) || (g.kind==AnalyticSurface::Kind::Sphere && !(rule.factor>0 && rule.factor!=1)))
+      failure.Set(1,0,"Unrepresentable exterior source envelope.");
+  }
+  // Reserve disjoint transient source identities; accepted CFD identities are never changed.
+  const auto node_span=transfer_memory::Add(maximum_node,1),node_end=transfer_memory::Mul(node_span,transfer_memory::Add(rules.size(),1));
+  const auto cell_end=transfer_memory::Add(maximum_cell,1,transfer_memory::Mul(12,transfer_memory::Add(maximum_cell,1)));
+  if(node_end==SIZE_MAX || cell_end==SIZE_MAX)failure.Set(1,0,"Exterior source identity range exhausted.");
+  if(!Vote(world,failure,reason))return false;
+  const size_t count=source.size();
+  try {
+    source.reserve(transfer_memory::Add(count,added));
+    for(size_t at=0;at<count;++at) {
+      const auto original=source[at];const auto& owned=cells.at(original.cell.id);
+      for(size_t slot=0;slot<4;++slot)if(owned.physical[slot].present) {
+        const Id component=owned.physical[slot].facet;
+        const auto entry=reference.Analytic().find(component);if(entry==reference.Analytic().end())continue;
+        const auto key=Primitive(entry->second);
+        const auto found=rules.find(key);const auto& rule=found->second;const auto& g=rule.geometry;
+        const size_t index=std::distance(rules.begin(),found);
+        const auto ids=Faces(original.cell)[slot];std::array<std::pair<Node,Tensor>,3> old;
+        for(size_t i=0;i<3;++i)for(size_t j=0;j<4;++j)if(original.cell.v[j].id==ids[i])old[i]={original.cell.v[j],original.sensor[j]};
+        std::sort(old.begin(),old.end(),[](const auto& a,const auto& b){return a.first.id<b.first.id;});
+        auto next=old;
+        for(auto& point:next) {
+          auto& n=point.first;n.id=node_span*(index+1)+n.id;
+          if(g.kind==AnalyticSurface::Kind::Bump)n.p.z=std::nextafter(n.p.z+rule.factor,rule.factor>0?INFINITY:-INFINITY);
+          else n.p={double(g.origin.x+(static_cast<long double>(n.p.x)-g.origin.x)*rule.factor),
+                    double(g.origin.y+(static_cast<long double>(n.p.y)-g.origin.y)*rule.factor),
+                    double(g.origin.z+(static_cast<long double>(n.p.z)-g.origin.z)*rule.factor)};
+        }
+        const std::array<std::array<std::pair<Node,Tensor>,4>,3> tets{{
+          {old[0],old[1],old[2],next[2]},{old[0],old[1],next[1],next[2]},{old[0],next[0],next[1],next[2]}}};
+        for(size_t i=0;i<3;++i) {
+          auto v=tets[i];const auto sign=Orientation(v[0].first.p,v[1].first.p,v[2].first.p,v[3].first.p);
+          if(!sign)throw std::invalid_argument("Unrepresentable exterior source tetrahedron.");
+          if(sign<0)std::swap(v[0],v[1]);
+          DonorCell donor;donor.cell.id=maximum_cell+1+12*original.cell.id+3*slot+i;donor.extension_component=component;donor.parent_cell=original.cell.id;
+          for(size_t j=0;j<4;++j){donor.cell.v[j]=v[j].first;donor.sensor[j]=v[j].second;}
+          source.push_back(donor);
+        }
+      }
+    }
+  }catch(const std::exception& e){failure.Set(1,0,e.what());}
+  return Vote(world,failure,reason);
+}
 }  // namespace
 bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2activematrix* metric,
                     ReferenceState& state, ImportedGeometry& output, std::string& reason, BridgeStats& stats,
@@ -389,6 +517,9 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
       failure.Set(1, 0, e.what());
     }
     CollectiveFailure(failure, CURRENT_FUNCTION);
+    if(!Coverage(parent,result.cells,result.original,*authority.original,SU2_TYPE::GetValue(config.GetAdap_Hausd()),
+                 transfer_memory::Add(reference_base,state.original ? 0 : ReferenceStorageBytes(pending)),ceiling,stats,reason))
+      return false;
     stats.faces_seconds = parent.seconds() - face_start;
   }
   static_assert(std::is_nothrow_move_assignable<ImportedGeometry>::value,
@@ -412,7 +543,7 @@ namespace {
 /*! Shared collective batch schedule. Only the original sensor is imported; composition remains query-local. */
 template <class Make, class Use>
 bool Samples(World& parent, size_t count, DonorImport& source, MetricComposition composition, Make make, Use use,
-             BridgeStats& stats, std::string& reason, size_t ceiling, size_t live, size_t initial, bool query_timings) {
+             BridgeStats& stats, std::string& reason, size_t ceiling, size_t live, size_t initial, bool query_timings, const PlanarReference* reference=nullptr) {
   // shortcut: conservative bounded field/cache scratch; calibrate against the actual index/cache allocations.
   const size_t scratch =
       transfer_memory::Add(MaximumFrozenFieldBytes,
@@ -446,7 +577,8 @@ bool Samples(World& parent, size_t count, DonorImport& source, MetricComposition
     }
     try {
       if (!regions.empty()) {
-        FrozenField field(std::move(imported.cells), composition, query_timings);
+        const auto components=reference ? AssociatedExtensions(imported.cells,*reference) : std::vector<Id>{};
+        FrozenField field(std::move(imported.cells), composition, query_timings,components);
         FieldAccounting accounting{stats,field};
         for (size_t i = next; i < std::min(count, next + batch); ++i) use(i, field);
       }
@@ -578,7 +710,7 @@ bool ReaderSlices(World& parent, const Owned& cells, const std::vector<DonorCell
     std::copy(values.begin(), values.end(), mesh.metric.begin() + 6 * i);
   };
   if (!Samples(parent, ordered.size(), source, std::move(composition), make, use, stats, reason, ceiling,
-               transfer_memory::Add(live, source.ResidentBytes()), 16, query_timings))
+               transfer_memory::Add(live, source.ResidentBytes()), 16, query_timings,state.original.get()))
     return false;
   const double reader_start = parent.seconds();
   CReaderSliceStats reader_stats;

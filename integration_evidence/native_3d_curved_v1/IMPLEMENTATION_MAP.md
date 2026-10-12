@@ -93,3 +93,13 @@ exterior cells, original P1 priority and exact layered edge intervals, realMPI
 source-tag transport and a coupled sphere split with manually prescribed coverage.
 Automatic producer, component/query-footprint routing and actual curved runtime
 remain missing; all four integrated gates stay pending.
+
+## Automatic sensor-source integration
+
+GENERATED_SENSOR_CHECKPOINT.md / generated_sensor_v2 qualify actual CFD-owned
+boundary source construction before freeze, exact copied tensors/original P1,
+collective refusal, parent-routed M=N/M<N source migration and independent finite
+geometry/value/marker/provenance MPI checks. Source producer is implemented; full
+projected-candidate query footprints, geometry completion/clearance and actual
+curved runtime/transfer/solved Euler/restart remain pending. Older missing-producer
+statements above describe previous checkpoints. Permanent cadence is in AGENTS.md.

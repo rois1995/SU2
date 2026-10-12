@@ -14,6 +14,7 @@
 
 class CADTElemClass;
 namespace SU2Native3D {
+class PlanarReference;
 constexpr size_t MaximumDonors = MaximumSegmentDonors, MaximumSensorSamples = 2048;
 // Imported records/indexes, bounded sensor cache and exact layered segment scratch; excludes CFD/allocator/RSS.
 constexpr size_t MaximumFrozenFieldBytes = MaximumDonors * 12288 + MaximumSensorSamples * 256;
@@ -23,12 +24,15 @@ struct DonorCell {
   Cell cell;
   std::array<Tensor, 4> sensor;
   Id extension_component = UINT64_MAX; // Original source, or explicitly declared finite extension component.
+  Id parent_cell = UINT64_MAX; // Generated exterior records migrate with their CFD source cell.
   template <class Stream>
   void Fields(Stream& s) {
-    s(cell, sensor, extension_component);
+    s(cell, sensor, extension_component, parent_cell);
   }
   std::array<Id, 4> Key() const;
 };
+/*! Associates only received exterior components present in the caller's declared geometry authority. */
+std::vector<Id> AssociatedExtensions(const std::vector<DonorCell>& source,const PlanarReference& reference);
 struct FieldSample {
   Tensor sensor, target;
   std::array<Id, 4> donor{};

@@ -215,16 +215,33 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
                                  source.ResidentBytes(), transfer_memory::Bytes(weights));
         if (admit(transfer_memory::Add(baseline,
                                        transfer_memory::GrowthBound(imported.original.size(), sizeof(DonorCell)),
+                                       transfer_memory::Mul(stats.partition.destinations.size(),sizeof(std::pair<const Id,int>)+4*sizeof(void*)),
                                        transfer_memory::Mul(parent.size, sizeof(std::vector<DonorCell>))))) {
           std::vector<std::vector<DonorCell>> send(parent.size);
-          for (size_t j = 0; j < imported.original.size(); ++j)
-            send.at(stats.partition.destinations.at(j)).push_back(imported.original[j]);
-          // Empty original owners still enter this same migration collective.
-          bool admitted = false;
-          migrated = parent.exchange(send, &admitted, control.memory_ceiling, baseline);
-          ready = admitted;
-          if (!ready) reason = "Native3D original donor migration exceeds budget.";
-          worker_source = &migrated;
+          try {
+            const bool coverage=std::any_of(imported.original.begin(),imported.original.end(),[](const DonorCell& d) {
+              return d.extension_component!=UINT64_MAX;
+            });
+            if(!coverage) {
+              for(size_t j=0;j<imported.original.size();++j)
+                send.at(stats.partition.destinations.at(j)).push_back(imported.original[j]);
+            } else {
+              std::map<Id,int> destinations;size_t j=0;
+              for(const auto& d:imported.original)if(d.extension_component==UINT64_MAX)
+                destinations.emplace(d.cell.id,stats.partition.destinations.at(j++));
+              for(const auto& d:imported.original)
+                send.at(destinations.at(d.extension_component==UINT64_MAX ? d.cell.id : d.parent_cell)).push_back(d);
+            }
+          }catch(const std::exception& e){ready=false;reason=e.what();}
+          ready=vote(ready,reason);
+          // Empty original owners still enter this same migration collective after common preparation approval.
+          if(ready) {
+            bool admitted = false;
+            migrated = parent.exchange(send, &admitted, control.memory_ceiling, baseline);
+            ready = admitted;
+            if (!ready) reason = "Native3D original donor migration exceeds budget.";
+            worker_source = &migrated;
+          }
         } else
           ready = false;
       }

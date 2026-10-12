@@ -847,3 +847,96 @@ TEST_CASE("Persisted analytic bump authority reconstructs canonical finite chart
     CHECK(loaded.original->FindFace(0,{nodes[face[0]].p,nodes[face[1]].p,nodes[face[2]].p},rebound));
   CHECK(rebound==root);CHECK_THROWS(DecodeReference(text,8*text.size()));
 }
+
+namespace {
+void SaveCoverage(World& world,const std::string& name,const std::vector<DonorCell>& local,const ReferenceState& reference) {
+  const auto source=world.metadata(local);
+  WriteReference(name+".native_ref",reference);
+  if(world.rank)return;
+  std::ofstream out(name+"_source.json");out<<std::setprecision(17)<<"[";bool comma=false;
+  for(auto d:source) {
+    if(comma)out<<',';comma=true;
+    out<<"{\"id\":"<<d.cell.id<<",\"component\":"<<d.extension_component<<",\"parent\":"<<d.parent_cell<<",\"vertices\":[";
+    for(size_t i=0;i<4;++i){if(i)out<<',';const auto n=d.cell.v[i];const auto m=d.sensor[i];
+      out<<'['<<n.id<<','<<n.p.x<<','<<n.p.y<<','<<n.p.z<<",["<<m.xx<<','<<m.xy<<','<<m.xz<<','<<m.yy<<','<<m.yz<<','<<m.zz<<"]]";}
+    out<<"]}";
+  }
+  out<<"]\n";CHECK(out.good());
+}
+void DeclareImportedCurve(ReferenceState& state,bool sphere) {
+  AnalyticSurface g;g.kind=sphere?AnalyticSurface::Kind::Sphere:AnalyticSurface::Kind::Bump;
+  g.extent=sphere?Point{1,0,0}:Point{1,1,1};
+  std::map<Id,AnalyticSurface> curves;
+  for(auto f:state.facets) {
+    const bool bottom=std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;});
+    if(sphere || bottom)curves.emplace(f.id,g);
+  }
+  state.original=std::make_shared<PlanarReference>(state.facets,SIZE_MAX,curves);
+}
+}
+TEST_CASE("Actual CFD import generates bounded bump sensor columns with collective provenance and refusal",
+          "[NativeGeneratedCoverage3D]") {
+  World world;const int m=GENERATE(1,2,3,4);if(m>world.size)return;
+  auto config=MakeConfig(3,"SOLVER= EULER\nCOMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\nADAP_NATIVE_REPARTITION= YES\nADAP_NATIVE_RANKS= "+std::to_string(m)+"\nADAP_HAUSD= 1e-3\n");
+  MeshSolution mesh(config.get(),BoxMesh(3,1,false),0);
+  su2activematrix metric(mesh.Fine().GetnPointDomain(),6);
+  for(unsigned long p=0;p<metric.rows();++p){const auto value=Sensor(mesh.Fine().nodes->GetCoord(p),4);
+    const std::array<double,6> row{value.xx,value.xy,value.xz,value.yy,value.yz,value.zz};for(size_t j=0;j<6;++j)metric(p,j)=row[j];}
+  ReferenceState state;const auto plain=ImportGeometry(*config,mesh.Fine(),&metric,state);DeclareImportedCurve(state,false);
+  const auto source=ImportGeometry(*config,mesh.Fine(),&metric,state);
+  const auto total=CPassiveComm::Allreduce(uint64_t(source.original.size()),CPassiveComm::Op::SUM,world.comm);
+  CHECK(total==12); // Six CFD tetrahedra and three extension tetrahedra per two physical bottom triangles.
+  size_t ext=0;
+  for(auto d:source.original)if(d.extension_component!=UINT64_MAX){++ext;CHECK(source.cells.count(d.parent_cell)==1);}
+  CHECK(CPassiveComm::Allreduce(uint64_t(ext),CPassiveComm::Op::SUM,world.comm)==6);
+  DonorImport service(world);std::string reason;REQUIRE(service.Build(source.original,reason));
+  const auto patch=service.Import({DonorRegion{0,0,-.1,1,1,1}});REQUIRE(patch.valid);REQUIRE(patch.cells.size()==12);
+  const auto components=AssociatedExtensions(patch.cells,*state.original);
+  FrozenField field(patch.cells,{},false,components),original_only(patch.cells);
+  const Point outside{.25,.25,-.02},inside{.25,.25,.1};
+  const auto exterior=field.Query(outside);CHECK(exterior.extension_component!=UINT64_MAX);
+  CHECK(exterior.sensor.xx==Approx(4+.125*.25));CHECK(exterior.sensor.zz==4);
+  const auto old=original_only.Query(inside);CHECK(field.Query(inside).sensor.zz==old.sensor.zz);
+  CHECK(field.Query(inside).weights==old.weights);CHECK(field.Query(inside).donor==old.donor);
+  CHECK_THROWS(original_only.Query(outside));CHECK_THROWS(field.Query({.25,.25,-.1}));
+  const double large=std::sqrt(4+.0125),ratio=2/large;
+  const double expected=.1*large*(2./3)*(1+ratio+ratio*ratio)/(1+ratio)+.04;
+  CHECK(double(field.SensorEdgeLength(inside,outside))==Approx(expected).epsilon(1e-12));
+  CHECK(double(field.SensorEdgeLength(outside,inside))==Approx(expected).epsilon(1e-12));
+  Save(world,"generated_bump",source.cells,source.original,state);
+  SaveCoverage(world,"generated_bump",source.original,state);
+  const auto held=state.original;ImportedGeometry unchanged=plain;BridgeStats stats;
+  CHECK_FALSE(ImportGeometry(*config,mesh.Fine(),&metric,state,unchanged,reason,stats,world.rank?SIZE_MAX:0));
+  CHECK(state.original==held);CHECK(unchanged.original.size()==plain.original.size());
+  auto retained=std::make_shared<ReferenceState>(state);CNativeRemesher3D backend(retained);
+  const auto result=backend.Remesh(*config,mesh.Fine(),metric);
+  CHECK(result.status!=CRemeshResult::Status::COMPLETE);CHECK_FALSE(result.onAccepted);
+  CHECK(backend.Statistics().workers==m);
+  if(world.rank<m)CHECK(backend.Statistics().refine.stop==EngineStop::Failure);
+  CHECK(retained->original==state.original);
+}
+TEST_CASE("Actual CFD import generates a finite spherical sensor shell with copied boundary values",
+          "[NativeGeneratedCoverage3D]") {
+  World world;auto config=MakeConfig(3,"SOLVER= EULER\nADAP_HAUSD= 1e-3\n");
+  const double q=1/std::sqrt(3.);CSimplexMesh seed;seed.nDim=3;
+  seed.coord={q,q,q,-q,-q,q,-q,q,-q,q,-q,-q};seed.elem={0,1,2,3};
+  auto point=[&](unsigned long i){return Point{seed.coord[3*i],seed.coord[3*i+1],seed.coord[3*i+2]};};
+  if(Orientation(point(0),point(1),point(2),point(3))<0)std::swap(seed.elem[0],seed.elem[1]);
+  seed.elemRef={0};CSimplexMesh::Marker marker;marker.name="x_minus";
+  Cell cell;for(size_t i=0;i<4;++i)cell.v[i]={seed.elem[i],point(seed.elem[i])};
+  for(auto f:Incidence({cell}).Boundary())marker.elem.insert(marker.elem.end(),f.begin(),f.end());seed.markers.push_back(marker);
+  MeshSolution mesh(config.get(),seed,0);su2activematrix metric(mesh.Fine().GetnPointDomain(),6);
+  for(unsigned long p=0;p<metric.rows();++p)for(size_t j=0;j<6;++j)metric(p,j)=j==0||j==3||j==5?.5:0;
+  ReferenceState state;ImportGeometry(*config,mesh.Fine(),&metric,state);DeclareImportedCurve(state,true);
+  const auto source=ImportGeometry(*config,mesh.Fine(),&metric,state);
+  CHECK(CPassiveComm::Allreduce(uint64_t(source.original.size()),CPassiveComm::Op::SUM,world.comm)==13);
+  DonorImport service(world);std::string reason;REQUIRE(service.Build(source.original,reason));
+  const auto patch=service.Import({DonorRegion{-4,-4,-4,4,4,4}});REQUIRE(patch.valid);REQUIRE(patch.cells.size()==13);
+  FrozenField field(patch.cells,{},false,AssociatedExtensions(patch.cells,*state.original)),original_only(patch.cells);
+  const Point projected{-1,0,0};CHECK_THROWS(original_only.Query(projected));
+  CHECK(field.Query(projected).sensor.xx==.5);CHECK(field.Query(projected).extension_component!=UINT64_MAX);
+  CHECK(field.Query({0,0,0}).donor==original_only.Query({0,0,0}).donor);
+  CHECK(double(field.SensorEdgeLength({-q,0,0},projected))==Approx((1-q)*std::sqrt(.5)).epsilon(1e-12));
+  CHECK_THROWS(field.Query({10,0,0}));Save(world,"generated_sphere",source.cells,source.original,state);
+  SaveCoverage(world,"generated_sphere",source.original,state);
+}
