@@ -1,0 +1,454 @@
+{
+  "status": "PASS",
+  "matrix_sha256": "5b572b6b26fc09581f2c6a6d62b1d3c685abcff4ca03395ee3353268d5f7c6b2",
+  "checker_sha256": "5c459580acea79f00f89a3bc6cb8913ec4f464829f75111508eb875e4b4a0f7e",
+  "qualified_build_sha256": "b790ab9b50cd3bb38e9dea0fc906d251627629c8bf9ee34d8e78f393adc5fe6a",
+  "binary_sha256": "c1bdef2a09d1e13bd1d137910db5713de32514f7a421369d6b1a177b48de54d6",
+  "cases": [
+    {
+      "case": "box_filter_a2_direction_n4_n4_m2_v1",
+      "parameters": {
+        "ranks": 4,
+        "workers": 2,
+        "size": 4,
+        "anisotropy": 2,
+        "varying": 1,
+        "direction": 1,
+        "height_power": 0,
+        "wedge": true,
+        "aligned_markers": true,
+        "diagnostic_rounds": 512,
+        "repeat": 0,
+        "detail": 1,
+        "restart_format": "none"
+      },
+      "validation_sha256": "4368ffeb3afb6a582e8cfe97c97f472be86eae61e55ab1499a02ebdbcdfa464f",
+      "audit_sha256": "72bee428d6e1eb029fb49434f0eba5c6feba4a49c3d9ff00e89b9b4afe72b4f6",
+      "accepted_frames": [
+        {
+          "file": "envelope_s0.json",
+          "cells": 402,
+          "points": 132,
+          "physical_faces": 206,
+          "volume": "1/2",
+          "minimum_mean_ratio": 0.4917013076917022,
+          "minimum_scaled_jacobian": 0.21327734558445957,
+          "maximum_length": 1.7956516149938975,
+          "longest_edge": [
+            9,
+            13
+          ],
+          "markers": {
+            "2": 62,
+            "0": 56,
+            "1": 40,
+            "3": 22,
+            "4": 14,
+            "5": 12
+          },
+          "strict_metric_gate": true
+        },
+        {
+          "file": "envelope_s1.json",
+          "cells": 71,
+          "points": 31,
+          "physical_faces": 52,
+          "volume": "1/2",
+          "minimum_mean_ratio": 0.2394146447478602,
+          "minimum_scaled_jacobian": 0.09173582033653473,
+          "maximum_length": 1.7702049587158384,
+          "longest_edge": [
+            1,
+            8
+          ],
+          "markers": {
+            "0": 11,
+            "4": 6,
+            "1": 8,
+            "3": 8,
+            "2": 16,
+            "5": 3
+          },
+          "strict_metric_gate": true
+        },
+        {
+          "file": "envelope_s2.json",
+          "cells": 435,
+          "points": 131,
+          "physical_faces": 188,
+          "volume": "1/2",
+          "minimum_mean_ratio": 0.20399740583061948,
+          "minimum_scaled_jacobian": 0.0589521939546055,
+          "maximum_length": 1.7948193415369798,
+          "longest_edge": [
+            2,
+            101
+          ],
+          "markers": {
+            "2": 57,
+            "1": 39,
+            "3": 26,
+            "4": 20,
+            "5": 8,
+            "0": 38
+          },
+          "strict_metric_gate": true
+        }
+      ],
+      "states": [
+        {
+          "file": "envelope_s0_states.json",
+          "maximum_state_relative_error": 3.5228792947728926e-16,
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "donor_points": 75,
+          "accepted_points": 132
+        },
+        {
+          "file": "envelope_s1_states.json",
+          "maximum_state_relative_error": 3.5228792947728926e-16,
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "donor_points": 132,
+          "accepted_points": 31
+        },
+        {
+          "file": "envelope_s2_states.json",
+          "maximum_state_relative_error": 3.7156204112042362e-16,
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "donor_points": 31,
+          "accepted_points": 131
+        }
+      ],
+      "reload_metrics": [
+        {
+          "format": "SU2",
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "maximum_transported_tensor_physical_error": 0.0
+        },
+        {
+          "format": "CGNS",
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "maximum_transported_tensor_physical_error": 0.0
+        }
+      ],
+      "historical_geometry_and_donor_matches": [
+        "envelope_s0_initial.json",
+        "envelope_s0.json",
+        "envelope_s1_initial.json",
+        "envelope_s1.json",
+        "envelope_s2_initial.json",
+        "envelope_s2.json",
+        "envelope_s2_written_SU2_reload_target.json",
+        "envelope_s2_written_CGNS_reload_target.json"
+      ],
+      "historical_state_byte_matches": {
+        "envelope_s0_states.json": true,
+        "envelope_s1_states.json": true,
+        "envelope_s2_states.json": true
+      },
+      "exact_normalized_geometry_and_donor_frames": [],
+      "donor_box_filtered_rank_work": 165180.0,
+      "historical_control_validation_sha256": "0297f1a2d58bb50ab577d8da739870459259a07d4c71d8fbc92d19333ea45f79"
+    },
+    {
+      "case": "box_filter_a2_direction_n4_n1_m1_v1",
+      "parameters": {
+        "ranks": 1,
+        "workers": 1,
+        "size": 4,
+        "anisotropy": 2,
+        "varying": 1,
+        "direction": 1,
+        "height_power": 0,
+        "wedge": true,
+        "aligned_markers": true,
+        "diagnostic_rounds": 512,
+        "repeat": 0,
+        "detail": 1,
+        "restart_format": "none"
+      },
+      "validation_sha256": "6ad6b0b73cf3a401f1e69d4fa7e4e1fe2f0b867ea3e3a57555b694559fff7963",
+      "audit_sha256": "d75b0832d009975d3c03529e7da7ec44d6bb97c9abfc2314ad5a9f6870a970d5",
+      "accepted_frames": [
+        {
+          "file": "envelope_s0.json",
+          "cells": 402,
+          "points": 132,
+          "physical_faces": 206,
+          "volume": "1/2",
+          "minimum_mean_ratio": 0.4917013076917022,
+          "minimum_scaled_jacobian": 0.21327734558445957,
+          "maximum_length": 1.7956516149938975,
+          "longest_edge": [
+            6,
+            22
+          ],
+          "markers": {
+            "2": 62,
+            "1": 40,
+            "4": 14,
+            "3": 22,
+            "0": 56,
+            "5": 12
+          },
+          "strict_metric_gate": true
+        },
+        {
+          "file": "envelope_s1.json",
+          "cells": 54,
+          "points": 29,
+          "physical_faces": 52,
+          "volume": "1/2",
+          "minimum_mean_ratio": 0.4399296281224713,
+          "minimum_scaled_jacobian": 0.20429614571857735,
+          "maximum_length": 1.7710277200578823,
+          "longest_edge": [
+            1,
+            16
+          ],
+          "markers": {
+            "3": 8,
+            "2": 13,
+            "1": 11,
+            "5": 3,
+            "4": 6,
+            "0": 11
+          },
+          "strict_metric_gate": true
+        },
+        {
+          "file": "envelope_s2.json",
+          "cells": 424,
+          "points": 129,
+          "physical_faces": 186,
+          "volume": "1/2",
+          "minimum_mean_ratio": 0.3605746963932114,
+          "minimum_scaled_jacobian": 0.1654876091129709,
+          "maximum_length": 1.796383465219314,
+          "longest_edge": [
+            65,
+            96
+          ],
+          "markers": {
+            "0": 40,
+            "4": 18,
+            "2": 52,
+            "3": 26,
+            "5": 10,
+            "1": 40
+          },
+          "strict_metric_gate": true
+        }
+      ],
+      "states": [
+        {
+          "file": "envelope_s0_states.json",
+          "maximum_state_relative_error": 3.5228792947728926e-16,
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "donor_points": 75,
+          "accepted_points": 132
+        },
+        {
+          "file": "envelope_s1_states.json",
+          "maximum_state_relative_error": 3.5228792947728926e-16,
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "donor_points": 132,
+          "accepted_points": 29
+        },
+        {
+          "file": "envelope_s2_states.json",
+          "maximum_state_relative_error": 3.772960232364795e-16,
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "donor_points": 29,
+          "accepted_points": 129
+        }
+      ],
+      "reload_metrics": [
+        {
+          "format": "SU2",
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "maximum_transported_tensor_physical_error": 0.0
+        },
+        {
+          "format": "CGNS",
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "maximum_transported_tensor_physical_error": 0.0
+        }
+      ],
+      "historical_geometry_and_donor_matches": [
+        "envelope_s0_initial.json",
+        "envelope_s0.json",
+        "envelope_s1_initial.json",
+        "envelope_s1.json",
+        "envelope_s2_initial.json",
+        "envelope_s2.json",
+        "envelope_s2_written_SU2_reload_target.json",
+        "envelope_s2_written_CGNS_reload_target.json"
+      ],
+      "historical_state_byte_matches": {
+        "envelope_s0_states.json": true,
+        "envelope_s1_states.json": true,
+        "envelope_s2_states.json": true
+      },
+      "exact_normalized_geometry_and_donor_frames": [],
+      "donor_box_filtered_rank_work": 22482.0,
+      "historical_control_validation_sha256": "7cdc94ac651c19d9f314b77563d23fe8ffbe4b1373ca19aecd022b1b65a599ac"
+    },
+    {
+      "case": "box_filter_thin_h20_n4_n4_m2_v1",
+      "parameters": {
+        "ranks": 4,
+        "workers": 2,
+        "size": 4,
+        "anisotropy": 1,
+        "varying": 1,
+        "direction": 1,
+        "height_power": 20,
+        "wedge": true,
+        "aligned_markers": true,
+        "diagnostic_rounds": 512,
+        "repeat": 0,
+        "detail": 1,
+        "restart_format": "none"
+      },
+      "validation_sha256": "6c6e93c4aa60567770dfe8593a7957251eeb6c7677e3927f868dfd137e8bf542",
+      "audit_sha256": "2b225f788cadf98adff951394c35c9afbc35aba56f48b0b82785150b71bdc38c",
+      "accepted_frames": [
+        {
+          "file": "envelope_s0.json",
+          "cells": 289,
+          "points": 96,
+          "physical_faces": 146,
+          "volume": "1/2097152",
+          "minimum_mean_ratio": 0.5438424433693994,
+          "minimum_scaled_jacobian": 0.3236529989722618,
+          "maximum_length": 1.7957781168258844,
+          "longest_edge": [
+            6,
+            60
+          ],
+          "markers": {
+            "0": 32,
+            "1": 32,
+            "3": 17,
+            "2": 48,
+            "4": 12,
+            "5": 5
+          },
+          "strict_metric_gate": true
+        },
+        {
+          "file": "envelope_s1.json",
+          "cells": 48,
+          "points": 27,
+          "physical_faces": 48,
+          "volume": "1/2097152",
+          "minimum_mean_ratio": 0.3633582476234516,
+          "minimum_scaled_jacobian": 0.14187391881476188,
+          "maximum_length": 1.7863967402467296,
+          "longest_edge": [
+            11,
+            21
+          ],
+          "markers": {
+            "2": 15,
+            "1": 8,
+            "5": 1,
+            "3": 7,
+            "4": 5,
+            "0": 12
+          },
+          "strict_metric_gate": true
+        },
+        {
+          "file": "envelope_s2.json",
+          "cells": 314,
+          "points": 102,
+          "physical_faces": 150,
+          "volume": "1/2097152",
+          "minimum_mean_ratio": 0.23883815837008673,
+          "minimum_scaled_jacobian": 0.10271873970549425,
+          "maximum_length": 1.799674941238158,
+          "longest_edge": [
+            7,
+            27
+          ],
+          "markers": {
+            "5": 5,
+            "2": 45,
+            "4": 14,
+            "0": 36,
+            "1": 32,
+            "3": 18
+          },
+          "strict_metric_gate": true
+        }
+      ],
+      "states": [
+        {
+          "file": "envelope_s0_states.json",
+          "maximum_state_relative_error": 3.577870528063034e-16,
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "donor_points": 75,
+          "accepted_points": 96,
+          "maximum_transported_tensor_physical_error": 0.0
+        },
+        {
+          "file": "envelope_s1_states.json",
+          "maximum_state_relative_error": 3.577870528063034e-16,
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "donor_points": 96,
+          "accepted_points": 27,
+          "maximum_transported_tensor_physical_error": 0.0
+        },
+        {
+          "file": "envelope_s2_states.json",
+          "maximum_state_relative_error": 4.606665037477689e-14,
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "donor_points": 27,
+          "accepted_points": 102,
+          "maximum_transported_tensor_physical_error": 0.0
+        }
+      ],
+      "reload_metrics": [
+        {
+          "format": "SU2",
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "maximum_transported_tensor_physical_error": 0.0
+        },
+        {
+          "format": "CGNS",
+          "maximum_transported_tensor_absolute_error": 0.0,
+          "maximum_transported_tensor_physical_error": 0.0
+        }
+      ],
+      "historical_geometry_and_donor_matches": [
+        "envelope_s0_initial.json",
+        "envelope_s0.json",
+        "envelope_s1_initial.json",
+        "envelope_s1.json",
+        "envelope_s2_initial.json",
+        "envelope_s2.json",
+        "envelope_s2_written_SU2_reload_target.json",
+        "envelope_s2_written_CGNS_reload_target.json"
+      ],
+      "historical_state_byte_matches": {
+        "envelope_s0_states.json": true,
+        "envelope_s1_states.json": true,
+        "envelope_s2_states.json": true
+      },
+      "exact_normalized_geometry_and_donor_frames": [
+        "envelope_s0_initial.json",
+        "envelope_s0.json",
+        "envelope_s1_initial.json",
+        "envelope_s1.json",
+        "envelope_s2_initial.json",
+        "envelope_s2.json",
+        "envelope_s2_written_SU2_reload_target.json",
+        "envelope_s2_written_CGNS_reload_target.json"
+      ],
+      "donor_box_filtered_rank_work": 62070.0,
+      "historical_control_validation_sha256": "a23d097c1dfe35c95691e5d4fc66d3fc696bfc61926fda9a2c514202370e378e"
+    }
+  ],
+  "scope": "Fresh whole-case current-binary aspect2 turning and H20 thin geometry/metric/current+BDF/SU2CGNS audits. 24 exact historical geometry/donor matches and eight current-source affine covariance checks. State byte matches recorded separately from independently validated residuals; no cross-partition identity, BL construction, calibrated speedup/scaling or fullGoal1 qualification."
+}

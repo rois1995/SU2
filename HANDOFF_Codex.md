@@ -1,5 +1,29 @@
 # Current handoff — 2026-10-12
 
+## Current donor-prefilter stronger envelope qualified — 2026-10-12
+
+Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
+codex/native-3d-transport-accounting. Production8c3b40c9be unchanged; starting
+branch tip47480bbd415b240ee16c9b71bea138ff6332e2a0. Goal1 ACTIVE; Goal2 not started.
+Predeclared box_filter_a2_direction_n4_n4_m2_v1 and serial n4_n1_m1_v1 both PASS
+three actual driver adaptations with fresh full exact audits, accepted tets
+402/71/435 and402/54/424. MPI minimum q=.2039974058/J=.05895219395 remain close
+to frozen .20/.05 guards. box_filter_thin_h20_n4_n4_m2_v1 PASS289/48/314tets,
+exact volume1/2097152, state residual<=4.6066651e-14; no actual BL claim.
+All three use qualified box_filter_build_v2 binary c1bdef2a09d1e13bd1d137910db5713de32514f7a421369d6b1a177b48de54d6,
+production512, original-P1 sensor-only targets, adaptable facets, noise0, zero
+transported tensor residuals and actual SU2/CGNS/current+BDF replacement.
+24geometry/donor frames and9state files exactly match older routing controls;
+8H20 normalized frames additionally match current unscaled N4M2. Fresh audits
+are not replaced by old certificate reuse. Actual box-filter rank-work counts
+165180/22482/62070; no local repeated performance campaign or speedup claim.
+BOX_FILTER_ENVELOPE_VALIDATION.md/json and check_box_filter_envelope.py pin all
+recipes/source/receipts/audits and comparisons. Three inspectable VTU grids per
+case retained; total data about7.1MB, no new binary or CFD series. All owned jobs
+TERMINAL, oneCPU/nice19/MPI<=4/thread1 under actual observed FSI contention.
+Size8 production512 completion and repeated cluster performance/rank/weight/
+wait/traffic/memory/overhead qualification remain open. No cluster submission.
+
 ## Exact coarsening rejection classification — 2026-10-12
 
 Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch

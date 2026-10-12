@@ -23,3 +23,13 @@ donor_box_filtered is emitted from the source service through engine stats and b
 The frozen SGE comparison now pins all six relevant source files for four known versions. Original/routing/packed->box forward pairs are supported in addition to earlier pairs; packed checkpoint7f76fd9a279cf384a37f8ae137dc4dc26212ce82 is the baseline to isolate this filter. Existing frozen older bundles remain immutable and supported. No comparison bundle prepared or cluster submission. Pull/rebuild/freeze a fresh candidate before launch. Cluster repetitions must measure net wall cost, detail/profiler overhead, MPI/rank costs and practical size/rank/memory/wait limits.
 
 BOX_FILTER_VALIDATION.json pins complete build/case/audit receipts, exact-work counters and single diagnostic clocks. All owned jobs TERMINAL; source/failed/intermediate recipes and inspectable meshes/current+BDF states/VTUs retained. Goal1 ACTIVE; Goal2 not started. No curved-geometry, robust3DBL, physical fullunsteady or affordability certificate.
+
+## Further current whole-case qualification
+
+BOX_FILTER_ENVELOPE_VALIDATION.md/json records fresh full audits of aspect2
+turning-direction size4 wedges on N1M1/N4M2 and a H20 thin N4M2 case using this
+same qualified binary. All three campaigns pass;24geometry/donor and9state files
+match older routing controls exactly, and8normalized H20 frames match the
+current unscaled case. Actual box-filter rank-work counts165180/22482/62070
+confirm the optimization is exercised. These are sequential correctness checks,
+not repeated timing/scaling or a fix to the known production512completion limit.

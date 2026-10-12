@@ -1,0 +1,68 @@
+{
+  "status": "PREDECLARED_NOT_EXECUTED",
+  "checkpoint": "47480bbd415b240ee16c9b71bea138ff6332e2a0",
+  "qualified_build": "box_filter_build_v2/validation.json",
+  "cases": [
+    {
+      "folder": "box_filter_a2_direction_n4_n4_m2_v1",
+      "parameters": {
+        "ranks": 4,
+        "workers": 2,
+        "size": 4,
+        "anisotropy": 2,
+        "varying": 1,
+        "direction": 1,
+        "height_power": 0,
+        "wedge": true,
+        "aligned_markers": true,
+        "diagnostic_rounds": 512,
+        "repeat": 0,
+        "detail": 1,
+        "restart_format": "none"
+      },
+      "historical_control": "query_routing_a2_direction_n4_n4_m2_v1",
+      "runner_sha256": "aa53f9fc467d9a04ed78ba6a926fd7db49ddc2ca3a7cabe8401c716a084bf625"
+    },
+    {
+      "folder": "box_filter_a2_direction_n4_n1_m1_v1",
+      "parameters": {
+        "ranks": 1,
+        "workers": 1,
+        "size": 4,
+        "anisotropy": 2,
+        "varying": 1,
+        "direction": 1,
+        "height_power": 0,
+        "wedge": true,
+        "aligned_markers": true,
+        "diagnostic_rounds": 512,
+        "repeat": 0,
+        "detail": 1,
+        "restart_format": "none"
+      },
+      "historical_control": "query_routing_a2_direction_n4_n1_m1_v1",
+      "runner_sha256": "39b1519787e979d089012b95457bd9b5fd71e5786013fa9f3168d1d798af7cf6"
+    },
+    {
+      "folder": "box_filter_thin_h20_n4_n4_m2_v1",
+      "parameters": {
+        "ranks": 4,
+        "workers": 2,
+        "size": 4,
+        "anisotropy": 1,
+        "varying": 1,
+        "direction": 1,
+        "height_power": 20,
+        "wedge": true,
+        "aligned_markers": true,
+        "diagnostic_rounds": 512,
+        "repeat": 0,
+        "detail": 1,
+        "restart_format": "none"
+      },
+      "historical_control": "query_routing_thin_h20_n4_n4_m2_v1",
+      "runner_sha256": "c8058062513044ebda9a949d0ba6cc53be9ec47ed7e807d02e4c5af85fc3b24a"
+    }
+  ],
+  "scope": "Sequential one-CPU/nice19/MPI<=4 correctness qualification of aspect2 turning-direction and H20 thin whole cases with actual qualified current binary and fresh unchanged independent audits. Production/defaults/guards unchanged; no timing/scaling campaign."
+}

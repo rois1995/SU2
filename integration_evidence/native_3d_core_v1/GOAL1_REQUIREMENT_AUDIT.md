@@ -53,3 +53,16 @@ accepted false rejection. Five second-epoch shape failures have provably length-
 changed edges. The weaker envelope does not establish512completion or MPI payback
 and is not introduced into production. No new actual MPI/CFD or performance result;
 current qualified box-prefilter implementation and all open gates above remain.
+
+## Current stronger whole-case qualification
+
+BOX_FILTER_ENVELOPE_VALIDATION.md/json supplies fresh current-binary whole-case
+proof for aspect2 turning-direction size4 wedges on N1M1 and N4M2, plus H20
+thin N4M2. All three actual three-event replacement campaigns pass complete
+independent geometry/metric/current+BDF/SU2CGNS audits. Twenty-four geometry/donor
+frames and nine state files match old controls exactly; eight normalized H20
+frames match the current unscaled control. Transported metrics are exact and
+the box filter is exercised. This closes the current-source proof gap for these
+three stronger cases; H10/serialH20/persistent-restart historical matrices remain
+separately pinned. Production512 large-case completion and all repeated cluster
+performance/calibration requirements above remain open.
