@@ -7,6 +7,7 @@
 #include "catch.hpp"
 #include "../../../Common/include/adaptation/CNativeBoundary3D.hpp"
 #include "../../../Common/include/adaptation/CNativeField3D.hpp"
+#include "../../../Common/include/adaptation/CNativeMetric3D.hpp"
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -880,4 +881,27 @@ TEST_CASE("Sphere surface error uses the finite triangle when the plane foot lie
                   points[0].z*(1-u-v)+u*points[1].z+v*points[2].z};
     CHECK(1-std::hypot(p.x,p.y,p.z)<=error);
   }
+}
+
+namespace {
+#include "fixtures/native_joint_obstruction.inc"
+}
+TEST_CASE("Joint curved split reconstructs a saved obstruction under unchanged frozen gates", "[NativeJointGeometry3D]") {
+  const auto old=JointObstruction();const auto reference=JointReference();
+  std::map<Id,Point> points;for(const auto& c:old.cells)for(auto n:c.v)points.emplace(n.id,n.p);
+  const Edge edge{6,676};const auto a=points.at(edge[0]),b=points.at(edge[1]);
+  const Node point{200000,{double((static_cast<long double>(a.x)+b.x)/2),double((static_cast<long double>(a.y)+b.y)/2),double((static_cast<long double>(a.z)+b.z)/2)}};
+  Patch fresh;Face obstruction{};std::string reason;
+  const Tensor unit{.5,0,0,.5,0,.5};
+  const bool rebuilt=ReconstructSplitPatch(old,edge,point,{200001,{}},unit,300000,reference,fresh,obstruction,reason);INFO(reason);REQUIRE(rebuilt);
+  CHECK(fresh.cells.size()>old.cells.size());
+  DonorCell donor;donor.cell={0,{{{0,{-10,-10,-10}},{1,{30,-10,-10}},{2,{-10,30,-10}},{3,{-10,-10,30}}}}};donor.sensor.fill(unit);
+  FrozenField field({donor});PatchMetric metric;
+  REQUIRE(ValidateMetricChange(old.cells,fresh.cells,MetricChange::GeometryRefine,field,metric,reason));
+  auto excess=[&](const Patch& p){std::map<Id,Point> nodes;for(const auto& c:p.cells)for(auto n:c.v)nodes[n.id]=n.p;long double sum=0;for(const auto& f:p.surface){const std::array<Point,3> t{nodes.at(f.v[0]),nodes.at(f.v[1]),nodes.at(f.v[2])};const auto e=std::max(0.,reference.SurfaceError(f.facet,t)-.04);const auto a=t[0],b=t[1],c=t[2];sum+=e*e*std::hypot((b.y-a.y)*(c.z-a.z)-(b.z-a.z)*(c.y-a.y),(b.z-a.z)*(c.x-a.x)-(b.x-a.x)*(c.z-a.z),(b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x));}return sum;};
+  CHECK(excess(fresh)<excess(old));
+  for(size_t i=0;i<fresh.cells.size();++i)for(size_t j=i+1;j<fresh.cells.size();++j)CHECK(ConformingDisjoint(fresh.cells[i],fresh.cells[j]));
+  auto incomplete=old;incomplete.surface.erase(std::remove_if(incomplete.surface.begin(),incomplete.surface.end(),[&](const auto& f){return std::find(f.v.begin(),f.v.end(),edge[0])!=f.v.end() && std::find(f.v.begin(),f.v.end(),edge[1])!=f.v.end();}),incomplete.surface.end());Patch retained=fresh;
+  CHECK_FALSE(ReconstructSplitPatch(incomplete,edge,point,{200001,{}},unit,300000,reference,retained,obstruction,reason));
+  CHECK(Connectivity(retained)==Connectivity(fresh));
 }

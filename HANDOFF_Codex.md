@@ -1,3 +1,57 @@
+# Goal 2 joint reconstruction WIP — 2026-10-13
+
+Repository `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`; branch
+`codex/native-3d-curved-local`, previous published `68b24b82eccd9f420f4990d814bbedb530c2a10d`.
+Goal ACTIVE; all four full requirements PENDING. Connected implementation adds
+projected physical-edge split plus one interior point and complete skin-constrained
+reconstruction, using shared projection/surface-child validation. A frozen actual
+old-centroid tensor guides bounded metric-frame placement only; all final actual
+centroids/edges are checked against the unchanged original/declared source.
+Complete neighbouring-face dependencies are imported, version/owner checked and
+re-reserved; 12 trials/64 old/128 new, global work/memory/time ceilings remain.
+Every extra joint trial counts as work. Curved node IDs reserve two slots; planar
+IDs unchanged. Missing/protocol/storage failures remain collective vetoes. Recovery
+retries reopened geometry queues as well as oversized metric edges. Existing global
+curved serialization, clearance, atomic CFD rejection and conservative rebuild stay.
+
+joint_replay_v1: saved v7 obstruction admits six-old/twelve-new coupled proposal,
+48% local geometric deficit reduction, bounded pattern q0.224286/J0.065229.
+Native saved-geometry regression passes frozen0.5I metric, geometry progress,
+exact pairwise contact/no-overlap and rejection rollback. The small generated
+fixture includes its original saved-source hash. This is a local operator proof,
+not full arbitrary P1/CFD/MPI/goal qualification.
+
+joint_runtime_v1 terminal FAIL test missing include (production compiled), retained.
+joint_runtime_v2/v3 terminal FAIL4/5 serial selected cases PASS; tilted cylinder
+still stagnates. joint_runtime_v4 terminal FAIL4/5 PASS; limiting quality/J-ratio
+face growth increases private edits to86 but does not complete the case. Last
+rejection feature3:1733 geometric error non-improvement; accepted CFD state retained.
+No acceptance/source tolerance was relaxed. Full production/member/binary pins and
+saved grids/states/failures retained. No broad current-source regression yet.
+
+joint_replay_v2 session29240 TERMINAL: no admissible one-interior-point proposal
+in792 bounded trials on the latest v3 rejected geometry. Owned nice19 process moved
+fromCPU0 toCPU2 due contention; adjustment record retained, no timing claim. Exact
+papers folder found `/media/rausa/4TB/SU2_Versions/Prove/Papers`; read Loseille/Alauzet/
+Menier2017 CAD paper sections2.3–2.5 and local repair/2D movement code. An overly broad
+owned file search was identified and stopped; no unrelated process touched.
+
+LIVE controller75064: `integration_evidence/native_3d_curved_v1/joint_mpi_audit_v1/run.py`.
+Current v4 source/binary pinned, sequential MPI2/4 on oneCPU/nice19/threads1, no new
+build beyond no-op integrity check. It continues observations after matrix failures;
+status FAIL_MATRIX must not be presented as green. Revalidate its handle/receipt;
+do not launch another heavy job or change pinned source while live. Case folder
+currently `joint_mpi_audit_v1/mpi2`; MPI4 follows. New test folders already announced.
+
+Next substantial work: coordinated surface retriangulation and/or multiple interior
+points to escape the recorded full-path blockage; stop tuning single-point growth
+order or raising caps. Preserve failed matrix. Qualify current-source MPI/rejection/
+accepted-state audits, then the meaningful broad integration milestone and genuine
+solved Euler/resolved nonuniform control. Original full Goal2scope intact; no cluster/
+performance/CAD/production3DBL/full physical unsteady/force-convergence claim.
+Report JOINT_RECONSTRUCTION_WIP.md. AGENTS.md permanent batching cadence applies.
+ForeignClusterResults/dependencies/AdapNoExt untouched.
+
 # Goal 2 primitive runtime WIP — 2026-10-12
 
 Working repository `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`, branch

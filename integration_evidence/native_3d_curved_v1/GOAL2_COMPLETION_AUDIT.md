@@ -65,3 +65,13 @@ ONLY those two completed serial lifecycles, including conservative current/BDF,
 real restart, source-resolved metric and geometry/writer checks. MPI2/4 were not
 run after serial failure; no broad current-source regression yet. Every full
 requirement remains PENDING. See PRIMITIVE_RUNTIME_INTEGRATION.md; preserve failures.
+
+
+Joint reconstruction WIP: a native combined surface/interior insertion reproduces
+the saved six-cell obstruction and passes actual constant-field metric, geometry,
+exact pairwise contact/no-overlap and rollback checks. MPI-complete neighbour growth
+and frozen actual-query validation are integrated. joint_runtime_v4 still fails the
+serial tilted-cylinder path (4/5 cases pass, 86 private edits); no complete gate is
+achieved. The latest rejected state admits no one-interior-point proposal in the
+bounded floating-point replay. MPI2/4 observation is active under joint_mpi_audit_v1;
+its terminal receipt and accepted-state audits are required. See JOINT_RECONSTRUCTION_WIP.md.

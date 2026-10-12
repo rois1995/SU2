@@ -173,6 +173,44 @@ Physical CheckSurface(const Patch& patch, const Skin& skin, const PlanarReferenc
   }
   return faces;
 }
+Node ProjectSplitPoint(Edge edge,Node point,const std::map<Id,Node>& nodes,const Physical& physical,
+                       const PlanarReference& reference,KernelStats* stats) {
+  const auto a=nodes.at(edge[0]),b=nodes.at(edge[1]);
+    bool curved_edge=false;
+    for(const auto& face:physical)if(Has(face.second.v,edge[0]) && Has(face.second.v,edge[1])) {
+      const auto geometry=reference.Analytic().find(face.second.facet);
+      curved_edge=curved_edge || (geometry!=reference.Analytic().end() && geometry->second.kind!=AnalyticSurface::Kind::Disk);
+    }
+    const Point midpoint{double((static_cast<long double>(a.p.x)+b.p.x)/2),double((static_cast<long double>(a.p.y)+b.p.y)/2),double((static_cast<long double>(a.p.z)+b.p.z)/2)};
+    const bool rounded_midpoint=curved_edge && point.p.x==midpoint.x && point.p.y==midpoint.y && point.p.z==midpoint.z;
+    if (nodes.count(point.id) || (!rounded_midpoint && !OnEdge(a.p, b.p, point.p, stats)) ||
+        (point.p.x == a.p.x && point.p.y == a.p.y && point.p.z == a.p.z) ||
+        (point.p.x == b.p.x && point.p.y == b.p.y && point.p.z == b.p.z))
+      throw std::invalid_argument("Native 3D split point is not a distinct exact on-edge point.");
+    for(unsigned pass=0;pass<2;++pass)for(const auto& f:physical)
+      if(Has(f.second.v,edge[0]) && Has(f.second.v,edge[1]) && reference.Analytic().count(f.second.facet) &&
+         (reference.Analytic().at(f.second.facet).kind==AnalyticSurface::Kind::Disk)==(pass==0))
+        point.p=reference.Project(f.second.facet,point.p,stats);
+    for (const auto& f : physical)
+      if (Has(f.second.v,edge[0]) && Has(f.second.v,edge[1]) && !reference.Contains(f.second.facet,point.p,stats))
+        throw std::invalid_argument("Native3D projected split leaves an incident physical feature.");
+  return point;
+}
+void SplitSkin(Edge edge,Node point,Skin& skin,Physical& physical) {
+  const auto before=skin;
+  for(const auto& entry:before)if(Has(entry.second,edge[0]) && Has(entry.second,edge[1])) {
+    const auto found=physical.find(entry.first);
+    if(found==physical.end())throw std::invalid_argument("Native3D incomplete split dependency at interface face.");
+    const auto facet=found->second.facet;physical.erase(found);skin.erase(entry.first);
+    const auto f=entry.second;
+    for(size_t i=0;i<3;++i)if((f[i]==edge[0] && f[(i+1)%3]==edge[1]) || (f[i]==edge[1] && f[(i+1)%3]==edge[0])) {
+      for(auto child:{Face{f[i],point.id,f[(i+2)%3]},Face{point.id,f[(i+1)%3],f[(i+2)%3]}}) {
+        child=Oriented(child);skin.emplace(Key(child),child);physical.emplace(Key(child),SurfaceFace{child,facet});
+      }
+      break;
+    }
+  }
+}
 void Bounds(const Patch& patch) {
   if (patch.cells.empty() || patch.cells.size() > MaximumCavityCells)
     throw std::invalid_argument("Native 3D edge patch is empty or exceeds cell budget.");
@@ -792,25 +830,7 @@ bool SplitEdge(const Patch& old, Edge edge, Node point, Id first, const PlanarRe
     auto skin = SkinMap(index.Boundary());
     auto physical = CheckSurface(old, skin, reference, stats);
     const auto nodes = Nodes(old.cells);
-    const auto a = nodes.at(edge[0]), b = nodes.at(edge[1]);
-    bool curved_edge=false;
-    for(const auto& face:physical)if(Has(face.second.v,edge[0]) && Has(face.second.v,edge[1])) {
-      const auto geometry=reference.Analytic().find(face.second.facet);
-      curved_edge=curved_edge || (geometry!=reference.Analytic().end() && geometry->second.kind!=AnalyticSurface::Kind::Disk);
-    }
-    const Point midpoint{double((static_cast<long double>(a.p.x)+b.p.x)/2),double((static_cast<long double>(a.p.y)+b.p.y)/2),double((static_cast<long double>(a.p.z)+b.p.z)/2)};
-    const bool rounded_midpoint=curved_edge && point.p.x==midpoint.x && point.p.y==midpoint.y && point.p.z==midpoint.z;
-    if (nodes.count(point.id) || (!rounded_midpoint && !OnEdge(a.p, b.p, point.p, stats)) ||
-        (point.p.x == a.p.x && point.p.y == a.p.y && point.p.z == a.p.z) ||
-        (point.p.x == b.p.x && point.p.y == b.p.y && point.p.z == b.p.z))
-      throw std::invalid_argument("Native 3D split point is not a distinct exact on-edge point.");
-    for(unsigned pass=0;pass<2;++pass)for(const auto& f:physical)
-      if(Has(f.second.v,edge[0]) && Has(f.second.v,edge[1]) && reference.Analytic().count(f.second.facet) &&
-         (reference.Analytic().at(f.second.facet).kind==AnalyticSurface::Kind::Disk)==(pass==0))
-        point.p=reference.Project(f.second.facet,point.p,stats);
-    for (const auto& f : physical)
-      if (Has(f.second.v,edge[0]) && Has(f.second.v,edge[1]) && !reference.Contains(f.second.facet,point.p,stats))
-        throw std::invalid_argument("Native3D projected split leaves an incident physical feature.");
+    point=ProjectSplitPoint(edge,point,nodes,physical,reference,stats);
     Patch proposal;
     for (const auto& c : old.cells) {
       auto left = c.v, right = c.v;
@@ -832,28 +852,7 @@ bool SplitEdge(const Patch& old, Edge edge, Node point, Id first, const PlanarRe
       Append(proposal.cells, left, first, stats);
       Append(proposal.cells, right, first, stats);
     }
-    const auto before = skin;
-    for (const auto& entry : before)
-      if (Has(entry.second, edge[0]) && Has(entry.second, edge[1])) {
-        const auto found = physical.find(entry.first);
-        if (found == physical.end())
-          throw std::invalid_argument("Native 3D incomplete split dependency at interface face " +
-                                      std::to_string(entry.first[0]) + "," + std::to_string(entry.first[1]) + "," +
-                                      std::to_string(entry.first[2]) + ".");
-        const auto facet = found->second.facet;
-        physical.erase(found);
-        skin.erase(entry.first);
-        const auto f = entry.second;
-        for (size_t i = 0; i < 3; ++i)
-          if ((f[i] == edge[0] && f[(i + 1) % 3] == edge[1]) || (f[i] == edge[1] && f[(i + 1) % 3] == edge[0])) {
-            for (auto child : {Face{f[i], point.id, f[(i + 2) % 3]}, Face{point.id, f[(i + 1) % 3], f[(i + 2) % 3]}}) {
-              child = Oriented(child);
-              skin.emplace(Key(child), child);
-              physical.emplace(Key(child), SurfaceFace{child, facet});
-            }
-            break;
-          }
-      }
+    SplitSkin(edge,point,skin,physical);
     Finish(old, proposal, skin, physical, reference, stats);
     fresh.cells.swap(proposal.cells);
     fresh.surface.swap(proposal.surface);
@@ -930,6 +929,86 @@ bool InsertEdgeCavity(const Patch& old, Edge edge, Node point, Id first, const P
     reason = e.what();
     return false;
   }
+}
+bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,const Tensor& placement,
+                           Id first,const PlanarReference& reference,Patch& fresh,Face& obstruction,
+                           std::string& reason,KernelStats* stats) {
+  obstruction={};
+  try {
+    Bounds(old);Endpoints(edge);ValidateTensor(placement,stats);
+    const auto index=Incidence(old.cells,stats);
+    auto skin=SkinMap(index.Boundary());auto physical=CheckSurface(old,skin,reference,stats);
+    auto nodes=Nodes(old.cells);
+    if(std::none_of(physical.begin(),physical.end(),[&](const auto& f){return Has(f.second.v,edge[0]) && Has(f.second.v,edge[1]);}))
+      throw std::invalid_argument("Native3D joint boundary split requires a physical edge.");
+    if(nodes.count(interior.id) || interior.id==point.id)throw std::invalid_argument("Native3D joint insertion reuses a node identity.");
+    point=ProjectSplitPoint(edge,point,nodes,physical,reference,stats);
+    SplitSkin(edge,point,skin,physical);nodes.emplace(point.id,point);
+    if(skin.size()>MaximumReplacementCells)throw std::invalid_argument("Native3D joint skin exceeds replacement budget.");
+    const auto origin=old.cells.front().v.front().p;
+    Vector moment{};long double volume=0,rms=0;
+    for(const auto& c:old.cells) {
+      const auto det=Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p,stats);
+      if(!(det>0))throw std::invalid_argument("Native3D joint patch contains an inverted donor.");
+      for(const auto n:c.v){const auto d=Delta(n.p,origin);for(size_t k=0;k<3;++k)moment[k]+=det*d[k]/4;}
+      volume+=det;rms+=Measure({c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p},placement,stats).rms_edge;
+    }
+    interior.p={double(origin.x+moment[0]/volume),double(origin.y+moment[1]/volume),double(origin.z+moment[2]/volume)};
+    rms/=old.cells.size();
+    const long double scale=std::max({std::abs(placement.xx),std::abs(placement.xy),std::abs(placement.xz),std::abs(placement.yy),std::abs(placement.yz),std::abs(placement.zz)});
+    const long double m[3][3]={{placement.xx/scale,placement.xy/scale,placement.xz/scale},{placement.xy/scale,placement.yy/scale,placement.yz/scale},{placement.xz/scale,placement.yz/scale,placement.zz/scale}};
+    long double l[3][3]{};
+    for(size_t i=0;i<3;++i)for(size_t j=0;j<=i;++j) {
+      auto value=m[i][j];for(size_t k=0;k<j;++k)value-=l[i][k]*l[j][k];
+      if(i==j){if(!(value>0))throw std::invalid_argument("Unrepresentable native3D placement frame.");l[i][j]=std::sqrt(value);}
+      else l[i][j]=value/l[j][j];
+    }
+    std::array<Vector,3> basis{};
+    for(size_t column=0;column<3;++column)for(int i=2;i>=0;--i) {
+      long double value=size_t(i)==column ? 1/std::sqrt(scale) : 0;
+      for(size_t j=i+1;j<3;++j)value-=l[j][i]*basis[column][j];
+      basis[column][i]=value/l[i][i];
+    }
+    auto cost=[&](Point apex,Face* blocked) {
+      long double score=0,worst=INFINITY;
+      for(const auto& row:skin) {
+        const auto f=row.second;
+        const Tetrahedron tet{apex,nodes.at(f[0]).p,nodes.at(f[1]).p,nodes.at(f[2]).p};
+        long double deficit=10,ratio=-INFINITY;
+        if(Orientation(tet[0],tet[1],tet[2],tet[3],stats)>0) {
+          const auto quality=Measure(tet,placement,stats);
+          const auto q=std::max(0.,.22-quality.mean_ratio),j=std::max(0.,.06-quality.minimum_scaled_jacobian);
+          deficit=q*q+j*j;
+          ratio=std::min(quality.mean_ratio/MinimumMeanRatio,quality.minimum_scaled_jacobian/MinimumScaledJacobian);
+        }
+        score+=deficit;
+        if(blocked && !physical.count(row.first) && ratio<worst){worst=ratio;*blocked=row.first;}
+      }
+      return score;
+    };
+    // Placement uses one frozen proxy; the engine certifies the complete actual-query field afterwards.
+    auto best=cost(interior.p,nullptr);
+    for(unsigned level=0;level<9 && best>1e-12L;++level)for(unsigned sweep=0;sweep<3 && best>1e-12L;++sweep) {
+      const auto center=interior.p;const auto previous=best;
+      for(int a=-1;a<=1;++a)for(int b=-1;b<=1;++b)for(int c=-1;c<=1;++c)if(a || b || c) {
+        const auto step=std::ldexp(rms,-int(level)-1)/std::sqrt(static_cast<long double>(a*a+b*b+c*c));
+        const Point p{double(center.x+step*(a*basis[0][0]+b*basis[1][0]+c*basis[2][0])),
+                      double(center.y+step*(a*basis[0][1]+b*basis[1][1]+c*basis[2][1])),
+                      double(center.z+step*(a*basis[0][2]+b*basis[1][2]+c*basis[2][2]))};
+        const auto score=cost(p,nullptr);if(score<best){best=score;interior.p=p;}
+      }
+      if(best>=previous)break;
+    }
+    cost(interior.p,&obstruction);
+    Patch proposal;
+    for(const auto& row:skin) {
+      const auto f=row.second;const std::array<Node,4> v{interior,nodes.at(f[0]),nodes.at(f[1]),nodes.at(f[2])};
+      if(!(Orientation(v[0].p,v[1].p,v[2].p,v[3].p,stats)>0))throw std::invalid_argument("Native3D joint point cannot see its retained skin.");
+      Append(proposal.cells,v,first,stats);
+    }
+    Finish(old,proposal,skin,physical,reference,stats);
+    fresh.cells.swap(proposal.cells);fresh.surface.swap(proposal.surface);reason.clear();return true;
+  }catch(const std::exception& e){reason=e.what();return false;}
 }
 bool UndoEdgeSplit(const Patch& old, Id point, Edge edge, Id first, const PlanarReference& reference, Patch& fresh,
                    std::string& reason, KernelStats* stats) {

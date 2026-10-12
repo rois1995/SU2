@@ -105,6 +105,12 @@ bool InsertEdgeCavity(const Patch& old, Edge edge, Node point, Id first_cell, co
                       Patch& fresh, std::string& reason, KernelStats* stats = nullptr);
 /*! Inverse edge bisection: all removed-vertex incident cells must form paired children of the supplied endpoints.
  * Preserves original facets/markers and feature edges; this is not general boundary-vertex collapse. */
+/*! Complete edge star plus imported face neighbours; joint projected surface split and interior reconnection.
+ * Placement tensor is a proposal proxy only. Caller must certify actual-query metric, geometry progress,
+ * nonlocal clearance and complete versioned dependencies. Obstruction names a retained interface for bounded growth. */
+bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,const Tensor& placement,
+                           Id first_cell,const PlanarReference& reference,Patch& fresh,Face& obstruction,
+                           std::string& reason,KernelStats* stats = nullptr);
 bool UndoEdgeSplit(const Patch& old, Id point, Edge endpoints, Id first_cell, const PlanarReference& reference,
                    Patch& fresh, std::string& reason, KernelStats* stats = nullptr);
 /*! Contracts a vertex to an existing neighbor in its complete admitted vertex star, without split history.
