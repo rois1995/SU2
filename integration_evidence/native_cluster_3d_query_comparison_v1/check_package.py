@@ -18,7 +18,7 @@ class Checks(unittest.TestCase):
         p=root/side;(p/'bin').mkdir(parents=True);(p/'bin/test_driver').write_text(side)
         (p/'recipe.py').write_text('fixture only')
         role='baseline' if side in ('base','baseline') else 'candidate'
-        sources={name:role for name in prepare.CHANGED};sources[prepare.DONOR]=prepare.EXPECTED[role]
+        sources=dict(prepare.SOURCE_PINS['original' if role=='baseline' else 'routing'])
         (p/'manifest.json').write_text(json.dumps(dict(status='PREPARED_NOT_VALIDATED',source_sha256=sources,
             build_options=[dict(name='enable-tests',value=True),dict(name='prefix',value=str(p))],
             files_sha256={str(f.relative_to(p)):sha(f) for f in p.rglob('*') if f.is_file()})))
@@ -35,13 +35,22 @@ class Checks(unittest.TestCase):
             root=Path(t);b=self.package(root,'baseline');c=self.package(root,'candidate')
             manifests={side:json.loads((root/side/'manifest.json').read_text()) for side in ('baseline','candidate')}
             prepare.matched_sources(manifests)
-            for field in ('donor','unrelated','options'):
+            for field in ('donor','allowed_header','unrelated','options'):
                 mutated=json.loads(json.dumps(manifests))
                 if field=='donor':mutated['baseline']['source_sha256'][prepare.DONOR]='wrong'
+                elif field=='allowed_header':mutated['candidate']['source_sha256']['Common/include/adaptation/CNativeEngine3D.hpp']='changed guard'
                 elif field=='unrelated':
                     for side in mutated:mutated[side]['source_sha256']['Common/other.cpp']=side
                 else:mutated['candidate']['build_options'][0]['value']=False
                 with self.assertRaises(ValueError):prepare.matched_sources(mutated)
+    def test_known_source_pairs_and_reversed_comparison(self):
+        options=[dict(name='enable-tests',value=True)]
+        for old,new in (('original','routing'),('original','packed'),('routing','packed')):
+            manifests={side:dict(source_sha256=dict(prepare.SOURCE_PINS[version]),build_options=options)
+                       for side,version in [('baseline',old),('candidate',new)]}
+            self.assertEqual(prepare.matched_sources(manifests),dict(baseline=old,candidate=new))
+            with self.assertRaises(ValueError):prepare.matched_sources(dict(baseline=manifests['candidate'],candidate=manifests['baseline']))
+
     def test_schedule_pairs(self):
         for ranks,count in ((1,14),(2,28),(4,28)):
             rows=list(campaign.schedule(ranks));self.assertEqual(len(rows),count)

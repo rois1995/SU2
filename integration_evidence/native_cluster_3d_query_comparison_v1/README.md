@@ -2,18 +2,28 @@
 
 Repository: `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`.
 Compile candidate branch **codex/native-3d-transport-accounting** after updating it.
-The validated routing implementation is7b4e0d767fbda42ff17064ed93960316d794d5ab.
+Current candidate includes qualified grouped requests; see
+`integration_evidence/native_3d_core_v1/QUERY_PACKING_VALIDATION.md`.
+The earlier validated narrow routing checkpoint7b4e0d767fbda42ff17064ed93960316d794d5ab
+remains a supported frozen candidate or a baseline for isolating packing.
 Baseline is **2d3ac1e3a552a1b90a87dfa3595fc1b372783ceb**, including the full-star
 facet fix and certified1024-round n8 capability, before narrow query routing.
 Use matching compiler, MPI, external libraries and build options on both builds.
-Preparation enforces the two donor-source hashes, the exact four-file compiled
-source difference and equal build options except installation prefix.
+Preparation pins all four relevant source files and checks the complete expected
+compiled source difference for each supported forward pair, plus equal build
+options except installation prefix. Allowed pairs: original->routing, original->
+packed and routing->packed; variants are recorded in comparison_manifest.json.
 The old2D e6995fb baseline is not the baseline for this3D comparison.
+For a packing-only comparison, use the same baseline preparation commands below
+but checkout7b4e0d767fbda42ff17064ed93960316d794d5ab instead of2d3ac1e3a552a1b90a87dfa3595fc1b372783ceb.
+No extra CLI option is needed: frozen source hashes identify the pair. Do not
+compare elapsed time from a single local contended sample; that sample was slower
+with packing despite fewer tracked bytes. Measure the complete cycle on cluster.
 A fresh current candidate package uses the expanded97-case correctness selection
 and seven distributed-record audits. Existing baseline/candidate frozen packages
 retain their own earlier72/73-case recipes and declared evidence. Each side runs
 its own frozen correctness tool. This harness expansion does not change the
-compiled four-file routing comparison or timed target/budget. Prepare a fresh
+declared compiled source pair or timed target/budget. Prepare a fresh
 candidate bundle after pulling; do not edit already frozen package files.
 
 No submission has been made. No local timing campaign is required. The package

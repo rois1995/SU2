@@ -6,11 +6,19 @@ and complete-star retries pass the expanded **97-case** selection on MPI1/2/4.
 The generic NativeDistributed3D tag adds24existing directory/donor/engine/partition
 controls omitted from the earlier73-case selection. All seven existing exact
 MPI-record auditors now run alongside independent mesh/current+BDF/SU2/CGNS
-bridge checks. Serial MMG, n4N4M2 adaptation, persistent SU2N1M1/CGNSN4M2 restart,
-actual metric/Hessian OFF/ON lifecycle controls, whole thin H10/H20 cases and
-stronger aspect2 turning-direction n4N1M1/N4M2 cycles pass. The reusable package
+bridge checks. The prior narrow-routing checkpoint also passes serial MMG, n4N4M2 adaptation,
+persistent SU2N1M1/CGNSN4M2 restart, actual metric/Hessian OFF/ON controls, whole
+thin H10/H20 cases and stronger aspect2 turning-direction n4N1M1/N4M2 cycles.
+Those historical receipts keep their original source/binary pins. The reusable package
 expects97cases and passes31lightweight parser/mocked orchestration checks.
 No C++/binary/target/default budget changed for this coverage correction.
+Current grouped-request build also passes97cases on MPI1/2/4, all exact auditors,
+actual metric/Hessian/CFD/BDF controls, n4N4M2 and exact18artifact n8diagnostic
+trajectory/output/accounting checks. Second diagnostic coarsening saves9.70%
+tracked worker bytes with unchanged donor work; local elapsed sample was slower,
+so no wall-time benefit is claimed. See QUERY_PACKING_VALIDATION.md. A fresh
+current candidate bundle contains the packed implementation; frozen older
+routing bundles remain unchanged and supported by the comparison tool.
 See integration_evidence/native_3d_core_v1/COMPLETE_SELECTION_VALIDATION.md
 and QUERY_ROUTING_DIRECTION_A2_VALIDATION.md for current receipts and limits.
 

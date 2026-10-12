@@ -40,7 +40,7 @@ struct Request {
   DonorRegion region{};
   int caller = 0;
   bool tetrahedral = false;
-  unsigned char query = 0;  // 0 full cell, 1 actual centroid point, 2..7 closed edge segments.
+  unsigned char query = 0;  // 0 full cell; bits0..6 select actual centroid and six closed edges.
   Tetrahedron tetra{};
   template <class S> void Fields(S& s) { s(region, caller, tetrahedral, query, tetra); }
 };
@@ -55,6 +55,10 @@ DonorRegion Bounds(const Cell& cell) {
     }
   }
   return result;
+}
+DonorRegion SegmentBounds(Point a, Point b) {
+  return {std::min(a.x,b.x),std::min(a.y,b.y),std::min(a.z,b.z),
+          std::max(a.x,b.x),std::max(a.y,b.y),std::max(a.z,b.z)};
 }
 bool Intersects(const DonorRegion& region, const double* box) {
   for (size_t a = 0; a < 3; ++a) if (region[a] > box[a + 3] || region[a + 3] < box[a]) return false;
@@ -209,22 +213,24 @@ DonorPatch DonorImport::ImportRegions(const std::vector<DonorRegion>& regions, c
   if (count > MaximumCavityCells) failure.Set(1, 0, "Too many original donor import regions.");
   if (!Vote(failure, result.reason)) { ++stats.rejected; return result; }
   const auto baseline = transfer_memory::Add(caller_bytes, ResidentBytes(), cells ? transfer_memory::Bytes(*cells) : transfer_memory::Bytes(regions));
-  const auto request_count = transfer_memory::Mul(count, cells && filter_cells && metric_queries ? 7 : 1);
   const auto route_peak = transfer_memory::Add(baseline, ranks->QueryBytes(),
-      transfer_memory::Mul(world.size, sizeof(std::vector<Request>)),
-      transfer_memory::GrowthBound(transfer_memory::Mul(request_count, world.size), sizeof(Request)));
+      transfer_memory::Mul(world.size, sizeof(std::vector<Request>) + sizeof(unsigned char)),
+      transfer_memory::GrowthBound(transfer_memory::Mul(count, world.size), sizeof(Request)));
   if (!Admit(route_peak, ceiling, result.reason)) { ++stats.rejected; return result; }
   std::vector<std::vector<Request>> to;
   try {
     Timer routing(stats.routing_seconds, timings);
     to.resize(world.size);
     std::vector<int> owners;
-    auto send = [&](const Request& request) {
-      const auto& region = request.region;
+    std::vector<unsigned char> mask(world.size);
+    auto route = [&](const DonorRegion& region) {
       for (size_t a = 0; a < 3; ++a)
         if (!(std::isfinite(region[a]) && std::isfinite(region[a + 3]) && region[a] <= region[a + 3]))
           throw std::invalid_argument("Invalid original donor import region.");
       ranks->RanksIntersecting(region.data(), region.data() + 3, owners);
+    };
+    auto send = [&](const Request& request) {
+      route(request.region);
       for (auto owner : owners) to[owner].push_back(request);
     };
     for (size_t i = 0; i < count; ++i) {
@@ -236,16 +242,19 @@ DonorPatch DonorImport::ImportRegions(const std::vector<DonorRegion>& regions, c
         if (!(Orientation(t[0], t[1], t[2], t[3]) > 0)) throw std::invalid_argument("Nonpositive donor import cell.");
       }
       if (cells && filter_cells && metric_queries) {
-        auto segment = [&](unsigned char query, Point a, Point b) {
-          request.query = query;
-          request.region = {std::min(a.x,b.x),std::min(a.y,b.y),std::min(a.z,b.z),
-                            std::max(a.x,b.x),std::max(a.y,b.y),std::max(a.z,b.z)};
-          send(request);
-        };
+        std::fill(mask.begin(), mask.end(), 0);
         const auto center = Centroid(cells->at(i));
-        segment(1, center, center);
-        for (size_t edge = 0; edge < QueryEdges.size(); ++edge)
-          segment(edge + 2, request.tetra[QueryEdges[edge][0]], request.tetra[QueryEdges[edge][1]]);
+        for (size_t query = 0; query <= QueryEdges.size(); ++query) {
+          const Point a = query ? request.tetra[QueryEdges[query-1][0]] : center;
+          const Point b = query ? request.tetra[QueryEdges[query-1][1]] : center;
+          route(SegmentBounds(a,b));
+          for (auto owner : owners) mask[owner] |= 1u << query;
+        }
+        // Carry the sender's rounded centroid in the existing point box, never recompute it remotely.
+        request.region = SegmentBounds(center,center);
+        for (int owner = 0; owner < world.size; ++owner) if (mask[owner]) {
+          request.query = mask[owner]; to[owner].push_back(request);
+        }
       } else send(request);
     }
   } catch (const std::exception& e) { failure.Set(2, 0, e.what()); }
@@ -272,35 +281,42 @@ DonorPatch DonorImport::ImportRegions(const std::vector<DonorRegion>& regions, c
     for (const auto& request : requests) {
       ++stats.owner_requests;
       if (request.caller < 0 || request.caller >= world.size) throw std::invalid_argument("Invalid donor request owner.");
-      if (request.query > 7 || (request.query && !request.tetrahedral))
+      if (request.query > 127 || (request.query && !request.tetrahedral))
         throw std::invalid_argument("Invalid donor metric-query kind.");
       if (!index) continue;
-      const auto& b = request.region;
-      const su2double lo[3]{b[0], b[1], b[2]}, hi[3]{b[3], b[4], b[5]};
-      index->DetermineIntersectingElements(lo, hi, candidates);
-      stats.index_candidates += candidates.size();
-      for (auto i : candidates) {
-        if (!Intersects(b, boxes.data() + 6 * i)) continue;
-        auto& set = selected[request.caller];
-        // One import returns a caller union: a previously admitted immutable donor needs no second filter.
-        if (set.count(donors.at(i).cell.id)) { ++stats.reused_candidates; continue; }
-        if (request.tetrahedral) {
-          Timer filtering(stats.filter_seconds, timings);
-          ++stats.filter_candidates;
-          const auto& v = donors.at(i).cell.v;
-          const Tetrahedron donor{v[0].p, v[1].p, v[2].p, v[3].p};
-          bool needed = true;
-          if (request.query) {
-            // The point box carries the sender's actual rounded centroid, not a recomputed approximation.
-            const Point a = request.query == 1 ? Point{b[0],b[1],b[2]} : request.tetra[QueryEdges[request.query - 2][0]];
-            const Point end = request.query == 1 ? a : request.tetra[QueryEdges[request.query - 2][1]];
-            needed = IntersectsSegment(donor, a, end, &stats.filter_kernel);
-          } else needed = !(Outside(request.tetra, donor, &stats.filter_kernel) ||
-                            Outside(donor, request.tetra, &stats.filter_kernel));
-          if (!needed) { ++stats.filtered; continue; }
+      auto search = [&](const DonorRegion& b, unsigned char query) {
+        const su2double lo[3]{b[0], b[1], b[2]}, hi[3]{b[3], b[4], b[5]};
+        index->DetermineIntersectingElements(lo, hi, candidates);
+        stats.index_candidates += candidates.size();
+        for (auto i : candidates) {
+          if (!Intersects(b, boxes.data() + 6 * i)) continue;
+          auto& set = selected[request.caller];
+          // One import returns a caller union: a previously admitted immutable donor needs no second filter.
+          if (set.count(donors.at(i).cell.id)) { ++stats.reused_candidates; continue; }
+          if (request.tetrahedral) {
+            Timer filtering(stats.filter_seconds, timings);
+            ++stats.filter_candidates;
+            const auto& v = donors.at(i).cell.v;
+            const Tetrahedron donor{v[0].p, v[1].p, v[2].p, v[3].p};
+            bool needed = true;
+            if (query) {
+              const auto& point = request.region;
+              const Point a = query == 1 ? Point{point[0],point[1],point[2]} : request.tetra[QueryEdges[query - 2][0]];
+              const Point end = query == 1 ? a : request.tetra[QueryEdges[query - 2][1]];
+              needed = IntersectsSegment(donor, a, end, &stats.filter_kernel);
+            } else needed = !(Outside(request.tetra, donor, &stats.filter_kernel) ||
+                              Outside(donor, request.tetra, &stats.filter_kernel));
+            if (!needed) { ++stats.filtered; continue; }
+          }
+          set.emplace(donors.at(i).cell.id, i);
+          if (set.size() > MaximumDonors) throw std::runtime_error("Original donor import exceeds patch budget.");
         }
-        set.emplace(donors.at(i).cell.id, i);
-        if (set.size() > MaximumDonors) throw std::runtime_error("Original donor import exceeds patch budget.");
+      };
+      if (!request.query) search(request.region,0);
+      else for (size_t query = 0; query <= QueryEdges.size(); ++query) if (request.query & (1u << query)) {
+        const Point a = query ? request.tetra[QueryEdges[query-1][0]] : Point{request.region[0],request.region[1],request.region[2]};
+        const Point b = query ? request.tetra[QueryEdges[query-1][1]] : a;
+        search(SegmentBounds(a,b),query+1);
       }
     }
     payload.resize(world.size);

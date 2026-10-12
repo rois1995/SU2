@@ -1,5 +1,42 @@
 # Current handoff — 2026-10-12
 
+## Grouped donor query requests qualified — 2026-10-12
+
+Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
+codex/native-3d-transport-accounting. Goal1 ACTIVE; Goal2 not started.
+New packing changes only CNativeDonor3D.cpp/hpp and its existing distributed
+regression. One fixed-size record per cell/owner carries7query bits and actual
+sender centroid in existing point-box fields; owner searches individual closed
+boxes with the same predicates/order/union. Full unknown-private imports and
+small-source path unchanged. No index/collective/metric/q/J/L/512 change; saturated
+request admission models real grouped buffers, caps intact. CPP regression adds
+non-dyadic endpoints and exact <=one owner record/root-only=one checks.
+Build PASS68objects/774members; binarySHA256
+c9cb94011938f532edccfbc683b92dd99d0e9f8a4276138227adb2056de4bdeb.
+query_packing_mpi1/2/4_v1 PASS97cases per rank plus seven exact distributed suites,
+actual driver/current+BDF/SU2CGNS and serialMMG controls. query_packing_n4_n4_m2_v1
+fresh three-event audit PASS; query_packing_lifecycle_mpi1_v1 six actual Hessian/
+CFD/BDF OFF/ON controls PASS. query_packing_n8_n1_m1_rounds1024_v1 PASS three events,
+18exact geometry/state/reference/input artifacts match certified routing control;
+fresh actual outputs/current accounting and22physical/query work fields checked.
+Second coarsening tracked bytes180480816->162969840 (17510976saved,9.70%); donor
+candidates/filter/payload/batches/retries/calls/work unchanged. Includes self encoded
+traffic, not wire. Native admitted peak bound unchanged. Single contended fixture
+clock113.328->126.659s is slower here; no net speed benefit/regression/scaling claim.
+Cluster repeats must measure CPU/communication tradeoff. No local timing campaign.
+
+QUERY_PACKING_VALIDATION.md/json pins scope/receipts/counters; original case logs,
+meshes/states/VTUs retained. All owned numerical jobs TERMINAL. SGE prepare now
+pins four source files (including guards/header/tests), permits only original->
+routing, original->packed and routing->packed known pairs; latter isolates packing.
+Existing older routing bundles stay supported/immutable. Source variants stored
+in comparison manifest. query_packing_package_checks_v1 PASS31core+13comparison
+checks, including header mutation/reversed-pair refusal. No actual comparison
+bundle prepared or cluster submission. Fresh current bundle needed after pulling.
+Size8 production512limit and full repeated performance/wait/traffic/allocator/RSS/
+overhead/rank-limit calibration stay open. No3DBL/curved/fullunsteady/affordability
+certificate and no Goal2 activation.
+
 ## Expanded distributed correctness and stronger metric matrix — 2026-10-12
 
 Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch

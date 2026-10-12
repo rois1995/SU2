@@ -1,0 +1,42 @@
+{
+  "status": "PASS",
+  "stages": [
+    {
+      "label": "core",
+      "command": [
+        "/usr/bin/python3",
+        "check_package.py"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_core_v1",
+      "exit_code": 0,
+      "seconds": 0.9701370789553039
+    },
+    {
+      "label": "comparison",
+      "command": [
+        "/usr/bin/python3",
+        "check_package.py"
+      ],
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_cluster_3d_query_comparison_v1",
+      "exit_code": 0,
+      "seconds": 0.7952843160019256
+    }
+  ],
+  "tools_sha256": {
+    "integration_evidence/native_cluster_3d_core_v1/check_package.py": "35575505a399c46f2cfd9434dc84739735bf082a65051d212f9977996918f603",
+    "integration_evidence/native_cluster_3d_core_v1/analyze.py": "651fc2fea07b4afbfaa8b3ecf2bce47e77b67d17b3348ea8c620d5268ddd824e",
+    "integration_evidence/native_cluster_3d_core_v1/prepare.py": "e82324cc3b9e74bed15eaa15eb6be8c89ab8ffb4c90026dc42718c0796c5b412",
+    "integration_evidence/native_cluster_3d_core_v1/profile_summary.py": "d56de9a2a50451f98b624359a71423a9112e509f900928a787dbd8227f52e0af",
+    "integration_evidence/native_cluster_3d_core_v1/submit.py": "76ba5bbc2f9e91d1d0d8567175b2515a2e48657ebae4808e07e7b13e8dabf1d0",
+    "integration_evidence/native_cluster_3d_core_v1/run.py": "b0a11c3095c3e85a4fe1226ee72bf4c587857ac274a48c31f5fedbc14cfd6c0f",
+    "integration_evidence/native_cluster_3d_core_v1/mpi_profile.py": "11e46f3d01289c1d050221d5264cf00a62e4da29385705a4ca7bff003ee9651b",
+    "integration_evidence/native_cluster_3d_core_v1/restore.py": "b9a32c4dd7bdd99e84aec755acccd32841038f6f1c27735cd70277b658dcabbb",
+    "integration_evidence/native_cluster_3d_query_comparison_v1/campaign.py": "bd36a98305c6989606ff4661a76dee4b9e98ca6f71ec64bae89c4a8091962a63",
+    "integration_evidence/native_cluster_3d_query_comparison_v1/check_package.py": "c35d36440a8c6bde96b06faa1de052aa65a74287450504439f4ec28734de1283",
+    "integration_evidence/native_cluster_3d_query_comparison_v1/analyze.py": "a7668d54592900e5c707dd69e17495154690fe3f03f3a86690f7dce5ed56867a",
+    "integration_evidence/native_cluster_3d_query_comparison_v1/prepare.py": "3e6283d2cbd0441a9eecf6537bbb93fa2ac92e658d168249cd9bbb6a4efbf287",
+    "integration_evidence/native_cluster_3d_query_comparison_v1/submit.py": "f7a8be6ede69bc440d65cc73347556c1bbe97351515a31cecbaeb08135577385",
+    "integration_evidence/native_cluster_3d_query_comparison_v1/common.py": "3728031f1d748e0f37ae56800250327d70fdc480c2d7614aef78c92f3c79968a"
+  },
+  "scope": "Lightweight mocked orchestration/closure/source-pair/header/count/audit-failure checks only; no numerical or scaling certificate."
+}

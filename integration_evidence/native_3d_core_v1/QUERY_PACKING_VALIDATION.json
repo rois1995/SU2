@@ -1,0 +1,197 @@
+{
+  "status": "PASS",
+  "binary_sha256": "c9cb94011938f532edccfbc683b92dd99d0e9f8a4276138227adb2056de4bdeb",
+  "build_validation_sha256": "7e08a5cfd5b382fe72e936c1994e85cc75975ad899d825852a24a84992e11a25",
+  "cases": [
+    {
+      "case": "query_packing_mpi1_v1",
+      "validation_sha256": "73cbfd38c97ce6ae47e95b7c0a82bedda0f9eeb5e01841e89d8ac985cad9c548",
+      "audits": {
+        "independent_audit.json": "e9e54b1424e5d208279464596bf50cdc216e7c325ac08365a54f16e0493a5dd7",
+        "distributed_audit.json": "44c3f95c44fb85aabe715292d2e8f60ce6955516b1aedf0b6290860736ab13aa",
+        "distributed_coplanar/independent_audit.json": "5e98797b4e4789de4e4419c3585407a25041da21b28fd199afef6d08b6b89105",
+        "distributed_anisotropic/independent_audit.json": "2e0f14be5d34fa126fa4ab1cbf73b729313b5eafd37c7dda6c4fb3045fe5334c",
+        "distributed_cycles/independent_audit.json": "071af63a1727f9a61b1b3155a2a34361ee71e98df1cd0d60351c92884db19609",
+        "distributed_repairs/independent_audit.json": "cb428f53fe63f5ffc2e61763436c27977f8ecb8fbc807a8e64303732a53d490c",
+        "distributed_meshes/independent_audit.json": "82922ca45404afe9e1fe7cc0a5cee9bcd08cfa098d483d950a3c80c60db8541a",
+        "distributed_automatic/independent_audit.json": "933933915230f2f9ec20672813b0ec99705f531b4dd6d11a860fbadc77f165e1"
+      }
+    },
+    {
+      "case": "query_packing_mpi2_v1",
+      "validation_sha256": "3d450b45db2bbf16b1602ca34d68183f3a83564715a45f228c270e3a10561088",
+      "audits": {
+        "independent_audit.json": "31ce30767642b70005de89abaf015aa505dbd847cbfc36896f4bacd5751353a1",
+        "distributed_audit.json": "0301b6671f1a4734c020416640c1e69302f7acad36e1c6f54147b0e02fbddc6e",
+        "distributed_coplanar/independent_audit.json": "6b4dcb71813ac09143f75d9d4ed4c89bae0f87b05ad240318821e0b12d5405a1",
+        "distributed_anisotropic/independent_audit.json": "7e86650968efb8136322c887196a49be068dfb780c2e45507bf7a400545042a6",
+        "distributed_cycles/independent_audit.json": "5d431a134290cbc5ea1c3307d631e427dae3c3fe406538e08497443e9b9e99d4",
+        "distributed_repairs/independent_audit.json": "7e6b96cd478f6291d8c2ffdeb4604bc77902aef840755020531acffd81657c1c",
+        "distributed_meshes/independent_audit.json": "ca41c17dadd33d86c16ac83428a0caf4329b8c427f8b88f62d405821796bbddb",
+        "distributed_automatic/independent_audit.json": "570e88701115c2d6dd4d7d31c21946e07543a0a1a9ef46f6c8458c0e06909476"
+      }
+    },
+    {
+      "case": "query_packing_mpi4_v1",
+      "validation_sha256": "1f01c623c27c79e693d13573f896867e442588d08036c0a1304866b1354301fb",
+      "audits": {
+        "independent_audit.json": "c3f591e4d5130b3ab7eec48d47116c0bd6fd4f0192f35884197ef1c9780791f6",
+        "distributed_audit.json": "ea8762af84d4899200a26aa26a12e3733946700aa8ce6855980805336a710271",
+        "distributed_coplanar/independent_audit.json": "c3a9b11f9edf149c706377ebc108110b9f9ad2756861ecc806c0d51f6a89851a",
+        "distributed_anisotropic/independent_audit.json": "acf0ec7c7c4d037bec3f22b031467a521fa7a3d20cd6273e28784ab9eeee4835",
+        "distributed_cycles/independent_audit.json": "93e58e1b1aea17eaf60f1d9e9488e85a1685517b65350b913af6167aa8e0bcbe",
+        "distributed_repairs/independent_audit.json": "6d9f7d2d9b5c854c1dd9aa772611005e1d7135cf47e050f40a61f09b369026ef",
+        "distributed_meshes/independent_audit.json": "3695bb5909121289b48962c76905a0aad573b84f1005ea39577c15c09519fb14",
+        "distributed_automatic/independent_audit.json": "bd99ff9ae2245be6ee4421c63cc40ea626511f25d32f979f3061c07d0021f19c"
+      }
+    },
+    {
+      "case": "query_packing_n4_n4_m2_v1",
+      "validation_sha256": "f0fe828342a116ea53ae32baa0dbec551a92aa247e354135cc22079e23f506d8",
+      "audits": {
+        "independent_audit.json": "3037b884b914cfb3dae81efc71beaab2ebcd905ceb72c3b4533c5fd27348eece"
+      }
+    },
+    {
+      "case": "query_packing_n8_n1_m1_rounds1024_v1",
+      "validation_sha256": "14e9bad63fbf8b4978bb3dc9e2ce3adf60322e487fbd9dd66dfa86b1f7ee3389",
+      "audits": {
+        "independent_audit.json": "347513dc00a617289455f219514d2d45bdc1b6f07c3b43fb3ee5f70aca5d4290"
+      }
+    },
+    {
+      "case": "query_packing_lifecycle_mpi1_v1",
+      "validation_sha256": "7200adb64e79d6e7732cf172d5c164b31fb7599a4bde42bc7afd274c0c0d15fc",
+      "audits": {
+        "lifecycle_audit.json": "e4fbabc9940858276378905d623b96e2698899196f27dcee85e06f8e9c343a54"
+      }
+    }
+  ],
+  "n8_worker_payload_comparison": [
+    {
+      "event": 0,
+      "stage": "refine",
+      "old_tracked_worker_bytes": 34716384,
+      "packed_tracked_worker_bytes": 34716384,
+      "saved_bytes": 0,
+      "matched_counts": {
+        "rounds": 457,
+        "attempted": 457,
+        "accepted": 457,
+        "rejected": 0,
+        "conflicts": 0,
+        "donor_candidates": 674844,
+        "donor_filtered": 211101,
+        "donor_payloads": 82043,
+        "donor_batches": 553,
+        "private_query_retries": 0,
+        "tracked_calls": 21609
+      }
+    },
+    {
+      "event": 0,
+      "stage": "coarsen",
+      "old_tracked_worker_bytes": 36007480,
+      "packed_tracked_worker_bytes": 36007480,
+      "saved_bytes": 0,
+      "matched_counts": {
+        "rounds": 428,
+        "attempted": 428,
+        "accepted": 272,
+        "rejected": 156,
+        "conflicts": 0,
+        "donor_candidates": 762180,
+        "donor_filtered": 215041,
+        "donor_payloads": 81586,
+        "donor_batches": 494,
+        "private_query_retries": 0,
+        "tracked_calls": 21381
+      }
+    },
+    {
+      "event": 1,
+      "stage": "refine",
+      "old_tracked_worker_bytes": 16886144,
+      "packed_tracked_worker_bytes": 16886144,
+      "saved_bytes": 0,
+      "matched_counts": {
+        "rounds": 0,
+        "attempted": 0,
+        "accepted": 0,
+        "rejected": 0,
+        "conflicts": 0,
+        "donor_candidates": 430551,
+        "donor_filtered": 113464,
+        "donor_payloads": 40326,
+        "donor_batches": 313,
+        "private_query_retries": 0,
+        "tracked_calls": 1571
+      }
+    },
+    {
+      "event": 1,
+      "stage": "coarsen",
+      "old_tracked_worker_bytes": 180480816,
+      "packed_tracked_worker_bytes": 162969840,
+      "saved_bytes": 17510976,
+      "matched_counts": {
+        "rounds": 615,
+        "attempted": 615,
+        "accepted": 457,
+        "rejected": 158,
+        "conflicts": 0,
+        "donor_candidates": 11942125,
+        "donor_filtered": 4244927,
+        "donor_payloads": 441143,
+        "donor_batches": 3493,
+        "private_query_retries": 181,
+        "tracked_calls": 42380
+      }
+    },
+    {
+      "event": 2,
+      "stage": "refine",
+      "old_tracked_worker_bytes": 32841912,
+      "packed_tracked_worker_bytes": 32841912,
+      "saved_bytes": 0,
+      "matched_counts": {
+        "rounds": 790,
+        "attempted": 790,
+        "accepted": 789,
+        "rejected": 1,
+        "conflicts": 0,
+        "donor_candidates": 514158,
+        "donor_filtered": 143920,
+        "donor_payloads": 69007,
+        "donor_batches": 826,
+        "private_query_retries": 0,
+        "tracked_calls": 36561
+      }
+    },
+    {
+      "event": 2,
+      "stage": "coarsen",
+      "old_tracked_worker_bytes": 41727920,
+      "packed_tracked_worker_bytes": 41727920,
+      "saved_bytes": 0,
+      "matched_counts": {
+        "rounds": 1002,
+        "attempted": 1002,
+        "accepted": 379,
+        "rejected": 623,
+        "conflicts": 0,
+        "donor_candidates": 914884,
+        "donor_filtered": 223081,
+        "donor_payloads": 80262,
+        "donor_batches": 624,
+        "private_query_retries": 0,
+        "tracked_calls": 46843
+      }
+    }
+  ],
+  "contended_single_fixture_seconds": {
+    "routing": 113.3277869130252,
+    "packed": 126.65927395102335
+  },
+  "scope": "Bounded same-size request packing; complete97-case MPI1/2/4 and independent audits, whole N4M2/actual Hessian-CFD controls, exact n8diagnostic18artifact equivalence with fresh outputs/accounting. Logical tracked payload includes self traffic, not MPIwire. Single contended clocks do not establish speedup/regression or performance/scaling/fullGoal1."
+}

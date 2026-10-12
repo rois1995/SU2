@@ -1768,10 +1768,11 @@ TEST_CASE("Native MPI narrow metric-query routing preserves exhaustive closed do
     auto original=thin ? (world.rank ? std::vector<DonorCell>{} : Source(cells,world,true)) : Source(cells,world);
     DonorImport service(world);std::string reason;
     REQUIRE(service.Build(original,reason));const auto resident=service.ResidentBytes();
-    const std::array<Tetrahedron,3> probes{{
+    const std::array<Tetrahedron,4> probes{{
       {{{.125,.125,.125},{.875,.125,.125},{.125,.875,.125},{.125,.125,.875}}},
       {{{0,0,0},{.75,0,0},{0,.75,0},{0,0,.125}}},
-      {{{.25,.25,.25},{.5,.25,.25},{.25,.5,.25},{.25,.25,.5}}}
+      {{{.25,.25,.25},{.5,.25,.25},{.25,.5,.25},{.25,.25,.5}}},
+      {{{.11,.13,.17},{.83,.19,.23},{.17,.79,.29},{.19,.23,.81}}}
     }};
     for (auto probe:probes) {
       Cell cell;
@@ -1787,7 +1788,11 @@ TEST_CASE("Native MPI narrow metric-query routing preserves exhaustive closed do
       }
       REQUIRE_FALSE(expected.empty());REQUIRE(expected.size()<=MaximumDonors);
       const auto query=world.rank==world.size-1 ? std::vector<Cell>{cell} : std::vector<Cell>{};
+      const auto requests_before=service.Statistics().owner_requests;
       const auto imported=service.ImportMetricCells(query);REQUIRE(imported.valid);
+      const auto requests=CPassiveComm::Allreduce(service.Statistics().owner_requests-requests_before,CPassiveComm::Op::SUM,world.comm);
+      CHECK(requests>0);CHECK(requests<=static_cast<uint64_t>(world.size));
+      if(thin)CHECK(requests==1);
       if(world.rank==world.size-1) {
         std::set<Id> actual;for(const auto& donor:imported.cells)actual.insert(donor.cell.id);
         CHECK(actual==expected);
