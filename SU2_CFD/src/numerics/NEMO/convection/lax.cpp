@@ -157,7 +157,7 @@ CNumerics::ResidualType<> CCentLax_NEMO::ComputeResidual(const CConfig *config) 
     for (auto iSpecies = 0ul; iSpecies < nSpecies; iSpecies++)
       Jacobian_j[nSpecies+nDim][iSpecies] -= cte*dPdU_j[iSpecies];
     for (auto iDim = 0ul; iDim < nDim; iDim++)
-      Jacobian_j[nSpecies+nDim][nSpecies+iDim]   -= cte*dPdU_j[nSpecies+nDim];
+      Jacobian_j[nSpecies+nDim][nSpecies+iDim]   -= cte*dPdU_j[nSpecies+iDim];
     Jacobian_j[nSpecies+nDim][nSpecies+nDim]     -= cte*(1+dPdU_j[nSpecies+nDim]);
     Jacobian_j[nSpecies+nDim][nSpecies+nDim+1]   -= cte*dPdU_j[nSpecies+nDim+1];
     Jacobian_j[nSpecies+nDim+1][nSpecies+nDim+1] -= cte;
