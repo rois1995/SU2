@@ -1,0 +1,153 @@
+{
+  "comparison": "Same Peng-Robinson MDM edge problem under a 20 m/s global x-velocity boost; same force reference; restarted from the boosted converged fixed-grid state.",
+  "fixed_PR": {
+    "iteration": 1796,
+    "lift": 0.2781351015,
+    "drag": 0.07936440839,
+    "rms_density": -11.00208828
+  },
+  "startup_controls": {
+    "first_order_control": [
+      {
+        "case": "develop_moving_first_order",
+        "iteration": 751,
+        "converged": true,
+        "nan_detected": false,
+        "rms_density": -11.01049025,
+        "exit_code": 0
+      },
+      {
+        "case": "PR_approximate_moving_first_order",
+        "iteration": 4,
+        "converged": false,
+        "nan_detected": true,
+        "rms_density": 0.2708917992,
+        "exit_code": 1
+      },
+      {
+        "case": "PR_exact_moving_first_order",
+        "iteration": 4,
+        "converged": false,
+        "nan_detected": true,
+        "rms_density": 0.2681648761,
+        "exit_code": 1
+      }
+    ],
+    "tight_linear_control": [
+      {
+        "case": "develop_moving_tight",
+        "iteration": 6,
+        "converged": false,
+        "nan_detected": true,
+        "rms_density": 0.267387601,
+        "exit_code": 1
+      },
+      {
+        "case": "PR_approximate_moving_tight",
+        "iteration": 6,
+        "converged": false,
+        "nan_detected": true,
+        "rms_density": 0.3649189758,
+        "exit_code": 1
+      },
+      {
+        "case": "PR_exact_moving_tight",
+        "iteration": 6,
+        "converged": false,
+        "nan_detected": true,
+        "rms_density": 0.3642347829,
+        "exit_code": 1
+      },
+      {
+        "case": "local_wall_fix_PR_approximate_moving_tight",
+        "iteration": 11,
+        "converged": false,
+        "nan_detected": true,
+        "rms_density": 0.7928929665,
+        "exit_code": 1
+      },
+      {
+        "case": "local_wall_fix_PR_exact_moving_tight",
+        "iteration": 9,
+        "converged": false,
+        "nan_detected": true,
+        "rms_density": 0.7390498944,
+        "exit_code": 1
+      }
+    ],
+    "low_cfl_control": [
+      {
+        "case": "develop_moving_cfl1",
+        "iteration": 56,
+        "converged": false,
+        "nan_detected": true,
+        "rms_density": 0.1554640206,
+        "exit_code": 1
+      },
+      {
+        "case": "PR_approximate_moving_cfl1",
+        "iteration": 7,
+        "converged": false,
+        "nan_detected": true,
+        "rms_density": 0.3537289373,
+        "exit_code": 1
+      },
+      {
+        "case": "PR_exact_moving_cfl1",
+        "iteration": 7,
+        "converged": false,
+        "nan_detected": true,
+        "rms_density": 0.3522174252,
+        "exit_code": 1
+      },
+      {
+        "case": "PR_approximate_moving_cfl1_first_order",
+        "iteration": 19999,
+        "converged": false,
+        "nan_detected": false,
+        "rms_density": -1.434972524,
+        "exit_code": 0
+      }
+    ]
+  },
+  "root_cause_status": "Not isolated. Tighter linear solves and CFL reduction did not cure MUSCL startup. Removing MUSCL allows develop, but not PR, to start at CFL 5. The last saved PR state has positive finite pressure, temperature, and sound-speed squared when recomputed from conservative variables using the production EOS.",
+  "experimental_boundary_changes": "Reverted in the worktree after failing convergence checks; no new CFD code was pushed.",
+  "moving_restarted": [
+    {
+      "case": "develop_moving",
+      "source_commit": "18cc7a1e4940eba8ca738e69255788ded99a9125",
+      "iteration": 835,
+      "lift": 0.2829936036,
+      "drag": 0.07524764662,
+      "rms_density": -11.01285378,
+      "force_relative_percent": {
+        "lift": 1.7468137152764296,
+        "drag": -5.1871636839653235
+      }
+    },
+    {
+      "case": "PR_approximate_moving",
+      "source_commit": "4960dd03be7ea4ea1a621a100319c67486ae209b",
+      "iteration": 553,
+      "lift": 0.278131673,
+      "drag": 0.07936363114,
+      "rms_density": -11.01072008,
+      "force_relative_percent": {
+        "lift": -0.0012326743303758825,
+        "drag": -0.0009793432796501023
+      }
+    },
+    {
+      "case": "PR_exact_moving",
+      "source_commit": "4960dd03be7ea4ea1a621a100319c67486ae209b",
+      "iteration": 553,
+      "lift": 0.278131673,
+      "drag": 0.07936363114,
+      "rms_density": -11.01146229,
+      "force_relative_percent": {
+        "lift": -0.0012326743303758825,
+        "drag": -0.0009793432796501023
+      }
+    }
+  ]
+}

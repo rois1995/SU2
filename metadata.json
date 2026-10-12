@@ -1,0 +1,23 @@
+{
+  "PR": "https://github.com/su2code/SU2/pull/2943",
+  "develop_commit": "18cc7a1e4940eba8ca738e69255788ded99a9125",
+  "PR_commit": "4960dd03be7ea4ea1a621a100319c67486ae209b",
+  "mpi_ranks": 4,
+  "mesh_repository": "su2code/TestCases",
+  "mesh_path": "nicf/edge/mesh.su2",
+  "mesh_git_blob_sha": "32452a4750677503098a04789afd465d66c35b14",
+  "mesh_sha256": "8d8ecca98f2899a607aec62e43bd4951e3199654846df1772ea6a400f3f9db16",
+  "run_instructions": "Copy the public mesh.su2 to the selected case folder and run mpirun -n 4 /path/to/SU2_CFD case.cfg. For moving-restarted cases, generate the common initial_state.csv from the converged PR approximate fixed-grid restart using the recorded boost formula. Keep PointID, x, y, Density, Momentum_x, Momentum_y and Energy columns, and place it in each restarted case folder. The raw solution state and histories are not included.",
+  "build_options": {
+    "buildtype": "release",
+    "mixed_precision": false,
+    "OpenMP": false,
+    "CGNS": false,
+    "TecIO": false,
+    "MLPCpp": true
+  },
+  "initial_state": "Same converged PR approximate fixed-grid solution transformed by rho unchanged, mx += 20*rho, rhoE += 20*mx_fixed + 0.5*rho*20^2.",
+  "plots": "Wide translucent stroke identifies the approximate curve; stroke width has no uncertainty meaning.",
+  "unit_tests": "Nonideal-EOS checks were local; their code is not included in this evidence branch.",
+  "local_wall_diagnostics": "Failed experiments are recorded in the summary for transparency, but their code is reverted and is not proposed as a fix."
+}
