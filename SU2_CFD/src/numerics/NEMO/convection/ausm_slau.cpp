@@ -643,14 +643,13 @@ void CUpwAUSMPLUSM_NEMO::ComputeInterfaceQuantities(const CConfig* config, su2do
   /*--- Compute and add pressure sensor term to pressure flux ---*/
   const su2double pFi = f0 * (P_LP + P_RM - 1.0) * 0.5 * (Pressure_i + Pressure_j);
 
-  /*--- Velocity diffusion term---*/
+  /*--- Velocity diffusion term, Eq. (26) of the reference: it uses the difference of
+   the velocity vectors, so it also damps the difference of the transverse velocity. ---*/
   su2double P_un[MAXNDIM] = {0.0};
 
   for (auto iDim = 0ul; iDim < nDim; iDim++) {
-    su2double Vel_L = (Velocity_i[iDim] + ProjVelocity_i * UnitNormal[iDim]);
-    su2double Vel_R = (Velocity_j[iDim] - ProjVelocity_j * UnitNormal[iDim]);
-
-    P_un[iDim] = -g * Gamma_ij * 0.5 * (Pressure_i + Pressure_j) / A_F * P_LP * P_RM * (Vel_R - Vel_L);
+    P_un[iDim] = -g * Gamma_ij * 0.5 * (Pressure_i + Pressure_j) / A_F * P_LP * P_RM *
+                 (Velocity_j[iDim] - Velocity_i[iDim]);
   }
 
   /*--- Pressure flux ---*/
