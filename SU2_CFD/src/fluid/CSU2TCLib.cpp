@@ -2230,9 +2230,13 @@ vector<su2double>& CSU2TCLib::ComputeTemperatures(vector<su2double>& val_rhos, s
     }
   }
 
-  // If absolutely no convergence, then assign to the TR temperature
+  /*--- No convergence of both methods. The bisection interval has closed, either
+   around the root, to the precision of the energy, or at one of the limits, when the
+   vib.-el. energy is out of range. In the second case return the limit, so that the
+   caller can flag the state as non-physical. ---*/
   if (!NRconvg && !Bconvg ) {
-    Tve = T;
+    if (Tve - Tvemin < Btol) Tve = Tvemin;
+    else if (Tvemax - Tve < Btol) Tve = Tvemax;
   }
 
   temperatures[0] = T;
