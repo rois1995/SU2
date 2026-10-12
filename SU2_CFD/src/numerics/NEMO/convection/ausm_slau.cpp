@@ -581,8 +581,13 @@ CUpwAUSMPLUSM_NEMO::CUpwAUSMPLUSM_NEMO(unsigned short val_nDim, unsigned short v
 
 void CUpwAUSMPLUSM_NEMO::ComputeInterfaceQuantities(const CConfig* config, su2double* pressure,
                                                     su2double& interface_mach, su2double* interface_soundspeed) {
-  /*--- Calculate interface numerical gammas and speed of sound ---*/
-  const su2double Enthalpy_norm = 0.5 * (Enthalpy_i + Enthalpy_j);
+  /*--- Calculate interface numerical gammas and speed of sound. The enthalpy does not
+   include the kinetic energy of the tangential velocity, so that the sound speed fulfills
+   the Prandtl relation across an oblique shock (Kim et al., 2001, Eq. (31)). ---*/
+  const su2double sq_veli_tan = GeometryToolbox::SquaredNorm(nDim, Velocity_i) - ProjVelocity_i * ProjVelocity_i;
+  const su2double sq_velj_tan = GeometryToolbox::SquaredNorm(nDim, Velocity_j) - ProjVelocity_j * ProjVelocity_j;
+
+  const su2double Enthalpy_norm = 0.5 * (Enthalpy_i - 0.5 * sq_veli_tan + Enthalpy_j - 0.5 * sq_velj_tan);
   const su2double Gamma_ij = 0.5 * (Gamma_i + Gamma_j);
   const su2double A_s = sqrt(2.0 * Enthalpy_norm * (Gamma_ij - 1.0) / (Gamma_ij + 1.0));
 
