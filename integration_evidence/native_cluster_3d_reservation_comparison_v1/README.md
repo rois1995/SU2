@@ -1,38 +1,51 @@
-# Native 3D reservation-scheduler comparison on SGE
+The integrated candidate-batch milestone can use this same comparison harness with
+`prepare.py --comparison-kind candidate_batch`. It requires the current engine
+milestone PASS/source pins and freezes identical full-driver binaries. The two
+controls set the test-only batch1/batch8 parameter, preserving strict targets.
+No isolated operator is compiled for this mode. Run the existing serialized SGE
+correctness gate and N1/2/4 timing jobs through `submit.py`. Size8 paired timings
+retain the explicit1024diagnostic allowance for both controls so the baseline can
+complete; separate local default512qualification belongs to the engine milestone.
+Each batch/worker trajectory receives a fresh full audit, then three paired
+repetitions, detailOFF/ON controls and optional mpiP. Compare total operational
+cost, accepted edits per second and memory; fewer epochs alone is insufficient.
+No cluster job is launched by preparation. Preserve compact first-trajectory
+meshes/states and repeat fingerprints. Preparation is not timing/scaling evidence.
+
+# Native 3D candidate-batch and reservation comparisons on SGE
 
 Repository: `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`.
-Branch: **codex/native-3d-transport-accounting**. Production uses the standard
-scheduler; rotating reservation priority remains an isolated experiment.
-The previously qualified prototype passes the full97-case MPI1/2/4 regression,
-stronger aspect2/H20 whole cases, actual CGNS restart and six real lifecycle
-controls. See `integration_evidence/native_3d_core_v1/ROTATING_RESERVATION_WHOLE_VALIDATION.md`.
-This campaign measures whether its better proposal balance actually lowers cost.
+Branch: **codex/native-3d-transport-accounting**. The current qualified production
+engine batches independent refinement/coarsening proposals. The candidate-batch
+campaign below compares internal batch1/batch8 controls in the same compiled driver.
+Qualification: `integration_evidence/native_3d_core_v1/ENGINE_BATCH_VALIDATION.md`.
+Rotating reservation priority remains a separately qualified historical experiment;
+its source-matching guard requires its older compatible checkpoint. Do not prepare
+that mode from the new integrated engine merely because the CLI still supports it.
 Preparation, orchestration checks and local correctness are not cluster results.
 
 ## What is compared
 
-Use one up-to-date configured normal/MPI/MMG/CGNS/test build. The preparer freezes
-the standard driver, then compiles only the qualified private directory variant
-and links it before the same68test objects and unchanged archives. The normal
-directory archive member must remain unextracted. Only the variant's include
-location changes; its reservation implementation stays identical to the qualified
-source. No production CPP, public configuration, target, acceptance or completion
-policy changes. Old or unrelated compiled source versions reject before preparation.
-Source/object/archive/binary/recipe pins and link maps are retained.
+Use one up-to-date configured normal/MPI/MMG/CGNS/test build. With
+`--comparison-kind candidate_batch`, the preparer freezes identical full68-object
+drivers with manifest controls batch1 and batch8. Controls survive environment
+cleanup and apply only to the test fixture. No isolated operator is compiled and
+no public CFD option or acceptance criterion changes. Old or unrelated compiled
+source versions reject before preparation. Source/object/archive/binary/recipe
+pins are retained. The older rotating-reservation mode instead compiles/links its
+qualified one-file private directory variant and retains its link map.
 
-The candidate carries one checked priority-phase word per claimed vertex through
-existing admission votes; it adds no collective. This changes scheduling, accepted
-meshes/work and subsequent frozen original-P1 triangulations. **This is an
-operational-cost comparison between independently audited trajectories, not a
-fixed-work speed comparison.** Initial geometry and frozen target match exactly;
-later continuous requested sensor recipes and q/J/L contracts match, but their
-original-P1 interpolants can differ. Report achieved geometry/metric/state bounds,
-final sizes, work rates and total costs together. Balanced opportunities alone
-need not improve performance: the saved small restart case takes more rounds.
+Batching changes scheduling, accepted meshes/work and subsequent frozen original-P1
+triangulations. **This is an operational-cost comparison between independently
+audited trajectories, not a fixed-work speed comparison.** Initial geometry and
+frozen target match exactly; later continuous requested sensor recipes and q/J/L
+contracts match, but their original-P1 interpolants can differ. Report achieved
+geometry/metric/state bounds, final sizes, work rates and total costs together.
+Fewer epochs or better proposal balance alone need not improve performance.
 
-One N4 correctness job validates both binaries using their actual full regression
+One N4 correctness job validates both controls using their actual full regression
 and independent audits. Serialized N1/N2/N4 comparison jobs then exercise M=N
-and M=max(1,N/2), beginning with each binary's real Hessian/CFD/BDF controls.
+and M=max(1,N/2), beginning with each control's real Hessian/CFD/BDF controls.
 For each N/M/scheduler: one warm-up and three paired repeats with detail OFF/ON;
 scheduler/detail order alternates. Full independent exact audit on the first run
 of each scheduler/N/M; later runs must match that scheduler's13raw geometry,
@@ -42,8 +55,10 @@ Changed trajectories within one group or a failed strict q/J/L check stop the
 campaign and retain all artifacts. No automatic budget relaxation or resubmission.
 
 Default fixture is the turning/spatial size8 wedge with the existing explicit
-1024-round diagnostic. Production512is unchanged. `--size4` selects the512-round
-control. This experiment does not resolve the known larger default512failure.
+1024-round diagnostic. The current batch8 production512 case now completes and is independently audited;
+batch1 may still need the diagnostic allowance. `--size 4` selects the512-round
+control. Using1024for both controls keeps the paired experiment comparable and
+does not establish a general production-size envelope or a progress-aware policy.
 Total parent adaptation wall includes metric construction, diagnostic observation,
 remesh/partition/migration and return/rebuild/transfer. Exclusive phases close
 against their parents; nested scopes and rank maxima are not added twice. Parent
@@ -58,7 +73,8 @@ bundles are unchanged under `native_cluster_3d_query_comparison_v1`.
 
 Use your existing compiler/MPI/MMG/SCOTCH environment and actual configured build.
 No second normal build is needed; prefix `$(pwd)` remains supported. Nodes need
-no Git or compiler; the extra one-file compile/link happens during preparation.
+no Git or compiler. Candidate-batch preparation copies the existing driver; the
+historical rotating mode performs its extra one-file compile/link on the login host.
 
 ```sh
 cd /global-scratch/bulk_pool/arausa/SU2_Native
@@ -66,14 +82,14 @@ git checkout codex/native-3d-transport-accounting
 git pull --ff-only
 ./ninja -C "$NATIVE3D_BUILD" -j2 UnitTests/test_driver
 PYTHONDONTWRITEBYTECODE=1 python3 integration_evidence/native_cluster_3d_reservation_comparison_v1/prepare.py \
-  --build-dir "$NATIVE3D_BUILD" --ninja ./ninja \
-  --output integration_evidence/native_cluster_3d_reservation_comparison_v1/prepared_v1
+  --build-dir "$NATIVE3D_BUILD" --ninja ./ninja --comparison-kind candidate_batch \
+  --output integration_evidence/native_cluster_3d_reservation_comparison_v1/prepared_batch_v1
 ```
 
 `NATIVE3D_BUILD` must name your current normal/MPI/MMG/CGNS/test build, not bin.
 Preparation keeps previous outputs; choose a fresh output if you already used
 `prepared_v1`. Failures and their logs are retained. All runtime input files are
-regular closed copies, including both binaries. Dynamic compiler/MPI/MMG/SCOTCH
+regular closed copies, including both controls. Dynamic compiler/MPI/MMG/SCOTCH
 libraries, Python numpy/h5py and the scheduler machinefile remain platform needs.
 The disposable extra object is removed only after a successful link with its
 hash retained. Preparation does not run MPI or submit jobs.
@@ -89,13 +105,13 @@ From the repository root, explicitly invoke:
 
 ```sh
 PYTHONDONTWRITEBYTECODE=1 python3 integration_evidence/native_cluster_3d_reservation_comparison_v1/submit.py \
-  integration_evidence/native_cluster_3d_reservation_comparison_v1/prepared_v1
+  integration_evidence/native_cluster_3d_reservation_comparison_v1/prepared_batch_v1
 ```
 
 Four jobs serialize through `hold_jid`: N4 correctness, then N1/N2/N4 comparison.
 The timing jobs refuse a failed or mismatched correctness gate. The existing
 `aero-ags.q`/`mpi`/GCC conventions are used; no exclusive node is assumed.
-`--hold-jid JOBID` chains behind another campaign; `--size4` chooses the smaller
+`--hold-jid JOBID` chains behind another campaign; `--size 4` chooses the smaller
 control. Optional `--mpi-profile` appends three serialized API-profile jobs.
 Do not submit this simultaneously with the donor comparison. Nothing is submitted
 by merely preparing or checking this tooling.

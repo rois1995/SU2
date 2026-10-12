@@ -1,0 +1,43 @@
+{
+  "status": "PASS",
+  "original_receipt_sha256": "a20d75891f1dea2666caf0569559fdb92b33928a7ac97ed4059bc6525fc46efd",
+  "cgns_recovery_receipt_sha256": "8232c07080fc169543cd068397ae6370209135aa34221dd490777cf319c04aa4",
+  "cases": [
+    {
+      "case": "n8_n1_m1_default512",
+      "folder": "integration_evidence/native_3d_core_v1/engine_batch_milestone_v4/n8_n1_m1_default512",
+      "certificate_sha256": "f20115187a5bdc896cd817b75a5d1bf1c7d192068bcbdeff8f829f9aa8775812",
+      "mode": "exact artifact certificate reuse plus fresh current output/runtime checks",
+      "numerical_artifacts_sha256": {
+        "parameters.json": "a2c6b9c12287d64d54f793f52c3646dc766eae0e2ed78bbd0553097c7ccc96e8",
+        "case.stdout": "071449ecc2a14ba77e4bd6fbc2f1158801873f4bbb0ad6d0962ba157223f9a91",
+        "case.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "envelope_s0.json": "c4d6d846afae19aeca9521c34b5070cec9cc85aec80ac929d3d093c2f5b06b87",
+        "envelope_s1.json": "be49dceec95a1b2d4aa91997d721c60e175718efc95332c3702927148b006949",
+        "envelope_s2.json": "c97fd7c243c9f2734e1407ad800b811670018d6749dca22cc1b88e4defeb1ef5",
+        "envelope_s0_states.json": "ba724dbe3eebc494a3da89b9f1cc65a558e739dbcbd925680a93576ff4fc0a55",
+        "envelope_s1_states.json": "58161152b5bfddd86a82fbc78a5d3859b53ebb3dcd87d8675569bd6ca5b99e39",
+        "envelope_s2_states.json": "ca87b24e8b0d7cc5717068a8fe819472fc619c27d86b2cedcc113626f4fa3f23"
+      },
+      "scope": "Current full production driver passed all three events. Saved outputs reused without numerical rerun; original failed collector report retained."
+    },
+    {
+      "case": "n4_n4_m2_thin_strong_cgns",
+      "folder": "integration_evidence/native_3d_core_v1/engine_batch_cgns_audit_recovery_v1/n4_n4_m2_thin_strong_cgns",
+      "certificate_sha256": "d891e3def55f0b9504a40aa86271a73402c3dab2d0009c6973357eb37af42e96",
+      "mode": "fresh complete independent audit",
+      "numerical_artifacts_sha256": {
+        "parameters.json": "403bdafa4c8db845769db58b555471d06c8bcfd222e93aa30ac82cac18c0d498",
+        "case.stdout": "edc86c3d548dc14b0211b43f6536153847632b930fabb36467c4ced2cf08f002",
+        "case.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "envelope_s0.json": "bc12f53f278476a43f19aafe3ff437f671aed0f6f07ec1b1d8a8bf2f950b4dee",
+        "envelope_s1.json": "4c8d02f564c711134824bf68d3b0993f72aee214a2640c31049b3ba1eaa708bd",
+        "envelope_s2.json": "e9a9ecc17363ddf83c264455ba00921a79db1ede4a3b0e1f55e3cf291c0a9503",
+        "envelope_s0_states.json": "cf45e5f4725241452114b8f681471d8abeaa8ae6902b4cb27ed1241d4fe26ba1",
+        "envelope_s1_states.json": "1cc4b0800abde98b160640e0acf3d5443ff7686acfce1ffec232fbfd00c496fe",
+        "envelope_s2_states.json": "7ca6a15c9b36cdf7b04d0ad1ca0a96244ff8b34ac259dcf6befd6ec855ae8346"
+      },
+      "scope": "Current full production driver passed all three events. Saved outputs reused without numerical rerun; original failed collector report retained."
+    }
+  ]
+}

@@ -50,6 +50,16 @@ struct Imported {
   bool valid = false;
   std::string reason;
 };
+struct ImportedBatch {
+  std::vector<Imported> candidates;
+  bool valid = false;
+  std::string reason;
+};
+struct ReservationBatch {
+  std::vector<bool> chosen;
+  bool valid = false;
+  std::string reason;
+};
 struct DirectoryStats {
   uint64_t builds = 0, lookups = 0, fetches = 0, reservations = 0, publications = 0, rejected = 0;
   uint64_t metadata_scanned = 0, payloads = 0, elections = 0;
@@ -76,6 +86,11 @@ class Directory {
    * stars refuse only their candidate; protocol/storage failure refuses the whole batch without mutation. */
   DependencyBatch LookupBatch(const std::vector<Feature>& features, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
   Imported Fetch(const Dependencies& dependencies, const Owned& owned, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
+  /*! Shared cells are fetched once; a stale payload refuses every candidate that requires it.
+   * Common protocol/storage failures refuse the batch. Neither method mutates the accepted stores. */
+  ImportedBatch FetchBatch(const DependencyBatch& dependencies, const Owned& owned,
+                          size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
+  ReservationBatch ReserveBatch(const ImportedBatch& imported, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
   bool Reserve(const Imported& imported, bool active, std::string& reason, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
   /*! Owner-routed prevalidated replacement. Stages all new mesh/directory nodes before the common vote;
    * version/budget/rank veto leaves both accepted stores unchanged. No allocation after publication vote.

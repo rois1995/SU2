@@ -13,6 +13,67 @@ Create a separate implementation branch from the validated integration checkpoin
 when Goal 1 is activated; retain the performance branch and leave AdapNoExt and
 other sessions' work untouched. Record the actual branch and source SHA.
 
+## Current execution milestone — integrated batched refinement/coarsening
+
+User steering on2026-10-12: prioritize complete large steps, using small changes
+to deliver them; defer further micro-optimizations. This does not replace or narrow
+Goal1. Current branch: codex/native-3d-transport-accounting, pushed basefa17b3ecee48.
+
+The immediate milestone combines dependency lookup, deduplicated payload fetch,
+candidate-specific full-star reservation, strict private validation and existing
+atomic publication into the real refinement/coarsening engine. Qualify the known larger
+default512case through the actual driver and independent mesh/metric/current+BDF/
+SU2CGNS audits, plus MPI1/2/4 and N>M controls. Count actual edit work separately
+from batched epochs; completion within512epochs alone is not an efficiency claim.
+Use focused tests during development and one broad regression at the integrated
+milestone. Then prepare same-binary batch1/batch8 cluster comparisons with closed
+phase accounting, three repetitions, instrumentation controls and memory records.
+Retain independently audited changed trajectories and compare total operational
+cost and useful accepted edits per second. Reconstruction/scheduling work follows
+the integrated evidence if blocked; API-only checkpoints do not close this step.
+Further scalar query/cache tuning is deferred until this milestone is assessed.
+
+## Next integrated engine step — diagnosis and progress-aware stopping
+
+User authorized this step on 2026-10-12 after discussing the arbitrary internal
+512-round cap. Complete and publish the batching qualification first; then change
+the execution policy as one integrated milestone, retaining that qualified baseline.
+This extends Goal 1's existing non-reconstructible/over-budget diagnosis requirement;
+it does not replace the full performance gate or weaken completion criteria.
+
+Distinguish terminal causes and proposal failures: outstanding frozen size/shape
+violations, valid-but-pending coarsening, missing measurements, exhausted admitted
+operators, complete-dependency or donor/storage limits, stale/conflicting proposals,
+geometric reconstruction rejection and metric shape/progress rejection. Include
+bounded representative feature/cell coordinates and affected-region residuals where
+available, not an unbounded per-query log. A local search failure is not a proof
+that no mesh exists. Physical incompatibility may only be asserted when independently
+established from the declared geometry/metric constraints.
+
+Use the actual frozen-field progress checks to diagnose useful size progress,
+quality repair and cell removal. Do not equate raw accepted edits, disappearing
+queue entries, a partition-dependent duplicated edge sum or an unchanged invalid-
+cell count with adequate global progress. Permit bounded repair escalation before
+reporting persistent blockage; record which available operators were exhausted.
+
+Replace the unexplained fixed-round production cutoff with explicit, bounded work
+and elapsed-time policies and collective MPI agreement. Preserve deterministic
+work-bounded qualification and separate clock-based operational stops from geometric
+failure. Include import/partition/return/rebuild/transfer in reported total overhead;
+do not call a kernel-only clock bound a complete adaptation ceiling. Existing
+small forced-round controls remain useful for rejection tests. Ensure history/ID
+allocation and admitted memory stay bounded when productive work exceeds 512 epochs.
+Final original-P1 length/quality/geometry/state gates stay unchanged. Decide retry or
+stop behavior explicitly: the current production driver stops collectively before
+replacement on incomplete remeshing; retained state is not automatic CFD continuation
+or a newly written recovery checkpoint.
+
+Qualify progress, stagnation, work/time/storage exits and rejection preservation on
+MPI1/2/4 including empty workers and M<N, then one broad integrated regression.
+Prepare reusable SGE comparison runs with practical useful-edit rates, exclusive
+parent phases, memory and instrumentation-overhead controls; avoid local timing
+campaigns under contention. Keep diagnosis cost bounded and measurable.
+
 ## Shared execution, correctness and performance contract
 
 The user's latest policy is local-first: small correctness cases and short pilots

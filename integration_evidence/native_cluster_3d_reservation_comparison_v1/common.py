@@ -17,6 +17,14 @@ def verify(folder):
     for name,digest in record['files_sha256'].items():
         path=folder/name;path.resolve().relative_to(folder)
         if Path(name).is_absolute() or sha(path)!=digest:raise ValueError('Comparison artifact changed: '+name)
+    if record.get('comparison_kind')=='candidate_batch':
+        bins=[]
+        for side,batch in (('baseline',1),('candidate',8)):
+            package=json.loads((folder/side/'manifest.json').read_text())
+            if package.get('internal_control')!={'candidate_batch':batch}:
+                raise ValueError('Batch comparison control differs from its declared role')
+            bins.append(sha(folder/side/'bin/test_driver'))
+        if bins[0]!=bins[1]:raise ValueError('Batch comparison requires identical compiled binaries')
     return record
 
 def core(folder):

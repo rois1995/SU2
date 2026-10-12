@@ -516,6 +516,8 @@ TEST_CASE("Native3D manufactured anisotropic driver envelope", "[NativeEnvelope3
   const int repeat=parameter("SU2_NATIVE3D_ENVELOPE_REPEAT",0), detail=parameter("SU2_NATIVE3D_ENVELOPE_DETAIL",1);
   const bool aligned=parameter("SU2_NATIVE3D_ENVELOPE_ALIGNED",0)!=0;
   const int rounds=parameter("SU2_NATIVE3D_ENVELOPE_ROUNDS",512);
+  const int batch=parameter("SU2_NATIVE3D_ENVELOPE_BATCH",MaximumCandidateBatch);
+  REQUIRE(batch>=1);REQUIRE(batch<=int(MaximumCandidateBatch));
   REQUIRE((rounds==512 || rounds==1024));
   REQUIRE((!aligned || n>=2));
   REQUIRE(n>=1);REQUIRE((n<=4 || n==8));REQUIRE(mode>=0);REQUIRE(mode<=2);REQUIRE(varying>=0);REQUIRE(varying<=1);
@@ -572,8 +574,8 @@ TEST_CASE("Native3D manufactured anisotropic driver envelope", "[NativeEnvelope3
     for(unsigned short k=0;k<5;++k){initial->SetSolution(p,k,values[k]);initial->GetSolution_time_n()(p,k)=values[k];initial->GetSolution_time_n1()(p,k)=values[k]*.96875;}
   }
   auto backend=driver->Backend();
-  if(rounds!=512) {
-    EngineOptions diagnostic;diagnostic.maximum_rounds=rounds;
+  if(rounds!=512 || batch!=int(MaximumCandidateBatch)) {
+    EngineOptions diagnostic;diagnostic.maximum_rounds=rounds;diagnostic.candidate_batch=batch;
     backend=std::make_unique<CNativeRemesher3D>(driver->Reference(),diagnostic);
   }
   auto* native=dynamic_cast<CNativeRemesher3D*>(backend.get());REQUIRE(native);
@@ -714,4 +716,22 @@ TEST_CASE("Native3D initial boundary above cavity cap imports and reloads", "[Na
   ReferenceState loaded;
   REQUIRE(LoadReference("above_cavity_cap.native_ref",loaded));
   CHECK(EncodeReference(loaded)==text);
+}
+
+TEST_CASE("Native returned geometry accepts empty point connectivity", "[NativeBridge3D][NativeEmptyConnectivity3D]") {
+  for (unsigned short dim:{2,3}) {
+    CPoint empty(0,dim);
+    CHECK_NOTHROW(empty.SetPoints({}));
+    CPoint points(3,dim);
+    const std::vector<std::vector<unsigned long>> connected{{1,2},{0,2},{0,1}};
+    points.SetPoints(connected);
+    for (unsigned long i=0;i<3;++i) {
+      CHECK(points.GetnPoint(i)==2);
+      CHECK(points.GetEdge(i,0)==-1);CHECK(points.GetEdge(i,1)==-1);
+    }
+    CHECK_NOTHROW(points.SetPoints(std::vector<std::vector<unsigned long>>(3)));
+    for (unsigned long i=0;i<3;++i) CHECK(points.GetnPoint(i)==0);
+    points.SetPoints(connected);
+    for (unsigned long i=0;i<3;++i) CHECK(points.GetEdge(i,1)==-1);
+  }
 }

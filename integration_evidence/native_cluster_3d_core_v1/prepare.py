@@ -7,7 +7,7 @@ PACK=Path(__file__).resolve().parent
 TOOLS=('audit_cavities.py','audit_coupled.py','audit_geometry_bridge.py','audit_lifecycle.py','audit_envelope.py','audit_restart.py','export_envelope_vtu.py')
 
 TOOLS += ('audit_distributed.py','audit_donors.py','audit_anisotropic.py','audit_cycles.py',
-          'audit_repairs.py','audit_engine_repairs.py','audit_coplanar.py')
+          'audit_repairs.py','audit_engine_repairs.py','audit_coplanar.py','audit_batch_engine.py')
 
 def closed(path):
     path=Path(path).resolve();path.relative_to(ROOT)
@@ -74,7 +74,7 @@ def main():
         shutil.copyfile(options.mpip_license,destination/'mpiP-LICENSE.txt')
         if sha(destination/'bin/libmpiP.so')!=mpip_digest or sha(options.mpip_library)!=mpip_digest or sha(destination/'mpiP-LICENSE.txt')!=license_digest or sha(options.mpip_license)!=license_digest:
             raise ValueError('mpiP library changed during preparation')
-    record=dict(status='PREPARED_NOT_VALIDATED',regression_cases=101,source_sha256=sources,actual_objects_sha256={str(p.relative_to(build)):sha(p) for p in objects},library_sha256=libraries,thin_archive_member_sha256=members,build_ninja_sha256=sha(ninja),build_dry_run=dry.stdout,
+    record=dict(status='PREPARED_NOT_VALIDATED',regression_cases=103,source_sha256=sources,actual_objects_sha256={str(p.relative_to(build)):sha(p) for p in objects},library_sha256=libraries,thin_archive_member_sha256=members,build_ninja_sha256=sha(ninja),build_dry_run=dry.stdout,
                 build_options=build_options,scope='Current configured build dependencies and source/binary/member pins. Preparation is not any C++/MPI/numerical PASS. Dynamic MPI/CGNS/MMG libraries must be available on cluster nodes.')
     if sha(binary)!=sha(destination/'bin/test_driver') or any(sha(ROOT/name)!=digest for name,digest in sources.items()) or any(sha(p)!=digest for p,digest in {**libraries,**members}.items()) or any(sha(build/name)!=digest for name,digest in record['actual_objects_sha256'].items()):
         raise ValueError('Build/source changed during preparation; retain this incomplete folder and prepare a new bundle')

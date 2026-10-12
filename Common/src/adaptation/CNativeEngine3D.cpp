@@ -103,6 +103,35 @@ class Selection {
     Edge canonical=key; std::sort(canonical.begin(),canonical.end());
     return {key,edges.at(canonical).measure,true,{}};
   }
+  std::vector<Choice> Batch(const Owned& working, size_t limit) {
+    std::vector<Choice> result;
+    std::set<Id> used;
+    size_t scanned=0;
+    for (auto it=queue.begin();it!=queue.end() && result.size()<limit && scanned++<MaximumDirectoryScan;) {
+      const auto edge=(it++)->second;
+      Edge canonical=edge; std::sort(canonical.begin(),canonical.end());
+      const Choice choice{edge,edges.at(canonical).measure,true,{}};
+      if (FilterCollapse(choice,working)) continue;
+      const auto& star=vertex_cells.at(coarsening ? edge[1] : edge[0]);
+      std::set<Id> vertices;
+      bool disjoint=true, oversized=false;
+      size_t cells=0, scanned_star=0;
+      for (Id id:star) {
+        if (++scanned_star>MaximumDirectoryScan) { oversized=true; break; }
+        const auto& cell=working.at(id).cell;
+        if (!coarsening && std::none_of(cell.v.begin(),cell.v.end(),[&](Node node){return node.id==edge[1];})) continue;
+        if (++cells>MaximumCavityCells) { oversized=true; break; }
+        for (auto node:cell.v) {
+          vertices.insert(node.id);
+          disjoint=disjoint && !used.count(node.id);
+        }
+      }
+      if (oversized) { result.push_back(choice); break; }  // Complete-star admission reports the cap.
+      // Local disjointness only reduces redundant proposals; reservation admits the complete remote stars.
+      if (disjoint) { result.push_back(choice); used.insert(vertices.begin(),vertices.end()); }
+    }
+    return result;
+  }
   void Cached(const Cell& cell, std::map<Edge,EdgeMeasure>& values) const {
     for (size_t i=0; i<4; ++i) for (size_t j=i+1; j<4; ++j) {
       const Edge key{std::min(cell.v[i].id,cell.v[j].id),std::max(cell.v[i].id,cell.v[j].id)};
@@ -172,7 +201,7 @@ class Selection {
     const auto found = cells.find(id);
     if (found==cells.end()) throw std::logic_error("Missing native 3D cached cell removal.");
     invalid -= !found->second.valid;
-    if (coarsening) for (Id vertex:found->second.vertices) {
+    for (Id vertex:found->second.vertices) {
       auto& star=vertex_cells.at(vertex);
       vertex_links-=star.erase(id);
       if (star.empty()) vertex_cells.erase(vertex);
@@ -226,7 +255,7 @@ class Selection {
     if (metric.edges.size()!=6 || !std::isfinite(metric.maximum_length))
       throw std::runtime_error("Incomplete native 3D initial/updated metric measurement.");
     CellState row; row.valid=valid;
-    if (coarsening) for (size_t i=0;i<4;++i) {
+    for (size_t i=0;i<4;++i) {
       row.vertices[i]=cell.v[i].id;
       vertex_links+=vertex_cells[row.vertices[i]].insert(cell.id).second;
     }
@@ -303,15 +332,16 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   Directory directory(world,coarsening);
   DonorImport source(world,options.timings);
   size_t accepted_bytes=MapBytes(accepted);
-  auto selection_bound=[&](bool repairs) { return coarsening ? (repairs ? 6144u : 4096u) : (repairs ? 4096u : 2048u); };
+  auto selection_bound=[&](bool repairs) { return coarsening ? (repairs ? 6144u : 4096u) : (repairs ? 5120u : 3072u); };
   std::vector<Id> initial;
   auto vote=[&](const CLocalFailure& local) {
     const auto elected=world.elect(local);
     if (elected.any) result.reason=elected.message;
     return !elected.any;
   };
+  size_t batch_bytes=0;
   auto bytes=[&]() {
-    return transfer_memory::Add(options.caller_bytes,accepted_bytes,MapBytes(working),
+    return transfer_memory::Add(options.caller_bytes,accepted_bytes,batch_bytes,MapBytes(working),
         transfer_memory::Bytes(original),transfer_memory::Bytes(initial),transfer_memory::Bytes(result.splits),transfer_memory::Bytes(result.collapses),
         selection.Bytes(),MapBytes(retired_edges));
   };
@@ -364,17 +394,22 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     const auto lo=CPassiveComm::Allreduce(options.maximum_rounds,CPassiveComm::Op::MIN,world.comm);
     const auto hi=CPassiveComm::Allreduce(options.maximum_rounds,CPassiveComm::Op::MAX,world.comm);
     if (lo!=hi || !hi) failure.Set(1,0,"Native 3D round limit must be positive and equal across workers.");
+    const auto batch_lo=CPassiveComm::Allreduce(options.candidate_batch,CPassiveComm::Op::MIN,world.comm);
+    const auto batch_hi=CPassiveComm::Allreduce(options.candidate_batch,CPassiveComm::Op::MAX,world.comm);
+    if (batch_lo!=batch_hi || !batch_hi || batch_hi>MaximumCandidateBatch)
+      failure.Set(1,0,"Native 3D candidate batch must be bounded and equal across workers.");
     const auto mode_lo=CPassiveComm::Allreduce(int(intent),CPassiveComm::Op::MIN,world.comm);
     const auto mode_hi=CPassiveComm::Allreduce(int(intent),CPassiveComm::Op::MAX,world.comm);
     if (mode_lo!=mode_hi) failure.Set(1,0,"Native 3D adaptation intent differs across workers.");
     ready=vote(failure);
     if (ready) ready=admit(transfer_memory::Add(accepted_bytes,
-        transfer_memory::Mul(options.maximum_rounds,(coarsening ? sizeof(Edge) : sizeof(SplitRecord))),transfer_memory::Mul(accepted.size(),selection_bound(repairing))));
+        transfer_memory::Mul(transfer_memory::Mul(options.maximum_rounds,options.candidate_batch),
+            coarsening ? sizeof(Edge) : sizeof(SplitRecord)),transfer_memory::Mul(accepted.size(),selection_bound(repairing))));
     if (ready) try {
       working=accepted;
       stats.maximum_owned=working.size();
-      if (coarsening) result.collapses.reserve(options.maximum_rounds);
-      else if (!repairing) result.splits.reserve(options.maximum_rounds);
+      if (coarsening) result.collapses.reserve(transfer_memory::Mul(options.maximum_rounds,options.candidate_batch));
+      else if (!repairing) result.splits.reserve(transfer_memory::Mul(options.maximum_rounds,options.candidate_batch));
       initial.reserve(working.size());
       for (const auto& row : working) {
         initial.push_back(row.first); maximum_cell=std::max(maximum_cell,row.first);
@@ -511,35 +546,97 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if (selection.invalid || selection.cells.size()!=working.size()) failure.Set(1,0,"Native 3D adaptation stagnates: admitted operators cannot satisfy the frozen size/shape gates.");
       vote(failure); return finish();
     }
-    ++stats.rounds; stats.proposed+=choice.active;
+    ++stats.rounds;
+    const bool batched=!repairing && (!coarsening || !bad_field) && options.candidate_batch>1;
+    std::vector<Choice> choices;
+    DependencyBatch dependency_batch;
+    ImportedBatch imported_batch;
+    ReservationBatch reserved;
+    size_t slots=1;
+    if (batched) {
+      // All retained metadata/payloads remain byte-admitted while each disjoint candidate uses the existing transaction.
+      batch_bytes=transfer_memory::Add(transfer_memory::Mul(options.candidate_batch,
+          sizeof(Choice)+sizeof(Feature)+sizeof(Dependencies)+sizeof(Imported)+sizeof(bool)),
+          transfer_memory::Mul(transfer_memory::Mul(options.candidate_batch,MaximumCavityCells),
+              sizeof(Dependency)+sizeof(OwnedCell)),
+          transfer_memory::Mul(transfer_memory::Mul(8,options.candidate_batch*MaximumCavityCells),
+              sizeof(Id)+4*sizeof(void*)));
+      if (!admit(0)) return finish();
+      CLocalFailure failure;
+      {
+        Timer timer(stats.selection_seconds,options.timings);
+        try { choices=selection.Batch(working,options.candidate_batch); }
+        catch (const std::exception& e) { failure.Set(2,0,e.what()); }
+        if (!(ready=vote(failure))) return finish();
+        slots=CPassiveComm::Allreduce(choices.size(),CPassiveComm::Op::MAX,world.comm);
+        ++stats.batch_rounds; stats.batch_candidates+=choices.size(); stats.proposed+=choices.size();
+      }
+      {
+        Timer timer(stats.dependency_seconds,options.timings);
+        std::vector<Feature> features;
+        try { for (const auto& candidate:choices) features.push_back(coarsening ? Feature{{candidate.edge[1],0,0},1} :
+            Feature{{candidate.edge[0],candidate.edge[1],0},2}); }
+        catch (const std::exception& e) { failure.Set(2,0,e.what()); }
+        if (!(ready=vote(failure))) return finish();
+        dependency_batch=directory.LookupBatch(features,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes()));
+        if (!dependency_batch.valid) { result.reason=dependency_batch.reason; return finish(); }
+        imported_batch=directory.FetchBatch(dependency_batch,working,options.memory_ceiling,
+            transfer_memory::Add(bytes(),source.ResidentBytes()));
+        if (!imported_batch.valid) { result.reason=imported_batch.reason; return finish(); }
+        for (const auto& candidate:imported_batch.candidates)
+          if (!candidate.valid) failure.Set(1,0,candidate.reason);
+        if (!(ready=vote(failure))) return finish();
+      }
+      {
+        Timer timer(stats.reservation_seconds,options.timings);
+        reserved=directory.ReserveBatch(imported_batch,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes()));
+        if (!reserved.valid) { result.reason=reserved.reason; return finish(); }
+        size_t winners=0;
+        for (bool chosen:reserved.chosen) winners+=chosen;
+        stats.batch_reserved+=winners; stats.conflicts+=choices.size()-winners;
+        if (!world.maximum(winners!=0)) { result.reason="Native 3D batch reservation made no progress."; return finish(); }
+      }
+    } else stats.proposed+=choice.active;
+    for (size_t slot=0;slot<slots;++slot) {
     Dependencies dependencies;
     Imported imported;
-    {
-      Timer timer(stats.dependency_seconds,options.timings);
-      const Feature feature=repairing ? choice.feature : (coarsening ? Feature{{choice.edge[1],0,0},1} : Feature{{choice.edge[0],choice.edge[1],0},2});
-      dependencies=directory.Lookup(choice.active ? std::vector<Feature>{feature} : std::vector<Feature>{},
-          options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes()));
-      if (dependencies.valid) imported=directory.Fetch(dependencies,working,options.memory_ceiling,
-          transfer_memory::Add(bytes(),source.ResidentBytes()));
-    }
-    if (!dependencies.valid || !imported.valid) {
-      result.reason=dependencies.valid ? imported.reason : dependencies.reason; return finish();
-    }
     bool chosen=false;
-    {
-      Timer timer(stats.reservation_seconds,options.timings);
-      chosen=directory.Reserve(imported,choice.active,result.reason,options.memory_ceiling,
-          transfer_memory::Add(bytes(),source.ResidentBytes()));
-      stats.conflicts+=choice.active && !chosen;
-      if (!world.sum(chosen)) ready=false;
+    if (batched) {
+      choice=slot<choices.size() ? choices[slot] : Choice{};
+      if (choice.active) {
+        dependencies=std::move(dependency_batch.candidates[slot]);
+        imported=std::move(imported_batch.candidates[slot]);
+        chosen=reserved.chosen[slot];
+      }
+      if (!world.maximum(chosen)) continue;
+    } else {
+      {
+        Timer timer(stats.dependency_seconds,options.timings);
+        const Feature feature=repairing ? choice.feature : (coarsening ? Feature{{choice.edge[1],0,0},1} : Feature{{choice.edge[0],choice.edge[1],0},2});
+        dependencies=directory.Lookup(choice.active ? std::vector<Feature>{feature} : std::vector<Feature>{},
+            options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes()));
+        if (dependencies.valid) imported=directory.Fetch(dependencies,working,options.memory_ceiling,
+            transfer_memory::Add(bytes(),source.ResidentBytes()));
+      }
+      if (!dependencies.valid || !imported.valid) {
+        result.reason=dependencies.valid ? imported.reason : dependencies.reason; return finish();
+      }
+      {
+        Timer timer(stats.reservation_seconds,options.timings);
+        chosen=directory.Reserve(imported,choice.active,result.reason,options.memory_ceiling,
+            transfer_memory::Add(bytes(),source.ResidentBytes()));
+        stats.conflicts+=choice.active && !chosen;
+        if (!world.sum(chosen)) ready=false;
+      }
+      if (!ready) return finish();
     }
-    if (!ready) return finish();
     CLocalFailure failure;
     Patch old,fresh;
     Node point;
     bool approved=false, moved=false, repair_approved=false, cavity_inserted=false;
     std::unique_ptr<FrozenField> field;
-    const auto token=transfer_memory::Add(transfer_memory::Mul(round,world.size),world.rank);
+    const auto epoch=transfer_memory::Add(transfer_memory::Mul(round,world.size),world.rank);
+    const auto token=transfer_memory::Add(transfer_memory::Mul(epoch,options.candidate_batch),slot);
     const auto offset=transfer_memory::Mul(token,MaximumReplacementCells);
     {
       Timer timer(stats.reconstruction_seconds,options.timings);
@@ -891,6 +988,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       retired_edges.clear();
     }
     if (!ready) return finish();
+    }
+    batch_bytes=0;
   }
   {
     Timer timer(stats.completion_seconds,options.timings);

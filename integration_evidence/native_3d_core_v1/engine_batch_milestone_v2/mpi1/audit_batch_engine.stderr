@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_batch_engine.py", line 64, in <module>
+    if __name__=='__main__':main(*map(Path,sys.argv[1:]))
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_batch_engine.py", line 16, in main
+    assert 0<=component<8 and all(v[0]//16==component for v in vertices)
+AssertionError

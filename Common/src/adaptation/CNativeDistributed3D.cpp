@@ -60,6 +60,22 @@ struct Payload {
   bool present = false;
   template <class S> void Fields(S& s) { s(cell, present); }
 };
+struct BatchPayload {
+  Id requested = 0;  // A missing/stale payload must still identify its dependent candidates.
+  OwnedCell cell;
+  bool present = false;
+  template <class S> void Fields(S& s) { s(requested, cell, present); }
+};
+struct BatchClaim {
+  Id vertex = 0;
+  int caller = 0;
+  unsigned ticket = 0;
+  template <class S> void Fields(S& s) { s(vertex, caller, ticket); }
+};
+struct BatchVeto {
+  unsigned ticket = 0;
+  template <class S> void Fields(S& s) { s(ticket); }
+};
 struct Claim {
   Id vertex = 0;
   int caller = 0;
@@ -427,6 +443,186 @@ Imported Directory::Fetch(const Dependencies& dependencies, const Owned& owned, 
   } catch (const std::exception& e) { failure.Set(2, 0, e.what()); }
   result.valid = Vote(failure, result.reason);
   if (!result.valid) { result.cells.clear(); ++stats.rejected; }
+  return result;
+}
+ImportedBatch Directory::FetchBatch(const DependencyBatch& dependencies, const Owned& owned,
+                                     size_t ceiling, size_t caller_bytes) {
+  Timer timer(stats.fetch_seconds);
+  ++stats.fetches;
+  ImportedBatch result;
+  CLocalFailure failure;
+  size_t count=0, dependency_bytes=transfer_memory::Bytes(dependencies.candidates);
+  for (const auto& candidate:dependencies.candidates) {
+    count=transfer_memory::Add(count,candidate.cells.size());
+    dependency_bytes=transfer_memory::Add(dependency_bytes,transfer_memory::Bytes(candidate.cells),
+        transfer_memory::Mul(2,transfer_memory::Bytes(candidate.reason)));
+  }
+  const auto baseline=transfer_memory::Add(caller_bytes,ResidentBytes(),MapBytes<Owned>(owned.size()),
+      dependency_bytes,transfer_memory::Mul(dependencies.candidates.size(),sizeof(Imported)+128));
+  auto peak=transfer_memory::Add(baseline,MapBytes<std::map<Id,Dependency>>(count),
+      MapBytes<std::set<Id>>(MaximumCavityCells),transfer_memory::Mul(world.size,sizeof(std::vector<FetchQuery>)),
+      transfer_memory::GrowthBound(count,sizeof(FetchQuery)));
+  stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,peak);
+  if (peak==SIZE_MAX || peak>ceiling) failure.Set(3,0,"Native 3D batch payload packing exceeds budget.");
+  if (!Vote(failure,result.reason)) { ++stats.rejected; return result; }
+  std::map<Id,Dependency> expected;
+  std::vector<std::vector<FetchQuery>> to;
+  try {
+    if (!dependencies.valid || dependencies.candidates.size()>MaximumDirectoryFeatures)
+      throw std::runtime_error("Native 3D batch dependencies were not admitted.");
+    result.candidates.resize(dependencies.candidates.size());
+    to.resize(world.size);
+    for (size_t i=0;i<dependencies.candidates.size();++i) {
+      const auto& candidate=dependencies.candidates[i];
+      result.candidates[i].reason=candidate.reason;
+      if (!candidate.valid) continue;
+      if (candidate.cells.empty() || candidate.cells.size()>MaximumCavityCells)
+        throw std::runtime_error("Native 3D batch candidate lacks a bounded complete star.");
+      std::set<Id> unique;
+      for (const auto& row:candidate.cells) {
+        if (row.owner<0 || row.owner>=world.size || !unique.insert(row.cell).second)
+          throw std::runtime_error("Native 3D invalid/duplicate batch dependency.");
+        const auto inserted=expected.emplace(row.cell,row);
+        if (!inserted.second && (inserted.first->second.owner!=row.owner || inserted.first->second.version!=row.version))
+          throw std::runtime_error("Native 3D inconsistent shared batch dependency.");
+        if (inserted.second) to[row.owner].push_back({row,world.rank});
+      }
+    }
+  } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
+  if (!Vote(failure,result.reason)) { result.candidates.clear(); ++stats.rejected; return result; }
+  bool admitted=false;
+  const auto retained=transfer_memory::Add(baseline,MapBytes<std::map<Id,Dependency>>(expected.size()));
+  const auto queries=world.exchange(to,&admitted,ceiling,retained);
+  if (!admitted) failure.Set(3,0,"Native 3D batch payload requests exceed budget.");
+  peak=transfer_memory::Add(retained,transfer_memory::Bytes(to),transfer_memory::Bytes(queries),
+      transfer_memory::Mul(world.size,sizeof(std::vector<BatchPayload>)),
+      transfer_memory::GrowthBound(queries.size(),sizeof(BatchPayload)));
+  stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,peak);
+  if (peak==SIZE_MAX || peak>ceiling) failure.Set(3,0,"Native 3D batch payload replies exceed budget.");
+  if (!Vote(failure,result.reason)) { result.candidates.clear(); ++stats.rejected; return result; }
+  std::vector<std::vector<BatchPayload>> reply;
+  try {
+    reply.resize(world.size);
+    for (const auto& q:queries) {
+      if (q.caller<0 || q.caller>=world.size || q.dependency.owner!=world.rank)
+        throw std::runtime_error("Native 3D invalid batch payload routing.");
+      const auto found=owned.find(q.dependency.cell);
+      const bool present=found!=owned.end() && found->first==found->second.cell.id && found->second.version==q.dependency.version;
+      reply[q.caller].push_back({q.dependency.cell,present ? found->second : OwnedCell{},present});
+    }
+  } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
+  if (!Vote(failure,result.reason)) { result.candidates.clear(); ++stats.rejected; return result; }
+  const auto received=world.exchange(reply,&admitted,ceiling,
+      transfer_memory::Add(retained,transfer_memory::Bytes(to),transfer_memory::Bytes(queries)));
+  if (!admitted) failure.Set(3,0,"Native 3D batch payload import exceeds budget.");
+  peak=transfer_memory::Add(retained,transfer_memory::Bytes(to),transfer_memory::Bytes(queries),
+      transfer_memory::Bytes(reply),transfer_memory::Bytes(received),MapBytes<std::map<Id,size_t>>(expected.size()),
+      transfer_memory::GrowthBound(count,sizeof(OwnedCell)));
+  stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,peak);
+  if (peak==SIZE_MAX || peak>ceiling) failure.Set(3,0,"Native 3D batch payload validation exceeds budget.");
+  if (!Vote(failure,result.reason)) { result.candidates.clear(); ++stats.rejected; return result; }
+  try {
+    if (received.size()!=expected.size()) throw std::runtime_error("Native 3D missing batch dependency payload.");
+    std::map<Id,size_t> positions;
+    for (size_t i=0;i<received.size();++i) {
+      const auto& row=received[i];
+      const auto found=expected.find(row.requested);
+      if (found==expected.end() || !positions.emplace(row.requested,i).second)
+        throw std::runtime_error("Native 3D unexpected/duplicate batch payload.");
+      if (row.present) {
+        if (row.cell.cell.id!=row.requested || row.cell.version!=found->second.version)
+          throw std::runtime_error("Native 3D inconsistent batch payload identity.");
+        Validate(row.cell); ++stats.payloads;
+      }
+    }
+    for (size_t i=0;i<dependencies.candidates.size();++i) {
+      const auto& candidate=dependencies.candidates[i];
+      auto& imported=result.candidates[i];
+      if (!candidate.valid) continue;
+      imported.valid=true;
+      for (const auto& dependency:candidate.cells) {
+        const auto& row=received[positions.at(dependency.cell)];
+        if (!row.present) { imported.valid=false; imported.reason="Native 3D stale batch dependency payload."; break; }
+        imported.cells.push_back(row.cell);
+      }
+      if (!imported.valid) imported.cells.clear();
+      else std::sort(imported.cells.begin(),imported.cells.end(),[](const auto& a,const auto& b){return a.cell.id<b.cell.id;});
+    }
+  } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
+  result.valid=Vote(failure,result.reason);
+  if (!result.valid) { result.candidates.clear(); ++stats.rejected; }
+  return result;
+}
+ReservationBatch Directory::ReserveBatch(const ImportedBatch& imported, size_t ceiling, size_t caller_bytes) {
+  Timer timer(stats.reservation_seconds);
+  ++stats.reservations;
+  ReservationBatch result;
+  CLocalFailure failure;
+  size_t cells=0, imported_bytes=transfer_memory::Bytes(imported.candidates);
+  for (const auto& candidate:imported.candidates) {
+    cells=transfer_memory::Add(cells,candidate.cells.size());
+    imported_bytes=transfer_memory::Add(imported_bytes,transfer_memory::Bytes(candidate.cells),transfer_memory::Bytes(candidate.reason));
+  }
+  const auto vertices=transfer_memory::Mul(4,cells);
+  const auto baseline=transfer_memory::Add(caller_bytes,ResidentBytes(),imported_bytes,transfer_memory::Mul(imported.candidates.size(),sizeof(bool)));
+  auto peak=transfer_memory::Add(baseline,MapBytes<std::set<Id>>(vertices),
+      transfer_memory::Mul(world.size,sizeof(std::vector<BatchClaim>)),transfer_memory::GrowthBound(vertices,sizeof(BatchClaim)));
+  stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,peak);
+  if (peak==SIZE_MAX || peak>ceiling) failure.Set(3,0,"Native 3D batch reservation packing exceeds budget.");
+  if (!Vote(failure,result.reason)) { ++stats.rejected; return result; }
+  std::vector<std::vector<BatchClaim>> to;
+  try {
+    if (!imported.valid || imported.candidates.size()>MaximumDirectoryFeatures)
+      throw std::runtime_error("Native 3D batch reservation lacks admitted dependencies.");
+    to.resize(world.size); result.chosen.resize(imported.candidates.size(),false);
+    for (size_t i=0;i<imported.candidates.size();++i) {
+      const auto& candidate=imported.candidates[i];
+      if (!candidate.valid) continue;
+      if (candidate.cells.empty() || candidate.cells.size()>MaximumCavityCells)
+        throw std::runtime_error("Native 3D batch reservation lacks a bounded complete star.");
+      std::set<Id> vertices;
+      for (const auto& row:candidate.cells) for (auto node:row.cell.v) vertices.insert(node.id);
+      for (Id vertex:vertices) to[Rendezvous({false,vertex})].push_back({vertex,world.rank,unsigned(i)});
+      result.chosen[i]=true;
+    }
+  } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
+  if (!Vote(failure,result.reason)) { result.chosen.clear(); ++stats.rejected; return result; }
+  bool admitted=false;
+  const auto claims=world.exchange(to,&admitted,ceiling,baseline);
+  if (!admitted) failure.Set(3,0,"Native 3D batch reservation transport exceeds budget.");
+  using Winners=std::map<Id,std::pair<int,unsigned>>;
+  peak=transfer_memory::Add(baseline,transfer_memory::Bytes(to),transfer_memory::Bytes(claims),
+      MapBytes<Winners>(claims.size()),transfer_memory::Mul(world.size,sizeof(std::vector<BatchVeto>)),
+      transfer_memory::GrowthBound(claims.size(),sizeof(BatchVeto)));
+  stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,peak);
+  if (peak==SIZE_MAX || peak>ceiling) failure.Set(3,0,"Native 3D batch reservation replies exceed budget.");
+  if (!Vote(failure,result.reason)) { result.chosen.clear(); ++stats.rejected; return result; }
+  std::vector<std::vector<BatchVeto>> reply;
+  try {
+    reply.resize(world.size);
+    Winners winner;
+    for (const auto& row:claims) {
+      if (row.caller<0 || row.caller>=world.size || row.ticket>=MaximumDirectoryFeatures)
+        throw std::runtime_error("Native 3D invalid batch reservation claim.");
+      const auto priority=std::make_pair(row.caller,row.ticket);
+      const auto inserted=winner.emplace(row.vertex,priority);
+      if (!inserted.second) inserted.first->second=std::min(inserted.first->second,priority);
+    }
+    for (const auto& row:claims) if (winner.at(row.vertex)!=std::make_pair(row.caller,row.ticket))
+      reply[row.caller].push_back({row.ticket});
+  } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
+  if (!Vote(failure,result.reason)) { result.chosen.clear(); ++stats.rejected; return result; }
+  const auto vetoes=world.exchange(reply,&admitted,ceiling,
+      transfer_memory::Add(baseline,transfer_memory::Bytes(to),transfer_memory::Bytes(claims)));
+  if (!admitted) failure.Set(3,0,"Native 3D batch reservation replies exceed budget.");
+  try {
+    for (const auto& veto:vetoes) {
+      if (veto.ticket>=result.chosen.size()) throw std::runtime_error("Native 3D invalid batch reservation veto.");
+      result.chosen[veto.ticket]=false;
+    }
+  } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
+  result.valid=Vote(failure,result.reason);
+  if (!result.valid) { result.chosen.clear(); ++stats.rejected; }
   return result;
 }
 bool Directory::Reserve(const Imported& imported, bool active, std::string& reason, size_t ceiling, size_t caller_bytes) {

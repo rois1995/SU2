@@ -9,7 +9,7 @@ def main():
     p.add_argument('--size',type=int,choices=(4,8),default=8);p.add_argument('--mpi-profile',action='store_true',help='Append three paired MPI API profiling jobs; both packages need mpiP')
     p.add_argument('--hold-jid',help='Existing job to finish before the first comparison job')
     a=p.parse_args();bundle=a.package.resolve();bundle.relative_to(ROOT);manifest=verify(bundle)
-    if manifest.get('comparison_kind')!='rotating_reservation':raise ValueError('Wrong scheduler comparison bundle')
+    if manifest.get('comparison_kind')not in ('rotating_reservation','candidate_batch'):raise ValueError('Wrong scheduler comparison bundle')
     if a.mpi_profile and (not (bundle/'baseline/bin/libmpiP.so').is_file() or not (bundle/'candidate/bin/libmpiP.so').is_file()):
         raise ValueError('Prepare both packages with mpiP before submission')
     if Path.cwd().resolve()!=ROOT:raise ValueError('Submit from repository root')

@@ -25,7 +25,7 @@ def main():
     groups={};identity=None;profiles=[];api_profiles=[]
     for folder in a.results:
         folder=folder.resolve();record=json.loads((folder/'result.json').read_text())
-        if record.get('comparison_kind')!='rotating_reservation' or record['status']!='PASS' or record['mode']!='timing':raise ValueError('Need successful timing result')
+        if record.get('comparison_kind')not in ('rotating_reservation','candidate_batch') or record['status']!='PASS' or record['mode']!='timing':raise ValueError('Need successful timing result')
         if any(f.is_symlink() for f in folder.rglob('*')):raise ValueError('Result link found')
         for name,digest in record['artifact_sha256'].items():
             path=folder/name;path.resolve().relative_to(folder)
@@ -67,6 +67,6 @@ def main():
             overhead.append(dict(ranks=ranks,workers=workers,size=size,cycle=cycle,control_kind=kind,side=side,
                                  paired_on_off_ratio=spread([y['seconds']/x['seconds'] for x,y in zip(off,on)])))
     result=dict(status='PASS',manifest_sha256=identity,comparisons=comparisons,instrumentation_overhead=overhead,rank_profiles=profiles,mpi_api_profiles=api_profiles,
-                comparison_kind='rotating_reservation',scope='Three paired same-N/M operational-cost repetitions. Artifacts repeat within each scheduler, but accepted meshes/work and later frozen P1 references may differ between schedulers; rank-max parent wall, no sum of phase maxima or nested costs. Different N/M groups have separately audited trajectories, not automatic fixed-work scaling. Wrapper bytes/CPU are not physical wire traffic/pure wait. Manufactured metric/flow fields cannot establish physical-CFD affordability or fullGoal1 completion.')
+                comparison_kind=record['comparison_kind'],scope='Three paired same-N/M operational-cost repetitions. Artifacts repeat within each scheduler, but accepted meshes/work and later frozen P1 references may differ between schedulers; rank-max parent wall, no sum of phase maxima or nested costs. Different N/M groups have separately audited trajectories, not automatic fixed-work scaling. Wrapper bytes/CPU are not physical wire traffic/pure wait. Manufactured metric/flow fields cannot establish physical-CFD affordability or fullGoal1 completion.')
     a.output.write_text(json.dumps(result,indent=2)+'\n');print('PASS',len(comparisons),'comparisons',a.output)
 if __name__=='__main__':main()

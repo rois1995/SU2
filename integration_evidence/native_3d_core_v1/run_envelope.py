@@ -11,6 +11,7 @@ parser.add_argument('--restart-format',choices=('none','su2','cgns'),default='no
 parser.add_argument('--wedge',action='store_true',help='Test-only triangular-prism domain x+y<=1 with adaptable oblique face')
 parser.add_argument('--height-power',type=int,choices=(0,10,20),default=0,help='Test-only slab height2^-power with covariance-preserving tensor pullback')
 parser.add_argument('--direction',type=int,choices=(0,1),default=0,help='Test-only spatially rotating principal direction; default preserves original sensor')
+parser.add_argument('--candidate-batch',type=int,choices=(1,2,4,8),default=8,help='Test-only candidate batch, same binary and strict target; batch1 is the single-candidate comparison')
 parser.add_argument('--diagnostic-rounds',type=int,choices=(512,1024),default=512,help='Test-only explicit adapter budget; production factory/default remain unchanged')
 parser.add_argument('--aligned-markers',action='store_true',help='Test-only aligned planar marker junction; original fixture remains the default')
 parser.add_argument('--replay-rounds',type=int,choices=(512,1024));parser.add_argument('--repeat',type=int,choices=(0,1,2),default=0);parser.add_argument('--detail',type=int,choices=(0,1),default=1)
@@ -35,6 +36,7 @@ args=shlex.split(next(l.split('=',1)[1].strip() for l in lines[i+1:i+8] if l.str
 args=[str(build/p) if p.endswith('.a') and not p.startswith('/') else p for p in args if not p.startswith('-Wl,-rpath')]
 targets=['UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeImport3D_tests.cpp.o','UnitTests/test_driver.p/test_driver.cpp.o','UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeRemesher_tests.cpp.o','UnitTests/test_driver.p/Common_adaptation_CMMGInterface_tests.cpp.o','UnitTests/test_driver.p/SU2_CFD_adaptation_AdaptationMPI_tests.cpp.o','UnitTests/test_driver.p/SU2_CFD_adaptation_CNativeRemesher3D_tests.cpp.o']
 env=dict(os.environ,PATH='/tmp/native-build-tools:'+os.environ['PATH'],OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1',OMPI_MCA_mpi_yield_when_idle='1',OMPI_MCA_hwloc_base_binding_policy='none',PYTHONDONTWRITEBYTECODE='1')
+env['SU2_NATIVE3D_ENVELOPE_BATCH']=str(options.candidate_batch)
 env['SU2_NATIVE3D_ENVELOPE_ROUNDS']=str(options.diagnostic_rounds)
 env['SU2_NATIVE3D_ENVELOPE_ALIGNED']=str(int(options.aligned_markers))
 env['SU2_NATIVE3D_ENVELOPE_WEDGE']=str(int(options.wedge))

@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_query_routing_equivalence.py", line 92, in <module>
+    a=parser.parse_args();main(a.folder.resolve(),a.reference.resolve(),a.partial,a.work_reference.resolve() if a.work_reference else None)
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_query_routing_equivalence.py", line 29, in main
+    expected=prior['artifact_sha256'][name]
+KeyError: 'envelope_mesh_00001.su2.native_ref'

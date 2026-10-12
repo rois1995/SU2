@@ -47,6 +47,7 @@ def main():
     parser.add_argument('--build-dir', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--ninja', default='ninja')
+    parser.add_argument('--comparison-kind',choices=('rotating_reservation','candidate_batch'),default='rotating_reservation')
     parser.add_argument('--mpip-library', type=Path)
     parser.add_argument('--mpip-license', type=Path)
     a = parser.parse_args()
@@ -61,15 +62,21 @@ def main():
     if located is None:
         raise FileNotFoundError('Ninja executable is unavailable: '+a.ninja)
     ninja = str(Path(located).resolve())
-    qualified_path = ROOT/'integration_evidence/native_3d_core_v1/completion_diagnostic_build_v1/validation.json'
-    qualified = json.loads(qualified_path.read_text())
-    prototype = ROOT/'integration_evidence/native_3d_core_v1/rotating_reservation_probe_v1/directory_rotating.cpp'
-    full = json.loads((ROOT/'integration_evidence/native_3d_core_v1/rotating_reservation_full_build_v1/validation.json').read_text())
-    if qualified['status'] != 'PASS' or full['status'] != 'PASS':
-        raise ValueError('Missing qualified normal/isolated source checkpoint')
-    variant_key = 'integration_evidence/native_3d_core_v1/rotating_reservation_full_build_v1/directory_rotating.cpp'
-    if sha(prototype) != full['source_sha256'][variant_key]:
-        raise ValueError('Isolated variant differs from qualified protocol/full regression')
+    if a.comparison_kind == 'candidate_batch':
+        qualified_path = ROOT/'integration_evidence/native_3d_core_v1/engine_batch_qualification_v1/validation.json'
+        qualified = json.loads(qualified_path.read_text())
+        if qualified['status'] != 'PASS':
+            raise ValueError('Integrated engine milestone is not qualified')
+    else:
+        qualified_path = ROOT/'integration_evidence/native_3d_core_v1/completion_diagnostic_build_v1/validation.json'
+        qualified = json.loads(qualified_path.read_text())
+        prototype = ROOT/'integration_evidence/native_3d_core_v1/rotating_reservation_probe_v1/directory_rotating.cpp'
+        full = json.loads((ROOT/'integration_evidence/native_3d_core_v1/rotating_reservation_full_build_v1/validation.json').read_text())
+        if qualified['status'] != 'PASS' or full['status'] != 'PASS':
+            raise ValueError('Missing qualified normal/isolated source checkpoint')
+        variant_key = 'integration_evidence/native_3d_core_v1/rotating_reservation_full_build_v1/directory_rotating.cpp'
+        if sha(prototype) != full['source_sha256'][variant_key]:
+            raise ValueError('Isolated variant differs from qualified protocol/full regression')
     if any(sha(ROOT/name) != digest for name, digest in qualified['source_sha256'].items()
            if name.startswith(('Common/', 'SU2_CFD/', 'UnitTests/'))):
         raise ValueError('Compiled source differs from this qualified scheduler comparison')
@@ -91,28 +98,37 @@ def main():
         if stage['exit_code'] or stage.get('timeout'):
             raise RuntimeError('Standard package preparation failed; logs retained')
         normal = verify_package(out/'baseline')
-        shutil.copytree(out/'baseline', out/'candidate')
-        isolated = out/'candidate/isolated'
-        isolated.mkdir()
-        # Only the include location changes; the qualified reservation implementation remains exact.
-        source = isolated/'directory_rotating.cpp'
-        text = prototype.read_text()
-        first = '#include "../../../Common/include/adaptation/CNativeDistributed3D.hpp"'
-        if text.count(first) != 1:
-            raise ValueError('Unexpected qualified variant include layout')
-        source.write_text(text.replace(first, '#include "adaptation/CNativeDistributed3D.hpp"'))
-        shutil.copyfile(HERE/'prepare.py', isolated/'prepare.py')
-        obj, compile_args, link_args = directory_recipe(build, source, out/'candidate/bin/test_driver', isolated/'link.map')
-        for label, args in [('compile', compile_args), ('link', link_args)]:
-            stage = command(['nice', '-n', '19', *args], build, 'reservation_'+label, env, 900)
-            for suffix in ('stdout', 'stderr'):
-                shutil.move(build/('reservation_'+label+'.'+suffix), isolated/(label+'.'+suffix))
-            steps.append(stage)
-            if stage['exit_code'] or stage.get('timeout'):
-                raise RuntimeError('Isolated '+label+' failed; original evidence retained')
-        map_text = (isolated/'link.map').read_text()
-        if str(obj) not in map_text or 'adaptation_CNativeDistributed3D.cpp.o' in map_text:
-            raise ValueError('Normal directory archive member was unexpectedly linked')
+        def control_copy(source, target):
+            if a.comparison_kind == 'candidate_batch':
+                try:
+                    os.link(source, target)  # Source is already a closed regular copy inside this bundle.
+                    return target
+                except OSError:
+                    pass
+            return shutil.copy2(source, target)
+        shutil.copytree(out/'baseline', out/'candidate', copy_function=control_copy)
+        if a.comparison_kind == 'rotating_reservation':
+            isolated = out/'candidate/isolated'
+            isolated.mkdir()
+            # Only the include location changes; the qualified reservation implementation remains exact.
+            source = isolated/'directory_rotating.cpp'
+            text = prototype.read_text()
+            first = '#include "../../../Common/include/adaptation/CNativeDistributed3D.hpp"'
+            if text.count(first) != 1:
+                raise ValueError('Unexpected qualified variant include layout')
+            source.write_text(text.replace(first, '#include "adaptation/CNativeDistributed3D.hpp"'))
+            shutil.copyfile(HERE/'prepare.py', isolated/'prepare.py')
+            obj, compile_args, link_args = directory_recipe(build, source, out/'candidate/bin/test_driver', isolated/'link.map')
+            for label, args in [('compile', compile_args), ('link', link_args)]:
+                stage = command(['nice', '-n', '19', *args], build, 'reservation_'+label, env, 900)
+                for suffix in ('stdout', 'stderr'):
+                    shutil.move(build/('reservation_'+label+'.'+suffix), isolated/(label+'.'+suffix))
+                steps.append(stage)
+                if stage['exit_code'] or stage.get('timeout'):
+                    raise RuntimeError('Isolated '+label+' failed; original evidence retained')
+            map_text = (isolated/'link.map').read_text()
+            if str(obj) not in map_text or 'adaptation_CNativeDistributed3D.cpp.o' in map_text:
+                raise ValueError('Normal directory archive member was unexpectedly linked')
         for name, digest in normal['actual_objects_sha256'].items():
             if sha(build/name) != digest:
                 raise ValueError('Normal test object changed during preparation')
@@ -123,15 +139,23 @@ def main():
             raise ValueError('Production source changed during preparation')
         if sha(build/'UnitTests/test_driver') != normal['files_sha256']['bin/test_driver']:
             raise ValueError('Normal binary changed during preparation')
-        object_pin = dict(bytes=obj.stat().st_size, sha256=sha(obj))
-        obj.unlink()
-        candidate = dict(normal, isolated_variant=dict(source_sha256=sha(source), qualified_prototype_sha256=sha(prototype),
-                         removed_object=object_pin, phases=steps, scope='One isolated rotating-directory object linked before unchanged configured68test objects/archives; normal directory member excluded. Include location only changed. Preparation is not MPI/numerical/performance qualification.'))
+        if a.comparison_kind == 'rotating_reservation':
+            object_pin = dict(bytes=obj.stat().st_size, sha256=sha(obj))
+            obj.unlink()
+            candidate = dict(normal, isolated_variant=dict(source_sha256=sha(source), qualified_prototype_sha256=sha(prototype),
+                             removed_object=object_pin, phases=steps, scope='One isolated rotating-directory object linked before unchanged configured68test objects/archives; normal directory member excluded. Include location only changed. Preparation is not MPI/numerical/performance qualification.'))
+        else:
+            # Both controls use the same current binary; only the test-only candidate batch differs.
+            normal = dict(normal, internal_control=dict(candidate_batch=1))
+            candidate = dict(normal, internal_control=dict(candidate_batch=8))
+            (out/'candidate/manifest.json').unlink()
+            (out/'baseline/manifest.json').write_text(json.dumps(normal, indent=2)+'\n')
         candidate['files_sha256'] = {str(p.relative_to(out/'candidate')):sha(p) for p in (out/'candidate').rglob('*') if p.is_file() and p.name != 'manifest.json'}
         (out/'candidate/manifest.json').write_text(json.dumps(candidate, indent=2)+'\n')
         verify_package(out/'candidate')
-        if candidate['files_sha256']['bin/test_driver'] == normal['files_sha256']['bin/test_driver']:
-            raise ValueError('Scheduler binaries unexpectedly identical')
+        identical = candidate['files_sha256']['bin/test_driver'] == normal['files_sha256']['bin/test_driver']
+        if identical != (a.comparison_kind == 'candidate_batch'):
+            raise ValueError('Comparison binary identity does not match its declared controls')
         (out/'suite').mkdir()
         for name in ('common.py', 'campaign.py', 'analyze.py', 'RunReservationComparisonSGE.sh', 'README.md'):
             shutil.copyfile(HERE/name, out/'suite'/name)
@@ -143,10 +167,10 @@ def main():
             p = out/'shared/audits'/name
             p.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(ROOT/'integration_evidence/native_3d_core_v1'/name, p)
-        record = dict(status='PREPARED_NOT_VALIDATED', comparison_kind='rotating_reservation',
+        record = dict(status='PREPARED_NOT_VALIDATED', comparison_kind=a.comparison_kind,
                       packages={side:dict(manifest_sha256=sha(out/side/'manifest.json'), binary_sha256=verify_package(out/side)['files_sha256']['bin/test_driver']) for side in ('baseline','candidate')},
                       files_sha256={str(p.relative_to(out)):sha(p) for p in out.rglob('*') if p.is_file()},
-                      scope='Closed regular runtime inputs for same-build standard versus isolated rotating scheduling. Each trajectory requires a fresh full audit. No production change, correctness, timing, scaling or affordability claim from preparation.')
+                      scope='Closed regular runtime inputs for same-build scheduling controls (batch1/batch8 use the identical binary). Each trajectory requires a fresh full audit. No production change, correctness, timing, scaling or affordability claim from preparation.')
         (out/'comparison_manifest.json').write_text(json.dumps(record, indent=2)+'\n')
         verify(out)
         status = 'PREPARED_NOT_VALIDATED'

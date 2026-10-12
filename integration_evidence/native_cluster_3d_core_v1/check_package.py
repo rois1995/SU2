@@ -152,6 +152,23 @@ class PackageChecks(unittest.TestCase):
             (bundle/'manifest.json').write_text(json.dumps(manifest))
             invoke('passed_101')
             self.assertEqual(json.loads((root/'passed_101/result.json').read_text())['status'],'PASS')
+            manifest['regression_cases']=102
+            (bundle/'manifest.json').write_text(json.dumps(manifest))
+            invoke('passed_102')
+            self.assertEqual(json.loads((root/'passed_102/result.json').read_text())['status'],'PASS')
+            manifest['regression_cases']=103
+            (bundle/'manifest.json').write_text(json.dumps(manifest))
+            invoke('passed_103')
+            self.assertEqual(json.loads((root/'passed_103/result.json').read_text())['status'],'PASS')
+            for batch in (1,8):
+                manifest['internal_control']={'candidate_batch':batch}
+                (bundle/'manifest.json').write_text(json.dumps(manifest))
+                with patch.dict(os.environ,{'SU2_NATIVE3D_ENVELOPE_BATCH':'99'}):
+                    invoke('batch_'+str(batch))
+                row=json.loads((root/('batch_'+str(batch))/'restart_n4_m2_cgns/case_environment.json').read_text())
+                self.assertEqual(row['SU2_NATIVE3D_ENVELOPE_BATCH'],str(batch))
+            del manifest['internal_control']
+            (bundle/'manifest.json').write_text(json.dumps(manifest))
             calls.clear()
             with self.assertRaisesRegex(RuntimeError,'Audit failure'):invoke('failed')
             failure=json.loads((root/'failed/result.json').read_text())

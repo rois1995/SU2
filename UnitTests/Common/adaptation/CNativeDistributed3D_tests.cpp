@@ -747,7 +747,8 @@ void EngineReport(const EngineResult& result, World& world, const std::string& l
        << " donor_candidates=" << s.donor_candidates << " donor_filtered=" << s.donor_filtered << " donor_box_filtered=" << s.donor_box_filtered
        << " donor_payloads=" << s.donor_payloads << " donor_maximum_patch=" << s.donor_maximum_patch
        << " donor_search_nested_s=" << s.donor_search_seconds << " donor_filter_nested_s=" << s.donor_filter_seconds
-       << " field_build_nested_s=" << s.field_build_seconds << " field_query_nested_s=" << s.field_query_seconds
+       << " batch_rounds=" << s.batch_rounds << " batch_candidates=" << s.batch_candidates
+       << " batch_reserved=" << s.batch_reserved << " field_build_nested_s=" << s.field_build_seconds << " field_query_nested_s=" << s.field_query_seconds
        << " cache_nested_s=" << s.field_cache_seconds << " search_nested_s=" << s.field_search_seconds
        << " interpolation_nested_s=" << s.field_interpolation_seconds << " composition_nested_s=" << s.field_composition_seconds
        << " edge_nested_s=" << s.edge_seconds << " edge_search_nested_s=" << s.edge_search_seconds
@@ -1883,6 +1884,18 @@ TEST_CASE("Native MPI batch lookup preserves per-candidate complete stars and re
     CHECK(large.candidates[i].cells.front().cell==i);
   }
   CHECK_FALSE(directory.Lookup(features).valid);  // Legacy union still has its original64-cell limit.
+  const auto large_payload=directory.FetchBatch(large,owned);
+  REQUIRE(large_payload.valid);
+  const auto large_reservation=directory.ReserveBatch(large_payload);
+  REQUIRE(large_reservation.valid);
+  CHECK(large_reservation.chosen.size()==features.size());
+  for (size_t i=0;i<large_payload.candidates.size();++i) {
+    REQUIRE(large_payload.candidates[i].valid);
+    REQUIRE(large_payload.candidates[i].cells.size()==1);
+    CHECK(large_payload.candidates[i].cells[0].cell.id==i);
+    CHECK(large_reservation.chosen[i]);
+  }
+
   std::vector<Dependencies> serial;
   const auto baseline_begin=world.collective_calls, baseline_bytes=world.bytes_sent;
   for (Id i=0;i<5;++i) {
@@ -1925,12 +1938,144 @@ TEST_CASE("Native MPI batch lookup preserves per-candidate complete stars and re
     CHECK(pack(dimensions.candidates[0])==pack(serial[0]));
     CHECK(pack(dimensions.candidates[1])==pack(serial[0]));
   }
+  const auto repeated=directory.LookupBatch(world.rank ? std::vector<Feature>{} :
+      std::vector<Feature>{{{0,0,0},1},{{4,0,0},1},{{0,0,0},1}});
+  const auto payload_begin=directory.Statistics().payloads;
+  const auto repeated_payload=directory.FetchBatch(repeated,owned);
+  REQUIRE(repeated_payload.valid);
+  CHECK(directory.Statistics().payloads-payload_begin==(world.rank ? 0 : 2));
+  if (!world.rank) {
+    REQUIRE(repeated_payload.candidates.size()==3);
+    CHECK(Bytes(repeated_payload.candidates[0].cells[0])==Bytes(repeated_payload.candidates[2].cells[0]));
+  }
+  for (size_t i=0;i<3;++i) {
+    const auto serial_payload=directory.Fetch(world.rank ? Dependencies{{},true,{}} : repeated.candidates[i],owned);
+    REQUIRE(serial_payload.valid);
+    if (!world.rank) CHECK(Bytes(serial_payload.cells[0])==Bytes(repeated_payload.candidates[i].cells[0]));
+  }
+  auto stale=directory.LookupBatch(world.rank ? std::vector<Feature>{} :
+      std::vector<Feature>{{{0,0,0},1},{{4,0,0},1}});
+  if (!world.rank) ++stale.candidates[1].cells[0].version;
+  const auto stale_payload=directory.FetchBatch(stale,owned);
+  REQUIRE(stale_payload.valid);
+  if (!world.rank) {
+    CHECK(stale_payload.candidates[0].valid);CHECK_FALSE(stale_payload.candidates[1].valid);
+    CHECK(stale_payload.candidates[1].cells.empty());
+  }
+  const auto partial=directory.ReserveBatch(stale_payload);
+  REQUIRE(partial.valid);
+  if (!world.rank) { CHECK(partial.chosen[0]);CHECK_FALSE(partial.chosen[1]); }
+  auto inconsistent=repeated;
+  if (!world.rank) ++inconsistent.candidates[2].cells[0].version;
+  CHECK_FALSE(directory.FetchBatch(inconsistent,owned).valid);
+  const auto shared=directory.LookupBatch({{{0,0,0},1},{{4,0,0},1},{{0,0,0},1}});
+  REQUIRE(shared.valid);
+  const auto shared_payload=directory.FetchBatch(shared,owned);
+  REQUIRE(shared_payload.valid);
+  const auto reservation=directory.ReserveBatch(shared_payload);
+  REQUIRE(reservation.valid);REQUIRE(reservation.chosen.size()==3);
+  CHECK(reservation.chosen[0]==(world.rank==0));CHECK(reservation.chosen[1]==(world.rank==0));
+  CHECK_FALSE(reservation.chosen[2]);  // Same caller candidates also conflict on their complete stars.
+  const auto mixed_payload=directory.FetchBatch(mixed,owned);
+  REQUIRE(mixed_payload.valid);
+  if (!world.rank) {
+    CHECK(mixed_payload.candidates[0].valid);CHECK(mixed_payload.candidates[3].valid);
+    CHECK_FALSE(mixed_payload.candidates[1].valid);CHECK_FALSE(mixed_payload.candidates[2].valid);
+  }
+  CHECK_FALSE(directory.FetchBatch(repeated,owned,world.rank ? SIZE_MAX : 1).valid);
+  CHECK_FALSE(directory.ReserveBatch(shared_payload,world.rank ? SIZE_MAX : 1).valid);
+  auto malformed=shared_payload;
+  if (!world.rank) malformed.candidates[0].cells.clear();
+  CHECK_FALSE(directory.ReserveBatch(malformed).valid);
   const auto idle=directory.LookupBatch({});
   CHECK(idle.valid);CHECK(idle.candidates.empty());
+  const auto idle_payload=directory.FetchBatch(idle,owned);
+  REQUIRE(idle_payload.valid);CHECK(idle_payload.candidates.empty());
+  const auto idle_reserved=directory.ReserveBatch(idle_payload);
+  CHECK(idle_reserved.valid);CHECK(idle_reserved.chosen.empty());
   CHECK_FALSE(directory.LookupBatch(world.rank ? std::vector<Feature>{} :
       std::vector<Feature>(MaximumDirectoryFeatures+1,{{0,0,0},1})).valid);
   const auto refused=directory.LookupBatch(features,world.rank ? SIZE_MAX : 1);
   CHECK_FALSE(refused.valid);CHECK(refused.candidates.empty());
   CHECK_FALSE(directory.LookupBatch(Query(world,{{0,0,0},2})).valid);
   CHECK(directory.Snapshot()==snapshot);CHECK(Bytes(owned)==mesh);
+}
+
+TEST_CASE("Native batched coarsening completes disjoint planar edits in one epoch", "[NativeDistributed3D][NativeBatchEngine3D]") {
+  World world;
+  Fixture fixture;
+  Owned input;
+  std::vector<DonorCell> source;
+  for (Id i=0;i<MaximumCandidateBatch;++i) {
+    auto box=Box();
+    for (auto& cell:box.patch.cells) {
+      cell.id+=100*i;
+      for (auto& node:cell.v) { node.id+=16*i;node.p.x+=2*i; }
+    }
+    for (auto& face:box.patch.surface) { face.facet+=12*i; for (auto& id:face.v) id+=16*i; }
+    for (auto& facet:box.facets) {
+      facet.id+=12*i;
+      for (auto& node:facet.v) { node.id+=16*i;node.p.x+=2*i; }
+    }
+    const PlanarReference geometry(box.facets);
+    Patch split;std::string reason;
+    REQUIRE(SplitEdge(box.patch,{16*i,16*i+6},{16*i+8,{2.*i+.5,.5,.5}},100*i+20,geometry,split,reason));
+    const auto owned=Partition(Rows(split),world);
+    input.insert(owned.begin(),owned.end());
+    auto donors=Uniform(Partition(Rows(box.patch),world),{1,0,0,1,0,1});
+    source.insert(source.end(),donors.begin(),donors.end());
+    fixture.patch.cells.insert(fixture.patch.cells.end(),box.patch.cells.begin(),box.patch.cells.end());
+    fixture.facets.insert(fixture.facets.end(),box.facets.begin(),box.facets.end());
+    fixture.patch.surface.insert(fixture.patch.surface.end(),box.patch.surface.begin(),box.patch.surface.end());
+  }
+  const PlanarReference geometry(fixture.facets);
+  const auto saved=Bytes(input);
+  EngineOptions options;options.maximum_rounds=1;options.timings=true;
+  const auto result=Coarsen(world,input,source,geometry,{},options);
+  INFO(result.reason);
+  REQUIRE(result.valid);
+  CHECK(Bytes(input)==saved);
+  CHECK(result.stats.rounds==1);CHECK(result.stats.batch_rounds==1);
+  CHECK(world.sum(int(result.stats.accepted))==int(MaximumCandidateBatch));
+  CHECK(result.stats.remaining_edges==0);CHECK(result.stats.cached_invalid_cells==0);
+  CHECK(result.stats.other_seconds>=-1e-12);
+  const auto final=Gather(world,result.cells);
+  if (!world.rank) {
+    REQUIRE(final.size()==6*MaximumCandidateBatch);
+    const auto cells=PatchOf(final).cells;
+    CHECK_NOTHROW(ValidateDomainSurfaceTopology(Incidence(cells).Boundary()));
+    // Root's independent metric field must cover every disconnected component.
+    std::vector<DonorCell> all;
+    for (const auto& cell:fixture.patch.cells) { DonorCell donor;donor.cell=cell;donor.sensor.fill({1,0,0,1,0,1});all.push_back(donor); }
+    FrozenField full(all);PatchMetric metric;std::string reason;
+    CHECK(ValidateMetricPatch(cells,full,metric,reason));
+    long double volume=0;
+    for (const auto& cell:cells) volume+=Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p)/6;
+    CHECK(std::abs(volume-MaximumCandidateBatch)<1e-12L);
+  }
+  MeshRecords("batched_coarsen_initial",world,input);
+  MeshRecords("batched_coarsen_final",world,result.cells);
+  EngineReport(result,world);
+  options.candidate_batch=1;
+  const auto serial=Coarsen(world,input,source,geometry,{},options);
+  CHECK_FALSE(serial.valid);CHECK(serial.stats.cached_invalid_cells==0);
+  CHECK(world.sum(int(serial.stats.accepted))<int(MaximumCandidateBatch));
+  CHECK(Bytes(input)==saved);
+  options.candidate_batch=world.rank ? 1 : MaximumCandidateBatch;
+  if (world.size>1) CHECK_FALSE(Coarsen(world,input,source,geometry,{},options).valid);
+  options.candidate_batch=MaximumCandidateBatch+1;
+  CHECK_FALSE(Coarsen(world,input,source,geometry,{},options).valid);
+  options.candidate_batch=MaximumCandidateBatch;options.maximum_rounds=512;
+  const auto coarse=Partition(Rows(fixture.patch),world);
+  const auto coarse_saved=Bytes(coarse);
+  const auto refined=Refine(world,coarse,Uniform(coarse,{4,0,0,4,0,4}),geometry,{},options);
+  INFO(refined.reason);
+  REQUIRE(refined.valid);CHECK(Bytes(coarse)==coarse_saved);
+  CHECK(refined.stats.batch_rounds>0);
+  CHECK(world.sum(int(refined.stats.accepted))>int(refined.stats.rounds));
+  CHECK(refined.stats.remaining_edges==0);CHECK(refined.stats.cached_invalid_cells==0);
+  CHECK(refined.stats.other_seconds>=-1e-12);
+  MeshRecords("batched_refine_initial",world,coarse);
+  MeshRecords("batched_refine_final",world,refined.cells);
+  EngineReport(refined,world);
 }

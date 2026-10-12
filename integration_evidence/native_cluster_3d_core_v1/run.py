@@ -37,6 +37,9 @@ def distributed_audits(work,ranks,tools,env,seconds):
                 (('audit_anisotropic.py','distributed_anisotropic'),('audit_cycles.py','distributed_cycles'),
                  ('audit_repairs.py','distributed_repairs'),('audit_engine_repairs.py','distributed_automatic'),
                  ('audit_coplanar.py','distributed_coplanar'))]
+    if any(line.startswith('MESH batched_coarsen_') for line in log.read_text().splitlines()):
+        recipes.append(('audit_batch_engine.py',[log,work/'distributed_batch_engine'],
+                        work/'distributed_batch_engine/independent_audit.json'))
     stages=[];status='FAIL'
     try:
         for script,args,certificate in recipes:
@@ -125,6 +128,11 @@ def main():
     env=dict(os.environ,OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1',PYTHONDONTWRITEBYTECODE='1',LC_ALL='C')
     for key in tuple(env):
         if key.startswith('SU2_NATIVE3D_ENVELOPE_'):del env[key]
+    control=manifest.get('internal_control')
+    if control is not None:
+        if set(control)!={'candidate_batch'} or type(control['candidate_batch']) is not int or control['candidate_batch'] not in (1,8):
+            raise ValueError('Invalid frozen candidate-batch control')
+        env['SU2_NATIVE3D_ENVELOPE_BATCH']=str(control['candidate_batch'])
     tools=bundle/'integration_evidence/native_3d_core_v1'
     def run(work,ranks,selection,local_env=env,parameters=None):
         work.mkdir()

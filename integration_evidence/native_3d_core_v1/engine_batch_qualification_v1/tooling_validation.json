@@ -1,0 +1,91 @@
+{
+  "status": "PASS",
+  "reason": "",
+  "stages": [
+    {
+      "label": "core_tool_checks",
+      "command": [
+        "python3",
+        "integration_evidence/native_cluster_3d_core_v1/check_package.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.806636240973603
+    },
+    {
+      "label": "comparison_tool_checks",
+      "command": [
+        "python3",
+        "integration_evidence/native_cluster_3d_reservation_comparison_v1/check_package.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.6189325739978813
+    },
+    {
+      "label": "actual_core_registration",
+      "command": [
+        "mpirun",
+        "--bind-to",
+        "none",
+        "-np",
+        "1",
+        "integration_evidence/build-integrated-v2/UnitTests/test_driver",
+        "[NativeMesh3D],[NativeDistributed3D],[NativeReference3D],[NativeBudget3D],[NativeDefault3D],[NativeBridge2D],[NativeBridge3D]",
+        "--list-tests",
+        "--use-colour",
+        "no"
+      ],
+      "exit_code": 103,
+      "seconds": 2.3590369079611264
+    },
+    {
+      "label": "package_preparation",
+      "command": [
+        "python3",
+        "integration_evidence/native_cluster_3d_reservation_comparison_v1/prepare.py",
+        "--build-dir",
+        "integration_evidence/build-integrated-v2",
+        "--output",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_qualification_v1/package_smoke",
+        "--ninja",
+        "/tmp/native-build-tools/ninja",
+        "--comparison-kind",
+        "candidate_batch"
+      ],
+      "exit_code": 0,
+      "seconds": 42.90909557801206
+    }
+  ],
+  "core_tool_tests": 34,
+  "comparison_tool_tests": 17,
+  "core_registered_cases": 103,
+  "collector_failure_sha256": "4fac951eda7c20036d4b64febb99354e9a203eb71f4a70259e3a6be15e2e111b",
+  "collector_correction": "Catch lists 103 matching test cases, not 103 test cases; previously passed tool checks and registration reused without rerun.",
+  "tools_sha256": {
+    "integration_evidence/native_cluster_3d_core_v1/CLUSTER_MMG_SETUP_REPORT.md": "b21b0d89c4d0885d53d63ff1cb0309c39d45ec60c3f1ef86d1a1015169111fd5",
+    "integration_evidence/native_cluster_3d_core_v1/PROFILE_ANALYSIS_REPORT.md": "9757dcb96ea13c256dc8a9c0671e8f0c3ef37c1740ca51112a0d4863add789a3",
+    "integration_evidence/native_cluster_3d_core_v1/check_package.py": "1738a198be7af83dd784f7ea41e1138bd923b9d5a0a9457a2861a8a7f005855e",
+    "integration_evidence/native_cluster_3d_core_v1/analyze.py": "651fc2fea07b4afbfaa8b3ecf2bce47e77b67d17b3348ea8c620d5268ddd824e",
+    "integration_evidence/native_cluster_3d_core_v1/prepare.py": "1ceb86eadecb8304a419bf7bb9ea45a4969b857123369304344c22fa35c6837b",
+    "integration_evidence/native_cluster_3d_core_v1/profile_summary.py": "3dd80f1911dfb17745e931deb5a04dd2a1e7bf5de823707a35a390a723e90879",
+    "integration_evidence/native_cluster_3d_core_v1/README.md": "0a49c18c59a1fa1fa26aa228cd9565eaa2907148e0f92e5d798692e4fe2c74ca",
+    "integration_evidence/native_cluster_3d_core_v1/RunNative3DSGE.sh": "04e7a54cec5a8d4c499ec62fcda561fe1c55be122a5760f57b686fa20a29524b",
+    "integration_evidence/native_cluster_3d_core_v1/submit.py": "76ba5bbc2f9e91d1d0d8567175b2515a2e48657ebae4808e07e7b13e8dabf1d0",
+    "integration_evidence/native_cluster_3d_core_v1/PRACTICAL_LIMIT_PREPARATION_REPORT.md": "e107d2c228688464879d14aa31fc04254903fba007808c9d25208546832c8beb",
+    "integration_evidence/native_cluster_3d_core_v1/run.py": "a127962ca6617e37a3a75e7d76ce6e3f803e1bfee9a45091b0ea721a74d64474",
+    "integration_evidence/native_cluster_3d_core_v1/PACKAGE_PREPARATION_REPORT.md": "e5dc61875710cd41ac2691078b2049e7a4551335efa88926daa1bd6c204eab72",
+    "integration_evidence/native_cluster_3d_core_v1/mpi_profile.py": "11e46f3d01289c1d050221d5264cf00a62e4da29385705a4ca7bff003ee9651b",
+    "integration_evidence/native_cluster_3d_core_v1/restore.py": "b9a32c4dd7bdd99e84aec755acccd32841038f6f1c27735cd70277b658dcabbb",
+    "integration_evidence/native_cluster_3d_reservation_comparison_v1/campaign.py": "ffb4a801b64b15b63a7d7f45513333d88ffe2b4d030c41798de98f0041665dd9",
+    "integration_evidence/native_cluster_3d_reservation_comparison_v1/PREPARATION_REPORT.md": "00aeaa1b731d65be5a6c9f3ee1893a7aec60df7e3a47b337192fc47bdf797323",
+    "integration_evidence/native_cluster_3d_reservation_comparison_v1/check_package.py": "891217549e556741c583afbe69368679bc74239df4f2c28c3ff91c5d221644f8",
+    "integration_evidence/native_cluster_3d_reservation_comparison_v1/analyze.py": "e1436c737687d5c631089db57ec03ba9d7f8f94778f78f2f7a7f53a51a1d00ed",
+    "integration_evidence/native_cluster_3d_reservation_comparison_v1/prepare.py": "d86573f20f915a262511474ad1f656807526193ae0f13e381c5d46a88eee5db3",
+    "integration_evidence/native_cluster_3d_reservation_comparison_v1/README.md": "3107db5168a669fb92cfa8ba9c2b3149fb6be30a77356f7bb853d94f72f7e5b7",
+    "integration_evidence/native_cluster_3d_reservation_comparison_v1/submit.py": "6197778923a12796477fd54d7da312f1004645bf911d64af5804668a5f7bab3a",
+    "integration_evidence/native_cluster_3d_reservation_comparison_v1/RunReservationComparisonSGE.sh": "8bedddd0f9b8202242b3467941ecc3472ca2bea8bc1bca2211b5584618ed629d",
+    "integration_evidence/native_cluster_3d_reservation_comparison_v1/PREPARATION_SMOKE_VALIDATION.json": "d9aaa23fe8e093155f7d20abdb410d7d938d91dd01adee76dd97434d48048fd0",
+    "integration_evidence/native_cluster_3d_reservation_comparison_v1/seed_pins.json": "d42f5f0ee3d510bf0d18f71e1ddbf8431cdb11287d1ff5750af8b6e044c87a51",
+    "integration_evidence/native_cluster_3d_reservation_comparison_v1/common.py": "bbf9f29630938aae31129be56bb1902a0f9f9dd429ba2baf8ef5829a5537fd3a"
+  },
+  "scope": "51 lightweight reusable tooling checks, actual103 core test registration and real preparation/closure/control-identity smoke. No numerical comparison, local performance campaign or cluster submission."
+}

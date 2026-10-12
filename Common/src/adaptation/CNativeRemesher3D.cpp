@@ -407,7 +407,8 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
              << " directory_elections=" << e.directory_elections << " nested_directory_election=" << e.directory_election_seconds
              << " process_cpu=" << e.process_cpu_seconds << " private_reconstruction_cpu=" << e.reconstruction_cpu_seconds
              << " private_metric_cpu=" << e.metric_cpu_seconds << " private_measurement_cpu=" << e.measurement_cpu_seconds
-             << " rounds=" << e.rounds << " attempted=" << e.attempted << " accepted=" << e.accepted
+             << " batch_rounds=" << e.batch_rounds << " batch_candidates=" << e.batch_candidates
+             << " batch_reserved=" << e.batch_reserved << " rounds=" << e.rounds << " attempted=" << e.attempted << " accepted=" << e.accepted
              << " rejected=" << e.rejected << " conflicts=" << e.conflicts << " requests=" << e.field_requests
              << " hits=" << e.field_hits << " misses=" << e.field_misses << " invalid_queries=" << e.field_invalid_queries
              << " failures=" << e.field_failures << " evictions=" << e.field_evictions

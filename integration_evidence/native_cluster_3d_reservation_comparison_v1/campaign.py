@@ -44,7 +44,7 @@ def main():
     parser.add_argument('--timeout',type=int,default=7200)
     parser.add_argument('--mpi-profile',action='store_true',help='Paired existing mpiP controls, detail always ON')
     a=parser.parse_args();bundle=a.package.resolve();manifest=verify(bundle);old=core(bundle)
-    if manifest.get('comparison_kind')!='rotating_reservation':raise ValueError('Wrong scheduler comparison bundle')
+    if manifest.get('comparison_kind')not in ('rotating_reservation','candidate_batch'):raise ValueError('Wrong scheduler comparison bundle')
     if not a.machinefile.is_file() or a.timeout<1:raise ValueError('Invalid machinefile/timeout')
     if a.mode=='correctness' and a.ranks!=4:raise ValueError('Correctness needs four slots')
     if a.mode=='timing':
@@ -86,7 +86,10 @@ def main():
                 package=bundle/side;work=result/side
                 cmd=[sys.executable,str(package/'integration_evidence/native_cluster_3d_core_v1/run.py'),
                      '--package',str(package),'--results',str(work),'--mode','correctness','--ranks','4','--machinefile',str(a.machinefile.resolve()),'--timeout',str(a.timeout)]
-                row=old.command(cmd,result,side+'_correctness',env,a.timeout*10)
+                local=dict(env)
+                if manifest['comparison_kind']=='candidate_batch':
+                    local['SU2_NATIVE3D_ENVELOPE_BATCH']='1' if side=='baseline' else '8'
+                row=old.command(cmd,result,side+'_correctness',local,a.timeout*10)
                 if row['exit_code'] or row.get('timeout') or json.loads((work/'result.json').read_text())['status']!='PASS':raise RuntimeError(side+' correctness failed')
                 cases.append(dict(side=side,folder=side,stages=[row]))
         else:
@@ -109,6 +112,9 @@ def main():
                        diagnostic_rounds=1024 if a.size==8 else 512,repeat=max(0,repeat),detail=detail,restart_format='none')
                 if a.mpi_profile:p['mpi_profile']=switch
                 local=dict(env,**{f'SU2_NATIVE3D_ENVELOPE_{k.upper()}':str(v) for k,v in dict(size=a.size,workers=workers,anisotropy=1,varying=1,direction=1,height_power=0,wedge=1,aligned=1,rounds=p['diagnostic_rounds'],repeat=max(0,repeat),detail=detail,restart=0).items()})
+                if manifest['comparison_kind']=='candidate_batch':
+                    p['candidate_batch']=1 if side=='baseline' else 8
+                    local['SU2_NATIVE3D_ENVELOPE_BATCH']=str(p['candidate_batch'])
                 (work/'parameters.json').write_text(json.dumps(p,indent=2)+'\n')
                 (work/'case_environment.json').write_text(json.dumps({k:v for k,v in local.items() if k.startswith('SU2_NATIVE3D_ENVELOPE_')},indent=2)+'\n')
                 run=old.command(old.mpi_command(a.ranks,a.machinefile,bundle/side,'[NativeEnvelope3D]',profile=a.mpi_profile and bool(switch)),work,'case',local,a.timeout)
@@ -163,7 +169,7 @@ def main():
         failure=str(error);print('FAIL',failure,flush=True)
     finally:
         record=dict(status=status,failure=failure,mode=a.mode,ranks=a.ranks,size=a.size,mpi_profile=a.mpi_profile,manifest_sha256=sha(bundle/'comparison_manifest.json'),packages=manifest['packages'],cases=cases,host=host,
-                    comparison_kind='rotating_reservation',scope='Actual serialized two-scheduler correctness/lifecycle and paired operational-cost campaign. Independently audited different mesh/P1 trajectories are not fixed work. Timings use rank-max parent wall, excluding external audits; measured process wall includes assertions/output. Nested scopes are not added twice. Wrapper traffic is not wire traffic; elapsed/CPU is not pure wait. No physical-CFD affordability or automatic fullGoal1 claim.')
+                    comparison_kind=manifest['comparison_kind'],scope='Actual serialized two-scheduler correctness/lifecycle and paired operational-cost campaign. Independently audited different mesh/P1 trajectories are not fixed work. Timings use rank-max parent wall, excluding external audits; measured process wall includes assertions/output. Nested scopes are not added twice. Wrapper traffic is not wire traffic; elapsed/CPU is not pure wait. No physical-CFD affordability or automatic fullGoal1 claim.')
         record['artifact_sha256']={str(f.relative_to(result)):sha(f) for f in result.rglob('*') if f.is_file()}
         (result/'result.json').write_text(json.dumps(record,indent=2)+'\n')
     print(status,result,flush=True);raise SystemExit(status!='PASS')

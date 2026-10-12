@@ -1,0 +1,541 @@
+{
+  "status": "PASS",
+  "original_receipt_sha256": "d34c3a8ff163cef1a7d73002a3cbce97504243e5732dbcb93b93c7ddce0e1a68",
+  "original_status": "FAIL",
+  "original_collector_failure": "[Errno 2] No such file or directory: '/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/lifecycle_mpi1/independent_audit.json'",
+  "verified_original_artifact_count": 2380,
+  "mixed_cases_per_rank": 104,
+  "ranks": [
+    1,
+    2,
+    4
+  ],
+  "completed_stages": [
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "3",
+        "nice",
+        "-n",
+        "19",
+        "mpirun",
+        "--oversubscribe",
+        "--bind-to",
+        "none",
+        "-np",
+        "1",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+        "[NativeMesh3D],[NativeDistributed3D],[NativeReference3D],[NativeBudget3D],[NativeDefault3D],[NativeBridge2D],[NativeBridge3D],[NativeRuntime3D]",
+        "--use-colour",
+        "no"
+      ],
+      "label": "mpi1",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi1",
+      "exit_code": 0,
+      "seconds": 10.101252279011533
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "3",
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_geometry_bridge.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi1",
+        "1",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi1.stdout"
+      ],
+      "label": "bridge_mpi1",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi1",
+      "exit_code": 0,
+      "seconds": 23.71880383201642
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_distributed.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi1/case.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi1/distributed_meshes"
+      ],
+      "label": "audit_distributed",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi1",
+      "exit_code": 0,
+      "seconds": 1.9635617790045217
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_donors.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi1/case.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi1/distributed_meshes/coupled_initial.json",
+        "1",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi1/distributed_donors.json"
+      ],
+      "label": "audit_donors",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi1",
+      "exit_code": 0,
+      "seconds": 0.3944198679528199
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_anisotropic.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi1/case.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi1/distributed_anisotropic",
+        "1"
+      ],
+      "label": "audit_anisotropic",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi1",
+      "exit_code": 0,
+      "seconds": 5.394193664949853
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_cycles.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi1/case.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi1/distributed_cycles",
+        "1"
+      ],
+      "label": "audit_cycles",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi1",
+      "exit_code": 0,
+      "seconds": 14.081036427000072
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_repairs.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi1/case.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi1/distributed_repairs",
+        "1"
+      ],
+      "label": "audit_repairs",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi1",
+      "exit_code": 0,
+      "seconds": 4.138546732021496
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_engine_repairs.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi1/case.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi1/distributed_automatic",
+        "1"
+      ],
+      "label": "audit_engine_repairs",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi1",
+      "exit_code": 0,
+      "seconds": 11.143946885014884
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_coplanar.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi1/case.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi1/distributed_coplanar",
+        "1"
+      ],
+      "label": "audit_coplanar",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi1",
+      "exit_code": 0,
+      "seconds": 0.8663859670050442
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_batch_engine.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi1/case.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi1/distributed_batch_engine"
+      ],
+      "label": "audit_batch_engine",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi1",
+      "exit_code": 0,
+      "seconds": 7.167136268981267
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "3",
+        "nice",
+        "-n",
+        "19",
+        "mpirun",
+        "--oversubscribe",
+        "--bind-to",
+        "none",
+        "-np",
+        "2",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+        "[NativeMesh3D],[NativeDistributed3D],[NativeReference3D],[NativeBudget3D],[NativeDefault3D],[NativeBridge2D],[NativeBridge3D],[NativeRuntime3D]",
+        "--use-colour",
+        "no"
+      ],
+      "label": "mpi2",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi2",
+      "exit_code": 0,
+      "seconds": 83.38664170098491
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "3",
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_geometry_bridge.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi2",
+        "2",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi2.stdout"
+      ],
+      "label": "bridge_mpi2",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi2",
+      "exit_code": 0,
+      "seconds": 21.494698324997444
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_distributed.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi2/case.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi2/distributed_meshes"
+      ],
+      "label": "audit_distributed",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi2",
+      "exit_code": 0,
+      "seconds": 1.5329052400193177
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_donors.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi2/case.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi2/distributed_meshes/coupled_initial.json",
+        "2",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi2/distributed_donors.json"
+      ],
+      "label": "audit_donors",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi2",
+      "exit_code": 0,
+      "seconds": 0.1866641549859196
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_anisotropic.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi2/case.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi2/distributed_anisotropic",
+        "2"
+      ],
+      "label": "audit_anisotropic",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi2",
+      "exit_code": 0,
+      "seconds": 5.053090979985427
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_cycles.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi2/case.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi2/distributed_cycles",
+        "2"
+      ],
+      "label": "audit_cycles",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi2",
+      "exit_code": 0,
+      "seconds": 14.445883574022446
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_repairs.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi2/case.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi2/distributed_repairs",
+        "2"
+      ],
+      "label": "audit_repairs",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi2",
+      "exit_code": 0,
+      "seconds": 2.7258581539499573
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_engine_repairs.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi2/case.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi2/distributed_automatic",
+        "2"
+      ],
+      "label": "audit_engine_repairs",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi2",
+      "exit_code": 0,
+      "seconds": 7.485447127954103
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_coplanar.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi2/case.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi2/distributed_coplanar",
+        "2"
+      ],
+      "label": "audit_coplanar",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi2",
+      "exit_code": 0,
+      "seconds": 0.8973697129986249
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_batch_engine.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi2/case.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi2/distributed_batch_engine"
+      ],
+      "label": "audit_batch_engine",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi2",
+      "exit_code": 0,
+      "seconds": 3.5032273569959216
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "3",
+        "nice",
+        "-n",
+        "19",
+        "mpirun",
+        "--oversubscribe",
+        "--bind-to",
+        "none",
+        "-np",
+        "4",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+        "[NativeMesh3D],[NativeDistributed3D],[NativeReference3D],[NativeBudget3D],[NativeDefault3D],[NativeBridge2D],[NativeBridge3D],[NativeRuntime3D]",
+        "--use-colour",
+        "no"
+      ],
+      "label": "mpi4",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi4",
+      "exit_code": 0,
+      "seconds": 205.90028951095883
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "3",
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_geometry_bridge.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi4",
+        "4",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi4.stdout"
+      ],
+      "label": "bridge_mpi4",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi4",
+      "exit_code": 0,
+      "seconds": 48.845599635038525
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_distributed.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi4/case.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi4/distributed_meshes"
+      ],
+      "label": "audit_distributed",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi4",
+      "exit_code": 0,
+      "seconds": 1.5794135819887742
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_donors.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi4/case.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi4/distributed_meshes/coupled_initial.json",
+        "4",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi4/distributed_donors.json"
+      ],
+      "label": "audit_donors",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi4",
+      "exit_code": 0,
+      "seconds": 0.17820258997380733
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_anisotropic.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi4/case.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi4/distributed_anisotropic",
+        "4"
+      ],
+      "label": "audit_anisotropic",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi4",
+      "exit_code": 0,
+      "seconds": 7.71684428001754
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_cycles.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi4/case.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi4/distributed_cycles",
+        "4"
+      ],
+      "label": "audit_cycles",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi4",
+      "exit_code": 0,
+      "seconds": 22.381566531956196
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_repairs.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi4/case.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi4/distributed_repairs",
+        "4"
+      ],
+      "label": "audit_repairs",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi4",
+      "exit_code": 0,
+      "seconds": 4.442546148959082
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_engine_repairs.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi4/case.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi4/distributed_automatic",
+        "4"
+      ],
+      "label": "audit_engine_repairs",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi4",
+      "exit_code": 0,
+      "seconds": 9.690013505984098
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_coplanar.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi4/case.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi4/distributed_coplanar",
+        "4"
+      ],
+      "label": "audit_coplanar",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi4",
+      "exit_code": 0,
+      "seconds": 0.9693014929653145
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_batch_engine.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi4/case.stdout",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi4/distributed_batch_engine"
+      ],
+      "label": "audit_batch_engine",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/mpi4",
+      "exit_code": 0,
+      "seconds": 3.649561211001128
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "3",
+        "nice",
+        "-n",
+        "19",
+        "mpirun",
+        "--bind-to",
+        "none",
+        "-np",
+        "1",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+        "[NativeLifecycle3D]",
+        "--use-colour",
+        "no"
+      ],
+      "label": "lifecycle",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/lifecycle_mpi1",
+      "exit_code": 0,
+      "seconds": 0.8438723919680342
+    },
+    {
+      "command": [
+        "taskset",
+        "-c",
+        "3",
+        "nice",
+        "-n",
+        "19",
+        "/usr/bin/python3",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_lifecycle.py",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/lifecycle_mpi1",
+        "1",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/lifecycle_mpi1/case.stdout"
+      ],
+      "label": "audit_lifecycle",
+      "cwd": "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/engine_batch_milestone_v5/lifecycle_mpi1",
+      "exit_code": 0,
+      "seconds": 1.688424609019421
+    }
+  ],
+  "reused_driver_cases": {
+    "status": "PASS",
+    "original_receipt_sha256": "a20d75891f1dea2666caf0569559fdb92b33928a7ac97ed4059bc6525fc46efd",
+    "cgns_recovery_receipt_sha256": "8232c07080fc169543cd068397ae6370209135aa34221dd490777cf319c04aa4",
+    "cases": [
+      {
+        "case": "n8_n1_m1_default512",
+        "folder": "integration_evidence/native_3d_core_v1/engine_batch_milestone_v4/n8_n1_m1_default512",
+        "certificate_sha256": "f20115187a5bdc896cd817b75a5d1bf1c7d192068bcbdeff8f829f9aa8775812",
+        "mode": "exact artifact certificate reuse plus fresh current output/runtime checks",
+        "numerical_artifacts_sha256": {
+          "parameters.json": "a2c6b9c12287d64d54f793f52c3646dc766eae0e2ed78bbd0553097c7ccc96e8",
+          "case.stdout": "071449ecc2a14ba77e4bd6fbc2f1158801873f4bbb0ad6d0962ba157223f9a91",
+          "case.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "envelope_s0.json": "c4d6d846afae19aeca9521c34b5070cec9cc85aec80ac929d3d093c2f5b06b87",
+          "envelope_s1.json": "be49dceec95a1b2d4aa91997d721c60e175718efc95332c3702927148b006949",
+          "envelope_s2.json": "c97fd7c243c9f2734e1407ad800b811670018d6749dca22cc1b88e4defeb1ef5",
+          "envelope_s0_states.json": "ba724dbe3eebc494a3da89b9f1cc65a558e739dbcbd925680a93576ff4fc0a55",
+          "envelope_s1_states.json": "58161152b5bfddd86a82fbc78a5d3859b53ebb3dcd87d8675569bd6ca5b99e39",
+          "envelope_s2_states.json": "ca87b24e8b0d7cc5717068a8fe819472fc619c27d86b2cedcc113626f4fa3f23"
+        },
+        "scope": "Current full production driver passed all three events. Saved outputs reused without numerical rerun; original failed collector report retained."
+      },
+      {
+        "case": "n4_n4_m2_thin_strong_cgns",
+        "folder": "integration_evidence/native_3d_core_v1/engine_batch_cgns_audit_recovery_v1/n4_n4_m2_thin_strong_cgns",
+        "certificate_sha256": "d891e3def55f0b9504a40aa86271a73402c3dab2d0009c6973357eb37af42e96",
+        "mode": "fresh complete independent audit",
+        "numerical_artifacts_sha256": {
+          "parameters.json": "403bdafa4c8db845769db58b555471d06c8bcfd222e93aa30ac82cac18c0d498",
+          "case.stdout": "edc86c3d548dc14b0211b43f6536153847632b930fabb36467c4ced2cf08f002",
+          "case.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "envelope_s0.json": "bc12f53f278476a43f19aafe3ff437f671aed0f6f07ec1b1d8a8bf2f950b4dee",
+          "envelope_s1.json": "4c8d02f564c711134824bf68d3b0993f72aee214a2640c31049b3ba1eaa708bd",
+          "envelope_s2.json": "e9a9ecc17363ddf83c264455ba00921a79db1ede4a3b0e1f55e3cf291c0a9503",
+          "envelope_s0_states.json": "cf45e5f4725241452114b8f681471d8abeaa8ae6902b4cb27ed1241d4fe26ba1",
+          "envelope_s1_states.json": "1cc4b0800abde98b160640e0acf3d5443ff7686acfce1ffec232fbfd00c496fe",
+          "envelope_s2_states.json": "7ca6a15c9b36cdf7b04d0ad1ca0a96244ff8b34ac259dcf6befd6ec855ae8346"
+        },
+        "scope": "Current full production driver passed all three events. Saved outputs reused without numerical rerun; original failed collector report retained."
+      }
+    ]
+  },
+  "lifecycle_audit_sha256": "29734ecf630540becc1e0f7dffb70633a24e123846b51b0d6aa810dfb31001b2",
+  "lifecycle_frames": 6,
+  "scope": "Every current CPP/auditor stage exited0. Collector-only expected lifecycle certificate basename was incorrect; actual lifecycle_audit.json is PASS. No numerical rerun or promotion of the original failed receipt."
+}

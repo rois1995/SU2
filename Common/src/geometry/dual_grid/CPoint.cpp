@@ -133,7 +133,12 @@ void CPoint::SetElems(const vector<vector<long> >& elemsMatrix) { Elem = CCompre
 
 void CPoint::SetPoints(const vector<vector<unsigned long> >& pointsMatrix) {
   Point = CCompressedSparsePatternUL(pointsMatrix);
-  Edge = CCompressedSparsePatternL(Point.outerPtr(), Point.outerPtr() + Point.getOuterSize() + 1, long(-1));
+  if (Point.empty()) {
+    // Empty MPI ranks (or rows without neighbors) have no inner entries to initialize.
+    Edge = CCompressedSparsePatternL(pointsMatrix);
+  } else {
+    Edge = CCompressedSparsePatternL(Point.outerPtr(), Point.outerPtr() + Point.getOuterSize() + 1, long(-1));
+  }
 }
 
 void CPoint::SetVolume_n() {

@@ -1,0 +1,33 @@
+test_driver: ../../Common/src/geometry/dual_grid/../../../include/geometry/dual_grid/../../toolboxes/graph_toolbox.hpp:274: const Index_t* CCompressedSparsePattern<Index_t>::outerPtr() const [with Index_t = unsigned int]: Assertion `!empty() && "Sparse pattern has not been built."' failed.
+[pc-rausa:2621267] *** Process received signal ***
+[pc-rausa:2621267] Signal: Aborted (6)
+[pc-rausa:2621267] Signal code:  (-6)
+[pc-rausa:2621267] [ 0] /lib/x86_64-linux-gnu/libpthread.so.0(+0x14420)[0x7fcefd531420]
+[pc-rausa:2621267] [ 1] /lib/x86_64-linux-gnu/libpthread.so.0(raise+0xcb)[0x7fcefd5312ab]
+[pc-rausa:2621267] [ 2] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0x756494)[0x55cde4c90494]
+[pc-rausa:2621267] [ 3] /lib/x86_64-linux-gnu/libc.so.6(+0x43090)[0x7fcefd36e090]
+[pc-rausa:2621267] [ 4] /lib/x86_64-linux-gnu/libc.so.6(gsignal+0xcb)[0x7fcefd36e00b]
+[pc-rausa:2621267] [ 5] /lib/x86_64-linux-gnu/libc.so.6(abort+0x12b)[0x7fcefd34d859]
+[pc-rausa:2621267] [ 6] /lib/x86_64-linux-gnu/libc.so.6(+0x22729)[0x7fcefd34d729]
+[pc-rausa:2621267] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x33fd6)[0x7fcefd35efd6]
+[pc-rausa:2621267] [ 8] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0x135968f)[0x55cde589368f]
+[pc-rausa:2621267] [ 9] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0x1312770)[0x55cde584c770]
+[pc-rausa:2621267] [10] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0xb82df0)[0x55cde50bcdf0]
+[pc-rausa:2621267] [11] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0x4df9ef)[0x55cde4a199ef]
+[pc-rausa:2621267] [12] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0x4ca3db)[0x55cde4a043db]
+[pc-rausa:2621267] [13] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0x756953)[0x55cde4c90953]
+[pc-rausa:2621267] [14] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0x768dee)[0x55cde4ca2dee]
+[pc-rausa:2621267] [15] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0x7818de)[0x55cde4cbb8de]
+[pc-rausa:2621267] [16] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0x789260)[0x55cde4cc3260]
+[pc-rausa:2621267] [17] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0x789832)[0x55cde4cc3832]
+[pc-rausa:2621267] [18] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0x25fe27)[0x55cde4799e27]
+[pc-rausa:2621267] [19] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0xf3)[0x7fcefd34f083]
+[pc-rausa:2621267] [20] /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver(+0x28d28e)[0x55cde47c728e]
+[pc-rausa:2621267] *** End of error message ***
+--------------------------------------------------------------------------
+Primary job  terminated normally, but 1 process returned
+a non-zero exit code. Per user-direction, the job has been aborted.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+mpirun noticed that process rank 3 with PID 0 on node pc-rausa exited on signal 6 (Aborted).
+--------------------------------------------------------------------------

@@ -1,3 +1,29 @@
+## Integrated batched refinement/coarsening qualification — 2026-10-12
+
+ENGINE_BATCH_VALIDATION.md/json records the complete current manufactured-domain
+milestone: size8default512three-event driver2415→467→2542tets; strong/rotated/varying
+H20N4M2CGNS-restart417→64→413tets with fresh complete independent audit; full104case
+MPI1/2/4, bridge/eight distributed audits, six actual lifecycle frames, serialMMG and
+51tool checks plus actual103core registration and closed same-binary package smoke.
+Complete-star lookup/fetch/reservation share exchanges for up to8independent proposals;
+private geometry/original-P1 validation and atomic per-candidate publication remain.
+Sensor-only original-P1 authority and q>=.20/J>=.05/L<=1.8 criteria are unchanged.
+Shared CPoint empty/isolated CSR root fix resolves the actual MPI4emptyCFDrank rebuild
+assertion, with focused and full bridge regression. Failed historical receipts/source/
+raw outputs remain intact; collector basename/count fixes reuse only source/build/
+artifact-verified successful cases. See report for exact recovery/certificate scope.
+
+This supersedes the historical size8production512failure for the declared current
+batched driver trajectory, not for all mesh sizes or partitions. No net speedup or
+fullGoal1 completion follows. Same-binary batch1/8 SGE comparison is prepared; copied
+smoke binaries were removed after hashes to avoid storage duplication, and no cluster
+job was submitted. Diagnosis and progress-aware bounded execution are the next
+integrated engine step. Current512is a synchronized-round guard, not a justified
+mesh-size bound; incomplete coarsening can be metric-valid but remains rejected under
+the existing policy. Production driver stops before replacement on incomplete results,
+so retention is not automatic continuation. Repeated scaling/cost/overhead/weights/
+true-wait/memory envelope requirements remain open; Goal1 ACTIVE, Goal2 not started.
+
 ## Bounded persistent coarsening-witness replay — 2026-10-12
 
 Repository /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch

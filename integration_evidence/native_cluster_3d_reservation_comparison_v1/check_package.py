@@ -23,12 +23,17 @@ class Checks(unittest.TestCase):
             build_options=[dict(name='enable-tests',value=True),dict(name='prefix',value=str(p))],
             files_sha256={str(f.relative_to(p)):sha(f) for f in p.rglob('*') if f.is_file()})))
         return p
-    def comparison(self,root):
+    def comparison(self,root,kind="rotating_reservation"):
         p=root/'comparison';p.mkdir()
-        for side in ('baseline','candidate'):self.package(p,side)
+        for side in ('baseline','candidate'):
+            self.package(p,side)
+            if kind=='candidate_batch':
+                q=p/side;(q/'bin/test_driver').write_text('same batch-control binary')
+                m=json.loads((q/'manifest.json').read_text());m['internal_control']={'candidate_batch':1 if side=='baseline' else 8}
+                m['files_sha256']['bin/test_driver']=sha(q/'bin/test_driver');(q/'manifest.json').write_text(json.dumps(m))
         for name in ('suite','shared/core','shared/audits'):(p/name).mkdir(parents=True,exist_ok=True)
         (p/'suite/dummy.py').write_text('fixture only')
-        record=dict(status='PREPARED_NOT_VALIDATED',comparison_kind='rotating_reservation',packages={s:dict(manifest_sha256=sha(p/s/'manifest.json'),binary_sha256=sha(p/s/'bin/test_driver')) for s in ('baseline','candidate')},files_sha256={str(f.relative_to(p)):sha(f) for f in p.rglob('*') if f.is_file()})
+        record=dict(status='PREPARED_NOT_VALIDATED',comparison_kind=kind,packages={s:dict(manifest_sha256=sha(p/s/'manifest.json'),binary_sha256=sha(p/s/'bin/test_driver')) for s in ('baseline','candidate')},files_sha256={str(f.relative_to(p)):sha(f) for f in p.rglob('*') if f.is_file()})
         (p/'comparison_manifest.json').write_text(json.dumps(record));return p
 
 
@@ -116,8 +121,8 @@ class Checks(unittest.TestCase):
                 self.assertEqual(cmd[cmd.index('-hold_jid')+1],str(99 if not i else 100+i))
                 self.assertIn('PATH,LD_LIBRARY_PATH',cmd)
                 if i:self.assertIn('--gate',cmd)
-    def fake_campaign(self,root,changed=False,profiling=False,initial_changed=False,bad_length=None):
-        bundle=self.comparison(root);machine=root/'machinefile';machine.write_text('fixture slots')
+    def fake_campaign(self,root,changed=False,profiling=False,initial_changed=False,bad_length=None,kind="rotating_reservation"):
+        bundle=self.comparison(root,kind);machine=root/'machinefile';machine.write_text('fixture slots')
         if profiling:
             for side in ('baseline','candidate'):
                 q=bundle/side;(q/'bin/libmpiP.so').write_text('same fixture library')
@@ -129,6 +134,8 @@ class Checks(unittest.TestCase):
         def command(args,cwd,label,env,seconds):
             cwd=Path(cwd);(cwd/(label+'.stdout')).write_text('');(cwd/(label+'.stderr')).write_text('')
             if label=='case':
+                if kind=='candidate_batch' and 'ENVELOPE' in args[-1].upper():
+                    self.assertEqual(env['SU2_NATIVE3D_ENVELOPE_BATCH'],'1' if 'baseline' in cwd.name else '8')
                 if args[0]=='fixture-profile':(cwd/'fixture.mpiP').write_text('fixture API report')
                 (cwd/'case.stdout').write_text('All tests passed (1 assertions in 1 test case)\n')
                 if 'ENVELOPE' in args[-1].upper():
@@ -153,6 +160,16 @@ class Checks(unittest.TestCase):
         with patch.object(campaign,'core',return_value=tools),patch.object(campaign,'runtime',side_effect=measured),patch.dict(sys.modules,{'audit_geometry_bridge':geometry}),patch.object(sys,'argv',args),contextlib.redirect_stdout(io.StringIO()):
             with self.assertRaises(SystemExit) as e:campaign.main()
         return root/'results',e.exception.code
+    def test_batch_controls_use_same_binary_and_separate_trajectory_audits(self):
+        with tempfile.TemporaryDirectory() as t:
+            results,code=self.fake_campaign(Path(t),kind='candidate_batch')
+            self.assertEqual(code,0)
+            record=json.loads((results/'result.json').read_text())
+            self.assertEqual(record['comparison_kind'],'candidate_batch')
+            cases=[c for c in record['cases'] if not c.get('lifecycle')]
+            self.assertEqual({c['parameters']['candidate_batch'] for c in cases},{1,8})
+            self.assertEqual(sum(c['audit']['mode']=='fresh_full_geometry' for c in cases),2)
+
     def test_changed_scheduler_success_uses_two_references(self):
         with tempfile.TemporaryDirectory() as t:
             results,code=self.fake_campaign(Path(t));self.assertEqual(code,0)

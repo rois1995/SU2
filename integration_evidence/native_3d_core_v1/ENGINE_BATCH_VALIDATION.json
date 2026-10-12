@@ -1,0 +1,220 @@
+{
+  "status": "PASS",
+  "qualification_sha256": "0e4fc26fdbe3bcb1c3be9a27c9e72c821fdc1136311d25e24ccb337dbe904abb",
+  "tooling_sha256": "c4e1aa28ce0908fae2b89c567da068567f0743bd31f1c82ae62ba01ac08f9253",
+  "reuse_sha256": "bb1714fba68120ec4058c452cdf4a018a373208259a287ea2854579703db6713",
+  "branch": "codex/native-3d-transport-accounting",
+  "starting_commit": "fa17b3ecee48754bb2104155800a6c60bf93d153",
+  "cases": [
+    {
+      "folder": "integration_evidence/native_3d_core_v1/engine_batch_milestone_v4/n8_n1_m1_default512",
+      "parameters": {
+        "ranks": 1,
+        "workers": 1,
+        "size": 8,
+        "anisotropy": 1,
+        "varying": 1,
+        "direction": 1,
+        "height_power": 0,
+        "wedge": true,
+        "aligned_markers": true,
+        "diagnostic_rounds": 512,
+        "repeat": 0,
+        "detail": 1,
+        "restart_format": "none",
+        "candidate_batch": 8
+      },
+      "frames": [
+        {
+          "file": "envelope_s0.json",
+          "cells": 2415,
+          "points": 574,
+          "physical_faces": 610,
+          "volume": "1/2",
+          "minimum_mean_ratio": 0.5113385783105269,
+          "minimum_scaled_jacobian": 0.24630591761352935,
+          "maximum_length": 1.7998553161186335,
+          "longest_edge": [
+            31,
+            506
+          ],
+          "markers": {
+            "0": 128,
+            "4": 48,
+            "1": 128,
+            "3": 65,
+            "2": 224,
+            "5": 17
+          },
+          "strict_metric_gate": true
+        },
+        {
+          "file": "envelope_s1.json",
+          "cells": 467,
+          "points": 132,
+          "physical_faces": 184,
+          "volume": "1/2",
+          "minimum_mean_ratio": 0.21710768243619827,
+          "minimum_scaled_jacobian": 0.06680107894230544,
+          "maximum_length": 1.7946315664648058,
+          "longest_edge": [
+            19,
+            42
+          ],
+          "markers": {
+            "4": 21,
+            "2": 53,
+            "0": 42,
+            "1": 35,
+            "3": 27,
+            "5": 6
+          },
+          "strict_metric_gate": true
+        },
+        {
+          "file": "envelope_s2.json",
+          "cells": 2542,
+          "points": 590,
+          "physical_faces": 580,
+          "volume": "1/2",
+          "minimum_mean_ratio": 0.20911737746121012,
+          "minimum_scaled_jacobian": 0.05517324866892097,
+          "maximum_length": 1.7996308379595722,
+          "longest_edge": [
+            54,
+            140
+          ],
+          "markers": {
+            "0": 139,
+            "3": 79,
+            "5": 14,
+            "1": 111,
+            "2": 179,
+            "4": 58
+          },
+          "strict_metric_gate": true
+        }
+      ],
+      "maximum_state_relative_error": 3.9327799955588e-16,
+      "maximum_transported_tensor_absolute_error": 0.0,
+      "audit_sha256": "f20115187a5bdc896cd817b75a5d1bf1c7d192068bcbdeff8f829f9aa8775812",
+      "certificate_mode": "exact artifact certificate reuse plus fresh current output/runtime checks"
+    },
+    {
+      "folder": "integration_evidence/native_3d_core_v1/engine_batch_cgns_audit_recovery_v1/n4_n4_m2_thin_strong_cgns",
+      "parameters": {
+        "ranks": 4,
+        "workers": 2,
+        "size": 4,
+        "anisotropy": 2,
+        "varying": 1,
+        "direction": 1,
+        "height_power": 20,
+        "wedge": true,
+        "aligned_markers": true,
+        "diagnostic_rounds": 512,
+        "repeat": 0,
+        "detail": 1,
+        "restart_format": "cgns",
+        "candidate_batch": 8
+      },
+      "frames": [
+        {
+          "file": "envelope_s0.json",
+          "cells": 417,
+          "points": 133,
+          "physical_faces": 202,
+          "volume": "1/2097152",
+          "minimum_mean_ratio": 0.5075353441332509,
+          "minimum_scaled_jacobian": 0.21327734558445957,
+          "maximum_length": 1.7956516149938975,
+          "longest_edge": [
+            9,
+            13
+          ],
+          "markers": {
+            "1": 40,
+            "2": 62,
+            "0": 54,
+            "3": 20,
+            "4": 14,
+            "5": 12
+          },
+          "strict_metric_gate": true
+        },
+        {
+          "file": "envelope_s1.json",
+          "cells": 64,
+          "points": 32,
+          "physical_faces": 58,
+          "volume": "1/2097152",
+          "minimum_mean_ratio": 0.325228105055448,
+          "minimum_scaled_jacobian": 0.11852483661053062,
+          "maximum_length": 1.789842863334201,
+          "longest_edge": [
+            10,
+            15
+          ],
+          "markers": {
+            "5": 3,
+            "1": 10,
+            "2": 17,
+            "4": 5,
+            "0": 15,
+            "3": 8
+          },
+          "strict_metric_gate": true
+        },
+        {
+          "file": "envelope_s2.json",
+          "cells": 413,
+          "points": 125,
+          "physical_faces": 176,
+          "volume": "1/2097152",
+          "minimum_mean_ratio": 0.20849048333144027,
+          "minimum_scaled_jacobian": 0.06672752033407535,
+          "maximum_length": 1.799025803373091,
+          "longest_edge": [
+            6,
+            115
+          ],
+          "markers": {
+            "0": 44,
+            "3": 21,
+            "2": 52,
+            "1": 36,
+            "5": 8,
+            "4": 15
+          },
+          "strict_metric_gate": true
+        }
+      ],
+      "maximum_state_relative_error": 1.1298069223313996e-14,
+      "maximum_transported_tensor_absolute_error": 0.0,
+      "audit_sha256": "d891e3def55f0b9504a40aa86271a73402c3dab2d0009c6973357eb37af42e96",
+      "certificate_mode": "fresh full independent audit"
+    }
+  ],
+  "mixed_cases_per_rank": 104,
+  "ranks": [
+    1,
+    2,
+    4
+  ],
+  "independent_distributed_auditors_per_rank": 8,
+  "lifecycle_frames": 6,
+  "mmg_cases": 2,
+  "mmg_assertions": 48,
+  "tool_checks": 51,
+  "core_registered_cases": 103,
+  "closed_preparation_smoke_sha256": "e4c8e2f533228bd1cdb64d4245f8ae40c1467fdc088efb405efd39eff9beaa0d",
+  "readme_sha256": "644e66c2b1a67e40153fa8c8977bf99ad7d5782341f2fe2210bea57cfdad631d",
+  "readme_shell_syntax": "PASS",
+  "remaining_goal1": [
+    "Repeated cluster operational-cost/scaling and instrumentation overhead",
+    "Practical useful-work/memory/rank limits and cost-weight calibration",
+    "Actual MPI wait/wire versus wrapper measurements",
+    "Integrated blockage diagnosis and progress-aware bounded execution policy"
+  ],
+  "scope": "Qualified integrated batched refinement/coarsening engine and shared empty-rank rebuild fix on the declared manufactured faceted-domain cases. No speedup, general-size envelope,3D BL,curved geometry,physical unsteady affordability or fullGoal1 completion claim."
+}
