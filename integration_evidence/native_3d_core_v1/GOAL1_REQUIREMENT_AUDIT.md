@@ -211,3 +211,26 @@ thread1/MPI<=4 correctness only. Goal1 remains PAUSED, Goal2 not started.
 No default512/high-rank/performance/curved/3DBL/physical-unsteady claim. Earlier
 comparison packages are frozen oldsource and need refresh. AdapNoExt and foreign
 ClusterResults untouched.
+
+
+## Batched dependency lookup qualified — 2026-10-12
+
+Repository SU2_NativeIntegrated; branch codex/native-3d-transport-accounting;
+base679fe68ef414. Goal1 ACTIVE after the user resumed it. LookupBatch now returns
+separate bounded complete vertex/edge/face stars through the existing ticketed
+exchanges; missing/oversized candidates refuse individually, common protocol/
+memory failures refuse the batch. Shared identities checked; legacy union/wire/
+collective semantics retained. Targeted MPI1/2/4 PASS; current102-case mixed
+regression plus fresh bridge/seven distributed audits and serialMMG PASS.
+199/331/511 prior numerical JSON records match exactly. Five equivalent lookups
+use30vs6World wrapper calls, same640byte serialized total, not MPI/network/wait
+or elapsed remeshing speed. New core manifest101cases (legacy97/frozen100 retained),
+34package checks and actual registration PASS. BATCH_LOOKUP_VALIDATION.md/json
+pin scope/source/68objects/binary/archives/tools and all evidence. Current full
+case folders batch_lookup_regression_v1/mpi1,mpi2,mpi4; initial targeted v1/source
+snapshots retained. All owned jobs terminal; oneCPU/nice19/j1/thread1/MPI<=4,
+correctness only. About52.8MB, no retained build copies. Runtime C++ checks pass,
+no independent runtime certificate claimed on mixed logs. Engine still one
+proposal/worker/round: next batched payload/reservation then private multi-edit
+engine integration. Default512 and repeated practical performance/fullGoal1
+remain open. No Goal2/curved/3DBL/physical-unsteady claim. Foreign work untouched.

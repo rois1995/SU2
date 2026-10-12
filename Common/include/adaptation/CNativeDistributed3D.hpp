@@ -40,6 +40,11 @@ struct Dependencies {
   bool valid = false;
   std::string reason;
 };
+struct DependencyBatch {
+  std::vector<Dependencies> candidates;
+  bool valid = false;  // Common storage/protocol success; each candidate still requires its own valid flag.
+  std::string reason;
+};
 struct Imported {
   std::vector<OwnedCell> cells;
   bool valid = false;
@@ -67,6 +72,9 @@ class Directory {
   // Initial construction only; create a new directory after ownership migration.
   bool Build(const Owned& owned, std::string& reason, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
   Dependencies Lookup(const std::vector<Feature>& features, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
+  /*! One complete star per feature, in input order, sharing the same exchanges. Missing/oversized
+   * stars refuse only their candidate; protocol/storage failure refuses the whole batch without mutation. */
+  DependencyBatch LookupBatch(const std::vector<Feature>& features, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
   Imported Fetch(const Dependencies& dependencies, const Owned& owned, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
   bool Reserve(const Imported& imported, bool active, std::string& reason, size_t ceiling = SIZE_MAX, size_t caller_bytes = 0);
   /*! Owner-routed prevalidated replacement. Stages all new mesh/directory nodes before the common vote;
@@ -108,6 +116,8 @@ class Directory {
   bool initialized = false;
   int Rendezvous(Key key) const;
   bool Vote(const CLocalFailure& failure, std::string& reason);
+  bool LookupImpl(const std::vector<Feature>& features, Dependencies* merged,
+                  DependencyBatch* batch, size_t ceiling, size_t caller_bytes, std::string& reason);
   Prepared Prepare(const std::vector<OwnedCell>& removed, const std::vector<OwnedCell>& added,
                    size_t ceiling, size_t baseline);
   bool NotifyChanges(const Prepared& prepared, std::vector<Id>& changed, std::string& reason,

@@ -1851,3 +1851,86 @@ TEST_CASE("Native MPI owner publication admits aggregated independent cavities",
   CHECK(dependencies.cells.size()==(world.rank == 0 ? 4 : 0));
   CHECK(directory.Statistics().publications==1);
 }
+
+TEST_CASE("Native MPI batch lookup preserves per-candidate complete stars and refusals", "[NativeDistributed3D][NativeBatchLookup3D]") {
+  World world;
+  Owned owned;
+  for (Id i=0;i<=MaximumCavityCells;++i) {
+    OwnedCell row; row.cell={i, {{{4*i,{2.*i,0,0}}, {4*i+1,{2.*i+1,0,0}},
+                                {4*i+2,{2.*i,1,0}}, {4*i+3,{2.*i,0,1}}}}};
+    if (i % world.size == unsigned(world.rank)) owned.emplace(i,row);
+    row.cell={1000+i, {{{500,{0,100,0}}, {2000+i,{1,100.+i,0}},
+                         {2001+i,{1,101.+i,0}}, {501,{0,100,1}}}}};
+    if (i % world.size == unsigned(world.rank)) owned.emplace(row.cell.id,row);
+  }
+  Directory directory(world);
+  std::string reason;
+  REQUIRE(directory.Build(owned,reason));
+  const auto snapshot=directory.Snapshot(), mesh=Bytes(owned);
+  auto pack=[](const Dependencies& result) {
+    std::vector<char> bytes;RecordStream out(bytes);
+    for (auto row:result.cells) out(row);
+    return bytes;
+  };
+  std::vector<Feature> features;
+  if (!world.rank) for (Id i=0;i<=MaximumCavityCells;++i) features.push_back({{4*i,0,0},1});
+  const auto large=directory.LookupBatch(features);
+  REQUIRE(large.valid);
+  REQUIRE(large.candidates.size()==features.size());
+  for (size_t i=0;i<large.candidates.size();++i) {
+    CHECK(large.candidates[i].valid);
+    REQUIRE(large.candidates[i].cells.size()==1);
+    CHECK(large.candidates[i].cells.front().cell==i);
+  }
+  CHECK_FALSE(directory.Lookup(features).valid);  // Legacy union still has its original64-cell limit.
+  std::vector<Dependencies> serial;
+  const auto baseline_begin=world.collective_calls, baseline_bytes=world.bytes_sent;
+  for (Id i=0;i<5;++i) {
+    const auto result=directory.Lookup(Query(world,{{4*i,0,0},1}));
+    REQUIRE(result.valid);serial.push_back(result);
+  }
+  const auto serial_calls=world.collective_calls-baseline_begin, serial_bytes=world.bytes_sent-baseline_bytes;
+  if (!world.rank) features.resize(5);
+  const auto batch_begin=world.collective_calls, batch_bytes_begin=world.bytes_sent;
+  const auto batch=directory.LookupBatch(features);
+  const auto batch_calls=world.collective_calls-batch_begin, batch_bytes=world.bytes_sent-batch_bytes_begin;
+  REQUIRE(batch.valid);REQUIRE(batch.candidates.size()==features.size());
+  for (size_t i=0;i<features.size();++i) CHECK(pack(batch.candidates[i])==pack(serial[i]));
+  CHECK(batch_calls<serial_calls);  // Wrapper calls only; not measured MPI wait or speed.
+  CHECK(batch_bytes==serial_bytes);
+  std::ostringstream counts;
+  counts << "BATCH_LOOKUP rank=" << world.rank << " ranks=" << world.size
+         << " features=" << features.size() << " serial_wrapped_calls=" << serial_calls
+         << " batch_wrapped_calls=" << batch_calls << " serial_payload_bytes=" << serial_bytes
+         << " batch_payload_bytes=" << batch_bytes << '\n';
+  Log(world,counts.str());
+  const auto mixed=directory.LookupBatch(world.rank ? std::vector<Feature>{} :
+      std::vector<Feature>{{{0,0,0},1},{{999999,0,0},1},{{500,0,0},1},{{0,0,0},1}});
+  REQUIRE(mixed.valid);
+  if (!world.rank) {
+    REQUIRE(mixed.candidates.size()==4);
+    CHECK(mixed.candidates[0].valid);CHECK(mixed.candidates[3].valid);
+    CHECK(pack(mixed.candidates[0])==pack(mixed.candidates[3]));
+    CHECK_FALSE(mixed.candidates[1].valid);CHECK(mixed.candidates[1].cells.empty());
+    CHECK(mixed.candidates[1].reason.find("missing")!=std::string::npos);
+    CHECK_FALSE(mixed.candidates[2].valid);CHECK(mixed.candidates[2].cells.empty());
+    CHECK(mixed.candidates[2].reason.find("budget")!=std::string::npos);
+  }
+  const auto dimensions=directory.LookupBatch(world.rank ? std::vector<Feature>{} :
+      std::vector<Feature>{{{0,1,0},2},{{2,0,1},3}});
+  REQUIRE(dimensions.valid);
+  if (!world.rank) {
+    REQUIRE(dimensions.candidates.size()==2);
+    CHECK(dimensions.candidates[0].valid);CHECK(dimensions.candidates[1].valid);
+    CHECK(pack(dimensions.candidates[0])==pack(serial[0]));
+    CHECK(pack(dimensions.candidates[1])==pack(serial[0]));
+  }
+  const auto idle=directory.LookupBatch({});
+  CHECK(idle.valid);CHECK(idle.candidates.empty());
+  CHECK_FALSE(directory.LookupBatch(world.rank ? std::vector<Feature>{} :
+      std::vector<Feature>(MaximumDirectoryFeatures+1,{{0,0,0},1})).valid);
+  const auto refused=directory.LookupBatch(features,world.rank ? SIZE_MAX : 1);
+  CHECK_FALSE(refused.valid);CHECK(refused.candidates.empty());
+  CHECK_FALSE(directory.LookupBatch(Query(world,{{0,0,0},2})).valid);
+  CHECK(directory.Snapshot()==snapshot);CHECK(Bytes(owned)==mesh);
+}

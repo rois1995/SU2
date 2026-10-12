@@ -148,6 +148,10 @@ class PackageChecks(unittest.TestCase):
             (bundle/'manifest.json').write_text(json.dumps(manifest))
             invoke('passed_100')
             self.assertEqual(json.loads((root/'passed_100/result.json').read_text())['status'],'PASS')
+            manifest['regression_cases']=101
+            (bundle/'manifest.json').write_text(json.dumps(manifest))
+            invoke('passed_101')
+            self.assertEqual(json.loads((root/'passed_101/result.json').read_text())['status'],'PASS')
             calls.clear()
             with self.assertRaisesRegex(RuntimeError,'Audit failure'):invoke('failed')
             failure=json.loads((root/'failed/result.json').read_text())

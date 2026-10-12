@@ -1,3 +1,5 @@
+Current batch dependency lookup adds one more core case: new bundles declare101cases. Legacy97 and previously frozen100 declarations remain supported; current registration and code pins must still match each bundle. Batched lookup is the dependency foundation only; the engine still makes one proposal per worker per round.
+
 Current static-assessment fixes add three cases to the frozen selection: newly prepared bundles declare100cases in their manifest. The runner uses that declared count; legacy bundles without the field retain the97-case guard. Preparation remains distinct from qualification. Historical scheduler/query comparison bundles remain pinned to their earlier sources and must be refreshed before comparing these fixes. See integration_evidence/native_3d_core_v1/STATIC_ASSESSMENT_FIXES.md.
 
 # Native 3D closed SGE validation and timing package

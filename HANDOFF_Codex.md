@@ -1,5 +1,46 @@
 # Current handoff — 2026-10-12
 
+## Batched dependency lookup qualified — 2026-10-12
+
+Repository SU2_NativeIntegrated; branch codex/native-3d-transport-accounting;
+base679fe68ef414. Goal1 ACTIVE after the user resumed it. LookupBatch now returns
+separate bounded complete vertex/edge/face stars through the existing ticketed
+exchanges; missing/oversized candidates refuse individually, common protocol/
+memory failures refuse the batch. Shared identities checked; legacy union/wire/
+collective semantics retained. Targeted MPI1/2/4 PASS; current102-case mixed
+regression plus fresh bridge/seven distributed audits and serialMMG PASS.
+199/331/511 prior numerical JSON records match exactly. Five equivalent lookups
+use30vs6World wrapper calls, same640byte serialized total, not MPI/network/wait
+or elapsed remeshing speed. New core manifest101cases (legacy97/frozen100 retained),
+34package checks and actual registration PASS. BATCH_LOOKUP_VALIDATION.md/json
+pin scope/source/68objects/binary/archives/tools and all evidence. Current full
+case folders batch_lookup_regression_v1/mpi1,mpi2,mpi4; initial targeted v1/source
+snapshots retained. All owned jobs terminal; oneCPU/nice19/j1/thread1/MPI<=4,
+correctness only. About52.8MB, no retained build copies. Runtime C++ checks pass,
+no independent runtime certificate claimed on mixed logs. Engine still one
+proposal/worker/round: next batched payload/reservation then private multi-edit
+engine integration. Default512 and repeated practical performance/fullGoal1
+remain open. No Goal2/curved/3DBL/physical-unsteady claim. Foreign work untouched.
+
+## Goal 1 resumed — batched dependency admission in progress
+
+User reactivated Goal1 after pushed679fe68ef414551e754eb8bf71581b4bea4e0a74.
+Working repository SU2_NativeIntegrated; branch codex/native-3d-transport-accounting.
+Current code factors the existing ticketed lookup into common legacy/batch
+validation. Batch candidates retain separate complete vertex/edge/face stars and
+64-cell bounds; missing/oversized candidates refuse individually, malformed or
+memory failures refuse the common batch. Legacy union semantics/wire/collective
+sequence remain. Shared identities are checked across candidates. New targeted
+MPI1/2/4 controls cover65independent features, legacy byte equivalence, mixed
+logical refusals, geometry feature dimensions, empty peers and store preservation.
+Current actual correctness controller: batch_lookup_v1/run.py, owned tool session8529;
+inspect its live handle before treating it as stopped. Build/run not yet qualified.
+OneCPU/nice19/j1/thread1/MPI<=4 after actual resource checks, no local performance
+campaign. This is dependency foundation only: engine still proposes one edit per
+worker/round, default512not fixed. Next: qualify broad regressions, then batched
+payload/reservation and private engine proposals with bounded memory. Goal1 ACTIVE,
+full gates unchanged; Goal2 not started. AdapNoExt/foreign ClusterResults untouched.
+
 ## Selected static findings fixed while Goal 1 is paused — 2026-10-12
 
 Working repository SU2_NativeIntegrated; branch codex/native-3d-transport-accounting;
