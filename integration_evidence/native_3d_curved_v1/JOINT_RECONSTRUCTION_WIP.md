@@ -90,3 +90,22 @@ Controller session 75064 is active; inspect its process/receipt before launching
 anything else. Neither a launched MPI job nor a passing subset proves the full
 matrix. Further full-path work should change coordinated reconstruction freedom,
 not increase caps or repeat small candidate-order adjustments.
+
+
+MPI observation is terminal FAIL_MATRIX (MPI2 exit2/MPI4 exit4), with no timeout
+or source drift. Four of five selected cases pass per rank; every tilted-cylinder
+worker-count variant still rejects. Four N2/eight N4 other primitive lifecycles
+complete; their independent current-source accepted-state audits remain required.
+Captured owned-rank stacks show different in-flight phases; the run then completed,
+so no deadlock was established. No extra simultaneous correctness job was launched.
+The two-apex experiment is now active under handle43705 in two_apex_replay_v2.
+Its initial nonmanifold intermediate-skin assertion failure is retained in v1.
+
+
+The corrected two-apex experiment ended normally with no admissible proposal in
+3074 bounded candidates. It tests a limited single-face/adjacent-pair partition
+family, not all possible multi-point reconstructions and not global infeasibility.
+Its initial nonmanifold intermediate-patch failure and corrected result are
+preserved. The next major step is coordinated surface diagonal/fan reconnection
+and volume reconstruction, retaining all immutable feature/target/atomic guards.
+All jobs in this continuation are now terminal; production code unchanged.

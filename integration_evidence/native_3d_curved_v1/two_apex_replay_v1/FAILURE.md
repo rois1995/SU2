@@ -1,0 +1,1 @@
+Initial two-apex replay failed at assert len(neighbors)==2 after intermediate patch growth produced a nonmanifold skin. No valid proposal/certificate or production publication was produced. Intermediate topology is now gated before two-apex reconstruction in v2; candidate degeneration is rejected cleanly and growth uses its own base measures. Original source retained.

@@ -1,0 +1,24 @@
+[New LWP 153998]
+[New LWP 153999]
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+0x00007efee011171b in sched_yield () at ../sysdeps/unix/syscall-template.S:78
+78	../sysdeps/unix/syscall-template.S: No such file or directory.
+[Switching to thread 1 (Thread 0x7efedfdb8ec0 (LWP 153993))]
+#0  0x00007efee011171b in sched_yield () at ../sysdeps/unix/syscall-template.S:78
+78	in ../sysdeps/unix/syscall-template.S
+#0  0x00007efee011171b in sched_yield () at ../sysdeps/unix/syscall-template.S:78
+#1  0x00007efee05dd905 in ompi_request_default_wait () from /lib/x86_64-linux-gnu/libmpi.so.40
+#2  0x00007efee063783c in ompi_coll_base_sendrecv_actual () from /lib/x86_64-linux-gnu/libmpi.so.40
+#3  0x00007efee0638042 in ompi_coll_base_allreduce_intra_recursivedoubling () from /lib/x86_64-linux-gnu/libmpi.so.40
+#4  0x00007efee05f3411 in PMPI_Allreduce () from /lib/x86_64-linux-gnu/libmpi.so.40
+#5  0x00005567f735bd2b in CPassiveComm::AllreduceMax (value=<optimized out>, comm=comm@entry=0x7efee06a33e0 <ompi_mpi_comm_world>) at ../../Common/src/parallelization/CPassiveComm.cpp:398
+#6  0x00005567f7567e8e in ElectFailure (local=..., comm=0x7efee06a33e0 <ompi_mpi_comm_world>) at ../../Common/src/adaptation/CDistributedSearch.cpp:443
+#7  0x00005567f7627904 in SU2NativeBoundary2D::World::elect (this=<optimized out>, local=...) at ../../Common/src/adaptation/../../include/adaptation/CNativeDistributed2D.hpp:90
+#8  SU2Native3D::Directory::Vote (this=0x7ffc360103d0, failure=..., reason="") at ../../Common/src/adaptation/CNativeDistributed3D.cpp:101
+#9  0x00005567f7638061 in SU2Native3D::Directory::LookupImpl (this=0x7ffc360103d0, features=std::vector of length 0, capacity 0, merged=0x0, batch=0x7ffc36010ae0, ceiling=2147483648, caller_bytes=<optimized out>, reason="") at ../../Common/src/adaptation/CNativeDistributed3D.cpp:286
+#10 0x00005567f7639c1b in SU2Native3D::Directory::LookupBatch (this=this@entry=0x7ffc360103d0, features=std::vector of length 0, capacity 0, ceiling=ceiling@entry=2147483648, caller_bytes=caller_bytes@entry=4916104) at ../../Common/src/adaptation/CNativeDistributed3D.cpp:258
+#11 0x00005567f7664029 in SU2Native3D::(anonymous namespace)::Adapt (world=..., accepted=..., original=..., geometry=..., composition=..., options=<error reading variable: Cannot access memory at address 0x0>, intent=<optimized out>) at /usr/include/c++/9/bits/stl_vector.h:94
+#12 0x00005567f766e9c1 in SU2Native3D::Refine(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions) (world=..., accepted=..., original=..., geometry=..., composition=..., options=...) at /usr/include/c++/9/bits/move.h:182
+#13 0x00005567f65a4547 in C_A_T_C_H_T_E_S_T_56 () at /usr/include/c++/9/bits/shared_ptr_base.h:1020
+[Inferior 1 (process 153993) detached]

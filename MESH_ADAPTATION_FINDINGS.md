@@ -1,3 +1,90 @@
+# Goal 2 collected MPI and multi-apex experiment — 2026-10-13
+
+Repository SU2_NativeIntegrated; branch codex/native-3d-curved-local, previous
+published b9e54cda6d40c089167e390b8779b8e91c965e5e. Goal ACTIVE/all four full gates
+PENDING. Production source unchanged in this continuation.
+
+MPI observer75064 TERMINAL FAIL_MATRIX (MPI2 exit2/MPI4 exit4), no timeout/source
+drift. Every rank passes four of five selected cases, failing all tilted-cylinder
+worker-count variants. Other primitive lifecycles complete for four N2/eight N4
+variants including M=N/M<N. Full independent current-source accepted mesh/source/
+state/restart audits remain outstanding; a failing matrix is not qualification.
+Owned-rank stack samples in joint_mpi_stall_v1 showed different in-flight phases;
+rank2 actively reconstructed and the job finished normally. No deadlock proved.
+No restart, source edits during pinned MPI, or unrelated-process interruption.
+
+Fixed physical-face diagnosis on v4 rejected surface: all160 triangles individually
+have possible-quality upper bounds >=0.209609 and J upper bounds >=0.079040;
+q0.20/J0.05 alone do not individually rule them out. Joint/global feasibility is
+not thereby established. Derivation in two_apex_replay_v1/FACE_FEASIBILITY.md.
+
+Two-apex prototype partitions a prescribed cavity skin into two face groups,
+cones each to its interior point and bridges the interface-ring edges. It keeps
+all outer coordinates/faces except the declared projected split and frozen0.5I
+q0.20/J0.05/length1.8/error0.04 contracts. Limited group family: low-quality single
+faces and adjacent face pairs, at most8growth/64old/128new/70SLSQP iterations per
+proposal, wall ceiling480s between proposals plus540s hard process limit.
+
+Initial two_apex_replay_v1 session95088 TERMINAL FAIL on a nonmanifold intermediate
+patch; original source/FAILURE.md retained. v2 skips such topology before proposal,
+rejects nonfinite/degenerate trials and keeps separate base growth measures.
+Session43705 TERMINAL exit0: NO_PROPOSAL_IN_BOUNDED_SEARCH,3074candidates, bestNULL.
+No accepted grid, production operator or complete feasibility result arose.
+No owned heavy job remains live. Experiments/source hashes/results/logs retained.
+
+NEXT substantive step: coordinated physical surface diagonal/fan reconnection
+plus volume reconstruction on the saved tilted-cylinder blockage. The one-/two-
+apex bounded families have not fixed the path; stop tweaking their growth/optimizer
+settings or raising caps. Preserve feature/chart/marker junctions, actual frozen
+P1/extension target and exact topology/clearance/atomic failure safeguards. Then
+qualify current-source MPI/accepted-state audits and the broad connected milestone;
+genuine solved Euler refresh and locally resolved nonuniform/shock still required.
+Follow AGENTS.md batching cadence; no cluster/performance/3DBL/generalCAD claim.
+ForeignClusterResults/dependencies/AdapNoExt untouched.
+
+# Goal 2 MPI observation collected; two-apex probe active — 2026-10-13
+
+Repository SU2_NativeIntegrated, branch codex/native-3d-curved-local; published
+b9e54cda6d40c089167e390b8779b8e91c965e5e. Goal ACTIVE/all four full gates PENDING.
+Controller75064 TERMINAL FAIL_MATRIX: MPI2 exit2, MPI4 exit4, no timeouts/source
+drift. Four of five selected test cases pass on every rank; tilted-cylinder
+variants fail for every remeshing-worker count. Completed axis-aligned-cylinder/
+sphere lifecycles: 4 on N2, 8 on N4, including M=N/M<N, actual CFD replacement,
+BDF restart and SU2/CGNS readback. Independent current-source accepted-grid/state
+certificates remain required; a failing matrix is not integration qualification.
+
+MPI4 looked quiet during its final variant. Owned-rank stacks were captured in
+joint_mpi_stall_v1: rank0 clearance collective, rank1 metric collective, rank2
+actively reconstructing, rank3 dependency lookup. The run subsequently ended
+normally, so this observation did NOT establish deadlock. No run was restarted or
+unrelated process interrupted. Tiny diagnostics retained; rank2_second records
+process disappearance after completion.
+
+Fixed-face diagnosis on joint_runtime_v4 rejected surface:160 physical triangles;
+minimum possible-quality upper bound0.209609 and J upper bound0.079040. Neither
+q>=0.20 nor J>=0.05 individually rules out those faces, but joint feasibility is
+unproven. Derivation in two_apex_replay_v1/FACE_FEASIBILITY.md. Next larger proposal
+uses two interior apices plus bridge tetrahedra, preserving the prescribed outer
+skin except its projected physical split. Constant0.5I diagnostic target only.
+
+Initial two_apex_replay_v1 session95088 TERMINAL FAIL at nonmanifold intermediate
+skin assertion; source and FAILURE.md retained. No candidate certificate or
+production code resulted. v2 gates topology before reconstruction, regularizes
+only degenerate objective evaluations and rejects nonfinite candidates, preserving
+actual final positive/q/J/length/geometry gates. Growth uses separate base measures.
+
+LIVE owned job43705: timeout540s, nice19, one sampled idleCPU, threads1;
+`integration_evidence/native_3d_curved_v1/two_apex_replay_v2/run.py`, logs
+probe.stdout/probe.stderr. Its internal480s ceiling is checked between proposals.
+Revalidate same handle/status; do not launch another heavy job until terminal.
+No production source changed in this continuation. After completion, inspect
+positive geometry/topology/exact no-overlap/frozen-field coverage before importing
+an experimental operator into native; update the full audit and push evidence.
+Current-source broad regression, stronger features/components, solved Euler refresh
+and resolved nonuniform/shock control remain outstanding. Original Goal2scope and
+AGENTS batching cadence retained; no cluster/performance/generalCAD/3DBL claim.
+ForeignClusterResults/dependencies/AdapNoExt untouched.
+
 # Goal 2 joint reconstruction WIP — 2026-10-13
 
 Repository `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`; branch

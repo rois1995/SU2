@@ -1,0 +1,24 @@
+[New LWP 153994]
+[New LWP 153995]
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+0x00007efc7835371b in sched_yield () at ../sysdeps/unix/syscall-template.S:78
+78	../sysdeps/unix/syscall-template.S: No such file or directory.
+[Switching to thread 1 (Thread 0x7efc77ffaec0 (LWP 153989))]
+#0  0x00007efc7835371b in sched_yield () at ../sysdeps/unix/syscall-template.S:78
+78	in ../sysdeps/unix/syscall-template.S
+#0  0x00007efc7835371b in sched_yield () at ../sysdeps/unix/syscall-template.S:78
+#1  0x00007efc7881f905 in ompi_request_default_wait () from /lib/x86_64-linux-gnu/libmpi.so.40
+#2  0x00007efc7887983c in ompi_coll_base_sendrecv_actual () from /lib/x86_64-linux-gnu/libmpi.so.40
+#3  0x00007efc7887a042 in ompi_coll_base_allreduce_intra_recursivedoubling () from /lib/x86_64-linux-gnu/libmpi.so.40
+#4  0x00007efc78835411 in PMPI_Allreduce () from /lib/x86_64-linux-gnu/libmpi.so.40
+#5  0x000055ce26684d2b in CPassiveComm::AllreduceMax (value=<optimized out>, comm=comm@entry=0x7efc788e53e0 <ompi_mpi_comm_world>) at ../../Common/src/parallelization/CPassiveComm.cpp:398
+#6  0x000055ce26890e8e in ElectFailure (local=..., comm=0x7efc788e53e0 <ompi_mpi_comm_world>) at ../../Common/src/adaptation/CDistributedSearch.cpp:443
+#7  0x000055ce2697a920 in SU2NativeBoundary2D::World::elect (this=<optimized out>, local=...) at ../../Common/src/adaptation/../../include/adaptation/CNativeDistributed2D.hpp:90
+#8  SU2Native3D::(anonymous namespace)::<lambda(const CLocalFailure&)>::operator() (__closure=0x7ffe8b9aa3d0, __closure=0x7ffe8b9aa3d0, local=...) at ../../Common/src/adaptation/CNativeEngine3D.cpp:445
+#9  SU2Native3D::(anonymous namespace)::<lambda(const std::vector<SU2Native3D::Cell, std::allocator<SU2Native3D::Cell> >&, SU2Native3D::PatchMetric&, bool, const std::map<std::array<long unsigned int, 2>, SU2Native3D::EdgeMeasure, std::less<std::array<long unsigned int, 2> >, std::allocator<std::pair<const std::array<long unsigned int, 2>, SU2Native3D::EdgeMeasure> > >&)>::operator()(const std::vector<SU2Native3D::Cell, std::allocator<SU2Native3D::Cell> > &, SU2Native3D::PatchMetric &, bool, const std::map<std::array<unsigned long, 2>, SU2Native3D::EdgeMeasure, std::less<std::array<unsigned long, 2> >, std::allocator<std::pair<std::array<unsigned long, 2> const, SU2Native3D::EdgeMeasure> > > &) const (__closure=0x7ffe8b9aa9b0, cells=std::vector of length 0, capacity 0, measured=..., shape=true, frozen_reuse=...) at ../../Common/src/adaptation/CNativeEngine3D.cpp:1017
+#10 0x000055ce2697c097 in SU2Native3D::(anonymous namespace)::<lambda(bool, SU2Native3D::MetricChange)>::operator()(bool, SU2Native3D::MetricChange) const (__closure=0x7ffe8b9aa860, candidate=false, kind=SU2Native3D::MetricChange::GeometryRefine) at ../../Common/src/adaptation/CNativeEngine3D.cpp:1089
+#11 0x000055ce2698cbe4 in SU2Native3D::(anonymous namespace)::Adapt (world=..., accepted=..., original=..., geometry=..., composition=..., options=<error reading variable: Cannot access memory at address 0x0>, intent=<optimized out>) at ../../Common/src/adaptation/CNativeEngine3D.cpp:1135
+#12 0x000055ce269979c1 in SU2Native3D::Refine(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions) (world=..., accepted=..., original=..., geometry=..., composition=..., options=...) at /usr/include/c++/9/bits/move.h:182
+#13 0x000055ce258cd547 in C_A_T_C_H_T_E_S_T_56 () at /usr/include/c++/9/bits/shared_ptr_base.h:1020
+[Inferior 1 (process 153989) detached]

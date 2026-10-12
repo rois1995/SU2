@@ -1,0 +1,24 @@
+[New LWP 153996]
+[New LWP 153997]
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+0x00005588060b6cbf in std::_Rb_tree<unsigned long, unsigned long, std::_Identity<unsigned long>, std::less<unsigned long>, std::allocator<unsigned long> >::_M_insert_unique<unsigned long const&> (this=0x7ffe14905af0, __v=@0x7ffe14905ac8: 16) at /usr/include/c++/9/bits/move.h:74
+74	    forward(typename std::remove_reference<_Tp>::type& __t) noexcept
+[Switching to thread 1 (Thread 0x7f9f028efec0 (LWP 153992))]
+#0  0x00005588060b6cbf in std::_Rb_tree<unsigned long, unsigned long, std::_Identity<unsigned long>, std::less<unsigned long>, std::allocator<unsigned long> >::_M_insert_unique<unsigned long const&> (this=0x7ffe14905af0, __v=@0x7ffe14905ac8: 16) at /usr/include/c++/9/bits/move.h:74
+74	    forward(typename std::remove_reference<_Tp>::type& __t) noexcept
+#0  0x00005588060b6cbf in std::_Rb_tree<unsigned long, unsigned long, std::_Identity<unsigned long>, std::less<unsigned long>, std::allocator<unsigned long> >::_M_insert_unique<unsigned long const&> (this=0x7ffe14905af0, __v=@0x7ffe14905ac8: 16) at /usr/include/c++/9/bits/move.h:74
+#1  0x0000558807179a6c in std::set<unsigned long, std::less<unsigned long>, std::allocator<unsigned long> >::insert (__x=@0x7ffe14905ac8: 16, this=0x7ffe14905af0) at /usr/include/c++/9/bits/stl_set.h:509
+#2  SU2Native3D::(anonymous namespace)::Connected (graph=std::map with 5 elements = {...}) at ../../Common/src/adaptation/CNativeCavity3D.cpp:36
+#3  0x0000558807179b99 in SU2Native3D::(anonymous namespace)::Curve (graph=std::map with 5 elements = {...}, closed=<optimized out>) at ../../Common/src/adaptation/CNativeCavity3D.cpp:51
+#4  0x000055880717a542 in SU2Native3D::(anonymous namespace)::Surface (triangles=std::vector of length 16, capacity 16 = {...}, closed=<optimized out>, cavity=<optimized out>) at /usr/include/c++/9/bits/stl_tree.h:1023
+#5  0x000055880717a727 in SU2Native3D::(anonymous namespace)::Ball (cells=std::vector of length 16, capacity 16 = {...}, index=..., boundary=std::vector of length 16, capacity 16 = {...}) at ../../Common/src/adaptation/CNativeCavity3D.cpp:90
+#6  0x000055880717ad75 in SU2Native3D::(anonymous namespace)::Validate (old=std::vector of length 9, capacity 16 = {...}, before=..., fresh=std::vector of length 16, capacity 16 = {...}, stats=<optimized out>, expected_skin=<optimized out>) at ../../Common/src/adaptation/CNativeCavity3D.cpp:124
+#7  0x000055880717aff5 in SU2Native3D::ValidatePrescribedInterface (old=std::vector of length 9, capacity 16 = {...}, fresh=std::vector of length 16, capacity 16 = {...}, expected_skin=std::vector of length 16, capacity 16 = {...}, reason="", stats=stats@entry=0x0) at ../../Common/src/adaptation/CNativeCavity3D.cpp:178
+#8  0x0000558807189f53 in SU2Native3D::(anonymous namespace)::Finish (old=..., proposal=..., expected=std::map with 16 elements = {...}, physical=..., reference=..., stats=0x0) at ../../Common/src/adaptation/CNativeBoundary3D.cpp:154
+#9  0x000055880719660e in SU2Native3D::ReconstructSplitPatch (old=..., edge=..., point=<error reading variable: Cannot access memory at address 0x0>, interior=..., placement=..., first=<optimized out>, reference=..., fresh=..., obstruction=..., reason=..., stats=<optimized out>) at ../../Common/src/adaptation/CNativeBoundary3D.cpp:1009
+#10 0x00005588071dcb3e in SU2Native3D::(anonymous namespace)::Adapt (world=..., accepted=..., original=..., geometry=..., composition=..., options=<error reading variable: Cannot access memory at address 0x0>, intent=<optimized out>) at ../../Common/src/adaptation/CNativeEngine3D.cpp:1129
+#11 0x00005588071e79c1 in SU2Native3D::Refine(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions) (world=..., accepted=..., original=..., geometry=..., composition=..., options=...) at /usr/include/c++/9/bits/move.h:182
+#12 0x000055880611d547 in C_A_T_C_H_T_E_S_T_56 () at /usr/include/c++/9/bits/shared_ptr_base.h:1020
+#13 0x00005588063d0803 in Catch::RunContext::invokeActiveTestCase (this=0x7ffe14909940) at ../../externals/catch2/catch.hpp:13027
+[Inferior 1 (process 153992) detached]

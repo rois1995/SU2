@@ -337,6 +337,27 @@
     "probe": "joint_replay_v1/pattern_probe.json",
     "latest_obstruction_probe": "joint_replay_v2/pattern_probe.json",
     "serial_matrix": "FAIL 4/5 selected cases pass; tilted-cylinder operator stagnation after 86 private edits",
-    "mpi_observation": "joint_mpi_audit_v1/run.py active session75064; current-source MPI1/2/4 matrix completion unproven"
+    "mpi_observation": {
+      "status": "FAIL_MATRIX",
+      "receipt": "joint_mpi_audit_v1/validation.json",
+      "receipt_sha256": "76e0747f9d1a39abfcc26648f5be0191a163ab4c0c4998183da4a23e0d2d7711",
+      "ranks": [
+        2,
+        4
+      ],
+      "completed_lifecycles": [
+        4,
+        8
+      ],
+      "scope": "Four of five cases pass per rank; all tilted-worker variants reject. Independent completed-state audits still outstanding; not full integration qualification."
+    }
+  },
+  "two_apex_experiment": {
+    "status": "NO_PROPOSAL_IN_BOUNDED_SEARCH",
+    "folder": "two_apex_replay_v2",
+    "result_sha256": "f8da0a6214f08517b2fed76816ab6b3d121de0816f4b8a1ddec3676ea0a5a7bc",
+    "trials": 3074,
+    "initial_failure": "two_apex_replay_v1/FAILURE.md",
+    "scope": "Bounded constant0.5I floating-point partition family; no valid proposal, production change or global infeasibility proof."
   }
 }

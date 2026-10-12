@@ -1,0 +1,1 @@
+The observed quiet MPI4 run ended normally with FAIL_MATRIX and no timeout. Differing sampled stack locations did not establish deadlock; rank2 was actively reconstructing. Only verified owned ranks were attached and each debugger detached. Retain these as diagnostic observations, not a liveness failure certificate.
