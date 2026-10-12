@@ -581,9 +581,6 @@ CUpwAUSMPLUSM_NEMO::CUpwAUSMPLUSM_NEMO(unsigned short val_nDim, unsigned short v
 
 void CUpwAUSMPLUSM_NEMO::ComputeInterfaceQuantities(const CConfig* config, su2double* pressure,
                                                     su2double& interface_mach, su2double* interface_soundspeed) {
-  const su2double sq_veli = GeometryToolbox::SquaredNorm(nDim, Velocity_i);
-  const su2double sq_velj = GeometryToolbox::SquaredNorm(nDim, Velocity_j);
-
   /*--- Calculate interface numerical gammas and speed of sound ---*/
   const su2double Enthalpy_norm = 0.5 * (Enthalpy_i + Enthalpy_j);
   const su2double Gamma_ij = 0.5 * (Gamma_i + Gamma_j);
@@ -602,13 +599,10 @@ void CUpwAUSMPLUSM_NEMO::ComputeInterfaceQuantities(const CConfig* config, su2do
 
   /*--- Interface mach number w/ pressure diffusion term (M_p)---*/
   const su2double Density_F = 0.5 * (Density_i + Density_j);
-  const su2double MF_sq = 0.5 * (sq_veli + sq_velj) / (A_F * A_F);
 
-  const su2double param1 = max(MF_sq, Minf * Minf);
-  const su2double Mrefsq = (min(1.0, param1));
-  const su2double fa = 2.0 * sqrt(Mrefsq) - Mrefsq;
-
-  const su2double alpha = 3.0 / 16.0 * (-4.0 + 5.0 * fa * fa);
+  /*--- The reference uses the constant alpha of AUSM+ in the pressure functions.
+   The scaling for low Mach numbers is done by f0 in the pressure flux, Eq. (19). ---*/
+  const su2double alpha = 3.0 / 16.0;
   const su2double f = 0.5 * (1 - cos(PI_NUMBER * min(1.0, max(abs(M_L), abs(M_R)))));
 
   /*--- Pressure sensor terms ---*/
