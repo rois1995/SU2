@@ -1,0 +1,761 @@
+diff --git a/Common/include/adaptation/CNativeBoundary3D.hpp b/Common/include/adaptation/CNativeBoundary3D.hpp
+index 730ba97b6d..ac9fc6b2da 100644
+--- a/Common/include/adaptation/CNativeBoundary3D.hpp
++++ b/Common/include/adaptation/CNativeBoundary3D.hpp
+@@ -60,6 +60,9 @@ class PlanarReference {
+   Id Canonical(Id facet) const;
+   /*! Finite complete triangle containment and exact orientation relative to the original physical facet. */
+   bool ContainsFace(Id facet, const std::array<Point, 3>& triangle, KernelStats* stats = nullptr) const;
++  /*! Conservative physical distance between a planar triangle and its analytic radial/graph authority.
++   * Zero for exact faceted authority. Includes nodal projection residual and arithmetic envelope. */
++  double SurfaceError(Id facet, const std::array<Point,3>& triangle, KernelStats* stats = nullptr) const;
+   /*! Lowest canonical same-marker patch containing the complete oriented triangle. Broad phase never admits geometry.
+    * Missing/invalid geometry leaves facet unchanged; nonfinite query coordinates throw. */
+   bool FindFace(int marker, const std::array<Point, 3>& triangle, Id& facet, KernelStats* stats = nullptr) const;
+diff --git a/Common/include/adaptation/CNativeEngine3D.hpp b/Common/include/adaptation/CNativeEngine3D.hpp
+index f8a9942a40..7f9d5af827 100644
+--- a/Common/include/adaptation/CNativeEngine3D.hpp
++++ b/Common/include/adaptation/CNativeEngine3D.hpp
+@@ -15,6 +15,7 @@ struct EngineOptions {
+   // Zero rounds uses a work-bounded search; positive rounds remain an explicit diagnostic ceiling.
+   size_t maximum_work = SIZE_MAX, stagnation_window = 64;  // SIZE_MAX: max(4096,64*global input cells).
+   double maximum_seconds = 0;  // Optional kernel elapsed ceiling, checked at collective safe points.
++  double surface_tolerance = 0;  // Analytic authority requires a positive frozen physical error ceiling.
+   bool timings = false;
+   size_t candidate_batch = MaximumCandidateBatch;  // Internal control for paired correctness/work comparisons.
+ };
+@@ -30,7 +31,7 @@ inline const char* EngineStopName(EngineStop stop) {
+ struct EngineStats {
+   EngineStop stop = EngineStop::None;
+   uint64_t global_work = 0, work_limit = 0, progress_windows = 0, stagnant_windows = 0, search_windows = 0;
+-  uint64_t size_progress = 0, quality_progress = 0, cell_removals = 0;
++  uint64_t size_progress = 0, quality_progress = 0, cell_removals = 0, geometry_progress = 0;
+   uint64_t geometry_trials = 0, geometry_rejected = 0, metric_trials = 0;
+   uint64_t metric_shape_rejected = 0, metric_progress_rejected = 0, metric_measurement_rejected = 0;
+   MetricDiagnosis last_metric_rejection;
+diff --git a/Common/include/adaptation/CNativeMesh3D.hpp b/Common/include/adaptation/CNativeMesh3D.hpp
+index b4ad541d76..216c9a4f49 100644
+--- a/Common/include/adaptation/CNativeMesh3D.hpp
++++ b/Common/include/adaptation/CNativeMesh3D.hpp
+@@ -58,6 +58,9 @@ bool Barycentric(const Tetrahedron& donor, Point point, std::array<long double,
+ /*! Exact closed segment/tetrahedron intersection, including endpoint-only and zero-length point queries.
+  * Positive finite donor required; no rounded interval roots or containment tolerance. */
+ bool IntersectsSegment(const Tetrahedron& donor, Point a, Point b, KernelStats* stats = nullptr);
++/*! Exact tetrahedral separation/contact. Interiors must be disjoint, and every closed contact must
++ * lie in the simplex of shared node identities with identical coordinates. Unrelated tangencies reject. */
++bool ConformingDisjoint(const Cell& a, const Cell& b, KernelStats* stats = nullptr);
+ /*! Finite components and exact Sylvester signs; no tensor repair or condition-number clipping. */
+ void ValidateTensor(const Tensor& tensor, KernelStats* stats = nullptr);
+ constexpr size_t MaximumSegmentDonors = 256;
+diff --git a/Common/include/adaptation/CNativeMetric3D.hpp b/Common/include/adaptation/CNativeMetric3D.hpp
+index 7effd2628f..65da14c42e 100644
+--- a/Common/include/adaptation/CNativeMetric3D.hpp
++++ b/Common/include/adaptation/CNativeMetric3D.hpp
+@@ -26,7 +26,7 @@ struct MetricStats {
+   uint64_t edge_evaluations = 0, edge_reused = 0;
+   size_t maximum_cells = 0, maximum_nodes = 0, maximum_edges = 0;
+ };
+-enum class MetricChange { Refine, Coarsen, Repair };
++enum class MetricChange { Refine, Coarsen, Repair, GeometryRefine };
+ enum class MetricFailure { None, Measurement, Shape, Progress };
+ struct MetricDiagnosis {
+   MetricFailure failure = MetricFailure::None;
+@@ -42,7 +42,9 @@ PatchMetric MeasureMetricCells(const std::vector<Cell>& cells, FrozenField& targ
+                               const std::map<Edge, EdgeMeasure>* frozen_reuse = nullptr,
+                               bool require_shape = false, MetricDiagnosis* diagnosis = nullptr);
+ /*! Same progress gate on complete measurements assembled from the same frozen target. The caller must
+- * retain all cells/edges and verify geometry/dependencies separately; this does not certify source coverage. */
++ * retain all cells/edges and verify geometry/dependencies separately; this does not certify source coverage.
++ * GeometryRefine needs caller-certified geometric-error progress; metric shape remains strict and changed
++ * oversized-edge excess must not increase. It does not authorize geometric progress by itself. */
+ bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fresh_count,
+                           const PatchMetric& measured, MetricChange kind, std::string& reason,
+                           MetricDiagnosis* diagnosis = nullptr);
+diff --git a/Common/src/adaptation/CNativeBoundary3D.cpp b/Common/src/adaptation/CNativeBoundary3D.cpp
+index d5d75a2733..0a93e54d03 100644
+--- a/Common/src/adaptation/CNativeBoundary3D.cpp
++++ b/Common/src/adaptation/CNativeBoundary3D.cpp
+@@ -508,6 +508,51 @@ bool PlanarReference::ContainsFace(Id id, const std::array<Point, 3>& triangle,
+   }
+   return false;
+ }
++double PlanarReference::SurfaceError(Id id,const std::array<Point,3>& triangle,KernelStats* stats) const {
++  id=Canonical(id);
++  if(!ContainsFace(id,triangle,stats))throw std::invalid_argument("Native3D surface error leaves its authority.");
++  const auto found=analytic.find(id);if(found==analytic.end())return 0;
++  const auto& g=found->second;
++  long double error=0,scale=std::max({std::abs(g.origin.x),std::abs(g.origin.y),std::abs(g.origin.z),
++                                   std::abs(g.extent.x),std::abs(g.extent.y),std::abs(g.extent.z)});
++  if(g.kind==AnalyticSurface::Kind::Sphere) {
++    const auto a=Delta(triangle[1],triangle[0]),b=Delta(triangle[2],triangle[0]),c=Delta(triangle[0],g.origin);
++    const auto normal=Cross(a,b);const auto length=Norm(normal);
++    if(!(length>0 && std::isfinite(length)))throw std::invalid_argument("Degenerate native3D geometry triangle.");
++    const auto uncertainty=64*std::numeric_limits<long double>::epsilon()*Norm(a)*Norm(b);
++    const auto numerator=std::max(0.L,std::abs(Dot(normal,c))-uncertainty*Norm(c));
++    const auto height=numerator/(length+uncertainty);
++    error=std::max(0.L,static_cast<long double>(g.extent.x)-height);
++    for(auto p:triangle)error=std::max(error,std::abs(Norm(Delta(p,g.origin))-g.extent.x));
++  } else {
++    long double diameter=0;
++    for(size_t i=0;i<3;++i) {
++      error=std::max(error,std::abs(static_cast<long double>(triangle[i].z)-BumpHeight(g,triangle[i])));
++      for(size_t j=i+1;j<3;++j) {
++        const long double dx=static_cast<long double>(triangle[i].x)-triangle[j].x;
++        const long double dy=static_cast<long double>(triangle[i].y)-triangle[j].y;
++        diameter=std::max(diameter,dx*dx+dy*dy);
++      }
++    }
++    const long double x=g.extent.x,y=g.extent.y,a=std::abs(g.extent.z);
++    std::array<long double,3> u{},v{};
++    for(size_t i=0;i<3;++i){u[i]=(static_cast<long double>(triangle[i].x)-g.origin.x)/x;v[i]=(static_cast<long double>(triangle[i].y)-g.origin.y)/y;}
++    auto quadratic=[](const std::array<long double,3>& q) {
++      const auto ends=std::minmax_element(q.begin(),q.end());
++      long double maximum=0;for(auto value:q)maximum=std::max(maximum,std::abs(value*(1-value)));
++      return *ends.first<=.5L && *ends.second>=.5L ? std::max(maximum,.25L) : maximum;
++    };
++    long double du=0,dv=0;for(size_t i=0;i<3;++i){du=std::max(du,std::abs(1-2*u[i]));dv=std::max(dv,std::abs(1-2*v[i]));}
++    const auto mixed=a*du*dv/(x*y);
++    const auto hessian=std::max(2*a*quadratic(v)/(x*x)+mixed,2*a*quadratic(u)/(y*y)+mixed);
++    // Linear interpolation remainder <= ||H||/2 * sum_{i<j} lambda_i lambda_j |xi-xj|^2.
++    error+=hessian*diameter/6;
++  }
++  const auto envelope=256*std::numeric_limits<long double>::epsilon()*scale;
++  const double bound=std::nextafter(double(error+envelope),INFINITY);
++  if(!std::isfinite(bound))throw std::invalid_argument("Unrepresentable native3D surface error bound.");
++  return bound;
++}
+ Point PlanarReference::Project(Id id, Point p, KernelStats* stats) const {
+   id=Canonical(id);
+   const auto curved=analytic.find(id);
+diff --git a/Common/src/adaptation/CNativeEngine3D.cpp b/Common/src/adaptation/CNativeEngine3D.cpp
+index 04b02f1581..0c1e93262d 100644
+--- a/Common/src/adaptation/CNativeEngine3D.cpp
++++ b/Common/src/adaptation/CNativeEngine3D.cpp
+@@ -54,15 +54,78 @@ bool DonorCap(const std::string& reason) {
+   return reason=="Original donor import exceeds patch budget." || reason=="Original donor union exceeds patch budget.";
+ }
+ using RepairFeature = std::pair<unsigned,std::array<Id,3>>;
+-struct Choice { Edge edge{}; EdgeMeasure measure; bool active = false; Feature feature; };
++long double GeometryExcess(const Patch& patch,const PlanarReference& geometry,double tolerance) {
++  std::map<Id,Point> nodes;
++  for(const auto& c:patch.cells)for(auto n:c.v)nodes.emplace(n.id,n.p);
++  long double excess=0;
++  for(const auto& f:patch.surface) {
++    const std::array<Point,3> p{nodes.at(f.v[0]),nodes.at(f.v[1]),nodes.at(f.v[2])};
++    const long double error=std::max(0.,geometry.SurfaceError(f.facet,p)-tolerance);
++    const long double ax=static_cast<long double>(p[1].x)-p[0].x,ay=static_cast<long double>(p[1].y)-p[0].y,az=static_cast<long double>(p[1].z)-p[0].z;
++    const long double bx=static_cast<long double>(p[2].x)-p[0].x,by=static_cast<long double>(p[2].y)-p[0].y,bz=static_cast<long double>(p[2].z)-p[0].z;
++    excess+=error*error*std::hypot(ay*bz-az*by,az*bx-ax*bz,ax*by-ay*bx);
++  }
++  return excess;
++}
++bool Clearance(World& world,const Owned& working,const Patch& old,const Patch& fresh,bool& candidate,
++               std::string& reason,EngineStats& stats,size_t ceiling,size_t caller) {
++  const size_t scratch=transfer_memory::Add(caller,65536,transfer_memory::GrowthBound(working.size(),sizeof(DonorCell)));
++  CLocalFailure failure;
++  auto vote=[&]() {const auto elected=world.elect(failure);if(elected.any)reason=elected.message;return !elected.any;};
++  stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,scratch);
++  if(scratch==SIZE_MAX || scratch>ceiling)failure.Set(3,0,"Native3D collision preparation exceeds storage budget.");
++  if(!vote())return false;
++  std::vector<DonorCell> current;std::set<Id> removed;
++  std::string rejected;
++  try {
++    current.reserve(working.size());for(const auto& row:working)current.push_back(DonorCell{row.second.cell});
++    for(const auto& cell:old.cells)removed.insert(cell.id);
++    if(candidate)for(size_t i=0;i<fresh.cells.size();++i)for(size_t j=i+1;j<fresh.cells.size();++j)
++      if(!ConformingDisjoint(fresh.cells[i],fresh.cells[j])) {
++        candidate=false;rejected="Native3D curved replacement overlaps or has nonconforming contact.";break;
++      }
++  }catch(const std::exception& e){failure.Set(2,0,e.what());}
++  if(!vote())return false;
++  DonorImport collision(world);
++  if(!collision.Build(current,reason,ceiling,scratch))return false;
++  const size_t count=CPassiveComm::Allreduce(candidate ? fresh.cells.size() : 0,CPassiveComm::Op::MAX,world.comm);
++  for(size_t at=0;at<count;) {
++    size_t batch=std::min<size_t>(16,count-at);DonorPatch neighbors;
++    for(;;) {
++      std::vector<Cell> query;
++      try {if(candidate)for(size_t i=at;i<std::min(at+batch,fresh.cells.size());++i)query.push_back(fresh.cells[i]);}
++      catch(const std::exception& e){failure.Set(2,0,e.what());}
++      if(!vote())return false;
++      neighbors=collision.ImportCells(query,ceiling,scratch);
++      if(neighbors.valid)break;
++      if(!DonorCap(neighbors.reason) || batch==1){reason=neighbors.reason;return false;}
++      batch=(batch+1)/2;
++    }
++    if(candidate)try {
++      for(const auto& neighbor:neighbors.cells)if(!removed.count(neighbor.cell.id))
++        for(size_t i=at;i<std::min(at+batch,fresh.cells.size());++i)
++          if(!ConformingDisjoint(fresh.cells[i],neighbor.cell)) {
++            candidate=false;rejected="Native3D projected candidate collides with unedited cell "+std::to_string(neighbor.cell.id)+".";break;
++          }
++    }catch(const std::exception& e){failure.Set(2,0,e.what());}
++    if(!vote())return false;
++    at+=batch;
++  }
++  stats.maximum_work_bytes=std::max(stats.maximum_work_bytes,collision.Statistics().maximum_work_bytes);
++  if(!rejected.empty())reason=rejected;
++  return true;
++}
++struct Choice { Edge edge{}; EdgeMeasure measure; bool active = false; Feature feature; bool geometric=false; };
+ class Selection {
+  public:
+-  Selection(bool coarsening, bool repairing, const PlanarReference& geometry, EngineStats& stats, bool timings)
+-      : coarsening(coarsening), track_repairs(repairing), repair_event(repairing), geometry(geometry), stats(stats), timings(timings) {}
++  Selection(bool coarsening, bool repairing, const PlanarReference& geometry, EngineStats& stats, bool timings, double tolerance)
++      : coarsening(coarsening), track_repairs(repairing), repair_event(repairing), geometry(geometry), stats(stats), timings(timings), tolerance(tolerance) {}
+   bool coarsening, track_repairs, repair_event, prune_collapses = false;
+   const PlanarReference& geometry;
+   EngineStats& stats;
+   bool timings;
++  double tolerance;
++  std::set<std::pair<Id,Edge>> geometry_queue;
+   long double Priority(long double length) const { return coarsening ? length : -length; }
+   bool Candidate(long double length) const {
+     return coarsening ? length < CoarseningMetricEdge : length > MaximumMetricEdge;
+@@ -79,7 +142,7 @@ class Selection {
+   }
+   size_t invalid = 0, repair_bytes = 0;
+   struct EdgeState { EdgeMeasure measure; size_t users = 0; std::array<size_t,2> forbidden{}; };
+-  struct CellState { std::array<Edge, 6> edges{}; std::array<unsigned char,6> forbidden{}; std::array<Id,4> vertices{}; bool valid = false; };
++  struct CellState { std::array<Edge, 6> edges{}; std::array<unsigned char,6> forbidden{}; std::array<Id,4> vertices{}; Edge geometry_edge{}; bool valid = false; };
+   std::map<Id,CellState> cells;
+   std::map<Edge,EdgeState> edges;
+   std::set<std::pair<long double,Edge>> queue;
+@@ -90,7 +153,7 @@ class Selection {
+   std::set<RepairFeature> repair_queue;
+   size_t Bytes() const {
+     return transfer_memory::Add(MapBytes(cells),MapBytes(edges),MapBytes(queue),MapBytes(cell_repairs),MapBytes(repair_users),MapBytes(repair_queue),repair_bytes,
+-        MapBytes(vertex_cells),MapBytes(blocked_collapses),transfer_memory::Mul(transfer_memory::Add(vertex_links,blocked_links),sizeof(Id)+4*sizeof(void*)));
++        MapBytes(geometry_queue),MapBytes(vertex_cells),MapBytes(blocked_collapses),transfer_memory::Mul(transfer_memory::Add(vertex_links,blocked_links),sizeof(Id)+4*sizeof(void*)));
+   }
+   Choice Best(bool repairing) const {
+     if (repairing) {
+@@ -98,6 +161,10 @@ class Selection {
+       const auto& key=*repair_queue.begin();
+       Choice choice; choice.active=true; choice.feature={key.second,key.first}; return choice;
+     }
++    if (!geometry_queue.empty()) {
++      const auto key=geometry_queue.begin()->second;
++      return {key,edges.at(key).measure,true,{},true};
++    }
+     if (queue.empty()) return {};
+     const auto key = queue.begin()->second;
+     Edge canonical=key; std::sort(canonical.begin(),canonical.end());
+@@ -141,7 +208,10 @@ class Selection {
+   }
+   void Block(Edge edge, Feature feature, bool repairing) {
+     if (repairing) { repair_queue.erase({feature.count,feature.vertices}); return; }
+-    Edge canonical=edge; std::sort(canonical.begin(),canonical.end());
++    Edge canonical=edge;std::sort(canonical.begin(),canonical.end());
++    for(auto it=geometry_queue.begin();it!=geometry_queue.end();) {
++      if(it->second==canonical)it=geometry_queue.erase(it);else ++it;
++    }
+     const auto it = edges.find(canonical);
+     if (it==edges.end()) return;
+     queue.erase({Priority(it->second.measure.length),edge});
+@@ -201,6 +271,7 @@ class Selection {
+     const auto found = cells.find(id);
+     if (found==cells.end()) throw std::logic_error("Missing native 3D cached cell removal.");
+     invalid -= !found->second.valid;
++    geometry_queue.erase({id,found->second.geometry_edge});
+     for (Id vertex:found->second.vertices) {
+       auto& star=vertex_cells.at(vertex);
+       vertex_links-=star.erase(id);
+@@ -255,6 +326,23 @@ class Selection {
+     if (metric.edges.size()!=6 || !std::isfinite(metric.maximum_length))
+       throw std::runtime_error("Incomplete native 3D initial/updated metric measurement.");
+     CellState row; row.valid=valid;
++    if (!geometry.Analytic().empty()) {
++      const auto faces=Faces(cell);double worst=tolerance;
++      for(size_t slot=0;slot<4;++slot)if(owned.physical[slot].present) {
++        std::array<Point,3> triangle{};
++        for(size_t i=0;i<3;++i)for(auto n:cell.v)if(n.id==faces[slot][i])triangle[i]=n.p;
++        const double error=geometry.SurfaceError(owned.physical[slot].facet,triangle);
++        if(error<=worst)continue;
++        worst=error;row.valid=false;long double longest=-1;
++        for(size_t i=0;i<3;++i)for(size_t j=i+1;j<3;++j) {
++          const auto a=triangle[i],b=triangle[j];
++          const auto length=std::hypot(static_cast<long double>(a.x)-b.x,static_cast<long double>(a.y)-b.y,static_cast<long double>(a.z)-b.z);
++          const Edge key{std::min(faces[slot][i],faces[slot][j]),std::max(faces[slot][i],faces[slot][j])};
++          if(length>longest || (length==longest && key<row.geometry_edge)){longest=length;row.geometry_edge=key;}
++        }
++      }
++      if(worst>tolerance && !coarsening)geometry_queue.insert({cell.id,row.geometry_edge});
++    }
+     for (size_t i=0;i<4;++i) {
+       row.vertices[i]=cell.v[i].id;
+       vertex_links+=vertex_cells[row.vertices[i]].insert(cell.id).second;
+@@ -275,8 +363,8 @@ class Selection {
+     }
+     const auto inserted=cells.emplace(cell.id,std::move(row));
+     if (!inserted.second) throw std::logic_error("Duplicate native 3D cached cell.");
+-    invalid += !valid;
+-    if (track_repairs && !valid) AddRepairs(cell);
++    invalid += !inserted.first->second.valid;
++    if (track_repairs && !inserted.first->second.valid) AddRepairs(cell);
+   }
+   void AddRepairs(const Cell& cell) {
+     auto& repairs=cell_repairs[cell.id];
+@@ -317,6 +405,7 @@ struct FieldAccounting {
+ };
+ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
+                    const PlanarReference& geometry, MetricComposition composition, EngineOptions options, MetricChange intent) {
++  const bool curved=!geometry.Analytic().empty();
+   const bool coarsening=intent==MetricChange::Coarsen;
+   bool repairing=intent==MetricChange::Repair, recovered=false;
+   const auto tracked_bytes_begin=world.bytes_sent;
+@@ -327,7 +416,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+   EngineResult result;
+   auto& stats=result.stats;
+   Owned working;
+-  Selection selection(coarsening,repairing,geometry,stats,options.timings);
++  Selection selection(coarsening,repairing,geometry,stats,options.timings,options.surface_tolerance);
+   std::map<Edge,EdgeMeasure> retired_edges;
+   Directory directory(world,coarsening);
+   DonorImport source(world,options.timings);
+@@ -371,7 +460,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+     stats.final_owned_cells=working.size();
+     stats.cached_measured_cells=selection.cells.size();
+     stats.cached_invalid_cells=selection.invalid;
+-    stats.remaining_edges=selection.queue.size();
++    stats.remaining_edges=selection.queue.size()+selection.geometry_queue.size();
+     stats.remaining_repairs=selection.repair_queue.size();
+     stats.tracked_bytes=world.bytes_sent-tracked_bytes_begin;
+     stats.tracked_calls=world.collective_calls-tracked_calls_begin;
+@@ -405,9 +494,13 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+   {
+     Timer timer(stats.initialization_seconds,options.timings);
+     CLocalFailure failure;
+-    // shortcut: enable curved runtime only after donor extension and geometry completion gates are integrated.
+-    if (!geometry.Analytic().empty())
+-      failure.Set(1,0,"Native3D analytic runtime requires integrated donor coverage and geometry completion gates.");
++    const auto curved_lo=CPassiveComm::Allreduce(int(curved),CPassiveComm::Op::MIN,world.comm);
++    const auto curved_hi=CPassiveComm::Allreduce(int(curved),CPassiveComm::Op::MAX,world.comm);
++    const double surface_lo=CPassiveComm::Allreduce(options.surface_tolerance,CPassiveComm::Op::MIN,world.comm);
++    const double surface_hi=CPassiveComm::Allreduce(options.surface_tolerance,CPassiveComm::Op::MAX,world.comm);
++    if(curved_lo!=curved_hi || surface_lo!=surface_hi || !std::isfinite(surface_lo) ||
++       (curved && !(surface_lo>0)))
++      failure.Set(1,0,"Native3D analytic runtime requires a consistent positive frozen surface tolerance.");
+     const auto lo=CPassiveComm::Allreduce(options.maximum_rounds,CPassiveComm::Op::MIN,world.comm);
+     const auto hi=CPassiveComm::Allreduce(options.maximum_rounds,CPassiveComm::Op::MAX,world.comm);
+     if (lo!=hi) failure.Set(1,0,"Native 3D round limit must be equal across workers.");
+@@ -440,6 +533,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+       if (coarsening) result.collapses.reserve(std::min<uint64_t>(stats.work_limit,4096));
+       else if (!repairing) result.splits.reserve(std::min<uint64_t>(stats.work_limit,4096));
+       initial.reserve(working.size());
++      if(curved)for(const auto& donor:original) {
++        maximum_cell=std::max(maximum_cell,donor.cell.id);
++        for(auto node:donor.cell.v)maximum_node=std::max(maximum_node,node.id);
++      }
+       for (const auto& row : working) {
+         initial.push_back(row.first); maximum_cell=std::max(maximum_cell,row.first);
+         for (auto node : row.second.cell.v) maximum_node=std::max(maximum_node,node.id);
+@@ -582,7 +679,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+       Timer timer(stats.selection_seconds,options.timings);
+       if (round && round%options.stagnation_window==0) {
+         ++stats.progress_windows;
+-        const uint64_t progress=stats.size_progress+stats.quality_progress+stats.cell_removals;
++        const uint64_t progress=stats.size_progress+stats.quality_progress+stats.cell_removals+stats.geometry_progress;
+         const bool mesh_progress=world.maximum(progress!=progress_at_window);
+         const bool search_progress=world.maximum(stats.attempted!=attempted_at_window);
+         progress_at_window=progress; attempted_at_window=stats.attempted;
+@@ -630,7 +727,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+       if (!ready) return finish();
+     }
+     ++stats.rounds;
+-    const bool batched=!repairing && (!coarsening || !bad_field) && options.candidate_batch>1;
++    const bool batched=!curved && !repairing && (!coarsening || !bad_field) && options.candidate_batch>1;
+     std::vector<Choice> choices;
+     DependencyBatch dependency_batch;
+     ImportedBatch imported_batch;
+@@ -690,6 +787,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+       }
+     } else {
+       Timer timer(stats.selection_seconds,options.timings);
++      if(curved) {
++        // shortcut: serialize curved commits until collision reservations cover concurrently displaced cavities.
++        const int owner=CPassiveComm::Allreduce(choice.active ? world.rank : world.size,CPassiveComm::Op::MIN,world.comm);
++        choice.active=choice.active && world.rank==owner;
++      }
+       stats.proposed+=choice.active;
+       const uint64_t proposed=CPassiveComm::Allreduce(uint64_t(choice.active),CPassiveComm::Op::SUM,world.comm);
+       if (proposed>stats.work_limit-stats.global_work) {
+@@ -736,6 +838,21 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+     Node point;
+     bool approved=false, moved=false, repair_approved=false, cavity_inserted=false;
+     MetricDiagnosis certified;
++    bool geometric_progress=false;
++    auto geometric_change=[&](bool candidate,MetricChange kind) {
++      if(!candidate || !curved)return candidate;
++      try {
++        const auto before=GeometryExcess(old,geometry,options.surface_tolerance);
++        const auto after=GeometryExcess(fresh,geometry,options.surface_tolerance);
++        geometric_progress=before>0 && after<before*(1-1e-12L);
++        if((kind==MetricChange::GeometryRefine && !geometric_progress) ||
++           (kind==MetricChange::Coarsen && after>0) ||
++           (kind!=MetricChange::GeometryRefine && after>before)) {
++          result.reason="Native3D candidate does not preserve/improve its frozen geometry error.";return geometry_trial(false);
++        }
++        return true;
++      }catch(const std::exception& e){result.reason=e.what();return geometry_trial(false);}
++    };
+     std::unique_ptr<FrozenField> field;
+     const auto epoch=transfer_memory::Add(transfer_memory::Mul(round,world.size),world.rank);
+     const auto token=transfer_memory::Add(transfer_memory::Mul(epoch,options.candidate_batch),slot);
+@@ -775,13 +892,13 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+       if (metric_needed) try { for (const auto& row : imported.cells) regions.push_back(row.cell); }
+       catch (const std::exception& e) { failure.Set(2,0,e.what()); }
+       ready=vote(failure);
+-      if (ready && world.maximum(metric_needed)) sensors=source.ImportCells(regions,options.memory_ceiling,
++      if (ready && !curved && world.maximum(metric_needed)) sensors=source.ImportCells(regions,options.memory_ceiling,
+           transfer_memory::Add(bytes(),directory.ResidentBytes(),transfer_memory::Bytes(imported.cells),
+               transfer_memory::Bytes(old.cells),transfer_memory::Bytes(old.surface),
+               transfer_memory::Bytes(fresh.cells),transfer_memory::Bytes(fresh.surface)));
+       else if (ready) sensors.valid=true;
+     }
+-    const bool streamed=ready && !sensors.valid && DonorCap(sensors.reason);
++    const bool streamed=ready && (curved || (!sensors.valid && DonorCap(sensors.reason)));
+     if (!ready || (!sensors.valid && !streamed)) { if (ready) result.reason=sensors.reason; return finish(); }
+     const size_t private_scratch=transfer_memory::Add(transfer_memory::Bytes(imported.cells),
+         transfer_memory::Mul(MaximumReplacementCells,8192),MaximumFrozenFieldBytes);
+@@ -822,11 +939,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+                     double(p.y+step*(y/neighbors.size()-p.y)),double(p.z+step*(z/neighbors.size()-p.z))}};
+                 ++stats.repair_proposals;
+                 { Timer geometry_timer(stats.reconstruction_seconds,options.timings); CpuTimer geometry_cpu(stats.reconstruction_cpu_seconds,options.timings);
+-                  bool contained=true;
+-                  for (auto face:old.surface) if (std::find(face.v.begin(),face.v.end(),vertex)!=face.v.end())
+-                    contained=contained && geometry.Contains(face.facet,point.p);
+-                  if (!contained) result.reason="Native 3D movement proposal leaves an incident immutable facet.";
+-                approved=contained ? geometry_trial(MoveVertex(old,vertex,point,first,geometry,fresh,result.reason)) : geometry_trial(false); }
++                approved=geometry_trial(MoveVertex(old,vertex,point,first,geometry,fresh,result.reason)); }
+                 if (approved) approved=metric_trial(ValidateMetricChange(old.cells,fresh.cells,MetricChange::Repair,*field,metric,result.reason,nullptr,&reuse,&certified),certified);
+                 if (approved) { moved=true; break; }
+               }
+@@ -933,6 +1046,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+       if (metric_needed && !old_measured) old_failure.Set(1,0,result.reason);
+       if (!(ready=vote(old_failure))) return finish();
+       auto validate_private=[&](bool candidate,MetricChange kind) {
++        candidate=geometric_change(candidate,kind);
+         PatchMetric metric;
+         const std::vector<Cell> empty;
+         const bool measured=measure_private(candidate ? fresh.cells : empty,metric,true,before.edges);
+@@ -945,7 +1059,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+         }
+         return valid;
+       };
+-      approved=validate_private(metric_needed && old_measured && approved,intent);
++      approved=validate_private(metric_needed && old_measured && approved,choice.geometric ? MetricChange::GeometryRefine : intent);
+       if (!approved) cavity_inserted=false;
+       if (!ready) return finish();
+       const bool fallback=metric_needed && old_measured && (repairing || (!approved && (!coarsening || bad_field)));
+@@ -983,11 +1097,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+                 const auto p=nodes.at(vertex).p; const long double step=trial==0 ? 1.L : (trial==1 ? .5L : .25L);
+                 point={maximum_node+1+token,{double(p.x+step*(x/neighbors.size()-p.x)),
+                     double(p.y+step*(y/neighbors.size()-p.y)),double(p.z+step*(z/neighbors.size()-p.z))}};
+-                bool contained=true;
+-                for (auto face:old.surface) if (std::find(face.v.begin(),face.v.end(),vertex)!=face.v.end())
+-                  contained=contained && geometry.Contains(face.facet,point.p);
+-                if (!contained) result.reason="Native 3D movement proposal leaves an incident immutable facet.";
+-                candidate=contained ? geometry_trial(MoveVertex(old,vertex,point,first,geometry,fresh,result.reason)) : geometry_trial(false);
++                candidate=geometry_trial(MoveVertex(old,vertex,point,first,geometry,fresh,result.reason));
+               }
+             } else if (!move_trial) {
+               auto apex=nodes.begin(); std::advance(apex,trial-3);
+@@ -1003,6 +1113,14 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+       }
+       if (repair_approved && !repairing) ++stats.fallback_accepted;
+     }
++    if(curved && world.maximum(approved)) {
++      const bool prior=approved;
++      if(!Clearance(world,working,old,fresh,approved,result.reason,stats,options.memory_ceiling,
++          transfer_memory::Add(bytes(),source.ResidentBytes(),directory.ResidentBytes(),private_scratch)))return finish();
++      if(prior && !approved)geometry_trial(false);
++    }
++    if(approved && !coarsening && !repairing && !repair_approved)
++      for(const auto& cell:fresh.cells)for(auto node:cell.v)if(node.id==point.id)point=node;
+     if (chosen && !approved) {
+       // A sample belongs to this finally rejected cavity, not a failed trial later rescued elsewhere.
+       stats.last_metric_rejection=certified;
+@@ -1085,6 +1203,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+         for (auto row : failures) selection.Block(row.edge,row.feature,repairing);
+         if (approved) {
+           ++stats.accepted;
++          stats.geometry_progress+=geometric_progress;
+           stats.size_progress+=certified.size_progress;
+           stats.quality_progress+=certified.quality_progress;
+           stats.cell_removals+=coarsening && !repair_approved && certified.cell_removal;
+diff --git a/Common/src/adaptation/CNativeMetric3D.cpp b/Common/src/adaptation/CNativeMetric3D.cpp
+index 43433e13ca..6b3b8e7591 100644
+--- a/Common/src/adaptation/CNativeMetric3D.cpp
++++ b/Common/src/adaptation/CNativeMetric3D.cpp
+@@ -150,7 +150,7 @@ bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fr
+   try {
+     if (!old_count || !fresh_count || old_count > MaximumReplacementCells || fresh_count > MaximumReplacementCells)
+       throw std::invalid_argument("Native 3D metric-change cell count exceeds budget or is empty.");
+-    if (kind != MetricChange::Refine && kind != MetricChange::Coarsen && kind != MetricChange::Repair)
++    if (kind != MetricChange::Refine && kind != MetricChange::Coarsen && kind != MetricChange::Repair && kind != MetricChange::GeometryRefine)
+       throw std::invalid_argument("Unknown native 3D metric-change intent.");
+     for (const auto* metric : {&before, &measured}) {
+       if (!std::isfinite(metric->minimum_mean_ratio) || !std::isfinite(metric->minimum_scaled_jacobian) ||
+@@ -189,6 +189,9 @@ bool ValidateMetricChange(size_t old_count, const PatchMetric& before, size_t fr
+     if (kind == MetricChange::Refine) {
+       if (fresh_count <= old_count || !(removed > 0 && added < removed * (1 - 1e-12L)))
+         throw std::invalid_argument("Native 3D refinement does not reduce frozen changed-edge excess.");
++    } else if (kind == MetricChange::GeometryRefine) {
++      if (fresh_count <= old_count || added > removed)
++        throw std::invalid_argument("Native3D geometric refinement adds frozen metric excess or removes no geometric freedom.");
+     } else if (kind == MetricChange::Coarsen) {
+       if (fresh_count >= old_count || added > 0)
+         throw std::invalid_argument("Native 3D coarsening does not remove cells or introduces an oversized edge.");
+@@ -209,7 +212,7 @@ bool ValidateMetricChange(const std::vector<Cell>& old, const std::vector<Cell>&
+   if (diagnosis) { *diagnosis={}; diagnosis->failure=MetricFailure::Measurement; }
+   try {
+     if (stats) ++stats->changes;
+-    if (kind != MetricChange::Refine && kind != MetricChange::Coarsen && kind != MetricChange::Repair)
++    if (kind != MetricChange::Refine && kind != MetricChange::Coarsen && kind != MetricChange::Repair && kind != MetricChange::GeometryRefine)
+       throw std::invalid_argument("Unknown native 3D metric-change intent.");
+     measured = MeasureMetricCells(fresh, target, stats, frozen_reuse, true, diagnosis);
+     Shape(measured);
+diff --git a/Common/src/adaptation/CNativePredicates3D.cpp b/Common/src/adaptation/CNativePredicates3D.cpp
+index 14a14efd69..b68400bc9c 100644
+--- a/Common/src/adaptation/CNativePredicates3D.cpp
++++ b/Common/src/adaptation/CNativePredicates3D.cpp
+@@ -315,6 +315,70 @@ bool IntersectsSegment(const Tetrahedron& donor, Point a, Point b, KernelStats*
+   Root lo(false), hi(true);
+   return ClipInterval(donor, a, b, volume, va, vb, lo, hi, true, stats);
+ }
++bool ConformingDisjoint(const Cell& a, const Cell& b, KernelStats* stats) {
++  const Tetrahedron ta{a.v[0].p,a.v[1].p,a.v[2].p,a.v[3].p}, tb{b.v[0].p,b.v[1].p,b.v[2].p,b.v[3].p};
++  for (const auto& t : {ta,tb})
++    if (!(Orientation(t[0],t[1],t[2],t[3],stats)>0))
++      throw std::invalid_argument("Native3D contact requires positive finite tetrahedra.");
++  std::array<bool,4> shared_a{},shared_b{};
++  for(size_t i=0;i<4;++i) for(size_t j=0;j<4;++j) if(a.v[i].id==b.v[j].id) {
++    if(a.v[i].p.x!=b.v[j].p.x || a.v[i].p.y!=b.v[j].p.y || a.v[i].p.z!=b.v[j].p.z)
++      throw std::invalid_argument("Native3D contact has inconsistent shared coordinates.");
++    shared_a[i]=shared_b[j]=true;
++  }
++  auto delta=[](Point p,Point q) {
++    return std::array<Integer<66>,3>{Difference(Coordinate(p.x),Coordinate(q.x)),
++      Difference(Coordinate(p.y),Coordinate(q.y)),Difference(Coordinate(p.z),Coordinate(q.z))};
++  };
++  bool tangent=false;
++  auto separated=[&](const std::array<Integer<66>,3>& u,const std::array<Integer<66>,3>& v) {
++    const std::array<Integer<132>,3> axis{
++      Difference(Product(u[1],v[2]),Product(u[2],v[1])),
++      Difference(Product(u[2],v[0]),Product(u[0],v[2])),
++      Difference(Product(u[0],v[1]),Product(u[1],v[0]))};
++    if(!Sign(axis[0]) && !Sign(axis[1]) && !Sign(axis[2]))return false;
++    auto projection=[&](Point p) {
++      const auto d=delta(p,ta[0]);
++      auto first=Product(axis[0],d[0]),second=Product(axis[1],d[1]),third=Product(axis[2],d[2]);
++      second.negative=!second.negative;third.negative=!third.negative;
++      return Difference(Difference(first,second),third);
++    };
++    auto range=[&](const Tetrahedron& t) {
++      auto lo=projection(t[0]),hi=lo;
++      for(size_t i=1;i<4;++i) {
++        auto p=projection(t[i]);
++        if(Sign(Difference(p,lo))<0)lo=p;
++        if(Sign(Difference(p,hi))>0)hi=p;
++      }
++      return std::make_pair(lo,hi);
++    };
++    const auto x=range(ta),y=range(tb);
++    const int xy=Sign(Difference(x.second,y.first)),yx=Sign(Difference(y.second,x.first));
++    tangent=tangent || xy==0 || yx==0;
++    return xy<0 || yx<0;
++  };
++  for(const auto& t:{ta,tb})for(size_t i=0;i<4;++i) {
++    std::array<size_t,3> face{};size_t n=0;
++    for(size_t j=0;j<4;++j)if(i!=j)face[n++]=j;
++    if(separated(delta(t[face[1]],t[face[0]]),delta(t[face[2]],t[face[0]])))return true;
++  }
++  for(size_t i=0;i<4;++i)for(size_t j=i+1;j<4;++j)
++    for(size_t k=0;k<4;++k)for(size_t l=k+1;l<4;++l)
++      if(separated(delta(ta[j],ta[i]),delta(tb[l],tb[k])))return true;
++  if(!tangent)return false; // Strict overlap on every nonzero separating axis has nonempty interior.
++  auto contacts=[&](const Tetrahedron& t,const Tetrahedron& other,const std::array<bool,4>& shared) {
++    for(size_t i=0;i<4;++i)for(size_t j=i+1;j<4;++j) {
++      Integer<198> volume;std::array<Integer<198>,4> va,vb;Root lo(false),hi(true);
++      if(!ClipInterval(other,t[i],t[j],volume,va,vb,lo,hi,true,stats))continue;
++      if(shared[i] && shared[j])continue;
++      if(CompareRoot(lo,hi)==0 && ((shared[i] && CompareRoot(lo,Root(false))==0) ||
++                                 (shared[j] && CompareRoot(lo,Root(true))==0)))continue;
++      return false;
++    }
++    return true;
++  };
++  return contacts(ta,tb,shared_a) && contacts(tb,ta,shared_b);
++}
+ bool Barycentric(const Tetrahedron& donor, Point point, std::array<long double, 4>& weights, KernelStats* stats) {
+   if (!(Orientation(donor[0], donor[1], donor[2], donor[3], stats) > 0))
+     throw std::invalid_argument("Native 3D P1 donor must have positive volume.");
+diff --git a/Common/src/adaptation/CNativeRemesher3D.cpp b/Common/src/adaptation/CNativeRemesher3D.cpp
+index 54c3eac3be..f9dbd5cab7 100644
+--- a/Common/src/adaptation/CNativeRemesher3D.cpp
++++ b/Common/src/adaptation/CNativeRemesher3D.cpp
+@@ -92,6 +92,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry&
+   stats.workers = config.GetAdap_Native_Ranks() ? int(config.GetAdap_Native_Ranks()) : parent.size;
+   auto control = options;
+   control.timings = options.timings || config.GetWrt_Performance();
++  control.surface_tolerance = SU2_TYPE::GetValue(config.GetAdap_Hausd());
+   if (config.GetAdap_Native_Max_Work()) control.maximum_work=config.GetAdap_Native_Max_Work();
+   if (config.GetAdap_Native_Max_Time()>0) control.maximum_seconds=SU2_TYPE::GetValue(config.GetAdap_Native_Max_Time());
+   stats.detailed_timings = control.timings;
+diff --git a/UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp b/UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp
+index 683cee12b4..b6586d632f 100644
+--- a/UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp
++++ b/UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp
+@@ -842,3 +842,22 @@ TEST_CASE("Declared frozen sensor coverage evaluates actual curved replacement v
+   CHECK_THROWS(field.Query({10,0,0}));
+   SaveCurved(fresh,reference,"layered_sphere_split");
+ }
++
++TEST_CASE("Native3D analytic surface bounds cover complete face interiors", "[NativeSurfaceError3D]") {
++  const std::array<Point,3> sphere{{{1,0,0},{0,1,0},{0,0,1}}};
++  const std::array<Point,3> bump{{{0,0,0},{1,0,0},{0,1,0}}};
++  for(bool radial:{false,true}) {
++    const auto points=radial?sphere:bump;
++    Facet facet{0,0,{{{0,points[0]},{1,points[1]},{2,points[2]}}}};
++    AnalyticSurface g;g.kind=radial?AnalyticSurface::Kind::Sphere:AnalyticSurface::Kind::Bump;g.extent=radial?Point{1,0,0}:Point{1,1,-.01};
++    PlanarReference geometry({facet},SIZE_MAX,{{0,g}}),flat({facet});
++    CHECK(flat.SurfaceError(0,points)==0);
++    const auto error=geometry.SurfaceError(0,points);CHECK(error>0);
++    for(int i=0;i<=20;++i)for(int j=0;j<=20-i;++j) {
++      const double u=i/20.,v=j/20.;Point p{points[0].x*(1-u-v)+u*points[1].x+v*points[2].x,
++        points[0].y*(1-u-v)+u*points[1].y+v*points[2].y,points[0].z*(1-u-v)+u*points[1].z+v*points[2].z};
++      const auto projected=geometry.Project(0,p);
++      CHECK(std::hypot(projected.x-p.x,projected.y-p.y,projected.z-p.z)<=error);
++    }
++  }
++}
+diff --git a/UnitTests/Common/adaptation/CNativeMesh3D_tests.cpp b/UnitTests/Common/adaptation/CNativeMesh3D_tests.cpp
+index 0f56ea8467..8586786f9e 100644
+--- a/UnitTests/Common/adaptation/CNativeMesh3D_tests.cpp
++++ b/UnitTests/Common/adaptation/CNativeMesh3D_tests.cpp
+@@ -213,3 +213,23 @@ TEST_CASE("Native closed-query filters settle containment without weakening cros
+   CHECK_FALSE(IntersectsSegment(small,{-tiny,0,0},{-tiny,0,0}));
+   CHECK_FALSE(IntersectsSegment(t,{-1,.2,.2},{.2,-1,.2}));
+ }
++
++TEST_CASE("Native3D exact contact admits only the common mesh simplex", "[NativeContact3D]") {
++  for(double scale:{1.,1e-100,1e100}) {
++    Cell a{0,{{{0,{0,0,0}},{1,{scale,0,0}},{2,{0,scale,0}},{3,{0,0,scale}}}}};
++    Cell b{1,{{a.v[0],a.v[2],a.v[1],{4,{0,0,-scale}}}}};
++    CHECK(ConformingDisjoint(a,b));CHECK(ConformingDisjoint(b,a));
++    CHECK_FALSE(ConformingDisjoint(a,a));
++    auto edge=b;edge.v={a.v[0],a.v[1],Node{4,{0,-scale,0}},Node{5,{0,0,-scale}}};
++    CHECK(ConformingDisjoint(a,edge));
++    auto unshared=b;unshared.v[1].id=100;CHECK_FALSE(ConformingDisjoint(a,unshared));
++    unshared=b;for(auto& n:unshared.v)n.id+=100;CHECK_FALSE(ConformingDisjoint(a,unshared));
++    Cell vertex{2,{{a.v[1],{100,{2*scale,0,0}},{101,{scale,scale,0}},{102,{scale,0,scale}}}}};
++    CHECK(ConformingDisjoint(a,vertex));
++    vertex.v[0].id=103;CHECK_FALSE(ConformingDisjoint(a,vertex));
++    for(auto& n:vertex.v)n.p.x=std::nextafter(n.p.x,INFINITY);
++    CHECK(ConformingDisjoint(a,vertex));
++    auto overlap=a;for(auto& n:overlap.v){n.id+=200;n.p.x+=scale/4;n.p.y+=scale/4;n.p.z+=scale/4;}
++    CHECK_FALSE(ConformingDisjoint(a,overlap));
++  }
++}
+diff --git a/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp b/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp
+index 7cf820254b..b9b890c893 100644
+--- a/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp
++++ b/UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp
+@@ -786,7 +786,7 @@ TEST_CASE("Native3D acceptance veto retains current and BDF state before publica
+   FAIL("Expected collective acceptance veto before publication");
+ }
+ 
+-TEST_CASE("Analytic native3D reference persists explicit geometry and refuses unfinished runtime collectively",
++TEST_CASE("Analytic native3D reference persists explicit geometry and requires a frozen runtime tolerance",
+           "[NativeCurvedReference3D]") {
+   World world;
+   ReferenceState state;
+@@ -817,7 +817,7 @@ TEST_CASE("Analytic native3D reference persists explicit geometry and refuses un
+   Owned accepted;std::vector<DonorCell> source;
+   if(!world.rank){accepted.emplace(0,Owned::mapped_type{});accepted.at(0).cell=cell;source.push_back({cell,{}});}
+   const auto result=Refine(world,accepted,source,*state.original,{},{});
+-  CHECK_FALSE(result.valid);CHECK(result.reason.find("integrated donor coverage")!=std::string::npos);
++  CHECK_FALSE(result.valid);CHECK(result.reason.find("positive frozen surface tolerance")!=std::string::npos);
+   CHECK(result.cells.empty());CHECK(result.stats.accepted==0);
+ }
+ 
+@@ -877,7 +877,7 @@ void DeclareImportedCurve(ReferenceState& state,bool sphere) {
+ TEST_CASE("Actual CFD import generates bounded bump sensor columns with collective provenance and refusal",
+           "[NativeGeneratedCoverage3D]") {
+   World world;const int m=GENERATE(1,2,3,4);if(m>world.size)return;
+-  auto config=MakeConfig(3,"SOLVER= EULER\nCOMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\nADAP_NATIVE_REPARTITION= YES\nADAP_NATIVE_RANKS= "+std::to_string(m)+"\nADAP_HAUSD= 1e-3\n");
++  auto config=MakeConfig(3,"SOLVER= EULER\nCOMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\nADAP_NATIVE_REPARTITION= YES\nADAP_NATIVE_RANKS= "+std::to_string(m)+"\nADAP_HAUSD= 1e-3\nADAP_NATIVE_MAX_WORK= 32\n");
+   MeshSolution mesh(config.get(),BoxMesh(3,1,false),0);
+   su2activematrix metric(mesh.Fine().GetnPointDomain(),6);
+   for(unsigned long p=0;p<metric.rows();++p){const auto value=Sensor(mesh.Fine().nodes->GetCoord(p),4);
+@@ -912,7 +912,7 @@ TEST_CASE("Actual CFD import generates bounded bump sensor columns with collecti
+   const auto result=backend.Remesh(*config,mesh.Fine(),metric);
+   CHECK(result.status!=CRemeshResult::Status::COMPLETE);CHECK_FALSE(result.onAccepted);
+   CHECK(backend.Statistics().workers==m);
+-  if(world.rank<m)CHECK(backend.Statistics().refine.stop==EngineStop::Failure);
++  if(world.rank<m)CHECK(backend.Statistics().refine.stop!=EngineStop::Complete);
+   CHECK(retained->original==state.original);
+ }
+ TEST_CASE("Actual CFD import generates a finite spherical sensor shell with copied boundary values",
+@@ -940,3 +940,59 @@ TEST_CASE("Actual CFD import generates a finite spherical sensor shell with copi
+   CHECK_THROWS(field.Query({10,0,0}));Save(world,"generated_sphere",source.cells,source.original,state);
+   SaveCoverage(world,"generated_sphere",source.original,state);
+ }
++
++TEST_CASE("Curved native3D runtime refines geometry, publishes and transfers constant BDF states", "[NativeCurvedRuntime3D]") {
++  World world;const int m=GENERATE(1,2,3,4);if(m>world.size)return;
++  const std::string name="curved_runtime_m"+std::to_string(m),filename=name+".cfg";
++  if(!world.rank) {
++    simplex_test::WriteSU2Mesh(BoxMesh(3,1,false),name+".su2");std::ofstream cfg(filename);
++    cfg<<"SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nAOA= 0\nMESH_FORMAT= SU2\nMESH_FILENAME= "<<name<<".su2\n"
++       <<"MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus, z_minus_a, z_minus_b)\n"
++       <<"COMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
++       <<"ADAP_NATIVE_REPARTITION= YES\nADAP_NATIVE_RANKS= "<<m<<"\nADAP_NATIVE_MAX_WORK= 256\nADAP_HAUSD= .003\n"
++       <<"MGLEVEL= 0\nNUM_METHOD_GRAD= GREEN_GAUSS\nCONV_NUM_METHOD_FLOW= ROE\nMUSCL_FLOW= NO\n"
++       <<"TIME_DOMAIN= YES\nTIME_STEP= 1e-3\nTIME_ITER= 4\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\nINNER_ITER= 2\n"
++       <<"OUTPUT_FILES= (RESTART)\nWRT_ADAP_MESH= NO\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= "<<name<<"_mesh\nCONV_FILENAME= "<<name<<"_history\n";
++  }
++  SU2_MPI::Barrier(SU2_MPI::GetComm());
++  TetraDriver driver(const_cast<char*>(filename.c_str()),1,SU2_MPI::GetComm());
++  ReferenceState declared;ImportGeometry(driver.Config(),driver.Geometry(),nullptr,declared);
++  AnalyticSurface g;g.kind=AnalyticSurface::Kind::Bump;g.extent={1,1,-.01};
++  std::map<Id,AnalyticSurface> curves;
++  for(auto f:declared.facets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))curves.emplace(f.id,g);
++  declared.original=std::make_shared<PlanarReference>(declared.facets,SIZE_MAX,curves);
++  WriteReference(name+".su2.native_ref",declared);
++  const auto authority=EncodeReference(declared);auto backend=driver.Backend();
++  auto reference=driver.Reference();REQUIRE(reference);CHECK_FALSE(reference->original);
++  auto* native=dynamic_cast<CNativeRemesher3D*>(backend.get());REQUIRE(native);
++  auto* nodes=driver.Solver().GetNodes();
++  const std::array<su2double,5> constant{1.,.2,.1,.05,3.};
++  for(unsigned long p=0;p<driver.Geometry().GetnPoint();++p)for(size_t k=0;k<5;++k) {
++    nodes->SetSolution(p,k,constant[k]);nodes->GetSolution_time_n()(p,k)=constant[k];nodes->GetSolution_time_n1()(p,k)=constant[k]*.96875;
++  }
++  su2activematrix metric(driver.Geometry().GetnPointDomain(),6);
++  for(unsigned long p=0;p<metric.rows();++p)for(size_t k=0;k<6;++k)metric(p,k)=(k==0 || k==3 || k==5)? .5:0.;
++  const auto initial=State(driver.Geometry(),driver.Solver());const auto old=Flow(world,driver.Geometry(),driver.Solver());
++  const auto donor=ImportGeometry(driver.Config(),driver.Geometry(),&metric,declared);
++  Save(world,name+"_initial",donor.cells,donor.original,declared);SaveCoverage(world,name,donor.original,declared);
++  const auto result=backend->Remesh(driver.Config(),driver.Geometry(),metric);
++  CHECK(State(driver.Geometry(),driver.Solver())==initial);CHECK_FALSE(reference->original);
++  INFO("workers="<<m<<" stop="<<EngineStopName(native->Statistics().refine.stop));
++  REQUIRE(result.status==CRemeshResult::Status::COMPLETE);
++  CHECK(CPassiveComm::Allreduce(native->Statistics().refine.geometry_progress,CPassiveComm::Op::SUM,world.comm)>0);
++  CHECK(result.slices.nElemGlobal>6);CBarycentricTransfer transfer;driver.ReplaceMesh(result,transfer);
++  CHECK(EncodeReference(*reference)==authority);
++  const auto transported=result.slices.FetchPointMetric(driver.Geometry());const auto fresh=Flow(world,driver.Geometry(),driver.Solver(),transported);
++  SaveStates(world,name,old,fresh,.5);
++  for(auto row:fresh)for(size_t k=0;k<5;++k) {
++    CHECK(row.values[k]==Approx(SU2_TYPE::GetValue(constant[k])).epsilon(1e-11));
++    CHECK(row.values[5+k]==Approx(SU2_TYPE::GetValue(constant[k])).epsilon(1e-11));
++    CHECK(row.values[10+k]==Approx(SU2_TYPE::GetValue(constant[k]*.96875)).epsilon(1e-11));
++  }
++  su2activematrix accepted_metric(driver.Geometry().GetnPointDomain(),6);
++  for(unsigned long p=0;p<accepted_metric.rows();++p)for(size_t k=0;k<6;++k)accepted_metric(p,k)=transported[6*p+k];
++  const auto accepted=ImportGeometry(driver.Config(),driver.Geometry(),&accepted_metric,*reference);
++  Save(world,name+"_accepted",accepted.cells,donor.original,*reference);driver.WriteAdaptedMesh(1,1);
++  WriteReference(name+"_accepted.native_ref",*reference);
++  ReferenceState loaded;REQUIRE(LoadReference(name+"_accepted.native_ref",loaded));CHECK(EncodeReference(loaded)==authority);
++}

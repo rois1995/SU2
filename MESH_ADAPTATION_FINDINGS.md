@@ -1,3 +1,40 @@
+# Goal2 connected curved runtime integration — 2026-10-12
+
+Working folder /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch
+codex/native-3d-curved-local. GoalACTIVE; all4full integrated gates pending.
+Blanket analytic refusal replaced by MPI-consistent positive frozen surface
+ceiling; geometry drives selection/progress while strict q/J/length remain.
+Projected actual-query source imports, projection-owned movement and exact indexed
+current-mesh overlap/conforming-contact checks precede atomic publication. Curved
+commits serialized until concurrent-displacement collision reservations exist;
+planar batching retained. No performance/scaling claim or cluster work.
+
+curved_runtime_regression_v2 PASS:100selected cases/rank MPI1/2/4, full68-object
+source/archive/member/binary pins, independent accepted-grid/state/source/volume/
+sidecar auditPASS. Actual initial analytic bump sidecar loads;6->8CFD driver mesh
+replacement and constant current/BDF transfer pass allM=1..N. Inspect
+integration_evidence/native_3d_curved_v1/curved_runtime_regression_v2/mpi1/curved_runtime_m1_mesh_00001.su2
+plusMPI2/4/M<N files. Volume1.0002083333333334 approaches analytic1.0002777777777778;
+sampled wall error0.00015625<0.003 complements conservative whole-face bounds.
+Sensor prescribed0.5I; not solvedCFD-derived metric or physical unsteady proof.
+No q/J/length/geometry/BL/fade/NOISE0/transfer/MMG gate weakened.
+
+Connected twelve-file implementation and controls, source snapshots and earlier
+owned-build interruption/compile failure retained. First broad99/100 failure was
+an obsolete diagnostic assertion, now corrected; failed original receipt remains.
+All original artifacts hash-verified directly or in compact planar payload archives;
+actual curved grids/sources/states/sidecars stay inspectable. Report
+CURVED_RUNTIME_INTEGRATION.md; full audit remainsINCOMPLETE. Controllers94180/78676
+terminalPASS, no owned heavy job live. ForeignClusterResults/dependencies/AdapNoExt
+untouched. Permanent cadence in AGENTS.md: connected code, focused checks, broad
+regression at meaningful integration milestones, regularly push reviewable work.
+
+Next substantial work: repeated curved conservative/current+BDF/restart/CGNS and
+real solvedEuler-derived metric/remesh/continue cycles. Sphere runtime/cylinder and
+full geometry/feature coverage remain pending. Preserve full objective; do not close
+Goal2 from this first accepted prescribed-sensor bump event. Older notices below
+are historical.
+
 # Goal2 automatic curved sensor-source integration — 2026-10-12
 
 Working folder /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated; branch

@@ -213,3 +213,23 @@ TEST_CASE("Native closed-query filters settle containment without weakening cros
   CHECK_FALSE(IntersectsSegment(small,{-tiny,0,0},{-tiny,0,0}));
   CHECK_FALSE(IntersectsSegment(t,{-1,.2,.2},{.2,-1,.2}));
 }
+
+TEST_CASE("Native3D exact contact admits only the common mesh simplex", "[NativeContact3D]") {
+  for(double scale:{1.,1e-100,1e100}) {
+    Cell a{0,{{{0,{0,0,0}},{1,{scale,0,0}},{2,{0,scale,0}},{3,{0,0,scale}}}}};
+    Cell b{1,{{a.v[0],a.v[2],a.v[1],{4,{0,0,-scale}}}}};
+    CHECK(ConformingDisjoint(a,b));CHECK(ConformingDisjoint(b,a));
+    CHECK_FALSE(ConformingDisjoint(a,a));
+    auto edge=b;edge.v={a.v[0],a.v[1],Node{4,{0,-scale,0}},Node{5,{0,0,-scale}}};
+    CHECK(ConformingDisjoint(a,edge));
+    auto unshared=b;unshared.v[1].id=100;CHECK_FALSE(ConformingDisjoint(a,unshared));
+    unshared=b;for(auto& n:unshared.v)n.id+=100;CHECK_FALSE(ConformingDisjoint(a,unshared));
+    Cell vertex{2,{{a.v[1],{100,{2*scale,0,0}},{101,{scale,scale,0}},{102,{scale,0,scale}}}}};
+    CHECK(ConformingDisjoint(a,vertex));
+    vertex.v[0].id=103;CHECK_FALSE(ConformingDisjoint(a,vertex));
+    for(auto& n:vertex.v)n.p.x=std::nextafter(n.p.x,INFINITY);
+    CHECK(ConformingDisjoint(a,vertex));
+    auto overlap=a;for(auto& n:overlap.v){n.id+=200;n.p.x+=scale/4;n.p.y+=scale/4;n.p.z+=scale/4;}
+    CHECK_FALSE(ConformingDisjoint(a,overlap));
+  }
+}

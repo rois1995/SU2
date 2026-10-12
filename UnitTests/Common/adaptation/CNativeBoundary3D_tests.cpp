@@ -842,3 +842,22 @@ TEST_CASE("Declared frozen sensor coverage evaluates actual curved replacement v
   CHECK_THROWS(field.Query({10,0,0}));
   SaveCurved(fresh,reference,"layered_sphere_split");
 }
+
+TEST_CASE("Native3D analytic surface bounds cover complete face interiors", "[NativeSurfaceError3D]") {
+  const std::array<Point,3> sphere{{{1,0,0},{0,1,0},{0,0,1}}};
+  const std::array<Point,3> bump{{{0,0,0},{1,0,0},{0,1,0}}};
+  for(bool radial:{false,true}) {
+    const auto points=radial?sphere:bump;
+    Facet facet{0,0,{{{0,points[0]},{1,points[1]},{2,points[2]}}}};
+    AnalyticSurface g;g.kind=radial?AnalyticSurface::Kind::Sphere:AnalyticSurface::Kind::Bump;g.extent=radial?Point{1,0,0}:Point{1,1,-.01};
+    PlanarReference geometry({facet},SIZE_MAX,{{0,g}}),flat({facet});
+    CHECK(flat.SurfaceError(0,points)==0);
+    const auto error=geometry.SurfaceError(0,points);CHECK(error>0);
+    for(int i=0;i<=20;++i)for(int j=0;j<=20-i;++j) {
+      const double u=i/20.,v=j/20.;Point p{points[0].x*(1-u-v)+u*points[1].x+v*points[2].x,
+        points[0].y*(1-u-v)+u*points[1].y+v*points[2].y,points[0].z*(1-u-v)+u*points[1].z+v*points[2].z};
+      const auto projected=geometry.Project(0,p);
+      CHECK(std::hypot(projected.x-p.x,projected.y-p.y,projected.z-p.z)<=error);
+    }
+  }
+}

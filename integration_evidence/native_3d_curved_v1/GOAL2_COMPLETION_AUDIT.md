@@ -35,3 +35,13 @@ prescribed; no solved CFD-derived target or accepted curved runtime event is pro
 All four integrated requirements remain PENDING. See GENERATED_SENSOR_CHECKPOINT.md
 and generated_sensor_v2 receipts/publication_integrity.json. The original failed
 cross-rank numeric-ID assumption is retained in v1 with its corrected audit.
+
+
+Connected curved runtime integration:100selected cases per rank MPI1/2/4 PASS;
+independent accepted-grid/state/source/volume/sidecar auditPASS. A real driver loads
+initial analytic bump authority, performs geometry-driven6->8tet replacement with
+M=N/M<N and transfers constant current/BDF states. Actual SU2 files remain directly
+inspectable. This advances integrated requirements but completes none in full:
+sensor is prescribed, curved commits serialized, cylinder/general geometry,
+conservative/restart/CGNS/repeated events and solved Euler targets remain pending.
+See CURVED_RUNTIME_INTEGRATION.md and curved_runtime_regression_v2 receipts.

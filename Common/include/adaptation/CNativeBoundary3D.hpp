@@ -60,6 +60,9 @@ class PlanarReference {
   Id Canonical(Id facet) const;
   /*! Finite complete triangle containment and exact orientation relative to the original physical facet. */
   bool ContainsFace(Id facet, const std::array<Point, 3>& triangle, KernelStats* stats = nullptr) const;
+  /*! Conservative physical distance between a planar triangle and its analytic radial/graph authority.
+   * Zero for exact faceted authority. Includes nodal projection residual and arithmetic envelope. */
+  double SurfaceError(Id facet, const std::array<Point,3>& triangle, KernelStats* stats = nullptr) const;
   /*! Lowest canonical same-marker patch containing the complete oriented triangle. Broad phase never admits geometry.
    * Missing/invalid geometry leaves facet unchanged; nonfinite query coordinates throw. */
   bool FindFace(int marker, const std::array<Point, 3>& triangle, Id& facet, KernelStats* stats = nullptr) const;

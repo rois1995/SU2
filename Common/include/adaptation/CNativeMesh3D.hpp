@@ -58,6 +58,9 @@ bool Barycentric(const Tetrahedron& donor, Point point, std::array<long double, 
 /*! Exact closed segment/tetrahedron intersection, including endpoint-only and zero-length point queries.
  * Positive finite donor required; no rounded interval roots or containment tolerance. */
 bool IntersectsSegment(const Tetrahedron& donor, Point a, Point b, KernelStats* stats = nullptr);
+/*! Exact tetrahedral separation/contact. Interiors must be disjoint, and every closed contact must
+ * lie in the simplex of shared node identities with identical coordinates. Unrelated tangencies reject. */
+bool ConformingDisjoint(const Cell& a, const Cell& b, KernelStats* stats = nullptr);
 /*! Finite components and exact Sylvester signs; no tensor repair or condition-number clipping. */
 void ValidateTensor(const Tensor& tensor, KernelStats* stats = nullptr);
 constexpr size_t MaximumSegmentDonors = 256;

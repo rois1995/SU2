@@ -1,0 +1,1 @@
+Static review found a test fixture calling nonexistent CollectiveWriteReference. The house collective writer is void WriteReference. Stop only the owned build process group before changing pinned source; preserve its immutable source patch/log/receipt. Resume a new focused attempt after correcting the call. This is a controlled build interruption, not a remeshing or MPI failure.

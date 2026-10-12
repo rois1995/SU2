@@ -15,6 +15,7 @@ struct EngineOptions {
   // Zero rounds uses a work-bounded search; positive rounds remain an explicit diagnostic ceiling.
   size_t maximum_work = SIZE_MAX, stagnation_window = 64;  // SIZE_MAX: max(4096,64*global input cells).
   double maximum_seconds = 0;  // Optional kernel elapsed ceiling, checked at collective safe points.
+  double surface_tolerance = 0;  // Analytic authority requires a positive frozen physical error ceiling.
   bool timings = false;
   size_t candidate_batch = MaximumCandidateBatch;  // Internal control for paired correctness/work comparisons.
 };
@@ -30,7 +31,7 @@ inline const char* EngineStopName(EngineStop stop) {
 struct EngineStats {
   EngineStop stop = EngineStop::None;
   uint64_t global_work = 0, work_limit = 0, progress_windows = 0, stagnant_windows = 0, search_windows = 0;
-  uint64_t size_progress = 0, quality_progress = 0, cell_removals = 0;
+  uint64_t size_progress = 0, quality_progress = 0, cell_removals = 0, geometry_progress = 0;
   uint64_t geometry_trials = 0, geometry_rejected = 0, metric_trials = 0;
   uint64_t metric_shape_rejected = 0, metric_progress_rejected = 0, metric_measurement_rejected = 0;
   MetricDiagnosis last_metric_rejection;

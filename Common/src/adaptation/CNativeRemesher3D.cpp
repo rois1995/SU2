@@ -92,6 +92,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
   stats.workers = config.GetAdap_Native_Ranks() ? int(config.GetAdap_Native_Ranks()) : parent.size;
   auto control = options;
   control.timings = options.timings || config.GetWrt_Performance();
+  control.surface_tolerance = SU2_TYPE::GetValue(config.GetAdap_Hausd());
   if (config.GetAdap_Native_Max_Work()) control.maximum_work=config.GetAdap_Native_Max_Work();
   if (config.GetAdap_Native_Max_Time()>0) control.maximum_seconds=SU2_TYPE::GetValue(config.GetAdap_Native_Max_Time());
   stats.detailed_timings = control.timings;

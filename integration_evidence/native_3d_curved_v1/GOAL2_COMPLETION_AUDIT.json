@@ -210,5 +210,51 @@
     "curved_runtime_supported": false,
     "solved_cfd_derived_metric_cycle_proven": false,
     "full_goal_gates_completed": 0
+  },
+  "curved_runtime_integration": {
+    "status": "PASS_LOCAL_SMALL_OUTWARD_BUMP_CFD_REPLACEMENT",
+    "report": "CURVED_RUNTIME_INTEGRATION.md",
+    "receipt": "curved_runtime_regression_v2/validation.json",
+    "receipt_sha256": "c73a8c0c32cce34eb0c9a4bb3ed240f980a26215ebefea410557e7a9baee8dcf",
+    "independent_audit": "curved_runtime_regression_v2/independent_runtime_validation.json",
+    "independent_audit_sha256": "02139cfc6987841c5c22a02ef9b65ec7bc9054d697aeb7c38624309f4e6188de",
+    "counts": [
+      {
+        "ranks": 1,
+        "cases_per_rank": 100,
+        "assertions": [
+          40571
+        ]
+      },
+      {
+        "ranks": 2,
+        "cases_per_rank": 100,
+        "assertions": [
+          41960,
+          41535
+        ]
+      },
+      {
+        "ranks": 4,
+        "cases_per_rank": 100,
+        "assertions": [
+          44156,
+          43567,
+          43574,
+          43831
+        ]
+      }
+    ],
+    "runtime_entry_implemented": true,
+    "qualified_geometry": "Small outward analytic bump with two marker components",
+    "qualified_sensor": "Prescribed0.5I",
+    "actual_cfd_replacement_and_bdf_transfer": true,
+    "initial_sidecar_and_su2_output": true,
+    "curved_commits_globally_serialized": true,
+    "sphere_runtime_qualified": false,
+    "cylinder_supported": false,
+    "conservative_restart_cgns_curved_cycles_qualified": false,
+    "solved_euler_metric_cycles_qualified": false,
+    "full_goal_gates_completed": 0
   }
 }

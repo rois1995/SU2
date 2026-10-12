@@ -508,6 +508,51 @@ bool PlanarReference::ContainsFace(Id id, const std::array<Point, 3>& triangle, 
   }
   return false;
 }
+double PlanarReference::SurfaceError(Id id,const std::array<Point,3>& triangle,KernelStats* stats) const {
+  id=Canonical(id);
+  if(!ContainsFace(id,triangle,stats))throw std::invalid_argument("Native3D surface error leaves its authority.");
+  const auto found=analytic.find(id);if(found==analytic.end())return 0;
+  const auto& g=found->second;
+  long double error=0,scale=std::max({std::abs(g.origin.x),std::abs(g.origin.y),std::abs(g.origin.z),
+                                   std::abs(g.extent.x),std::abs(g.extent.y),std::abs(g.extent.z)});
+  if(g.kind==AnalyticSurface::Kind::Sphere) {
+    const auto a=Delta(triangle[1],triangle[0]),b=Delta(triangle[2],triangle[0]),c=Delta(triangle[0],g.origin);
+    const auto normal=Cross(a,b);const auto length=Norm(normal);
+    if(!(length>0 && std::isfinite(length)))throw std::invalid_argument("Degenerate native3D geometry triangle.");
+    const auto uncertainty=64*std::numeric_limits<long double>::epsilon()*Norm(a)*Norm(b);
+    const auto numerator=std::max(0.L,std::abs(Dot(normal,c))-uncertainty*Norm(c));
+    const auto height=numerator/(length+uncertainty);
+    error=std::max(0.L,static_cast<long double>(g.extent.x)-height);
+    for(auto p:triangle)error=std::max(error,std::abs(Norm(Delta(p,g.origin))-g.extent.x));
+  } else {
+    long double diameter=0;
+    for(size_t i=0;i<3;++i) {
+      error=std::max(error,std::abs(static_cast<long double>(triangle[i].z)-BumpHeight(g,triangle[i])));
+      for(size_t j=i+1;j<3;++j) {
+        const long double dx=static_cast<long double>(triangle[i].x)-triangle[j].x;
+        const long double dy=static_cast<long double>(triangle[i].y)-triangle[j].y;
+        diameter=std::max(diameter,dx*dx+dy*dy);
+      }
+    }
+    const long double x=g.extent.x,y=g.extent.y,a=std::abs(g.extent.z);
+    std::array<long double,3> u{},v{};
+    for(size_t i=0;i<3;++i){u[i]=(static_cast<long double>(triangle[i].x)-g.origin.x)/x;v[i]=(static_cast<long double>(triangle[i].y)-g.origin.y)/y;}
+    auto quadratic=[](const std::array<long double,3>& q) {
+      const auto ends=std::minmax_element(q.begin(),q.end());
+      long double maximum=0;for(auto value:q)maximum=std::max(maximum,std::abs(value*(1-value)));
+      return *ends.first<=.5L && *ends.second>=.5L ? std::max(maximum,.25L) : maximum;
+    };
+    long double du=0,dv=0;for(size_t i=0;i<3;++i){du=std::max(du,std::abs(1-2*u[i]));dv=std::max(dv,std::abs(1-2*v[i]));}
+    const auto mixed=a*du*dv/(x*y);
+    const auto hessian=std::max(2*a*quadratic(v)/(x*x)+mixed,2*a*quadratic(u)/(y*y)+mixed);
+    // Linear interpolation remainder <= ||H||/2 * sum_{i<j} lambda_i lambda_j |xi-xj|^2.
+    error+=hessian*diameter/6;
+  }
+  const auto envelope=256*std::numeric_limits<long double>::epsilon()*scale;
+  const double bound=std::nextafter(double(error+envelope),INFINITY);
+  if(!std::isfinite(bound))throw std::invalid_argument("Unrepresentable native3D surface error bound.");
+  return bound;
+}
 Point PlanarReference::Project(Id id, Point p, KernelStats* stats) const {
   id=Canonical(id);
   const auto curved=analytic.find(id);

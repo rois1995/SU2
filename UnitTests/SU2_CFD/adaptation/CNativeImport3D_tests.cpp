@@ -786,7 +786,7 @@ TEST_CASE("Native3D acceptance veto retains current and BDF state before publica
   FAIL("Expected collective acceptance veto before publication");
 }
 
-TEST_CASE("Analytic native3D reference persists explicit geometry and refuses unfinished runtime collectively",
+TEST_CASE("Analytic native3D reference persists explicit geometry and requires a frozen runtime tolerance",
           "[NativeCurvedReference3D]") {
   World world;
   ReferenceState state;
@@ -817,7 +817,7 @@ TEST_CASE("Analytic native3D reference persists explicit geometry and refuses un
   Owned accepted;std::vector<DonorCell> source;
   if(!world.rank){accepted.emplace(0,Owned::mapped_type{});accepted.at(0).cell=cell;source.push_back({cell,{}});}
   const auto result=Refine(world,accepted,source,*state.original,{},{});
-  CHECK_FALSE(result.valid);CHECK(result.reason.find("integrated donor coverage")!=std::string::npos);
+  CHECK_FALSE(result.valid);CHECK(result.reason.find("positive frozen surface tolerance")!=std::string::npos);
   CHECK(result.cells.empty());CHECK(result.stats.accepted==0);
 }
 
@@ -877,7 +877,7 @@ void DeclareImportedCurve(ReferenceState& state,bool sphere) {
 TEST_CASE("Actual CFD import generates bounded bump sensor columns with collective provenance and refusal",
           "[NativeGeneratedCoverage3D]") {
   World world;const int m=GENERATE(1,2,3,4);if(m>world.size)return;
-  auto config=MakeConfig(3,"SOLVER= EULER\nCOMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\nADAP_NATIVE_REPARTITION= YES\nADAP_NATIVE_RANKS= "+std::to_string(m)+"\nADAP_HAUSD= 1e-3\n");
+  auto config=MakeConfig(3,"SOLVER= EULER\nCOMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\nADAP_NATIVE_REPARTITION= YES\nADAP_NATIVE_RANKS= "+std::to_string(m)+"\nADAP_HAUSD= 1e-3\nADAP_NATIVE_MAX_WORK= 32\n");
   MeshSolution mesh(config.get(),BoxMesh(3,1,false),0);
   su2activematrix metric(mesh.Fine().GetnPointDomain(),6);
   for(unsigned long p=0;p<metric.rows();++p){const auto value=Sensor(mesh.Fine().nodes->GetCoord(p),4);
@@ -912,7 +912,7 @@ TEST_CASE("Actual CFD import generates bounded bump sensor columns with collecti
   const auto result=backend.Remesh(*config,mesh.Fine(),metric);
   CHECK(result.status!=CRemeshResult::Status::COMPLETE);CHECK_FALSE(result.onAccepted);
   CHECK(backend.Statistics().workers==m);
-  if(world.rank<m)CHECK(backend.Statistics().refine.stop==EngineStop::Failure);
+  if(world.rank<m)CHECK(backend.Statistics().refine.stop!=EngineStop::Complete);
   CHECK(retained->original==state.original);
 }
 TEST_CASE("Actual CFD import generates a finite spherical sensor shell with copied boundary values",
@@ -939,4 +939,60 @@ TEST_CASE("Actual CFD import generates a finite spherical sensor shell with copi
   CHECK(double(field.SensorEdgeLength({-q,0,0},projected))==Approx((1-q)*std::sqrt(.5)).epsilon(1e-12));
   CHECK_THROWS(field.Query({10,0,0}));Save(world,"generated_sphere",source.cells,source.original,state);
   SaveCoverage(world,"generated_sphere",source.original,state);
+}
+
+TEST_CASE("Curved native3D runtime refines geometry, publishes and transfers constant BDF states", "[NativeCurvedRuntime3D]") {
+  World world;const int m=GENERATE(1,2,3,4);if(m>world.size)return;
+  const std::string name="curved_runtime_m"+std::to_string(m),filename=name+".cfg";
+  if(!world.rank) {
+    simplex_test::WriteSU2Mesh(BoxMesh(3,1,false),name+".su2");std::ofstream cfg(filename);
+    cfg<<"SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nAOA= 0\nMESH_FORMAT= SU2\nMESH_FILENAME= "<<name<<".su2\n"
+       <<"MARKER_FAR= (x_minus, x_plus, y_minus, y_plus, z_plus, z_minus_a, z_minus_b)\n"
+       <<"COMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
+       <<"ADAP_NATIVE_REPARTITION= YES\nADAP_NATIVE_RANKS= "<<m<<"\nADAP_NATIVE_MAX_WORK= 256\nADAP_HAUSD= .003\n"
+       <<"MGLEVEL= 0\nNUM_METHOD_GRAD= GREEN_GAUSS\nCONV_NUM_METHOD_FLOW= ROE\nMUSCL_FLOW= NO\n"
+       <<"TIME_DOMAIN= YES\nTIME_STEP= 1e-3\nTIME_ITER= 4\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\nINNER_ITER= 2\n"
+       <<"OUTPUT_FILES= (RESTART)\nWRT_ADAP_MESH= NO\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= "<<name<<"_mesh\nCONV_FILENAME= "<<name<<"_history\n";
+  }
+  SU2_MPI::Barrier(SU2_MPI::GetComm());
+  TetraDriver driver(const_cast<char*>(filename.c_str()),1,SU2_MPI::GetComm());
+  ReferenceState declared;ImportGeometry(driver.Config(),driver.Geometry(),nullptr,declared);
+  AnalyticSurface g;g.kind=AnalyticSurface::Kind::Bump;g.extent={1,1,-.01};
+  std::map<Id,AnalyticSurface> curves;
+  for(auto f:declared.facets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))curves.emplace(f.id,g);
+  declared.original=std::make_shared<PlanarReference>(declared.facets,SIZE_MAX,curves);
+  WriteReference(name+".su2.native_ref",declared);
+  const auto authority=EncodeReference(declared);auto backend=driver.Backend();
+  auto reference=driver.Reference();REQUIRE(reference);CHECK_FALSE(reference->original);
+  auto* native=dynamic_cast<CNativeRemesher3D*>(backend.get());REQUIRE(native);
+  auto* nodes=driver.Solver().GetNodes();
+  const std::array<su2double,5> constant{1.,.2,.1,.05,3.};
+  for(unsigned long p=0;p<driver.Geometry().GetnPoint();++p)for(size_t k=0;k<5;++k) {
+    nodes->SetSolution(p,k,constant[k]);nodes->GetSolution_time_n()(p,k)=constant[k];nodes->GetSolution_time_n1()(p,k)=constant[k]*.96875;
+  }
+  su2activematrix metric(driver.Geometry().GetnPointDomain(),6);
+  for(unsigned long p=0;p<metric.rows();++p)for(size_t k=0;k<6;++k)metric(p,k)=(k==0 || k==3 || k==5)? .5:0.;
+  const auto initial=State(driver.Geometry(),driver.Solver());const auto old=Flow(world,driver.Geometry(),driver.Solver());
+  const auto donor=ImportGeometry(driver.Config(),driver.Geometry(),&metric,declared);
+  Save(world,name+"_initial",donor.cells,donor.original,declared);SaveCoverage(world,name,donor.original,declared);
+  const auto result=backend->Remesh(driver.Config(),driver.Geometry(),metric);
+  CHECK(State(driver.Geometry(),driver.Solver())==initial);CHECK_FALSE(reference->original);
+  INFO("workers="<<m<<" stop="<<EngineStopName(native->Statistics().refine.stop));
+  REQUIRE(result.status==CRemeshResult::Status::COMPLETE);
+  CHECK(CPassiveComm::Allreduce(native->Statistics().refine.geometry_progress,CPassiveComm::Op::SUM,world.comm)>0);
+  CHECK(result.slices.nElemGlobal>6);CBarycentricTransfer transfer;driver.ReplaceMesh(result,transfer);
+  CHECK(EncodeReference(*reference)==authority);
+  const auto transported=result.slices.FetchPointMetric(driver.Geometry());const auto fresh=Flow(world,driver.Geometry(),driver.Solver(),transported);
+  SaveStates(world,name,old,fresh,.5);
+  for(auto row:fresh)for(size_t k=0;k<5;++k) {
+    CHECK(row.values[k]==Approx(SU2_TYPE::GetValue(constant[k])).epsilon(1e-11));
+    CHECK(row.values[5+k]==Approx(SU2_TYPE::GetValue(constant[k])).epsilon(1e-11));
+    CHECK(row.values[10+k]==Approx(SU2_TYPE::GetValue(constant[k]*.96875)).epsilon(1e-11));
+  }
+  su2activematrix accepted_metric(driver.Geometry().GetnPointDomain(),6);
+  for(unsigned long p=0;p<accepted_metric.rows();++p)for(size_t k=0;k<6;++k)accepted_metric(p,k)=transported[6*p+k];
+  const auto accepted=ImportGeometry(driver.Config(),driver.Geometry(),&accepted_metric,*reference);
+  Save(world,name+"_accepted",accepted.cells,donor.original,*reference);driver.WriteAdaptedMesh(1,1);
+  WriteReference(name+"_accepted.native_ref",*reference);
+  ReferenceState loaded;REQUIRE(LoadReference(name+"_accepted.native_ref",loaded));CHECK(EncodeReference(loaded)==authority);
 }

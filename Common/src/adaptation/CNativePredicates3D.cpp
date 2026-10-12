@@ -315,6 +315,70 @@ bool IntersectsSegment(const Tetrahedron& donor, Point a, Point b, KernelStats* 
   Root lo(false), hi(true);
   return ClipInterval(donor, a, b, volume, va, vb, lo, hi, true, stats);
 }
+bool ConformingDisjoint(const Cell& a, const Cell& b, KernelStats* stats) {
+  const Tetrahedron ta{a.v[0].p,a.v[1].p,a.v[2].p,a.v[3].p}, tb{b.v[0].p,b.v[1].p,b.v[2].p,b.v[3].p};
+  for (const auto& t : {ta,tb})
+    if (!(Orientation(t[0],t[1],t[2],t[3],stats)>0))
+      throw std::invalid_argument("Native3D contact requires positive finite tetrahedra.");
+  std::array<bool,4> shared_a{},shared_b{};
+  for(size_t i=0;i<4;++i) for(size_t j=0;j<4;++j) if(a.v[i].id==b.v[j].id) {
+    if(a.v[i].p.x!=b.v[j].p.x || a.v[i].p.y!=b.v[j].p.y || a.v[i].p.z!=b.v[j].p.z)
+      throw std::invalid_argument("Native3D contact has inconsistent shared coordinates.");
+    shared_a[i]=shared_b[j]=true;
+  }
+  auto delta=[](Point p,Point q) {
+    return std::array<Integer<66>,3>{Difference(Coordinate(p.x),Coordinate(q.x)),
+      Difference(Coordinate(p.y),Coordinate(q.y)),Difference(Coordinate(p.z),Coordinate(q.z))};
+  };
+  bool tangent=false;
+  auto separated=[&](const std::array<Integer<66>,3>& u,const std::array<Integer<66>,3>& v) {
+    const std::array<Integer<132>,3> axis{
+      Difference(Product(u[1],v[2]),Product(u[2],v[1])),
+      Difference(Product(u[2],v[0]),Product(u[0],v[2])),
+      Difference(Product(u[0],v[1]),Product(u[1],v[0]))};
+    if(!Sign(axis[0]) && !Sign(axis[1]) && !Sign(axis[2]))return false;
+    auto projection=[&](Point p) {
+      const auto d=delta(p,ta[0]);
+      auto first=Product(axis[0],d[0]),second=Product(axis[1],d[1]),third=Product(axis[2],d[2]);
+      second.negative=!second.negative;third.negative=!third.negative;
+      return Difference(Difference(first,second),third);
+    };
+    auto range=[&](const Tetrahedron& t) {
+      auto lo=projection(t[0]),hi=lo;
+      for(size_t i=1;i<4;++i) {
+        auto p=projection(t[i]);
+        if(Sign(Difference(p,lo))<0)lo=p;
+        if(Sign(Difference(p,hi))>0)hi=p;
+      }
+      return std::make_pair(lo,hi);
+    };
+    const auto x=range(ta),y=range(tb);
+    const int xy=Sign(Difference(x.second,y.first)),yx=Sign(Difference(y.second,x.first));
+    tangent=tangent || xy==0 || yx==0;
+    return xy<0 || yx<0;
+  };
+  for(const auto& t:{ta,tb})for(size_t i=0;i<4;++i) {
+    std::array<size_t,3> face{};size_t n=0;
+    for(size_t j=0;j<4;++j)if(i!=j)face[n++]=j;
+    if(separated(delta(t[face[1]],t[face[0]]),delta(t[face[2]],t[face[0]])))return true;
+  }
+  for(size_t i=0;i<4;++i)for(size_t j=i+1;j<4;++j)
+    for(size_t k=0;k<4;++k)for(size_t l=k+1;l<4;++l)
+      if(separated(delta(ta[j],ta[i]),delta(tb[l],tb[k])))return true;
+  if(!tangent)return false; // Strict overlap on every nonzero separating axis has nonempty interior.
+  auto contacts=[&](const Tetrahedron& t,const Tetrahedron& other,const std::array<bool,4>& shared) {
+    for(size_t i=0;i<4;++i)for(size_t j=i+1;j<4;++j) {
+      Integer<198> volume;std::array<Integer<198>,4> va,vb;Root lo(false),hi(true);
+      if(!ClipInterval(other,t[i],t[j],volume,va,vb,lo,hi,true,stats))continue;
+      if(shared[i] && shared[j])continue;
+      if(CompareRoot(lo,hi)==0 && ((shared[i] && CompareRoot(lo,Root(false))==0) ||
+                                 (shared[j] && CompareRoot(lo,Root(true))==0)))continue;
+      return false;
+    }
+    return true;
+  };
+  return contacts(ta,tb,shared_a) && contacts(tb,ta,shared_b);
+}
 bool Barycentric(const Tetrahedron& donor, Point point, std::array<long double, 4>& weights, KernelStats* stats) {
   if (!(Orientation(donor[0], donor[1], donor[2], donor[3], stats) > 0))
     throw std::invalid_argument("Native 3D P1 donor must have positive volume.");

@@ -103,3 +103,13 @@ geometry/value/marker/provenance MPI checks. Source producer is implemented; ful
 projected-candidate query footprints, geometry completion/clearance and actual
 curved runtime/transfer/solved Euler/restart remain pending. Older missing-producer
 statements above describe previous checkpoints. Permanent cadence is in AGENTS.md.
+
+## Connected curved runtime milestone
+
+CURVED_RUNTIME_INTEGRATION.md / curved_runtime_regression_v2 qualify frozen surface
+error selection/progress, projected actual-query imports, projection-owned movement,
+exact indexed current-mesh clearance and actual MPI1/2/4/M<N driver publication/
+constant BDF transfer/SU2/reference preservation for a small outward bump. Runtime
+no longer refuses every analytic reference. Curved commits are serialized; all
+four full Goal2 gates remain pending. Actual solved targets, repeated conservative/
+restart/CGNS and cylinder/full geometry cases are next substantial work.
