@@ -1,19 +1,19 @@
 {
-  "status": "INCOMPLETE",
+  "status": "PASS_LOCAL_GOAL2_QUALIFICATION",
   "original_scope_preserved": true,
   "goal": "Goal2",
-  "current_goal_status": "ACTIVE",
+  "current_goal_status": "READY_FOR_COMPLETION_AFTER_FINAL_PUSH",
   "requirements": [
     {
       "id": "branch_and_base",
       "requirement": "Separate branch based on published Goal1 checkpoint; regular pushed work.",
-      "status": "PROVEN_FOR_CURRENT_CHECKPOINT",
+      "status": "PROVEN_WITHIN_DECLARED_LOCAL_GOAL_SCOPE",
       "evidence": "Current branch codex/native-3d-curved-local; Goal1 ancestor verified in current_source_validation.json."
     },
     {
       "id": "analytic_geometry",
       "requirement": "Sphere/cylinder/bump authority, frozen geometry/projection/shape/sliver/length bounds and faceted compatibility.",
-      "status": "PROVEN_WITHIN_DECLARED_LOCAL_CONTROLS",
+      "status": "PROVEN_WITHIN_DECLARED_LOCAL_GOAL_SCOPE",
       "evidence": [
         "cylinder_cap_coverage_v2/validation.json",
         "cylinder_cap_regression_v2/validation.json"
@@ -23,13 +23,13 @@
     {
       "id": "coupled_operations_features",
       "requirement": "Coupled curved split/collapse/movement/reconstruction preserve marker junctions and component identity.",
-      "status": "PROVEN_KERNEL_AND_RUNTIME_CONTROLS",
+      "status": "PROVEN_WITHIN_DECLARED_LOCAL_GOAL_SCOPE",
       "evidence": "Current107-case suite includes bump insertion/movement/collapse/iterated reconstruction, junction/invalid-projection/interface rejection, disconnected components, sphere split/undo, saved joint reconstruction; primitive cylinder/cap junction runtime."
     },
     {
       "id": "source_target",
       "requirement": "Original-P1 sensor priority, pre-freeze finite extension, unchanged finer demands and actual-query composition semantics.",
-      "status": "PROVEN_WITH_EXPLICIT_3DBL_SCOPE_LIMIT",
+      "status": "PROVEN_WITHIN_DECLARED_LOCAL_GOAL_SCOPE",
       "evidence": [
         "cylinder_cap_audit_v1/fresh_collar_audit.json",
         "cylinder_cap_regression_v2/independent_lifecycle_validation.json"
@@ -39,49 +39,68 @@
     {
       "id": "domain_transfer",
       "requirement": "Geometry-authoritative volume change, new/lost-domain current+BDF conservation and positivity.",
-      "status": "PROVEN_SMALL_CONTROLS_RESOLVED_PENDING",
+      "status": "PROVEN_WITHIN_DECLARED_LOCAL_GOAL_SCOPE",
       "evidence": [
         "cylinder_cap_audit_v1/cylinder_cap_coverage_v2_audit.json",
         "cylinder_cap_regression_v2/independent_lifecycle_validation.json"
       ],
-      "remaining": "Final N4/M4 two-event independent proof, final original-scope evidence/source review and publication."
+      "final_evidence": [
+        "resolved_vortex_audit_v2/independent_lifecycle_validation.json",
+        "resolved_vortex_audit_v2/validation.json",
+        "final_source_and_evidence_validation.json"
+      ],
+      "evidence_note": "All six N/M variants/twelve resolved events independently pass; earlier manufactured/primitive/transaction evidence remains part of the requirement proof."
     },
     {
       "id": "mpi_dependencies_atomicity",
       "requirement": "MPI1/2/4, N=M/M<N, complete versioned dependencies, partition-interface edits and atomic publication/rejection on curved proposals.",
-      "status": "CURVED_MPI_TRANSACTION_PROVEN_FINAL_EVIDENCE_AUDIT_PENDING",
+      "status": "PROVEN_WITHIN_DECLARED_LOCAL_GOAL_SCOPE",
       "evidence": "curved_transaction_v1/validation.json PASS; MPI1/2/4, M=N/M<N, two-owner curved edge-star, actual source/metric/geometry proposal and unchanged mesh/directory/frozen source under stale version/rank/storage vetoes.",
-      "remaining": "Final N4/M4 two-event independent proof, final original-scope evidence/source review and publication."
+      "final_evidence": [
+        "resolved_vortex_audit_v2/independent_lifecycle_validation.json",
+        "resolved_vortex_audit_v2/validation.json",
+        "final_source_and_evidence_validation.json"
+      ],
+      "evidence_note": "All six N/M variants/twelve resolved events independently pass; earlier manufactured/primitive/transaction evidence remains part of the requirement proof."
     },
     {
       "id": "output_reference_restart",
       "requirement": "Stable geometry provenance through SU2/CGNS output and real current+BDF restart.",
-      "status": "PROVEN_SMALL_CONTROLS_RESOLVED_PENDING",
+      "status": "PROVEN_WITHIN_DECLARED_LOCAL_GOAL_SCOPE",
       "evidence": [
         "cylinder_cap_audit_v1/cylinder_cap_coverage_v2_audit.json",
         "cylinder_cap_regression_v2/independent_lifecycle_validation.json"
       ],
-      "remaining": "Final N4/M4 two-event independent proof, final original-scope evidence/source review and publication."
+      "final_evidence": [
+        "resolved_vortex_audit_v2/independent_lifecycle_validation.json",
+        "resolved_vortex_audit_v2/validation.json",
+        "final_source_and_evidence_validation.json"
+      ],
+      "evidence_note": "All six N/M variants/twelve resolved events independently pass; earlier manufactured/primitive/transaction evidence remains part of the requirement proof."
     },
     {
       "id": "actual_euler",
       "requirement": "Actual CFD-pressure-derived metric with repeated native remesh/continuation/restart; smooth manufactured and locally resolved nonuniform/shock control.",
-      "status": "TEN_INDEPENDENT_EVENTS_PROVEN_FINAL_N4_M4_PAIR_PENDING",
+      "status": "PROVEN_WITHIN_DECLARED_LOCAL_GOAL_SCOPE",
       "evidence": "Serial, MPI2 and MPI4 subset summaries certify ten resolved Euler events; all M<N combinations proven; full native matrix/physics PASS.",
-      "remaining": "Final N4/M4 two-event independent proof, final original-scope evidence/source review and publication."
+      "final_evidence": [
+        "resolved_vortex_audit_v2/independent_lifecycle_validation.json",
+        "resolved_vortex_audit_v2/validation.json",
+        "final_source_and_evidence_validation.json"
+      ],
+      "evidence_note": "All six N/M variants/twelve resolved events independently pass; earlier manufactured/primitive/transaction evidence remains part of the requirement proof."
     },
     {
       "id": "bounded_work_and_search",
       "requirement": "Indexed searches, bounded patches/work/memory, explicit rejection/stagnation/work/time diagnostics.",
-      "status": "PROVEN_CONTRACTS_NO_EFFICIENCY_CLAIM",
+      "status": "PROVEN_WITHIN_DECLARED_LOCAL_GOAL_SCOPE",
       "evidence": "House ADT source/reference/current-mesh clearance;64old/128new,256donors/2048cached samples; Directory/failure/memory admission; work/stagnation/time limits. Existing Goal1 budgets and current107-case rejection/diagnostic controls."
     },
     {
       "id": "evidence_workflow",
       "requirement": "Compact provenance/inspectable inputs, grids, states, certificates/failures, maintained handoff/findings/audit and regular push; one owned heavy job/local constraints.",
-      "status": "IN_PROGRESS",
-      "evidence": "Published native matrix/source proof and preserved timeout; six independently qualified serial/MPI2 certificates; sole MPI4 audit2009 active.",
-      "remaining": "Final N4/M4 two-event independent proof, final original-scope evidence/source review and publication."
+      "status": "PROVEN_WITHIN_DECLARED_LOCAL_GOAL_SCOPE",
+      "evidence": "All terminal native/independent results, inspectable meshes/states/VTUs and hashes preserved; no live owned job; final qualification/handoff/findings updated. Final push follows."
     }
   ],
   "evidence": {
@@ -144,6 +163,18 @@
     "resolved_vortex_audit_v2/mpi4_subset_lifecycle_validation.json": {
       "status": "PASS_MPI4_SUBSET_FOUR_EVENTS_ONLY",
       "sha256": "4311e0afdddaf9079b68e4c657de62fe5da2a36a0a2e67e9b87e176261c83a7e"
+    },
+    "resolved_vortex_audit_v2/validation.json": {
+      "status": "PASS",
+      "sha256": "648cf6f13ba728e82b40ca01fa2dae66d90518a59c370b8af323510d74636bc5"
+    },
+    "resolved_vortex_audit_v2/independent_lifecycle_validation.json": {
+      "status": "PASS_RESOLVED_VORTEX_LIFECYCLES",
+      "sha256": "ec6230269f7cdce20cd044d3d57f6981a068c2d09102f54987baba9bd5f41771"
+    },
+    "final_source_and_evidence_validation.json": {
+      "status": "PASS_FINAL_SOURCE_BUILD_AND_EVIDENCE",
+      "sha256": "4af0f9a7c9224b824f5101eb72cec3157f0ee698cc2889c316cbc3594c068fce"
     }
   },
   "excluded_completion_requirements": [
@@ -154,12 +185,10 @@
     "arbitrarymeshfeasibility"
   ],
   "remaining_major_work": [
-    "Complete the final N4/M4 two-event independent certificates",
-    "Inspect aggregate complete original-scope source/evidence proof",
-    "Push final qualification before marking Goal2complete"
+    "Publish this final qualification checkpoint, verify branch HEAD equals remote, then update goal status."
   ],
   "independent_audit_v1_terminal": "FAIL_WRAPPER_TIMEOUT_124_NO_ASSERTION_ERROR",
-  "independent_audit_v2": "TEN_EVENTS_PASS_FINAL_N4_M4_PAIR_ACTIVE_SESSION_2009",
+  "independent_audit_v2": "PASS_ALL_TWELVE_EVENTS_TERMINAL",
   "source_and_scope_review": "GOAL2_REQUIREMENT_REVIEW.md",
-  "source_and_scope_review_sha256": "9b5bff56fd5159a23aed134e1762c09cc35cc525e0037891f18554194833a7e0"
+  "source_and_scope_review_sha256": "89691da82b94ba5f6b278fb83f8dce174bad06719ab884312d9de45434977a72"
 }

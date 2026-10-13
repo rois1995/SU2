@@ -1,5 +1,5 @@
 {
-  "status": "INCOMPLETE",
+  "status": "PASS_LOCAL_GOAL2_QUALIFICATION",
   "goal": "Goal2 local-only curved-boundary adaptation and genuine3DEuler cycles",
   "branch": "codex/native-3d-curved-local",
   "base_commit": "23197eba1715f44d61c9ad3a070f61441dfb0560",
@@ -7,26 +7,30 @@
     {
       "id": "curved_coupled_geometry",
       "requirement": "Analytic geometry/features/component authority, coupled boundary/volume operations and bounded persisted geometry proof.",
-      "status": "PENDING"
+      "status": "PROVEN_WITHIN_DECLARED_LOCAL_GOAL_SCOPE",
+      "evidence": "GOAL2_REQUIREMENT_REVIEW.md; GOAL2_REQUIREMENT_MAP.json; final_source_and_evidence_validation.json; current complete native/independent receipts."
     },
     {
       "id": "metric_solution_coverage",
       "requirement": "Explicit bounded sensor extension before freeze, unchanged interior original-P1, consistent edge integrals and existing transfer new/lost-domain accounting.",
-      "status": "PENDING"
+      "status": "PROVEN_WITHIN_DECLARED_LOCAL_GOAL_SCOPE",
+      "evidence": "GOAL2_REQUIREMENT_REVIEW.md; GOAL2_REQUIREMENT_MAP.json; final_source_and_evidence_validation.json; current complete native/independent receipts."
     },
     {
       "id": "mpi_output_restart",
       "requirement": "MPI1/2/4, M=N/M<N, complete atomic dependencies/geometry/source, independent mesh/field/state/SU2CGNS/reference/restart audits.",
-      "status": "PENDING"
+      "status": "PROVEN_WITHIN_DECLARED_LOCAL_GOAL_SCOPE",
+      "evidence": "GOAL2_REQUIREMENT_REVIEW.md; GOAL2_REQUIREMENT_MAP.json; final_source_and_evidence_validation.json; current complete native/independent receipts."
     },
     {
       "id": "actual_euler_cycles",
       "requirement": "Small actual3DEuler CFD-derived-metric remesh/continue/restart plus manufactured and locally feasible resolved nonuniform/shock controls.",
-      "status": "PENDING"
+      "status": "PROVEN_WITHIN_DECLARED_LOCAL_GOAL_SCOPE",
+      "evidence": "GOAL2_REQUIREMENT_REVIEW.md; GOAL2_REQUIREMENT_MAP.json; final_source_and_evidence_validation.json; current complete native/independent receipts."
     }
   ],
   "first_study_controller": "coverage_study_v1/run.py",
-  "scope": "Manual exterior metric-coverage experiment is not production padding or Goal2completion. No cluster/performance/large-wing/generalCAD/production3DBL/fullunsteady/affordability gate or claim.",
+  "scope": "Full declared local Goal2 scope qualified; final publication before goal closure. Historical checkpoint blocks retain their original limited statuses. Excluded production3DBL/generalCAD/fullphysical-unsteady/performance/cluster/arbitrary feasibility are unchanged.",
   "first_study_status": "PASS_LOCAL_MANUALLY_PRESCRIBED_COVERAGE_ONLY",
   "first_study_receipt_sha256": "9c0609ef04b244e08520642eca82b90e1d748ddabf30d5542812488fb9ada6fa",
   "first_study_test_counts": [
@@ -464,12 +468,14 @@
     "scope": "MPI1/2/4 N=M/M<N complete curved star, source/geometry/metric progress and stale/rank/budget veto publication with unchanged stores."
   },
   "current_requirement_review": {
-    "status": "INCOMPLETE_MPI4_INDEPENDENT_AUDIT_PENDING",
+    "status": "PASS_LOCAL_GOAL2_QUALIFICATION",
     "report": "GOAL2_REQUIREMENT_REVIEW.md",
-    "sha256": "9b5bff56fd5159a23aed134e1762c09cc35cc525e0037891f18554194833a7e0",
+    "sha256": "89691da82b94ba5f6b278fb83f8dce174bad06719ab884312d9de45434977a72",
     "current_native_matrix": "PASS_ALL_SIX_VARIANTS",
-    "independent_resolved_events": "TEN_EVENTS_PASS_FINAL_N4_M4_PAIR_PENDING",
-    "remaining": "Final N4/M4 two-event independent proof, final original-scope evidence/source review and publication",
+    "independent_resolved_events": "PASS_ALL_TWELVE_EVENTS",
+    "final_source_evidence": "final_source_and_evidence_validation.json",
+    "remaining": "Final publication and goal status update only.",
     "historical_checkpoint_flags_are_not_current_capability": true
-  }
+  },
+  "final_qualification_report": "GOAL2_FINAL_QUALIFICATION.md"
 }

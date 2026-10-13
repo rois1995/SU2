@@ -1,0 +1,6 @@
+{
+  "status": "FAIL_VERIFIER_INPUT_BASE",
+  "cause": "Physics-audit inputs are relative to resolved_vortex_v3, but the first final verifier treated them as repository-relative. FileNotFoundError for repository/mpi1 occurred before writing a success certificate.",
+  "source_or_native_failure": false,
+  "correction": "Use the input base documented in audit_physics.py; rerun provenance verification. Native runs and independent predicates are unchanged."
+}

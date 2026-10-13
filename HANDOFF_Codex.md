@@ -1,30 +1,38 @@
-# Goal 2 ten independent Euler event audits qualified; final N4/M4 pair active — 2026-10-13
+# Goal 2 full local qualification passed; final publication — 2026-10-13
 
-Working repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
-Branch: codex/native-3d-curved-local; previous published8b6fa5d055e6.
-Goal ACTIVE; completion INCOMPLETE, original scope retained.
+Repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
+Branch: codex/native-3d-curved-local; previous published1851f220bf64.
+Goal2 full declared local implementation/validation is qualified. Publish this
+checkpoint and verify remote HEAD before calling the goal complete.
 
-resolved_vortex_audit_v2 has ten full PASS event certificates: serial N1/M1,
-MPI2 M1/M2 and MPI4 M1/M2, two events each. Independent serial/MPI2/MPI4-subset
-summaries pin all completed certificates. Every input/helper/script hash was
-rechecked. Exact geometry/conformity/no-overlap, original-P1-or-declared source,
-quality/sliver/length, actual transported metric, conservation/current+BDF/
-positivity/new-lost domain, immutable reference/output and real restart pass.
-All requested M<N variants are independently proven in these local controls.
+resolved_vortex_audit_v2 is terminal PASS: six N/M variants, twelve full event
+certificates. All exact geometry/conformity/no-overlap, original-P1-or-declared
+source/shape/length/transport, conservation/current+BDF/positivity/new-lost-domain,
+reference/output and real restart checks pass. q_min.2377832642, J_min.0774960868,
+L_max1.7999493230, transported-metric residual2.1146e-16. Physics audit verifies
+all six actual evolved Euler states; pressure-derived metrics refresh each event.
 
-Sole owned controller2009 now audits N4/M4 event0; two final certificates remain.
-Native entire six-variant matrix and physics audit already PASS. No CFD, build,
-broad test or cluster/performance job is repeated. Revalidate this handle before
-further work. One CPU/nice19/threads1. Original parser/whole-batch timeout failures,
-source/build/binary pins and all necessary inspectable meshes/states are retained.
+Current107-case/rank MPI1/2/4 regression, independent sphere/cylinder/manufactured/
+solved-bump audits and direct curved MPI atomic-veto proof remain valid. Final
+source/build/input verification PASS:847source files,763unchanged production,
+68actual test objects,10libraries,774members and the actual binary. Primitive
+source differs only in two reviewed diagnostic expressions, tested by the current
+regression. Initial final-verifier path-base error is preserved and corrected.
 
-GOAL2_REQUIREMENT_REVIEW.md records source-backed evidence for every original
-requirement and explains optional kernel-only strip placement and the excluded
-production3DBL/generalCAD/fullphysical-unsteady/force-convergence capabilities.
-Next: finish final N4/M4 pair; inspect aggregate/full original requirement proof,
-verify current source/input/helper provenance, update final findings/handoff/audits
-and push before marking Goal2complete. No efficiency/scaling or arbitrary-mesh
-feasibility claim. AdapNoExt/foreignClusterResults/dependencies untouched.
+GOAL2_FINAL_QUALIFICATION.md summarizes the capabilities, concrete grids/states,
+contracts and limits. GOAL2_REQUIREMENT_REVIEW.md and the requirement/completion
+JSONs cover every original requirement; no required implementation/test work
+remains. No owned solver/build/audit job remains live. Both original whole-batch
+timeouts/rejected experiments and actual inspectable outputs remain preserved.
+Serial meshes/states: integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi1.
+Matching flow VTUs: integration_evidence/native_3d_curved_v1/resolved_vortex_audit_v1/mpi1.
+Final exact certificates: integration_evidence/native_3d_curved_v1/resolved_vortex_audit_v2.
+
+Automatic joint reconstruction is integrated; optional strip placement remains
+kernel-only. No production3DBL/generalCAD/fullphysical-unsteady/force-convergence,
+performance/scaling/cluster or arbitrary-mesh feasibility claim. AdapNoExt,
+foreignClusterResults and dependencies untouched. Permanent AGENTS batching
+cadence applies. Next goal requires its own explicit scope/activation.
 
 Earlier notices below are historical.
 
