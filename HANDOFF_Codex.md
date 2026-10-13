@@ -1,3 +1,45 @@
+# Goal3 joint first-height/transition kernel qualified locally — 2026-10-13
+
+Working folder /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
+Branch codex/native-3d-bl, preceding published c34b2cd3c1b21bacd19e78fb0c478e4ce1c02163.
+Whole Goal3 ACTIVE; no owned heavy job remains live (last build73546/check37097
+are terminal). No CFD, MPI or cluster campaign was run in this step.
+
+New ConstructFirstLayer kernel reconnects a complete admitted cavity around a
+reserved background and carves independent centroid-normal wall apices at h0,
+including their transition. It reuses Cone/Finish/fixed-interface and immutable
+geometry validators. CheckFirstHeight reports unique wall coverage, relative
+altitude error, tilt, worst facet/cell/apex. Empty height policy releases constraints.
+Local reasons distinguish geometry-height incompatibility within admitted volume
+from background obstruction; no global infeasibility or sensor override claim.
+All output remains unchanged on rejection; identities/ranges are caller-reserved.
+
+first_layer_kernel_v1/validation.json PASS:4cases/944assertions, repeated height,
+exact pairwise conformity/no overlap, unchanged interface, wall junctions, atomic
+rejection and independent tilt/clearance diagnosis. Independent_geometry.json PASS
+checks positive volume, unchanged original boundary/coordinates, altitude/coverage/
+alignment and exported SU2 hashes. Grids are6/18/18tetrahedra at noBL/h0.05/h0.025.
+They are private kernel geometry, not accepted CFD adapted grids or qualified metrics.
+
+Evidence/testcase folder: integration_evidence/native_3d_bl_v1/first_layer_kernel_v1.
+Inspect first_height_constructed_kernel.su2 and first_height_updated_kernel.su2.
+Per-case source/build/object/binary/helper/log pins and original phases are retained.
+The exporter reuses SaveCurved; standard-library independent checker adds SU2 output.
+
+Next: integrate height constraints and joint proposals into existing native MPI
+selection/dependency/reservation/publication/repair/completion paths, preserving
+valid wall children during all edits and releasing them for BL-to-Euler. Wire the
+shared actual-query geometric field into the remesher/return/complexity path.
+Keep production first-height/analytic guards until actual engine/driver qualification.
+Hidden-wall density integration remains FAIL0.47% and requires error-controlled
+angular integration, not more fixed orders or a relaxed gate/cap. Full analytic/
+feature/interacting-wall/composed gradation/actual RANS/Euler-BL/MPI/current+BDF/
+admissibility/SU2+CGNS/reference/restart and lifecycle performance remain mandatory.
+Preserve Goal2; leave AdapNoExt, foreign results, dependencies and other workers
+untouched. AGENTS connected-work/provenance/resumable validation policy applies.
+
+Earlier notices below are historical.
+
 # Goal3 feature/ray integration diagnosis; angular accuracy unresolved — 2026-10-13
 
 Working folder /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated;

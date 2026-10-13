@@ -35,7 +35,7 @@
     {
       "id": "construction",
       "scope": "joint wall/near-wall/transition reconstruction with height/alignment/coverage and feasibility diagnostics",
-      "status": "pending"
+      "status": "joint first-height/wall-transition geometric kernel PASS4cases944assertions, independent geometry/exports; MPI engine integration, metric/height protection and full workflow pending"
     },
     {
       "id": "gradation",
@@ -83,7 +83,9 @@
   "evidence": [
     "edge_integration_v1/validation.json",
     "volume_integration_v1/validation_direct_tet_failed.json",
-    "feature_partition_v1/validation_fixed_angular_failed.json"
+    "feature_partition_v1/validation_fixed_angular_failed.json",
+    "first_layer_kernel_v1/validation.json",
+    "first_layer_kernel_v1/independent_geometry.json"
   ],
   "execution_state": {
     "status": "all owned jobs terminal",

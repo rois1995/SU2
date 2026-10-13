@@ -1,0 +1,42 @@
+{
+  "stage": "junction_and_clearance",
+  "status": "PASS",
+  "returncode": 0,
+  "contract": {
+    "provenance": {
+      "Common/include/adaptation/CNativeBoundary3D.hpp": "d929134dec55e93b93c92cd0bbbb0e4d0e4cb01d5a24f5ebceb01e02e91faf83",
+      "Common/src/adaptation/CNativeBoundary3D.cpp": "9226e9d8d1f47f564d67899bd7743690123d8f9bc68a180164625a6684c4c67f",
+      "Common/include/adaptation/CNativeCavity3D.hpp": "3e6bad98f2cbdc0a0c5f6de8b42b5c9ac9109dad6f93966af5aa33a551238c7e",
+      "Common/src/adaptation/CNativeCavity3D.cpp": "88ddf57718013e21d79c6293c8055445944505b5b20e9a6cc632d0d5175def90",
+      "UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp": "032771c7221c3e96ec8299762c074198d4afd1df0fac9f86e7709b70d0f00c6f",
+      "binary": "b901a8b917249cfae3aeef4eb3503964efda258dddb883200c414afb2b1aa9eb",
+      "helper": "d98eb0bb713dfe51aa5e3438b0bb43fe709167a467b5b63929637205d6ec866f",
+      "compile_commands": "17a19ce625ceabf3f70dba005aebef0990be029c491666e86144787717316540",
+      "object:Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundary3D.cpp.o": "ae453f534ccbc54519632e5ba1030e25cbf96feafd01309cf565b17c593b7691",
+      "object:Common/src/libSU2AccurateSum.a.p/adaptation_CNativeCavity3D.cpp.o": "40d4985656a7e8235462bc842d8d84e86650db581aa898b1bcbe4e8e6a72f8b4",
+      "object:UnitTests/test_driver.p/Common_adaptation_CNativeBoundary3D_tests.cpp.o": "79c9dabdf4be19c68822552469b6f889dd403143bd03c87883bd0c29ccb5a67a"
+    },
+    "command": [
+      "taskset",
+      "-c",
+      "7",
+      "nice",
+      "-n",
+      "19",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+      "Native3D first layer handles wall junctions and distinguishes local clearance failure",
+      "--reporter",
+      "compact"
+    ],
+    "MPI_ranks": 1,
+    "environment": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "SU2_NATIVE_CURVED_EVIDENCE": "1"
+    }
+  },
+  "log": "junction_and_clearance_1791887920698811176.log",
+  "log_sha256": "a0910954aadc9e4779c1a181ff837d11047d1f7286e61dd1d385f9cee6bd1033",
+  "elapsed_seconds": 0.6759528800612316,
+  "scope": "serial first-height geometry kernel only; metric/MPI engine not qualified"
+}

@@ -950,3 +950,92 @@ TEST_CASE("Coordinated surface strip preserves geometry while rejecting the old 
     CHECK(Connectivity(fresh)==Connectivity(retained));
   }
 }
+
+TEST_CASE("Native3D joint first-height construction rebuilds wall children and transition", "[NativeFirstLayer3D]") {
+  const auto old=Cube();const auto facets=Facets(old);const PlanarReference reference(facets);
+  std::map<int,double> heights;
+  for(const auto& face:facets)if(std::all_of(face.v.begin(),face.v.end(),[](Node n){return n.p.z==0;}))heights[face.marker]=.05;
+  REQUIRE(heights.size()==2);
+  FirstHeightReport before,after;std::string reason;Patch fresh;
+  CHECK_FALSE(CheckFirstHeight(old,heights,reference,before,reason));CHECK(before.height_failures==2);
+  REQUIRE(ConstructFirstLayer(old,{100,{.5,.5,.5}},101,200,heights,reference,fresh,after,reason));
+  CHECK(fresh.cells.size()==18);CHECK(fresh.surface.size()==old.surface.size());
+  CHECK(after.wall_faces==2);CHECK(after.height_failures==0);CHECK(after.maximum_tilt<1e-12);
+  CHECK(ValidateFixedInterface(old.cells,fresh.cells,reason));
+  double volume=0;for(const auto& cell:fresh.cells) {
+    const auto v=Orientation(cell.v[0].p,cell.v[1].p,cell.v[2].p,cell.v[3].p);
+    REQUIRE(v>0);volume+=double(v/6);
+  }
+  CHECK(volume==Approx(1).epsilon(1e-14));
+  for(size_t i=0;i<fresh.cells.size();++i)for(size_t j=i+1;j<fresh.cells.size();++j)
+    REQUIRE(ConformingDisjoint(fresh.cells[i],fresh.cells[j]));
+  SaveCurved(old,reference,"first_height_initial");SaveCurved(fresh,reference,"first_height_constructed");
+  for(auto& h:heights)h.second=.025;
+  Patch updated;REQUIRE(ConstructFirstLayer(fresh,{300,{.5,.5,.5}},301,400,heights,reference,updated,after,reason));
+  CHECK(updated.cells.size()==18);CHECK(after.wall_faces==2);CHECK(after.maximum_relative_error<1e-8);
+  CHECK(ValidateFixedInterface(old.cells,updated.cells,reason));
+  for(size_t i=0;i<updated.cells.size();++i)for(size_t j=i+1;j<updated.cells.size();++j)
+    REQUIRE(ConformingDisjoint(updated.cells[i],updated.cells[j]));
+  SaveCurved(updated,reference,"first_height_updated");
+  FirstHeightReport released;CHECK(CheckFirstHeight(updated,{},reference,released,reason));CHECK(released.wall_faces==0);
+}
+
+TEST_CASE("Native3D first-layer obstruction rejects atomically without height relaxation", "[NativeFirstLayer3D]") {
+  const auto old=Cube();const auto facets=Facets(old);const PlanarReference reference(facets);
+  std::map<int,double> heights;
+  for(const auto& f:facets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights[f.marker]=.05;
+  const auto expected=Connectivity(old);
+  for(const auto background:std::vector<Node>{{100,{.5,.5,.01}},{0,{.5,.5,.5}},{100,{2,2,2}}}) {
+    Patch output=old;FirstHeightReport report;std::string reason;
+    CHECK_FALSE(ConstructFirstLayer(old,background,101,200,heights,reference,output,report,reason));
+    CHECK_FALSE(reason.empty());CHECK(Connectivity(output)==expected);CHECK(output.surface.size()==old.surface.size());
+    for(size_t i=0;i<old.cells.size();++i)for(unsigned k=0;k<4;++k) {
+      CHECK(output.cells[i].v[k].id==old.cells[i].v[k].id);
+      CHECK(output.cells[i].v[k].p.x==old.cells[i].v[k].p.x);
+      CHECK(output.cells[i].v[k].p.y==old.cells[i].v[k].p.y);
+      CHECK(output.cells[i].v[k].p.z==old.cells[i].v[k].p.z);
+    }
+  }
+  Patch output=old;FirstHeightReport report;std::string reason;
+  CHECK_FALSE(ConstructFirstLayer(old,{100,{.5,.5,.5}},0,200,heights,reference,output,report,reason));
+  CHECK(Connectivity(output)==expected);
+  for(auto& h:heights)h.second=std::numeric_limits<double>::quiet_NaN();
+  CHECK_FALSE(ConstructFirstLayer(old,{100,{.5,.5,.5}},101,200,heights,reference,output,report,reason));
+  CHECK(Connectivity(output)==expected);
+}
+
+TEST_CASE("Native3D first-height certificate reports tangential tilt independently", "[NativeFirstLayer3D]") {
+  const auto old=Cube();const auto facets=Facets(old);const PlanarReference reference(facets);
+  std::map<int,double> heights;
+  for(const auto& f:facets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights[f.marker]=.05;
+  Patch fresh;FirstHeightReport report;std::string reason;
+  REQUIRE(ConstructFirstLayer(old,{100,{.5,.5,.5}},101,200,heights,reference,fresh,report,reason));
+  for(auto& cell:fresh.cells)for(auto& node:cell.v)if(node.id==101)node.p.x+=.001;
+  CHECK(CheckFirstHeight(fresh,heights,reference,report,reason));CHECK(report.maximum_tilt==Approx(.02).epsilon(1e-10));
+  CHECK(report.height_failures==0);
+}
+
+TEST_CASE("Native3D first layer handles wall junctions and distinguishes local clearance failure", "[NativeFirstLayer3D]") {
+  const auto old=Cube();const auto facets=Facets(old);const PlanarReference reference(facets);
+  std::map<int,double> heights;
+  for(const auto& f:facets) {
+    const bool bottom=std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;});
+    const bool left=std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.x==0;});
+    if(bottom||left)heights[f.marker]=.05;
+  }
+  REQUIRE(heights.size()==4);Patch fresh;FirstHeightReport report;std::string reason;
+  REQUIRE(ConstructFirstLayer(old,{100,{.5,.5,.5}},101,200,heights,reference,fresh,report,reason));
+  CHECK(fresh.cells.size()==24);CHECK(report.wall_faces==4);CHECK(report.maximum_tilt<1e-12);
+  CHECK(ValidateFixedInterface(old.cells,fresh.cells,reason));
+  for(size_t i=0;i<fresh.cells.size();++i)for(size_t j=i+1;j<fresh.cells.size();++j)
+    REQUIRE(ConformingDisjoint(fresh.cells[i],fresh.cells[j]));
+  Patch sentinel=old;
+  CHECK_FALSE(ConstructFirstLayer(old,{100,{.5,.5,.01}},101,200,heights,reference,sentinel,report,reason));
+  CHECK(reason.find("background obstruction")!=std::string::npos);CHECK(Connectivity(sentinel)==Connectivity(old));
+  const auto thin=Cube(.1);const auto thinFacets=Facets(thin);const PlanarReference thinReference(thinFacets);
+  std::map<int,double> excessive;
+  for(const auto& f:thinFacets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))excessive[f.marker]=.2;
+  sentinel=thin;
+  CHECK_FALSE(ConstructFirstLayer(thin,{100,{.5,.5,.05}},101,200,excessive,thinReference,sentinel,report,reason));
+  CHECK(reason.find("geometry-height incompatibility")!=std::string::npos);CHECK(Connectivity(sentinel)==Connectivity(thin));
+}

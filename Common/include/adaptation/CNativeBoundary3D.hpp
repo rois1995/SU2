@@ -88,6 +88,24 @@ class PlanarReference {
   std::vector<Id> indexed;
   std::shared_ptr<CADTElemClass> search;
 };
+struct FirstHeightReport {
+  size_t wall_faces=0, height_failures=0, missing_cells=0;
+  double maximum_relative_error=0, maximum_tilt=0;
+  Id worst_facet=0, worst_cell=0;
+  Point worst_apex{};
+};
+/*! Independent geometric first-row certificate on physical triangle children. Empty heights release
+ *  the BL contract. Alignment is reported separately; metric quality/lengths and global coverage are caller duties. */
+bool CheckFirstHeight(const Patch& patch,const std::map<int,double>& heights,const PlanarReference& reference,
+                      FirstHeightReport& report,std::string& reason,KernelStats* stats=nullptr);
+/*! Joint fixed-interface background reconnection and wall-child carving. All new identities/ranges are
+ *  caller-reserved; complete cavity dependencies, target metric, external clearance and commit are separate.
+ *  Wall apices use face-centroid normal placement at prescribed altitude; obstruction requires another
+ *  background/cavity, never relaxing height. Output remains unchanged on any rejection. */
+bool ConstructFirstLayer(const Patch& old,Node background,Id first_wall_node,Id first_cell,
+                         const std::map<int,double>& heights,const PlanarReference& reference,
+                         Patch& fresh,FirstHeightReport& report,std::string& reason,KernelStats* stats=nullptr);
+
 /*! Geometric private proposals only. Require the globally admitted complete edge/vertex star and authoritative
  * physical skin. Input point is exact on-edge binary64, or the actual rounded midpoint of a curved edge;
  * declared analytic physical facets project it before

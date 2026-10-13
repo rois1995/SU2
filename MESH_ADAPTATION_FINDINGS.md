@@ -1,3 +1,18 @@
+# Goal3 first-height wall/transition reconstruction is now a tested kernel — 2026-10-13
+
+Four serial cases/944assertions and independent geometry checks pass. Native can
+reconnect a complete cavity, carve separate prescribed-altitude normal wall apices
+and their transition, rebuild at another height and reject obstructed proposals
+atomically. Exact pairwise checks cover conformity/no overlap. Clearance reasons
+separate admitted geometry-height incompatibility from background obstruction.
+Inspectable6/18/18tet kernel grids are in native_3d_bl_v1/first_layer_kernel_v1.
+This is not production adaptation: target metrics, MPI transactions, valid-row
+protection during edits, actual RANS/transfer/restart/output/performance are pending.
+The separate0.47% hidden-wall quadrature accuracy failure and full Goal3 scope
+remain intact; no acceptance gate or target was weakened.
+
+Earlier findings below are historical.
+
 # Goal3 integration reaches bounded cost, but fixed angular accuracy fails — 2026-10-13
 
 Feature partitions and conical distance-band rays reduce the hidden-wall case to

@@ -1,0 +1,42 @@
+{
+  "stage": "tilt_diagnosis",
+  "status": "PASS",
+  "returncode": 0,
+  "contract": {
+    "provenance": {
+      "Common/include/adaptation/CNativeBoundary3D.hpp": "d929134dec55e93b93c92cd0bbbb0e4d0e4cb01d5a24f5ebceb01e02e91faf83",
+      "Common/src/adaptation/CNativeBoundary3D.cpp": "a4e3d3e85e157f05a35e0e4af44abbcf884df8d11700f7ae04fb641cc7965a0a",
+      "Common/include/adaptation/CNativeCavity3D.hpp": "3e6bad98f2cbdc0a0c5f6de8b42b5c9ac9109dad6f93966af5aa33a551238c7e",
+      "Common/src/adaptation/CNativeCavity3D.cpp": "88ddf57718013e21d79c6293c8055445944505b5b20e9a6cc632d0d5175def90",
+      "UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp": "bded7c51cd143976fbc6e3960812d4f2e605b0b55fd376b3ec58bda93cac6806",
+      "binary": "4ba26dcfb5024723324affb13254a09151baafc70a5fcfb59006e5eb806e7fcb",
+      "helper": "6242ad05d5a9c78cc43772b2a6a0a3de04f13f809362d95f5ee600161b2943dc",
+      "compile_commands": "17a19ce625ceabf3f70dba005aebef0990be029c491666e86144787717316540",
+      "object:Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundary3D.cpp.o": "94634de1996d902d869c549c595eea9ea044af28ba438bd2ce6bc6621beb79fb",
+      "object:Common/src/libSU2AccurateSum.a.p/adaptation_CNativeCavity3D.cpp.o": "40d4985656a7e8235462bc842d8d84e86650db581aa898b1bcbe4e8e6a72f8b4",
+      "object:UnitTests/test_driver.p/Common_adaptation_CNativeBoundary3D_tests.cpp.o": "4c3ad0d58ed854841fbf2fd872d63ce3e182d247c36d424a10932ff7b7371e9f"
+    },
+    "command": [
+      "taskset",
+      "-c",
+      "7",
+      "nice",
+      "-n",
+      "19",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+      "Native3D first-height certificate reports tangential tilt independently",
+      "--reporter",
+      "compact"
+    ],
+    "MPI_ranks": 1,
+    "environment": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "SU2_NATIVE_CURVED_EVIDENCE": "1"
+    }
+  },
+  "log": "tilt_diagnosis_1791887180739947976.log",
+  "log_sha256": "914a482c02cc1bf95b8713ef1ec17d136e626956a4a54093b167643f8eacd1a6",
+  "elapsed_seconds": 0.4178996370173991,
+  "scope": "serial first-height geometry kernel only; metric/MPI engine not qualified"
+}

@@ -250,6 +250,113 @@ void Endpoints(Edge& edge) {
   std::sort(edge.begin(), edge.end());
 }
 }  // namespace
+bool CheckFirstHeight(const Patch& patch,const std::map<int,double>& heights,const PlanarReference& reference,
+                      FirstHeightReport& report,std::string& reason,KernelStats* stats) {
+  report={};
+  try {
+    for(const auto& height:heights)if(!(height.second>0) || !std::isfinite(height.second))
+      throw std::invalid_argument("Native3D wall height must be finite and positive.");
+    const auto skin=SkinMap(Incidence(patch.cells,stats).Boundary());
+    const auto physical=CheckSurface(patch,skin,reference,stats);
+    const auto nodes=Nodes(patch.cells);
+    for(const auto& entry:physical) {
+      const auto& face=entry.second;
+      const auto height=heights.find(reference.Get(face.facet).marker);
+      if(height==heights.end())continue;
+      ++report.wall_faces;
+      const auto a=nodes.at(face.v[0]).p,b=nodes.at(face.v[1]).p,c=nodes.at(face.v[2]).p;
+      auto normal=Cross(Delta(b,a),Delta(c,a));const auto area=Norm(normal);
+      if(!(area>0))throw std::invalid_argument("Native3D first-height face is degenerate.");
+      for(auto& x:normal)x/=area;
+      Point center{double(((long double)a.x+b.x+c.x)/3),double(((long double)a.y+b.y+c.y)/3),
+                   double(((long double)a.z+b.z+c.z)/3)};
+      size_t found=0;Node apex;Id cell=0;
+      for(const auto& candidate:patch.cells) {
+        unsigned count=0;Node opposite;
+        for(auto node:candidate.v) {
+          if(std::find(face.v.begin(),face.v.end(),node.id)!=face.v.end())++count;
+          else opposite=node;
+        }
+        if(count==3){++found;apex=opposite;cell=candidate.id;}
+      }
+      if(found!=1){++report.missing_cells;throw std::invalid_argument("Native3D wall face has no unique first child.");}
+      const auto altitude=std::abs(Orientation(a,b,c,apex.p,stats))/area;
+      const double error=double(std::abs(altitude/height->second-1));
+      auto tangent=Delta(apex.p,center);const auto projection=Dot(tangent,normal);
+      for(unsigned j=0;j<3;++j)tangent[j]-=projection*normal[j];
+      report.maximum_tilt=std::max(report.maximum_tilt,double(Norm(tangent)/height->second));
+      report.height_failures+=error>1e-8;
+      if(error>report.maximum_relative_error) {
+        report.maximum_relative_error=error;report.worst_facet=face.facet;report.worst_cell=cell;report.worst_apex=apex.p;
+      }
+    }
+    if(report.height_failures)throw std::invalid_argument("Native3D prescribed height fails at facet "+std::to_string(report.worst_facet)+
+        " cell "+std::to_string(report.worst_cell)+" relative error "+std::to_string(report.maximum_relative_error));
+    reason.clear();return true;
+  }catch(const std::exception& error){reason=error.what();return false;}
+}
+
+bool ConstructFirstLayer(const Patch& old,Node background,Id first_wall_node,Id first_cell,
+                         const std::map<int,double>& heights,const PlanarReference& reference,
+                         Patch& fresh,FirstHeightReport& report,std::string& reason,KernelStats* stats) {
+  report={};
+  try {
+    Bounds(old);
+    if(heights.empty())throw std::invalid_argument("Native3D first-layer construction needs wall heights.");
+    for(const auto& height:heights)if(!(height.second>0) || !std::isfinite(height.second))
+      throw std::invalid_argument("Native3D wall height must be finite and positive.");
+    const auto skin=SkinMap(Incidence(old.cells,stats).Boundary());
+    const auto physical=CheckSurface(old,skin,reference,stats);const auto nodes=Nodes(old.cells);
+    if(nodes.count(background.id))throw std::invalid_argument("Native3D background identity is not newly reserved.");
+    size_t count=0;for(const auto& face:physical)count+=heights.count(reference.Get(face.second.facet).marker);
+    if(!count || count>MaximumReplacementCells || first_wall_node>UINT64_MAX-(count-1))
+      throw std::invalid_argument("Native3D first-layer node range/coverage exceeds budget.");
+    for(size_t k=0;k<count;++k)if(nodes.count(first_wall_node+k) || background.id==first_wall_node+k)
+      throw std::invalid_argument("Native3D wall apex identity is not newly reserved.");
+    Patch proposal;
+    if(!Cone(old.cells,background,first_cell,proposal.cells,reason,stats))throw std::invalid_argument(reason);
+    Id next=first_wall_node;
+    for(const auto& entry:physical) {
+      const auto& face=entry.second;const auto height=heights.find(reference.Get(face.facet).marker);
+      if(height==heights.end())continue;
+      const auto a=nodes.at(face.v[0]).p,b=nodes.at(face.v[1]).p,c=nodes.at(face.v[2]).p;
+      auto normal=Cross(Delta(b,a),Delta(c,a));const auto length=Norm(normal);
+      if(!(length>0))throw std::invalid_argument("Native3D first-layer face is degenerate.");
+      for(auto& value:normal)value/=length;
+      Point center{double(((long double)a.x+b.x+c.x)/3),double(((long double)a.y+b.y+c.y)/3),
+                   double(((long double)a.z+b.z+c.z)/3)};
+      // The oriented physical skin points out of the cavity; use its inward normal.
+      Node apex{next++,{double((long double)center.x-height->second*normal[0]),
+                       double((long double)center.y-height->second*normal[1]),
+                       double((long double)center.z-height->second*normal[2])}};
+      auto found=proposal.cells.end();
+      for(auto cell=proposal.cells.begin();cell!=proposal.cells.end();++cell) {
+        unsigned matches=0;for(auto node:cell->v)matches+=std::find(face.v.begin(),face.v.end(),node.id)!=face.v.end();
+        if(matches==3){found=cell;break;}
+      }
+      if(found==proposal.cells.end())throw std::invalid_argument("Native3D background fan misses wall coverage.");
+      const auto opposite=std::find_if(found->v.begin(),found->v.end(),[&](Node node){return std::find(face.v.begin(),face.v.end(),node.id)==face.v.end();});
+      long double admittedClearance=0;
+      for(const auto& node:nodes)admittedClearance=std::max(admittedClearance,-Dot(Delta(node.second.p,center),normal));
+      if(!(admittedClearance>height->second))
+        throw std::invalid_argument("Native3D geometry-height incompatibility within admitted volume at facet "+std::to_string(face.facet));
+      const auto clearance=-Dot(Delta(opposite->p,center),normal);
+      if(!(clearance>height->second))throw std::invalid_argument("Native3D background obstruction at facet "+std::to_string(face.facet));
+      std::vector<Cell> children;
+      if(!Cone({*found},apex,first_cell,children,reason,stats))
+        throw std::invalid_argument("Native3D normal wall child obstructed at facet "+std::to_string(face.facet)+": "+reason);
+      const auto index=found-proposal.cells.begin();proposal.cells.erase(proposal.cells.begin()+index);
+      proposal.cells.insert(proposal.cells.end(),children.begin(),children.end());
+      if(proposal.cells.size()>MaximumReplacementCells)throw std::invalid_argument("Native3D first layer exceeds replacement budget.");
+      if(first_cell>UINT64_MAX-(proposal.cells.size()-1))throw std::invalid_argument("Native3D first-layer cell range overflows.");
+      for(size_t k=0;k<proposal.cells.size();++k)proposal.cells[k].id=first_cell+k;
+    }
+    Finish(old,proposal,skin,physical,reference,stats);
+    if(!CheckFirstHeight(proposal,heights,reference,report,reason,stats))throw std::invalid_argument(reason);
+    fresh=std::move(proposal);reason.clear();return true;
+  }catch(const std::exception& error){reason=error.what();return false;}
+}
+
 Point ScaleCylinder(const AnalyticSurface& g,Point p,double factor) {
   const auto a=UnitAxis(g),d=Delta(p,g.origin);const auto t=Dot(a,d);Vector q{};
   for(size_t i=0;i<3;++i)q[i]=a[i]*t+factor*(d[i]-a[i]*t);

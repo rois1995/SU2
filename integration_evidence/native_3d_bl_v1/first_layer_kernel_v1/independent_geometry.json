@@ -1,0 +1,49 @@
+{
+  "status": "PASS",
+  "helper_sha256": "5acc25dcbc5483c1a952d3f8c8b64ecc87ef71b91c194ef401336bc1c4d2940c",
+  "scope": "positive volume, fixed boundary, preserved original coordinates, unique wall coverage, altitude/tilt; C++ handles exact pairwise conformity",
+  "limitations": [
+    "kernel geometry only; metric/CFD/transfer/MPI/publication not qualified"
+  ],
+  "cases": [
+    {
+      "name": "first_height_initial",
+      "status": "PASS",
+      "cells": 6,
+      "nodes": 8,
+      "volume": 0.9999999999999999,
+      "height": null,
+      "max_relative_height_error": 0,
+      "max_tilt": 0,
+      "input_sha256": "cc0d877364146fc6e64a3f6f7dcc3d6fa852f29f7082a3489f42b74362b0ae8e",
+      "mesh": "first_height_initial_kernel.su2",
+      "mesh_sha256": "9424b433a1968ccfc58fc716cad8ccb1fbbe2b31593f01700ddb51a7ba42b704"
+    },
+    {
+      "name": "first_height_constructed",
+      "status": "PASS",
+      "cells": 18,
+      "nodes": 11,
+      "volume": 1.0,
+      "height": 0.05,
+      "max_relative_height_error": 0.0,
+      "max_tilt": 0.0,
+      "input_sha256": "61e590428f289f20260cb290c1ddb656f2ce918b051a601c7975e999ad7e53a6",
+      "mesh": "first_height_constructed_kernel.su2",
+      "mesh_sha256": "aad0e4ea8595fc561fd49bda595c3e77b9882fed4ae61f4251ec8e7de23555bf"
+    },
+    {
+      "name": "first_height_updated",
+      "status": "PASS",
+      "cells": 18,
+      "nodes": 11,
+      "volume": 1.0,
+      "height": 0.025,
+      "max_relative_height_error": 0.0,
+      "max_tilt": 0.0,
+      "input_sha256": "cef8c384be172299405482ce8cc37b7887eeb4a678ae0cd21c0efaf940d6761e",
+      "mesh": "first_height_updated_kernel.su2",
+      "mesh_sha256": "dbd1cc5bf6d1f318dfad529c54237856af5e5969763022e3b2a38deff5062717"
+    }
+  ]
+}
