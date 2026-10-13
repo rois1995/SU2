@@ -1,5 +1,5 @@
 {
-  "status": "PASS_LOCAL_GOAL2_QUALIFICATION",
+  "status": "COMPLETE_LOCAL_GOAL2",
   "goal": "Goal2 local-only curved-boundary adaptation and genuine3DEuler cycles",
   "branch": "codex/native-3d-curved-local",
   "base_commit": "23197eba1715f44d61c9ad3a070f61441dfb0560",
@@ -30,7 +30,7 @@
     }
   ],
   "first_study_controller": "coverage_study_v1/run.py",
-  "scope": "Full declared local Goal2 scope qualified; final publication before goal closure. Historical checkpoint blocks retain their original limited statuses. Excluded production3DBL/generalCAD/fullphysical-unsteady/performance/cluster/arbitrary feasibility are unchanged.",
+  "scope": "Full declared local Goal2 scope qualified; qualification publication verified; no required work remains. Historical checkpoint blocks retain their original limited statuses. Excluded production3DBL/generalCAD/fullphysical-unsteady/performance/cluster/arbitrary feasibility are unchanged.",
   "first_study_status": "PASS_LOCAL_MANUALLY_PRESCRIBED_COVERAGE_ONLY",
   "first_study_receipt_sha256": "9c0609ef04b244e08520642eca82b90e1d748ddabf30d5542812488fb9ada6fa",
   "first_study_test_counts": [
@@ -468,14 +468,16 @@
     "scope": "MPI1/2/4 N=M/M<N complete curved star, source/geometry/metric progress and stale/rank/budget veto publication with unchanged stores."
   },
   "current_requirement_review": {
-    "status": "PASS_LOCAL_GOAL2_QUALIFICATION",
+    "status": "COMPLETE_LOCAL_GOAL2",
     "report": "GOAL2_REQUIREMENT_REVIEW.md",
-    "sha256": "89691da82b94ba5f6b278fb83f8dce174bad06719ab884312d9de45434977a72",
+    "sha256": "d620f9175edc40ee617cc5f651b38ade8676b80b923712d0cf7590a2e39f7947",
     "current_native_matrix": "PASS_ALL_SIX_VARIANTS",
     "independent_resolved_events": "PASS_ALL_TWELVE_EVENTS",
     "final_source_evidence": "final_source_and_evidence_validation.json",
-    "remaining": "Final publication and goal status update only.",
+    "remaining": "None within original declared local Goal2 scope.",
     "historical_checkpoint_flags_are_not_current_capability": true
   },
-  "final_qualification_report": "GOAL2_FINAL_QUALIFICATION.md"
+  "final_qualification_report": "GOAL2_FINAL_QUALIFICATION.md",
+  "publication": "GOAL2_PUBLICATION.json",
+  "qualification_commit": "85617b0f0e0b14024bc8841bf676aa2386c2f2f5"
 }

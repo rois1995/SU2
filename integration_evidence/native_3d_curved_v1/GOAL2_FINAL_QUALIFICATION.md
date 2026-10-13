@@ -1,6 +1,6 @@
 # Goal 2 local curved-3D qualification
 
-The declared local Goal 2 implementation and validation requirements pass. The final checkpoint must be pushed before updating the goal status. This continues published Goal1 checkpoint 23197eba1715f44d61c9ad3a070f61441dfb0560 on codex/native-3d-curved-local in SU2_NativeIntegrated.
+The declared local Goal 2 implementation and validation requirements are complete. Qualification commit85617b0f0e0b14024bc8841bf676aa2386c2f2f5 is published and its remote HEAD was verified. This continues published Goal1 checkpoint 23197eba1715f44d61c9ad3a070f61441dfb0560 on codex/native-3d-curved-local in SU2_NativeIntegrated.
 
 Analytic sphere, arbitrary-axis capped cylinder and finite bump authority now support coupled surface/volume edits with preserved facets, markers, features and components. Existing split, collapse, movement, reconnection and automatic joint reconstruction use complete versioned dependencies, actual frozen-target validation and nonlocal clearance. Optional coordinated-strip placement remains a kernel experiment; it is not presented as an integrated runtime operator.
 

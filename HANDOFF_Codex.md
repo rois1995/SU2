@@ -1,9 +1,11 @@
-# Goal 2 full local qualification passed; final publication — 2026-10-13
+# Goal 2 COMPLETE locally and published — 2026-10-13
 
 Repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
-Branch: codex/native-3d-curved-local; previous published1851f220bf64.
-Goal2 full declared local implementation/validation is qualified. Publish this
-checkpoint and verify remote HEAD before calling the goal complete.
+Branch: codex/native-3d-curved-local. Published qualification commit:
+85617b0f0e0b14024bc8841bf676aa2386c2f2f5 (remote HEAD verified).
+Goal2 full declared local implementation/validation is COMPLETE. No required
+implementation, validation or publication work remains within this goal.
+GOAL2_PUBLICATION.json records the exact qualified checkpoint.
 
 resolved_vortex_audit_v2 is terminal PASS: six N/M variants, twelve full event
 certificates. All exact geometry/conformity/no-overlap, original-P1-or-declared

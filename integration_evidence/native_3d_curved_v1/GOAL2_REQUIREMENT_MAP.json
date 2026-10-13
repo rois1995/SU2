@@ -1,8 +1,8 @@
 {
-  "status": "PASS_LOCAL_GOAL2_QUALIFICATION",
+  "status": "COMPLETE_LOCAL_GOAL2",
   "original_scope_preserved": true,
   "goal": "Goal2",
-  "current_goal_status": "READY_FOR_COMPLETION_AFTER_FINAL_PUSH",
+  "current_goal_status": "COMPLETE",
   "requirements": [
     {
       "id": "branch_and_base",
@@ -100,7 +100,7 @@
       "id": "evidence_workflow",
       "requirement": "Compact provenance/inspectable inputs, grids, states, certificates/failures, maintained handoff/findings/audit and regular push; one owned heavy job/local constraints.",
       "status": "PROVEN_WITHIN_DECLARED_LOCAL_GOAL_SCOPE",
-      "evidence": "All terminal native/independent results, inspectable meshes/states/VTUs and hashes preserved; no live owned job; final qualification/handoff/findings updated. Final push follows."
+      "evidence": "Terminal native/independent results, inspectable meshes/states/VTUs, source/build/input hashes and maintained qualification/handoff/findings published; no live owned job."
     }
   ],
   "evidence": {
@@ -184,11 +184,11 @@
     "fullphysicalunsteady/forcesconvergence",
     "arbitrarymeshfeasibility"
   ],
-  "remaining_major_work": [
-    "Publish this final qualification checkpoint, verify branch HEAD equals remote, then update goal status."
-  ],
+  "remaining_major_work": [],
   "independent_audit_v1_terminal": "FAIL_WRAPPER_TIMEOUT_124_NO_ASSERTION_ERROR",
   "independent_audit_v2": "PASS_ALL_TWELVE_EVENTS_TERMINAL",
   "source_and_scope_review": "GOAL2_REQUIREMENT_REVIEW.md",
-  "source_and_scope_review_sha256": "89691da82b94ba5f6b278fb83f8dce174bad06719ab884312d9de45434977a72"
+  "source_and_scope_review_sha256": "d620f9175edc40ee617cc5f651b38ade8676b80b923712d0cf7590a2e39f7947",
+  "publication": "GOAL2_PUBLICATION.json",
+  "qualification_commit": "85617b0f0e0b14024bc8841bf676aa2386c2f2f5"
 }
