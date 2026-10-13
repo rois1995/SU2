@@ -905,3 +905,48 @@ TEST_CASE("Joint curved split reconstructs a saved obstruction under unchanged f
   CHECK_FALSE(ReconstructSplitPatch(incomplete,edge,point,{200001,{}},unit,300000,reference,retained,obstruction,reason));
   CHECK(Connectivity(retained)==Connectivity(fresh));
 }
+
+namespace {
+#include "fixtures/native_strip_obstruction.inc"
+}
+TEST_CASE("Coordinated surface strip escapes a saved curved blockage with actual frozen coverage", "[NativeSurfaceStrip3D]") {
+  const auto old=StripObstruction();const auto reference=JointReference();
+  const auto moves=StripMoves();const auto point=StripPoint();Patch fresh;std::string reason;
+  const bool built=SplitSurfaceStrip(old,{12,1604},point,moves,300000,reference,fresh,reason);
+  INFO(reason);REQUIRE(built);REQUIRE(fresh.cells.size()==30);
+  const auto donors=StripSource();FrozenField field(donors,{},false,AssociatedExtensions(donors,reference));
+  PatchMetric measured;
+  const bool metric=ValidateMetricChange(old.cells,fresh.cells,MetricChange::GeometryRefine,field,measured,reason);
+  INFO(reason);REQUIRE(metric);CHECK(measured.minimum_mean_ratio>.204);CHECK(measured.minimum_scaled_jacobian>.055);
+  CHECK(field.Statistics().extended_edge_pieces>0);
+  auto excess=[&](const Patch& patch){long double sum=0;for(const auto& f:patch.surface){
+    const auto a=Position(patch,f.v[0]),b=Position(patch,f.v[1]),c=Position(patch,f.v[2]);
+    const auto e=std::max(0.,reference.SurfaceError(f.facet,{a,b,c})-.04);
+    sum+=e*e*std::hypot((b.y-a.y)*(c.z-a.z)-(b.z-a.z)*(c.y-a.y),
+                       (b.z-a.z)*(c.x-a.x)-(b.x-a.x)*(c.z-a.z),
+                       (b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x));}return sum;};
+  CHECK(excess(fresh)<.94L*excess(old));
+  for(size_t i=0;i<fresh.cells.size();++i)for(size_t j=i+1;j<fresh.cells.size();++j)
+    REQUIRE(ConformingDisjoint(fresh.cells[i],fresh.cells[j]));
+  const auto outside=StripOutside();
+  for(const auto& a:fresh.cells)for(const auto& b:outside)REQUIRE(ConformingDisjoint(a,b));
+  SaveCurved(old,reference,"strip_original");SaveCurved(fresh,reference,"strip_repaired");
+  SECTION("Missing dependency rejects the complete proposal atomically") {
+    auto incomplete=old;incomplete.cells.erase(incomplete.cells.begin());
+    const auto retained=fresh;
+    CHECK_FALSE(SplitSurfaceStrip(incomplete,{12,1604},point,moves,400000,reference,fresh,reason));
+    CHECK(Connectivity(fresh)==Connectivity(retained));
+    for(const auto& m:moves){const auto a=Position(fresh,m.second.id),b=Position(retained,m.second.id);
+      CHECK(a.x==b.x);CHECK(a.y==b.y);CHECK(a.z==b.z);}
+  }
+  SECTION("Duplicate movement identities reject atomically") {
+    auto duplicate=moves;duplicate.back().second.id=duplicate.front().second.id;const auto retained=fresh;
+    CHECK_FALSE(SplitSurfaceStrip(old,{12,1604},point,duplicate,400000,reference,fresh,reason));
+    CHECK(Connectivity(fresh)==Connectivity(retained));
+  }
+  SECTION("Finite chart and feature departure rejects atomically") {
+    auto bad=moves;bad.back().second.p={10,10,10};const auto retained=fresh;
+    CHECK_FALSE(SplitSurfaceStrip(old,{12,1604},point,bad,400000,reference,fresh,reason));
+    CHECK(Connectivity(fresh)==Connectivity(retained));
+  }
+}

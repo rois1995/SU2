@@ -105,6 +105,14 @@ bool InsertEdgeCavity(const Patch& old, Edge edge, Node point, Id first_cell, co
                       Patch& fresh, std::string& reason, KernelStats* stats = nullptr);
 /*! Inverse edge bisection: all removed-vertex incident cells must form paired children of the supplied endpoints.
  * Preserves original facets/markers and feature edges; this is not general boundary-vertex collapse. */
+/*! Simultaneous bounded (at most eight) complete-star vertex moves and a curved surface split.
+ * The two split faces must share one analytic chart; the new point may lie off the old edge.
+ * All child faces must preserve chart orientation. Artificial interface vertices stay fixed;
+ * moved identities are caller-reserved and each incident reference/marker feature is preserved.
+ * Inherited volume topology is split atomically; actual metric/progress and nonlocal clearance are caller duties. */
+bool SplitSurfaceStrip(const Patch& old,Edge edge,Node point,const std::vector<std::pair<Id,Node>>& moves,
+                       Id first_cell,const PlanarReference& reference,Patch& fresh,std::string& reason,
+                       KernelStats* stats = nullptr);
 /*! Complete edge star plus imported face neighbours; joint projected surface split and interior reconnection.
  * Placement tensor is a proposal proxy only. Caller must certify actual-query metric, geometry progress,
  * nonlocal clearance and complete versioned dependencies. Obstruction names a retained interface for bounded growth. */

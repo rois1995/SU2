@@ -1,0 +1,26 @@
+Filters: [NativeSurfaceStrip3D],[NativeJointGeometry3D],[NativeCurvedGeometry3D]
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Coordinated surface strip escapes a saved curved blockage with actual frozen
+coverage
+-------------------------------------------------------------------------------
+../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:912
+...............................................................................
+
+../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:920: FAILED:
+  REQUIRE( metric )
+with expansion:
+  false
+with messages:
+
+  Uncovered native3D original/extension source interval. at native 3D metric
+  edge 0,200000.
+
+===============================================================================
+test cases:   7 |   6 passed | 1 failed
+assertions: 229 | 228 passed | 1 failed
+

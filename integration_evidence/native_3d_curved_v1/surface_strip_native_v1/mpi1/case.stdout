@@ -1,0 +1,24 @@
+Filters: [NativeSurfaceStrip3D],[NativeJointGeometry3D],[NativeCurvedGeometry3D]
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Coordinated surface strip escapes a saved curved blockage with actual frozen
+coverage
+-------------------------------------------------------------------------------
+../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:912
+...............................................................................
+
+../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:916: FAILED:
+  REQUIRE( built )
+with expansion:
+  false
+with message:
+  Native 3D cavity link has a nonmanifold edge.
+
+===============================================================================
+test cases:   7 |   6 passed | 1 failed
+assertions: 227 | 226 passed | 1 failed
+

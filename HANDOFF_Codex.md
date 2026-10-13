@@ -1,3 +1,40 @@
+# Goal 2 coordinated strip and frozen cap coverage — 2026-10-13
+
+Working folder /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated,
+branch codex/native-3d-curved-local. Goal ACTIVE/all four full gates PENDING.
+Added atomic SplitSurfaceStrip: bounded simultaneous complete-star moves plus
+same-chart curved split, fresh reserved identities, incident feature projection,
+positive inherited volume connectivity, fixed artificial skin and existing
+full manifold/reference validation. No production engine placement/publication
+integration yet, no source or acceptance limit changed.
+
+Scientific four-wall-vertex proposal reduces local geometry deficit about6.96%,
+q0.204/J0.055. Native first check exposes nonmanifold union; bounded edge-link
+closure adds exactly one unchanged cell, 28old/30new. Native v2 geometry succeeds,
+then actual frozen-field edge0->200000 rejects uncovered cap-rim interval.
+Six of seven focused serial cases pass; MPI2/4 NOTRUN after failure. Independent
+exact closure/no-overlap/interface audit succeeds but source query audit FAILS.
+Exact scientific-coordinate gap on edge0->12 is~1.05e-18 physical, not a native
+reprojection gap measurement. Coverage remains strict and target untouched.
+
+Evidence/report: integration_evidence/native_3d_curved_v1/
+SURFACE_STRIP_RECONSTRUCTION_WIP.md; surface_strip_replay_v1/v2 and
+surface_strip_native_v1/v2. Inspectable whole working proposal (not accepted):
+surface_strip_replay_v2/cylinder_axis1_strip_proposal.su2. Native assertion remains
+failing until the before-freeze coverage capability is corrected; do not call
+this checkpoint validated. Failed original fixture/diff/auditor versions retained.
+No owned job live. Existing bump/sphere/axis0 CFD evidence predates this source.
+
+NEXT major connected work: conforming cylinder/cap source collar declared BEFORE
+freeze, consistent shared identities (avoid overlapping same-priority sources),
+finite representability envelope and unchanged original-P1 priority/tensors.
+Then native bounded placement/full-star union+link closure/reservation/publication,
+full tilted lifecycle, independent accepted-state audits, MPI and actual Euler/
+resolved nonuniform controls. All full goal requirements retained. Follow permanent
+AGENTS.md batching cadence; no micro-optimization/cluster/performance/generalCAD/
+production3DBL/fullphysicalunsteady claims. AdapNoExt/dependencies/foreign results
+untouched. Source checkpoint will be pushed WIP, not integrated qualification.
+
 # Goal 2 surface/recovery investigation — 2026-10-13
 
 Repo SU2_NativeIntegrated, branch codex/native-3d-curved-local; previouspublished

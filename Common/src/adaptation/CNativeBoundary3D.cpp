@@ -196,6 +196,20 @@ Node ProjectSplitPoint(Edge edge,Node point,const std::map<Id,Node>& nodes,const
         throw std::invalid_argument("Native3D projected split leaves an incident physical feature.");
   return point;
 }
+Node ProjectMovePoint(Id vertex,Node point,const Skin& skin,const Physical& physical,
+                      const PlanarReference& reference,KernelStats* stats) {
+  for(unsigned pass=0;pass<2;++pass)for(const auto& face:physical)
+    if(Has(face.second.v,vertex) && reference.Analytic().count(face.second.facet) &&
+       (reference.Analytic().at(face.second.facet).kind==AnalyticSurface::Kind::Disk)==(pass==0))
+      point.p=reference.Project(face.second.facet,point.p,stats);
+  for(const auto& face:skin)if(Has(face.second,vertex)) {
+    const auto marked=physical.find(face.first);
+    if(marked==physical.end())throw std::invalid_argument("Native3D movement has an unadmitted interface vertex.");
+    if(!reference.Contains(marked->second.facet,point.p,stats))
+      throw std::invalid_argument("Native3D movement leaves an incident reference feature.");
+  }
+  return point;
+}
 void SplitSkin(Edge edge,Node point,Skin& skin,Physical& physical) {
   const auto before=skin;
   for(const auto& entry:before)if(Has(entry.second,edge[0]) && Has(entry.second,edge[1])) {
@@ -930,6 +944,56 @@ bool InsertEdgeCavity(const Patch& old, Edge edge, Node point, Id first, const P
     return false;
   }
 }
+bool SplitSurfaceStrip(const Patch& old,Edge edge,Node point,const std::vector<std::pair<Id,Node>>& moves,
+                       Id first,const PlanarReference& reference,Patch& fresh,std::string& reason,KernelStats* stats) {
+  try {
+    Bounds(old);Endpoints(edge);
+    if(moves.empty() || moves.size()>8)throw std::invalid_argument("Native3D surface strip movement exceeds its bounded proposal.");
+    const auto before=SkinMap(Incidence(old.cells,stats).Boundary());
+    const auto physical=CheckSurface(old,before,reference,stats);auto nodes=Nodes(old.cells);
+    if(nodes.count(point.id))throw std::invalid_argument("Native3D surface strip reuses the split identity.");
+    std::map<Id,Node> replacement;std::set<Id> new_ids{point.id};
+    for(const auto& move:moves) {
+      if(!nodes.count(move.first) || nodes.count(move.second.id) || !new_ids.insert(move.second.id).second ||
+         !replacement.emplace(move.first,ProjectMovePoint(move.first,move.second,before,physical,reference,stats)).second)
+        throw std::invalid_argument("Native3D surface strip reuses a movement identity.");
+    }
+    auto mapped=[&](Id id){const auto found=replacement.find(id);return found==replacement.end() ? nodes.at(id) : found->second;};
+    Skin skin;Physical marked;
+    for(const auto& row:before) {
+      auto f=row.second;for(auto& id:f)id=mapped(id).id;f=Oriented(f);skin.emplace(Key(f),f);
+      const auto found=physical.find(row.first);
+      if(found!=physical.end())marked.emplace(Key(f),SurfaceFace{f,found->second.facet});
+    }
+    Id facet=UINT64_MAX;unsigned incident=0;
+    for(const auto& row:physical)if(Has(row.second.v,edge[0]) && Has(row.second.v,edge[1])) {
+      if(facet!=UINT64_MAX && facet!=row.second.facet)
+        throw std::invalid_argument("Native3D off-edge strip split crosses a chart or marker junction.");
+      facet=row.second.facet;++incident;
+    }
+    if(incident!=2 || !reference.Analytic().count(facet) ||
+       reference.Analytic().at(facet).kind==AnalyticSurface::Kind::Disk)
+      throw std::invalid_argument("Native3D off-edge strip split needs two same-chart curved faces.");
+    point.p=reference.Project(facet,point.p,stats);
+    const Edge split{mapped(edge[0]).id,mapped(edge[1]).id};SplitSkin(split,point,skin,marked);
+    Patch proposal;
+    for(const auto& cell:old.cells) {
+      auto left=cell.v;for(auto& n:left)n=mapped(n.id);auto right=left;
+      bool a=false,b=false;
+      for(size_t i=0;i<4;++i){if(cell.v[i].id==edge[0]){right[i]=point;a=true;}
+                             if(cell.v[i].id==edge[1]){left[i]=point;b=true;}}
+      if(!(a && b)){left=cell.v;for(auto& n:left)n=mapped(n.id);}
+      auto append=[&](const std::array<Node,4>& tet){
+        if(!(Orientation(tet[0].p,tet[1].p,tet[2].p,tet[3].p,stats)>0))
+          throw std::invalid_argument("Native3D surface strip inverts inherited volume connectivity.");
+        Append(proposal.cells,tet,first,stats);
+      };
+      append(left);if(a && b)append(right);
+    }
+    Finish(old,proposal,skin,marked,reference,stats);
+    fresh.cells.swap(proposal.cells);fresh.surface.swap(proposal.surface);reason.clear();return true;
+  }catch(const std::exception& e){reason=e.what();return false;}
+}
 bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,const Tensor& placement,
                            Id first,const PlanarReference& reference,Patch& fresh,Face& obstruction,
                            std::string& reason,KernelStats* stats) {
@@ -1199,10 +1263,7 @@ bool MoveVertex(const Patch& old, Id vertex, Node point, Id first, const PlanarR
     const auto original = nodes.at(vertex);
     if (nodes.count(point.id) || (original.p.x == point.p.x && original.p.y == point.p.y && original.p.z == point.p.z))
       throw std::invalid_argument("Native 3D movement needs a new identity and a distinct position.");
-    for(unsigned pass=0;pass<2;++pass)for(const auto& face:physical)
-      if(Has(face.second.v,vertex) && reference.Analytic().count(face.second.facet) &&
-         (reference.Analytic().at(face.second.facet).kind==AnalyticSurface::Kind::Disk)==(pass==0))
-        point.p=reference.Project(face.second.facet,point.p,stats);
+    point=ProjectMovePoint(vertex,point,before,physical,reference,stats);
     if (original.p.x==point.p.x && original.p.y==point.p.y && original.p.z==point.p.z)
       throw std::invalid_argument("Native3D movement projects back to its original position.");
     for (const auto& face : before)
