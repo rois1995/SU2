@@ -1,0 +1,655 @@
+ninja: Entering directory `integration_evidence/build-integrated-v2'
+[1/2] Compiling C++ object UnitTests/test_driver.p/Common_adaptation_CNativeBoundary3D_tests.cpp.o
+FAILED: [code=1] UnitTests/test_driver.p/Common_adaptation_CNativeBoundary3D_tests.cpp.o 
+c++ -IUnitTests/test_driver.p -IUnitTests -I../../UnitTests -ISU2_CFD/src -I../../SU2_CFD/src -ICommon/src -I../../Common/src -I../../externals/CLI11 -I../../externals/eigen -I../../externals/cgns/adf -I../../externals/cgns/adfh -Iexternals/cgns -I../../externals/cgns -Iexternals/cgns/hdf5 -I../../externals/cgns/hdf5 -I../../externals/metis/include -I../../externals/metis/GKlib -I../../externals/metis/libmetis -I../../externals/parmetis/include -I../../externals/parmetis/libparmetis -I../../externals/mel -I../../externals/catch2 -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -I/usr/lib/x86_64-linux-gnu/openmpi/include -fdiagnostics-color=always -D_GLIBCXX_ASSERTIONS=1 -D_FILE_OFFSET_BITS=64 -std=c++17 -O2 -g -pthread -fPIC -Wno-empty-body -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-deprecated-declarations -Wno-error=cast-function-type -Wno-cast-function-type -Wno-error=stringop-truncation -Wno-stringop-truncation -Wno-error=missing-field-initializers -Wno-missing-field-initializers -Wno-error=class-memaccess -Wno-class-memaccess -Wno-overloaded-virtual -Wno-array-bounds -march=native -ffast-math -fno-finite-math-only -DHAVE_CGNS -DHAVE_MPI -DHAVE_METIS -DHAVE_PARMETIS -DHAVE_MMG -MD -MQ UnitTests/test_driver.p/Common_adaptation_CNativeBoundary3D_tests.cpp.o -MF UnitTests/test_driver.p/Common_adaptation_CNativeBoundary3D_tests.cpp.o.d -o UnitTests/test_driver.p/Common_adaptation_CNativeBoundary3D_tests.cpp.o -c ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc: In function ‘SU2Native3D::Patch {anonymous}::BLCornerObstruction()’:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:103:22: error: ‘Oriented’ was not declared in this scope
+  103 | p.surface.push_back({Oriented({0,2,1}),0});
+      |                      ^~~~~~~~
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:103:42: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  103 | p.surface.push_back({Oriented({0,2,1}),0});
+      |                                          ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:104:42: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  104 | p.surface.push_back({Oriented({0,3,2}),2});
+      |                                          ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:105:43: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  105 | p.surface.push_back({Oriented({31,5,4}),4});
+      |                                           ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:106:43: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  106 | p.surface.push_back({Oriented({47,4,7}),5});
+      |                                           ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:107:45: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  107 | p.surface.push_back({Oriented({31,111,5}),1});
+      |                                             ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:108:45: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  108 | p.surface.push_back({Oriented({63,5,111}),7});
+      |                                             ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:109:45: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  109 | p.surface.push_back({Oriented({47,7,143}),3});
+      |                                             ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:110:45: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  110 | p.surface.push_back({Oriented({79,143,7}),9});
+      |                                             ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:111:44: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  111 | p.surface.push_back({Oriented({1,2,145}),6});
+      |                                            ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:112:46: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  112 | p.surface.push_back({Oriented({2,127,145}),6});
+      |                                              ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:113:44: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  113 | p.surface.push_back({Oriented({2,3,177}),8});
+      |                                            ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:114:46: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  114 | p.surface.push_back({Oriented({2,177,127}),8});
+      |                                              ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:115:47: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  115 | p.surface.push_back({Oriented({257,111,31}),1});
+      |                                               ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:116:45: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  116 | p.surface.push_back({Oriented({1,63,111}),7});
+      |                                             ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:117:46: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  117 | p.surface.push_back({Oriented({257,1,111}),1});
+      |                                              ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:118:44: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  118 | p.surface.push_back({Oriented({0,1,257}),1});
+      |                                            ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:119:47: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  119 | p.surface.push_back({Oriented({303,47,143}),3});
+      |                                               ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:120:45: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  120 | p.surface.push_back({Oriented({1,145,63}),6});
+      |                                             ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:121:44: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  121 | p.surface.push_back({Oriented({303,3,0}),3});
+      |                                            ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:122:45: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  122 | p.surface.push_back({Oriented({3,143,79}),9});
+      |                                             ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:123:46: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  123 | p.surface.push_back({Oriented({303,143,3}),3});
+      |                                              ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:124:45: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  124 | p.surface.push_back({Oriented({3,79,177}),8});
+      |                                             ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:125:45: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  125 | p.surface.push_back({Oriented({63,127,6}),6});
+      |                                             ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:126:47: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  126 | p.surface.push_back({Oriented({145,127,63}),6});
+      |                                               ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:127:45: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  127 | p.surface.push_back({Oriented({127,79,6}),8});
+      |                                             ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:128:47: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  128 | p.surface.push_back({Oriented({177,79,127}),8});
+      |                                               ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:129:43: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  129 | p.surface.push_back({Oriented({6,7,4}),11});
+      |                                           ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:130:43: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  130 | p.surface.push_back({Oriented({6,4,5}),10});
+      |                                           ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:131:43: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  131 | p.surface.push_back({Oriented({6,5,63}),7});
+      |                                           ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:132:43: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  132 | p.surface.push_back({Oriented({6,79,7}),9});
+      |                                           ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:133:43: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  133 | p.surface.push_back({Oriented({0,4,47}),5});
+      |                                           ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:134:43: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  134 | p.surface.push_back({Oriented({31,4,0}),4});
+      |                                           ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:135:45: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  135 | p.surface.push_back({Oriented({0,47,303}),3});
+      |                                             ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+In file included from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:1064:
+../../UnitTests/Common/adaptation/fixtures/native_bl_corner.inc:136:45: error: no matching function for call to ‘std::vector<SU2Native3D::SurfaceFace>::push_back(<brace-enclosed initializer list>)’
+  136 | p.surface.push_back({Oriented({31,0,257}),1});
+      |                                             ^
+In file included from /usr/include/c++/9/vector:67,
+                 from ../../externals/catch2/catch.hpp:566,
+                 from ../../UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp:7:
+/usr/include/c++/9/bits/stl_vector.h:1184:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1184 |       push_back(const value_type& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1184:35: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const value_type&’ {aka ‘const SU2Native3D::SurfaceFace&’}
+ 1184 |       push_back(const value_type& __x)
+      |                 ~~~~~~~~~~~~~~~~~~^~~
+/usr/include/c++/9/bits/stl_vector.h:1200:7: note: candidate: ‘void std::vector<_Tp, _Alloc>::push_back(std::vector<_Tp, _Alloc>::value_type&&) [with _Tp = SU2Native3D::SurfaceFace; _Alloc = std::allocator<SU2Native3D::SurfaceFace>; std::vector<_Tp, _Alloc>::value_type = SU2Native3D::SurfaceFace]’
+ 1200 |       push_back(value_type&& __x)
+      |       ^~~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1200:30: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘std::vector<SU2Native3D::SurfaceFace>::value_type&&’ {aka ‘SU2Native3D::SurfaceFace&&’}
+ 1200 |       push_back(value_type&& __x)
+      |                 ~~~~~~~~~~~~~^~~
+ninja: build stopped: subcommand failed.

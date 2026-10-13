@@ -120,7 +120,8 @@ bool Audit(World& world, const Owned& owned, const Fixture& reference, size_t co
     for (const auto& cell : patch.cells) for (auto node : cell.v) nodes.emplace(node.id, node.p);
     for (auto face : patch.surface) {
       if (!physical.emplace(Key(face.v), face.facet).second) valid = false;
-      if (geometry.Get(face.facet).marker != int(face.facet) + 10) valid = false;
+      const auto source=std::find_if(reference.facets.begin(),reference.facets.end(),[&](const auto& f){return f.id==face.facet;});
+      if (source==reference.facets.end() || geometry.Get(face.facet).marker!=source->marker) valid=false;
       for (auto id : face.v) if (!geometry.Contains(face.facet, nodes.at(id))) valid = false;
     }
     for (auto face : incidence.Boundary()) if (!physical.count(Key(face))) valid = false;
@@ -2275,8 +2276,11 @@ TEST_CASE("Native3D engine elects inconsistent wall-height policies before chang
   CHECK(Audit(world,bounded.cells,fixture,count));
 }
 
-TEST_CASE("Native3D coupled geometric BL construction and Euler release reach complete gates", "[NativeCoupledBL3D]") {
-  World world;const auto fixture=Box();const PlanarReference reference(fixture.facets);
+namespace {
+void CoupledBL(bool grouped) {
+  World world;auto fixture=Box();
+  if(grouped)for(auto& f:fixture.facets)f.marker=std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;})?10:11;
+  const PlanarReference reference(fixture.facets);const std::string prefix=grouped?"grouped_":"";
   const auto input=Partition(Rows(fixture.patch),world),saved=input;
   const auto original=Uniform(input,{1,0,0,1,0,1});
   const auto allOriginal=Uniform(Partition(Rows(fixture.patch),World(MPI_COMM_SELF)),{1,0,0,1,0,1});
@@ -2309,11 +2313,11 @@ TEST_CASE("Native3D coupled geometric BL construction and Euler release reach co
       if(inserted.second)mesh.markers.push_back({"marker_"+std::to_string(marker),marker,{}});
       for(auto id:face.v)mesh.markers[inserted.first->second].elem.push_back(nodes.at(id));
     }
-    simplex_test::WriteSU2Mesh(mesh,name+"_n"+std::to_string(world.size)+".su2");
+    simplex_test::WriteSU2Mesh(mesh,prefix+name+"_n"+std::to_string(world.size)+".su2");
   };
   exportMesh(input,"initial_euler");
   const auto refined=Refine(world,input,original,reference,compose,options);
-  EngineReport(refined,world,"coupled_BL");Log(world,"BL result: "+refined.reason+"\n");
+  EngineReport(refined,world,prefix+"coupled_BL");Log(world,"BL result: "+refined.reason+"\n");
   exportMesh(refined.cells,refined.valid?"constructed_BL":"constructed_BL_rejected");
   CHECK(Bytes(input)==Bytes(saved));
   const auto count=CPassiveComm::Allreduce(refined.cells.size(),CPassiveComm::Op::SUM,world.comm);
@@ -2325,8 +2329,8 @@ TEST_CASE("Native3D coupled geometric BL construction and Euler release reach co
     metric=ValidateMetricPatch({row.second.cell},target,measured,reason) && metric;
     height=CheckFirstHeight(PatchOf({row.second}),options.wall_heights,reference,report,reason) && height;
   }
+  MeshRecords(prefix+(refined.valid?"coupled_BL":"coupled_BL_rejected"),world,refined.cells);
   if(!refined.valid) {
-    MeshRecords("coupled_BL_rejected",world,refined.cells);
     for(const auto& row:refined.cells) {
       const auto measured=MeasureMetricCells({row.second.cell},target);
       if(measured.minimum_mean_ratio<MinimumMeanRatio || measured.minimum_scaled_jacobian<MinimumScaledJacobian || measured.maximum_length>MaximumMetricEdge) {
@@ -2342,14 +2346,22 @@ TEST_CASE("Native3D coupled geometric BL construction and Euler release reach co
   INFO(refined.reason);REQUIRE(refined.valid);CHECK_FALSE(world.maximum(!metric));
   options.wall_heights.clear();options.edge_breakpoints={};
   const auto coarse=Coarsen(world,refined.cells,original,reference,{},options);
-  EngineReport(coarse,world,"released_Euler");Log(world,"Euler result: "+coarse.reason+"\n");
+  EngineReport(coarse,world,prefix+"released_Euler");Log(world,"Euler result: "+coarse.reason+"\n");
   exportMesh(coarse.cells,coarse.valid?"released_euler":"released_euler_rejected");
+  MeshRecords(prefix+(coarse.valid?"released_Euler":"released_Euler_rejected"),world,coarse.cells);
   INFO(coarse.reason);REQUIRE(coarse.valid);
   const auto coarseCount=CPassiveComm::Allreduce(coarse.cells.size(),CPassiveComm::Op::SUM,world.comm);
   CHECK(coarseCount<count);CHECK(Audit(world,coarse.cells,fixture,coarseCount));
   FrozenField euler(allOriginal);metric=true;
   for(const auto& row:coarse.cells){PatchMetric measured;metric=ValidateMetricPatch({row.second.cell},euler,measured,reason) && metric;}
   CHECK_FALSE(world.maximum(!metric));CHECK(Bytes(input)==Bytes(saved));
+}
+}
+TEST_CASE("Native3D coupled geometric BL construction and Euler release reach complete gates", "[NativeCoupledBL3D]") {
+  CoupledBL(false);
+}
+TEST_CASE("Native3D coarse cube with physical wall and far markers constructs and releases BL", "[NativeCoupledBLGrouped3D]") {
+  CoupledBL(true);
 }
 
 TEST_CASE("Native composed BL startup preserves original geometry across MPI worker subsets", "[NativeCoupledBLBudget3D]") {

@@ -144,15 +144,16 @@ long double FrozenField::TargetEdgeLength(Point a, Point b) {
     throw std::runtime_error("Native 3D composed target requires geometry-resolved edge integration.");
   return EdgeLength(a, b, bool(composition));
 }
-Point FrozenField::BalancedSplitPoint(Point a,Point b) {
-  const auto half=TargetEdgeLength(a,b)/2;
-  long double lo=0,hi=1,t=.5L;
+Point FrozenField::BalancedSplitPoint(Point a,Point b,double fraction) {
+  if(!(fraction>0 && fraction<1) || !std::isfinite(fraction))throw std::invalid_argument("Native3D split length fraction must lie strictly between zero and one.");
+  const auto requested=TargetEdgeLength(a,b)*fraction;
+  long double lo=0,hi=1,t=fraction;
   for(unsigned iteration=0;iteration<48;++iteration) {
     const Point point{double((1-t)*a.x+t*b.x),double((1-t)*a.y+t*b.y),double((1-t)*a.z+t*b.z)};
     if((point.x==a.x && point.y==a.y && point.z==a.z) || (point.x==b.x && point.y==b.y && point.z==b.z))
       throw std::runtime_error("Native3D metric-balanced split is not representable.");
-    const auto residual=TargetEdgeLength(a,point)-half;
-    if(std::abs(residual)<=1e-8L*half)return point;
+    const auto residual=TargetEdgeLength(a,point)-requested;
+    if(std::abs(residual)<=1e-8L*requested)return point;
     if(residual<0)lo=t;else hi=t;
     const auto speed=MetricNorm(a,b,Query(point).target);
     const auto next=t-residual/speed;

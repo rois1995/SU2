@@ -127,8 +127,8 @@ bool InsertEdgeCavity(const Patch& old, Edge edge, Node point, Id first_cell, co
                       Patch& fresh, std::string& reason, KernelStats* stats = nullptr);
 /*! Inverse edge bisection: all removed-vertex incident cells must form paired children of the supplied endpoints.
  * Preserves original facets/markers and feature edges; this is not general boundary-vertex collapse. */
-/*! Simultaneous bounded (at most eight) complete-star vertex moves and a curved surface split.
- * The two split faces must share one analytic chart; the new point may lie off the old edge.
+/*! Simultaneous bounded (at most eight) complete-star vertex moves and a physical surface split.
+ * Planar splits remain exact on-edge; curved splits require two faces on one analytic chart and may lie off-edge.
  * All child faces must preserve chart orientation. Artificial interface vertices stay fixed;
  * moved identities are caller-reserved and each incident reference/marker feature is preserved.
  * Inherited volume topology is split atomically; actual metric/progress and nonlocal clearance are caller duties. */

@@ -16,6 +16,7 @@
 #include <fstream>
 #include <iomanip>
 #include <cstdlib>
+#include "../../../SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp"
 #include "../../../Common/include/parallelization/mpi_structure.hpp"
 using namespace SU2Native3D;
 namespace {
@@ -1057,4 +1058,102 @@ TEST_CASE("Native3D first-row apex movement preserves altitude and boundary feat
     const auto constrained=ConstrainMovePoint(old,n.id,{500,{.4,.4,.4}},heights,reference);
     CHECK(constrained.p.x==n.p.x);CHECK(constrained.p.y==n.p.y);CHECK(constrained.p.z==n.p.z);
   }
+}
+
+namespace {
+#include "fixtures/native_bl_corner.inc"
+}
+namespace {
+void CornerStripProbe(bool grouped) {
+  const auto accepted=BLCornerObstruction();auto facets=BLCornerFacets();
+  if(grouped)for(auto& f:facets)f.marker=std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;})?10:11;
+  const PlanarReference reference(facets);
+  Patch old;for(const auto& c:accepted.cells) {
+    unsigned endpoints=0;bool mover=false;for(auto n:c.v){endpoints+=n.id==0 || n.id==4;mover=mover || n.id==31 || n.id==47;}
+    if(endpoints==2 || mover)old.cells.push_back(c);
+  }
+  const auto skin=Incidence(old.cells).Boundary();
+  for(const auto& f:accepted.surface)if(std::find(skin.begin(),skin.end(),f.v)!=skin.end())old.surface.push_back(f);
+  REQUIRE(old.cells.size()==14);
+  CBoundaryLayerMetric::Wall wall;wall.layer={"wall",.1,1.2,.3};
+  wall.coord={0,0,0,1,0,0,1,1,0,0,1,0};wall.conn={0,1,2,2,0,2,3,3};CBoundaryLayerMetric layers(3,{wall});
+  const auto compose=[&](Point p,Tensor sensor) {
+    CBoundaryLayerMetric::Tensor m;
+    m.m[0][0]=sensor.xx;m.m[0][1]=m.m[1][0]=sensor.xy;m.m[0][2]=m.m[2][0]=sensor.xz;
+    m.m[1][1]=sensor.yy;m.m[1][2]=m.m[2][1]=sensor.yz;m.m[2][2]=sensor.zz;
+    const su2double x[3]={p.x,p.y,p.z};layers.ApplyPoint(x,m,1.,nullptr,false);
+    return Tensor{SU2_TYPE::GetValue(m.m[0][0]),SU2_TYPE::GetValue(m.m[0][1]),SU2_TYPE::GetValue(m.m[0][2]),
+      SU2_TYPE::GetValue(m.m[1][1]),SU2_TYPE::GetValue(m.m[1][2]),SU2_TYPE::GetValue(m.m[2][2])};
+  };
+  std::vector<DonorCell> donors;for(auto c:Cube().cells){DonorCell d;d.cell=c;d.sensor.fill({1,0,0,1,0,1});donors.push_back(d);}
+  FrozenField field(donors,compose,false,{},[&](Point a,Point b){return layers.EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z});});
+  std::map<Id,Node> nodes;for(const auto& c:old.cells)for(auto n:c.v)nodes.emplace(n.id,n);
+  std::map<int,double> heights;for(const auto& f:facets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights[f.marker]=.1;
+  Node split{200000,field.BalancedSplitPoint(nodes.at(0).p,nodes.at(4).p)};
+  std::vector<std::pair<Id,Node>> moves;
+  for(Id id:{31,47}) {
+    std::set<Id> neighbors;for(const auto& f:old.surface)if(std::find(f.v.begin(),f.v.end(),id)!=f.v.end())neighbors.insert(f.v.begin(),f.v.end());
+    neighbors.erase(id);std::vector<std::pair<Point,Tensor>> values;const auto origin=nodes.at(id).p;
+    for(auto n:neighbors){const auto q=nodes.at(n).p;const Point mid{double(((long double)origin.x+q.x)/2),double(((long double)origin.y+q.y)/2),double(((long double)origin.z+q.z)/2)};values.emplace_back(q,field.Query(mid).target);}
+    auto point=ConstrainMovePoint(old,id,{200001+moves.size(),MetricMeanPoint(origin,values)},heights,reference);
+    if(id==31){CHECK(point.p.y==0);if(!grouped)CHECK(point.p.x==point.p.z);}
+    else {CHECK(point.p.x==0);if(!grouped)CHECK(point.p.y==point.p.z);}
+    moves.emplace_back(id,point);
+  }
+  bool approved=false,builtAny=false;Patch fresh;PatchMetric metric;std::string reason;
+  for(double fraction:grouped?std::vector<double>{.5,.55,.565}:std::vector<double>{.5}) {
+   split.p=field.BalancedSplitPoint(nodes.at(0).p,nodes.at(4).p,fraction);
+   for(double alpha:{1.,.5,.25,.125}) {
+    auto trial=moves;for(auto& m:trial){const auto a=nodes.at(m.first).p,b=m.second.p;
+      m.second.p={double(a.x+alpha*((long double)b.x-a.x)),double(a.y+alpha*((long double)b.y-a.y)),double(a.z+alpha*((long double)b.z-a.z))};}
+    const bool built=SplitSurfaceStrip(old,{0,4},split,trial,300000,reference,fresh,reason);
+    builtAny=builtAny || built;
+    const bool passed=built && ValidateMetricChange(old.cells,fresh.cells,MetricChange::Refine,field,metric,reason) &&
+      (!grouped || metric.maximum_length<=MaximumMetricEdge);
+    INFO("fraction="<<fraction<<" alpha="<<alpha<<" built="<<built<<" reason="<<reason<<" q="<<metric.minimum_mean_ratio<<" J="<<metric.minimum_scaled_jacobian<<" length="<<double(metric.maximum_length));
+    if(passed){approved=true;break;}
+  }
+   if(approved)break;
+  }
+  std::cout<<"CORNER_JOINT grouped="<<grouped<<" heuristic_pass="<<approved<<"\n";
+  if(grouped && !approved) {
+    split.p={0,0,.19584409919285048};
+    moves={ {31,{200001,{.26373889197404216,0,.1746353513785195}}},
+            {47,{200002,{0,.26373889197404216,.1746353513785195}}} };
+    builtAny=SplitSurfaceStrip(old,{0,4},split,moves,300000,reference,fresh,reason);
+    approved=builtAny && ValidateMetricChange(old.cells,fresh.cells,MetricChange::Refine,field,metric,reason);
+  }
+  INFO(reason);REQUIRE(builtAny);if(grouped)REQUIRE(approved);else CHECK_FALSE(approved);
+  FirstHeightReport height;CHECK(CheckFirstHeight(fresh,heights,reference,height,reason));
+  auto whole=accepted;whole.cells.erase(std::remove_if(whole.cells.begin(),whole.cells.end(),[&](const auto& c){return std::any_of(old.cells.begin(),old.cells.end(),[&](const auto& d){return c.id==d.id;});}),whole.cells.end());
+  for(const auto& c:fresh.cells){for(const auto& outside:whole.cells)CHECK(ConformingDisjoint(c,outside));}whole.cells.insert(whole.cells.end(),fresh.cells.begin(),fresh.cells.end());
+  whole.surface.erase(std::remove_if(whole.surface.begin(),whole.surface.end(),[&](const auto& f){return std::any_of(old.surface.begin(),old.surface.end(),[&](const auto& g){return f.v==g.v;});}),whole.surface.end());
+  whole.surface.insert(whole.surface.end(),fresh.surface.begin(),fresh.surface.end());
+  const bool full=ValidateMetricPatch(whole.cells,field,metric,reason);INFO(reason);if(grouped)CHECK(full);else CHECK_FALSE(full);
+  CHECK(CheckFirstHeight(whole,heights,reference,height,reason));CHECK(double(Volume(whole))==Approx(1));
+  if(grouped)SaveCurved(whole,reference,"grouped_joint_witness");
+  auto incomplete=old;const auto missing=std::find_if(incomplete.surface.begin(),incomplete.surface.end(),[](const auto& f){return std::find(f.v.begin(),f.v.end(),31)!=f.v.end();});
+  REQUIRE(missing!=incomplete.surface.end());incomplete.surface.erase(missing);Patch unchanged=old;
+  CHECK_FALSE(SplitSurfaceStrip(incomplete,{0,4},split,moves,400000,reference,unchanged,reason));CHECK(Connectivity(unchanged)==Connectivity(old));
+}
+}
+TEST_CASE("Coordinated planar corner movement preserves geometry but still rejects its frozen BL shape", "[NativeBLCorner3D]") {
+  CornerStripProbe(false);
+}
+TEST_CASE("Saved ordinary-marker corner admits a complete joint replacement under unchanged frozen BL gates", "[NativeBLCornerGrouped3D]") {
+  CornerStripProbe(true);
+}
+
+TEST_CASE("Atomic planar strip split retains marker junctions and complete interior movement", "[NativePlanarStrip3D]") {
+  const auto initial=Cube();const PlanarReference reference(Facets(initial));Patch old,fresh;std::string reason;
+  REQUIRE(SplitEdge(initial,{0,6},{8,{.5,.5,.5}},100,reference,old,reason));
+  const std::vector<std::pair<Id,Node>> moves{{8,{10,{.45,.45,.5}}}};
+  REQUIRE(SplitSurfaceStrip(old,{0,4},{9,{0,0,.5}},moves,200,reference,fresh,reason));
+  CHECK(fresh.cells.size()==old.cells.size()+2);CHECK(fresh.surface.size()==old.surface.size()+2);
+  std::vector<DonorCell> donors;for(auto c:initial.cells){DonorCell d;d.cell=c;d.sensor.fill({1,0,0,1,0,1});donors.push_back(d);}
+  FrozenField field(donors);PatchMetric metric;CHECK(ValidateMetricPatch(fresh.cells,field,metric,reason));
+  for(size_t i=0;i<fresh.cells.size();++i)for(size_t j=i+1;j<fresh.cells.size();++j)CHECK(ConformingDisjoint(fresh.cells[i],fresh.cells[j]));
+  auto sentinel=old;auto invalid=moves;invalid.front().second.p={2,2,2};
+  CHECK_FALSE(SplitSurfaceStrip(old,{0,4},{9,{0,0,.5}},invalid,300,reference,sentinel,reason));CHECK(Connectivity(sentinel)==Connectivity(old));
+  CHECK_FALSE(SplitSurfaceStrip(old,{0,4},{9,{.01,0,.5}},moves,300,reference,sentinel,reason));CHECK(Connectivity(sentinel)==Connectivity(old));
 }

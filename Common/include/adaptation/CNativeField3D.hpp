@@ -75,7 +75,7 @@ class FrozenField {
    * Composed fields without declared geometric breakpoints reject; sensor-only fields stay analytic. */
   long double TargetEdgeLength(Point a, Point b);
   /*! Full-target length-balanced coordinate proposal; geometry kernels still certify the rounded point. */
-  Point BalancedSplitPoint(Point a, Point b);
+  Point BalancedSplitPoint(Point a, Point b, double fraction = .5);
   bool SensorOnly() const { return !composition; }
   const FieldStats& Statistics() const { return stats; }
 

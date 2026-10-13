@@ -363,16 +363,7 @@ Node ConstrainMovePoint(const Patch& old,Id vertex,Node proposal,const std::map<
   if(!std::isfinite(proposal.p.x) || !std::isfinite(proposal.p.y) || !std::isfinite(proposal.p.z))
     throw std::invalid_argument("Nonfinite native3D constrained movement.");
   std::array<Vector,3> basis{};size_t rank=0;
-  for(const auto& face:old.surface) {
-    const bool onFace=Has(face.v,vertex);
-    bool apex=false;
-    if(!onFace && heights.count(reference.Get(face.facet).marker))for(const auto& cell:old.cells) {
-      unsigned count=0;bool hasVertex=false;
-      for(const auto& n:cell.v){count+=std::find(face.v.begin(),face.v.end(),n.id)!=face.v.end();hasVertex=hasVertex || n.id==vertex;}
-      apex=apex || (count==3 && hasVertex);
-    }
-    if(!apex && (!onFace || reference.Analytic().count(face.facet)))continue;
-    auto normal=Cross(Delta(nodes.at(face.v[1]).p,nodes.at(face.v[0]).p),Delta(nodes.at(face.v[2]).p,nodes.at(face.v[0]).p));
+  auto constrain=[&](Vector normal) {
     const auto length=Norm(normal);if(!(length>0))throw std::invalid_argument("Degenerate native3D movement constraint.");
     for(auto& x:normal)x/=length;
     for(unsigned pass=0;pass<2;++pass)for(size_t i=0;i<rank;++i) {
@@ -382,6 +373,29 @@ Node ConstrainMovePoint(const Patch& old,Id vertex,Node proposal,const std::map<
     if(rank<3 && independent>64*std::numeric_limits<long double>::epsilon()) {
       for(auto& x:normal)x/=independent;basis[rank++]=normal;
     }
+  };
+  std::set<Id> incident;
+  for(const auto& face:old.surface) {
+    const bool onFace=Has(face.v,vertex);
+    if(onFace && !reference.Analytic().count(face.facet))incident.insert(face.facet);
+    bool apex=false;
+    if(!onFace && heights.count(reference.Get(face.facet).marker))for(const auto& cell:old.cells) {
+      unsigned count=0;bool hasVertex=false;
+      for(const auto& n:cell.v){count+=std::find(face.v.begin(),face.v.end(),n.id)!=face.v.end();hasVertex=hasVertex || n.id==vertex;}
+      apex=apex || (count==3 && hasVertex);
+    }
+    if(!apex && (!onFace || reference.Analytic().count(face.facet)))continue;
+    constrain(Cross(Delta(nodes.at(face.v[1]).p,nodes.at(face.v[0]).p),Delta(nodes.at(face.v[2]).p,nodes.at(face.v[0]).p)));
+  }
+  // Coplanar marker/chart seams restrict motion along their original shared edge too.
+  for(auto a=incident.begin();a!=incident.end();++a)for(auto b=std::next(a);b!=incident.end();++b) {
+    if(reference.Canonical(*a)==reference.Canonical(*b))continue;
+    const auto& left=reference.Get(*a);const auto& right=reference.Get(*b);
+    std::vector<Node> shared;
+    for(auto n:left.v)for(auto m:right.v)if(n.id==m.id)shared.push_back(n);
+    if(shared.size()!=2 || !OnEdge(shared[0].p,shared[1].p,origin,nullptr))continue;
+    const auto normal=Cross(Delta(left.v[1].p,left.v[0].p),Delta(left.v[2].p,left.v[0].p));
+    constrain(Cross(normal,Delta(shared[1].p,shared[0].p)));
   }
   auto displacement=Delta(proposal.p,origin);
   for(size_t i=0;i<rank;++i){const auto component=Dot(displacement,basis[i]);for(unsigned j=0;j<3;++j)displacement[j]-=component*basis[i][j];}
@@ -1103,16 +1117,24 @@ bool SplitSurfaceStrip(const Patch& old,Edge edge,Node point,const std::vector<s
       const auto found=physical.find(row.first);
       if(found!=physical.end())marked.emplace(Key(f),SurfaceFace{f,found->second.facet});
     }
-    Id facet=UINT64_MAX;unsigned incident=0;
+    Id facet=UINT64_MAX;unsigned incident=0;bool curved=false;
     for(const auto& row:physical)if(Has(row.second.v,edge[0]) && Has(row.second.v,edge[1])) {
-      if(facet!=UINT64_MAX && facet!=row.second.facet)
-        throw std::invalid_argument("Native3D off-edge strip split crosses a chart or marker junction.");
-      facet=row.second.facet;++incident;
+      const auto authority=reference.Analytic().find(row.second.facet);
+      curved=curved || (authority!=reference.Analytic().end() && authority->second.kind!=AnalyticSurface::Kind::Disk);
+      if(facet==UINT64_MAX)facet=row.second.facet;
+      ++incident;
     }
-    if(incident!=2 || !reference.Analytic().count(facet) ||
-       reference.Analytic().at(facet).kind==AnalyticSurface::Kind::Disk)
-      throw std::invalid_argument("Native3D off-edge strip split needs two same-chart curved faces.");
-    point.p=reference.Project(facet,point.p,stats);
+    if(incident!=2)throw std::invalid_argument("Native3D strip split needs a complete physical boundary edge.");
+    if(curved) {
+      for(const auto& row:physical)if(Has(row.second.v,edge[0]) && Has(row.second.v,edge[1]) && row.second.facet!=facet)
+        throw std::invalid_argument("Native3D off-edge strip split crosses a chart or marker junction.");
+      if(!reference.Analytic().count(facet) || reference.Analytic().at(facet).kind==AnalyticSurface::Kind::Disk)
+        throw std::invalid_argument("Native3D off-edge strip split needs two same-chart curved faces.");
+      point.p=reference.Project(facet,point.p,stats);
+    } else {
+      for(const auto& move:replacement)nodes.at(move.first)=move.second;
+      point=ProjectSplitPoint(edge,point,nodes,physical,reference,stats);
+    }
     const Edge split{mapped(edge[0]).id,mapped(edge[1]).id};SplitSkin(split,point,skin,marked);
     Patch proposal;
     for(const auto& cell:old.cells) {

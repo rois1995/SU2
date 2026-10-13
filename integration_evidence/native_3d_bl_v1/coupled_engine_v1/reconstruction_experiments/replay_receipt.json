@@ -1,0 +1,128 @@
+{
+  "scope": "Bounded offline floating placement/chain models only; returncode0 means experiment completed, not native acceptance or general feasibility",
+  "numpy": "1.24.4",
+  "scipy": "1.10.1",
+  "input_sha256": "95d98e049f838df69e902ce9abf3cfb4d6ba044aed1c245205e041caecd11ae7",
+  "cases": [
+    {
+      "script": "native_bl_chain_expanded_probe.py",
+      "script_sha256": "eb90440e53dee774b31b72553fb454ac2440348af08d66572c8916af571011cc",
+      "returncode": 0,
+      "log": "native_bl_chain_expanded_probe.log",
+      "log_sha256": "47cdcecfe1d98298a5943d13b5d12e1bbec242bd5a8c199d0aaf4beab486e329",
+      "elapsed_seconds": 0.45256131305359304
+    },
+    {
+      "script": "native_bl_chain_interior_probe.py",
+      "script_sha256": "3b27f4cfe05d94bb5b1d28ac43b490910814af10982511e99f03181a17f837f7",
+      "returncode": 0,
+      "log": "native_bl_chain_interior_probe.log",
+      "log_sha256": "17e1f99aae6893bde5310464eaf5738ec39732bb0986f8b3cca8ad3ed1ef862b",
+      "elapsed_seconds": 0.3537642250303179
+    },
+    {
+      "script": "native_bl_chain_moved_probe.py",
+      "script_sha256": "eaf377b2ce6f64bb217d6ab53554b82a57f078ac84ba9e932f407d45058bc735",
+      "returncode": 0,
+      "log": "native_bl_chain_moved_probe.log",
+      "log_sha256": "acb897cd8d95f960b8e103facb25028b23b0a6778057603c05e48c0261f99b7f",
+      "elapsed_seconds": 0.7077948680380359
+    },
+    {
+      "script": "native_bl_chain_multipt_probe.py",
+      "script_sha256": "85395788fc71696fefafbb59a51a7d1ae95dbafd3333daa8bd9ca1d8db75eb03",
+      "returncode": 0,
+      "log": "native_bl_chain_multipt_probe.log",
+      "log_sha256": "1a13d66f4fdf462da266195233ed8892e13cc85f4eda812a64e9c76f3bf6c653",
+      "elapsed_seconds": 1.0645286159124225
+    },
+    {
+      "script": "native_bl_chain_probe.py",
+      "script_sha256": "00d7b25158955bb6044f9a9f4c0e0d6c99f7c176c2eb09cc9fb4f5f18ebc2dff",
+      "returncode": 0,
+      "log": "native_bl_chain_probe.log",
+      "log_sha256": "07bb2890c32737d8324ba410c2c9c29a17652e03a89e8d4b114f82de0b79e73e",
+      "elapsed_seconds": 0.2906675720587373
+    },
+    {
+      "script": "native_bl_chain_relaxed_probe.py",
+      "script_sha256": "62b860509d9c1505eb753e6b7ca399559824cf42543870d38793c56bf2ccdff8",
+      "returncode": 0,
+      "log": "native_bl_chain_relaxed_probe.log",
+      "log_sha256": "88458b869f721b4c936cd96ca645f84541ff57dd91b858bb7b7765f2433a49b4",
+      "elapsed_seconds": 0.34048187197186053
+    },
+    {
+      "script": "native_bl_chain_sanity_probe.py",
+      "script_sha256": "c84565e6c283505edbabfae3aa8a5265449c1f4f16de2656b83a7644ec193dc8",
+      "returncode": 0,
+      "log": "native_bl_chain_sanity_probe.log",
+      "log_sha256": "c6eecc856c4f74c46f56b0e9577189c562596f45411fbeb1576ee852eb52b9f3",
+      "elapsed_seconds": 0.29238968796562403
+    },
+    {
+      "script": "native_bl_chain_seam_expanded_probe.py",
+      "script_sha256": "06e0ccbbe0ce830151797916b91a1881cd6daa1917260c5bd21f4412ca2a79b9",
+      "returncode": 0,
+      "log": "native_bl_chain_seam_expanded_probe.log",
+      "log_sha256": "a7c2e8a669146220a947d75c609d4f6ae779b643a8aa46090e2ee1feee7c9bed",
+      "elapsed_seconds": 0.5516266151098534
+    },
+    {
+      "script": "native_bl_chain_seam_probe.py",
+      "script_sha256": "3aa87143a8f57ad63c99ad3237fde60c5ae45db2e8c95b9265deec8bb4930b04",
+      "returncode": 0,
+      "log": "native_bl_chain_seam_probe.log",
+      "log_sha256": "0929b49511bf04f87a900acaabb6c961b9b5f816c13b41e0aca040bbf636ad85",
+      "elapsed_seconds": 0.2917036880971864
+    },
+    {
+      "script": "native_bl_chain_surface_probe.py",
+      "script_sha256": "160d5fe288fb27af8b951840cf6d7d0522334aa276193c8fc96d113562ad267d",
+      "returncode": 0,
+      "log": "native_bl_chain_surface_probe.log",
+      "log_sha256": "07bb2890c32737d8324ba410c2c9c29a17652e03a89e8d4b114f82de0b79e73e",
+      "elapsed_seconds": 0.2940441280370578
+    },
+    {
+      "script": "native_bl_flip_probe.py",
+      "script_sha256": "bc3badae2aec45cc6315f7a51e2efe56d10b949fea52bc63de072850f9b3fe2b",
+      "returncode": 0,
+      "log": "native_bl_flip_probe.log",
+      "log_sha256": "570786c49c1f43ed24ca461b1350e4986622369639746f617e6abd8e0cad19e2",
+      "elapsed_seconds": 0.04280600999481976
+    },
+    {
+      "script": "native_bl_joint_full_opt_probe.py",
+      "script_sha256": "4ae6a0b9b4c22ddc542f5a1f5ea2380a27ac89c1047b462efce71a3f0c0b2ef4",
+      "returncode": 0,
+      "log": "native_bl_joint_full_opt_probe.log",
+      "log_sha256": "b569efa01140b1fe1333508b89f32dfedee3e6c3d3bc36b2caa90ecb06b8710a",
+      "elapsed_seconds": 0.39485770103055984
+    },
+    {
+      "script": "native_bl_joint_opt_probe.py",
+      "script_sha256": "6ca1ac080436168307c590fe9bbbf14fc44a7f0a01b1200d8ba94b043b2721b5",
+      "returncode": 0,
+      "log": "native_bl_joint_opt_probe.log",
+      "log_sha256": "e721f2b8a18490a45e2fe0ff18a2ebc59625e809c07455fada8ad56e213f94fe",
+      "elapsed_seconds": 0.2918203870067373
+    },
+    {
+      "script": "native_bl_placement_probe.py",
+      "script_sha256": "2cb27c925ef91e46f8cf64b37ec963600eeaae520a373ba076487781e9197943",
+      "returncode": 0,
+      "log": "native_bl_placement_probe.log",
+      "log_sha256": "4df9fc8a2fa6ad23195dfa758fe21e7140e77fb76c7437940d4cb3e04d5ec4e8",
+      "elapsed_seconds": 10.007859710021876
+    },
+    {
+      "script": "native_bl_three_move_probe.py",
+      "script_sha256": "76296046e0c6dacbfe0a024bd5fd3a39546218fafbc1d12ed6ecb8c93021c6b1",
+      "returncode": 0,
+      "log": "native_bl_three_move_probe.log",
+      "log_sha256": "8a7e03462d979b4030723c0dd935ed4cf64119a32568aae577cdff057cea7bd6",
+      "elapsed_seconds": 1.4478024509735405
+    }
+  ]
+}

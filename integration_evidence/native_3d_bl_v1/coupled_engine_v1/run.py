@@ -17,6 +17,7 @@ SOURCES = [
  'Common/include/adaptation/CNativeEngine3D.hpp','Common/src/adaptation/CNativeEngine3D.cpp',
  'Common/include/adaptation/CNativeBoundary3D.hpp','Common/src/adaptation/CNativeBoundary3D.cpp',
  'Common/src/adaptation/CNativeDistributed3D.cpp','Common/src/adaptation/CNativeMetric3D.cpp',
+ 'UnitTests/Common/adaptation/fixtures/native_bl_corner.inc','UnitTests/Common/adaptation/fixtures/native_joint_obstruction.inc',
  'Common/include/adaptation/CNativeMetric3D.hpp','UnitTests/Common/adaptation/CNativeMetric3D_tests.cpp',
  'UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp',
  'SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp','SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp',
@@ -57,6 +58,8 @@ def main():
         provenance['object:' + name] = digest(ROOT / 'integration_evidence/build-integrated-v2' / name)
     stages = [
       ('balanced_analytic','[NativeBalancedSplit3D]',1),
+      ('joint_witness','[NativeBLCorner3D],[NativeBLCornerGrouped3D],[NativePlanarStrip3D],[NativeSurfaceStrip3D]',1),
+      ('grouped_coupled_mpi1','[NativeCoupledBLGrouped3D]',1),
       ('metric_movement','[NativeMetricMove3D]',1),
       ('microscopic_balance','Native 3D composed edges resolve a microscopic BL without spreading donor tensors',1),
       ('coupled_mpi1','[NativeCoupledBL3D]',1),
@@ -69,8 +72,13 @@ def main():
       ('coupled_mpi2','[NativeCoupledBL3D]',2),
       ('coupled_mpi4','[NativeCoupledBL3D]',4),
     ]
+    requested=sys.argv[1:]
+    if requested:
+        unknown=set(requested)-{stage[0] for stage in stages}
+        if unknown:raise ValueError('Unknown stages: '+','.join(sorted(unknown)))
+        stages=[stage for stage in stages if stage[0] in requested]
     cpu = int((HERE / 'selected_cpu.txt').read_text())
-    environment = dict(os.environ, OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', OMPI_MCA_mpi_yield_when_idle='1')
+    environment = dict(os.environ, OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', OMPI_MCA_mpi_yield_when_idle='1', SU2_NATIVE_CURVED_EVIDENCE='1')
     receipts = []
     for name, selection, ranks in stages:
         record = HERE / (name + '.json')
@@ -78,7 +86,7 @@ def main():
         if ranks>1: command += ['mpirun','--oversubscribe','--bind-to','none','-np',str(ranks)]
         command += [str(BINARY), selection, '--reporter', 'compact']
         contract = {'provenance': provenance, 'command': command, 'MPI_ranks': ranks,
-                    'environment': {'OMP_NUM_THREADS': '1', 'OPENBLAS_NUM_THREADS': '1', 'OMPI_MCA_mpi_yield_when_idle': '1'}}
+                    'environment': {'OMP_NUM_THREADS': '1', 'OPENBLAS_NUM_THREADS': '1', 'OMPI_MCA_mpi_yield_when_idle': '1','SU2_NATIVE_CURVED_EVIDENCE':'1'}}
         if name in ('coupled_mpi2','coupled_mpi4') and not any(r['stage']=='coupled_mpi1' and r['status']=='PASS' for r in receipts):
             receipt={'stage':name,'status':'NOT_RUN','reason':'Serial coupled construction has not passed; do not repeat known failure on more ranks.'}
             receipts.append(receipt)
@@ -101,7 +109,7 @@ def main():
                 code = 124
         text = log.read_text()
         matches = re.findall(r'Passed (?:(?:all|both) )?(\d+) test cases? with (\d+) assertions?', text)
-        expected = 2 if name.startswith('height_engine_') or name=='metric_movement' else 1
+        expected = 4 if name=='joint_witness' else (2 if name.startswith('height_engine_') or name in ('metric_movement','balanced_analytic') else 1)
         passed = code == 0 and len(matches) == ranks and all(int(c)==expected for c,a in matches)
         receipt = {'stage': name, 'status': 'PASS' if passed else 'FAIL', 'returncode': code,
                    'contract': contract, 'log': log.name, 'log_sha256': digest(log),
@@ -110,10 +118,10 @@ def main():
         receipts.append(receipt)
         print(name + ': ' + receipt['status'], flush=True)
     status = 'PASS' if all(r['status'] == 'PASS' for r in receipts) else 'FAIL'
-    aggregate = HERE / 'validation.json'
+    aggregate = HERE / ('validation_focused.json' if requested else 'validation.json')
     if aggregate.exists():
         aggregate.rename(HERE / ('validation_previous_' + str(time.time_ns()) + '.json'))
-    (HERE / 'validation.json').write_text(json.dumps({'status': status, 'stages': receipts,
+    (HERE / ('validation_focused.json' if requested else 'validation.json')).write_text(json.dumps({'status': status, 'stages': receipts,
         'limitations': ['No production wrapper, CFD, transfer, curved/interacting-wall BL or performance qualification',
                         'Whole campaign passes only when complete coupled construction/removal passes every requested rank']}, indent=2) + '\n')
     return 0 if status == 'PASS' else 1

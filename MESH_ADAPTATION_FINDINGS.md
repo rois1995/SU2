@@ -1,3 +1,57 @@
+# Goal3 independently accepted joint witness — 2026-10-13
+
+Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
+Branch: codex/native-3d-bl; preceding published checkpoint 15e5b2575e.
+Goal3 ACTIVE and incomplete. Production configured-BL guard remains unchanged.
+No active owned job at this checkpoint. No CFD or cluster job launched.
+
+The ordinary wall/far-marker cube still stalls in the engine, with the same
+corner edge as the distinct-marker seam case. A saved private reconstruction now
+establishes that the ordinary-marker target is attainable locally: split the
+corner edge at a biased full-target coordinate and move the two surface
+neighbors together, using their complete 14-cell union of incident stars.
+The resulting whole mesh has 101 cells and32 points; native frozen-field gates
+and an independent exact embedding/coverage/volume and analytic BL audit PASS.
+Volume1, minimum quality0.2127185473, minimum scaled Jacobian0.0509273888,
+maximum integrated edge1.7936404888<1.8, two wall faces, height error0 and tilt0.
+The witness has narrow sliver margin; this is one validated repair, not a
+robustness envelope. No sensor/geometry/height/metric gate was relaxed.
+
+Inspect integration_evidence/native_3d_bl_v1/coupled_engine_v1/
+grouped_joint_witness.su2 and independent_witness_audit.json. The immutable
+validated_witness_v1 snapshot preserves its passing native receipt/log, original
+accepted private coordinates, audit and mesh across subsequent campaigns.
+These are kernel meshes without flow solutions, not a qualified RANS workflow.
+
+The existing surface-strip primitive now supports exact planar boundary splits
+with coordinated complete-star movement while retaining curved off-edge rules,
+finite markers, fixed interfaces, positivity and output rollback. Movement
+constraints retain original coplanar marker seams and free same-marker canonical
+patches. Full-target split placement accepts a bounded fraction in(0,1), default
+half unchanged. Native focused split checks and four strip/witness checks PASS. Compatibility
+checks for movement/microscopic BL splitting, first-height and composed startup
+on MPI1/2/4 also PASS on this binary.
+Both accepted and rejected full-engine frames are now exported for auditing.
+The resumable runner can select named stages without overwriting full-campaign
+failure evidence; fixture and binary provenance remain pinned.
+
+Important: the witness was found by an offline joint placement optimizer. The
+simple common damping of metric-spring displacement did not find a complete
+repair. The successful points move appreciably tangentially but only slightly
+normally; next try bounded metric-direction damping and split placement together,
+then integrate complete versioned star admission/atomic publication. Do not
+hardcode the witness into production or claim a full engine adaptation from it.
+Distinct-marker seam case, Euler release, complete remeshing MPI and all wider
+Goal3 requirements remain unresolved. The user authorizes Goal4 immediately only
+once the full Goal3 completion audit passes.
+
+Bounded reconstruction experiments are preserved under reconstruction_experiments.
+Fixed skins/point sets, selected insertions, swaps and seam edits rejected several
+limited models; the unsplit and relaxed controls passed. These floating/MILP
+experiments do not prove global infeasibility. Native/exact acceptance is separate.
+
+Earlier entries below are historical.
+
 # Goal3 coupled BL engine checkpoint — 2026-10-13
 
 Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.

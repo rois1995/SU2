@@ -376,3 +376,10 @@ TEST_CASE("Native3D split placement balances full target and preserves constant-
   CHECK(graded.Query(point).sensor.zz==1);
   FrozenField missing({donor},[](Point,Tensor sensor){return sensor;});CHECK_THROWS(missing.BalancedSplitPoint(a,b));
 }
+
+TEST_CASE("Full target split placement admits bounded biased proposals without changing the target", "[NativeBalancedSplit3D]") {
+  DonorCell donor;donor.cell={0,{{{0,{0,0,0}},{1,{2,0,0}},{2,{0,2,0}},{3,{0,0,2}}}}};donor.sensor.fill({1,0,0,1,0,1});FrozenField field({donor});
+  CHECK(field.BalancedSplitPoint({0,0,0},{1,0,0},.55).x==Approx(.55));
+  CHECK_THROWS(field.BalancedSplitPoint({0,0,0},{1,0,0},0));CHECK_THROWS(field.BalancedSplitPoint({0,0,0},{1,0,0},1));
+  CHECK(field.Query({.55,0,0}).sensor.xx==1);
+}
