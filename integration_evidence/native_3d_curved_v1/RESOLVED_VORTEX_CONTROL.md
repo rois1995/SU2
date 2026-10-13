@@ -67,3 +67,9 @@ metric quality.32554, maximum exact source edge1.7997280572, transported-metric
 residual2.10124e-16; second event residual1.92835e-16. Exact geometry, field,
 conservative current+BDF integrals/positivity, new/lost domain and restart checks
 passed. Ten MPI event certificates remain in the same sequential audit job.
+
+Independent MPI2 qualification: M1 and M2 both passed two full event audits;
+mpi2_lifecycle_validation.json pins all four certificates after verifying every
+input/helper/script hash. Together with serial, six of twelve events are now
+qualified independently. The same controller2009 has started MPI4; no new native
+CFD/adaptation run is required.

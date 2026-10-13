@@ -1,29 +1,26 @@
-# Goal 2 resolved Euler serial independent lifecycle qualified; MPI audit active — 2026-10-13
+# Goal 2 serial and MPI2 independent lifecycles qualified; MPI4 audit active — 2026-10-13
 
-Working repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
-Branch codex/native-3d-curved-local; previous published0fc7a8dabea9.
-Goal ACTIVE; full objective retained, completion INCOMPLETE.
+Repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
+Branch: codex/native-3d-curved-local; previous published49ee2b035b4b.
+Goal ACTIVE; completion INCOMPLETE; full original objective retained.
 
-resolved_vortex_audit_v2/serial_lifecycle_validation.json PASS_SERIAL_TWO_EVENTS_ONLY.
-Both serial events passed independent exact positive volumes/no-overlap/manifold,
-complete original-P1-or-declared-extension metric edge coverage, quality/sliver/
-length gates, actual transported tensor residuals, conservative current+BDF
-integrals/positivity/new-lost-domain accounting, immutable geometry provenance,
-SU2 mesh signatures, refreshed nonuniform CFD metrics and real restart states.
-Every input/helper/script hash was rechecked before publishing this summary.
-First event:2767tets/655points, minimumq.32554, maxmetricedge1.7997280572,
-transported residual2.10124e-16, sampled surface error3.05025e-6.
-Second event:2763tets/656points, transported residual1.92835e-16.
+resolved_vortex_audit_v2 has six complete PASS event certificates: both serial
+N1/M1 events and all four MPI2 events (M1/M2, two each). Independent summaries:
+serial_lifecycle_validation.json and mpi2_lifecycle_validation.json. Every
+certificate's script/helper/input hash was rechecked before publication.
+All actual geometry/embedding/source/shape/length/transport/conservation/current+
+BDF/positivity/reference/output/restart checks passed. MPI2 results demonstrate
+both M=N and M<N, with freshly solved nonuniform pressure metrics at both events.
 
-Sole owned audit controller2009 is live; it has started MPI2/M1. Ten MPI event
-certificates remain (N2M1/M2,N4M1/M2/M4; two events each). Native entire matrix
-already PASS; no CFD/adaptation/build is repeated. Revalidate this handle rather
-than restarting from elapsed time. One CPU/nice19/threads1. The original whole-
-batch audit timeout and all native inputs/states/grids remain preserved.
+Sole owned controller2009 now audits MPI4/M1. Six MPI4 event certificates remain
+(M1/M2/M4, two each). Native complete MPI matrix already PASS; no CFD/build or
+broad regression is repeated. Revalidate this handle; do not restart from elapsed
+time or a log alone. One CPU/nice19/threads1. Original whole-batch audit timeout,
+source/build/binary provenance and every required mesh/state remain preserved.
 
-Next: finish the ten MPI independent certificates, inspect the full original
-requirement map, then push completed evidence before declaring Goal2complete.
-No cluster/performance/generalCAD/production3DBL/fullphysical-unsteady/forces or
+Next: finish the six MPI4 independent certificates and inspect the full original
+requirement map; push final proof before declaring Goal2complete. No performance,
+cluster, generalCAD, production3DBL, fullphysical-unsteady, force-convergence or
 arbitrary-mesh feasibility claim. AdapNoExt/foreignClusterResults/dependencies
 untouched. Permanent AGENTS batching cadence applies.
 

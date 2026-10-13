@@ -1,0 +1,77 @@
+{
+  "status": "PASS_MPI2_FOUR_EVENTS_ONLY",
+  "ranks": 2,
+  "results": {
+    "resolved_vortex_m1": [
+      {
+        "cells": 2767,
+        "points": 655,
+        "volume": 16.000437920520227,
+        "analytic_domain_volume": 16.000444444444444,
+        "minimum_metric_mean_ratio": 0.3255385949935696,
+        "minimum_metric_scaled_jacobian": 0.13219648179845028,
+        "maximum_exact_source_metric_edge": 1.7997280528948687,
+        "transported_metric_relative_error": 2.0740620258211558e-16,
+        "sampled_surface_error": 3.0502507716049434e-06,
+        "fill_volume": 1.4801986171875765e-06,
+        "lost_volume": 1.8527169953338682e-06,
+        "conservative_actual_state_integrals_match_target": true,
+        "exact_positive_volume_conformity_no_overlap": true
+      },
+      {
+        "cells": 2755,
+        "points": 654,
+        "volume": 16.000437628377558,
+        "analytic_domain_volume": 16.000444444444444,
+        "minimum_metric_mean_ratio": 0.3070331173071437,
+        "minimum_metric_scaled_jacobian": 0.09217761496495189,
+        "maximum_exact_source_metric_edge": 1.7974176569931317,
+        "transported_metric_relative_error": 1.8910021075247858e-16,
+        "sampled_surface_error": 3.0502507716049434e-06,
+        "fill_volume": 2.4804311977955854e-07,
+        "lost_volume": 5.40185284869741e-07,
+        "conservative_actual_state_integrals_match_target": true,
+        "exact_positive_volume_conformity_no_overlap": true
+      }
+    ],
+    "resolved_vortex_m2": [
+      {
+        "cells": 2778,
+        "points": 655,
+        "volume": 16.000437881113896,
+        "analytic_domain_volume": 16.000444444444444,
+        "minimum_metric_mean_ratio": 0.3255385949935696,
+        "minimum_metric_scaled_jacobian": 0.13219648179845028,
+        "maximum_exact_source_metric_edge": 1.7997280528948687,
+        "transported_metric_relative_error": 2.0740620258211558e-16,
+        "sampled_surface_error": 3.0502507716049434e-06,
+        "fill_volume": 1.4720495520779107e-06,
+        "lost_volume": 1.8839741398246276e-06,
+        "conservative_actual_state_integrals_match_target": true,
+        "exact_positive_volume_conformity_no_overlap": true
+      },
+      {
+        "cells": 2744,
+        "points": 645,
+        "volume": 16.000436929919918,
+        "analytic_domain_volume": 16.000444444444444,
+        "minimum_metric_mean_ratio": 0.24222787739658375,
+        "minimum_metric_scaled_jacobian": 0.0816270095611615,
+        "maximum_exact_source_metric_edge": 1.7999493229626433,
+        "transported_metric_relative_error": 2.0496143147855896e-16,
+        "sampled_surface_error": 4.9672067901234634e-06,
+        "fill_volume": 2.714380831343689e-07,
+        "lost_volume": 1.2226310429192498e-06,
+        "conservative_actual_state_integrals_match_target": true,
+        "exact_positive_volume_conformity_no_overlap": true
+      }
+    ]
+  },
+  "certificate_sha256": {
+    "event_n2_m1_s0.json": "a3a1d0e8ef7ff16e33040cba3f5f4c8ae67c89212cb43f9d08f86b908ab976cf",
+    "event_n2_m1_s1.json": "6d098a5f86efc239b95045eacbe61472aafed79256fbf7c3e3e8ed32c4ce8de1",
+    "event_n2_m2_s0.json": "297b6fb3db5fb778ae42087573ad62de83f7448fa304d1cdb8de470592a3c716",
+    "event_n2_m2_s1.json": "9b8702a80e001c3e7617ae52c03af2b73384cef607a711d85ee52252a61a872d"
+  },
+  "scope": "Full independent MPI2 M=N and M<N geometry/source/quality/length/transport/current+BDF conservation/positivity/output/restart proof. Six MPI4 events and final original-scope review remain pending."
+}

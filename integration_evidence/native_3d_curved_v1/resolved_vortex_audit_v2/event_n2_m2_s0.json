@@ -1,0 +1,42 @@
+{
+  "status": "PASS_RESOLVED_VORTEX_EVENT",
+  "selection": [
+    2,
+    2,
+    0
+  ],
+  "result": {
+    "cells": 2778,
+    "points": 655,
+    "volume": 16.000437881113896,
+    "analytic_domain_volume": 16.000444444444444,
+    "minimum_metric_mean_ratio": 0.3255385949935696,
+    "minimum_metric_scaled_jacobian": 0.13219648179845028,
+    "maximum_exact_source_metric_edge": 1.7997280528948687,
+    "transported_metric_relative_error": 2.0740620258211558e-16,
+    "sampled_surface_error": 3.0502507716049434e-06,
+    "fill_volume": 1.4720495520779107e-06,
+    "lost_volume": 1.8839741398246276e-06,
+    "conservative_actual_state_integrals_match_target": true,
+    "exact_positive_volume_conformity_no_overlap": true
+  },
+  "script_sha256": "62818975d229e17e92fb56f61f1ec74633035b92be87e38226e726a777ce70e4",
+  "inputs_sha256": {
+    "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/validation.json": "90a919b66fded2339bfbbda0e6d27f20c9ad80f25fe02aeb2234a0534174af71",
+    "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi2/resolved_vortex_m2_s0_accepted.json": "b490e3af03f2f163df2c5647ca3c142ed2c718242470cb32f4c2d82583704b12",
+    "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi2/resolved_vortex_m2_s0_initial.json": "549a47f1d2b230f64b6060f87ebab4fdb3e1f7207aed15e5492a42b16dafe17e",
+    "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi2/resolved_vortex_m2_s0_source.json": "f37f0836ad11d5e40fa1a7ec67e56404b791176ece713e6b1b4c2099ed21b951",
+    "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi2/resolved_vortex_m2_s0_states.json": "661817b43e6081d7f0917385d9a8ab42dd9bc558ffae1fd302e7911c8044e6aa",
+    "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi2/resolved_vortex_m2_s0_projection.json": "628e5eb877380840e1f12f26dc9fd5d9d1c1b6d2b3b539b5eac6cb209f41456f",
+    "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi2/resolved_vortex_m2_mesh_00001.su2": "e0618de8d61a1de0a3b7f8c275fd8164685f4a2853abb4c866416aeebfc87748",
+    "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi2/resolved_vortex_m2_mesh_00001.su2.native_ref": "97f5f223c13e439a008cc63e2cfbe5e2fd71d10d6e6759afaeecee916b554136",
+    "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi2/resolved_vortex_m2_s1_source.json": "2bc4ac96a6ac11fa2675789da00ae974aee928f4a39c7f06f19b1480acb42062",
+    "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi2/resolved_vortex_m2_restart_states.json": "a3d960e74b761edd4a259b9a0d9d3c3ae6731330f758a6622a91b01be02ecb17"
+  },
+  "helper_sha256": {
+    "audit_coupled.py": "67a12c5c39c6c3e021473f49c1f14301f037d7883268b98d7afc9edc2b00f63b",
+    "audit_cavities.py": "26079385c071c3ad1b9c06ab3b862b4ff293367dc3c8d291acf0487089d062c5",
+    "audit_geometry_bridge.py": "d8d5e8a18a0fce8f54f8407e9f0027dcea12d90bf64c5ab20c4dedb7194430e2"
+  },
+  "scope": "One full event, unchanged exact geometry/embedding/source/quality/length/transport/current+BDF conservation and positivity/output/reference checks; also actual two-event metric refresh and real restart. Complete goal requires all twelve planned event certificates."
+}
