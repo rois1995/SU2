@@ -37,6 +37,7 @@ CMutationTCLib::CMutationTCLib(const CConfig* config, unsigned short val_nDim): 
   /* Allocating memory*/
   Cv_ks.resize(nEnergyEq*nSpecies,0.0);
   es.resize(nEnergyEq*nSpecies,0.0);
+  hs_work.resize(4*nSpecies,0.0);
   omega_vec.resize(1,0.0);
   CatRecombTable.resize(nSpecies,2) = 0;
 
@@ -182,7 +183,26 @@ su2double CMutationTCLib::ComputeEveSourceTerm(){
 
 vector<su2double>& CMutationTCLib::ComputeSpeciesEnthalpy(su2double val_T, su2double val_Tve, su2double *val_eves){
 
-  mix->getEnthalpiesMass(hs.data());
+  /*--- Use the temperatures of the caller (for example the mean state of an edge), and not the
+        state that was set last in the mixture. In the two-temperature model the rotational mode
+        follows T, and the vibrational, electronic and free-electron modes follow Tve.
+        Mutation++ returns the enthalpies divided by Ru*T. ---*/
+
+  su2double* h   = hs_work.data();
+  su2double* ht  = h + nSpecies;
+  su2double* hv  = ht + nSpecies;
+  su2double* hel = hv + nSpecies;
+
+  mix->speciesHOverRT(val_T, val_Tve, val_T, val_Tve, val_Tve, h, ht, nullptr, hv, hel, nullptr);
+
+  for (iSpecies = 0; iSpecies < nSpecies; iSpecies++) {
+    const su2double RuT_M = Mutation::RU * val_T / mix->speciesMw(iSpecies);
+    hs[iSpecies] = h[iSpecies] * RuT_M;
+    hs[nSpecies+iSpecies] = (hv[iSpecies] + hel[iSpecies]) * RuT_M;
+  }
+
+  /*--- The translational energy of the free electrons belongs to the vibrational-electronic mode. ---*/
+  if (mix->hasElectrons()) hs[nSpecies] = ht[0] * Mutation::RU * val_T / mix->speciesMw(0);
 
   return hs;
 }
