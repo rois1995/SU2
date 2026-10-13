@@ -1,0 +1,47 @@
+{
+  "stage": "original_reference",
+  "status": "PASS",
+  "returncode": 0,
+  "contract": {
+    "provenance": {
+      "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "1226afd13e791c0121483adf38374a7ac2a524e3c1d7db81816c86ca25861d1a",
+      "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "0700d6b1a6edce5f9d6491fb2e937272702819badd09eee2d6de10d69774d0f6",
+      "SU2_CFD/include/adaptation/ConvexClipping.hpp": "f9a92bc81c3588dda386606d2ad6ab63f808af9831c7d8ec9ad3120b48ffa9cf",
+      "SU2_CFD/include/solvers/CSolver.hpp": "958122df6694b375a561e65f1a8d9b0d379c0f3d8ca6b4095454d44f66e9ab55",
+      "SU2_CFD/src/solvers/CSolver.cpp": "750c0547514963c0a350843bc7b1ab6c630fc2f6210af505170b8509148c94c4",
+      "SU2_CFD/src/drivers/CSinglezoneDriver.cpp": "3ef049da812f9b87259918ea7fa9b214ae63368041d80c9114923f2e447f8727",
+      "Common/include/adaptation/CNativeRemesher3D.hpp": "6c1aff6bc10d746ae4946bb50a19c0c2e5d1d7e5d21ff471c2974609a79099f1",
+      "Common/src/adaptation/CNativeRemesher3D.cpp": "7016c7b411331f297e35067a67099d5e2e574ce026ab06fa0b66af033c1bae3f",
+      "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "a6444bf360d1f2b1582f08aeb4c5c8376c481ceb2564c4fe65e5f5875bb738f0",
+      "binary": "ca8760ad606ad998a002219d214137a6194a7a145a5d783562ce6ebc658a0982",
+      "helper": "3ea94d6bf6d4cc6e155b271df0a69e71f48f645143c91ced622d4600049ce362",
+      "compile_commands": "17a19ce625ceabf3f70dba005aebef0990be029c491666e86144787717316540",
+      "object:SU2_CFD/src/libSU2core.a.p/solvers_CSolver.cpp.o": "b49280c508063d6533caec8fa461082f4db8eebdeca66c0349f5b0cb3cb3d05a",
+      "object:SU2_CFD/src/libSU2core.a.p/drivers_CSinglezoneDriver.cpp.o": "722f44ea91db989f0fb5b1ea2ae5e4f282786c81ed70a61ab6b5dce382ee93a1",
+      "object:Common/src/libSU2Common.a.p/adaptation_CNativeRemesher3D.cpp.o": "e59167009d65c4ab8eb8d3387ebffb5328d446a980dd2365b2381136162bc876",
+      "object:SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerMetric.cpp.o": "697cd88d84515d270381aa9339a343d3b0b11b9532ea0e72de4d1dc76a5ce9af",
+      "object:UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o": "7b6f8291e6a95ec089d9597ac98b55ab3540704e3174c7510669fea7417909f5"
+    },
+    "command": [
+      "taskset",
+      "-c",
+      "5",
+      "nice",
+      "-n",
+      "19",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+      "Native3D complexity reference does not rebase the wall on the adapted surface",
+      "--reporter",
+      "compact"
+    ],
+    "MPI_ranks": 1,
+    "environment": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1"
+    }
+  },
+  "log": "original_reference_1791882657274000228.log",
+  "log_sha256": "ace3a5374e856a16d6c8988a5f3c92848dca0ad45459076563ce221e0170acc2",
+  "elapsed_seconds": 0.41844519902952015,
+  "scope": "serial kernel correctness only"
+}

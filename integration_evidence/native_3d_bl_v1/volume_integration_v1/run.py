@@ -88,6 +88,9 @@ def main():
         receipts.append(receipt)
         print(name + ': ' + receipt['status'], flush=True)
     status = 'PASS' if all(r['status'] == 'PASS' for r in receipts) else 'FAIL'
+    aggregate = HERE / 'validation.json'
+    if aggregate.exists():
+        aggregate.rename(HERE / ('validation_previous_' + str(time.time_ns()) + '.json'))
     (HERE / 'validation.json').write_text(json.dumps({'status': status, 'stages': receipts,
         'limitations': ['No native BL remesh, first-height or analytic authority qualification',
                         'No CFD, MPI consistency, AD runtime or performance qualification']}, indent=2) + '\n')

@@ -26,7 +26,12 @@ reject pending genuine analytic distance/normal implementation, rather than usin
 facets as a substitute. Production remeshing still rejects3DBL until first-height
 and coordinated transition construction are qualified. General goal scope is intact.
 
-One grouped build is in progress; no result is yet promoted. Planned cases:
+The grouped build and focused checks are terminal. Five stages PASS, but the
+whole aggregate is FAIL: hidden finite-wall support exhausts65536points.
+Closest-feature support directions resolve the original depth failure; direct
+tetrahedral rules avoid redundant fans but do not complete this case. Preserve
+the target/caps and address feature-aware integration. See failed aggregate,
+per-case receipts and REJECTED_EXPERIMENTS.json. Cases:
 microscopic coarse tetrahedron vs independent one-dimensional integral, positive
 weights/volume/first and second moments/reversed orientation, production coarse-cube
 BL complexity with sensor-only tensors, immutable wall extraction, changing nearest

@@ -1,3 +1,19 @@
+# Goal3 thin-volume check finds an algorithmic cost limit — 2026-10-13
+
+Five latest serial stages pass, including actual native3D complexity on a coarse
+cube and original-P1/BL quadrature accuracy/moments. The full new aggregate FAILS:
+a finite wall missed by all coarse-cell vertices still reaches65536quadrature
+points. Closest-feature separating directions resolved its earlier depth-limit
+failure; direct tetrahedral rules avoid redundant coning but do not remove the
+point-budget failure. This is a geometric integration/construction cost issue,
+not a CFD roundoff excuse or evidence of a valid adapted BL grid. Use feature-aware
+support partition/integration next; preserve targets, caps and the failing case.
+Two invalid HMIN>h0 fixtures were corrected without changing configuration checks.
+Actual failure sources/receipts are retained in native_3d_bl_v1/volume_integration_v1.
+Production BL/analytic-distance guards stay intact; whole Goal3 remains active.
+
+Earlier findings below are historical.
+
 # Goal3 thin-volume/complexity implementation under verification — 2026-10-13
 
 NativeIntegrated/codex/native-3d-bl now has3D distance-band volume quadrature using

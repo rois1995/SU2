@@ -30,7 +30,7 @@
     {
       "id": "thin_volume",
       "scope": "thin BL quadrature inside coarse tetrahedra; convergence and complexity consistency",
-      "status": "implemented with production complexity wiring; grouped build77854 live; five focused new cases pending"
+      "status": "production/faceted/planar and nearest-face checks PASS; whole aggregate FAIL: hidden finite-wall support reaches65536point budget; algorithmic integration improvement required"
     },
     {
       "id": "construction",
@@ -81,12 +81,11 @@
   ],
   "execution": "one heavy job; focused tests before meaningful broader milestone; resumable proven cases; no cluster submission",
   "evidence": [
-    "edge_integration_v1/validation.json"
+    "edge_integration_v1/validation.json",
+    "volume_integration_v1/validation_direct_tet_failed.json"
   ],
   "execution_state": {
-    "build_session": 77854,
-    "status": "running as last verified",
-    "folder": "volume_integration_v1",
+    "status": "all owned jobs terminal",
     "CFD_runs": 0
   }
 }

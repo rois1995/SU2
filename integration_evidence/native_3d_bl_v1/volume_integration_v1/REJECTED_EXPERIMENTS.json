@@ -1,0 +1,17 @@
+{
+  "base": "cb2c645590ba78947bccfed1073d1adebdccf0a8",
+  "first_attempt": "Initial full build: invalid fixture hmin>h0; hidden support unresolved at depth32",
+  "support_fix": {
+    "patch": "support_fix_experiment.patch",
+    "exact_source_hashes_verified": true,
+    "outcome": "complexity/reference PASS; hidden support reaches unchanged65536-point budget"
+  },
+  "direct_tet": "Current source avoids redundant tetrahedral fans; five stages PASS, hidden support still exhausts65536points",
+  "limits_unchanged": {
+    "points": 65536,
+    "geometry_visits": 16384,
+    "depth": 32,
+    "pieces": 4096
+  },
+  "next": "Replace excess spatial subdivision with feature-aware integration; no target/cap relaxation"
+}

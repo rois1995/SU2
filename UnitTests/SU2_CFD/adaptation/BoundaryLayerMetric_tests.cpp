@@ -1024,7 +1024,7 @@ TEST_CASE("Native3D complexity integrates the geometric BL with sensor-only dono
   const double h0=1e-4,T=.02;
   const auto mesh=simplex_test::MakeSimplexMesh(3,2,[](const passivedouble* x){return x[2]==0?"wall":"far";});
   MetricTest test(mesh,"MARKER_HEATFLUX= (wall,0)\nMARKER_FAR= (far)\nADAP_REMESHER= NATIVE_CAVITY\n"
-                       "ADAP_SURFACE= YES\nADAP_ISO_CORNER= NO\nADAP_HGRAD= 1.3\nADAP_HMIN= .5\nADAP_HMAX= 1\n"
+                       "ADAP_SURFACE= YES\nADAP_ISO_CORNER= NO\nADAP_HGRAD= 1.3\nADAP_HMIN= 1e-4\nADAP_HMAX= 1\n"
                        "ADAP_ARMAX= 100\nADAP_COMPLEXITY= 100\nADAP_BL_MARKER= (wall)\nADAP_BL_FIRST_HEIGHT= (1e-4)\n"
                        "ADAP_BL_GROWTH= (1)\nADAP_BL_THICKNESS= (.02)\n",{1,0,0,1,0,1});
   const auto output=test.ComputeMetric();INFO(output);
@@ -1046,7 +1046,7 @@ TEST_CASE("Native3D complexity reference does not rebase the wall on the adapted
   using namespace SU2Native3D;
   auto mesh=simplex_test::MakeSimplexMesh(3,2,[](const passivedouble* x){return x[2]==0?"wall":"far";});
   MetricTest test(mesh,"MARKER_HEATFLUX= (wall,0)\nMARKER_FAR= (far)\nADAP_REMESHER= NATIVE_CAVITY\n"
-                       "ADAP_SURFACE= YES\nADAP_ISO_CORNER= NO\nADAP_HMIN= .5\nADAP_HMAX= 1\n"
+                       "ADAP_SURFACE= YES\nADAP_ISO_CORNER= NO\nADAP_HMIN= .001\nADAP_HMAX= 1\n"
                        "ADAP_ARMAX= 100\nADAP_COMPLEXITY= 100\nADAP_BL_MARKER= (wall)\nADAP_BL_FIRST_HEIGHT= (.001)\n"
                        "ADAP_BL_GROWTH= (1.2)\nADAP_BL_THICKNESS= (.1)\n",{1,0,0,1,0,1});
   ReferenceState state;const auto imported=ImportGeometry(*test.config,test.Geometry(),nullptr,state);

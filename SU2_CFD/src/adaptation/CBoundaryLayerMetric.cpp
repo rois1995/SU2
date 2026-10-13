@@ -1020,6 +1020,19 @@ bool MayIntersectWallBand(const BLTetrahedron& tet,const std::array<BLPoint3D,3>
     if(separated(cross(minus(tet[(f+2)%4],tet[(f+1)%4]),minus(tet[(f+3)%4],tet[(f+1)%4])))) return false;
   for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j)for(unsigned k=0;k<3;++k)
     if(separated(cross(minus(tet[j],tet[i]),minus(face[(k+1)%3],face[k])))) return false;
+  // Rounded offsets also have vertex/edge contact directions absent from polytope SAT normals.
+  auto closestAxis=[&](const BLPoint3D& p,const std::array<BLPoint3D,3>& triangle) {
+    su2double x[3]={p[0],p[1],p[2]},vertex[3][3],weights[3];
+    for(unsigned k=0;k<3;++k)for(unsigned j=0;j<3;++j)vertex[k][j]=triangle[k][j];
+    ClosestPointTriangle(vertex[0],vertex[1],vertex[2],x,weights);
+    BLPoint3D closest{};
+    for(unsigned j=0;j<3;++j)for(unsigned k=0;k<3;++k)
+      closest[j]+=SU2_TYPE::GetValue(weights[k])*triangle[k][j];
+    return minus(p,closest);
+  };
+  for(const auto& p:tet)if(separated(closestAxis(p,face)))return false;
+  for(const auto& p:face)for(unsigned f=0;f<4;++f)
+    if(separated(closestAxis(p,{tet[(f+1)%4],tet[(f+2)%4],tet[(f+3)%4]})))return false;
   return true;
 }
 }
@@ -1139,8 +1152,37 @@ void CBoundaryLayerMetric::IntegrationRule3DImpl(const BLTetrahedron& tet,
   const bool reversed=SU2Native3D::Orientation(originalSource[0],originalSource[1],originalSource[2],originalSource[3])<0;
   if(reversed)std::swap(originalSource[1],originalSource[2]);
   const auto determinant=std::abs(BLDeterminant(tet[0],tet[1],tet[2],tet[3]));
+  auto append=[&](const BLTetrahedron& t) {
+    const auto fraction=std::abs(BLDeterminant(t[0],t[1],t[2],t[3]));
+    if(!fraction)return;
+    for(unsigned corner=0;corner<4;++corner) {
+      if(rule.size()>=65536) throw std::runtime_error("Native3D BL volume quadrature point budget exhausted.");
+      std::array<double,4> local{},parent{};
+      for(unsigned k=0;k<4;++k) {
+        const double w=k==corner?.58541019662496845446:.13819660112501051518;
+        local[0]+=w*(1-t[k][0]-t[k][1]-t[k][2]);
+        for(unsigned j=0;j<3;++j)local[j+1]+=w*t[k][j];
+      }
+      BLPoint3D position{};
+      for(unsigned k=0;k<4;++k)for(unsigned j=0;j<4;++j)parent[j]+=local[k]*original[k][j];
+      for(unsigned k=0;k<4;++k)for(unsigned j=0;j<3;++j)position[j]+=parent[k]*source[k][j];
+      // Actual rounded quadrature coordinates define both geometry and original-P1 sensor values.
+      std::array<long double,4> actual;
+      if(!SU2Native3D::Barycentric(originalSource,{position[0],position[1],position[2]},actual))
+        throw std::runtime_error("Native3D BL quadrature query leaves its original sensor cell.");
+      if(reversed)std::swap(actual[1],actual[2]);
+      for(unsigned k=0;k<4;++k)parent[k]=double(actual[k]);
+      rule.push_back({parent,double(determinant*fraction/24),SamplePoints({position[0],position[1],position[2]})});
+    }
+  };
   for(const auto& piece:pieces) {
     if(!piece.n) continue;
+    if(piece.n==4) {
+      // A tetrahedral piece already has the positive degree-two rule; avoid four redundant fans.
+      BLTetrahedron t;
+      for(unsigned k=0;k<4;++k)for(unsigned j=0;j<3;++j)t[k][j]=piece.x[k][j];
+      append(t);continue;
+    }
     BLPoint3D center{};
     for(int v=0;v<piece.n;++v)for(unsigned j=0;j<3;++j)center[j]+=piece.x[v][j]/piece.n;
     bool marked[Poly::MAXV][3]{};
@@ -1159,27 +1201,7 @@ void CBoundaryLayerMetric::IntegrationRule3DImpl(const BLTetrahedron& tet,
         BLTetrahedron t{center};
         const int vertices[3]={face[0],face[f],face[f+1]};
         for(unsigned k=0;k<3;++k)for(unsigned j=0;j<3;++j)t[k+1][j]=piece.x[vertices[k]][j];
-        const auto fraction=std::abs(BLDeterminant(t[0],t[1],t[2],t[3]));
-        if(!fraction)continue;
-        for(unsigned corner=0;corner<4;++corner) {
-          if(rule.size()>=65536) throw std::runtime_error("Native3D BL volume quadrature point budget exhausted.");
-          std::array<double,4> local{},parent{};
-          for(unsigned k=0;k<4;++k) {
-            const double w=k==corner?.58541019662496845446:.13819660112501051518;
-            local[0]+=w*(1-t[k][0]-t[k][1]-t[k][2]);
-            for(unsigned j=0;j<3;++j)local[j+1]+=w*t[k][j];
-          }
-          BLPoint3D position{};
-          for(unsigned k=0;k<4;++k)for(unsigned j=0;j<4;++j)parent[j]+=local[k]*original[k][j];
-          for(unsigned k=0;k<4;++k)for(unsigned j=0;j<3;++j)position[j]+=parent[k]*source[k][j];
-          // Actual rounded quadrature coordinates define both geometry and original-P1 sensor values.
-          std::array<long double,4> actual;
-          if(!SU2Native3D::Barycentric(originalSource,{position[0],position[1],position[2]},actual))
-            throw std::runtime_error("Native3D BL quadrature query leaves its original sensor cell.");
-          if(reversed)std::swap(actual[1],actual[2]);
-          for(unsigned k=0;k<4;++k)parent[k]=double(actual[k]);
-          rule.push_back({parent,double(determinant*fraction/24),SamplePoints({position[0],position[1],position[2]})});
-        }
+        append(t);
       }
     }
   }

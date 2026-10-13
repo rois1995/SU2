@@ -1,3 +1,49 @@
+# Goal3 thin-volume milestone INCOMPLETE; hidden-support point budget — 2026-10-13
+
+Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
+Branch codex/native-3d-bl; preceding published checkpoint cb2c645590ba78947bccfed1073d1adebdccf0a8.
+Entire Goal3 remains ACTIVE. No owned heavy job is live: builds77854/23926/
+18649/15918 and checks46838/44014/7716 are terminal.
+
+Production3D thin-BL complexity and retained faceted wall references are implemented.
+Five stages PASS on the latest actual binary: microscopic tetrahedron integral/
+volume/moments/reversed orientation (19263assertions), production coarse-cube
+complexity with sensor-only tensors (82), immutable-reference extraction (5),
+changing nearest face (11093) and existing19 BL cases (3486). This proves serial
+kernel/frozen metric construction, not an actual3DBL remesh or MPI/RANS workflow.
+
+Full volume_integration_v1/validation.json is FAIL: hidden finite-wall support
+still exhausts the unchanged65536-point budget. Initial coarse SAT alone failed
+at depth32; closest vertex/feature separating directions resolve that uncertainty,
+but spatial subdivision/clipped-piece quadrature remains too expensive. Direct
+four-point quadrature for already-tetrahedral pieces removes redundant coning,
+retains moment/accuracy gates, but does not complete the hidden-support case.
+Do NOT promote the aggregate, increase caps, change the target or quietly exclude
+this case. Next algorithmic step: feature-aware geometric partition/integration
+so finite-wall support is localized before expensive spatial subdivision. Continue
+coordinated construction work as appropriate without redefining the full goal.
+
+Initial complexity/reference fixtures were invalid because hmin>.firstHeight;
+CConfig correctly rejected them. Corrected test-only HMIN values pass with the
+same expected sensor identity/lower-complexity bound. No configuration check was
+weakened. Every failed/complete stage log and hash receipt is preserved. The
+support_fix_experiment.patch reconstructs the intermediate source from cb2c645590;
+its source hashes were checked against saved receipts. The final failed aggregate
+is archived; future runs save whole aggregates as well as per-case receipts.
+
+Evidence folder: integration_evidence/native_3d_bl_v1/volume_integration_v1.
+The runner refuses stale builds, pins source/build/object/binary/helper/log hashes,
+and runs independently bounded cases on one sampled CPU/nice19/threads1. No CFD
+timestep, published adapted BL mesh, cluster or performance qualification. The
+production first-height guard and analytic BL-distance guard remain intact.
+LAYER_CONSTRUCTION_NEXT.md records the next joint wall/transition approach and
+coupling-aware local height/metric feasibility diagnosis. Full first-height,
+analytic/feature/interacting walls, composed gradation, actual RANS/Euler-BL/MPI/
+current+BDF/output/restart and lifecycle cost gates remain required. Preserve
+Goal2; leave AdapNoExt/foreign results/dependencies/other workers untouched.
+
+Earlier notices below are historical.
+
 # Goal 3 volume/complexity implementation; grouped build ACTIVE — 2026-10-13
 
 Repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
