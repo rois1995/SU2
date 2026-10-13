@@ -52,6 +52,7 @@ def main():
         ('original_reference', 'Native3D complexity reference does not rebase the wall on the adapted surface', 1),
         ('nearest_face_change', 'Native3D volume integration resolves a far vertex closest to another wall face', 1),
         ('hidden_support', 'Native3D volume support detects a thin finite wall missed by all cell vertices', 1),
+        ('parallel_geometry', '[NativeParallelBL3D]', 1),
         ('existing_BL_kernels', '[NativeComposite3D],[NativeComposite2D],Boundary-layer metric*', 1),
         ('production_complexity_mpi2', 'Native3D complexity integrates the geometric BL with sensor-only donors', 2),
         ('production_complexity_mpi4', 'Native3D complexity integrates the geometric BL with sensor-only donors', 4),

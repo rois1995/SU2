@@ -1,0 +1,185 @@
+diff --git a/SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp b/SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp
+index 9023a094ac..17b4b8921b 100644
+--- a/SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp
++++ b/SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp
+@@ -1102,65 +1102,27 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
+   if(BLDeterminant(tetrahedron[0],tetrahedron[1],tetrahedron[2],tetrahedron[3])==0)
+     throw std::invalid_argument("Degenerate native3D BL integration cell.");
+   const std::array<std::array<double,4>,4> bary{{{{1,0,0,0}},{{0,1,0,0}},{{0,0,1,0}},{{0,0,0,1}}}};
+-  using Poly=convex_clip::Polyhedron;
+-  const double vertices[4][3]={{0,0,0},{1,0,0},{0,1,0},{0,0,1}};
+-  const double* points[4]={vertices[0],vertices[1],vertices[2],vertices[3]};
+-  Poly initial;initial.InitTetrahedron(points);std::vector<Poly> pieces{initial};
+-  auto cut=[&](const std::array<long double,3>& normal,const BLPoint3D& origin,long double offset) {
+-    std::array<long double,4> values{};
+-    for(unsigned k=0;k<4;++k) {
+-      values[k]=offset;
+-      for(unsigned j=0;j<3;++j)values[k]+=normal[j]*((long double)tetrahedron[k][j]-origin[j]);
+-    }
+-    const auto scale=std::max({std::abs(values[0]),std::abs(values[1]),std::abs(values[2]),std::abs(values[3])});
+-    if(!scale)return;
+-    const double nx=(values[1]-values[0])/scale,ny=(values[2]-values[0])/scale,nz=(values[3]-values[0])/scale,d=values[0]/scale;
+-    std::vector<Poly> next;
+-    for(const auto& piece:pieces) {
+-      double low=std::numeric_limits<double>::max(),high=-low;
+-      for(int v=0;v<piece.n;++v){const auto value=nx*piece.x[v][0]+ny*piece.x[v][1]+nz*piece.x[v][2]+d;low=std::min(low,value);high=std::max(high,value);}
+-      if(low>=0 || high<=0)next.push_back(piece);
+-      else {
+-        auto lower=piece,upper=piece;
+-        if(lower.Clip(-nx,-ny,-nz,-d)<0 || upper.Clip(nx,ny,nz,d)<0)
+-          throw std::runtime_error("Native3D BL feature partition exceeds vertex capacity.");
+-        if(lower.n)next.push_back(lower);if(upper.n)next.push_back(upper);
+-      }
+-      if(next.size()>4096)throw std::runtime_error("Native3D BL feature partition exceeds piece budget.");
+-    }
+-    pieces=std::move(next);
+-  };
++  struct SupportFace { std::array<BLPoint3D,3> vertices; double thickness; };
++  std::vector<SupportFace> support;
++  bool hiddenSupport=false;
+   for(unsigned short wall=0;wall<walls.size();++wall) {
+-    const auto& dataWall=*data[wall];if(!dataWall.adt)continue;
+-    const double thickness=SU2_TYPE::GetValue(dataWall.thickness);
++    const auto& d=*data[wall];if(!d.adt)continue;
++    const double thickness=SU2_TYPE::GetValue(d.thickness);
+     bool hidden=true;
+     for(const auto& p:tetrahedron){const su2double x[3]={p[0],p[1],p[2]};hidden=hidden && Evaluate(wall,x,1.).distance>=thickness;}
+-    if(!hidden)continue;
+     su2double low[3],high[3];
+     for(unsigned j=0;j<3;++j) {
+       double a=tetrahedron[0][j],b=a;for(const auto& p:tetrahedron){a=std::min(a,p[j]);b=std::max(b,p[j]);}
+       low[j]=a-thickness;high[j]=b+thickness;
+     }
+-    std::vector<unsigned long> faces;dataWall.adt->DetermineIntersectingElements(low,high,faces);
++    std::vector<unsigned long> faces;d.adt->DetermineIntersectingElements(low,high,faces);
+     std::sort(faces.begin(),faces.end());
+     for(auto f:faces) {
+-      std::array<BLPoint3D,3> face;
++      SupportFace face;face.thickness=thickness;
+       for(unsigned k=0;k<3;++k)for(unsigned j=0;j<3;++j)
+-        face[k][j]=SU2_TYPE::GetValue(walls[wall].coord[3*dataWall.elem[3*f+k]+j]);
+-      if(!MayIntersectWallBand(tetrahedron,face,thickness))continue;
+-      using V=std::array<long double,3>;
+-      auto minus=[](const BLPoint3D& a,const BLPoint3D& b){return V{(long double)a[0]-b[0],(long double)a[1]-b[1],(long double)a[2]-b[2]};};
+-      auto cross=[](const V& a,const V& b){return V{a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]};};
+-      const auto normal=cross(minus(face[1],face[0]),minus(face[2],face[0]));
+-      const auto length=std::sqrt(normal[0]*normal[0]+normal[1]*normal[1]+normal[2]*normal[2]);
+-      for(const double level:{-thickness,0.,thickness})cut(normal,face[0],level*length);
+-      for(unsigned k=0;k<3;++k) {
+-        const auto edge=minus(face[(k+1)%3],face[k]);
+-        const auto side=cross(normal,edge);
+-        // Face prism and edge/vertex Voronoi boundaries localize support before curved-distance refinement.
+-        cut(side,face[k],0);
+-        cut(edge,face[k],0);cut(edge,face[(k+1)%3],0);
+-      }
++        face.vertices[k][j]=SU2_TYPE::GetValue(walls[wall].coord[3*d.elem[3*f+k]+j]);
++      if(!MayIntersectWallBand(tetrahedron,face.vertices,thickness*(1-1e-12)))continue;
++      support.push_back(face);hiddenSupport=hiddenSupport || hidden;
+     }
+   }
+   auto probe=[&](const IntegrationPoint3D& point) {
+@@ -1185,68 +1147,22 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
+   };
+   std::vector<ConeRule> cones;
+   size_t visited=0;std::vector<IntegrationPoint3D> rule;
+-  if(pieces.size()==1)IntegrationRule3DImpl(tetrahedron,bary,tetrahedron,bandRatio,0,visited,rule);
+-  else for(const auto& piece:pieces)VisitBLTetrahedra(piece,[&](const BLTetrahedron& local) {
+-    BLTetrahedron physical{};std::array<std::array<double,4>,4> mapping{};
+-    for(unsigned k=0;k<4;++k) {
+-      mapping[k]={1-local[k][0]-local[k][1]-local[k][2],local[k][0],local[k][1],local[k][2]};
+-      for(unsigned j=0;j<3;++j)for(unsigned v=0;v<4;++v)physical[k][j]+=mapping[k][v]*tetrahedron[v][j];
+-    }
+-    const auto determinant=std::abs(BLDeterminant(physical[0],physical[1],physical[2],physical[3]));
+-    if(!determinant)return;
+-    bool supported=false;
+-    for(unsigned short wall=0;wall<walls.size() && !supported;++wall) {
+-      const auto& wallData=*data[wall];if(!wallData.adt)continue;
+-      const double thickness=SU2_TYPE::GetValue(wallData.thickness);
+-      su2double low[3],high[3];
+-      for(unsigned j=0;j<3;++j) {
+-        double a=physical[0][j],b=a;for(const auto& p:physical){a=std::min(a,p[j]);b=std::max(b,p[j]);}
+-        low[j]=a-thickness;high[j]=b+thickness;
+-      }
+-      std::vector<unsigned long> faces;wallData.adt->DetermineIntersectingElements(low,high,faces);
+-      for(auto f:faces) {
+-        std::array<BLPoint3D,3> face;
+-        for(unsigned k=0;k<3;++k)for(unsigned j=0;j<3;++j)
+-          face[k][j]=SU2_TYPE::GetValue(walls[wall].coord[3*wallData.elem[3*f+k]+j]);
+-        supported=MayIntersectWallBand(physical,face,thickness*(1-1e-12));
+-        if(supported)break;
+-      }
+-    }
+-    if(!supported) {
+-      IntegrationRule3DImpl(physical,mapping,tetrahedron,bandRatio,0,visited,rule);
+-      return;
+-    }
+-    // Reuse band clipping where the existing edge/face/cell probes resolve an affine distance field.
+-    bool affine=true;
+-    for(unsigned short wall=0;wall<walls.size() && affine;++wall) {
+-      const auto& d=*data[wall];if(!d.adt)continue;
+-      auto distance=[&](const BLPoint3D& p) {const su2double x[3]={p[0],p[1],p[2]};return SU2_TYPE::GetValue(Evaluate(wall,x,1.).distance);};
+-      std::array<double,4> distances{};for(unsigned k=0;k<4;++k)distances[k]=distance(physical[k]);
+-      if(*std::min_element(distances.begin(),distances.end())>=SU2_TYPE::GetValue(d.thickness)){affine=false;break;}
+-      for(unsigned mask=1;mask<16 && affine;++mask) {
+-        unsigned count=0;for(unsigned k=0;k<4;++k)count+=(mask>>k)&1u;if(count==1)continue;
+-        BLPoint3D point{};double linear=0;
+-        for(unsigned k=0;k<4;++k)if(mask&(1u<<k)) {
+-          linear+=distances[k]/count;for(unsigned j=0;j<3;++j)point[j]+=physical[k][j]/count;
+-        }
+-        affine=std::abs(distance(point)-linear)<=1e-10*SU2_TYPE::GetValue(d.h0);
+-      }
+-    }
+-    if(affine){IntegrationRule3DImpl(physical,mapping,tetrahedron,bandRatio,0,visited,rule);return;}
+-    // Conical quadrature resolves nonlinear distance bands along actual rays.
+-    unsigned apex=0;double farthest=-1;
+-    for(unsigned k=0;k<4;++k) {
+-      double nearest=std::numeric_limits<double>::max();
+-      for(unsigned short wall=0;wall<walls.size();++wall) {
+-        const su2double x[3]={physical[k][0],physical[k][1],physical[k][2]};
+-        if(data[wall]->adt)nearest=std::min(nearest,SU2_TYPE::GetValue(Evaluate(wall,x,1.).distance));
+-      }
+-      if(nearest>farthest){farthest=nearest;apex=k;}
++  if(!hiddenSupport) {
++    IntegrationRule3DImpl(tetrahedron,bary,tetrahedron,bandRatio,0,visited,rule);return rule;
++  }
++  // Integrate the source directly: its original vertex/base chart avoids duplicated feature cones.
++  unsigned apex=0;double farthest=-1;
++  for(unsigned k=0;k<4;++k) {
++    double nearest=std::numeric_limits<double>::max();
++    for(unsigned short wall=0;wall<walls.size();++wall)if(data[wall]->adt) {
++      const su2double x[3]={tetrahedron[k][0],tetrahedron[k][1],tetrahedron[k][2]};
++      nearest=std::min(nearest,SU2_TYPE::GetValue(Evaluate(wall,x,1.).distance));
+     }
+-    std::array<unsigned,3> base{};unsigned next=0;for(unsigned k=0;k<4;++k)if(k!=apex)base[next++]=k;
+-    cones.push_back({physical[apex],mapping[apex],{mapping[base[0]],mapping[base[1]],mapping[base[2]]},determinant});
+-  });
+-  if(cones.empty())return rule;
++    if(nearest>farthest){farthest=nearest;apex=k;}
++  }
++  std::array<unsigned,3> base{};unsigned next=0;for(unsigned k=0;k<4;++k)if(k!=apex)base[next++]=k;
++  cones.push_back({tetrahedron[apex],bary[apex],{bary[base[0]],bary[base[1]],bary[base[2]]},
++      std::abs(BLDeterminant(tetrahedron[0],tetrahedron[1],tetrahedron[2],tetrahedron[3]))});
+   SU2Native3D::Tetrahedron originalSource;
+   for(unsigned k=0;k<4;++k)originalSource[k]={tetrahedron[k][0],tetrahedron[k][1],tetrahedron[k][2]};
+   const bool reversed=SU2Native3D::Orientation(originalSource[0],originalSource[1],originalSource[2],originalSource[3])<0;
+@@ -1361,7 +1277,19 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
+     double highRadialError=0,lowRadialError=0;
+     panel.value=integrate(cones[cone],triangle,fraction,true,panel.fine,highRadialError);
+     const auto low=integrate(cones[cone],triangle,fraction,false,coarse,lowRadialError);
+-    panel.error=std::abs(panel.value-low)+highRadialError+lowRadialError;totalValue+=panel.value;totalError+=panel.error;
++    panel.error=std::abs(panel.value-low)+highRadialError+lowRadialError;
++    // A coincident scalar estimate cannot certify an unsampled geometric wall band.
++    bool sampled=false;for(const auto& point:panel.fine)sampled=sampled || !point.samples.empty();
++    for(const auto& point:coarse)sampled=sampled || !point.samples.empty();
++    if(!sampled) {
++      BLTetrahedron region{cones[cone].apex};
++      for(unsigned v=0;v<3;++v)for(unsigned j=0;j<3;++j)for(unsigned k=0;k<4;++k)
++        region[v+1][j]+=triangle[v][k]*tetrahedron[k][j];
++      for(const auto& face:support)if(MayIntersectWallBand(region,face.vertices,face.thickness*(1-1e-12))) {
++        panel.error=std::max(panel.error,panel.value);break;
++      }
++    }
++    totalValue+=panel.value;totalError+=panel.error;
+     retained+=panel.fine.size();priority.emplace(panel.error,nextPanel);
+     panels.emplace(nextPanel++,std::move(panel));
+   };

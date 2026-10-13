@@ -29,6 +29,9 @@
 #include <array>
 #include <cmath>
 #include <memory>
+#include <iostream>
+#include <iomanip>
+#include <sstream>
 
 #include "../../../Common/include/CConfig.hpp"
 #include "../../../Common/include/adaptation/CNativeImport2D.hpp"
@@ -1084,12 +1087,21 @@ TEST_CASE("Native3D volume integration resolves a far vertex closest to another 
 }
 
 TEST_CASE("Native3D volume support detects a thin finite wall missed by all cell vertices", "[NativeVolumeBL3D]") {
-  CBoundaryLayerMetric::Wall wall;wall.layer={"wall",.02,1.2,.08};
-  wall.coord={.28,.18,0,.52,.18,0,.28,.42,0};wall.conn={0,1,2,2};
+  const bool tiny=GENERATE(false,true),shifted=GENERATE(false,true);
+  const double h0=tiny?.002:.02,thickness=tiny?.008:.08,side=tiny?.024:.24;
+  const double x0=(tiny?.338:.28)+(shifted?.065:0),y0=(tiny?.238:.18)+(shifted?.037:0),z0=tiny?.019:0,gap=.02-z0;
+  const double strongerCore=100*std::pow(.24/side,2),strongerBase=std::pow(strongerCore,1.5);
+  CBoundaryLayerMetric::Wall wall;wall.layer={"wall",h0,1.2,thickness};
+  wall.coord={x0,y0,z0,x0+side,y0,z0,x0,y0+side,z0};wall.conn={0,1,2,2};
   CBoundaryLayerMetric layers(3,{wall});
   const std::array<std::array<double,3>,4> cell{{{{.1,.1,.02}},{{.9,.1,.02}},{{.1,.9,.02}},{{.1,.1,.8}}}};
   for(const auto& p:cell){const su2double x[3]={p[0],p[1],p[2]};CHECK(layers.Evaluate(0,x,1.).weight==0);}
-  double volume=0,active=0,integral=0,mz=0,mz2=0;
+  auto density=[=](double distance) {
+    const double hn=std::max(h0,2*(h0+.2*distance)/2.2);
+    const double t=std::clamp((distance-.9*thickness)/(.1*thickness),0.,1.),w=1-t*t*(3-2*t);
+    return std::pow(std::sqrt(3.)/(2*side*side*hn),w);
+  };
+  double volume=0,active=0,integral=0,mz=0,mz2=0,analyticIntegral=0,maximumDensityMismatch=0;
   const auto rule=layers.IntegrationRule3D(cell);
   for(const auto& point:rule) {
     volume+=point.weight;
@@ -1102,6 +1114,8 @@ TEST_CASE("Native3D volume support detects a thin finite wall missed by all cell
         -m.m[0][1]*(m.m[1][0]*m.m[2][2]-m.m[1][2]*m.m[2][0])
         +m.m[0][2]*(m.m[1][0]*m.m[2][1]-m.m[1][1]*m.m[2][0]));
     REQUIRE(det>0);integral+=point.weight*std::sqrt(det);
+    const double analytic=point.samples.empty()?1:density(SU2_TYPE::GetValue(point.samples.front().sample.distance));
+    analyticIntegral+=point.weight*analytic;maximumDensityMismatch=std::max(maximumDensityMismatch,std::abs(std::sqrt(det)/analytic-1));
   }
   const double expectedVolume=.8*.8*.78/6;
   CHECK(volume==Approx(expectedVolume).epsilon(1e-10));CHECK(active>0);
@@ -1109,28 +1123,25 @@ TEST_CASE("Native3D volume support detects a thin finite wall missed by all cell
   CHECK(mz2==Approx(expectedVolume*(.02*.02+2*.02*.78/4+.78*.78/10)).epsilon(1e-10));
   // Independent parallel-body integral: area=A+P*r+pi*r^2 outside a convex triangle.
   // Its whole active support above z=.02 lies inside this source tetrahedron.
-  auto density=[](double distance) {
-    const double hn=std::max(.02,2*(.02+.2*distance)/2.2);
-    const double t=std::clamp((distance-.072)/.008,0.,1.),w=1-t*t*(3-2*t);
-    return std::pow(std::sqrt(3.)/(2*.24*.24*hn),w);
-  };
   auto simpson=[](auto f,double a,double b) {
     double value=0;const unsigned n=256;
     for(unsigned k=0;k<=n;++k)value+=(b-a)/n/3*(k==0||k==n?1:(k%2?4:2))*f(a+(b-a)*k/n);
     return value;
   };
   auto section=[&](double z) {
-    const double radius=std::sqrt(std::max(0.,.08*.08-z*z)),full=std::sqrt(std::max(0.,.072*.072-z*z));
-    auto rings=[&](double r){return (.24*(2+std::sqrt(2.))+2*std::acos(-1.)*r)*(density(std::hypot(z,r))-1);};
-    return .24*.24/2*(density(z)-1)+simpson(rings,0,full)+simpson(rings,full,radius);
+    const double radius=std::sqrt(std::max(0.,thickness*thickness-z*z)),full=std::sqrt(std::max(0.,.81*thickness*thickness-z*z));
+    auto rings=[&](double r){return (side*(2+std::sqrt(2.))+2*std::acos(-1.)*r)*(density(std::hypot(z,r))-1);};
+    return side*side/2*(density(z)-1)+simpson(rings,0,full)+simpson(rings,full,radius);
   };
-  const double reference=expectedVolume+simpson(section,.02,.072)+simpson(section,.072,.08);
-  INFO("points=" << rule.size() << " integral=" << integral << " reference=" << reference);
+  const double reference=expectedVolume+simpson(section,gap,.9*thickness)+simpson(section,.9*thickness,thickness);
+  INFO("points=" << rule.size() << " integral=" << integral << " analytic_on_rule=" << analyticIntegral
+       << " pointwise_mismatch=" << maximumDensityMismatch << " reference=" << reference);
+  CHECK(maximumDensityMismatch<1e-6);
   CHECK(integral==Approx(reference).epsilon(5e-4));
   // A finer isotropic sensor controls both tangents; test the full-target callback against a second parallel-body oracle.
   auto strongerDensity=[&](const CBoundaryLayerMetric::IntegrationPoint3D& point) {
-    Tensor m;for(unsigned j=0;j<3;++j)m.m[j][j]=100;
-    for(const auto& sample:point.samples)layers.ApplySample(sample.wall,sample.sample,m,100.,nullptr,false);
+    Tensor m;for(unsigned j=0;j<3;++j)m.m[j][j]=strongerCore;
+    for(const auto& sample:point.samples)layers.ApplySample(sample.wall,sample.sample,m,strongerCore,nullptr,false);
     const double det=SU2_TYPE::GetValue(m.m[0][0]*(m.m[1][1]*m.m[2][2]-m.m[1][2]*m.m[2][1])
         -m.m[0][1]*(m.m[1][0]*m.m[2][2]-m.m[1][2]*m.m[2][0])
         +m.m[0][2]*(m.m[1][0]*m.m[2][1]-m.m[1][1]*m.m[2][0]));
@@ -1138,19 +1149,61 @@ TEST_CASE("Native3D volume support detects a thin finite wall missed by all cell
   };
   const auto strongerRule=layers.IntegrationRule3D(cell,1.5,strongerDensity);
   double strongerIntegral=0;for(const auto& point:strongerRule)strongerIntegral+=point.weight*strongerDensity(point);
-  auto strongerRadial=[](double distance) {
-    const double hn=std::max(.02,2*(.02+.2*distance)/2.2);
-    const double t=std::clamp((distance-.072)/.008,0.,1.),w=1-t*t*(3-2*t);
-    return 100*std::pow(1/hn,w)*std::pow(10.,1-w);
+  auto strongerRadial=[=](double distance) {
+    const double hn=std::max(h0,2*(h0+.2*distance)/2.2);
+    const double t=std::clamp((distance-.9*thickness)/(.1*thickness),0.,1.),w=1-t*t*(3-2*t);
+    return strongerCore*std::pow(1/hn,w)*std::pow(std::sqrt(strongerCore),1-w);
   };
   auto strongerSection=[&](double z) {
-    const double radius=std::sqrt(std::max(0.,.08*.08-z*z)),full=std::sqrt(std::max(0.,.072*.072-z*z));
-    auto rings=[&](double r){return (.24*(2+std::sqrt(2.))+2*std::acos(-1.)*r)*(strongerRadial(std::hypot(z,r))-1000);};
-    return .24*.24/2*(strongerRadial(z)-1000)+simpson(rings,0,full)+simpson(rings,full,radius);
+    const double radius=std::sqrt(std::max(0.,thickness*thickness-z*z)),full=std::sqrt(std::max(0.,.81*thickness*thickness-z*z));
+    auto rings=[&](double r){return (side*(2+std::sqrt(2.))+2*std::acos(-1.)*r)*(strongerRadial(std::hypot(z,r))-strongerBase);};
+    return side*side/2*(strongerRadial(z)-strongerBase)+simpson(rings,0,full)+simpson(rings,full,radius);
   };
-  const double strongerReference=1000*expectedVolume+simpson(strongerSection,.02,.072)+simpson(strongerSection,.072,.08);
+  const double strongerReference=strongerBase*expectedVolume+simpson(strongerSection,gap,.9*thickness)+simpson(strongerSection,.9*thickness,thickness);
   INFO("stronger points=" << strongerRule.size() << " integral=" << strongerIntegral << " reference=" << strongerReference);
   CHECK(strongerIntegral==Approx(strongerReference).epsilon(5e-4));
+  std::ostringstream summary;summary << std::setprecision(17);
+  summary << "NativeBL3DQuadrature {\"tiny\":" << (tiny?"true":"false") << ",\"shifted\":" << (shifted?"true":"false") << ",\"points\":" << rule.size() << ",\"integral\":" << integral
+          << ",\"reference\":" << reference << ",\"analytic_on_rule\":" << analyticIntegral
+          << ",\"pointwise_mismatch\":" << maximumDensityMismatch << ",\"stronger_points\":" << strongerRule.size()
+          << ",\"stronger_integral\":" << strongerIntegral << ",\"stronger_reference\":" << strongerReference << "}";
+  std::cout << summary.str() << '\n';
   CHECK_THROWS(layers.IntegrationRule3D(cell,1.5,[](const auto&){return -1.;}));
   CHECK_THROWS(layers.IntegrationRule3D(cell,1.5,[](const auto&){return std::numeric_limits<double>::quiet_NaN();}));
+}
+
+
+TEST_CASE("Native3D parallel chords preserve source volume and moments on rotated and sheared tetrahedra", "[NativeParallelBL3D]") {
+  for(bool shear:{false,true}) {
+    auto rotate=[](const std::array<double,3>& x) {
+      return std::array<double,3>{10+(x[0]-2*x[1]+2*x[2])/3,-7+(2*x[0]+2*x[1]+x[2])/3,3+(-2*x[0]+x[1]+2*x[2])/3};
+    };
+    std::array<std::array<double,3>,4> cell{{{{.1,.1,.02}},{{.9,.1,.02}},{{.1,.9,.02}},{{.1,.1,.8}}}};
+    if(shear)cell[3]={.7,.5,.8};for(auto& x:cell)x=rotate(x);if(shear)std::swap(cell[0],cell[1]);
+    CBoundaryLayerMetric::Wall wall;wall.layer={"wall",.02,1.2,.08};wall.conn={0,1,2,2};
+    for(const auto& x:std::array<std::array<double,3>,3>{{{{.28,.18,0}},{{.52,.18,0}},{{.28,.42,0}}}}) {
+      const auto p=rotate(x);for(auto value:p)wall.coord.push_back(value);
+    }
+    CBoundaryLayerMetric layers(3,{wall});
+    auto polynomial=[&](const CBoundaryLayerMetric::IntegrationPoint3D& point) {
+      std::array<double,3> x{};for(unsigned k=0;k<4;++k)for(unsigned j=0;j<3;++j)x[j]+=point.barycentric[k]*cell[k][j];
+      return 1+x[0]*x[0]+.2*x[1]*x[1]+.3*x[2]*x[2];
+    };
+    INFO("shear=" << shear);
+    const auto rule=layers.IntegrationRule3D(cell,1.5,polynomial);
+    double volume=0,integral=0;bool sampled=false;
+    for(const auto& point:rule) {
+      REQUIRE(point.weight>0);double sum=0;for(auto w:point.barycentric){REQUIRE(w>=-1e-14);sum+=w;}
+      CHECK(sum==Approx(1).epsilon(1e-12));volume+=point.weight;integral+=point.weight*polynomial(point);
+      sampled=sampled || !point.samples.empty();
+    }
+    const double expectedVolume=.8*.8*.78/6;double expected=1;
+    for(unsigned j=0;j<3;++j) {
+      double sum=0,squares=0;for(const auto& x:cell){sum+=x[j];squares+=x[j]*x[j];}
+      expected+=(j==0?1:(j==1?.2:.3))*(sum*sum+squares)/20;
+    }
+    INFO("shear=" << shear << " points=" << rule.size());
+    CHECK(sampled);CHECK(volume==Approx(expectedVolume).epsilon(1e-10));
+    CHECK(integral==Approx(expectedVolume*expected).epsilon(1e-10));
+  }
 }

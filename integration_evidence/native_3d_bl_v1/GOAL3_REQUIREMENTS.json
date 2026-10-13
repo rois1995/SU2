@@ -30,7 +30,7 @@
     {
       "id": "thin_volume",
       "scope": "thin BL quadrature inside coarse tetrahedra; convergence and complexity consistency",
-      "status": "planar/production/original-ref/nearest-face PASS; actual complexity + sensor-only donors MPI1/2/4 PASS; adaptive hidden support still FAIL at65536 returned points, ten preceding source-reconstructible failed variants retained; stronger-sensor oracle written but not reached"
+      "status": "Focused nine-stage milestone PASS: planar/microscopic/production/original-reference/nearest-face, four hidden-wall position/scale cases with unit+finer-sensor analytic oracles, rotated/sheared moments, actual complexity sensor-only donors MPI1/2/4. Full curved/interacting-wall and remesh qualification pending; embedded estimates remain heuristic."
     },
     {
       "id": "construction",
@@ -70,7 +70,7 @@
     {
       "id": "publication",
       "scope": "preserved provenance/failures/inspectable artifacts and pushed final checkpoint",
-      "status": "pending"
+      "status": "Updated handoff/findings/accuracy summary, preserved fifteen source-reconstructible failures and hashed receipts; reviewable focused integration checkpoint, full-goal publication pending."
     }
   ],
   "exclusions": [
@@ -86,11 +86,14 @@
     "feature_partition_v1/validation_fixed_angular_failed.json",
     "first_layer_kernel_v1/validation.json",
     "first_layer_kernel_v1/independent_geometry.json",
-    "first_layer_engine_v1/validation.json"
+    "first_layer_engine_v1/validation.json",
+    "feature_partition_v1/validation.json",
+    "feature_partition_v1/accuracy_summary.json",
+    "feature_partition_v1/source_reconstruction.log"
   ],
   "execution_state": {
     "status": "all owned jobs terminal",
     "CFD_runs": 0,
-    "last_focused_runner": "6070"
+    "last_focused_runner": "48794"
   }
 }

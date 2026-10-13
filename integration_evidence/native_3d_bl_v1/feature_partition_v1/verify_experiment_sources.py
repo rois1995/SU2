@@ -13,7 +13,7 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 def main():
-    records = sorted(HERE.glob('adaptive_*_failed_source.json'))
+    records = sorted(HERE.glob('*_failed_source.json'))
     assert records, 'No source checkpoints found'
     for record in records:
         data = json.loads(record.read_text())

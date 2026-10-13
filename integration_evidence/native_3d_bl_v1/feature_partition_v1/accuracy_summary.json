@@ -1,0 +1,58 @@
+{
+  "status": "PASS",
+  "receipt": "hidden_support.json",
+  "log": "hidden_support_1791908143448045139.log",
+  "log_sha256": "893505e16bf13ebc53fc9e82c7a707c5eea5e5ec9b61c484e5aa72353efe2466",
+  "relative_accuracy_gate": 0.0005,
+  "cases": [
+    {
+      "tiny": false,
+      "shifted": false,
+      "points": 35742,
+      "integral": 2.477311749439323,
+      "reference": 2.4775664409698486,
+      "analytic_on_rule": 2.47731174943932,
+      "pointwise_mismatch": 5.46229728115577e-14,
+      "stronger_points": 21018,
+      "stronger_integral": 95.23536895760397,
+      "stronger_reference": 95.23401852762726
+    },
+    {
+      "tiny": false,
+      "shifted": true,
+      "points": 36067,
+      "integral": 2.477321903373299,
+      "reference": 2.4775664409698486,
+      "analytic_on_rule": 2.4773219033732947,
+      "pointwise_mismatch": 5.084821452783217e-14,
+      "stronger_points": 21906,
+      "stronger_integral": 95.23351583326463,
+      "stronger_reference": 95.23401852762726
+    },
+    {
+      "tiny": true,
+      "shifted": false,
+      "points": 48740,
+      "integral": 3.0907650393299817,
+      "reference": 3.0906002613307315,
+      "analytic_on_rule": 3.090765039329984,
+      "pointwise_mismatch": 8.193445921733655e-14,
+      "stronger_points": 20919,
+      "stronger_integral": 83215.41707947967,
+      "stronger_reference": 83215.37337010601
+    },
+    {
+      "tiny": true,
+      "shifted": true,
+      "points": 51032,
+      "integral": 3.090777429478203,
+      "reference": 3.0906002613307315,
+      "analytic_on_rule": 3.090777429478206,
+      "pointwise_mismatch": 9.703349235223868e-14,
+      "stronger_points": 20655,
+      "stronger_integral": 83215.39530600276,
+      "stronger_reference": 83215.37337010601
+    }
+  ],
+  "limitations": "Focused faceted-wall density/volume/moment tests; not completed BL remeshing or performance qualification"
+}

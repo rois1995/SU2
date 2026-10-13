@@ -1,0 +1,11 @@
+{
+  "base": "718f2e1c12c26a7f24bacd2c7c754e8a12468c79",
+  "patch_sha256": "ca97e9b0716e1d1adb6234e61a8182f88bf455479bd0391ac87a0c35849bbf7e",
+  "sources": {
+    "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "a9e9360601520cd1378055f72d686262c8569364da5273baf090f92b8917dfaa",
+    "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "bfd27f274c7f16d3cd1e452ad72a6f5694e57b2f4869bb16e7a8bedfddb63c02",
+    "SU2_CFD/src/solvers/CSolver.cpp": "6aa179cf09ae6e63efe5c9bce66480f19a0f71bcdc7f40c0b79a7e37781c0244",
+    "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "82f703090fabf6e1278df5f1de6b88d1c326979dc131022c0d3544cb8bb6a1a7"
+  },
+  "failure": "face/edge/corner and fade projected partitions: moderate accuracy PASS, tiny wall radial output budget exhausted"
+}

@@ -1,0 +1,11 @@
+{
+  "base": "718f2e1c12c26a7f24bacd2c7c754e8a12468c79",
+  "patch_sha256": "e74624711d713bda5b9c747fa965fa1b679c45162f6083a46c13d10087f3cfb5",
+  "sources": {
+    "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "a9e9360601520cd1378055f72d686262c8569364da5273baf090f92b8917dfaa",
+    "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "66186741fe1554904f640c2fadb73eadb4a21de708b8dce619b8308f87d93ec2",
+    "SU2_CFD/src/solvers/CSolver.cpp": "6aa179cf09ae6e63efe5c9bce66480f19a0f71bcdc7f40c0b79a7e37781c0244",
+    "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "21dcad0f6b3deccef3bfcbd6900ad9e3b8aa785c2177d493d69f4fa2e310527b"
+  },
+  "failure": "shifted wall accuracy and MPI complexity PASS; rotated/sheared geometry FAIL with zero-length chord from nearly coincident routing cuts"
+}

@@ -1,0 +1,11 @@
+{
+  "base": "718f2e1c12c26a7f24bacd2c7c754e8a12468c79",
+  "patch_sha256": "6ee874755407cd3cebe02f7a47eeb699be615c5fb238a5c917e8f8da06bf3abd",
+  "sources": {
+    "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "a9e9360601520cd1378055f72d686262c8569364da5273baf090f92b8917dfaa",
+    "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "61081e291c540fac890ed9ca535fde546ef56e834f3ed31f3e1acb9f04904cc4",
+    "SU2_CFD/src/solvers/CSolver.cpp": "6aa179cf09ae6e63efe5c9bce66480f19a0f71bcdc7f40c0b79a7e37781c0244",
+    "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "82f703090fabf6e1278df5f1de6b88d1c326979dc131022c0d3544cb8bb6a1a7"
+  },
+  "failure": "tiny finite wall exhausts point budget at65468 retained points,1024panels,73charts,error0.000637; moderate oracle PASS"
+}

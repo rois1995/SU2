@@ -1,0 +1,48 @@
+{
+  "stage": "hidden_support",
+  "status": "FAIL",
+  "returncode": 1,
+  "contract": {
+    "provenance": {
+      "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "a9e9360601520cd1378055f72d686262c8569364da5273baf090f92b8917dfaa",
+      "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "140b8fd5494d344ecc9bd9c69e6d1eb31d74b52f5927d60b11912a80f83fbb4b",
+      "SU2_CFD/include/adaptation/ConvexClipping.hpp": "f9a92bc81c3588dda386606d2ad6ab63f808af9831c7d8ec9ad3120b48ffa9cf",
+      "SU2_CFD/include/solvers/CSolver.hpp": "958122df6694b375a561e65f1a8d9b0d379c0f3d8ca6b4095454d44f66e9ab55",
+      "SU2_CFD/src/solvers/CSolver.cpp": "6aa179cf09ae6e63efe5c9bce66480f19a0f71bcdc7f40c0b79a7e37781c0244",
+      "SU2_CFD/src/drivers/CSinglezoneDriver.cpp": "3ef049da812f9b87259918ea7fa9b214ae63368041d80c9114923f2e447f8727",
+      "Common/include/adaptation/CNativeRemesher3D.hpp": "6c1aff6bc10d746ae4946bb50a19c0c2e5d1d7e5d21ff471c2974609a79099f1",
+      "Common/src/adaptation/CNativeRemesher3D.cpp": "4d9aa61bc77796700a88fc8a44db12276e1e5952e8fcdc518ac9d20dbd4abd1a",
+      "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "9ac7115e473f9c6034950bce6d11f9745ae4725281dd55219b89cd415bcac9ec",
+      "binary": "1febee760ab48c33d6601138e9b184aec93184f03c003ad071c4cbce788f1823",
+      "helper": "2f65c83b1bae5a0e6e7913f64fa8e1e904b68889c02fb547950c7d510ad49d19",
+      "compile_commands": "17a19ce625ceabf3f70dba005aebef0990be029c491666e86144787717316540",
+      "object:SU2_CFD/src/libSU2core.a.p/solvers_CSolver.cpp.o": "6ee944ccaa6132661ad01d9c0c2a01a61e71722cfca88826e8ed0953de80d35c",
+      "object:SU2_CFD/src/libSU2core.a.p/drivers_CSinglezoneDriver.cpp.o": "e3d1256014eae1c490487eee27a4d5042f0f4e87abaf4ba768e9410ac0412152",
+      "object:Common/src/libSU2Common.a.p/adaptation_CNativeRemesher3D.cpp.o": "9773377af7528407efe82ee5f0f9fe909d447029e0042d80544ebb775a5e7897",
+      "object:SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerMetric.cpp.o": "8a5597401f786c96fde9d9e138a46a5658f2a96ba5c031c4b951e3bb649a2cf6",
+      "object:UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o": "f7c84789be66ea5dc0d5d4559bc6e47f5979a030e6b8e0a920495b2ba79e35ca"
+    },
+    "command": [
+      "taskset",
+      "-c",
+      "3",
+      "nice",
+      "-n",
+      "19",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+      "Native3D volume support detects a thin finite wall missed by all cell vertices",
+      "--reporter",
+      "compact"
+    ],
+    "MPI_ranks": 1,
+    "environment": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "OMPI_MCA_mpi_yield_when_idle": "1"
+    }
+  },
+  "log": "hidden_support_1791894336333803726.log",
+  "log_sha256": "3f6c9206904c24271d3b2426ee78f4848c2ecf1194e463bf77d5924548a2bff2",
+  "elapsed_seconds": 14.88651458604727,
+  "scope": "kernel/complexity correctness only; MPI case counts explicit in contract"
+}
