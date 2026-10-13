@@ -101,6 +101,7 @@ class CBoundaryLayerMetric {
     su2double normal[3] = {0.0}; /*!< \brief Unit wall-normal direction. */
     su2double hn = 0.0;         /*!< \brief Wall-normal size. */
     Tensor full;                /*!< \brief Wall metric at full strength. */
+    Tensor logarithm;           /*!< \brief 3D log metric formed before mixing normal/tangent scales. */
     Tensor metric;              /*!< \brief Wall metric with the fade (equal to full where weight is 1). */
   };
 
@@ -192,6 +193,12 @@ class CBoundaryLayerMetric {
    */
   std::vector<IntegrationPoint2D> IntegrationRule2D(
       const std::array<std::array<double, 2>, 3>& triangle, double bandRatio = 1.5);
+
+  /*! Sorted chord parameters resolving every faceted-wall distance band in 2D/3D.
+   *  Face/edge/vertex offset intersections detect a thin band even when both endpoints
+   *  and the midpoint are outside it. Used with actual-point composition, never nodal BL tensors. */
+  std::vector<double> EdgeBreakpoints(const std::array<double, 3>& a, const std::array<double, 3>& b,
+                                      double bandRatio = 1.5);
 
   std::vector<PointSample> SamplePoints(const std::vector<su2double>& coord);
   /*! Same intersection/fade policy for cached integration samples and actual remesher queries. */

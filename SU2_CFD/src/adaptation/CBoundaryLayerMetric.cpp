@@ -67,6 +67,49 @@ void Spectral(unsigned short n, const Mat3& A, Mat3& B, F f) {
     for (unsigned short j = 0; j < n; ++j) B[i][j] = 0.5 * (C[i][j] + C[j][i]);
 }
 
+/*--- Invert the tangent block independently: a 3D eigensolve can lose h0^2
+ *     through large spectral shifts even on a flat wall. Keep its logarithm for the fade. ---*/
+void WallMetric3D(const Mat3& size, CBoundaryLayerMetric::Sample& sample) {
+#if defined(CODI_FORWARD_TYPE) || defined(CODI_REVERSE_TYPE)
+  // Native3D is primal-only; retain the existing active wall-metric path for other callers.
+  su2double combined[3][3];
+  for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)
+    combined[i][j]=size[i][j]+pow(sample.hn,2)*sample.normal[i]*sample.normal[j];
+  Spectral(3,combined,sample.full.m,[](su2double value){return 1/value;});
+  Spectral(3,sample.full.m,sample.logarithm.m,[](su2double value){return log(value);});
+#else
+  using Vector = std::array<long double,3>;
+  Vector n{SU2_TYPE::GetValue(sample.normal[0]),SU2_TYPE::GetValue(sample.normal[1]),SU2_TYPE::GetValue(sample.normal[2])};
+  const unsigned axis=std::min_element(n.begin(),n.end(),[](auto a,auto b){return std::abs(a)<std::abs(b);})-n.begin();
+  Vector u{},v{};
+  u[(axis+1)%3]=n[(axis+2)%3];u[(axis+2)%3]=-n[(axis+1)%3];
+  const auto length=std::sqrt(u[0]*u[0]+u[1]*u[1]+u[2]*u[2]);
+  for(auto& x:u) x/=length;
+  v={n[1]*u[2]-n[2]*u[1],n[2]*u[0]-n[0]*u[2],n[0]*u[1]-n[1]*u[0]};
+  long double aa=0,bb=0,cc=0;
+  for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j) {
+    const auto s=SU2_TYPE::GetValue(size[i][j]);
+    aa+=u[i]*s*u[j];bb+=u[i]*s*v[j];cc+=v[i]*s*v[j];
+  }
+  const auto scale=std::max({std::abs(aa),std::abs(bb),std::abs(cc)});
+  if (!(scale>0) || !std::isfinite(scale))
+    throw std::runtime_error("Invalid native 3D wall tangent size.");
+  aa/=scale;bb/=scale;cc/=scale;
+  const auto largest=.5L*(aa+cc+std::hypot(aa-cc,2*bb));
+  const auto smallest=std::fma(aa,cc,-bb*bb)/largest;
+  if (!(smallest>0)) throw std::runtime_error("Singular native 3D wall tangent size.");
+  const auto angle=.5L*std::atan2(2*bb,aa-cc), cosine=std::cos(angle), sine=std::sin(angle);
+  Vector q{},r{};
+  for(unsigned i=0;i<3;++i) {q[i]=cosine*u[i]+sine*v[i];r[i]=-sine*u[i]+cosine*v[i];}
+  const auto l0=std::log(scale)+std::log(largest),l1=std::log(scale)+std::log(smallest);
+  const auto ln=-2*std::log(SU2_TYPE::GetValue(sample.hn));
+  for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j) {
+    sample.full.m[i][j]=std::exp(-l0)*q[i]*q[j]+std::exp(-l1)*r[i]*r[j]+std::exp(ln)*n[i]*n[j];
+    sample.logarithm.m[i][j]=-l0*q[i]*q[j]-l1*r[i]*r[j]+ln*n[i]*n[j];
+  }
+#endif
+}
+
 /*--- Rotation that takes the unsigned axis "source" to "target" by the shortest rotation (sign of the source chosen
  *    nearer to the target): R = I + [v]x + [v]x^2 / (1 + c), v = a x target, c = a . target. ---*/
 void RotateNormal(const su2double* source, const su2double* target, Mat3& R) {
@@ -867,16 +910,16 @@ CBoundaryLayerMetric::Sample CBoundaryLayerMetric::Evaluate(unsigned short iWall
       for (int j = 0; j < 2; ++j)
         M[i][j] = tangent[i] * tangent[j] / (ht * ht) + sample.normal[i] * sample.normal[j] / pow(sample.hn, 2);
   } else {
-    su2double S[3][3];
-    for (int i = 0; i < 3; ++i)
-      for (int j = 0; j < 3; ++j) S[i][j] = tangentSize[i][j] + pow(sample.hn, 2) * sample.normal[i] * sample.normal[j];
-    Spectral(3, S, M, [](su2double v) { return 1.0 / v; });
+    WallMetric3D(tangentSize, sample);
   }
 
   /*--- Fade: eigenvalues interpolated in logarithm towards the isotropic core metric. ---*/
   if (sample.weight < 1.0) {
     const su2double w = sample.weight;
-    Spectral(nDim, M, sample.metric.m, [&](su2double v) { return exp(w * log(v) + (1.0 - w) * log(coreEigenvalue)); });
+    if (nDim == 3)
+      Spectral(3, sample.logarithm.m, sample.metric.m, [&](su2double v) { return exp(w*v + (1-w)*log(coreEigenvalue)); });
+    else
+      Spectral(2, M, sample.metric.m, [&](su2double v) { return exp(w*log(v) + (1-w)*log(coreEigenvalue)); });
   } else {
     sample.metric = sample.full;
   }
@@ -921,6 +964,99 @@ std::shared_ptr<CBoundaryLayerMetric> CBoundaryLayerMetric::FromNativeReference(
     walls.push_back(std::move(wall));
   }
   return std::make_shared<CBoundaryLayerMetric>(2, std::move(walls), config.GetAdap_Angle());
+}
+
+std::vector<double> CBoundaryLayerMetric::EdgeBreakpoints(
+    const std::array<double, 3>& a, const std::array<double, 3>& b, double bandRatio) {
+  if (!std::isfinite(bandRatio) || !(bandRatio > 1.0))
+    throw std::invalid_argument("Invalid native BL edge band ratio.");
+  using Vector = std::array<long double, 3>;
+  Vector chord{};
+  for (unsigned j = 0; j < nDim; ++j) {
+    if (!std::isfinite(a[j]) || !std::isfinite(b[j]))
+      throw std::invalid_argument("Nonfinite native BL chord.");
+    chord[j] = static_cast<long double>(b[j]) - a[j];
+  }
+  auto dot = [](const Vector& u, const Vector& v) {
+    return u[0]*v[0] + u[1]*v[1] + u[2]*v[2];
+  };
+  if (!(dot(chord,chord) > 0)) throw std::invalid_argument("Zero native BL chord.");
+  std::vector<double> cuts{0,1};
+  auto retain = [&](long double t) {
+    if (t > 0 && t < 1) {
+      if (cuts.size() >= 65536) throw std::runtime_error("Native BL edge breakpoints exceed work budget.");
+      cuts.push_back(static_cast<double>(t));
+    }
+  };
+  auto roots = [&](long double aa, long double bb, long double cc) {
+    const auto scale = std::max({std::abs(aa),std::abs(bb),std::abs(cc)});
+    if (!scale) return;
+    aa /= scale; bb /= scale; cc /= scale;
+    if (!aa) { if (bb) retain(-cc/bb); return; }
+    const auto discriminant = std::fma(bb,bb,-4*aa*cc);
+    if (discriminant < 0) return;
+    const auto q = -.5L*(bb + std::copysign(std::sqrt(discriminant),bb));
+    if (!q) retain(-bb/(2*aa));
+    else { retain(q/aa); retain(cc/q); }
+  };
+  for (unsigned short wall = 0; wall < walls.size(); ++wall) {
+    const auto& d = *data[wall];
+    if (!d.adt) continue;
+    const double h0 = SU2_TYPE::GetValue(d.h0), full = SU2_TYPE::GetValue(d.full);
+    const double thickness = SU2_TYPE::GetValue(d.thickness);
+    std::vector<double> levels{0,.5*h0};
+    for (double level = h0; level < full;) {
+      if (levels.size() >= 4096) throw std::runtime_error("Native BL distance bands exceed work budget.");
+      levels.push_back(level);
+      const double next = level*bandRatio;
+      if (!(next > level)) throw std::runtime_error("Unresolved native BL distance bands.");
+      level = next;
+    }
+    levels.push_back(full);
+    for (unsigned k = 1; k <= 16; ++k) levels.push_back(full + (thickness-full)*k/16);
+    su2double low[3]{}, high[3]{};
+    for (unsigned j = 0; j < nDim; ++j) {
+      low[j] = std::min(a[j],b[j])-thickness;
+      high[j] = std::max(a[j],b[j])+thickness;
+    }
+    std::vector<unsigned long> faces;
+    d.adt->DetermineIntersectingElements(low,high,faces);
+    std::sort(faces.begin(),faces.end());
+    for (const auto face : faces) {
+      const unsigned count = nDim == 2 ? 2 : 3;
+      Vector x[3]{};
+      for (unsigned k = 0; k < count; ++k)
+        for (unsigned j = 0; j < nDim; ++j)
+          x[k][j] = SU2_TYPE::GetValue(walls[wall].coord[nDim*d.elem[count*face+k]+j]);
+      // All feature roots are retained; extra cuts are harmless and avoid fragile Voronoi predicates.
+      for (unsigned k = 0; k < count; ++k) {
+        Vector r{};
+        for (unsigned j = 0; j < nDim; ++j) r[j] = a[j]-x[k][j];
+        for (const auto level : levels)
+          roots(dot(chord,chord),2*dot(r,chord),dot(r,r)-static_cast<long double>(level)*level);
+        if (nDim == 2 && k == 1) continue;
+        Vector edge{};
+        for (unsigned j = 0; j < nDim; ++j) edge[j] = x[(k+1)%count][j]-x[k][j];
+        const auto ee = dot(edge,edge), re = dot(r,edge)/ee, ce = dot(chord,edge)/ee;
+        Vector rp{}, cp{};
+        for (unsigned j = 0; j < nDim; ++j) { rp[j]=r[j]-re*edge[j]; cp[j]=chord[j]-ce*edge[j]; }
+        for (const auto level : levels)
+          roots(dot(cp,cp),2*dot(rp,cp),dot(rp,rp)-static_cast<long double>(level)*level);
+      }
+      if (nDim == 3) {
+        Vector u{},v{},normal{},r{};
+        for (unsigned j = 0; j < 3; ++j) { u[j]=x[1][j]-x[0][j]; v[j]=x[2][j]-x[0][j]; r[j]=a[j]-x[0][j]; }
+        normal={u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]};
+        const auto nn=std::sqrt(dot(normal,normal)), slope=dot(chord,normal), offset=dot(r,normal);
+        if (slope) for (const auto level : levels) {
+          retain((level*nn-offset)/slope); retain((-level*nn-offset)/slope);
+        }
+      }
+    }
+  }
+  std::sort(cuts.begin(),cuts.end());
+  cuts.erase(std::unique(cuts.begin(),cuts.end()),cuts.end());
+  return cuts;
 }
 
 std::vector<CBoundaryLayerMetric::PointSample> CBoundaryLayerMetric::SamplePoints(const std::vector<su2double>& coord) {
@@ -1090,9 +1226,14 @@ void CBoundaryLayerMetric::ApplySample(unsigned short wall, const Sample& sample
   if (!(sample.weight > 0.0)) return;
   Tensor faded = sample.full;
   if (sample.weight < 1.0) {
-    Spectral(nDim, sample.full.m, faded.m, [&](su2double value) {
-      return exp(sample.weight * log(value) + (1.0 - sample.weight) * log(coreEigenvalue));
-    });
+    if (nDim == 3)
+      Spectral(3, sample.logarithm.m, faded.m, [&](su2double value) {
+        return exp(sample.weight*value + (1-sample.weight)*log(coreEigenvalue));
+      });
+    else
+      Spectral(2, sample.full.m, faded.m, [&](su2double value) {
+        return exp(sample.weight*log(value) + (1-sample.weight)*log(coreEigenvalue));
+      });
   }
   su2double C[3][3] = {{0.0}};
   CSolver::IntersectMetrics(nDim, metric.m, faded.m, C);

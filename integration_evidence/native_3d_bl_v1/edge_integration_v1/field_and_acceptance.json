@@ -1,0 +1,48 @@
+{
+  "stage": "field_and_acceptance",
+  "status": "PASS",
+  "returncode": 0,
+  "contract": {
+    "provenance": {
+      "Common/include/adaptation/CNativeField3D.hpp": "856b7faf85c7f85164796269382682e4bd326357c9919b604da208aa2a96d74c",
+      "Common/src/adaptation/CNativeField3D.cpp": "9f4db58a2fbc92f0f408f91d89807238e94a4f45ae61d607c6414b8f3d0f4c9d",
+      "Common/include/adaptation/CNativeEngine3D.hpp": "4c788b59b18313c716a6ddd85840615dcc7003baf36a634c5856324cbb7bffa5",
+      "Common/src/adaptation/CNativeEngine3D.cpp": "f1b2c5130b8bbfb1b04f34cc2004890b068822a6c2d2024e475f03fb644834e2",
+      "Common/src/adaptation/CNativeRemesher3D.cpp": "7fe375485fd5f9dfafb4bc4ed94d083cf7a3950d7b46412ee35b9acc95723364",
+      "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "4b9e2f37fdc7a4c80259d88a64bbabedcb37bd4c3b8a33e420d26748253215d3",
+      "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "af88b27d5b6720bb8183111597c211541f8d482436688831aa80661f1bbff3c6",
+      "UnitTests/Common/adaptation/CNativeField3D_tests.cpp": "838dcf620b1951dde22e5cfc437d26ed36a923e59438d0e6bcc2bd12a09ec393",
+      "UnitTests/Common/adaptation/CNativeMetric3D_tests.cpp": "1c587ef2ba77f2e339e17d59ef11ffb69253c93b4d18f6411c6d8002f986bfac",
+      "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "650028e4a0d773e239202c2fcfa1d4b2885cbc2b9b1d5d949b71b61a34428d0d",
+      "binary": "88c34758f24095df0939384a3cd2efe7f332eede5b7d21a07cd0f36a88476cb1",
+      "helper": "60fd8b91bd7758a34a55497fca34b442cebb75a667b3a17053a10379beaa4da6",
+      "compile_commands": "17a19ce625ceabf3f70dba005aebef0990be029c491666e86144787717316540",
+      "object:Common/src/libSU2AccurateSum.a.p/adaptation_CNativeField3D.cpp.o": "7af1147e9113f2e94e372eb59f53af2dbeb8b96e1fbaf6a0083c32f88725c37b",
+      "object:Common/src/libSU2AccurateSum.a.p/adaptation_CNativeEngine3D.cpp.o": "ca55cef3ddc7e2fd54d45fa56f69dab22b3edc544b4c2704911eebe4a551eef1",
+      "object:SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerMetric.cpp.o": "e045072c4294033c6ffd9a894145a436c2b1edff296f528b9aaead38913d1746",
+      "object:UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o": "3c3442c4250f53222ea9d527bb6d3d2361e77bc62f8bee1169f6c51d83671325",
+      "object:UnitTests/test_driver.p/Common_adaptation_CNativeField3D_tests.cpp.o": "ab9ae219754513a3cd751f8fa6b9fbea0360cfade6522eeb667bc877af2076ae"
+    },
+    "command": [
+      "taskset",
+      "-c",
+      "7",
+      "nice",
+      "-n",
+      "19",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+      "Native 3D P1 weights are magnitude-controlled in rotated thin donors,Native 3D original sensor cache recomposes thin geometric demand at every query,Native 3D original donor ties use original node keys independently of cell IDs and delivery,Native 3D ADT avoids scanning spatially separated original donors,Native 3D sensor reuse is bounded and FIFO eviction does not change values,Native 3D original sensor rejects invalid admission\\, extrapolation and composition,Native 3D sensor edge integration resolves thin source demand without coarse spreading,Native 3D sensor edge length integrates affine donors and rejects incomplete coverage,Native 3D sensor intervals retain nonzero width when rounded cuts coincide,Curved projection requires explicit frozen metric coverage outside the original mesh,Explicit frozen coverage keeps original P1 priority and consistent original exterior edge integrals,Layered exact coverage preserves thin original sensor demand and nonzero coincident-cut widths,Declared layered fields reject invalid priority records and ambiguous exterior coverage,Native composed edge integration rejects malformed bands,Native 3D final metric gate requires length\\, shape and sliver criteria,Native 3D private refinement can progress before the final global size gate,Native 3D metric gate never uses sensor integration to qualify a composed target,Native 3D metric repair accepts improving interior movement and rejects regression,Native 3D metric repair couples face reconnection to actual frozen quality,Native 3D frozen scalar reuse checks coordinates and preserves composed rejection,Native general wall collapse retains fine demands through the frozen metric gate,Native private shape rejection avoids edge tracing while preserving actual composition,Native 3D streamed metric measurements retain the full frozen progress gate,Native metric diagnosis separates shape\\, measurement and frozen progress failures,Geometry-only repairs retain strict shape and changed-edge excess gates",
+      "--reporter",
+      "compact"
+    ],
+    "MPI_ranks": 1,
+    "environment": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1"
+    }
+  },
+  "log": "field_and_acceptance_1791879380500154422.log",
+  "log_sha256": "03352378c3248cf03f3ddc2046157cec828f121f4f7d241509db94fdfbb7453c",
+  "elapsed_seconds": 3.692088527022861,
+  "scope": "serial kernel correctness only"
+}

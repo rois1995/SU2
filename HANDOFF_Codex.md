@@ -1,3 +1,54 @@
+# Goal 3 ACTIVE — 2026-10-13
+
+Repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
+Branch: codex/native-3d-bl, based on published Goal2 checkpoint
+c43a8a3907ea2655e4ebbb6286ab16c3fa625d8b. Goal2 remains COMPLETE.
+
+User explicitly activated Goal3: robust coarse Euler-to-BL and BL-to-Euler
+native tetrahedral adaptation, with performance central and minimal wasted effort
+and SU2 runs. Full scope remains NATIVE_3D_DEVELOPMENT_GOALS.md Goal3 and the
+active goal tool; no metric-only prototype may establish completion.
+
+First connected implementation: shared 2D/3D faceted-wall distance-band chord
+breakpoints; native3D composed edge quadrature through exact sensor-source
+intervals, retaining original P1/finer demands/fade and actual-query composition.
+Engine/private/proxy fields receive the frozen geometry-band callback.
+Sensor-only edge integration retains the existing analytic path. Missing/invalid
+bands, quadrature failure or work exhaustion reject explicitly. The production
+3DBL guard remains until first-height construction and complete qualification.
+
+Focused checks added: microscopic flat-wall layer/reference integral, reverse
+chord, finer sensor preservation, no coarse-cell tensor spreading, hidden finite
+wall missed by endpoints/midpoint, malformed callback and sensor-only equivalence.
+Focused builds43338/57536/61486/36229 and validation45064 are terminal.
+No owned heavy job remains live. Initial3D reference failure was isolated to
+existing wall-metric spectral cancellation (full eigenvalue1.0016903085788469e12
+vs1e12 at h0=1e-6). Fixed primal normal/tangent inversion/log-fade passes final
+source/build/object/binary-pinned checks:19 BL cases/3486assertions plus25 field
+and metric-acceptance cases (see validation.json for exact totals). Original
+failed logs and direct-point diagnosis remain preserved. The production3DBL
+first-height guard remains. Active-scalar wall inversion retains its old path;
+AD runtime is not qualified. Separate nested edge geometry/composition times and
+bounded breakpoint scratch are included. No CFD/cluster/performance run.
+
+Evidence and resumable helper:
+integration_evidence/native_3d_bl_v1/edge_integration_v1.
+Validation pins relevant sources, compile commands, objects, binary and helper;
+reuse requires all pins and stage log hashes. This is serial kernel qualification,
+not 3DBL remesh/MPI/viscous/complexity qualification. Entire Goal3 remains ACTIVE.
+
+Next: inspect focused build/test outcome, implement thin-tetrahedral complexity
+quadrature and immutable3D/analytic wall authority, then coordinated prescribed
+height/transition construction with feasibility/coverage diagnostics. Reuse all
+qualified Goal2 topology/MPI/transfer/restart infrastructure. Separate sensor vs
+composed gradation audit; preserve ADAP_HESSIAN_NOISE=0. Actual RANS, repeated
+Euler/BL transitions, MPI1/2/4 and full lifecycle performance are later mandatory
+Goal3 gates. Follow AGENTS batching/provenance/resumption policy. Push reviewable
+checkpoints, label incomplete work; leave AdapNoExt/foreign evidence/dependencies
+and other workers untouched.
+
+Earlier notices below are historical.
+
 # Goal 2 COMPLETE locally and published — 2026-10-13
 
 Repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.

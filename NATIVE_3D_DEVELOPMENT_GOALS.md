@@ -13,12 +13,13 @@ Implementation branch: codex/native-3d-transport-accounting.
 Qualified batching baseline:3345e2bc9d9561045e459f89ea046a3c7583fd5d.
 Pushed execution-policy snapshot/handoff:7dd0aff6d12d7213781f1e6ce6cca0d184ebd81f.
 Preserve AdapNoExt, other workers and the existing2D/MMG implementation.
-Goals1–2 are COMPLETE under their revised local-only scopes; Goals3–4 remain
-prepared and unactivated.
+Goals1–2 are COMPLETE under their revised local-only scopes; Goal3 is ACTIVE
+on codex/native-3d-bl from c43a8a3907ea2655e4ebbb6286ab16c3fa625d8b
+(user activation2026-10-13). Goal4 remains prepared and unactivated.
 Qualified source/evidence pushedf782ddc4b20703461b3c3b06192126879639d55a.
 Goal2 completion is published on codex/native-3d-curved-local at
 bec2e50a9b248f459daebabf17001fb98c1836d1; its qualification commit is
-85617b0f0e0b14024bc8841bf676aa2386c2f2f5. Goals3–4 remain prepared.
+85617b0f0e0b14024bc8841bf676aa2386c2f2f5. Goal3 is active; Goal4 remains prepared.
 
 ## Current local-only execution contract
 

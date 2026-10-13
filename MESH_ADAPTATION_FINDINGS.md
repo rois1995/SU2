@@ -1,3 +1,24 @@
+# Goal3 geometric BL integration in progress — 2026-10-13
+
+Working branch codex/native-3d-bl in SU2_NativeIntegrated, based on published
+Goal2 final checkpoint c43a8a3907ea2655e4ebbb6286ab16c3fa625d8b.
+The3D FrozenField already caches sensors only and composes at every actual query;
+its missing composed edge path deliberately rejected productionBL. New faceted
+geometry distance-band breakpoints and exact-source composed quadrature are being
+implemented and checked. Endpoint/midpoint-only sampling cannot resolve arbitrary
+thin finite-wall bands. A focused flat-wall test also exposed existing3D spectral
+cancellation: h0=1e-6 produced normal eigenvalue1.0016903085788469e12,
+0.169% above the requested1e12. Independent normal/tangent inversion and a
+pre-mixing logarithm fix the primal wall metric/fade; finer sensor requests are
+still intersected. Final pinned checks pass19 BL cases/3486assertions
+and25 field/metric-acceptance cases. No actual3DBL remesh/MPI qualification. Historical failures are retained in native_3d_bl_v1. These changes do not yet qualify native3DBL: coarse-tet
+complexity, analytic wall authority, first-height/transition construction, composed
+gradation and actual RANS/MPI/lifecycle/performance remain mandatory work. Keep
+production rejection until the complete construction is supported. No CFD run or
+speedup claim from this arithmetic checkpoint.
+
+Earlier findings below are historical.
+
 # Goal 2 COMPLETE locally and published — 2026-10-13
 
 Repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.

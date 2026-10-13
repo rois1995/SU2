@@ -15,11 +15,12 @@
 class CADTElemClass;
 namespace SU2Native3D {
 class PlanarReference;
-constexpr size_t MaximumDonors = MaximumSegmentDonors, MaximumSensorSamples = 2048;
+constexpr size_t MaximumDonors = MaximumSegmentDonors, MaximumSensorSamples = 2048, MaximumGeometricEdgeCuts = 65536;
 // Imported records/indexes, bounded sensor cache and exact layered segment scratch; excludes CFD/allocator/RSS.
-constexpr size_t MaximumFrozenFieldBytes = MaximumDonors * 12288 + MaximumSensorSamples * 256;
+constexpr size_t MaximumFrozenFieldBytes = MaximumDonors * 12288 + MaximumSensorSamples * 256 + MaximumGeometricEdgeCuts * sizeof(double);
 using Metric = std::function<Tensor(Point)>;
 using MetricComposition = std::function<Tensor(Point, Tensor)>;
+using MetricEdgeBreakpoints = std::function<std::vector<double>(Point, Point)>;
 struct DonorCell {
   Cell cell;
   std::array<Tensor, 4> sensor;
@@ -46,10 +47,11 @@ struct FieldStats {
   double build_seconds = 0, query_seconds = 0, cache_seconds = 0;
   double search_seconds = 0, interpolation_seconds = 0, composition_seconds = 0;
   uint64_t edge_requests = 0, edge_failures = 0, edge_box_candidates = 0, edge_pieces = 0;
-  uint64_t edge_containment_tests = 0, edge_direct_intervals = 0;
+  uint64_t edge_containment_tests = 0, edge_direct_intervals = 0, edge_compositions = 0;
   uint64_t extended_queries = 0, extended_edge_pieces = 0;
   size_t maximum_edge_candidates = 0, maximum_edge_pieces = 0;
   double edge_seconds = 0, edge_search_seconds = 0, edge_trace_seconds = 0, edge_integral_seconds = 0;
+  double edge_geometry_seconds = 0, edge_composition_seconds = 0;  // Nested in edge_integral_seconds.
   KernelStats kernel;
 };
 /*! Bounded imported original donor patch, not an evolving-mesh metric. One instance per private worker.
@@ -61,7 +63,7 @@ struct FieldStats {
 class FrozenField {
  public:
   explicit FrozenField(std::vector<DonorCell> original, MetricComposition composition = {}, bool timings = false,
-                       std::vector<Id> extension_components = {});
+                       std::vector<Id> extension_components = {}, MetricEdgeBreakpoints edge_breakpoints = {});
   ~FrozenField();
   FieldSample Query(Point point);
   Tensor evaluate(Point point) { return Query(point).target; }
@@ -69,13 +71,14 @@ class FrozenField {
    * Composition is deliberately excluded.
    * Composed-target acceptance requires separate geometric breakpoints/integration, never this sensor audit alone. */
   long double SensorEdgeLength(Point a, Point b);
-  /*! Actual-target edge audit. Composed fields reject until a geometry-resolved integrator is supplied;
-   * never silently substitutes the sensor-only integral for a composed target. */
+  /*! Actual-target integral through exact source intervals and geometric distance bands.
+   * Composed fields without declared geometric breakpoints reject; sensor-only fields stay analytic. */
   long double TargetEdgeLength(Point a, Point b);
   bool SensorOnly() const { return !composition; }
   const FieldStats& Statistics() const { return stats; }
 
  private:
+  long double EdgeLength(Point a, Point b, bool composed);
   void FindCandidates(Point lo, Point hi);
   struct Hash {
     size_t operator()(const std::array<double, 3>& point) const;
@@ -87,6 +90,7 @@ class FrozenField {
   };
   std::vector<DonorCell> donors;
   const MetricComposition composition;
+  const MetricEdgeBreakpoints edge_breakpoints;
   const bool timings;
   std::unique_ptr<CADTElemClass> search;
   std::vector<unsigned long> candidates;

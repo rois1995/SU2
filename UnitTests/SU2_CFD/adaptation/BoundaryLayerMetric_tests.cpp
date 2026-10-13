@@ -32,6 +32,7 @@
 
 #include "../../../Common/include/CConfig.hpp"
 #include "../../../Common/include/adaptation/CNativeImport2D.hpp"
+#include "../../../Common/include/adaptation/CNativeField3D.hpp"
 #include "../../../Common/include/geometry/CPhysicalGeometry.hpp"
 #include "../../../Common/include/geometry/meshreader/CMemoryMeshReaderFVM.hpp"
 #include "../../../Common/include/linear_algebra/blas_structure.hpp"
@@ -873,6 +874,107 @@ TEST_CASE("Native sparse gradation reaches a remote demand beyond eighty rounds"
     if (fabs(x[1]-.5)<1e-12 && x[0]>=seedX) {
       const auto expected = seedSize+log(1.01)*(x[0]-seedX);
       CHECK(1/sqrt(test.Metric(point).m[0][0]) == Approx(expected).epsilon(5e-6));
+    }
+  }
+}
+
+TEST_CASE("Native 3D composed edges resolve a microscopic BL without spreading donor tensors",
+          "[NativeComposite3D]") {
+  using namespace SU2Native3D;
+  const double h0=1e-6, thickness=.01;
+  CBoundaryLayerMetric::Wall wall;
+  wall.layer={"wall",h0,1.,thickness};
+  wall.coord={-2,-2,0, 2,-2,0, 2,2,0, -2,2,0};
+  wall.conn={0,1,2,2, 0,2,3,3};
+  CBoundaryLayerMetric layers(3,{wall});
+  DonorCell donor;
+  donor.cell={0,{{{0,{0,0,0}},{1,{1,0,0}},{2,{0,1,0}},{3,{0,0,1}}}}};
+  for(auto& m:donor.sensor) m={1,0,0,1,0,1};
+  const auto compose=[&](Point p,SU2Native3D::Tensor sensor) {
+    CBoundaryLayerMetric::Tensor m;
+    m.m[0][0]=sensor.xx; m.m[1][1]=sensor.yy; m.m[2][2]=sensor.zz;
+    const su2double x[3]={p.x,p.y,p.z};
+    layers.ApplyPoint(x,m,1.,nullptr,false);
+    return SU2Native3D::Tensor{SU2_TYPE::GetValue(m.m[0][0]),SU2_TYPE::GetValue(m.m[0][1]),SU2_TYPE::GetValue(m.m[0][2]),
+        SU2_TYPE::GetValue(m.m[1][1]),SU2_TYPE::GetValue(m.m[1][2]),SU2_TYPE::GetValue(m.m[2][2])};
+  };
+  const auto bands=[&](Point a,Point b) {return layers.EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z});};
+  const Point a{.125,.125,0},b{.125,.125,.6};
+  FrozenField field({donor},compose,true,{},bands);
+  // Independent one-dimensional reference, retaining the original smoothstep/log fade.
+  double expected=.6-thickness+.9*thickness/h0;
+  const unsigned n=10000;
+  for(unsigned k=0;k<=n;++k) {
+    const double t=double(k)/n, w=1-t*t*(3-2*t);
+    expected+=.1*thickness/n/3*(k==0||k==n?1:(k%2?4:2))*std::pow(h0,-w);
+  }
+  for(const double z:{0.,.005,.009,.0091,.0095,.0099,.01}) {
+    const su2double x[3]={.125,.125,z};
+    const auto sample=layers.Evaluate(0,x,1.);
+    const double t=std::clamp((z-.9*thickness)/(.1*thickness),0.,1.),w=1-t*t*(3-2*t);
+    INFO("z=" << z << " weight=" << sample.weight << " fullzz=" << sample.full.m[2][2]);
+    if(z<thickness) CHECK(SU2_TYPE::GetValue(sample.metric.m[2][2])==Approx(std::pow(h0,-2*w)).epsilon(1e-8));
+    CHECK(compose({.125,.125,z},{1,0,0,1,0,1}).zz==Approx(std::pow(h0,-2*w)).epsilon(1e-8));
+  }
+  CHECK(double(field.TargetEdgeLength(a,b))==Approx(expected).epsilon(2e-9));
+  CHECK(double(field.TargetEdgeLength(b,a))==Approx(expected).epsilon(2e-9));
+  CHECK(double(field.SensorEdgeLength(a,b))==Approx(.6).epsilon(1e-14));
+  CHECK(field.Query({.125,.125,.1}).sensor.zz==1);
+  CHECK(field.Query({.125,.125,.1}).target.zz==Approx(1));
+  CHECK(field.Statistics().compositions<10000);
+  CHECK(field.Statistics().edge_compositions>0);
+  CHECK(field.Statistics().edge_geometry_seconds>0);
+  CHECK(field.Statistics().edge_composition_seconds>0);
+  for(auto& m:donor.sensor) m.zz=1e14;
+  FrozenField finer({donor},compose,false,{},bands);
+  CHECK(double(finer.TargetEdgeLength(a,b))==Approx(.6e7).epsilon(1e-12));
+  FrozenField missing({donor},compose);
+  CHECK_THROWS(missing.TargetEdgeLength(a,b));
+}
+
+TEST_CASE("Geometric 3D edge bands detect walls missed by endpoints and midpoint", "[NativeComposite3D]") {
+  CBoundaryLayerMetric::Wall wall;
+  wall.layer={"wall",1e-6,1.2,1e-4};
+  wall.coord={.29,.09,0, .31,.09,0, .30,.12,0};wall.conn={0,1,2,2};
+  CBoundaryLayerMetric layers(3,{wall});
+  const std::array<double,3> a{.1,.1,2e-6},b{.9,.1,2e-6};
+  for(const double t:{0.,.5,1.}) {
+    const su2double x[3]={(1-t)*a[0]+t*b[0],.1,2e-6};
+    CHECK(layers.Evaluate(0,x,1.).weight==0);
+  }
+  const auto cuts=layers.EdgeBreakpoints(a,b);
+  REQUIRE(cuts.size()>2);
+  bool active=false;
+  for(size_t k=1;k<cuts.size();++k) {
+    const double t=.5*(cuts[k-1]+cuts[k]);
+    const su2double x[3]={(1-t)*a[0]+t*b[0],.1,2e-6};
+    active=active || layers.Evaluate(0,x,1.).weight>0;
+  }
+  CHECK(active);
+  CHECK_THROWS(layers.EdgeBreakpoints(a,b,1.));
+  CHECK_THROWS(layers.EdgeBreakpoints(a,a));
+}
+
+TEST_CASE("Native 3D wall normal size survives rotated extreme layer aspect ratios", "[NativeComposite3D]") {
+  const double c=std::cos(.37),s=std::sin(.37);
+  for(const double h0:{1e-3,1e-6,1e-8}) {
+    CBoundaryLayerMetric::Wall wall;wall.layer={"wall",h0,1.,.01};
+    // Rotate both the reference and actual query; the normal eigenvalue is independently known.
+    for(const auto xy:std::vector<std::array<double,2>>{{-2,-2},{2,-2},{2,2},{-2,2}}) {
+      wall.coord.push_back(c*xy[0]);wall.coord.push_back(xy[1]);wall.coord.push_back(-s*xy[0]);
+    }
+    wall.conn={0,1,2,2,0,2,3,3};CBoundaryLayerMetric layers(3,{wall});
+    for(const double z:{0.,.005,.0095}) {
+      const su2double x[3]={s*z,0,c*z};const auto sample=layers.Evaluate(0,x,1.);
+      double normal=0;
+      const double n[3]={s,0,c};
+      for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)
+        normal+=n[i]*SU2_TYPE::GetValue(sample.metric.m[i][j])*n[j];
+      const double t=std::clamp((z-.009)/.001,0.,1.),w=1-t*t*(3-2*t);
+      INFO("h0=" << h0 << " z=" << z);
+      CHECK(normal==Approx(std::pow(h0,-2*w)).epsilon(2e-12));
+      const auto& m=sample.full.m;
+      CHECK(SU2_TYPE::GetValue(m[0][0]+m[2][2])>0);
     }
   }
 }

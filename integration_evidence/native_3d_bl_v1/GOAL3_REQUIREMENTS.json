@@ -1,0 +1,86 @@
+{
+  "goal": 3,
+  "status": "ACTIVE",
+  "branch": "codex/native-3d-bl",
+  "base": "c43a8a3907ea2655e4ebbb6286ab16c3fa625d8b",
+  "acceptance": {
+    "minimum_mean_ratio": 0.2,
+    "minimum_scaled_jacobian": 0.05,
+    "maximum_composed_edge": 1.8,
+    "sensor": "immutable original P1; finer demands retained",
+    "BL": "actual-query geometry; existing fade; no hard-normal reset",
+    "first_height": "prescribed; certify alignment and coverage separately",
+    "MPI_ranks": [
+      1,
+      2,
+      4
+    ]
+  },
+  "requirements": [
+    {
+      "id": "composition",
+      "scope": "one immutable geometric BL policy, including private/remote queries and complexity",
+      "status": "pending"
+    },
+    {
+      "id": "edge_integration",
+      "scope": "geometry-resolved full composed edges and unchanged analytic sensor path",
+      "status": "serial kernel PASS; faceted distance bands and exact-source composition implemented; full remesh/MPI/analytic qualification pending"
+    },
+    {
+      "id": "thin_volume",
+      "scope": "thin BL quadrature inside coarse tetrahedra; convergence and complexity consistency",
+      "status": "pending"
+    },
+    {
+      "id": "construction",
+      "scope": "joint wall/near-wall/transition reconstruction with height/alignment/coverage and feasibility diagnostics",
+      "status": "pending"
+    },
+    {
+      "id": "gradation",
+      "scope": "separate sensor and composed-field audits without coarse spreading",
+      "status": "pending"
+    },
+    {
+      "id": "geometry",
+      "scope": "planar/curved/features/junctions/interacting layers; refine/coarsen and geometry authority",
+      "status": "pending"
+    },
+    {
+      "id": "MPI_transfer",
+      "scope": "N=M/M<N, complete dependencies, atomic rejection; conservative current+BDF, positivity and turbulence",
+      "status": "pending"
+    },
+    {
+      "id": "workflow",
+      "scope": "Euler-to-BL / BL-to-Euler, actual small 3D RANS/M6 where practical; SU2+CGNS/reference/restart",
+      "status": "pending"
+    },
+    {
+      "id": "viscous_accuracy",
+      "scope": "declared wall-shear/force references, convergence and explicit feasibility limits",
+      "status": "pending"
+    },
+    {
+      "id": "performance",
+      "scope": "complete cold construction/update lifecycle, repartition/migration/transfer/output; adaptation-to-CFD cost, memory/work/imbalance",
+      "status": "pending"
+    },
+    {
+      "id": "publication",
+      "scope": "preserved provenance/failures/inspectable artifacts and pushed final checkpoint",
+      "status": "pending"
+    }
+  ],
+  "exclusions": [
+    "full physical unsteady 3D",
+    "general CAD",
+    "adjoints",
+    "mixed volume/prism/hex/structured layer guarantees"
+  ],
+  "execution": "one heavy job; focused tests before meaningful broader milestone; resumable proven cases; no cluster submission",
+  "evidence": [
+    "edge_integration_v1/validation.json"
+  ]
+}

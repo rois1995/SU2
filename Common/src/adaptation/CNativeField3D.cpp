@@ -68,8 +68,8 @@ size_t FrozenField::Hash::operator()(const std::array<double, 3>& point) const {
   return value;
 }
 FrozenField::FrozenField(std::vector<DonorCell> original, MetricComposition combine, bool enabled,
-                         std::vector<Id> components)
-    : donors(std::move(original)), composition(std::move(combine)), timings(enabled) {
+                         std::vector<Id> components, MetricEdgeBreakpoints breakpoints)
+    : donors(std::move(original)), composition(std::move(combine)), edge_breakpoints(std::move(breakpoints)), timings(enabled) {
   Timer timer(stats.build_seconds, timings);
   Canonical(donors);
   std::sort(components.begin(),components.end());
@@ -140,10 +140,12 @@ void FrozenField::FindCandidates(Point lo, Point hi) {
   std::sort(candidates.begin(), candidates.end());
 }
 long double FrozenField::TargetEdgeLength(Point a, Point b) {
-  if (composition) throw std::runtime_error("Native 3D composed target requires geometry-resolved edge integration.");
-  return SensorEdgeLength(a, b);
+  if (composition && !edge_breakpoints)
+    throw std::runtime_error("Native 3D composed target requires geometry-resolved edge integration.");
+  return EdgeLength(a, b, bool(composition));
 }
-long double FrozenField::SensorEdgeLength(Point a, Point b) {
+long double FrozenField::SensorEdgeLength(Point a, Point b) { return EdgeLength(a,b,false); }
+long double FrozenField::EdgeLength(Point a, Point b, bool composed) {
   Timer edge_time(stats.edge_seconds, timings);
   ++stats.edge_requests;
   try {
@@ -185,10 +187,58 @@ long double FrozenField::SensorEdgeLength(Point a, Point b) {
     stats.edge_pieces += pieces.size();
     stats.maximum_edge_pieces = std::max(stats.maximum_edge_pieces, pieces.size());
     Timer timer(stats.edge_integral_seconds, timings);
+    std::vector<double> cuts;
+    if (composed) {
+      { Timer geometry(stats.edge_geometry_seconds,timings); cuts = edge_breakpoints(a,b); }
+      if (cuts.size() < 2 || cuts.size() > MaximumGeometricEdgeCuts || cuts.front() != 0 || cuts.back() != 1)
+        throw std::invalid_argument("Invalid native 3D geometric edge coverage.");
+      for (size_t i = 0; i < cuts.size(); ++i)
+        if (!std::isfinite(cuts[i]) || (i && !(cuts[i] > cuts[i-1])))
+          throw std::invalid_argument("Unordered native 3D geometric edge breakpoints.");
+    }
     long double total = 0;
+    size_t evaluations = 0;
     for (const auto& piece : pieces) {
       const auto& donor = donors[candidates[piece.donor]];
       if (donor.extension_component!=UINT64_MAX) ++stats.extended_edge_pieces;
+      if (composed) {
+        auto value = [&](long double t) {
+          if (++evaluations > 65536) throw std::runtime_error("Native 3D composed edge evaluation budget exhausted.");
+          const auto parameter = piece.begin + t*piece.width;
+          Point p{double((1-parameter)*a.x+parameter*b.x), double((1-parameter)*a.y+parameter*b.y),
+                  double((1-parameter)*a.z+parameter*b.z)};
+          std::array<long double,4> weights;
+          for (unsigned k=0;k<4;++k) weights[k]=(1-t)*piece.begin_weights[k]+t*piece.end_weights[k];
+          Tensor target;
+          {
+            Timer timer(stats.edge_composition_seconds,timings);
+            ++stats.compositions; ++stats.edge_compositions;
+            target=composition(p,Blend(donor,weights));
+          }
+          ValidateTensor(target,&stats.kernel);
+          return MetricNorm(a,b,target,&stats.kernel);
+        };
+        auto integrate = [&](auto&& self,long double low,long double high,unsigned depth) -> long double {
+          const auto middle=(low+high)/2, half=(high-low)/2;
+          const long double v=value(middle);
+          const auto three=half*((8.L/9)*v+(5.L/9)*(value(middle-half*std::sqrt(3.L/5))+value(middle+half*std::sqrt(3.L/5))));
+          const auto five=half*((128.L/225)*v
+              +.47862867049936646804L*(value(middle-half*.53846931010568309104L)+value(middle+half*.53846931010568309104L))
+              +.23692688505618908751L*(value(middle-half*.90617984593866399280L)+value(middle+half*.90617984593866399280L)));
+          if (std::abs(five-three) <= 1e-9L*std::abs(five)+1e-12L*(high-low)) return five;
+          if (depth >= 20) throw std::runtime_error("Native 3D composed edge quadrature did not converge.");
+          return self(self,low,middle,depth+1)+self(self,middle,high,depth+1);
+        };
+        long double low=0;
+        for (const auto cut : cuts) {
+          if (cut <= piece.begin || cut >= piece.end) continue;
+          const auto high=std::clamp((cut-piece.begin)/piece.width,0.L,1.L);
+          if (high>low) total+=piece.width*integrate(integrate,low,high,0);
+          low=high;
+        }
+        if (low<1) total+=piece.width*integrate(integrate,low,1,0);
+        continue;
+      }
       const auto first = MetricNorm(a, b, Blend(donor, piece.begin_weights), &stats.kernel);
       const auto last = MetricNorm(a, b, Blend(donor, piece.end_weights), &stats.kernel);
       const auto largest = std::max(first, last), r = std::min(first, last) / largest;

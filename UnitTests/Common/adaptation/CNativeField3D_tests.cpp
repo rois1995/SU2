@@ -349,3 +349,16 @@ TEST_CASE("Declared layered fields reject invalid priority records and ambiguous
   CHECK_THROWS(TraceSegment({&c},{0,0,0},{1,0,0},nullptr,2));
   CHECK_THROWS(FrozenField(std::vector<DonorCell>(MaximumDonors+1,Layers()[0]),{},false,{42}));
 }
+
+TEST_CASE("Native composed edge integration rejects malformed bands", "[NativeComposite3D]") {
+  const Point a{.125,.125,0},b{.125,.125,.5};
+  const auto compose=[](Point,Tensor m) {return m;};
+  for(const std::vector<double> cuts : {std::vector<double>{}, {0.,.5}, {0.,.7,.3,1.},
+                                      {0.,.5,.5,1.}, {0.,std::numeric_limits<double>::quiet_NaN(),1.}}) {
+    FrozenField field({Single()},compose,false,{},[cuts](Point,Point) {return cuts;});
+    CHECK_THROWS(field.TargetEdgeLength(a,b));
+    CHECK(field.Statistics().edge_failures==1);
+  }
+  FrozenField field({Single()},compose,false,{},[](Point,Point){return std::vector<double>{0.,.001,.01,.5,1.};});
+  CHECK(double(field.TargetEdgeLength(a,b))==Approx(double(field.SensorEdgeLength(a,b))).epsilon(1e-10));
+}

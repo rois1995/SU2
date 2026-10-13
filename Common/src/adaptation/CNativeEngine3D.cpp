@@ -414,6 +414,7 @@ void FieldCounts(EngineStats& stats, const FrozenField& field) {
   stats.field_interpolation_seconds+=f.interpolation_seconds; stats.field_composition_seconds+=f.composition_seconds;
   stats.edge_seconds+=f.edge_seconds; stats.edge_search_seconds+=f.edge_search_seconds;
   stats.edge_trace_seconds+=f.edge_trace_seconds; stats.edge_integral_seconds+=f.edge_integral_seconds;
+  stats.edge_geometry_seconds+=f.edge_geometry_seconds; stats.edge_composition_seconds+=f.edge_composition_seconds;
 }
 struct FieldAccounting {
   EngineStats& stats;
@@ -605,7 +606,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if (slot<ids.size()) try {
         CpuTimer private_cpu(stats.measurement_cpu_seconds,options.timings);
         const auto components=AssociatedExtensions(imported.cells,geometry);
-        FrozenField field(std::move(imported.cells),composition,options.timings,components);
+        FrozenField field(std::move(imported.cells),composition,options.timings,components,options.edge_breakpoints);
         FieldAccounting accounting{stats,field};
         for (size_t i=slot;i<std::min(slot+batch,ids.size());++i) {
           PatchMetric metric;
@@ -948,7 +949,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if (!streamed && metric_needed) try {
         CpuTimer private_cpu(stats.metric_cpu_seconds,options.timings);
         const auto components=AssociatedExtensions(sensors.cells,geometry);
-        field=std::make_unique<FrozenField>(std::move(sensors.cells),composition,options.timings,components);
+        field=std::make_unique<FrozenField>(std::move(sensors.cells),composition,options.timings,components,options.edge_breakpoints);
         PatchMetric metric;
         std::map<Edge,EdgeMeasure> reuse;
         for (const auto& cell : old.cells) selection.Cached(cell,reuse);
@@ -1043,7 +1044,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             std::unique_ptr<FrozenField> target;
             try {
               const auto components=AssociatedExtensions(donors.cells,geometry);
-              target=std::make_unique<FrozenField>(std::move(donors.cells),composition,options.timings,components);
+              target=std::make_unique<FrozenField>(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints);
               for (size_t i=slot;i<std::min(slot+batch,cells.size());++i) {
                 const auto part=MeasureMetricCells({cells[i]},*target,nullptr,&reuse,shape,shape ? &certified : nullptr);
                 if (part.minimum_mean_ratio<measured.minimum_mean_ratio) {
@@ -1108,7 +1109,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(!proxy.valid){result.reason=proxy.reason;return finish();}
         if(joint)try {
           const auto components=AssociatedExtensions(proxy.cells,geometry);
-          FrozenField sample(proxy.cells,composition,options.timings,components);
+          FrozenField sample(proxy.cells,composition,options.timings,components,options.edge_breakpoints);
           placement=sample.Query(Centroid(old.cells.front())).target;FieldCounts(stats,sample);
         }catch(const std::exception& e){failure.Set(2,0,e.what());}
         if(!(ready=vote(failure)))return finish();

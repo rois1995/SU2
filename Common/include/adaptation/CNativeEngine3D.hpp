@@ -16,6 +16,7 @@ struct EngineOptions {
   size_t maximum_work = SIZE_MAX, stagnation_window = 64;  // SIZE_MAX: max(4096,64*global input cells).
   double maximum_seconds = 0;  // Optional kernel elapsed ceiling, checked at collective safe points.
   double surface_tolerance = 0;  // Analytic authority requires a positive frozen physical error ceiling.
+  MetricEdgeBreakpoints edge_breakpoints;  // Frozen geometry bands; required for composed target edge audits.
   bool timings = false;
   size_t candidate_batch = MaximumCandidateBatch;  // Internal control for paired correctness/work comparisons.
 };
@@ -65,6 +66,7 @@ struct EngineStats {
   double field_build_seconds = 0, field_query_seconds = 0, field_cache_seconds = 0, field_search_seconds = 0;
   double field_interpolation_seconds = 0, field_composition_seconds = 0;
   double edge_seconds = 0, edge_search_seconds = 0, edge_trace_seconds = 0, edge_integral_seconds = 0;
+  double edge_geometry_seconds = 0, edge_composition_seconds = 0;  // Nested in edge integration.
   size_t maximum_work_bytes = 0, maximum_owned = 0;
   double total_seconds = 0, initialization_seconds = 0, seed_seconds = 0, selection_seconds = 0;
   double dependency_seconds = 0, reservation_seconds = 0, donor_seconds = 0;
