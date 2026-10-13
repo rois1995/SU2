@@ -1,35 +1,30 @@
-# Goal 2 serial and MPI2 independent lifecycles qualified; MPI4 audit active — 2026-10-13
+# Goal 2 ten independent Euler event audits qualified; final N4/M4 pair active — 2026-10-13
 
-Repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
-Branch: codex/native-3d-curved-local; previous published49ee2b035b4b.
-Goal ACTIVE; completion INCOMPLETE; full original objective retained.
+Working repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
+Branch: codex/native-3d-curved-local; previous published8b6fa5d055e6.
+Goal ACTIVE; completion INCOMPLETE, original scope retained.
 
-resolved_vortex_audit_v2 has seven complete PASS event certificates: both serial
-N1/M1 events, all four MPI2 events (M1/M2, two each), and first N4/M1 event. Independent summaries:
-serial_lifecycle_validation.json and mpi2_lifecycle_validation.json. Every
-certificate's script/helper/input hash was rechecked before publication.
-All actual geometry/embedding/source/shape/length/transport/conservation/current+
-BDF/positivity/reference/output/restart checks passed. MPI2 results demonstrate
-both M=N and M<N, with freshly solved nonuniform pressure metrics at both events.
+resolved_vortex_audit_v2 has ten full PASS event certificates: serial N1/M1,
+MPI2 M1/M2 and MPI4 M1/M2, two events each. Independent serial/MPI2/MPI4-subset
+summaries pin all completed certificates. Every input/helper/script hash was
+rechecked. Exact geometry/conformity/no-overlap, original-P1-or-declared source,
+quality/sliver/length, actual transported metric, conservation/current+BDF/
+positivity/new-lost domain, immutable reference/output and real restart pass.
+All requested M<N variants are independently proven in these local controls.
 
-Sole owned controller2009 now audits MPI4/M1 event1. Five MPI4 event certificates
-remain (M1 event1, M2/M4 two each). Native complete MPI matrix already PASS; no CFD/build or
-broad regression is repeated. Revalidate this handle; do not restart from elapsed
-time or a log alone. One CPU/nice19/threads1. Original whole-batch audit timeout,
-source/build/binary provenance and every required mesh/state remain preserved.
+Sole owned controller2009 now audits N4/M4 event0; two final certificates remain.
+Native entire six-variant matrix and physics audit already PASS. No CFD, build,
+broad test or cluster/performance job is repeated. Revalidate this handle before
+further work. One CPU/nice19/threads1. Original parser/whole-batch timeout failures,
+source/build/binary pins and all necessary inspectable meshes/states are retained.
 
-Next: finish the remaining MPI4 independent certificates and inspect the full original
-requirement map; push final proof before declaring Goal2complete. No performance,
-cluster, generalCAD, production3DBL, fullphysical-unsteady, force-convergence or
-arbitrary-mesh feasibility claim. AdapNoExt/foreignClusterResults/dependencies
-untouched. Permanent AGENTS batching cadence applies.
-
-Original-scope review: GOAL2_REQUIREMENT_REVIEW.md links inspected source and
-qualified evidence for every requirement. It distinguishes automatic joint
-reconstruction from optional kernel-only strip placement and explicitly excluded
-production3DBL. First N4/M1 event is now independently PASS (seven total);
-N4/M1 event1 is live. Every new certificate input/helper/script hash was verified.
-Completion remains INCOMPLETE pending remaining MPI4 events and final publication.
+GOAL2_REQUIREMENT_REVIEW.md records source-backed evidence for every original
+requirement and explains optional kernel-only strip placement and the excluded
+production3DBL/generalCAD/fullphysical-unsteady/force-convergence capabilities.
+Next: finish final N4/M4 pair; inspect aggregate/full original requirement proof,
+verify current source/input/helper provenance, update final findings/handoff/audits
+and push before marking Goal2complete. No efficiency/scaling or arbitrary-mesh
+feasibility claim. AdapNoExt/foreignClusterResults/dependencies untouched.
 
 Earlier notices below are historical.
 

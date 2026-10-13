@@ -44,14 +44,14 @@
         "cylinder_cap_audit_v1/cylinder_cap_coverage_v2_audit.json",
         "cylinder_cap_regression_v2/independent_lifecycle_validation.json"
       ],
-      "remaining": "Six MPI4 resolved-vortex independent event certificates (serial and MPI2 pairs now proven)."
+      "remaining": "Final N4/M4 two-event independent proof, final original-scope evidence/source review and publication."
     },
     {
       "id": "mpi_dependencies_atomicity",
       "requirement": "MPI1/2/4, N=M/M<N, complete versioned dependencies, partition-interface edits and atomic publication/rejection on curved proposals.",
       "status": "CURVED_MPI_TRANSACTION_PROVEN_FINAL_EVIDENCE_AUDIT_PENDING",
       "evidence": "curved_transaction_v1/validation.json PASS; MPI1/2/4, M=N/M<N, two-owner curved edge-star, actual source/metric/geometry proposal and unchanged mesh/directory/frozen source under stale version/rank/storage vetoes.",
-      "remaining": "Six MPI4 resolved-vortex independent event certificates (serial and MPI2 pairs now proven)."
+      "remaining": "Final N4/M4 two-event independent proof, final original-scope evidence/source review and publication."
     },
     {
       "id": "output_reference_restart",
@@ -61,14 +61,14 @@
         "cylinder_cap_audit_v1/cylinder_cap_coverage_v2_audit.json",
         "cylinder_cap_regression_v2/independent_lifecycle_validation.json"
       ],
-      "remaining": "Six MPI4 resolved-vortex independent event certificates (serial and MPI2 pairs now proven)."
+      "remaining": "Final N4/M4 two-event independent proof, final original-scope evidence/source review and publication."
     },
     {
       "id": "actual_euler",
       "requirement": "Actual CFD-pressure-derived metric with repeated native remesh/continuation/restart; smooth manufactured and locally resolved nonuniform/shock control.",
-      "status": "SERIAL_MPI2_INDEPENDENT_PROVEN_MPI4_NATIVE_PROVEN_INDEPENDENT_PENDING",
-      "evidence": "Serial and MPI2 independent lifecycle summaries certify six actual resolved Euler events, M=N/M<N; full native matrix/physics also PASS.",
-      "remaining": "Six MPI4 independent event certificates and final original-scope review."
+      "status": "TEN_INDEPENDENT_EVENTS_PROVEN_FINAL_N4_M4_PAIR_PENDING",
+      "evidence": "Serial, MPI2 and MPI4 subset summaries certify ten resolved Euler events; all M<N combinations proven; full native matrix/physics PASS.",
+      "remaining": "Final N4/M4 two-event independent proof, final original-scope evidence/source review and publication."
     },
     {
       "id": "bounded_work_and_search",
@@ -81,7 +81,7 @@
       "requirement": "Compact provenance/inspectable inputs, grids, states, certificates/failures, maintained handoff/findings/audit and regular push; one owned heavy job/local constraints.",
       "status": "IN_PROGRESS",
       "evidence": "Published native matrix/source proof and preserved timeout; six independently qualified serial/MPI2 certificates; sole MPI4 audit2009 active.",
-      "remaining": "Terminal resolved receipt and independently qualified artifacts; final updated requirement map and push."
+      "remaining": "Final N4/M4 two-event independent proof, final original-scope evidence/source review and publication."
     }
   ],
   "evidence": {
@@ -140,6 +140,10 @@
     "resolved_vortex_audit_v2/mpi2_lifecycle_validation.json": {
       "status": "PASS_MPI2_FOUR_EVENTS_ONLY",
       "sha256": "b22928a6824b37b9ed0b2b33e6ebdabba0f83ec67e6f75b6e41acd69568e0324"
+    },
+    "resolved_vortex_audit_v2/mpi4_subset_lifecycle_validation.json": {
+      "status": "PASS_MPI4_SUBSET_FOUR_EVENTS_ONLY",
+      "sha256": "4311e0afdddaf9079b68e4c657de62fe5da2a36a0a2e67e9b87e176261c83a7e"
     }
   },
   "excluded_completion_requirements": [
@@ -150,12 +154,12 @@
     "arbitrarymeshfeasibility"
   ],
   "remaining_major_work": [
-    "Complete six independent resolved-vortex MPI4 event certificates",
-    "Inspect and aggregate the full original-scope source/evidence requirement review",
+    "Complete the final N4/M4 two-event independent certificates",
+    "Inspect aggregate complete original-scope source/evidence proof",
     "Push final qualification before marking Goal2complete"
   ],
   "independent_audit_v1_terminal": "FAIL_WRAPPER_TIMEOUT_124_NO_ASSERTION_ERROR",
-  "independent_audit_v2": "SERIAL_AND_MPI2_SIX_EVENTS_PASS_MPI4_ACTIVE_SESSION_2009",
+  "independent_audit_v2": "TEN_EVENTS_PASS_FINAL_N4_M4_PAIR_ACTIVE_SESSION_2009",
   "source_and_scope_review": "GOAL2_REQUIREMENT_REVIEW.md",
   "source_and_scope_review_sha256": "9b5bff56fd5159a23aed134e1762c09cc35cc525e0037891f18554194833a7e0"
 }

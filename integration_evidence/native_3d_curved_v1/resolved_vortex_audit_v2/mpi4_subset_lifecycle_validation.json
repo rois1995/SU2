@@ -1,0 +1,77 @@
+{
+  "status": "PASS_MPI4_SUBSET_FOUR_EVENTS_ONLY",
+  "ranks": 4,
+  "results": {
+    "resolved_vortex_m1": [
+      {
+        "cells": 2767,
+        "points": 655,
+        "volume": 16.000437920520227,
+        "analytic_domain_volume": 16.000444444444444,
+        "minimum_metric_mean_ratio": 0.32553859812034547,
+        "minimum_metric_scaled_jacobian": 0.13219648359053335,
+        "maximum_exact_source_metric_edge": 1.7997280577125025,
+        "transported_metric_relative_error": 2.1145745514642183e-16,
+        "sampled_surface_error": 3.0502507716049434e-06,
+        "fill_volume": 1.4801986171875765e-06,
+        "lost_volume": 1.8527169953338682e-06,
+        "conservative_actual_state_integrals_match_target": true,
+        "exact_positive_volume_conformity_no_overlap": true
+      },
+      {
+        "cells": 2738,
+        "points": 651,
+        "volume": 16.00043771455797,
+        "analytic_domain_volume": 16.000444444444444,
+        "minimum_metric_mean_ratio": 0.3107776241012075,
+        "minimum_metric_scaled_jacobian": 0.0940617000038103,
+        "maximum_exact_source_metric_edge": 1.7986306102818026,
+        "transported_metric_relative_error": 1.124087192893146e-16,
+        "sampled_surface_error": 3.0502507716049434e-06,
+        "fill_volume": 2.480430840745042e-07,
+        "lost_volume": 4.540045822017981e-07,
+        "conservative_actual_state_integrals_match_target": true,
+        "exact_positive_volume_conformity_no_overlap": true
+      }
+    ],
+    "resolved_vortex_m2": [
+      {
+        "cells": 2767,
+        "points": 655,
+        "volume": 16.000437920520227,
+        "analytic_domain_volume": 16.000444444444444,
+        "minimum_metric_mean_ratio": 0.32553859812034547,
+        "minimum_metric_scaled_jacobian": 0.1277011863277683,
+        "maximum_exact_source_metric_edge": 1.7997280577125025,
+        "transported_metric_relative_error": 2.1145745514642183e-16,
+        "sampled_surface_error": 3.0502507716049434e-06,
+        "fill_volume": 1.48019899630879e-06,
+        "lost_volume": 1.852716995357287e-06,
+        "conservative_actual_state_integrals_match_target": true,
+        "exact_positive_volume_conformity_no_overlap": true
+      },
+      {
+        "cells": 2696,
+        "points": 641,
+        "volume": 16.000437647690006,
+        "analytic_domain_volume": 16.000444444444444,
+        "minimum_metric_mean_ratio": 0.33302979194694976,
+        "minimum_metric_scaled_jacobian": 0.12450681211975036,
+        "maximum_exact_source_metric_edge": 1.7988486744018086,
+        "transported_metric_relative_error": 1.6890907625126507e-16,
+        "sampled_surface_error": 3.0502507716049434e-06,
+        "fill_volume": 2.428575670127518e-07,
+        "lost_volume": 5.156870935205116e-07,
+        "conservative_actual_state_integrals_match_target": true,
+        "exact_positive_volume_conformity_no_overlap": true
+      }
+    ]
+  },
+  "certificate_sha256": {
+    "event_n4_m1_s0.json": "a7db4dce59ae61aea9b07731b4064fc963eedcd77bf9387d0c3b8459f49d5ed9",
+    "event_n4_m1_s1.json": "4b9cf5b179f4ad1c2f3cbbc3885bf8a83f3a29f20b840e44db846918649bb4b1",
+    "event_n4_m2_s0.json": "5504c76db24d93617e6e5fa735e554a3c0039ef98460556778ff1ca5789f5feb",
+    "event_n4_m2_s1.json": "4fe00a52b0c8ab8a5a014c7c02fe5eff946ffe7b5a8a83bae0cff482f1b79ea0"
+  },
+  "scope": "Complete independent MPI4 worker-subset M1/M2 two-event geometry/source/quality/length/transport/conservation/current+BDF/positivity/reference/output/restart proof. Final M4 two-event certificates and full completion review remain pending."
+}
