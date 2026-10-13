@@ -258,12 +258,13 @@ std::vector<NEMOFaceCase> FaceCases(const NEMOUpwindFixture& f) {
 
 }  // namespace
 
-TEST_CASE("NEMO AUSM+-up2 and AUSM+M return the Jacobians of their flux", "[NEMO][Upwind][Jacobian]") {
+TEST_CASE("NEMO AUSM, AUSM+-up2 and AUSM+M return the Jacobians of their flux", "[NEMO][Upwind][Jacobian]") {
   /*--- The finite differences are limited by the tolerance of the iterative solution for the vib.-el.
    * temperature, which is why the step is rather large. With this step they agree with exact Jacobians
    * to about 3e-7, whereas the Jacobians of plain AUSM, used before for these two schemes, differ from
-   * them by 0.5 or more. ---*/
-  const su2double relStep = 1e-4, tolerance = 1e-5;
+   * them by 0.5 or more. For plain AUSM the truncation error of the finite differences is larger
+   * (3e-5 for the strong shock, it decreases with the square of the step), hence the wider tolerance. ---*/
+  const su2double relStep = 1e-4, tolerance = 1e-5, toleranceAusm = 5e-5;
 
   for (const unsigned short nDim : {2, 3}) {
     /*--- The low reference Mach number activates the low-speed scaling of AUSM+-up2 and AUSM+M. ---*/
@@ -272,12 +273,14 @@ TEST_CASE("NEMO AUSM+-up2 and AUSM+M return the Jacobians of their flux", "[NEMO
       /*--- An intermediate value of the pressure sensor keeps all the terms of AUSM+M active. ---*/
       fixture.sensor = 0.6;
 
+      CUpwAUSM_NEMO ausm(nDim, fixture.nVar, fixture.nPrimVar, fixture.nPrimVarGrad, fixture.config.get());
       CUpwAUSMPLUSUP2_NEMO ausmPlusUp2(nDim, fixture.nVar, fixture.nPrimVar, fixture.nPrimVarGrad,
                                        fixture.config.get());
       CUpwAUSMPLUSM_NEMO ausmPlusM(nDim, fixture.nVar, fixture.nPrimVar, fixture.nPrimVarGrad, fixture.config.get());
 
       for (const auto& faceCase : FaceCases(fixture)) {
         INFO("nDim = " << nDim << ", reference Mach = " << mach << ", " << faceCase.name);
+        CHECK(fixture.JacobianError(ausm, faceCase.state_i, faceCase.state_j, relStep) < toleranceAusm);
         CHECK(fixture.JacobianError(ausmPlusUp2, faceCase.state_i, faceCase.state_j, relStep) < tolerance);
         CHECK(fixture.JacobianError(ausmPlusM, faceCase.state_i, faceCase.state_j, relStep) < tolerance);
       }
