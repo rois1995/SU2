@@ -1,3 +1,36 @@
+# Goal 2 resolved vortex native matrix complete; independent audit active — 2026-10-13
+
+Repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
+Branch: codex/native-3d-curved-local; previous pushed commit 37a8aa6c6a5f.
+Goal 2 remains ACTIVE; completion is unproven pending the full independent audit.
+
+resolved_vortex_v3/validation.json is terminal PASS. All six N/M variants
+(1/1, 2/1, 2/2, 4/1, 4/2, 4/4) completed two actual Euler-pressure-derived
+metric/remesh/current+BDF-transfer events, real restart and solver continuation.
+Earlier successful variants are hash-verified and reused through repository-contained
+links. Original v1 parser failure and v2 whole-batch timeout remain preserved.
+No frozen physical, geometry, sensor, quality, sliver, length or work limit changed.
+
+resolved_vortex_audit_v1 physics and matching flow exports now cover all six
+variants. The exact whole-lifecycle auditor is the sole owned heavy job:
+controller session 38893, PID 683492; child PID 683638 as last checked.
+Revalidate the handle before acting; never restart solely from elapsed time.
+One CPU (4), nice19, threads1. No additional CFD/MPI/build job is running.
+
+current_source_validation.json verifies all 763 current production sources against
+the passing 107-case-per-rank MPI1/2/4 regression and both new native receipts;
+no source drift. It also verifies prior cylinder/lifecycle audit input hashes and
+closed reuse links. Existing curved atomic-veto test is PASS MPI1/2/4 including
+worker subsets and a two-owner edge star. No redundant broad suite is required.
+
+Next: inspect the independent resolved geometry/P1-or-extension/quality/length/
+transport/current+BDF/conservation/restart certificate, reconcile every original
+requirement, and push final evidence before claiming completion. No performance,
+cluster, production3DBL, general CAD, shock/force-convergence or arbitrary-mesh
+feasibility claim. AdapNoExt, foreign ClusterResults and dependencies untouched.
+
+Earlier notices below are historical.
+
 # Goal 2 curved MPI transaction qualified; final vortex variant active — 2026-10-13
 
 Working repo /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated,

@@ -8,7 +8,7 @@
       "id": "branch_and_base",
       "requirement": "Separate branch based on published Goal1 checkpoint; regular pushed work.",
       "status": "PROVEN_FOR_CURRENT_CHECKPOINT",
-      "evidence": "git HEAD27b91dfa238e and ancestor23197eba1715f44d61c9ad3a070f61441dfb0560; target codex/native-3d-curved-local."
+      "evidence": "Current branch codex/native-3d-curved-local; Goal1 ancestor verified in current_source_validation.json."
     },
     {
       "id": "analytic_geometry",
@@ -51,7 +51,7 @@
       "requirement": "MPI1/2/4, N=M/M<N, complete versioned dependencies, partition-interface edits and atomic publication/rejection on curved proposals.",
       "status": "CURVED_MPI_TRANSACTION_PROVEN_FINAL_EVIDENCE_AUDIT_PENDING",
       "evidence": "curved_transaction_v1/validation.json PASS; MPI1/2/4, M=N/M<N, two-owner curved edge-star, actual source/metric/geometry proposal and unchanged mesh/directory/frozen source under stale version/rank/storage vetoes.",
-      "remaining": "Inspect terminal resolved matrix and final source/evidence audit."
+      "remaining": "Final independent whole-lifecycle audit; native matrix and direct curved veto transaction are terminal PASS."
     },
     {
       "id": "output_reference_restart",
@@ -66,9 +66,9 @@
     {
       "id": "actual_euler",
       "requirement": "Actual CFD-pressure-derived metric with repeated native remesh/continuation/restart; smooth manufactured and locally resolved nonuniform/shock control.",
-      "status": "SERIAL_RESOLVED_PROVEN_MPI_AUDIT_PENDING",
-      "evidence": "Current solved-bump lifecycle is independently qualified; resolved vortex serial31034assertions and analytic/evolved positivity audit; mean core volume ratio0.58294.",
-      "remaining": "MPI4 resolved control and full exact/source/transfer/restart audit. Vortex is nonuniform control; no shock/convergence claim."
+      "status": "NATIVE_RESOLVED_MPI_MATRIX_PROVEN_INDEPENDENT_AUDIT_PENDING",
+      "evidence": "resolved_vortex_v3/validation.json terminal PASS all six N/M variants; physics_audit.json verifies all six actual evolved states; whole-lifecycle audit running.",
+      "remaining": "Independent complete geometry/source/transfer/restart certificate."
     },
     {
       "id": "bounded_work_and_search",
@@ -80,7 +80,7 @@
       "id": "evidence_workflow",
       "requirement": "Compact provenance/inspectable inputs, grids, states, certificates/failures, maintained handoff/findings/audit and regular push; one owned heavy job/local constraints.",
       "status": "IN_PROGRESS",
-      "evidence": "Handoff/findings/audit and published source/build/archive/binary/artifact pins; VTU actual pressure fields; original wrapper failure retained; current single owned MPI60343.",
+      "evidence": "Terminal native matrix, current_source_validation.json, six-variant physics/flow exports; sole owned independent audit session38893.",
       "remaining": "Terminal resolved receipt and independently qualified artifacts; final updated requirement map and push."
     }
   ],
@@ -106,12 +106,24 @@
       "status": "PASS"
     },
     "resolved_vortex_audit_v1/physics_audit.json": {
-      "sha256": "23b38ceeba3f898cc0979cc8a89f61853156ded23bcde5b7609492e508afa6dd",
+      "sha256": "8fff9e5ba4cbca0caaded3d73e33dd470f057f98b035aaf1f8c01f1623ef2657",
       "status": "PASS_INITIAL_AND_EVOLVED_PHYSICS_ONLY"
     },
     "resolved_vortex_audit_v1/core_resolution.json": {
       "sha256": "3b78d44c5208a201a8170b85b15c1668f3902010f7386c768bd38f46494ea33b",
       "status": "DESCRIPTIVE_RESOLUTION_ONLY"
+    },
+    "resolved_vortex_v3/validation.json": {
+      "sha256": "90a919b66fded2339bfbbda0e6d27f20c9ad80f25fe02aeb2234a0534174af71",
+      "status": "PASS"
+    },
+    "curved_transaction_v1/validation.json": {
+      "sha256": "201beb2c84a44bffd45a785ac8ab221a5cc175875173dc78771b8cb6015ee9c2",
+      "status": "PASS"
+    },
+    "current_source_validation.json": {
+      "sha256": "6b36079b822ee5104301878162dde8ebd4d40ab3858a21a0fd60a313e1198fbc",
+      "status": "PASS_CURRENT_PRODUCTION_AND_PRIOR_INPUTS_ONLY"
     }
   },
   "excluded_completion_requirements": [
@@ -122,8 +134,8 @@
     "arbitrarymeshfeasibility"
   ],
   "remaining_major_work": [
-    "Complete active final N4/M4 resolved variant and independent whole lifecycle audit",
-    "Inspect every original requirement against current source and terminal evidence",
-    "Push completed evidence before marking Goal2 complete"
+    "Finish and inspect the running independent resolved-vortex whole-lifecycle audit",
+    "Complete original-scope source/evidence requirement review",
+    "Push final qualification before marking Goal 2 complete"
   ]
 }

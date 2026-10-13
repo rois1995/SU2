@@ -1,0 +1,298 @@
+{
+  "status": "PASS_CURRENT_PRODUCTION_AND_PRIOR_INPUTS_ONLY",
+  "checks": [
+    {
+      "receipt": "integration_evidence/native_3d_curved_v1/cylinder_cap_regression_v2/validation.json",
+      "receipt_sha256": "a1abf117de35cc744e3f1e853bd8c4a0ca62b637323757653d3c3952780a9923",
+      "production_source_count": 763,
+      "changed": [],
+      "status": "PASS"
+    },
+    {
+      "receipt": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/validation.json",
+      "receipt_sha256": "90a919b66fded2339bfbbda0e6d27f20c9ad80f25fe02aeb2234a0534174af71",
+      "production_source_count": 763,
+      "changed": [],
+      "status": "PASS"
+    },
+    {
+      "receipt": "integration_evidence/native_3d_curved_v1/curved_transaction_v1/validation.json",
+      "receipt_sha256": "201beb2c84a44bffd45a785ac8ab221a5cc175875173dc78771b8cb6015ee9c2",
+      "production_source_count": 763,
+      "changed": [],
+      "status": "PASS"
+    },
+    {
+      "receipt": "integration_evidence/native_3d_curved_v1/cylinder_cap_audit_v1/fresh_collar_audit.json",
+      "receipt_sha256": "9300bf0f69e1096338e264cd19124c2e8a50e5eba1186a73092be99966601a2b",
+      "input_base": ".",
+      "inputs_checked": 13,
+      "changed": [],
+      "status": "PASS_FRESH_COLLAR_AND_STRIP_ONLY"
+    },
+    {
+      "receipt": "integration_evidence/native_3d_curved_v1/cylinder_cap_audit_v1/cylinder_cap_coverage_v2_audit.json",
+      "receipt_sha256": "6108de44c50ddbc20e102a2aeb532d4490724eb05dabd573492d2ef6366e553a",
+      "input_base": "integration_evidence/native_3d_curved_v1",
+      "inputs_checked": 358,
+      "changed": [],
+      "status": "PASS_COMPLETED_LIFECYCLES_ONLY"
+    },
+    {
+      "receipt": "integration_evidence/native_3d_curved_v1/cylinder_cap_regression_v2/independent_lifecycle_validation.json",
+      "receipt_sha256": "2d67a8bf9fcf669449b24eda12f0c5722eeb62a17588d4954efc3772d322308b",
+      "input_base": "integration_evidence/native_3d_curved_v1/cylinder_cap_regression_v2",
+      "inputs_checked": 427,
+      "changed": [],
+      "status": "PASS"
+    }
+  ],
+  "closed_repository_links": [
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi1",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v1/mpi1"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi1",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v1/mpi1"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi2",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi2"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m1_s0_projection.json",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m1_s0_projection.json"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m1_mesh_00001.su2.native_ref",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m1_mesh_00001.su2.native_ref"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m1_s1_states.json",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m1_s1_states.json"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m1_s0.native_ref",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m1_s0.native_ref"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m2_flow_00002.dat",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m2_flow_00002.dat"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m2_s1_projection.json",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m2_s1_projection.json"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m2_mesh_00002.su2.native_ref",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m2_mesh_00002.su2.native_ref"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m1_mesh_00001.su2",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m1_mesh_00001.su2"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m2_history_00003.csv",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m2_history_00003.csv"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m1_s0_states.json",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m1_s0_states.json"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m2_s1_initial.json",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m2_s1_initial.json"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m1_s0_accepted.json",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m1_s0_accepted.json"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m1.su2",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m1.su2"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m2_mesh_00001.su2",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m2_mesh_00001.su2"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m2_s1_accepted.json",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m2_s1_accepted.json"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m2_s0_accepted.json",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m2_s0_accepted.json"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m2_restart.cfg",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m2_restart.cfg"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m1_history_00003.csv",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m1_history_00003.csv"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m2_s1.native_ref",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m2_s1.native_ref"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m2_seed_states.json",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m2_seed_states.json"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m2_s0_source.json",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m2_s0_source.json"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m2_s0_initial.json",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m2_s0_initial.json"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m1.su2.native_ref",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m1.su2.native_ref"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m1_mesh_00002.su2.native_ref",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m1_mesh_00002.su2.native_ref"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m1.cfg",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m1.cfg"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m1_s0_evolved_states.json",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m1_s0_evolved_states.json"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m1_flow_00002.dat",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m1_flow_00002.dat"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m1_restart_states.json",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m1_restart_states.json"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m1_s1_projection.json",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m1_s1_projection.json"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m2_s0.native_ref",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m2_s0.native_ref"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m2_physics.json",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m2_physics.json"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m1_restart.cfg",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m1_restart.cfg"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m1_s1.native_ref",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m1_s1.native_ref"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m1_mesh_00002.su2",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m1_mesh_00002.su2"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m2_s0_projection.json",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m2_s0_projection.json"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m1_physics.json",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m1_physics.json"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m1_history.csv",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m1_history.csv"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m2_restart_states.json",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m2_restart_states.json"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m2_s1_source.json",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m2_s1_source.json"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m2_s1_evolved_states.json",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m2_s1_evolved_states.json"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m2_flow_00001.dat",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m2_flow_00001.dat"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m2.su2.native_ref",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m2.su2.native_ref"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m1_seed_states.json",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m1_seed_states.json"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m2_mesh_00001.su2.native_ref",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m2_mesh_00001.su2.native_ref"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m2.cfg",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m2.cfg"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m1_s1_evolved_states.json",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m1_s1_evolved_states.json"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m1_s1_initial.json",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m1_s1_initial.json"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m2.su2",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m2.su2"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m1_flow_00001.dat",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m1_flow_00001.dat"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m1_s1_accepted.json",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m1_s1_accepted.json"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m2_s0_evolved_states.json",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m2_s0_evolved_states.json"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m2_history.csv",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m2_history.csv"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m2_mesh_00002.su2",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m2_mesh_00002.su2"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m2_s0_states.json",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m2_s0_states.json"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m1_s0_source.json",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m1_s0_source.json"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m2_s1_states.json",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m2_s1_states.json"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m1_s1_source.json",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m1_s1_source.json"
+    },
+    {
+      "path": "integration_evidence/native_3d_curved_v1/resolved_vortex_v3/mpi4/resolved_vortex_m1_s0_initial.json",
+      "target": "integration_evidence/native_3d_curved_v1/resolved_vortex_v2/mpi4/resolved_vortex_m1_s0_initial.json"
+    }
+  ],
+  "goal1_base_ancestor_verified": true,
+  "scope": "Source identity and earlier immutable input checks; does not replace the running resolved-vortex whole-lifecycle audit or declare Goal 2 complete."
+}

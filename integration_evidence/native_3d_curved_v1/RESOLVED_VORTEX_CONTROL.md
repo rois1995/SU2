@@ -34,19 +34,25 @@ uses a singular/plural self-checked parser, verifies every original serial artif
 and source/binary pin, and reuses that result through the repository-contained
 mpi1 link. No successful serial CFD/adaptation job was repeated.
 
-LIVE owned controller60343: MPI2 passes both worker-count variants; MPI4/M1 two events complete,
-MPI4/M2/M4 still pending. First MPI4/M1 two events complete. Revalidate this exact
-handle before further heavy work; no production source changes while it is live.
-One CPU/nice19/threads1/build-j1, MPI<=4, no unrelated-process interruption.
-Independent whole-lifecycle geometry/field/conservation/restart audit is prepared
-with sweep-box admission before exact pair checks, but NOTRUN until the matrix
-terminates. No full MPI or whole-lifecycle certificate is claimed yet.
+The native matrix is now terminal PASS in resolved_vortex_v3/validation.json,
+covering all six N/M variants: 1/1, 2/1, 2/2, 4/1, 4/2, 4/4. The old v2 batch
+hit its 1800s deadline in the final variant; completed outputs remain preserved.
+A test-only worker selector reran only unfinished N4/M4 with unchanged physics,
+geometry, metric and acceptance bounds. Repository-contained links and hashes
+preserve/reuse earlier completed variants. All current production sources match
+the published passing regression; no additional production change was needed.
+
+The independent physics audit and actual flow exports now cover all six variants.
+The sole owned job is the exact whole-lifecycle audit, controller session38893
+(last verified child683638). Geometry, metric coverage/quality/length, transported
+sensor residuals, conservation/current+BDF and restart remain pending this audit.
+One CPU/nice19/threads1; no performance or full Goal2 claim.
 
 VTU exports of actual donor and accepted pressure/density/Mach are in
 resolved_vortex_audit_v1/mpi1. They match the native geometry/state hashes; native
 completion status is always separate. The source grids, frozen sensor tensors,
 actual PDE states and reference sidecars remain in resolved_vortex_v1/mpi1.
-Next: finish the outstanding matrix, run independent full audits, update the
+Next: finish the independent whole-lifecycle audit, update the
 explicit requirement map and push qualification. Preserve full Goal 2 scope;
 no shock/fullphysical-unsteady/forces/production3DBL/generalCAD/performance or
 arbitrary-feasibility claim.
