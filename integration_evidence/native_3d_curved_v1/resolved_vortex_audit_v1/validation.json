@@ -1,0 +1,67 @@
+{
+  "status": "FAIL",
+  "cpu": 4,
+  "stages": [
+    {
+      "script": "check_index.py",
+      "exit_code": 0
+    },
+    {
+      "script": "audit_physics.py",
+      "exit_code": 0
+    },
+    {
+      "script": "export_flow.py",
+      "exit_code": 0
+    },
+    {
+      "script": "audit_lifecycle.py",
+      "exit_code": 124
+    }
+  ],
+  "native_receipt_sha256": "90a919b66fded2339bfbbda0e6d27f20c9ad80f25fe02aeb2234a0534174af71",
+  "artifact_sha256": {
+    "audit_lifecycle.py.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "physics_audit.json": "8fff9e5ba4cbca0caaded3d73e33dd470f057f98b035aaf1f8c01f1623ef2657",
+    "export_flow.py.stdout": "8e55e8fabb3d0dea46d2656a96d4d7d2c6424331200f66c4c9ba35586028b6e4",
+    "check_index.py.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "audit_lifecycle.py.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "flow_exports.json": "69eb65632a1b985e8b824f15723df93d7fccf3e35fffff32036167a41ec1ea84",
+    "core_resolution.json": "3b78d44c5208a201a8170b85b15c1668f3902010f7386c768bd38f46494ea33b",
+    "check_index.py": "629cd8955bd132d5cac0fe426ebabbf803344a9f3a05ae2144814a478beea3a0",
+    "audit_physics.py.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "audit_physics.py": "5c326f395a1e51cf28732f0180a8c405ef67fcbb0e3602145fcc5368939b2916",
+    "audit_physics.py.stdout": "a1866a4f590bc9d2d97ab3ded2c1409c1c6df4bdac17f79b95b3a9dbeae9554f",
+    "check_index.py.stdout": "b8bb2989a3db4da218557b83a6ac64c6d878679c6105fbce3fc14f9224d3474d",
+    "run.py": "4f2addf17780fa2cc7ea305fcfedd2513fc666c7c794775d3e61449a38f77726",
+    "audit_lifecycle.py": "9726b69ed591211c6d1fb138f5784c46876e72de2e485a90694063de81ef0e4b",
+    "source_index_selfcheck.json": "f4db7c2d7699ee7f64a396ed8e3ced319cdbb630e952516546c67cbdd280030c",
+    "export_flow.py": "c6623ff0a618f74158607231bff111a2207c6ac496f86627fc6d14c8cff6a9fc",
+    "export_flow.py.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "mpi1/resolved_vortex_m1_s1_accepted_flow.vtu": "adc4cb525cb2e31f95e9c902927f7581ed0e5f0417b746b65fe4a9b2cc772334",
+    "mpi1/resolved_vortex_m1_s0_accepted_flow.vtu": "0ed0b27c76c35dedd1a742af2a29e9f8b1d119baaba0fe352adfc36af000c157",
+    "mpi1/resolved_vortex_m1_s0_initial_flow.vtu": "b2bacd5c11c47510981f479c753f405d0f36819db12e4c52e57c21bf274e328e",
+    "mpi1/resolved_vortex_m1_s1_initial_flow.vtu": "fea1763128fa5b401cd54dc5454f4965ab984cb97d6d1abb114e0cf2f77f78cc",
+    "mpi4/resolved_vortex_m1_s1_accepted_flow.vtu": "7b2428549bf600625ccdcca02db4a5c9c99e0edf73525acfaf98e3c8eca102af",
+    "mpi4/resolved_vortex_m1_s0_accepted_flow.vtu": "ef0f0dcdefa14aa78c399bc0b115609fc23bc5f6ae5e8c49ce0d479cd87c8350",
+    "mpi4/resolved_vortex_m2_s0_initial_flow.vtu": "470865e354cb8507d1c776ca6c2af1e87b77118df72e1c521ed87801134e15a2",
+    "mpi4/resolved_vortex_m4_s1_accepted_flow.vtu": "be8220b866177a9fe9fa793bad01a747c32f6c2c96259fc93894294a45fcf0e9",
+    "mpi4/resolved_vortex_m4_s0_initial_flow.vtu": "470865e354cb8507d1c776ca6c2af1e87b77118df72e1c521ed87801134e15a2",
+    "mpi4/resolved_vortex_m4_s0_accepted_flow.vtu": "374fed8eb7f94c7fe3b7a814d8544b55aa93e9ebf4e8683302d83d703a55acdd",
+    "mpi4/resolved_vortex_m2_s1_accepted_flow.vtu": "0d140bbacc5a9ed970ead8442dc966a03ed57367ec6c1ac051d402f3f381df18",
+    "mpi4/resolved_vortex_m4_s1_initial_flow.vtu": "e5832baf470dea78cd8ec8829f01a0e82760b4c7ee6096794df71b76bbfbbc90",
+    "mpi4/resolved_vortex_m1_s0_initial_flow.vtu": "470865e354cb8507d1c776ca6c2af1e87b77118df72e1c521ed87801134e15a2",
+    "mpi4/resolved_vortex_m2_s1_initial_flow.vtu": "f82d9a7fd90b54974facf03fd6d5fc15567928b02b2d08ec3027242fde8f1c36",
+    "mpi4/resolved_vortex_m1_s1_initial_flow.vtu": "8cc9f835864bc8d3456fadefcabef8e1eff0071cede3c7c2825a793d3fa30806",
+    "mpi4/resolved_vortex_m2_s0_accepted_flow.vtu": "c7f130bf351c9b68f1863532e480c34ccfac8bee6563dd4d97488c0487fee6c7",
+    "mpi2/resolved_vortex_m1_s1_accepted_flow.vtu": "9b3a10110d22394ce59c679b79a48dc296f1193d52d8f1759b3ae71e9a356c2b",
+    "mpi2/resolved_vortex_m1_s0_accepted_flow.vtu": "822af937a21be86ef130d6fb7cac5b4caece64a915e23c92ac9e30eac433eb45",
+    "mpi2/resolved_vortex_m2_s0_initial_flow.vtu": "47903c785cc04a014a2d2b55b0e2e844e2b99a3f8f49b653623368b55a5845dd",
+    "mpi2/resolved_vortex_m2_s1_accepted_flow.vtu": "c95f552e229fdc32a41f0458bff20f60d6da5cd906ed02d545847056dcc1ca88",
+    "mpi2/resolved_vortex_m1_s0_initial_flow.vtu": "47903c785cc04a014a2d2b55b0e2e844e2b99a3f8f49b653623368b55a5845dd",
+    "mpi2/resolved_vortex_m2_s1_initial_flow.vtu": "ac1f07e1e2ddbba0d4e086826b34f66905999725eae7bc1aa016967237771c39",
+    "mpi2/resolved_vortex_m1_s1_initial_flow.vtu": "1c11c0aa12de97988e9b0c1f2f6e47bdc62a170694e46b7c91d5540077985724",
+    "mpi2/resolved_vortex_m2_s0_accepted_flow.vtu": "3d43d57ab0b7f08c84afede35b5a6c4d3aad8faba7e06c65cf875ccba5b103a8"
+  },
+  "scope": "Independent source-box selfcheck, analytic/evolved resolved-vortex physics, inspectable actual flow exports and exact geometry/P1-or-extension/metric/transport/conservation/current+BDF/restart audits. One job/CPU/nice19/threads1. No convergence/shock/full Goal2 claim."
+}

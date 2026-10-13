@@ -1,0 +1,81 @@
+{
+  "status": "PASS_PREPARATION_ONLY",
+  "original_function_predicates_identical_except_progress_prints": true,
+  "planned_events": [
+    [
+      1,
+      1,
+      0
+    ],
+    [
+      1,
+      1,
+      1
+    ],
+    [
+      2,
+      1,
+      0
+    ],
+    [
+      2,
+      1,
+      1
+    ],
+    [
+      2,
+      2,
+      0
+    ],
+    [
+      2,
+      2,
+      1
+    ],
+    [
+      4,
+      1,
+      0
+    ],
+    [
+      4,
+      1,
+      1
+    ],
+    [
+      4,
+      2,
+      0
+    ],
+    [
+      4,
+      2,
+      1
+    ],
+    [
+      4,
+      4,
+      0
+    ],
+    [
+      4,
+      4,
+      1
+    ]
+  ],
+  "source_index_selfcheck": {
+    "status": "PASS",
+    "cases": 81,
+    "auditor_sha256": "62818975d229e17e92fb56f61f1ec74633035b92be87e38226e726a777ce70e4",
+    "selfcheck_sha256": "629cd8955bd132d5cac0fe426ebabbf803344a9f3a05ae2144814a478beea3a0",
+    "scope": "Deterministic closed source-box point/segment region candidate equivalence; exact donor and edge checks remain required."
+  },
+  "scripts_sha256": {
+    "integration_evidence/native_3d_curved_v1/resolved_vortex_audit_v1/audit_lifecycle.py": "9726b69ed591211c6d1fb138f5784c46876e72de2e485a90694063de81ef0e4b",
+    "integration_evidence/native_3d_curved_v1/resolved_vortex_audit_v2/audit_lifecycle.py": "62818975d229e17e92fb56f61f1ec74633035b92be87e38226e726a777ce70e4",
+    "integration_evidence/native_3d_curved_v1/resolved_vortex_audit_v2/run.py": "18b147a403ffc080d8b0fedbab66c900e9d9aa3063e5d8c954803cbf96023f8f",
+    "integration_evidence/native_3d_curved_v1/resolved_vortex_audit_v2/check_index.py": "629cd8955bd132d5cac0fe426ebabbf803344a9f3a05ae2144814a478beea3a0"
+  },
+  "original_terminal_timeout_receipt_sha256": "3c1bfbe82f1fd7be8b193d69e5bec40265e544457c1eee5f8517d17c594ed602",
+  "scope": "Scheduling/progress/persistence changed; exact mathematical predicates and native mesh/metric/physics data unchanged. Full lifecycle completion still requires every planned event."
+}

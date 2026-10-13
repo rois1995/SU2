@@ -80,7 +80,7 @@
       "id": "evidence_workflow",
       "requirement": "Compact provenance/inspectable inputs, grids, states, certificates/failures, maintained handoff/findings/audit and regular push; one owned heavy job/local constraints.",
       "status": "IN_PROGRESS",
-      "evidence": "Terminal native matrix, current_source_validation.json, six-variant physics/flow exports; sole owned independent audit session38893.",
+      "evidence": "Native matrix/source proof published; original full-audit timeout preserved; per-event exact audit session2009 active, no solver reruns.",
       "remaining": "Terminal resolved receipt and independently qualified artifacts; final updated requirement map and push."
     }
   ],
@@ -124,6 +124,14 @@
     "current_source_validation.json": {
       "sha256": "6b36079b822ee5104301878162dde8ebd4d40ab3858a21a0fd60a313e1198fbc",
       "status": "PASS_CURRENT_PRODUCTION_AND_PRIOR_INPUTS_ONLY"
+    },
+    "resolved_vortex_audit_v1/validation.json": {
+      "status": "FAIL",
+      "sha256": "3c1bfbe82f1fd7be8b193d69e5bec40265e544457c1eee5f8517d17c594ed602"
+    },
+    "resolved_vortex_audit_v2/preparation_validation.json": {
+      "status": "PASS_PREPARATION_ONLY",
+      "sha256": "7d9d2689400b738aa605d88f729b1805589b26190bc6b261e60cba82c4250f82"
     }
   },
   "excluded_completion_requirements": [
@@ -134,8 +142,10 @@
     "arbitrarymeshfeasibility"
   ],
   "remaining_major_work": [
-    "Finish and inspect the running independent resolved-vortex whole-lifecycle audit",
-    "Complete original-scope source/evidence requirement review",
-    "Push final qualification before marking Goal 2 complete"
-  ]
+    "Complete twelve independent resolved-vortex event certificates (v2) after preserved v1 wrapper timeout",
+    "Inspect and aggregate full original-scope geometry/source/transfer/restart evidence",
+    "Push final qualification before marking Goal2complete"
+  ],
+  "independent_audit_v1_terminal": "FAIL_WRAPPER_TIMEOUT_124_NO_ASSERTION_ERROR",
+  "independent_audit_v2": "ACTIVE_SESSION_2009_TWELVE_EVENTS"
 }

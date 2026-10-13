@@ -1,3 +1,37 @@
+# Goal 2 independent audit timeout preserved; per-event audit active — 2026-10-13
+
+Repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
+Branch: codex/native-3d-curved-local; previous published a9d4c0e7c70e.
+Goal ACTIVE; full completion remains INCOMPLETE.
+
+resolved_vortex_audit_v1 is terminal FAIL: source-index selfcheck, six-variant
+physics and flow exports passed; whole-lifecycle stage exited124 at its1800s
+wrapper deadline. No assertion error or partial lifecycle certificate was emitted.
+Controller38893 and PIDs683492/683637/683638 are terminal. Original scripts,
+receipt, stdout/stderr and all actual native grids/states remain preserved.
+
+The native matrix remains terminal PASS, all six N/M variants/two events;
+no native CFD/adaptation run or build is repeated. New sole owned job2009 runs
+resolved_vortex_audit_v2/run.py sequentially on one sampled CPU/nice19/threads1.
+It partitions the same exact audit into twelve N/M/event requests, each with the
+same1800s bound, and persists complete event certificates. Reuse requires every
+script/helper/input hash to match. Full aggregate PASS requires all twelve.
+
+preparation_validation.json proves function AST identity except progress print
+calls against the original auditor;81source-box equivalence tests PASS. Additional
+progress messages identify completed geometry and source/length stages. No sensor,
+geometry, conservation, quality, sliver, length or work contract changed. No broad
+suite is needed for this audit-only scheduling change; current production remains
+identical to the qualifying107-case/rank regression.
+
+Next: poll job2009, inspect each terminal certificate and any actual rejection,
+complete the whole original requirement review, update final handoff/findings/
+audits and push before declaring Goal2complete. No cluster/performance/generalCAD/
+production3DBL/fullphysical-unsteady/forces or arbitrary-mesh feasibility claim.
+AdapNoExt, foreign ClusterResults and dependencies untouched.
+
+Earlier notices below are historical.
+
 # Goal 2 resolved vortex native matrix complete; independent audit active — 2026-10-13
 
 Repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.

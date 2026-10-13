@@ -43,8 +43,12 @@ preserve/reuse earlier completed variants. All current production sources match
 the published passing regression; no additional production change was needed.
 
 The independent physics audit and actual flow exports now cover all six variants.
-The sole owned job is the exact whole-lifecycle audit, controller session38893
-(last verified child683638). Geometry, metric coverage/quality/length, transported
+The original whole-lifecycle auditor reached its1800s wrapper deadline (exit124),
+with no assertion error. Original v1 scripts/logs/receipt are preserved. The sole
+owned job is now the per-event exact auditor, controller session2009 in
+resolved_vortex_audit_v2. All twelve complete event certificates are required;
+function predicates are unchanged except progress prints and completed certificates
+are reusable only after input/helper/script hash verification. Geometry, metric coverage/quality/length, transported
 sensor residuals, conservation/current+BDF and restart remain pending this audit.
 One CPU/nice19/threads1; no performance or full Goal2 claim.
 
