@@ -1,0 +1,40 @@
+{
+  "status": "PASS_SERIAL_TWO_EVENTS_ONLY",
+  "events": [
+    {
+      "cells": 2767,
+      "points": 655,
+      "volume": 16.000437920520227,
+      "analytic_domain_volume": 16.000444444444444,
+      "minimum_metric_mean_ratio": 0.3255385950311958,
+      "minimum_metric_scaled_jacobian": 0.13219648130865685,
+      "maximum_exact_source_metric_edge": 1.799728057178446,
+      "transported_metric_relative_error": 2.1012449774965826e-16,
+      "sampled_surface_error": 3.0502507716049434e-06,
+      "fill_volume": 1.4801986171875765e-06,
+      "lost_volume": 1.8527169953338682e-06,
+      "conservative_actual_state_integrals_match_target": true,
+      "exact_positive_volume_conformity_no_overlap": true
+    },
+    {
+      "cells": 2763,
+      "points": 656,
+      "volume": 16.000437628377558,
+      "analytic_domain_volume": 16.000444444444444,
+      "minimum_metric_mean_ratio": 0.3034282430401888,
+      "minimum_metric_scaled_jacobian": 0.09055879577387932,
+      "maximum_exact_source_metric_edge": 1.799488619027401,
+      "transported_metric_relative_error": 1.9283511307185433e-16,
+      "sampled_surface_error": 3.0502507716049434e-06,
+      "fill_volume": 2.480431197777696e-07,
+      "lost_volume": 5.40185284869741e-07,
+      "conservative_actual_state_integrals_match_target": true,
+      "exact_positive_volume_conformity_no_overlap": true
+    }
+  ],
+  "certificate_sha256": {
+    "event_n1_m1_s0.json": "61f9cc86d2571d9625db300062847c3e6a2dccb6fc1a0056db84cc82a81d7a86",
+    "event_n1_m1_s1.json": "56b737283d9add2b054c660cb4138cda61407b26428f956603fdbcc40e299d8f"
+  },
+  "scope": "Complete independent serial resolved Euler two-event geometry/source/quality/length/transport/conservation/current+BDF/output/restart proof. MPI event audit and full Goal 2 completion remain pending."
+}

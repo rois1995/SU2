@@ -60,3 +60,10 @@ Next: finish the independent whole-lifecycle audit, update the
 explicit requirement map and push qualification. Preserve full Goal 2 scope;
 no shock/fullphysical-unsteady/forces/production3DBL/generalCAD/performance or
 arbitrary-feasibility claim.
+
+Independent serial qualification: both events PASS in
+resolved_vortex_audit_v2/serial_lifecycle_validation.json. First event minimum
+metric quality.32554, maximum exact source edge1.7997280572, transported-metric
+residual2.10124e-16; second event residual1.92835e-16. Exact geometry, field,
+conservative current+BDF integrals/positivity, new/lost domain and restart checks
+passed. Ten MPI event certificates remain in the same sequential audit job.

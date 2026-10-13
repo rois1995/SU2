@@ -1,3 +1,34 @@
+# Goal 2 resolved Euler serial independent lifecycle qualified; MPI audit active — 2026-10-13
+
+Working repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
+Branch codex/native-3d-curved-local; previous published0fc7a8dabea9.
+Goal ACTIVE; full objective retained, completion INCOMPLETE.
+
+resolved_vortex_audit_v2/serial_lifecycle_validation.json PASS_SERIAL_TWO_EVENTS_ONLY.
+Both serial events passed independent exact positive volumes/no-overlap/manifold,
+complete original-P1-or-declared-extension metric edge coverage, quality/sliver/
+length gates, actual transported tensor residuals, conservative current+BDF
+integrals/positivity/new-lost-domain accounting, immutable geometry provenance,
+SU2 mesh signatures, refreshed nonuniform CFD metrics and real restart states.
+Every input/helper/script hash was rechecked before publishing this summary.
+First event:2767tets/655points, minimumq.32554, maxmetricedge1.7997280572,
+transported residual2.10124e-16, sampled surface error3.05025e-6.
+Second event:2763tets/656points, transported residual1.92835e-16.
+
+Sole owned audit controller2009 is live; it has started MPI2/M1. Ten MPI event
+certificates remain (N2M1/M2,N4M1/M2/M4; two events each). Native entire matrix
+already PASS; no CFD/adaptation/build is repeated. Revalidate this handle rather
+than restarting from elapsed time. One CPU/nice19/threads1. The original whole-
+batch audit timeout and all native inputs/states/grids remain preserved.
+
+Next: finish the ten MPI independent certificates, inspect the full original
+requirement map, then push completed evidence before declaring Goal2complete.
+No cluster/performance/generalCAD/production3DBL/fullphysical-unsteady/forces or
+arbitrary-mesh feasibility claim. AdapNoExt/foreignClusterResults/dependencies
+untouched. Permanent AGENTS batching cadence applies.
+
+Earlier notices below are historical.
+
 # Goal 2 independent audit timeout preserved; per-event audit active — 2026-10-13
 
 Repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
