@@ -1319,6 +1319,7 @@ TEST_CASE("Actual CFD import freezes a conforming cylinder-cap collar for joint 
 TEST_CASE("Resolved three-dimensional Euler vortex drives native curved adaptation and restart",
           "[NativeResolvedEuler3D]") {
   World world;const int workers=GENERATE(1,2,4);if(workers>world.size)return;
+  const auto* selected=std::getenv("SU2_NATIVE_RESOLVED_WORKERS");const auto only=selected?std::stoi(selected):0;REQUIRE((only==0 || only==1 || only==2 || only==4));if(only && workers!=only)return;
   const auto name="resolved_vortex_m"+std::to_string(workers);constexpr double amplitude=-.001,radius=.7,beta=3.;
   if(!world.rank) {
     auto marker=[](const passivedouble* p) {

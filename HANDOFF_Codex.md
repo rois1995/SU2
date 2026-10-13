@@ -1,3 +1,47 @@
+# Goal 2 curved MPI transaction qualified; final vortex variant active — 2026-10-13
+
+Working repo /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated,
+branch codex/native-3d-curved-local, previouspublishede5b23cc19b. Goal ACTIVE,
+full objective retained and final completion INCOMPLETE.
+
+resolved_vortex_v2 controller60343 TERMINAL FAIL_WRAPPER_TIMEOUT: MPI2 passed
+M1/M2; MPI4 M1/M2 completed both events/restart/continue, M4 did not complete before
+1800s observation ceiling. No native assertion error reported; source_driftNONE.
+Verified no surviving owned vortex ranks before changing CPP. All completed and
+partial files/receipt are retained; none discarded or replaced with relaxed target.
+
+curved_transaction_v1 PASS MPI1/2/4, M1/M2/M4 where available. New actual curved
+edge-star across2owners: predeclared finite source, projected positive/actual-metric/
+geometry-progress split, stale version rejection, rank veto, storage veto,
+byte-identical owned mesh/directory/frozen sensor data on rejection, successful
+publication and complete new vertex-star retrieval. Production code unchanged.
+The new test is installed in CNativeDistributed3D_tests.cpp. Test-only vortex
+worker selector avoids rerunning already successful variants; complete state
+gather remains bounded4096points. Build includes all68actual objects/provenance.
+
+LIVE sole heavy job82953: resolved_vortex_v3/run.py, only N4/M4 outstanding variant,
+unchanged frozen CASE_PLAN physics/geometry/metric/quality/sliver/length/work.
+Verified reused earlier serial/N2 and N4 M1/M2 files through repository-contained
+links, hashes checked; new source changes are tests/selection only. Revalidate this
+handle; do not restart from logs/elapsed time or launch another heavy job while
+active. One CPU/nice19/threads1/build-j1/MPI<=4, no unrelated-process termination.
+
+Independent physics audit now covers all available evolved donor states; actual
+pressure/positivity/seed sampling agree acrossMPI within small numerical differences.
+Full resolved exact lifecycle audit sequence is prepared to require terminalPASS
+onv3, with source hierarchy plus sweep-box admission; NOTRUN while job active.
+GOAL2_REQUIREMENT_MAP.json tracks all original requirements; curved atomic proof
+now resolves the previously identified direct transaction gap, pending final
+full source/evidence audit and resolved independent certificates.
+
+NEXT: finish final verified variant; preserve terminal matrix/partial timeout;
+run one independent resolved physics/flow/exact geometry/P1-or-declared source/
+shape/length/transport/conservation/BDF/restart audit; inspect every requirement;
+update/push final evidence before declaring Goal2 complete. No cluster/performance/
+shock/convergence/CAD/production3DBL/fullphysical-unsteady claims. AdapNoExt/foreign
+ClusterResults/dependencies untouched. WIP progress source/evidence is pushed;
+unfinished final MPI output waits for terminal receipt before staging.
+
 # Goal 2 final proof preparation; resolved MPI4 active — 2026-10-13
 
 Repo /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated,

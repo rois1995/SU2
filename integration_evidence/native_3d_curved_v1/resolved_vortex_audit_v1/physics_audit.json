@@ -7,12 +7,52 @@
       "minimum_evolved_pressure_ratio": 0.743437918077498,
       "maximum_state_change": 0.061706226199316094,
       "all_current_BDF_states_positive": true
+    },
+    "mpi2/resolved_vortex_m1_physics.json": {
+      "analytic_seed_relative_error": 3.565447776459166e-16,
+      "central_profile_samples": 8,
+      "minimum_evolved_pressure_ratio": 0.7434379180032761,
+      "maximum_state_change": 0.06170622609498411,
+      "all_current_BDF_states_positive": true
+    },
+    "mpi2/resolved_vortex_m2_physics.json": {
+      "analytic_seed_relative_error": 3.565447776459166e-16,
+      "central_profile_samples": 8,
+      "minimum_evolved_pressure_ratio": 0.7434379180032761,
+      "maximum_state_change": 0.06170622609498411,
+      "all_current_BDF_states_positive": true
+    },
+    "mpi4/resolved_vortex_m1_physics.json": {
+      "analytic_seed_relative_error": 3.565447776459166e-16,
+      "central_profile_samples": 8,
+      "minimum_evolved_pressure_ratio": 0.7434379179692464,
+      "maximum_state_change": 0.06170622607632276,
+      "all_current_BDF_states_positive": true
+    },
+    "mpi4/resolved_vortex_m2_physics.json": {
+      "analytic_seed_relative_error": 3.565447776459166e-16,
+      "central_profile_samples": 8,
+      "minimum_evolved_pressure_ratio": 0.7434379179692464,
+      "maximum_state_change": 0.06170622607632276,
+      "all_current_BDF_states_positive": true
     }
   },
   "inputs_sha256": {
     "mpi1/resolved_vortex_m1_physics.json": "a1e1851dba8b2654c11516a282526bc63ab00116bba9af54bb74ff76eac5a63a",
     "mpi1/resolved_vortex_m1_seed_states.json": "646022fe4846c0fe4750ef1f1483ac8efd56808563be94818966b79de2607278",
-    "mpi1/resolved_vortex_m1_s0_evolved_states.json": "a8be959202a2bd7fddc865741300125c158fb48b4cb4802fc5af3ad98b12a0a0"
+    "mpi1/resolved_vortex_m1_s0_evolved_states.json": "a8be959202a2bd7fddc865741300125c158fb48b4cb4802fc5af3ad98b12a0a0",
+    "mpi2/resolved_vortex_m1_physics.json": "a1e1851dba8b2654c11516a282526bc63ab00116bba9af54bb74ff76eac5a63a",
+    "mpi2/resolved_vortex_m1_seed_states.json": "202101e4782214d7773029a36b01e22daaaaba4c571d8bf7fc89d1ea647dba4e",
+    "mpi2/resolved_vortex_m1_s0_evolved_states.json": "1be2de7ea48c51500f8ea1e8c48aa773cc2f4c67f29eb82307f397000226f60d",
+    "mpi2/resolved_vortex_m2_physics.json": "a1e1851dba8b2654c11516a282526bc63ab00116bba9af54bb74ff76eac5a63a",
+    "mpi2/resolved_vortex_m2_seed_states.json": "202101e4782214d7773029a36b01e22daaaaba4c571d8bf7fc89d1ea647dba4e",
+    "mpi2/resolved_vortex_m2_s0_evolved_states.json": "1be2de7ea48c51500f8ea1e8c48aa773cc2f4c67f29eb82307f397000226f60d",
+    "mpi4/resolved_vortex_m1_physics.json": "a1e1851dba8b2654c11516a282526bc63ab00116bba9af54bb74ff76eac5a63a",
+    "mpi4/resolved_vortex_m1_seed_states.json": "57130b6a01f77e3c229e5432cbc81734020f5c8097978176774565c30a075aae",
+    "mpi4/resolved_vortex_m1_s0_evolved_states.json": "d9e88319412d4603725a8a14a08306f864215c025759f1da6255b909d10a77c1",
+    "mpi4/resolved_vortex_m2_physics.json": "a1e1851dba8b2654c11516a282526bc63ab00116bba9af54bb74ff76eac5a63a",
+    "mpi4/resolved_vortex_m2_seed_states.json": "57130b6a01f77e3c229e5432cbc81734020f5c8097978176774565c30a075aae",
+    "mpi4/resolved_vortex_m2_s0_evolved_states.json": "d9e88319412d4603725a8a14a08306f864215c025759f1da6255b909d10a77c1"
   },
   "script_sha256": "5c326f395a1e51cf28732f0180a8c405ef67fcbb0e3602145fcc5368939b2916",
   "scope": "Exact analytic compressible-vortex initialization and measured spatial sampling, genuinely changed actual Euler states and current/BDF positivity. Curved finite-domain evolution is not an exact unbounded-vortex solution; no remesh/accepted-mesh/restart/convergence/full Goal2 claim."

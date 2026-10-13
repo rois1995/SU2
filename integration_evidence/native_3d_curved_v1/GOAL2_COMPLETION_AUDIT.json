@@ -445,16 +445,22 @@
     "serial_wrapper_receipt": "resolved_vortex_v1/validation.json",
     "serial_wrapper_status": "FAIL_PARSER_SINGULAR_ONLY",
     "serial_receipt_sha256": "ce615158f313e3bbaa729bff21358466e2a98aa94c2c9f0fe1f49265bbeef85d",
-    "corrected_mpi_controller": "resolved_vortex_v2/run.py",
-    "live_session": 60343,
+    "corrected_mpi_controller": "resolved_vortex_v3/run.py",
+    "live_session": 82953,
     "physics_audit": "resolved_vortex_audit_v1/physics_audit.json",
-    "physics_sha256": "23b38ceeba3f898cc0979cc8a89f61853156ded23bcde5b7609492e508afa6dd",
+    "physics_sha256": "263734f402827a7a2d64160fbfe4e973c980fc001725c30f8df4027444f88fa4",
     "whole_independent_audit": "PREPARED_NOTRUN",
     "remaining": "Complete MPI2/4 and whole independent geometry/field/transfer/restart audit, then final full requirement proof.",
     "full_requirements_completed": 0,
-    "mpi2_status": "PASS_M1_M2_TWO_EVENTS",
-    "mpi4_status": "LIVE_M1_COMPLETE_M2_M4_PENDING"
+    "mpi2_status": "PASS",
+    "mpi4_status": "M1_M2_COMPLETE_M4_RESUMED_ONLY",
+    "previous_mpi_receipt": "resolved_vortex_v2/validation.json FAIL_WRAPPER_TIMEOUT"
   },
   "final_requirement_map": "GOAL2_REQUIREMENT_MAP.json",
-  "curved_atomic_transaction": "PREPARED_NOTCOMPILED_NOTRUN"
+  "curved_atomic_transaction": {
+    "status": "PASS",
+    "receipt": "curved_transaction_v1/validation.json",
+    "sha256": "201beb2c84a44bffd45a785ac8ab221a5cc175875173dc78771b8cb6015ee9c2",
+    "scope": "MPI1/2/4 N=M/M<N complete curved star, source/geometry/metric progress and stale/rank/budget veto publication with unchanged stores."
+  }
 }
