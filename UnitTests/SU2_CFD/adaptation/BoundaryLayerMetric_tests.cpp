@@ -1089,10 +1089,42 @@ TEST_CASE("Native3D volume support detects a thin finite wall missed by all cell
   CBoundaryLayerMetric layers(3,{wall});
   const std::array<std::array<double,3>,4> cell{{{{.1,.1,.02}},{{.9,.1,.02}},{{.1,.9,.02}},{{.1,.1,.8}}}};
   for(const auto& p:cell){const su2double x[3]={p[0],p[1],p[2]};CHECK(layers.Evaluate(0,x,1.).weight==0);}
-  double volume=0,active=0;
-  for(const auto& point:layers.IntegrationRule3D(cell)) {
+  double volume=0,active=0,integral=0,mz=0,mz2=0;
+  const auto rule=layers.IntegrationRule3D(cell);
+  for(const auto& point:rule) {
     volume+=point.weight;
     if(!point.samples.empty())active+=point.weight;
+    double z=0;for(unsigned k=0;k<4;++k)z+=point.barycentric[k]*cell[k][2];
+    mz+=point.weight*z;mz2+=point.weight*z*z;
+    Tensor m;m.m[0][0]=m.m[1][1]=m.m[2][2]=1;
+    for(const auto& sample:point.samples)layers.ApplySample(sample.wall,sample.sample,m,1.,nullptr,false);
+    const double det=SU2_TYPE::GetValue(m.m[0][0]*(m.m[1][1]*m.m[2][2]-m.m[1][2]*m.m[2][1])
+        -m.m[0][1]*(m.m[1][0]*m.m[2][2]-m.m[1][2]*m.m[2][0])
+        +m.m[0][2]*(m.m[1][0]*m.m[2][1]-m.m[1][1]*m.m[2][0]));
+    REQUIRE(det>0);integral+=point.weight*std::sqrt(det);
   }
-  CHECK(volume==Approx(.8*.8*.78/6).epsilon(1e-10));CHECK(active>0);
+  const double expectedVolume=.8*.8*.78/6;
+  CHECK(volume==Approx(expectedVolume).epsilon(1e-10));CHECK(active>0);
+  CHECK(mz==Approx(expectedVolume*(.02+.78/4)).epsilon(1e-10));
+  CHECK(mz2==Approx(expectedVolume*(.02*.02+2*.02*.78/4+.78*.78/10)).epsilon(1e-10));
+  // Independent parallel-body integral: area=A+P*r+pi*r^2 outside a convex triangle.
+  // Its whole active support above z=.02 lies inside this source tetrahedron.
+  auto density=[](double distance) {
+    const double hn=std::max(.02,2*(.02+.2*distance)/2.2);
+    const double t=std::clamp((distance-.072)/.008,0.,1.),w=1-t*t*(3-2*t);
+    return std::pow(std::sqrt(3.)/(2*.24*.24*hn),w);
+  };
+  auto simpson=[](auto f,double a,double b) {
+    double value=0;const unsigned n=256;
+    for(unsigned k=0;k<=n;++k)value+=(b-a)/n/3*(k==0||k==n?1:(k%2?4:2))*f(a+(b-a)*k/n);
+    return value;
+  };
+  auto section=[&](double z) {
+    const double radius=std::sqrt(std::max(0.,.08*.08-z*z)),full=std::sqrt(std::max(0.,.072*.072-z*z));
+    auto rings=[&](double r){return (.24*(2+std::sqrt(2.))+2*std::acos(-1.)*r)*(density(std::hypot(z,r))-1);};
+    return .24*.24/2*(density(z)-1)+simpson(rings,0,full)+simpson(rings,full,radius);
+  };
+  const double reference=expectedVolume+simpson(section,.02,.072)+simpson(section,.072,.08);
+  INFO("points=" << rule.size() << " integral=" << integral << " reference=" << reference);
+  CHECK(integral==Approx(reference).epsilon(5e-4));
 }

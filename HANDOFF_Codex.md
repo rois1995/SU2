@@ -1,3 +1,43 @@
+# Goal3 feature/ray integration diagnosis; angular accuracy unresolved — 2026-10-13
+
+Working folder /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated;
+branch codex/native-3d-bl, preceding published29c29f013e1f1621fc2186c3e74b9de3d6b811b4.
+Goal ACTIVE, full original scope intact. All owned jobs are terminal (last build
+37998/check52174); no CFD/MPI/cluster campaign was run.
+
+New feature-aware triangle partitions plus distance-resolved conical integration
+fit the unchanged65536point budget (latest65397), but the stronger hidden-wall
+density oracle FAILS:2.4658690877 vs2.4775664410,0.47% low (gate5e-4). Volume/
+moments/source containment and the five other original stages pass. DO NOT
+promote feature_partition_v1/validation.json; full thin-volume milestone remains
+INCOMPLETE. Frozen targets/shape/length/caps have not been weakened.
+
+Fixed angular orders are not a reliable fix:3point/5radial gives2% high,
+7point gives0.39% high,12point/3radial gives0.47% low; restoring radial order can
+exceed budget. Certified outside pieces use the original sensor rule. Local
+coordinate arithmetic/bounded generated-sample interior placement resolves source
+rounding while still using exact actual-query original P1. Edge-band filtering
+retains actual nearest-wall roots with coordinate-roundoff allowance; normal/fade
+composition and finer sensor requests stay unchanged. Public fade-band count is
+an internal quadrature parameter, not a new config/target policy.
+
+Evidence: integration_evidence/native_3d_bl_v1/feature_partition_v1.
+Stronger oracle uses independent convex-triangle parallel-body density integral;
+raw failures/receipts/aggregates are preserved. Planes-only source patch was
+reconstructed and hash-verified; final sources/patch are published. Other transient
+variant receipts are historical unless their exact source is explicitly available.
+
+Next big steps: ERROR-CONTROLLED ANGULAR integration, not more fixed-order/cap
+increments, and coordinated first-height wall-plus-transition construction using
+existing coning/cavity/atomic MPI infrastructure (LAYER_CONSTRUCTION_NEXT.md).
+The full production first-height/analytic BL guards remain. Preserve goal's full
+analytic/feature/interacting-wall/sensor-plus-BL gradation/actual RANS/Euler-BL/
+MPI/current+BDF/admissibility/reference/CGNS/restart and lifecycle performance
+gates. Preserve Goal2; leave AdapNoExt/foreign evidence/dependencies/other workers
+untouched. AGENTS connected-work/provenance/resumable validation policy applies.
+
+Earlier notices below are historical.
+
 # Goal3 thin-volume milestone INCOMPLETE; hidden-support point budget — 2026-10-13
 
 Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.

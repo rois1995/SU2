@@ -30,7 +30,7 @@
     {
       "id": "thin_volume",
       "scope": "thin BL quadrature inside coarse tetrahedra; convergence and complexity consistency",
-      "status": "production/faceted/planar and nearest-face checks PASS; whole aggregate FAIL: hidden finite-wall support reaches65536point budget; algorithmic integration improvement required"
+      "status": "planar/production/nearest-face PASS; feature/ray hidden support fits65536points but independent density accuracy FAIL0.47%; error-controlled angular integration required"
     },
     {
       "id": "construction",
@@ -82,7 +82,8 @@
   "execution": "one heavy job; focused tests before meaningful broader milestone; resumable proven cases; no cluster submission",
   "evidence": [
     "edge_integration_v1/validation.json",
-    "volume_integration_v1/validation_direct_tet_failed.json"
+    "volume_integration_v1/validation_direct_tet_failed.json",
+    "feature_partition_v1/validation_fixed_angular_failed.json"
   ],
   "execution_state": {
     "status": "all owned jobs terminal",

@@ -1,3 +1,16 @@
+# Goal3 integration reaches bounded cost, but fixed angular accuracy fails — 2026-10-13
+
+Feature partitions and conical distance-band rays reduce the hidden-wall case to
+65397points within the original65536cap, preserving volume/moments/source queries.
+A stronger independent parallel-body density oracle exposes0.47% error; the5e-4
+gate fails. Fixed degree/order variants change error sign and do not establish
+convergence. Use error-controlled angular integration next; no target/cap/gate
+relaxation and no efficiency or valid-adapted-mesh claim. Five other metric/kernel
+stages pass. Detailed historical/current evidence is native_3d_bl_v1/feature_partition_v1.
+Whole Goal3 remains active with full construction/MPI/RANS/performance scope.
+
+Earlier findings below are historical.
+
 # Goal3 thin-volume check finds an algorithmic cost limit — 2026-10-13
 
 Five latest serial stages pass, including actual native3D complexity on a coarse

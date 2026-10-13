@@ -211,7 +211,7 @@ class CBoundaryLayerMetric {
    *  Face/edge/vertex offset intersections detect a thin band even when both endpoints
    *  and the midpoint are outside it. Used with actual-point composition, never nodal BL tensors. */
   std::vector<double> EdgeBreakpoints(const std::array<double, 3>& a, const std::array<double, 3>& b,
-                                      double bandRatio = 1.5);
+                                      double bandRatio = 1.5, unsigned fadeBands = 16);
 
   std::vector<PointSample> SamplePoints(const std::vector<su2double>& coord);
   /*! Same intersection/fade policy for cached integration samples and actual remesher queries. */
