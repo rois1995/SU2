@@ -34,8 +34,8 @@ uses a singular/plural self-checked parser, verifies every original serial artif
 and source/binary pin, and reuses that result through the repository-contained
 mpi1 link. No successful serial CFD/adaptation job was repeated.
 
-LIVE owned controller60343: MPI2 currently runs its second worker-count variant,
-thenMPI4/M1/M2/M4. First MPI2/M1 two events already complete. Revalidate this exact
+LIVE owned controller60343: MPI2 passes both worker-count variants; MPI4/M1 two events complete,
+MPI4/M2/M4 still pending. First MPI4/M1 two events complete. Revalidate this exact
 handle before further heavy work; no production source changes while it is live.
 One CPU/nice19/threads1/build-j1, MPI<=4, no unrelated-process interruption.
 Independent whole-lifecycle geometry/field/conservation/restart audit is prepared

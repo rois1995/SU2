@@ -1,0 +1,129 @@
+{
+  "status": "INCOMPLETE",
+  "original_scope_preserved": true,
+  "goal": "Goal2",
+  "current_goal_status": "ACTIVE",
+  "requirements": [
+    {
+      "id": "branch_and_base",
+      "requirement": "Separate branch based on published Goal1 checkpoint; regular pushed work.",
+      "status": "PROVEN_FOR_CURRENT_CHECKPOINT",
+      "evidence": "git HEAD27b91dfa238e and ancestor23197eba1715f44d61c9ad3a070f61441dfb0560; target codex/native-3d-curved-local."
+    },
+    {
+      "id": "analytic_geometry",
+      "requirement": "Sphere/cylinder/bump authority, frozen geometry/projection/shape/sliver/length bounds and faceted compatibility.",
+      "status": "PROVEN_WITHIN_DECLARED_LOCAL_CONTROLS",
+      "evidence": [
+        "cylinder_cap_coverage_v2/validation.json",
+        "cylinder_cap_regression_v2/validation.json"
+      ],
+      "source": "Common/src/adaptation/CNativeBoundary3D.cpp; tests NativeCurvedGeometry3D/NativeCurvedChart3D/NativeSurfaceError3D/NativeCurvedReference3D."
+    },
+    {
+      "id": "coupled_operations_features",
+      "requirement": "Coupled curved split/collapse/movement/reconstruction preserve marker junctions and component identity.",
+      "status": "PROVEN_KERNEL_AND_RUNTIME_CONTROLS",
+      "evidence": "Current107-case suite includes bump insertion/movement/collapse/iterated reconstruction, junction/invalid-projection/interface rejection, disconnected components, sphere split/undo, saved joint reconstruction; primitive cylinder/cap junction runtime."
+    },
+    {
+      "id": "source_target",
+      "requirement": "Original-P1 sensor priority, pre-freeze finite extension, unchanged finer demands and actual-query composition semantics.",
+      "status": "PROVEN_WITH_EXPLICIT_3DBL_SCOPE_LIMIT",
+      "evidence": [
+        "cylinder_cap_audit_v1/fresh_collar_audit.json",
+        "cylinder_cap_regression_v2/independent_lifecycle_validation.json"
+      ],
+      "source": "CNativeField3D caches sensors only and composes at each Query; composed 3D edge integration remains explicitly rejected. Production3DBL excluded; 2D BL/fade source unchanged."
+    },
+    {
+      "id": "domain_transfer",
+      "requirement": "Geometry-authoritative volume change, new/lost-domain current+BDF conservation and positivity.",
+      "status": "PROVEN_SMALL_CONTROLS_RESOLVED_PENDING",
+      "evidence": [
+        "cylinder_cap_audit_v1/cylinder_cap_coverage_v2_audit.json",
+        "cylinder_cap_regression_v2/independent_lifecycle_validation.json"
+      ],
+      "remaining": "Resolved vortex complete independent actual-field/volume/current+BDF audit."
+    },
+    {
+      "id": "mpi_dependencies_atomicity",
+      "requirement": "MPI1/2/4, N=M/M<N, complete versioned dependencies, partition-interface edits and atomic publication/rejection on curved proposals.",
+      "status": "REQUIRES_EXPLICIT_CURRENT_CURVED_TRANSACTION_PROOF",
+      "evidence": "Primitive and manufactured runtime matrices complete for all supported worker counts; actual curved source/return/restart controls. Core Directory tests exercise full-star/version/veto/budget rollback, but final audit must match their current source and curved integration scope.",
+      "remaining": "Verify or add focused curved distributed transaction/rejection proof; do not infer it only from successful solver output."
+    },
+    {
+      "id": "output_reference_restart",
+      "requirement": "Stable geometry provenance through SU2/CGNS output and real current+BDF restart.",
+      "status": "PROVEN_SMALL_CONTROLS_RESOLVED_PENDING",
+      "evidence": [
+        "cylinder_cap_audit_v1/cylinder_cap_coverage_v2_audit.json",
+        "cylinder_cap_regression_v2/independent_lifecycle_validation.json"
+      ],
+      "remaining": "Resolved vortex independent restart/reference/source residual audit."
+    },
+    {
+      "id": "actual_euler",
+      "requirement": "Actual CFD-pressure-derived metric with repeated native remesh/continuation/restart; smooth manufactured and locally resolved nonuniform/shock control.",
+      "status": "SERIAL_RESOLVED_PROVEN_MPI_AUDIT_PENDING",
+      "evidence": "Current solved-bump lifecycle is independently qualified; resolved vortex serial31034assertions and analytic/evolved positivity audit; mean core volume ratio0.58294.",
+      "remaining": "MPI4 resolved control and full exact/source/transfer/restart audit. Vortex is nonuniform control; no shock/convergence claim."
+    },
+    {
+      "id": "bounded_work_and_search",
+      "requirement": "Indexed searches, bounded patches/work/memory, explicit rejection/stagnation/work/time diagnostics.",
+      "status": "PROVEN_CONTRACTS_NO_EFFICIENCY_CLAIM",
+      "evidence": "House ADT source/reference/current-mesh clearance;64old/128new,256donors/2048cached samples; Directory/failure/memory admission; work/stagnation/time limits. Existing Goal1 budgets and current107-case rejection/diagnostic controls."
+    },
+    {
+      "id": "evidence_workflow",
+      "requirement": "Compact provenance/inspectable inputs, grids, states, certificates/failures, maintained handoff/findings/audit and regular push; one owned heavy job/local constraints.",
+      "status": "IN_PROGRESS",
+      "evidence": "Handoff/findings/audit and published source/build/archive/binary/artifact pins; VTU actual pressure fields; original wrapper failure retained; current single owned MPI60343.",
+      "remaining": "Terminal resolved receipt and independently qualified artifacts; final updated requirement map and push."
+    }
+  ],
+  "evidence": {
+    "cylinder_cap_coverage_v2/validation.json": {
+      "sha256": "9aa5a89f323db2099a3ed3d6463375d71dc6912ab763992e2737554e6f09d84d",
+      "status": "PASS"
+    },
+    "cylinder_cap_audit_v1/fresh_collar_audit.json": {
+      "sha256": "9300bf0f69e1096338e264cd19124c2e8a50e5eba1186a73092be99966601a2b",
+      "status": "PASS_FRESH_COLLAR_AND_STRIP_ONLY"
+    },
+    "cylinder_cap_audit_v1/cylinder_cap_coverage_v2_audit.json": {
+      "sha256": "6108de44c50ddbc20e102a2aeb532d4490724eb05dabd573492d2ef6366e553a",
+      "status": "PASS_COMPLETED_LIFECYCLES_ONLY"
+    },
+    "cylinder_cap_regression_v2/validation.json": {
+      "sha256": "a1abf117de35cc744e3f1e853bd8c4a0ca62b637323757653d3c3952780a9923",
+      "status": "PASS"
+    },
+    "cylinder_cap_regression_v2/independent_lifecycle_validation.json": {
+      "sha256": "2d67a8bf9fcf669449b24eda12f0c5722eeb62a17588d4954efc3772d322308b",
+      "status": "PASS"
+    },
+    "resolved_vortex_audit_v1/physics_audit.json": {
+      "sha256": "23b38ceeba3f898cc0979cc8a89f61853156ded23bcde5b7609492e508afa6dd",
+      "status": "PASS_INITIAL_AND_EVOLVED_PHYSICS_ONLY"
+    },
+    "resolved_vortex_audit_v1/core_resolution.json": {
+      "sha256": "3b78d44c5208a201a8170b85b15c1668f3902010f7386c768bd38f46494ea33b",
+      "status": "DESCRIPTIVE_RESOLUTION_ONLY"
+    }
+  },
+  "excluded_completion_requirements": [
+    "performance/scaling/cluster",
+    "production3DBL",
+    "generalCAD",
+    "fullphysicalunsteady/forcesconvergence",
+    "arbitrarymeshfeasibility"
+  ],
+  "remaining_major_work": [
+    "Complete live resolved MPI matrix and independent lifecycle audit",
+    "Establish explicit current curved MPI transaction/interface/atomic rejection proof",
+    "Inspect every final requirement and push terminal evidence before completion"
+  ]
+}

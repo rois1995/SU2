@@ -1,3 +1,36 @@
+# Goal 2 final proof preparation; resolved MPI4 active — 2026-10-13
+
+Repo /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated,
+branch codex/native-3d-curved-local, previouspublished27b91dfa238e. Goal ACTIVE;
+full original objective retained. No production/test-suite CPP changes this turn.
+
+Resolved vortex MPI2 PASS both M1/M2 two-event cases. Original serial result is
+verified/reused; MPI4/M1 both events complete, M2/M4 still pending. LIVE owned
+controller60343 is verified; poll same handle before any new heavy work. Prepared
+independent audit now uses source-box hierarchy and sweep-box mesh admission,
+followed by unchanged exact donor/intersection/edge checks. Stored81-case closed
+box equivalence selfcheck PASS. Full resolved lifecycle audit is NOTRUN while
+MPI4 active. Same one CPU/nice19/threads1, no source changes while pinned.
+
+Created GOAL2_REQUIREMENT_MAP.json covering the actual full scope with specific
+source/tests/certificates and remaining proof. It identifies a direct current
+curved MPI partition-interface/atomic-veto transaction proof to establish before
+closing; successful mesh outputs alone do not prove rejection atomicity.
+Prepared (NOTCOMPILED/NOTRUN) curved_transaction_v1/prepared_test.inc: two-cell
+curved graph edge star across ranks, finite source declared before freeze,
+actual metric/geometry progress, stale dependencies, rank veto, storage veto,
+unchanged mesh/directory/frozen source and successful versioned publication.
+Insert into CNativeDistributed3D_tests.cpp only AFTER60343 becomes terminal, then
+one focused MPI1/2/4 check. No new production feature or acceptance change needed.
+
+NEXT: complete/preserve existing resolved run; run prepared independent lifecycle,
+physics/resolution/flow export audits; qualify curved transaction; inspect every
+original requirement and push terminal evidence. Do not close from prepared
+scripts or earlier small prototypes. Goal audit remains INCOMPLETE, no cluster/
+performance/CAD/production3DBL/fullphysical-unsteady/shock/convergence claims.
+AdapNoExt/dependencies/foreignClusterResults untouched. All links must remain
+inside this repository; current serial reuse link points to published v1 data.
+
 # Goal 2 resolved Euler vortex: serial qualified, MPI active — 2026-10-13
 
 Working folder /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated;

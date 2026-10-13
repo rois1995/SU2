@@ -14,9 +14,26 @@ MAX=(1<<64)-1
 inputs={};results={}
 def read(p):
  inputs[str(p.relative_to(ROOT))]=sha(p);return json.loads(p.read_text())
-def exact_length(src,a,b):
+def source_tree(records):
+ lo=tuple(min(float(c['lo'][k]) for _,c in records) for k in range(3))
+ hi=tuple(max(float(c['hi'][k]) for _,c in records) for k in range(3))
+ if len(records)<=16:return lo,hi,records,None
+ axis=max(range(3),key=lambda k:hi[k]-lo[k]);records=sorted(records,key=lambda r:float(r[1]['lo'][axis]+r[1]['hi'][axis]))
+ mid=len(records)//2;return lo,hi,None,(source_tree(records[:mid]),source_tree(records[mid:]))
+def query_sources(tree,a,b):
+ lo=tuple(min(float(a[k]),float(b[k])) for k in range(3));hi=tuple(max(float(a[k]),float(b[k])) for k in range(3));result=[];pending=[tree]
+ while pending:
+  lower,upper,records,children=pending.pop()
+  if any(upper[k]<lo[k] or hi[k]<lower[k] for k in range(3)):continue
+  if children:pending.extend(children)
+  else:
+   for priority,c in records:
+    if all(float(c['hi'][k])>=lo[k] and hi[k]>=float(c['lo'][k]) for k in range(3)):result.append((priority,c))
+ return sorted(result,key=lambda r:(r[0],r[1]['key']))
+def indexed_metric(tree,p):return metric([c for _,c in query_sources(tree,p,p)],p)
+def exact_length(tree,a,b):
  chord=sub(b,a);intervals=[];cuts={F(0),F(1)}
- for priority,c in src:
+ for priority,c in query_sources(tree,a,b):
   if any(max(a[i],b[i])<c['lo'][i] or min(a[i],b[i])>c['hi'][i] for i in range(3)):continue
   wa,wb=weights(c['points'],a),weights(c['points'],b);lo,hi=F(0),F(1)
   for x,y in zip(wa,wb):
@@ -61,14 +78,14 @@ def audit_event(work,name,amplitude,format):
   group,_=sources({'original':records})
   bykey={tuple(sorted(n[0] for n in r['vertices'])):r for r in records}
   for c in group:c['ids']=[n[0] for n in bykey[c['key']]['vertices']];src.append((pr,c))
- ordered=[c for pr,c in src];nodes={n[0]:tuple(F(x) for x in n[1:]) for n in row['nodes']}
+ tree=source_tree(src);nodes={n[0]:tuple(F(x) for x in n[1:]) for n in row['nodes']}
  tetpoints=[[nodes[n] for n in c['nodes']] for c in row['cells']];volumes=[determinant(p)/6 for p in tetpoints];assert min(volumes)>0
  for a,b in near_pairs(tetpoints):assert not overlap(a,b),'Accepted interior overlap'
  faces={};edges=set();nodal_volume={n:F(0) for n in nodes};minimum_q=1.;minimum_j=1.;maximum_l=0.
  for ids,p,v in zip([c['nodes'] for c in row['cells']],tetpoints,volumes):
   for n in ids:nodal_volume[n]+=v/4
   for f in ((ids[1],ids[2],ids[3]),(ids[0],ids[3],ids[2]),(ids[0],ids[1],ids[3]),(ids[0],ids[2],ids[1])):faces.setdefault(tuple(sorted(f)),[]).append(f)
-  centroid=tuple(F(float(sum(x[k] for x in p)/4)) for k in range(3));m=metric(ordered,centroid);dm=spd(m);dv=determinant(p)
+  centroid=tuple(F(float(sum(x[k] for x in p)/4)) for k in range(3));m=indexed_metric(tree,centroid);dm=spd(m);dv=determinant(p)
   lengths={(i,j):math.sqrt(float(quad(m,sub(p[j],p[i])))) for i,j in combinations(range(4),2)}
   transformed=float(dv)*math.sqrt(float(dm));q=12*(transformed/2)**(2./3)/sum(x*x for x in lengths.values())
   j=min(math.sqrt(2)*transformed/math.prod(lengths[tuple(sorted((i,k)))] for k in range(4) if i!=k) for i in range(4))
@@ -81,12 +98,12 @@ def audit_event(work,name,amplitude,format):
  skin=[fs[0] for fs in faces.values() if len(fs)==1];surface(skin,True)
  assert set(map(oriented,skin))==set(oriented(f['nodes']) for f in row['surface'])
  signed=sum((determinant([(F(0),)*3]+[nodes[n] for n in f])/6 for f in skin),F(0));assert signed==sum(volumes)
- for a,b in edges:maximum_l=max(maximum_l,exact_length(src,nodes[a],nodes[b]))
+ for a,b in edges:maximum_l=max(maximum_l,exact_length(tree,nodes[a],nodes[b]))
  assert maximum_l<=1.8+1e-10
  accepted={tuple(r['point']):r for r in state['accepted']};assert len(accepted)==len(nodes)
  field_integrals=[F(0)]*15;metric_error=0.
  for n,p in nodes.items():
-  values=accepted[tuple(float(x) for x in p)];expected=metric(ordered,p)
+  values=accepted[tuple(float(x) for x in p)];expected=indexed_metric(tree,p)
   metric_error=max(metric_error,max(abs(float(a)-b)/max(1.,abs(float(a))) for a,b in zip(expected,values['metric'])))
   for k,u in enumerate(values['states']):field_integrals[k]+=nodal_volume[n]*F(u)
   for off in (0,5,10):
@@ -139,5 +156,5 @@ for ranks in (1,2,4):
   assert all(max(abs(a-b)/max(1.,abs(a)) for a,b in zip(r['states'],wanted[tuple(r['point'])]))<2e-10 for r in restart['accepted'])
   rows[name]=events
  results[str(ranks)]=rows
-out={'status':'PASS_RESOLVED_VORTEX_LIFECYCLES','results':results,'script_sha256':sha(Path(__file__).resolve()),'inputs_sha256':inputs,'helper_sha256':{n:sha(ROOT/'integration_evidence/native_3d_core_v1'/n) for n in ('audit_coupled.py','audit_cavities.py','audit_geometry_bridge.py')},'scope':'Independent exact positive volumes/manifold/embedding/no-overlap with sweep-box admission, original-P1-or-declared-extension edge coverage/shape/length, actual transported metric residuals, conserved current+BDF integrals/positivity/new-lost accounting, curved reference and real SU2 restart/output signatures, refreshed nonuniform anisotropic CFD pressure metrics. Analytic seed/resolution/actual evolution verified separately; no shock/convergence/full Goal2 claim.'}
+out={'status':'PASS_RESOLVED_VORTEX_LIFECYCLES','results':results,'script_sha256':sha(Path(__file__).resolve()),'inputs_sha256':inputs,'helper_sha256':{n:sha(ROOT/'integration_evidence/native_3d_core_v1'/n) for n in ('audit_coupled.py','audit_cavities.py','audit_geometry_bridge.py')},'scope':'Independent exact positive volumes/manifold/embedding/no-overlap with source-box hierarchy and sweep-box admission, original-P1-or-declared-extension edge coverage/shape/length, actual transported metric residuals, conserved current+BDF integrals/positivity/new-lost accounting, curved reference and real SU2 restart/output signatures, refreshed nonuniform anisotropic CFD pressure metrics. Analytic seed/resolution/actual evolution verified separately; no shock/convergence/full Goal2 claim.'}
 (HERE/'independent_lifecycle_validation.json').write_text(json.dumps(out,indent=2)+'\n');print('PASS: resolved Euler vortex native lifecycles')
