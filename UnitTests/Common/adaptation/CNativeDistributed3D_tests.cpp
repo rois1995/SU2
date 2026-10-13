@@ -2211,3 +2211,64 @@ TEST_CASE("Curved partition-interface publication preserves frozen source on MPI
   }
   CHECK_FALSE(parent.maximum(!valid));if(subset!=MPI_COMM_NULL)MPI_Comm_free(&subset);
 }
+
+TEST_CASE("Native3D engine initializes wall heights through owner transactions and protects edits", "[NativeFirstLayerEngine3D]") {
+  World parent;const auto fixture=Box();const PlanarReference reference(fixture.facets);
+  const auto input=Partition(Rows(fixture.patch),parent);const auto saved=Bytes(input);
+  std::map<int,double> heights;
+  for(const auto& f:fixture.facets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights[f.marker]=.1;
+  for(int m:std::set<int>{1,parent.size,std::max(1,parent.size/2)}) {
+    std::vector<std::vector<OwnedCell>> to(parent.size);
+    for(const auto& row:input)to[row.first%m].push_back(row.second);
+    const auto migrated=parent.exchange(to);MPI_Comm subset=MPI_COMM_NULL;
+    MPI_Comm_split(parent.comm,parent.rank<m?0:MPI_UNDEFINED,parent.rank,&subset);
+    Owned privateResult;bool consistent=true;int published=0;
+    if(subset!=MPI_COMM_NULL) {
+      World worker(subset);Owned owned;for(const auto& row:migrated)owned.emplace(row.cell.id,row);
+      const auto originalBytes=Bytes(owned);
+      EngineOptions options;options.wall_heights=heights;options.maximum_rounds=1;options.timings=true;
+      auto result=Refine(worker,owned,Uniform(owned,{1,0,0,1,0,100}),reference,{},options);
+      CHECK(Bytes(owned)==originalBytes);published=worker.sum(int(result.stats.layer_published));
+      CHECK(published==2);CHECK(result.stats.layer_seconds>0);CHECK(worker.sum(int(result.stats.height_checks))>0);
+      CHECK_FALSE((result.cells.empty() && !owned.empty()));
+      for(const auto& row:result.cells) {
+        FirstHeightReport report;std::string reason;
+        if(!CheckFirstHeight(PatchOf({row.second}),heights,reference,report,reason))consistent=false;
+      }
+      privateResult=std::move(result.cells);MPI_Comm_free(&subset);
+    }
+    CHECK_FALSE(parent.maximum(!consistent));
+    to.assign(parent.size,{});for(const auto& row:privateResult)to[row.first%parent.size].push_back(row.second);
+    const auto returned=parent.exchange(to);Owned output;for(const auto& row:returned)output.emplace(row.cell.id,row);
+    const auto count=CPassiveComm::Allreduce(output.size(),CPassiveComm::Op::SUM,parent.comm);
+    CHECK(count>6);CHECK(Audit(parent,output,fixture,count));CHECK(Bytes(input)==saved);
+  }
+}
+
+TEST_CASE("Native3D engine elects inconsistent wall-height policies before changing input", "[NativeFirstLayerEngine3D]") {
+  World world;const auto fixture=Box();const PlanarReference reference(fixture.facets);
+  const auto input=Partition(Rows(fixture.patch),world);const auto saved=Bytes(input);
+  EngineOptions options;options.maximum_rounds=1;
+  if(world.size>1) {
+    options.wall_heights[10]=world.rank?.1:.2;
+    const auto rejected=Refine(world,input,Uniform(input,{}),reference,{},options);
+    CHECK_FALSE(rejected.valid);CHECK(rejected.reason.find("policies differ")!=std::string::npos);
+    CHECK(Bytes(input)==saved);
+  }
+  options.wall_heights[10]=std::numeric_limits<double>::quiet_NaN();
+  const auto invalid=Refine(world,input,Uniform(input,{}),reference,{},options);
+  CHECK_FALSE(invalid.valid);CHECK(invalid.reason.find("nonfinite")!=std::string::npos);CHECK(Bytes(input)==saved);
+  options.wall_heights.clear();
+  for(const auto& f:fixture.facets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))options.wall_heights[f.marker]=2.;
+  const auto impossible=Refine(world,input,Uniform(input,{}),reference,{},options);
+  INFO(impossible.reason);
+  CHECK_FALSE(impossible.valid);CHECK(impossible.reason.find("geometry-height incompatibility")!=std::string::npos);
+  CHECK(world.sum(int(impossible.stats.layer_published))==0);CHECK(Bytes(impossible.cells)==saved);CHECK(Bytes(input)==saved);
+  for(auto& h:options.wall_heights)h.second=.1;
+  options.maximum_work=1;
+  const auto bounded=Refine(world,input,Uniform(input,{1,0,0,1,0,100}),reference,{},options);
+  CHECK_FALSE(bounded.valid);CHECK(bounded.stats.stop==EngineStop::WorkBudget);
+  CHECK(world.sum(int(bounded.stats.layer_published))==1);CHECK(Bytes(input)==saved);
+  const auto count=CPassiveComm::Allreduce(bounded.cells.size(),CPassiveComm::Op::SUM,world.comm);
+  CHECK(Audit(world,bounded.cells,fixture,count));
+}

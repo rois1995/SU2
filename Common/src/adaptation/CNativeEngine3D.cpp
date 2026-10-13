@@ -422,6 +422,10 @@ struct FieldAccounting {
   // Keep attempted queries when surrounding metric/topology checks throw.
   ~FieldAccounting() { FieldCounts(stats,field); }
 };
+struct HeightPolicyRow {
+  int marker=0;double height=0;
+  template<class S>void Fields(S& s){s(marker,height);}
+};
 EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorCell>& original,
                    const PlanarReference& geometry, MetricComposition composition, EngineOptions options, MetricChange intent) {
   const bool curved=!geometry.Analytic().empty();
@@ -449,7 +453,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   };
   size_t batch_bytes=0;
   auto bytes=[&]() {
-    return transfer_memory::Add(options.caller_bytes,accepted_bytes,batch_bytes,MapBytes(working),
+    return transfer_memory::Add(options.caller_bytes,MapBytes(options.wall_heights),accepted_bytes,batch_bytes,MapBytes(working),
         transfer_memory::Bytes(original),transfer_memory::Bytes(initial),transfer_memory::Bytes(result.splits),transfer_memory::Bytes(result.collapses),
         selection.Bytes(),MapBytes(retired_edges));
   };
@@ -462,6 +466,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   };
   std::string last_rejection;
   uint64_t progress_at_window=0, attempted_at_window=0;
+  auto height_check=[&](const Patch& patch,std::string& reason) {
+    if(options.wall_heights.empty())return true;
+    ++stats.height_checks;FirstHeightReport report;
+    const bool valid=CheckFirstHeight(patch,options.wall_heights,geometry,report,reason);
+    stats.height_rejected+=!valid;return valid;
+  };
   auto geometry_trial=[&](bool valid) {
     ++stats.geometry_trials; stats.geometry_rejected+=!valid; return valid;
   };
@@ -474,7 +484,18 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }
     return valid;
   };
+  bool layer_active=false;Clock::time_point layer_started;
   auto finish=[&]() {
+    if(layer_active && options.timings)stats.layer_seconds+=std::chrono::duration<double>(Clock::now()-layer_started).count();
+    layer_active=false;
+    if(result.valid && !options.wall_heights.empty()) {
+      CLocalFailure heightFailure;
+      for(const auto& row:working) {
+        std::string reason;
+        if(!height_check(GeometryPatch(Imported{{row.second},true,{}}),reason))heightFailure.Set(1,row.first,reason);
+      }
+      if(!vote(heightFailure)){result.valid=false;stats.stop=EngineStop::Failure;}
+    }
     if (stats.stop==EngineStop::None) stats.stop=result.valid ? EngineStop::Complete : EngineStop::Failure;
     stats.final_owned_cells=working.size();
     stats.cached_measured_cells=selection.cells.size();
@@ -504,7 +525,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       const double phases=stats.initialization_seconds+stats.seed_seconds+stats.selection_seconds+
           stats.dependency_seconds+stats.reservation_seconds+stats.donor_seconds+stats.reconstruction_seconds+
           stats.metric_seconds+stats.routing_seconds+stats.publication_seconds+stats.update_seconds+stats.completion_seconds;
-      stats.other_seconds=stats.total_seconds-phases;
+      stats.other_seconds=stats.total_seconds-phases-stats.layer_seconds;
     }
     return std::move(result);
   };
@@ -542,7 +563,28 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     const auto mode_lo=CPassiveComm::Allreduce(int(intent),CPassiveComm::Op::MIN,world.comm);
     const auto mode_hi=CPassiveComm::Allreduce(int(intent),CPassiveComm::Op::MAX,world.comm);
     if (mode_lo!=mode_hi) failure.Set(1,0,"Native 3D adaptation intent differs across workers.");
+    if(options.wall_heights.size()>MaximumDirectoryFeatures)
+      failure.Set(1,0,"Native3D wall-height policy exceeds bounded marker count.");
+    for(const auto& h:options.wall_heights)if(!(h.second>0) || !std::isfinite(h.second))
+      failure.Set(1,0,"Native3D wall-height policy is nonfinite/nonpositive.");
     ready=vote(failure);
+    if(ready)ready=admit(transfer_memory::Add(transfer_memory::Mul(world.size,sizeof(std::vector<HeightPolicyRow>)),
+        transfer_memory::Mul(transfer_memory::Mul(world.size,options.wall_heights.size()),2*sizeof(HeightPolicyRow))));
+    if(ready) {
+      std::vector<std::vector<HeightPolicyRow>> to(world.size);
+      for(auto& peer:to)for(const auto& h:options.wall_heights)peer.push_back({h.first,h.second});
+      bool admitted=false;
+      const auto rows=world.exchange(to,&admitted,options.memory_ceiling,bytes());
+      if(!admitted){result.reason="Native3D wall-height policy exchange exceeds budget.";ready=false;}
+      else {
+        if(rows.size()!=size_t(world.size)*options.wall_heights.size())failure.Set(1,0,"Native3D wall-height policies differ across workers.");
+        else for(size_t i=0;i<rows.size();++i) {
+          auto h=options.wall_heights.begin();std::advance(h,i%options.wall_heights.size());
+          if(rows[i].marker!=h->first || rows[i].height!=h->second)failure.Set(1,0,"Native3D wall-height policies differ across workers.");
+        }
+        ready=vote(failure);
+      }
+    }
     if (ready) ready=admit(transfer_memory::Add(accepted_bytes,
         transfer_memory::Mul(std::min<uint64_t>(stats.work_limit,4096),
             coarsening ? sizeof(Edge) : sizeof(SplitRecord)),transfer_memory::Mul(accepted.size(),selection_bound(repairing))));
@@ -573,6 +615,107 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         transfer_memory::Add(bytes(),directory.ResidentBytes()));
   }
   if (!ready) return finish();
+  if(!options.wall_heights.empty()) {
+    layer_active=true;layer_started=Clock::now();
+    CLocalFailure failure;
+    std::set<Id> pending;
+    const auto layerScratch=transfer_memory::Add(transfer_memory::Mul(working.size(),sizeof(Id)+4*sizeof(void*)),
+        transfer_memory::Mul(MaximumReplacementCells,8192));
+    if(!admit(layerScratch))return finish();
+    auto needs_layer=[&](const OwnedCell& row) {
+      bool wall=false;
+      for(const auto& f:row.physical)wall=wall || (f.present && options.wall_heights.count(geometry.Get(f.facet).marker));
+      if(!wall)return false;
+      std::string reason;
+      return !height_check(GeometryPatch(Imported{{row},true,{}}),reason);
+    };
+    try {for(const auto& row:working)if(needs_layer(row.second))pending.insert(row.first);}
+    catch(const std::exception& e){failure.Set(2,0,e.what());}
+    if(!vote(failure))return finish();
+    uint64_t epoch=0;
+    while(world.maximum(!pending.empty())) {
+      if(stats.global_work>=stats.work_limit) {stats.stop=EngineStop::WorkBudget;result.reason="Native3D first-row initialization exhausts global work budget.";return finish();}
+      if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
+        stats.stop=EngineStop::TimeBudget;result.reason="Native3D first-row initialization exhausts elapsed-time budget.";return finish();
+      }
+      const int caller=CPassiveComm::Allreduce(pending.empty()?INT_MAX:world.rank,CPassiveComm::Op::MIN,world.comm);
+      const bool active=world.rank==caller;
+      std::vector<Feature> features;
+      if(active)try {
+        const auto& row=working.at(*pending.begin());const auto faces=Faces(row.cell);
+        for(unsigned f=0;f<4;++f)if(row.physical[f].present && options.wall_heights.count(geometry.Get(row.physical[f].facet).marker)) {
+          features.push_back({faces[f],3});break;
+        }
+        if(features.empty())failure.Set(1,row.cell.id,"Native3D first-row queue lost its wall face.");
+      }catch(const std::exception& e){failure.Set(2,0,e.what());}
+      if(!vote(failure))return finish();
+      auto dependencies=directory.Lookup(features,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),layerScratch));
+      if(!dependencies.valid){result.reason=dependencies.reason;return finish();}
+      auto imported=directory.Fetch(dependencies,working,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),layerScratch));
+      if(!imported.valid){result.reason=imported.reason;return finish();}
+      const bool chosen=directory.Reserve(imported,active,result.reason,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),layerScratch));
+      if(!world.maximum(chosen))return finish();
+      Patch old,fresh;bool approved=false;FirstHeightReport report;
+      const auto nodeOffset=transfer_memory::Mul(epoch,5),cellOffset=transfer_memory::Mul(epoch,MaximumReplacementCells);
+      if(chosen)try {
+        if(maximum_node>UINT64_MAX-5 || nodeOffset>UINT64_MAX-maximum_node-5 ||
+           maximum_cell>UINT64_MAX-MaximumReplacementCells || cellOffset>UINT64_MAX-maximum_cell-MaximumReplacementCells)
+          throw std::invalid_argument("Native3D first-row reserved range overflows.");
+        old=GeometryPatch(imported);
+        const Id node=maximum_node+1+nodeOffset,cell=maximum_cell+1+cellOffset;
+        std::vector<Point> backgrounds{Centroid(old.cells.front())};
+        std::map<Id,Point> coordinates;for(const auto& c:old.cells)for(auto n:c.v)coordinates.emplace(n.id,n.p);
+        for(const auto& face:old.surface) {
+          const auto h=options.wall_heights.find(geometry.Get(face.facet).marker);if(h==options.wall_heights.end())continue;
+          const auto a=coordinates.at(face.v[0]),b=coordinates.at(face.v[1]),c=coordinates.at(face.v[2]);
+          const std::array<long double,3> u{(long double)b.x-a.x,(long double)b.y-a.y,(long double)b.z-a.z},
+              v{(long double)c.x-a.x,(long double)c.y-a.y,(long double)c.z-a.z};
+          auto normal=std::array<long double,3>{u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]};
+          const auto length=std::hypot(normal[0],normal[1],normal[2]);for(auto& x:normal)x/=length;
+          for(double factor:{1.25,1.5,2.})backgrounds.push_back({double(((long double)a.x+b.x+c.x)/3-factor*h->second*normal[0]),
+              double(((long double)a.y+b.y+c.y)/3-factor*h->second*normal[1]),double(((long double)a.z+b.z+c.z)/3-factor*h->second*normal[2])});
+        }
+        for(const auto& background:backgrounds) {
+          approved=ConstructFirstLayer(old,{node,background},node+1,cell,options.wall_heights,geometry,fresh,report,result.reason);
+          if(approved || result.reason.find("geometry-height incompatibility")!=std::string::npos)break;
+        }
+        if(!approved)failure.Set(1,old.cells.front().id,"Native3D initial first-row construction rejected: "+result.reason);
+      }catch(const std::exception& e){failure.Set(2,0,e.what());}
+      if(!vote(failure))return finish();
+      std::vector<std::vector<Dependency>> toRemove(world.size);
+      std::vector<std::vector<OwnedCell>> toAdd(world.size);
+      try {if(approved) {
+        std::map<Id,int> owners;for(const auto& dep:dependencies.cells){owners.emplace(dep.cell,dep.owner);toRemove[dep.owner].push_back(dep);}
+        std::map<Face,Id> physical;for(const auto& f:fresh.surface)physical.emplace(Key(f.v),f.facet);
+        for(size_t i=0;i<fresh.cells.size();++i) {
+          OwnedCell row;row.cell=fresh.cells[i];const auto faces=Faces(row.cell);
+          for(unsigned f=0;f<4;++f){const auto found=physical.find(Key(faces[f]));if(found!=physical.end())row.physical[f]={true,found->second};}
+          toAdd[owners.at(old.cells[i%old.cells.size()].id)].push_back(row);
+        }
+      }}catch(const std::exception& e){failure.Set(2,0,e.what());}
+      if(!vote(failure))return finish();
+      bool admitted=false;const auto baseline=transfer_memory::Add(bytes(),source.ResidentBytes(),directory.ResidentBytes(),layerScratch);
+      const auto removed=world.exchange(toRemove,&admitted,options.memory_ceiling,baseline);if(!admitted){result.reason="Native3D first-row removal routing exceeds budget.";return finish();}
+      const auto added=world.exchange(toAdd,&admitted,options.memory_ceiling,baseline);if(!admitted){result.reason="Native3D first-row addition routing exceeds budget.";return finish();}
+      if(!directory.Publish(working,removed,added,true,result.reason,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),layerScratch)))return finish();
+      try {
+        for(const auto& row:removed)pending.erase(row.cell);
+        for(const auto& row:added)if(needs_layer(row))pending.insert(row.cell.id);
+      }catch(const std::exception& e){failure.Set(2,0,e.what());}
+      if(!vote(failure))return finish();
+      stats.layer_published+=approved; ++stats.global_work;++epoch;
+      stats.maximum_owned=std::max(stats.maximum_owned,working.size());
+    }
+    try {
+      initial.clear();initial.reserve(working.size());
+      for(const auto& row:working){initial.push_back(row.first);maximum_cell=std::max(maximum_cell,row.first);for(auto n:row.second.cell.v)maximum_node=std::max(maximum_node,n.id);}
+    }catch(const std::exception& e){failure.Set(2,0,e.what());}
+    if(!vote(failure))return finish();
+    maximum_node=CPassiveComm::Allreduce(maximum_node,CPassiveComm::Op::MAX,world.comm);
+    maximum_cell=CPassiveComm::Allreduce(maximum_cell,CPassiveComm::Op::MAX,world.comm);
+    if(options.timings)stats.layer_seconds+=std::chrono::duration<double>(Clock::now()-layer_started).count();
+    layer_active=false;
+  }
   // Small batches amortize donor exchange/index construction; halve on common import rejection to the one-cell bound.
   auto measure=[&](const std::vector<Id>& ids,bool seed) {
     const size_t count=CPassiveComm::Allreduce(ids.size(),CPassiveComm::Op::MAX,world.comm);
@@ -620,7 +763,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             const auto prior=retired_edges.find(key);
             if (prior!=retired_edges.end()) reuse.emplace(key,prior->second);
           }
-          const bool strict=ValidateMetricPatch({cell},field,metric,reason,&counted,&reuse);
+          const bool strict=ValidateMetricPatch({cell},field,metric,reason,&counted,&reuse) &&
+              height_check(GeometryPatch(Imported{{working.at(ids[i])},true,{}}),reason);
           selection.Add(working.at(ids[i]),metric,strict);
           stats.edge_evaluations+=counted.edge_evaluations;
           stats.edge_reused+=counted.edge_reused;
@@ -871,6 +1015,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     }
     CLocalFailure failure;
     Patch old,fresh;
+    auto guarded_geometry=[&](bool valid){return geometry_trial(valid && height_check(fresh,result.reason));};
     Node point;
     bool approved=false, moved=false, repair_approved=false, cavity_inserted=false;
     MetricDiagnosis certified;
@@ -884,10 +1029,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if((kind==MetricChange::GeometryRefine && !geometric_progress) ||
            (kind==MetricChange::Coarsen && after>0) ||
            (kind!=MetricChange::GeometryRefine && after>before)) {
-          result.reason="Native3D candidate does not preserve/improve its frozen geometry error.";return geometry_trial(false);
+          result.reason="Native3D candidate does not preserve/improve its frozen geometry error.";return guarded_geometry(false);
         }
         return true;
-      }catch(const std::exception& e){result.reason=e.what();return geometry_trial(false);}
+      }catch(const std::exception& e){result.reason=e.what();return guarded_geometry(false);}
     };
     std::unique_ptr<FrozenField> field;
     const auto epoch=transfer_memory::Add(transfer_memory::Mul(round,world.size),world.rank);
@@ -906,14 +1051,14 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         } else try {
           old=GeometryPatch(imported);
           const auto a=choice.measure.a,b=choice.measure.b;
-          if (!repairing && coarsening) approved=geometry_trial(CollapseVertex(old,choice.edge[1],choice.edge[0],maximum_cell+1+offset,
+          if (!repairing && coarsening) approved=guarded_geometry(CollapseVertex(old,choice.edge[1],choice.edge[0],maximum_cell+1+offset,
               geometry,fresh,result.reason));
           else if (!repairing) {
             point={maximum_node+1+node_offset,{double((static_cast<long double>(a.x)+b.x)/2),
                 double((static_cast<long double>(a.y)+b.y)/2),double((static_cast<long double>(a.z)+b.z)/2)}};
-            approved=geometry_trial(SplitEdge(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason));
+            approved=guarded_geometry(SplitEdge(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason));
             if (!approved) {
-              approved=geometry_trial(InsertEdgeCavity(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason));
+              approved=guarded_geometry(InsertEdgeCavity(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason));
               cavity_inserted=approved;
             }
           }
@@ -977,7 +1122,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                     double(p.y+step*(y/neighbors.size()-p.y)),double(p.z+step*(z/neighbors.size()-p.z))}};
                 ++stats.repair_proposals;
                 { Timer geometry_timer(stats.reconstruction_seconds,options.timings); CpuTimer geometry_cpu(stats.reconstruction_cpu_seconds,options.timings);
-                approved=geometry_trial(MoveVertex(old,vertex,point,first,geometry,fresh,result.reason)); }
+                approved=guarded_geometry(MoveVertex(old,vertex,point,first,geometry,fresh,result.reason)); }
                 if (approved) approved=metric_trial(ValidateMetricChange(old.cells,fresh.cells,MetricChange::Repair,*field,metric,result.reason,nullptr,&reuse,&certified),certified);
                 if (approved) { moved=true; break; }
               }
@@ -987,7 +1132,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                 if (++proposals>16) break;
                 ++stats.repair_proposals;
                 { Timer geometry_timer(stats.reconstruction_seconds,options.timings); CpuTimer geometry_cpu(stats.reconstruction_cpu_seconds,options.timings);
-                  approved=geometry_trial(Reconnect(old,row.first,first,geometry,fresh,result.reason)); }
+                  approved=guarded_geometry(Reconnect(old,row.first,first,geometry,fresh,result.reason)); }
                 if (approved) approved=metric_trial(ValidateMetricChange(old.cells,fresh.cells,MetricChange::Repair,*field,metric,result.reason,nullptr,&reuse,&certified),certified);
                 if (approved) break;
               }
@@ -1127,7 +1272,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
           if(joint)try {
             ++stats.repair_proposals;
-            candidate=geometry_trial(ReconstructSplitPatch(old,choice.edge,point,{maximum_node+2+node_offset,{}},
+            candidate=guarded_geometry(ReconstructSplitPatch(old,choice.edge,point,{maximum_node+2+node_offset,{}},
                 placement,maximum_cell+1+offset,geometry,fresh,obstruction,result.reason));
           }catch(const std::exception& e){failure.Set(2,0,e.what());}
           ready=vote(failure);
@@ -1220,13 +1365,13 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                 const auto p=nodes.at(vertex).p; const long double step=trial==0 ? 1.L : (trial==1 ? .5L : .25L);
                 point={maximum_node+1+node_offset,{double(p.x+step*(x/neighbors.size()-p.x)),
                     double(p.y+step*(y/neighbors.size()-p.y)),double(p.z+step*(z/neighbors.size()-p.z))}};
-                candidate=geometry_trial(MoveVertex(old,vertex,point,first,geometry,fresh,result.reason));
+                candidate=guarded_geometry(MoveVertex(old,vertex,point,first,geometry,fresh,result.reason));
               }
             } else if (!move_trial) {
               auto apex=nodes.begin(); std::advance(apex,trial-3);
               if(move && repairing && choice.feature.count==1)
-                candidate=geometry_trial(CollapseVertex(old,vertex,apex->first,first,geometry,fresh,result.reason));
-              else candidate=geometry_trial(Reconnect(old,apex->first,first,geometry,fresh,result.reason));
+                candidate=guarded_geometry(CollapseVertex(old,vertex,apex->first,first,geometry,fresh,result.reason));
+              else candidate=guarded_geometry(Reconnect(old,apex->first,first,geometry,fresh,result.reason));
             }
           } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
           ready=vote(failure);

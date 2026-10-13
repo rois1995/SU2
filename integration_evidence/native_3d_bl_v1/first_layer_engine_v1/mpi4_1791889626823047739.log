@@ -1,0 +1,63 @@
+Filters: [NativeFirstLayerEngine3D]
+Filters: [NativeFirstLayerEngine3D]
+Filters: [NativeFirstLayerEngine3D]
+Filters: [NativeFirstLayerEngine3D]
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Native3D engine initializes wall heights through owner transactions and
+protects edits
+-------------------------------------------------------------------------------
+../../UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:2215
+...............................................................................
+
+../../UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:2232: FAILED:
+  CHECK( result.stats.height_checks>0 )
+with expansion:
+  0 > 0
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_driver is a Catch v2.13.9 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Native3D engine initializes wall heights through owner transactions and
+protects edits
+-------------------------------------------------------------------------------
+../../UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:2215
+...............................................................................
+
+../../UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp:2232: FAILED:
+  CHECK( result.stats.height_checks>0 )
+with expansion:
+  0 > 0
+
+===============================================================================
+All tests passed (33 assertions in 2 test cases)
+
+===============================================================================
+All tests passed (28 assertions in 2 test cases)
+
+===============================================================================
+test cases:  2 |  1 passed | 1 failed
+assertions: 23 | 22 passed | 1 failed
+
+===============================================================================
+test cases:  2 |  1 passed | 1 failed
+assertions: 23 | 22 passed | 1 failed
+
+--------------------------------------------------------------------------
+Primary job  terminated normally, but 1 process returned
+a non-zero exit code. Per user-direction, the job has been aborted.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+mpirun detected that one or more processes exited with non-zero status, thus causing
+the job to be terminated. The first process to do so was:
+
+  Process name: [[56353,1],2]
+  Exit code:    1
+--------------------------------------------------------------------------

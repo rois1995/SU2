@@ -1,0 +1,50 @@
+{
+  "stage": "mpi2",
+  "status": "PASS",
+  "returncode": 0,
+  "contract": {
+    "provenance": {
+      "Common/include/adaptation/CNativeEngine3D.hpp": "3058a047e9416556f2572e8849560d5542324ffa506a18b6a4e767ade71bb4b5",
+      "Common/src/adaptation/CNativeEngine3D.cpp": "bdd5a37c19ab73047de7334aef0f09c301cae0e67e661cc52af68ef7aa26e82f",
+      "Common/include/adaptation/CNativeBoundary3D.hpp": "d929134dec55e93b93c92cd0bbbb0e4d0e4cb01d5a24f5ebceb01e02e91faf83",
+      "Common/src/adaptation/CNativeBoundary3D.cpp": "9226e9d8d1f47f564d67899bd7743690123d8f9bc68a180164625a6684c4c67f",
+      "Common/src/adaptation/CNativeDistributed3D.cpp": "bc150ff7b0c02e6575f60c7bbb7a3ccf57b54d068d3e0aa0dd2528a86b1c2da8",
+      "Common/src/adaptation/CNativeRemesher3D.cpp": "4d9aa61bc77796700a88fc8a44db12276e1e5952e8fcdc518ac9d20dbd4abd1a",
+      "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp": "28b438c763e8708ae7b637840f025e1fc31e1e4799519fd4ef500103f7b9ebce",
+      "binary": "5c193428746ac44235701fd8070e101907c43757c3aeb0a433b6867949e8d03c",
+      "helper": "c0752dad9ca08b196e17de31a4b55b249b7c95b6c72841fde232bc9c5f358ee9",
+      "compile_commands": "17a19ce625ceabf3f70dba005aebef0990be029c491666e86144787717316540",
+      "object:Common/src/libSU2AccurateSum.a.p/adaptation_CNativeEngine3D.cpp.o": "d99eb2717dc6eb682968adae5c1bc9ddb78952018bcc32307244f8446f06ceb1",
+      "object:Common/src/libSU2AccurateSum.a.p/adaptation_CNativeDistributed3D.cpp.o": "39776e9abffbf252bdbf50a3bc7287051d52e6d0b74295079589f5b996022344",
+      "object:UnitTests/test_driver.p/Common_adaptation_CNativeDistributed3D_tests.cpp.o": "40a819b7c316128d74cdf52b0f4b30dfe827ad8b472f35f1827eb5f7ce3a74f6"
+    },
+    "command": [
+      "taskset",
+      "-c",
+      "3,7,2,4",
+      "nice",
+      "-n",
+      "19",
+      "mpirun",
+      "--oversubscribe",
+      "--bind-to",
+      "none",
+      "-np",
+      "2",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+      "[NativeFirstLayerEngine3D]",
+      "--use-colour",
+      "no"
+    ],
+    "MPI_ranks": 2,
+    "environment": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "OMPI_MCA_mpi_yield_when_idle": "1"
+    }
+  },
+  "log": "mpi2_1791890162370918902.log",
+  "log_sha256": "1c06521863d0717347dffb9a8e0c8a940a4f60d548702e6088ed144ae09efde8",
+  "elapsed_seconds": 0.5017058299854398,
+  "scope": "MPI first-row initialization/protection and worker-subset correctness; whole remesh not qualified"
+}

@@ -1,3 +1,20 @@
+# Goal3 height construction reaches the distributed engine — 2026-10-13
+
+Native initializes prescribed-height wall children and transition through complete
+face dependencies, reservations and atomic owner publications before seeding the
+metric. Height constraints protect private edits and final successful completion;
+empty policy releases them. MPI1/2/4 focused tests pass for full/subset workers,
+height/policy incompatibility and work-budget rejection with accepted input intact.
+The original MPI4 failure was a local-counter test assertion on ranks with no wall
+cells; the corrected test uses a collective count and preserves that failed log.
+
+Evidence: native_3d_bl_v1/first_layer_engine_v1/validation.json. Two cases per rank;
+no CFD runs. The one-round probe establishes initialization/protection, not a valid
+completed composed-BL adapted mesh. Production BL remains guarded, hidden-wall
+quadrature accuracy still fails, and full Goal3 remains active.
+
+Earlier findings below are historical.
+
 # Goal3 first-height wall/transition reconstruction is now a tested kernel — 2026-10-13
 
 Four serial cases/944assertions and independent geometry checks pass. Native can

@@ -1,0 +1,159 @@
+{
+  "status": "FAIL",
+  "stages": [
+    {
+      "stage": "mpi1",
+      "status": "PASS",
+      "returncode": 0,
+      "contract": {
+        "provenance": {
+          "Common/include/adaptation/CNativeEngine3D.hpp": "3058a047e9416556f2572e8849560d5542324ffa506a18b6a4e767ade71bb4b5",
+          "Common/src/adaptation/CNativeEngine3D.cpp": "92e4b24631e1a305d8f3f0a136f88a99b77d90ec192d1e0882dd2cc88a719b88",
+          "Common/include/adaptation/CNativeBoundary3D.hpp": "d929134dec55e93b93c92cd0bbbb0e4d0e4cb01d5a24f5ebceb01e02e91faf83",
+          "Common/src/adaptation/CNativeBoundary3D.cpp": "9226e9d8d1f47f564d67899bd7743690123d8f9bc68a180164625a6684c4c67f",
+          "Common/src/adaptation/CNativeDistributed3D.cpp": "bc150ff7b0c02e6575f60c7bbb7a3ccf57b54d068d3e0aa0dd2528a86b1c2da8",
+          "Common/src/adaptation/CNativeRemesher3D.cpp": "4d9aa61bc77796700a88fc8a44db12276e1e5952e8fcdc518ac9d20dbd4abd1a",
+          "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp": "fc445688109e77e2b0cc8d43d2f7eaa4cf451773c84812198a5670dfda135e80",
+          "binary": "74bf4b217d9d8105114a0e6253e214053c0e8c4ce5af0133ff4a46e7205e2a83",
+          "helper": "1fcb0aed09ccd2d54b00e6bcd8e0e5ff5a982e3f66499d457b95aa64bfee758e",
+          "compile_commands": "17a19ce625ceabf3f70dba005aebef0990be029c491666e86144787717316540",
+          "object:Common/src/libSU2AccurateSum.a.p/adaptation_CNativeEngine3D.cpp.o": "3206089f3d44925d71502afc1e49c772ae4433ff3ff603c85087ef63a67f12c6",
+          "object:Common/src/libSU2AccurateSum.a.p/adaptation_CNativeDistributed3D.cpp.o": "39776e9abffbf252bdbf50a3bc7287051d52e6d0b74295079589f5b996022344",
+          "object:UnitTests/test_driver.p/Common_adaptation_CNativeDistributed3D_tests.cpp.o": "5e2055e096984fa26ef4dcb18edd0bfd590a60eefa8648c4f92d26183e0ca80d"
+        },
+        "command": [
+          "taskset",
+          "-c",
+          "3,7,2,4",
+          "nice",
+          "-n",
+          "19",
+          "mpirun",
+          "--oversubscribe",
+          "--bind-to",
+          "none",
+          "-np",
+          "1",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+          "[NativeFirstLayerEngine3D]",
+          "--use-colour",
+          "no"
+        ],
+        "MPI_ranks": 1,
+        "environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "OMPI_MCA_mpi_yield_when_idle": "1"
+        }
+      },
+      "log": "mpi1_1791889616556417778.log",
+      "log_sha256": "0ea601c8f02f2779874990990d77621e929a6d00af4168a5c8ba1954d0d35b9d",
+      "elapsed_seconds": 3.660531696048565,
+      "scope": "MPI first-row initialization/protection and worker-subset correctness; whole remesh not qualified"
+    },
+    {
+      "stage": "mpi2",
+      "status": "PASS",
+      "returncode": 0,
+      "contract": {
+        "provenance": {
+          "Common/include/adaptation/CNativeEngine3D.hpp": "3058a047e9416556f2572e8849560d5542324ffa506a18b6a4e767ade71bb4b5",
+          "Common/src/adaptation/CNativeEngine3D.cpp": "92e4b24631e1a305d8f3f0a136f88a99b77d90ec192d1e0882dd2cc88a719b88",
+          "Common/include/adaptation/CNativeBoundary3D.hpp": "d929134dec55e93b93c92cd0bbbb0e4d0e4cb01d5a24f5ebceb01e02e91faf83",
+          "Common/src/adaptation/CNativeBoundary3D.cpp": "9226e9d8d1f47f564d67899bd7743690123d8f9bc68a180164625a6684c4c67f",
+          "Common/src/adaptation/CNativeDistributed3D.cpp": "bc150ff7b0c02e6575f60c7bbb7a3ccf57b54d068d3e0aa0dd2528a86b1c2da8",
+          "Common/src/adaptation/CNativeRemesher3D.cpp": "4d9aa61bc77796700a88fc8a44db12276e1e5952e8fcdc518ac9d20dbd4abd1a",
+          "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp": "fc445688109e77e2b0cc8d43d2f7eaa4cf451773c84812198a5670dfda135e80",
+          "binary": "74bf4b217d9d8105114a0e6253e214053c0e8c4ce5af0133ff4a46e7205e2a83",
+          "helper": "1fcb0aed09ccd2d54b00e6bcd8e0e5ff5a982e3f66499d457b95aa64bfee758e",
+          "compile_commands": "17a19ce625ceabf3f70dba005aebef0990be029c491666e86144787717316540",
+          "object:Common/src/libSU2AccurateSum.a.p/adaptation_CNativeEngine3D.cpp.o": "3206089f3d44925d71502afc1e49c772ae4433ff3ff603c85087ef63a67f12c6",
+          "object:Common/src/libSU2AccurateSum.a.p/adaptation_CNativeDistributed3D.cpp.o": "39776e9abffbf252bdbf50a3bc7287051d52e6d0b74295079589f5b996022344",
+          "object:UnitTests/test_driver.p/Common_adaptation_CNativeDistributed3D_tests.cpp.o": "5e2055e096984fa26ef4dcb18edd0bfd590a60eefa8648c4f92d26183e0ca80d"
+        },
+        "command": [
+          "taskset",
+          "-c",
+          "3,7,2,4",
+          "nice",
+          "-n",
+          "19",
+          "mpirun",
+          "--oversubscribe",
+          "--bind-to",
+          "none",
+          "-np",
+          "2",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+          "[NativeFirstLayerEngine3D]",
+          "--use-colour",
+          "no"
+        ],
+        "MPI_ranks": 2,
+        "environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "OMPI_MCA_mpi_yield_when_idle": "1"
+        }
+      },
+      "log": "mpi2_1791889620217297847.log",
+      "log_sha256": "565dc5931f15c852c5252ec64c9bf6e10eaa561af29bca6ed81e567f0c879553",
+      "elapsed_seconds": 6.605341018992476,
+      "scope": "MPI first-row initialization/protection and worker-subset correctness; whole remesh not qualified"
+    },
+    {
+      "stage": "mpi4",
+      "status": "FAIL",
+      "returncode": 1,
+      "contract": {
+        "provenance": {
+          "Common/include/adaptation/CNativeEngine3D.hpp": "3058a047e9416556f2572e8849560d5542324ffa506a18b6a4e767ade71bb4b5",
+          "Common/src/adaptation/CNativeEngine3D.cpp": "92e4b24631e1a305d8f3f0a136f88a99b77d90ec192d1e0882dd2cc88a719b88",
+          "Common/include/adaptation/CNativeBoundary3D.hpp": "d929134dec55e93b93c92cd0bbbb0e4d0e4cb01d5a24f5ebceb01e02e91faf83",
+          "Common/src/adaptation/CNativeBoundary3D.cpp": "9226e9d8d1f47f564d67899bd7743690123d8f9bc68a180164625a6684c4c67f",
+          "Common/src/adaptation/CNativeDistributed3D.cpp": "bc150ff7b0c02e6575f60c7bbb7a3ccf57b54d068d3e0aa0dd2528a86b1c2da8",
+          "Common/src/adaptation/CNativeRemesher3D.cpp": "4d9aa61bc77796700a88fc8a44db12276e1e5952e8fcdc518ac9d20dbd4abd1a",
+          "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp": "fc445688109e77e2b0cc8d43d2f7eaa4cf451773c84812198a5670dfda135e80",
+          "binary": "74bf4b217d9d8105114a0e6253e214053c0e8c4ce5af0133ff4a46e7205e2a83",
+          "helper": "1fcb0aed09ccd2d54b00e6bcd8e0e5ff5a982e3f66499d457b95aa64bfee758e",
+          "compile_commands": "17a19ce625ceabf3f70dba005aebef0990be029c491666e86144787717316540",
+          "object:Common/src/libSU2AccurateSum.a.p/adaptation_CNativeEngine3D.cpp.o": "3206089f3d44925d71502afc1e49c772ae4433ff3ff603c85087ef63a67f12c6",
+          "object:Common/src/libSU2AccurateSum.a.p/adaptation_CNativeDistributed3D.cpp.o": "39776e9abffbf252bdbf50a3bc7287051d52e6d0b74295079589f5b996022344",
+          "object:UnitTests/test_driver.p/Common_adaptation_CNativeDistributed3D_tests.cpp.o": "5e2055e096984fa26ef4dcb18edd0bfd590a60eefa8648c4f92d26183e0ca80d"
+        },
+        "command": [
+          "taskset",
+          "-c",
+          "3,7,2,4",
+          "nice",
+          "-n",
+          "19",
+          "mpirun",
+          "--oversubscribe",
+          "--bind-to",
+          "none",
+          "-np",
+          "4",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+          "[NativeFirstLayerEngine3D]",
+          "--use-colour",
+          "no"
+        ],
+        "MPI_ranks": 4,
+        "environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "OMPI_MCA_mpi_yield_when_idle": "1"
+        }
+      },
+      "log": "mpi4_1791889626823047739.log",
+      "log_sha256": "1f28279b447cd4caf05bbabc2234cc248c80d9f00bd719865ded7a7f1831cb8b",
+      "elapsed_seconds": 5.47178719996009,
+      "scope": "MPI first-row initialization/protection and worker-subset correctness; whole remesh not qualified"
+    }
+  ],
+  "limitations": [
+    "No completed production BL remesh, composed BL metric, transfer or RANS qualification",
+    "No CFD timestep, AD runtime or performance qualification"
+  ]
+}

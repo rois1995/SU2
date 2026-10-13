@@ -1,3 +1,40 @@
+# Goal3 first-height engine transactions pass MPI1/2/4 — 2026-10-13
+
+Working folder /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
+Branch codex/native-3d-bl; preceding published 8a7a749483bfad181ee56d2e98bed58e8eb57418.
+Whole Goal3 ACTIVE. Builds77333/41176 and focused MPI runner93770 are terminal;
+no owned heavy job remains live. This step used no CFD or cluster runs.
+
+EngineOptions now carries a bounded, collectively consistent frozen marker-height
+policy. Before metric seeding, complete physical face-star transactions construct
+private wall children and their transition with reserved identities, owner routing
+and Directory publication. Accepted input and original sensor donors are unchanged.
+Every private split/collapse/move/reconnection/joint reconstruction checks height;
+strict metric completion separately checks it again. Empty policy releases height.
+Initialization shares existing work/time/memory ceilings. Its exclusive timer and
+height/publication counters are exposed in existing remesher detail output.
+
+Evidence: integration_evidence/native_3d_bl_v1/first_layer_engine_v1/validation.json
+PASS on MPI1/2/4, two cases per rank, including N=M/M<N migration/return, immutable
+input, independent first-height checks and complete physical skin. Impossible
+height rejects without a private publication/input change; one-transaction budget
+retains a conforming rejected private mesh and unchanged input. Inconsistent/NaN
+policies reject collectively before mutation. Latest assertion counts: MPI1 22;
+MPI2 29/34; MPI4 38/33/33/43. Wall checks are local counters, so their test assertion
+is collective; initial MPI4 failure (empty-wall workers had zero checks) is retained.
+No mesh contract or acceptance gate was weakened. Local test elapsed values are
+not performance qualification.
+
+LIMITS: the one-round initialization/protection probe does not assert full remesh
+success and uses a constant sensor, not production composed BL. Production BL guard
+is unchanged. Curved/interacting-wall construction, coordinated repair of blocked
+surface edits, full target completion/removal, transfer/RANS/restart/gradation and
+whole-lifecycle performance remain required. Hidden-wall quadrature still fails
+its unchanged 5e-4 gate by 0.47%; use error-controlled integration next, not higher
+fixed orders or relaxed caps. Full requirements retained in GOAL3_REQUIREMENTS.json.
+
+Earlier entries below are historical.
+
 # Goal3 joint first-height/transition kernel qualified locally — 2026-10-13
 
 Working folder /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.

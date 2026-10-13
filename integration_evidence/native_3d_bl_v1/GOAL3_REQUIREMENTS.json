@@ -35,7 +35,7 @@
     {
       "id": "construction",
       "scope": "joint wall/near-wall/transition reconstruction with height/alignment/coverage and feasibility diagnostics",
-      "status": "joint first-height/wall-transition geometric kernel PASS4cases944assertions, independent geometry/exports; MPI engine integration, metric/height protection and full workflow pending"
+      "status": "geometric kernel PASS; first-height MPI engine init/edit protection/policy and budget rejection PASS1/2/4 N=M/M<N; complete composed-target construction, curved/interacting walls and release/coarsening workflow pending"
     },
     {
       "id": "gradation",
@@ -50,7 +50,7 @@
     {
       "id": "MPI_transfer",
       "scope": "N=M/M<N, complete dependencies, atomic rejection; conservative current+BDF, positivity and turbulence",
-      "status": "pending"
+      "status": "first-layer owner transactions/migration/return and input preservation PASS1/2/4 N=M/M<N; full BL stale/veto/transfer/current+BDF/turbulence qualification pending"
     },
     {
       "id": "workflow",
@@ -85,10 +85,12 @@
     "volume_integration_v1/validation_direct_tet_failed.json",
     "feature_partition_v1/validation_fixed_angular_failed.json",
     "first_layer_kernel_v1/validation.json",
-    "first_layer_kernel_v1/independent_geometry.json"
+    "first_layer_kernel_v1/independent_geometry.json",
+    "first_layer_engine_v1/validation.json"
   ],
   "execution_state": {
     "status": "all owned jobs terminal",
-    "CFD_runs": 0
+    "CFD_runs": 0,
+    "last_focused_runner": "93770"
   }
 }
