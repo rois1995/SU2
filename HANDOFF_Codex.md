@@ -4,25 +4,32 @@ Repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
 Branch: codex/native-3d-curved-local; previous published49ee2b035b4b.
 Goal ACTIVE; completion INCOMPLETE; full original objective retained.
 
-resolved_vortex_audit_v2 has six complete PASS event certificates: both serial
-N1/M1 events and all four MPI2 events (M1/M2, two each). Independent summaries:
+resolved_vortex_audit_v2 has seven complete PASS event certificates: both serial
+N1/M1 events, all four MPI2 events (M1/M2, two each), and first N4/M1 event. Independent summaries:
 serial_lifecycle_validation.json and mpi2_lifecycle_validation.json. Every
 certificate's script/helper/input hash was rechecked before publication.
 All actual geometry/embedding/source/shape/length/transport/conservation/current+
 BDF/positivity/reference/output/restart checks passed. MPI2 results demonstrate
 both M=N and M<N, with freshly solved nonuniform pressure metrics at both events.
 
-Sole owned controller2009 now audits MPI4/M1. Six MPI4 event certificates remain
-(M1/M2/M4, two each). Native complete MPI matrix already PASS; no CFD/build or
+Sole owned controller2009 now audits MPI4/M1 event1. Five MPI4 event certificates
+remain (M1 event1, M2/M4 two each). Native complete MPI matrix already PASS; no CFD/build or
 broad regression is repeated. Revalidate this handle; do not restart from elapsed
 time or a log alone. One CPU/nice19/threads1. Original whole-batch audit timeout,
 source/build/binary provenance and every required mesh/state remain preserved.
 
-Next: finish the six MPI4 independent certificates and inspect the full original
+Next: finish the remaining MPI4 independent certificates and inspect the full original
 requirement map; push final proof before declaring Goal2complete. No performance,
 cluster, generalCAD, production3DBL, fullphysical-unsteady, force-convergence or
 arbitrary-mesh feasibility claim. AdapNoExt/foreignClusterResults/dependencies
 untouched. Permanent AGENTS batching cadence applies.
+
+Original-scope review: GOAL2_REQUIREMENT_REVIEW.md links inspected source and
+qualified evidence for every requirement. It distinguishes automatic joint
+reconstruction from optional kernel-only strip placement and explicitly excluded
+production3DBL. First N4/M1 event is now independently PASS (seven total);
+N4/M1 event1 is live. Every new certificate input/helper/script hash was verified.
+Completion remains INCOMPLETE pending remaining MPI4 events and final publication.
 
 Earlier notices below are historical.
 
