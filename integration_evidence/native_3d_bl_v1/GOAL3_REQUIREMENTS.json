@@ -20,7 +20,7 @@
     {
       "id": "composition",
       "scope": "one immutable geometric BL policy, including private/remote queries and complexity",
-      "status": "pending"
+      "status": "3D complexity shares ApplySample/ApplyPoint policy and retained faceted reference; full remesher/analytic integration pending"
     },
     {
       "id": "edge_integration",
@@ -30,7 +30,7 @@
     {
       "id": "thin_volume",
       "scope": "thin BL quadrature inside coarse tetrahedra; convergence and complexity consistency",
-      "status": "pending"
+      "status": "implemented with production complexity wiring; grouped build77854 live; five focused new cases pending"
     },
     {
       "id": "construction",
@@ -82,5 +82,11 @@
   "execution": "one heavy job; focused tests before meaningful broader milestone; resumable proven cases; no cluster submission",
   "evidence": [
     "edge_integration_v1/validation.json"
-  ]
+  ],
+  "execution_state": {
+    "build_session": 77854,
+    "status": "running as last verified",
+    "folder": "volume_integration_v1",
+    "CFD_runs": 0
+  }
 }

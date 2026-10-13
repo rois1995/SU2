@@ -36,6 +36,8 @@
 #include "../../../Common/include/CConfig.hpp"
 #include "../../../Common/include/parallelization/CPassiveComm.hpp"
 #include "../../../Common/include/adaptation/CNativeImport2D.hpp"
+#include "../../../Common/include/adaptation/CNativeImport3D.hpp"
+#include "../../include/adaptation/ConvexClipping.hpp"
 #include "../../../Common/include/geometry/CGeometry.hpp"
 #include "../../../Common/include/linear_algebra/blas_structure.hpp"
 #include "../../include/solvers/CSolver.hpp"
@@ -964,6 +966,223 @@ std::shared_ptr<CBoundaryLayerMetric> CBoundaryLayerMetric::FromNativeReference(
     walls.push_back(std::move(wall));
   }
   return std::make_shared<CBoundaryLayerMetric>(2, std::move(walls), config.GetAdap_Angle());
+}
+
+std::shared_ptr<CBoundaryLayerMetric> CBoundaryLayerMetric::FromNativeReference(
+    const SU2Native3D::ReferenceState& reference, const CConfig& config) {
+  if (!reference.original) throw std::invalid_argument("Native3D BL needs immutable original geometry.");
+  std::vector<Wall> walls;
+  for (unsigned short b=0;b<config.GetnAdap_BL();++b) {
+    Wall wall;wall.layer=config.GetAdap_BL(b);
+    std::map<uint64_t,unsigned long> points;
+    for(const auto& face:reference.facets) {
+      if(reference.marker_names.at(face.marker)!=wall.layer.marker) continue;
+      if(reference.original->Analytic().count(face.id))
+        throw std::runtime_error("Native3D analytic BL distance/normal evaluation is not implemented.");
+      for(const auto& node:face.v) {
+        auto insertion=points.emplace(node.id,points.size());
+        if(insertion.second) {
+          wall.coord.push_back(node.p.x);wall.coord.push_back(node.p.y);wall.coord.push_back(node.p.z);
+        }
+        wall.conn.push_back(insertion.first->second);
+      }
+      wall.conn.push_back(wall.conn.back());
+    }
+    if(wall.conn.empty()) throw std::invalid_argument("Native3D BL marker has no original wall faces: "+wall.layer.marker);
+    walls.push_back(std::move(wall));
+  }
+  return std::make_shared<CBoundaryLayerMetric>(3,std::move(walls),config.GetAdap_Angle());
+}
+
+namespace {
+using BLPoint3D=std::array<double,3>;
+using BLTetrahedron=std::array<BLPoint3D,4>;
+long double BLDeterminant(const BLPoint3D& a,const BLPoint3D& b,const BLPoint3D& c,const BLPoint3D& d) {
+  return SU2Native3D::Orientation({a[0],a[1],a[2]},{b[0],b[1],b[2]},{c[0],c[1],c[2]},{d[0],d[1],d[2]});
+}
+// Separating projections only exclude support; uncertain geometry always receives subdivision.
+bool MayIntersectWallBand(const BLTetrahedron& tet,const std::array<BLPoint3D,3>& face,double thickness) {
+  using V=std::array<long double,3>;
+  auto minus=[](const BLPoint3D& a,const BLPoint3D& b) {return V{(long double)a[0]-b[0],(long double)a[1]-b[1],(long double)a[2]-b[2]};};
+  auto cross=[](const V& a,const V& b) {return V{a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]};};
+  auto separated=[&](const V& axis) {
+    const auto norm=std::sqrt(axis[0]*axis[0]+axis[1]*axis[1]+axis[2]*axis[2]);
+    if(!norm) return false;
+    auto project=[&](const BLPoint3D& p) {const auto x=minus(p,tet[0]);return axis[0]*x[0]+axis[1]*x[1]+axis[2]*x[2];};
+    long double al=project(tet[0]),ah=al,bl=project(face[0]),bh=bl;
+    for(const auto& p:tet) {const auto t=project(p);al=std::min(al,t);ah=std::max(ah,t);}
+    for(const auto& p:face) {const auto t=project(p);bl=std::min(bl,t);bh=std::max(bh,t);}
+    const auto margin=64*std::numeric_limits<long double>::epsilon()*std::max({std::abs(al),std::abs(ah),std::abs(bl),std::abs(bh),thickness*norm});
+    return bl-ah>thickness*norm+margin || al-bh>thickness*norm+margin;
+  };
+  if(separated(cross(minus(face[1],face[0]),minus(face[2],face[0])))) return false;
+  for(unsigned f=0;f<4;++f)
+    if(separated(cross(minus(tet[(f+2)%4],tet[(f+1)%4]),minus(tet[(f+3)%4],tet[(f+1)%4])))) return false;
+  for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j)for(unsigned k=0;k<3;++k)
+    if(separated(cross(minus(tet[j],tet[i]),minus(face[(k+1)%3],face[k])))) return false;
+  return true;
+}
+}
+
+std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::IntegrationRule3D(
+    const std::array<std::array<double,3>,4>& tetrahedron,double bandRatio) {
+  if(nDim!=3 || !std::isfinite(bandRatio) || !(bandRatio>1))
+    throw std::invalid_argument("Invalid native3D BL volume quadrature.");
+  for(const auto& p:tetrahedron)for(auto x:p)if(!std::isfinite(x))
+    throw std::invalid_argument("Nonfinite native3D BL integration cell.");
+  if(BLDeterminant(tetrahedron[0],tetrahedron[1],tetrahedron[2],tetrahedron[3])==0)
+    throw std::invalid_argument("Degenerate native3D BL integration cell.");
+  const std::array<std::array<double,4>,4> bary{{{{1,0,0,0}},{{0,1,0,0}},{{0,0,1,0}},{{0,0,0,1}}}};
+  size_t visited=0;std::vector<IntegrationPoint3D> rule;
+  IntegrationRule3DImpl(tetrahedron,bary,tetrahedron,bandRatio,0,visited,rule);
+  return rule;
+}
+
+void CBoundaryLayerMetric::IntegrationRule3DImpl(const BLTetrahedron& tet,
+    const std::array<std::array<double,4>,4>& original,const BLTetrahedron& source,double bandRatio,unsigned depth,
+    size_t& visited,std::vector<IntegrationPoint3D>& rule) {
+  if(++visited>16384) throw std::runtime_error("Native3D BL geometry quadrature work budget exhausted.");
+  std::vector<std::array<double,4>> distances(walls.size());
+  bool subdivide=false;
+  for(unsigned short wall=0;wall<walls.size();++wall) {
+    const auto& d=*data[wall];if(!d.adt) continue;
+    auto distance=[&](const BLPoint3D& p) {const su2double x[3]={p[0],p[1],p[2]};return SU2_TYPE::GetValue(Evaluate(wall,x,1.).distance);};
+    for(unsigned k=0;k<4;++k) distances[wall][k]=distance(tet[k]);
+    const auto minimum=*std::min_element(distances[wall].begin(),distances[wall].end());
+    const double thickness=SU2_TYPE::GetValue(d.thickness);
+    if(minimum>=thickness) {
+      su2double low[3],high[3];
+      for(unsigned j=0;j<3;++j) {
+        double a=tet[0][j],b=a;for(const auto& p:tet){a=std::min(a,p[j]);b=std::max(b,p[j]);}
+        low[j]=a-thickness;high[j]=b+thickness;
+      }
+      std::vector<unsigned long> faces;d.adt->DetermineIntersectingElements(low,high,faces);
+      for(auto f:faces) {
+        std::array<BLPoint3D,3> face;
+        for(unsigned k=0;k<3;++k)for(unsigned j=0;j<3;++j)
+          face[k][j]=SU2_TYPE::GetValue(walls[wall].coord[3*d.elem[3*f+k]+j]);
+        subdivide=subdivide || MayIntersectWallBand(tet,face,thickness*(1-1e-12));
+        if(subdivide) break;
+      }
+    } else {
+      const double tolerance=.1*std::max(SU2_TYPE::GetValue(d.h0),minimum);
+      // Edge, face and cell samples detect nearest-face changes before distance-band clipping.
+      for(unsigned mask=1;mask<16 && !subdivide;++mask) {
+        unsigned count=0;for(unsigned k=0;k<4;++k)count+=(mask>>k)&1u;
+        if(count==1) continue;
+        BLPoint3D p{};double linear=0;
+        for(unsigned k=0;k<4;++k)if(mask&(1u<<k)) {
+          linear+=distances[wall][k]/count;
+          for(unsigned j=0;j<3;++j)p[j]+=tet[k][j]/count;
+        }
+        subdivide=std::abs(distance(p)-linear)>tolerance;
+      }
+    }
+    if(subdivide) break;
+  }
+  if(subdivide) {
+    if(depth>=32) throw std::runtime_error("Native3D BL geometry remains unresolved after 32 subdivisions.");
+    unsigned a=0,b=1;long double largest=0;
+    for(unsigned i=0;i<4;++i)for(unsigned j=i+1;j<4;++j) {
+      long double length=0;for(unsigned k=0;k<3;++k){const auto x=(long double)tet[i][k]-tet[j][k];length+=x*x;}
+      if(length>largest){largest=length;a=i;b=j;}
+    }
+    BLPoint3D midpoint;std::array<double,4> bary{};
+    for(unsigned j=0;j<3;++j)midpoint[j]=.5*tet[a][j]+.5*tet[b][j];
+    for(unsigned j=0;j<4;++j)bary[j]=.5*original[a][j]+.5*original[b][j];
+    if(midpoint==tet[a] || midpoint==tet[b]) throw std::runtime_error("Unrepresentable native3D BL subdivision.");
+    for(const auto vertex:{a,b}) {
+      auto child=tet;auto mapping=original;child[vertex]=midpoint;mapping[vertex]=bary;
+      IntegrationRule3DImpl(child,mapping,source,bandRatio,depth+1,visited,rule);
+    }
+    return;
+  }
+  using Poly=convex_clip::Polyhedron;
+  const double nodes[4][3]={{0,0,0},{1,0,0},{0,1,0},{0,0,1}};
+  const double* initial[4]={nodes[0],nodes[1],nodes[2],nodes[3]};
+  Poly first;first.InitTetrahedron(initial);std::vector<Poly> pieces{first};
+  for(unsigned short wall=0;wall<walls.size();++wall) {
+    const auto& d=*data[wall];if(!d.adt) continue;
+    const auto& distance=distances[wall];const double thickness=SU2_TYPE::GetValue(d.thickness);
+    if(*std::min_element(distance.begin(),distance.end())>=thickness) continue;
+    const double h0=SU2_TYPE::GetValue(d.h0),full=SU2_TYPE::GetValue(d.full);
+    std::vector<double> levels{.5*h0};
+    for(double level=h0;level<full;) {
+      if(levels.size()>4096) throw std::runtime_error("Native3D BL volume bands exceed work budget.");
+      levels.push_back(level);const double next=level*bandRatio;
+      if(!(next>level)) throw std::runtime_error("Unresolved native3D BL volume bands.");
+      level=next;
+    }
+    levels.push_back(full);for(unsigned k=1;k<=16;++k)levels.push_back(full+(thickness-full)*k/16);
+    for(auto level:levels) {
+      std::vector<Poly> next;
+      for(const auto& piece:pieces) {
+        double low=std::numeric_limits<double>::max(),high=-low;
+        const double nx=distance[1]-distance[0],ny=distance[2]-distance[0],nz=distance[3]-distance[0],offset=distance[0]-level;
+        for(int v=0;v<piece.n;++v){const auto value=nx*piece.x[v][0]+ny*piece.x[v][1]+nz*piece.x[v][2]+offset;low=std::min(low,value);high=std::max(high,value);}
+        if(low>=0 || high<=0){
+          next.push_back(piece);
+          if(next.size()>4096) throw std::runtime_error("Native3D BL clipped volume exceeds piece budget.");
+          continue;
+        }
+        auto lower=piece,upper=piece;
+        if(lower.Clip(-nx,-ny,-nz,-offset)<0 || upper.Clip(nx,ny,nz,offset)<0)
+          throw std::runtime_error("Native3D BL clipped polyhedron exceeds vertex capacity.");
+        if(lower.n>0)next.push_back(lower);if(upper.n>0)next.push_back(upper);
+        if(next.size()>4096) throw std::runtime_error("Native3D BL clipped volume exceeds piece budget.");
+      }
+      pieces=std::move(next);
+    }
+  }
+  SU2Native3D::Tetrahedron originalSource;
+  for(unsigned k=0;k<4;++k)originalSource[k]={source[k][0],source[k][1],source[k][2]};
+  const bool reversed=SU2Native3D::Orientation(originalSource[0],originalSource[1],originalSource[2],originalSource[3])<0;
+  if(reversed)std::swap(originalSource[1],originalSource[2]);
+  const auto determinant=std::abs(BLDeterminant(tet[0],tet[1],tet[2],tet[3]));
+  for(const auto& piece:pieces) {
+    if(!piece.n) continue;
+    BLPoint3D center{};
+    for(int v=0;v<piece.n;++v)for(unsigned j=0;j<3;++j)center[j]+=piece.x[v][j]/piece.n;
+    bool marked[Poly::MAXV][3]{};
+    for(int vs=0;vs<piece.n;++vs)for(int ps=0;ps<3;++ps) {
+      if(marked[vs][ps]) continue;
+      std::vector<int> face;int current=vs,port=ps;
+      do {
+        if(face.size()>Poly::MAXV) throw std::runtime_error("Invalid native3D BL polyhedron face graph.");
+        marked[current][port]=true;face.push_back(current);
+        const int next=piece.nbr[current][port];int back=0;
+        while(back<3 && piece.nbr[next][back]!=current)++back;
+        if(back==3) throw std::runtime_error("Invalid native3D BL polyhedron incidence.");
+        current=next;port=(back+1)%3;
+      }while(current!=vs);
+      for(size_t f=1;f+1<face.size();++f) {
+        BLTetrahedron t{center};
+        const int vertices[3]={face[0],face[f],face[f+1]};
+        for(unsigned k=0;k<3;++k)for(unsigned j=0;j<3;++j)t[k+1][j]=piece.x[vertices[k]][j];
+        const auto fraction=std::abs(BLDeterminant(t[0],t[1],t[2],t[3]));
+        if(!fraction)continue;
+        for(unsigned corner=0;corner<4;++corner) {
+          if(rule.size()>=65536) throw std::runtime_error("Native3D BL volume quadrature point budget exhausted.");
+          std::array<double,4> local{},parent{};
+          for(unsigned k=0;k<4;++k) {
+            const double w=k==corner?.58541019662496845446:.13819660112501051518;
+            local[0]+=w*(1-t[k][0]-t[k][1]-t[k][2]);
+            for(unsigned j=0;j<3;++j)local[j+1]+=w*t[k][j];
+          }
+          BLPoint3D position{};
+          for(unsigned k=0;k<4;++k)for(unsigned j=0;j<4;++j)parent[j]+=local[k]*original[k][j];
+          for(unsigned k=0;k<4;++k)for(unsigned j=0;j<3;++j)position[j]+=parent[k]*source[k][j];
+          // Actual rounded quadrature coordinates define both geometry and original-P1 sensor values.
+          std::array<long double,4> actual;
+          if(!SU2Native3D::Barycentric(originalSource,{position[0],position[1],position[2]},actual))
+            throw std::runtime_error("Native3D BL quadrature query leaves its original sensor cell.");
+          if(reversed)std::swap(actual[1],actual[2]);
+          for(unsigned k=0;k<4;++k)parent[k]=double(actual[k]);
+          rule.push_back({parent,double(determinant*fraction/24),SamplePoints({position[0],position[1],position[2]})});
+        }
+      }
+    }
+  }
 }
 
 std::vector<double> CBoundaryLayerMetric::EdgeBreakpoints(

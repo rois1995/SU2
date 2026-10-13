@@ -1,3 +1,51 @@
+# Goal 3 volume/complexity implementation; grouped build ACTIVE — 2026-10-13
+
+Repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
+Branch: codex/native-3d-bl; previous pushed kernel checkpoint
+2cd69c17bead823ade7b5bb544846f4182e4f590. Entire Goal3 remains ACTIVE.
+
+Next connected implementation is present but UNVALIDATED: positive degree-two
+3D quadrature after BL distance-band clipping, reusing ConvexClipping.hpp in
+original barycentric coordinates. Changing nearest faces and hidden wall support
+trigger bounded longest-edge subdivision. Exact original-P1 weights are recovered
+at actual rounded quadrature coordinates. Work/depth/piece/point caps reject;
+metric complexity has an aggregate2GiB requested quadrature storage bound.
+Geometry samples are reused across complexity/gradation trials; stored tensors
+stay sensor-only. Actual global cell IDs accompany collective integration failures.
+
+Native ComputeMetric now consumes the3D rule and optional retained3D reference;
+steady/window/PREDICT calls carry that reference. PrepareReference loads/validates
+sidecars or imports initial immutable geometry before BL metric construction.
+Configured analytic BL distance/normal authority remains explicitly unsupported;
+production3DBL remeshing stays guarded until first-height/transition construction
+is qualified. No goal requirement has been removed or weakened.
+
+Build session77854 is the sole owned heavy job, confirmed live on the latest poll.
+One compiler job, sampled CPUs5/3/7, nice19/threads1; no CFD/MPI/cluster campaign.
+The public ComputeMetric signature change requires127 dependent objects in this
+single grouped build. Do not restart from elapsed time/log quietness. Verify the
+handle. No source edits after this checkpoint unless needed; check Ninja dry-run
+once terminal and finish any remaining affected objects before validation.
+
+Test folder: integration_evidence/native_3d_bl_v1/volume_integration_v1.
+run.py saves five independent new cases and the19-case existingBL kernel stage;
+source/compile-command/object/binary/helper/log pins govern reuse. It refuses an
+incomplete/stale build. Each case has180s bound. Planned proof: microscopic layer
+vs independent integral, positive weights/volume/moments/reversed orientation,
+production coarse-cube complexity and sensor-only tensors, original-wall
+extraction, nearest-face switch and hidden finite-wall support. No new tests have
+run yet. Prior44 executions qualify the previous kernel checkpoint only.
+
+Next: finish this live build; run the focused resumable checks, preserve any real
+failure and improve its shared cause. Then add coordinated wall/transition
+construction using existing coning/cavity/MPI transactions. Analytic authority,
+height/alignment/coverage/feasibility, separate composed gradation, actual RANS and
+Euler/BL transitions, MPI/transfer/restart/output and lifecycle cost qualification
+remain mandatory. Preserve Goal2 evidence; leave AdapNoExt/foreignClusterResults/
+dependencies/other workers untouched. Permanent AGENTS batching/reuse rules apply.
+
+Earlier notices below are historical.
+
 # Goal 3 ACTIVE — 2026-10-13
 
 Repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.

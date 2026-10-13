@@ -26,6 +26,25 @@ CNativeRemesher3D::CNativeRemesher3D(std::shared_ptr<ReferenceState> retained, E
     : reference(std::move(retained)), options(control) {
   if (!reference) throw std::invalid_argument("Native3D needs driver-owned reference storage.");
 }
+void CNativeRemesher3D::PrepareReference(const CConfig& config,const CGeometry& geometry) {
+  if(reference->original) return;
+  auto pending=*reference;
+  bool loaded=false;std::string reason;size_t maximum=0;
+  const auto held=transfer_memory::Add(options.caller_bytes,ReferenceStorageBytes(*reference));
+  CLocalFailure failure;
+  if(!SU2Native3D::LoadReference(config.GetMesh_FileName()+".native_ref",pending,loaded,reason,
+                               options.memory_ceiling,held,maximum)) failure.Set(2,0,reason);
+  CollectiveFailure(failure,CURRENT_FUNCTION);
+  if(config.GetRestart() && !loaded)
+    failure.Set(1,0,"Native3D restart requires its original .native_ref sidecar; geometry cannot be rebased.");
+  CollectiveFailure(failure,CURRENT_FUNCTION);
+  SU2Native3D::ImportedGeometry imported;SU2Native3D::BridgeStats importedStats;
+  if(!SU2Native3D::ImportGeometry(config,geometry,nullptr,pending,imported,reason,importedStats,
+                                options.memory_ceiling,held)) failure.Set(2,0,reason);
+  CollectiveFailure(failure,CURRENT_FUNCTION);
+  *reference=std::move(pending);
+}
+
 void CNativeRemesher3D::CheckSupport(const CConfig& config, const CGeometry& geometry) {
   CLocalFailure failure;
   if (!std::is_same<su2double, double>::value || !std::is_same<passivedouble, double>::value)

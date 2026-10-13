@@ -35,6 +35,7 @@ class CNativeRemesher3D final : public CRemesher {
  public:
   explicit CNativeRemesher3D(std::shared_ptr<SU2Native3D::ReferenceState> retained,
                              SU2Native3D::EngineOptions options = {});
+  void PrepareReference(const CConfig& config, const CGeometry& geometry);
   static void CheckSupport(const CConfig& config, const CGeometry& geometry);
   CRemeshResult Remesh(const CConfig& config, const CGeometry& geometry, const su2activematrix& sensor) override;
   const SU2Native3D::RemeshStats& Statistics() const { return stats; }

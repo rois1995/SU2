@@ -38,6 +38,7 @@
 class CConfig;
 class CGeometry;
 namespace SU2NativeBoundary2D { struct ReferenceState; }
+namespace SU2Native3D { struct ReferenceState; }
 
 /*!
  * \class CBoundaryLayerMetric
@@ -177,6 +178,8 @@ class CBoundaryLayerMetric {
   /*! Original wall geometry is complete on every rank, including remote/private queries. */
   static std::shared_ptr<CBoundaryLayerMetric> FromNativeReference(
       const SU2NativeBoundary2D::ReferenceState& reference, const CConfig& config);
+  static std::shared_ptr<CBoundaryLayerMetric> FromNativeReference(
+      const SU2Native3D::ReferenceState& reference, const CConfig& config);
 
   /*! Shared stable sensor-core eigenvalue for complexity trials and frozen query composition. */
   static double CoreEigenvalue2D(double xx, double xy, double yy);
@@ -194,6 +197,16 @@ class CBoundaryLayerMetric {
   std::vector<IntegrationPoint2D> IntegrationRule2D(
       const std::array<std::array<double, 2>, 3>& triangle, double bandRatio = 1.5);
 
+  struct IntegrationPoint3D {
+    std::array<double,4> barycentric;
+    double weight;
+    std::vector<PointSample> samples;
+  };
+  /*! Positive degree-two quadrature after distance-band clipping in original barycentric coordinates.
+   *  Changing/hidden geometry is subdivided with an explicit work bound; no nodal BL interpolation. */
+  std::vector<IntegrationPoint3D> IntegrationRule3D(
+      const std::array<std::array<double,3>,4>& tetrahedron, double bandRatio = 1.5);
+
   /*! Sorted chord parameters resolving every faceted-wall distance band in 2D/3D.
    *  Face/edge/vertex offset intersections detect a thin band even when both endpoints
    *  and the midpoint are outside it. Used with actual-point composition, never nodal BL tensors. */
@@ -208,6 +221,10 @@ class CBoundaryLayerMetric {
  private:
   std::vector<IntegrationPoint2D> IntegrationRule2DImpl(
       const std::array<std::array<double, 2>, 3>& triangle, double bandRatio, unsigned depth);
+  void IntegrationRule3DImpl(const std::array<std::array<double,3>,4>& tetrahedron,
+      const std::array<std::array<double,4>,4>& original_barycentrics,
+      const std::array<std::array<double,3>,4>& source, double bandRatio, unsigned depth,
+      size_t& visited, std::vector<IntegrationPoint3D>& rule);
   struct WallData;
   void Build();
 

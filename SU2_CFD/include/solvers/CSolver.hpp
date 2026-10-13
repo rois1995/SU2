@@ -68,6 +68,7 @@
 using namespace std;
 
 namespace SU2NativeBoundary2D { struct ReferenceState; }
+namespace SU2Native3D { struct ReferenceState; }
 
 class CSolver {
 protected:
@@ -612,7 +613,8 @@ public:
    * \param[in] boundaryLayer - Intersect with the boundary-layer metric (ADAP_BL_MARKER) at the end.
    */
   void ComputeMetric(CGeometry *geometry, const CConfig *config, const vector<su2double>* givenMetric = nullptr,
-                     bool boundaryLayer = true, const SU2NativeBoundary2D::ReferenceState* nativeReference = nullptr);
+                     bool boundaryLayer = true, const SU2NativeBoundary2D::ReferenceState* nativeReference = nullptr,
+                     const SU2Native3D::ReferenceState* nativeReference3D = nullptr);
 
   /*!
    * \brief Complexity of the last ComputeMetric (global): attained by the global factor (after the bounds and the corner

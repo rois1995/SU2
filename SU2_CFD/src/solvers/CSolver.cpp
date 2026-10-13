@@ -30,6 +30,7 @@
 #include "../../include/solvers/CSolver.hpp"
 #include "../../../Common/include/adaptation/CMeshGather.hpp"
 #include "../../../Common/include/adaptation/CDistributedSearch.hpp"
+#include "../../../Common/include/adaptation/CTransferMemory.hpp"
 #include "../../../Common/include/parallelization/CPassiveComm.hpp"
 
 #include <limits>
@@ -2627,7 +2628,8 @@ vector<unsigned long> CSolver::FindSharpWallPoints(const CGeometry* geometry, co
 }
 
 void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const vector<su2double>* givenMetric,
-                            bool boundaryLayer, const SU2NativeBoundary2D::ReferenceState* nativeReference) {
+                            bool boundaryLayer, const SU2NativeBoundary2D::ReferenceState* nativeReference,
+                            const SU2Native3D::ReferenceState* nativeReference3D) {
   SU2_ZONE_SCOPED
 
   SU2Native3D::RuntimeProfile3D<5> profile(config->GetWrt_Performance() && nDim == 3 &&
@@ -2855,25 +2857,55 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   };
   vector<CellRule> integration;
   unsigned long localQuadraturePoints = 0;
-  if (geometricBL && nDim == 2) {
-    nativeLayers = nativeReference != nullptr
-        ? CBoundaryLayerMetric::FromNativeReference(*nativeReference, *config)
-        : std::make_shared<CBoundaryLayerMetric>(*geometry, *config);
-    const auto owned = OwnedSimplices(*geometry);
-    for (unsigned long cell = 0; cell < owned.size(); ++cell) {
-      std::array<unsigned long, 3> nodes;
-      for (unsigned k = 0; k < 3; ++k) nodes[k] = owned.nodes[3*cell+k];
-      std::sort(nodes.begin(), nodes.end(), [&](auto a, auto b) {
-        return geometry->nodes->GetGlobalIndex(a) < geometry->nodes->GetGlobalIndex(b);
-      });
-      std::array<std::array<double, 2>, 3> coordinates;
-      for (unsigned k = 0; k < 3; ++k)
-        for (unsigned d = 0; d < 2; ++d) coordinates[k][d] = SU2_TYPE::GetValue(geometry->nodes->GetCoord(nodes[k],d));
-      auto points = nativeLayers->IntegrationRule2D(coordinates);
-      localQuadraturePoints += points.size();
-      integration.push_back({nodes, std::move(points)});
+  struct CellRule3D {
+    std::array<unsigned long,4> nodes;
+    std::vector<CBoundaryLayerMetric::IntegrationPoint3D> points;
+  };
+  vector<CellRule3D> integration3D;
+  CLocalFailure quadratureFailure;
+  unsigned long quadratureCell=0;
+  std::string quadratureContext="Native geometric BL reference";
+  try {
+    if (geometricBL) {
+      if(nDim==2)
+        nativeLayers = nativeReference != nullptr
+            ? CBoundaryLayerMetric::FromNativeReference(*nativeReference, *config)
+            : std::make_shared<CBoundaryLayerMetric>(*geometry, *config);
+      else
+        nativeLayers = nativeReference3D != nullptr
+            ? CBoundaryLayerMetric::FromNativeReference(*nativeReference3D, *config)
+            : std::make_shared<CBoundaryLayerMetric>(*geometry, *config);
+      const auto owned = OwnedSimplices(*geometry);
+      size_t quadratureBytes=0;
+      for (unsigned long cell = 0; cell < owned.size(); ++cell) {
+        quadratureCell=geometry->elem[owned.elem[cell]]->GetGlobalIndex();
+        quadratureContext="Native geometric complexity cell "+std::to_string(quadratureCell);
+        std::array<unsigned long,4> nodes{};
+        for(unsigned k=0;k<=nDim;++k)nodes[k]=owned.nodes[(nDim+1)*cell+k];
+        std::sort(nodes.begin(),nodes.begin()+nDim+1,[&](auto a,auto b){
+          return geometry->nodes->GetGlobalIndex(a)<geometry->nodes->GetGlobalIndex(b);
+        });
+        if(nDim==2) {
+          std::array<std::array<double,2>,3> coordinates;
+          for(unsigned k=0;k<3;++k)for(unsigned d=0;d<2;++d)
+            coordinates[k][d]=SU2_TYPE::GetValue(geometry->nodes->GetCoord(nodes[k],d));
+          auto points=nativeLayers->IntegrationRule2D(coordinates);
+          localQuadraturePoints+=points.size();
+          integration.push_back({{nodes[0],nodes[1],nodes[2]},std::move(points)});
+        } else {
+          std::array<std::array<double,3>,4> coordinates;
+          for(unsigned k=0;k<4;++k)for(unsigned d=0;d<3;++d)
+            coordinates[k][d]=SU2_TYPE::GetValue(geometry->nodes->GetCoord(nodes[k],d));
+          auto points=nativeLayers->IntegrationRule3D(coordinates);
+          quadratureBytes=transfer_memory::Add(quadratureBytes,transfer_memory::Bytes(points),sizeof(CellRule3D));
+          for(const auto& point:points)quadratureBytes=transfer_memory::Add(quadratureBytes,transfer_memory::Bytes(point.samples));
+          if(quadratureBytes>(size_t(2)<<30)) throw std::runtime_error("Native3D complexity quadrature exceeds storage budget.");
+          localQuadraturePoints+=points.size();integration3D.push_back({nodes,std::move(points)});
+        }
+      }
     }
-  }
+  } catch(const std::exception& error) {quadratureFailure.Set(2,quadratureCell,quadratureContext+": "+error.what());}
+  CollectiveFailure(quadratureFailure,CURRENT_FUNCTION);
   passivedouble localGeometryTime=SU2_MPI::Wtime()-geometryStart, geometryTime=0;
   unsigned long quadraturePoints=0;
   if(nativeMetric) {
@@ -3038,17 +3070,17 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
       }
       SU2_MPI::Allreduce(&localSmallest, &frozenCore, 1, MPI_DOUBLE, MPI_MIN, SU2_MPI::GetComm());
       if (nativeLayers) {
-        for (const auto& cell : integration)
-          for (const auto& point : cell.points) {
+        auto accumulate=[&](const auto& rules) {
+          for(const auto& cell:rules)for(const auto& point:cell.points) {
             CBoundaryLayerMetric::Tensor metric;
-            for (unsigned k = 0; k < 3; ++k)
-              for (unsigned i = 0; i < 2; ++i)
-                for (unsigned j = 0; j < 2; ++j)
-                  metric.m[i][j] += point.barycentric[k] * blMetric[cell.nodes[k]].m[i][j];
-            for (const auto& sample : point.samples)
-              nativeLayers->ApplySample(sample.wall, sample.sample, metric, frozenCore, nullptr, false);
-            local += point.weight * density(metric);
+            for(unsigned k=0;k<=nDim;++k)for(unsigned i=0;i<nDim;++i)for(unsigned j=0;j<nDim;++j)
+              metric.m[i][j]+=point.barycentric[k]*blMetric[cell.nodes[k]].m[i][j];
+            for(const auto& sample:point.samples)
+              nativeLayers->ApplySample(sample.wall,sample.sample,metric,frozenCore,nullptr,false);
+            local+=point.weight*density(metric);
           }
+        };
+        accumulate(integration);accumulate(integration3D);
       } else {
         for (auto point = 0ul; point < nPointDomain; ++point)
           local += density(blMetric[point]) * geometry->nodes->GetVolume(point);

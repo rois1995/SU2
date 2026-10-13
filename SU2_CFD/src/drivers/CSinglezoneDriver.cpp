@@ -249,7 +249,8 @@ void CSinglezoneDriver::ComputeMetric() {
       config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY, "metric");
   const auto startTime = SU2_MPI::Wtime();
   if (config->GetKind_Adap_Remesher() == ADAP_REMESHER::NATIVE_CAVITY &&
-      config->GetnAdap_BL() && (!nativeReference || !nativeReference->original)) {
+      config->GetnAdap_BL() && (nDim==2 ? (!nativeReference || !nativeReference->original)
+                                        : (!nativeReference3D || !nativeReference3D->original))) {
     auto remesher = MakeRemesher(); // Initializes the retained immutable reference, including restart associations.
   }
   profile.Mark(0);
@@ -259,7 +260,7 @@ void CSinglezoneDriver::ComputeMetric() {
   profile.Mark(2);
   /*--- ADAP_BL_METHOD= TWO_PASS: the remesher builds the boundary-layer metric itself, on its pass-A mesh. ---*/
   const bool boundaryLayer = config->GetKind_Adap_BL_Method() != ADAP_BL_METHOD::TWO_PASS;
-  solver_flow->ComputeMetric(geometry, config, nullptr, boundaryLayer, nativeReference.get());
+  solver_flow->ComputeMetric(geometry, config, nullptr, boundaryLayer, nativeReference.get(), nativeReference3D.get());
   profile.Mark(3);
   profile.Report(config->GetTimeIter(), {{"setup", "sensors", "hessian", "construction"}});
   if (rank == MASTER_NODE) cout << "Metric computed in " << SU2_MPI::Wtime() - startTime << " s." << endl;
@@ -296,7 +297,10 @@ std::unique_ptr<CRemesher> CSinglezoneDriver::MakeRemesher() {
   if (config_container[ZONE_0]->GetKind_Adap_Remesher()==ADAP_REMESHER::NATIVE_CAVITY) {
     if(geometry_container[ZONE_0][INST_0][MESH_0]->GetnDim()==3){
       if(!nativeReference3D)nativeReference3D=std::make_shared<SU2Native3D::ReferenceState>();
-      return std::make_unique<CNativeRemesher3D>(nativeReference3D);
+      auto remesher=std::make_unique<CNativeRemesher3D>(nativeReference3D);
+      if(config_container[ZONE_0]->GetnAdap_BL())
+        remesher->PrepareReference(*config_container[ZONE_0],*geometry_container[ZONE_0][INST_0][MESH_0]);
+      return remesher;
     }
     if (!nativeReference) nativeReference=std::make_shared<SU2NativeBoundary2D::ReferenceState>();
     // Only the CFD sensor is frozen on the donor volume. Wall distances and
@@ -547,7 +551,7 @@ void CSinglezoneDriver::SampleTimeWindowMetric() {
     }
     /*--- ADAP_BL_METHOD= TWO_PASS: the remesher builds the boundary-layer metric itself, on its pass-A mesh. ---*/
     solver_flow->ComputeMetric(geometry, config, nullptr,
-                               config->GetKind_Adap_BL_Method() != ADAP_BL_METHOD::TWO_PASS, nativeReference.get());
+                               config->GetKind_Adap_BL_Method() != ADAP_BL_METHOD::TWO_PASS, nativeReference.get(), nativeReference3D.get());
     windowMetricDone = true;
   }
 
@@ -755,7 +759,7 @@ void CSinglezoneDriver::PredictWindowMetric() {
 
   /*--- Complexity, bounds, corner and boundary-layer metrics. ---*/
   solver_flow->ComputeMetric(geometry, config, &predicted,
-                             config->GetKind_Adap_BL_Method() != ADAP_BL_METHOD::TWO_PASS, nativeReference.get());
+                             config->GetKind_Adap_BL_Method() != ADAP_BL_METHOD::TWO_PASS, nativeReference.get(), nativeReference3D.get());
   predictSnapshots.clear();
   predictSnapshotSteps.clear();
 }

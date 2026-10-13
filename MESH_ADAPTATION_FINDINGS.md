@@ -1,3 +1,18 @@
+# Goal3 thin-volume/complexity implementation under verification — 2026-10-13
+
+NativeIntegrated/codex/native-3d-bl now has3D distance-band volume quadrature using
+the existing conservative-transfer convex clipper, with bounded hidden-support/
+nearest-face subdivision and original-P1 samples at actual rounded coordinates.
+Native complexity uses the same ApplySample/ApplyPoint BL policy; sensor nodal
+transport remains separate. Initial/retained3D faceted references are threaded
+through steady/window/predicted metric construction. Analytic BL authorities and
+production first-height construction remain guarded. A single low-priority
+127-object grouped build (77854) is live; the new five-case resumed-per-case checks
+have not run. This is implementation progress, not numerical/MPI/BL/performance
+qualification. Full Goal3 scope remains pending beyond the earlier kernel proof.
+
+Earlier findings below are historical.
+
 # Goal3 geometric BL integration in progress — 2026-10-13
 
 Working branch codex/native-3d-bl in SU2_NativeIntegrated, based on published

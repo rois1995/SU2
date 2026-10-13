@@ -33,6 +33,7 @@
 #include "../../../Common/include/CConfig.hpp"
 #include "../../../Common/include/adaptation/CNativeImport2D.hpp"
 #include "../../../Common/include/adaptation/CNativeField3D.hpp"
+#include "../../../Common/include/adaptation/CNativeImport3D.hpp"
 #include "../../../Common/include/geometry/CPhysicalGeometry.hpp"
 #include "../../../Common/include/geometry/meshreader/CMemoryMeshReaderFVM.hpp"
 #include "../../../Common/include/linear_algebra/blas_structure.hpp"
@@ -977,4 +978,121 @@ TEST_CASE("Native 3D wall normal size survives rotated extreme layer aspect rati
       CHECK(SU2_TYPE::GetValue(m[0][0]+m[2][2])>0);
     }
   }
+}
+
+TEST_CASE("Native geometric volume quadrature resolves microscopic BL in coarse tetrahedra", "[NativeVolumeBL3D]") {
+  const double h0=1e-6,thickness=.01;
+  CBoundaryLayerMetric::Wall wall;wall.layer={"wall",h0,1.,thickness};
+  wall.coord={-2,-2,0, 2,-2,0, 2,2,0, -2,2,0};wall.conn={0,1,2,2,0,2,3,3};
+  CBoundaryLayerMetric layers(3,{wall});
+  const std::array<std::array<double,3>,4> cell{{{{.2,.2,0}},{{.8,.2,0}},{{.2,.8,0}},{{.2,.2,1}}}};
+  double reference=.06*std::pow(1-thickness,3);
+  const unsigned n=10000;
+  for(unsigned k=0;k<=n;++k) {
+    const double z=thickness*k/n,t=std::clamp((z-.9*thickness)/(.1*thickness),0.,1.),w=1-t*t*(3-2*t);
+    reference+=thickness/n/3*(k==0||k==n?1:(k%2?4:2))*.18*(1-z)*(1-z)*std::pow(h0,-w);
+  }
+  for(const double ratio:{1.5,1.25}) {
+    double volume=0,integral=0,mx=0,mz=0,mz2=0;
+    const auto rule=layers.IntegrationRule3D(cell,ratio);
+    REQUIRE(rule.size()<10000);
+    for(const auto& point:rule) {
+      REQUIRE(point.weight>0);double sum=0;
+      std::array<double,3> x{};
+      for(unsigned k=0;k<4;++k) {
+        CHECK(point.barycentric[k]>=-1e-14);sum+=point.barycentric[k];
+        for(unsigned j=0;j<3;++j)x[j]+=point.barycentric[k]*cell[k][j];
+      }
+      CHECK(sum==Approx(1).epsilon(1e-13));
+      Tensor m;m.m[0][0]=m.m[1][1]=m.m[2][2]=1;
+      for(const auto& sample:point.samples)layers.ApplySample(sample.wall,sample.sample,m,1.,nullptr,false);
+      volume+=point.weight;mx+=point.weight*x[0];mz+=point.weight*x[2];mz2+=point.weight*x[2]*x[2];
+      integral+=point.weight*std::sqrt(SU2_TYPE::GetValue(m.m[2][2]));
+    }
+    CHECK(volume==Approx(.06).epsilon(2e-12));CHECK(mx==Approx(.021).epsilon(2e-12));
+    CHECK(mz==Approx(.015).epsilon(2e-12));CHECK(mz2==Approx(.006).epsilon(2e-12));
+    CHECK(integral==Approx(reference).epsilon(5e-4));
+  }
+  auto reversed=cell;std::swap(reversed[0],reversed[1]);double reversedVolume=0;
+  for(const auto& p:layers.IntegrationRule3D(reversed))reversedVolume+=p.weight;
+  CHECK(reversedVolume==Approx(.06).epsilon(2e-12));
+  CHECK_THROWS(layers.IntegrationRule3D(cell,1.));
+  auto degenerate=cell;degenerate[3]=degenerate[0];CHECK_THROWS(layers.IntegrationRule3D(degenerate));
+}
+
+TEST_CASE("Native3D complexity integrates the geometric BL with sensor-only donors", "[NativeVolumeBL3D]") {
+  const double h0=1e-4,T=.02;
+  const auto mesh=simplex_test::MakeSimplexMesh(3,2,[](const passivedouble* x){return x[2]==0?"wall":"far";});
+  MetricTest test(mesh,"MARKER_HEATFLUX= (wall,0)\nMARKER_FAR= (far)\nADAP_REMESHER= NATIVE_CAVITY\n"
+                       "ADAP_SURFACE= YES\nADAP_ISO_CORNER= NO\nADAP_HGRAD= 1.3\nADAP_HMIN= .5\nADAP_HMAX= 1\n"
+                       "ADAP_ARMAX= 100\nADAP_COMPLEXITY= 100\nADAP_BL_MARKER= (wall)\nADAP_BL_FIRST_HEIGHT= (1e-4)\n"
+                       "ADAP_BL_GROWTH= (1)\nADAP_BL_THICKNESS= (.02)\n",{1,0,0,1,0,1});
+  const auto output=test.ComputeMetric();INFO(output);
+  // The wall triangles have tangent eigenvalues2 and6; sensor is the bounded identity.
+  const double fullDensity=std::sqrt(12.)/h0;
+  double reference=1-T+.9*T*fullDensity;const unsigned n=10000;
+  for(unsigned k=0;k<=n;++k) {
+    const double t=double(k)/n,w=1-t*t*(3-2*t);
+    reference+=.1*T/n/3*(k==0||k==n?1:(k%2?4:2))*std::pow(fullDensity,w);
+  }
+  CHECK(test.solver[FLOW_SOL]->GetMetricComplexityFinal()==Approx(reference).epsilon(5e-4));
+  for(auto p=0ul;p<test.Geometry().GetnPointDomain();++p) {
+    const auto m=test.Metric(p);CHECK(SU2_TYPE::GetValue(m.m[0][0])==Approx(1));
+    CHECK(SU2_TYPE::GetValue(m.m[1][1])==Approx(1));CHECK(SU2_TYPE::GetValue(m.m[2][2])==Approx(1));
+  }
+}
+
+TEST_CASE("Native3D complexity reference does not rebase the wall on the adapted surface", "[NativeVolumeBL3D]") {
+  using namespace SU2Native3D;
+  auto mesh=simplex_test::MakeSimplexMesh(3,2,[](const passivedouble* x){return x[2]==0?"wall":"far";});
+  MetricTest test(mesh,"MARKER_HEATFLUX= (wall,0)\nMARKER_FAR= (far)\nADAP_REMESHER= NATIVE_CAVITY\n"
+                       "ADAP_SURFACE= YES\nADAP_ISO_CORNER= NO\nADAP_HMIN= .5\nADAP_HMAX= 1\n"
+                       "ADAP_ARMAX= 100\nADAP_COMPLEXITY= 100\nADAP_BL_MARKER= (wall)\nADAP_BL_FIRST_HEIGHT= (.001)\n"
+                       "ADAP_BL_GROWTH= (1.2)\nADAP_BL_THICKNESS= (.1)\n",{1,0,0,1,0,1});
+  ReferenceState state;const auto imported=ImportGeometry(*test.config,test.Geometry(),nullptr,state);
+  REQUIRE(state.original);auto layers=CBoundaryLayerMetric::FromNativeReference(state,*test.config);
+  const su2double x[3]={.25,.25,0};const auto original=layers->Evaluate(0,x,1.);
+  CBoundaryLayerMetric::Wall shifted;shifted.layer={"wall",.001,1.2,.1};
+  shifted.coord={0,0,.025,1,0,.025,1,1,.025,0,1,.025};shifted.conn={0,1,2,2,0,2,3,3};
+  CBoundaryLayerMetric current(3,{shifted});
+  CHECK(original.distance==Approx(0).margin(1e-14));CHECK(current.Evaluate(0,x,1.).distance==Approx(.025));
+  CHECK(CBoundaryLayerMetric::FromNativeReference(state,*test.config)->Evaluate(0,x,1.).hn==Approx(.001));
+  CHECK_FALSE(imported.original.empty());
+}
+
+TEST_CASE("Native3D volume integration resolves a far vertex closest to another wall face", "[NativeVolumeBL3D]") {
+  CBoundaryLayerMetric::Wall wall;wall.layer={"wall",.005,1.2,.03};
+  wall.coord={0,0,0,1,0,0,1,1,0,0,1,0,0,0,1,0,1,1};
+  wall.conn={0,1,2,2,0,2,3,3,0,3,5,5,0,5,4,4};
+  CBoundaryLayerMetric layers(3,{wall});
+  const std::array<std::array<double,3>,4> cell{{{{.2,.2,0}},{{.8,.2,0}},{{.2,.8,0}},{{.2,.2,.4}}}};
+  const su2double top[3]={.2,.2,.4};CHECK(layers.Evaluate(0,top,1.).distance==Approx(.2));
+  double integrals[2]{};unsigned index=0;
+  for(const double ratio:{1.5,1.25}) {
+    double volume=0;
+    for(const auto& point:layers.IntegrationRule3D(cell,ratio)) {
+      Tensor m;m.m[0][0]=m.m[1][1]=m.m[2][2]=1;
+      for(const auto& sample:point.samples)layers.ApplySample(sample.wall,sample.sample,m,1.,nullptr,false);
+      const double determinant=SU2_TYPE::GetValue(m.m[0][0]*(m.m[1][1]*m.m[2][2]-m.m[1][2]*m.m[2][1])
+          -m.m[0][1]*(m.m[1][0]*m.m[2][2]-m.m[1][2]*m.m[2][0])
+          +m.m[0][2]*(m.m[1][0]*m.m[2][1]-m.m[1][1]*m.m[2][0]));
+      REQUIRE(determinant>0);volume+=point.weight;integrals[index]+=point.weight*std::sqrt(determinant);
+    }
+    CHECK(volume==Approx(.024).epsilon(1e-11));++index;
+  }
+  CHECK(integrals[0]>10*.024);CHECK(integrals[0]==Approx(integrals[1]).epsilon(5e-3));
+}
+
+TEST_CASE("Native3D volume support detects a thin finite wall missed by all cell vertices", "[NativeVolumeBL3D]") {
+  CBoundaryLayerMetric::Wall wall;wall.layer={"wall",.02,1.2,.08};
+  wall.coord={.28,.18,0,.52,.18,0,.28,.42,0};wall.conn={0,1,2,2};
+  CBoundaryLayerMetric layers(3,{wall});
+  const std::array<std::array<double,3>,4> cell{{{{.1,.1,.02}},{{.9,.1,.02}},{{.1,.9,.02}},{{.1,.1,.8}}}};
+  for(const auto& p:cell){const su2double x[3]={p[0],p[1],p[2]};CHECK(layers.Evaluate(0,x,1.).weight==0);}
+  double volume=0,active=0;
+  for(const auto& point:layers.IntegrationRule3D(cell)) {
+    volume+=point.weight;
+    if(!point.samples.empty())active+=point.weight;
+  }
+  CHECK(volume==Approx(.8*.8*.78/6).epsilon(1e-10));CHECK(active>0);
 }
