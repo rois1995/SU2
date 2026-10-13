@@ -85,12 +85,27 @@ void CUpwAUSM_SLAU_Base_NEMO::ComputeInterfaceQuantities(const CConfig* config, 
                                                          su2double& interface_mach, su2double* interface_soundspeed) {
   /*--- For schemes that fit in the general form of Advection Upstream Splitting Method (AUSM) schemes you can inherit
   from this class and implement only the specifics, which should be the face pressure flux(es), interface Mach number
-  and the interface soundspeed(s). For implicit solution methods this class will use the analytic AUSM Jacobians, until
-  more variant Jacobians have been added.
+  and the interface soundspeed(s). For implicit solution methods this class uses the analytic AUSM Jacobians as an
+  approximation, unless the scheme sets HasAnalyticalDerivatives and also computes the derivatives of the convective
+  velocity (interface Mach number times interface soundspeed) and of the pressure flux, see AccurateJacobian.
   ---*/
 }
 
-void CUpwAUSM_SLAU_Base_NEMO::ComputeJacobian(su2double** val_Jacobian_i, su2double** val_Jacobian_j) {
+void CUpwAUSM_SLAU_Base_NEMO::SplitDerivatives(su2double mach, su2double alpha, su2double beta, su2double& dMP_dM,
+                                               su2double& dPP_dM, su2double& dPP_dalpha) {
+  if (fabs(mach) <= 1.0) {
+    const su2double tmp = mach * mach - 1.0;
+    dMP_dM = 0.5 * (mach + 1.0) + 4.0 * beta * mach * tmp;
+    dPP_dM = tmp * (alpha * (5.0 * tmp + 4.0) - 0.75);
+    dPP_dalpha = mach * tmp * tmp;
+  } else {
+    dMP_dM = (mach > 0.0) ? 1.0 : 0.0;
+    dPP_dM = 0.0;
+    dPP_dalpha = 0.0;
+  }
+}
+
+void CUpwAUSM_SLAU_Base_NEMO::ApproximateJacobian(su2double** val_Jacobian_i, su2double** val_Jacobian_j) {
   const auto& Ms = fluidmodel->GetSpeciesMolarMass();
   const auto& Cvtr = fluidmodel->GetSpeciesCvTraRot();
   const su2double Ru = 1000.0 * UNIVERSAL_GAS_CONSTANT;
@@ -383,6 +398,72 @@ void CUpwAUSM_SLAU_Base_NEMO::ComputeJacobian(su2double** val_Jacobian_i, su2dou
   }
 }
 
+void CUpwAUSM_SLAU_Base_NEMO::AccurateJacobian(su2double** val_Jacobian_i, su2double** val_Jacobian_j) {
+  /*--- The flux is F = ConvVel * Fc + PressureFlux. ConvVel = M_F * A_F is the convective velocity at the
+   interface, Fc are the convected variables of the upwind state (species densities, momentum, rho*H and
+   rho*e_ve), and the pressure flux goes in the momentum equations. The scheme gives the derivatives of
+   ConvVel and PressureFlux with respect to [velocity, P, rho, H, gamma] of the two states, here they are
+   converted to derivatives with respect to the conservative variables to build the Jacobians. ---*/
+
+  const auto& Ms = fluidmodel->GetSpeciesMolarMass();
+  const auto& Cvtr = fluidmodel->GetSpeciesCvTraRot();
+  const su2double Ru = 1000.0 * UNIVERSAL_GAS_CONSTANT;
+
+  const bool upwind_i = (M_F >= 0.0);
+  const su2double* Fc_upwind = upwind_i ? Fc_L : Fc_R;
+  const su2double ConvVel = M_F * (upwind_i ? A_F[0] : A_F[1]);
+
+  auto StateJacobian = [&](const su2double* V, const su2double* dPdU, const su2double Gamma, const bool upwind,
+                           const su2double* dConvVel_dV, const auto& dPressureFlux_dV, su2double** Jacobian) {
+    const su2double Density = V[RHO_INDEX];
+
+    for (auto jVar = 0ul; jVar < nVar; jVar++) {
+      /*--- Derivatives of [velocity, P, rho, H, gamma] with respect to the conservative variable jVar.
+       The enthalpy is H = (rho*E + P) / rho, and gamma = 1 + (rho*R) / (rho*Cv_tr) only depends on
+       the species densities. ---*/
+      su2double dV_dU[MAXNVAR_DERIV] = {0.0};
+
+      dV_dU[nDim] = dPdU[jVar];
+      dV_dU[nDim + 2] = dPdU[jVar] / Density;
+
+      if (jVar < nSpecies) {
+        for (auto iDim = 0ul; iDim < nDim; iDim++) dV_dU[iDim] = -V[VEL_INDEX + iDim] / Density;
+        dV_dU[nDim + 1] = 1.0;
+        dV_dU[nDim + 2] -= V[H_INDEX] / Density;
+        dV_dU[nDim + 3] = (Ru / Ms[jVar] - (Gamma - 1.0) * Cvtr[jVar]) / V[RHOCVTR_INDEX];
+      } else if (jVar < nSpecies + nDim) {
+        dV_dU[jVar - nSpecies] = 1.0 / Density;
+      } else if (jVar == nSpecies + nDim) {
+        dV_dU[nDim + 2] += 1.0 / Density;
+      }
+
+      /*--- Chain rule ---*/
+      su2double dConvVel_dU = 0.0, dPressureFlux_dU[MAXNDIM] = {0.0};
+      for (auto iVar = 0ul; iVar < nDim + 4ul; iVar++) {
+        dConvVel_dU += dConvVel_dV[iVar] * dV_dU[iVar];
+        for (auto iDim = 0ul; iDim < nDim; iDim++) dPressureFlux_dU[iDim] += dPressureFlux_dV[iDim][iVar] * dV_dU[iVar];
+      }
+
+      /*--- Jacobian contribution: convective velocity and pressure flux ---*/
+      for (auto iVar = 0ul; iVar < nVar; iVar++) Jacobian[iVar][jVar] = Fc_upwind[iVar] * dConvVel_dU;
+      for (auto iDim = 0ul; iDim < nDim; iDim++) Jacobian[nSpecies + iDim][jVar] += dPressureFlux_dU[iDim];
+
+      /*--- Jacobian contribution: convected variables, only for the upwind state. They are the
+       conservative variables, with the pressure added to the total energy (rho*H = rho*E + P). ---*/
+      if (upwind) {
+        Jacobian[jVar][jVar] += ConvVel;
+        Jacobian[nSpecies + nDim][jVar] += ConvVel * dPdU[jVar];
+      }
+
+      /*--- Integrate over dual-face area ---*/
+      for (auto iVar = 0ul; iVar < nVar; iVar++) Jacobian[iVar][jVar] *= Area;
+    }
+  };
+
+  StateJacobian(V_i, dPdU_i, Gamma_i, upwind_i, dConvVel_dVi, dPressureFlux_dVi, val_Jacobian_i);
+  StateJacobian(V_j, dPdU_j, Gamma_j, !upwind_i, dConvVel_dVj, dPressureFlux_dVj, val_Jacobian_j);
+}
+
 CNumerics::ResidualType<> CUpwAUSM_SLAU_Base_NEMO::ComputeResidual(const CConfig* config) {
   /*--- Compute geometric quantities ---*/
   Area = GeometryToolbox::Norm(nDim, Normal);
@@ -449,8 +530,13 @@ CNumerics::ResidualType<> CUpwAUSM_SLAU_Base_NEMO::ComputeResidual(const CConfig
 
   for (auto iDim = 0ul; iDim < nDim; iDim++) Flux[nSpecies + iDim] += PressureFlux[iDim] * Area;
 
-  /*--- If required, compute Jacobians (approximated using AUSM) ---*/
-  if (implicit) ComputeJacobian(Jacobian_i, Jacobian_j);
+  /*--- If required, compute Jacobians (approximated using AUSM if the scheme does not have its own) ---*/
+  if (implicit) {
+    if (HasAnalyticalDerivatives)
+      AccurateJacobian(Jacobian_i, Jacobian_j);
+    else
+      ApproximateJacobian(Jacobian_i, Jacobian_j);
+  }
 
   return ResidualType<>(Flux, Jacobian_i, Jacobian_j);
 }
@@ -501,6 +587,7 @@ CUpwAUSMPLUSUP2_NEMO::CUpwAUSMPLUSUP2_NEMO(unsigned short val_nDim, unsigned sho
   Minf = config->GetMach();
   Kp = 0.25;
   sigma = 1.0;
+  HasAnalyticalDerivatives = true;
 
   if (Minf < EPS)
     SU2_MPI::Error("AUSM+-Up2 requires a reference Mach number (\"MACH_NUMBER\") greater than 0.", CURRENT_FUNCTION);
@@ -567,6 +654,128 @@ void CUpwAUSMPLUSUP2_NEMO::ComputeInterfaceQuantities(const CConfig* config, su2
     pressure[iDim] =
         (0.5 * (Pressure_j + Pressure_i) + 0.5 * (P_LP - P_RM) * (Pressure_i - Pressure_j) + pFi) * UnitNormal[iDim];
   }
+
+  if (!implicit) return;
+
+  /*--- Analytical differentiation of the convective velocity (interface_mach * aF) and of the pressure
+   flux with respect to the velocity, pressure, density, enthalpy and gamma of the two states. It is done
+   in reverse mode, "x_b" denotes the derivative of the output with respect to x. For min, max and abs
+   the branch that is active is differentiated. The equation numbers are the ones of the reference
+   (Kitamura and Shima, 2013, Appendix A). ---*/
+
+  su2double dMLP_dML, dPLP_dML, dPLP_dalpha, dMRM_dMR, dPRM_dMR, dPRM_dalpha;
+  SplitDerivatives(M_L, alpha, beta, dMLP_dML, dPLP_dML, dPLP_dalpha);
+  SplitDerivatives(-M_R, alpha, beta, dMRM_dMR, dPRM_dMR, dPRM_dalpha);
+  dPRM_dMR = -dPRM_dMR;
+
+  /*--- Mean velocity magnitude used by pFi ---*/
+  const su2double velF = sqrt(0.5 * (sq_veli + sq_velj));
+
+  su2double dPressure_dVi[MAXNVAR_DERIV], dPressure_dVj[MAXNVAR_DERIV];
+
+  for (int outVar = 0; outVar < 2; ++outVar) {
+    su2double aF_b = 0.0, mL_b = 0.0, mR_b = 0.0, MFsq_b = 0.0, fa_b = 0.0, rhoF_b = 0.0, velF_b = 0.0, p_i_b = 0.0,
+              p_j_b = 0.0;
+
+    if (outVar == 0) {
+      /*--- Convective velocity = interface_mach * aF ---*/
+      const su2double mF_b = aF;
+      aF_b += interface_mach;
+
+      /*--- interface_mach = M_LP + M_RM + Mp, Eqs. (A.4b) and (A.4c) ---*/
+      mL_b += dMLP_dML * mF_b;
+      mR_b += dMRM_dMR * mF_b;
+
+      /*--- Mp = -(Kp / fa) * max(1 - sigma * MFsq, 0) * (P_j - P_i) / (rhoF * aF^2), Eq. (A.4d) ---*/
+      if (sigma * MFsq < 1.0) {
+        const su2double tmp = (Kp / fa) / (rhoF * aF * aF) * mF_b;
+        p_i_b += tmp * (1.0 - sigma * MFsq);
+        p_j_b -= tmp * (1.0 - sigma * MFsq);
+        MFsq_b += tmp * sigma * (Pressure_j - Pressure_i);
+        fa_b -= Mp / fa * mF_b;
+        rhoF_b -= Mp / rhoF * mF_b;
+        aF_b -= 2.0 * Mp / aF * mF_b;
+      }
+    } else {
+      /*--- Pressure = 0.5 * (P_i + P_j) + 0.5 * (P_LP - P_RM) * (P_i - P_j) + pFi, Eq. (A.2) ---*/
+      p_i_b += 0.5 + 0.5 * (P_LP - P_RM);
+      p_j_b += 0.5 - 0.5 * (P_LP - P_RM);
+
+      /*--- pFi = velF * (P_LP + P_RM - 1) * rhoF * aF ---*/
+      velF_b += (P_LP + P_RM - 1.0) * rhoF * aF;
+      rhoF_b += pFi / rhoF;
+      aF_b += pFi / aF;
+
+      /*--- P_LP = f(M_L, alpha), P_RM = f(M_R, alpha) ---*/
+      const su2double PLP_b = 0.5 * (Pressure_i - Pressure_j) + velF * rhoF * aF;
+      const su2double PRM_b = -0.5 * (Pressure_i - Pressure_j) + velF * rhoF * aF;
+      mL_b += dPLP_dML * PLP_b;
+      mR_b += dPRM_dMR * PRM_b;
+
+      /*--- alpha = 3/16 * (-4 + 5 * fa^2), Eq. (A.4g) ---*/
+      fa_b += 1.875 * fa * (dPLP_dalpha * PLP_b + dPRM_dalpha * PRM_b);
+    }
+
+    /*--- Steps shared by the two outputs ---*/
+
+    /*--- fa = 2 * sqrt(Mrefsq) - Mrefsq, with Mrefsq = min(1, max(MFsq, Minf^2)), Eqs. (A.4h) and (A.4i) ---*/
+    if ((MFsq > Minf * Minf) && (MFsq < 1.0)) MFsq_b += (1.0 / sqrt(Mrefsq) - 1.0) * fa_b;
+
+    /*--- MFsq = 0.5 * (M_L^2 + M_R^2), Eq. (A.4j) ---*/
+    mL_b += M_L * MFsq_b;
+    mR_b += M_R * MFsq_b;
+
+    /*--- M_L = ProjVelocity_i / aF, M_R = ProjVelocity_j / aF ---*/
+    su2double Vn_i_b = mL_b / aF, Vn_j_b = mR_b / aF;
+    aF_b -= (M_L * mL_b + M_R * mR_b) / aF;
+
+    /*--- aF = min(ChatL, ChatR), with Chat = Cstar^2 / max(Cstar, +-ProjVelocity)
+     and Cstar = sqrt(2 * (Gamma - 1) / (Gamma + 1) * Enthalpy), Eqs. (A.4e) and (A.4f) ---*/
+    su2double Cstar_b = aF_b, H_i_b = 0.0, H_j_b = 0.0, Gamma_i_b = 0.0, Gamma_j_b = 0.0;
+
+    if (ChatL <= ChatR) {
+      if (CstarL < ProjVelocity_i) {
+        const su2double tmp = CstarL / ProjVelocity_i;
+        Cstar_b = 2.0 * tmp * aF_b;
+        Vn_i_b -= tmp * tmp * aF_b;
+      }
+      H_i_b = 0.5 * CstarL / Enthalpy_i * Cstar_b;
+      Gamma_i_b = CstarL / ((Gamma_i - 1.0) * (Gamma_i + 1.0)) * Cstar_b;
+    } else {
+      if (CstarR < -ProjVelocity_j) {
+        const su2double tmp = -CstarR / ProjVelocity_j;
+        Cstar_b = 2.0 * tmp * aF_b;
+        Vn_j_b += tmp * tmp * aF_b;
+      }
+      H_j_b = 0.5 * CstarR / Enthalpy_j * Cstar_b;
+      Gamma_j_b = CstarR / ((Gamma_j - 1.0) * (Gamma_j + 1.0)) * Cstar_b;
+    }
+
+    /*--- Store the derivatives ---*/
+    su2double* target_i = (outVar == 0) ? dConvVel_dVi : dPressure_dVi;
+    su2double* target_j = (outVar == 0) ? dConvVel_dVj : dPressure_dVj;
+
+    /*--- ProjVelocity = Velocity * UnitNormal, velF = sqrt(0.5 * (|Velocity_i|^2 + |Velocity_j|^2)) ---*/
+    for (auto iDim = 0ul; iDim < nDim; iDim++) {
+      target_i[iDim] = UnitNormal[iDim] * Vn_i_b + 0.5 * Velocity_i[iDim] / max(velF, EPS) * velF_b;
+      target_j[iDim] = UnitNormal[iDim] * Vn_j_b + 0.5 * Velocity_j[iDim] / max(velF, EPS) * velF_b;
+    }
+    target_i[nDim] = p_i_b;
+    target_j[nDim] = p_j_b;
+    target_i[nDim + 1] = target_j[nDim + 1] = 0.5 * rhoF_b;
+    target_i[nDim + 2] = H_i_b;
+    target_j[nDim + 2] = H_j_b;
+    target_i[nDim + 3] = Gamma_i_b;
+    target_j[nDim + 3] = Gamma_j_b;
+  }
+
+  /*--- The pressure flux is the pressure times the normal ---*/
+  for (auto iDim = 0ul; iDim < nDim; iDim++) {
+    for (auto iVar = 0ul; iVar < nDim + 4ul; iVar++) {
+      dPressureFlux_dVi[iDim][iVar] = dPressure_dVi[iVar] * UnitNormal[iDim];
+      dPressureFlux_dVj[iDim][iVar] = dPressure_dVj[iVar] * UnitNormal[iDim];
+    }
+  }
 }
 
 CUpwAUSMPLUSM_NEMO::CUpwAUSMPLUSM_NEMO(unsigned short val_nDim, unsigned short val_nVar, unsigned short val_nPrimVar,
@@ -574,6 +783,7 @@ CUpwAUSMPLUSM_NEMO::CUpwAUSMPLUSM_NEMO(unsigned short val_nDim, unsigned short v
     : CUpwAUSM_SLAU_Base_NEMO(val_nDim, val_nVar, val_nPrimVar, val_nPrimVarGrad, config) {
   Minf = config->GetMach();
   beta = 1.0 / 8.0;
+  HasAnalyticalDerivatives = true;
 
   if (Minf < EPS)
     SU2_MPI::Error("AUSM+M requires a reference Mach number (\"MACH_NUMBER\") greater than 0.", CURRENT_FUNCTION);
@@ -656,5 +866,131 @@ void CUpwAUSMPLUSM_NEMO::ComputeInterfaceQuantities(const CConfig* config, su2do
     pressure[iDim] =
         (0.5 * (Pressure_j + Pressure_i) + 0.5 * (P_LP - P_RM) * (Pressure_i - Pressure_j) + pFi) * UnitNormal[iDim] +
         P_un[iDim];
+  }
+
+  if (!implicit) return;
+
+  /*--- Analytical differentiation of the convective velocity (interface_mach * A_F) and of the pressure
+   flux with respect to the velocity, pressure, density, enthalpy and gamma of the two states. It is done
+   in reverse mode, "x_b" denotes the derivative of the output with respect to x. For min, max and abs
+   the branch that is active is differentiated. The equation numbers are the ones of the reference
+   (Chen et al., 2020). The pressure sensor g, Eq. (25), is kept constant because it depends on the
+   pressure of all the neighbours of the two points. ---*/
+
+  su2double dMLP_dML, dPLP_dML, dPLP_dalpha, dMRM_dMR, dPRM_dMR, dPRM_dalpha;
+  SplitDerivatives(M_L, alpha, beta, dMLP_dML, dPLP_dML, dPLP_dalpha);
+  SplitDerivatives(-M_R, alpha, beta, dMRM_dMR, dPRM_dMR, dPRM_dalpha);
+  dPRM_dMR = -dPRM_dMR;
+
+  const su2double Pressure_F = 0.5 * (Pressure_i + Pressure_j);
+  const su2double Mach_max = max(abs(M_L), abs(M_R));
+  const bool upwind_i = (0.5 * (ProjVelocity_i + ProjVelocity_j) >= 0.0);
+  const su2double ProjVelocity_upw = upwind_i ? ProjVelocity_i : ProjVelocity_j;
+
+  /*--- The pressure flux has two parts: Pressure * UnitNormal + P_un_coeff * (Velocity_j - Velocity_i),
+   Eq. (27). The second one is the velocity diffusion term, Eq. (26). ---*/
+  const su2double P_un_coeff = -g * Gamma_ij * Pressure_F / A_F * P_LP * P_RM;
+
+  su2double dPressure_dVi[MAXNVAR_DERIV], dPressure_dVj[MAXNVAR_DERIV];
+  su2double dP_un_coeff_dVi[MAXNVAR_DERIV], dP_un_coeff_dVj[MAXNVAR_DERIV];
+  su2double* const target_i[3] = {dConvVel_dVi, dPressure_dVi, dP_un_coeff_dVi};
+  su2double* const target_j[3] = {dConvVel_dVj, dPressure_dVj, dP_un_coeff_dVj};
+
+  for (int outVar = 0; outVar < 3; ++outVar) {
+    su2double aF_b = 0.0, mL_b = 0.0, mR_b = 0.0, f_b = 0.0, rhoF_b = 0.0, p_i_b = 0.0, p_j_b = 0.0, Gamma_b = 0.0;
+
+    if (outVar == 0) {
+      /*--- Convective velocity = interface_mach * A_F ---*/
+      const su2double mF_b = A_F;
+      aF_b += interface_mach;
+
+      /*--- interface_mach = M_LP + M_RM + M_p, the split functions are Eq. (6) ---*/
+      mL_b += dMLP_dML * mF_b;
+      mR_b += dMRM_dMR * mF_b;
+
+      /*--- M_p = -0.5 * (1 - f) * (P_j - P_i) / (Density_F * A_F^2) * (1 - g), Eq. (14) ---*/
+      const su2double tmp = 0.5 * (1.0 - g) / (Density_F * A_F * A_F) * mF_b;
+      p_i_b += tmp * (1.0 - f);
+      p_j_b -= tmp * (1.0 - f);
+      f_b += tmp * (Pressure_j - Pressure_i);
+      rhoF_b -= M_p / Density_F * mF_b;
+      aF_b -= 2.0 * M_p / A_F * mF_b;
+    } else if (outVar == 1) {
+      /*--- Pressure = 0.5 * (P_i + P_j) + 0.5 * (P_LP - P_RM) * (P_i - P_j) + pFi,
+       with pFi = f0 * (P_LP + P_RM - 1) * 0.5 * (P_i + P_j), Eq. (19) ---*/
+      p_i_b += 0.5 + 0.5 * (P_LP - P_RM) + 0.5 * f0 * (P_LP + P_RM - 1.0);
+      p_j_b += 0.5 - 0.5 * (P_LP - P_RM) + 0.5 * f0 * (P_LP + P_RM - 1.0);
+      mL_b += dPLP_dML * (0.5 * (Pressure_i - Pressure_j) + f0 * Pressure_F);
+      mR_b += dPRM_dMR * (-0.5 * (Pressure_i - Pressure_j) + f0 * Pressure_F);
+
+      /*--- f0 = min(1, max(f, Minf^2)), Eq. (20) ---*/
+      if ((f > Minf * Minf) && (f < 1.0)) f_b += (P_LP + P_RM - 1.0) * Pressure_F;
+    } else {
+      /*--- P_un_coeff = -g * Gamma_ij * 0.5 * (P_i + P_j) / A_F * P_LP * P_RM, Eq. (26) ---*/
+      const su2double tmp = -g * Gamma_ij * Pressure_F / A_F;
+      p_i_b += 0.5 * P_un_coeff / Pressure_F;
+      p_j_b += 0.5 * P_un_coeff / Pressure_F;
+      mL_b += dPLP_dML * tmp * P_RM;
+      mR_b += dPRM_dMR * tmp * P_LP;
+      Gamma_b += P_un_coeff / Gamma_ij;
+      aF_b -= P_un_coeff / A_F;
+    }
+
+    /*--- Steps shared by the three outputs ---*/
+
+    /*--- f = 0.5 * (1 - cos(pi * min(1, Mach_max))), with Mach_max = max(|M_L|, |M_R|), Eq. (15) ---*/
+    if (Mach_max < 1.0) {
+      const su2double Mach_max_b = 0.5 * PI_NUMBER * sin(PI_NUMBER * Mach_max) * f_b;
+      if (abs(M_L) >= abs(M_R))
+        mL_b += ((M_L >= 0.0) ? 1.0 : -1.0) * Mach_max_b;
+      else
+        mR_b += ((M_R >= 0.0) ? 1.0 : -1.0) * Mach_max_b;
+    }
+
+    /*--- M_L = ProjVelocity_i / A_F, M_R = ProjVelocity_j / A_F ---*/
+    su2double Vn_i_b = mL_b / A_F, Vn_j_b = mR_b / A_F;
+    aF_b -= (M_L * mL_b + M_R * mR_b) / A_F;
+
+    /*--- A_F = A_s^2 / max(|ProjVelocity_upw|, A_s), Eq. (28) ---*/
+    su2double As_b = aF_b;
+    if (fabs(ProjVelocity_upw) > A_s) {
+      const su2double tmp = A_s / fabs(ProjVelocity_upw);
+      As_b = 2.0 * tmp * aF_b;
+      const su2double Vn_upw_b = ((ProjVelocity_upw >= 0.0) ? -1.0 : 1.0) * tmp * tmp * aF_b;
+      if (upwind_i)
+        Vn_i_b += Vn_upw_b;
+      else
+        Vn_j_b += Vn_upw_b;
+    }
+
+    /*--- A_s = sqrt(2 * Enthalpy_norm * (Gamma_ij - 1) / (Gamma_ij + 1)), Eq. (29) ---*/
+    const su2double Hnorm_b = 0.5 * A_s / Enthalpy_norm * As_b;
+    Gamma_b += A_s / ((Gamma_ij - 1.0) * (Gamma_ij + 1.0)) * As_b;
+
+    /*--- Store the derivatives. ProjVelocity = Velocity * UnitNormal, and Enthalpy_norm is the mean of
+     Enthalpy - 0.5 * |tangential velocity|^2 of the two states. ---*/
+    for (auto iDim = 0ul; iDim < nDim; iDim++) {
+      target_i[outVar][iDim] =
+          UnitNormal[iDim] * Vn_i_b - 0.5 * (Velocity_i[iDim] - ProjVelocity_i * UnitNormal[iDim]) * Hnorm_b;
+      target_j[outVar][iDim] =
+          UnitNormal[iDim] * Vn_j_b - 0.5 * (Velocity_j[iDim] - ProjVelocity_j * UnitNormal[iDim]) * Hnorm_b;
+    }
+    target_i[outVar][nDim] = p_i_b;
+    target_j[outVar][nDim] = p_j_b;
+    target_i[outVar][nDim + 1] = target_j[outVar][nDim + 1] = 0.5 * rhoF_b;
+    target_i[outVar][nDim + 2] = target_j[outVar][nDim + 2] = 0.5 * Hnorm_b;
+    target_i[outVar][nDim + 3] = target_j[outVar][nDim + 3] = 0.5 * Gamma_b;
+  }
+
+  /*--- Pressure flux = Pressure * UnitNormal + P_un_coeff * (Velocity_j - Velocity_i) ---*/
+  for (auto iDim = 0ul; iDim < nDim; iDim++) {
+    for (auto iVar = 0ul; iVar < nDim + 4ul; iVar++) {
+      dPressureFlux_dVi[iDim][iVar] =
+          dPressure_dVi[iVar] * UnitNormal[iDim] + dP_un_coeff_dVi[iVar] * (Velocity_j[iDim] - Velocity_i[iDim]);
+      dPressureFlux_dVj[iDim][iVar] =
+          dPressure_dVj[iVar] * UnitNormal[iDim] + dP_un_coeff_dVj[iVar] * (Velocity_j[iDim] - Velocity_i[iDim]);
+    }
+    dPressureFlux_dVi[iDim][iDim] -= P_un_coeff;
+    dPressureFlux_dVj[iDim][iDim] += P_un_coeff;
   }
 }

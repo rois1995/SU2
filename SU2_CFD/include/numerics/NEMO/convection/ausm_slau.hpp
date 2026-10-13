@@ -54,6 +54,16 @@ class CUpwAUSM_SLAU_Base_NEMO : public CNEMONumerics {
   su2double** Jacobian_i = nullptr; /*!< \brief The Jacobian w.r.t. point i after computation. */
   su2double** Jacobian_j = nullptr; /*!< \brief The Jacobian w.r.t. point j after computation. */
 
+  /*--- Derivatives of the interface quantities with respect to the variables [u, v, w, P, rho, H, gamma] of
+   the states i and j (without w in 2D). A scheme that sets HasAnalyticalDerivatives must compute them in
+   ComputeInterfaceQuantities when the time integration is implicit. ---*/
+  static constexpr size_t MAXNVAR_DERIV = MAXNDIM + 4; /*!< \brief Max number of those variables. */
+  bool HasAnalyticalDerivatives = false;               /*!< \brief The scheme provides the derivatives below. */
+  su2double dConvVel_dVi[MAXNVAR_DERIV] = {0.0};       /*!< \brief Of the convective velocity M_F*A_F, state i. */
+  su2double dConvVel_dVj[MAXNVAR_DERIV] = {0.0};       /*!< \brief Of the convective velocity M_F*A_F, state j. */
+  su2double dPressureFlux_dVi[MAXNDIM][MAXNVAR_DERIV] = {{0.0}}; /*!< \brief Of the pressure flux, state i. */
+  su2double dPressureFlux_dVj[MAXNDIM][MAXNVAR_DERIV] = {{0.0}}; /*!< \brief Of the pressure flux, state j. */
+
   /*!
    * \brief Compute the interface Mach number, soundspeeds and pressure based on Primitives_i/j..
    * \param[in] config - Definition of the particular problem.
@@ -64,13 +74,33 @@ class CUpwAUSM_SLAU_Base_NEMO : public CNEMONumerics {
   virtual void ComputeInterfaceQuantities(const CConfig* config, su2double* pressure, su2double& interface_mach,
                                           su2double* interface_soundspeed) = 0;
 
+  /*!
+   * \brief Derivatives of the split Mach number (M+) and of the split pressure function (P+) of AUSM+. For the
+   *        functions of the right state use the symmetry: M-(M) = -M+(-M) and P-(M) = P+(-M).
+   * \param[in] mach - Mach number of the state.
+   * \param[in] alpha - Parameter of the split pressure function.
+   * \param[in] beta - Parameter of the split Mach number.
+   * \param[out] dMP_dM - Derivative of M+ with respect to the Mach number.
+   * \param[out] dPP_dM - Derivative of P+ with respect to the Mach number.
+   * \param[out] dPP_dalpha - Derivative of P+ with respect to alpha.
+   */
+  static void SplitDerivatives(su2double mach, su2double alpha, su2double beta, su2double& dMP_dM, su2double& dPP_dM,
+                               su2double& dPP_dalpha);
+
  private:
   /*!
    * \brief Compute the flux Jacobians of the AUSM scheme to use as an approximation.
    * \param[out] val_Jacobian_i - Jacobian of the numerical method at node i (implicit computation).
    * \param[out] val_Jacobian_j - Jacobian of the numerical method at node j (implicit computation).
    */
-  void ComputeJacobian(su2double** val_Jacobian_i, su2double** val_Jacobian_j);
+  void ApproximateJacobian(su2double** val_Jacobian_i, su2double** val_Jacobian_j);
+
+  /*!
+   * \brief Compute the flux Jacobians of the scheme, from the derivatives of its interface quantities.
+   * \param[out] val_Jacobian_i - Jacobian of the numerical method at node i (implicit computation).
+   * \param[out] val_Jacobian_j - Jacobian of the numerical method at node j (implicit computation).
+   */
+  void AccurateJacobian(su2double** val_Jacobian_i, su2double** val_Jacobian_j);
 
  public:
   /*!
