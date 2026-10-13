@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "run_cases.py", line 19, in <module>
+    history=rows(d/'history.csv');result['last']=history[-1];result['finite_history']=all(math.isfinite(v)for row in history for v in row.values());result['converged']=run.returncode==0 and result['last']['rms[Rho]']<=-10
+IndexError: list index out of range

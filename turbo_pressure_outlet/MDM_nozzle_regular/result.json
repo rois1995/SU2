@@ -1,0 +1,31 @@
+{
+  "density_residual_target": -7.0,
+  "case": "MDM_nozzle_regular",
+  "binary": "/tmp/su2-characteristic-outlet-build-20261012/SU2_CFD/src/SU2_CFD",
+  "binary_sha256": "efc321346fa4f42052a1533d466c0ca22663adea78de5aee5c8242b536608d81",
+  "ranks": 2,
+  "threads": 1,
+  "exit_code": 0,
+  "seconds": 1.6416868100641295,
+  "last": {
+    "Time_Iter": 0.0,
+    "Outer_Iter": 0.0,
+    "Inner_Iter": 429.0,
+    "rms[Rho]": -7.000670061,
+    "rms[RhoU]": -5.543629203,
+    "rms[RhoV]": -7.548483096,
+    "rms[RhoE]": -0.8010645388,
+    "Linear_Solver_Iterations": 13.0,
+    "LinSolRes": -8.302478901
+  },
+  "finite_history": true,
+  "converged": true,
+  "finite_field": true,
+  "outlet_average": {
+    "Density": 48.010137303110824,
+    "Pressure": 735601.9558802273,
+    "Mach": 1.342817140383824,
+    "Momentum_x": 7028.316852575511
+  },
+  "outlet_massflow": 702.8316852575512
+}
