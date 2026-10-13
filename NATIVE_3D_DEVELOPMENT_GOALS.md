@@ -12,10 +12,13 @@ Working repository: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
 Implementation branch: codex/native-3d-transport-accounting.
 Qualified batching baseline:3345e2bc9d9561045e459f89ea046a3c7583fd5d.
 Pushed execution-policy snapshot/handoff:7dd0aff6d12d7213781f1e6ce6cca0d184ebd81f.
-Goals2–4 remain prepared, not activated. Preserve AdapNoExt, other workers and the
-existing2D/MMG implementation. Goal1 is COMPLETE under the revised local-only scope.
+Preserve AdapNoExt, other workers and the existing2D/MMG implementation.
+Goals1–2 are COMPLETE under their revised local-only scopes; Goals3–4 remain
+prepared and unactivated.
 Qualified source/evidence pushedf782ddc4b20703461b3c3b06192126879639d55a.
-Goal2 is now active under the local-only scope below; Goals3–4 remain prepared.
+Goal2 completion is published on codex/native-3d-curved-local at
+bec2e50a9b248f459daebabf17001fb98c1836d1; its qualification commit is
+85617b0f0e0b14024bc8841bf676aa2386c2f2f5. Goals3–4 remain prepared.
 
 ## Current local-only execution contract
 
@@ -136,7 +139,9 @@ pre-local plan and can be reconsidered when the user activates them.
 
 ## Goal 2 — Local curved-boundary adaptation and genuine3D Euler cycles
 
-ACTIVE by explicit user instruction after clearing the prior goal.
+COMPLETE under the explicitly activated local-only scope. Full qualification is
+recorded in integration_evidence/native_3d_curved_v1/GOAL2_FINAL_QUALIFICATION.md
+and GOAL2_REQUIREMENT_REVIEW.md; original failures and evidence are preserved.
 Branch:codex/native-3d-curved-local, based on published Goal1
 23197eba1715f44d61c9ad3a070f61441dfb0560. Work only with local resources;
 no cluster work, timing/scaling/performance qualification or large-wing gate.
@@ -180,18 +185,20 @@ Preserve compact reproducible inputs/source/build/binary/log/mesh/state/certific
 and failures, update HANDOFF/findings/audit, push reviewable checkpoints regularly.
 Leave AdapNoExt, foreignClusterResults/dependencies and other workers untouched.
 
-Current start: connected implementation inventory and first curved-coverage study
-under integration_evidence/native_3d_curved_v1/. The metric extension study manually
-admits exterior tetrahedra; it is not a chosen production padding algorithm.
-Existing2D already implements associated-edge trace withinADAP_HAUSD;3Dmust address
-triangular-face/component association AND consistent exterior edge integration.
-Existing solution transfer accounts for newly covered/lost domains and is reused.
-No production curved operators, MPI geometry integration or actualEuler proof yet.
+Current qualified result: analytic sphere/cylinder/bump authority, coupled native
+surface/volume operations and automatic joint reconstruction, finite pre-freeze
+source coverage with original-P1 priority, direct curved MPI atomic-veto proof,
+SU2/CGNS provenance and real restart, manufactured grow/shrink/refine/coarsen,
+small solved-bump Euler and resolved nonuniform Euler vortex cycles. The current
+107-case-per-rank MPI1/2/4 regression and twelve independent vortex event audits
+pass across N=M/M<N. Current source/build/binary/input provenance is verified.
+No required work remains in the declared Goal2 scope. Optional coordinated strip
+placement remains a kernel experiment; production3DBL is not yet implemented.
 
 Deferred: performance/scaling/cluster/large aerodynamic campaigns, generalCAD,
 production3DBL/first-height generation, full physical unsteady3D and affordability.
-Goals3–4 remain prepared and unactivated. Close only when all4local gates have
-actual integrated proof and the implementation/evidence is pushed.
+Goals3–4 remain prepared and unactivated. All four local Goal2 gates have current
+integrated proof, and the implementation/evidence has been pushed.
 
 ## Goal 3 — Robust 3D BL construction and removal from coarse grids
 
@@ -297,5 +304,6 @@ shared contract and section deliverables. Do not mark a goal complete because a
 prototype produces a mesh: its correctness, performance evidence, practical
 limits, inspectable results and updated handoff must all be present.
 A published implementation must report the target branch and verified commit SHA.
-The four sections describe intended work; no native 3D support, performance
-improvement or completed validation is claimed by this planning document.
+Goals1–2 now have the published local qualifications referenced above. Goals3–4
+describe intended work; production3DBL, physical unsteady3D accuracy, performance
+improvement and affordability are not yet qualified.
