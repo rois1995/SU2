@@ -541,6 +541,12 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     if(curved_lo!=curved_hi || surface_lo!=surface_hi || !std::isfinite(surface_lo) ||
        (curved && !(surface_lo>0)))
       failure.Set(1,0,"Native3D analytic runtime requires a consistent positive frozen surface tolerance.");
+    const auto composition_lo=CPassiveComm::Allreduce(int(bool(composition)),CPassiveComm::Op::MIN,world.comm);
+    const auto composition_hi=CPassiveComm::Allreduce(int(bool(composition)),CPassiveComm::Op::MAX,world.comm);
+    const auto bands_lo=CPassiveComm::Allreduce(int(bool(options.edge_breakpoints)),CPassiveComm::Op::MIN,world.comm);
+    const auto bands_hi=CPassiveComm::Allreduce(int(bool(options.edge_breakpoints)),CPassiveComm::Op::MAX,world.comm);
+    if(composition_lo!=composition_hi || bands_lo!=bands_hi || (composition_hi && !bands_lo))
+      failure.Set(1,0,"Native3D frozen composition/band policies differ or composed integration is missing.");
     const auto lo=CPassiveComm::Allreduce(options.maximum_rounds,CPassiveComm::Op::MIN,world.comm);
     const auto hi=CPassiveComm::Allreduce(options.maximum_rounds,CPassiveComm::Op::MAX,world.comm);
     if (lo!=hi) failure.Set(1,0,"Native 3D round limit must be equal across workers.");
@@ -620,7 +626,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     CLocalFailure failure;
     std::set<Id> pending;
     const auto layerScratch=transfer_memory::Add(transfer_memory::Mul(working.size(),sizeof(Id)+4*sizeof(void*)),
-        transfer_memory::Mul(MaximumReplacementCells,8192));
+        transfer_memory::Mul(MaximumReplacementCells,8192),MaximumFrozenFieldBytes);
     if(!admit(layerScratch))return finish();
     auto needs_layer=[&](const OwnedCell& row) {
       bool wall=false;
@@ -656,12 +662,16 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       const bool chosen=directory.Reserve(imported,active,result.reason,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),layerScratch));
       if(!world.maximum(chosen))return finish();
       Patch old,fresh;bool approved=false;FirstHeightReport report;
+      try {if(chosen)old=GeometryPatch(imported);}catch(const std::exception& e){failure.Set(2,0,e.what());}
+      if(!vote(failure))return finish();
+      const auto donors=source.ImportCells(old.cells,options.memory_ceiling,
+          transfer_memory::Add(bytes(),directory.ResidentBytes(),layerScratch));
+      if(!donors.valid){result.reason=donors.reason;return finish();}
       const auto nodeOffset=transfer_memory::Mul(epoch,5),cellOffset=transfer_memory::Mul(epoch,MaximumReplacementCells);
       if(chosen)try {
         if(maximum_node>UINT64_MAX-5 || nodeOffset>UINT64_MAX-maximum_node-5 ||
            maximum_cell>UINT64_MAX-MaximumReplacementCells || cellOffset>UINT64_MAX-maximum_cell-MaximumReplacementCells)
           throw std::invalid_argument("Native3D first-row reserved range overflows.");
-        old=GeometryPatch(imported);
         const Id node=maximum_node+1+nodeOffset,cell=maximum_cell+1+cellOffset;
         std::vector<Point> backgrounds{Centroid(old.cells.front())};
         std::map<Id,Point> coordinates;for(const auto& c:old.cells)for(auto n:c.v)coordinates.emplace(n.id,n.p);
@@ -675,9 +685,25 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           for(double factor:{1.25,1.5,2.})backgrounds.push_back({double(((long double)a.x+b.x+c.x)/3-factor*h->second*normal[0]),
               double(((long double)a.y+b.y+c.y)/3-factor*h->second*normal[1]),double(((long double)a.z+b.z+c.z)/3-factor*h->second*normal[2])});
         }
+        const auto components=AssociatedExtensions(donors.cells,geometry);
+        FrozenField target(donors.cells,composition,options.timings,components,options.edge_breakpoints);
+        FieldAccounting accounting{stats,target};
+        double bestQuality=-1;long double bestLength=std::numeric_limits<long double>::infinity();
         for(const auto& background:backgrounds) {
-          approved=ConstructFirstLayer(old,{node,background},node+1,cell,options.wall_heights,geometry,fresh,report,result.reason);
-          if(approved || result.reason.find("geometry-height incompatibility")!=std::string::npos)break;
+          Patch candidate;FirstHeightReport candidateReport;std::string candidateReason;
+          if(!ConstructFirstLayer(old,{node,background},node+1,cell,options.wall_heights,geometry,candidate,candidateReport,candidateReason)) {
+            if(!approved)result.reason=candidateReason;
+            if(candidateReason.find("geometry-height incompatibility")!=std::string::npos)break;
+            continue;
+          }
+          const auto measured=MeasureMetricCells(candidate.cells,target);
+          const double quality=std::min(measured.minimum_mean_ratio/MinimumMeanRatio,
+              measured.minimum_scaled_jacobian/MinimumScaledJacobian);
+          // Choose the wall/transition arrangement against the frozen target before private publication.
+          if(quality>bestQuality || (quality==bestQuality && measured.maximum_length<bestLength)) {
+            bestQuality=quality;bestLength=measured.maximum_length;fresh=std::move(candidate);report=candidateReport;
+            approved=true;result.reason.clear();
+          }
         }
         if(!approved)failure.Set(1,old.cells.front().id,"Native3D initial first-row construction rejected: "+result.reason);
       }catch(const std::exception& e){failure.Set(2,0,e.what());}
@@ -1038,8 +1064,27 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     const auto epoch=transfer_memory::Add(transfer_memory::Mul(round,world.size),world.rank);
     const auto token=transfer_memory::Add(transfer_memory::Mul(epoch,options.candidate_batch),slot);
     const auto offset=transfer_memory::Mul(token,MaximumReplacementCells);
-    const size_t node_stride=curved ? 2 : 1;
+    const size_t node_stride=curved || composition ? 2 : 1;
     const auto node_offset=transfer_memory::Mul(token,node_stride);
+    Point splitPosition{};
+    if(!repairing && !coarsening && composition) {
+      std::vector<Cell> query;
+      try {if(chosen)query.push_back(imported.cells.front().cell);}catch(const std::exception& e){failure.Set(2,0,e.what());}
+      if(!vote(failure))return finish();
+      if(!admit(transfer_memory::Add(MaximumFrozenFieldBytes,transfer_memory::Bytes(imported.cells))))return finish();
+      DonorPatch seed;
+      {Timer timer(stats.donor_seconds,options.timings);
+        seed=source.ImportMetricCells(query,options.memory_ceiling,transfer_memory::Add(bytes(),directory.ResidentBytes(),MaximumFrozenFieldBytes));}
+      if(!seed.valid){result.reason=seed.reason;return finish();}
+      if(chosen)try {
+        Timer timer(stats.metric_seconds,options.timings);CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
+        const auto components=AssociatedExtensions(seed.cells,geometry);
+        FrozenField target(std::move(seed.cells),composition,options.timings,components,options.edge_breakpoints);
+        FieldAccounting accounting{stats,target};
+        splitPosition=target.BalancedSplitPoint(choice.measure.a,choice.measure.b);
+      }catch(const std::exception& e){failure.Set(2,0,e.what());}
+      if(!vote(failure))return finish();
+    }
     {
       Timer timer(stats.reconstruction_seconds,options.timings);
       if (chosen) {
@@ -1056,6 +1101,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           else if (!repairing) {
             point={maximum_node+1+node_offset,{double((static_cast<long double>(a.x)+b.x)/2),
                 double((static_cast<long double>(a.y)+b.y)/2),double((static_cast<long double>(a.z)+b.z)/2)}};
+            if(composition)point.p=splitPosition;
             approved=guarded_geometry(SplitEdge(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason));
             if (!approved) {
               approved=guarded_geometry(InsertEdgeCavity(old,choice.edge,point,maximum_cell+1+offset,geometry,fresh,result.reason));
@@ -1081,7 +1127,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               transfer_memory::Bytes(fresh.cells),transfer_memory::Bytes(fresh.surface)));
       else if (ready) sensors.valid=true;
     }
-    const bool streamed=ready && (curved || (!sensors.valid && DonorCap(sensors.reason)));
+    bool streamed=ready && (curved || (!sensors.valid && DonorCap(sensors.reason)));
     if (!ready || (!sensors.valid && !streamed)) { if (ready) result.reason=sensors.reason; return finish(); }
     const size_t private_scratch=transfer_memory::Add(transfer_memory::Bytes(imported.cells),
         transfer_memory::Mul(MaximumReplacementCells,8192),MaximumFrozenFieldBytes);
@@ -1116,10 +1162,24 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               neighbors.erase(vertex);
               long double x=0,y=0,z=0;
               for (Id id:neighbors) { auto p=nodes.at(id).p; x+=p.x; y+=p.y; z+=p.z; }
+              Point center{};
+              if(!neighbors.empty()) {
+                const auto origin=nodes.at(vertex).p;center={double(x/neighbors.size()),double(y/neighbors.size()),double(z/neighbors.size())};
+                if(composition) {
+                  std::vector<std::pair<Point,Tensor>> samples;
+                  for(auto id:neighbors) {
+                    const auto q=nodes.at(id).p;
+                    const Point midpoint{double(((long double)origin.x+q.x)/2),double(((long double)origin.y+q.y)/2),double(((long double)origin.z+q.z)/2)};
+                    samples.emplace_back(q,field->Query(midpoint).target);
+                  }
+                  center=MetricMeanPoint(origin,samples);
+                }
+              }
               if (!neighbors.empty()) for (long double step:{1.L,.5L,.25L}) {
-                auto p=nodes.at(vertex).p;
-                point={maximum_node+1+node_offset,{double(p.x+step*(x/neighbors.size()-p.x)),
-                    double(p.y+step*(y/neighbors.size()-p.y)),double(p.z+step*(z/neighbors.size()-p.z))}};
+                const auto p=nodes.at(vertex).p;
+                point={maximum_node+1+node_offset,{double(p.x+step*(center.x-p.x)),
+                    double(p.y+step*(center.y-p.y)),double(p.z+step*(center.z-p.z))}};
+                if(composition)point=ConstrainMovePoint(old,vertex,point,options.wall_heights,geometry);
                 ++stats.repair_proposals;
                 { Timer geometry_timer(stats.reconstruction_seconds,options.timings); CpuTimer geometry_cpu(stats.reconstruction_cpu_seconds,options.timings);
                 approved=guarded_geometry(MoveVertex(old,vertex,point,first,geometry,fresh,result.reason)); }
@@ -1150,6 +1210,15 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       if (field) FieldCounts(stats,*field);
       stats.metric_seconds-=stats.reconstruction_seconds-reconstruction_before;
       stats.metric_cpu_seconds-=stats.reconstruction_cpu_seconds-reconstruction_cpu_before;
+    }
+    if(!streamed && composition && !repairing && !coarsening) {
+      const bool boundary_edge=std::any_of(old.surface.begin(),old.surface.end(),[&](const auto& f) {
+        return std::find(f.v.begin(),f.v.end(),choice.edge[0])!=f.v.end() && std::find(f.v.begin(),f.v.end(),choice.edge[1])!=f.v.end();
+      });
+      if(world.maximum(chosen && !approved && boundary_edge)) {
+        field.reset();if(!admit(private_scratch))return finish();
+        streamed=true;++stats.private_query_retries;
+      }
     }
     if (streamed) {
       // Geometry is now known. Import only its actual metric queries, never reuse this support for another proposal.
@@ -1246,8 +1315,11 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       approved=validate_private(metric_needed && old_measured && approved,choice.geometric ? MetricChange::GeometryRefine : intent);
       if (!approved) cavity_inserted=false;
       if (!ready) return finish();
-      bool joint=chosen && choice.geometric && !repairing && !coarsening && !approved;
-      Tensor placement;
+      const bool boundary_edge=std::any_of(old.surface.begin(),old.surface.end(),[&](const auto& f) {
+        return std::find(f.v.begin(),f.v.end(),choice.edge[0])!=f.v.end() && std::find(f.v.begin(),f.v.end(),choice.edge[1])!=f.v.end();
+      });
+      bool joint=chosen && (choice.geometric || (composition && boundary_edge)) && !repairing && !coarsening && !approved;
+      Tensor placement,nearPlacement;
       if(world.maximum(joint)) {
         const auto proxy=source.ImportMetricCells(joint ? std::vector<Cell>{old.cells.front()} : empty,
             options.memory_ceiling,transfer_memory::Add(bytes(),directory.ResidentBytes(),private_scratch));
@@ -1255,7 +1327,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(joint)try {
           const auto components=AssociatedExtensions(proxy.cells,geometry);
           FrozenField sample(proxy.cells,composition,options.timings,components,options.edge_breakpoints);
-          placement=sample.Query(Centroid(old.cells.front())).target;FieldCounts(stats,sample);
+          placement=sample.Query(Centroid(old.cells.front())).target;
+          nearPlacement=choice.geometric ? placement : sample.Query(point.p).target;FieldCounts(stats,sample);
         }catch(const std::exception& e){failure.Set(2,0,e.what());}
         if(!(ready=vote(failure)))return finish();
       }
@@ -1268,19 +1341,25 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           stats.stop=EngineStop::TimeBudget;result.reason="Native3D joint repair exhausted the elapsed budget.";return finish();
         }
         bool candidate=false;Face obstruction{};
-        {
-          Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
-          if(joint)try {
-            ++stats.repair_proposals;
-            candidate=guarded_geometry(ReconstructSplitPatch(old,choice.edge,point,{maximum_node+2+node_offset,{}},
-                placement,maximum_cell+1+offset,geometry,fresh,obstruction,result.reason));
-          }catch(const std::exception& e){failure.Set(2,0,e.what());}
-          ready=vote(failure);
+        const unsigned frames=world.maximum(joint && !choice.geometric)?2:1;
+        for(unsigned frame=0;frame<frames;++frame) {
+          const bool participating=joint && !approved;candidate=false;
+          {
+            Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
+            if(participating)try {
+              ++stats.repair_proposals;
+              candidate=guarded_geometry(ReconstructSplitPatch(old,choice.edge,point,{maximum_node+2+node_offset,{}},
+                  frame?nearPlacement:placement,maximum_cell+1+offset,geometry,fresh,obstruction,result.reason));
+            }catch(const std::exception& e){failure.Set(2,0,e.what());}
+            ready=vote(failure);
+          }
+          if(!ready)return finish();
+          const bool passed=validate_private(candidate,choice.geometric ? MetricChange::GeometryRefine : MetricChange::Refine);
+          if(participating)approved=passed;
+          if(!ready)return finish();
+          if(!world.maximum(joint && !approved))break;
         }
-        if(!ready)return finish();
-        approved=validate_private(candidate,MetricChange::GeometryRefine);
-        if(!ready)return finish();
-        if(approved){cavity_inserted=true;joint=false;}
+        if(joint && approved){cavity_inserted=true;joint=false;}
         else if(joint && candidate && certified.failure==MetricFailure::Measurement)joint=false;
         if(!world.maximum(joint && !approved))break;
         const bool grow=joint && std::adjacent_find(obstruction.begin(),obstruction.end())==obstruction.end();
@@ -1341,6 +1420,51 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         ready=vote(failure);
       }
       if (!ready) return finish();
+      Point moveCenter{};
+      if(composition && world.maximum(fallback && move)) {
+        const bool participating=fallback && move;
+        std::set<Id> neighbors;std::map<Id,Tensor> samples;Point origin{};
+        try {if(participating) {
+          origin=nodes.at(vertex).p;
+          for(const auto& f:old.surface)if(std::find(f.v.begin(),f.v.end(),vertex)!=f.v.end())neighbors.insert(f.v.begin(),f.v.end());
+          if(neighbors.empty())for(const auto& n:nodes)neighbors.insert(n.first);
+          neighbors.erase(vertex);
+        }}catch(const std::exception& e){failure.Set(2,0,e.what());}
+        if(!(ready=vote(failure)))return finish();
+        const size_t count=CPassiveComm::Allreduce(participating?old.cells.size():0,CPassiveComm::Op::MAX,world.comm);
+        for(size_t at=0;at<count;) {
+          size_t batch=std::min<size_t>(16,count-at);DonorPatch donors;
+          for(;;) {
+            std::vector<Cell> queries;
+            try {if(participating)for(size_t i=at;i<std::min(at+batch,old.cells.size());++i)queries.push_back(old.cells[i]);}
+            catch(const std::exception& e){failure.Set(2,0,e.what());}
+            if(!(ready=vote(failure)))return finish();
+            {Timer timer(stats.donor_seconds,options.timings);++stats.donor_batches;
+              donors=source.ImportMetricCells(queries,options.memory_ceiling,transfer_memory::Add(bytes(),directory.ResidentBytes(),private_scratch));}
+            if(donors.valid)break;
+            if(!DonorCap(donors.reason) || batch==1){result.reason=donors.reason;return finish();}
+            batch=(batch+1)/2;++stats.batch_retries;
+          }
+          if(participating && at<old.cells.size())try {
+            Timer timer(stats.metric_seconds,options.timings);CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
+            const auto components=AssociatedExtensions(donors.cells,geometry);
+            FrozenField target(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints);
+            FieldAccounting accounting{stats,target};
+            for(size_t i=at;i<std::min(at+batch,old.cells.size());++i)for(const auto& n:old.cells[i].v)
+              if(neighbors.count(n.id) && !samples.count(n.id)) {
+                const auto q=n.p;
+                const Point midpoint{double(((long double)origin.x+q.x)/2),double(((long double)origin.y+q.y)/2),double(((long double)origin.z+q.z)/2)};
+                samples.emplace(n.id,target.Query(midpoint).target);
+              }
+          }catch(const std::exception& e){failure.Set(2,0,e.what());}
+          if(!(ready=vote(failure)))return finish();at+=batch;
+        }
+        try {if(participating && !neighbors.empty()) {
+          std::vector<std::pair<Point,Tensor>> values;for(auto id:neighbors)values.emplace_back(nodes.at(id).p,samples.at(id));
+          moveCenter=MetricMeanPoint(origin,values);
+        }}catch(const std::exception& e){failure.Set(2,0,e.what());}
+        if(!(ready=vote(failure)))return finish();
+      }
       for (unsigned trial=0;trial<19;++trial) {
         if (!world.maximum(fallback && !approved)) break;
         const bool move_trial=trial<3;
@@ -1365,6 +1489,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                 const auto p=nodes.at(vertex).p; const long double step=trial==0 ? 1.L : (trial==1 ? .5L : .25L);
                 point={maximum_node+1+node_offset,{double(p.x+step*(x/neighbors.size()-p.x)),
                     double(p.y+step*(y/neighbors.size()-p.y)),double(p.z+step*(z/neighbors.size()-p.z))}};
+                if(composition) {
+                  point.p={double(p.x+step*(moveCenter.x-p.x)),double(p.y+step*(moveCenter.y-p.y)),double(p.z+step*(moveCenter.z-p.z))};
+                  point=ConstrainMovePoint(old,vertex,point,options.wall_heights,geometry);
+                }
                 candidate=guarded_geometry(MoveVertex(old,vertex,point,first,geometry,fresh,result.reason));
               }
             } else if (!move_trial) {

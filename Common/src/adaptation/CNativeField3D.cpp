@@ -144,6 +144,22 @@ long double FrozenField::TargetEdgeLength(Point a, Point b) {
     throw std::runtime_error("Native 3D composed target requires geometry-resolved edge integration.");
   return EdgeLength(a, b, bool(composition));
 }
+Point FrozenField::BalancedSplitPoint(Point a,Point b) {
+  const auto half=TargetEdgeLength(a,b)/2;
+  long double lo=0,hi=1,t=.5L;
+  for(unsigned iteration=0;iteration<48;++iteration) {
+    const Point point{double((1-t)*a.x+t*b.x),double((1-t)*a.y+t*b.y),double((1-t)*a.z+t*b.z)};
+    if((point.x==a.x && point.y==a.y && point.z==a.z) || (point.x==b.x && point.y==b.y && point.z==b.z))
+      throw std::runtime_error("Native3D metric-balanced split is not representable.");
+    const auto residual=TargetEdgeLength(a,point)-half;
+    if(std::abs(residual)<=1e-8L*half)return point;
+    if(residual<0)lo=t;else hi=t;
+    const auto speed=MetricNorm(a,b,Query(point).target);
+    const auto next=t-residual/speed;
+    t=next>lo+.1L*(hi-lo) && next<hi-.1L*(hi-lo) ? next : (lo+hi)/2;
+  }
+  throw std::runtime_error("Native3D full-target split balance remains unresolved after48 steps.");
+}
 long double FrozenField::SensorEdgeLength(Point a, Point b) { return EdgeLength(a,b,false); }
 long double FrozenField::EdgeLength(Point a, Point b, bool composed) {
   Timer edge_time(stats.edge_seconds, timings);

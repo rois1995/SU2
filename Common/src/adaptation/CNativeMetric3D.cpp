@@ -12,6 +12,34 @@
 #include <sstream>
 #include <stdexcept>
 namespace SU2Native3D {
+Point MetricMeanPoint(Point origin,const std::vector<std::pair<Point,Tensor>>& neighbors) {
+  if(neighbors.empty() || neighbors.size()>4*MaximumCavityCells)
+    throw std::invalid_argument("Native3D movement neighbor count exceeds bounds.");
+  long double scale=0;
+  for(const auto& row:neighbors) {
+    ValidateTensor(row.second);
+    const auto& m=row.second;scale=std::max({scale,std::abs((long double)m.xx),std::abs((long double)m.xy),
+        std::abs((long double)m.xz),std::abs((long double)m.yy),std::abs((long double)m.yz),std::abs((long double)m.zz)});
+  }
+  long double a[3][3]{},rhs[3]{},l[3][3]{},work[3]{},delta[3]{};
+  for(const auto& row:neighbors) {
+    const auto& m=row.second;const long double matrix[3][3]={{m.xx,m.xy,m.xz},{m.xy,m.yy,m.yz},{m.xz,m.yz,m.zz}};
+    const long double d[3]={(long double)row.first.x-origin.x,(long double)row.first.y-origin.y,(long double)row.first.z-origin.z};
+    for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j){a[i][j]+=matrix[i][j]/scale;rhs[i]+=matrix[i][j]/scale*d[j];}
+  }
+  for(unsigned i=0;i<3;++i)for(unsigned j=0;j<=i;++j) {
+    auto value=a[i][j];for(unsigned k=0;k<j;++k)value-=l[i][k]*l[j][k];
+    if(i==j){if(!(value>0))throw std::runtime_error("Unrepresentable native3D movement frame.");l[i][j]=std::sqrt(value);}
+    else l[i][j]=value/l[j][j];
+  }
+  for(unsigned i=0;i<3;++i){auto value=rhs[i];for(unsigned j=0;j<i;++j)value-=l[i][j]*work[j];work[i]=value/l[i][i];}
+  for(int i=2;i>=0;--i){auto value=work[i];for(unsigned j=i+1;j<3;++j)value-=l[j][i]*delta[j];delta[i]=value/l[i][i];}
+  const Point result{double(origin.x+delta[0]),double(origin.y+delta[1]),double(origin.z+delta[2])};
+  if(!std::isfinite(result.x) || !std::isfinite(result.y) || !std::isfinite(result.z))
+    throw std::runtime_error("Nonfinite native3D movement proposal.");
+  return result;
+}
+
 namespace {
 bool Same(Point a, Point b) { return a.x == b.x && a.y == b.y && a.z == b.z; }
 void Shape(const PatchMetric& m);

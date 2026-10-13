@@ -1,0 +1,14 @@
+{
+  "base": "8c4081278d24101994a0a26e67d0c580051e2004",
+  "patch_sha256": "119fcb97c85bd25a00abfe9842ea45146d613e90883b6d4347b71949c079ed33",
+  "sources": {
+    "Common/include/adaptation/CNativeField3D.hpp": "d73671544e9300d98e9db779661ea4ce12613614b32f795580cebea2440de982",
+    "Common/src/adaptation/CNativeField3D.cpp": "60b55de347eb8e0c90f99fa1cc51381d2895e907b23dbd92ddd855c65912fdb7",
+    "Common/src/adaptation/CNativeEngine3D.cpp": "913d6c685c1356bf39b83c874d2470ada3400822a0a016322b895d8c7b255b8b",
+    "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp": "683d375befe0990054aa35d6c712cd1c883079472c8c04935230fa43fd9d2876",
+    "UnitTests/Common/adaptation/CNativeField3D_tests.cpp": "aa3a48fb6788187d82bfa5c1820e8d99b27f0227580c64a39e600e305316bdda",
+    "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "eee7afd755640f85130ca284240f59c4d3904733b87dd7bf7c09a4245ba4e306"
+  },
+  "status": "FAIL",
+  "reason": "Universal composed streaming:7 oversized-cell residuals remain; source batches577 versus31 before, cache hits6 versus1149. Keep streaming bounded to necessary failed boundary recovery."
+}

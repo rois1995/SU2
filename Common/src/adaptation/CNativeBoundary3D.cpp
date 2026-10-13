@@ -357,6 +357,37 @@ bool ConstructFirstLayer(const Patch& old,Node background,Id first_wall_node,Id 
   }catch(const std::exception& error){reason=error.what();return false;}
 }
 
+Node ConstrainMovePoint(const Patch& old,Id vertex,Node proposal,const std::map<int,double>& heights,
+                        const PlanarReference& reference) {
+  Bounds(old);const auto nodes=Nodes(old.cells);const auto origin=nodes.at(vertex).p;
+  if(!std::isfinite(proposal.p.x) || !std::isfinite(proposal.p.y) || !std::isfinite(proposal.p.z))
+    throw std::invalid_argument("Nonfinite native3D constrained movement.");
+  std::array<Vector,3> basis{};size_t rank=0;
+  for(const auto& face:old.surface) {
+    const bool onFace=Has(face.v,vertex);
+    bool apex=false;
+    if(!onFace && heights.count(reference.Get(face.facet).marker))for(const auto& cell:old.cells) {
+      unsigned count=0;bool hasVertex=false;
+      for(const auto& n:cell.v){count+=std::find(face.v.begin(),face.v.end(),n.id)!=face.v.end();hasVertex=hasVertex || n.id==vertex;}
+      apex=apex || (count==3 && hasVertex);
+    }
+    if(!apex && (!onFace || reference.Analytic().count(face.facet)))continue;
+    auto normal=Cross(Delta(nodes.at(face.v[1]).p,nodes.at(face.v[0]).p),Delta(nodes.at(face.v[2]).p,nodes.at(face.v[0]).p));
+    const auto length=Norm(normal);if(!(length>0))throw std::invalid_argument("Degenerate native3D movement constraint.");
+    for(auto& x:normal)x/=length;
+    for(unsigned pass=0;pass<2;++pass)for(size_t i=0;i<rank;++i) {
+      const auto component=Dot(normal,basis[i]);for(unsigned j=0;j<3;++j)normal[j]-=component*basis[i][j];
+    }
+    const auto independent=Norm(normal);
+    if(rank<3 && independent>64*std::numeric_limits<long double>::epsilon()) {
+      for(auto& x:normal)x/=independent;basis[rank++]=normal;
+    }
+  }
+  auto displacement=Delta(proposal.p,origin);
+  for(size_t i=0;i<rank;++i){const auto component=Dot(displacement,basis[i]);for(unsigned j=0;j<3;++j)displacement[j]-=component*basis[i][j];}
+  proposal.p={double(origin.x+displacement[0]),double(origin.y+displacement[1]),double(origin.z+displacement[2])};
+  return proposal;
+}
 Point ScaleCylinder(const AnalyticSurface& g,Point p,double factor) {
   const auto a=UnitAxis(g),d=Delta(p,g.origin);const auto t=Dot(a,d);Vector q{};
   for(size_t i=0;i<3;++i)q[i]=a[i]*t+factor*(d[i]-a[i]*t);

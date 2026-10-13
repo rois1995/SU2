@@ -1,0 +1,55 @@
+{
+  "stage": "coupled_mpi1",
+  "status": "FAIL",
+  "returncode": 1,
+  "contract": {
+    "provenance": {
+      "Common/include/adaptation/CNativeField3D.hpp": "d73671544e9300d98e9db779661ea4ce12613614b32f795580cebea2440de982",
+      "Common/src/adaptation/CNativeField3D.cpp": "60b55de347eb8e0c90f99fa1cc51381d2895e907b23dbd92ddd855c65912fdb7",
+      "Common/include/adaptation/CNativeEngine3D.hpp": "3058a047e9416556f2572e8849560d5542324ffa506a18b6a4e767ade71bb4b5",
+      "Common/src/adaptation/CNativeEngine3D.cpp": "913d6c685c1356bf39b83c874d2470ada3400822a0a016322b895d8c7b255b8b",
+      "Common/include/adaptation/CNativeBoundary3D.hpp": "d929134dec55e93b93c92cd0bbbb0e4d0e4cb01d5a24f5ebceb01e02e91faf83",
+      "Common/src/adaptation/CNativeBoundary3D.cpp": "9226e9d8d1f47f564d67899bd7743690123d8f9bc68a180164625a6684c4c67f",
+      "Common/src/adaptation/CNativeDistributed3D.cpp": "bc150ff7b0c02e6575f60c7bbb7a3ccf57b54d068d3e0aa0dd2528a86b1c2da8",
+      "Common/src/adaptation/CNativeMetric3D.cpp": "c3b1f9647766bbaf34f0da604989d6923113f6e001f978807d4aa064a11f4982",
+      "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "a9e9360601520cd1378055f72d686262c8569364da5273baf090f92b8917dfaa",
+      "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "c51162e9ccafc121fbfea6f80b4d2fd6896d62875a299932d32ce0f1c426fbf2",
+      "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp": "683d375befe0990054aa35d6c712cd1c883079472c8c04935230fa43fd9d2876",
+      "UnitTests/Common/adaptation/CNativeField3D_tests.cpp": "aa3a48fb6788187d82bfa5c1820e8d99b27f0227580c64a39e600e305316bdda",
+      "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "eee7afd755640f85130ca284240f59c4d3904733b87dd7bf7c09a4245ba4e306",
+      "UnitTests/Common/adaptation/SimplexMeshTestCase.hpp": "43ec2eb4839af286751174e3a882d8ba18efc6d0b38a7a328f0ec86a60b26b40",
+      "binary": "ef59094e0e06bea23e612b0377feb7629c3c1530c8277a2156bf44db595f2290",
+      "helper": "c282b9d77b9ce94a8ed0c067839c49b26a8c7e8a4c9048632809911345760a68",
+      "compile_commands": "17a19ce625ceabf3f70dba005aebef0990be029c491666e86144787717316540",
+      "object:Common/src/libSU2AccurateSum.a.p/adaptation_CNativeField3D.cpp.o": "366634dc37074367f284080404b543e16af4120b4cb2a50bef5b8be2ee18a129",
+      "object:Common/src/libSU2AccurateSum.a.p/adaptation_CNativeEngine3D.cpp.o": "b6ab5de38d1c7f4be8487770885d981f4a94a6cb9ed210aa87467c207e456c6d",
+      "object:Common/src/libSU2AccurateSum.a.p/adaptation_CNativeBoundary3D.cpp.o": "ae453f534ccbc54519632e5ba1030e25cbf96feafd01309cf565b17c593b7691",
+      "object:SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerMetric.cpp.o": "e35f616424bf86e04d3d9be1b7aec38089cccfa007a3b3dea07ea815011aef75",
+      "object:UnitTests/test_driver.p/Common_adaptation_CNativeDistributed3D_tests.cpp.o": "c29ab9c6eadf469b61ac3d5cc223ebb84326548e7ad23a2e36c4903d2acf30d6",
+      "object:UnitTests/test_driver.p/Common_adaptation_CNativeField3D_tests.cpp.o": "0d19265809343ff6c11d639fa7c04cc679db44f3507d5860c73031719c05d3c4",
+      "object:UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o": "3b3df55690cd620ef85b8bd8bd6360954103a8705f74a968c1e22da536dcd00f"
+    },
+    "command": [
+      "taskset",
+      "-c",
+      "3",
+      "nice",
+      "-n",
+      "19",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+      "[NativeCoupledBL3D]",
+      "--reporter",
+      "compact"
+    ],
+    "MPI_ranks": 1,
+    "environment": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "OMPI_MCA_mpi_yield_when_idle": "1"
+    }
+  },
+  "log": "coupled_mpi1_1791911561555708026.log",
+  "log_sha256": "3ed7d6a66b09c4a174c2fea6cc283d050786af4fc81f50f7b01764deae2f7b05",
+  "elapsed_seconds": 8.53431467001792,
+  "scope": "frozen-target split placement/first-height engine and complete coupled construction/removal correctness; not CFD/transfer/scaling"
+}

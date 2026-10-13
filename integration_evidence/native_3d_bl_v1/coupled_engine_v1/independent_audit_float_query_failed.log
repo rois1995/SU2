@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "audit.py", line 114, in <module>
+    if __name__=='__main__':main()
+  File "audit.py", line 91, in main
+    measured,_=base.frame(path,False,metric_query=tensor,edge_query=edge)
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_coupled.py", line 193, in frame
+    value=query_length(original,nodes[edge[0]],nodes[edge[1]])
+  File "audit.py", line 52, in edge
+    fa,fm,fb=speed(lower),speed((lower+upper)/2),speed(upper);old=(upper-lower)*(fa+4*fm+fb)/6
+  File "audit.py", line 36, in speed
+    return math.sqrt(float(base.quad(tensor(original,p),chord)))
+  File "audit.py", line 26, in tensor
+    assert sensor==[1,0,0,1,0,1], 'This independent analytic target requires the declared identity P1 sensor'
+AssertionError: This independent analytic target requires the declared identity P1 sensor

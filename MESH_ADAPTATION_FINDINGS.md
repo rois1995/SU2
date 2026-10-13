@@ -1,3 +1,40 @@
+# Goal3 coupled BL engine checkpoint — 2026-10-13
+
+Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
+Branch: codex/native-3d-bl; preceding published checkpoint 8c4081278d.
+Goal3 ACTIVE and incomplete; production configured-BL guard remains.
+
+Actual geometric composition and complete original-source donor coverage are now
+exercised by the first-height engine. Target-aware initialization, full composed
+length-balanced splitting, metric-weighted movement and prescribed-height tangent
+constraints reduce the serial cube pilot from 27 oversized cells to one. This is
+progress on a rejected mesh, not a completed adaptation or performance claim.
+The final corner edge 0–4 has integrated length 3.150140877566013 (limit 1.8).
+The independent analytic/exact-topology audit confirms volume 1, no overlap,
+finite facet coverage, minimum quality 0.2127185473, minimum scaled Jacobian
+0.0559466249, zero first-height error and zero wall tilt. A coordinated edge split
+plus movement of surrounding surface/transition vertices is the next step.
+
+Evidence: integration_evidence/native_3d_bl_v1/coupled_engine_v1.
+validation.json records PASS for split-placement, metric movement, microscopic
+BL splitting, geometric first-height MPI1/2/4 and actual-composition bounded
+startup MPI1/2/4, including reduced worker counts. Full construction serial FAIL;
+full construction MPI2/4 deliberately NOT_RUN until serial passes. BL-to-Euler
+release is not reached. independent_audit.json reports REJECTED for length.
+Inspect initial_euler_n1.su2 and constructed_BL_rejected_n1.su2; these are kernel
+meshes, without CFD solutions. Failed variants and resumable provenance remain.
+All owned jobs are terminal at this checkpoint; no CFD or cluster submission.
+
+No height/shape/length/work tolerance was relaxed. Sensor-only original P1,
+finer sensor demand, fade and immutable actual-query composition remain.
+Universal streaming recovery was rejected because it worsened donor work without
+improving the mesh; targeted physical-boundary recovery is retained. Curved BL,
+composed gradation, production coupling, conservative current+BDF/turbulence,
+restart/output, actual RANS and full lifecycle cost remain unqualified.
+If full Goal3 is achieved, the user authorizes immediate activation of Goal4.
+
+Earlier entries below are historical.
+
 # Goal3 finite-wall integration milestone — 2026-10-13
 
 Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.

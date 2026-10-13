@@ -9,6 +9,8 @@
 #include "../../../Common/include/adaptation/CNativeDonor3D.hpp"
 #include "../../../Common/include/adaptation/CNativeEngine3D.hpp"
 #include "../../../Common/include/adaptation/CNativeMetric3D.hpp"
+#include "../../../SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp"
+#include "SimplexMeshTestCase.hpp"
 #include <cmath>
 #include <chrono>
 #include <ctime>
@@ -2271,4 +2273,119 @@ TEST_CASE("Native3D engine elects inconsistent wall-height policies before chang
   CHECK(world.sum(int(bounded.stats.layer_published))==1);CHECK(Bytes(input)==saved);
   const auto count=CPassiveComm::Allreduce(bounded.cells.size(),CPassiveComm::Op::SUM,world.comm);
   CHECK(Audit(world,bounded.cells,fixture,count));
+}
+
+TEST_CASE("Native3D coupled geometric BL construction and Euler release reach complete gates", "[NativeCoupledBL3D]") {
+  World world;const auto fixture=Box();const PlanarReference reference(fixture.facets);
+  const auto input=Partition(Rows(fixture.patch),world),saved=input;
+  const auto original=Uniform(input,{1,0,0,1,0,1});
+  const auto allOriginal=Uniform(Partition(Rows(fixture.patch),World(MPI_COMM_SELF)),{1,0,0,1,0,1});
+  CBoundaryLayerMetric::Wall wall;wall.layer={"wall",.1,1.2,.3};
+  wall.coord={0,0,0,1,0,0,1,1,0,0,1,0};wall.conn={0,1,2,2,0,2,3,3};
+  CBoundaryLayerMetric layers(3,{wall});
+  const auto compose=[&](Point p,Tensor sensor) {
+    CBoundaryLayerMetric::Tensor m;
+    m.m[0][0]=sensor.xx;m.m[0][1]=m.m[1][0]=sensor.xy;m.m[0][2]=m.m[2][0]=sensor.xz;
+    m.m[1][1]=sensor.yy;m.m[1][2]=m.m[2][1]=sensor.yz;m.m[2][2]=sensor.zz;
+    const su2double x[3]={p.x,p.y,p.z};layers.ApplyPoint(x,m,1.,nullptr,false);
+    return Tensor{SU2_TYPE::GetValue(m.m[0][0]),SU2_TYPE::GetValue(m.m[0][1]),SU2_TYPE::GetValue(m.m[0][2]),
+        SU2_TYPE::GetValue(m.m[1][1]),SU2_TYPE::GetValue(m.m[1][2]),SU2_TYPE::GetValue(m.m[2][2])};
+  };
+  EngineOptions options;options.timings=true;options.maximum_seconds=60;options.maximum_work=4096;
+  options.edge_breakpoints=[&](Point a,Point b){return layers.EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z});};
+  for(const auto& face:fixture.facets)
+    if(std::all_of(face.v.begin(),face.v.end(),[](Node n){return n.p.z==0;}))options.wall_heights[face.marker]=.1;
+  auto exportMesh=[&](const Owned& owned,const std::string& name) {
+    const auto rows=Gather(world,owned);if(world.rank)return;
+    CSimplexMesh mesh;mesh.nDim=3;std::map<Id,unsigned long> nodes;std::map<int,size_t> markers;
+    for(const auto& row:rows)for(const auto& node:row.cell.v) {
+      const auto inserted=nodes.emplace(node.id,nodes.size());
+      if(inserted.second){mesh.coord.push_back(node.p.x);mesh.coord.push_back(node.p.y);mesh.coord.push_back(node.p.z);}
+      mesh.elem.push_back(inserted.first->second);
+    }
+    for(const auto& face:PatchOf(rows).surface) {
+      const int marker=reference.Get(face.facet).marker;
+      const auto inserted=markers.emplace(marker,markers.size());
+      if(inserted.second)mesh.markers.push_back({"marker_"+std::to_string(marker),marker,{}});
+      for(auto id:face.v)mesh.markers[inserted.first->second].elem.push_back(nodes.at(id));
+    }
+    simplex_test::WriteSU2Mesh(mesh,name+"_n"+std::to_string(world.size)+".su2");
+  };
+  exportMesh(input,"initial_euler");
+  const auto refined=Refine(world,input,original,reference,compose,options);
+  EngineReport(refined,world,"coupled_BL");Log(world,"BL result: "+refined.reason+"\n");
+  exportMesh(refined.cells,refined.valid?"constructed_BL":"constructed_BL_rejected");
+  CHECK(Bytes(input)==Bytes(saved));
+  const auto count=CPassiveComm::Allreduce(refined.cells.size(),CPassiveComm::Op::SUM,world.comm);
+  CHECK(Audit(world,refined.cells,fixture,count));
+  FrozenField target(allOriginal,compose,false,{},options.edge_breakpoints);
+  bool metric=true,height=true;std::string reason;
+  for(const auto& row:refined.cells) {
+    PatchMetric measured;FirstHeightReport report;
+    metric=ValidateMetricPatch({row.second.cell},target,measured,reason) && metric;
+    height=CheckFirstHeight(PatchOf({row.second}),options.wall_heights,reference,report,reason) && height;
+  }
+  if(!refined.valid) {
+    MeshRecords("coupled_BL_rejected",world,refined.cells);
+    for(const auto& row:refined.cells) {
+      const auto measured=MeasureMetricCells({row.second.cell},target);
+      if(measured.minimum_mean_ratio<MinimumMeanRatio || measured.minimum_scaled_jacobian<MinimumScaledJacobian || measured.maximum_length>MaximumMetricEdge) {
+        const auto center=Centroid(row.second.cell);std::ostringstream line;
+        line << std::setprecision(17) << "BL_VIOLATION rank=" << world.rank << " cell=" << row.first
+             << " q=" << measured.minimum_mean_ratio << " j=" << measured.minimum_scaled_jacobian
+             << " length=" << double(measured.maximum_length) << " x=" << center.x << " y=" << center.y << " z=" << center.z << '\n';
+        std::cout << line.str();
+      }
+    }
+  }
+  CHECK_FALSE(world.maximum(!height));
+  INFO(refined.reason);REQUIRE(refined.valid);CHECK_FALSE(world.maximum(!metric));
+  options.wall_heights.clear();options.edge_breakpoints={};
+  const auto coarse=Coarsen(world,refined.cells,original,reference,{},options);
+  EngineReport(coarse,world,"released_Euler");Log(world,"Euler result: "+coarse.reason+"\n");
+  exportMesh(coarse.cells,coarse.valid?"released_euler":"released_euler_rejected");
+  INFO(coarse.reason);REQUIRE(coarse.valid);
+  const auto coarseCount=CPassiveComm::Allreduce(coarse.cells.size(),CPassiveComm::Op::SUM,world.comm);
+  CHECK(coarseCount<count);CHECK(Audit(world,coarse.cells,fixture,coarseCount));
+  FrozenField euler(allOriginal);metric=true;
+  for(const auto& row:coarse.cells){PatchMetric measured;metric=ValidateMetricPatch({row.second.cell},euler,measured,reason) && metric;}
+  CHECK_FALSE(world.maximum(!metric));CHECK(Bytes(input)==Bytes(saved));
+}
+
+TEST_CASE("Native composed BL startup preserves original geometry across MPI worker subsets", "[NativeCoupledBLBudget3D]") {
+  World parent;const auto fixture=Box();const PlanarReference reference(fixture.facets);
+  const auto input=Partition(Rows(fixture.patch),parent),saved=input;
+  CBoundaryLayerMetric::Wall wall;wall.layer={"wall",.1,1.2,.3};
+  wall.coord={0,0,0,1,0,0,1,1,0,0,1,0};wall.conn={0,1,2,2,0,2,3,3};CBoundaryLayerMetric layers(3,{wall});
+  const auto compose=[&](Point p,Tensor sensor) {
+    CBoundaryLayerMetric::Tensor m;
+    m.m[0][0]=sensor.xx;m.m[0][1]=m.m[1][0]=sensor.xy;m.m[0][2]=m.m[2][0]=sensor.xz;
+    m.m[1][1]=sensor.yy;m.m[1][2]=m.m[2][1]=sensor.yz;m.m[2][2]=sensor.zz;
+    const su2double x[3]={p.x,p.y,p.z};layers.ApplyPoint(x,m,1.,nullptr,false);
+    return Tensor{SU2_TYPE::GetValue(m.m[0][0]),SU2_TYPE::GetValue(m.m[0][1]),SU2_TYPE::GetValue(m.m[0][2]),
+        SU2_TYPE::GetValue(m.m[1][1]),SU2_TYPE::GetValue(m.m[1][2]),SU2_TYPE::GetValue(m.m[2][2])};
+  };
+  for(int m:std::set<int>{1,parent.size,std::max(1,parent.size/2)}) {
+    std::vector<std::vector<OwnedCell>> to(parent.size);for(const auto& row:input)to[row.first%m].push_back(row.second);
+    const auto migrated=parent.exchange(to);MPI_Comm subset=MPI_COMM_NULL;
+    MPI_Comm_split(parent.comm,parent.rank<m?0:MPI_UNDEFINED,parent.rank,&subset);
+    Owned output;bool height=true,unchanged=true,stopped=true;int published=0;
+    if(subset!=MPI_COMM_NULL) {
+      World worker(subset);Owned owned;for(const auto& row:migrated)owned.emplace(row.cell.id,row);
+      const auto initial=Bytes(owned);EngineOptions options;options.maximum_rounds=1;
+      options.edge_breakpoints=[&](Point a,Point b){return layers.EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z});};
+      for(const auto& f:fixture.facets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))options.wall_heights[f.marker]=.1;
+      const auto result=Refine(worker,owned,Uniform(owned,{1,0,0,1,0,1}),reference,compose,options);
+      unchanged=Bytes(owned)==initial;published=worker.sum(int(result.stats.layer_published));
+      stopped=result.valid || result.stats.stop==EngineStop::RoundBudget;
+      for(const auto& row:result.cells){FirstHeightReport report;std::string reason;
+        height=CheckFirstHeight(PatchOf({row.second}),options.wall_heights,reference,report,reason) && height;}
+      CHECK(published==2);output=result.cells;MPI_Comm_free(&subset);
+    }
+    CHECK_FALSE(parent.maximum(!height));CHECK_FALSE(parent.maximum(!unchanged));CHECK_FALSE(parent.maximum(!stopped));
+    to.assign(parent.size,{});for(const auto& row:output)to[row.first%parent.size].push_back(row.second);
+    const auto returned=parent.exchange(to);output.clear();for(const auto& row:returned)output.emplace(row.cell.id,row);
+    const auto count=CPassiveComm::Allreduce(output.size(),CPassiveComm::Op::SUM,parent.comm);
+    CHECK(count>6);CHECK(Audit(parent,output,fixture,count));CHECK(Bytes(input)==Bytes(saved));
+  }
 }

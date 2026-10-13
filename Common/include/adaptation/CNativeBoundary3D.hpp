@@ -106,6 +106,10 @@ bool ConstructFirstLayer(const Patch& old,Node background,Id first_wall_node,Id 
                          const std::map<int,double>& heights,const PlanarReference& reference,
                          Patch& fresh,FirstHeightReport& report,std::string& reason,KernelStats* stats=nullptr);
 
+/*! Project a displacement onto incident planar boundary/first-height tangent freedoms.
+ * Analytic surface projection, complete dependencies and final geometry/height checks remain caller duties. */
+Node ConstrainMovePoint(const Patch& old,Id vertex,Node proposal,const std::map<int,double>& heights,
+                        const PlanarReference& reference);
 /*! Geometric private proposals only. Require the globally admitted complete edge/vertex star and authoritative
  * physical skin. Input point is exact on-edge binary64, or the actual rounded midpoint of a curved edge;
  * declared analytic physical facets project it before

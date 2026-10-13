@@ -1039,3 +1039,22 @@ TEST_CASE("Native3D first layer handles wall junctions and distinguishes local c
   CHECK_FALSE(ConstructFirstLayer(thin,{100,{.5,.5,.05}},101,200,excessive,thinReference,sentinel,report,reason));
   CHECK(reason.find("geometry-height incompatibility")!=std::string::npos);CHECK(Connectivity(sentinel)==Connectivity(thin));
 }
+
+TEST_CASE("Native3D first-row apex movement preserves altitude and boundary feature freedoms", "[NativeMetricMove3D]") {
+  const auto old=Cube();const auto facets=Facets(old);const PlanarReference reference(facets);
+  std::map<int,double> heights;for(const auto& f:facets)
+    if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights[f.marker]=.05;
+  Patch layer;FirstHeightReport report;std::string reason;
+  REQUIRE(ConstructFirstLayer(old,{100,{.5,.5,.5}},101,200,heights,reference,layer,report,reason));
+  Node apex;for(const auto& c:layer.cells)for(auto n:c.v)if(n.id==101)apex=n;
+  const auto moved=ConstrainMovePoint(layer,101,{500,{apex.p.x+.01,apex.p.y-.01,apex.p.z+.02}},heights,reference);
+  CHECK(moved.p.x==Approx(apex.p.x+.01));CHECK(moved.p.y==Approx(apex.p.y-.01));CHECK(moved.p.z==apex.p.z);
+  auto fresh=layer;for(auto& c:fresh.cells)for(auto& n:c.v)if(n.id==101)n=moved;
+  CHECK(CheckFirstHeight(fresh,heights,reference,report,reason));CHECK(report.maximum_tilt>0);
+  const auto released=ConstrainMovePoint(layer,101,{500,{apex.p.x,apex.p.y,apex.p.z+.02}},{},reference);
+  CHECK(released.p.z==Approx(apex.p.z+.02));
+  for(const auto& n:old.cells.front().v) {
+    const auto constrained=ConstrainMovePoint(old,n.id,{500,{.4,.4,.4}},heights,reference);
+    CHECK(constrained.p.x==n.p.x);CHECK(constrained.p.y==n.p.y);CHECK(constrained.p.z==n.p.z);
+  }
+}

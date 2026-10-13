@@ -923,6 +923,9 @@ TEST_CASE("Native 3D composed edges resolve a microscopic BL without spreading d
   CHECK(double(field.TargetEdgeLength(a,b))==Approx(expected).epsilon(2e-9));
   CHECK(double(field.TargetEdgeLength(b,a))==Approx(expected).epsilon(2e-9));
   CHECK(double(field.SensorEdgeLength(a,b))==Approx(.6).epsilon(1e-14));
+  const auto balanced=field.BalancedSplitPoint(a,b);
+  CHECK(balanced.z<thickness);
+  CHECK(double(field.TargetEdgeLength(a,balanced))==Approx(double(field.TargetEdgeLength(balanced,b))).epsilon(3e-8));
   CHECK(field.Query({.125,.125,.1}).sensor.zz==1);
   CHECK(field.Query({.125,.125,.1}).target.zz==Approx(1));
   CHECK(field.Statistics().compositions<10000);

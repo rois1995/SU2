@@ -21,6 +21,8 @@ struct PatchMetric {
   long double maximum_length = 0;
   std::map<Edge, EdgeMeasure> edges;
 };
+/*! Proposal only: minimise the midpoint-metric spring energy around an original vertex. */
+Point MetricMeanPoint(Point origin,const std::vector<std::pair<Point,Tensor>>& neighbors);
 struct MetricStats {
   uint64_t patches = 0, cells = 0, edges = 0, changes = 0, failures = 0;
   uint64_t edge_evaluations = 0, edge_reused = 0;

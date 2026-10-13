@@ -136,7 +136,9 @@ def reference_patches(facets,groups):
             area=sum(facets[id]['normal'][axis] for id in group))
     return patches,membership
 
-def frame(path,strict,validate_shape=True):
+def frame(path,strict,validate_shape=True,metric_query=None,edge_query=None):
+    query_metric=metric if metric_query is None else metric_query
+    query_length=length if edge_query is None else edge_query
     data=json.loads(path.read_text());nodes={n[0]:tuple(F(float(x)) for x in n[1:]) for n in data['nodes']}
     assert len(nodes)==len(data['nodes']) and len(set(nodes.values()))==len(nodes)
     cells=[c['nodes'] for c in data['cells']];assert len({c['id'] for c in data['cells']})==len(cells)
@@ -178,7 +180,7 @@ def frame(path,strict,validate_shape=True):
     minq=minj=1.;unique_edges=set()
     for t,c in zip(geometries,cells):
         # The probe uses a rounded binary64 centroid; evaluate the exact P1 reference there.
-        center=tuple(F(float(sum(p[axis] for p in t)/4)) for axis in range(3));m=metric(original,center)
+        center=tuple(F(float(sum(p[axis] for p in t)/4)) for axis in range(3));m=query_metric(original,center)
         detm=spd(m);v=float(determinant(t))*math.sqrt(float(detm))
         squared={(i,j):float(quad(m,sub(t[j],t[i]))) for i,j in itertools.combinations(range(4),2)}
         q=12*(v/2)**(2/3)/sum(squared.values())
@@ -188,7 +190,7 @@ def frame(path,strict,validate_shape=True):
         unique_edges.update(tuple(sorted(pair)) for pair in itertools.combinations(c,2))
     maxl=0.;longest=None
     for edge in sorted(unique_edges):
-        value=length(original,nodes[edge[0]],nodes[edge[1]])
+        value=query_length(original,nodes[edge[0]],nodes[edge[1]])
         if value>maxl:maxl=value;longest=edge
     if strict:assert maxl<=1.8+1e-12,'Oversized final original-field edge'
     marker_counts=defaultdict(int)

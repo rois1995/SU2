@@ -287,3 +287,13 @@ TEST_CASE("Geometry-only repairs retain strict shape and changed-edge excess gat
   bad=before;bad.edges.begin()->second.length=2;bad.edges.begin()->second.a.x-=1;
   CHECK_FALSE(ValidateMetricChange(1,before,1,bad,MetricChange::GeometryRepair,reason));
 }
+
+TEST_CASE("Native3D metric movement honours directional stiffness without changing its target", "[NativeMetricMove3D]") {
+  const Point origin{0,0,0};
+  std::vector<std::pair<Point,Tensor>> neighbors{{{1,0,0},{}},{{0,1,0},{}},{{0,0,1},{}}};
+  const auto euclidean=MetricMeanPoint(origin,neighbors);
+  CHECK(euclidean.x==Approx(1./3));CHECK(euclidean.y==Approx(1./3));CHECK(euclidean.z==Approx(1./3));
+  neighbors.back().second.zz=30.25;const auto graded=MetricMeanPoint(origin,neighbors);
+  CHECK(graded.x==Approx(1./3));CHECK(graded.y==Approx(1./3));CHECK(graded.z==Approx(30.25/32.25));
+  CHECK(neighbors.back().second.zz==30.25);CHECK_THROWS(MetricMeanPoint(origin,{}));
+}

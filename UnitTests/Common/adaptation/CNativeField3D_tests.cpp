@@ -362,3 +362,17 @@ TEST_CASE("Native composed edge integration rejects malformed bands", "[NativeCo
   FrozenField field({Single()},compose,false,{},[](Point,Point){return std::vector<double>{0.,.001,.01,.5,1.};});
   CHECK(double(field.TargetEdgeLength(a,b))==Approx(double(field.SensorEdgeLength(a,b))).epsilon(1e-10));
 }
+
+TEST_CASE("Native3D split placement balances full target and preserves constant-field midpoint", "[NativeBalancedSplit3D]") {
+  auto donor=Single();donor.sensor.fill({1,0,0,1,0,1});
+  const Point a{0,0,0},b{0,0,1};
+  FrozenField constant({donor});CHECK(constant.BalancedSplitPoint(a,b).z==.5);
+  FrozenField graded({donor},[](Point p,Tensor sensor){sensor.zz=std::pow(1+9*p.z,2);return sensor;},false,{},
+      [](Point,Point){return std::vector<double>{0,1};});
+  const auto point=graded.BalancedSplitPoint(a,b);
+  CHECK(point.x==0);CHECK(point.y==0);
+  CHECK(point.z==Approx((-1+std::sqrt(50.5))/9).epsilon(1e-8));
+  CHECK(double(graded.TargetEdgeLength(a,point))==Approx(double(graded.TargetEdgeLength(point,b))).epsilon(3e-8));
+  CHECK(graded.Query(point).sensor.zz==1);
+  FrozenField missing({donor},[](Point,Tensor sensor){return sensor;});CHECK_THROWS(missing.BalancedSplitPoint(a,b));
+}

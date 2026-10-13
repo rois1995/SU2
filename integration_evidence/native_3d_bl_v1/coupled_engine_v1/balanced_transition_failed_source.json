@@ -1,0 +1,14 @@
+{
+  "base": "8c4081278d24101994a0a26e67d0c580051e2004",
+  "patch_sha256": "b21d63ca18a6a97ba6cbf6a452308a0b140d71e03af6c7f59fe0c09cf877a02f",
+  "sources": {
+    "Common/include/adaptation/CNativeField3D.hpp": "d73671544e9300d98e9db779661ea4ce12613614b32f795580cebea2440de982",
+    "Common/src/adaptation/CNativeField3D.cpp": "60b55de347eb8e0c90f99fa1cc51381d2895e907b23dbd92ddd855c65912fdb7",
+    "Common/src/adaptation/CNativeEngine3D.cpp": "1b07ec9020948bd2bb85a126406a449821ef7664ba665e3a09d245fb9e86691a",
+    "UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp": "683d375befe0990054aa35d6c712cd1c883079472c8c04935230fa43fd9d2876",
+    "UnitTests/Common/adaptation/CNativeField3D_tests.cpp": "aa3a48fb6788187d82bfa5c1820e8d99b27f0227580c64a39e600e305316bdda",
+    "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "eee7afd755640f85130ca284240f59c4d3904733b87dd7bf7c09a4245ba4e306"
+  },
+  "status": "FAIL",
+  "reason": "Balanced splits reduce length violations to7cells, but two boundary corner edges remain length3.15 and repair stalls."
+}
