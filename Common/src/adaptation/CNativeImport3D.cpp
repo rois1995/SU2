@@ -121,6 +121,7 @@ PrimitiveKey Primitive(const AnalyticSurface& g) {
 }
 /*! Freeze a continuous piecewise-affine exterior sensor target from original boundary nodes.
  * Bump columns copy nodal tensors vertically; spherical frusta copy them radially. Original P1 has priority.
+ * Capped cylinders use one shared radial/axial collar map, including disk faces and rim identities.
  * Sorted source IDs choose compatible prism diagonals; component tags still control later association. */
 bool Coverage(World& world,const Owned& cells,std::vector<DonorCell>& source,const PlanarReference& reference,
               double geometry_tolerance,size_t live,size_t ceiling,BridgeStats& stats,std::string& reason) {
@@ -130,12 +131,33 @@ bool Coverage(World& world,const Owned& cells,std::vector<DonorCell>& source,con
   const size_t requested=transfer_memory::Add(live,transfer_memory::GrowthBound(transfer_memory::Add(source.size(),added),sizeof(DonorCell)),
       transfer_memory::Mul(reference.Analytic().size(),1024));
   if(!Admit(world,requested,ceiling,stats,reason))return false;
-  struct Rule {AnalyticSurface geometry;int lo=2,hi=-2;double height=std::numeric_limits<double>::infinity(),factor=0;};
+  struct Rule {AnalyticSurface geometry;int lo=2,hi=-2;double height=std::numeric_limits<double>::infinity(),factor=0,pad=0;
+    std::array<int,2> cap_lo{{2,2}},cap_hi{{-2,-2}};};
   std::map<PrimitiveKey,Rule> rules;
+  std::map<Id,std::pair<PrimitiveKey,unsigned>> caps;
   Id maximum_node=0,maximum_cell=0;
   try {
     if(!(std::isfinite(geometry_tolerance)&&geometry_tolerance>0))throw std::invalid_argument("Invalid exterior source geometry bound.");
     for(const auto& row:reference.Analytic())if(row.second.kind!=AnalyticSurface::Kind::Disk)rules.emplace(Primitive(row.second),Rule{row.second});
+    // Match declared end disks to a unique cylinder; their shared nodes use the same affine collar map.
+    for(const auto& disk:reference.Analytic())if(disk.second.kind==AnalyticSurface::Kind::Disk) {
+      const auto& d=disk.second;unsigned matches=0;
+      for(const auto& row:rules)if(row.second.geometry.kind==AnalyticSurface::Kind::Cylinder) {
+        const auto& g=row.second.geometry;
+        const long double length=std::hypot(g.axis.x,g.axis.y,g.axis.z),dl=std::hypot(d.axis.x,d.axis.y,d.axis.z);
+        const std::array<long double,3> a{{g.axis.x/length,g.axis.y/length,g.axis.z/length}},b{{d.axis.x/dl,d.axis.y/dl,d.axis.z/dl}};
+        const auto cross=std::hypot(a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]);
+        if(cross>64*std::numeric_limits<double>::epsilon() || std::abs(g.extent.x-d.extent.x)>g.tolerance+d.tolerance)continue;
+        for(unsigned end=0;end<2;++end) {
+          const long double t=end ? g.extent.y : 0;
+          const auto distance=std::hypot(static_cast<long double>(d.origin.x)-g.origin.x-t*a[0],
+                                        static_cast<long double>(d.origin.y)-g.origin.y-t*a[1],
+                                        static_cast<long double>(d.origin.z)-g.origin.z-t*a[2]);
+          if(distance<=g.tolerance+d.tolerance){caps[disk.first]={row.first,end};++matches;}
+        }
+      }
+      if(matches>1)throw std::invalid_argument("Ambiguous cylinder/end-disk source collar association.");
+    }
     for(const auto& d:source) {
       if(d.extension_component!=UINT64_MAX)throw std::invalid_argument("Exterior source already generated.");
       maximum_cell=std::max(maximum_cell,d.cell.id);for(auto n:d.cell.v)maximum_node=std::max(maximum_node,n.id);
@@ -143,10 +165,20 @@ bool Coverage(World& world,const Owned& cells,std::vector<DonorCell>& source,con
       for(size_t slot=0;slot<4;++slot)if(owned.physical[slot].present) {
         const auto id=owned.physical[slot].facet;
         const auto entry=reference.Analytic().find(id);
-        if(entry==reference.Analytic().end() || entry->second.kind==AnalyticSurface::Kind::Disk)continue;
-        auto& rule=rules.at(Primitive(entry->second));const auto& g=rule.geometry;
+        if(entry==reference.Analytic().end())continue;
+        const auto cap=caps.find(id);
+        if(entry->second.kind==AnalyticSurface::Kind::Disk && cap==caps.end())continue;
+        auto& rule=rules.at(cap==caps.end() ? Primitive(entry->second) : cap->second.first);const auto& g=rule.geometry;
         const auto ids=Faces(d.cell)[slot];std::array<Point,3> p{};
         for(size_t i=0;i<3;++i)for(auto n:d.cell.v)if(n.id==ids[i])p[i]=n.p;
+        if(cap!=caps.end()) {
+          const auto length=std::hypot(g.axis.x,g.axis.y,g.axis.z);
+          const Point tip{p[0].x+g.axis.x/length,p[0].y+g.axis.y/length,p[0].z+g.axis.z/length};
+          const auto area=Orientation(p[0],p[1],p[2],tip);const int sign=area>0?1:area<0?-1:0;
+          if(!sign)throw std::invalid_argument("Degenerate cylinder end-disk source face.");
+          const auto end=cap->second.second;rule.cap_lo[end]=std::min(rule.cap_lo[end],sign);rule.cap_hi[end]=std::max(rule.cap_hi[end],sign);
+          continue;
+        }
         int direction=0;
         if(g.kind==AnalyticSurface::Kind::Bump) {
           const auto area=Orientation({p[0].x,p[0].y,0},{p[1].x,p[1].y,0},{p[2].x,p[2].y,0},{0,0,1});
@@ -187,8 +219,20 @@ bool Coverage(World& world,const Owned& cells,std::vector<DonorCell>& source,con
     rule.lo=CPassiveComm::Allreduce(rule.lo,CPassiveComm::Op::MIN,world.comm);
     rule.hi=CPassiveComm::Allreduce(rule.hi,CPassiveComm::Op::MAX,world.comm);
     rule.height=CPassiveComm::Allreduce(rule.height,CPassiveComm::Op::MIN,world.comm);
+    for(unsigned end=0;end<2;++end) {
+      rule.cap_lo[end]=CPassiveComm::Allreduce(rule.cap_lo[end],CPassiveComm::Op::MIN,world.comm);
+      rule.cap_hi[end]=CPassiveComm::Allreduce(rule.cap_hi[end],CPassiveComm::Op::MAX,world.comm);
+    }
     if(rule.lo==2&&rule.hi==-2)continue; // Authority may include a chart absent from this accepted surface.
     if(rule.lo!=rule.hi)failure.Set(1,0,"Inconsistent exterior source orientation for one analytic primitive.");
+    if(g.kind==AnalyticSurface::Kind::Cylinder && rule.cap_lo[0]!=2 && rule.cap_lo[1]!=2) {
+      for(unsigned end=0;end<2;++end)if(rule.cap_lo[end]!=rule.cap_hi[end] || rule.cap_lo[end]!=(end?rule.lo:-rule.lo))
+        failure.Set(1,0,"Cylinder/end-disk source collar orientations disagree.");
+      const auto scale=std::max({1.,std::abs(g.origin.x),std::abs(g.origin.y),std::abs(g.origin.z),g.extent.x,g.extent.y});
+      const auto pad=std::max(4*g.tolerance,128*std::numeric_limits<double>::epsilon()*scale);
+      if(!(pad>0 && pad<g.extent.y/4))failure.Set(1,0,"Cylinder end-disk source envelope is unrepresentable.");
+      rule.pad=rule.lo*pad;
+    }
     if(g.kind==AnalyticSurface::Kind::Bump)
       rule.factor=rule.lo*std::nextafter(std::abs(g.extent.z)/16+2*g.tolerance,INFINITY);
     else if(rule.lo>0)
@@ -213,9 +257,12 @@ bool Coverage(World& world,const Owned& cells,std::vector<DonorCell>& source,con
       const auto original=source[at];const auto& owned=cells.at(original.cell.id);
       for(size_t slot=0;slot<4;++slot)if(owned.physical[slot].present) {
         const Id component=owned.physical[slot].facet;
-        const auto entry=reference.Analytic().find(component);if(entry==reference.Analytic().end() || entry->second.kind==AnalyticSurface::Kind::Disk)continue;
-        const auto key=Primitive(entry->second);
+        const auto entry=reference.Analytic().find(component);if(entry==reference.Analytic().end())continue;
+        const auto cap=caps.find(component);
+        if(entry->second.kind==AnalyticSurface::Kind::Disk && cap==caps.end())continue;
+        const auto key=cap==caps.end() ? Primitive(entry->second) : cap->second.first;
         const auto found=rules.find(key);const auto& rule=found->second;const auto& g=rule.geometry;
+        if(cap!=caps.end() && !rule.pad)continue;
         const size_t index=std::distance(rules.begin(),found);
         const auto ids=Faces(original.cell)[slot];std::array<std::pair<Node,Tensor>,3> old;
         for(size_t i=0;i<3;++i)for(size_t j=0;j<4;++j)if(original.cell.v[j].id==ids[i])old[i]={original.cell.v[j],original.sensor[j]};
@@ -224,7 +271,17 @@ bool Coverage(World& world,const Owned& cells,std::vector<DonorCell>& source,con
         for(auto& point:next) {
           auto& n=point.first;n.id=node_span*(index+1)+n.id;
           if(g.kind==AnalyticSurface::Kind::Bump)n.p.z=std::nextafter(n.p.z+rule.factor,rule.factor>0?INFINITY:-INFINITY);
-          else if(g.kind==AnalyticSurface::Kind::Cylinder)n.p=ScaleCylinder(g,n.p,rule.factor);
+          else if(g.kind==AnalyticSurface::Kind::Cylinder) {
+            const auto original_point=n.p;n.p=ScaleCylinder(g,n.p,rule.factor);
+            if(rule.pad) {
+              const long double length=std::hypot(g.axis.x,g.axis.y,g.axis.z);
+              const std::array<long double,3> a{{g.axis.x/length,g.axis.y/length,g.axis.z/length}};
+              const long double t=(static_cast<long double>(original_point.x)-g.origin.x)*a[0]+
+                  (static_cast<long double>(original_point.y)-g.origin.y)*a[1]+(static_cast<long double>(original_point.z)-g.origin.z)*a[2];
+              const auto shift=rule.pad*(2*t/g.extent.y-1);
+              n.p={double(n.p.x+shift*a[0]),double(n.p.y+shift*a[1]),double(n.p.z+shift*a[2])};
+            }
+          }
           else n.p={double(g.origin.x+(static_cast<long double>(n.p.x)-g.origin.x)*rule.factor),
                     double(g.origin.y+(static_cast<long double>(n.p.y)-g.origin.y)*rule.factor),
                     double(g.origin.z+(static_cast<long double>(n.p.z)-g.origin.z)*rule.factor)};

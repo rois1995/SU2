@@ -909,7 +909,7 @@ TEST_CASE("Joint curved split reconstructs a saved obstruction under unchanged f
 namespace {
 #include "fixtures/native_strip_obstruction.inc"
 }
-TEST_CASE("Coordinated surface strip escapes a saved curved blockage with actual frozen coverage", "[NativeSurfaceStrip3D]") {
+TEST_CASE("Coordinated surface strip preserves geometry while rejecting the old cap coverage gap", "[NativeSurfaceStrip3D]") {
   const auto old=StripObstruction();const auto reference=JointReference();
   const auto moves=StripMoves();const auto point=StripPoint();Patch fresh;std::string reason;
   const bool built=SplitSurfaceStrip(old,{12,1604},point,moves,300000,reference,fresh,reason);
@@ -917,8 +917,8 @@ TEST_CASE("Coordinated surface strip escapes a saved curved blockage with actual
   const auto donors=StripSource();FrozenField field(donors,{},false,AssociatedExtensions(donors,reference));
   PatchMetric measured;
   const bool metric=ValidateMetricChange(old.cells,fresh.cells,MetricChange::GeometryRefine,field,measured,reason);
-  INFO(reason);REQUIRE(metric);CHECK(measured.minimum_mean_ratio>.204);CHECK(measured.minimum_scaled_jacobian>.055);
-  CHECK(field.Statistics().extended_edge_pieces>0);
+  INFO(reason);CHECK_FALSE(metric);
+  CHECK(reason.find("Uncovered native3D original/extension source interval.")!=std::string::npos);
   auto excess=[&](const Patch& patch){long double sum=0;for(const auto& f:patch.surface){
     const auto a=Position(patch,f.v[0]),b=Position(patch,f.v[1]),c=Position(patch,f.v[2]);
     const auto e=std::max(0.,reference.SurfaceError(f.facet,{a,b,c})-.04);

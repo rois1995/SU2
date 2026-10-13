@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "cpu": 6,
+  "stages": [
+    {
+      "script": "audit.py",
+      "exit_code": 0
+    },
+    {
+      "script": "audit_primitives.py",
+      "exit_code": 0
+    }
+  ],
+  "scope": "Independent fresh-collar plus accepted primitive geometry/field/actual conserved current+BDF and restart/output audits; not full Goal2 or efficiency. One owned job/CPU/nice19/threads1.",
+  "artifact_sha256": {
+    "audit_primitives.py.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "fresh_collar_audit.json": "9300bf0f69e1096338e264cd19124c2e8a50e5eba1186a73092be99966601a2b",
+    "audit_primitives.py": "af9a33e1d5d49f62cb8cf1ae687dace19c9f7706758202f870b8927636b9fdbb",
+    "cylinder_cap_coverage_v2_audit.json": "6108de44c50ddbc20e102a2aeb532d4490724eb05dabd573492d2ef6366e553a",
+    "audit.py.stdout": "ebb262fe1840df4a9a30cb9b602e6a9af46d645407d9a20cae00f7f7bf305ea7",
+    "audit.py": "e7a6ceca03f7a704bf83b3a10249ef33c1de9b8155801ce4027e870d0173cfbf",
+    "audit.py.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "audit_primitives.py.stdout": "de59d987be9cfefc9ef89eab460e179bc2d8ab5f3ca044ba425b5fd499e6c460",
+    "run.py": "4dffb391a307d45af318790d052cfe4215e8b169371715ee6ef2929ad96932c6"
+  }
+}

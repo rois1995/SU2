@@ -204,9 +204,9 @@ Node ProjectMovePoint(Id vertex,Node point,const Skin& skin,const Physical& phys
       point.p=reference.Project(face.second.facet,point.p,stats);
   for(const auto& face:skin)if(Has(face.second,vertex)) {
     const auto marked=physical.find(face.first);
-    if(marked==physical.end())throw std::invalid_argument("Native3D movement has an unadmitted interface vertex.");
+    if(marked==physical.end())throw std::invalid_argument("Native 3D incomplete movement dependency at interface node "+std::to_string(vertex)+".");
     if(!reference.Contains(marked->second.facet,point.p,stats))
-      throw std::invalid_argument("Native3D movement leaves an incident reference feature.");
+      throw std::invalid_argument("Native 3D movement leaves incident reference facet "+std::to_string(marked->second.facet)+".");
   }
   return point;
 }

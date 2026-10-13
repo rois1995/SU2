@@ -1,3 +1,59 @@
+# Goal 2 capped-cylinder source integration qualified — 2026-10-13
+
+Working folder /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated;
+branch codex/native-3d-curved-local, previouspublished5b3abbd436. Goal ACTIVE;
+full completion audit INCOMPLETE/all four full requirement gates remain PENDING.
+
+Fixed before-freeze cylinder/cap sensor coverage through one conforming radial/
+axial collar for matched declared cylinder+end disks. Shared rim identities and
+coordinates, copied boundary sensors, original-P1 priority, finite immutable
+projection envelope, parent routing/component tags/storage/ID guards preserved.
+No post-failure extension, source containment epsilon, metric reset or tolerance
+relaxation. Old72-cell frozen fixture stays a negative coverage regression; new
+actual CFD import generates24original+96extension cells, shared36nodes.
+
+cylinder_cap_coverage_v2 PASS MPI1/2/4:5cases/rank, all primitive workersM=1..N.
+Previously stalled tilted-cylinder now completes two actual native events and
+CFD conservative/BDF replacement+restart+SU2/CGNS readback:42cells/32points,
+matching axis0 control; sphere26/18. Existing runtime operators complete this
+control after the source fix. Native coordinated strip is geometrically and
+actual-field validated against fresh generation; automatic strip placement/
+publication is still absent and can be revisited when an actual target needs it.
+
+cylinder_cap_audit_v1 PASS: exact collar/original no-overlap and shared tensors,
+copied varying demand, original-priority samples/exact full edges and physical
+source consistency acrossMPI1/2/4. All21primitive variants/two events each are
+independently audited, missingNONE: exact embedded geometry/source lengths/shape,
+transported metrics, actual current+BDF integrals/positivity/new-lost accounting,
+reference/restart/SU2-CGNS signatures. qmin0.20185139; Lmax1.58113883.
+
+cylinder_cap_regression_v2 PASS:107cases/rank MPI1/2/4, whole68-object/current
+source/archive/member/binary pins; source_driftNONE. Current manufactured curved
+refine/coarsen/grow/shrink/CGNS restart and actual solved-Euler pressure-derived
+metric/remesh/SU2restart/continued solve refresh PASS. Independent fresh lifecycle
+validation PASS. Initial test build/private-helper error and regression_v1
+105/107diagnostic-string failures preserved; precise node/facet diagnostics
+restored. No owned job remains live; no broad retest needed before new changes.
+
+Report integration_evidence/native_3d_curved_v1/CYLINDER_CAP_COVERAGE_INTEGRATION.md.
+Actual accepted tilted grid:
+integration_evidence/native_3d_curved_v1/cylinder_cap_coverage_v2/mpi1/cylinder_axis1_m1_mesh_00001.su2
+Refreshed solved Euler grid:
+integration_evidence/native_3d_curved_v1/cylinder_cap_regression_v2/mpi1/solved_bump_m1_mesh_00001.su2
+
+NEXT substantial work: resolved nonuniform/shock Euler control where locally
+feasible, derived from actual solved states with repeated metric/remesh/continue/
+restart, then explicit final proof of every declared geometry/features/components,
+partition-interface/atomicity and transfer/output requirement. Existing27-point
+subsonic bump demonstrates actual metric cycles but does not resolve a shock.
+Prefer a locally bounded resolved isentropic-vortex or normal-shock control; freeze
+physics/mesh/metric/geometry/contracts before tests. Do not resume larger-cavity/
+placement tuning just to repeat the now-fixed primitive stall. Retain full goal
+scope, permanent AGENTS batching cadence, no cluster/performance/generalCAD/
+production3DBL/fullphysicalunsteady/force-convergence or arbitrary feasibility
+claim. AdapNoExt/dependencies/foreignClusterResults untouched. Push this qualified
+integration checkpoint; Goal remains ACTIVE, no full completion justified.
+
 # Goal 2 coordinated strip and frozen cap coverage — 2026-10-13
 
 Working folder /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated,

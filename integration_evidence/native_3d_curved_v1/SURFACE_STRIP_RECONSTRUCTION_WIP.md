@@ -1,3 +1,14 @@
+# Update: fresh pre-freeze collar qualifies the saved strip
+
+The historical old-source gap below remains a valid negative regression.
+CYLINDER_CAP_COVERAGE_INTEGRATION.md records the corrected before-freeze source:
+actual CFD-owned generation now passes the native saved-strip field checks and
+independent exact edge/embedding/unchanged-sensor/MPI consistency audits. The
+existing engine also completes the previously stalled tilted-cylinder control.
+Automatic strip placement/publication remains unimplemented; current next major
+work is the full-goal resolved CFD control and remaining explicit requirement audit.
+No frozen saved target was modified retroactively.
+
 # Coordinated surface strip — implementation in qualification
 
 Repository: SU2_NativeIntegrated, branch codex/native-3d-curved-local. Goal 2 remains

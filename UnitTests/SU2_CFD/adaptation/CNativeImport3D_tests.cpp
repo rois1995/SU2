@@ -1248,3 +1248,70 @@ TEST_CASE("Native sphere cylinder and disk rims adapt through full distributed r
     if(cycle==1)OutputRoundTrip(world,event,result.slices,accepted.cells,retained,.5,[](const su2double*,double){return Tensor{.5,0,0,.5,0,.5};},&donor.original);
   }
 }
+
+namespace {
+#include "../../Common/adaptation/fixtures/native_joint_obstruction.inc"
+#include "../../Common/adaptation/fixtures/native_strip_obstruction.inc"
+}
+TEST_CASE("Actual CFD import freezes a conforming cylinder-cap collar for joint strip edits",
+          "[NativeCylinderCoverage3D]") {
+  World world;const bool varying=GENERATE(false,true);
+  const auto reference=JointReference();const auto saved=StripSource();CSimplexMesh seed;seed.nDim=3;
+  std::map<Id,Point> points;
+  for(const auto& d:saved)if(d.extension_component==UINT64_MAX) {
+    for(auto n:d.cell.v)points.emplace(n.id,n.p);
+    for(auto n:d.cell.v)seed.elem.push_back(n.id);
+  }
+  REQUIRE(points.size()==18);for(Id id=0;id<18;++id){const auto p=points.at(id);seed.coord.insert(seed.coord.end(),{p.x,p.y,p.z});}
+  seed.elemRef.assign(seed.GetnElem(),0);
+  const std::array<std::string,3> names{{"x_minus","x_plus","y_minus"}};
+  for(size_t marker=0;marker<3;++marker) {
+    CSimplexMesh::Marker tag;tag.name=names[marker];
+    for(Id id=0;id<32;++id){const auto& f=reference.Get(id);if(f.marker==int(marker))for(auto n:f.v)tag.elem.push_back(n.id);}
+    seed.markers.push_back(tag);
+  }
+  auto config=MakeConfig(3,"SOLVER= EULER\nADAP_HAUSD= 0.04\nADAP_HESSIAN_NOISE= 0\n");
+  MeshSolution mesh(config.get(),seed,0);su2activematrix sensor(mesh.Fine().GetnPointDomain(),6);
+  for(unsigned long n=0;n<sensor.rows();++n) {
+    const auto x=SU2_TYPE::GetValue(mesh.Fine().nodes->GetCoord(n)[0]);
+    for(size_t j=0;j<6;++j)sensor(n,j)=j==0||j==3||j==5 ? .5+(varying?.01*(x-2):0) : 0;
+  }
+  ReferenceState state;state.original=std::make_shared<PlanarReference>(reference);
+  for(Id id=0;id<32;++id)state.facets.push_back(reference.Get(id));state.marker_names.assign(names.begin(),names.end());
+  // This source is generated from the accepted original CFD mesh before any private strip proposal exists.
+  const auto imported=ImportGeometry(*config,mesh.Fine(),&sensor,state);
+  CHECK(CPassiveComm::Allreduce(uint64_t(imported.original.size()),CPassiveComm::Op::SUM,world.comm)==120);
+  DonorImport service(world);std::string reason;REQUIRE(service.Build(imported.original,reason));
+  const auto loaded=service.Import({DonorRegion{-4,-4,-4,4,4,4}});INFO(loaded.reason);REQUIRE(loaded.valid);
+  REQUIRE(loaded.cells.size()==120);
+  FrozenField field(loaded.cells,{},false,AssociatedExtensions(loaded.cells,*state.original)),original_only(loaded.cells);
+  std::map<Id,Tensor> original_tensors;
+  for(const auto& d:loaded.cells)if(d.extension_component==UINT64_MAX)for(size_t j=0;j<4;++j)original_tensors.emplace(d.cell.v[j].id,d.sensor[j]);
+  const auto span=original_tensors.rbegin()->first+1;
+  for(const auto& d:loaded.cells)if(d.extension_component!=UINT64_MAX)for(size_t j=0;j<4;++j) {
+    const auto id=d.cell.v[j].id;const auto old=original_tensors.at(id<span ? id : id-span);
+    CHECK(d.sensor[j].xx==old.xx);CHECK(d.sensor[j].yy==old.yy);CHECK(d.sensor[j].zz==old.zz);
+  }
+  for(const auto& d:loaded.cells)if(d.extension_component==UINT64_MAX) {
+    Point center{};for(auto n:d.cell.v){center.x+=n.p.x/4;center.y+=n.p.y/4;center.z+=n.p.z/4;}
+    const auto original=original_only.Query(center),actual=field.Query(center);
+    CHECK(actual.donor==original.donor);CHECK(actual.weights==original.weights);CHECK(actual.sensor.xx==original.sensor.xx);
+  }
+  Patch fresh;const auto old=StripObstruction();
+  REQUIRE(SplitSurfaceStrip(old,{12,1604},StripPoint(),StripMoves(),300000,*state.original,fresh,reason));
+  PatchMetric measured;const bool valid=ValidateMetricChange(old.cells,fresh.cells,MetricChange::GeometryRefine,field,measured,reason);
+  INFO(reason);REQUIRE(valid);CHECK(measured.minimum_mean_ratio>.204);CHECK(measured.minimum_scaled_jacobian>.055);
+  CHECK(field.Statistics().extended_edge_pieces>0);
+  for(const auto& m:StripMoves())CHECK(field.Query(m.second.p).sensor.xx>0);
+  // The collar covers representability near the declared cap, while remaining a bounded extension.
+  const Point far_cap{2+2/std::sqrt(3.),-1+2/std::sqrt(3.),.5+2/std::sqrt(3.)};CHECK_THROWS(field.Query(far_cap));
+  const auto name=std::string("generated_cylinder_cap_")+(varying?"varying":"constant");
+  SaveCoverage(world,name,imported.original,state);
+  Owned proposed;
+  for(const auto& c:fresh.cells)if(c.id%world.size==unsigned(world.rank)) {
+    OwnedCell owned;owned.cell=c;
+    for(size_t slot=0;slot<4;++slot)for(const auto& f:fresh.surface){Face a{};size_t at=0;for(size_t k=0;k<4;++k)if(k!=slot)a[at++]=c.v[k].id;auto b=f.v;std::sort(a.begin(),a.end());std::sort(b.begin(),b.end());if(a==b)owned.physical[slot]={true,f.facet};}
+    proposed.emplace(c.id,owned);
+  }
+  Save(world,name+"_strip",proposed,imported.original,state);
+}
