@@ -1,16 +1,20 @@
 # Coupled BL construction/removal pilot
 
-Six-tetrahedron cube, height0.1, growth1.2, thickness0.3, frozen identity P1 sensor.
-The distinct-marker and ordinary wall/far-marker engine pilots both reject the
-remaining corner edge. Full engine construction and Euler release are incomplete.
+Coarse source: six-tetrahedron cube, height0.1, growth1.2, thickness0.3, identity
+original P1 sensors. Both distinct-marker and ordinary wall/far-marker cold engine
+construction remain rejected. Full Goal3 and production support are incomplete.
 
-`validated_witness_v1/` preserves a native-passing private joint repair of the
-ordinary-marker saved failure, with an independent exact/analytic whole-mesh audit
-and inspectable `grouped_joint_witness.su2`. This validates one reconstruction;
-the engine has not yet discovered/published it, and no CFD solution is attached.
+`validated_witness_v1/` preserves the first accepted private joint replacement.
+`validated_engine_replay_v1/` contains the actual engine repair of its saved100-cell
+input using immutable six-cell donors, and complete Euler release on MPI1/2/4.
+Independent geometry/full metric/first-height audits PASS. Inspect saved_BL_input,
+constructed_BL and released_euler SU2 files there; no CFD solutions are attached.
 
-From the repository root, after building the test driver:
-`python3 integration_evidence/native_3d_bl_v1/coupled_engine_v1/run.py balanced_analytic joint_witness`
-Then run `audit_witness.py` in this folder through Python. Selected stages write
-`validation_focused.json`; the original full-campaign rejection stays preserved.
+From the repository root after building the test driver:
+`python3 integration_evidence/native_3d_bl_v1/coupled_engine_v1/run.py corner_engine_mpi1 corner_engine_mpi2 corner_engine_mpi4`
+Audit each using `audit.py corner_engine_mpi1` (then2/4). Selected stages write
+validation_focused.json; the full campaign failure stays preserved. Source,
+fixtures, build/binary, inputs, helper, command and output hashes accompany evidence.
+The first-engine rejected89-cell snapshot and subsequent rejected logs remain.
+
 No CFD, transfer, RANS, curved/interacting-wall BL or performance qualification.

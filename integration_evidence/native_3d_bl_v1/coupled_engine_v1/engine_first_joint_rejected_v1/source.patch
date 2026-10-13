@@ -1,0 +1,225 @@
+diff --git a/Common/src/adaptation/CNativeEngine3D.cpp b/Common/src/adaptation/CNativeEngine3D.cpp
+index 329dd74809..13e3a068dc 100644
+--- a/Common/src/adaptation/CNativeEngine3D.cpp
++++ b/Common/src/adaptation/CNativeEngine3D.cpp
+@@ -916,7 +916,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+       if (!ready) return finish();
+     }
+     ++stats.rounds;
+-    const bool batched=!curved && !repairing && (!coarsening || !bad_field) && options.candidate_batch>1;
++    const bool batched=!curved && !composition && !repairing && (!coarsening || !bad_field) && options.candidate_batch>1;
+     std::vector<Choice> choices;
+     DependencyBatch dependency_batch;
+     ImportedBatch imported_batch;
+@@ -976,8 +976,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+       }
+     } else {
+       Timer timer(stats.selection_seconds,options.timings);
+-      if(curved) {
+-        // shortcut: serialize curved commits until collision reservations cover concurrently displaced cavities.
++      if(curved || composition) {
++        // shortcut: serialize displaced/expanded commits until concurrent reservations cover complete joint stars.
+         const int owner=CPassiveComm::Allreduce(choice.active ? world.rank : world.size,CPassiveComm::Op::MIN,world.comm);
+         choice.active=choice.active && world.rank==owner;
+       }
+@@ -1064,7 +1064,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+     const auto epoch=transfer_memory::Add(transfer_memory::Mul(round,world.size),world.rank);
+     const auto token=transfer_memory::Add(transfer_memory::Mul(epoch,options.candidate_batch),slot);
+     const auto offset=transfer_memory::Mul(token,MaximumReplacementCells);
+-    const size_t node_stride=curved || composition ? 2 : 1;
++    const size_t node_stride=composition ? 3 : curved ? 2 : 1;
+     const auto node_offset=transfer_memory::Mul(token,node_stride);
+     Point splitPosition{};
+     if(!repairing && !coarsening && composition) {
+@@ -1297,7 +1297,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+       CLocalFailure old_failure;
+       if (metric_needed && !old_measured) old_failure.Set(1,0,result.reason);
+       if (!(ready=vote(old_failure))) return finish();
+-      auto validate_private=[&](bool candidate,MetricChange kind) {
++      auto validate_private=[&](bool candidate,MetricChange kind,bool no_new_oversized=false) {
+         candidate=geometric_change(candidate,kind);
+         PatchMetric metric;
+         const std::vector<Cell> empty;
+@@ -1307,6 +1307,14 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+           if (candidate) {
+             const auto effective=(kind==MetricChange::Repair && geometric_progress) ? MetricChange::GeometryRepair : kind;
+             if (measured) valid=ValidateMetricChange(old.cells.size(),before,fresh.cells.size(),metric,effective,result.reason,&certified);
++            if(valid && no_new_oversized)for(const auto& edge:metric.edges)if(edge.second.length>MaximumMetricEdge) {
++              const auto previous=before.edges.find(edge.first);
++              auto same=[](Point a,Point b){return a.x==b.x && a.y==b.y && a.z==b.z;};
++              if(previous==before.edges.end() || !same(previous->second.a,edge.second.a) || !same(previous->second.b,edge.second.b)) {
++                valid=false;certified.failure=MetricFailure::Progress;
++                result.reason="Native3D joint strip introduces a new oversized edge.";break;
++              }
++            }
+             metric_trial(valid,certified);
+           }
+         }
+@@ -1319,9 +1327,133 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
+         return std::find(f.v.begin(),f.v.end(),choice.edge[0])!=f.v.end() && std::find(f.v.begin(),f.v.end(),choice.edge[1])!=f.v.end();
+       });
+       bool joint=chosen && (choice.geometric || (composition && boundary_edge)) && !repairing && !coarsening && !approved;
++      bool strip=joint && composition && !curved && !choice.geometric;
++      std::vector<Id> movers;
++      if(strip)for(const auto& f:old.surface) {
++        if(std::find(f.v.begin(),f.v.end(),choice.edge[0])==f.v.end() || std::find(f.v.begin(),f.v.end(),choice.edge[1])==f.v.end())continue;
++        for(auto id:f.v)if(id!=choice.edge[0] && id!=choice.edge[1])movers.push_back(id);
++      }
++      std::sort(movers.begin(),movers.end());movers.erase(std::unique(movers.begin(),movers.end()),movers.end());
++      strip=strip && movers.size()==2;
++      if(world.maximum(strip)) {
++        std::vector<Feature> features;
++        if(strip) {features.push_back({{choice.edge[0],choice.edge[1],0},2});for(auto id:movers)features.push_back({{id,0,0},1});}
++        Dependencies joined;
++        {Timer timer(stats.dependency_seconds,options.timings);
++          joined=directory.Lookup(features,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));}
++        if(!joined.valid) {
++          if(joined.reason=="Native 3D dependency star exceeds budget." || joined.reason=="Native 3D dependency union exceeds budget.")strip=false;
++          else failure.Set(1,0,joined.reason);
++        }
++        if(!(ready=vote(failure)))return finish();
++        if(!strip){joined.valid=true;joined.cells.clear();}
++        Imported more;
++        {Timer timer(stats.dependency_seconds,options.timings);
++          more=directory.Fetch(joined,working,options.memory_ceiling,
++              transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));}
++        if(!more.valid){result.reason=more.reason;return finish();}
++        if(strip)try {
++          for(const auto& olddep:dependencies.cells) {
++            const auto found=std::find_if(joined.cells.begin(),joined.cells.end(),[&](const auto& dep){return dep.cell==olddep.cell;});
++            if(found==joined.cells.end() || found->version!=olddep.version || found->owner!=olddep.owner)
++              throw std::runtime_error("Native3D strip lost an original complete/versioned edge dependency.");
++          }
++          dependencies=std::move(joined);imported=std::move(more);old=GeometryPatch(imported);reuse.clear();
++          for(const auto& c:old.cells)selection.Cached(c,reuse);
++        }catch(const std::exception& e){failure.Set(2,0,e.what());}
++        if(!(ready=vote(failure)))return finish();
++        bool reserved=false;
++        {Timer timer(stats.reservation_seconds,options.timings);
++          reserved=directory.Reserve(imported,strip,result.reason,options.memory_ceiling,
++              transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));}
++        if(strip && !reserved)failure.Set(1,0,"Native3D strip lost its complete-star reservation.");
++        if(!(ready=vote(failure)))return finish();
++        const bool measured=measure_private(joint?old.cells:empty,before,false,reuse);
++        if(!ready)return finish();
++        if(joint && !measured)failure.Set(1,0,result.reason);
++        if(!(ready=vote(failure)))return finish();
++        DonorPatch donors;
++        {Timer timer(stats.donor_seconds,options.timings);++stats.donor_batches;
++          donors=source.ImportCells(strip?old.cells:empty,options.memory_ceiling,
++              transfer_memory::Add(bytes(),directory.ResidentBytes(),private_scratch));}
++        if(!donors.valid) {
++          if(DonorCap(donors.reason))strip=false;
++          else {result.reason=donors.reason;return finish();}
++        }
++        std::array<Point,3> splits{};
++        std::array<std::vector<std::pair<Id,Node>>,3> moveSeeds;
++        if(strip)try {
++          Timer timer(stats.metric_seconds,options.timings);CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
++          const auto components=AssociatedExtensions(donors.cells,geometry);
++          FrozenField target(std::move(donors.cells),composition,options.timings,components,options.edge_breakpoints);
++          FieldAccounting accounting{stats,target};std::map<Id,Node> nodes;
++          for(const auto& c:old.cells)for(auto n:c.v)nodes.emplace(n.id,n);
++          const std::array<double,3> fractions{{.5,.55,.565}};
++          for(size_t i=0;i<fractions.size();++i)splits[i]=target.BalancedSplitPoint(nodes.at(choice.edge[0]).p,nodes.at(choice.edge[1]).p,fractions[i]);
++          for(size_t i=0;i<movers.size();++i) {
++            const auto id=movers[i];const auto origin=nodes.at(id).p;std::set<Id> neighbors;
++            for(const auto& f:old.surface)if(std::find(f.v.begin(),f.v.end(),id)!=f.v.end())neighbors.insert(f.v.begin(),f.v.end());
++            neighbors.erase(id);std::vector<std::pair<Point,Tensor>> values;
++            for(auto neighbor:neighbors) {
++              const auto q=nodes.at(neighbor).p;
++              const Point mid{double(((long double)origin.x+q.x)/2),double(((long double)origin.y+q.y)/2),double(((long double)origin.z+q.z)/2)};
++              values.emplace_back(q,target.Query(mid).target);
++            }
++            const Node mean=ConstrainMovePoint(old,id,{maximum_node+2+i+node_offset,MetricMeanPoint(origin,values)},options.wall_heights,geometry);
++            for(size_t damping=0;damping<3;++damping) {
++              auto proposal=mean;
++              if(damping) {
++                auto t=target.Query(origin).target;
++                const auto scale=std::max({std::abs(t.xx),std::abs(t.xy),std::abs(t.xz),std::abs(t.yy),std::abs(t.yz),std::abs(t.zz)});
++                const auto factor=(damping==1?1.:3.)/scale;t={t.xx*factor,t.xy*factor,t.xz*factor,t.yy*factor,t.yz*factor,t.zz*factor};
++                proposal.p=MetricMeanPoint(origin,{{mean.p,Tensor{}},{origin,t}});
++                proposal=ConstrainMovePoint(old,id,proposal,options.wall_heights,geometry);
++              }
++              moveSeeds[damping].emplace_back(id,proposal);
++            }
++          }
++        }catch(const std::exception& e){failure.Set(2,0,e.what());}
++        if(!(ready=vote(failure)))return finish();
++        // Bounded complete proposals; reject new oversized edges while allowing untouched residuals elsewhere.
++        for(unsigned trial=0;trial<36 && world.maximum(strip && !approved);++trial) {
++          if(stats.global_work>=stats.work_limit){stats.stop=EngineStop::WorkBudget;result.reason="Native3D joint strip exhausted the global work budget.";return finish();}
++          ++stats.global_work;
++          if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
++            stats.stop=EngineStop::TimeBudget;result.reason="Native3D joint strip exhausted the elapsed budget.";return finish();
++          }
++          bool candidate=false;
++          if(strip && !approved)try {
++            Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
++            ++stats.repair_proposals;auto moves=moveSeeds[(trial%12)/4];const double alpha=std::array<double,4>{{1.,.5,.25,.125}}[trial%4];
++            for(auto& move:moves) {
++              Point origin{};bool found=false;for(const auto& c:old.cells)for(auto n:c.v)if(n.id==move.first){origin=n.p;found=true;}
++              if(!found)throw std::runtime_error("Native3D joint strip misses a moved identity.");
++              const auto q=move.second.p;
++              move.second.p={double(origin.x+alpha*((long double)q.x-origin.x)),double(origin.y+alpha*((long double)q.y-origin.y)),double(origin.z+alpha*((long double)q.z-origin.z))};
++            }
++            point.p=splits[trial/12];
++            candidate=guarded_geometry(SplitSurfaceStrip(old,choice.edge,point,moves,maximum_cell+1+offset,geometry,fresh,result.reason));
++          }catch(const std::exception& e){failure.Set(2,0,e.what());}
++          if(!(ready=vote(failure)))return finish();
++          const bool passed=validate_private(candidate,MetricChange::Refine,true);
++          if(strip && !approved)approved=passed;
++          if(!ready)return finish();
++        }
++        if(strip && approved){cavity_inserted=true;joint=false;}
++      }
+       Tensor placement,nearPlacement;
+       if(world.maximum(joint)) {
+-        const auto proxy=source.ImportMetricCells(joint ? std::vector<Cell>{old.cells.front()} : empty,
++        std::vector<Cell> query;
++        if(joint)try {
++          query.push_back(old.cells.front());
++          const auto edgeCell=std::find_if(old.cells.begin(),old.cells.end(),[&](const auto& c){
++            unsigned matches=0;for(auto n:c.v)matches+=n.id==choice.edge[0] || n.id==choice.edge[1];return matches==2;
++          });
++          if(edgeCell==old.cells.end())throw std::runtime_error("Native3D joint patch lacks its complete split edge.");
++          if(edgeCell->id!=query.front().id)query.push_back(*edgeCell);
++        }catch(const std::exception& e){failure.Set(2,0,e.what());}
++        if(!(ready=vote(failure)))return finish();
++        const auto proxy=source.ImportMetricCells(query,
+             options.memory_ceiling,transfer_memory::Add(bytes(),directory.ResidentBytes(),private_scratch));
+         if(!proxy.valid){result.reason=proxy.reason;return finish();}
+         if(joint)try {
+diff --git a/UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp b/UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp
+index 299f9efebf..1d8a6d7abe 100644
+--- a/UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp
++++ b/UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp
+@@ -1103,15 +1103,25 @@ void CornerStripProbe(bool grouped) {
+   bool approved=false,builtAny=false;Patch fresh;PatchMetric metric;std::string reason;
+   for(double fraction:grouped?std::vector<double>{.5,.55,.565}:std::vector<double>{.5}) {
+    split.p=field.BalancedSplitPoint(nodes.at(0).p,nodes.at(4).p,fraction);
+-   for(double alpha:{1.,.5,.25,.125}) {
+-    auto trial=moves;for(auto& m:trial){const auto a=nodes.at(m.first).p,b=m.second.p;
++   for(double damping:grouped?std::vector<double>{0,1,3}:std::vector<double>{0}) {
++    if(approved)break;
++    for(double alpha:{1.,.5,.25,.125}) {
++    auto trial=moves;for(auto& m:trial){const auto a=nodes.at(m.first).p;
++      if(damping) {
++        auto t=field.Query(a).target;const auto scale=std::max({std::abs(t.xx),std::abs(t.xy),std::abs(t.xz),std::abs(t.yy),std::abs(t.yz),std::abs(t.zz)});
++        const auto factor=damping/scale;t={t.xx*factor,t.xy*factor,t.xz*factor,t.yy*factor,t.yz*factor,t.zz*factor};
++        m.second.p=MetricMeanPoint(a,{{m.second.p,Tensor{}},{a,t}});
++        m.second=ConstrainMovePoint(old,m.first,m.second,heights,reference);
++      }
++      const auto b=m.second.p;
+       m.second.p={double(a.x+alpha*((long double)b.x-a.x)),double(a.y+alpha*((long double)b.y-a.y)),double(a.z+alpha*((long double)b.z-a.z))};}
+     const bool built=SplitSurfaceStrip(old,{0,4},split,trial,300000,reference,fresh,reason);
+     builtAny=builtAny || built;
+     const bool passed=built && ValidateMetricChange(old.cells,fresh.cells,MetricChange::Refine,field,metric,reason) &&
+       (!grouped || metric.maximum_length<=MaximumMetricEdge);
+-    INFO("fraction="<<fraction<<" alpha="<<alpha<<" built="<<built<<" reason="<<reason<<" q="<<metric.minimum_mean_ratio<<" J="<<metric.minimum_scaled_jacobian<<" length="<<double(metric.maximum_length));
++    INFO("fraction="<<fraction<<" damping="<<damping<<" alpha="<<alpha<<" built="<<built<<" reason="<<reason<<" q="<<metric.minimum_mean_ratio<<" J="<<metric.minimum_scaled_jacobian<<" length="<<double(metric.maximum_length));
+     if(passed){approved=true;break;}
++   }
+   }
+    if(approved)break;
+   }

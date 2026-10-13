@@ -1,3 +1,63 @@
+# Goal3 actual joint-engine repair and Euler release: MPI1/2/4 PASS — 2026-10-13
+
+Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
+Branch: codex/native-3d-bl; preceding published checkpoint 4bda1c8651.
+Goal3 ACTIVE and incomplete; production configured-BL guard retained.
+All owned jobs terminal at this checkpoint. No CFD or cluster submission.
+
+The bounded general metric-directed search finds the previous private witness
+without saved production coordinates. The full engine now discovers and publishes
+that repair from the saved 100-cell ordinary-marker obstruction using immutable
+six-cell Euler donors. MPI1/2/4 all construct101 accepted cells in one transaction
+and then release the BL and coarsen to valid Euler meshes (12/6/6 cells).
+Independent exact whole-mesh geometry/volume/coverage plus analytic full-target
+metric and first-height audits PASS on all three ranks. BL maximum length
+1.7770384925, minimum quality0.2127185473, minimum Jacobian0.0522737866;
+volume1, first-height error0, tilt0. Euler maxima1.41421/1.73205/1.73205 and
+qualities0.39613/0.75595/0.68723; topology need not match across ranks.
+
+Inspect integration_evidence/native_3d_bl_v1/coupled_engine_v1/
+validated_engine_replay_v1/: saved_BL_input_n*.su2, replay_grouped_constructed_BL_n*.su2,
+replay_grouped_released_euler_n*.su2, receipts and independent audits. The input
+has already acquired BL cells; this is an engine repair/release proof, not cold
+Euler-to-BL completion. The historical replay_grouped_initial_euler filename is
+misleading; saved_BL_input copies its exact bytes with the correct description.
+Meshes have no attached CFD solution. The prior explicit witness snapshot remains.
+
+Cold six-cell Euler construction still rejects an89-cell mesh with the surface
+corner edge3.15014 and an interior transition edge1.85281. Its operators now admit
+complete versioned edge/vertex unions, up to three coordinated moves, interior
+splits, and private reconnect-plus-two-insertion alternatives. Fixed vertices
+keep coordinates and identities. Target tensors, finer demands, fade and height/
+shape/length gates stay unchanged. No experimental hard-normal reset is used.
+Extra reconstructions remain private until complete final validation and owner
+publication. Work/time/cavity/ID bounds remain explicit; no512 increase.
+
+Important correction: the existing engine already retries primary splits when
+recovery repopulates its queue. A suspected phase-transition change was tested,
+did not resolve the stall, and has been removed; Recover retains its original
+semantics. Reconstruction/operation order remains the cold-start problem.
+
+Composed3D commits are temporarily serialized within their MPI communicator so
+expanded moved-star reservations cannot conflict with concurrently accepted edits.
+This is a correctness shortcut, not a scaling result; broader concurrent admission
+must be qualified before affordability claims. New phases use existing dependency,
+reservation, donor, reconstruction and metric timing counters. Contended correctness
+runs establish no speedup. Coarse/curved/interacting-wall construction, composed
+gradation, production coupling, conservation/current+BDF/turbulence, restart/CGNS,
+actual RANS/M6 accuracy and full lifecycle performance remain incomplete.
+
+Current-binary compatibility PASS: joint/witness and interior/curved strip tests,
+metric movement, microscopic BL, first-height MPI1/2/4, and composed startup
+MPI1/2/4 (including reduced worker subsets). Full engine replay MPI1/2/4 passes;
+cold construction remains FAIL. Do not repeatedly run a broad SU2 suite or CFD
+until a connected change resolves a concrete gate. The next step is exact replay
+of the89-cell cold-start residual to qualify a coordinated transition replacement,
+then connect it to cold construction. Goal4 activation is authorized only after
+full Goal3 completion, with no need to ask the absent user for cluster jobs.
+
+Earlier entries below are historical.
+
 # Goal3 independently accepted joint witness — 2026-10-13
 
 Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.

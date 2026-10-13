@@ -1103,15 +1103,25 @@ void CornerStripProbe(bool grouped) {
   bool approved=false,builtAny=false;Patch fresh;PatchMetric metric;std::string reason;
   for(double fraction:grouped?std::vector<double>{.5,.55,.565}:std::vector<double>{.5}) {
    split.p=field.BalancedSplitPoint(nodes.at(0).p,nodes.at(4).p,fraction);
-   for(double alpha:{1.,.5,.25,.125}) {
-    auto trial=moves;for(auto& m:trial){const auto a=nodes.at(m.first).p,b=m.second.p;
+   for(double damping:grouped?std::vector<double>{0,1,3}:std::vector<double>{0}) {
+    if(approved)break;
+    for(double alpha:{1.,.5,.25,.125}) {
+    auto trial=moves;for(auto& m:trial){const auto a=nodes.at(m.first).p;
+      if(damping) {
+        auto t=field.Query(a).target;const auto scale=std::max({std::abs(t.xx),std::abs(t.xy),std::abs(t.xz),std::abs(t.yy),std::abs(t.yz),std::abs(t.zz)});
+        const auto factor=damping/scale;t={t.xx*factor,t.xy*factor,t.xz*factor,t.yy*factor,t.yz*factor,t.zz*factor};
+        m.second.p=MetricMeanPoint(a,{{m.second.p,Tensor{}},{a,t}});
+        m.second=ConstrainMovePoint(old,m.first,m.second,heights,reference);
+      }
+      const auto b=m.second.p;
       m.second.p={double(a.x+alpha*((long double)b.x-a.x)),double(a.y+alpha*((long double)b.y-a.y)),double(a.z+alpha*((long double)b.z-a.z))};}
     const bool built=SplitSurfaceStrip(old,{0,4},split,trial,300000,reference,fresh,reason);
     builtAny=builtAny || built;
     const bool passed=built && ValidateMetricChange(old.cells,fresh.cells,MetricChange::Refine,field,metric,reason) &&
       (!grouped || metric.maximum_length<=MaximumMetricEdge);
-    INFO("fraction="<<fraction<<" alpha="<<alpha<<" built="<<built<<" reason="<<reason<<" q="<<metric.minimum_mean_ratio<<" J="<<metric.minimum_scaled_jacobian<<" length="<<double(metric.maximum_length));
+    INFO("fraction="<<fraction<<" damping="<<damping<<" alpha="<<alpha<<" built="<<built<<" reason="<<reason<<" q="<<metric.minimum_mean_ratio<<" J="<<metric.minimum_scaled_jacobian<<" length="<<double(metric.maximum_length));
     if(passed){approved=true;break;}
+   }
   }
    if(approved)break;
   }
@@ -1153,6 +1163,12 @@ TEST_CASE("Atomic planar strip split retains marker junctions and complete inter
   std::vector<DonorCell> donors;for(auto c:initial.cells){DonorCell d;d.cell=c;d.sensor.fill({1,0,0,1,0,1});donors.push_back(d);}
   FrozenField field(donors);PatchMetric metric;CHECK(ValidateMetricPatch(fresh.cells,field,metric,reason));
   for(size_t i=0;i<fresh.cells.size();++i)for(size_t j=i+1;j<fresh.cells.size();++j)CHECK(ConformingDisjoint(fresh.cells[i],fresh.cells[j]));
+  Patch interior;
+  REQUIRE(SplitSurfaceStrip(old,{0,8},{9,{.225,.225,.25}},moves,400,reference,interior,reason));
+  CHECK(interior.cells.size()==old.cells.size()+6);CHECK(interior.surface.size()==old.surface.size());
+  INFO(reason);CHECK(ValidateMetricPatch(interior.cells,field,metric,reason));
+  CHECK(ValidateFixedInterface(old.cells,interior.cells,reason));
+  for(size_t i=0;i<interior.cells.size();++i)for(size_t j=i+1;j<interior.cells.size();++j)CHECK(ConformingDisjoint(interior.cells[i],interior.cells[j]));
   auto sentinel=old;auto invalid=moves;invalid.front().second.p={2,2,2};
   CHECK_FALSE(SplitSurfaceStrip(old,{0,4},{9,{0,0,.5}},invalid,300,reference,sentinel,reason));CHECK(Connectivity(sentinel)==Connectivity(old));
   CHECK_FALSE(SplitSurfaceStrip(old,{0,4},{9,{.01,0,.5}},moves,300,reference,sentinel,reason));CHECK(Connectivity(sentinel)==Connectivity(old));

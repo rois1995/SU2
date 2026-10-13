@@ -1,0 +1,56 @@
+{
+  "status": "PASS",
+  "frames": [
+    {
+      "file": "independent_replay_grouped_coupled_BL_n4.json",
+      "cells": 101,
+      "points": 32,
+      "physical_faces": 36,
+      "volume": "1",
+      "minimum_mean_ratio": 0.21271854730235476,
+      "minimum_scaled_jacobian": 0.05227378658328674,
+      "maximum_length": 1.7770384925011444,
+      "longest_edge": [
+        5,
+        657
+      ],
+      "markers": {
+        "10": 2,
+        "11": 34
+      },
+      "strict_metric_gate": false,
+      "height_faces": 2,
+      "max_relative_height_error": 0.0,
+      "max_tilt": 0.0,
+      "full_target_valid": true
+    },
+    {
+      "file": "independent_replay_grouped_released_Euler_n4.json",
+      "cells": 6,
+      "points": 8,
+      "physical_faces": 12,
+      "volume": "1",
+      "minimum_mean_ratio": 0.6872296635790217,
+      "minimum_scaled_jacobian": 0.40824829046386296,
+      "maximum_length": 1.7320508075688772,
+      "longest_edge": [
+        0,
+        6
+      ],
+      "markers": {
+        "11": 10,
+        "10": 2
+      },
+      "strict_metric_gate": false,
+      "height_faces": 0,
+      "max_relative_height_error": 0,
+      "max_tilt": 0,
+      "full_target_valid": true
+    }
+  ],
+  "log": "corner_engine_mpi4_1791922734775163388.log",
+  "log_sha256": "c243ee82b2ef8b0e37a7d0022db811461070f011036764a4f365dbe9e4e3e119",
+  "helper_sha256": "468e6ef7e06b610c80652764603ab1ecb0102b158d8ad97b11aa7d959e167f80",
+  "reused_auditor_sha256": "1822427476ecb5687aaa06f3e7a3cc8f31cde53166fd0c711449eedf7c7c7a50",
+  "scope": "Exact positive volume, global no-overlap/manifold/oriented skin and finite facet coverage; independent analytic full composed square-wall metric, integrated lengths, first height and tilt. No CFD/transfer/production qualification."
+}

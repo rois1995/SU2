@@ -118,5 +118,25 @@
     "height_error": 0,
     "tilt": 0,
     "remaining": "generic discovery, complete MPI dependency/publication, full BL engine and Euler release, production/CFD and all Goal3 remaining gates"
+  },
+  "engine_replay": {
+    "status": "PASS_LIMITED_SCOPE",
+    "MPI": [
+      1,
+      2,
+      4
+    ],
+    "immutable_source_cells": 6,
+    "input_cells": 100,
+    "BL_cells": 101,
+    "Euler_cells": [
+      12,
+      6,
+      6
+    ],
+    "evidence": "integration_evidence/native_3d_bl_v1/coupled_engine_v1/validated_engine_replay_v1",
+    "cold_Euler_to_BL": "FAIL:89cells with surface/interior length residuals",
+    "performance": "Unqualified; composed MPI commits temporarily serialized",
+    "remaining": "All full Goal3 gates including cold start, curved/interacting layers, production, current+BDF/turbulence/CFD, restart/output and lifecycle performance"
   }
 }

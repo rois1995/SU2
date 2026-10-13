@@ -60,6 +60,9 @@ def main():
       ('balanced_analytic','[NativeBalancedSplit3D]',1),
       ('joint_witness','[NativeBLCorner3D],[NativeBLCornerGrouped3D],[NativePlanarStrip3D],[NativeSurfaceStrip3D]',1),
       ('grouped_coupled_mpi1','[NativeCoupledBLGrouped3D]',1),
+      ('corner_engine_mpi1','[NativeBLCornerEngine3D]',1),
+      ('corner_engine_mpi2','[NativeBLCornerEngine3D]',2),
+      ('corner_engine_mpi4','[NativeBLCornerEngine3D]',4),
       ('metric_movement','[NativeMetricMove3D]',1),
       ('microscopic_balance','Native 3D composed edges resolve a microscopic BL without spreading donor tensors',1),
       ('coupled_mpi1','[NativeCoupledBL3D]',1),
@@ -87,7 +90,8 @@ def main():
         command += [str(BINARY), selection, '--reporter', 'compact']
         contract = {'provenance': provenance, 'command': command, 'MPI_ranks': ranks,
                     'environment': {'OMP_NUM_THREADS': '1', 'OPENBLAS_NUM_THREADS': '1', 'OMPI_MCA_mpi_yield_when_idle': '1','SU2_NATIVE_CURVED_EVIDENCE':'1'}}
-        if name in ('coupled_mpi2','coupled_mpi4') and not any(r['stage']=='coupled_mpi1' and r['status']=='PASS' for r in receipts):
+        serial='corner_engine_mpi1' if name.startswith('corner_engine_') else 'coupled_mpi1'
+        if name in ('coupled_mpi2','coupled_mpi4','corner_engine_mpi2','corner_engine_mpi4') and not any(r['stage']==serial and r['status']=='PASS' for r in receipts):
             receipt={'stage':name,'status':'NOT_RUN','reason':'Serial coupled construction has not passed; do not repeat known failure on more ranks.'}
             receipts.append(receipt)
             print(name+': NOT_RUN',flush=True)

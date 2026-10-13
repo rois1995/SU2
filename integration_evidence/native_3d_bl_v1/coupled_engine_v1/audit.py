@@ -54,8 +54,12 @@ def edge(original,a,b):
     return total
 
 def main():
-    receipt=json.loads((HERE/'coupled_mpi1.json').read_text())
+    stage=sys.argv[1] if len(sys.argv)>1 else 'coupled_mpi1'
+    assert stage in ('coupled_mpi1','grouped_coupled_mpi1','corner_engine_mpi1','corner_engine_mpi2','corner_engine_mpi4'), 'This oracle covers the declared cube only'
+    prefix='replay_grouped_' if stage.startswith('corner_engine_') else 'grouped_' if stage.startswith('grouped_') else ''
+    receipt=json.loads((HERE/(stage+'.json')).read_text())
     log=HERE/receipt['log'];assert digest(log)==receipt['log_sha256']
+    ranks=receipt['contract']['MPI_ranks']
     initial=read_su2(HERE/'initial_euler_n1.su2');assert initial.dim==3 and len(initial.E)==6
     corners=[(0,0,0),(1,0,0),(1,1,0),(0,1,0),(0,0,1),(1,0,1),(1,1,1),(0,1,1)]
     native={tuple(map(float,p)):i for i,p in enumerate(corners)}
@@ -66,15 +70,22 @@ def main():
         marker=int(name.split('_')[1])
         assert len(triangles)==1
         facets.append(dict(id=marker-10,marker=marker,vertices=[vertices[int(i)] for i in triangles[0]]))
+    groups=defaultdict(list)
+    if prefix:
+        for f in facets:
+            points=[v[1:] for v in f['vertices']]
+            f['marker']=10 if all(p[2]==0 for p in points) else 11
+            planes=[(i,points[0][i]) for i in range(3) if all(p[i]==points[0][i] for p in points)]
+            assert len(planes)==1;groups[planes[0]].append(f['id'])
     meshes=defaultdict(dict)
     for line in log.read_text().splitlines():
         r=line.split()
-        if not r or r[0]!='MESH' or r[1]!='coupled_BL_rejected':continue
+        if not r or r[0]!='MESH' or r[1] not in {prefix+'coupled_BL',prefix+'coupled_BL_rejected',prefix+'released_Euler',prefix+'released_Euler_rejected'}:continue
         assert len(r)==28 and int(r[2]) not in meshes[r[1]]
         meshes[r[1]][int(r[2])]=dict(id=int(r[2]),version=int(r[3]),
             vertices=[[int(r[4+4*i])]+list(map(float,r[5+4*i:8+4*i])) for i in range(4)],
             physical=[list(map(int,r[20+2*i:22+2*i])) for i in range(4)])
-    assert meshes,'No rejected-frame records; accepted-frame collection must be added when the pilot succeeds'
+    assert meshes,'No complete mesh-frame records'
     reports=[]
     for label,rows in meshes.items():
         nodes={};cells=[];physical=[]
@@ -85,30 +96,32 @@ def main():
                 nodes[n[0]]=n
             for face,(present,facet) in zip(faces(row['vertices']),row['physical']):
                 if present:physical.append(dict(nodes=[n[0] for n in face],facet=facet))
-        path=HERE/('independent_'+label+'_n1.json')
+        path=HERE/('independent_'+label+'_n'+str(ranks)+'.json')
         data=dict(nodes=list(nodes.values()),cells=cells,surface=physical,facets=facets,original=original)
+        if prefix:data['facet_groups']=list(groups.values())
         path.write_text(json.dumps(data,indent=2)+'\n')
-        measured,_=base.frame(path,False,metric_query=tensor,edge_query=edge)
+        released='released_Euler' in label
+        measured,_=base.frame(path,False,metric_query=base.metric if released else tensor,edge_query=base.length if released else edge)
         assert measured['volume']=='1'
         lookup={i:tuple(map(F,p)) for i,*p in data['nodes']};errors=[];tilts=[]
         for face in physical:
             points=[lookup[i] for i in face['nodes']]
-            if any(p[2]!=0 for p in points):continue
+            if released or any(p[2]!=0 for p in points):continue
             owners=[c for c in cells if set(face['nodes']).issubset(c['nodes'])];assert len(owners)==1
             apex=lookup[next(i for i in owners[0]['nodes'] if i not in face['nodes'])]
             normal=base.cross(base.sub(points[1],points[0]),base.sub(points[2],points[0]));length=math.sqrt(float(base.dot(normal,normal)))
             n=[float(x)/length for x in normal];center=[float(sum(p[j] for p in points)/3) for j in range(3)]
             d=[float(apex[j])-center[j] for j in range(3)];height=sum(x*y for x,y in zip(d,n))
             errors.append(abs(abs(height)/.1-1));tilts.append(math.sqrt(sum((x-height*y)**2 for x,y in zip(d,n)))/.1)
-        assert errors and max(errors)<1e-8
-        measured.update(height_faces=len(errors),max_relative_height_error=max(errors),max_tilt=max(tilts),
+        assert released or (errors and max(errors)<1e-8)
+        measured.update(height_faces=len(errors),max_relative_height_error=max(errors,default=0),max_tilt=max(tilts,default=0),
             full_target_valid=measured['maximum_length']<=1.8+1e-8)
         reports.append(measured)
     result=dict(status='REJECTED' if any(not r['full_target_valid'] for r in reports) else 'PASS',frames=reports,
         log=log.name,log_sha256=digest(log),helper_sha256=digest(Path(__file__)),
         reused_auditor_sha256=digest(ROOT/'integration_evidence/native_3d_core_v1/audit_coupled.py'),
         scope='Exact positive volume, global no-overlap/manifold/oriented skin and finite facet coverage; independent analytic full composed square-wall metric, integrated lengths, first height and tilt. No CFD/transfer/production qualification.')
-    (HERE/'independent_audit.json').write_text(json.dumps(result,indent=2)+'\n')
+    (HERE/(prefix+'independent_audit_n'+str(ranks)+'.json')).write_text(json.dumps(result,indent=2)+'\n')
     print(result['status'],json.dumps(reports),flush=True)
 
 if __name__=='__main__':main()

@@ -397,6 +397,7 @@ Node ConstrainMovePoint(const Patch& old,Id vertex,Node proposal,const std::map<
     const auto normal=Cross(Delta(left.v[1].p,left.v[0].p),Delta(left.v[2].p,left.v[0].p));
     constrain(Cross(normal,Delta(shared[1].p,shared[0].p)));
   }
+  if(rank==3){proposal.p=origin;return proposal;}
   auto displacement=Delta(proposal.p,origin);
   for(size_t i=0;i<rank;++i){const auto component=Dot(displacement,basis[i]);for(unsigned j=0;j<3;++j)displacement[j]-=component*basis[i][j];}
   proposal.p={double(origin.x+displacement[0]),double(origin.y+displacement[1]),double(origin.z+displacement[2])};
@@ -1124,7 +1125,7 @@ bool SplitSurfaceStrip(const Patch& old,Edge edge,Node point,const std::vector<s
       if(facet==UINT64_MAX)facet=row.second.facet;
       ++incident;
     }
-    if(incident!=2)throw std::invalid_argument("Native3D strip split needs a complete physical boundary edge.");
+    if(incident!=0 && incident!=2)throw std::invalid_argument("Native3D strip split needs a complete interior or physical boundary edge.");
     if(curved) {
       for(const auto& row:physical)if(Has(row.second.v,edge[0]) && Has(row.second.v,edge[1]) && row.second.facet!=facet)
         throw std::invalid_argument("Native3D off-edge strip split crosses a chart or marker junction.");

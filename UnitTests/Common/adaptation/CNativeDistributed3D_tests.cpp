@@ -2277,13 +2277,15 @@ TEST_CASE("Native3D engine elects inconsistent wall-height policies before chang
 }
 
 namespace {
-void CoupledBL(bool grouped) {
-  World world;auto fixture=Box();
+#include "fixtures/native_bl_corner.inc"
+void CoupledBL(bool grouped,bool replay=false) {
+  World world;auto fixture=Box();const auto donorFixture=fixture;
+  if(replay)fixture.patch=BLCornerObstruction();
   if(grouped)for(auto& f:fixture.facets)f.marker=std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;})?10:11;
-  const PlanarReference reference(fixture.facets);const std::string prefix=grouped?"grouped_":"";
+  const PlanarReference reference(fixture.facets);const std::string prefix=(replay?"replay_":"")+std::string(grouped?"grouped_":"");
   const auto input=Partition(Rows(fixture.patch),world),saved=input;
-  const auto original=Uniform(input,{1,0,0,1,0,1});
-  const auto allOriginal=Uniform(Partition(Rows(fixture.patch),World(MPI_COMM_SELF)),{1,0,0,1,0,1});
+  const auto original=Uniform(Partition(Rows(donorFixture.patch),world),{1,0,0,1,0,1});
+  const auto allOriginal=Uniform(Partition(Rows(donorFixture.patch),World(MPI_COMM_SELF)),{1,0,0,1,0,1});
   CBoundaryLayerMetric::Wall wall;wall.layer={"wall",.1,1.2,.3};
   wall.coord={0,0,0,1,0,0,1,1,0,0,1,0};wall.conn={0,1,2,2,0,2,3,3};
   CBoundaryLayerMetric layers(3,{wall});
@@ -2362,6 +2364,10 @@ TEST_CASE("Native3D coupled geometric BL construction and Euler release reach co
 }
 TEST_CASE("Native3D coarse cube with physical wall and far markers constructs and releases BL", "[NativeCoupledBLGrouped3D]") {
   CoupledBL(true);
+}
+
+TEST_CASE("Native engine discovers the saved ordinary-marker joint repair from immutable coarse donors", "[NativeBLCornerEngine3D]") {
+  CoupledBL(true,true);
 }
 
 TEST_CASE("Native composed BL startup preserves original geometry across MPI worker subsets", "[NativeCoupledBLBudget3D]") {
