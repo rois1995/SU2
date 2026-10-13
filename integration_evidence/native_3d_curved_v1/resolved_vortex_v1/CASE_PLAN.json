@@ -1,0 +1,57 @@
+{
+  "status": "FROZEN_BEFORE_TEST",
+  "grid": [
+    12,
+    12,
+    3
+  ],
+  "initial_points": 676,
+  "initial_tetrahedra": 2592,
+  "domain": [
+    [
+      -2,
+      2
+    ],
+    [
+      -2,
+      2
+    ],
+    [
+      0,
+      1
+    ]
+  ],
+  "vortex": {
+    "center": [
+      -0.25,
+      0
+    ],
+    "radius": 0.7,
+    "beta": 3,
+    "initial_central_profile_minimum_samples": 8
+  },
+  "lower_bump_amplitude": -0.001,
+  "physics": {
+    "Mach": 0.5,
+    "scheme": "ROE",
+    "MUSCL": false,
+    "time_step": 0.0001,
+    "inner_iterations": 8
+  },
+  "metric": {
+    "sensor": "PRESSURE",
+    "complexity": 400,
+    "hmin": 0.2,
+    "hmax": 0.9,
+    "aspect_ratio": 2,
+    "hessian_noise": 0
+  },
+  "contracts": {
+    "mean_ratio": 0.2,
+    "scaled_jacobian": 0.05,
+    "metric_edge": 1.8,
+    "geometry_error": 0.003,
+    "maximum_work": 16384
+  },
+  "scope": "Actual Euler flow evolution, two CFD-derived frozen-metric/native remesh/current+BDF conservative/restart/continuation events. No shock or convergence claim."
+}

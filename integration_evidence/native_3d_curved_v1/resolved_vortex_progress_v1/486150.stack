@@ -1,0 +1,35 @@
+[New LWP 486153]
+[New LWP 486154]
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+0x000056292c2befc8 in SU2Native3D::(anonymous namespace)::Difference<198> (a=..., b=...) at ../../Common/src/adaptation/CNativePredicates3D.cpp:34
+34	  while (last && !a.limb[last - 1] && !b.limb[last - 1]) --last;
+
+Thread 3 (Thread 0x7fdb67149700 (LWP 486154)):
+#0  0x00007fdb67eed68e in epoll_wait (epfd=10, events=0x562937bcef50, maxevents=32, timeout=2100000) at ../sysdeps/unix/sysv/linux/epoll_wait.c:30
+#1  0x00007fdb67be85e9 in ?? () from /lib/x86_64-linux-gnu/libevent-2.1.so.7
+#2  0x00007fdb67bde625 in event_base_loop () from /lib/x86_64-linux-gnu/libevent-2.1.so.7
+#3  0x00007fdb6724ed56 in ?? () from /lib/x86_64-linux-gnu/libpmix.so.2
+#4  0x00007fdb67fc8609 in start_thread (arg=<optimized out>) at pthread_create.c:477
+#5  0x00007fdb67eed353 in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:95
+
+Thread 2 (Thread 0x7fdb67afe700 (LWP 486153)):
+#0  0x00007fdb67ee0bbf in __GI___poll (fds=0x7fdb60000b60, nfds=1, timeout=3599976) at ../sysdeps/unix/sysv/linux/poll.c:29
+#1  0x00007fdb67be7981 in ?? () from /lib/x86_64-linux-gnu/libevent-2.1.so.7
+#2  0x00007fdb67bde625 in event_base_loop () from /lib/x86_64-linux-gnu/libevent-2.1.so.7
+#3  0x00007fdb67c94706 in ?? () from /lib/x86_64-linux-gnu/libopen-pal.so.40
+#4  0x00007fdb67fc8609 in start_thread (arg=<optimized out>) at pthread_create.c:477
+#5  0x00007fdb67eed353 in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:95
+
+Thread 1 (Thread 0x7fdb67b77ec0 (LWP 486150)):
+#0  0x000056292c2befc8 in SU2Native3D::(anonymous namespace)::Difference<198> (a=..., b=...) at ../../Common/src/adaptation/CNativePredicates3D.cpp:34
+#1  0x000056292c2c142d in SU2Native3D::(anonymous namespace)::ExactDeterminant (a=..., b=..., c=..., d=...) at ../../Common/src/adaptation/CNativePredicates3D.cpp:134
+#2  0x000056292c2c1926 in SU2Native3D::(anonymous namespace)::ExactVolume (t=..., stats=<optimized out>) at /usr/include/c++/9/array:189
+#3  0x000056292c2c19d0 in SU2Native3D::(anonymous namespace)::ClipInterval (t=..., a=..., b=..., volume=..., va=..., vb=..., lo=..., hi=..., closed=true, stats=0x0) at ../../Common/src/adaptation/CNativePredicates3D.cpp:233
+#4  0x000056292c2c3dc4 in SU2Native3D::<lambda(const Tetrahedron&, const Tetrahedron&, const std::array<bool, 4>&)>::operator() (__closure=<optimized out>, shared=..., other=..., t=...) at /usr/include/c++/9/array:189
+#5  SU2Native3D::ConformingDisjoint (a=..., b=..., stats=stats@entry=0x0) at ../../Common/src/adaptation/CNativePredicates3D.cpp:380
+#6  0x000056292c321bfb in SU2Native3D::(anonymous namespace)::Clearance (world=..., working=..., old=..., fresh=..., candidate=@0x7ffd94f2cb7b: true, reason="", stats=..., ceiling=2147483648, caller=16717840) at /usr/include/c++/9/bits/stl_vector.h:915
+#7  0x000056292c3302a5 in SU2Native3D::(anonymous namespace)::Adapt (world=..., accepted=..., original=..., geometry=..., composition=..., options=<error reading variable: Cannot access memory at address 0x3f>, intent=<optimized out>) at ../../Common/src/adaptation/../../include/adaptation/CTransferMemory.hpp:48
+#8  0x000056292c33c7a1 in SU2Native3D::Coarsen(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions) (world=..., accepted=..., original=..., geometry=..., composition=..., options=...) at /usr/include/c++/9/bits/move.h:182
+#9  0x000056292c26c41d in CNativeRemesher3D::Remesh (this=0x562937fe18a0, config=..., geometry=..., sensor=...) at /usr/include/c++/9/bits/shared_ptr_base.h:1020
+[Inferior 1 (process 486150) detached]

@@ -435,5 +435,22 @@
     "target_and_acceptance_tolerances_unchanged": true,
     "remaining": "Resolved nonuniform/shock actual Euler control and final explicit requirement audit; new strip placement/publication unimplemented. Full Goal2 not proven.",
     "full_requirements_completed": 0
+  },
+  "resolved_vortex_control": {
+    "status": "NATIVE_SERIAL_PASS_MPI_ACTIVE",
+    "report": "RESOLVED_VORTEX_CONTROL.md",
+    "frozen_plan": "resolved_vortex_v1/CASE_PLAN.json",
+    "serial_native_exit": 0,
+    "serial_assertions": 31034,
+    "serial_wrapper_receipt": "resolved_vortex_v1/validation.json",
+    "serial_wrapper_status": "FAIL_PARSER_SINGULAR_ONLY",
+    "serial_receipt_sha256": "ce615158f313e3bbaa729bff21358466e2a98aa94c2c9f0fe1f49265bbeef85d",
+    "corrected_mpi_controller": "resolved_vortex_v2/run.py",
+    "live_session": 60343,
+    "physics_audit": "resolved_vortex_audit_v1/physics_audit.json",
+    "physics_sha256": "23b38ceeba3f898cc0979cc8a89f61853156ded23bcde5b7609492e508afa6dd",
+    "whole_independent_audit": "PREPARED_NOTRUN",
+    "remaining": "Complete MPI2/4 and whole independent geometry/field/transfer/restart audit, then final full requirement proof.",
+    "full_requirements_completed": 0
   }
 }

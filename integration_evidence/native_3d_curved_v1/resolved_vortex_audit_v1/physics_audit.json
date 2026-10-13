@@ -1,0 +1,19 @@
+{
+  "status": "PASS_INITIAL_AND_EVOLVED_PHYSICS_ONLY",
+  "results": {
+    "mpi1/resolved_vortex_m1_physics.json": {
+      "analytic_seed_relative_error": 3.565447776459166e-16,
+      "central_profile_samples": 8,
+      "minimum_evolved_pressure_ratio": 0.743437918077498,
+      "maximum_state_change": 0.061706226199316094,
+      "all_current_BDF_states_positive": true
+    }
+  },
+  "inputs_sha256": {
+    "mpi1/resolved_vortex_m1_physics.json": "a1e1851dba8b2654c11516a282526bc63ab00116bba9af54bb74ff76eac5a63a",
+    "mpi1/resolved_vortex_m1_seed_states.json": "646022fe4846c0fe4750ef1f1483ac8efd56808563be94818966b79de2607278",
+    "mpi1/resolved_vortex_m1_s0_evolved_states.json": "a8be959202a2bd7fddc865741300125c158fb48b4cb4802fc5af3ad98b12a0a0"
+  },
+  "script_sha256": "5c326f395a1e51cf28732f0180a8c405ef67fcbb0e3602145fcc5368939b2916",
+  "scope": "Exact analytic compressible-vortex initialization and measured spatial sampling, genuinely changed actual Euler states and current/BDF positivity. Curved finite-domain evolution is not an exact unbounded-vortex solution; no remesh/accepted-mesh/restart/convergence/full Goal2 claim."
+}

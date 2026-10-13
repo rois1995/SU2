@@ -1,3 +1,44 @@
+# Goal 2 resolved Euler vortex: serial qualified, MPI active — 2026-10-13
+
+Working folder /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated;
+branch codex/native-3d-curved-local, previouspublished240a27bd2576. Goal ACTIVE,
+full objective retained and completion audit INCOMPLETE/all four gates PENDING.
+
+New testcase [NativeResolvedEuler3D] uses actual Euler/Roe evolution of a resolved
+isentropic-vortex initial condition on12x12x3/2592tets/676points, analytic lower
+bump-.001, radius.7/beta3, measured8central profile samples. Frozen CASE_PLAN:
+complexity400/hmin.2/hmax.9/AR2/noise0, q.20/J.05/L1.8/Hausd.003/work16384.
+Two CFD-pressure-Hessian/native remesh/conservative current+BDF/restart/continue
+events; no prescribed sensor or post-failure limits change. Production code is
+unchanged from240a; existing test-only complete state gather bound is4096points.
+
+Serial native testcase PASS31034assertions/1case:2592/676initial ->2767/655 ->
+2763/656. resolved_vortex_v1 receipt FAIL is only a plural-only wrapper parser
+('1 test case'); native exit0. Original script/receipt/logs retained. v2 corrects
+and self-checks singular/plural, verifies original source/binary/artifact pins,
+reuses serial via repository-contained mpi1 link; no serial solver rerun.
+Independent seed/evolution physics PASS: initial analytic error3.57e-16, pressure
+minimum ratio.74344, relative evolved change.06171, positive current/BDF states.
+Measured serial mean core volume ratio.58294, core246->422cells. Actual pressure/
+density/Mach VTU exports in resolved_vortex_audit_v1/mpi1; not convergence proof.
+
+LIVE owned controller60343, resolved_vortex_v2/run.py. MPI2/M1 both events complete;
+MPI2/M2 active coarsening, then MPI4/M1/M2/M4 outstanding. Brief owned stack samples
+in resolved_vortex_progress_v1: rank1 actively ConformingDisjoint exact clearance,
+rank0 waits at matching clearance vote. No deadlock established; both detached.
+Source pinned while live. One heavy job, one CPU/nice19/threads1/build-j1/MPI<=4.
+Revalidate60343; do not restart from elapsed time, stale logs or this handoff alone.
+
+Whole independent resolved lifecycle audit is prepared in resolved_vortex_audit_v1/
+audit_lifecycle.py (sweep-box broadphase then exact geometry/contact/field/state/
+restart checks), NOTRUN while MPI active. Report RESOLVED_VORTEX_CONTROL.md.
+NEXT: finish verified MPI run; independently audit all completed states and actual
+metric refresh/resolution; explicit final requirements/features/components/
+partition-interface/atomicity audit. Preserve full Goal2; no cluster/performance/
+shock/convergence/production3DBL/generalCAD/fullphysical-unsteady claim. No changes
+toAdapNoExt/dependencies/foreignClusterResults. WIP source/serial checkpoint will
+be pushed; live MPI folders must wait until their terminal receipt before staging.
+
 # Goal 2 capped-cylinder source integration qualified — 2026-10-13
 
 Working folder /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated;

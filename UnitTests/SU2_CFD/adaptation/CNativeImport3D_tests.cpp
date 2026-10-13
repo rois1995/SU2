@@ -94,7 +94,7 @@ struct FlowRecord {
 };
 std::vector<FlowRecord> Flow(World& world,const CGeometry& geometry,const CSolver& solver,const std::vector<passivedouble>& metric={}) {
   std::vector<FlowRecord> records;const auto* nodes=solver.GetNodes();
-  REQUIRE(geometry.GetGlobal_nPointDomain()<=1024);  // Test-only bounded complete state gather.
+  REQUIRE(geometry.GetGlobal_nPointDomain()<=4096);  // Test-only bounded complete gather for resolved controls.
   for(unsigned long p=0;p<geometry.GetnPointDomain();++p) {
     FlowRecord r;r.id=geometry.nodes->GetGlobalIndex(p);r.point={SU2_TYPE::GetValue(geometry.nodes->GetCoord(p,0)),SU2_TYPE::GetValue(geometry.nodes->GetCoord(p,1)),SU2_TYPE::GetValue(geometry.nodes->GetCoord(p,2))};
     for(size_t k=0;k<5;++k){r.values[k]=SU2_TYPE::GetValue(nodes->GetSolution(p,k));r.values[5+k]=SU2_TYPE::GetValue(nodes->GetSolution_time_n(p,k));r.values[10+k]=SU2_TYPE::GetValue(nodes->GetSolution_time_n1(p,k));}
@@ -1314,4 +1314,83 @@ TEST_CASE("Actual CFD import freezes a conforming cylinder-cap collar for joint 
     proposed.emplace(c.id,owned);
   }
   Save(world,name+"_strip",proposed,imported.original,state);
+}
+
+TEST_CASE("Resolved three-dimensional Euler vortex drives native curved adaptation and restart",
+          "[NativeResolvedEuler3D]") {
+  World world;const int workers=GENERATE(1,2,4);if(workers>world.size)return;
+  const auto name="resolved_vortex_m"+std::to_string(workers);constexpr double amplitude=-.001,radius=.7,beta=3.;
+  if(!world.rank) {
+    auto marker=[](const passivedouble* p) {
+      if(p[2]==0)return std::string(p[0]<=.5?"z_minus_a":"z_minus_b");
+      if(p[2]==.25)return std::string("z_plus");
+      if(p[0]==0)return std::string("x_minus");if(p[0]==1)return std::string("x_plus");
+      if(p[1]==0)return std::string("y_minus");return std::string("y_plus");
+    };
+    auto mesh=simplex_test::MakeSimplexMesh(3,12,marker,[](const passivedouble* p){return p[2]<.25;});
+    REQUIRE(mesh.GetnPoint()==676);REQUIRE(mesh.GetnElem()==2592);
+    for(size_t p=0;p<mesh.coord.size();p+=3) {
+      const auto u=mesh.coord[p],v=mesh.coord[p+1],z=4*mesh.coord[p+2];
+      mesh.coord[p]=-2+4*u;mesh.coord[p+1]=-2+4*v;mesh.coord[p+2]=z+(1-z)*amplitude*u*(1-u)*v*(1-v);
+    }
+    simplex_test::WriteSU2Mesh(mesh,name+".su2");std::ofstream cfg(name+".cfg");
+    cfg<<"SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nAOA= 0\nREF_DIMENSIONALIZATION= FREESTREAM_VEL_EQ_ONE\nMESH_FORMAT= SU2\nMESH_FILENAME= "<<name<<".su2\n"
+       <<"MARKER_FAR= (x_minus, x_plus, y_minus, y_plus)\nMARKER_EULER= (z_plus, z_minus_a, z_minus_b)\n"
+       <<"COMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\nADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\n"
+       <<"ADAP_COMPLEXITY= 400\nADAP_HMIN= .2\nADAP_HMAX= .9\nADAP_ARMAX= 2\nADAP_HAUSD= .003\n"
+       <<"ADAP_NATIVE_REPARTITION= YES\nADAP_NATIVE_RANKS= "<<workers<<"\nADAP_NATIVE_MAX_WORK= 16384\n"
+       <<"MGLEVEL= 0\nNUM_METHOD_GRAD= GREEN_GAUSS\nCONV_NUM_METHOD_FLOW= ROE\nMUSCL_FLOW= NO\nCFL_NUMBER= .3\n"
+       <<"TIME_DOMAIN= YES\nTIME_STEP= 1e-4\nTIME_ITER= 8\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\nINNER_ITER= 8\n"
+       <<"OUTPUT_FILES= (RESTART)\nWRT_ADAP_MESH= NO\nMESH_OUT_FORMAT= SU2\nMESH_OUT_FILENAME= "<<name<<"_mesh\nCONV_FILENAME= "<<name<<"_history\n"
+       <<"RESTART_FILENAME= "<<name<<"_flow\nSOLUTION_FILENAME= "<<name<<"_flow\nWRT_RESTART_COMPACT= YES\n";
+  }
+  SU2_MPI::Barrier(world.comm);const auto cfg=name+".cfg";
+  auto driver=std::make_unique<TetraDriver>(const_cast<char*>(cfg.c_str()),1,world.comm);
+  ReferenceState declared;ImportGeometry(driver->Config(),driver->Geometry(),nullptr,declared);
+  std::map<Id,AnalyticSurface> curves;
+  for(const auto& f:declared.facets)if(declared.marker_names.at(f.marker).rfind("z_minus",0)==0) {
+    AnalyticSurface g;g.kind=AnalyticSurface::Kind::Bump;g.origin={-2,-2,0};g.extent={4,4,amplitude};curves.emplace(f.id,g);
+  }
+  declared.original=std::make_shared<PlanarReference>(declared.facets,SIZE_MAX,curves);
+  WriteReference(name+".su2.native_ref",declared);const auto authority=EncodeReference(declared);
+  driver->Preprocess(0);
+  const double gamma=SU2_TYPE::GetValue(driver->Config().GetGamma()),rho0=SU2_TYPE::GetValue(driver->Solver().GetDensity_Inf()),p0=SU2_TYPE::GetValue(driver->Solver().GetPressure_Inf());
+  const double u0=SU2_TYPE::GetValue(driver->Solver().GetVelocity_Inf(0)),v0=SU2_TYPE::GetValue(driver->Solver().GetVelocity_Inf(1));
+  const double pi=std::acos(-1.);auto* nodes=driver->Solver().GetNodes();
+  for(unsigned long p=0;p<driver->Geometry().GetnPoint();++p) {
+    const auto* x=driver->Geometry().nodes->GetCoord(p);const double a=(SU2_TYPE::GetValue(x[0])+.25)/radius,b=SU2_TYPE::GetValue(x[1])/radius;
+    const double shape=std::exp(1-a*a-b*b),theta=1-(gamma-1)*beta*beta*shape/(8*gamma*pi*pi);REQUIRE(theta>0);
+    const double rho=rho0*std::pow(theta,1/(gamma-1)),pressure=p0*std::pow(theta,gamma/(gamma-1));
+    const double swirl=beta/(2*pi)*std::sqrt(p0/rho0*shape),u=u0-swirl*b,v=v0+swirl*a;
+    const std::array<double,5> state{{rho,rho*u,rho*v,0,pressure/(gamma-1)+rho*(u*u+v*v)/2}};
+    for(size_t k=0;k<5;++k){nodes->SetSolution(p,k,state[k]);nodes->GetSolution_time_n()(p,k)=state[k];nodes->GetSolution_time_n1()(p,k)=state[k];}
+  }
+  const auto seeded=Flow(world,driver->Geometry(),driver->Solver());SaveStates(world,name+"_seed",seeded,seeded,0);
+  std::set<double> profile;
+  for(const auto& r:seeded)if(std::abs(r.point.y)<1e-12 && r.point.z>.2 && r.point.z<.5 && std::abs(r.point.x+.25)<=2*radius)profile.insert(r.point.x);
+  REQUIRE(profile.size()>=8);
+  if(!world.rank){std::ofstream out(name+"_physics.json");out<<std::setprecision(17)<<"{\"gamma\":"<<gamma<<",\"rho0\":"<<rho0<<",\"p0\":"<<p0<<",\"u0\":"<<u0<<",\"v0\":"<<v0<<",\"radius\":"<<radius<<",\"beta\":"<<beta<<",\"initial_profile_samples\":"<<profile.size()<<"}\n";}
+  auto backend=driver->Backend();CConservativeTransfer transfer;
+  for(int cycle=0;cycle<2;++cycle) {
+    const auto initial=Flow(world,driver->Geometry(),driver->Solver());
+    for(unsigned long step=cycle?3:0;step<(cycle?5:2);++step){if(step)driver->Preprocess(step);driver->Run();driver->Postprocess();driver->Update();}
+    const auto solved=Flow(world,driver->Geometry(),driver->Solver());CheckPositiveFlow(solved);
+    double change=0,minimum_pressure=p0;
+    for(size_t p=0;p<solved.size();++p){for(size_t k=0;k<5;++k)change=std::max(change,RelDiff(initial[p].values[k],solved[p].values[k]));const auto& u=solved[p].values;minimum_pressure=std::min(minimum_pressure,(gamma-1)*(u[4]-(u[1]*u[1]+u[2]*u[2]+u[3]*u[3])/(2*u[0])));}
+    CHECK(change>1e-8);CHECK(minimum_pressure/p0<.9);CHECK(minimum_pressure/p0>.5);
+    driver->ComputeMetric();const auto& metric=driver->Solver().GetNodes()->GetMetric();
+    const auto event=name+"_s"+std::to_string(cycle);auto observed=declared;const auto donor=ImportGeometry(driver->Config(),driver->Geometry(),&metric,observed);
+    Save(world,event+"_initial",donor.cells,donor.original,observed);SaveCoverage(world,event,donor.original,observed);
+    SaveStates(world,event+"_evolved",initial,solved,0);
+    const auto result=backend->Remesh(driver->Config(),driver->Geometry(),metric);
+    INFO("resolved vortex workers="<<workers<<" cycle="<<cycle);
+    REQUIRE(result.status==CRemeshResult::Status::COMPLETE);
+    driver->ReplaceMesh(result,transfer);SaveProjection(world,event,transfer);CHECK(EncodeReference(*driver->Reference())==authority);
+    const auto transported=result.slices.FetchPointMetric(driver->Geometry());const auto fresh=Flow(world,driver->Geometry(),driver->Solver(),transported);SaveStates(world,event,solved,fresh,0);CheckPositiveFlow(fresh);
+    su2activematrix accepted_metric(driver->Geometry().GetnPointDomain(),6);for(unsigned long p=0;p<accepted_metric.rows();++p)for(size_t k=0;k<6;++k)accepted_metric(p,k)=transported[6*p+k];
+    auto retained=*driver->Reference();const auto accepted=ImportGeometry(driver->Config(),driver->Geometry(),&accepted_metric,retained);
+    Save(world,event+"_accepted",accepted.cells,donor.original,retained);driver->WriteAdaptedMesh(cycle+1,cycle+1);
+    if(!cycle){const auto checkpoint=driver->AdaptedMeshName(1,1)+driver->Config().GetMesh_Out_FileExtension();backend.reset();driver=ReloadCurved(world,std::move(driver),name,checkpoint,"SU2");backend=driver->Backend();}
+  }
+  driver->Preprocess(5);driver->Run();driver->Postprocess();driver->Update();CheckPositiveFlow(Flow(world,driver->Geometry(),driver->Solver()));
 }
