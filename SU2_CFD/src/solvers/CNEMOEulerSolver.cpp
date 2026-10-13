@@ -563,6 +563,23 @@ void CNEMOEulerSolver::Upwind_Residual(CGeometry *geometry, CSolver **solver_con
         Primitive_j[iVar] = V_j[iVar] - 0.5 * lim_ij * Project_Grad_j[iVar];
       }
 
+      /*--- The density of a species that is absent is of round-off size, and its reconstruction
+       can give a small negative value. Use the value of the point for that species only, and keep
+       the mixture density equal to the sum of the species densities. Without this, the complete
+       state is flagged as non-physical below and both points become first order. ---*/
+      const auto RHOS_INDEX = nodes->GetRhosIndex();
+      const auto RHO_INDEX = nodes->GetRhoIndex();
+      for (auto iSpecies = 0ul; iSpecies < nSpecies; iSpecies++) {
+        if (Primitive_i[RHOS_INDEX+iSpecies] < 0.0) {
+          Primitive_i[RHO_INDEX] += V_i[RHOS_INDEX+iSpecies] - Primitive_i[RHOS_INDEX+iSpecies];
+          Primitive_i[RHOS_INDEX+iSpecies] = V_i[RHOS_INDEX+iSpecies];
+        }
+        if (Primitive_j[RHOS_INDEX+iSpecies] < 0.0) {
+          Primitive_j[RHO_INDEX] += V_j[RHOS_INDEX+iSpecies] - Primitive_j[RHOS_INDEX+iSpecies];
+          Primitive_j[RHOS_INDEX+iSpecies] = V_j[RHOS_INDEX+iSpecies];
+        }
+      }
+
       /*--- Check for non-physical solutions after reconstruction. If found, use the
        cell-average value of the solution. This is a locally 1st order approximation,
        which is typically only active during the start-up of a calculation. ---*/
