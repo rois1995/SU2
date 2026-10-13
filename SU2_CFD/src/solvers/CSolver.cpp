@@ -2859,7 +2859,11 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   unsigned long localQuadraturePoints = 0;
   struct CellRule3D {
     std::array<unsigned long,4> nodes;
+    std::array<std::array<double,3>,4> coordinates;
+    unsigned long global_cell;
     std::vector<CBoundaryLayerMetric::IntegrationPoint3D> points;
+    std::array<CBoundaryLayerMetric::Tensor,4> sensor;
+    su2double core=-1;
   };
   vector<CellRule3D> integration3D;
   CLocalFailure quadratureFailure;
@@ -2876,7 +2880,6 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
             ? CBoundaryLayerMetric::FromNativeReference(*nativeReference3D, *config)
             : std::make_shared<CBoundaryLayerMetric>(*geometry, *config);
       const auto owned = OwnedSimplices(*geometry);
-      size_t quadratureBytes=0;
       for (unsigned long cell = 0; cell < owned.size(); ++cell) {
         quadratureCell=geometry->elem[owned.elem[cell]]->GetGlobalIndex();
         quadratureContext="Native geometric complexity cell "+std::to_string(quadratureCell);
@@ -2896,11 +2899,8 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
           std::array<std::array<double,3>,4> coordinates;
           for(unsigned k=0;k<4;++k)for(unsigned d=0;d<3;++d)
             coordinates[k][d]=SU2_TYPE::GetValue(geometry->nodes->GetCoord(nodes[k],d));
-          auto points=nativeLayers->IntegrationRule3D(coordinates);
-          quadratureBytes=transfer_memory::Add(quadratureBytes,transfer_memory::Bytes(points),sizeof(CellRule3D));
-          for(const auto& point:points)quadratureBytes=transfer_memory::Add(quadratureBytes,transfer_memory::Bytes(point.samples));
-          if(quadratureBytes>(size_t(2)<<30)) throw std::runtime_error("Native3D complexity quadrature exceeds storage budget.");
-          localQuadraturePoints+=points.size();integration3D.push_back({nodes,std::move(points)});
+          // The angular error must use the actual bounded/graded sensor and frozen core of each trial.
+          integration3D.push_back({nodes,coordinates,quadratureCell,{},{},-1});
         }
       }
     }
@@ -2914,6 +2914,8 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
   }
   profile.Mark(1);
   su2double frozenCore = eigMin, integratedComplexity = 0;
+  passivedouble quadratureSeconds=0;
+  unsigned long quadratureBuilds=0,quadratureReused=0;
   auto syncSensor = [&]() {
     for (auto point = 0ul; point < nPointDomain; ++point) base_nodes->SetMetricMat(point, blMetric[point].m);
     InitiateComms(geometry, config, MPI_QUANTITIES::METRIC);
@@ -3080,7 +3082,41 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
             local+=point.weight*density(metric);
           }
         };
-        accumulate(integration);accumulate(integration3D);
+        accumulate(integration);
+        if(nDim==3) {
+          CLocalFailure integrationFailure;
+          const auto integrationStart=SU2_MPI::Wtime();
+          size_t quadratureBytes=0;
+          localQuadraturePoints=0;
+          for(auto& cell:integration3D)try {
+            auto targetDensity=[&](const CBoundaryLayerMetric::IntegrationPoint3D& point) {
+              CBoundaryLayerMetric::Tensor metric;
+              for(unsigned k=0;k<4;++k)for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)
+                metric.m[i][j]+=point.barycentric[k]*blMetric[cell.nodes[k]].m[i][j];
+              for(const auto& sample:point.samples)
+                nativeLayers->ApplySample(sample.wall,sample.sample,metric,frozenCore,nullptr,false);
+              return SU2_TYPE::GetValue(density(metric));
+            };
+            bool same=!cell.points.empty() && cell.core==frozenCore;
+            for(unsigned k=0;k<4;++k)for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)
+              same=same && cell.sensor[k].m[i][j]==blMetric[cell.nodes[k]].m[i][j];
+            if(same)++quadratureReused;
+            else {
+              cell.points=nativeLayers->IntegrationRule3D(cell.coordinates,1.5,targetDensity);++quadratureBuilds;
+              for(unsigned k=0;k<4;++k)cell.sensor[k]=blMetric[cell.nodes[k]];
+              cell.core=frozenCore;
+            }
+            quadratureBytes=transfer_memory::Add(quadratureBytes,transfer_memory::Bytes(cell.points),sizeof(CellRule3D));
+            for(const auto& point:cell.points)quadratureBytes=transfer_memory::Add(quadratureBytes,transfer_memory::Bytes(point.samples));
+            if(quadratureBytes>(size_t(2)<<30))throw std::runtime_error("Native3D complexity quadrature exceeds storage budget.");
+            localQuadraturePoints+=cell.points.size();
+          }catch(const std::exception& error) {
+            integrationFailure.Set(2,cell.global_cell,"Native geometric complexity cell "+std::to_string(cell.global_cell)+": "+error.what());break;
+          }
+          quadratureSeconds+=SU2_MPI::Wtime()-integrationStart;
+          CollectiveFailure(integrationFailure,CURRENT_FUNCTION);
+          accumulate(integration3D);
+        }
       } else {
         for (auto point = 0ul; point < nPointDomain; ++point)
           local += density(blMetric[point]) * geometry->nodes->GetVolume(point);
@@ -3410,6 +3446,13 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
     CPassiveComm::Allreduce(counts, totals, 2, CPassiveComm::Op::SUM);
     globalGradedPoints = totals[0]; globalTensorUpdates = totals[1];
   }
+  passivedouble globalQuadratureSeconds=0;
+  unsigned long quadratureCounts[2]={quadratureBuilds,quadratureReused},globalQuadratureCounts[2]={0,0};
+  if(nativeLayers && nDim==3) {
+    CPassiveComm::Allreduce(&localQuadraturePoints,&quadraturePoints,1,CPassiveComm::Op::SUM);
+    CPassiveComm::Allreduce(&quadratureSeconds,&globalQuadratureSeconds,1,CPassiveComm::Op::MAX);
+    CPassiveComm::Allreduce(quadratureCounts,globalQuadratureCounts,2,CPassiveComm::Op::SUM);
+  }
   if (rank == MASTER_NODE) {
     cout << (nativeMetric ? "Sensor-only donor metric statistics:" : "Metric field statistics:") << endl;
     cout << "Minimum density: " << minDensity << "." << endl;
@@ -3421,6 +3464,8 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
       cout << "Sensor metric complexity before gradation: " << coreComplexity << "." << endl;
       cout << "Sensor-only donor complexity after gradation: " << totComplexity << "." << endl;
       cout << "Native geometric integration: " << quadraturePoints << " points, preparation " << geometryTime << " s." << endl;
+      if(nDim==3 && nativeLayers)cout << "Native3D target-density quadrature: " << globalQuadratureSeconds << " s (maximum accumulated rank time), "
+          << globalQuadratureCounts[0] << " cell rule builds, " << globalQuadratureCounts[1] << " exact-target reuses." << endl;
       cout << "Native metric work: " << complexityTrials << " complexity trials, " << totalGradationSweeps
            << " total gradation sweeps, " << globalGradedPoints << " owned-point visits; gradation " << workGlobal[0] << " s, halo " << workGlobal[1]
            << " s, sweep reductions " << workGlobal[2] << " s (maximum accumulated rank times)." << endl;

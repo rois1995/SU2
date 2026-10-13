@@ -1,3 +1,55 @@
+# Goal3 target-aware quadrature checkpoint: MPI complexity passes; hidden support still rejects — 2026-10-13
+
+Working folder /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
+Branch codex/native-3d-bl; preceding published 9a5058b6b035eac771da0723963e1b2c23cddb31.
+Whole Goal3 ACTIVE. Last focused runner6070 is terminal; all owned builds/runners
+are terminal. No CFD timestep, full adaptation or cluster/performance campaign.
+
+New IntegrationRule3D density callback lets hidden-support adaptation monitor the
+actual bounded/graded original-P1 sensor plus actual-query BL composition and
+frozen core, rather than a geometry-only surrogate. CSolver builds rules after
+sensor grading/synchronization, reuses only byte-value-equal four donor tensors
+and core within the immutable geometry lifetime, retains storage/cell diagnostics,
+and reports accumulated target-quadrature time/build/reuse counts. 2D trial cadence
+is preserved. A callback absent from direct kernel calls monitors unit-sensor BL.
+
+Prototype: positive boundary-vertex polyhedron decomposition matching the house
+clipper's Moments; affine-distance probes route to existing band clipping;
+nonlinear regions use largest-estimated-error angular subdivision, degree5 retained
+vs degree6 comparison rules, local3/5 radial order choice checked against5/7 probes,
+and both radial errors included in the summed1e-4 density-error estimate. Radial
+absolute allowance is volume-weighted alongside relative error. Original source
+barycentrics/actual rounded query points and sensor/BL/fade policy stay unchanged.
+Returned-point65536, work16384 and depth32 guards remain. Sampled affine detection
+and embedded error estimates are not rigorous general curved-field certificates.
+
+Latest feature_partition_v1/validation.json FAIL: seven stages PASS, hidden support
+FAIL. Serial microscopic1case7263assertions; actual complexity1/82; original ref1/5;
+nearest-face1/4757; existing BL19/3486. Actual complexity MPI2 passes43/40 assertions
+and MPI4 passes22/19/22/22. Hidden support still reaches the returned-point ceiling:
+retained65411, panel896, cones105, local125, estimated_error0.002544. Its diagnostic
+density2.471511 is PARTIAL during panel replacement, not a completed integral and
+cannot be compared as an accepted estimate to the independent oracle2.4775664410.
+The extra finer-sensor parallel-body oracle is written but not reached/qualified
+because unit-sensor construction rejects first. No gate, metric or cap was relaxed.
+
+Ten prior adaptive failures have complete source patches/base/hashes and saved
+receipts/logs. verify_experiment_sources.py reconstructs all ten byte-identically
+in disposable /tmp files (source_reconstruction.log PASS). This proves saved source
+versions, not binary replay. The campaign now saves/resumes explicit MPI stages and
+requires a passing test record per rank. The first source/build guard refusal after
+edits during a live build is preserved; affected objects were rebuilt before tests.
+
+Next: change geometric integration strategy or error allocation substantively.
+Do not repeat cap/order sweeps or accept using the known oracle. Current rule still
+spends too much on the finite-wall transition; qualify hidden support and stronger
+sensor independently before full remesher enablement. Existing first-height engine
+MPI checkpoint9a5058 remains qualified within its limited scope. Curved/interacting
+BL construction, full metric completion/removal, gradation, transfer/RANS/restart/
+output and complete performance remain mandatory. Production BL guard unchanged.
+
+Earlier entries below are historical.
+
 # Goal3 first-height engine transactions pass MPI1/2/4 — 2026-10-13
 
 Working folder /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.

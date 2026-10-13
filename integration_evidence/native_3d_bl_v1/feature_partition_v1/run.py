@@ -47,21 +47,25 @@ def main():
                  'UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o']:
         provenance['object:' + name] = digest(ROOT / 'integration_evidence/build-integrated-v2' / name)
     stages = [
-        ('microscopic_tetrahedron', 'Native geometric volume quadrature resolves microscopic BL in coarse tetrahedra'),
-        ('production_complexity', 'Native3D complexity integrates the geometric BL with sensor-only donors'),
-        ('original_reference', 'Native3D complexity reference does not rebase the wall on the adapted surface'),
-        ('nearest_face_change', 'Native3D volume integration resolves a far vertex closest to another wall face'),
-        ('hidden_support', 'Native3D volume support detects a thin finite wall missed by all cell vertices'),
-        ('existing_BL_kernels', '[NativeComposite3D],[NativeComposite2D],Boundary-layer metric*'),
+        ('microscopic_tetrahedron', 'Native geometric volume quadrature resolves microscopic BL in coarse tetrahedra', 1),
+        ('production_complexity', 'Native3D complexity integrates the geometric BL with sensor-only donors', 1),
+        ('original_reference', 'Native3D complexity reference does not rebase the wall on the adapted surface', 1),
+        ('nearest_face_change', 'Native3D volume integration resolves a far vertex closest to another wall face', 1),
+        ('hidden_support', 'Native3D volume support detects a thin finite wall missed by all cell vertices', 1),
+        ('existing_BL_kernels', '[NativeComposite3D],[NativeComposite2D],Boundary-layer metric*', 1),
+        ('production_complexity_mpi2', 'Native3D complexity integrates the geometric BL with sensor-only donors', 2),
+        ('production_complexity_mpi4', 'Native3D complexity integrates the geometric BL with sensor-only donors', 4),
     ]
     cpu = int((HERE / 'selected_cpu.txt').read_text())
-    environment = dict(os.environ, OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1')
+    environment = dict(os.environ, OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', OMPI_MCA_mpi_yield_when_idle='1')
     receipts = []
-    for name, selection in stages:
+    for name, selection, ranks in stages:
         record = HERE / (name + '.json')
-        command = ['taskset', '-c', str(cpu), 'nice', '-n', '19', str(BINARY), selection, '--reporter', 'compact']
-        contract = {'provenance': provenance, 'command': command, 'MPI_ranks': 1,
-                    'environment': {'OMP_NUM_THREADS': '1', 'OPENBLAS_NUM_THREADS': '1'}}
+        command = ['taskset', '-c', str(cpu), 'nice', '-n', '19']
+        if ranks>1: command += ['mpirun','--oversubscribe','--bind-to','none','-np',str(ranks)]
+        command += [str(BINARY), selection, '--reporter', 'compact']
+        contract = {'provenance': provenance, 'command': command, 'MPI_ranks': ranks,
+                    'environment': {'OMP_NUM_THREADS': '1', 'OPENBLAS_NUM_THREADS': '1', 'OMPI_MCA_mpi_yield_when_idle': '1'}}
         if record.exists():
             old = json.loads(record.read_text())
             if old.get('status') == 'PASS' and old.get('contract') == contract and digest(HERE / old['log']) == old['log_sha256']:
@@ -78,12 +82,12 @@ def main():
             except subprocess.TimeoutExpired:
                 code = 124
         text = log.read_text()
-        match = re.search(r'Passed (?:all )?(\d+) test cases? with (\d+) assertions?', text)
+        matches = re.findall(r'Passed (?:all )?(\d+) test cases? with (\d+) assertions?', text)
         expected = 19 if name == 'existing_BL_kernels' else 1
-        passed = code == 0 and match is not None and int(match.group(1)) == expected
+        passed = code == 0 and len(matches) == ranks and all(int(c)==expected for c,a in matches)
         receipt = {'stage': name, 'status': 'PASS' if passed else 'FAIL', 'returncode': code,
                    'contract': contract, 'log': log.name, 'log_sha256': digest(log),
-                   'elapsed_seconds': time.monotonic() - start, 'scope': 'serial kernel correctness only'}
+                   'elapsed_seconds': time.monotonic() - start, 'scope': 'kernel/complexity correctness only; MPI case counts explicit in contract'}
         record.write_text(json.dumps(receipt, indent=2) + '\n')
         receipts.append(receipt)
         print(name + ': ' + receipt['status'], flush=True)
@@ -93,7 +97,7 @@ def main():
         aggregate.rename(HERE / ('validation_previous_' + str(time.time_ns()) + '.json'))
     (HERE / 'validation.json').write_text(json.dumps({'status': status, 'stages': receipts,
         'limitations': ['No native BL remesh, first-height or analytic authority qualification',
-                        'No CFD, MPI consistency, AD runtime or performance qualification']}, indent=2) + '\n')
+                        'No CFD, full BL remesh/transfer MPI consistency, AD runtime or performance qualification']}, indent=2) + '\n')
     return 0 if status == 'PASS' else 1
 
 if __name__ == '__main__':

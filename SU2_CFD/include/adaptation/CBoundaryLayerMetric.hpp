@@ -27,6 +27,7 @@
 #pragma once
 
 #include <memory>
+#include <functional>
 #include <array>
 #include <string>
 #include <unordered_map>
@@ -202,10 +203,14 @@ class CBoundaryLayerMetric {
     double weight;
     std::vector<PointSample> samples;
   };
-  /*! Positive degree-two quadrature after distance-band clipping in original barycentric coordinates.
-   *  Changing/hidden geometry is subdivided with an explicit work bound; no nodal BL interpolation. */
+  using IntegrationDensity3D = std::function<double(const IntegrationPoint3D&)>;
+  /*! Positive quadrature after geometric distance-band clipping, using original-cell barycentrics.
+   *  Hidden-support angular refinement estimates error in the supplied full target density;
+   *  absent a callback, it monitors the BL composed with a unit isotropic sensor.
+   *  Work/depth/point bounds reject unresolved integration; no nodal BL interpolation. */
   std::vector<IntegrationPoint3D> IntegrationRule3D(
-      const std::array<std::array<double,3>,4>& tetrahedron, double bandRatio = 1.5);
+      const std::array<std::array<double,3>,4>& tetrahedron, double bandRatio = 1.5,
+      IntegrationDensity3D density = {});
 
   /*! Sorted chord parameters resolving every faceted-wall distance band in 2D/3D.
    *  Face/edge/vertex offset intersections detect a thin band even when both endpoints

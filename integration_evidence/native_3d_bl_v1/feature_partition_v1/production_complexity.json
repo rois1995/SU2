@@ -4,23 +4,23 @@
   "returncode": 0,
   "contract": {
     "provenance": {
-      "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "43bc3214d9fcb8d943911c9b0bf45619de6e9cd24352a121e0b2704c70c150b8",
-      "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "c0a78bb883ca2b211afcf93f38edc8d58c4d309888a1cd385d03cb821ef9b0e2",
+      "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "a9e9360601520cd1378055f72d686262c8569364da5273baf090f92b8917dfaa",
+      "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "31910db65f16e2b65c9be41985386dedb64f599fea6271d55b8480f5bd986d44",
       "SU2_CFD/include/adaptation/ConvexClipping.hpp": "f9a92bc81c3588dda386606d2ad6ab63f808af9831c7d8ec9ad3120b48ffa9cf",
       "SU2_CFD/include/solvers/CSolver.hpp": "958122df6694b375a561e65f1a8d9b0d379c0f3d8ca6b4095454d44f66e9ab55",
-      "SU2_CFD/src/solvers/CSolver.cpp": "750c0547514963c0a350843bc7b1ab6c630fc2f6210af505170b8509148c94c4",
+      "SU2_CFD/src/solvers/CSolver.cpp": "6aa179cf09ae6e63efe5c9bce66480f19a0f71bcdc7f40c0b79a7e37781c0244",
       "SU2_CFD/src/drivers/CSinglezoneDriver.cpp": "3ef049da812f9b87259918ea7fa9b214ae63368041d80c9114923f2e447f8727",
       "Common/include/adaptation/CNativeRemesher3D.hpp": "6c1aff6bc10d746ae4946bb50a19c0c2e5d1d7e5d21ff471c2974609a79099f1",
-      "Common/src/adaptation/CNativeRemesher3D.cpp": "7016c7b411331f297e35067a67099d5e2e574ce026ab06fa0b66af033c1bae3f",
-      "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "5a2569950545e3681f07e8ad4e109da85cf92e9e0842b0099b79c24899e4759f",
-      "binary": "76a1d307359d1071e451af21ab0b8e7adaac422c7fed97fbd49e26d6e5855a11",
-      "helper": "0c9c7795be15d5dc76325f5c18387b451f6b518c1741fa2d38737d45014373c8",
+      "Common/src/adaptation/CNativeRemesher3D.cpp": "4d9aa61bc77796700a88fc8a44db12276e1e5952e8fcdc518ac9d20dbd4abd1a",
+      "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "9ac7115e473f9c6034950bce6d11f9745ae4725281dd55219b89cd415bcac9ec",
+      "binary": "e371473e399b35e63c1d9ba06c266051fbee8e11ea0099121c1956d59ccc9222",
+      "helper": "2f65c83b1bae5a0e6e7913f64fa8e1e904b68889c02fb547950c7d510ad49d19",
       "compile_commands": "17a19ce625ceabf3f70dba005aebef0990be029c491666e86144787717316540",
-      "object:SU2_CFD/src/libSU2core.a.p/solvers_CSolver.cpp.o": "c45fd3fe6ceb54fe1e9a85d66990edf253892cd07d81b627bcd9da2d10b8e252",
-      "object:SU2_CFD/src/libSU2core.a.p/drivers_CSinglezoneDriver.cpp.o": "b462c099f54a6551da3123c63b0a376a342e3915cae97c096c870bab4931dd2c",
-      "object:Common/src/libSU2Common.a.p/adaptation_CNativeRemesher3D.cpp.o": "e59167009d65c4ab8eb8d3387ebffb5328d446a980dd2365b2381136162bc876",
-      "object:SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerMetric.cpp.o": "fdde431b2716688e32d591dd3ccdf36ce481a1a91fd004a0a75c7fff21d074f7",
-      "object:UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o": "962f7159efcf5240309cb7f975856f848e6365f00f302f73a094b356365842e9"
+      "object:SU2_CFD/src/libSU2core.a.p/solvers_CSolver.cpp.o": "6ee944ccaa6132661ad01d9c0c2a01a61e71722cfca88826e8ed0953de80d35c",
+      "object:SU2_CFD/src/libSU2core.a.p/drivers_CSinglezoneDriver.cpp.o": "e3d1256014eae1c490487eee27a4d5042f0f4e87abaf4ba768e9410ac0412152",
+      "object:Common/src/libSU2Common.a.p/adaptation_CNativeRemesher3D.cpp.o": "9773377af7528407efe82ee5f0f9fe909d447029e0042d80544ebb775a5e7897",
+      "object:SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerMetric.cpp.o": "73b1253f1cc58bd792bc5ffb1bc4686323d3e02cf422fa862d94272df24211eb",
+      "object:UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o": "f7c84789be66ea5dc0d5d4559bc6e47f5979a030e6b8e0a920495b2ba79e35ca"
     },
     "command": [
       "taskset",
@@ -37,11 +37,12 @@
     "MPI_ranks": 1,
     "environment": {
       "OMP_NUM_THREADS": "1",
-      "OPENBLAS_NUM_THREADS": "1"
+      "OPENBLAS_NUM_THREADS": "1",
+      "OMPI_MCA_mpi_yield_when_idle": "1"
     }
   },
-  "log": "production_complexity_1791886015678230167.log",
+  "log": "production_complexity_1791893277743674242.log",
   "log_sha256": "b77527ce3ce2429b57d81dd230a039e3f83f90bad7854490c2c4d80cdfd9cbd2",
-  "elapsed_seconds": 0.5688921719556674,
-  "scope": "serial kernel correctness only"
+  "elapsed_seconds": 0.5173100209794939,
+  "scope": "kernel/complexity correctness only; MPI case counts explicit in contract"
 }

@@ -1,0 +1,291 @@
+{
+  "status": "FAIL",
+  "stages": [
+    {
+      "stage": "microscopic_tetrahedron",
+      "status": "PASS",
+      "returncode": 0,
+      "contract": {
+        "provenance": {
+          "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "a9e9360601520cd1378055f72d686262c8569364da5273baf090f92b8917dfaa",
+          "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "31910db65f16e2b65c9be41985386dedb64f599fea6271d55b8480f5bd986d44",
+          "SU2_CFD/include/adaptation/ConvexClipping.hpp": "f9a92bc81c3588dda386606d2ad6ab63f808af9831c7d8ec9ad3120b48ffa9cf",
+          "SU2_CFD/include/solvers/CSolver.hpp": "958122df6694b375a561e65f1a8d9b0d379c0f3d8ca6b4095454d44f66e9ab55",
+          "SU2_CFD/src/solvers/CSolver.cpp": "6aa179cf09ae6e63efe5c9bce66480f19a0f71bcdc7f40c0b79a7e37781c0244",
+          "SU2_CFD/src/drivers/CSinglezoneDriver.cpp": "3ef049da812f9b87259918ea7fa9b214ae63368041d80c9114923f2e447f8727",
+          "Common/include/adaptation/CNativeRemesher3D.hpp": "6c1aff6bc10d746ae4946bb50a19c0c2e5d1d7e5d21ff471c2974609a79099f1",
+          "Common/src/adaptation/CNativeRemesher3D.cpp": "4d9aa61bc77796700a88fc8a44db12276e1e5952e8fcdc518ac9d20dbd4abd1a",
+          "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "9ac7115e473f9c6034950bce6d11f9745ae4725281dd55219b89cd415bcac9ec",
+          "binary": "e371473e399b35e63c1d9ba06c266051fbee8e11ea0099121c1956d59ccc9222",
+          "helper": "0c9c7795be15d5dc76325f5c18387b451f6b518c1741fa2d38737d45014373c8",
+          "compile_commands": "17a19ce625ceabf3f70dba005aebef0990be029c491666e86144787717316540",
+          "object:SU2_CFD/src/libSU2core.a.p/solvers_CSolver.cpp.o": "6ee944ccaa6132661ad01d9c0c2a01a61e71722cfca88826e8ed0953de80d35c",
+          "object:SU2_CFD/src/libSU2core.a.p/drivers_CSinglezoneDriver.cpp.o": "e3d1256014eae1c490487eee27a4d5042f0f4e87abaf4ba768e9410ac0412152",
+          "object:Common/src/libSU2Common.a.p/adaptation_CNativeRemesher3D.cpp.o": "9773377af7528407efe82ee5f0f9fe909d447029e0042d80544ebb775a5e7897",
+          "object:SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerMetric.cpp.o": "73b1253f1cc58bd792bc5ffb1bc4686323d3e02cf422fa862d94272df24211eb",
+          "object:UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o": "f7c84789be66ea5dc0d5d4559bc6e47f5979a030e6b8e0a920495b2ba79e35ca"
+        },
+        "command": [
+          "taskset",
+          "-c",
+          "3",
+          "nice",
+          "-n",
+          "19",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+          "Native geometric volume quadrature resolves microscopic BL in coarse tetrahedra",
+          "--reporter",
+          "compact"
+        ],
+        "MPI_ranks": 1,
+        "environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1"
+        }
+      },
+      "log": "microscopic_tetrahedron_1791893080815876002.log",
+      "log_sha256": "575b8025acff91fac2a6adab543c43e8a744afaa2d84513f0c2f9aa1ba969c84",
+      "elapsed_seconds": 0.47703166492283344,
+      "scope": "serial kernel correctness only"
+    },
+    {
+      "stage": "production_complexity",
+      "status": "PASS",
+      "returncode": 0,
+      "contract": {
+        "provenance": {
+          "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "a9e9360601520cd1378055f72d686262c8569364da5273baf090f92b8917dfaa",
+          "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "31910db65f16e2b65c9be41985386dedb64f599fea6271d55b8480f5bd986d44",
+          "SU2_CFD/include/adaptation/ConvexClipping.hpp": "f9a92bc81c3588dda386606d2ad6ab63f808af9831c7d8ec9ad3120b48ffa9cf",
+          "SU2_CFD/include/solvers/CSolver.hpp": "958122df6694b375a561e65f1a8d9b0d379c0f3d8ca6b4095454d44f66e9ab55",
+          "SU2_CFD/src/solvers/CSolver.cpp": "6aa179cf09ae6e63efe5c9bce66480f19a0f71bcdc7f40c0b79a7e37781c0244",
+          "SU2_CFD/src/drivers/CSinglezoneDriver.cpp": "3ef049da812f9b87259918ea7fa9b214ae63368041d80c9114923f2e447f8727",
+          "Common/include/adaptation/CNativeRemesher3D.hpp": "6c1aff6bc10d746ae4946bb50a19c0c2e5d1d7e5d21ff471c2974609a79099f1",
+          "Common/src/adaptation/CNativeRemesher3D.cpp": "4d9aa61bc77796700a88fc8a44db12276e1e5952e8fcdc518ac9d20dbd4abd1a",
+          "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "9ac7115e473f9c6034950bce6d11f9745ae4725281dd55219b89cd415bcac9ec",
+          "binary": "e371473e399b35e63c1d9ba06c266051fbee8e11ea0099121c1956d59ccc9222",
+          "helper": "0c9c7795be15d5dc76325f5c18387b451f6b518c1741fa2d38737d45014373c8",
+          "compile_commands": "17a19ce625ceabf3f70dba005aebef0990be029c491666e86144787717316540",
+          "object:SU2_CFD/src/libSU2core.a.p/solvers_CSolver.cpp.o": "6ee944ccaa6132661ad01d9c0c2a01a61e71722cfca88826e8ed0953de80d35c",
+          "object:SU2_CFD/src/libSU2core.a.p/drivers_CSinglezoneDriver.cpp.o": "e3d1256014eae1c490487eee27a4d5042f0f4e87abaf4ba768e9410ac0412152",
+          "object:Common/src/libSU2Common.a.p/adaptation_CNativeRemesher3D.cpp.o": "9773377af7528407efe82ee5f0f9fe909d447029e0042d80544ebb775a5e7897",
+          "object:SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerMetric.cpp.o": "73b1253f1cc58bd792bc5ffb1bc4686323d3e02cf422fa862d94272df24211eb",
+          "object:UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o": "f7c84789be66ea5dc0d5d4559bc6e47f5979a030e6b8e0a920495b2ba79e35ca"
+        },
+        "command": [
+          "taskset",
+          "-c",
+          "3",
+          "nice",
+          "-n",
+          "19",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+          "Native3D complexity integrates the geometric BL with sensor-only donors",
+          "--reporter",
+          "compact"
+        ],
+        "MPI_ranks": 1,
+        "environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1"
+        }
+      },
+      "log": "production_complexity_1791893081293216417.log",
+      "log_sha256": "b77527ce3ce2429b57d81dd230a039e3f83f90bad7854490c2c4d80cdfd9cbd2",
+      "elapsed_seconds": 0.5171067619230598,
+      "scope": "serial kernel correctness only"
+    },
+    {
+      "stage": "original_reference",
+      "status": "PASS",
+      "returncode": 0,
+      "contract": {
+        "provenance": {
+          "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "a9e9360601520cd1378055f72d686262c8569364da5273baf090f92b8917dfaa",
+          "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "31910db65f16e2b65c9be41985386dedb64f599fea6271d55b8480f5bd986d44",
+          "SU2_CFD/include/adaptation/ConvexClipping.hpp": "f9a92bc81c3588dda386606d2ad6ab63f808af9831c7d8ec9ad3120b48ffa9cf",
+          "SU2_CFD/include/solvers/CSolver.hpp": "958122df6694b375a561e65f1a8d9b0d379c0f3d8ca6b4095454d44f66e9ab55",
+          "SU2_CFD/src/solvers/CSolver.cpp": "6aa179cf09ae6e63efe5c9bce66480f19a0f71bcdc7f40c0b79a7e37781c0244",
+          "SU2_CFD/src/drivers/CSinglezoneDriver.cpp": "3ef049da812f9b87259918ea7fa9b214ae63368041d80c9114923f2e447f8727",
+          "Common/include/adaptation/CNativeRemesher3D.hpp": "6c1aff6bc10d746ae4946bb50a19c0c2e5d1d7e5d21ff471c2974609a79099f1",
+          "Common/src/adaptation/CNativeRemesher3D.cpp": "4d9aa61bc77796700a88fc8a44db12276e1e5952e8fcdc518ac9d20dbd4abd1a",
+          "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "9ac7115e473f9c6034950bce6d11f9745ae4725281dd55219b89cd415bcac9ec",
+          "binary": "e371473e399b35e63c1d9ba06c266051fbee8e11ea0099121c1956d59ccc9222",
+          "helper": "0c9c7795be15d5dc76325f5c18387b451f6b518c1741fa2d38737d45014373c8",
+          "compile_commands": "17a19ce625ceabf3f70dba005aebef0990be029c491666e86144787717316540",
+          "object:SU2_CFD/src/libSU2core.a.p/solvers_CSolver.cpp.o": "6ee944ccaa6132661ad01d9c0c2a01a61e71722cfca88826e8ed0953de80d35c",
+          "object:SU2_CFD/src/libSU2core.a.p/drivers_CSinglezoneDriver.cpp.o": "e3d1256014eae1c490487eee27a4d5042f0f4e87abaf4ba768e9410ac0412152",
+          "object:Common/src/libSU2Common.a.p/adaptation_CNativeRemesher3D.cpp.o": "9773377af7528407efe82ee5f0f9fe909d447029e0042d80544ebb775a5e7897",
+          "object:SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerMetric.cpp.o": "73b1253f1cc58bd792bc5ffb1bc4686323d3e02cf422fa862d94272df24211eb",
+          "object:UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o": "f7c84789be66ea5dc0d5d4559bc6e47f5979a030e6b8e0a920495b2ba79e35ca"
+        },
+        "command": [
+          "taskset",
+          "-c",
+          "3",
+          "nice",
+          "-n",
+          "19",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+          "Native3D complexity reference does not rebase the wall on the adapted surface",
+          "--reporter",
+          "compact"
+        ],
+        "MPI_ranks": 1,
+        "environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1"
+        }
+      },
+      "log": "original_reference_1791893081810637775.log",
+      "log_sha256": "ace3a5374e856a16d6c8988a5f3c92848dca0ad45459076563ce221e0170acc2",
+      "elapsed_seconds": 0.464641191996634,
+      "scope": "serial kernel correctness only"
+    },
+    {
+      "stage": "nearest_face_change",
+      "status": "PASS",
+      "returncode": 0,
+      "contract": {
+        "provenance": {
+          "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "a9e9360601520cd1378055f72d686262c8569364da5273baf090f92b8917dfaa",
+          "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "31910db65f16e2b65c9be41985386dedb64f599fea6271d55b8480f5bd986d44",
+          "SU2_CFD/include/adaptation/ConvexClipping.hpp": "f9a92bc81c3588dda386606d2ad6ab63f808af9831c7d8ec9ad3120b48ffa9cf",
+          "SU2_CFD/include/solvers/CSolver.hpp": "958122df6694b375a561e65f1a8d9b0d379c0f3d8ca6b4095454d44f66e9ab55",
+          "SU2_CFD/src/solvers/CSolver.cpp": "6aa179cf09ae6e63efe5c9bce66480f19a0f71bcdc7f40c0b79a7e37781c0244",
+          "SU2_CFD/src/drivers/CSinglezoneDriver.cpp": "3ef049da812f9b87259918ea7fa9b214ae63368041d80c9114923f2e447f8727",
+          "Common/include/adaptation/CNativeRemesher3D.hpp": "6c1aff6bc10d746ae4946bb50a19c0c2e5d1d7e5d21ff471c2974609a79099f1",
+          "Common/src/adaptation/CNativeRemesher3D.cpp": "4d9aa61bc77796700a88fc8a44db12276e1e5952e8fcdc518ac9d20dbd4abd1a",
+          "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "9ac7115e473f9c6034950bce6d11f9745ae4725281dd55219b89cd415bcac9ec",
+          "binary": "e371473e399b35e63c1d9ba06c266051fbee8e11ea0099121c1956d59ccc9222",
+          "helper": "0c9c7795be15d5dc76325f5c18387b451f6b518c1741fa2d38737d45014373c8",
+          "compile_commands": "17a19ce625ceabf3f70dba005aebef0990be029c491666e86144787717316540",
+          "object:SU2_CFD/src/libSU2core.a.p/solvers_CSolver.cpp.o": "6ee944ccaa6132661ad01d9c0c2a01a61e71722cfca88826e8ed0953de80d35c",
+          "object:SU2_CFD/src/libSU2core.a.p/drivers_CSinglezoneDriver.cpp.o": "e3d1256014eae1c490487eee27a4d5042f0f4e87abaf4ba768e9410ac0412152",
+          "object:Common/src/libSU2Common.a.p/adaptation_CNativeRemesher3D.cpp.o": "9773377af7528407efe82ee5f0f9fe909d447029e0042d80544ebb775a5e7897",
+          "object:SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerMetric.cpp.o": "73b1253f1cc58bd792bc5ffb1bc4686323d3e02cf422fa862d94272df24211eb",
+          "object:UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o": "f7c84789be66ea5dc0d5d4559bc6e47f5979a030e6b8e0a920495b2ba79e35ca"
+        },
+        "command": [
+          "taskset",
+          "-c",
+          "3",
+          "nice",
+          "-n",
+          "19",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+          "Native3D volume integration resolves a far vertex closest to another wall face",
+          "--reporter",
+          "compact"
+        ],
+        "MPI_ranks": 1,
+        "environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1"
+        }
+      },
+      "log": "nearest_face_change_1791893082275606692.log",
+      "log_sha256": "49b8fb261d79b09e1dd6955df8f38652cb5ecc2f959f50ccd400b8b0dc12964b",
+      "elapsed_seconds": 0.41634425101801753,
+      "scope": "serial kernel correctness only"
+    },
+    {
+      "stage": "hidden_support",
+      "status": "FAIL",
+      "returncode": 1,
+      "contract": {
+        "provenance": {
+          "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "a9e9360601520cd1378055f72d686262c8569364da5273baf090f92b8917dfaa",
+          "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "31910db65f16e2b65c9be41985386dedb64f599fea6271d55b8480f5bd986d44",
+          "SU2_CFD/include/adaptation/ConvexClipping.hpp": "f9a92bc81c3588dda386606d2ad6ab63f808af9831c7d8ec9ad3120b48ffa9cf",
+          "SU2_CFD/include/solvers/CSolver.hpp": "958122df6694b375a561e65f1a8d9b0d379c0f3d8ca6b4095454d44f66e9ab55",
+          "SU2_CFD/src/solvers/CSolver.cpp": "6aa179cf09ae6e63efe5c9bce66480f19a0f71bcdc7f40c0b79a7e37781c0244",
+          "SU2_CFD/src/drivers/CSinglezoneDriver.cpp": "3ef049da812f9b87259918ea7fa9b214ae63368041d80c9114923f2e447f8727",
+          "Common/include/adaptation/CNativeRemesher3D.hpp": "6c1aff6bc10d746ae4946bb50a19c0c2e5d1d7e5d21ff471c2974609a79099f1",
+          "Common/src/adaptation/CNativeRemesher3D.cpp": "4d9aa61bc77796700a88fc8a44db12276e1e5952e8fcdc518ac9d20dbd4abd1a",
+          "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "9ac7115e473f9c6034950bce6d11f9745ae4725281dd55219b89cd415bcac9ec",
+          "binary": "e371473e399b35e63c1d9ba06c266051fbee8e11ea0099121c1956d59ccc9222",
+          "helper": "0c9c7795be15d5dc76325f5c18387b451f6b518c1741fa2d38737d45014373c8",
+          "compile_commands": "17a19ce625ceabf3f70dba005aebef0990be029c491666e86144787717316540",
+          "object:SU2_CFD/src/libSU2core.a.p/solvers_CSolver.cpp.o": "6ee944ccaa6132661ad01d9c0c2a01a61e71722cfca88826e8ed0953de80d35c",
+          "object:SU2_CFD/src/libSU2core.a.p/drivers_CSinglezoneDriver.cpp.o": "e3d1256014eae1c490487eee27a4d5042f0f4e87abaf4ba768e9410ac0412152",
+          "object:Common/src/libSU2Common.a.p/adaptation_CNativeRemesher3D.cpp.o": "9773377af7528407efe82ee5f0f9fe909d447029e0042d80544ebb775a5e7897",
+          "object:SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerMetric.cpp.o": "73b1253f1cc58bd792bc5ffb1bc4686323d3e02cf422fa862d94272df24211eb",
+          "object:UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o": "f7c84789be66ea5dc0d5d4559bc6e47f5979a030e6b8e0a920495b2ba79e35ca"
+        },
+        "command": [
+          "taskset",
+          "-c",
+          "3",
+          "nice",
+          "-n",
+          "19",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+          "Native3D volume support detects a thin finite wall missed by all cell vertices",
+          "--reporter",
+          "compact"
+        ],
+        "MPI_ranks": 1,
+        "environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1"
+        }
+      },
+      "log": "hidden_support_1791893082692280743.log",
+      "log_sha256": "4e7088b064cb0cbfda811a7885f0c3c2bad3f2b3034792498ed1f4e178941fe2",
+      "elapsed_seconds": 3.0754199309740216,
+      "scope": "serial kernel correctness only"
+    },
+    {
+      "stage": "existing_BL_kernels",
+      "status": "PASS",
+      "returncode": 0,
+      "contract": {
+        "provenance": {
+          "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "a9e9360601520cd1378055f72d686262c8569364da5273baf090f92b8917dfaa",
+          "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "31910db65f16e2b65c9be41985386dedb64f599fea6271d55b8480f5bd986d44",
+          "SU2_CFD/include/adaptation/ConvexClipping.hpp": "f9a92bc81c3588dda386606d2ad6ab63f808af9831c7d8ec9ad3120b48ffa9cf",
+          "SU2_CFD/include/solvers/CSolver.hpp": "958122df6694b375a561e65f1a8d9b0d379c0f3d8ca6b4095454d44f66e9ab55",
+          "SU2_CFD/src/solvers/CSolver.cpp": "6aa179cf09ae6e63efe5c9bce66480f19a0f71bcdc7f40c0b79a7e37781c0244",
+          "SU2_CFD/src/drivers/CSinglezoneDriver.cpp": "3ef049da812f9b87259918ea7fa9b214ae63368041d80c9114923f2e447f8727",
+          "Common/include/adaptation/CNativeRemesher3D.hpp": "6c1aff6bc10d746ae4946bb50a19c0c2e5d1d7e5d21ff471c2974609a79099f1",
+          "Common/src/adaptation/CNativeRemesher3D.cpp": "4d9aa61bc77796700a88fc8a44db12276e1e5952e8fcdc518ac9d20dbd4abd1a",
+          "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "9ac7115e473f9c6034950bce6d11f9745ae4725281dd55219b89cd415bcac9ec",
+          "binary": "e371473e399b35e63c1d9ba06c266051fbee8e11ea0099121c1956d59ccc9222",
+          "helper": "0c9c7795be15d5dc76325f5c18387b451f6b518c1741fa2d38737d45014373c8",
+          "compile_commands": "17a19ce625ceabf3f70dba005aebef0990be029c491666e86144787717316540",
+          "object:SU2_CFD/src/libSU2core.a.p/solvers_CSolver.cpp.o": "6ee944ccaa6132661ad01d9c0c2a01a61e71722cfca88826e8ed0953de80d35c",
+          "object:SU2_CFD/src/libSU2core.a.p/drivers_CSinglezoneDriver.cpp.o": "e3d1256014eae1c490487eee27a4d5042f0f4e87abaf4ba768e9410ac0412152",
+          "object:Common/src/libSU2Common.a.p/adaptation_CNativeRemesher3D.cpp.o": "9773377af7528407efe82ee5f0f9fe909d447029e0042d80544ebb775a5e7897",
+          "object:SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerMetric.cpp.o": "73b1253f1cc58bd792bc5ffb1bc4686323d3e02cf422fa862d94272df24211eb",
+          "object:UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o": "f7c84789be66ea5dc0d5d4559bc6e47f5979a030e6b8e0a920495b2ba79e35ca"
+        },
+        "command": [
+          "taskset",
+          "-c",
+          "3",
+          "nice",
+          "-n",
+          "19",
+          "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+          "[NativeComposite3D],[NativeComposite2D],Boundary-layer metric*",
+          "--reporter",
+          "compact"
+        ],
+        "MPI_ranks": 1,
+        "environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1"
+        }
+      },
+      "log": "existing_BL_kernels_1791893085768073633.log",
+      "log_sha256": "6bb5f5563a1aaf4980edb11b473966d142fa1bd45b50ec5d36a10b30ed56ffc1",
+      "elapsed_seconds": 0.4679725340101868,
+      "scope": "serial kernel correctness only"
+    }
+  ],
+  "limitations": [
+    "No native BL remesh, first-height or analytic authority qualification",
+    "No CFD, MPI consistency, AD runtime or performance qualification"
+  ]
+}

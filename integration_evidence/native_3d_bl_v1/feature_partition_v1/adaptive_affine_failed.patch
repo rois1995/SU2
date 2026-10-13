@@ -1,0 +1,413 @@
+diff --git a/SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp b/SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp
+index 3f14f8ac6b..2d6e902a79 100644
+--- a/SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp
++++ b/SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp
+@@ -27,6 +27,7 @@
+ #pragma once
+ 
+ #include <memory>
++#include <functional>
+ #include <array>
+ #include <string>
+ #include <unordered_map>
+@@ -202,10 +203,14 @@ class CBoundaryLayerMetric {
+     double weight;
+     std::vector<PointSample> samples;
+   };
+-  /*! Positive degree-two quadrature after distance-band clipping in original barycentric coordinates.
+-   *  Changing/hidden geometry is subdivided with an explicit work bound; no nodal BL interpolation. */
++  using IntegrationDensity3D = std::function<double(const IntegrationPoint3D&)>;
++  /*! Positive quadrature after geometric distance-band clipping, using original-cell barycentrics.
++   *  Hidden-support angular refinement estimates error in the supplied full target density;
++   *  absent a callback, it monitors the BL composed with a unit isotropic sensor.
++   *  Work/depth/point bounds reject unresolved integration; no nodal BL interpolation. */
+   std::vector<IntegrationPoint3D> IntegrationRule3D(
+-      const std::array<std::array<double,3>,4>& tetrahedron, double bandRatio = 1.5);
++      const std::array<std::array<double,3>,4>& tetrahedron, double bandRatio = 1.5,
++      IntegrationDensity3D density = {});
+ 
+   /*! Sorted chord parameters resolving every faceted-wall distance band in 2D/3D.
+    *  Face/edge/vertex offset intersections detect a thin band even when both endpoints
+diff --git a/SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp b/SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp
+index 8614a3fcf5..93e1bb6584 100644
+--- a/SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp
++++ b/SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp
+@@ -30,8 +30,10 @@
+ #include <array>
+ #include <cmath>
+ #include <limits>
++#include <iterator>
+ #include <map>
+ #include <numeric>
++#include <queue>
+ 
+ #include "../../../Common/include/CConfig.hpp"
+ #include "../../../Common/include/parallelization/CPassiveComm.hpp"
+@@ -1091,7 +1093,7 @@ void VisitBLTetrahedra(const convex_clip::Polyhedron& piece,Append append) {
+ }
+ 
+ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::IntegrationRule3D(
+-    const std::array<std::array<double,3>,4>& tetrahedron,double bandRatio) {
++    const std::array<std::array<double,3>,4>& tetrahedron,double bandRatio,IntegrationDensity3D density) {
+   if(nDim!=3 || !std::isfinite(bandRatio) || !(bandRatio>1))
+     throw std::invalid_argument("Invalid native3D BL volume quadrature.");
+   for(const auto& p:tetrahedron)for(auto x:p)if(!std::isfinite(x))
+@@ -1160,6 +1162,27 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
+       }
+     }
+   }
++  auto probe=[&](const IntegrationPoint3D& point) {
++    double value=0;
++    if(density)value=density(point);
++    else {
++      Tensor metric;for(unsigned j=0;j<3;++j)metric.m[j][j]=1;
++      for(const auto& sample:point.samples)ApplySample(sample.wall,sample.sample,metric,1.,nullptr,false);
++      su2double vectors[3][3],eigenvalues[3],workspace[3];
++      CBlasStructure::EigenDecomposition(metric.m,vectors,eigenvalues,3,workspace);
++      value=SU2_TYPE::GetValue(sqrt(eigenvalues[0]*eigenvalues[1]*eigenvalues[2]));
++    }
++    if(!(value>0) || !std::isfinite(value))throw std::runtime_error("Native3D BL quadrature density is nonfinite/nonpositive.");
++    return value;
++  };
++  using Triangle=std::array<std::array<double,4>,3>;
++  struct ConeRule {
++    BLPoint3D apex;
++    std::array<double,4> apex_bary;
++    Triangle base;
++    long double determinant;
++  };
++  std::vector<ConeRule> cones;
+   size_t visited=0;std::vector<IntegrationPoint3D> rule;
+   if(pieces.size()==1)IntegrationRule3DImpl(tetrahedron,bary,tetrahedron,bandRatio,0,visited,rule);
+   else for(const auto& piece:pieces)VisitBLTetrahedra(piece,[&](const BLTetrahedron& local) {
+@@ -1192,7 +1215,24 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
+       IntegrationRule3DImpl(physical,mapping,tetrahedron,bandRatio,0,visited,rule);
+       return;
+     }
+-    // Conical quadrature resolves distance bands along actual rays instead of bisecting curved support in3D.
++    // Reuse band clipping where the existing edge/face/cell probes resolve an affine distance field.
++    bool affine=true;
++    for(unsigned short wall=0;wall<walls.size() && affine;++wall) {
++      const auto& d=*data[wall];if(!d.adt)continue;
++      auto distance=[&](const BLPoint3D& p) {const su2double x[3]={p[0],p[1],p[2]};return SU2_TYPE::GetValue(Evaluate(wall,x,1.).distance);};
++      std::array<double,4> distances{};for(unsigned k=0;k<4;++k)distances[k]=distance(physical[k]);
++      if(*std::min_element(distances.begin(),distances.end())>=SU2_TYPE::GetValue(d.thickness)){affine=false;break;}
++      for(unsigned mask=1;mask<16 && affine;++mask) {
++        unsigned count=0;for(unsigned k=0;k<4;++k)count+=(mask>>k)&1u;if(count==1)continue;
++        BLPoint3D point{};double linear=0;
++        for(unsigned k=0;k<4;++k)if(mask&(1u<<k)) {
++          linear+=distances[k]/count;for(unsigned j=0;j<3;++j)point[j]+=physical[k][j]/count;
++        }
++        affine=std::abs(distance(point)-linear)<=1e-10*SU2_TYPE::GetValue(d.h0);
++      }
++    }
++    if(affine){IntegrationRule3DImpl(physical,mapping,tetrahedron,bandRatio,0,visited,rule);return;}
++    // Conical quadrature resolves nonlinear distance bands along actual rays.
+     unsigned apex=0;double farthest=-1;
+     for(unsigned k=0;k<4;++k) {
+       double nearest=std::numeric_limits<double>::max();
+@@ -1202,49 +1242,116 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
+       }
+       if(nearest>farthest){farthest=nearest;apex=k;}
+     }
+-    SU2Native3D::Tetrahedron originalSource;
+-    for(unsigned k=0;k<4;++k)originalSource[k]={tetrahedron[k][0],tetrahedron[k][1],tetrahedron[k][2]};
+-    const bool reversed=SU2Native3D::Orientation(originalSource[0],originalSource[1],originalSource[2],originalSource[3])<0;
+-    if(reversed)std::swap(originalSource[1],originalSource[2]);
+-    const double gauss[5]={-.90617984593866399280,-.53846931010568309104,0,.53846931010568309104,.90617984593866399280};
+-    const double weights[5]={.23692688505618908751,.47862867049936646804,128./225,.47862867049936646804,.23692688505618908751};
+     std::array<unsigned,3> base{};unsigned next=0;for(unsigned k=0;k<4;++k)if(k!=apex)base[next++]=k;
+-    const double faceBary[12][3]={
+-        {.501426509658179,.249286745170910,.249286745170910},
+-        {.249286745170910,.501426509658179,.249286745170910},
+-        {.249286745170910,.249286745170910,.501426509658179},
+-        {.873821971016996,.063089014491502,.063089014491502},
+-        {.063089014491502,.873821971016996,.063089014491502},
+-        {.063089014491502,.063089014491502,.873821971016996},
+-        {.053145049844817,.310352451033784,.636502499121399},
+-        {.053145049844817,.636502499121399,.310352451033784},
+-        {.310352451033784,.053145049844817,.636502499121399},
+-        {.310352451033784,.636502499121399,.053145049844817},
+-        {.636502499121399,.053145049844817,.310352451033784},
+-        {.636502499121399,.310352451033784,.053145049844817}};
+-    const double faceWeights[12]={.116786275726379,.116786275726379,.116786275726379,
+-        .050844906370207,.050844906370207,.050844906370207,
+-        .082851075618374,.082851075618374,.082851075618374,.082851075618374,.082851075618374,.082851075618374};
+-    for(unsigned corner=0;corner<12;++corner) {
+-      std::array<double,4> baseBary{};
+-      for(unsigned j=0;j<4;++j)for(unsigned k=0;k<3;++k)
+-        baseBary[j]+=mapping[base[k]][j]*faceBary[corner][k];
+-      BLPoint3D basePoint{};
+-      for(unsigned j=0;j<3;++j)for(unsigned k=0;k<4;++k)basePoint[j]+=baseBary[k]*tetrahedron[k][j];
+-      const auto cuts=EdgeBreakpoints(physical[apex],basePoint,std::max(2.,bandRatio),4);
+-      for(size_t band=1;band<cuts.size();++band)for(unsigned g=0;g<5;++g) {
+-        if(rule.size()>=65536)throw std::runtime_error("Native3D BL volume quadrature point budget exhausted.");
+-        const double half=.5*(cuts[band]-cuts[band-1]),t=.5*(cuts[band]+cuts[band-1])+half*gauss[g];
+-        std::array<double,4> parent{};BLPoint3D position{};
+-        for(unsigned k=0;k<4;++k) {
+-          parent[k]=(1-t)*mapping[apex][k]+t*baseBary[k];
+-          for(unsigned j=0;j<3;++j)position[j]+=parent[k]*tetrahedron[k][j];
+-        }
+-        SetBLSourceQuery(tetrahedron,originalSource,reversed,parent,position);
+-        rule.push_back({parent,double(determinant/2*faceWeights[corner]*half*weights[g]*t*t),SamplePoints({position[0],position[1],position[2]})});
++    cones.push_back({physical[apex],mapping[apex],{mapping[base[0]],mapping[base[1]],mapping[base[2]]},determinant});
++  });
++  if(cones.empty())return rule;
++  SU2Native3D::Tetrahedron originalSource;
++  for(unsigned k=0;k<4;++k)originalSource[k]={tetrahedron[k][0],tetrahedron[k][1],tetrahedron[k][2]};
++  const bool reversed=SU2Native3D::Orientation(originalSource[0],originalSource[1],originalSource[2],originalSource[3])<0;
++  if(reversed)std::swap(originalSource[1],originalSource[2]);
++  const double gauss[5]={-.90617984593866399280,-.53846931010568309104,0,.53846931010568309104,.90617984593866399280};
++  const double weights[5]={.23692688505618908751,.47862867049936646804,128./225,.47862867049936646804,.23692688505618908751};
++  const double gauss3[3]={-.77459666924148337704,0,.77459666924148337704},weights3[3]={5./9,8./9,5./9};
++  const double faceBary[7][3]={
++      {1./3,1./3,1./3},
++      {.059715871789770,.470142064105115,.470142064105115},
++      {.470142064105115,.059715871789770,.470142064105115},
++      {.470142064105115,.470142064105115,.059715871789770},
++      {.797426985353087,.101286507323456,.101286507323456},
++      {.101286507323456,.797426985353087,.101286507323456},
++      {.101286507323456,.101286507323456,.797426985353087}};
++  const double faceWeights[7]={.225,.132394152788506,.132394152788506,.132394152788506,
++      .125939180544827,.125939180544827,.125939180544827};
++  size_t retained=rule.size();
++  auto integrate=[&](const ConeRule& cone,const Triangle& triangle,double fraction,bool fine,std::vector<IntegrationPoint3D>& points) {
++      double integral=0;
++      for(unsigned corner=0;corner<(fine?7u:3u);++corner) {
++        std::array<double,4> baseBary{};
++        for(unsigned j=0;j<4;++j)for(unsigned k=0;k<3;++k)
++          baseBary[j]+=triangle[k][j]*(fine?faceBary[corner][k]:(k==corner?2./3:1./6));
++        BLPoint3D basePoint{};
++        for(unsigned j=0;j<3;++j)for(unsigned k=0;k<4;++k)basePoint[j]+=baseBary[k]*tetrahedron[k][j];
++        const auto cuts=EdgeBreakpoints(cone.apex,basePoint,std::max(2.,bandRatio),4);
++        auto radial=[&](double left,double right,bool high,std::vector<IntegrationPoint3D>& samples) {
++          double value=0;const double half=.5*(right-left),center=.5*(right+left);
++          for(unsigned g=0;g<(high?5u:3u);++g) {
++            const double t=center+half*(high?gauss[g]:gauss3[g]);
++            std::array<double,4> parent{};BLPoint3D position{};
++            for(unsigned k=0;k<4;++k) {
++              parent[k]=(1-t)*cone.apex_bary[k]+t*baseBary[k];
++              for(unsigned j=0;j<3;++j)position[j]+=parent[k]*tetrahedron[k][j];
++            }
++            SetBLSourceQuery(tetrahedron,originalSource,reversed,parent,position);
++            IntegrationPoint3D point{parent,double(cone.determinant/2*fraction*(fine?faceWeights[corner]:1./3)*half*(high?weights[g]:weights3[g])*t*t),
++                SamplePoints({position[0],position[1],position[2]})};
++            value+=point.weight*probe(point);samples.push_back(std::move(point));
++          }
++          return value;
++        };
++        std::function<void(double,double,unsigned)> refineRay;
++        refineRay=[&](double left,double right,unsigned depth) {
++          std::vector<IntegrationPoint3D> lowPoints,highPoints;
++          const double low=radial(left,right,false,lowPoints),high=radial(left,right,true,highPoints);
++          if(std::abs(high-low)<=1e-5*high) {
++            if(retained+points.size()+lowPoints.size()>65536)throw std::runtime_error("Native3D BL volume quadrature point budget exhausted.");
++            integral+=low;points.insert(points.end(),std::make_move_iterator(lowPoints.begin()),std::make_move_iterator(lowPoints.end()));return;
++          }
++          if(depth>=32)throw std::runtime_error("Native3D BL radial density remains unresolved after 32 subdivisions.");
++          if(++visited>16384)throw std::runtime_error("Native3D BL geometry quadrature work budget exhausted.");
++          const auto middle=.5*(left+right);if(middle==left || middle==right)throw std::runtime_error("Unrepresentable native3D radial subdivision.");
++          refineRay(left,middle,depth+1);refineRay(middle,right,depth+1);
++        };
++        for(size_t band=1;band<cuts.size();++band)refineRay(cuts[band-1],cuts[band],0);
+       }
++      return integral;
++    };
++  struct Panel {
++    size_t cone;
++    Triangle triangle;
++    double fraction;
++    unsigned depth;
++    std::vector<IntegrationPoint3D> fine;
++    double value,error;
++  };
++  std::map<size_t,Panel> panels;
++  std::priority_queue<std::pair<double,size_t>> priority;
++  size_t nextPanel=0;
++  double totalValue=0,totalError=0;
++  for(const auto& point:rule)totalValue+=point.weight*probe(point);
++  auto add=[&](size_t cone,const Triangle& triangle,double fraction,unsigned depth) {
++    if(++visited>16384)throw std::runtime_error("Native3D BL geometry quadrature work budget exhausted.");
++    Panel panel{cone,triangle,fraction,depth,{},0,0};std::vector<IntegrationPoint3D> coarse;
++    panel.value=integrate(cones[cone],triangle,fraction,true,panel.fine);
++    const auto low=integrate(cones[cone],triangle,fraction,false,coarse);
++    panel.error=std::abs(panel.value-low);totalValue+=panel.value;totalError+=panel.error;
++    retained+=panel.fine.size();priority.emplace(panel.error,nextPanel);
++    panels.emplace(nextPanel++,std::move(panel));
++  };
++  for(size_t k=0;k<cones.size();++k)add(k,cones[k].base,1.,0);
++  while(totalError>1e-4*totalValue) {
++    if(priority.empty())throw std::runtime_error("Native3D BL angular error queue is unresolved.");
++    const auto selected=priority.top().second;priority.pop();
++    auto panel=std::move(panels.at(selected));panels.erase(selected);
++    if(panel.depth>=32)throw std::runtime_error("Native3D BL angular density remains unresolved after 32 subdivisions.");
++    totalValue-=panel.value;totalError=std::max(0.,totalError-panel.error);retained-=panel.fine.size();
++    panel.fine.clear();panel.fine.shrink_to_fit();
++    unsigned a=0,b=1;long double longest=0;
++    for(unsigned i=0;i<3;++i)for(unsigned j=i+1;j<3;++j) {
++      long double length=0;
++      for(unsigned d=0;d<3;++d) {
++        long double delta=0;for(unsigned k=0;k<4;++k)delta+=((long double)panel.triangle[i][k]-panel.triangle[j][k])*tetrahedron[k][d];
++        length+=delta*delta;
++      }
++      if(length>longest){longest=length;a=i;b=j;}
+     }
+-  });
++    std::array<double,4> midpoint{};for(unsigned k=0;k<4;++k)midpoint[k]=.5*panel.triangle[a][k]+.5*panel.triangle[b][k];
++    if(midpoint==panel.triangle[a] || midpoint==panel.triangle[b])throw std::runtime_error("Unrepresentable native3D angular subdivision.");
++    for(const auto vertex:{a,b}) {
++      auto child=panel.triangle;child[vertex]=midpoint;add(panel.cone,child,.5*panel.fraction,panel.depth+1);
++    }
++  }
++  for(auto& entry:panels)rule.insert(rule.end(),std::make_move_iterator(entry.second.fine.begin()),std::make_move_iterator(entry.second.fine.end()));
+   return rule;
+ }
+ 
+diff --git a/SU2_CFD/src/solvers/CSolver.cpp b/SU2_CFD/src/solvers/CSolver.cpp
+index aa5d0e5497..fcea7f6693 100644
+--- a/SU2_CFD/src/solvers/CSolver.cpp
++++ b/SU2_CFD/src/solvers/CSolver.cpp
+@@ -2859,7 +2859,11 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
+   unsigned long localQuadraturePoints = 0;
+   struct CellRule3D {
+     std::array<unsigned long,4> nodes;
++    std::array<std::array<double,3>,4> coordinates;
++    unsigned long global_cell;
+     std::vector<CBoundaryLayerMetric::IntegrationPoint3D> points;
++    std::array<CBoundaryLayerMetric::Tensor,4> sensor;
++    su2double core=-1;
+   };
+   vector<CellRule3D> integration3D;
+   CLocalFailure quadratureFailure;
+@@ -2876,7 +2880,6 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
+             ? CBoundaryLayerMetric::FromNativeReference(*nativeReference3D, *config)
+             : std::make_shared<CBoundaryLayerMetric>(*geometry, *config);
+       const auto owned = OwnedSimplices(*geometry);
+-      size_t quadratureBytes=0;
+       for (unsigned long cell = 0; cell < owned.size(); ++cell) {
+         quadratureCell=geometry->elem[owned.elem[cell]]->GetGlobalIndex();
+         quadratureContext="Native geometric complexity cell "+std::to_string(quadratureCell);
+@@ -2896,11 +2899,8 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
+           std::array<std::array<double,3>,4> coordinates;
+           for(unsigned k=0;k<4;++k)for(unsigned d=0;d<3;++d)
+             coordinates[k][d]=SU2_TYPE::GetValue(geometry->nodes->GetCoord(nodes[k],d));
+-          auto points=nativeLayers->IntegrationRule3D(coordinates);
+-          quadratureBytes=transfer_memory::Add(quadratureBytes,transfer_memory::Bytes(points),sizeof(CellRule3D));
+-          for(const auto& point:points)quadratureBytes=transfer_memory::Add(quadratureBytes,transfer_memory::Bytes(point.samples));
+-          if(quadratureBytes>(size_t(2)<<30)) throw std::runtime_error("Native3D complexity quadrature exceeds storage budget.");
+-          localQuadraturePoints+=points.size();integration3D.push_back({nodes,std::move(points)});
++          // The angular error must use the actual bounded/graded sensor and frozen core of each trial.
++          integration3D.push_back({nodes,coordinates,quadratureCell,{},{},-1});
+         }
+       }
+     }
+@@ -2914,6 +2914,8 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
+   }
+   profile.Mark(1);
+   su2double frozenCore = eigMin, integratedComplexity = 0;
++  passivedouble quadratureSeconds=0;
++  unsigned long quadratureBuilds=0,quadratureReused=0;
+   auto syncSensor = [&]() {
+     for (auto point = 0ul; point < nPointDomain; ++point) base_nodes->SetMetricMat(point, blMetric[point].m);
+     InitiateComms(geometry, config, MPI_QUANTITIES::METRIC);
+@@ -3080,7 +3082,41 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
+             local+=point.weight*density(metric);
+           }
+         };
+-        accumulate(integration);accumulate(integration3D);
++        accumulate(integration);
++        if(nDim==3) {
++          CLocalFailure integrationFailure;
++          const auto integrationStart=SU2_MPI::Wtime();
++          size_t quadratureBytes=0;
++          localQuadraturePoints=0;
++          for(auto& cell:integration3D)try {
++            auto targetDensity=[&](const CBoundaryLayerMetric::IntegrationPoint3D& point) {
++              CBoundaryLayerMetric::Tensor metric;
++              for(unsigned k=0;k<4;++k)for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)
++                metric.m[i][j]+=point.barycentric[k]*blMetric[cell.nodes[k]].m[i][j];
++              for(const auto& sample:point.samples)
++                nativeLayers->ApplySample(sample.wall,sample.sample,metric,frozenCore,nullptr,false);
++              return SU2_TYPE::GetValue(density(metric));
++            };
++            bool same=!cell.points.empty() && cell.core==frozenCore;
++            for(unsigned k=0;k<4;++k)for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)
++              same=same && cell.sensor[k].m[i][j]==blMetric[cell.nodes[k]].m[i][j];
++            if(same)++quadratureReused;
++            else {
++              cell.points=nativeLayers->IntegrationRule3D(cell.coordinates,1.5,targetDensity);++quadratureBuilds;
++              for(unsigned k=0;k<4;++k)cell.sensor[k]=blMetric[cell.nodes[k]];
++              cell.core=frozenCore;
++            }
++            quadratureBytes=transfer_memory::Add(quadratureBytes,transfer_memory::Bytes(cell.points),sizeof(CellRule3D));
++            for(const auto& point:cell.points)quadratureBytes=transfer_memory::Add(quadratureBytes,transfer_memory::Bytes(point.samples));
++            if(quadratureBytes>(size_t(2)<<30))throw std::runtime_error("Native3D complexity quadrature exceeds storage budget.");
++            localQuadraturePoints+=cell.points.size();
++          }catch(const std::exception& error) {
++            integrationFailure.Set(2,cell.global_cell,"Native geometric complexity cell "+std::to_string(cell.global_cell)+": "+error.what());break;
++          }
++          quadratureSeconds+=SU2_MPI::Wtime()-integrationStart;
++          CollectiveFailure(integrationFailure,CURRENT_FUNCTION);
++          accumulate(integration3D);
++        }
+       } else {
+         for (auto point = 0ul; point < nPointDomain; ++point)
+           local += density(blMetric[point]) * geometry->nodes->GetVolume(point);
+@@ -3410,6 +3446,13 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
+     CPassiveComm::Allreduce(counts, totals, 2, CPassiveComm::Op::SUM);
+     globalGradedPoints = totals[0]; globalTensorUpdates = totals[1];
+   }
++  passivedouble globalQuadratureSeconds=0;
++  unsigned long quadratureCounts[2]={quadratureBuilds,quadratureReused},globalQuadratureCounts[2]={0,0};
++  if(nativeLayers && nDim==3) {
++    CPassiveComm::Allreduce(&localQuadraturePoints,&quadraturePoints,1,CPassiveComm::Op::SUM);
++    CPassiveComm::Allreduce(&quadratureSeconds,&globalQuadratureSeconds,1,CPassiveComm::Op::MAX);
++    CPassiveComm::Allreduce(quadratureCounts,globalQuadratureCounts,2,CPassiveComm::Op::SUM);
++  }
+   if (rank == MASTER_NODE) {
+     cout << (nativeMetric ? "Sensor-only donor metric statistics:" : "Metric field statistics:") << endl;
+     cout << "Minimum density: " << minDensity << "." << endl;
+@@ -3421,6 +3464,8 @@ void CSolver::ComputeMetric(CGeometry *geometry, const CConfig *config, const ve
+       cout << "Sensor metric complexity before gradation: " << coreComplexity << "." << endl;
+       cout << "Sensor-only donor complexity after gradation: " << totComplexity << "." << endl;
+       cout << "Native geometric integration: " << quadraturePoints << " points, preparation " << geometryTime << " s." << endl;
++      if(nDim==3 && nativeLayers)cout << "Native3D target-density quadrature: " << globalQuadratureSeconds << " s (maximum accumulated rank time), "
++          << globalQuadratureCounts[0] << " cell rule builds, " << globalQuadratureCounts[1] << " exact-target reuses." << endl;
+       cout << "Native metric work: " << complexityTrials << " complexity trials, " << totalGradationSweeps
+            << " total gradation sweeps, " << globalGradedPoints << " owned-point visits; gradation " << workGlobal[0] << " s, halo " << workGlobal[1]
+            << " s, sweep reductions " << workGlobal[2] << " s (maximum accumulated rank times)." << endl;
+diff --git a/UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp b/UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp
+index 202de667f7..061cdd7fb8 100644
+--- a/UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp
++++ b/UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp
+@@ -1127,4 +1127,30 @@ TEST_CASE("Native3D volume support detects a thin finite wall missed by all cell
+   const double reference=expectedVolume+simpson(section,.02,.072)+simpson(section,.072,.08);
+   INFO("points=" << rule.size() << " integral=" << integral << " reference=" << reference);
+   CHECK(integral==Approx(reference).epsilon(5e-4));
++  // A finer isotropic sensor controls both tangents; test the full-target callback against a second parallel-body oracle.
++  auto strongerDensity=[&](const CBoundaryLayerMetric::IntegrationPoint3D& point) {
++    Tensor m;for(unsigned j=0;j<3;++j)m.m[j][j]=100;
++    for(const auto& sample:point.samples)layers.ApplySample(sample.wall,sample.sample,m,100.,nullptr,false);
++    const double det=SU2_TYPE::GetValue(m.m[0][0]*(m.m[1][1]*m.m[2][2]-m.m[1][2]*m.m[2][1])
++        -m.m[0][1]*(m.m[1][0]*m.m[2][2]-m.m[1][2]*m.m[2][0])
++        +m.m[0][2]*(m.m[1][0]*m.m[2][1]-m.m[1][1]*m.m[2][0]));
++    return std::sqrt(det);
++  };
++  const auto strongerRule=layers.IntegrationRule3D(cell,1.5,strongerDensity);
++  double strongerIntegral=0;for(const auto& point:strongerRule)strongerIntegral+=point.weight*strongerDensity(point);
++  auto strongerRadial=[](double distance) {
++    const double hn=std::max(.02,2*(.02+.2*distance)/2.2);
++    const double t=std::clamp((distance-.072)/.008,0.,1.),w=1-t*t*(3-2*t);
++    return 100*std::pow(1/hn,w)*std::pow(10.,1-w);
++  };
++  auto strongerSection=[&](double z) {
++    const double radius=std::sqrt(std::max(0.,.08*.08-z*z)),full=std::sqrt(std::max(0.,.072*.072-z*z));
++    auto rings=[&](double r){return (.24*(2+std::sqrt(2.))+2*std::acos(-1.)*r)*(strongerRadial(std::hypot(z,r))-1000);};
++    return .24*.24/2*(strongerRadial(z)-1000)+simpson(rings,0,full)+simpson(rings,full,radius);
++  };
++  const double strongerReference=1000*expectedVolume+simpson(strongerSection,.02,.072)+simpson(strongerSection,.072,.08);
++  INFO("stronger points=" << strongerRule.size() << " integral=" << strongerIntegral << " reference=" << strongerReference);
++  CHECK(strongerIntegral==Approx(strongerReference).epsilon(5e-4));
++  CHECK_THROWS(layers.IntegrationRule3D(cell,1.5,[](const auto&){return -1.;}));
++  CHECK_THROWS(layers.IntegrationRule3D(cell,1.5,[](const auto&){return std::numeric_limits<double>::quiet_NaN();}));
+ }

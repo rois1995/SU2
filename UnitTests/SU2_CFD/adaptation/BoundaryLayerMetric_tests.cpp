@@ -1127,4 +1127,30 @@ TEST_CASE("Native3D volume support detects a thin finite wall missed by all cell
   const double reference=expectedVolume+simpson(section,.02,.072)+simpson(section,.072,.08);
   INFO("points=" << rule.size() << " integral=" << integral << " reference=" << reference);
   CHECK(integral==Approx(reference).epsilon(5e-4));
+  // A finer isotropic sensor controls both tangents; test the full-target callback against a second parallel-body oracle.
+  auto strongerDensity=[&](const CBoundaryLayerMetric::IntegrationPoint3D& point) {
+    Tensor m;for(unsigned j=0;j<3;++j)m.m[j][j]=100;
+    for(const auto& sample:point.samples)layers.ApplySample(sample.wall,sample.sample,m,100.,nullptr,false);
+    const double det=SU2_TYPE::GetValue(m.m[0][0]*(m.m[1][1]*m.m[2][2]-m.m[1][2]*m.m[2][1])
+        -m.m[0][1]*(m.m[1][0]*m.m[2][2]-m.m[1][2]*m.m[2][0])
+        +m.m[0][2]*(m.m[1][0]*m.m[2][1]-m.m[1][1]*m.m[2][0]));
+    return std::sqrt(det);
+  };
+  const auto strongerRule=layers.IntegrationRule3D(cell,1.5,strongerDensity);
+  double strongerIntegral=0;for(const auto& point:strongerRule)strongerIntegral+=point.weight*strongerDensity(point);
+  auto strongerRadial=[](double distance) {
+    const double hn=std::max(.02,2*(.02+.2*distance)/2.2);
+    const double t=std::clamp((distance-.072)/.008,0.,1.),w=1-t*t*(3-2*t);
+    return 100*std::pow(1/hn,w)*std::pow(10.,1-w);
+  };
+  auto strongerSection=[&](double z) {
+    const double radius=std::sqrt(std::max(0.,.08*.08-z*z)),full=std::sqrt(std::max(0.,.072*.072-z*z));
+    auto rings=[&](double r){return (.24*(2+std::sqrt(2.))+2*std::acos(-1.)*r)*(strongerRadial(std::hypot(z,r))-1000);};
+    return .24*.24/2*(strongerRadial(z)-1000)+simpson(rings,0,full)+simpson(rings,full,radius);
+  };
+  const double strongerReference=1000*expectedVolume+simpson(strongerSection,.02,.072)+simpson(strongerSection,.072,.08);
+  INFO("stronger points=" << strongerRule.size() << " integral=" << strongerIntegral << " reference=" << strongerReference);
+  CHECK(strongerIntegral==Approx(strongerReference).epsilon(5e-4));
+  CHECK_THROWS(layers.IntegrationRule3D(cell,1.5,[](const auto&){return -1.;}));
+  CHECK_THROWS(layers.IntegrationRule3D(cell,1.5,[](const auto&){return std::numeric_limits<double>::quiet_NaN();}));
 }

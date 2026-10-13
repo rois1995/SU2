@@ -1,0 +1,12 @@
+{
+  "base": "9a5058b6b035eac771da0723963e1b2c23cddb31",
+  "patch_sha256": "8e1f251a71b10cc72b2f9150759808a5d5414fa324005f7ab14b242ec04725a7",
+  "sources": {
+    "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "a9e9360601520cd1378055f72d686262c8569364da5273baf090f92b8917dfaa",
+    "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "238e87b9e912ca7bfbbbd3e87db3cb79ab4f0ff289d90774e6020a46f55e5d86",
+    "SU2_CFD/src/solvers/CSolver.cpp": "6aa179cf09ae6e63efe5c9bce66480f19a0f71bcdc7f40c0b79a7e37781c0244",
+    "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "9ac7115e473f9c6034950bce6d11f9745ae4725281dd55219b89cd415bcac9ec"
+  },
+  "failure": "unchanged65536 point budget exhausted by per-cone adaptive relative error",
+  "validation": "validation.json before global-priority rewrite"
+}

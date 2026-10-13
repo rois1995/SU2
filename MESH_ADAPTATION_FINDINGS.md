@@ -1,3 +1,25 @@
+# Goal3 complexity integration now follows the actual target; hidden support remains unqualified — 2026-10-13
+
+3D complexity generates hidden-support quadrature after bounding/grading/syncing
+sensor tensors and freezing the BL core. The callback composes original-P1 sensor
+with geometric BL at actual samples; exact donor/core matches reuse existing rules.
+Native output reports quadrature cost/build/reuse separately. Actual planar BL
+complexity and sensor-only nodal preservation pass on MPI1/2/4.
+
+The adaptive prototype adds positive vertex-based polyhedron decomposition, global
+angular error prioritization and radial order/subdivision checks with summed error
+estimates. Seven current stages pass, but finite hidden-wall support still rejects
+at65536returned points. Its printed density is a partial replacement diagnostic,
+not an accepted integral. The finer-sensor oracle has not been reached. Thus the
+original hidden-support accuracy requirement remains unmet, and production BL
+remeshing stays guarded. Neither target nor acceptance gates/caps changed.
+
+Ten failed source versions reconstruct byte-identically from saved patches/base
+commits; raw logs and independent-stage receipts are preserved. No CFD runs or
+performance/scaling claim. See feature_partition_v1/ADAPTIVE_INTEGRATION_STATUS.md.
+
+Earlier findings below are historical.
+
 # Goal3 height construction reaches the distributed engine — 2026-10-13
 
 Native initializes prescribed-height wall children and transition through complete

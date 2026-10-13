@@ -1,0 +1,47 @@
+{
+  "stage": "nearest_face_change",
+  "status": "PASS",
+  "returncode": 0,
+  "contract": {
+    "provenance": {
+      "SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp": "a9e9360601520cd1378055f72d686262c8569364da5273baf090f92b8917dfaa",
+      "SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp": "622b41ebb4272af066e27c7df907b12f31c37582aac4214d3c95c4903e54e645",
+      "SU2_CFD/include/adaptation/ConvexClipping.hpp": "f9a92bc81c3588dda386606d2ad6ab63f808af9831c7d8ec9ad3120b48ffa9cf",
+      "SU2_CFD/include/solvers/CSolver.hpp": "958122df6694b375a561e65f1a8d9b0d379c0f3d8ca6b4095454d44f66e9ab55",
+      "SU2_CFD/src/solvers/CSolver.cpp": "6aa179cf09ae6e63efe5c9bce66480f19a0f71bcdc7f40c0b79a7e37781c0244",
+      "SU2_CFD/src/drivers/CSinglezoneDriver.cpp": "3ef049da812f9b87259918ea7fa9b214ae63368041d80c9114923f2e447f8727",
+      "Common/include/adaptation/CNativeRemesher3D.hpp": "6c1aff6bc10d746ae4946bb50a19c0c2e5d1d7e5d21ff471c2974609a79099f1",
+      "Common/src/adaptation/CNativeRemesher3D.cpp": "4d9aa61bc77796700a88fc8a44db12276e1e5952e8fcdc518ac9d20dbd4abd1a",
+      "UnitTests/SU2_CFD/adaptation/BoundaryLayerMetric_tests.cpp": "9ac7115e473f9c6034950bce6d11f9745ae4725281dd55219b89cd415bcac9ec",
+      "binary": "a98e4eed44dfb790c332522a94cda1ef510cb765ae38d6940ef3d3d9297b0cba",
+      "helper": "0c9c7795be15d5dc76325f5c18387b451f6b518c1741fa2d38737d45014373c8",
+      "compile_commands": "17a19ce625ceabf3f70dba005aebef0990be029c491666e86144787717316540",
+      "object:SU2_CFD/src/libSU2core.a.p/solvers_CSolver.cpp.o": "6ee944ccaa6132661ad01d9c0c2a01a61e71722cfca88826e8ed0953de80d35c",
+      "object:SU2_CFD/src/libSU2core.a.p/drivers_CSinglezoneDriver.cpp.o": "e3d1256014eae1c490487eee27a4d5042f0f4e87abaf4ba768e9410ac0412152",
+      "object:Common/src/libSU2Common.a.p/adaptation_CNativeRemesher3D.cpp.o": "9773377af7528407efe82ee5f0f9fe909d447029e0042d80544ebb775a5e7897",
+      "object:SU2_CFD/src/libSU2core.a.p/adaptation_CBoundaryLayerMetric.cpp.o": "860e18d549c7cc465936f393966fba4c8412425f3111ea7c20a47e025e14e689",
+      "object:UnitTests/test_driver.p/SU2_CFD_adaptation_BoundaryLayerMetric_tests.cpp.o": "f7c84789be66ea5dc0d5d4559bc6e47f5979a030e6b8e0a920495b2ba79e35ca"
+    },
+    "command": [
+      "taskset",
+      "-c",
+      "3",
+      "nice",
+      "-n",
+      "19",
+      "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+      "Native3D volume integration resolves a far vertex closest to another wall face",
+      "--reporter",
+      "compact"
+    ],
+    "MPI_ranks": 1,
+    "environment": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1"
+    }
+  },
+  "log": "nearest_face_change_1791891427827087969.log",
+  "log_sha256": "610ae13e46aab95e03df1ec20829c9a087afba006a1d8fa45410c54b324fb407",
+  "elapsed_seconds": 0.4170949299586937,
+  "scope": "serial kernel correctness only"
+}
