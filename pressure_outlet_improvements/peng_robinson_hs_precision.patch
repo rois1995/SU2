@@ -1,0 +1,105 @@
+diff --git a/SU2_CFD/src/fluid/CPengRobinson.cpp b/SU2_CFD/src/fluid/CPengRobinson.cpp
+index 639c8b2e8c..8666ac6e02 100644
+--- a/SU2_CFD/src/fluid/CPengRobinson.cpp
++++ b/SU2_CFD/src/fluid/CPengRobinson.cpp
+@@ -201,7 +201,7 @@ void CPengRobinson::SetTDState_hs(su2double h, su2double s) {
+   su2double T, fv, sqrt2 = sqrt(2.0), A;
+   su2double f, v, atanh;
+   su2double x1, x2, xmid, dx, fx1, fx2, fmid, rtb;
+-  su2double toll = 1e-9, FACTOR = 0.2;
++  su2double FACTOR = 0.2;
+   su2double cons_s, cons_h;
+   unsigned short countrtb = 0, NTRY = 100, ITMAX = 100;
+ 
+@@ -247,6 +247,7 @@ void CPengRobinson::SetTDState_hs(su2double h, su2double s) {
+     }
+   }
+ 
++  // Bound the relative density error independently of the entropy units.
+   // rtbis algorithm NR
+ 
+   f = fx1;
+@@ -266,7 +267,7 @@ void CPengRobinson::SetTDState_hs(su2double h, su2double s) {
+ 
+     if (fmid <= 0.0) rtb = xmid;
+     countrtb++;
+-  } while (abs(fmid) > toll && countrtb < ITMAX);
++  } while (abs(dx) > 1e-13 * abs(xmid) && countrtb < ITMAX);
+ 
+   v = xmid;
+   if (countrtb == ITMAX) {
+diff --git a/UnitTests/meson.build b/UnitTests/meson.build
+index ba3c63afce..de0cd7be35 100644
+--- a/UnitTests/meson.build
++++ b/UnitTests/meson.build
+@@ -16,6 +16,7 @@ su2_cfd_tests = files(['Common/CConfig_tests.cpp',
+                        'Common/toolboxes/multilayer_perceptron/CLookUp_ANN_tests.cpp',
+                        'SU2_CFD/numerics/CNumerics_tests.cpp',
+                        'SU2_CFD/fluid/CFluidModel_tests.cpp',
++                       'SU2_CFD/fluid/peng_robinson_hs_tests.cpp',
+                        'SU2_CFD/output/CNEMOCompOutput_tests.cpp',
+                        'SU2_CFD/output/COutput_convergence_tests.cpp',
+                        'SU2_CFD/gradients.cpp',
+diff --git a/UnitTests/SU2_CFD/fluid/peng_robinson_hs_tests.cpp b/UnitTests/SU2_CFD/fluid/peng_robinson_hs_tests.cpp
+new file mode 100644
+index 0000000000..8c4b11a8a6
+--- /dev/null
++++ b/UnitTests/SU2_CFD/fluid/peng_robinson_hs_tests.cpp
+@@ -0,0 +1,57 @@
++/*!
++ * \file peng_robinson_hs_tests.cpp
++ * \brief Regression for Peng-Robinson enthalpy/entropy inversion precision.
++ * \version 8.5.0 "Harrier"
++ *
++ * SU2 Project Website: https://su2code.github.io
++ *
++ * The SU2 Project is maintained by the SU2 Foundation
++ * (http://su2foundation.org)
++ *
++ * Copyright 2012-2026, SU2 Contributors (cf. AUTHORS.md)
++ *
++ * SU2 is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * SU2 is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with SU2. If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#include "catch.hpp"
++#include "../../../SU2_CFD/include/fluid/CPengRobinson.hpp"
++
++TEST_CASE("Peng-Robinson enthalpy entropy inversion preserves density across unit scales", "[PR-hs-precision]") {
++  for (const auto nondimensional : {false, true}) {
++    const double pRef = nondimensional ? 1500000 : 1;
++    const double rhoRef = nondimensional ? 230 : 1;
++    const double tRef = nondimensional ? 582 : 1;
++    CPengRobinson gas(1.0125, 35.152 * tRef * rhoRef / pRef, 1415200 / pRef, 564.1 / tRef, .529);
++    const double states[][2] = {{1000000., 60.},
++                                {1000000., 139.721588814903},
++                                {1436437.390045575, 139.721588814903},
++                                {1500112., 230.},
++                                {1775163.2766741454, 227.705409703555},
++                                {1630715.550839520, 188.22471208079},
++                                {735601.79703257, 48.01012393634}};
++    for (const auto& state : states) {
++      const double pressure = state[0], density = state[1];
++      gas.SetTDState_Prho(pressure / pRef, density / rhoRef);
++      REQUIRE(gas.GetTemperature() > 0);
++      REQUIRE(gas.GetSoundSpeed2() > 0);
++      const su2double h = gas.GetStaticEnergy() + gas.GetPressure() / gas.GetDensity();
++      const su2double s = gas.GetEntropy();
++      gas.SetTDState_hs(h, s);
++      INFO("nondimensional=" << nondimensional << " p=" << pressure << " rho=" << density);
++      CHECK(SU2_TYPE::GetValue(gas.GetDensity()) == Approx(density / rhoRef).epsilon(2e-10));
++      CHECK(SU2_TYPE::GetValue(gas.GetStaticEnergy() + gas.GetPressure() / gas.GetDensity()) ==
++            Approx(SU2_TYPE::GetValue(h)).epsilon(1e-12));
++    }
++  }
++}

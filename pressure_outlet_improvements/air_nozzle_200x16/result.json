@@ -1,0 +1,30 @@
+{
+  "case": "air_nozzle_200x16",
+  "binary": "/tmp/su2-pressure-outlet-improved-CFD",
+  "binary_sha256": "2a7e786cef12f44b22b75b5dd6f0d5c89bc9cc203efe573704adc23caac15560",
+  "ranks": 2,
+  "threads": 1,
+  "exit_code": 0,
+  "seconds": 138.36252149101347,
+  "last": {
+    "Time_Iter": 0.0,
+    "Outer_Iter": 0.0,
+    "Inner_Iter": 1311.0,
+    "rms[Rho]": -10.00189256,
+    "rms[RhoU]": -7.425650639,
+    "rms[RhoV]": -9.362742715,
+    "rms[RhoE]": -4.301489686,
+    "Linear_Solver_Iterations": 17.0,
+    "LinSolRes": -8.335952503
+  },
+  "finite_history": true,
+  "converged": true,
+  "finite_field": true,
+  "outlet_average": {
+    "Density": 0.5056239451079819,
+    "Pressure": 77977.63817925152,
+    "Mach": 1.5969170634463474,
+    "Momentum_x": 375.18127101194847
+  },
+  "outlet_massflow": 37.51812710119485
+}

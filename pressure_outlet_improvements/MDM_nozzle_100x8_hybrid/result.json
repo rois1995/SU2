@@ -1,0 +1,30 @@
+{
+  "case": "MDM_nozzle_100x8_hybrid",
+  "binary": "/tmp/su2-pressure-outlet-omp-build-20261013/SU2_CFD/src/SU2_CFD",
+  "binary_sha256": "bc6f17a24cd7a1e37be42c71a7f82bed73e7af7536e000d080b4c44c83373595",
+  "ranks": 2,
+  "threads": 2,
+  "exit_code": 0,
+  "seconds": 34.4374406269053,
+  "last": {
+    "Time_Iter": 0.0,
+    "Outer_Iter": 0.0,
+    "Inner_Iter": 3616.0,
+    "rms[Rho]": -10.00041436,
+    "rms[RhoU]": -7.83854418,
+    "rms[RhoV]": -10.09606972,
+    "rms[RhoE]": -4.012538637,
+    "Linear_Solver_Iterations": 21.0,
+    "LinSolRes": -8.260953163
+  },
+  "finite_history": true,
+  "converged": true,
+  "finite_field": true,
+  "outlet_average": {
+    "Density": 48.032594076622395,
+    "Pressure": 888298.916716965,
+    "Mach": 1.4233236546153543,
+    "Momentum_x": 8607.650018282451
+  },
+  "outlet_massflow": 860.7650018282452
+}

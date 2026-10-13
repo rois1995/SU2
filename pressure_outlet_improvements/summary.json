@@ -1,0 +1,511 @@
+{
+  "publication": "Validation evidence for the independent pressure-outlet PR",
+  "outlet_base": "9307f8d755736daee6d11c91c516cbb0c7f73ccb",
+  "eos_base": "056199cfd3daf3b649fe47b6de67676cb38f7459",
+  "unit_tests": {
+    "outlet_serial_assertions": 57115,
+    "outlet_openmp_4_threads_assertions": 57115,
+    "outlet_mpi_2_ranks_assertions": [
+      554,
+      57115
+    ],
+    "outlet_hybrid_2_ranks_2_threads_assertions": [
+      554,
+      57115
+    ],
+    "outlet_forward_AD_state_assertions": 1080,
+    "outlet_reverse_AD_state_ASAN_assertions": 1080,
+    "normal_meson_suites": "3/3 pass",
+    "openmp_meson_suites": "3/3 pass",
+    "forward_reverse_solver_compilation": "pass",
+    "eos_original_failing_assertions": 7,
+    "eos_fixed_assertions": 56,
+    "combined_eos_full_normal_tests": {
+      "cases": 49,
+      "assertions": 132084
+    }
+  },
+  "limitations": [
+    "Single-phase outward flow; backflow requires additional inlet data and is rejected.",
+    "Finite-volume CEulerSolver outlets; FEM, NEMO, Giles and TurboRiemann formulations are unchanged.",
+    "Non-ideal ordinary MARKER_OUTLET remains prohibited by configuration; use Riemann STATIC_PRESSURE.",
+    "Existing Riemann viscous Jacobian approximation is unchanged; ordinary outlet viscosity remains disabled as before.",
+    "AD validation covers reconstructed-state sensitivities and solver compilation, not an end-to-end adjoint optimization or convergence run.",
+    "Continuous-adjoint outlet formulation is unchanged.",
+    "EOS precision fix is Peng-Robinson only; van der Waals h/s inversion and h/s AD derivatives are unvalidated.",
+    "Mesh refinement covers selected first-order HLLC nozzle checks; no universal robustness or convergence-rate claim.",
+    "Moving-grid tests isolate the outlet state; general HLLC ALE energy corrections remain in PR 2943."
+  ],
+  "physical_cases": [
+    {
+      "case": "MDM_nozzle_100x8",
+      "binary": "/tmp/su2-pressure-outlet-improved-CFD",
+      "binary_sha256": "2a7e786cef12f44b22b75b5dd6f0d5c89bc9cc203efe573704adc23caac15560",
+      "ranks": 2,
+      "threads": 1,
+      "exit_code": 0,
+      "seconds": 61.08228977397084,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 3616.0,
+        "rms[Rho]": -10.00040731,
+        "rms[RhoU]": -7.838499318,
+        "rms[RhoV]": -10.09457447,
+        "rms[RhoE]": -4.012493528,
+        "Linear_Solver_Iterations": 15.0,
+        "LinSolRes": -8.372969265
+      },
+      "finite_history": true,
+      "converged": true,
+      "finite_field": true,
+      "outlet_average": {
+        "Density": 48.03259407662239,
+        "Pressure": 888298.9167169656,
+        "Mach": 1.4233236546153556,
+        "Momentum_x": 8607.650018282466
+      },
+      "outlet_massflow": 860.7650018282466
+    },
+    {
+      "case": "MDM_nozzle_100x8_hybrid",
+      "binary": "/tmp/su2-pressure-outlet-omp-build-20261013/SU2_CFD/src/SU2_CFD",
+      "binary_sha256": "bc6f17a24cd7a1e37be42c71a7f82bed73e7af7536e000d080b4c44c83373595",
+      "ranks": 2,
+      "threads": 2,
+      "exit_code": 0,
+      "seconds": 34.4374406269053,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 3616.0,
+        "rms[Rho]": -10.00041436,
+        "rms[RhoU]": -7.83854418,
+        "rms[RhoV]": -10.09606972,
+        "rms[RhoE]": -4.012538637,
+        "Linear_Solver_Iterations": 21.0,
+        "LinSolRes": -8.260953163
+      },
+      "finite_history": true,
+      "converged": true,
+      "finite_field": true,
+      "outlet_average": {
+        "Density": 48.032594076622395,
+        "Pressure": 888298.916716965,
+        "Mach": 1.4233236546153543,
+        "Momentum_x": 8607.650018282451
+      },
+      "outlet_massflow": 860.7650018282452
+    },
+    {
+      "case": "MDM_nozzle_200x16",
+      "binary": "/tmp/su2-pressure-outlet-improved-CFD",
+      "binary_sha256": "2a7e786cef12f44b22b75b5dd6f0d5c89bc9cc203efe573704adc23caac15560",
+      "ranks": 2,
+      "threads": 1,
+      "exit_code": 0,
+      "seconds": 138.13892737496644,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 3099.0,
+        "rms[Rho]": -10.00139162,
+        "rms[RhoU]": -8.10818466,
+        "rms[RhoV]": -10.31771065,
+        "rms[RhoE]": -4.066488539,
+        "Linear_Solver_Iterations": 17.0,
+        "LinSolRes": -8.184782572
+      },
+      "finite_history": true,
+      "converged": true,
+      "finite_field": true,
+      "outlet_average": {
+        "Density": 47.994691056830455,
+        "Pressure": 887194.7324949616,
+        "Mach": 1.424837118760353,
+        "Momentum_x": 8607.43475906531
+      },
+      "outlet_massflow": 860.7434759065311
+    },
+    {
+      "case": "MDM_nozzle_50x4",
+      "binary": "/tmp/su2-pressure-outlet-improved-CFD",
+      "binary_sha256": "2a7e786cef12f44b22b75b5dd6f0d5c89bc9cc203efe573704adc23caac15560",
+      "ranks": 2,
+      "threads": 1,
+      "exit_code": 0,
+      "seconds": 12.63541779096704,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 3823.0,
+        "rms[Rho]": -10.00068989,
+        "rms[RhoU]": -7.663786197,
+        "rms[RhoV]": -10.00717479,
+        "rms[RhoE]": -3.869925112,
+        "Linear_Solver_Iterations": 13.0,
+        "LinSolRes": -8.588419769
+      },
+      "finite_history": true,
+      "converged": true,
+      "finite_field": true,
+      "outlet_average": {
+        "Density": 48.14878797039306,
+        "Pressure": 890824.1360248098,
+        "Mach": 1.419729026221185,
+        "Momentum_x": 8608.50816272226
+      },
+      "outlet_massflow": 860.8508162722261
+    },
+    {
+      "case": "air_nozzle_100x8",
+      "binary": "/tmp/su2-pressure-outlet-improved-CFD",
+      "binary_sha256": "2a7e786cef12f44b22b75b5dd6f0d5c89bc9cc203efe573704adc23caac15560",
+      "ranks": 2,
+      "threads": 1,
+      "exit_code": 0,
+      "seconds": 12.982580323005095,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 1062.0,
+        "rms[Rho]": -10.00565283,
+        "rms[RhoU]": -7.393720435,
+        "rms[RhoV]": -9.924972453,
+        "rms[RhoE]": -4.003088758,
+        "Linear_Solver_Iterations": 15.0,
+        "LinSolRes": -8.638484368
+      },
+      "finite_history": true,
+      "converged": true,
+      "finite_field": true,
+      "outlet_average": {
+        "Density": 0.5056520406569728,
+        "Pressure": 78282.2232036722,
+        "Mach": 1.5938942947087764,
+        "Momentum_x": 375.21257967123154
+      },
+      "outlet_massflow": 37.521257967123155
+    },
+    {
+      "case": "air_nozzle_200x16",
+      "binary": "/tmp/su2-pressure-outlet-improved-CFD",
+      "binary_sha256": "2a7e786cef12f44b22b75b5dd6f0d5c89bc9cc203efe573704adc23caac15560",
+      "ranks": 2,
+      "threads": 1,
+      "exit_code": 0,
+      "seconds": 138.36252149101347,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 1311.0,
+        "rms[Rho]": -10.00189256,
+        "rms[RhoU]": -7.425650639,
+        "rms[RhoV]": -9.362742715,
+        "rms[RhoE]": -4.301489686,
+        "Linear_Solver_Iterations": 17.0,
+        "LinSolRes": -8.335952503
+      },
+      "finite_history": true,
+      "converged": true,
+      "finite_field": true,
+      "outlet_average": {
+        "Density": 0.5056239451079819,
+        "Pressure": 77977.63817925152,
+        "Mach": 1.5969170634463474,
+        "Momentum_x": 375.18127101194847
+      },
+      "outlet_massflow": 37.51812710119485
+    },
+    {
+      "case": "air_nozzle_50x4",
+      "binary": "/tmp/su2-pressure-outlet-improved-CFD",
+      "binary_sha256": "2a7e786cef12f44b22b75b5dd6f0d5c89bc9cc203efe573704adc23caac15560",
+      "ranks": 2,
+      "threads": 1,
+      "exit_code": 0,
+      "seconds": 1.9165929100709036,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 1102.0,
+        "rms[Rho]": -10.00520958,
+        "rms[RhoU]": -7.080675494,
+        "rms[RhoV]": -9.56076786,
+        "rms[RhoE]": -3.757804248,
+        "Linear_Solver_Iterations": 12.0,
+        "LinSolRes": -8.179156867
+      },
+      "finite_history": true,
+      "converged": true,
+      "finite_field": true,
+      "outlet_average": {
+        "Density": 0.5060743198574943,
+        "Pressure": 78934.71415482221,
+        "Mach": 1.5871537149740802,
+        "Momentum_x": 375.3373777818167
+      },
+      "outlet_massflow": 37.533737778181674
+    },
+    {
+      "case": "air_ordinary_duct",
+      "binary": "/tmp/su2-pressure-outlet-improved-CFD",
+      "binary_sha256": "2a7e786cef12f44b22b75b5dd6f0d5c89bc9cc203efe573704adc23caac15560",
+      "ranks": 2,
+      "threads": 1,
+      "exit_code": 0,
+      "seconds": 6.450699303066358,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 1403.0,
+        "rms[Rho]": -10.00842753,
+        "rms[RhoU]": -7.4227521,
+        "rms[RhoV]": -12.91810832,
+        "rms[RhoE]": -4.621099409,
+        "Linear_Solver_Iterations": 14.0,
+        "LinSolRes": -8.394917618
+      },
+      "finite_history": true,
+      "converged": true,
+      "finite_field": true,
+      "outlet_average": {
+        "Density": 1.2249781260967099,
+        "Pressure": 96258.75000106313,
+        "Mach": 0.3077935047604701,
+        "Momentum_x": 125.05692463527443
+      },
+      "outlet_massflow": 12.505692463527444
+    },
+    {
+      "case": "air_ordinary_duct_develop",
+      "binary": "/tmp/su2-pr2943-develop-baseline-build-20261012/SU2_CFD/src/SU2_CFD",
+      "binary_sha256": "b1f0a9e35fb192096c0ea1d34b6a3c75792ee888c0c7c0723d2ec0a0cfa533d7",
+      "ranks": 2,
+      "threads": 1,
+      "exit_code": 0,
+      "seconds": 1.9676542709348723,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 1482.0,
+        "rms[Rho]": -10.02337247,
+        "rms[RhoU]": -7.377933829,
+        "rms[RhoV]": -12.90784308,
+        "rms[RhoE]": -4.589945313,
+        "Linear_Solver_Iterations": 14.0,
+        "LinSolRes": -8.483616678
+      },
+      "finite_history": true,
+      "converged": true,
+      "finite_field": true,
+      "outlet_average": {
+        "Density": 1.2249781259211108,
+        "Pressure": 96258.74999340132,
+        "Mach": 0.3077935064653557,
+        "Momentum_x": 125.05692531403135
+      },
+      "outlet_massflow": 12.505692531403135
+    },
+    {
+      "case": "air_ordinary_duct_hybrid",
+      "binary": "/tmp/su2-pressure-outlet-omp-build-20261013/SU2_CFD/src/SU2_CFD",
+      "binary_sha256": "bc6f17a24cd7a1e37be42c71a7f82bed73e7af7536e000d080b4c44c83373595",
+      "ranks": 2,
+      "threads": 2,
+      "exit_code": 0,
+      "seconds": 7.421546260942705,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 1403.0,
+        "rms[Rho]": -10.00842748,
+        "rms[RhoU]": -7.422752164,
+        "rms[RhoV]": -12.94178528,
+        "rms[RhoE]": -4.621099384,
+        "Linear_Solver_Iterations": 17.0,
+        "LinSolRes": -8.077180665
+      },
+      "finite_history": true,
+      "converged": true,
+      "finite_field": true,
+      "outlet_average": {
+        "Density": 1.224978126096709,
+        "Pressure": 96258.75000106312,
+        "Mach": 0.3077935047604698,
+        "Momentum_x": 125.05692463527427
+      },
+      "outlet_massflow": 12.505692463527428
+    },
+    {
+      "case": "reservoir_baseline",
+      "binary": "/tmp/su2-pressure-outlet-improved-CFD",
+      "ranks": 2,
+      "threads": 1,
+      "exit_code": 0,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 19999.0,
+        "rms[Rho]": -8.786635989,
+        "rms[RhoU]": -6.807221069,
+        "rms[RhoV]": -8.522469209,
+        "rms[RhoE]": -2.583752217,
+        "Linear_Solver_Iterations": 12.0,
+        "LinSolRes": -8.089613114
+      },
+      "finite_history": true,
+      "converged": false
+    },
+    {
+      "case": "reservoir_relative_hs",
+      "binary": "/tmp/su2-pressure-outlet-relative-hs-CFD",
+      "binary_sha256": "b92d9e7411eeb468c241e610a2bb7cc327f0c58a9cfed59b3dd1b8fbb1f38a82",
+      "ranks": 2,
+      "threads": 1,
+      "exit_code": 0,
+      "seconds": 3.49616392608732,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 628.0,
+        "rms[Rho]": -10.00324401,
+        "rms[RhoU]": -8.554126233,
+        "rms[RhoV]": -10.50572145,
+        "rms[RhoE]": -3.803588945,
+        "Linear_Solver_Iterations": 13.0,
+        "LinSolRes": -8.287684277
+      },
+      "finite_history": true,
+      "converged": true,
+      "finite_field": true,
+      "outlet_average": {
+        "Density": 48.010123936342545,
+        "Pressure": 735601.7970325695,
+        "Mach": 1.3428173221694024,
+        "Momentum_x": 7028.316339319831
+      },
+      "outlet_massflow": 702.8316339319831
+    },
+    {
+      "case": "reservoir_tighter_hs",
+      "binary": "/tmp/su2-pressure-outlet-tighter-hs-CFD",
+      "binary_sha256": "8d153c1039663736728012cca46b7d2b3390a880b75759037f0b41b2e3f276bd",
+      "ranks": 2,
+      "threads": 1,
+      "exit_code": 0,
+      "seconds": 17.05447165609803,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 628.0,
+        "rms[Rho]": -10.00173551,
+        "rms[RhoU]": -8.536964913,
+        "rms[RhoV]": -10.46706675,
+        "rms[RhoE]": -3.80205902,
+        "Linear_Solver_Iterations": 13.0,
+        "LinSolRes": -8.283726486
+      },
+      "finite_history": true,
+      "converged": true,
+      "finite_field": true,
+      "outlet_average": {
+        "Density": 48.010123936353196,
+        "Pressure": 735601.7970326958,
+        "Mach": 1.3428173221692958,
+        "Momentum_x": 7028.316339320437
+      },
+      "outlet_massflow": 702.8316339320437
+    }
+  ],
+  "patch_sha256": {
+    "outlet_improvements.patch": "e46d2e68a5bc11a0db49644db401112bef1ab2d20c6b78dcd7de51cbbe5c89f9",
+    "peng_robinson_hs_precision.patch": "a8764788802c39e13c18abff30d679aa4de05c4554a589042c0c933d6237d829"
+  },
+  "source_commit": "16fed53a958c044654052e9e7ede22168dcbae08",
+  "base_develop": "ca3d54eb2fc7355489882cbbead68ec9b5d7dc13",
+  "physical_comparison_baseline": "056199cfd3daf3b649fe47b6de67676cb38f7459",
+  "physical_run_note": "Initial comparison/refinement runs use develop baseline 056199cfd3; current develop ca3d54eb2f is merged. Its pressure-outlet, HLLC and tested EOS source files are identical to that baseline. Exact-head duct/nozzle confirmations are recorded here.",
+  "EOS_comparison_note": "The reservoir plot compares the outlet fix with original versus repaired Peng-Robinson h/s inversion. The EOS precision correction is a separate local patch, not part of the pressure-outlet PR.",
+  "final_head_confirmation": [
+    {
+      "case": "air_ordinary_duct_final_head",
+      "binary": "/tmp/su2-characteristic-outlet-build-20261012/SU2_CFD/src/SU2_CFD",
+      "binary_sha256": "7e9f68c6583a1a6dca00bffb505bdf493835de3a26675a62f656669a6b9bc1c7",
+      "ranks": 2,
+      "threads": 1,
+      "exit_code": 0,
+      "seconds": 3.0024293600581586,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 1403.0,
+        "rms[Rho]": -10.00842753,
+        "rms[RhoU]": -7.4227521,
+        "rms[RhoV]": -12.91810832,
+        "rms[RhoE]": -4.621099409,
+        "Linear_Solver_Iterations": 14.0,
+        "LinSolRes": -8.394917618
+      },
+      "finite_history": true,
+      "converged": true,
+      "finite_field": true,
+      "outlet_average": {
+        "Density": 1.2249781260967099,
+        "Pressure": 96258.75000106313,
+        "Mach": 0.3077935047604701,
+        "Momentum_x": 125.05692463527443
+      },
+      "outlet_massflow": 12.505692463527444
+    },
+    {
+      "case": "MDM_nozzle_100x8_final_head",
+      "binary": "/tmp/su2-characteristic-outlet-build-20261012/SU2_CFD/src/SU2_CFD",
+      "binary_sha256": "7e9f68c6583a1a6dca00bffb505bdf493835de3a26675a62f656669a6b9bc1c7",
+      "ranks": 2,
+      "threads": 1,
+      "exit_code": 0,
+      "seconds": 7.883897241903469,
+      "last": {
+        "Time_Iter": 0.0,
+        "Outer_Iter": 0.0,
+        "Inner_Iter": 3616.0,
+        "rms[Rho]": -10.00040731,
+        "rms[RhoU]": -7.838499318,
+        "rms[RhoV]": -10.09457447,
+        "rms[RhoE]": -4.012493528,
+        "Linear_Solver_Iterations": 15.0,
+        "LinSolRes": -8.372969265
+      },
+      "finite_history": true,
+      "converged": true,
+      "finite_field": true,
+      "outlet_average": {
+        "Density": 48.03259407662239,
+        "Pressure": 888298.9167169656,
+        "Mach": 1.4233236546153556,
+        "Momentum_x": 8607.650018282466
+      },
+      "outlet_massflow": 860.7650018282466
+    }
+  ],
+  "final_head_unit_checks": {
+    "source": "16fed53a958c044654052e9e7ede22168dcbae08",
+    "normal_focused_assertions": 57115,
+    "openmp_4_threads_focused_assertions": 57115,
+    "MPI_2_ranks_assertions": [
+      554,
+      57115
+    ],
+    "hybrid_2_ranks_2_threads_assertions": [
+      554,
+      57115
+    ],
+    "normal_meson_suites": "3/3 pass",
+    "openmp_meson_suites": "3/3 pass",
+    "forward_AD_state_assertions": 1080,
+    "reverse_AD_ASAN_state_assertions": 1080,
+    "forward_reverse_solver_compilation": "pass",
+    "precommit": "pass"
+  }
+}

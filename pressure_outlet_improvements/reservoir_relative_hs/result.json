@@ -1,0 +1,30 @@
+{
+  "case": "reservoir_relative_hs",
+  "binary": "/tmp/su2-pressure-outlet-relative-hs-CFD",
+  "binary_sha256": "b92d9e7411eeb468c241e610a2bb7cc327f0c58a9cfed59b3dd1b8fbb1f38a82",
+  "ranks": 2,
+  "threads": 1,
+  "exit_code": 0,
+  "seconds": 3.49616392608732,
+  "last": {
+    "Time_Iter": 0.0,
+    "Outer_Iter": 0.0,
+    "Inner_Iter": 628.0,
+    "rms[Rho]": -10.00324401,
+    "rms[RhoU]": -8.554126233,
+    "rms[RhoV]": -10.50572145,
+    "rms[RhoE]": -3.803588945,
+    "Linear_Solver_Iterations": 13.0,
+    "LinSolRes": -8.287684277
+  },
+  "finite_history": true,
+  "converged": true,
+  "finite_field": true,
+  "outlet_average": {
+    "Density": 48.010123936342545,
+    "Pressure": 735601.7970325695,
+    "Mach": 1.3428173221694024,
+    "Momentum_x": 7028.316339319831
+  },
+  "outlet_massflow": 702.8316339319831
+}
