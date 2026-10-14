@@ -1,0 +1,35 @@
+[New LWP 2104079]
+[New LWP 2104099]
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+0x0000563acf2132d9 in std::_Rb_tree<std::array<unsigned long, 4ul>, std::array<unsigned long, 4ul>, std::_Identity<std::array<unsigned long, 4ul> >, std::less<std::array<unsigned long, 4ul> >, std::allocator<std::array<unsigned long, 4ul> > >::_M_erase (this=this@entry=0x7ffc6d4f51d0, __x=0x563ad90d4470) at /usr/include/c++/9/bits/stl_tree.h:1916
+1916	      while (__x != 0)
+
+Thread 3 (Thread 0x7f294f4f0700 (LWP 2104099)):
+#0  0x00007f295029468e in epoll_wait (epfd=10, events=0x563ad8f6c9d0, maxevents=32, timeout=2100000) at ../sysdeps/unix/sysv/linux/epoll_wait.c:30
+#1  0x00007f294ff8f5e9 in ?? () from /lib/x86_64-linux-gnu/libevent-2.1.so.7
+#2  0x00007f294ff85625 in event_base_loop () from /lib/x86_64-linux-gnu/libevent-2.1.so.7
+#3  0x00007f294f5f5d56 in ?? () from /lib/x86_64-linux-gnu/libpmix.so.2
+#4  0x00007f295036f609 in start_thread (arg=<optimized out>) at pthread_create.c:477
+#5  0x00007f2950294353 in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:95
+
+Thread 2 (Thread 0x7f294fea5700 (LWP 2104079)):
+#0  0x00007f2950287bbf in __GI___poll (fds=0x7f2948000b60, nfds=1, timeout=3598173) at ../sysdeps/unix/sysv/linux/poll.c:29
+#1  0x00007f294ff8e981 in ?? () from /lib/x86_64-linux-gnu/libevent-2.1.so.7
+#2  0x00007f294ff85625 in event_base_loop () from /lib/x86_64-linux-gnu/libevent-2.1.so.7
+#3  0x00007f295003b706 in ?? () from /lib/x86_64-linux-gnu/libopen-pal.so.40
+#4  0x00007f295036f609 in start_thread (arg=<optimized out>) at pthread_create.c:477
+#5  0x00007f2950294353 in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:95
+
+Thread 1 (Thread 0x7f294ff1eec0 (LWP 2104046)):
+#0  0x0000563acf2132d9 in std::_Rb_tree<std::array<unsigned long, 4ul>, std::array<unsigned long, 4ul>, std::_Identity<std::array<unsigned long, 4ul> >, std::less<std::array<unsigned long, 4ul> >, std::allocator<std::array<unsigned long, 4ul> > >::_M_erase (this=this@entry=0x7ffc6d4f51d0, __x=0x563ad90d4470) at /usr/include/c++/9/bits/stl_tree.h:1916
+#1  0x0000563acf2132e1 in std::_Rb_tree<std::array<unsigned long, 4ul>, std::array<unsigned long, 4ul>, std::_Identity<std::array<unsigned long, 4ul> >, std::less<std::array<unsigned long, 4ul> >, std::allocator<std::array<unsigned long, 4ul> > >::_M_erase (this=this@entry=0x7ffc6d4f51d0, __x=0x563ad91ef290) at /usr/include/c++/9/bits/stl_tree.h:1916
+#2  0x0000563acf2132e1 in std::_Rb_tree<std::array<unsigned long, 4ul>, std::array<unsigned long, 4ul>, std::_Identity<std::array<unsigned long, 4ul> >, std::less<std::array<unsigned long, 4ul> >, std::allocator<std::array<unsigned long, 4ul> > >::_M_erase (this=this@entry=0x7ffc6d4f51d0, __x=0x563ad914c810) at /usr/include/c++/9/bits/stl_tree.h:1916
+#3  0x0000563acf2132e1 in std::_Rb_tree<std::array<unsigned long, 4ul>, std::array<unsigned long, 4ul>, std::_Identity<std::array<unsigned long, 4ul> >, std::less<std::array<unsigned long, 4ul> >, std::allocator<std::array<unsigned long, 4ul> > >::_M_erase (this=this@entry=0x7ffc6d4f51d0, __x=0x563ad92a7a70) at /usr/include/c++/9/bits/stl_tree.h:1916
+#4  0x0000563ad03a0bfc in std::_Rb_tree<std::array<unsigned long, 4ul>, std::array<unsigned long, 4ul>, std::_Identity<std::array<unsigned long, 4ul> >, std::less<std::array<unsigned long, 4ul> >, std::allocator<std::array<unsigned long, 4ul> > >::~_Rb_tree (this=0x7ffc6d4f51d0, __in_chrg=<optimized out>) at /usr/include/c++/9/bits/stl_tree.h:999
+#5  std::set<std::array<unsigned long, 4ul>, std::less<std::array<unsigned long, 4ul> >, std::allocator<std::array<unsigned long, 4ul> > >::~set (this=0x7ffc6d4f51d0, __in_chrg=<optimized out>) at /usr/include/c++/9/bits/stl_set.h:281
+#6  SU2Native3D::MeasureMetricCells (cells=..., target=..., stats=<optimized out>, reuse=<optimized out>, require_shape=<optimized out>, diagnosis=<optimized out>) at ../../Common/src/adaptation/CNativeMetric3D.cpp:60
+#7  0x0000563ad03a156b in SU2Native3D::ValidateMetricChange (old=std::vector of length 14, capacity 16 = {...}, fresh=std::vector of length 8, capacity 8 = {...}, kind=kind@entry=SU2Native3D::MetricChange::Coarsen, target=..., measured=..., reason="", stats=0x0, frozen_reuse=0x7ffc6d4f64e0, diagnosis=0x7ffc6d4f6430) at ../../Common/src/adaptation/CNativeMetric3D.cpp:251
+#8  0x0000563ad03e7553 in SU2Native3D::(anonymous namespace)::Adapt (world=..., accepted=..., original=..., geometry=..., composition=..., options=..., intent=<optimized out>) at /usr/include/c++/9/bits/unique_ptr.h:360
+#9  0x0000563ad040292b in SU2Native3D::Coarsen(SU2NativeBoundary2D::World&, std::map<unsigned long, SU2Native3D::OwnedCell, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, SU2Native3D::OwnedCell> > > const&, std::vector<SU2Native3D::DonorCell, std::allocator<SU2Native3D::DonorCell> > const&, SU2Native3D::PlanarReference const&, std::function<SU2Native3D::Tensor (SU2Native3D::Point, SU2Native3D::Tensor)>, SU2Native3D::EngineOptions) (world=..., accepted=std::map with 44 elements = {...}, original=std::vector of length 3, capacity 3 = {...}, geometry=..., composition=..., options=...) at /usr/include/c++/9/bits/move.h:182
+[Inferior 1 (process 2104046) detached]

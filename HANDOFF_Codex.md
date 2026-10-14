@@ -5,25 +5,30 @@ Branch: `codex/native-3d-bl`. MPI-qualified production base:
 `531025fceaa8c45b6655a56281ddf6887ce9b55e`.
 
 Goal 3 is ACTIVE and incomplete. Production planar BL policy and initialized
-RANS/current+BDF/restart workflow are qualified locally on MPI1/2/4, including
-M<N. The current connected work improves first-row alignment and coordinated
+RANS/current+BDF/restart workflow were qualified on the preceding MPI1/2/4 base.
+The current connected runtime passes MPI1/2 including M<N; MPI4 remains required. The current connected work improves first-row alignment and coordinated
 wall/transition edits. The new normal-foot gate passes focused serial geometry
 and one independently audited production/restart case at published508e52cf7b.
-Current frontier: coordinated wall/transition reconstruction. Actual-field
-reconnection plus simultaneous constrained interior movement is now connected to
-the private engine path, with complete donor support, fresh moved-node identities
-and charged trial work. The saved proposal passes shape, height, footprint and
-coverage checks, but its full edge gate fails. The full stronger-field run accepts
-three joint wall reconstructions; it still rejects at work4096 with453 cells and
-longest edge2.54379. No removal/CFD replacement was reached. A separate non-native
-control proves the declared target feasible. Seven focused serial integration controls PASS (855 assertions); MPI qualification of this new connection remains pending.
-The published static-assessment patch's serial/MPI evidence remains historical
-qualification of that checkpoint, not proof of the new connection.
+Current connected work removes the common-background requirement for wall splits
+and grows dependencies from actual metric blockage: first the artificial face,
+then a complete constrained interior-vertex star. It retains volume topology,
+reconstructs normal wall children privately, preserves partial repair for diagnosis,
+and validates complete replacements against the original field. Imported cavities
+remain64 cells; constructed private inputs may use the existing128-cell bound.
+The required stronger original-P1 field now independently passes construction and
+removal:649 BL cells on MPI1/2/4→265/268/260 sensor-only cells. All ranks give
+identical BL coordinates/connectivity/markers and quality/length extrema. Current
+initialized RANS/SA transfer/restart audits pass MPI1/2; MPI4 was interrupted before completion and remains required. Nine focused serial
+integration controls PASS (1596 assertions). No native Euler/RANS transition modes,
+metric reset, target relaxation or new production tuning option was added.
+The centroid-insertion experiment did not help and was removed; its evidence is
+preserved. Full physical/curved/interacting-wall qualification remains open.
 Full Goal3 remains incomplete.
 
 Current testcase folder:
 `integration_evidence/native_3d_bl_v1/connectivity_replay_v1/integration` (focused serial controls).
-The stronger-field rejected mesh is in `integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/sensor`.
+Accepted stronger-field meshes are in `integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/sensor`,
+`sensor_mpi2`, `sensor_mpi4`; rejected predecessors remain in `sensor_previous_*`.
 Private replay remains in `integration_evidence/native_3d_bl_v1/connectivity_replay_v1`.
 The production checkpoint's inspectable grids and states remain in
 `integration_evidence/native_3d_bl_v1/production_policy_v1/mpi1`, `mpi2`, `mpi4`.
@@ -35,6 +40,7 @@ Read only the relevant handbook:
 - [Static assessment 2: fixes, qualification and open architectural limits](Handbook/STATIC_ASSESSMENT_2.md).
 - [Completed Goals 1 and 2 and their scope](Handbook/COMPLETED_GOALS.md).
 - [Permanent implementation and validation rules](AGENTS.md).
+- [Deferred SST, transition-model and non-ideal-gas transfer questions](Handbook/FUTURE_PHYSICS_TRANSFER_QUESTIONS.md).
 - [Full requirement audit](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).
 - [Historical handoffs, split into smaller files](Handbook/History/INDEX.md).
 

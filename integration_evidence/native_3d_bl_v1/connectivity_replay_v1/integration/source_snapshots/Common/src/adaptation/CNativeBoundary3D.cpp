@@ -1123,7 +1123,7 @@ bool SplitSurfaceStrip(const Patch& old,Edge edge,Node point,const std::vector<s
                        Id first,const PlanarReference& reference,Patch& fresh,std::string& reason,KernelStats* stats) {
   try {
     Bounds(old);Endpoints(edge);
-    if(moves.empty() || moves.size()>8)throw std::invalid_argument("Native3D surface strip movement exceeds its bounded proposal.");
+    if(moves.size()>8)throw std::invalid_argument("Native3D surface strip movement exceeds its bounded proposal.");
     const auto before=SkinMap(Incidence(old.cells,stats).Boundary());
     const auto physical=CheckSurface(old,before,reference,stats);auto nodes=Nodes(old.cells);
     if(nodes.count(point.id))throw std::invalid_argument("Native3D surface strip reuses the split identity.");
@@ -1175,6 +1175,96 @@ bool SplitSurfaceStrip(const Patch& old,Edge edge,Node point,const std::vector<s
     }
     Finish(old,proposal,skin,marked,reference,stats);
     fresh.cells.swap(proposal.cells);fresh.surface.swap(proposal.surface);reason.clear();return true;
+  }catch(const std::exception& e){reason=e.what();return false;}
+}
+bool ReconstructWallSplit(const Patch& old,Edge edge,Node point,Id first_wall_node,Id first,
+                          const std::map<int,double>& heights,const PlanarReference& reference,
+                          Patch& fresh,Face& obstruction,std::string& reason,KernelStats* stats) {
+  obstruction={};
+  try {
+    Bounds(old);Endpoints(edge);
+    FirstHeightReport height;
+    if(heights.empty() || !CheckFirstHeight(old,heights,reference,height,reason,stats))
+      throw std::invalid_argument("Native3D retained wall split needs an admissible prescribed-height input: "+reason);
+    Patch proposal;
+    if(!SplitSurfaceStrip(old,edge,point,{},first,reference,proposal,reason,stats))throw std::invalid_argument(reason);
+    const auto skin=SkinMap(Incidence(proposal.cells,stats).Boundary());
+    const auto physical=CheckSurface(proposal,skin,reference,stats);
+    if(std::none_of(old.surface.begin(),old.surface.end(),[&](const auto& f) {
+      return heights.count(reference.Get(f.facet).marker) && Has(f.v,edge[0]) && Has(f.v,edge[1]);
+    }))throw std::invalid_argument("Native3D retained wall split needs a requested physical wall edge.");
+    std::vector<SurfaceFace> walls;
+    for(const auto& row:physical)if(heights.count(reference.Get(row.second.facet).marker))walls.push_back(row.second);
+    if(walls.empty() || walls.size()>MaximumReplacementCells || first_wall_node>UINT64_MAX-(walls.size()-1))
+      throw std::invalid_argument("Native3D retained wall split exceeds reserved wall identities.");
+    auto nodes=Nodes(proposal.cells);
+    for(size_t i=0;i<walls.size();++i)if(nodes.count(first_wall_node+i))
+      throw std::invalid_argument("Native3D retained wall split reuses a node identity.");
+    std::set<Face> protected_faces;
+    for(size_t at=0;at<walls.size();++at) {
+      const auto face=walls[at];nodes=Nodes(proposal.cells);
+      const auto a=nodes.at(face.v[0]).p,b=nodes.at(face.v[1]).p,c=nodes.at(face.v[2]).p;
+      auto normal=Cross(Delta(b,a),Delta(c,a));const auto area=Norm(normal);
+      if(!(area>0))throw std::invalid_argument("Native3D retained wall split has a degenerate face.");
+      for(auto& value:normal)value/=area;
+      const auto h=heights.at(reference.Get(face.facet).marker);
+      const Point center{double(((long double)a.x+b.x+c.x)/3),double(((long double)a.y+b.y+c.y)/3),double(((long double)a.z+b.z+c.z)/3)};
+      Node apex{first_wall_node+at,{double((long double)center.x-h*normal[0]),double((long double)center.y-h*normal[1]),double((long double)center.z-h*normal[2])}};
+      const auto coincident=std::find_if(nodes.begin(),nodes.end(),[&](const auto& row) {
+        const auto p=row.second.p;return p.x==apex.p.x && p.y==apex.p.y && p.z==apex.p.z;
+      });
+      if(coincident!=nodes.end())apex=coincident->second;
+      const Incidence global(proposal.cells,stats);
+      const auto owners=global.FaceCells(face.v);
+      if(owners.size()!=1)throw std::invalid_argument("Native3D retained wall split loses a physical face owner.");
+      auto cell=[&](Id id)->const Cell& {
+        const auto found=std::find_if(proposal.cells.begin(),proposal.cells.end(),[&](const auto& c){return c.id==id;});
+        if(found==proposal.cells.end())throw std::invalid_argument("Native3D retained wall split loses a cavity dependency.");
+        return *found;
+      };
+      bool already=false;
+      for(auto n:cell(owners.front()).v)already=already || n.id==apex.id;
+      if(already){protected_faces.insert(Key(face.v));continue;}
+      const auto seed_faces=Incidence({cell(owners.front())},stats).Boundary();
+      if(std::any_of(seed_faces.begin(),seed_faces.end(),[&](Face f){return protected_faces.count(Key(f));}))
+        throw std::invalid_argument("Native3D normal wall seed also owns a completed wall child.");
+      std::set<Id> region_ids{owners.front()};std::vector<Cell> region;
+      for(;;) {
+        region.clear();for(Id id:region_ids)region.push_back(cell(id));
+        const auto boundary=Incidence(region,stats).Boundary();Id neighbor=UINT64_MAX;
+        for(const auto f:boundary) {
+          if(Has(f,apex.id))continue;
+          if(Orientation(apex.p,nodes.at(f[0]).p,nodes.at(f[1]).p,nodes.at(f[2]).p,stats)>0)continue;
+          const auto adjacent=global.FaceCells(f);
+          const auto outside=std::find_if(adjacent.begin(),adjacent.end(),[&](Id id){return !region_ids.count(id);});
+          if(outside==adjacent.end()) {
+            if(!physical.count(Key(f)))obstruction=f;
+            throw std::invalid_argument("Native3D normal wall point is obstructed by retained patch interface.");
+          }
+          const auto& candidate=cell(*outside);const auto faces=Incidence({candidate},stats).Boundary();
+          if(std::any_of(faces.begin(),faces.end(),[&](Face f){return protected_faces.count(Key(f));}))
+            throw std::invalid_argument("Native3D normal wall insertion is blocked by a completed wall child.");
+          neighbor=*outside;break;
+        }
+        if(neighbor==UINT64_MAX)break;
+        if(region_ids.size()==MaximumCavityCells)
+          throw std::invalid_argument("Native3D normal wall visibility cavity exceeds its admitted cell budget.");
+        region_ids.insert(neighbor);
+      }
+      std::vector<Cell> children;
+      if(!Cone(region,apex,first,children,reason,stats))throw std::invalid_argument(reason);
+      proposal.cells.erase(std::remove_if(proposal.cells.begin(),proposal.cells.end(),[&](const auto& c) {
+        return region_ids.count(c.id);
+      }),proposal.cells.end());
+      proposal.cells.insert(proposal.cells.end(),children.begin(),children.end());
+      if(proposal.cells.size()>MaximumReplacementCells || first>UINT64_MAX-(proposal.cells.size()-1))
+        throw std::invalid_argument("Native3D retained wall split exceeds replacement cells/identities.");
+      for(size_t i=0;i<proposal.cells.size();++i)proposal.cells[i].id=first+i;
+      protected_faces.insert(Key(face.v));
+    }
+    proposal.surface.clear();Finish(old,proposal,skin,physical,reference,stats);
+    if(!CheckFirstHeight(proposal,heights,reference,height,reason,stats))throw std::invalid_argument(reason);
+    fresh=std::move(proposal);reason.clear();return true;
   }catch(const std::exception& e){reason=e.what();return false;}
 }
 bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,const Tensor& placement,
@@ -1333,7 +1423,7 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
                               ConnectivityRepairReport& report,std::string& reason,size_t maximum_trials) {
   report={};
   try {
-    if(old.cells.empty() || old.cells.size()>MaximumCavityCells || maximum_trials>4096)
+    if(old.cells.empty() || old.cells.size()>MaximumReplacementCells || maximum_trials>4096)
       throw std::invalid_argument("Native3D private connectivity repair exceeds its cell/trial bound.");
     const auto skin=SkinMap(Incidence(old.cells).Boundary());CheckSurface(old,skin,reference,nullptr);
     FirstHeightReport height;
@@ -1440,7 +1530,7 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
           ++report.trials;Patch proposal=working;
           for(auto& c:proposal.cells)for(auto& n:c.v){const auto found=moved.find(n.id);if(found!=moved.end())n.p=found->second;}
           std::string rejected;
-          if(!ValidateFixedInterface(old.cells,proposal.cells,rejected)){++report.move_geometry_rejected;continue;}
+          if(!ValidateFixedInterface(old.cells,proposal.cells,rejected,nullptr,MaximumReplacementCells)){++report.move_geometry_rejected;continue;}
           if(!CheckFirstHeight(proposal,heights,reference,height,rejected)){++report.move_height_rejected;continue;}
           losses.clear();double after=0;
           try {after=total(proposal.cells);}catch(const std::exception&){losses.clear();++report.move_loss_rejected;continue;}
@@ -1504,7 +1594,7 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
     const auto physical=CheckSurface(old,skin,reference,nullptr);
     // Flip geometry has an unchanged interface; final reference/topology checks remain independent.
     std::string closure;
-    if(!ValidatePrescribedInterface(old.cells,working.cells,SkinVector(skin),closure))throw std::invalid_argument(closure);
+    if(!ValidatePrescribedInterface(old.cells,working.cells,SkinVector(skin),closure,nullptr,MaximumReplacementCells))throw std::invalid_argument(closure);
     for(const auto& f:physical)working.surface.push_back(f.second);
     CheckSurface(working,skin,reference,nullptr);
     fresh=std::move(working);reason.clear();return true;

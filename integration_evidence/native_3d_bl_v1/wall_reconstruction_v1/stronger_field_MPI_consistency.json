@@ -1,0 +1,24 @@
+{
+  "status": "PASS_GEOMETRY_SIGNATURE",
+  "frames": [
+    {
+      "MPI_ranks": 1,
+      "file": "integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/sensor/independent_finer_grouped_coupled_BL_n1.json",
+      "sha256": "69722457caeae390bdf6470c774c5085fae59d9fbbf1e2a753337cf0e3fdcc75",
+      "coordinate_connectivity_marker_signature": "03bc54198b469e60c8618d00fd2993d48a9d52cf23a862bc3e94bd62e1730581"
+    },
+    {
+      "MPI_ranks": 2,
+      "file": "integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/sensor_mpi2/independent_finer_grouped_coupled_BL_n2.json",
+      "sha256": "244247b1c80c9584c1ad636e7dc5d6d4b6bf46f21da26aa0e221eec2848345b5",
+      "coordinate_connectivity_marker_signature": "03bc54198b469e60c8618d00fd2993d48a9d52cf23a862bc3e94bd62e1730581"
+    },
+    {
+      "MPI_ranks": 4,
+      "file": "integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/sensor_mpi4/independent_finer_grouped_coupled_BL_n4.json",
+      "sha256": "5fa7d844dea75b64b8a25570f9b4772854769b114b35d21a32dd42f664578a43",
+      "coordinate_connectivity_marker_signature": "03bc54198b469e60c8618d00fd2993d48a9d52cf23a862bc3e94bd62e1730581"
+    }
+  ],
+  "scope": "Canonical complete BL coordinates, tetrahedral connectivity and physical marker triangulation, ignoring rank-dependent node/cell identities. Every frame separately passed independent metric/geometry/height audits. Coarsening need not produce a unique minimal mesh; no physical accuracy/scaling claim."
+}

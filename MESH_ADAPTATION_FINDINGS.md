@@ -1,24 +1,20 @@
 # Goal3 production geometric policy and real RANS restart: local MPI PASS — 2026-10-14
 
-Previous wall-reconstruction checkpoint: two focused serial geometric cases and
-independent coverage/footprint witness PASS; native original-P1 `diag(4+12*x)`
-plus unchanged geometric BL still FAILS at work4096 after117 edits/418 private
-cells. Independent q/J/height/coverage pass, but wall edge0,2 remains4.3997755.
-A576-cell generated control passes the same declared metric/height/footprint
-contracts (qmin .5819,Jmin .3105,Lmax1.6645), so native operator blockage is
-established for these contracts. It is not native output or a zero-centroid-tilt
-certificate. Longer growth gave no accepted wall reconstruction and was reverted.
-Private reconnection plus simultaneous constrained movement now resolves the
-saved proposal's shape deficit:152 trials,14 flips,3 moved vertices, loss0,
-q .22745/J .05039; full edge admission still fails. The engine connection imports
-complete donor coverage, uses fresh identities for moved old vertices, charges
-trials against the existing work budget and preserves final full-field guards.
-The required stronger-field event accepts3 wall reconstructions but still rejects
-at work4096 with453 cells. Independent geometry/shape/height/footprints pass;
-Lmax2.54379>1.8. No removal or CFD replacement. Seven focused serial integration controls PASS (855 assertions); new MPI,
-accuracy and performance qualification remain pending.
-Next: complete coordinated surface/first-row/transition construction against the
-remaining target, not another succession of local direction variants.
+Current wall-reconstruction capability: retained volume topology, prescribed normal
+wall points and metric-directed dependency growth. The reproduced seam failure is
+caused by a constrained interior vertex: face growth31→32 cells leaves it fixed;
+complete vertex-star admission gives35 cells and passes local full-field refinement.
+The complete stronger `diag(4+12*x)` case now independently passes649 BL cells→265
+sensor-only cells in serial,649→268 in MPI2 and649→260 in MPI4. Canonical
+BL coordinates/connectivity/markers are identical across ranks. BL qmin .215076/Jmin .050331,
+Lmax1.798735, exact height and valid footprints. Nine focused controls PASS
+(1596 assertions); current actual-policy transfer/restart audits pass MPI1/2,
+with MPI4 interrupted before completion. The centroid-insertion experiment failed to improve the
+real residual and was removed; extraction and compile failures are preserved.
+No ceilings, metric/fade/sensor policy or strict acceptance gates were weakened.
+The former rejected runs and576-cell non-native feasibility control remain evidence,
+not current success or physical RANS/scaling qualification. Geometry/layer coverage,
+curved/interacting cases, actual CFD accuracy and complete performance remain open.
 The static-assessment follow-up passes serial22 cases (including
 RANS/SA construction/release/transfer/restart) and targeted MPI2/4 seven-case-per-rank
 checks. Rejection is recoverable; first-row owners use complete-vertex reservations
@@ -34,7 +30,8 @@ with centroid tilt retained as a separate diagnostic. Six focused serial checks
 and one independently audited production/restart case pass: BL58 cells, tilt0,
 minimum footprint barycentric1/3, released mesh6 cells, unchanged metric/geometry/
 height/sensor/current+BDF/output/restart gates. MPI and broader regressions are
-intentionally deferred to the connected wall-reconstruction milestone. Composed
+were deferred to the connected wall-reconstruction milestone; the current
+stronger-field MPI matrix now passes. Composed
 gradation remains incompatible with the narrow prescribed fade under the probed
 sensor transport bound; the target has not been changed. See
 [the current handbook](Handbook/GOAL3_CURRENT.md) and
@@ -43,7 +40,7 @@ sensor transport bound; the target has not been changed. See
 Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
 Branch: codex/native-3d-bl; preceding published checkpoint555d2ee6f0.
 Cases: integration_evidence/native_3d_bl_v1/production_policy_v1.
-Goal3 ACTIVE and incomplete. All owned jobs terminal at this checkpoint.
+Goal3 ACTIVE and incomplete. Current production MPI4 qualification was interrupted; no owned jobs remain.
 No cluster submission or actual CFD iterations/convergence in this checkpoint.
 
 Production now uses one actual-query geometric BL policy in partition weights,

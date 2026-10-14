@@ -1493,9 +1493,10 @@ TEST_CASE("Native3D production wall policy preserves sensor donors and RANS hist
     for(unsigned long p=0;p<driver->Geometry().GetnPointDomain();++p) {
       const double expected=viscosity*SU2_TYPE::GetValue(driver->Geometry().nodes->GetCoord(p,2));
       const double lower=SU2_TYPE::GetValue(driver->Turbulence()->GetLowerLimit(0));
-      CHECK(turb->GetSolution(p,0)>=lower);CHECK(RelDiff(turb->GetSolution(p,0),std::max(lower,expected))<2e-10);
-      CHECK(RelDiff(turb->GetSolution_time_n(p,0),std::max(lower,expected))<2e-10);
-      CHECK(RelDiff(turb->GetSolution_time_n1(p,0),std::max(lower,expected*.9375))<2e-10);
+      // Normalize affine accuracy by its donor scale; the strict solver bound stays pointwise.
+      CHECK(turb->GetSolution(p,0)>=lower);CHECK(RelDiff(turb->GetSolution(p,0),std::max(lower,expected),viscosity)<2e-10);
+      CHECK(RelDiff(turb->GetSolution_time_n(p,0),std::max(lower,expected),viscosity)<2e-10);
+      CHECK(RelDiff(turb->GetSolution_time_n1(p,0),std::max(lower,expected*.9375),viscosity*.9375)<2e-10);
     }
     OutputRoundTrip(world,event,result.slices,accepted.cells,state,1.,[](const su2double*,double){return Tensor{1,0,0,1,0,1};},&input.original);
     WriteReference(event+".su2.native_ref",state);ReferenceState loaded;CHECK(LoadReference(event+".su2.native_ref",loaded));

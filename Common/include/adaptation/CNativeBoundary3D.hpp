@@ -131,12 +131,21 @@ bool InsertEdgeCavity(const Patch& old, Edge edge, Node point, Id first_cell, co
  * Preserves original facets/markers and feature edges; this is not general boundary-vertex collapse. */
 /*! Simultaneous bounded (at most eight) complete-star vertex moves and a physical surface split.
  * Planar splits remain exact on-edge; curved splits require two faces on one analytic chart and may lie off-edge.
- * All child faces must preserve chart orientation. Artificial interface vertices stay fixed;
+ * Empty movement retains all old coordinates. All child faces preserve chart orientation;
+ * artificial interface vertices stay fixed;
  * moved identities are caller-reserved and each incident reference/marker feature is preserved.
  * Inherited volume topology is split atomically; actual metric/progress and nonlocal clearance are caller duties. */
 bool SplitSurfaceStrip(const Patch& old,Edge edge,Node point,const std::vector<std::pair<Id,Node>>& moves,
                        Id first_cell,const PlanarReference& reference,Patch& fresh,std::string& reason,
                        KernelStats* stats = nullptr);
+/*! Physical split and coordinated normal wall-point insertion into retained volume topology.
+ * Visibility cavities grow only inside the complete admitted patch, across obstructing faces.
+ * Completed wall children are protected; no common background point is required. Reserve one node
+ * per requested physical wall face from first_wall_node. Caller certifies actual metric/progress,
+ * external clearance and versioned dependencies. Failed proposals leave fresh unchanged. */
+bool ReconstructWallSplit(const Patch& old,Edge edge,Node point,Id first_wall_node,Id first_cell,
+                          const std::map<int,double>& heights,const PlanarReference& reference,
+                          Patch& fresh,Face& obstruction,std::string& reason,KernelStats* stats = nullptr);
 /*! Complete edge star plus imported face neighbours; joint projected surface split and interior reconnection.
  * Placement tensor is a proposal proxy only. Caller must certify actual-query metric, geometry progress,
  * nonlocal clearance and complete versioned dependencies. Requested wall children and transition are carved
@@ -153,7 +162,7 @@ struct ConnectivityRepairReport {
   double before_loss=0, after_loss=0;
   bool complete_shape=false;
 };
-/*! Bounded private two/three/four-tet flips and interior movement in the actual frozen field. Returns a strictly
+/*! Up to128 constructed private cells; bounded two/three/four-tet flips and interior movement in the actual frozen field. Returns a strictly
  * improved private replacement, possibly still inadmissible; unchanged output on failure.
  * Fixed interface coordinates and requested first height/footprints remain mandatory. Caller admits
  * the complete original dependencies and validates full composed edges/progress before publication. */

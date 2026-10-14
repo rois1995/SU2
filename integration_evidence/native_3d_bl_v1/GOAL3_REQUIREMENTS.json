@@ -35,7 +35,7 @@
     {
       "id": "construction",
       "scope": "joint wall/near-wall/transition reconstruction with height/alignment/coverage and feasibility diagnostics",
-      "status": "Cold6-tet cube and saved89/100-cell joint repair plus BL release PASS MPI1/2/4 N=M under unchanged h0/q/J/full composed length and exact geometry/coverage gates. Curved/interacting walls, feature-marker seams, full M<N and production/CFD remain pending. Production actual RANS+coarsening preserves h0 but maximum physical tilt4.714; alignment control remains an explicit open gate. First-row normal-foot guard fixes the published coarsening defect in one independent serial production case (58 BL cells, tilt0); broader alignment/coverage and MPI under this stronger gate remain pending. Connected wall/transition and interior-point restoration geometry witness PASS; stronger diag(4+12*x) native case FAILS work4096, edge4.3998. Non-native576-cell control proves declared-contract feasibility; internal reconnection remains required. Latest coordinated movement/reconnection witness independently passes shape/coverage/height/footprints; full edge gate still fails. Connected engine accepts3 joint wall reconstructions but full stronger-field event remains REJECTED at work4096:453 cells, q .225576/J .054521/L2.54379, exact first height and valid footprints. Removal/CFD replacement not reached; seven focused serial integration controls PASS (855 assertions), including existing construction/removal and curved controls; new MPI qualification absent. Full requirement remains open."
+      "status": "Retained-topology wall reconstruction plus metric-directed face/complete-vertex dependency growth resolves the actual wall-seam obstruction in35 admitted cells. Complete stronger original-P1 diag(4+12*x) construction/removal independently PASS: MPI1/2/4:649 BL cells\u2192265/268/260 sensor-only cells, identical BL coordinates/connectivity/markers; BL q .215076/J .050331/L1.798735, exact first height and valid normal footprints. Nine focused serial integration controls PASS (1596 assertions). Current actual-policy transfer/restart audits PASS MPI1/2; MPI4 interrupted before completion; remains required. Prior failures and non-native576-cell feasibility control preserved; ineffective centroid insertion removed. General curved/interacting/thin/feature fields, complete coverage/alignment and full physical/performance requirement remain open."
     },
     {
       "id": "gradation",
@@ -50,7 +50,7 @@
     {
       "id": "MPI_transfer",
       "scope": "N=M/M<N, complete dependencies, atomic rejection; conservative current+BDF, positivity and turbulence",
-      "status": "Actual production worker migration/return/reader/replacement with computed metric, conservative flow current+BDF, solver-bounded SA histories, real CGNS restart, SU2/CGNS reload and common mismatch/missing-policy rejection PASS N/M1/1,2/1,2/2,4/1,4/2,4/4. Wider fields/geometries pending."
+      "status": "Previous complete MPI1/2/4 production matrix retained. Current connected runtime independently PASS N/M1/1,2/1,2/2 with conservative current+BDF flow, solver-bounded SA histories, restart and SU2/CGNS reload. Four-rank run interrupted before completion; repeat required. Wider fields/geometries pending."
     },
     {
       "id": "workflow",
@@ -91,13 +91,16 @@
     "feature_partition_v1/accuracy_summary.json",
     "feature_partition_v1/source_reconstruction.log",
     "coupled_engine_v1/validated_cold_construction_v1/manifest.json",
-    "production_policy_v1/summary.json"
+    "production_policy_v1/summary.json",
+    "wall_reconstruction_v1/summary.json",
+    "wall_reconstruction_v1/stronger_field_MPI_consistency.json",
+    "connectivity_replay_v1/visibility_fixture.json"
   ],
   "execution_state": {
-    "status": "all owned jobs terminal",
+    "status": "all owned jobs terminal; current production MPI4 interrupted",
     "CFD_runs": 0,
-    "production_MPI": "PASS N/M1/1,2/1,2/2,4/1,4/2,4/4",
-    "independent_frames": 12
+    "production_MPI": "Current PASS N/M1/1,2/1,2/2; N/M4/1,4/2,4/4 remain required. Previous full matrix historical.",
+    "independent_frames": 6
   },
   "coupled_engine_checkpoint": {
     "evidence": "integration_evidence/native_3d_bl_v1/coupled_engine_v1",
@@ -168,11 +171,12 @@
     "scope": "Exact cube geometry and coverage, original six-cell identity P1 sensor plus actual geometric BL, full composed edges, prescribed first-height and Euler release. N=M MPI1/2/4. No CFD, BDF/current solution transfer, curved/interacting layers or performance qualification."
   },
   "production_policy": {
-    "summary": "integration_evidence/native_3d_bl_v1/production_policy_v1/summary.json",
-    "status": "PASS_LIMITED_SCOPE",
-    "MPI": [
+    "status": "PARTIAL_CURRENT_MATRIX",
+    "qualified_MPI": [
       1,
-      2,
+      2
+    ],
+    "pending_MPI": [
       4
     ],
     "worker_combinations": [
@@ -187,33 +191,34 @@
       [
         2,
         2
-      ],
-      [
-        4,
-        1
-      ],
-      [
-        4,
-        2
-      ],
-      [
-        4,
-        4
       ]
     ],
-    "frames": 12,
-    "maximum_flow_BDF_integral_defect": 5.956606034301295e-16,
-    "maximum_all_field_projection_defect": 6.148754616052948e-16,
+    "frames": 6,
+    "maximum_flow_BDF_integral_defect": 4.0991697440353e-16,
+    "maximum_all_field_projection_defect": 4.121465936131202e-16,
     "maximum_transported_sensor_error": 0,
     "maximum_first_height_error": 0.0,
-    "maximum_tilt": 4.714045207910316,
+    "maximum_tilt": 1.4909304513466037,
     "maximum_composed_gradation_ratio": 24.518396264943725,
-    "scope": "Exact cube embedding/coverage, independent full composed metric lengths/shape/h0, actual original P1 sensor transport, current+BDF flow integrals/positivity and real restart, and geometry/target-equivalent SU2/CGNS reload. Native checks separately cover turbulence bounds/history. Composed gradation violations are reported, not corrected. No arbitrary geometry/sensors, CFD convergence/accuracy or performance qualification.",
+    "maximum_SA_restart_field_scaled_error": 9.985766817357972e-13,
+    "audits": [
+      {
+        "file": "independent_mpi1.json",
+        "sha256": "87dfd5e42de39699f970830eded34270810f8b3645a658900b959728a47bf660"
+      },
+      {
+        "file": "independent_mpi2.json",
+        "sha256": "09d46c58f3231c9113255516a43e5debe845bed42c3e9af06bfb0c02dffbe0a9"
+      }
+    ],
+    "four_rank_status": "INTERRUPTED; mpi4.json pins partial artifacts and activity snapshot, no independent completion audit",
+    "scope": "Current runtime: exact planar cube geometry/coverage and full composed metric/shape/height, sensor-only transport, manufactured RANS/SA current+BDF conservative transfer, strict bounds, SU2/CGNS/reference reload and actual restart on N/M1/1,2/1,2/2. Native checks enforce normal-foot containment; centroid tilt is separately reported. Independent restart SA oracle uses donor viscosity scale, with unchanged2e-10 tolerance and strict nonnegative bound.",
     "limitations": [
-      "Manufactured wall-compatible RANS states, no CFD iterations/convergence/accuracy",
-      "Large first-row tilt and composed gradation violations remain; not an aligned multilayer certificate",
-      "Single planar wall and near-identity bounded sensor, not arbitrary thin/curved/interacting/finer-sensor qualification",
-      "Wall-policy construction memory admission remains a conservative model; no speedup/scaling/affordability claim"
+      "Current four-rank production matrix remains required; previous full MPI1/2/4 qualification is historical under summary_before_retained_topology.json and mpi4_previous_* artifacts.",
+      "Initialized manufactured RANS states, no CFD iterations/convergence or viscous accuracy.",
+      "Single planar wall, near-identity computed sensor. General thin/curved/interacting walls and layer coverage unqualified.",
+      "Composed gradation violations remain; no target correction or fine-wall tensor spreading.",
+      "No lifecycle performance/scaling/affordability qualification."
     ]
   },
   "alignment_followup": {
@@ -228,19 +233,17 @@
   },
   "owned_jobs": [],
   "wall_reconstruction": {
-    "status": "INCOMPLETE_OPERATOR_MILESTONE",
+    "status": "PASS_PLANAR_STRONGER_FIELD_LIMITED_SCOPE",
     "evidence": "integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/summary.json",
-    "required_probe": "[NativeFinerSensorBL3D], explicit hidden long-running test; currently FAIL; still required for Goal3",
+    "required_probe": "[NativeFinerSensorBL3D] explicit hidden long-running test: PASS MPI1/2/4 and independent audits; general Goal3 still incomplete.",
     "native_progress": {
-      "accepted_edits": 117,
-      "private_cells": 418,
-      "wall_reconstruction_trials": 2266,
-      "wall_reconstruction_accepted": 0,
-      "global_work": 4096,
+      "accepted_refinements": 132,
+      "accepted_wall_reconstructions": 6,
+      "global_work": 1375,
       "work_limit": 4096
     },
     "target_feasibility": "576-cell constructive non-native control PASS declared metric/height/footprint contracts; not zero-centroid alignment",
-    "remaining": "Replay the exact blocked wall patches and add metric-aware internal reconnection (including tetrahedral face/edge flips) to the complete multi-point replacement; do not raise budgets or relax target/gates."
+    "remaining": "Wider thin/curved/interacting/feature wall fields, complete layer coverage/alignment, physical CFD accuracy and lifecycle performance; current initialized RANS/SA MPI4 qualification interrupted before completion, remains required."
   },
   "static_assessment_2": {
     "status": "PASS_FOCUSED_SCOPE",

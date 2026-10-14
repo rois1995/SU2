@@ -527,7 +527,8 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
       const size_t reference_scratch = PlanarReference::ConstructionBytes(count);
       if (!Admit(parent,
                  transfer_memory::Add(reference_base, reference_scratch,
-                                      transfer_memory::Mul(parent.size, transfer_memory::Mul(count, 3 * sizeof(Facet)))),
+                                      transfer_memory::Add(transfer_memory::Mul(count, 3 * sizeof(Facet)),
+                                                           transfer_memory::TransportBytes(parent.size))),
                  ceiling, stats, reason))
         return false;
       std::vector<Facet> local;
@@ -544,7 +545,7 @@ bool ImportGeometry(const CConfig& config, const CGeometry& geometry, const su2a
             if (n.id == face[k]) f.v[k] = n;
         local.push_back(f);
       }
-      pending.facets = parent.metadata(local);
+      pending.facets = CPassiveComm::Allgatherv(local, nullptr, parent.comm);
       pending.marker_names = names;
       try {
         std::vector<Face> skin;

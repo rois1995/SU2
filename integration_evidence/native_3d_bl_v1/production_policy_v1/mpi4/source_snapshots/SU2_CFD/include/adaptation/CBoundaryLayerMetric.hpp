@@ -210,7 +210,7 @@ class CBoundaryLayerMetric {
    *  Work/depth/point bounds reject unresolved integration; no nodal BL interpolation. */
   std::vector<IntegrationPoint3D> IntegrationRule3D(
       const std::array<std::array<double,3>,4>& tetrahedron, double bandRatio = 1.5,
-      IntegrationDensity3D density = {});
+      IntegrationDensity3D density = {}, bool* sensorDependent = nullptr);
 
   /*! Sorted chord parameters resolving every faceted-wall distance band in 2D/3D.
    *  Face/edge/vertex offset intersections detect a thin band even when both endpoints

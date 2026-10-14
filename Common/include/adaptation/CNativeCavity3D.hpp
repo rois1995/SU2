@@ -18,14 +18,15 @@ void ValidateSurfaceTopology(const std::vector<Face>& triangles, bool closed,
  * Caller admits global reference storage and supplies an embedded accepted boundary. */
 void ValidateDomainSurfaceTopology(const std::vector<Face>& triangles);
 /*! Local ball topology and an unchanged oriented interface. Requires an embedded accepted source cavity.
- * Metric gates, external collisions, geometry references and distributed dependency completeness are separate. */
+ * Metric gates, external collisions, geometry references and distributed dependency completeness are separate.
+ * Constructed private inputs may explicitly use the replacement bound; accepted-cavity admission stays64. */
 bool ValidateFixedInterface(const std::vector<Cell>& old, const std::vector<Cell>& fresh, std::string& reason,
-                            KernelStats* stats = nullptr);
+                            KernelStats* stats = nullptr, size_t maximum_old_cells = MaximumCavityCells);
 /*! Checks a caller-proved boundary edit against its prescribed oriented skin and ball topology.
  * Caller must establish physical geometry/marker and signed-volume closure; no arbitrary changed-skin certificate. */
 bool ValidatePrescribedInterface(const std::vector<Cell>& old, const std::vector<Cell>& fresh,
                                  const std::vector<Face>& expected_skin, std::string& reason,
-                                 KernelStats* stats = nullptr);
+                                 KernelStats* stats = nullptr, size_t maximum_old_cells = MaximumCavityCells);
 /*! Private insertion/movement/reconnection by coning the cavity skin to an apex. Does not commit a mesh.
  * Existing boundary apex faces are omitted; an outside/degenerate fan is rejected without changing fresh.
  * first_cell is a caller-reserved ID range; external ID collisions require the distributed directory. */

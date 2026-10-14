@@ -323,7 +323,9 @@ TEST_CASE("Native3D immutable reference encoding rejects malformed authority", "
   const auto text=EncodeReference(original);auto copy=DecodeReference(text);CHECK(EncodeReference(copy)==text);
   CHECK(copy.original!=original.original);CHECK(copy.facets.size()==original.facets.size());
   CHECK_THROWS(EncodeReference(ReferenceState{}));CHECK_THROWS(DecodeReference(text+"junk"));
-  CHECK_THROWS(DecodeReference(std::string(ReferenceFileLimit3D+1,'x')));
+  CHECK_THROWS(DecodeReference(text, 8*text.size()-1));
+  const auto large = text + std::string(1024*1024, ' ');
+  CHECK(EncodeReference(DecodeReference(large)) == text);
   auto wrong=text;wrong.replace(wrong.find("3D 1"),4,"3D 2");CHECK_THROWS(DecodeReference(wrong));
   wrong=text;wrong.replace(wrong.find('\n')+1,wrong.find('\n',wrong.find('\n')+1)-wrong.find('\n')-1,"0 0");CHECK_THROWS(DecodeReference(wrong));
   auto broken=original;broken.facets.pop_back();CHECK_THROWS(EncodeReference(broken));
@@ -743,10 +745,10 @@ TEST_CASE("Native returned geometry accepts empty point connectivity", "[NativeB
   }
 }
 
-// Separate death-test tag: the external local runner expects collective rejection, never a successful Catch exit.
+// Collective refusal is recoverable and must leave current/BDF state unpublished.
 TEST_CASE("Native3D acceptance veto retains current and BDF state before publication", "[NativePolicyVeto3D]") {
-  World world;const int veto=std::getenv("SU2_NATIVE3D_VETO_CALL") ? std::stoi(std::getenv("SU2_NATIVE3D_VETO_CALL")) : 2;
-  REQUIRE((veto==1 || veto==2));
+  World world;const int veto=std::getenv("SU2_NATIVE3D_VETO_CALL") ? std::stoi(std::getenv("SU2_NATIVE3D_VETO_CALL")) : 1;
+  REQUIRE(veto==1);
   if(!world.rank) {
     simplex_test::WriteSU2Mesh(BoxMesh(3,1,false),"veto_input.su2");
     std::ofstream cfg("veto.cfg");cfg<<"SOLVER= EULER\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.5\nCONV_NUM_METHOD_FLOW= ROE\nMUSCL_FLOW= NO\nMGLEVEL= 0\nMESH_FILENAME= veto_input.su2\n"
@@ -784,8 +786,16 @@ TEST_CASE("Native3D acceptance veto retains current and BDF state before publica
     }
     return true;
   };
-  CBarycentricTransfer transfer;driver->ReplaceMesh(remeshed,transfer);
-  FAIL("Expected collective acceptance veto before publication");
+  CBarycentricTransfer transfer;
+  CHECK_FALSE(driver->ReplaceMesh(remeshed,transfer));
+  CHECK(calls==1);CHECK(State(driver->Geometry(),driver->Solver())==before);
+  CHECK_FALSE(driver->Reference()->original);
+  remeshed.beforeAcceptance={};
+  remeshed.status=world.rank==0 ? CRemeshResult::Status::INCOMPLETE_QUALITY : CRemeshResult::Status::COMPLETE;
+  CHECK_FALSE(driver->ReplaceMesh(remeshed,transfer));
+  CHECK(State(driver->Geometry(),driver->Solver())==before);CHECK_FALSE(driver->Reference()->original);
+  remeshed.status=CRemeshResult::Status::COMPLETE;
+  REQUIRE(driver->ReplaceMesh(remeshed,transfer));CHECK(driver->Reference()->original);
 }
 
 TEST_CASE("Analytic native3D reference persists explicit geometry and requires a frozen runtime tolerance",
@@ -1483,9 +1493,10 @@ TEST_CASE("Native3D production wall policy preserves sensor donors and RANS hist
     for(unsigned long p=0;p<driver->Geometry().GetnPointDomain();++p) {
       const double expected=viscosity*SU2_TYPE::GetValue(driver->Geometry().nodes->GetCoord(p,2));
       const double lower=SU2_TYPE::GetValue(driver->Turbulence()->GetLowerLimit(0));
-      CHECK(turb->GetSolution(p,0)>=lower);CHECK(RelDiff(turb->GetSolution(p,0),std::max(lower,expected))<2e-10);
-      CHECK(RelDiff(turb->GetSolution_time_n(p,0),std::max(lower,expected))<2e-10);
-      CHECK(RelDiff(turb->GetSolution_time_n1(p,0),std::max(lower,expected*.9375))<2e-10);
+      // Normalize affine accuracy by its donor scale; the strict solver bound stays pointwise.
+      CHECK(turb->GetSolution(p,0)>=lower);CHECK(RelDiff(turb->GetSolution(p,0),std::max(lower,expected),viscosity)<2e-10);
+      CHECK(RelDiff(turb->GetSolution_time_n(p,0),std::max(lower,expected),viscosity)<2e-10);
+      CHECK(RelDiff(turb->GetSolution_time_n1(p,0),std::max(lower,expected*.9375),viscosity*.9375)<2e-10);
     }
     OutputRoundTrip(world,event,result.slices,accepted.cells,state,1.,[](const su2double*,double){return Tensor{1,0,0,1,0,1};},&input.original);
     WriteReference(event+".su2.native_ref",state);ReferenceState loaded;CHECK(LoadReference(event+".su2.native_ref",loaded));

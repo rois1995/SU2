@@ -1,42 +1,188 @@
 {
-  "status": "INCOMPLETE_OPERATOR_MILESTONE",
-  "scope": "Serial coordinated wall-carving and retained-interior-point geometry witness qualified; native stronger original-P1 field adaptation still rejects. Constructive non-native control proves feasibility only under the declared metric/height/normal-foot contracts. No MPI, full regressions, CFD/transfer/convergence or affordability qualification.",
-  "geometry_native": "PASS two cases with retained-point, first-height, footprint, interface and atomic rejection checks",
-  "native_stronger_field": "FAIL_WORK_BUDGET",
-  "native_progress": {
-    "accepted_edits": 117,
-    "private_cells": 418,
-    "wall_reconstruction_trials": 2266,
-    "wall_reconstruction_accepted": 0,
-    "global_work": 4096,
-    "work_limit": 4096
-  },
-  "native_rejected_audit": [
+  "status": "PASS_PLANAR_STRONGER_FIELD_LIMITED_SCOPE",
+  "native_stronger_field": "PASS_MPI1_2_4",
+  "frames": [
     {
-      "file": "independent_finer_grouped_coupled_BL_rejected_n1.json",
-      "cells": 418,
-      "points": 121,
-      "physical_faces": 138,
-      "volume": "1",
-      "minimum_mean_ratio": 0.2328978380483723,
-      "minimum_scaled_jacobian": 0.06753338179645367,
-      "maximum_length": 4.3997755273829515,
-      "longest_edge": [
-        0,
-        2
-      ],
-      "markers": {
-        "10": 3,
-        "11": 135
-      },
-      "strict_metric_gate": false,
-      "height_faces": 3,
-      "max_relative_height_error": 0.0,
-      "max_tilt": 2.0707506581557964,
-      "minimum_footprint_barycentric": 0.0,
-      "full_target_valid": false
+      "MPI_ranks": 1,
+      "audit": "integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/independent_sensor.json",
+      "sha256": "8de092ff33f74def74d800d7129aac2da29f51c2d90e9d756bdb36bcfc0038d8",
+      "frames": [
+        {
+          "file": "independent_finer_grouped_coupled_BL_n1.json",
+          "cells": 649,
+          "points": 169,
+          "physical_faces": 154,
+          "volume": "1",
+          "minimum_mean_ratio": 0.21507609008002898,
+          "minimum_scaled_jacobian": 0.05033123131058213,
+          "maximum_length": 1.7987346332397784,
+          "longest_edge": [
+            1,
+            32503
+          ],
+          "markers": {
+            "11": 136,
+            "10": 18
+          },
+          "strict_metric_gate": false,
+          "height_faces": 18,
+          "max_relative_height_error": 0.0,
+          "max_tilt": 0.8333333333333337,
+          "minimum_footprint_barycentric": 0.0,
+          "full_target_valid": true
+        },
+        {
+          "file": "independent_finer_grouped_released_Euler_n1.json",
+          "cells": 265,
+          "points": 79,
+          "physical_faces": 106,
+          "volume": "1",
+          "minimum_mean_ratio": 0.2000634593373179,
+          "minimum_scaled_jacobian": 0.07882475589114855,
+          "maximum_length": 1.7987346332397893,
+          "longest_edge": [
+            1,
+            32503
+          ],
+          "markers": {
+            "11": 88,
+            "10": 18
+          },
+          "strict_metric_gate": false,
+          "height_faces": 0,
+          "max_relative_height_error": 0,
+          "max_tilt": 0,
+          "minimum_footprint_barycentric": 0.3333333333333333,
+          "full_target_valid": true
+        }
+      ]
+    },
+    {
+      "MPI_ranks": 2,
+      "audit": "integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/independent_sensor_mpi2.json",
+      "sha256": "51dfecb3ee8269322f577c06aeb22cb962ffe9d9c082116382253b0e8dc58586",
+      "frames": [
+        {
+          "file": "independent_finer_grouped_coupled_BL_n2.json",
+          "cells": 649,
+          "points": 169,
+          "physical_faces": 154,
+          "volume": "1",
+          "minimum_mean_ratio": 0.21507609008002898,
+          "minimum_scaled_jacobian": 0.05033123131058213,
+          "maximum_length": 1.7987346332397784,
+          "longest_edge": [
+            1,
+            65001
+          ],
+          "markers": {
+            "11": 136,
+            "10": 18
+          },
+          "strict_metric_gate": false,
+          "height_faces": 18,
+          "max_relative_height_error": 0.0,
+          "max_tilt": 0.8333333333333337,
+          "minimum_footprint_barycentric": 0.0,
+          "full_target_valid": true
+        },
+        {
+          "file": "independent_finer_grouped_released_Euler_n2.json",
+          "cells": 268,
+          "points": 80,
+          "physical_faces": 108,
+          "volume": "1",
+          "minimum_mean_ratio": 0.2000634593373179,
+          "minimum_scaled_jacobian": 0.07882475589114855,
+          "maximum_length": 1.7987346332397893,
+          "longest_edge": [
+            1,
+            65001
+          ],
+          "markers": {
+            "11": 90,
+            "10": 18
+          },
+          "strict_metric_gate": false,
+          "height_faces": 0,
+          "max_relative_height_error": 0,
+          "max_tilt": 0,
+          "minimum_footprint_barycentric": 0.3333333333333333,
+          "full_target_valid": true
+        }
+      ]
+    },
+    {
+      "MPI_ranks": 4,
+      "audit": "integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/independent_sensor_mpi4.json",
+      "sha256": "76ec06f68299b7dcfe203fb6094566e40a56affcc6507bc926d133ad73a56d71",
+      "frames": [
+        {
+          "file": "independent_finer_grouped_coupled_BL_n4.json",
+          "cells": 649,
+          "points": 169,
+          "physical_faces": 154,
+          "volume": "1",
+          "minimum_mean_ratio": 0.21507609008002898,
+          "minimum_scaled_jacobian": 0.05033123131058213,
+          "maximum_length": 1.7987346332397784,
+          "longest_edge": [
+            1,
+            129987
+          ],
+          "markers": {
+            "11": 136,
+            "10": 18
+          },
+          "strict_metric_gate": false,
+          "height_faces": 18,
+          "max_relative_height_error": 0.0,
+          "max_tilt": 0.8333333333333337,
+          "minimum_footprint_barycentric": 0.0,
+          "full_target_valid": true
+        },
+        {
+          "file": "independent_finer_grouped_released_Euler_n4.json",
+          "cells": 260,
+          "points": 78,
+          "physical_faces": 104,
+          "volume": "1",
+          "minimum_mean_ratio": 0.2000634593373179,
+          "minimum_scaled_jacobian": 0.07882475589114855,
+          "maximum_length": 1.7987346332397893,
+          "longest_edge": [
+            1,
+            129987
+          ],
+          "markers": {
+            "11": 86,
+            "10": 18
+          },
+          "strict_metric_gate": false,
+          "height_faces": 0,
+          "max_relative_height_error": 0,
+          "max_tilt": 0,
+          "minimum_footprint_barycentric": 0.3333333333333333,
+          "full_target_valid": true
+        }
+      ]
     }
   ],
+  "scope": "Complete native construction/removal on the original six-tet scalar P1 diag(4+12*x), unchanged square-wall geometric BL/fade/core and strict shape/edge/height/normal-foot gates. Independent exact geometry/coverage and full-field integration. No general curved/interacting/thin layer, physical CFD accuracy or performance qualification.",
+  "MPI_geometry_consistency": "stronger_field_MPI_consistency.json",
+  "runtime_provenance": "runtime_provenance_after_sa_oracle.json",
+  "native_progress": {
+    "accepted_refinements": 132,
+    "accepted_wall_reconstructions": 6,
+    "global_work": 1375,
+    "work_limit": 4096
+  },
+  "focused_serial_controls": {
+    "cases": 9,
+    "assertions": 1596,
+    "evidence": "../connectivity_replay_v1/integration.json"
+  },
+  "previous_failures": "Preserved in sensor_previous_* receipts and folders; summary_before_retained_topology.json records the preceding incomplete milestone.",
   "constructive_control": {
     "file": "feasibility_control.json",
     "cells": 576,
@@ -61,5 +207,5 @@
     "wall_faces": 32
   },
   "constructive_control_scope": "Constructive non-native control: exact cube embedding/coverage, positive/manifold/disjoint geometry, original six-cell scalar P1 field plus unchanged geometric BL/core4/fade, full composed edges and shape, prescribed altitude and supported normal footprints. Shows this declared target is feasible; does not establish native remeshing, zero centroid tilt, structured multilayer contract, CFD/transfer/MPI or performance.",
-  "next_major_step": "Replay the exact blocked wall patches and add metric-aware internal reconnection (including tetrahedral face/edge flips) to the complete multi-point replacement; do not raise budgets or relax target/gates."
+  "next_major_step": "Finish current initialized RANS/SA MPI transfer/restart qualification, then address wider thin/curved/interacting wall fields, layer coverage, physical accuracy and complete lifecycle performance without weakening gates."
 }

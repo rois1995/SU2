@@ -76,10 +76,11 @@ def edge(original,a,b):
     return total
 
 def main():
-    receipt=json.loads((HERE/'sensor.json').read_text());folder=HERE/'sensor';log=folder/'native.log'
+    stage=sys.argv[1] if len(sys.argv)==2 else 'sensor';assert len(sys.argv)<=2 and stage in ('sensor','sensor_mpi2','sensor_mpi4')
+    receipt=json.loads((HERE/(stage+'.json')).read_text());folder=HERE/stage;log=folder/'native.log'
     assert all(digest(folder/p)==h for p,h in receipt['artifacts'].items())
-    ranks=1;prefix='finer_grouped_'
-    initial=read_su2(folder/'finer_grouped_initial_euler_n1.su2');assert initial.dim==3 and len(initial.E)==6
+    ranks=receipt['contract']['MPI_ranks'];prefix='finer_grouped_'
+    initial=read_su2(folder/('finer_grouped_initial_euler_n'+str(ranks)+'.su2'));assert initial.dim==3 and len(initial.E)==6
     corners=[(0,0,0),(1,0,0),(1,1,0),(0,1,0),(0,0,1),(1,0,1),(1,1,1),(0,1,1)]
     native={tuple(map(float,p)):i for i,p in enumerate(corners)}
     vertices=[[native[tuple(p)],*map(float,p)] for p in initial.P]
@@ -143,11 +144,12 @@ def main():
         measured.update(height_faces=len(errors),max_relative_height_error=max(errors,default=0),max_tilt=max(tilts,default=0),
             minimum_footprint_barycentric=min(footprints,default=1/3),full_target_valid=measured['maximum_length']<=1.8+1e-8 and measured['minimum_mean_ratio']>=.2-1e-8 and measured['minimum_scaled_jacobian']>=.05-1e-8)
         reports.append(measured)
-    result=dict(status='REJECTED_PROGRESS' if receipt['status']!='PASS' else 'PASS_SERIAL_LIMITED_SCOPE',frames=reports,native_status=receipt['status'],
+    if receipt['status']=='PASS':assert len(reports)==2 and all(r['full_target_valid'] for r in reports),'Completed native event fails the independent full-target gates'
+    result=dict(status='REJECTED_PROGRESS' if receipt['status']!='PASS' else 'PASS_SERIAL_LIMITED_SCOPE' if ranks==1 else 'PASS_MPI_LIMITED_SCOPE',MPI_ranks=ranks,frames=reports,native_status=receipt['status'],
         log=log.name,log_sha256=digest(log),helper_sha256=digest(Path(__file__)),
         reused_auditor_sha256=digest(ROOT/'integration_evidence/native_3d_core_v1/audit_coupled.py'),
-        scope='Declared cube source diag(4+12*x), exact geometry/coverage and independent composed square-wall field/core4/fade/full edges/shape/height. Failed native progress remains rejected even if some local checks pass. No MPI/CFD/transfer/performance qualification.')
-    (HERE/'independent_sensor.json').write_text(json.dumps(result,indent=2)+'\n')
+        scope='Declared cube source diag(4+12*x), exact geometry/coverage and independent composed square-wall field/core4/fade/full edges/shape/height. Failed native progress remains rejected even if some local checks pass. MPI scope is the declared N=M engine rank count; no CFD/transfer, physical accuracy or performance qualification.')
+    (HERE/('independent_'+stage+'.json')).write_text(json.dumps(result,indent=2)+'\n')
     print(result['status'],json.dumps(reports),flush=True)
 
 if __name__=='__main__':main()

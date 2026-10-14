@@ -11,7 +11,7 @@ def digest(p):
 def main():
  stage=sys.argv[1];assert stage in ("geometry","sensor")
  ranks=1;selection="[NativeWallReconstruction3D],[NativeJointGeometry3D]" if stage=="geometry" else "[NativeFinerSensorBL3D]"
- expected=2 if stage=="geometry" else 1
+ expected=3 if stage=="geometry" else 1
  check=subprocess.run(['/tmp/native-build-tools/ninja','-C',str(BUILD),'-n','UnitTests/test_driver','SU2_CFD/src/SU2_CFD'],stdout=subprocess.PIPE,stderr=subprocess.STDOUT,universal_newlines=True,timeout=30)
  assert check.returncode==0 and 'ninja: no work to do.' in check.stdout,check.stdout
  sources=['UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp','Common/src/adaptation/CNativeDistributed3D.cpp','Common/include/adaptation/CNativeField3D.hpp','Common/src/adaptation/CNativeField3D.cpp','Common/src/adaptation/CNativeMetric3D.cpp','Common/include/adaptation/CNativeBoundary3D.hpp','Common/src/adaptation/CNativeBoundary3D.cpp','UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp','Common/include/adaptation/CNativeRemesher3D.hpp','Common/src/adaptation/CNativeRemesher3D.cpp','Common/include/adaptation/CNativeEngine3D.hpp','Common/src/adaptation/CNativeEngine3D.cpp','Common/src/adaptation/CNativeImport3D.cpp','Common/src/adaptation/CNativeReferenceIO3D.cpp','SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp','SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp','SU2_CFD/src/drivers/CSinglezoneDriver.cpp','SU2_CFD/src/solvers/CSolver.cpp','UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp',str(Path(__file__).resolve().relative_to(ROOT))]

@@ -1,8 +1,10 @@
 {
-  "status": "PASS_LIMITED_SCOPE",
-  "MPI": [
+  "status": "PARTIAL_CURRENT_MATRIX",
+  "qualified_MPI": [
     1,
-    2,
+    2
+  ],
+  "pending_MPI": [
     4
   ],
   "worker_combinations": [
@@ -17,32 +19,33 @@
     [
       2,
       2
-    ],
-    [
-      4,
-      1
-    ],
-    [
-      4,
-      2
-    ],
-    [
-      4,
-      4
     ]
   ],
-  "frames": 12,
-  "maximum_flow_BDF_integral_defect": 5.956606034301295e-16,
-  "maximum_all_field_projection_defect": 6.148754616052948e-16,
+  "frames": 6,
+  "maximum_flow_BDF_integral_defect": 4.0991697440353e-16,
+  "maximum_all_field_projection_defect": 4.121465936131202e-16,
   "maximum_transported_sensor_error": 0,
   "maximum_first_height_error": 0.0,
-  "maximum_tilt": 4.714045207910316,
+  "maximum_tilt": 1.4909304513466037,
   "maximum_composed_gradation_ratio": 24.518396264943725,
-  "scope": "Exact cube embedding/coverage, independent full composed metric lengths/shape/h0, actual original P1 sensor transport, current+BDF flow integrals/positivity and real restart, and geometry/target-equivalent SU2/CGNS reload. Native checks separately cover turbulence bounds/history. Composed gradation violations are reported, not corrected. No arbitrary geometry/sensors, CFD convergence/accuracy or performance qualification.",
+  "maximum_SA_restart_field_scaled_error": 9.985766817357972e-13,
+  "audits": [
+    {
+      "file": "independent_mpi1.json",
+      "sha256": "87dfd5e42de39699f970830eded34270810f8b3645a658900b959728a47bf660"
+    },
+    {
+      "file": "independent_mpi2.json",
+      "sha256": "09d46c58f3231c9113255516a43e5debe845bed42c3e9af06bfb0c02dffbe0a9"
+    }
+  ],
+  "four_rank_status": "INTERRUPTED; mpi4.json pins partial artifacts and activity snapshot, no independent completion audit",
+  "scope": "Current runtime: exact planar cube geometry/coverage and full composed metric/shape/height, sensor-only transport, manufactured RANS/SA current+BDF conservative transfer, strict bounds, SU2/CGNS/reference reload and actual restart on N/M1/1,2/1,2/2. Native checks enforce normal-foot containment; centroid tilt is separately reported. Independent restart SA oracle uses donor viscosity scale, with unchanged2e-10 tolerance and strict nonnegative bound.",
   "limitations": [
-    "Manufactured wall-compatible RANS states, no CFD iterations/convergence/accuracy",
-    "Large first-row tilt and composed gradation violations remain; not an aligned multilayer certificate",
-    "Single planar wall and near-identity bounded sensor, not arbitrary thin/curved/interacting/finer-sensor qualification",
-    "Wall-policy construction memory admission remains a conservative model; no speedup/scaling/affordability claim"
+    "Current four-rank production matrix remains required; previous full MPI1/2/4 qualification is historical under summary_before_retained_topology.json and mpi4_previous_* artifacts.",
+    "Initialized manufactured RANS states, no CFD iterations/convergence or viscous accuracy.",
+    "Single planar wall, near-identity computed sensor. General thin/curved/interacting walls and layer coverage unqualified.",
+    "Composed gradation violations remain; no target correction or fine-wall tensor spreading.",
+    "No lifecycle performance/scaling/affordability qualification."
   ]
 }

@@ -156,9 +156,10 @@ void ValidateDomainSurfaceTopology(const std::vector<Face>& triangles) {
     if (edge.second != 0) throw std::invalid_argument("Native 3D domain skin has inconsistent face orientation.");
 }
 bool ValidateFixedInterface(const std::vector<Cell>& old, const std::vector<Cell>& fresh, std::string& reason,
-                            KernelStats* stats) {
+                            KernelStats* stats, size_t maximum_old_cells) {
   try {
-    Bounds(old, MaximumCavityCells);
+    if(maximum_old_cells>MaximumReplacementCells)throw std::invalid_argument("Native3D private interface input exceeds replacement admission.");
+    Bounds(old, maximum_old_cells);
     const Incidence before(old, stats);
     Validate(old, before, fresh, stats);
     reason.clear();
@@ -169,9 +170,11 @@ bool ValidateFixedInterface(const std::vector<Cell>& old, const std::vector<Cell
   }
 }
 bool ValidatePrescribedInterface(const std::vector<Cell>& old, const std::vector<Cell>& fresh,
-                                 const std::vector<Face>& expected_skin, std::string& reason, KernelStats* stats) {
+                                 const std::vector<Face>& expected_skin, std::string& reason, KernelStats* stats,
+                                 size_t maximum_old_cells) {
   try {
-    Bounds(old, MaximumCavityCells);
+    if(maximum_old_cells>MaximumReplacementCells)throw std::invalid_argument("Native3D private interface input exceeds replacement admission.");
+    Bounds(old, maximum_old_cells);
     if (expected_skin.size() > 4 * MaximumReplacementCells)
       throw std::invalid_argument("Native 3D prescribed skin exceeds budget.");
     const Incidence before(old, stats);

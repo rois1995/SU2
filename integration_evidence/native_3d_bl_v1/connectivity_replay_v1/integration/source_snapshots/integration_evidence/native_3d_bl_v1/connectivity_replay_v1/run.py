@@ -9,14 +9,15 @@ def digest(p):
   for block in iter(lambda:f.read(1024*1024),b''):h.update(block)
  return h.hexdigest()
 def main():
- stage=sys.argv[1] if len(sys.argv)==2 else "replay";assert len(sys.argv)<=2 and stage in ("replay","integration")
+ stage=sys.argv[1] if len(sys.argv)==2 else "replay";assert len(sys.argv)<=2 and stage in ("replay","integration","visibility")
  ranks=1;selection="[NativeConnectivity3D],[NativeConnectivityReplay3D],[NativeConnectivityMove3D]"
- expected=3
+ expected=4
  if stage=="integration":
-  selection+=",[NativeWallReconstruction3D],[NativeJointGeometry3D],[NativeCoupledBLGrouped3D],[NativeBLColdEngine3D]";expected=7
+  selection+=",[NativeWallReconstruction3D],[NativeJointGeometry3D],[NativeCoupledBLGrouped3D],[NativeBLColdEngine3D]";expected=9
+ if stage=="visibility":selection="[NativeWallVisibilityReplay3D]";expected=1
  check=subprocess.run(['/tmp/native-build-tools/ninja','-C',str(BUILD),'-n','UnitTests/test_driver','SU2_CFD/src/SU2_CFD'],stdout=subprocess.PIPE,stderr=subprocess.STDOUT,universal_newlines=True,timeout=30)
  assert check.returncode==0 and 'ninja: no work to do.' in check.stdout,check.stdout
- sources=['UnitTests/Common/adaptation/fixtures/native_wall_joint.inc','Common/include/adaptation/CNativeCavity3D.hpp','Common/src/adaptation/CNativeCavity3D.cpp','UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp','Common/src/adaptation/CNativeDistributed3D.cpp','Common/include/adaptation/CNativeField3D.hpp','Common/src/adaptation/CNativeField3D.cpp','Common/src/adaptation/CNativeMetric3D.cpp','Common/include/adaptation/CNativeBoundary3D.hpp','Common/src/adaptation/CNativeBoundary3D.cpp','UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp','Common/include/adaptation/CNativeRemesher3D.hpp','Common/src/adaptation/CNativeRemesher3D.cpp','Common/include/adaptation/CNativeEngine3D.hpp','Common/src/adaptation/CNativeEngine3D.cpp','Common/src/adaptation/CNativeImport3D.cpp','Common/src/adaptation/CNativeReferenceIO3D.cpp','SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp','SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp','SU2_CFD/src/drivers/CSinglezoneDriver.cpp','SU2_CFD/src/solvers/CSolver.cpp','UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp',str(Path(__file__).resolve().relative_to(ROOT))]
+ sources=['UnitTests/Common/adaptation/fixtures/native_wall_visibility.inc','UnitTests/Common/adaptation/fixtures/native_wall_joint.inc','Common/include/adaptation/CNativeCavity3D.hpp','Common/src/adaptation/CNativeCavity3D.cpp','UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp','Common/src/adaptation/CNativeDistributed3D.cpp','Common/include/adaptation/CNativeField3D.hpp','Common/src/adaptation/CNativeField3D.cpp','Common/src/adaptation/CNativeMetric3D.cpp','Common/include/adaptation/CNativeBoundary3D.hpp','Common/src/adaptation/CNativeBoundary3D.cpp','UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp','Common/include/adaptation/CNativeRemesher3D.hpp','Common/src/adaptation/CNativeRemesher3D.cpp','Common/include/adaptation/CNativeEngine3D.hpp','Common/src/adaptation/CNativeEngine3D.cpp','Common/src/adaptation/CNativeImport3D.cpp','Common/src/adaptation/CNativeReferenceIO3D.cpp','SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp','SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp','SU2_CFD/src/drivers/CSinglezoneDriver.cpp','SU2_CFD/src/solvers/CSolver.cpp','UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp',str(Path(__file__).resolve().relative_to(ROOT))]
  pins={p:digest(ROOT/p) for p in sources}
  pins['build.ninja']=digest(BUILD/'build.ninja');pins['compile_commands.json']=digest(BUILD/'compile_commands.json');pins['test_binary']=digest(BINARY);pins['solver_binary']=digest(BUILD/'SU2_CFD/src/SU2_CFD')
  for library in ['Common/src/libSU2Common.a','Common/src/libSU2AccurateSum.a','SU2_CFD/src/libSU2core.a']:

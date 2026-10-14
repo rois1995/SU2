@@ -1656,8 +1656,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(options.maximum_seconds && world.maximum(std::chrono::duration<double>(Clock::now()-started).count()>=options.maximum_seconds)) {
           stats.stop=EngineStop::TimeBudget;result.reason="Native3D joint repair exhausted the elapsed budget.";return finish();
         }
-        bool candidate=false;Face obstruction{};
-        const unsigned frames=world.maximum(joint && !choice.geometric)?2:1;
+        bool candidate=false;Face obstruction{};Feature preferred_obstruction;
+        const bool retained_frame=world.maximum(joint && wallSplit);
+        const unsigned frames=(world.maximum(joint && !choice.geometric)?2:1)+unsigned(retained_frame);
         for(unsigned frame=0;frame<frames;++frame) {
           const bool participating=joint && !approved;candidate=false;
           {
@@ -1668,8 +1669,15 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                 return options.wall_heights.count(geometry.Get(f.facet).marker);
               });
               stats.wall_reconstruction_trials+=wall;
-              candidate=guarded_geometry(ReconstructSplitPatch(old,choice.edge,point,{maximum_node+2+node_offset,{}},
-                  frame?nearPlacement:placement,maximum_cell+1+offset,geometry,fresh,obstruction,result.reason,nullptr,options.wall_heights));
+              if(retained_frame && frame==0 && wallSplit) {
+                ++stats.wall_topology_trials;
+                candidate=guarded_geometry(ReconstructWallSplit(old,choice.edge,point,maximum_node+2+node_offset,
+                    maximum_cell+1+offset,options.wall_heights,geometry,fresh,obstruction,result.reason));
+              } else if(!retained_frame || frame>0) {
+                candidate=guarded_geometry(ReconstructSplitPatch(old,choice.edge,point,{maximum_node+2+node_offset,{}},
+                    frame>unsigned(retained_frame)?nearPlacement:placement,maximum_cell+1+offset,geometry,
+                    fresh,obstruction,result.reason,nullptr,options.wall_heights));
+              }
             }catch(const std::exception& e){failure.Set(2,0,e.what());}
             ready=vote(failure);
           }
@@ -1677,7 +1685,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           bool passed=validate_private(candidate,choice.geometric ? MetricChange::GeometryRefine : MetricChange::Refine);
           if(!ready)return finish();
           const bool repair=participating && candidate && !passed && certified.failure==MetricFailure::Shape &&
-              fresh.cells.size()<=MaximumCavityCells && !options.wall_heights.empty() && stats.global_work<stats.work_limit;
+              fresh.cells.size()<=MaximumReplacementCells && !options.wall_heights.empty() && stats.global_work<stats.work_limit;
           if(world.maximum(repair)) {
             const auto repair_limit=std::min<uint64_t>(256,(stats.work_limit-stats.global_work)/
                 CPassiveComm::Allreduce(uint64_t(repair),CPassiveComm::Op::SUM,world.comm));
@@ -1701,7 +1709,6 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                     maximum_cell+1+offset,proposal,report,rejected,repair_limit);
               }
               stats.wall_joint_trials+=report.trials;stats.wall_joint_moves+=report.moves;
-              repaired=repaired && report.complete_shape;
               if(repaired) {
                 std::map<Id,Point> previous;std::set<Id> used;
                 for(const auto& c:old.cells)for(auto n:c.v)previous.emplace(n.id,n.p);
@@ -1730,7 +1737,27 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               if(!ready)return finish();
             }
           }
+          if(participating && !passed)try {
+            if(candidate && certified.failure==MetricFailure::Shape) {
+              const auto boundary=Incidence(old.cells).Boundary();std::set<Face> artificial;std::set<Id> fixed,physical;
+              for(const auto& f:old.surface)physical.insert(f.v.begin(),f.v.end());
+              for(auto f:boundary)if(std::none_of(old.surface.begin(),old.surface.end(),[&](const auto& p){return Key(p.v)==Key(f);})) {
+                artificial.insert(Key(f));fixed.insert(f.begin(),f.end());
+              }
+              for(const auto& c:fresh.cells)if(c.id==certified.weakest_cell || c.id==certified.sliver_cell) {
+                const auto faces=Faces(c);
+                const auto found=std::find_if(faces.begin(),faces.end(),[&](Face f){return artificial.count(Key(f));});
+                if(found!=faces.end()){obstruction=Key(*found);if(!preferred_obstruction.count)preferred_obstruction={obstruction,3};break;}
+                for(auto n:c.v)if(fixed.count(n.id) && !physical.count(n.id) && !preferred_obstruction.count)
+                  preferred_obstruction={{{n.id,0,0}},1};
+              }
+            }
+            // Preserve the first mechanism's actual blockage; a later fallback must not overwrite its dependency.
+            if(!preferred_obstruction.count && obstruction!=Face{})preferred_obstruction={obstruction,3};
+          }catch(const std::exception& e){failure.Set(2,0,e.what());}
+          if(!(ready=vote(failure)))return finish();
           if(participating) {
+            stats.wall_topology_accepted+=passed && retained_frame && frame==0 && wallSplit;
             approved=passed;
             if(passed && std::any_of(old.surface.begin(),old.surface.end(),[&](const auto& f) {
               return options.wall_heights.count(geometry.Get(f.facet).marker);
@@ -1742,8 +1769,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(joint && approved){cavity_inserted=true;joint=false;}
         else if(joint && candidate && certified.failure==MetricFailure::Measurement)joint=false;
         if(!world.maximum(joint && !approved))break;
-        const bool grow=joint && std::adjacent_find(obstruction.begin(),obstruction.end())==obstruction.end();
-        const auto added_dependencies=directory.LookupBatch(grow ? std::vector<Feature>{{obstruction,3}} : std::vector<Feature>{},
+        if(!preferred_obstruction.count && std::adjacent_find(obstruction.begin(),obstruction.end())==obstruction.end())preferred_obstruction={obstruction,3};
+        const bool grow=joint && preferred_obstruction.count;
+        const auto added_dependencies=directory.LookupBatch(grow ? std::vector<Feature>{preferred_obstruction} : std::vector<Feature>{},
             options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));
         if(!added_dependencies.valid){result.reason=added_dependencies.reason;return finish();}
         Dependencies neighbor;neighbor.valid=true;

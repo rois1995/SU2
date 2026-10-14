@@ -10,8 +10,10 @@ sensor-only donor interpolation, finer sensor demands, existing fade and retaine
 geometry. The returned nodal metric contains only the sensor. Euler/BL transitions
 are validation scenarios, never production modes or solver-label dispatch.
 
-Initialized RANS/SA with a computed metric passes N/M=1/1,2/1,2/2,4/1,4/2,4/4.
-Independent audits qualify twelve planar cube frames, exact geometry and coverage,
+The preceding production checkpoint qualified N/M=1/1,2/1,2/2,4/1,4/2,4/4.
+The current connected runtime passes N/M=1/1,2/1,2/2 and independent six-frame audits;
+its four-rank run was interrupted before completion and must be repeated.
+Independent audits qualify exact planar cube geometry and coverage,
 full composed metric lengths/shape/height, transported sensor, current+BDF flow
 integrals, SU2/CGNS/reference reload and real restart. Native checks cover bounded
 SA histories. No CFD iterations or viscous accuracy/performance qualification.
@@ -37,15 +39,15 @@ for the connected alignment/reconstruction milestone. All owned jobs terminal.
 See [serial summary](../integration_evidence/native_3d_bl_v1/alignment_audit_v1/summary.json).
 
 Cases: `integration_evidence/native_3d_bl_v1/alignment_audit_v1`.
-Current frontier: coordinated wall/transition carving, actual-field reconnection
-and simultaneous constrained interior movement. The private witness passes shape,
-coverage and wall constraints, but not full edge admission. The new connected
-engine run accepts3 joint wall reconstructions and still rejects at work4096:
-453 cells, qmin .225576,Jmin .054521,Lmax2.54379>1.8, exact first height and valid
-normal footprints. Original source and target are unchanged. No removal or CFD
-replacement is reached. Seven focused serial integration controls PASS (855 assertions); MPI
-qualification of the new connection is pending. The non-native576-cell control
-continues to prove declared-target feasibility, not native completion.
+Current frontier: retained-topology wall reconstruction and metric-directed complete
+dependency escalation. The actual constrained vertex star resolves the reproduced
+wall-seam blockage in35 cells. The required stronger original-P1 field now passes
+complete construction/removal and independent audits: MPI1/2/4 gives649 BL cells
+→265/268/260 sensor-only cells, with identical BL coordinates/connectivity/markers. BL qmin .215076,Jmin .050331,Lmax1.798735; exact first height and valid
+normal footprints. Nine focused integration controls PASS (1596 assertions).
+Current actual-policy transfer/restart audits pass MPI1/2; MPI4 was interrupted before completion and remains required.
+The ineffective centroid-insertion proposal was removed and its evidence retained.
+No metric reset, acceptance relaxation or production transition mode was added.
 
 Read [the smaller wall-reconstruction handbook](GOAL3_WALL_RECONSTRUCTION.md)
 for exact failures, preserved artifacts and the next substantial replay/reconnection

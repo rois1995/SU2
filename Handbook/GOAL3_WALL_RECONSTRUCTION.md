@@ -1,109 +1,105 @@
-# Goal 3 wall reconstruction — current frontier
+# Goal 3 wall reconstruction — current capability and limits
 
 Repository: `/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated`.
 Branch: `codex/native-3d-bl`. Full Goal3 ACTIVE and incomplete.
-Cases: `integration_evidence/native_3d_bl_v1/wall_reconstruction_v1`.
-See STATIC_ASSESSMENT_2.md for the published earlier qualification; current repair qualification is separate.
 
-## What is implemented
+## Connected construction
 
-Requested wall children and transition are carved as a single replacement, with
-complete wall-apex-star dependencies and bounded node identities. Placement scores
-the wall children, and failed geometry identifies an obstructing interface from
-actual proposed normal points. Existing interior points are reinserted privately
-so rebuilding a patch need not erase already resolved interior distribution.
-Cavity growth is back to12 attempts; existing64-cell cavity and work/time ceilings
-remain. All published mesh/metric/height/footprint/atomic gates remain intact.
-No Euler/BL solver or input-grid transition modes were introduced.
+A retained-topology path splits the requested physical edge and inserts normal
+wall points through visibility cavities inside the admitted patch. Completed wall
+children remain protected. The whole wall/transition replacement is private until
+geometry, first height/normal footprints and full actual-query metric/progress
+checks pass. It does not require one background point to see the whole skin.
 
-Two focused serial geometry cases pass (including old interior-coordinate
-preservation, normal wall children, finite interface/coverage and atomic rejection).
-The independent witness certificate is geometry-only, not a full-field remesh.
+When partial actual-field repair stagnates, its remaining bad cell identifies an
+artificial interface face. Importing that neighbor can remove the face while its
+vertices remain fixed; a still-constrained interior vertex then requests its full
+star. Complete versioned dependencies and reservations precede reconstruction.
+Partial shape improvement is retained only privately for diagnosis and remeasurement,
+never published as an admissible replacement. Later fallback geometry cannot
+overwrite the first strategy's actual missing dependency.
 
-## What the stronger target demonstrates
+Imported cavities remain64 cells. Already constructed private inputs can explicitly
+use the existing128-cell replacement bound; default accepted-cavity validation and
+all local Cone admissions remain64. No ceilings, metric profile or acceptance
+thresholds were raised. Sensor-only original-P1 interpolation, actual-query BL,
+finer demands, core/fade and source immutability are preserved. Fresh identities
+still protect moved-node cache and transfer contracts.
 
-Source is the same frozen original six-cell scalar P1 field `diag(4+12*x)` plus
-actual square-wall BL (h0 .1,g1.2,T.3,core4,unchanged fade).
-Previous native result before coordinated movement:117 refinement edits,418 private cells, work4096 exhausted;
-zero accepted joint wall reconstructions. Independent coverage/shape/height/footprint
-checks pass, but full composed wall edge0,2 is4.3997755 (limit1.8). No CFD replacement
-or layer-release stage occurred. Rejected output and all previous failures are kept.
+## Actual blockage and replay
 
-A generated control576-cell mesh independently passes these same metric/geometry/
-height/footprint acceptance contracts: qmin .5819092,Jmin .3105078,Lmax1.6644668.
-It is named `feasibility_control_not_native.su2`. It proves declared-target
-feasibility, not native generation or zero centroid tilt. Thus the native failure
-is operator blockage under these contracts; global impossibility is not supported.
+The source is the original six-tet scalar P1 `diag(4+12*x)` and square-wall BL
+(h0 .1,g1.2,T.3,core4,fade .27→.3). The earlier common-background path rejected the
+full event at work4096, longest edge4.3997755. Coordinated movement improved it
+but still rejected with453 cells and longest edge2.5437949.
 
-A numerical LP on the earlier terminal patch diagnoses the single-background
-visibility restriction. It is not an exact infeasibility proof. Neither increasing
-growth12→64 nor a single proxy/carving search fixed the stronger case. The latest
-multi-point approach improves overall search progress but still needs reconnection
-under the actual varying field. Timings from rejected runs are diagnostic only.
+The actual later rejected mesh gives a31-cell edge/apex-star union at the wall/far
+seam. Retained reconstruction is geometrically valid immediately; common-background
+reconstruction needs11 growth steps to reach geometry, then still fails shape.
+The retained proposal stagnates after37 repair trials: one flip, no moves, residual
+loss .0167721. Its remaining bad cell touches face1/8399/101671. Importing the face
+neighbor gives32 cells without improving shape. Importing the complete interior
+vertex101671 star gives35 cells; one flip and two moves then pass local refinement:
+qmin .201843,Jmin .055509, changed-edge excess .469426→.044541. These identities
+appear only in the saved test fixture, never production dispatch.
 
-## Current connected implementation
+A centroid insertion/reconnection lookahead increased work37→165 without improving
+the residual. It was removed from production and archived. The first replay also
+omitted cyclically reordered physical triangles; that extraction was rejected and
+fixed, with assertions requiring both seam faces. An initial fixture initializer
+compile failure and interrupted build wrappers are preserved; build freshness was
+verified before every executed stage.
 
-Private actual-field2/3/4-cell reconnection now coordinates up to eight constrained
-interior vertices before requiring descent from an individual move. Geometry,
-first height and normal footprints are checked on the complete simultaneous pose;
-shape caches are invalidated when coordinates change. All intermediates remain
-private. The saved whole-cube proposal is a reconstruction witness, not the exact
-last terminal engine cavity.
+Replay folder: `integration_evidence/native_3d_bl_v1/connectivity_replay_v1/visibility`.
+The fixture represents the current rejected complete mesh; it does not claim to
+be the exact last imported engine cavity. Its record pins the source audit input.
 
-Mean-only and individual metric-direction movement made no improvement over the
-13-flip residual. Simultaneous movement plus reconnection uses152 trials,14 flips
-and3 moved vertices and brings shape loss2.1209455 to0. Independent audit confirms
-exact coverage/disjointness, retained skin and wall footprints: qmin .2274514,
-Jmin .0503909, minimum footprint .2193074. Lmax6.73871217 still fails because the
-saved patch retains long physical-interface edges. Passing this witness does not
-establish accepted mesh generation.
+## Complete stronger-field evidence
 
-The engine now attempts this repair after a joint wall proposal fails shape. It
-imports full admitted-cell donor support rather than support for previous queries,
-renames moved existing vertices within reserved ranges, collectively charges
-actual trials to the existing global work budget, and rechecks full composed
-metric/progress and geometry before publication. Donor-cap or incomplete-shape
-proposals remain refused. Original dependencies and all strict gates are retained.
-The current private repair accepts at most64 input cells and128 replacement cells;
-larger rebuilt proposals are skipped, not silently accepted. This remains a limit
-of the private path, distinct from global mesh feasibility.
+The complete native construction and removal now PASS on MPI1/2/4, including
+independent exact positive volume/coverage/disjointness, original facets/markers,
+original-P1/full composed lengths and shape, first height and normal footprints.
 
-The complete stronger-field run now accepts3 joint wall reconstructions (previously0),
-104 refinement edits and453 cells, but exhausts work4096 including3305 repair trials.
-Independent final audit: volume1, qmin .225576,Jmin .054521, exact first height,
-minimum normal-foot barycentric0, longest edge2.5437949>1.8. The event is rejected;
-removal and CFD replacement are not reached. Do not interpret its42.55s diagnostic
-time as an accepted-adaptation performance result or a scaling comparison.
+- Serial:649 BL cells/169 points→265 sensor-only cells/79 points.
+- MPI2:649 BL cells/169 points→268 sensor-only cells/80 points.
+- MPI4:649 BL cells/169 points→260 sensor-only cells/78 points.
+- Canonical BL coordinates, tetra connectivity and physical marker faces are
+  identical across ranks; admissible coarsening need not give a unique minimal grid.
+- BL qmin .2150760901,Jmin .0503312313,Lmax1.7987346333; exact height error0,
+  minimum footprint0, centroid tilt maximum .8333333.
+- Removal qmin .2000634593,Jmin .0788247559,Lmax1.7987346333.
+- Nine focused serial integration controls PASS (1596 assertions), including old
+  construction/removal, curved geometry, private bounds and atomic refusal.
+- Current initialized RANS/SA transfer/restart audits pass MPI1/2; MPI4 was interrupted before completion and remains required.
 
-Evidence folders:
-- `integration_evidence/native_3d_bl_v1/connectivity_replay_v1/replay`:
-  saved private proposal and independent audit.
-- `integration_evidence/native_3d_bl_v1/connectivity_replay_v1/integration`:
-  focused connected-repair, existing construction/removal and curved controls.
-- `integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/sensor`:
-  complete required gate, rejected mesh, log, frozen source snapshots and audit.
+Folders: `integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/sensor`,
+`sensor_mpi2`, `sensor_mpi4`; integration controls are in
+`integration_evidence/native_3d_bl_v1/connectivity_replay_v1/integration`.
+Accepted and rejected grids, raw records, independent inputs and source/build/binary/
+thin-object pins remain inspectable. All previous failures are retained.
 
-Seven focused serial integration controls PASS (855 assertions), including the
-existing complete construction/removal controls and curved joint geometry. The
-current compiled private witness also passes the independent audit. All owned
-jobs are terminal; no MPI or new CFD/restart/performance campaign was run.
+The serial accepted engine records10.10s construction and .54s removal, with1375
+and207 charged work respectively. These are small-case diagnostic samples, not
+scaling or complete lifecycle measurements. Metric/edge work and cache updates
+remain large components. Do not compare accepted timings against prior rejected
+runs as a speedup, or infer adaptation/CFD affordability without CFD/repartition/
+transfer/output costs and representative uncontended cases.
 
-## Next substantial step
+## Remaining scope and next connected milestone
 
-Address the remaining surface/first-row/transition arrangement together. Use the
-current rejected mesh and frozen donor source to replay complete wall-apex
-requirements, and build a coordinated surface-strip proposal with multiple child
-points, transition insertion and reconnection. Assess the whole proposal against
-full shape, height, footprint and composed-edge/progress gates. Avoid another
-sequence of isolated direction variants, larger ceilings or target relaxation.
-Finish the full stronger-field construction/removal before claiming this capability
-or starting its larger MPI qualification campaign. Existing focused controls
-establish compatibility only, not general curved/interacting-wall robustness.
+Complete the current MPI1/2/4 qualification and actual-policy current+BDF/turbulence/
+transport/SU2/CGNS/reference/restart checks before widening the fields and geometry.
+Then address thin/curved/interacting walls and feature junctions as complete
+capabilities against difficult targets. Preserve original strict gates and diagnose
+height/geometry/metric incompatibility separately from operator limitations.
 
-The expensive stronger case is explicitly tagged `[.][NativeFinerSensorBL3D]` to
-avoid every unfiltered Catch invocation. It remains a required failing Goal3 gate;
-run it explicitly through the resumable collector. This is a schedule, not a waiver.
+Prescribed altitude and footprint containment do not establish orthogonal or
+structured multilayer coverage. Existing gap nodes can lie below the prescribed
+wall-apex height; layer coverage/alignment need separate diagnosis. The non-native
+576-cell control remains a feasibility witness, not a native or CFD result.
+Analytic BL distance/normal, general cases, actual RANS convergence/wall shear/forces,
+matching M6 where practical, and full lifecycle performance remain open. No arbitrary
+feasibility, prism/hex support or full Goal3 completion is claimed.
 
-See [evidence summary](../integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/summary.json),
-[reproduction instructions](../integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/README.md),
-[current overall goal](GOAL3_CURRENT.md), and [full requirement audit](../integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).
+See [current overall goal](GOAL3_CURRENT.md) and
+[full requirement audit](../integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).

@@ -1,0 +1,29 @@
+{
+  "status": "UNCHANGED_PRODUCTION_RUNTIME",
+  "evidence": [
+    {
+      "stage": "sensor",
+      "receipt_sha256": "d7bf4a000ad79c561bfe45faba3e7eff55f030c6e5a651e84e1a1258ff2fbe6b",
+      "runtime_build_object_pins_checked": 341,
+      "runtime_pin_digest": "54cbdae872fcd0455fc71bc28bc777f89f8a92928415c49d1e62e4851b289673",
+      "historical_test_binary": "882511ac80e599c912abb9ce07ab3b3a32f7e73ea69b84de14e501b2277a9b37"
+    },
+    {
+      "stage": "sensor_mpi2",
+      "receipt_sha256": "fcf735c1bdb733f302ad0dbbbaa72925bcad9c5bb79e7ac2c0c02e823a894158",
+      "runtime_build_object_pins_checked": 341,
+      "runtime_pin_digest": "54cbdae872fcd0455fc71bc28bc777f89f8a92928415c49d1e62e4851b289673",
+      "historical_test_binary": "882511ac80e599c912abb9ce07ab3b3a32f7e73ea69b84de14e501b2277a9b37"
+    },
+    {
+      "stage": "sensor_mpi4",
+      "receipt_sha256": "7694d423f502c2efd5120c067068ca91934c6f08253ed2003078bb0f07cc9ca4",
+      "runtime_build_object_pins_checked": 341,
+      "runtime_pin_digest": "54cbdae872fcd0455fc71bc28bc777f89f8a92928415c49d1e62e4851b289673",
+      "historical_test_binary": "882511ac80e599c912abb9ce07ab3b3a32f7e73ea69b84de14e501b2277a9b37"
+    }
+  ],
+  "solver_binary_sha256": "1c9e393110ac74715f1912b1ee42cd79c82c71c112dc43bb5cdb49e3f59a6d53",
+  "current_test_binary_sha256": "48f14d41c7abf3fb37e997fc3788fc150cfb32495bb0ce78a7378da81dd93871",
+  "scope": "Historical complete stronger-field MPI1/2/4 executions retain their original binary receipts. After them only the affine-SA test accuracy norm changed; production solver binary, build metadata, all341 runtime/archive-member pins and relevant remeshing/strong-case sources are verified unchanged. The modified initialized RANS test is rerun on the new test binary; no new production behavior is inferred from source hashes alone."
+}

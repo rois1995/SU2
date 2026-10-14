@@ -4,27 +4,27 @@
   "frames": [
     {
       "file": "policy_m1_s0.json",
-      "cells": 46,
-      "points": 21,
-      "physical_faces": 32,
+      "cells": 51,
+      "points": 23,
+      "physical_faces": 36,
       "volume": "1",
-      "minimum_mean_ratio": 0.22837141205076714,
-      "minimum_scaled_jacobian": 0.059988553829736876,
-      "maximum_length": 1.7956817627362782,
+      "minimum_mean_ratio": 0.20598407907834876,
+      "minimum_scaled_jacobian": 0.05383864708970554,
+      "maximum_length": 1.7798295958209633,
       "longest_edge": [
-        5,
-        15
+        0,
+        14
       ],
       "markers": {
         "1": 2,
-        "0": 30
+        "0": 34
       },
       "strict_metric_gate": true,
       "first_height_faces": 2,
       "maximum_height_error": 0.0,
-      "maximum_tilt": 4.714045207910316,
-      "independent_flow_BDF_integral_defect": 2.747643957420801e-16,
-      "projection_all_field_defect": 6.148754616052948e-16,
+      "maximum_tilt": 1.4909304513466037,
+      "independent_flow_BDF_integral_defect": 1.3738219787104006e-16,
+      "projection_all_field_defect": 2.6617800837514003e-16,
       "transported_sensor_error": 0,
       "gradation": {
         "maximum_sensor_ratio": 1.0,
@@ -36,12 +36,12 @@
       "reloads": [
         {
           "file": "policy_m1_s0_written_CGNS_reload_target.json",
-          "sha256": "2bcc0c9a195e3732052c0ad1ee6d2e331ff337e54f98f48b6855023312dbd331",
+          "sha256": "2650a85403180dc3dc3061543c97c8f9dba93d2cdce850f69e883b1e29d9b4ec",
           "geometry_and_target_equal": true
         },
         {
           "file": "policy_m1_s0_written_SU2_reload_target.json",
-          "sha256": "2bcc0c9a195e3732052c0ad1ee6d2e331ff337e54f98f48b6855023312dbd331",
+          "sha256": "2650a85403180dc3dc3061543c97c8f9dba93d2cdce850f69e883b1e29d9b4ec",
           "geometry_and_target_equal": true
         }
       ]
@@ -52,9 +52,9 @@
       "points": 8,
       "physical_faces": 12,
       "volume": "1",
-      "minimum_mean_ratio": 0.7559526299369238,
+      "minimum_mean_ratio": 0.7559526299369237,
       "minimum_scaled_jacobian": 0.5773502691896256,
-      "maximum_length": 1.7320508075688765,
+      "maximum_length": 1.732050807568877,
       "longest_edge": [
         0,
         7
@@ -67,8 +67,8 @@
       "first_height_faces": 0,
       "maximum_height_error": 0,
       "maximum_tilt": 0,
-      "independent_flow_BDF_integral_defect": 4.0991697440353e-16,
-      "projection_all_field_defect": 4.121465936131202e-16,
+      "independent_flow_BDF_integral_defect": 2.04958487201765e-16,
+      "projection_all_field_defect": 4.1214659361312013e-16,
       "transported_sensor_error": 0,
       "gradation": {
         "maximum_sensor_ratio": 1.0,
@@ -80,19 +80,35 @@
       "reloads": [
         {
           "file": "policy_m1_s1_written_CGNS_reload_target.json",
-          "sha256": "9e83dd44ee1cd00470acb88c85928e66e2f771b6cec4ca9de8bd3824ee94a037",
+          "sha256": "084dc8f183aa74ee517ab47af69d200b8048ebfc0589f5061526390d9c478575",
           "geometry_and_target_equal": true
         },
         {
           "file": "policy_m1_s1_written_SU2_reload_target.json",
-          "sha256": "9e83dd44ee1cd00470acb88c85928e66e2f771b6cec4ca9de8bd3824ee94a037",
+          "sha256": "084dc8f183aa74ee517ab47af69d200b8048ebfc0589f5061526390d9c478575",
           "geometry_and_target_equal": true
         }
       ]
     }
   ],
-  "native_receipt_sha256": "c1b1ed9273dfb3891ff6f45ecfeaf031cac2570109dc20b5643afb9403fa49b1",
-  "helper_sha256": "3623fe7736389cafdb6947f1425e2e1518820a613b236e1fe63dcb2439cf08c0",
+  "SA_restart_audit": [
+    {
+      "file": "policy_m1_restart_00002.dat",
+      "sha256": "d79f6420dfbc8c11fee87b5d1e530588bc505b6c712e50afc27ab7823ab58011",
+      "donor_scale": 0.00020417821725345734,
+      "maximum_absolute_error": 2.0388760666768813e-16,
+      "maximum_field_scaled_error": 9.985766817357972e-13
+    },
+    {
+      "file": "policy_m1_restart_00001.dat",
+      "sha256": "4785be58fc089d04c780fbea8914eadc5738ec545d46b5560763a2872b58478f",
+      "donor_scale": 0.00019141707867511627,
+      "maximum_absolute_error": 1.911380667456164e-16,
+      "maximum_field_scaled_error": 9.985423874848e-13
+    }
+  ],
+  "native_receipt_sha256": "2a0473d973ed0f290f29bf9368bdbe1b7c49af16a3ffc283f944a5cf69b3e20b",
+  "helper_sha256": "7a427e5305f990ec8df797e5e718336a8cabf13d9619e6a301d752f8558c3555",
   "house_geometry_auditor_sha256": "1822427476ecb5687aaa06f3e7a3cc8f31cde53166fd0c711449eedf7c7c7a50",
   "scope": "Exact cube embedding/coverage, independent full composed metric lengths/shape/h0, actual original P1 sensor transport, current+BDF flow integrals/positivity and real restart, and geometry/target-equivalent SU2/CGNS reload. Native checks separately cover turbulence bounds/history. Composed gradation violations are reported, not corrected. No arbitrary geometry/sensors, CFD convergence/accuracy or performance qualification."
 }

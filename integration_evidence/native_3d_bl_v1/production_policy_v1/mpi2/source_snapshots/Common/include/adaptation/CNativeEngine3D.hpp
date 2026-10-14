@@ -34,7 +34,7 @@ struct EngineStats {
   EngineStop stop = EngineStop::None;
   uint64_t global_work = 0, work_limit = 0, progress_windows = 0, stagnant_windows = 0, search_windows = 0;
   uint64_t size_progress = 0, quality_progress = 0, cell_removals = 0, geometry_progress = 0;
-  uint64_t layer_published = 0, height_checks = 0, height_rejected = 0;
+  uint64_t layer_published = 0, height_checks = 0, height_rejected = 0, footprint_rejected = 0;
   double layer_seconds = 0;  // Exclusive first-row initialization before metric seeding.
   uint64_t geometry_trials = 0, geometry_rejected = 0, metric_trials = 0;
   uint64_t metric_shape_rejected = 0, metric_progress_rejected = 0, metric_measurement_rejected = 0;
@@ -59,6 +59,9 @@ struct EngineStats {
   double donor_search_seconds = 0, donor_filter_seconds = 0;  // Nested in import/search.
   uint64_t repair_proposals = 0, moved = 0, reconnected = 0, inserted = 0;
   uint64_t repair_fallbacks = 0, fallback_accepted = 0, recovery_starts = 0;
+  uint64_t wall_reconstruction_trials = 0, wall_reconstruction_accepted = 0;
+  uint64_t wall_joint_trials = 0, wall_joint_moves = 0, wall_joint_accepted = 0;
+  uint64_t wall_topology_trials = 0, wall_topology_accepted = 0;
   uint64_t collapse_geometry_checks = 0, collapse_filtered = 0;
   uint64_t collapse_orientation_checks = 0, collapse_orientation_filtered = 0, collapse_reactivated = 0;
   uint64_t changed_star_scans = 0, changed_vertices_sent = 0, changed_vertices_received = 0;

@@ -1,0 +1,60 @@
+{
+  "status": "PASS_MPI_LIMITED_SCOPE",
+  "MPI_ranks": 2,
+  "frames": [
+    {
+      "file": "independent_finer_grouped_coupled_BL_n2.json",
+      "cells": 649,
+      "points": 169,
+      "physical_faces": 154,
+      "volume": "1",
+      "minimum_mean_ratio": 0.21507609008002898,
+      "minimum_scaled_jacobian": 0.05033123131058213,
+      "maximum_length": 1.7987346332397784,
+      "longest_edge": [
+        1,
+        65001
+      ],
+      "markers": {
+        "11": 136,
+        "10": 18
+      },
+      "strict_metric_gate": false,
+      "height_faces": 18,
+      "max_relative_height_error": 0.0,
+      "max_tilt": 0.8333333333333337,
+      "minimum_footprint_barycentric": 0.0,
+      "full_target_valid": true
+    },
+    {
+      "file": "independent_finer_grouped_released_Euler_n2.json",
+      "cells": 268,
+      "points": 80,
+      "physical_faces": 108,
+      "volume": "1",
+      "minimum_mean_ratio": 0.2000634593373179,
+      "minimum_scaled_jacobian": 0.07882475589114855,
+      "maximum_length": 1.7987346332397893,
+      "longest_edge": [
+        1,
+        65001
+      ],
+      "markers": {
+        "11": 90,
+        "10": 18
+      },
+      "strict_metric_gate": false,
+      "height_faces": 0,
+      "max_relative_height_error": 0,
+      "max_tilt": 0,
+      "minimum_footprint_barycentric": 0.3333333333333333,
+      "full_target_valid": true
+    }
+  ],
+  "native_status": "PASS",
+  "log": "native.log",
+  "log_sha256": "5e079561cbe4b9f79aa24d1925da4daf8f58a1f8ffee6e140d9d41c00131445c",
+  "helper_sha256": "6c327b7d7249eeb880181ed7f3ad5eb64f4a2fdf3a72db15b88c96983df8361d",
+  "reused_auditor_sha256": "1822427476ecb5687aaa06f3e7a3cc8f31cde53166fd0c711449eedf7c7c7a50",
+  "scope": "Declared cube source diag(4+12*x), exact geometry/coverage and independent composed square-wall field/core4/fade/full edges/shape/height. Failed native progress remains rejected even if some local checks pass. MPI scope is the declared N=M engine rank count; no CFD/transfer, physical accuracy or performance qualification."
+}

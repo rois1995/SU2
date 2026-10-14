@@ -1285,3 +1285,119 @@ TEST_CASE("Native joint repair moves an interior sliver vertex without stale sha
   // Re-evaluation from coordinates must agree with the cached completion certificate.
   CHECK(metric.minimum_mean_ratio>=MinimumMeanRatio);CHECK(metric.minimum_scaled_jacobian>=MinimumScaledJacobian);
 }
+
+TEST_CASE("Native wall split inserts coordinated height points without a common background", "[NativeWallReconstruction3D]") {
+  const auto seed=Cube();const PlanarReference reference(Facets(seed));std::map<int,double> heights;
+  for(const auto& f:Facets(seed))if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))heights[f.marker]=.1;
+  Patch aligned;FirstHeightReport height;std::string reason;
+  REQUIRE(ConstructFirstLayer(seed,{100,{.5,.5,.5}},101,200,heights,reference,aligned,height,reason));
+  Patch fresh;Face obstruction{};
+  const bool built=ReconstructWallSplit(aligned,{0,2},{1000,{.4,.4,0}},1001,2000,heights,reference,fresh,obstruction,reason);
+  INFO(reason);REQUIRE(built);REQUIRE(CheckFirstHeight(fresh,heights,reference,height,reason));
+  CHECK(height.wall_faces==4);CHECK(height.maximum_tilt<1e-12);CHECK(height.minimum_barycentric>0);
+  CHECK(double(Volume(fresh))==Approx(1).epsilon(1e-14));
+  for(size_t i=0;i<fresh.cells.size();++i)for(size_t j=i+1;j<fresh.cells.size();++j)CHECK(ConformingDisjoint(fresh.cells[i],fresh.cells[j]));
+  SaveCurved(fresh,reference,"wall_split_retained");
+  auto sentinel=fresh;const auto before=Connectivity(sentinel);
+  CHECK_FALSE(ReconstructWallSplit(aligned,{0,2},{1000,{.4,.4,0}},100,2000,heights,reference,sentinel,obstruction,reason));
+  CHECK(Connectivity(sentinel)==before);
+  CHECK_FALSE(ReconstructWallSplit(EdgeStar(aligned,{0,2}),{0,2},{1000,{.4,.4,0}},1001,2000,heights,reference,sentinel,obstruction,reason));
+  CHECK(Connectivity(sentinel)==before);
+}
+
+TEST_CASE("Constructed private interface checks retain the accepted-cavity bound", "[NativeConnectivityMove3D]") {
+  const auto seed=Cube();auto constructed=seed.cells;Id next_node=1000,next_cell=10000;std::string reason;
+  for(unsigned i=0;i<20;++i) {
+    const auto c=constructed.front();std::vector<Cell> children;
+    REQUIRE(Cone({c},{next_node++,Centroid(c)},next_cell,children,reason));next_cell+=4;
+    constructed.erase(constructed.begin());constructed.insert(constructed.end(),children.begin(),children.end());
+  }
+  REQUIRE(constructed.size()==66);
+  CHECK(ValidateFixedInterface(seed.cells,constructed,reason));
+  CHECK_FALSE(ValidateFixedInterface(constructed,constructed,reason));
+  CHECK(ValidateFixedInterface(constructed,constructed,reason,nullptr,MaximumReplacementCells));
+  CHECK_FALSE(ValidateFixedInterface(constructed,constructed,reason,nullptr,MaximumReplacementCells+1));
+}
+
+namespace {
+#include "fixtures/native_wall_visibility.inc"
+}
+TEST_CASE("Replay actual wall seam blockage with retained and common-background construction", "[.][NativeWallVisibilityReplay3D]") {
+  const auto full=WallVisibilityMesh();const PlanarReference reference(WallVisibilityFacets());const Edge edge{1,11543};
+  const std::map<int,double> heights{{10,.1}};const auto all_nodes=[](const Patch& patch) {
+    std::map<Id,Node> nodes;for(const auto& c:patch.cells)for(auto n:c.v)nodes.emplace(n.id,n);return nodes;
+  };
+  const auto nodes=all_nodes(full);std::set<Id> apices;
+  for(const auto f:full.surface)if(reference.Get(f.facet).marker==10 &&
+      std::find(f.v.begin(),f.v.end(),edge[0])!=f.v.end() && std::find(f.v.begin(),f.v.end(),edge[1])!=f.v.end())
+    for(const auto& c:full.cells) {
+      unsigned matches=0;Id apex=0;for(auto n:c.v)if(std::find(f.v.begin(),f.v.end(),n.id)!=f.v.end())++matches;else apex=n.id;
+      if(matches==3)apices.insert(apex);
+    }
+  REQUIRE(apices.size()==1);std::set<Id> required;
+  for(const auto& c:full.cells) {
+    unsigned endpoints=0;bool apex=false;for(auto n:c.v){endpoints+=n.id==edge[0] || n.id==edge[1];apex=apex || apices.count(n.id);}
+    if(endpoints==2 || apex)required.insert(c.id);
+  }
+  REQUIRE(required.size()==31);
+  const auto seed=Cube();std::vector<DonorCell> source;
+  for(const auto& c:seed.cells) {DonorCell d;d.cell=c;for(unsigned i=0;i<4;++i){const auto v=4+12*c.v[i].p.x;d.sensor[i]={v,0,0,v,0,v};}source.push_back(d);}
+  CBoundaryLayerMetric::Wall wall;wall.layer={"wall",.1,1.2,.3};wall.coord={0,0,0,1,0,0,1,1,0,0,1,0};wall.conn={0,1,2,2,0,2,3,3};
+  CBoundaryLayerMetric layers(3,{wall});
+  auto compose=[&](Point p,Tensor sensor) {
+    CBoundaryLayerMetric::Tensor m;const su2double x[3]={p.x,p.y,p.z};
+    m.m[0][0]=sensor.xx;m.m[0][1]=m.m[1][0]=sensor.xy;m.m[0][2]=m.m[2][0]=sensor.xz;
+    m.m[1][1]=sensor.yy;m.m[1][2]=m.m[2][1]=sensor.yz;m.m[2][2]=sensor.zz;layers.ApplyPoint(x,m,4.,nullptr,false);
+    return Tensor{SU2_TYPE::GetValue(m.m[0][0]),SU2_TYPE::GetValue(m.m[0][1]),SU2_TYPE::GetValue(m.m[0][2]),SU2_TYPE::GetValue(m.m[1][1]),SU2_TYPE::GetValue(m.m[1][2]),SU2_TYPE::GetValue(m.m[2][2])};
+  };
+  FrozenField field(source,compose,false,{},[&](Point a,Point b){return layers.EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z});});
+  const Node point{1000000,field.BalancedSplitPoint(nodes.at(edge[0]).p,nodes.at(edge[1]).p)};
+  const Incidence global(full.cells);
+  for(unsigned strategy=0;strategy<2;++strategy) {
+    auto included=required;
+    for(unsigned growth=0;growth<12;++growth) {
+      Patch old;for(const auto& c:full.cells)if(included.count(c.id))old.cells.push_back(c);
+      const auto boundary=Incidence(old.cells).Boundary();
+      for(auto f:full.surface)if(std::find(boundary.begin(),boundary.end(),f.v)!=boundary.end())old.surface.push_back(f);
+      REQUIRE(std::count_if(old.surface.begin(),old.surface.end(),[&](const auto& f) {
+        return std::find(f.v.begin(),f.v.end(),edge[0])!=f.v.end() && std::find(f.v.begin(),f.v.end(),edge[1])!=f.v.end();
+      })==2);
+      FirstHeightReport height;std::string reason;REQUIRE(CheckFirstHeight(old,heights,reference,height,reason));REQUIRE(height.wall_faces>=2);
+      const auto saved=Connectivity(old);Patch fresh;Face obstruction{};Id vertex_obstruction=UINT64_MAX;
+      bool built=strategy==0 ? ReconstructWallSplit(old,edge,point,1000001,2000000,heights,reference,fresh,obstruction,reason) :
+          ReconstructSplitPatch(old,edge,point,{1000001,{}},field.Query(Centroid(old.cells.front())).target,2000000,reference,fresh,obstruction,reason,nullptr,heights);
+      std::cout<<"WALL_VISIBILITY strategy="<<strategy<<" growth="<<growth<<" old="<<old.cells.size()<<" built="<<built
+               <<" obstruction="<<obstruction[0]<<","<<obstruction[1]<<","<<obstruction[2]<<" reason="<<reason<<"\n";
+      CHECK(Connectivity(old)==saved);
+      if(built) {
+        Patch repaired;ConnectivityRepairReport report;
+        const bool progress=RepairMetricConnectivity(fresh,field,reference,heights,2000000,repaired,report,reason,256);
+        std::cout<<"WALL_VISIBILITY_REPAIR strategy="<<strategy<<" trials="<<report.trials<<" flips="<<report.flips<<" moves="<<report.moves
+                 <<" before="<<report.before_loss<<" after="<<report.after_loss<<" complete="<<report.complete_shape<<" progress="<<progress<<" reason="<<reason<<"\n";
+        if(progress)SaveCurved(repaired,reference,"visibility_partial_"+std::to_string(strategy));
+        if(progress)fresh=std::move(repaired);
+        PatchMetric metric;MetricDiagnosis diagnosis;
+        const bool accepted=ValidateMetricChange(old.cells,fresh.cells,MetricChange::Refine,field,metric,reason,nullptr,nullptr,&diagnosis);
+        std::cout<<"WALL_VISIBILITY_GATE strategy="<<strategy<<" q="<<diagnosis.minimum_mean_ratio<<" J="<<diagnosis.minimum_scaled_jacobian
+                 <<" removed_excess="<<double(diagnosis.removed_excess)<<" added_excess="<<double(diagnosis.added_excess)<<" accepted="<<accepted<<" reason="<<reason<<"\n";
+        SaveCurved(old,reference,"visibility_old_"+std::to_string(strategy));SaveCurved(fresh,reference,"visibility_proposal_"+std::to_string(strategy));
+        if(accepted)break;
+        obstruction={};std::set<Face> artificial;std::set<Id> fixed,physical;
+        auto key=[](Face f){std::sort(f.begin(),f.end());return f;};
+        for(auto f:old.surface)physical.insert(f.v.begin(),f.v.end());
+        for(auto f:boundary)if(std::none_of(old.surface.begin(),old.surface.end(),[&](const auto& p){return key(p.v)==key(f);})) {
+          artificial.insert(key(f));fixed.insert(f.begin(),f.end());
+        }
+        for(const auto& c:fresh.cells)if(c.id==diagnosis.weakest_cell || c.id==diagnosis.sliver_cell) {
+          const auto faces=Incidence({c}).Boundary();const auto found=std::find_if(faces.begin(),faces.end(),[&](Face f){return artificial.count(key(f));});
+          if(found!=faces.end()){obstruction=key(*found);break;}
+          for(auto n:c.v)if(fixed.count(n.id) && !physical.count(n.id) && vertex_obstruction==UINT64_MAX)vertex_obstruction=n.id;
+        }
+        std::cout<<"WALL_VISIBILITY_METRIC_DEPENDENCY strategy="<<strategy<<" face="<<obstruction[0]<<","<<obstruction[1]<<","<<obstruction[2]<<" vertex="<<vertex_obstruction<<"\n";
+      }
+      if(vertex_obstruction==UINT64_MAX && std::adjacent_find(obstruction.begin(),obstruction.end())!=obstruction.end())break;
+      const auto adjacent=vertex_obstruction==UINT64_MAX ? global.FaceCells(obstruction) : global.VertexCells(vertex_obstruction);const auto before=included.size();for(Id id:adjacent)included.insert(id);
+      if(included.size()==before || included.size()>MaximumCavityCells)break;
+    }
+  }
+}
