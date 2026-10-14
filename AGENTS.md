@@ -36,3 +36,15 @@ future sessions.
   and require every planned case or stage before declaring completion.
 - Before restarting a job, verify its existing process/session/job handle. Elapsed
   time, an observation timeout or stale logs alone do not establish termination.
+
+## Adaptation architecture
+
+User instruction, 2026-10-14: Euler-to-BL and BL-to-Euler describe validation
+scenarios, never production transition modes. Mesh construction and removal must
+follow the target metric, geometry authority and currently requested wall-height
+constraints through general remeshing operators. Do not dispatch reconstruction
+from Euler/RANS labels, an inferred input-mesh class, case names, saved coordinates
+or fixture identities. Solver compatibility and solution-transfer checks remain
+separate from mesh reconstruction. Wall-aware operators are allowed to enforce
+actual geometric constraints; limited fixture success does not establish general
+robustness. Qualify wider fields/geometries rather than adding scenario switches.

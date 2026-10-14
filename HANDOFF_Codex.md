@@ -4,6 +4,11 @@ Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
 Branch: codex/native-3d-bl; preceding published checkpoint ecce0f52fb.
 Cases: integration_evidence/native_3d_bl_v1/coupled_engine_v1.
 Goal3 remains incomplete; production configured-BL guard is retained.
+Architecture clarification2026-10-14: Euler-to-BL/BL-to-Euler are test labels,
+not production transition modes. The engine sees target metrics and optional wall
+constraints. No reconstruction dispatch by solver label, inferred input-mesh class
+or case identity; preserve this rule during production integration (AGENTS.md).
+Current joint repair is composition-gated and still needs broader qualification.
 All owned jobs are terminal. No CFD or cluster submission this turn.
 
 Cold six-tetrahedron Euler construction now completes the frozen sensor-plus-BL
