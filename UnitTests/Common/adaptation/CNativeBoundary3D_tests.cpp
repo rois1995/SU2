@@ -1263,11 +1263,25 @@ TEST_CASE("Native3D saved wall proposal replays bounded actual-field connectivit
   Patch fresh;ConnectivityRepairReport report;std::string reason;
   const bool progress=RepairMetricConnectivity(old,field,reference,heights,100000,fresh,report,reason,256);
   std::cout<<"CONNECTIVITY_REPLAY progress="<<progress<<" trials="<<report.trials<<" flips="<<report.flips
-           <<" before_loss="<<report.before_loss<<" after_loss="<<report.after_loss<<" complete_shape="<<report.complete_shape<<" reason="<<reason<<"\n";
+           <<" moves="<<report.moves<<" coordinated="<<report.coordinated<<" move_geometry_rejected="<<report.move_geometry_rejected<<" move_height_rejected="<<report.move_height_rejected<<" move_loss_rejected="<<report.move_loss_rejected<<" before_loss="<<report.before_loss<<" after_loss="<<report.after_loss<<" complete_shape="<<report.complete_shape<<" reason="<<reason<<"\n";
   REQUIRE(progress);CHECK(report.after_loss<report.before_loss);CHECK(ValidateFixedInterface(old.cells,fresh.cells,reason));
+  CHECK(report.coordinated>0);CHECK(report.complete_shape);CHECK(report.after_loss==0);
   FirstHeightReport height;REQUIRE(CheckFirstHeight(fresh,heights,reference,height,reason));
   SaveCurved(old,reference,"connectivity_replay_before");SaveCurved(fresh,reference,"connectivity_replay_after");
   PatchMetric metric;const bool admissible=ValidateMetricPatch(fresh.cells,field,metric,reason);
   std::cout<<"CONNECTIVITY_REPLAY_GATE admissible="<<admissible<<" q="<<metric.minimum_mean_ratio<<" J="<<metric.minimum_scaled_jacobian
            <<" L="<<double(metric.maximum_length)<<" reason="<<reason<<"\n";
+}
+
+TEST_CASE("Native joint repair moves an interior sliver vertex without stale shape scores", "[NativeConnectivityMove3D]") {
+  const auto seed=Cube();const PlanarReference reference(Facets(seed));std::vector<Cell> inserted;std::string reason;
+  REQUIRE(Cone(seed.cells,{42,{.43,.37,.0001}},100,inserted,reason));Patch old{inserted,seed.surface};
+  std::vector<DonorCell> source;for(const auto& c:seed.cells){DonorCell d;d.cell=c;d.sensor.fill(Tensor{});source.push_back(d);}
+  FrozenField target(source);Patch fresh;ConnectivityRepairReport report;
+  REQUIRE(RepairMetricConnectivity(old,target,reference,{},1000,fresh,report,reason,256));
+  CHECK(report.moves>0);CHECK(report.complete_shape);CHECK(report.after_loss==0);
+  CHECK(ValidateFixedInterface(old.cells,fresh.cells,reason));PatchMetric metric;
+  REQUIRE(ValidateMetricPatch(fresh.cells,target,metric,reason));
+  // Re-evaluation from coordinates must agree with the cached completion certificate.
+  CHECK(metric.minimum_mean_ratio>=MinimumMeanRatio);CHECK(metric.minimum_scaled_jacobian>=MinimumScaledJacobian);
 }

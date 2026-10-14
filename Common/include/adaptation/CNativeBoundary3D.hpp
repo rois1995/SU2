@@ -148,13 +148,14 @@ bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,c
                            const std::map<int,double>& heights = {});
 class FrozenField;
 struct ConnectivityRepairReport {
-  size_t trials=0, flips=0;
+  size_t trials=0, flips=0, moves=0, coordinated=0;
+  size_t move_geometry_rejected=0, move_height_rejected=0, move_loss_rejected=0;
   double before_loss=0, after_loss=0;
   bool complete_shape=false;
 };
-/*! Bounded private two/three/four-tet flips measured in the actual frozen field. Returns a strictly
+/*! Bounded private two/three/four-tet flips and interior movement in the actual frozen field. Returns a strictly
  * improved private replacement, possibly still inadmissible; unchanged output on failure.
- * Fixed coordinates/interface and requested first height/footprints remain mandatory. Caller admits
+ * Fixed interface coordinates and requested first height/footprints remain mandatory. Caller admits
  * the complete original dependencies and validates full composed edges/progress before publication. */
 bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarReference& reference,
                               const std::map<int,double>& heights,Id first_cell,Patch& fresh,

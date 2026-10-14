@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Independent fixed-interface, actual frozen-field and wall-footprint replay audit; partial progress only."""
-import hashlib,importlib.util,json,math
+import hashlib,importlib.util,json,math,sys
 from fractions import Fraction as F
 from pathlib import Path
 HERE=Path(__file__).resolve().parent;OLD=HERE.parent/'wall_reconstruction_v1'
@@ -8,7 +8,8 @@ spec=importlib.util.spec_from_file_location('oracle',OLD/'audit_sensor.py');orac
 spec=importlib.util.spec_from_file_location('geo',OLD/'audit_geometry.py');geo=importlib.util.module_from_spec(spec);spec.loader.exec_module(geo)
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def main():
- receipt=json.loads((HERE/'replay.json').read_text());assert receipt['status']=='PASS';folder=HERE/'replay'
+ stage=sys.argv[1] if len(sys.argv)==2 else 'replay';assert len(sys.argv)<=2 and stage in ('replay','integration')
+ receipt_path=HERE/(stage+'.json');receipt=json.loads(receipt_path.read_text());assert receipt['status']=='PASS';folder=HERE/stage
  assert all(sha(folder/f)==h for f,h in receipt['artifacts'].items())
  reference=json.loads((OLD/'geometry/wall_split_initial_audit_input.json').read_text());source=json.loads((OLD/'feasibility_control.json').read_text())['original'];reports=[];skins=[]
  for label in ('before','after'):
@@ -28,6 +29,6 @@ def main():
   report.update(shape_loss=loss,minimum_wall_footprint_barycentric=min(float(F(r['minimum_barycentric'])) for r in walls),full_admissible=report['minimum_mean_ratio']>=.2 and report['minimum_scaled_jacobian']>=.05 and report['maximum_length']<=1.8)
   skins.append(sorted((tuple(f[:3]),f[3],f[4]) for f in raw['surface']));reports.append(report);geo.write_su2(data,folder/('connectivity_'+label+'_private_rejected.su2'))
  assert skins[0]==skins[1];assert reports[1]['shape_loss']<reports[0]['shape_loss']
- result={'status':'PASS_PRIVATE_PROGRESS_ONLY','frames':reports,'fixed_skin':True,'native_receipt_sha256':sha(HERE/'replay.json'),'helper_sha256':sha(Path(__file__)),'metric_helper_sha256':sha(OLD/'audit_sensor.py'),'scope':'Exact global coverage, fixed physical interface, independent actual-field centroid shape and full composed edge measurements and prescribed wall footprints. Partial shape progress is not an accepted adaptation or production/MPI/CFD qualification.'}
- (HERE/'independent_audit.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result),flush=True)
+ result={'status':'PASS_PRIVATE_PROGRESS_ONLY','frames':reports,'fixed_skin':True,'native_receipt_sha256':sha(receipt_path),'helper_sha256':sha(Path(__file__)),'metric_helper_sha256':sha(OLD/'audit_sensor.py'),'scope':'Exact global coverage, fixed physical interface, independent actual-field centroid shape and full composed edge measurements and prescribed wall footprints. Partial shape progress is not an accepted adaptation or production/MPI/CFD qualification.'}
+ (HERE/('independent_audit.json' if stage=='replay' else 'independent_audit_integration.json')).write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result),flush=True)
 if __name__=='__main__':main()

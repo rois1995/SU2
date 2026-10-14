@@ -9,9 +9,11 @@ def digest(p):
   for block in iter(lambda:f.read(1024*1024),b''):h.update(block)
  return h.hexdigest()
 def main():
- stage="replay";assert len(sys.argv)==1
- ranks=1;selection="[NativeConnectivity3D],[NativeConnectivityReplay3D]"
- expected=2
+ stage=sys.argv[1] if len(sys.argv)==2 else "replay";assert len(sys.argv)<=2 and stage in ("replay","integration")
+ ranks=1;selection="[NativeConnectivity3D],[NativeConnectivityReplay3D],[NativeConnectivityMove3D]"
+ expected=3
+ if stage=="integration":
+  selection+=",[NativeWallReconstruction3D],[NativeJointGeometry3D],[NativeCoupledBLGrouped3D],[NativeBLColdEngine3D]";expected=7
  check=subprocess.run(['/tmp/native-build-tools/ninja','-C',str(BUILD),'-n','UnitTests/test_driver','SU2_CFD/src/SU2_CFD'],stdout=subprocess.PIPE,stderr=subprocess.STDOUT,universal_newlines=True,timeout=30)
  assert check.returncode==0 and 'ninja: no work to do.' in check.stdout,check.stdout
  sources=['UnitTests/Common/adaptation/fixtures/native_wall_joint.inc','Common/include/adaptation/CNativeCavity3D.hpp','Common/src/adaptation/CNativeCavity3D.cpp','UnitTests/Common/adaptation/CNativeDistributed3D_tests.cpp','Common/src/adaptation/CNativeDistributed3D.cpp','Common/include/adaptation/CNativeField3D.hpp','Common/src/adaptation/CNativeField3D.cpp','Common/src/adaptation/CNativeMetric3D.cpp','Common/include/adaptation/CNativeBoundary3D.hpp','Common/src/adaptation/CNativeBoundary3D.cpp','UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp','Common/include/adaptation/CNativeRemesher3D.hpp','Common/src/adaptation/CNativeRemesher3D.cpp','Common/include/adaptation/CNativeEngine3D.hpp','Common/src/adaptation/CNativeEngine3D.cpp','Common/src/adaptation/CNativeImport3D.cpp','Common/src/adaptation/CNativeReferenceIO3D.cpp','SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp','SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp','SU2_CFD/src/drivers/CSinglezoneDriver.cpp','SU2_CFD/src/solvers/CSolver.cpp','UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp',str(Path(__file__).resolve().relative_to(ROOT))]
@@ -43,6 +45,6 @@ def main():
  text=log.read_text();counts=re.findall(r'Passed (?:(?:all|both) )?(\d+) test cases? with ',text);passed=code==0 and counts==[str(expected)]
  assert all(digest(ROOT/p)==pins[p] for p in sources),'Sources changed during stage'
  assert digest(BINARY)==pins['test_binary'],'Binary changed during stage'
- result={'status':'PASS' if passed else 'FAIL','returncode':code,'contract':contract,'elapsed_seconds':time.monotonic()-start,'artifacts':{str(f.relative_to(folder)):digest(f) for f in folder.rglob('*') if f.is_file()},'stage':stage,'scope':'Focused serial actual-field two/three-tet flip and exact saved joint-wall proposal replay. Private shape progress is not full mesh acceptance; final composed edges remain mandatory. No MPI, CFD/transfer or performance qualification.'}
+ result={'status':'PASS' if passed else 'FAIL','returncode':code,'contract':contract,'elapsed_seconds':time.monotonic()-start,'artifacts':{str(f.relative_to(folder)):digest(f) for f in folder.rglob('*') if f.is_file()},'stage':stage,'scope':'Focused serial actual-field reconnection, constrained simultaneous movement and exact saved joint-wall proposal; integration stage additionally covers connected construction/removal and curved geometry controls. The stronger-field required gate is separate; private shape progress is not full mesh acceptance. No MPI, CFD/transfer or performance qualification.'}
  record.write_text(json.dumps(result,indent=2)+'\n');print(result['status'],flush=True);return 0 if passed else 1
 if __name__=='__main__':sys.exit(main())

@@ -1,6 +1,6 @@
 # Goal3 production geometric policy and real RANS restart: local MPI PASS — 2026-10-14
 
-Current wall-reconstruction frontier: two focused serial geometric cases and
+Previous wall-reconstruction checkpoint: two focused serial geometric cases and
 independent coverage/footprint witness PASS; native original-P1 `diag(4+12*x)`
 plus unchanged geometric BL still FAILS at work4096 after117 edits/418 private
 cells. Independent q/J/height/coverage pass, but wall edge0,2 remains4.3997755.
@@ -8,11 +8,18 @@ A576-cell generated control passes the same declared metric/height/footprint
 contracts (qmin .5819,Jmin .3105,Lmax1.6645), so native operator blockage is
 established for these contracts. It is not native output or a zero-centroid-tilt
 certificate. Longer growth gave no accepted wall reconstruction and was reverted.
-Private 2/3/4-cell reconnection passes exact saved-proposal replay and independent
-audit:13 flips, shape loss2.1209455→.40215385 (81%), but q .1473/J .0231/L6.7387
-still fail final admission. It is not yet a production operator. Next: retained
-transition-point placement and coordinated reconstruction without target/gate/budget
-relaxation. The static-assessment follow-up passes serial22 cases (including
+Private reconnection plus simultaneous constrained movement now resolves the
+saved proposal's shape deficit:152 trials,14 flips,3 moved vertices, loss0,
+q .22745/J .05039; full edge admission still fails. The engine connection imports
+complete donor coverage, uses fresh identities for moved old vertices, charges
+trials against the existing work budget and preserves final full-field guards.
+The required stronger-field event accepts3 wall reconstructions but still rejects
+at work4096 with453 cells. Independent geometry/shape/height/footprints pass;
+Lmax2.54379>1.8. No removal or CFD replacement. Seven focused serial integration controls PASS (855 assertions); new MPI,
+accuracy and performance qualification remain pending.
+Next: complete coordinated surface/first-row/transition construction against the
+remaining target, not another succession of local direction variants.
+The static-assessment follow-up passes serial22 cases (including
 RANS/SA construction/release/transfer/restart) and targeted MPI2/4 seven-case-per-rank
 checks. Rejection is recoverable; first-row owners use complete-vertex reservations
 concurrently; geometry admissions and quadrature reuse are improved. Changed-skin

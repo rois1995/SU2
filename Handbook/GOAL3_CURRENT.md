@@ -37,13 +37,15 @@ for the connected alignment/reconstruction milestone. All owned jobs terminal.
 See [serial summary](../integration_evidence/native_3d_bl_v1/alignment_audit_v1/summary.json).
 
 Cases: `integration_evidence/native_3d_bl_v1/alignment_audit_v1`.
-Current frontier: coordinated wall/transition carving, complete apex-star
-admission, wall-child placement and retained interior-point reconstruction.
-Two focused serial geometric cases and independent geometry audit pass. The
-stronger original-P1 field remains rejected at work4096 after117 refinement
-edits/418 private cells; longest wall edge4.3997755. A576-cell non-native control
-independently proves feasibility under the declared acceptance contracts.
-No MPI or full regression campaign was run; all owned jobs are terminal.
+Current frontier: coordinated wall/transition carving, actual-field reconnection
+and simultaneous constrained interior movement. The private witness passes shape,
+coverage and wall constraints, but not full edge admission. The new connected
+engine run accepts3 joint wall reconstructions and still rejects at work4096:
+453 cells, qmin .225576,Jmin .054521,Lmax2.54379>1.8, exact first height and valid
+normal footprints. Original source and target are unchanged. No removal or CFD
+replacement is reached. Seven focused serial integration controls PASS (855 assertions); MPI
+qualification of the new connection is pending. The non-native576-cell control
+continues to prove declared-target feasibility, not native completion.
 
 Read [the smaller wall-reconstruction handbook](GOAL3_WALL_RECONSTRUCTION.md)
 for exact failures, preserved artifacts and the next substantial replay/reconnection

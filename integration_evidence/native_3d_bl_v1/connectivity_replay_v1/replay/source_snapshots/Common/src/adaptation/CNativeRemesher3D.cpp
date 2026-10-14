@@ -345,7 +345,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
               }
             }
           }
-          if (valid) {
+          if (valid && kernel.maximum_work) {
             const auto begin_coarse = workers.seconds();
             auto coarse = Coarsen(workers, working, *worker_source, *pending->state.original, composition, kernel);
             stats.coarsen = coarse.stats;

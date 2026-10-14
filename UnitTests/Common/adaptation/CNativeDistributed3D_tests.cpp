@@ -728,6 +728,7 @@ void EngineReport(const EngineResult& result, World& world, const std::string& l
        << " collapse_geometry_nested_s=" << s.collapse_geometry_seconds
        << " selection_edge_evaluations=" << s.edge_evaluations << " selection_edge_reused=" << s.edge_reused
        << " wall_reconstruction_trials=" << s.wall_reconstruction_trials << " wall_reconstruction_accepted=" << s.wall_reconstruction_accepted
+       << " wall_joint_trials=" << s.wall_joint_trials << " wall_joint_moves=" << s.wall_joint_moves << " wall_joint_accepted=" << s.wall_joint_accepted
        << " field_requests=" << s.field_requests
        << " field_hits=" << s.field_hits << " field_misses=" << s.field_misses
        << " field_invalid_queries=" << s.field_invalid_queries << " field_failures=" << s.field_failures

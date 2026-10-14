@@ -69,14 +69,13 @@ std::string EncodeReference(const ReferenceState& state) {
     if(axis)out << ' ' << g.axis.x << ' ' << g.axis.y << ' ' << g.axis.z;
     out << '\n';
   }
-  if (!out || out.tellp() > std::streamoff(ReferenceFileLimit3D))
+  if (!out)
     throw std::runtime_error("Native3D reference exceeds file limit.");
   auto bytes = out.str();
   DecodeReference(bytes);
   return bytes;
 }
 ReferenceState DecodeReference(const std::string& bytes, size_t ceiling) {
-  if (bytes.size() > ReferenceFileLimit3D) throw std::invalid_argument("Native3D reference exceeds file limit.");
   if (transfer_memory::Mul(bytes.size(), 8) > ceiling)
     throw std::invalid_argument("Native3D reference parsing exceeds storage budget.");
   std::istringstream in(bytes);
@@ -142,7 +141,7 @@ bool LoadReference(const std::string& filename, ReferenceState& state, bool& loa
   if (!world.rank) try {
       if (std::filesystem::exists(filename)) {
         n = std::filesystem::file_size(filename);
-        if (!n || n > ReferenceFileLimit3D) throw std::runtime_error("Invalid native3D reference file size.");
+        if (!n) throw std::runtime_error("Invalid native3D reference file size.");
       }
     } catch (const std::exception& e) {
       failure.Set(1, 0, filename + ": " + e.what());
@@ -190,7 +189,7 @@ bool LoadReference(const std::string& filename, ReferenceState& state) {
   std::string reason;
   size_t maximum = 0;
   CLocalFailure failure;
-  if (!LoadReference(filename, state, loaded, reason, SIZE_MAX, ReferenceStorageBytes(state), maximum))
+  if (!LoadReference(filename, state, loaded, reason, ReferenceStorageLimit3D, ReferenceStorageBytes(state), maximum))
     failure.Set(3, 0, reason);
   CollectiveFailure(failure, CURRENT_FUNCTION);
   return loaded;

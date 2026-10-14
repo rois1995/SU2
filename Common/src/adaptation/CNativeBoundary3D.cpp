@@ -378,7 +378,10 @@ bool ConstructFirstLayer(const Patch& old,Node background,Id first_wall_node,Id 
 
 Node ConstrainMovePoint(const Patch& old,Id vertex,Node proposal,const std::map<int,double>& heights,
                         const PlanarReference& reference) {
-  Bounds(old);const auto nodes=Nodes(old.cells);const auto origin=nodes.at(vertex).p;
+  // Private reconnection may already have produced the admitted replacement-size patch.
+  if(old.cells.empty() || old.cells.size()>MaximumReplacementCells)
+    throw std::invalid_argument("Native3D constrained movement exceeds replacement budget.");
+  const auto nodes=Nodes(old.cells);const auto origin=nodes.at(vertex).p;
   if(!std::isfinite(proposal.p.x) || !std::isfinite(proposal.p.y) || !std::isfinite(proposal.p.z))
     throw std::invalid_argument("Nonfinite native3D constrained movement.");
   std::array<Vector,3> basis{};size_t rank=0;
@@ -1400,10 +1403,103 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
         }
         if(changed || report.trials>=maximum_trials)break;
       }
+      if(!changed && report.trials<maximum_trials) {
+        const auto nodes=Nodes(working.cells);
+        std::set<Id> fixed;for(const auto& f:skin)fixed.insert(f.second.begin(),f.second.end());
+        std::map<Id,double> deficits;
+        for(const auto& c:working.cells)for(auto n:c.v)if(!fixed.count(n.id))deficits[n.id]+=loss(c);
+        std::vector<std::pair<double,Id>> order;
+        for(const auto& row:deficits)if(row.second>0)order.emplace_back(-row.second,row.first);
+        std::sort(order.begin(),order.end());
+        std::map<Id,std::vector<Point>> suggestions;
+        // Coordinate all constrained interior points before demanding descent from an individual move.
+        for(size_t at=0;at<std::min<size_t>(8,order.size());++at) {
+          const Id id=order[at].second;const auto origin=nodes.at(id).p;std::set<Id> neighbors;
+          for(const auto& c:working.cells)if(std::any_of(c.v.begin(),c.v.end(),[&](Node n){return n.id==id;}))for(auto n:c.v)if(n.id!=id)neighbors.insert(n.id);
+          std::vector<std::pair<Point,Tensor>> samples;
+          for(Id neighbor:neighbors) {
+            const auto p=nodes.at(neighbor).p;const Point q{double(((long double)origin.x+p.x)/2),double(((long double)origin.y+p.y)/2),double(((long double)origin.z+p.z)/2)};
+            samples.emplace_back(p,target.Query(q).target);
+          }
+          auto& poses=suggestions[id];poses.push_back(MetricMeanPoint(origin,samples));
+          const auto m=target.Query(origin).target;const std::array<double,3> steps{{.5/std::sqrt(m.xx),.5/std::sqrt(m.yy),.5/std::sqrt(m.zz)}};
+          for(unsigned axis=0;axis<3;++axis)for(double sign:{-1.,1.}) {
+            Point q=origin;if(axis==0)q.x+=sign*steps[axis];else if(axis==1)q.y+=sign*steps[axis];else q.z+=sign*steps[axis];poses.push_back(q);
+          }
+        }
+        if(suggestions.size()>1)for(unsigned pose=0;pose<7 && !changed && report.trials<maximum_trials;++pose)for(double fraction:{1.,.5,.25}) {
+          if(changed || report.trials>=maximum_trials)break;
+          std::map<Id,Point> moved;
+          for(const auto& row:suggestions) {
+            const auto origin=nodes.at(row.first).p;const auto p=row.second[pose];
+            Node proposal{row.first,{double(origin.x+fraction*((long double)p.x-origin.x)),double(origin.y+fraction*((long double)p.y-origin.y)),double(origin.z+fraction*((long double)p.z-origin.z))}};
+            proposal=ConstrainMovePoint(working,row.first,proposal,heights,reference);
+            if(proposal.p.x!=origin.x || proposal.p.y!=origin.y || proposal.p.z!=origin.z)moved.emplace(row.first,proposal.p);
+          }
+          if(moved.size()<2)continue;
+          ++report.trials;Patch proposal=working;
+          for(auto& c:proposal.cells)for(auto& n:c.v){const auto found=moved.find(n.id);if(found!=moved.end())n.p=found->second;}
+          std::string rejected;
+          if(!ValidateFixedInterface(old.cells,proposal.cells,rejected)){++report.move_geometry_rejected;continue;}
+          if(!CheckFirstHeight(proposal,heights,reference,height,rejected)){++report.move_height_rejected;continue;}
+          losses.clear();double after=0;
+          try {after=total(proposal.cells);}catch(const std::exception&){losses.clear();++report.move_loss_rejected;continue;}
+          if(!(after<report.after_loss*(1-1e-8)-1e-14)){losses.clear();++report.move_loss_rejected;continue;}
+          working=std::move(proposal);losses.clear();rejected_states.clear();report.moves+=moved.size();++report.coordinated;
+          report.after_loss=total(working.cells);changed=true;
+        }
+        for(const auto& row:order) {
+          if(changed)break;
+          const auto id=row.second;const auto origin=nodes.at(id).p;
+          std::vector<size_t> selected;std::vector<Cell> region;std::set<Id> neighbors;
+          for(size_t i=0;i<working.cells.size();++i)if(std::any_of(working.cells[i].v.begin(),working.cells[i].v.end(),[&](Node n){return n.id==id;})) {
+            selected.push_back(i);region.push_back(working.cells[i]);for(auto n:working.cells[i].v)if(n.id!=id)neighbors.insert(n.id);
+          }
+          if(region.size()>MaximumCavityCells)continue;
+          const auto before=total(region);std::vector<std::pair<Point,Tensor>> samples;
+          for(Id neighbor:neighbors) {
+            const auto p=nodes.at(neighbor).p;
+            const Point midpoint{double(((long double)origin.x+p.x)/2),double(((long double)origin.y+p.y)/2),double(((long double)origin.z+p.z)/2)};
+            samples.emplace_back(p,target.Query(midpoint).target);
+          }
+          std::vector<Point> destinations{MetricMeanPoint(origin,samples)};
+          const auto m=target.Query(origin).target;
+          const std::array<double,3> step{{.5/std::sqrt(m.xx),.5/std::sqrt(m.yy),.5/std::sqrt(m.zz)}};
+          for(unsigned axis=0;axis<3;++axis)for(double sign:{-1.,1.}) {
+            Point p=origin;if(axis==0)p.x+=sign*step[axis];else if(axis==1)p.y+=sign*step[axis];else p.z+=sign*step[axis];
+            destinations.push_back(p);
+          }
+          for(auto destination:destinations) {
+            destination=ConstrainMovePoint(working,id,{id,destination},heights,reference).p;
+          for(double fraction:{1.,.5,.25,.125,.0625}) {
+            if(report.trials>=maximum_trials)break;
+            const Node moved{id,{double(origin.x+fraction*((long double)destination.x-origin.x)),
+                double(origin.y+fraction*((long double)destination.y-origin.y)),double(origin.z+fraction*((long double)destination.z-origin.z))}};
+            if(moved.p.x==origin.x && moved.p.y==origin.y && moved.p.z==origin.z)continue;
+            ++report.trials;std::vector<Cell> replacement;std::string rejected;
+            if(!Cone(region,moved,first,replacement,rejected)){++report.move_geometry_rejected;continue;}
+            // Shape keys contain identities, not coordinates: movement invalidates all such entries.
+            losses.clear();double after=0;
+            try {after=total(replacement);}catch(const std::exception&){losses.clear();++report.move_loss_rejected;continue;}
+            if(!(after<before*(1-1e-8)-1e-14)){losses.clear();++report.move_loss_rejected;continue;}
+            Patch proposal;proposal.surface=working.surface;
+            for(size_t i=0;i<working.cells.size();++i)if(std::find(selected.begin(),selected.end(),i)==selected.end())proposal.cells.push_back(working.cells[i]);
+            proposal.cells.insert(proposal.cells.end(),replacement.begin(),replacement.end());
+            if(proposal.cells.size()>MaximumReplacementCells || first>UINT64_MAX-(proposal.cells.size()-1) ||
+                !CheckFirstHeight(proposal,heights,reference,height,rejected)){losses.clear();++report.move_height_rejected;continue;}
+            for(size_t i=0;i<proposal.cells.size();++i)proposal.cells[i].id=first+i;
+            working=std::move(proposal);losses.clear();rejected_states.clear();++report.moves;
+            report.after_loss=total(working.cells);changed=true;break;
+          }
+            if(changed || report.trials>=maximum_trials)break;
+          }
+          if(changed || report.trials>=maximum_trials)break;
+        }
+      }
       if(!changed)break;
     }
     report.complete_shape=report.after_loss==0;
-    if(!report.flips)throw std::invalid_argument("Native3D admitted flips made no actual-field shape progress.");
+    if(!report.flips && !report.moves)throw std::invalid_argument("Native3D admitted joint repair made no actual-field shape progress.");
     working.surface.clear();
     const auto physical=CheckSurface(old,skin,reference,nullptr);
     // Flip geometry has an unchanged interface; final reference/topology checks remain independent.

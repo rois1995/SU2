@@ -34,6 +34,8 @@
 #include <map>
 #include <numeric>
 #include <queue>
+#include <set>
+#include <functional>
 
 #include "../../../Common/include/CConfig.hpp"
 #include "../../../Common/include/parallelization/CPassiveComm.hpp"
@@ -1109,7 +1111,7 @@ void VisitBLTetrahedra(const convex_clip::Polyhedron& piece,Append append) {
 }
 
 std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::IntegrationRule3D(
-    const std::array<std::array<double,3>,4>& tetrahedron,double bandRatio,IntegrationDensity3D density) {
+    const std::array<std::array<double,3>,4>& tetrahedron,double bandRatio,IntegrationDensity3D density,bool* sensorDependent) {
   if(nDim!=3 || !std::isfinite(bandRatio) || !(bandRatio>1))
     throw std::invalid_argument("Invalid native3D BL volume quadrature.");
   for(const auto& p:tetrahedron)for(auto x:p)if(!std::isfinite(x))
@@ -1140,6 +1142,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint3D> CBoundaryLayerMetric::Inte
       support.push_back(face);hiddenSupport=hiddenSupport || hidden;
     }
   }
+  if(sensorDependent)*sensorDependent=hiddenSupport;
   auto probe=[&](const IntegrationPoint3D& point) {
     double value=0;
     if(density)value=density(point);
@@ -1613,10 +1616,14 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpoints(
   };
   if (!(dot(chord,chord) > 0)) throw std::invalid_argument("Zero native BL chord.");
   std::vector<double> cuts{0,1};
+  std::set<double> retained{0,1};
+  std::function<bool(double)> validRoot;
   auto retain = [&](long double t) {
     if (t > 0 && t < 1) {
+      const double rounded=static_cast<double>(t);
+      if(retained.count(rounded) || !validRoot(rounded))return;
       if (cuts.size() >= 65536) throw std::runtime_error("Native BL edge breakpoints exceed work budget.");
-      cuts.push_back(static_cast<double>(t));
+      retained.insert(rounded);cuts.push_back(rounded);
     }
   };
   auto roots = [&](long double aa, long double bb, long double cc) {
@@ -1631,7 +1638,6 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpoints(
     else { retain(q/aa); retain(cc/q); }
   };
   for (unsigned short wall = 0; wall < walls.size(); ++wall) {
-    const size_t wallCutsBegin=cuts.size();
     const auto& d = *data[wall];
     if (!d.adt) continue;
     const double h0 = SU2_TYPE::GetValue(d.h0), full = SU2_TYPE::GetValue(d.full);
@@ -1646,6 +1652,16 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpoints(
     }
     levels.push_back(full);
     for (unsigned k = 1; k <= fadeBands; ++k) levels.push_back(full + (thickness-full)*k/fadeBands);
+    validRoot=[&](double t) {
+      su2double x[3]{};for(unsigned j=0;j<nDim;++j)x[j]=(1-t)*a[j]+t*b[j];
+      const double actual=SU2_TYPE::GetValue(Evaluate(wall,x,1.).distance);
+      double coordinateScale=0;
+      for(unsigned j=0;j<nDim;++j)coordinateScale=std::max({coordinateScale,std::abs(a[j]),std::abs(b[j])});
+      const double roundoff=64*std::numeric_limits<double>::epsilon()*coordinateScale;
+      for(auto level:levels)
+        if(std::abs(actual-level)<=std::max(roundoff,1e-10*std::max(h0,level)))return true;
+      return false;
+    };
     su2double low[3]{}, high[3]{};
     for (unsigned j = 0; j < nDim; ++j) {
       low[j] = std::min(a[j],b[j])-thickness;
@@ -1685,17 +1701,6 @@ std::vector<double> CBoundaryLayerMetric::EdgeBreakpoints(
         }
       }
     }
-    auto validRoot=[&](double t) {
-      su2double x[3]{};for(unsigned j=0;j<nDim;++j)x[j]=(1-t)*a[j]+t*b[j];
-      const double actual=SU2_TYPE::GetValue(Evaluate(wall,x,1.).distance);
-      double coordinateScale=0;
-      for(unsigned j=0;j<nDim;++j)coordinateScale=std::max({coordinateScale,std::abs(a[j]),std::abs(b[j])});
-      const double roundoff=64*std::numeric_limits<double>::epsilon()*coordinateScale;
-      for(auto level:levels)
-        if(std::abs(actual-level)<=std::max(roundoff,1e-10*std::max(h0,level)))return true;
-      return false;
-    };
-    cuts.erase(std::remove_if(cuts.begin()+wallCutsBegin,cuts.end(),[&](double t){return !validRoot(t);}),cuts.end());
   }
   std::sort(cuts.begin(),cuts.end());
   cuts.erase(std::unique(cuts.begin(),cuts.end()),cuts.end());
@@ -1788,7 +1793,7 @@ std::vector<CBoundaryLayerMetric::IntegrationPoint2D> CBoundaryLayerMetric::Inte
     }
   }
   if (subdivide) {
-    if(depth>=16) SU2_MPI::Error("Geometric BL quadrature failed to resolve a wall band after 16 subdivisions.",CURRENT_FUNCTION);
+    if(depth>=16) throw std::runtime_error("Geometric BL quadrature failed to resolve a wall band after 16 subdivisions.");
     const Bary vertices[6] = {{{1,0,0}},{{0,1,0}},{{0,0,1}},{{.5,.5,0}},{{0,.5,.5}},{{.5,0,.5}}};
     const unsigned children[4][3]={{0,3,5},{3,1,4},{5,4,2},{3,4,5}};
     std::vector<IntegrationPoint2D> refined;

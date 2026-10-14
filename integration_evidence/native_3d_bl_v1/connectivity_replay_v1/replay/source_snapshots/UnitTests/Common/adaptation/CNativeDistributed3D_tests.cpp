@@ -2425,3 +2425,27 @@ TEST_CASE("Native composed BL startup preserves original geometry across MPI wor
 TEST_CASE("Native3D finer original sensor reconstructs wall children and releases the layer", "[.][NativeFinerSensorBL3D]") {
   CoupledBL(true,0,4.);
 }
+
+TEST_CASE("Native first-row owners construct disjoint wall cells concurrently", "[NativeFirstLayerConcurrency3D]") {
+  World world;auto fixture=Box();
+  // Disconnected boxes have independent complete vertex reservations even with the same wall marker policy.
+  for(unsigned copy=1;copy<4;++copy) {
+    auto extra=Box();
+    for(auto& c:extra.patch.cells) {c.id+=100*copy;for(auto& n:c.v){n.id+=100*copy;n.p.x+=3*copy;}}
+    for(auto& f:extra.patch.surface){f.facet+=100*copy;for(auto& id:f.v)id+=100*copy;}
+    for(auto& f:extra.facets){f.id+=100*copy;for(auto& n:f.v){n.id+=100*copy;n.p.x+=3*copy;}}
+    fixture.patch.cells.insert(fixture.patch.cells.end(),extra.patch.cells.begin(),extra.patch.cells.end());
+    fixture.patch.surface.insert(fixture.patch.surface.end(),extra.patch.surface.begin(),extra.patch.surface.end());
+    fixture.facets.insert(fixture.facets.end(),extra.facets.begin(),extra.facets.end());
+  }
+  const PlanarReference reference(fixture.facets);Owned input;
+  for(const auto& row:Rows(fixture.patch))if((row.cell.id/100)%world.size==unsigned(world.rank))input.emplace(row.cell.id,row);
+  const auto saved=Bytes(input);EngineOptions options;options.maximum_rounds=1;
+  for(const auto& f:fixture.facets)if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))options.wall_heights[f.marker]=.1;
+  const auto result=Refine(world,input,Uniform(input,{1,0,0,1,0,100}),reference,{},options);
+  CHECK(Bytes(input)==saved);
+  CHECK(world.sum(int(result.stats.layer_published))==8);
+  for(const auto& row:result.cells) {FirstHeightReport report;std::string reason;
+    CHECK(CheckFirstHeight(PatchOf({row.second}),options.wall_heights,reference,report,reason));
+  }
+}

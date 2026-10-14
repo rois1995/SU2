@@ -9,18 +9,21 @@ RANS/current+BDF/restart workflow are qualified locally on MPI1/2/4, including
 M<N. The current connected work improves first-row alignment and coordinated
 wall/transition edits. The new normal-foot gate passes focused serial geometry
 and one independently audited production/restart case at published508e52cf7b.
-Current frontier: coordinated wall/transition reconstruction with retained
-interior points. Its geometric witness passes, but the stronger native field
-still fails the work ceiling. A separately generated control proves target
-feasibility under the declared contracts. Private actual-field 2/3/4-cell reconnection now passes its saved-proposal replay
-and independent audit, but still fails full shape/edge admission and is not wired
-into production. The connected static-assessment patch passes focused serial22-case and MPI2/4
-7-case-per-rank checks for recoverable refusal, first-row owner concurrency,
-reference admission and quadrature reuse. All owned jobs are terminal.
+Current frontier: coordinated wall/transition reconstruction. Actual-field
+reconnection plus simultaneous constrained interior movement is now connected to
+the private engine path, with complete donor support, fresh moved-node identities
+and charged trial work. The saved proposal passes shape, height, footprint and
+coverage checks, but its full edge gate fails. The full stronger-field run accepts
+three joint wall reconstructions; it still rejects at work4096 with453 cells and
+longest edge2.54379. No removal/CFD replacement was reached. A separate non-native
+control proves the declared target feasible. Seven focused serial integration controls PASS (855 assertions); MPI qualification of this new connection remains pending.
+The published static-assessment patch's serial/MPI evidence remains historical
+qualification of that checkpoint, not proof of the new connection.
 Full Goal3 remains incomplete.
 
 Current testcase folder:
-`integration_evidence/native_3d_bl_v1/static_assessment2_v1` (focused serial/MPI stages).
+`integration_evidence/native_3d_bl_v1/connectivity_replay_v1/integration` (focused serial controls).
+The stronger-field rejected mesh is in `integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/sensor`.
 Private replay remains in `integration_evidence/native_3d_bl_v1/connectivity_replay_v1`.
 The production checkpoint's inspectable grids and states remain in
 `integration_evidence/native_3d_bl_v1/production_policy_v1/mpi1`, `mpi2`, `mpi4`.
