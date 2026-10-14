@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/audit_sensor.py", line 128, in <module>
+    if __name__=='__main__':main()
+  File "integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/audit_sensor.py", line 98, in main
+    for face,(present,facet) in zip(faces(row['vertices']),row['physical']):
+TypeError: 'numpy.ndarray' object is not callable

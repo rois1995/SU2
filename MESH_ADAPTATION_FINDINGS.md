@@ -1,5 +1,18 @@
 # Goal3 production geometric policy and real RANS restart: local MPI PASS — 2026-10-14
 
+Current wall-reconstruction frontier: two focused serial geometric cases and
+independent coverage/footprint witness PASS; native original-P1 `diag(4+12*x)`
+plus unchanged geometric BL still FAILS at work4096 after117 edits/418 private
+cells. Independent q/J/height/coverage pass, but wall edge0,2 remains4.3997755.
+A576-cell generated control passes the same declared metric/height/footprint
+contracts (qmin .5819,Jmin .3105,Lmax1.6645), so native operator blockage is
+established for these contracts. It is not native output or a zero-centroid-tilt
+certificate. Longer growth gave no accepted wall reconstruction and was reverted.
+Next: exact local replay and actual-field internal reconnection of the multi-point
+wall/transition proposal, without target/gate/budget relaxation. No new MPI/full
+regression or performance qualification. Details and retained failures are in
+[the wall handbook](Handbook/GOAL3_WALL_RECONSTRUCTION.md).
+
 Current alignment follow-up: the previous coarsened BL meshes have one normal foot
 outside a wall triangle in each of six N/M combinations (independent exact-rational
 reproduction). Shared first-row validation now requires normal-foot containment,

@@ -37,9 +37,17 @@ for the connected alignment/reconstruction milestone. All owned jobs terminal.
 See [serial summary](../integration_evidence/native_3d_bl_v1/alignment_audit_v1/summary.json).
 
 Cases: `integration_evidence/native_3d_bl_v1/alignment_audit_v1`.
-Next substantial step: coordinate adapted wall children/apices and transition
-reconstruction so stronger alignment checks do not merely obstruct useful surface
-refinement; retain complete versioned dependencies, frozen metric and atomic gates.
+Current frontier: coordinated wall/transition carving, complete apex-star
+admission, wall-child placement and retained interior-point reconstruction.
+Two focused serial geometric cases and independent geometry audit pass. The
+stronger original-P1 field remains rejected at work4096 after117 refinement
+edits/418 private cells; longest wall edge4.3997755. A576-cell non-native control
+independently proves feasibility under the declared acceptance contracts.
+No MPI or full regression campaign was run; all owned jobs are terminal.
+
+Read [the smaller wall-reconstruction handbook](GOAL3_WALL_RECONSTRUCTION.md)
+for exact failures, preserved artifacts and the next substantial replay/reconnection
+step. Goal3 remains ACTIVE; this is not complete native BL generation.
 
 ## Remaining full-goal gates
 

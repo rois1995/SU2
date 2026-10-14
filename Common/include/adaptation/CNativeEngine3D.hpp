@@ -59,6 +59,7 @@ struct EngineStats {
   double donor_search_seconds = 0, donor_filter_seconds = 0;  // Nested in import/search.
   uint64_t repair_proposals = 0, moved = 0, reconnected = 0, inserted = 0;
   uint64_t repair_fallbacks = 0, fallback_accepted = 0, recovery_starts = 0;
+  uint64_t wall_reconstruction_trials = 0, wall_reconstruction_accepted = 0;
   uint64_t collapse_geometry_checks = 0, collapse_filtered = 0;
   uint64_t collapse_orientation_checks = 0, collapse_orientation_filtered = 0, collapse_reactivated = 0;
   uint64_t changed_star_scans = 0, changed_vertices_sent = 0, changed_vertices_received = 0;

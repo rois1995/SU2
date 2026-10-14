@@ -1193,3 +1193,31 @@ TEST_CASE("Atomic planar strip split retains marker junctions and complete inter
   CHECK_FALSE(SplitSurfaceStrip(old,{0,4},{9,{0,0,.5}},invalid,300,reference,sentinel,reason));CHECK(Connectivity(sentinel)==Connectivity(old));
   CHECK_FALSE(SplitSurfaceStrip(old,{0,4},{9,{.01,0,.5}},moves,300,reference,sentinel,reason));CHECK(Connectivity(sentinel)==Connectivity(old));
 }
+
+
+TEST_CASE("Native3D uneven wall split replaces apices and transition together", "[NativeWallReconstruction3D]") {
+  const auto seed=Cube();const PlanarReference reference(Facets(seed));std::map<int,double> heights;
+  for(const auto& f:Facets(seed))if(std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;}))
+    heights[f.marker]=.1;
+  Patch aligned;FirstHeightReport report;std::string reason;
+  REQUIRE(ConstructFirstLayer(seed,{100,{.5,.5,.5}},101,200,heights,reference,aligned,report,reason));
+  const Edge edge{0,2};const Node split{1000,{.4,.4,0}};Patch inherited;
+  REQUIRE(SplitEdge(EdgeStar(aligned,edge),edge,split,2000,reference,inherited,reason));
+  CHECK_FALSE(CheckFirstHeight(inherited,heights,reference,report,reason));
+  CHECK(report.height_failures==0);CHECK(report.footprint_failures>0);
+  Patch rebuilt;Face obstruction{};
+  const bool valid=ReconstructSplitPatch(aligned,edge,split,{1001,{}},Tensor{},2000,reference,rebuilt,obstruction,reason,nullptr,heights);
+  INFO(reason);REQUIRE(valid);REQUIRE(CheckFirstHeight(rebuilt,heights,reference,report,reason));
+  CHECK(report.wall_faces==4);CHECK(report.maximum_tilt<1e-12);CHECK(report.minimum_barycentric>0);
+  for(Id id:{100,101,102}) {const auto before=Position(aligned,id),after=Position(rebuilt,id);
+    CHECK(after.x==before.x);CHECK(after.y==before.y);CHECK(after.z==before.z);
+  }
+  CHECK(double(Volume(rebuilt))==Approx(1).epsilon(1e-14));
+  for(size_t i=0;i<rebuilt.cells.size();++i)for(size_t j=i+1;j<rebuilt.cells.size();++j)CHECK(ConformingDisjoint(rebuilt.cells[i],rebuilt.cells[j]));
+  SaveCurved(aligned,reference,"wall_split_initial");SaveCurved(inherited,reference,"wall_split_inherited_rejected");SaveCurved(rebuilt,reference,"wall_split_joint");
+  auto sentinel=rebuilt;const auto saved=Connectivity(sentinel);auto excessive=heights;for(auto& h:excessive)h.second=2.;
+  CHECK_FALSE(ReconstructSplitPatch(aligned,edge,split,{1001,{}},Tensor{},2000,reference,sentinel,obstruction,reason,nullptr,excessive));
+  CHECK(Connectivity(sentinel)==saved);
+  CHECK_FALSE(ReconstructSplitPatch(aligned,edge,split,{UINT64_MAX,{}},Tensor{},2000,reference,sentinel,obstruction,reason,nullptr,heights));
+  CHECK(Connectivity(sentinel)==saved);
+}

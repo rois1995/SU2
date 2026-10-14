@@ -1080,7 +1080,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
     const auto epoch=transfer_memory::Add(transfer_memory::Mul(round,world.size),world.rank);
     const auto token=transfer_memory::Add(transfer_memory::Mul(epoch,options.candidate_batch),slot);
     const auto offset=transfer_memory::Mul(token,MaximumReplacementCells);
-    const size_t node_stride=composition ? 4 : curved ? 2 : 1;
+    const size_t node_stride=!options.wall_heights.empty() ? MaximumReplacementCells+3 : composition ? 4 : curved ? 2 : 1;
     const auto node_offset=transfer_memory::Mul(token,node_stride);
     Point splitPosition{};
     if(!repairing && !coarsening && composition) {
@@ -1341,6 +1341,20 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       });
       bool joint=chosen && (choice.geometric || composition) && !repairing && !coarsening && !approved;
       bool strip=joint && composition && !curved && !choice.geometric;
+      std::vector<Id> wallApices;
+      if(joint && boundary_edge)for(const auto& f:old.surface) {
+        if(!options.wall_heights.count(geometry.Get(f.facet).marker) ||
+            std::find(f.v.begin(),f.v.end(),choice.edge[0])==f.v.end() ||
+            std::find(f.v.begin(),f.v.end(),choice.edge[1])==f.v.end())continue;
+        for(const auto& c:old.cells) {
+          unsigned count=0;Node apex;
+          for(auto n:c.v)if(std::find(f.v.begin(),f.v.end(),n.id)!=f.v.end())++count;else apex=n;
+          if(count==3)wallApices.push_back(apex.id);
+        }
+      }
+      std::sort(wallApices.begin(),wallApices.end());wallApices.erase(std::unique(wallApices.begin(),wallApices.end()),wallApices.end());
+      bool wallSplit=joint && !wallApices.empty();
+      strip=strip && !wallSplit;  // Admit the required wall region before optional unrelated movers.
       std::vector<Id> movers;
       if(strip)for(const auto& f:old.surface) {
         if(std::find(f.v.begin(),f.v.end(),choice.edge[0])==f.v.end() || std::find(f.v.begin(),f.v.end(),choice.edge[1])==f.v.end())continue;
@@ -1356,24 +1370,28 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       }
       std::sort(movers.begin(),movers.end());movers.erase(std::unique(movers.begin(),movers.end()),movers.end());
       strip=strip && movers.size()>=2 && movers.size()<=3;
-      if(world.maximum(strip)) {
+      if(world.maximum(strip || wallSplit)) {
         std::vector<Feature> features;
-        if(strip) {features.push_back({{choice.edge[0],choice.edge[1],0},2});for(auto id:movers)features.push_back({{id,0,0},1});}
+        if(strip || wallSplit) {
+          features.push_back({{choice.edge[0],choice.edge[1],0},2});
+          if(strip)for(auto id:movers)features.push_back({{id,0,0},1});
+          for(auto id:wallApices)features.push_back({{id,0,0},1});
+        }
         Dependencies joined;
         {Timer timer(stats.dependency_seconds,options.timings);
           joined=directory.Lookup(features,options.memory_ceiling,transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));}
         if(!joined.valid) {
-          if(joined.reason=="Native 3D dependency star exceeds budget." || joined.reason=="Native 3D dependency union exceeds budget.")strip=false;
+          if(joined.reason=="Native 3D dependency star exceeds budget." || joined.reason=="Native 3D dependency union exceeds budget.")strip=wallSplit=false;
           else failure.Set(1,0,joined.reason);
         }
         if(!(ready=vote(failure)))return finish();
-        if(!strip){joined.valid=true;joined.cells.clear();}
+        if(!strip && !wallSplit){joined.valid=true;joined.cells.clear();}
         Imported more;
         {Timer timer(stats.dependency_seconds,options.timings);
           more=directory.Fetch(joined,working,options.memory_ceiling,
               transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));}
         if(!more.valid){result.reason=more.reason;return finish();}
-        if(strip)try {
+        if(strip || wallSplit)try {
           for(const auto& olddep:dependencies.cells) {
             const auto found=std::find_if(joined.cells.begin(),joined.cells.end(),[&](const auto& dep){return dep.cell==olddep.cell;});
             if(found==joined.cells.end() || found->version!=olddep.version || found->owner!=olddep.owner)
@@ -1385,9 +1403,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
         if(!(ready=vote(failure)))return finish();
         bool reserved=false;
         {Timer timer(stats.reservation_seconds,options.timings);
-          reserved=directory.Reserve(imported,strip,result.reason,options.memory_ceiling,
+          reserved=directory.Reserve(imported,strip || wallSplit,result.reason,options.memory_ceiling,
               transfer_memory::Add(bytes(),source.ResidentBytes(),private_scratch));}
-        if(strip && !reserved)failure.Set(1,0,"Native3D strip lost its complete-star reservation.");
+        if((strip || wallSplit) && !reserved)failure.Set(1,0,"Native3D strip lost its complete-star reservation.");
         if(!(ready=vote(failure)))return finish();
         const bool measured=measure_private(joint?old.cells:empty,before,false,reuse);
         if(!ready)return finish();
@@ -1608,14 +1626,23 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
             if(participating)try {
               ++stats.repair_proposals;
+              const bool wall=std::any_of(old.surface.begin(),old.surface.end(),[&](const auto& f) {
+                return options.wall_heights.count(geometry.Get(f.facet).marker);
+              });
+              stats.wall_reconstruction_trials+=wall;
               candidate=guarded_geometry(ReconstructSplitPatch(old,choice.edge,point,{maximum_node+2+node_offset,{}},
-                  frame?nearPlacement:placement,maximum_cell+1+offset,geometry,fresh,obstruction,result.reason));
+                  frame?nearPlacement:placement,maximum_cell+1+offset,geometry,fresh,obstruction,result.reason,nullptr,options.wall_heights));
             }catch(const std::exception& e){failure.Set(2,0,e.what());}
             ready=vote(failure);
           }
           if(!ready)return finish();
           const bool passed=validate_private(candidate,choice.geometric ? MetricChange::GeometryRefine : MetricChange::Refine);
-          if(participating)approved=passed;
+          if(participating) {
+            approved=passed;
+            if(passed && std::any_of(old.surface.begin(),old.surface.end(),[&](const auto& f) {
+              return options.wall_heights.count(geometry.Get(f.facet).marker);
+            }))++stats.wall_reconstruction_accepted;
+          }
           if(!ready)return finish();
           if(!world.maximum(joint && !approved))break;
         }

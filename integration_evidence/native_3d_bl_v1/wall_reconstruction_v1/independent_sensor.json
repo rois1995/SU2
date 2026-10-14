@@ -1,0 +1,35 @@
+{
+  "status": "REJECTED_PROGRESS",
+  "frames": [
+    {
+      "file": "independent_finer_grouped_coupled_BL_rejected_n1.json",
+      "cells": 418,
+      "points": 121,
+      "physical_faces": 138,
+      "volume": "1",
+      "minimum_mean_ratio": 0.2328978380483723,
+      "minimum_scaled_jacobian": 0.06753338179645367,
+      "maximum_length": 4.3997755273829515,
+      "longest_edge": [
+        0,
+        2
+      ],
+      "markers": {
+        "10": 3,
+        "11": 135
+      },
+      "strict_metric_gate": false,
+      "height_faces": 3,
+      "max_relative_height_error": 0.0,
+      "max_tilt": 2.0707506581557964,
+      "minimum_footprint_barycentric": 0.0,
+      "full_target_valid": false
+    }
+  ],
+  "native_status": "FAIL",
+  "log": "native.log",
+  "log_sha256": "eed84585c089fa402a8e3d4e3f12859ddf236d51e359a2a598528bd36647b4a0",
+  "helper_sha256": "a0c7967d3d1a92d48d54ce13fb93c5e72ef22ad35413892d840e0fdb780bbb7f",
+  "reused_auditor_sha256": "1822427476ecb5687aaa06f3e7a3cc8f31cde53166fd0c711449eedf7c7c7a50",
+  "scope": "Declared cube source diag(4+12*x), exact geometry/coverage and independent composed square-wall field/core4/fade/full edges/shape/height. Failed native progress remains rejected even if some local checks pass. No MPI/CFD/transfer/performance qualification."
+}

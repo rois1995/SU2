@@ -727,6 +727,7 @@ void EngineReport(const EngineResult& result, World& world, const std::string& l
              << " nested_change_notifications=" << s.change_notification_seconds << " nested_collapse_orientation=" << s.collapse_orientation_seconds
        << " collapse_geometry_nested_s=" << s.collapse_geometry_seconds
        << " selection_edge_evaluations=" << s.edge_evaluations << " selection_edge_reused=" << s.edge_reused
+       << " wall_reconstruction_trials=" << s.wall_reconstruction_trials << " wall_reconstruction_accepted=" << s.wall_reconstruction_accepted
        << " field_requests=" << s.field_requests
        << " field_hits=" << s.field_hits << " field_misses=" << s.field_misses
        << " field_invalid_queries=" << s.field_invalid_queries << " field_failures=" << s.field_failures
@@ -2279,14 +2280,17 @@ TEST_CASE("Native3D engine elects inconsistent wall-height policies before chang
 namespace {
 #include "fixtures/native_bl_corner.inc"
 #include "fixtures/native_bl_cold.inc"
-void CoupledBL(bool grouped,unsigned replay=0) {
+void CoupledBL(bool grouped,unsigned replay=0,double strength=1) {
   World world;auto fixture=Box();const auto donorFixture=fixture;
   if(replay)fixture.patch=replay==2?BLColdObstruction():BLCornerObstruction();
   if(grouped)for(auto& f:fixture.facets)f.marker=std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;})?10:11;
-  const PlanarReference reference(fixture.facets);const std::string prefix=(replay==2?"cold_replay_":replay?"replay_":"")+std::string(grouped?"grouped_":"");
+  const PlanarReference reference(fixture.facets);const std::string prefix=std::string(strength>1?"finer_":"")+(replay==2?"cold_replay_":replay?"replay_":"")+std::string(grouped?"grouped_":"");
   const auto input=Partition(Rows(fixture.patch),world),saved=input;
-  const auto original=Uniform(Partition(Rows(donorFixture.patch),world),{1,0,0,1,0,1});
-  const auto allOriginal=Uniform(Partition(Rows(donorFixture.patch),World(MPI_COMM_SELF)),{1,0,0,1,0,1});
+  auto original=Uniform(Partition(Rows(donorFixture.patch),world),{strength,0,0,strength,0,strength});
+  auto allOriginal=Uniform(Partition(Rows(donorFixture.patch),World(MPI_COMM_SELF)),{strength,0,0,strength,0,strength});
+  if(strength>1)for(auto* source:{&original,&allOriginal})for(auto& donor:*source)for(size_t k=0;k<4;++k) {
+    const auto value=strength*(1+3*donor.cell.v[k].p.x);donor.sensor[k]={value,0,0,value,0,value};
+  }
   CBoundaryLayerMetric::Wall wall;wall.layer={"wall",.1,1.2,.3};
   wall.coord={0,0,0,1,0,0,1,1,0,0,1,0};wall.conn={0,1,2,2,0,2,3,3};
   CBoundaryLayerMetric layers(3,{wall});
@@ -2294,7 +2298,7 @@ void CoupledBL(bool grouped,unsigned replay=0) {
     CBoundaryLayerMetric::Tensor m;
     m.m[0][0]=sensor.xx;m.m[0][1]=m.m[1][0]=sensor.xy;m.m[0][2]=m.m[2][0]=sensor.xz;
     m.m[1][1]=sensor.yy;m.m[1][2]=m.m[2][1]=sensor.yz;m.m[2][2]=sensor.zz;
-    const su2double x[3]={p.x,p.y,p.z};layers.ApplyPoint(x,m,1.,nullptr,false);
+    const su2double x[3]={p.x,p.y,p.z};layers.ApplyPoint(x,m,strength,nullptr,false);
     return Tensor{SU2_TYPE::GetValue(m.m[0][0]),SU2_TYPE::GetValue(m.m[0][1]),SU2_TYPE::GetValue(m.m[0][2]),
         SU2_TYPE::GetValue(m.m[1][1]),SU2_TYPE::GetValue(m.m[1][2]),SU2_TYPE::GetValue(m.m[2][2])};
   };
@@ -2347,6 +2351,10 @@ void CoupledBL(bool grouped,unsigned replay=0) {
   }
   CHECK_FALSE(world.maximum(!height));
   INFO(refined.reason);REQUIRE(refined.valid);CHECK_FALSE(world.maximum(!metric));
+  if(strength>1) {
+    CHECK(world.sum(int(refined.stats.wall_reconstruction_trials))>0);
+    CHECK(world.sum(int(refined.stats.wall_reconstruction_accepted))>0);
+  }
   options.wall_heights.clear();options.edge_breakpoints={};
   const auto coarse=Coarsen(world,refined.cells,original,reference,{},options);
   EngineReport(coarse,world,prefix+"released_Euler");Log(world,"Euler result: "+coarse.reason+"\n");
@@ -2411,4 +2419,9 @@ TEST_CASE("Native composed BL startup preserves original geometry across MPI wor
     const auto count=CPassiveComm::Allreduce(output.size(),CPassiveComm::Op::SUM,parent.comm);
     CHECK(count>6);CHECK(Audit(parent,output,fixture,count));CHECK(Bytes(input)==Bytes(saved));
   }
+}
+
+
+TEST_CASE("Native3D finer original sensor reconstructs wall children and releases the layer", "[.][NativeFinerSensorBL3D]") {
+  CoupledBL(true,0,4.);
 }

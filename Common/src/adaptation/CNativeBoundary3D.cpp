@@ -1175,8 +1175,8 @@ bool SplitSurfaceStrip(const Patch& old,Edge edge,Node point,const std::vector<s
 }
 bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,const Tensor& placement,
                            Id first,const PlanarReference& reference,Patch& fresh,Face& obstruction,
-                           std::string& reason,KernelStats* stats) {
-  obstruction={};
+                           std::string& reason,KernelStats* stats,const std::map<int,double>& heights) {
+  obstruction={};Face wallObstruction{};
   try {
     Bounds(old);Endpoints(edge);ValidateTensor(placement,stats);
     const auto index=Incidence(old.cells,stats);
@@ -1187,6 +1187,23 @@ bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,c
     if(nodes.count(interior.id) || interior.id==point.id)throw std::invalid_argument("Native3D joint insertion reuses a node identity.");
     point=ProjectSplitPoint(edge,point,nodes,physical,reference,stats);
     SplitSkin(edge,point,skin,physical);nodes.emplace(point.id,point);
+    long double wallViolation=-1;std::map<Face,Point> wallPoints;
+    for(const auto& entry:physical) {
+      const auto height=heights.find(reference.Get(entry.second.facet).marker);if(height==heights.end())continue;
+      const auto f=entry.second.v;const auto a=nodes.at(f[0]).p,b=nodes.at(f[1]).p,c=nodes.at(f[2]).p;
+      auto normal=Cross(Delta(b,a),Delta(c,a));const auto area=Norm(normal);for(auto& n:normal)n/=area;
+      const Point center{double(((long double)a.x+b.x+c.x)/3),double(((long double)a.y+b.y+c.y)/3),double(((long double)a.z+b.z+c.z)/3)};
+      const Point apex{double((long double)center.x-height->second*normal[0]),
+                       double((long double)center.y-height->second*normal[1]),double((long double)center.z-height->second*normal[2])};
+      wallPoints.emplace(entry.first,apex);
+      for(const auto& row:skin)if(!physical.count(row.first)) {
+        const auto face=row.second;const auto x=nodes.at(face[0]).p,y=nodes.at(face[1]).p,z=nodes.at(face[2]).p;
+        const auto orient=Orientation(apex,x,y,z,stats);
+        if(orient>0)continue;
+        const auto violation=-orient/Norm(Cross(Delta(y,x),Delta(z,x)));
+        if(violation>wallViolation){wallViolation=violation;wallObstruction=row.first;}
+      }
+    }
     if(skin.size()>MaximumReplacementCells)throw std::invalid_argument("Native3D joint skin exceeds replacement budget.");
     const auto origin=old.cells.front().v.front().p;
     Vector moment{};long double volume=0,rms=0;
@@ -1217,14 +1234,20 @@ bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,c
       for(const auto& row:skin) {
         const auto f=row.second;
         const Tetrahedron tet{apex,nodes.at(f[0]).p,nodes.at(f[1]).p,nodes.at(f[2]).p};
-        long double deficit=10,ratio=-INFINITY;
-        if(Orientation(tet[0],tet[1],tet[2],tet[3],stats)>0) {
-          const auto quality=Measure(tet,placement,stats);
-          const auto q=std::max(0.,.22-quality.mean_ratio),j=std::max(0.,.06-quality.minimum_scaled_jacobian);
-          deficit=q*q+j*j;
-          ratio=std::min(quality.mean_ratio/MinimumMeanRatio,quality.minimum_scaled_jacobian/MinimumScaledJacobian);
+        const auto wall=wallPoints.find(row.first);
+        long double ratio=INFINITY;
+        // Score the actual four wall children, so placement respects their height and visibility.
+        for(unsigned child=0;child<(wall==wallPoints.end()?1u:4u);++child) {
+          auto candidate=tet;if(wall!=wallPoints.end())candidate[child]=wall->second;
+          long double deficit=10,qualityRatio=-INFINITY;
+          if(Orientation(candidate[0],candidate[1],candidate[2],candidate[3],stats)>0) {
+            const auto quality=Measure(candidate,placement,stats);
+            const auto q=std::max(0.,.22-quality.mean_ratio),j=std::max(0.,.06-quality.minimum_scaled_jacobian);
+            deficit=q*q+j*j;
+            qualityRatio=std::min(quality.mean_ratio/MinimumMeanRatio,quality.minimum_scaled_jacobian/MinimumScaledJacobian);
+          }
+          score+=deficit;ratio=std::min(ratio,qualityRatio);
         }
-        score+=deficit;
         if(blocked && !physical.count(row.first) && ratio<worst){worst=ratio;*blocked=row.first;}
       }
       return score;
@@ -1250,8 +1273,56 @@ bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,c
       Append(proposal.cells,v,first,stats);
     }
     Finish(old,proposal,skin,physical,reference,stats);
+    const bool wall=std::any_of(physical.begin(),physical.end(),[&](const auto& row) {
+      return heights.count(reference.Get(row.second.facet).marker);
+    });
+    if(wall) {
+      if(interior.id>UINT64_MAX-2)throw std::invalid_argument("Native3D joint wall identities overflow.");
+      FirstHeightReport report;Patch layer;
+      // Reuse the certified constructor; only the complete carved replacement reaches metric validation.
+      if(!ConstructFirstLayer(proposal,{interior.id+1,interior.p},interior.id+2,first,heights,reference,layer,report,reason,stats))
+        throw std::invalid_argument(reason);
+      proposal=std::move(layer);
+      std::set<Id> interface;
+      for(const auto& face:index.Boundary())interface.insert(face.begin(),face.end());
+      // Preserve existing interior resolution; all intermediate reconnections stay private.
+      for(const auto& row:nodes)if(!interface.count(row.first)) {
+        const auto current=Nodes(proposal.cells);if(current.count(row.first))continue;
+        const auto coincident=std::find_if(current.begin(),current.end(),[&](const auto& n) {
+          return n.second.p.x==row.second.p.x && n.second.p.y==row.second.p.y && n.second.p.z==row.second.p.z;
+        });
+        if(coincident!=current.end()) {
+          for(auto& c:proposal.cells)for(auto& n:c.v)if(n.id==coincident->first)n=row.second;
+          for(auto& f:proposal.surface)for(auto& id:f.v)if(id==coincident->first)id=row.first;
+          continue;
+        }
+        std::vector<Cell> region;
+        for(const auto& c:proposal.cells) {
+          const auto volume=Orientation(c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p,stats);bool contains=true;
+          for(unsigned k=0;k<4;++k) {
+            auto v=c.v;v[k]=row.second;
+            // Admission only: include near-coincident face/edge stars; Cone still requires strict positivity.
+            contains=contains && Orientation(v[0].p,v[1].p,v[2].p,v[3].p,stats)>=-64*std::numeric_limits<double>::epsilon()*volume;
+          }
+          if(contains)region.push_back(c);
+        }
+        if(region.empty())throw std::invalid_argument("Native3D joint wall lost interior point "+std::to_string(row.first));
+        std::vector<Cell> children;
+        if(!Cone(region,row.second,first,children,reason,stats))throw std::invalid_argument(reason);
+        proposal.cells.erase(std::remove_if(proposal.cells.begin(),proposal.cells.end(),[&](const auto& c) {
+          return std::any_of(region.begin(),region.end(),[&](const auto& r){return r.id==c.id;});
+        }),proposal.cells.end());
+        proposal.cells.insert(proposal.cells.end(),children.begin(),children.end());
+        if(proposal.cells.size()>MaximumReplacementCells)throw std::invalid_argument("Native3D joint wall point restoration exceeds replacement budget.");
+        if(first>UINT64_MAX-(proposal.cells.size()-1))throw std::invalid_argument("Native3D joint wall cell identities overflow.");
+        for(size_t k=0;k<proposal.cells.size();++k)proposal.cells[k].id=first+k;
+      }
+      proposal.surface.clear();
+      Finish(old,proposal,skin,physical,reference,stats);
+      if(!CheckFirstHeight(proposal,heights,reference,report,reason,stats))throw std::invalid_argument(reason);
+    }
     fresh.cells.swap(proposal.cells);fresh.surface.swap(proposal.surface);reason.clear();return true;
-  }catch(const std::exception& e){reason=e.what();return false;}
+  }catch(const std::exception& e){if(wallObstruction!=Face{})obstruction=wallObstruction;reason=e.what();return false;}
 }
 bool UndoEdgeSplit(const Patch& old, Id point, Edge edge, Id first, const PlanarReference& reference, Patch& fresh,
                    std::string& reason, KernelStats* stats) {

@@ -1,0 +1,67 @@
+{
+  "status": "NUMERICAL_PLACEMENT_DIAGNOSIS",
+  "balanced_wall_split": 0.5752269630827364,
+  "results": [
+    {
+      "closure": "required",
+      "policy": "skin_only",
+      "cells": 36,
+      "success": true,
+      "status": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "point": [
+        0.16116543618774595,
+        0.10163123631510339,
+        0.04209703644246084
+      ],
+      "margin": 0.04209703644246084,
+      "constraints": 32,
+      "point_residual": 0.042097036442460836
+    },
+    {
+      "closure": "required",
+      "policy": "wall_children",
+      "cells": 36,
+      "success": true,
+      "status": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "point": [
+        0.535485502969574,
+        0.537725267002775,
+        0.21352610317948678
+      ],
+      "margin": -0.09356024452768447,
+      "constraints": 47,
+      "point_residual": -0.09356024452768452
+    },
+    {
+      "closure": "combined",
+      "policy": "skin_only",
+      "cells": 49,
+      "success": true,
+      "status": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "point": [
+        0.5449305534030718,
+        0.4474279705627171,
+        -0.0027969743509311997
+      ],
+      "margin": -0.0027969743509311997,
+      "constraints": 46,
+      "point_residual": -0.0027969743509314304
+    },
+    {
+      "closure": "combined",
+      "policy": "wall_children",
+      "cells": 49,
+      "success": true,
+      "status": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "point": [
+        0.5357855785012846,
+        0.5357855785012846,
+        0.19324465334800983
+      ],
+      "margin": -0.10995348278050146,
+      "constraints": 61,
+      "point_residual": -0.10995348278050149
+    }
+  ],
+  "scope": "Floating-point LP over saved terminal cavities; checks single-background visibility and prescribed normal wall-child containment. No exact impossibility proof, metric quality/length certificate or accepted mesh."
+}

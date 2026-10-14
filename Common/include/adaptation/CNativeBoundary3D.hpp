@@ -139,10 +139,13 @@ bool SplitSurfaceStrip(const Patch& old,Edge edge,Node point,const std::vector<s
                        KernelStats* stats = nullptr);
 /*! Complete edge star plus imported face neighbours; joint projected surface split and interior reconnection.
  * Placement tensor is a proposal proxy only. Caller must certify actual-query metric, geometry progress,
- * nonlocal clearance and complete versioned dependencies. Obstruction names a retained interface for bounded growth. */
+ * nonlocal clearance and complete versioned dependencies. Requested wall children and transition are carved
+ * together at prescribed normal height. Reserve interior.id through interior.id+1+wall-face count, including
+ * the private background replacement. Obstruction names a retained interface for bounded growth. */
 bool ReconstructSplitPatch(const Patch& old,Edge edge,Node point,Node interior,const Tensor& placement,
                            Id first_cell,const PlanarReference& reference,Patch& fresh,Face& obstruction,
-                           std::string& reason,KernelStats* stats = nullptr);
+                           std::string& reason,KernelStats* stats = nullptr,
+                           const std::map<int,double>& heights = {});
 bool UndoEdgeSplit(const Patch& old, Id point, Edge endpoints, Id first_cell, const PlanarReference& reference,
                    Patch& fresh, std::string& reason, KernelStats* stats = nullptr);
 /*! Contracts a vertex to an existing neighbor in its complete admitted vertex star, without split history.

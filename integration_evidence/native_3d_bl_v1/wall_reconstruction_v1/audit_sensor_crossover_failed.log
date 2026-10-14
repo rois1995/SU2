@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/audit_sensor.py", line 128, in <module>
+    if __name__=='__main__':main()
+  File "integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/audit_sensor.py", line 105, in main
+    measured,_=base.frame(path,False,validate_shape=receipt['status']=='PASS',metric_query=base.metric if released else tensor,edge_query=base.length if released else edge)
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_coupled.py", line 193, in frame
+    value=query_length(original,nodes[edge[0]],nodes[edge[1]])
+  File "integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/audit_sensor.py", line 54, in edge
+    total+=integrate(lower,upper,fa,fm,fb,old,1e-10*(upper-lower),0)
+  File "integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/audit_sensor.py", line 50, in integrate
+    return integrate(a,mid,fa,fl,fm,left,tol/2,depth+1)+integrate(mid,b,fm,fr,fb,right,tol/2,depth+1)
+  File "integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/audit_sensor.py", line 50, in integrate
+    return integrate(a,mid,fa,fl,fm,left,tol/2,depth+1)+integrate(mid,b,fm,fr,fb,right,tol/2,depth+1)
+  File "integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/audit_sensor.py", line 50, in integrate
+    return integrate(a,mid,fa,fl,fm,left,tol/2,depth+1)+integrate(mid,b,fm,fr,fb,right,tol/2,depth+1)
+  [Previous line repeated 21 more times]
+  File "integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/audit_sensor.py", line 49, in integrate
+    assert depth<24,'Independent Simpson reference did not converge'
+AssertionError: Independent Simpson reference did not converge

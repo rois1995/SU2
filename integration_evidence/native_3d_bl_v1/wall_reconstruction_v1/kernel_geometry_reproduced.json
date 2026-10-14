@@ -1,0 +1,62 @@
+{
+  "status": "REPRODUCED_NUMERICAL_PLACEMENT_DIAGNOSIS",
+  "balanced_wall_split": 0.5752269630827364,
+  "results": [
+    {
+      "closure": "required",
+      "policy": "skin_only",
+      "cells": 36,
+      "point": [
+        0.16116543618774595,
+        0.10163123631510339,
+        0.04209703644246084
+      ],
+      "margin": 0.04209703644246084,
+      "point_residual": 0.042097036442460836,
+      "constraints": 32
+    },
+    {
+      "closure": "required",
+      "policy": "wall_children",
+      "cells": 36,
+      "point": [
+        0.535485502969574,
+        0.537725267002775,
+        0.21352610317948678
+      ],
+      "margin": -0.09356024452768447,
+      "point_residual": -0.09356024452768452,
+      "constraints": 47
+    },
+    {
+      "closure": "combined",
+      "policy": "skin_only",
+      "cells": 49,
+      "point": [
+        0.5449305534030718,
+        0.4474279705627171,
+        -0.0027969743509311997
+      ],
+      "margin": -0.0027969743509311997,
+      "point_residual": -0.0027969743509314304,
+      "constraints": 46
+    },
+    {
+      "closure": "combined",
+      "policy": "wall_children",
+      "cells": 49,
+      "point": [
+        0.5357855785012846,
+        0.5357855785012846,
+        0.19324465334800983
+      ],
+      "margin": -0.10995348278050146,
+      "point_residual": -0.10995348278050149,
+      "constraints": 61
+    }
+  ],
+  "log": "sensor_previous_1791975382289301222/native.log",
+  "log_sha256": "c75fce543312d4cdbfcc1877f0c09bb76200c505bdb2c944a903dd4edbd6919d",
+  "helper_sha256": "6d12733e4dea4b6cb94473c9b3cd122d88651126f405f1165826fb3e62f0ad00",
+  "scope": "Floating-point LP over terminal cavities from the preserved failing version. Tests a single background, not arbitrary reconstruction or global metric feasibility; production does not use SciPy."
+}

@@ -8,16 +8,22 @@ Goal 3 is ACTIVE and incomplete. Production planar BL policy and initialized
 RANS/current+BDF/restart workflow are qualified locally on MPI1/2/4, including
 M<N. The current connected work improves first-row alignment and coordinated
 wall/transition edits. The new normal-foot gate passes focused serial geometry
-and one independently audited production/restart case; MPI is deferred.
+and one independently audited production/restart case at published508e52cf7b.
+Current frontier: coordinated wall/transition reconstruction with retained
+interior points. Its geometric witness passes, but the stronger native field
+still fails the work ceiling. A separately generated control proves target
+feasibility under the declared contracts. All owned jobs are terminal; MPI is
+reserved for the next connected milestone. Full Goal3 remains incomplete.
 
 Current testcase folder:
-`integration_evidence/native_3d_bl_v1/alignment_audit_v1`.
+`integration_evidence/native_3d_bl_v1/wall_reconstruction_v1`.
 The production checkpoint's inspectable grids and states remain in
 `integration_evidence/native_3d_bl_v1/production_policy_v1/mpi1`, `mpi2`, `mpi4`.
 
 Read only the relevant handbook:
 
 - [Current Goal 3 implementation, evidence and remaining gates](Handbook/GOAL3_CURRENT.md).
+- [Wall reconstruction failures, feasibility control and next replay step](Handbook/GOAL3_WALL_RECONSTRUCTION.md).
 - [Completed Goals 1 and 2 and their scope](Handbook/COMPLETED_GOALS.md).
 - [Permanent implementation and validation rules](AGENTS.md).
 - [Full requirement audit](integration_evidence/native_3d_bl_v1/GOAL3_REQUIREMENTS.json).

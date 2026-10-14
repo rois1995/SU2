@@ -35,7 +35,7 @@
     {
       "id": "construction",
       "scope": "joint wall/near-wall/transition reconstruction with height/alignment/coverage and feasibility diagnostics",
-      "status": "Cold6-tet cube and saved89/100-cell joint repair plus BL release PASS MPI1/2/4 N=M under unchanged h0/q/J/full composed length and exact geometry/coverage gates. Curved/interacting walls, feature-marker seams, full M<N and production/CFD remain pending. Production actual RANS+coarsening preserves h0 but maximum physical tilt4.714; alignment control remains an explicit open gate. First-row normal-foot guard fixes the published coarsening defect in one independent serial production case (58 BL cells, tilt0); broader alignment/coverage and MPI under this stronger gate remain pending."
+      "status": "Cold6-tet cube and saved89/100-cell joint repair plus BL release PASS MPI1/2/4 N=M under unchanged h0/q/J/full composed length and exact geometry/coverage gates. Curved/interacting walls, feature-marker seams, full M<N and production/CFD remain pending. Production actual RANS+coarsening preserves h0 but maximum physical tilt4.714; alignment control remains an explicit open gate. First-row normal-foot guard fixes the published coarsening defect in one independent serial production case (58 BL cells, tilt0); broader alignment/coverage and MPI under this stronger gate remain pending. Connected wall/transition and interior-point restoration geometry witness PASS; stronger diag(4+12*x) native case FAILS work4096, edge4.3998. Non-native576-cell control proves declared-contract feasibility; internal reconnection remains required."
     },
     {
       "id": "gradation",
@@ -226,5 +226,20 @@
     "MPI": "pending connected milestone",
     "scope": "One planar cube production case plus six focused first-row geometry/movement cases. Actual computed metric, conservative current+BDF/bounded-SA and SU2/CGNS/reference/restart checks; independent exact embedding, full composed metric, wall footprint and height. No new MPI, full regressions, general layer coverage, actual CFD accuracy or performance qualification."
   },
-  "owned_jobs": "All terminal; production build, focused serial geometry, serial actual workflow and independent audit passed; no MPI campaign in alignment follow-up."
+  "owned_jobs": "All terminal. Focused serial geometry PASS; stronger native case FAIL; independent rejected-progress and constructive-control audits saved. No MPI/full regression campaign.",
+  "wall_reconstruction": {
+    "status": "INCOMPLETE_OPERATOR_MILESTONE",
+    "evidence": "integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/summary.json",
+    "required_probe": "[NativeFinerSensorBL3D], explicit hidden long-running test; currently FAIL; still required for Goal3",
+    "native_progress": {
+      "accepted_edits": 117,
+      "private_cells": 418,
+      "wall_reconstruction_trials": 2266,
+      "wall_reconstruction_accepted": 0,
+      "global_work": 4096,
+      "work_limit": 4096
+    },
+    "target_feasibility": "576-cell constructive non-native control PASS declared metric/height/footprint contracts; not zero-centroid alignment",
+    "remaining": "Replay the exact blocked wall patches and add metric-aware internal reconnection (including tetrahedral face/edge flips) to the complete multi-point replacement; do not raise budgets or relax target/gates."
+  }
 }
