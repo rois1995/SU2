@@ -233,6 +233,21 @@ struct CBoundaryLayerMetric::WallData {
 };
 
 CBoundaryLayerMetric::~CBoundaryLayerMetric() = default;
+size_t CBoundaryLayerMetric::StorageBytes() const {
+  using namespace transfer_memory;
+  size_t bytes=Add(sizeof(*this),Bytes(walls),Bytes(data));
+  for(const auto& wall:walls)bytes=Add(bytes,wall.layer.marker.capacity()+1,Bytes(wall.coord),Bytes(wall.conn));
+  for(const auto& ptr:data)if(ptr) {
+    const auto& d=*ptr;
+    bytes=Add(bytes,sizeof(d),Bytes(d.elem),Bytes(d.length),Bytes(d.segments),Bytes(d.vertexNormal),
+              Bytes(d.corner),Bytes(d.turn),Bytes(d.faceNormal),Bytes(d.edgeNormal),Bytes(d.vertexLog));
+    for(const auto& row:d.segments)bytes=Add(bytes,Bytes(row));
+    bytes=Add(bytes,Mul(d.grid.size(),sizeof(decltype(d.grid)::value_type)+4*sizeof(void*)));
+    for(const auto& row:d.grid)bytes=Add(bytes,Bytes(row.second));
+    if(d.adt)bytes=Add(bytes,d.adt->GetAllocatedBytes(),d.adt->RetainedWorkspaceBound(1));
+  }
+  return bytes;
+}
 
 CBoundaryLayerMetric::CBoundaryLayerMetric(unsigned short nDim, std::vector<Wall> walls_, su2double cornerAngle)
     : nDim(nDim), cornerAngle(cornerAngle), walls(std::move(walls_)) {

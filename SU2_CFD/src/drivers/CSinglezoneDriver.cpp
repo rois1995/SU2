@@ -297,7 +297,29 @@ std::unique_ptr<CRemesher> CSinglezoneDriver::MakeRemesher() {
   if (config_container[ZONE_0]->GetKind_Adap_Remesher()==ADAP_REMESHER::NATIVE_CAVITY) {
     if(geometry_container[ZONE_0][INST_0][MESH_0]->GetnDim()==3){
       if(!nativeReference3D)nativeReference3D=std::make_shared<SU2Native3D::ReferenceState>();
-      auto remesher=std::make_unique<CNativeRemesher3D>(nativeReference3D);
+      auto constraints=[](const CConfig& config,const SU2Native3D::ReferenceState& state,double core,
+                          SU2Native3D::EngineOptions& control) -> SU2Native3D::MetricComposition {
+        auto layers=CBoundaryLayerMetric::FromNativeReference(state,config);
+        for(unsigned short b=0;b<config.GetnAdap_BL();++b) {
+          const auto& layer=config.GetAdap_BL(b);
+          const auto marker=std::find(state.marker_names.begin(),state.marker_names.end(),layer.marker);
+          if(marker==state.marker_names.end())throw std::invalid_argument("Native3D BL marker has no retained geometry.");
+          control.wall_heights[int(marker-state.marker_names.begin())]=SU2_TYPE::GetValue(layer.firstHeight);
+        }
+        control.caller_bytes=transfer_memory::Add(control.caller_bytes,layers->StorageBytes());
+        control.edge_breakpoints=[layers](SU2Native3D::Point a,SU2Native3D::Point b) {
+          return layers->EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z});
+        };
+        return [layers,core](SU2Native3D::Point p,SU2Native3D::Tensor sensor) {
+          const su2double x[3]={p.x,p.y,p.z};CBoundaryLayerMetric::Tensor m;
+          m.m[0][0]=sensor.xx;m.m[0][1]=m.m[1][0]=sensor.xy;m.m[0][2]=m.m[2][0]=sensor.xz;
+          m.m[1][1]=sensor.yy;m.m[1][2]=m.m[2][1]=sensor.yz;m.m[2][2]=sensor.zz;
+          layers->ApplyPoint(x,m,core,nullptr,false);
+          return SU2Native3D::Tensor{SU2_TYPE::GetValue(m.m[0][0]),SU2_TYPE::GetValue(m.m[0][1]),SU2_TYPE::GetValue(m.m[0][2]),
+              SU2_TYPE::GetValue(m.m[1][1]),SU2_TYPE::GetValue(m.m[1][2]),SU2_TYPE::GetValue(m.m[2][2])};
+        };
+      };
+      auto remesher=std::make_unique<CNativeRemesher3D>(nativeReference3D,SU2Native3D::EngineOptions{},std::move(constraints));
       if(config_container[ZONE_0]->GetnAdap_BL())
         remesher->PrepareReference(*config_container[ZONE_0],*geometry_container[ZONE_0][INST_0][MESH_0]);
       return remesher;

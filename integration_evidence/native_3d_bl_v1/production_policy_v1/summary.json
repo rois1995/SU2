@@ -1,0 +1,48 @@
+{
+  "status": "PASS_LIMITED_SCOPE",
+  "MPI": [
+    1,
+    2,
+    4
+  ],
+  "worker_combinations": [
+    [
+      1,
+      1
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      2,
+      2
+    ],
+    [
+      4,
+      1
+    ],
+    [
+      4,
+      2
+    ],
+    [
+      4,
+      4
+    ]
+  ],
+  "frames": 12,
+  "maximum_flow_BDF_integral_defect": 5.956606034301295e-16,
+  "maximum_all_field_projection_defect": 6.148754616052948e-16,
+  "maximum_transported_sensor_error": 0,
+  "maximum_first_height_error": 0.0,
+  "maximum_tilt": 4.714045207910316,
+  "maximum_composed_gradation_ratio": 24.518396264943725,
+  "scope": "Exact cube embedding/coverage, independent full composed metric lengths/shape/h0, actual original P1 sensor transport, current+BDF flow integrals/positivity and real restart, and geometry/target-equivalent SU2/CGNS reload. Native checks separately cover turbulence bounds/history. Composed gradation violations are reported, not corrected. No arbitrary geometry/sensors, CFD convergence/accuracy or performance qualification.",
+  "limitations": [
+    "Manufactured wall-compatible RANS states, no CFD iterations/convergence/accuracy",
+    "Large first-row tilt and composed gradation violations remain; not an aligned multilayer certificate",
+    "Single planar wall and near-identity bounded sensor, not arbitrary thin/curved/interacting/finer-sensor qualification",
+    "Wall-policy construction memory admission remains a conservative model; no speedup/scaling/affordability claim"
+  ]
+}

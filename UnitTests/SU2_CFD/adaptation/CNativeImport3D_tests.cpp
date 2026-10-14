@@ -16,6 +16,7 @@
 #include "../../../Common/include/adaptation/CNativeRuntimeProfile3D.hpp"
 #include "../../../Common/include/adaptation/CNativeReferenceIO3D.hpp"
 #include "../../../SU2_CFD/include/drivers/CSinglezoneDriver.hpp"
+#include "../../../SU2_CFD/include/solvers/CTurbSolver.hpp"
 #include <iomanip>
 #include <cstdlib>
 #include <numeric>
@@ -311,6 +312,7 @@ class TetraDriver : public CSinglezoneDriver {
   CConfig& Config(){return *config_container[ZONE_0];}
   CGeometry& Geometry(){return *geometry_container[ZONE_0][INST_0][MESH_0];}
   CSolver& Solver(){return *solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL];}
+  CTurbSolver* Turbulence(){return static_cast<CTurbSolver*>(solver_container[ZONE_0][INST_0][MESH_0][TURB_SOL]);}
   std::unique_ptr<CRemesher> Backend(){return MakeRemesher();}
   std::shared_ptr<ReferenceState> Reference(){return nativeReference3D;}
 };
@@ -1394,4 +1396,123 @@ TEST_CASE("Resolved three-dimensional Euler vortex drives native curved adaptati
     if(!cycle){const auto checkpoint=driver->AdaptedMeshName(1,1)+driver->Config().GetMesh_Out_FileExtension();backend.reset();driver=ReloadCurved(world,std::move(driver),name,checkpoint,"SU2");backend=driver->Backend();}
   }
   driver->Preprocess(5);driver->Run();driver->Postprocess();driver->Update();CheckPositiveFlow(Flow(world,driver->Geometry(),driver->Solver()));
+}
+
+TEST_CASE("Native3D production wall policy preserves sensor donors and RANS histories across worker counts", "[NativeBLPolicyRuntime3D]") {
+  World world;const int workers=GENERATE(1,2,4);if(workers>world.size)return;
+  const std::string name="policy_m"+std::to_string(workers);
+  auto configText=[&](bool walls) {
+    std::ostringstream cfg;
+    cfg<<"SOLVER= RANS\nKIND_TURB_MODEL= SA\nMATH_PROBLEM= DIRECT\nMACH_NUMBER= 0.2\nAOA= 0\n"
+       <<"REYNOLDS_NUMBER= 1e6\nREYNOLDS_LENGTH= 1\nMESH_FORMAT= SU2\nMESH_FILENAME= "<<name<<".su2\n"
+       <<"MARKER_FAR= (far)\nMARKER_HEATFLUX= (wall,0)\nCOMPUTE_METRIC= YES\nADAP_SENSOR= PRESSURE\n"
+       <<"ADAP_REMESHER= NATIVE_CAVITY\nADAP_SURFACE= YES\nADAP_HESSIAN_NOISE= 0\nADAP_ISO_CORNER= NO\n"
+       <<"ADAP_HMIN= .1\nADAP_HMAX= 1.0000000000000002\nADAP_ARMAX= 100\nADAP_COMPLEXITY= 1\nADAP_HGRAD= 1.3\n"
+       <<"ADAP_NATIVE_REPARTITION= YES\nADAP_NATIVE_RANKS= "<<workers<<"\nADAP_NATIVE_MAX_WORK= 4096\n"
+       <<"WRT_PERFORMANCE= YES\nMGLEVEL= 0\nNUM_METHOD_GRAD= GREEN_GAUSS\nCONV_NUM_METHOD_FLOW= ROE\nMUSCL_FLOW= NO\n"
+       <<"TIME_DOMAIN= YES\nTIME_STEP= 1e-3\nTIME_ITER= 10\nTIME_MARCHING= DUAL_TIME_STEPPING-2ND_ORDER\nINNER_ITER= 2\n"
+       <<"OUTPUT_FILES= (RESTART)\nWRT_ADAP_MESH= NO\nMESH_OUT_FORMAT= SU2\nRESTART_FILENAME= "<<name<<"_restart\nSOLUTION_FILENAME= "<<name<<"_restart\nCONV_FILENAME= "<<name<<"_history\n";
+    if(walls)cfg<<"ADAP_BL_MARKER= (wall)\nADAP_BL_FIRST_HEIGHT= (.1)\nADAP_BL_GROWTH= (1.2)\nADAP_BL_THICKNESS= (.3)\n";
+    return cfg.str();
+  };
+  if(!world.rank) {
+    simplex_test::WriteSU2Mesh(simplex_test::MakeSimplexMesh(3,1,[](const passivedouble* x){return x[2]==0 ? "wall" : "far";}),name+".su2");
+    std::ofstream cfg(name+".cfg");cfg<<configText(true);
+    std::ofstream next(name+"_sensor_only.cfg");next<<configText(false);
+  }
+  SU2_MPI::Barrier(world.comm);const auto cfg=name+".cfg";
+  auto driver=std::make_unique<TetraDriver>(const_cast<char*>(cfg.c_str()),1,world.comm);
+  auto* flow=driver->Solver().GetNodes();auto* turb=driver->Turbulence()->GetNodes();
+  const double rho=SU2_TYPE::GetValue(flow->GetSolution(0,0)),momentum=SU2_TYPE::GetValue(flow->GetSolution(0,1));
+  const double kinetic=momentum*momentum/(2*rho),internal=SU2_TYPE::GetValue(flow->GetSolution(0,4))-kinetic;
+  const double viscosity=SU2_TYPE::GetValue(turb->GetSolution(0,0));REQUIRE(viscosity>0);
+  auto expectedFlow=[&](double z) {return std::array<double,5>{{rho,momentum*z,0,0,internal+kinetic*z}};};
+  for(unsigned long p=0;p<driver->Geometry().GetnPoint();++p) {
+    const double z=SU2_TYPE::GetValue(driver->Geometry().nodes->GetCoord(p,2));const auto values=expectedFlow(z);
+    for(unsigned short k=0;k<5;++k) {
+      flow->SetSolution(p,k,values[k]);flow->GetSolution_time_n()(p,k)=values[k];flow->GetSolution_time_n1()(p,k)=values[k]*.96875;
+    }
+    turb->SetSolution(p,0,viscosity*z);turb->GetSolution_time_n()(p,0)=viscosity*z;turb->GetSolution_time_n1()(p,0)=viscosity*z*.9375;
+  }
+  driver->ComputeMetric();auto backend=driver->Backend();auto* native=dynamic_cast<CNativeRemesher3D*>(backend.get());REQUIRE(native);
+  const std::string authority=EncodeReference(*driver->Reference());CConservativeTransfer transfer;
+  std::stringstream nextOptions(configText(false));std::unique_ptr<CConfig> sensorConfig;
+  {Mute mute;sensorConfig=std::make_unique<CConfig>(nextOptions,SU2_COMPONENT::SU2_CFD,false);}
+  std::vector<uint64_t> counts;ReferenceState restartAuthority;
+  for(unsigned cycle=0;cycle<2;++cycle) {
+    const auto before=State(driver->Geometry(),driver->Solver()),beforeTurb=State(driver->Geometry(),*driver->Turbulence());
+    const auto old=Flow(world,driver->Geometry(),driver->Solver());const CConfig& config=driver->Config();
+    su2activematrix metric(driver->Geometry().GetnPointDomain(),6);
+    for(unsigned long p=0;p<metric.rows();++p)for(unsigned k=0;k<6;++k) {
+      metric(p,k)=driver->Solver().GetNodes()->GetMetric()(p,k);
+      CHECK(metric(p,k)==Approx(k==0 || k==3 || k==5 ? 1. : 0.).margin(2e-14));
+    }
+    auto original=cycle ? restartAuthority : *driver->Reference();const auto input=ImportGeometry(config,driver->Geometry(),&metric,original);
+    if(!cycle) {
+      auto empty=std::make_shared<ReferenceState>();CNativeRemesher3D missing(empty);
+      const auto denied=missing.Remesh(config,driver->Geometry(),metric);CHECK(denied.status!=CRemeshResult::Status::COMPLETE);
+      CHECK_FALSE(denied.onAccepted);CHECK_FALSE(empty->original);CHECK(State(driver->Geometry(),driver->Solver())==before);
+      if(world.size>1) {
+        const auto mismatch=backend->Remesh(world.rank ? *sensorConfig : driver->Config(),driver->Geometry(),metric);
+        CHECK(mismatch.status!=CRemeshResult::Status::COMPLETE);CHECK_FALSE(mismatch.onAccepted);
+        CHECK(EncodeReference(*driver->Reference())==authority);
+        CHECK(State(driver->Geometry(),driver->Solver())==before);CHECK(State(driver->Geometry(),*driver->Turbulence())==beforeTurb);
+      }
+    }
+    const auto result=backend->Remesh(config,driver->Geometry(),metric);INFO("workers="<<workers<<" cycle="<<cycle);
+    REQUIRE(result.status==CRemeshResult::Status::COMPLETE);CHECK(native->Statistics().complete);CHECK(native->Statistics().workers==workers);
+    CHECK(State(driver->Geometry(),driver->Solver())==before);CHECK(State(driver->Geometry(),*driver->Turbulence())==beforeTurb);
+    if(cycle)CHECK_FALSE(driver->Reference()->original);else CHECK(EncodeReference(*driver->Reference())==authority);
+    driver->ReplaceMesh(result,transfer);CHECK(EncodeReference(*driver->Reference())==authority);
+    const auto transported=result.slices.FetchPointMetric(driver->Geometry());const auto fresh=Flow(world,driver->Geometry(),driver->Solver(),transported);
+    const auto event=name+"_s"+std::to_string(cycle);SaveStates(world,event,old,fresh,1.);SaveProjection(world,event,transfer);CheckPositiveFlow(fresh);
+    auto acceptedMetric=su2activematrix(driver->Geometry().GetnPointDomain(),6);
+    for(unsigned long p=0;p<acceptedMetric.rows();++p)for(unsigned k=0;k<6;++k) {
+      acceptedMetric(p,k)=transported[6*p+k];CHECK(acceptedMetric(p,k)==Approx(k==0 || k==3 || k==5 ? 1. : 0.).margin(2e-14));
+    }
+    auto state=*driver->Reference();const auto accepted=ImportGeometry(config,driver->Geometry(),&acceptedMetric,state);
+    Save(world,event,accepted.cells,input.original,state);counts.push_back(result.slices.nElemGlobal);
+    for(auto row:fresh) {
+      const auto expected=expectedFlow(row.point.z);
+      for(unsigned k=0;k<5;++k) {
+        CHECK(RelDiff(row.values[k],expected[k])<2e-10);CHECK(RelDiff(row.values[5+k],expected[k])<2e-10);
+        CHECK(RelDiff(row.values[10+k],expected[k]*.96875)<2e-10);
+      }
+    }
+    turb=driver->Turbulence()->GetNodes();
+    for(unsigned long p=0;p<driver->Geometry().GetnPointDomain();++p) {
+      const double expected=viscosity*SU2_TYPE::GetValue(driver->Geometry().nodes->GetCoord(p,2));
+      const double lower=SU2_TYPE::GetValue(driver->Turbulence()->GetLowerLimit(0));
+      CHECK(turb->GetSolution(p,0)>=lower);CHECK(RelDiff(turb->GetSolution(p,0),std::max(lower,expected))<2e-10);
+      CHECK(RelDiff(turb->GetSolution_time_n(p,0),std::max(lower,expected))<2e-10);
+      CHECK(RelDiff(turb->GetSolution_time_n1(p,0),std::max(lower,expected*.9375))<2e-10);
+    }
+    OutputRoundTrip(world,event,result.slices,accepted.cells,state,1.,[](const su2double*,double){return Tensor{1,0,0,1,0,1};},&input.original);
+    WriteReference(event+".su2.native_ref",state);ReferenceState loaded;CHECK(LoadReference(event+".su2.native_ref",loaded));
+    CHECK(EncodeReference(loaded)==authority);
+    if(!cycle) {
+#ifdef HAVE_CGNS
+      const std::string restartMesh=event+"_written_CGNS.cgns",format="CGNS";
+#else
+      const std::string restartMesh=event+"_written_SU2.su2",format="SU2";
+#endif
+      WriteReference(restartMesh+".native_ref",state);restartAuthority=state;
+      driver->Config().SetTimeIter(2);const auto written=State(driver->Geometry(),driver->Solver());
+      const auto writtenTurb=State(driver->Geometry(),*driver->Turbulence());driver->WriteTimeHistoryRestarts();
+      CHECK(State(driver->Geometry(),driver->Solver())==written);CHECK(State(driver->Geometry(),*driver->Turbulence())==writtenTurb);
+      if(!world.rank) {
+        auto text=configText(false);const std::string oldMesh="MESH_FILENAME= "+name+".su2";
+        const auto at=text.find(oldMesh);REQUIRE(at!=std::string::npos);text.replace(at,oldMesh.size(),"MESH_FILENAME= "+restartMesh);
+        const std::string oldFormat="MESH_FORMAT= SU2";const auto f=text.find(oldFormat);REQUIRE(f!=std::string::npos);
+        text.replace(f,oldFormat.size(),"MESH_FORMAT= "+format);
+        std::ofstream cfg(name+"_restart.cfg");cfg<<text<<"RESTART_SOL= YES\nRESTART_ITER= 3\n";
+      }
+      backend.reset();{Mute mute;driver->Finalize();driver.reset();}SU2_MPI::Barrier(world.comm);
+      const auto restartCfg=name+"_restart.cfg";driver=std::make_unique<TetraDriver>(const_cast<char*>(restartCfg.c_str()),1,world.comm);
+      driver->Preprocess(3);const auto reloaded=Flow(world,driver->Geometry(),driver->Solver());SaveStates(world,name+"_restart",fresh,reloaded,1.);
+      driver->ComputeMetric();backend=driver->Backend();native=dynamic_cast<CNativeRemesher3D*>(backend.get());REQUIRE(native);
+    }
+  }
+  REQUIRE(counts.size()==2);CHECK(counts[0]>6);CHECK(counts[1]<counts[0]);
+  {Mute mute;driver->Finalize();driver.reset();}
 }

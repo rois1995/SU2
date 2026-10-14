@@ -1,0 +1,27 @@
+{
+  "status": "FAIL",
+  "stages": [
+    {
+      "MPI_ranks": 1,
+      "status": "PASS",
+      "returncode": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "3",
+        "nice",
+        "-n",
+        "19",
+        "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/build-integrated-v2/UnitTests/test_driver",
+        "[NativeDefault3D],[NativeBudget3D],[NativeSupport2D]",
+        "--reporter",
+        "compact"
+      ],
+      "log_sha256": "7b2b0e42ea65bd9adf00906a4e8996e045b3089c3084e83cc6c11224aa6a0793",
+      "elapsed_seconds": 0.5352098729927093,
+      "collector_correction": "Seven registered selected cases passed; previous collector wrongly expected five."
+    }
+  ],
+  "binary_sha256": "37ab4e580c11b5844449fa30f4849ddd6c01d26c52387a890f17b16feae579a4",
+  "scope": "Affected 3D default/budget consumers and unchanged2D support/window/default-MMG checks; no broad CFD suite"
+}

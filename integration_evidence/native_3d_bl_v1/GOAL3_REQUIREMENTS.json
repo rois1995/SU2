@@ -20,7 +20,7 @@
     {
       "id": "composition",
       "scope": "one immutable geometric BL policy, including private/remote queries and complexity",
-      "status": "actual-query ApplySample/ApplyPoint policy and retained faceted reference; actual bounded/graded sensor-density quadrature callback and exact-target reuse implemented; full remesher/analytic integration pending"
+      "status": "Production actual-query policy shared by weights/refine/coarsen and existing thin complexity ApplyPoint/ApplySample; geometric edge bands and original reference, sensor-only return. Initialized planar RANS near-identity sensor MPI1/2/4 N=M/M<N independently PASS. Wider anisotropic/curved/interacting qualification pending."
     },
     {
       "id": "edge_integration",
@@ -35,12 +35,12 @@
     {
       "id": "construction",
       "scope": "joint wall/near-wall/transition reconstruction with height/alignment/coverage and feasibility diagnostics",
-      "status": "Cold6-tet cube and saved89/100-cell joint repair plus BL release PASS MPI1/2/4 N=M under unchanged h0/q/J/full composed length and exact geometry/coverage gates. Curved/interacting walls, feature-marker seams, full M<N and production/CFD remain pending."
+      "status": "Cold6-tet cube and saved89/100-cell joint repair plus BL release PASS MPI1/2/4 N=M under unchanged h0/q/J/full composed length and exact geometry/coverage gates. Curved/interacting walls, feature-marker seams, full M<N and production/CFD remain pending. Production actual RANS+coarsening preserves h0 but maximum physical tilt4.714; alignment control remains an explicit open gate."
     },
     {
       "id": "gradation",
       "scope": "separate sensor and composed-field audits without coarse spreading",
-      "status": "pending"
+      "status": "Separate native nodal and independent donor/dyadic/wall-column probes: sensor PASS, composed maximum ratio24.5183963 violatesHGRAD1.3. No correction/spreading; general field audit/feasibility limits and any justified pre-freeze regularization remain open."
     },
     {
       "id": "geometry",
@@ -50,12 +50,12 @@
     {
       "id": "MPI_transfer",
       "scope": "N=M/M<N, complete dependencies, atomic rejection; conservative current+BDF, positivity and turbulence",
-      "status": "first-layer owner transactions/migration/return and input preservation PASS1/2/4 N=M/M<N; full BL stale/veto/transfer/current+BDF/turbulence qualification pending"
+      "status": "Actual production worker migration/return/reader/replacement with computed metric, conservative flow current+BDF, solver-bounded SA histories, real CGNS restart, SU2/CGNS reload and common mismatch/missing-policy rejection PASS N/M1/1,2/1,2/2,4/1,4/2,4/4. Wider fields/geometries pending."
     },
     {
       "id": "workflow",
       "scope": "Euler-to-BL / BL-to-Euler, actual small 3D RANS/M6 where practical; SU2+CGNS/reference/restart",
-      "status": "pending"
+      "status": "Actual initialized RANS/SA driver performs prescribed-metric wall construction/removal and real CGNS/BDF restart, independently audited. No actual CFD iterations/convergence/M6 in this checkpoint."
     },
     {
       "id": "viscous_accuracy",
@@ -90,13 +90,14 @@
     "feature_partition_v1/validation.json",
     "feature_partition_v1/accuracy_summary.json",
     "feature_partition_v1/source_reconstruction.log",
-    "coupled_engine_v1/validated_cold_construction_v1/manifest.json"
+    "coupled_engine_v1/validated_cold_construction_v1/manifest.json",
+    "production_policy_v1/summary.json"
   ],
   "execution_state": {
     "status": "all owned jobs terminal",
     "CFD_runs": 0,
-    "last_focused_runner": "21945 (PASS)",
-    "last_independent_audit": "65144 (PASS)"
+    "production_MPI": "PASS N/M1/1,2/1,2/2,4/1,4/2,4/4",
+    "independent_frames": 12
   },
   "coupled_engine_checkpoint": {
     "evidence": "integration_evidence/native_3d_bl_v1/coupled_engine_v1",
@@ -141,7 +142,7 @@
     "performance": "Unqualified; composed MPI commits temporarily serialized",
     "remaining": "Full Goal3 production, M<N transfer, curved/interacting/features, composed gradation, RANS/accuracy/restart/output and affordability gates"
   },
-  "controller_status": "BLOCKED (last observed); user resumed local work; controller resume unavailable through tools",
+  "controller_status": "ACTIVE",
   "cold_construction": {
     "status": "PASS_LIMITED_SCOPE",
     "MPI": [
@@ -165,5 +166,54 @@
     "evidence": "integration_evidence/native_3d_bl_v1/coupled_engine_v1/validated_cold_construction_v1",
     "independent_matrix_sha256": "60a937d153baa377e2b8e59cdf80bf2327960fc541b85c837752494f7f133fe9",
     "scope": "Exact cube geometry and coverage, original six-cell identity P1 sensor plus actual geometric BL, full composed edges, prescribed first-height and Euler release. N=M MPI1/2/4. No CFD, BDF/current solution transfer, curved/interacting layers or performance qualification."
+  },
+  "production_policy": {
+    "summary": "integration_evidence/native_3d_bl_v1/production_policy_v1/summary.json",
+    "status": "PASS_LIMITED_SCOPE",
+    "MPI": [
+      1,
+      2,
+      4
+    ],
+    "worker_combinations": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        4,
+        4
+      ]
+    ],
+    "frames": 12,
+    "maximum_flow_BDF_integral_defect": 5.956606034301295e-16,
+    "maximum_all_field_projection_defect": 6.148754616052948e-16,
+    "maximum_transported_sensor_error": 0,
+    "maximum_first_height_error": 0.0,
+    "maximum_tilt": 4.714045207910316,
+    "maximum_composed_gradation_ratio": 24.518396264943725,
+    "scope": "Exact cube embedding/coverage, independent full composed metric lengths/shape/h0, actual original P1 sensor transport, current+BDF flow integrals/positivity and real restart, and geometry/target-equivalent SU2/CGNS reload. Native checks separately cover turbulence bounds/history. Composed gradation violations are reported, not corrected. No arbitrary geometry/sensors, CFD convergence/accuracy or performance qualification.",
+    "limitations": [
+      "Manufactured wall-compatible RANS states, no CFD iterations/convergence/accuracy",
+      "Large first-row tilt and composed gradation violations remain; not an aligned multilayer certificate",
+      "Single planar wall and near-identity bounded sensor, not arbitrary thin/curved/interacting/finer-sensor qualification",
+      "Wall-policy construction memory admission remains a conservative model; no speedup/scaling/affordability claim"
+    ]
   }
 }

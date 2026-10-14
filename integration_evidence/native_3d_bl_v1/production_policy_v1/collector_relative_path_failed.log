@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/production_policy_v1/run.py", line 49, in <module>
+    if __name__=='__main__':sys.exit(main())
+  File "integration_evidence/native_3d_bl_v1/production_policy_v1/run.py", line 15, in main
+    sources=['Common/include/adaptation/CNativeRemesher3D.hpp','Common/src/adaptation/CNativeRemesher3D.cpp','Common/include/adaptation/CNativeEngine3D.hpp','Common/src/adaptation/CNativeEngine3D.cpp','Common/src/adaptation/CNativeImport3D.cpp','Common/src/adaptation/CNativeReferenceIO3D.cpp','SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp','SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp','SU2_CFD/src/drivers/CSinglezoneDriver.cpp','SU2_CFD/src/solvers/CSolver.cpp','UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp',str(Path(__file__).relative_to(ROOT))]
+  File "/usr/lib/python3.8/pathlib.py", line 908, in relative_to
+    raise ValueError("{!r} does not start with {!r}"
+ValueError: 'integration_evidence/native_3d_bl_v1/production_policy_v1/run.py' does not start with '/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated'

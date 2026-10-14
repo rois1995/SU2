@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "integration_evidence/native_3d_bl_v1/production_policy_v1/audit.py", line 110, in <module>
+    if __name__=='__main__':main()
+  File "integration_evidence/native_3d_bl_v1/production_policy_v1/audit.py", line 81, in main
+    measured,_=base.frame(path,True,metric_query=target if composed else base.metric,edge_query=edge if composed else base.length);assert measured['volume']=='1'
+  File "/media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated/integration_evidence/native_3d_core_v1/audit_coupled.py", line 193, in frame
+    value=query_length(original,nodes[edge[0]],nodes[edge[1]])
+  File "integration_evidence/native_3d_bl_v1/production_policy_v1/audit.py", line 38, in edge
+    fa,fm,fb=speed(a),speed((a+b)/2),speed(b);total+=integrate(a,b,fa,fm,fb,(b-a)*(fa+4*fm+fb)/6,1e-10*(b-a),0)
+  File "integration_evidence/native_3d_bl_v1/production_policy_v1/audit.py", line 27, in speed
+    def speed(t):return math.sqrt(float(base.quad(target(original,tuple(F(float((1-t)*x+t*y)) for x,y in zip(a,b))),d)))
+TypeError: 'float' object is not iterable

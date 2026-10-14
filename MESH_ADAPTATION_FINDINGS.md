@@ -1,3 +1,62 @@
+# Goal3 production geometric policy and real RANS restart: local MPI PASS — 2026-10-14
+
+Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
+Branch: codex/native-3d-bl; preceding published checkpoint555d2ee6f0.
+Cases: integration_evidence/native_3d_bl_v1/production_policy_v1.
+Goal3 ACTIVE and incomplete. All owned jobs terminal at this checkpoint.
+No cluster submission or actual CFD iterations/convergence in this checkpoint.
+
+Production now uses one actual-query geometric BL policy in partition weights,
+worker refinement and coarsening, with a shared frozen sensor-core eigenvalue,
+retained original geometry and geometry-resolved edge bands. The ordinary native
+remesher/driver/replacement paths perform the operations; Euler-to-BL and BL-to-
+Euler remain validation labels, not solver/mesh transition modes. Returned nodal
+metrics contain only the original P1 sensor, preventing wall-tensor spreading on
+subsequent events. The policy factory is local after common core reduction; missing
+policy/bands and differing policy counts reject collectively. Wall-height/metric/
+geometry/quality/length and atomic publication gates are unchanged. The blanket
+static BL rejection is removed; analytic-wall BL remains explicitly unsupported
+by FromNativeReference. New policy phase and retained wall/tree/workspace bytes are
+reported. Constructor scratch uses a documented conservative per-facet model.
+
+Actual initialized RANS/SA driver with computed Hessian/metric, conservative current
+and BDF histories, requested wall constraints then their absence through a real
+CGNS restart, positive/admissible states and SU2/CGNS/reference reload all pass.
+N/M=(1/1,2/1,2/2,4/1,4/2,4/4), twelve primary frames independently audited for exact
+coverage/volume/no-overlap/manifold geometry, full analytic composed metric lengths
+and shape, exact prescribed height, original-P1 sensor transport, flow/BDF integrals
+and restart preservation. Strong native checks also cover turbulence history against
+the solver's declared lower bound (SA wall-zero transfers are clipped to1e-16).
+The first invalid uniform no-slip fixture and unpaired configuration swap were test
+errors; negative evidence and source snapshots remain. The final fixture uses an
+admissible affine shear field and rebuilds the actual driver from a real restart.
+
+Important findings, not solved by passing height/shape gates: maximum first-row
+physical tilt4.7140452079 after coarsening; separate composed-field probes reach
+transported-metric ratio24.5183963 although sensor gradation passes. No nodal or
+coarse-cell BL correction was spread and no target was changed during reconstruction.
+The requested complexity1 is below the retained BL minimum (~3.69416); the code
+reports that incompatibility and keeps the wall/sensor demands. These are not proof
+of arbitrary field feasibility or aligned multilayer construction. Next major step:
+control first-row/transition alignment under joint reconstruction/coarsening, audit
+and diagnose composed gradation before freezing, then widen thin/curved/interacting
+wall and actual viscous CFD/accuracy qualification. Full performance/affordability
+and M6 remain open. Do not claim efficiency from these contended correctness times.
+
+Inspect mpi1/mpi2/mpi4: policy_m*_s0.su2 are independently exported accepted BL
+meshes; *_s1.su2 are the subsequent ordinary sensor-target meshes; *.json contain
+source/geometry/states/projection certificates, *_written_SU2.su2 and *_written_CGNS.cgns
+are actual output/reloads; native.log records exclusive lifecycle timings. The
+summary.json, mpi*.json and independent_mpi*.json pin scope and provenance. Existing
+seven default/budget/support consumer cases pass MPI1/2/4; only a collector expected
+five initially, corrected without repeating unchanged serial work. No broad suite
+was repeated after each small fixture edit. Preserve failed native/collector stages.
+Goal4 is authorized only after full Goal3 completion. AdapNoExt, foreign ClusterResults
+and dependencies remain untouched. One heavy job at a time, nice19/threads1,
+build-j1/affinity7,6,3,2; sequential locally available MPI1/2/4.
+
+Earlier entries below are historical.
+
 # Goal3 cold Euler-to-BL and BL-to-Euler kernel workflow: MPI1/2/4 PASS — 2026-10-14
 
 Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.

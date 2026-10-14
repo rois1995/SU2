@@ -9,6 +9,7 @@
 #include "../../include/adaptation/CNativeRuntimeProfile3D.hpp"
 #include "../../include/adaptation/CNativeReferenceIO3D.hpp"
 #include "../../include/CConfig.hpp"
+#include "../../include/linear_algebra/blas_structure.hpp"
 #include "../../include/geometry/CGeometry.hpp"
 #include <chrono>
 #include <ctime>
@@ -22,8 +23,8 @@
 #include <sys/resource.h>
 #endif
 using namespace SU2Native3D;
-CNativeRemesher3D::CNativeRemesher3D(std::shared_ptr<ReferenceState> retained, EngineOptions control)
-    : reference(std::move(retained)), options(control) {
+CNativeRemesher3D::CNativeRemesher3D(std::shared_ptr<ReferenceState> retained, EngineOptions control, CompositionFactory constraints)
+    : reference(std::move(retained)), options(control), compositionFactory(std::move(constraints)) {
   if (!reference) throw std::invalid_argument("Native3D needs driver-owned reference storage.");
 }
 void CNativeRemesher3D::PrepareReference(const CConfig& config,const CGeometry& geometry) {
@@ -95,8 +96,6 @@ void CNativeRemesher3D::CheckSupport(const CConfig& config, const CGeometry& geo
         failure.Set(1, b, "ADAP_BL_MARKER: " + config.GetAdap_BL(b).marker + " is not a wall marker.");
   if (!config.GetAdap_Surface())
     failure.Set(1, 0, "Native3D currently requires ADAP_SURFACE= YES; fixed surfaces are not validated.");
-  if (config.GetnAdap_BL())
-    failure.Set(1, 0, "Native3D composed BL edge integration and first-height construction are not implemented.");
   if (SU2_TYPE::GetValue(config.GetAdap_Hessian_Noise()) != 0)
     failure.Set(1, 0, "Native3D validation requires ADAP_HESSIAN_NOISE= 0.");
   CollectiveFailure(failure, CURRENT_FUNCTION);
@@ -168,6 +167,9 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     if (work_lo!=work_hi || time_lo!=time_hi || !std::isfinite(time_lo) || !std::isfinite(time_hi) || time_lo<0)
       failure.Set(1,0,"Native3D work/time controls differ or are invalid.");
     CollectiveFailure(failure, CURRENT_FUNCTION);
+    const int bl_low=CPassiveComm::Allreduce(int(config.GetnAdap_BL()),CPassiveComm::Op::MIN,parent.comm),
+              bl_high=CPassiveComm::Allreduce(int(config.GetnAdap_BL()),CPassiveComm::Op::MAX,parent.comm);
+    if(!vote(bl_low==bl_high,"Native3D geometric policy differs across CFD ranks."))break;
     // Admit retained/publication state first; sidecar loading admits its actual byte and construction demand.
     const size_t reference_setup =
         transfer_memory::Add(options.caller_bytes, ReferenceStorageBytes(*reference),
@@ -191,7 +193,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     CollectiveFailure(failure, CURRENT_FUNCTION);
     phase(1);
     // Retained and pending state share the immutable authority: count its allocation once.
-    const size_t retained = transfer_memory::Add(options.caller_bytes, ReferenceStorageBytes(*reference, false));
+    size_t retained = transfer_memory::Add(options.caller_bytes, ReferenceStorageBytes(*reference, false));
     auto held = [&]() {
       return transfer_memory::Add(retained, ReferenceStorageBytes(pending->state), partition_bytes());
     };
@@ -201,6 +203,35 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
     stats.maximum_native_bytes = std::max(stats.maximum_native_bytes, stats.imported.maximum_native_bytes);
     phase(2);
     if (!ready) break;
+    MetricComposition composition;
+    if (config.GetnAdap_BL()) {
+      if (!vote(bool(compositionFactory),"Native3D configured BL requires an actual-query geometric policy.")) break;
+      // shortcut: conservative wall-policy construction scratch; replace with measured peak admission for large surfaces.
+      if (!admit(transfer_memory::Add(held(),OwnedStorageBytes(imported.cells),transfer_memory::Bytes(imported.original),
+                                     transfer_memory::Mul(pending->state.facets.size(),8192)))) break;
+      double localCore=std::numeric_limits<double>::max();
+      try {
+        for(unsigned long p=0;p<geometry.GetnPointDomain();++p) {
+          su2double m[3][3]={{sensor(p,0),sensor(p,1),sensor(p,2)},
+                            {sensor(p,1),sensor(p,3),sensor(p,4)},
+                            {sensor(p,2),sensor(p,4),sensor(p,5)}},vec[3][3],val[3],work[3];
+          CBlasStructure::EigenDecomposition(m,vec,val,3,work);
+          const double smallest=SU2_TYPE::GetValue(*std::min_element(val,val+3));
+          if (!(std::isfinite(smallest) && smallest>0)) throw std::runtime_error("Invalid Native3D frozen sensor core.");
+          localCore=std::min(localCore,smallest);
+        }
+      }catch(const std::exception& e){failure.Set(2,0,e.what());}
+      CollectiveFailure(failure,CURRENT_FUNCTION);
+      const double core=CPassiveComm::Allreduce(localCore,CPassiveComm::Op::MIN,parent.comm);
+      try {composition=compositionFactory(config,pending->state,core,control);}
+      catch(const std::exception& e){failure.Set(2,0,e.what());}
+      CollectiveFailure(failure,CURRENT_FUNCTION);
+      if (!vote(bool(composition) && bool(control.edge_breakpoints),"Native3D BL policy omitted composition or geometric edge bands.")) break;
+      if(!vote(control.caller_bytes>=options.caller_bytes,"Native3D geometric policy decreased retained storage."))break;
+      retained=transfer_memory::Add(retained,control.caller_bytes-options.caller_bytes);
+      if (!admit(transfer_memory::Add(held(),OwnedStorageBytes(imported.cells),transfer_memory::Bytes(imported.original)))) break;
+    }
+    phase(12);
     stats.initial_cells = CPassiveComm::Allreduce(uint64_t(imported.cells.size()), CPassiveComm::Op::SUM, parent.comm);
     if (control.maximum_work==SIZE_MAX)
       control.maximum_work=std::max<size_t>(4096,transfer_memory::Mul(stats.initial_cells,64));
@@ -221,7 +252,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
       std::vector<uint32_t> weights;
       if (ready && repartition)
         ready =
-            WorkingWeights(parent, working, source, weights, reason, stats.weights, {}, control.memory_ceiling,
+            WorkingWeights(parent, working, source, weights, reason, stats.weights, composition, control.memory_ceiling,
                            transfer_memory::Add(held(), transfer_memory::Bytes(imported.original)), control.timings);
       phase(4);
       if (ready && repartition)
@@ -296,7 +327,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
             held(), worker_source == &imported.original ? 0 : transfer_memory::Bytes(imported.original));
         try {
           const auto begin = workers.seconds();
-          auto refined = Refine(workers, working, *worker_source, *pending->state.original, {}, kernel);
+          auto refined = Refine(workers, working, *worker_source, *pending->state.original, composition, kernel);
           stats.refine = refined.stats;
           valid = refined.valid;
           detail = refined.reason;
@@ -316,7 +347,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
           }
           if (valid) {
             const auto begin_coarse = workers.seconds();
-            auto coarse = Coarsen(workers, working, *worker_source, *pending->state.original, {}, kernel);
+            auto coarse = Coarsen(workers, working, *worker_source, *pending->state.original, composition, kernel);
             stats.coarsen = coarse.stats;
             valid = coarse.valid;
             detail = coarse.reason;
@@ -361,6 +392,7 @@ CRemeshResult CNativeRemesher3D::Remesh(const CConfig& config, const CGeometry& 
       ready = vote(valid, detail);
     }
     now = parent.seconds();
+    // Transport only the original P1 sensor; geometric BL is recomposed at each subsequent query.
     if (ready)
       ready = ReaderSlices(parent, working, imported.original, pending->state, result.slices, reason, stats.returned,
                            {}, control.memory_ceiling, transfer_memory::Add(held(), transfer_memory::Bytes(migrated)),

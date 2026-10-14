@@ -218,6 +218,8 @@ class CBoundaryLayerMetric {
   std::vector<double> EdgeBreakpoints(const std::array<double, 3>& a, const std::array<double, 3>& b,
                                       double bandRatio = 1.5, unsigned fadeBands = 16);
 
+  /*! Retained vectors/maps/tree plus first-thread tree workspace growth; excludes allocator/RSS and construction peak. */
+  size_t StorageBytes() const;
   std::vector<PointSample> SamplePoints(const std::vector<su2double>& coord);
   /*! Same intersection/fade policy for cached integration samples and actual remesher queries. */
   void ApplySample(unsigned short wall, const Sample& sample, Tensor& metric, su2double coreEigenvalue,

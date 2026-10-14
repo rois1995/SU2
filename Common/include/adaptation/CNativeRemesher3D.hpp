@@ -12,10 +12,10 @@
 namespace SU2Native3D {
 struct RemeshStats {
   // Exclusive computation scopes; diagnostic reporting is separate and measured.
-  static constexpr std::array<const char*, 12> names{{"support", "reference", "import", "source", "weights",
+  static constexpr std::array<const char*, 13> names{{"support", "reference", "import", "source", "weights",
                                                       "partition", "donor_migration", "communicator", "refine",
-                                                      "coarsen", "wait", "return"}};
-  std::array<double, 12> phases{};
+                                                      "coarsen", "wait", "return", "policy"}};
+  std::array<double, 13> phases{};
   double total_seconds = 0, other_seconds = 0, report_seconds = 0, process_cpu_seconds = 0, idle_cpu_seconds = 0;
   BridgeStats imported, weights, returned;
   DonorImportStats source;
@@ -33,8 +33,10 @@ struct RemeshStats {
 }  // namespace SU2Native3D
 class CNativeRemesher3D final : public CRemesher {
  public:
+  using CompositionFactory = std::function<SU2Native3D::MetricComposition(
+      const CConfig&, const SU2Native3D::ReferenceState&, double, SU2Native3D::EngineOptions&)>;
   explicit CNativeRemesher3D(std::shared_ptr<SU2Native3D::ReferenceState> retained,
-                             SU2Native3D::EngineOptions options = {});
+                             SU2Native3D::EngineOptions options = {}, CompositionFactory geometricConstraints = {});
   void PrepareReference(const CConfig& config, const CGeometry& geometry);
   static void CheckSupport(const CConfig& config, const CGeometry& geometry);
   CRemeshResult Remesh(const CConfig& config, const CGeometry& geometry, const su2activematrix& sensor) override;
@@ -43,5 +45,6 @@ class CNativeRemesher3D final : public CRemesher {
  private:
   std::shared_ptr<SU2Native3D::ReferenceState> reference;
   SU2Native3D::EngineOptions options;
+  CompositionFactory compositionFactory;
   SU2Native3D::RemeshStats stats;
 };
