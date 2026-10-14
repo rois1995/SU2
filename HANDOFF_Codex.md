@@ -25,8 +25,19 @@ The centroid-insertion experiment did not help and was removed; its evidence is
 preserved. Full physical/curved/interacting-wall qualification remains open.
 Full Goal3 remains incomplete.
 
-Current testcase folder:
-`integration_evidence/native_3d_bl_v1/connectivity_replay_v1/integration` (focused serial controls).
+Current continuation: per-worker production-policy checks now save separate N/M
+stages and execution intent; the test-only selector is being built, not yet runtime
+qualified. Existing completed engine/transfer receipts describe their actual prior
+binaries. One owned nice19/j1 build is live (session17031, Ninja PID2163160); revalidate
+before restarting. No new SU2/MPI case is running. The curved-wall diagnostic shows
+that exact facet height/footprint can put a normal-centroid apex inside smooth
+geometry, and geometry resolution can conflict with a coarse tangential metric.
+Its twelve-case sweep and two one-tet diagnostic grids are saved; they are not
+native adapted grids. Read the curved BL handbook for the connected next step.
+
+Current diagnostic folder:
+`integration_evidence/native_3d_bl_v1/curved_wall_feasibility_v1`.
+Latest qualified focused controls: `integration_evidence/native_3d_bl_v1/connectivity_replay_v1/integration`.
 Accepted stronger-field meshes are in `integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/sensor`,
 `sensor_mpi2`, `sensor_mpi4`; rejected predecessors remain in `sensor_previous_*`.
 Private replay remains in `integration_evidence/native_3d_bl_v1/connectivity_replay_v1`.
@@ -37,6 +48,7 @@ Read only the relevant handbook:
 
 - [Current Goal 3 implementation, evidence and remaining gates](Handbook/GOAL3_CURRENT.md).
 - [Wall reconstruction failures, feasibility control and next replay step](Handbook/GOAL3_WALL_RECONSTRUCTION.md).
+- [Curved BL geometry/target/construction coupling](Handbook/GOAL3_CURVED_BL.md).
 - [Static assessment 2: fixes, qualification and open architectural limits](Handbook/STATIC_ASSESSMENT_2.md).
 - [Completed Goals 1 and 2 and their scope](Handbook/COMPLETED_GOALS.md).
 - [Permanent implementation and validation rules](AGENTS.md).

@@ -1,0 +1,18 @@
+{
+  "status": "PASS_DIAGNOSTIC_ONLY",
+  "experiment_sha256": "724c40b0cae9967178e5b2d4737a742e6bce28163bbd32c7276e586b0bfb63f9",
+  "cases": 12,
+  "native_measure_source_sha256": "c5190a9cf8c391daf2dfb6c5f94ee0120c5b3a4f3462257655f82ffc89c9a2c2",
+  "statements": [
+    "Exact facet altitude and normal-foot containment alone do not establish positive clearance to a smooth curved wall.",
+    "Normal-centroid construction on the declared coarse sphere lies inside the analytic wall in all12 cases; this rejects that construction, not the adaptive problem.",
+    "Refining to resolve a surface error of0.1*h0 can violate scaled-J and quality in an unchanged coarse tangential metric; geometry resolution, the frozen target and reconstruction must be coordinated.",
+    "A curvature-scaled tangential proxy admits the illustrative right tet with q/J/L gates; this is a mathematical proxy, not a production metric implementation or a remeshing certificate."
+  ],
+  "limits": "Circular/symmetric-sphere geometry and right-tet metric proxy. No native construction, complete geometry, curved integration, layer stack, CFD, MPI or performance qualification. No production target/fade/height change.",
+  "artifacts": {
+    "resolved_spherical_normal_row_geometry_only.su2": "1655dad2a38ec3e080ed3c54344fa03182830e2206885b67db3748502bf140d2",
+    "sweep.csv": "2f19352692ba3d109432001eb781d5a6e56a218819dd14cff6a02271823d731e",
+    "coarse_spherical_normal_row_rejected.su2": "37579fcbd355ca6284aa785d6864b01551107426e4f7ee073a6289a3cf106ef0"
+  }
+}

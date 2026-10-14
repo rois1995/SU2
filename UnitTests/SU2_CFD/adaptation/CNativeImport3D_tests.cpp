@@ -1410,6 +1410,9 @@ TEST_CASE("Resolved three-dimensional Euler vortex drives native curved adaptati
 
 TEST_CASE("Native3D production wall policy preserves sensor donors and RANS histories across worker counts", "[NativeBLPolicyRuntime3D]") {
   World world;const int workers=GENERATE(1,2,4);if(workers>world.size)return;
+  const auto* selected=std::getenv("SU2_NATIVE_POLICY_WORKERS");const auto only=selected?std::stoi(selected):0;
+  REQUIRE((only==0 || only==1 || only==2 || only==4));REQUIRE(only<=world.size);
+  if(only && workers!=only)return;
   const std::string name="policy_m"+std::to_string(workers);
   auto configText=[&](bool walls) {
     std::ostringstream cfg;

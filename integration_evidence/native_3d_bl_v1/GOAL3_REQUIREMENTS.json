@@ -45,7 +45,7 @@
     {
       "id": "geometry",
       "scope": "planar/curved/features/junctions/interacting layers; refine/coarsen and geometry authority",
-      "status": "pending"
+      "status": "Twelve independent scale/height diagnostics reproduce smooth-wall clearance vs exact facet height and geometry-resolution vs frozen metric shape incompatibility. This is a construction/target diagnosis, not native curved BL qualification or general infeasibility. Analytic BL still explicitly rejected; query, edge/thin integration and coordinated reconstruction remain required."
     },
     {
       "id": "MPI_transfer",
@@ -97,7 +97,7 @@
     "connectivity_replay_v1/visibility_fixture.json"
   ],
   "execution_state": {
-    "status": "all owned jobs terminal; current production MPI4 interrupted",
+    "status": "one owned nice19/j1 selector build live; no new SU2/MPI run; current production MPI4 remains required",
     "CFD_runs": 0,
     "production_MPI": "Current PASS N/M1/1,2/1,2/2; N/M4/1,4/2,4/4 remain required. Previous full matrix historical.",
     "independent_frames": 6
@@ -231,7 +231,15 @@
     "MPI": "pending connected milestone",
     "scope": "One planar cube production case plus six focused first-row geometry/movement cases. Actual computed metric, conservative current+BDF/bounded-SA and SU2/CGNS/reference/restart checks; independent exact embedding, full composed metric, wall footprint and height. No new MPI, full regressions, general layer coverage, actual CFD accuracy or performance qualification."
   },
-  "owned_jobs": [],
+  "owned_jobs": [
+    {
+      "kind": "focused test-only build",
+      "session_id": 17031,
+      "ninja_pid": 2163160,
+      "log": "/tmp/native-policy-worker-selection-build.log",
+      "rule": "Verify current process/session identity before any restart; no elapsed-time inference."
+    }
+  ],
   "wall_reconstruction": {
     "status": "PASS_PLANAR_STRONGER_FIELD_LIMITED_SCOPE",
     "evidence": "integration_evidence/native_3d_bl_v1/wall_reconstruction_v1/summary.json",
@@ -255,5 +263,12 @@
     "status": "PRIVATE_PROGRESS_ONLY_INADMISSIBLE",
     "evidence": "integration_evidence/native_3d_bl_v1/connectivity_replay_v1/independent_audit.json",
     "production_integration": false
+  },
+  "curved_BL_diagnostic": {
+    "evidence": "curved_wall_feasibility_v1/result.json",
+    "mesh_audit": "curved_wall_feasibility_v1/mesh_geometry_audit.json",
+    "status": "PASS_DIAGNOSTIC_ONLY",
+    "production_support": "still explicitly rejected",
+    "next": "Connected actual-query curved authority, full edge/thin integration, frozen target feasibility and joint wall/transition reconstruction."
   }
 }

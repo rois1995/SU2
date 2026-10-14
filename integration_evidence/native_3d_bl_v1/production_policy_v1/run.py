@@ -9,7 +9,8 @@ def digest(p):
   for block in iter(lambda:f.read(1024*1024),b''):h.update(block)
  return h.hexdigest()
 def main():
- ranks=int(sys.argv[1]);assert ranks in (1,2,4)
+ ranks=int(sys.argv[1]);only=int(sys.argv[2]) if len(sys.argv)==3 else 0;assert len(sys.argv) in (2,3) and ranks in (1,2,4) and only in (0,1,2,4) and only<=ranks
+ stage="mpi"+str(ranks)+("_m"+str(only) if only else "")
  check=subprocess.run(['/tmp/native-build-tools/ninja','-C',str(BUILD),'-n','UnitTests/test_driver','SU2_CFD/src/SU2_CFD'],stdout=subprocess.PIPE,stderr=subprocess.STDOUT,universal_newlines=True,timeout=30)
  assert check.returncode==0 and 'ninja: no work to do.' in check.stdout,check.stdout
  sources=['Common/include/adaptation/CNativeRemesher3D.hpp','Common/src/adaptation/CNativeRemesher3D.cpp','Common/include/adaptation/CNativeEngine3D.hpp','Common/src/adaptation/CNativeEngine3D.cpp','Common/src/adaptation/CNativeImport3D.cpp','Common/src/adaptation/CNativeReferenceIO3D.cpp','SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp','SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp','SU2_CFD/src/drivers/CSinglezoneDriver.cpp','SU2_CFD/src/solvers/CSolver.cpp','UnitTests/SU2_CFD/adaptation/CNativeImport3D_tests.cpp',str(Path(__file__).resolve().relative_to(ROOT))]
@@ -24,13 +25,13 @@ def main():
  command=['taskset','-c','3' if ranks==1 else '7,6,3,2','nice','-n','19']
  if ranks>1:command+=['mpirun','--oversubscribe','--bind-to','none','-np',str(ranks)]
  command+=[str(BINARY),'[NativeBLPolicyRuntime3D]','--reporter','compact']
- env=dict(os.environ,OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1',OMPI_MCA_mpi_yield_when_idle='1',PYTHONDONTWRITEBYTECODE='1')
- contract={'pins':pins,'command':command,'MPI_ranks':ranks,'environment':{k:env[k] for k in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','OMPI_MCA_mpi_yield_when_idle']}}
- record=HERE/('mpi'+str(ranks)+'.json');folder=HERE/('mpi'+str(ranks));print('Case folder:',folder,flush=True)
+ env=dict(os.environ,OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1',OMPI_MCA_mpi_yield_when_idle='1',PYTHONDONTWRITEBYTECODE='1',SU2_NATIVE_POLICY_WORKERS=str(only))
+ contract={'pins':pins,'command':command,'MPI_ranks':ranks,'selected_workers':only,'environment':{k:env[k] for k in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','OMPI_MCA_mpi_yield_when_idle','SU2_NATIVE_POLICY_WORKERS']}}
+ record=HERE/(stage+'.json');folder=HERE/stage;print('Case folder:',folder,flush=True)
  if record.exists():
   old=json.loads(record.read_text())
   if old.get('status')=='PASS' and old.get('contract')==contract and all(digest(folder/f)==sha for f,sha in old['artifacts'].items()):print('Reused PASS',flush=True);return 0
-  record.rename(HERE/('mpi'+str(ranks)+'_previous_'+str(time.time_ns())+'.json'))
+  record.rename(HERE/(stage+'_previous_'+str(time.time_ns())+'.json'))
  if ranks>1:
   serial=json.loads((HERE/'mpi1.json').read_text());assert serial['status']=='PASS' and serial['contract']['pins']==pins,'Complete current serial policy stage first'
  if folder.exists():folder.rename(HERE/(folder.name+'_previous_'+str(time.time_ns())))
@@ -38,10 +39,14 @@ def main():
  for source in sources:
   out=folder/'source_snapshots'/source;out.parent.mkdir(parents=True,exist_ok=True);out.write_bytes((ROOT/source).read_bytes())
  log=folder/'native.log';start=time.monotonic()
+ record.write_text(json.dumps({'status':'RUNNING','contract':contract,'collector_pid':os.getpid(),'scope':'Execution intent only; verify the live process/session before restarting. Not a PASS receipt.'},indent=2)+'\n')
  with log.open('w') as out:
   try:code=subprocess.run(command,cwd=folder,env=env,stdout=out,stderr=subprocess.STDOUT,timeout=900).returncode
   except subprocess.TimeoutExpired:code=124
- text=log.read_text();passed=code==0 and text.count('Passed 1 test case with ')==ranks
+ text=log.read_text();wanted={only} if only else {1,ranks,max(1,ranks//2)}
+ frames={f.name for f in folder.glob('policy_m*_s[01].json')}
+ expected={'policy_m'+str(m)+'_s'+str(c)+'.json' for m in wanted for c in (0,1)}
+ passed=code==0 and text.count('Passed 1 test case with ')==ranks and frames==expected
  assert all(digest(ROOT/p)==pins[p] for p in sources),'Sources changed during stage'
  assert digest(BINARY)==pins['test_binary'],'Binary changed during stage'
  result={'status':'PASS' if passed else 'FAIL','returncode':code,'contract':contract,'elapsed_seconds':time.monotonic()-start,'artifacts':{str(f.relative_to(folder)):digest(f) for f in folder.rglob('*') if f.is_file()},'scope':'Initialized RANS actual metric/backend/replacement, requested wall constraints then sensor-only request, M<=N, conservative current+BDF and turbulence state, sensor-only transport and SU2/CGNS/reference reload. Independent geometry/metric/conservation audit and actual CFD/convergence/performance still required.'}

@@ -1,5 +1,16 @@
 # Goal3 production geometric policy and real RANS restart: local MPI PASS — 2026-10-14
 
+Curved BL continuation: twelve scale/height diagnostics show that a normal-centroid
+row can have exact facet altitude/footprint but negative smooth-wall clearance.
+Geometry-resolving refinement in an unchanged coarse tangential proxy also fails
+q/J; this is a coupled geometry/target/construction issue, not proof that adaptation
+is infeasible. Actual analytic BL queries remain rejected. See
+[the curved BL handbook](Handbook/GOAL3_CURVED_BL.md).
+Test-only per-worker workflow stages are added; their focused build is live and
+runtime qualification is pending. No production engine/metric changes or new CFD
+runs in this continuation. Prior evidence retains its executed provenance.
+
+
 Current wall-reconstruction capability: retained volume topology, prescribed normal
 wall points and metric-directed dependency growth. The reproduced seam failure is
 caused by a constrained interior vertex: face growth31→32 cells leaves it fixed;

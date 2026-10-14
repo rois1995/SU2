@@ -53,6 +53,21 @@ Read [the smaller wall-reconstruction handbook](GOAL3_WALL_RECONSTRUCTION.md)
 for exact failures, preserved artifacts and the next substantial replay/reconnection
 step. Goal3 remains ACTIVE; this is not complete native BL generation.
 
+## Current continuation
+
+Test-only worker selection and per-worker provenance collectors/auditors are added.
+The focused single-job build is pending under heavy contention; no selected worker
+stage has run yet. `production_policy_v1/README.md` gives the resumable commands.
+The previous transfer and stronger-field receipts remain tied to their actual
+executed binaries; no production engine/metric behavior changed in this continuation.
+
+The twelve-case curved-wall diagnostic independently checks positive exported
+one-tet geometry and reproduces negative smooth-wall clearance despite exact facet
+height and footprint1/3. Resolving geometry can also make an unchanged coarse
+metric fail q/J. Read [the coupled curved BL work](GOAL3_CURVED_BL.md). The experiment
+is not native construction or general infeasibility; analytic BL remains rejected
+until its query, integration and joint construction are implemented consistently.
+
 ## Static assessment reconciliation
 
 The supplied b449 static report was checked against current callers and kernels.
