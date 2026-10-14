@@ -1,0 +1,84 @@
+{
+  "status": "REPRODUCED_PRIVATE_SHAPE_REJECTION",
+  "scope": "Exact positive volumes, no positive-volume pair overlap, oriented incidence and unchanged artificial interface of captured patches. Native recorded q/J only: no independent full composed-metric or smooth-wall certificate and no whole-event acceptance.",
+  "old_cells": 20,
+  "proposal_cells": 42,
+  "old_volume": "1104444425970576875329595996323261/1947111321950560360698936123457536",
+  "proposal_volume": "380752460688591356038591793492651/649037107316853453566312041152512",
+  "diagnosis": {
+    "trial": 39,
+    "feature": [
+      1,
+      17,
+      0
+    ],
+    "feature_count": 2,
+    "geometry_valid": true,
+    "metric_failure": 2,
+    "q": 0.16316864070501946,
+    "j": 0.033442629663047924,
+    "weakest_cell": 2243,
+    "sliver_cell": 2243,
+    "reason": "Native 3D metric shape/sliver failure: q=0.16316864070501946 at cell 2243, J=0.033442629663047924 at cell 2243."
+  },
+  "weakest_cell": {
+    "id": 2243,
+    "nodes": [
+      116,
+      1,
+      8,
+      115
+    ]
+  },
+  "weakest_nodes": [
+    {
+      "id": 116,
+      "point": [
+        0.8313276577572586,
+        -0.34434719061891533,
+        0.17419200444340724
+      ],
+      "fixed_interface": false,
+      "physical": false
+    },
+    {
+      "id": 1,
+      "point": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "fixed_interface": true,
+      "physical": true
+    },
+    {
+      "id": 8,
+      "point": [
+        0.7071067811865474,
+        -0.7071067811865477,
+        0.0
+      ],
+      "fixed_interface": true,
+      "physical": true
+    },
+    {
+      "id": 115,
+      "point": [
+        0.5435938561313084,
+        -0.27359440029806786,
+        0.3904811420222595
+      ],
+      "fixed_interface": false,
+      "physical": false
+    }
+  ],
+  "selected_star_complete_inside_patch": true,
+  "receipt_sha256": "c8f06408a1b0761ce7181cde20e599f1322e3687137a839920f535d2503b86d4",
+  "input_sha256": {
+    "old": "65f79342914358aaa493dd7ba2e9b494bd7e3f7df6a37c09aae64506a9f09d12",
+    "proposal": "9a11249788b82087b6f72c6e58109e23a4c0d5fd6155fc8792174838a62e350e",
+    "diagnosis": "1ac2cc4ac893ae85a2af9045ad26864833f670baf89d7e518baab8918904df4f"
+  },
+  "helper_sha256": "d587d7dea4391e6e77c118f5d15167d147b4bc40f72e811c0e6c75d3a1a2ee5e",
+  "predicate_helper_sha256": "26079385c071c3ad1b9c06ab3b862b4ff293367dc3c8d291acf0487089d062c5"
+}

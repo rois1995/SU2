@@ -27,27 +27,37 @@ terminal. Current stage summary: `wall_reconstruction_v1/curved_summary.json`.
   (.70710678,.70710678,1). Off-wall proxy lookup could switch distinct interior
   closest points. Tangential interpolation now binds to the smooth closest foot;
   that removes the quadrature failure without relaxing target/gates.
-- Native cold construction still FAILS at4096 work,120 private cells/50 nodes:
-  main accepted0; coupled topology trials11/accepted0; joint trials4068/private
-  moves31/accepted0. The original16 wall triangles remain unchanged in the returned
-  rejected mesh. No release or CFD replacement occurs.
-- Early streamed work/time exits now retain the real feature/quality sample.
-  Bounded rank-local capture saves the exact old/proposed patch and reason; default
-  production calls do not write evidence. Latest feature is edge(1,17), cell2243:
-  q .16316864070501946, J .033442629663047924, old20/proposed42 cells.
-- Before the coupled change, an18/53-cell captured rejection had q .156010/J .028588.
-  Exact independent audits of both captures verify positive volumes, no positive-
-  volume overlap, oriented incidence and unchanged artificial interface. These are
-  partial local geometry certificates, not full smooth-wall/metric/event acceptance.
-- Curved perimeter edges of the incident requested wall faces can now be split
-  together before normal-row carving. Shared cylinder/disk rim midpoints project
-  through all incident authorities. Missing perimeter stars request specific
-  dependencies. Node/cell/work bounds and final gates are unchanged. A raw retained
-  proposal improves to q .179485/J .045541, but the full cold target still fails;
-  perimeter freedom alone does not resolve the transition connectivity.
-- Focused shared geometry controls PASS3 cases/1525 assertions, plus the refreshed
-  exact planar geometry audit. No new MPI or full regression; the cold failure is
-  retained as a required target, not waived by these controls.
+- Native cold construction still FAILS at4096 work. Bounded removal of free
+  interior vertices now joins flips/movement, retaining the actual frozen field,
+  fixed interface, current prescribed-height apices and complete-star geometry.
+  Each removal consumes the existing trial budget; no limits/gates were raised.
+- The exact saved20-cell blockage is replayable with the original reference and
+  freshly imported120-record sensor/extension source. Whole-proposal samples show
+  q .048290/J .005052, worse than the engine's first failing16-cell batch sample.
+  Prioritizing removal resolves that patch in14 trials:4 removals,3 flips,33 cells,
+  q .240152/J .056062 and zero shape deficit. This is private shape success, not
+  full composed-edge or whole adaptation/solution-transfer acceptance.
+- The independent replay audit verifies positive volumes, no positive-volume
+  overlap, unchanged artificial interface and q/J arithmetic from the exported
+  actual-query tensors. It does not independently qualify the BL field itself.
+  Evidence: `curved_replay.json`, `curved_replay_audit.json`, and the exact fixture
+  origin in `curved_replay_fixture.json`. Current native replay receipt is tied to
+  its recorded binary; subsequent diagnostic-hint changes are not silently covered.
+- Resolve an explicit retained-wall geometry obstruction before spending repair
+  trials on incomplete fallback fans. With prioritized retirement/closure, the
+  full cold target reached6 admitted private edits before rejection. Whole-patch
+  shape deficits now also identify a fixed, nonphysical interface vertex whose
+  complete star can be requested; with that hint the latest run reaches5 private
+  edits. This is not evidence of a general improvement from the hint.
+- Latest cold diagnostics: topology34 trials/5 accepted; joint4040 trials,
+ 119 private moves/58 removals/5 admitted repairs. Last feature edge(4,14),
+  cell7359, representative q .146533/J .021848, old14/proposed31 cells. Representative
+  streamed failures are not the whole-proposal minima. Initial/rejected whole
+  grids, source/binary/config provenance and earlier failures remain inspectable.
+  No release or CFD replacement occurred.
+- Five focused controls PASS52 assertions: flips, private interface bounds,
+  interior sliver resolution, prescribed-height protection and artificial-interface
+  obstruction identification. No MPI/full regression or physical CFD campaign.
 - Single-sphere volume oracle PASS22936 assertions. Inflated proxy footprint
   partitioning had2752 charts and failed65536 points; removing it gave5 charts
   but still failed. Positive sphere-centred fans, where the centre is inside/on
@@ -57,14 +67,14 @@ terminal. Current stage summary: `wall_reconstruction_v1/curved_summary.json`.
 - The visible-wall/hidden thin-sphere oracle still FAILS the16384 subdivision
   bound. It is not qualified; do not infer interacting-layer robustness.
 
-Next: use the reproduced curved patch to coordinate wall distribution and its
-transition topology beyond single-edge reconstruction. Do not repeatedly expand
-cavities or add placement variants without addressing that construction limit.
-The actual frozen target, strict shape/sliver/length gates and atomic rejection
-stay intact. Interacting fan/subdivision remains a separate unresolved limitation.
-Evidence: `wall_reconstruction_v1/curved_cavity_audit.json` and
-`curved_cavity_audit_before_perimeter.json`; input hashes locate the preserved
-current/archived captures. `audit_curved_cavity.py` reuses existing exact predicates.
+Next: assess the remaining curved wall/transition block from the saved full target;
+point retirement and explicit closure resolve the first exact patch but do not yet
+complete the event. The interface-deficit hint is plausible, not qualified as a
+better construction policy. Preserve its comparison against the6-edit predecessor.
+Do not infer infeasibility or increase limits from local search failure. Interacting
+fan/subdivision remains a separate unresolved limitation. Exact local captured
+rejection audits remain in `curved_cavity_audit*.json`; input hashes locate the
+preserved current/archived captures.
 
 Full cold-grid success and independent curved whole-mesh audit, MPI/return/transfer/
 restart and physical RANS/performance gates remain required. Partial/graph/mixed

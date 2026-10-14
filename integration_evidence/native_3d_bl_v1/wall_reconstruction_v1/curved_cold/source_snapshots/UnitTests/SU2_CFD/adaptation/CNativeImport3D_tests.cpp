@@ -118,6 +118,20 @@ void SaveStates(World& world,const std::string& name,const MeshSolution& donor,c
   SaveStates(world,name,Flow(world,donor.Fine(),*donor.solver[MESH_0][FLOW_SOL]),
              Flow(world,accepted.Fine(),*accepted.solver[MESH_0][FLOW_SOL],metric),scale);
 }
+std::vector<OwnedCell> PatchRecords(const Patch& patch) {
+      std::vector<OwnedCell> rows;
+      for(const auto& c:patch.cells) {
+        OwnedCell row;row.cell=c;
+        for(unsigned omit=0;omit<4;++omit) {
+          Face face{};unsigned at=0;for(unsigned k=0;k<4;++k)if(k!=omit)face[at++]=c.v[k].id;
+          std::sort(face.begin(),face.end());
+          for(const auto& f:patch.surface){auto key=f.v;std::sort(key.begin(),key.end());if(key==face)row.physical[omit]={true,f.facet};}
+        }
+        rows.push_back(row);
+      }
+      return rows;
+}
+
 void SaveRecords(const std::string& name,const std::vector<OwnedCell>& cells,const std::vector<DonorCell>& source,const ReferenceState& reference) {
   std::map<Id,Node> nodes;for(auto c:cells)for(auto n:c.cell.v)nodes.emplace(n.id,n);
   std::ofstream out(name+".json");out<<std::setprecision(17)<<"{\"nodes\":[";bool comma=false;
@@ -1535,6 +1549,10 @@ TEST_CASE("Native3D production wall policy preserves sensor donors and RANS hist
   {Mute mute;driver->Finalize();driver.reset();}
 }
 
+namespace {
+#include "fixtures/native_curved_wall_blockage.inc"
+}
+
 TEST_CASE("Cold native cylinder BL construction and release use the same original sensor and smooth policy", "[.][NativeCurvedBLConstruction3D]") {
   World world;const auto seed=PrimitiveMesh(false,false);
   std::stringstream text("SOLVER= RANS\nKIND_TURB_MODEL= SA\nMACH_NUMBER= .2\nAOA= 90\nREYNOLDS_NUMBER= 1000\nREYNOLDS_LENGTH= 1\n"
@@ -1581,26 +1599,44 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
     simplex_test::WriteSU2Mesh(output,name+".su2");std::ofstream sidecar(name+".su2.native_ref");sidecar<<EncodeReference(reference);
   };
   save("curved_cylinder_initial_euler",input.cells);
-  const auto captured_source=world.metadata(input.original);size_t captured=0;
+  const auto captured_source=world.metadata(input.original);
+  if(std::getenv("SU2_NATIVE_CURVED_REPLAY")) {
+    REQUIRE(world.size==1);REQUIRE(EncodeReference(reference)==CurvedBlockedReference());
+    const auto old=CurvedBlockedWallPatch();const Edge edge{1,17};std::map<Id,Point> nodes;
+    for(const auto& c:old.cells)for(auto n:c.v)nodes.emplace(n.id,n.p);
+    const auto a=nodes.at(edge[0]),b=nodes.at(edge[1]);
+    const Node point{1000000,{double(((long double)a.x+b.x)/2),double(((long double)a.y+b.y)/2),double(((long double)a.z+b.z)/2)}};
+    FrozenField field(captured_source,compose,false,AssociatedExtensions(captured_source,*reference.original),options.edge_breakpoints);
+    SaveRecords("replay_original",PatchRecords(old),captured_source,reference);
+    Patch fresh;Face obstruction{};std::string reason;
+    REQUIRE(ReconstructWallSplit(old,edge,point,1000001,2000000,options.wall_heights,*reference.original,fresh,obstruction,reason,nullptr,options.surface_tolerance));
+    auto samples=[&](const char* name,const Patch& patch) {
+      SaveRecords(name,PatchRecords(patch),captured_source,reference);
+      std::ofstream out(std::string(name)+"_samples.json");out<<std::setprecision(17)<<"[";bool comma=false;
+      double q=1,j=1;
+      for(const auto& c:patch.cells) {
+        const auto p=Centroid(c);const auto m=field.Query(p).target;
+        const auto shape=Measure({c.v[0].p,c.v[1].p,c.v[2].p,c.v[3].p},m);q=std::min(q,shape.mean_ratio);j=std::min(j,shape.minimum_scaled_jacobian);
+        if(comma)out<<',';comma=true;out<<"{\"cell\":"<<c.id<<",\"tensor\":["<<m.xx<<','<<m.xy<<','<<m.xz<<','<<m.yy<<','<<m.yz<<','<<m.zz
+            <<"],\"q\":"<<shape.mean_ratio<<",\"j\":"<<shape.minimum_scaled_jacobian<<"}";
+      }
+      out<<"]\n";REQUIRE(out.good());std::cout<<std::setprecision(17)<<"CURVED_REPLAY "<<name<<" cells="<<patch.cells.size()<<" q="<<q<<" j="<<j<<std::endl;
+    };
+    samples("replay_coordinated_rejected",fresh);
+    Patch repaired;ConnectivityRepairReport report;
+    const bool progress=RepairMetricConnectivity(fresh,field,*reference.original,options.wall_heights,3000000,repaired,report,reason,256);
+    std::cout<<"CURVED_REPLAY repair progress="<<progress<<" trials="<<report.trials<<" flips="<<report.flips<<" moves="<<report.moves<<" removals="<<report.removals
+        <<" before="<<report.before_loss<<" after="<<report.after_loss<<" blocked_vertex="<<report.blocked_interior_vertex<<" reason="<<reason<<std::endl;
+    if(progress)samples("replay_repaired_rejected",repaired);
+    CHECK(Signature(world,input.cells,reference)==before);return;  // Diagnostic replay does not qualify full construction/release.
+  }
+  size_t captured=0;
   options.rejected_trial=[&](const Patch& old,const Patch& fresh,Feature feature,const MetricDiagnosis& metric,
                             bool geometry_valid,const std::string& reason) {
     // One latest pair per worker bounds evidence size; the log retains the trial sequence.
     const auto name="curved_rejected_patch_rank"+std::to_string(world.rank);
-    auto records=[](const Patch& patch) {
-      std::vector<OwnedCell> rows;
-      for(const auto& c:patch.cells) {
-        OwnedCell row;row.cell=c;
-        for(unsigned omit=0;omit<4;++omit) {
-          Face face{};unsigned at=0;for(unsigned k=0;k<4;++k)if(k!=omit)face[at++]=c.v[k].id;
-          std::sort(face.begin(),face.end());
-          for(const auto& f:patch.surface){auto key=f.v;std::sort(key.begin(),key.end());if(key==face)row.physical[omit]={true,f.facet};}
-        }
-        rows.push_back(row);
-      }
-      return rows;
-    };
-    SaveRecords(name+"_old",records(old),captured_source,reference);
-    SaveRecords(name+"_proposal",records(fresh),captured_source,reference);
+    SaveRecords(name+"_old",PatchRecords(old),captured_source,reference);
+    SaveRecords(name+"_proposal",PatchRecords(fresh),captured_source,reference);
     std::ofstream out(name+"_diagnosis.json");out<<std::setprecision(17)
         <<"{\"trial\":"<<++captured<<",\"feature\":["<<feature.vertices[0]<<','<<feature.vertices[1]<<','<<feature.vertices[2]
         <<"],\"feature_count\":"<<feature.count<<",\"geometry_valid\":"<<(geometry_valid?"true":"false")
@@ -1618,7 +1654,7 @@ TEST_CASE("Cold native cylinder BL construction and release use the same origina
     const auto& e=refined.stats;const auto& m=e.last_metric_rejection;
     std::cout<<std::setprecision(17)<<"CURVED_NATIVE3D_DIAG accepted="<<e.accepted<<" rejected="<<e.rejected
         <<" topology_trials="<<e.wall_topology_trials<<" topology_accepted="<<e.wall_topology_accepted
-        <<" joint_trials="<<e.wall_joint_trials<<" joint_moves="<<e.wall_joint_moves<<" joint_accepted="<<e.wall_joint_accepted
+        <<" joint_trials="<<e.wall_joint_trials<<" joint_moves="<<e.wall_joint_moves<<" joint_removals="<<e.wall_joint_removals<<" joint_accepted="<<e.wall_joint_accepted
         <<" geometry_rejected="<<e.geometry_rejected<<" shape_rejected="<<e.metric_shape_rejected
         <<" failure="<<unsigned(m.failure)<<" q="<<m.minimum_mean_ratio<<" j="<<m.minimum_scaled_jacobian
         <<" feature_count="<<e.last_rejected_feature.count<<" v0="<<e.last_rejected_feature.vertices[0]

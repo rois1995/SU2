@@ -6,13 +6,14 @@ and single-sphere radial/volume oracle PASS. Full cold-cylinder construction sti
 rejects4096 work with120 cells; interacting thin-volume still rejects16384
 subdivisions. Off-wall tangential lookup was discontinuous and now binds to the
 true smooth foot. Composed gradation ratio30.65099 is separate from sensor ratio1.
-Cold main edits accepted0; joint4068 trials/31 private moves; topology11 trials/0
-accepted. Early streamed budget exits now retain measured diagnosis and exact
-patch capture: edge(1,17), cell2243, q .163169/J .033443. Coupled curved perimeter
-splits and shared cylinder/disk feature projection are integrated, but a private
-improvement does not resolve the cold target. Exact local geometry audits and
-focused3-case controls PASS. Next is coordinated wall/transition construction,
-not larger budgets or repeated local placement variants. Details/failures/grids are in
+Bounded free-point retirement and geometry-first closure resolve the first exact
+curved patch in14 trials:4 removals,3 flips,33 cells,q .240152/J .056062. Independent
+local geometry and exported-tensor arithmetic audits PASS. Full cold construction
+still fails4096 work:6 private edits before the new interface-deficit hint,5 with
+it. The hint is not proven to improve construction. Five focused controls PASS52
+assertions; no CFD replacement. Representative streamed failures are not complete
+proposal minima. Next is the remaining coupled wall/transition construction,
+not larger budgets or claims from the resolved private patch. Details/failures/grids are in
 [the curved handbook](Handbook/GOAL3_CURVED_BL.md). No full-goal or speedup claim.
 
 

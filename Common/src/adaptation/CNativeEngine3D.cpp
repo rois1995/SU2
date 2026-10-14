@@ -1705,7 +1705,10 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           if(!ready)return finish();
           bool passed=validate_private(candidate,choice.geometric ? MetricChange::GeometryRefine : MetricChange::Refine);
           if(!ready)return finish();
-          const bool repair=participating && candidate && !passed && certified.failure==MetricFailure::Shape &&
+          const bool missing_closure=participating && retained_frame && frame==0 && wallSplit && !candidate && obstruction!=Face{};
+          const bool close_first=world.maximum(missing_closure);
+          if(missing_closure)preferred_obstruction={obstruction,3};
+          const bool repair=!close_first && participating && candidate && !passed && certified.failure==MetricFailure::Shape &&
               fresh.cells.size()<=MaximumReplacementCells && !options.wall_heights.empty() && stats.global_work<stats.work_limit;
           if(world.maximum(repair)) {
             const auto repair_limit=std::min<uint64_t>(256,(stats.work_limit-stats.global_work)/
@@ -1729,7 +1732,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                 repaired=RepairMetricConnectivity(fresh,target,geometry,options.wall_heights,
                     maximum_cell+1+offset,proposal,report,rejected,repair_limit);
               }
-              stats.wall_joint_trials+=report.trials;stats.wall_joint_moves+=report.moves;
+              stats.wall_joint_trials+=report.trials;stats.wall_joint_moves+=report.moves;stats.wall_joint_removals+=report.removals;
               if(repaired) {
                 std::map<Id,Point> previous;std::set<Id> used;
                 for(const auto& c:old.cells)for(auto n:c.v)previous.emplace(n.id,n.p);
@@ -1757,6 +1760,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               stats.wall_joint_accepted+=repaired && passed;
               if(!ready)return finish();
             }
+            if(repair && !passed && report.blocked_interior_vertex!=UINT64_MAX && !preferred_obstruction.count)
+              preferred_obstruction={{{report.blocked_interior_vertex,0,0}},1};
           }
           if(participating && !passed)try {
             if(candidate && certified.failure==MetricFailure::Shape) {
@@ -1785,7 +1790,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
             }))++stats.wall_reconstruction_accepted;
           }
           if(!ready)return finish();
-          if(!world.maximum(joint && !approved))break;
+          // Resolve a required retained-row interface before spending trials on incomplete fallback fans.
+          if(close_first || !world.maximum(joint && !approved))break;
         }
         if(joint && approved){cavity_inserted=true;joint=false;}
         else if(joint && candidate && certified.failure==MetricFailure::Measurement)joint=false;

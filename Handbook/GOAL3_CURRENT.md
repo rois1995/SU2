@@ -67,11 +67,13 @@ foot. All owned jobs are terminal. No new MPI or full regression.
 
 Read [the curved work and next blocker](GOAL3_CURVED_BL.md) and
 `wall_reconstruction_v1/curved_summary.json`. Keep prior successful evidence and
-new failures distinct. Early streamed exits now retain actual feature/quality and bounded patch captures.
-Coupled curved perimeter splits improve a private proposal but do not resolve the
-cold target: latest edge(1,17), cell2243 q .163169/J .033443. Exact local patch audits
-and focused3-case shared geometry controls pass; full curved acceptance still fails.
-Partial/graph/mixed components and external-fluid pre-row curvature resolution
+new failures distinct. Early streamed exits retain bounded exact captures. The first saved curved patch
+is resolved with prioritized free-point removal:14 trials,33 cells,q .240152/J
+.056062; independent local geometry and exported-tensor arithmetic PASS. The full
+cold event still fails4096 work (6 private edits before the new interface hint,
+5 with it); hint effectiveness is unqualified. Five focused controls PASS52
+assertions. Whole-proposal minima can be worse than the first failing batch.
+No new MPI or physical CFD qualification. Partial/graph/mixed components and external-fluid pre-row curvature resolution
 remain open. These field controls do not complete native curved BL or full Goal3.
 
 ## Static assessment reconciliation

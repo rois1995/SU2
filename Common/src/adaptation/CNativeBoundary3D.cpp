@@ -1531,6 +1531,58 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
     auto total=[&](const std::vector<Cell>& cells) {double value=0;for(const auto& c:cells)value+=loss(c);return value;};
     report.before_loss=report.after_loss=total(working.cells);
     while(report.after_loss>0 && report.trials<maximum_trials) {
+      bool changed=false;
+      const auto nodes=Nodes(working.cells);
+      std::set<Id> fixed;for(const auto& f:skin)fixed.insert(f.second.begin(),f.second.end());
+      std::map<Id,double> deficits;
+      for(const auto& c:working.cells)for(auto n:c.v)if(!fixed.count(n.id))deficits[n.id]+=loss(c);
+      std::vector<std::pair<double,Id>> order;
+      for(const auto& row:deficits)if(row.second>0)order.emplace_back(-row.second,row.first);
+      std::sort(order.begin(),order.end());
+      // Rebuilt wall rows can leave obsolete interior support points that flips/movement cannot eliminate.
+      std::set<Id> height_apices;
+      for(const auto& f:working.surface)if(heights.count(reference.Get(f.facet).marker))for(const auto& c:working.cells) {
+        unsigned count=0;Id apex=0;for(auto n:c.v){if(Has(f.v,n.id))++count;else apex=n.id;}
+        if(count==3)height_apices.insert(apex);
+      }
+      for(const auto& row:order) {
+        if(changed || report.trials>=maximum_trials)break;
+        const Id point=row.second;if(height_apices.count(point))continue;
+        std::set<Id> neighbors;std::vector<size_t> selected;Patch star;
+        for(size_t i=0;i<working.cells.size();++i)if(std::any_of(working.cells[i].v.begin(),working.cells[i].v.end(),[&](Node n){return n.id==point;})) {
+          selected.push_back(i);star.cells.push_back(working.cells[i]);for(auto n:working.cells[i].v)if(n.id!=point)neighbors.insert(n.id);
+        }
+        if(star.cells.size()>MaximumCavityCells)continue;
+        const auto boundary=SkinMap(Incidence(star.cells).Boundary());
+        for(const auto& f:working.surface)if(boundary.count(Key(f.v)))star.surface.push_back(f);
+        const auto before=total(star.cells);std::vector<std::pair<long double,Id>> ranked;
+        const auto origin=nodes.at(point).p;
+        for(Id neighbor:neighbors) {
+          const auto p=nodes.at(neighbor).p;const Point mid{double(((long double)origin.x+p.x)/2),double(((long double)origin.y+p.y)/2),double(((long double)origin.z+p.z)/2)};
+          ranked.emplace_back(MetricNorm(origin,p,target.Query(mid).target),neighbor);
+        }
+        std::sort(ranked.begin(),ranked.end());
+        for(const auto& destination:ranked) {
+          if(report.trials>=maximum_trials)break;
+          std::vector<Id> key{0,point,destination.second};std::vector<std::array<Id,4>> state;
+          for(const auto& c:star.cells){std::array<Id,4> v;for(unsigned k=0;k<4;++k)v[k]=c.v[k].id;std::sort(v.begin(),v.end());state.push_back(v);}
+          std::sort(state.begin(),state.end());for(const auto& v:state)key.insert(key.end(),v.begin(),v.end());
+          if(!rejected_states.insert(key).second)continue;
+          ++report.trials;Patch collapsed;std::string rejected;
+          if(!CollapseVertex(star,point,destination.second,first,reference,collapsed,rejected))continue;
+          const auto after=total(collapsed.cells);if(!(after<before*(1-1e-8)-1e-14))continue;
+          Patch proposal;proposal.surface=working.surface;
+          for(size_t i=0;i<working.cells.size();++i)if(std::find(selected.begin(),selected.end(),i)==selected.end())proposal.cells.push_back(working.cells[i]);
+          proposal.cells.insert(proposal.cells.end(),collapsed.cells.begin(),collapsed.cells.end());
+          if(proposal.cells.empty() || first>UINT64_MAX-(proposal.cells.size()-1))continue;
+          for(size_t i=0;i<proposal.cells.size();++i)proposal.cells[i].id=first+i;
+          if(!ValidateFixedInterface(working.cells,proposal.cells,rejected,nullptr,MaximumReplacementCells) ||
+             !CheckFirstHeight(proposal,heights,reference,height,rejected))continue;
+          working=std::move(proposal);rejected_states.clear();++report.removals;
+          report.after_loss=total(working.cells);changed=true;break;
+        }
+      }
+      if(changed)continue;
       std::map<Face,std::vector<size_t>> faces;
       std::map<Edge,std::vector<size_t>> edges;
       for(size_t i=0;i<working.cells.size();++i) {
@@ -1566,7 +1618,6 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
         rejected_states.erase(key);
         working=std::move(proposal);++report.flips;report.after_loss=total(working.cells);return true;
       };
-      bool changed=false;
       for(const auto& row:faces)if(row.second.size()==2) {
         const auto& c=working.cells[row.second[0]];
         const auto apex=std::find_if(c.v.begin(),c.v.end(),[&](Node n){return !Has(row.first,n.id);});
@@ -1584,13 +1635,6 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
         if(changed || report.trials>=maximum_trials)break;
       }
       if(!changed && report.trials<maximum_trials) {
-        const auto nodes=Nodes(working.cells);
-        std::set<Id> fixed;for(const auto& f:skin)fixed.insert(f.second.begin(),f.second.end());
-        std::map<Id,double> deficits;
-        for(const auto& c:working.cells)for(auto n:c.v)if(!fixed.count(n.id))deficits[n.id]+=loss(c);
-        std::vector<std::pair<double,Id>> order;
-        for(const auto& row:deficits)if(row.second>0)order.emplace_back(-row.second,row.first);
-        std::sort(order.begin(),order.end());
         std::map<Id,std::vector<Point>> suggestions;
         // Coordinate all constrained interior points before demanding descent from an individual move.
         for(size_t at=0;at<std::min<size_t>(8,order.size());++at) {
@@ -1679,7 +1723,14 @@ bool RepairMetricConnectivity(const Patch& old,FrozenField& target,const PlanarR
       if(!changed)break;
     }
     report.complete_shape=report.after_loss==0;
-    if(!report.flips && !report.moves)throw std::invalid_argument("Native3D admitted joint repair made no actual-field shape progress.");
+    if(!report.complete_shape) {
+      std::set<Id> physical,fixed;for(const auto& f:working.surface)physical.insert(f.v.begin(),f.v.end());
+      for(const auto& f:skin)for(Id n:f.second)if(!physical.count(n))fixed.insert(n);
+      std::map<Id,double> deficits;
+      for(const auto& c:working.cells)for(auto n:c.v)if(fixed.count(n.id))deficits[n.id]+=loss(c);
+      double maximum=0;for(const auto& row:deficits)if(row.second>maximum){maximum=row.second;report.blocked_interior_vertex=row.first;}
+    }
+    if(!report.flips && !report.moves && !report.removals)throw std::invalid_argument("Native3D admitted joint repair made no actual-field shape progress.");
     working.surface.clear();
     const auto physical=CheckSurface(old,skin,reference,nullptr);
     // Flip geometry has an unchanged interface; final reference/topology checks remain independent.
