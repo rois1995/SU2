@@ -25,7 +25,7 @@
     {
       "id": "edge_integration",
       "scope": "geometry-resolved full composed edges and unchanged analytic sensor path",
-      "status": "serial kernel PASS; faceted distance bands and exact-source composition implemented; full remesh/MPI/analytic qualification pending"
+      "status": "Full actual-query composed lengths independently audited on cold construction and both saved repair/release fixtures MPI1/2/4; frozen immutable identity-P1 six-cell source. General curved/interacting and production workflow still pending."
     },
     {
       "id": "thin_volume",
@@ -35,7 +35,7 @@
     {
       "id": "construction",
       "scope": "joint wall/near-wall/transition reconstruction with height/alignment/coverage and feasibility diagnostics",
-      "status": "geometric kernel PASS; first-height MPI engine init/edit protection/policy and budget rejection PASS1/2/4 N=M/M<N; complete composed-target construction, curved/interacting walls and release/coarsening workflow pending"
+      "status": "Cold6-tet cube and saved89/100-cell joint repair plus BL release PASS MPI1/2/4 N=M under unchanged h0/q/J/full composed length and exact geometry/coverage gates. Curved/interacting walls, feature-marker seams, full M<N and production/CFD remain pending."
     },
     {
       "id": "gradation",
@@ -70,7 +70,7 @@
     {
       "id": "publication",
       "scope": "preserved provenance/failures/inspectable artifacts and pushed final checkpoint",
-      "status": "Updated handoff/findings/accuracy summary, preserved fifteen source-reconstructible failures and hashed receipts; reviewable focused integration checkpoint, full-goal publication pending."
+      "status": "Published prior milestones retained; cold/replay nine-case native and independent audited checkpoint with source/binary/helper pins, accepted/rejected grids and failures preserved in validated_cold_construction_v1. Full-goal publication pending."
     }
   ],
   "exclusions": [
@@ -89,12 +89,14 @@
     "first_layer_engine_v1/validation.json",
     "feature_partition_v1/validation.json",
     "feature_partition_v1/accuracy_summary.json",
-    "feature_partition_v1/source_reconstruction.log"
+    "feature_partition_v1/source_reconstruction.log",
+    "coupled_engine_v1/validated_cold_construction_v1/manifest.json"
   ],
   "execution_state": {
     "status": "all owned jobs terminal",
     "CFD_runs": 0,
-    "last_focused_runner": "48794"
+    "last_focused_runner": "21945 (PASS)",
+    "last_independent_audit": "65144 (PASS)"
   },
   "coupled_engine_checkpoint": {
     "evidence": "integration_evidence/native_3d_bl_v1/coupled_engine_v1",
@@ -104,9 +106,9 @@
       2,
       4
     ],
-    "serial_full": "REJECTED: corner edge length 3.150140877566013 > 1.8",
+    "serial_full": "PASS for ordinary wall/far-marker cold6-tet cube; artificial distinct-marker seam case remains outside this qualification",
     "independent_geometry_shape_height": "PASS",
-    "next": "coordinated complete-star split and constrained neighbor movement"
+    "next": "Production composition/edge/height policy and full M<N return/transfer, then actual small RANS driver lifecycle"
   },
   "joint_witness": {
     "status": "PRIVATE_WHOLE_MESH_PASS_ONLY",
@@ -135,8 +137,33 @@
       6
     ],
     "evidence": "integration_evidence/native_3d_bl_v1/coupled_engine_v1/validated_engine_replay_v1",
-    "cold_Euler_to_BL": "FAIL:89cells with surface/interior length residuals",
+    "cold_Euler_to_BL": "PASS limited planar ordinary-marker cube MPI1/2/4; see cold_construction",
     "performance": "Unqualified; composed MPI commits temporarily serialized",
-    "remaining": "All full Goal3 gates including cold start, curved/interacting layers, production, current+BDF/turbulence/CFD, restart/output and lifecycle performance"
+    "remaining": "Full Goal3 production, M<N transfer, curved/interacting/features, composed gradation, RANS/accuracy/restart/output and affordability gates"
+  },
+  "controller_status": "BLOCKED (last observed); user resumed local work; controller resume unavailable through tools",
+  "cold_construction": {
+    "status": "PASS_LIMITED_SCOPE",
+    "MPI": [
+      1,
+      2,
+      4
+    ],
+    "N_equals_M": true,
+    "M_less_than_N": "startup only; full construction/transfer still pending",
+    "Euler_input_cells": 6,
+    "BL_cells": [
+      79,
+      79,
+      89
+    ],
+    "Euler_release_cells": [
+      6,
+      10,
+      6
+    ],
+    "evidence": "integration_evidence/native_3d_bl_v1/coupled_engine_v1/validated_cold_construction_v1",
+    "independent_matrix_sha256": "60a937d153baa377e2b8e59cdf80bf2327960fc541b85c837752494f7f133fe9",
+    "scope": "Exact cube geometry and coverage, original six-cell identity P1 sensor plus actual geometric BL, full composed edges, prescribed first-height and Euler release. N=M MPI1/2/4. No CFD, BDF/current solution transfer, curved/interacting layers or performance qualification."
   }
 }

@@ -1,0 +1,56 @@
+{
+  "status": "PASS",
+  "frames": [
+    {
+      "file": "independent_grouped_coupled_BL_n4.json",
+      "cells": 89,
+      "points": 29,
+      "physical_faces": 32,
+      "volume": "1",
+      "minimum_mean_ratio": 0.20013627911295462,
+      "minimum_scaled_jacobian": 0.053049345922424634,
+      "maximum_length": 1.795681762736278,
+      "longest_edge": [
+        5,
+        2961
+      ],
+      "markers": {
+        "10": 2,
+        "11": 30
+      },
+      "strict_metric_gate": false,
+      "height_faces": 2,
+      "max_relative_height_error": 0.0,
+      "max_tilt": 0.0,
+      "full_target_valid": true
+    },
+    {
+      "file": "independent_grouped_released_Euler_n4.json",
+      "cells": 6,
+      "points": 8,
+      "physical_faces": 12,
+      "volume": "1",
+      "minimum_mean_ratio": 0.6872296635790217,
+      "minimum_scaled_jacobian": 0.40824829046386296,
+      "maximum_length": 1.7320508075688772,
+      "longest_edge": [
+        2,
+        4
+      ],
+      "markers": {
+        "10": 2,
+        "11": 10
+      },
+      "strict_metric_gate": false,
+      "height_faces": 0,
+      "max_relative_height_error": 0,
+      "max_tilt": 0,
+      "full_target_valid": true
+    }
+  ],
+  "log": "grouped_coupled_mpi4_1791965664787727948.log",
+  "log_sha256": "1d08e5b1cf2f706928f831d4fa1e3e5a424e06086a4a2362e171fdcc837c2b30",
+  "helper_sha256": "f4868055ac4ac8a183029b246c9c6e2390f0ea31c39e259177e24f623f1f2a8c",
+  "reused_auditor_sha256": "1822427476ecb5687aaa06f3e7a3cc8f31cde53166fd0c711449eedf7c7c7a50",
+  "scope": "Exact positive volume, global no-overlap/manifold/oriented skin and finite facet coverage; independent analytic full composed square-wall metric, integrated lengths, first height and tilt. No CFD/transfer/production qualification."
+}

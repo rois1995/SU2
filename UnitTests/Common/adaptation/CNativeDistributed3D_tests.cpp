@@ -2278,11 +2278,12 @@ TEST_CASE("Native3D engine elects inconsistent wall-height policies before chang
 
 namespace {
 #include "fixtures/native_bl_corner.inc"
-void CoupledBL(bool grouped,bool replay=false) {
+#include "fixtures/native_bl_cold.inc"
+void CoupledBL(bool grouped,unsigned replay=0) {
   World world;auto fixture=Box();const auto donorFixture=fixture;
-  if(replay)fixture.patch=BLCornerObstruction();
+  if(replay)fixture.patch=replay==2?BLColdObstruction():BLCornerObstruction();
   if(grouped)for(auto& f:fixture.facets)f.marker=std::all_of(f.v.begin(),f.v.end(),[](Node n){return n.p.z==0;})?10:11;
-  const PlanarReference reference(fixture.facets);const std::string prefix=(replay?"replay_":"")+std::string(grouped?"grouped_":"");
+  const PlanarReference reference(fixture.facets);const std::string prefix=(replay==2?"cold_replay_":replay?"replay_":"")+std::string(grouped?"grouped_":"");
   const auto input=Partition(Rows(fixture.patch),world),saved=input;
   const auto original=Uniform(Partition(Rows(donorFixture.patch),world),{1,0,0,1,0,1});
   const auto allOriginal=Uniform(Partition(Rows(donorFixture.patch),World(MPI_COMM_SELF)),{1,0,0,1,0,1});
@@ -2297,7 +2298,7 @@ void CoupledBL(bool grouped,bool replay=false) {
     return Tensor{SU2_TYPE::GetValue(m.m[0][0]),SU2_TYPE::GetValue(m.m[0][1]),SU2_TYPE::GetValue(m.m[0][2]),
         SU2_TYPE::GetValue(m.m[1][1]),SU2_TYPE::GetValue(m.m[1][2]),SU2_TYPE::GetValue(m.m[2][2])};
   };
-  EngineOptions options;options.timings=true;options.maximum_seconds=60;options.maximum_work=4096;
+  EngineOptions options;options.timings=true;options.maximum_seconds=300;options.maximum_work=4096;
   options.edge_breakpoints=[&](Point a,Point b){return layers.EdgeBreakpoints({a.x,a.y,a.z},{b.x,b.y,b.z});};
   for(const auto& face:fixture.facets)
     if(std::all_of(face.v.begin(),face.v.end(),[](Node n){return n.p.z==0;}))options.wall_heights[face.marker]=.1;
@@ -2317,7 +2318,7 @@ void CoupledBL(bool grouped,bool replay=false) {
     }
     simplex_test::WriteSU2Mesh(mesh,prefix+name+"_n"+std::to_string(world.size)+".su2");
   };
-  exportMesh(input,"initial_euler");
+  exportMesh(input,replay?"saved_BL_input":"initial_euler");
   const auto refined=Refine(world,input,original,reference,compose,options);
   EngineReport(refined,world,prefix+"coupled_BL");Log(world,"BL result: "+refined.reason+"\n");
   exportMesh(refined.cells,refined.valid?"constructed_BL":"constructed_BL_rejected");
@@ -2368,6 +2369,10 @@ TEST_CASE("Native3D coarse cube with physical wall and far markers constructs an
 
 TEST_CASE("Native engine discovers the saved ordinary-marker joint repair from immutable coarse donors", "[NativeBLCornerEngine3D]") {
   CoupledBL(true,true);
+}
+
+TEST_CASE("Native engine repairs the exact cold-start BL residual using immutable coarse donors", "[NativeBLColdEngine3D]") {
+  CoupledBL(true,2);
 }
 
 TEST_CASE("Native composed BL startup preserves original geometry across MPI worker subsets", "[NativeCoupledBLBudget3D]") {

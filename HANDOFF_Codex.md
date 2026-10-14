@@ -1,3 +1,54 @@
+# Goal3 cold Euler-to-BL and BL-to-Euler kernel workflow: MPI1/2/4 PASS — 2026-10-14
+
+Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.
+Branch: codex/native-3d-bl; preceding published checkpoint ecce0f52fb.
+Cases: integration_evidence/native_3d_bl_v1/coupled_engine_v1.
+Goal3 remains incomplete; production configured-BL guard is retained.
+All owned jobs are terminal. No CFD or cluster submission this turn.
+
+Cold six-tetrahedron Euler construction now completes the frozen sensor-plus-BL
+contracts, followed by BL removal and Euler coarsening, on MPI1/2/4. Nine final
+native cases and nine independent geometry/analytic-metric audits PASS: cold
+construction plus saved89-cell and100-cell repair/release fixtures on each rank
+count. Actual source remains the original six-cell identity-P1 donor field;
+wall h0=.1, growth1.2, thickness.3, unchanged fade/core1/no hard-normal reset.
+Cold accepted BL cell counts79/79/89; Euler counts6/10/6. Independent exact volume,
+coverage/manifold/no-overlap, whole-mesh q/J, full composed lengths and first-height
+checks pass. Different rank counts may produce different valid topology.
+
+Implementation reuses existing operators: metric-spring surface movement plus
+corner splitting can be coupled with one off-edge insertion through a complete
+interior edge-star cavity. The point is halfway toward the existing metric-spring
+mean, without case coordinates in production. Blocked composed splits now reuse
+MPI vertex-star change notifications: changing neighboring connectivity can make
+an unchanged edge reconstructible. Serialized planar composed edits elect global
+metric priority and canonical edge ties before owner rank. Final private proposals
+still pass the unchanged h0/geometry/q>=.20/J>=.05/edge<=1.8/frozen-target
+and atomic publication gates; work4096 and memory/cavity/identity bounds remain.
+
+Inspect validated_cold_construction_v1/: grouped_initial_euler_n*.su2,
+grouped_constructed_BL_n*.su2, grouped_released_euler_n*.su2, native receipts,
+independent frames/audits, source snapshots and hashed manifest. Original failed
+probes and60-second deadline rejections are retained in separate archived folders.
+Positive correctness cases now allow300seconds (outer collector420) because the
+host became heavily contended; this changes no production setting or mesh/work
+contract. Serial CPU3, MPI affinity7,6,3,2, nice19/threads1; one heavy job.
+No efficiency or scaling claim follows from these times. Composed commits remain
+serialized until concurrent complete-star reservations are qualified.
+
+This is a planar single-wall cube kernel workflow, not full Goal3 completion:
+production actual-query composition/complexity coupling, full M<N workflow and
+current+BDF/turbulence transfer, actual RANS/M6, curved/interacting walls/features,
+separate composed-gradation audit, restart/CGNS, accuracy and full lifecycle
+performance remain open. Next substantial step: wire the production BL policy
+through the existing remesher/worker/return path, then validate actual driver state.
+Goal4 starts only after all full Goal3 requirements pass. The goal controller last
+reported BLOCKED even though work resumed on the user's “go on”; no tool here can
+set it ACTIVE. Resume it in the controller for automatic continuation.
+AdapNoExt, foreign ClusterResults and dependencies remain untouched.
+
+Earlier entries below are historical.
+
 # Goal3 actual joint-engine repair and Euler release: MPI1/2/4 PASS — 2026-10-13
 
 Working folder: /media/rausa/4TB/SU2_Versions/SU2_NativeIntegrated.

@@ -121,7 +121,7 @@ class Selection {
  public:
   Selection(bool coarsening, bool repairing, const PlanarReference& geometry, EngineStats& stats, bool timings, double tolerance)
       : coarsening(coarsening), track_repairs(repairing), repair_event(repairing), geometry(geometry), stats(stats), timings(timings), tolerance(tolerance) {}
-  bool coarsening, track_repairs, repair_event, prune_collapses = false;
+  bool coarsening, track_repairs, repair_event, prune_collapses = false, track_splits = false;
   const PlanarReference& geometry;
   EngineStats& stats;
   bool timings;
@@ -147,14 +147,14 @@ class Selection {
   std::map<Id,CellState> cells;
   std::map<Edge,EdgeState> edges;
   std::set<std::pair<long double,Edge>> queue;
-  std::map<Id,std::set<Id>> vertex_cells, blocked_collapses;
+  std::map<Id,std::set<Id>> vertex_cells, blocked_edges;
   size_t vertex_links=0, blocked_links=0;
   std::map<Id,std::vector<RepairFeature>> cell_repairs;
   std::map<RepairFeature,size_t> repair_users;
   std::set<RepairFeature> repair_queue;
   size_t Bytes() const {
     return transfer_memory::Add(MapBytes(cells),MapBytes(edges),MapBytes(queue),MapBytes(cell_repairs),MapBytes(repair_users),MapBytes(repair_queue),repair_bytes,
-        MapBytes(geometry_queue),MapBytes(vertex_cells),MapBytes(blocked_collapses),transfer_memory::Mul(transfer_memory::Add(vertex_links,blocked_links),sizeof(Id)+4*sizeof(void*)));
+        MapBytes(geometry_queue),MapBytes(vertex_cells),MapBytes(blocked_edges),transfer_memory::Mul(transfer_memory::Add(vertex_links,blocked_links),sizeof(Id)+4*sizeof(void*)));
   }
   Choice Best(bool repairing) const {
     if (repairing) {
@@ -216,26 +216,29 @@ class Selection {
     const auto it = edges.find(canonical);
     if (it==edges.end()) return;
     queue.erase({Priority(it->second.measure.length),edge});
-    if (coarsening) blocked_links+=blocked_collapses[edge[1]].insert(edge[0]).second;
+    if (coarsening || track_splits) blocked_links+=blocked_edges[edge[1]].insert(edge[0]).second;
+    if (track_splits && !coarsening) blocked_links+=blocked_edges[edge[0]].insert(edge[1]).second;
   }
   void Forget(Edge edge) {
-    const auto found=blocked_collapses.find(edge[1]);
-    if (found==blocked_collapses.end()) return;
+    const auto found=blocked_edges.find(edge[1]);
+    if (found==blocked_edges.end()) return;
     blocked_links-=found->second.erase(edge[0]);
-    if (found->second.empty()) blocked_collapses.erase(found);
+    if (found->second.empty()) blocked_edges.erase(found);
   }
   void Touch(Id vertex) {
-    const auto found=blocked_collapses.find(vertex);
-    if (found==blocked_collapses.end()) return;
+    const auto found=blocked_edges.find(vertex);
+    if (found==blocked_edges.end()) return;
     for (Id retained:found->second) {
       Edge edge{retained,vertex}, key=edge; std::sort(key.begin(),key.end());
       const auto measured=edges.find(key);
       if (measured==edges.end() || !Candidate(measured->second.measure.length)) continue;
       const auto direction=retained==key[0] ? 0u : 1u;
       if (prune_collapses && measured->second.forbidden[direction]) continue;
-      stats.collapse_reactivated+=queue.insert({Priority(measured->second.measure.length),edge}).second;
+      if (!coarsening) edge=key;
+      const bool inserted=queue.insert({Priority(measured->second.measure.length),edge}).second;
+      if (coarsening) stats.collapse_reactivated+=inserted;
     }
-    blocked_links-=found->second.size(); blocked_collapses.erase(found);
+    blocked_links-=found->second.size(); blocked_edges.erase(found);
   }
   bool FilterCollapse(const Choice& choice, const Owned& working) {
     if (!coarsening || !prune_collapses || !choice.active) return false;
@@ -441,7 +444,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
   Owned working;
   Selection selection(coarsening,repairing,geometry,stats,options.timings,options.surface_tolerance);
   std::map<Edge,EdgeMeasure> retired_edges;
-  Directory directory(world,coarsening);
+  // Joint split feasibility depends on neighboring vertex stars, even when the edge itself is unchanged.
+  selection.track_splits=bool(composition);
+  Directory directory(world,coarsening || selection.track_splits);
   DonorImport source(world,options.timings);
   size_t accepted_bytes=MapBytes(accepted);
   auto selection_bound=[&](bool repairs) { return coarsening ? (repairs ? 6144u : 4096u) : (repairs ? 5120u : 3072u); };
@@ -978,6 +983,16 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       Timer timer(stats.selection_seconds,options.timings);
       if(curved || composition) {
         // shortcut: serialize displaced/expanded commits until concurrent reservations cover complete joint stars.
+        if(composition && !curved && !repairing) {
+          // Choose global metric priority before ownership; rank numbering must not decide the next edit.
+          const double priority=choice.active ? double(selection.Priority(choice.measure.length)) : INFINITY;
+          const double best=CPassiveComm::Allreduce(priority,CPassiveComm::Op::MIN,world.comm);
+          choice.active=choice.active && priority==best;
+          const Id first=CPassiveComm::Allreduce(choice.active ? choice.edge[0] : UINT64_MAX,CPassiveComm::Op::MIN,world.comm);
+          choice.active=choice.active && choice.edge[0]==first;
+          const Id second=CPassiveComm::Allreduce(choice.active ? choice.edge[1] : UINT64_MAX,CPassiveComm::Op::MIN,world.comm);
+          choice.active=choice.active && choice.edge[1]==second;
+        }
         const int owner=CPassiveComm::Allreduce(choice.active ? world.rank : world.size,CPassiveComm::Op::MIN,world.comm);
         choice.active=choice.active && world.rank==owner;
       }
@@ -1385,7 +1400,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
           if(DonorCap(donors.reason))strip=false;
           else {result.reason=donors.reason;return finish();}
         }
-        std::array<Point,3> splits{};Edge extraEdge{};Node extraPoint;bool extraSplit=false;
+        std::array<Point,3> splits{};Edge extraEdge{};Node extraPoint,offEdgePoint;bool extraSplit=false;
         std::array<std::vector<std::pair<Id,Node>>,3> moveSeeds;
         if(strip)try {
           Timer timer(stats.metric_seconds,options.timings);CpuTimer cpu(stats.metric_cpu_seconds,options.timings);
@@ -1431,14 +1446,30 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               const auto found=before.edges.find(edge);
               if(found!=before.edges.end() && found->second.length>longest){extraEdge=edge;longest=found->second.length;extraSplit=true;}
             }
-            if(extraSplit)extraPoint={maximum_node+2+i+node_offset,target.BalancedSplitPoint(nodes.at(extraEdge[0]).p,nodes.at(extraEdge[1]).p)};
+            if(extraSplit) {
+              extraPoint={maximum_node+2+i+node_offset,target.BalancedSplitPoint(nodes.at(extraEdge[0]).p,nodes.at(extraEdge[1]).p)};
+              std::set<Id> neighbors;
+              for(const auto& c:old.cells) {
+                unsigned count=0;for(auto n:c.v)count+=n.id==extraEdge[0] || n.id==extraEdge[1];
+                if(count==2)for(auto n:c.v)neighbors.insert(n.id);
+              }
+              std::vector<std::pair<Point,Tensor>> values;
+              for(auto neighbor:neighbors) {
+                const auto q=nodes.at(neighbor).p;const auto a=extraPoint.p;
+                const Point mid{double(((long double)a.x+q.x)/2),double(((long double)a.y+q.y)/2),double(((long double)a.z+q.z)/2)};
+                values.emplace_back(q,target.Query(mid).target);
+              }
+              const auto mean=MetricMeanPoint(extraPoint.p,values);const auto a=extraPoint.p;
+              offEdgePoint={extraPoint.id,{double(((long double)a.x+mean.x)/2),double(((long double)a.y+mean.y)/2),double(((long double)a.z+mean.z)/2)}};
+            }
           }
         }catch(const std::exception& e){failure.Set(2,0,e.what());}
         if(!(ready=vote(failure)))return finish();
-        std::vector<Patch> frames;std::vector<bool> extraFrames;
+        std::vector<Patch> frames;std::vector<unsigned> extraFrames;
         if(strip)try {
           Timer timer(stats.reconstruction_seconds,options.timings);CpuTimer cpu(stats.reconstruction_cpu_seconds,options.timings);
-          frames.push_back(old);extraFrames.push_back(false);
+          frames.push_back(old);extraFrames.push_back(0);
+          if(extraSplit){frames.push_back(old);extraFrames.push_back(2);}
           if(boundary_edge) {
             Patch seed;
             for(const auto& c:old.cells) {
@@ -1459,8 +1490,8 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
               frame.cells.insert(frame.cells.end(),fan.cells.begin(),fan.cells.end());
               // Only the complete replacement is metric-certified; an intermediate reconnection may worsen shape.
               if(frame.cells.size()<=MaximumCavityCells) {
-                frames.push_back(frame);extraFrames.push_back(false);
-                if(extraSplit){frames.push_back(std::move(frame));extraFrames.push_back(true);}
+                frames.push_back(frame);extraFrames.push_back(0);
+                if(extraSplit){frames.push_back(std::move(frame));extraFrames.push_back(1);}
               }
             }
           }
@@ -1514,7 +1545,9 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
                 const auto skin=Incidence(star.cells).Boundary();
                 for(const auto& f:fresh.surface)if(std::any_of(skin.begin(),skin.end(),[&](Face face){return Key(face)==Key(f.v);}))star.surface.push_back(f);
                 Patch children;
-                candidate=SplitEdge(star,extraEdge,extraPoint,maximum_cell+1+offset,geometry,children,result.reason);
+                candidate=extraFrames[trial/36]==2 ?
+                    InsertEdgeCavity(star,extraEdge,offEdgePoint,maximum_cell+1+offset,geometry,children,result.reason) :
+                    SplitEdge(star,extraEdge,extraPoint,maximum_cell+1+offset,geometry,children,result.reason);
                 if(candidate) {
                   fresh.cells.erase(std::remove_if(fresh.cells.begin(),fresh.cells.end(),[&](const auto& c){
                     return std::any_of(star.cells.begin(),star.cells.end(),[&](const auto& d){return c.id==d.id;});
@@ -1839,7 +1872,7 @@ EngineResult Adapt(World& world, const Owned& accepted, const std::vector<DonorC
       } catch (const std::exception& e) { failure.Set(2,0,e.what()); }
       if (ready) ready=vote(failure);
       if (ready) ready=measure(changed,false);
-      if (ready && coarsening) {
+      if (ready && (coarsening || selection.track_splits)) {
         try { for (Id vertex:directory.ChangedVertices()) selection.Touch(vertex); }
         catch (const std::exception& e) { failure.Set(2,0,e.what()); }
         ready=vote(failure);

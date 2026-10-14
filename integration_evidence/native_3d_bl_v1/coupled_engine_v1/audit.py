@@ -55,8 +55,8 @@ def edge(original,a,b):
 
 def main():
     stage=sys.argv[1] if len(sys.argv)>1 else 'coupled_mpi1'
-    assert stage in ('coupled_mpi1','grouped_coupled_mpi1','corner_engine_mpi1','corner_engine_mpi2','corner_engine_mpi4'), 'This oracle covers the declared cube only'
-    prefix='replay_grouped_' if stage.startswith('corner_engine_') else 'grouped_' if stage.startswith('grouped_') else ''
+    assert stage in ('coupled_mpi1','grouped_coupled_mpi1','grouped_coupled_mpi2','grouped_coupled_mpi4','corner_engine_mpi1','corner_engine_mpi2','corner_engine_mpi4','cold_engine_mpi1','cold_engine_mpi2','cold_engine_mpi4'), 'This oracle covers the declared cube only'
+    prefix='cold_replay_grouped_' if stage.startswith('cold_engine_') else 'replay_grouped_' if stage.startswith('corner_engine_') else 'grouped_' if stage.startswith('grouped_') else ''
     receipt=json.loads((HERE/(stage+'.json')).read_text())
     log=HERE/receipt['log'];assert digest(log)==receipt['log_sha256']
     ranks=receipt['contract']['MPI_ranks']

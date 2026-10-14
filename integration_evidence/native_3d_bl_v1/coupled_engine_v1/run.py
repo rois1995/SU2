@@ -17,7 +17,7 @@ SOURCES = [
  'Common/include/adaptation/CNativeEngine3D.hpp','Common/src/adaptation/CNativeEngine3D.cpp',
  'Common/include/adaptation/CNativeBoundary3D.hpp','Common/src/adaptation/CNativeBoundary3D.cpp',
  'Common/src/adaptation/CNativeDistributed3D.cpp','Common/src/adaptation/CNativeMetric3D.cpp',
- 'UnitTests/Common/adaptation/fixtures/native_bl_corner.inc','UnitTests/Common/adaptation/fixtures/native_joint_obstruction.inc',
+ 'UnitTests/Common/adaptation/fixtures/native_bl_cold.inc','UnitTests/Common/adaptation/fixtures/native_bl_corner.inc','UnitTests/Common/adaptation/fixtures/native_joint_obstruction.inc',
  'Common/include/adaptation/CNativeMetric3D.hpp','UnitTests/Common/adaptation/CNativeMetric3D_tests.cpp',
  'UnitTests/Common/adaptation/CNativeBoundary3D_tests.cpp',
  'SU2_CFD/include/adaptation/CBoundaryLayerMetric.hpp','SU2_CFD/src/adaptation/CBoundaryLayerMetric.cpp',
@@ -60,6 +60,11 @@ def main():
       ('balanced_analytic','[NativeBalancedSplit3D]',1),
       ('joint_witness','[NativeBLCorner3D],[NativeBLCornerGrouped3D],[NativePlanarStrip3D],[NativeSurfaceStrip3D]',1),
       ('grouped_coupled_mpi1','[NativeCoupledBLGrouped3D]',1),
+      ('grouped_coupled_mpi2','[NativeCoupledBLGrouped3D]',2),
+      ('grouped_coupled_mpi4','[NativeCoupledBLGrouped3D]',4),
+      ('cold_engine_mpi1','[NativeBLColdEngine3D]',1),
+      ('cold_engine_mpi2','[NativeBLColdEngine3D]',2),
+      ('cold_engine_mpi4','[NativeBLColdEngine3D]',4),
       ('corner_engine_mpi1','[NativeBLCornerEngine3D]',1),
       ('corner_engine_mpi2','[NativeBLCornerEngine3D]',2),
       ('corner_engine_mpi4','[NativeBLCornerEngine3D]',4),
@@ -85,13 +90,13 @@ def main():
     receipts = []
     for name, selection, ranks in stages:
         record = HERE / (name + '.json')
-        command = ['taskset', '-c', str(cpu), 'nice', '-n', '19']
+        command = ['taskset', '-c', str(cpu) if ranks==1 else '7,6,3,2', 'nice', '-n', '19']
         if ranks>1: command += ['mpirun','--oversubscribe','--bind-to','none','-np',str(ranks)]
         command += [str(BINARY), selection, '--reporter', 'compact']
         contract = {'provenance': provenance, 'command': command, 'MPI_ranks': ranks,
                     'environment': {'OMP_NUM_THREADS': '1', 'OPENBLAS_NUM_THREADS': '1', 'OMPI_MCA_mpi_yield_when_idle': '1','SU2_NATIVE_CURVED_EVIDENCE':'1'}}
-        serial='corner_engine_mpi1' if name.startswith('corner_engine_') else 'coupled_mpi1'
-        if name in ('coupled_mpi2','coupled_mpi4','corner_engine_mpi2','corner_engine_mpi4') and not any(r['stage']==serial and r['status']=='PASS' for r in receipts):
+        serial='grouped_coupled_mpi1' if name.startswith('grouped_coupled_') else 'cold_engine_mpi1' if name.startswith('cold_engine_') else 'corner_engine_mpi1' if name.startswith('corner_engine_') else 'coupled_mpi1'
+        if name in ('coupled_mpi2','coupled_mpi4','corner_engine_mpi2','corner_engine_mpi4','cold_engine_mpi2','cold_engine_mpi4','grouped_coupled_mpi2','grouped_coupled_mpi4') and not any(r['stage']==serial and r['status']=='PASS' for r in receipts):
             receipt={'stage':name,'status':'NOT_RUN','reason':'Serial coupled construction has not passed; do not repeat known failure on more ranks.'}
             receipts.append(receipt)
             print(name+': NOT_RUN',flush=True)
@@ -108,7 +113,7 @@ def main():
         with log.open('w') as output:
             try:
                 code = subprocess.run(command, cwd=HERE, env=environment, stdout=output,
-                                      stderr=subprocess.STDOUT, timeout=180).returncode
+                                      stderr=subprocess.STDOUT, timeout=420).returncode
             except subprocess.TimeoutExpired:
                 code = 124
         text = log.read_text()
